@@ -24,85 +24,54 @@ extern u8 *sScriptPc;
 extern PlayerState *gActivePlayerState;
 extern Actor *gSpawnedActor;
 
-typedef struct ActorRampState {
-    u8 pad0[0x48];
-    f32 unk48;
-    f32 unk4C;
-    f32 unk50;
-    f32 unk54;
-    f32 unk58;
-} ActorRampState;
-
 void scriptSetActorRampTarget(Actor *actor, f32 targetVal, f32 rampTime) {
-    ActorRampState *ramp;
+    ActorSub4 *ramp;
 
-    ramp = (ActorRampState *)actor->sub4;
+    ramp = actor->sub4;
     if (rampTime > 0.0f) {
-        ramp->unk58 = rampTime;
-        ramp->unk50 = targetVal;
-        ramp->unk54 = 0.0f;
-        ramp->unk4C = ramp->unk48;
+        ramp->speedRampDuration = rampTime;
+        ramp->speedTo = targetVal;
+        ramp->speedRampTime = 0.0f;
+        ramp->speedFrom = ramp->unk48;
         return;
     }
     ramp->unk48 = targetVal;
-    ramp->unk58 = 0.0f;
+    ramp->speedRampDuration = 0.0f;
 }
 
-typedef struct RampValue {
-    u8 pad0[0x24];
-    f32 unk24;
-    f32 unk28;
-    f32 unk2C;
-    f32 unk30;
-    f32 unk34;
-} RampValue;
-
-typedef struct RampValueHolder {
-    RampValue *unk0;
-} RampValueHolder;
-
 void scriptSetRampValue(Actor *actor, f32 target, f32 rampTime) {
-    RampValue *ramp;
+    AnimSlot *ramp;
 
-    ramp = ((RampValueHolder *)actor->sub4)->unk0;
+    ramp = actor->sub4->model;
     if (rampTime > 0.0f) {
-        ramp->unk34 = rampTime;
-        ramp->unk2C = target;
-        ramp->unk30 = 0.0f;
-        ramp->unk28 = ramp->unk24;
+        ramp->speedRampDuration = rampTime;
+        ramp->speedTo = target;
+        ramp->speedRampTime = 0.0f;
+        ramp->speedFrom = ramp->speed;
         return;
     }
-    ramp->unk24 = target;
-    ramp->unk34 = 0.0f;
+    ramp->speed = target;
+    ramp->speedRampDuration = 0.0f;
 }
 
 extern s32 sScriptContinueRunning;
 typedef s32 (*ActorScriptCommand)(Actor *);
 extern ActorScriptCommand sScriptOpcodeTable[];
 
-typedef struct ActorScriptState {
-    u8 pad0[0x68];
-    u8 *unk68;
-    u8 *unk6C;
-    void (*unk70)(Actor *);
-    u8 *unk74;
-    s32 unk78;
-} ActorScriptState;
-
 void actorScriptExecute(Actor *actor) {
-    ActorScriptState *state;
+    ActorSub4 *state;
 
-    state = (ActorScriptState *)actor->sub4;
-    if (state->unk68 != NULL) {
+    state = actor->sub4;
+    if (state->scriptStart != NULL) {
         sScriptContinueRunning = 1;
-        sScriptPc = state->unk6C;
-        while ((state->unk78 == 0) && (sScriptContinueRunning != 0)) {
+        sScriptPc = state->scriptPc;
+        while ((state->scriptWaitFlags == 0) && (sScriptContinueRunning != 0)) {
             sScriptContinueRunning = sScriptOpcodeTable[*sScriptPc](actor);
         }
-        state->unk6C = sScriptPc;
-        if (state->unk70 != NULL) {
-            sScriptPc = state->unk74;
-            state->unk70(actor);
+        state->scriptPc = sScriptPc;
+        if (state->scriptCommand != NULL) {
+            sScriptPc = state->scriptCommandPc;
+            state->scriptCommand(actor);
         }
     }
 }
@@ -120,42 +89,27 @@ void actorScriptStartByIndex(Actor *actor, s32 slot) {
 
 extern u8 *gActorScriptAsset;
 
-typedef struct ScriptLoadState {
-    u8 pad0[0x64];
-    s16 unk64;
-    u8 pad66[2];
-    u8 *unk68;
-    u8 *unk6C;
-    s32 unk70;
-    u8 pad74[4];
-    s32 unk78;
-    s32 unk7C;
-    f32 unk80;
-    u8 pad84[4];
-    s32 unk88;
-} ScriptLoadState;
-
 void actorScriptStart(Actor *actor, s32 scriptId) {
-    ScriptLoadState *state;
+    ActorSub4 *state;
     u8 *base;
 
-    state = (ScriptLoadState *)actor->sub4;
-    state->unk70 = 0;
-    state->unk78 = 0;
-    state->unk7C = 0;
-    state->unk88 = 0;
-    state->unk80 = 0.0f;
+    state = actor->sub4;
+    state->scriptCommand = NULL;
+    state->scriptWaitFlags = 0;
+    state->loopCount = 0;
+    state->scriptResult = 0;
+    state->waitFrame = 0.0f;
     if (scriptId == 0) {
-        state->unk68 = NULL;
+        state->scriptStart = NULL;
         sScriptPc = NULL;
         sScriptContinueRunning = 0;
         return;
     }
-    state->unk64 = scriptId;
+    state->animId = scriptId;
     base = gActorScriptAsset;
-    state->unk68 = base + ((s32 *)base)[scriptId];
-    state->unk6C = state->unk68;
-    sScriptPc = state->unk68;
+    state->scriptStart = base + ((s32 *)base)[scriptId];
+    state->scriptPc = state->scriptStart;
+    sScriptPc = state->scriptStart;
 }
 
 void scriptReadU8(void *dst) {
@@ -193,82 +147,55 @@ s32 scriptOpYield(Actor *actor) {
     return 0;
 }
 
-typedef struct ScriptState {
-    u8 pad0[0x78];
-    s32 flags;
-    s32 unk7C;
-    f32 unk80;
-    s32 unk84;
-    s32 unk88;
-} ScriptState;
-
 s32 scriptOpSetRegister(Actor *actor) {
     s16 imm;
 
     sScriptPc++;
     scriptReadU16(&imm);
-    ((ScriptState *)actor->sub4)->unk88 = imm;
+    actor->sub4->scriptResult = imm;
     return 1;
 }
 
 s32 scriptOpDecrementRegister(Actor *actor) {
-    ScriptState *state;
+    ActorSub4 *state;
     s32 reg;
 
-    state = (ScriptState *)actor->sub4;
-    reg = state->unk88;
+    state = actor->sub4;
+    reg = state->scriptResult;
     if (reg != 0) {
-        state->unk88 = reg - 1;
+        state->scriptResult = reg - 1;
     }
     sScriptPc++;
     return 1;
 }
 
 s32 scriptOpWaitRegisterCountdown(Actor *actor) {
-    ScriptState *state;
+    ActorSub4 *state;
     s32 reg;
 
-    state = (ScriptState *)actor->sub4;
-    reg = state->unk88;
+    state = actor->sub4;
+    reg = state->scriptResult;
     if (reg != 0) {
-        state->unk88 = reg - 1;
+        state->scriptResult = reg - 1;
         return 0;
     }
     sScriptPc++;
     return 1;
 }
 
-typedef struct ScriptSelectorValue {
-    u8 pad0[0x24];
-    f32 unk24;
-    u8 pad28[4];
-    f32 unk2C;
-    u8 pad30[4];
-    f32 unk34;
-} ScriptSelectorValue;
-
-typedef struct ScriptSelectorState {
-    ScriptSelectorValue *unk0;
-    ScriptSelectorValue *unk4;
-    u8 pad8[0x70];
-    s32 unk78;
-    u8 pad7C[8];
-    s32 unk84;
-} ScriptSelectorState;
-
 s32 scriptOpCheckSelectorActive(Actor *actor) {
-    ScriptSelectorState *state;
-    ScriptSelectorValue *value;
+    ActorSub4 *state;
+    AnimSlot *value;
 
-    state = (ScriptSelectorState *)actor->sub4;
-    if (state->unk84 != 0) {
-        value = state->unk4;
+    state = actor->sub4;
+    if (state->waitOnLayer != 0) {
+        value = state->layer;
     } else {
-        value = state->unk0;
+        value = state->model;
     }
     sScriptPc++;
-    if ((value->unk24 != 0.0f) || ((value->unk2C != 0.0f) && (value->unk34 != 0.0f))) {
-        ((ScriptSelectorState *)actor->sub4)->unk78 |= 1;
+    if ((value->speed != 0.0f) || ((value->speedTo != 0.0f) && (value->speedRampDuration != 0.0f))) {
+        actor->sub4->scriptWaitFlags |= 1;
     }
     return 0;
 }
@@ -279,8 +206,8 @@ s32 scriptOpSetCountdownFromByte(Actor *actor) {
     sScriptPc++;
     scriptReadU8(&imm);
     if (imm) {
-        ((ScriptState *)actor->sub4)->unk7C = imm - 1;
-        ((ScriptState *)actor->sub4)->flags |= 2;
+        actor->sub4->loopCount = imm - 1;
+        actor->sub4->scriptWaitFlags |= 2;
         return 0;
     }
     return 1;
@@ -297,8 +224,8 @@ s32 scriptOpSetRandomByteInRange(Actor *actor) {
     scriptReadU8(&max);
     val = (((randomNonNegative() >> 15) % 32767) % ((max - min) + 1)) + min;
     if (val != 0) {
-        ((ScriptState *)actor->sub4)->unk7C = val - 1;
-        ((ScriptState *)actor->sub4)->flags |= 2;
+        actor->sub4->loopCount = val - 1;
+        actor->sub4->scriptWaitFlags |= 2;
         return 0;
     }
     return 1;
@@ -306,7 +233,7 @@ s32 scriptOpSetRandomByteInRange(Actor *actor) {
 
 s32 scriptOpEnableFlag4(Actor *actor) {
     sScriptPc++;
-    ((ScriptState *)actor->sub4)->flags |= 4;
+    actor->sub4->scriptWaitFlags |= 4;
     return 0;
 }
 
@@ -315,18 +242,9 @@ s32 scriptOpOrFlags(Actor *actor) {
 
     sScriptPc++;
     scriptReadU16(&imm);
-    ((ScriptState *)actor->sub4)->flags |= imm;
+    actor->sub4->scriptWaitFlags |= imm;
     return 0;
 }
-
-typedef struct ScriptRateState {
-    u8 pad0[0x78];
-    s32 unk78;
-    u8 pad7C[4];
-    f32 unk80;
-    s32 unk84;
-    s32 unk88;
-} ScriptRateState;
 
 s32 scriptOpSetRampTarget(Actor *actor) {
     f32 imm;
@@ -334,99 +252,69 @@ s32 scriptOpSetRampTarget(Actor *actor) {
     sScriptPc++;
     scriptReadU32(&imm);
     if (imm < 0.0f) {
-        imm = (f32)((ScriptRateState *)actor->sub4)->unk88;
+        imm = (f32)actor->sub4->scriptResult;
     }
-    ((ScriptRateState *)actor->sub4)->unk80 = imm;
-    ((ScriptRateState *)actor->sub4)->unk78 |= 8;
+    actor->sub4->waitFrame = imm;
+    actor->sub4->scriptWaitFlags |= 8;
     return 0;
 }
 
-typedef struct ScriptValue {
-    void *unk0;
-    f32 unk4;
-    u8 pad8[0x1C];
-    f32 unk24;
-} ScriptValue;
-
-typedef struct ScriptValueState {
-    ScriptValue *unk0;
-    ScriptValue *unk4;
-    s32 *unk8;
-    u8 padC[4];
-    f32 unk10;
-    u8 pad14[0x10];
-    f32 unk24;
-    s16 unk28;
-    s16 unk2A;
-    s16 unk2C;
-    u8 pad2E[0x12];
-    f32 unk40;
-    f32 unk44;
-    f32 unk48;
-    u8 pad4C[0x2C];
-    s32 unk78;
-    u8 pad7C[4];
-    f32 unk80;
-    s32 unk84;
-    s32 unk88;
-} ScriptValueState;
-
 s32 scriptOpApproachRampTarget(Actor *actor) {
     f32 imm;
-    ScriptValue *value;
+    AnimSlot *value;
 
-    if (((ScriptValueState *)actor->sub4)->unk84 != 0) {
-        value = ((ScriptValueState *)actor->sub4)->unk4;
+    if (actor->sub4->waitOnLayer != 0) {
+        value = actor->sub4->layer;
     } else {
-        value = ((ScriptValueState *)actor->sub4)->unk0;
+        value = actor->sub4->model;
     }
     sScriptPc++;
     scriptReadU32(&imm);
     if (imm < 0.0f) {
-        imm = (f32)((ScriptValueState *)actor->sub4)->unk88;
+        imm = (f32)actor->sub4->scriptResult;
     }
-    if ((((ScriptValueState *)actor->sub4)->unk48 * value->unk24) > 0.0f) {
-        if (imm <= value->unk4) {
+    if ((actor->sub4->unk48 * value->speed) > 0.0f) {
+        if (imm <= value->frame) {
             return 1;
         }
-    } else if (value->unk4 <= imm) {
+    } else if (value->frame <= imm) {
         return 1;
     }
-    ((ScriptValueState *)actor->sub4)->unk80 = imm;
-    ((ScriptValueState *)actor->sub4)->unk78 |= 8;
+    actor->sub4->waitFrame = imm;
+    actor->sub4->scriptWaitFlags |= 8;
     return 0;
 }
 
 s32 scriptOpEnableValueState10(Actor *actor) {
-    ScriptValueState *state;
+    ActorSub4 *state;
 
     sScriptPc++;
-    state = (ScriptValueState *)actor->sub4;
-    if (*state->unk8 != 0) {
-        state->unk78 |= 0x10;
+    state = actor->sub4;
+    if (state->blendFrom->clip != NULL) {
+        state->scriptWaitFlags |= 0x10;
     }
     return 0;
 }
 
 s32 scriptOpStepRampValue(Actor *actor) {
     f32 imm;
-    ScriptValueState *state;
+    ActorSub4 *state;
 
-    state = (ScriptValueState *)actor->sub4;
+    state = actor->sub4;
     sScriptPc++;
     scriptReadU32(&imm);
-    if (*state->unk8 != 0) {
-        if (imm < state->unk44) {
-            state->unk44 = imm;
-            state->unk40 = state->unk44 - (state->unk10 * state->unk44);
+    if (state->blendFrom->clip != NULL) {
+        if (imm < state->blendDuration) {
+            state->blendDuration = imm;
+            state->blendTime = state->blendDuration - (state->blendWeight * state->blendDuration);
         }
-        ((ScriptValueState *)actor->sub4)->unk78 |= 0x10;
+        actor->sub4->scriptWaitFlags |= 0x10;
     }
     return 0;
 }
 
 s32 scriptOpWaitRegisterNonZero(Actor *actor) {
-    if (((ScriptValueState *)actor->sub4)->unk88 != 0) {
+    if (actor->sub4->scriptResult != 0) {
         sScriptPc++;
         return 1;
     }
@@ -434,7 +322,7 @@ s32 scriptOpWaitRegisterNonZero(Actor *actor) {
 }
 
 s32 scriptOpWaitRegisterZero(Actor *actor) {
-    if (((ScriptValueState *)actor->sub4)->unk88 == 0) {
+    if (actor->sub4->scriptResult == 0) {
         sScriptPc++;
         return 1;
     }
@@ -442,7 +330,7 @@ s32 scriptOpWaitRegisterZero(Actor *actor) {
 }
 
 s32 scriptOpWaitValueZero(Actor *actor) {
-    if (((ScriptValueState *)actor->sub4)->unk4->unk0 == 0) {
+    if (actor->sub4->layer->clip == NULL) {
         sScriptPc++;
         return 1;
     }
@@ -450,81 +338,48 @@ s32 scriptOpWaitValueZero(Actor *actor) {
 }
 
 s32 scriptOpWaitValueEqual(Actor *actor) {
-    ScriptValueState *state;
+    ActorSub4 *state;
 
-    state = (ScriptValueState *)actor->sub4;
-    if (state->unk28 == state->unk2C) {
+    state = actor->sub4;
+    if (state->layerWeight == state->layerWeightTarget) {
         sScriptPc++;
         return 1;
     }
     return 0;
 }
 
-typedef struct ScriptActionResource {
-    u8 pad0[0x12];
-    u8 unk12;
-} ScriptActionResource;
-
-typedef struct ScriptActionView {
-    ScriptActionResource *unk0;
-    u8 pad4[0x10];
-    f32 unk14;
-} ScriptActionView;
-
 s32 scriptOpSetActionVelocity(Actor *actor) {
     f32 imm;
-    ScriptActionView *action;
+    AnimSlot *action;
 
-    if (((ScriptValueState *)actor->sub4)->unk84 != 0) {
-        action = (ScriptActionView *)((ScriptValueState *)actor->sub4)->unk4;
+    if (actor->sub4->waitOnLayer != 0) {
+        action = actor->sub4->layer;
     } else {
-        action = (ScriptActionView *)((ScriptValueState *)actor->sub4)->unk0;
+        action = actor->sub4->model;
     }
     sScriptPc++;
     scriptReadU32(&imm);
-    if (imm < (f32)action->unk0->unk12) {
-        action->unk14 = imm;
+    if (imm < (f32)action->clip->frameCount) {
+        action->firstFrame = imm;
     }
     return 1;
 }
 
-typedef struct ScriptActionResourceInfo {
-    u8 pad0[4];
-    u16 unk4;
-    u8 pad6[0xC];
-    u8 unk12;
-} ScriptActionResourceInfo;
-
-typedef struct ScriptActionInfo {
-    ScriptActionResourceInfo *unk0;
-    u8 pad4[0x10];
-    f32 unk14;
-    f32 unk18;
-    s16 unk1C;
-} ScriptActionInfo;
-
-typedef struct ScriptActionInfoState {
-    ScriptActionInfo *unk0;
-    ScriptActionInfo *unk4;
-    u8 pad8[0x7C];
-    s32 unk84;
-} ScriptActionInfoState;
-
 s32 scriptOpAccelerateAction(Actor *actor) {
     f32 imm;
-    ScriptActionInfo *action;
-    ScriptActionInfoState *state;
+    AnimSlot *action;
+    ActorSub4 *state;
 
-    state = (ScriptActionInfoState *)actor->sub4;
-    if (state->unk84 != 0) {
-        action = state->unk4;
+    state = actor->sub4;
+    if (state->waitOnLayer != 0) {
+        action = state->layer;
     } else {
-        action = state->unk0;
+        action = state->model;
     }
     sScriptPc++;
     scriptReadU32(&imm);
-    if (imm < action->unk0->unk12) {
-        action->unk18 = imm;
+    if (imm < action->clip->frameCount) {
+        action->lastFrame = imm;
     }
     return 1;
 }
@@ -532,41 +387,41 @@ s32 scriptOpAccelerateAction(Actor *actor) {
 s32 scriptOpApproachActionTarget(Actor *actor) {
     f32 imm;
     f32 imm2;
-    ScriptActionInfo *action;
+    AnimSlot *action;
 
-    if (((ScriptActionInfoState *)actor->sub4)->unk84 != 0) {
-        action = ((ScriptActionInfoState *)actor->sub4)->unk4;
+    if (actor->sub4->waitOnLayer != 0) {
+        action = actor->sub4->layer;
     } else {
-        action = ((ScriptActionInfoState *)actor->sub4)->unk0;
+        action = actor->sub4->model;
     }
     sScriptPc++;
     scriptReadU32(&imm);
     scriptReadU32(&imm2);
-    if (imm < action->unk0->unk12) {
-        action->unk14 = imm;
+    if (imm < action->clip->frameCount) {
+        action->firstFrame = imm;
     }
-    if (imm2 < action->unk0->unk12) {
-        action->unk18 = imm2;
+    if (imm2 < action->clip->frameCount) {
+        action->lastFrame = imm2;
     }
     return 1;
 }
 
 s32 func_806158E8(Actor *actor) {
-    ScriptActionInfo *action;
-    ScriptActionInfoState *state;
-    ScriptActionResourceInfo *resource;
+    AnimSlot *action;
+    ActorSub4 *state;
+    AnimClip *resource;
 
-    state = (ScriptActionInfoState *)actor->sub4;
-    if (state->unk84 != 0) {
-        action = state->unk4;
+    state = actor->sub4;
+    if (state->waitOnLayer != 0) {
+        action = state->layer;
     } else {
-        action = state->unk0;
+        action = state->model;
     }
-    resource = action->unk0;
+    resource = action->clip;
     sScriptPc++;
-    action->unk14 = 0.0f;
-    action->unk18 = (f32)(resource->unk12 - 1);
-    action->unk1C = resource->unk4;
+    action->firstFrame = 0.0f;
+    action->lastFrame = (f32)(resource->frameCount - 1);
+    action->flags = resource->flags;
     return 1;
 }
 
@@ -661,21 +516,21 @@ s32 scriptOpAnimSetFromTable(Actor *actor) {
 
 s32 scriptOpReadRampInterpolation(Actor *actor) {
     u8 imm;
-    ScriptValue *value;
-    ScriptValue *selected;
-    ScriptValueState *state;
+    AnimSlot *value;
+    AnimSlot *selected;
+    ActorSub4 *state;
 
-    state = (ScriptValueState *)actor->sub4;
-    if (state->unk84 != 0) {
-        value = state->unk4;
+    state = actor->sub4;
+    if (state->waitOnLayer != 0) {
+        value = state->layer;
     } else {
-        value = state->unk0;
+        value = state->model;
     }
     selected = value;
     sScriptPc++;
     scriptReadU8(&imm);
     if (imm == 0xFF) {
-        imm = ((ScriptValueState *)actor->sub4)->unk88;
+        imm = actor->sub4->scriptResult;
     }
     controllerApplyMotionWindow(actor, selected, (f32)imm);
     return 1;
@@ -686,13 +541,13 @@ extern u8 sMotionWindowProgress;
 s32 func_80615CE4(Actor *actor) {
     u8 imm;
     void *selected;
-    ScriptValueState *state;
+    ActorSub4 *state;
 
-    state = (ScriptValueState *)actor->sub4;
-    if (state->unk84 != 0) {
-        selected = state->unk4;
+    state = actor->sub4;
+    if (state->waitOnLayer != 0) {
+        selected = state->layer;
     } else {
-        selected = state->unk0;
+        selected = state->model;
     }
     sScriptPc++;
     scriptReadU8(&imm);
@@ -705,164 +560,125 @@ s32 func_80615CE4(Actor *actor) {
     return 1;
 }
 
-typedef struct ScriptMotion {
-    f32 *unk0;
-    f32 unk4;
-    f32 unk8;
-    s16 unkC;
-    s16 unkE;
-    u8 pad10[0xC];
-    s16 unk1C;
-    s16 unk1E;
-    s16 unk20;
-    u8 pad22[2];
-    f32 unk24;
-    f32 unk28;
-    f32 unk2C;
-    f32 unk30;
-    f32 unk34;
-} ScriptMotion;
-
-typedef struct ScriptMotionState {
-    ScriptMotion *unk0;
-    ScriptMotion *unk4;
-    u8 pad8[0x70];
-    s32 unk78;
-    u8 pad7C[8];
-    s32 unk84;
-} ScriptMotionState;
-
 s32 scriptOpUpdateMotionDelta(Actor *actor) {
     u8 imm;
-    ScriptMotion *motion;
+    AnimSlot *motion;
 
-    if (((ScriptMotionState *)actor->sub4)->unk84 != 0) {
-        motion = ((ScriptMotionState *)actor->sub4)->unk4;
+    if (actor->sub4->waitOnLayer != 0) {
+        motion = actor->sub4->layer;
     } else {
-        motion = ((ScriptMotionState *)actor->sub4)->unk0;
+        motion = actor->sub4->model;
     }
     sScriptPc++;
     scriptReadU8(&imm);
-    motion->unk1E = motion->unkC;
-    motion->unk20 = imm;
-    motion->unk1C |= 8;
-    if ((f32)motion->unkC < motion->unk4) {
-        motion->unk8 = motion->unk4 - (f32)motion->unkC;
+    motion->jumpFrom = motion->frameIndex;
+    motion->jumpTo = imm;
+    motion->flags |= 8;
+    if ((f32)motion->frameIndex < motion->frame) {
+        motion->frameFrac = motion->frame - (f32)motion->frameIndex;
     } else {
-        motion->unk8 = -(motion->unk4 - (f32)motion->unkC);
+        motion->frameFrac = -(motion->frame - (f32)motion->frameIndex);
     }
-    motion->unkE = imm;
-    ((ScriptMotionState *)actor->sub4)->unk78 |= 0x20;
+    motion->nextFrameIndex = imm;
+    actor->sub4->scriptWaitFlags |= 0x20;
     return 1;
 }
 
 s32 scriptOpApplyMotionFriction(Actor *actor) {
     u8 imm;
     u8 imm2;
-    ScriptMotion *motion;
+    AnimSlot *motion;
     f32 target;
     f32 currentF;
     s16 current;
 
-    if (((ScriptMotionState *)actor->sub4)->unk84 != 0) {
-        motion = ((ScriptMotionState *)actor->sub4)->unk4;
+    if (actor->sub4->waitOnLayer != 0) {
+        motion = actor->sub4->layer;
     } else {
-        motion = ((ScriptMotionState *)actor->sub4)->unk0;
+        motion = actor->sub4->model;
     }
     sScriptPc++;
     scriptReadU8(&imm);
     scriptReadU8(&imm2);
-    current = motion->unkC;
+    current = motion->frameIndex;
     if ((u32)current == imm) {
         currentF = (f32)current;
-        target = motion->unk4;
-        motion->unk1E = current;
-        motion->unk20 = imm2;
-        motion->unk1C |= 8;
+        target = motion->frame;
+        motion->jumpFrom = current;
+        motion->jumpTo = imm2;
+        motion->flags |= 8;
         if (currentF < target) {
-            motion->unk8 = target - currentF;
+            motion->frameFrac = target - currentF;
         } else {
-            motion->unk8 = -(target - currentF);
+            motion->frameFrac = -(target - currentF);
         }
-        motion->unkE = imm2;
-        ((ScriptMotionState *)actor->sub4)->unk78 |= 0x20;
+        motion->nextFrameIndex = imm2;
+        actor->sub4->scriptWaitFlags |= 0x20;
     } else {
-        motion->unkC = (current + imm2) - imm;
-        motion->unkE = (motion->unkE + imm2) - imm;
-        motion->unk4 += imm2 - imm;
+        motion->frameIndex = (current + imm2) - imm;
+        motion->nextFrameIndex = (motion->nextFrameIndex + imm2) - imm;
+        motion->frame += imm2 - imm;
     }
     return 1;
 }
 
-typedef struct ScriptMotionFlagsView {
-    u8 pad0[0x1C];
-    s16 unk1C;
-} ScriptMotionFlagsView;
-
-typedef struct ScriptMotionFlagsState {
-    ScriptMotionFlagsView *unk0;
-    ScriptMotionFlagsView *unk4;
-    u8 pad8[0x7C];
-    s32 unk84;
-} ScriptMotionFlagsState;
-
 s32 scriptOpSetMotionAngleFlags(Actor *actor) {
     s16 imm;
-    ScriptMotionFlagsView *motion;
-    ScriptMotionFlagsState *state;
+    AnimSlot *motion;
+    ActorSub4 *state;
 
-    state = (ScriptMotionFlagsState *)actor->sub4;
-    if (state->unk84 != 0) {
-        motion = state->unk4;
+    state = actor->sub4;
+    if (state->waitOnLayer != 0) {
+        motion = state->layer;
     } else {
-        motion = state->unk0;
+        motion = state->model;
     }
     sScriptPc++;
     scriptReadU16(&imm);
-    motion->unk1C |= imm;
+    motion->flags |= imm;
     return 1;
 }
 
 s32 scriptOpClearMotionAngleFlags(Actor *actor) {
     s16 imm;
-    ScriptMotionFlagsView *motion;
-    ScriptMotionFlagsState *state;
+    AnimSlot *motion;
+    ActorSub4 *state;
 
-    state = (ScriptMotionFlagsState *)actor->sub4;
-    if (state->unk84 != 0) {
-        motion = state->unk4;
+    state = actor->sub4;
+    if (state->waitOnLayer != 0) {
+        motion = state->layer;
     } else {
-        motion = state->unk0;
+        motion = state->model;
     }
     sScriptPc++;
     scriptReadU16(&imm);
-    motion->unk1C &= ~imm;
+    motion->flags &= ~imm;
     return 1;
 }
 
 s32 scriptOpScaleMotionVelocity(Actor *actor) {
     f32 start;
     f32 imm;
-    ScriptMotion *motion;
+    AnimSlot *motion;
 
-    motion = ((ScriptMotionState *)actor->sub4)->unk84 != 0
-        ? ((ScriptMotionState *)actor->sub4)->unk4
-        : ((ScriptMotionState *)actor->sub4)->unk0;
+    motion = actor->sub4->waitOnLayer != 0
+        ? actor->sub4->layer
+        : actor->sub4->model;
     sScriptPc++;
     scriptReadU32(&imm);
-    if (motion->unk0 != NULL) {
-        start = *motion->unk0;
+    if (motion->clip != NULL) {
+        start = motion->clip->speed;
     } else {
         start = .0f;
     }
     if (imm > 0.0f) {
-        motion->unk34 = imm;
-        motion->unk2C = start;
-        motion->unk30 = 0.0f;
-        motion->unk28 = motion->unk24;
+        motion->speedRampDuration = imm;
+        motion->speedTo = start;
+        motion->speedRampTime = 0.0f;
+        motion->speedFrom = motion->speed;
     } else {
-        motion->unk24 = start;
-        motion->unk34 = 0.0f;
+        motion->speed = start;
+        motion->speedRampDuration = 0.0f;
     }
     return 1;
 }
@@ -870,68 +686,68 @@ s32 scriptOpScaleMotionVelocity(Actor *actor) {
 s32 scriptOpAccelerateMotionVelocity(Actor *actor) {
     f32 imm;
     f32 imm2;
-    ScriptMotion *motion;
-    ScriptMotionState *state;
+    AnimSlot *motion;
+    ActorSub4 *state;
 
-    state = (ScriptMotionState *)actor->sub4;
-    if (state->unk84 != 0) {
-        motion = state->unk4;
+    state = actor->sub4;
+    if (state->waitOnLayer != 0) {
+        motion = state->layer;
     } else {
-        motion = state->unk0;
+        motion = state->model;
     }
     sScriptPc++;
     scriptReadU32(&imm);
     scriptReadU32(&imm2);
     if (imm2 > 0.0f) {
-        motion->unk34 = imm2;
-        motion->unk2C = imm;
-        motion->unk28 = motion->unk24;
-        motion->unk30 = 0.0f;
+        motion->speedRampDuration = imm2;
+        motion->speedTo = imm;
+        motion->speedFrom = motion->speed;
+        motion->speedRampTime = 0.0f;
     } else {
-        motion->unk24 = imm;
-        motion->unk34 = 0.0f;
+        motion->speed = imm;
+        motion->speedRampDuration = 0.0f;
     }
     return 1;
 }
 
 s32 scriptOpCapMotionVelocityMax(Actor *actor) {
     f32 speed;
-    ScriptMotionState *state;
-    ScriptMotion *motion;
+    ActorSub4 *state;
+    AnimSlot *motion;
 
-    state = (ScriptMotionState *)actor->sub4;
-    if (state->unk84 != 0) {
-        motion = state->unk4;
+    state = actor->sub4;
+    if (state->waitOnLayer != 0) {
+        motion = state->layer;
     } else {
-        motion = state->unk0;
+        motion = state->model;
     }
     sScriptPc++;
-    speed = motion->unk24;
+    speed = motion->speed;
     if (speed < 0.0f) {
-        motion->unk24 = 0.0f - speed;
-        if (motion->unk34 != 0) {
-            motion->unk2C = 0.0f - motion->unk2C;
-            motion->unk28 = 0.0f - motion->unk28;
+        motion->speed = 0.0f - speed;
+        if (motion->speedRampDuration != 0) {
+            motion->speedTo = 0.0f - motion->speedTo;
+            motion->speedFrom = 0.0f - motion->speedFrom;
         }
     }
     return 1;
 }
 
 s32 scriptOpCapMotionVelocityMin(Actor *actor) {
-    ScriptMotionState *state;
-    ScriptMotion *motion;
+    ActorSub4 *state;
+    AnimSlot *motion;
 
-    state = (ScriptMotionState *)actor->sub4;
-    if (state->unk84 != 0) {
-        motion = state->unk4;
+    state = actor->sub4;
+    if (state->waitOnLayer != 0) {
+        motion = state->layer;
     } else {
-        motion = state->unk0;
+        motion = state->model;
     }
     sScriptPc++;
-    motion->unk24 = 0.0f - motion->unk24;
-    if (motion->unk34 != 0) {
-        motion->unk2C = 0.0f - motion->unk2C;
-        motion->unk28 = 0.0f - motion->unk28;
+    motion->speed = 0.0f - motion->speed;
+    if (motion->speedRampDuration != 0) {
+        motion->speedTo = 0.0f - motion->speedTo;
+        motion->speedFrom = 0.0f - motion->speedFrom;
     }
     return 1;
 }
@@ -948,19 +764,13 @@ s32 scriptOpSetActorRampTarget(Actor *actor) {
     return 1;
 }
 
-typedef struct ScriptCursorView {
-    u8 pad0[0x6C];
-    u8 *unk6C;
-} ScriptCursorView;
-
-
 s32 scriptOpCallScriptByIndex(Actor *actor) {
     u16 imm;
 
     sScriptPc++;
     scriptReadU16(&imm);
     actorScriptStartByIndex(actor, imm);
-    sScriptPc = ((ScriptCursorView *)actor->sub4)->unk6C;
+    sScriptPc = actor->sub4->scriptPc;
     return sScriptContinueRunning;
 }
 
@@ -970,51 +780,41 @@ s32 scriptOpGotoScript(Actor *actor) {
     sScriptPc++;
     scriptReadU16(&imm);
     actorScriptStart(actor, imm);
-    sScriptPc = ((ScriptCursorView *)actor->sub4)->unk6C;
+    sScriptPc = actor->sub4->scriptPc;
     return sScriptContinueRunning;
 }
 
-typedef struct ScriptFlagState {
-    u8 pad0[0x78];
-    s32 unk78;
-} ScriptFlagState;
-
 s32 scriptOpEnableFlag8000(Actor *actor) {
-    ScriptFlagState *state;
+    ActorSub4 *state;
 
-    state = (ScriptFlagState *)actor->sub4;
-    state->unk78 |= 0x8000;
+    state = actor->sub4;
+    state->scriptWaitFlags |= 0x8000;
     return 0;
 }
 
 s32 scriptOpResetRampVelocity(Actor *actor) {
     f32 imm;
-    ScriptValue *value;
-    ScriptValueState *state;
+    AnimSlot *value;
+    ActorSub4 *state;
 
-    state = (ScriptValueState *)actor->sub4;
-    if (state->unk84 != 0) {
-        value = state->unk4;
+    state = actor->sub4;
+    if (state->waitOnLayer != 0) {
+        value = state->layer;
     } else {
-        value = state->unk0;
+        value = state->model;
     }
     sScriptPc++;
     scriptReadU32(&imm);
-    ((ScriptValueState *)actor->sub4)->unk88 = value->unk4 - imm;
+    actor->sub4->scriptResult = value->frame - imm;
     return 1;
 }
-
-typedef struct ScriptCountdownState {
-    u8 pad0[0x88];
-    s32 unk88;
-} ScriptCountdownState;
 
 s32 scriptOpCompareStateToU16(Actor *actor) {
     u16 imm;
 
     sScriptPc++;
     scriptReadU16(&imm);
-    ((ScriptCountdownState *)actor->sub4)->unk88 = actor->state - imm;
+    actor->sub4->scriptResult = actor->state - imm;
     return 1;
 }
 
@@ -1023,27 +823,22 @@ s32 scriptOpCompareSubStateToU16(Actor *actor) {
 
     sScriptPc++;
     scriptReadU16(&imm);
-    ((ScriptCountdownState *)actor->sub4)->unk88 = actor->unk155 - imm;
+    actor->sub4->scriptResult = actor->unk155 - imm;
     return 1;
 }
 
-typedef struct ScriptCommandView {
-    u8 pad0[0x10];
-    s16 unk10;
-} ScriptCommandView;
-
 s32 func_80616518(Actor *actor) {
     u16 imm;
-    ScriptCommandView *command;
+    AnimSlot *command;
 
-    if (((ScriptValueState *)actor->sub4)->unk84 != 0) {
-        command = (ScriptCommandView *)((ScriptValueState *)actor->sub4)->unk4;
+    if (actor->sub4->waitOnLayer != 0) {
+        command = actor->sub4->layer;
     } else {
-        command = (ScriptCommandView *)((ScriptValueState *)actor->sub4)->unk0;
+        command = actor->sub4->model;
     }
     sScriptPc++;
     scriptReadU16(&imm);
-    ((ScriptValueState *)actor->sub4)->unk88 = command->unk10 - imm;
+    actor->sub4->scriptResult = command->animId - imm;
     return 1;
 }
 
@@ -1057,150 +852,127 @@ s32 scriptOpCompareGlobalCountdown(Actor *actor) {
 
     sScriptPc++;
     scriptReadU16(&imm);
-    ((ScriptCountdownState *)actor->sub4)->unk88 =
+    actor->sub4->scriptResult =
         ((GlobalCountdownView *)gActivePlayerState)->unk4E - imm;
     return 1;
 }
-
-typedef struct ScriptBaseCursorState {
-    u8 pad0[0x68];
-    u8 *unk68;
-} ScriptBaseCursorState;
 
 s32 scriptOpJump(Actor *actor) {
     s16 imm;
 
     sScriptPc++;
     scriptReadU16(&imm);
-    sScriptPc = ((ScriptBaseCursorState *)actor->sub4)->unk68 + imm;
+    sScriptPc = actor->sub4->scriptStart + imm;
     return 1;
 }
 
-typedef struct ScriptJumpState {
-    u8 pad0[0x5C];
-    u16 unk5C;
-    u8 pad5E[2];
-    s32 unk60;
-    u16 unk64;
-    u8 pad66[2];
-    u8 *unk68;
-    u8 *unk6C;
-    void (*unk70)(Actor *);
-    s32 unk74;
-    s32 unk78;
-    s32 unk7C;
-    f32 unk80;
-    s32 unk84;
-    s32 unk88;
-} ScriptJumpState;
-
 s32 scriptOpJumpIfRegisterNonZero(Actor *actor) {
     s16 imm;
-    ScriptJumpState *state;
+    ActorSub4 *state;
 
     sScriptPc++;
     scriptReadU16(&imm);
-    state = (ScriptJumpState *)actor->sub4;
-    if (state->unk88 != 0) {
-        sScriptPc = state->unk68 + imm;
+    state = actor->sub4;
+    if (state->scriptResult != 0) {
+        sScriptPc = state->scriptStart + imm;
     }
     return 1;
 }
 
 s32 scriptOpJumpIfRegisterZero(Actor *actor) {
     s16 imm;
-    ScriptJumpState *state;
+    ActorSub4 *state;
 
     sScriptPc++;
     scriptReadU16(&imm);
-    state = (ScriptJumpState *)actor->sub4;
-    if (state->unk88 == 0) {
-        sScriptPc = state->unk68 + imm;
+    state = actor->sub4;
+    if (state->scriptResult == 0) {
+        sScriptPc = state->scriptStart + imm;
     }
     return 1;
 }
 
 s32 scriptOpJumpIfRegisterPositive(Actor *actor) {
     s16 imm;
-    ScriptJumpState *state;
+    ActorSub4 *state;
 
     sScriptPc++;
     scriptReadU16(&imm);
-    state = (ScriptJumpState *)actor->sub4;
-    if (state->unk88 > 0) {
-        sScriptPc = state->unk68 + imm;
+    state = actor->sub4;
+    if (state->scriptResult > 0) {
+        sScriptPc = state->scriptStart + imm;
     }
     return 1;
 }
 
 s32 scriptOpJumpIfRegisterNegative(Actor *actor) {
     s16 imm;
-    ScriptJumpState *state;
+    ActorSub4 *state;
 
     sScriptPc++;
     scriptReadU16(&imm);
-    state = (ScriptJumpState *)actor->sub4;
-    if (state->unk88 < 0) {
-        sScriptPc = state->unk68 + imm;
+    state = actor->sub4;
+    if (state->scriptResult < 0) {
+        sScriptPc = state->scriptStart + imm;
     }
     return 1;
 }
 
 s32 scriptOpRestart(Actor *actor) {
-    sScriptPc = ((ScriptJumpState *)actor->sub4)->unk68;
+    sScriptPc = actor->sub4->scriptStart;
     return 1;
 }
 
 s32 scriptOpJumpTable(Actor *actor) {
     s16 imm;
 
-    sScriptPc += 1 + ((ScriptJumpState *)actor->sub4)->unk88 * 2;
+    sScriptPc += 1 + actor->sub4->scriptResult * 2;
     scriptReadU16(&imm);
-    sScriptPc = ((ScriptJumpState *)actor->sub4)->unk68 + imm;
+    sScriptPc = actor->sub4->scriptStart + imm;
     return 1;
 }
 
 s32 scriptOpCallSaveReturn(Actor *actor) {
     s32 savedReg;
     u16 imm;
-    ScriptJumpState *state;
+    ActorSub4 *state;
 
-    savedReg = ((ScriptJumpState *)actor->sub4)->unk88;
-    state = (ScriptJumpState *)actor->sub4;
+    savedReg = actor->sub4->scriptResult;
+    state = actor->sub4;
     sScriptPc++;
     scriptReadU16(&imm);
-    state->unk5C = state->unk64;
-    state->unk60 = sScriptPc - state->unk68;
+    state->returnScriptId = state->animId;
+    state->returnOffset = sScriptPc - state->scriptStart;
     actorScriptStart(actor, imm);
-    sScriptPc = state->unk6C;
-    state->unk88 = savedReg;
+    sScriptPc = state->scriptPc;
+    state->scriptResult = savedReg;
     return sScriptContinueRunning;
 }
 
 s32 scriptOpCall(Actor *actor) {
     u16 imm;
-    ScriptJumpState *state;
+    ActorSub4 *state;
 
-    state = (ScriptJumpState *)actor->sub4;
+    state = actor->sub4;
     sScriptPc++;
     scriptReadU16(&imm);
-    state->unk5C = state->unk64;
-    state->unk60 = sScriptPc - state->unk68;
+    state->returnScriptId = state->animId;
+    state->returnOffset = sScriptPc - state->scriptStart;
     actorScriptStartByIndex(actor, imm);
-    sScriptPc = state->unk6C;
+    sScriptPc = state->scriptPc;
     return sScriptContinueRunning;
 }
 s32 scriptOpReturn(Actor *actor) {
     s32 savedReg;
-    ScriptJumpState *state;
+    ActorSub4 *state;
 
-    savedReg = ((ScriptJumpState *)actor->sub4)->unk88;
-    state = (ScriptJumpState *)actor->sub4;
-    actorScriptStart(actor, state->unk5C);
-    sScriptPc = state->unk68 + state->unk60;
-    state->unk5C = 0;
-    state->unk60 = 0;
-    state->unk88 = savedReg;
+    savedReg = actor->sub4->scriptResult;
+    state = actor->sub4;
+    actorScriptStart(actor, state->returnScriptId);
+    sScriptPc = state->scriptStart + state->returnOffset;
+    state->returnScriptId = 0;
+    state->returnOffset = 0;
+    state->scriptResult = savedReg;
     return 1;
 }
 
@@ -1217,22 +989,16 @@ s32 scriptOpRunCommand(Actor *actor) {
     return sScriptContinueRunning;
 }
 
-typedef struct ScriptCommandState {
-    u8 pad0[0x70];
-    ScriptCommandFn unk70;
-    u8 *unk74;
-} ScriptCommandState;
-
 s32 scriptOpSetCommandHandler(Actor *actor) {
     s16 imm;
-    ScriptCommandState *state;
-    state = (ScriptCommandState *)actor->sub4;
+    ActorSub4 *state;
+    state = actor->sub4;
     sScriptPc++;
     scriptReadU16(&imm);
-    state->unk70 = sScriptCommandTable[imm];
-    state->unk74 = sScriptPc;
+    state->scriptCommand = sScriptCommandTable[imm];
+    state->scriptCommandPc = sScriptPc;
     if (imm != 0) {
-        state->unk70(actor);
+        state->scriptCommand(actor);
     }
     return sScriptContinueRunning;
 }
@@ -1305,19 +1071,19 @@ s32 scriptOpSetRegisterRandom(Actor *actor) {
     sScriptPc++;
     scriptReadU8(&imm);
     scriptReadU8(&imm2);
-    ((ScriptJumpState *)actor->sub4)->unk88 = ((randomNonNegative() >> 15) % 32767) % ((imm2 - imm) + 1) + imm;
+    actor->sub4->scriptResult = ((randomNonNegative() >> 15) % 32767) % ((imm2 - imm) + 1) + imm;
     return 1;
 }
 
 s32 scriptOpEnableFlag84(Actor *actor) {
     sScriptPc++;
-    ((ScriptJumpState *)actor->sub4)->unk84 = 1;
+    actor->sub4->waitOnLayer = 1;
     return 1;
 }
 
 s32 scriptOpDisableFlag84(Actor *actor) {
     sScriptPc++;
-    ((ScriptJumpState *)actor->sub4)->unk84 = 0;
+    actor->sub4->waitOnLayer = 0;
     return 1;
 }
 
@@ -1596,27 +1362,6 @@ void sfxPlayScriptActorSoundForPlayer(Actor *actor, s16 sound, u8 slot) {
 
 extern u8 sScriptChannelIndexTable[];
 
-typedef struct ActorStateSubView {
-    u8 pad0[0x10];
-    s16 unk10;
-} ActorStateSubView;
-
-typedef struct ActorStateInnerView {
-    ActorStateSubView *unk0;
-} ActorStateInnerView;
-
-typedef struct ScriptActionValue {
-    u8 pad0[4];
-    f32 value;
-} ScriptActionValue;
-
-typedef struct ScriptActionState {
-    ScriptActionValue *unk0;
-    ScriptActionValue *unk4;
-    u8 pad8[0x7C];
-    s32 unk84;
-} ScriptActionState;
-
 s32 func_8061796C(Actor *actor) {
     s16 imm;
     u8 imm2;
@@ -1680,7 +1425,7 @@ s32 func_80617B38(Actor *actor) {
     scriptReadU8(&imm3);
     scriptReadU8(&imm4);
     sfxPlayActorSound(actor, imm, imm3, 1, imm2, 0xFF, 1.0f, imm4);
-    actor->unk72 = ((ActorStateInnerView *)actor->sub4)->unk0->unk10;
+    actor->unk72 = actor->sub4->model->animId;
     return 1;
 }
 
@@ -1720,30 +1465,17 @@ s32 scriptOpNoopReturn1(Actor *actor) {
 }
 
 void func_80617D20(Actor *actor) {
-    ScriptActionState *state;
-    ScriptActionValue *value;
+    ActorSub4 *state;
+    AnimSlot *value;
 
-    state = (ScriptActionState *)actor->sub4;
-    if (state->unk84 != 0) {
-        value = state->unk4;
+    state = actor->sub4;
+    if (state->waitOnLayer != 0) {
+        value = state->layer;
     } else {
-        value = state->unk0;
+        value = state->model;
     }
-    scriptOpBranchOnCondition(actor, (s16)value->value);
+    scriptOpBranchOnCondition(actor, (s16)value->frame);
 }
-
-typedef struct ScriptTimerSetState {
-    u8 pad0[0x8A];
-    s16 unk8A;
-    f32 unk8C;
-} ScriptTimerSetState;
-
-typedef struct ScriptTimerState {
-    u8 pad0[0x30];
-    s16 unk30;
-    u8 pad32[0x5A];
-    f32 unk8C;
-} ScriptTimerState;
 
 typedef struct ActorFlagsView {
     u8 pad0[0x146];
@@ -1751,7 +1483,7 @@ typedef struct ActorFlagsView {
 } ActorFlagsView;
 
 void scriptOpBranchByTimer8A(Actor *actor) {
-    scriptOpBranchOnCondition(actor, ((ScriptTimerSetState *)actor->sub4)->unk8A);
+    scriptOpBranchOnCondition(actor, actor->sub4->scriptResult);
 }
 
 void func_80617D94(Actor *actor) {
@@ -1763,13 +1495,6 @@ void func_80617D94(Actor *actor) {
         scriptReadU8(&imm);
     }
 }
-
-typedef struct ScriptBranchState {
-    u8 pad0[0x68];
-    u8 *unk68;
-    u8 pad6C[0x1C];
-    s32 unk88;
-} ScriptBranchState;
 
 s32 scriptOpBranchOnCondition(Actor *actor, s16 value) {
     u8 imm;
@@ -1787,28 +1512,28 @@ s32 scriptOpBranchOnCondition(Actor *actor, s16 value) {
         case 1:
             if (value == imm2) {
                 scriptReadU16(&imm3);
-                sScriptPc = ((ScriptBranchState *)actor->sub4)->unk68 + imm3;
+                sScriptPc = actor->sub4->scriptStart + imm3;
                 return 1;
             }
             break;
         case 2:
             if (value < imm2) {
                 scriptReadU16(&imm3);
-                sScriptPc = ((ScriptBranchState *)actor->sub4)->unk68 + imm3;
+                sScriptPc = actor->sub4->scriptStart + imm3;
                 return 1;
             }
             break;
         case 3:
             if (imm2 < value) {
                 scriptReadU16(&imm3);
-                sScriptPc = ((ScriptBranchState *)actor->sub4)->unk68 + imm3;
+                sScriptPc = actor->sub4->scriptStart + imm3;
                 return 1;
             }
             break;
         case 4:
             if (value == imm2) {
                 scriptReadU16(&imm3);
-                ((ScriptBranchState *)actor->sub4)->unk88 = imm3;
+                actor->sub4->scriptResult = imm3;
                 func_80617D94(actor);
                 return 1;
             }
@@ -1816,7 +1541,7 @@ s32 scriptOpBranchOnCondition(Actor *actor, s16 value) {
         case 5:
             if (value < imm2) {
                 scriptReadU16(&imm3);
-                ((ScriptBranchState *)actor->sub4)->unk88 = imm3;
+                actor->sub4->scriptResult = imm3;
                 func_80617D94(actor);
                 return 1;
             }
@@ -1824,14 +1549,14 @@ s32 scriptOpBranchOnCondition(Actor *actor, s16 value) {
         case 6:
             if (imm2 < value) {
                 scriptReadU16(&imm3);
-                ((ScriptBranchState *)actor->sub4)->unk88 = imm3;
+                actor->sub4->scriptResult = imm3;
                 func_80617D94(actor);
                 return 1;
             }
             break;
         case 7:
             scriptReadU16(&imm3);
-            ((ScriptBranchState *)actor->sub4)->unk88 = imm3;
+            actor->sub4->scriptResult = imm3;
             func_80617D94(actor);
             return 1;
         }
@@ -1844,7 +1569,7 @@ s32 scriptOpSetTimer(Actor *actor) {
 
     sScriptPc++;
     scriptReadU32(&imm);
-    ((ScriptTimerSetState *)actor->sub4)->unk8C = imm;
+    actor->sub4->scriptTimer = imm;
     return 1;
 }
 
@@ -1852,16 +1577,16 @@ extern u32 gFrameDelta;
 
 s32 scriptOpWaitTimer(Actor *actor) {
     f32 step;
-    ScriptTimerState *state;
+    ActorSub4 *state;
 
-    state = (ScriptTimerState *)actor->sub4;
-    if (state->unk30 & 1) {
+    state = actor->sub4;
+    if (state->motionFlags & 1) {
         step = (f32)gFrameDelta * 0.5f;
     } else {
         step = 1.0f;
     }
-    state->unk8C -= step;
-    if ((f64)((ScriptTimerState *)actor->sub4)->unk8C <= 0.0) {
+    state->scriptTimer -= step;
+    if ((f64)actor->sub4->scriptTimer <= 0.0) {
         sScriptPc++;
         return 1;
     }
@@ -2053,26 +1778,26 @@ typedef struct {
 void scriptCmdCheckGlobalToggle(Actor *actor) {
     if (((GlobalToggleView *)gActivePlayerState)->unk64 != 0) {
         ((GlobalToggleView *)gActivePlayerState)->unk64 = 0;
-        ((ScriptState *)actor->sub4)->unk88 = 0;
+        actor->sub4->scriptResult = 0;
         return;
     }
-    ((ScriptState *)actor->sub4)->unk88 = 1;
+    actor->sub4->scriptResult = 1;
 }
 
 void scriptCmdCheckFalling(Actor *actor) {
     if (actor->speedY < 0.0f) {
-        ((ScriptState *)actor->sub4)->unk88 = 1;
+        actor->sub4->scriptResult = 1;
         return;
     }
-    ((ScriptState *)actor->sub4)->unk88 = 0;
+    actor->sub4->scriptResult = 0;
 }
 
 void scriptCmdResetActorScale(Actor *actor) {
     if ((actor->contactFlags & actor->prevContactFlags & 1) != 0) {
-        ((ScriptState *)actor->sub4)->unk88 = 1;
+        actor->sub4->scriptResult = 1;
         return;
     }
-    ((ScriptState *)actor->sub4)->unk88 = 0;
+    actor->sub4->scriptResult = 0;
 }
 
 void scriptCmdSetActorSpeedY(Actor *actor) {
@@ -2431,5 +2156,5 @@ void scriptCmdIncrementActorResultByte35(Actor *actor) {
 }
 
 void scriptCmdCheckSlopePitch(Actor *actor) {
-    ((ScriptState *)actor->sub4)->unk88 = actor->floorSlopePitch >= 0x3DA;
+    actor->sub4->scriptResult = actor->floorSlopePitch >= 0x3DA;
 }

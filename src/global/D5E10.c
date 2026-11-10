@@ -51,24 +51,13 @@ extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
 extern s16 gCurrentCharacterIndex;
 
-// The player's sub4 and actor are larger than the shared ActorSub4/Actor.
-typedef struct ActorSub4Ext {
-    /* 0x00 */ u8 pad0[0x78];
-    /* 0x78 */ s32 unk78;
-} ActorSub4Ext;
-
+// The player's actor is larger than the shared Actor.
 typedef struct ActorExt {
     /* 0x000 */ u8 pad0[0x4];
-    /* 0x004 */ ActorSub4Ext *sub4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 pad8[0x170];
     /* 0x178 */ void *unk178;
 } ActorExt;
-
-// What ActorSub4::model points at, as far as this file reads it.
-typedef struct ActorModel {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
-} ActorModel;
 
 #define ACTOR_EXT ((ActorExt *)gCurrentActor)
 
@@ -193,7 +182,7 @@ void playerStateUnderwaterSwimming(void) {
                 } else {
                     gCurrentActor->unk155 = 2;
                 }
-                ACTOR_EXT->sub4->unk78 &= ~0x4000;
+                gCurrentActor->sub4->scriptWaitFlags &= ~0x4000;
             }
             playerDecelerateAndApplyMotion();
             break;
@@ -2203,7 +2192,7 @@ void playerStateSwimPaddle(void) {
         playerInputUpdate(3);
         gActivePlayerState->maxSpeed = 0.0f;
         if (gPlayerCharacterId[gCurrentPlayerIndex] == 4) {
-            f32 t = ((ActorModel *)gCurrentActor->sub4->model)->unk4;
+            f32 t = gCurrentActor->sub4->model->frame;
 
             if (t >= 29.0f && t < 33.0f) {
                 gCurrentActor->moveYaw = (gCurrentActor->yaw + 0x800) & 0xFFF;
@@ -2703,7 +2692,7 @@ void playerStateSurfaceTreadWater(void) {
                 } else {
                     gCurrentActor->unk155 = 2;
                 }
-                ACTOR_EXT->sub4->unk78 &= ~0x4000;
+                gCurrentActor->sub4->scriptWaitFlags &= ~0x4000;
             }
             playerDecelerateAndApplyMotion();
             effectSpawnAuraBurst(1);
@@ -4456,12 +4445,12 @@ void playerStateLandRecover(void) {
     case 0:
         switch (gCurrentActor->actorType) {
         case 4:
-            f = ((ActorModel *)gCurrentActor->sub4->model)->unk4;
+            f = gCurrentActor->sub4->model->frame;
             if (f < 25.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
                 d = nodeY - gCurrentActor->y;
                 gCurrentActor->y = gActivePlayerState->unkF0 - d;
-                f = ((ActorModel *)gCurrentActor->sub4->model)->unk4;
+                f = gCurrentActor->sub4->model->frame;
             }
             if (f < 25.0f) {
                 gCurrentActor->x = gActivePlayerState->unkE0;
@@ -4475,12 +4464,12 @@ void playerStateLandRecover(void) {
             }
             break;
         case 5:
-            f = ((ActorModel *)gCurrentActor->sub4->model)->unk4;
+            f = gCurrentActor->sub4->model->frame;
             if (f < 17.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
                 d = nodeY - gCurrentActor->y;
                 gCurrentActor->y = gActivePlayerState->unkF0 - d;
-                f = ((ActorModel *)gCurrentActor->sub4->model)->unk4;
+                f = gCurrentActor->sub4->model->frame;
             }
             if (f < 19.0f) {
                 gCurrentActor->x = gActivePlayerState->unkE0;
@@ -4497,7 +4486,7 @@ void playerStateLandRecover(void) {
             actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
             d = nodeY - gCurrentActor->y;
                 gCurrentActor->y = gActivePlayerState->unkF0 - d;
-            if (((ActorModel *)gCurrentActor->sub4->model)->unk4 > 16.0f) {
+            if (gCurrentActor->sub4->model->frame > 16.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->y = gActivePlayerState->unkF0;
                 gCurrentActor->speedXZ = 30.0f;
@@ -4508,7 +4497,7 @@ void playerStateLandRecover(void) {
             break;
         case 6:
         case 7:
-            f = ((ActorModel *)gCurrentActor->sub4->model)->unk4;
+            f = gCurrentActor->sub4->model->frame;
             if (f < 18.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
                 d = nodeY - gCurrentActor->y;
@@ -4536,7 +4525,7 @@ void playerStateLandRecover(void) {
             actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
             d = nodeY - gCurrentActor->y;
                 gCurrentActor->y = gActivePlayerState->unkF0 - d;
-            if (((ActorModel *)gCurrentActor->sub4->model)->unk4 > 14.0f) {
+            if (gCurrentActor->sub4->model->frame > 14.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->speedXZ = 10.0f;
                 gCurrentActor->y = gActivePlayerState->unkF0;

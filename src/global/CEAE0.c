@@ -116,15 +116,6 @@ Actor *actorResolveKillCreditOwner(Actor *actor) {
     return original;
 }
 
-/* Header of the model block at actor->sub4->model (no shared type yet). */
-typedef struct ActorModelView {
-    /* 0x00 */ u8 pad0[0x10];
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ u8 pad12[0x24 - 0x12];
-    /* 0x24 */ f32 unk24;
-} ActorModelView;
-
-
 void playerSetRecentAttacker(Actor *attacker, PlayerState *state) {
     s32 clear = 0;
     PlayerState *attackerState;
@@ -175,7 +166,7 @@ void playerRecordHitSource(Actor *player, Actor *source, s32 strength) {
         state->hitSourcePlayerIndex = -1;
     }
     if (ok != 0) {
-        state->hitModelId = ((ActorModelView *)source->sub4->model)->unk10;
+        state->hitModelId = source->sub4->model->animId;
         state->hitStrength = strength;
     }
 }
@@ -198,7 +189,7 @@ s32 playerHitSourceIsStale(s32 minStrength) {
             actor = spawnNodeActivate(spawnNodeId, 0);
         }
     }
-    if (actor != NULL && gActivePlayerState->hitModelId == ((ActorModelView *)actor->sub4->model)->unk10 && gActivePlayerState->hitStrength >= minStrength) {
+    if (actor != NULL && gActivePlayerState->hitModelId == actor->sub4->model->animId && gActivePlayerState->hitStrength >= minStrength) {
         ret = 0;
     }
     return ret;
@@ -1481,7 +1472,7 @@ s16 playerSelectWalkRunState(Actor *actor, f32 targetSpeed, f32 speed, s32 unuse
         if (scale > 1.25f) {
             scale = scale - (scale - 1.25f) * 0.4;
         }
-        if (((ActorModelView *)actor->sub4->model)->unk24 != 0.0f) {
+        if (actor->sub4->model->speed != 0.0f) {
             if (gActivePlayerState->unk26 == 100) {
                 scriptSetActorRampTarget(actor, scale, 2.0f);
             } else {
@@ -1582,7 +1573,7 @@ s16 playerSelectCarryState(Actor *actor, f32 targetSpeed, f32 speed, s32 unused)
         if (scale > 1.25f) {
             scale = scale - (scale - 1.25f) * 0.4;
         }
-        if (((ActorModelView *)actor->sub4->model)->unk24 != 0.0f) {
+        if (actor->sub4->model->speed != 0.0f) {
             scriptSetActorRampTarget(actor, scale, 2.0f);
         }
     }
@@ -1649,7 +1640,7 @@ s16 playerSelectSurfaceState(Actor *actor, f32 targetSpeed, f32 speed, s32 unuse
         if (scale > 1.25f) {
             scale = scale - (scale - 1.25f) * 0.4;
         }
-        if (((ActorModelView *)actor->sub4->model)->unk24 != 0.0f) {
+        if (actor->sub4->model->speed != 0.0f) {
             if (gActivePlayerState->unk26 == 100) {
                 scriptSetActorRampTarget(actor, scale, 2.0f);
             } else {
@@ -1769,7 +1760,7 @@ s16 playerSelectCarryMoveState(Actor *actor, f32 targetSpeed, f32 speed, s32 unu
     if (gActivePlayerState->unk4C > 0) {
         scale = actor->speedXZ * 0.025;
         scale = scale * 0.75 + 0.25;
-        if (((ActorModelView *)actor->sub4->model)->unk24 != 0.0f) {
+        if (actor->sub4->model->speed != 0.0f) {
             scriptSetActorRampTarget(actor, scale, 2.0f);
         }
     }

@@ -821,16 +821,6 @@ typedef struct SparkleState {
     s16 unk4;
 } SparkleState;
 
-typedef struct SparkleBuffer {
-    u8 unk0;
-    u8 unk1;
-    u8 pad2[2];
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    u8 unk10;
-} SparkleBuffer;
-
 extern u8 D_807504C8;
 extern u8 D_807504CC;
 extern u8 D_807504D0;
@@ -839,7 +829,7 @@ extern f32 D_807504C4;
 
 void effectActorShrinkTick(void) {
     SparkleState *state;
-    SparkleBuffer *drawBuf;
+    BoneVector *scales;
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -859,13 +849,13 @@ void effectActorShrinkTick(void) {
         actorDespawn(gCurrentActor);
     } else {
         state->unk0 *= D_807504C0;
-        drawBuf = (SparkleBuffer *)gCurrentActor->sub4->boneScales;
-        drawBuf->unk0 = D_807504C8;
-        drawBuf->unk1 = 0xFF;
-        drawBuf->unk4 = state->unk0;
-        drawBuf->unk8 = state->unk0;
-        drawBuf->unkC = state->unk0;
-        drawBuf->unk10 = 0xFF;
+        scales = gCurrentActor->sub4->boneScales;
+        scales->bone = D_807504C8;
+        scales->lastBone = 0xFF;
+        scales->x = state->unk0;
+        scales->y = state->unk0;
+        scales->z = state->unk0;
+        scales[1].bone = 0xFF;
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
 }
