@@ -296,7 +296,7 @@ void func_806B2D64(void) {
             enemyAggroStateUpdate(0x6400, 0x2E2, 0x2E2);
             break;
     }
-    func_8072881C(0, (u8 *)gBehaviourWorkState + 0x28);
+    func_8072881C(0, gBehaviourWorkState->unk28);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

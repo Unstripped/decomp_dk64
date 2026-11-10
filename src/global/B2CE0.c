@@ -861,7 +861,7 @@ void func_806B0354(void) {
             behaviourUpdateContactAndState(0x378);
             break;
     }
-    func_8072881C(0, (u8 *)gBehaviourWorkState + 0x28);
+    func_8072881C(0, gBehaviourWorkState->unk28);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

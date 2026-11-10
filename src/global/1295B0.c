@@ -730,7 +730,7 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
         sel = e->flags & 0x7F;
         if (!(e->flags & 0x80)) {
             if ((sel == 0) || (sel == 1) ||
-                ((sel == 5) && ((f64)arg0->speedXZ < (f64)(u32)((u8 *)gBehaviourExtraState)[0xD] * 1.4))) {
+                ((sel == 5) && ((f64)arg0->speedXZ < (f64)(u32)gBehaviourExtraState->unkD * 1.4))) {
                 if (((f32)e->y <= y) && (y <= (f32)(e->y + e->height))) {
                     if (e->flags != 0) {} // FAKE: live range steers flags/count10 colouring (a1/t0)
                     if (i == 5) {} // FAKE: steer s3 and s8 constant coloring

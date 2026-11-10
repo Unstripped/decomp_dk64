@@ -469,7 +469,7 @@ f32 proxPathAttachToSegment(Actor *actor, H1ActorState *state, ProxPath *path, u
     state->unk140 = actor->y;
     state->unk144 = actor->z;
     state->unk148 = 0.0f;
-    memcpy(state->unk15C, (u8 *)actor + 0xC, 0x40);
+    memcpy(state->unk15C, actor->modelMtx, 0x40);
     actor->yaw = mathAngleBetweenPointsRad(ox, oz, actor->x, actor->z) * 57.29577637f / 360.0 * 4095.0;
     return t;
 }

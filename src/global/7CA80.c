@@ -651,7 +651,7 @@ typedef struct ActorUnk156View {
 
 void actorPostTick(Actor *actor) {
     if ((void *)actorInitCollisionFromModel == (void *)D_8074DA30[D_8074D8D4[actor->actorType]]) {
-        guTranslateF((void *)((u8 *)actor + 0xC), actor->x, actor->y, actor->z);
+        guTranslateF(actor->modelMtx, actor->x, actor->y, actor->z);
     }
     actorUpdatePositionAndSub140(actor);
     actorUpdateArcBounds(actor);

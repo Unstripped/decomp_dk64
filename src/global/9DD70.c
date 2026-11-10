@@ -184,7 +184,7 @@ void actorPhotoUpdate(void) {
         subState->unk0->unk88 = 0;
         actorDespawn(gCurrentActor);
     } else {
-        guTranslateF((f32 (*)[4])((u8 *)gCurrentActor + 0xC), 0.0f, -70.0f, 0.0f);
+        guTranslateF(gCurrentActor->modelMtx, 0.0f, -70.0f, 0.0f);
         actorUpdateModelMatrix(gCurrentActor, 1);
         renderCallbacksRegister(&renderSetupSegmentsAndFog, gCurrentActor, 3);
     }
@@ -1335,7 +1335,7 @@ void textMarkerUpdateMatrix(void) {
         }
     }
     guTranslateF(mtxB, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
-    guMtxCatF(mtxA, mtxB, (f32 (*)[4])((u8 *)gCurrentActor + 0xC));
+    guMtxCatF(mtxA, mtxB, gCurrentActor->modelMtx);
 }
 
 

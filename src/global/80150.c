@@ -1047,7 +1047,7 @@ void actorTransformCameraUpdate(void) {
         }
     }
     guTranslateF(rot, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
-    guMtxCatF(mtx, rot, (float (*)[4])((u8 *)gCurrentActor + 0xC));
+    guMtxCatF(mtx, rot, gCurrentActor->modelMtx);
 }
 
 extern s32 D_8071FE64;
@@ -2286,7 +2286,7 @@ void tagBarrelActorUpdate(void) {
     gCurrentActor->yaw += 0x50;
     gCurrentActor->y = (mathSinF(sub->unk4) * 5.0) + (f64)sub->unk0;
     sub->unk4 += 0x3C;
-    guTranslateF((f32 (*)[4])((u8 *)gCurrentActor + 0xC), offset.x, offset.y, offset.z);
+    guTranslateF(gCurrentActor->modelMtx, offset.x, offset.y, offset.z);
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
 
