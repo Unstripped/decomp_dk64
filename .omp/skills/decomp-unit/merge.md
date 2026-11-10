@@ -29,10 +29,9 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
 - Never pipe a merge or gate into `tail`/`grep` and chain `&& git commit`: the pipe hides the
   exit status, and a conflict (src untouched) or a red build was committed that way twice.
   Without `--commit`, commit only after reading `GATE_OK`; `--stage` is parsed only after `--commit MSG`. A bare
-  `merge_drafts.py merge --base REV src/<seg>/<f>.c .scratch/<A>/<f>.c` (the copy's FILE path;
-  a directory raises IsADirectoryError, unlike the gate) goes inside `sh -c '...; echo "exit $?"'` (the persistent shell's `set -e` otherwise
-  aborts silently after merge already wrote `src`). Run gates with the bash tool and a long
-  timeout, never from the eval kernel: its 30 s cell deadline kills the client mid-gate.
+  `merge_drafts.py merge --base REV src/<seg>/<f>.c .scratch/<A>/<f>.c` (the copy's FILE path, not a directory)
+  goes inside `sh -c '...; echo "exit $?"'` (the shell's `set -e` otherwise aborts silently after merge
+  wrote `src`). Run gates with the bash tool and a long timeout, never from the eval kernel (its 30 s deadline kills the client mid-gate).
 - `--base` is the commit the copy started from. A second pass in the SAME copy merges with
   the commit that merged its first pass; a copy rebuilt from a later `src` uses the commit
   whose file differs least from it (`git show <c>:<file> | diff - copy`). A wrong base
