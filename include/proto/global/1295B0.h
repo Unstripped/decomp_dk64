@@ -51,7 +51,7 @@ u8 polygonContainsPoint2D(s16, s16, struct Zone *);
 u8 segmentIntersectsCircle2D(s16, s16, s16, s16, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_zoneFindBestReachablePoint
-s32 zoneFindBestReachablePoint();
+s32 zoneFindBestReachablePoint(u8, Actor *, Zone *, s16 *, s16 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_zoneCanReachPoint
 s32 zoneCanReachPoint(Actor *, s16, s16, s16, struct Zone *);

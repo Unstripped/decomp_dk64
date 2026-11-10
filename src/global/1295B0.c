@@ -23,9 +23,6 @@
 #include "proto/global/8F4B0.h"
 #include "proto/global/CEAE0.h"
 
-struct Zone;
-struct ZoneTable;
-
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
@@ -415,14 +412,7 @@ u8 segmentIntersectsCircle2D(s16 x1, s16 z1, s16 x2, s16 z2, s16 cx, s16 cz, s16
 }
 
 
-s32 zoneFindBestReachablePoint(mode, actor, zone, outX, outY, outZ)
-u8 mode;
-Actor *actor;
-Zone *zone;
-s16 *outX;
-s16 *outY;
-s16 *outZ;
-{
+s32 zoneFindBestReachablePoint(u8 mode, Actor *actor, Zone *zone, s16 *outX, s16 *outY, s16 *outZ) {
     s16 i;
     u8 stop;
     u8 found;
@@ -1238,13 +1228,14 @@ void zoneAssignToBehaviour(SpawnNode *node) {
 
 
 
-typedef struct MidAS2 {
-    u8 v[2];
-} MidAS2;
-
-typedef struct MidAS22 {
+// Map-file records copied verbatim: a node's first 0x16 bytes and one 2-byte path step.
+typedef struct SpawnNodeRecord {
     s16 v[11];
-} MidAS22;
+} SpawnNodeRecord;
+
+typedef struct SpawnPathStep {
+    u8 v[2];
+} SpawnPathStep;
 
 void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes) {
     s32 t;
@@ -1270,7 +1261,7 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
         zones->count = 0;
         cnt = zones->count;
     }
-    rec = heapAlloc(cnt * 0x24);
+    rec = heapAlloc(cnt * sizeof(Zone));
     zones->zones = rec;
     for (i = 0; i < zones->count; i++) {
         same = 1;
@@ -1292,7 +1283,7 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
         }
         p = src;
         if (cnt != 0) {
-            rec->vertices = heapAlloc(cnt * 6U);
+            rec->vertices = heapAlloc(cnt * sizeof(ZoneVertex));
         }
         if (cnt > 0) {
             do {
@@ -1325,7 +1316,7 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
         }
         q = src;
         if (cnt != 0) {
-            rec->entries = heapAlloc(cnt * 10U);
+            rec->entries = heapAlloc(cnt * sizeof(ZoneEntry));
         }
         if (cnt > 0) {
             do {
@@ -1352,7 +1343,7 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
         nodes->count = 0;
         cnt = 0;
     }
-    mem = heapAlloc(cnt * 0x48);
+    mem = heapAlloc(cnt * sizeof(SpawnNode));
     nodes->nodes = mem;
     heapClearBlock(mem);
     r = src;
@@ -1362,11 +1353,11 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
         if (i != 0) {
             node++;
         }
-        *(MidAS22 *)node = *(MidAS22 *)r;
+        *(SpawnNodeRecord *)node = *(SpawnNodeRecord *)r;
         r += 11;
         node->state = node->initialState;
         node->entryIndex = node->baseEntryIndex;
-        node->actor = 0;
+        node->actor = NULL;
         node->flags = 0;
         node->respawnTimer = 0;
         node->spawnCount = 0;
@@ -1376,7 +1367,7 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
         q = r;
         if (node->pathCount > 0) {
             do {
-                ((MidAS2 *)node->path)[j] = *(MidAS2 *)q;
+                ((SpawnPathStep *)node->path)[j] = *(SpawnPathStep *)q;
                 j++;
                 q += 1;
             } while (j < node->pathCount);
@@ -1648,7 +1639,7 @@ void func_80729AA4(u8 id) {
     Actor *a;
 
     a = spawnNodeActivate(id, 0);
-    if (a == 0) {
+    if (a == NULL) {
         a = gPrimaryPlayerActor;
     }
     a->contactFlags |= 0x100;
