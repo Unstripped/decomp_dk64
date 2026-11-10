@@ -34,7 +34,7 @@ void billboardSetFlags(s16);
 void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
 #endif
 #ifndef PROTO_SKIP_billboardSetVertex
-void billboardSetVertex(s16 *, s16, s16, s16, s16);
+void billboardSetVertex(Vtx *, s16, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_billboardRenderQueued
 Gfx *billboardRenderQueued(Gfx *, s16);

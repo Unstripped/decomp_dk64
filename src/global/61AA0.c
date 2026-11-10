@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #define PROTO_SKIP_heapAlloc // FAKE: callee prototype steer
 #include "proto/global/15050.h"
@@ -7,7 +8,8 @@
 #include "proto/global/6AD90.h"
 #include "proto/global/70FD0.h"
 
-extern s8 D_807F7F00;
+
+extern u8 D_807F7F00;
 
 void renderSetSegment6Override(u8 segment) {
     D_807F7F00 = segment;
@@ -17,10 +19,10 @@ extern Gfx D_80748310[6][2];
 
 void renderReplaceSegment6Commands(Gfx *start, Gfx *end) {
     while (start != end) {
-        int found = 0;
-        int i = 0;
+        s32 found = 0;
+        s32 i = 0;
 
-        for (; i < 6 && !found; ) {
+        while (i < 6 && !found) {
             if (start->words.w0 == D_80748310[i][0].words.w0 && start->words.w1 == D_80748310[i][0].words.w1) {
                 found = 1;
             } else {
@@ -35,16 +37,7 @@ void renderReplaceSegment6Commands(Gfx *start, Gfx *end) {
     }
 }
 
-typedef struct {
-    u8 pad0[0x21C];
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 pad228[0x27C - 0x228];
-    f32 unk27C;
-    u8 pad280[0x2F0 - 0x280];
-} PlayerCameraData;
-extern PlayerCameraData *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 extern s32 gCurrentMap;
 #define R2A_SQ(x) ((x) * (x))
@@ -52,9 +45,10 @@ extern s32 gCurrentMap;
 void renderCalcPlayerDistanceAlpha(f32 x, f32 y, f32 z, f32 maxDist, s16 actorType, s16 *outAlpha) {
     s32 pad;
     f32 dist;
-    f32 fv1;
+    f32 fadeStart;
+    f32 fadeEnd;
 
-    dist = sqrtf(R2A_SQ(x - gPlayerSlots[gCurrentPlayerIndex].x) + R2A_SQ(y - gPlayerSlots[gCurrentPlayerIndex].y) + R2A_SQ(z - gPlayerSlots[gCurrentPlayerIndex].z));
+    dist = sqrtf(R2A_SQ(x - gPlayerSlots[gCurrentPlayerIndex].unk21C) + R2A_SQ(y - gPlayerSlots[gCurrentPlayerIndex].unk220) + R2A_SQ(z - gPlayerSlots[gCurrentPlayerIndex].unk224));
     if (gCurrentMap == 0x26) {
         maxDist = renderAdjustActorDistance(actorType, maxDist);
         if (maxDist < dist) {
@@ -62,13 +56,13 @@ void renderCalcPlayerDistanceAlpha(f32 x, f32 y, f32 z, f32 maxDist, s16 actorTy
             return;
         }
     }
-    x = renderScaleDistanceByFov(maxDist);
-    fv1 = (x * 3.0f) / (f32)4;
-    if (dist < fv1) {
+    fadeEnd = renderScaleDistanceByFov(maxDist);
+    fadeStart = (fadeEnd * 3.0f) / 4;
+    if (dist < fadeStart) {
         *outAlpha = 0xFF;
         return;
     }
-    *outAlpha = (s32)(((dist - fv1) / (x - fv1)) * 255.0f);
+    *outAlpha = (s32)(((dist - fadeStart) / (fadeEnd - fadeStart)) * 255.0f);
     if (*outAlpha >= 0x100) {
         *outAlpha = 0xFF;
     }
@@ -89,7 +83,7 @@ extern Gfx D_807483D0[6][2];
 
 Gfx *renderSetSegment6AndFog(Gfx *gdl, s16 fogAlpha, u8 override) {
     if (fogAlpha == 0xFF) {
-        if ((u8)D_807F7F00 != 0 || override) {
+        if (D_807F7F00 != 0 || override) {
             gSPSegment(gdl++, 6, osVirtualToPhysical(&D_80748310));
         } else {
             gSPSegment(gdl++, 6, osVirtualToPhysical(&D_80748370));
@@ -105,25 +99,25 @@ extern f32 D_807F5FDC;
 extern f32 D_807F5FE0;
 
 f32 renderScaleDistanceByFov(f32 dist) {
-    if ((f64)gPlayerSlots[gCurrentPlayerIndex].unk27C == 45.0) {
+    if ((f64)gPlayerSlots[gCurrentPlayerIndex].fov == 45.0) {
         return dist;
     }
     return (dist / D_807F5FDC) * D_807F5FE0;
 }
 
 typedef struct {
-    s32 unk0;
-    s16 unk4;
+    s32 lastUsedFrame;
+    s16 assetId;
     s16 unk6;
-    void *unk8;
+    void *texture;
 } BillboardCacheEntry;
 extern BillboardCacheEntry gBillboardCache[4];
-extern s16 gBillboardFlags;
+extern u16 gBillboardFlags;
 
 void billboardCacheInit(void) {
     s32 i;
     for (i = 0; i < 4; i++) {
-        gBillboardCache[i].unk0 = -1;
+        gBillboardCache[i].lastUsedFrame = -1;
     }
     gBillboardFlags = 0;
 }
@@ -136,9 +130,9 @@ void billboardCacheEvictStale(void) {
 
     gBillboardQueueCount = 0;
     for (i = 0; i < 4; i++) {
-        if (gBillboardCache[i].unk0 != -1 && (u32)(gFrameCounter - gBillboardCache[i].unk0) >= 21) {
-            assetFreeBuffer(gBillboardCache[i].unk8, 0x65, 0x4D);
-            gBillboardCache[i].unk0 = -1;
+        if (gBillboardCache[i].lastUsedFrame != -1 && (u32)(gFrameCounter - gBillboardCache[i].lastUsedFrame) >= 21) {
+            assetFreeBuffer(gBillboardCache[i].texture, 0x65, 0x4D);
+            gBillboardCache[i].lastUsedFrame = -1;
         }
     }
 }
@@ -150,19 +144,18 @@ void billboardSetFlags(s16 flags) {
 typedef struct {
     Mtx matrices[2];
     Vtx verts[2][4];
-    u16 unk100;
-    u8 unk102;
-    u8 unk103;
-    u8 unk104;
-    u8 unk105;
-    u8 unk106;
-    s8 unk107;
+    u16 renderFlags;
+    u8 cacheIndex;
+    u8 texWidth;
+    u8 texHeight;
+    u8 texFormat;
+    u8 alpha;
+    s8 layer;
 } BillboardData;
 extern BillboardData gBillboardQueue[16];
 extern u8 gGfxBufferIndex;
 
 void *assetLoad(s32, s32, s32, s32); // FAKE: callee prototype steer
-#define ACTOR_FIELD(T, off) (*(T *)((u8 *)actor + (off)))
 
 void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16 halfWidth, s16 halfHeight, u8 texFormat, s16 fadeDistance, u8 flags, s16 rotY, f32 xRatio) {
     s32 found;
@@ -171,9 +164,9 @@ void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16
     f32 mtx1[4][4];
     f32 mtx2[4][4];
     f32 groundY;
-    f32 shadowY;
-    f32 shadowX;
-    f32 shadowZ;
+    f32 nodeX;
+    f32 nodeY;
+    f32 nodeZ;
 
     found = FALSE;
     i = 0;
@@ -187,7 +180,7 @@ void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16
     }
 
     do {
-        if ((gBillboardCache[i].unk0 != -1) && (assetId == gBillboardCache[i].unk4)) {
+        if ((gBillboardCache[i].lastUsedFrame != -1) && (assetId == gBillboardCache[i].assetId)) {
             found = TRUE;
         } else {
             i++;
@@ -195,10 +188,11 @@ void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16
     } while ((i < 4) && !found);
 
     if (!found) {
-        i = 0; found = FALSE;
-        if ((u32)gBillboardCache[i].unk0 == 0xFFFFFFFF) {} // FAKE: dead read of the typed -1 pushes its constant load ahead of the loop-2 induction setup
+        i = 0;
+        found = FALSE; // FAKE: redundant reset (found is already FALSE) steers loop-2 codegen
+        if ((u32)gBillboardCache[i].lastUsedFrame == 0xFFFFFFFF) {} // FAKE: dead read of the typed -1 pushes its constant load ahead of the loop-2 induction setup
         while ((i < 4) && !found) {
-            if ((u32)gBillboardCache[i].unk0 == 0xFFFFFFFF) {
+            if ((u32)gBillboardCache[i].lastUsedFrame == 0xFFFFFFFF) { // FAKE: unsigned spelling of the -1 sentinel steers the compare
                 found = TRUE;
             } else {
                 i++;
@@ -208,25 +202,25 @@ void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16
         if (!found) {
             return;
         }
-        gBillboardCache[i].unk8 = assetLoad(7, assetId, 0, 0);
-        gBillboardCache[i].unk4 = assetId;
+        gBillboardCache[i].texture = assetLoad(7, assetId, 0, 0);
+        gBillboardCache[i].assetId = assetId;
     }
-    gBillboardCache[i * 1].unk0 = gFrameCounter; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
-    gBillboardQueue[gBillboardQueueCount].unk102 = i;
-    gBillboardQueue[gBillboardQueueCount].unk106 = flags;
+    gBillboardCache[i * 1].lastUsedFrame = gFrameCounter; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
+    gBillboardQueue[gBillboardQueueCount].cacheIndex = i;
+    gBillboardQueue[gBillboardQueueCount].alpha = flags;
     if (actor->renderFlags & 0x40) {
-        *(u16 *)&gBillboardFlags |= 1;
+        gBillboardFlags |= 1;
     }
-    gBillboardQueue[gBillboardQueueCount].unk100 = *(u16 *)&gBillboardFlags;
-    gBillboardQueue[gBillboardQueueCount].unk107 = ACTOR_FIELD(s16, 0x12C);
+    gBillboardQueue[gBillboardQueueCount].renderFlags = gBillboardFlags;
+    gBillboardQueue[gBillboardQueueCount].layer = actor->chunkIndex;
 
-    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][0], (s16)-((f32)halfWidth * xRatio), -halfHeight, 0, 0);
-    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][1], halfWidth, -halfHeight, texWidth - 1, 0);
-    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][2], (s16)-((f32)halfWidth * xRatio), halfHeight, 0, texHeight - 1);
-    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][3], halfWidth, halfHeight, texWidth - 1, texHeight - 1);
+    billboardSetVertex(&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][0], (s16)-((f32)halfWidth * xRatio), -halfHeight, 0, 0);
+    billboardSetVertex(&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][1], halfWidth, -halfHeight, texWidth - 1, 0);
+    billboardSetVertex(&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][2], (s16)-((f32)halfWidth * xRatio), halfHeight, 0, texHeight - 1);
+    billboardSetVertex(&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][3], halfWidth, halfHeight, texWidth - 1, texHeight - 1);
 
     groundY = actor->floorY;
-    if ((*(u16 *)&gBillboardFlags & 2) && (actor->contactFlags & 2) && (actor->waterY <= actor->y)) {
+    if ((gBillboardFlags & 2) && (actor->contactFlags & 2) && (actor->waterY <= actor->y)) {
         f32 diff1 = (actor->y > actor->waterY) ? (actor->y - actor->waterY) : -(actor->y - actor->waterY);
         f32 diff2 = (actor->y > actor->floorY) ? (actor->y - actor->floorY) : -(actor->y - actor->floorY);
         if (diff1 < diff2) {
@@ -242,21 +236,21 @@ void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16
     guRotateF(mtx2, (f32)((rotY * 360) / 4095), 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx1, mtx2, mtx1);
     if (actor->flags & 2) {
-        if (ACTOR_FIELD(s16, 0xDA) < 1000) {
-            guRotateF(mtx2, -((f64)ACTOR_FIELD(s16, 0xD8) / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
+        if (actor->floorTiltPitch < 1000) {
+            guRotateF(mtx2, -((f64)actor->floorTiltYaw / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
             guMtxCatF(mtx1, mtx2, mtx1);
         }
-        guRotateF(mtx2, 90.0 - (f64)ACTOR_FIELD(s16, 0xDA) / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
+        guRotateF(mtx2, 90.0 - (f64)actor->floorTiltPitch / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
         guMtxCatF(mtx1, mtx2, mtx1);
-        if (ACTOR_FIELD(s16, 0xDA) < 1000) {
-            guRotateF(mtx2, (f64)ACTOR_FIELD(s16, 0xD8) / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
+        if (actor->floorTiltPitch < 1000) {
+            guRotateF(mtx2, (f64)actor->floorTiltYaw / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
             guMtxCatF(mtx1, mtx2, mtx1);
         }
     }
 
-    if (ACTOR_FIELD(u8, 0xCC)) {
-        actorGetNodePos(actor, ACTOR_FIELD(u8, 0xCC), &shadowY, &shadowX, &shadowZ);
-        guTranslateF(mtx2, shadowY, actor->floorY, shadowZ);
+    if (actor->floorNodeId) {
+        actorGetNodePos(actor, actor->floorNodeId, &nodeX, &nodeY, &nodeZ);
+        guTranslateF(mtx2, nodeX, actor->floorY, nodeZ);
     } else {
         guTranslateF(mtx2, actor->x, groundY, actor->z);
     }
@@ -264,34 +258,34 @@ void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16
 
     guMtxF2L(mtx1, &gBillboardQueue[gBillboardQueueCount].matrices[gGfxBufferIndex]);
 
-    gBillboardQueue[gBillboardQueueCount].unk103 = texWidth;
-    gBillboardQueue[gBillboardQueueCount].unk104 = texHeight;
-    gBillboardQueue[gBillboardQueueCount].unk105 = texFormat;
+    gBillboardQueue[gBillboardQueueCount].texWidth = texWidth;
+    gBillboardQueue[gBillboardQueueCount].texHeight = texHeight;
+    gBillboardQueue[gBillboardQueueCount].texFormat = texFormat;
     gBillboardQueueCount++;
     gBillboardFlags = 0;
 }
 
-void billboardSetVertex(s16 *vtx, s16 x, s16 y, s16 s, s16 t) {
-    vtx[0] = x;
-    vtx[1] = 0;
-    vtx[2] = y;
-    vtx[4] = s << 5;
-    vtx[5] = t << 5;
+void billboardSetVertex(Vtx *vtx, s16 x, s16 z, s16 s, s16 t) {
+    vtx->v.ob[0] = x;
+    vtx->v.ob[1] = 0;
+    vtx->v.ob[2] = z;
+    vtx->v.tc[0] = s << 5;
+    vtx->v.tc[1] = t << 5;
 }
 
 Gfx *billboardRenderQueued(Gfx *gdl, s16 layer) {
     s32 i;
-    s32 prevTex;
+    u8 *prevTex;
     s32 blendMode;
     s32 found;
-    s32 curTex;
+    u8 *curTex;
 
     i = 0;
-    prevTex = 0;
+    prevTex = NULL;
     blendMode = 1;
     found = 0;
     while (i < gBillboardQueueCount && found == 0) {
-        if (layer == gBillboardQueue[i].unk107) {
+        if (layer == gBillboardQueue[i].layer) {
             found = 1;
         }
         i++;
@@ -311,35 +305,35 @@ Gfx *billboardRenderQueued(Gfx *gdl, s16 layer) {
     i = 0;
     if (gBillboardQueueCount > 0) {
         do {
-            if (layer == gBillboardQueue[i].unk107) {
+            if (layer == gBillboardQueue[i].layer) {
                 BillboardData *bb;
 
                 gDPPipeSync(gdl++);
                 bb = &gBillboardQueue[i * 1]; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
                 if (blendMode != 0) {
-                    if (gBillboardQueue[i].unk100 & 1) {
+                    if (gBillboardQueue[i].renderFlags & 1) {
                         gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
                         blendMode = 0;
                     }
                 }
                 if (blendMode == 0) {
-                    if (!(gBillboardQueue[i].unk100 & 1)) {
+                    if (!(gBillboardQueue[i].renderFlags & 1)) {
                         gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504DD8);
                         blendMode = 1;
                     }
                 }
-                gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, gBillboardQueue[i].unk106);
-                curTex = (s32)gBillboardCache[gBillboardQueue[i].unk102].unk8;
+                gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, gBillboardQueue[i].alpha);
+                curTex = gBillboardCache[gBillboardQueue[i].cacheIndex].texture;
                 if (curTex != prevTex) {
                     prevTex = curTex;
-                    switch (gBillboardQueue[i].unk105) {
+                    switch (gBillboardQueue[i].texFormat) {
                     case 0:
                         gDPLoadTextureBlock_4b(
                             gdl++,
-                            (u8 *)curTex + 0x80000000,
+                            curTex + 0x80000000,
                             G_IM_FMT_IA,
-                            gBillboardQueue[i].unk103,
-                            gBillboardQueue[i].unk104,
+                            gBillboardQueue[i].texWidth,
+                            gBillboardQueue[i].texHeight,
                             0,
                             G_TX_CLAMP,
                             G_TX_CLAMP,
@@ -352,11 +346,11 @@ Gfx *billboardRenderQueued(Gfx *gdl, s16 layer) {
                     case 1:
                         gDPLoadTextureBlock(
                             gdl++,
-                            (u8 *)gBillboardCache[gBillboardQueue[i].unk102].unk8 + 0x80000000,
+                            (u8 *)gBillboardCache[gBillboardQueue[i].cacheIndex].texture + 0x80000000,
                             G_IM_FMT_IA,
                             G_IM_SIZ_8b,
-                            gBillboardQueue[i].unk103,
-                            gBillboardQueue[i].unk104,
+                            gBillboardQueue[i].texWidth,
+                            gBillboardQueue[i].texHeight,
                             0,
                             G_TX_CLAMP,
                             G_TX_CLAMP,
@@ -404,19 +398,19 @@ typedef struct {
 } MatrixCacheSub;
 
 typedef struct MatrixCacheNode {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    s32 unkC;
-    s32 unk10;
+    f32 camX;
+    f32 camY;
+    f32 camZ;
+    s32 lastUsedFrame;
+    s32 allocSize;
     struct MatrixCacheNode *hash_next;
     struct MatrixCacheNode *hash_prev;
     struct MatrixCacheNode *list_next;
     struct MatrixCacheNode *list_prev;
-    s16 unk24;
-    s16 unk26;
-    u8 unk28;
-    u8 unk29;
+    s16 modelId;
+    s16 matrixCount;
+    u8 subType;
+    u8 count;
     u8 pad2A[6];
     MatrixCacheSub sub[1];
 } MatrixCacheNode;
@@ -424,9 +418,9 @@ typedef struct MatrixCacheNode {
 extern MatrixCacheNode *D_807F8EC0[100];
 extern MatrixCacheNode *D_807F9050;
 extern MatrixCacheNode *D_807F9054;
-extern s32 D_807F905C;
+extern u32 D_807F905C;
 extern u16 D_807F9060;
-extern s32 D_807F9064;
+extern u32 D_807F9064;
 
 void matrixCacheInit(s32 limit) {
     s32 i;
@@ -479,9 +473,9 @@ void *matrixCacheLookup(s32 count, s32 camIndex, s16 modelId, u8 subType) {
     D_807F9058++;
     node = D_807F8EC0[matrixCacheHash(count, modelId, subType)];
     while (node != NULL) {
-        if (count == node->unk29 && modelId == node->unk24 && node->unk28 == subType) {
-            if (node->unk0 == D_8076A0B4[camIndex] && node->unk4 == D_8076A0B8[camIndex]) {
-                if (node->unk8 == D_8076A0BC[camIndex]) {
+        if (count == node->count && modelId == node->modelId && node->subType == subType) {
+            if (node->camX == D_8076A0B4[camIndex] && node->camY == D_8076A0B8[camIndex]) {
+                if (node->camZ == D_8076A0BC[camIndex]) {
                     i = 0;
                     mismatch = 0;
                     for (; !mismatch && i < count; i++) {
@@ -511,7 +505,7 @@ void *matrixCacheLookup(s32 count, s32 camIndex, s16 modelId, u8 subType) {
                     }
                     if (!mismatch) {
                         MatrixCacheSub *sub = node->sub;
-                        node->unkC = gFrameCounter;
+                        node->lastUsedFrame = gFrameCounter;
                         D_807F905A++;
                         if (node->list_prev != NULL) {
                             if (node->list_next == NULL) {
@@ -540,7 +534,7 @@ void *matrixCacheLookup(s32 count, s32 camIndex, s16 modelId, u8 subType) {
 void *matrixCacheInsert(s32 count, s32 camIndex, s16 modelId, u8 subType, s32 matrixCount, u8 insertAtTail) {
     void *dest;
     u32 allocSize;
-    s32 dummy;
+    s32 pad;
     MatrixCacheNode *node;
     MatrixCacheNode **bucket;
     MatrixCacheNode *head;
@@ -557,19 +551,19 @@ void *matrixCacheInsert(s32 count, s32 camIndex, s16 modelId, u8 subType, s32 ma
     }
     node->hash_prev = NULL;
 
-    dest = (u8 *)node + 0x30;
-    node->unk0 = D_8076A0B4[camIndex];
-    node->unk4 = D_8076A0B8[camIndex];
-    node->unk8 = D_8076A0BC[camIndex];
-    node->unk24 = modelId;
-    node->unk29 = count;
-    node->unk28 = subType;
-    memcpy(dest, &D_807F78C0, count << 6);
-    node->unkC = gFrameCounter;
-    node->unk26 = matrixCount;
+    dest = node->sub;
+    node->camX = D_8076A0B4[camIndex];
+    node->camY = D_8076A0B8[camIndex];
+    node->camZ = D_8076A0BC[camIndex];
+    node->modelId = modelId;
+    node->count = count;
+    node->subType = subType;
+    memcpy(dest, D_807F78C0, count << 6);
+    node->lastUsedFrame = gFrameCounter;
+    node->matrixCount = matrixCount;
     D_807F905C += allocSize;
     D_807F9060++;
-    node->unk10 = allocSize;
+    node->allocSize = allocSize;
 
     if (insertAtTail == 0) {
         node->list_next = D_807F9050;
@@ -608,7 +602,7 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
     MatrixCacheNode **bucket;
     u32 cond;
 
-    cond = checkLimit;
+    cond = checkLimit; // FAKE: u32 copy of the u8 parameter steers the compares' register
     node = D_807F9054;
     evictedAny = 0;
     if (cond != 0) {
@@ -617,7 +611,7 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
 
     while (1) {
         if (cond != 0) {
-            if (!((u32)D_807F9064 < (u32)D_807F905C)) {
+            if (!(D_807F9064 < D_807F905C)) {
                 break;
             }
         }
@@ -625,7 +619,7 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
             break;
         }
         next = node->list_prev;
-        if ((cond == 0 && (u32)D_807F9064 < (u32)D_807F905C) || (u32)minAge < (u32)(gFrameCounter - node->unkC)) {
+        if ((cond == 0 && D_807F9064 < D_807F905C) || (u32)minAge < (u32)(gFrameCounter - node->lastUsedFrame)) {
             if (node == D_807F9054) {
                 D_807F9054 = node->list_prev;
             }
@@ -638,9 +632,9 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
             if (node->list_prev != NULL) {
                 node->list_prev->list_next = node->list_next;
             }
-            D_807F905C -= node->unk10;
+            D_807F905C -= node->allocSize;
             D_807F9060--;
-            bucket = &D_807F8EC0[matrixCacheHash(node->unk29, node->unk24, node->unk28)];
+            bucket = &D_807F8EC0[matrixCacheHash(node->count, node->modelId, node->subType)];
             if (node == *bucket) {
                 *bucket = node->hash_next;
                 if (node->hash_next != NULL) {
@@ -654,7 +648,7 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
                     node->hash_prev->hash_next = node->hash_next;
                 }
             }
-            if ((u32)(gFrameCounter - node->unkC) >= 2) {
+            if ((u32)(gFrameCounter - node->lastUsedFrame) >= 2) {
                 heapFree(node);
                 evictedAny = 1;
             } else {
@@ -668,8 +662,8 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
 
 
 s32 matrixCacheDecayLimit(void) {
-    D_807F9064 = ((u32)D_807F9064 * 3) >> 2;
-    if ((u32)D_807F9064 < 0x10000) {
+    D_807F9064 = (D_807F9064 * 3) >> 2;
+    if (D_807F9064 < 0x10000) {
         return 0;
     }
     return matrixCacheEvict(1, 0);
@@ -679,7 +673,7 @@ s32 matrixCacheHash(s32 count, s16 modelId, u8 subType) {
     return (modelId * 16 + count * 4 + subType) % 100;
 }
 
-extern s32 D_807F9068;
+extern u32 D_807F9068;
 
 void matrixCacheSetDefaultLimit(void) {
     if (D_807F9064 != 0x9C40) {
