@@ -32,7 +32,7 @@ s32 effectCheckTargetActive(struct EffectSubNode *);
 void effectWaterApplyLights(f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_effectWaterRenderSurfaces
-Gfx *effectWaterRenderSurfaces(Gfx *, u8, u8);
+Gfx *effectWaterRenderSurfaces(Gfx *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_effectWaterSetScissor
 Gfx *effectWaterSetScissor(Gfx *, struct EffectNode *);

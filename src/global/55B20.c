@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectWaterRenderSurfaces // FAKE: callee prototype steer
 #define PROTO_SKIP_renderEntryListBuildDisplayList // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
 #include "proto/global/15050.h"
@@ -2014,7 +2013,6 @@ extern Gfx D_2000180;
 u32 osVirtualToPhysical(void *);
 Gfx *renderEntryListBuildDisplayList(Gfx *, struct RenderEntry *, f32, f32, f32, s32, s16, s32); // FAKE: callee prototype steer
 Gfx *func_80027034(Gfx *);
-Gfx *effectWaterRenderSurfaces(Gfx *, s32, u8); // FAKE: callee prototype steer
 
 Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
     s32 i;

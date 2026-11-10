@@ -516,7 +516,7 @@ void effectWaterApplyLights(f32 camX, f32 camY, f32 camZ) {
     }
 }
 
-Gfx *effectWaterRenderSurfaces(Gfx *gdl, u8 viewMode, u8 waterType) {
+Gfx *effectWaterRenderSurfaces(Gfx *gdl, s32 viewMode, u8 waterType) {
     EffectNode *water;
 
     water = gEffectNodeList;
