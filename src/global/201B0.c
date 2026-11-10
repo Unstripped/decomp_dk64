@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_camLoadPathData // FAKE: callee prototype steer
 #define PROTO_SKIP_collisionCheckActorFloor // PROTO: The controlling expression of the if statement is not scalar
 #include "proto/global/10130.h"
 #include "proto/global/10E1D0.h"
@@ -231,11 +230,9 @@ u8 camCueTimerIsRunning(void) {
     return gCamCueStartTime != 0;
 }
 
-extern unsigned long long __ll_mul(unsigned long long, unsigned long long);
-extern unsigned long long __ull_div(unsigned long long, unsigned long long);
 
 void camCueTimerTick(void) {
-    u64 t = __ull_div(__ull_div(__ll_mul(osGetTime() - gCamCueStartTime, 0x40), 0xBB8), 0x2710);
+    u64 t = OS_CYCLES_TO_USEC(osGetTime() - gCamCueStartTime) / 10000;
 
     if ((u32)t >= gCamCueTable[gCamCueIndex].unk0) {
         menuTransitionToMap(gCamCueTable[gCamCueIndex].unk4, gCamCueTable[gCamCueIndex].unk5);
@@ -1013,7 +1010,7 @@ void camSetPath(u8 pathIndex) {
 extern u8 D_8076AEE0;
 extern f32 gScreenFadeRate;
 
-void camLoopPathStep(u8 loopCount, u8 loopStep) {
+void camLoopPathStep(u8 loopStep, u8 loopCount) {
     if (gCamPathLoopCount != 0) {
         gCamPathLoopCount--;
         if (gCamPathLoopCount != 0) {
@@ -1021,9 +1018,9 @@ void camLoopPathStep(u8 loopCount, u8 loopStep) {
             camLoadPathPoint();
         }
     } else {
-        gCamPathLoopCount = loopStep;
-        gCamPathLoopStep = loopCount;
-        gCamPathStep = loopCount;
+        gCamPathLoopCount = loopCount;
+        gCamPathLoopStep = loopStep;
+        gCamPathStep = loopStep;
         camLoadPathPoint();
     }
 }
@@ -1371,11 +1368,7 @@ void camResetPlayer(Actor *player, u8 playerIndex) {
     if (gGameMode == 1) {
         camEndPath(cam);
     }
-    if (cam->unk15F != 0) {
-        st->unkB2 = (cam->unk15F / 255.0) * 4095.0;
-    } else {
-        st->unkB2 = (f64)player->yaw; // FAKE: f64 round-trip of yaw (codegen)
-    }
+    st->unkB2 = (cam->unk15F != 0) ? (cam->unk15F / 255.0) * 4095.0 : player->yaw;
     cam->unk15F = 0;
     gGlobalPauseFlags |= 0x2000;
     st->unkF3 = 1;
@@ -1841,7 +1834,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
 
 void camFindClearYaw(Actor *camActor, f32 unused, s16 yaw, u8 failCount) {
     Actor *tgt;
-    s32 ret;
+    s32 pad;
     s16 cnt;
     s16 saved;
     s16 out1;
@@ -1898,7 +1891,7 @@ void camFindClearYaw(Actor *camActor, f32 unused, s16 yaw, u8 failCount) {
     do {
         again = 0;
         sawCol = camComputeFollowPos(camActor, cam->unk0, &x, &y, &z, -1.0f) == 1;
-        while (cam->unkA0 < f * 100.0f && !sawCol && (ret = collisionTestSphere(x, y, z, 10.0f * f, &out1, &out0, 1, 0xBC), hit = ret, ret == 0)) { // FAKE: comma condition keeps the ret/hit copy
+        while (cam->unkA0 < f * 100.0f && !sawCol && (hit = collisionTestSphere(x, y, z, 10.0f * f, &out1, &out0, 1, 0xBC)) == 0) {
             saved = cam->unkB2;
             cam->unkA0 += 10.0f * f;
             camActor->distToFloor += f * 3.0f;
@@ -2018,7 +2011,7 @@ u8 camResolveWallCollision(Actor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, f32
 
 s32 func_80620F00(Actor *camActor, u8 allowNudge, u8 requireSide) {
     CamState *st = camActor->customState;
-    Actor *actor;
+    s32 pad;
     f32 diff;
     u8 pastLimit;
     u8 pastLeft;
@@ -2026,9 +2019,8 @@ s32 func_80620F00(Actor *camActor, u8 allowNudge, u8 requireSide) {
     u8 pastRetry;
     PlayerState *targetState;
 
-    actor = st->unk0;
     diff = gCamTargetDist - gPlayerSlots[st->unkFB].unk284;
-    targetState = actor->customState;
+    targetState = st->unk0->customState;
     pastLimit = 40.0f < gCamTargetDist && targetState->unk114 < diff;
     pastLeft = targetState->unk118 < diff;
     pastRight = targetState->unk11A < diff;
@@ -2037,7 +2029,7 @@ s32 func_80620F00(Actor *camActor, u8 allowNudge, u8 requireSide) {
         pastLimit = 0;
     }
     if (pastLimit != 0) {
-        if (allowNudge && actor->speedXZ != 0.0f) {
+        if (allowNudge && st->unk0->speedXZ != 0.0f) {
             if (pastLeft && !pastRight) {
                 st->unkB2 += 0x32;
                 camSetSettleMode(st, 0xA);
@@ -2048,12 +2040,11 @@ s32 func_80620F00(Actor *camActor, u8 allowNudge, u8 requireSide) {
         }
         st->unkF4++;
         if (pastRetry && st->unkF4 >= 0x15) {
-            actor = st->unk0; // FAKE: redundant reload of st->unk0 (codegen)
             st->unkF4 = 0;
-            if (actor->speedXZ != 0.0f && actor->state != 0x59) {
+            if (st->unk0->speedXZ != 0.0f && st->unk0->state != 0x59) {
                 camFindClearYaw(camActor, 0.0f, st->unkB2, 1);
             } else {
-                camFindClearYaw(camActor, 0.0f, actor->yaw, 1);
+                camFindClearYaw(camActor, 0.0f, st->unk0->yaw, 1);
             }
         }
         return 1;
@@ -2616,7 +2607,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
     idx[1] = target->yawSpeed;
     idx[2] = (target->yawSpeed + 1 >= count) ? count : target->yawSpeed + 1;
     idx[3] = (target->yawSpeed + 2 >= count) ? count : target->yawSpeed + 2;
-    if (gGameMode != 1U) {
+    if (gGameMode != 1U) { // FAKE: unsigned 1 keeps this constant out of the gGameMode == 1 tests' web (codegen)
         if (cam->unkF3 == 3 || cam->unkF3 == 0xB) {
             if (target->state != 2 && target->state != 3 && target->state != 4 && target->state != 5 &&
                 target->state != 0x64 && target->state != 0x65) {
@@ -2979,7 +2970,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
     }
 }
 
-void camTurnYawToward(st, speed, targetYaw) CamState *st; s16 speed; s16 targetYaw; {
+void camTurnYawToward(CamState *st, s16 speed, s16 targetYaw) {
     s16 diff;
     u16 dist;
     f32 scale;
@@ -3406,8 +3397,6 @@ void camClearSecondTarget(Actor *cam) {
     st->unkAC &= ~0x10004;
 }
 
-void camLoadPathData(void *, CamPathData *, u8); // FAKE: callee prototype steer
-
 void camLoadPathTable(void *src, CamPathData *paths, u8 allocate) {
     camLoadPathData(src, paths, allocate);
     paths->unkD8[48].unk1 = 0xE;
@@ -3418,7 +3407,7 @@ void camLoadPathTable(void *src, CamPathData *paths, u8 allocate) {
     paths->unkD8[53].unk1 = 8;
 }
 
-void camInit(void *cam) {
+void camInit(void *mapPathSrc) {
     void *buf = assetLoad(8, 0, 1, 1);
 
     splineSetBasisTension(0.5f);
@@ -3426,7 +3415,7 @@ void camInit(void *cam) {
     gCamPathFlags = 0;
     gCamZoneGroups = NULL;
     gCamZoneSorted = NULL;
-    camLoadPathTable(cam, gCamActivePaths, 1);
+    camLoadPathTable(mapPathSrc, gCamActivePaths, 1);
     camLoadPathTable(buf, gCamGlobalPathsPtr, 0);
     assetFreeBuffer(buf, 0x10B4, 0xC);
     camInitZones();
@@ -3484,17 +3473,7 @@ void *camCopyPathPayload(u8 *src, void *dst, u16 size) {
     return src + 4 + size;
 }
 
-typedef struct CamPathKeyPosLookRaw {
-    /* 0x00 */ s16 v[7];
-} CamPathKeyPosLookRaw; // size = 0xE
-
-typedef struct CamPathKeyPosRaw {
-    /* 0x00 */ s16 v[4];
-} CamPathKeyPosRaw; // size = 0x8
-
-#define CAM_LOAD_SRC ((s16 *)src)
-
-void camLoadPathData(src, paths, allocate) void *src; CamPathData *paths; u8 allocate; {
+void camLoadPathData(void *src, CamPathData *paths, u8 allocate) {
     s16 i;
     s16 j;
     s16 cnt;
@@ -3519,17 +3498,17 @@ void camLoadPathData(src, paths, allocate) void *src; CamPathData *paths; u8 all
     s16 *zp;
     s32 skip;
 
-    hdr = CAM_LOAD_SRC;
+    hdr = src;
     data = src != NULL ? (u8 *)src + 0x30 : NULL;
     for (i = 0; i < 0x18; i++) {
         h = &paths->unk0[i];
         cnt = h->unk0 = hdr != NULL ? *hdr++ : 0;
         if (allocate) {
-            h->unk4 = heapAlloc(cnt * 0x12U);
+            h->unk4 = heapAlloc(cnt * sizeof(CamPathSeg));
             for (j = 0; j < cnt; j++) {
                 dst = &h->unk4[j];
                 buf = *(CamPathSeg *)data;
-                data += 0x12;
+                data += sizeof(CamPathSeg);
                 camCopyVec3s(dst->a, buf.a);
                 camCopyVec3s(dst->c, buf.c);
                 camCopyVec3s(dst->b, buf.b);
@@ -3539,8 +3518,8 @@ void camLoadPathData(src, paths, allocate) void *src; CamPathData *paths; u8 all
     hdr = (s16 *)data;
     cnt = paths->unkC0 = hdr != NULL ? *hdr++ : 0;
     if (allocate) {
-        paths->unkC8 = heapAlloc((u32)cnt);
-        paths->unkC4 = heapAlloc(cnt * 0x1CU);
+        paths->unkC8 = heapAlloc(cnt);
+        paths->unkC4 = heapAlloc(cnt * sizeof(CamZoneEntryFull));
         zp = hdr;
         for (i = 0; i < cnt; i++) {
             paths->unkC8[i] = mapChunkFindByPosition(zp[8], zp[9], zp[10], 0);
@@ -3550,7 +3529,7 @@ void camLoadPathData(src, paths, allocate) void *src; CamPathData *paths; u8 all
         hdr = zp;
     }
     cnt = paths->unkCC = hdr != NULL ? *hdr++ : 0;
-    paths->unkD0 = heapAlloc(cnt * 0xCU);
+    paths->unkD0 = heapAlloc(cnt * sizeof(CamPathList));
     for (i = 0; i < cnt; i++) {
         paths->unkD0[i].unk0 = m = *hdr;
         k = m;
@@ -3570,7 +3549,7 @@ void camLoadPathData(src, paths, allocate) void *src; CamPathData *paths; u8 all
     if (cnt != 0) {
         do {
             skip = 0;
-            u = (CamPathPointSpline *)&paths->unkD8[i].u;
+            u = &paths->unkD8[i].u.spline;
             paths->unkD8[i].unk1 = rd[1];
             paths->unkD8[i].unk0 = rd[0];
             switch (paths->unkD8[i].unk1) {
@@ -3598,9 +3577,9 @@ void camLoadPathData(src, paths, allocate) void *src; CamPathData *paths; u8 all
                     s = (s16 *)(rd + 0x20);
                     j = 0;
                     u->unk0 = *(s16 *)(rd + 4);
-                    u->unk4 = heapAlloc(u->unk0 * 0xEU);
+                    u->unk4 = heapAlloc(u->unk0 * sizeof(CamSplineKeyPosLook));
                     for (; j < u->unk0; j++) {
-                        ((CamPathKeyPosLookRaw *)u->unk4)[j] = *(CamPathKeyPosLookRaw *)s;
+                        ((CamSplineKeyPosLook *)u->unk4)[j] = *(CamSplineKeyPosLook *)s;
                         s += 7;
                     }
                     rd = (u8 *)s;
@@ -3609,9 +3588,9 @@ void camLoadPathData(src, paths, allocate) void *src; CamPathData *paths; u8 all
                     s = (s16 *)(rd + 0x14);
                     j = 0;
                     u->unk0 = *(s16 *)(rd + 4);
-                    u->unk4 = heapAlloc(u->unk0 * 8U);
+                    u->unk4 = heapAlloc(u->unk0 * sizeof(CamSplineKeyPos));
                     for (; j < u->unk0; j++) {
-                        ((CamPathKeyPosRaw *)u->unk4)[j] = *(CamPathKeyPosRaw *)s;
+                        ((CamSplineKeyPos *)u->unk4)[j] = *(CamSplineKeyPos *)s;
                         s += 4;
                     }
                     rd = (u8 *)s;
@@ -3630,9 +3609,9 @@ void camLoadPathData(src, paths, allocate) void *src; CamPathData *paths; u8 all
 }
 
 s32 camDistance3D(s32 x1, s32 y1, s32 z1, s32 x2, s32 y2, s32 z2) {
-    s64 unused0;
-    s64 unused1;
-    s64 unused2;
+    s64 pad0;
+    s64 pad1;
+    s64 pad2;
 
     return sqrtf((s64)(x1 - x2) * (x1 - x2) + (s64)(y1 - y2) * (y1 - y2) +
                  (s64)(z1 - z2) * (z1 - z2));

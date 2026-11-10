@@ -202,7 +202,7 @@ void actorGetSubNodePos(struct ActorTargetWork *, s32, f32 *, f32 *, f32 *);
 s32 actorStepSubNodeList(struct ActorTargetWork *, s32);
 #endif
 #ifndef PROTO_SKIP_collisionTestSphere
-s32 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, u8, u16);
+u8 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, u8, u16);
 #endif
 #ifndef PROTO_SKIP_collisionTestSphereSlots
 u8 collisionTestSphereSlots(f32, f32, f32, f32, s16 *, s16 *);

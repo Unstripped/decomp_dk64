@@ -233,7 +233,7 @@ f32 camAngleLerpRad(f32, f32, f32);
 void camComputeEyeFocus(Actor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, Actor *);
 #endif
 #ifndef PROTO_SKIP_camTurnYawToward
-void camTurnYawToward();
+void camTurnYawToward(CamState *, s16, s16);
 #endif
 #ifndef PROTO_SKIP_camUpdateFollowBlend
 void camUpdateFollowBlend(Actor *);
@@ -281,7 +281,7 @@ void camCopyVec3s(s16 *, s16 *);
 void *camCopyPathPayload(u8 *, void *, u16);
 #endif
 #ifndef PROTO_SKIP_camLoadPathData
-void camLoadPathData();
+void camLoadPathData(void *, struct CamPathData *, u8);
 #endif
 #ifndef PROTO_SKIP_camDistance3D
 s32 camDistance3D(s32, s32, s32, s32, s32, s32);

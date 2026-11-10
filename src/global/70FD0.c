@@ -2931,7 +2931,7 @@ s32 actorStepSubNodeList(ActorTargetWork *arg0, s32 arg1) {
 }
 
 
-s32 collisionTestSphere(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s16 *arg5, u8 arg6, u16 arg7) {
+u8 collisionTestSphere(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s16 *arg5, u8 arg6, u16 arg7) {
     u8 ret;
 
     arg0 *= 8.0f;
