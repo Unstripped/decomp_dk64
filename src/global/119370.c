@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/global/119370.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
@@ -20,58 +21,125 @@ extern s16 sEffectPendingZOffset;
 
 
 
+typedef struct EffectGridAsset {
+    /* 0x00 */ s32 id;
+    /* 0x04 */ u8 width;
+    /* 0x05 */ u8 height;
+    /* 0x06 */ u8 format;
+    /* 0x07 */ u8 size;
+    /* 0x08 */ u8 red;
+    /* 0x09 */ u8 green;
+    /* 0x0A */ u8 blue;
+    /* 0x0B */ u8 alpha;
+    /* 0x0C */ u8 unkC;
+    /* 0x0D */ u8 unkD;
+    /* 0x0E */ s16 cellW;
+    /* 0x10 */ s16 cellH;
+    /* 0x12 */ s16 frameCount;
+    /* 0x14 */ u8 data[1];
+} EffectGridAsset;
+
+typedef struct EffectGridSlot {
+    s32 buffer;
+    s32 frame;
+} EffectGridSlot;
+
 typedef struct EffectGridNode {
-    void *unk0;
-    s32 unk4;
-    u8 unk8;
-    u8 unk9;
-    u8 unkA;
-    u8 unkB;
-    s16 unkC;
-    s16 unkE;
-    s16 unk10;
-    s16 unk12;
-    s16 unk14;
-    s16 unk16;
-    s32 unk18;
-    void *unk1C;
-    void *unk20;
-    struct EffectGridNode *unk24;
+    /* 0x00 */ EffectGridAsset *asset;
+    /* 0x04 */ s32 id;
+    /* 0x08 */ u8 width;
+    /* 0x09 */ u8 height;
+    /* 0x0A */ u8 format;
+    /* 0x0B */ u8 size;
+    /* 0x0C */ s16 cellW;
+    /* 0x0E */ s16 cellH;
+    /* 0x10 */ u8 red;
+    /* 0x11 */ u8 green;
+    /* 0x12 */ u8 blue;
+    /* 0x13 */ u8 alpha;
+    /* 0x14 */ u8 unk14;
+    /* 0x15 */ u8 unk15;
+    /* 0x16 */ s16 frameCount;
+    /* 0x18 */ s32 lastUsedFrame;
+    /* 0x1C */ EffectGridSlot *slots;
+    /* 0x20 */ u8 *data;
+    /* 0x24 */ struct EffectGridNode *next;
 } EffectGridNode;
 
+struct EffectNode;
+typedef void (*EffectCallback)(struct EffectNode *effect, u8 *chunkFound);
+
 typedef struct EffectNode {
-    u8 pad0[0x20];
-    u8 itemCount;
-    u8 pad21[0x317];
-    s32 resource;
-    u8 pad33C[0x33];
-    u8 mode;
-    u8 pad370[0x14];
-    void *allocation;
-    u8 pad388[4];
-    u16 flags;
-    u8 pad38E[0xA];
-    struct EffectNode *previous;
-    struct EffectNode *next;
+    /* 0x000 */ Gfx *displayLists[4][2];
+    /* 0x020 */ u8 viewportCount;
+    /* 0x021 */ u8 displayListIndex;
+    /* 0x022 */ u8 pad22[6];
+    /* 0x028 */ Vtx vertices[16];
+    /* 0x128 */ Mtx matrices[4][2];
+    /* 0x328 */ EffectCallback callback;
+    /* 0x32C */ u8 state;
+    /* 0x32D */ u8 freePending;
+    /* 0x32E */ u8 pad32E[2];
+    /* 0x330 */ EffectGridNode *grid;
+    /* 0x334 */ u8 anchorType;
+    /* 0x335 */ u8 pad335[3];
+    /* 0x338 */ Actor *owner;
+    /* 0x33C */ s16 boneIndex;
+    /* 0x33E */ u8 subIndex;
+    /* 0x33F */ u8 pad33F;
+    /* 0x340 */ f32 x;
+    /* 0x344 */ f32 y;
+    /* 0x348 */ f32 z;
+    /* 0x34C */ s16 maxDistance;
+    /* 0x34E */ s16 param;
+    /* 0x350 */ u8 frameDelay;
+    /* 0x351 */ u8 frameTimer;
+    /* 0x352 */ u8 pad352[2];
+    /* 0x354 */ s32 duration;
+    /* 0x358 */ s32 durationTimer;
+    /* 0x35C */ s32 speed;
+    /* 0x360 */ f32 scaleX;
+    /* 0x364 */ f32 scaleY;
+    /* 0x368 */ s16 startDelay;
+    /* 0x36A */ u8 red;
+    /* 0x36B */ u8 green;
+    /* 0x36C */ u8 blue;
+    /* 0x36D */ u8 alpha;
+    /* 0x36E */ u8 depth;
+    /* 0x36F */ u8 mode;
+    /* 0x370 */ s32 frames[4];
+    /* 0x380 */ s32 frameCount;
+    /* 0x384 */ void *allocation;
+    /* 0x388 */ s16 chunkFilter;
+    /* 0x38A */ s8 chunk;
+    /* 0x38B */ u8 pad38B;
+    /* 0x38C */ u16 flags;
+    /* 0x38E */ s16 minX;
+    /* 0x390 */ s16 minY;
+    /* 0x392 */ s16 maxX;
+    /* 0x394 */ s16 maxY;
+    /* 0x396 */ u8 pad396[2];
+    /* 0x398 */ struct EffectNode *previous;
+    /* 0x39C */ struct EffectNode *next;
 } EffectNode;
 
 
 extern EffectGridNode *sEffectGridHead;
 extern EffectNode *sEffectListHead;
 extern EffectNode *sEffectListTail;
-extern s8 sEffectPendingColorR;
-extern s8 sEffectPendingColorG;
-extern s8 sEffectPendingColorB;
-extern s8 sEffectPendingColorA;
+extern u8 sEffectPendingColorR;
+extern u8 sEffectPendingColorG;
+extern u8 sEffectPendingColorB;
+extern u8 sEffectPendingColorA;
 extern s32 sEffectPendingDuration;
-extern s32 sEffectPendingCallback;
-extern s8 sEffectPendingDepth;
+extern EffectCallback sEffectPendingCallback;
+extern u8 sEffectPendingDepth;
 extern s16 sEffectPendingAngle;
 extern u8 sEffectPendingMode;
-extern s8 sEffectPendingFade;
+extern u8 sEffectPendingFade;
 extern f32 sEffectPendingScaleX;
 extern f32 sEffectPendingScaleY;
-extern s8 sEffectPendingHasScale;
+extern u8 sEffectPendingHasScale;
 extern s32 sEffectPendingSpeed;
 extern s32 sEffectPendingParam;
 extern u16 sEffectPendingFlags;
@@ -95,83 +163,82 @@ s32 effectGridFindByTargetId(s32 targetId) {
 
     if (node != NULL) {
         do {
-            if (targetId == node->unk4) {
-                return (s32) node->unk0;
+            if (targetId == node->id) {
+                return (s32) node->asset;
             }
-            node = node->unk24;
+            node = node->next;
         } while (node != NULL);
     }
-    return (s32) sEffectGridHead->unk0;
+    return (s32) sEffectGridHead->asset;
 }
 
-void effectGridGetByteDimensions(EffectGridNode *grid, u8 *outW, u8 *outH) {
-    *outW = ((u8 *) grid)[4];
-    *outH = ((u8 *) grid)[5];
+void effectGridGetByteDimensions(EffectGridAsset *asset, u8 *outW, u8 *outH) {
+    *outW = asset->width;
+    *outH = asset->height;
 }
 
-void effectGridGetCellDimensions(EffectGridNode *grid, s16 *outCellW, s16 *outCellH) {
-    *outCellW = grid->unkE;
-    *outCellH = grid->unk10;
+void effectGridGetCellDimensions(EffectGridAsset *asset, s16 *outCellW, s16 *outCellH) {
+    *outCellW = asset->cellW;
+    *outCellH = asset->cellH;
 }
 
-void effectGridGetScaledDimensions(EffectGridNode *grid, s16 *outScaledW, s16 *outScaledH) {
+void effectGridGetScaledDimensions(EffectGridAsset *asset, s16 *outScaledW, s16 *outScaledH) {
     s16 pad0;
     s16 pad1;
     u8 byteW;
     u8 byteH;
-    effectGridGetByteDimensions(grid, &byteW, &byteH);
-    effectGridGetCellDimensions(grid, outScaledW, outScaledH);
+    effectGridGetByteDimensions(asset, &byteW, &byteH);
+    effectGridGetCellDimensions(asset, outScaledW, outScaledH);
     *outScaledW *= byteW;
     *outScaledH *= byteH;
 }
 
-void effectGridRegister(EffectGridNode *grid) {
+void effectGridRegister(EffectGridAsset *asset) {
     EffectGridNode *last;
     EffectGridNode *newNode;
-    s32 byteOffset;
+    s32 pad;
     s32 count;
     s32 i;
 
     newNode = sEffectGridHead;
-    byteOffset = 0xB;
     last = NULL;
     while (newNode != NULL) {
         last = newNode;
-        if (grid == newNode->unk0) {
+        if (asset == newNode->asset) {
             return;
         }
-        newNode = newNode->unk24;
+        newNode = newNode->next;
     }
 
-    newNode = heapAlloc(0x28);
-    newNode->unk24 = NULL;
-    newNode->unk0 = grid;
-    newNode->unk4 = (s32) grid->unk0;
-    effectGridGetByteDimensions(grid, &newNode->unk8, &newNode->unk9);
-    ((u8 *) newNode)[0xA] = ((u8 *) grid)[0x6];
-    ((u8 *) newNode)[byteOffset] = ((u8 *) grid)[0x7];
-    ((u8 *) newNode)[0x10] = ((u8 *) grid)[0x8];
-    ((u8 *) newNode)[0x11] = ((u8 *) grid)[0x9];
-    ((u8 *) newNode)[0x12] = ((u8 *) grid)[0xA];
-    ((u8 *) newNode)[0x13] = ((u8 *) grid)[0xB];
-    ((u8 *) newNode)[0x14] = ((u8 *) grid)[0xC];
-    ((u8 *) newNode)[0x15] = ((u8 *) grid)[0xD];
-    effectGridGetCellDimensions(grid, &newNode->unkC, &newNode->unkE);
-    newNode->unk16 = grid->unk12;
-    newNode->unk18 = -1;
+    newNode = heapAlloc(sizeof(EffectGridNode));
+    newNode->next = NULL;
+    newNode->asset = asset;
+    newNode->id = asset->id;
+    effectGridGetByteDimensions(asset, &newNode->width, &newNode->height);
+    newNode->format = asset->format;
+    newNode->size = asset->size;
+    newNode->red = asset->red;
+    newNode->green = asset->green;
+    newNode->blue = asset->blue;
+    newNode->alpha = asset->alpha;
+    newNode->unk14 = asset->unkC;
+    newNode->unk15 = asset->unkD;
+    effectGridGetCellDimensions(asset, &newNode->cellW, &newNode->cellH);
+    newNode->frameCount = asset->frameCount;
+    newNode->lastUsedFrame = -1;
 
     if (sEffectGridHead != NULL) {
-        last->unk24 = newNode;
+        last->next = newNode;
     } else {
         sEffectGridHead = newNode;
     }
 
-    count = newNode->unk8 * newNode->unk9 * newNode->unk16;
-    newNode->unk1C = heapAlloc(count * 8);
+    count = newNode->width * newNode->height * newNode->frameCount;
+    newNode->slots = heapAlloc(count * 8);
     for (i = 0; i < count; i++) {
-        ((s32 *) ((u8 *) newNode->unk1C + (i * 8)))[1] = -1;
+        newNode->slots[i].frame = -1;
     }
-    newNode->unk20 = (u8 *) grid + 0x14;
+    newNode->data = asset->data;
 }
 
 void effectSetParam(s32 param) {
@@ -195,7 +262,7 @@ void effectSetZOffset(s16 val) {
 }
 
 void effectSetCallback(void *callback) {
-    sEffectPendingCallback = (s32)callback;
+    sEffectPendingCallback = (EffectCallback)callback;
 }
 
 void effectSetMode(u8 mode) {
@@ -232,9 +299,7 @@ void effectSetFlags(s16 flags) {
 }
 
 void effectFlagsOr(u8 flagBits) {
-    u16 *temp = &sEffectPendingFlags;
-
-    *temp = *temp | flagBits;
+    sEffectPendingFlags |= flagBits;
 }
 
 void effectSetLifetime(s16 val) {
@@ -251,25 +316,23 @@ void effectSetBounds(s16 minX, s16 minY, s16 maxX, s16 maxY) {
 extern u8 gHiResScale;
 
 void effectResetState(void) {
-    s32 temp;
-    u16 new_var;
+    s32 minBound;
 
     sEffectPendingColorA = 0;
     sEffectPendingDuration = 1;
-    sEffectPendingCallback = 0;
+    sEffectPendingCallback = NULL;
     sEffectPendingDepth = 0;
     sEffectPendingMode = 1;
     sEffectPendingAngle = 0;
     sEffectPendingFade = 0;
     sEffectPendingHasScale = 0;
-    temp = gHiResScale * 0xA;
-    new_var = 0;
-    sEffectPendingSpeed = new_var;
-    sEffectPendingParam = new_var;
+    minBound = gHiResScale * 10;
+    sEffectPendingSpeed = 0;
+    sEffectPendingParam = 0;
     sEffectPendingFlags = 0;
     sEffectPendingLifetime = -1;
-    sEffectPendingBoundsMinX = temp;
-    sEffectPendingBoundsMinY = temp;
+    sEffectPendingBoundsMinX = minBound;
+    sEffectPendingBoundsMinY = minBound;
     sEffectPendingBoundsMaxX = gHiResScale * 0x135;
     sEffectPendingBoundsMaxY = gHiResScale * 0xE5;
     sEffectPendingMaxDist = 0x258;
@@ -291,11 +354,11 @@ void *effectCreateAtActorBone(void *asset, f32 scale, void *actor, s32 boneIndex
     f32 boneX;
     f32 boneY;
     f32 boneZ;
-    u16 new_var;
+    u16 ownerHidden;
 
     actorGetNodePos(actor, boneIndex, &boneX, &boneY, &boneZ);
-    new_var = ((Actor *) actor)->flags & 0x200;
-    if ((!new_var && (((Actor *) actor)->sub4 != NULL)) && (sEffectPendingFlags & 0x80)) {
+    ownerHidden = ((Actor *)actor)->flags & 0x200; // FAKE: u16 temp keeps the reloaded actor pointer in v1
+    if (!ownerHidden && ((Actor *)actor)->sub4 != NULL && (sEffectPendingFlags & 0x80)) {
         effectFlagsOr(0x40);
     }
     effectCreate((s32)asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, (s32) flags);
@@ -306,7 +369,6 @@ void *effectCreateAtPosition(void *asset, f32 scale, f32 x, f32 y, f32 z) {
 }
 
 extern s32 gGlobalOverlayFlags;
-#define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
 
 EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, void *owner, s32 boneIndex, s32 subIndex, u8 flags) {
     EffectNode *effect;
@@ -314,15 +376,15 @@ EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, voi
     s32 found;
     s32 i;
 
-    effectGridRegister((EffectGridNode *)asset);
+    effectGridRegister((EffectGridAsset *)asset);
     node = sEffectGridHead;
     found = 0;
     if (node != NULL) {
         do {
-            if (node->unk0 == (void *)asset) {
+            if (node->asset == (EffectGridAsset *)asset) {
                 found = 1;
             } else {
-                node = node->unk24;
+                node = node->next;
             }
         } while ((found == 0) && (node != NULL));
     }
@@ -330,7 +392,7 @@ EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, voi
         effectResetState();
         return NULL;
     }
-    effect = heapAlloc(0x3A0);
+    effect = heapAlloc(sizeof(EffectNode));
     if (sEffectListHead != NULL) {
         sEffectListTail->next = effect;
         effect->previous = sEffectListTail;
@@ -339,7 +401,7 @@ EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, voi
         effect->previous = NULL;
     }
     sEffectListTail = effect;
-    if ((u8) sEffectPendingFade != 0) {
+    if (sEffectPendingFade != 0) {
         posX *= 4.0f;
         posY *= 4.0f;
         posZ *= 4.0f;
@@ -347,184 +409,170 @@ EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, voi
         sEffectPendingScaleX *= 4.0f;
         sEffectPendingScaleY *= 4.0f;
     }
-    UA1_D08_FIELD(f32, effect, 0x340) = posX;
-    UA1_D08_FIELD(f32, effect, 0x344) = posY;
-    UA1_D08_FIELD(f32, effect, 0x348) = posZ;
-    if ((u8) sEffectPendingHasScale != 0) {
-        UA1_D08_FIELD(f32, effect, 0x360) = sEffectPendingScaleX;
-        UA1_D08_FIELD(f32, effect, 0x364) = sEffectPendingScaleY;
+    effect->x = posX;
+    effect->y = posY;
+    effect->z = posZ;
+    if (sEffectPendingHasScale != 0) {
+        effect->scaleX = sEffectPendingScaleX;
+        effect->scaleY = sEffectPendingScaleY;
     } else {
-        UA1_D08_FIELD(f32, effect, 0x360) = scale;
-        UA1_D08_FIELD(f32, effect, 0x364) = scale;
+        effect->scaleX = scale;
+        effect->scaleY = scale;
     }
-    if ((u8) sEffectPendingColorA != 0) {
-        UA1_D08_FIELD(u8, effect, 0x36A) = *(u8 *)&sEffectPendingColorR;
-        UA1_D08_FIELD(u8, effect, 0x36B) = *(u8 *)&sEffectPendingColorG;
-        UA1_D08_FIELD(u8, effect, 0x36C) = *(u8 *)&sEffectPendingColorB;
-        UA1_D08_FIELD(u8, effect, 0x36D) = *(u8 *)&sEffectPendingColorA;
+    if (sEffectPendingColorA != 0) {
+        effect->red = sEffectPendingColorR;
+        effect->green = sEffectPendingColorG;
+        effect->blue = sEffectPendingColorB;
+        effect->alpha = sEffectPendingColorA;
     } else {
-        UA1_D08_FIELD(u8, effect, 0x36A) = *((u8 *)node + 0x10);
-        UA1_D08_FIELD(u8, effect, 0x36B) = *((u8 *)node + 0x11);
-        UA1_D08_FIELD(u8, effect, 0x36C) = *((u8 *)node + 0x12);
-        UA1_D08_FIELD(u8, effect, 0x36D) = *((u8 *)node + 0x13);
+        effect->red = node->red;
+        effect->green = node->green;
+        effect->blue = node->blue;
+        effect->alpha = node->alpha;
     }
-    UA1_D08_FIELD(u8, effect, 0x36E) = *(u8 *)&sEffectPendingDepth;
-    effect->mode = *(u8 *)&sEffectPendingFade;
-    UA1_D08_FIELD(s16, effect, 0x368) = sEffectPendingAngle;
-    UA1_D08_FIELD(s32, effect, 0x380) = *((u8 *)node + 9) * *((u8 *)node + 8);
-    UA1_D08_FIELD(u8, effect, 0x334) = flags;
-    effect->resource = (s32)owner;
-    UA1_D08_FIELD(s16, effect, 0x33C) = boneIndex;
-    UA1_D08_FIELD(s8, effect, 0x33E) = subIndex;
-    UA1_D08_FIELD(s16, effect, 0x34E) = sEffectPendingParam;
-    UA1_D08_FIELD(u8, effect, 0x350) = sEffectPendingMode;
-    UA1_D08_FIELD(u8, effect, 0x351) = 0;
-    UA1_D08_FIELD(s32, effect, 0x354) = sEffectPendingDuration;
-    UA1_D08_FIELD(s32, effect, 0x358) = 0;
-    UA1_D08_FIELD(s32, effect, 0x35C) = sEffectPendingSpeed;
+    effect->depth = sEffectPendingDepth;
+    effect->mode = sEffectPendingFade;
+    effect->startDelay = sEffectPendingAngle;
+    effect->frameCount = node->width * node->height;
+    effect->anchorType = flags;
+    effect->owner = owner;
+    effect->boneIndex = boneIndex;
+    effect->subIndex = subIndex;
+    effect->param = sEffectPendingParam;
+    effect->frameDelay = sEffectPendingMode;
+    effect->frameTimer = 0;
+    effect->duration = sEffectPendingDuration;
+    effect->durationTimer = 0;
+    effect->speed = sEffectPendingSpeed;
     if (gGlobalOverlayFlags & 0x100) {
-        UA1_D08_FIELD(s16, effect, 0x34C) = 0x7D0;
+        effect->maxDistance = 0x7D0;
     } else {
-        UA1_D08_FIELD(s16, effect, 0x34C) = sEffectPendingMaxDist;
+        effect->maxDistance = sEffectPendingMaxDist;
     }
-    UA1_D08_FIELD(EffectGridNode *, effect, 0x330) = node;
+    effect->grid = node;
     effect->next = NULL;
-    UA1_D08_FIELD(s32, effect, 0x328) = sEffectPendingCallback;
+    effect->callback = sEffectPendingCallback;
     effect->allocation = NULL;
-    UA1_D08_FIELD(s16, effect, 0x388) = sEffectPendingLifetime;
-    UA1_D08_FIELD(s8, effect, 0x38A) = -1;
+    effect->chunkFilter = sEffectPendingLifetime;
+    effect->chunk = -1;
     effect->flags = sEffectPendingFlags;
-    UA1_D08_FIELD(s16, effect, 0x38E) = sEffectPendingBoundsMinX;
-    UA1_D08_FIELD(s16, effect, 0x390) = sEffectPendingBoundsMinY;
-    UA1_D08_FIELD(s16, effect, 0x392) = sEffectPendingBoundsMaxX;
-    UA1_D08_FIELD(s16, effect, 0x394) = sEffectPendingBoundsMaxY;
+    effect->minX = sEffectPendingBoundsMinX;
+    effect->minY = sEffectPendingBoundsMinY;
+    effect->maxX = sEffectPendingBoundsMaxX;
+    effect->maxY = sEffectPendingBoundsMaxY;
     for (i = 0; i < gViewportCount; i++) {
-        ((void **)effect)[i * 2] = heapAlloc(0x200);
-        ((void **)effect)[i * 2 + 1] = heapAlloc(0x200);
+        effect->displayLists[i][0] = heapAlloc(0x200);
+        effect->displayLists[i][1] = heapAlloc(0x200);
     }
-    *((u8 *)effect + 0x20) = gViewportCount;
+    effect->viewportCount = gViewportCount;
     effectBuildGridVertices(effect);
     effectResetState();
     return effect;
 }
-#undef UA1_D08_FIELD
 
-typedef struct Fx119AEffectVertex {
-    s16 x;
-    s16 y;
-    s16 z;
-    s16 flag;
-    s16 s;
-    s16 t;
-    u8 r;
-    u8 g;
-    u8 b;
-    u8 a;
-} Fx119AEffectVertex;
 
 void effectBuildGridVertices(EffectNode *effect) {
     EffectGridNode *node;
-    Fx119AEffectVertex *vertex;
+    Vtx *vertex;
     s32 column;
     s32 row;
     s32 vertexIndex;
     s32 startX;
     s32 x;
     s32 y;
-    node = *(EffectGridNode **)((u8 *)effect + 0x330);
+
+    node = effect->grid;
     vertexIndex = 0;
-    if (node->unk8 == 0) {} // FAKE: gives unk8 the first candidate index (a1)
-    if (node->unk9 == 0) {} // FAKE: gives unk9 the second candidate index (a2)
-    node = *(EffectGridNode **)((u8 *)effect + 0x330); // FAKE: kill splits the unk8/unk9 webs so they reload in the arms
-    x = -(node->unk8 * node->unkC) / 2;
+    if (node->width == 0) {} // FAKE: gives width the first candidate index (a1)
+    if (node->height == 0) {} // FAKE: gives height the second candidate index (a2)
+    node = effect->grid; // FAKE: kill splits the width/height webs so they reload in the arms
+    x = -(node->width * node->cellW) / 2;
     startX = x;
     if (effect->mode == 0) {
-        y = -(node->unk9 * node->unkE) / 2;
+        y = -(node->height * node->cellH) / 2;
     } else {
-        y = (node->unk9 * node->unkE) / 2;
+        y = (node->height * node->cellH) / 2;
     }
-    for (row = 0; row < node->unk9; row++) {
+    for (row = 0; row < node->height; row++) {
         x = startX;
         column = 0;
-        if (node->unk8 > 0) {
-            vertex = (Fx119AEffectVertex *)((u8 *)effect + 0x28) + vertexIndex;
+        if (node->width > 0) {
+            vertex = effect->vertices + vertexIndex;
             do {
-                    vertex[0].x = x;
-                    vertex[0].y = y;
-                    vertex[0].z = 0;
-                    vertex[0].s = 0;
-                    vertex[0].t = 0;
-                    vertex[1].x = node->unkC + x;
-                    vertex[1].y = y;
-                    vertex[1].z = 0;
-                    vertex[1].s = node->unkC << 5;
-                    vertex[1].t = 0;
-                    vertex[2].x = x;
-                    vertexIndex += 2;
-                    vertex += 2;
-                    if (effect->mode == 0) {
-                        vertex[0].y = node->unkE + y;
-                    } else {
-                        vertex[0].y = y - node->unkE;
-                    }
-                    vertex[0].z = 0;
-                    vertex[0].s = 0;
-                    vertexIndex += 1;
-                    vertex += 1;
-                    vertex[-1].t = node->unkE << 5;
-                    vertex[0].x = node->unkC + x;
-                    if (effect->mode == 0) {
-                        vertex[0].y = node->unkE + y;
-                    } else {
-                        vertex[0].y = y - node->unkE;
-                    }
-                    vertex[0].z = 0;
-                    vertex[0].s = node->unkC << 5;
-                    vertexIndex += 1;
-                    vertex += 1;
-                    vertex[-1].t = node->unkE << 5;
-                    x += node->unkC;
-                    column++;
-                } while (column < node->unk8);
-            }
-            if (effect->mode == 0) {
-                y += node->unkE;
-            } else {
-                y -= node->unkE;
-            }
+                vertex[0].v.ob[0] = x;
+                vertex[0].v.ob[1] = y;
+                vertex[0].v.ob[2] = 0;
+                vertex[0].v.tc[0] = 0;
+                vertex[0].v.tc[1] = 0;
+                vertex[1].v.ob[0] = node->cellW + x;
+                vertex[1].v.ob[1] = y;
+                vertex[1].v.ob[2] = 0;
+                vertex[1].v.tc[0] = node->cellW << 5;
+                vertex[1].v.tc[1] = 0;
+                vertex[2].v.ob[0] = x;
+                vertexIndex += 2;
+                vertex += 2;
+                if (effect->mode == 0) {
+                    vertex[0].v.ob[1] = node->cellH + y;
+                } else {
+                    vertex[0].v.ob[1] = y - node->cellH;
+                }
+                vertex[0].v.ob[2] = 0;
+                vertex[0].v.tc[0] = 0;
+                vertexIndex += 1;
+                vertex += 1;
+                vertex[-1].v.tc[1] = node->cellH << 5;
+                vertex[0].v.ob[0] = node->cellW + x;
+                if (effect->mode == 0) {
+                    vertex[0].v.ob[1] = node->cellH + y;
+                } else {
+                    vertex[0].v.ob[1] = y - node->cellH;
+                }
+                vertex[0].v.ob[2] = 0;
+                vertex[0].v.tc[0] = node->cellW << 5;
+                vertexIndex += 1;
+                vertex += 1;
+                vertex[-1].v.tc[1] = node->cellH << 5;
+                x += node->cellW;
+                column++;
+            } while (column < node->width);
+        }
+        if (effect->mode == 0) {
+            y += node->cellH;
+        } else {
+            y -= node->cellH;
+        }
     }
 }
 
-#define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
 extern u32 gFrameCounter;
-extern s32 gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 
 void effectUpdateAll(u8 pGlist) {
     EffectNode *effect;
     u8 chunkFound;
     EffectGridNode *node2;
     s32 i;
-    s32 offset;
     s32 offset2;
 
     effect = sEffectListHead;
     for (; effect != NULL; effect = effect->next) {
-        if (UA1_D08_FIELD(s16, effect, 0x368) == 0) {
-            UA1_D08_FIELD(u8, effect, 0x32C) = 0;
-            UA1_D08_FIELD(u8, effect, 0x32D) = 0;
-            UA1_D08_FIELD(u8, effect, 0x21) = 0;
-            UA1_D08_FIELD(s32, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x18) = gFrameCounter;
+        if (effect->startDelay == 0) {
+            effect->state = 0;
+            effect->freePending = 0;
+            effect->displayListIndex = 0;
+            effect->grid->lastUsedFrame = gFrameCounter;
             effect->flags &= 0xFFEF;
-            switch (UA1_D08_FIELD(u8, effect, 0x334)) {
+            switch (effect->anchorType) {
             case 1:
-                modelSlotGetNodePos(UA1_D08_FIELD(s16, effect, 0x33C), 1, UA1_D08_FIELD(u8, effect, 0x33E),
-                                    (f32 *)((u8 *)effect + 0x340), (f32 *)((u8 *)effect + 0x344),
-                                    (f32 *)((u8 *)effect + 0x348));
+                modelSlotGetNodePos(effect->boneIndex, 1, effect->subIndex,
+                                    &effect->x, &effect->y,
+                                    &effect->z);
                 break;
             case 2: {
-                if ((UA1_D08_FIELD(Actor *, effect, 0x338)->flags & 0x200) != 0 || UA1_D08_FIELD(Actor *, effect, 0x338)->sub4 == NULL) {
-                    actorGetNodePos(UA1_D08_FIELD(Actor *, effect, 0x338), UA1_D08_FIELD(u8, effect, 0x33E), (f32 *)((u8 *)effect + 0x340),
-                                    (f32 *)((u8 *)effect + 0x344), (f32 *)((u8 *)effect + 0x348));
+                if ((effect->owner->flags & 0x200) != 0 || effect->owner->sub4 == NULL) {
+                    actorGetNodePos(effect->owner, effect->subIndex, &effect->x,
+                                    &effect->y, &effect->z);
                 } else {
                     effect->flags |= 0x10;
                 }
@@ -533,140 +581,130 @@ void effectUpdateAll(u8 pGlist) {
             }
             chunkFound = 0;
             if (!pGlist || (effect->flags & 1)) {
-                if (UA1_D08_FIELD(void *, effect, 0x328) != NULL) {
-                    ((void (*)(void *, u8 *))UA1_D08_FIELD(void *, effect, 0x328))(effect, &chunkFound);
+                if (effect->callback != NULL) {
+                    effect->callback(effect, &chunkFound);
                 }
-            } else if (UA1_D08_FIELD(void *, effect, 0x328) != NULL) {
+            } else if (effect->callback != NULL) {
                 if (gViewportCount > 0) {
                     i = 0;
-                    offset = 0;
                     do {
-                        if (((u8 *)gPlayerSlots)[offset] != 0) {
-                            memcpy((u8 *)effect + i * 0x80 + gGfxBufferIndex * 0x40 + 0x128,
-                                   (u8 *)effect + i * 0x80 + (gGfxBufferIndex ^ 1) * 0x40 + 0x128, 0x40);
+                        if (gPlayerSlots[i].unk0 != 0) {
+                            memcpy(&effect->matrices[i][gGfxBufferIndex], &effect->matrices[i][gGfxBufferIndex ^ 1], sizeof(Mtx));
                         }
                         i++;
-                        offset += 0x2F0;
                     } while (i < gViewportCount);
                 }
-                UA1_D08_FIELD(u8, effect, 0x32C) = 3;
+                effect->state = 3;
             }
-            if (UA1_D08_FIELD(s16, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x16) ==
-                UA1_D08_FIELD(s16, effect, 0x34E)) {
-                UA1_D08_FIELD(s16, effect, 0x34E) = 0;
-                UA1_D08_FIELD(s32, effect, 0x358) = UA1_D08_FIELD(s32, effect, 0x358) + 1;
-                if (UA1_D08_FIELD(s32, effect, 0x354) == UA1_D08_FIELD(s32, effect, 0x358) &&
-                    -1 != UA1_D08_FIELD(s32, effect, 0x354)) {
-                    UA1_D08_FIELD(u8, effect, 0x32D) = 1;
+            if (effect->param == effect->grid->frameCount) {
+                effect->param = 0;
+                effect->durationTimer = effect->durationTimer + 1;
+                if (effect->durationTimer == effect->duration &&
+                    effect->duration != -1) {
+                    effect->freePending = 1;
                 }
             }
             if (chunkFound != 0) {
-                UA1_D08_FIELD(u8, effect, 0x32D) = 1;
+                effect->freePending = 1;
             }
-            if (UA1_D08_FIELD(u8, effect, 0x32D) != 0) {
+            if (effect->freePending != 0) {
                 effectFreeAndUnlink(effect);
             } else {
                 if (gViewportCount >= 2) {
                     i = 1;
-                    offset = 0x2F0;
                     do {
-                        if (((u8 *)gPlayerSlots)[offset] != 0) {
-                            memcpy((u8 *)effect + i * 0x80 + gGfxBufferIndex * 0x40 + 0x128,
-                                   (u8 *)effect + gGfxBufferIndex * 0x40 + 0x128, 0x40);
+                        if (gPlayerSlots[i].unk0 != 0) {
+                            memcpy(&effect->matrices[i][gGfxBufferIndex], &effect->matrices[0][gGfxBufferIndex], sizeof(Mtx));
                         }
                         i++;
-                        offset += 0x2F0;
                     } while (i < gViewportCount);
                 }
-                if (UA1_D08_FIELD(u8, effect, 0x32C) != 3) {
+                if (effect->state != 3) {
                     if (gViewportCount > 0) {
                         i = 0;
-                        offset = 0;
                         do {
-                            if (((u8 *)gPlayerSlots)[offset] != 0) {
-                                effectComputeTransformMatrix((Mtx *)((u8 *)effect + i * 0x80 + gGfxBufferIndex * 0x40 + 0x128),
-                                              UA1_D08_FIELD(u8, effect, 0x32C),
-                                              UA1_D08_FIELD(f32, effect, 0x360),
-                                              UA1_D08_FIELD(f32, effect, 0x364),
-                                              UA1_D08_FIELD(f32, (u8 *)gPlayerSlots + offset, 0x21C),
-                                              UA1_D08_FIELD(f32, (u8 *)gPlayerSlots + offset, 0x220),
-                                              UA1_D08_FIELD(f32, (u8 *)gPlayerSlots + offset, 0x224),
-                                              UA1_D08_FIELD(f32, effect, 0x340),
-                                              UA1_D08_FIELD(f32, effect, 0x344),
-                                              UA1_D08_FIELD(f32, effect, 0x348), effect->mode);
+                            if (gPlayerSlots[i].unk0 != 0) {
+                                effectComputeTransformMatrix(&effect->matrices[i][gGfxBufferIndex],
+                                              effect->state,
+                                              effect->scaleX,
+                                              effect->scaleY,
+                                              gPlayerSlots[i].unk21C,
+                                              gPlayerSlots[i].unk220,
+                                              gPlayerSlots[i].unk224,
+                                              effect->x,
+                                              effect->y,
+                                              effect->z, effect->mode);
                             }
                             i++;
-                            offset += 0x2F0;
                         } while (i < gViewportCount);
                     }
-                    UA1_D08_FIELD(u8, effect, 0x32C) = 3;
+                    effect->state = 3;
                 }
                 if (effect->mode == 0) {
                     s32 renderArg;
                     if (effect->flags & 4) {
                         renderArg = 4;
                         if (!(effect->flags & 8)) {
-                            UA1_D08_FIELD(s8, effect, 0x38A) = mapChunkFindByPosition(
-                                UA1_D08_FIELD(f32, effect, 0x340), UA1_D08_FIELD(f32, effect, 0x344),
-                                UA1_D08_FIELD(f32, effect, 0x348), 0);
+                            effect->chunk = mapChunkFindByPosition(
+                                effect->x, effect->y,
+                                effect->z, 0);
                         }
                     } else {
                         renderArg = 1;
                     }
-                    renderEntryAddOrUpdate(0, 5, effect, UA1_D08_FIELD(f32, effect, 0x340),
-                                           UA1_D08_FIELD(f32, effect, 0x344),
-                                           UA1_D08_FIELD(f32, effect, 0x348),
-                                           UA1_D08_FIELD(s16, effect, 0x34C), 0, 1, -1, renderArg);
+                    renderEntryAddOrUpdate(0, 5, effect, effect->x,
+                                           effect->y,
+                                           effect->z,
+                                           effect->maxDistance, 0, 1, -1, renderArg);
                 } else {
-                    renderEntryAddOrUpdate(0, 5, effect, UA1_D08_FIELD(f32, effect, 0x340),
-                                           UA1_D08_FIELD(f32, effect, 0x344),
-                                           UA1_D08_FIELD(f32, effect, 0x348), 0, 0, 1, -1, 3);
+                    renderEntryAddOrUpdate(0, 5, effect, effect->x,
+                                           effect->y,
+                                           effect->z, 0, 0, 1, -1, 3);
                 }
-                effectLoadFrameAssets((s16 *)UA1_D08_FIELD(void *, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x20),
-                              UA1_D08_FIELD(u8, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x15),
-                              (u8 *)UA1_D08_FIELD(void *, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x1C),
-                              UA1_D08_FIELD(s32, effect, 0x380), UA1_D08_FIELD(s16, effect, 0x34E),
-                              &UA1_D08_FIELD(s32, effect, 0x370));
+                effectLoadFrameAssets((s16 *)effect->grid->data,
+                              effect->grid->unk15,
+                              effect->grid->slots,
+                              effect->frameCount, effect->param,
+                              effect->frames);
                 if (!pGlist || (effect->flags & 1)) {
-                    UA1_D08_FIELD(u8, effect, 0x351) = UA1_D08_FIELD(u8, effect, 0x351) + 1;
-                    if (UA1_D08_FIELD(u8, effect, 0x350) == UA1_D08_FIELD(u8, effect, 0x351)) {
-                        UA1_D08_FIELD(s16, effect, 0x34E) = UA1_D08_FIELD(s16, effect, 0x34E) + 1;
-                        UA1_D08_FIELD(u8, effect, 0x351) = 0;
+                    effect->frameTimer = effect->frameTimer + 1;
+                    if (effect->frameTimer == effect->frameDelay) {
+                        effect->param = effect->param + 1;
+                        effect->frameTimer = 0;
                     }
                 }
             }
             effect->flags |= 8;
         } else {
             if (!pGlist || (effect->flags & 1)) {
-                UA1_D08_FIELD(s16, effect, 0x368) = UA1_D08_FIELD(s16, effect, 0x368) - 1;
+                effect->startDelay = effect->startDelay - 1;
             }
         }
     }
-    for (node2 = sEffectGridHead; node2 != NULL; node2 = node2->unk24) {
-        if (gFrameCounter - node2->unk18 >= 0xB) {
+    for (node2 = sEffectGridHead; node2 != NULL; node2 = node2->next) {
+        if (gFrameCounter - node2->lastUsedFrame >= 0xB) {
             continue;
         }
-        if (node2->unk18 == -1) {
+        if (node2->lastUsedFrame == -1) {
             continue;
         }
-        if (node2->unk16 * node2->unk8 * node2->unk9 > 0) {
+        if (node2->frameCount * node2->width * node2->height > 0) {
             i = 0;
             offset2 = 0;
             do {
                 if (node2 && node2) {} // FAKE: raises node2 priority above offset2 (node2 -> s1, offset2 -> s2)
-                if (((s32 *)((u8 *)node2->unk1C + offset2))[1] != -1) {
-                    if (gFrameCounter - node2->unk18 == 0xA) {
-                        assetFreeBuffer(((s32 *)((u8 *)node2->unk1C + offset2))[0], 0x319, 0x1F);
-                        ((s32 *)((u8 *)node2->unk1C + offset2))[1] = -1;
+                if (((s32 *)((u8 *)node2->slots + offset2))[1] != -1) {
+                    if (gFrameCounter - node2->lastUsedFrame == 0xA) {
+                        assetFreeBuffer(((s32 *)((u8 *)node2->slots + offset2))[0], 0x319, 0x1F);
+                        ((s32 *)((u8 *)node2->slots + offset2))[1] = -1;
                     }
                 }
                 i++;
                 offset2 += 8;
-            } while (i < node2->unk16 * node2->unk8 * node2->unk9);
+            } while (i < node2->frameCount * node2->width * node2->height);
         }
     }
 }
-#undef UA1_D08_FIELD
 
 
 void effectFreeByResource(s32 resource) {
@@ -675,7 +713,7 @@ void effectFreeByResource(s32 resource) {
     effect = sEffectListHead;
     if (effect != NULL) {
         do {
-            if (resource == effect->resource) {
+            if ((Actor *)resource == effect->owner) {
                 effectFreeAndUnlink(effect);
             }
             effect = effect->next;
@@ -700,11 +738,10 @@ void effectFreeAll(void) {
 
 void effectFreeAndUnlink(EffectNode *effect) {
     u8 layer;
-    s32 prevNode;
+    void *allocation;
     s32 i;
     EffectNode *previous;
     EffectNode *next;
-    EffectNode *buffer;
 
     if (effect->mode == 0) {
         if (effect->flags & 4) {
@@ -715,17 +752,13 @@ void effectFreeAndUnlink(EffectNode *effect) {
     } else {
         renderEntryRemove(0, (s32)effect, 3, &layer - 8);
     }
-    prevNode = (s32)effect->allocation;
-    if (prevNode != 0) {
-        heapFreeDeferred((void *)prevNode);
+    allocation = effect->allocation;
+    if (allocation != NULL) {
+        heapFreeDeferred(allocation);
     }
-    i = 0;
-    buffer = effect;
-    while (i < effect->itemCount) {
-        heapFreeDeferred(((void **)buffer)[0]);
-        heapFreeDeferred(((void **)buffer)[1]);
-        i += 1;
-        buffer = (EffectNode *)((u8 *)buffer + 8);
+    for (i = 0; i < effect->viewportCount; i++) {
+        heapFreeDeferred(effect->displayLists[i][0]);
+        heapFreeDeferred(effect->displayLists[i][1]);
     }
     if (osCicId != 0x17D9) {
         osSetTime((s64)(s32)randomLcgNext());
@@ -745,101 +778,95 @@ void effectFreeAndUnlink(EffectNode *effect) {
     }
 }
 
-typedef struct EffectRouteEntry {
-    s32 value;
-    s32 column;
-} EffectRouteEntry;
-
-
-void effectLoadFrameAssets(s16 *effect, u8 inX, u8 *inY, s32 inZ, s32 screenX, s32 *screenY) {
+void effectLoadFrameAssets(s16 *assetIds, u8 altCategory, EffectGridSlot *slots, s32 count, s32 frame, s32 *outFrames) {
     u8 category;
     s32 i;
     s32 index;
-    s32 value;
+    s32 buffer;
     s32 *out;
-    EffectRouteEntry *entry;
+    EffectGridSlot *slot;
 
     i = 0;
-    if (inZ > 0) {
-        out = screenY;
-        index = inZ * screenX;
-        entry = (EffectRouteEntry *)inY;
-        entry += index;
+    if (count > 0) {
+        out = outFrames;
+        index = count * frame;
+        slot = slots;
+        slot += index;
         do {
-            if (entry->column == -1) {
-                if (inX) {
+            if (slot->frame == -1) {
+                if (altCategory) {
                     category = 0x19;
                 } else {
                     category = 7;
                 }
-                value = assetLoad(category, effect[index + i], 0, 0);
-                *out = value;
-                entry->value = value;
+                buffer = assetLoad(category, assetIds[index + i], 0, 0);
+                *out = buffer;
+                slot->buffer = buffer;
             } else {
-                *out = entry->value;
+                *out = slot->buffer;
             }
             i += 1;
             out += 1;
-            entry += 1;
-            (entry + (-1))->column = screenX;
-        } while (i != inZ);
+            slot += 1;
+            slot[-1].frame = frame;
+        } while (i != count);
     }
 }
 
 s32 mathAsinFixed(s32);
 
-void effectComputeTransformMatrix(Mtx *dst, u8 x, f32 y, f32 z, f32 scaleX, f32 scaleY, f32 pitch, f32 yaw, f32 roll, f32 mode, u8 depthScale) {
+void effectComputeTransformMatrix(Mtx *dst, u8 state, f32 scaleX, f32 scaleY, f32 camX, f32 camY, f32 camZ, f32 x, f32 y, f32 z, u8 mode) {
     f32 pad[2];
     f32 distance;
     f32 value;
     f32 absValue;
     s32 angle;
-    s32 temp;
+    s32 asinAngle;
     f32 scale[4][4];
     f32 transform[4][4];
     Mtx mtx;
 
-    if (depthScale == 0) {
-        distance = distance3D(scaleX, scaleY, pitch, yaw, roll, mode);
+    if (mode == 0) {
+        distance = distance3D(camX, camY, camZ, x, y, z);
         value = distance;
         if ((f64)distance < 0.1) {
             value = 1.0f;
         }
-        distance = (scaleY - roll) / value;
+        distance = (camY - y) / value;
         if (distance > 0.0f) {
             absValue = distance;
         } else {
             absValue = -distance;
         }
-        temp = mathAsinFixed((s32)((f64)absValue * 65536.0)) >> 4;
-        angle = temp;
+        asinAngle = mathAsinFixed((s32)((f64)absValue * 65536.0)) >> 4;
+        angle = asinAngle;
         if (distance >= 0.0f) {
-            angle = 0xFFF - temp;
+            angle = 0xFFF - asinAngle;
         }
-        if (x != 2) {
-            guScaleF(scale, y, z, 0.0f);
+        if (state != 2) {
+            guScaleF(scale, scaleX, scaleY, 0.0f);
         } else {
             guScaleF(scale, 1.0f, 1.0f, 1.0f);
         }
         guRotateF(transform, (f32)(((f64)angle / 4095.0) * 360.0), 1.0f, 0.0f, 0.0f);
         guMtxCatF(scale, transform, scale);
-        value = mathAngleBetweenPointsRad(scaleX, pitch, yaw, mode);
+        value = mathAngleBetweenPointsRad(camX, camZ, x, z);
         guRotateF(transform, value * 57.295776f, 0.0f, 1.0f, 0.0f);
         guMtxCatF(scale, transform, scale);
-        guTranslateF(transform, yaw, roll, mode);
+        guTranslateF(transform, x, y, z);
         guMtxCatF(scale, transform, scale);
     } else {
-        if (x != 2) {
-            guScaleF(scale, y, z, 0.0f);
+        if (state != 2) {
+            guScaleF(scale, scaleX, scaleY, 0.0f);
         } else {
             guScaleF(scale, 1.0f, 1.0f, 1.0f);
         }
         matrixMakeRotationZ(transform, (f32)sEffectPendingZOffset);
         guMtxCatF(scale, transform, scale);
-        guTranslateF(transform, yaw, roll, mode);
+        guTranslateF(transform, x, y, z);
         guMtxCatF(scale, transform, scale);
     }
-    if ((x == 1) || (x == 2)) {
+    if ((state == 1) || (state == 2)) {
         guMtxF2L(scale, &mtx);
         guMtxCatL(dst, &mtx, dst);
     } else {
@@ -858,47 +885,6 @@ f32 distance3D(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
     return sqrtf((x * x) + (y * y) + (z * z));
 }
 
-typedef struct EffectTextureNode {
-    u8 pad0[0xA];
-    u8 unkA;
-    u8 unkB;
-    s16 unkC;
-    s16 unkE;
-    u8 pad10[4];
-    u8 unk14;
-} EffectTextureNode;
-
-typedef struct EffectDrawView {
-    u8 pad0[0x21];
-    u8 unk21;
-    u8 pad22[6];
-    Vtx unk28[48];
-    u8 pad328[8];
-    EffectTextureNode *unk330;
-    u8 pad334[0xC];
-    f32 unk340;
-    f32 unk344;
-    f32 unk348;
-    u8 pad34C[0x1E];
-    u8 unk36A;
-    u8 unk36B;
-    u8 unk36C;
-    u8 unk36D;
-    u8 unk36E;
-    u8 unk36F;
-    void *unk370[4];
-    s32 unk380;
-    u8 pad384[4];
-    s16 unk388;
-    s8 unk38A;
-    u8 pad38B;
-    u16 unk38C;
-    s16 unk38E;
-    s16 unk390;
-    s16 unk392;
-    s16 unk394;
-} EffectDrawView;
-
 #define EFFECT_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 extern Actor *gPrimaryPlayerActor;
@@ -913,7 +899,7 @@ extern Mtx D_20000C0;
 extern Mtx D_2000180;
 extern Mtx D_2000200;
 
-Gfx *effectGridBuildDisplayList(EffectDrawView *drawView, Gfx *inGlist, s16 alpha) {
+Gfx *effectGridBuildDisplayList(EffectNode *effect, Gfx *inGlist, s16 chunk) {
     s32 i;
     u8 red;
     u8 green;
@@ -923,32 +909,32 @@ Gfx *effectGridBuildDisplayList(EffectDrawView *drawView, Gfx *inGlist, s16 alph
     f32 colorBlue = 1.0f;
     Gfx *glist;
 
-    if (drawView->unk38C & 0x50) {
+    if (effect->flags & 0x50) {
         return inGlist;
     }
-    if ((((gPrimaryPlayerActor->state == 0x83) || (gPrimaryPlayerActor->state == 0x67)) && !(drawView->unk38C & 0x20)) || (((gGlobalPauseFlags & 0x100002) == 0x100002) && !(drawView->unk38C & 0x100))) {
+    if ((((gPrimaryPlayerActor->state == 0x83) || (gPrimaryPlayerActor->state == 0x67)) && !(effect->flags & 0x20)) || (((gGlobalPauseFlags & 0x100002) == 0x100002) && !(effect->flags & 0x100))) {
         return inGlist;
     }
-    if (alpha == -1) {
-        alpha = drawView->unk38A;
+    if (chunk == -1) {
+        chunk = effect->chunk;
     }
-    if (drawView->unk388 != -1) {
-        if (drawView->unk36F != 0) {
-            if (mapChunkContainsPoint((s16)((f64)drawView->unk340 * 0.25), (s16)((f64)drawView->unk344 * 0.25), drawView->unk388) == 0) {
+    if (effect->chunkFilter != -1) {
+        if (effect->mode != 0) {
+            if (mapChunkContainsPoint((s16)((f64)effect->x * 0.25), (s16)((f64)effect->y * 0.25), effect->chunkFilter) == 0) {
                 return inGlist;
             }
-        } else if (alpha != drawView->unk388) {
+        } else if (chunk != effect->chunkFilter) {
             return inGlist;
         }
     }
-    glist = ((Gfx *(*)[2])drawView)[drawView->unk21][gGfxBufferIndex];
-    drawView->unk21++;
+    glist = effect->displayLists[effect->displayListIndex][gGfxBufferIndex];
+    effect->displayListIndex++;
     EFFECT_WRITE_GFX(inGlist++, 0xDE000000, osVirtualToPhysical(glist));
-    EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);
+    gDPPipeSync(glist++);
     EFFECT_WRITE_GFX(glist++, 0xE3000A01, 0);
     EFFECT_WRITE_GFX(glist++, 0xD9000000, 0);
     EFFECT_WRITE_GFX(glist++, 0xE3001801, 0xC0);
-    if (drawView->unk36E != 0) {
+    if (effect->depth != 0) {
         EFFECT_WRITE_GFX(glist++, 0xD9FFFFFF, 0x200005);
         EFFECT_WRITE_GFX(glist++, 0xE200001C, 0x504B50);
     } else {
@@ -958,57 +944,57 @@ Gfx *effectGridBuildDisplayList(EffectDrawView *drawView, Gfx *inGlist, s16 alph
     EFFECT_WRITE_GFX(glist++, 0xD7000002, 0xFFFFFFFF);
     EFFECT_WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
 
-    if (drawView->unk330->unk14 == 0 && mapChunkIsInUse(alpha)) {
-        lightSampleColorAtPosition(drawView->unk340, drawView->unk344, drawView->unk348, 0, &red, &green, &blue, alpha);
+    if (effect->grid->unk14 == 0 && mapChunkIsInUse(chunk)) {
+        lightSampleColorAtPosition(effect->x, effect->y, effect->z, 0, &red, &green, &blue, chunk);
         colorRed = (f32)((f64)red / 255.0);
         colorGreen = (f32)((f64)green / 255.0);
         colorBlue = (f32)((f64)blue / 255.0);
     }
-    gDPSetPrimColor(glist++, 0, 0, (u32)((f32)drawView->unk36A * colorRed), (u32)((f32)drawView->unk36B * colorGreen), (u32)((f32)drawView->unk36C * colorBlue), drawView->unk36D);
-    if (drawView->unk36F != 0) {
+    gDPSetPrimColor(glist++, 0, 0, (u32)((f32)effect->red * colorRed), (u32)((f32)effect->green * colorGreen), (u32)((f32)effect->blue * colorBlue), effect->alpha);
+    if (effect->mode != 0) {
         EFFECT_WRITE_GFX(glist++, 0xDA380007, &D_20000C0);
         EFFECT_WRITE_GFX(glist++, 0xDA380003, &D_2000180);
         glist = gfxInit2DDisplayList(glist);
-        if (drawView->unk388 == -1) {
-            EFFECT_WRITE_GFX(glist++, 0xED000000 | (((s32)((f32)drawView->unk38E * 4.0f) & 0xFFF) << 12) | ((s32)((f32)drawView->unk390 * 4.0f) & 0xFFF), (((s32)((f32)drawView->unk392 * 4.0f) & 0xFFF) << 12) | ((s32)((f32)drawView->unk394 * 4.0f) & 0xFFF));
+        if (effect->chunkFilter == -1) {
+            EFFECT_WRITE_GFX(glist++, 0xED000000 | (((s32)((f32)effect->minX * 4.0f) & 0xFFF) << 12) | ((s32)((f32)effect->minY * 4.0f) & 0xFFF), (((s32)((f32)effect->maxX * 4.0f) & 0xFFF) << 12) | ((s32)((f32)effect->maxY * 4.0f) & 0xFFF));
         }
     }
-    EFFECT_WRITE_GFX(glist++, 0xDA380000, osVirtualToPhysical((u8 *)drawView + (gCurrentPlayerIndex << 7) + (gGfxBufferIndex << 6) + 0x128));
+    EFFECT_WRITE_GFX(glist++, 0xDA380000, osVirtualToPhysical(&effect->matrices[gCurrentPlayerIndex][gGfxBufferIndex]));
 
-    for (i = 0; i < drawView->unk380; i++) {
-        if (D_807F6009 != 5 || D_807F600C != (s32)drawView->unk370[i]) {
-            EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);
-            switch (drawView->unk330->unkB) {
+    for (i = 0; i < effect->frameCount; i++) {
+        if (D_807F6009 != 5 || D_807F600C != effect->frames[i]) {
+            gDPPipeSync(glist++);
+            switch (effect->grid->size) {
                 case 0:
-                    gDPLoadTextureBlock_4b(glist++, drawView->unk370[i], drawView->unk330->unkA, drawView->unk330->unkC, drawView->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock_4b(glist++, effect->frames[i], effect->grid->format, effect->grid->cellW, effect->grid->cellH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
                 case 1:
-                    gDPLoadTextureBlock(glist++, drawView->unk370[i], drawView->unk330->unkA, G_IM_SIZ_8b, drawView->unk330->unkC, drawView->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock(glist++, effect->frames[i], effect->grid->format, G_IM_SIZ_8b, effect->grid->cellW, effect->grid->cellH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
                 case 2:
-                    gDPLoadTextureBlock(glist++, drawView->unk370[i], drawView->unk330->unkA, G_IM_SIZ_16b, drawView->unk330->unkC, drawView->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock(glist++, effect->frames[i], effect->grid->format, G_IM_SIZ_16b, effect->grid->cellW, effect->grid->cellH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
                 case 3:
-                    gDPLoadTextureBlock(glist++, drawView->unk370[i], drawView->unk330->unkA, G_IM_SIZ_32b, drawView->unk330->unkC, drawView->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock(glist++, effect->frames[i], effect->grid->format, G_IM_SIZ_32b, effect->grid->cellW, effect->grid->cellH, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
             }
-            D_807F600C = (s32)drawView->unk370[i];
+            D_807F600C = effect->frames[i];
         }
-        EFFECT_WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(drawView->unk28 + (i << 2)));
+        EFFECT_WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(effect->vertices + (i << 2)));
         EFFECT_WRITE_GFX(glist++, 0x06000206, 0x406);
     }
     EFFECT_WRITE_GFX(glist++, 0xD8380002, 0x40);
-    EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);
+    gDPPipeSync(glist++);
     EFFECT_WRITE_GFX(glist++, 0xE3001801, 0);
-    if (drawView->unk36F != 0) {
+    if (effect->mode != 0) {
         EFFECT_WRITE_GFX(glist++, 0xDA380007, &D_2000000);
         EFFECT_WRITE_GFX(glist++, 0xDA380005, &D_2000200);
-        if (drawView->unk388 == -1) {
+        if (effect->chunkFilter == -1) {
             EFFECT_WRITE_GFX(glist++, 0xED000000, ((((s32)((f32)gScreenWidth * 4.0f) & 0xFFF) << 12) | ((s32)((f32)gScreenHeight * 4.0f) & 0xFFF)));
         }
     }
-    EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);
-    EFFECT_WRITE_GFX(glist++, 0xDF000000, 0);
+    gDPPipeSync(glist++);
+    gSPEndDisplayList(glist++);
     D_807F6009 = 5;
     return inGlist;
 }

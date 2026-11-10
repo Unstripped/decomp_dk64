@@ -2,8 +2,8 @@
 #ifndef PROTO_GLOBAL_119370_H
 #define PROTO_GLOBAL_119370_H
 #include "common.h"
-struct EffectDrawView;
-struct EffectGridNode;
+struct EffectGridAsset;
+struct EffectGridSlot;
 struct EffectNode;
 #ifndef PROTO_SKIP_effectResetLists
 void effectResetLists(void);
@@ -12,16 +12,16 @@ void effectResetLists(void);
 s32 effectGridFindByTargetId(s32);
 #endif
 #ifndef PROTO_SKIP_effectGridGetByteDimensions
-void effectGridGetByteDimensions(struct EffectGridNode *, u8 *, u8 *);
+void effectGridGetByteDimensions(struct EffectGridAsset *, u8 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_effectGridGetCellDimensions
-void effectGridGetCellDimensions(struct EffectGridNode *, s16 *, s16 *);
+void effectGridGetCellDimensions(struct EffectGridAsset *, s16 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_effectGridGetScaledDimensions
-void effectGridGetScaledDimensions(struct EffectGridNode *, s16 *, s16 *);
+void effectGridGetScaledDimensions(struct EffectGridAsset *, s16 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_effectGridRegister
-void effectGridRegister(struct EffectGridNode *);
+void effectGridRegister(struct EffectGridAsset *);
 #endif
 #ifndef PROTO_SKIP_effectSetParam
 void effectSetParam(s32);
@@ -102,7 +102,7 @@ void effectFreeAll(void);
 void effectFreeAndUnlink(struct EffectNode *);
 #endif
 #ifndef PROTO_SKIP_effectLoadFrameAssets
-void effectLoadFrameAssets(s16 *, u8, u8 *, s32, s32, s32 *);
+void effectLoadFrameAssets(s16 *, u8, struct EffectGridSlot *, s32, s32, s32 *);
 #endif
 #ifndef PROTO_SKIP_effectComputeTransformMatrix
 void effectComputeTransformMatrix(Mtx *, u8, f32, f32, f32, f32, f32, f32, f32, f32, u8);
@@ -111,6 +111,6 @@ void effectComputeTransformMatrix(Mtx *, u8, f32, f32, f32, f32, f32, f32, f32, 
 f32 distance3D(f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_effectGridBuildDisplayList
-Gfx *effectGridBuildDisplayList(struct EffectDrawView *, Gfx *, s16);
+Gfx *effectGridBuildDisplayList(struct EffectNode *, Gfx *, s16);
 #endif
 #endif
