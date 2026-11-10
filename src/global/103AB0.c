@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #define PROTO_SKIP_renderRotatedSprite // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
 #include "proto/global/10E1D0.h"
@@ -20,7 +21,7 @@
 #include "proto/global/FCCD0.h"
 
 extern Actor *gCurrentActor;
-extern void *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern s32 gCurrentMap;
@@ -29,32 +30,25 @@ extern u8 gScreenRenderFlags;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
 extern u8 gGfxBufferIndex;
+extern s16 gGfxScreenLeft;
+extern s16 gGfxScreenTop;
+extern s16 gGfxScreenRight;
+extern s16 gGfxScreenBottom;
 
 extern Gfx D_1000118;
 extern Mtx D_2000080;
 
+/* PlayerStruct with its per-buffer viewports at 0x250 (header request: PlayerStruct.viewport). */
 typedef struct {
-    u8 unk0[0x250];
-    u8 unk250[2][0x10];
-    s16 unk270;
-    s16 unk272;
-    s16 unk274;
-    s16 unk276;
-    u8 unk278[0x78];
+    u8 pad0[0x250];
+    Vp viewport[2];
+    u8 pad270[0x2F0 - 0x270];
 } PlayerViewport;
-
-#define PLAYER_VIEWPORT(i) ((PlayerViewport *)((u8 *)gPlayerSlots + (i) * 0x2F0))
 
 Gfx *playerViewGfxSetup(Gfx *dl, u8 playerIndex) {
     gDPPipeSync(dl++);
-    gSPViewport(dl++, osVirtualToPhysical(((PlayerViewport *)gPlayerSlots)[playerIndex].unk250[gGfxBufferIndex]));
-    {
-        Gfx *_g = (Gfx *)(dl++);
-        _g->words.w0 = ((s32)((f32)PLAYER_VIEWPORT(playerIndex)->unk272 * 4.0f) & 0xFFF) | 0xED000000 |
-                       (((s32)((f32)PLAYER_VIEWPORT(playerIndex)->unk270 * 4.0f) & 0xFFF) << 12);
-        _g->words.w1 = ((s32)((f32)PLAYER_VIEWPORT(playerIndex)->unk276 * 4.0f) & 0xFFF) |
-                       (((s32)((f32)PLAYER_VIEWPORT(playerIndex)->unk274 * 4.0f) & 0xFFF) << 12);
-    }
+    gSPViewport(dl++, osVirtualToPhysical(&((PlayerViewport *)gPlayerSlots)[playerIndex].viewport[gGfxBufferIndex]));
+    gDPSetScissor(dl++, G_SC_NON_INTERLACE, gPlayerSlots[playerIndex].rect[0], gPlayerSlots[playerIndex].rect[1], gPlayerSlots[playerIndex].rect[2], gPlayerSlots[playerIndex].rect[3]);
     gSPDisplayList(dl++, &D_1000118);
     gDPSetCombineMode(dl++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
@@ -62,34 +56,29 @@ Gfx *playerViewGfxSetup(Gfx *dl, u8 playerIndex) {
     return dl;
 }
 
-typedef struct {
-    u8 unk0[0x1A4];
-    u8 unk1A4;
-} ActorPlayerState;
-
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32); // FAKE: callee prototype steer
 
-Gfx *func_806FEF7C(Gfx *arg0, Actor *arg1) {
-    arg0 = playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->customState)->unk1A4);
-    gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
-    gDPSetPrimColor(arg0++, 0, 0, 0, 0, 0, 0xFF);
-    return renderRotatedSprite(arg0, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, 0.001f);
+Gfx *func_806FEF7C(Gfx *dl, Actor *player) {
+    dl = playerViewGfxSetup(dl, ((PlayerState *)player->customState)->playerIndex);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+    gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
+    return renderRotatedSprite(dl, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, 0.001f);
 }
 
 extern u8 *D_807FD568;
 
-Gfx *func_806FF01C(Gfx *arg0, Actor *arg1) {
+Gfx *func_806FF01C(Gfx *gfx, Actor *actor) {
     u8 player;
-    s32 sp58;
-    s32 sp54;
-    s32 sp50;
-    s32 sp4C;
+    s32 target;
+    s32 targetX;
+    s32 targetY;
+    s32 targetZ;
     Gfx *dl;
 
-    player = ((ActorPlayerState *)arg1->customState)->unk1A4;
-    dl = playerViewGfxSetup(arg0, player);
+    player = ((PlayerState *)actor->customState)->playerIndex;
+    dl = playerViewGfxSetup(gfx, player);
     if ((D_807FD568[2] & 2) && slotQueueGetValue(3, player) &&
-        projectileFindHomingTarget(2, &sp58, arg1, 1, 0, 0, &sp54, &sp50, &sp4C)) {
+        projectileFindHomingTarget(2, &target, actor, 1, 0, 0, &targetX, &targetY, &targetZ)) {
         gDPSetPrimColor(dl++, 0, 0, 0, 0xC8, 0, 0xFF);
     } else {
         gDPSetPrimColor(dl++, 0, 0, 0xC8, 0, 0, 0xFF);
@@ -97,19 +86,19 @@ Gfx *func_806FF01C(Gfx *arg0, Actor *arg1) {
     return renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, 0xA0, 0x78, 0.5f, 0.5f, 0x2D, 0.0f);
 }
 
-Gfx *func_806FF144(Gfx *arg0) {
-    gDPSetPrimColor(arg0++, 0, 0, 0, 0, 0, 0xFF);
-    gDPSetCombineMode(arg0++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
-    gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
-    gSPMatrix(arg0++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    arg0 = renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, 0x3E, 0x3E, 2.0f, 2.0f, 0, 0.0f);
-    arg0 = renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, gScreenWidth - 0x3E, 0x3E, 2.0f, 2.0f, 0x5A, 0.0f);
-    arg0 = renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, gScreenWidth - 0x3E, gScreenHeight - 0x3E, 2.0f, 2.0f, 0xB4, 0.0f);
-    return renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, 0x3E, gScreenHeight - 0x3E, 2.0f, 2.0f, 0x10E, 0.0f);
+Gfx *func_806FF144(Gfx *dl) {
+    gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
+    gDPSetCombineMode(dl++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+    gSPMatrix(dl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x3E, 0x3E, 2.0f, 2.0f, 0, 0.0f);
+    dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, gScreenWidth - 0x3E, 0x3E, 2.0f, 2.0f, 0x5A, 0.0f);
+    dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, gScreenWidth - 0x3E, gScreenHeight - 0x3E, 2.0f, 2.0f, 0xB4, 0.0f);
+    return renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x3E, gScreenHeight - 0x3E, 2.0f, 2.0f, 0x10E, 0.0f);
 }
 
-void func_806FF32C(s32 arg0, Actor *arg1) {
-    func_806FF144(playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->customState)->unk1A4));
+void func_806FF32C(Gfx *dl, Actor *actor) {
+    func_806FF144(playerViewGfxSetup(dl, ((PlayerState *)actor->customState)->playerIndex));
 }
 
 typedef struct {
@@ -119,59 +108,59 @@ typedef struct {
     s32 unk1F0;
 } ActorHudState;
 
-Gfx *func_806FF358(Gfx *arg0, Actor *arg1) {
+Gfx *func_806FF358(Gfx *dl, Actor *actor) {
     ActorHudState *state;
 
-    state = (ActorHudState *)((Actor **)gPlayerSlots)[1]->customState;
-    gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0xFF, 0xFF, 0xC8);
-    arg0 = renderRotatedSprite(arg0, 0x39, 3, 1, 0x40, 0x40, 0x50, 0x50, 0.5f, 0.5f, 0, 0.0f);
-    arg0 = renderRotatedSprite(arg0, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0x50, 0.5f, 0.5f, 0x5A, 0.0f);
-    arg0 = renderRotatedSprite(arg0, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0xA0, 0.5f, 0.5f, 0xB4, 0.0f);
-    arg0 = renderRotatedSprite(arg0, 0x39, 3, 1, 0x40, 0x40, 0x50, 0xA0, 0.5f, 0.5f, 0x10E, 0.0f);
-    arg0 = renderRotatedSprite(arg0, 0x3B, 3, 1, 0x30, 0x30, 0xA0, 0x78, 1.0f, 1.0f, 0, 0.0f);
-    gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
+    state = (ActorHudState *)gPlayerSlots->actor->customState;
+    gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xC8);
+    dl = renderRotatedSprite(dl, 0x39, 3, 1, 0x40, 0x40, 0x50, 0x50, 0.5f, 0.5f, 0, 0.0f);
+    dl = renderRotatedSprite(dl, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0x50, 0.5f, 0.5f, 0x5A, 0.0f);
+    dl = renderRotatedSprite(dl, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0xA0, 0.5f, 0.5f, 0xB4, 0.0f);
+    dl = renderRotatedSprite(dl, 0x39, 3, 1, 0x40, 0x40, 0x50, 0xA0, 0.5f, 0.5f, 0x10E, 0.0f);
+    dl = renderRotatedSprite(dl, 0x3B, 3, 1, 0x30, 0x30, 0xA0, 0x78, 1.0f, 1.0f, 0, 0.0f);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
     if (!(state->unk1F0 & 0x8000)) {
         if (state->unk1EC == 2) {
-            gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0, 0, 0xFF);
-            arg0 = renderRotatedSprite(arg0, 0x43, 3, 1, 0x40, 0x40, 0x118, 0x28, 0.5f, 0.5f, 0, 0.0f);
+            gDPSetPrimColor(dl++, 0, 0, 0xFF, 0, 0, 0xFF);
+            dl = renderRotatedSprite(dl, 0x43, 3, 1, 0x40, 0x40, 0x118, 0x28, 0.5f, 0.5f, 0, 0.0f);
         } else if (state->unk1EC == 1) {
-            gDPSetPrimColor(arg0++, 0, 0, 0, 0xFF, 0, 0xFF);
-            arg0 = renderRotatedSprite(arg0, 0x2F, 3, 1, 0x40, 0x40, 0x118, 0x28, 0.5f, 0.5f, 0, 0.0f);
+            gDPSetPrimColor(dl++, 0, 0, 0, 0xFF, 0, 0xFF);
+            dl = renderRotatedSprite(dl, 0x2F, 3, 1, 0x40, 0x40, 0x118, 0x28, 0.5f, 0.5f, 0, 0.0f);
         }
     }
-    return arg0;
+    return dl;
 }
 
-Gfx *func_806FF628(Gfx *arg0, Actor *arg1) {
+Gfx *func_806FF628(Gfx *dl, Actor *actor) {
     ActorHudState *state;
 
-    state = (ActorHudState *)((Actor **)gPlayerSlots)[1]->customState;
-    arg0 = playerViewGfxSetup(arg0, ((ActorPlayerState *)state)->unk1A4);
+    state = (ActorHudState *)gPlayerSlots->actor->customState;
+    dl = playerViewGfxSetup(dl, ((PlayerState *)state)->playerIndex);
     if (state->unk1EC == 2) {
-        gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0, 0, 0x64);
-        arg0 = renderRotatedSprite(arg0, 0x45, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
+        gDPSetPrimColor(dl++, 0, 0, 0xFF, 0, 0, 0x64);
+        dl = renderRotatedSprite(dl, 0x45, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
     } else if (state->unk1EC == 1) {
-        gDPSetPrimColor(arg0++, 0, 0, 0, 0xFF, 0, 0x64);
-        arg0 = renderRotatedSprite(arg0, 0x44, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
+        gDPSetPrimColor(dl++, 0, 0, 0, 0xFF, 0, 0x64);
+        dl = renderRotatedSprite(dl, 0x44, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
     }
-    return arg0;
+    return dl;
 }
 
 
-Gfx *func_806FF75C(Gfx *dl, Actor *arg1) {
-    u8 sp77;
-    s32 sp70;
-    s32 sp6C;
-    s32 sp68;
-    s32 sp64;
-    s32 sp60;
+Gfx *func_806FF75C(Gfx *dl, Actor *actor) {
+    u8 player;
+    s32 target;
+    s32 targetKind;
+    s32 targetX;
+    s32 targetY;
+    s32 targetZ;
 
-    sp6C = 2;
-    sp77 = ((ActorPlayerState *)arg1->customState)->unk1A4;
+    targetKind = 2;
+    player = ((PlayerState *)actor->customState)->playerIndex;
     if (gPlayerCount >= 2) {
-        sp6C = 3;
+        targetKind = 3;
     }
-    dl = (Gfx *)playerViewGfxSetup((s32)dl, sp77);
+    dl = playerViewGfxSetup(dl, player);
     gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
     dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x100, 0x40, 3.0f, 2.0f, 0, 0.0f);
     dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x40, 0x40, 2.0f, 3.0f, 0x5A, 0.0f);
@@ -181,7 +170,7 @@ Gfx *func_806FF75C(Gfx *dl, Actor *arg1) {
     dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x60, 3.0f, 3.0f, 0x5A, 0.0f);
     dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0xE0, 0x90, 3.0f, 3.0f, 0xB4, 0.0f);
     dl = renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x60, 0x90, 3.0f, 3.0f, 0x10E, 0.0f);
-    if (slotQueueGetValue(3, sp77) && projectileFindHomingTarget((u16)sp6C, &sp70, arg1, 1, 0, 0, &sp68, &sp64, &sp60)) {
+    if (slotQueueGetValue(3, player) && projectileFindHomingTarget((u16)targetKind, &target, actor, 1, 0, 0, &targetX, &targetY, &targetZ)) {
         gDPSetPrimColor(dl++, 0, 0, 0, 0xC8, 0, 0xFF);
     } else {
         gDPSetPrimColor(dl++, 0, 0, 0xC8, 0, 0, 0xFF);
@@ -190,25 +179,25 @@ Gfx *func_806FF75C(Gfx *dl, Actor *arg1) {
     return renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, 0xA0, 0x78, 0.5f, 0.5f, 0x2D, 0.0f);
 }
 
-void func_806FFB2C(s32 arg0, Actor *arg1) {
-    f32 sp3C;
+void func_806FFB2C(Gfx *gfx, Actor *actor) {
+    f32 depth;
     Gfx *dl;
 
-    sp3C = arg1->unk155 * 1.4;
-    dl = (Gfx *)playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->customState)->unk1A4);
+    depth = actor->unk155 * 1.4;
+    dl = playerViewGfxSetup(gfx, ((PlayerState *)actor->customState)->playerIndex);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
-    renderRotatedSprite(dl, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, sp3C);
+    renderRotatedSprite(dl, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, depth);
 }
 
-u16 color5551ToSepia(u16 arg0) {
+u16 color5551ToSepia(u16 color) {
     u16 sum;
     u8 a;
     f32 f;
     u8 lsb;
 
-    sum = (u8)((arg0 & 0xF800) >> 11) + (u8)((arg0 & 0x7C0) >> 6) + (u8)((arg0 & 0x3E) >> 1);
-    lsb = arg0 & 1;
+    sum = (u8)((color & 0xF800) >> 11) + (u8)((color & 0x7C0) >> 6) + (u8)((color & 0x3E) >> 1);
+    lsb = color & 1;
     if (sum >= 0x30) {
         a = (sum - 0x30) / 45.0 * 18.0;
     } else {
@@ -218,16 +207,16 @@ u16 color5551ToSepia(u16 arg0) {
     return ((u8)(28.0f * f + 3.0f) << 11) + ((u8)(19.0f * f + 3.0f) << 6) + (a << 1) + lsb;
 }
 
-s16 *func_806FFEAC(s16 *arg0, s32 arg1) {
+s16 *func_806FFEAC(s16 *dst, u16 *src) {
     s16 i;
     s16 j;
 
     for (i = 0; i < 0x40; i++) {
         for (j = 0; j < 0x20; j++) {
-            *arg0++ = color5551ToSepia(((u16 *)arg1)[j + i * gScreenWidth]);
+            *dst++ = color5551ToSepia(src[j + i * gScreenWidth]);
         }
     }
-    return arg0;
+    return dst;
 }
 
 
@@ -237,280 +226,227 @@ void func_806FFF5C(void) {
 
 extern void *gFramebuffers[];
 
-s32 func_806FFF88(void) {
-    s32 sp34;
-    s16 var_s0;
-    s16 var_s3;
-    s32 var_s1;
-    s32 var_s2;
+s16 *func_806FFF88(void) {
+    s16 *buf;
+    s16 col;
+    s16 row;
+    s16 *dst;
+    u16 *src;
 
     if (gCurrentActor->actorType == 0xD9) {
         func_806FFF5C();
         return;
     }
-    sp34 = heapAlloc(0xA000);
-    var_s1 = sp34;
-    var_s2 = (s32)gFramebuffers[gGfxBufferIndex] + (gScreenWidth * 7 << 4) + 0xA0;
-    var_s3 = 0;
+    buf = heapAlloc(0xA000);
+    dst = buf;
+    src = (u16 *)gFramebuffers[gGfxBufferIndex] + gScreenWidth * 56 + 80;
+    row = 0;
     do {
-        var_s0 = 0;
+        col = 0;
         do {
-            var_s1 = (s32)func_806FFEAC((s16 *)var_s1, ((var_s0 << 2) << 4) + var_s2);
-            var_s0++;
-        } while (var_s0 < 5);
-        var_s2 += (gScreenWidth << 3) << 4;
-        var_s3++;
-    } while (var_s3 < 2);
-    return sp34;
+            dst = func_806FFEAC(dst, src + col * 32);
+            col++;
+        } while (col < 5);
+        src += gScreenWidth * 64;
+        row++;
+    } while (row < 2);
+    return buf;
 }
 
-u16 color5551LerpToWhite(f32 arg0, u16 arg1) {
+u16 color5551LerpToWhite(f32 t, u16 color) {
     u8 lsb;
 
-    lsb = arg1 & 1;
-    return ((u8)((((arg1 & 0xF800) >> 11) - 0x1F) * arg0 + 31.0f) << 11) + ((u8)((((arg1 & 0x7C0) >> 6) - 0x1F) * arg0 + 31.0f) << 6) + ((u8)((((arg1 & 0x3E) >> 1) - 0x1F) * arg0 + 31.0f) << 1) + lsb;
+    lsb = color & 1;
+    return ((u8)((((color & 0xF800) >> 11) - 0x1F) * t + 31.0f) << 11) + ((u8)((((color & 0x7C0) >> 6) - 0x1F) * t + 31.0f) << 6) + ((u8)((((color & 0x3E) >> 1) - 0x1F) * t + 31.0f) << 1) + lsb;
 }
 
 
-void color5551CopyLerpToWhite(u16 *arg0, s16 **arg1, f32 arg2) {
-    s16 *var_s0;
-    s16 var_s1;
+void color5551CopyLerpToWhite(u16 *src, s16 **outBuf, f32 t) {
+    s16 *dst;
+    s16 i;
 
-    *arg1 = (s16 *)heapAlloc(0xA000);
-    heapFreeDeferred(*arg1);
-    var_s0 = *arg1;
-    for (var_s1 = 0; var_s1 < 0x5000; var_s1++) {
-        *var_s0++ = color5551LerpToWhite(arg2, *arg0++);
+    *outBuf = (s16 *)heapAlloc(0xA000);
+    heapFreeDeferred(*outBuf);
+    dst = *outBuf;
+    for (i = 0; i < 0x5000; i++) {
+        *dst++ = color5551LerpToWhite(t, *src++);
     }
 }
 
+typedef struct {
+    f32 x;
+    f32 y;
+    f32 depth;
+} ScreenPoint;
+
+extern ScreenPoint D_807FD840[2][3];
+
 typedef struct LensFlarePoint {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    u8 unkC;
-    u8 unkD;
-    u8 unkE;
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 r;
+    u8 g;
+    u8 b;
     u8 unkF;
 } LensFlarePoint;
 
-typedef struct {
+typedef struct Vec3f {
     f32 x;
     f32 y;
     f32 z;
 } Vec3f;
 
-typedef struct {
-    u8 unk0[0x210];
-    f32 unk210;
-    f32 unk214;
-    f32 unk218;
-    f32 unk21C;
-    f32 unk220;
-    f32 unk224;
-} LensFlareCamView;
-
 extern u8 D_80754BC0;
 extern LensFlarePoint D_807FD808[2];
-extern f32 D_807FD840[2][3][3];
 extern f32 D_807FD848[2][3][3];
-void vec3fNormalize(f32 *, Vec3f);
+void vec3fNormalize(Vec3f *, Vec3f);
 
-#define LENS_FLARE_CAM ((LensFlareCamView *)gPlayerSlots)
-#define LENS_FLARE_DIST2 ((LENS_FLARE_CAM->unk224 - arg2) * (LENS_FLARE_CAM->unk224 - arg2)) + (((LENS_FLARE_CAM->unk21C - arg0) * (LENS_FLARE_CAM->unk21C - arg0)) + ((LENS_FLARE_CAM->unk220 - arg1) * (LENS_FLARE_CAM->unk220 - arg1)))
 
-void lensFlareAddSource(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, u8 arg8, u8 arg9) {
-    f32 sp84;
-    f32 sp80;
-    u8 var_v1;
-    Vec3f sp70;
-    Vec3f sp64;
-    Vec3f sp58;
-    f32 temp_fv1;
+void lensFlareAddSource(f32 x, f32 y, f32 z, f32 dirX, f32 dirY, f32 dirZ, f32 minDot, u8 r, u8 g, u8 b) {
+    f32 screenX;
+    f32 screenY;
+    u8 visible;
+    Vec3f delta;
+    Vec3f toCam;
+    Vec3f dir;
+    f32 dot;
     f32 pad0;
     f32 pad1;
 
     if (D_80754BC0 < 2) {
-        var_v1 = 1;
-        if (arg6 != 0.0f) {
-            sp70.x = arg3 - arg0;
-            sp70.y = arg4 - arg1;
-            sp70.z = arg5 - arg2;
-            vec3fNormalize(&sp58.x, sp70);
-            sp70.x = LENS_FLARE_CAM->unk210 - arg0;
-            sp70.y = LENS_FLARE_CAM->unk214 - arg1;
-            sp70.z = LENS_FLARE_CAM->unk218 - arg2;
-            vec3fNormalize(&sp64.x, sp70);
-            temp_fv1 = (sp64.x * sp58.x) + (sp64.y * sp58.y) + (sp64.z * sp58.z);
-            if ((f64)temp_fv1 < 0.0) {
-                temp_fv1 = 0.0f;
+        visible = 1;
+        if (minDot != 0.0f) {
+            delta.x = dirX - x;
+            delta.y = dirY - y;
+            delta.z = dirZ - z;
+            vec3fNormalize(&dir, delta);
+            delta.x = gPlayerSlots->camX - x;
+            delta.y = gPlayerSlots->camY - y;
+            delta.z = gPlayerSlots->camZ - z;
+            vec3fNormalize(&toCam, delta);
+            dot = (toCam.x * dir.x) + (toCam.y * dir.y) + (toCam.z * dir.z);
+            if (dot < 0.0) {
+                dot = 0.0f;
             }
-            if (temp_fv1 < arg6) {
-                var_v1 = 0;
+            if (dot < minDot) {
+                visible = 0;
             }
         }
-        if (var_v1 != 0) {
-            D_807FD848[gGfxBufferIndex][D_80754BC0][0] = sqrtf(LENS_FLARE_DIST2) > 995.0f ? 995.0f : sqrtf(LENS_FLARE_DIST2);
-            camProjectToScreen(arg0, arg1, arg2, &sp84, &sp80, 0, 4.0f, 0);
-            D_807FD840[gGfxBufferIndex][D_80754BC0][0] = (f32)((f64)sp84 * 0.25);
-            D_807FD840[gGfxBufferIndex][D_80754BC0][1] = (f32)((f64)sp80 * 0.25);
-            D_807FD808[D_80754BC0].unk0 = arg0;
-            D_807FD808[D_80754BC0].unk4 = arg1;
-            D_807FD808[D_80754BC0].unk8 = arg2;
-            D_807FD808[D_80754BC0].unkC = arg7;
-            D_807FD808[D_80754BC0].unkD = arg8;
-            D_807FD808[D_80754BC0].unkE = arg9;
+        if (visible != 0) {
+            D_807FD848[gGfxBufferIndex][D_80754BC0][0] = sqrtf((gPlayerSlots->unk224 - z) * (gPlayerSlots->unk224 - z) + ((gPlayerSlots->unk21C - x) * (gPlayerSlots->unk21C - x) + (gPlayerSlots->unk220 - y) * (gPlayerSlots->unk220 - y))) > 995.0f ? 995.0f : sqrtf((gPlayerSlots->unk224 - z) * (gPlayerSlots->unk224 - z) + ((gPlayerSlots->unk21C - x) * (gPlayerSlots->unk21C - x) + (gPlayerSlots->unk220 - y) * (gPlayerSlots->unk220 - y)));
+            camProjectToScreen(x, y, z, &screenX, &screenY, 0, 4.0f, 0);
+            D_807FD840[gGfxBufferIndex][D_80754BC0].x = screenX * 0.25;
+            D_807FD840[gGfxBufferIndex][D_80754BC0].y = screenY * 0.25;
+            D_807FD808[D_80754BC0].x = x;
+            D_807FD808[D_80754BC0].y = y;
+            D_807FD808[D_80754BC0].z = z;
+            D_807FD808[D_80754BC0].r = r;
+            D_807FD808[D_80754BC0].g = g;
+            D_807FD808[D_80754BC0].b = b;
             D_80754BC0 += 1;
         }
     }
 }
 
 extern u8 D_2000100[];
-u32 osVirtualToPhysical(void *);
 
-typedef struct {
-    u8 unk0[0x270];
-    s16 unk270;
-    s16 unk272;
-    s16 unk274;
-    s16 unk276;
-} ViewportBounds;
-
-#define GFX_PKT(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
-
-Gfx *func_8070068C(Gfx *arg0) {
-    GFX_PKT(arg0++, 0xDA380007, &D_2000100);
-    GFX_PKT(arg0++, 0xDC080008, osVirtualToPhysical((u8 *)gPlayerSlots + (gGfxBufferIndex * 0x10) + 0x250));
-    GFX_PKT(arg0++, ((s32)((f32)((ViewportBounds *)gPlayerSlots)->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)((ViewportBounds *)gPlayerSlots)->unk270 * 4.0f) & 0xFFF) << 12), ((s32)((f32)((ViewportBounds *)gPlayerSlots)->unk276 * 4.0f) & 0xFFF) | (((s32)((f32)((ViewportBounds *)gPlayerSlots)->unk274 * 4.0f) & 0xFFF) << 12));
-    return arg0;
+Gfx *func_8070068C(Gfx *dl) {
+    gSPMatrix(dl++, &D_2000100, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPViewport(dl++, osVirtualToPhysical(&((PlayerViewport *)gPlayerSlots)->viewport[gGfxBufferIndex]));
+    gDPSetScissor(dl++, G_SC_NON_INTERLACE, gPlayerSlots->rect[0], gPlayerSlots->rect[1], gPlayerSlots->rect[2], gPlayerSlots->rect[3]);
+    return dl;
 }
 
 extern u8 D_807FD838[2][3];
 extern u8 D_2000180;
 
-Gfx *lensFlareBuildDisplayList(Gfx *arg0) {
+Gfx *lensFlareBuildDisplayList(Gfx *dl) {
     s16 i;
 
     if (D_80754BC0 != 0) {
-        GFX_PKT(arg0++, 0xE7000000, 0);
-        arg0 = func_8070068C(arg0);
-        GFX_PKT(arg0++, 0xDA380003, (u32)&D_2000180);
-        GFX_PKT(arg0++, 0xE7000000, 0);
-        GFX_PKT(arg0++, 0xD9000000, 0);
-        GFX_PKT(arg0++, 0xD9FFFFFF, 0x200004);
-        GFX_PKT(arg0++, 0xE3000A01, 0);
-        GFX_PKT(arg0++, 0xE3000C00, 0x80000);
-        GFX_PKT(arg0++, 0xE3001201, 0x2000);
-        GFX_PKT(arg0++, 0xD7000002, 0x80008000);
-        GFX_PKT(arg0++, 0xFC119623, 0xFF2FFFFF);
-        GFX_PKT(arg0++, 0xE200001C, 0x504340);
-        GFX_PKT(arg0++, 0xE3001801, 0xC0);
-        GFX_PKT(arg0++, 0xE3001A01, 0x30);
+        gDPPipeSync(dl++);
+        dl = func_8070068C(dl);
+        gSPMatrix(dl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+        gDPPipeSync(dl++);
+        gSPClearGeometryMode(dl++, 0xFFFFFFFF);
+        gSPSetGeometryMode(dl++, G_SHADE | G_SHADING_SMOOTH);
+        gDPSetCycleType(dl++, G_CYC_1CYCLE);
+        gDPSetTexturePersp(dl++, G_TP_PERSP);
+        gDPSetTextureFilter(dl++, G_TF_BILERP);
+        gSPTexture(dl++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
+        gDPSetCombineLERP(dl++, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
+        gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+        gDPSetColorDither(dl++, G_CD_DISABLE);
+        gDPSetAlphaDither(dl++, G_AD_DISABLE);
         for (i = 0; i < D_80754BC0; i++) {
             if (D_807FD838[gGfxBufferIndex ^ 1][i] != 0) {
-                arg0 = lensFlareDrawSource(arg0, D_807FD808[i], (u32)(D_807FD838[gGfxBufferIndex ^ 1][i]--));
+                dl = lensFlareDrawSource(dl, D_807FD808[i], (u32)(D_807FD838[gGfxBufferIndex ^ 1][i]--));
             }
         }
-        GFX_PKT(arg0++, 0xE3001801, 0);
-        GFX_PKT(arg0++, 0xE3001A01, 0);
+        gDPSetColorDither(dl++, G_CD_MAGICSQ);
+        gDPSetAlphaDither(dl++, G_AD_PATTERN);
     }
-    return arg0;
+    return dl;
 }
 
 extern s16 *D_8076A0A0;
 
-s16 zbufferDepthToDistance(s16 arg0) {
+s16 zbufferDepthToDistance(s16 depth) {
     s16 lo;
     s16 hi;
     s16 mid;
-    s32 ret;
-    s32 t;
+    s32 dist;
 
     lo = 0;
-    mid = -1;
+    mid = -1; // FAKE: mid preassigned (the -1 compare reads it) steers lo/hi registers
     hi = 0x1FE;
-    if (arg0 == mid) {
+    if (depth == mid) {
         return 0;
     }
     do {
         mid = (lo + hi) / 2;
-        if (arg0 < D_8076A0A0[mid]) {
+        if (depth < D_8076A0A0[mid]) {
             hi = mid - 1;
         } else {
             lo = mid + 1;
         }
-        if (arg0 >= D_8076A0A0[mid] && arg0 < D_8076A0A0[mid + 1]) {
+        if (depth >= D_8076A0A0[mid] && depth < D_8076A0A0[mid + 1]) {
             return mid + 8;
         }
     } while (hi >= lo);
-    t = arg0 - 0x7C1B;
-    ret = t < 0 ? 0 : t;
-    return ret;
+    dist = depth - 0x7C1B;
+    return dist < 0 ? 0 : dist;
 }
 
 typedef struct {
-    s32 unk0;
-    u32 unk4;
-    s32 unk8;
-    s32 unkC;
-    s32 unk10;
-    s32 unk14;
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-    s32 unk24;
-    s32 unk28;
-    s32 unk2C;
-    s32 unk30;
-    s32 unk34;
-    s32 unk38;
-    s32 unk3C;
+    s32 words[16]; /* (shift, offset) pairs per 3-bit exponent */
 } ZbufferDecodeTable;
-typedef struct {
-    u8 unk0[0x270];
-    s16 unk270;
-    s16 unk272;
-    s16 unk274;
-    s16 unk276;
-} ZbufferViewBounds;
 extern ZbufferDecodeTable D_80754BC4;
-extern s32 gGfxDepthBuffer;
-#define ZBUFFER_VIEW ((ZbufferViewBounds *)gPlayerSlots)
+extern u16 *gGfxDepthBuffer;
 
-s32 zbufferReadDepth(s16 arg0, s16 arg1) {
-    ZbufferDecodeTable tileCopy;
-    u16 tile;
-    u16 new_var;
-    s32 *tileInfo;
-    u16 *map;
+s32 zbufferReadDepth(s16 x, s16 y) {
+    ZbufferDecodeTable table;
+    u16 z;
+    u16 mantissa;
+    s32 *entry;
+    u16 *depth;
     s32 result;
-    ZbufferDecodeTable *tileCopyPtr;
+    ZbufferDecodeTable *tablePtr;
 
-    tileCopy = D_80754BC4;
-    tileCopyPtr = &tileCopy;
-    map = (u16 *)gGfxDepthBuffer;
-    if ((arg0 < ZBUFFER_VIEW->unk270) || (ZBUFFER_VIEW->unk274 < arg0) || (arg1 < ZBUFFER_VIEW->unk272) || (ZBUFFER_VIEW->unk276 < arg1)) return 0xFFFF;
-    map = (u16 *)((u8 *)map + (((gScreenWidth * arg1) + arg0) * 2));
-    tile = *map;
-    tileInfo = (s32 *)tileCopyPtr + (((tile >> 0xD) & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 7) * 2);
-    new_var = tile >> 2;
-    result = ((new_var & 0x7FF) << tileInfo[0]) + tileInfo[1];
+    table = D_80754BC4;
+    tablePtr = &table; // FAKE: pointer temp steers the table address registers
+    depth = gGfxDepthBuffer;
+    if (x < gPlayerSlots->rect[0] || gPlayerSlots->rect[2] < x || y < gPlayerSlots->rect[1] || gPlayerSlots->rect[3] < y) {
+        return 0xFFFF;
+    }
+    depth += gScreenWidth * y + x;
+    z = *depth;
+    entry = tablePtr->words + (((z >> 13) & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 7) * 2); // FAKE: no-op masks advance the ugen temp ring (Q0374)
+    mantissa = z >> 2;
+    result = ((mantissa & 0x7FF) << entry[0]) + entry[1];
     return ((u32)result >> 3) & 0xFFFF;
 }
-
-typedef struct {
-    u8 pad0[0x270];
-    s16 unk270;
-    s16 unk272;
-    s16 unk274;
-    s16 unk276;
-    s16 unk278;
-    s16 unk27A;
-    u8 pad27C[4];
-    f32 unk280;
-} ViewportRectInfo;
-
-#define VIEWPORT_INFO ((ViewportRectInfo *)gPlayerSlots)
 
 extern s32 gGlobalPauseFlags;
 extern s16 D_807FD800;
@@ -518,101 +454,71 @@ extern s16 D_807FD802;
 extern s16 D_807FD804;
 extern s16 D_807FD806;
 
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-} ScreenPoint;
-
-#define FLARE_SCREEN_POINTS ((ScreenPoint (*)[3])D_807FD840)
 
 typedef struct {
     u8 pad0[0x2E];
-    s8 unk2E;
+    s8 stickX;
     u8 pad2F;
-    u8 unk30;
+    u8 stickMagnitude;
     u8 pad31[3];
 } PlayerSampleInfo;
 
 extern PlayerSampleInfo gPlayerPadState[];
 
-typedef struct {
-    u8 pad0[0x10E];
-    s16 unk10E;
-    s16 unk110;
-    s16 unk112;
-    s16 unk114;
-    s16 unk116;
-    s16 unk118;
-    s16 unk11A;
-} PlayerStateDepth;
-
-typedef struct {
-    u8 unk0;
-    u8 pad1[3];
-    Actor *unk4;
-    u8 pad8[0x2F0 - 8];
-} PlayerViewSlot;
-
-typedef struct {
-    u8 pad0[0x174];
-    PlayerStateDepth *unk174;
-} ActorWithPlayerState;
-
 
 void func_80700BF4(void) {
     u8 i;
-    PlayerStateDepth *st;
+    PlayerState *state;
     s16 x;
     s16 y;
-    u16 w;
-    s32 base;
-    PlayerSampleInfo *p;
-    s32 r;
-    s32 flag;
-    s32 bad = 0x7FFF;
+    u16 halfWidth;
+    s32 margin;
+    PlayerSampleInfo *pad;
+    s32 depth;
+    s32 blocked;
+    s32 invalid = 0x7FFF; // FAKE: value-named constant local keeps 0x7FFF in a saved register
 
     if (D_80754BC0 != 0) {
         do {
             D_80754BC0--;
-            if ((f32)VIEWPORT_INFO->unk270 < FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk0 &&
-                FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk0 < (f32)VIEWPORT_INFO->unk274 &&
-                (f32)VIEWPORT_INFO->unk272 < FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk4 &&
-                FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk4 < (f32)VIEWPORT_INFO->unk276 &&
+            if ((f32)gPlayerSlots->rect[0] < D_807FD840[gGfxBufferIndex][D_80754BC0].x &&
+                D_807FD840[gGfxBufferIndex][D_80754BC0].x < (f32)gPlayerSlots->rect[2] &&
+                (f32)gPlayerSlots->rect[1] < D_807FD840[gGfxBufferIndex][D_80754BC0].y &&
+                D_807FD840[gGfxBufferIndex][D_80754BC0].y < (f32)gPlayerSlots->rect[3] &&
                 !(gGlobalPauseFlags & 2)) {
-                if (FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk8 <
-                    (f32)zbufferDepthToDistance(zbufferReadDepth((s16)FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk0,
-                                                     (s16)FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk4))) {
+                if (D_807FD840[gGfxBufferIndex][D_80754BC0].depth <
+                    (f32)zbufferDepthToDistance(zbufferReadDepth((s16)D_807FD840[gGfxBufferIndex][D_80754BC0].x,
+                                                     (s16)D_807FD840[gGfxBufferIndex][D_80754BC0].y))) {
                     D_807FD838[gGfxBufferIndex][D_80754BC0] = 5;
                 }
             }
         } while (D_80754BC0 != 0);
     }
-    r = zbufferReadDepth(0xA0, 0xDC);
-    flag = bad == r;
-    if (flag == 0) {
-        r = zbufferReadDepth(0xC, 0x78);
-        flag = bad == r;
-        if (flag == 0) {
-            r = zbufferReadDepth(0x134, 0x78);
-            flag = bad == r;
+    depth = zbufferReadDepth(0xA0, 0xDC);
+    blocked = invalid == depth;
+    if (blocked == 0) {
+        depth = zbufferReadDepth(0xC, 0x78);
+        blocked = invalid == depth;
+        if (blocked == 0) {
+            depth = zbufferReadDepth(0x134, 0x78);
+            blocked = invalid == depth;
         }
     }
-    D_807FD800 = flag;
+    D_807FD800 = blocked;
     D_807FD802 = zbufferDepthToDistance(zbufferReadDepth(D_807FD804, D_807FD806));
-    base = 0x28;
+    margin = 40; // FAKE: constant local (a literal shrinks the frame by 8)
     for (i = 0; i < gPlayerCount; i++) {
-        if (((PlayerViewSlot *)gPlayerSlots)[i].unk0 != 0) {
-            st = ((ActorWithPlayerState *)((PlayerViewSlot *)gPlayerSlots)[i].unk4)->unk174;
-            p = &gPlayerPadState[i];
-            x = st->unk10E;
-            y = st->unk110 - 0x14;
-            x += p->unk2E;
-            w = (u32)(base + p->unk30 / 1.5);
-            st->unk114 = zbufferDepthToDistance(zbufferReadDepth(x, y));
-            st->unk116 = zbufferDepthToDistance(zbufferReadDepth(x, st->unk112));
-            st->unk118 = zbufferDepthToDistance(zbufferReadDepth(x - w, y));
-            st->unk11A = zbufferDepthToDistance(zbufferReadDepth(x + w, y));
+        if (gPlayerSlots[i].unk0 != 0) {
+            state = (PlayerState *)gPlayerSlots[i].actor->customState;
+            pad = &gPlayerPadState[i];
+            x = state->targetPitch;
+            y = state->targetRoll - 0x14;
+            x += pad->stickX;
+            halfWidth = (u32)(margin + pad->stickMagnitude / 1.5);
+            state->unk114 = zbufferDepthToDistance(zbufferReadDepth(x, y));
+            state->unk116 = zbufferDepthToDistance(zbufferReadDepth(x, state->targetYawAngle));
+            state->unk118 = zbufferDepthToDistance(zbufferReadDepth(x - halfWidth, y));
+            state->unk11A = zbufferDepthToDistance(zbufferReadDepth(x + halfWidth, y));
         }
     }
 }
@@ -625,13 +531,13 @@ typedef struct {
 } CameraAxes;
 
 typedef struct {
-    f32 unk0;
-    f32 unk4;
-    u8 unk8;
-    u8 unk9;
-    u8 unkA;
-    u8 unkB;
-    s8 unkC;
+    f32 scale;
+    f32 axisPos;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+    s8 texOffset;
     u8 pad[3];
 } LensFlareSprite;
 
@@ -641,73 +547,71 @@ Vec3f vec3fAdd(Vec3f, Vec3f);
 Vec3f vec3fScale(Vec3f, f32);
 f32 vec3fDot(Vec3f, Vec3f);
 
-/* K&R: `i` is a 4th (unused input) parameter, the loop counter has no frame home; callers pass 3 args. */
-/* padX/padY are unused locals that keep the original frame layout. */
-Gfx *lensFlareDrawSource(dl, pt, arg2, i)
+Gfx *lensFlareDrawSource(dl, pt, fade, i) // FAKE: K&R 4th parameter `i` (callers pass 3 args) gives the loop counter no frame home
 Gfx *dl;
 LensFlarePoint pt;
-u8 arg2;
+u8 fade;
 s16 i;
 {
-    Vec3f sp1B4;
-    Vec3f sp1A8;
-    Vec3f sp19C;
-    Vec3f sp190;
-    Vec3f sp184;
-    Vec3f sp178;
-    Vec3f sp16C;
-    Vec3f sp160;
-    Vec3f padX[7];
-    f32 sp108;
-    f32 padY[4];
-    f32 spF4;
-    f32 spF0;
-    f32 fs0;
-    f32 fs2;
-    f32 fs3;
+    Vec3f axisEnd;
+    Vec3f axisSpan;
+    Vec3f viewDir;
+    Vec3f srcDir;
+    Vec3f pos;
+    Vec3f eye;
+    Vec3f at;
+    Vec3f src;
+    Vec3f pad1[7];
+    f32 screenX;
+    f32 pad2[4];
+    f32 screenY;
+    f32 alpha;
+    f32 facing;
+    f32 colorScale;
+    f32 alphaScale;
 
-    spF0 = (f32)((f64)arg2 / 5.0);
-    vec3fSet(&sp160.x, pt.unk0, pt.unk4, pt.unk8);
-    vec3fSet(&sp178.x, ((CameraAxes *)gPlayerSlots)->unk21C.x, ((CameraAxes *)gPlayerSlots)->unk21C.y, ((CameraAxes *)gPlayerSlots)->unk21C.z);
-    vec3fSet(&sp16C.x, ((CameraAxes *)gPlayerSlots)->unk234.x, ((CameraAxes *)gPlayerSlots)->unk234.y, ((CameraAxes *)gPlayerSlots)->unk234.z);
-    vec3fNormalize(&sp19C.x, vec3fSub(sp16C, sp178));
-    sp1B4 = vec3fAdd(sp178, vec3fScale(sp19C, 5000.0f));
-    vec3fNormalize(&sp190.x, vec3fSub(sp160, sp178));
-    fs0 = (f64)vec3fDot(sp190, sp19C) < 1e-05 ? 1e-05 : vec3fDot(sp190, sp19C);
-    sp160 = vec3fAdd(sp178, vec3fScale(vec3fScale(sp190, 5000.0f), 1.0f / fs0));
-    sp1A8 = vec3fSub(sp160, sp1B4);
-    if (fs0 < 0.0f) {
+    alpha = fade / 5.0;
+    vec3fSet(&src, pt.x, pt.y, pt.z);
+    vec3fSet(&eye, gPlayerSlots->unk21C, gPlayerSlots->unk220, gPlayerSlots->unk224);
+    vec3fSet(&at, ((CameraAxes *)gPlayerSlots)->unk234.x, ((CameraAxes *)gPlayerSlots)->unk234.y, ((CameraAxes *)gPlayerSlots)->unk234.z);
+    vec3fNormalize(&viewDir, vec3fSub(at, eye));
+    axisEnd = vec3fAdd(eye, vec3fScale(viewDir, 5000.0f));
+    vec3fNormalize(&srcDir, vec3fSub(src, eye));
+    facing = vec3fDot(srcDir, viewDir) < 1e-05 ? 1e-05 : vec3fDot(srcDir, viewDir);
+    src = vec3fAdd(eye, vec3fScale(vec3fScale(srcDir, 5000.0f), 1.0f / facing));
+    axisSpan = vec3fSub(src, axisEnd);
+    if (facing < 0.0f) {
         return dl;
     }
     for (i = 0; i < 12; i++) {
-        fs3 = ((f64)fs0 < 0.75 ? 0.0 : (f64)fs0 - 0.75) * 4.0;
-        fs2 = (f64)fs3 < 0.85 ? 0.85 : (f64)fs3;
+        alphaScale = (facing < 0.75 ? 0.0 : facing - 0.75) * 4.0;
+        colorScale = alphaScale < 0.85 ? 0.85 : alphaScale;
         switch (i) {
         case 11:
-            sp108 = 640.0f;
-            spF4 = 480.0f;
-            fs3 = ((f64)fs0 < 0.9 ? 0.0 : (f64)fs0 - 0.9) * 10.0;
-            fs2 = (f64)fs3 < 0.85 ? 0.85 : (f64)fs3;
+            screenX = 640.0f;
+            screenY = 480.0f;
+            alphaScale = (facing < 0.9 ? 0.0 : facing - 0.9) * 10.0;
+            colorScale = alphaScale < 0.85 ? 0.85 : alphaScale;
             break;
         case 0:
         case 12:
-            fs3 = ((f64)fs0 < 0.25 ? 0.0 : (f64)fs0 - 0.25) * 1.333;
-            fs2 = (f64)fs3 < 0.85 ? 0.85 : (f64)fs3;
-            camProjectToScreen(sp160.x, sp160.y, sp160.z, &sp108, &spF4, 0, 4.0f, 0);
+            alphaScale = (facing < 0.25 ? 0.0 : facing - 0.25) * 1.333;
+            colorScale = alphaScale < 0.85 ? 0.85 : alphaScale;
+            camProjectToScreen(src.x, src.y, src.z, &screenX, &screenY, 0, 4.0f, 0);
             break;
         default:
-            sp184 = vec3fAdd(sp1B4, vec3fScale(sp1A8, D_80754AF0[i].unk4));
-            camProjectToScreen(sp184.x, sp184.y, sp184.z, &sp108, &spF4, 0, 4.0f, 0);
+            pos = vec3fAdd(axisEnd, vec3fScale(axisSpan, D_80754AF0[i].axisPos));
+            camProjectToScreen(pos.x, pos.y, pos.z, &screenX, &screenY, 0, 4.0f, 0);
             break;
         }
         gDPPipeSync(dl++);
-        gDPSetPrimColor(dl++, 0, 0, (u32)(((f64)pt.unkC / 255.0) * D_80754AF0[i].unk8 * fs2), (u32)(((f64)pt.unkD / 255.0) * D_80754AF0[i].unk9 * fs2), (u32)(((f64)pt.unkE / 255.0) * D_80754AF0[i].unkA * fs2), (u32)((f32)D_80754AF0[i].unkB * fs3 * spF0));
-        dl = renderRotatedSprite(dl, (D_80754AF0[i].unkC + 0x4D) & 0xFFFF, 3, 1, 0x40, 0x40, (s32)sp108, (s32)spF4, D_80754AF0[i].unk0 * 4.0f * spF0, D_80754AF0[i].unk0 * 4.0f * spF0, 0, 0.0f);
+        gDPSetPrimColor(dl++, 0, 0, (u32)((pt.r / 255.0) * D_80754AF0[i].r * colorScale), (u32)((pt.g / 255.0) * D_80754AF0[i].g * colorScale), (u32)((pt.b / 255.0) * D_80754AF0[i].b * colorScale), (u32)((f32)D_80754AF0[i].a * alphaScale * alpha));
+        dl = renderRotatedSprite(dl, (D_80754AF0[i].texOffset + 0x4D) & 0xFFFF, 3, 1, 0x40, 0x40, (s32)screenX, (s32)screenY, D_80754AF0[i].scale * 4.0f * alpha, D_80754AF0[i].scale * 4.0f * alpha, 0, 0.0f);
     }
     dl->words.w0 = 0xE7000000; dl->words.w1 = 0;
     dl++;
-    if ((f64)fs0 > 0.97) {
-        dl = gfxFillScreenColor(dl, pt.unkC, pt.unkD, pt.unkE, (u32)(((f64)fs0 - 0.97) * 33.0 * 128.0));
+    if (facing > 0.97) {
+        dl = gfxFillScreenColor(dl, pt.r, pt.g, pt.b, (u32)((facing - 0.97) * 33.0 * 128.0));
         dl->words.w0 = 0xD7000002; dl->words.w1 = 0x80008000;
         dl[1].words.w0 = 0xFC119623; dl[1].words.w1 = 0xFF2FFFFF;
         dl += 2;
@@ -715,7 +619,7 @@ s16 i;
     return dl;
 }
 
-extern s8 D_807FD890;
+extern u8 D_807FD890;
 
 void func_80701C90(void) {
     D_807FD890 = 1;
@@ -759,28 +663,21 @@ typedef struct {
 } CameraActorState;
 
 #define PLAYER_VIEW_BLOCK(i) (&((PlayerViewBlock *)gPlayerSlots)[i])
-#define OVERLAY_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-
 Gfx *func_80701CA0(Gfx *dl) {
-    extern s16 gGfxScreenLeft;
-    extern s16 gGfxScreenTop;
-    extern s16 gGfxScreenRight;
-    extern s16 gGfxScreenBottom;
-    PlayerOverlayState *a;
-    CameraActorState *b;
+    PlayerOverlayState *overlay;
+    CameraActorState *camState;
     Vtx *vtx;
-    u8 *pf;
-    f32 v;
+    u8 *forcePtr;
+    f32 depthDiff;
     u8 drew;
-    u32 fp;
+    u32 alphaBase;
     u8 i;
     u8 force;
 
     drew = 0;
-    fp = 100;
+    alphaBase = 100;
     force = 0;
-    /* dead address-taken: keeps the flag memory-resident (no promoted ucvt web) */
-    pf = &force;
+    forcePtr = &force; // FAKE: dead address-taken keeps the flag memory-resident (Q0195)
     switch (gCurrentMap) {
     case 0x2D:
         force = 1;
@@ -799,10 +696,9 @@ Gfx *func_80701CA0(Gfx *dl) {
     }
     for (i = 0; i < gPlayerCount; i++) {
         if (PLAYER_VIEW_BLOCK(i)->unk0 != 0) {
-            a = (PlayerOverlayState *)PLAYER_VIEW_BLOCK(i)->unk4->customState;
-            /* dead check: makes a->unk104 a shared load candidate (temp register order) */
-            if (a->unk104 == 0) {}
-            b = (CameraActorState *)a->unk104->customState;
+            overlay = (PlayerOverlayState *)PLAYER_VIEW_BLOCK(i)->unk4->customState;
+            if (overlay->unk104 == 0) {} // FAKE: dead check makes overlay->unk104 a shared load candidate
+            camState = (CameraActorState *)overlay->unk104->customState;
             if (force != 0 || (PLAYER_VIEW_BLOCK(i)->unk2E8 != 0 && PLAYER_VIEW_BLOCK(i)->unk220 < PLAYER_VIEW_BLOCK(i)->unk24C + 3.0f)) {
                 vtx = (Vtx *)heapAlloc(0x40);
                 heapFreeDeferred(vtx);
@@ -820,38 +716,36 @@ Gfx *func_80701CA0(Gfx *dl) {
                 vtx[3].v.ob[2] = -10;
                 gDPPipeSync(dl++);
                 dl = gfxSetViewportDisplayList(dl);
-                OVERLAY_GFX(dl++, (((s32)((f32)gGfxScreenLeft * 4.0f) & 0xFFF) << 0xC) | 0xED000000 | ((s32)((f32)gGfxScreenTop * 4.0f) & 0xFFF),
-                      (((s32)((f32)gGfxScreenRight * 4.0f) & 0xFFF) << 0xC) | ((s32)((f32)gGfxScreenBottom * 4.0f) & 0xFFF));
+                gDPSetScissor(dl++, G_SC_NON_INTERLACE, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight, gGfxScreenBottom);
                 gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
-                OVERLAY_GFX(dl++, 0xFCFFFFFF, 0xFFFDF6FB);
-                v = PLAYER_VIEW_BLOCK(i)->unk24C - PLAYER_VIEW_BLOCK(i)->unk220;
+                gDPSetCombineMode(dl++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
+                depthDiff = PLAYER_VIEW_BLOCK(i)->unk24C - PLAYER_VIEW_BLOCK(i)->unk220;
                 switch (gCurrentMap) {
                 case 0x1E:
-                    v = (f32)((f64)v * 0.07);
+                    depthDiff = depthDiff * 0.07;
                     break;
                 case 0x2C:
-                    fp = 0x32;
-                    v = (f32)((f64)v * 0.07);
+                    alphaBase = 0x32;
+                    depthDiff = depthDiff * 0.07;
                     break;
                 case 0x6F:
-                    fp = 0x32;
+                    alphaBase = 0x32;
                 default:
-                    v = (f32)((f64)v * 0.4);
+                    depthDiff = depthDiff * 0.4;
                     break;
                 }
-                if (v > 80.0f) {
-                    v = 80.0f;
-                    /* dead use of D_2000180: shifts uopt priorities (s5/s6 pairing) */
-                    if (D_2000180 == 0) {}
+                if (depthDiff > 80.0f) {
+                    depthDiff = 80.0f;
+                    if (D_2000180 == 0) {} // FAKE: dead use of D_2000180 shifts uopt priorities (s5/s6 pairing)
                 }
-                if (*(u8 *)&D_807FD890 != 0) {
-                    a->unk1E8 = v;
+                if (D_807FD890 != 0) {
+                    overlay->unk1E8 = depthDiff;
                 } else {
-                    a->unk1E8 = (f32)((f64)a->unk1E8 + (f64)(v - a->unk1E8) * 0.05);
-                    v = (f32)((u32)a->unk1E8 & 0xFF);
+                    overlay->unk1E8 = overlay->unk1E8 + (f64)(depthDiff - overlay->unk1E8) * 0.05;
+                    depthDiff = (u32)overlay->unk1E8 & 0xFF;
                 }
-                gDPSetPrimColor(dl++, 0, 0, 0, 0, 0x3C, (u32)((f32)fp + v));
-                OVERLAY_GFX(dl++, 0xE3000A01, 0);
+                gDPSetPrimColor(dl++, 0, 0, 0, 0, 0x3C, (u32)((f32)alphaBase + depthDiff));
+                gDPSetCycleType(dl++, G_CYC_1CYCLE);
                 gSPMatrix(dl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
                 gSPMatrix(dl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
                 gSPVertex(dl++, osVirtualToPhysical(vtx), 4, 0);
@@ -859,8 +753,8 @@ Gfx *func_80701CA0(Gfx *dl) {
                 drew = 1;
                 gDPPipeSync(dl++);
             }
-            PLAYER_VIEW_BLOCK(i)->unk2E8 = b->unkFA;
-            PLAYER_VIEW_BLOCK(i)->unk24C = b->unk90;
+            PLAYER_VIEW_BLOCK(i)->unk2E8 = camState->unkFA;
+            PLAYER_VIEW_BLOCK(i)->unk24C = camState->unk90;
         }
     }
     if (drew != 0) {
@@ -875,29 +769,29 @@ Gfx *func_80701CA0(Gfx *dl) {
 }
 
 
-void gfxDrawTexturedTileGridDefault(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12) {
-    gfxDrawTexturedTileGrid(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, 1, 0x10, 0, 0);
+void gfxDrawTexturedTileGridDefault(Gfx **gfx, s32 fmt, s32 texture, s32 texWidth, s32 texHeight, s32 tileW, s32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0) {
+    gfxDrawTexturedTileGrid(gfx, fmt, texture, texWidth, texHeight, tileW, tileH, x0, y0, x1, y1, s0, t0, 1, 0x10, 0, 0);
 }
 
-void gfxDrawTexturedTileGridSimple(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12, u8 arg13, u8 arg14) {
-    gfxDrawTexturedTileGrid(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, 0, 0);
+void gfxDrawTexturedTileGridSimple(Gfx **gfx, s32 fmt, s32 texture, s32 texWidth, s32 texHeight, s32 tileW, s32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0, u8 texScale, u8 bitSize) {
+    gfxDrawTexturedTileGrid(gfx, fmt, texture, texWidth, texHeight, tileW, tileH, x0, y0, x1, y1, s0, t0, texScale, bitSize, 0, 0);
 }
 
 typedef struct VtxColorView {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
+    s16 x;
+    s16 y;
+    s16 z;
     u8 unk6[2];
-    s16 unk8;
-    s16 unkA;
-    s8 unkC;
-    s8 unkD;
-    s8 unkE;
-    u8 unkF;
+    s16 s;
+    s16 t;
+    s8 r;
+    s8 g;
+    s8 b;
+    u8 a;
 } VtxColorView;
 
 
-void gfxDrawTexturedTileGrid(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5, u32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12, u8 arg13, u8 arg14, u8 arg15, void (*arg16)()) {
+void gfxDrawTexturedTileGrid(Gfx **gfx, s32 fmt, s32 texture, u32 texWidth, s32 texHeight, u32 tileW, u32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0, u8 texScale, u8 bitSize, u8 edgeFade, void (*vtxCallback)()) {
     Gfx *dl;
     s32 y;
     VtxColorView *vtx;
@@ -927,176 +821,167 @@ void gfxDrawTexturedTileGrid(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4,
     u32 th;
     u32 vstep;
 
-    ustep = arg13 * arg5;
-    dl = *arg0;
+    ustep = texScale * tileW;
+    dl = *gfx;
     flag = 1;
-    vstep = arg13 * arg6;
-    xs = (u32)(arg7 * 32.0f);
-    xe = (u32)(arg9 * 32.0f);
-    ye = (u32)(arg10 * 32.0f);
-    th = arg6 << 5;
-    tw = arg5 << 5;
-    if (arg3 > 0x200) {
+    vstep = texScale * tileH;
+    xs = (u32)(x0 * 32.0f);
+    xe = (u32)(x1 * 32.0f);
+    ye = (u32)(y1 * 32.0f);
+    th = tileH << 5;
+    tw = tileW << 5;
+    if (texWidth > 0x200) {
         gSPTexture(dl++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
         flag = 0;
     } else {
         gSPTexture(dl++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
     }
-    ys = (u32)(arg8 * 32.0f);
-    vtx = (VtxColorView *)heapAlloc((((((xe) - (xs)) / tw) + 1) * ((((ye) - (ys)) / th) + 1)) << 6);
+    ys = (u32)(y0 * 32.0f);
+    vtx = heapAlloc((((xe - xs) / tw + 1) * ((ye - ys) / th + 1)) << 6);
     heapFreeDeferred(vtx);
     gDPPipeSync(dl++);
-    for (y = ys, v = (s32)((f32)arg13 * arg12); y < ye; y += th, v += vstep) {
-        u = ((s32)((f32)arg13 * arg11));
-        rowT = v;
-        rowY = y;
+    for (y = ys, v = (s32)((f32)texScale * t0); y < ye; y += th, v += vstep) {
+        u = ((s32)((f32)texScale * s0));
+        rowT = v; // FAKE: redundant copy of v steers register allocation
+        rowY = y; // FAKE: redundant copy of y steers register allocation
         for (x = xs; x < xe; x += tw, u += ustep) {
-            colS = u;
+            colS = u; // FAKE: redundant copy of u steers register allocation
             uls = ((x >> 5) - 1) > 0 ? ((x >> 5) - 1) : 0;
             xf = (f32)x - 16.0;
             ua = (s16)(u + ustep);
-            lrs = (((x >> 5) + arg5) < ((xe >> 5) - 1) ? ((x >> 5) + arg5) : ((xe >> 5) - 1));
+            lrs = (((x >> 5) + tileW) < ((xe >> 5) - 1) ? ((x >> 5) + tileW) : ((xe >> 5) - 1));
             ult = ((y >> 5) - 1) > 0 ? ((y >> 5) - 1) : 0;
-            lrt = ((((y >> 5) + arg6) < ((ye >> 5) - 1)) ? ((y >> 5) + arg6) : ((ye >> 5) - 1));
-            if (arg14 == 8) {
-                gDPLoadTextureTile(dl++, arg1, arg2, G_IM_SIZ_8b, arg3, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
-            } else if (arg14 == 0x10) {
-                gDPLoadTextureTile(dl++, arg1, arg2, G_IM_SIZ_16b, arg3, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
-            } else if (arg14 == 0x20) {
-                gDPLoadTextureTile(dl++, arg1, arg2, G_IM_SIZ_32b, arg3, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
-            } else if (arg14 == 4) {
-                gDPLoadTextureTile_4b(dl++, arg1, arg2, arg3, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+            lrt = ((((y >> 5) + tileH) < ((ye >> 5) - 1)) ? ((y >> 5) + tileH) : ((ye >> 5) - 1));
+            if (bitSize == 8) {
+                gDPLoadTextureTile(dl++, fmt, texture, G_IM_SIZ_8b, texWidth, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+            } else if (bitSize == 0x10) {
+                gDPLoadTextureTile(dl++, fmt, texture, G_IM_SIZ_16b, texWidth, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+            } else if (bitSize == 0x20) {
+                gDPLoadTextureTile(dl++, fmt, texture, G_IM_SIZ_32b, texWidth, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+            } else if (bitSize == 4) {
+                gDPLoadTextureTile_4b(dl++, fmt, texture, texWidth, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             }
-            fsc = (f32)y - 16.0;
-            twf = (f32)(arg5 << 5);
+            fsc = (f32)y - 16.0; // FAKE: dead store steers float register allocation
+            twf = tileW << 5;
             vb = (s16)(v + vstep);
-            if (arg15) {
-                if (x == xs && arg15 == 1) {
+            if (edgeFade) {
+                if (x == xs && edgeFade == 1) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
             }
-            if (arg16 != NULL) {
-                arg16(u, v, vtx);
+            if (vtxCallback != NULL) {
+                vtxCallback(u, v, vtx);
             }
             vtxSetPosTex((s16 *)vtx++, colS, rowT, xf, (s16)(f32)((f32)rowY - 16.0), flag);
-            if (arg15) {
-                if ((x + (arg5 << 5)) >= xe && arg15 == 2) {
+            if (edgeFade) {
+                if (x + tw >= xe && edgeFade == 2) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
             }
-            if (arg16 != NULL) {
-                arg16((s16)(u + ustep), v, vtx);
+            if (vtxCallback != NULL) {
+                vtxCallback((s16)(u + ustep), v, vtx);
             }
             xa = xf + twf;
             vtxSetPosTex((s16 *)vtx++, ua, rowT, xa, (s16)(f32)((f32)rowY - 16.0), flag);
-            if (arg15) {
-                if ((x + (arg5 << 5)) >= xe && arg15 == 2) {
+            if (edgeFade) {
+                if (x + tw >= xe && edgeFade == 2) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
             }
-            if (arg16 != NULL) {
-                arg16(ua, vb, vtx);
+            if (vtxCallback != NULL) {
+                vtxCallback(ua, vb, vtx);
             }
-            vtxSetPosTex((s16 *)vtx++, ua, vb, xa, (s16)((f32)(f32)((f32)rowY - 16.0) + (f32)th), flag);
-            if (arg15) {
-                if (x == xs && arg15 == 1) {
+            vtxSetPosTex((s16 *)vtx++, ua, vb, xa, (s16)((f32)((f32)rowY - 16.0) + (f32)th), flag);
+            if (edgeFade) {
+                if (x == xs && edgeFade == 1) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
             }
-            if (arg16 != NULL) {
-                arg16(u, vb, vtx);
+            if (vtxCallback != NULL) {
+                vtxCallback(u, vb, vtx);
             }
-            vtxSetPosTex((s16 *)vtx++, colS, vb, xf, (s16)((f32)(f32)((f32)rowY - 16.0) + (f32)th), flag);
+            vtxSetPosTex((s16 *)vtx++, colS, vb, xf, (s16)((f32)((f32)rowY - 16.0) + (f32)th), flag);
             gSPVertex(dl++, osVirtualToPhysical(vtx - 4), 4, 0);
             gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(dl++);
         }
     }
-    *arg0 = dl;
+    *gfx = dl;
 }
 
-extern s16 gGfxScreenLeft;
-extern s16 gGfxScreenTop;
-extern s16 gGfxScreenRight;
-extern s16 gGfxScreenBottom;
-
-#define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-
-Gfx *gfxFillScreenColor(Gfx *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4) {
-    if (arg4 != 0) {
-        WRITE_GFX(arg0++, 0xD9000000, 0);
-        WRITE_GFX(arg0++, 0xD9FFFFFF, 0x200004);
-        WRITE_GFX(arg0++, 0xD7000000, 0xFFFFFFFF);
-        WRITE_GFX(arg0++, 0xE7000000, 0);
-        WRITE_GFX(arg0++, 0xE200001C, 0x504340);
-        gDPSetPrimColor(arg0++, 0, 0, arg1, arg2, arg3, arg4);
-        WRITE_GFX(arg0++, 0xE3000A01, 0);
-        WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFDF6FB);
-        WRITE_GFX(arg0++, (((s32)((f32)gGfxScreenLeft * 4.0f) & 0xFFF) << 0xC) | 0xED000000 | ((s32)((f32)gGfxScreenTop * 4.0f) & 0xFFF),
-                  (((s32)((f32)gGfxScreenRight * 4.0f) & 0xFFF) << 0xC) | ((s32)((f32)gGfxScreenBottom * 4.0f) & 0xFFF));
-        WRITE_GFX(arg0++, ((gGfxScreenRight & 0x3FF) << 0xE) | 0xF6000000 | ((gGfxScreenBottom & 0x3FF) * 4),
-                  ((gGfxScreenLeft & 0x3FF) << 0xE) | ((gGfxScreenTop & 0x3FF) * 4));
+Gfx *gfxFillScreenColor(Gfx *dl, u8 r, u8 g, u8 b, u8 a) {
+    if (a != 0) {
+        gSPClearGeometryMode(dl++, 0xFFFFFFFF);
+        gSPSetGeometryMode(dl++, G_SHADE | G_SHADING_SMOOTH);
+        gSPTexture(dl++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
+        gDPPipeSync(dl++);
+        gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+        gDPSetPrimColor(dl++, 0, 0, r, g, b, a);
+        gDPSetCycleType(dl++, G_CYC_1CYCLE);
+        gDPSetCombineMode(dl++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
+        gDPSetScissor(dl++, G_SC_NON_INTERLACE, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight, gGfxScreenBottom);
+        gDPFillRectangle(dl++, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight, gGfxScreenBottom);
     }
-    WRITE_GFX(arg0++, 0xE7000000, 0);
-    return arg0;
+    gDPPipeSync(dl++);
+    return dl;
 }
 
 
-Gfx *gfxBuildScanlineNoise(Gfx *arg0, s32 arg1) {
+Gfx *gfxBuildScanlineNoise(Gfx *dl, s32 unused) {
     s16 i;
     s16 y;
     s32 r;
     s16 y2;
 
-    gDPPipeSync(arg0++);
-    WRITE_GFX(arg0++, 0xE200001C, 0x504340);
-    WRITE_GFX(arg0++, 0xD7000000, 0xFFFFFFFF);
-    gDPSetPrimColor(arg0++, 0, 0, 0xC8, 0xC8, 0xC8, 0x80);
-    WRITE_GFX(arg0++, 0xE3000A01, 0);
-    WRITE_GFX(arg0++, 0xFC71FEE3, 0xFFFFF7FB);
-    WRITE_GFX(arg0++, 0xED028028, 0x4D4394);
-    gDPFillRectangle(arg0++, 10, VIEWPORT_INFO->unk272, 0x135, VIEWPORT_INFO->unk276);
-    gDPPipeSync(arg0++);
-    gDPSetPrimColor(arg0++, 0, 0, 0, 0, 0, 0xFF);
-    gDPSetCombineMode(arg0++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
+    gDPPipeSync(dl++);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+    gSPTexture(dl++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
+    gDPSetPrimColor(dl++, 0, 0, 0xC8, 0xC8, 0xC8, 0x80);
+    gDPSetCycleType(dl++, G_CYC_1CYCLE);
+    gDPSetCombineLERP(dl++, NOISE, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, NOISE, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE);
+    gDPSetScissor(dl++, G_SC_NON_INTERLACE, 10, 10, 0x135, 0xE5);
+    gDPFillRectangle(dl++, 10, gPlayerSlots->rect[1], 0x135, gPlayerSlots->rect[3]);
+    gDPPipeSync(dl++);
+    gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
+    gDPSetCombineMode(dl++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
     for (i = 0; i < 10; i++) {
         r = randomNonNegative() >> 15;
-        y = VIEWPORT_INFO->unk272 + r % (VIEWPORT_INFO->unk276 - VIEWPORT_INFO->unk272);
+        y = r % (gPlayerSlots->rect[3] - gPlayerSlots->rect[1]) + gPlayerSlots->rect[1];
         r = randomNonNegative() >> 15;
         y2 = r % 10 + 2;
-        gDPFillRectangle(arg0++, 10, y, 0x135, y + y2);
+        gDPFillRectangle(dl++, 10, y, 0x135, y + y2);
     }
-    gDPPipeSync(arg0++);
-    return arg0;
+    gDPPipeSync(dl++);
+    return dl;
 }
 
 extern s16 D_807444AC;
 extern s16 D_807444B0;
 
-void viewportShrinkToCenter(u8 arg0) {
+void viewportShrinkToCenter(u8 amount) {
     f32 scale;
 
-    scale = (f32)((f64)(f32)(u32)arg0 / 255.0);
+    scale = (f32)amount / 255.0;
     if (hudCanRender() != 0) {
-        VIEWPORT_INFO->unk272 = (s32)((f32)gGfxScreenTop + ((f32)((gScreenHeight >> 1) - gGfxScreenTop - 1) * scale));
-        VIEWPORT_INFO->unk276 = (s32)((f32)gGfxScreenBottom + ((f32)((gScreenHeight >> 1) - gGfxScreenBottom) * scale));
+        gPlayerSlots->rect[1] = (s32)((f32)gGfxScreenTop + ((f32)((gScreenHeight >> 1) - gGfxScreenTop - 1) * scale));
+        gPlayerSlots->rect[3] = (s32)((f32)gGfxScreenBottom + ((f32)((gScreenHeight >> 1) - gGfxScreenBottom) * scale));
     } else {
-        VIEWPORT_INFO->unk272 = (s32)((f32)D_807444AC + ((f32)((gScreenHeight >> 1) - D_807444AC - 1) * scale));
-        VIEWPORT_INFO->unk276 = (s32)((f32)D_807444B0 + ((f32)((gScreenHeight >> 1) - D_807444B0) * scale));
+        gPlayerSlots->rect[1] = (s32)((f32)D_807444AC + ((f32)((gScreenHeight >> 1) - D_807444AC - 1) * scale));
+        gPlayerSlots->rect[3] = (s32)((f32)D_807444B0 + ((f32)((gScreenHeight >> 1) - D_807444B0) * scale));
     }
-    VIEWPORT_INFO->unk270 = (s32)((f32)gGfxScreenLeft + ((f32)((gScreenWidth >> 1) - gGfxScreenLeft - 1) * scale));
-    VIEWPORT_INFO->unk274 = (s32)((f32)gGfxScreenRight + ((f32)((gScreenWidth >> 1) - gGfxScreenRight) * scale));
-    VIEWPORT_INFO->unk27A = VIEWPORT_INFO->unk276 - VIEWPORT_INFO->unk272;
-    VIEWPORT_INFO->unk278 = VIEWPORT_INFO->unk274 - VIEWPORT_INFO->unk270;
-    VIEWPORT_INFO->unk280 = (f32)VIEWPORT_INFO->unk278 / (f32)VIEWPORT_INFO->unk27A;
+    gPlayerSlots->rect[0] = (s32)((f32)gGfxScreenLeft + ((f32)((gScreenWidth >> 1) - gGfxScreenLeft - 1) * scale));
+    gPlayerSlots->rect[2] = (s32)((f32)gGfxScreenRight + ((f32)((gScreenWidth >> 1) - gGfxScreenRight) * scale));
+    gPlayerSlots->unk27A = gPlayerSlots->rect[3] - gPlayerSlots->rect[1];
+    gPlayerSlots->unk278 = gPlayerSlots->rect[2] - gPlayerSlots->rect[0];
+    gPlayerSlots->unk280 = (f32)gPlayerSlots->unk278 / (f32)gPlayerSlots->unk27A;
 }
 
 typedef struct {
@@ -1116,30 +1001,30 @@ typedef struct {
 
 extern ScreenQuadVtx D_80754C48[];
 
-Gfx *screenFadeDrawGradient(Gfx *arg0, u8 arg1) {
-    gSPDisplayList(arg0++, &D_1000118);
-    gSPMatrix(arg0++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    WRITE_GFX(arg0++, 0xDA380003, (u32)&D_2000180);
-    WRITE_GFX(arg0++, 0xD9000000, 0);
-    WRITE_GFX(arg0++, 0xD9FFFFFF, 0x200004);
-    WRITE_GFX(arg0++, 0xD7000000, 0xFFFFFFFF);
-    gDPPipeSync(arg0++);
-    WRITE_GFX(arg0++, 0xE3000A01, 0);
-    WRITE_GFX(arg0++, 0xE3000C00, 0);
-    WRITE_GFX(arg0++, 0xE200001C, 0x504240);
-    WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFE793C);
-    D_80754C48[gGfxBufferIndex].a0 = (arg1 * 2 >= 0x100) ? 0xFF : arg1 * 2;
-    D_80754C48[gGfxBufferIndex].a1 = arg1;
-    D_80754C48[gGfxBufferIndex].a2 = (arg1 * 2 >= 0x100) ? 0xFF : arg1 * 2;
-    D_80754C48[gGfxBufferIndex].a3 = arg1;
+Gfx *screenFadeDrawGradient(Gfx *dl, u8 alpha) {
+    gSPDisplayList(dl++, &D_1000118);
+    gSPMatrix(dl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(dl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPClearGeometryMode(dl++, 0xFFFFFFFF);
+    gSPSetGeometryMode(dl++, G_SHADE | G_SHADING_SMOOTH);
+    gSPTexture(dl++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
+    gDPPipeSync(dl++);
+    gDPSetCycleType(dl++, G_CYC_1CYCLE);
+    gDPSetTexturePersp(dl++, G_TP_NONE);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
+    gDPSetCombineMode(dl++, G_CC_SHADE, G_CC_SHADE);
+    D_80754C48[gGfxBufferIndex].a0 = (alpha * 2 >= 0x100) ? 0xFF : alpha * 2;
+    D_80754C48[gGfxBufferIndex].a1 = alpha;
+    D_80754C48[gGfxBufferIndex].a2 = (alpha * 2 >= 0x100) ? 0xFF : alpha * 2;
+    D_80754C48[gGfxBufferIndex].a3 = alpha;
     D_80754C48[gGfxBufferIndex].x1 = gScreenWidth;
     D_80754C48[gGfxBufferIndex].x2 = gScreenWidth;
     D_80754C48[gGfxBufferIndex].y2 = gScreenHeight;
     D_80754C48[gGfxBufferIndex].y3 = gScreenHeight;
-    gSPVertex(arg0++, osVirtualToPhysical(&D_80754C48[gGfxBufferIndex]), 4, 0);
-    gSP2Triangles(arg0++, 0, 1, 2, 0, 0, 2, 3, 0);
-    gDPPipeSync(arg0++);
-    return arg0;
+    gSPVertex(dl++, osVirtualToPhysical(&D_80754C48[gGfxBufferIndex]), 4, 0);
+    gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
+    gDPPipeSync(dl++);
+    return dl;
 }
 
 
@@ -1147,93 +1032,91 @@ extern u8 gHiResScale;
 extern u8 D_80754C08[];
 f32 sinApprox(f32);
 
-Gfx *screenFadeDrawSpinTexture(Gfx *arg0, u8 arg1) {
+Gfx *screenFadeDrawSpinTexture(Gfx *dl, u8 alpha) {
     Mtx *mtx;
-    f32 sp_bc[4][4];
-    f32 sp_7c[4][4];
-    s32 h;
-    f32 s;
-    f32 q;
+    f32 mf[4][4];
+    f32 tmp[4][4];
+    u8 *tex;
+    f32 scale;
+    f32 wave;
 
-    if (arg1 != 0) {
-        h = assetLoad(0xE, 0x5F, 0, 0);
-        assetFreeBuffer(h, 0x540, 0x2F);
+    if (alpha != 0) {
+        tex = assetLoad(0xE, 0x5F, 0, 0);
+        assetFreeBuffer(tex, 0x540, 0x2F);
         mtx = (Mtx *)heapAlloc(0x40);
         heapFreeDeferred(mtx);
-        gSPDisplayList(arg0++, &D_1000118);
-        gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
-        WRITE_GFX(arg0++, 0xFC121624, 0xFF2FFFFF);
-        gDPSetPrimColor(arg0++, 0, 0, 0, 0, 0, 0xFF);
-        gSPTexture(arg0++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
-        gDPSetTextureFilter(arg0++, G_TF_BILERP);
-        gDPLoadTextureBlock_4b(arg0++, h + 0x80000000, G_IM_FMT_I, 64, 64, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-        gSPMatrix(arg0++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-        q = (f32)(sinApprox((f32)((u32)arg1 / 255.0 * 1.57079637050628662 + 3.14159274101257324)) + 1.0);
-        s = (f32)(q * 40.0f + 1.4) * (u32)gHiResScale;
-        guScaleF(sp_bc, s, s, s);
-        matrixMakeRotationZ(sp_7c, (f32)((u32)arg1 / 255.0 * 360.0 * 1.5));
-        guMtxCatF(sp_bc, sp_7c, sp_bc);
-        guTranslateF(sp_7c, gScreenWidth >> 1, gScreenHeight >> 1, 0);
-        guMtxCatF(sp_bc, sp_7c, sp_bc);
-        guMtxF2L(sp_bc, mtx);
-        gSPMatrix(arg0++, mtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-        gSPVertex(arg0++, osVirtualToPhysical(&D_80754C08), 4, 0);
-        gSP2Triangles(arg0++, 0, 1, 2, 0, 0, 2, 3, 0);
-        gDPPipeSync(arg0++);
+        gSPDisplayList(dl++, &D_1000118);
+        gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+        gDPSetCombineLERP(dl++, TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0);
+        gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
+        gSPTexture(dl++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
+        gDPSetTextureFilter(dl++, G_TF_BILERP);
+        gDPLoadTextureBlock_4b(dl++, tex + 0x80000000, G_IM_FMT_I, 64, 64, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gSPMatrix(dl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+        wave = sinApprox((f32)((u32)alpha / 255.0 * 1.57079637050628662 + 3.14159274101257324)) + 1.0;
+        scale = (f32)(wave * 40.0f + 1.4) * (u32)gHiResScale;
+        guScaleF(mf, scale, scale, scale);
+        matrixMakeRotationZ(tmp, (f32)((u32)alpha / 255.0 * 360.0 * 1.5));
+        guMtxCatF(mf, tmp, mf);
+        guTranslateF(tmp, gScreenWidth >> 1, gScreenHeight >> 1, 0);
+        guMtxCatF(mf, tmp, mf);
+        guMtxF2L(mf, mtx);
+        gSPMatrix(dl++, mtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+        gSPVertex(dl++, osVirtualToPhysical(&D_80754C08), 4, 0);
+        gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
+        gDPPipeSync(dl++);
     }
-    return arg0;
+    return dl;
 }
 
 
 extern s16 D_807FD892;
 
-void vtxGradientSetPosition(s16 arg0) {
-    D_807FD892 = arg0;
+void vtxGradientSetPosition(s16 pos) {
+    D_807FD892 = pos;
 }
 
-extern s8 D_807FD894;
-extern s8 D_807FD895;
-extern s8 D_807FD896;
+extern u8 D_807FD894;
+extern u8 D_807FD895;
+extern u8 D_807FD896;
 
-void vtxGradientSetColorA(s8 arg0, s8 arg1, s8 arg2) {
-    D_807FD894 = arg0;
-    D_807FD895 = arg1;
-    D_807FD896 = arg2;
+void vtxGradientSetColorA(s8 r, s8 g, s8 b) {
+    D_807FD894 = r;
+    D_807FD895 = g;
+    D_807FD896 = b;
 }
 
-extern s8 D_807FD897;
-extern s8 D_807FD898;
-extern s8 D_807FD899;
+extern u8 D_807FD897;
+extern u8 D_807FD898;
+extern u8 D_807FD899;
 
-void vtxGradientSetColorB(s8 arg0, s8 arg1, s8 arg2) {
-    D_807FD897 = arg0;
-    D_807FD898 = arg1;
-    D_807FD899 = arg2;
+void vtxGradientSetColorB(s8 r, s8 g, s8 b) {
+    D_807FD897 = r;
+    D_807FD898 = g;
+    D_807FD899 = b;
 }
 
 
 f32 mathSinF(s16);
 
-void vtxSetColor(VtxColorView *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5) {
-    arg0->unkC = arg1;
-    arg0->unkD = arg2;
-    arg0->unkE = arg3;
-    arg0->unkF = arg4;
-    if (arg5 & 0x10) {
+void vtxSetColor(VtxColorView *vtx, u8 r, u8 g, u8 b, u8 a, u8 flags) {
+    vtx->r = r;
+    vtx->g = g;
+    vtx->b = b;
+    vtx->a = a;
+    if (flags & 0x10) {
         f32 s;
-        if (arg5 & 0x40) {
-            s = mathSinF((s16)(s32)(((f64)arg4 * 12.05) + 1024.0));
-            arg0->unk2 = (s16)(s32)((f32)arg0->unk2 + 64.0f * s);
+        if (flags & 0x40) {
+            s = mathSinF((s16)(s32)((a * 12.05) + 1024.0));
+            vtx->y = (s16)(s32)((f32)vtx->y + 64.0f * s);
         } else {
-            s = mathSinF((s16)(s32)(((f64)arg4 * 12.05) + 1024.0));
-            arg0->unk2 = (s16)(s32)((f32)arg0->unk2 - 64.0f * s);
+            s = mathSinF((s16)(s32)((a * 12.05) + 1024.0));
+            vtx->y = (s16)(s32)((f32)vtx->y - 64.0f * s);
         }
     }
 }
 
-#define AS_U8(sym) (*(u8 *)&(sym))
-
-void vtxSetQuadGradientColors(VtxColorView *arg0, u8 arg1, u8 arg2) {
+void vtxSetQuadGradientColors(VtxColorView *vtx, u8 row, u8 flags) {
     s16 lo;
     s16 hi;
     s32 t;
@@ -1241,12 +1124,12 @@ void vtxSetQuadGradientColors(VtxColorView *arg0, u8 arg1, u8 arg2) {
     if (D_807FD892 >= 0x4000) {
         t = D_807FD892 - 0x4200;
         lo = t;
-        lo += arg1 * 20;
+        lo += row * 20;
         hi = t;
-        hi += arg1 * 20 + 10;
+        hi += row * 20 + 10;
     } else {
-        lo = D_807FD892 - arg1 * 20;
-        hi = D_807FD892 - arg1 * 20 - 10;
+        lo = D_807FD892 - row * 20;
+        hi = D_807FD892 - row * 20 - 10;
     }
     if (lo < 0) {
         lo = 0;
@@ -1260,18 +1143,18 @@ void vtxSetQuadGradientColors(VtxColorView *arg0, u8 arg1, u8 arg2) {
     if (hi >= 0x100) {
         hi = 0xFF;
     }
-    vtxSetColor(arg0++, AS_U8(D_807FD894), AS_U8(D_807FD895), AS_U8(D_807FD896), lo, arg2);
-    vtxSetColor(arg0++, AS_U8(D_807FD894), AS_U8(D_807FD895), AS_U8(D_807FD896), hi, arg2);
-    vtxSetColor(arg0++, AS_U8(D_807FD897), AS_U8(D_807FD898), AS_U8(D_807FD899), hi, arg2 | 0x40);
-    vtxSetColor(arg0, AS_U8(D_807FD897), AS_U8(D_807FD898), AS_U8(D_807FD899), lo, arg2 | 0x40);
+    vtxSetColor(vtx++, D_807FD894, D_807FD895, D_807FD896, lo, flags);
+    vtxSetColor(vtx++, D_807FD894, D_807FD895, D_807FD896, hi, flags);
+    vtxSetColor(vtx++, D_807FD897, D_807FD898, D_807FD899, hi, flags | 0x40);
+    vtxSetColor(vtx, D_807FD897, D_807FD898, D_807FD899, lo, flags | 0x40);
 }
 
-void vtxSetPosTex(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, u8 arg5) {
-    arg0[0] = arg1;
-    arg0[1] = arg2;
-    arg0[2] = 0x3E8;
-    arg0[4] = (arg3 << arg5) & 0xFFFF;
-    arg0[5] = (arg4 << arg5) & 0xFFFF;
+void vtxSetPosTex(s16 *vtx, s16 s, s16 t, s16 x, s16 y, u8 shift) {
+    vtx[0] = s;
+    vtx[1] = t;
+    vtx[2] = 0x3E8;
+    vtx[4] = (x << shift) & 0xFFFF;
+    vtx[5] = (y << shift) & 0xFFFF;
 }
 
 
@@ -1287,24 +1170,21 @@ extern s16 gCurrentLevelIndex;
 extern u8 gActivePlayerCount;
 extern ScreenFadeChannels D_80754CC8;
 
-void osViBlack(u8);
-
-Gfx *screenFadeUpdate(Gfx *arg0, u8 arg1) {
-    s32 p0;
-    u8 sp5B;
-    f32 sp54;
-    s32 p1;
-    ScreenFadeChannels sp44;
+Gfx *screenFadeUpdate(Gfx *dl, u8 mode) {
+    s32 pad1;
+    u8 textIndex;
+    f32 progress;
+    s32 pad2;
+    ScreenFadeChannels volume;
     f32 val;
-    f32 x;
     u16 alpha;
 
     if (gScreenFadeRate != 0.0f) {
-        gScreenFadeProgress += gScreenFadeRate * (arg1 == 2 ? 2 : 1);
+        gScreenFadeProgress += gScreenFadeRate * (mode == 2 ? 2 : 1);
         if (gScreenFadeProgress < 0.0f) {
             mapGetWorldIndex(gCurrentWorldId);
-            if (!(gScreenRenderFlags & 0x20) && func_80600454(gCurrentLevelIndex, &sp5B)) {
-                textSpawnMarkerChecked(1, 0, 0x64, textTableGetString(0x23, sp5B, 1), 0, 0x28, 6, 8);
+            if (!(gScreenRenderFlags & 0x20) && func_80600454(gCurrentLevelIndex, &textIndex)) {
+                textSpawnMarkerChecked(1, 0, 0x64, textTableGetString(0x23, textIndex, 1), 0, 0x28, 6, 8);
                 gScreenRenderFlags |= 0x20;
             }
             sfxStopChannel(0x2B, 0);
@@ -1323,48 +1203,38 @@ Gfx *screenFadeUpdate(Gfx *arg0, u8 arg1) {
             osViBlack(1);
             gScreenRenderFlags |= 0xC;
         } else {
-            sp54 = gScreenFadeProgress * 0.03225806355f;
+            progress = gScreenFadeProgress * 0.03225806355f;
             val = gScreenFadeProgress * 255.0f / 28.0f;
-            if (val < 0.0f) {
-                x = 0.0f;
-                alpha = (u32)x;
-            } else {
-                if (val > 255.0f) {
-                    x = 255.0f;
-                } else {
-                    x = val;
-                }
-                alpha = (u32)x;
-            }
+            alpha = val < 0.0f ? 0.0f : (val > 255.0f ? 255.0f : val);
             if (gScreenFadeProgress < gScreenFadeRate * 2 + 31.0f && (gScreenRenderFlags & 4)) {
                 gScreenRenderFlags ^= 6;
             }
-            if (gScreenFadeProgress > 28.0f && arg1 != 3) {
-                arg0 = gfxFillScreenColor(arg0, 0, 0, 0, 0xFF);
+            if (gScreenFadeProgress > 28.0f && mode != 3) {
+                dl = gfxFillScreenColor(dl, 0, 0, 0, 0xFF);
             } else {
-                switch (arg1) {
+                switch (mode) {
                     case 3:
                         if (gActivePlayerCount == 1) {
                             viewportShrinkToCenter(alpha);
                             break;
                         }
                     case 2:
-                        arg0 = screenFadeDrawGradient(arg0, alpha);
+                        dl = screenFadeDrawGradient(dl, alpha);
                         break;
                     case 1:
-                        arg0 = screenFadeDrawSpinTexture(arg0, alpha);
+                        dl = screenFadeDrawSpinTexture(dl, alpha);
                         break;
                     default:
-                        arg0 = gfxFillScreenColor(arg0, 0, 0, 0, alpha);
+                        dl = gfxFillScreenColor(dl, 0, 0, 0, alpha);
                         break;
                 }
             }
             if ((gScreenRenderFlags & 0x41) || !(gScreenRenderFlags & 0x20)) {
-                sp44 = D_80754CC8;
-                transitionSetAudioVolume(1.0f - sp54, gScreenFadeRate >= 0.0f, &sp44);
+                volume = D_80754CC8;
+                transitionSetAudioVolume(1.0f - progress, gScreenFadeRate >= 0.0f, &volume);
             }
         }
     }
-    return arg0;
+    return dl;
 }
 

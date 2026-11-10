@@ -17,7 +17,7 @@ Gfx *func_806FF01C(Gfx *, Actor *);
 Gfx *func_806FF144(Gfx *);
 #endif
 #ifndef PROTO_SKIP_func_806FF32C
-void func_806FF32C(s32, Actor *);
+void func_806FF32C(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_func_806FF358
 Gfx *func_806FF358(Gfx *, Actor *);
@@ -29,19 +29,19 @@ Gfx *func_806FF628(Gfx *, Actor *);
 Gfx *func_806FF75C(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_func_806FFB2C
-void func_806FFB2C(s32, Actor *);
+void func_806FFB2C(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_color5551ToSepia
 u16 color5551ToSepia(u16);
 #endif
 #ifndef PROTO_SKIP_func_806FFEAC
-s16 *func_806FFEAC(s16 *, s32);
+s16 *func_806FFEAC(s16 *, u16 *);
 #endif
 #ifndef PROTO_SKIP_func_806FFF5C
 void func_806FFF5C(void);
 #endif
 #ifndef PROTO_SKIP_func_806FFF88
-s32 func_806FFF88(void);
+s16 *func_806FFF88(void);
 #endif
 #ifndef PROTO_SKIP_color5551LerpToWhite
 u16 color5551LerpToWhite(f32, u16);
