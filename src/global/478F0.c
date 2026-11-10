@@ -102,19 +102,21 @@ typedef struct CsSlot {
 extern CsSlot *gModelSlots;
 
 void csCmdSpawnSparksAtNodes(CsState *cs, s16 csId, s16 b, s16 c) {
-    s32 i;
+    s32 node;
+    s16 slot;
     u8 type;
     f32 x;
     f32 y;
     f32 z;
 
-    type = gModelSlots[(s16)hashTableLookup(csId)].anim->type;
+    slot = hashTableLookup(csId);
+    type = gModelSlots[slot].anim->type;
     if (type == 0xD || type == 0x15 || type == 0x19) {
-        for (i = 1; i < 15; i++) {
-            modelSlotGetNodePos(csId, 1, i, &x, &y, &z);
+        for (node = 1; node < 15; node++) {
+            modelSlotGetNodePos(csId, 1, node, &x, &y, &z);
             effectSetDepth(1);
             effectSetMode(2);
-            effectSetSpeed(-(s32)((u32)randomLcgNext() / 10000 % 50) - 0x14);
+            effectSetSpeed(-((s32)((u32)randomLcgNext() / 10000 % 50) + 0x14));
             effectSetColor(0xE1, 0x87, 0x38, 0xFF);
             effectSetCallback(func_80717D4C);
             effectCreateAtPosition(D_8071FF18, 0.5f, x, y + 2.0f, z);
