@@ -10,10 +10,6 @@ One row per cleanup round, newest last; keep the last ~10. Read when sizing a ro
 
 ## Proposed names (not yet applied)
 
-From round 1, evidence in the agents' reports; apply with `rename.py` at the next round end:
-scriptCmdSetActorUnkC0 → scriptCmdSetActorSpeedY, scriptCmdSetActorUnkC4 → scriptCmdSetActorAccelY,
-scriptCmdCheckNegativeUnkC0 → scriptCmdCheckFalling, scriptCmdCheckActorUnkDEGe3DA → scriptCmdCheckSlopePitch,
-D_807F94C0 → sCamFloorHits, D_807F9510 → sCamFloorHitCount, D_80747B60 → sCamZoomTable,
-func_806C7BAC → playerMountBarrel, func_806CF138 → playerHeldActorAlignStep,
-func_806D0964 → playerSlotMatchesSizeMask, func_806CC364 → playerClampToWaterSurface;
-symbol fold D_807FD63A/C/E/F → gPlayerPadState+0x2A/0x2C/0x2E/0x2F (3 E4090 functions keep the labels for codegen, Q0264).
+Not covered by `rename.py` (needs a symbol-fold procedure): D_807FD63A/C/E/F → gPlayerPadState+0x2A/0x2C/0x2E/0x2F
+(3 E4090 functions keep the labels for codegen, Q0264). Unconfirmed (moderate evidence, round 2 55B20):
+func_8065C990 → lightApplyToVertexRange.
