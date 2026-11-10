@@ -7,7 +7,6 @@
 #define PROTO_SKIP_hudSpawnCountdownTimer // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_modelAnimEntrySetUnkC // FAKE: callee prototype steer
 #define PROTO_SKIP_modelSlotStepAnimations // FAKE: callee prototype steer
-#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxPlayOnFreeSlot // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxSlotAllocateSource // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetDepth // FAKE: callee prototype steer
@@ -2497,7 +2496,6 @@ void csSetPos(s16 modeAndAxis, s16 posValue, void *cs, s16 csId, u8 isRelative) 
     }
 }
 
-u32 randomLcgNext(void); // FAKE: callee prototype steer
 void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 extern u8 D_8071FC58[];
 

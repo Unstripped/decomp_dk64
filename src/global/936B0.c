@@ -9,7 +9,6 @@
 #define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
 #define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Improper cast of non-scalar type expression.
 #define PROTO_SKIP_matrixMakeRotationX // FAKE: callee prototype steer
-#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -701,7 +700,6 @@ typedef struct FloatAt4View {
 extern s16 D_80770628[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
-u32 randomLcgNext(void); // FAKE: callee prototype steer
 
 void func_80690190(state, unused)
 FloatAt4View *state;

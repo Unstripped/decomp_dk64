@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
 #include "proto/global/114270.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -677,7 +676,6 @@ typedef struct R114cPlayerView {
     f32 unk2C4;
 } R114cPlayerView;
 
-u32 randomLcgNext(void); // FAKE: callee prototype steer
 
 void func_80711950(f32 density, s16 windAngle, s16 mapChunk) {
     s32 random;

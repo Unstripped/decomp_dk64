@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
@@ -197,7 +196,6 @@ void actorApproachTargetSpeed(u16);
 void actorGetNodePos(Actor_25F0 *, s32, f32 *, f32 *, f32 *);
 void commandQueuePush(s32, s16, s16, s16, u8, u8, u8, u8, u8);
 f32 sqrtf(f32);
-u32 randomLcgNext(void); // FAKE: callee prototype steer
 void camSetTarget(void *, void *, s32, s16, s32, s32, s32, s32, s32, s32, f32);
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void actorDespawn(void *);

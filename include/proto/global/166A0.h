@@ -3,7 +3,7 @@
 #define PROTO_GLOBAL_166A0_H
 #include "common.h"
 #ifndef PROTO_SKIP_randomLcgNext
-s32 randomLcgNext(void);
+u32 randomLcgNext(void);
 #endif
 #ifndef PROTO_SKIP_setRandomSeed
 void setRandomSeed(s32);

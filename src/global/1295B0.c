@@ -6,7 +6,6 @@
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/1295B0.h"
@@ -1887,7 +1886,6 @@ extern void *D_8074E880[];
 extern s32 gCamActor;
 #define A2B44V ((A2B44 *)gSpawnedActor)
 
-u32 randomLcgNext(void); // FAKE: callee prototype steer
 void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 

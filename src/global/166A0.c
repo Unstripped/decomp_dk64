@@ -5,7 +5,7 @@
 extern s32 sRandomSeed;
 extern u64 __ll_mul(u64, u64);
 
-s32 randomLcgNext(void) {
+u32 randomLcgNext(void) {
     u64 seed = (u32)sRandomSeed;
     u64 prod = __ll_mul(seed, 0x01DF5E0DULL);
     return sRandomSeed = (prod + 1) & 0xFFFFFFFF;

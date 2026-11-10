@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
 #define PROTO_SKIP_rumbleRequest // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -215,7 +214,6 @@ f32 raceGetPathDistanceBetweenRacers(RaceActor *actorA, RaceCursor *curA, RaceAc
     return total;
 }
 
-u32 randomLcgNext(void); // FAKE: callee prototype steer
 
 void raceChangeLaneRelative(RaceCursor *cursor, s8 dir) {
     if (dir > 0) {
