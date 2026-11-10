@@ -53,13 +53,13 @@ extern f32 gCsPosZ;
 typedef struct CsPlayerSlot {
     /* 0x000 */ u8 active;
     /* 0x001 */ u8 pad1[3];
-    /* 0x004 */ Actor *unk4;
+    /* 0x004 */ Actor *actor;
     /* 0x008 */ u8 pad8[0x208];
     /* 0x210 */ f32 x;
     /* 0x214 */ f32 y;
     /* 0x218 */ f32 z;
     /* 0x21C */ u8 pad21C[0x74];
-    /* 0x290 */ s16 unk290;
+    /* 0x290 */ s16 state;
     /* 0x292 */ u8 pad292[0x5E];
 } CsPlayerSlot; /* 0x2F0 */
 extern CsPlayerSlot *gPlayerSlots;
@@ -558,9 +558,9 @@ void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
         dx = gPlayerSlots->x - gCsPosX;
         dy = gPlayerSlots->y - gCsPosY;
         dist = sqrtf(dz * dz + (dx * dx + dy * dy));
-        if (gPlayerSlots->unk290 == 0xE && gGameMode != 1) {
+        if (gPlayerSlots->state == 0xE && gGameMode != 1) {
             fade = 1.0f;
-        } else if (gPlayerSlots->unk290 == 7) {
+        } else if (gPlayerSlots->state == 7) {
             fade = 0.0f;
         } else {
             ex = gCsPosX - 1714.0f;
@@ -576,7 +576,7 @@ void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
                 fade = 1.0 - dist / 600.0f;
             }
         }
-        if (gPlayerSlots->unk290 == 0xE || (gPlayerSlots->unk290 == 0xB && dist < D_807480DC)) {
+        if (gPlayerSlots->state == 0xE || (gPlayerSlots->state == 0xB && dist < D_807480DC)) {
             func_80711410(2.9f, -0x1E, fade, 0xE, fade < 0.05 ? 0.05 : fade);
         } else {
             D_8077058C = 0;
@@ -937,7 +937,7 @@ void csCmdExtraObjectAttach(CsState *cs, s16 csId, s16 b, s16 c) {
         *p = 1;
     }
     p = cs->data;
-    ps = gPlayerSlots->unk4->customState;
+    ps = gPlayerSlots->actor->customState;
     cam = ps->camActor;
     camState = cam->customState;
     if (camState->active != 0 && gPlayerSlots->y < camState->surfaceY + 3.0f) {
@@ -1220,8 +1220,8 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
             v = *p + D_807F5FD4[0];
             effectCreateAtPosition(D_80720BC4, 2.5f, v->x, v->y, v->z);
         } else {
-            *p += 1;
-            if (cnt == *p) {
+            (*p)++;
+            if (*p == cnt) {
                 *p = 0;
             }
         }
@@ -1428,7 +1428,7 @@ void csCmdPointListEffect(CsState *cs, s16 csId, s16 b, s16 c) {
         q = cs->data;
     }
     (*q)++;
-    if (c == *q) {
+    if (*q == c) {
         *q = 0;
     }
     idx = *q;
@@ -1816,13 +1816,13 @@ void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
         }
     }
     effectSetDepth(1);
-    effectCreateAtPosition(D_80720340, scale * 2.5, gCsPosX, b + gCsPosY, gCsPosZ);
+    effectCreateAtPosition(D_80720340, scale * 2.5, gCsPosX, gCsPosY + b, gCsPosZ);
 }
 
 
 
 s32 csIsPlayerState4OrC(void) {
-    s16 state = gPlayerSlots->unk290;
+    s16 state = gPlayerSlots->state;
 
     if (state == 4 || state == 0xC) {
         return 1;
@@ -2077,7 +2077,7 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         effectCreateAtPosition(D_80720A7C, 0.5f, randomFloat() * 35.0 + gCsPosX - 15.0, randomFloat() * 35.0 + gCsPosY, randomFloat() * 35.0 + gCsPosZ - 15.0);
         return;
     }
-    p = gPlayerSlots->unk4->customState;
+    p = gPlayerSlots->actor->customState;
     p->savedX = gCsPosX;
     p->savedY = gCsPosY + 15.0;
     p->savedZ = gCsPosZ;
@@ -2612,7 +2612,7 @@ void csCmdStepMultiModelAnimations(CsState *cs, s16 csId, s16 b, s16 c) {
         p->cool = 0x14;
     }
     if (p->cool == 0) {
-        pl = gPlayerSlots->unk4;
+        pl = gPlayerSlots->actor;
         if (pl->state == 0x1C && pl->unk155[0] < 7 && gPlayerCharacterId == 0 && pl->attachMode == 1) {
             if (csId == pl->cutsceneId) {
                 bestD = 100000.0f;
@@ -2807,7 +2807,7 @@ void csCmdStepLightColor(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdModelApplyTranslation(CsState *cs, s16 csId, s16 b, s16 c) {
-    PlayerState *ps = gPlayerSlots->unk4->customState;
+    PlayerState *ps = gPlayerSlots->actor->customState;
     ps->cartDamage = b;
 }
 
@@ -2915,7 +2915,7 @@ s32 csFindPlayerSlotByModel(s32 a, s32 b) {
         p = gPlayerSlots;
         do {
             if (p->active != 0) {
-                q = p->unk4;
+                q = p->actor;
                 if (q->attachMode == 1 && q->cutsceneId == a && q->unk10E[0] == b) {
                     return i;
                 }
@@ -2945,7 +2945,7 @@ s32 csCondFindPlayerSlotByModel(CsState *cs, s16 csId, s16 b, s16 c) {
         return 0;
     }
     modelSlotGetTransformVectors(id, &x, &y, &z, &rotX, &rotY, &rotZ, &extra0, &extra1, 1);
-    actorAppendCallbackPayloadABC0(0, gPlayerSlots[idx].unk4, 9, (s16)(s32)(rotY * 11.377778f), 0, x, y, z);
+    actorAppendCallbackPayloadABC0(0, gPlayerSlots[idx].actor, 9, (s16)(s32)(rotY * 11.377778f), 0, x, y, z);
     return 0;
 }
 
@@ -2968,7 +2968,7 @@ s32 csCondDepositItem(CsState *cs, s16 csId, s16 b, s16 c) {
     if (slotQueueGetValue(1, idx)) {
         slotQueueAddValue(7, idx, 1);
         q = (f32)slotQueueGetValue(7, idx) / (f32)D_807552F0;
-        q = (f32)0.5 * q + 0.5f;
+        q = (f32)0.5 * q + 0.5f; // FAKE: (f32)0.5 is an FP constant candidate separate from 0.5f (target loads 0.5 twice)
         sfxPlayOnFreeSlot(0x2A1, 0x7FFF, 63.0f, q, 5, 0);
         return 1;
     }
@@ -3054,7 +3054,7 @@ void csCmdCamShakeOnAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     CsShakeCounter *p;
     PlayerState *ps;
 
-    ps = gPlayerSlots->unk4->customState;
+    ps = gPlayerSlots->actor->customState;
     if (cs->data == NULL) {
         p = heapAlloc(8);
         cs->data = p;
@@ -3666,8 +3666,14 @@ void csCmdFindNearestActorToCamera(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
+typedef struct CsPatBuf {
+    /* 0x0 */ u8 buf[4];
+    /* 0x4 */ u8 head;
+    /* 0x5 */ u8 tail;
+} CsPatBuf;
+
 void csCmdPatternBufferMatch(CsState *cs, s16 csId, s16 b, s16 c) {
-    u8 *p;
+    CsPatBuf *p;
     u8 full;
     u8 pat[4];
     s8 i;
@@ -3676,13 +3682,13 @@ void csCmdPatternBufferMatch(CsState *cs, s16 csId, s16 b, s16 c) {
     if (cs->data == NULL) {
         p = heapAlloc(6);
         cs->data = p;
-        p[4] = 0;
-        p[5] = 0;
+        p->head = 0;
+        p->tail = 0;
     }
     p = cs->data;
     if (b == -1) {
-        p[4] = 0;
-        p[5] = 0;
+        p->head = 0;
+        p->tail = 0;
         return;
     }
     switch (gModelSlots[hashTableLookup(csId)].modelId) {
@@ -3696,23 +3702,23 @@ void csCmdPatternBufferMatch(CsState *cs, s16 csId, s16 b, s16 c) {
             pat[0] = 1; pat[1] = 3; pat[2] = 2; pat[3] = 4;
             break;
     }
-    p[p[4]] = b;
-    i = p[4];
-    p[4]++;
-    if (p[4] == 4) {
-        p[4] = 0;
+    p->buf[p->head] = b;
+    i = p->head;
+    p->head++;
+    if (p->head == 4) {
+        p->head = 0;
     }
-    if (p[5] == p[4]) {
+    if (p->head == p->tail) {
         full = 1;
-        p[5]++;
-        if (p[5] == 4) {
-            p[5] = 0;
+        p->tail++;
+        if (p->tail == 4) {
+            p->tail = 0;
         }
     }
     if (full) {
         s32 k;
         for (k = 0; k < 4; k++) {
-            if (pat[k] != *(u8 *)((s32)p + i)) { // FAKE: integer add keeps addu base,index order (p[i] emits index,base)
+            if (pat[k] != p->buf[i]) {
                 return;
             }
             i--;
@@ -3724,8 +3730,14 @@ void csCmdPatternBufferMatch(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
+typedef struct CsSeqBuf {
+    /* 0x0 */ u8 buf[5];
+    /* 0x5 */ u8 head;
+    /* 0x6 */ u8 tail;
+} CsSeqBuf;
+
 void csSeqMatch(CsState *cs, s16 csId, s16 val, u8 *pat, s32 len, s16 okId, s16 failId) {
-    u8 *p;
+    CsSeqBuf *p;
     s8 i;
     s32 cnt;
     s32 j;
@@ -3733,32 +3745,32 @@ void csSeqMatch(CsState *cs, s16 csId, s16 val, u8 *pat, s32 len, s16 okId, s16 
     if (cs->data == NULL) {
         p = heapAlloc(7);
         cs->data = p;
-        p[5] = 0;
-        p[6] = 0;
+        p->head = 0;
+        p->tail = 0;
     }
     p = cs->data;
-    p[p[5]] = val;
-    i = p[5];
-    p[5]++;
-    if (len == p[5]) {
-        p[5] = 0;
+    p->buf[p->head] = val;
+    i = p->head;
+    p->head++;
+    if (len == p->head) {
+        p->head = 0;
     }
-    if (p[6] == p[5]) {
-        p[6]++;
-        if (len == p[6]) {
-            p[6] = 0;
+    if (p->head == p->tail) {
+        p->tail++;
+        if (len == p->tail) {
+            p->tail = 0;
         }
         cnt = len;
     } else {
-        cnt = p[5] - p[6];
+        cnt = p->head - p->tail;
     }
     for (j = len - cnt; j < len; j++) {
-        if (pat[j] != *(u8 *)((s32)p + i)) { // FAKE: integer add keeps addu base,index order (p[i] emits index,base)
+        if (pat[j] != p->buf[i]) {
             if (failId != -1) {
                 cs->unk4B[0] = failId;
             }
-            p[5] = 0;
-            p[6] = 0;
+            p->head = 0;
+            p->tail = 0;
             return;
         }
         i--;
