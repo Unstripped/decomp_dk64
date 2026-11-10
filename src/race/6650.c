@@ -129,23 +129,6 @@ void renderCallbacksRegister(void *, void *, u8);
 
 
 
-typedef struct {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    u8 pad6;
-    u8 unk7;
-    u8 pad8[2];
-} Struct_FDCA0_Sub;
-
-typedef struct {
-    char pad[0x14];
-    Struct_FDCA0_Sub *unk14;
-} Struct_FDCA0;
-
-
-extern Struct_FDCA0 *D_807FDCA0;
-
 s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
 s16 mathAngleSignedDistance(s16, s16);
 extern s32 gGlobalOverlayFlags;
@@ -463,7 +446,7 @@ void raceSteerTowardTargetWaypoint(Struct_sp58 *racerState, Struct_8002B180_Arg1
     Struct_sp5C *cursor;
     s32 routeIndex;
     f32 targetSpeed;
-    Struct_FDCA0_Sub *waypoint;
+    ZoneEntry *waypoint;
     u8 idx;
     Struct_arg0 *pad;
 
@@ -471,25 +454,25 @@ void raceSteerTowardTargetWaypoint(Struct_sp58 *racerState, Struct_8002B180_Arg1
     cursor = pad->unk174;
     routeIndex = raceGetRoute(cursor->unk26);
     targetSpeed = raceGetPathDistanceBetweenTrackers(routeIndex, racerState, aux->unk4);
-    idx = gBehaviourAnimState->unk20[gBehaviourWorkState->unk25 * 2];
-    waypoint = &D_807FDCA0->unk14[idx];
-    dx = (f32)waypoint->unk0 - gCurrentActor->unk7C;
-    dz = (f32)waypoint->unk4 - gCurrentActor->unk84;
+    idx = gBehaviourAnimState->path[gBehaviourWorkState->unk25][0];
+    waypoint = &D_807FDCA0->entries[idx];
+    dx = (f32)waypoint->x - gCurrentActor->unk7C;
+    dz = (f32)waypoint->z - gCurrentActor->unk84;
     distToWaypoint = sqrtf((dx * dx) + (dz * dz));
-    waypoint = &D_807FDCA0->unk14[idx];
-    if (distToWaypoint < (f32)waypoint->unk7) {
+    waypoint = &D_807FDCA0->entries[idx];
+    if (distToWaypoint < (f32)waypoint->radius) {
         if (gCurrentActor->unk7C) { // FAKE: empty guard steers float regalloc
         }
         gBehaviourWorkState->unk25++;
-        gBehaviourWorkState->unk25 = gBehaviourWorkState->unk25 % gBehaviourExtraState->unk11;
+        gBehaviourWorkState->unk25 = gBehaviourWorkState->unk25 % gBehaviourExtraState->pathCount;
     }
-    waypoint = &D_807FDCA0->unk14[idx];
-    sp_angle = mathAngleDiscrete((f32)waypoint->unk0, (f32)waypoint->unk4, gCurrentActor->unk7C, gCurrentActor->unk84, distToWaypoint);
+    waypoint = &D_807FDCA0->entries[idx];
+    sp_angle = mathAngleDiscrete((f32)waypoint->x, (f32)waypoint->z, gCurrentActor->unk7C, gCurrentActor->unk84, distToWaypoint);
     angleDelta = mathAngleSignedDistance((s16)sp_angle, gCurrentActor->unkE6);
 
     sp_angle = distToWaypoint;
     steerAngle = angleDelta;
-    waypointRadius = (u32)D_807FDCA0->unk14[idx].unk7;
+    waypointRadius = (u32)D_807FDCA0->entries[idx].radius;
     waypointThreshold[0] = waypointRadius * 1.2f;
     if (waypointRadius) { // FAKE: empty guard steers float regalloc
     }

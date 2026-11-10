@@ -38,21 +38,8 @@ typedef struct BossE_F0D0_Sub14 {
     u8 unk16;
 } BossE_F0D0_Sub14;
 
-typedef struct {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    u8 pad6[4];
-} BossE_F0D0_FDCA0_Sub;
-
-typedef struct {
-    u8 pad0[0x14];
-    BossE_F0D0_FDCA0_Sub *unk14;
-} BossE_F0D0_FDCA0;
-
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern BossE_F0D0_FDCA0 *D_807FDCA0;
 extern void *gCamActor;
 extern void *effectPuffRiseUpdate;
 extern void *D_8074E880[];
@@ -74,7 +61,7 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *sub14, u8 *waypointIndices) {
     min_dist = 0x98967F;
     start_val = val;
     for (i = 0; i < 16; i++) {
-        dists[i] = (s32)(((f32)D_807FDCA0->unk14[i].unk0 - gPrimaryPlayerActor->x) * ((f32)D_807FDCA0->unk14[i].unk0 - gPrimaryPlayerActor->x) + ((f32)D_807FDCA0->unk14[i].unk4 - gPrimaryPlayerActor->z) * ((f32)D_807FDCA0->unk14[i].unk4 - gPrimaryPlayerActor->z));
+        dists[i] = (s32)(((f32)D_807FDCA0->entries[i].x - gPrimaryPlayerActor->x) * ((f32)D_807FDCA0->entries[i].x - gPrimaryPlayerActor->x) + ((f32)D_807FDCA0->entries[i].z - gPrimaryPlayerActor->z) * ((f32)D_807FDCA0->entries[i].z - gPrimaryPlayerActor->z));
         if (dists[i] < min_dist) {
             min_dist = dists[i];
             waypointIndices[3] = i;
@@ -150,10 +137,10 @@ void bossInterpolateWaypoints(u8 *waypointPair, f32 progress) {
 
     factor = (f32)(1.0 + (f64)mathSinF((s16)((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f)));
 
-    gCurrentActor->x = (f32)D_807FDCA0->unk14[waypointPair[1]].unk0 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk0 - D_807FDCA0->unk14[waypointPair[1]].unk0) * factor;
-    gCurrentActor->z = (f32)D_807FDCA0->unk14[waypointPair[1]].unk4 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk4 - D_807FDCA0->unk14[waypointPair[1]].unk4) * factor;
+    gCurrentActor->x = (f32)D_807FDCA0->entries[waypointPair[1]].x + (f32)(D_807FDCA0->entries[waypointPair[0]].x - D_807FDCA0->entries[waypointPair[1]].x) * factor;
+    gCurrentActor->z = (f32)D_807FDCA0->entries[waypointPair[1]].z + (f32)(D_807FDCA0->entries[waypointPair[0]].z - D_807FDCA0->entries[waypointPair[1]].z) * factor;
 
-    gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(D_807FDCA0->unk14[waypointPair[1]].unk0, D_807FDCA0->unk14[waypointPair[1]].unk4, D_807FDCA0->unk14[waypointPair[0]].unk0, D_807FDCA0->unk14[waypointPair[0]].unk4), 10.0f);
+    gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(D_807FDCA0->entries[waypointPair[1]].x, D_807FDCA0->entries[waypointPair[1]].z, D_807FDCA0->entries[waypointPair[0]].x, D_807FDCA0->entries[waypointPair[0]].z), 10.0f);
 }
 
 void bossSpawnPuffDebris(void) {
@@ -212,7 +199,7 @@ u8 stateByte;
 
 void bossSpawnObjectAtWaypoint(u8 *waypointIndex) {
     projectileGetTargetCoords(gCurrentActor, 1);
-    projectileAimAndSpawn(0x2C, 2, gCurrentActor->sub4->scaleY, D_807FDCA0->unk14[waypointIndex[3]].unk0, D_807FDCA0->unk14[waypointIndex[3]].unk2, D_807FDCA0->unk14[waypointIndex[3]].unk4, 1200.0f, gCurrentActor);
+    projectileAimAndSpawn(0x2C, 2, gCurrentActor->sub4->scaleY, D_807FDCA0->entries[waypointIndex[3]].x, D_807FDCA0->entries[waypointIndex[3]].y, D_807FDCA0->entries[waypointIndex[3]].z, 1200.0f, gCurrentActor);
 }
 
 s32 bossCheckPlayerBelow(BossE_F0D0_Sub14 *sub14, u8 *scriptOpcodes) {
@@ -308,32 +295,8 @@ typedef struct BossF_Actor {
     BossF_Sub *unk17C;
 } BossF_Actor;
 
-typedef struct BossF_Extra {
-    u8 pad0[0x1A];
-    u16 unk1A;
-    u8 pad1C[0x2C - 0x1C];
-    s16 unk2C;
-    u8 pad2E[2];
-    f32 unk30;
-} BossF_Extra;
-
-typedef struct BossF_Pt {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
-} BossF_Pt;
-
-typedef struct BossF_Pts {
-    u8 pad0[0x14];
-    BossF_Pt *unk14;
-} BossF_Pts;
-
 #define BF ((BossF_Actor *)gCurrentActor)
 #define BP ((BossF_Actor *)gPrimaryPlayerActor)
-#define BX ((BossF_Extra *)gBehaviourWorkState)
-#define BPTS ((BossF_Pts *)D_807FDCA0)
 
 extern u8 *D_80035B84[];
 extern u8 D_80035B98[];
@@ -396,8 +359,8 @@ void bossMainStep(void) {
             BF->unk110 = 0;
         } else {
             BF->unk146 = 0;
-            BX->unk30 = BF->unk4->unk38;
-            actorSetUniformScale(gCurrentActor, BX->unk30 * 0.333);
+            gBehaviourWorkState->scale = BF->unk4->unk38;
+            actorSetUniformScale(gCurrentActor, gBehaviourWorkState->scale * 0.333);
             BF->unk154 = 0x1E;
             BF->unk155 = 0;
             BF->unk80 += 650.0f;
@@ -424,11 +387,11 @@ void bossMainStep(void) {
             }
             if (idx != sub->unk3) {
                 lightSetRadius(0x1388);
-                lightAdd(BPTS->unk14[idx].unk0, BPTS->unk14[idx].unk2 - 0x32, BPTS->unk14[idx].unk4, 0.0f, 0.0f, 0.0f, 240.0f, 0, col[1], col[0], 0xFF);
+                lightAdd(D_807FDCA0->entries[idx].x, D_807FDCA0->entries[idx].y - 0x32, D_807FDCA0->entries[idx].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, col[1], col[0], 0xFF);
             }
             if (sub->unk3 != col[2]) {
                 lightSetRadius(0x1388);
-                lightAdd(BPTS->unk14[col[2]].unk0, BPTS->unk14[col[2]].unk2 - 0x32, BPTS->unk14[col[2]].unk4, 0.0f, 0.0f, 0.0f, 240.0f, 0, col[1], col[0], 0xFF);
+                lightAdd(D_807FDCA0->entries[col[2]].x, D_807FDCA0->entries[col[2]].y - 0x32, D_807FDCA0->entries[col[2]].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, col[1], col[0], 0xFF);
             }
         }
     }
@@ -449,19 +412,19 @@ void bossMainStep(void) {
     switch (BF->unk154) {
     case 0x1E:
         for (i = 0; i < 0x10; i++) {
-            if (*(u16 *)(D_80035B98 + ((BX->unk2C & 0x1F) << 1)) & (1 << i)) {
+            if (*(u16 *)(D_80035B98 + ((gBehaviourWorkState->timer & 0x1F) << 1)) & (1 << i)) {
                 D_80036DD0[i] = 0xFA;
             }
             if (D_80036DD0[i] != 0) {
                 sx = D_80035BEC[i] != 0 ? 0.27 : 1.0;
                 sy = D_80035BEC[i] != 0 ? 0.62 : 1.0;
                 lightSetRadius(0x1388);
-                lightAdd(BPTS->unk14[i].unk0, BPTS->unk14[i].unk2 - 0x28A, BPTS->unk14[i].unk4, 0, 0.0f, 0.0f, 240.0f, 0, (u32)((f32)(u32)D_80036DD0[i] * sx), (u32)((f32)(u32)D_80036DD0[i] * sy), D_80036DD0[i]);
+                lightAdd(D_807FDCA0->entries[i].x, D_807FDCA0->entries[i].y - 0x28A, D_807FDCA0->entries[i].z, 0, 0.0f, 0.0f, 240.0f, 0, (u32)((f32)(u32)D_80036DD0[i] * sx), (u32)((f32)(u32)D_80036DD0[i] * sy), D_80036DD0[i]);
                 D_80036DD0[i] -= 0x19;
             }
         }
         if (!(gFrameCounter & 7)) {
-            BX->unk2C++;
+            gBehaviourWorkState->timer++;
         }
         if (D_807FBDC4 != 0) {
             BF->unk154 = 0x1F;
@@ -471,7 +434,7 @@ void bossMainStep(void) {
     case 0x1F:
         i = (u8)(u32)(mathSinF((s16)(gFrameCounter * 0x7D)) * 100.0f + 155.0f);
         lightSetRadius(0x1388);
-        lightAdd(BPTS->unk14[5].unk0, BPTS->unk14[5].unk2 - 0x28A, BPTS->unk14[5].unk4, 0.0f, 0.0f, 0.0f, 240.0f, 0, i, i, i);
+        lightAdd(D_807FDCA0->entries[5].x, D_807FDCA0->entries[5].y - 0x28A, D_807FDCA0->entries[5].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, i, i, i);
         if (currentActorTestClearFlag() != 0) {
             sfxPlayAtPositionPooled(BF->unk7C, BF->unk80, BF->unk84, 0x19C, 0x64, 0x7F, 0, 0, 0.0f, 0);
             BF->unk154 = 0x20;
@@ -547,7 +510,7 @@ void bossMainStep(void) {
             }
             break;
         case 9:
-            if (BF->unk4->unk38 < BX->unk30) {
+            if (BF->unk4->unk38 < gBehaviourWorkState->scale) {
                 actorSetUniformScale(gCurrentActor, BF->unk4->unk38 * 1.01);
                 bossSpawnPuffDebris();
                 flag7F = 1;
@@ -564,7 +527,7 @@ void bossMainStep(void) {
             }
             break;
         case 13:
-            camSetSecondTarget(gCamActor, BPTS->unk14[17].unk0, BPTS->unk14[17].unk4);
+            camSetSecondTarget(gCamActor, D_807FDCA0->entries[17].x, D_807FDCA0->entries[17].z);
             st->unk14 = 0;
             st->unk15 = 0;
             BF->unk154 = tbl[st->unk15];
@@ -661,12 +624,12 @@ void bossMainStep(void) {
                 if (BF->unk154 == 0x25) {
                     actorScriptStart(gCurrentActor, 0x228);
                 } else {
-                    if (!(BX->unk1A & 0x8000)) {
+                    if (!(gBehaviourWorkState->flags & 0x8000)) {
                         if (BP->unk110 != 1) {
                             break;
                         }
                         camStartPath(gCurrentActor, 0xF, 1);
-                        BX->unk1A |= 0x8000;
+                        gBehaviourWorkState->flags |= 0x8000;
                     }
                     actorScriptStart(gCurrentActor, 0x22F);
                 }
@@ -702,7 +665,7 @@ void bossMainStep(void) {
                 v = st->unk18;
                 if (v != 0) {
                     st->unk18 = v - 1;
-                    BX->unk2C = st->unk19;
+                    gBehaviourWorkState->timer = st->unk19;
                     BF->unk155 = 7;
                 } else {
                     actorScriptStart(gCurrentActor, 0x22D);
@@ -710,11 +673,11 @@ void bossMainStep(void) {
                 }
                 break;
             case 7:
-                if (BX->unk2C != 0) {
+                if (gBehaviourWorkState->timer != 0) {
                     if (BP->unk154 == 0x33) {
-                        BX->unk2C = st->unk19;
+                        gBehaviourWorkState->timer = st->unk19;
                     } else {
-                        BX->unk2C = BX->unk2C - 1;
+                        gBehaviourWorkState->timer = gBehaviourWorkState->timer - 1;
                     }
                 } else {
                     BF->unk155 = 2;
@@ -807,12 +770,12 @@ void bossMainStep(void) {
         switch (BF->unk155) {
         case 0:
             actorScriptStart(gCurrentActor, 0x222);
-            BX->unk2C = 0x5A;
+            gBehaviourWorkState->timer = 0x5A;
             BF->unk155++;
             break;
         case 1:
-            if (BX->unk2C != 0) {
-                BX->unk2C = BX->unk2C - 1;
+            if (gBehaviourWorkState->timer != 0) {
+                gBehaviourWorkState->timer = gBehaviourWorkState->timer - 1;
             } else {
                 st->unk15 = st->unk16;
                 BF->unk154 = tbl[st->unk15];
@@ -859,7 +822,7 @@ void bossMainStep(void) {
                     }
                     i++;
                 } while (i < 0x10);
-                bossSpawnParticleRing(0x8A, BPTS->unk14[sub->unk0].unk0, BPTS->unk14[sub->unk0].unk2, BPTS->unk14[sub->unk0].unk4, 0x5DC, 1);
+                bossSpawnParticleRing(0x8A, D_807FDCA0->entries[sub->unk0].x, D_807FDCA0->entries[sub->unk0].y, D_807FDCA0->entries[sub->unk0].z, 0x5DC, 1);
                 BF->unk154 = 0x40;
                 i = 0;
                 do {
@@ -890,8 +853,6 @@ void bossMainStep(void) {
 #undef col
 #undef BF
 #undef BP
-#undef BX
-#undef BPTS
 
 void bossShockwaveTriggerDamage(void) {
     f32 dx, dz;

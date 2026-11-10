@@ -29,13 +29,7 @@ typedef struct BD820Actor {
     /* 0x131 */ u8 unk131;
 } BD820Actor;
 
-typedef struct BD820View9C {
-    /* 0x00 */ u8 pad0[0xF];
-    /* 0x0F */ u8 unkF;
-} BD820View9C;
-
 #define BD820A ((BD820Actor *)gCurrentActor)
-#define BD820S9C ((BD820View9C *)gBehaviourExtraState)
 
 extern void *D_8074E880[];
 extern u8 sEffectSparkConfig[];
@@ -136,7 +130,7 @@ void func_806B904C(void) {
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        v = ((f64)BD820S9C->unkF / 255.0) * 0.75;
+        v = ((f64)gBehaviourExtraState->scale / 255.0) * 0.75;
         gCurrentActor->sub4->scaleX = v;
         gCurrentActor->sub4->scaleY = v;
         gCurrentActor->sub4->scaleZ = v;

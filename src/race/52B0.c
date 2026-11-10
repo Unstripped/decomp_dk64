@@ -237,19 +237,6 @@ void raceCompetitorMotionUpdate(void) {
     actorInterpolateAngles(subFlag, s4, nextState);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
-typedef struct {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    u8 pad6[4];
-} RaceC_Waypoint;
-
-typedef struct {
-    u8 pad0[0x14];
-    RaceC_Waypoint *unk14;
-} RaceC_DCA0;
-
-extern RaceC_DCA0 *D_807FDCA0;
 extern s16 D_80750AC8;
 extern u8 D_8002FC20[];
 extern u8 D_8002FC50[];
@@ -284,17 +271,7 @@ typedef struct {
     u8 unk10;
 } RaceTargetView;
 
-typedef struct {
-    s16 x;
-    s16 y;
-    s16 z;
-    u8 pad6;
-    u8 unk7;
-    u8 unk8;
-    u8 pad9;
-} RaceWaypoint;
 
-#define G2_WP ((RaceWaypoint *)((u8 *)D_807FDCA0->unk14 + idx * 10))
 #define G2_F(o) (*(f32 *)((u8 *)gCurrentActor + (o)))
 
 f32 raceRacerSteerTowardWaypoint(void) {
@@ -329,15 +306,15 @@ f32 raceRacerSteerTowardWaypoint(void) {
     targetSpeed = 0.0f;
     subFlag = RC_A->unk6A & 1;
     prevSubPhase = s0->unk35;
-    idx = gBehaviourAnimState->unk20[gBehaviourWorkState->unk25 * 2];
-    dx = (f32)G2_WP->x - RC_A->unk7C;
-    dz = (f32)G2_WP->z - RC_A->unk84;
+    idx = gBehaviourAnimState->path[gBehaviourWorkState->unk25][0];
+    dx = (f32)D_807FDCA0->entries[idx].x - RC_A->unk7C;
+    dz = (f32)D_807FDCA0->entries[idx].z - RC_A->unk84;
     distToWaypoint = sqrtf(dx * dx + dz * dz);
-    if (distToWaypoint < (f32)G2_WP->unk7) {
+    if (distToWaypoint < (f32)D_807FDCA0->entries[idx].radius) {
         gBehaviourWorkState->unk25 += 1;
-        gBehaviourWorkState->unk25 = gBehaviourWorkState->unk25 % gBehaviourExtraState->unk11;
-        targetView->unk10 = (G2_WP->unk8 == 0) && (targetView->unkF != 0);
-        switch (G2_WP->unk8) {
+        gBehaviourWorkState->unk25 = gBehaviourWorkState->unk25 % gBehaviourExtraState->pathCount;
+        targetView->unk10 = (D_807FDCA0->entries[idx].height == 0) && (targetView->unkF != 0);
+        switch (D_807FDCA0->entries[idx].height) {
             case 2:
                 if (leadDistance < 0.0f) {
                     actorScriptStart(gCurrentActor, 0x29E);
@@ -352,12 +329,12 @@ f32 raceRacerSteerTowardWaypoint(void) {
                 break;
         }
     }
-    ang = mathAngleDiscrete((f32)G2_WP->x, (f32)G2_WP->z, RC_A->unk7C, RC_A->unk84, distToWaypoint);
+    ang = mathAngleDiscrete((f32)D_807FDCA0->entries[idx].x, (f32)D_807FDCA0->entries[idx].z, RC_A->unk7C, RC_A->unk84, distToWaypoint);
     ang = mathAngleSignedDistance(ang, s0->unk0);
-    thr = G2_WP->unk7 * 1.2;
+    thr = D_807FDCA0->entries[idx].radius * 1.2;
     if (distToWaypoint < thr) {
-        lo = distToWaypoint - (f32)G2_WP->unk7;
-        dz = thr - (f32)G2_WP->unk7;
+        lo = distToWaypoint - (f32)D_807FDCA0->entries[idx].radius;
+        dz = thr - (f32)D_807FDCA0->entries[idx].radius;
         fr = lo / dz;
         ang = ang * (1.0 + (1.0f - fr) * 1.5 * (2.0f * s0->unk4));
     }
@@ -535,11 +512,11 @@ void raceOpponentRacerBehaviorUpdate(void) {
         managerState->unk1C = v;
         targetView->unkA = v;
         s0->unk4 = 1.0f;
-        gBehaviourWorkState->unk25 = gBehaviourExtraState->unk11 - 5;
-        idx = gBehaviourAnimState->unk20[gBehaviourWorkState->unk25 * 2];
-        RC_A->unk7C = D_807FDCA0->unk14[idx].unk0;
-        RC_A->unk80 = D_807FDCA0->unk14[idx].unk2;
-        RC_A->unk84 = D_807FDCA0->unk14[idx].unk4;
+        gBehaviourWorkState->unk25 = gBehaviourExtraState->pathCount - 5;
+        idx = gBehaviourAnimState->path[gBehaviourWorkState->unk25][0];
+        RC_A->unk7C = D_807FDCA0->entries[idx].x;
+        RC_A->unk80 = D_807FDCA0->entries[idx].y;
+        RC_A->unk84 = D_807FDCA0->entries[idx].z;
         D_80750AC8 = 0xA;
     }
     if (targetView->unkA != 0) {

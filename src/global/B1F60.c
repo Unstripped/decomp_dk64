@@ -36,22 +36,6 @@ typedef struct B1F60Actor {
     /* 0x155 */ u8 unk155;
 } B1F60Actor;
 
-typedef struct B1F60View90 {
-    /* 0x00 */ u8 pad0[0x1A];
-    /* 0x1A */ u16 unk1A;
-} B1F60View90;
-
-typedef struct B1F60View98 {
-    /* 0x00 */ u8 pad0[0x28];
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ s16 unk2A;
-} B1F60View98;
-
-typedef struct B1F60View9C {
-    /* 0x00 */ u8 pad0[0xD];
-    /* 0x0D */ u8 unkD;
-} B1F60View9C;
-
 typedef struct B1F60Global924 {
     /* 0x000 */ u8 pad0[0x2C8];
     /* 0x2C8 */ s16 unk2C8;
@@ -66,7 +50,6 @@ extern s32 gCurrentMap;
 extern B1F60Global924 *gPlayerSlots;
 
 void behaviourCalculateDamageForce();
-
 
 void actorPatrolFollowerUpdate(targetId, skipStep, movementFlags)
 s16 targetId;
@@ -123,7 +106,7 @@ u16 movementFlags;
             }
             break;
         default:
-            behaviourUpdateContactAndState(((B1F60View98 *)gBehaviourAnimState)->unk28);
+            behaviourUpdateContactAndState(gBehaviourAnimState->animId1);
             break;
     }
     switch (gCurrentActor->state) {
@@ -131,7 +114,7 @@ u16 movementFlags;
         case 3:
             patrolPathStep(gCurrentActor->state, 1);
         default:
-            enemyAggroStateUpdate(0x4C90, ((B1F60View98 *)gBehaviourAnimState)->unk28, ((B1F60View98 *)gBehaviourAnimState)->unk2A);
+            enemyAggroStateUpdate(0x4C90, gBehaviourAnimState->animId1, gBehaviourAnimState->animId2);
         case 0x37:
         case 0x40:
             break;
@@ -155,21 +138,21 @@ void func_806AD54C(void) {
         found = actorFindByType(0x11A);
         if (found != NULL) {
             if (found->state != 0) {
-                if (!(((B1F60View90 *)gBehaviourWorkState)->unk1A & 0x8000)) {
+                if (!(gBehaviourWorkState->flags & 0x8000)) {
                     dx = found->x - gCurrentActor->x;
                     dz = found->z - gCurrentActor->z;
                     if ((dx * dx) + (dz * dz) < 1600.0f) {
                         dir = (((found->yaw - gCurrentActor->yaw) & 0xFFF) > 0x800) ? 1 : -1;
-                        gCurrentActor->speedXZ = (f64)(u32)((B1F60View9C *)gBehaviourExtraState)->unkD * 1.8;
+                        gCurrentActor->speedXZ = (f64)(u32)gBehaviourExtraState->unkD * 1.8;
                         gCurrentActor->yaw += dir * 0x190;
                         B1F60A->unkEE = gCurrentActor->yaw;
-                        ((B1F60View90 *)gBehaviourWorkState)->unk1A |= 0x8000;
+                        gBehaviourWorkState->flags |= 0x8000;
                         gCurrentActor->state = 0x10;
                         B1F60A->unk155 = 0;
                     }
                 }
             } else {
-                ((B1F60View90 *)gBehaviourWorkState)->unk1A &= 0x7FFF;
+                gBehaviourWorkState->flags &= 0x7FFF;
             }
         }
     }
@@ -230,7 +213,7 @@ void actorSpawnLinkedFollower(void) {
 void func_806AD9F4(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->stateFlags |= 0x200;
+        gBehaviourAnimState->flags |= 0x200;
         behaviourSetAnimIds(0x2F4, 0x2F4, 0x2F4);
         if (gCurrentActor->y != gCurrentActor->floorY) {
             gCurrentActor->state = 0x1E;
@@ -304,8 +287,8 @@ void func_806AD9F4(void) {
 void func_806ADDD8(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->stateFlags |= 0x40;
-        ((B1F60View98 *)gBehaviourAnimState)->unk28 = 0x31A;
+        gBehaviourAnimState->flags |= 0x40;
+        gBehaviourAnimState->animId1 = 0x31A;
     }
     switch (gCurrentActor->state) {
         case 0:

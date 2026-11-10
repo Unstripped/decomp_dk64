@@ -324,9 +324,91 @@ typedef struct Actor {
     /* 0x174 */ void *customState;
 } Actor; // size = 0x178, the block actorAllocate gives a type with no components
 
-// Per-behaviour state objects reached through gBehaviourWorkState..gBehaviourExtraState.
+typedef struct ZoneVertex {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+} ZoneVertex;
+
+typedef struct ZoneEntry {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+    /* 0x6 */ u8 flags;
+    /* 0x7 */ u8 radius;
+    /* 0x8 */ u8 height;
+    /* 0x9 */ u8 pad9;
+} ZoneEntry; // size = 0xA
+
+typedef struct Zone {
+    /* 0x00 */ s16 minX;
+    /* 0x02 */ s16 minZ;
+    /* 0x04 */ s16 maxX;
+    /* 0x06 */ s16 maxZ;
+    /* 0x08 */ s16 vertexCount;
+    /* 0x0A */ u8 padA[2];
+    /* 0x0C */ ZoneVertex *vertices;
+    /* 0x10 */ s16 entryCount;
+    /* 0x12 */ u8 pad12[2];
+    /* 0x14 */ ZoneEntry *entries;
+    /* 0x18 */ u8 id;
+    /* 0x19 */ s8 unk19;
+    /* 0x1A */ u8 pad1A[2];
+    /* 0x1C */ Actor *occupant;
+    /* 0x20 */ u8 unk20;
+    /* 0x21 */ u8 pad21[3];
+} Zone; // size = 0x24
+
+// Map spawn node; a behaviour actor's gBehaviourAnimState and gBehaviourExtraState both point
+// at its node (behaviourFrameBegin: both = gBehaviourWorkState->node).
+typedef struct SpawnNode {
+    /* 0x00 */ u8 baseEntryIndex;
+    /* 0x01 */ u8 pad1;
+    /* 0x02 */ s16 yaw;
+    /* 0x04 */ s16 x;
+    /* 0x06 */ s16 y;
+    /* 0x08 */ s16 z;
+    /* 0x0A */ union {
+        s16 unkAWide; // lh users (armadillo patrol, func_806B640C, func_806B7EA0, func_8072AA80)
+        struct {
+            u8 unkA;
+            u8 unkB;
+        };
+    };
+    /* 0x0C */ u8 targetSpeed;
+    /* 0x0D */ u8 unkD;
+    /* 0x0E */ u8 zoneId;
+    /* 0x0F */ u8 scale;
+    /* 0x10 */ u8 actorState;
+    /* 0x11 */ u8 pathCount;
+    /* 0x12 */ u8 initialState;
+    /* 0x13 */ u8 id;
+    /* 0x14 */ u8 respawnDelay;
+    /* 0x15 */ u8 pad15[3];
+    /* 0x18 */ Actor *actor;
+    /* 0x1C */ Zone *zone;
+    /* 0x20 */ u8 (*path)[2];
+    /* 0x24 */ s16 respawnTimer;
+    /* 0x26 */ s16 animId0;
+    /* 0x28 */ s16 animId1;
+    /* 0x2A */ s16 animId2;
+    /* 0x2C */ f32 unk2C;
+    /* 0x30 */ f32 unk30;
+    /* 0x34 */ f32 unk34;
+    /* 0x38 */ f32 unk38;
+    /* 0x3C */ f32 unk3C;
+    /* 0x40 */ s16 chunkIndex;
+    /* 0x42 */ u8 state;
+    /* 0x43 */ u8 spawnCount;
+    /* 0x44 */ u8 entryIndex;
+    /* 0x45 */ u8 pad45;
+    /* 0x46 */ u16 flags;
+} SpawnNode; // size = 0x48
+
+// gBehaviourWorkState: actor component 31 (D_8074DA58[31] = 0x40), the first component of every
+// actor type whose update calls behaviourFrameBegin.
 typedef struct BehaviourWorkState {
-    /* 0x00 */ void *unk0;
+    /* 0x00 */ SpawnNode *node;
     /* 0x04 */ Actor *unk4;
     /* 0x08 */ s16 unk8;
     /* 0x0A */ s16 targetX;
@@ -356,43 +438,10 @@ typedef struct BehaviourWorkState {
     /* 0x35 */ u8 unk35;
     /* 0x36 */ u8 unk36;
     /* 0x37 */ u8 unk37;
-} BehaviourWorkState;
-
-typedef struct BehaviourAnimState {
-    /* 0x00 */ u8 pad0[0x1C];
-    /* 0x1C */ void *unk1C;
-    /* 0x20 */ u8 *unk20;
-    /* 0x24 */ u8 pad24[2];
-    /* 0x26 */ s16 animId0;
-    /* 0x28 */ s16 animId1;
-    /* 0x2A */ s16 animId2;
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ f32 unk30;
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ f32 unk3C;
-    /* 0x40 */ u8 pad40[4];
-    /* 0x44 */ u8 unk44;
-    /* 0x45 */ u8 pad45;
-    /* 0x46 */ u16 stateFlags;
-} BehaviourAnimState;
-
-typedef struct BehaviourExtraState {
-    /* 0x00 */ u8 pad0[2];
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ s16 unk6;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ u8 unkA;
-    /* 0x0B */ u8 unkB;
-    /* 0x0C */ u8 unkC;
-    /* 0x0D */ u8 unkD;
-    /* 0x0E */ u8 padE[2];
-    /* 0x10 */ u8 unk10;
-    /* 0x11 */ u8 unk11;
-    /* 0x12 */ u8 pad12[2];
-    /* 0x14 */ u8 unk14;
-} BehaviourExtraState;
+    /* 0x38 */ u8 unk38;
+    /* 0x39 */ u8 unk39;
+    /* 0x3A */ u8 pad3A[6];
+} BehaviourWorkState; // size = 0x40
 
 // gActivePlayerState: typedef only; other files still declare gActivePlayerState with their own types.
 typedef struct PlayerState {
@@ -693,7 +742,8 @@ typedef struct CamState {
 
 extern BehaviourWorkState *gBehaviourWorkState;
 extern Actor *gBehaviourTargetActor;
-extern BehaviourAnimState *gBehaviourAnimState;
-extern BehaviourExtraState *gBehaviourExtraState;
+extern SpawnNode *gBehaviourAnimState;
+extern SpawnNode *gBehaviourExtraState;
+extern Zone *D_807FDCA0; // gBehaviourAnimState->zone, latched by behaviourFrameBegin
 
 #endif

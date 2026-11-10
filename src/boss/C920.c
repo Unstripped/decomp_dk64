@@ -332,7 +332,7 @@ void bossKRoolChunkyStep(void) {
         case 12:
             if (camIsCutsceneActive() == 0) {
                 playerSetSizeMode(PLAYER_ACTOR, 1);
-                actorSetTargetSpeed(BOSS_ACTOR, gBehaviourExtraState->unkC);
+                actorSetTargetSpeed(BOSS_ACTOR, gBehaviourExtraState->targetSpeed);
                 if (BOSS_ACTOR->unk132 != 1) {
                     if (func_806C9974(0, -1) != 0) {
                         actorScriptStartByIndex(PLAYER_ACTOR, 0x27);
@@ -362,7 +362,7 @@ void bossKRoolChunkyStep(void) {
         switch (BOSS_ACTOR->unk155) {
         case 0:
             patrolGetNextWaypointPos(&waypointCoords[2], &waypointCoords[1], &waypointCoords[0]);
-            actorSetGroupState((D_80035AD0 - 1)[gBehaviourAnimState->unk20[(gBehaviourWorkState->unk25 & 0x7F) * 2]], 1);
+            actorSetGroupState((D_80035AD0 - 1)[gBehaviourAnimState->path[gBehaviourWorkState->unk25 & 0x7F][0]], 1);
             BOSS_ACTOR->unkEC = mathAngleBetweenPoints2D((f32)waypointCoords[2], (f32)waypointCoords[0], BOSS_ACTOR->unk7C, BOSS_ACTOR->unk84);
             if (mathAngleSignedDistance(BOSS_ACTOR->unkE6, BOSS_ACTOR->unkEC) < 0) {
                 actorScriptStart(BOSS_ACTOR, 0x401);
@@ -388,7 +388,7 @@ void bossKRoolChunkyStep(void) {
             BOSS_ACTOR->unkB8 = BOSS_ACTOR->unkB8 * -1.0f;
             BOSS_ACTOR->unkE6 += 0x800;
             BOSS_ACTOR->unkEE = BOSS_ACTOR->unkE6;
-            actorSetTargetSpeed(BOSS_ACTOR, gBehaviourExtraState->unkC);
+            actorSetTargetSpeed(BOSS_ACTOR, gBehaviourExtraState->targetSpeed);
             BOSS_ACTOR->unk154 = scriptOpcodes[scriptState->unk15];
             scriptState->unk15++;
             BOSS_ACTOR->unk155 = 0;
@@ -401,7 +401,7 @@ void bossKRoolChunkyStep(void) {
         BOSS_ACTOR->unk154 = scriptOpcodes[scriptState->unk15];
         scriptState->unk15++;
         BOSS_ACTOR->unk155 = 0;
-        BOSS_ACTOR->unkB8 = (f32)(u32)gBehaviourExtraState->unkC;
+        BOSS_ACTOR->unkB8 = (f32)(u32)gBehaviourExtraState->targetSpeed;
         break;
     case 0:
         switch (BOSS_ACTOR->unk155) {

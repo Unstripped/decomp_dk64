@@ -30,7 +30,6 @@
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"
 
-
 typedef struct B2CE0Sub178 {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 unk2;
@@ -95,26 +94,8 @@ typedef struct B2CE0ModelHdr {
     /* 0x24 */ f32 unk24;
 } B2CE0ModelHdr;
 
-typedef struct B2CE0View90 {
-    /* 0x00 */ u8 pad0[0x1A];
-    /* 0x1A */ u16 unk1A;
-    /* 0x1C */ u8 pad1C[2];
-    /* 0x1E */ u8 unk1E;
-    /* 0x1F */ u8 unk1F;
-    /* 0x20 */ u8 pad20[6];
-    /* 0x26 */ s16 unk26;
-    /* 0x28 */ u8 pad28[0xD];
-    /* 0x35 */ u8 unk35;
-} B2CE0View90;
-
-typedef struct B2CE0View9C {
-    /* 0x00 */ u8 pad0[0xD];
-    /* 0x0D */ u8 unkD;
-} B2CE0View9C;
-
 extern B2CE0Actor *gCurrentActor;
 extern B2CE0Actor *gSpawnedActor;
-
 
 extern u8 D_8071FBC8[];
 extern ActorGlobalState gActorGlobalState;
@@ -122,7 +103,6 @@ void actorSetDefaultState();
 s32 behaviourCheckRandomAnimTrigger();
 void behaviourUpdateContactAndState();
 void behaviourSpawnExplosionAndSound();
-extern s32 D_807FDCA0;
 extern u16 gActiveActorCount;
 extern ActorEntry gActiveActors[];
 
@@ -249,7 +229,7 @@ void func_806AE588(void) {
                 behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x201);
                 gCurrentActor->unkC0 = 200.0f;
             }
-            ((B2CE0View90 *)gBehaviourWorkState)->unk35 = 2;
+            gBehaviourWorkState->unk35 = 2;
             gCurrentActor->unk138 &= 0xFFFF7FFF;
         } else if (gActorGlobalState.unk200 == 4) {
             behaviourSpawnExplosionAndSound(0x1FF, 0x31, gActorGlobalState.targetActor);
@@ -391,7 +371,7 @@ void func_806AE588(void) {
 }
 
 void func_806AEE08(void) {
-    if ((randomNonNegative() >> 15) % 1000 >= 0x3D5 && behaviourIsTargetWithinAngle(0xFA0) != 0 && !(((B2CE0View90 *)gBehaviourWorkState)->unk1A & 0x80)) {
+    if ((randomNonNegative() >> 15) % 1000 >= 0x3D5 && behaviourIsTargetWithinAngle(0xFA0) != 0 && !(gBehaviourWorkState->flags & 0x80)) {
         gCurrentActor->unk154 = 0x25;
         gCurrentActor->unk155 = 0;
     }
@@ -555,7 +535,7 @@ void func_806AF688(void) {
     if (!(gCurrentActor->unk60 & 0x10)) {
         behaviourSetAnimIds(0x2C0, 0x2C1, 0x2C1);
         func_80724CA4(0xE, 1);
-        ((B2CE0View90 *)gBehaviourWorkState)->unk1A |= 0x800;
+        gBehaviourWorkState->flags |= 0x800;
         gCurrentActor->unk60 |= 0x400;
     }
     func_806AE394(40.0f, 70.0f);
@@ -649,12 +629,12 @@ void func_806AFB58(void) {
     }
     if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->unk154 != 0x37)) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2DD);
-        ((B2CE0View90 *)gBehaviourWorkState)->unk35 = 2;
+        gBehaviourWorkState->unk35 = 2;
         gCurrentActor->unk138 &= 0xFFFF7FFF;
     } else if ((gActorGlobalState.unk200 == 4) || (gActorGlobalState.unk200 == 5)) {
         if (gCurrentActor->unk146 & 1) {
-            ((B2CE0View90 *)gBehaviourWorkState)->unk1E = 0xF;
-            ((B2CE0View90 *)gBehaviourWorkState)->unk1F = 0xF;
+            gBehaviourWorkState->unk1E = 0xF;
+            gBehaviourWorkState->unk1F = 0xF;
             gCurrentActor->unkEC = -1;
             actorSpawnChildAtNode(0xC2, 0x800, 1, 0x190);
             gSpawnedActor->unk15F = 1;
@@ -664,7 +644,7 @@ void func_806AFB58(void) {
         }
         gCurrentActor->unk146 = gCurrentActor->unk146 * 2;
         behaviourSpawnExplosionAndSound(0x2DC, 0x31, gActorGlobalState.targetActor);
-        ((B2CE0View90 *)gBehaviourWorkState)->unk26 = 0;
+        gBehaviourWorkState->unk26 = 0;
         gCurrentActor->unkB8 = 0.0f;
     }
     sel = gCurrentActor->unk154;
@@ -814,7 +794,7 @@ void func_806B0354(void) {
         case 0x23:
             switch (gCurrentActor->unk155) {
                 case 0:
-                    actorSetTargetSpeed(gCurrentActor, ((B2CE0View9C *)gBehaviourExtraState)->unkD);
+                    actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
                     gCurrentActor->unk155++;
                 case 1:
                     if ((randomNonNegative() >> 15) % 1000 >= 0x3E4) {
@@ -912,11 +892,6 @@ typedef struct B2CE0Sub64 {
     /* 0x64 */ u16 unk64;
 } B2CE0Sub64;
 
-typedef struct B2CE0View90Ptr {
-    /* 0x0 */ u8 pad0[4];
-    /* 0x4 */ s32 unk4;
-} B2CE0View90Ptr;
-
 void behaviourSpawnExplosionAndSound(s32, s32, s32);
 extern s32 gFrameCounter;
 extern s32 gPrimaryPlayerActor;
@@ -1005,7 +980,7 @@ void func_806B0848(void) {
                     gCurrentActor->unk155++;
                     break;
                 case 4:
-                    ((B2CE0View90Ptr *)gBehaviourWorkState)->unk4 = gPrimaryPlayerActor;
+                    gBehaviourWorkState->unk4 = gPrimaryPlayerActor;
                     actorSetDefaultState(0x35F);
                     break;
             }

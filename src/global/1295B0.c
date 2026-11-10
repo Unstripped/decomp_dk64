@@ -75,41 +75,6 @@ s32 func_80724A20(void) {
     return found;
 }
 
-typedef struct ZoneVertex {
-    /* 0x0 */ s16 x;
-    /* 0x2 */ s16 y;
-    /* 0x4 */ s16 z;
-} ZoneVertex;
-
-typedef struct ZoneEntry {
-    /* 0x0 */ s16 x;
-    /* 0x2 */ s16 y;
-    /* 0x4 */ s16 z;
-    /* 0x6 */ u8 flags;
-    /* 0x7 */ u8 radius;
-    /* 0x8 */ u8 height;
-    /* 0x9 */ u8 pad9;
-} ZoneEntry; // size = 0xA
-
-typedef struct Zone {
-    /* 0x00 */ s16 minX;
-    /* 0x02 */ s16 minZ;
-    /* 0x04 */ s16 maxX;
-    /* 0x06 */ s16 maxZ;
-    /* 0x08 */ s16 vertexCount;
-    /* 0x0A */ u8 padA[2];
-    /* 0x0C */ ZoneVertex *vertices;
-    /* 0x10 */ s16 entryCount;
-    /* 0x12 */ u8 pad12[2];
-    /* 0x14 */ ZoneEntry *entries;
-    /* 0x18 */ u8 id;
-    /* 0x19 */ s8 unk19;
-    /* 0x1A */ u8 pad1A[2];
-    /* 0x1C */ Actor *occupant;
-    /* 0x20 */ u8 unk20;
-    /* 0x21 */ u8 pad21[3];
-} Zone; // size = 0x24
-
 typedef struct ZoneTable {
     /* 0x0 */ s16 count;
     /* 0x2 */ u8 pad2[2];
@@ -135,43 +100,6 @@ typedef struct SpawnEntry {
     /* 0x16 */ u8 unk16;
     /* 0x17 */ u8 unk17;
 } SpawnEntry; // size = 0x18
-
-typedef struct SpawnNode {
-    /* 0x00 */ u8 baseEntryIndex;
-    /* 0x01 */ u8 pad1;
-    /* 0x02 */ s16 yaw;
-    /* 0x04 */ s16 x;
-    /* 0x06 */ s16 y;
-    /* 0x08 */ s16 z;
-    /* 0x0A */ u8 unkA;
-    /* 0x0B */ u8 padB;
-    /* 0x0C */ u8 targetSpeed;
-    /* 0x0D */ u8 unkD;
-    /* 0x0E */ u8 zoneId;
-    /* 0x0F */ u8 scale;
-    /* 0x10 */ u8 actorState;
-    /* 0x11 */ u8 pathCount;
-    /* 0x12 */ u8 initialState;
-    /* 0x13 */ u8 id;
-    /* 0x14 */ u8 respawnDelay;
-    /* 0x15 */ u8 pad15[3];
-    /* 0x18 */ Actor *actor;
-    /* 0x1C */ Zone *zone;
-    /* 0x20 */ u8 (*path)[2];
-    /* 0x24 */ s16 respawnTimer;
-    /* 0x26 */ u8 pad26[6];
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ f32 unk30;
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ f32 unk3C;
-    /* 0x40 */ s16 chunkIndex;
-    /* 0x42 */ u8 state;
-    /* 0x43 */ u8 spawnCount;
-    /* 0x44 */ u8 entryIndex;
-    /* 0x45 */ u8 pad45;
-    /* 0x46 */ u16 flags;
-} SpawnNode; // size = 0x48
 
 typedef struct SpawnNodeList {
     /* 0x0 */ s16 count;
@@ -296,8 +224,8 @@ void func_80724E48(u8 mode) {
     } else {
         yaw = gCurrentActor->yaw * 3.1415927f * (1.0 / 2048.0);
         rot = gCurrentActor->sub4->boneRotations;
-        pitchArg = D_8075EB80[gBehaviourAnimState->unk44].unkD;
-        limit = D_8075EB80[gBehaviourAnimState->unk44].unkC * 4 * 3.1415927f * (1.0 / 2048.0);
+        pitchArg = D_8075EB80[gBehaviourAnimState->entryIndex].unkD;
+        limit = D_8075EB80[gBehaviourAnimState->entryIndex].unkC * 4 * 3.1415927f * (1.0 / 2048.0);
         if (pitchArg == 0xFF) {
             pitchArg = 0x3E8;
         }
@@ -676,7 +604,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     if (scriptId != 0) {
         actorScriptStart(act, scriptId);
     }
-    gBehaviourAnimState = (BehaviourAnimState *)node;
+    gBehaviourAnimState = node;
     behaviourSetAnimIds(scriptId, scriptId, scriptId);
     if (act->sub4 != NULL) {
         actorSetUniformScale(act, ((node->scale * 5) / 255.0) * 0.15);
@@ -690,7 +618,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
         act->drawDistance = 0x7D0;
     }
     actorSetTargetSpeed(act, node->targetSpeed);
-    st->unk0 = node;
+    st->node = node;
     v = act->yaw;
     act->moveYaw = v;
     st->unk25 = 0;
@@ -974,13 +902,12 @@ Actor *spawnNodeSpawnById(s16 id, s16 x, s16 y, s16 z, s16 yaw, s16 speed, s16 s
     return NULL;
 }
 
-extern Zone *D_807FDCA0;
 
 void spawnNodeSpawnAtTablePoint(s16 id, u8 slot) {
     u8 tbl;
     s16 yaw;
 
-    tbl = gBehaviourAnimState->unk20[slot * 2];
+    tbl = gBehaviourAnimState->path[slot][0];
     yaw = (s16)(s32)((mathAngleBetweenPointsDeg((s32)gBehaviourTargetActor->x, (s32)gBehaviourTargetActor->z, D_807FDCA0->entries[tbl].x, D_807FDCA0->entries[tbl].z) * 4096.0f) / 360.0f);
     if (spawnNodeSpawnById(id, D_807FDCA0->entries[tbl].x, D_807FDCA0->entries[tbl].y, D_807FDCA0->entries[tbl].z, yaw, ((randomNonNegative() >> 0xF) % 100) + 0x64, ((randomNonNegative() >> 0xF) % 100) + 0xC8) != 0) {
         gSpawnedActor->state = 0x17;

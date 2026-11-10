@@ -47,11 +47,6 @@ typedef struct B6C50Actor {
     /* 0x155 */ u8 unk155;
 } B6C50Actor;
 
-typedef struct B6C50View90 {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ B6C50Actor *unk4;
-} B6C50View90;
-
 extern B6C50Actor *gCurrentActor;
 extern B6C50Actor *gSpawnedActor;
 extern ActorGlobalState gActorGlobalState;
@@ -67,12 +62,12 @@ void func_806B1F50(void) {
 
     behaviourFrameBegin();
     if (!(gCurrentActor->unk60 & 0x10)) {
-        gBehaviourAnimState->stateFlags |= 0xA0;
+        gBehaviourAnimState->flags |= 0xA0;
         gCurrentActor->unk60 |= 0x400;
         gCurrentActor->unk154 = 0;
         gCurrentActor->unk155 = 0;
         actorSpawn(0x73, 0x7D);
-        ((B6C50View90 *)gBehaviourWorkState)->unk4 = gSpawnedActor;
+        gBehaviourWorkState->unk4 = gSpawnedActor;
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.3f);
         gSpawnedActor->unk7C = mathSinF(gCurrentActor->unkE6) * 14.0f + gCurrentActor->unk7C;
         gSpawnedActor->unk84 = mathCosF(gCurrentActor->unkE6) * 14.0f + gCurrentActor->unk84;
@@ -166,9 +161,9 @@ void func_806B24B8(void) {
     if (!(gCurrentActor->unk60 & 0x10)) {
         found = actorFindByType(0x110);
         if (found != NULL) {
-            ((B6C50View90 *)gBehaviourWorkState)->unk4 = found;
+            gBehaviourWorkState->unk4 = found;
         }
-        gBehaviourExtraState->unk10 = 0x23;
+        gBehaviourExtraState->actorState = 0x23;
         controllerAnimSetStateIfChanged(gCurrentActor, 0x599, 0.0f, 0.0f);
         gCurrentActor->unk68 &= 0xFFBF;
         sfxPlayActorSound(gCurrentActor, 0x139, 0x78, 0, 1, 0x3C, 0.56f, 0);
@@ -179,8 +174,8 @@ void func_806B24B8(void) {
         effectCreateAtActorBone(&D_80720340, gCurrentActor->unk4->scaleY * 6.66666667 * 0.9, gCurrentActor, 1, 2);
     }
     if (actorTableContains(gBehaviourTargetActor) == 0) {
-        ((B6C50View90 *)gBehaviourWorkState)->unk4 = gPrimaryPlayerActor;
-        gBehaviourTargetActor = (Actor *)((B6C50View90 *)gBehaviourWorkState)->unk4;
+        gBehaviourWorkState->unk4 = gPrimaryPlayerActor;
+        gBehaviourTargetActor = (Actor *)gBehaviourWorkState->unk4;
     }
     if (gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9) {
         gCurrentActor->unk144 = 1;

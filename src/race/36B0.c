@@ -801,7 +801,7 @@ void raceObstacleCarBehaviorUpdate(void) {
     commandQueuePush(gCurrentActor, (s16)nodeX, (s16)nodeY, (s16)nodeZ, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     racePathFollowStep(cursor, state, 1);
     if ((state->unk34 == 0) && (targetState->unk34 == 5)) {
-        gBehaviourExtraState->unk14 = 0;
+        gBehaviourExtraState->respawnDelay = 0;
         gCurrentActor->unk154 = 0x40;
         state->unk34++;
     }

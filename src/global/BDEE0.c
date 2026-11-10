@@ -67,35 +67,6 @@ typedef struct BDEE0ActorAlt {
 
 #define BDEE0AA ((BDEE0ActorAlt *)gCurrentActor)
 
-typedef struct BDEE0View90 {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ Actor *unk4;
-    /* 0x08 */ u8 pad8[0xE];
-    /* 0x16 */ s16 unk16;
-    /* 0x18 */ u8 pad18[2];
-    /* 0x1A */ u16 unk1A;
-    /* 0x1C */ u16 unk1C;
-    /* 0x1E */ u8 pad1E[0x10];
-    /* 0x2E */ s16 unk2E;
-} BDEE0View90;
-
-#define BDEE0S90 ((BDEE0View90 *)gBehaviourWorkState)
-
-typedef struct BDEE0View98 {
-    /* 0x00 */ u8 pad0[0x28];
-    /* 0x28 */ u16 unk28;
-    /* 0x2A */ s16 unk2A;
-} BDEE0View98;
-
-#define BDEE0S98 ((BDEE0View98 *)gBehaviourAnimState)
-
-typedef struct BDEE0View9C {
-    /* 0x00 */ u8 pad0[0xA];
-    /* 0x0A */ s16 unkA;
-} BDEE0View9C;
-
-#define BDEE0S9C ((BDEE0View9C *)gBehaviourExtraState)
-
 extern u8 D_80770629[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
@@ -111,7 +82,7 @@ void behaviourArmadilloPatrol(void) {
         behaviourSetAnimIds(0x321, 0x322, 0x323);
         func_80724CA4(0x11, 1);
         actorClearNodeFlag(gCurrentActor, 4);
-        *heightTarget = BDEE0S9C->unkA * 10;
+        *heightTarget = gBehaviourExtraState->unkAWide * 10;
     }
     if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
         gBehaviourWorkState->timer = 0x1388;
@@ -139,9 +110,9 @@ void behaviourArmadilloPatrol(void) {
                 gBehaviourWorkState->timer--;
                 break;
             }
-            if (BDEE0S90->unk2E != 0) {
+            if (gBehaviourWorkState->unk2E != 0) {
                 gCurrentActor->unk155 = 0;
-                BDEE0S90->unk2E--;
+                gBehaviourWorkState->unk2E--;
                 gBehaviourWorkState->timer = 0xA;
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1BA, 0x96, 0x7F, 0);
                 break;
@@ -211,7 +182,7 @@ void behaviourArmadilloPatrol(void) {
     case 0x10:
         if ((gCurrentActor->state != 0x11) && (gCurrentActor->state != 0x27)) {
             if (gCurrentActor->unk155 == 0) {
-                *heightTarget = BDEE0S9C->unkA * 2;
+                *heightTarget = gBehaviourExtraState->unkAWide * 2;
                 gCurrentActor->unk155 = 1;
             }
             if (*heightTarget != 0) {
@@ -226,7 +197,7 @@ void behaviourArmadilloPatrol(void) {
                     gCurrentActor->unk155 = 0;
                     gCurrentActor->unk155 = 1;
                     gBehaviourWorkState->timer = 0;
-                    BDEE0S90->unk2E = 4;
+                    gBehaviourWorkState->unk2E = 4;
                 }
             }
         }
@@ -325,13 +296,6 @@ void actorSpawnRandomParticleNearActor(u8 particleType, s8 yOffset) {
 }
 
 extern u8 D_80750628[];
-typedef struct BDEE0DCA0 {
-    u8 pad0[0x1C];
-    s32 unk1C;
-    u8 unk20;
-} BDEE0DCA0;
-
-extern BDEE0DCA0 *D_807FDCA0;
 
 s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 z) {
     f32 spA[4][4];
@@ -345,7 +309,7 @@ s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 
     if (node) {
         f32 ang;
 
-        actorGetNodePos(*(Actor **)&D_807FDCA0->unk1C, node, &nodeX, &nodeY, &nodeZ);
+        actorGetNodePos(D_807FDCA0->occupant, node, &nodeX, &nodeY, &nodeZ);
         mathNudgeCoords(x, z, &nodeX, &nodeZ);
         ang = mathAtan2(nodeX - x, nodeZ - z);
         guTranslateF(spA, 0.0f, -yOffset, 0.0f);
@@ -373,8 +337,8 @@ void behaviourArmadilloInitRollState(void) {
     gCurrentActor->unk155 = 0;
     BDEE0AA->unk134 = 1;
     gCurrentActor->interactionType = 1;
-    BDEE0S90->unk4 = gPrimaryPlayerActor;
-    actorScriptStart(gCurrentActor, BDEE0S98->unk2A);
+    gBehaviourWorkState->unk4 = gPrimaryPlayerActor;
+    actorScriptStart(gCurrentActor, gBehaviourAnimState->animId2);
     gCurrentActor->yaw = ((randomNonNegative() >> 15) % 1024) + gPrimaryPlayerActor->yaw - 0x200;
     gCurrentActor->speedXZ = ((randomNonNegative() >> 15) % 100) + 0x32;
     BDEE0AA->unkC0 = ((randomNonNegative() >> 15) % 150) + 0x64;
@@ -386,14 +350,6 @@ typedef struct BDEE0DC924 {
 } BDEE0DC924;
 
 extern BDEE0DC924 *gPlayerSlots;
-
-typedef struct BDEE0DCA0Tgt {
-    /* 0x00 */ u8 pad0[0x1C];
-    /* 0x1C */ Actor *unk1C;
-    /* 0x20 */ u8 unk20;
-} BDEE0DCA0Tgt;
-
-#define BDEE0DCA0T ((BDEE0DCA0Tgt *)D_807FDCA0)
 
 extern u8 D_8071FB34[];
 
@@ -407,8 +363,8 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
     s32 var;
 
     p = BDEE0AA->unk178;
-    tgt = BDEE0DCA0T->unk1C;
-    if (tgt != NULL && tgt->state == 0x23 && BDEE0DCA0T->unk20 < 10) {
+    tgt = D_807FDCA0->occupant;
+    if (tgt != NULL && tgt->state == 0x23 && D_807FDCA0->unk20 < 10) {
         if (gCurrentActor->state != 0x15 && gCurrentActor->state != 0x17) {
             gCurrentActor->collisionFlags = 0x80;
             gCurrentActor->state = 0x15;
@@ -451,7 +407,7 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
                     tgt->unk155 = 2;
                 }
             } else if (gBossFightPhase == 4) {
-                BDEE0S90->unk16 = ((BDEE0Sub4 *)gBehaviourTargetActor->sub4)->unk0->unk10;
+                gBehaviourWorkState->unk16 = ((BDEE0Sub4 *)gBehaviourTargetActor->sub4)->unk0->unk10;
                 gCurrentActor->flags |= 0x20000000;
                 if (BDEE0AA->unkF0 == 0) {
                     BDEE0AA->unkF0 = 0x28;
@@ -467,10 +423,10 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
                 }
             }
         }
-        BDEE0DCA0T->unk20 = BDEE0DCA0T->unk20 + 1;
+        D_807FDCA0->unk20 = D_807FDCA0->unk20 + 1;
         actorGetNodePos(tgt, node, &nodeX, &nodeY, &nodeZ);
-        if (BDEE0S90->unk1A & 0x80) {
-            if (!(BDEE0S90->unk1C & 0x80)) {
+        if (gBehaviourWorkState->flags & 0x80) {
+            if (!(gBehaviourWorkState->unk1C & 0x80)) {
                 BDEE0AA->unkC0 = 300.0f;
             }
             if (BDEE0AA->unkC0 > 0.0f) {
@@ -713,10 +669,10 @@ void behaviourFairyUpdate(void) {
     if (gCurrentActor->state == 0x17) {
         actorSpawnRandomParticleNearActor(0, 0);
     }
-    if (BDEE0S90->unk2E != 0) {
-        BDEE0S90->unk2E--;
+    if (gBehaviourWorkState->unk2E != 0) {
+        gBehaviourWorkState->unk2E--;
         gCurrentActor->hasArcBounds = 0;
-        if (BDEE0S90->unk2E == 0 && gBehaviourTargetActor == gPrimaryPlayerActor) {
+        if (gBehaviourWorkState->unk2E == 0 && gBehaviourTargetActor == gPrimaryPlayerActor) {
             gCurrentActor->unk144 = 0x24;
         }
     }
@@ -734,8 +690,8 @@ void behaviourFairyInitPlayerScale(void) {
         gCurrentActor->unk15F = 0;
         gCurrentActor->yaw = mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z);
         actorScriptStart(gCurrentActor, 0x21B);
-        gBehaviourAnimState->stateFlags |= 8;
-        ((BDEE0View98 *)gBehaviourAnimState)->unk28 = 0x21C;
+        gBehaviourAnimState->flags |= 8;
+        gBehaviourAnimState->animId1 = 0x21C;
     }
     switch (gCurrentActor->state) {
         case 4:
@@ -928,7 +884,7 @@ void behaviourFairyWanderUpdate(void) {
         if (spawnNodeHasActor(0x2B) == 0 && spawnNodeHasActor(0x2C) == 0) {
             csSendActorMessagePayload(0x11, 1);
             spawnNodeSpawnById(0x2D, mathSinF(gCurrentActor->yaw) * 80.0f + gCurrentActor->x, gCurrentActor->y, mathCosF(gCurrentActor->yaw) * 80.0f + gCurrentActor->z, gCurrentActor->yaw, 0, 0);
-            D_807FDCA0->unk1C = (s32)gSpawnedActor;
+            D_807FDCA0->occupant = gSpawnedActor;
             camStartPath(gCurrentActor, 0x1F, 1);
             gCurrentActor->state++;
             gBehaviourWorkState->timer = 0x1E;
@@ -945,7 +901,7 @@ void behaviourFairyWanderUpdate(void) {
                 behaviourFairyPlaySound();
             }
             if (BDEE0A->unk155) {
-                actorSpawnJitteredChild((u8)(tbl.b[BDEE0A->unk155--] + 0x22), (s16)(t * 8 + 0x64), (s16)(t * 20 + 0xFA), D_807FDCA0->unk1C);
+                actorSpawnJitteredChild((u8)(tbl.b[BDEE0A->unk155--] + 0x22), (s16)(t * 8 + 0x64), (s16)(t * 20 + 0xFA), (s32)D_807FDCA0->occupant);
             } else {
                 gCurrentActor->flags &= 0xFFFF7FFF;
                 gCurrentActor->unk144 = 1;

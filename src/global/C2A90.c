@@ -130,19 +130,11 @@ void func_806BDEC8(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct R1C2CB_S90 {
-    /* 0x00 */ u8 pad0[0x2C];
-    /* 0x2C */ s16 unk2C;
-    /* 0x2E */ s16 unk2E;
-    /* 0x30 */ f32 unk30;
-} R1C2CB_S90;
-
 typedef struct R1C2CB_ActorEE {
     /* 0x00 */ u8 pad0[0xEE];
     /* 0xEE */ s16 unkEE;
 } R1C2CB_ActorEE;
 
-#define R1C2CBS ((R1C2CB_S90 *)gBehaviourWorkState)
 #define R1C2CBE ((R1C2CB_ActorEE *)gPrimaryPlayerActor)
 
 extern s32 gFrameCounter;
@@ -168,11 +160,11 @@ void func_806BE09C(void) {
     idx = mapGetHubWorldIndex(gCurrentWorldId, 0);
     ratio = (f32)gLevelCollectibleCounts[idx] / (f32)D_807446C0[idx];
     if (func_806BDD90() == 1) {
-        R1C2CBS->unk2C = slotQueueGetValue(0, 0);
-        if (R1C2CBS->unk2C != 0) {
+        gBehaviourWorkState->timer = slotQueueGetValue(0, 0);
+        if (gBehaviourWorkState->timer != 0) {
             gCurrentActor->state = 0x12;
             gCurrentActor->unk155 = 0;
-            R1C2CBS->unk2E = 0x32;
+            gBehaviourWorkState->unk2E = 0x32;
             actorScriptStart(gCurrentActor, 0x28A);
             camSetTargetCutsceneUnscaled(sub->unk104, gPrimaryPlayerActor, 4, 0x990, 0x5A, -0x2E, 0x3C, 0xA, 0x20, 0, 0.3f);
             angle = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z);
@@ -193,22 +185,22 @@ void func_806BE09C(void) {
         actorSetUniformScale(gCurrentActor, (target - gCurrentActor->sub4->scaleX) * 0.1 + gCurrentActor->sub4->scaleX);
         switch (gCurrentActor->unk155) {
         case 0:
-            if (R1C2CBS->unk2E != 0) {
-                R1C2CBS->unk2E--;
-                if (R1C2CBS->unk2E == 0) {
+            if (gBehaviourWorkState->unk2E != 0) {
+                gBehaviourWorkState->unk2E--;
+                if (gBehaviourWorkState->unk2E == 0) {
                     camSetTargetCutsceneUnscaled(sub->unk104, gCurrentActor, 4, 0x305, 0x14A, 3, 0x32, 0x7F, 0x5A, 0, 0.03f);
                 }
             }
-            if (R1C2CBS->unk2C != 0) {
+            if (gBehaviourWorkState->timer != 0) {
                 if (!(gFrameCounter & 3)) {
                     row = gPlayerInventoryTable[gPlayerCharacterId];
-                    R1C2CBS->unk2C--;
+                    gBehaviourWorkState->timer--;
                     slotQueueAddValue(0, 0, -1, gPlayerInventoryTable);
                     ((u16 *)(row + 0x26))[idx] += 1;
                     sum = 0;
                     for (i = 0; i < 5; i++) sum += ((u16 *)(gPlayerInventoryTable[i] + 0x26))[idx];
                     if (sum >= D_807446C0[idx]) {
-                        R1C2CBS->unk2C = 0;
+                        gBehaviourWorkState->timer = 0;
                         slotQueueCancel(0, 0);
                     }
                     effectSetCallback(effectConvergeOnNodeUpdate);
@@ -217,14 +209,14 @@ void func_806BE09C(void) {
                     effectSetSpeed(gCurrentActor);
                     effectCreateAtActorBone(slotQueueGetSpriteAsset(0), 0.3f, gPrimaryPlayerActor, 4, 0);
                 }
-            } else if (R1C2CBS->unk2E == 0) {
-                R1C2CBS->unk2C = 0x1E;
+            } else if (gBehaviourWorkState->unk2E == 0) {
+                gBehaviourWorkState->timer = 0x1E;
                 gCurrentActor->unk155 = 1;
             }
             break;
         case 1:
-            if (R1C2CBS->unk2C != 0) {
-                R1C2CBS->unk2C--;
+            if (gBehaviourWorkState->timer != 0) {
+                gBehaviourWorkState->timer--;
             } else {
                 actorScriptStart(gCurrentActor, 0x28B);
                 gCurrentActor->state = 0x27;
@@ -238,15 +230,15 @@ void func_806BE09C(void) {
             effectSpawnMultiTierRing(4.0f, 1, gCurrentActor->x, gCurrentActor->y + 5.0f, gCurrentActor->z);
             gCurrentActor->state = 0x28;
             gCurrentActor->unk155 = 0;
-            R1C2CBS->unk2C = 0x3C;
+            gBehaviourWorkState->timer = 0x3C;
         }
         break;
     case 0x28:
-        R1C2CBS->unk2C--;
-        if (R1C2CBS->unk2C == 0) {
+        gBehaviourWorkState->timer--;
+        if (gBehaviourWorkState->timer == 0) {
             gCurrentActor->state = 0;
             gCurrentActor->unk155 = 0;
-            R1C2CBS->unk2E = 0;
+            gBehaviourWorkState->unk2E = 0;
         }
 
         break;
@@ -341,17 +333,6 @@ typedef struct LgBE8A {
     /* 0x168 */ s16 unk168;
 } LgBE8A;
 
-typedef struct LgBE8S90 {
-    /* 0x00 */ u8 pad0[0xA];
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ u8 padC[2];
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ u8 pad10[0xA];
-    /* 0x1A */ u16 unk1A;
-    /* 0x1C */ u8 pad1C[0xC];
-    /* 0x28 */ u8 unk28[4];
-} LgBE8S90;
-
 typedef struct LgBE8G {
     /* 0x000 */ u8 pad0[0x1F4];
     /* 0x1F4 */ s32 unk1F4;
@@ -359,16 +340,9 @@ typedef struct LgBE8G {
     /* 0x23F */ u8 unk23F;
 } LgBE8G;
 
-typedef struct LgBE8S9C {
-    /* 0x00 */ u8 pad0[0xD];
-    /* 0x0D */ u8 unkD;
-} LgBE8S9C;
-
 #define LgBA ((LgBE8A *)gCurrentActor)
 #define LgBB ((LgBE8A *)gPrimaryPlayerActor)
 #define LgBG ((LgBE8G *)gActivePlayerState)
-#define LgBS ((LgBE8S90 *)gBehaviourWorkState)
-#define LgB9C ((LgBE8S9C *)gBehaviourExtraState)
 
 extern void *gCamActor;
 extern s32 gGlobalOverlayFlags;
@@ -389,7 +363,7 @@ void func_806BE8BC(void) {
     }
     if (!(LgBA->unk60 & 0x10)) {
         func_80724CA4(2, 1);
-        gBehaviourAnimState->stateFlags |= 0x20;
+        gBehaviourAnimState->flags |= 0x20;
         actorScriptStart(gCurrentActor, 0x306);
         func_80728950(0);
         LgBA->unk154 = 0x1E;
@@ -411,7 +385,7 @@ void func_806BE8BC(void) {
                 csModelStateSetFirstByte(0x1F, 3);
                 actorClearMovementFlags(gPrimaryPlayerActor);
                 func_80726EE0(1);
-                gBehaviourAnimState->stateFlags |= 4;
+                gBehaviourAnimState->flags |= 4;
                 func_806BE674(1);
                 currentActorAnimSetFrame(0, 0);
                 if (sp37 != 0) {
@@ -445,7 +419,7 @@ void func_806BE8BC(void) {
                     camResumePath();
                     camSetZoomLevel(gCamActor, 3);
                     actorScriptStart(gCurrentActor, 0x302);
-                    actorSetTargetSpeed(gCurrentActor, (s32)((sp37 ? 1.5 : 1.0) * (u32)LgB9C->unkD));
+                    actorSetTargetSpeed(gCurrentActor, (s32)((sp37 ? 1.5 : 1.0) * (u32)gBehaviourExtraState->unkD));
                     LgBA->unk154 = 2;
                     LgBA->unk155 = 0;
                     camSetZoneWeight(1, 0xA);
@@ -491,7 +465,7 @@ void func_806BE8BC(void) {
                     if (currentActorTestClearFlag() != 0) {
                         if (sp37 != 0) {
                             csModelStateSetFirstByte(0x57, 0xA);
-                            LgBS->unk1A |= 0x8000;
+                            gBehaviourWorkState->flags |= 0x8000;
                         } else {
                             ang = LgBA->unkE6 - 0x12C;
                             sfxAllocateChannel(0x2F, 1.0f);
@@ -517,7 +491,7 @@ void func_806BE8BC(void) {
                     LgBG->unk1F4 &= ~0x40;
                     volumeTriggerSetEnabled(0x16, 0);
                     func_80726EE0(2);
-                    if (LgBS->unk1A & 0x8000) {
+                    if (gBehaviourWorkState->flags & 0x8000) {
                         LgBA->unk154 = 0x40;
                     } else {
                         if (LgBA->unk4->unk64 != 0x308) {
@@ -566,8 +540,8 @@ void func_806BE8BC(void) {
                     LgBA->unk155 = 0;
                 }
             }
-            func_8072881C(0, LgBS->unk28);
-            actorMoveWithinZone(LgBA->unk154, LgBS->unkA, LgBS->unkE, 0x10, 0.0f);
+            func_8072881C(0, gBehaviourWorkState->unk28);
+            actorMoveWithinZone(LgBA->unk154, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x10, 0.0f);
             patrolPathStep(LgBA->unk154, 0);
             break;
     }

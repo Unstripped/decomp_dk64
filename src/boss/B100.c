@@ -82,13 +82,7 @@ typedef struct {
 } BossPlayerActor;
 
 
-typedef struct {
-    u8 pad0[0x14];
-    s16 *unk14;
-} BossWaypointListS16;
-
 extern BossPlayerActor *gPrimaryPlayerActor;
-extern BossWaypointListS16 *D_807FDCA0;
 
 typedef struct BossPhaseState {
     u8 pad0[0x14];
@@ -134,18 +128,6 @@ typedef struct BossGlobalC924 {
     u8 pad0[0x2C0];
     u8 unk2C0;
 } BossGlobalC924;
-
-typedef struct BossWaypoint {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    u8 pad6[4];
-} BossWaypoint;
-
-typedef struct BossWaypointList {
-    u8 pad0[0x14];
-    BossWaypoint *unk14;
-} BossWaypointList;
 
 
 extern u8 *D_80035A90[];
@@ -274,7 +256,7 @@ void bossDogadonStep(void) {
             MAIN_ACTOR->unk155++;
             break;
         case 2:
-            MAIN_ACTOR->unkE6 = mathAngleEaseToward(MAIN_ACTOR->unkE6, mathAngleBetweenPoints2D((f32)((BossWaypointList *)D_807FDCA0)->unk14->unk0, (f32)((BossWaypointList *)D_807FDCA0)->unk14->unk4, MAIN_ACTOR->unk7C, MAIN_ACTOR->unk84), 10.0f);
+            MAIN_ACTOR->unkE6 = mathAngleEaseToward(MAIN_ACTOR->unkE6, mathAngleBetweenPoints2D((f32)D_807FDCA0->entries->x, (f32)D_807FDCA0->entries->z, MAIN_ACTOR->unk7C, MAIN_ACTOR->unk84), 10.0f);
             break;
         case 3:
             if (gBehaviourWorkState->timer != 0 && (u32)gFrameCounter % 5 == 0) {
@@ -295,7 +277,7 @@ void bossDogadonStep(void) {
             if (gBehaviourWorkState->timer != 0) {
                 gBehaviourWorkState->timer--;
             } else {
-                actorSetTargetSpeed(MAIN_ACTOR, gBehaviourExtraState->unkC);
+                actorSetTargetSpeed(MAIN_ACTOR, gBehaviourExtraState->targetSpeed);
                 actorScriptStart(MAIN_ACTOR, 0x3E4);
                 MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
                 phaseState->unk15++;
@@ -310,7 +292,7 @@ void bossDogadonStep(void) {
         MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
         phaseState->unk15++;
         MAIN_ACTOR->unk155 = 0;
-        MAIN_ACTOR->unkB8 = (f32)(u32)gBehaviourExtraState->unkC;
+        MAIN_ACTOR->unkB8 = (f32)(u32)gBehaviourExtraState->targetSpeed;
         break;
     case 0:
         switch (MAIN_ACTOR->unk155) {
@@ -554,8 +536,8 @@ void bossKRoolTinyStep(void) {
     }
     tbl = D_80035AA4[st->unk14];
     if (BOSS_ACTOR->unk154) {
-        s16 *p = D_807FDCA0->unk14;
-        camClosestPointOnSegment(gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk80, gPrimaryPlayerActor->unk84, p[0], p[1], p[2], p[5], p[6], p[7], &gPrimaryPlayerActor->unk7C, &dummyY, &gPrimaryPlayerActor->unk84);
+        ZoneEntry *p = D_807FDCA0->entries;
+        camClosestPointOnSegment(gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk80, gPrimaryPlayerActor->unk84, p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, &gPrimaryPlayerActor->unk7C, &dummyY, &gPrimaryPlayerActor->unk84);
         gPrimaryPlayerActor->unkE6 = 0xFD2;
         gActivePlayerState->unk38 = 150.0f;
     }

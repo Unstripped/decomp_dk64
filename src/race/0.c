@@ -10,23 +10,6 @@
 #include "proto/race/A960.h"
 s16 sfxPlayFromActorWithAltitudeCheck(struct Actor *, s16, u8, s16, u8);
 
-typedef struct {
-    s16 x;
-    s16 y;
-    s16 z;
-    u8 pad6;
-    u8 radius;
-    u8 targetSpeed;
-    u8 pad9;
-} RaceC_Entry;
-
-typedef struct {
-    u8 pad0[0x10];
-    s16 unk10;
-    u8 pad12[0x14 - 0x12];
-    RaceC_Entry *unk14;
-} RaceC_DCA0;
-
 
 typedef struct {
     s16 unk0;
@@ -61,7 +44,6 @@ typedef struct {
 extern s32 gCurrentMap;
 extern void *gCurrentActor;
 extern void *gActivePlayerActor;
-extern RaceC_DCA0 *D_807FDCA0;
 extern RaceC_Row D_8002FB10[];
 extern RaceC_Row D_8002FB70[];
 #define RC_A ((RaceC_Act *)gCurrentActor)
@@ -77,7 +59,7 @@ void raceOpponentFollowWaypoints(void) {
     f32 fs1;
     f32 curSpeed;
     f32 oscSpeed;
-    RaceC_Entry *a0;
+    ZoneEntry *a0;
     f32 fv0;
     u8 routeRowIdx;
     RaceC_Row *routeRows;
@@ -94,11 +76,11 @@ void raceOpponentFollowWaypoints(void) {
     }
     curSpeed = RC_A->unkB8;
     oscSpeed = mathSinF((s16)(s32)(RC_A->unkE0 * 11.4)) * 20.0f;
-    a0 = &D_807FDCA0->unk14[gBehaviourWorkState->unk25];
+    a0 = &D_807FDCA0->entries[gBehaviourWorkState->unk25];
     fs0 = RC_A->unk7C - a0->x;
     fs1 = RC_A->unk84 - a0->z;
-    if (sqrtf(fs1 * fs1 + fs0 * fs0) < (a0 = &D_807FDCA0->unk14[gBehaviourWorkState->unk25])->radius) {
-        if ((a0->y < RC_A->unk80 ? RC_A->unk80 - a0->y : -(RC_A->unk80 - a0->y)) < 80.0f && gBehaviourWorkState->unk25 < D_807FDCA0->unk10 - 1) {
+    if (sqrtf(fs1 * fs1 + fs0 * fs0) < (a0 = &D_807FDCA0->entries[gBehaviourWorkState->unk25])->radius) {
+        if ((a0->y < RC_A->unk80 ? RC_A->unk80 - a0->y : -(RC_A->unk80 - a0->y)) < 80.0f && gBehaviourWorkState->unk25 < D_807FDCA0->entryCount - 1) {
             RaceC_Row *row = (RaceC_Row *)((u8 *)routeRows + routeRowIdx * 12);
             if (row->unk0 == gBehaviourWorkState->unk25) {
                 if (row) {}  // FAKE: dead test steers uopt FP callee-saved colouring (fs0/fs1)
@@ -111,11 +93,11 @@ void raceOpponentFollowWaypoints(void) {
                 gBehaviourWorkState->unk24 += 1;
             }
             gBehaviourWorkState->unk25++;
-            a0 = &D_807FDCA0->unk14[(*pp)->unk25];
+            a0 = &D_807FDCA0->entries[(*pp)->unk25];
         }
-        a0 = &D_807FDCA0->unk14[gBehaviourWorkState->unk25];
+        a0 = &D_807FDCA0->entries[gBehaviourWorkState->unk25];
     }
-    speedDelta = (f64)(a0->targetSpeed - RC_A->unkB8 / 10.0f) * 0.8;
+    speedDelta = (f64)(a0->height - RC_A->unkB8 / 10.0f) * 0.8;
     fv0 = (f64)(RC_A->unk80 - RC_B->unk80) * 0.25;
     if (fv0 > 6.0f) {
         fv0 = 6.0f;
@@ -146,7 +128,7 @@ void raceOpponentFollowWaypoints(void) {
     curSpeed = sqrtf(fs0 * fs0 + fs1 * fs1);
     fv0 = mathAtan2(fs0, fs1);
     if (RC_A->unkC4 != -20.0f && RC_A->unkC4 != -360.0f) {
-        RC_A->unkB8 = D_807FDCA0->unk14[gBehaviourWorkState->unk25].targetSpeed * 10.0;
+        RC_A->unkB8 = D_807FDCA0->entries[gBehaviourWorkState->unk25].height * 10.0;
     } else {
         RC_A->unkB8 = curSpeed;
     }
@@ -259,23 +241,6 @@ typedef struct {
 
 typedef struct {
     s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    u8 pad6;
-    u8 unk7;
-    u8 unk8;
-    u8 pad9;
-} LargeR4_Entry;
-
-typedef struct {
-    u8 pad0[0x10];
-    s16 unk10;
-    u8 pad12[2];
-    LargeR4_Entry *unk14;
-} LargeR4_Path;
-
-typedef struct {
-    s16 unk0;
     u8 pad2[2];
     f32 unk4;
     u8 unk8;
@@ -288,7 +253,6 @@ extern u16 D_80750AC8;
 extern s32 D_8002FB94[];
 
 #define L4_D ((LargeR4_Act *)gCurrentActor)
-#define L4_P ((LargeR4_Path *)D_807FDCA0)
 
 void actorApplyGravity(void);
 void actorApplyVelocity(void *);
@@ -315,7 +279,7 @@ void raceOpponentBehaviourUpdate(void) {
     f32 dz;
     s16 ang16;
     s32 tmp;
-    LargeR4_Entry *e;
+    ZoneEntry *e;
     u8 rowIdx;
     LargeR4_Ctl *controller;
     LargeR4_Cfg *config;
@@ -421,19 +385,19 @@ void raceOpponentBehaviourUpdate(void) {
         }
     case 2:
         actorApproachTargetSpeed(0);
-        dx = L4_D->unk7C - (f32)L4_P->unk14[gBehaviourWorkState->unk25].unk0;
-        dz = L4_D->unk84 - (f32)L4_P->unk14[gBehaviourWorkState->unk25].unk4;
+        dx = L4_D->unk7C - (f32)D_807FDCA0->entries[gBehaviourWorkState->unk25].x;
+        dz = L4_D->unk84 - (f32)D_807FDCA0->entries[gBehaviourWorkState->unk25].z;
         dist = sqrtf(dz * dz + dx * dx);
-        if (dist < (f32)L4_P->unk14[gBehaviourWorkState->unk25].unk7) {
+        if (dist < (f32)D_807FDCA0->entries[gBehaviourWorkState->unk25].radius) {
             fv1 = L4_D->unk80;
-            if ((f32)L4_P->unk14[gBehaviourWorkState->unk25].unk2 < fv1) {
-                dist = fv1 - (f32)L4_P->unk14[gBehaviourWorkState->unk25].unk2;
+            if ((f32)D_807FDCA0->entries[gBehaviourWorkState->unk25].y < fv1) {
+                dist = fv1 - (f32)D_807FDCA0->entries[gBehaviourWorkState->unk25].y;
             } else {
-                dist = -(fv1 - (f32)L4_P->unk14[gBehaviourWorkState->unk25].unk2);
+                dist = -(fv1 - (f32)D_807FDCA0->entries[gBehaviourWorkState->unk25].y);
             }
             if (dist < 80.0f) {
-                if (gBehaviourWorkState->unk25 < L4_P->unk10 - 1) {
-                    if (L4_P->unk14[gBehaviourWorkState->unk25].unk8 == 0) {
+                if (gBehaviourWorkState->unk25 < D_807FDCA0->entryCount - 1) {
+                    if (D_807FDCA0->entries[gBehaviourWorkState->unk25].height == 0) {
                         actorScriptStart(gCurrentActor, 0x283);
                         L4_D->unk154 = L4_D->unk154 + 1;
                     }

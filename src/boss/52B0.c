@@ -143,7 +143,7 @@ void bossMadJackStep(void) {
     if (!(ACTOR->unk60 & 0x10)) {
         ACTOR->unkCE = 0x64;
         ACTOR->unk15F = 0;
-        gBehaviourAnimState->stateFlags |= 0x20;
+        gBehaviourAnimState->flags |= 0x20;
         ACTOR->unk64 |= 4;
         ACTOR->unk144 = 0x24;
         lightSetColor(0.0f, 0.0f, 0.0f, -1);

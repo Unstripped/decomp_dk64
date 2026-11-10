@@ -106,7 +106,7 @@ void bossKRoolDkStep(void) {
         scriptState->unk15 = 0;
         gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
         gCurrentActor->unk155 = 0;
-        gCurrentActor->unkB8 = gBehaviourExtraState->unkC;
+        gCurrentActor->unkB8 = gBehaviourExtraState->targetSpeed;
         break;
     case 0:
         switch (gCurrentActor->unk155) {
@@ -243,7 +243,7 @@ void bossKRoolDkStep(void) {
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x4310, 0.0f);
             break;
         case 3:
-            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
+            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
             scriptState->unk15 = 0;
             scriptState->unk16 = 0;
             scriptState->unk14++;

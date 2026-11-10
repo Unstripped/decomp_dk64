@@ -126,7 +126,7 @@ void bossKRoolLankyRunTowardPlayer(void) {
     BossC_A7A0_178 *link = gCurrentActor->unk178;
 
     bossKRoolLankySetAnim(0x406, 0x674);
-    actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC + (link->unk14 * 10) + 15);
+    actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed + (link->unk14 * 10) + 15);
 }
 
 typedef struct BossScriptState {

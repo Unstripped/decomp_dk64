@@ -63,7 +63,6 @@ extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
 extern u8 gBossFightPhase;
 extern PlayerState *gActivePlayerState;
-extern s32 D_807FDCA0;
 extern u32 gFrameCounter;
 extern s32 gCurrentMap;
 extern u8 D_8072073C[];
@@ -79,7 +78,7 @@ void func_806B2790(void) {
     behaviourFrameBegin();
     if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2E1);
-        gBehaviourAnimState->stateFlags |= 8;
+        gBehaviourAnimState->flags |= 8;
     }
     effectSpawnSparks(0x1F, 0);
     st = gCurrentActor->state;
@@ -187,7 +186,7 @@ void func_806B2D64(void) {
     behaviourFrameBegin();
     effectSpawnSparks(0x1F, 2);
     if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
-        gBehaviourAnimState->stateFlags |= 8;
+        gBehaviourAnimState->flags |= 8;
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2E7);
     } else if (gActorGlobalState.unk200 == 4) {
         behaviourSpawnExplosionAndSound(0x2E5, 0x31, gActorGlobalState.targetActor, &gActorGlobalState);
@@ -608,7 +607,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
         case 3:
         case 7:
         case 0x35:
-            if (gCurrentActor->y < (f32) (*heightTarget + (0, gBehaviourExtraState->unk6))) { // FAKE: comma wrapper steers ugen temp order
+            if (gCurrentActor->y < (f32) (*heightTarget + (0, gBehaviourExtraState->y))) { // FAKE: comma wrapper steers ugen temp order
                 gCurrentActor->y = (f32) ((f64) gCurrentActor->y + ((f64) (u32) gBehaviourExtraState->unkB * 0.03125));
             } else {
                 if ((camIsCutsceneActive(gBehaviourWorkState) == 0) && (callback != NULL)) {
@@ -628,7 +627,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
                     gBehaviourWorkState->timer = 0x64;
                 case 1:
                     if ((actorFlyTowardPosition((B7490Pos *) gBehaviourWorkState, 0x23) & 1) || (gCurrentActor->y < (f32) (gBehaviourWorkState->targetY + 0xF))) {
-                        gCurrentActor->state = gBehaviourExtraState->unk10;
+                        gCurrentActor->state = gBehaviourExtraState->actorState;
                         gCurrentActor->unk155 = 0;
                     }
                     break;
@@ -723,11 +722,11 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
     if (!(gCurrentActor->flags & 0x10)) {
         func_80724CA4(1, 1);
         gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
-        gCurrentActor->speedXZ = (f32) (u32) gBehaviourExtraState->unkC;
+        gCurrentActor->speedXZ = (f32) (u32) gBehaviourExtraState->targetSpeed;
         *heightPtr = gBehaviourExtraState->unkA;
         B7490A->unkC4 = D_807502EC;
     }
-    targetHeight = gBehaviourExtraState->unk6 - (0 - *heightPtr);  // FAKE: negated subtrahend flips the commutative + operand order
+    targetHeight = gBehaviourExtraState->y - (0 - *heightPtr);  // FAKE: negated subtrahend flips the commutative + operand order
     if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (action != 0x37)) {
         gCurrentActor->state = 0x37;
         gCurrentActor->unk155 = 0;
@@ -780,7 +779,7 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
             break;
         case 0x26:
             if (patrolPathStep(action, 1) != 0) {
-                gCurrentActor->state = gBehaviourExtraState->unk10;
+                gCurrentActor->state = gBehaviourExtraState->actorState;
                 gCurrentActor->unk155 = 0;
             }
             break;
@@ -799,14 +798,14 @@ void behaviourEnemyBatUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags = gCurrentActor->flags | 0x400;
-        gBehaviourAnimState->stateFlags = gBehaviourAnimState->stateFlags | 0x40;
+        gBehaviourAnimState->flags = gBehaviourAnimState->flags | 0x40;
         gCurrentActor->tintR = 0xFA;
         gCurrentActor->tintG = 0xFA;
         gCurrentActor->tintB = 0xFA;
         actorSpawnNodeEntryAtActor(0x2D, 0x44);
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x2C1, 0xFF, 0x7F, 0, 0x14, 0.0f, 0);
     }
-    deltaHeight = gBehaviourWorkState->targetY - gBehaviourExtraState->unk6;
+    deltaHeight = gBehaviourWorkState->targetY - gBehaviourExtraState->y;
     *heightPtr = (deltaHeight < 0) ? 0 : deltaHeight;
     if ((gBossFightPhase == 9) && (gCurrentActor->state != 0x37)) {
         gCurrentActor->state = 0x37;
@@ -894,8 +893,8 @@ void behaviourEnemyFlyIdle(void) {
 void behaviourEnemyFlySwoop(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->stateFlags = gBehaviourAnimState->stateFlags | 0x60;
-        gBehaviourAnimState->stateFlags = gBehaviourAnimState->stateFlags & 0xFFF7;
+        gBehaviourAnimState->flags = gBehaviourAnimState->flags | 0x60;
+        gBehaviourAnimState->flags = gBehaviourAnimState->flags & 0xFFF7;
         gCurrentActor->speedXZ = (f32) (((randomNonNegative() >> 15) % 100) + 0x12C);
         gCurrentActor->y += (f32) ((randomNonNegative() >> 15) % 30);
         gCurrentActor->flags = gCurrentActor->flags & 0xFFFF7FFF;
@@ -960,8 +959,8 @@ void behaviourEnemyFlyReturn(void) {
         sfxPlayFromActorWithAltitudeCheck(gPrimaryPlayerActor, 0x16, 0xFF, 0x7F, 0x1E);
     }
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->stateFlags = gBehaviourAnimState->stateFlags | 0x20;
-        gBehaviourAnimState->stateFlags = gBehaviourAnimState->stateFlags & 0xFFF7;
+        gBehaviourAnimState->flags = gBehaviourAnimState->flags | 0x20;
+        gBehaviourAnimState->flags = gBehaviourAnimState->flags & 0xFFF7;
         gCurrentActor->speedXZ = 40.0f;
         gCurrentActor->state = 0x23;
         gCurrentActor->unk155 = 0;

@@ -3,9 +3,7 @@
 #define PROTO_GLOBAL_1295B0_H
 #include "common.h"
 #include "actor.h"
-struct SpawnNode;
 struct SpawnNodeList;
-struct Zone;
 struct ZoneTable;
 #ifndef PROTO_SKIP_actorSetUniformScale
 void actorSetUniformScale(Actor *, f32);

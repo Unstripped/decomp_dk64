@@ -110,45 +110,27 @@ void actorUpdatePulseIntensity(u8 active) {
     q->unk6 = 0;
 }
 
-typedef struct BB300View90 {
-    /* 0x00 */ u8 pad0[0xA];
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ u8 padC[2];
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ u8 pad10[0xA];
-    /* 0x1A */ u16 unk1A;
-    /* 0x1C */ u8 pad1C[2];
-    /* 0x1E */ u8 unk1E;
-    /* 0x1F */ u8 unk1F;
-    /* 0x20 */ u8 pad20[0xC];
-    /* 0x2C */ s16 unk2C;
-    /* 0x2E */ u8 pad2E[7];
-    /* 0x35 */ u8 unk35;
-} BB300View90;
-
-#define BB300S90 ((BB300View90 *)gBehaviourWorkState)
-
 void behaviourUpdateContactAndState();
 
 void func_806B6958(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        BB300S90->unk35 = BB300S90->unk35 * 2;
-        BB300S90->unk2C = 0xD2;
-        BB300S90->unk1F = (u32)BB300S90->unk1F * 1.5;
-        BB300S90->unk1E = (u32)BB300S90->unk1E * 1.5;
+        gBehaviourWorkState->unk35 = gBehaviourWorkState->unk35 * 2;
+        gBehaviourWorkState->timer = 0xD2;
+        gBehaviourWorkState->unk1F = (u32)gBehaviourWorkState->unk1F * 1.5;
+        gBehaviourWorkState->unk1E = (u32)gBehaviourWorkState->unk1E * 1.5;
     }
-    if (BB300S90->unk2C != 0) {
-        BB300S90->unk2C = BB300S90->unk2C - 1;
+    if (gBehaviourWorkState->timer != 0) {
+        gBehaviourWorkState->timer = gBehaviourWorkState->timer - 1;
     }
-    if (BB300S90->unk2C % 30 == 0) {
-        BB300S90->unk1F = BB300S90->unk1F - 1;
-        BB300S90->unk1E = BB300S90->unk1E - 1;
+    if (gBehaviourWorkState->timer % 30 == 0) {
+        gBehaviourWorkState->unk1F = gBehaviourWorkState->unk1F - 1;
+        gBehaviourWorkState->unk1E = gBehaviourWorkState->unk1E - 1;
     }
     if (gActorGlobalState.unk200 == 4) {
         func_80724C2C(-0x96);
     }
-    if (BB300S90->unk2C == 0 || gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) {
+    if (gBehaviourWorkState->timer == 0 || gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3B2, 0xFF, 0x7F, 0x1E);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3B7, 0xFF, 0x7F, 0x1E);
         effectSpawnRing();
@@ -198,22 +180,8 @@ typedef struct BB300ActorAlt {
     /* 0x178 */ BB300Sub178 *unk178;
 } BB300ActorAlt;
 
-typedef struct BB300View98 {
-    /* 0x00 */ u8 pad0[0x34];
-    /* 0x34 */ f32 unk34;
-} BB300View98;
-
-typedef struct BB300View9C {
-    /* 0x00 */ u8 pad0[0xC];
-    /* 0x0C */ u8 unkC;
-    /* 0x0D */ u8 unkD;
-    /* 0x0E */ u8 padE[5];
-    /* 0x13 */ u8 unk13;
-} BB300View9C;
-
 extern s32 gFrameCounter;
 extern s32 gCurrentMap;
-
 
 void func_806B6DB0(s32 aggroRange) {
     BB300Sub178 *p;
@@ -230,16 +198,16 @@ void func_806B6DB0(s32 aggroRange) {
     }
     near = ((gCurrentActor->x - gBehaviourTargetActor->x) * (gCurrentActor->x - gBehaviourTargetActor->x) + (gCurrentActor->z - gBehaviourTargetActor->z) * (gCurrentActor->z - gBehaviourTargetActor->z)) < 2500.0f;
     if (!(gCurrentActor->flags & 0x10)) {
-        ((BB300View98 *)gBehaviourAnimState)->unk34 = 1.0f;
+        gBehaviourAnimState->unk34 = 1.0f;
         func_80724CA4(2, 2);
-        gCurrentActor->speedXZ = ((BB300View9C *)gBehaviourExtraState)->unkC;
+        gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
     }
     if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
         tgt = gActorGlobalState.targetActor;
         ((BB300ActorAlt *)gCurrentActor)->unkC0 = 200.0f;
         behaviourCalculateDamageForce(tgt, 0x236);
-        if ((tgt != 0 && ((Actor *)tgt)->actorType == 0x29) || (gCurrentMap == 0x10 && ((BB300View9C *)gBehaviourExtraState)->unk13 < 0x11)) {
-            BB300S90->unk1A |= 1;
+        if ((tgt != 0 && ((Actor *)tgt)->actorType == 0x29) || (gCurrentMap == 0x10 && gBehaviourExtraState->id < 0x11)) {
+            gBehaviourWorkState->flags |= 1;
         }
     }
     sel = gCurrentActor->state;
@@ -257,14 +225,14 @@ void func_806B6DB0(s32 aggroRange) {
     case 0x14:
         switch (((BB300ActorAlt *)gCurrentActor)->unk155) {
         case 0:
-            BB300S90->unk2C = 0x1E;
+            gBehaviourWorkState->timer = 0x1E;
             ((BB300ActorAlt *)gCurrentActor)->unk155 += 1;
             break;
         case 1:
-            if (BB300S90->unk2C != 0) {
+            if (gBehaviourWorkState->timer != 0) {
                 gCurrentActor->yaw += p->unk2;
                 p->unk2 += -p->unk2 * 0.01;
-                BB300S90->unk2C -= 1;
+                gBehaviourWorkState->timer -= 1;
                 if (!(gFrameCounter & 3)) {
                     behaviourSpawnDropParticle();
                 }
@@ -274,7 +242,7 @@ void func_806B6DB0(s32 aggroRange) {
             break;
         case 2:
             sfxStopSlotSound(gCurrentActor, 0);
-            actorSetBehaviourState(1, ((BB300View9C *)gBehaviourExtraState)->unkC, 0x232);
+            actorSetBehaviourState(1, gBehaviourExtraState->targetSpeed, 0x232);
             ((BB300ActorAlt *)gCurrentActor)->unkEE = gCurrentActor->yaw;
             break;
         }
@@ -301,7 +269,7 @@ void func_806B6DB0(s32 aggroRange) {
         func_8072881C(0, gBehaviourWorkState->unk28);
         func_80724E48((u8)(gCurrentActor->state == 0x35 ? 2 : 3));
         actorUpdatePulseIntensity(0);
-        actorMoveWithinZone(gCurrentActor->state, BB300S90->unkA, BB300S90->unkE, 0x400, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x400, 0.0f);
         break;
     case 0x11:
         func_8072881C(0, gBehaviourWorkState->unk28);
@@ -316,7 +284,7 @@ void func_806B6DB0(s32 aggroRange) {
             ((BB300ActorAlt *)gCurrentActor)->unk155 += 1;
             break;
         case 2:
-            actorSetBehaviourState(1, ((BB300View9C *)gBehaviourExtraState)->unkC, 0x232);
+            actorSetBehaviourState(1, gBehaviourExtraState->targetSpeed, 0x232);
             break;
         }
         break;
@@ -333,10 +301,10 @@ void func_806B6DB0(s32 aggroRange) {
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x20, 0.0f);
             break;
         case 3:
-            if (BB300S90->unk1A & 1) {
+            if (gBehaviourWorkState->flags & 1) {
                 ((BB300ActorAlt *)gCurrentActor)->unk155 += 1;
             } else {
-                func_806B6C88(((BB300View9C *)gBehaviourExtraState)->unkD, mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z));
+                func_806B6C88(gBehaviourExtraState->unkD, mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z));
                 ((BB300ActorAlt *)gCurrentActor)->unk155 = 5;
             }
             break;
@@ -349,7 +317,7 @@ void func_806B6DB0(s32 aggroRange) {
         }
         break;
     case 0x16:
-        BB300S90->unk1A |= 1;
+        gBehaviourWorkState->flags |= 1;
     default:
         behaviourUpdateContactAndState(0x232, sel);
         break;

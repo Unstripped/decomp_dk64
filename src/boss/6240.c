@@ -55,20 +55,6 @@ typedef struct BossC_6240_Model {
 } BossC_6240_Model;
 
 
-typedef struct BossC_6240_SubA0 {
-    char pad[0xA0];
-    s16 unkA0;
-    s16 unkA2;
-    s16 unkA4;
-} BossC_6240_SubA0;
-
-typedef struct BossC_6240_DCA0 {
-    char pad0[0x14];
-    BossC_6240_SubA0 *unk14;
-    char pad18[0xC];
-    u8 unk24[1];
-} BossC_6240_DCA0;
-
 extern BossC_6240_Actor40 *gCurrentActor;
 extern u32 gFrameCounter;
 
@@ -189,7 +175,6 @@ extern void *gSpawnedActor;
 extern ActorGlobalState gActorGlobalState;
 extern PlayerStruct *gPlayerSlots;
 extern PlayerState *gActivePlayerState;
-extern BossC_6240_DCA0 *D_807FDCA0;
 
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
@@ -262,7 +247,7 @@ void bossPufftossStep(void) {
         gBehaviourAnimState->unk30 = 3.0f;
         gCurrentActor->base.speedXZ = 0.0f;
         gCurrentActor->base.flags |= 0x800000;
-        gBehaviourAnimState->stateFlags |= 0x20;
+        gBehaviourAnimState->flags |= 0x20;
         state->unk1C = 0;
         gCurrentActor->base.state = scriptData[state->unk15++];
         gCurrentActor->base.unk155 = 0;
@@ -355,7 +340,7 @@ void bossPufftossStep(void) {
         gCurrentActor->base.interactionType = 4;
         actorMoveWithinZone(0x45, 606.0f, 566.0f, 0x292, 0.0f);
         if (gCurrentActor->base.unk155 == 1) {
-            bossClampPosition((s32)D_807FDCA0->unk24);
+            bossClampPosition((s32)&D_807FDCA0[1]);
         }
         if ((gCurrentActor->base.unk155 == 0) && (gPrimaryPlayerActor->state == 0x42)) {
             gCurrentActor->base.unk155 = 1;
@@ -393,10 +378,10 @@ void bossPufftossStep(void) {
         checkFloor = 0;
         updateY = 0;
         gCurrentActor->base.interactionType = 4;
-        bossClampPosition((s32)D_807FDCA0->unk24);
+        bossClampPosition((s32)&D_807FDCA0[1]);
         if ((gCurrentActor->base.unk155 == 0) && (currentActorTestClearFlag() != 0)) {
             gCurrentActor->base.unk155 += 1;
-            bossSpawnParticleRing(0xEC, D_807FDCA0->unk14->unkA0, (s16)(D_807FDCA0->unk14->unkA2 + 0x14), D_807FDCA0->unk14->unkA4, 0x5DC, 4);
+            bossSpawnParticleRing(0xEC, D_807FDCA0->entries[16].x, (s16)(D_807FDCA0->entries[16].y + 0x14), D_807FDCA0->entries[16].z, 0x5DC, 4);
         }
         break;
     case 0x27:
@@ -569,7 +554,7 @@ void bossPufftossStep(void) {
             break;
         case 2:
             if ((gCurrentActor->base.floorY + 180.0f) < gCurrentActor->base.y) {
-                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
+                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
                 gCurrentActor->base.state = scriptData[state->unk15++];
                 gCurrentActor->base.unk155 = 0;
             }
@@ -631,7 +616,7 @@ void bossPufftossStep(void) {
                 sfxPlayAtPositionPooled(gCurrentActor->base.x, gCurrentActor->base.y, gCurrentActor->base.z, 0xC, 0xFF, 0x50, 0, 0, 0, 0);
             }
             if ((gCurrentMap == 0xC5) && (state->unk14 == 3) && (currentActorTestClearFlag() != 0)) {
-                bossSpawnParticleRing(0x4A, D_807FDCA0->unk14->unkA0, (s16)(D_807FDCA0->unk14->unkA2 + 0x14), D_807FDCA0->unk14->unkA4, 0x5DC, 4);
+                bossSpawnParticleRing(0x4A, D_807FDCA0->entries[16].x, (s16)(D_807FDCA0->entries[16].y + 0x14), D_807FDCA0->entries[16].z, 0x5DC, 4);
             }
             break;
         case 3:
@@ -671,7 +656,7 @@ void bossPufftossStep(void) {
             effectSpawnActorBoneEffects(1);
             break;
         case 7:
-            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
+            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
             gCurrentActor->base.state = 0x11;
             gCurrentActor->base.unk155 = 0;
             break;

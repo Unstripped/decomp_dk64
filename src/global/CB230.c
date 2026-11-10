@@ -40,21 +40,6 @@ typedef struct R1C8CBActor {
     /* 0x178 */ R1C8CBSub178 *unk178;
 } R1C8CBActor;
 
-typedef struct R1C8CBState {
-    /* 0x00 */ u8 pad0[0x1A];
-    /* 0x1A */ u16 unk1A;
-    /* 0x1C */ u8 pad1C[0xC];
-    /* 0x28 */ u8 unk28[4];
-    /* 0x2C */ s16 unk2C;
-    /* 0x2E */ s16 unk2E;
-    /* 0x30 */ f32 unk30;
-} R1C8CBState;
-
-typedef struct R1C8CBView98 {
-    /* 0x00 */ u8 pad0[0x3C];
-    /* 0x3C */ f32 unk3C;
-} R1C8CBView98;
-
 #define R1V ((R1C8CBActor *)gCurrentActor)
 
 f32 sqrtf(f32);
@@ -151,7 +136,7 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
         gCurrentActor->tintB = 0xFF;
         p->unk2 = 0;
         p->unk0 = 0xFF;
-        ((R1C8CBView98 *)gBehaviourAnimState)->unk3C = 1.0f;
+        gBehaviourAnimState->unk3C = 1.0f;
         if (gCurrentActor->actorType == 0xF0) {
             sfxPlayActorSound(gCurrentActor, 0x132, 0, 0, 0, 0xA0, 1.0f, 0);
         }
@@ -181,8 +166,6 @@ void func_806C6BA0(void) {
 
 extern Actor *gSpawnedActor;
 
-#define R1S ((R1C8CBState *)gBehaviourWorkState)
-
 void func_806C6BC8(void) {
     f32 ratio;
     f32 x;
@@ -198,37 +181,37 @@ void func_806C6BC8(void) {
         R1V->unk154 = 0x27;
         R1V->unk155 = 0;
         gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
-        R1S->unk2E = 0x96;
-        gBehaviourAnimState->stateFlags |= 0x60;
+        gBehaviourWorkState->unk2E = 0x96;
+        gBehaviourAnimState->flags |= 0x60;
         hudSpawnCountdownTimer(0xDC, 0x2A, 0x64);
         actorSetStateTwo(gSpawnedActor);
     }
-    if (R1S->unk1A & 0x80) {
+    if (gBehaviourWorkState->flags & 0x80) {
         gCurrentActor->flags |= 0x400;
     } else {
         gCurrentActor->flags &= ~0x400;
     }
-    func_8072881C(0, R1S->unk28);
+    func_8072881C(0, gBehaviourWorkState->unk28);
     switch (R1V->unk154) {
         case 0:
-            if (R1S->unk2C != 0) {
-                ratio = (f32)R1S->unk2C / (f32)R1S->unk2E;
+            if (gBehaviourWorkState->timer != 0) {
+                ratio = (f32)gBehaviourWorkState->timer / (f32)gBehaviourWorkState->unk2E;
                 actorGetNodePos(gCurrentActor, 2, &x, &y, &z);
                 actorSetUniformScale(gPrimaryPlayerActor, ratio * 0.13 + 0.02);
                 gPrimaryPlayerActor->x += (x - gPrimaryPlayerActor->x) * 0.05;
                 gPrimaryPlayerActor->y += (y - gPrimaryPlayerActor->y) * 0.05;
                 gPrimaryPlayerActor->z += (z - gPrimaryPlayerActor->z) * 0.05;
-                R1S->unk2C--;
-                if (R1S->unk2C == 0) {
+                gBehaviourWorkState->timer--;
+                if (gBehaviourWorkState->timer == 0) {
                     func_805FF9AC(0x33, 0, 0, 1);
                 }
             }
             break;
         case 0x27:
-            if (R1S->unk2E != 0) {
+            if (gBehaviourWorkState->unk2E != 0) {
                 gCurrentActor->y += 2.0f;
-                R1S->unk2E--;
-                actorSetUniformScale(gCurrentActor, R1S->unk30 + (0.01 - R1S->unk30) * (R1S->unk2E / 150.0));
+                gBehaviourWorkState->unk2E--;
+                actorSetUniformScale(gCurrentActor, gBehaviourWorkState->scale + (0.01 - gBehaviourWorkState->scale) * (gBehaviourWorkState->unk2E / 150.0));
             } else {
                 R1V->unk154 = 2;
                 R1V->unk155 = 0;
@@ -241,13 +224,13 @@ void func_806C6BC8(void) {
                 R1V->unk154 = 0;
                 R1V->unk155 = 0;
                 camRequestPathLength();
-                R1S->unk2C = camStartPath(gCurrentActor, 0x18, 1) - 0x1E;
-                R1S->unk2E = R1S->unk2C;
+                gBehaviourWorkState->timer = camStartPath(gCurrentActor, 0x18, 1) - 0x1E;
+                gBehaviourWorkState->unk2E = gBehaviourWorkState->timer;
                 gCurrentActor->unk144 = 1;
             } else {
                 switch (R1V->unk155) {
                     case 5:
-                        actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
+                        actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
                         R1V->unk155 = 0;
                         break;
                     case 3:

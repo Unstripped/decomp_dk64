@@ -24,7 +24,6 @@
 extern Actor *gCurrentActor;
 extern s32 sEffectSparkConfig;
 
-
 typedef struct B5EC0Sub4 {
     /* 0x00 */ u8 pad0[0x24];
     /* 0x24 */ f32 unk24;
@@ -58,23 +57,6 @@ typedef struct B5EC0Actor {
     /* 0x15F */ u8 unk15F;
 } B5EC0Actor;
 
-typedef struct B5EC0View90 {
-    /* 0x00 */ u8 pad0[0xA];
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ u8 padC[2];
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ u8 pad10[8];
-    /* 0x18 */ u16 unk18;
-    /* 0x1A */ u16 unk1A;
-    /* 0x1C */ u8 pad1C[0x19];
-    /* 0x35 */ u8 unk35;
-} B5EC0View90;
-
-typedef struct B5EC0View9C {
-    /* 0x00 */ u8 pad0[0xD];
-    /* 0x0D */ u8 unkD;
-} B5EC0View9C;
-
 typedef struct B5EC0View94 {
     /* 0x00 */ u8 pad0[0x7C];
     /* 0x7C */ f32 unk7C;
@@ -92,10 +74,9 @@ void actorSpawnGroundEffectAtNode(u8 nodeIndex) {
     actorSpawnEffectChild(x, gCurrentActor->floorY, z, 0.05f, 0.04f, gCurrentActor, 0);
 }
 
-
 void func_806B1290(void) {
-    if (((B5EC0View90 *)gBehaviourWorkState)->unk18 >= 0x65
-        && (((((B5EC0View90 *)gBehaviourWorkState)->unk1A & 0x80) && (randomNonNegative() >> 15) % 1000 >= 0x3D5)
+    if (gBehaviourWorkState->stepCount >= 0x65
+        && (((gBehaviourWorkState->flags & 0x80) && (randomNonNegative() >> 15) % 1000 >= 0x3D5)
             || ((randomNonNegative() >> 15) % 1000 >= 0x3DF && (gCurrentActor->flags & 0x100)))) {
         ((B5EC0Actor *)gCurrentActor)->unk154 = 0x28;
         ((B5EC0Actor *)gCurrentActor)->unk155 = 0;
@@ -104,9 +85,8 @@ void func_806B1290(void) {
 
 extern u8 gBossFightPhase;
 
-
 void func_806B1348(void) {
-    if (((B5EC0View90 *)gBehaviourWorkState)->unk18 >= 0x65 && gBossFightPhase == 2 && behaviourIsTargetWithinAngle(0x2710) != 0) {
+    if (gBehaviourWorkState->stepCount >= 0x65 && gBossFightPhase == 2 && behaviourIsTargetWithinAngle(0x2710) != 0) {
         ((B5EC0Actor *)gCurrentActor)->unk154 = 0x27;
         ((B5EC0Actor *)gCurrentActor)->unk155 = 0;
     }
@@ -127,8 +107,8 @@ void func_806B13B4(u8 arg0) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         if (gCurrentMap == 0x43) {
-            ((B5EC0View9C *)gBehaviourExtraState)->unkD = 0x82;
-            gBehaviourAnimState->stateFlags |= 0x40;
+            gBehaviourExtraState->unkD = 0x82;
+            gBehaviourAnimState->flags |= 0x40;
         }
         behaviourSetAnimIds(0x205, 0x203, 0x204);
         func_80724CA4(2, 1);
@@ -150,7 +130,7 @@ void func_806B13B4(u8 arg0) {
                 behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x20B);
                 ((B5EC0Actor *)gCurrentActor)->unkC0 = 200.0f;
             }
-            ((B5EC0View90 *)gBehaviourWorkState)->unk35 = 2;
+            gBehaviourWorkState->unk35 = 2;
             gCurrentActor->callbackMask &= 0xFFFF7FFF;
             sel = gCurrentActor->state;
         } else if (gActorGlobalState.unk200 == 4) {
@@ -236,14 +216,14 @@ void func_806B13B4(u8 arg0) {
             }
             break;
         case 1:
-            if (((B5EC0View90 *)gBehaviourWorkState)->unk1A & 0x100) {
+            if (gBehaviourWorkState->flags & 0x100) {
                 actorClearNodeFlag(gCurrentActor, 2);
                 actorClearNodeFlag(gCurrentActor, 3);
             }
             break;
         case 2:
-            if (((B5EC0View90 *)gBehaviourWorkState)->unk1A & 0x100) {
-                ((B5EC0View90 *)gBehaviourWorkState)->unk1A &= 0xFEFF;
+            if (gBehaviourWorkState->flags & 0x100) {
+                gBehaviourWorkState->flags &= 0xFEFF;
                 actorScriptStart(gCurrentActor, 0x207);
                 ((B5EC0Actor *)gCurrentActor)->unk155 = 3;
             } else {
@@ -251,8 +231,8 @@ void func_806B13B4(u8 arg0) {
             }
             break;
         case 3:
-            if (((B5EC0View90 *)gBehaviourWorkState)->unk1A & 0x100) {
-                ((B5EC0View90 *)gBehaviourWorkState)->unk1A &= 0xFEFF;
+            if (gBehaviourWorkState->flags & 0x100) {
+                gBehaviourWorkState->flags &= 0xFEFF;
                 actorScriptStart(gCurrentActor, 0x208);
                 ((B5EC0Actor *)gCurrentActor)->unk155 = 5;
             }
@@ -284,7 +264,7 @@ void func_806B13B4(u8 arg0) {
     case 7:
     case 0x35:
         func_80724E48((u8)(sel == 0x35 ? 2 : 3), sel);
-        actorMoveWithinZone(gCurrentActor->state, ((B5EC0View90 *)gBehaviourWorkState)->unkA, ((B5EC0View90 *)gBehaviourWorkState)->unkE, 0, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:
         ((B5EC0Actor *)gCurrentActor)->unkE6 = mathAngleEaseToward(((B5EC0Actor *)gCurrentActor)->unkE6, ((B5EC0Actor *)gCurrentActor)->unkEE, 7.0f);
@@ -327,7 +307,6 @@ void func_806B13B4(u8 arg0) {
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
-
 
 void actorSetAnimStartFrame(u8 frame) {
     animSetLoopLimit(gCurrentActor, 0, 1);

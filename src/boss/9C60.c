@@ -119,17 +119,6 @@ typedef struct Boss2F_9C60_BB4C {
 
 
 
-typedef struct Boss2F_9C60_DCA0_Sub {
-    char pad[0x28];
-    s16 unk28;
-    char pad2A[2];
-    s16 unk2C;
-} Boss2F_9C60_DCA0_Sub;
-typedef struct Boss2F_9C60_DCA0 {
-    char pad[0x14];
-    Boss2F_9C60_DCA0_Sub *unk14;
-} Boss2F_9C60_DCA0;
-
 typedef struct Boss2F_9C60_Sub1C {
     char pad[2];
     u16 unk2;
@@ -138,7 +127,6 @@ typedef struct Boss2F_9C60_Sub1C {
 extern u8 *D_80035A60[];
 extern s32 gCamActor;
 extern Boss2F_9C60_BB4C *gPrimaryPlayerActor;
-extern Boss2F_9C60_DCA0 *D_807FDCA0;
 
 void actorScriptExecute(BossC_9C60_Actor *);
 void actorScriptStart(BossC_9C60_Actor *, s32);
@@ -188,7 +176,7 @@ void bossKRoolDiddyStep(void) {
         scriptState->unk15 = 0;
         gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
         gCurrentActor->unk155 = 0;
-        gCurrentActor->unkB8 = gBehaviourExtraState->unkC;
+        gCurrentActor->unkB8 = gBehaviourExtraState->targetSpeed;
         break;
     case 0x27:
         actorScriptStart(gCurrentActor, 0x3E1);
@@ -327,7 +315,7 @@ void bossKRoolDiddyStep(void) {
             }
             break;
         case 4:
-            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
+            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
             scriptState->unk15 = 0;
             scriptState->unk14++;
             scriptOpcodes = D_80035A60[scriptState->unk14];
@@ -342,7 +330,7 @@ void bossKRoolDiddyStep(void) {
     case 0x37:
         switch (gCurrentActor->unk155) {
         case 0:
-            gCurrentActor->unkE6 = mathAngleBetweenPoints2D(D_807FDCA0->unk14->unk28, D_807FDCA0->unk14->unk2C, gCurrentActor->unk7C, gCurrentActor->unk84);
+            gCurrentActor->unkE6 = mathAngleBetweenPoints2D(D_807FDCA0->entries[4].x, D_807FDCA0->entries[4].z, gCurrentActor->unk7C, gCurrentActor->unk84);
             actorScriptStart(gCurrentActor, 0);
             camStartPath(gCurrentActor, 2, 1);
             gCurrentActor->unk155++;

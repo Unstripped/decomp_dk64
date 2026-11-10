@@ -21,12 +21,12 @@ void bossInitScriptData(u8 *data) {
     s16 i;
     u8 *dst;
 
-    if (gBehaviourAnimState->unk20 != NULL) {
-        heapFree(gBehaviourAnimState->unk20);
+    if (gBehaviourAnimState->path != NULL) {
+        heapFree(gBehaviourAnimState->path);
     }
-    gBehaviourExtraState->unk11 = *data;
-    gBehaviourAnimState->unk20 = heapAlloc(*data * 2);
-    dst = gBehaviourAnimState->unk20;
+    gBehaviourExtraState->pathCount = *data;
+    gBehaviourAnimState->path = heapAlloc(*data * 2);
+    dst = gBehaviourAnimState->path;
     for (i = 0; i < *data; i++) {
         dst[0] = data[i + 1];
         dst[1] = 0;
@@ -61,29 +61,16 @@ void bossPickRandomWaypoint(BossB_Struct_80027950 *state, u8 *waypointRanges) {
     state->scriptPos += 2;
 }
 
-typedef struct BossWaypoint {
-    s16 x;
-    s16 y;
-    s16 z;
-    s16 pad6[2];
-} BossWaypoint;
-
-typedef struct BossWaypointList {
-    char pad0[0x14];
-    BossWaypoint *points;
-} BossWaypointList;
-
 extern Actor *gCurrentActor;
-extern BossWaypointList *D_807FDCA0;
 
 void bossPickFarthestWaypoint(void *state, u8 *waypointRanges) {
     s16 i;
     s32 max_dist = 0;
 
     for (i = waypointRanges[((BossB_Struct_80027950 *)state)->scriptPos]; i <= waypointRanges[((BossB_Struct_80027950 *)state)->scriptPos + 1]; i++) {
-        u8 idx = gBehaviourAnimState->unk20[i * 2];
+        u8 idx = gBehaviourAnimState->path[i][0];
         Actor *actor = gCurrentActor;
-        BossWaypoint *pt = &D_807FDCA0->points[idx];
+        ZoneEntry *pt = &D_807FDCA0->entries[idx];
         f32 dz = actor->z - (f32)pt->z;
         f32 dx = actor->x - (f32)pt->x;
         f32 dy = actor->y - (f32)pt->y;
@@ -230,7 +217,7 @@ block_16:
             if ((s0->unk8[0] == 0) || (playerData->stateFlags & 0x80000)) {
                 playerData->stateFlags &= ~0x80000;
                 advanceScript = 1;
-                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
+                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
             }
         }
         break;

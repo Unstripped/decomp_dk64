@@ -634,25 +634,10 @@ typedef struct Boss3B_Actor {
     Boss3B_178 *unk178;
     Boss3B_Sp78 *unk17C;
 } Boss3B_Actor;
-typedef struct Boss3B_DCA0_Sub {
-    u8 pad0[0x28];
-    s16 unk28;
-    s16 unk2A;
-    s16 unk2C;
-    u8 pad2E[0x82 - 0x2E];
-    s16 unk82;
-    u8 pad84[2];
-    s16 unk86;
-} Boss3B_DCA0_Sub;
-typedef struct Boss3B_DCA0 {
-    u8 pad0[0x14];
-    Boss3B_DCA0_Sub *unk14;
-} Boss3B_DCA0;
 
 extern Boss3B_Actor *gSpawnedActor;
 extern Boss3B_Actor *gPrimaryPlayerActor;
 extern u8 gActorGlobalState[];
-extern Boss3B_DCA0 *D_807FDCA0;
 
 extern u8 *D_800358B0[][5];
 extern u8 D_80035980;
@@ -776,7 +761,7 @@ void bossArmydilloStep(void) {
     case 0x1E:                                      /* switch 1 */
         if (currentActorTestClearFlag() != 0) {
             gCurrentActor->unk154 = 0x40;
-            bossSpawnParticleRing(0x1A, D_807FDCA0->unk14->unk28, D_807FDCA0->unk14->unk2A, D_807FDCA0->unk14->unk2C, 0x800, 6);
+            bossSpawnParticleRing(0x1A, D_807FDCA0->entries[4].x, D_807FDCA0->entries[4].y, D_807FDCA0->entries[4].z, 0x800, 6);
         }
         break;
     case 0x37:                                      /* switch 1 */
@@ -832,7 +817,7 @@ void bossArmydilloStep(void) {
         case 5:                                     /* switch 2 */
             sfxStopSlotSound(gCurrentActor, 1);
             gCurrentActor->unk154 = 0x40;
-            bossSpawnParticleRing(0x124, (s16)gCurrentActor->unk7C, (s16)gCurrentActor->unk80, (s16)gCurrentActor->unk84, mathAngleBetweenPoints2D((f32) D_807FDCA0->unk14->unk82, (f32) D_807FDCA0->unk14->unk86, gCurrentActor->unk7C, gCurrentActor->unk84), 5);
+            bossSpawnParticleRing(0x124, (s16)gCurrentActor->unk7C, (s16)gCurrentActor->unk80, (s16)gCurrentActor->unk84, mathAngleBetweenPoints2D((f32) D_807FDCA0->entries[13].x, (f32) D_807FDCA0->entries[13].z, gCurrentActor->unk7C, gCurrentActor->unk84), 5);
             break;
         }
         break;

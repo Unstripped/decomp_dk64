@@ -53,15 +53,7 @@ typedef struct BA790Actor {
     /* 0x178 */ s16 *unk178;
 } BA790Actor;
 
-typedef struct BA790View9C {
-    /* 0x00 */ u8 pad0[0xA];
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ u8 padC[1];
-    /* 0x0D */ u8 unkD;
-} BA790View9C;
-
 #define BA790A ((BA790Actor *)gCurrentActor)
-#define BA790S9C ((BA790View9C *)gBehaviourExtraState)
 
 extern u8 D_807FBB85;
 extern u8 gGameMode;
@@ -157,7 +149,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         }
         if (gCurrentActor->state == 0x33) {
             ret = 1;
-            BA790A->unkB8 = ((BA790View9C *)gBehaviourExtraState)->unkD;
+            BA790A->unkB8 = gBehaviourExtraState->unkD;
             q = mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z);
             BA790A->unkE6 = q;
             BA790A->unkEE = q;
@@ -278,7 +270,7 @@ void func_806B640C(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         actorClearNodeFlag(gCurrentActor, 3);
-        *p = -BA790S9C->unkA;
+        *p = -gBehaviourExtraState->unkAWide;
     }
     if (gGameMode == 1) {
         for (i = 0; i < gActorGlobalState.unk254; i++) {

@@ -39,7 +39,6 @@ typedef struct D1S174 {
 } D1S174;
 
 
-extern void *D_807FDCA0;
 extern u8 gGameMode;
 extern s32 gCurrentMap;
 extern u8 D_807FBB85;
@@ -47,8 +46,8 @@ extern u8 D_807FBB85;
 void behaviourFrameBegin(void) {
     gBehaviourWorkState = gCurrentActor->customState;
     gBehaviourTargetActor = gBehaviourWorkState->unk4;
-    gBehaviourExtraState = (BehaviourExtraState *)(gBehaviourAnimState = gBehaviourWorkState->unk0);
-    D_807FDCA0 = gBehaviourAnimState->unk1C;
+    gBehaviourExtraState = (gBehaviourAnimState = gBehaviourWorkState->node);
+    D_807FDCA0 = gBehaviourAnimState->zone;
     gBehaviourWorkState->stepCount++;
     if (gCurrentActor->flags & 0x20000000) {
         if (gCurrentActor->state != 0x37 && gCurrentActor->state != 0x36) {
@@ -58,7 +57,7 @@ void behaviourFrameBegin(void) {
         }
     }
     if (gCurrentActor->collisionFlags & 2) {
-        if ((gGameMode == 1 && (gBehaviourAnimState->stateFlags & 8)) || (gBehaviourTargetActor != NULL && gBehaviourTargetActor->state == 0x42)) {
+        if ((gGameMode == 1 && (gBehaviourAnimState->flags & 8)) || (gBehaviourTargetActor != NULL && gBehaviourTargetActor->state == 0x42)) {
             if (gCurrentActor->state >= 0x23 && gCurrentActor->state < 0x36) {
                 gCurrentActor->unk144 = 1;
                 gCurrentActor->state = 0x3A;
@@ -67,7 +66,7 @@ void behaviourFrameBegin(void) {
         }
         if (gActorGlobalState.unk1B) {
             if (gCurrentActor->state != 0x39) {
-                if (gBehaviourAnimState->stateFlags & 0x800) {
+                if (gBehaviourAnimState->flags & 0x800) {
                     gActorGlobalState.unk15 = 1;
                 } else {
                     actorGlobalStateClearEvents();
@@ -82,7 +81,7 @@ void behaviourFrameBegin(void) {
                 }
             }
         }
-        if ((gBehaviourAnimState->stateFlags & 0x4000) && (gCurrentActor->contactFlags & 4)) {
+        if ((gBehaviourAnimState->flags & 0x4000) && (gCurrentActor->contactFlags & 4)) {
             if (gCurrentActor->y + gCurrentActor->eyeHeight < gCurrentActor->waterY) {
                 gActorGlobalState.unk15 = 1;
             }
@@ -127,7 +126,7 @@ void actorTurnTowardTarget(u8 mode, f32 targetX, f32 targetZ, u16 flags) {
                 s = gBehaviourWorkState->unk21;
                 *tgt = *cur + ((((randomNonNegative() >> 15) % (s * 2)) - s) << 15) / 0x168;
                 gBehaviourWorkState->unk22 = gBehaviourWorkState->unk23;
-                gBehaviourAnimState->stateFlags &= ~0x2000;
+                gBehaviourAnimState->flags &= ~0x2000;
                 if (gCurrentActor->yaw & 1) {
                     gBehaviourWorkState->unk24 = (randomNonNegative() >> 15) % 0xB4;
                 }
@@ -210,10 +209,10 @@ void behaviourUpdateShadowAlpha(void) {
     ActorSub4 *sub;
 
     if (!(gCurrentActor->flags & 0x1000000) && (gCurrentActor->flags & 4)) {
-        if (!(gBehaviourAnimState->stateFlags & 0x100)) {
+        if (!(gBehaviourAnimState->flags & 0x100)) {
             a = (gCurrentActor->alpha * 0.7);
             sub = gCurrentActor->sub4;
-            e = &D_8075EB80[gBehaviourAnimState->unk44];
+            e = &D_8075EB80[gBehaviourAnimState->entryIndex];
             b = (sub->scaleX * e->unk14 * gBehaviourAnimState->unk30);
             c = (sub->scaleZ * e->unk15 * gBehaviourAnimState->unk30);
             billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, b, c, 1, 0x12C, a, gCurrentActor->yaw, 1.0f);
@@ -237,26 +236,15 @@ void behaviourCheckGroundImpactEffects(void) {
     }
 }
 
-typedef struct D1Dc90View {
-    /* 0x00 */ u8 pad0[0xC];
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ u8 pad0E[0xC];
-    /* 0x1A */ u16 unk1A;
-    /* 0x1C */ u8 pad1C[0x1C];
-    /* 0x38 */ u8 unk38;
-} D1Dc90View;
-
-#define D1DC90 ((D1Dc90View *)gBehaviourWorkState)
-
 void actorUpdateStationaryTimer(void) {
     if (!(gBehaviourWorkState->flags & 0x40)) {
         if (gCurrentActor->x == gCurrentActor->prevX && gCurrentActor->z == gCurrentActor->prevZ) {
-            D1DC90->unk38++;
-            if (D1DC90->unk38 >= 0x1F) {
+            gBehaviourWorkState->unk38++;
+            if (gBehaviourWorkState->unk38 >= 0x1F) {
                 gBehaviourWorkState->flags |= 0x40;
             }
         } else {
-            D1DC90->unk38 = 0;
+            gBehaviourWorkState->unk38 = 0;
         }
     }
 }
@@ -274,30 +262,22 @@ void actorPitchEaseTowardPoint(s16 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4,
     actorSetPitchVelocity(arg0, arg2, arg4, arg7, arg8);
 }
 
-typedef struct D1Dc9cView {
-    /* 0x00 */ u8 pad0[6];
-    /* 0x06 */ s16 unk6;
-    /* 0x08 */ u8 pad8[2];
-    /* 0x0A */ s16 unkA;
-} D1Dc9cView;
-
-#define D1DC9C ((D1Dc9cView *)gBehaviourExtraState)
-
 void func_8072AA80(void) {
     s16 lim;
     s32 rnd;
     s32 base;
 
-    if (D1DC9C->unkA != 0) {
-        lim = gBehaviourExtraState->unk6 + gCurrentActor->eyeHeight + D1DC9C->unkA;
+    if (gBehaviourExtraState->unkAWide != 0) {
+        lim = gBehaviourExtraState->y + gCurrentActor->eyeHeight + gBehaviourExtraState->unkAWide;
     } else {
         lim = (s16)gCurrentActor->waterY - gCurrentActor->eyeHeight;
     }
     rnd = (randomNonNegative() >> 15) % 0x7FFF;
-    base = gBehaviourExtraState->unk6 + gCurrentActor->eyeHeight;
+    base = gBehaviourExtraState->y + gCurrentActor->eyeHeight;
     gBehaviourWorkState->targetY = rnd % (lim - base + 1) + base;
 }
 
+// Zone.unk19 is s8; this site reads it as u8 (lbu), so the view stays.
 typedef struct E3DcA0 {
     /* 0x00 */ u8 pad0[0x19];
     /* 0x19 */ u8 unk19;
@@ -335,10 +315,10 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 arg4)
     if (!(flags & 0x1001)) {
         actorApplyGravity();
     }
-    if (!(gBehaviourAnimState->stateFlags & 0x200)) {
+    if (!(gBehaviourAnimState->flags & 0x200)) {
         collisionSetQueryMode(2);
     }
-    if (E3CA0->unk19 == 1 && (state != 0x37 || !(gBehaviourAnimState->stateFlags & 0x10))) {
+    if (E3CA0->unk19 == 1 && (state != 0x37 || !(gBehaviourAnimState->flags & 0x10))) {
         collisionSetQueryMode(1);
     }
     if (flags & 0x4000) {
@@ -383,10 +363,10 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 arg4)
     }
     gCurrentActor->hasArcBounds = 0;
     gCurrentActor->collisionHit = 0;
-    if ((gBehaviourAnimState->stateFlags & 0x20) || (gCurrentActor->collisionFlags & 0x40)) {
+    if ((gBehaviourAnimState->flags & 0x20) || (gCurrentActor->collisionFlags & 0x40)) {
         return 0;
     }
-    if (state == 0x37 && (gBehaviourAnimState->stateFlags & 0x10)) {
+    if (state == 0x37 && (gBehaviourAnimState->flags & 0x10)) {
         if (polygonContainsPoint2D(gCurrentActor->x, gCurrentActor->z, D_807FDCA0) == 0) {
             gCurrentActor->speedXZ = ((gCurrentActor->speedXZ >= 0.0f) ? 1 : -1) * 30;
             return 0;
@@ -510,36 +490,14 @@ void behaviourSetAnimIds(s16 anim0, s16 anim1, s16 anim2) {
     gBehaviourAnimState->animId2 = anim2;
 }
 
-typedef struct F1Dc90 {
-    /* 0x00 */ u8 pad0[0xA];
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ u8 pad10[0xA];
-    /* 0x1A */ u16 unk1A;
-    /* 0x1C */ u8 pad1C[6];
-    /* 0x22 */ u8 unk22;
-    /* 0x23 */ u8 pad23;
-    /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 pad25;
-    /* 0x26 */ s16 unk26;
-    /* 0x28 */ u8 pad28[4];
-    /* 0x2C */ s16 unk2C;
-    /* 0x2E */ s16 unk2E;
-    /* 0x30 */ u8 pad30[9];
-    /* 0x39 */ u8 unk39;
-} F1Dc90;
-
-#define F1S90 ((F1Dc90 *)gBehaviourWorkState)
-
 extern u8 D_8071FC58[];
 
 void behaviourUpdateContactAndState(s32 arg0) {
     actorUpdatePrevContactFlags(gCurrentActor);
     switch (gCurrentActor->state) {
         case 9:
-            gBehaviourAnimState->stateFlags |= 0x2040;
-            gBehaviourAnimState->stateFlags &= 0xFFF7;
+            gBehaviourAnimState->flags |= 0x2040;
+            gBehaviourAnimState->flags &= 0xFFF7;
             gBehaviourWorkState->unk22 = 0x64;
             gCurrentActor->state = 1;
             gCurrentActor->unk155 = 0;
@@ -548,8 +506,8 @@ void behaviourUpdateContactAndState(s32 arg0) {
         case 8:
             switch (gCurrentActor->unk155) {
                 case 0:
-                    gCurrentActor->unk15F = pathPlaybackStart(gCurrentActor, gBehaviourExtraState->unk2, 0, 0.0f, 0.0f, 0.0f, 0);
-                    pathPlaybackSetSpeed(gCurrentActor->unk15F, (gBehaviourExtraState->unkC * 0.1));
+                    gCurrentActor->unk15F = pathPlaybackStart(gCurrentActor, gBehaviourExtraState->yaw, 0, 0.0f, 0.0f, 0.0f, 0);
+                    pathPlaybackSetSpeed(gCurrentActor->unk15F, (gBehaviourExtraState->targetSpeed * 0.1));
                     pathPlaybackSetLooping(gCurrentActor->unk15F, 1);
                     pathPlaybackSetLoopLimit(gCurrentActor->unk15F, -1);
                     pathPlaybackSetActive(gCurrentActor->unk15F, 1);
@@ -571,7 +529,7 @@ void behaviourUpdateContactAndState(s32 arg0) {
             switch (gCurrentActor->unk155) {
                 case 0:
                     if (zoneFindBestReachablePoint(2, gCurrentActor, D_807FDCA0, &gBehaviourWorkState->targetX, &gBehaviourWorkState->targetY, &gBehaviourWorkState->targetZ) == 0) {
-                        gCurrentActor->state = gBehaviourExtraState->unk10;
+                        gCurrentActor->state = gBehaviourExtraState->actorState;
                         gCurrentActor->unk155 = 0;
                         break;
                     }
@@ -668,11 +626,11 @@ void behaviourUpdateContactAndState(s32 arg0) {
             } else if ((gGameMode == 0) && (gBehaviourTargetActor->state != 0x42)) {
                 gCurrentActor->interactionType = 1;
                 gCurrentActor->unk144 = 0x24;
-                gCurrentActor->state = gBehaviourExtraState->unk10;
+                gCurrentActor->state = gBehaviourExtraState->actorState;
                 gCurrentActor->unk155 = 0;
                 actorScriptStart(gCurrentActor, gBehaviourAnimState->animId1);
                 scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
-                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
+                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
             }
             break;
         case 0x16:
@@ -694,7 +652,7 @@ void behaviourUpdateContactAndState(s32 arg0) {
                     gCurrentActor->flags &= 0xFFFD7FFF;
                     gCurrentActor->callbackMask &= 0xFFFF7FFF;
                     gCurrentActor->alpha = 0;
-                    F1S90->unk39 = 0x5A;
+                    gBehaviourWorkState->unk39 = 0x5A;
                     gBehaviourWorkState->unk2E = gCurrentActor->sub4->scaleY * gCurrentActor->collision->scaledRadius;
                     gCurrentActor->y -= gBehaviourWorkState->unk2E;
                     gCurrentActor->unk72 = 0;
@@ -704,28 +662,28 @@ void behaviourUpdateContactAndState(s32 arg0) {
                     effectSetCallback(func_80717D4C);
                     effectSetDepth(1);
                     effectSetSpeed(-0x28 - (((randomNonNegative() >> 0xF) % 10000) % 120));
-                    effectCreateAtPosition(D_8071FC58, 0.5f, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->unk4) - 0xA), gBehaviourExtraState->unk6, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->unk8) - 0xA));
-                    if (F1S90->unk39 != 0) {
+                    effectCreateAtPosition(D_8071FC58, 0.5f, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->x) - 0xA), gBehaviourExtraState->y, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->z) - 0xA));
+                    if (gBehaviourWorkState->unk39 != 0) {
                         f32 t;
 
-                        F1S90->unk39 = F1S90->unk39 - 1;
-                        t = F1S90->unk39 / 90.0f;
-                        gCurrentActor->y = gBehaviourExtraState->unk6 + (((gBehaviourExtraState->unk6 - gBehaviourWorkState->unk2E) - gBehaviourExtraState->unk6) * t);
+                        gBehaviourWorkState->unk39 = gBehaviourWorkState->unk39 - 1;
+                        t = gBehaviourWorkState->unk39 / 90.0f;
+                        gCurrentActor->y = gBehaviourExtraState->y + (((gBehaviourExtraState->y - gBehaviourWorkState->unk2E) - gBehaviourExtraState->y) * t);
                         if (gCurrentActor->soundSlots[0] == -1) {
                             gCurrentActor->soundSlots[0] = sfxSlotAllocateActor(gCurrentActor, 0x131, 0, 0, 0xFF, 1.0f, 0);
                         }
-                        gCurrentActor->unk74 = gBehaviourExtraState->unk6 - gCurrentActor->y;
+                        gCurrentActor->unk74 = gBehaviourExtraState->y - gCurrentActor->y;
                         gCurrentActor->unk72 = gCurrentActor->unk72 + 1;
-                        gCurrentActor->yaw = gCurrentActor->yaw + ((gBehaviourExtraState->unk6 - gCurrentActor->y) * 60.0f);
+                        gCurrentActor->yaw = gCurrentActor->yaw + ((gBehaviourExtraState->y - gCurrentActor->y) * 60.0f);
                         gCurrentActor->alpha = (-255.0f * t) + 255.0f;
                     } else {
                         sfxStopSlotSound(gCurrentActor, 0);
-                        gCurrentActor->state = gBehaviourExtraState->unk10;
+                        gCurrentActor->state = gBehaviourExtraState->actorState;
                         gCurrentActor->unk155 = 0;
                         gCurrentActor->flags |= 0x28000;
                         gCurrentActor->callbackMask |= 0x8000;
                         gCurrentActor->alpha = 0xFF;
-                        gCurrentActor->y = gBehaviourExtraState->unk6;
+                        gCurrentActor->y = gBehaviourExtraState->y;
                     }
                     break;
             }
@@ -734,7 +692,7 @@ void behaviourUpdateContactAndState(s32 arg0) {
             actorSetBehaviourState(0x3F, 0, arg0);
             break;
         case 0x3E:
-            actorSetBehaviourState(1, gBehaviourExtraState->unkC, arg0);
+            actorSetBehaviourState(1, gBehaviourExtraState->targetSpeed, arg0);
             break;
         case 0x3F:
             func_80724E48(0);
@@ -786,7 +744,7 @@ u8 behaviourCheckTargetCollisionMode(u8 checkMode, u8 *outTarget) {
             } else if (gBehaviourWorkState->flags & 0x400) {
                 ret = gBehaviourWorkState->unk37;
             } else {
-                t = gBehaviourExtraState->unk10;
+                t = gBehaviourExtraState->actorState;
                 if (t == 7) {
                     ret = 1;
                 } else {
@@ -795,7 +753,7 @@ u8 behaviourCheckTargetCollisionMode(u8 checkMode, u8 *outTarget) {
             }
         }
     } else {
-        ret = gBehaviourExtraState->unk10;
+        ret = gBehaviourExtraState->actorState;
     }
     if (ret == 9) {
         ret = 1;
@@ -839,14 +797,14 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
     dist = (SQ(me->x - gBehaviourTargetActor->x) + SQ(me->y - gBehaviourTargetActor->y) + SQ(me->z - gBehaviourTargetActor->z));
     near = dist < arg0;
     if (near == 0) {
-        near = (gBehaviourAnimState->stateFlags & 4) != 0;
+        near = (gBehaviourAnimState->flags & 4) != 0;
     }
     if (gBehaviourWorkState->unk8 < me->moveYaw) {
         ang = me->moveYaw - gBehaviourWorkState->unk8;
     } else {
         ang = gBehaviourWorkState->unk8 - me->moveYaw;
     }
-    if ((zoneCanReachPoint(me, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, D_807FDCA0) != 0) && !(gBehaviourAnimState->stateFlags & 0x2000) && !(st->unk1F0 & 0x8000)) {
+    if ((zoneCanReachPoint(me, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, D_807FDCA0) != 0) && !(gBehaviourAnimState->flags & 0x2000) && !(st->unk1F0 & 0x8000)) {
         gBehaviourWorkState->flags |= 0x400;
     } else {
         gBehaviourWorkState->flags &= 0xFBFF;
@@ -861,8 +819,8 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
             if (gCurrentActor->sub4->animId == gBehaviourAnimState->animId0) {
                 actorScriptStart(gCurrentActor, gBehaviourAnimState->animId1);
             }
-            if (gBehaviourWorkState->unk26 != gBehaviourExtraState->unkC) {
-                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
+            if (gBehaviourWorkState->unk26 != gBehaviourExtraState->targetSpeed) {
+                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
             }
         case 4:
         case 0x11:
@@ -894,7 +852,7 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
             }
             if (near & 0xFF) {
                 if (!(gBehaviourWorkState->flags & 0x400)) {
-                    actorSetBehaviourState(0x35, (gBehaviourExtraState->unkC * 0.667), arg1);
+                    actorSetBehaviourState(0x35, (gBehaviourExtraState->targetSpeed * 0.667), arg1);
                     gBehaviourWorkState->unk20 = 0x3C;
                     gBehaviourWorkState->targetX = gBehaviourTargetActor->prevX;
                     gBehaviourWorkState->targetY = gBehaviourTargetActor->prevY;
@@ -906,13 +864,13 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
                     return;
                 }
             } else {
-                actorSetBehaviourState(gBehaviourExtraState->unk10, gBehaviourExtraState->unkC, arg1);
+                actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, arg1);
                 return;
             }
             break;
         case 0x33:
             if ((!(near & 0xFF) || !(gBehaviourWorkState->flags & 0x400)) && (gCurrentActor->contactFlags & 1)) {
-                actorSetBehaviourState(gBehaviourExtraState->unk10, gBehaviourExtraState->unkC, arg1);
+                actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, arg1);
                 return;
             }
             break;
@@ -930,11 +888,11 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
             }
             if (near & 0xFF) {
                 if (!(gBehaviourWorkState->flags & 0x400)) {
-                    actorSetBehaviourState(gBehaviourExtraState->unk10, gBehaviourExtraState->unkC, arg1);
+                    actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, arg1);
                     return;
                 }
             } else {
-                actorSetBehaviourState(gBehaviourExtraState->unk10, gBehaviourExtraState->unkC, arg1);
+                actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, arg1);
                 return;
             }
             break;
@@ -945,30 +903,11 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
             }
             near = (gBehaviourWorkState->unk20-- == 0);
             if (near) {
-                actorSetBehaviourState(gBehaviourExtraState->unk10, gBehaviourExtraState->unkC, arg1);
+                actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, arg1);
             }
             break;
     }
 }
-
-typedef struct D1Pair {
-    /* 0x00 */ u8 a;
-    /* 0x01 */ u8 b;
-} D1Pair;
-
-typedef struct D1Pt {
-    /* 0x00 */ s16 x;
-    /* 0x02 */ s16 y;
-    /* 0x04 */ s16 z;
-    /* 0x06 */ s16 pad6[2];
-} D1Pt; // size = 0xA
-
-typedef struct D1DcA0View {
-    /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ D1Pt *unk14;
-} D1DcA0View;
-
-#define D1DCA0 ((D1DcA0View *)D_807FDCA0)
 
 void patrolGetNextWaypointPos(s16 *outX, s16 *outY, s16 *outZ) {
     s32 temp;
@@ -978,11 +917,11 @@ void patrolGetNextWaypointPos(s16 *outX, s16 *outY, s16 *outZ) {
 
     new_var = gBehaviourWorkState->unk25 & 0x7F;
     temp = new_var + 1;
-    idx = (temp < gBehaviourExtraState->unk11) ? temp : 0;
-    v = ((D1Pair *)gBehaviourAnimState->unk20)[idx].a;
-    *outX = D1DCA0->unk14[v].x;
-    *outY = D1DCA0->unk14[v].y;
-    *outZ = D1DCA0->unk14[v].z;
+    idx = (temp < gBehaviourExtraState->pathCount) ? temp : 0;
+    v = gBehaviourAnimState->path[idx][0];
+    *outX = D_807FDCA0->entries[v].x;
+    *outY = D_807FDCA0->entries[v].y;
+    *outZ = D_807FDCA0->entries[v].z;
 }
 
 s32 patrolGetTargetAngle(void) {
@@ -993,28 +932,10 @@ s32 patrolGetTargetAngle(void) {
     s16 z;
 
     idx = gBehaviourWorkState->unk25 & 0x7F;
-    key = ((D1Pair *)gBehaviourAnimState->unk20)[idx].a;
+    key = gBehaviourAnimState->path[idx][0];
     patrolGetNextWaypointPos(&x, &y, &z);
-    return mathAngleBetweenPoints2D(x, z, D1DCA0->unk14[key].x, D1DCA0->unk14[key].z);
+    return mathAngleBetweenPoints2D(x, z, D_807FDCA0->entries[key].x, D_807FDCA0->entries[key].z);
 }
-
-typedef struct MiscBPatrolWaypoint {
-    /* 0x00 */ s16 x;
-    /* 0x02 */ s16 y;
-    /* 0x04 */ s16 z;
-    /* 0x06 */ u8 pad6;
-    /* 0x07 */ u8 r;
-    /* 0x08 */ u8 unk8;
-    /* 0x09 */ u8 pad9;
-} MiscBPatrolWaypoint; // size = 0xA
-
-typedef struct MiscBPatrolPathData {
-    /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ MiscBPatrolWaypoint *unk14;
-} MiscBPatrolPathData;
-
-#define MISCB_PATROL_PATH_DATA ((MiscBPatrolPathData *)D_807FDCA0)
-#define MISCB_PATROL_PAIRS ((D1Pair *)gBehaviourAnimState->unk20)
 
 u8 patrolPathStep(u8 arg0, u8 arg1) {
     u8 dir;
@@ -1034,13 +955,13 @@ u8 patrolPathStep(u8 arg0, u8 arg1) {
     dir = idx;
     dir &= 0x80;
     idx &= 0x7F;
-    key = MISCB_PATROL_PAIRS[idx].a;
-    type = MISCB_PATROL_PAIRS[idx].b;
-    x = MISCB_PATROL_PATH_DATA->unk14[key].x;
-    y = MISCB_PATROL_PATH_DATA->unk14[key].y;
-    z = MISCB_PATROL_PATH_DATA->unk14[key].z;
+    key = gBehaviourAnimState->path[idx][0];
+    type = gBehaviourAnimState->path[idx][1];
+    x = D_807FDCA0->entries[key].x;
+    y = D_807FDCA0->entries[key].y;
+    z = D_807FDCA0->entries[key].z;
     moved = ((gCurrentActor->x - x) * (gCurrentActor->x - x)) + ((gCurrentActor->z - z) * (gCurrentActor->z - z)) <
-            (MISCB_PATROL_PATH_DATA->unk14[key].r * MISCB_PATROL_PATH_DATA->unk14[key].r);
+            (D_807FDCA0->entries[key].radius * D_807FDCA0->entries[key].radius);
     if ((arg1 & 1) && gCurrentActor->x == gCurrentActor->prevX && gCurrentActor->z == gCurrentActor->prevZ) {
         if (gBehaviourWorkState) {} // FAKE: two uopt blocks in idx's live range drop its priority below key's (key t2, idx t3)
         gBehaviourWorkState->unk20++;
@@ -1054,9 +975,9 @@ u8 patrolPathStep(u8 arg0, u8 arg1) {
     switch (arg0) {
         case 0x49:
             v = idx + 1;
-            next = (v < gBehaviourExtraState->unk11) ? v : 0;
-            v = MISCB_PATROL_PAIRS[next].a;
-            v = mathAngleBetweenPoints2D(MISCB_PATROL_PATH_DATA->unk14[v].x, MISCB_PATROL_PATH_DATA->unk14[v].z, x, z);
+            next = (v < gBehaviourExtraState->pathCount) ? v : 0;
+            v = gBehaviourAnimState->path[next][0];
+            v = mathAngleBetweenPoints2D(D_807FDCA0->entries[v].x, D_807FDCA0->entries[v].z, x, z);
             gCurrentActor->moveYaw = v;
             gCurrentActor->yaw = v;
         case 0x42:
@@ -1070,8 +991,8 @@ u8 patrolPathStep(u8 arg0, u8 arg1) {
         case 0x60:
             if (moved) {
                 if (type == 6) {
-                    gBehaviourWorkState->unk25 = MISCB_PATROL_PATH_DATA->unk14[key].unk8;
-                } else if (idx + 1 < gBehaviourExtraState->unk11) {
+                    gBehaviourWorkState->unk25 = D_807FDCA0->entries[key].height;
+                } else if (idx + 1 < gBehaviourExtraState->pathCount) {
                     gBehaviourWorkState->unk25 = idx + 1;
                 } else {
                     gBehaviourWorkState->unk25 = 0;
@@ -1091,7 +1012,7 @@ u8 patrolPathStep(u8 arg0, u8 arg1) {
                         idx++;
                         dir = 0;
                     }
-                } else if (idx < gBehaviourExtraState->unk11 - 1) {
+                } else if (idx < gBehaviourExtraState->pathCount - 1) {
                     idx++;
                 } else {
                     idx--;
@@ -1110,13 +1031,13 @@ u8 patrolPathStep(u8 arg0, u8 arg1) {
         gBehaviourWorkState->flags |= 4;
         switch (type) {
             case 1:
-                nextKey = MISCB_PATROL_PAIRS[idx].a;
+                nextKey = gBehaviourAnimState->path[idx][0];
                 v = patrolGetTargetAngle();
                 gCurrentActor->moveYaw = v;
                 gCurrentActor->yaw = v;
-                gCurrentActor->x = MISCB_PATROL_PATH_DATA->unk14[nextKey].x;
-                gCurrentActor->y = MISCB_PATROL_PATH_DATA->unk14[nextKey].y;
-                gCurrentActor->z = MISCB_PATROL_PATH_DATA->unk14[nextKey].z;
+                gCurrentActor->x = D_807FDCA0->entries[nextKey].x;
+                gCurrentActor->y = D_807FDCA0->entries[nextKey].y;
+                gCurrentActor->z = D_807FDCA0->entries[nextKey].z;
                 break;
             case 2:
                 gCurrentActor->state = 0x26;
@@ -1125,10 +1046,10 @@ u8 patrolPathStep(u8 arg0, u8 arg1) {
             case 4:
                 gCurrentActor->state = 0x19;
                 gCurrentActor->unk155 = 0;
-                gBehaviourWorkState->timer = MISCB_PATROL_PATH_DATA->unk14[key].unk8;
+                gBehaviourWorkState->timer = D_807FDCA0->entries[key].height;
                 break;
             case 5:
-                actorSetTargetSpeed(gCurrentActor, MISCB_PATROL_PATH_DATA->unk14[key].unk8);
+                actorSetTargetSpeed(gCurrentActor, D_807FDCA0->entries[key].height);
                 break;
             case 7:
                 gCurrentActor->state = 0x3B;
@@ -1278,10 +1199,10 @@ s32 behaviourIsTargetWithinAngle(u16 maxDiff) {
 }
 
 void actorSetDefaultState(s32 scriptId) {
-    gCurrentActor->state = gBehaviourExtraState->unk10;
+    gCurrentActor->state = gBehaviourExtraState->actorState;
     gCurrentActor->unk155 = 0;
     actorScriptStart(gCurrentActor, scriptId);
-    actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
+    actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
 }
 
 void behaviourSpawnExplosionAndSound(void *scriptId, u8 state, Actor *attacker) {
@@ -1366,5 +1287,5 @@ void func_8072E320(f32 arg0) {
 }
 
 u8 behaviourCheckRandomAnimTrigger(void) {
-    return !(gBehaviourAnimState->stateFlags & 0x2000) && (((randomNonNegative() >> 15) % 1000) >= 0x3E4);
+    return !(gBehaviourAnimState->flags & 0x2000) && (((randomNonNegative() >> 15) % 1000) >= 0x3E4);
 }

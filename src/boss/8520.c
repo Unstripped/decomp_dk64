@@ -41,7 +41,7 @@ void bossKutOutSpawnGhost(s16 actorType, s16 distance, s16 angle) {
     spawnNodeSpawnById(
         actorType,
         sinVal * fArg1 + gCurrentActor->unk7C,
-        gBehaviourExtraState->unk6,
+        gBehaviourExtraState->y,
         mathCosF(angle) * fArg1 + gCurrentActor->unk84,
         0, 0, 0
     );
@@ -206,8 +206,8 @@ void bossKutOutStep(void) {
         func_8002C748(0);
         func_8002C748(1);
         gBehaviourAnimState->unk30 = 2.5f;
-        gBehaviourAnimState->stateFlags &= 0xFFF7;
-        gBehaviourAnimState->stateFlags |= 0x200;
+        gBehaviourAnimState->flags &= 0xFFF7;
+        gBehaviourAnimState->flags |= 0x200;
         A40->unk60 |= 0x400;
         A40->unk132 = 4;
         A40->unk154 = 0x1E;
@@ -355,9 +355,9 @@ void bossKutOutStep(void) {
         swayState->unk4 += 0x32;
         swayState->unk2 -= 1;
         A40->unkE8 = -swayState->unk0;
-        A40->unk7C = mathSinF(A40->unkEE) * swayState->unk0 + gBehaviourExtraState->unk4;
-        A40->unk84 = mathCosF(A40->unkEE) * swayState->unk0 + gBehaviourExtraState->unk8;
-        A40->unk80 = gBehaviourExtraState->unk6 - sqrtf(0x1C390 - swayState->unk0 * swayState->unk0);
+        A40->unk7C = mathSinF(A40->unkEE) * swayState->unk0 + gBehaviourExtraState->x;
+        A40->unk84 = mathCosF(A40->unkEE) * swayState->unk0 + gBehaviourExtraState->z;
+        A40->unk80 = gBehaviourExtraState->y - sqrtf(0x1C390 - swayState->unk0 * swayState->unk0);
     }
     if (DC90->unk28 & 0x8000) {
         bossAnimFrameBounceStep();

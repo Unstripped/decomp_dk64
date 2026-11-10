@@ -116,13 +116,13 @@ void bonusControllerUpdate(void) {
 
     s = *(LB3bState **)((u8 *)gCurrentActor + 0x178);
     behaviourFrameBegin();
-    challengeType = gBehaviourExtraState->unk14;
+    challengeType = gBehaviourExtraState->respawnDelay;
     targetCount = gBehaviourExtraState->unkA;
     commandQueuePush(gPrimaryPlayerActor, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y + 30.0f, gPrimaryPlayerActor->z, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     if (!(gCurrentActor->flags & 0x10)) {
         hasMessage = 0;
         currentActorClearFlag();
-        gBehaviourAnimState->stateFlags |= 0x80;
+        gBehaviourAnimState->flags |= 0x80;
         slotQueueSetDisplayMode(2, 0, 1);
         slotQueueSetDisplayMode(5, 0, 1);
         slotQueueSetDisplayMode(4, 0, 2);

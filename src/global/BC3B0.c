@@ -144,21 +144,7 @@ void actorCursorSteer(BC3B0Cursor *c, f32 tx, f32 ty) {
     c->y = BC3B0MIN(BC3B0MAX(c->y + c->vy, 0.0f), gScreenHeight);
 }
 
-typedef struct BC3B0View90 {
-    /* 0x00 */ u8 pad0[0x2C];
-    /* 0x2C */ s16 unk2C;
-    /* 0x2E */ s16 unk2E;
-    /* 0x30 */ f32 unk30;
-} BC3B0View90;
-
-typedef struct BC3B0CursorCfg {
-    /* 0x00 */ u8 pad0[0xA];
-    /* 0x0A */ s16 unkA;
-} BC3B0CursorCfg;
-
 #define BC3B0CA ((BC3B0CursorActor *)gCurrentActor)
-#define BC3B0S90 ((BC3B0View90 *)gBehaviourWorkState)
-#define BC3B0CCfg ((BC3B0CursorCfg *)gBehaviourExtraState)
 
 extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
@@ -172,21 +158,21 @@ void func_806B7EA0(void) {
     c = (BC3B0Cursor *)BC3B0CA->unk178;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->stateFlags |= 0x60;
+        gBehaviourAnimState->flags |= 0x60;
         gGlobalOverlayFlags |= 2;
-        hudSpawnCountdownTimer(0xDC, 0x2A, BC3B0CCfg->unkA ? BC3B0CCfg->unkA : 10, &gGlobalOverlayFlags);
-        BC3B0S90->unk2E = BC3B0CCfg->unkA != 0 ? 0xF : 0x78;
-        if (BC3B0CCfg->unkA != 0) {
-            c->unk18 = BC3B0CCfg->unkA;
+        hudSpawnCountdownTimer(0xDC, 0x2A, gBehaviourExtraState->unkAWide ? gBehaviourExtraState->unkAWide : 10, &gGlobalOverlayFlags);
+        gBehaviourWorkState->unk2E = gBehaviourExtraState->unkAWide != 0 ? 0xF : 0x78;
+        if (gBehaviourExtraState->unkAWide != 0) {
+            c->unk18 = gBehaviourExtraState->unkAWide;
         } else {
             c->unk18 = 10.0f;
         }
     }
-    if (BC3B0S90->unk2E != 0) {
+    if (gBehaviourWorkState->unk2E != 0) {
         if (camIsCutsceneActive() == 0) {
-            BC3B0S90->unk2E = BC3B0S90->unk2E - 1;
+            gBehaviourWorkState->unk2E = gBehaviourWorkState->unk2E - 1;
         }
-        if (BC3B0S90->unk2E != 0) {
+        if (gBehaviourWorkState->unk2E != 0) {
             return;
         }
         gCurrentActor->state = 0x23;
@@ -206,7 +192,7 @@ void func_806B7EA0(void) {
         c->unk10 = (s32)gBehaviourTargetActor->x;
         c->unk12 = (s32)(gBehaviourTargetActor->y + (u32)gBehaviourTargetActor->eyeHeight);
         c->unk14 = (s32)gBehaviourTargetActor->z;
-        BC3B0S90->unk2C = 0x14;
+        gBehaviourWorkState->timer = 0x14;
     }
     BC3B0CA->unk6E = BC3B0CA->unk6E + 1;
     if (c->unk18 < (f32)BC3B0CA->unk6E) {
@@ -225,16 +211,16 @@ void func_806B7EA0(void) {
         if (camIsFollowingActive() == 0) {
             renderCallbacksRegister(actorCursorDrawBurst, gCurrentActor, 3);
         }
-        if (BC3B0S90->unk2C != 0) {
-            BC3B0S90->unk2C = BC3B0S90->unk2C - 1;
-            if (BC3B0S90->unk2C == 5) {
+        if (gBehaviourWorkState->timer != 0) {
+            gBehaviourWorkState->timer = gBehaviourWorkState->timer - 1;
+            if (gBehaviourWorkState->timer == 5) {
                 sfxPlayOnFreeSlot(0x175, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
         } else {
             actorCursorFireProjectile(c);
-            BC3B0S90->unk2E = 0x64;
-            if (BC3B0CCfg->unkA != 0) {
-                c->unk18 = BC3B0CCfg->unkA;
+            gBehaviourWorkState->unk2E = 0x64;
+            if (gBehaviourExtraState->unkAWide != 0) {
+                c->unk18 = gBehaviourExtraState->unkAWide;
             } else {
                 c->unk18 = 10.0f;
             }
@@ -252,25 +238,7 @@ typedef struct BC3B0EmitterActor {
     /* 0x17C */ s16 *unk17C;
 } BC3B0EmitterActor;
 
-typedef struct BC3B0View98 {
-    /* 0x00 */ u8 pad0[0xA];
-    /* 0x0A */ u8 unkA;
-    /* 0x0B */ u8 unkB;
-} BC3B0View98;
-
-typedef struct BC3B0View9C {
-    /* 0x00 */ u8 pad0[0xA];
-    /* 0x0A */ u8 unkA;
-    /* 0x0B */ u8 unkB;
-    /* 0x0C */ u8 unkC;
-    /* 0x0D */ u8 unkD;
-    /* 0x0E */ u8 padE;
-    /* 0x0F */ u8 unkF;
-} BC3B0View9C;
-
 #define BC3B0EA ((BC3B0EmitterActor *)gCurrentActor)
-#define BC3B0S98 ((BC3B0View98 *)gBehaviourAnimState)
-#define BC3B0S9C ((BC3B0View9C *)gBehaviourExtraState)
 
 extern u32 gFrameCounter;
 extern u8 D_807201D4[];
@@ -279,29 +247,29 @@ extern u8 D_807201D4[];
 void actorUpdatePeriodicParticleEmitter(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        BC3B0S90->unk30 = BC3B0S9C->unkB;
+        gBehaviourWorkState->scale = gBehaviourExtraState->unkB;
         actorSetCollisionRadius(gCurrentActor, 300.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 280.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
     }
-    if (BC3B0S90->unk30 <= 0.001) {
-        BC3B0S90->unk2C = BC3B0S9C->unkA;
-        BC3B0S90->unk30 = BC3B0S9C->unkB;
+    if (gBehaviourWorkState->scale <= 0.001) {
+        gBehaviourWorkState->timer = gBehaviourExtraState->unkA;
+        gBehaviourWorkState->scale = gBehaviourExtraState->unkB;
         actorSetNodeFlag(gCurrentActor, 1);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x182, 0xFF, 0x7F, 0x1E);
     }
-    BC3B0S90->unk30 = BC3B0S90->unk30 - 1.0;
-    if (BC3B0S90->unk2C != 0 && gFrameCounter % 5 == 0) {
+    gBehaviourWorkState->scale = gBehaviourWorkState->scale - 1.0;
+    if (gBehaviourWorkState->timer != 0 && gFrameCounter % 5 == 0) {
         effectSetDuration(3);
         effectSetDepth(1);
         effectSetSpeed(-0x1C2);
         effectSetCallback(func_80717D4C);
         effectCreateAtPosition(D_807201D4, 1.2f, gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z);
     }
-    if (BC3B0S90->unk2C != 0) {
+    if (gBehaviourWorkState->timer != 0) {
         lightAdd(gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 200.0f, 0, 0xFF, 0xC8, 0);
-        BC3B0S90->unk2C--;
-        if (BC3B0S90->unk2C == 0) {
+        gBehaviourWorkState->timer--;
+        if (gBehaviourWorkState->timer == 0) {
             actorClearNodeFlag(gCurrentActor, 1);
         }
     }
@@ -310,21 +278,21 @@ void actorUpdatePeriodicParticleEmitter(void) {
 void actorUpdateAimedProjectileEmitter(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        BC3B0S90->unk2E = BC3B0S98->unkB;
+        gBehaviourWorkState->unk2E = gBehaviourAnimState->unkB;
     }
-    if (BC3B0S90->unk2E == 0) {
-        BC3B0S90->unk2C = BC3B0S98->unkA;
-        BC3B0S90->unk2E = BC3B0S98->unkB;
+    if (gBehaviourWorkState->unk2E == 0) {
+        gBehaviourWorkState->timer = gBehaviourAnimState->unkA;
+        gBehaviourWorkState->unk2E = gBehaviourAnimState->unkB;
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x182, 0xFF, 0x7F, 0x1E);
     }
-    BC3B0S90->unk2E--;
-    if (BC3B0S90->unk2C != 0 && gFrameCounter % 5 == 0) {
+    gBehaviourWorkState->unk2E--;
+    if (gBehaviourWorkState->timer != 0 && gFrameCounter % 5 == 0) {
         projectileSetTargetCoords(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         projectileAimAndSpawn(0x51, 1, 0.3f, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, 80.0f, gCurrentActor);
     }
-    if (BC3B0S90->unk2C != 0) {
+    if (gBehaviourWorkState->timer != 0) {
         lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 200.0f, 0, 0xFF, 0xC8, 0);
-        BC3B0S90->unk2C--;
+        gBehaviourWorkState->timer--;
     }
 }
 
@@ -343,21 +311,21 @@ void actorUpdateBurstProjectileEmitter(void) {
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        BC3B0S90->unk30 = BC3B0S9C->unkB;
-        *a = BC3B0S9C->unkD;
+        gBehaviourWorkState->scale = gBehaviourExtraState->unkB;
+        *a = gBehaviourExtraState->unkD;
     }
     if (*a != 0) {
         *a = *a - 1;
         return;
     }
-    if (BC3B0S90->unk30 <= 0.001) {
-        BC3B0S90->unk2C = BC3B0S9C->unkA;
-        BC3B0S90->unk30 = BC3B0S9C->unkB;
+    if (gBehaviourWorkState->scale <= 0.001) {
+        gBehaviourWorkState->timer = gBehaviourExtraState->unkA;
+        gBehaviourWorkState->scale = gBehaviourExtraState->unkB;
         *b = 0;
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17, 0xFF, 0x7F, 0x19);
     }
-    BC3B0S90->unk30 = BC3B0S90->unk30 - 1.0;
-    if (BC3B0S90->unk2C != 0 && *b == 0) {
+    gBehaviourWorkState->scale = gBehaviourWorkState->scale - 1.0;
+    if (gBehaviourWorkState->timer != 0 && *b == 0) {
         projectileSetTargetCoords(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         switch (gCurrentActor->actorType) {
             case 0xDC:
@@ -367,9 +335,9 @@ void actorUpdateBurstProjectileEmitter(void) {
                 kind = 0x1E;
                 break;
         }
-        projectileSpawnNodeEntry(kind, 0, 0.6f, gCurrentActor->yaw, BC3B0S9C->unkC * 10, 0.0f, 0);
-        BC3B0S90->unk2C--;
-        *b = BC3B0S9C->unkF;
+        projectileSpawnNodeEntry(kind, 0, 0.6f, gCurrentActor->yaw, gBehaviourExtraState->targetSpeed * 10, 0.0f, 0);
+        gBehaviourWorkState->timer--;
+        *b = gBehaviourExtraState->scale;
     }
     if (*b != 0) {
         *b = *b - 1;
