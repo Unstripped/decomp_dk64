@@ -1323,12 +1323,16 @@ def carry_renames(a, by_site, by_func):
                 continue
             if fo["fp_local"] == fn["fp_local"] and fo["fp_hdr"] == fn["fp_hdr"]:
                 continue  # unchanged: its events are as fresh as they were
-            # a file-scope site (a skip line above the function) may change only its tag comment,
-            # e.g. `// PROTO:` -> `// FAKE: callee prototype steer`: its kind changes, the code does not
-            sites_match = len(fo["sites"]) == len(fn["sites"]) and all(
-                so["kind"] == sn["kind"] or (so["line"] < fo["line"] and sn["line"] < fn["line"]
-                                             and so["code"].split("//")[0] == sn["code"].split("//")[0])
-                for so, sn in zip(fo["sites"], fn["sites"]))
+            # file-scope sites (skip and declaration lines above the function) may be tagged, retagged
+            # (`// PROTO:` -> `// FAKE: callee prototype steer`) or untagged: comments only, the tokens
+            # are compared below. Body sites must keep their kinds; file-scope ones pair by key, so a
+            # new or retagged one starts its own ladder.
+            ob = [s for s in fo["sites"] if fo["line"] <= s["line"] <= fo["end"]]
+            nb = [s for s in fn["sites"] if fn["line"] <= s["line"] <= fn["end"]]
+            sites_match = [s["kind"] for s in ob] == [s["kind"] for s in nb]
+            nkeys = {s["key"]: s for s in fn["sites"] if s not in nb}
+            pairs = list(zip(ob, nb)) + [(s, nkeys[s["key"]]) for s in fo["sites"]
+                                         if s not in ob and s["key"] in nkeys]
             lo = carry_lines(old["functions"], fo, old_text.count("\n") + 1)
             ln = carry_lines(new["functions"], fn, new_text.count("\n") + 1)
             how = "identifier renames only"
@@ -1350,8 +1354,7 @@ def carry_renames(a, by_site, by_func):
                     skipped.append(f"{path}: {fn['name']}: not a pure rename; body or a declaration it uses changed")
                     continue
             vram, n0 = f"{fn['vram']:08X}", len(out)
-            keys = [(None, None)] + [(so["key"], sn_) for so, sn_ in zip(fo["sites"], fn["sites"])
-                                     if so["kind"] == sn_["kind"]]  # a retagged site starts its own ladder
+            keys = [(None, None)] + [(so["key"], sn_) for so, sn_ in pairs]
             for okey, nsite in keys:
                 evs = by_func[(seg, vram)] if okey is None else by_site.get(okey, [])
                 newest = {}

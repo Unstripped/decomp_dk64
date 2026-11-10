@@ -434,8 +434,14 @@ def test_carry_token_pasting_function(tmp_path, monkeypatch, capsys, macros, new
         assert carried == {"h"} and expect in out
 
 
-def test_carry_across_retagged_file_scope_site(tmp_path, monkeypatch, capsys):
+@pytest.mark.parametrize("old,new,kinds", [
     # D5E10 c9f9b289: `// PROTO:` -> `// FAKE: callee prototype steer` on the function's skip line
+    ("#define PROTO_SKIP_g // PROTO: arity\nint g();\n", "#define PROTO_SKIP_g // FAKE: callee prototype steer\nint g();\n",
+     ["dead-if", "proto-type"]),
+    # round 4 tag batches: an untagged steering declaration gets its tag (a new file-scope site)
+    ("int g();\n", "int g(); // FAKE: callee prototype steer\n", ["dead-if"]),
+])
+def test_carry_across_retagged_file_scope_site(tmp_path, monkeypatch, capsys, old, new, kinds):
     repo = tmp_path.resolve() / "repo"
     (repo / "src" / "global").mkdir(parents=True)
     monkeypatch.chdir(repo)
@@ -449,17 +455,17 @@ def test_carry_across_retagged_file_scope_site(tmp_path, monkeypatch, capsys):
     _git(repo, "config", "user.email", "t@example.com")
     _git(repo, "config", "user.name", "t")
     src = repo / "src" / "global" / "x.c"
-    body = "int g();\nint f(int x) {\n    if (x) {} // FAKE: steers\n    return g(x);\n}\n"
-    src.write_text("#define PROTO_SKIP_g // PROTO: arity\n" + body)
+    body = "int f(int x) {\n    if (x) {} // FAKE: steers\n    return g(x);\n}\n"
+    src.write_text(old + body)
     _git(repo, "add", "-A")
     _git(repo, "commit", "-qm", "a")
     rev_a = _git(repo, "rev-parse", "HEAD")
     fn = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
-    assert sorted(s["kind"] for s in fn["sites"]) == ["dead-if", "proto-type"]
+    assert sorted(s["kind"] for s in fn["sites"]) == kinds
     dead = next(s for s in fn["sites"] if s["kind"] == "dead-if")
     q.append_events([q.event("u1", "a", fn, None, "review", "nohit", note="fake=1/0"),
                      q.event("u1", "a", fn, dead, "diagnose", "nohit", quirks=["Q0001"])])
-    src.write_text("#define PROTO_SKIP_g // FAKE: callee prototype steer\n" + body)
+    src.write_text(new + body)
     _git(repo, "commit", "-qam", "b")
     q.main(["carry", "--rev", rev_a, "--unit", "u2"])
     carried = [e for e in q.load_events() if e.get("agent") == "carry"]
