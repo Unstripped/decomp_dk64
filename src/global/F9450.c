@@ -1148,7 +1148,7 @@ void effectSpawnRandomSpread(f32 x, f32 y, f32 z, f32 scale, f32 spread, s32 cou
 }
 
 
-f32 func_806F7378(s32 actorType) {
+f32 func_806F7378(u32 actorType) {
     if (actorType == 0x8C) {
         return -13.0f;
     }
@@ -1191,14 +1191,14 @@ void gridCollectActorsInRange(u8 playerIndex) {
                     actor = gActiveActors[i].actor;
                     if ((gGlobalPauseFlags & 0x10000) && (D_80753EF0[k].actorType == actor->actorType) && ((D_80753EF0[k].requiredActorType == 0) || (D_80753EF0[k].requiredActorType == player->actorType))) {
                         node = D_807FD780[playerIndex];
-                        found = ((f32) D_80753EF0[k].radius + D_807FD740[playerIndex].radius) - 1.0f > (f32) camDistance3D((s32) actor->x, (s32) ((f32) D_80753EF0[k].yOffset + actor->y), (s32) actor->z, (s32) D_807FD740[playerIndex].x, (s32) D_807FD740[playerIndex].y, (s32) D_807FD740[playerIndex].z);
+                        found = D_80753EF0[k].radius + D_807FD740[playerIndex].radius - 1.0f > camDistance3D(actor->x, D_80753EF0[k].yOffset + actor->y, actor->z, D_807FD740[playerIndex].x, D_807FD740[playerIndex].y, D_807FD740[playerIndex].z);
                         while ((found == 0) && (node != NULL)) {
-                            found = ((f32) D_80753EF0[k].radius + node->bounds.radius) - 1.0f > (f32) camDistance3D((s32) actor->x, (s32) ((f32) D_80753EF0[k].yOffset + actor->y), (s32) actor->z, (s32) node->bounds.x, (s32) node->bounds.y, (s32) node->bounds.z);
+                            found = D_80753EF0[k].radius + node->bounds.radius - 1.0f > camDistance3D(actor->x, D_80753EF0[k].yOffset + actor->y, actor->z, node->bounds.x, node->bounds.y, node->bounds.z);
                             node = node->next;
                         }
                         if ((actor->state == 0x64) || (found != 0)) {
                             if ((gGlobalOverlayFlags & 0x10000) && (actorTypeIsRespawnPickup(actor->actorType) != 0)) {
-                                func_806F5F2C(actor->actorType, 0x258, (s16) actor->x, (s16) actor->y, actor->z);
+                                func_806F5F2C(actor->actorType, 0x258, actor->x, actor->y, actor->z);
                             }
                             sub = actor->customState;
                             if (sub->unk1 != 0) {
@@ -1244,7 +1244,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                         break;
                                     }
                                 } else {
-                                    switch ((s32)actor->actorType) { // FAKE: s32 view of the u32 actorType keeps the case-constant webs signed (Q0449; plain: regalloc mismatch)
+                                    switch (actor->actorType) {
                                     case 0x2F:
                                     case 0x48:
                                     case 0x56:

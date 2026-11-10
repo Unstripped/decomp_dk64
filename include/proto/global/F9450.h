@@ -109,7 +109,7 @@ s32 listContainsS16(s16);
 void effectSpawnRandomSpread(f32, f32, f32, f32, f32, s32);
 #endif
 #ifndef PROTO_SKIP_func_806F7378
-f32 func_806F7378(s32);
+f32 func_806F7378(u32);
 #endif
 #ifndef PROTO_SKIP_gridCollectActorsInRange
 void gridCollectActorsInRange(u8);
