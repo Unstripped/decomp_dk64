@@ -1,8 +1,10 @@
+#define PROTO_SKIP_func_806755A8
 #include "common.h"
 #include "proto/global/15050.h"
 #include "proto/global/2F550.h"
 #include "proto/global/70FD0.h"
 #include "proto/global/79890.h"
+void func_806755A8(s32, s32, s32, s32, s16 *, s16 *);
 #include "proto/global/7CA80.h"
 
 typedef struct CollisionSphereNode {
@@ -108,7 +110,7 @@ u8 actorCollisionGetNodeHitPoint(CollisionHitActor *self, CollisionHitActor *oth
                         matched = 1;
                         collisionNodeLocalToWorldXZ(self, elem, outX, outZ);
                     }
-                    func_806755A8((s32)(posX_f * 8.0f), (s32)(posZ_f * 8.0f), node->unk10, node->unk18, (s32)&other->arcYawMin, (s32)&other->arcYawMax);
+                    func_806755A8((s32)(posX_f * 8.0f), (s32)(posZ_f * 8.0f), node->unk10, node->unk18, &other->arcYawMin, &other->arcYawMax);
                     other->hasArcBounds = 1;
                     other->unkFD = 1;
                 }
@@ -438,9 +440,9 @@ void collisionNodeLocalToWorldXZ(CollisionLocalOwner *owner, CollisionHitRecordR
 }
 
 s32 mathAsinFixed(s32);
-void func_806742C0(s16, s16, s32, s32);
+void func_806742C0(s16, s16, s16 *, s16 *);
 
-void func_806755A8(s32 x1, s32 y1, s32 x2, s32 y2, s32 outMinAngle, s32 outMaxAngle) {
+void func_806755A8(s32 x1, s32 y1, s32 x2, s32 y2, s16 *outMinAngle, s16 *outMaxAngle) {
     s32 pad1;
     s32 pad2;
     f32 dist;
