@@ -369,7 +369,9 @@ def layout_diff(old, new, types=False, resized=None):
     --header-carve) also reports a changed alignment, a surviving field whose `type_sig` changed and
     an anonymous member not kept with the same offset and signature; with a RESIZED list, a surviving
     array that only changed its (outer) length, e.g. padding shrunk for a carved field, is appended
-    there as '<Type>.<field>' instead (its accesses compile the same; `sizeof` of it does not)."""
+    there as ('<Type>', '<field>', False) instead (its accesses compile the same; `sizeof` of it does
+    not), and one shrunk to a scalar of its element type (`u8 pad36[2]` -> `u8 pad36; u8 unk37`)
+    as ('<Type>', '<field>', True) (only code not accessing it compiles the same)."""
     out = []
     for name, (size, fields, align) in sorted(old.items()):
         if name not in new:
@@ -385,11 +387,12 @@ def layout_diff(old, new, types=False, resized=None):
             elif f not in by_name and not any(no <= o < no + max(nb, 1) for _, no, nb, _ in nfields):
                 out.append(f"{name} {f or '<anonymous>'} at 0x{o // 8:X} gone")
             elif types and f in by_name and by_name[f][1] != s:
-                a, b = ARRAY_SIG.match(s), ARRAY_SIG.match(by_name[f][1])
-                if resized is not None and a and b and a[1] == b[1]:
-                    resized.append(f"{name}.{f}")
+                ns = by_name[f][1]
+                a, b = ARRAY_SIG.match(s), ARRAY_SIG.match(ns)
+                if resized is not None and a and (b and a[1] == b[1] or a[1] == ns):
+                    resized.append((name, f, a[1] == ns))
                 else:
-                    out.append(f"{name} {f} type {s} -> {by_name[f][1]}")
+                    out.append(f"{name} {f} type {s} -> {ns}")
             elif types and not f and (f, o, s) not in {(nf, no, ns) for nf, no, _, ns in nfields}:
                 out.append(f"{name} <anonymous> at 0x{o // 8:X} changed")
         if types and nalign != align:

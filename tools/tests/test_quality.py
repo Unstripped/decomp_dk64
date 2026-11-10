@@ -550,3 +550,22 @@ def test_carry_header_carve_shrunk_padding_array(tmp_path, monkeypatch, capsys, 
     out = capsys.readouterr().out
     assert ("carried 2 events" in out) == carried
     assert ("f: array S.pad4 resized and sizeof reached" in out) != carried
+
+
+@pytest.mark.parametrize("ret,reason", [
+    ("p->b", None),
+    ("p->b + sizeof(p->a)", "f: array S.pad4 resized and sizeof reached"),
+    ("p->b + (int)p->pad4", "f: array S.pad4 became a scalar and is accessed"),
+])
+def test_carry_header_carve_padding_array_to_scalar(tmp_path, monkeypatch, capsys, ret, reason):
+    # pad4 keeps its name and start as a scalar of its element type (7e4bbf00: u8 pad36[2] -> pad36 + unk37)
+    _, rev_a = _carve_repo(tmp_path, monkeypatch, CARVE_H.replace(
+        "    char pad4[4];\n", "    char pad4;\n    char unk5;\n    short unk6;\n"), ret)
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--header-carve"])
+    out = capsys.readouterr().out
+    if reason is None:
+        assert "carried 2 events" in out and "skipped" not in out
+        assert _carve_state()["f"] == {"views": "✓", "review": "✓", "remove": "✓"}
+    else:
+        assert reason in out and "carried 0 events" in out

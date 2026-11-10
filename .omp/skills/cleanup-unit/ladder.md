@@ -72,7 +72,8 @@ A function with 3+ non-kept sites also needs a fresh function-level `reconstruct
   re-stamps these across header edits (REV parsed with REV's headers) for functions whose
   `fp_local` and site keys are unchanged when every reached declaration that changed is a record
   keeping size, alignment, field offsets and field types (`clint.layout_diff`, types on; padding
-  carved into named fields, a padding array shrunk around them unless `sizeof` is reached); a
+  carved into named fields; a padding array shrunk around them, to a shorter array or to a scalar
+  of its element type, unless `sizeof` is reached or, for a scalar, the field is accessed); a
   changed prototype, macro, typedef, enum or layout keeps them stale and is listed.
 - `diagnose`, `permute`, `reconstruct`, `goto-hand`, `review`: fresh while `fp_local` is equal
   and no `knowledge/ido` file committed after the event names the function; for `diagnose`,

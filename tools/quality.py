@@ -1346,13 +1346,14 @@ def record_type(cursors):
 SIZEOF = re.compile(r"\bsizeof\b")
 
 
-def carve_changes(old_scope, new_scope, old_names, new_names, body_sizeof):
+def carve_changes(old_scope, new_scope, old_names, new_names, body):
     """(changed record names, None) when every declaration either version's closure reaches has the
     same text in both, or is a record whose layout, alignment and surviving field types are kept
     (`clint.layout_diff` with types: padding carved into named fields; a padding array shrunk around
-    them only when neither the body (BODY_SIZEOF) nor a reached declaration uses `sizeof`) or that
-    only one version declares (a type introduced or dropped by such a carve); else (names so far,
-    reason)."""
+    them, to a shorter array or to a scalar of its element type, only when neither BODY (the
+    function's text) nor a reached declaration uses `sizeof`, and to a scalar only when neither
+    accesses that field) or that only one version declares (a type introduced or dropped by such a
+    carve); else (names so far, reason)."""
     ocl, ncl = old_scope.closure(old_names), new_scope.closure(new_names)
     changed, resized = [], []
     for name in sorted(set(ocl) | set(ncl)):
@@ -1373,8 +1374,12 @@ def carve_changes(old_scope, new_scope, old_names, new_names, body_sizeof):
             if diff:
                 return changed, "layout changed: " + "; ".join(diff)
         changed.append(name)
-    if resized and (body_sizeof or any(SIZEOF.search(t) for cl in (ocl, ncl) for v in cl.values() for _, t in v)):
-        return changed, f"array {resized[0]} resized and sizeof reached"
+    texts = [body] + [t for cl in (ocl, ncl) for v in cl.values() for _, t in v]
+    if resized and any(SIZEOF.search(t) for t in texts):
+        return changed, f"array {resized[0][0]}.{resized[0][1]} resized and sizeof reached"
+    for rec, f, scalar in resized:
+        if scalar and any(re.search(rf"(?:->|\.)\s*{f}\b", t) for t in texts):
+            return changed, f"array {rec}.{f} became a scalar and is accessed"
     return changed, None
 
 
@@ -1415,7 +1420,7 @@ def _carve_job(job):
                 reason = f"token-pasting macro {paste}: dependencies not tracked"
             else:
                 body = "\n".join(r.stdout.split("\n")[fo["line"] - 1:fo["end"]])
-                changed, reason = carve_changes(old["scope"], new["scope"], onames, nnames, bool(SIZEOF.search(body)))
+                changed, reason = carve_changes(old["scope"], new["scope"], onames, nnames, body)
                 how = "header carve: " + (", ".join(changed) or "no reached declaration changed")
         res.append(dict(path=path, seg=seg, name=fn["name"], vram=fn["vram"], rev_fp=rev_fp, now_fp=now_fp,
                         keys=[s["key"] for s in fn["sites"]], reason=reason, how=how))
