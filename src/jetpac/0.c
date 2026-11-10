@@ -1,8 +1,6 @@
 #include "common.h"
 #include "jetpac.h"
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
-#define PROTO_SKIP_jetpacDrawString // FAKE: callee prototype steer
-#define PROTO_SKIP_jetpacSetTextColor // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/103AB0.h"
 #include "proto/global/104F0.h"
@@ -19,10 +17,13 @@
 #include "proto/jetpac/3480.h"
 #include "proto/jetpac/4FC0.h"
 
-extern s32 D_8002EC48;
 extern struct GfSndState *D_80770DF8[];
 extern s32 D_8076D1F8;
-extern s16 D_8002BA52[];
+typedef struct {
+    s16 sfx;
+    s16 unk2;
+} JetpacSoundEntry;
+extern JetpacSoundEntry D_8002BA52[];
 
 
 extern s32 D_8002F064;
@@ -45,7 +46,7 @@ extern Gfx D_2000080;
 
 void jetpacRunFrame(void) {
     Gfx *glist;
-    u8 *gfxEnd;
+    Gfx *gfxEnd;
 
     controllerStartRead();
     schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, 1, 0x4D2, 1);
@@ -60,15 +61,14 @@ void jetpacRunFrame(void) {
     }
     glist = screenFadeUpdate(glist, 0);
     if (gGameMode != 4) {
-        gfxEnd = gGfxCurrentFrameBuffer + 0xDB0;
+        gfxEnd = (Gfx *)(gGfxCurrentFrameBuffer + 0xDB0);
         gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 0);
-        gfxEndSubDisplayList((Gfx *)gfxEnd, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
+        gfxEndSubDisplayList(gfxEnd, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
     } else {
         gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 1);
     }
 }
 
-#define J0a_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 void jetpacBuildDisplayList(u8 *basePtr, Gfx **outGlist) {
     Gfx *cmdGlist;
     Gfx *cmdBuffer;
@@ -83,11 +83,11 @@ void jetpacBuildDisplayList(u8 *basePtr, Gfx **outGlist) {
     guOrtho((Mtx *)(basePtr + 0x80), 0.0f, 320.0f, 0.0f, 240.0f, 1.0f, 10.0f, 1.0f);
     gDPPipeSync(glist++);
     glist = gfxSetFrameBufferColorImage(glist);
-    J0a_WRITE_GFX(glist++, 0xE3001801, 0);
-    J0a_WRITE_GFX(glist++, 0xE3001A01, 0);
+    gDPSetColorDither(glist++, G_CD_MAGICSQ);
+    gDPSetAlphaDither(glist++, G_AD_PATTERN);
     gDPSetFillColor(glist++, 0x00010001);
     gDPFillRectangle(glist++, 0, 0, 319, 239);
-    J0a_WRITE_GFX(glist++, 0xDA380007, &D_2000080);
+    gSPMatrix(glist++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     cmdBuffer = heapAlloc(0x5DC0);
     heapFreeDeferred(cmdBuffer);
     cmdGlist = cmdBuffer;
@@ -98,8 +98,7 @@ void jetpacBuildDisplayList(u8 *basePtr, Gfx **outGlist) {
 }
 
 
-
-extern JetpacPlayer D_8002EC4C[];
+extern JetpacPlayer D_8002EC4C[]; // FAKE: alias of jetpacGame.players; the pointer rewrite is word-identical but objdiff reloc-equiv mispairs interleaved HI16/LO16 (pre-existing, now tagged)
 
 void jetpacResetPlayers(void) {
     s32 i;
@@ -120,14 +119,9 @@ void jetpacResetPlayers(void) {
 }
 
 extern s32 D_8002BA6C;
-void jetpacSetTextColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-void jetpacDrawString(s32, char *, s32, s32, s32); // FAKE: callee prototype steer
 
-extern s32 D_8002EF74;
-extern s32 D_8002EC50;
-extern s32 D_8002EDE4;
 
-void jetpacDrawScoreboard(s32 glist) {
+void jetpacDrawScoreboard(Gfx **glist) {
     char buf[0x50];
     s32 mask;
     s32 i;
@@ -136,8 +130,8 @@ void jetpacDrawScoreboard(s32 glist) {
     mask = jetpacIsSpawnDelay() & D_8002BA6C;
     jetpacSetupTextRdp(glist);
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
-    jetpacDrawString(glist, "1UP", 0x38, 0x18, mask != 0 && D_8002EF74 == 0);
-    p = D_8002EC4C;
+    jetpacDrawString(glist, "1UP", 0x38, 0x18, mask != 0 && jetpacGame.activePlayer == 0);
+    p = jetpacGame.players;
     for (i = 0; i < 2; i++) {
         if (p->lives > 0) {
             _sprintf(buf, "%d!", p->lives);
@@ -145,15 +139,15 @@ void jetpacDrawScoreboard(s32 glist) {
         }
         p++;
     }
-    jetpacDrawString(glist, "2UP", 0xF8, 0x18, mask != 0 && D_8002EF74 == 1);
+    jetpacDrawString(glist, "2UP", 0xF8, 0x18, mask != 0 && jetpacGame.activePlayer == 1);
     jetpacSetTextColor(0, 0xFF, 0xFF, 0xFF);
     jetpacDrawString(glist, "HI", 0x98, 0x18, 0);
     jetpacSetTextColor(0xFF, 0xFF, 0, 0xFF);
-    _sprintf(buf, "%06d", D_8002EC50);
+    _sprintf(buf, "%06d", jetpacGame.players[0].score);
     jetpacDrawString(glist, buf, 0x28, 0x20, 0);
-    _sprintf(buf, "%06d", D_8002EC48);
+    _sprintf(buf, "%06d", jetpacGame.highScore);
     jetpacDrawString(glist, buf, 0x88, 0x20, 0);
-    _sprintf(buf, "%06d", D_8002EDE4);
+    _sprintf(buf, "%06d", jetpacGame.players[1].score);
     jetpacDrawString(glist, buf, 0xE8, 0x20, 0);
 }
 
@@ -164,7 +158,7 @@ void jetpacStartGame(void) {
 }
 
 
-void jetpacStateSelection(s32 glist) {
+void jetpacStateSelection(Gfx **glist) {
     s32 flags;
     char buf[0x24];
 
@@ -199,7 +193,7 @@ void jetpacStateSelection(s32 glist) {
     }
 }
 
-void jetpacStateLanding(s32 glist) {
+void jetpacStateLanding(Gfx **glist) {
     jetpacDrawScoreboard(glist);
     jetpacUpdateRocketFlight();
     jetpacInitRdp(glist);
@@ -209,7 +203,7 @@ void jetpacStateLanding(s32 glist) {
 }
 
 
-void jetpacStateGameplay(s32 glist) {
+void jetpacStateGameplay(Gfx **glist) {
     JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
 
     if (player->score >= 1000000) {
@@ -244,14 +238,14 @@ void jetpacStateGameplay(s32 glist) {
 }
 
 void jetpacSaveHighScore(void) {
-    eepromSetField(0x11, 0, 0, 0, D_8002EC48);
+    eepromSetField(0x11, 0, 0, 0, jetpacGame.highScore);
     func_8060DEA8();
 }
 
 s32 flagGet(s32, s32); // FAKE: callee prototype steer
 
 
-void jetpacStatePause(s32 glist) {
+void jetpacStatePause(Gfx **glist) {
     jetpacDrawScoreboard(glist);
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     jetpacDrawString(glist, "RETURN", 0x88, 0x70, D_8002BA6C != 0 && jetpacGame.menuSelection == 1);
@@ -289,7 +283,7 @@ void jetpacStatePause(s32 glist) {
     }
 }
 
-void jetpacStateTakeoff(s32 glist) {
+void jetpacStateTakeoff(Gfx **glist) {
     JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
 
     jetpacDrawScoreboard(glist);
@@ -306,7 +300,7 @@ void jetpacStateTakeoff(s32 glist) {
     jetpacGridDraw(glist);
 }
 
-void jetpacStateGameOver(s32 glist) {
+void jetpacStateGameOver(Gfx **glist) {
     s32 textCol;
     char textBuf[0x20];
 
@@ -320,7 +314,7 @@ void jetpacStateGameOver(s32 glist) {
     }
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     jetpacDrawString(glist, textBuf, textCol * 8 + 0x20, 0x88, 0);
-    if ((u32)jetpacGame.stateTimer >= 0x79U) {
+    if (jetpacGame.stateTimer >= 0x79) {
         if (jetpacGame.unk798 != 0) {
             if (jetpacGame.unk799 == 0) {
                 jetpacGame.unk799 = 1;
@@ -340,13 +334,12 @@ void jetpacPlaySound(s32 soundId) {
             n_alSndpStop(D_80770DF8[i]);
         }
     }
-    n_alSndpPlay(D_8076D1F8, *(s16 *)((u8 *)D_8002BA52 + soundId * 4), 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[soundId]);
+    n_alSndpPlay(D_8076D1F8, D_8002BA52[soundId].sfx, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8[soundId]);
 }
 
-void jetpacSetSoundPitch(s32 soundId, s32 pitch) {
+void jetpacSetSoundPitch(s32 soundId, f32 pitch) {
     if (D_80770DF8[soundId] != 0) {
-        s32 *p = &pitch;
-        n_alSndpPostEvent(D_80770DF8[soundId], 0x10, *p);
+        n_alSndpPostEvent(D_80770DF8[soundId], 0x10, *(s32 *)&pitch);
     }
 }
 
@@ -409,18 +402,12 @@ void jetpacStartStage(void) {
     }
 }
 
-typedef struct {
-    u16 unk0;
-    s8 unk2;
-    s8 unk3;
-} J0bPad;
-
 extern u8 D_8002BA70;
-extern J0bPad *D_807ECDE8;
+extern OSContPad *D_807ECDE8;
 
-void jetpacUpdateStateAndInput(s32 glist) {
+void jetpacUpdateStateAndInput(Gfx **glist) {
     u8 flag;
-    s32 zero;
+    s32 zero; // FAKE: value-named zero local steers regalloc (pre-existing, now tagged)
 
     zero = 0;
     if (D_8002BA70 != 0) {
@@ -441,21 +428,21 @@ void jetpacUpdateStateAndInput(s32 glist) {
     D_8002BA6C %= 60;
     D_8002BA6C /= 30;
     jetpacGame.prevButtons = jetpacGame.buttons;
-    jetpacGame.buttons = D_807ECDE8->unk0;
-    if (D_807ECDE8->unk2 >= 0x1F) {
+    jetpacGame.buttons = D_807ECDE8->button;
+    if (D_807ECDE8->stick_x >= 0x1F) {
         jetpacGame.buttons |= 0x100;
     }
-    if (D_807ECDE8->unk2 < -0x1E) {
+    if (D_807ECDE8->stick_x < -0x1E) {
         jetpacGame.buttons |= 0x200;
     }
-    if (D_807ECDE8->unk3 >= 0x1F) {
+    if (D_807ECDE8->stick_y >= 0x1F) {
         jetpacGame.buttons |= 0x800;
     }
-    if (D_807ECDE8->unk3 < -0x1E) {
+    if (D_807ECDE8->stick_y < -0x1E) {
         jetpacGame.buttons |= 0x400;
     }
     jetpacGame.pressedButtons = (jetpacGame.buttons ^ jetpacGame.prevButtons) & jetpacGame.buttons;
-    if ((u32)jetpacGame.unk794 < 3) {
+    if (jetpacGame.unk794 < 3) {
         jetpacGame.unk794++;
         return;
     }
@@ -479,7 +466,7 @@ void jetpacUpdateStateAndInput(s32 glist) {
         jetpacStateGameOver(glist);
         break;
     }
-    jetpacGame.stateTimer = jetpacGame.stateTimer + 1;
+    jetpacGame.stateTimer++;
 }
 
 void jetpacNextPlayerOrGameOver(JetpacPlayer *player) {

@@ -721,7 +721,7 @@ void jetpacSetupTextRdp(Gfx **pGlist) {
     *pGlist = g;
 }
 
-void jetpacSetTextColor(s8 r, s8 g, s8 b, s8 a) {
+void jetpacSetTextColor(u8 r, u8 g, u8 b, u8 a) {
     D_80045BE0 = r;
     D_80045BE1 = g;
     D_80045BE2 = b;
@@ -735,7 +735,7 @@ void jetpacSetTextHighlightColor(s8 r, s8 g, s8 b, s8 a) {
     D_8002E9CC = a;
 }
 
-void jetpacDrawString(Gfx **pGlist, s32 str, s32 x, s32 y, s32 highlight) {
+void jetpacDrawString(Gfx **pGlist, char *str, s32 x, s32 y, s32 highlight) {
     Gfx *g = *pGlist;
 
     if (highlight != 0) {

@@ -133,8 +133,8 @@ typedef struct JetpacGlobal {
     /* 0x46C */ JetpacActor lasers[4];
     /* 0x5AC */ JetpacActor actors[6];
     /* 0x78C */ s32 gameState;
-    /* 0x790 */ s32 stateTimer;
-    /* 0x794 */ s32 unk794;
+    /* 0x790 */ u32 stateTimer;
+    /* 0x794 */ u32 unk794;
     /* 0x798 */ u8 unk798;
     /* 0x799 */ u8 unk799;
 } JetpacGlobal;

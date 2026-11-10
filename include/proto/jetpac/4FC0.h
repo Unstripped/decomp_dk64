@@ -103,12 +103,12 @@ void jetpacDrawActors(void);
 void jetpacSetupTextRdp(Gfx **);
 #endif
 #ifndef PROTO_SKIP_jetpacSetTextColor
-void jetpacSetTextColor(s8, s8, s8, s8);
+void jetpacSetTextColor(u8, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_jetpacSetTextHighlightColor
 void jetpacSetTextHighlightColor(s8, s8, s8, s8);
 #endif
 #ifndef PROTO_SKIP_jetpacDrawString
-void jetpacDrawString(Gfx **, s32, s32, s32, s32);
+void jetpacDrawString(Gfx **, char *, s32, s32, s32);
 #endif
 #endif

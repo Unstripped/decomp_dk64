@@ -13,37 +13,37 @@ void jetpacBuildDisplayList(u8 *, Gfx **);
 void jetpacResetPlayers(void);
 #endif
 #ifndef PROTO_SKIP_jetpacDrawScoreboard
-void jetpacDrawScoreboard(s32);
+void jetpacDrawScoreboard(Gfx **);
 #endif
 #ifndef PROTO_SKIP_jetpacStartGame
 void jetpacStartGame(void);
 #endif
 #ifndef PROTO_SKIP_jetpacStateSelection
-void jetpacStateSelection(s32);
+void jetpacStateSelection(Gfx **);
 #endif
 #ifndef PROTO_SKIP_jetpacStateLanding
-void jetpacStateLanding(s32);
+void jetpacStateLanding(Gfx **);
 #endif
 #ifndef PROTO_SKIP_jetpacStateGameplay
-void jetpacStateGameplay(s32);
+void jetpacStateGameplay(Gfx **);
 #endif
 #ifndef PROTO_SKIP_jetpacSaveHighScore
 void jetpacSaveHighScore(void);
 #endif
 #ifndef PROTO_SKIP_jetpacStatePause
-void jetpacStatePause(s32);
+void jetpacStatePause(Gfx **);
 #endif
 #ifndef PROTO_SKIP_jetpacStateTakeoff
-void jetpacStateTakeoff(s32);
+void jetpacStateTakeoff(Gfx **);
 #endif
 #ifndef PROTO_SKIP_jetpacStateGameOver
-void jetpacStateGameOver(s32);
+void jetpacStateGameOver(Gfx **);
 #endif
 #ifndef PROTO_SKIP_jetpacPlaySound
 void jetpacPlaySound(s32);
 #endif
 #ifndef PROTO_SKIP_jetpacSetSoundPitch
-void jetpacSetSoundPitch(s32, s32);
+void jetpacSetSoundPitch(s32, f32);
 #endif
 #ifndef PROTO_SKIP_jetpacStopSound
 void jetpacStopSound(s32);
@@ -55,7 +55,7 @@ void jetpacSetState(s32);
 void jetpacStartStage(void);
 #endif
 #ifndef PROTO_SKIP_jetpacUpdateStateAndInput
-void jetpacUpdateStateAndInput(s32);
+void jetpacUpdateStateAndInput(Gfx **);
 #endif
 #ifndef PROTO_SKIP_jetpacNextPlayerOrGameOver
 void jetpacNextPlayerOrGameOver(struct JetpacPlayer *);
