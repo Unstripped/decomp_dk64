@@ -93,7 +93,7 @@ void csSetActorAlphaByType(s16, s16, s16);
 void csSetActorScaleFadeByType(s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csStartCamPath
-void csStartCamPath(void *, s16, s16, s16);
+void csStartCamPath(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_func_80641F68
 void func_80641F68(void);
@@ -123,10 +123,10 @@ s32 csCompareVar(f32 *, s16, s16);
 s32 csEvaluateParamCondition(s16, s16);
 #endif
 #ifndef PROTO_SKIP_csSetRot
-void csSetRot(s16, s16, void *, s16, u8);
+void csSetRot(s16, s16, CsState *, s16, u8);
 #endif
 #ifndef PROTO_SKIP_csSetPos
-void csSetPos(s16, s16, void *, s16, u8);
+void csSetPos(s16, s16, CsState *, s16, u8);
 #endif
 #ifndef PROTO_SKIP_csCmdSpawnSparkAndLight
 void csCmdSpawnSparkAndLight(CsState *, s16, s16, s16);

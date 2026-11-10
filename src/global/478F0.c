@@ -1,6 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #include "cutscene.h"
+#include "sched.h"
 #define PROTO_SKIP_collisionCheckGroundAtPoint // FAKE: callee prototype steer
 #include "proto/global/114270.h"
 #include "proto/global/119370.h"
@@ -41,19 +42,7 @@ extern u8 gBossFightPhase;
 extern f32 gCsPosX;
 extern f32 gCsPosY;
 extern f32 gCsPosZ;
-typedef struct CsPlayerSlot {
-    /* 0x000 */ u8 active;
-    /* 0x001 */ u8 pad1[3];
-    /* 0x004 */ Actor *actor;
-    /* 0x008 */ u8 pad8[0x208];
-    /* 0x210 */ f32 x;
-    /* 0x214 */ f32 y;
-    /* 0x218 */ f32 z;
-    /* 0x21C */ u8 pad21C[0x74];
-    /* 0x290 */ s16 state;
-    /* 0x292 */ u8 pad292[0x5E];
-} CsPlayerSlot; /* 0x2F0 */
-extern CsPlayerSlot *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern u8 D_8071FF18[];
 extern u8 sEffectSparkConfig[];
 u8 collisionCheckGroundAtPoint(f32, f32, f32 *);  // FAKE: callee prototype steer
@@ -357,7 +346,7 @@ void csCmdPeriodicEffectPair(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-
+// Byte 0x49 of CsState (inside s16 unk44[3]; the split of unk44 was rejected).
 typedef struct {
     u8 pad0[0x49];
     u8 unk49;
@@ -369,6 +358,7 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *q;
     f32 t;
     f32 f;
+
     if (cs->data == NULL) {
         q = heapAlloc(8);
         cs->data = q;
@@ -544,13 +534,13 @@ void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
             n->blue = 0.0f;
         }
         f = cs->data;
-        dz = gPlayerSlots->z - gCsPosZ;
-        dx = gPlayerSlots->x - gCsPosX;
-        dy = gPlayerSlots->y - gCsPosY;
+        dz = gPlayerSlots->camZ - gCsPosZ;
+        dx = gPlayerSlots->camX - gCsPosX;
+        dy = gPlayerSlots->camY - gCsPosY;
         dist = sqrtf(dz * dz + (dx * dx + dy * dy));
-        if (gPlayerSlots->state == 0xE && gGameMode != 1) {
+        if (gPlayerSlots->unk290 == 0xE && gGameMode != 1) {
             fade = 1.0f;
-        } else if (gPlayerSlots->state == 7) {
+        } else if (gPlayerSlots->unk290 == 7) {
             fade = 0.0f;
         } else {
             ex = gCsPosX - 1714.0f;
@@ -566,7 +556,7 @@ void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
                 fade = 1.0 - dist / 600.0f;
             }
         }
-        if (gPlayerSlots->state == 0xE || (gPlayerSlots->state == 0xB && dist < D_807480DC)) {
+        if (gPlayerSlots->unk290 == 0xE || (gPlayerSlots->unk290 == 0xB && dist < D_807480DC)) {
             func_80711410(2.9f, -0x1E, fade, 0xE, fade < 0.05 ? 0.05 : fade);
         } else {
             D_8077058C = 0;
@@ -930,7 +920,7 @@ void csCmdExtraObjectAttach(CsState *cs, s16 csId, s16 b, s16 c) {
     ps = gPlayerSlots->actor->customState;
     cam = ps->camActor;
     camState = cam->customState;
-    if (camState->active != 0 && gPlayerSlots->y < camState->surfaceY + 3.0f) {
+    if (camState->active != 0 && gPlayerSlots->camY < camState->surfaceY + 3.0f) {
         near = 1;
     }
     if (*p != 0 && near == 0) {
@@ -1050,8 +1040,8 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
             p->idx = 0;
         }
         while (!hit && start != p->idx) {
-            if (sqrtf((gPlayerSlots->x - CS_POINT->x) * (gPlayerSlots->x - CS_POINT->x) + (gPlayerSlots->y - CS_POINT->y) * (gPlayerSlots->y - CS_POINT->y) +
-                      (gPlayerSlots->z - CS_POINT->z) * (gPlayerSlots->z - CS_POINT->z)) < D_807480F0) {
+            if (sqrtf((gPlayerSlots->camX - CS_POINT->x) * (gPlayerSlots->camX - CS_POINT->x) + (gPlayerSlots->camY - CS_POINT->y) * (gPlayerSlots->camY - CS_POINT->y) +
+                      (gPlayerSlots->camZ - CS_POINT->z) * (gPlayerSlots->camZ - CS_POINT->z)) < D_807480F0) {
                 effectSetDepth(1);
                 effectSetMode(3);
                 effectSetSpeed(0);
@@ -1175,7 +1165,7 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 start;
     s32 hit;
     CsPoint3f *v;
-    CsPlayerSlot *pl;
+    PlayerStruct *pl;
     f32 dx;
     f32 dy;
     f32 dz;
@@ -1196,9 +1186,9 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
     while (hit == 0 && start != *p) {
         pl = gPlayerSlots;
         v = *p + D_807F5FD4[0];
-        dz = pl->z - v->z;
-        dx = pl->x - v->x;
-        dy = pl->y - v->y;
+        dz = pl->camZ - v->z;
+        dx = pl->camX - v->x;
+        dy = pl->camY - v->y;
         if (sqrtf(dz * dz + (dx * dx + dy * dy)) < D_807480F0) {
             hit = 1;
             effectSetDepth(1);
@@ -1815,7 +1805,7 @@ void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 s32 csIsPlayerState4OrC(void) {
-    s16 state = gPlayerSlots->state;
+    s16 state = gPlayerSlots->unk290;
 
     if (state == 4 || state == 0xC) {
         return 1;
@@ -1961,7 +1951,7 @@ void csCmdHubWorldItemsAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
         }
     } else {
         v = D_80748178 + 1;
-        if (gCurrentWorldId && gCurrentWorldId) {}
+        if (gCurrentWorldId && gCurrentWorldId) {} // FAKE: dead read of gCurrentWorldId keeps D_80748178 in v1 (v0 without it)
         if (v >= 0x15) {
             v = 0;
         }
@@ -2901,12 +2891,12 @@ extern u8 gPlayerCount;
 
 s32 csFindPlayerSlotByModel(s32 a, s32 b) {
     s32 i = 0;
-    CsPlayerSlot *p;
+    PlayerStruct *p;
     Actor *q;
     if (gPlayerCount > 0) {
         p = gPlayerSlots;
         do {
-            if (p->active != 0) {
+            if (p->unk0 != 0) {
                 q = p->actor;
                 if (q->attachMode == 1 && q->cutsceneId == a && q->unk10E == b) {
                     return i;
@@ -2966,8 +2956,8 @@ s32 csCondDepositItem(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 s32 csCondPlayerNearFixedPoint(CsState *cs, s16 csId, s16 b, s16 c) {
-    f64 dz = gPlayerSlots->z - 1274.0;
-    f64 dx = gPlayerSlots->x - 3081.0;
+    f64 dz = gPlayerSlots->camZ - 1274.0;
+    f64 dx = gPlayerSlots->camX - 3081.0;
     if (dz * dz + dx * dx < 10000.0) {
         return 1;
     }
