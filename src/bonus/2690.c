@@ -2022,7 +2022,7 @@ void bonusBigBugBashGameUpdate(void) {
     case 3:
         if (gGameMode != 1) {
             LB5->unk154 = 4;
-            hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)&t->unk22)[1]);
+            hudSpawnCountdownTimer(0xDC, 0x2A, t->unk22);
             resQueueAttachActor(gCurrentActor, 0, 0xA);
         }
         break;
