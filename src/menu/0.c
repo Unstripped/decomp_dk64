@@ -1,8 +1,6 @@
 #include "common.h"
 #define PROTO_SKIP_currentActorClearFlag // PROTO: Type MenuStruct_80024000 *  of this argument  is incompatibl
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_listContainsS16 // FAKE: callee prototype steer
-#define PROTO_SKIP_menuCalculateBonusDuration // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/104F0.h"
@@ -306,7 +304,6 @@ extern u8 D_800330C0[];
 extern u8 D_80032F50;
 extern s16 D_800330D8;
 
-s32 listContainsS16(s32, s16 *);
 
 void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
     s32 i;
@@ -321,7 +318,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
     case 0x37:
         break;
     case 0:
-        if (listContainsS16(4, &D_800330D8) != 0) {
+        if (listContainsS16(4) != 0) {
             playerSaveData = gPlayerInventoryTable[gPlayerCharacterId];
             for (i = 0; i < 8; i++) {
                 if (flagGet((s16)flagGridIndex(0x1D5, i, gPlayerCharacterId), 0) != 0) {
@@ -410,7 +407,6 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
     MenuM0_X18(menu) = D_807ECDEC->unk3;
 }
 
-s16 menuCalculateBonusDuration(MenuStruct_80024000 *);
 
 void menuProcessOptionInput(MenuStruct_80024000 *menu) {
     switch (menu->unk1) {
@@ -418,7 +414,7 @@ void menuProcessOptionInput(MenuStruct_80024000 *menu) {
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag(menu);
             menu->unk1++;
-            D_80750AC8 = menuCalculateBonusDuration(menu);
+            D_80750AC8 = menuCalculateBonusDuration();
             resQueueAttachActor(gCurrentActor, 0xB, 8);
         }
         break;
