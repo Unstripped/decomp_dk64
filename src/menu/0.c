@@ -1,8 +1,8 @@
 #include "common.h"
 #define PROTO_SKIP_currentActorClearFlag // PROTO: Type MenuStruct_80024000 *  of this argument  is incompatibl
-#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_listContainsS16 // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_menuCalculateBonusDuration // PROTO: Type MenuStruct_80024000 *  of this argument  is incompatibl
+#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
+#define PROTO_SKIP_listContainsS16 // FAKE: callee prototype steer
+#define PROTO_SKIP_menuCalculateBonusDuration // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/104F0.h"

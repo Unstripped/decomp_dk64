@@ -475,7 +475,7 @@ void camResumePath(void);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
 void csModelStateSetFirstByte(s16, s16);
-void resQueueAttachActor(void *, s32, s32);
+void resQueueAttachActor(void *, s32, s32); // FAKE: callee prototype steer
 u8 func_8072881C(u8, u32 *);
 void hudSpawnTextScreen(u8);
 s32 playerStateQueueCallback(s16, void *, u8);

@@ -120,7 +120,7 @@ extern s16 D_80750AC8;
 extern Actor_BB40 *gCurrentActor;
 
 void playerStateQueueCallback(); // FAKE: callee prototype steer
-s32 sfxStopSlotSound(Actor_BB40 *, u8);
+s32 sfxStopSlotSound(Actor_BB40 *, u8); // FAKE: callee prototype steer
 void resQueueAttachActor(Actor *, s32, u8);
 void csModelStateSetFirstByte(s16, s16);
 void hudSpawnTextScreen(u8);
@@ -135,7 +135,7 @@ extern s32 gGlobalOverlayFlags;
 f32 mathSinF(s16);
 f32 mathCosF(s16);
 s16 mathAngleFromVector2D(f32, f32);
-s16 mathAngleEaseToward(s16, s16, f32, s16);
+s16 mathAngleEaseToward(s16, s16, f32, s16); // FAKE: callee prototype steer
 void actorStepPhysics(Actor_BB40 *, s16, s16);
 void actorApplyVelocity(Actor_BB40 *);
 void actorUpdateFloorContactAndTilt(Actor_BB40 *, f32);
