@@ -8,10 +8,13 @@ clang never builds anything here: IDO stays the only compiler (tools/fdiff.sh, t
 Every tool parses with CLANG_ARGS (the Makefile's -D/-I flags, IDO's -signed as -fsigned-char)
 and without -DNON_MATCHING, so parked blocks are invisible as in the matching build.
 
-  uv run tools/clint.py scan [src.c...]                 parse errors and function counts per file
+  uv run tools/clint.py scan [src.c...]                 parse errors (werrors: of the warnings-mode parse
+                                                          `uninit` uses, first one shown) and function counts
   uv run tools/clint.py uninit <copy.c> [--base <src.c>] UNINIT <file>:<line> <function> <variable>;
                                                           --base: exit 1 on a (function, variable) pair
-                                                          the base lacks (NEW UNINIT ...)
+                                                          the base lacks (NEW UNINIT ...); exit 3 (UNKNOWN
+                                                          <file> ...) when either warnings-mode parse has
+                                                          errors: clang then skips the analysis
   uv run tools/clint.py layout --base <REV> <include/h.h>...
                                                           record sizes and field offsets vs REV:
                                                           LAYOUT OK (0) or LAYOUT CHANGED <Type> ... (1)
@@ -19,7 +22,7 @@ and without -DNON_MATCHING, so parked blocks are invisible as in the matching bu
   uv run tools/clint.py metrics <src.c>... [--json]     per-function gotos, empty ifs, no-op arithmetic,
                                                           punned casts, m2c names, unk fields, D_ refs,
                                                           plus `untagged` steering shapes without // FAKE
-Exit 2: libclang unavailable.
+Exit 2: libclang unavailable. Exit 3: uninit UNKNOWN.
 """
 import argparse
 import glob
@@ -64,15 +67,16 @@ def index():
 
 
 def clang_args(inc="include", warnings=False):
-    """CLANG_ARGS with the include root replaced by INC; WARNINGS swaps -Wno-everything for the uninit set."""
+    """CLANG_ARGS with the include root replaced by INC; WARNINGS enables the uninit set after
+    -Wno-everything, and nothing else: a default-error warning such as -Wint-conversion would make
+    clang skip the uninitialised-read analysis of every later function."""
     out = []
     for a in CLANG_ARGS:
         if a.startswith("-Iinclude"):
             a = "-I" + inc + a[len("-Iinclude"):]
+        out.append(a)
         if a == "-Wno-everything" and warnings:
             out += UNINIT_FLAGS
-            continue
-        out.append(a)
     return out
 
 
@@ -259,11 +263,19 @@ def src_files():
     return sorted(p for p in glob.glob("src/**/*.c", root_dir=ROOT, recursive=True) if "/libultra/" not in p)
 
 
+def first_error(tu):
+    """The first error/fatal diagnostic of TU, or None."""
+    return next((d for d in tu.diagnostics if d.severity >= ci.Diagnostic.Error), None)
+
+
 def cmd_scan(a):
     for p in a.files or src_files():
         tu = parse(p)
+        wtu = parse(p, args=clang_args(warnings=True))
         n = sum(1 for f in functions(tu, p) if f[2])
-        print(f"{p} errors={tu.diagnostics_errors} functions={n}")
+        print(f"{p} errors={tu.diagnostics_errors} werrors={wtu.diagnostics_errors} functions={n}")
+        if wtu.diagnostics_errors:
+            print(f"  werror: {first_error(wtu)}")
 
 
 VARNAME = re.compile(r"variable '(\w+)'")
@@ -289,12 +301,26 @@ def uninit(path, tu=None):
     return out
 
 
+def analysed_uninit(path):
+    """`uninit(PATH)`, or None after printing `UNKNOWN` when its warnings-mode parse has errors:
+    clang skips the uninitialised-read analysis of every function after a TU's first error, so no
+    warning there is unknown, not none."""
+    tu = parse(path, args=clang_args(warnings=True))
+    if tu.diagnostics_errors:
+        print(f"UNKNOWN {path}: {tu.diagnostics_errors} error(s) in the warnings-mode parse, uninitialised "
+              f"reads not analysed; first: {first_error(tu)}")
+        return None
+    return uninit(path, tu)
+
+
 def cmd_uninit(a):
-    cur = uninit(a.copy)
-    for (fn, var), line in sorted(cur.items(), key=lambda x: x[1]):
+    cur = analysed_uninit(a.copy)
+    for (fn, var), line in sorted((cur or {}).items(), key=lambda x: x[1]):
         print(f"UNINIT {a.copy}:{line} {fn} {var}")
+    base = analysed_uninit(a.base) if a.base else {}
+    if cur is None or base is None:
+        sys.exit(3)
     if a.base:
-        base = uninit(a.base)
         new = [(k, v) for k, v in cur.items() if k not in base]
         for (fn, var), line in sorted(new, key=lambda x: x[1]):
             print(f"NEW UNINIT {a.copy}:{line} {fn} {var}")
@@ -341,8 +367,7 @@ def records(args, rel):
     path = "/clint-virtual/layout.c"  # virtual: no directory whose headers could shadow REL
     tu = parse(path, args=args, unsaved=[(path, f'#include "common.h"\n#include "{rel}"\n')])
     if tu.diagnostics_errors:
-        first = next(d for d in tu.diagnostics if d.severity >= ci.Diagnostic.Error)
-        print(f"clint: {rel}: {first}", file=sys.stderr)
+        print(f"clint: {rel}: {first_error(tu)}", file=sys.stderr)
     out = {}
 
     def add(name, t):

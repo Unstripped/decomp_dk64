@@ -16,7 +16,6 @@ One row per cleanup round, newest last; keep the last ~10. Read when sizing a ro
 - Header requests not landed: 103AB0 (PlayerStruct unk234[3]/unk24C/viewport[2]/unk290/unk2E8; PlayerState unk1E8/unk1EC; 7 `views blocked`), 42630 (54150 `modelSlotStepAnimations(s16)`; Actor unk10E/unk10F, unk12F split; csStateUpdate/csCmdExec reviews), full hunks and evidence in `drafts/header-requests/`.
 - Callee batches: mathAngleSignedDistance K&R → ANSI (owner CEAE0; race/1770 passes 3 args); actorStepPhysics (Actor *, s16, s16); func_80600340 pointer param; actorAppendCallback 2nd param Actor *; actorSetTargetAngleAndCheck Actor *; actorList* s32 → void *; sfxPlayAtPositionPooled word params?; actorSpawn arity (89250); mathAngleBetweenPoints2D steers in 478F0/E4090/boss/0; minecart/25F0 mathAngleDistance; slotQueueAddValue arity (C2A90).
 - Types: race RaceUnknown174 vs RaceStruct3; B100 BossWorkState view; boss/8520 s32 view of unk28; 12E800 C1Act view past 0x178.
-- Tools: `clint uninit --base` must treat a base whose warnings-mode TU has errors as unknown (critter/0); `clint scan` should report warnings-mode errors.
 - Still OPEN from round 3: 89250 actorSpawnEffectChild; F56F0 5 (blocked reviews, playerWaypointPathsLoad consolidate); 103AB0 7 (views blocked on its header request); 42630 csStateUpdate, csCmdExec; 478F0 25 (23 noise-stale).
 
 ## Proposed names (not yet applied)

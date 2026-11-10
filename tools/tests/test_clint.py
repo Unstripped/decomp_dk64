@@ -37,6 +37,32 @@ def test_uninit_base_flags_new_uninitialised_read(tmp_path):
     assert "NEW UNINIT" not in r.stdout
 
 
+def test_uninit_default_error_warnings_and_parse_errors(tmp_path):
+    # critter/0: a default-error -Wint-conversion in the warnings-mode parse made clang skip the
+    # base's analysis, so its pre-existing reads looked new; only the uninit warnings are enabled now
+    head = "void g(void *p);\nvoid h(s32 v) {\n    g(%s);\n}\nvoid f(void)"
+    conv = tmp_path / "conv.c"
+    conv.write_text(BASE.replace("void f(void)", head % "v").replace("    x = 0;\n", ""))
+    fixed = tmp_path / "fixed.c"
+    fixed.write_text(BASE.replace("void f(void)", head % "(void *)v").replace("    x = 0;\n", ""))
+    r = uninit_cli(fixed, conv)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert f"UNINIT {fixed}:" in r.stdout and "NEW UNINIT" not in r.stdout
+    # a real parse error before f still hides its reads: unknown, not clean
+    broken = tmp_path / "broken.c"
+    broken.write_text(BASE.replace("void f(void)", "void h(void) {\n    undeclared = 1;\n}\nvoid f(void)")
+                      .replace("    x = 0;\n", ""))
+    r = uninit_cli(fixed, broken)
+    assert r.returncode == 3, r.stdout + r.stderr
+    assert f"UNKNOWN {broken}: 1 error(s)" in r.stdout and "undeclared" in r.stdout
+    assert f"UNINIT {fixed}:" in r.stdout and "NEW UNINIT" not in r.stdout
+    assert uninit_cli(broken, broken).returncode == 3
+    r = subprocess.run([sys.executable, str(REPO_ROOT / "tools" / "clint.py"), "scan", str(broken), str(conv)],
+                       capture_output=True, text=True)
+    assert f"{broken} errors=1 werrors=1 functions=2" in r.stdout and "  werror: " in r.stdout
+    assert f"{conv} errors=0 werrors=0 functions=2" in r.stdout
+
+
 HEADER = """typedef struct Fix {
     s32 unk0;
     char pad4[0xC];
