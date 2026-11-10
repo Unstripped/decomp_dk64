@@ -3,9 +3,7 @@
 #define PROTO_GLOBAL_CC800_H
 #include "common.h"
 #include "actor.h"
-struct G00Entry;
 struct G01Ctl;
-struct G01Pos;
 #ifndef PROTO_SKIP_collectibleCountsClear
 void collectibleCountsClear(void);
 #endif
