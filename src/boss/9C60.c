@@ -115,7 +115,7 @@ void camSetSecondTarget(struct CamActor *, s16, s16);
 s32 currentActorTestClearFlag(void);
 void csModelStateSetFirstByte(s16, s16);
 void projectileGetTargetCoords(BossC_9C60_Actor *, s32);
-void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
+void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, Actor *);
 void func_80724CA4(s16, s16);
 void func_80724E48(u8);
 u8 func_8072881C(u8, u32 *);

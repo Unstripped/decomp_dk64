@@ -107,7 +107,7 @@ void actorSpawnNodeEntryAtActor(s32 arg0, s16 arg1) {
     Actor *actor;
 
     actor = gCurrentActor;
-    actorSpawnNodeEntryScaled(arg0, actor->x, actor->y, actor->z, 0, 0, arg1, (s32)actor);
+    actorSpawnNodeEntryScaled(arg0, actor->x, actor->y, actor->z, 0, 0, arg1, actor);
 }
 
 void actorPlaceAttachedChildren(s16 arg0) {

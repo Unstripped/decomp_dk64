@@ -352,7 +352,7 @@ void bossClearMinigame(void) {
 }
 
 void sfxAllocateChannel(s32, f32);
-void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
+void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, Actor *);
 
 extern s32 D_8074E880[];
 

@@ -55,7 +55,7 @@ typedef struct ActorListNode {
     /* 0x4A */ s16 chunkIndex;
     /* 0x4C */ u8 spawnMode;
     /* 0x4D */ char unk4D[3];
-    /* 0x50 */ s32 extraParam;
+    /* 0x50 */ Actor *extraParam;
     /* 0x54 */ f32 radiusSq;
     /* 0x58 */ s16 animAssetId;
     /* 0x5A */ s16 id;
@@ -424,14 +424,14 @@ void actorListSpawnNodePersistent(s16 actorType, f32 posX, f32 posY, f32 posZ, s
     actorListSpawnNodeInternal(actorType, posX, posY, posZ, yaw, scale, &subData, 0, 0, actorListAllocId());
 }
 
-void actorListSpawnNodeEntryDefault(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, s32 extraParam) {
+void actorListSpawnNodeEntryDefault(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, Actor *extraParam) {
     ActorListSub20 subData;
 
     subData = D_807500D4;
     actorListSpawnNodeInternal((s16)(actorType - 0x10), posX, posY, posZ, yaw, scale, &subData, 1, extraParam, actorListAllocId());
 }
 
-void actorListSpawnNodeEntry(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, s32 extraParam, void *customData) {
+void actorListSpawnNodeEntry(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, Actor *extraParam, void *customData) {
     actorListSpawnNodeInternal((s16)(actorType - 0x10), posX, posY, posZ, yaw, scale, customData, 1, extraParam, actorListAllocId());
 }
 
@@ -447,7 +447,7 @@ typedef struct ActorListSpawnEntry {
 } ActorListSpawnEntry;
 extern ActorListSpawnEntry D_8074E8B0[];
 
-ActorListNode *actorListSpawnNodeInternal(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, void *customData, u8 spawnMode, s32 extraParam, s16 targetId) {
+ActorListNode *actorListSpawnNodeInternal(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, void *customData, u8 spawnMode, Actor *extraParam, s16 targetId) {
     ActorListNode *node;
     s32 i;
     s32 found;

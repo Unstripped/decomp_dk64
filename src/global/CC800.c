@@ -256,7 +256,7 @@ void func_806C80E4(void) {
     offsetX = mathSinF(gPrimaryPlayerActor->yaw) * distance;
     offsetZ = mathCosF(gPrimaryPlayerActor->yaw) * distance;
     actorListSpawnNodeEntryDefault(D_807FD570, gPrimaryPlayerActor->x + offsetX, gPrimaryPlayerActor->y + 7.0,
-                                   gPrimaryPlayerActor->z + offsetZ, 0, 1.0f, (s32)gPrimaryPlayerActor);
+                                   gPrimaryPlayerActor->z + offsetZ, 0, 1.0f, gPrimaryPlayerActor);
     ((PlayerState *)gPrimaryPlayerActor->customState)->stateFlags |= 0x01000000;
 }
 

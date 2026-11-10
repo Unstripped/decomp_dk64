@@ -2566,7 +2566,7 @@ void cannonUpdate(void) {
             pitch = mathAtan2(gPlayerSlots->focusY - gPlayerSlots->camY, sqrtf(x * x + y * y));
             sinV = sinApprox(pitch) * D_8074E808;
             y = cosApprox(pitch) * D_8074E808;
-            projectileSpawnNodeEntry(0x4A, 0, 0.6f, sub->aimYaw, y, sinV, (s32)gCurrentActor);
+            projectileSpawnNodeEntry(0x4A, 0, 0.6f, sub->aimYaw, y, sinV, gCurrentActor);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17, 0xFF, 0x7F, 0x19);
             sub->shotsLeft--;
             if (sub->shotsLeft == 0) {

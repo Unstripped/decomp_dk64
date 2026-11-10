@@ -61,19 +61,19 @@ void projectileSetTargetCoords(f32, f32, f32);
 void projectileGetTargetCoords(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_projectileSpawnNodeEntry
-void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
+void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, Actor *);
 #endif
 #ifndef PROTO_SKIP_projectileCalculateTrajectoryAndSpawn
-void projectileCalculateTrajectoryAndSpawn(s16, s16, s16, f32, f32, f32, f32, f32, s32);
+void projectileCalculateTrajectoryAndSpawn(s16, s16, s16, f32, f32, f32, f32, f32, Actor *);
 #endif
 #ifndef PROTO_SKIP_projectileAimAndSpawn
-void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, s32);
+void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, Actor *);
 #endif
 #ifndef PROTO_SKIP_projectileClampAngleAndSpawn
-void projectileClampAngleAndSpawn(s16, s16, s16, s16, f32, f32, f32, f32, f32, s32);
+void projectileClampAngleAndSpawn(s16, s16, s16, s16, f32, f32, f32, f32, f32, Actor *);
 #endif
 #ifndef PROTO_SKIP_projectileAimFromActorAndSpawn
-void projectileAimFromActorAndSpawn(s16, s16, f32, Actor *, s32, f32, s32);
+void projectileAimFromActorAndSpawn(s16, s16, f32, Actor *, s32, f32, Actor *);
 #endif
 #ifndef PROTO_SKIP_projectileSteerTowardTarget
 void projectileSteerTowardTarget();

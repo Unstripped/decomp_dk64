@@ -865,7 +865,7 @@ void projectileGetTargetCoords(Actor *actor, s32 node) {
     actorGetNodePos(actor, node, &D_807FC7B0, &D_807FC7B4, &D_807FC7B8);
 }
 
-void projectileSpawnNodeEntry(s16 type, s16 param, f32 speed, s16 yaw, f32 horizSpeed, f32 vertSpeed, s32 flags) {
+void projectileSpawnNodeEntry(s16 type, s16 param, f32 speed, s16 yaw, f32 horizSpeed, f32 vertSpeed, Actor *owner) {
     ProjectileSpawnParams params;
 
     params.unk0 = (f32)(((f64)yaw / 4095.0) * 6.28318548202514648);
@@ -874,24 +874,24 @@ void projectileSpawnNodeEntry(s16 type, s16 param, f32 speed, s16 yaw, f32 horiz
     params.unk8 = vertSpeed;
     params.unk10 = (f32)param;
     params.unk14 = (f32)(u32)D_80750270;
-    actorListSpawnNodeEntry(type, D_807FC7B0, D_807FC7B4, D_807FC7B8, 0, speed, flags, &params);
+    actorListSpawnNodeEntry(type, D_807FC7B0, D_807FC7B4, D_807FC7B8, 0, speed, owner, &params);
     D_80750270 = 0;
 }
 
-void projectileCalculateTrajectoryAndSpawn(s16 yaw, s16 type, s16 param, f32 speed, f32 targetX, f32 targetY, f32 targetZ, f32 flightTime, s32 flags) {
+void projectileCalculateTrajectoryAndSpawn(s16 yaw, s16 type, s16 param, f32 speed, f32 targetX, f32 targetY, f32 targetZ, f32 flightTime, Actor *owner) {
     f32 dist;
     f32 dy;
 
     dist = sqrtf(((targetX - D_807FC7B0) * (targetX - D_807FC7B0)) + ((targetY - D_807FC7B4) * (targetY - D_807FC7B4)) + ((targetZ - D_807FC7B8) * (targetZ - D_807FC7B8)));
     dy = targetY - D_807FC7B4;
-    projectileSpawnNodeEntry(type, param, speed, yaw, sqrtf(((targetX - D_807FC7B0) * (targetX - D_807FC7B0)) + ((targetZ - D_807FC7B8) * (targetZ - D_807FC7B8))) / (dist / flightTime), dy / (dist / flightTime), flags);
+    projectileSpawnNodeEntry(type, param, speed, yaw, sqrtf(((targetX - D_807FC7B0) * (targetX - D_807FC7B0)) + ((targetZ - D_807FC7B8) * (targetZ - D_807FC7B8))) / (dist / flightTime), dy / (dist / flightTime), owner);
 }
 
-void projectileAimAndSpawn(s16 type, s16 param, f32 speed, f32 targetX, f32 targetY, f32 targetZ, f32 flightTime, s32 flags) {
-    projectileCalculateTrajectoryAndSpawn(mathAngleBetweenPoints2D(targetX, targetZ, D_807FC7B0, D_807FC7B8), type, param, speed, targetX, targetY, targetZ, flightTime, flags);
+void projectileAimAndSpawn(s16 type, s16 param, f32 speed, f32 targetX, f32 targetY, f32 targetZ, f32 flightTime, Actor *owner) {
+    projectileCalculateTrajectoryAndSpawn(mathAngleBetweenPoints2D(targetX, targetZ, D_807FC7B0, D_807FC7B8), type, param, speed, targetX, targetY, targetZ, flightTime, owner);
 }
 
-void projectileClampAngleAndSpawn(s16 centerYaw, s16 maxSpread, s16 type, s16 param, f32 speed, f32 targetX, f32 targetY, f32 targetZ, f32 flightTime, s32 flags) {
+void projectileClampAngleAndSpawn(s16 centerYaw, s16 maxSpread, s16 type, s16 param, f32 speed, f32 targetX, f32 targetY, f32 targetZ, f32 flightTime, Actor *owner) {
     s16 lowYaw;
     s16 highYaw;
     s16 yaw;
@@ -906,16 +906,16 @@ void projectileClampAngleAndSpawn(s16 centerYaw, s16 maxSpread, s16 type, s16 pa
             yaw = highYaw;
         }
     }
-    projectileCalculateTrajectoryAndSpawn(yaw, type, param, speed, targetX, targetY, targetZ, flightTime, flags);
+    projectileCalculateTrajectoryAndSpawn(yaw, type, param, speed, targetX, targetY, targetZ, flightTime, owner);
 }
 
-void projectileAimFromActorAndSpawn(s16 type, s16 param, f32 speed, Actor *target, s32 node, f32 flightTime, s32 flags) {
+void projectileAimFromActorAndSpawn(s16 type, s16 param, f32 speed, Actor *target, s32 node, f32 flightTime, Actor *owner) {
     f32 nodeX;
     f32 nodeY;
     f32 nodeZ;
 
     actorGetNodePos(target, node, &nodeX, &nodeY, &nodeZ);
-    projectileAimAndSpawn(type, param, speed, nodeX, nodeY, nodeZ, flightTime, flags);
+    projectileAimAndSpawn(type, param, speed, nodeX, nodeY, nodeZ, flightTime, owner);
 }
 
 typedef struct OwnerPlayerStateView {

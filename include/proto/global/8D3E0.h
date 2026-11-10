@@ -50,13 +50,13 @@ void actorListSpawnFromRecords(s32 *);
 void actorListSpawnNodePersistent(s16, f32, f32, f32, s16, f32);
 #endif
 #ifndef PROTO_SKIP_actorListSpawnNodeEntryDefault
-void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s16, f32, s32);
+void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s16, f32, Actor *);
 #endif
 #ifndef PROTO_SKIP_actorListSpawnNodeEntry
-void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
+void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, Actor *, void *);
 #endif
 #ifndef PROTO_SKIP_actorListSpawnNodeInternal
-struct ActorListNode *actorListSpawnNodeInternal(s16, f32, f32, f32, s16, f32, void *, u8, s32, s16);
+struct ActorListNode *actorListSpawnNodeInternal(s16, f32, f32, f32, s16, f32, void *, u8, Actor *, s16);
 #endif
 #ifndef PROTO_SKIP_actorListUpdateSpawns
 void actorListUpdateSpawns(void);

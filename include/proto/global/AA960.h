@@ -7,7 +7,7 @@
 void sfxSpawnTableNodes(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorSpawnNodeEntryScaled
-void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
+void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, Actor *);
 #endif
 #ifndef PROTO_SKIP_effectSpawnAttachedSprite
 void effectSpawnAttachedSprite(void *, void *, f32);

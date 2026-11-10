@@ -1297,7 +1297,7 @@ void actorSpawnEffectAndTick(void) {
         gCurrentActor->cullMarginX = 0x3C;
         gCurrentActor->cullMarginY = 0x3C;
         actorListSpawnNodeEntryDefault(0x83, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z,
-                      0, 1.0f, (s32)gCurrentActor);
+                      0, 1.0f, gCurrentActor);
     }
     textMarkerUpdateMatrix();
     if (!(gCurrentActor->flags & 0x10)) {

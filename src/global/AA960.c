@@ -87,7 +87,7 @@ void sfxSpawnTableNodes(Actor *actor) {
     }
 }
 
-void actorSpawnNodeEntryScaled(s16 actorType, f32 x, f32 y, f32 z, s32 yaw, s32 pitch, s32 roll, s32 extraParam) {
+void actorSpawnNodeEntryScaled(s16 actorType, f32 x, f32 y, f32 z, s32 yaw, s32 pitch, s32 roll, Actor *extraParam) {
     s32 pad[6];
     f32 vec[3];
     f32 scale;

@@ -110,7 +110,7 @@ void bossAnimFrameBounceStep(void) {
 
 
 void projectileGetTargetCoords(void *, s32);
-void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, s32);
+void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, Actor *);
 
 void bossKutOutFireLaser(void) {
     projectileGetTargetCoords(gCurrentActor, 1);
