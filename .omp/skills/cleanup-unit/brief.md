@@ -48,6 +48,10 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
   `python3 tools/quirks.py search --symptom <tag> <words from the site or diff>`
   (`python3 tools/quirks.py tags` lists tags); cite the IDs you used.
 - `lsp` (clangd, `compile_commands.json` at the repo root) resolves definitions and references.
+- A turn ends only when all five phases are done for EVERY function. Workers stopping after
+  ~10 requests with "partial" on 54–86-function files was wrong: the budget stop applies only to
+  100+ function files and only once the request budget is really spent (then report a valid
+  LEDGER for the functions done and name the phases left).
 
 # Phases (in order, one pass over the file each)
 1. types: a file-local struct view of a shared global becomes the shared type (`include/actor.h`
@@ -70,7 +74,7 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
      so the shared `include/proto/` prototype applies; fdiff.
 3. gotos: rewrite with structured control flow (`goto-hand`); a shared tail the compiler
    produced from one block stays (`kept`, cite Q0591) only with that evidence.
-4. names: m2c names (`sp34`, `var_s1`, `temp_v0`, `phi_*`, `argN`) of locals and params and
+4. names: m2c names (`sp34`, `var_s1`, `temp_v0`, `phi_*`, and `argN` params too) of locals and params and
    `unkXX` fields of structs defined in your `.c` file, via
    `uv run tools/rename.py local|field ...` on the copy (`--dry-run` first); fdiff after each
    batch. Cross-file names (functions, globals, `include/` fields): propose only.
@@ -96,8 +100,9 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
    methods `remove plain cond classify consolidate diagnose permute reconstruct goto-hand
    views names review`; outcomes `hit fixed nohit kept blocked`. Rules: `diagnose` needs
    `quirks=`; `permute` needs `base= best=` and `seconds>=600` (shorter only when it stopped at `best=0`); `kept` only for `classify`
-   (`note="class 1"`) or `goto-hand` (note cites Q0591). A site you fixed: `fixed` on the
-   method that fixed it. Every function: `func:<seg>:<name> review <fixed|nohit|blocked>
+   (`note="class 1"`) or `goto-hand` (note cites Q0591). A diagnosis that keeps the site is
+   `diagnose nohit` (never `hit`: `hit` reopens the site as next=apply). A site you fixed:
+   `fixed` on the method that fixed it. Every function: `func:<seg>:<name> review <fixed|nohit|blocked>
    note="fake=<kept>/<removed> goto=<n> casts=<n kept> views=<ok|n left> protos=<ok|n steer>
    temps=<ok|n> names=<n m2c left> uninit=<0|n>"`.
    Validate the block before reporting with `uv run tools/quality.py record --dry-run --unit U

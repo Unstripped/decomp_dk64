@@ -74,17 +74,17 @@ every user with `uv run tools/rename.py field --dry-run include/<h>.h <Struct> <
 a checked-out file. Snapshot users, edit them, `touch` + `tools/objdiff.sh` each, then
 `uv run tools/clint.py layout --base HEAD include/<h>.h` → `LAYOUT OK`, then
 `tools/merge_gate.sh --commit "include: <what>" --stage include/<h>.h - - <edited src files>`
-(anchor one src file if none). Batch header changes: each commit restales sweep results of the
-functions that reach the changed declarations (`fp_hdr2`; re-sweep them, `carry` the rest).
-Then message every running agent (`write agent://<A>`) with the new HEAD and the hunk.
+(anchor one src file if none). Each header commit stales the rungs of every function reaching
+the changed struct (`fp_hdr2`), including agent rungs (consolidate/diagnose/permute/review), even
+when it only carves padding; `carry` skips those (known gap: no carry mode for layout-only
+header edits): re-sweep `--record`, re-record the agents' own lines, re-run `protos.py
+consolidate <src> --out DIR` for stale `consolidate` rungs. Then message every running agent (`write agent://<A>`) with the new HEAD and the hunk.
 
 Callee-prototype work (steers kept because the OWNER's definition has the wrong types) is its
 own workstream: batches by owner file, only when no touched file is checked out. Per batch the
 owner copy is merged alone (it fails on the stale header), then `protos.py gen`, then the caller
 copies, then one commit gate `--stage include/proto/<seg>/<owner>.h - - <all touched files>`
-(snapshot any file lacking a base); sweep + carry every touched file. Round 1 retired ≈100 steers
-this way (`.scratch/Clean478F0/protoplan.md`: group steers by callee, verify each caller with a
-stand-in header, add a tagged steer only where a caller's code really changes).
+(snapshot any file lacking a base); sweep + carry every touched file (`.scratch/Clean478F0.round1/protoplan.md`).
 
 ## 5. Merge
 
@@ -95,19 +95,19 @@ As each agent reports:
 3. Merge per decomp-unit merge.md:
    `tools/merge_gate.sh --commit "<seg>: clean <f> (<n> FAKE −, <n> goto −)" .scratch/<A> <base> src/<seg>/<f>.c`.
    Read `GATE_OK` and `COMMITTED`; never pipe the gate.
-4. A copy that changed a non-static signature fails the gate on its now-stale generated header
-   (the merge stays in `src/`): run `uv run tools/protos.py gen`, then
-   `tools/merge_gate.sh --commit MSG --stage include/proto/<seg>/<f>.h [...] - - src/<seg>/<f>.c`
-   (one `--stage` per header `gen` wrote; `--stage` copies files, never a directory). After
-   every merge `uv run tools/protos.py gen --check` must exit 0.
-5. Knowledge first: file the report's IDO findings (`quirks.py search`, then edit the entry or
-   `quirks.py add --source <path>@<merge commit>`; `quirks.py check`) and commit them BEFORE
-   recording. A knowledge commit after an event that names its function makes that event
-   stale (the pilot's own findings re-opened its file).
-6. Record: save the LEDGER block to `.scratch/<A>/ledger.txt`, then
-   `uv run tools/quality.py record --unit "<unit>" --agent <A> --base <base> --batch .scratch/<A>/ledger.txt`
-   (all-or-nothing: fix the lines it rejects with the agent; keys that exist only in the copy
-   resolve once it is merged). Commit `drafts/quality.jsonl` (`quality: <unit> <f>`).
+4. A copy that changed a non-static signature carries stand-in `#define PROTO_SKIP_<f>` lines
+   plus declarations: after the merge delete both, `uv run tools/protos.py gen` (a function it
+   SKIPs, e.g. untagged local struct param, keeps its in-file declaration), objdiff every caller
+   and includer, then `tools/merge_gate.sh --commit MSG --stage include/proto/<seg>/<f>.h - -
+   src/<seg>/<f>.c` (one `--stage` per header written). Afterwards `protos.py gen --check` exits 0.
+5. Knowledge first: file the report's IDO findings (`quirks.py search`, edit the entry or `add
+   --source <path>@<merge commit>`; `quirks.py check`) and commit BEFORE recording (a later
+   knowledge commit stales events naming its functions).
+6. Record: `uv run tools/quality.py record --unit "<unit>" --agent <A> --base <base> --batch
+   .scratch/<A>/ledger.txt` (all-or-nothing). Copy-only keys: record the base-key lines at the
+   copy base, then `sweep <src> --record` (writes their remove/plain/cond/classify), then re-key
+   the agent's other lines (base→final key map by function, kind, line order) and record them
+   `--base <merge commit>`. Commit `drafts/quality.jsonl` (`quality: <unit> <f>`).
 
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full
 ROM gate; the net count of HACKS in a merged file (tagged `// FAKE` + untagged AST sites)
