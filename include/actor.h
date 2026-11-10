@@ -170,7 +170,9 @@ typedef struct ActorGlobalState {
 typedef struct Actor {
     /* 0x000 */ u8 unk00[4];
     /* 0x004 */ ActorSub4 *sub4;
-    /* 0x008 */ u8 unk08[0x4C];
+    /* 0x008 */ u8 unk08[4];
+    /* 0x00C */ f32 modelMtx[4][4];
+    /* 0x04C */ u8 unk4C[8];
     /* 0x054 */ s32 instanceId;
     /* 0x058 */ s32 actorType;
     /* 0x05C */ u16 collisionFlags;

@@ -1909,7 +1909,7 @@ void tagBarrelParticleUpdate(void) {
     if (gCurrentMap == 0xCB) {
         gCurrentActor->flags |= 0x400;
     }
-    guRotateF((float (*)[4])&gCurrentActor->unk08[4], sub->pitch, 1.0f, 0, 0.0f);
+    guRotateF(gCurrentActor->modelMtx, sub->pitch, 1.0f, 0, 0.0f);
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
 

@@ -376,7 +376,7 @@ void func_8068EF54(void) {
     matrixMakeRotationX(rotX, 0xC2B40000);
     guMtxCatF(rotY, rotX, rotY);
     guAlignF(rotX, pitch * 57.295776f + 180.0f, boneX - gCurrentActor->x, boneY - gCurrentActor->y, boneZ - gCurrentActor->z);
-    guMtxCatF(rotY, rotX, (f32(*)[4])((u8 *)gCurrentActor + 0xC));
+    guMtxCatF(rotY, rotX, gCurrentActor->modelMtx);
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
 
@@ -2673,9 +2673,9 @@ void projectileMatrixRotationUpdate(void) {
     if ((u32)(extra->unk0 + lifetime) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
-    guRotateF((void *)((u8 *)gCurrentActor + 0xC), extra->unkC, 0.0f, 0.0f, 1.0f);
+    guRotateF(gCurrentActor->modelMtx, extra->unkC, 0.0f, 0.0f, 1.0f);
     guRotateF(pitchMtx, extra->unk8, 1.0f, 0.0f, 0.0f);
-    guMtxCatF((void *)((u8 *)gCurrentActor + 0xC), pitchMtx, (void *)((u8 *)gCurrentActor + 0xC));
+    guMtxCatF(gCurrentActor->modelMtx, pitchMtx, gCurrentActor->modelMtx);
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
 
@@ -2755,7 +2755,7 @@ void actorApplyTransformAndRender(void) {
 
     state = gCurrentActor->customState;
     projectileRotatingLightUpdate(0.0f, 1);
-    matrixMakeRotationX((u8 *)gCurrentActor + 0xC, state->unk8);
+    matrixMakeRotationX(gCurrentActor->modelMtx, state->unk8);
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
 
