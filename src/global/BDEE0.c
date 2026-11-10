@@ -18,6 +18,7 @@
 #include "proto/global/89250.h"
 #include "proto/global/AA960.h"
 #include "proto/global/B1F60.h"
+#define PROTO_SKIP_actorSpawnJitteredChild
 #include "proto/global/BDEE0.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"
@@ -727,7 +728,7 @@ void behaviourFairyInitPlayerScale(void) {
 
 typedef struct BDEE0Sub174 {
     /* 0x00 */ struct BDEE0Sub174Hdr *unk0;
-    /* 0x04 */ s32 unk4;
+    /* 0x04 */ Actor *occupant;
     /* 0x08 */ u8 pad8[0x26];
     /* 0x2E */ s16 unk2E;
 } BDEE0Sub174;
@@ -740,7 +741,7 @@ typedef struct BDEE0Sub174Hdr {
 extern Actor *gSpawnedActor;
 
 
-s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, s32 extraParam) {
+s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, Actor *occupant) {
     BDEE0Sub174 *v;
     s32 r3;
     s32 r2;
@@ -764,9 +765,9 @@ s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, s32 extraParam)
         gSpawnedActor->unk155 = 0;
         v = gSpawnedActor->customState;
         v->unk2E = 0x1E;
-        if (extraParam != 0) {
+        if (occupant != NULL) {
             v->unk0->unk46 &= ~8;
-            v->unk4 = extraParam;
+            v->occupant = occupant;
         }
         gSpawnedActor->unk144 = 1;
         gSpawnedActor->drawDistance = 0x3E8;
@@ -850,7 +851,7 @@ void behaviourFairyWanderUpdate(void) {
         }
         break;
     case 2:
-        if (actorSpawnJitteredChild(0x2A, x, y, 0) != 0) {
+        if (actorSpawnJitteredChild(0x2A, x, y, NULL) != 0) {
             gCurrentActor->state++;
         }
         break;
@@ -862,8 +863,8 @@ void behaviourFairyWanderUpdate(void) {
         break;
     case 4:
         behaviourFairyPlaySound();
-        actorSpawnJitteredChild(0x28, x, y, 0);
-        if (actorSpawnJitteredChild(0x29, (s16)(x + 0x28), (s16)(y + 0x50), 0) != 0) {
+        actorSpawnJitteredChild(0x28, x, y, NULL);
+        if (actorSpawnJitteredChild(0x29, (s16)(x + 0x28), (s16)(y + 0x50), NULL) != 0) {
             gCurrentActor->state++;
         }
         break;
@@ -875,8 +876,8 @@ void behaviourFairyWanderUpdate(void) {
         break;
     case 6:
         behaviourFairyPlaySound();
-        actorSpawnJitteredChild(0x2B, x, y, 0);
-        if (actorSpawnJitteredChild(0x2C, (s16)(x + 0x28), (s16)(y + 0x50), 0) != 0) {
+        actorSpawnJitteredChild(0x2B, x, y, NULL);
+        if (actorSpawnJitteredChild(0x2C, (s16)(x + 0x28), (s16)(y + 0x50), NULL) != 0) {
             gCurrentActor->state++;
         }
         break;
@@ -901,7 +902,7 @@ void behaviourFairyWanderUpdate(void) {
                 behaviourFairyPlaySound();
             }
             if (BDEE0A->unk155) {
-                actorSpawnJitteredChild((u8)(tbl.b[BDEE0A->unk155--] + 0x22), (s16)(t * 8 + 0x64), (s16)(t * 20 + 0xFA), (s32)D_807FDCA0->occupant);
+                actorSpawnJitteredChild((u8)(tbl.b[BDEE0A->unk155--] + 0x22), (s16)(t * 8 + 0x64), (s16)(t * 20 + 0xFA), D_807FDCA0->occupant);
             } else {
                 gCurrentActor->flags &= 0xFFFF7FFF;
                 gCurrentActor->unk144 = 1;
