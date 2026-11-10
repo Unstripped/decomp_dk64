@@ -45,6 +45,9 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
   A function DEFINED in your file whose prototype needs another type is not a header request:
   retype the definition and fdiff a stand-in copy (`#define PROTO_SKIP_<f>` + the new
   declaration after the includes); the orchestrator regenerates the header at merge.
+  Retyping a definition other files call: deliver a bundle (owner copy + stand-in copies of the
+  callers that fdiff). For a header change you need now, put a shadow header beside your copies
+  (quoted includes find it first), fdiff against it, and deliver the hunk as a `.patch`.
 - Relocation-only differences (a split splat label vs parent+offset, `D_x+4` vs `D_x4`) are
   accepted only with raw-word proof: `objdump -drz` of both objects shows equal instruction words
   except LO16/HI16 symbol+addend resolving to the same address. deadsweep's normalisation hides
@@ -106,7 +109,8 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
    calls through; m2c-shaped names; `clint uninit` warnings. Each problem: fix it now (fdiff)
    or make it a site (`other`; its key is in the output of `uv run tools/quality.py sweep
    .scratch/<You>/<file>.c --copy-of <src>`: `status` reads `src/` only) and take it through
-   phases 2–4. Then one `review` LEDGER line per function.
+   phases 2–4. Then one `review` LEDGER line per function, for a function you actually read in
+   this task; never derive a review from a diff or an earlier note.
 
 # Report (final message)
 1. Copy path, base commit, final `fdiff` and `clint uninit` results, FAKE/goto counts before → after.
