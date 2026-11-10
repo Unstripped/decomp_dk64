@@ -3,14 +3,13 @@
 #define PROTO_GLOBAL_2F550_H
 #include "common.h"
 #include "actor.h"
+#include "render.h"
 struct MapBspNode;
-struct MapDistributeEntry;
 struct MapFileHeader;
 struct MapNodeEffects;
 struct MapRelocNode;
 struct MapViewEntries;
 struct MapVisNode;
-struct PlanePoly;
 struct RawGfxCmd;
 #ifndef PROTO_SKIP_cameraStepAspectScale
 f32 cameraStepAspectScale(void);
@@ -118,13 +117,13 @@ s32 mapPurgeNodeList(s32, s16 *, u8);
 u8 mapTreePurgeNodeList(struct MapBspNode *, struct MapVisNode *, s32, s16 *, u8);
 #endif
 #ifndef PROTO_SKIP_mapDistributeEntries
-void mapDistributeEntries(struct MapDistributeEntry *);
+void mapDistributeEntries(RenderEntry *);
 #endif
 #ifndef PROTO_SKIP_mapTreeDistributeEntries
-void mapTreeDistributeEntries(struct MapBspNode *, struct MapVisNode *, struct MapDistributeEntry *);
+void mapTreeDistributeEntries(struct MapBspNode *, struct MapVisNode *, RenderEntry *);
 #endif
 #ifndef PROTO_SKIP_mapTreeFrameUpdate
-void mapTreeFrameUpdate(struct MapBspNode *, struct MapVisNode *, struct MapDistributeEntry *, f32, f32, f32, u8, u8, u8);
+void mapTreeFrameUpdate(struct MapBspNode *, struct MapVisNode *, RenderEntry *, f32, f32, f32, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_mapNodeBoxInFrustum
 s32 mapNodeBoxInFrustum(struct MapBspNode *, f32, f32, f32);

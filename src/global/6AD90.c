@@ -2425,7 +2425,7 @@ s32 collisionBstCountNodes(CollisionBstNodeBase *node) {
 }
 
 
-void collisionBstLookupByHash(s32 arg0, s32 arg1, s32 arg2) {
+void collisionBstLookupByHash(s32 arg0, s32 *arg1, s32 *arg2) {
     collisionBstLookupOrAssert(D_807F9628[collisionGetBucketIndex(arg0)], arg0, arg1, arg2);
 }
 

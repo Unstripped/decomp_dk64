@@ -3,8 +3,8 @@
 #define PROTO_GLOBAL_35000_H
 #include "common.h"
 #include "actor.h"
+#include "render.h"
 struct GfxWords;
-struct RenderEntry;
 #ifndef PROTO_SKIP_renderEntryListsReset
 void renderEntryListsReset(void);
 #endif
@@ -30,7 +30,7 @@ struct RenderEntry *renderEntryListPurgeUntouched(struct RenderEntry *);
 void renderEntryListClearTouched(struct RenderEntry *);
 #endif
 #ifndef PROTO_SKIP_renderEntrySetDistanceOverride
-void renderEntrySetDistanceOverride(struct RenderEntry *, s32, u8, u8, s8 *);
+void renderEntrySetDistanceOverride(RenderEntry *, s32, u8, u8, u8 *);
 #endif
 #ifndef PROTO_SKIP_renderEntryListSortByDistance
 struct RenderEntry *renderEntryListSortByDistance(struct RenderEntry *, f32, f32, f32, struct RenderEntry **);

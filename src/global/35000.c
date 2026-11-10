@@ -1,4 +1,5 @@
 #include "common.h"
+#include "render.h"
 #define PROTO_SKIP_renderModelQuadGfx // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/126260.h"
@@ -11,23 +12,6 @@
 #include "proto/global/61AA0.h"
 #include "proto/global/70FD0.h"
 
-typedef struct RenderEntry RenderEntry;
-struct RenderEntry {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ RenderEntry *unk14;
-    /* 0x18 */ RenderEntry *unk18;
-    /* 0x1C */ s16 unk1C;
-    /* 0x1E */ s16 unk1E;
-    /* 0x20 */ s16 unk20;
-    /* 0x22 */ u8 unk22;
-    /* 0x23 */ u8 unk23;
-    /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 pad25[3];
-};
 
 extern RenderEntry *D_807F5FF0;
 extern RenderEntry *D_807F5FF4;
@@ -248,7 +232,7 @@ void renderEntryListClearTouched(RenderEntry *list) {
     }
 }
 
-void renderEntrySetDistanceOverride(RenderEntry *list, s32 targetId, u8 listIndex, u8 forceInfiniteDist, s8 *outFound) {
+void renderEntrySetDistanceOverride(RenderEntry *list, s32 targetId, u8 listIndex, u8 forceInfiniteDist, u8 *outFound) {
     s8 found;
 
     found = 0;

@@ -224,7 +224,7 @@ void assetEnsureTableLoaded(s32);
 s32 collisionBstCountNodes(struct CollisionBstNodeBase *);
 #endif
 #ifndef PROTO_SKIP_collisionBstLookupByHash
-void collisionBstLookupByHash(s32, s32, s32);
+void collisionBstLookupByHash(s32, s32 *, s32 *);
 #endif
 #ifndef PROTO_SKIP_collisionBstLookupOrAssert
 void collisionBstLookupOrAssert(struct CollisionBstNode *, u32, s32 *, s32 *);

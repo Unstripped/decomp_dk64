@@ -1,4 +1,5 @@
 #include "common.h"
+#include "render.h"
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
@@ -121,15 +122,6 @@ void frustumCornersTransformByInverse(Mtx *arg0) {
     }
 }
 
-typedef struct PlanePoly {
-    /* 0x00 */ s16 v[12];
-    /* 0x18 */ u8 type;
-    /* 0x19 */ u8 pad19[7];
-    /* 0x20 */ f64 a;
-    /* 0x28 */ f64 b;
-    /* 0x30 */ f64 c;
-    /* 0x38 */ f64 d;
-} PlanePoly; /* 0x40 */
 
 
 void frustumOrientPolyNormals(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32 *arg4) {
@@ -381,21 +373,6 @@ void mapOffsetSlotsSetValues(f32 *arg0) {
     }
 }
 
-typedef struct MapDistributeEntry {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ u8 pad10[4];
-    /* 0x14 */ struct MapDistributeEntry *unk14;
-    /* 0x18 */ u8 pad18[4];
-    /* 0x1C */ s16 unk1C;
-    /* 0x1E */ s16 unk1E;
-    /* 0x20 */ s16 unk20;
-    /* 0x22 */ u8 unk22;
-    /* 0x23 */ u8 pad23;
-    /* 0x24 */ u8 unk24;
-} MapDistributeEntry;
 
 typedef struct MapBspNode {
     struct MapBspNode *unk0;
@@ -423,7 +400,7 @@ typedef struct MapVisNode {
     u8 unk0;
     u8 unk1;
     u8 pad2[2];
-    struct MapDistributeEntry *unk4; /* render entry list */
+    struct RenderEntry *unk4; /* render entry list */
     s32 unk8;
     struct MapVisNode *unkC;
     struct MapVisNode *unk10;
@@ -457,8 +434,8 @@ void func_8062BAE4(void) {
 
 
 void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
-    MapDistributeEntry *entry;
-    MapDistributeEntry *next;
+    RenderEntry *entry;
+    RenderEntry *next;
 
     if (arg0 == NULL) {
         return;
@@ -506,12 +483,12 @@ void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
     }
 }
 
-extern struct MapDistributeEntry *D_807F5FF4;
+extern struct RenderEntry *D_807F5FF4;
 
 
 u8 func_8062BCC8(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     u8 result;
-    MapDistributeEntry *item;
+    RenderEntry *item;
 
     result = func_8062BDB0(arg0, D_807F5DE4, D_807F5E60, arg1, arg2, arg3, arg4);
     item = D_807F5FF4;
@@ -528,7 +505,7 @@ u8 func_8062BCC8(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
 u8 func_8062BDB0(Actor *arg0, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 arg4, f32 arg5, f32 *arg6) {
     u8 result;
     s32 other;
-    MapDistributeEntry *item;
+    RenderEntry *item;
 
     result = 0;
     switch (arg1->unkB8) {
@@ -671,7 +648,7 @@ extern f32 D_807F5FA8;
 extern f32 D_807F5FE0;
 extern f32 D_807F5FDC;
 extern PlanePoly gFrustumPlanes[];
-extern struct MapDistributeEntry *D_807F5FF0;
+extern struct RenderEntry *D_807F5FF0;
 extern s32 gGlobalPauseFlags;
 extern Mtx D_2000180;
 
@@ -963,15 +940,15 @@ u8 mapTreePurgeNodeList(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, s16 *arg3,
 }
 
 
-void mapDistributeEntries(MapDistributeEntry *arg0) {
+void mapDistributeEntries(RenderEntry *arg0) {
     mapTreeDistributeEntries(D_807F5DE4, D_807F5E60, arg0);
 }
 
 
-void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *arg2) {
+void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, RenderEntry *arg2) {
     s32 pad;
-    s32 listA;
-    s32 listB;
+    RenderEntry *listA;
+    RenderEntry *listB;
     u8 pad2;
     u8 side;
 
@@ -992,7 +969,7 @@ void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, MapDistributeE
         case 1:
             if (arg2 != NULL) {
                 do {
-                    arg1->unk4 = (MapDistributeEntry *)renderEntryAddOrUpdate((s32)arg1->unk4, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
+                    arg1->unk4 = renderEntryAddOrUpdate(arg1->unk4, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
                     arg2 = arg2->unk14;
                 } while (arg2 != NULL);
             }
@@ -1008,8 +985,8 @@ void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, MapDistributeE
                     arg2 = arg2->unk14;
                 } while (arg2 != NULL);
             }
-            mapTreeDistributeEntries(arg0->unk0, arg1->unkC, (MapDistributeEntry *)listA);
-            mapTreeDistributeEntries(arg0->unk4, arg1->unk10, (MapDistributeEntry *)listB);
+            mapTreeDistributeEntries(arg0->unk0, arg1->unkC, listA);
+            mapTreeDistributeEntries(arg0->unk4, arg1->unk10, listB);
             renderEntryListFree(listA);
             renderEntryListFree(listB);
             break;
@@ -1018,16 +995,16 @@ void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, MapDistributeE
 
 
 
-void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *arg2, f32 arg3, f32 arg4, f32 arg5, u8 arg6, u8 arg7, u8 arg8) {
-    s32 listA;
-    s32 listB;
+void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, RenderEntry *arg2, f32 arg3, f32 arg4, f32 arg5, u8 arg6, u8 arg7, u8 arg8) {
+    RenderEntry *listA;
+    RenderEntry *listB;
     s32 kind;
     s32 sortCount;
     u8 pad2;
     u8 side;
 
     if (0) { // FAKE: dead address-of arg6 keeps it in its stack home
-        mapChunkUpdateEntryNode((MapDistributeEntry *)&arg6);
+        mapChunkUpdateEntryNode((RenderEntry *)&arg6);
     }
     listA = 0;
     listB = 0;
@@ -1061,15 +1038,15 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *
         } else {
             arg1->unk1 = 0;
             if (arg7 == 0) {
-                renderEntryListClearTouched((s32)arg1->unk4);
+                renderEntryListClearTouched(arg1->unk4);
                 if (arg2 != NULL) {
                     do {
-                        arg1->unk4 = (MapDistributeEntry *)renderEntryAddOrUpdate((s32)arg1->unk4, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
+                        arg1->unk4 = renderEntryAddOrUpdate(arg1->unk4, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
                         arg2 = arg2->unk14;
                     } while (arg2 != NULL);
                 }
-                arg1->unk4 = (MapDistributeEntry *)renderEntryListPurgeUntouched((s32)arg1->unk4);
-                arg1->unk4 = (MapDistributeEntry *)renderEntryListSortByDistance((s32)arg1->unk4, arg3, arg4, arg5, &sortCount);
+                arg1->unk4 = renderEntryListPurgeUntouched(arg1->unk4);
+                arg1->unk4 = renderEntryListSortByDistance(arg1->unk4, arg3, arg4, arg5, &sortCount);
                 arg1->unk8 = spriteListBuildDisplayChain((s32)arg1->unk4, 0, arg3, arg4, arg5);
                 D_807F5FFC = renderEntryListSortByDistance(D_807F5FFC, arg3, arg4, arg5, &sortCount);
             }
@@ -1087,20 +1064,20 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *
         }
         arg1->unk0 = mapBspPlaneSideTest(arg0, &arg1->unk1, arg3, arg4, arg5);
         if (arg6 != 0) {
-            mapTreeFrameUpdate(arg0->unk0, arg1->unkC, (MapDistributeEntry *)listA, arg3, arg4, arg5, arg6, arg7, arg8);
-            mapTreeFrameUpdate(arg0->unk4, arg1->unk10, (MapDistributeEntry *)listB, arg3, arg4, arg5, arg6, arg7, arg8);
+            mapTreeFrameUpdate(arg0->unk0, arg1->unkC, listA, arg3, arg4, arg5, arg6, arg7, arg8);
+            mapTreeFrameUpdate(arg0->unk4, arg1->unk10, listB, arg3, arg4, arg5, arg6, arg7, arg8);
         } else {
             if (arg1->unk1 != 0) {
                 if (arg1->unk1 == 1 || arg1->unk1 == 2) {
                     if (arg1->unk0 != 0) {
-                        mapTreeFrameUpdate(arg0->unk4, arg1->unk10, (MapDistributeEntry *)listB, arg3, arg4, arg5, arg6, arg7, arg8);
+                        mapTreeFrameUpdate(arg0->unk4, arg1->unk10, listB, arg3, arg4, arg5, arg6, arg7, arg8);
                     } else {
-                        mapTreeFrameUpdate(arg0->unk0, arg1->unkC, (MapDistributeEntry *)listA, arg3, arg4, arg5, arg6, arg7, arg8);
+                        mapTreeFrameUpdate(arg0->unk0, arg1->unkC, listA, arg3, arg4, arg5, arg6, arg7, arg8);
                     }
                 }
             } else {
-                mapTreeFrameUpdate(arg0->unk0, arg1->unkC, (MapDistributeEntry *)listA, arg3, arg4, arg5, arg6, arg7, arg8);
-                mapTreeFrameUpdate(arg0->unk4, arg1->unk10, (MapDistributeEntry *)listB, arg3, arg4, arg5, arg6, arg7, arg8);
+                mapTreeFrameUpdate(arg0->unk0, arg1->unkC, listA, arg3, arg4, arg5, arg6, arg7, arg8);
+                mapTreeFrameUpdate(arg0->unk4, arg1->unk10, listB, arg3, arg4, arg5, arg6, arg7, arg8);
             }
         }
         renderEntryListFree(listA);
