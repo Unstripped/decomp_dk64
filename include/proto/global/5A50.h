@@ -78,7 +78,7 @@ void seqPlayerAddDeltaTime(u8, s32);
 s32 seqPlayerGetCurTime(u8);
 #endif
 #ifndef PROTO_SKIP_func_806018D4
-s32 func_806018D4(u8, u8, s32);
+void func_806018D4(u8, u8, s32);
 #endif
 #ifndef PROTO_SKIP_seqPlayerSetMarkerLocation
 void seqPlayerSetMarkerLocation(u8, u8);

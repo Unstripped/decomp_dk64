@@ -4,6 +4,7 @@
 #include "audio_config.h"
 #include "proto/global/13A7A0.h"
 #include "proto/global/6710.h"
+#include "proto/global/13D170.h"
 
 void alCSPSendMidi(); // FAKE: callee prototype steer (header u8 byte2 masks seqPlayerSendMidi arg)
 
@@ -14,7 +15,6 @@ void alCSPSetChlFX2Mix(ALCSPlayer *, u8, u8);
 extern ALCSeq D_8076BF48[];
 extern ALCSeqMarker D_8076C328[][4];
 
-s32 __n_alCSeqNextDelta(ALCSeq *, ALCSeqMarker *, u8, s32); // FAKE: callee prototype steer
 
 extern ALCSPlayer *gSeqPlayers[];
 void alCSPSetUnk84(ALCSPlayer *, s32);
@@ -262,8 +262,8 @@ void seqPlayerAddDeltaTime(u8 playerIndex, s32 delta) {
 s32 seqPlayerGetCurTime(u8 playerIndex) {
     return gSeqPlayers[playerIndex]->curTime;
 }
-s32 func_806018D4(u8 playerIndex, u8 byte, s32 delta) {
-    return __n_alCSeqNextDelta(&D_8076BF48[playerIndex], D_8076C328[playerIndex], byte, delta);
+void func_806018D4(u8 playerIndex, u8 byte, s32 delta) {
+    __n_alCSeqNextDelta(&D_8076BF48[playerIndex], D_8076C328[playerIndex], byte, delta);
 }
 
 void seqPlayerSetMarkerLocation(u8 playerIndex, u8 markerIndex) {
