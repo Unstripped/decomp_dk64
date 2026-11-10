@@ -8,9 +8,8 @@ description: Orchestrate one round of the DK64 code-quality campaign (remove FAK
 Every function is matched; this campaign makes the matched C readable without losing the
 match. One round = pick up to 6 files, one agent per file in PRIVATE COPY mode, merge through
 the gate, record every result in `drafts/quality.jsonl`, apply cross-file names. AGENTS.md rules
-always apply. IDO facts live in `knowledge/ido/` (`python3 tools/quirks.py`); the merge
-procedure is decomp-unit's (`skill://decomp-unit/merge.md`, failures:
-`skill://decomp-unit/troubleshooting.md`); do not copy them here.
+always apply. IDO facts: `knowledge/ido/` (`python3 tools/quirks.py`); merge procedure:
+`skill://decomp-unit/merge.md` (failures: `troubleshooting.md` there); do not copy them here.
 
 |File|Read when|
 |---|---|
@@ -84,8 +83,8 @@ lines, re-run `protos.py consolidate <src> --out DIR`. Then message every runnin
 Callee-prototype work (steers kept because the OWNER's definition has the wrong types) is its
 own workstream: batches by owner file, only when no touched file is checked out. Per batch the
 owner copy is merged alone (it fails on the stale header), then `protos.py gen`, then the caller
-copies, then one commit gate `--stage include/proto/<seg>/<owner>.h - - <all touched files>`
-(snapshot any file lacking a base); sweep + carry every touched file (`.scratch/Clean478F0.round1/protoplan.md`).
+copies, then one gate `--stage include/proto/<seg>/<owner>.h - - <all touched files>` (snapshot
+any file lacking a base); sweep + carry every touched file.
 
 ## 5. Merge
 
@@ -107,8 +106,9 @@ As each agent reports:
 6. Record: `uv run tools/quality.py record --unit "<unit>" --agent <A> --base <base> --batch
    .scratch/<A>/ledger.txt` (all-or-nothing). Copy-only keys: record the base-key lines at the
    copy base, then `sweep <src> --record` (writes their remove/plain/cond/classify), then re-key
-   the agent's other lines (base→final key map by function, kind, line order) and record them
-   `--base <merge commit>`. Commit `drafts/quality.jsonl` (`quality: <unit> <f>`).
+   the agent's other lines (the report's base→final map; else by function, kind, line order)
+   `--base <merge commit>`. Re-stamped notes carry no new prose (it matches knowledge entries
+   and stales them later). Commit `drafts/quality.jsonl` (`quality: <unit> <f>`).
 
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full
 ROM gate; the net count of HACKS in a merged file (tagged `// FAKE` + untagged AST sites)

@@ -127,24 +127,25 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Pilot round (2026-11-09)** — `global/7130.c` (42/42 functions EXHAUSTED; FAKE 22 → 17 with 7 untagged hacks newly tagged; local views replaced by `Actor`/`PlayerState` fields, sound handles typed `struct GfSndState *` in every declaring file, removing all `n_alSndpStop`/`n_alSndpPostEvent` steers in 7130, arcade/0, bonus/12A0, global/19A00 and jetpac/0; 0 m2c names left) and `menu/E550.c` (3/3 EXHAUSTED; FAKE 11 → 7; GBI macros replace hand-expanded packets; globals named `menuOptionDescFade`, `menuSpotlightR/G/B`). Header changes: `Actor` 0x6E–0x7B (`soundSlots[2]`, `unk72`, `unk74`, `unk78`), `PlayerState.sfxHandle`; `faultSetMessage` takes `u32`.
 - [x] **Round 1 (2026-11-09)** — 13 files: global/E4090, D5E10, 478F0, 19A00, 201B0, EFDC0, 36880, CEAE0, 6AD90, 80150, 2F550, arcade/0, menu/3E10 (11BC10 deferred to round 2). Shared fields carved into `Actor`, `ActorSub4`, `ActorSub140`, `ActorGlobalState`, `PlayerState`, `PlayerStruct`, `CsState`, `SchedStruct`; `DynamicBuffer` moved to `heap.h`; 14 callee-prototype batches fixed owner definitions (≈100 steers retired). Tools: `record --dry-run`, `carry` across file-scope changes, per-function `fp_hdr2`, review freshness ignoring checklist tokens, `objdiff.sh` always rebuilds, `rename.py field --dry-run` lists macro references.
 - [x] **Round 2 (2026-11-09)** — 9 files EXHAUSTED: global/7CA80, 70FD0, 55B20, 117190, 478F0 (second pass), 936B0 (53/54), 11BC10, boss/3840, boss/6240. Side work: `gBehaviour*` views in 14 boss/race/minecart files unified onto shared `BehaviourWorkState`/`AnimState`/`ExtraState` (padding carved in `actor.h`); `Actor.modelMtx`, `Actor.unk155/unk156` split, `DynamicBuffer` words named; raw offset casts replaced by fields in 8 files; 11 callee-prototype batches (steers 377 → 245); 24 functions/globals named; tool `quality.py carry --header-carve`.
-- [ ] Remaining: 2,598 functions not reviewed; 990 open sites. Next rounds: `uv run tools/quality.py rank`.
+- [x] **Round 3 (2026-11-09/10)** — 12 files: global/D5E10 (2nd pass), 63EC0, 8D3E0, FCCD0, 1295B0, F56F0, 89250, 478F0 (3rd pass), 42630, 103AB0, critter/0, race/7BD0. Side work: `Actor.unk155` split (818 uses), `Actor.animState`/`floorContact`, `PlayerState.homingStrength`, Behaviour state carves, `ActorSub4` bone lists + `scriptResult` (size 0x90) and per-type component storage past `Actor` documented; 17B90 callee batch. FAKE tags rose (820) because agents tagged pre-existing untagged hacks; total hacks fell in every merged file.
+- [ ] Remaining: 2,330 functions not reviewed; 950 open sites (≈264 reviews are stale only through a too-broad knowledge-freshness match; see run-log). Next rounds: `uv run tools/quality.py rank`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-09, after round 2):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-10, after round 3):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 789 | 583 |
-| FAKE dead-if | 276 | 263 |
-| FAKE proto-steer | 245 | 134 |
-| FAKE other kinds | 268 | 186 |
+| FAKE | 820 | 583 |
+| FAKE dead-if | 284 | 263 |
+| FAKE proto-steer | 230 | 134 |
+| FAKE other kinds | 306 | 186 |
 | LAYOUT | 52 | 47 |
 | goto | 38 | 39 |
-| proto-type (`// PROTO:`) | 92 | 0 |
-| protos mismatch | 321 | 1,202 |
-| reviewed / exhausted functions | 1,672 / 1,604 of 4,270 | 0 |
-| uninit warnings | 67 | 122 |
+| proto-type (`// PROTO:`) | 85 | 0 |
+| protos mismatch | 307 | 1,202 |
+| reviewed / exhausted functions | 1,940 / 1,829 of 4,270 | 0 |
+| uninit warnings | 71 | 122 |
 | `func_` definitions | 453 | 457 |
-| m2c names | 2,037 | 5,040 |
+| m2c names | 1,477 | 5,040 |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 

@@ -33,6 +33,8 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
   and value-named constant locals keep their tag while they stay.
 - An untagged hack you cannot remove gets `// FAKE: <what it steers>` on its line (`kept`);
   report it as "pre-existing, now tagged" (the hack count, tagged + untagged, never rises).
+  Hidden steers count as hacks: an odd spelling chosen only for codegen (`(*p).f` for `p->f`,
+  a re-read through another pointer, a value-named constant local) is tagged like any other.
 - Unused locals that only reproduce a frame size are `pad`/`pad[N]`, untagged (in 201B0 an
   inline ternary plus `pad[2]` replaced two FAKE temps).
 - Never grow or shift a shared struct. Header changes: write the exact hunk to
@@ -96,7 +98,8 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
 3. A fenced block tagged `LEDGER`, one line per (site or function, method), exactly as below.
    Keys hash the site's code, local names included: a site still present uses its key in the
    FINAL copy (`sweep <copy> --copy-of <src>`), a site you removed uses its base key; sites that
-   exist only in your copy resolve after the merge (list them separately). `views`, `names`,
+   exist only in your copy resolve after the merge: put their lines in `.scratch/<You>/ledger-copy-only.txt`
+   and give a `base key -> final key` map for every site whose key changed (required). `views`, `names`,
    `reconstruct` and `review` are function-level: key `func:<seg>:<name>`. Finish
    every permute run before reporting (an OPEN rung reopens the file next round):
    `<site-key|func:<seg>:<name>> <method> <outcome> [quirks=Q1,Q2] [seconds=N] [base=N] [best=N] [note="..."]`
