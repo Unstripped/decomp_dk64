@@ -15,7 +15,7 @@ void func_8002FC48();
 void bossActorGroupCommand();
 #endif
 #ifndef PROTO_SKIP_func_8002FDF8
-void func_8002FDF8();
+void func_8002FDF8(s32, u8);
 #endif
 #ifndef PROTO_SKIP_func_8002FEC0
 void func_8002FEC0();

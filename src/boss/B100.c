@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_func_8002FDF8
 #include "proto/boss/3840.h"
 #include "proto/boss/B100.h"
 #include "proto/global/10E1D0.h"
