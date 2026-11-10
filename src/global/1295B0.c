@@ -634,8 +634,10 @@ void actorSetPositionFromPoint(Actor *actor, SpawnNode *pt) {
     actor->yaw = pt->yaw;
 }
 
+// Spawn-node actors of entry type 6 have a third component; its pointer sits at 0x17C.
 typedef struct ActorExt17C {
-    /* 0x000 */ u8 pad0[0x17C];
+    /* 0x000 */ Actor base;
+    /* 0x178 */ void *unk178;
     /* 0x17C */ s16 *unk17C;
 } ActorExt17C;
 
@@ -651,7 +653,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     BehaviourWorkState *st;
     s32 pad;
     s16 pad2;
-    s16 ang;
+    s16 scriptId;
     s32 pad3;
     u8 type;
     u8 idx;
@@ -670,12 +672,12 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     } else {
         node->unk38 = 0.0f;
     }
-    ang = D_8075EB80[idx].scriptId;
-    if (ang != 0) {
-        actorScriptStart(act, ang);
+    scriptId = D_8075EB80[idx].scriptId;
+    if (scriptId != 0) {
+        actorScriptStart(act, scriptId);
     }
     gBehaviourAnimState = (BehaviourAnimState *)node;
-    behaviourSetAnimIds(ang, ang, ang);
+    behaviourSetAnimIds(scriptId, scriptId, scriptId);
     if (act->sub4 != NULL) {
         actorSetUniformScale(act, ((node->scale * 5) / 255.0) * 0.15);
     }

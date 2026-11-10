@@ -465,7 +465,6 @@ extern f32 mathCosF(s16);
 void playerWeaponCalculateTrajectory22(Actor *actor, BoneRotation *slots, s32 *count) {
     s32 tableIndex;
     u16 angle;
-    s32 zero;
 
     angle = 0x16;  // FAKE: the base shares angle's register with the table value
     tableIndex = gActivePlayerState->unk8E - angle;
@@ -473,12 +472,9 @@ void playerWeaponCalculateTrajectory22(Actor *actor, BoneRotation *slots, s32 *c
         angle = D_80752F38[tableIndex];
         slots[*count].weight = 0x7F;
         slots[*count].bone = 1;
-        if (1) {  // FAKE: scoped value-named zero shared by the rotX/rotZ stores
-            zero = 0;
-            slots[*count].rotX = zero;
-        }
+        slots[*count].rotX = 0;
         slots[*count].rotY = angle;
-        slots[*count].rotZ = zero;
+        slots[*count].rotZ = 0;
         *count += 1;
     }
 }
@@ -1178,11 +1174,9 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
 
 void playerWaypointPathsLoad(s16 pathsId) {
     s32 buffer;
-    s32 loaded;
 
-    loaded = assetLoad(0x15, pathsId, 1, 0);
-    buffer = loaded;
-    playerWaypointPathsParse((void *)loaded);
+    buffer = assetLoad(0x15, pathsId, 1, 0);
+    playerWaypointPathsParse((void *)buffer);
     if (buffer != 0) {
         assetFreeBuffer(buffer, 0x4C, 0x56);
     }
