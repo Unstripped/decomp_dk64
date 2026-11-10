@@ -2,10 +2,8 @@
 #ifndef PROTO_GLOBAL_FCCD0_H
 #define PROTO_GLOBAL_FCCD0_H
 #include "common.h"
-struct SlotQueueDrawNode;
-struct SlotQueueEffectDir;
-struct SlotQueueNodeRecord;
-struct SlotQueueSpriteActor;
+struct SlotQueueNode;
+struct SlotQueueSprite;
 #ifndef PROTO_SKIP_slotQueueGetAddress
 s32 slotQueueGetAddress();
 #endif
@@ -37,10 +35,10 @@ void slotQueueStaggerNodeDelays(s32);
 void slotQueueClearFlags();
 #endif
 #ifndef PROTO_SKIP_slotQueueCancel
-int slotQueueCancel();
+void slotQueueCancel();
 #endif
 #ifndef PROTO_SKIP_func_806F8DC4
-void func_806F8DC4(s8 *, s32, s32);
+void func_806F8DC4(u8 *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_func_806F8EB4
 s32 func_806F8EB4(void);
@@ -61,7 +59,7 @@ void bitfieldClearMappedFlag(u16 *, s32);
 s32 bitfieldHasMappedFlag(u16, s32);
 #endif
 #ifndef PROTO_SKIP_slotQueueNormalizeSpriteScale
-void slotQueueNormalizeSpriteScale(void *, s32);
+void slotQueueNormalizeSpriteScale(struct SlotQueueSprite *, s32);
 #endif
 #ifndef PROTO_SKIP_slotQueueReleaseSlot
 void slotQueueReleaseSlot(s32);
@@ -70,22 +68,22 @@ void slotQueueReleaseSlot(s32);
 void slotQueueReleaseAll(void);
 #endif
 #ifndef PROTO_SKIP_slotQueueAllocSpriteNode
-void slotQueueAllocSpriteNode(struct SlotQueueNodeRecord **);
+void slotQueueAllocSpriteNode(struct SlotQueueNode **);
 #endif
 #ifndef PROTO_SKIP_slotQueueAllocLabelNode
-void slotQueueAllocLabelNode(struct SlotQueueNodeRecord **);
+void slotQueueAllocLabelNode(struct SlotQueueNode **);
 #endif
 #ifndef PROTO_SKIP_effectSetDirection
-void effectSetDirection(struct SlotQueueEffectDir *, u32);
+void effectSetDirection(struct SlotQueueNode *, u32);
 #endif
 #ifndef PROTO_SKIP_effectSpawnSprite
-void effectSpawnSprite(void *, s32, f32, f32, s32);
+void effectSpawnSprite(struct SlotQueueNode *, s32, f32, f32, s32);
 #endif
 #ifndef PROTO_SKIP_slotQueueSpawnNodes
 void slotQueueSpawnNodes(s32);
 #endif
 #ifndef PROTO_SKIP_effectSpriteUpdatePosition
-void effectSpriteUpdatePosition(struct SlotQueueSpriteActor *, s8 *);
+void effectSpriteUpdatePosition(struct SlotQueueSprite *, s8 *);
 #endif
 #ifndef PROTO_SKIP_slotQueueInitEffectSprites
 void slotQueueInitEffectSprites(s32);
@@ -94,25 +92,25 @@ void slotQueueInitEffectSprites(s32);
 void slotQueueSpawnSingleNode(s32);
 #endif
 #ifndef PROTO_SKIP_slotQueueDrawLabel
-Gfx *slotQueueDrawLabel(s32, struct SlotQueueDrawNode *, Gfx *);
+Gfx *slotQueueDrawLabel(s32, struct SlotQueueNode *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_slotQueueDrawPlayerLabels
-Gfx *slotQueueDrawPlayerLabels(s32, struct SlotQueueDrawNode *, Gfx *);
+Gfx *slotQueueDrawPlayerLabels(s32, struct SlotQueueNode *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_slotQueueNodeUpdate
-s32 slotQueueNodeUpdate(s32, void *, s32, s32);
+Gfx *slotQueueNodeUpdate(s32, struct SlotQueueNode *, s32, Gfx *);
 #endif
 #ifndef PROTO_SKIP_slotQueueStateFadeIn
-s32 slotQueueStateFadeIn(s32, s32);
+Gfx *slotQueueStateFadeIn(s32, Gfx *);
 #endif
 #ifndef PROTO_SKIP_slotQueueGetCountStep
 s32 slotQueueGetCountStep(s32);
 #endif
 #ifndef PROTO_SKIP_slotQueueStateMoveToTarget
-s32 slotQueueStateMoveToTarget(s32, s32);
+Gfx *slotQueueStateMoveToTarget(s32, Gfx *);
 #endif
 #ifndef PROTO_SKIP_slotQueueStateFadeOut
-s32 slotQueueStateFadeOut(s32, s32);
+Gfx *slotQueueStateFadeOut(s32, Gfx *);
 #endif
 #ifndef PROTO_SKIP_slotQueueBuildDisplayList
 Gfx *slotQueueBuildDisplayList(Gfx *);
