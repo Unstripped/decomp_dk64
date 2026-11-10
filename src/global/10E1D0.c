@@ -376,12 +376,12 @@ void meshApplyAnimation(void *arg0, s32 arg1, s32 frame) {
                     dz = dst->z - src->z;
                     angle = (f32)(ANIM_TABLE->entries[idx].start - end) * ANIM_TABLE->entries[idx].scale;
                 }
-                mtxLookDirPosF(&m1B8[0][0], &m138[0][0],
+                mtxLookDirPosF(m1B8, m138,
                     -dx, -dy, -dz,
                     -src->x, -src->y, -src->z);
-                mtxRotateZDegF(&m178[0][0], angle);
-                mtxMulAffineF(&m178[0][0], &m1B8[0][0], &mB8[0][0]);
-                mtxMulAffineF(&m138[0][0], &mB8[0][0], &mF8[0][0]);
+                mtxRotateZDegF(m178, angle);
+                mtxMulAffineF(m178, m1B8, mB8);
+                mtxMulAffineF(m138, mB8, mF8);
                 count = ANIM_TABLE->counts[ANIM_TABLE->entries[idx].group];
                 indices = ANIM_TABLE->indices[ANIM_TABLE->entries[idx].group];
                 for (i = 0; i < count; i++) {

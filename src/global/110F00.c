@@ -2,30 +2,26 @@
 #include "actor.h"
 #include "proto/global/110F00.h"
 
-typedef struct Mat4F {
-    f32 m[4][4];
-} Mat4F;
 
-
-void mtxScaleTranslateF(Mat4F *mf, f32 sx, f32 sy, f32 sz, f32 x, f32 y, f32 z) {
+void mtxScaleTranslateF(f32 mf[4][4], f32 sx, f32 sy, f32 sz, f32 x, f32 y, f32 z) {
     mtxIdentityF(mf);
-    mf->m[0][0] = sx;
-    mf->m[1][1] = sy;
-    mf->m[2][2] = sz;
-    mf->m[3][3] = 1.0f;
-    mf->m[3][0] = x;
-    mf->m[3][1] = y;
-    mf->m[3][2] = z;
+    mf[0][0] = sx;
+    mf[1][1] = sy;
+    mf[2][2] = sz;
+    mf[3][3] = 1.0f;
+    mf[3][0] = x;
+    mf[3][1] = y;
+    mf[3][2] = z;
 }
 
 void mtxScaleTranslateL(Mtx *m, f32 sx, f32 sy, f32 sz, f32 x, f32 y, f32 z) {
-    Mat4F mf;
+    f32 mf[4][4];
 
-    mtxScaleTranslateF(&mf, sx, sy, sz, x, y, z);
-    guMtxF2L(mf.m, m);
+    mtxScaleTranslateF(mf, sx, sy, sz, x, y, z);
+    guMtxF2L(mf, m);
 }
 
-void mtxMulAffineAliasSafeF(Mat4F *a, Mat4F *b, Mat4F *dst) {
+void mtxMulAffineAliasSafeF(f32 a[4][4], f32 b[4][4], f32 dst[4][4]) {
     f32 t00;
     f32 t01;
     f32 t02;
@@ -38,62 +34,62 @@ void mtxMulAffineAliasSafeF(Mat4F *a, Mat4F *b, Mat4F *dst) {
     f32 t30;
     f32 t31;
     f32 t32;
-    t00 = (a->m[0][0] * b->m[0][0]) + (a->m[0][1] * b->m[1][0]) + (a->m[0][2] * b->m[2][0]);
-    t01 = (a->m[0][0] * b->m[0][1]) + (a->m[0][1] * b->m[1][1]) + (a->m[0][2] * b->m[2][1]);
-    t02 = (a->m[0][0] * b->m[0][2]) + (a->m[0][1] * b->m[1][2]) + (a->m[0][2] * b->m[2][2]);
-    t10 = (a->m[1][0] * b->m[0][0]) + (a->m[1][1] * b->m[1][0]) + (a->m[1][2] * b->m[2][0]);
-    t11 = (a->m[1][0] * b->m[0][1]) + (a->m[1][1] * b->m[1][1]) + (a->m[1][2] * b->m[2][1]);
-    t12 = (a->m[1][0] * b->m[0][2]) + (a->m[1][1] * b->m[1][2]) + (a->m[1][2] * b->m[2][2]);
-    t20 = (a->m[2][0] * b->m[0][0]) + (a->m[2][1] * b->m[1][0]) + (a->m[2][2] * b->m[2][0]);
-    t21 = (a->m[2][0] * b->m[0][1]) + (a->m[2][1] * b->m[1][1]) + (a->m[2][2] * b->m[2][1]);
-    t22 = (a->m[2][0] * b->m[0][2]) + (a->m[2][1] * b->m[1][2]) + (a->m[2][2] * b->m[2][2]);
-    t30 = (a->m[3][0] * b->m[0][0]) + (a->m[3][1] * b->m[1][0]) + (a->m[3][2] * b->m[2][0]) + b->m[3][0];
-    t31 = (a->m[3][0] * b->m[0][1]) + (a->m[3][1] * b->m[1][1]) + (a->m[3][2] * b->m[2][1]) + b->m[3][1];
-    t32 = (a->m[3][0] * b->m[0][2]) + (a->m[3][1] * b->m[1][2]) + (a->m[3][2] * b->m[2][2]) + b->m[3][2];
-    dst->m[0][0] = t00;
-    dst->m[1][0] = t10;
-    dst->m[2][0] = t20;
-    dst->m[3][0] = t30;
-    dst->m[0][1] = t01;
-    dst->m[1][1] = t11;
-    dst->m[2][1] = t21;
-    dst->m[3][1] = t31;
-    dst->m[0][2] = t02;
-    dst->m[1][2] = t12;
-    dst->m[2][2] = t22;
-    dst->m[3][2] = t32;
-    dst->m[0][3] = 0.0f;
-    dst->m[1][3] = 0.0f;
-    dst->m[2][3] = 0.0f;
-    dst->m[3][3] = 1.0f;
+    t00 = (a[0][0] * b[0][0]) + (a[0][1] * b[1][0]) + (a[0][2] * b[2][0]);
+    t01 = (a[0][0] * b[0][1]) + (a[0][1] * b[1][1]) + (a[0][2] * b[2][1]);
+    t02 = (a[0][0] * b[0][2]) + (a[0][1] * b[1][2]) + (a[0][2] * b[2][2]);
+    t10 = (a[1][0] * b[0][0]) + (a[1][1] * b[1][0]) + (a[1][2] * b[2][0]);
+    t11 = (a[1][0] * b[0][1]) + (a[1][1] * b[1][1]) + (a[1][2] * b[2][1]);
+    t12 = (a[1][0] * b[0][2]) + (a[1][1] * b[1][2]) + (a[1][2] * b[2][2]);
+    t20 = (a[2][0] * b[0][0]) + (a[2][1] * b[1][0]) + (a[2][2] * b[2][0]);
+    t21 = (a[2][0] * b[0][1]) + (a[2][1] * b[1][1]) + (a[2][2] * b[2][1]);
+    t22 = (a[2][0] * b[0][2]) + (a[2][1] * b[1][2]) + (a[2][2] * b[2][2]);
+    t30 = (a[3][0] * b[0][0]) + (a[3][1] * b[1][0]) + (a[3][2] * b[2][0]) + b[3][0];
+    t31 = (a[3][0] * b[0][1]) + (a[3][1] * b[1][1]) + (a[3][2] * b[2][1]) + b[3][1];
+    t32 = (a[3][0] * b[0][2]) + (a[3][1] * b[1][2]) + (a[3][2] * b[2][2]) + b[3][2];
+    dst[0][0] = t00;
+    dst[1][0] = t10;
+    dst[2][0] = t20;
+    dst[3][0] = t30;
+    dst[0][1] = t01;
+    dst[1][1] = t11;
+    dst[2][1] = t21;
+    dst[3][1] = t31;
+    dst[0][2] = t02;
+    dst[1][2] = t12;
+    dst[2][2] = t22;
+    dst[3][2] = t32;
+    dst[0][3] = 0.0f;
+    dst[1][3] = 0.0f;
+    dst[2][3] = 0.0f;
+    dst[3][3] = 1.0f;
 }
 
-void mtxMulAffineF(Mat4F *a, Mat4F *b, Mat4F *dst) {
-    dst->m[0][0] = (a->m[0][0] * b->m[0][0]) + (a->m[0][1] * b->m[1][0]) + (a->m[0][2] * b->m[2][0]);
-    dst->m[0][1] = (a->m[0][0] * b->m[0][1]) + (a->m[0][1] * b->m[1][1]) + (a->m[0][2] * b->m[2][1]);
-    dst->m[0][2] = (a->m[0][0] * b->m[0][2]) + (a->m[0][1] * b->m[1][2]) + (a->m[0][2] * b->m[2][2]);
-    dst->m[1][0] = (a->m[1][0] * b->m[0][0]) + (a->m[1][1] * b->m[1][0]) + (a->m[1][2] * b->m[2][0]);
-    dst->m[1][1] = (a->m[1][0] * b->m[0][1]) + (a->m[1][1] * b->m[1][1]) + (a->m[1][2] * b->m[2][1]);
-    dst->m[1][2] = (a->m[1][0] * b->m[0][2]) + (a->m[1][1] * b->m[1][2]) + (a->m[1][2] * b->m[2][2]);
-    dst->m[2][0] = (a->m[2][0] * b->m[0][0]) + (a->m[2][1] * b->m[1][0]) + (a->m[2][2] * b->m[2][0]);
-    dst->m[2][1] = (a->m[2][0] * b->m[0][1]) + (a->m[2][1] * b->m[1][1]) + (a->m[2][2] * b->m[2][1]);
-    dst->m[2][2] = (a->m[2][0] * b->m[0][2]) + (a->m[2][1] * b->m[1][2]) + (a->m[2][2] * b->m[2][2]);
-    dst->m[3][0] = (a->m[3][0] * b->m[0][0]) + (a->m[3][1] * b->m[1][0]) + (a->m[3][2] * b->m[2][0]) + b->m[3][0];
-    dst->m[3][1] = (a->m[3][0] * b->m[0][1]) + (a->m[3][1] * b->m[1][1]) + (a->m[3][2] * b->m[2][1]) + b->m[3][1];
-    dst->m[3][2] = (a->m[3][0] * b->m[0][2]) + (a->m[3][1] * b->m[1][2]) + (a->m[3][2] * b->m[2][2]) + b->m[3][2];
-    dst->m[0][3] = 0.0f;
-    dst->m[1][3] = 0.0f;
-    dst->m[2][3] = 0.0f;
-    dst->m[3][3] = 1.0f;
+void mtxMulAffineF(f32 a[4][4], f32 b[4][4], f32 dst[4][4]) {
+    dst[0][0] = (a[0][0] * b[0][0]) + (a[0][1] * b[1][0]) + (a[0][2] * b[2][0]);
+    dst[0][1] = (a[0][0] * b[0][1]) + (a[0][1] * b[1][1]) + (a[0][2] * b[2][1]);
+    dst[0][2] = (a[0][0] * b[0][2]) + (a[0][1] * b[1][2]) + (a[0][2] * b[2][2]);
+    dst[1][0] = (a[1][0] * b[0][0]) + (a[1][1] * b[1][0]) + (a[1][2] * b[2][0]);
+    dst[1][1] = (a[1][0] * b[0][1]) + (a[1][1] * b[1][1]) + (a[1][2] * b[2][1]);
+    dst[1][2] = (a[1][0] * b[0][2]) + (a[1][1] * b[1][2]) + (a[1][2] * b[2][2]);
+    dst[2][0] = (a[2][0] * b[0][0]) + (a[2][1] * b[1][0]) + (a[2][2] * b[2][0]);
+    dst[2][1] = (a[2][0] * b[0][1]) + (a[2][1] * b[1][1]) + (a[2][2] * b[2][1]);
+    dst[2][2] = (a[2][0] * b[0][2]) + (a[2][1] * b[1][2]) + (a[2][2] * b[2][2]);
+    dst[3][0] = (a[3][0] * b[0][0]) + (a[3][1] * b[1][0]) + (a[3][2] * b[2][0]) + b[3][0];
+    dst[3][1] = (a[3][0] * b[0][1]) + (a[3][1] * b[1][1]) + (a[3][2] * b[2][1]) + b[3][1];
+    dst[3][2] = (a[3][0] * b[0][2]) + (a[3][1] * b[1][2]) + (a[3][2] * b[2][2]) + b[3][2];
+    dst[0][3] = 0.0f;
+    dst[1][3] = 0.0f;
+    dst[2][3] = 0.0f;
+    dst[3][3] = 1.0f;
 }
 
-void mtxTransformPointF(Mat4F *mf, f32 *px, f32 *py, f32 *pz) {
+void mtxTransformPointF(f32 mf[4][4], f32 *px, f32 *py, f32 *pz) {
     f32 x = *px;
     f32 y = *py;
     f32 z = *pz;
-    f32 ox = ((x * mf->m[0][0] + y * mf->m[1][0]) + z * mf->m[2][0]) + mf->m[3][0];
-    f32 oy = ((x * mf->m[0][1] + y * mf->m[1][1]) + z * mf->m[2][1]) + mf->m[3][1];
-    f32 oz = ((x * mf->m[0][2] + y * mf->m[1][2]) + z * mf->m[2][2]) + mf->m[3][2];
+    f32 ox = ((x * mf[0][0] + y * mf[1][0]) + z * mf[2][0]) + mf[3][0];
+    f32 oy = ((x * mf[0][1] + y * mf[1][1]) + z * mf[2][1]) + mf[3][1];
+    f32 oz = ((x * mf[0][2] + y * mf[1][2]) + z * mf[2][2]) + mf[3][2];
     *px = ox;
     *py = oy;
     *pz = oz;
@@ -104,33 +100,31 @@ void mtxRotateXRatioF(f32 mf[4][4], f32 y, f32 z, f32 dist) {
     f32 cos;
 
     mtxIdentityF(mf);
+    sin = z / dist;
     cos = y / dist;
     mf[1][1] = cos;
-    sin = z / dist;
-    if (sin) {
-    }
-    mf[2][2] = cos;
     mf[1][2] = sin;
+    mf[2][2] = cos;
     mf[2][1] = -sin;
 }
 
-void mtxRotateYRatioF(Mat4F *mf, f32 z, f32 x, f32 dist) {
+void mtxRotateYRatioF(f32 mf[4][4], f32 z, f32 x, f32 dist) {
     f32 sin;
     f32 cos;
 
     sin = x / dist;
     cos = z / dist;
-    if ((f64)x == 0.0) {
+    if (x == 0.0) {
         sin = 0.0f;
     }
-    if ((f64)z == 0.0) {
+    if (z == 0.0) {
         cos = 0.0f;
     }
     mtxIdentityF(mf);
-    mf->m[2][0] = sin;
-    mf->m[0][2] = -sin;
-    mf->m[0][0] = cos;
-    mf->m[2][2] = cos;
+    mf[2][0] = sin;
+    mf[0][2] = -sin;
+    mf[0][0] = cos;
+    mf[2][2] = cos;
 }
 
 f32 sinApprox(f32);
@@ -142,14 +136,11 @@ void mtxRotateZRatioF(f32 mf[4][4], f32 x, f32 y, f32 dist) {
     f32 cos;
 
     mtxIdentityF(mf);
-    sin = x / dist;
-    cos = sin;
+    sin = y / dist;
+    cos = x / dist;
     mf[0][0] = cos;
-    if (1) {
-        sin = y / dist;
-        mf[0][1] = sin;
-        mf[1][0] = -sin;
-    }
+    mf[0][1] = sin;
+    mf[1][0] = -sin;
     mf[1][1] = cos;
 }
 
@@ -163,7 +154,7 @@ void mtxRotateXRatioL(Mtx *m, f32 y, f32 z, f32 dist) {
 void mtxRotateYRatioL(Mtx *m, f32 z, f32 x, f32 dist) {
     f32 mf[4][4];
 
-    mtxRotateYRatioF((Mat4F *)mf, z, x, dist);
+    mtxRotateYRatioF(mf, z, x, dist);
     guMtxF2L(mf, m);
 }
 
@@ -243,7 +234,6 @@ void mtxRotateZDegL(Mtx *m, f32 angle) {
 void mtxIdentityF(f32 mf[4][4]) {
     f32 one;
     f32 zero;
-    s32 index;
 
     one = 1.0f;
     zero = 0.0f;
@@ -261,10 +251,9 @@ void mtxIdentityF(f32 mf[4][4]) {
     mf[0][3] = zero;
     mf[1][3] = zero;
     mf[2][3] = zero;
-    index = 2;
     mf[0][0] = one;
     mf[1][1] = one;
-    mf[2][index] = one;
+    mf[2][2] = one;
     mf[3][3] = one;
 }
 
@@ -289,8 +278,8 @@ void mtxTranslateL(Mtx *m, f32 x, f32 y, f32 z) {
     guMtxF2L(mf, m);
 }
 
-void mtxLookDirF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz) {
-    f32 padtop[3];
+void mtxLookDirF(f32 view[4][4], f32 cam[4][4], f32 dx, f32 dy, f32 dz) {
+    f32 pad[3];
     f32 t;
     f32 m00;
     f32 m10;
@@ -304,8 +293,8 @@ void mtxLookDirF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz) {
 
     if ((dx == 0.0f) && (dz == 0.0f)) {
         if (dy == 0.0f) {
-            mtxIdentityF(view->m);
-            mtxIdentityF(cam->m);
+            mtxIdentityF(view);
+            mtxIdentityF(cam);
             return;
         }
         m00 = 1.0f;
@@ -332,51 +321,51 @@ void mtxLookDirF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz) {
         m20 = -dx;
         m22 = -dz;
     }
-    view->m[0][0] = m00;
-    view->m[1][0] = m10;
-    view->m[2][0] = m20;
-    view->m[3][0] = 0.0f;
-    view->m[0][1] = 0.0f;
-    view->m[1][1] = m11;
-    view->m[2][1] = m21;
-    view->m[3][1] = 0.0f;
-    view->m[0][2] = m02;
-    view->m[1][2] = m12;
-    view->m[2][2] = m22;
-    view->m[3][2] = 0.0f;
-    view->m[0][3] = 0.0f;
-    view->m[1][3] = 0.0f;
-    view->m[2][3] = 0.0f;
-    view->m[3][3] = 1.0f;
-    cam->m[0][0] = m00;
-    cam->m[1][0] = 0.0f;
-    cam->m[2][0] = m02;
-    cam->m[3][0] = 0.0f;
-    cam->m[0][1] = m10;
-    cam->m[1][1] = m11;
-    cam->m[2][1] = m12;
-    cam->m[3][1] = 0.0f;
-    cam->m[0][2] = m20;
-    cam->m[1][2] = m21;
-    cam->m[2][2] = m22;
-    cam->m[3][2] = 0.0f;
-    cam->m[0][3] = 0.0f;
-    cam->m[1][3] = 0.0f;
-    cam->m[2][3] = 0.0f;
-    cam->m[3][3] = 1.0f;
+    view[0][0] = m00;
+    view[1][0] = m10;
+    view[2][0] = m20;
+    view[3][0] = 0.0f;
+    view[0][1] = 0.0f;
+    view[1][1] = m11;
+    view[2][1] = m21;
+    view[3][1] = 0.0f;
+    view[0][2] = m02;
+    view[1][2] = m12;
+    view[2][2] = m22;
+    view[3][2] = 0.0f;
+    view[0][3] = 0.0f;
+    view[1][3] = 0.0f;
+    view[2][3] = 0.0f;
+    view[3][3] = 1.0f;
+    cam[0][0] = m00;
+    cam[1][0] = 0.0f;
+    cam[2][0] = m02;
+    cam[3][0] = 0.0f;
+    cam[0][1] = m10;
+    cam[1][1] = m11;
+    cam[2][1] = m12;
+    cam[3][1] = 0.0f;
+    cam[0][2] = m20;
+    cam[1][2] = m21;
+    cam[2][2] = m22;
+    cam[3][2] = 0.0f;
+    cam[0][3] = 0.0f;
+    cam[1][3] = 0.0f;
+    cam[2][3] = 0.0f;
+    cam[3][3] = 1.0f;
 }
 
 void mtxLookDirL(Mtx *view, Mtx *cam, f32 dx, f32 dy, f32 dz) {
-    Mat4F viewMf;
-    Mat4F camMf;
+    f32 viewMf[4][4];
+    f32 camMf[4][4];
 
-    mtxLookDirF(&viewMf, &camMf, dx, dy, dz);
-    guMtxF2L(viewMf.m, view);
-    guMtxF2L(camMf.m, cam);
+    mtxLookDirF(viewMf, camMf, dx, dy, dz);
+    guMtxF2L(viewMf, view);
+    guMtxF2L(camMf, cam);
 }
 
-void mtxLookDirPosF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz, f32 px, f32 py, f32 pz) {
-    f32 padtop[3];
+void mtxLookDirPosF(f32 view[4][4], f32 cam[4][4], f32 dx, f32 dy, f32 dz, f32 px, f32 py, f32 pz) {
+    f32 pad[3];
     f32 t;
     f32 m00;
     f32 m10;
@@ -390,8 +379,8 @@ void mtxLookDirPosF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz, f32 px, f32
 
     if ((dx == 0.0f) && (dz == 0.0f)) {
         if (dy == 0.0f) {
-            mtxIdentityF(view->m);
-            mtxIdentityF(cam->m);
+            mtxIdentityF(view);
+            mtxIdentityF(cam);
             return;
         }
         m00 = 1.0f;
@@ -418,46 +407,46 @@ void mtxLookDirPosF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz, f32 px, f32
         m20 = -dx;
         m22 = -dz;
     }
-    view->m[0][0] = m00;
-    view->m[1][0] = m10;
-    view->m[2][0] = m20;
-    view->m[3][0] = -px;
-    view->m[0][1] = 0.0f;
-    view->m[1][1] = m11;
-    view->m[2][1] = m21;
-    view->m[0][2] = m02;
-    view->m[3][1] = -py;
-    view->m[1][2] = m12;
+    view[0][0] = m00;
+    view[1][0] = m10;
+    view[2][0] = m20;
+    view[3][0] = -px;
+    view[0][1] = 0.0f;
+    view[1][1] = m11;
+    view[2][1] = m21;
+    view[0][2] = m02;
+    view[3][1] = -py;
+    view[1][2] = m12;
     t = -pz;
-    view->m[2][2] = m22;
-    view->m[0][3] = 0.0f;
-    view->m[3][2] = t;
-    view->m[3][3] = 1.0f;
-    view->m[1][3] = 0.0f;
-    view->m[2][3] = 0.0f;
-    cam->m[0][0] = m00;
-    cam->m[3][0] = (px * m00) + (pz * m02);
-    cam->m[1][0] = 0.0f;
-    cam->m[2][0] = m02;
-    cam->m[0][1] = m10;
-    cam->m[1][1] = m11;
-    cam->m[2][1] = m12;
-    cam->m[3][1] = (px * m10) + (py * m11) + (pz * m12);
-    cam->m[0][2] = m20;
-    cam->m[1][2] = m21;
-    cam->m[2][2] = m22;
-    cam->m[0][3] = 0.0f;
-    cam->m[1][3] = 0.0f;
-    cam->m[3][2] = (px * m20) + (py * m21) + (pz * m22);
-    cam->m[3][3] = 1.0f;
-    cam->m[2][3] = 0.0f;
+    view[2][2] = m22;
+    view[0][3] = 0.0f;
+    view[3][2] = t;
+    view[3][3] = 1.0f;
+    view[1][3] = 0.0f;
+    view[2][3] = 0.0f;
+    cam[0][0] = m00;
+    cam[3][0] = (px * m00) + (pz * m02);
+    cam[1][0] = 0.0f;
+    cam[2][0] = m02;
+    cam[0][1] = m10;
+    cam[1][1] = m11;
+    cam[2][1] = m12;
+    cam[3][1] = (px * m10) + (py * m11) + (pz * m12);
+    cam[0][2] = m20;
+    cam[1][2] = m21;
+    cam[2][2] = m22;
+    cam[0][3] = 0.0f;
+    cam[1][3] = 0.0f;
+    cam[3][2] = (px * m20) + (py * m21) + (pz * m22);
+    cam[3][3] = 1.0f;
+    cam[2][3] = 0.0f;
 }
 
 void mtxLookDirPosL(Mtx *view, Mtx *cam, f32 dx, f32 dy, f32 dz, f32 px, f32 py, f32 pz) {
-    Mat4F viewMf;
-    Mat4F camMf;
+    f32 viewMf[4][4];
+    f32 camMf[4][4];
 
-    mtxLookDirPosF(&viewMf, &camMf, dx, dy, dz, px, py, pz);
-    guMtxF2L(viewMf.m, view);
-    guMtxF2L(camMf.m, cam);
+    mtxLookDirPosF(viewMf, camMf, dx, dy, dz, px, py, pz);
+    guMtxF2L(viewMf, view);
+    guMtxF2L(camMf, cam);
 }

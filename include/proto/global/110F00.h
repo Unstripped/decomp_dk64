@@ -2,27 +2,26 @@
 #ifndef PROTO_GLOBAL_110F00_H
 #define PROTO_GLOBAL_110F00_H
 #include "common.h"
-struct Mat4F;
 #ifndef PROTO_SKIP_mtxScaleTranslateF
-void mtxScaleTranslateF(struct Mat4F *, f32, f32, f32, f32, f32, f32);
+void mtxScaleTranslateF(f32[4][4], f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mtxScaleTranslateL
 void mtxScaleTranslateL(Mtx *, f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mtxMulAffineAliasSafeF
-void mtxMulAffineAliasSafeF(struct Mat4F *, struct Mat4F *, struct Mat4F *);
+void mtxMulAffineAliasSafeF(f32[4][4], f32[4][4], f32[4][4]);
 #endif
 #ifndef PROTO_SKIP_mtxMulAffineF
-void mtxMulAffineF(struct Mat4F *, struct Mat4F *, struct Mat4F *);
+void mtxMulAffineF(f32[4][4], f32[4][4], f32[4][4]);
 #endif
 #ifndef PROTO_SKIP_mtxTransformPointF
-void mtxTransformPointF(struct Mat4F *, f32 *, f32 *, f32 *);
+void mtxTransformPointF(f32[4][4], f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_mtxRotateXRatioF
 void mtxRotateXRatioF(f32[4][4], f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mtxRotateYRatioF
-void mtxRotateYRatioF(struct Mat4F *, f32, f32, f32);
+void mtxRotateYRatioF(f32[4][4], f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mtxRotateZRatioF
 void mtxRotateZRatioF(f32[4][4], f32, f32, f32);
@@ -67,13 +66,13 @@ void mtxTranslateF(f32[4][4], f32, f32, f32);
 void mtxTranslateL(Mtx *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mtxLookDirF
-void mtxLookDirF(struct Mat4F *, struct Mat4F *, f32, f32, f32);
+void mtxLookDirF(f32[4][4], f32[4][4], f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mtxLookDirL
 void mtxLookDirL(Mtx *, Mtx *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mtxLookDirPosF
-void mtxLookDirPosF(struct Mat4F *, struct Mat4F *, f32, f32, f32, f32, f32, f32);
+void mtxLookDirPosF(f32[4][4], f32[4][4], f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mtxLookDirPosL
 void mtxLookDirPosL(Mtx *, Mtx *, f32, f32, f32, f32, f32, f32);
