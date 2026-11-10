@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorUpdatePrevContactFlags // FAKE: callee prototype steer
 #include "proto/global/166A0.h"
 #include "proto/global/35000.h"
 #include "proto/global/69E60.h"
@@ -24,13 +23,12 @@ typedef struct ActorPhysicsWork {
     u8 hasArcBounds;
 } ActorPhysicsWork;
 
-void actorUpdatePrevContactFlags(void);
 
 void actorStepPhysics(Actor *self, s16 targetYaw, s16 targetPitch) {
     ActorPhysicsWork *actor = (ActorPhysicsWork *)self;
 
-    actorUpdatePrevContactFlags();
-    func_80665ACC((Actor *)actor);
+    actorUpdatePrevContactFlags(self);
+    func_80665ACC(self);
     if (actor->hasArcBounds != 0) {
         mathAngleClampToArc(actor->unkEE, targetYaw, actor->arcYawMin, actor->arcYawMax, &actor->unkF2);
         actor->unkFA = func_80672134(actor->arcYawMin, actor->arcYawMax, targetPitch, actor->unkF8);
