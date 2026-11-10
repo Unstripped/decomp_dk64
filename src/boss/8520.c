@@ -181,7 +181,7 @@ extern s32 D_807FBD6C;
 extern void *gCamActor;
 
 void behaviourFrameBegin(void);
-void tagBarrelSpawnActorSmokePuffs(s32, s32);
+void tagBarrelSpawnActorSmokePuffs(u8, u8);
 void behaviourCalculateDamageForce(s32, s32);
 void actorSetUniformScale(void *, f32);
 void actorScriptStart(void *, s32);

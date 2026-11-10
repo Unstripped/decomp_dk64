@@ -174,7 +174,7 @@ f32 mathCosF(s16);
 f32 actorGetOrSetNodeScale(Actor *, s32, f32);
 void func_80724CA4(s16, s16);
 void camStartShake(struct CamActor *, u8, u16);
-void tagBarrelSpawnActorSmokePuffs(s32, s32);
+void tagBarrelSpawnActorSmokePuffs(u8, u8);
 void func_80724E48(u8);
 s32 behaviourIsTargetWithinAngle(u16);
 void actorSpawnNodeEffectFacingCamera(s32, u8);

@@ -763,7 +763,7 @@ typedef struct {
     u8 unk200;
 } StructBB70_Race;
 extern StructBB70_Race gActorGlobalState;
-void tagBarrelSpawnActorSmokePuffs(s32, s32);
+void tagBarrelSpawnActorSmokePuffs(u8, u8);
 s32 actorGetNodePos(struct ActorTargetWork *, s32, f32 *, f32 *, f32 *);
 void commandQueuePush(s32, s16, s16, s16, u8, u8, u8, u8, u8);
 
