@@ -1,4 +1,5 @@
 #include "common.h"
+#include "audio_config.h"
 #include "proto/global/13D170.h"
 
 
@@ -293,10 +294,10 @@ s32 __readVarLen(ALCSeq *seq, s32 track) {
 
 extern ALGlobals *n_globals;
 extern ALSynth *n_syn;
-void n_alSynNew(ALSynConfig *config);
+void n_alSynNew(AudioInitArgs *config);
 void n_alSynDelete(void);
 
-void n_alInit(ALGlobals *glob, ALSynConfig *config) {
+void n_alInit(ALGlobals *glob, AudioInitArgs *config) {
     if (n_globals == NULL) {
         n_globals = glob;
         if (n_syn == NULL) {

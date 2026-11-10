@@ -1,29 +1,20 @@
 #define alCSPSendMidi alCSPSendMidi_unused
 #include "common.h"
 #undef alCSPSendMidi
+#include "audio_config.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/6710.h"
 
-void alCSPSendMidi();
+void alCSPSendMidi(); // FAKE: callee prototype steer (header u8 byte2 masks seqPlayerSendMidi arg)
 
 void postCSPChannelCommand(ALCSPlayer *, u8, u8, u8, s32);
 void alCSPSetChlPanVolume(ALCSPlayer *, f32, f32);
 void alCSPSetChlFX2Mix(ALCSPlayer *, u8, u8);
 
-typedef struct {
-    u8 pad[0xF8];
-} Struct8076BF48;
+extern ALCSeq D_8076BF48[];
+extern ALCSeqMarker D_8076C328[][4];
 
-typedef struct {
-    u8 pad[0xEC];
-} Struct8076C328_Marker;
-
-typedef struct {
-    Struct8076C328_Marker marker[4];
-} Struct8076C328;
-
-extern Struct8076BF48 D_8076BF48[];
-extern Struct8076C328 D_8076C328[];
-
-s32 __n_alCSeqNextDelta(Struct8076BF48 *, Struct8076C328 *, u8, s32); // FAKE: callee prototype steer
+s32 __n_alCSeqNextDelta(ALCSeq *, ALCSeqMarker *, u8, s32); // FAKE: callee prototype steer
 
 extern ALCSPlayer *gSeqPlayers[];
 void alCSPSetUnk84(ALCSPlayer *, s32);
@@ -37,35 +28,6 @@ void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
 extern s32 D_8000DDCC;
 extern s32 D_8076D200;
 
-typedef struct CtrlAAudioArgs {
-    s32 w0;
-    s32 w1;
-    s32 w2;
-    s32 w3;
-    s32 w4;
-    ALHeap *heap;
-    s32 w6;
-    s8 b1C;
-    s8 b1D;
-    s16 pad1E;
-    s32 w8;
-    s32 w9;
-} CtrlAAudioArgs;
-
-typedef struct CtrlATaskCfg {
-    s32 rate;
-    s32 unk4;
-    s32 cmdCount;
-} CtrlATaskCfg;
-
-typedef struct CtrlASndpCfg {
-    s32 a;
-    s32 b;
-    s32 c;
-    ALHeap *heap;
-    s16 d;
-} CtrlASndpCfg;
-
 extern ALHeap D_8076D1E8;
 extern u8 D_80770F50[];
 extern ALBank *D_8076D1F8;
@@ -75,56 +37,53 @@ extern void *D_8076BF38[];
 extern s32 D_807452B0[];
 extern u32 gSegmentTable[];
 void alHeapInit(ALHeap *, u8 *, s32);
-void audioThreadInit(void *, s32, void *);
 void *heapAlloc(s32);
 void heapFree(u8 *);
 void oscSetupConfig(ALSeqpConfig *, s32);
 void n_alCSPlayerNew(ALCSPlayer *, ALSeqpConfig *);
-void n_alSndpNew(void *);
 void configureCSPOutputMode(u8);
 void updateCSPOutputChannelMode(s32, s32);
-void audioThreadStart(void);
 void func_806010A0(void);
 
 void audioInit(void) {
-    CtrlASndpCfg sndp;
+    GeSndpConfig sndp;
     ALBankFile *bankB;
-    ALBankFile *tmp;
+    u8 *tmp;
     s32 len;
-    CtrlAAudioArgs args;
+    AudioInitArgs args;
     s32 i;
     ALSeqpConfig seqp;
-    CtrlATaskCfg task;
+    AudioTaskConfig task;
     ALBankFile *bankA;
     ALCSPlayer *player;
     ALCSPlayer *arg;
 
     alHeapInit(&D_8076D1E8, D_80770F50, 0x7BD80);
-    args.w0 = 0x2C;
-    args.w1 = 0x1E;
-    args.w2 = 0x40;
-    args.w3 = 1;
-    args.w4 = 0;
-    args.b1C = 6;
-    args.b1D = 6;
-    args.w6 = 0;
+    args.maxVVoices = 0x2C;
+    args.maxPVoices = 0x1E;
+    args.maxUpdates = 0x40;
+    args.maxFXbusses = 1;
+    args.dmaNew = NULL;
+    args.fxType[0] = AL_FX_CUSTOM;
+    args.fxType[1] = AL_FX_CUSTOM;
+    args.outputRate = 0;
     args.heap = &D_8076D1E8;
-    task.rate = 22050;
-    task.unk4 = 2;
+    task.outputRate = 22050;
+    task.framesPerField = 2;
     task.cmdCount = 0xC00;
     audioThreadInit(&args, 0x14, &task);
     len = gSegmentTable[0x5B] - gSegmentTable[0x5A];
     tmp = heapAlloc(0x38000);
-    dmaReadAssetDecompress(gSegmentTable[0x5A], (s32 *)tmp, &len, 0xD, 0, 2, 0);
+    dmaReadAssetDecompress(gSegmentTable[0x5A], tmp, &len, 0xD, 0, 2, 0);
     bankA = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, len);
-    dmaReadAssetDecompress(gSegmentTable[0x5A], (s32 *)bankA, &len, 0xD, 0, 2, 0);
+    dmaReadAssetDecompress(gSegmentTable[0x5A], bankA, &len, 0xD, 0, 2, 0);
     alBnkfNew(bankA, (u8 *)gSegmentTable[0x54]);
     D_8076D1FC = bankA->bankArray[0];
     len = gSegmentTable[0x61] - gSegmentTable[0x60];
-    dmaReadAssetDecompress(gSegmentTable[0x60], (s32 *)tmp, &len, 0xD, 0, 2, 0);
-    heapFree((u8 *)tmp);
+    dmaReadAssetDecompress(gSegmentTable[0x60], tmp, &len, 0xD, 0, 2, 0);
+    heapFree(tmp);
     bankB = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, len);
-    dmaReadAssetDecompress(gSegmentTable[0x60], (s32 *)bankB, &len, 0xD, 0, 2, 0);
+    dmaReadAssetDecompress(gSegmentTable[0x60], bankB, &len, 0xD, 0, 2, 0);
     alBnkfNew(bankB, (u8 *)gSegmentTable[0x66]);
     D_8076D1F8 = bankB->bankArray[0];
     seqp.maxVoices = 0x2C;
@@ -138,17 +97,17 @@ void audioInit(void) {
         D_8076BF38[i] = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, D_807452B0[i]);
         player = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, 0x8C);
         gSeqPlayers[i] = player;
-        if (D_8076BF38[i] == NULL || (arg = player, player == NULL)) {
+        if (D_8076BF38[i] == NULL || (arg = player, player == NULL)) { // FAKE: comma re-assign steers player/gSeqPlayers[i] reload
             arg = gSeqPlayers[i];
         }
         n_alCSPlayerNew(arg, &seqp);
         alCSPSetBank(gSeqPlayers[i], bankA->bankArray[0]);
     }
     func_806010A0();
-    sndp.b = 0x40;
-    sndp.a = 0x40;
-    sndp.c = 0x14;
-    sndp.d = 8;
+    sndp.maxEvents = 0x40;
+    sndp.maxSounds = 0x40;
+    sndp.unk8 = 0x14;
+    sndp.maxStates = 8;
     sndp.heap = &D_8076D1E8;
     n_alSndpNew(&sndp);
     configureCSPOutputMode(4);
@@ -272,15 +231,15 @@ void seqPlayerSetChannelFX2MixMask(u8 playerIndex, s32 chanMask, s32 fxMix) {
 }
 
 void func_80601678(u8 playerIndex, u8 channel, u8 val) {
-    alCSPSendMidi(gSeqPlayers[playerIndex], 0, (u8)(channel | 0xB0), 0x21, val);
+    alCSPSendMidi(gSeqPlayers[playerIndex], 0, (u8)(channel | AL_MIDI_ControlChange), 0x21, val);
 }
 
 void func_806016D0(u8 playerIndex, u8 channel, u8 val) {
-    alCSPSendMidi(gSeqPlayers[playerIndex], 0, (u8)(channel | 0xB0), 0x22, val);
+    alCSPSendMidi(gSeqPlayers[playerIndex], 0, (u8)(channel | AL_MIDI_ControlChange), 0x22, val);
 }
 
 void func_80601728(u8 playerIndex, u8 channel, u8 val) {
-    alCSPSendMidi(gSeqPlayers[playerIndex], 0, (u8)(channel | 0xB0), 0x23, val);
+    alCSPSendMidi(gSeqPlayers[playerIndex], 0, (u8)(channel | AL_MIDI_ControlChange), 0x23, val);
 }
 void seqPlayerSetTempo(u8 playerIndex, s32 tempo) {
     alCSPSetTempo(gSeqPlayers[playerIndex], tempo);
@@ -304,11 +263,11 @@ s32 seqPlayerGetCurTime(u8 playerIndex) {
     return gSeqPlayers[playerIndex]->curTime;
 }
 s32 func_806018D4(u8 playerIndex, u8 byte, s32 delta) {
-    return __n_alCSeqNextDelta(&D_8076BF48[playerIndex], &D_8076C328[playerIndex], byte, delta);
+    return __n_alCSeqNextDelta(&D_8076BF48[playerIndex], D_8076C328[playerIndex], byte, delta);
 }
 
 void seqPlayerSetMarkerLocation(u8 playerIndex, u8 markerIndex) {
-    alCSeqSetLoc((ALCSeq *)&D_8076BF48[playerIndex], (ALCSeqMarker *)&D_8076C328[playerIndex].marker[markerIndex]);
+    alCSeqSetLoc(&D_8076BF48[playerIndex], &D_8076C328[playerIndex][markerIndex]);
 }
 
 void seqPlayerSendMidi(u8 playerIndex, s32 ticks, u8 status, u8 byte1, s32 byte2) {

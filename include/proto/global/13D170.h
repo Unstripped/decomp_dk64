@@ -2,6 +2,7 @@
 #ifndef PROTO_GLOBAL_13D170_H
 #define PROTO_GLOBAL_13D170_H
 #include "common.h"
+#include "audio_config.h"
 #ifndef PROTO_SKIP_n_alCSeqNew
 void n_alCSeqNew(ALCSeq *, ALCMidiHdr *);
 #endif
@@ -33,7 +34,7 @@ u8 __getTrackByte(ALCSeq *, s32);
 s32 __readVarLen(ALCSeq *, s32);
 #endif
 #ifndef PROTO_SKIP_n_alInit
-void n_alInit(ALGlobals *, ALSynConfig *);
+void n_alInit(ALGlobals *, AudioInitArgs *);
 #endif
 #ifndef PROTO_SKIP_n_alClose
 void n_alClose(ALGlobals *);

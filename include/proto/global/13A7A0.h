@@ -2,12 +2,12 @@
 #ifndef PROTO_GLOBAL_13A7A0_H
 #define PROTO_GLOBAL_13A7A0_H
 #include "common.h"
+#include "audio_config.h"
 struct GeSndEvt;
-struct GeSndpConfig;
 struct GfSndState;
 struct GfSound;
 #ifndef PROTO_SKIP_n_alSndpNew
-void n_alSndpNew(struct GeSndpConfig *);
+void n_alSndpNew(GeSndpConfig *);
 #endif
 #ifndef PROTO_SKIP___n_sndpVoiceHandler
 ALMicroTime __n_sndpVoiceHandler(void *);

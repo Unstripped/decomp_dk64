@@ -2,11 +2,11 @@
 #ifndef PROTO_GLOBAL_13E160_H
 #define PROTO_GLOBAL_13E160_H
 #include "common.h"
-struct SynCoreConfig;
+#include "audio_config.h"
 struct SynCoreParam;
 struct SynCorePlayer;
 #ifndef PROTO_SKIP_n_alSynNew
-void n_alSynNew(struct SynCoreConfig *);
+void n_alSynNew(AudioInitArgs *);
 #endif
 #ifndef PROTO_SKIP_n_alAudioFrame
 s32 n_alAudioFrame(s32, s32 *, s32, s32);

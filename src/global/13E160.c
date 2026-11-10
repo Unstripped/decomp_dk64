@@ -1,4 +1,5 @@
 #include "common.h"
+#include "audio_config.h"
 #include "proto/global/137120.h"
 #include "proto/global/140600.h"
 
@@ -50,17 +51,6 @@ typedef struct SynCoreSynth {
     s32 unk4C;
 } SynCoreSynth;
 
-typedef struct SynCoreConfig {
-    s32 maxVVoices;
-    s32 maxPVoices;
-    s32 maxUpdates;
-    s32 maxFXBusses;
-    void *dma;
-    ALHeap *heap;
-    s32 outputRate;
-    u8 fxType[4];
-} SynCoreConfig;
-
 typedef struct SynCorePVoice {
     u8 data[0xC0];
 } SynCorePVoice;
@@ -72,7 +62,7 @@ void _n_collectPVoices(void);
 Acmd *n_alFxPull(s32, Acmd *, s32);
 
 
-void n_alSynNew(SynCoreConfig *config) {
+void n_alSynNew(AudioInitArgs *config) {
     s32 i;
     s32 j;
     s32 padI;
@@ -91,12 +81,12 @@ void n_alSynNew(SynCoreConfig *config) {
     n_syn->paramSamples = 0;
     n_syn->outputRate = config->outputRate;
     n_syn->maxOutSamples = 0xB8;
-    n_syn->dma = config->dma;
+    n_syn->dma = config->dmaNew;
     n_syn->outBuffer = NULL;
     n_syn->unk4C = 1;
-    if (config->maxFXBusses >= 3) n_syn->maxAuxBusses = 2;
-    else if (config->maxFXBusses <= 0) n_syn->maxAuxBusses = 1;
-    else n_syn->maxAuxBusses = config->maxFXBusses;
+    if (config->maxFXbusses >= 3) n_syn->maxAuxBusses = 2;
+    else if (config->maxFXbusses <= 0) n_syn->maxAuxBusses = 1;
+    else n_syn->maxAuxBusses = config->maxFXbusses;
     n_syn->auxBuses = alHeapDBAlloc(NULL, 0, heap, n_syn->maxAuxBusses, 0x48);
     if (n_syn->maxAuxBusses > (i = 0)) do {
         n_syn->auxBuses[i].count = 0;

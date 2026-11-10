@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "audio_config.h"
 #include "proto/global/137120.h"
 #include "proto/global/13980.h"
 #include "proto/global/13D170.h"
@@ -39,24 +40,10 @@ typedef struct AudioContext {
     void *tasks[3];
 } AudioContext;
 
+// Effect parameter tables for the two aux buses (AudioInitArgs.params).
 typedef struct AudioSynthesizerConfig {
-    u32 words[0x218 / 4];
+    s32 fxParams[2][0x10C / 4];
 } AudioSynthesizerConfig;
-
-typedef struct AudioInitArgs {
-    u8 pad0[0x10];
-    void *dmaNew;
-    ALHeap *heap;
-    s32 unk18;
-    u8 pad1C[4];
-    void *synConfig;
-    void *unk24;
-} AudioInitArgs;
-
-typedef struct AudioTaskConfig {
-    u8 pad0[8];
-    u32 cmdCount;
-} AudioTaskConfig;
 
 typedef struct AudioAlState {
     s32 words[0x2760 / 4];
@@ -135,12 +122,12 @@ void audioThreadInit(AudioInitArgs *initArgs, s32 threadPriority, AudioTaskConfi
     u32 i;
 
     initArgs->dmaNew = audioDmaNew;
-    initArgs->unk18 = sAudioFreq;
+    initArgs->outputRate = sAudioFreq;
     D_80770194 = 0x228;
     D_8077019C = 0x398;
     synConfig = D_807452D0;
-    initArgs->synConfig = &synConfig;
-    initArgs->unk24 = (u8 *)&synConfig + 0x10C;
+    initArgs->params[0] = synConfig.fxParams[0];
+    initArgs->params[1] = synConfig.fxParams[1];
     n_alInit((s32 *)&D_8076D708, initArgs);
     D_807701A4 = (s32 *)&D_8076D708;
 

@@ -4,6 +4,7 @@ typedef u32 OSIntMask;
 typedef u32 OSHWIntr;
 
 #include "common.h"
+#include "audio_config.h"
 
 extern s32 osGetIntMask(s32 unused);
 
@@ -18,14 +19,6 @@ typedef struct GeSndEvt {
     } arg8;
     s32 arg12;
 } GeSndEvt;
-
-typedef struct GeSndpConfig {
-    s32 maxSounds;
-    s32 maxEvents;
-    s32 unk8;
-    ALHeap *heap;
-    u16 maxStates;
-} GeSndpConfig;
 
 typedef struct {
     ALPlayer node;

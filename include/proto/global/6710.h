@@ -2,11 +2,10 @@
 #ifndef PROTO_GLOBAL_6710_H
 #define PROTO_GLOBAL_6710_H
 #include "common.h"
+#include "audio_config.h"
 struct AudioAiBuffer;
 struct AudioDmaContext;
-struct AudioInitArgs;
 struct AudioTask;
-struct AudioTaskConfig;
 #ifndef PROTO_SKIP_audioThreadInit
 void audioThreadInit(struct AudioInitArgs *, s32, struct AudioTaskConfig *);
 #endif
