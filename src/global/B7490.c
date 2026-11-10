@@ -139,9 +139,6 @@ void actorEmptyStub(void) {
 
 void func_806B2D64(void) {
     s32 st;
-    f32 min;
-    f32 fa;
-    f32 fb;
 
     behaviourFrameBegin();
     effectSpawnSparks(0x1F, 2);
