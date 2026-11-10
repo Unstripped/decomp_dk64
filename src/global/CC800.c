@@ -2,7 +2,6 @@
 #include "actor.h"
 #define PROTO_SKIP_controllerAnimFree // FAKE: callee prototype steer
 #define PROTO_SKIP_playerSetSizeMode // FAKE: callee prototype steer
-#define PROTO_SKIP_playerTransformAnimalEndSfx // FAKE: callee prototype steer
 #define PROTO_SKIP_rumbleRequest // FAKE: callee prototype steer
 #include "proto/global/10D2D0.h"
 #include "proto/global/126260.h"
@@ -1001,10 +1000,9 @@ void playerRevertAnimalTransformation(Actor *arg0, G01Ctl *arg1) {
     }
 }
 
-void playerTransformAnimalEndSfx(void);
 
 void playerRestoreKongState(Actor *arg0, PlayerState *arg1) {
-    playerTransformAnimalEndSfx();
+    playerTransformAnimalEndSfx(arg0);
     arg1->stateFlags &= ~0x30;
     arg0->flags |= 0x8000;
     arg0->alpha = 0xFF;
