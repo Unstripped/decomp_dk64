@@ -130,24 +130,25 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 3 (2026-11-09/10)** — 12 files: global/D5E10 (2nd pass), 63EC0, 8D3E0, FCCD0, 1295B0, F56F0, 89250, 478F0 (3rd pass), 42630, 103AB0, critter/0, race/7BD0. Side work: `Actor.unk155` split (818 uses), `Actor.animState`/`floorContact`, `PlayerState.homingStrength`, Behaviour state carves, `ActorSub4` bone lists + `scriptResult` (size 0x90) and per-type component storage past `Actor` documented; 17B90 callee batch. FAKE tags rose (820) because agents tagged pre-existing untagged hacks; total hacks fell in every merged file.
 - [x] **Rounds 4–5 (2026-11-10)** — global/D5E10, EFDC0, E4090, 36880, 12E800, 9DD70, 42630, 478F0, 103AB0, CEAE0, 80150, 201B0, 104F0, F9450, 119370, 70FD0. Side work: `CamState` (10 files), `SpawnNode`/`Zone` (33 files), `actorType` u32 (9 files), `KongInventory`, PlayerState/PlayerStruct carves, callee-prototype batches; 12 symbols named. Recording procedure fixed: record at the base, sweep, re-record at the merge commit, carry.
 - [x] **Rounds 6–7 (2026-11-10)** — round 6: global/AA960, 4FC0 (jetpac), 3C10, 15050, 112080, 1295B0, 5A50, plus re-reviews of 12 files after `actorType` u32; round 7: multiplayer/0, global/54150, CBEA0, 7AF60, jetpac/3480, jetpac/0. New shared headers `audio_config.h`, `segment.h`, `jetpac.h`, `water.h`; shared `ActorSub4`/`AnimSlot`/`AnimClip` animation types (QualityTools, 70 views retired); `ActorCollisionList`, `G00Entry`/`G01Pos`, `PlayerState.scoreEffect`, `ActorGlobalState` carve (7CA80's view retired; `bossFightPhase`); split splat labels retired across ~40 files with relocation-equivalent checks (`--reloc-ok`); 9 symbols named. About 144 reviews that QualityTools recorded from diffs are being re-read (ReRead) and are not counted as read here.
-- [ ] Remaining: 1,452 functions not reviewed; 760 open sites; 7CA80 needs a re-review after its view retirement (86 OPEN). Next rounds: `uv run tools/quality.py rank`.
+- [x] **Round 8 (2026-11-10)** — global/A2F10, CC800, 110F00 (+ caller 10E1D0), 7CA80 (re-review after its view retirement), bonus/2690, menu/1AF0 (partial). Header carves: `Actor` unkCE/unkD4/unk148/unk14C, `PlayerState` unk1A/unk11E, `PlayerStruct` farClip/contPad/heldButtonsPtr/unk2DC. Views retired onto `Actor`/`PlayerState`/`PlayerStruct`/`KongInventory`; `Mat4F` retired (7 matrix functions take `f32[4][4]`); retyped prototypes for func_806C8220, playerRevertAnimalTransformation, func_806C9830 (ANSI), bonusResetAmmo and two menu/1AF0 draw functions. Tool: `rename.py fold`.
+- [ ] Remaining: 1,200 functions not reviewed; 847 open sites. 168 functions in 42 files reaching `Actor.unk148` need a re-sweep after 1b04ec85. Next rounds: `uv run tools/quality.py rank`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-10, after round 7):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-10, after round 8):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 811 | 583 |
+| FAKE | 806 | 583 |
 | FAKE dead-if | 282 | 263 |
-| FAKE proto-steer | 193 | 134 |
-| FAKE other kinds | 336 | 186 |
-| LAYOUT | 53 | 47 |
+| FAKE proto-steer | 175 | 134 |
+| FAKE other kinds | 349 | 186 |
+| LAYOUT | 54 | 47 |
 | goto | 35 | 39 |
-| proto-type (`// PROTO:`) | 21 | 0 |
-| protos mismatch | 101 | 1,202 |
-| reviewed / exhausted functions | 2,818 / 2,653 of 4,270 | 0 |
+| proto-type (`// PROTO:`) | 12 | 0 |
+| protos mismatch | 93 | 1,202 |
+| reviewed / exhausted functions | 3,070 / 2,836 of 4,270 | 0 |
 | uninit warnings (clint checks every function) | 252 | 122 |
 | `func_` definitions | 443 | 457 |
-| m2c names | 1,115 | 5,040 |
+| m2c names | 1,001 | 5,040 |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 
