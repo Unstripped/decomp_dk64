@@ -500,10 +500,10 @@ void func_80700BF4(void) {
             y = state->targetRoll - 0x14;
             x += pad->stickX;
             halfWidth = (u32)(margin + pad->stickMagnitude / 1.5);
-            state->unk114 = zbufferDepthToDistance(zbufferReadDepth(x, y));
+            state->depthCenter = zbufferDepthToDistance(zbufferReadDepth(x, y));
             state->unk116 = zbufferDepthToDistance(zbufferReadDepth(x, state->targetYawAngle));
-            state->unk118 = zbufferDepthToDistance(zbufferReadDepth(x - halfWidth, y));
-            state->unk11A = zbufferDepthToDistance(zbufferReadDepth(x + halfWidth, y));
+            state->depthLeft = zbufferDepthToDistance(zbufferReadDepth(x - halfWidth, y));
+            state->depthRight = zbufferDepthToDistance(zbufferReadDepth(x + halfWidth, y));
         }
     }
 }

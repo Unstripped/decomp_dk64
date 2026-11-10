@@ -2,8 +2,8 @@
 #ifndef PROTO_GLOBAL_104F0_H
 #define PROTO_GLOBAL_104F0_H
 #include "common.h"
-#ifndef PROTO_SKIP_func_8060B7F0
-void func_8060B7F0(void);
+#ifndef PROTO_SKIP_eepromInitModelCount
+void eepromInitModelCount(void);
 #endif
 #ifndef PROTO_SKIP_sleepMilliseconds
 void sleepMilliseconds(f32);
@@ -26,14 +26,14 @@ void eepromWriteBitfield();
 #ifndef PROTO_SKIP_eepromReadBitfield
 s32 eepromReadBitfield();
 #endif
-#ifndef PROTO_SKIP_func_8060BCA0
-void func_8060BCA0(s32, u8, u8, u16 *, u8 *);
+#ifndef PROTO_SKIP_eepromGetKongFieldOffset
+void eepromGetKongFieldOffset(s32, u8, u8, u16 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_eepromGetSaveDataSectionOffset
 void eepromGetSaveDataSectionOffset(s32, u8, u16 *, u8 *);
 #endif
-#ifndef PROTO_SKIP_func_8060BF84
-void func_8060BF84(s32, u8, u16 *, u8 *);
+#ifndef PROTO_SKIP_eepromGetGlobalFieldOffset
+void eepromGetGlobalFieldOffset(s32, u8, u16 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_eepromCalculateTotalModelCount
 void eepromCalculateTotalModelCount(s32, s32, u8, u16 *, s8 *);
@@ -41,8 +41,8 @@ void eepromCalculateTotalModelCount(s32, s32, u8, u16 *, s8 *);
 #ifndef PROTO_SKIP_eepromGetSectorOffset
 void eepromGetSectorOffset();
 #endif
-#ifndef PROTO_SKIP_func_8060C430
-s32 func_8060C430(s32, u32, s32);
+#ifndef PROTO_SKIP_eepromScaleFieldValue
+s32 eepromScaleFieldValue(s32, u32, s32);
 #endif
 #ifndef PROTO_SKIP_eepromSetField
 void eepromSetField(s32, u8, u8, u8, s32);
@@ -62,8 +62,8 @@ void eepromSetCurrentSlot();
 #ifndef PROTO_SKIP_eepromInitConfigs
 void eepromInitConfigs(u8);
 #endif
-#ifndef PROTO_SKIP_func_8060CB74
-void func_8060CB74(void);
+#ifndef PROTO_SKIP_eepromResetGlobalData
+void eepromResetGlobalData(void);
 #endif
 #ifndef PROTO_SKIP_func_8060CB9C
 void func_8060CB9C(void);
@@ -71,8 +71,8 @@ void func_8060CB9C(void);
 #ifndef PROTO_SKIP_eepromValidateSaveSlots
 void eepromValidateSaveSlots(void);
 #endif
-#ifndef PROTO_SKIP_func_8060D0A8
-void func_8060D0A8(void);
+#ifndef PROTO_SKIP_eepromResetAllSlots
+void eepromResetAllSlots(void);
 #endif
 #ifndef PROTO_SKIP_eepromReadAllSectors
 void eepromReadAllSectors(void);
@@ -104,8 +104,8 @@ void eepromThreadMain(void *);
 #ifndef PROTO_SKIP_eepromInit
 void eepromInit(void);
 #endif
-#ifndef PROTO_SKIP_func_8060E25C
-u8 *func_8060E25C(s32);
+#ifndef PROTO_SKIP_eepromGetSectionBuffer
+u8 *eepromGetSectionBuffer(s32);
 #endif
 #ifndef PROTO_SKIP_eepromReadChecksumBit
 u8 eepromReadChecksumBit(u16, u8);

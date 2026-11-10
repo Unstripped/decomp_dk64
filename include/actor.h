@@ -549,10 +549,10 @@ typedef struct PlayerState {
     /* 0x10E */ s16 targetPitch;
     /* 0x110 */ s16 targetRoll;
     /* 0x112 */ s16 targetYawAngle;
-    /* 0x114 */ s16 unk114;
+    /* 0x114 */ s16 depthCenter;
     /* 0x116 */ s16 unk116;
-    /* 0x118 */ s16 unk118;
-    /* 0x11A */ s16 unk11A;
+    /* 0x118 */ s16 depthLeft;
+    /* 0x11A */ s16 depthRight;
     /* 0x11C */ u8 unk11C;
     /* 0x11D */ u8 unk11D;
     /* 0x11E */ u8 pad11E[2];
@@ -621,8 +621,8 @@ typedef struct PlayerState {
     /* 0x242 */ u16 unk242;
     /* 0x244 */ u8 idleTimeoutFlag;
     /* 0x245 */ u8 damageCooldown;
-    /* 0x246 */ s8 attackerValid;
-    /* 0x247 */ s8 attackerType;
+    /* 0x246 */ s8 hitSourceSpawnNodeId;
+    /* 0x247 */ s8 hitSourcePlayerIndex;
     /* 0x248 */ s8 attackerPlayerIndex;
     /* 0x249 */ u8 attackerSpawnNodeId;
     /* 0x24A */ u8 attackTimer;

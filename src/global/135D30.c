@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_func_8060E25C // FAKE: callee prototype steer
+#define PROTO_SKIP_eepromGetSectionBuffer // FAKE: callee prototype steer
 #include "proto/global/104F0.h"
 #include "proto/global/135D30.h"
 #include "proto/global/3C10.h"
@@ -33,7 +33,7 @@ extern FlagTableEntry D_80755EA0[];
 extern FlagTableEntry4 D_80755F4C[];
 extern FlagTableEntry4 D_80755F50[];
 
-u8 *func_8060E25C(u8); // FAKE: callee prototype steer
+u8 *eepromGetSectionBuffer(u8); // FAKE: callee prototype steer
 
 void flagsClearAllBank2(void) {
     s32 i;
@@ -69,7 +69,7 @@ u8 flagGet(s16 flag, u8 bank) {
     switch (bank) {
     case 0:
     case 1:
-        base = func_8060E25C(bank);
+        base = eepromGetSectionBuffer(bank);
         break;
     case 2:
         base = D_807FDD90;
@@ -122,7 +122,7 @@ void flagSet(s16 flag, u8 val, u8 bank) {
     switch (mode) {
     case 0:
     case 1:
-        base = func_8060E25C(mode);
+        base = eepromGetSectionBuffer(mode);
         break;
     case 2:
         base = D_807FDD90;

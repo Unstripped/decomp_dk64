@@ -142,8 +142,8 @@ void playerSetRecentAttacker(Actor *attacker, PlayerState *state) {
         clear = 1;
     }
     if (clear != 0) {
-        gActivePlayerState->attackerValid = 0;
-        gActivePlayerState->attackerType = -1;
+        gActivePlayerState->hitSourceSpawnNodeId = 0;
+        gActivePlayerState->hitSourcePlayerIndex = -1;
     }
     state->attackTimer = 5;
 }
@@ -161,18 +161,18 @@ void playerRecordHitSource(Actor *player, Actor *source, s32 strength) {
     } else if (source->collisionFlags == 1) {
         ok = 1;
         sourceState = source->customState;
-        state->attackerType = sourceState->playerIndex;
-        state->attackerValid = 0;
+        state->hitSourcePlayerIndex = sourceState->playerIndex;
+        state->hitSourceSpawnNodeId = 0;
     } else if (source->collisionFlags == 2) {
-        state->attackerValid = spawnNodeIdForActor(source);
+        state->hitSourceSpawnNodeId = spawnNodeIdForActor(source);
         ok = 1;
-        state->attackerType = -1;
+        state->hitSourcePlayerIndex = -1;
     } else {
         bad = 1;
     }
     if (bad != 0) {
-        state->attackerValid = 0;
-        state->attackerType = -1;
+        state->hitSourceSpawnNodeId = 0;
+        state->hitSourcePlayerIndex = -1;
     }
     if (ok != 0) {
         state->hitModelId = ((ActorModelView *)source->sub4->model)->unk10;
@@ -185,14 +185,14 @@ extern PlayerStruct *gPlayerSlots;
 
 
 s32 playerHitSourceIsStale(s32 minStrength) {
-    s8 idx = gActivePlayerState->attackerType;
+    s8 idx = gActivePlayerState->hitSourcePlayerIndex;
     s32 ret = 1;
     Actor *actor = NULL;
 
     if (idx >= 0) {
         actor = gPlayerSlots[idx].actor;
     } else {
-        s8 spawnNodeId = gActivePlayerState->attackerValid;
+        s8 spawnNodeId = gActivePlayerState->hitSourceSpawnNodeId;
 
         if (spawnNodeId > 0) {
             actor = spawnNodeActivate(spawnNodeId, 0);
@@ -206,8 +206,8 @@ s32 playerHitSourceIsStale(s32 minStrength) {
 
 void playerClearStaleHitSource(void) {
     if (playerHitSourceIsStale(-1) != 0) {
-        gActivePlayerState->attackerType = -1;
-        gActivePlayerState->attackerValid = 0;
+        gActivePlayerState->hitSourcePlayerIndex = -1;
+        gActivePlayerState->hitSourceSpawnNodeId = 0;
     }
 }
 

@@ -20,7 +20,7 @@ s32 D_807EDEAC;
 extern u8 D_807467C8;
 
 
-void func_8060B7F0(void) {
+void eepromInitModelCount(void) {
     s32 i;
 
     D_807ECEA0[0] = 0;
@@ -185,7 +185,7 @@ unsigned char bitCount;
     return result;
 }
 
-void func_8060BCA0(s32 field, u8 index, u8 subIndex, u16 *offset, u8 *width) {
+void eepromGetKongFieldOffset(s32 field, u8 index, u8 subIndex, u16 *offset, u8 *width) {
     *offset = D_807ECEA0[0] + *offset + (index * 0xA1) + 0x320;
     *width = 0;
     switch (field) {
@@ -264,7 +264,7 @@ void eepromGetSaveDataSectionOffset(s32 field, u8 index, u16 *offset, u8 *width)
     }
 }
 
-void func_8060BF84(s32 field, u8 index, u16 *offset, u8 *width) {
+void eepromGetGlobalFieldOffset(s32 field, u8 index, u16 *offset, u8 *width) {
     *offset = (((((((D_807ECEA0[0] + 0x6B7) & 0xFFC0) + 0x27) & 0xFFF8) * 4) + 0x3F) & 0xFFC0) + 0x40;
     *width = 0;
     switch (field) {
@@ -310,7 +310,7 @@ unsigned char sector;
     base *= ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7);
     *offset = base;
     if (field >= 0x11) {
-        func_8060BF84(field, subIndex, offset, width);
+        eepromGetGlobalFieldOffset(field, subIndex, offset, width);
         return;
     }
     if (field >= 0xC) {
@@ -318,7 +318,7 @@ unsigned char sector;
         return;
     }
     if (field > 0) {
-        func_8060BCA0(field, index, subIndex, offset, width);
+        eepromGetKongFieldOffset(field, index, subIndex, offset, width);
         return;
     }
     eepromCalculateTotalModelCount(field, index, subIndex, offset, (s8 *)width);
@@ -326,7 +326,7 @@ unsigned char sector;
 
 extern u8 *D_80746800;
 
-s32 func_8060C430(s32 field, u32 value, s32 encode) {
+s32 eepromScaleFieldValue(s32 field, u32 value, s32 encode) {
     f32 scale;
 
     switch (field) {
@@ -369,7 +369,7 @@ void eepromSetField(s32 field, u8 index, u8 subIndex, u8 slot, s32 value) {
     u8 width;
 
     eepromGetSectorOffset(&offset, &width, field, index, subIndex, eepromGetSectorForSlot(slot));
-    eepromWriteBitfield(func_8060C430(field, value, 1), offset, width);
+    eepromWriteBitfield(eepromScaleFieldValue(field, value, 1), offset, width);
 }
 
 
@@ -381,7 +381,7 @@ s32 eepromGetField(s32 field, u8 index, u8 subIndex, u8 slot) {
     value = eepromGetSectorForSlot(slot);
     eepromGetSectorOffset(&offset, &width, field, index, subIndex, value);
     value = eepromReadBitfield(offset, width);
-    return func_8060C430(field, value, 0);
+    return eepromScaleFieldValue(field, value, 0);
 }
 
 
@@ -488,7 +488,7 @@ void eepromInitConfigs(u8 mask) {
 }
 
 
-void func_8060CB74(void) {
+void eepromResetGlobalData(void) {
     flagsClearAllBank1();
     eepromInitConfigs(0xFF);
 }
@@ -585,7 +585,7 @@ void eepromValidateSaveSlots(void) {
     hit = eepromCalculateCrc32(D_807ED6A8 + off, 0x3C);
     if (stored != hit) {
         ok = 0;
-        func_8060CB74();
+        eepromResetGlobalData();
     }
     failed |= (ok == 0);
     sLanguageIndex = eepromGetField(0x1F, 0, 0, 0);
@@ -598,7 +598,7 @@ void eepromValidateSaveSlots(void) {
 }
 
 
-void func_8060D0A8(void) {
+void eepromResetAllSlots(void) {
     s32 pad;
     s32 slot;
     u8 *p;
@@ -610,7 +610,7 @@ void func_8060D0A8(void) {
         *p++ = i;
     }
     bzero(D_807ECEA8, 0x800);
-    func_8060CB74();
+    eepromResetGlobalData();
     for (i = 0; i != 4; i++) {
         eepromClearSlotData((u8)i, i == 3);
     }
@@ -630,7 +630,7 @@ void eepromReadAllSectors(void) {
     failed = 0;
     dst = D_807ED6A8;
     if (D_807EDEAC != 2) {
-        func_8060D0A8();
+        eepromResetAllSlots();
         D_807467CC = 1;
         return;
     }
@@ -649,7 +649,7 @@ void eepromReadAllSectors(void) {
         failed = _strcasecmp((char *)D_807ED6A8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
     }
     if (failed != 0) {
-        func_8060D0A8();
+        eepromResetAllSlots();
     }
     func_8060CB9C();
 }
@@ -902,7 +902,7 @@ extern u64 D_807F0298[];
 extern s8 D_807467E0;
 
 void eepromInit(void) {
-    func_8060B7F0();
+    eepromInitModelCount();
     D_807EDEAC = osEepromProbe(&D_807ECCF0);
     osCreateMesgQueue(&D_807EE0D0, D_807EE0B0, 8);
     osCreateMesgQueue(&D_807F02B8, D_807F0298, 8);
@@ -914,7 +914,7 @@ void eepromInit(void) {
 
 extern u8 D_807EDEB0[];
 
-u8 *func_8060E25C(s32 section) {
+u8 *eepromGetSectionBuffer(s32 section) {
     u8 *result;
     s32 selector;
 

@@ -2021,9 +2021,9 @@ s32 func_80620F00(Actor *camActor, u8 allowNudge, u8 requireSide) {
 
     diff = gCamTargetDist - gPlayerSlots[st->unkFB].unk284;
     targetState = st->unk0->customState;
-    pastLimit = 40.0f < gCamTargetDist && targetState->unk114 < diff;
-    pastLeft = targetState->unk118 < diff;
-    pastRight = targetState->unk11A < diff;
+    pastLimit = 40.0f < gCamTargetDist && targetState->depthCenter < diff;
+    pastLeft = targetState->depthLeft < diff;
+    pastRight = targetState->depthRight < diff;
     pastRetry = targetState->unk116 < diff;
     if (requireSide && !pastLeft && !pastRight) {
         pastLimit = 0;

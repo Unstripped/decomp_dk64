@@ -2,8 +2,8 @@
 #ifndef PROTO_GLOBAL_35000_H
 #define PROTO_GLOBAL_35000_H
 #include "common.h"
+#include "actor.h"
 struct GfxWords;
-struct MatrixActor;
 struct RenderEntry;
 #ifndef PROTO_SKIP_renderEntryListsReset
 void renderEntryListsReset(void);
@@ -42,12 +42,12 @@ struct GfxWords *renderEntryListBuildDisplayList(struct GfxWords *, struct Rende
 void *renderActorEntryBuildDisplayList(s32, void *, struct GfxWords *, u8);
 #endif
 #ifndef PROTO_SKIP_actorBuildModelMatrix
-void actorBuildModelMatrix(struct MatrixActor *, f32 *);
+void actorBuildModelMatrix(Actor *, f32 *);
 #endif
 #ifndef PROTO_SKIP_actorBuildModelMatrixFromAngles
-void actorBuildModelMatrixFromAngles(struct MatrixActor *, f32 *, f32, f32, f32);
+void actorBuildModelMatrixFromAngles(Actor *, f32 *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_actorUpdateModelMatrix
-void actorUpdateModelMatrix(struct MatrixActor *, u8);
+void actorUpdateModelMatrix(Actor *, u8);
 #endif
 #endif
