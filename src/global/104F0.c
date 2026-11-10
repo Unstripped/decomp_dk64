@@ -1,7 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP__strchr // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_modelTypeCountGet // FAKE: callee prototype steer
 #include "proto/boot/3630.h"
 #include "proto/boot/3D20.h"
 #include "proto/global/104F0.h"
@@ -21,19 +19,14 @@ u8 D_807EDEA8[4];
 s32 D_807EDEAC;
 extern u8 D_807467C8;
 
-extern s32 modelTypeCountGet(s32);  // FAKE: callee prototype steer
 
 void func_8060B7F0(void) {
-    s32 temp_v0;
-    s32 var_s0;
+    s32 i;
 
     D_807ECEA0[0] = 0;
-    var_s0 = 0;
-    do {
-        temp_v0 = modelTypeCountGet(var_s0 & 0xFF);
-        var_s0 += 1;
-        D_807ECEA0[0] += temp_v0;
-    } while (var_s0 != 8);
+    for (i = 0; i != 8; i++) {
+        D_807ECEA0[0] += modelTypeCountGet(i);
+    }
 }
 
 extern s8 D_80746834;
@@ -41,7 +34,7 @@ extern OSMesgQueue D_807EE0D0;
 
 void sleepMilliseconds(f32 ms) {
     OSTimer timer;
-    u64 padding;
+    u64 pad;
     OSMesg timerMsg;
     OSMesg received;
     u64 duration;
@@ -102,20 +95,20 @@ void eepromCopySlot(void) {
     u8 *src;
     u8 *dst;
     s32 size;
-    s32 unk0;
+    s32 stride;
 
     original = eepromGetSectorForSlot(D_807467C8);
     replacement = eepromGetSectorForSlot(3);
     if (((menuIsTransitionType6() != 0) || (menuIsTransitionType7Or9() != 0)) && (original != replacement)) {
-        unk0 = D_807ECEA0[0];
-        unk0 += 0x6B7;
-        unk0 = (unk0 & ~0x3F) + 0x27;
-        unk0 = unk0 & ~7;
-        unk0 = unk0 / 8;
-        size = unk0;
+        stride = D_807ECEA0[0];
+        stride += 0x6B7;
+        stride = (stride & ~0x3F) + 0x27;
+        stride = stride & ~7;
+        stride = stride / 8;
+        size = stride;
         src = D_807ECEA8 + (size * original);
         dst = D_807ECEA8 + (size * replacement);
-        unk0 = unk0 | 0; // FAKE: no-code def extends unk0's live range past dst (keeps the quotient in v0, original in a3)
+        stride = stride | 0; // FAKE: no-code def extends stride's live range past dst (keeps the quotient in v0, original in a3)
         memcpy(dst, src, size);
         D_807EDEA8[replacement] ^= D_807EDEA8[original];
         D_807EDEA8[original] ^= D_807EDEA8[replacement];
@@ -123,10 +116,10 @@ void eepromCopySlot(void) {
     }
 }
 
-void eepromWriteBitfield(arg0, arg1, arg2)
-u32 arg0;
-unsigned short arg1;
-unsigned char arg2;
+void eepromWriteBitfield(value, bitOffset, bitCount)
+u32 value;
+unsigned short bitOffset;
+unsigned char bitCount;
 {
     u32 mask;
     u32 val;
@@ -135,29 +128,29 @@ unsigned char arg2;
 
     mask = -1;
     val = 0;
-    bit = arg1 & 0x1F;
-    ptr = (u32 *)D_807ECEA8 + (arg1 >> 5);
-    if (arg2) {
+    bit = bitOffset & 0x1F;
+    ptr = (u32 *)D_807ECEA8 + (bitOffset >> 5);
+    if (bitCount) {
         do {
             mask ^= 1 << bit;
-            val |= (arg0 & 1) << bit;
-            arg0 >>= 1;
+            val |= (value & 1) << bit;
+            value >>= 1;
             bit++;
-            arg2--;
-            if ((bit >= 0x20) || !arg2) {
+            bitCount--;
+            if ((bit >= 0x20) || !bitCount) {
                 *ptr = (*ptr & mask) | val;
                 ptr++;
                 bit = 0;
                 val = 0;
                 mask = -1;
             }
-        } while (arg2);
+        } while (bitCount);
     }
 }
 
-s32 eepromReadBitfield(arg0, arg1)
-unsigned short arg0;
-unsigned char arg1;
+s32 eepromReadBitfield(bitOffset, bitCount)
+unsigned short bitOffset;
+unsigned char bitCount;
 {
     u32 *ptr;
     u32 data;
@@ -168,202 +161,188 @@ unsigned char arg1;
     u8 orig;
 
     result = 0;
-    start = arg0 & 0x1F;
+    start = bitOffset & 0x1F;
     shift = 0;
-    bit = arg0 & 0x1F;
+    bit = bitOffset & 0x1F;
     data = 0;
-    orig = arg1;
-    ptr = (u32 *)D_807ECEA8 + (arg0 >> 5);
-    if (arg1) {
+    orig = bitCount;
+    ptr = (u32 *)D_807ECEA8 + (bitOffset >> 5);
+    if (bitCount) {
         do {
             data |= 1 << bit;
             bit++;
-            arg1--;
-            if ((bit >= 0x20) || !arg1) {
+            bitCount--;
+            if ((bit >= 0x20) || !bitCount) {
                 result |= ((*ptr & data) >> start) << shift;
                 bit = 0;
                 ptr++;
                 data = 0;
                 start = 0;
-                shift = -(arg1 - orig);
+                shift = -(bitCount - orig);
             }
-        } while (arg1);
+        } while (bitCount);
     }
     return result;
 }
 
-void func_8060BCA0(s32 arg0, u8 arg1, u8 arg2, u16 *arg3, u8 *arg4) {
-    *arg3 = D_807ECEA0[0] + *arg3 + (arg1 * 0xA1) + 0x320;
-    *arg4 = 0;
-    switch (arg0) {
+void func_8060BCA0(s32 field, u8 index, u8 subIndex, u16 *offset, u8 *width) {
+    *offset = D_807ECEA0[0] + *offset + (index * 0xA1) + 0x320;
+    *width = 0;
+    switch (field) {
     case 11:
-        if (*arg4 == 0) *arg4 = 1;
-        *arg3 += 3;
+        if (*width == 0) *width = 1;
+        *offset += 3;
     case 10:
-        if (*arg4 == 0) *arg4 = 3;
-        *arg3 += 8;
+        if (*width == 0) *width = 3;
+        *offset += 8;
     case 9:
-        if (*arg4 == 0) *arg4 = 8;
-        *arg3 += 4;
+        if (*width == 0) *width = 8;
+        *offset += 4;
     case 8:
-        if (*arg4 == 0) *arg4 = 4;
-        *arg3 += 2;
+        if (*width == 0) *width = 4;
+        *offset += 2;
     case 7:
-        if (*arg4 == 0) *arg4 = 2;
-        *arg3 += 3;
+        if (*width == 0) *width = 2;
+        *offset += 3;
     case 6:
-        if (*arg4 == 0) *arg4 = 3;
-        *arg3 += 2;
+        if (*width == 0) *width = 3;
+        *offset += 2;
     case 5:
-        if (*arg4 == 0) *arg4 = 2;
-        *arg3 += 2;
+        if (*width == 0) *width = 2;
+        *offset += 2;
     case 4:
-        if (*arg4 == 0) *arg4 = 2;
-        *arg3 += 0x18;
+        if (*width == 0) *width = 2;
+        *offset += 0x18;
     case 3:
-        if (*arg4 == 0) {
-            *arg4 = 3;
-            *arg3 += arg2 * 3;
+        if (*width == 0) {
+            *width = 3;
+            *offset += subIndex * 3;
         }
-        *arg3 += 0x38;
+        *offset += 0x38;
     case 2:
-        if (*arg4 == 0) {
-            *arg4 = 7;
-            *arg3 += arg2 * 7;
+        if (*width == 0) {
+            *width = 7;
+            *offset += subIndex * 7;
         }
-        *arg3 += 0x38;
+        *offset += 0x38;
     case 1:
-        if (*arg4 == 0) {
-            *arg4 = 7;
-            *arg3 += arg2 * 7;
+        if (*width == 0) {
+            *width = 7;
+            *offset += subIndex * 7;
         }
     }
 }
 
-void eepromGetSaveDataSectionOffset(s32 arg0, u8 arg1, u16 *arg2, u8 *arg3) {
-    *arg2 = D_807ECEA0[0] + *arg2 + 0x645;
-    *arg3 = 0;
-    switch (arg0) {
+void eepromGetSaveDataSectionOffset(s32 field, u8 index, u16 *offset, u8 *width) {
+    *offset = D_807ECEA0[0] + *offset + 0x645;
+    *width = 0;
+    switch (field) {
     case 15:
-        if (*arg3 == 0) {
-            *arg3 = 2;
+        if (*width == 0) {
+            *width = 2;
         }
-        *arg2 += 0x18;
+        *offset += 0x18;
     case 16:
-        if (*arg3 == 0) {
-            *arg3 = 0x18;
+        if (*width == 0) {
+            *width = 0x18;
         }
-        *arg2 += 0x16;
+        *offset += 0x16;
     case 14:
-        if (*arg3 == 0) {
-            *arg3 = 0x16;
+        if (*width == 0) {
+            *width = 0x16;
         }
-        *arg2 += 1;
+        *offset += 1;
     case 13:
-        if (*arg3 == 0) {
-            *arg3 = 1;
+        if (*width == 0) {
+            *width = 1;
         }
-        *arg2 += 2;
+        *offset += 2;
     case 12:
-        if (*arg3 == 0) {
-            *arg3 = 2;
+        if (*width == 0) {
+            *width = 2;
         }
     }
 }
 
-void func_8060BF84(s32 arg0, u8 arg1, u16 *arg2, u8 *arg3) {
-    *arg2 = (((((((D_807ECEA0[0] + 0x6B7) & 0xFFC0) + 0x27) & 0xFFF8) * 4) + 0x3F) & 0xFFC0) + 0x40;
-    *arg3 = 0;
-    switch (arg0) {
-    case 32: if (*arg3 == 0) *arg3 = 1; *arg2 += 3;
-    case 31: if (*arg3 == 0) *arg3 = 3; *arg2 += 2;
-    case 30: if (*arg3 == 0) *arg3 = 2; *arg2 += 0x2D;
-    case 29: if (*arg3 == 0) { *arg3 = 9; *arg2 += arg1 * 9; } *arg2 += 0x19;
-    case 28: if (*arg3 == 0) { *arg3 = 5; *arg2 += arg1 * 5; } *arg2 += 0x19;
-    case 27: if (*arg3 == 0) { *arg3 = 5; *arg2 += arg1 * 5; } *arg2 += 0x19;
-    case 26: if (*arg3 == 0) { *arg3 = 5; *arg2 += arg1 * 5; } *arg2 += 0x2D;
-    case 25: if (*arg3 == 0) { *arg3 = 9; *arg2 += arg1 * 9; } *arg2 += 0x19;
-    case 24: if (*arg3 == 0) { *arg3 = 5; *arg2 += arg1 * 5; } *arg2 += 0x19;
-    case 23: if (*arg3 == 0) { *arg3 = 5; *arg2 += arg1 * 5; } *arg2 += 0x19;
-    case 22: if (*arg3 == 0) { *arg3 = 5; *arg2 += arg1 * 5; } *arg2 += 0x4B;
-    case 21: if (*arg3 == 0) { *arg3 = 0xF; *arg2 += arg1 * 0xF; } *arg2 += 0x19;
-    case 20: if (*arg3 == 0) { *arg3 = 5; *arg2 += arg1 * 5; } *arg2 += 0x19;
-    case 19: if (*arg3 == 0) { *arg3 = 5; *arg2 += arg1 * 5; } *arg2 += 0x19;
-    case 18: if (*arg3 == 0) { *arg3 = 5; *arg2 += arg1 * 5; } *arg2 += 0x11;
-    case 17: if (*arg3 == 0) *arg3 = 0x12;
+void func_8060BF84(s32 field, u8 index, u16 *offset, u8 *width) {
+    *offset = (((((((D_807ECEA0[0] + 0x6B7) & 0xFFC0) + 0x27) & 0xFFF8) * 4) + 0x3F) & 0xFFC0) + 0x40;
+    *width = 0;
+    switch (field) {
+    case 32: if (*width == 0) *width = 1; *offset += 3;
+    case 31: if (*width == 0) *width = 3; *offset += 2;
+    case 30: if (*width == 0) *width = 2; *offset += 0x2D;
+    case 29: if (*width == 0) { *width = 9; *offset += index * 9; } *offset += 0x19;
+    case 28: if (*width == 0) { *width = 5; *offset += index * 5; } *offset += 0x19;
+    case 27: if (*width == 0) { *width = 5; *offset += index * 5; } *offset += 0x19;
+    case 26: if (*width == 0) { *width = 5; *offset += index * 5; } *offset += 0x2D;
+    case 25: if (*width == 0) { *width = 9; *offset += index * 9; } *offset += 0x19;
+    case 24: if (*width == 0) { *width = 5; *offset += index * 5; } *offset += 0x19;
+    case 23: if (*width == 0) { *width = 5; *offset += index * 5; } *offset += 0x19;
+    case 22: if (*width == 0) { *width = 5; *offset += index * 5; } *offset += 0x4B;
+    case 21: if (*width == 0) { *width = 0xF; *offset += index * 0xF; } *offset += 0x19;
+    case 20: if (*width == 0) { *width = 5; *offset += index * 5; } *offset += 0x19;
+    case 19: if (*width == 0) { *width = 5; *offset += index * 5; } *offset += 0x19;
+    case 18: if (*width == 0) { *width = 5; *offset += index * 5; } *offset += 0x11;
+    case 17: if (*width == 0) *width = 0x12;
     }
 }
 
-void eepromCalculateTotalModelCount(s32 arg0, s32 arg1, u8 arg2, u16 *arg3, s8 *arg4) {
-    s32 temp_s2;
-    s32 temp_v0;
-    s32 var_s0;
+void eepromCalculateTotalModelCount(s32 field, s32 index, u8 count, u16 *offset, s8 *width) {
+    s32 i;
 
-    temp_s2 = arg2 & 0xFF;
-    *arg3 += 0x320;
-    var_s0 = 0;
-    if (temp_s2 > 0) {
-        do {
-            temp_v0 = modelTypeCountGet(var_s0 & 0xFF);
-            var_s0 += 1;
-            *arg3 += temp_v0;
-        } while (var_s0 != temp_s2);
+    *offset += 0x320;
+    for (i = 0; i < count; i++) {
+        *offset += modelTypeCountGet(i);
     }
-    *arg4 = 1;
+    *width = 1;
 }
 
-void eepromGetSectorOffset(arg0, arg1, arg2, arg3, arg4, arg5)
-u16 *arg0;
-u8 *arg1;
-s32 arg2;
-unsigned char arg3;
-unsigned char arg4;
-unsigned char arg5;
+void eepromGetSectorOffset(offset, width, field, index, subIndex, sector)
+u16 *offset;
+u8 *width;
+s32 field;
+unsigned char index;
+unsigned char subIndex;
+unsigned char sector;
 {
-    u16 m;
-    m = arg5;
-    m *= ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7);
-    *arg0 = m;
-    if (arg2 >= 0x11) {
-        func_8060BF84(arg2, arg4, arg0, arg1);
+    u16 base;
+    base = sector;
+    base *= ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7);
+    *offset = base;
+    if (field >= 0x11) {
+        func_8060BF84(field, subIndex, offset, width);
         return;
     }
-    if (arg2 >= 0xC) {
-        eepromGetSaveDataSectionOffset(arg2, arg4, arg0, arg1);
+    if (field >= 0xC) {
+        eepromGetSaveDataSectionOffset(field, subIndex, offset, width);
         return;
     }
-    if (arg2 > 0) {
-        func_8060BCA0(arg2, arg3, arg4, arg0, arg1);
+    if (field > 0) {
+        func_8060BCA0(field, index, subIndex, offset, width);
         return;
     }
-    eepromCalculateTotalModelCount(arg2, arg3, arg4, arg0, (s8 *)arg1);
+    eepromCalculateTotalModelCount(field, index, subIndex, offset, (s8 *)width);
 }
 
-extern s32 _strchr(u8 *);
 extern u8 *D_80746800;
 
-s32 func_8060C430(s32 arg0, u32 arg1, s32 arg2) {
-    f32 temp_ft4;
-    f32 temp_ft4_2;
-    f32 var_fv0;
-    f32 var_fv0_2;
+s32 func_8060C430(s32 field, u32 value, s32 encode) {
+    f32 scale;
 
-    switch (arg0) {
+    switch (field) {
     case 17:
-        var_fv0 = 5.0f;
-        if (arg2 != 0) {
-            var_fv0 = 1.0f / var_fv0;
+        scale = 5.0f;
+        if (encode != 0) {
+            scale = 1.0f / scale;
         }
-        temp_ft4 = (f32) arg1 * var_fv0;
-        arg1 = (u32) temp_ft4;
+        value = value * scale;
         break;
     case 21:
-        var_fv0_2 = 50.0f;
-        if (arg2 != 0) {
-            var_fv0_2 = 1.0f / var_fv0_2;
+        scale = 50.0f;
+        if (encode != 0) {
+            scale = 1.0f / scale;
         }
-        temp_ft4_2 = (f32) arg1 * var_fv0_2;
-        arg1 = (u32) temp_ft4_2;
+        value = value * scale;
         break;
     case 18:
     case 19:
@@ -374,82 +353,81 @@ s32 func_8060C430(s32 arg0, u32 arg1, s32 arg2) {
     case 26:
     case 27:
     case 28:
-        if (arg2 != 0) {
-            arg1 = _strchr(D_80746800) - (s32) D_80746800;
+        if (encode != 0) {
+            value = _strchr(D_80746800, value) - D_80746800;
         } else {
-            arg1 = D_80746800[arg1];
+            value = D_80746800[value];
         }
         break;
     }
-    return arg1;
+    return value;
 }
 
 
-void eepromSetField(s32 arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4) {
-    u16 sp26;
-    u8 sp25;
+void eepromSetField(s32 field, u8 index, u8 subIndex, u8 slot, s32 value) {
+    u16 offset;
+    u8 width;
 
-    eepromGetSectorOffset(&sp26, &sp25, arg0, arg1, (s32)arg2, eepromGetSectorForSlot(arg3));
-    eepromWriteBitfield(func_8060C430(arg0, arg4, 1), sp26, sp25);
+    eepromGetSectorOffset(&offset, &width, field, index, subIndex, eepromGetSectorForSlot(slot));
+    eepromWriteBitfield(func_8060C430(field, value, 1), offset, width);
 }
 
 
-s32 eepromGetField(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
-    s32 new_var;
-    u16 sp22;
-    u8 sp21;
+s32 eepromGetField(s32 field, u8 index, u8 subIndex, u8 slot) {
+    s32 value;
+    u16 offset;
+    u8 width;
 
-    new_var = eepromGetSectorForSlot(arg3);
-    eepromGetSectorOffset(&sp22, &sp21, arg0, arg1, arg2, new_var);
-    new_var = eepromReadBitfield(sp22, sp21);
-    func_8060C430(arg0, new_var, 0);
+    value = eepromGetSectorForSlot(slot);
+    eepromGetSectorOffset(&offset, &width, field, index, subIndex, value);
+    value = eepromReadBitfield(offset, width);
+    return func_8060C430(field, value, 0);
 }
 
 
-s32 func_8060C724(u8 arg0) {
-    return eepromGetField(0x10, 0, 0, arg0) + 1;
+s32 func_8060C724(u8 slot) {
+    return eepromGetField(0x10, 0, 0, slot) + 1;
 }
 
 
-void eepromClearSlotData(arg0, arg1)
-unsigned char arg0;
-int arg1;
+void eepromClearSlotData(slot, save)
+unsigned char slot;
+int save;
 {
-    u8 *new_var;
-    s32 s0;
-    s32 new_var2;
+    u8 *dst;
+    s32 slotId;
+    s32 slotArg;
     s32 size;
-    s32 offset;
+    s32 sector;
 
     do {
-        s0 = arg0;
-        offset = eepromGetSectorForSlot(s0);
+        slotId = slot;
+        sector = eepromGetSectorForSlot(slotId);
         size = ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
-        new_var = D_807ECEA8 + (offset * size);
+        dst = D_807ECEA8 + (sector * size);
     } while (0); // FAKE: schedules addiu t0 before lui at
-    D_807467C8 = s0;
-    bzero(new_var, size);
-    new_var2 = s0;
-    eepromSetField(0xC, 0, 0, new_var2, 1);
-    eepromSetField(0xF, 0, 0, s0 ^ 0, new_var2); // FAKE: prevents a3 CSE spill
-    if (arg1 != 0) {
+    D_807467C8 = slotId;
+    bzero(dst, size);
+    slotArg = slotId;
+    eepromSetField(0xC, 0, 0, slotArg, 1);
+    eepromSetField(0xF, 0, 0, slotId ^ 0, slotArg); // FAKE: prevents a3 CSE spill
+    if (save != 0) {
         eepromDispatchCommand(1);
     }
 }
 
-void eepromSetCurrentSlot(arg0, arg1)
-unsigned char arg0;
-int arg1;
+void eepromSetCurrentSlot(slotId, save)
+unsigned char slotId;
+int save;
 {
-    u32 temp = arg0;
+    u32 slot = slotId;
 
-    D_807467C8 = temp;
-    arg0 = temp;
-    eepromClearSlotData(temp, 0);
-    if (eepromGetField(0xF, 0, 0, 3) == arg0) {
+    D_807467C8 = slot;
+    eepromClearSlotData(slot, 0);
+    if (eepromGetField(0xF, 0, 0, 3) == slotId) {
         eepromClearSlotData(3, 0);
     }
-    if (arg1 != 0) {
+    if (save != 0) {
         eepromDispatchCommand(1);
     }
 }
@@ -466,16 +444,16 @@ extern s32 D_807467EC[];
 extern EepromConfig D_80744548[];
 extern EepromConfig D_80744568[];
 
-extern const u8 D_80757044[];
-extern const u8 D_80757064[];
+extern const EepromConfig D_80757044[];
+extern const EepromConfig D_80757064[];
 
-void eepromInitConfigs(u8 arg0) {
+void eepromInitConfigs(u8 mask) {
     s32 i;
 
-    if (arg0 & 1) {
+    if (mask & 1) {
         eepromSetField(0x11, 0, 0, 0, 0);
     }
-    if (arg0 & 2) {
+    if (mask & 2) {
         for (i = 0; i != 5; i++) {
             eepromSetField(0x15, 0, i, 0, D_807467EC[i]);
             eepromSetField(0x12, 0, i, 0, 0x20);
@@ -483,28 +461,28 @@ void eepromInitConfigs(u8 arg0) {
             eepromSetField(0x14, 0, i, 0, 0x20);
         }
     }
-    if (arg0 & 4) {
+    if (mask & 4) {
         for (i = 0; i != 5; i++) {
-            eepromSetField(0x19, 0, i, 0, ((EepromConfig *)D_80757044)[i].value);
-            eepromSetField(0x16, 0, i, 0, ((EepromConfig *)D_80757044)[i].byte2);
-            eepromSetField(0x17, 0, i, 0, ((EepromConfig *)D_80757044)[i].byte3);
-            eepromSetField(0x18, 0, i, 0, ((EepromConfig *)D_80757044)[i].byte4);
-            D_80744548[i] = ((EepromConfig *)D_80757044)[i];
+            eepromSetField(0x19, 0, i, 0, D_80757044[i].value);
+            eepromSetField(0x16, 0, i, 0, D_80757044[i].byte2);
+            eepromSetField(0x17, 0, i, 0, D_80757044[i].byte3);
+            eepromSetField(0x18, 0, i, 0, D_80757044[i].byte4);
+            D_80744548[i] = D_80757044[i];
         }
     }
-    if (arg0 & 8) {
+    if (mask & 8) {
         for (i = 0; i != 5; i++) {
-            eepromSetField(0x1D, 0, i, 0, ((EepromConfig *)D_80757064)[i].value);
-            eepromSetField(0x1A, 0, i, 0, ((EepromConfig *)D_80757064)[i].byte2);
-            eepromSetField(0x1B, 0, i, 0, ((EepromConfig *)D_80757064)[i].byte3);
-            eepromSetField(0x1C, 0, i, 0, ((EepromConfig *)D_80757064)[i].byte4);
-            D_80744568[i] = ((EepromConfig *)D_80757064)[i];
+            eepromSetField(0x1D, 0, i, 0, D_80757064[i].value);
+            eepromSetField(0x1A, 0, i, 0, D_80757064[i].byte2);
+            eepromSetField(0x1B, 0, i, 0, D_80757064[i].byte3);
+            eepromSetField(0x1C, 0, i, 0, D_80757064[i].byte4);
+            D_80744568[i] = D_80757064[i];
         }
     }
-    if (arg0 & 0x10) {
+    if (mask & 0x10) {
         eepromSetField(0x1E, 0, 0, 0, 0);
     }
-    if (arg0 & 0x20) {
+    if (mask & 0x20) {
         eepromSetField(0x1F, 0, 0, 0, 0);
     }
 }
@@ -529,7 +507,7 @@ void eepromValidateSaveSlots(void) {
     u8 found;
     u16 off;
     s32 i;
-    u32 slot;
+    u32 pad2;
     u8 slot2;
     u16 len;
     u32 hit;
@@ -560,9 +538,8 @@ void eepromValidateSaveSlots(void) {
         hit = eepromCalculateCrc32(data, len);
         if (stored != hit) {
             ok = 0;
-            slot = i;
-            eepromClearSlotData((u8)slot & 0xFF, 0);
-            eepromSetField(0xF, 0, 0, slot, 0xFF);
+            eepromClearSlotData((u8)i & 0xFF, 0);  // FAKE: redundant (u8) cast plus mask on the K&R u8 argument; i & 0xFF or (u8)i alone recolours
+            eepromSetField(0xF, 0, 0, i, 0xFF);
         }
         failed |= (ok == 0);
         valid[i] = ok;
@@ -571,22 +548,21 @@ void eepromValidateSaveSlots(void) {
     version = 0;
     for (i = 0; i < 4; i++) {
         if (valid[i] != 0) {
-            slot = i;
-            if (eepromGetField(0xD, 0, 0, slot) != 0) {
-            found = version = eepromGetField(0xF, 0, 0, slot);
-            if (D_80744530) {}  // FAKE: steers uopt colouring order of found/version
-            for (j = 0; j < 4 && found == version; j++) {
-                if (j != i && valid[j] != 0) {
-                    slot2 = j;
-                    if (eepromGetField(0xD, 0, 0, slot2) != 0 && eepromGetField(0xF, 0, 0, slot2) == version && (u32)eepromGetField(0x10, 0, 0, slot) <= (u32)eepromGetField(0x10, 0, 0, slot2)) {
-                        found = 0xFF;
-                        eepromClearSlotData((u8)slot & 0xFF, 0);
-                        eepromSetField(0xF, 0, 0, slot, 0xFF);
-                        failed |= 1;
+            if (eepromGetField(0xD, 0, 0, i) != 0) {
+                found = version = eepromGetField(0xF, 0, 0, i);
+                if (D_80744530) {}  // FAKE: steers uopt colouring order of found/version
+                for (j = 0; j < 4 && found == version; j++) {
+                    if (j != i && valid[j] != 0) {
+                        slot2 = j;
+                        if (eepromGetField(0xD, 0, 0, slot2) != 0 && eepromGetField(0xF, 0, 0, slot2) == version && (u32)eepromGetField(0x10, 0, 0, i) <= (u32)eepromGetField(0x10, 0, 0, slot2)) {
+                            found = 0xFF;
+                            eepromClearSlotData((u8)i & 0xFF, 0);  // FAKE: redundant (u8) cast plus mask on the K&R u8 argument (as above)
+                            eepromSetField(0xF, 0, 0, i, 0xFF);
+                            failed |= 1;
+                        }
                     }
                 }
-            }
-            sectorOrder[i] = found;
+                sectorOrder[i] = found;
             }
         }
     }
@@ -613,7 +589,6 @@ void eepromValidateSaveSlots(void) {
     }
     failed |= (ok == 0);
     sLanguageIndex = eepromGetField(0x1F, 0, 0, 0);
-    if (i && i) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     D_80744530 = eepromGetField(0x20, 0, 0, 0);
     if (sLanguageIndex > 0) {
         sLanguageIndex = 0;
@@ -624,27 +599,22 @@ void eepromValidateSaveSlots(void) {
 
 
 void func_8060D0A8(void) {
-    s32 unused;
-    s32 sp28;
-    s8 *var_v0;
-    s32 var_s0;
+    s32 pad;
+    s32 slot;
+    u8 *p;
+    s32 i;
 
-    var_v0 = (s8 *)D_807EDEA8;
-    var_s0 = 0;
-    sp28 = (s32) D_807467C8;
-    do {
-        *var_v0 = var_s0;
-        var_s0 += 1;
-        var_v0 += 1;
-    } while (var_s0 < 4);
+    p = D_807EDEA8;
+    slot = D_807467C8;
+    for (i = 0; i < 4; i++) {
+        *p++ = i;
+    }
     bzero(D_807ECEA8, 0x800);
     func_8060CB74();
-    var_s0 = 0;
-    do {
-        eepromClearSlotData(var_s0 & 0xFF, var_s0 == 3);
-        var_s0 += 1;
-    } while (var_s0 != 4);
-    D_807467C8 = (u8) sp28;
+    for (i = 0; i != 4; i++) {
+        eepromClearSlotData((u8)i, i == 3);
+    }
+    D_807467C8 = slot;
 }
 
 extern OSMesgQueue D_807ECCF0;
@@ -653,20 +623,20 @@ extern s8 D_807467C4;
 extern s8 D_807467CC;
 
 void eepromReadAllSectors(void) {
-    s32 var_s2;
-    u8 *var_s1;
-    s32 var_s0;
+    s32 failed;
+    u8 *dst;
+    s32 sector;
 
-    var_s2 = 0;
-    var_s1 = D_807ED6A8;
+    failed = 0;
+    dst = D_807ED6A8;
     if (D_807EDEAC != 2) {
         func_8060D0A8();
         D_807467CC = 1;
         return;
     }
     D_807467C4 = 1;
-    for (var_s0 = 0; (var_s0 < 0x100) && (var_s2 == 0); var_s0++, var_s1 += 8) {
-        var_s2 |= osEepromRead(&D_807ECCF0, (u8)var_s0, var_s1);
+    for (sector = 0; (sector < 0x100) && (failed == 0); sector++, dst += 8) {
+        failed |= osEepromRead(&D_807ECCF0, (u8)sector, dst);
         sleepMilliseconds(15.0f);
         if (D_80744460 != 0) {
             D_807467C4 = 0;
@@ -675,10 +645,10 @@ void eepromReadAllSectors(void) {
     }
     D_807467C4 = 0;
     D_807467CC = 1;
-    if (var_s2 == 0) {
-        var_s2 = _strcasecmp((char *)D_807ED6A8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
+    if (failed == 0) {
+        failed = _strcasecmp((char *)D_807ED6A8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
     }
-    if (var_s2 != 0) {
+    if (failed != 0) {
         func_8060D0A8();
     }
     func_8060CB9C();
@@ -692,7 +662,7 @@ extern u8 D_807ECD08[];
 extern OSMesgQueue D_807ECCF0;
 
 
-void eepromSaveRecords(s32 arg0) {
+void eepromSaveRecords(s32 recordsOnly) {
     s32 j;
     u16 sector;
     s32 offset;
@@ -710,7 +680,7 @@ void eepromSaveRecords(s32 arg0) {
         _sprintf((char *)D_807ECEA8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
         memcpy(workingData, D_807ECEA8, 0x800);
         memcpy(savedData, D_807ED6A8, 0x800);
-        if (arg0 == 0) {
+        if (recordsOnly == 0) {
             eepromCopySlot();
             for (i = 0; i < 4; i++) {
                 height = ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7);
@@ -742,7 +712,7 @@ void eepromSaveRecords(s32 arg0) {
         osWritebackDCacheAll();
         if ((u32)D_807EDEAC & ~0x3FU) {}  // FAKE: an unsigned -64 use after the calls keeps the unsigned mask constants of the arm above uncoloured (li at,-64)
         memcpy(D_807ED6A8 + (u32)sector * 8, workingData + (u32)sector * 8, 0x800 - (sector << 3));  // FAKE: (u32) casts make the products read the variable, not its ucvt widening (widening keeps the shift and the loop test: move s4,s1)
-        q = (u8 *)((u32)D_807ECD08);
+        q = (u8 *)((u32)D_807ECD08);  // FAKE: a second, u32-laundered pointer to D_807ECD08 for the first poll test (p reads it in the loop)
         if (*q != 0) do sleepMilliseconds(1.0f); while (*p != 0);
         if ((u32)sector) {}  // FAKE: direct read of sector raises the variable's priority above its widening (var s1, widening s4)
         if (D_80744460 != 0) {
@@ -778,7 +748,7 @@ void eepromSaveRecordsOffset(void) {
     eepromSaveRecords(1);
 }
 
-extern u8 gPlayerInventoryTable[];
+extern KongInventory gPlayerInventoryTable[];
 extern u8 D_807FC952;
 extern u8 gPlayerCharacterId;
 
@@ -786,26 +756,26 @@ void eepromHalveRecords(void) {
     s32 i;
 
     if (func_806F6EDC() != 0) {
-        s32 v = slotQueueGetMaxValue(5, 0);
-        *(s16 *)(gPlayerInventoryTable + 0x2F6) = (s16)(u32)((f64)(u32)v * 0.5);
+        u32 v = slotQueueGetMaxValue(5, 0);
+        *(s16 *)((u8 *)gPlayerInventoryTable + 0x2F6) = (u32)(v * 0.5);
     }
     if (flagGet(0x184, 0) != 0) {
-        s32 v = slotQueueGetMaxValue(4, 0);
-        *(s16 *)(gPlayerInventoryTable + 0x2F4) = (s16)(u32)((f64)(u32)v * 0.5);
+        u32 v = slotQueueGetMaxValue(4, 0);
+        *(s16 *)((u8 *)gPlayerInventoryTable + 0x2F4) = (u32)(v * 0.5);
     }
     if (flagGet(0x179, 0) != 0) {
-        s32 v = slotQueueGetMaxValue(6, 0);
-        *(s16 *)(gPlayerInventoryTable + 0x2F8) = (s16)(u32)((f64)(u32)v * 0.5);
+        u32 v = slotQueueGetMaxValue(6, 0);
+        *(s16 *)((u8 *)gPlayerInventoryTable + 0x2F8) = (u32)(v * 0.5);
     }
     if (D_807FC952 != 0) {
-        s32 v = slotQueueGetMaxValue(2, 0);
-        *(s16 *)(gPlayerInventoryTable + 0x2F0) = (s16)(u32)((f64)(u32)v * 0.5);
+        u32 v = slotQueueGetMaxValue(2, 0);
+        *(s16 *)((u8 *)gPlayerInventoryTable + 0x2F0) = (u32)(v * 0.5);
     }
     for (i = 0; i != 5; i++) {
         gPlayerCharacterId = i;
-        if (gPlayerInventoryTable[i * 0x5E + 4] != 0) {
-            s32 v = slotQueueGetMaxValue(7, 0);
-            *(s16 *)(&gPlayerInventoryTable[i * 0x5E + 8]) = (s16)(u32)((f64)(u32)v * 0.5);
+        if (gPlayerInventoryTable[i].unk0[4] != 0) {
+            u32 v = slotQueueGetMaxValue(7, 0);
+            gPlayerInventoryTable[i].unk8 = (u32)(v * 0.5);
         }
     }
     gPlayerCharacterId = 0;
@@ -816,42 +786,49 @@ extern s32 D_80750AB0;
 extern u16 gLevelCollectibleCounts[];
 extern u8 gPlayerCount;
 
-void eepromLoadPlayerData(u8 arg0, s32 arg1) { u8 *base; s32 i; u8 *entry; s32 j; s32 k; base = (u8 *)((u32)gPlayerInventoryTable); if (base) {}
+void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
+    KongInventory *base;
+    s32 i;
+    KongInventory *entry;
+    s32 j;
+    s32 k;
+
+    base = gPlayerInventoryTable;
     entry = base;
     gActivePlayerCount = 1;
     playerResetSpawnGlobals();
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
-    D_807467C8 = arg0;
+    D_807467C8 = slot;
     gPlayerCharacterId = 0;
-    if (eepromGetField(0xD, 0, 0, arg0) == 0) {
-        eepromClearSlotData(arg0 & 0xFF, 0);
+    if (eepromGetField(0xD, 0, 0, slot) == 0) {
+        eepromClearSlotData(slot & 0xFF, 0);  // FAKE: redundant mask on the u8 slot argument (dropping it recolours)
     }
-    if (arg1 != 0) {
+    if (fromCopy != 0) {
         eepromCopySlot();
     }
     gPlayerCount = 0;
-    base[0x2FC] = eepromGetField(0xC, 0, 0, arg0);
+    ((u8 *)gPlayerInventoryTable)[0x2FC] = eepromGetField(0xC, 0, 0, slot);
     healthRefill(0);
     collectibleCountsClear();
-    D_80750AB0 = eepromGetField(0xE, 0, 0, arg0);
+    D_80750AB0 = eepromGetField(0xE, 0, 0, slot);
     i = 0;
     do {
         for (j = 0; j != 5; j++)
-            entry[j] = eepromGetField(j + 4, (u8)i, 0, arg0);
-        *(s16 *)(entry + 6) = eepromGetField(9, (u8)i, 0, arg0);
-        entry[5] = eepromGetField(0xA, (u8)i, 0, arg0);
-        if (eepromGetField(0xB, (u8)i, 0, arg0) != 0) {
-            entry[5] |= 0x80;
+            entry->unk0[j] = eepromGetField(j + 4, (u8)i, 0, slot);
+        entry->unk6 = eepromGetField(9, (u8)i, 0, slot);
+        entry->unk5 = eepromGetField(0xA, (u8)i, 0, slot);
+        if (eepromGetField(0xB, (u8)i, 0, slot) != 0) {
+            entry->unk5 |= 0x80;
         }
         for (k = 0; k != 8; k++) {
-            ((u16 *)(entry + 0xA))[k] = eepromGetField(1, (u8)i, (u8)k, arg0);
-            gLevelCollectibleCounts[k] += ((u16 *)(entry + 0x26))[k] = eepromGetField(2, (u8)i, (u8)k, arg0);
-            ((u16 *)(entry + 0x42))[k] = eepromGetField(3, (u8)i, (u8)k, arg0);
+            entry->unkA[k] = eepromGetField(1, (u8)i, (u8)k, slot);
+            gLevelCollectibleCounts[k] += entry->unk26[k] = eepromGetField(2, (u8)i, (u8)k, slot);
+            entry->unk42[k] = eepromGetField(3, (u8)i, (u8)k, slot);
         }
         i++;
-        entry += 0x5E;
+        entry++;
     } while (i != 5);
-    if (arg1 != 0) {
+    if (fromCopy != 0) {
         eepromHalveRecords();
     }
     gPlayerCharacterId = 0;
@@ -863,8 +840,7 @@ void func_8060DEA8(void) {
 
 
 void eepromSavePlayerData(void) {
-    u8 *entry;
-    u8 *base;
+    KongInventory *entry;
     u32 total;
     u32 value;
     s32 i;
@@ -873,8 +849,7 @@ void eepromSavePlayerData(void) {
 
     if (gPlayerCount == 1) {
         if (menuIsTransitionType7Or9() != 0 || menuIsTransitionType6() != 0) {
-            base = (u8 *)((u32)gPlayerInventoryTable);
-            entry = base;
+            entry = gPlayerInventoryTable;
             total = gfxSetupFrameViewports();
             value = func_8060C724(D_807467C8);
             if (total >= 0x400000U) {
@@ -882,7 +857,7 @@ void eepromSavePlayerData(void) {
             }
             eepromSetField(0xD, 0, 0, D_807467C8, 1);
             eepromSetField(0xE, 0, 0, D_807467C8, total);
-            eepromSetField(0xC, 0, 0, D_807467C8, base[0x2FC]);
+            eepromSetField(0xC, 0, 0, D_807467C8, ((u8 *)gPlayerInventoryTable)[0x2FC]);
             eepromSetField(0xF, 0, 0, D_807467C8, D_807467C8);
             eepromSetField(0x10, 0, 0, D_807467C8, value);
             i = 0;
@@ -890,29 +865,29 @@ void eepromSavePlayerData(void) {
             do {
                 j = 0;
                 do {
-                    eepromSetField(j + 4, (u8)i, 0, D_807467C8, entry[j]);
+                    eepromSetField(j + 4, (u8)i, 0, D_807467C8, entry->unk0[j]);
                     j++;
                 } while (j != 5);
-                eepromSetField(9, (u8)i, 0, D_807467C8, *(u16 *)(entry + 6));
-                eepromSetField(0xA, (u8)i, 0, D_807467C8, entry[5] & 0x7F);
-                eepromSetField(0xB, (u8)i, 0, D_807467C8, ((s32)entry[5] >> 7) & 1);
+                eepromSetField(9, (u8)i, 0, D_807467C8, entry->unk6);
+                eepromSetField(0xA, (u8)i, 0, D_807467C8, entry->unk5 & 0x7F);
+                eepromSetField(0xB, (u8)i, 0, D_807467C8, (entry->unk5 >> 7) & 1);
                 k = 0;
                 do {
                     u8 col_idx = k;
-                    eepromSetField(1, (u8)i, col_idx, D_807467C8, ((u16 *)(entry + 0xA))[k]);
-                    eepromSetField(2, (u8)i, col_idx, D_807467C8, ((u16 *)(entry + 0x26))[k]);
-                    eepromSetField(3, (u8)i, col_idx, D_807467C8, ((u16 *)(entry + 0x42))[k]);
+                    eepromSetField(1, (u8)i, col_idx, D_807467C8, entry->unkA[k]);
+                    eepromSetField(2, (u8)i, col_idx, D_807467C8, entry->unk26[k]);
+                    eepromSetField(3, (u8)i, col_idx, D_807467C8, entry->unk42[k]);
                     k++;
                 } while (k != 8);
                 i++;
-                entry += 0x5E;
+                entry++;
             } while (i != 5);
             eepromDispatchCommand(1);
         }
     }
 }
 
-void eepromThreadMain(void *arg0) {
+void eepromThreadMain(void *arg) {
     OSMesg msg;
 
     while (TRUE) {
@@ -939,18 +914,17 @@ void eepromInit(void) {
 
 extern u8 D_807EDEB0[];
 
-u8 *func_8060E25C(s32 arg0) {
+u8 *func_8060E25C(s32 section) {
     u8 *result;
     s32 selector;
 
-    selector = arg0 & 0xFF;
+    selector = section & 0xFF;
     result = NULL;
     switch (selector) {
     case 0:
         if ((func_807142D8() != 0) || (gPlayerCount >= 2)) {
             flagsClearAllBank2();
-            if (arg0) {
-            }
+            if (section) {}  // FAKE: dead read after the call keeps section's home-slot spill (Q0291)
             bzero(D_807EDEB0, ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
             result = D_807EDEB0;
         } else {
@@ -964,27 +938,27 @@ u8 *func_8060E25C(s32 arg0) {
     return result;
 }
 
-u8 eepromReadChecksumBit(u16 arg0, u8 arg1) {
+u8 eepromReadChecksumBit(u16 bit, u8 index) {
     u8 result;
-    u16 value;
-    u8 output;
+    u16 offset;
+    u8 width;
 
     result = 0;
     if (menuIsTransitionType6() != 0) {
-        eepromGetSectorOffset(&value, &output, 0, 0, arg1, eepromGetSectorForSlot(D_807467C8));
-        result = eepromReadBitfield((value + arg0) & 0xFFFF, 1);
+        eepromGetSectorOffset(&offset, &width, 0, 0, index, eepromGetSectorForSlot(D_807467C8));
+        result = eepromReadBitfield((offset + bit) & 0xFFFF, 1);
     }
     return result;
 }
 
 
-void func_8060E430(u16 arg0, u8 arg1, u8 arg2) {
-    u16 value;
-    u8 unk;
+void func_8060E430(u16 bit, u8 value, u8 index) {
+    u16 offset;
+    u8 width;
 
     if (menuIsTransitionType6() != 0) {
-        eepromGetSectorOffset(&value, &unk, 0, 0, arg2, eepromGetSectorForSlot(D_807467C8));
-        eepromWriteBitfield(arg1, (value + arg0) & 0xFFFF, 1);
+        eepromGetSectorOffset(&offset, &width, 0, 0, index, eepromGetSectorForSlot(D_807467C8));
+        eepromWriteBitfield(value, (offset + bit) & 0xFFFF, 1);
     }
 }
 
