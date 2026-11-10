@@ -18,7 +18,10 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
 # Rules
 - PRIVATE COPY: `git show <base>:<src> > .scratch/<You>/<file>.c` ONCE; never re-copy, never
   `cp` over `src`. Check: `tools/fdiff.sh .scratch/<You>/<file>.c <src>` (exit 0 = whole-object
-  match; required for every kept change). Scratch only under `.scratch/<You>/`.
+  match; required for every kept change). Scratch only under `.scratch/<You>/`. A copy that differs
+  only in relocation symbol names (exit 3 `TEXT OK` with a `relocation-equivalent` note, e.g.
+  `D_807506D0[i].unk5` for a split splat label `D_807506D5[i * 6]`) passes with
+  `tools/fdiff.sh --reloc-ok ...` (`RELOC-EQUIV OK`, exit 0): retire such split labels, don't keep them.
 - NEVER run `tools/dk make` (any target), `make split`, splat, `./diff.sh`, `make expected`.
   A `dk: waiting for ... lock` pause is normal: wait. Never kill by pattern.
 - No read left uninitialised: `uv run tools/clint.py uninit .scratch/<You>/<file>.c --base <src>`

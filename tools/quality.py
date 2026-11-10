@@ -57,7 +57,7 @@ fresh function-level `reconstruct`; without a fresh review it is OPEN next=revie
 sweep: remove (dead ifs, (void)x, dead stores, do{}while(0) wrappers, volatile; all together,
   singles, pairs if >2, triples if 3..6), plain (one rewrite per site line), cond (condition flips
   with all / each removal, pre-scored by deadsweep score --body), classify (dead if -> `if (<int
-  local>) {}`: kept = class 1). A hit needs tools/fdiff.sh exit 0 and no new clint uninit pair; it
+  local>) {}`: kept = class 1). A hit needs tools/fdiff.sh --reloc-ok exit 0 (OK or RELOC-EQUIV OK) and no new clint uninit pair; it
   is written to .scratch/quality/hits/<seg>_<file>_<n>.c (`HIT <keys> <method> <path>`), never
   applied. --record appends one event per site and method (agent `sweep`).
 record line: <site-key|func:<seg>:<name>> <method> <outcome> [quirks=Q1,Q2] [seconds=N] [base=N]
@@ -658,7 +658,9 @@ def cleanup(d, copy):
 
 
 def fdiff(copy, src):
-    return subprocess.run(["tools/fdiff.sh", copy, src], cwd=ROOT, capture_output=True).returncode
+    # --reloc-ok: a copy reaching the same addresses through other symbol names (split splat
+    # labels) is a match: same instructions, same linked ROM (`RELOC-EQUIV OK`, exit 0)
+    return subprocess.run(["tools/fdiff.sh", "--reloc-ok", copy, src], cwd=ROOT, capture_output=True).returncode
 
 
 def new_uninit(copy, src):

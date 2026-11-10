@@ -2,11 +2,13 @@
 # Compile a PRIVATE COPY of a C file and compare it with expected/ without touching
 # build/src/*, so several agents can work on copies of the same file at once.
 #
-#   tools/fdiff.sh <copy.c> <src/.../original.c> [FUNC]
+#   tools/fdiff.sh [--non-matching] [--reloc-ok] <copy.c> <src/.../original.c> [FUNC]
 #
 # The copy is compiled with exactly the flags make uses for the original (asm-processor
 # included) into build/.scratch/. Output and exit codes are tools/objdiff.py's:
 # 0 OK, 3 TEXT OK (code matches, own data differs), 1 mismatch (asm-differ diff of FUNC).
+# --reloc-ok: a relocation-only difference resolving to the same addresses (e.g. `D_807506D0 + 5`
+# for a split splat label `D_807506D5`) prints `RELOC-EQUIV OK` and exits 0.
 set -e
 
 if [ ! -f /.dockerenv ] && [ ! -d /opt/ido5.3 ]; then
@@ -17,10 +19,15 @@ if [ ! -f /.dockerenv ] && [ ! -d /opt/ido5.3 ]; then
     fi
 fi
 
-if [ "$1" = "--non-matching" ]; then
-    EXTRA_CFLAGS="$EXTRA_CFLAGS -DNON_MATCHING"
+OBJDIFF_FLAGS=""
+while [ "$1" = "--non-matching" ] || [ "$1" = "--reloc-ok" ]; do
+    if [ "$1" = "--non-matching" ]; then
+        EXTRA_CFLAGS="$EXTRA_CFLAGS -DNON_MATCHING"
+    else
+        OBJDIFF_FLAGS="--reloc-ok"
+    fi
     shift
-fi
+done
 
 if [ -z "$2" ]; then
     echo "Usage: tools/fdiff.sh <copy.c> <src/.../original.c> [FUNC]" >&2
@@ -47,4 +54,4 @@ case "$EXTRA_CFLAGS" in
         ;;
 esac
 
-exec python3 tools/objdiff.py "$OBJ" "$EXP" "$3"
+exec python3 tools/objdiff.py $OBJDIFF_FLAGS "$OBJ" "$EXP" "$3"

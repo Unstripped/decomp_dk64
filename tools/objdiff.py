@@ -334,14 +334,88 @@ def text_matches(built_o, expected_o):
                 return False
     return True
 
+def symbol_addresses(obj_path):
+    """{name: address} from symbol_addrs.us.txt plus the object's overlay symbol file
+    (expected/build/src/<seg>/... or build/src/<seg>/...), and the absolute linker symbols."""
+    import re
+    files = ["symbol_addrs.us.txt"]
+    m = re.search(r"build/src/(\w+)/", obj_path.replace(os.sep, "/"))
+    if m and m.group(1) not in ("global", "boot") and os.path.exists(f"symbol_addrs.{m.group(1)}.us.txt"):
+        files.append(f"symbol_addrs.{m.group(1)}.us.txt")
+    syms = dict(absolute_symbols())
+    for path in files:
+        if not os.path.exists(path):
+            continue
+        for line in open(path):
+            mm = re.match(r"\s*(\w+)\s*=\s*(0x[0-9A-Fa-f]+)\s*;", line)
+            if mm:
+                syms[mm.group(1)] = int(mm.group(2), 16)
+    return syms
+
+def reloc_address(name, addend, syms):
+    """Final address of `name + addend`: symbol files, else a splat D_/func_ label, else None."""
+    if name in syms:
+        base = syms[name]
+    else:
+        base = splat_address(name)
+        if base is None and name.startswith("func_") and len(name) == 13:
+            try:
+                base = int(name[5:], 16)
+            except ValueError:
+                base = None
+    return None if base is None else (base + addend) & 0xFFFFFFFF
+
+def reloc_equivalent(built_o, expected_o):
+    """True when the objects differ only in how relocations name their targets: equal .data/.rodata
+    bytes and .bss size, the same relocation offsets and types, every HI16/LO16 pair resolving to the
+    same final address (symbol + paired addend: `D_807506D0 + 5` vs `D_807506D5`), every R_MIPS_26 to
+    the same function address, and the same instruction words outside the relocated fields."""
+    for sec in (".data", ".rodata"):
+        if get_section_bytes(built_o, sec) != get_section_bytes(expected_o, sec):
+            return False
+    if get_section_sizes(built_o).get(".bss", 0) != get_section_sizes(expected_o).get(".bss", 0):
+        return False
+    b_text, e_text = get_section_bytes(built_o, ".text"), get_section_bytes(expected_o, ".text")
+    b_relocs, e_relocs = get_text_relocs(built_o), get_text_relocs(expected_o)
+    if len(b_text) != len(e_text) or [r[:2] for r in b_relocs] != [r[:2] for r in e_relocs]:
+        return False
+    if masked_text(b_text, b_relocs) != masked_text(e_text, e_relocs):
+        return False
+    syms = symbol_addresses(expected_o)
+    b_add, e_add = pair_addends(b_text, b_relocs), pair_addends(e_text, e_relocs)
+    for (off, rtype, b_tgt), (_, _, e_tgt) in zip(b_relocs, e_relocs):
+        if rtype == "R_MIPS_26":
+            b_field, e_field = word_at(b_text, off) & 0x03FFFFFF, word_at(e_text, off) & 0x03FFFFFF
+            if b_tgt == e_tgt and b_field == e_field:
+                continue
+            b_a, e_a = reloc_address(b_tgt, b_field << 2, syms), reloc_address(e_tgt, e_field << 2, syms)
+        elif rtype in ("R_MIPS_HI16", "R_MIPS_LO16"):
+            if b_tgt == e_tgt and b_add.get(off) == e_add.get(off):
+                continue
+            if b_tgt in DATA_SECTIONS or e_tgt in DATA_SECTIONS or b_tgt == ".text" or e_tgt == ".text":
+                return False
+            b_a, e_a = reloc_address(b_tgt, b_add.get(off, 0), syms), reloc_address(e_tgt, e_add.get(off, 0), syms)
+        else:
+            if b_tgt != e_tgt or word_at(b_text, off) != word_at(e_text, off):
+                return False
+            continue
+        if b_a is None or b_a != e_a:
+            return False
+    return True
+
 def main():
     if len(sys.argv) < 3:
         print("Usage: objdiff.py <built.o> <expected.o> [func_name]", file=sys.stderr)
         sys.exit(1)
 
-    built_o = sys.argv[1]
-    expected_o = sys.argv[2]
-    func_name = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] else None
+    args = [a for a in sys.argv[1:] if a != "--reloc-ok"]
+    reloc_ok = "--reloc-ok" in sys.argv[1:]
+    if len(args) < 2:
+        print("Usage: objdiff.py [--reloc-ok] <built.o> <expected.o> [func_name]", file=sys.stderr)
+        sys.exit(1)
+    built_o = args[0]
+    expected_o = args[1]
+    func_name = args[2] if len(args) > 2 and args[2] else None
 
     if not os.path.exists(built_o):
         print(f"Error: {built_o} not found", file=sys.stderr)
@@ -376,6 +450,15 @@ def main():
     if not mismatches:
         print("OK")
         sys.exit(0)
+
+    # Relocation-only difference: the same code reaching the same addresses through other symbol
+    # names (a split splat label `D_807506D5` vs `D_807506D0 + 5`). Behaviourally identical, and the
+    # linked ROM is identical; accepted as a match only with --reloc-ok (quality sweep, agents).
+    if reloc_equivalent(built_o, expected_o):
+        if reloc_ok:
+            print("RELOC-EQUIV OK (relocations name the same final addresses through other symbols)")
+            sys.exit(0)
+        print("note: relocation-equivalent (rerun with --reloc-ok to accept: RELOC-EQUIV OK)")
 
     # Code matches; only this file's own static data differs from the shared-blob stub. Not a full
     # match: the full build is the gate once the file's data sections are split out. The file's

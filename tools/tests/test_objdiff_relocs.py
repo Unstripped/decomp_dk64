@@ -281,3 +281,52 @@ def test_different_bss_addresses_differ():
 
     # But normalised text must differ due to differing offsets (0x0062 vs 0x0063)
     assert norm_text_1 != norm_text_2
+
+
+def _reloc_objects(monkeypatch, built, expected, syms=None):
+    """Fake objects: {path: (text, relocs)}; .data/.rodata empty in both."""
+    objs = {"built.o": built, "expected/build/src/global/x.o": expected}
+    monkeypatch.setattr(objdiff, "get_section_bytes",
+                        lambda p, sec: objs[p][0] if sec == ".text" else b"")
+    monkeypatch.setattr(objdiff, "get_text_relocs", lambda p: objs[p][1])
+    monkeypatch.setattr(objdiff, "symbol_addresses", lambda p: dict(syms or {}))
+    return "built.o", "expected/build/src/global/x.o"
+
+
+def _hi_lo(hi, lo):
+    # lui $at, hi; lbu $v0, lo($at)
+    return (0x3C010000 | hi).to_bytes(4, "big") + (0x90220000 | (lo & 0xFFFF)).to_bytes(4, "big")
+
+
+def test_reloc_equivalent_split_splat_label(monkeypatch):
+    """`D_807506D0 + 5` (C indexes the array) vs expected's split label `D_807506D5`."""
+    b, e = _reloc_objects(monkeypatch,
+                          (_hi_lo(0, 5), [(0, "R_MIPS_HI16", "D_807506D0"), (4, "R_MIPS_LO16", "D_807506D0")]),
+                          (_hi_lo(0, 0), [(0, "R_MIPS_HI16", "D_807506D5"), (4, "R_MIPS_LO16", "D_807506D5")]))
+    assert objdiff.reloc_equivalent(b, e)
+
+
+def test_reloc_equivalent_named_symbol(monkeypatch):
+    b, e = _reloc_objects(monkeypatch,
+                          (_hi_lo(0, 5), [(0, "R_MIPS_HI16", "gTable"), (4, "R_MIPS_LO16", "gTable")]),
+                          (_hi_lo(0, 0), [(0, "R_MIPS_HI16", "D_807506D5"), (4, "R_MIPS_LO16", "D_807506D5")]),
+                          {"gTable": 0x807506D0})
+    assert objdiff.reloc_equivalent(b, e)
+
+
+@pytest.mark.parametrize("built_lo, syms", [(4, {}), (5, None)])
+def test_reloc_equivalent_rejects_other_address_or_unknown_symbol(monkeypatch, built_lo, syms):
+    name = "D_807506D0" if syms is not None else "gUnknown"
+    b, e = _reloc_objects(monkeypatch,
+                          (_hi_lo(0, built_lo), [(0, "R_MIPS_HI16", name), (4, "R_MIPS_LO16", name)]),
+                          (_hi_lo(0, 0), [(0, "R_MIPS_HI16", "D_807506D5"), (4, "R_MIPS_LO16", "D_807506D5")]),
+                          syms)
+    assert not objdiff.reloc_equivalent(b, e)
+
+
+def test_reloc_equivalent_rejects_different_instruction(monkeypatch):
+    text_b = (0x3C010000).to_bytes(4, "big") + (0x8C220005).to_bytes(4, "big")  # lw, not lbu
+    b, e = _reloc_objects(monkeypatch,
+                          (text_b, [(0, "R_MIPS_HI16", "D_807506D0"), (4, "R_MIPS_LO16", "D_807506D0")]),
+                          (_hi_lo(0, 0), [(0, "R_MIPS_HI16", "D_807506D5"), (4, "R_MIPS_LO16", "D_807506D5")]))
+    assert not objdiff.reloc_equivalent(b, e)
