@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #include "proto/global/135D30.h"
 #include "proto/global/166A0.h"
 #include "proto/global/35000.h"
@@ -125,20 +126,8 @@ void csModelStateSetFirstByte(s16, s16);
 void hudSpawnTextScreen(u8);
 void actorSpawnNodeEffectFacingCamera(s32, u8);
 void renderCallbacksRegister(void *, void *, u8);
-typedef struct {
-    char pad[0x25];
-    u8 unk25;
-} Struct_DC90;
 
-typedef struct {
-    char pad[0x20];
-    u8 *unk20;
-} Struct_DC98;
 
-typedef struct {
-    char pad[0x11];
-    u8 unk11;
-} Struct_DC9C;
 
 typedef struct {
     s16 unk0;
@@ -155,9 +144,6 @@ typedef struct {
 } Struct_FDCA0;
 
 
-extern Struct_DC90 *gBehaviourWorkState;
-extern Struct_DC98 *gBehaviourAnimState;
-extern Struct_DC9C *gBehaviourExtraState;
 extern Struct_FDCA0 *D_807FDCA0;
 
 s16 mathAngleDiscrete(f32, f32, f32, f32, f32);

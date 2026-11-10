@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #define PROTO_SKIP_func_8002FDF8 // FAKE: callee prototype steer
 #include "proto/boss/3840.h"
 #include "proto/boss/B100.h"
@@ -81,10 +82,6 @@ typedef struct {
     u8 unk155;
 } BossPlayerActor;
 
-typedef struct {
-    u8 pad0[0x2C];
-    s16 unk2C;
-} BossWorkState;
 
 typedef struct {
     u8 pad0[0x14];
@@ -92,7 +89,6 @@ typedef struct {
 } BossWaypointListS16;
 
 extern BossPlayerActor *gPrimaryPlayerActor;
-extern BossWorkState *gBehaviourWorkState;
 extern BossWaypointListS16 *D_807FDCA0;
 
 typedef struct BossPhaseState {
@@ -134,10 +130,6 @@ typedef struct BossMainActor {
     BossPhaseState *unk178;
 } BossMainActor;
 
-typedef struct BossTimerState {
-    u8 pad0[0x2C];
-    s16 unk2C;
-} BossTimerState;
 
 typedef struct BossGlobalC924 {
     u8 pad0[0x2C0];
@@ -156,14 +148,9 @@ typedef struct BossWaypointList {
     BossWaypoint *unk14;
 } BossWaypointList;
 
-typedef struct BossConfig {
-    u8 pad0[0xC];
-    u8 unkC;
-} BossConfig;
 
 extern u8 *D_80035A90[];
 extern BossGlobalC924 *gPlayerSlots;
-extern BossConfig *gBehaviourExtraState;
 extern void *gCamActor;
 
 void behaviourFrameBegin(void);
@@ -189,7 +176,6 @@ s32 func_8072881C(s32, void *);
 #define MAIN_ACTOR ((BossMainActor *)gCurrentActor)
 #define PLAYER_ACTOR ((BossMainActor *)gPrimaryPlayerActor)
 #define SECOND_ACTOR ((BossMainActor *)gSpawnedActor)
-#define TIMER_STATE ((BossTimerState *)gBehaviourWorkState)
 
 void bossDogadonStep(void) {
     BossPhaseState *phaseState;
@@ -249,13 +235,13 @@ void bossDogadonStep(void) {
                     csSendActorMessagePayload(0, 0);
                 }
                 actorScriptStart(MAIN_ACTOR, 0x3FF);
-                TIMER_STATE->unk2C = scriptOpcodes[phaseState->unk15] * 0x1E;
+                gBehaviourWorkState->timer = scriptOpcodes[phaseState->unk15] * 0x1E;
                 phaseState->unk15++;
                 MAIN_ACTOR->unk155++;
                 break;
             case 1:
-                if (TIMER_STATE->unk2C != 0) {
-                    TIMER_STATE->unk2C--;
+                if (gBehaviourWorkState->timer != 0) {
+                    gBehaviourWorkState->timer--;
                 } else {
                     actorScriptStart(MAIN_ACTOR, 0x400);
                     MAIN_ACTOR->unk155++;
@@ -284,7 +270,7 @@ void bossDogadonStep(void) {
             MAIN_ACTOR->unk155++;
             /* fallthrough */
         case 1:
-            TIMER_STATE->unk2C = 4;
+            gBehaviourWorkState->timer = 4;
             actorScriptStart(MAIN_ACTOR, 0x3E7);
             MAIN_ACTOR->unk155++;
             break;
@@ -292,23 +278,23 @@ void bossDogadonStep(void) {
             MAIN_ACTOR->unkE6 = mathAngleEaseToward(MAIN_ACTOR->unkE6, mathAngleBetweenPoints2D((f32)((BossWaypointList *)D_807FDCA0)->unk14->unk0, (f32)((BossWaypointList *)D_807FDCA0)->unk14->unk4, MAIN_ACTOR->unk7C, MAIN_ACTOR->unk84), 10.0f);
             break;
         case 3:
-            if (TIMER_STATE->unk2C != 0 && (u32)gFrameCounter % 5 == 0) {
+            if (gBehaviourWorkState->timer != 0 && (u32)gFrameCounter % 5 == 0) {
                 projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 150, 3, (f32)((f64)(u32)phaseState->unk14 * 0.01 + 1.04), 0.0f, 0.0f, 0.0f);
-                if (TIMER_STATE->unk2C-- < 4) {
+                if (gBehaviourWorkState->timer-- < 4) {
                     SECOND_ACTOR->unk168 = 0;
                 } else {
                     sfxPlayAtPositionPooled(MAIN_ACTOR->unk7C, MAIN_ACTOR->unk80, MAIN_ACTOR->unk84, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
                 }
                 controllerAnimSetStateIfChanged(SECOND_ACTOR, 0x4F9, 0.0f, 0.0f);
                 scriptSetActorRampTarget(SECOND_ACTOR, 0.5f, 0.0f);
-            } else if (TIMER_STATE->unk2C == 0) {
-                TIMER_STATE->unk2C = phaseState->unk18;
+            } else if (gBehaviourWorkState->timer == 0) {
+                gBehaviourWorkState->timer = phaseState->unk18;
                 MAIN_ACTOR->unk155++;
             }
             break;
         case 4:
-            if (TIMER_STATE->unk2C != 0) {
-                TIMER_STATE->unk2C--;
+            if (gBehaviourWorkState->timer != 0) {
+                gBehaviourWorkState->timer--;
             } else {
                 actorSetTargetSpeed(MAIN_ACTOR, gBehaviourExtraState->unkC);
                 actorScriptStart(MAIN_ACTOR, 0x3E4);
@@ -378,8 +364,8 @@ void bossDogadonStep(void) {
         break;
     }
     behaviourUpdateShadowAlpha();
-    if (func_8072881C(0, (u8 *)gBehaviourWorkState + 0x28) != 0) {
-        func_8072881C(0x81, (u8 *)gBehaviourWorkState + 0x28);
+    if (func_8072881C(0, gBehaviourWorkState->unk28) != 0) {
+        func_8072881C(0x81, gBehaviourWorkState->unk28);
     }
     actorUpdateModelMatrix(MAIN_ACTOR, 0);
 }
@@ -584,11 +570,11 @@ void bossKRoolTinyStep(void) {
     case 0x1F:
         switch (BOSS_ACTOR->unk155) {
         case 0:
-            gBehaviourWorkState->unk2C = tbl[st->unk15++];
+            gBehaviourWorkState->timer = tbl[st->unk15++];
             BOSS_ACTOR->unk155++;
         case 1:
-            if (gBehaviourWorkState->unk2C) {
-                gBehaviourWorkState->unk2C--;
+            if (gBehaviourWorkState->timer) {
+                gBehaviourWorkState->timer--;
             } else {
                 BOSS_ACTOR->unk154 = tbl[st->unk15++];
                 BOSS_ACTOR->unk155 = 0;
@@ -628,11 +614,11 @@ void bossKRoolTinyStep(void) {
                 st->unk18 = 8 >> (s32)((gPrimaryPlayerActor->unk7C - 117.0f) / 50.0f);
             }
             bossActorGroupCommand(BOSS_ACTOR, st->unk18, 0x413, 0);
-            gBehaviourWorkState->unk2C = 0x14;
+            gBehaviourWorkState->timer = 0x14;
             break;
         case 1:
-            if (gBehaviourWorkState->unk2C) {
-                gBehaviourWorkState->unk2C--;
+            if (gBehaviourWorkState->timer) {
+                gBehaviourWorkState->timer--;
             } else {
                 BOSS_ACTOR->unk155++;
             }
@@ -640,10 +626,10 @@ void bossKRoolTinyStep(void) {
         case 2:
             BOSS_ACTOR->unk155++;
             bossActorGroupCommand(BOSS_ACTOR, st->unk18, 0x414, (st->unk19 + st->unk12 * 15) & 0xFF);
-            gBehaviourWorkState->unk2C = st->unk8;
+            gBehaviourWorkState->timer = st->unk8;
         case 3:
-            if (gBehaviourWorkState->unk2C) {
-                gBehaviourWorkState->unk2C--;
+            if (gBehaviourWorkState->timer) {
+                gBehaviourWorkState->timer--;
             } else {
                 BOSS_ACTOR->unk154 = tbl[st->unk15++];
                 BOSS_ACTOR->unk155 = 0;
@@ -660,19 +646,19 @@ void bossKRoolTinyStep(void) {
         }
         switch (BOSS_ACTOR->unk155) {
         case 0:
-            gBehaviourWorkState->unk2C = tbl[st->unk15++];
+            gBehaviourWorkState->timer = tbl[st->unk15++];
             bossActorGroupCommand(BOSS_ACTOR, (1 << st->unk12) & 0xFF, 0x411, 0);
             BOSS_ACTOR->unk155++;
             break;
         case 1:
         case 2:
-            if (gBehaviourWorkState->unk2C) {
-                gBehaviourWorkState->unk2C--;
+            if (gBehaviourWorkState->timer) {
+                gBehaviourWorkState->timer--;
             } else {
                 if (BOSS_ACTOR->unk155 == 1 && BOSS_ACTOR->unk138) {
                     bossActorGroupCommand(BOSS_ACTOR, (1 << st->unk12) & 0xFF, 0x412, 0);
                 }
-                gBehaviourWorkState->unk2C = 10;
+                gBehaviourWorkState->timer = 10;
                 BOSS_ACTOR->unk155++;
             }
             break;

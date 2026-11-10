@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #include "proto/global/119370.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
@@ -108,20 +109,7 @@ typedef struct MinecartTargetState {
     s16 unk2C;
 } MinecartTargetState;
 
-typedef struct Struct_DC90 {
-    u8 pad0[0x26];
-    s16 unk26;
-    u8 pad28[0x35 - 0x28];
-    u8 unk35;
-} Struct_DC90;
 
-typedef struct Struct_DC9C {
-    u8 pad0[0xA];
-    u8 unkA;
-    u8 unkB;
-    u8 padC;
-    u8 unkD;
-} Struct_DC9C;
 
 typedef struct StructBB70_Sub {
     u8 pad0[2];
@@ -157,9 +145,6 @@ extern Actor_25F0 *gCurrentActor;
 extern Actor_25F0 *gSpawnedActor;
 extern Actor_25F0 *gPrimaryPlayerActor;
 extern PlayerState_25F0 *gActivePlayerState;
-extern Actor_25F0 *gBehaviourTargetActor;
-extern Struct_DC90 *gBehaviourWorkState;
-extern Struct_DC9C *gBehaviourExtraState;
 extern StructBB70 gActorGlobalState;
 extern MinecartTrackPoint **D_807F5FD4;
 extern MinecartPlayerPosition *gPlayerSlots;
@@ -547,15 +532,15 @@ void minecartStartScriptNearPlayer(void) {
         return;
     }
     if (behaviourIsTargetWithinAngle(10000) != 0 ||
-        (gBehaviourTargetActor->unk7C - gCurrentActor->unk7C) * (gBehaviourTargetActor->unk7C - gCurrentActor->unk7C) +
-        (gBehaviourTargetActor->unk80 - gCurrentActor->unk80) * (gBehaviourTargetActor->unk80 - gCurrentActor->unk80) +
-        (gBehaviourTargetActor->unk84 - gCurrentActor->unk84) * (gBehaviourTargetActor->unk84 - gCurrentActor->unk84) < 2500.0f) {
+        (gBehaviourTargetActor->x - gCurrentActor->unk7C) * (gBehaviourTargetActor->x - gCurrentActor->unk7C) +
+        (gBehaviourTargetActor->y - gCurrentActor->unk80) * (gBehaviourTargetActor->y - gCurrentActor->unk80) +
+        (gBehaviourTargetActor->z - gCurrentActor->unk84) * (gBehaviourTargetActor->z - gCurrentActor->unk84) < 2500.0f) {
         actorScriptStart(gCurrentActor, 0x280);
     }
 }
 
 void minecartChooseBranchSide(MinecartCart *cart) {
-    PlayerState_25F0 *c = gBehaviourTargetActor->unk174;
+    PlayerState_25F0 *c = gBehaviourTargetActor->customState;
     MinecartCart *d = c->actor->unk174;
     u8 b = *d->unk34 - 0x10;
 
@@ -570,7 +555,7 @@ void minecartChooseBranchSide(MinecartCart *cart) {
 
 void minecartAdjustTargetSpeed(void) {
     u16 targetAngle;
-    PlayerState_25F0 *comp = gBehaviourTargetActor->unk174;
+    PlayerState_25F0 *comp = gBehaviourTargetActor->customState;
 
     targetAngle = gCurrentActor->unk4->unk1C->unk4;
     if (targetAngle >= 0x47D1 && targetAngle < 0xB830) {
@@ -584,11 +569,11 @@ void minecartAdjustTargetSpeed(void) {
 
 void minecartPlayPassBySfx(MinecartCart *cart) {
     f32 d;
-    f32 dist = gCurrentActor->unk7C - gBehaviourTargetActor->unk7C;
+    f32 dist = gCurrentActor->unk7C - gBehaviourTargetActor->x;
     dist = dist * dist;
-    d = gCurrentActor->unk80 - gBehaviourTargetActor->unk80;
+    d = gCurrentActor->unk80 - gBehaviourTargetActor->y;
     dist = d * d + dist;
-    d = gCurrentActor->unk84 - gBehaviourTargetActor->unk84;
+    d = gCurrentActor->unk84 - gBehaviourTargetActor->z;
     dist = sqrtf(dist + d * d);
     if (dist < 200.0f) {
         if (++cart->unk3A >= 9) {
@@ -741,7 +726,7 @@ void minecartUpdateObstacleType3(void) {
 
     cart = gCurrentActor->unk178;
     behaviourFrameBegin();
-    playerState = gBehaviourTargetActor->unk174;
+    playerState = gBehaviourTargetActor->customState;
     if (!(gCurrentActor->unk60 & 0x10)) {
         gCurrentActor->unk144 = 0x3C;
         gBehaviourWorkState->unk35 = 2;

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #include "proto/boss/3840.h"
 #include "proto/boss/9C60.h"
 #include "proto/global/17B90.h"
@@ -116,16 +117,7 @@ typedef struct Boss2F_9C60_BB4C {
     u16 unk6A;
 } Boss2F_9C60_BB4C;
 
-typedef struct Boss2F_9C60_DC90 {
-    char pad[0x28];
-    u8 unk28[4];
-    s16 unk2C;
-} Boss2F_9C60_DC90;
 
-typedef struct Boss2F_9C60_DC9C {
-    char pad[0xC];
-    u8 unkC;
-} Boss2F_9C60_DC9C;
 
 typedef struct Boss2F_9C60_DCA0_Sub {
     char pad[0x28];
@@ -146,8 +138,6 @@ typedef struct Boss2F_9C60_Sub1C {
 extern u8 *D_80035A60[];
 extern s32 gCamActor;
 extern Boss2F_9C60_BB4C *gPrimaryPlayerActor;
-extern Boss2F_9C60_DC90 *gBehaviourWorkState;
-extern Boss2F_9C60_DC9C *gBehaviourExtraState;
 extern Boss2F_9C60_DCA0 *D_807FDCA0;
 
 void actorScriptExecute(BossC_9C60_Actor *);
@@ -208,13 +198,13 @@ void bossKRoolDiddyStep(void) {
     case 0x2C:
         switch (gCurrentActor->unk155) {
         case 0:
-            gBehaviourWorkState->unk2C = 0x14;
+            gBehaviourWorkState->timer = 0x14;
             gCurrentActor->unk155++;
             break;
         case 1:
             actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
-            if (gBehaviourWorkState->unk2C != 0) {
-                gBehaviourWorkState->unk2C--;
+            if (gBehaviourWorkState->timer != 0) {
+                gBehaviourWorkState->timer--;
             } else {
                 csModelStateSetFirstByte((scriptState->unk14 * 2) + 8, 0xA);
                 csModelStateSetFirstByte((scriptState->unk14 * 2) + 9, 0xA);
@@ -248,7 +238,7 @@ void bossKRoolDiddyStep(void) {
             /* fallthrough */
         case 1:
             if (camIsCutsceneActive() == 0) {
-                gBehaviourWorkState->unk2C = scriptState->unk18;
+                gBehaviourWorkState->timer = scriptState->unk18;
                 actorScriptStart(gCurrentActor, 0x3EF);
                 gCurrentActor->unk155++;
             }
@@ -273,11 +263,11 @@ void bossKRoolDiddyStep(void) {
                 ((Boss2F_9C60_Sub1C *)gCurrentActor->unk4->unk1C)->unk2 = 0xFFFF;
             }
             actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
-            if (gBehaviourWorkState->unk2C != 0) {
-                if ((gPrimaryPlayerActor->unk6A & 1) && (gBehaviourWorkState->unk2C >= 0xB)) {
-                    gBehaviourWorkState->unk2C = 0xA;
+            if (gBehaviourWorkState->timer != 0) {
+                if ((gPrimaryPlayerActor->unk6A & 1) && (gBehaviourWorkState->timer >= 0xB)) {
+                    gBehaviourWorkState->timer = 0xA;
                 }
-                gBehaviourWorkState->unk2C--;
+                gBehaviourWorkState->timer--;
             } else {
                 gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
                 gCurrentActor->unk155 = 0;

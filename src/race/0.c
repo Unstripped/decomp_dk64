@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #include "proto/global/135D30.h"
 #include "proto/global/166A0.h"
 #include "proto/global/35000.h"
@@ -26,11 +27,6 @@ typedef struct {
     RaceC_Entry *unk14;
 } RaceC_DCA0;
 
-typedef struct {
-    u8 pad0[0x24];
-    u8 unk24;
-    u8 unk25;
-} RaceC_DC90;
 
 typedef struct {
     s16 unk0;
@@ -65,7 +61,6 @@ typedef struct {
 extern s32 gCurrentMap;
 extern void *gCurrentActor;
 extern void *gActivePlayerActor;
-extern RaceC_DC90 *gBehaviourWorkState;
 extern RaceC_DCA0 *D_807FDCA0;
 extern RaceC_Row D_8002FB10[];
 extern RaceC_Row D_8002FB70[];
@@ -87,7 +82,7 @@ void raceOpponentFollowWaypoints(void) {
     u8 routeRowIdx;
     RaceC_Row *routeRows;
     f32 q;
-    RaceC_DC90 **pp;
+    BehaviourWorkState **pp;
     s16 v1;
 
     pp = &gBehaviourWorkState;
@@ -261,16 +256,6 @@ typedef struct {
     LargeR4_Cfg *unk17C;
 } LargeR4_Act;
 
-typedef struct {
-    u8 pad0[0x24];
-    u8 unk24;
-    u8 unk25;
-    u8 pad26[0x2C - 0x26];
-    s16 unk2C;
-    s16 unk2E;
-    u8 pad30[0x35 - 0x30];
-    u8 unk35;
-} LargeR4_State;
 
 typedef struct {
     s16 unk0;
@@ -303,7 +288,6 @@ extern u16 D_80750AC8;
 extern s32 D_8002FB94[];
 
 #define L4_D ((LargeR4_Act *)gCurrentActor)
-#define L4_S ((LargeR4_State *)gBehaviourWorkState)
 #define L4_P ((LargeR4_Path *)D_807FDCA0)
 
 void actorApplyGravity(void);
@@ -369,10 +353,10 @@ void raceOpponentBehaviourUpdate(void) {
         L4_D->unkC4 = -20.0f;
         L4_D->unkC8 = -900.0f;
         L4_D->unk12A = 0x7D0;
-        L4_S->unk35 = 0;
-        L4_S->unk2C = 0x64;
-        L4_S->unk2C = 0;
-        L4_S->unk24 = 0;
+        gBehaviourWorkState->unk35 = 0;
+        gBehaviourWorkState->timer = 0x64;
+        gBehaviourWorkState->timer = 0;
+        gBehaviourWorkState->unk24 = 0;
         L4_D->unk68 &= 0xFFBF;
         if (gCurrentMap == 0x52) {
             config->unk1C = D_80750AC8 = 0x32;
@@ -391,7 +375,7 @@ void raceOpponentBehaviourUpdate(void) {
             controller->unk35 = 3;
         }
     }
-    rowIdx = L4_S->unk24;
+    rowIdx = gBehaviourWorkState->unk24;
     if (child != NULL && controller->unk34 < 3 && gBossFightPhase == 4) {
         playerStateQueueCallback(0x33, gCurrentActor, 0);
     }
@@ -430,42 +414,42 @@ void raceOpponentBehaviourUpdate(void) {
             } else {
                 actorSetTargetSpeed(gCurrentActor, 0xAA);
             }
-            L4_S->unk35 = 0xA;
+            gBehaviourWorkState->unk35 = 0xA;
             actorScriptStart(gCurrentActor, 0x282);
             L4_D->unk154 = L4_D->unk154 + 1;
             break;
         }
     case 2:
         actorApproachTargetSpeed(0);
-        dx = L4_D->unk7C - (f32)L4_P->unk14[L4_S->unk25].unk0;
-        dz = L4_D->unk84 - (f32)L4_P->unk14[L4_S->unk25].unk4;
+        dx = L4_D->unk7C - (f32)L4_P->unk14[gBehaviourWorkState->unk25].unk0;
+        dz = L4_D->unk84 - (f32)L4_P->unk14[gBehaviourWorkState->unk25].unk4;
         dist = sqrtf(dz * dz + dx * dx);
-        if (dist < (f32)L4_P->unk14[L4_S->unk25].unk7) {
+        if (dist < (f32)L4_P->unk14[gBehaviourWorkState->unk25].unk7) {
             fv1 = L4_D->unk80;
-            if ((f32)L4_P->unk14[L4_S->unk25].unk2 < fv1) {
-                dist = fv1 - (f32)L4_P->unk14[L4_S->unk25].unk2;
+            if ((f32)L4_P->unk14[gBehaviourWorkState->unk25].unk2 < fv1) {
+                dist = fv1 - (f32)L4_P->unk14[gBehaviourWorkState->unk25].unk2;
             } else {
-                dist = -(fv1 - (f32)L4_P->unk14[L4_S->unk25].unk2);
+                dist = -(fv1 - (f32)L4_P->unk14[gBehaviourWorkState->unk25].unk2);
             }
             if (dist < 80.0f) {
-                if (L4_S->unk25 < L4_P->unk10 - 1) {
-                    if (L4_P->unk14[L4_S->unk25].unk8 == 0) {
+                if (gBehaviourWorkState->unk25 < L4_P->unk10 - 1) {
+                    if (L4_P->unk14[gBehaviourWorkState->unk25].unk8 == 0) {
                         actorScriptStart(gCurrentActor, 0x283);
                         L4_D->unk154 = L4_D->unk154 + 1;
                     }
-                    if (L4_S->unk25 == routeRows[rowIdx].unk0) {
+                    if (gBehaviourWorkState->unk25 == routeRows[rowIdx].unk0) {
                         L4_D->unkC4 = routeRows[rowIdx].unk4;
-                        L4_S->unk24 = L4_S->unk24 + 1;
+                        gBehaviourWorkState->unk24 = gBehaviourWorkState->unk24 + 1;
                     }
-                    L4_S->unk25++;
+                    gBehaviourWorkState->unk25++;
                 }
             }
         }
         ang16 = angU = (s32)((f64)mathAtan2(-dx, -dz) * 4096.0 / 6.2831854820251465);
         mathAngleStepToward(&L4_D->unkE6, (angU + angU - L4_D->unkEE) & 0xFFF, 0x32);
         mathAngleStepToward(&L4_D->unkEE, ang16, 0xF);
-        if (L4_S == 0) {} // FAKE: dead pointer test, steers t-register allocation
-        if (L4_S->unk25 == routeRows[L4_S->unk24].unk0 && routeRows[L4_S->unk24].unk8 == 2 && controller->unk34 == 3) {
+        if (gBehaviourWorkState == 0) {} // FAKE: dead pointer test, steers t-register allocation
+        if (gBehaviourWorkState->unk25 == routeRows[gBehaviourWorkState->unk24].unk0 && routeRows[gBehaviourWorkState->unk24].unk8 == 2 && controller->unk34 == 3) {
             if (controller->unk36 == 1) {
                 L4_D->unk154 = 0xA;
             } else {
@@ -487,13 +471,13 @@ void raceOpponentBehaviourUpdate(void) {
         actorApproachTargetSpeed(0x200);
         break;
     case 6:
-        if (L4_S->unk2E != 0) {
-            L4_S->unk2E = L4_S->unk2E - 1;
+        if (gBehaviourWorkState->unk2E != 0) {
+            gBehaviourWorkState->unk2E = gBehaviourWorkState->unk2E - 1;
         } else if (L4_D->unkFC != 0) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, 0x46, 0x7F, 2);
-            L4_S->unk2E = 0x14;
+            gBehaviourWorkState->unk2E = 0x14;
         }
-        if (L4_S->unk25 == routeRows[L4_S->unk24].unk0 && routeRows[L4_S->unk24].unk8 == 1) {
+        if (gBehaviourWorkState->unk25 == routeRows[gBehaviourWorkState->unk24].unk0 && routeRows[gBehaviourWorkState->unk24].unk8 == 1) {
             fv1 = (f32)(L4_D->unkEE - L4_D->unkE6);
             if (fv1 > 2048.0f) {
                 fv1 -= 4096.0f;
@@ -507,8 +491,8 @@ void raceOpponentBehaviourUpdate(void) {
             if (fv1 < -50.0f) {
                 fv1 = -50.0f;
             }
-            L4_S->unk2C = (s32)((f32)L4_S->unk2C + fv1);
-            L4_S->unk2C = (s32)((f64)L4_S->unk2C - (f64)L4_S->unk2C * 0.3);
+            gBehaviourWorkState->timer = (s32)((f32)gBehaviourWorkState->timer + fv1);
+            gBehaviourWorkState->timer = (s32)((f64)gBehaviourWorkState->timer - (f64)gBehaviourWorkState->timer * 0.3);
         } else {
             if ((L4_D->unk6A & 1) && !(L4_D->unk6C & 1)) {
                 actorScriptStart(gCurrentActor, 0x285);
@@ -521,15 +505,15 @@ void raceOpponentBehaviourUpdate(void) {
             if (fv1 < -2048.0f) {
                 fv1 += 4096.0f;
             }
-            L4_S->unk2C = (s32)((f64)L4_S->unk2C + (f64)(fv1 * L4_D->unkB8) / 8000.0);
-            if (L4_S->unk2C > 500) {
-                L4_S->unk2C = 500;
+            gBehaviourWorkState->timer = (s32)((f64)gBehaviourWorkState->timer + (f64)(fv1 * L4_D->unkB8) / 8000.0);
+            if (gBehaviourWorkState->timer > 500) {
+                gBehaviourWorkState->timer = 500;
             }
-            if (L4_S->unk2C < -500) {
-                L4_S->unk2C = -500;
+            if (gBehaviourWorkState->timer < -500) {
+                gBehaviourWorkState->timer = -500;
             }
         }
-        L4_D->unkE6 = (L4_D->unkE6 + L4_S->unk2C) & 0xFFF;
+        L4_D->unkE6 = (L4_D->unkE6 + gBehaviourWorkState->timer) & 0xFFF;
         raceOpponentFollowWaypoints();
         break;
     case 7:
@@ -543,7 +527,7 @@ void raceOpponentBehaviourUpdate(void) {
         L4_D->unkE6 = L4_D->unkEE;
         break;
     case 9:
-        L4_S->unk35 = 8;
+        gBehaviourWorkState->unk35 = 8;
         actorSetTargetSpeed(gCurrentActor, 0);
         actorApproachTargetSpeed(0x200);
         if (L4_D->unk155 == 0) {
@@ -556,7 +540,7 @@ void raceOpponentBehaviourUpdate(void) {
         switch (x) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
-            L4_S->unk35 = 8;
+            gBehaviourWorkState->unk35 = 8;
             L4_D->unk155 = 1;
             break;
         case 1:
@@ -565,7 +549,7 @@ void raceOpponentBehaviourUpdate(void) {
             }
             break;
         case 2:
-            L4_S->unk35 = 0;
+            gBehaviourWorkState->unk35 = 0;
             actorScriptStart(gCurrentActor, 0x288);
             L4_D->unk155 = L4_D->unk155 + 1;
             break;

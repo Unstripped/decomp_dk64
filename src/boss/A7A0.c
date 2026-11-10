@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #include "proto/boss/3840.h"
 #include "proto/boss/9C60.h"
 #include "proto/boss/A7A0.h"
@@ -118,12 +119,7 @@ void bossKRoolLankySetAnim(s32 scriptId, s16 animId) {
     controllerAnimSetState(link->unk0, animId, 0.0f, 6.0f);
 }
 
-typedef struct BossC_A7A0_DC9C {
-    char pad[0xC];
-    u8 unkC;
-} BossC_A7A0_DC9C;
 
-extern BossC_A7A0_DC9C *gBehaviourExtraState;
 void actorSetTargetSpeed(BossC_A7A0_Actor *, s32);
 
 void bossKRoolLankyRunTowardPlayer(void) {
@@ -177,28 +173,10 @@ typedef struct BossStageInfo {
     u8 unk200;
 } BossStageInfo;
 
-typedef struct BossWorkState {
-    char pad[0x1A];
-    u16 unk1A;
-    char pad1C[0x28 - 0x1C];
-    u8 unk28[4];
-} BossWorkState;
 
-typedef struct BossActorPos {
-    char pad[0x7C];
-    f32 unk7C;
-    char pad80[4];
-    f32 unk84;
-} BossActorPos;
 
-typedef struct BossConfig {
-    char pad[0xD];
-    u8 unkD;
-} BossConfig;
 
 extern u8 *D_80035A80[];
-extern BossWorkState *gBehaviourWorkState;
-extern BossActorPos *gBehaviourTargetActor;
 void behaviourFrameBegin(void);
 void func_80724CA4(s32, s32);
 s32 camStartPath(void *, s32, s32);
@@ -215,7 +193,6 @@ s32 func_8072881C(s32, void *);
 #define ACTOR40 ((BossActor *)gCurrentActor)
 #define ACTOR4C ((BossActor *)gPrimaryPlayerActor)
 #define BB70 (*(BossStageInfo *)&gActorGlobalState)
-#define DC9C ((BossConfig *)gBehaviourExtraState)
 
 void bossKRoolLankyStep(void) {
     BossScriptState *scriptState;
@@ -234,9 +211,9 @@ void bossKRoolLankyStep(void) {
         bossAttachActor();
         ACTOR40->unkC4 = 0.0f;
     }
-    if ((ACTOR4C->unk154 == 0x48) && !(gBehaviourWorkState->unk1A & 0x8000)) {
+    if ((ACTOR4C->unk154 == 0x48) && !(gBehaviourWorkState->flags & 0x8000)) {
         camStartPath(ACTOR40, 0, 1);
-        gBehaviourWorkState->unk1A |= 0x8000;
+        gBehaviourWorkState->flags |= 0x8000;
     }
     if ((camIsPlayingPath(0) == 0) && (camIsPlayingPath(1) == 0) && ((ACTOR4C->unk154 != 0x67) || (ACTOR40->unk154 != 0x42))) {
         switch (ACTOR40->unk154) {
@@ -249,7 +226,7 @@ void bossKRoolLankyStep(void) {
                 ACTOR40->unk155++;
                 break;
             case 2:
-                actorSetTargetSpeed(gCurrentActor, DC9C->unkD);
+                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
                 bossKRoolLankySetAnim(0x3F4, 0x678);
                 ACTOR40->unk155++;
                 break;
@@ -262,7 +239,7 @@ void bossKRoolLankyStep(void) {
                     ACTOR40->unk154 = 0x2C;
                     ACTOR40->unk155 = 0;
                 }
-                actorMoveWithinZone(0x23, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk84, 0, 0.0f);
+                actorMoveWithinZone(0x23, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
                 break;
             }
             break;

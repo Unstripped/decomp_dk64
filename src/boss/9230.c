@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #include "proto/boss/3840.h"
 #include "proto/boss/9230.h"
 #include "proto/global/17B90.h"
@@ -47,17 +48,7 @@ typedef struct Boss2F_9230_D580 {
     s16 unkBE;
 } Boss2F_9230_D580;
 
-typedef struct Boss2F_9230_DC90 {
-    char pad[0x28];
-    u8 unk28[4];
-    s16 unk2C;
-    s16 unk2E;
-} Boss2F_9230_DC90;
 
-typedef struct Boss2F_9230_DC9C {
-    char pad[0xC];
-    u8 unkC;
-} Boss2F_9230_DC9C;
 
 extern u8 *D_80035A50[];
 extern s32 gCamActor;
@@ -66,8 +57,6 @@ extern void *gSpawnedActor;
 extern Boss2F_9230_BB4C *gPrimaryPlayerActor;
 extern u8 gBossFightPhase;
 extern Boss2F_9230_D580 *gActivePlayerState;
-extern Boss2F_9230_DC90 *gBehaviourWorkState;
-extern Boss2F_9230_DC9C *gBehaviourExtraState;
 
 void csSendActorMessagePayload(s32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
@@ -161,7 +150,7 @@ void bossKRoolDkStep(void) {
                 gCurrentActor->unk155++;
                 /* fallthrough */
             case 1:
-                gBehaviourWorkState->unk2C = scriptState->unk18;
+                gBehaviourWorkState->timer = scriptState->unk18;
                 gCurrentActor->unk155++;
                 /* fallthrough */
             case 2:
@@ -170,19 +159,19 @@ void bossKRoolDkStep(void) {
                 gCurrentActor->unk155++;
                 break;
             case 4:
-                if (gBehaviourWorkState->unk2C != 0) {
-                    gBehaviourWorkState->unk2C--;
+                if (gBehaviourWorkState->timer != 0) {
+                    gBehaviourWorkState->timer--;
                     gCurrentActor->unk155 = 2;
                 } else {
                     gCurrentActor->unk132 = 2;
                     actorScriptStart(gCurrentActor, 0x3E9);
-                    gBehaviourWorkState->unk2C = scriptState->unk19;
+                    gBehaviourWorkState->timer = scriptState->unk19;
                     gCurrentActor->unk155++;
                 }
                 break;
             case 5:
-                if (gBehaviourWorkState->unk2C != 0) {
-                    gBehaviourWorkState->unk2C--;
+                if (gBehaviourWorkState->timer != 0) {
+                    gBehaviourWorkState->timer--;
                 } else if (gCurrentActor->unk154 == 0x2A) {
                     gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
                     gCurrentActor->unk155 = 0;
@@ -208,7 +197,7 @@ void bossKRoolDkStep(void) {
                 /* fallthrough */
             case 1:
                 if (camIsCutsceneActive() == 0) {
-                    gBehaviourWorkState->unk2C = scriptState->unk18;
+                    gBehaviourWorkState->timer = scriptState->unk18;
                     gBehaviourWorkState->unk2E = 9;
                     actorScriptStart(gCurrentActor, 0x3E7);
                     gCurrentActor->unk155++;
@@ -229,8 +218,8 @@ void bossKRoolDkStep(void) {
                 }
                 /* fallthrough */
             case 4:
-                if (gBehaviourWorkState->unk2C != 0) {
-                    gBehaviourWorkState->unk2C--;
+                if (gBehaviourWorkState->timer != 0) {
+                    gBehaviourWorkState->timer--;
                 } else if (scriptState->unk16 != 0) {
                     gCurrentActor->unk155 = 1;
                 } else {

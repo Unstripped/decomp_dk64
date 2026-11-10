@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #include "proto/boss/3840.h"
 #include "proto/boss/C920.h"
 #include "proto/global/135D30.h"
@@ -36,21 +37,10 @@ typedef struct BossD_D580 {
     s16 unk1FE;
 } BossD_D580;
 
-typedef struct BossD_DC90 {
-    u8 pad0[0xA];
-    s16 unkA;
-    s16 unkC;
-    s16 unkE;
-    u8 pad10[0x1A - 0x10];
-    u16 unk1A;
-    u8 pad1C[0x28 - 0x1C];
-    u8 unk28[4];
-} BossD_DC90;
 
 extern BossD_Actor *gCurrentActor;
 extern BossD_Actor *gPrimaryPlayerActor;
 extern BossD_D580 *gActivePlayerState;
-extern BossD_DC90 *gBehaviourWorkState;
 extern void *gCamActor;
 
 s32 playerStateQueueCallback(s32, void *, s32);
@@ -74,9 +64,9 @@ void bossKRoolChunkySetupFight(s32 unused) {
     gCurrentActor->unk144 = 0x24;
     playerStateQueueCallback(0x19, gCurrentActor, 0);
     zoneEntryGetPosition(1, 8, &gCurrentActor->unk7C, &gCurrentActor->unk80, &gCurrentActor->unk84);
-    gBehaviourWorkState->unkA = gCurrentActor->unk7C;
-    gBehaviourWorkState->unkC = gCurrentActor->unk80;
-    gBehaviourWorkState->unkE = gCurrentActor->unk84;
+    gBehaviourWorkState->targetX = gCurrentActor->unk7C;
+    gBehaviourWorkState->targetY = gCurrentActor->unk80;
+    gBehaviourWorkState->targetZ = gCurrentActor->unk84;
     zoneEntryGetPosition(1, 0x20, &gPrimaryPlayerActor->unk7C, &gPrimaryPlayerActor->unk80, &gPrimaryPlayerActor->unk84);
     gPrimaryPlayerActor->unkE6 = mathAngleBetweenPoints2D(gCurrentActor->unk7C, gCurrentActor->unk84, gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk84);
     targetYaw = gPrimaryPlayerActor->unkE6 + 0x800;
@@ -104,9 +94,9 @@ void bossKRoolChunkyResetPhase(BossD_Sub178 *sub178) {
 }
 
 void bossKRoolChunkyInterpolatePosition(f32 stepRate) {
-    gCurrentActor->unk7C = (f32) (((f64) (gPrimaryPlayerActor->unk7C - (f32) gBehaviourWorkState->unkA) * gCurrentActor->unk160) + (f64) gBehaviourWorkState->unkA);
-    gCurrentActor->unk80 = (f32) (((f64) (gPrimaryPlayerActor->unk80 - (f32) gBehaviourWorkState->unkC) * gCurrentActor->unk160) + (f64) gBehaviourWorkState->unkC);
-    gCurrentActor->unk84 = (f32) (((f64) (gPrimaryPlayerActor->unk84 - (f32) gBehaviourWorkState->unkE) * gCurrentActor->unk160) + (f64) gBehaviourWorkState->unkE);
+    gCurrentActor->unk7C = (f32) (((f64) (gPrimaryPlayerActor->unk7C - (f32) gBehaviourWorkState->targetX) * gCurrentActor->unk160) + (f64) gBehaviourWorkState->targetX);
+    gCurrentActor->unk80 = (f32) (((f64) (gPrimaryPlayerActor->unk80 - (f32) gBehaviourWorkState->targetY) * gCurrentActor->unk160) + (f64) gBehaviourWorkState->targetY);
+    gCurrentActor->unk84 = (f32) (((f64) (gPrimaryPlayerActor->unk84 - (f32) gBehaviourWorkState->targetZ) * gCurrentActor->unk160) + (f64) gBehaviourWorkState->targetZ);
     gCurrentActor->unk160 += stepRate;
     if (gCurrentActor->unk160 > 0.8) {
         gCurrentActor->unk160 = 0.8;
@@ -123,7 +113,7 @@ void bossKRoolChunkyOscillateSway(void) {
 }
 
 void bossKRoolChunkyPlayTauntSfx(void) {
-    gBehaviourWorkState->unk1A |= 1;
+    gBehaviourWorkState->flags |= 1;
     sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x2E2, 0xFF, 0x65, 0, 0, 0.0f, 0);
 }
 
@@ -169,16 +159,6 @@ typedef struct BossActor {
     BossScriptState *unk178;
 } BossActor;
 
-typedef struct BossWorkState {
-    u8 pad0[0xA];
-    s16 unkA;
-    s16 unkC;
-    s16 unkE;
-    u8 pad10[0x1A - 0x10];
-    u16 unk1A;
-    u8 pad1C[0x25 - 0x1C];
-    u8 unk25;
-} BossWorkState;
 
 typedef struct BossPlayerData {
     u8 pad0[0xD4];
@@ -192,15 +172,7 @@ typedef struct BossGlobalC924 {
     u8 unk2C0;
 } BossGlobalC924;
 
-typedef struct BossLayoutData {
-    u8 pad0[0x20];
-    u8 (*unk20)[2];
-} BossLayoutData;
 
-typedef struct BossConfig {
-    u8 pad0[0xC];
-    u8 unkC;
-} BossConfig;
 
 extern u8 D_80036A90[];
 extern u8 D_80036AA8[];
@@ -212,8 +184,6 @@ f32 D_80035AD4[4] = { 0.015f, 0.025f, 0.03f, 0.01f };
 f32 D_80035AE4[4] = { 1.0f, 1.3f, 1.8f, 0.7f };
 extern u8 gBossFightPhase;
 extern BossGlobalC924 *gPlayerSlots;
-extern BossLayoutData *gBehaviourAnimState;
-extern BossConfig *gBehaviourExtraState;
 
 void behaviourFrameBegin(void);
 void camSetSecondTarget(void *, s32, s32);
@@ -238,7 +208,6 @@ s32 func_8072881C(s32, void *);
 
 #define BOSS_ACTOR ((BossActor *)gCurrentActor)
 #define PLAYER_ACTOR ((BossActor *)gPrimaryPlayerActor)
-#define WORK_STATE ((BossWorkState *)gBehaviourWorkState)
 #define PLAYER_DATA ((BossPlayerData *)gActivePlayerState)
 
 void bossKRoolChunkyStep(void) {
@@ -263,16 +232,16 @@ void bossKRoolChunkyStep(void) {
         bossSetCannonsVisible(0);
         flagSet(0x5F, 0, 2);
     }
-    if (WORK_STATE->unk1A & 1) {
+    if (gBehaviourWorkState->flags & 1) {
         BOSS_ACTOR->unk128 -= (scriptState->unk14 > 0) ? 10 : 5;
         if (BOSS_ACTOR->unk128 < 0) {
             BOSS_ACTOR->unk128 = 0;
-            WORK_STATE->unk1A &= ~1;
+            gBehaviourWorkState->flags &= ~1;
         }
     } else if (BOSS_ACTOR->unk154 != 0x29 && (PLAYER_DATA->unk1F0 & 0x40) && BOSS_ACTOR->unk128 < 0xFF) {
-        if (!(WORK_STATE->unk1A & 0x8000)) {
+        if (!(gBehaviourWorkState->flags & 0x8000)) {
             camStartPath(BOSS_ACTOR, 2, 1);
-            WORK_STATE->unk1A |= 0x8000;
+            gBehaviourWorkState->flags |= 0x8000;
         } else {
             csSendActorMessagePayload(2, 0);
         }
@@ -292,7 +261,7 @@ void bossKRoolChunkyStep(void) {
     case 0x29:
         switch (BOSS_ACTOR->unk155) {
         case 0:
-            actorMoveWithinZone(0, (f32)WORK_STATE->unkA, (f32)WORK_STATE->unkE, 0x309, 0.0f);
+            actorMoveWithinZone(0, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0x309, 0.0f);
             break;
         case 1:
             if (scriptState->unk14 >= 2) {
@@ -393,7 +362,7 @@ void bossKRoolChunkyStep(void) {
         switch (BOSS_ACTOR->unk155) {
         case 0:
             patrolGetNextWaypointPos(&waypointCoords[2], &waypointCoords[1], &waypointCoords[0]);
-            actorSetGroupState((D_80035AD0 - 1)[gBehaviourAnimState->unk20[WORK_STATE->unk25 & 0x7F][0]], 1);
+            actorSetGroupState((D_80035AD0 - 1)[gBehaviourAnimState->unk20[(gBehaviourWorkState->unk25 & 0x7F) * 2]], 1);
             BOSS_ACTOR->unkEC = mathAngleBetweenPoints2D((f32)waypointCoords[2], (f32)waypointCoords[0], BOSS_ACTOR->unk7C, BOSS_ACTOR->unk84);
             if (mathAngleSignedDistance(BOSS_ACTOR->unkE6, BOSS_ACTOR->unkEC) < 0) {
                 actorScriptStart(BOSS_ACTOR, 0x401);
@@ -405,7 +374,7 @@ void bossKRoolChunkyStep(void) {
             break;
         case 1:
             BOSS_ACTOR->unkE6 = mathAngleEaseToward(BOSS_ACTOR->unkE6, (s16)(BOSS_ACTOR->unkEC + 0x800), 10.0f);
-            actorMoveWithinZone(0, (f32)WORK_STATE->unkA, (f32)WORK_STATE->unkE, 0x309, 0.0f);
+            actorMoveWithinZone(0, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0x309, 0.0f);
             break;
         case 2:
             BOSS_ACTOR->unkEE = BOSS_ACTOR->unkE6;
@@ -413,7 +382,7 @@ void bossKRoolChunkyStep(void) {
             BOSS_ACTOR->unk155++;
             /* fallthrough */
         case 3:
-            actorMoveWithinZone(0, (f32)WORK_STATE->unkA, (f32)WORK_STATE->unkE, 0x309, 0.0f);
+            actorMoveWithinZone(0, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0x309, 0.0f);
             break;
         case 4:
             BOSS_ACTOR->unkB8 = BOSS_ACTOR->unkB8 * -1.0f;
