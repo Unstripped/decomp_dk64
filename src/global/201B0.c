@@ -543,16 +543,16 @@ u8 camFloorSnap(CamActor *camActor, CamState *camState, f32 targetDist, f32 *out
             camState->unk8 = 0;
         }
         if (!(gGlobalCutsceneFlags & 0x20) && camState->unkF5 == 0) {
-            u8 v1;
+            u8 ceilMargin;
 
             if (floorActor->unk154 == 0x63) {
-                v1 = 0x14;
+                ceilMargin = 0x14;
             } else {
-                v1 = 10;
+                ceilMargin = 10;
             }
             if (camState->unk8 != 0) {
-                if (floorY + camState->unk8 - v1 < *outHeight) {
-                    *outHeight = floorY + camState->unk8 - v1;
+                if (floorY + camState->unk8 - ceilMargin < *outHeight) {
+                    *outHeight = floorY + camState->unk8 - ceilMargin;
                 }
             }
         }
@@ -2293,13 +2293,6 @@ u8 camResolveWallCollision(CamActor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, 
     return camActor->unkFC;
 }
 
-typedef struct CamActorLimits {
-    /* 0x000 */ u8 pad0[0x114];
-    /* 0x114 */ s16 unk114;
-    /* 0x116 */ s16 unk116;
-    /* 0x118 */ s16 unk118;
-    /* 0x11A */ s16 unk11A;
-} CamActorLimits;
 
 s32 func_80620F00(CamActor *camActor, u8 allowNudge, u8 requireSide) {
     CamState *st = camActor->unk174;
@@ -2309,15 +2302,15 @@ s32 func_80620F00(CamActor *camActor, u8 allowNudge, u8 requireSide) {
     u8 pastLeft;
     u8 pastRight;
     u8 pastRetry;
-    CamActorLimits *limits;
+    PlayerState *targetState;
 
     actor = st->unk0;
     diff = gCamTargetDist - gPlayerSlots[st->unkFB].unk284;
-    limits = (CamActorLimits *)actor->unk174;
-    pastLimit = 40.0f < gCamTargetDist && (f32)limits->unk114 < diff;
-    pastLeft = (f32)limits->unk118 < diff;
-    pastRight = (f32)limits->unk11A < diff;
-    pastRetry = (f32)limits->unk116 < diff;
+    targetState = (PlayerState *)actor->unk174;
+    pastLimit = 40.0f < gCamTargetDist && (f32)targetState->unk114 < diff;
+    pastLeft = (f32)targetState->unk118 < diff;
+    pastRight = (f32)targetState->unk11A < diff;
+    pastRetry = (f32)targetState->unk116 < diff;
     if (requireSide && !pastLeft && !pastRight) {
         pastLimit = 0;
     }
@@ -2638,8 +2631,8 @@ void camComputeFocusPosOffset(CamState *st, f32 *outX, f32 *outY, f32 *outZ, f32
 }
 
 typedef struct CamZoomEntry {
-    /* 0x0 */ u16 unk0;
-    /* 0x2 */ u16 unk2;
+    /* 0x0 */ u16 height;
+    /* 0x2 */ u16 distance;
 } CamZoomEntry;
 
 extern CamZoomEntry D_80747B60[][4];
@@ -2647,9 +2640,9 @@ extern CamZoomEntry D_80747B60[][4];
 u8 camSetZoomLevel(CamActor *cam, s16 level) {
     CamState *st = cam->unk174;
     u8 old;
-    s16 v;
+    s16 zoomSet;
 
-    v = (gPlayerCharacterId[st->unkFB] * 2 + (gPlayerSlots[st->unkFB].unk2C0 != 1)) + 7;
+    zoomSet = (gPlayerCharacterId[st->unkFB] * 2 + (gPlayerSlots[st->unkFB].unk2C0 != 1)) + 7;
     old = st->unkEF;
     if ((st->unkAC & 0x2000) && level > 1) {
         level = 1;
@@ -2658,51 +2651,51 @@ u8 camSetZoomLevel(CamActor *cam, s16 level) {
         level = 1;
     }
     if (gCurrentMap == 0x9A) {
-        v = 0;
+        zoomSet = 0;
     } else if (gGlobalCutsceneFlags & 2) {
-        v = 2;
+        zoomSet = 2;
     } else if ((gGlobalOverlayFlags & 1) && gCurrentMap != 0x6F) {
-        v = 3;
+        zoomSet = 3;
     } else if (gGlobalOverlayFlags & 0x80) {
-        v = 4;
+        zoomSet = 4;
     } else if (st->unkAC & 0x20000) {
-        v = 5;
+        zoomSet = 5;
     } else if (gGlobalOverlayFlags & 0x4000000) {
-        v = 6;
+        zoomSet = 6;
     } else if (st->unkF3 == 5 || st->unkF3 == 0xC || st->unkF3 == 0xA) {
-        v = 1;
+        zoomSet = 1;
     }
-    st->unkA4 = D_80747B60[v][level].unk2;
-    st->unkB8 = D_80747B60[v][level].unk0;
+    st->unkA4 = D_80747B60[zoomSet][level].distance;
+    st->unkB8 = D_80747B60[zoomSet][level].height;
     st->unkEF = level;
     return old;
 }
 
 void camSetZoomForDistance(CamActor *cam, s16 distance) {
     CamState *st = cam->unk174;
-    s16 idx;
+    s16 zoomSet;
     s16 best;
     s16 i;
 
-    idx = gPlayerCharacterId[st->unkFB] * 2 + (gPlayerSlots[st->unkFB].unk2C0 != 1) + 7;
+    zoomSet = gPlayerCharacterId[st->unkFB] * 2 + (gPlayerSlots[st->unkFB].unk2C0 != 1) + 7;
     best = 1;
     if (gCurrentMap == 0x9A) {
-        idx = 0;
+        zoomSet = 0;
     } else if (gGlobalCutsceneFlags & 2) {
-        idx = 2;
+        zoomSet = 2;
     } else if ((gGlobalOverlayFlags & 1) && gCurrentMap != 0x6F) {
-        idx = 3;
+        zoomSet = 3;
     } else if (gGlobalOverlayFlags & 0x80) {
-        idx = 4;
+        zoomSet = 4;
     } else if (st->unkAC & 0x20000) {
-        idx = 5;
+        zoomSet = 5;
     } else if (gGlobalOverlayFlags & 0x4000000) {
-        idx = 6;
+        zoomSet = 6;
     } else if (st->unkF3 == 5 || st->unkF3 == 0xC || st->unkF3 == 0xA) {
-        idx = 1;
+        zoomSet = 1;
     }
     for (i = 2; i < 4; i++) {
-        if (distance >= D_80747B60[idx][i].unk2) {
+        if (distance >= D_80747B60[zoomSet][i].distance) {
             best = i;
         }
     }
