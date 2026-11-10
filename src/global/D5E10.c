@@ -2578,7 +2578,6 @@ extern s16 D_807539EC[];
 s32 playerCanPerformActionCheck(void) {
     f32 surfaceOffset;
     f32 lim;
-    u8 idx;
 
     if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
         surfaceOffset = D_8075388C[gCurrentCharacterIndex];
@@ -2603,10 +2602,9 @@ s32 playerCanPerformActionCheck(void) {
     if (gCurrentActor->waterY < gCurrentActor->y + surfaceOffset) {
         gCurrentActor->y = gCurrentActor->waterY - surfaceOffset;
     }
-    idx = gCurrentPlayerIndex; // FAKE: one load of gCurrentPlayerIndex shared by the slot index and the call argument (regalloc, bc1f)
-    lim = (gPlayerSlots[idx].unk2C0 == 1) ? D_8075387C[gCurrentCharacterIndex] : D_807538B8[gCurrentCharacterIndex];
+    lim = (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) ? D_8075387C[gCurrentCharacterIndex] : D_807538B8[gCurrentCharacterIndex];
     if (gCurrentActor->waterY - gCurrentActor->floorY < lim) {
-        playerStateQueueCallback(2, 0, idx);
+        playerStateQueueCallback(2, 0, gCurrentPlayerIndex);
         return 1;
     }
     return 0;
