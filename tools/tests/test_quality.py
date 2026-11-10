@@ -11,6 +11,8 @@ if str(REPO_ROOT) not in sys.path:
 
 from tools import quality as q  # noqa: E402
 
+REAL_COLLECT = q.cwarn.collect  # the autouse no_compile fixture stubs it
+
 FP = ("1111111111111111", "2222222222222222")
 SITE = dict(key="global:80600000:dead-if:abc123", kind="dead-if", name="f", line=3, lines=[2], tagged=True,
             code="if (x) {} // FAKE")
@@ -35,7 +37,7 @@ def no_new_knowledge(monkeypatch):
 @pytest.fixture(autouse=True)
 def no_compile(monkeypatch):
     """analyze() would compile through tools/dk; tests see no cfe warnings unless they patch them in."""
-    monkeypatch.setattr(q.cwarn, "collect", lambda items: [[] for _ in items])
+    monkeypatch.setattr(q.cwarn, "collect", lambda items, rev=None: [[] for _ in items])
 
 
 def class1_events():
@@ -710,10 +712,76 @@ def test_analyze_warning_site(tmp_path, monkeypatch):
     path = q.rel(str(c))
     warns = [dict(code=712, path=path, line=4, col=6, msg="illegal combination of pointer and integer"),
              dict(code=709, path="include/x.h", line=1, col=-1, msg="incompatible pointer type")]
-    monkeypatch.setattr(q.cwarn, "collect", lambda items: [warns])
+    monkeypatch.setattr(q.cwarn, "collect", lambda items, rev=None: [warns])
     an = q.analyze(str(c), "global")
     fn, = an["functions"]
     s, = fn["sites"]
     assert (s["kind"], s["line"], s["warning"]) == ("warning", 4, "712 illegal combination of pointer and integer")
     assert re.fullmatch(r"global:80600000:warning:[0-9a-f]{6}", s["key"])
     assert an["warnings"] == 2
+
+
+def test_record_base_compiles_rev_text_against_rev_headers(tmp_path, monkeypatch):
+    """A merge renamed S.b to S.c in include/s.h: the base text no longer compiles against the current
+    include/. record --base compiles it against the base's include/ (exported, cwd of the compile) and
+    resolves the base's warning site; a base that cannot compile names the file, rev and cfe error."""
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    (repo / "include").mkdir()
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger, q.cwarn):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q.cwarn, "SCRATCH", str(repo / ".scratch" / "cwarn"))
+    monkeypatch.setattr(q.cwarn, "_static", {"key": ("makefile", "include")})
+    monkeypatch.setattr(q.cwarn, "collect", REAL_COLLECT)
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "_htext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    monkeypatch.setattr(q, "names_at", lambda seg, vram: ["f"])
+
+    def run_jobs(jobs):  # IDO stand-in: `p->F` needs `int F;` in include/s.h of the compile's cwd
+        out = []
+        for job in jobs:
+            cwd = repo / job.get("cwd", "")
+            hdr = (cwd / "include" / "s.h").read_text()
+            res = {"rc": 0, "out": ""}
+            for n, line in enumerate((cwd / job["input"]).read_text().split("\n"), 1):
+                for f in re.findall(r"p->(\w+)", line):
+                    if f"int {f};" in hdr:
+                        res["out"] += f"cfe: Warning 712: {job['input']}, line {n}: illegal combination\n"
+                    else:
+                        res = {"rc": 1, "out": f"cfe: Error: {job['input']}, line {n}: unknown field {f}\n"}
+            out.append(res)
+        return out
+
+    monkeypatch.setattr(q.cwarn, "run_jobs", run_jobs)
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    hdr = "typedef struct S {\n    int a;\n    int %s;\n} S;\n"
+    body = '#include "s.h"\nint f(S *p) {\n    return p->%s;\n}\n'
+    revs = {}
+    for name, field, used in (("broken", "b", "z"), ("base", "b", "b"), ("head", "c", "c")):
+        (repo / "include" / "s.h").write_text(hdr % field)
+        (repo / "src" / "global" / "x.c").write_text(body % used)
+        _git(repo, "add", "-A", "include", "src")
+        _git(repo, "commit", "-qm", name)
+        revs[name] = _git(repo, "rev-parse", "HEAD")
+    base_text = body % "b"
+    with pytest.raises(q.cwarn.CompileError):  # the bug: base text, current headers
+        q.analyze("src/global/x.c", "global", text=base_text)
+    key = "global:80600000:warning:" + q.ledger.sha1("712\0" + q.norm(["    return p->b;"]))[:6]
+    batch = tmp_path / "batch.txt"
+    batch.write_text(f'{key} retype kept note="tried s32 *g; fdiff=3"\n')
+    q.main(["record", "--unit", "u1", "--agent", "a", "--base", revs["base"], "--batch", str(batch)])
+    e, = [e for e in q.load_events() if e.get("type") == "quality"]
+    assert (e["site"], e["method"]) == (key, "retype")
+    assert e["fp_hdr"] == q.fp_hdr(base_text, "src/global", {"include/s.h": hdr % "b"})
+
+    with pytest.raises(SystemExit) as ex:
+        q.main(["record", "--unit", "u1", "--agent", "a", "--base", revs["broken"], "--batch", str(batch)])
+    msg = str(ex.value.code)
+    assert msg.startswith(f"record: cannot compile src/global/x.c at {revs['broken']}: cfe: Error: ")
+    assert msg.endswith("line 3: unknown field z")

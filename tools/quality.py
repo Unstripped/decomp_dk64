@@ -16,8 +16,10 @@ method ladder that exhausts them, and the per-function `review` coverage.
                                          field offset or symbol address; clang-checked) or only by
                                          file-scope text of the .c they do not use (same body tokens,
                                          same text for every declaration/type/macro they reach; both
-                                         versions parse against the current headers, so header changes
-                                         are not compared and automatic results from older headers stay stale).
+                                         versions parse against the current headers for these checks;
+                                         REV's sites and fingerprints use REV's headers, and automatic
+                                         results carry only when the reached include/ declarations are
+                                         unchanged since REV).
                                          --header-carve: instead carry the automatic results of functions
                                          whose fp_local and sites are unchanged and whose reached include/
                                          declarations changed only by record carves keeping size, offsets,
@@ -67,8 +69,9 @@ sweep: remove (dead ifs, (void)x, dead stores, do{}while(0) wrappers, volatile; 
   applied. --record appends one event per site and method (agent `sweep`). Warning sites are not
   swept; each prints `WARN <key> line <n> [W<code> <msg>]` (a copy's warning-site keys).
 record line: <site-key|func:<seg>:<name>> <method> <outcome> [quirks=Q1,Q2] [seconds=N] [base=N]
-  [best=N] [commit=H] [note="..."]; all lines validated (keys at HEAD, fixed sites at --base REV)
-  before anything is written.
+  [best=N] [commit=H] [note="..."]; all lines validated (keys at HEAD, fixed sites at --base REV:
+  REV's text analysed and compiled against REV's headers) before anything is written. A failed
+  compile exits 1 naming the file, the rev and the first `cfe: Error` line.
 """
 import argparse
 import collections
@@ -398,6 +401,16 @@ def fp_hdr(text, here, hdrs=None):
     return h.hexdigest()[:16]
 
 
+def rev_headers(rev):
+    """{path: text at REV, or None when absent there} of every include/ file (and src/ *.h) that differs
+    between REV and the working tree: `analyze`'s HDRS for REV's text."""
+    hdrs = {}
+    for p in ledger.git("diff", "--name-only", rev, "--", "include", ":(glob)src/**/*.h").split():
+        r = subprocess.run(["git", "show", f"{rev}:{p}"], cwd=ROOT, capture_output=True, text=True)
+        hdrs[p] = r.stdout if r.returncode == 0 else None
+    return hdrs
+
+
 def text_metrics(text):
     c = collections.Counter()
     for line in text.split("\n"):
@@ -412,20 +425,30 @@ def text_metrics(text):
     return c
 
 
-def analyze(path, seg, text=None, uninit=False, src=None, hdrs=None, keep=False, warns=None, warnings=True):
+def analyze(path, seg, text=None, uninit=False, src=None, hdrs=None, keep=False, warns=None, warnings=True,
+            rev=None):
     """dict(path, seg, fp_hdr, functions=[dict(name, static, line, end, seg, vram, fp_local, fp_hdr,
     fp_hdr2 (`Scope.fp_hdr2`: only the include/ declarations the function reaches),
     metrics, int_locals, sites=[dict(key, kind, line, lines, tagged, code, name)])], unresolved,
     uninit=[(func, var, line)], text=text metrics, errors) of one C file (TEXT: its content, e.g. at a
     rev; SRC: the src file PATH is a copy of, for function identity; HDRS: {include/ path: text or
     None} overriding the working-tree headers, as `included`; KEEP adds tu, scope, toks (the file's
-    own tokens) and by_line). WARNINGS (not with HDRS): the IDO cfe warnings of the matching compile
-    (`cwarn.collect`, or WARNS when given) become `warning` sites (plus `warning`: "<code> <msg>") and
-    `warnings` counts them all (header paths included; None without WARNINGS)."""
+    own tokens) and by_line). REV: TEXT is REV's, analysed with REV's headers (HDRS default
+    `rev_headers(REV)`) and compiled against them. WARNINGS (not with HDRS unless REV is given): the
+    IDO cfe warnings of the matching compile (`cwarn.collect`, or WARNS when given) become `warning`
+    sites (plus `warning`: "<code> <msg>") and `warnings` counts them all (header paths included; None
+    without WARNINGS). A failed compile raises `cwarn.CompileError`."""
     path = rel(path)
     full = os.path.join(ROOT, path)
-    if warnings and hdrs is None:
-        warns = warns if warns is not None else cwarn.collect([(path, text, src)])[0]
+    if rev is not None and hdrs is None:
+        hdrs = rev_headers(rev)
+    if warnings and (hdrs is None or rev is not None):
+        if warns is None:
+            try:  # REV's headers equal to the working tree's: the shared working-tree cache
+                warns = cwarn.collect([(path, text, src)], rev=rev if hdrs else None)[0]
+            except cwarn.CompileError as ex:
+                ex.rev = ex.rev or rev
+                raise
     else:
         warns = None
     if text is None:
@@ -973,12 +996,17 @@ class Resolver:
 
     def __init__(self, base):
         self.revs = ["HEAD"] + ([base] if base else [])
-        self.cache = {}
+        self.cache, self.hdrs = {}, {}
 
     def analysis(self, path, seg, rev):
         if (path, rev) not in self.cache:
             text = subprocess.run(["git", "show", f"{rev}:{path}"], cwd=ROOT, capture_output=True, text=True).stdout
-            self.cache[(path, rev)] = analyze(path, seg, text=text)
+            if rev == "HEAD":  # HEAD's text with the working-tree headers, as sweeps and status see it
+                self.cache[(path, rev)] = analyze(path, seg, text=text)
+            else:
+                if rev not in self.hdrs:
+                    self.hdrs[rev] = rev_headers(rev)
+                self.cache[(path, rev)] = analyze(path, seg, text=text, hdrs=self.hdrs[rev], rev=rev)
         return self.cache[(path, rev)]
 
     def files(self, seg, names, rev):
@@ -1354,15 +1382,20 @@ def carry_renames(a, by_site, by_func):
     """(events, skipped, carried lines) re-stamping the newest fresh-at-REV events of every function
     that changed from REV to HEAD only by renames of declared names (`rename_equivalent` over its
     body and the file's top level), or only by file-scope text of the .c it does not use
-    (`scope_equivalent`), with HEAD's fingerprints and site keys."""
+    (`scope_equivalent`), with HEAD's fingerprints and site keys. REV's text is analysed (parsed,
+    fingerprinted and compiled for its warning sites) with REV's headers."""
     files = a.files or [p for p in ledger.git("diff", "--name-only", a.rev, "HEAD", "--", "src").split()
                         if p.endswith(".c") and "/libultra/" not in p and os.path.exists(os.path.join(ROOT, p))]
     out, skipped, lines = [], [], []
+    hdrs = rev_headers(a.rev)
     for path in files:
         path, seg = rel(path), seg_of(path)
         old_text = subprocess.run(["git", "show", f"{a.rev}:{path}"], cwd=ROOT, capture_output=True, text=True).stdout
         new_text = open(os.path.join(ROOT, path), encoding="utf-8", errors="replace").read()
-        old, new = analyze(path, seg, text=old_text), analyze(path, seg)
+        # REV's sites (its warning sites compiled against REV's headers) and fingerprints, so events
+        # recorded at REV are found; the equivalence checks below parse both texts against the current
+        # headers (header changes are --header-carve's)
+        old, new = analyze(path, seg, text=old_text, hdrs=hdrs, rev=a.rev), analyze(path, seg)
         if len(old["functions"]) != len(new["functions"]):
             skipped.append(f"{path}: function count changed")
             continue
@@ -1376,8 +1409,8 @@ def carry_renames(a, by_site, by_func):
             if fn["vram"] is None or fo["vram"] not in (None, fn["vram"]):
                 skipped.append(f"{path}: {fn['name']}: identity changed")
                 continue
-            if fo["fp_local"] == fn["fp_local"] and fo["fp_hdr"] == fn["fp_hdr"]:
-                continue  # unchanged: its events are as fresh as they were
+            if fo["fp_local"] == fn["fp_local"]:
+                continue  # same text: its events are as fresh as they were (header changes: --header-carve)
             # file-scope sites (skip and declaration lines above the function) may be tagged, retagged
             # (`// PROTO:` -> `// FAKE: callee prototype steer`) or untagged: comments only, the tokens
             # are compared below. Body sites must keep their kinds; file-scope ones pair by key, so a
@@ -1419,8 +1452,8 @@ def carry_renames(a, by_site, by_func):
                         if e["method"] not in newest or e["t"] >= newest[e["method"]]["t"]:
                             newest[e["method"]] = e
                 for e in newest.values():
-                    if e["method"] in AUTO and fo["fp_hdr"] != fn["fp_hdr"] and how == "identifier renames only":
-                        continue  # headers changed too and were not compared: automatic results stay stale
+                    if e["method"] in AUTO and not hdr_fresh(e, (fn["fp_local"], fn["fp_hdr"], fn.get("fp_hdr2"))):
+                        continue  # reached headers changed since REV, not compared: automatic results stay stale
                     c = dict(e, unit=a.unit, agent="carry", name=fn["name"], file=path, fp_local=fn["fp_local"],
                              fp_hdr=fn["fp_hdr"], fp_hdr2=fn.get("fp_hdr2"), site=nsite["key"] if nsite else None,
                              note=f"carried from {a.rev} ({how})"
@@ -1499,7 +1532,7 @@ def _carve_job(job):
     r = subprocess.run(["git", "show", f"{rev}:{path}"], cwd=ROOT, capture_output=True, text=True)
     if r.returncode:
         return [], []  # no events can be fresh at REV
-    # REV's headers cannot be compiled, and retype (the warning method) is not carried here
+    # warning sites stay out on both sides: retype (the warning method) is not carried here
     old = analyze(path, seg, text=r.stdout, hdrs=hdrs, keep=True, warnings=False)
     new = analyze(path, seg, keep=True, warnings=False)
     shadow = sorted({rel(i.include.name) for i in old["tu"].get_includes()} & added)
@@ -1544,10 +1577,7 @@ def carry_carves(a, by_site, by_func):
     and site keys are unchanged and whose reached include/ declarations changed only by layout-
     keeping record carves (`carve_changes`). The other methods depend on fp_local alone and stay
     fresh by themselves. A function is listed as skipped only when it had something to carry."""
-    hdrs = {}
-    for p in ledger.git("diff", "--name-only", a.rev, "--", "include").split():
-        r = subprocess.run(["git", "show", f"{a.rev}:{p}"], cwd=ROOT, capture_output=True, text=True)
-        hdrs[p] = r.stdout if r.returncode == 0 else None
+    hdrs = rev_headers(a.rev)
     added = {p for p, t in hdrs.items() if t is None}
     jobs = []
     for path in [rel(p) for p in a.files] or clint.src_files():
@@ -1710,7 +1740,10 @@ def main(argv=None):
     c.add_argument("files", nargs="*")
     c.set_defaults(fn=cmd_carry)
     a = p.parse_args(argv)
-    a.fn(a)
+    try:
+        a.fn(a)
+    except cwarn.CompileError as ex:  # e.g. REV's text of a record --base / carry --rev file
+        sys.exit(f"{a.cmd}: {ex}")
 
 
 if __name__ == "__main__":

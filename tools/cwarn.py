@@ -18,11 +18,14 @@
                                                   [{"rc", "out"}] as JSON
 
 One printed `cfe: Warning N: <path>, line L: <msg>` line is one warning (no dedupe). `cfe: Error`
-fails the compile (never reported as 0 warnings); `cc: Warning:` driver lines are ignored. Results are
-cached in .scratch/cwarn/cache/ keyed by the Makefile, every include/ file, the flags src path, the
-compiled text and, for an in-place compile, the *.h files beside it; all cache misses of one call
-compile in one `tools/dk` request (inheriting DK64_LEASE). Warnings printed for the compiled input are
-reported under the given path; other paths (headers) are kept as printed.
+fails the compile (never reported as 0 warnings; `CompileError` names the file, the rev and the first
+`cfe: Error` line); `cc: Warning:` driver lines are ignored. Results are cached in .scratch/cwarn/cache/
+keyed by the Makefile, every include/ file, the flags src path, the compiled text and, for an in-place
+compile, the *.h files beside it; all cache misses of one call compile in one `tools/dk` request
+(inheriting DK64_LEASE). `collect(..., rev=REV)` compiles texts against REV's include/ and REV's *.h
+beside each path instead (exported into the call's stage dir with `git archive`, asm/ linked to the
+checkout's; keyed by REV's include/ tree id). Warnings printed for the compiled input are reported
+under the given path; other paths (headers) are kept as printed.
 """
 import argparse
 import glob
@@ -59,6 +62,8 @@ def sha1(b):
 # ---------------------------------------------------------------- container side
 
 def compile_one(job, tmpdir, n):
+    """Compile JOB["input"] (relative to the tree JOB["cwd"], default the checkout) with the command
+    `make -n` prints for JOB["src"]; the command's relative include/ and asm/ paths resolve in that tree."""
     src = job["src"]
     r = subprocess.run(["make", "-n", "-W", src, "build/" + src[:-2] + ".o"], cwd=ROOT, capture_output=True,
                        text=True)
@@ -67,8 +72,8 @@ def compile_one(job, tmpdir, n):
         return {"rc": 1, "out": f"no compile rule for {src}\n{r.stderr}"}
     cmd = cmds[-1]
     cmd = cmd[:cmd.rindex(" -o ")] + f" -o {tmpdir}/{n}.o {job['input']}"
-    r = subprocess.run(["sh", "-c", cmd], cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-                       errors="replace")
+    r = subprocess.run(["sh", "-c", cmd], cwd=os.path.join(ROOT, job.get("cwd", "")), stdout=subprocess.PIPE,
+                       stderr=subprocess.STDOUT, text=True, errors="replace")
     return {"rc": r.returncode, "out": r.stdout}
 
 
@@ -82,6 +87,21 @@ def compile_jobs(jobs):
 
 
 # ---------------------------------------------------------------- host side
+
+class CompileError(Exception):
+    """A failed compile of PATH (its text at REV when REV is given); OUT: the compiler output."""
+
+    def __init__(self, path, out, rev=None):
+        super().__init__(path, out, rev)
+        self.path, self.out, self.rev = path, out, rev
+
+    def first(self):
+        lines = [line for line in self.out.splitlines() if line.strip()]
+        return next((line for line in lines if line.startswith("cfe: Error")), lines[-1] if lines else "no output")
+
+    def __str__(self):
+        return f"cannot compile {self.path}" + (f" at {self.rev}" if self.rev else "") + f": {self.first()}"
+
 
 def parse(out):
     """[dict(code, path, line, col, msg)] of every `cfe: Warning` line of OUT, in output order; COL is
@@ -115,13 +135,45 @@ def static_key():
     return _static["key"]
 
 
-def cache_key(path, data, src, in_place):
-    mk, inc = static_key()
-    parts = ["cwarn-v1", mk, inc, src, sha1(data)]
+def cache_key(path, data, src, in_place, inc=None, side=()):
+    """INC: the include/ part (default the working tree's); SIDE: `name:sha` of the *.h beside a
+    text compiled at a rev."""
+    mk, inc0 = static_key()
+    parts = ["cwarn-v1", mk, inc or inc0, src, sha1(data), *side]
     if in_place:
         d = os.path.dirname(os.path.join(ROOT, path))
         parts += [f"{os.path.basename(h)}:{sha1(open(h, 'rb').read())}" for h in sorted(glob.glob(os.path.join(d, "*.h")))]
     return sha1("\0".join(parts))
+
+
+def git(*args):
+    r = subprocess.run(["git", *args], cwd=ROOT, capture_output=True)
+    return r.stdout if r.returncode == 0 else None
+
+
+def rev_side_headers(rev, path):
+    """{basename: blob sha} of the *.h beside PATH at REV."""
+    out = {}
+    for line in (git("ls-tree", rev, "--", os.path.dirname(path) + "/") or b"").decode().splitlines():
+        meta, name = line.split("\t", 1)
+        if meta.split()[1] == "blob" and name.endswith(".h"):
+            out[os.path.basename(name)] = meta.split()[2]
+    return out
+
+
+def export_tree(rev, tree):
+    """REV's include/ under TREE, plus TREE/asm linking to the checkout's (generated, not in git)."""
+    os.makedirs(tree, exist_ok=True)
+    arc = subprocess.Popen(["git", "archive", rev, "include"], cwd=ROOT, stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE)
+    tar = subprocess.run(["tar", "-x", "-C", tree], stdin=arc.stdout, capture_output=True, text=True)
+    arc.stdout.close()
+    err = arc.stderr.read().decode("utf-8", "replace")
+    if arc.wait() or tar.returncode:
+        raise CompileError(None, f"git archive {rev} include failed: {err}{tar.stderr}", rev)
+    os.symlink(os.path.relpath(os.path.join(ROOT, "asm"), tree), os.path.join(tree, "asm"))
+
+
 
 
 def write_atomic(path, text):
@@ -143,39 +195,61 @@ def run_jobs(jobs):
     finally:
         os.remove(jf)
     if r.returncode != 0:
-        tail = "\n".join((r.stdout + r.stderr).rstrip().splitlines()[-5:])
-        sys.exit(f"cwarn: compile failed for {jobs[0]['input']}:\n{tail}")
+        raise CompileError(None, r.stdout + r.stderr)
     return json.loads(r.stdout)
 
 
-def collect(items):
+def collect(items, rev=None):
     """[[dict(code, path, line, col, msg)] per item] for ITEMS = [(path, text or None, src or None)]: the
-    warnings of compiling PATH (TEXT None: in place) or TEXT with the make flags of SRC (else PATH)."""
+    warnings of compiling PATH (TEXT None: in place) or TEXT with the make flags of SRC (else PATH).
+    REV: compile every TEXT (required) against REV's include/ and REV's *.h beside PATH. Raises
+    CompileError for the first item that fails."""
     keys, todo = [], {}
     stage = os.path.join(SCRATCH, "in", str(uuid.uuid4()))  # this call's own inputs: another may share keys
+    tree = os.path.join(stage, "tree")  # REV's include/ and asm/: inputs compile with it as cwd
+    inc = None
+    if rev:
+        t = git("rev-parse", "--verify", "-q", f"{rev}:include")
+        if t is None:
+            raise CompileError(items[0][0] if items else None, f"no include/ tree at {rev}", rev)
+        inc = "rev-include:" + t.decode().strip()
     for path, text, src in items:
         p, flags = rel(path), rel(src or path)
+        if rev and text is None:
+            raise ValueError("cwarn.collect: rev needs the text")
+        side = rev_side_headers(rev, p) if rev else {}
         data = open(os.path.join(ROOT, p), "rb").read() if text is None else text.encode("utf-8")
-        key = cache_key(p, data, flags, text is None)
+        key = cache_key(p, data, flags, text is None, inc, [f"{n}:{s}" for n, s in sorted(side.items())])
         keys.append(key)
         if key in todo or os.path.exists(os.path.join(SCRATCH, "cache", key + ".json")):
             continue
+        job = {"src": flags}
         if text is None:
-            inp = p
+            job["input"] = p
         else:
-            inp = rel(os.path.join(stage, key, os.path.basename(p)))
-            os.makedirs(os.path.dirname(os.path.join(ROOT, inp)), exist_ok=True)
-            open(os.path.join(ROOT, inp), "wb").write(data)
-        todo[key] = (p, {"input": inp, "src": flags})
+            d = os.path.join(tree if rev else stage, key)
+            os.makedirs(d, exist_ok=True)
+            open(os.path.join(d, os.path.basename(p)), "wb").write(data)
+            for name, blob in side.items():
+                open(os.path.join(d, name), "wb").write(git("cat-file", "blob", blob))
+            if rev:
+                job.update(input=os.path.join(key, os.path.basename(p)), cwd=rel(tree))
+            else:
+                job["input"] = rel(os.path.join(d, os.path.basename(p)))
+        todo[key] = (p, job)
     if todo:
         try:
+            if rev:
+                export_tree(rev, tree)
             results = run_jobs([job for _, job in todo.values()])
+        except CompileError as ex:
+            ex.path, ex.rev = ex.path or next(iter(todo.values()))[0], rev
+            raise
         finally:
             shutil.rmtree(stage, ignore_errors=True)
         for (key, (p, job)), r in zip(todo.items(), results):
             if r["rc"] != 0:
-                tail = "\n".join(r["out"].rstrip().splitlines()[-5:])
-                sys.exit(f"cwarn: compile failed for {p}:\n{tail}")
+                raise CompileError(p, r["out"].replace(job["input"], p), rev)
             ws = parse(r["out"])
             for w in ws:
                 w["path"] = None if w["path"] == job["input"] else w["path"]
@@ -255,7 +329,11 @@ def main(argv=None):
     c.add_argument("jobs")
     c.set_defaults(fn=cmd_compile_json)
     a = p.parse_args(argv)
-    a.fn(a)
+    try:
+        a.fn(a)
+    except CompileError as ex:
+        tail = "\n".join(ex.out.rstrip().splitlines()[-5:])
+        sys.exit(f"cwarn: {ex}\n{tail}")
 
 
 if __name__ == "__main__":
