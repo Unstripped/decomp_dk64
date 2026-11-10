@@ -407,6 +407,6 @@ void func_8062A808(s32 width, s32 height) {
     D_80747B48 = height;
 }
 
-s32 gfxPassThrough(s32 glist) {
+Gfx *gfxPassThrough(Gfx *glist) {
     return glist;
 }

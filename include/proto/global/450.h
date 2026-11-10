@@ -10,7 +10,7 @@ void seg11DmaRead(s32, s32, void *);
 void viModeApplyHighRes(void);
 #endif
 #ifndef PROTO_SKIP_viModeSetup
-void viModeSetup();
+void viModeSetup(u8);
 #endif
 #ifndef PROTO_SKIP_mainSystemInit
 void mainSystemInit(void);
@@ -61,7 +61,7 @@ Gfx *gfxClearFramebuffer(Gfx *, u8);
 void gfxEndDisplayList(Gfx *, u8, s32 *, u8);
 #endif
 #ifndef PROTO_SKIP_gfxEndSubDisplayList
-void gfxEndSubDisplayList(Gfx *, s32, s32 *, u8);
+void gfxEndSubDisplayList(Gfx *, void *, s32 *, u8);
 #endif
 #ifndef PROTO_SKIP_mapLoadLevel
 void mapLoadLevel(void);

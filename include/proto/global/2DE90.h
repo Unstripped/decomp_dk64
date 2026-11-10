@@ -45,6 +45,6 @@ void screenBufferFree(void);
 void func_8062A808(s32, s32);
 #endif
 #ifndef PROTO_SKIP_gfxPassThrough
-s32 gfxPassThrough(s32);
+Gfx *gfxPassThrough(Gfx *);
 #endif
 #endif

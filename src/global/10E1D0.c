@@ -508,7 +508,7 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
     }
     if ((D_8076A0A4 != 0) && (gGameMode != 6)) {
         gfxEndDisplayList(sp34, gGfxBufferIndex, &D_8076A088, 0);
-        gfxEndSubDisplayList(sp30, (s32)gGfxCurrentFrameBuffer, &D_8076A08C, 1);
+        gfxEndSubDisplayList(sp30, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
         return;
     }
     gfxEndDisplayList(sp34, gGfxBufferIndex, &D_8076A088, 1);
