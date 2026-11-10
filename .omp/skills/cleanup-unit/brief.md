@@ -79,9 +79,16 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
 
 # Phases (in order, one pass over the file each)
 1. types: a file-local struct view of a shared global becomes the shared type (`include/actor.h`
-   etc.); a cast becomes a real field; a missing field → header request. Then
-   `uv run tools/quality.py sweep .scratch/<You>/<file>.c --copy-of <src> -j 2` and read its
-   `HIT` lines (apply hits by hand, fdiff each).
+   etc.); a cast becomes a real field; a missing field → header request. Fix every `warning`
+   site (`retype`): change the declared type (local, parameter, return, struct field via header
+   request, callee prototype via a retyped definition/bundle) so the warning disappears and fdiff
+   exits 0; a cast that only silences the mismatch is not a fix (a cast is fine only where the
+   value really changes type, e.g. integer address arithmetic to a pointer, or a polymorphic
+   member per AGENTS.md's shared-globals rule). `python3 tools/cwarn.py list --as <src>
+   .scratch/<You>/<file>.c` lists the copy's warnings; the copy must not add warnings (the merge
+   gate fails). Then `uv run tools/quality.py sweep .scratch/<You>/<file>.c --copy-of <src> -j 2`
+   and read its `HIT` lines (apply hits by hand, fdiff each); its `WARN` lines are the copy's
+   warning-site keys.
 2. defake: for each OPEN site in `status` order (tagged and untagged), climb the ladder until
    the site is fixed or every required method is fresh (`ladder.md` table, printed below):
    <paste the "Required fresh methods per kind" table from ladder.md>
@@ -113,7 +120,7 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
    this task; never derive a review from a diff or an earlier note.
 
 # Report (final message)
-1. Copy path, base commit, final `fdiff` and `clint uninit` results, FAKE/goto counts before → after.
+1. Copy path, base commit, final `fdiff` and `clint uninit` results, FAKE/goto/cfe-warning counts before → after.
 2. Per site: key, what you did, result.
 3. A fenced block tagged `LEDGER`, one line per (site or function, method), exactly as below.
    Keys hash the site's code, local names included: a site still present uses its key in the
@@ -124,13 +131,15 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
    every permute run before reporting (an OPEN rung reopens the file next round):
    `<site-key|func:<seg>:<name>> <method> <outcome> [quirks=Q1,Q2] [seconds=N] [base=N] [best=N] [note="..."]`
    methods `remove plain cond classify consolidate diagnose permute reconstruct goto-hand
-   views names review`; outcomes `hit fixed nohit kept blocked`. Rules: `diagnose` needs
+   views names review retype`; outcomes `hit fixed nohit kept blocked`. Rules: `diagnose` needs
    `quirks=`; `permute` needs `base= best=` and `seconds>=600` (shorter only when it stopped at `best=0`); `kept` only for `classify`
-   (`note="class 1"`) or `goto-hand` (note cites Q0591). A diagnosis that keeps the site is
+   (`note="class 1"`), `goto-hand` (note cites Q0591) or `retype`. `warning` sites take only
+   `retype`: `fixed`, `kept` with `note="tried <change>; fdiff=<1|3>"` (the attempted fix and its
+   fdiff exit), or `blocked` with a note naming the missing header/owner change. A diagnosis that keeps the site is
    `diagnose nohit` (never `hit`: `hit` reopens the site as next=apply). A site you fixed:
    `fixed` on the method that fixed it. Every function: `func:<seg>:<name> review <fixed|nohit|blocked>
    note="fake=<kept>/<removed> goto=<n> casts=<n kept> views=<ok|n left> protos=<ok|n steer>
-   temps=<ok|n> names=<n m2c left> uninit=<0|n>"`.
+   temps=<ok|n> names=<n m2c left> uninit=<0|n> warn=<n left>"`.
    Validate the block before reporting with `uv run tools/quality.py record --dry-run --unit U
    --agent <you> --base <base> --batch <file>` (never writes `drafts/quality.jsonl`; never copy
    or restore that file yourself).

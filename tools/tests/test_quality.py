@@ -15,7 +15,7 @@ FP = ("1111111111111111", "2222222222222222")
 SITE = dict(key="global:80600000:dead-if:abc123", kind="dead-if", name="f", line=3, lines=[2], tagged=True,
             code="if (x) {} // FAKE")
 FN = dict(name="f", seg="global", vram=0x80600000, fp_local=FP[0], fp_hdr=FP[1], sites=[])
-REVIEW = "fake=0/0 goto=0 casts=0 views=ok protos=ok temps=ok names=0 uninit=0"
+REVIEW = "fake=0/0 goto=0 casts=0 views=ok protos=ok temps=ok names=0 uninit=0 warn=0"
 
 
 def ev(site, method, outcome, fp=FP, note=None, **kw):
@@ -30,6 +30,12 @@ def ev(site, method, outcome, fp=FP, note=None, **kw):
 @pytest.fixture(autouse=True)
 def no_new_knowledge(monkeypatch):
     monkeypatch.setattr(q, "knowledge_after", lambda name, note, t: False)
+
+
+@pytest.fixture(autouse=True)
+def no_compile(monkeypatch):
+    """analyze() would compile through tools/dk; tests see no cfe warnings unless they patch them in."""
+    monkeypatch.setattr(q.cwarn, "collect", lambda items: [[] for _ in items])
 
 
 def class1_events():
@@ -649,3 +655,65 @@ def test_carry_header_carve_padding_array_to_scalar(tmp_path, monkeypatch, capsy
         assert _carve_state()["f"] == {"views": "✓", "review": "✓", "remove": "✓"}
     else:
         assert reason in out and "carried 0 events" in out
+
+
+WSITE = dict(key="global:80600000:warning:abc123", kind="warning", name="f", line=4, lines=[3], tagged=False,
+             code="g = x;", warning="712 illegal combination of pointer and integer")
+
+
+def test_warning_site_ladder():
+    assert q.exhausted(WSITE, [], FP)[:2] == (False, "retype")
+    assert q.exhausted(WSITE, [ev(WSITE, "retype", "kept", note="tried s32 *g; fdiff=1")], FP)[:2] == (True, None)
+    assert q.exhausted(WSITE, [ev(WSITE, "retype", "blocked", note="needs Actor.unk0 typed")], FP)[:2] == (
+        False, "retype")
+
+
+def test_warning_sites_need_no_reconstruct():
+    fn = dict(FN, sites=[dict(WSITE, key=WSITE["key"] + (f"#{n}" if n > 1 else "")) for n in (1, 2, 3)])
+    st = q.function_state(fn, {}, {("global", "80600000"): [ev(None, "review", "nohit", note=REVIEW)]})
+    assert (st["reconstruct"], st["next"]) == (None, "retype")
+
+
+@pytest.mark.parametrize("line,msg", [
+    (f"{WSITE['key']} retype nohit", "retype outcome is fixed, kept or blocked"),
+    (f'{WSITE["key"]} retype kept note="tried s32 *g"', "retype kept needs note with fdiff=<1|3>"),
+    (f"{SITE['key']} retype fixed", "retype needs a warning site key"),
+    (f"{WSITE['key']} diagnose nohit quirks=Q0001", "warning sites take only retype"),
+    (f"{WSITE['key']} retype blocked", "retype blocked needs a note"),
+])
+def test_record_rejects_bad_retype(tmp_path, monkeypatch, capsys, line, msg):
+    ledger_path = tmp_path / "quality.jsonl"
+    monkeypatch.setattr(q, "LEDGER", str(ledger_path))
+    monkeypatch.setattr(q.Resolver, "find", lambda self, key: (dict(FN, file="src/global/x.c"), WSITE))
+    batch = tmp_path / "batch.txt"
+    batch.write_text(line + "\n")
+    with pytest.raises(SystemExit) as ex:
+        q.main(["record", "--unit", "u1", "--agent", "a", "--batch", str(batch), "--dry-run"])
+    assert ex.value.code == 1
+    assert msg in capsys.readouterr().err
+    assert not ledger_path.exists()
+
+
+def test_record_accepts_retype_kept_with_fdiff(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q.Resolver, "find", lambda self, key: (dict(FN, file="src/global/x.c"), WSITE))
+    batch = tmp_path / "batch.txt"
+    batch.write_text(f'{WSITE["key"]} retype kept note="tried s32 *g; fdiff=3"\n')
+    q.main(["record", "--unit", "u1", "--agent", "a", "--batch", str(batch), "--dry-run"])
+    assert "would record 1 events" in capsys.readouterr().out
+
+
+def test_analyze_warning_site(tmp_path, monkeypatch):
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    c = tmp_path / "x.c"
+    c.write_text("typedef int s32;\ns32 *g;\nvoid f(s32 x) {\n    g = x;\n}\n")
+    path = q.rel(str(c))
+    warns = [dict(code=712, path=path, line=4, col=6, msg="illegal combination of pointer and integer"),
+             dict(code=709, path="include/x.h", line=1, col=-1, msg="incompatible pointer type")]
+    monkeypatch.setattr(q.cwarn, "collect", lambda items: [warns])
+    an = q.analyze(str(c), "global")
+    fn, = an["functions"]
+    s, = fn["sites"]
+    assert (s["kind"], s["line"], s["warning"]) == ("warning", 4, "712 illegal combination of pointer and integer")
+    assert re.fullmatch(r"global:80600000:warning:[0-9a-f]{6}", s["key"])
+    assert an["warnings"] == 2

@@ -7,7 +7,8 @@ computes everything below from it; this file explains what it prints.
 
 Key `<seg>:<VRAM8>:<kind>:<sha1(normalized code)[:6]>[#n]` (`#n` = ordinal among identical
 lines of the function). Untagged sites (found by `clint.py metrics`, no `// FAKE` on the line)
-have `u` as the first hash character: `global:8060ABCD:dead-if:u3f2a1`. Kinds:
+have `u` as the first hash character: `global:8060ABCD:dead-if:u3f2a1`. A `warning` site hashes
+its cfe warning code plus the line's normalized code. Kinds:
 
 |kind|recognised by|
 |---|---|
@@ -22,6 +23,7 @@ have `u` as the first hash character: `global:8060ABCD:dead-if:u3f2a1`. Kinds:
 |`proto-type`|a `// PROTO:` line|
 |`goto`|every goto statement (AST), tagged or not|
 |`other`|any other FAKE line; review findings (key from `sweep <copy> --copy-of <src>` output)|
+|`warning`|an IDO `cfe: Warning` line of the file's matching compile (`tools/cwarn.py`), on the line it names (file-scope lines: the first later function naming the symbol); `status` shows `[W<code> <msg>]`|
 
 `// LAYOUT:` lines are not sites (as1 line-order scheduling is ordinary source layout).
 
@@ -41,10 +43,13 @@ have `u` as the first hash character: `global:8060ABCD:dead-if:u3f2a1`. Kinds:
 |`views`|agent|types phase result (function-level)|
 |`names`|agent|naming phase result (function-level)|
 |`review`|agent|whole-function checklist (function-level, required for every function)|
+|`retype`|agent|give the declarations their real types so the warning disappears|
 
 Outcomes: `hit` (sweep found a match, not yet applied), `fixed` (merged), `nohit`, `kept`,
-`blocked`. `kept` only for `classify` with note `class 1`, and for `goto-hand` with a note citing
-the shared-tail pattern (Q0591).
+`blocked`. `kept` only for `classify` with note `class 1`, for `goto-hand` with a note citing
+the shared-tail pattern (Q0591), and for `retype` with `note="tried <change>; fdiff=<1|3>"`.
+`retype` outcomes are `fixed`, `kept` or `blocked` (note naming the missing header/owner change);
+warning sites take no other method.
 
 ## Required fresh methods per kind
 
@@ -56,8 +61,9 @@ the shared-tail pattern (Q0591).
 |`proto-steer`, `implicit-steer`|`consolidate`, `diagnose`|
 |`goto`|`goto-hand` `kept`, or `goto-hand` + `permute`|
 |`proto-type`|never (types phase: record `views` `blocked` with the reason)|
+|`warning`|`retype` (`fixed`; `kept` only with `note="tried <change>; fdiff=<1\|3>"`; `blocked` keeps it open)|
 
-A function with 3+ non-kept sites also needs a fresh function-level `reconstruct`.
+A function with 3+ non-kept sites (warning sites not counted) also needs a fresh function-level `reconstruct`.
 
 ## Freshness
 
@@ -76,7 +82,7 @@ A function with 3+ non-kept sites also needs a fresh function-level `reconstruct
   carved into named fields; a padding array shrunk around them, to a shorter array or to a scalar
   of its element type, unless `sizeof` is reached or, for a scalar, the field is accessed); a
   changed prototype, macro, typedef, enum or layout keeps them stale and is listed.
-- `diagnose`, `permute`, `reconstruct`, `goto-hand`, `review`: fresh while `fp_local` is equal
+- `diagnose`, `permute`, `reconstruct`, `goto-hand`, `retype`, `review`: fresh while `fp_local` is equal
   and no `knowledge/ido` file committed after the event names the function; for `diagnose`,
   `permute` and `reconstruct` also none among the top 8 hits for the event's note (its free text
   only: `key=value` tokens such as `quirks=`, and `carried from ...` prefixes, are stripped; a
@@ -98,5 +104,5 @@ a file-scope FAKE line (a declaration) belongs to the first later function namin
 ```
 <site-key|func:<seg>:<name>> <method> <outcome> [quirks=Q1,Q2] [seconds=N] [base=N] [best=N] [commit=H] [note="..."]
 ```
-`review` note: `fake=<kept>/<removed> goto=<n> casts=<n kept> views=<ok|n left> protos=<ok|n steer> temps=<ok|n> names=<n m2c left> uninit=<0|n>`.
+`review` note: `fake=<kept>/<removed> goto=<n> casts=<n kept> views=<ok|n left> protos=<ok|n steer> temps=<ok|n> names=<n m2c left> uninit=<0|n> warn=<n left>`.
 A site fixed in the copy no longer exists at HEAD: `record --base <copy base>` accepts its key.

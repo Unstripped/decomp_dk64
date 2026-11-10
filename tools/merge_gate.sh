@@ -22,6 +22,9 @@
 # build depends on outside them: include/ headers, symbol files), never other staged changes;
 # any failure exits non-zero before committing, so no pipe can turn a failed gate into a commit.
 # Any tracked *.sha1 differing from HEAD fails the gate (checked before the merges and after the build).
+# cfe warning ratchet: `tools/cwarn.py count` runs in the gate tree at HEAD and after the build, over the
+# given src files (every non-libultra src file when a --stage path is under include/); any file whose
+# warning count rose fails the gate (`ROSE <path>: <before> -> <after>`, GATE_FAIL: cfe warnings rose).
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root" || exit 1
 gate=${DK64_GATE_DIR:-$root/.scratch/gate}
@@ -78,6 +81,31 @@ done
 head=$(git rev-parse HEAD) || exit 1
 git -C "$gate" checkout -q -f --detach "$head" || { echo "GATE_FAIL: gate checkout failed"; exit 1; }
 git -C "$gate" clean -fdq -- src include drafts || exit 1
+# The ratchet counts with this checkout's tools/cwarn.py, like this script itself (HEAD's may be older).
+cp -p tools/cwarn.py "$gate/tools/cwarn.py" || exit 1
+[ -d "$gate/bin" ] || cp -Rc bin "$gate/" 2>/dev/null || cp -R bin "$gate/" || exit 1
+[ -e "$gate/baserom.us.z64" ] || cp -c baserom.us.z64 "$gate/" 2>/dev/null || cp baserom.us.z64 "$gate/" || exit 1
+glog=$gate/.scratch/gate.log
+mkdir -p "$gate/.scratch"
+stamp() { (cd "$gate" && cat dk64*.yaml symbol_addrs*.txt undefined_syms*.txt | shasum | cut -c1-40); }
+split_if_needed() {
+  want=$(stamp)
+  if [ ! -d "$gate/asm" ] || [ "$(cat "$gate/.scratch/split.stamp" 2>/dev/null)" != "$want" ]; then
+    echo "gate: splitting the gate tree"
+    (cd "$gate" && tools/dk make split > .scratch/split.log 2>&1) || { tail -5 "$gate/.scratch/split.log"; echo "GATE_FAIL: gate split failed"; exit 1; }
+    echo "$want" > "$gate/.scratch/split.stamp"
+    find "$gate/src" -name '*.c' -exec touch {} +
+  fi
+}
+# Ratchet scope: the given files present in the gate tree (a merge may delete one), or nothing
+# (= every non-libultra src file) when a --stage path is a header.
+warn_scope() {
+  case " $extra " in *" include/"*) return ;; esac
+  for p in "$@"; do [ -e "$gate/$p" ] && echo "$p"; done
+}
+split_if_needed
+(cd "$gate" && python3 tools/cwarn.py count --json $(warn_scope "$@") > .scratch/warn_before.json) ||
+  { echo "GATE_FAIL: cfe warning count at HEAD failed"; exit 1; }
 for p in "$@" $extra; do
   if [ -e "$p" ]; then
     mkdir -p "$gate/$(dirname "$p")" && cp -p "$p" "$gate/$p" || exit 1
@@ -85,18 +113,7 @@ for p in "$@" $extra; do
     rm -f "$gate/$p"
   fi
 done
-[ -d "$gate/bin" ] || cp -Rc bin "$gate/" 2>/dev/null || cp -R bin "$gate/" || exit 1
-[ -e "$gate/baserom.us.z64" ] || cp -c baserom.us.z64 "$gate/" 2>/dev/null || cp baserom.us.z64 "$gate/" || exit 1
-glog=$gate/.scratch/gate.log
-mkdir -p "$gate/.scratch"
-stamp() { (cd "$gate" && cat dk64*.yaml symbol_addrs*.txt undefined_syms*.txt | shasum | cut -c1-40); }
-want=$(stamp)
-if [ ! -d "$gate/asm" ] || [ "$(cat "$gate/.scratch/split.stamp" 2>/dev/null)" != "$want" ]; then
-  echo "gate: splitting the gate tree"
-  (cd "$gate" && tools/dk make split > .scratch/split.log 2>&1) || { tail -5 "$gate/.scratch/split.log"; echo "GATE_FAIL: gate split failed"; exit 1; }
-  echo "$want" > "$gate/.scratch/split.stamp"
-  find "$gate/src" -name '*.c' -exec touch {} +
-fi
+split_if_needed
 # make has no header deps: rebuild every C file whenever the headers differ from the ones the
 # gate tree's objects were last compiled with (also after a failed gate with a --stage header).
 inc=$(cd "$gate" && find include -type f | LC_ALL=C sort | xargs shasum | shasum | cut -c1-40)
@@ -112,6 +129,10 @@ if ! tail -3 "$glog" | grep -q 'build/dk64.us.z64: OK'; then
 fi
 # fdiff.sh --non-matching reads the expected object's flags: snapshot this (matching) build.
 (cd "$gate" && tools/dk make expected > .scratch/expected.log 2>&1) || { tail -5 "$gate/.scratch/expected.log"; echo "GATE_FAIL: gate make expected failed"; exit 1; }
+(cd "$gate" && python3 tools/cwarn.py count --json $(warn_scope "$@") > .scratch/warn_after.json) ||
+  { echo "GATE_FAIL: cfe warning count failed"; exit 1; }
+(cd "$gate" && python3 tools/cwarn.py ratchet .scratch/warn_before.json .scratch/warn_after.json) ||
+  { echo "GATE_FAIL: cfe warnings rose"; exit 1; }
 sha1_guard
 for src in "$@"; do
   nmlog=$gate/.scratch/nonmatching_$(basename "$src").log

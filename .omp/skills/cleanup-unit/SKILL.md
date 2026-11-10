@@ -51,8 +51,8 @@ file's `status` output, model). Spawn one agent per file, named `Clean<File>` (e
 Files of 100+ functions take 2–4 agent turns (per-turn request budgets): merge and record
 between passes and send the agent back with the new base. Per-file phase order (one agent does all five):
 
-1. types: local views of shared globals become shared types; casts become real fields;
-   then `uv run tools/quality.py sweep <copy> --copy-of <src>`;
+1. types: local views of shared globals become shared types; casts become real fields; `warning`
+   sites are retyped (`retype`); then `uv run tools/quality.py sweep <copy> --copy-of <src>`;
 2. defake: the ladder ([ladder.md](ladder.md)) for each OPEN site, tagged and untagged, in `status` order;
 3. gotos;
 4. names: locals, params, file-local struct fields (`rename.py local`/`field` on the copy);
@@ -112,10 +112,10 @@ As each agent reports:
 7. Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
    (`--reloc-ok`), one gate; two `0.c` copies need two dirs. Commit explicit paths only.
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full
-ROM gate; the net count of HACKS in a merged file (tagged `// FAKE` + untagged AST sites)
-never rises. Tagging a pre-existing untagged hack is required and raises the tag count; reports
-list such lines as "pre-existing, now tagged". After a merge, `make expected` before sweeping a
-file whose merged C differs from `expected/` only in relocations (else sweep skips it).
+ROM gate; a merged file's net HACKS (tagged `// FAKE` + untagged AST sites) and cfe warnings
+(gate ratchet; header stages check every file) never rise. Tagging a pre-existing untagged hack
+is required (reports: "pre-existing, now tagged"). After a merge, `make expected` before sweeping
+a file whose merged C differs from `expected/` only in relocations (else sweep skips it).
 
 ## 6. Round end
 

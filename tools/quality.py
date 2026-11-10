@@ -32,8 +32,11 @@ link-map .text address; an unresolvable function is an error.
 
 Sites: every `// FAKE` or `// PROTO:` line outside `#ifdef NON_MATCHING` (file-scope lines belong
 to the first later function that names the declared symbol), plus clint's AST `untagged` hits
-(gotos always). Key `<seg>:<VRAM8>:<kind>:<sha1(code without comments/whitespace)[:6]>[#n]`; an
-untagged site's hash starts with `u`; #n (n >= 2) orders identical sites within the function.
+(gotos always), plus one `warning` site per IDO `cfe: Warning` line of the file's matching compile
+(tools/cwarn.py; a header's warnings are counted but get no site). Key
+`<seg>:<VRAM8>:<kind>:<sha1(code without comments/whitespace)[:6]>[#n]`; an untagged site's hash
+starts with `u`; a warning site hashes `<warning code>\\0` + its line's code; #n (n >= 2) orders
+identical sites within the function.
 
 Ladder (required fresh methods per kind; first missing = next):
   dead-if                        remove cond classify, then diagnose permute unless classify kept
@@ -42,16 +45,18 @@ Ladder (required fresh methods per kind; first missing = next):
   proto-steer implicit-steer     consolidate diagnose
   goto                           goto-hand kept, or goto-hand permute
   proto-type                     never exhausted (its function ignores it after a fresh `views` blocked)
+  warning                        retype (`fixed`; `kept` with note `fdiff=<1|3>` of the attempted fix;
+                                 `blocked` with a note naming the missing header/owner change)
 Satisfied by the method's newest event (by time) when fresh and not `blocked`; a fresh `hit` means
 next=apply.
 Fresh: remove/plain/cond/classify/consolidate/views/names need equal fp_local and fp_hdr2 (hash of
 the include/ declarations, types and macros the function reaches, or the whole header fp_hdr when
 it reaches a `##` macro; events without it: the whole
-header fp_hdr); diagnose/permute/reconstruct/goto-hand/review need equal fp_local and no
+header fp_hdr); diagnose/permute/reconstruct/goto-hand/retype/review need equal fp_local and no
 knowledge/ido file committed after the event that names the function or, for diagnose/permute/
 reconstruct only, is a top-8 hit for the free text of the event's note (key=value tokens and carry
-prefixes stripped).
-A function is EXHAUSTED with a fresh `review`, every site exhausted, and (3+ non-kept sites) a
+prefixes stripped). Review checklist tokens: fake goto casts views protos temps names uninit warn.
+A function is EXHAUSTED with a fresh `review`, every site exhausted, and (3+ non-kept non-warning sites) a
 fresh function-level `reconstruct`; without a fresh review it is OPEN next=review.
 
 sweep: remove (dead ifs, (void)x, dead stores, do{}while(0) wrappers, volatile; all together,
@@ -59,7 +64,8 @@ sweep: remove (dead ifs, (void)x, dead stores, do{}while(0) wrappers, volatile; 
   with all / each removal, pre-scored by deadsweep score --body), classify (dead if -> `if (<int
   local>) {}`: kept = class 1). A hit needs tools/fdiff.sh --reloc-ok exit 0 (OK or RELOC-EQUIV OK) and no new clint uninit pair; it
   is written to .scratch/quality/hits/<seg>_<file>_<n>.c (`HIT <keys> <method> <path>`), never
-  applied. --record appends one event per site and method (agent `sweep`).
+  applied. --record appends one event per site and method (agent `sweep`). Warning sites are not
+  swept; each prints `WARN <key> line <n> [W<code> <msg>]` (a copy's warning-site keys).
 record line: <site-key|func:<seg>:<name>> <method> <outcome> [quirks=Q1,Q2] [seconds=N] [base=N]
   [best=N] [commit=H] [note="..."]; all lines validated (keys at HEAD, fixed sites at --base REV)
   before anything is written.
@@ -84,6 +90,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import clint  # noqa: E402
+import cwarn  # noqa: E402
 import ledger  # noqa: E402
 import quirks  # noqa: E402
 from clang.cindex import CursorKind, StorageClass, TokenKind, TypeKind  # noqa: E402
@@ -93,19 +100,19 @@ LEDGER = os.environ.get("DK64_QUALITY_LEDGER") or os.path.join(ROOT, "drafts", "
 SCRATCH = os.path.join(ROOT, ".scratch", "quality")
 
 KINDS = ("dead-if", "volatile", "do-while0", "dead-store", "noop-arith", "comma", "punned-cast",
-         "proto-steer", "implicit-steer", "proto-type", "goto", "other")
+         "proto-steer", "implicit-steer", "proto-type", "goto", "other", "warning")
 LADDER = {"dead-if": ("remove", "cond", "classify", "diagnose", "permute"),
           **dict.fromkeys(("volatile", "do-while0", "dead-store"), ("remove", "cond", "diagnose", "permute")),
           **dict.fromkeys(("noop-arith", "comma", "punned-cast", "other"), ("plain", "diagnose", "permute")),
           **dict.fromkeys(("proto-steer", "implicit-steer"), ("consolidate", "diagnose")),
-          "goto": ("goto-hand", "permute"), "proto-type": ()}
+          "goto": ("goto-hand", "permute"), "proto-type": (), "warning": ("retype",)}
 METHODS = ("remove", "plain", "cond", "classify", "consolidate", "diagnose", "permute", "reconstruct",
-           "goto-hand", "views", "names", "review")
+           "goto-hand", "views", "names", "review", "retype")
 AUTO = {"remove", "plain", "cond", "classify", "consolidate", "views", "names"}
 NOTE_METHODS = {"diagnose", "permute", "reconstruct"}  # knowledge also stales them via their note
 FUNC_ONLY = {"views", "names", "review"}
 OUTCOMES = ("hit", "fixed", "nohit", "kept", "blocked")
-CHECKLIST = ("fake", "goto", "casts", "views", "protos", "temps", "names", "uninit")
+CHECKLIST = ("fake", "goto", "casts", "views", "protos", "temps", "names", "uninit", "warn")
 PLAIN_KINDS = {"noop-arith", "comma", "punned-cast", "other"}
 
 DEAD_IF = re.compile(r"if \(.*\)\s*\{\s*\}")
@@ -405,16 +412,22 @@ def text_metrics(text):
     return c
 
 
-def analyze(path, seg, text=None, uninit=False, src=None, hdrs=None, keep=False):
+def analyze(path, seg, text=None, uninit=False, src=None, hdrs=None, keep=False, warns=None, warnings=True):
     """dict(path, seg, fp_hdr, functions=[dict(name, static, line, end, seg, vram, fp_local, fp_hdr,
     fp_hdr2 (`Scope.fp_hdr2`: only the include/ declarations the function reaches),
     metrics, int_locals, sites=[dict(key, kind, line, lines, tagged, code, name)])], unresolved,
     uninit=[(func, var, line)], text=text metrics, errors) of one C file (TEXT: its content, e.g. at a
     rev; SRC: the src file PATH is a copy of, for function identity; HDRS: {include/ path: text or
     None} overriding the working-tree headers, as `included`; KEEP adds tu, scope, toks (the file's
-    own tokens) and by_line)."""
+    own tokens) and by_line). WARNINGS (not with HDRS): the IDO cfe warnings of the matching compile
+    (`cwarn.collect`, or WARNS when given) become `warning` sites (plus `warning`: "<code> <msg>") and
+    `warnings` counts them all (header paths included; None without WARNINGS)."""
     path = rel(path)
     full = os.path.join(ROOT, path)
+    if warnings and hdrs is None:
+        warns = warns if warns is not None else cwarn.collect([(path, text, src)])[0]
+    else:
+        warns = None
     if text is None:
         text = open(full, encoding="utf-8", errors="replace").read()
     lines = text.split("\n")
@@ -450,9 +463,18 @@ def analyze(path, seg, text=None, uninit=False, src=None, hdrs=None, keep=False)
         if k is None:
             k = owner_of(i, code, defs, lines)
         if k is not None:
-            raw[k].append((idx, kind, True))
+            raw[k].append((idx, kind, True, None))
+    for w in warns or ():
+        if w["path"] != path:
+            continue  # a header's warning: counted, no site
+        i = w["line"] - 1
+        k = inside.get(i)
+        if k is None:
+            k = owner_of(i, split_comment(lines[i])[0], defs, lines)
+        if k is not None:
+            raw[k].append(((i,), "warning", False, f"{w['code']} {w['msg']}"))
     for k, d in enumerate(defs):
-        raw[k] += [((line - 1,), kind, False) for line, kind, _ in d.pop("untagged")]
+        raw[k] += [((line - 1,), kind, False, None) for line, kind, _ in d.pop("untagged")]
     unresolved = []
     for k, d in enumerate(defs):
         v = d["vram"] = resolve_vram(seg, d["name"], src or path)
@@ -462,18 +484,24 @@ def analyze(path, seg, text=None, uninit=False, src=None, hdrs=None, keep=False)
         d["fp_hdr"] = hdr
         d["fp_hdr2"] = scope.fp_hdr2(body_names(by_line, d), hdr)
         seen = collections.Counter()
-        for idx, kind, tagged in sorted(raw[k], key=lambda r: (r[0][0], not r[2])):
-            h = ledger.sha1(norm(lines[j] for j in idx))[:6]
-            if not tagged:
-                h = "u" + h[1:]
+        for idx, kind, tagged, warning in sorted(raw[k], key=lambda r: (r[0][0], not r[2])):
+            if warning is not None:
+                h = ledger.sha1(f"{warning.split(' ', 1)[0]}\0" + norm(lines[j] for j in idx))[:6]
+            else:
+                h = ledger.sha1(norm(lines[j] for j in idx))[:6]
+                if not tagged:
+                    h = "u" + h[1:]
             seen[(kind, h)] += 1
             n = seen[(kind, h)]
             key = None if v is None else f"{seg}:{v:08X}:{kind}:{h}" + (f"#{n}" if n > 1 else "")
             d["sites"].append(dict(key=key, kind=kind, line=idx[0] + 1, lines=list(idx), tagged=tagged,
                                    code=lines[idx[0]].strip(), name=d["name"]))
+            if warning is not None:
+                d["sites"][-1]["warning"] = warning
     unin = [(f, var, line) for (f, var), line in clint.uninit(path, tu).items()] if uninit else []
     out = dict(path=path, seg=seg, fp_hdr=hdr, functions=defs, unresolved=unresolved, uninit=unin,
-               text=dict(text_metrics(text)), errors=tu.diagnostics_errors)
+               text=dict(text_metrics(text)), errors=tu.diagnostics_errors,
+               warnings=None if warns is None else len(warns))
     if keep:
         out.update(tu=tu, scope=scope, toks=toks, by_line=by_line)
     return out
@@ -484,7 +512,8 @@ def _analyze_job(job):
 
 
 def analyze_many(paths, uninit=False):
-    jobs = [(p, seg_of(p), None, uninit) for p in paths]
+    warns = cwarn.collect([(p, None, None) for p in paths])
+    jobs = [(p, seg_of(p), None, uninit, None, None, False, w) for p, w in zip(paths, warns)]
     if len(jobs) <= 2:
         return [_analyze_job(j) for j in jobs]
     with multiprocessing.get_context("spawn").Pool(min(os.cpu_count() or 4, len(jobs))) as pool:
@@ -603,7 +632,7 @@ def ladder(site, events, now_fp):
     marks, last = {}, {}
     for m in dict.fromkeys([*LADDER[kind], *(e["method"] for e in evs)]):
         marks[m], last[m], _ = mark(evs, m, now_fp, name)
-    term = {"dead-if": "classify", "goto": "goto-hand"}.get(kind)
+    term = {"dead-if": "classify", "goto": "goto-hand", "warning": "retype"}.get(kind)
     kept = bool(term) and marks.get(term) == "✓" and last[term]["outcome"] == "kept"
     shown = {m: marks[m] for m in LADDER[kind]}
     if kind == "proto-type":
@@ -631,7 +660,8 @@ def function_state(fn, by_site, by_func):
     waived = vf and ve["outcome"] == "blocked" and bool(ve["note"])
     sites = [(s, ladder(s, by_site.get(s["key"], []), fp)) for s in fn["sites"]]
     open_ = [(s, r) for s, r in sites if not r["done"] and not (s["kind"] == "proto-type" and waived)]
-    rec = mark(fevs, "reconstruct", fp, name)[0] if sum(not r["kept"] for _, r in sites) >= 3 else None
+    rec = (mark(fevs, "reconstruct", fp, name)[0]
+           if sum(not r["kept"] for s, r in sites if s["kind"] != "warning") >= 3 else None)
     nxt = ("review" if review != "✓" else open_[0][1]["next"] if open_
            else "reconstruct" if rec not in (None, "✓") else None)
     return dict(done=nxt is None, next=nxt, review=review, reconstruct=rec, sites=sites, open=open_, waived=waived)
@@ -753,7 +783,10 @@ def plan_file(an, path, src, pool):
         jobs.append((method, [s["key"] for s, _ in group], pool.submit(fn, text, *args), text))
 
     for fn in an["functions"]:
-        rem = [(s, e) for s in fn["sites"] if (e := remove_edit(s, lines, fn)) is not None]
+        sites = [s for s in fn["sites"] if s["kind"] != "warning"]  # retype is an agent method
+        if not sites:
+            continue
+        rem = [(s, e) for s in sites if (e := remove_edit(s, lines, fn)) is not None]
         for c in combos(rem) if rem else ():
             submit("remove", c, check, apply(lines, merged(c)), path, src)
         flips = 0
@@ -771,7 +804,7 @@ def plan_file(an, path, src, pool):
         for s, _ in rem:
             tried[(s["key"], "remove")] = None
             tried[(s["key"], "cond")] = None if flips else "no flips"
-        for s in fn["sites"]:
+        for s in sites:
             i = s["lines"][0]
             if s["kind"] in PLAIN_KINDS:
                 code, cm = split_comment(lines[i])
@@ -837,7 +870,9 @@ def cmd_sweep(a):
             src = rel(a.copy_of) if a.copy_of else path
             an = analyze(path, seg_of(src), src=src)
             require_resolved([an])
-            if not any(fn["sites"] for fn in an["functions"]):
+            for s in (s for fn in an["functions"] for s in fn["sites"] if s["kind"] == "warning"):
+                print(f"WARN {s['key']} line {s['line']} [W{s['warning']}]")  # keys of the copy's warning sites
+            if not any(s["kind"] != "warning" for fn in an["functions"] for s in fn["sites"]):
                 print(f"{path}: no sites")
                 continue
             rc = fdiff(path, src)
@@ -848,7 +883,7 @@ def cmd_sweep(a):
         for p in plans:
             out, hits, checks = finish(p)
             an = p["an"]
-            sites = {s["key"]: (fn, s) for fn in an["functions"] for s in fn["sites"]}
+            sites = {s["key"]: (fn, s) for fn in an["functions"] for s in fn["sites"] if s["kind"] != "warning"}
             print(f"{p['path']}: {len(sites)} sites, {checks} checks, {len(hits)} hits")
             for keys, method, text in hits:
                 hp = write_hit(an["seg"], p["src"], text)
@@ -902,11 +937,23 @@ def validate(key, method, outcome, o):
         return f"unknown outcome {outcome!r} (one of {' '.join(OUTCOMES)})"
     if method in FUNC_ONLY and not fk:
         return f"{method} is function-level: key func:<seg>:<name>"
+    warn_site = bool(sk) and sk.group(3) == "warning"
+    if warn_site and method != "retype":
+        return "warning sites take only retype"
+    if method == "retype":
+        if not warn_site:
+            return "retype needs a warning site key"
+        if outcome not in ("fixed", "kept", "blocked"):
+            return "retype outcome is fixed, kept or blocked"
+        if outcome == "kept" and not re.search(r"\bfdiff=[13]\b", note):
+            return "retype kept needs note with fdiff=<1|3> of the attempted fix"
+        if outcome == "blocked" and not note.strip():
+            return "retype blocked needs a note naming the missing header/owner change"
     if fk and method not in FUNC_ONLY and method != "reconstruct":
         return f"{method} needs a site key"
-    if outcome == "kept" and not ((method == "classify" and "class 1" in note) or
-                                  (method == "goto-hand" and "Q0591" in note)):
-        return "kept is only for classify (note \"class 1\") or goto-hand (note citing Q0591)"
+    if outcome == "kept" and method != "retype" and not ((method == "classify" and "class 1" in note) or
+                                                         (method == "goto-hand" and "Q0591" in note)):
+        return "kept is only for classify (note \"class 1\"), goto-hand (note citing Q0591) or retype"
     if method == "diagnose" and not o["quirks"]:
         return "diagnose needs quirks=Q1,Q2"
     if method == "permute" and (o["base"] is None or o["best"] is None
@@ -1032,7 +1079,8 @@ def cmd_status(a):
                 state = ("EXHAUSTED" if r["done"] else "WAIVED (views blocked)"
                          if s["kind"] == "proto-type" and st["waived"] else f"OPEN next={r['next']}")
                 marks = " ".join(f"{m}={v}" for m, v in r["marks"].items())
-                print(f"  {s['key']} line {s['line']} {s['kind']} {marks} {state} | {s['code'][:70]}")
+                code = f"[W{s['warning']}] {s['code']}"[:100] if s["kind"] == "warning" else s["code"][:70]
+                print(f"  {s['key']} line {s['line']} {s['kind']} {marks} {state} | {code}")
 
 
 def cmd_rank(a):
@@ -1451,7 +1499,9 @@ def _carve_job(job):
     r = subprocess.run(["git", "show", f"{rev}:{path}"], cwd=ROOT, capture_output=True, text=True)
     if r.returncode:
         return [], []  # no events can be fresh at REV
-    old, new = analyze(path, seg, text=r.stdout, hdrs=hdrs, keep=True), analyze(path, seg, keep=True)
+    # REV's headers cannot be compiled, and retype (the warning method) is not carried here
+    old = analyze(path, seg, text=r.stdout, hdrs=hdrs, keep=True, warnings=False)
+    new = analyze(path, seg, keep=True, warnings=False)
     shadow = sorted({rel(i.include.name) for i in old["tu"].get_includes()} & added)
     if shadow:
         return [], [f"{path}: includes {shadow[0]} at {rev}, added since"]
@@ -1557,9 +1607,11 @@ def cmd_carry(a):
     print(f"carried {len(out)} events from {a.rev} to {rel(LEDGER)}")
 
 
-TEXT_ROWS = ["FAKE", *(f"FAKE {k}" for k in KINDS if k not in ("goto", "proto-type")), "LAYOUT", "goto", "proto-type"]
+TEXT_ROWS = ["FAKE", *(f"FAKE {k}" for k in KINDS if k not in ("goto", "proto-type", "warning")), "LAYOUT", "goto",
+             "proto-type"]
 ROWS = TEXT_ROWS + ["protos mismatch", "sites open", "sites exhausted", "functions", "reviewed",
-                    "exhausted functions", "uninit warnings", "func_ defs", "m2c names", "unk fields", "D_ refs"]
+                    "exhausted functions", "uninit warnings", "cfe warnings", "func_ defs", "m2c names", "unk fields",
+                    "D_ refs"]
 
 
 def baseline(rev):
@@ -1587,6 +1639,7 @@ def cmd_report(a):
         c = cols[an["seg"]]
         c.update(an["text"])
         c["uninit warnings"] += len(an["uninit"])
+        c["cfe warnings"] += an["warnings"]
         for fn in an["functions"]:
             st = function_state(fn, by_site, by_func)
             m = fn["metrics"]
