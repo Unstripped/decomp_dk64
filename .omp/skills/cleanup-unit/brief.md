@@ -22,7 +22,10 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
 - NEVER run `tools/dk make` (any target), `make split`, splat, `./diff.sh`, `make expected`.
   A `dk: waiting for ... lock` pause is normal: wait. Never kill by pattern.
 - No read left uninitialised: `uv run tools/clint.py uninit .scratch/<You>/<file>.c --base <src>`
-  must exit 0 before you report.
+  must exit 0 before you report. A read uninitialised in the ORIGINAL control flow (a switch
+  without default, a pointer first set on a loop's first pass) that cannot be initialised without
+  changing codegen is not a blocker: `review nohit` with `uninit=<n> pre-existing (original control
+  flow)`. `review blocked` only when another workstream must deliver something (header, owner type).
 - Never swap a hack for another hack. A new `// FAKE` only when the file's net tag count
   strictly drops.
 - Drop a tag only from a construct that is ordinary C (a named temp, normal statement order).
