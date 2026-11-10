@@ -1,7 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/15050.h"
@@ -157,8 +155,6 @@ typedef struct ProjectileState {
     u8 unk11;
 } ProjectileState;
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void projectileSpriteRingUpdate(void) {
     ProjectileState *sub;
@@ -283,8 +279,6 @@ extern void *D_807502C0[];
 extern u8 D_8071FBA0;
 extern u32 gGameFrameCounter;
 extern u8 D_807FBB85;
-void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
-void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 
 #define G_ACTOR ((ProjectileActor *)gCurrentActor)
 

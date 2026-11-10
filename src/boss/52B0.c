@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
 #include "proto/boss/3840.h"
 #include "proto/boss/52B0.h"
@@ -54,7 +53,6 @@ void bossMadJackSpawnShockwave(f32 scale) {
 }
 
 
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void bossMadJackSpawnSparkles(void) {
     randomNonNegative();

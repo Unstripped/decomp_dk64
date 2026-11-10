@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_texCacheFindOrLoad // FAKE: callee prototype steer
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
@@ -357,7 +356,6 @@ Gfx *textBoxRender(Gfx *arg0, Actor *arg1) {
     return arg0;
 }
 
-void *effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern void *D_80755390[];
 
 typedef struct SpriteObject {

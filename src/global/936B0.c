@@ -2,7 +2,6 @@
 
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_lensFlareAddSource // FAKE: callee prototype steer
 #define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
@@ -906,7 +905,6 @@ typedef struct {
     u8 unk11;
 } ProjectileTrackerSub174;
 extern s32 gCamActor;
-void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 extern u8 D_80750AD0;
 
 void projectileGetTargetCoords(Actor *actor, s32 node) {

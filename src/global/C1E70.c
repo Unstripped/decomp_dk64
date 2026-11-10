@@ -2,7 +2,6 @@
 #include "actor.h"
 #define PROTO_SKIP_actorScriptStart // FAKE: callee prototype steer
 #define PROTO_SKIP_actorSpawn // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -231,7 +230,6 @@ extern s16 D_80750684[];
 extern R1C0C1Blob8 D_807506B8;
 extern u8 D_80720A7C;
 
-void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 void func_806BD7B0(void) {
     R1C0C1Sub174 *st = gCurrentActor->customState;

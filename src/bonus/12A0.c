@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
 #include "proto/bonus/12A0.h"
 #include "proto/global/1025E0.h"
@@ -87,7 +86,6 @@ u8 bonusGetReelSymbol(LB3Obj *obj, u8 reelIndex) {
     return D_8002D8B0[idx][obj->act[idx]->unk15F];
 }
 
-s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern void *D_8074E880[];
 
 void bonusSpawnEffectBurst(s16 x, s16 y, s16 z, s16 count) {

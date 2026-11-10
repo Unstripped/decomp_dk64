@@ -2,8 +2,6 @@
 #include "actor.h"
 #define PROTO_SKIP_behaviourSpawnExplosionAndSound // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_camIsCutsceneActive // PROTO: Type BehaviourWorkState *  of this argument  is incompatible
-#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -73,7 +71,6 @@ extern u8 D_8072073C[];
 extern s16 D_80750340;
 
 f32 mathSinF(s16);
-void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 f32 sqrtf(f32);
 
 void func_806B2790(void) {
@@ -541,7 +538,6 @@ s32 actorFlyTowardPosition(B7490Pos *targetPos, u8 action) {
     return actorMoveWithinZone(action, targetPos->x, targetPos->z, 0x2E0, 0.0f);
 }
 
-void effectSetColor(u8, u8, u8, u8); // FAKE: callee prototype steer
 
 void actorSpawnPeriodicBoneEffect(void) {
     u8 col2;

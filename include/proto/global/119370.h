@@ -51,7 +51,7 @@ void effectSetMaxDistance(s16);
 void effectSetDepth(u8);
 #endif
 #ifndef PROTO_SKIP_effectSetColor
-void effectSetColor(s8, s8, s8, s8);
+void effectSetColor(u8, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_effectSetDuration
 void effectSetDuration(s32);
@@ -81,7 +81,7 @@ void effectCreateAtModelNode(void *, f32, s32, s32, u8);
 void *effectCreateAtActorBone(void *, f32, void *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_effectCreateAtPosition
-void effectCreateAtPosition(s32, f32, f32, f32, f32);
+void *effectCreateAtPosition(void *, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_effectCreate
 struct EffectNode *effectCreate(s32, f32, f32, f32, f32, void *, s32, s32, u8);

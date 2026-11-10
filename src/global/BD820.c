@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/12E800.h"
@@ -41,7 +40,6 @@ typedef struct BD820View9C {
 extern void *D_8074E880[];
 extern u8 sEffectSparkConfig[];
 
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 lifetime) {
     effectSetCallback(effectWispWanderUpdate);

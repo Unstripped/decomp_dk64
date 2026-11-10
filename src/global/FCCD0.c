@@ -1,7 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -780,8 +778,6 @@ typedef struct SlotQueueEffectNode {
     void *unk8;
 } SlotQueueEffectNode;
 
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-void *effectCreateAtPosition(s32, f32, f32, f32, f32);
 
 void effectSpawnSprite(void *arg0, s32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     u8 unused_byte;

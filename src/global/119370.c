@@ -210,7 +210,7 @@ void effectSetDepth(u8 val) {
     sEffectPendingDepth = val;
 }
 
-void effectSetColor(s8 r, s8 g, s8 b, s8 a) {
+void effectSetColor(u8 r, u8 g, u8 b, u8 a) {
     sEffectPendingColorR = r;
     sEffectPendingColorG = g;
     sEffectPendingColorB = b;
@@ -301,8 +301,8 @@ void *effectCreateAtActorBone(void *asset, f32 scale, void *actor, s32 boneIndex
     effectCreate((s32)asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, (s32) flags);
 }
 
-void effectCreateAtPosition(s32 asset, f32 scale, f32 x, f32 y, f32 z) {
-    effectCreate(asset, scale, x, y, z, NULL, 0, 0, 0);
+void *effectCreateAtPosition(void *asset, f32 scale, f32 x, f32 y, f32 z) {
+    return effectCreate((s32)asset, scale, x, y, z, NULL, 0, 0, 0);
 }
 
 extern s32 gGlobalOverlayFlags;

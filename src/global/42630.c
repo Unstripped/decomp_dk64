@@ -2,7 +2,6 @@
 #include "actor.h"
 #include "cutscene.h"
 #define PROTO_SKIP_camStartPath // FAKE: callee prototype steer
-#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #define PROTO_SKIP_flagGet // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_hudSpawnCountdownTimer // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_modelAnimEntrySetUnkC // FAKE: callee prototype steer
@@ -2496,7 +2495,6 @@ void csSetPos(s16 modeAndAxis, s16 posValue, void *cs, s16 csId, u8 isRelative) 
     }
 }
 
-void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 extern u8 D_8071FC58[];
 
 void csCmdSpawnSparkAndLight(CsState *cs, s16 csId, s16 b, s16 c) {

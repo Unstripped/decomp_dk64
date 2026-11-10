@@ -1,8 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type vo
-#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -176,8 +174,6 @@ extern s32 gFrameCounter;
 extern s32 sEffectSparkConfig;
 extern ActorGlobalState gActorGlobalState;
 
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 
 void func_806A1AC4(void) {
     f32 driftSpeed;

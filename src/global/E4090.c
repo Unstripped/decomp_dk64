@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_camSetZoomLevel // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
 #define PROTO_SKIP_modelSlotGetType // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
@@ -2155,7 +2154,6 @@ extern s32 D_8076A094;
 extern u8 D_8076A0B2;
 extern f32 D_807536AC[];
 extern u8 D_8072014C[];
-void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 
 s32 playerInputCheckMultiplayerPlayerTarget() {
     s32 i;

@@ -5,8 +5,6 @@
 #define PROTO_SKIP_actorSpawnNodeEntryScaled // FAKE: callee prototype steer
 #define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #define PROTO_SKIP_animGetNodeByIndex // PROTO: 'unkC' undefined; reoccurrences will not be reported.
-#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_playerStateQueueCallback // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -927,8 +925,6 @@ typedef struct {
     u8 padC[0x24];
 } NodePosition;
 
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 extern void *gCamActor;
 extern u8 gBossFightPhase;
 extern f32 D_80750398;

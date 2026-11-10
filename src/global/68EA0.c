@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/15050.h"
@@ -161,7 +160,6 @@ void actorUpdateEntryEmitters(void) {
 }
 
 
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 extern u8 D_807213D0;
 

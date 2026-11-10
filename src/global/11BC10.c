@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
 #define PROTO_SKIP_lightSetFlags // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/119370.h"
@@ -1695,7 +1694,6 @@ typedef struct SparkSpawnActorView {
     u8 brightness;
 } SparkSpawnActorView;
 
-void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
 extern u8 sEffectSparkConfig;
 
 void effectSparkSpawnUpdate(SparkSpawnActorView *effect, s8 *isDone) {

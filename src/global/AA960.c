@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_actorListLookupEntry // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -53,7 +52,6 @@ extern u8 D_80720A58[];
 extern u8 D_807211D0[];
 extern u8 D_80721378[];
 
-void effectSetColor(s32, s32, s32, u8); // FAKE: callee prototype steer
 
 void sfxSpawnTableNodes(Actor *actor) {
     s32 i;

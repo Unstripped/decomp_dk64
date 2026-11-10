@@ -4,7 +4,6 @@
 #define PROTO_SKIP_actorUpdateCollisionSpheres // PROTO: not a function here
 #define PROTO_SKIP_eepromGetField // FAKE: callee prototype steer
 #define PROTO_SKIP_eepromSetCurrentSlot // FAKE: callee prototype steer
-#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_func_807144B8 // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -795,7 +794,6 @@ void menuInitFileSelect(Actor *actor, s32 unused) {
 
 extern u8 D_8071FBC8;
 extern u8 D_8071FE08;
-void *effectCreateAtPosition(void *, f32, f32, f32, f32);
 void eepromSetCurrentSlot(u8, s32); // FAKE: callee prototype steer
 extern s8 D_80033FAC;
 

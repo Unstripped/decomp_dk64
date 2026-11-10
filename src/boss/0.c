@@ -1,6 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/boss/0.h"
 #include "proto/boss/3840.h"
 #include "proto/global/119370.h"
@@ -30,8 +28,6 @@ extern u8 effectDecelDriftFadeUpdate;
 extern u8 sEffectSparkConfig;
 
 void tagBarrelSpawnNodeSmokePuffs(void *, s32, f32);
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 
 void bossArmydilloSpawnSmoke(void) {
     BossByteTable6 smokeBones;

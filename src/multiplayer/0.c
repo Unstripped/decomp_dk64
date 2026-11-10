@@ -1,9 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_actorResolveKillCreditOwner // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_func_806F54E0 // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -567,7 +565,6 @@ extern u8 gPlayerCharacterId[];
 extern u8 D_8071F3C0;
 extern u8 D_807207BC;
 void effectFreeAndUnlink(s32); // FAKE: callee prototype steer
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 s32 mpUpdateScoreEffects(void) {
     s32 i;
@@ -885,7 +882,6 @@ void mpFreeHudIcons(MpControllerState *controllerState) {
     controllerState->unk70 = 0;
 }
 
-s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern s32 D_8076D1F8;
 extern u32 D_80767CC0;
 extern u64 D_807445B0;

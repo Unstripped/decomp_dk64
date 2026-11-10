@@ -5,8 +5,6 @@
 #define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
 #define PROTO_SKIP_actorTableContains // PROTO: shared header declares (void) params; this file passes an Actor *
 #define PROTO_SKIP_collisionCheckActorFloor // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_effectCreateAtPosition // PROTO: Improper cast of non-scalar type expression.
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/global/10D2D0.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -391,9 +389,7 @@ extern s16 D_807F5FEA;
 extern s32 D_80720020;
 
 void func_80026D40(void *, u8);
-void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
 f32 sqrtf(f32);
-s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 void playerUpdateCommon(s32 mode) {
     f32 dy;
@@ -697,7 +693,6 @@ extern s32 gCurrentMap;
 extern u8 D_807463B8;
 extern s32 D_8071FB08;
 extern s32 sEffectSparkConfig;
-s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 void playerUpdateScaleAndPhysics(void) {
     s32 padHintTimer;

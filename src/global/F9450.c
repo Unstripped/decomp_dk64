@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #define PROTO_SKIP_func_806F54E0 // FAKE: callee prototype steer
 #include "proto/global/104F0.h"
 #include "proto/global/117190.h"
@@ -1345,7 +1344,6 @@ s32 listContainsS16(s16 value) {
 }
 
 
-void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 extern u8 D_8071FC58;
 extern u8 func_8071C48C;
 extern u8 func_8071C620;

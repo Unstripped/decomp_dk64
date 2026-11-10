@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_sfxStopSlotSound // FAKE: callee prototype steer
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -336,7 +335,6 @@ void raceUpdateOrientation(RacePathState *pathState) {
     gCurrentActor->unkE4 &= 0xFFF;
 }
 
-s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, u8 spawnSparks) {
     s32 count;

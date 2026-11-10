@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_collisionCheckActorFloor // FAKE: callee prototype steer
-#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #define PROTO_SKIP_zoneCheckActorInside // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -347,7 +346,6 @@ typedef struct D1ActorView3 {
 
 extern u8 D_80720120[];
 extern u16 D_80744508;
-s32 effectCreateAtPosition(void *, f32, f32, f32, f32);  // FAKE: callee prototype steer
 
 void behaviourCheckGroundImpactEffects(void) {
     if (D1A3->unk5C & 2) {

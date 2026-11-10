@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/12E800.h"
@@ -73,7 +72,6 @@ extern s32 gCamActor;
 extern BA790Actor *D_807FBD6C;
 extern u8 D_80720630;
 
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 s32 func_806B5A90(s32 aggroRange, s32 unused) {
     u8 ret;

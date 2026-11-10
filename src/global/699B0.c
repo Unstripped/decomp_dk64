@@ -1,7 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/166A0.h"
@@ -64,8 +62,6 @@ extern u32 gFrameCounter;
 extern s32 D_8072140C;
 extern s32 D_8071FF18;
 
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 
 void particleSpawnPathTrail(void) {
     s32 i;

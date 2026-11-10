@@ -3,7 +3,6 @@
 #include "sched.h"
 #define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
 #define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type void  of function prototype description
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_playerApplyGravityAndMotion // PROTO: Type Actor *  of this argument  is incompatible with type void  of function prototype description
 #define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
@@ -2336,7 +2335,6 @@ void playerStateSwimDrift(void) {
 extern s32 gGlobalCutsceneFlags;
 extern f32 gKongSwimStrokeSpeeds[];
 extern f32 D_80753094[];
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void playerStateSwimStroke(void) {
     u8 flag;

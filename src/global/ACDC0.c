@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_hudPauseMenuRefreshTotals // PROTO: Type s8 [2] of this argument  is incompatible with type void
 #define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
 #define PROTO_SKIP_mapGetWorldIndex // FAKE: callee prototype steer
@@ -132,7 +131,6 @@ extern HudPlayerView *gPlayerSlots;
 extern s8 D_8076A105;
 
 Gfx *renderRotatedSprite(Gfx *, s32, s32, u8, s32, s32, s32, s32, f32, f32, s32, f32); // FAKE: callee prototype steer
-HudTextObj *effectCreateAtPosition(s32, f32, f32, f32, f32);
 f32 sqrtf(f32);
 
 s32 hudFindItemIndex(s8 itemId) {

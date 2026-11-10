@@ -1,8 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_actorSpawn // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxPlayAtPositionPooled // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetDepth // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
@@ -61,8 +59,6 @@ extern s32 D_80721158;
 extern s32 D_8072139C;
 
 s32 actorSpawn();
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-Actor338 *effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 void effectSpawnActorBone(s32 lifetime, u8 bone, f32 scale) {
     effectSetDepth(1);

@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/boss/3840.h"
 #include "proto/boss/6240.h"
 #include "proto/global/119370.h"
@@ -131,7 +130,6 @@ void bossPufftossNotifyLaser(u8 targetIndex) {
 
 extern u8 D_80720120[];
 
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void bossPufftossSpawnGlow(u8 sparkleInterval, f32 scale) {
     if (!(sparkleInterval & gFrameCounter)) {

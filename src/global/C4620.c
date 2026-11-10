@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_actorSub140CreateFromModel // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
@@ -336,7 +335,6 @@ extern u8 D_80747B00[];
 extern void *sScriptEffectSprites[];
 extern LgBFDCA0 *D_807FDCA0;
 
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void actorScriptedCommandUpdate(void) {
     s16 j;
@@ -884,7 +882,6 @@ void func_806C1734(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 extern Actor *gBehaviourTargetActor;
 extern u8 D_8071FBA0;
 

@@ -2,8 +2,6 @@
 #include "actor.h"
 #include "cutscene.h"
 #define PROTO_SKIP_collisionCheckGroundAtPoint // FAKE: callee prototype steer
-#define PROTO_SKIP_effectCreateAtPosition // PROTO: Improper cast of non-scalar type expression.
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #include "proto/global/114270.h"
 #include "proto/global/119370.h"
@@ -60,8 +58,6 @@ typedef struct CsPlayerSlot {
 extern CsPlayerSlot *gPlayerSlots;
 extern u8 D_8071FF18[];
 extern u8 sEffectSparkConfig[];
-void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
-void *effectCreateAtPosition(void *, f32, f32, f32, f32);
 u8 collisionCheckGroundAtPoint(f32, f32, f32 *);  // FAKE: callee prototype steer
 f32 mathCosF(s16);
 f32 mathSinF(s16);
