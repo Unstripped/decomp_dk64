@@ -6,6 +6,7 @@
 #include "proto/global/17B90.h"
 #include "proto/global/35000.h"
 #include "proto/global/8CA50.h"
+#include "proto/global/CEAE0.h"
 #include "proto/minecart/0.h"
 #include "proto/minecart/25F0.h"
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -187,7 +188,6 @@ void actorDespawn(void *);
 void actorApplyGravity(void);
 void actorApplyVelocity(void *);
 void actorUpdateFloorContactAndTilt(void *, f32);
-s32 mathAngleDistance(s16, s16);
 s32 playerStateQueueCallback(s16, void *, u8);
 
 void minecartFollowerBehaviour(void) {
