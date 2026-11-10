@@ -896,11 +896,6 @@ void playerApplyCharacterModel(void *arg) {
     G01A->unk4->unk1C = heapAlloc(0x100);
     *G01A->unk4->unk1C = 0;
     G01A->unk4->unk20 = heapAlloc(0x100);
-    if (1) {}
-    if (1) {}
-    if (1) {}
-    if (1) {}
-    if (1) {}
     *G01A->unk4->unk20 = 0xFF;
     G01A->unk4->unk24 = heapAlloc(0x100);
     *G01A->unk4->unk24 = 0xFF;
