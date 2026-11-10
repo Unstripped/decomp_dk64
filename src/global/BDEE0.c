@@ -18,7 +18,6 @@
 #include "proto/global/89250.h"
 #include "proto/global/AA960.h"
 #include "proto/global/B1F60.h"
-#define PROTO_SKIP_actorSpawnJitteredChild
 #include "proto/global/BDEE0.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"

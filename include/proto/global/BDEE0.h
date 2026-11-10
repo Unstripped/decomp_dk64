@@ -2,6 +2,7 @@
 #ifndef PROTO_GLOBAL_BDEE0_H
 #define PROTO_GLOBAL_BDEE0_H
 #include "common.h"
+#include "actor.h"
 #ifndef PROTO_SKIP_behaviourArmadilloPatrol
 void behaviourArmadilloPatrol(void);
 #endif
@@ -36,7 +37,7 @@ void behaviourFairyUpdate(void);
 void behaviourFairyInitPlayerScale(void);
 #endif
 #ifndef PROTO_SKIP_actorSpawnJitteredChild
-s32 actorSpawnJitteredChild(u8, s16, s16, s32);
+s32 actorSpawnJitteredChild(u8, s16, s16, Actor *);
 #endif
 #ifndef PROTO_SKIP_behaviourFairyPlaySound
 void behaviourFairyPlaySound(void);
