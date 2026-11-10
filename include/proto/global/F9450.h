@@ -2,11 +2,10 @@
 #ifndef PROTO_GLOBAL_F9450_H
 #define PROTO_GLOBAL_F9450_H
 #include "common.h"
-struct F9A_DestinationNode;
-struct F9A_SourceNode;
-struct F9F1_Node;
-struct F9F1_Rect;
-struct F9N2At58;
+#include "actor.h"
+struct GridActiveNode;
+struct GridBounds;
+struct GridNode;
 #ifndef PROTO_SKIP_gridRebuildNodeLists
 void gridRebuildNodeLists(void);
 #endif
@@ -38,7 +37,7 @@ void gridFreeAllNodeLists(void);
 void gridFreeAllActiveNodes(void);
 #endif
 #ifndef PROTO_SKIP_func_806F53EC
-struct F9A_DestinationNode *func_806F53EC(struct F9A_SourceNode *);
+struct GridActiveNode *func_806F53EC(struct GridNode *);
 #endif
 #ifndef PROTO_SKIP_gridAdjustActorCollisionType
 s32 gridAdjustActorCollisionType(s32, s32, u8);
@@ -50,16 +49,16 @@ void cutsceneStartFlag16CPath(void);
 void func_806F54E0(u8, s32, u8);
 #endif
 #ifndef PROTO_SKIP_func_806F58A0
-void func_806F58A0(u8, s16, struct F9N2At58 *);
+void func_806F58A0(u8, s16, Actor *);
 #endif
 #ifndef PROTO_SKIP_func_806F5A48
-void func_806F5A48(u8, s16, struct F9N2At58 *, u16);
+void func_806F5A48(u8, s16, Actor *, u16);
 #endif
 #ifndef PROTO_SKIP_actorTypeIsRespawnPickup
 s32 actorTypeIsRespawnPickup(s32);
 #endif
 #ifndef PROTO_SKIP_func_806F5CE4
-s32 func_806F5CE4();
+s32 func_806F5CE4(s32);
 #endif
 #ifndef PROTO_SKIP_func_806F5D80
 void func_806F5D80(s32 *, s32 *);
@@ -83,10 +82,10 @@ void func_806F5FE8(s32, s16, s16, s16, s32);
 void delayedSpawnQueueTick(void);
 #endif
 #ifndef PROTO_SKIP_func_806F6204
-void func_806F6204(struct F9F1_Node *, u8, struct F9F1_Rect *);
+void func_806F6204(struct GridNode *, u8, struct GridBounds *);
 #endif
 #ifndef PROTO_SKIP_gridDispatchRect
-void gridDispatchRect(u8, struct F9F1_Rect *);
+void gridDispatchRect(u8, struct GridBounds *);
 #endif
 #ifndef PROTO_SKIP_gridCheckNodeCondition
 s32 gridCheckNodeCondition(s16, u8, u16);
