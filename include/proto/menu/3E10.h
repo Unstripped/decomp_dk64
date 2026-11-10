@@ -213,7 +213,7 @@ void menuUpdateKioskActor(void);
 void menuUpdateKioskPodActor(void);
 #endif
 #ifndef PROTO_SKIP_menuCheckSaveFile
-s32 menuCheckSaveFile();
+s32 menuCheckSaveFile(s32);
 #endif
 #ifndef PROTO_SKIP_menuCalculateGamePercentage
 s32 menuCalculateGamePercentage(void);
