@@ -112,10 +112,10 @@ void actorSpawnAttachment(Actor *, f32);
 void effectSpawnKongRing(void);
 #endif
 #ifndef PROTO_SKIP_effectSpawnBoneSparkAttached
-void effectSpawnBoneSparkAttached();
+void effectSpawnBoneSparkAttached(u8);
 #endif
 #ifndef PROTO_SKIP_effectSpawnJointBeam
-void effectSpawnJointBeam();
+void effectSpawnJointBeam(u8, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_func_80687C48
 void func_80687C48(void);
