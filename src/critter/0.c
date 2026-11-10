@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #include "proto/critter/0.h"
 #include "proto/global/117190.h"
@@ -37,7 +38,7 @@ typedef struct CritterZone {
     /* 0x25 */ u8 near;
     /* 0x26 */ u8 alpha;
     /* 0x27 */ u8 pad27;
-    /* 0x28 */ s16 unk28;
+    /* 0x28 */ s16 chunkIdx;
     /* 0x2A */ u8 pad2A[2];
 } CritterZone;
 
@@ -78,7 +79,7 @@ typedef struct CritterObj {
     /* 0x1E2 */ u8 role;
     /* 0x1E3 */ u8 pad1E3;
     /* 0x1E4 */ u16 texId[2];
-    /* 0x1E8 */ s32 tex[2];
+    /* 0x1E8 */ void *tex[2];
 } CritterObj;
 
 typedef struct CritterGroup {
@@ -217,7 +218,8 @@ void critterInitGroupType2(CritterGroup *grp) {
     }
 }
 
-s32 assetLoad(s32, s32, s32, s32); // FAKE: callee prototype steer
+
+void *assetLoad(s32, s32, s32, s32); // FAKE: callee prototype steer (real: u32, u8, u8 args)
 
 void critterPlayAudio(CritterObj *obj) {
     s32 i;
@@ -237,7 +239,7 @@ void critterStopAudio(CritterObj *obj) {
     s32 i;
 
     for (i = 0; i < 2; i++) {
-        s32 val = obj->tex[i];
+        void *val = obj->tex[i];
         if (val != 0) {
             assetFreeBuffer(val, 0x179, 0x5A);
             obj->tex[i] = 0;
@@ -295,7 +297,7 @@ extern Vtx D_80029870;
 extern Vtx D_800298D0;
 extern Vtx D_800298E0;
 extern Gfx D_80029B40;
-extern s32 critterCurrentTexture;
+extern void *critterCurrentTexture;
 
 Gfx *func_800247F4(Gfx *gdl, CritterObj *obj) {
     f32 rotMtx[4][4];
@@ -418,7 +420,6 @@ void critterUpdateObjType2(CritterObj *obj) {
     critterUpdateAudio(obj);
 }
 
-extern s32 critterCurrentTexture;
 extern u8 gGfxBufferIndex;
 extern Vtx D_80029940[];
 extern Vtx D_80029980[];
@@ -566,7 +567,7 @@ extern Gfx D_80029B88;
 extern s32 gMapChunkCount;
 
 Gfx *critterRenderGroup(Gfx *gdl, CritterGroup *grp) {
-    s32 col;
+    s32 pad;
     s32 i;
     CritterObj *obj;
     u8 r;
@@ -598,7 +599,7 @@ Gfx *critterRenderGroup(Gfx *gdl, CritterGroup *grp) {
     if (grp->count > 0) {
         do {
             if (gMapChunkCount != 0) {
-                lightSampleColorAtPosition(obj->x, obj->y, obj->z, 0, &r, &g, &b, obj->homeZone->unk28);
+                lightSampleColorAtPosition(obj->x, obj->y, obj->z, 0, &r, &g, &b, obj->homeZone->chunkIdx);
             } else {
                 r = 0xFF;
                 g = 0xFF;
@@ -679,14 +680,7 @@ void critterPlaceInZone(CritterZone *zone, CritterObj *obj, u8 isRandom) {
     obj->z += (f32)zone->z;
 }
 
-typedef struct CritterPlayer {
-    /* 0x00 */ u8 pad0[0x7C];
-    /* 0x7C */ f32 x;
-    /* 0x80 */ f32 y;
-    /* 0x84 */ f32 z;
-} CritterPlayer;
-
-extern CritterPlayer *gActivePlayerActor;
+extern Actor *gActivePlayerActor;
 extern CritterZone *critterPlayerZone;
 
 void critterUpdateZoneProximity(CritterObj *obj) {
@@ -1077,7 +1071,7 @@ void critterLoadData(u8 *data) {
                     }
                     memcpy(ent, src, 0x20);
                     if (gMapChunkCount != 0) {
-                        ent->unk28 = mapChunkFindByPosition((f32)ent->x, (f32)ent->y, (f32)ent->z, 0);
+                        ent->chunkIdx = mapChunkFindByPosition((f32)ent->x, (f32)ent->y, (f32)ent->z, 0);
                         ent->frame = 0xFF;
                     }
                     j++;
