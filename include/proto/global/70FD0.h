@@ -6,7 +6,9 @@
 #include "heap.h"
 struct ActorFacingWork;
 struct ActorHitPlane;
+struct ActorHitView;
 struct ActorPlaneContactView;
+struct ActorSphereUpdateView;
 struct ActorSub140PointView;
 struct ActorTargetBounds;
 struct ActorTargetWork;
@@ -146,7 +148,7 @@ void actorQueueCollisionCallbacks(struct CollisionActor *);
 u8 actorCollideModelSlots(struct CollisionActor *, s16 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_actorBuildCollisionHit
-void actorBuildCollisionHit();
+void actorBuildCollisionHit(s32, struct ActorHitView *, struct CollisionBox *);
 #endif
 #ifndef PROTO_SKIP_actorReflectCollisionAngle
 void actorReflectCollisionAngle(struct CollisionActor *, struct CollisionPlane *, struct CollisionVec3i *);
@@ -179,13 +181,13 @@ void actorUpdateCollisionExtents(struct ActorTargetWork *);
 void actorUpdateSubActorOffsets(struct ActorTargetWork *, u8);
 #endif
 #ifndef PROTO_SKIP_actorComputeBoxNormal
-void actorComputeBoxNormal();
+void actorComputeBoxNormal(struct ActorTargetWork *, f32 *, f32 *, f32 *, u8);
 #endif
 #ifndef PROTO_SKIP_actorGetPlayerThreshold
 s32 actorGetPlayerThreshold(struct ActorTargetWork *);
 #endif
 #ifndef PROTO_SKIP_actorUpdateCollisionSpheres
-void actorUpdateCollisionSpheres();
+void actorUpdateCollisionSpheres(struct ActorSphereUpdateView *, u8);
 #endif
 #ifndef PROTO_SKIP_actorUpdateNodePositions
 void actorUpdateNodePositions(struct ActorSub140PointView *, u8);
@@ -206,31 +208,31 @@ s32 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, u8, u16);
 u8 collisionTestSphereSlots(f32, f32, f32, f32, s16 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_func_80672134
-s16 func_80672134();
+s16 func_80672134(s16, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_actorCheckPointInAngleArc
 s32 actorCheckPointInAngleArc(Actor *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_actorAngleInArc
-s32 actorAngleInArc();
+s32 actorAngleInArc(Actor *, s16);
 #endif
 #ifndef PROTO_SKIP_mathAngleInArcWithMargin
-s32 mathAngleInArcWithMargin();
+s32 mathAngleInArcWithMargin(s16, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_actorAngleInArcWithMargin
-s32 actorAngleInArcWithMargin();
+s32 actorAngleInArcWithMargin(Actor *, s16, s16);
 #endif
 #ifndef PROTO_SKIP_mathAngleClampToArc
-void mathAngleClampToArc(s16, s16, s16, s16, s16 *);
+s32 mathAngleClampToArc(s16, s16, s16, s16, s16 *);
 #endif
 #ifndef PROTO_SKIP_mathAngleClampToArcWithMargin
-s32 mathAngleClampToArcWithMargin();
+s32 mathAngleClampToArcWithMargin(s32, s16, s16, s16, s16 *, s16);
 #endif
 #ifndef PROTO_SKIP_mathAngleNearestArcPoint
-s16 mathAngleNearestArcPoint();
+s16 mathAngleNearestArcPoint(s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_mathAngleArcMidpoint
-s16 mathAngleArcMidpoint();
+s16 mathAngleArcMidpoint(s16, s16);
 #endif
 #ifndef PROTO_SKIP_actorTouchSub140Timestamp
 void actorTouchSub140Timestamp(Actor *);
