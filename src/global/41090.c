@@ -268,8 +268,8 @@ void envTextureUpdateScroll8C(void) {
 }
 
 typedef struct {
-    s16 unk0;
-    void *unk4;
+    s16 assetId;
+    void *data;
 } AssetRef;
 
 extern AssetRef D_80747E0C[11];
@@ -280,7 +280,7 @@ void envTextureInitAsset3BB(void) {
 
     D_807F6194 = 0;
     for (i = 0; i < 11; i++) {
-        D_80747E0C[i].unk4 = assetLoad(7, D_80747E0C[i].unk0, 1, 0);
+        D_80747E0C[i].data = assetLoad(7, D_80747E0C[i].assetId, 1, 0);
     }
 }
 
@@ -296,7 +296,7 @@ Gfx *func_8063D2E4(Gfx *g) {
     gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
     gDPSetCombine(g++, 0xFFFFFF, 0xFFFCF279);
     gDPSetPrimColor(g++, 0, 0, 255, 255, 255, 255);
-    tex = (u32)D_80747E0C[D_807F6194].unk4;
+    tex = (u32)D_80747E0C[D_807F6194].data;
     gDPSetTextureImage(g++, G_IM_FMT_IA, G_IM_SIZ_16b, 1, tex - 0x80000000);
     gDPSetTile(g++, G_IM_FMT_IA, G_IM_SIZ_16b, 0, 0, 7, 0, 0, 5, 0, 0, 6, 0);
     gDPLoadSync(g++);
