@@ -259,7 +259,7 @@ void actorApplyVelocity(void *);
 void actorApproachTargetSpeed(u16);
 void actorSetTargetSpeed(void *, s32);
 void actorStepPhysics(void *, s16, s16);
-void behaviourFrameBegin(void *);
+void behaviourFrameBegin(void *); // FAKE: callee prototype steer
 void camResumePath(void);
 u16 camStartPath(void *, s16, u8);
 void currentActorClearFlag(void);
