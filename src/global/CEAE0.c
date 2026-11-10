@@ -599,9 +599,9 @@ case2:
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x2C0, 0xFF, 0x7F, 0);
         }
         if (gCurrentMap == 0x53 || gCurrentMap == 0xC5) {
-        playerStateQueueCallback(0x40, attacker, gCurrentPlayerIndex);
-    } else {
-        playerStateQueueCallback(0x30, attacker, gCurrentPlayerIndex);
+            playerStateQueueCallback(0x40, attacker, gCurrentPlayerIndex);
+        } else {
+            playerStateQueueCallback(0x30, attacker, gCurrentPlayerIndex);
         }
     }
 done:

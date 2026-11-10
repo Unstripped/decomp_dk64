@@ -1399,7 +1399,7 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
         return 0;
     }
 
-    buf = (ModelSlotTriBufferView *)(slotIdx * 0x90 + (u8 *)gModelSlots + 0x48); // FAKE: operand order of the slot address add
+    buf = &gModelSlots[slotIdx].unk48;
     if (arg0 != NULL && gModelSlots[slotIdx].unk70 != NULL && D_807F946D != 0) {
         actorCheckNearbyNodeInteractions((struct CollisionActorWork *)arg0, slotIdx, gModelSlots[slotIdx].unk70);
     }
@@ -1988,26 +1988,24 @@ void collisionTransformPointByActorMtx(Actor *actor, u32 arg1, f32 *arg2, f32 ar
     f32 z;
     ActorSub140 *sub;
     Mtx *mtx;
-    {
-        float xfMtx[4][4];
+    float xfMtx[4][4];
 
-        x = *arg2;
-        y = *arg4;
-        sub = actor->collision;
-        if (gFrameCounter == sub->unk88) {
-            idx = gGfxBufferIndex;
-        } else {
-            idx = gGfxBufferIndex ^ 1;
-            idx = idx & 0xFF; // FAKE: split mask steers sub/idx v0/v1 allocation
-        }
-        mtx = sub->unk74[idx];
-        if (arg1 == -1) {
-            memcpy(xfMtx, sub->boxBounds, 0x40);
-        } else {
-            guMtxL2F(xfMtx, &mtx[arg1 >> 6]);
-        }
-        guMtxXFMF(xfMtx, x, arg3, y, arg2, &z, arg4);
+    x = *arg2;
+    y = *arg4;
+    sub = actor->collision;
+    if (gFrameCounter == sub->unk88) {
+        idx = gGfxBufferIndex;
+    } else {
+        idx = gGfxBufferIndex ^ 1;
+        idx = idx & 0xFF; // FAKE: split mask steers sub/idx v0/v1 allocation
     }
+    mtx = sub->unk74[idx];
+    if (arg1 == -1) {
+        memcpy(xfMtx, sub->boxBounds, 0x40);
+    } else {
+        guMtxL2F(xfMtx, &mtx[arg1 >> 6]);
+    }
+    guMtxXFMF(xfMtx, x, arg3, y, arg2, &z, arg4);
 }
 
 s32 collisionCheckBoxTriangleBoundsXZ(CollisionBoxTri *arg0, f32 arg1, f32 arg2) {
