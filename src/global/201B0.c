@@ -708,7 +708,7 @@ extern PlayerState *gActivePlayerState;
 
 void func_80029140(s16 *);
 
-u16 camStartPath(void *actor, s16 pathIndex, u8 flags) {
+u16 camStartPath(Actor *actor, s16 pathIndex, u8 flags) {
     u16 ret = 0;
 
     if (gGameMode == 1 && (gCamPathFlags & 0x80)) {
@@ -791,7 +791,7 @@ void camSetPathLookAhead(s16 distance) {
     gCamPathLookAhead = distance;
 }
 
-void camSetPathLookActor(void *actor, s16 node) {
+void camSetPathLookActor(Actor *actor, s16 node) {
     if (actor != NULL) {
         gCamPathLookActor = actor;
     } else {

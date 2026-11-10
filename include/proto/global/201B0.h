@@ -95,7 +95,7 @@ u8 camIsFollowingActive(void);
 void camRequestPathLength(void);
 #endif
 #ifndef PROTO_SKIP_camStartPath
-u16 camStartPath(void *, s16, u8);
+u16 camStartPath(Actor *, s16, u8);
 #endif
 #ifndef PROTO_SKIP_camGetPathStartPose
 void camGetPathStartPose(s16 *, s16 *, s16 *, s16 *);
@@ -104,7 +104,7 @@ void camGetPathStartPose(s16 *, s16 *, s16 *, s16 *);
 void camSetPathLookAhead(s16);
 #endif
 #ifndef PROTO_SKIP_camSetPathLookActor
-void camSetPathLookActor(void *, s16);
+void camSetPathLookActor(Actor *, s16);
 #endif
 #ifndef PROTO_SKIP_camClearActorRefs
 void camClearActorRefs(void *);
