@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_12E800_H
 #include "common.h"
 #include "actor.h"
-struct D1ActorViewI;
 #ifndef PROTO_SKIP_behaviourFrameBegin
 void behaviourFrameBegin(void);
 #endif
@@ -74,7 +73,7 @@ s32 patrolGetTargetAngle(void);
 u8 patrolPathStep(u8, u8);
 #endif
 #ifndef PROTO_SKIP_behaviourCalculateDamageForce
-void behaviourCalculateDamageForce(struct D1ActorViewI *, s32);
+void behaviourCalculateDamageForce(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_behaviourSetFloorAndState40
 void behaviourSetFloorAndState40(void);
