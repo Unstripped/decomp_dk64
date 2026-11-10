@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_CC800_H
 #include "common.h"
 #include "actor.h"
-struct G01Ctl;
 #ifndef PROTO_SKIP_collectibleCountsClear
 void collectibleCountsClear(void);
 #endif
@@ -32,7 +31,7 @@ void func_806C80E4(void);
 void cameraSetViewportYRange(s16, s16);
 #endif
 #ifndef PROTO_SKIP_func_806C8220
-void func_806C8220(s32, void *, s32);
+void func_806C8220(s32, void *, u32);
 #endif
 #ifndef PROTO_SKIP_playerSetupCharacterForSlot
 void playerSetupCharacterForSlot(s32, u8);
@@ -65,7 +64,7 @@ void playerWarpToSpawnPoint(s32);
 void playerRespawnResetPhysics(s32);
 #endif
 #ifndef PROTO_SKIP_playerRevertAnimalTransformation
-void playerRevertAnimalTransformation(Actor *, struct G01Ctl *);
+void playerRevertAnimalTransformation(Actor *, PlayerState *);
 #endif
 #ifndef PROTO_SKIP_playerRestoreKongState
 void playerRestoreKongState(Actor *, PlayerState *);
@@ -83,7 +82,7 @@ void playerCheckSpawnerFlagFixup(s32);
 struct G01Pos *func_806C96C4(s32);
 #endif
 #ifndef PROTO_SKIP_func_806C9830
-s8 func_806C9830();
+s8 func_806C9830(s8, Actor *);
 #endif
 #ifndef PROTO_SKIP_func_806C9974
 s32 func_806C9974(u8, s8);
