@@ -47,7 +47,6 @@ void effectSetDepth(s8); // FAKE: callee prototype steer (shared header has u8)
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
-extern u8 gBossFightPhase;
 
 typedef struct CsTimer {
     /* 0x0 */ s16 unk0;
@@ -1208,7 +1207,6 @@ extern s16 D_807480BC[];
 extern s32 gCurrentMap;
 extern CsModelSlot *gModelSlots;
 extern CsSpawnReq D_807F61F0;
-extern Actor *D_807F61F4; // Q0176: splat label for D_807F61F0.unk4; the field spelling gives HI16/LO16 against D_807F61F0+4
 extern s16 gCsTrackedModels[16];
 extern u8 gCsTrackedModelCount;
 extern s16 D_807F693A;
@@ -1396,7 +1394,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         if (D_807F61F0.unk8 != 0) {
             actorDespawn(D_807F61F0.unk0);
             b = (s32)D_807F61F0.unk4; if (b) {} // FAKE: live range of b (a3) splits the &D_807F61F0 piece (v0)
-            actorDespawn(D_807F61F4);
+            actorDespawn(D_807F61F0.unk4);
             D_807F61F0.unk8 = 0;
         }
         break;

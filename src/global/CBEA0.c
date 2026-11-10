@@ -97,7 +97,6 @@ extern R1C2CB_Entry D_807506D0[];
 extern Actor *gCurrentActor;
 extern s8 D_80750754;
 extern s16 D_80750758;
-extern s8 D_807506D5[];
 extern f32 D_8075075C[];
 extern s16 D_807FC8E0;
 extern s16 D_807FC8E2;
@@ -146,7 +145,7 @@ void spriteLinearInterpolateFrame(void) {
         D_807FC8E4--;
         if (D_807FC8E4 <= 0) {
             if (D_80750754 >= 0) {
-                D_80750758 += D_807506D5[D_80750754 * 6]; // FAKE: unk5 read via split label D_807506D5 (D_807506D0[i].unk5 is raw-word identical, relocation-only fdiff 3)
+                D_80750758 += D_807506D0[D_80750754].unk5;
             }
             if (D_80750758 >= D_807FC8E0) {
                 D_80750758 = 0;

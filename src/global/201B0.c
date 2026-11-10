@@ -1510,10 +1510,8 @@ void func_8061F4B0(u8 *zoneFlags) {
     }
 }
 
-extern CamZoneEntryFull *D_807F5BD4;
-
 void camSetZoneWeight(u8 zoneIndex, u8 weight) {
-    D_807F5BD4[zoneIndex].unk18 = weight;
+    gCamMapPaths.unkC4[zoneIndex].unk18 = weight;
 }
 
 typedef struct CamZonePair {

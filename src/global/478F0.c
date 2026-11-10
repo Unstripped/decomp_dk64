@@ -38,7 +38,6 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
-extern u8 gBossFightPhase;
 extern f32 gCsPosX;
 extern f32 gCsPosY;
 extern f32 gCsPosZ;
