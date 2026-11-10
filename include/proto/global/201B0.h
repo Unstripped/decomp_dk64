@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_201B0_H
 #include "common.h"
 #include "actor.h"
-struct CamActor;
 struct CamPathData;
 #ifndef PROTO_SKIP_camCueTimerIsRunning
 u8 camCueTimerIsRunning(void);
@@ -15,16 +14,16 @@ void camCueTimerTick(void);
 void camResetPlayerViewports(s16);
 #endif
 #ifndef PROTO_SKIP_camSnapToTargetHeight
-void camSnapToTargetHeight(struct CamActor *);
+void camSnapToTargetHeight(Actor *);
 #endif
 #ifndef PROTO_SKIP_func_8061B650
-void func_8061B650(struct CamActor *);
+void func_8061B650(Actor *);
 #endif
 #ifndef PROTO_SKIP_camApplySway
 void camApplySway(struct CamState *, f32 *, f32 *, f32 *, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_camSampleFloorHeight
-void camSampleFloorHeight(struct CamActor *, struct CamState *, f32, f32);
+void camSampleFloorHeight(Actor *, CamState *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_camSetSettleMode
 void camSetSettleMode(struct CamState *, u8);
@@ -33,37 +32,37 @@ void camSetSettleMode(struct CamState *, u8);
 void camSortFloorHits(void);
 #endif
 #ifndef PROTO_SKIP_camFloorSnap
-u8 camFloorSnap(struct CamActor *, struct CamState *, f32, f32 *, f32, u8);
+u8 camFloorSnap(Actor *, CamState *, f32, f32 *, f32, u8);
 #endif
 #ifndef PROTO_SKIP_camUpdatePlayerYaw
 void camUpdatePlayerYaw(struct CamState *);
 #endif
 #ifndef PROTO_SKIP_camSetFlags
-s32 camSetFlags(struct CamActor *, s32);
+s32 camSetFlags(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_camClearFlags
-void camClearFlags(struct CamActor *, s32);
+void camClearFlags(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_camSetFixedView
-void camSetFixedView(struct CamActor *, f32, f32, f32, f32, f32, f32, u8);
+void camSetFixedView(Actor *, f32, f32, f32, f32, f32, f32, u8);
 #endif
 #ifndef PROTO_SKIP_camApplyFixedView
-void camApplyFixedView(struct CamActor *);
+void camApplyFixedView(Actor *);
 #endif
 #ifndef PROTO_SKIP_camSetTargetFocusActor
-void camSetTargetFocusActor(struct CamActor *, struct CamActor *);
+void camSetTargetFocusActor(Actor *, Actor *);
 #endif
 #ifndef PROTO_SKIP_camSetTarget
-void camSetTarget(struct CamActor *, struct CamActor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
+void camSetTarget(Actor *, Actor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
 #endif
 #ifndef PROTO_SKIP_camSetTargetCutsceneUnscaled
-void camSetTargetCutsceneUnscaled(struct CamActor *, struct CamActor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
+void camSetTargetCutsceneUnscaled(Actor *, Actor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
 #endif
 #ifndef PROTO_SKIP_camSetTargetCutscene
-void camSetTargetCutscene(struct CamActor *, struct CamActor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
+void camSetTargetCutscene(Actor *, Actor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
 #endif
 #ifndef PROTO_SKIP_camSetTargetScaled
-void camSetTargetScaled(struct CamActor *, struct CamActor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
+void camSetTargetScaled(Actor *, Actor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
 #endif
 #ifndef PROTO_SKIP_camPathGetLength
 s16 camPathGetLength(s16);
@@ -117,10 +116,10 @@ void camNoop201B0(void);
 void camUpdateFollowHeight(struct CamState *);
 #endif
 #ifndef PROTO_SKIP_camUpdateFollowTargetDistance
-void camUpdateFollowTargetDistance(struct CamActor *);
+void camUpdateFollowTargetDistance(Actor *);
 #endif
 #ifndef PROTO_SKIP_camEndPath
-void camEndPath(struct CamActor *);
+void camEndPath(Actor *);
 #endif
 #ifndef PROTO_SKIP_camCalculateTargetDistanceAndAngles
 void camCalculateTargetDistanceAndAngles(struct CamState *);
@@ -147,10 +146,10 @@ void camResumePathCallback(s32, s32, s32);
 void camSetRollBlend(s16, s16, u16);
 #endif
 #ifndef PROTO_SKIP_camSnapBehindTarget
-void camSnapBehindTarget(struct CamActor *);
+void camSnapBehindTarget(Actor *);
 #endif
 #ifndef PROTO_SKIP_camUpdate
-void camUpdate(struct CamActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
+void camUpdate(Actor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camResetAllPlayers
 void camResetAllPlayers(void);
@@ -162,16 +161,16 @@ void camResetPlayer(Actor *, u8);
 void camApplyShake(struct CamState *, f32 *, f32 *, f32 *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_camStartShakeFromPoint
-void camStartShakeFromPoint(struct CamActor *, u8, u16, f32, f32, f32, f32, f32);
+void camStartShakeFromPoint(Actor *, u8, u16, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_camStartShake
-void camStartShake(struct CamActor *, u8, u16);
+void camStartShake(Actor *, u8, u16);
 #endif
 #ifndef PROTO_SKIP_camStartBlendRamp
 void camStartBlendRamp(struct CamState *, s16);
 #endif
 #ifndef PROTO_SKIP_func_8061F18C
-void func_8061F18C(struct CamActor *, f32, f32, f32);
+void func_8061F18C(Actor *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_camClosestPointOnSegment
 void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
@@ -183,22 +182,22 @@ void func_8061F4B0(u8 *);
 void camSetZoneWeight(u8, u8);
 #endif
 #ifndef PROTO_SKIP_camEvaluateZones
-s32 camEvaluateZones(struct CamActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
+s32 camEvaluateZones(Actor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camFindClearYaw
-void camFindClearYaw(struct CamActor *, f32, s16, u8);
+void camFindClearYaw(Actor *, f32, s16, u8);
 #endif
 #ifndef PROTO_SKIP_camResolveWallCollision
-u8 camResolveWallCollision(struct CamActor *, f32, f32, f32 *, f32, f32 *, f32);
+u8 camResolveWallCollision(Actor *, f32, f32, f32 *, f32, f32 *, f32);
 #endif
 #ifndef PROTO_SKIP_func_80620F00
-s32 func_80620F00(struct CamActor *, u8, u8);
+s32 func_80620F00(Actor *, u8, u8);
 #endif
 #ifndef PROTO_SKIP_camShouldAutoRotate
-u8 camShouldAutoRotate(struct CamActor *, struct CamState *, struct CamActor *);
+u8 camShouldAutoRotate(Actor *, CamState *, Actor *);
 #endif
 #ifndef PROTO_SKIP_camComputeFollowPos
-u8 camComputeFollowPos(struct CamActor *, struct CamActor *, f32 *, f32 *, f32 *, f32);
+u8 camComputeFollowPos(Actor *, Actor *, f32 *, f32 *, f32 *, f32);
 #endif
 #ifndef PROTO_SKIP_camComputeFocusPos
 void camComputeFocusPos(struct CamState *, f32 *, f32 *, f32 *);
@@ -207,49 +206,49 @@ void camComputeFocusPos(struct CamState *, f32 *, f32 *, f32 *);
 void camComputeFocusPosOffset(struct CamState *, f32 *, f32 *, f32 *, f32);
 #endif
 #ifndef PROTO_SKIP_camSetZoomLevel
-u8 camSetZoomLevel(struct CamActor *, s16);
+u8 camSetZoomLevel(Actor *, s16);
 #endif
 #ifndef PROTO_SKIP_camSetZoomForDistance
-void camSetZoomForDistance(struct CamActor *, s16);
+void camSetZoomForDistance(Actor *, s16);
 #endif
 #ifndef PROTO_SKIP_camReturnToFollow
-void camReturnToFollow(struct CamActor *, struct CamActor *);
+void camReturnToFollow(Actor *, Actor *);
 #endif
 #ifndef PROTO_SKIP_camSetFollowMode
-void camSetFollowMode(struct CamActor *);
+void camSetFollowMode(Actor *);
 #endif
 #ifndef PROTO_SKIP_camComputeTargetEyePos
-void camComputeTargetEyePos(struct CamActor *, f32 *, f32 *, f32 *);
+void camComputeTargetEyePos(Actor *, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camComputeTargetFocusPos
 void camComputeTargetFocusPos(struct CamState *, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_func_806228BC
-void func_806228BC(struct CamActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
+void func_806228BC(Actor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camAngleLerpRad
 f32 camAngleLerpRad(f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_camComputeEyeFocus
-void camComputeEyeFocus(struct CamActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, struct CamActor *);
+void camComputeEyeFocus(Actor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, Actor *);
 #endif
 #ifndef PROTO_SKIP_camTurnYawToward
 void camTurnYawToward();
 #endif
 #ifndef PROTO_SKIP_camUpdateFollowBlend
-void camUpdateFollowBlend(struct CamActor *);
+void camUpdateFollowBlend(Actor *);
 #endif
 #ifndef PROTO_SKIP_camApproachFloat
 f32 camApproachFloat(f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_camUpdateFollow
-void camUpdateFollow(struct CamActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
+void camUpdateFollow(Actor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camUpdateEyePos
-void camUpdateEyePos(struct CamActor *, f32, f32 *, f32 *, f32 *);
+void camUpdateEyePos(Actor *, f32, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camUpdateFocusPos
-void camUpdateFocusPos(struct CamActor *, f32, f32 *, f32 *, f32 *);
+void camUpdateFocusPos(Actor *, f32, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camIsCellNeighbour
 s32 camIsCellNeighbour(s16, s16);
@@ -264,10 +263,10 @@ void camGetZoneBounds(s16 *, s16 *, s16 *);
 void camInitZones(void);
 #endif
 #ifndef PROTO_SKIP_camSetSecondTarget
-void camSetSecondTarget(struct CamActor *, s16, s16);
+void camSetSecondTarget(Actor *, s16, s16);
 #endif
 #ifndef PROTO_SKIP_camClearSecondTarget
-void camClearSecondTarget(struct CamActor *);
+void camClearSecondTarget(Actor *);
 #endif
 #ifndef PROTO_SKIP_camLoadPathTable
 void camLoadPathTable(void *, struct CamPathData *, u8);
@@ -306,15 +305,15 @@ void func_8062754C(f32);
 f32 func_806276AC(void);
 #endif
 #ifndef PROTO_SKIP_func_8062773C
-s32 func_8062773C(struct CamActor *);
+s32 func_8062773C(Actor *);
 #endif
 #ifndef PROTO_SKIP_camSaveYaw
-void camSaveYaw(struct CamActor *);
+void camSaveYaw(Actor *);
 #endif
 #ifndef PROTO_SKIP_camRestoreYaw
-void camRestoreYaw(struct CamActor *);
+void camRestoreYaw(Actor *);
 #endif
 #ifndef PROTO_SKIP_camStartPathNearWall
-void camStartPathNearWall(struct CamActor *, u8, u8, u8);
+void camStartPathNearWall(Actor *, u8, u8, u8);
 #endif
 #endif

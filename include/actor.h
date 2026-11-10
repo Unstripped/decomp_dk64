@@ -263,7 +263,7 @@ typedef struct Actor {
     /* 0x0E6 */ s16 yaw;
     /* 0x0E8 */ s16 roll;
     /* 0x0EA */ s16 unkEA;
-    /* 0x0EC */ u8 unkEC[2];
+    /* 0x0EC */ s16 unkEC;
     /* 0x0EE */ s16 moveYaw;
     /* 0x0F0 */ s16 movePitch;
     /* 0x0F2 */ s16 unkF2;
@@ -640,8 +640,8 @@ typedef struct PlayerState {
 
 // camSetTarget's parameter block inside CamState (0x44).
 typedef struct CamTargetBlock {
-    /* 0x00 */ struct CamActor *unk0;
-    /* 0x04 */ struct CamActor *unk4;
+    /* 0x00 */ struct Actor *unk0;
+    /* 0x04 */ struct Actor *unk4;
     /* 0x08 */ s16 unk8;
     /* 0x0A */ s16 unkA;
     /* 0x0C */ s16 unkC;
@@ -656,8 +656,8 @@ typedef struct CamTargetBlock {
 // customState of the camera actor (type 0xBC, component 4: 0x100 bytes, D_8074DA58[4]);
 // reached as gCamActor->customState or PlayerState.camActor->customState.
 typedef struct CamState {
-    /* 0x00 */ struct CamActor *unk0;
-    /* 0x04 */ struct CamActor *unk4;
+    /* 0x00 */ struct Actor *unk0;
+    /* 0x04 */ struct Actor *unk4;
     /* 0x08 */ u16 unk8;
     /* 0x0A */ u16 unkA;
     /* 0x0C */ f32 unkC;
