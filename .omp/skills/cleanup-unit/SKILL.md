@@ -103,12 +103,12 @@ As each agent reports:
 5. Knowledge first: file the report's IDO findings (`quirks.py search`, edit the entry or `add
    --source <path>@<merge commit>`; `quirks.py check`) and commit BEFORE recording (a later
    knowledge commit stales events naming its functions).
-6. Record: `uv run tools/quality.py record --unit "<unit>" --agent <A> --base <base> --batch
-   .scratch/<A>/ledger.txt` (all-or-nothing). Copy-only keys: record the base-key lines at the
-   copy base, then `sweep <src> --record` (writes their remove/plain/cond/classify), then re-key
-   the agent's other lines (the report's base→final map; else by function, kind, line order)
-   `--base <merge commit>`. Re-stamped notes carry no new prose (it matches knowledge entries
-   and stales them later). Commit `drafts/quality.jsonl` (`quality: <unit> <f>`).
+6. Record (the copy's file-scope edits change most fingerprints; ok-fine
+   `playbooks/cleanup-merge-and-record`): `record --base <copy base> --batch ledger.txt`
+   (all-or-nothing); `make expected`; `sweep <src> --record`; re-record the same lines
+   `--base <merge commit>` after applying the key map and dropping the removed sites' lines
+   (`no site` in `--dry-run`); `ledger-copy-only.txt` at the merge commit; then `carry --rev
+   <merge>^ <src>`. Re-stamped notes carry no new prose. Commit `drafts/quality.jsonl`.
 
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full
 ROM gate; the net count of HACKS in a merged file (tagged `// FAKE` + untagged AST sites)

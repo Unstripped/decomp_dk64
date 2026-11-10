@@ -53,6 +53,19 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
   `python3 tools/quirks.py search --symptom <tag> <words from the site or diff>`
   (`python3 tools/quirks.py tags` lists tags); cite the IDs you used.
 - `lsp` (clangd, `compile_commands.json` at the repo root) resolves definitions and references.
+- Never re-stamp old evidence: each LEDGER line comes from a run on THIS copy (uopt_trace,
+  as1probe, permute); cite an earlier round's IDs only alongside your own fresh run.
+- Before keeping regalloc hacks: a named pointer local for a repeated `p->a->b` load (Q0601),
+  removing coupled steers together (Q0602), an inner `switch` for a reused selector (Q0600), a
+  callee's real return width (Q0486), a compare operand swap after a field rewrite (Q0604).
+- Shared types to retire views with: `CamState`/`CamTargetBlock`, `SpawnNode`/`Zone`,
+  `BehaviourWorkState` (0x40), `KongInventory`, PlayerStruct/PlayerState/ActorGlobalState carves
+  (ok-fine `conventions/actor-struct-field-evidence`).
+- Keys: a removed site keeps its base key; a changed key goes in the base→final map; a site only in
+  your copy goes to `ledger-copy-only.txt` with its FINAL key (the orchestrator records at the base,
+  re-records at the merge, then carries).
+- A retyped definition: a stand-in copy (`#define PROTO_SKIP_<f>` + declaration) that fdiffs, plus
+  `standin_<file>.c` for every caller file the new prototype changes; list the callers.
 - A turn ends only when all five phases are done for EVERY function. Workers stopping after
   ~10 requests with "partial" on 54–86-function files was wrong: the budget stop applies only to
   100+ function files and only once the request budget is really spent (then report a valid
