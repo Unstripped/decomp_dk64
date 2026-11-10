@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_modelSlotTransformBoundsAndNodes // FAKE: callee prototype steer
 #include "proto/global/136820.h"
 #include "proto/global/15050.h"
 #include "proto/global/17800.h"
@@ -8,24 +7,31 @@
 #include "proto/global/54150.h"
 #include "proto/global/5E020.h"
 
-typedef struct ModelVertex {
-    u32 unk0;
+typedef struct ModelAnimNodeHeader {
+    u8 keyCount;
+    u8 times[0x38];
+    u8 matrixCount;
+    u8 pad3A[2];
+} ModelAnimNodeHeader;
+
+typedef struct ModelAnimEntry {
+    u8 *unk0;
     f32 unk4;
-    u16 unk8;
-    u16 unkA;
-    u16 unkC;
+    s16 unk8;
+    s16 unkA;
+    s16 unkC;
     u8 unkE;
     u8 unkF;
     u8 unk10;
-    u8 unk11;
+    s8 unk11;
     u8 unk12;
     u8 unk13;
-} ModelVertex; /* 0x14 */
+} ModelAnimEntry; /* 0x14 */
 
 typedef struct ModelData {
     u8 *unk0;
     u8 *unk4;
-    ModelVertex unk8[10];
+    ModelAnimEntry entries[10];
 } ModelData; /* 0xD0 */
 
 void *memcpy(void *, const void *, unsigned int);
@@ -63,8 +69,8 @@ void modelSlotAllocAnimBuffers(ModelData **outModel, u8 *animAsset) {
             s32 j;
 
             for (j = 0; j < 10; j++) {
-                ModelVertex *v = &m->unk8[j];
-                v->unk0 = (u32)q + *(u32 *)(q + j * 4);
+                ModelAnimEntry *v = &m->entries[j];
+                v->unk0 = q + *(u32 *)(q + j * 4);
                 v->unk4 = 0.0f;
                 v->unk8 = 0;
                 v->unkA = 0;
@@ -86,12 +92,12 @@ typedef struct ModelSlot {
     u8 pad0[0x24];
     u8 *unk24;
     u8 pad28[0x50];
-    u8 *unk78;
+    ModelData *unk78;
     u8 pad7C[0x14];
 } ModelSlot; /* 0x90 */
 
 typedef struct ModelAnimEntryRaw {
-    u8 *unk0;
+    ModelAnimNodeHeader *unk0;
     f32 unk4;
     u8 pad8[6];
     u8 unkE;
@@ -103,51 +109,41 @@ typedef struct ModelAnimEntryRaw {
 
 extern ModelSlot *gModelSlots;
 
-u32 modelSlotDataSize(s16 arg0) {
-    u8 *p = gModelSlots[arg0].unk24;
+u32 modelSlotDataSize(s16 slot) {
+    u8 *p = gModelSlots[slot].unk24;
 
     return *(u32 *)(p + *(s32 *)(p + 0x68));
 }
 
-typedef struct ModelSlotBuf {
-    u32 unk0;
-    u32 unk4;
-} ModelSlotBuf;
-
-void modelSlotTransformBoundsAndNodes(s16, s32, s32, s32, f32, f32, f32, f32, f32, s32, s32, s32, s32, s32);  // FAKE: callee prototype steer
-
-void modelSlotCopyData(arg0, arg1)
-s16 arg1;
-u8 *arg0;
-{
+void modelSlotCopyData(u8 *src, s16 slot) {
     u8 *obj;
-    u8 **dst;
+    ModelData *dst;
     s32 n;
-    s32 x;
-    s32 y;
-    s32 z;
+    f32 x;
+    f32 y;
+    f32 z;
     f32 a;
     f32 b;
     f32 c;
     f32 d;
     f32 e;
 
-    obj = gModelSlots[arg1].unk24;
-    dst = (u8 **)gModelSlots[arg1].unk78;
+    obj = gModelSlots[slot].unk24;
+    dst = gModelSlots[slot].unk78;
     n = *(s32 *)(obj + *(s32 *)(obj + 0x68));
-    memcpy(dst[0], arg0, n);
-    memcpy(dst[1], arg0, n);
-    modelSlotGetTransformVectors(arg1, &x, &y, &z, &a, &b, &c, &d, &e, 0);
-    modelSlotTransformBoundsAndNodes(arg1, x, y, z, a, b, c, d, e, 0, 0, 0, 0, 1);
+    memcpy(dst->unk0, src, n);
+    memcpy(dst->unk4, src, n);
+    modelSlotGetTransformVectors(slot, &x, &y, &z, &a, &b, &c, &d, &e, 0);
+    modelSlotTransformBoundsAndNodes(slot, x, y, z, a, b, c, d, e, 0, 0, 0, 0, 1);
 }
 
 
-void modelSlotFree(u8 **arg0) {
-    if (arg0 != NULL) {
-        heapFreeDeferred(arg0[0]);
-        heapFreeDeferred(arg0[1]);
-        mtxCopyQueueCancelGroup(arg0);
-        heapFree(arg0);
+void modelSlotFree(u8 **anim) {
+    if (anim != NULL) {
+        heapFreeDeferred(anim[0]);
+        heapFreeDeferred(anim[1]);
+        mtxCopyQueueCancelGroup(anim);
+        heapFree(anim);
     }
 }
 
@@ -157,35 +153,35 @@ extern u32 D_807F6BE8;
 extern u8 D_807F6BEC;
 extern u8 gGfxBufferIndex;
 
-u8 modelSlotStepAnimations(s16 arg0) {
-    u32 *base;
+u8 modelSlotStepAnimations(s16 modelId) {
+    ModelData *group;
     u8 *p;
     s32 i;
 
-    base = (u32 *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     D_807F6BEC = 0;
-    if (base != NULL) {
-        D_807F6BE0 = base[gGfxBufferIndex];
-        D_807F6BE4 = base[gGfxBufferIndex ^ 1];
-        D_807F6BE8 = (u32)base;
+    if (group != NULL) {
+        D_807F6BE0 = ((u32 *)group)[gGfxBufferIndex];
+        D_807F6BE4 = ((u32 *)group)[gGfxBufferIndex ^ 1];
+        D_807F6BE8 = (u32)group;
         i = 0;
-        p = (u8 *)base;
+        p = (u8 *)group;
         for (; i != 0xC8; i += 0x14) {
-            if (p[0x16] == 1) {
+            if (((ModelAnimEntry *)(p + 8))->unkE == 1) {
                 modelAnimEntryStep(p + 8);
                 D_807F6BEC = 1;
             }
             p += 0x14;
         }
-        mtxCopyQueueFlush(base);
+        mtxCopyQueueFlush((s32)group);
     }
     return D_807F6BEC;
 }
 
 
-void modelAnimEntryStep(void *arg0) {
-    modelAnimEntryAdvance(arg0);
-    modelAnimEntryBuildNodeMatrices(arg0);
+void modelAnimEntryStep(void *entry) {
+    modelAnimEntryAdvance(entry);
+    modelAnimEntryBuildNodeMatrices(entry);
 }
 
 typedef struct ModelBTrack {
@@ -206,55 +202,55 @@ typedef struct ModelBKey {
 } ModelBKey; /* 0x24 */
 
 
-void modelAnimEntryBuildNodeMatrices(ModelAnimEntryRaw *arg0) {
-    u8 *node;
+void modelAnimEntryBuildNodeMatrices(ModelAnimEntryRaw *entry) {
+    ModelAnimNodeHeader *node;
     s16 stride;
     s32 i;
     u8 *p;
-    u32 a;
-    u32 b;
-    u32 c;
-    u32 d;
+    u32 srcBase;
+    u32 dstBase;
+    u32 dst;
+    u32 src;
 
-    node = arg0->unk0;
-    stride = *(u8 *)node * 0x24 + 8;
-    a = D_807F6BE0;
-    b = D_807F6BE4;
+    node = entry->unk0;
+    stride = node->keyCount * 0x24 + 8;
+    srcBase = D_807F6BE0;
+    dstBase = D_807F6BE4;
     i = 0;
-    p = node + 0x3C;
-    while (i < *(u8 *)(node + 0x39)) {
-        modelAnimEntryBuildKeyMatrix(arg0->unk11, arg0->unk4, p, p + 8, arg0->unk13);
-        c = *(u32 *)p + b;
-        if (arg0->unkE == 0) {
-            d = *(u32 *)p + a;
-            mtxCopyQueuePush(D_807F6BE8, d, c);
+    p = (u8 *)(node + 1);
+    while (i < node->matrixCount) {
+        modelAnimEntryBuildKeyMatrix(entry->unk11, entry->unk4, p, p + 8, entry->unk13);
+        dst = *(u32 *)p + dstBase;
+        if (entry->unkE == 0) {
+            src = *(u32 *)p + srcBase;
+            mtxCopyQueuePush(D_807F6BE8, src, dst);
         } else {
-            mtxCopyQueueCancelDest(c);
+            mtxCopyQueueCancelDest(dst);
         }
         i++;
         p += stride;
     }
 }
 
-void modelAnimEntryQueueMatrixCopies(u32 *arg0, u32 *arg1) {
-    u8 *node;
+void modelAnimEntryQueueMatrixCopies(u32 *group, u32 *entry) {
+    ModelAnimNodeHeader *node;
     s16 stride;
     s32 i;
     u8 *p;
-    u32 a;
-    u32 b;
-    u32 c;
+    u32 srcBase;
+    u32 dstBase;
+    u32 dst;
 
-    node = (u8 *)*arg1;
-    stride = *(u8 *)node * 0x24 + 8;
-    a = D_807F6BE0 = arg0[gGfxBufferIndex ^ 1];
-    b = D_807F6BE4 = arg0[gGfxBufferIndex];
+    node = (ModelAnimNodeHeader *)*entry;
+    stride = node->keyCount * 0x24 + 8;
+    srcBase = D_807F6BE0 = group[gGfxBufferIndex ^ 1];
+    dstBase = D_807F6BE4 = group[gGfxBufferIndex];
     if (gGfxBufferIndex == 0) {}  // FAKE: deadsweep dead statement (extends gGfxBufferIndex live range: v1 not v0, address temps a2/a3)
-    p = node + 0x3C;
+    p = (u8 *)(node + 1);
     i = 0;
-    while (i < *(u8 *)(node + 0x39)) {
-        c = *(u32 *)p + b;
-        mtxCopyQueuePush(arg0, *(u32 *)p + a, c);
+    while (i < node->matrixCount) {
+        dst = *(u32 *)p + dstBase;
+        mtxCopyQueuePush(group, *(u32 *)p + srcBase, dst);
         i++;
         p += stride;
     }
@@ -262,110 +258,108 @@ void modelAnimEntryQueueMatrixCopies(u32 *arg0, u32 *arg1) {
 }
 
 
-void modelAnimEntryBuildKeyMatrix(u8 arg0, f32 arg1, ModelBTrack *arg2, u8 *arg3, u8 arg4)
+void modelAnimEntryBuildKeyMatrix(u8 key, f32 t, ModelBTrack *track, u8 *keys, u8 scaleMode)
 {
     u32 off;
     f32 x;
     f32 y;
     f32 z;
-    f32 c6;
-    f32 c7;
-    f32 c8;
-    f32 c0;
-    f32 c1;
-    f32 c2;
-    f32 fa;
-    f32 fb;
-    f32 fc;
-    f32 fd;
-    s32 q0;  // LAYOUT: three pad words (frame size / local homes)
-    s32 q1;
-    s32 q2;
+    f32 tx;
+    f32 ty;
+    f32 tz;
+    f32 sx;
+    f32 sy;
+    f32 sz;
+    f32 next;
+    f32 prev;
+    f32 next2;
+    f32 prev2;
+    s32 pad[3];
     float work[4][4];
     float mtx[4][4];
 
     off = D_807F6BE0;
-    fa = ((ModelBKey *)arg3)[arg0 + 1].unkC;
-    fb = ((ModelBKey *)arg3)[arg0].unkC;
-    x = fa - fb;
+    next = ((ModelBKey *)keys)[key + 1].unkC;
+    prev = ((ModelBKey *)keys)[key].unkC;
+    x = next - prev;
     if (-180.0 > x) {
         x += 360.0;
     } else if (180.0 < x) {
         x -= 360.0;
     }
-    x *= arg1;
-    x += fb;
-    fa = ((ModelBKey *)arg3)[arg0 + 1].unk10;
-    fb = ((ModelBKey *)arg3)[arg0].unk10;
-    y = fa - fb;
+    x *= t;
+    x += prev;
+    next = ((ModelBKey *)keys)[key + 1].unk10;
+    prev = ((ModelBKey *)keys)[key].unk10;
+    y = next - prev;
     if (y < -180.0) {
         y += 360.0;
     } else if (y > 180.0) {
         y -= 360.0;
     }
-    y *= arg1;
-    y += fb;
-    fa = ((ModelBKey *)arg3)[arg0 + 1].unk14;
-    fb = ((ModelBKey *)arg3)[arg0].unk14;
-    z = fa - fb;
+    y *= t;
+    y += prev;
+    next = ((ModelBKey *)keys)[key + 1].unk14;
+    prev = ((ModelBKey *)keys)[key].unk14;
+    z = next - prev;
     if (z < -180.0) {
         z += 360.0;
     } else if (180.0 < z) {
         z -= 360.0;
     }
-    z *= arg1;
-    z += fb;
-    c6 = ((ModelBKey *)arg3)[arg0 + 1].unk18 - ((ModelBKey *)arg3)[arg0].unk18;
-    c6 *= arg1;
-    c6 += ((ModelBKey *)arg3)[arg0].unk18;
-    c7 = ((ModelBKey *)arg3)[arg0 + 1].unk1C - ((ModelBKey *)arg3)[arg0].unk1C;
-    c7 *= arg1;
-    c7 += ((ModelBKey *)arg3)[arg0].unk1C;
-    c8 = ((ModelBKey *)arg3)[arg0 + 1].unk20 - ((ModelBKey *)arg3)[arg0].unk20;
-    c8 *= arg1;
-    c8 += ((ModelBKey *)arg3)[arg0].unk20;
-    fc = ((ModelBKey *)arg3)[arg0 + 1].unk0;
-    fd = ((ModelBKey *)arg3)[arg0].unk0;
-    c0 = (fc - fd) * arg1 + fd;
-    fc = ((ModelBKey *)arg3)[arg0 + 1].unk4;
-    fd = ((ModelBKey *)arg3)[arg0].unk4;
-    c1 = (fc - fd) * arg1 + fd;
-    fc = ((ModelBKey *)arg3)[arg0 + 1].unk8;
-    fd = ((ModelBKey *)arg3)[arg0].unk8;
-    c2 = (fc - fd) * arg1 + fd;
-    switch (arg4 & 0xF) {
+    z *= t;
+    z += prev;
+    tx = ((ModelBKey *)keys)[key + 1].unk18 - ((ModelBKey *)keys)[key].unk18;
+    tx *= t;
+    tx += ((ModelBKey *)keys)[key].unk18;
+    ty = ((ModelBKey *)keys)[key + 1].unk1C - ((ModelBKey *)keys)[key].unk1C;
+    ty *= t;
+    ty += ((ModelBKey *)keys)[key].unk1C;
+    tz = ((ModelBKey *)keys)[key + 1].unk20 - ((ModelBKey *)keys)[key].unk20;
+    tz *= t;
+    tz += ((ModelBKey *)keys)[key].unk20;
+    next2 = ((ModelBKey *)keys)[key + 1].unk0;
+    prev2 = ((ModelBKey *)keys)[key].unk0;
+    sx = (next2 - prev2) * t + prev2;
+    next2 = ((ModelBKey *)keys)[key + 1].unk4;
+    prev2 = ((ModelBKey *)keys)[key].unk4;
+    sy = (next2 - prev2) * t + prev2;
+    next2 = ((ModelBKey *)keys)[key + 1].unk8;
+    prev2 = ((ModelBKey *)keys)[key].unk8;
+    sz = (next2 - prev2) * t + prev2;
+    switch (scaleMode & 0xF) {
     case 0:
         break;
     case 1:
-        c6 *= (f32)((arg4 >> 4 & 0xF) * 0.125);
+        tx *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     case 2:
-        c7 *= (f32)((arg4 >> 4 & 0xF) * 0.125);
+        ty *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     case 3:
-        c8 *= (f32)((arg4 >> 4 & 0xF) * 0.125);
+        tz *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     case 4:
-        x *= (f32)((arg4 >> 4 & 0xF) * 0.125);
+        x *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     case 5:
-        y *= (f32)((arg4 >> 4 & 0xF) * 0.125);
+        y *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     case 6:
-        z *= (f32)((arg4 >> 4 & 0xF) * 0.125);
+        z *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     case 7:
-        c0 *= (f32)((arg4 >> 4 & 0xF) * 0.125);
+        sx *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     case 8:
-        c1 *= (f32)((arg4 >> 4 & 0xF) * 0.125);
+        sy *= (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     case 9:
-        c2 = ((fc - fd) * arg1 + fd) * (f32)((arg4 >> 4 & 0xF) * 0.125);
+        sz = ((next2 - prev2) * t + prev2) * (f32)((scaleMode >> 4 & 0xF) * 0.125);
         break;
     }
-    memcpy(work, arg2->unk4 + off, 0x40);
-    guScaleF(mtx, c0, c1, c2);
+    memcpy(work, track->unk4 + off, 0x40);
+    guScaleF(mtx, sx, sy, sz);
     guMtxCatF(work, mtx, work);
     matrixMakeRotationZ(mtx, z);
     guMtxCatF(work, mtx, work);
@@ -373,15 +367,15 @@ void modelAnimEntryBuildKeyMatrix(u8 arg0, f32 arg1, ModelBTrack *arg2, u8 *arg3
     guMtxCatF(work, mtx, work);
     matrixMakeRotationX(mtx, x);
     guMtxCatF(work, mtx, work);
-    guTranslateF(mtx, c6, c7, c8);
+    guTranslateF(mtx, tx, ty, tz);
     guMtxCatF(work, mtx, work);
-    memcpy(mtx, arg2->unk4 + 0x40 + off, 0x40);
+    memcpy(mtx, track->unk4 + 0x40 + off, 0x40);
     guMtxCatF(work, mtx, work);
-    guMtxF2L(work, (Mtx *)(off + arg2->unk0));
+    guMtxF2L(work, (Mtx *)(off + track->unk0));
 }
 
 typedef struct ModelAnimEntryView {
-    u8 *unk0;
+    ModelAnimNodeHeader *unk0;
     f32 unk4;
     s16 unk8;
     s16 unkA;
@@ -396,95 +390,88 @@ typedef struct ModelAnimEntryView {
 
 extern u32 gFrameDelta;
 
-typedef struct ModelAnimNodeHeader {
-    u8 keyCount;
-    u8 times[0x38];
-    u8 matrixCount;
-    u8 pad3A[2];
-} ModelAnimNodeHeader;
-
-void modelAnimEntryAdvance(ModelAnimEntryView *arg0) {
+void modelAnimEntryAdvance(ModelAnimEntryView *entry) {
     ModelAnimNodeHeader *node;
     u32 limit;
-    f32 qq;
-    f32 out;
-    s32 i;
-    s32 q;
+    f32 rate;
+    f32 step;
+    s32 whole;
+    s32 loops;
 
-    node = (ModelAnimNodeHeader *)arg0->unk0;
-    qq = (f32)((f64)((f32)(node->times[arg0->unk11 + 1] - node->times[arg0->unk11]) * arg0->unk4 + (f32)(u32)node->times[arg0->unk11]) / 300.0);
-    out = (f32)arg0->unkC * qq;
+    node = entry->unk0;
+    rate = (f32)((f64)((f32)(node->times[entry->unk11 + 1] - node->times[entry->unk11]) * entry->unk4 + (f32)(u32)node->times[entry->unk11]) / 300.0);
+    step = (f32)entry->unkC * rate;
     if (gFrameDelta < 4) {
         limit = gFrameDelta;
     } else {
         limit = 4;
     }
-    if (arg0->unk12 & 1) {
-        out = (f64)out * ((f64)limit * 0.5);
+    if (entry->unk12 & 1) {
+        step = (f64)step * ((f64)limit * 0.5);
     }
-    switch (arg0->unkF) {
+    switch (entry->unkF) {
     case 0:
-        arg0->unk4 += out;
-        i = arg0->unk4;
-        arg0->unk11 += i;
-        arg0->unk4 -= (f32)i;
-        if (arg0->unk11 < node->keyCount - 1) {
+        entry->unk4 += step;
+        whole = entry->unk4;
+        entry->unk11 += whole;
+        entry->unk4 -= (f32)whole;
+        if (entry->unk11 < node->keyCount - 1) {
             return;
         }
-        arg0->unk8 += arg0->unk11 / (node->keyCount - 1);
-        if (arg0->unk8 >= arg0->unkA && arg0->unkA != -1) {
-            arg0->unk4 = 1.0f;
-            arg0->unk11 = node->keyCount - 2;
-            arg0->unkE = 0;
-            if (arg0->unk10 == 1) {
-                arg0->unkF = 1;
+        entry->unk8 += entry->unk11 / (node->keyCount - 1);
+        if (entry->unk8 >= entry->unkA && entry->unkA != -1) {
+            entry->unk4 = 1.0f;
+            entry->unk11 = node->keyCount - 2;
+            entry->unkE = 0;
+            if (entry->unk10 == 1) {
+                entry->unkF = 1;
             }
         } else {
-            switch (arg0->unk10) {
+            switch (entry->unk10) {
             case 0:
-                arg0->unk11 = arg0->unk11 % (node->keyCount - 1);
+                entry->unk11 = entry->unk11 % (node->keyCount - 1);
                 break;
             case 1:
-                q = arg0->unk11 / (node->keyCount - 1);
-                if (q != 0) {
-                    arg0->unkF = 1;
-                    arg0->unk11 = node->keyCount - 2;
-                    arg0->unk4 = 1.0f;
+                loops = entry->unk11 / (node->keyCount - 1);
+                if (loops != 0) {
+                    entry->unkF = 1;
+                    entry->unk11 = node->keyCount - 2;
+                    entry->unk4 = 1.0f;
                 }
                 break;
             }
         }
         break;
     case 1:
-        arg0->unk4 -= out;
-        if (arg0->unk4 < 0.0) {
-            i = (s32)arg0->unk4 - 1;
-            arg0->unk11 += i;
-            arg0->unk4 -= (f32)i;
+        entry->unk4 -= step;
+        if (entry->unk4 < 0.0) {
+            whole = (s32)entry->unk4 - 1;
+            entry->unk11 += whole;
+            entry->unk4 -= (f32)whole;
         }
-        if (arg0->unk11 < 0) {
-            arg0->unk8 += (-arg0->unk11) / node->keyCount + 1;
-            if (arg0->unk8 >= arg0->unkA && arg0->unkA != -1) {
-                if (arg0->unk10 == 1) {
-                    arg0->unkF = 0;
+        if (entry->unk11 < 0) {
+            entry->unk8 += (-entry->unk11) / node->keyCount + 1;
+            if (entry->unk8 >= entry->unkA && entry->unkA != -1) {
+                if (entry->unk10 == 1) {
+                    entry->unkF = 0;
                 }
-                arg0->unk4 = 0.0f;
-                arg0->unk11 = 0;
-                arg0->unkE = 0;
+                entry->unk4 = 0.0f;
+                entry->unk11 = 0;
+                entry->unkE = 0;
             } else {
-                switch (arg0->unk10) {
+                switch (entry->unk10) {
                 case 0:
-                    arg0->unk11 = (-arg0->unk11) % (node->keyCount - 1);
-                    if (arg0->unk11 != 0) {
-                        arg0->unk11 = node->keyCount - arg0->unk11 - 1;
+                    entry->unk11 = (-entry->unk11) % (node->keyCount - 1);
+                    if (entry->unk11 != 0) {
+                        entry->unk11 = node->keyCount - entry->unk11 - 1;
                     }
                     break;
                 case 1:
-                    q = (-arg0->unk11) / node->keyCount + 1;
-                    if (q) {
-                        arg0->unkF = 0;
-                        arg0->unk11 = 0;
-                        arg0->unk4 = 0.0f;
+                    loops = (-entry->unk11) / node->keyCount + 1;
+                    if (loops) {
+                        entry->unkF = 0;
+                        entry->unk11 = 0;
+                        entry->unk4 = 0.0f;
                     }
                     break;
                 }
@@ -496,32 +483,12 @@ void modelAnimEntryAdvance(ModelAnimEntryView *arg0) {
 
 
 typedef struct MtxCopyRequest {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
-    u8 unkC;
+    s32 group;
+    s32 src;
+    s32 dst;
+    u8 bufferIndex;
     u8 padD[3];
 } MtxCopyRequest;
-
-typedef struct ModelAnimEntry {
-    u8 *unk0;
-    f32 unk4;
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-    u8 unkE;
-    u8 unkF;
-    u8 unk10;
-    s8 unk11;
-    u8 unk12;
-    u8 unk13;
-} ModelAnimEntry;
-
-typedef struct ModelAnimGroup {
-    u8 *unk0;
-    u8 *unk4;
-    ModelAnimEntry entries[1];
-} ModelAnimGroup;
 
 extern MtxCopyRequest D_807F6960[];
 
@@ -529,18 +496,18 @@ void mtxCopyQueueReset(void) {
     s32 i;
 
     for (i = 0; i < 0x28; i++) {
-        D_807F6960[i].unk0 = 0;
+        D_807F6960[i].group = 0;
     }
 }
 
-void mtxCopyQueuePush(s32 arg0, s32 arg1, s32 arg2) {
+void mtxCopyQueuePush(s32 group, s32 src, s32 dst) {
     s32 found;
     s32 i;
 
     found = 0;
     i = 0;
     while (found == 0 && i < 0x28) {
-        if (D_807F6960[i].unk0 == 0) {
+        if (D_807F6960[i].group == 0) {
             found = 1;
         } else {
             i++;
@@ -548,191 +515,191 @@ void mtxCopyQueuePush(s32 arg0, s32 arg1, s32 arg2) {
     }
 
     if (found != 0) {
-        D_807F6960[i].unk0 = arg0;
-        D_807F6960[i].unk4 = arg1;
-        D_807F6960[i].unk8 = arg2;
-        D_807F6960[i].unkC = gGfxBufferIndex ^ 1;
+        D_807F6960[i].group = group;
+        D_807F6960[i].src = src;
+        D_807F6960[i].dst = dst;
+        D_807F6960[i].bufferIndex = gGfxBufferIndex ^ 1;
         return;
     }
     faultSetMessage(0xB, 0, 0, 0);
 }
 
 
-void mtxCopyQueueCancelDest(s32 arg0) {
+void mtxCopyQueueCancelDest(s32 dst) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
-        if (D_807F6960[i].unk0 != 0 && D_807F6960[i].unk8 == arg0) {
-            D_807F6960[i].unk0 = 0;
+        if (D_807F6960[i].group != 0 && D_807F6960[i].dst == dst) {
+            D_807F6960[i].group = 0;
         }
     }
 }
 
 
-void mtxCopyQueueCancelGroup(s32 arg0) {
+void mtxCopyQueueCancelGroup(s32 group) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
-        if (D_807F6960[i].unk0 == arg0) {
-            D_807F6960[i].unk0 = 0;
+        if (D_807F6960[i].group == group) {
+            D_807F6960[i].group = 0;
         }
     }
 }
 
 
 
-void mtxCopyQueueFlush(s32 arg0) {
+void mtxCopyQueueFlush(s32 group) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
-        if (D_807F6960[i].unk0 == arg0 && D_807F6960[i].unkC == gGfxBufferIndex) {
-            memcpy((void *)D_807F6960[i].unk8, (void *)D_807F6960[i].unk4, 0x40);
-            D_807F6960[i].unk0 = 0;
+        if (D_807F6960[i].group == group && D_807F6960[i].bufferIndex == gGfxBufferIndex) {
+            memcpy((void *)D_807F6960[i].dst, (void *)D_807F6960[i].src, 0x40);
+            D_807F6960[i].group = 0;
             D_807F6BEC = 1;
         }
     }
 }
 
-void modelAnimEntrySetUnk13(s16 arg0, s16 arg1, u8 arg2, f32 arg3) {
-    ModelAnimGroup *group;
+void modelAnimEntrySetUnk13(s16 modelId, s16 index, u8 base, f32 scale) {
+    ModelData *group;
     ModelAnimEntry *entry;
     u32 value;
     s32 level;
 
-    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
-        entry = &group->entries[arg1];
-        value = (u32)(8.0f * arg3);
+        entry = &group->entries[index];
+        value = (u32)(8.0f * scale);
         level = value & 0xFF;
         if ((u8)value >= 0x10) {
             level = 0xF;
         }
-        entry->unk13 = (level << 4) + arg2;
+        entry->unk13 = (level << 4) + base;
     }
 }
 
-void modelAnimEntryStart(s16 arg0, s16 arg1, s16 arg2) {
-    ModelAnimGroup *group;
+void modelAnimEntryStart(s16 modelId, s16 index, s16 value) {
+    ModelData *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
-        entry = &group->entries[arg1];
-        entry->unkA = arg2;
+        entry = &group->entries[index];
+        entry->unkA = value;
         entry->unkE = 1;
         entry->unk8 = 0;
     }
 }
 
-void modelAnimEntryStop(s16 arg0, s16 arg1) {
-    ModelAnimGroup *group;
+void modelAnimEntryStop(s16 modelId, s16 index) {
+    ModelData *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
-        entry = &group->entries[arg1];
+        entry = &group->entries[index];
         entry->unkE = 0;
         modelAnimEntryQueueMatrixCopies(group, entry);
     }
 }
 
-void modelAnimEntryClearTime(s16 arg0, s16 arg1) {
-    ModelAnimGroup *group;
+void modelAnimEntryClearTime(s16 modelId, s16 index) {
+    ModelData *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
-        entry = &group->entries[arg1];
+        entry = &group->entries[index];
         entry->unk11 = 0;
         entry->unk4 = 0.0f;
     }
 }
 
-void modelAnimEntrySetUnkC(s16 arg0, s16 arg1, s16 arg2) {
-    ModelAnimGroup *group;
+void modelAnimEntrySetUnkC(s16 modelId, s16 index, s16 value) {
+    ModelData *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
-        entry = &group->entries[arg1];
-        entry->unkC = arg2;
+        entry = &group->entries[index];
+        entry->unkC = value;
     }
 }
 
-s16 modelAnimEntryGetUnkC(s16 arg0, s16 arg1) {
-    ModelAnimGroup *group;
+s16 modelAnimEntryGetUnkC(s16 modelId, s16 index) {
+    ModelData *group;
 
-    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
-        return group->entries[arg1].unkC;
+        return group->entries[index].unkC;
     }
     return 0;
 }
 
-void modelAnimEntrySetTime(s16 arg0, s16 arg1, s16 arg2, f32 arg3) {
-    ModelAnimGroup *group;
+void modelAnimEntrySetTime(s16 modelId, s16 index, s16 key, f32 time) {
+    ModelData *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
-        entry = &group->entries[arg1];
-        entry->unk4 = arg3;
-        entry->unk11 = arg2;
+        entry = &group->entries[index];
+        entry->unk4 = time;
+        entry->unk11 = key;
     }
 }
 
-void modelAnimEntrySetUnkF(s16 arg0, s16 arg1, s16 arg2) {
-    ModelAnimGroup *group;
+void modelAnimEntrySetUnkF(s16 modelId, s16 index, s16 value) {
+    ModelData *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
-        entry = &group->entries[arg1];
-        entry->unkF = arg2;
+        entry = &group->entries[index];
+        entry->unkF = value;
     }
 }
 
-void modelAnimEntrySetUnk10(s16 arg0, s16 arg1, s16 arg2) {
-    ModelAnimGroup *group;
+void modelAnimEntrySetUnk10(s16 modelId, s16 index, s16 value) {
+    ModelData *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
-        entry = &group->entries[arg1];
-        entry->unk10 = arg2;
+        entry = &group->entries[index];
+        entry->unk10 = value;
     }
 }
 
-void modelAnimEntryResetFrame(s16 arg0, s16 arg1, s16 arg2) {
-    ModelAnimGroup *group;
+void modelAnimEntryResetFrame(s16 modelId, s16 index, s16 value) {
+    ModelData *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
-        entry = &group->entries[arg1];
+        entry = &group->entries[index];
         entry->unk8 = 0;
-        entry->unkA = arg2;
+        entry->unkA = value;
     }
 }
 
-void modelAnimEntrySetUnk12(s16 arg0, s16 arg1, s16 arg2) {
-    ModelAnimGroup *group;
+void modelAnimEntrySetUnk12(s16 modelId, s16 index, s16 value) {
+    ModelData *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
-        entry = &group->entries[arg1];
-        entry->unk12 = arg2;
+        entry = &group->entries[index];
+        entry->unk12 = value;
     }
 }
 
-u8 modelAnimEntryIsActive(s16 arg0, s16 arg1) {
-    ModelAnimGroup *group;
+u8 modelAnimEntryIsActive(s16 modelId, s16 index) {
+    ModelData *group;
     s32 flag;
     u8 result;
 
     result = 0;
-    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
         flag = 0;
-        if (group->entries[arg1].unkE == 1) {
+        if (group->entries[index].unkE == 1) {
             flag = 1;
         } else {
             flag = 0;
@@ -743,15 +710,15 @@ u8 modelAnimEntryIsActive(s16 arg0, s16 arg1) {
     }
 }
 
-void modelAnimEntryGetState(s16 arg0, s16 arg1, s16 *arg2, f32 *arg3, u8 *arg4) {
-    ModelAnimGroup *group;
+void modelAnimEntryGetState(s16 modelId, s16 index, s16 *outKey, f32 *outTime, u8 *outState) {
+    ModelData *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
+    group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
-        entry = &group->entries[arg1];
-        *arg3 = entry->unk4;
-        *arg2 = entry->unk11;
-        *arg4 = entry->unkF;
+        entry = &group->entries[index];
+        *outTime = entry->unk4;
+        *outKey = entry->unk11;
+        *outState = entry->unkF;
     }
 }
