@@ -27,3 +27,5 @@ func_8065C990 → lightApplyToVertexRange. Round 3 (Clean89250, moderate): func_
 Round 6 (Clean3C10; check the evidence at round end): func_805FF5A0 → mapLoadSavedSlotSpawn, func_805FF9AC → mapSaveSlotAndTransition, func_80600174 → mapFindSavedPositionSlot.
 Round 6 (Clean112080): resFreeRecordListHolder → resNodeDestroy, resFreeEntry → resFreeRecordData.
 Round 6 (ReReview 19A00): scriptCmdAttachToParentNode → scriptCmdSpawnDownwardDriftEffect, scriptCmdDetachFromParent → scriptCmdSpawnUpwardDriftEffect, scriptCmdSetActorInteractionTimer → scriptCmdSpawnSineDriftEffect.
+Round 6 (Clean15050, symbol fold): D_80744474 → gFramebuffers[1]. Follow-up: global 0.c, 450.c, 5A50.c declare `extern u32 gSegmentTable[]`; migrate them to include/segment.h (changes their indexing).
+Round 7 (Clean7AF60, weak): func_806769A8 / func_80676A0C are player-type checks. Round 7 (CleanJetpac3480, symbol fold): D_8002F054.. → jetpacPlayer fields, D_8002EF90 → jetpacLedges[].color.
