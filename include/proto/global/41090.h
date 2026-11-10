@@ -9,7 +9,7 @@ void mapSurfaceEffectsReset(void);
 void mapSurfaceEffectInit(s16);
 #endif
 #ifndef PROTO_SKIP_mapSurfaceEffectDraw
-void mapSurfaceEffectDraw(s32, s16);
+Gfx *mapSurfaceEffectDraw(Gfx *, s16);
 #endif
 #ifndef PROTO_SKIP_mapSurfaceEffectsUpdate
 void mapSurfaceEffectsUpdate(void);

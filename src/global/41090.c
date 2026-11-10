@@ -8,7 +8,7 @@ extern s32 gCurrentMap;
 
 typedef struct {
     void (*init)();
-    void (*draw)();
+    Gfx *(*draw)();
     void (*update)();
     u8 active;
 } MapSurfaceEffect;
@@ -35,8 +35,8 @@ void mapSurfaceEffectInit(s16 effectIdx) {
     }
 }
 
-void mapSurfaceEffectDraw(s32 gdl, s16 effectIdx) {
-    D_80747D80[effectIdx].draw(gdl);
+Gfx *mapSurfaceEffectDraw(Gfx *gdl, s16 effectIdx) {
+    return D_80747D80[effectIdx].draw(gdl);
 }
 
 void mapSurfaceEffectsUpdate(void) {

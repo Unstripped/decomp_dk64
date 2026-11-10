@@ -1436,7 +1436,7 @@ extern u8 D_8071FC40[];
 extern u8 D_8071FC58[];
 extern u8 sEffectSparkConfig[];
 extern void *D_8074E880[];
-extern struct CamActor *gCamActor;
+extern Actor *gCamActor;
 
 
 void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {

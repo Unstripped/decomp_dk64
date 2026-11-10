@@ -2,7 +2,6 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
-#define PROTO_SKIP_mapSurfaceEffectDraw // FAKE: callee prototype steer
 #define PROTO_SKIP_renderSetSegment6Override // FAKE: callee prototype steer
 #include "proto/global/109660.h"
 #include "proto/global/117190.h"
@@ -844,7 +843,6 @@ typedef struct MapViewEntries {
 } MapViewEntries;
 
 
-Gfx *mapSurfaceEffectDraw(Gfx *, s16);
 
 Gfx *mapViewDrawPass(Gfx *gfx, MapViewEntries *arg1, u8 arg2) {
     s32 i;
