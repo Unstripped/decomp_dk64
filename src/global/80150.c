@@ -90,7 +90,7 @@ extern u8 D_8072038C;
 s32 actorDespawn(Actor *);  // FAKE: callee prototype steer
 s32 flagGet(s16, s32);  // FAKE: callee prototype steer
 
-s32 tagBarrelIsSpecial(void *actor) {
+s32 tagBarrelIsSpecial(Actor *actor) {
     s32 count = 4; // FAKE: value-named constant local steers regalloc (literal 4: mismatch)
     s32 listId = actorListFindIdByActor(actor);
     s32 i;

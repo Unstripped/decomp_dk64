@@ -5,7 +5,7 @@
 #include "actor.h"
 struct TagBarrelData;
 #ifndef PROTO_SKIP_tagBarrelIsSpecial
-s32 tagBarrelIsSpecial(void *);
+s32 tagBarrelIsSpecial(Actor *);
 #endif
 #ifndef PROTO_SKIP_tagBarrelInitPeerState
 void tagBarrelInitPeerState(void);
