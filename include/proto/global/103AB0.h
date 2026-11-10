@@ -104,10 +104,10 @@ Gfx *screenFadeDrawSpinTexture(Gfx *, u8);
 void vtxGradientSetPosition(s16);
 #endif
 #ifndef PROTO_SKIP_vtxGradientSetColorA
-void vtxGradientSetColorA(s8, s8, s8);
+void vtxGradientSetColorA(u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_vtxGradientSetColorB
-void vtxGradientSetColorB(s8, s8, s8);
+void vtxGradientSetColorB(u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_vtxSetColor
 void vtxSetColor(struct VtxColorView *, u8, u8, u8, u8, u8);

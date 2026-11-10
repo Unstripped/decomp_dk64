@@ -2,8 +2,6 @@
 #include "actor.h"
 #include "sched.h"
 #include "segment.h"
-#define PROTO_SKIP_vtxGradientSetColorA // FAKE: callee prototype steer
-#define PROTO_SKIP_vtxGradientSetColorB // FAKE: callee prototype steer
 #include "proto/boot/30E0.h"
 #include "proto/global/100180.h"
 #include "proto/global/1025E0.h"
@@ -76,8 +74,6 @@ typedef struct Struct_8076A048 {
 void func_80024000(void);
 void func_80026FD0(void *);
 void func_8002EC08(s32);
-void vtxGradientSetColorA(s32, s32, s32); // FAKE: callee prototype steer
-void vtxGradientSetColorB(s32, s32, s32); // FAKE: callee prototype steer
 
 extern u8 D_1000020[];
 extern u8 D_1000030[];

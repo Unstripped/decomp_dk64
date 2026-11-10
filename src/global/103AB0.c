@@ -1020,7 +1020,7 @@ extern u8 D_807FD894;
 extern u8 D_807FD895;
 extern u8 D_807FD896;
 
-void vtxGradientSetColorA(s8 r, s8 g, s8 b) {
+void vtxGradientSetColorA(u8 r, u8 g, u8 b) {
     D_807FD894 = r;
     D_807FD895 = g;
     D_807FD896 = b;
@@ -1030,7 +1030,7 @@ extern u8 D_807FD897;
 extern u8 D_807FD898;
 extern u8 D_807FD899;
 
-void vtxGradientSetColorB(s8 r, s8 g, s8 b) {
+void vtxGradientSetColorB(u8 r, u8 g, u8 b) {
     D_807FD897 = r;
     D_807FD898 = g;
     D_807FD899 = b;
