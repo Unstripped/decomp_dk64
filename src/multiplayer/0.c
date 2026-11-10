@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorResolveKillCreditOwner // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -1201,7 +1200,6 @@ void mpRespawnPlayer(MpActor *playerIndex, s32 isTeamSpawn) {
     playerResumeLocomotion(playerIndex);
 }
 
-MpActor *actorResolveKillCreditOwner(void *, s8, u8);
 
 void mpCreditKill(u8 victimIndex, s8 killerIndex) {
     void *points;
@@ -1216,7 +1214,7 @@ void mpCreditKill(u8 victimIndex, s8 killerIndex) {
     victimPlayer = &gPlayerSlots[victimIndex];
     if (killerActor->unk2FB + killerActor->unk2FD > 0) {
         if (victimPlayer->unk2A0 != NULL) {
-            killerPlayer = actorResolveKillCreditOwner(victimPlayer->unk2A0, killerIndex, victimIndex);
+            killerPlayer = actorResolveKillCreditOwner(victimPlayer->unk2A0);
             if (killerPlayer != NULL && killerPlayer->unk5C == 1) {
                 killerScore = killerPlayer->unk174;
                 if (killerActor->unk2FB + killerActor->unk2FD + killerIndex <= 0) {
