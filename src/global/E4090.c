@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
+#define PROTO_SKIP_playerResumeLocomotionDecel // FAKE: callee prototype steer (owner takes no parameter; the extra argument steers a0)
 #include "sched.h"
 #define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #include "proto/global/10E1D0.h"

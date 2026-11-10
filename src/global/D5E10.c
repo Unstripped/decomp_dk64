@@ -1,8 +1,8 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_playerApplyGravityAndMotion // PROTO: Type Actor *  of this argument  is incompatible with type void  of function prototype description
-#define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
+#define PROTO_SKIP_playerApplyGravityAndMotion // FAKE: callee prototype steer (owner takes no parameter; the extra argument steers a0)
+#define PROTO_SKIP_playerResumeLocomotionDecel // FAKE: callee prototype steer (owner takes no parameter; the extra argument steers a0)
 #include "proto/global/103AB0.h"
 #include "proto/global/10D2D0.h"
 #include "proto/global/117190.h"
