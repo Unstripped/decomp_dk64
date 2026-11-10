@@ -197,6 +197,14 @@ typedef struct ActorGlobalState {
     /* 0x278 */ s16 *unk278[8];
 } ActorGlobalState;
 
+typedef struct ActorFloorContact {
+    /* 0x00 */ u8 pad0[0xC];
+    /* 0x0C */ u8 unkC;
+    /* 0x0D */ u8 padD;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 unk10;
+} ActorFloorContact;
+
 typedef struct Actor {
     /* 0x000 */ void *animState;
     /* 0x004 */ ActorSub4 *sub4;
@@ -267,7 +275,7 @@ typedef struct Actor {
     /* 0x110 */ u8 attachMode;
     /* 0x111 */ u8 unk111[3];
     /* 0x114 */ ActorList *riderList;
-    /* 0x118 */ u8 unk118[4];
+    /* 0x118 */ struct ActorFloorContact *floorContact;
     /* 0x11C */ struct Actor *parentActor;
     /* 0x120 */ f32 unk120;
     /* 0x124 */ void *spawnData;

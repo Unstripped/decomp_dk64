@@ -651,14 +651,6 @@ typedef struct ActorC71CState {
     /* 0x3A */ u8 unk3A;
 } ActorC71CState;
 
-typedef struct ActorC71CSub118 {
-    u8 pad0[0xC];
-    u8 unkC;
-    u8 padD;
-    s16 unkE;
-    s16 unk10;
-} ActorC71CSub118;
-
 
 extern s32 gGlobalOverlayFlags;
 extern u8 D_807FBBA9;
@@ -848,9 +840,9 @@ void actorTransformCameraUpdate(void) {
         gCurrentActor->speedXZ = 35.0f;
         gCurrentActor->flags2 |= 1;
         pathFollowUpdateHeading(gCurrentActor, 0);
-        if ((*(ActorC71CSub118 **)gCurrentActor->unk118)->unkC == 0) {
-            gCurrentActor->moveYaw = (*(ActorC71CSub118 **)gCurrentActor->unk118)->unkE;
-            gCurrentActor->speedXZ = (f32)(*(ActorC71CSub118 **)gCurrentActor->unk118)->unk10;
+        if (gCurrentActor->floorContact->unkC == 0) {
+            gCurrentActor->moveYaw = gCurrentActor->floorContact->unkE;
+            gCurrentActor->speedXZ = (f32)gCurrentActor->floorContact->unk10;
         } else {
             gCurrentActor->speedXZ = 0.0f;
         }

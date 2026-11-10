@@ -444,11 +444,6 @@ void effectSpawnActorScale(Actor *actor) {
     ((EffectOwnerView *)effectCreateAtPosition(&D_8071FED0, (f64) scale * 0.6, actor->x, actor->waterY, actor->z))->ownerActor = actor;
 }
 
-typedef struct ActorFloorContact {
-    u8 pad0[0x10];
-    s16 unk10;
-} ActorFloorContact;
-
 extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 extern s16 D_80753A08[];
@@ -471,7 +466,7 @@ void effectActorCheckGroundScaleSpawn(Actor *actor) {
         if ((actor->waterY - floorYOffset) <= actor->y) {
             if (!(gFrameCounter & 3)) {
                 shouldSpawn = (f64)actor->speedXZ != 0.0;
-                if (*(ActorFloorContact **)actor->unk118 != NULL && (*(ActorFloorContact **)actor->unk118)->unk10 != 0) {  // FAKE: punned view of Actor.unk118 (u8[4] in actor.h; header request: pointer field)
+                if (actor->floorContact != NULL && actor->floorContact->unk10 != 0) {
                     shouldSpawn = 1;
                 }
             }
