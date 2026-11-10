@@ -2,6 +2,7 @@
 #ifndef PROTO_GLOBAL_36880_H
 #define PROTO_GLOBAL_36880_H
 #include "common.h"
+#include "proto/global/35000.h"
 struct DisplayListCmd;
 struct ModelAssetData;
 struct ModelChainOwner;
@@ -67,7 +68,7 @@ s32 modelSlotFindByType(s32, s32 *, f32 *, f32 *, f32 *, s16 *, s16 *);
 s16 modelSlotAppend(s32, f32, f32, f32, f32, u8);
 #endif
 #ifndef PROTO_SKIP_modelSlotInit
-s16 modelSlotInit(s32, s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, s32 *);
+s16 modelSlotInit(s32, s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, struct RenderEntry **);
 #endif
 #ifndef PROTO_SKIP_modelFlagsApplyMapPairs
 void modelFlagsApplyMapPairs(s16, u8 *);

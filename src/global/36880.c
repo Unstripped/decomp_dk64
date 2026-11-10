@@ -278,7 +278,7 @@ extern s16 gCsModelIds[];
 extern s32 D_807F6004;
 
 void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 saveFile) {
-    s32 renderList;
+    struct RenderEntry *renderList;
     s32 entryCount;
     u8 *noEntries;
     ModelAssetEntry *entry;
@@ -291,7 +291,7 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
     u8 found;
     u8 used;
 
-    renderList = 0;
+    renderList = NULL;
     outCount = 0;
     i = 0;
     counter = 0;
@@ -452,11 +452,11 @@ s32 modelSlotFindByType(s32 type, s32 *cursor, f32 *xOut, f32 *yOut, f32 *zOut, 
 extern u8 D_807F6008;
 
 s16 modelSlotAppend(s32 type, f32 x, f32 y, f32 z, f32 yOffset, u8 force) {
-    s32 renderList;
+    struct RenderEntry *renderList;
     s16 slotId;
     f32 scale;
 
-    renderList = 0;
+    renderList = NULL;
     if (D_80747D70 >= D_807F614A) {
         faultSetMessage(8, 0, 0, 0);
     }
@@ -570,9 +570,9 @@ struct ModelVertTable;
 #define MODEL_SLOT_BY_INDEX ((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))
 #define MODEL_SLOT_PTR (&gModelSlots[slot])
 
-s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, f32 yOffset, u8 flags, u8 light, s32 *renderListInOut) {
+s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, f32 yOffset, u8 flags, u8 light, struct RenderEntry **renderListInOut) {
     s32 padA[1];
-    s32 renderList;
+    struct RenderEntry *renderList;
     s32 padB[1];
     ModelType1Obj *obj1;
     ModelType2ObjView *obj2;
@@ -4182,7 +4182,7 @@ void modelPendingEntriesProcess(void) {
     u8 found;
     s32 i;
     s32 slot;
-    s32 obj;
+    struct CsStateFull *obj;
     u8 any;
     s32 j;
 
@@ -4197,7 +4197,7 @@ void modelPendingEntriesProcess(void) {
                         any = 1;
                         D_807F6030[i].done = 1;
                         slot = hashTableLookup(D_807F6030[i].id);
-                        obj = (s32)gModelSlots[slot].unk7C;
+                        obj = gModelSlots[slot].unk7C;
                         if (D_807F60A8 == 0x46) {
                             return;
                         }
