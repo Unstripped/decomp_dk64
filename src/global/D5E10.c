@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
 #define PROTO_SKIP_playerApplyGravityAndMotion // PROTO: Type Actor *  of this argument  is incompatible with type void  of function prototype description
 #define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
@@ -4294,7 +4293,6 @@ extern f32 D_80753D70[];
 extern f32 D_80753D8C[];
 extern s16 D_80753DA8[];
 extern s16 D_80753DB8[];
-void actorStepPhysics(Actor *, s16, s16); // FAKE: callee prototype steer
 
 void playerStateBounceRecover(void) {
     f32 ledgeY;

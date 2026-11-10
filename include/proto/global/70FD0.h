@@ -133,7 +133,7 @@ s32 collisionBuildBoxFromMatrix(f32 *, struct CollisionBox *);
 void actorSub140TransformTriangles(ActorSub140 *);
 #endif
 #ifndef PROTO_SKIP_actorSetTargetAngleAndCheck
-u8 actorSetTargetAngleAndCheck(s32, s16);
+u8 actorSetTargetAngleAndCheck(Actor *, s16);
 #endif
 #ifndef PROTO_SKIP_actorClearTargetAngle
 void actorClearTargetAngle(void);
