@@ -13,8 +13,8 @@ One row per cleanup round, newest last; keep the last ~10. Read when sizing a ro
 ## Pending for the next session
 
 - Freshness rule: `review` events stale only on name hits (note top-8 matching only for diagnose/permute/reconstruct); restores ≈264 reviews (Q0589/Q0118 noise).
-- CsState.unk44 split (`s16 unk44[2]; u8 unk48; u8 unk49`): 478F0 `(u8)cs->unk44[2]` → `unk49` (5 uses), check 42630 variable indices `unk44[cmd->b|c]`; then csCmdLightPulse review.
-- Header requests not landed: 103AB0 (PlayerStruct unk234[3]/unk24C/viewport[2]/unk290/unk2E8; PlayerState unk1E8/unk1EC; 7 `views blocked`), 42630 (54150 `modelSlotStepAnimations(s16)`; Actor unk10E/unk10F, unk12F split; csStateUpdate/csCmdExec reviews), see `.scratch/Clean*/header-request.md`.
+- CsState.unk44 split (`s16 unk44[2]; u8 unk48; u8 unk49`): 478F0 `(u8)cs->unk44[2]` → `unk49` (5 uses), check 42630 variable indices `unk44[cmd->b|c]`; then csCmdLightPulse review (`drafts/header-requests/478F0-CsState.md`).
+- Header requests not landed: 103AB0 (PlayerStruct unk234[3]/unk24C/viewport[2]/unk290/unk2E8; PlayerState unk1E8/unk1EC; 7 `views blocked`), 42630 (54150 `modelSlotStepAnimations(s16)`; Actor unk10E/unk10F, unk12F split; csStateUpdate/csCmdExec reviews), full hunks and evidence in `drafts/header-requests/`.
 - Callee batches: mathAngleSignedDistance K&R → ANSI (owner CEAE0; race/1770 passes 3 args); actorStepPhysics (Actor *, s16, s16); func_80600340 pointer param; actorAppendCallback 2nd param Actor *; actorSetTargetAngleAndCheck Actor *; actorList* s32 → void *; sfxPlayAtPositionPooled word params?; actorSpawn arity (89250); mathAngleBetweenPoints2D steers in 478F0/E4090/boss/0; minecart/25F0 mathAngleDistance; slotQueueAddValue arity (C2A90).
 - Types: race RaceUnknown174 vs RaceStruct3; B100 BossWorkState view; boss/8520 s32 view of unk28; 12E800 C1Act view past 0x178.
 - Tools: `carry --header-carve` treats a pad array shrinking to a scalar as a layout change; `clint uninit --base` must treat a base whose warnings-mode TU has errors as unknown (critter/0); `clint scan` should report warnings-mode errors.
