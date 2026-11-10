@@ -1393,7 +1393,7 @@ void playerStateBackflip(void) {
     switch (gCurrentActor->unk155) {
     case 0:
         if (gActivePlayerState->approachTimer != 0) {
-            if (mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->approachYaw)) {} // FAKE: dead if keeps the ignored s32 result out of $v0 (Q0198)
+            mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->approachYaw);
             playerApproachVelocity(gActivePlayerState->approachYaw, 50.0f, gActivePlayerState->targetSpeed);
             gActivePlayerState->approachTimer--;
         }
