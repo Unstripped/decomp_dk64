@@ -3,7 +3,6 @@
 #include "sched.h"
 #define PROTO_SKIP_playerApplyGravityAndMotion // PROTO: Type Actor *  of this argument  is incompatible with type void  of function prototype description
 #define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
-#define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/103AB0.h"
 #include "proto/global/10D2D0.h"
 #include "proto/global/117190.h"
@@ -85,7 +84,6 @@ extern PadU16Slot D_807FD63C[];
 
 extern u32 gGlobalPauseFlags;
 extern PadU16Slot D_807FD63A[];
-s32 playerStateQueueCallback();
 
 void playerStateCarried(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
@@ -620,7 +618,7 @@ void playerStateRidingActor(void) {
         gCurrentActor->state = 0x6D;
         gCurrentActor->unk155 = 0;
     } else {
-        playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex, counter);
+        playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     }
     *counter += gActivePlayerState->unkC2;
     if (gActivePlayerState->unkC2 >= 8) {
@@ -2580,7 +2578,7 @@ extern s16 D_807539EC[];
 s32 playerCanPerformActionCheck(void) {
     f32 surfaceOffset;
     f32 lim;
-    s32 idx;
+    u8 idx;
 
     if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
         surfaceOffset = D_8075388C[gCurrentCharacterIndex];
