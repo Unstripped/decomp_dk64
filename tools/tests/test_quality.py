@@ -102,6 +102,20 @@ def test_record_writes_full_schema(tmp_path, monkeypatch):
     assert (e["site"], e["kind"], e["quirks"], e["fp_local"]) == (SITE["key"], "dead-if", ["Q0001", "Q0002"], FP[0])
 
 
+@pytest.mark.parametrize("agent,ok", [("Clean12E800.SnXxx", True), ("a.b.c", True), ("a b", False),
+                                      ("a/b", False), ("a.", False), (".a", False)])
+def test_record_agent_ids(tmp_path, monkeypatch, agent, ok):
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q.Resolver, "find", lambda self, key: (dict(FN, file="src/global/x.c"), SITE))
+    batch = tmp_path / "batch.txt"
+    batch.write_text(f'{SITE["key"]} diagnose nohit quirks=Q0001\n')
+    if ok:
+        q.main(["record", "--unit", "u1", "--agent", agent, "--batch", str(batch)])
+        assert json.loads((tmp_path / "quality.jsonl").read_text().splitlines()[-1])["agent"] == agent
+    else:
+        with pytest.raises(SystemExit):
+            q.main(["record", "--unit", "u1", "--agent", agent, "--batch", str(batch)])
+
 def test_record_accepts_permute_stopped_on_zero(tmp_path, monkeypatch):
     ledger_path = tmp_path / "quality.jsonl"
     monkeypatch.setattr(q, "LEDGER", str(ledger_path))
