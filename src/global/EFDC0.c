@@ -598,7 +598,7 @@ extern Actor *D_807FBB90;
 void playerStateEnterAirDamageReaction(void) {
     gActivePlayerState->queuedHeldActor = D_807FBB90;
     gActivePlayerState->queuedHeldActorId = gActivePlayerState->queuedHeldActor->instanceId;
-    switch ((u32)gActivePlayerState->queuedHeldActor->actorType) {
+    switch ((u32)gActivePlayerState->queuedHeldActor->actorType) { // FAKE: unsigned cast steers the jump-table bound check (sltiu, Q0449)
     case 0x3D:
     case 0x3F:
     case 0x40:
@@ -921,7 +921,7 @@ void playerStateSetLaunchVelocity(void) {
         gActivePlayerState->unk50 = 0x14;
         playerSetBaseGravity();
     } else {
-        switch ((u32)gPlayerSlots[gCurrentPlayerIndex].queuedActor->actorType) {
+        switch ((u32)gPlayerSlots[gCurrentPlayerIndex].queuedActor->actorType) { // FAKE: unsigned cast steers the jump-table bound check (sltiu, Q0449)
         case 0x17:
         case 0xA7:
             gActivePlayerActor->state = 0x45;
