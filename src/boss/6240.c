@@ -2,6 +2,7 @@
 #include "actor.h"
 #include "sched.h"
 #include "proto/boss/3840.h"
+#define PROTO_SKIP_bossClampPosition
 #include "proto/boss/6240.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -152,10 +153,11 @@ void bossSpawnSparkles(void) {
 }
 
 extern Actor *gPrimaryPlayerActor;
-s32 polygonContainsPoint2D(s16, s16, s32);
 
-void bossClampPosition(s32 radius) {
-    if (!polygonContainsPoint2D((s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z, radius)) {
+u8 polygonContainsPoint2D(s16, s16, Zone *);
+
+void bossClampPosition(Zone *zone) {
+    if (!polygonContainsPoint2D((s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z, zone)) {
         gPrimaryPlayerActor->x = gPrimaryPlayerActor->prevX;
         gPrimaryPlayerActor->z = gPrimaryPlayerActor->prevZ;
     }
@@ -340,7 +342,7 @@ void bossPufftossStep(void) {
         gCurrentActor->base.interactionType = 4;
         actorMoveWithinZone(0x45, 606.0f, 566.0f, 0x292, 0.0f);
         if (gCurrentActor->base.unk155 == 1) {
-            bossClampPosition((s32)&D_807FDCA0[1]);
+            bossClampPosition(&D_807FDCA0[1]);
         }
         if ((gCurrentActor->base.unk155 == 0) && (gPrimaryPlayerActor->state == 0x42)) {
             gCurrentActor->base.unk155 = 1;
@@ -378,7 +380,7 @@ void bossPufftossStep(void) {
         checkFloor = 0;
         updateY = 0;
         gCurrentActor->base.interactionType = 4;
-        bossClampPosition((s32)&D_807FDCA0[1]);
+        bossClampPosition(&D_807FDCA0[1]);
         if ((gCurrentActor->base.unk155 == 0) && (currentActorTestClearFlag() != 0)) {
             gCurrentActor->base.unk155 += 1;
             bossSpawnParticleRing(0xEC, D_807FDCA0->entries[16].x, (s16)(D_807FDCA0->entries[16].y + 0x14), D_807FDCA0->entries[16].z, 0x5DC, 4);
