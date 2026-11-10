@@ -2,7 +2,6 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_playerApplyGravityAndMotion // FAKE: callee prototype steer (owner takes no parameter; the extra argument steers a0)
-#define PROTO_SKIP_playerResumeLocomotionDecel // FAKE: callee prototype steer (owner takes no parameter; the extra argument steers a0)
 #include "proto/global/103AB0.h"
 #include "proto/global/10D2D0.h"
 #include "proto/global/117190.h"
@@ -1389,7 +1388,6 @@ void playerStateCrouchJump(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void playerResumeLocomotionDecel();
 
 void playerStateBackflip(void) {
     switch (gCurrentActor->unk155) {

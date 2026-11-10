@@ -46,7 +46,7 @@ void scriptCmdCompareSpeedXZ(Actor *);
 void scriptCmdCompareMoveTier(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerResumeLocomotionDecel
-void playerResumeLocomotionDecel(void);
+void playerResumeLocomotionDecel(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerD0150Wrapper
 void playerD0150Wrapper(Actor *);

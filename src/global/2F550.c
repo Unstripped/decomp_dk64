@@ -8,7 +8,6 @@
 #include "proto/global/126260.h"
 #include "proto/global/136820.h"
 #include "proto/global/15050.h"
-#define PROTO_SKIP_func_8062CA0C
 #include "proto/global/2F550.h"
 #include "proto/global/35000.h"
 #include "proto/global/36880.h"

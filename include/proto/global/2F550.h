@@ -88,7 +88,7 @@ Gfx *mapRenderPlayerView(Gfx *, f32, f32, f32, f32, f32, f32, f32, f32, f32);
 void viewportSetFromRect(s16 *, s32, s32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_func_8062CA0C
-void func_8062CA0C(Gfx *, f32, f32, f32);
+Gfx *func_8062CA0C(Gfx *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapTreeRender
 Gfx *mapTreeRender(Gfx *, struct MapBspNode *, struct MapVisNode *, f32, f32, f32, s32);

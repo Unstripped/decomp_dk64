@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_playerResumeLocomotionDecel // FAKE: callee prototype steer (owner takes no parameter; the extra argument steers a0)
 #include "sched.h"
 #define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #include "proto/global/10E1D0.h"
@@ -1599,7 +1598,6 @@ void playerInputHandleCannonBButton(void) {
 }
 
 
-void playerResumeLocomotionDecel(Actor *);
 
 void playerInputHandlerResumeDecel(void) {
     playerResumeLocomotionDecel(gCurrentActor);
