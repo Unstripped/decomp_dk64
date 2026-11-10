@@ -98,21 +98,20 @@ void jetpacBuildDisplayList(u8 *basePtr, Gfx **outGlist) {
 }
 
 
-extern JetpacPlayer D_8002EC4C[]; // FAKE: alias of jetpacGame.players; the pointer rewrite is word-identical but objdiff reloc-equiv mispairs interleaved HI16/LO16 (pre-existing, now tagged)
-
 void jetpacResetPlayers(void) {
     s32 i;
     for (i = 0; i < 2; i++) {
-        jetpacGame.players[i].stage = -1;
-        jetpacGame.players[i].score = 0;
+        JetpacPlayer *p = &jetpacGame.players[i];
+        p->stage = -1;
+        p->score = 0;
         if (i < jetpacGame.numPlayers) {
             if (jetpacGame.unk798 != 0) {
-                D_8002EC4C[i].lives = 3;
+                p->lives = 3;
             } else {
-                D_8002EC4C[i].lives = 5;
+                p->lives = 5;
             }
         } else {
-            D_8002EC4C[i].lives = -1;
+            p->lives = -1;
         }
     }
     jetpacGame.activePlayer = 0;
