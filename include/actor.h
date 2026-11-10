@@ -283,6 +283,29 @@ typedef struct ActorFloorContact {
     /* 0x10 */ s16 unk10;
 } ActorFloorContact;
 
+// One entry of an actor's segment-animation list (Actor.animList; 8CA50 animListInit builds it from
+// the model asset, animListUpdate steps it, animSetSegments binds each node's current frame to its segment).
+typedef struct AnimNode {
+    /* 0x00 */ void **unk0;
+    /* 0x04 */ void **unk4;
+    /* 0x08 */ u8 unk8;
+    /* 0x09 */ u8 pad9;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ u8 padE[0x2];
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ s16 unk18;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 unk20;
+    /* 0x21 */ u8 unk21;
+    /* 0x22 */ u8 unk22;
+    /* 0x23 */ u8 unk23;
+    /* 0x24 */ struct AnimNode *next;
+} AnimNode;
+
 typedef struct Actor {
     /* 0x000 */ void *animState;
     /* 0x004 */ ActorSub4 *sub4;
@@ -380,7 +403,8 @@ typedef struct Actor {
     /* 0x154 */ u8 state;
     /* 0x155 */ u8 unk155;
     /* 0x156 */ u8 unk156;
-    /* 0x157 */ u8 unk157[5];
+    /* 0x157 */ u8 unk157;
+    /* 0x158 */ AnimNode *animList;
     /* 0x15C */ s16 spawnTimer;
     /* 0x15E */ u8 eyeHeight;
     /* 0x15F */ u8 unk15F;

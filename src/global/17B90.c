@@ -378,7 +378,7 @@ void controllerAnimFree(Actor *actor) {
     controllerAnimFreeSub(actor, 0);
     controllerAnimFreeSub(actor, 1);
     controllerAnimFreeSub(actor, 2);
-    animListFree((u8 *)actor + 0x158);
+    animListFree(&actor->animList);
     controllerAnimCacheFree(actor, actor->sub4->model);
     controllerAnimCacheFree(actor, actor->sub4->layer);
     controllerAnimCacheFree(actor, actor->sub4->blendFrom);

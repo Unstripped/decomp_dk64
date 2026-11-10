@@ -2,62 +2,61 @@
 #ifndef PROTO_GLOBAL_8CA50_H
 #define PROTO_GLOBAL_8CA50_H
 #include "common.h"
-struct AnimActor;
+#include "actor.h"
 struct AnimInitData;
-struct AnimNode;
 #ifndef PROTO_SKIP_animListInit
-void animListInit(struct AnimActor *, struct AnimInitData *);
+void animListInit(Actor *, struct AnimInitData *);
 #endif
 #ifndef PROTO_SKIP_animSetSegments
-Gfx *animSetSegments(Gfx *, struct AnimActor *);
+Gfx *animSetSegments(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_animListUpdate
-void animListUpdate(struct AnimActor *);
+void animListUpdate(Actor *);
 #endif
 #ifndef PROTO_SKIP_animNodeAdvanceTime
 void animNodeAdvanceTime(struct AnimNode *);
 #endif
 #ifndef PROTO_SKIP_animGetNodeItem
-s32 animGetNodeItem(void *, s32, s16);
+s32 animGetNodeItem(Actor *, s32, s16);
 #endif
 #ifndef PROTO_SKIP_animSetNodeItem
-void animSetNodeItem(void *, s32, s16, s32);
+void animSetNodeItem(Actor *, s32, s16, s32);
 #endif
 #ifndef PROTO_SKIP_animSetSpeed
-void animSetSpeed(void *, s32, f32);
+void animSetSpeed(Actor *, s32, f32);
 #endif
 #ifndef PROTO_SKIP_animSetDirection
-void animSetDirection(void *, s32, u8);
+void animSetDirection(Actor *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_animSetLoopMode
-void animSetLoopMode(void *, s32, u8);
+void animSetLoopMode(Actor *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_animSetFrameAndSubframe
-void animSetFrameAndSubframe(void *, s32, s16, f32);
+void animSetFrameAndSubframe(Actor *, s32, s16, f32);
 #endif
 #ifndef PROTO_SKIP_animSetLoopLimit
-void animSetLoopLimit(void *, s32, s16);
+void animSetLoopLimit(Actor *, s32, s16);
 #endif
 #ifndef PROTO_SKIP_animSetFinished
-void animSetFinished(void *, s32, u8);
+void animSetFinished(Actor *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_animSetStartFrame
-void animSetStartFrame(void *, s32, s16);
+void animSetStartFrame(Actor *, s32, s16);
 #endif
 #ifndef PROTO_SKIP_animSetEndFrame
-void animSetEndFrame(void *, s32, s16);
+void animSetEndFrame(Actor *, s32, s16);
 #endif
 #ifndef PROTO_SKIP_animResetEndFrame
-void animResetEndFrame(void *, s32);
+void animResetEndFrame(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_animClearStartFrame
-void animClearStartFrame(void *, s32);
+void animClearStartFrame(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_animIsPlaying
-s32 animIsPlaying(void *, s32);
+s32 animIsPlaying(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_animGetNodeByIndex
-struct AnimNode *animGetNodeByIndex(struct AnimActor *, u32);
+AnimNode *animGetNodeByIndex(Actor *, u32);
 #endif
 #ifndef PROTO_SKIP_animListFree
 void animListFree(struct AnimNode **);

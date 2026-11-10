@@ -3,7 +3,6 @@
 #define PROTO_SKIP_actorAppendCallbackPayloadA70C // FAKE: callee prototype steer
 #define PROTO_SKIP_actorDespawn // FAKE: callee prototype steer
 #define PROTO_SKIP_actorSpawnNodeEntryScaled // FAKE: callee prototype steer
-#define PROTO_SKIP_animGetNodeByIndex // PROTO: 'unkC' undefined; reoccurrences will not be reported.
 #define PROTO_SKIP_playerStateQueueCallback // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -420,13 +419,6 @@ typedef struct ActorView {
     /* 0x16C */ u8 unk16C;
 } ActorView;
 
-/* animGetNodeByIndex's result: a node of the actor's 0x158 animation list (8CA50 AnimNode), not an AnimSlot. */
-typedef struct ModelNodeView {
-    /* 0x00 */ u8 pad0[0xC];
-    /* 0x0C */ s16 unkC;
-} ModelNodeView;
-
-ModelNodeView *animGetNodeByIndex(void *, s32);
 extern u8 gGameMode;
 extern s32 gGlobalCutsceneFlags;
 
@@ -484,7 +476,7 @@ void actorShockwaveUpdate(void) {
         }
         break;
     case 1:
-        if ((CUR_ACTOR->sub4->model->speed == 0.0f && animGetNodeByIndex(CUR_ACTOR, 0)->unkC >= 0xE) ||
+        if ((CUR_ACTOR->sub4->model->speed == 0.0f && animGetNodeByIndex(gCurrentActor, 0)->unkC >= 0xE) ||
             CUR_ACTOR->sub4->model->frame > 9.0f) {
             CUR_ACTOR->unk154 = 2;
             if (CUR_ACTOR->unk15F != 0 && actorSpawn(0x102, CUR_ACTOR->unkF0) != 0) {

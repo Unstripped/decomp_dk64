@@ -1,33 +1,8 @@
 #include "common.h"
+#include "actor.h"
 #include "proto/global/15050.h"
 #include "proto/global/6AD90.h"
 #include "proto/global/8CA50.h"
-
-typedef struct AnimNode {
-    /* 0x00 */ void **unk0;
-    /* 0x04 */ void **unk4;
-    /* 0x08 */ u8 unk8;
-    /* 0x09 */ u8 pad9;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ u8 padE[0x2];
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ s16 unk18;
-    /* 0x1A */ s16 unk1A;
-    /* 0x1C */ s16 unk1C;
-    /* 0x1E */ s16 unk1E;
-    /* 0x20 */ u8 unk20;
-    /* 0x21 */ u8 unk21;
-    /* 0x22 */ u8 unk22;
-    /* 0x23 */ u8 unk23;
-    /* 0x24 */ struct AnimNode *next;
-} AnimNode;
-
-typedef struct AnimActor {
-    u8 pad[0x158];
-    AnimNode *unk158;
-} AnimActor;
 
 typedef struct AnimInitData {
     u8 pad[0x10];
@@ -38,7 +13,7 @@ extern s32 gCurrentMap;
 extern u8 gPlayerCount;
 
 
-void animListInit(AnimActor *actor, AnimInitData *initData) {
+void animListInit(Actor *actor, AnimInitData *initData) {
     AnimNode **next_ptr;
     AnimNode *node;
     s16 *src;
@@ -51,15 +26,15 @@ void animListInit(AnimActor *actor, AnimInitData *initData) {
     void **unk4;
     u8 unk;
 
-    if (actor->unk158 != NULL) {
+    if (actor->animList != NULL) {
         if (gCurrentMap == 0x50 || gPlayerCount >= 2) {
-            animListFree(&actor->unk158);
+            animListFree(&actor->animList);
         } else {
             return;
         }
     }
     src = initData->unk10;
-    next_ptr = &actor->unk158;
+    next_ptr = &actor->animList;
     count = *src++;
     if (count != 0) {
         unk = 1;
@@ -104,11 +79,11 @@ void animListInit(AnimActor *actor, AnimInitData *initData) {
     *next_ptr = NULL;
 }
 
-Gfx *animSetSegments(Gfx *glist, AnimActor *actor) {
+Gfx *animSetSegments(Gfx *glist, Actor *actor) {
     AnimNode *node;
     Gfx *temp;
 
-    for (node = actor->unk158; node != NULL; node = node->next) {
+    for (node = actor->animList; node != NULL; node = node->next) {
         temp = glist;
         if (node->unk23 != 0) {
             void *addr = node->unk0[node->unkC];
@@ -120,10 +95,10 @@ Gfx *animSetSegments(Gfx *glist, AnimActor *actor) {
     return glist;
 }
 
-void animListUpdate(AnimActor *actor) {
+void animListUpdate(Actor *actor) {
     AnimNode *node;
 
-    for (node = actor->unk158; node != NULL; node = node->next) {
+    for (node = actor->animList; node != NULL; node = node->next) {
         if (node->unk22 == 0) {
             animNodeAdvanceTime(node);
         }
@@ -243,7 +218,7 @@ void animNodeAdvanceTime(AnimNode *node) {
     }
 }
 
-s32 animGetNodeItem(void *actor, s32 index, s16 itemIndex) {
+s32 animGetNodeItem(Actor *actor, s32 index, s16 itemIndex) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (!node) {
         return 0;
@@ -251,7 +226,7 @@ s32 animGetNodeItem(void *actor, s32 index, s16 itemIndex) {
     return ((s32 *)node->unk0)[itemIndex];
 }
 
-void animSetNodeItem(void *actor, s32 index, s16 itemIndex, s32 value) {
+void animSetNodeItem(Actor *actor, s32 index, s16 itemIndex, s32 value) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
         if (itemIndex < node->unkA) {
@@ -260,28 +235,28 @@ void animSetNodeItem(void *actor, s32 index, s16 itemIndex, s32 value) {
     }
 }
 
-void animSetSpeed(void *actor, s32 index, f32 animSpeed) {
+void animSetSpeed(Actor *actor, s32 index, f32 animSpeed) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
         node->unk10 = animSpeed;
     }
 }
 
-void animSetDirection(void *actor, s32 index, u8 direction) {
+void animSetDirection(Actor *actor, s32 index, u8 direction) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
         node->unk20 = direction;
     }
 }
 
-void animSetLoopMode(void *actor, s32 index, u8 loopMode) {
+void animSetLoopMode(Actor *actor, s32 index, u8 loopMode) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
         node->unk21 = loopMode;
     }
 }
 
-void animSetFrameAndSubframe(void *actor, s32 index, s16 frame, f32 subframe) {
+void animSetFrameAndSubframe(Actor *actor, s32 index, s16 frame, f32 subframe) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
         node->unkC = frame;
@@ -289,7 +264,7 @@ void animSetFrameAndSubframe(void *actor, s32 index, s16 frame, f32 subframe) {
     }
 }
 
-void animSetLoopLimit(void *actor, s32 index, s16 loopLimit) {
+void animSetLoopLimit(Actor *actor, s32 index, s16 loopLimit) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
         node->unk18 = loopLimit;
@@ -298,42 +273,42 @@ void animSetLoopLimit(void *actor, s32 index, s16 loopLimit) {
     }
 }
 
-void animSetFinished(void *actor, s32 index, u8 finished) {
+void animSetFinished(Actor *actor, s32 index, u8 finished) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
         node->unk22 = finished;
     }
 }
 
-void animSetStartFrame(void *actor, s32 index, s16 startFrame) {
+void animSetStartFrame(Actor *actor, s32 index, s16 startFrame) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
         node->unk1C = startFrame;
     }
 }
 
-void animSetEndFrame(void *actor, s32 index, s16 endFrame) {
+void animSetEndFrame(Actor *actor, s32 index, s16 endFrame) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
         node->unk1E = endFrame;
     }
 }
 
-void animResetEndFrame(void *actor, s32 index) {
+void animResetEndFrame(Actor *actor, s32 index) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
         node->unk1E = node->unkA;
     }
 }
 
-void animClearStartFrame(void *actor, s32 index) {
+void animClearStartFrame(Actor *actor, s32 index) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
         node->unk1C = 0;
     }
 }
 
-s32 animIsPlaying(void *actor, s32 index) {
+s32 animIsPlaying(Actor *actor, s32 index) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (!node) {
         return 0;
@@ -341,8 +316,8 @@ s32 animIsPlaying(void *actor, s32 index) {
     return (node->unk22 == 0) ? 1 : 0;
 }
 
-AnimNode *animGetNodeByIndex(AnimActor *actor, u32 count) {
-    AnimNode *node = actor->unk158;
+AnimNode *animGetNodeByIndex(Actor *actor, u32 count) {
+    AnimNode *node = actor->animList;
     if (count != 0) {
         do {
             if (node != NULL) {
