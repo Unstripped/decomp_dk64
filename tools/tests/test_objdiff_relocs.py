@@ -330,3 +330,18 @@ def test_reloc_equivalent_rejects_different_instruction(monkeypatch):
                           (text_b, [(0, "R_MIPS_HI16", "D_807506D0"), (4, "R_MIPS_LO16", "D_807506D0")]),
                           (_hi_lo(0, 0), [(0, "R_MIPS_HI16", "D_807506D5"), (4, "R_MIPS_LO16", "D_807506D5")]))
     assert not objdiff.reloc_equivalent(b, e)
+
+
+def test_reloc_equivalent_pairs_hi16_by_register(monkeypatch):
+    """jetpac/0 jetpacResetPlayers: three `lui`s of one symbol precede their LO16s; the a0 pair
+    carries +0x1C, which expected reaches through the split label D_8002EC4C (= jetpacGame + 0x1C)."""
+    w = lambda *xs: b"".join(x.to_bytes(4, "big") for x in xs)
+    # lui v1; lui a0; lui a2; addiu a2,a2,0; addiu a0,a0,lo; addiu v1,v1,0
+    built = w(0x3C030000, 0x3C040000, 0x3C060000, 0x24C60000, 0x2484001C, 0x24630000)
+    exp = w(0x3C030000, 0x3C040000, 0x3C060000, 0x24C60000, 0x24840000, 0x24630000)
+    sym = lambda a0: [(0, "R_MIPS_HI16", "jetpacGame"), (4, "R_MIPS_HI16", a0), (8, "R_MIPS_HI16", "jetpacGame"),
+                      (12, "R_MIPS_LO16", "jetpacGame"), (16, "R_MIPS_LO16", a0), (20, "R_MIPS_LO16", "jetpacGame")]
+    b, e = _reloc_objects(monkeypatch, (built, sym("jetpacGame")), (exp, sym("D_8002EC4C")),
+                          {"jetpacGame": 0x8002EC30})
+    assert objdiff.pair_addends(built, sym("jetpacGame"))[4] == 0x1C
+    assert objdiff.reloc_equivalent(b, e)

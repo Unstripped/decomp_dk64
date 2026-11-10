@@ -261,21 +261,36 @@ def sext16(v):
 
 def pair_addends(text, relocs):
     """{offset: full addend} for HI16/LO16 relocations (REL: addends sit in the instructions).
-    Per the MIPS ABI a HI16 pairs with the next LO16 of the same target, and a LO16 with the
-    latest HI16 of its target; the full addend is (hi << 16) + sext(lo)."""
+    A HI16 (`lui rt`) pairs with the next LO16 of the same target whose base register is rt (IDO
+    schedules several `lui`s of one symbol before their LO16s, e.g. lui a0; lui a2; addiu a2,a2,lo;
+    addiu a0,a0,0x1C), falling back to the MIPS ABI rule (the next LO16 of the target). A LO16 gets
+    the addend of the HI16 that pairs with it, else of the latest HI16 of its target; the full
+    addend is (hi << 16) + sext(lo)."""
     addends = {}
-    pending = {}  # target -> HI16 offsets awaiting their LO16
-    last_hi = {}  # target -> latest HI16 immediate
+    lo_of_hi = {}
+    for i, (off, rtype, tgt) in enumerate(relocs):
+        if rtype != "R_MIPS_HI16":
+            continue
+        rt = (word_at(text, off) >> 16) & 0x1F
+        los = [o for o, t, s in relocs[i + 1:] if t == "R_MIPS_LO16" and s == tgt]
+        match = next((o for o in los if (word_at(text, o) >> 21) & 0x1F == rt), None)
+        if match is None and los:
+            match = los[0]
+        if match is not None:
+            lo_of_hi[off] = match
+    hi_of_lo = {}
+    for hi, lo in lo_of_hi.items():
+        hi_of_lo.setdefault(lo, hi)
+    last_hi = {}
     for off, rtype, tgt in relocs:
         imm = word_at(text, off) & 0xFFFF
         if rtype == "R_MIPS_HI16":
-            pending.setdefault(tgt, []).append(off)
-            last_hi[tgt] = imm
-            addends[off] = imm << 16
+            last_hi[tgt] = off
+            lo = lo_of_hi.get(off)
+            addends[off] = (imm << 16) + (sext16(word_at(text, lo)) if lo is not None else 0)
         elif rtype == "R_MIPS_LO16":
-            for hi_off in pending.pop(tgt, []):
-                addends[hi_off] = ((word_at(text, hi_off) & 0xFFFF) << 16) + sext16(imm)
-            addends[off] = (last_hi.get(tgt, 0) << 16) + sext16(imm)
+            hi = hi_of_lo.get(off, last_hi.get(tgt))
+            addends[off] = (((word_at(text, hi) & 0xFFFF) << 16) if hi is not None else 0) + sext16(imm)
     return addends
 
 def same_splat_address(b_tgt, e_tgt, b_addend, e_addend):
