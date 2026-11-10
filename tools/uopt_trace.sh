@@ -382,8 +382,9 @@ if os.path.abspath(base_list_path) != abs_list:
 
 # If FUNC specified, extract and print only that function's section
 if func:
-    start_marker = f"IN LOCAL OPTIMIZATION OF {func}"
-    end_marker = f"IN REEMISSION OF {func}"
+    # whole-name match: a substring test would pick transformBarrelUpdateNear for transformBarrelUpdate
+    start_marker = re.compile(rf"IN LOCAL OPTIMIZATION OF {re.escape(func)}\s*$")
+    end_marker = re.compile(rf"IN REEMISSION OF {re.escape(func)}\s*$")
     
     matched_lines = []
     recording = False
@@ -392,13 +393,13 @@ if func:
     with open(abs_list, "r", errors="replace") as f:
         for line in f:
             if not recording:
-                if start_marker in line:
+                if start_marker.search(line):
                     recording = True
                     found = True
                     matched_lines.append(line)
             else:
                 matched_lines.append(line)
-                if end_marker in line:
+                if end_marker.search(line):
                     break
                     
     if not found:
