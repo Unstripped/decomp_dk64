@@ -1223,13 +1223,6 @@ typedef struct SoundTargetSlot {
 } SoundTargetSlot;
 extern SoundTargetSlot *gModelSlots;
 
-typedef struct SoundWaterState {
-    char pad0[0x90];
-    f32 waterY;
-    char pad94[0x66];
-    u8 hasWater;
-} SoundWaterState;
-
 extern f32 D_80770590;
 extern f32 D_80770594;
 extern f32 D_80770688[];
@@ -1254,7 +1247,7 @@ void sfxUpdateSourceGroups(void) {
     u8 fxFlags;
     s16 fxLevel;
     Actor *actor;
-    SoundWaterState *water;
+    CamState *camState;
     s16 j;
     s16 pan;
     Actor *ctx104;
@@ -1835,13 +1828,13 @@ void sfxUpdateSourceGroups(void) {
 
     gActivePlayerState = gPlayerSlots->actor->customState;
     ctx104 = gActivePlayerState->camActor;
-    water = ctx104->customState;
-    if (water->hasWater != 0 && gPlayerSlots->y < (water->waterY + 3.0f) && D_80745838 == 0 && gPlayerCount < 2) {
+    camState = ctx104->customState;
+    if (camState->unkFA != 0 && gPlayerSlots->y < (camState->unk90 + 3.0f) && D_80745838 == 0 && gPlayerCount < 2) {
         D_80745838 = 1;
         seqUpdateUnderwaterAudio(0);
         seqUpdateUnderwaterAudio(1);
     }
-    if ((water->hasWater == 0 || (water->waterY + 3.0f) < gPlayerSlots->y) && D_80745838 == 1) {
+    if ((camState->unkFA == 0 || (camState->unk90 + 3.0f) < gPlayerSlots->y) && D_80745838 == 1) {
         D_80745838 = 0;
         seqUpdateUnderwaterAudio(0);
         seqUpdateUnderwaterAudio(1);

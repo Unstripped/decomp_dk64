@@ -194,28 +194,12 @@ void playerStateInitTumble(void) {
     actorScriptStart(gCurrentActor, 0x14F);
 }
 
-/* customState of the camera actor, gActivePlayerState->camActor. */
-typedef struct EfCamState {
-    /* 0x00 */ u8 pad0[0xAC];
-    /* 0xAC */ u32 unkAC;
-    /* 0xB0 */ u8 padB0[2];
-    /* 0xB2 */ s16 unkB2;
-    /* 0xB4 */ f32 unkB4;
-    /* 0xB8 */ f32 unkB8;
-    /* 0xBC */ s16 unkBC;
-    /* 0xBE */ u8 padBE[0x31];
-    /* 0xEF */ u8 unkEF;
-    /* 0xF0 */ u8 unkF0;
-    /* 0xF1 */ u8 padF1[2];
-    /* 0xF3 */ s8 unkF3;
-} EfCamState;
-
 void playerStateTakeDamagePrep(void) {
     Actor *camActor;
     s16 speed;
     s32 param;
     s16 kind;
-    EfCamState *camState;
+    CamState *camState;
     u8 type;
 
     camActor = gActivePlayerState->camActor;
@@ -437,7 +421,7 @@ void playerStateEnterFlattened(void) {
 void playerStateEnterSlideSlope(void) {
     s32 animation;
 
-    ((EfCamState *)gActivePlayerState->camActor->customState)->unkAC |= 4;
+    ((CamState *)gActivePlayerState->camActor->customState)->unkAC |= 4;
     gActivePlayerActor->state = 0x6D;
     gActivePlayerActor->unk155 = 0;
     actorScriptStart(gActivePlayerActor, 0);
@@ -665,7 +649,7 @@ extern f32 D_807535CC[];
 extern s16 D_8075380C[];
 
 void playerStateEnterState59(void) {
-    void *camState;
+    CamState *camState;
 
     camState = gActivePlayerState->camActor->customState;
     gActivePlayerActor->contactFlags |= 0x40;
@@ -678,7 +662,7 @@ void playerStateEnterState59(void) {
 }
 
 void playerStateEnterState17(void) {
-    void *camState;
+    CamState *camState;
 
     camState = gActivePlayerState->camActor->customState;
     gCurrentActor->state = 0x17;

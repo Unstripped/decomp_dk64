@@ -584,11 +584,6 @@ void func_8068B9B4(void) {
 }
 
 typedef struct {
-    char pad[0xAC];
-    u32 unkAC;
-} ActorSub174;
-
-typedef struct {
     char pad[0x104];
     Actor *unk104;
     char pad108[0x1F0 - 0x108];
@@ -610,7 +605,7 @@ extern ActorPlayerPos *gPlayerSlots;
 
 void func_8068BA2C(void) {
     s32 pad;
-    ActorSub174 *sub174;
+    CamState *camState;
     Actor174Player *s1;
     s32 hasEvent3;
     s16 i;
@@ -619,7 +614,7 @@ void func_8068BA2C(void) {
 
     s1 = gActivePlayerActor->customState;
     hasEvent3 = 0;
-    sub174 = ((Actor *)s1->unk104)->customState;
+    camState = ((Actor *)s1->unk104)->customState;
     for (i = 0; i < gActorGlobalState.unk254; i++) {
         ptr = gActorGlobalState.unk278[i];
         switch ((u32)gActorGlobalState.unk258[i]) {
@@ -641,7 +636,7 @@ void func_8068BA2C(void) {
     if (hasEvent3 == 0) {
         s1->stateFlags &= ~0x04000000;
     }
-    if (sub174->unkAC & 1) {
+    if (camState->unkAC & 1) {
         lightAdd(gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218, gPlayerSlots->unk228, gPlayerSlots->unk22C, gPlayerSlots->unk230, 0.0f, 1, 0xFF, 0xFF, 0xFF);
     }
 }

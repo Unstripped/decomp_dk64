@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_func_8062CA0C // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_playerViewsRender // PROTO: The number of arguments doesn't agree with the number in the
@@ -601,8 +602,6 @@ void gfxSubmitFrame(void) {
 }
 
 
-#include "actor.h"
-
 extern Actor *gSpawnedActor;
 
 s32 pauseStateUpdate(void) {
@@ -686,13 +685,6 @@ extern u8 gViewportCount;
 f32 sinApprox(f32);
 
 typedef struct {
-    u8 pad0[0x90];
-    f32 unk90;
-    u8 pad94[0xFA - 0x94];
-    u8 unkFA;
-} HeldActorData;
-
-typedef struct {
     u8 pad0[0x104];
     Actor *unk104;
     u8 pad108[0x1F0 - 0x108];
@@ -738,7 +730,7 @@ typedef struct {
 void playerViewsBuildMatrices(void *outMtx) {
     Actor *pa;
     PlayerActorData *pl;
-    HeldActorData *held;
+    CamState *camState;
     s32 i;
     f32 fov;
     f32 aspect;
@@ -768,12 +760,12 @@ void playerViewsBuildMatrices(void *outMtx) {
             cc = D_807445CC;
             pl = (PlayerActorData *)PLAYER_VIEWS[i].unk4->customState;
             pa = pl->unk104;
-            held = (HeldActorData *)pa->customState;
+            camState = pa->customState;
             if (pl->unk1F0 & 0x100) {
                 fov += 0.5 * sinApprox(cc[0] * 0.1);
             } else if (pl->unk1F0 & 0x2000000) {
                 fov += 0.05 * sinApprox(cc[0] * 0.4);
-            } else if (held->unkFA != 0 && PLAYER_VIEWS[i].unk220 < held->unk90 + 3.0f) {
+            } else if (camState->unkFA != 0 && PLAYER_VIEWS[i].unk220 < camState->unk90 + 3.0f) {
                 fov += 0.04 * sinApprox(cc[0] * 0.1);
             }
             guPerspective(&PLAYER_VIEWS[i].unk88[gGfxBufferIndex], &(i + PLAYER_VIEWS)->unk188, PLAYER_VIEWS[i].unk27C, fov * aspect, PLAYER_VIEWS[i].unk284, PLAYER_VIEWS[i].unk288, 1.0f);  // FAKE: i + base operand order avoids CSE with PLAYER_VIEWS[i]

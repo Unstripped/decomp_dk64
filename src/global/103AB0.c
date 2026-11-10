@@ -607,16 +607,9 @@ void func_80701C90(void) {
 extern Mtx D_2000000;
 extern Mtx D_2000200;
 
-typedef struct {
-    u8 pad0[0x90];
-    f32 unk90;
-    u8 pad94[0x66];
-    u8 unkFA;
-} CameraActorState;
-
 Gfx *func_80701CA0(Gfx *dl) {
     PlayerState *playerState;
-    CameraActorState *camState;
+    CamState *camState;
     Actor *camActor;
     Vtx *vtx;
     f32 depthDiff;

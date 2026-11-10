@@ -25,104 +25,6 @@
 #include "proto/global/E4090.h"
 #include "proto/global/F56F0.h"
 
-typedef struct CamTargetBlock {
-    /* 0x00 */ struct CamActor *unk0;
-    /* 0x04 */ struct CamActor *unk4;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ s16 unk14;
-    /* 0x16 */ u8 pad16[2];
-    /* 0x18 */ f32 unk18;
-} CamTargetBlock;
-
-typedef struct CamState {
-    /* 0x00 */ struct CamActor *unk0;
-    /* 0x04 */ struct CamActor *unk4;
-    /* 0x08 */ u16 unk8;
-    /* 0x0A */ u16 unkA;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ s16 unk14;
-    /* 0x16 */ u8 pad16[0x2];
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ f32 unk28;
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ f32 unk30;
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ f32 unk3C;
-    /* 0x40 */ f32 unk40;
-    /* 0x44 */ CamTargetBlock unk44;
-    /* 0x60 */ f32 unk60;
-    /* 0x64 */ u8 pad64[0x8];
-    /* 0x6C */ f32 unk6C;
-    /* 0x70 */ f32 unk70;
-    /* 0x74 */ u8 pad74[0x4];
-    /* 0x78 */ f32 unk78;
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ f32 unk80;
-    /* 0x84 */ f32 unk84;
-    /* 0x88 */ f32 unk88;
-    /* 0x8C */ f32 unk8C;
-    /* 0x90 */ f32 unk90;
-    /* 0x94 */ f32 unk94;
-    /* 0x98 */ f32 unk98;
-    /* 0x9C */ s16 unk9C;
-    /* 0x9E */ s16 unk9E;
-    /* 0xA0 */ f32 unkA0;
-    /* 0xA4 */ f32 unkA4;
-    /* 0xA8 */ f32 unkA8;
-    /* 0xAC */ u32 unkAC;
-    /* 0xB0 */ s16 unkB0;
-    /* 0xB2 */ s16 unkB2;
-    /* 0xB4 */ s16 unkB4;
-    /* 0xB6 */ u8 padB6[0x2];
-    /* 0xB8 */ f32 unkB8;
-    /* 0xBC */ u8 padBC[0x4];
-    /* 0xC0 */ s32 unkC0;
-    /* 0xC4 */ s16 unkC4;
-    /* 0xC6 */ s16 unkC6;
-    /* 0xC8 */ s16 unkC8;
-    /* 0xCA */ s16 unkCA;
-    /* 0xCC */ f32 unkCC;
-    /* 0xD0 */ f32 unkD0;
-    /* 0xD4 */ f32 unkD4;
-    /* 0xD8 */ f32 unkD8;
-    /* 0xDC */ f32 unkDC;
-    /* 0xE0 */ f32 unkE0;
-    /* 0xE4 */ f32 unkE4;
-    /* 0xE8 */ s16 unkE8;
-    /* 0xEA */ s16 unkEA;
-    /* 0xEC */ u8 unkEC;
-    /* 0xED */ u8 unkED;
-    /* 0xEE */ u8 unkEE;
-    /* 0xEF */ u8 unkEF;
-    /* 0xF0 */ u8 unkF0;
-    /* 0xF1 */ u8 unkF1;
-    /* 0xF2 */ u8 unkF2;
-    /* 0xF3 */ u8 unkF3;
-    /* 0xF4 */ u8 unkF4;
-    /* 0xF5 */ u8 unkF5;
-    /* 0xF6 */ u8 unkF6;
-    /* 0xF7 */ u8 unkF7;
-    /* 0xF8 */ u8 unkF8;
-    /* 0xF9 */ u8 unkF9;
-    /* 0xFA */ u8 unkFA;
-    /* 0xFB */ u8 unkFB;
-    /* 0xFC */ u8 unkFC;
-    /* 0xFD */ u8 unkFD;
-    /* 0xFE */ u8 padFE[0x1];
-    /* 0xFF */ u8 unkFF;
-} CamState;
-
 typedef struct CamActor {
     /* 0x000 */ u8 pad0[0x4];
     /* 0x004 */ struct CamActorModelScale *unk4;
@@ -3265,24 +3167,7 @@ void camComputeEyeFocus(CamActor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32
     }
 }
 
-typedef struct CamYawTarget {
-    /* 0x000 */ u8 pad0[0x58];
-    /* 0x058 */ s32 unk58;
-    /* 0x05C */ u8 pad5C[0xF8];
-    /* 0x154 */ u8 unk154;
-} CamYawTarget;
-
-typedef struct CamYawState {
-    /* 0x00 */ CamYawTarget *unk0;
-    /* 0x04 */ u8 pad4[0xA8];
-    /* 0xAC */ s32 unkAC;
-    /* 0xB0 */ u8 padB0[2];
-    /* 0xB2 */ s16 unkB2;
-    /* 0xB4 */ u8 padB4[0x3F];
-    /* 0xF3 */ u8 unkF3;
-} CamYawState;
-
-void camTurnYawToward(st, speed, targetYaw) CamYawState *st; s16 speed; s16 targetYaw; {
+void camTurnYawToward(st, speed, targetYaw) CamState *st; s16 speed; s16 targetYaw; {
     s16 diff;
     u16 dist;
     f32 scale;

@@ -240,13 +240,6 @@ void effectSpriteParticleWrapX(M114aAngle *particle) {
     particle->unk4 = (s32)particle->unk4 % 320;
 }
 
-typedef struct AngACamState {
-    u8 pad0[0x90];
-    f32 unk90;
-    u8 pad94[0x66];
-    u8 unkFA;
-} AngACamState;
-
 typedef struct AngAFcccView {
     s16 unk0;
     u8 pad2[2];
@@ -266,7 +259,7 @@ extern f32 D_807FD9EC;
 extern u8 sEffectImpactPuffConfig;
 f32 cosApprox(f32);
 
-#define ANGA_CAM ((AngACamState *)gCamActor->customState)
+#define ANGA_CAM ((CamState *)gCamActor->customState)
 #define ANGA_A8 (*(f32 *)&gPrimaryPlayerActor->unkA8)
 #define ANGA_DIST(x) ((x) < ANGA_PLAYER->unk214 ? ANGA_PLAYER->unk214 - (x) : -(ANGA_PLAYER->unk214 - (x)))
 
@@ -511,7 +504,6 @@ typedef struct L10CA0Entry {
 } L10CA0Entry;
 typedef struct L10CA0Header { u16 count; u8 pad2[2]; L10CA0Entry *entries; } L10CA0Header;
 typedef struct L10CA0CamView { u8 pad0[0xB4]; f32 unkB4; } L10CA0CamView;
-typedef struct L10CA0PlayerView { u8 pad0[0x90]; f32 unk90; u8 pad94[0x66]; u8 unkFA; u8 padFB[0x119]; f32 unk214; } L10CA0PlayerView;
 typedef struct L10CA0TimerView { u8 pad0[0xBC]; s16 unkBC; } L10CA0TimerView;
 
 extern void *gActivePlayerState;
@@ -535,7 +527,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     u16 count = L10CA0_POOL->count;
     u16 processed = 0;
     L10CA0Entry *entry;
-    L10CA0PlayerView *player = (L10CA0PlayerView *)gCamActor->customState;
+    CamState *camState = gCamActor->customState;
 
     skipTimer = 0;
     skipNearPlayer = 0;
@@ -550,7 +542,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     if ((gPrimaryPlayerActor->state == 0x42) && ((((L10CA0TimerView *)gActivePlayerState)->unkBC == 0x62) || (((L10CA0TimerView *)gActivePlayerState)->unkBC == 0x88))) {
         skipTimer = 1;
     }
-    if ((player->unkFA != 0) && (((L10CA0PlayerView *)gPlayerSlots)->unk214 < player->unk90 + 3.0f)) {
+    if ((camState->unkFA != 0) && (ANGA_PLAYER->unk214 < camState->unk90 + 3.0f)) {
         skipNearPlayer = 1;
     }
     gDPPipeSync(glist++);

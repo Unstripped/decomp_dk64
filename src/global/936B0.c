@@ -778,14 +778,9 @@ void actorSpawnChildActor(Actor *parent) {
     child->flags &= ~0x20000;
 }
 
-typedef struct PlayerInteractionState {
-    u8 pad0[0xF3];
-    u8 unkF3;
-} PlayerInteractionState;
-
 typedef struct PlayerActor104 {
     u8 pad0[0x174];
-    PlayerInteractionState *unk174;
+    CamState *unk174;
 } PlayerActor104;
 
 typedef struct PlayerActorSub174 {
@@ -825,7 +820,7 @@ void actorUpdatePlayerInteraction(void) {
     PlayerInteractionActor *playerActor;
     PlayerActorSub174 *playerState;
     s32 angleStep;
-    PlayerInteractionState *linkedState;
+    CamState *camState;
     u8 resetting;
     f32 nodeX;
     f32 nodeY;
@@ -835,11 +830,11 @@ void actorUpdatePlayerInteraction(void) {
     angleStep = (s32)G_PLAYER_INTERACT_ACTOR->unk178;
     playerActor = (PlayerInteractionActor *)gPlayerSlots[state->unk28].actor;
     playerState = playerActor->unk174;
-    linkedState = playerState->unk104->unk174;
+    camState = playerState->unk104->unk174;
     resetting = G_PLAYER_INTERACT_ACTOR->unk6A & 1;
     state->unk34 = 2;
     func_80690190(state, angleStep, playerState);
-    if (gGameMode == 0 && linkedState->unkF3 != 4) {
+    if (gGameMode == 0 && camState->unkF3 != 4) {
         camSetTargetScaled(playerState->unk104, gCurrentActor, 4, 0x800, 0xA0, 0, 6, 0x12C, 0x8F, 0, 0.2f);
     }
     func_8068F72C(state, angleStep, 1, 1);
@@ -967,10 +962,6 @@ typedef struct OwnerPlayerStateView {
     u8 pad0[0x104];
     Actor *unk104;
 } OwnerPlayerStateView;
-typedef struct OwnerKongStateView {
-    u8 pad0[0xF3];
-    u8 unkF3;
-} OwnerKongStateView;
 typedef struct ProjectileHomingState {
     u8 pad0[0x14];
     f32 unk14;
@@ -998,7 +989,7 @@ u8 straight;
     f32 dz;
     f32 dist;
     f64 pad58;
-    OwnerKongStateView *kongState;
+    CamState *camState;
     ProjectileHomingState *homing;
     f32 targetX;
     f32 targetY;
@@ -1010,8 +1001,8 @@ u8 straight;
     if (!((f64)proj->speedXZ < 0.1)) {
         if (trailEffect != 0) {
             ownerState = ((Actor *)proj->parentActor)->customState;
-            kongState = ownerState->unk104->customState;
-            if (kongState->unkF3 == 3) {
+            camState = ownerState->unk104->customState;
+            if (camState->unkF3 == 3) {
                 effectSetCallback(effectLifetimeCountdownUpdate);
                 effectSetSpeed(0x32);
                 effectCreateAtPosition(trailEffect, homing->unk14, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);

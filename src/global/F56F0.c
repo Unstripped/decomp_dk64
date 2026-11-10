@@ -829,19 +829,14 @@ void playerWeaponInitCrosshair(Actor *actor, BoneRotation *slots, s32 *count) {
     *count = index;
 }
 
-typedef struct F5N5Chain3 {
-    u8 pad0[0xB2];
-    s16 yaw;
-} F5N5Chain3;
-
 void playerWeaponCrosshairUpdate(Actor *actor, BoneRotation *slots, s32 *count) {
     f32 x;
     s16 delta;
-    F5N5Chain3 *chain;
+    CamState *camState;
     f32 y;
     f32 planarAngle;
-    chain = ((PlayerState *)actor->customState)->camActor->customState;
-    delta = (chain->yaw - actor->yaw) - 0x800;
+    camState = ((PlayerState *)actor->customState)->camActor->customState;
+    delta = (camState->unkB2 - actor->yaw) - 0x800;
     x = gPlayerSlots[gCurrentPlayerIndex].camZ - gPlayerSlots[gCurrentPlayerIndex].focusZ;
     y = gPlayerSlots[gCurrentPlayerIndex].camX - gPlayerSlots[gCurrentPlayerIndex].focusX;
     planarAngle = mathAtan2(gPlayerSlots[gCurrentPlayerIndex].camY - gPlayerSlots[gCurrentPlayerIndex].focusY, sqrtf((x * x) + (y * y)));

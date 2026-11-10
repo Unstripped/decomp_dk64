@@ -72,15 +72,8 @@ void lightSetOverrideColor(f32 r, f32 g, f32 b) {
 }
 
 typedef struct {
-    u8 unk0[0x90];
-    f32 unk90;
-    u8 unk94[0xFA - 0x94];
-    u8 unkFA;
-} LightActorState;
-
-typedef struct {
     u8 unk0[0x174];
-    LightActorState *unk174;
+    CamState *unk174;
 } LightActor;
 
 typedef struct {
@@ -122,7 +115,7 @@ Gfx *gfxDrawBackgroundQuad(Gfx *gdl, void *tex, f32 angle, void *mtx, u8 skyType
     f32 mtxA[4][4];
     f32 mtxB[4][4];
     s32 offset;
-    LightActorState *light;
+    CamState *light;
 
     y = -(256.0f - (cosApprox(angle) * 300.0f)) - 80.0f;
     light = gCamActor->unk174;
