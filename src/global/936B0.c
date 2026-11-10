@@ -2509,10 +2509,10 @@ void projectileRotatingUpdate(void) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, 0xFF, 0x7F, 5);
         actorDespawn(gCurrentActor);
         if (D_80750AD0 == 0) {
-            s32 var_s0;
-            for (var_s0 = 0; var_s0 != 0xC; var_s0 += 2) {
+            s32 i;
+            for (i = 0; i != 0xC; i += 2) {
                 effectSetDepth(1);
-                effectSetSpeed(0x0B000000 + var_s0);
+                effectSetSpeed(0x0B000000 + i);
                 effectSetCallback(effectRadialSprayUpdate);
                 effectCreateAtPosition(&D_807206DC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }

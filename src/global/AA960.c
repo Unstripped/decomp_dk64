@@ -771,7 +771,7 @@ typedef struct SfxTable {
 } SfxTable;
 
 extern u8 gPlayerCharacterId;
-extern u8 D_807FC954[];
+extern KongInventory gPlayerInventoryTable[];
 extern u32 gFrameCounter;
 extern u8 D_80721170;
 extern SfxTable D_807504A4;
@@ -781,7 +781,7 @@ void effectActorSparkleTick(void) {
     s32 idx;
     SfxTable table;
 
-    flag = D_807FC954[gPlayerCharacterId * 94] & 1;
+    flag = gPlayerInventoryTable[gPlayerCharacterId].unk0[4] & 1;
     if (!(gCurrentActor->flags & 0x10)) {
         actorAppendModelSubNode(gCurrentActor, 0.0f, 10.0f, 0.0f, -1);
         actorSetCollisionRadius(gCurrentActor, 175.0f);

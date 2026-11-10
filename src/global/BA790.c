@@ -73,10 +73,10 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
     s32 r;
 
     ret = 0;
-    if (BA790A->unkEE < BA790A->unkE6) {
-        diff = BA790A->unkE6 - BA790A->unkEE;
+    if (gCurrentActor->moveYaw < gCurrentActor->yaw) {
+        diff = gCurrentActor->yaw - gCurrentActor->moveYaw;
     } else {
-        diff = BA790A->unkEE - BA790A->unkE6;
+        diff = gCurrentActor->moveYaw - gCurrentActor->yaw;
     }
     if (gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) {
         if (gCurrentActor->state != 0x37 && gCurrentActor->state != 0x38) {
@@ -85,13 +85,13 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
                 if (gGameMode == 1) {
                     if (gCurrentActor->flags & 4) {
                         gCurrentActor->state = 0x38;
-                        BA790A->unk155 = 0;
+                        gCurrentActor->unk155 = 0;
                     } else {
                         behaviourSetFloorAndState40();
                     }
                 } else {
                     gCurrentActor->state = 0x37;
-                    BA790A->unk155 = 0;
+                    gCurrentActor->unk155 = 0;
                 }
                 break;
             case 0xB6:
@@ -104,22 +104,22 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
     }
     if (diff >= 0x1F5 && diff < 0xE0C) {
         func_80685210(0.5f, 0x32, (gFrameCounter & 1) + 2);
-        BA790A->unkB8 = BA790A->unkB8 / 2;
-        if (BA790A->unk6E == -1) {
+        gCurrentActor->speedXZ = gCurrentActor->speedXZ / 2;
+        if (gCurrentActor->soundSlots[0] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x122, 0, 0, 0, 0xFF, 1.0f, 0);
         }
     } else {
-        if (BA790A->unk6E != -1 && D_80770710[D_80770628[BA790A->unk6E]] == 0x122) {
+        if (gCurrentActor->soundSlots[0] != -1 && D_80770710[D_80770628[gCurrentActor->soundSlots[0]]] == 0x122) {
             sfxStopSlotSound(gCurrentActor, 0);
         }
     }
     switch (gCurrentActor->state) {
     case 0x33:
         if (gActorGlobalState.bossFightPhase == 2) {
-            BA790A->unkC0 = 150.0f;
-            BA790A->unkEE = gActorGlobalState.targetActor->moveYaw;
+            gCurrentActor->speedY = 150.0f;
+            gCurrentActor->moveYaw = gActorGlobalState.targetActor->moveYaw;
         }
-        if (BA790A->unk155) {
+        if (gCurrentActor->unk155) {
             x = 0;
         } else {
             x = 2;
@@ -132,9 +132,9 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
     case 0:
     case 4:
         sfxStopSlotSound(gCurrentActor, 0);
-        if (BA790A->unk155 == 0) {
+        if (gCurrentActor->unk155 == 0) {
             actorUpdateFloorContactAndTilt(gCurrentActor, 6.0f);
-            BA790A->unk155 = 1;
+            gCurrentActor->unk155 = 1;
         }
         if (gGameMode != 1) {
             if (gCurrentActor->actorType == 0xB6) {
@@ -146,19 +146,19 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         }
         if (gCurrentActor->state == 0x33) {
             ret = 1;
-            BA790A->unkB8 = gBehaviourExtraState->unkD;
+            gCurrentActor->speedXZ = gBehaviourExtraState->unkD;
             q = mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z);
-            BA790A->unkE6 = q;
-            BA790A->unkEE = q;
+            gCurrentActor->yaw = q;
+            gCurrentActor->moveYaw = q;
         }
         break;
     case 0x38:
-        switch (BA790A->unk155) {
+        switch (gCurrentActor->unk155) {
         case 1:
             break;
         case 0:
             actorScriptStart(gCurrentActor, 0x24B);
-            BA790A->unk155 = BA790A->unk155 + 1;
+            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
             break;
         case 2:
             tagBarrelSpawnActorSmokePuffs(0, 1);
@@ -167,7 +167,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         }
         break;
     case 0x37:
-        sel = BA790A->unk155;
+        sel = gCurrentActor->unk155;
         if (sel >= 2) {
             if (sel - 0x82 < 0) {
                 x = 0;
@@ -186,7 +186,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             } else {
                 behaviourSetFloorAndState40();
             }
-            sel = BA790A->unk155;
+            sel = gCurrentActor->unk155;
             if (sel >= 0x17) {
                 x = 0x16;
             } else {
@@ -196,28 +196,28 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             if (fv > 130.0) {
                 fv = 200.0f;
             }
-            lightAdd(BA790A->unk7C, BA790A->unk80, BA790A->unk84, 0.0f, 0.0f, 0.0f, fv, 0, 0xFF, 0xFF, 0xFF);
-            sel = BA790A->unk155;
+            lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, fv, 0, 0xFF, 0xFF, 0xFF);
+            sel = gCurrentActor->unk155;
         }
         if (sel < 4) {
             actorMoveWithinZone(0x33, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x20, 6.0f);
-            sel = BA790A->unk155;
+            sel = gCurrentActor->unk155;
         }
         switch (sel) {
         case 0:
             actorScriptStart(gCurrentActor, 0x24B);
-            BA790A->unk155 = BA790A->unk155 + 1;
+            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
             break;
         case 2:
             sfxSpawnTableNodes(gCurrentActor);
             tagBarrelSpawnActorSmokePuffs(1, 1);
             actorSetNodeFlag(gCurrentActor, 3);
-            camStartShakeFromPoint(gCamActor, 5, 0x14, BA790A->unk7C, BA790A->unk80, BA790A->unk84, 200.0f, 400.0f);
-            BA790A->unk155 = BA790A->unk155 + 1;
+            camStartShakeFromPoint(gCamActor, 5, 0x14, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 200.0f, 400.0f);
+            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
             break;
         case 4:
             sfxStopSlotSound(gCurrentActor, 0);
-            BA790A->unkEE = BA790A->unkE6;
+            gCurrentActor->moveYaw = gCurrentActor->yaw;
             sfxPlayActorSound(gCurrentActor, 0x136, 0, 0, 0, 0xFF, 1.0f, 0);
             effectSetDuration(5);
             effectSetDepth(1);
@@ -225,18 +225,18 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             effectSetMode(1);
             effectSetScale(-0.4f, 0.4f);
             effectSetCallback(effectSparkSpawnUpdate);
-            effectCreateAtPosition(&D_80720630, 0.3f, BA790A->unk7C, BA790A->unkA4 + 7.0f, BA790A->unk84);
-            BA790A->unk60 &= ~4;
-            BA790A->unk155 = BA790A->unk155 + 1;
+            effectCreateAtPosition(&D_80720630, 0.3f, gCurrentActor->x, gCurrentActor->floorY + 7.0f, gCurrentActor->z);
+            gCurrentActor->flags &= ~4;
+            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
             break;
         case 1:
         case 3:
             break;
         case 5:
-            BA790A->unk138 = 0;
+            gCurrentActor->callbackMask = 0;
             actorClearNodeFlag(gCurrentActor, 3);
         default:
-            BA790A->unk155 = BA790A->unk155 + 1;
+            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
             break;
         }
         break;

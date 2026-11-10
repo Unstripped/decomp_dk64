@@ -241,7 +241,7 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
     u8 found;
     f32 dist;
 
-    state = (WaveState *)gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->sub4->boneOffsets = (BoneVector *)heapAlloc((numNodes + 1) * 0x10);
         for (i = 0; i < numNodes; i++) {
@@ -626,7 +626,7 @@ void actorSpotLightUpdate(void) {
     u16 blue;
     SpotLightState *lightState;
 
-    lightState = (SpotLightState *)gCurrentActor->customState;
+    lightState = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         controllerAnimSetStateIfChanged(gCurrentActor, 0x402, 0, 1.0f);
         if (gCurrentMap == 6) {
@@ -683,15 +683,6 @@ typedef struct CameraPoseView {
     f32 unk230;
 } CameraPoseView;
 
-typedef struct LinkedActorView {
-    u8 pad0[0xEC];
-    s16 unkEC;
-    u8 padEE[0x66];
-    u8 unk154;
-    u8 pad155[0xA];
-    u8 unk15F;
-} LinkedActorView;
-
 extern Actor *gPrimaryPlayerActor;
 extern s16 D_80750378;
 extern s32 gGameFrameCounter;
@@ -700,7 +691,7 @@ extern u8 D_80720E14[];
 
 void func_8069B010(void) {
     s32 *p = gCurrentActor->customState;
-    LinkedActorView *link;
+    Actor *link;
 
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->contactFlags &= 0xFFFE;
@@ -718,15 +709,15 @@ void func_8069B010(void) {
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x4B, 0x78, 0, 1.0f);
-    link = (LinkedActorView *)gCurrentActor->parentActor;
+    link = gCurrentActor->parentActor;
     if (link != NULL) {
-        if (link->unk154 != 2 && link->unk154 != 0x26) {
+        if (link->state != 2 && link->state != 0x26) {
             actorDespawn(gCurrentActor);
             return;
         }
         if (gCurrentActor->unk15F == link->unk15F) {
             if ((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z) > 900.0f) {
-                ((LinkedActorView *)gCurrentActor->parentActor)->unkEC = (s16)(mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z) - mathAngleBetweenPointsDeg((s32)((CameraPoseView *)gPlayerSlots)->unk228, (s32)((CameraPoseView *)gPlayerSlots)->unk230, (s32)((CameraPoseView *)gPlayerSlots)->unk210, (s32)((CameraPoseView *)gPlayerSlots)->unk218));
+                gCurrentActor->parentActor->unkEC = (s16)(mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z) - mathAngleBetweenPointsDeg((s32)((CameraPoseView *)gPlayerSlots)->unk228, (s32)((CameraPoseView *)gPlayerSlots)->unk230, (s32)((CameraPoseView *)gPlayerSlots)->unk210, (s32)((CameraPoseView *)gPlayerSlots)->unk218));
             }
             lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 100.0f, 0, 0xFF, 0xFF, 0);
         }
@@ -1147,7 +1138,7 @@ void textMarkerUpdateMatrix(void) {
                                   gCurrentActor->z + offsetZ);
                 }
             }
-            camStartShake(*(s32 *)((u8 *)gPrimaryPlayerActor->customState + 0x104), 0x14, 0xF);
+            camStartShake(((PlayerState *)gPrimaryPlayerActor->customState)->camActor, 0x14, 0xF);
         }
         if (markerView->unk28 != 0) {
             gCurrentActor->state = 0xA;

@@ -107,7 +107,7 @@ void func_806B2790(void) {
             }
             break;
         case 1:
-            B7490A->unkE4 += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 10);
+            gCurrentActor->pitch += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 10);
             if (((randomNonNegative() >> 15) % 1000) >= 0x3D5) {
                 func_8072AA80();
             }
@@ -115,7 +115,7 @@ void func_806B2790(void) {
             break;
         case 0x10:
         case 0x23:
-            B7490A->unkE4 += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 15);
+            gCurrentActor->pitch += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 15);
             actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, ((gCurrentActor->waterY - gCurrentActor->eyeHeight) < gBehaviourTargetActor->y) ? (gCurrentActor->waterY - gCurrentActor->eyeHeight) : gBehaviourTargetActor->y, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
             if (gActorGlobalState.bossFightPhase == 2) {
                 gCurrentActor->state = 0x27;
@@ -131,7 +131,7 @@ void func_806B2790(void) {
         case 0x37:
             switch (gCurrentActor->unk155) {
                 case 0:
-                    B7490A->unkE4 = mathAngleEaseToward(B7490A->unkE4, 0, 7.0f);
+                    gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, 0, 7.0f);
                     break;
                 case 1:
                     behaviourFadeOutWithinZone(0x14);
@@ -214,7 +214,7 @@ void func_806B2D64(void) {
                     break;
                 case 2:
                     projectileGetTargetCoords(gCurrentActor, 1);
-                    projectileSpawnNodeEntry(0x112, 0, 0.3f, gCurrentActor->yaw, 300.0f, mathSinF(B7490A->unkE8) * 300.0f, gCurrentActor);
+                    projectileSpawnNodeEntry(0x112, 0, 0.3f, gCurrentActor->yaw, 300.0f, mathSinF(gCurrentActor->roll) * 300.0f, gCurrentActor);
                     effectSpawnSparks(1, 1);
                     break;
                 case 3:
@@ -224,7 +224,7 @@ void func_806B2D64(void) {
             break;
         case 1:
             actorEmptyStub();
-            B7490A->unkE4 += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 10);
+            gCurrentActor->pitch += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 10);
             if (((randomNonNegative() >> 15) % 1000) >= 0x3D5) {
                 func_8072AA80();
             }
@@ -250,7 +250,7 @@ void func_806B2D64(void) {
         case 0x37:
             switch (gCurrentActor->unk155) {
                 case 0:
-                    B7490A->unkE4 = mathAngleEaseToward(B7490A->unkE4, 0, 7.0f);
+                    gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, 0, 7.0f);
                     break;
                 case 1:
                     behaviourFadeOutWithinZone(0x14);
@@ -827,7 +827,7 @@ void behaviourEnemyBatUpdate(void) {
             gBehaviourWorkState->scale = (f32) ((f64) gBehaviourWorkState->scale * 0.7);
             behaviourSpawnPuffParticle();
             camStartPath(gCurrentActor, 3, 5);
-            if (((B7490Actor *) gCurrentActor)->unk134 & 1) {
+            if (gCurrentActor->health & 1) {
                 actorScriptStart(gCurrentActor, 0x24A);
             } else {
                 actorScriptStart(gCurrentActor, 0x249);

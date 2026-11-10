@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/global/112080.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -1194,14 +1195,7 @@ void actorDispatchCallbacks(Actor *actor) {
 }
 
 
-struct PlayerTableEntry;
-extern struct PlayerTableEntry *gPlayerSlots;
-
-typedef struct DamageReactionPlayerEntry {
-    u8 pad0[0x2C0];
-    u8 unk2C0;
-    u8 pad2C1[0x2F0 - 0x2C1];
-} DamageReactionPlayerEntry;
+extern PlayerStruct *gPlayerSlots;
 
 typedef struct DamageReactionContext {
     u8 pad0[0x1A4];
@@ -1223,7 +1217,7 @@ void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
 
     gActorGlobalState.unk15 = 1;
     if (actor == gActivePlayerActor) {
-        if (!(((DamageReactionPlayerEntry *)gPlayerSlots)[gActivePlayerState->playerIndex].unk2C0 == 2 && attacker != NULL && (attacker->collisionFlags & 2))) {
+        if (!(gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 2 && attacker != NULL && (attacker->collisionFlags & 2))) {
             reaction = 0x2E;
             queueReaction = 1;
             if (heavy != 0) {
@@ -1610,13 +1604,6 @@ s32 (*filter)(Actor *);
     return count;
 }
 
-typedef struct PlayerTableEntry {
-    u8 unk0;
-    char pad1[3];
-    s32 unk4;
-    char pad8[0x2F0 - 8];
-} PlayerTableEntry;
-extern PlayerTableEntry *gPlayerSlots;
 extern u8 gPlayerCount;
 
 
@@ -1781,7 +1768,7 @@ void playerSetActiveGlobals(Actor *actor) {
 u8 playerFindIndexByActor(s32 actor) {
     s32 i;
     for (i = 0; i < gPlayerCount; i++) {
-        if (gPlayerSlots[i].unk0 != 0 && actor == gPlayerSlots[i].unk4) {
+        if (gPlayerSlots[i].unk0 != 0 && actor == (s32)gPlayerSlots[i].actor) {
             return (u8)i;
         }
     }

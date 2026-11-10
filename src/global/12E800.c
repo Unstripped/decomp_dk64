@@ -82,7 +82,7 @@ void behaviourFrameBegin(void) {
         }
         if (gCurrentMap == 0x30) {
             if (gBehaviourTargetActor->collisionFlags & 1) {
-                if ((((D1S174 *)gBehaviourTargetActor->customState)->unk1F0 ^ ((D1S174 *)gBehaviourTargetActor->customState)->unk1F8) & 0x100000) {
+                if ((((PlayerState *)gBehaviourTargetActor->customState)->stateFlags ^ ((PlayerState *)gBehaviourTargetActor->customState)->prevStateFlags) & 0x100000) {
                     sfxStopSlotSound(gCurrentActor, 0);
                     gCurrentActor->state = 0;
                     gCurrentActor->unk155 = 0;
@@ -1198,7 +1198,7 @@ void actorSetDefaultState(s32 scriptId) {
 }
 
 void behaviourSpawnExplosionAndSound(void *scriptId, u8 state, Actor *attacker) {
-    f32 b8;
+    f32 speed;
 
     behaviourSpawnPuffParticle();
     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CA, 0xFF, 0x7F, 0x14);
@@ -1209,8 +1209,8 @@ void behaviourSpawnExplosionAndSound(void *scriptId, u8 state, Actor *attacker) 
             gCurrentActor->moveYaw = (attacker->yaw + 0x800) & 0xFFF;
         }
         actorSetBehaviourState(state, 0, scriptId);
-        b8 = attacker->speedXZ;
-        gCurrentActor->speedXZ = -(((b8 > 60.0f ? b8 : 60.0f) < 150.0f) ? (b8 > 60.0f ? b8 : 60.0f) : 150.0f);
+        speed = attacker->speedXZ;
+        gCurrentActor->speedXZ = -(((speed > 60.0f ? speed : 60.0f) < 150.0f) ? (speed > 60.0f ? speed : 60.0f) : 150.0f);
     } else {
         actorSetBehaviourState(state, 0, scriptId);
     }

@@ -842,18 +842,13 @@ s32 func_80616518(Actor *actor) {
     return 1;
 }
 
-typedef struct GlobalCountdownView {
-    u8 pad0[0x4E];
-    s16 unk4E;
-} GlobalCountdownView;
-
 s32 scriptOpCompareGlobalCountdown(Actor *actor) {
     u16 imm;
 
     sScriptPc++;
     scriptReadU16(&imm);
     actor->sub4->scriptResult =
-        ((GlobalCountdownView *)gActivePlayerState)->unk4E - imm;
+        gActivePlayerState->unk4E - imm;
     return 1;
 }
 
@@ -1770,14 +1765,9 @@ typedef struct ActorScriptView {
     void *unk178;
 } ActorScriptView;
 
-typedef struct {
-    u8 pad0[0x64];
-    s16 unk64;
-} GlobalToggleView;
-
 void scriptCmdCheckGlobalToggle(Actor *actor) {
-    if (((GlobalToggleView *)gActivePlayerState)->unk64 != 0) {
-        ((GlobalToggleView *)gActivePlayerState)->unk64 = 0;
+    if (gActivePlayerState->unk64 != 0) {
+        gActivePlayerState->unk64 = 0;
         actor->sub4->scriptResult = 0;
         return;
     }

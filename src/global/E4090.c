@@ -3231,30 +3231,30 @@ void func_806E8BFC(void) {
 void func_806E8C2C(void) {
     G29Act *a;
     G29Obj178 *o;
-    s32 v1;
-    s32 a0;
-    s8 a1;
+    s32 current;
+    s32 target;
+    s8 stickX;
 
-    a = ((G29Act *)gActivePlayerState->actor);
+    a = (G29Act *)gActivePlayerState->actor;
     if (a != NULL) {
         if (gActivePlayerActor->sub4->model->animId != 0x22A) {
             controllerAnimSetStateIfChanged(gActivePlayerActor, 0x22A, 0.0f, 0.0f);
         }
         if (a->unk174->unk45 == 0 && a->unk174->unk30->state == 2) {
             o = a->unk178;
-            a0 = o->unk1;
-            v1 = o->unk0;
-            a1 = gPlayerPadState[gCurrentPlayerIndex].stickX;
-            if (a0 == v1 && o->unk4 == 0) {
-                if (a1 >= 0x1F && v1 < 2) {
-                    o->unk1 = v1 + 1;
-                } else if (a1 < -0x1E) {
-                    if (v1 > 0) {
-                        o->unk1 = v1 - 1;
+            target = o->unk1;
+            current = o->unk0;
+            stickX = gPlayerPadState[gCurrentPlayerIndex].stickX;
+            if (target == current && o->unk4 == 0) {
+                if (stickX >= 0x1F && current < 2) {
+                    o->unk1 = current + 1;
+                } else if (stickX < -0x1E) {
+                    if (current > 0) {
+                        o->unk1 = current - 1;
                     }
                 }
-                a0 = o->unk1;
-                if (a0 != v1) {
+                target = o->unk1;
+                if (target != current) {
                     o->unk4 = 2;
                     o->unk8 = 0.0f;
                 }

@@ -619,7 +619,7 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
     F56AState *state = ((F56AActor *) actor)->weaponState;
     F56APair *pair;
     BoneRotation *slot;
-    f32 spE0;
+    f32 trajectory;
     s32 index;
     s32 kind;
     s32 value;
@@ -668,7 +668,7 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
         state->weight = state->weight + ((newvel - state->weight) * 0.3);
         value = (s8) (s32) state->weight;
         ret = mathAngleRadDeltaTurns(&state->prevAngle, angle);
-        spE0 = playerWeaponCalculateTrajectory25(actor, state, 0.02f);
+        trajectory = playerWeaponCalculateTrajectory25(actor, state, 0.02f);
     }
     slot = slots; slot += index; k = 0; do { // LAYOUT: one source line lets as1 schedule the loop preheader
         accel1 = 0.0f;
@@ -685,10 +685,10 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
             boost = 0.4f * ret;
             y = (0 < ret) ? ret : -ret;
             if (k != 0) {
-                accel0 = -spE0;
+                accel0 = -trajectory;
                 accel1 = -((y * 0.3f) + (-0.015f * delta - 0.0008f * newvel));
             } else {
-                accel0 = spE0;
+                accel0 = trajectory;
                 accel1 = (y * 0.3f) + (-0.015f * delta - 0.0008f * newvel);
             }
             accel0 += boost;

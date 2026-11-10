@@ -1847,7 +1847,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x29:
         cam = gPlayerSlots->actor->customState;
-        camStartShakeFromPoint((struct CamActor *)cam->camActor, CMDB(cmd)->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, D_807F6906, D_807F6908);
+        camStartShakeFromPoint(cam->camActor, CMDB(cmd)->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, D_807F6906, D_807F6908);
         break;
     case 0x44:
         D_807F6906 = cmd->a;

@@ -4448,7 +4448,7 @@ void playerStateLandRecover(void) {
             if (f < 25.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
                 d = nodeY - gCurrentActor->y;
-                gCurrentActor->y = gActivePlayerState->unkF0 - d;
+            gCurrentActor->y = gActivePlayerState->unkF0 - d;
                 f = gCurrentActor->sub4->model->frame;
             }
             if (f < 25.0f) {
@@ -4467,7 +4467,7 @@ void playerStateLandRecover(void) {
             if (f < 17.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
                 d = nodeY - gCurrentActor->y;
-                gCurrentActor->y = gActivePlayerState->unkF0 - d;
+            gCurrentActor->y = gActivePlayerState->unkF0 - d;
                 f = gCurrentActor->sub4->model->frame;
             }
             if (f < 19.0f) {
@@ -4484,7 +4484,7 @@ void playerStateLandRecover(void) {
         case 2:
             actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
             d = nodeY - gCurrentActor->y;
-                gCurrentActor->y = gActivePlayerState->unkF0 - d;
+            gCurrentActor->y = gActivePlayerState->unkF0 - d;
             if (gCurrentActor->sub4->model->frame > 16.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->y = gActivePlayerState->unkF0;
@@ -4500,7 +4500,7 @@ void playerStateLandRecover(void) {
             if (f < 18.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
                 d = nodeY - gCurrentActor->y;
-                gCurrentActor->y = gActivePlayerState->unkF0 - d;
+            gCurrentActor->y = gActivePlayerState->unkF0 - d;
                 gCurrentActor->x = gActivePlayerState->unkE0;
                 gCurrentActor->z = gActivePlayerState->unkE4;
             } else if (f < 26.0f) {
@@ -4523,7 +4523,7 @@ void playerStateLandRecover(void) {
         default:
             actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
             d = nodeY - gCurrentActor->y;
-                gCurrentActor->y = gActivePlayerState->unkF0 - d;
+            gCurrentActor->y = gActivePlayerState->unkF0 - d;
             if (gCurrentActor->sub4->model->frame > 14.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->speedXZ = 10.0f;

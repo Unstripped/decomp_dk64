@@ -367,8 +367,8 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
         if (node == 1) {
             gCurrentActor->interactionType = 8;
         }
-        if (BDEE0AA->unkF0 != 0) {
-            BDEE0AA->unkF0 = BDEE0AA->unkF0 - 1;
+        if (gCurrentActor->movePitch != 0) {
+            gCurrentActor->movePitch = gCurrentActor->movePitch - 1;
         }
         if (tgt->unk155 != 0) {
             if (tgt->unk155 == 1 && gActorGlobalState.bossFightPhase == 2 && actorIsTargetWithinAngleDeg(tgt, gPrimaryPlayerActor, 0x1F40) != 0) {
@@ -386,14 +386,14 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
             } else if (gActorGlobalState.bossFightPhase == 4) {
                 gBehaviourWorkState->unk16 = gBehaviourTargetActor->sub4->model->animId;
                 gCurrentActor->flags |= 0x20000000;
-                if (BDEE0AA->unkF0 == 0) {
-                    BDEE0AA->unkF0 = 0x28;
+                if (gCurrentActor->movePitch == 0) {
+                    gCurrentActor->movePitch = 0x28;
                     effectCreateAtPosition(D_8071FB34, 2.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                     sfxPlayOnFreeSlot(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     actorScriptStart(tgt, 0x220);
                     tgt->unk155 = 2;
-                    ((BDEE0ActorAlt *)tgt)->unk134 = ((BDEE0ActorAlt *)tgt)->unk134 - 1;
-                    if (((BDEE0ActorAlt *)tgt)->unk134 == 0) {
+                    tgt->health = tgt->health - 1;
+                    if (tgt->health == 0) {
                         tgt->state = 0x37;
                         tgt->unk155 = 0;
                     }
@@ -404,9 +404,9 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
         actorGetNodePos(tgt, node, &nodeX, &nodeY, &nodeZ);
         if (gBehaviourWorkState->flags & 0x80) {
             if (!(gBehaviourWorkState->unk1C & 0x80)) {
-                BDEE0AA->unkC0 = 300.0f;
+                gCurrentActor->speedY = 300.0f;
             }
-            if (BDEE0AA->unkC0 > 0.0f) {
+            if (gCurrentActor->speedY > 0.0f) {
                 return 0;
             }
             gCurrentActor->unk144 = 0x24;

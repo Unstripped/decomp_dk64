@@ -273,7 +273,7 @@ void actorScriptedCommandUpdate(void) {
     f32 posZ;
 
     state = LgBV->unk17C;
-    if (!(LgBV->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         state->unk1A = 0;
         state->unk18 = 0;
         state->unk30 = 0xFF;
@@ -281,19 +281,19 @@ void actorScriptedCommandUpdate(void) {
         state->unk22 = 0x64;
         playerKongStopAudioChannels(gCurrentActor, (u16)gCurrentActor->actorType);
         actorSetTargetSpeed(gCurrentActor, 0);
-        LgBV->unk60 &= 0xFFFDFFFF;
+        gCurrentActor->flags &= 0xFFFDFFFF;
         if (gCurrentMap == 0x4C) {
-            LgBV->unk60 &= 0xFEFFFFFF;
-            LgBV->unk60 |= 0x400;
+            gCurrentActor->flags &= 0xFEFFFFFF;
+            gCurrentActor->flags |= 0x400;
         }
-        LgBV->unkC4 = D_807502E8;
+        gCurrentActor->accelY = D_807502E8;
     }
     if (gGameMode != 1 && gCurrentMap != 0x4C && gCurrentActor->actorType != 0xFEU) { // FAKE: unsigned literal keeps the early 254 const out of the loop-spanning 254 live range
-        LgBV->unk60 &= 0xEFFFFFFF;
+        gCurrentActor->flags &= 0xEFFFFFFF;
         return;
     }
     if (gCurrentMap == 0x4C) {
-        lightUpdateFromActorLighting(&LgBV->unk16A, &LgBV->unk16B, &LgBV->unk16C);
+        lightUpdateFromActorLighting(&gCurrentActor->tintR, &gCurrentActor->tintG, &gCurrentActor->tintB);
     }
     for (i = 0; i < gActorGlobalState.unk254; i++) {
         if (gActorGlobalState.unk258[i] == 3) {
@@ -318,25 +318,25 @@ void actorScriptedCommandUpdate(void) {
                 pathPlaybackSetSpeed(state->unk2F, state->unk2E);
                 pathPlaybackSetLoopLimit(state->unk2F, 1);
                 pathPlaybackSetActive(state->unk2F, 1);
-                LgBV->unk154 = 0xC;
-                LgBV->unk155 = 0;
+                gCurrentActor->state = 0xC;
+                gCurrentActor->unk155 = 0;
                 break;
             case 0:
-                LgBV->unkC0 = cmd->unk4;
+                gCurrentActor->speedY = cmd->unk4;
                 break;
             case 7:
-                LgBV->unkB8 = cmd->unk4;
-                LgBV->unkEE = (cmd->unk6 << 12) / 360;
+                gCurrentActor->speedXZ = cmd->unk4;
+                gCurrentActor->moveYaw = (cmd->unk6 << 12) / 360;
                 break;
             case 2:
-                LgBV->sub4->model->animId = -1;
+                gCurrentActor->sub4->model->animId = -1;
                 actorScriptStart(gCurrentActor, D_80747750[cmd->unk4]);
                 if (cmd->unk6 != 0) {
                     scriptSetActorRampTarget(gCurrentActor, cmd->unk6 / 100.0, 0.0f);
                 }
                 break;
             case 3:
-                if (LgBV->sub4->animId != 0) {
+                if (gCurrentActor->sub4->animId != 0) {
                     actorScriptStart(gCurrentActor, 0);
                 }
                 controllerAnimSetState(gCurrentActor, cmd->unk6 - (0 - D_80747904[cmd->unk4]), 0.0f, 0.0f); // FAKE: cmd6 evaluated before the table lookup (ring order)
@@ -344,7 +344,7 @@ void actorScriptedCommandUpdate(void) {
                 func_806BFA8C(cmd->unk6 - (0 - D_80747904[cmd->unk4])); // FAKE: cmd6 evaluated before the table lookup (ring order)
                 break;
             case 13:
-                if (LgBV->sub4->animId != 0) {
+                if (gCurrentActor->sub4->animId != 0) {
                     actorScriptStart(gCurrentActor, 0);
                 }
                 controllerAnimSetState(gCurrentActor, cmd->unk6 - (0 - D_80747904[cmd->unk4]), 0.0f, 8.0f); // FAKE: cmd6 evaluated before the table lookup (ring order)
@@ -355,8 +355,8 @@ void actorScriptedCommandUpdate(void) {
                 scriptSetActorRampTarget(gCurrentActor, cmd->unk4 / 100.0, cmd->unk6);
                 break;
             case 5:
-                LgBV->unk154 = 2;
-                LgBV->unk155 = 0;
+                gCurrentActor->state = 2;
+                gCurrentActor->unk155 = 0;
                 if (gBehaviourAnimState->path != NULL) {
                     heapFree(gBehaviourAnimState->path);
                 }
@@ -368,52 +368,52 @@ void actorScriptedCommandUpdate(void) {
                 actorSetTargetSpeed(gCurrentActor, cmd->unk6);
                 break;
             case 6:
-                LgBV->unkB8 = 0.0f;
-                LgBV->unkC0 = 0.0f;
-                LgBV->unk7C = D_807FDCA0->entries[cmd->unk4].x;
-                LgBV->unk80 = D_807FDCA0->entries[cmd->unk4].y;
-                LgBV->unk84 = D_807FDCA0->entries[cmd->unk4].z;
-                LgBV->unkE6 = (cmd->unk6 << 12) / 360;
-                LgBV->unkEE = LgBV->unkE6;
+                gCurrentActor->speedXZ = 0.0f;
+                gCurrentActor->speedY = 0.0f;
+                gCurrentActor->x = D_807FDCA0->entries[cmd->unk4].x;
+                gCurrentActor->y = D_807FDCA0->entries[cmd->unk4].y;
+                gCurrentActor->z = D_807FDCA0->entries[cmd->unk4].z;
+                gCurrentActor->yaw = (cmd->unk6 << 12) / 360;
+                gCurrentActor->moveYaw = gCurrentActor->yaw;
                 break;
             case 8:
                 if (cmd->unk6 != 0) {
-                    state->unk2 = LgBV->unkE6;
+                    state->unk2 = gCurrentActor->yaw;
                     state->unk4 = (cmd->unk4 << 12) / 360;
                     state->unk23 = cmd->unk6;
                     state->unk24 = cmd->unk6;
                 } else {
-                    LgBV->unkE6 = (cmd->unk4 << 12) / 360;
+                    gCurrentActor->yaw = (cmd->unk4 << 12) / 360;
                 }
                 break;
             case 19:
                 if (cmd->unk6 != 0) {
-                    state->unk6 = LgBV->unkE4;
+                    state->unk6 = gCurrentActor->pitch;
                     state->unk8 = (cmd->unk4 << 12) / 360;
                     state->unk25 = cmd->unk6;
                     state->unk26 = cmd->unk6;
                 } else {
-                    LgBV->unkE4 = (cmd->unk4 << 12) / 360;
+                    gCurrentActor->pitch = (cmd->unk4 << 12) / 360;
                 }
                 break;
             case 20:
                 if (cmd->unk6 != 0) {
-                    state->unkA = LgBV->unkE8;
+                    state->unkA = gCurrentActor->roll;
                     state->unkC = (cmd->unk4 << 12) / 360;
                     state->unk27 = cmd->unk6;
                     state->unk28 = cmd->unk6;
                 } else {
-                    LgBV->unkE8 = (cmd->unk4 << 12) / 360;
+                    gCurrentActor->roll = (cmd->unk4 << 12) / 360;
                 }
                 break;
             case 21:
-                LgBV->unkC4 = cmd->unk4;
-                LgBV->unkC0 = 0.0f;
-                LgBV->unk154 = 0x1D;
+                gCurrentActor->accelY = cmd->unk4;
+                gCurrentActor->speedY = 0.0f;
+                gCurrentActor->state = 0x1D;
                 break;
             case 16:
                 if (cmd->unk6 != 0) {
-                    state->unk14 = LgBV->sub4->scaleY;
+                    state->unk14 = gCurrentActor->sub4->scaleY;
                     gBehaviourWorkState->scale = cmd->unk4 * 0.01;
                     state->unk29 = cmd->unk6;
                     state->unk2A = cmd->unk6;
@@ -431,58 +431,58 @@ void actorScriptedCommandUpdate(void) {
                 state->unkE = cmd->unk4;
                 state->unk10 = cmd->unk6;
                 state->unk1E = state->unk1C;
-                LgBV->unk154 = 0xE;
-                LgBV->unk155 = 0;
+                gCurrentActor->state = 0xE;
+                gCurrentActor->unk155 = 0;
                 break;
             case 14:
                 state->unkE = cmd->unk4;
                 state->unk10 = cmd->unk6;
                 state->unk1E = state->unk1C;
-                LgBV->unk154 = 0xF;
-                LgBV->unk155 = 0;
+                gCurrentActor->state = 0xF;
+                gCurrentActor->unk155 = 0;
                 break;
             case 10:
                 state->unk18 = (cmd->unk4 << 12) / 360;
                 state->unk1A = cmd->unk6;
                 break;
             case 15:
-                LgBV->unk16A = D_807478F4[cmd->unk4 * 3];
-                LgBV->unk16B = D_807478F4[cmd->unk4 * 3 + 1];
-                LgBV->unk16C = D_807478F4[cmd->unk4 * 3 + 2];
+                gCurrentActor->tintR = D_807478F4[cmd->unk4 * 3];
+                gCurrentActor->tintG = D_807478F4[cmd->unk4 * 3 + 1];
+                gCurrentActor->tintB = D_807478F4[cmd->unk4 * 3 + 2];
                 break;
             case 17:
-                LgBV->unk60 &= 0xFFFF7FFF;
-                LgBV->unk154 = 0x37;
-                LgBV->unk155 = 0;
+                gCurrentActor->flags &= 0xFFFF7FFF;
+                gCurrentActor->state = 0x37;
+                gCurrentActor->unk155 = 0;
                 break;
             case 18:
-                LgBV->unk60 &= 0xFF7FFFFF;
+                gCurrentActor->flags &= 0xFF7FFFFF;
                 break;
             case 26:
                 gBehaviourWorkState->unk4 = spawnNodeActivate(cmd->unk4, 0);
-                LgBV->unk15F = cmd->unk6;
-                LgBV->unk154 = 0xD;
-                LgBV->unk155 = 0;
+                gCurrentActor->unk15F = cmd->unk6;
+                gCurrentActor->state = 0xD;
+                gCurrentActor->unk155 = 0;
                 break;
             case 22:
-                LgBV->unk154 = 2;
-                LgBV->unk155 = 0;
+                gCurrentActor->state = 2;
+                gCurrentActor->unk155 = 0;
                 break;
         }
         }
     }
     if (state->unk28 != 0) {
         ratio = (f32)(u32)state->unk28-- / (f32)(u32)state->unk27;
-        LgBV->unkE8 = mathAngleLerp(state->unkC, state->unkA, ratio);
+        gCurrentActor->roll = mathAngleLerp(state->unkC, state->unkA, ratio);
     }
     if (state->unk26 != 0) {
         ratio = (f32)(u32)state->unk26-- / (f32)(u32)state->unk25;
-        LgBV->unkE4 = mathAngleLerp(state->unk8, state->unk6, ratio);
+        gCurrentActor->pitch = mathAngleLerp(state->unk8, state->unk6, ratio);
     }
     if (state->unk24 != 0) {
         ratio = (f32)(u32)state->unk24-- / (f32)(u32)state->unk23;
-        LgBV->unkE6 = mathAngleLerp(state->unk4, state->unk2, ratio);
-        LgBV->unkEE = LgBV->unkE6;
+        gCurrentActor->yaw = mathAngleLerp(state->unk4, state->unk2, ratio);
+        gCurrentActor->moveYaw = gCurrentActor->yaw;
     }
     if (state->unk2A != 0) {
         ratio2 = (f32)(u32)state->unk2A-- / (f32)(u32)state->unk29;
@@ -515,19 +515,19 @@ void actorScriptedCommandUpdate(void) {
     }
     switch (gCurrentActor->state) {
         case 0xD:
-            if (LgBV->unk15F != 0) {
-                node = LgBV->unk15F;
-                actorGetNodePos(gBehaviourWorkState->unk4, node, &LgBV->unk7C, &LgBV->unk80, &LgBV->unk84);
+            if (gCurrentActor->unk15F != 0) {
+                node = gCurrentActor->unk15F;
+                actorGetNodePos(gBehaviourWorkState->unk4, node, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
             } else {
-                LgBV->unk7C = gBehaviourTargetActor->x;
-                LgBV->unk80 = gBehaviourTargetActor->y;
-                LgBV->unk84 = gBehaviourTargetActor->z;
+                gCurrentActor->x = gBehaviourTargetActor->x;
+                gCurrentActor->y = gBehaviourTargetActor->y;
+                gCurrentActor->z = gBehaviourTargetActor->z;
             }
-        LgBV->unkE6 = gBehaviourWorkState->unk4->yaw;
+        gCurrentActor->yaw = gBehaviourWorkState->unk4->yaw;
             break;
         case 0xC:
             pathPlaybackAdvance(state->unk2F);
-            pathPlaybackGetPosition(state->unk2F, &LgBV->unk7C, &LgBV->unk80, &LgBV->unk84);
+            pathPlaybackGetPosition(state->unk2F, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
             func_8072E320(8.0f);
             break;
         case 0xE:
@@ -537,24 +537,24 @@ void actorScriptedCommandUpdate(void) {
                 ZoneEntry *v1 = &D_807FDCA0->entries[state->unk10];
                 f32 frac = (f32)state->unk1E / (f32)state->unk1C;
                 state->unk1E--;
-                LgBV->unk7C = v1->x + (a3->x - v1->x) * frac;
-                LgBV->unk84 = v1->z + (a3->z - v1->z) * frac;
-                if (LgBV->unk154 == 0xF) {
-                    LgBV->unk80 = v1->y + (a3->y - v1->y) * frac;
+                gCurrentActor->x = v1->x + (a3->x - v1->x) * frac;
+                gCurrentActor->z = v1->z + (a3->z - v1->z) * frac;
+                if (gCurrentActor->state == 0xF) {
+                    gCurrentActor->y = v1->y + (a3->y - v1->y) * frac;
                 } else {
                     actorMoveWithinZone(0, v1->x, v1->z, 0x212, 0.0f);
                 }
             } else {
-                LgBV->unk154 = 0;
-                LgBV->unk155 = 0;
+                gCurrentActor->state = 0;
+                gCurrentActor->unk155 = 0;
                 actorSetTargetSpeed(gCurrentActor, 0);
             }
             break;
         case 0x2:
             actorMoveWithinZone(2, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x210, 0.0f);
             if (patrolPathStep(2, 0) != 0) {
-                LgBV->unk154 = 0;
-                LgBV->unk155 = 0;
+                gCurrentActor->state = 0;
+                gCurrentActor->unk155 = 0;
                 actorSetTargetSpeed(gCurrentActor, 0);
             }
             break;
@@ -563,11 +563,11 @@ void actorScriptedCommandUpdate(void) {
             break;
         case 0x1D:
             actorApplyGravity();
-            actorApplyVelocityCustom(gCurrentActor, 0.0f, LgBV->unkC0);
+            actorApplyVelocityCustom(gCurrentActor, 0.0f, gCurrentActor->speedY);
             break;
         case 0x37:
-            if (LgBV->unk155 != 0) {
-                LgBV->unk154 = 0x40;
+            if (gCurrentActor->unk155 != 0) {
+                gCurrentActor->state = 0x40;
             } else {
                 behaviourFadeOutWithinZone(0xA);
             }
@@ -999,20 +999,12 @@ extern s16 gCsModelIds[];
 extern u8 gPlayerCharacterId;
 extern u8 D_8071FC40;
 
-typedef struct R1C46bActor {
-    /* 0x00 */ u8 pad0[0xC0];
-    /* 0xC0 */ f32 unkC0;
-    /* 0xC4 */ f32 unkC4;
-    /* 0xC8 */ u8 padC8[0x20];
-    /* 0xE8 */ s16 unkE8;
-} R1C46bActor;
-
 void func_806C226C(void) {
     s16 i;
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        ((R1C46bActor *)gCurrentActor)->unkC4 = D_807502F4;
+        gCurrentActor->accelY = D_807502F4;
         gCurrentActor->y = gCurrentActor->floorY;
         gCurrentActor->drawDistance = 0x4B0;
         if (flagGet(0x9E, 0) != 0) {
@@ -1050,8 +1042,8 @@ void func_806C226C(void) {
                     actorScriptStart(gCurrentActor, 0x2A4);
                 }
                 actorMoveWithinZone(2, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0x200, 0.0f);
-                if (((R1C46bActor *)gCurrentActor)->unkC0 < -10.0f) {
-                    ((R1C46bActor *)gCurrentActor)->unkE8 = mathAngleEaseToward(((R1C46bActor *)gCurrentActor)->unkE8, 0x400, 10.0f);
+                if (gCurrentActor->speedY < -10.0f) {
+                    gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, 0x400, 10.0f);
                 }
             }
             patrolPathStep(2, 0);
@@ -1064,7 +1056,7 @@ void func_806C226C(void) {
                 case 0:
                     zoneEntryGetPosition(2, 3, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
                     actorScriptStart(gCurrentActor, 0x2A6);
-                    ((R1C46bActor *)gCurrentActor)->unkE8 = 0;
+                    gCurrentActor->roll = 0;
                     gCurrentActor->unk155++;
                 case 1:
                     if (actorIsTargetWithinDistance(0xC8) != 0) {

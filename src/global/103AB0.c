@@ -493,7 +493,7 @@ void func_80700BF4(void) {
     margin = 40; // FAKE: constant local (a literal shrinks the frame by 8)
     for (i = 0; i < gPlayerCount; i++) {
         if (gPlayerSlots[i].unk0 != 0) {
-            state = (PlayerState *)gPlayerSlots[i].actor->customState;
+            state = gPlayerSlots[i].actor->customState;
             pad = &gPlayerPadState[i];
             x = state->targetPitch;
             y = state->targetRoll - 0x14;
