@@ -2,7 +2,6 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_actorCopyPoseAndScale // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
 #define PROTO_SKIP_actorTableContains // PROTO: shared header declares (void) params; this file passes an Actor *
 #define PROTO_SKIP_collisionCheckActorFloor // PROTO: Reference of an expression of void type or an incomplete typ
 #include "proto/global/10D2D0.h"
@@ -1019,7 +1018,6 @@ void playerDecelerateAndApplyMotion(void) {
 
 extern s16 D_80753A2C[];
 extern f32 D_80753A5C[];
-void actorStepPhysics(Actor *, s16, s16); // FAKE: callee prototype steer
 
 void playerApplyDecelVelocityVector(f32 unused) {
     f32 vx;

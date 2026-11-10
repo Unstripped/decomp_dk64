@@ -7,7 +7,7 @@ struct ActorTransformWork;
 struct ActorVelocityCustomWork;
 struct ActorVelocityWork;
 #ifndef PROTO_SKIP_actorStepPhysics
-void actorStepPhysics();
+void actorStepPhysics(Actor *, s16, s16);
 #endif
 #ifndef PROTO_SKIP_actorApplyVelocity
 void actorApplyVelocity(struct ActorVelocityWork *);

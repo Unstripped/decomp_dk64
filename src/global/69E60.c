@@ -27,11 +27,9 @@ typedef struct ActorPhysicsWork {
 
 void actorUpdatePrevContactFlags(void);
 
-void actorStepPhysics(actor, targetYaw, targetPitch)
-ActorPhysicsWork *actor;
-s16 targetYaw;
-s16 targetPitch;
-{
+void actorStepPhysics(Actor *self, s16 targetYaw, s16 targetPitch) {
+    ActorPhysicsWork *actor = (ActorPhysicsWork *)self;
+
     actorUpdatePrevContactFlags();
     func_80665ACC((Actor *)actor);
     if (actor->hasArcBounds != 0) {

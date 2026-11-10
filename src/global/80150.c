@@ -4,7 +4,6 @@
 #define PROTO_SKIP_actorDespawn // FAKE: callee prototype steer
 #define PROTO_SKIP_actorQueueDelayedCallback // FAKE: callee prototype steer
 #define PROTO_SKIP_actorScriptStart // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
 #define PROTO_SKIP_playerMountBarrel // FAKE: callee prototype steer
 #define PROTO_SKIP_mapGetConfigValue // FAKE: callee prototype steer
@@ -518,7 +517,6 @@ typedef struct ActorC2B8State {
 
 
 
-void actorStepPhysics(Actor *, s16, s16); // FAKE: callee prototype steer
 
 void tagBarrelRotateUpdate(void) {
     ActorC2B8State *state;
