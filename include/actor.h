@@ -8,7 +8,11 @@ struct Actor;
 
 typedef struct ActorSub4 {
     /* 0x00 */ void *model;
-    /* 0x04 */ u8 pad04[0x30];
+    /* 0x04 */ u8 pad04[0x18];
+    /* 0x1C */ u8 *unk1C;
+    /* 0x20 */ void *unk20;
+    /* 0x24 */ void *unk24;
+    /* 0x28 */ u8 pad28[0xC];
     /* 0x34 */ f32 scaleX;
     /* 0x38 */ f32 scaleY;
     /* 0x3C */ f32 scaleZ;
@@ -168,7 +172,7 @@ typedef struct ActorGlobalState {
 } ActorGlobalState;
 
 typedef struct Actor {
-    /* 0x000 */ u8 unk00[4];
+    /* 0x000 */ void *animState;
     /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 unk08[4];
     /* 0x00C */ f32 modelMtx[4][4];
@@ -277,17 +281,25 @@ typedef struct Actor {
 
 // Per-behaviour state objects reached through gBehaviourWorkState..gBehaviourExtraState.
 typedef struct BehaviourWorkState {
-    /* 0x00 */ u8 pad0[4];
+    /* 0x00 */ void *unk0;
     /* 0x04 */ Actor *unk4;
     /* 0x08 */ s16 unk8;
     /* 0x0A */ s16 targetX;
     /* 0x0C */ s16 targetY;
     /* 0x0E */ s16 targetZ;
-    /* 0x10 */ u8 pad10[6];
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ s16 unk14;
     /* 0x16 */ s16 unk16;
     /* 0x18 */ u16 stepCount;
     /* 0x1A */ u16 flags;
-    /* 0x1C */ u8 pad1C[8];
+    /* 0x1C */ u8 pad1C[2];
+    /* 0x1E */ u8 unk1E;
+    /* 0x1F */ u8 unk1F;
+    /* 0x20 */ u8 pad20;
+    /* 0x21 */ u8 unk21;
+    /* 0x22 */ u8 unk22;
+    /* 0x23 */ u8 unk23;
     /* 0x24 */ u8 unk24;
     /* 0x25 */ u8 unk25;
     /* 0x26 */ s16 unk26;
@@ -295,9 +307,10 @@ typedef struct BehaviourWorkState {
     /* 0x2C */ s16 timer;
     /* 0x2E */ s16 unk2E;
     /* 0x30 */ f32 scale;
-    /* 0x34 */ u8 pad34;
+    /* 0x34 */ u8 unk34;
     /* 0x35 */ u8 unk35;
-    /* 0x36 */ u8 pad36[2];
+    /* 0x36 */ u8 pad36;
+    /* 0x37 */ u8 unk37;
 } BehaviourWorkState;
 
 typedef struct BehaviourAnimState {
@@ -311,7 +324,9 @@ typedef struct BehaviourAnimState {
     /* 0x30 */ f32 unk30;
     /* 0x34 */ u8 pad34[4];
     /* 0x38 */ f32 unk38;
-    /* 0x3C */ u8 pad3C[0x46 - 0x3C];
+    /* 0x3C */ u8 pad3C[0x44 - 0x3C];
+    /* 0x44 */ u8 unk44;
+    /* 0x45 */ u8 pad45;
     /* 0x46 */ u16 stateFlags;
 } BehaviourAnimState;
 

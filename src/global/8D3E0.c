@@ -584,7 +584,7 @@ void actorListUpdateSpawns(void) {
                     }
                 } else if (node->spawned == 0) {
                     if (node->animAssetId != 0) {
-                        *(s32 *)node->actor = controllerAnimStateLoadAsset(actor, node->animAssetId, 0);
+                        node->actor->animState = controllerAnimStateLoadAsset(actor, node->animAssetId, 0);
                         actor = node->actor;
                     }
                     actorRegisterActive(actor);

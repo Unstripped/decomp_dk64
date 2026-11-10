@@ -477,7 +477,7 @@ void effectActorCheckGroundScaleSpawn(Actor *actor) {
     register f32 floorYOffset;
     u8 shouldSpawn;
     shouldSpawn = 0;
-    if (*(void **)actor->unk00 != NULL && actor->sub4 != NULL) {
+    if (actor->animState != NULL && actor->sub4 != NULL) {
         if (actor->collisionFlags == 1) {
             if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
                 floorYOffset = D_80753A08[actor->actorType];
