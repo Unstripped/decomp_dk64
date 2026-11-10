@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "cutscene.h"
-#define PROTO_SKIP_actorListSpawnNodeEntry // FAKE: callee prototype steer
 #define PROTO_SKIP_collisionCheckGroundAtPoint // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // PROTO: Improper cast of non-scalar type expression.
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
@@ -1013,7 +1012,6 @@ extern s32 D_80748110;
 extern s32 D_80748114;
 extern f32 D_807480F0;
 f32 sqrtf(f32);
-void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *); // FAKE: callee prototype steer
 
 #define CS_POINT (&D_807F5FD4[0][p->idx])
 
@@ -1240,7 +1238,6 @@ extern f32 D_8074814C;
 extern s32 D_80748150;
 extern u8 D_80748154[];
 extern u8 D_80720BE8[];
-void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *); // FAKE: callee prototype steer
 
 void csCmdSpawnDirectionalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;

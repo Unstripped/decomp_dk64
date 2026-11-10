@@ -429,7 +429,7 @@ void actorListSpawnNodeEntryDefault(s16 actorType, f32 posX, f32 posY, f32 posZ,
     actorListSpawnNodeInternal((s16)(actorType - 0x10), posX, posY, posZ, (s32)yaw, scale, &subData, 1, extraParam, actorListAllocId());
 }
 
-void actorListSpawnNodeEntry(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, s32 extraParam, s32 customData) {
+void actorListSpawnNodeEntry(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, s32 extraParam, void *customData) {
     actorListSpawnNodeInternal((s16)(actorType - 0x10), posX, posY, posZ, (s32)yaw, scale, (void *)customData, 1, extraParam, actorListAllocId());
 }
 
