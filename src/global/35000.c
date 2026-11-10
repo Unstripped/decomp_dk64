@@ -4,6 +4,9 @@
 #include "proto/global/126260.h"
 #include "proto/global/15050.h"
 #include "proto/global/17B90.h"
+#define PROTO_SKIP_actorBuildModelMatrix
+#define PROTO_SKIP_actorBuildModelMatrixFromAngles
+#define PROTO_SKIP_actorUpdateModelMatrix
 #include "proto/global/35000.h"
 #include "proto/global/36880.h"
 #include "proto/global/55B20.h"
@@ -624,37 +627,10 @@ void *renderActorEntryBuildDisplayList(s32 context, void *actor, GfxWords *glist
     return glist;
 }
 
-typedef struct ModelScale {
-    /* 0x00 */ u8 pad0[0x34];
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ f32 unk3C;
-} ModelScale;
-
-typedef struct MatrixActor {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ ModelScale *unk4;
-    /* 0x08 */ u8 pad8[4];
-    /* 0x0C */ f32 unkC[4][4];
-    /* 0x4C */ u8 pad4C[0x14];
-    /* 0x60 */ s32 unk60;
-    /* 0x64 */ u8 pad64[0x18];
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ f32 unk80;
-    /* 0x84 */ f32 unk84;
-    /* 0x88 */ u8 pad88[0x54];
-    /* 0xDC */ s16 unkDC;
-    /* 0xDE */ s16 unkDE;
-    /* 0xE0 */ u8 padE0[4];
-    /* 0xE4 */ s16 unkE4;
-    /* 0xE6 */ s16 unkE6;
-    /* 0xE8 */ s16 unkE8;
-} MatrixActor;
-
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 
-void actorBuildModelMatrix(MatrixActor *actor, f32 *dst) {
+void actorBuildModelMatrix(Actor *actor, f32 *dst) {
     f32 sinA;
     f32 cosA;
     f32 sinB;
@@ -666,34 +642,34 @@ void actorBuildModelMatrix(MatrixActor *actor, f32 *dst) {
     f32 pad0;
     f32 t20;
 
-    sinA = mathCosF(actor->unkE4);
-    cosA = mathSinF(actor->unkE4);
-    sinB = mathCosF(actor->unkE8);
-    cosB = mathSinF(actor->unkE8);
-    sinC = mathCosF(actor->unkE6);
-    cosC = mathSinF(actor->unkE6);
-    u = actor->unk4->unk34;
+    sinA = mathCosF(actor->pitch);
+    cosA = mathSinF(actor->pitch);
+    sinB = mathCosF(actor->roll);
+    cosB = mathSinF(actor->roll);
+    sinC = mathCosF(actor->yaw);
+    cosC = mathSinF(actor->yaw);
+    u = actor->sub4->scaleX;
     us = u * sinA;
     u = u * cosA;
     *dst++ = us * sinC + u * (cosB * cosC);
     *dst++ = u * sinB;
     *dst++ = (f32)u * (cosB * sinC) - us * cosC;
     *dst++ = 0.0f;
-    u = actor->unk4->unk38;
+    u = actor->sub4->scaleY;
     us = u * sinA;
     u = u * cosA;
     *dst++ = (f32)us * (cosB * cosC) - u * sinC;
     *dst++ = us * sinB;
     *dst++ = u * cosC + us * (cosB * sinC);
     *dst++ = 0.0f;
-    u = actor->unk4->unk3C;
+    u = actor->sub4->scaleZ;
     *dst++ = u * sinB * cosC;
     *dst++ = -u * cosB;
     *dst++ = u * sinB * sinC;
     *dst++ = 0.0f;
-    *dst++ = actor->unk7C;
-    *dst++ = actor->unk80;
-    *dst++ = actor->unk84;
+    *dst++ = actor->x;
+    *dst++ = actor->y;
+    *dst++ = actor->z;
     *dst = 1.0f;
 }
 
@@ -709,7 +685,7 @@ void actorBuildModelMatrix(MatrixActor *actor, f32 *dst) {
 
 
 
-void actorBuildModelMatrixFromAngles(MatrixActor *actor, f32 *dst, f32 angleA, f32 angleB, f32 angleC) {
+void actorBuildModelMatrixFromAngles(Actor *actor, f32 *dst, f32 angleA, f32 angleB, f32 angleC) {
     f32 sinA;
     f32 cosA;
     f32 sinB;
@@ -727,33 +703,33 @@ void actorBuildModelMatrixFromAngles(MatrixActor *actor, f32 *dst, f32 angleA, f
     cosB = mathSinF((s16)(s32)angleB);
     sinC = mathCosF((s16)(s32)angleC);
     cosC = mathSinF((s16)(s32)angleC);
-    u = actor->unk4->unk34;
+    u = actor->sub4->scaleX;
     us = u * sinA;
     u = u * cosA;
     *dst++ = us * sinC + u * (cosB * cosC);
     *dst++ = u * sinB;
     *dst++ = (f32)u * (cosB * sinC) - us * cosC;
     *dst++ = 0.0f;
-    u = actor->unk4->unk38;
+    u = actor->sub4->scaleY;
     us = u * sinA;
     u = u * cosA;
     *dst++ = (f32)us * (cosB * cosC) - u * sinC;
     *dst++ = us * sinB;
     *dst++ = u * cosC + us * (cosB * sinC);
     *dst++ = 0.0f;
-    u = actor->unk4->unk3C;
+    u = actor->sub4->scaleZ;
     *dst++ = u * sinB * cosC;
     *dst++ = -u * cosB;
     *dst++ = u * sinB * sinC;
     *dst++ = 0.0f;
-    *dst++ = actor->unk7C;
-    *dst++ = actor->unk80;
-    *dst++ = actor->unk84;
+    *dst++ = actor->x;
+    *dst++ = actor->y;
+    *dst++ = actor->z;
     *dst = 1.0f;
 }
 
 
-void actorUpdateModelMatrix(MatrixActor *actor, u8 concat) {
+void actorUpdateModelMatrix(Actor *actor, u8 concat) {
     f32 tempMf[4][4];
     f32 padMf[4][4];
     s16 angle;
@@ -763,29 +739,29 @@ void actorUpdateModelMatrix(MatrixActor *actor, u8 concat) {
     s16 x;
     s16 y;
 
-    if (actor->unk60 & 1) {
-        angle = (actor->unkE6 - actor->unkDC) & 0xFFF;
+    if (actor->flags & 1) {
+        angle = (actor->yaw - actor->floorSlopeYaw) & 0xFFF;
         if (angle >= 0x801) {
             angle -= 0x1000;
         }
-        angDelta = (0x400 - actor->unkDE) & 0xFFF;
+        angDelta = (0x400 - actor->floorSlopePitch) & 0xFFF;
         calcAngleB = (s32)(mathCosF(angle) * (f32)angDelta);
-        calcAngleB = (calcAngleB + actor->unkE8) & 0xFFF;
+        calcAngleB = (calcAngleB + actor->roll) & 0xFFF;
         x = (s32)(mathSinF(angle) * (f32)angDelta);
-        x = (x + actor->unkE4) & 0xFFF;
-        calcAngleC = actor->unkE6;
+        x = (x + actor->pitch) & 0xFFF;
+        calcAngleC = actor->yaw;
         if (concat != 0) {
             actorBuildModelMatrixFromAngles(actor, (f32 *)tempMf, x, calcAngleB, calcAngleC);
-            guMtxCatF(actor->unkC, tempMf, actor->unkC);
+            guMtxCatF(actor->modelMtx, tempMf, actor->modelMtx);
             return;
         }
-        actorBuildModelMatrixFromAngles(actor, (f32 *)actor->unkC, x, calcAngleB, calcAngleC);
+        actorBuildModelMatrixFromAngles(actor, (f32 *)actor->modelMtx, x, calcAngleB, calcAngleC);
         return;
     }
     if (concat != 0) {
         actorBuildModelMatrix(actor, (f32 *)tempMf);
-        guMtxCatF(actor->unkC, tempMf, actor->unkC);
+        guMtxCatF(actor->modelMtx, tempMf, actor->modelMtx);
         return;
     }
-    actorBuildModelMatrix(actor, (f32 *)actor->unkC);
+    actorBuildModelMatrix(actor, (f32 *)actor->modelMtx);
 }
