@@ -3,14 +3,10 @@
 #define PROTO_GLOBAL_1295B0_H
 #include "common.h"
 #include "actor.h"
-struct A1Poly;
-struct C1ActorView;
-struct C1Holder;
-struct F1Pt;
-struct F1Tbl;
-struct MidARec24List;
 struct SpawnNode;
 struct SpawnNodeList;
+struct Zone;
+struct ZoneTable;
 #ifndef PROTO_SKIP_actorSetUniformScale
 void actorSetUniformScale(Actor *, f32);
 #endif
@@ -51,25 +47,25 @@ s32 lineSegmentIntersect2D(s16, s16, s16, s16, s16, s16, s16, s16, f32 *, f32 *)
 u8 rectContainsPoint2D(s16, s16, s16, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_polygonContainsPoint2D
-u8 polygonContainsPoint2D(s16, s16, struct A1Poly *);
+u8 polygonContainsPoint2D(s16, s16, struct Zone *);
 #endif
 #ifndef PROTO_SKIP_segmentIntersectsCircle2D
-s32 segmentIntersectsCircle2D(s16, s16, s16, s16, s16, s16, s16);
+u8 segmentIntersectsCircle2D(s16, s16, s16, s16, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_zoneFindBestReachablePoint
 s32 zoneFindBestReachablePoint();
 #endif
 #ifndef PROTO_SKIP_zoneCanReachPoint
-s32 zoneCanReachPoint(Actor *, s16, s16, s16, struct F1Tbl *);
+s32 zoneCanReachPoint(Actor *, s16, s16, s16, struct Zone *);
 #endif
 #ifndef PROTO_SKIP_zoneCheckActorInside
-s32 zoneCheckActorInside(Actor *, s32, s32, struct F1Tbl *);
+s32 zoneCheckActorInside(Actor *, s32, s32, struct Zone *);
 #endif
 #ifndef PROTO_SKIP_actorSetPositionFromPoint
-void actorSetPositionFromPoint(Actor *, struct F1Pt *);
+void actorSetPositionFromPoint(Actor *, struct SpawnNode *);
 #endif
 #ifndef PROTO_SKIP_spawnNodeInitActorFromEntry
-void spawnNodeInitActorFromEntry(void *, void *);
+void spawnNodeInitActorFromEntry(Actor *, struct SpawnNode *);
 #endif
 #ifndef PROTO_SKIP_spawnNodeHasActor
 u8 spawnNodeHasActor(u8);
@@ -93,7 +89,7 @@ void spawnNodeActivateAndSetState(s16, u8, u16);
 Actor *spawnNodeActivate(s16, u16);
 #endif
 #ifndef PROTO_SKIP_spawnNodeIdForActor
-u8 spawnNodeIdForActor(struct C1ActorView *);
+u8 spawnNodeIdForActor(Actor *);
 #endif
 #ifndef PROTO_SKIP_spawnNodeSpawnById
 Actor *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
@@ -126,10 +122,10 @@ u8 spawnNodeActorOutOfRangeOrHidden(struct SpawnNode *, s32);
 u8 spawnNodeActorOutOfRangeScaled(struct SpawnNode *, s32);
 #endif
 #ifndef PROTO_SKIP_zoneAssignToBehaviour
-void zoneAssignToBehaviour(struct C1Holder *);
+void zoneAssignToBehaviour(struct SpawnNode *);
 #endif
 #ifndef PROTO_SKIP_spawnNodeListInitFromMap
-void spawnNodeListInitFromMap(s16 *, struct MidARec24List *, struct SpawnNodeList *);
+void spawnNodeListInitFromMap(s16 *, struct ZoneTable *, struct SpawnNodeList *);
 #endif
 #ifndef PROTO_SKIP_func_8072881C
 u8 func_8072881C(u8, u32 *);
