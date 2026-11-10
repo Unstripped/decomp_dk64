@@ -923,9 +923,9 @@ void playerWeaponUpdateHomingTarget(Actor *actor, BoneRotation *slots, s32 *coun
         if (scaled >= 0x156) scaled = 0x155;
         scaled = scaled * 0x10;
         angle = mathAngleSignedDistance(actor->yaw, yaw);
-        amplitude = mathCosF(angle) * (f32)scaled;
+        amplitude = mathCosF(angle) * scaled;
         cosine = mathSinF(angle);
-        v = (s8)((gActivePlayerState->homingStrength * 6) / 10);
+        v = gActivePlayerState->homingStrength * 6 / 10;
         if (v != 0) {
             slots[entry_index].bone = 1;
             slots[entry_index].rotY = 0;
@@ -934,7 +934,7 @@ void playerWeaponUpdateHomingTarget(Actor *actor, BoneRotation *slots, s32 *coun
             slots[entry_index].rotZ = (s16)((-cosine) * (f32)scaled);
             entry_index += 1;
         }
-        v = (s8)((gActivePlayerState->homingStrength * 3) / 10);
+        v = gActivePlayerState->homingStrength * 3 / 10;
         if (v != 0) {
             slots[entry_index].bone = 2;
             slots[entry_index].rotY = 0;
@@ -1435,14 +1435,14 @@ void playerStateWaypointAimUpdate(F5L1Control *control, s32 unused) {
             gWaypointFlags &= 0xFFFD;
         }
         if (gWaypointActor->state == 0x4F) {
-            ang = mathAngleBetweenPointsDeg(next->x, next->z, (s32)gWaypointActor->x, (s32)gWaypointActor->z) * 0.017453292f - (gWaypointActor->yaw * 3.1415927f) * 0.00048828125;
+            ang = mathAngleBetweenPointsDeg(next->x, next->z, gWaypointActor->x, gWaypointActor->z) * 0.017453292f - (gWaypointActor->yaw * 3.1415927f) * 0.00048828125;
             pitch = mathCalculatePitchAngle(next->x, next->y, next->z, gWaypointActor->x, gWaypointActor->y, gWaypointActor->z, 0);
             control->flags |= 0x4000;
             yawT = ang;
             pitchT = WAYPOINT_CLAMP_S8(sinApprox(pitch) * speed);
         } else {
-            camAng = mathAngleBetweenPointsDeg((s32)gPlayerSlots->focusX, (s32)gPlayerSlots->focusZ, (s32)gPlayerSlots->camX, (s32)gPlayerSlots->camZ);
-            ang = mathAngleBetweenPointsDeg(next->x, next->z, (s32)gWaypointActor->x, (s32)gWaypointActor->z) * 0.017453292f - camAng * 0.017453292f;
+            camAng = mathAngleBetweenPointsDeg(gPlayerSlots->focusX, gPlayerSlots->focusZ, gPlayerSlots->camX, gPlayerSlots->camZ);
+            ang = mathAngleBetweenPointsDeg(next->x, next->z, gWaypointActor->x, gWaypointActor->z) * 0.017453292f - camAng * 0.017453292f;
             yawT = WAYPOINT_CLAMP_S8(sinApprox(ang) * speed);
             pitchT = WAYPOINT_CLAMP_S8(cosApprox(ang) * speed);
         }

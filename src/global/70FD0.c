@@ -2557,10 +2557,10 @@ void actorUpdateFacingAndOffset(ActorFacingWork *arg0, s32 arg1, s32 arg2, s32 a
     s32 threshold;
 
     facingDist = mathAngleDistance(arg0->unk48, D_807FB544);
-    temp = mathAngleDistance((s16)((arg0->unk48 + 0x800) & 0xFFF), D_807FB544);
+    temp = mathAngleDistance((arg0->unk48 + 0x800) & 0xFFF, D_807FB544);
     if ((facingDist < 0x321) || (temp < 0x321)) {
         mathAngleDistance(arg0->unk48, gActivePlayerState->unkEA);
-        mathAngleDistance((s16)((arg0->unk48 + 0x800) & 0xFFF), gActivePlayerState->unkEA);
+        mathAngleDistance((arg0->unk48 + 0x800) & 0xFFF, gActivePlayerState->unkEA);
         sub = ((ActorFacingWork *)D_807FB540)->unk140;
         func_806744A8(arg0, sub->unk0, sub->unk4, sub->unk8, sub->unkC);
         prevThreshold = D_807FB5D0;
@@ -2931,25 +2931,25 @@ s32 actorStepSubNodeList(ActorTargetWork *arg0, s32 arg1) {
 }
 
 
-u8 collisionTestSphere(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s16 *arg5, u8 arg6, u16 arg7) {
+u8 collisionTestSphere(f32 x, f32 y, f32 z, f32 radius, s16 *arcMin, s16 *arcMax, u8 testSlots, u16 boundaryMode) {
     u8 ret;
 
-    arg0 *= 8.0f;
-    arg1 *= 8.0f;
-    arg2 *= 8.0f;
-    *arg4 = 0;
-    *arg5 = 0xFFF;
-    arg3 *= 8.0f;
+    x *= 8.0f;
+    y *= 8.0f;
+    z *= 8.0f;
+    *arcMin = 0;
+    *arcMax = 0xFFF;
+    radius *= 8.0f;
     D_807FB606 = 0;
-    func_80672E90(arg0, arg1, arg2);
-    actorSetCameraBoundaryMode(arg7);
-    if (arg6 != 0) {
-        ret = func_806734E4((s32)arg0, (s32)arg1, (s32)arg2, (s32)arg3, arg4, arg5);
-        ret |= collisionTestSphereSlots(arg0, arg1, arg2, arg3, arg4, arg5);
+    func_80672E90(x, y, z);
+    actorSetCameraBoundaryMode(boundaryMode);
+    if (testSlots != 0) {
+        ret = func_806734E4((s32)x, (s32)y, (s32)z, (s32)radius, arcMin, arcMax);
+        ret |= collisionTestSphereSlots(x, y, z, radius, arcMin, arcMax);
     } else {
-        ret = func_806730A4(arg0, arg1, arg2, (s32)arg3);
+        ret = func_806730A4(x, y, z, (s32)radius);
         if (ret == 0) {
-            ret = collisionTestSphereSlots(arg0, arg1, arg2, arg3, arg4, arg5);
+            ret = collisionTestSphereSlots(x, y, z, radius, arcMin, arcMax);
         }
     }
     return ret;

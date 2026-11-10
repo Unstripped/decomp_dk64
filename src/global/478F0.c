@@ -895,20 +895,11 @@ void csCmdNodeTargetLights(CsState *cs, s16 csId, s16 b, s16 c) {
     lightAdd(x, y, z, 0.0f, 0.0f, 0.0f, 600.0f, 0, 0xFF, 0xFF, 0xFF);
 }
 
-typedef struct CsExtraObj3 {
-    /* 0x00 */ u8 pad0[0x90];
-    /* 0x90 */ f32 surfaceY;
-    /* 0x94 */ u8 pad94[0x66];
-    /* 0xFA */ u8 active;
-} CsExtraObj3;
-
-
-
 void csCmdExtraObjectAttach(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *p;
     PlayerState *ps;
     Actor *cam;
-    CsExtraObj3 *camState;
+    CamState *camState;
     u8 near = 0;
 
     if (cs->data == NULL) {
@@ -920,7 +911,7 @@ void csCmdExtraObjectAttach(CsState *cs, s16 csId, s16 b, s16 c) {
     ps = gPlayerSlots->actor->customState;
     cam = ps->camActor;
     camState = cam->customState;
-    if (camState->active != 0 && gPlayerSlots->camY < camState->surfaceY + 3.0f) {
+    if (camState->unkFA != 0 && gPlayerSlots->camY < camState->unk90 + 3.0f) {
         near = 1;
     }
     if (*p != 0 && near == 0) {

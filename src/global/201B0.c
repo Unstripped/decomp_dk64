@@ -1857,8 +1857,7 @@ void camFindClearYaw(Actor *camActor, f32 unused, s16 yaw, u8 failCount) {
     cnt = 0;
     out0 = 0xFFF;
     out1 = 0;
-    cam->unkB2 = yaw;
-    base = cam->unkB2;
+    base = cam->unkB2 = yaw;
     found = 0;
     dir = 0;
     step = 0x80;

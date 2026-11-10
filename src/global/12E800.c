@@ -780,7 +780,7 @@ typedef struct C1Act {
 
 #define C1B40 ((C1Act *)gCurrentActor)
 
-void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
+void enemyAggroStateUpdate(s32 aggroDist, s32 arg1, s32 arg2) {
     D1S174 *st;
     s32 dist;
     u8 pad0;
@@ -795,7 +795,7 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
     me = gCurrentActor;
 #define SQ(x) ((x) * (x))
     dist = (SQ(me->x - gBehaviourTargetActor->x) + SQ(me->y - gBehaviourTargetActor->y) + SQ(me->z - gBehaviourTargetActor->z));
-    near = dist < arg0;
+    near = dist < aggroDist;
     if (near == 0) {
         near = (gBehaviourAnimState->flags & 4) != 0;
     }
