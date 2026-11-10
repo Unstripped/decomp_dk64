@@ -1,5 +1,7 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_pathPlaybackStart
+#define PROTO_SKIP_pathPlaybackStopForActor
 #include "proto/global/127B00.h"
 #include "proto/global/15050.h"
 #include "proto/global/2C700.h"
@@ -12,7 +14,7 @@ typedef struct PathEntry {
 
 
 typedef struct PathPlayback {
-    s32 unk0;
+    Actor *owner;
     u8 *unk4;
     s16 unk8;
     u8 padA[2];
@@ -95,7 +97,7 @@ s32 pathExists(u8 pathId) {
 
 void *memcpy(void *, const void *, unsigned int);
 
-s32 pathPlaybackStart(s32 owner, s32 pathId, u8 prependStartPoint, f32 x, f32 y, f32 z, u8 pointFlag) {
+s32 pathPlaybackStart(Actor *owner, s32 pathId, u8 prependStartPoint, f32 x, f32 y, f32 z, u8 pointFlag) {
     PathEntry *path;
     s32 i;
     s32 found;
@@ -143,7 +145,7 @@ s32 pathPlaybackStart(s32 owner, s32 pathId, u8 prependStartPoint, f32 x, f32 y,
         srcOff += 10;
         dstOff += 10;
     }
-    D_807FDBF8[i]->unk0 = owner;
+    D_807FDBF8[i]->owner = owner;
     D_807FDBF8[i]->unkC = 0.0f;
     *(s32 *)((u8 *)D_807FDBF8[i] + 0x1C) = 0;
     *(s32 *)((u8 *)D_807FDBF8[i] + 0x10) = 0;
@@ -224,7 +226,7 @@ void pathPlaybackSetDirection(s32 slot, u8 direction) {
 }
 
 
-void pathPlaybackStopForActor(s32 actor) {
+void pathPlaybackStopForActor(Actor *actor) {
     PathPlayback **playbacks;
     PathPlayback *playback;
     s32 i;
@@ -233,7 +235,7 @@ void pathPlaybackStopForActor(s32 actor) {
     i = 0;
     do {
         playback = *playbacks;
-        if ((playback != NULL) && (actor == playback->unk0)) {
+        if ((playback != NULL) && (actor == playback->owner)) {
             pathPlaybackFree(i);
         }
         i += 1;
@@ -250,7 +252,7 @@ void pathPlaybackFree(s32 slot) {
 }
 
 typedef struct PathPlaybackView {
-    s32 unk0;
+    Actor *owner;
     PathEntry path;
     f32 unkC;
     s32 unk10;
