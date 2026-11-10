@@ -48,7 +48,7 @@ void mapRequestTransitionFast(s32, s32);
 void mapCheckAutoTransition(void);
 #endif
 #ifndef PROTO_SKIP_func_805FF5A0
-void func_805FF5A0(void);
+void func_805FF5A0(s32);
 #endif
 #ifndef PROTO_SKIP_mapTransitionExitCurrent
 void mapTransitionExitCurrent(s32, s32);

@@ -1,9 +1,6 @@
 #include "common.h"
 #include "sched.h"
 #include "actor.h"
-#define PROTO_SKIP_flagSet // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_func_805FF5A0 // PROTO: Type s32  of this argument  is incompatible with type void  
-#define PROTO_SKIP_mapFindSlotIndex // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/117190.h"
 #include "proto/global/135D30.h"
 #include "proto/global/136820.h"
@@ -20,33 +17,37 @@
 #include "proto/global/FCCD0.h"
 
 typedef struct {
-    u8 unk0;
+    u8 inUse;
     u8 pad1;
-    s16 unk2;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    s16 unk10;
-    s16 unk12;
-    u8 unk14;
-    u8 pad15[3];
-    s32 unk18;
-    void *unk1C;
-    void *unk20;
-    u8 pad24[0xC0 - 0x24];
+    s16 flags;
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 yaw;
+    s16 map;
+    u8 returnExitIndex;
+    u8 *modelData;
+    s32 recordSize;
+    u8 *records;
+    u8 rgb[52][3];
 } Struct8076A160;
 
 typedef struct {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
+    s32 map;
+    s32 targetMap;
+    s32 exitIndex;
 } Struct807447A0;
 
+typedef struct {
+    s32 overlayFlags;
+    s32 cutsceneFlags;
+    s32 unk8;
+} Struct8074482C;
 
 typedef struct {
-    u16 unk0;
-    u16 unk2;
-    u8 unk4;
+    u16 map;
+    u16 targetMap;
+    u8 exitIndex;
 } Struct8074475C;
 
 /* Extern variables */
@@ -65,7 +66,7 @@ extern Struct807447A0 D_807447A0[];
 extern u8 D_80744820;
 extern u8 D_80744824;
 extern u8 D_80744828;
-extern Struct807447A0 D_8074482C[];
+extern Struct8074482C D_8074482C[];
 extern u8 gPlayerCharacterId;
 const u8 D_807565E0[80] = {
     0x01, 0x0F, 0x05, 0x19, 0x07, 0x1A, 0x1E, 0x30, 0x48, 0x57, 0x2A, 0x11, 0x26, 0x0A, 0x73, 0x74,
@@ -86,10 +87,6 @@ extern s32 gCurrentMap;
 extern u8 gCurrentWorldId;
 extern u8 gScreenRenderFlags;
 extern s8 D_8076A0B2;
-extern s16 D_8076A172;
-extern u8 D_8076A220;
-extern s16 D_8076A232;
-extern Struct8076A160 D_8076A2E0[];
 extern s32 D_807F6010;
 extern Actor *gPrimaryPlayerActor;
 extern s32 gGlobalPauseFlags;
@@ -99,14 +96,11 @@ extern u16 gLevelCollectibleCounts[];
 extern f32 gScreenFadeRate;
 
 /* Function declarations */
-void func_805FF5A0();
-s32 mapFindSlotIndex();
 
 /* External functions */
 void func_8002920C(void);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void flagSet();
 
 // .bss 0x8076A160-0x8076AF00
 Struct8076A160 D_8076A160[18];
@@ -124,8 +118,8 @@ u8 D_8076AEF7;
 u8 D_8076AEF8[8];
 
 typedef struct {
-    s32 unk0;
-    s32 unk4;
+    s32 key;
+    s32 value;
 } KeyValuePair;
 
 
@@ -136,10 +130,10 @@ s32 func_805FEF10(s32 *outValue) {
     s32 found;
 
     found = 0;
-    for (i = 0; (u32)i < 4 && !found; i++) {
-        found = gPrimaryPlayerActor->actorType == D_80744800[i].unk0;
+    for (i = 0; i < 4U && !found; i++) {
+        found = gPrimaryPlayerActor->actorType == D_80744800[i].key;
         if (found) {
-            *outValue = D_80744800[i].unk4;
+            *outValue = D_80744800[i].value;
         }
     }
     return found;
@@ -164,8 +158,8 @@ u8 mapGetWorldIndex(u8 map) {
 }
 
 s32 mapGetConfigValue(u8 unused, s32 index) {
-    s32 ret = D_80744720[index];
-    return ret;
+    s32 value = D_80744720[index];
+    return value;
 }
 
 u8 mapGetHubWorldIndex(u8 map, u8 checkBossMap) {
@@ -197,7 +191,7 @@ u8 mapHasCollectedSufficientItems(void) {
 void mapSlotArrayInit(void) {
     s32 i;
     for (i = 0; i < 18; i++) {
-        D_8076A160[i].unk0 = 0;
+        D_8076A160[i].inUse = 0;
     }
 }
 
@@ -218,30 +212,31 @@ void mapSetPendingTransition(s16 map, u8 exitIndex) {
 
 void mapExecuteDeathTransition(s32 unused) {
     u16 pad;
-    u16 a3;
+    u16 targetMap;
     s32 limit;
     s32 i;
-    u16 t1;
+    u16 exitIndex;
     u8 found;
+    s32 world;
 
     limit = 11;
     i = 0;
-    t1 = 0;
+    exitIndex = 0;
     found = 0;
 
     if (D_80744828 != 0) {
-        a3 = D_8076AEF4;
-        t1 = D_8076AEF6;
+        targetMap = D_8076AEF4;
+        exitIndex = D_8076AEF6;
     } else {
         if (func_805FEF74(gCurrentMap) != 0) {
-            a3 = ((u16 *)&gCurrentMap)[1];
+            targetMap = gCurrentMap;
         } else {
-            unused = mapGetHubWorldIndex(((u8 *)&gCurrentMap)[3], 0);
-            a3 = D_80744748[unused];
+            world = mapGetHubWorldIndex(gCurrentMap, 0);
+            targetMap = D_80744748[world];
             for (; !found && (i < limit); i++) {
-                if (gCurrentMap == D_8074475C[i].unk0) {
-                    a3 = D_8074475C[i].unk2;
-                    t1 = D_8074475C[i].unk4;
+                if (gCurrentMap == D_8074475C[i].map) {
+                    targetMap = D_8074475C[i].targetMap;
+                    exitIndex = D_8074475C[i].exitIndex;
                     found = 1;
                 }
             }
@@ -250,7 +245,7 @@ void mapExecuteDeathTransition(s32 unused) {
     if (!found) {
         mapSlotArrayResetAll();
     }
-    mapRequestTransition(a3, t1);
+    mapRequestTransition(targetMap, exitIndex);
     D_80744828 = 0;
 }
 
@@ -266,7 +261,7 @@ void mapExecuteVoidTransition(void) {
         targetMap = gCurrentMap;
         exitIndex = 0;
     }
-    flagSet(0x6E, 1, 2, targetMap);
+    flagSet(0x6E, 1, 2);
     mapRequestTransition(targetMap, exitIndex);
 }
 
@@ -275,11 +270,11 @@ void mapRequestTransition(s32 map, s32 exitIndex) {
     if ((gGameMode == 6) || (menuIsTransitionActive() == 0)) {
         menuCheckCutsceneTransition(&map, &exitIndex);
         if (map != -1) {
-            if ((s32) gPlayerCharacterId >= 6) {
+            if (gPlayerCharacterId >= 6) {
                 gPlayerCharacterId = playerGetResolvedKongId(0);
             }
             gScreenRenderFlags |= 1;
-            D_8076AEF2 = (s16) gCurrentMap;
+            D_8076AEF2 = gCurrentMap;
             gInitialMap = map;
             gInitialExit = exitIndex;
             D_8076A0B2 = 3;
@@ -311,22 +306,22 @@ void mapCheckAutoTransition(void) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        if (gCurrentMap == D_807447A0[i].unk0) {
-            mapRequestTransition(D_807447A0[i].unk4, D_807447A0[i].unk8);
+        if (gCurrentMap == D_807447A0[i].map) {
+            mapRequestTransition(D_807447A0[i].targetMap, D_807447A0[i].exitIndex);
             return;
         }
     }
 }
 
-void func_805FF5A0(void) {
-    s32 idx = mapFindSlotIndex();
+void func_805FF5A0(s32 map) {
+    s32 idx = mapFindSlotIndex(map);
 
     if (idx != -1) {
-        D_8076AEE2 = D_8076A160[idx].unk2;
-        D_8076AEE4 = D_8076A160[idx].unk4;
-        D_8076AEE8 = D_8076A160[idx].unk8;
-        D_8076AEEC = D_8076A160[idx].unkC;
-        D_8076AEF0 = D_8076A160[idx].unk10;
+        D_8076AEE2 = D_8076A160[idx].flags;
+        D_8076AEE4 = D_8076A160[idx].x;
+        D_8076AEE8 = D_8076A160[idx].y;
+        D_8076AEEC = D_8076A160[idx].z;
+        D_8076AEF0 = D_8076A160[idx].yaw;
     } else {
         D_8076AEE2 = 0;
     }
@@ -345,33 +340,25 @@ void func_805FF670(void) {
     f32 dist;
     s16 spawnX;
     s16 i;
-    f32 offset;
-    s32 step;
     s16 spawnZ;
 
     if (D_80744820 != 0) {
         camStartPath(gPrimaryPlayerActor, 2, 5);
         slotQueueUpdate(1, 0, 0);
-        i = 0;
-        if ((s32) D_80744820 > 0) {
-            offset = 20.0f;
-            step = 5;
-            do {
-                dist = (i * 2) + 30;
-                spawnX = gPrimaryPlayerActor->x - mathSinF(gPrimaryPlayerActor->yaw) * dist;
-                spawnZ = gPrimaryPlayerActor->z - mathCosF(gPrimaryPlayerActor->yaw) * dist;
-                actorSpawnNodeEntryScaled(
-                    0x35,
-                    spawnX,
-                    gPrimaryPlayerActor->y + offset + (f32)(i * step),
-                    spawnZ,
-                    gPrimaryPlayerActor->yaw,
-                    1,
-                    -1,
-                    0
-                );
-                i++;
-            } while (i < D_80744820);
+        for (i = 0; i < D_80744820; i++) {
+            dist = (i * 2) + 30;
+            spawnX = gPrimaryPlayerActor->x - mathSinF(gPrimaryPlayerActor->yaw) * dist;
+            spawnZ = gPrimaryPlayerActor->z - mathCosF(gPrimaryPlayerActor->yaw) * dist;
+            actorSpawnNodeEntryScaled(
+                0x35,
+                spawnX,
+                gPrimaryPlayerActor->y + 20.0f + i * 5,
+                spawnZ,
+                gPrimaryPlayerActor->yaw,
+                1,
+                -1,
+                0
+            );
         }
         D_80744820 = 0;
     }
@@ -382,7 +369,7 @@ s32 mapFindPreviousSavedMap(s32 *outMap, s32 *outExitIndex) {
     s32 i = 0;
 
     while (i < 18 && !found) {
-        if (D_8076A160[i].unk0 != 0 && (D_8076A160[i].unk2 & 2)) {
+        if (D_8076A160[i].inUse != 0 && (D_8076A160[i].flags & 2)) {
             found = 1;
         } else {
             i++;
@@ -390,8 +377,8 @@ s32 mapFindPreviousSavedMap(s32 *outMap, s32 *outExitIndex) {
     }
 
     if (found) {
-        *outMap = D_8076A160[i].unk12;
-        *outExitIndex = D_8076A160[i].unk14;
+        *outMap = D_8076A160[i].map;
+        *outExitIndex = D_8076A160[i].returnExitIndex;
     }
     return found;
 }
@@ -420,7 +407,7 @@ s32 mapFindSlotByMap(s16 target) {
     s32 i = 0;
     s32 found = 0;
     while (i < 18 && !found) {
-        if (D_8076A160[i].unk0 != 0 && D_8076A160[i].unk12 == target) {
+        if (D_8076A160[i].inUse != 0 && D_8076A160[i].map == target) {
             found = 1;
         } else {
             i++;
@@ -429,20 +416,13 @@ s32 mapFindSlotByMap(s16 target) {
     return found;
 }
 
-typedef struct {
-    u8 pad0[0x24];
-    u8 rgb[52][3];
-} SlotLightColors;
-
-
-
 extern s8 D_80750ACC;
 extern s32 gMapChunkCount;
 extern s32 D_807FD56C;
 extern s16 D_807FD570;
 
 void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
-    Actor *cam;
+    Actor *player;
     s32 serializedSize;
     s32 i;
     s32 found;
@@ -451,12 +431,12 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
     f32 g;
     f32 b;
     s32 pad;
-    PlayerState *obj;
+    PlayerState *playerState;
 
     found = 0;
     i = 0;
     while (i < 18 && !found) {
-        if (D_8076A160[i].unk0 != 0 && gCurrentMap == D_8076A160[i].unk12) {
+        if (D_8076A160[i].inUse != 0 && gCurrentMap == D_8076A160[i].map) {
             found = 1;
         } else {
             i++;
@@ -468,7 +448,7 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
         found = 0;
         i = 0;
         while (i < 18 && !found) {
-            if (D_8076A160[i].unk0 == 0) {
+            if (D_8076A160[i].inUse == 0) {
                 found = 1;
             } else {
                 i++;
@@ -479,40 +459,40 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
         }
     }
     gridFreeAllActiveNodes();
-    modelSlotSerializeAll((u8 **)&D_8076A160[i].unk18, &serializedSize);
-    heapRegisterSurvivor((u8 **)&D_8076A160[i].unk18);
-    modelSlotsPackRecords((u8 **)&D_8076A160[i].unk20, (s32 *)&D_8076A160[i].unk1C);
-    if (D_8076A160[i].unk20 != 0) {
-        heapRegisterSurvivor((u8 **)&D_8076A160[i].unk20);
+    modelSlotSerializeAll(&D_8076A160[i].modelData, &serializedSize);
+    heapRegisterSurvivor(&D_8076A160[i].modelData);
+    modelSlotsPackRecords(&D_8076A160[i].records, &D_8076A160[i].recordSize);
+    if (D_8076A160[i].records != NULL) {
+        heapRegisterSurvivor(&D_8076A160[i].records);
     }
-    D_8076A160[i].unk2 = flags;
+    D_8076A160[i].flags = flags;
     if (flags & 1) {
-        cam = gPrimaryPlayerActor;
-        D_8076A160[i].unk4 = cam->x;
-        D_8076A160[i].unk8 = cam->y;
-        D_8076A160[i].unkC = cam->z;
-        D_8076A160[i].unk10 = cam->yaw;
+        player = gPrimaryPlayerActor;
+        D_8076A160[i].x = player->x;
+        D_8076A160[i].y = player->y;
+        D_8076A160[i].z = player->z;
+        D_8076A160[i].yaw = player->yaw;
     }
-    D_8076A160[i].unk12 = gCurrentMap;
+    D_8076A160[i].map = gCurrentMap;
     if (flags & 2) {
-        D_8076A160[i].unk14 = returnExitIndex;
+        D_8076A160[i].returnExitIndex = returnExitIndex;
     }
     for (k = 0; k < gMapChunkCount; k++) {
         lightGetColor(&r, &g, &b, k);
-        ((SlotLightColors *)&D_8076A160[i])->rgb[k][0] = (u32)(r * 255.0);
-        ((SlotLightColors *)&D_8076A160[i])->rgb[k][1] = (u32)(g * 255.0);
-        ((SlotLightColors *)&D_8076A160[i])->rgb[k][2] = (u32)(b * 255.0);
+        D_8076A160[i].rgb[k][0] = (u32)(r * 255.0);
+        D_8076A160[i].rgb[k][1] = (u32)(g * 255.0);
+        D_8076A160[i].rgb[k][2] = (u32)(b * 255.0);
     }
-    k = 1;
+    k = 1; // FAKE: reuses loop counter k as the constant 1 stored to D_80750ACC and inUse (regalloc)
     D_80750ACC = k;
-    obj = (PlayerState *)gPrimaryPlayerActor->customState;
-    D_807FD56C = obj->stateFlags;
-    if (obj->heldActor != NULL) {
-        D_807FD570 = obj->heldActor->actorType;
+    playerState = (PlayerState *)gPrimaryPlayerActor->customState;
+    D_807FD56C = playerState->stateFlags;
+    if (playerState->heldActor != NULL) {
+        D_807FD570 = playerState->heldActor->actorType;
     } else {
         D_807FD570 = 0;
     }
-    D_8076A160[i].unk0 = k;
+    D_8076A160[i].inUse = k;
     mapRequestTransition(map, exitIndex);
 }
 
@@ -522,7 +502,7 @@ s32 func_805FFE50(s32 map, s16 recordId, s16 value) {
     Struct8076A160 *slot;
 
     while (!found && i < 18) {
-        if (D_8076A160[i].unk12 == map) {
+        if (D_8076A160[i].map == map) {
             found = 1;
         } else {
             i++;
@@ -534,7 +514,7 @@ s32 func_805FFE50(s32 map, s16 recordId, s16 value) {
     }
 
     slot = &D_8076A160[i];
-    modelRecordFindAndSet(slot->unk20, slot->unk1C, recordId, value);
+    modelRecordFindAndSet(slot->records, slot->recordSize, recordId, value);
     return 1;
 }
 
@@ -543,7 +523,7 @@ void mapSlotFree(s32 map) {
     s32 i = 0;
 
     while (i < 18 && !found) {
-        if (D_8076A160[i].unk0 != 0 && D_8076A160[i].unk12 == map) {
+        if (D_8076A160[i].inUse != 0 && D_8076A160[i].map == map) {
             found = 1;
         } else {
             i++;
@@ -552,32 +532,31 @@ void mapSlotFree(s32 map) {
 
     if (found) {
         Struct8076A160 *slot = &D_8076A160[i];
-        heapUnregisterSurvivor(&slot->unk18);
-        heapFree((void *)slot->unk18);
-        if (slot->unk1C != 0) {
-            heapUnregisterSurvivor(&slot->unk20);
-            heapFree(slot->unk20);
+        heapUnregisterSurvivor(&slot->modelData);
+        heapFree(slot->modelData);
+        if (slot->recordSize != 0) {
+            heapUnregisterSurvivor(&slot->records);
+            heapFree(slot->records);
         }
-        slot->unk0 = 0;
+        slot->inUse = 0;
         D_807F6010 = 0;
     }
 }
 
 void mapSlotArrayResetAll(void) {
-    Struct8076A160 *ptr, *end;
-    ptr = D_8076A160, end = (Struct8076A160 *)&D_8076AEE0;
-    do {
-        if (ptr->unk0) {
-            heapUnregisterSurvivor(&ptr->unk18);
-            heapFree((void *)ptr->unk18);
-            if (ptr->unk1C != 0) {
-                heapUnregisterSurvivor(&ptr->unk20);
-                heapFree(ptr->unk20);
+    s32 i;
+
+    for (i = 0; i < 18; i++) {
+        if (D_8076A160[i].inUse) {
+            heapUnregisterSurvivor(&D_8076A160[i].modelData);
+            heapFree(D_8076A160[i].modelData);
+            if (D_8076A160[i].recordSize != 0) {
+                heapUnregisterSurvivor(&D_8076A160[i].records);
+                heapFree(D_8076A160[i].records);
             }
-            ptr->unk0 = 0;
+            D_8076A160[i].inUse = 0;
         }
-        ptr++;
-    } while (ptr != end);
+    }
 }
 
 void mapTransitionToWorldHub(s32 index) {
@@ -586,34 +565,11 @@ void mapTransitionToWorldHub(s32 index) {
 }
 
 s32 mapFindSlotIndex(s32 map) {
-    Struct8076A160 *ptr;
     s32 i;
 
-    if (*(u8 *)D_8076A160 != 0 && map == D_8076A172) {
-        return 0;
-    }
-    if (D_8076A220 != 0 && map == D_8076A232) {
-        return 1;
-    }
-    i = 2;
-    ptr = D_8076A2E0;
-    for (;;) {
-        if (ptr[0].unk0 != 0 && map == ptr[0].unk12) {
+    for (i = 0; i < 18; i++) {
+        if (D_8076A160[i].inUse != 0 && map == D_8076A160[i].map) {
             return i;
-        }
-        if (ptr[1].unk0 != 0 && map == ptr[1].unk12) {
-            return i + 1;
-        }
-        if (ptr[2].unk0 != 0 && map == ptr[2].unk12) {
-            return i + 2;
-        }
-        if (ptr[3].unk0 != 0 && map == ptr[3].unk12) {
-            return i + 3;
-        }
-        i += 4;
-        ptr += 4;
-        if (i == 18) {
-            break;
         }
     }
     return -1;
@@ -623,10 +579,10 @@ s16 func_80600174(f32 *outX, f32 *outY, f32 *outZ) {
     s32 i;
 
     for (i = 0; i < 18; i++) {
-        if (D_8076A160[i].unk0 != 0 && (D_8076A160[i].unk2 & 1)) {
-            *outX = D_8076A160[i].unk4;
-            *outY = D_8076A160[i].unk8;
-            *outZ = D_8076A160[i].unkC;
+        if (D_8076A160[i].inUse != 0 && (D_8076A160[i].flags & 1)) {
+            *outX = D_8076A160[i].x;
+            *outY = D_8076A160[i].y;
+            *outZ = D_8076A160[i].z;
             return i;
         }
     }
@@ -634,25 +590,25 @@ s16 func_80600174(f32 *outX, f32 *outY, f32 *outZ) {
 }
 
 s32 func_80600340(s16 *typeList, u8 typeCount, s32 *outMap) {
-    s32 subtableA;
-    s32 subtableB;
+    u8 *subtableA;
+    u8 *subtableB;
     f32 posX;
     f32 posY;
     f32 posZ;
-    u8 idx;
+    u8 slot;
 
-    idx = func_80600174(&posX, &posY, &posZ);
-    if (idx == -1) {
+    slot = func_80600174(&posX, &posY, &posZ);
+    if (slot == -1) {
         return -1;
     }
-    modelAssetGetSubtables(((Struct8076A160 *)&D_8076A160)[idx].unk18, &subtableA, &subtableB);
-    *outMap = ((Struct8076A160 *)&D_8076A160)[idx].unk12;
-    return actorListFindClosestTargetIndex(subtableB, typeList, typeCount, posX, posY, posZ);
+    modelAssetGetSubtables(D_8076A160[slot].modelData, &subtableA, &subtableB);
+    *outMap = D_8076A160[slot].map;
+    return actorListFindClosestTargetIndex((s32 *)subtableB, typeList, typeCount, posX, posY, posZ);
 }
 
 void func_806003EC(s16 index) {
-    gGlobalOverlayFlags = D_8074482C[index].unk0;
-    gGlobalCutsceneFlags = D_8074482C[index].unk4;
+    gGlobalOverlayFlags = D_8074482C[index].overlayFlags;
+    gGlobalCutsceneFlags = D_8074482C[index].cutsceneFlags;
 }
 
 s32 func_8060042C(s16 index) {
@@ -661,12 +617,12 @@ s32 func_8060042C(s16 index) {
 
 u8 func_80600454(s16 id, u8 *outVal) {
     u8 i;
-    u8 ret;
-    s16 temp;
-    s32 a;
+    u8 isNew;
+    s16 flagId;
+    s32 pad;
 
     i = 0;
-    ret = 0;
+    isNew = 0;
 
     while (D_807565E0[i] != 0 && id != D_807565E0[i]) {
         i++;
@@ -675,12 +631,12 @@ u8 func_80600454(s16 id, u8 *outVal) {
     if (D_807565E0[i] != 0) {
         *outVal = D_80756630[i];
         if (i < 13) {
-            temp = i + 0x307;
-            ret = flagGet(temp, 0) == 0;
-            flagSet(temp, 1, 0);
+            flagId = i + 0x307;
+            isNew = flagGet(flagId, 0) == 0;
+            flagSet(flagId, 1, 0);
         } else {
-            ret = 1;
+            isNew = 1;
         }
     }
-    return ret;
+    return isNew;
 }
