@@ -17,7 +17,6 @@ One row per cleanup round, newest last; keep the last ~10. Read when sizing a ro
 
 ## Pending for the next session
 
-- Re-sweep and re-record the 168 functions in 42 files (multiplayer/0, 7AF60, E4090, 112080, 3E10, …; run `quality.py carry --rev 1b04ec85^ --header-carve --dry-run` to list them) staled by the `Actor.unk148` retype in 1b04ec85.
 - Round 8 leftovers: A2F10 func_8069E774 (4 open sites, reconstruct not done; 8069E210 diagnose); 110F00 mtxIdentityF dead-if u4a570 still present (next=cond); menu/1AF0 most functions not reviewed; bonus/2690 reconstruct for bonusLightFlashGameUpdate/bonusActorUpdateVertexPositions/bonusPerilPathPanicGameUpdate, permutes (perm dirs ready in .scratch/CleanBonus2690/r8) and diagnoses (traces there), cond/classify for 300787/b1a373/e5ec5b; 7CA80 u2423a permute, ActorGlobalState.unk204 → Actor *.
 - ReRead2 stopped early: the remaining diff-derived QualityTools reviews still need re-reading (ReRead list).
 - Owed rungs: E4090 (10 OPEN), F56F0 (3), 42630 (3), 80150 (4), D5E10 (2), CEAE0 (2), 15050 (4, next=reconstruct); 450 (23), 6710/13A7A0/13E160/13D170 and boot/main/1630 were only partly cleaned (views), so they need a full pass.
@@ -25,6 +24,7 @@ One row per cleanup round, newest last; keep the last ~10. Read when sizing a ro
 - 5A50 seqPlayerSetChannelState: the callee header 13CB50 setCSPChannelStateValue(…, s32, s32) is too wide (real parameter u8); fixing it is a callee batch.
 - QualityTools callee batches left: hudSpawnCountdownTimer, effectSpawnParticleRingAtPosition last param, collisionCheckActorFloor, mathAngleBetweenPoints2D (see round-5 notes in git history).
 - Later-pass views: E4090/478F0 CamState views (`.scratch/Clean103AB0/camstate/later-pass.md`); 12E800 ExtraState 0x0A s16.
+- Round 9 owner/callee batches (blocked retypes): projectileSpawnNodeEntry / projectileAimAndSpawn chain last param `Actor *` (936B0.c, 8D3E0.c actorListSpawnNodeEntry, boss 0/6240/8520/9C60 local decls; B7490 W712 ×3); 450: gunzip 3rd param `void *` (boot/30E0.c), `SchedStruct gScheduler` carve (fold D_80767CC0/C4/C8), `SchedClient` type + schedAddClient (13980.c), healthHudDrawAll `Gfx *(Gfx *)` (10D2D0.c), playerViewsRender 2nd param FrameMatrices * (2F550.c), actorMapModelsSetup asset param (8D3E0.c); 36880: heapFree/heapFreeDeferred `void *` (15050.c; menu 3E10 wants it too), collisionBstLookupByHash out-pointers (6AD90.c), CsStateFull from 42630.c into include/, a shared render-entry type for 35000/2F550, 70FD0/54150/133A90/55B20/8D3E0 protos, modelSlotInit asset header views (`.scratch/CleanGlobal36880/header-request.md`); menu: textDrawStringVtx text `char *` (100180.c).
 
 ## Proposed names (not yet applied)
 
