@@ -23,6 +23,7 @@
 #include "proto/global/F9450.h"
 #include "proto/global/FCCD0.h"
 #include "proto/menu/1AF0.h"
+#include "sched.h"
 
 typedef struct Struct_80025D14 {
     char pad0[4];
@@ -38,6 +39,13 @@ typedef struct Struct_80025D14 {
     u8 unk11;
     u8 unk12;
 } Struct_80025D14;
+
+// Shop actors (Cranky/Funky/Candy) and the shop's overlay widget actor: one component.
+typedef struct MenuShopActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ Struct_80025D14 *unk178;
+} MenuShopActor;
+
 
 extern u8 gPlayerInventoryTable[][0x5E];
 extern u8 gPlayerCharacterId;
@@ -58,16 +66,10 @@ s32 menuCheckBitgridOtherSlots(Struct_80025D14 *state, s32 bitOffset) {
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/D_80033A78.s")
 
-typedef struct MenuShopPromptActor {
-    char pad0[0x15F];
-    u8 unk15F;
-    char pad160[0x178 - 0x160];
-    Struct_80025D14 *unk178;
-} MenuShopPromptActor;
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
 
-Gfx *menuDrawShopCostPrompt(Gfx *dl, MenuShopPromptActor *actor) {
+Gfx *menuDrawShopCostPrompt(Gfx *dl, MenuShopActor *actor) {
     Struct_80025D14 *st = actor->unk178;
     char buf[0x28];
 
@@ -78,13 +80,13 @@ Gfx *menuDrawShopCostPrompt(Gfx *dl, MenuShopPromptActor *actor) {
         gDPSetCombineLERP(dl++, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
         switch (st->unkE) {
         case 1:
-            actor->unk15F = 0;
+            actor->base.unk15F = 0;
             st->unkE = 5;
         case 5: {
-            s32 diff = 0xFF - actor->unk15F;
+            s32 diff = 0xFF - actor->base.unk15F;
 
-            actor->unk15F += diff >= 9 ? 8 : diff;
-            gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, actor->unk15F);
+            actor->base.unk15F += diff >= 9 ? 8 : diff;
+            gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, actor->base.unk15F);
             _sprintf(buf, "q %s", textTableGetString(0x24, 0x10, 1));
             dl = textDrawStringVtx(dl, 1, 0x1F4, 0x190, buf, 1);
             _sprintf(buf, "b %s", textTableGetString(0x24, 0x11, 1));
@@ -97,32 +99,16 @@ Gfx *menuDrawShopCostPrompt(Gfx *dl, MenuShopPromptActor *actor) {
 }
 
 
-struct Struct_BB40_58;
-
 typedef struct {
     char *unk0[2];
     u8 unk8;
     char pad9[7];
     Mtx unk10[2];
     s32 unk90;
-    struct Struct_BB40_58 *unk94;
+    MenuShopActor *unk94;
 } MenuWidgetState;
 
-typedef struct Struct_BB40_58 {
-    char pad0[0x58];
-    s32 unk58;
-    char pad5C[4];
-    s32 unk60;
-    char pad64[0x154 - 0x64];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x174 - 0x156];
-    MenuWidgetState *unk174;
-    Struct_80025D14 *unk178;
-} Struct_BB40_58;
-extern Struct_BB40_58 *gCurrentActor;
-
-extern u8 gPlayerInventoryTable[][0x5E];
+extern MenuShopActor *gCurrentActor;
 
 void menuSetBitgridValue(Struct_80025D14 *state, s32 slot) {
     gPlayerInventoryTable[slot][state->unkB] = state->unk11;
@@ -146,13 +132,7 @@ void menuUpdateAllBitgridSlots(Struct_80025D14 *state, u8 asBit) {
     } while (i < 5);
 }
 
-typedef struct {
-    char pad0[4];
-    Struct_BB40_58 *unk4;
-    char pad8[0x2E2 - 8];
-    u16 unk2E2;
-} MenuM1_C924;
-extern MenuM1_C924 *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern u8 D_800334DC[];
 
 void menuApplyPurchase(Struct_80025D14 *state, u8 *inventory) {
@@ -235,7 +215,7 @@ void menuCheckInventoryItemPurchased(Struct_80025D14 *state, u8 *inventory, s32 
     }
     count++;
     state->unkC = mapGetHubWorldIndex(gCurrentWorldId, 0);
-    switch (gCurrentActor->unk58) {
+    switch (gCurrentActor->base.actorType) {
     case 0xBD:
         tbl = D_80033260[0];
         break;
@@ -305,7 +285,7 @@ s32 menuGetOptionAvailability(Struct_80025D14 *state, s32 optionIdx) {
 }
 
 s32 menuIsSpecialMovePurchased(Struct_80025D14 *state) {
-    s32 ret = gCurrentActor->unk58 == 0xBD;
+    s32 ret = gCurrentActor->base.actorType == 0xBD;
 
     if (ret != 0) {
         ret = state->unkA == 0;
@@ -352,7 +332,7 @@ void menuFormatShopPurchaseText(Struct_80025D14 *state, void *inventory, s32 has
         currentActorClearFlag();
         state->unk12 = 0;
         state->unkE++;
-        switch (gCurrentActor->unk58) {
+        switch (gCurrentActor->base.actorType) {
         case 0xBF:
             a = 3;
             b = 7;
@@ -439,9 +419,9 @@ void menuFormatShopPurchaseText(Struct_80025D14 *state, void *inventory, s32 has
             break;
         }
         if (hasSecondAction != 0) {
-            resQueueAttachActor(gCurrentActor, textParam1, pairs[8].lo);
+            resQueueAttachActor(&gCurrentActor->base, textParam1, pairs[8].lo);
         }
-        resQueueAttachActor(gCurrentActor, textParam1, pairs[availability].lo);
+        resQueueAttachActor(&gCurrentActor->base, textParam1, pairs[availability].lo);
         if (availability == 2 || availability == 3 || availability == 6 || availability == 7) {
             slotQueueInit(0);
             slotQueueUpdate(1, 1, 0);
@@ -457,7 +437,7 @@ void menuDispatchSubmenuAction(Struct_80025D14 *state, u8 *inventory, s32 flag) 
         menuFormatShopPurchaseText(state, inventory, flag);
         break;
     case 1:
-        if (!(gCurrentActor->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->base.flags & 0x02000000)) {
             state->unkE = 0;
             state->unkD = state->unkF;
             camResumePath();
@@ -467,7 +447,7 @@ void menuDispatchSubmenuAction(Struct_80025D14 *state, u8 *inventory, s32 flag) 
 }
 
 
-extern void *gPrimaryPlayerActor;
+extern Actor *gPrimaryPlayerActor;
 
 s32 menuExitSubmenu(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
     s32 flag = flagGet((s16)flagId, 0) == 0;
@@ -488,7 +468,7 @@ s32 menuExitSubmenu(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
         camStartPath(0, 0xB, 1);
     }
     currentActorClearFlag();
-    gCurrentActor->unk60 |= 0x10000000;
+    gCurrentActor->base.flags |= 0x10000000;
     return flag;
 }
 
@@ -532,7 +512,7 @@ void menuUpdateShopPurchaseStep(Struct_80025D14 *state, u8 *inventory) {
             case 1:
                 playerStateQueueCallback(0x52, 0, 0);
                 gGlobalPauseFlags &= ~0x10030;
-                gPlayerSlots->unk4->unk60 |= 0x40000000;
+                gPlayerSlots->actor->flags |= 0x40000000;
                 break;
             case 4:
                 actorSpawn(0x144, 0);
@@ -541,10 +521,10 @@ void menuUpdateShopPurchaseStep(Struct_80025D14 *state, u8 *inventory) {
             case 2:
             case 3:
                 actorSpawn(0x144, 0);
-                actorScriptStartByIndex(gPlayerSlots->unk4, 0x85);
+                actorScriptStartByIndex(gPlayerSlots->actor, 0x85);
                 break;
             }
-            camStartPath(gPlayerSlots->unk4, 2, 1);
+            camStartPath(gPlayerSlots->actor, 2, 1);
             state->unkD = 2;
             state->unkE = 0;
         } else {
@@ -555,7 +535,7 @@ void menuUpdateShopPurchaseStep(Struct_80025D14 *state, u8 *inventory) {
         break;
     case 15:
         textParam1 = -1;
-        switch (gCurrentActor->unk58) {
+        switch (gCurrentActor->base.actorType) {
         case 0xBD:
             textParam1 = 8;
             if (menuIsSpecialMovePurchased(state) != 0) {
@@ -576,10 +556,10 @@ void menuUpdateShopPurchaseStep(Struct_80025D14 *state, u8 *inventory) {
         }
         slotQueueCancel(1, 0);
         slotQueueCancel(0xE, 0);
-        camStartPath(gPlayerSlots->unk4, 3, 1);
+        camStartPath(gPlayerSlots->actor, 3, 1);
         state->unkD = 3;
         state->unkE = 0;
-        resQueueAttachActor(gCurrentActor, textParam1, textParam2);
+        resQueueAttachActor(&gCurrentActor->base, textParam1, textParam2);
         break;
     }
 }
@@ -598,11 +578,9 @@ void menuUpdateShopDialogueStep(Struct_80025D14 *state, void *inventory, s32 fla
         if (currentActorTestClearFlag() != 0) {
             extraTextParam = -1;
             gGlobalPauseFlags |= 0x10030;
-            gPlayerSlots->unk4->unk60 &= ~0x40000000;
+            gPlayerSlots->actor->flags &= ~0x40000000;
             textParam1 = 0;
             textParam2 = -1;
-            if (textParam2) { // FAKE: empty guard steers regalloc
-            }
             currentActorClearFlag();
             switch (state->unkB) {
             case 0:
@@ -619,16 +597,12 @@ void menuUpdateShopDialogueStep(Struct_80025D14 *state, void *inventory, s32 fla
                         extraTextParam = 0x15;
                     }
                     textParam2 = 0x12;
-                    textParam1 = 9;
+                } else if (D_807FCC4C == state->unk10 + 1) {
+                    textParam2 = 0x14;
                 } else {
                     textParam2 = 0x13;
-                    if (D_807FCC4C == state->unk10 + 1) {
-                        textParam2 = 0x14;
-                        textParam1 = 9;
-                    } else {
-                        textParam1 = 9;
-                    }
                 }
+                textParam1 = 9;
                 break;
             case 2:
                 textParam2 = D_800334E4[state->unk11];
@@ -640,15 +614,15 @@ void menuUpdateShopDialogueStep(Struct_80025D14 *state, void *inventory, s32 fla
                 textParam1 = 7;
                 break;
             }
-            resQueueAttachActor(gCurrentActor, textParam1, textParam2);
+            resQueueAttachActor(&gCurrentActor->base, textParam1, textParam2);
             if (extraTextParam >= 0) {
-                resQueueAttachActor(gCurrentActor, textParam1, extraTextParam);
+                resQueueAttachActor(&gCurrentActor->base, textParam1, extraTextParam);
             }
             state->unkE++;
         }
         break;
     case 1:
-        if (!(gCurrentActor->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->base.flags & 0x02000000)) {
             flagSet(flagId, 1, 0);
             camResumePath();
             state->unkE++;
@@ -673,18 +647,18 @@ void menuUpdateShopExitingStep(Struct_80025D14 *state, u8 *inventory, s32 flagId
 
     switch (state->unkE) {
     case 0:
-        if (!(gCurrentActor->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->base.flags & 0x02000000)) {
             camResumePath();
             state->unkE++;
             flagSet(flagId, 1, 0);
         }
         break;
     case 2:
-        if (!(gCurrentActor->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->base.flags & 0x02000000)) {
             x = -1;
             camResumePath();
             state->unkE = 4;
-            switch (gCurrentActor->unk58) {
+            switch (gCurrentActor->base.actorType) {
             case 0xBE:
                 x = 2;
             case 0xBF:
@@ -703,7 +677,7 @@ void menuUpdateShopExitingStep(Struct_80025D14 *state, u8 *inventory, s32 flagId
             v = -1;
             currentActorClearFlag();
             playerResumeLocomotion(gPrimaryPlayerActor);
-            switch (gCurrentActor->unk58) {
+            switch (gCurrentActor->base.actorType) {
             case 0xBE:
                 textParam1 = 7;
                 textParam2 = 0x11;
@@ -718,7 +692,7 @@ void menuUpdateShopExitingStep(Struct_80025D14 *state, u8 *inventory, s32 flagId
                 }
                 if (v >= 0 && (inventory[v] & 1)) {
                     if (slotQueueGetValue((u8)queueItemId, 0) < slotQueueGetMaxValue(queueItemId, 0)) {
-                        resQueueAttachActor(gCurrentActor, textParam1, textParam2);
+                        resQueueAttachActor(&gCurrentActor->base, textParam1, textParam2);
                         slotQueueAddValue(queueItemId, 0, 0x3E7);
                         state->unkE = 0;
                         camPathId = 5;
@@ -777,33 +751,33 @@ void menuUpdateCrankyShopActor(void) {
     if (gCurrentMap == 5) {
         st = gCurrentActor->unk178;
         p = gPlayerInventoryTable[gPlayerCharacterId];
-        if (!(gCurrentActor->unk60 & 0x10)) {
+        if (!(gCurrentActor->base.flags & 0x10)) {
             if (flagGet(0x180, 0) != 0) {
-                gCurrentActor->unk155 = 0;
+                gCurrentActor->base.unk155 = 0;
             } else {
-                gCurrentActor->unk155 = 0xFF;
+                gCurrentActor->base.unk155 = 0xFF;
             }
         }
-        if (gCurrentActor->unk155 != 0xFF) {
+        if (gCurrentActor->base.unk155 != 0xFF) {
             flag = 0x17F;
             if (mapGetHubWorldIndex(gCurrentWorldId, 0) != 7) {
                 flag = 0x177;
             }
             a3 = 0x26E;
-            if (!(gCurrentActor->unk60 & 0x10)) {
+            if (!(gCurrentActor->base.flags & 0x10)) {
                 if (menuExitSubmenu(st, p, flag) != 0) {
                     a3 = 0x26F;
                 }
-                actorScriptStart(gCurrentActor, a3);
+                actorScriptStart(&gCurrentActor->base, a3);
             }
             menuDispatchCurrentMenuAction(st, p, flag);
         } else {
-            if (!(gCurrentActor->unk60 & 0x10)) {
+            if (!(gCurrentActor->base.flags & 0x10)) {
                 *((u8 *)st + 0xC) = 7;
                 if (flagGet(0x17F, 0) == 0) {
-                    actorScriptStart(gCurrentActor, 0x26E);
+                    actorScriptStart(&gCurrentActor->base, 0x26E);
                     camStartPath(0, 5, 1);
-                    gCurrentActor->unk154 = 0;
+                    gCurrentActor->base.state = 0;
                     flagSet(0x64, 1, 2);
                 } else {
                     n = 0;
@@ -814,10 +788,10 @@ void menuUpdateCrankyShopActor(void) {
                     } while (i != 4);
                     if (n != 4) {
                         camPathId = 0;
-                        gCurrentActor->unk154 = 3;
+                        gCurrentActor->base.state = 3;
                     } else {
                         camPathId = 6;
-                        gCurrentActor->unk154 = 4;
+                        gCurrentActor->base.state = 4;
                         st->unkB = 1;
                         st->unk4 = 0;
                         st->unk11 = 1;
@@ -827,69 +801,69 @@ void menuUpdateCrankyShopActor(void) {
                     playerWaypointPathStartPacked(gPrimaryPlayerActor, gCurrentActor, 0, 0x1B);
                     camStartPath(0, (s16)camPathId, 1);
                     currentActorClearFlag();
-                    actorScriptStart(gCurrentActor, 0x26E);
+                    actorScriptStart(&gCurrentActor->base, 0x26E);
                 }
             }
-            switch (gCurrentActor->unk154) {
+            switch (gCurrentActor->base.state) {
             case 0:
                 if (currentActorTestClearFlag() != 0) {
-                    resQueueAttachActor(gCurrentActor, 8, 0x1C);
-                    gCurrentActor->unk154 = 1;
+                    resQueueAttachActor(&gCurrentActor->base, 8, 0x1C);
+                    gCurrentActor->base.state = 1;
                 }
                 break;
             case 1:
-                if (!(gCurrentActor->unk60 & 0x02000000)) {
+                if (!(gCurrentActor->base.flags & 0x02000000)) {
                     playerResumeLocomotion(gPrimaryPlayerActor);
                     currentActorClearFlag();
                     camStartPath(0, 1, 1);
                     mapTransitionToPreviousOrExit();
-                    gCurrentActor->unk154 = 2;
+                    gCurrentActor->base.state = 2;
                 }
                 break;
             case 3:
                 if (currentActorTestClearFlag() != 0) {
-                    resQueueAttachActor(gCurrentActor, 8, 0x1D);
-                    gCurrentActor->unk154 = 1;
+                    resQueueAttachActor(&gCurrentActor->base, 8, 0x1D);
+                    gCurrentActor->base.state = 1;
                 }
                 break;
             case 4:
                 if (currentActorTestClearFlag() != 0) {
-                    resQueueAttachActor(gCurrentActor, 8, 0x1E);
-                    gCurrentActor->unk154 = 5;
+                    resQueueAttachActor(&gCurrentActor->base, 8, 0x1E);
+                    gCurrentActor->base.state = 5;
                 }
                 break;
             case 5:
-                if (!(gCurrentActor->unk60 & 0x02000000)) {
+                if (!(gCurrentActor->base.flags & 0x02000000)) {
                     camResumePath();
-                    gCurrentActor->unk154 = 6;
+                    gCurrentActor->base.state = 6;
                 }
                 break;
             case 6:
                 if (currentActorTestClearFlag() != 0) {
                     playerStateQueueCallback(0x52, 0, 0);
                     gGlobalPauseFlags &= 0xFFFEFFCF;
-                    gPlayerSlots->unk4->unk60 |= 0x40000000;
-                    gCurrentActor->unk154 = 7;
+                    gPlayerSlots->actor->flags |= 0x40000000;
+                    gCurrentActor->base.state = 7;
                     currentActorClearFlag();
-                    camStartPath(gPlayerSlots->unk4, 2, 1);
+                    camStartPath(gPlayerSlots->actor, 2, 1);
                 }
                 break;
             case 7:
                 if (currentActorTestClearFlag() != 0) {
                     gGlobalPauseFlags |= 0x10030;
                     D_80750AC8 = 0xF;
-                    resQueueAttachActor(gCurrentActor, 8, 0x1F);
-                    gCurrentActor->unk154 = 1;
+                    resQueueAttachActor(&gCurrentActor->base, 8, 0x1F);
+                    gCurrentActor->base.state = 1;
                 }
                 break;
             }
         }
     }
-    if (gCurrentActor->unk60 & 0x10000000) {
+    if (gCurrentActor->base.flags & 0x10000000) {
         behaviourFrameBegin();
         actorScriptedCommandUpdate();
     }
-    actorUpdateModelMatrix(gCurrentActor, 0);
+    actorUpdateModelMatrix(&gCurrentActor->base, 0);
 }
 
 s32 menuDecodeAddressConstant(s32 val) {
@@ -911,7 +885,7 @@ void menuCheckControllerAntiPiracy(void) {
         temp = gCurrentActor->unk178;
         ptr = gPlayerInventoryTable[gPlayerCharacterId];
 
-        if (!(gCurrentActor->unk60 & 0x10)) {
+        if (!(gCurrentActor->base.flags & 0x10)) {
 
             s32 *cur = (s32 *)controllerUpdate;
             s32 *end = (s32 *)controllerLatchPad;
@@ -932,11 +906,11 @@ void menuCheckControllerAntiPiracy(void) {
         }
         menuDispatchCurrentMenuAction(temp, ptr, 0x175);
     }
-    if (gCurrentActor->unk60 & 0x10000000) {
+    if (gCurrentActor->base.flags & 0x10000000) {
         behaviourFrameBegin();
         actorScriptedCommandUpdate();
     }
-    actorUpdateModelMatrix(gCurrentActor, 0);
+    actorUpdateModelMatrix(&gCurrentActor->base, 0);
 }
 void menuUpdateFunkyShopActor(void) {
     behaviourFrameBegin();
@@ -944,16 +918,16 @@ void menuUpdateFunkyShopActor(void) {
         Struct_80025D14 *temp = gCurrentActor->unk178;
         u8 *ptr = gPlayerInventoryTable[gPlayerCharacterId];
 
-        if (!(gCurrentActor->unk60 & 0x10)) {
+        if (!(gCurrentActor->base.flags & 0x10)) {
             menuExitSubmenu(temp, ptr, 0x176);
         }
         menuDispatchCurrentMenuAction(temp, ptr, 0x176);
     }
-    if (gCurrentActor->unk60 & 0x10000000) {
+    if (gCurrentActor->base.flags & 0x10000000) {
         behaviourFrameBegin();
         actorScriptedCommandUpdate();
     }
-    actorUpdateModelMatrix(gCurrentActor, 0);
+    actorUpdateModelMatrix(&gCurrentActor->base, 0);
 }
 
 
@@ -961,8 +935,8 @@ extern Mtx D_2000180;
 typedef struct { s16 unk0; s16 unk2; } Struct_8003353C;
 extern Struct_8003353C D_8003353C[];
 
-Gfx *menuDrawTransformedWidgets(Gfx *dl, Struct_BB40_58 *widgetActor) {
-    MenuWidgetState *fp = widgetActor->unk174;
+Gfx *menuDrawTransformedWidgets(Gfx *dl, MenuShopActor *widgetActor) {
+    MenuWidgetState *fp = widgetActor->base.customState;
     s32 i;
 
     gSPDisplayList(dl++, D_1000118);
@@ -996,7 +970,7 @@ extern s32 D_80033648[];
 extern s16 D_80033542;
 
 void menuUpdateTransformedWidgets(void) {
-    MenuWidgetState *fp = gCurrentActor->unk174;
+    MenuWidgetState *fp = gCurrentActor->base.customState;
     s32 done = 0;
     Struct_80025D14 *st = NULL;
     f32 mA[4][4];
@@ -1007,13 +981,13 @@ void menuUpdateTransformedWidgets(void) {
     s32 d;
 
     if (fp->unk94 == NULL) {
-        fp->unk94 = spawnNodeActivate(1, 0);
+        fp->unk94 = (MenuShopActor *)spawnNodeActivate(1, 0);
     }
     if (fp->unk94 != NULL) {
         st = fp->unk94->unk178;
     }
     if (st != NULL) {
-        if (!(gCurrentActor->unk60 & 0x10)) {
+        if (!(gCurrentActor->base.flags & 0x10)) {
             textIds = D_8003365C[0];
             guScaleF(mA, 0.6f, 0.6f, 1.0f);
             guTranslateF(mB, 640.0f, 800.0f, 0.0f);
@@ -1067,13 +1041,13 @@ void menuUpdateTransformedWidgets(void) {
         }
         switch (fp->unk90) {
         case 0x78:
-            gCurrentActor->unk154 = 1;
+            gCurrentActor->base.state = 1;
             break;
         case 0x1E:
-            gCurrentActor->unk154 = 2;
+            gCurrentActor->base.state = 2;
             break;
         }
-        switch (gCurrentActor->unk154) {
+        switch (gCurrentActor->base.state) {
         case 1:
             d = (0xFF - fp->unk8 > 0x10) ? 0x10 : 0xFF - fp->unk8;
             fp->unk8 += d;
@@ -1084,14 +1058,14 @@ void menuUpdateTransformedWidgets(void) {
             break;
         }
         if (done == 0) {
-            if (gCurrentActor->unk154 != 0) {
+            if (gCurrentActor->base.state != 0) {
                 renderCallbacksRegister(menuDrawTransformedWidgets, gCurrentActor, 3);
             }
-            if (gCurrentActor->unk58 == 0x140) {
-                actorUpdateModelMatrix(gCurrentActor, 0);
+            if (gCurrentActor->base.actorType == 0x140) {
+                actorUpdateModelMatrix(&gCurrentActor->base, 0);
             }
         } else {
-            actorDespawn(gCurrentActor);
+            actorDespawn(&gCurrentActor->base);
         }
     }
 }

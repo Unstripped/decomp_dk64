@@ -2,14 +2,13 @@
 #ifndef PROTO_MENU_1AF0_H
 #define PROTO_MENU_1AF0_H
 #include "common.h"
-struct MenuShopPromptActor;
+struct MenuShopActor;
 struct Struct_80025D14;
-struct Struct_BB40_58;
 #ifndef PROTO_SKIP_menuCheckBitgridOtherSlots
 s32 menuCheckBitgridOtherSlots(struct Struct_80025D14 *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDrawShopCostPrompt
-Gfx *menuDrawShopCostPrompt(Gfx *, struct MenuShopPromptActor *);
+Gfx *menuDrawShopCostPrompt(Gfx *, struct MenuShopActor *);
 #endif
 #ifndef PROTO_SKIP_menuSetBitgridValue
 void menuSetBitgridValue(struct Struct_80025D14 *, s32);
@@ -72,7 +71,7 @@ void menuCheckControllerAntiPiracy(void);
 void menuUpdateFunkyShopActor(void);
 #endif
 #ifndef PROTO_SKIP_menuDrawTransformedWidgets
-Gfx *menuDrawTransformedWidgets(Gfx *, struct Struct_BB40_58 *);
+Gfx *menuDrawTransformedWidgets(Gfx *, struct MenuShopActor *);
 #endif
 #ifndef PROTO_SKIP_menuUpdateTransformedWidgets
 void menuUpdateTransformedWidgets(void);
