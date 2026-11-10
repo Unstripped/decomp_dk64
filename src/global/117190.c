@@ -505,7 +505,7 @@ extern s16 gScreenWidth;
 
 Gfx *func_80713438(Gfx *dl, u8 alpha) {
     char *str;
-    char *text;
+    u8 *text;
     f32 y;
     f32 x;
     s16 xFixed;

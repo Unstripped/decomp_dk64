@@ -50,6 +50,7 @@ typedef struct MenuScreenState {
     s8 selection;
 } MenuScreenState;
 
+
 typedef struct MenuEffect { // effect objects created by effectCreateAtPosition for the menu
     /* 0x000 */ char pad0[0x128];
     /* 0x128 */ Mtx mtx[8];
@@ -346,7 +347,7 @@ void menuUpdateMainScreen(Actor *actor, s32 buttons) {
     gfxSetBackgroundBlend(D_80033F5C);
 }
 
-extern char **D_80033F28;
+extern u8 **D_80033F28;
 
 
 Gfx *menuDrawMainScreenTitle(Actor *actor, Gfx *dl) {
@@ -2446,7 +2447,7 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
 extern s8 D_80033F60;
 extern s8 D_80033F61;
 extern s16 D_80744518;
-extern char *D_800339AC[];
+extern u8 *D_800339AC[];
 extern u32 gFrameCounter;
 
 Gfx *menuDrawHighScoreTable(Actor *actor, Gfx *dl) {
@@ -2561,10 +2562,10 @@ void menuUpdateCameraPositions(void) {
     gPlayerSlots->focusZ = gPrimaryPlayerActor->z - 100.0f;
 }
 
-extern char D_800339C4[];
+extern u8 D_800339C4[];
 extern f32 D_80033F44;
 
-Gfx *menuDrawScrollSelector(Gfx *dl, MenuScreenState *state, char **strTable, s32 itemCount, u32 *outIdx, s16 textFlag, f32 *outOffset, f32 posY, s16 enabledMask) {
+Gfx *menuDrawScrollSelector(Gfx *dl, MenuScreenState *state, u8 **strTable, s32 itemCount, u32 *outIdx, s16 textFlag, f32 *outOffset, f32 posY, s16 enabledMask) {
     s32 idx = state->selection;
     f32 v;
     f32 posX;

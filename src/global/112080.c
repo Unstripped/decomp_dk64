@@ -711,13 +711,13 @@ void resApplyKind(Actor *actor, u16 resId, u8 kindIndex) {
     }
 }
 
-char *textTableGetString(s32 tableId, s32 rowIndex, s32 flags) {
+u8 *textTableGetString(s32 tableId, s32 rowIndex, s32 flags) {
     ResItem *row;
     ResRecord *choice;
     ResTextSpan *span;
     char *source;
     s32 length;
-    char *dest;
+    u8 *dest;
     ResParsedList *table;
 
     table = resNodeGetOrLoad(tableId, 1);

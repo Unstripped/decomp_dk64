@@ -162,7 +162,7 @@ void menuInsertHighScore(void);
 void menuUpdateCameraPositions(void);
 #endif
 #ifndef PROTO_SKIP_menuDrawScrollSelector
-Gfx *menuDrawScrollSelector(Gfx *, struct MenuScreenState *, char **, s32, u32 *, s16, f32 *, f32, s16);
+Gfx *menuDrawScrollSelector(Gfx *, struct MenuScreenState *, u8 **, s32, u32 *, s16, f32 *, f32, s16);
 #endif
 #ifndef PROTO_SKIP_menuSetElementCoordinates
 Gfx *menuSetElementCoordinates(Gfx *, s32, f32, f32, f32);

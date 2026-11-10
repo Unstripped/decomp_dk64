@@ -100,7 +100,7 @@ Gfx *menuDrawShopCostPrompt(Gfx *dl, MenuShopActor *actor) {
 
 
 typedef struct {
-    char *unk0[2];
+    u8 *unk0[2];
     u8 unk8;
     char pad9[7];
     Mtx unk10[2];

@@ -24,7 +24,7 @@ Gfx *hudPauseMenuRender(Gfx *, Actor *);
 Gfx *hudDrawCountPair(s16, s16, s16, s16, Gfx *, s8, f32);
 #endif
 #ifndef PROTO_SKIP_hudPauseMenuBuildPage
-void hudPauseMenuBuildPage();
+void hudPauseMenuBuildPage(struct HudEntry *, s32);
 #endif
 #ifndef PROTO_SKIP_hudPauseMenuSpawnIcon
 void hudPauseMenuSpawnIcon(struct HudEntry *, s32, s32, s32, f32, u8, s32);

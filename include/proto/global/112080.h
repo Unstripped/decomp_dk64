@@ -87,7 +87,7 @@ void resGridBuildGroups(struct ResQueueActorState *, struct ResItem *, struct Re
 void resApplyKind(Actor *, u16, u8);
 #endif
 #ifndef PROTO_SKIP_textTableGetString
-char *textTableGetString(s32, s32, s32);
+u8 *textTableGetString(s32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_resQueueProcessNext
 void resQueueProcessNext(Actor *, Actor *);

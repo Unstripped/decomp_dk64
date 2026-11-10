@@ -29,7 +29,7 @@ void func_806FDAB8(s16, f32);
 void gfxResourceFree(s16);
 #endif
 #ifndef PROTO_SKIP_gfxResourceCreate
-s16 gfxResourceCreate(s16, char *, u8, f32, f32, f32);
+s16 gfxResourceCreate(s16, void *, u8, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_gfxResourceSetString
 void gfxResourceSetString(s16, s32);

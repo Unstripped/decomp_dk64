@@ -149,7 +149,7 @@ f64 __ull_to_d(u64);
 void hudCountdownTimerUpdate(void) {
     f32 nextBeepAngle;
     f32 angle;
-    char text[0x20];
+    u8 text[0x20];
     CountdownTimerState *timer;
     s32 pad;
     u64 usec;

@@ -99,14 +99,14 @@ void bonusControllerUpdate(void) {
     LB3bState *s;
     u8 challengeType;
     u8 targetCount;
-    char *messageText;
+    u8 *messageText;
     u8 hasMessage;
     u8 v3;
     u8 a2v;
-    char *msgBuf;
+    u8 *msgBuf;
     s32 pad5C;
     s32 pad58;
-    char *msgBufCount;
+    u8 *msgBufCount;
     s32 pad50;
     s32 pad4C;
     s32 t;

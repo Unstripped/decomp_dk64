@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
 #define PROTO_SKIP_mapGetWorldIndex // FAKE: callee prototype steer
 #define PROTO_SKIP_renderRotatedSprite // FAKE: callee prototype steer
@@ -34,19 +35,23 @@ typedef struct HudTextEntry {
     /* 0x0A */ s16 unkA;
     /* 0x0C */ s16 unkC;
     /* 0x0E */ s16 unkE;
-    /* 0x10 */ u8 unk10;
-    /* 0x11 */ char unk11[7];
+    /* 0x10 */ s8 unk10;
+    /* 0x11 */ u8 unk11[7];
 } HudTextEntry; // size = 0x18
 
 typedef struct HudEntry {
-    /* 0x00 */ u8 pad0[8];
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
     /* 0x08 */ s16 unk8[2];
     /* 0x0C */ s16 unkC[2];
-    /* 0x10 */ u8 pad10[2];
+    /* 0x10 */ s16 unk10;
     /* 0x12 */ s8 unk12;
-    /* 0x13 */ u8 pad13;
+    /* 0x13 */ s8 unk13;
     /* 0x14 */ s8 unk14;
     /* 0x15 */ s8 unk15;
+    /* 0x16 */ s8 unk16;
+    /* 0x17 */ s8 unk17;
+    /* 0x18 */ u8 unk18;
 } HudEntry;
 
 typedef struct HudTextObj {
@@ -69,18 +74,6 @@ typedef struct HudCountEntry {
     /* 0x42 */ u16 unk42[14];
 } HudCountEntry; // size = 0x5E
 
-typedef struct HudAxis {
-    u8 pad0[3];
-    s8 unk3;
-} HudAxis;
-
-typedef struct HudPlayerView {
-    u8 pad0[0x294];
-    HudAxis *unk294;
-    u16 *unk298;
-    u8 pad29C[0x2F0 - 0x29C];
-} HudPlayerView;
-
 #define HUD_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
 extern Gfx D_1000118;
@@ -94,7 +87,7 @@ extern u32 gGlobalPauseFlags;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
-extern char **D_807FC7E0;
+extern u8 **D_807FC7E0;
 extern void **D_807FC7E8;
 extern s8 D_807FC80F;
 extern u8 D_807FC810;
@@ -122,10 +115,9 @@ extern u8 D_80750531[];
 extern u16 D_807ECD58;
 extern s32 gCurrentMap;
 extern u8 D_807505F8[];
-extern u8 D_807505F9[];
 extern s8 D_807FC80E;
 extern s8 gPausingPlayer;
-extern HudPlayerView *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern s8 D_8076A105;
 
 Gfx *renderRotatedSprite(Gfx *, s32, s32, u8, s32, s32, s32, s32, f32, f32, s32, f32); // FAKE: callee prototype steer
@@ -134,10 +126,7 @@ f32 sqrtf(f32);
 s32 hudFindItemIndex(s8 itemId) {
     s32 i;
 
-    if (itemId == D_80750560[0]) {
-        return 0;
-    }
-    for (i = 1; i < 9; i++) {
+    for (i = 0; i < 9; i++) {
         if (itemId == D_80750560[i]) {
             return i;
         }
@@ -145,33 +134,8 @@ s32 hudFindItemIndex(s8 itemId) {
     return 0;
 }
 
-typedef struct HudPauseState {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ s16 unk8[2];
-    /* 0x0C */ s16 unkC[2];
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s8 unk12;
-    /* 0x13 */ s8 unk13;
-    /* 0x14 */ s8 unk14;
-    /* 0x15 */ s8 unk15;
-    /* 0x16 */ s8 unk16;
-    /* 0x17 */ s8 unk17;
-    /* 0x18 */ u8 unk18;
-} HudPauseState;
 
-typedef struct HudPauseAxis {
-    u8 pad0[2];
-    s8 unk2;
-    s8 unk3;
-} HudPauseAxis;
-
-typedef struct HudPauseCamera {
-    u8 pad0[0x214];
-    f32 unk214;
-} HudPauseCamera;
-
-extern HudPauseAxis *D_807ECDEC;
+extern OSContPad *D_807ECDEC;
 extern u8 D_807467E4;
 extern s32 D_8076A098;
 extern u8 gCurrentWorldId;
@@ -194,10 +158,9 @@ s32 mapGetWorldIndex(); // FAKE: callee prototype steer
 s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
 
 #define HUD_PAUSE_MODE (*(s8 *)D_807505CC)
-#define HUD_PAUSE_LIST ((s8 *)&D_80750530)
 
 void hudPauseMenuUpdate(void) {
-    HudPauseState *hud;
+    HudEntry *hud;
     s32 i;
     s32 diff;
     s32 flag;
@@ -240,7 +203,7 @@ void hudPauseMenuUpdate(void) {
             D_807FC7E8[i] = textTableGetString(0x23, i, 0);
         }
         D_8076A098++;
-        D_807FC7FC = ((HudPauseCamera *)gPlayerSlots)->unk214;
+        D_807FC7FC = gPlayerSlots->camY;
         D_807505D4 = 0;
         D_807FC8B8 = 0;
         D_80750580 = 1;
@@ -283,7 +246,7 @@ void hudPauseMenuUpdate(void) {
     }
     if (hud->unk0 == 0.0f && D_807FC8B8 == 0) {
         moved = hud->unk8[hud->unk15] != hud->unk8[1 - hud->unk15];
-        buttons = *gPlayerSlots->unk298;
+        buttons = *gPlayerSlots->heldButtonsPtr;
         if (moved == 0 && hud->unk4 == 0.0f && D_807FC80C == D_807FC80D) {
             if (buttons & 0x5000) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -322,7 +285,7 @@ void hudPauseMenuUpdate(void) {
         switch (i) {
             case 0:
                 if (hud->unk17 != 3) {
-                    lim = D_807ECDEC->unk3;
+                    lim = D_807ECDEC->stick_y;
                     if (lim < -0x32) {
                         if (D_807FC80E == 0) {
                             hud->unk17 = hud->unk17 + 1;
@@ -402,7 +365,7 @@ void hudPauseMenuUpdate(void) {
                 if (D_807FC804 == 0.0f) {
                     D_807FC802 = 0;
                     if (moved == 0) {
-                        x = D_807ECDEC->unk2;
+                        x = D_807ECDEC->stick_x;
                         if (x < -0x28) {
                             do {
                                 D_807FC802 -= 0x333;
@@ -410,7 +373,7 @@ void hudPauseMenuUpdate(void) {
                                 if (D_807FC800 >= 5) {
                                     D_807FC800 = 0;
                                 }
-                            } while (HUD_PAUSE_LIST[D_807FC800] == 0);
+                            } while (D_80750530[D_807FC800] == 0);
                         } else if (x >= 0x29) {
                             do {
                                 D_807FC802 += 0x333;
@@ -418,7 +381,7 @@ void hudPauseMenuUpdate(void) {
                                 if (D_807FC800 < 0) {
                                     D_807FC800 = 4;
                                 }
-                            } while (HUD_PAUSE_LIST[D_807FC800] == 0);
+                            } while (D_80750530[D_807FC800] == 0);
                         }
                         if (D_807FC800 != hud->unk14) {
                             D_807FC804 = 2.0f;
@@ -467,7 +430,7 @@ void hudPauseMenuUpdate(void) {
                     hud->unk10 = hud->unk10 + i;
                 } else {
                     flag = 0;
-                    x = D_807ECDEC->unk2;
+                    x = D_807ECDEC->stick_x;
                     if (x < -0x28) {
                         D_807FC80D += 1;
                         if (D_807FC80D >= D_807FC83C) {
@@ -536,42 +499,44 @@ void hudPauseMenuUpdate(void) {
     if (D_8075052C != 0) {
         D_8075052C -= 1;
         hud->unk0 = D_80750584[D_8075052C];
-        ((HudPauseCamera *)gPlayerSlots)->unk214 = D_807FC7FC + hud->unk0 * 100.0;
+        gPlayerSlots->camY = D_807FC7FC + hud->unk0 * 100.0;
     }
     renderCallbacksRegister(hudDrawDimOverlay, gCurrentActor, 1);
     renderCallbacksRegister(hudPauseMenuRender, gCurrentActor, 5);
 }
 
 #undef HUD_PAUSE_MODE
-#undef HUD_PAUSE_LIST
 
 void hudFreeBuffers(void) {
     s32 i;
-    u8 *sub;
+    PlayerState *ps;
 
-    sub = gPrimaryPlayerActor->customState;
+    ps = gPrimaryPlayerActor->customState;
     gGlobalPauseFlags |= 0x40;
-    if (!(*(s32 *)(sub + 0x1F0) & 0x20000000)) {
+    if (!(ps->stateFlags & 0x20000000)) {
         gGlobalPauseFlags |= 0x10030;
     }
     heapFree(D_807FC7F0[0]);
-    D_807FC7F8[1] = D_807FC7F8[0] = (s32)(D_807FC7F0[1] = D_807FC7F0[0] = 0);
-    for (i = 0; i < 0x6C; i += 4) {
-        heapFreeDeferred(*(void **)((u8 *)D_807FC7E0 + i));
+    D_807FC7F0[0] = NULL;
+    D_807FC7F0[1] = NULL;
+    D_807FC7F8[0] = 0;
+    D_807FC7F8[1] = 0;
+    for (i = 0; i < 0x1B; i++) {
+        heapFreeDeferred(D_807FC7E0[i]);
     }
     heapFreeDeferred(D_807FC7E0);
-    for (i = 0; i < 0x24; i += 4) {
-        heapFreeDeferred(*(void **)((u8 *)D_807FC7E8 + i));
+    for (i = 0; i < 9; i++) {
+        heapFreeDeferred(D_807FC7E8[i]);
     }
     heapFreeDeferred(D_807FC7E8);
 }
 
 Gfx *hudSetupTextState(Gfx *dl) {
-    HUD_WRITE_GFX(dl++, 0xDE000000, (u32)&D_1000118);
-    HUD_WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
-    HUD_WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
-    HUD_WRITE_GFX(dl++, 0xE7000000, 0);
-    HUD_WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
+    gSPDisplayList(dl++, &D_1000118);
+    gSPMatrix(dl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPMatrix(dl++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+    gDPPipeSync(dl++);
+    gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     HUD_WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
     return dl;
 }
@@ -605,22 +570,8 @@ Gfx *hudSetupTextState(Gfx *dl) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AAE4.s")
 
 
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    s16 unk8[2];
-    s16 unkC[2];
-    s16 unk10;
-    s8 unk12;
-    u8 pad13;
-    s8 unk14;
-    u8 pad15[2];
-    s8 unk17;
-} HudPauseMenuState;
-
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-s32 mapGetHubWorldIndex(s32, s32); // FAKE: callee prototype steer
 extern s16 D_807FC992[];
 extern u8 D_807FCC4C;
 extern s8 D_807FCC4B;
@@ -635,8 +586,8 @@ extern f32 D_807FC868[];
 extern f32 D_807FC890[];
 
 Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
-    char buf[0x40];
-    HudPauseMenuState *hud;
+    u8 buf[0x40];
+    HudEntry *hud;
     s16 j;
     s16 i;
     s16 y;
@@ -646,7 +597,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     HudCountEntry *tab;
     Gfx *ret;
     Gfx *list;
-    s32 sp138;
+    s32 hubWorld;
     s16 ang;
     s16 y0;
     s8 s2;
@@ -663,7 +614,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     hud = actor->customState;
     fadeInput0 = hud->unk0;
     tab = gPlayerInventoryTable;
-    sp138 = mapGetHubWorldIndex(gCurrentWorldId, 1);
+    hubWorld = mapGetHubWorldIndex(gCurrentWorldId, 1);
     list = heapAlloc(0x1F40);
     heapFreeDeferred(list);
     gSPDisplayList(dl++, list);
@@ -674,10 +625,10 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
         if (it != NULL) {
             for (j = 0; j < D_807FC7F8[i]; j++) {
                 fa = hud->unk0;
-                if ((s8)((HudTextEntry *)((u8 *)it + j * 0x18))->unk10 == 2) {
+                if (((HudTextEntry *)((u8 *)it + j * 0x18))->unk10 == 2) {
                     fa += hud->unk4;
                 }
-                off = ((HudTextEntry *)((u8 *)it + j * 0x18))->unk8;
+                off = ((HudTextEntry *)((u8 *)it + j * 0x18))->unk8; // FAKE: byte-offset entry spelling (all 8 reads in this loop) instead of it[j] steers the ugen scratch ring
                 y = ((HudTextEntry *)((u8 *)it + j * 0x18))->unkA;
                 off = (u16)(off * 4) + (s16)(s64)(s32)((f32)fa * ((HudTextEntry *)((u8 *)it + j * 0x18))->unk0); // FAKE: narrow through a 64-bit pair to preserve the ugen scratch-register order.
                 y *= 4;
@@ -722,7 +673,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 fh = -fc;
                 dl = renderRotatedSprite(dl, 0x5D, 0, 2, 0x30, 0x2A, y, y0 + (s16)(s32)fe, fa, fh, 0, 0.0f);
                 gDPPipeSync(dl++);
-                (dl++)->words.w1 = 0xFFFFFFFF;
+                (dl++)->words.w1 = 0xFFFFFFFF; // FAKE: raw SetPrimColor words, w1 first through dl[-1], steer the store order (gDPSetPrimColor mismatches)
                 dl[-1].words.w0 = 0xFA000000;
                 if (s2 > 0) {
                     s32 m;
@@ -756,7 +707,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     } else {
                         gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, ang >> 1);
                     }
-                    if (j == 2 && (sp138 == 7 || (sp138 == 8 && menuGetTimerFlag() != 0 && *(s8 *)D_807505CC == 0))) {
+                    if (j == 2 && (hubWorld == 7 || (hubWorld == 8 && menuGetTimerFlag() != 0 && *(s8 *)D_807505CC == 0))) {
                         j++;
                     }
                     i = j;
@@ -809,14 +760,14 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                             D_807FC840[off] = (f32)yy - fd;
                             D_807FC868[off] = (f32)(s16)((s16)(fc - (f32)y0) + (s32)actor) - fe; // FAKE: narrow before the row offset to steer conversion temporaries.
                             D_807FC890[off] = ff;
-                            if (((s8 *)&D_80750530)[j] != 0) {
+                            if (D_80750530[j] != 0) {
                                 D_807FC890[off] = (f32)((f64)D_807FC890[off] * 0.75);
                             }
                             angv += 0x333;
                         }
                         gDPPipeSync(dl++);
                     }
-                    dl = hudDrawItemLabel(dl, (HudEntry *)hud, i);
+                    dl = hudDrawItemLabel(dl, hud, i);
                 }
                 if (hud->unk8[i] != 8) {
                     f32 fc;
@@ -838,7 +789,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
             for (i = 0; i < 2; i++) {
                 off = hud->unkC[i] * 4;
                 if (off < 0x3B6 && off >= -0x3B5) {
-                    dl = hudDrawItemLabel(dl, (HudEntry *)hud, i);
+                    dl = hudDrawItemLabel(dl, hud, i);
                 }
                 cnt = 0;
                 for (j = 0; j < 5; j++) {
@@ -879,7 +830,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
             }
             break;
     }
-    dl->words.w0 = 0xDF000000;
+    dl->words.w0 = 0xDF000000; // FAKE: raw EndDisplayList words (gSPEndDisplayList mismatches)
     dl->words.w1 = 0;
     if (D_80750530 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     return ret;
@@ -890,8 +841,8 @@ Gfx *hudDrawCountPair(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale)
     s32 w;
     f32 m1[4][4];
     f32 m2[4][4];
-    char buf1[8];
-    char buf2[8];
+    u8 buf1[8];
+    u8 buf2[8];
 
     mtx = heapAlloc(0x40);
     heapFreeDeferred(mtx);
@@ -909,12 +860,12 @@ Gfx *hudDrawCountPair(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale)
     guTranslateF(m2, x, y, 0.0f);
     guMtxCatF(m1, m2, m1);
     guMtxF2L(m1, mtx);
-    HUD_WRITE_GFX(dl++, 0xDA380002, (u32)mtx);
+    gSPMatrix(dl++, mtx, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     _sprintf(buf1, "%d", n1);
     _sprintf(buf2, "%d", n2);
     dl = textDrawStringVtx(textDrawStringVtx(dl, 1, 0, -0x28, buf1, 0x80), 1, w, 0x28, buf2, 0);
-    HUD_WRITE_GFX(dl++, 0xD8380002, 0x40);
-    dl->words.w0 = 0xE7000000;
+    gSPPopMatrix(dl++, G_MTX_MODELVIEW);
+    dl->words.w0 = 0xE7000000; // FAKE: raw PipeSync words with a separate dl++ (gDPPipeSync(dl++) mismatches)
     dl->words.w1 = 0;
     dl++;
     return renderRotatedSprite(dl, 0x9F, 0, 2, 0x20, 0x20, (s32)((f32)x + (f32)(w - 0x10) * scale), (s32)((f32)y + 45.0f * scale), scale * 3.125, scale * 3.125, 0, 0.0f);
@@ -932,17 +883,6 @@ typedef struct {
     /* 0x26 */ u16 unk26[14];
     /* 0x42 */ u16 unk42[14];
 } HudPauseCountEntry;
-
-typedef struct {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ s16 unk8[4];
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s8 unk12;
-    /* 0x13 */ u8 pad13;
-    /* 0x14 */ s8 unk14;
-    /* 0x15 */ s8 unk15;
-} HudPausePage;
 
 typedef struct {
     /* 0x00 */ u8 unk0;
@@ -979,12 +919,8 @@ extern s32 D_807211D0;
 extern s32 D_80721474;
 extern s32 D_80721518;
 
-s32 mapGetHubWorldIndex(s32, s32); // FAKE: callee prototype steer
 
-void hudPauseMenuBuildPage(iconObj, arg1)
-    HudEntry *iconObj;
-    s32 arg1;
-{
+void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
     s32 saved;
     HudPauseCountEntry *e2;
     HudPauseCountEntry *ent;
@@ -1003,9 +939,9 @@ void hudPauseMenuBuildPage(iconObj, arg1)
     HudPauseFlagEntry *q;
     s32 x;
     s32 cnt;
-    HudPausePage *hud;
+    HudEntry *hud;
 
-    hud = (HudPausePage *)iconObj;
+    hud = iconObj; // FAKE: redundant copy of the parameter steers regalloc (iconObj-> everywhere mismatches)
     saved = gPlayerCharacterId;
     e2 = HUD_PAUSE_COUNT(playerGetResolvedKongId(0));
     gPlayerCharacterId = hud->unk14;
@@ -1013,7 +949,7 @@ void hudPauseMenuBuildPage(iconObj, arg1)
     idx = hud->unk8[hud->unk15];
     D_807FC7F8[hud->unk15] = 0;
     idx = D_80750560[idx];
-    if (arg1 == 0) {
+    if (refresh == 0) {
         D_807FC800 = hud->unk14;
         D_807FC80D = D_807FC80C;
         hud->unk10 = 0;
@@ -1084,7 +1020,7 @@ void hudPauseMenuBuildPage(iconObj, arg1)
                 }
             }
         }
-        if (arg1 == 0) {
+        if (refresh == 0) {
             for (i = 0; i < 5; i++) {
                 if (D_80750530[i]) {
                     s = D_80750518[i];
@@ -1112,7 +1048,7 @@ void hudPauseMenuBuildPage(iconObj, arg1)
                 }
             }
         }
-        if (arg1 == 0) {
+        if (refresh == 0) {
             hud->unk10 = D_807505A4[hud->unk14];
             hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
             if (D_807505D0 > 0) {
@@ -1193,7 +1129,7 @@ void hudPauseMenuBuildPage(iconObj, arg1)
         if (idx != 8) {
             hudPauseMenuSpawnIcon(iconObj, 9, 0x91, 0xCB, 1.0f, 2, 2);
         }
-        if (arg1 == 0 && D_807505D0 > 0) {
+        if (refresh == 0 && D_807505D0 > 0) {
             hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D80, 0xA0, 0x19, 0.5f, 2, 0xB);
             hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D5C, 0xA0, 0x19, 0.5f, 2, 0xC);
         }
@@ -1227,14 +1163,14 @@ void hudPauseMenuBuildPage(iconObj, arg1)
         hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
         break;
     }
-    if (arg1 == 0 && D_807FC828 > 0) {
+    if (refresh == 0 && D_807FC828 > 0) {
         hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D38, 0x2D, 0xC8, 1.0f, 2, 1);
         hudPauseMenuSpawnIcon(iconObj, (s32)&D_8072104C, 0x113, 0xC8, 1.0f, 2, 1);
     }
     gPlayerCharacterId = saved;
 }
 
-void hudPauseMenuSpawnIcon(HudEntry *iconObj, s32 arg1, s32 arg2, s32 arg3, f32 arg4, u8 arg5, s32 arg6) {
+void hudPauseMenuSpawnIcon(HudEntry *iconObj, s32 sprite, s32 x, s32 y, f32 scale, u8 mode, s32 kind) {
     HudTextObj *obj;
     f32 *buf;
     f32 dx;
@@ -1242,34 +1178,34 @@ void hudPauseMenuSpawnIcon(HudEntry *iconObj, s32 arg1, s32 arg2, s32 arg3, f32 
     f32 len;
     f32 fy;
 
-    effectSetMode(arg5);
+    effectSetMode(mode);
     effectEnableFade();
     effectSetDuration(-1);
-    effectSetSpeed(iconObj);
+    effectSetSpeed((s32)iconObj);
     effectSetCallback(hudPauseMenuIconUpdate);
     effectSetFlags(0x101);
-    if (arg1 < 0) {
-        fy = arg2;
-        obj = effectCreateAtPosition(arg1, arg4, fy, (f32)arg3, -10.0f);
+    if (sprite < 0) {
+        fy = x;
+        obj = effectCreateAtPosition((void *)sprite, scale, fy, (f32)y, -10.0f);
     } else {
-        fy = arg2;
-        obj = effectCreateAtPosition(slotQueueGetSpriteAsset(arg1), arg4, fy, (f32)arg3, -10.0f);
+        fy = x;
+        obj = effectCreateAtPosition(slotQueueGetSpriteAsset(sprite), scale, fy, (f32)y, -10.0f);
     }
-    arg1 = 7;
-    if (arg6 == 6) {
-        arg1 = 10;
+    sprite = 7;
+    if (kind == 6) {
+        sprite = 10;
     }
-    buf = heapAlloc(arg1 * 4);
+    buf = heapAlloc(sprite * 4);
     obj->unk384 = buf;
-    if (arg6 == 9) {
-        arg6 = 7;
+    if (kind == 9) {
+        kind = 7;
         obj->unk360 = -obj->unk360;
     }
-    buf[0] = arg6;
+    buf[0] = kind;
     buf[1] = iconObj->unk15;
     buf[2] = obj->unk340;
     buf[3] = obj->unk344;
-    switch (arg6) {
+    switch (kind) {
     case 1:
     case 2:
     case 7:
@@ -1280,7 +1216,7 @@ void hudPauseMenuSpawnIcon(HudEntry *iconObj, s32 arg1, s32 arg2, s32 arg3, f32 
         buf[4] = -(dx / len) * (1040.0f - len);
         buf[5] = -(dy / len) * (1040.0f - len);
         buf[6] = obj->unk364;
-        if (arg6 == 13) {
+        if (kind == 13) {
             buf[0] = 2.0f;
             obj->unk36C = 0;
             obj->unk36B = 0;
@@ -1293,7 +1229,7 @@ void hudPauseMenuSpawnIcon(HudEntry *iconObj, s32 arg1, s32 arg2, s32 arg3, f32 
         buf[6] = 0.0f;
         buf[7] = 0.0f;
         buf[8] = randomFloat() * 4096.0f;
-        if (arg2 < 0xA0) {
+        if (x < 0xA0) {
             obj->unk360 = -obj->unk360;
         }
         buf[9] = 0.0f;
@@ -1307,7 +1243,7 @@ void hudPauseMenuSpawnIcon(HudEntry *iconObj, s32 arg1, s32 arg2, s32 arg3, f32 
         obj->unk36B = 0;
         obj->unk36A = 0xFF;
     default:
-        buf[4] = arg4;
+        buf[4] = scale;
         buf[5] = 0.0f;
         break;
     }
@@ -1319,7 +1255,7 @@ void hudPauseMenuSpawnIcon(HudEntry *iconObj, s32 arg1, s32 arg2, s32 arg3, f32 
     D_807FC80F = 1;
 }
 
-void hudPauseMenuAddCounter(HudEntry *iconObj, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s32 arg5, s32 arg6, s32 arg7) {
+void hudPauseMenuAddCounter(HudEntry *iconObj, s16 x, s16 y, s16 dx, s16 dy, s32 value, s32 style, s32 format) {
     s32 pad;
     s32 idx;
     s32 pad2;
@@ -1332,36 +1268,36 @@ void hudPauseMenuAddCounter(HudEntry *iconObj, s16 arg1, s16 arg2, s16 arg3, s16
     u8 buf[11];
 
     flag = 0;
-    if (arg7 & 0x80) {
+    if (format & 0x80) {
         flag = 1;
-        arg7 &= ~0x80;
+        format &= ~0x80;
     }
-    switch (arg7) {
+    switch (format) {
     case 1:
-        _sprintf((char *)buf, "%02d", arg5);
+        _sprintf(buf, "%02d", value);
         break;
     case 2:
-        _sprintf((char *)buf, "%d", arg5);
-        arg3 -= textGetStringWidth(1, buf) >> 1;
+        _sprintf(buf, "%d", value);
+        dx -= textGetStringWidth(1, buf) >> 1;
         break;
     default:
-        _sprintf((char *)buf, "%d", arg5);
+        _sprintf(buf, "%d", value);
         break;
     }
     if (flag != 0) {
-        arg3 -= textGetStringWidth(1, buf);
+        dx -= textGetStringWidth(1, buf);
     }
     D_807FC810 = textGetStringWidth(1, buf);
     idx = D_807FC7F8[iconObj->unk15];
     list = D_807FC7F0[iconObj->unk15];
-    len = sqrtf((640.0f - (f32)(arg1 * 4)) * (640.0f - (f32)(arg1 * 4)) + (480.0f - (f32)(arg2 * 4)) * (480.0f - (f32)(arg2 * 4)));
-    list[idx].unk0 = -((640.0f - (f32)(arg1 * 4)) / len) * (1040.0f - len);
-    list[idx].unk4 = -((480.0f - (f32)(arg2 * 4)) / len) * (1040.0f - len);
-    list[idx].unk8 = arg1;
-    list[idx].unkA = arg2;
-    list[idx].unkC = arg3;
-    list[idx].unkE = arg4;
-    list[idx].unk10 = arg6;
+    len = sqrtf((640.0f - (f32)(x * 4)) * (640.0f - (f32)(x * 4)) + (480.0f - (f32)(y * 4)) * (480.0f - (f32)(y * 4)));
+    list[idx].unk0 = -((640.0f - (f32)(x * 4)) / len) * (1040.0f - len);
+    list[idx].unk4 = -((480.0f - (f32)(y * 4)) / len) * (1040.0f - len);
+    list[idx].unk8 = x;
+    list[idx].unkA = y;
+    list[idx].unkC = dx;
+    list[idx].unkE = dy;
+    list[idx].unk10 = style;
     for (i = 0; buf[i] != 0; i++) {
         list[idx].unk11[i] = buf[i];
     }
@@ -1384,7 +1320,7 @@ Gfx *hudDrawItemLabel(Gfx *dl, HudEntry *entry, s32 itemIndex) {
     } else {
         col = 5;
     }
-    HUD_WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
+    gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     y2 = y + 0x40;
     dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, y2, 0.7f, tex), 0x280, y2 + 0x38, 0.5f, D_807FC7E0[col + 9]);
     D_807FC808 = (f32)textGetStringWidth(1, tex) * 1.4;
@@ -1402,28 +1338,28 @@ Gfx *hudDrawScaledText(Gfx *dl, s16 x, s16 y, f32 scale, void *text) {
     guTranslateF(m2, x, y, 0.0f);
     guMtxCatF(m1, m2, m1);
     guMtxF2L(m1, mtx);
-    HUD_WRITE_GFX(dl++, 0xDA380002, (u32)mtx);
+    gSPMatrix(dl++, mtx, G_MTX_PUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     dl = textDrawStringVtx(dl, 1, 0, 0, text, 0x80);
-    HUD_WRITE_GFX(dl++, 0xD8380002, 0x40);
+    gSPPopMatrix(dl++, G_MTX_MODELVIEW);
     return dl;
 }
 
 
-s32 hudPauseMenuSlidePage(HudEntry *iconObj, s32 arg1, s32 arg2) {
+s32 hudPauseMenuSlidePage(HudEntry *hud, s32 sliding, s32 buttons) {
     s32 idx;
     s32 v;
     s32 d;
 
-    if (arg1 == 0) {
+    if (sliding == 0) {
         d = 0;
-        if (arg2 & 8) {
+        if (buttons & 8) {
             d = 1;
-        } else if (arg2 & 4) {
+        } else if (buttons & 4) {
             d = -1;
         }
         if (d != 0) {
-            idx = iconObj->unk15;
-            v = iconObj->unk8[idx];
+            idx = hud->unk15;
+            v = hud->unk8[idx];
             v += d;
             if (v < 0) {
                 v = D_807505D0;
@@ -1431,34 +1367,34 @@ s32 hudPauseMenuSlidePage(HudEntry *iconObj, s32 arg1, s32 arg2) {
             if (D_807505D0 < v) {
                 v = 0;
             }
-            if (v != iconObj->unk8[idx]) {
-                iconObj->unk15 = 1 - idx;
-                iconObj->unk8[iconObj->unk15] = v;
-                iconObj->unkC[iconObj->unk15] = d * 0xFA;
-                hudPauseMenuBuildPage(iconObj, 0, idx);
+            if (v != hud->unk8[idx]) {
+                hud->unk15 = 1 - idx;
+                hud->unk8[hud->unk15] = v;
+                hud->unkC[hud->unk15] = d * 0xFA;
+                hudPauseMenuBuildPage(hud, 0);
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
         }
     }
-    if (arg1 != 0) {
-        d = iconObj->unkC[iconObj->unk15];
+    if (sliding != 0) {
+        d = hud->unkC[hud->unk15];
         if (d >= 0x15) {
             d = 0x14;
         }
         if (d < -0x14) {
             d = -0x14;
         }
-        iconObj->unkC[0] -= d;
-        iconObj->unkC[1] -= d;
-        if (iconObj->unkC[iconObj->unk15] == 0) {
-            iconObj->unk8[1 - iconObj->unk15] = iconObj->unk8[iconObj->unk15];
-            D_807FC7F8[-iconObj->unk15 + 1] = 0;
-            arg1 = 0;
+        hud->unkC[0] -= d;
+        hud->unkC[1] -= d;
+        if (hud->unkC[hud->unk15] == 0) {
+            hud->unk8[1 - hud->unk15] = hud->unk8[hud->unk15];
+            D_807FC7F8[1 - hud->unk15] = 0;
+            sliding = 0;
             sfxPlayOnFreeSlot(0x97, 0x4650, 63.0f, 1.0f, 0, 0);
             D_8075052C = 3;
         }
     }
-    return arg1;
+    return sliding;
 }
 
 
@@ -1471,12 +1407,12 @@ void hudPauseMenuRefreshTotals(void) {
     s32 k;
     s32 m;
 
-    p0 = (s16 *)((u8 *)&D_807FC82A - 2); do {
+    p0 = (s16 *)((u8 *)&D_807FC82A - 2); do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
         *p0++ = 0;
     } while (p0 < (s16 *)((u8 *)&D_807FC82A + 12));
     n = 0;
-    k = 0; e = gPlayerInventoryTable; do { n += gPlayerInventoryTable[k].unk42[0]; n += gPlayerInventoryTable[k].unk42[1];
-        for (i = 2; i < 14; i++) {
+    k = 0; e = gPlayerInventoryTable; do { n += gPlayerInventoryTable[k].unk42[0]; n += gPlayerInventoryTable[k].unk42[1]; // LAYOUT: one-line loop setup (Q0149)
+        for (i = 2; i < 14; i++) { // FAKE: first two terms re-read through gPlayerInventoryTable[k] instead of e, loop from 2
             n += e->unk42[i];
         }
         e++;
@@ -1484,7 +1420,7 @@ void hudPauseMenuRefreshTotals(void) {
     } while (&gPlayerInventoryTable[k] < D_807FCB26);
     D_807FC828 = n;
     n = 0;
-    p = D_80744710; do {
+    p = D_80744710; do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
         if (flagGet(*p, 0) != 0) {
             n++;
         }
@@ -1494,7 +1430,7 @@ void hudPauseMenuRefreshTotals(void) {
     D_807FC832 = flagCountRange(0x24D, 0x14, 0);
     D_807FC82E = flagCountRange(0x225, 0x28, 0);
     m = 0;
-    p = D_807505B8; do {
+    p = D_807505B8; do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
         if (*p >= 0 && flagGet(*p, 0) != 0) {
             m++;
         }
@@ -1562,7 +1498,7 @@ extern f32 D_807FC890[];
 extern u8 D_8075054C[][4];
 extern s32 gFrameCounter;
 
-void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *param) {
+void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *done) {
     HudIconSource *src;
     HudIconState *item;
     f32 t;
@@ -1711,11 +1647,11 @@ void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *param) {
             iconObj->unk364 = D_807FC890[i];
             D_807FC840[i] = -200.0f;
             D_807FC868[i] = -200.0f;
-            five = 5;
+            five = 5; // FAKE: value-named constant local steers the compare/subtract operands
             if (i >= five) {
                 i -= five;
             }
-            if (((s8 *)&D_80750530)[i] == 0) {
+            if (D_80750530[i] == 0) {
                 iconObj->unk36A = D_8075054C[i][0];
                 iconObj->unk36B = D_8075054C[i][1];
                 iconObj->unk36C = D_8075054C[i][2];
@@ -1723,16 +1659,16 @@ void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *param) {
             break;
         }
         if ((s32)item->unk4 != src->unk15 && (bounceStep < -0x3C0 || bounceStep >= 0x3C1)) {
-            *param = 1;
+            *done = 1;
         }
         if (t > 1.0f || src->unk0 > 1.0f) {
-            *param = 1;
+            *done = 1;
         }
     }
 }
 
 Gfx *hudDrawTextScreen(Gfx *dl, Actor *actor) {
-    char buf[0x28];
+    u8 buf[0x28];
     s32 remaining;
     s32 val;
 
@@ -1750,9 +1686,7 @@ Gfx *hudDrawTextScreen(Gfx *dl, Actor *actor) {
     }
     dl = hudSetupTextState(gfxFillScreenColor(dl, 0, 0, 0, val));
     gDPSetCombineLERP(dl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
-    dl->words.w0 = 0xFA000000;
-    dl->words.w1 = (actor->alpha & 0xFF) | 0xFFFFFF00;
-    dl++;
+    gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, actor->alpha);
     dl = textDrawStringVtx(dl, 1, 0x168, 0x104, D_807FC7E0[0], 1);
     _sprintf(buf, "q %s", D_807FC7E0[1]);
     dl = textDrawStringVtx(dl, 1, 0x208, 0x190, buf, 1);
@@ -1839,14 +1773,13 @@ Gfx *hudDrawTwoOptionMenu(Gfx *dl, Actor *actor) {
     c = D_807505F8[sel];
     gDPSetPrimColor(dl++, 0, 0, c, c, c, 255);
     dl = hudDrawScaledText(dl, 0x280, 0x1B8, 0.7f, D_807FC7E0[0]);
-    c = D_807505F9[-sel];
+    c = D_807505F8[1 - sel];
     gDPSetPrimColor(dl++, 0, 0, c, c, c, 255);
     return hudDrawScaledText(dl, 0x280, 0x208, 0.7f, D_807FC7E0[3]);
 }
 
 void hudTwoOptionMenuUpdate(void) {
     s32 i;
-    s32 off;
     u16 btn;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -1862,8 +1795,7 @@ void hudTwoOptionMenuUpdate(void) {
         gCurrentActor->unk155 = 0;
     }
     i = gPausingPlayer;
-    off = i * 0x2F0;
-    if (((HudPlayerView *)((u8 *)gPlayerSlots + off))->unk294->unk3 >= 0x33 || ((HudPlayerView *)((u8 *)gPlayerSlots + off))->unk294->unk3 < -0x32) {
+    if (gPlayerSlots[i].contPad->stick_y >= 0x33 || gPlayerSlots[i].contPad->stick_y < -0x32) {
         if (!(D_807FC80E & 1)) {
             gCurrentActor->unk155 = 1 - gCurrentActor->unk155;
             D_807FC80E |= 1;
@@ -1872,7 +1804,7 @@ void hudTwoOptionMenuUpdate(void) {
     } else {
         D_807FC80E &= 0xFFFE;
     }
-    btn = *((HudPlayerView *)((u8 *)gPlayerSlots + off))->unk298;
+    btn = *gPlayerSlots[i].heldButtonsPtr;
     if (btn & 0x8000) {
         if (gCurrentActor->unk155 == 0) {
             gGlobalPauseFlags |= 0x10070;

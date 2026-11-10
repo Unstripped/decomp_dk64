@@ -132,9 +132,9 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     s32 xo;
     s32 off;
     s32 x;
-    char *headerStr;
-    char *descStr1;
-    char *descStr2;
+    u8 *headerStr;
+    u8 *descStr1;
+    u8 *descStr2;
     s32 fontHeight;
     s32 yo;
 

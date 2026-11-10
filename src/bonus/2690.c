@@ -148,7 +148,7 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *actor) {
     Struct_7548 *bonusExt = actor->customState;
     Struct_71B4 *targetExt = ((BonusActorExt *)actor)->unk178;
     s32 pad1[4];
-    char *textStr;
+    u8 *textStr;
     s32 pad2[6];
     s32 textX;
     s32 pad3[4];
@@ -219,7 +219,7 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *actor) {
     BonusA_CF0_List *popupList = ((BonusActorExt *)actor)->unk178;
     s32 hasSetupGfx = 0;
     s32 textX;
-    char *textStr;
+    u8 *textStr;
     s32 i;
     Actor *targetActor;
     BonusPopupMarker *targetInner;

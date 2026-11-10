@@ -124,7 +124,7 @@ void gfxResourceFree(s16 resourceId) {
 
 extern u8 gHiResScale;
 
-s16 gfxResourceCreate(s16 font, char *str, u8 mode, f32 posX, f32 posY, f32 posZ) {
+s16 gfxResourceCreate(s16 font, void *str, u8 mode, f32 posX, f32 posY, f32 posZ) {
     GfxResourceNode *node;
     GfxResourceNode *tail;
     GfxResourceEntry *entries;
