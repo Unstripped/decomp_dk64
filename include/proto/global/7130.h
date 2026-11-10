@@ -58,7 +58,7 @@ void seqUpdateUnderwaterAudio(s32);
 void sfxSetVolumeAndPan(u8, f32, f32);
 #endif
 #ifndef PROTO_SKIP_sfxSetChannelPriority
-void sfxSetChannelPriority();
+void sfxSetChannelPriority(u8, u8);
 #endif
 #ifndef PROTO_SKIP_sfxPlayActorSound
 void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
@@ -94,7 +94,7 @@ void sfxPlayFromActorDirect(Actor *, s16, u8, f32, u8, u8);
 s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 #endif
 #ifndef PROTO_SKIP_sfxPlayWithRandomPan
-void sfxPlayWithRandomPan();
+void sfxPlayWithRandomPan(s16, u8, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_sfxPlayOnFreeSlot
 s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);

@@ -951,10 +951,7 @@ void sfxSetVolumeAndPan(u8 source, f32 pitch, f32 rate) {
 
 extern u8 D_80770CE0[];
 
-void sfxSetChannelPriority(source, volume)
-u8 source;
-u8 volume;
-{
+void sfxSetChannelPriority(u8 source, u8 volume) {
     if (source != -1) {
         D_80770CE0[D_80770628[source]] = volume;
     }
@@ -1971,13 +1968,7 @@ extern u8 D_807457D8;
 extern struct GfSndState *D_807457E4[];
 extern u8 D_80745834;
 
-void sfxPlayWithRandomPan(sfxId, volume, pitchByte, spread, behind)
-s16 sfxId;
-u8 volume;
-u8 pitchByte;
-u8 spread;
-u8 behind;
-{
+void sfxPlayWithRandomPan(s16 sfxId, u8 volume, u8 pitchByte, u8 spread, u8 behind) {
     s32 vol;
     f32 pan;
     f32 pitch;

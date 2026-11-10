@@ -5,8 +5,6 @@
 #define PROTO_SKIP_collisionCheckGroundAtPoint // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // PROTO: Improper cast of non-scalar type expression.
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
-#define PROTO_SKIP_sfxPlayWithRandomPan // FAKE: callee prototype steer
-#define PROTO_SKIP_sfxSetChannelPriority // FAKE: callee prototype steer
 #define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
 #define PROTO_SKIP_slotQueueGetValue // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
@@ -530,7 +528,6 @@ extern f32 D_80770DCC;
 extern f32 D_80770DD0;
 extern f32 D_80770DD4;
 
-void sfxPlayWithRandomPan(s32, u8, s32, s32, s32); // FAKE: callee prototype steer
 
 void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
     CsFlicker *f;
@@ -1844,7 +1841,6 @@ extern PlayerState *gActivePlayerState;
 extern s32 gCurrentMap;
 extern s16 D_807F7366;
 extern f32 D_807F6940;
-void sfxSetChannelPriority(u8, u8); // FAKE: callee prototype steer
 
 void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
     CsFade *q;
