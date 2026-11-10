@@ -3409,7 +3409,7 @@ void arcadeUpdateDonkeyKongStage4(s32 entIndex) {
                         D_8004BCD0[entIndex].unk14 = D_800473B8;
                     } else if (((s32)(D_8004BCD0[entIndex].unk10 / 6.0f) % 3) == 1) {
                         D_8004BCD0[entIndex].unk14 = D_80048380;
-                    } else if (((s32)(D_8004BCD0[entIndex].unk10 / 6.0f) % 3) == (0, 2)) {
+                    } else if (((s32)(D_8004BCD0[entIndex].unk10 / 6.0f) % 3) == (0, 2)) { // FAKE: comma operand steers codegen (== 2 does not match)
                         D_8004BCD0[entIndex].unk14 = D_80049348;
                     }
                     if (D_8004BCD0[entIndex].unk10 == 350.0f) {
