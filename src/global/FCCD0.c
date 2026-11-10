@@ -653,14 +653,10 @@ void slotQueueReleaseSlot(s32 slot) {
     SlotQueueNode **link;
     SlotQueueNode *node;
     SlotQueueNode **next;
-    s32 idx;
     s32 *effect;
-    SlotQueueSlot *base;
 
-    idx = slot * 0x30; // FAKE: dead store keeps the base-first address order
-    base = gSlotQueue;
-    link = &((SlotQueueSlot *)(slot * 0x30 + (s32)gSlotQueue))->nodes; // FAKE: integer add keeps the index-first addu
-    base[slot].state = 0;
+    link = &gSlotQueue[slot].nodes;
+    gSlotQueue[slot].state = 0;
     if (*link != NULL) {
         do {
             node = *link;
