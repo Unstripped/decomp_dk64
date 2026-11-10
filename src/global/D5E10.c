@@ -1325,8 +1325,7 @@ void playerStateLaunchAir(void) {
 }
 
 void playerStateApproachVelocity(void) {
-    s32 sel = gCurrentActor->unk155;
-    switch (sel) {
+    switch (gCurrentActor->unk155) {
         case 0:
             if (gActivePlayerState->approachTimer != 0) {
                 if (mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->approachYaw)) {}
@@ -1341,9 +1340,11 @@ void playerStateApproachVelocity(void) {
             break;
         case 1:
             playerInputUpdate(0x23);
-            sel = gPlayerCharacterId[gCurrentPlayerIndex]; // FAKE: reuses the switch selector local (regalloc)
-            if (sel == 0 || sel == 2) {
-                gActivePlayerState->maxSpeed = gActivePlayerState->maxSpeed * 0.63;
+            switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
+                case 0:
+                case 2:
+                    gActivePlayerState->maxSpeed = gActivePlayerState->maxSpeed * 0.63;
+                    break;
             }
             playerSetBaseGravity();
             playerUpdateFallAndStepSounds();
@@ -2605,7 +2606,7 @@ s32 playerCanPerformActionCheck(void) {
     if (gCurrentActor->waterY < gCurrentActor->y + surfaceOffset) {
         gCurrentActor->y = gCurrentActor->waterY - surfaceOffset;
     }
-    idx = gCurrentPlayerIndex;
+    idx = gCurrentPlayerIndex; // FAKE: one load of gCurrentPlayerIndex shared by the slot index and the call argument (regalloc, bc1f)
     lim = (gPlayerSlots[idx].unk2C0 == 1) ? D_8075387C[gCurrentCharacterIndex] : D_807538B8[gCurrentCharacterIndex];
     if (gCurrentActor->waterY - gCurrentActor->floorY < lim) {
         playerStateQueueCallback(2, 0, idx);
@@ -3230,7 +3231,7 @@ void playerStateThrowCarried(void) {
 }
 
 void playerStateHoldPickup(void) {
-    f64 new_var;
+    f64 baseScale;
 
     if (actorTableContains(gActivePlayerState->queuedHeldActor) == 0 || gActivePlayerState->queuedHeldActor->instanceId != gActivePlayerState->queuedHeldActorId) {
         gActivePlayerState->heldActor = NULL;
@@ -3270,7 +3271,7 @@ void playerStateHoldPickup(void) {
         break;
     case 4:
         playerInputUpdate(5);
-        actorAppendCallback4000(gCurrentActor, gActivePlayerState->heldActor, gActivePlayerActor->yaw, gCurrentActor->sub4->scaleX * (gKongHoldPutDownAngles[gCurrentCharacterIndex] * 3.0) / (new_var = 0.15), 0); // FAKE: mul.d operand order
+        actorAppendCallback4000(gCurrentActor, gActivePlayerState->heldActor, gActivePlayerActor->yaw, gCurrentActor->sub4->scaleX * (gKongHoldPutDownAngles[gCurrentCharacterIndex] * 3.0) / (baseScale = 0.15), 0); // FAKE: mul.d operand order
         gCurrentActor->unk155++;
         break;
     case 5:
