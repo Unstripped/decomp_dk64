@@ -2,9 +2,9 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
-#define PROTO_SKIP_playerSlotMatchesSizeMask // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_playerSlotMatchesSizeMask // FAKE: callee prototype steer (owner reads no a2; the extra argument steers it)
 #define PROTO_SKIP_modelSlotInitFromAsset // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_renderReplaceSegment6Commands // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_renderReplaceSegment6Commands // FAKE: callee prototype steer (owner reads no a2/a3; the extra arguments steer them)
 #include "proto/global/104F0.h"
 #include "proto/global/119370.h"
 #include "proto/global/133A90.h"
