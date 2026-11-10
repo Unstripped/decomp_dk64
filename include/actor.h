@@ -639,6 +639,21 @@ typedef struct PlayerState {
     /* 0x269 */ u8 pad269[3];
 } PlayerState;
 
+// One kong's 0x5E-byte row of gPlayerInventoryTable (EEPROM fields 1-0xB; see 104F0.c).
+// The table's declarations still differ per file; this is the row type, not a new extern.
+typedef struct KongInventory {
+    /* 0x00 */ u8 unk0[5];
+    /* 0x05 */ u8 unk5;
+    /* 0x06 */ u16 unk6;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ u16 unkA[8];
+    /* 0x1A */ u8 pad1A[0xC];
+    /* 0x26 */ u16 unk26[8];
+    /* 0x36 */ u8 pad36[0xC];
+    /* 0x42 */ u16 unk42[8];
+    /* 0x52 */ u8 pad52[0xC];
+} KongInventory; /* sizeof 0x5E */
+
 // camSetTarget's parameter block inside CamState (0x44).
 typedef struct CamTargetBlock {
     /* 0x00 */ struct Actor *unk0;
