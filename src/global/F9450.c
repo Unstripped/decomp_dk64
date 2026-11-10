@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_func_806F54E0 // FAKE: callee prototype steer
+#define PROTO_SKIP_func_806F54E0
 #include "proto/global/104F0.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -517,7 +517,7 @@ typedef struct F9A_CleanupNode {
 
 
 
-void func_806F54E0(u8, s32, u8); // FAKE: callee prototype steer
+void func_806F54E0(u8, s32, u8);
 
 void gridFreeAllActiveNodes(void) {
     F9A_LinkedNode *var_s0;
@@ -605,11 +605,7 @@ typedef struct {
 
 extern F9L3_PlayerData gPlayerInventoryTable[];
 
-void func_806F54E0(arg0, arg1, arg2)
-s32 arg0;
-s32 arg1;
-u8 arg2;
-{
+void func_806F54E0(u8 arg0, s32 arg1, u8 arg2) {
     s32 i;
     s32 temp_v0;
     u8 shouldComplete;
