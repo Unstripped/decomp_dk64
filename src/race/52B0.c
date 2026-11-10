@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #include "proto/global/117190.h"
 #include "proto/global/135D30.h"
 #include "proto/global/166A0.h"
@@ -237,23 +238,6 @@ void raceCompetitorMotionUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 typedef struct {
-    u8 pad0[0x25];
-    u8 unk25;
-    u8 pad26[2];
-    u8 unk28;
-} RaceC_DC90;
-
-typedef struct {
-    u8 pad0[0x20];
-    u8 *unk20;
-} RaceC_DC98;
-
-typedef struct {
-    u8 pad0[0x11];
-    u8 unk11;
-} RaceC_DC9C;
-
-typedef struct {
     s16 unk0;
     s16 unk2;
     s16 unk4;
@@ -265,9 +249,6 @@ typedef struct {
     RaceC_Waypoint *unk14;
 } RaceC_DCA0;
 
-extern RaceC_DC90 *gBehaviourWorkState;
-extern RaceC_DC98 *gBehaviourAnimState;
-extern RaceC_DC9C *gBehaviourExtraState;
 extern RaceC_DCA0 *D_807FDCA0;
 extern s16 D_80750AC8;
 extern u8 D_8002FC20[];
@@ -646,5 +627,5 @@ void raceOpponentRacerBehaviorUpdate(void) {
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, gBehaviourWorkState->unk28);
 }

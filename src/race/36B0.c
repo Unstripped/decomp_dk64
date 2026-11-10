@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
 #define PROTO_SKIP_rumbleRequest // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/117190.h"
@@ -765,12 +766,7 @@ typedef struct {
     u8 pad16[0x200 - 0x16];
     u8 unk200;
 } StructBB70_Race;
-typedef struct {
-    u8 pad0[0x14];
-    u8 unk14;
-} RaceDC9C;
 extern StructBB70_Race gActorGlobalState;
-extern RaceDC9C *gBehaviourExtraState;
 void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void commandQueuePush(void *, s16, s16, s16, s32, s32, s32, s32, s32);

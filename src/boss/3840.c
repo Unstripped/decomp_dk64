@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #include "proto/boot/3D20.h"
 #include "proto/boss/3840.h"
 #include "proto/global/100180.h"
@@ -13,20 +14,6 @@
 #include "proto/global/3C10.h"
 #include "proto/global/450.h"
 #include "proto/global/FCCD0.h"
-
-typedef struct {
-    char pad[0x20];
-    u8 *unk20;
-} BossB_Struct_DC98;
-
-typedef struct {
-    char pad[0x11];
-    u8 unk11;
-} BossB_Struct_DC9C;
-
-extern BossB_Struct_DC98 *gBehaviourAnimState;
-extern BossB_Struct_DC9C *gBehaviourExtraState;
-
 
 void bossInitScriptData(u8 *data) {
     s16 i;
@@ -60,13 +47,6 @@ typedef struct BossB_Struct_80027950 {
     char pad0[0x15];
     u8 unk15;
 } BossB_Struct_80027950;
-
-typedef struct {
-    char pad0[0x25];
-    u8 unk25;
-} BossB_Struct_DC90;
-
-extern BossB_Struct_DC90 *gBehaviourWorkState;
 
 
 void bossPickRandomWaypoint(BossB_Struct_80027950 *state, u8 *waypointRanges) {
@@ -182,27 +162,6 @@ typedef struct BossPlayerActor {
     BossPlayerData *unk174;
 } BossPlayerActor;
 
-typedef struct BossWorkState {
-    char pad0[4];
-    BossPlayerActor *unk4;
-    char pad8[2];
-    s16 unkA;
-    char padC[2];
-    s16 unkE;
-    char pad10[0xA];
-    u16 unk1A;
-    char pad1C[9];
-    u8 unk25;
-    char pad26[6];
-    s16 unk2C;
-} BossWorkState;
-
-typedef struct BossConfig {
-    char pad0[0xC];
-    u8 unkC;
-    u8 unkD;
-} BossConfig;
-
 extern BossPlayerActor *gPrimaryPlayerActor;
 extern u8 gGameMode;
 extern u8 gScreenRenderFlags;
@@ -218,8 +177,6 @@ u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void actorScriptStart(void *, s32);
 
 #define BA40 ((BossActor *)gCurrentActor)
-#define DC90 ((BossWorkState *)gBehaviourWorkState)
-#define DC9C ((BossConfig *)gBehaviourExtraState)
 
 u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
     BossPlayerData *playerData;
@@ -272,13 +229,13 @@ u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
         break;
     case 0x42:
 block_16:
-        actorMoveWithinZone(0x42, DC90->unkA, DC90->unkE, turnSpeed, fwdSpeed);
+        actorMoveWithinZone(0x42, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, turnSpeed, fwdSpeed);
         if (patrolPathStep(BA40->unk154, 0) == 0) {
             advanceScript = 0;
         }
         break;
     case 0x69:
-        DC90->unk1A |= 0x20;
+        gBehaviourWorkState->flags |= 0x20;
         break;
     case 0x58:
         BA40->unk60 |= 4;
@@ -311,14 +268,14 @@ block_16:
             s0->unk8[0] = script[tmp];
             s0->unk15 = tmp + 1;
             BA40->unk155 = 1;
-            actorSetTargetSpeed(gCurrentActor, DC9C->unkD);
+            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
         } else {
-            actorMoveWithinZone(0x23, DC90->unk4->unk7C, DC90->unk4->unk84, turnSpeed, fwdSpeed);
+            actorMoveWithinZone(0x23, gBehaviourWorkState->unk4->x, gBehaviourWorkState->unk4->z, turnSpeed, fwdSpeed);
             s0->unk8[0] -= 1;
             if ((s0->unk8[0] == 0) || (playerData->unk1F0 & 0x80000)) {
                 playerData->unk1F0 &= ~0x80000;
                 advanceScript = 1;
-                actorSetTargetSpeed(gCurrentActor, DC9C->unkC);
+                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
             }
         }
         break;
@@ -339,7 +296,7 @@ block_16:
         s0->unk15 = s0->unk16;
         break;
     case 0x66:
-        if (DC90->unk1A & 8) {
+        if (gBehaviourWorkState->flags & 8) {
             s0->unk15 = s0->unk16;
         }
         break;
@@ -363,11 +320,11 @@ block_16:
         didLoop = 1;
         break;
     case 0x68:
-        DC90->unk1A &= 0xFFEF;
+        gBehaviourWorkState->flags &= 0xFFEF;
         didLoop = 1;
         break;
     case 0x65:
-        DC90->unk2C = script[s0->unk15];
+        gBehaviourWorkState->timer = script[s0->unk15];
         s0->unk15++;
         didLoop = 1;
         break;
@@ -384,9 +341,9 @@ block_16:
         BA40->unk155 = 0;
         goto block_16;
     case 0x4B:
-        DC90->unk25++;
-        if (script[s0->unk15 + 1] < DC90->unk25) {
-            DC90->unk25 = script[s0->unk15];
+        gBehaviourWorkState->unk25++;
+        if (script[s0->unk15 + 1] < gBehaviourWorkState->unk25) {
+            gBehaviourWorkState->unk25 = script[s0->unk15];
         }
         s0->unk15 += 2;
         advanceScript = 0;
@@ -394,7 +351,7 @@ block_16:
         BA40->unk155 = 0;
         goto block_16;
     case 0x41:
-        DC90->unk25 = script[s0->unk15];
+        gBehaviourWorkState->unk25 = script[s0->unk15];
         s0->unk15++;
         advanceScript = 0;
         BA40->unk154 = 0x42;
@@ -413,14 +370,14 @@ block_16:
             break;
         case 1:
             if (BA40->unk154 == 0x49) {
-                DC90->unk25 = script[s0->unk15];
+                gBehaviourWorkState->unk25 = script[s0->unk15];
                 s0->unk15++;
             } else {
                 bossPickRandomWaypoint((BossB_Struct_80027950 *)s0, script);
             }
             patrolPathStep(0x49, 0);
-            BA40->unk7C = DC90->unkA;
-            BA40->unk84 = DC90->unkE;
+            BA40->unk7C = gBehaviourWorkState->targetX;
+            BA40->unk84 = gBehaviourWorkState->targetZ;
             BA40->unk155++;
             break;
         case 2:
@@ -452,20 +409,10 @@ void bossClearMinigame(void) {
     mapTransitionToMenuOrPrevious();
 }
 
-typedef struct {
-    char pad[0x7C];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x15E - 0x88];
-    u8 unk15E;
-} Boss3C_Struct_8478;
-
 void sfxAllocateChannel(s32, f32);
 void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
 
 extern s32 D_8074E880[];
-extern Boss3C_Struct_8478 *gBehaviourTargetActor;
 
 void bossSpawnParticleRing(flag, x, y, z, unkRot, unkScale)
 u16 flag;
@@ -487,7 +434,7 @@ u8 unkScale;
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetSpeed(gBehaviourTargetActor);
-        effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk80 + (f32)gBehaviourTargetActor->unk15E, gBehaviourTargetActor->unk84);
+        effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, gBehaviourTargetActor->x, gBehaviourTargetActor->y + (f32)gBehaviourTargetActor->eyeHeight, gBehaviourTargetActor->z);
     }
     actorSpawnNodeEntryScaled(0x48, (f32)x, (f32)y, (f32)z, (s32)unkRot, (s32)unkScale, (s16)flag, 0);
 }

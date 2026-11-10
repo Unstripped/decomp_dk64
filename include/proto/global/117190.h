@@ -2,7 +2,7 @@
 #ifndef PROTO_GLOBAL_117190_H
 #define PROTO_GLOBAL_117190_H
 #include "common.h"
-struct R117d2MenuObject;
+#include "actor.h"
 #ifndef PROTO_SKIP_menuTransitionWithState
 void menuTransitionWithState(s32, s32, u8);
 #endif
@@ -49,7 +49,7 @@ void menuResetAndTransitionToCredits(void);
 void menuTransitionToCreditsOrMap28(s32);
 #endif
 #ifndef PROTO_SKIP_playerRefillHealth
-void playerRefillHealth(struct R117d2MenuObject *, s32);
+void playerRefillHealth(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_controllerFilterInput
 void controllerFilterInput(OSContPad *);
@@ -91,7 +91,7 @@ void menuHandleBonusStageTransition(void);
 void menuHandleDemoModeTransition(void);
 #endif
 #ifndef PROTO_SKIP_func_807132DC
-void *func_807132DC();
+Gfx *func_807132DC(Gfx *);
 #endif
 #ifndef PROTO_SKIP_func_8071338C
 Gfx *func_8071338C(Gfx *);

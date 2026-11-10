@@ -1,7 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_controllerGetReadData // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_gfxInit2DDisplayList // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/boot/3630.h"
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -40,28 +38,24 @@ extern u8 D_80755350;
 extern s8 gMenuTransitionFlag;
 extern s8 D_80750754;
 
-
-
-
-
-void menuTransitionWithState(s32 arg0, s32 arg1, u8 arg2) {
-    mapRequestTransition(arg0, arg1);
-    gMenuTargetMode = arg2;
+void menuTransitionWithState(s32 map, s32 exit, u8 mode) {
+    mapRequestTransition(map, exit);
+    gMenuTargetMode = mode;
 }
 
 
-void menuTransitionRequest(s32 arg0, s32 arg1, u8 arg2) {
+void menuTransitionRequest(s32 map, s32 exit, u8 mode) {
     if (menuIsTransitionActive() == 0) {
         screenSetTransitionFadeType(0);
-        menuTransitionWithState(arg0, D_8075536C, arg2);
+        menuTransitionWithState(map, D_8075536C, mode);
         D_80755338 = 1;
-        D_8075533C = arg1;
+        D_8075533C = exit;
         D_8075536C = 0;
     }
 }
 
-void menuTransitionToMap(s32 arg0, s32 arg1) {
-    menuTransitionRequest(arg0, arg1, gMenuTargetMode);
+void menuTransitionToMap(s32 map, s32 exit) {
+    menuTransitionRequest(map, exit, gMenuTargetMode);
 }
 
 s32 menuCalculateBonusDuration(void) {
@@ -103,16 +97,16 @@ s32 menuGetTimerFlag(void) {
     return D_80755350;
 }
 
-void menuTransitionRequestTypeB(s32 arg0, s32 arg1) {
-    menuTransitionRequest(arg0, arg1, 0xB);
+void menuTransitionRequestTypeB(s32 map, s32 exit) {
+    menuTransitionRequest(map, exit, 0xB);
     gMenuTransitionFlag = 0;
 }
 
 s32 menuIsTransitionTypeB(void) {
-    s32 var_v0;
+    s32 match;
 
-    var_v0 = gMenuCurrentMode == 0xB;
-    if (var_v0 == 0) {
+    match = gMenuCurrentMode == 0xB;
+    if (match == 0) {
         return gMenuTargetMode == 0xB;
     }
 }
@@ -126,22 +120,22 @@ void menuSetTransitionTypeBFlag(void) {
 extern u8 gPlayerInventoryTable[][0x5E];
 extern s8 gPlayerCharacterId;
 
-void menuSetupPlayerInventory(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4, s8 arg5, s8 arg6) {
+void menuSetupPlayerInventory(s32 map, s32 exit, s32 characterId, s8 inventory0, s8 inventory1, s8 inventory4, s8 shared) {
     s32 i;
 
-    gPlayerCharacterId = arg2;
-    gPlayerInventoryTable[8][0xC] = arg6;
-    gPlayerInventoryTable[8][0xB] = arg6 * 4;
+    gPlayerCharacterId = characterId;
+    gPlayerInventoryTable[8][0xC] = shared;
+    gPlayerInventoryTable[8][0xB] = shared * 4;
     for (i = 0; i < 5; i++) {
-        gPlayerInventoryTable[i][0] = arg3;
-        gPlayerInventoryTable[i][1] = arg4;
-        gPlayerInventoryTable[i][4] = arg5;
+        gPlayerInventoryTable[i][0] = inventory0;
+        gPlayerInventoryTable[i][1] = inventory1;
+        gPlayerInventoryTable[i][4] = inventory4;
     }
-    menuTransitionWithState(arg0, arg1, 12);
+    menuTransitionWithState(map, exit, 12);
 }
 
-void menuTransitionWithStateD(s32 arg0) {
-    menuTransitionWithState(arg0, 0, 0xD);
+void menuTransitionWithStateD(s32 map) {
+    menuTransitionWithState(map, 0, 0xD);
 }
 
 s32 menuIsTransitionActive(void) {
@@ -155,10 +149,10 @@ void menuResetAndTransitionToCredits(void) {
     menuTransitionRequest(0x1C, 0x17, 7);
 }
 
-void menuTransitionToCreditsOrMap28(s32 arg0) {
+void menuTransitionToCreditsOrMap28(s32 toCredits) {
     u8 temp;
 
-    if (arg0 == 0) {
+    if (toCredits == 0) {
         temp = 0xA;
     } else {
         temp = 0xE;
@@ -167,67 +161,62 @@ void menuTransitionToCreditsOrMap28(s32 arg0) {
     D_80750754 = -2;
 }
 
-typedef struct R117d2MenuObject {
-    u8 unk0[0x155];
-    u8 unk155;
-} R117d2MenuObject;
-
 extern s32 gGlobalOverlayFlags;
 extern u8 gPlayerCount;
 void func_80026D40(void *);
 
-void playerRefillHealth(R117d2MenuObject *arg0, s32 arg1) {
-    s32 var_a0;
-    s32 var_a1;
+void playerRefillHealth(Actor *player, s32 playerIndex) {
+    s32 map;
+    s32 exit;
     s32 pad;
-    s32 sp20;
-    s32 sp1C;
+    s32 savedMap;
+    s32 savedExit;
 
-    healthRefill((u8) arg1);
-    if (arg1 == 0) {} // FAKE: keeps arg1 in a1 with an eager restore after healthRefill
+    healthRefill((u8) playerIndex);
+    if (playerIndex == 0) {} // FAKE: keeps playerIndex in a1 with an eager restore after healthRefill
     if (gGlobalOverlayFlags & 1) {
-        arg0->unk155++;
+        player->unk155[0]++;
         if (gGlobalCutsceneFlags & 2) {
             flagSet(0x5C, 1, 2);
-            var_a0 = 0x22;
-            var_a1 = 0xC;
+            map = 0x22;
+            exit = 0xC;
         } else {
             if (gCurrentMap == 0x3C) {
-                var_a0 = 0x3E;
-                var_a1 = 1;
+                map = 0x3E;
+                exit = 1;
             } else {
-                var_a0 = 0x2A;
-                var_a1 = 2;
+                map = 0x2A;
+                exit = 2;
             }
         }
-        mapRequestTransition(var_a0, var_a1);
+        mapRequestTransition(map, exit);
         return;
     }
     if (gGlobalOverlayFlags & 0x400) {
-        arg0->unk155++;
-        mapFindPreviousSavedMap(&sp20, &sp1C);
-        mapRequestTransition(sp20, sp1C);
+        player->unk155[0]++;
+        mapFindPreviousSavedMap(&savedMap, &savedExit);
+        mapRequestTransition(savedMap, savedExit);
         return;
     }
     if (gPlayerCount >= 2) {
-        func_80026D40(arg0);
+        func_80026D40(player);
         return;
     }
-    mapExecuteDeathTransition(arg1);
+    mapExecuteDeathTransition(playerIndex);
 }
 
 extern u16 gControllerButtonMask;
 extern u8 gControllerStickXMask;
 extern u8 gControllerStickYMask;
 
-void controllerFilterInput(OSContPad *arg0) {
+void controllerFilterInput(OSContPad *pads) {
     s32 i;
 
-    controllerGetReadData();
+    controllerGetReadData(pads);
     for (i = 0; i < 4; i++) {
-        arg0[i].stick_x &= gControllerStickXMask;
-        arg0[i].stick_y &= gControllerStickYMask;
-        arg0[i].button &= gControllerButtonMask;
+        pads[i].stick_x &= gControllerStickXMask;
+        pads[i].stick_y &= gControllerStickYMask;
+        pads[i].button &= gControllerButtonMask;
     }
 }
 extern u8 gMenuDemoActive;
@@ -382,31 +371,31 @@ void menuReturnToTitle(void) {
     menuTransitionWithState(0x50, 0, 5);
 }
 
-void menuCheckCutsceneTransition(s32 *arg0, s32 *arg1) {
+void menuCheckCutsceneTransition(s32 *map, s32 *exit) {
     if (gMenuCurrentMode == 0xC) {
-        if (((gGlobalCutsceneFlags & 2) == 0) || (gCurrentMap == 0xCF) || (*arg0 == 0x22)) {
-            *arg0 = 0x50;
-            *arg1 = 0;
+        if (((gGlobalCutsceneFlags & 2) == 0) || (gCurrentMap == 0xCF) || (*map == 0x22)) {
+            *map = 0x50;
+            *exit = 0;
             gMenuTargetMode = 5;
             return;
         }
     }
-    if ((gMenuCurrentMode == 0xD) && (gCurrentMap != *arg0)) {
-        *arg0 = 0xF;
-        *arg1 = 0;
+    if ((gMenuCurrentMode == 0xD) && (gCurrentMap != *map)) {
+        *map = 0xF;
+        *exit = 0;
         gMenuTargetMode = 6;
         return;
     }
     if (gMenuTransitionFlag != 0) {
-        *arg0 = -1;
+        *map = -1;
     }
 }
 
 
 extern u16 D_807ECD48;
 void menuUpdateTitleOrTransition(void) {
-    s32 arg0;
-    s32 arg1;
+    s32 map;
+    s32 exit;
 
     if ((D_80755334 >= 0x5A) && (D_807ECD48 & 0x1000)) {
         menuReturnToTitle();
@@ -415,9 +404,9 @@ void menuUpdateTitleOrTransition(void) {
             menuTransitionRequest(0x28, 0, 1);
         } else {
             func_8060B750(D_8075E5C0[gMenuBonusStageIndex * 4]);
-            func_8060B7D0(&arg0, &arg1);
+            func_8060B7D0(&map, &exit);
             screenSetTransitionFadeType(1);
-            mapRequestTransition(arg0, arg1);
+            mapRequestTransition(map, exit);
         }
     }
 }
@@ -451,14 +440,14 @@ void menuHandleIntroScreenTransition(void) {
 
 
 void menuStartSelectedBonusStage(void) {
-    s32 arg0;
-    s32 arg1;
+    s32 map;
+    s32 exit;
 
     gMenuTransitionCounter = 0;
     func_8060B750(D_8075E5C0[gMenuBonusStageIndex * 4]);
-    func_8060B7D0(&arg0, &arg1);
+    func_8060B7D0(&map, &exit);
     screenSetTransitionFadeType(1);
-    menuTransitionWithState(arg0, arg1, 3);
+    menuTransitionWithState(map, exit, 3);
 }
 
 void menuHandleBonusStageTransition(void) {
@@ -485,10 +474,9 @@ void menuHandleDemoModeTransition(void) {
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern Mtx D_2000180;
-Gfx *gfxInit2DDisplayList(void);
 
-void *func_807132DC() {
-    Gfx *gfx = gfxInit2DDisplayList();
+Gfx *func_807132DC(Gfx *gfx) {
+    gfx = gfxInit2DDisplayList(gfx);
 
     R117D_WRITE_GFX(gfx++, 0xDE000000, &D_1000118);
     R117D_WRITE_GFX(gfx++, 0xDA380007, &D_20000C0);
@@ -500,14 +488,14 @@ void *func_807132DC() {
     return gfx;
 }
 
-Gfx *func_8071338C(Gfx *arg0) {
-    f32 temp_f0 = 20.0f;
-    void *temp_v0;
+Gfx *func_8071338C(Gfx *dl) {
+    f32 y = 20.0f;
+    void *text;
 
-    temp_v0 = textTableGetString(0xC, 0, 1);
-    R117D_WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
-    R117D_WRITE_GFX(arg0++, 0xDA380003, &D_807FDAC0);
-    return textDrawStringVtx(arg0, 1, 0x118, (s16) ((temp_f0 + temp_f0) * 4.0f), temp_v0, 4);
+    text = textTableGetString(0xC, 0, 1);
+    R117D_WRITE_GFX(dl++, 0xFCFFFFFF, 0xFFFCF279);
+    R117D_WRITE_GFX(dl++, 0xDA380003, &D_807FDAC0);
+    return textDrawStringVtx(dl, 1, 0x118, (s16) ((y + y) * 4.0f), text, 4);
 }
 
 
@@ -516,30 +504,30 @@ Gfx *func_8071338C(Gfx *arg0) {
 extern s16 gScreenWidth;
 
 
-Gfx *func_80713438(Gfx *arg0, u8 arg1) {
-    s32 sp34;
-    s32 sp30;
+Gfx *func_80713438(Gfx *dl, u8 alpha) {
+    char *str;
+    char *text;
     f32 y;
-    f32 sp28;
-    s16 new_var2;
-    f64 temp_ft4;
-    s32 temp_a0;
+    f32 x;
+    s16 xFixed;
+    f64 halfWidth;
+    s32 len;
 
-    sp30 = (s32) textTableGetString(0xC, 1, 1);
-    temp_a0 = strlen((char *) sp30) + 2;
-    sp28 = (f32) ((f64) gScreenWidth * 0.5 * 2.0f);
+    text = textTableGetString(0xC, 1, 1);
+    len = strlen(text) + 2;
+    x = (f32) ((f64) gScreenWidth * 0.5 * 2.0f);
     y = 418.0f;
-    sp34 = heapAlloc(temp_a0);
-    heapFreeDeferred((void *) sp34);
-    _sprintf((char *) sp34, "%c%s", 0x63, sp30);
-    temp_ft4 = (f64) textGetStringWidth(1, sp34);
-    temp_ft4 = 0.5 * temp_ft4;
-    sp28 = (f32) (((f64) sp28) - temp_ft4);
-    new_var2 = (s16) ((s32) (sp28 * 4.0f));
-    R117D_WRITE_GFX(arg0++, 0xE200001C, 0x504240);
-    R117D_WRITE_GFX(arg0++, 0xFA000000, arg1 & 0xFF);
-    R117D_WRITE_GFX(arg0++, 0xFCFF97FF, 0xFF2CFE7F);
-    return textDrawStringVtx(arg0, 1, new_var2, (s16) ((s32) (y * 4.0f)), (void *) sp34, 4);
+    str = heapAlloc(len);
+    heapFreeDeferred(str);
+    _sprintf(str, "%c%s", 0x63, text);
+    halfWidth = (f64) textGetStringWidth(1, str);
+    halfWidth = 0.5 * halfWidth;
+    x = (f32) (((f64) x) - halfWidth);
+    xFixed = (s16) ((s32) (x * 4.0f));
+    R117D_WRITE_GFX(dl++, 0xE200001C, 0x504240);
+    R117D_WRITE_GFX(dl++, 0xFA000000, alpha & 0xFF);
+    R117D_WRITE_GFX(dl++, 0xFCFF97FF, 0xFF2CFE7F);
+    return textDrawStringVtx(dl, 1, xFixed, (s16) ((s32) (y * 4.0f)), str, 4);
 }
 
 
@@ -553,112 +541,112 @@ extern R117fPair D_80755370;
 extern s32 gFrameCounter;
 extern u8 D_807ECD09;
 
-Gfx *func_807135B4(Gfx *arg0) {
-    s32 temp_v0;
-    s32 var_v1;
-    R117fPair sp38;
-    f32 sp34;
-    f32 sp30;
+Gfx *func_807135B4(Gfx *dl) {
+    s32 elapsed;
+    s32 textIndex;
+    R117fPair textIds;
+    f32 x;
+    f32 y;
 
-    temp_v0 = gFrameCounter - 0x5A;
-    if ((temp_v0 >= 0) && !(temp_v0 & 0x10)) {
-        sp38 = D_80755370;
-        var_v1 = 0;
-        sp34 = (f32) gScreenWidth;
-        sp30 = (f32) (0xBD - textGetFontHeight(6));
-        if ((D_807ECD09 != 0) && ((func_807142D8() == 0) || (var_v1 = 1, (gCurrentMap == 0x4C)))) {
-            return arg0;
+    elapsed = gFrameCounter - 0x5A;
+    if ((elapsed >= 0) && !(elapsed & 0x10)) {
+        textIds = D_80755370;
+        textIndex = 0;
+        x = (f32) gScreenWidth;
+        y = (f32) (0xBD - textGetFontHeight(6));
+        if ((D_807ECD09 != 0) && ((func_807142D8() == 0) || (textIndex = 1, (gCurrentMap == 0x4C)))) {
+            return dl;
         }
         if (&D_80755370 && &D_80755370 && &D_80755370) {}  // FAKE: dead address test, steers as1 delay-slot fill (bne+nop instead of bnel)
-        sp34 = (f32) ((f64) sp34 * 0.5);
-        R117D_WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
-        arg0 = hudDrawScaledText(arg0, (s16) (s32) (sp34 * 4.0f), (s16) (s32) ((f32) gHiResScale * sp30 * 4.0f), 0.7f, textTableGetString(0xC, (s32) (&sp38.unk0)[var_v1], 1));
+        x = (f32) ((f64) x * 0.5);
+        R117D_WRITE_GFX(dl++, 0xFCFFFFFF, 0xFFFCF279);
+        dl = hudDrawScaledText(dl, (s16) (s32) (x * 4.0f), (s16) (s32) ((f32) gHiResScale * y * 4.0f), 0.7f, textTableGetString(0xC, (s32) (&textIds.unk0)[textIndex], 1));
     }
-    return arg0;
+    return dl;
 }
 
-s32 mathIdentityS32(s32 arg0) {
-    return arg0;
+s32 mathIdentityS32(s32 value) {
+    return value;
 }
 extern s16 gScreenHeight;
 
-Gfx *func_80713764(Gfx *arg0, u8 arg1, f32 arg2) {
+Gfx *func_80713764(Gfx *dl, u8 alpha, f32 yOffset) {
     f32 x;
     f32 y;
 
     x = (f32) ((f64) gScreenWidth * 0.5);
-    y = (f32) (((f64) gScreenHeight * 0.5) + -20.0 + (f64) arg2);
-    R117D_WRITE_GFX(arg0++, 0xE200001C, 0x504240);
-    gDPSetPrimColor(arg0++, 0, 0, 255, 255, 255, arg1);
-    R117D_WRITE_GFX(arg0++, 0xFCFF97FF, 0xFF2CFE7F);
-    R117D_WRITE_GFX(arg0++, 0xE3001201, 0);
-    return renderRotatedSprite(arg0, 0x2C, 0, 2, 0xE0, 0x80, (s32) x, (s32) y, 1.0f, 1.0f, 0, 0.0f);
+    y = (f32) (((f64) gScreenHeight * 0.5) + -20.0 + (f64) yOffset);
+    R117D_WRITE_GFX(dl++, 0xE200001C, 0x504240);
+    gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, alpha);
+    R117D_WRITE_GFX(dl++, 0xFCFF97FF, 0xFF2CFE7F);
+    R117D_WRITE_GFX(dl++, 0xE3001201, 0);
+    return renderRotatedSprite(dl, 0x2C, 0, 2, 0xE0, 0x80, (s32) x, (s32) y, 1.0f, 1.0f, 0, 0.0f);
 }
 
 
-Gfx *func_807138A4(Gfx *arg0) {
-    return func_807135B4(func_807132DC(arg0));
+Gfx *func_807138A4(Gfx *dl) {
+    return func_807135B4(func_807132DC(dl));
 }
 
-Gfx *func_807138CC(Gfx *arg0) {
-    void *sp3C;
-    f32 temp_fv0;
+Gfx *func_807138CC(Gfx *dl) {
+    void *rect;
+    f32 fade;
     Gfx *g;
 
-    sp3C = (void *)heapAlloc(0x10);
-    heapFreeDeferred(sp3C);
-    viewportSetFromRect(sp3C, 0xA, 0xA, 0x135, 0xE5);
-    arg0 = func_807135B4(func_807132DC(arg0));
-    arg0 = func_8071338C(arg0);
+    rect = (void *)heapAlloc(0x10);
+    heapFreeDeferred(rect);
+    viewportSetFromRect(rect, 0xA, 0xA, 0x135, 0xE5);
+    dl = func_807135B4(func_807132DC(dl));
+    dl = func_8071338C(dl);
     if ((u32)++D_80755320 < 0xD3U) {
-        temp_fv0 = (f32) (0xD2U - D_80755320) * 0.03333333507f;
-        temp_fv0 = (temp_fv0 < 0.0f) ? 0.0f : ((temp_fv0 > 1.0f) ? 1.0f : temp_fv0);
-        arg0 = func_80713764(func_80713438(arg0, (u32) (255.0f * temp_fv0)), (u32) (255.0f * temp_fv0), 0);
+        fade = (f32) (0xD2U - D_80755320) * 0.03333333507f;
+        fade = (fade < 0.0f) ? 0.0f : ((fade > 1.0f) ? 1.0f : fade);
+        dl = func_80713764(func_80713438(dl, (u32) (255.0f * fade)), (u32) (255.0f * fade), 0);
     }
-    g = arg0++; g->words.w0 = 0xDC080008; // LAYOUT: same-line pointer-copy and first store steers as1 move/ori order
-    g->words.w1 = (u32)sp3C;
-    return func_806FF144(arg0);
+    g = dl++; g->words.w0 = 0xDC080008; // LAYOUT: same-line pointer-copy and first store steers as1 move/ori order
+    g->words.w1 = (u32)rect;
+    return func_806FF144(dl);
 }
 
 
-Gfx *func_80713AA8(Gfx *arg0) {
-    R117D_WRITE_GFX(arg0++, 0xE7000000, 0);
-    R117D_WRITE_GFX(arg0++, 0xDE000000, &D_1000118);
-    R117D_WRITE_GFX(arg0++, 0xE3000A01, 0);
-    R117D_WRITE_GFX(arg0++, 0xE200001C, 0x504240);
-    R117D_WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
-    R117D_WRITE_GFX(arg0++, 0xDA380007, &D_20000C0);
-    return arg0;
+Gfx *func_80713AA8(Gfx *dl) {
+    R117D_WRITE_GFX(dl++, 0xE7000000, 0);
+    R117D_WRITE_GFX(dl++, 0xDE000000, &D_1000118);
+    R117D_WRITE_GFX(dl++, 0xE3000A01, 0);
+    R117D_WRITE_GFX(dl++, 0xE200001C, 0x504240);
+    R117D_WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
+    R117D_WRITE_GFX(dl++, 0xDA380007, &D_20000C0);
+    return dl;
 }
 
 extern u8 D_80755378[];
 
-Gfx *func_80713B40(Gfx *arg0) {
-    s16 temp_t0;
+Gfx *func_80713B40(Gfx *dl) {
+    s16 remaining;
     s16 pad0;
-    s16 var_v1;
-    temp_t0 = gMenuStateTimer - 0x8C;
-    if (temp_t0 >= 0) {
-        if (temp_t0 < 0x96) {
-            var_v1 = temp_t0 - 0x5A;
-            if (var_v1 < 0) {
-                var_v1 = 0xFF;
+    s16 alpha;
+    remaining = gMenuStateTimer - 0x8C;
+    if (remaining >= 0) {
+        if (remaining < 0x96) {
+            alpha = remaining - 0x5A;
+            if (alpha < 0) {
+                alpha = 0xFF;
             } else {
-                var_v1 = 0x3C - var_v1;
-                var_v1 = var_v1 * 5;
+                alpha = 0x3C - alpha;
+                alpha = alpha * 5;
             }
-            if (temp_t0 < 0x3C) {
-                var_v1 = temp_t0 * 5;
+            if (remaining < 0x3C) {
+                alpha = remaining * 5;
             }
-            if (var_v1 >= 0x100) {
-                var_v1 = 0xFF;
+            if (alpha >= 0x100) {
+                alpha = 0xFF;
             }
-            arg0 = func_80713AA8(arg0);
-            gDPSetPrimColor(arg0++, 0, 0, 255, 255, 255, var_v1);
-            arg0 = hudDrawScaledText(arg0, 0x280, (s16)(s32)(480.0 - ((f64)(f32)((f64)(0x96 - temp_t0) / 40.0) * 32.0)), (f32)((f64)(0x96 - temp_t0) / 40.0), D_80755378);
+            dl = func_80713AA8(dl);
+            gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, alpha);
+            dl = hudDrawScaledText(dl, 0x280, (s16)(s32)(480.0 - ((f64)(f32)((f64)(0x96 - remaining) / 40.0) * 32.0)), (f32)((f64)(0x96 - remaining) / 40.0), D_80755378);
         }
     }
-    return arg0;
+    return dl;
 }
 
 
@@ -707,48 +695,48 @@ Gfx *hudDrawCountdownTimer(Gfx *dl) {
     return dl;
 }
 
-s32 mathIdentityS32B(s32 arg0) {
-    return arg0;
+s32 mathIdentityS32B(s32 value) {
+    return value;
 }
 
 extern s16 D_807FC828[];
 
-void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
-    s32 sp18;
-    s32 sum;
+void func_80713EB0(s32 map, s32 exit, s32 gate) {
+    s32 savedExit;
+    s32 total;
     s32 i;
 
-    if (arg0 >= 0) {
+    if (map >= 0) {
         if (gMenuCurrentMode == 0xE) {
-            if (arg2 == 1) {
+            if (gate == 1) {
                 if (flagGet(0x2A, 1) == 0) {
-                    arg0 = -1;
+                    map = -1;
                 }
             }
-            if (arg2 == 2) {
+            if (gate == 2) {
                 if (flagGet(0x2B, 1) == 0) {
-                    arg0 = -1;
+                    map = -1;
                 }
             }
         } else {
             hudPauseMenuRefreshTotals();
-            sum = 0; for (i = 0; i < 7; i++) { sum += D_807FC828[i]; } if (arg2 == 1) { // LAYOUT: one source line lets as1 reorder the unrolled loads
-                if (sum < 0x118) {
-                    arg0 = -1;
+            total = 0; for (i = 0; i < 7; i++) { total += D_807FC828[i]; } if (gate == 1) { // LAYOUT: one source line lets as1 reorder the unrolled loads
+                if (total < 0x118) {
+                    map = -1;
                 } else {
                     flagSet(0x2A, 1, 1);
                 }
             }
-            if (arg2 == 2) {
-                if (sum < 0x119) {
-                    arg0 = -1;
+            if (gate == 2) {
+                if (total < 0x119) {
+                    map = -1;
                 } else {
                     flagSet(0x2B, 1, 1);
                 }
             }
         }
-        if (arg0 >= 0) {
-            menuTransitionToMap(arg0, arg1);
+        if (map >= 0) {
+            menuTransitionToMap(map, exit);
             return;
         }
     }
@@ -833,14 +821,14 @@ extern s8 gSplitScreenMode;
 
 
 s32 func_807142D8(void) {
-    s32 var_v0;
+    s32 match;
 
-    var_v0 = gMenuTargetMode == 3;
-    if (var_v0 == 0) {
-        var_v0 = gMenuTargetMode == 4;
-        if (var_v0 == 0) {
-            var_v0 = gMenuCurrentMode == 3;
-            if (var_v0 == 0) {
+    match = gMenuTargetMode == 3;
+    if (match == 0) {
+        match = gMenuTargetMode == 4;
+        if (match == 0) {
+            match = gMenuCurrentMode == 3;
+            if (match == 0) {
                 return gMenuCurrentMode == 4;
             }
         }
@@ -848,32 +836,32 @@ s32 func_807142D8(void) {
 }
 
 s32 menuIsTransitionType6(void) {
-    s32 var_v0;
+    s32 match;
 
-    var_v0 = gMenuCurrentMode == 6;
-    if (var_v0 == 0) {
+    match = gMenuCurrentMode == 6;
+    if (match == 0) {
         return gMenuTargetMode == 6;
     }
 }
 
 s32 menuIsTransitionType8(void) {
-    s32 var_v0;
+    s32 match;
 
-    var_v0 = gMenuCurrentMode == 8;
-    if (var_v0 == 0) {
+    match = gMenuCurrentMode == 8;
+    if (match == 0) {
         return gMenuTargetMode == 8;
     }
 }
 
 s32 menuIsTransitionType7Or9(void) {
-    s32 var_v0;
+    s32 match;
 
-    var_v0 = gMenuCurrentMode == 7;
-    if (var_v0 == 0) {
-        var_v0 = gMenuTargetMode == 7;
-        if (var_v0 == 0) {
-            var_v0 = gMenuCurrentMode == 9;
-            if (var_v0 == 0) {
+    match = gMenuCurrentMode == 7;
+    if (match == 0) {
+        match = gMenuTargetMode == 7;
+        if (match == 0) {
+            match = gMenuCurrentMode == 9;
+            if (match == 0) {
                 return gMenuTargetMode == 9;
             }
         }
@@ -881,19 +869,19 @@ s32 menuIsTransitionType7Or9(void) {
 }
 
 s32 menuIsTransitionTypeD(void) {
-    s32 var_v0;
+    s32 match;
 
-    var_v0 = gMenuCurrentMode == 0xD;
-    if (var_v0 == 0) {
+    match = gMenuCurrentMode == 0xD;
+    if (match == 0) {
         return gMenuTargetMode == 0xD;
     }
 }
 
 s32 menuIsTransitionTypeC(void) {
-    s32 var_v0;
+    s32 match;
 
-    var_v0 = gMenuCurrentMode == 0xC;
-    if (var_v0 == 0) {
+    match = gMenuCurrentMode == 0xC;
+    if (match == 0) {
         return gMenuTargetMode == 0xC;
     }
 }
@@ -903,14 +891,14 @@ s32 menuIsTransitionType5(void) {
 }
 
 s32 menuIsTransitionTypeAOrE(void) {
-    s32 var_v0;
+    s32 match;
 
-    var_v0 = gMenuCurrentMode == 0xA;
-    if (var_v0 == 0) {
-        var_v0 = gMenuCurrentMode == 0xE;
-        if (var_v0 == 0) {
-            var_v0 = gMenuTargetMode == 0xA;
-            if (var_v0 == 0) {
+    match = gMenuCurrentMode == 0xA;
+    if (match == 0) {
+        match = gMenuCurrentMode == 0xE;
+        if (match == 0) {
+            match = gMenuTargetMode == 0xA;
+            if (match == 0) {
                 return gMenuTargetMode == 0xE;
             }
         }
@@ -920,48 +908,48 @@ s32 menuIsTransitionTypeAOrE(void) {
 extern s8 D_8074452C;
 extern u8 D_807467C8;
 
-void func_807144B8(u8 arg0) {
-    s32 var_a0;
-    s32 var_a1;
+void func_807144B8(u8 saveSlot) {
+    s32 map;
+    s32 exit;
 
     D_807445B8 = osGetTime();
     D_80755350 = 0;
     playerResetSpawnGlobals();
     flagsClearAllBank2();
-    eepromLoadPlayerData(arg0, 1);
+    eepromLoadPlayerData(saveSlot, 1);
     gPlayerCharacterId = 0;
     if ((eepromGetField(0xD, 0, 0, D_807467C8) != 0) || (D_8074452C != 0)) {
         if (flagGet(0x186, 0) != 0) {
-            var_a0 = 0x22;
-            var_a1 = 0;
+            map = 0x22;
+            exit = 0;
         } else {
-            var_a0 = 0xB0;
-            var_a1 = 1;
+            map = 0xB0;
+            exit = 1;
         }
     } else {
         D_80755338 = 1;
         D_8075533C = 0;
-        var_a0 = 0x99;
-        var_a1 = 0;
+        map = 0x99;
+        exit = 0;
     }
-    mapRequestTransitionFast(var_a0, var_a1);
+    mapRequestTransitionFast(map, exit);
     gMenuTargetMode = 6;
 }
 
 
 
 void func_8071458C(void) {
-    s32 var_a0;
+    s32 map;
 
     playerResetSpawnGlobals();
     gSplitScreenMode = 0;
     if (R117c_STATE->unk0 == 0) {
         gSplitScreenMode = 1;
-        var_a0 = 0x6B;
+        map = 0x6B;
     } else {
-        var_a0 = D_80755384[R117c_STATE->unk20];
+        map = D_80755384[R117c_STATE->unk20];
     }
-    menuTransitionWithState(var_a0, 0, 6);
+    menuTransitionWithState(map, 0, 6);
 }
 
 void menuSetFlag5324(void) {
@@ -969,12 +957,12 @@ void menuSetFlag5324(void) {
 }
 
 
-s32 func_80714608(s32 arg0) {
-    s32 var_v0;
+s32 func_80714608(s32 value) {
+    s32 isMultiplayer;
 
-    var_v0 = (s32) gPlayerCount >= 2;
-    if (var_v0 != 0) {
-        return arg0 == D_807552E4;
+    isMultiplayer = (s32) gPlayerCount >= 2;
+    if (isMultiplayer != 0) {
+        return value == D_807552E4;
     }
 }
 
