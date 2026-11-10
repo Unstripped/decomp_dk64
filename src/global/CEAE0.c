@@ -905,7 +905,7 @@ s16 mathAngleSignedDistance(from, to) s16 from; s16 to; {
     return wrapped;
 }
 
-s32 mathAngleDistance(from, to) s16 from; s16 to; {
+s16 mathAngleDistance(s16 from, s16 to) {
     s16 d = to - from;
     s16 wrapped = d & 0xFFF;
 

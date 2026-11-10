@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
 #include "proto/global/117190.h"
 #include "proto/global/69E60.h"
 #include "proto/global/70FD0.h"
@@ -17,7 +16,6 @@ extern u8 D_807F6902;
 extern u8 gPlayerCount;
 extern PlayerData *gPlayerSlots;
 
-s32 mathAngleDistance(s16, s16); // FAKE: callee prototype steer
 void actorCheckPlayerSmallerThanAttacker(s32 actor, s32 attacker, s32 unused) {
     playerIsSmallerThanAttacker(actor, attacker);
 }

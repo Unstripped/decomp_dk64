@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
 #include "proto/global/117190.h"
 #include "proto/global/133A90.h"
 #include "proto/global/135D30.h"
@@ -334,7 +333,6 @@ u8 proxPathGetActorPosition(Actor *actor, u8 mode, f32 *outX, f32 *outY, f32 *ou
 
 extern s16 gCurrentCharacterIndex;
 extern s16 D_80753B74[];
-s32 mathAngleDistance(s16, s16); // FAKE: callee prototype steer
 
 s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *outSegment) {
     s32 i;

@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
 #include "proto/global/19A00.h"
@@ -343,7 +342,6 @@ u8 raceCheckGateCrossed(RaceWaypoint *node) {
     return crossed;
 }
 
-s32 mathAngleDistance(s16, s16); // FAKE: callee prototype steer
 
 u8 raceIsFacingWaypoint(RaceWaypoint *node) {
     f32 diff_x = gCurrentActor->x - (f32)node->x;

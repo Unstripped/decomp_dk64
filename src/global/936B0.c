@@ -5,7 +5,6 @@
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_lensFlareAddSource // FAKE: callee prototype steer
 #define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
-#define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
 #define PROTO_SKIP_matrixMakeRotationX // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
 #include "proto/global/119370.h"
@@ -937,7 +936,6 @@ void projectileAimAndSpawn(s16 type, s16 param, f32 speed, f32 targetX, f32 targ
     projectileCalculateTrajectoryAndSpawn(mathAngleBetweenPoints2D(targetX, targetZ, D_807FC7B0, D_807FC7B8), type, param, speed, targetX, targetY, targetZ, flightTime, flags);
 }
 
-s16 mathAngleDistance(s16, s16); // FAKE: callee prototype steer
 void projectileClampAngleAndSpawn(s16 centerYaw, s16 maxSpread, s16 type, s16 param, f32 speed, f32 targetX, f32 targetY, f32 targetZ, f32 flightTime, s32 flags) {
     s16 lowYaw;
     s16 highYaw;

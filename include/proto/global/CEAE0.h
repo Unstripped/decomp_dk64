@@ -72,7 +72,7 @@ void playerCheckLandingSfx(void);
 s16 mathAngleSignedDistance();
 #endif
 #ifndef PROTO_SKIP_mathAngleDistance
-s32 mathAngleDistance();
+s16 mathAngleDistance(s16, s16);
 #endif
 #ifndef PROTO_SKIP_mathAngleEaseToward
 s16 mathAngleEaseToward(s16, s16, f32);

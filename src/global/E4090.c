@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_camSetZoomLevel // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
 #define PROTO_SKIP_modelSlotGetType // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #include "sched.h"
@@ -607,7 +606,6 @@ extern f32 D_80753BF8[];
 extern f32 D_80753DC8[];
 extern f32 D_80753DE4[];
 extern u16 *gActorScriptIndexTable;
-s16 mathAngleDistance(s16, s16); // FAKE: callee prototype steer
 
 extern u8 gPlayerCharacterId[];
 

@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
 #include "proto/boss/3840.h"
 #include "proto/boss/52B0.h"
 #include "proto/global/119370.h"
@@ -124,7 +123,6 @@ extern Boss3F_52B0_BB4C *gPrimaryPlayerActor;
 extern Boss3F_52B0_D580 *gActivePlayerState;
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-s32 mathAngleDistance(s16, s16); // FAKE: callee prototype steer
 
 #define ACTOR ((Boss3F_52B0_Actor *)gCurrentActor)
 

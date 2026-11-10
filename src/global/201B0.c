@@ -3,7 +3,6 @@
 #define PROTO_SKIP_actorTableContains // PROTO: Type CamActor *  of this argument  is incompatible 
 #define PROTO_SKIP_camLoadPathData // FAKE: callee prototype steer
 #define PROTO_SKIP_collisionCheckActorFloor // PROTO: The controlling expression of the if statement is not scalar
-#define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
 #include "proto/global/10130.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/117190.h"
@@ -1673,7 +1672,6 @@ void camStartBlendRamp(CamState *st, s16 frames) {
     }
 }
 
-s16 mathAngleDistance(s16, s16); // FAKE: callee prototype steer
 
 void func_8061F18C(CamActor *camActor, f32 targetX, f32 targetY, f32 targetZ) {
     CamState *cam;
