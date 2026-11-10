@@ -338,10 +338,10 @@ typedef struct BehaviourWorkState {
     /* 0x16 */ s16 unk16;
     /* 0x18 */ u16 stepCount;
     /* 0x1A */ u16 flags;
-    /* 0x1C */ u8 pad1C[2];
+    /* 0x1C */ u16 unk1C;
     /* 0x1E */ u8 unk1E;
     /* 0x1F */ u8 unk1F;
-    /* 0x20 */ u8 pad20;
+    /* 0x20 */ u8 unk20;
     /* 0x21 */ u8 unk21;
     /* 0x22 */ u8 unk22;
     /* 0x23 */ u8 unk23;
@@ -354,12 +354,13 @@ typedef struct BehaviourWorkState {
     /* 0x30 */ f32 scale;
     /* 0x34 */ u8 unk34;
     /* 0x35 */ u8 unk35;
-    /* 0x36 */ u8 pad36;
+    /* 0x36 */ u8 unk36;
     /* 0x37 */ u8 unk37;
 } BehaviourWorkState;
 
 typedef struct BehaviourAnimState {
-    /* 0x00 */ u8 pad0[0x20];
+    /* 0x00 */ u8 pad0[0x1C];
+    /* 0x1C */ void *unk1C;
     /* 0x20 */ u8 *unk20;
     /* 0x24 */ u8 pad24[2];
     /* 0x26 */ s16 animId0;
@@ -367,16 +368,18 @@ typedef struct BehaviourAnimState {
     /* 0x2A */ s16 animId2;
     /* 0x2C */ f32 unk2C;
     /* 0x30 */ f32 unk30;
-    /* 0x34 */ u8 pad34[4];
+    /* 0x34 */ f32 unk34;
     /* 0x38 */ f32 unk38;
-    /* 0x3C */ u8 pad3C[0x44 - 0x3C];
+    /* 0x3C */ f32 unk3C;
+    /* 0x40 */ u8 pad40[4];
     /* 0x44 */ u8 unk44;
     /* 0x45 */ u8 pad45;
     /* 0x46 */ u16 stateFlags;
 } BehaviourAnimState;
 
 typedef struct BehaviourExtraState {
-    /* 0x00 */ u8 pad0[4];
+    /* 0x00 */ u8 pad0[2];
+    /* 0x02 */ s16 unk2;
     /* 0x04 */ s16 unk4;
     /* 0x06 */ s16 unk6;
     /* 0x08 */ s16 unk8;
