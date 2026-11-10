@@ -147,7 +147,7 @@ void tagBarrelInitPeerState(void) {
         sub->unkC = ((ActorB4C8Spawn *)gCurrentActor->spawnData)->unkC;
         sub->unk10 = ((ActorB4C8Spawn *)gCurrentActor->spawnData)->unk10;
         sub->camPath = ((ActorB4C8Spawn *)gCurrentActor->spawnData)->unk14;
-        if (1 == ((ActorB4C8Spawn *)gCurrentActor->spawnData)->unk18) {
+        if (((ActorB4C8Spawn *)gCurrentActor->spawnData)->unk18 == 1) {
             if (tagBarrelIsSpecial(gCurrentActor) == 0) {
                 gCurrentActor->state = 0x14;
                 gCurrentActor->unk144 = 1;
@@ -647,7 +647,7 @@ void actorTransformCameraUpdate(void) {
             gCurrentActor->flags |= 0x1000;
             effectSetDepth(1);
             effectSetDuration(-1);
-            effectSetMaxDistance((s16)((f64)gCurrentActor->drawDistance * 0.75));
+            effectSetMaxDistance((s16)(gCurrentActor->drawDistance * 0.75));
             effectCreateAtActorBone(&D_8072030C, 0.14f, gCurrentActor, 1, 2);
             actorClearNodeFlag(gCurrentActor, 3);
         }
@@ -726,7 +726,7 @@ void actorTransformCameraUpdate(void) {
         if (state->unk8 < 0.0) {
             state->unk8 += 360.0;
         }
-        state->unk10 = ((f64)state->unk0->yaw / 4095.0) * 360.0;
+        state->unk10 = state->unk0->yaw / 4095.0 * 360.0;
         gCurrentActor->flags2 &= ~1;
         break;
     case 2:
@@ -749,8 +749,8 @@ void actorTransformCameraUpdate(void) {
         func_8066E6C8(gCurrentActor, 0, 1);
         func_8066E6C8(gCurrentActor, 1, 1);
         gCurrentActor->speedY += D_807502E4;
-        if (gCurrentActor->speedY < (f32)D_807502D0) {
-            gCurrentActor->speedY = (f32)D_807502D0;
+        if (gCurrentActor->speedY < D_807502D0) {
+            gCurrentActor->speedY = D_807502D0;
         }
         state->unk14 -= 10.0f;
         if (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0) {
@@ -776,12 +776,12 @@ void actorTransformCameraUpdate(void) {
         bob = sinApprox((f32)state->unk20 / 9.34);
         state->unk8 = state->unk28 + bob * 7.0f;
         state->unk20++;
-        bob = (f32) (-5.0 - state->unk24);
-        bob = (f32) (bob / -5.0);
-        bob = (f32) (bob * -0.5);
+        bob = -5.0 - state->unk24;
+        bob = bob / -5.0;
+        bob = bob * -0.5;
         if (D_807FBBA9 == 0) {
-            bob = (f32) (-0.5 - bob);
-            bob = (f32) (0.0 - bob);
+            bob = -0.5 - bob;
+            bob = 0.0 - bob;
         }
         state->unk24 += bob;
         gCurrentActor->y += state->unk24;
@@ -815,7 +815,7 @@ void actorTransformCameraUpdate(void) {
         }
         break;
     case 6:
-        if ((((u32)randomLcgNext() / 100000) % 3) == 0) {
+        if ((randomLcgNext() / 100000 % 3) == 0) {
             effectSetDepth(1);
             effectSetDuration(-1);
             effectSetCallback(effectWobbleRiseUpdate);
@@ -844,7 +844,7 @@ void actorTransformCameraUpdate(void) {
         }
         gCurrentActor->speedY = -state->unk34;
         gCurrentActor->speedXZ = 0.0f;
-        if ((f64)gCurrentActor->distToFloor < 0.5) {
+        if (gCurrentActor->distToFloor < 0.5) {
             gCurrentActor->state = 7;
             state->unk2C = 0x78;
         }
@@ -897,7 +897,7 @@ void actorTransformCameraUpdate(void) {
         } else {
             state->unk3A--;
         }
-        brightness = ((f32)state->unk3A / 20.0f) * 200.0;
+        brightness = state->unk3A / 20.0f * 200.0;
         if (brightness > 130.0) {
             brightness = 200.0f;
         }
@@ -917,7 +917,7 @@ void actorTransformCameraUpdate(void) {
             gCurrentActor->state = 4;
             state->unk39 = 1;
         }
-        if (gCurrentActor->state == 3 && gCurrentActor->actorType == 0x1A && (u32)D_80753444[gCurrentCharacterIndex] < (u32)(gFrameCounter - state->unk4)) {
+        if (gCurrentActor->state == 3 && gCurrentActor->actorType == 0x1A && D_80753444[gCurrentCharacterIndex] < gFrameCounter - state->unk4) {
             gCurrentActor->state = 4;
         }
         if (gCurrentActor->state == 3 && (gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
@@ -979,7 +979,7 @@ void actorTransformCameraUpdate(void) {
     guScaleF(mtx, gCurrentActor->sub4->scaleX, gCurrentActor->sub4->scaleY, gCurrentActor->sub4->scaleZ);
     guRotateF(rot, state->unk14, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx, rot, mtx);
-    guRotateF(rot, ((f64)gCurrentActor->yaw / 4095.0) * 360.0, 0.0f, 1.0f, 0.0f);
+    guRotateF(rot, gCurrentActor->yaw / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx, rot, mtx);
     guRotateF(rot, state->unk8 - D_807FBC60, 1.0f, 0.0f, 0.0f);
     guMtxCatF(mtx, rot, mtx);
@@ -988,13 +988,13 @@ void actorTransformCameraUpdate(void) {
 
     if (gCurrentActor->state == 3) {
         if (gCurrentActor->floorSlopePitch < 1000) {
-            guRotateF(rot, -(((f64)gCurrentActor->floorSlopeYaw / 4095.0) * 360.0), 0.0f, 1.0f, 0.0f);
+            guRotateF(rot, -(gCurrentActor->floorSlopeYaw / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
             guMtxCatF(mtx, rot, mtx);
         }
-        guRotateF(rot, 90.0 - ((f64)gCurrentActor->floorSlopePitch / 4095.0) * 360.0, 1.0f, 0.0f, 0.0f);
+        guRotateF(rot, 90.0 - gCurrentActor->floorSlopePitch / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
         guMtxCatF(mtx, rot, mtx);
         if (gCurrentActor->floorSlopePitch < 1000) {
-            guRotateF(rot, ((f64)gCurrentActor->floorSlopeYaw / 4095.0) * 360.0, 0.0f, 1.0f, 0.0f);
+            guRotateF(rot, gCurrentActor->floorSlopeYaw / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
             guMtxCatF(mtx, rot, mtx);
         }
     }
@@ -1967,7 +1967,7 @@ void tagBarrelActorUpdate(void) {
     offset = D_8074E7D4;
     hidden = 0;
     if (!(gCurrentActor->flags & 0x10)) {
-        scaleFactor = (f64)gCurrentActor->sub4->scaleX / 0.15;
+        scaleFactor = gCurrentActor->sub4->scaleX / 0.15;
         gCurrentActor->floorY = gCurrentActor->y;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
         gCurrentActor->attachMode = 0;
@@ -2002,8 +2002,8 @@ void tagBarrelActorUpdate(void) {
         } else {
             gCurrentActor->state = 0;
         }
-        scaleFactor = (f64)scaleFactor - 1.0;
-        if ((f64)scaleFactor < 0.0) {
+        scaleFactor -= 1.0;
+        if (scaleFactor < 0.0) {
             scaleFactor = 0.0f;
         }
         val = (u32)(80.0f * scaleFactor + 20.0f);
@@ -2022,7 +2022,7 @@ void tagBarrelActorUpdate(void) {
     }
     if (sub->unkE != 0) {
         sub->unkE--;
-        sub->baseY = (f64)sub->baseY + 1.0;
+        sub->baseY += 1.0;
         actorListSetPosByActor(gCurrentActor, gCurrentActor->x, sub->baseY, gCurrentActor->z);
     }
     if (gCurrentActor->state != 0x14 && gCurrentActor->state != 0x15) {
@@ -2046,10 +2046,10 @@ void tagBarrelActorUpdate(void) {
                ((gPlayerSlots->camX - gCurrentActor->x) * (gPlayerSlots->camX - gCurrentActor->x) +
                 (gPlayerSlots->camY - gCurrentActor->y) * (gPlayerSlots->camY - gCurrentActor->y));
         if (dist < 40000.0f) {
-            sizeScale = (f64)gCurrentActor->sub4->scaleX / 0.15;
-            coord[2] = ((f64)((randomNonNegative() >> 15) % (s32)(30.0f * sizeScale)) - (15.0 * (f64)sizeScale)) + gCurrentActor->x;
-            coord[1] = ((f64)((randomNonNegative() >> 15) % (s32)(30.0f * sizeScale)) - (15.0 * (f64)sizeScale)) + gCurrentActor->y;
-            coord[0] = ((f64)((randomNonNegative() >> 15) % (s32)(30.0f * sizeScale)) - (15.0 * (f64)sizeScale)) + gCurrentActor->z;
+            sizeScale = gCurrentActor->sub4->scaleX / 0.15;
+            coord[2] = (randomNonNegative() >> 15) % (s32)(30.0f * sizeScale) - 15.0 * sizeScale + gCurrentActor->x;
+            coord[1] = (randomNonNegative() >> 15) % (s32)(30.0f * sizeScale) - 15.0 * sizeScale + gCurrentActor->y;
+            coord[0] = (randomNonNegative() >> 15) % (s32)(30.0f * sizeScale) - 15.0 * sizeScale + gCurrentActor->z;
             effectSetDepth(1);
             effectSetFlags(4);
             if (gCurrentActor->state == 0) {
@@ -2094,10 +2094,10 @@ void tagBarrelActorUpdate(void) {
         }
         gCurrentActor->yaw += sub->unk8;
         if (sub->unk8 >= 0xC9) {
-            gCurrentActor->sub4->scaleX = (f64)gCurrentActor->sub4->scaleX - 0.005;
-            gCurrentActor->sub4->scaleY = (f64)gCurrentActor->sub4->scaleY - 0.005;
-            gCurrentActor->sub4->scaleZ = (f64)gCurrentActor->sub4->scaleZ - 0.005;
-            if ((f64)gCurrentActor->sub4->scaleX < 0.02) {
+            gCurrentActor->sub4->scaleX -= 0.005;
+            gCurrentActor->sub4->scaleY -= 0.005;
+            gCurrentActor->sub4->scaleZ -= 0.005;
+            if (gCurrentActor->sub4->scaleX < 0.02) {
                 gCurrentActor->state = 2;
             }
         }
@@ -2118,13 +2118,13 @@ void tagBarrelActorUpdate(void) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x262, 0xFF, 0x64, 1);
         }
         if (sub->timer == 0) {
-            gCurrentActor->sub4->scaleX = (f64)gCurrentActor->sub4->scaleX + 0.005;
-            gCurrentActor->sub4->scaleY = (f64)gCurrentActor->sub4->scaleY + 0.005;
-            gCurrentActor->sub4->scaleZ = (f64)gCurrentActor->sub4->scaleZ + 0.005;
-            if ((f64)gCurrentActor->sub4->scaleX >= 0.15) {
+            gCurrentActor->sub4->scaleX += 0.005;
+            gCurrentActor->sub4->scaleY += 0.005;
+            gCurrentActor->sub4->scaleZ += 0.005;
+            if (gCurrentActor->sub4->scaleX >= 0.15) {
                 gCurrentActor->state = 0xB;
             }
-            scaleFactor = (0.15 - (f64)gCurrentActor->sub4->scaleX) / 0.13;
+            scaleFactor = (0.15 - gCurrentActor->sub4->scaleX) / 0.13;
             sub->unk8 = (s32)(scaleFactor * 400.0f);
             gCurrentActor->yaw += sub->unk8;
         }
@@ -2162,9 +2162,9 @@ void tagBarrelActorUpdate(void) {
     case 12:
         sub->timer--;
         if (sub->timer < 0x28) {
-            offset.x = ((f64)(u32)(((u32)randomLcgNext() / 1000) % 50) - 25.0) / 5.0;
-            offset.y = ((f64)(u32)(((u32)randomLcgNext() / 1000) % 50) - 25.0) / 5.0;
-            offset.z = ((f64)(u32)(((u32)randomLcgNext() / 1000) % 50) - 25.0) / 5.0;
+            offset.x = (randomLcgNext() / 1000 % 50 - 25.0) / 5.0;
+            offset.y = (randomLcgNext() / 1000 % 50 - 25.0) / 5.0;
+            offset.z = (randomLcgNext() / 1000 % 50 - 25.0) / 5.0;
         }
         if (sub->timer == 0) {
             tagBarrelDespawnEffects();
@@ -2221,7 +2221,7 @@ void tagBarrelActorUpdate(void) {
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0xC, 0xC, 1, 0x64, 0x78, 0, 1.0f);
     }
     gCurrentActor->yaw += 0x50;
-    gCurrentActor->y = (mathSinF(sub->bobPhase) * 5.0) + (f64)sub->baseY;
+    gCurrentActor->y = mathSinF(sub->bobPhase) * 5.0 + sub->baseY;
     sub->bobPhase += 0x3C;
     guTranslateF(gCurrentActor->modelMtx, offset.x, offset.y, offset.z);
     actorUpdateModelMatrix(gCurrentActor, 1);
@@ -2926,8 +2926,7 @@ void tagBarrelUpdateSelection(TagBarrelData *data) {
     KongActionEntry *kongTable = D_8074E814;
     u16 prevTimer;
     s32 value;
-    s32 pad2;
-    s32 pad[2];
+    s32 pad[3];
     Actor *player;
     PlayerState *playerState;
     s32 light;
