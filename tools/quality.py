@@ -10,13 +10,20 @@ method ladder that exhausts them, and the per-function `review` coverage.
   uv run tools/quality.py status [--file src/..c] [--func NAME]
   uv run tools/quality.py rank [--seg S] [--limit N]
   uv run tools/quality.py report [--baseline REV] [--markdown]
-  uv run tools/quality.py carry --rev REV --unit U [src.c...]   re-stamp results of functions that
+  uv run tools/quality.py carry --rev REV --unit U [--header-carve] [--dry-run] [src.c...]
+                                         re-stamp results of functions that
                                          changed since REV only by renames of declared names (same type,
                                          field offset or symbol address; clang-checked) or only by
                                          file-scope text of the .c they do not use (same body tokens,
                                          same text for every declaration/type/macro they reach; both
                                          versions parse against the current headers, so header changes
-                                         are not compared and automatic results from older headers stay stale)
+                                         are not compared and automatic results from older headers stay stale).
+                                         --header-carve: instead carry the automatic results of functions
+                                         whose fp_local and sites are unchanged and whose reached include/
+                                         declarations changed only by record carves keeping size, offsets,
+                                         alignment and field types (clint layout_diff; REV parsed with REV's
+                                         headers); any other reached change (prototype, macro, typedef,
+                                         enum, layout) is listed as skipped. --dry-run writes nothing.
 
 Ledger: drafts/quality.jsonl (env DK64_QUALITY_LEDGER overrides), append-only. Functions are keyed
 by (seg, vram): symbol file / asm / link map via tools/ledger.py, else the build ELF symbol table,
@@ -347,26 +354,33 @@ def header_text(p):
     return _htext[p]
 
 
-def fp_hdr(text, here):
-    """sha1 of every include/ header TEXT quote-includes, transitively."""
-    seen = set()
+def included(text, here, hdrs=None):
+    """Sorted include/ headers TEXT quote-includes, transitively. HDRS: {header path: text, or None
+    when absent} overriding the working tree (the headers at another rev)."""
+    hdrs, seen = hdrs or {}, set()
 
     def visit(text, here):
         for inc in INCLUDE.findall(text):
             for d in (here, *HDR_DIRS):
                 p = os.path.normpath(os.path.join(d, inc))
-                if os.path.isfile(os.path.join(ROOT, p)):
+                if hdrs[p] is not None if p in hdrs else os.path.isfile(os.path.join(ROOT, p)):
                     break
             else:
                 continue
             if p.startswith("include" + os.sep) and p not in seen:
                 seen.add(p)
-                visit(header_text(p), os.path.dirname(p))
+                visit(hdrs[p] if p in hdrs else header_text(p), os.path.dirname(p))
 
     visit(text, here)
+    return sorted(seen)
+
+
+def fp_hdr(text, here, hdrs=None):
+    """sha1 of every include/ header TEXT quote-includes, transitively (HDRS: as `included`)."""
+    hdrs = hdrs or {}
     h = hashlib.sha1()
-    for p in sorted(seen):
-        h.update(f"{p}\0{header_text(p)}\0".encode("utf-8", "replace"))
+    for p in included(text, here, hdrs):
+        h.update(f"{p}\0{hdrs[p] if p in hdrs else header_text(p)}\0".encode("utf-8", "replace"))
     return h.hexdigest()[:16]
 
 
@@ -384,19 +398,22 @@ def text_metrics(text):
     return c
 
 
-def analyze(path, seg, text=None, uninit=False, src=None):
+def analyze(path, seg, text=None, uninit=False, src=None, hdrs=None, keep=False):
     """dict(path, seg, fp_hdr, functions=[dict(name, static, line, end, seg, vram, fp_local, fp_hdr,
     fp_hdr2 (`Scope.fp_hdr2`: only the include/ declarations the function reaches),
     metrics, int_locals, sites=[dict(key, kind, line, lines, tagged, code, name)])], unresolved,
     uninit=[(func, var, line)], text=text metrics, errors) of one C file (TEXT: its content, e.g. at a
-    rev; SRC: the src file PATH is a copy of, for function identity)."""
+    rev; SRC: the src file PATH is a copy of, for function identity; HDRS: {include/ path: text or
+    None} overriding the working-tree headers, as `included`; KEEP adds tu, scope, toks (the file's
+    own tokens) and by_line)."""
     path = rel(path)
     full = os.path.join(ROOT, path)
     if text is None:
         text = open(full, encoding="utf-8", errors="replace").read()
     lines = text.split("\n")
     args = clint.clang_args(warnings=True) if uninit else None
-    tu = clint.parse(path, args=args, unsaved=[(full, text)])
+    over = [(os.path.join(ROOT, p), t) for p, t in (hdrs or {}).items() if t is not None]
+    tu = clint.parse(path, args=args, unsaved=[(full, text), *over])
     defs = []
     for name, st, d, _, s, e, c in clint.functions(tu, path):
         if not d:
@@ -408,8 +425,9 @@ def analyze(path, seg, text=None, uninit=False, src=None):
                          int_locals=locs, sites=[]))
     inside = {i: k for k, d in enumerate(defs) for i in range(d["line"] - 1, d["end"])}
     top = "\n".join(l for i, l in enumerate(lines) if i not in inside)
-    hdr = fp_hdr(text, os.path.dirname(path))
-    scope, by_line = Scope(tu), idents_by_line(file_tokens(tu, path))
+    hdr = fp_hdr(text, os.path.dirname(path), hdrs)
+    toks = file_tokens(tu, path)
+    scope, by_line = Scope(tu), idents_by_line(toks)
     raw, park, paired = collections.defaultdict(list), parked_lines(lines), set()
     for i, l in enumerate(lines):
         if ("// FAKE" not in l and "// PROTO:" not in l) or i in park or i in paired:
@@ -447,8 +465,11 @@ def analyze(path, seg, text=None, uninit=False, src=None):
             d["sites"].append(dict(key=key, kind=kind, line=idx[0] + 1, lines=list(idx), tagged=tagged,
                                    code=lines[idx[0]].strip(), name=d["name"]))
     unin = [(f, var, line) for (f, var), line in clint.uninit(path, tu).items()] if uninit else []
-    return dict(path=path, seg=seg, fp_hdr=hdr, functions=defs, unresolved=unresolved, uninit=unin,
-                text=dict(text_metrics(text)), errors=tu.diagnostics_errors)
+    out = dict(path=path, seg=seg, fp_hdr=hdr, functions=defs, unresolved=unresolved, uninit=unin,
+               text=dict(text_metrics(text)), errors=tu.diagnostics_errors)
+    if keep:
+        out.update(tu=tu, scope=scope, toks=toks, by_line=by_line)
+    return out
 
 
 def _analyze_job(job):
@@ -1224,15 +1245,14 @@ def scope_equivalent(old_body, new_body, old_names, new_names, old_scope, new_sc
     return old_scope.closure(old_names) == new_scope.closure(new_names)
 
 
-def cmd_carry(a):
-    """Re-stamp the newest fresh-at-REV events of every function that changed from REV to HEAD only
-    by renames of declared names (`rename_equivalent` over its body and the file's top level), or
-    only by file-scope text of the .c it does not use (`scope_equivalent`), with HEAD's fingerprints
-    and site keys. Events keep their time, so knowledge filed after them still makes them stale."""
+def carry_renames(a, by_site, by_func):
+    """(events, skipped, carried lines) re-stamping the newest fresh-at-REV events of every function
+    that changed from REV to HEAD only by renames of declared names (`rename_equivalent` over its
+    body and the file's top level), or only by file-scope text of the .c it does not use
+    (`scope_equivalent`), with HEAD's fingerprints and site keys."""
     files = a.files or [p for p in ledger.git("diff", "--name-only", a.rev, "HEAD", "--", "src").split()
                         if p.endswith(".c") and "/libultra/" not in p and os.path.exists(os.path.join(ROOT, p))]
-    by_site, by_func = index_events(load_events())
-    out, skipped = [], []
+    out, skipped, lines = [], [], []
     for path in files:
         path, seg = rel(path), seg_of(path)
         old_text = subprocess.run(["git", "show", f"{a.rev}:{path}"], cwd=ROOT, capture_output=True, text=True).stdout
@@ -1274,7 +1294,7 @@ def cmd_carry(a):
                                         body_names(onames, fo), body_names(nnames, fn), oscope, nscope):
                     skipped.append(f"{path}: {fn['name']}: not a pure rename; body or a declaration it uses changed")
                     continue
-            vram = f"{fn['vram']:08X}"
+            vram, n0 = f"{fn['vram']:08X}", len(out)
             keys = [(None, None)] + [(s["key"], sn_) for s, sn_ in zip(fo["sites"], fn["sites"])]
             for okey, nsite in keys:
                 evs = by_func[(seg, vram)] if okey is None else by_site.get(okey, [])
@@ -1292,8 +1312,175 @@ def cmd_carry(a):
                              note=f"carried from {a.rev} ({how})"
                              + (f": {e['note']}" if e["note"] else ""))
                     out.append(c)
+            if len(out) > n0:
+                lines.append(f"{path}: {fn['name']}: {', '.join(sorted({e['method'] for e in out[n0:]}))} ({how})")
+    return out, skipped, lines
+
+
+CARVE_KIND = {CursorKind.FUNCTION_DECL: "prototype", CursorKind.MACRO_DEFINITION: "macro",
+              CursorKind.TYPEDEF_DECL: "typedef", CursorKind.ENUM_DECL: "enum", CursorKind.VAR_DECL: "declaration"}
+
+
+def record_type(cursors):
+    """The record type a name's top-level CURSORS (`top_index`) define (struct/union definitions,
+    typedefs of that record), or None when any of them is something else."""
+    t = None
+    for c in cursors:
+        if c.kind in (CursorKind.STRUCT_DECL, CursorKind.UNION_DECL):
+            u = c.type.get_canonical()
+        elif c.kind == CursorKind.TYPEDEF_DECL:
+            u = c.underlying_typedef_type.get_canonical()
+        else:
+            return None
+        if u.kind != TypeKind.RECORD or (t is not None and u.spelling != t.spelling):
+            return None
+        t = u
+    return t
+
+
+SIZEOF = re.compile(r"\bsizeof\b")
+
+
+def carve_changes(old_scope, new_scope, old_names, new_names, body_sizeof):
+    """(changed record names, None) when every declaration either version's closure reaches has the
+    same text in both, or is a record whose layout, alignment and surviving field types are kept
+    (`clint.layout_diff` with types: padding carved into named fields; a padding array shrunk around
+    them only when neither the body (BODY_SIZEOF) nor a reached declaration uses `sizeof`) or that
+    only one version declares (a type introduced or dropped by such a carve); else (names so far,
+    reason)."""
+    ocl, ncl = old_scope.closure(old_names), new_scope.closure(new_names)
+    changed, resized = [], []
+    for name in sorted(set(ocl) | set(ncl)):
+        ocur, ncur = old_scope.idx.get(name, []), new_scope.idx.get(name, [])
+        ov = ocl[name] if name in ocl else old_scope.direct(name)[0] if ocur else None
+        nv = ncl[name] if name in ncl else new_scope.direct(name)[0] if ncur else None
+        if ov == nv:
+            continue
+        ot, nt = record_type(ocur), record_type(ncur)
+        if (ocur and ot is None) or (ncur and nt is None):
+            c = next((c for c in ocur + ncur if c.kind in CARVE_KIND), (ocur + ncur)[0])
+            return changed, f"{CARVE_KIND.get(c.kind, 'record')} {name} changed"
+        if ot is not None and nt is not None:
+            lo, ln = clint.record_layout(ot), clint.record_layout(nt)
+            if lo is None or ln is None:
+                return changed, f"record {name} incomplete"
+            diff = clint.layout_diff({name: lo}, {name: ln}, types=True, resized=resized)
+            if diff:
+                return changed, "layout changed: " + "; ".join(diff)
+        changed.append(name)
+    if resized and (body_sizeof or any(SIZEOF.search(t) for cl in (ocl, ncl) for v in cl.values() for _, t in v)):
+        return changed, f"array {resized[0]} resized and sizeof reached"
+    return changed, None
+
+
+def _carve_job(job):
+    """([dict(path, seg, name, vram, rev_fp, now_fp, keys, reason, how)], file-level skips) for every
+    function of PATH whose fingerprints differ between REV (its text and HDRS) and the working tree."""
+    path, seg, rev, hdrs, added = job
+    r = subprocess.run(["git", "show", f"{rev}:{path}"], cwd=ROOT, capture_output=True, text=True)
+    if r.returncode:
+        return [], []  # no events can be fresh at REV
+    old, new = analyze(path, seg, text=r.stdout, hdrs=hdrs, keep=True), analyze(path, seg, keep=True)
+    shadow = sorted({rel(i.include.name) for i in old["tu"].get_includes()} & added)
+    if shadow:
+        return [], [f"{path}: includes {shadow[0]} at {rev}, added since"]
+    if old["errors"] > new["errors"]:
+        return [], [f"{path}: more clang errors at {rev} (a header deleted since?)"]
+    count = collections.Counter(f["name"] for f in old["functions"])
+    by_name = {f["name"]: f for f in old["functions"] if count[f["name"]] == 1}
+    res = []
+    for fn in new["functions"]:
+        fo = by_name.get(fn["name"])
+        if fn["vram"] is None or fo is None or fo["vram"] not in (None, fn["vram"]):
+            continue
+        rev_fp = (fo["fp_local"], fo["fp_hdr"], fo["fp_hdr2"])
+        now_fp = (fn["fp_local"], fn["fp_hdr"], fn["fp_hdr2"])
+        if rev_fp == now_fp:
+            continue
+        reason, how = None, None
+        if fo["fp_local"] != fn["fp_local"]:
+            reason = "body or file-scope text changed (carry without --header-carve)"
+        elif [s["key"] for s in fo["sites"]] != [s["key"] for s in fn["sites"]]:
+            reason = "sites changed"
+        else:
+            onames, nnames = body_names(old["by_line"], fo), body_names(new["by_line"], fn)
+            paste = old["scope"].pasted(old["scope"].closure(onames)) or new["scope"].pasted(
+                new["scope"].closure(nnames))
+            if paste:
+                reason = f"token-pasting macro {paste}: dependencies not tracked"
+            else:
+                body = "\n".join(r.stdout.split("\n")[fo["line"] - 1:fo["end"]])
+                changed, reason = carve_changes(old["scope"], new["scope"], onames, nnames, bool(SIZEOF.search(body)))
+                how = "header carve: " + (", ".join(changed) or "no reached declaration changed")
+        res.append(dict(path=path, seg=seg, name=fn["name"], vram=fn["vram"], rev_fp=rev_fp, now_fp=now_fp,
+                        keys=[s["key"] for s in fn["sites"]], reason=reason, how=how))
+    return res, []
+
+
+def carry_carves(a, by_site, by_func):
+    """(events, skipped, carried lines) re-stamping the newest automatic-method events fresh at REV
+    (REV's text of the file and REV's headers) of every function whose fp_local (so its body text)
+    and site keys are unchanged and whose reached include/ declarations changed only by layout-
+    keeping record carves (`carve_changes`). The other methods depend on fp_local alone and stay
+    fresh by themselves. A function is listed as skipped only when it had something to carry."""
+    hdrs = {}
+    for p in ledger.git("diff", "--name-only", a.rev, "--", "include").split():
+        r = subprocess.run(["git", "show", f"{a.rev}:{p}"], cwd=ROOT, capture_output=True, text=True)
+        hdrs[p] = r.stdout if r.returncode == 0 else None
+    added = {p for p, t in hdrs.items() if t is None}
+    jobs = []
+    for path in [rel(p) for p in a.files] or clint.src_files():
+        text = open(os.path.join(ROOT, path), encoding="utf-8", errors="replace").read()
+        if hdrs and set(included(text, os.path.dirname(path))) & set(hdrs):
+            jobs.append((path, seg_of(path), a.rev, hdrs, added))
+    if len(jobs) <= 2:
+        results = [_carve_job(j) for j in jobs]
+    else:
+        with multiprocessing.get_context("spawn").Pool(min(os.cpu_count() or 4, len(jobs))) as pool:
+            results = pool.map(_carve_job, jobs, chunksize=2)
+    out, skipped, lines = [], [], []
+    for res, skips in results:
+        skipped += skips
+        for r in res:
+            vram, rev_fp, now_fp, carry = f"{r['vram']:08X}", r["rev_fp"], r["now_fp"], []
+            for key in [None] + r["keys"]:
+                evs = by_func[(r["seg"], vram)] if key is None else by_site.get(key, [])
+                newest = {}
+                for e in evs:  # newest by time, as `mark` reads them (carried events keep their `t`)
+                    if e["method"] in AUTO and e["fp_local"] == rev_fp[0] and hdr_fresh(e, rev_fp):
+                        if e["method"] not in newest or e["t"] >= newest[e["method"]]["t"]:
+                            newest[e["method"]] = e
+                for e in newest.values():
+                    if any(x["method"] == e["method"] and x["t"] >= e["t"] and x["fp_local"] == now_fp[0]
+                           and hdr_fresh(x, now_fp) for x in evs):
+                        continue  # already fresh at HEAD (unaffected, or carried before)
+                    carry.append(dict(e, unit=a.unit, agent="carry", file=r["path"], fp_local=now_fp[0],
+                                      fp_hdr=now_fp[1], fp_hdr2=now_fp[2],
+                                      note=f"carried from {a.rev} ({r['how']})"
+                                      + (f": {e['note']}" if e["note"] else "")))
+            if not carry:
+                continue
+            if r["reason"]:
+                skipped.append(f"{r['path']}: {r['name']}: {r['reason']}")
+                continue
+            out += carry
+            lines.append(f"{r['path']}: {r['name']}: {', '.join(sorted({e['method'] for e in carry}))} ({r['how']})")
+    return out, skipped, lines
+
+
+def cmd_carry(a):
+    """Re-stamp results across renames and file-scope edits (`carry_renames`) or, with
+    --header-carve, across layout-keeping header carves (`carry_carves`). Events keep their time,
+    so knowledge filed after them still makes them stale."""
+    by_site, by_func = index_events(load_events())
+    out, skipped, lines = (carry_carves if a.header_carve else carry_renames)(a, by_site, by_func)
     for s in skipped:
         print(f"carry: skipped {s}")
+    if a.dry_run:
+        for line in lines:
+            print(f"carry: would carry {line}")
+        print(f"would carry {len(out)} events from {a.rev}")
+        return
     if out:
         append_events(unit_events(a.unit, load_events()) + out)
     print(f"carried {len(out)} events from {a.rev} to {rel(LEDGER)}")
@@ -1391,8 +1578,11 @@ def main(argv=None):
     c.add_argument("--markdown", action="store_true")
     c.set_defaults(fn=cmd_report)
     c = s.add_parser("carry")
-    c.add_argument("--rev", required=True, help="commit before the renames")
+    c.add_argument("--rev", required=True, help="commit before the renames / header carves")
     c.add_argument("--unit", required=True)
+    c.add_argument("--header-carve", action="store_true",
+                   help="carry automatic results across layout-keeping record carves in include/")
+    c.add_argument("--dry-run", action="store_true", help="list what would be carried; write nothing")
     c.add_argument("files", nargs="*")
     c.set_defaults(fn=cmd_carry)
     a = p.parse_args(argv)

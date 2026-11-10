@@ -301,9 +301,43 @@ def cmd_uninit(a):
         sys.exit(1 if new else 0)
 
 
+UNNAMED = re.compile(r"\((?:unnamed|anonymous) at [^)]*\)")
+
+
+def type_sig(t):
+    """Canonical spelling of T with unnamed records spelled out (`struct {name@bit offset:sig; ...}`,
+    anonymous members named ''), so it compares across header versions: clang spells unnamed
+    records by their source location."""
+    t = t.get_canonical()
+    if t.kind == TypeKind.POINTER:
+        return type_sig(t.get_pointee()) + " *"
+    if t.kind == TypeKind.CONSTANTARRAY:
+        return f"{type_sig(t.element_type)}[{t.element_count}]"
+    if t.kind == TypeKind.RECORD and UNNAMED.search(t.spelling):
+        return t.spelling.split(" ")[0] + " {" + "; ".join(
+            f"{field_name(f)}@{f.get_field_offsetof()}:{type_sig(f.type)}" for f in t.get_fields()) + "}"
+    return t.spelling
+
+
+def field_name(f):
+    """F's name; '' for an anonymous member (clang spells it by its type's source location)."""
+    return "" if UNNAMED.search(f.spelling) else f.spelling
+
+
+def record_layout(t):
+    """(size, [(field name, bit offset, bit size, `type_sig`)], align) of record type T, or None
+    when T is not a complete record."""
+    t = t.get_canonical()
+    if t.kind != TypeKind.RECORD or t.get_size() < 0:
+        return None
+    return (t.get_size(), [(field_name(f), f.get_field_offsetof(),
+                            f.get_bitfield_width() if f.is_bitfield() else max(f.type.get_size(), 0) * 8,
+                            type_sig(f.type)) for f in t.get_fields()], t.get_align())
+
+
 def records(args, rel):
-    """{type name: (size, [(field name, bit offset, bit size)])} of every complete named record of a
-    TU that includes common.h and REL (a path under the include roots of ARGS)."""
+    """{type name: `record_layout`} of every complete named record of a TU that includes common.h
+    and REL (a path under the include roots of ARGS)."""
     path = "/clint-virtual/layout.c"  # virtual: no directory whose headers could shadow REL
     tu = parse(path, args=args, unsaved=[(path, f'#include "common.h"\n#include "{rel}"\n')])
     if tu.diagnostics_errors:
@@ -312,12 +346,9 @@ def records(args, rel):
     out = {}
 
     def add(name, t):
-        t = t.get_canonical()
-        if t.kind != TypeKind.RECORD or not name or t.get_size() < 0:
-            return
-        out[name] = (t.get_size(), [(f.spelling, f.get_field_offsetof(),
-                                     f.get_bitfield_width() if f.is_bitfield() else max(f.type.get_size(), 0) * 8)
-                                    for f in t.get_fields()])
+        lay = record_layout(t)
+        if name and lay is not None:
+            out[name] = lay
 
     for c in walk(tu.cursor):
         if c.kind in (CursorKind.STRUCT_DECL, CursorKind.UNION_DECL) and c.is_definition() and c.spelling \
@@ -328,24 +359,41 @@ def records(args, rel):
     return out
 
 
-def layout_diff(old, new):
+ARRAY_SIG = re.compile(r"^(.*)\[(\d+)\]$")
+
+
+def layout_diff(old, new, types=False, resized=None):
     """['<Type> <detail>'] for records whose size changed, whose surviving fields moved, or whose old
     field start is no longer the start of or inside a new field (renaming or splitting padding, or
-    merging fields into an array over the same bytes, keeps the layout)."""
+    merging fields into an array over the same bytes, keeps the layout). TYPES (quality.py carry
+    --header-carve) also reports a changed alignment, a surviving field whose `type_sig` changed and
+    an anonymous member not kept with the same offset and signature; with a RESIZED list, a surviving
+    array that only changed its (outer) length, e.g. padding shrunk for a carved field, is appended
+    there as '<Type>.<field>' instead (its accesses compile the same; `sizeof` of it does not)."""
     out = []
-    for name, (size, fields) in sorted(old.items()):
+    for name, (size, fields, align) in sorted(old.items()):
         if name not in new:
             out.append(f"{name} removed")
             continue
-        nsize, nfields = new[name]
+        nsize, nfields, nalign = new[name]
         if nsize != size:
             out.append(f"{name} size 0x{size:X} -> 0x{nsize:X}")
-        by_name = {f: o for f, o, _ in nfields}
-        for f, o, _ in fields:
-            if f in by_name and by_name[f] != o:
-                out.append(f"{name} {f} offset 0x{o // 8:X} -> 0x{by_name[f] // 8:X}")
-            elif f not in by_name and not any(no <= o < no + max(nb, 1) for _, no, nb in nfields):
+        by_name = {f: (o, s) for f, o, _, s in nfields if f}
+        for f, o, _, s in fields:
+            if f in by_name and by_name[f][0] != o:
+                out.append(f"{name} {f} offset 0x{o // 8:X} -> 0x{by_name[f][0] // 8:X}")
+            elif f not in by_name and not any(no <= o < no + max(nb, 1) for _, no, nb, _ in nfields):
                 out.append(f"{name} {f or '<anonymous>'} at 0x{o // 8:X} gone")
+            elif types and f in by_name and by_name[f][1] != s:
+                a, b = ARRAY_SIG.match(s), ARRAY_SIG.match(by_name[f][1])
+                if resized is not None and a and b and a[1] == b[1]:
+                    resized.append(f"{name}.{f}")
+                else:
+                    out.append(f"{name} {f} type {s} -> {by_name[f][1]}")
+            elif types and not f and (f, o, s) not in {(nf, no, ns) for nf, no, _, ns in nfields}:
+                out.append(f"{name} <anonymous> at 0x{o // 8:X} changed")
+        if types and nalign != align:
+            out.append(f"{name} align {align} -> {nalign}")
     return out
 
 

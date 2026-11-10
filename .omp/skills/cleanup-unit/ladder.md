@@ -66,9 +66,14 @@ A function with 3+ non-kept sites also needs a fresh function-level `reconstruct
   (only the `include/` declarations, types and macros the function reaches, so a regenerated
   proto header or an edited struct stales only their users; a function reaching a `##`
   token-pasting macro, whose pasted names are untracked, uses the whole-header hash instead and
-  is never carried by `carry`'s unrelated-file-scope rule;
+  is never carried by `carry`'s unrelated-file-scope or header-carve rules;
   events from before it fall back to
-  `fp_hdr`, every included header) equal the current values.
+  `fp_hdr`, every included header) equal the current values. `carry --rev REV --header-carve`
+  re-stamps these across header edits (REV parsed with REV's headers) for functions whose
+  `fp_local` and site keys are unchanged when every reached declaration that changed is a record
+  keeping size, alignment, field offsets and field types (`clint.layout_diff`, types on; padding
+  carved into named fields, a padding array shrunk around them unless `sizeof` is reached); a
+  changed prototype, macro, typedef, enum or layout keeps them stale and is listed.
 - `diagnose`, `permute`, `reconstruct`, `goto-hand`, `review`: fresh while `fp_local` is equal
   and no `knowledge/ido` file committed after the event names the function or is among the top
   8 hits for the event's note (its free text only: `key=value` tokens such as the review

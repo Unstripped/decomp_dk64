@@ -424,3 +424,112 @@ def test_carry_takes_newest_event_by_time(tmp_path, monkeypatch):
     q.main(["carry", "--rev", rev_a, "--unit", "u2"])
     carried = [e for e in q.load_events() if e.get("unit") == "u2" and e.get("type") == "quality"]
     assert [e["t"] for e in carried] == ["2026-01-02T00:00:00Z"]
+
+
+CARVE_H = "void g(int);\ntypedef struct S {\n    int a;\n    char pad4[4];\n    int b;\n} S;\n"
+
+
+def _carve_repo(tmp_path, monkeypatch, new_header, ret="p->b"):
+    """Repo whose f (returning RET) reaches S (and g) through include/s.h, with automatic and agent
+    results for f recorded under CARVE_H; then the header becomes NEW_HEADER (f's body untouched).
+    Returns (repo, rev before the header edit)."""
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    (repo / "include").mkdir()
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "_htext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: {"f": 0x80600000, "h": 0x80600100}[name])
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    (repo / "include" / "s.h").write_text(CARVE_H)
+    (repo / "src" / "global" / "x.c").write_text(
+        ('#include "s.h"\nint f(S *p) {\n    if (p->a) {} // FAKE: steers\n    g(p->a);\n    return %s;\n}\n'
+         "int h(int x) {\n    return x;\n}\n") % ret)
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fns = {fn["name"]: dict(fn, file="src/global/x.c") for fn in q.analyze("src/global/x.c", "global")["functions"]}
+    f, site = fns["f"], fns["f"]["sites"][0]
+    q.append_events([q.event("u1", "sweep", f, site, "remove", "nohit"),
+                     q.event("u1", "a", f, None, "views", "nohit", note="no views left"),
+                     q.event("u1", "a", f, None, "review", "nohit", note=REVIEW),
+                     q.event("u1", "a", fns["h"], None, "views", "nohit")])
+    (repo / "include" / "s.h").write_text(new_header)
+    _git(repo, "commit", "-qam", "b")
+    monkeypatch.setattr(q, "_htext", {})
+    return repo, rev_a
+
+
+def _carve_state():
+    """{function: {method: '✓' | 'stale' | '—'}} for views, review and (on f's site) remove."""
+    fns = {fn["name"]: fn for fn in q.analyze("src/global/x.c", "global")["functions"]}
+    by_site, by_func = q.index_events(q.load_events())
+    out = {}
+    for n, fn in fns.items():
+        fp, fevs = (fn["fp_local"], fn["fp_hdr"], fn["fp_hdr2"]), by_func[("global", f"{fn['vram']:08X}")]
+        out[n] = {m: q.mark(fevs, m, fp, n)[0] for m in ("views", "review")}
+        if fn["sites"]:
+            out[n]["remove"] = q.mark(by_site[fn["sites"][0]["key"]], "remove", fp, n)[0]
+    return out
+
+
+def test_carry_header_carve_keeping_layout(tmp_path, monkeypatch, capsys):
+    _, rev_a = _carve_repo(tmp_path, monkeypatch, CARVE_H.replace(
+        "    char pad4[4];\n", "    short unk4;\n    char pad6[2];\n"))
+    st = _carve_state()
+    assert (st["f"]["views"], st["f"]["remove"]) == ("stale", "stale")  # S changed: f's automatic results
+    before = q.load_events()
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--header-carve", "--dry-run"])
+    out = capsys.readouterr().out
+    assert "would carry src/global/x.c: f: remove, views (header carve: S)" in out
+    assert "would carry 2 events" in out and q.load_events() == before
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--header-carve"])
+    carried = [e for e in q.load_events() if e.get("agent") == "carry"]
+    assert sorted(e["method"] for e in carried) == ["remove", "views"]  # review needs fp_local only
+    assert all(e["note"].startswith(f"carried from {rev_a} (header carve: S)") for e in carried)
+    st = _carve_state()
+    assert st["f"] == {"views": "✓", "review": "✓", "remove": "✓"} and st["h"]["views"] == "✓"
+    n = len(q.load_events())
+    q.main(["carry", "--rev", rev_a, "--unit", "u3", "--header-carve"])  # nothing left to carry
+    assert len(q.load_events()) == n
+
+
+def test_carry_header_carve_rejects_shifted_offset(tmp_path, monkeypatch, capsys):
+    _, rev_a = _carve_repo(tmp_path, monkeypatch, CARVE_H.replace(
+        "    char pad4[4];\n", "    short unk4;\n    char pad6[4];\n"))
+    before = q.load_events()
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--header-carve"])
+    out = capsys.readouterr().out
+    assert "skipped src/global/x.c: f: layout changed: S size 0xC -> 0x10; S b offset 0x8 -> 0xC" in out
+    assert "carried 0 events" in out and q.load_events() == before
+
+
+def test_carry_header_carve_rejects_reached_prototype_change(tmp_path, monkeypatch, capsys):
+    _, rev_a = _carve_repo(tmp_path, monkeypatch, CARVE_H.replace(
+        "    char pad4[4];\n", "    short unk4;\n    char pad6[2];\n").replace("void g(int);", "void g(short);"))
+    before = q.load_events()
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--header-carve"])
+    out = capsys.readouterr().out
+    assert "skipped src/global/x.c: f: prototype g changed" in out
+    assert "carried 0 events" in out and q.load_events() == before
+
+
+@pytest.mark.parametrize("ret,carried", [("p->b", True), ("p->b + sizeof(p->pad4)", False)])
+def test_carry_header_carve_shrunk_padding_array(tmp_path, monkeypatch, capsys, ret, carried):
+    # pad4 keeps its name and start, shrinks to make room (Actor.unk08[76] -> unk08[4] + modelMtx)
+    _, rev_a = _carve_repo(tmp_path, monkeypatch, CARVE_H.replace(
+        "    char pad4[4];\n", "    char pad4[2];\n    short unk6;\n"), ret)
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--header-carve"])
+    out = capsys.readouterr().out
+    assert ("carried 2 events" in out) == carried
+    assert ("f: array S.pad4 resized and sizeof reached" in out) != carried

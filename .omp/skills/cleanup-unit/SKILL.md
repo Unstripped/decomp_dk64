@@ -74,11 +74,12 @@ every user with `uv run tools/rename.py field --dry-run include/<h>.h <Struct> <
 a checked-out file. Snapshot users, edit them, `touch` + `tools/objdiff.sh` each, then
 `uv run tools/clint.py layout --base HEAD include/<h>.h` → `LAYOUT OK`, then
 `tools/merge_gate.sh --commit "include: <what>" --stage include/<h>.h - - <edited src files>`
-(anchor one src file if none). Each header commit stales the rungs of every function reaching
-the changed struct (`fp_hdr2`), including agent rungs (consolidate/diagnose/permute/review), even
-when it only carves padding; `carry` skips those (known gap: no carry mode for layout-only
-header edits): re-sweep `--record`, re-record the agents' own lines, re-run `protos.py
-consolidate <src> --out DIR` for stale `consolidate` rungs. Then message every running agent (`write agent://<A>`) with the new HEAD and the hunk.
+(anchor one src file if none). Each header commit stales the automatic rungs (sweep methods,
+consolidate, views, names) of every function reaching the changed declarations (`fp_hdr2`). After a
+padding carve: `uv run tools/quality.py carry --rev <commit before it> --unit "<unit>" --header-carve`
+(`--dry-run` first) re-stamps them where the body is unchanged and every reached change is a
+layout-keeping record carve; for what it lists as skipped, re-sweep `--record`, re-record the agents'
+lines, re-run `protos.py consolidate <src> --out DIR`. Then message every running agent (`write agent://<A>`) with the new HEAD and the hunk.
 
 Callee-prototype work (steers kept because the OWNER's definition has the wrong types) is its
 own workstream: batches by owner file, only when no touched file is checked out. Per batch the
@@ -127,10 +128,9 @@ Once every agent of the round is idle:
    headers `gen` rewrote).
 4. A rename changes the fingerprints of every function it touches: `uv run tools/quality.py
    carry --rev <commit before the renames> --unit "<unit>"` re-stamps their results (only
-   renames that keep every name's type, field offset or symbol address; keywords, types and
-   macros unchanged; it lists what it skipped). Commit `drafts/quality.jsonl`. The same command
-   after a merge that deleted or edited file-scope declarations (views, externs, header fields)
-   re-stamps every function whose body and every declaration it reaches are unchanged.
+   renames keeping every name's type, field offset or symbol address; keywords, types and macros
+   unchanged; it lists what it skipped). Commit `drafts/quality.jsonl`. Also after a merge that
+   deleted or edited file-scope declarations: it re-stamps functions whose body and reach are unchanged.
 
 ## 7. Stop rule
 
