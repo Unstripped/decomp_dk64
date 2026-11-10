@@ -4,7 +4,6 @@
 #define PROTO_SKIP_actorQueueDelayedCallback // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
-#define PROTO_SKIP_zoneCheckActorInside
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
 #include "proto/global/1332B0.h"
