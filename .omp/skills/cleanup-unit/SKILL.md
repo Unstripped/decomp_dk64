@@ -8,8 +8,7 @@ description: Orchestrate one round of the DK64 code-quality campaign (remove FAK
 Every function is matched; this campaign makes the matched C readable without losing the
 match. One round = pick up to 6 files, one agent per file in PRIVATE COPY mode, merge through
 the gate, record every result in `drafts/quality.jsonl`, apply cross-file names. AGENTS.md rules
-always apply. IDO facts: `knowledge/ido/` (`python3 tools/quirks.py`); merge procedure:
-`skill://decomp-unit/merge.md` (failures: `troubleshooting.md` there); do not copy them here.
+always apply. IDO facts: `knowledge/ido/` (`tools/quirks.py`); merge: `skill://decomp-unit/merge.md`.
 
 |File|Read when|
 |---|---|
@@ -110,6 +109,8 @@ As each agent reports:
    (`no site` in `--dry-run`); `ledger-copy-only.txt` at the merge commit; then `carry --rev
    <merge>^ <src>`. Re-stamped notes carry no new prose. Commit `drafts/quality.jsonl`.
 
+7. Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
+   (`--reloc-ok`), one gate; two `0.c` copies need two dirs. Commit explicit paths only.
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full
 ROM gate; the net count of HACKS in a merged file (tagged `// FAKE` + untagged AST sites)
 never rises. Tagging a pre-existing untagged hack is required and raises the tag count; reports
@@ -129,8 +130,7 @@ Once every agent of the round is idle:
 4. A rename changes the fingerprints of every function it touches: `uv run tools/quality.py
    carry --rev <commit before the renames> --unit "<unit>"` re-stamps their results (only
    renames keeping every name's type, field offset or symbol address; keywords, types and macros
-   unchanged; it lists what it skipped). Commit `drafts/quality.jsonl`. Also after a merge that
-   deleted or edited file-scope declarations: it re-stamps functions whose body and reach are unchanged.
+   unchanged; it lists what it skipped). Commit `drafts/quality.jsonl`.
 
 ## 7. Stop rule
 
