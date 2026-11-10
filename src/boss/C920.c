@@ -43,16 +43,16 @@ extern BossD_Actor *gPrimaryPlayerActor;
 extern BossD_D580 *gActivePlayerState;
 extern void *gCamActor;
 
-s32 playerStateQueueCallback(s32, void *, s32);
-void zoneEntryGetPosition(s32, s32, void *, void *, void *);
+s32 playerStateQueueCallback(s16, void *, u8);
+void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
 void actorScriptStart(void *, s32);
-s32 camIsCutsceneActive(void);
+u8 camIsCutsceneActive(void);
 void camEndPath(void *);
-void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void camSetTarget(struct CamActor *, struct CamActor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
 void playerResumeLocomotion(void *);
 void camReturnToFollow(void *, void *);
-void csModelStateSetFirstByte(s32, s16);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void csModelStateSetFirstByte(s16, s16);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 
@@ -186,25 +186,25 @@ extern u8 gBossFightPhase;
 extern BossGlobalC924 *gPlayerSlots;
 
 void behaviourFrameBegin(void);
-void camSetSecondTarget(void *, s32, s32);
-void func_80724CA4(s32, s32);
+void camSetSecondTarget(struct CamActor *, s16, s16);
+void func_80724CA4(s16, s16);
 void playerSetLargeModeScale(f32);
-void camStartPath(void *, s32, u8);
-void csSendActorMessagePayload(s32, s32);
+u16 camStartPath(void *, s16, u8);
+void csSendActorMessagePayload(s16, s16);
 void actorSetTargetSpeed(void *, s32);
-void actorMoveWithinZone(s32, f32, f32, s32, f32);
+u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
-void playerSetSizeMode(void *, s32);
+void playerSetSizeMode(Actor *, u8);
 s32 func_806C9974(u8, s8);
 void actorScriptStartByIndex(void *, s32);
 void patrolGetNextWaypointPos(s16 *, s16 *, s16 *);
-void actorSetGroupState(u8, s32);
+void actorSetGroupState(u8, u8);
 s16 mathAngleSignedDistance(s16, s16);
 s16 mathAngleEaseToward(s16, s16, f32);
 s32 currentActorTestClearFlag(void);
-void billboardSetFlags(s32);
-void billboardSubmit(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-s32 func_8072881C(s32, void *);
+void billboardSetFlags(s16);
+void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
+u8 func_8072881C(u8, u32 *);
 
 #define BOSS_ACTOR ((BossActor *)gCurrentActor)
 #define PLAYER_ACTOR ((BossActor *)gPrimaryPlayerActor)
