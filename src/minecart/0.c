@@ -1,6 +1,6 @@
 #include "common.h"
-#define PROTO_SKIP_camStartPath // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_effectCreateAtActorBone // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_camStartPath // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
