@@ -1584,7 +1584,7 @@ void sfxPlayScriptActorSoundForPlayer(Actor *actor, s16 sound, u8 slot) {
         priority = 80;
         volume = (u8)(u32)((f64)(volume) * 0.5);
     } else {
-        if (actor->actorType == 2 || actor->actorType == 4) {
+        if ((s32)actor->actorType == 2 || actor->actorType == 4) { // FAKE: s32 view of the u32 actorType keeps the constant-2 web signed (Q0449; plain, switch, 4U: regalloc mismatch)
             priority = 50;
         } else {
             priority = 60;

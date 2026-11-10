@@ -1913,7 +1913,7 @@ void playerInputHandleZButtonInteract(void) {
             if (ok) {
                 gCurrentActor->state = 0x4A;
                 gCurrentActor->unk155 = 0;
-                switch ((u32)gActivePlayerState->heldActor->actorType) {
+                switch (gActivePlayerState->heldActor->actorType) {
                     case 0x3D:
                     case 0x3F:
                     case 0x40:

@@ -1961,7 +1961,7 @@ void csSendMsgByActorType(s16 actorType, s16 msgParam) {
     msgPayload[1] = msgParam;
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if ((u32)actor->actorType == actorType) { // FAKE: unsigned compare keeps the frame free of an s4 save
+        if (actor->actorType == actorType) { // FAKE: unsigned compare keeps the frame free of an s4 save
             actorAppendCallbackMemcpy8(0, actor, 0x01000000, 1, msgPayload, 0);
         }
     }

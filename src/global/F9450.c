@@ -1203,7 +1203,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                             sub = actor->customState;
                             if (sub->unk1 != 0) {
                                 if (gPlayerCount >= 2) {
-                                    switch ((u32) actor->actorType) { // FAKE: unsigned switch range check
+                                    switch (actor->actorType) { // FAKE: unsigned switch range check
                                     case 0x7A:
                                         playerStateHandleSoundEffects(0x1D2, playerIndex);
                                         func_806F54E0(playerIndex, 0x1D2, 0);
@@ -1244,7 +1244,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                         break;
                                     }
                                 } else {
-                                    switch (actor->actorType) {
+                                    switch ((s32)actor->actorType) { // FAKE: s32 view of the u32 actorType keeps the case-constant webs signed (Q0449; plain: regalloc mismatch)
                                     case 0x2F:
                                     case 0x48:
                                     case 0x56:

@@ -250,7 +250,7 @@ void playerKongClearFlagsByActorType(Actor *actor) {
 }
 
 void playerKongSpawnTransformationSmoke(Actor *actor) {
-    switch ((u32)actor->actorType) {
+    switch (actor->actorType) {
         case 2:
         case 0xC4:
             playerKongStopSoundByState(actor);

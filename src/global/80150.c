@@ -1265,7 +1265,7 @@ void transformBarrelUpdate(void) {
         state->unk8 = 0;
         state->unk18 = 0;
         state->baseY = gCurrentActor->y;
-        if (((u32)gCurrentActor->actorType) == 0x12 || ((u32)gCurrentActor->actorType) == 0x81) {
+        if (gCurrentActor->actorType == 0x12 || gCurrentActor->actorType == 0x81) {
             state->unk1A = ((s32 *)gCurrentActor->spawnData)[1];
         }
     }
@@ -1275,7 +1275,7 @@ void transformBarrelUpdate(void) {
         playerState = gPrimaryPlayerActor->customState;
 
         sfxStopChannel(0x6B, 1);
-        if (((u32)gCurrentActor->actorType) != 0x60) {
+        if (gCurrentActor->actorType != 0x60) {
             sfxAllocateChannel(0xF, 1.0f);
         }
         if (state->unk1A != 0) {
@@ -1340,28 +1340,28 @@ void transformBarrelUpdate(void) {
             itemCount = gPlayerInventoryTable[gPlayerCharacterId][0];
         }
         player = gPrimaryPlayerActor;
-        if (((u32)player->actorType) == 5 && ((u32)gCurrentActor->actorType) == 0x28 && itemCount > 0) {
+        if (player->actorType == 5 && gCurrentActor->actorType == 0x28 && itemCount > 0) {
             allowed = 1;
         }
-        if (((u32)player->actorType) == 6 && ((u32)gCurrentActor->actorType) == 0x19 && itemCount > 0) {
+        if (player->actorType == 6 && gCurrentActor->actorType == 0x19 && itemCount > 0) {
             allowed = 1;
         }
-        if (((u32)player->actorType) == 6 && ((u32)gCurrentActor->actorType) == 0x60 && itemCount > 0) {
+        if (player->actorType == 6 && gCurrentActor->actorType == 0x60 && itemCount > 0) {
             allowed = 1;
         }
-        if (((u32)player->actorType) == 4 && ((u32)gCurrentActor->actorType) == 0x38 && itemCount >= 3) {
+        if (player->actorType == 4 && gCurrentActor->actorType == 0x38 && itemCount >= 3) {
             allowed = 1;
         }
-        if (((u32)player->actorType) == 2 && ((u32)gCurrentActor->actorType) == 0x39 && itemCount >= 2) {
+        if (player->actorType == 2 && gCurrentActor->actorType == 0x39 && itemCount >= 2) {
             allowed = 1;
         }
-        if (((u32)player->actorType) == 4 && ((u32)gCurrentActor->actorType) == 0x81) {
+        if (player->actorType == 4 && gCurrentActor->actorType == 0x81) {
             allowed = 1;
         }
-        if (((u32)gCurrentActor->actorType) == 0x12) {
+        if (gCurrentActor->actorType == 0x12) {
             allowed = 1;
         }
-        if (((u32)gCurrentActor->actorType) == 0x84 && ((u32)player->actorType) == 9 && (activePlayerState = player->customState)->actor == NULL) {
+        if (gCurrentActor->actorType == 0x84 && player->actorType == 9 && (activePlayerState = player->customState)->actor == NULL) {
             allowed = 1;
         }
         if (allowed != 0) {
@@ -1381,7 +1381,7 @@ void transformBarrelUpdate(void) {
 
     switch (gCurrentActor->state) {
     case 0:
-        if (((u32)gCurrentActor->actorType) != 0x12 && ((u32)gCurrentActor->actorType) != 0x81 && ((u32)gCurrentActor->actorType) != 0x84) {
+        if (gCurrentActor->actorType != 0x12 && gCurrentActor->actorType != 0x81 && gCurrentActor->actorType != 0x84) {
             animSetSpeed(gCurrentActor, 0, 0.5f);
             animSetLoopMode(gCurrentActor, 0, 0);
             animSetEndFrame(gCurrentActor, 0, 9);
@@ -1391,7 +1391,7 @@ void transformBarrelUpdate(void) {
 
     case 1:
         if (state->timer < 0x1E) {
-            switch (((u32)gCurrentActor->actorType)) {
+            switch (gCurrentActor->actorType) {
             case 0x19:
             case 0x60:
                 state->scale += (gCurrentActor->actorType == 0x19) ? 0.004 : 0.008;
@@ -1418,7 +1418,7 @@ void transformBarrelUpdate(void) {
         gCurrentActor->sub4->scaleY = sinApprox(state->unk8 * 0.2352) * 0.1 + state->scale;
         gCurrentActor->sub4->scaleZ = sinApprox(state->unk8 * 0.176) * 0.1 + state->scale;
         state->unk8++;
-        if (((u32)gCurrentActor->actorType) != 0x12 && ((u32)gCurrentActor->actorType) != 0x81 && ((u32)gCurrentActor->actorType) != 0x84) {
+        if (gCurrentActor->actorType != 0x12 && gCurrentActor->actorType != 0x81 && gCurrentActor->actorType != 0x84) {
             gCurrentActor->yaw += state->unk18;
             state->unk18 += 10;
             if (state->unk18 >= 0x65) {
@@ -1430,7 +1430,7 @@ void transformBarrelUpdate(void) {
         if (state->timer == 0) {
             state->timer = 0xC;
             gCurrentActor->state = 2;
-            if (((u32)gCurrentActor->actorType) != 0x12 && ((u32)gCurrentActor->actorType) != 0x81 && gCurrentMap != 0x52 && !(gGlobalOverlayFlags & 1)) {
+            if (gCurrentActor->actorType != 0x12 && gCurrentActor->actorType != 0x81 && gCurrentMap != 0x52 && !(gGlobalOverlayFlags & 1)) {
                 slotQueueUpdate(5, 1, 0);
             }
         }
@@ -1446,7 +1446,7 @@ void transformBarrelUpdate(void) {
     case 3: {
         s16 sound = 0;
         if (gPrimaryPlayerActor->actorType == 9) {}  // FAKE: dead compare steers uopt constant-web (0x81/0x84) colouring order
-        switch (((u32)gCurrentActor->actorType)) {
+        switch (gCurrentActor->actorType) {
         case 0x28:
             sound = 0x10;
             sfxPlayOnFreeSlot(0x1A5, 0x58EF, 63.0f, 1.0f, 0, 0);
@@ -1477,7 +1477,7 @@ void transformBarrelUpdate(void) {
         }
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x9C, 0xFF, 0x7F, 0);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x9D, 0xFF, 0x7F, 0);
-        if (((u32)gCurrentActor->actorType) != 0x12 && ((u32)gCurrentActor->actorType) != 0x81 && ((u32)gCurrentActor->actorType) != 0x84) {
+        if (gCurrentActor->actorType != 0x12 && gCurrentActor->actorType != 0x81 && gCurrentActor->actorType != 0x84) {
             animResetEndFrame(gCurrentActor, 0);
             animSetFrameAndSubframe(gCurrentActor, 0, 0xA, 0.0f);
         }
@@ -1508,7 +1508,7 @@ void transformBarrelUpdate(void) {
         playerState = state->player->customState;
         hide = 0;
 
-        switch (((u32)gCurrentActor->actorType)) {
+        switch (gCurrentActor->actorType) {
         case 0x19:
         case 0x28:
         case 0x60:
@@ -1548,9 +1548,9 @@ void transformBarrelUpdate(void) {
             gCurrentActor->alpha = 0;
         } else {
             gGlobalPauseFlags &= ~0x400;
-            if (((u32)gCurrentActor->actorType) != 0x60) {
+            if (gCurrentActor->actorType != 0x60) {
                 channel = 0;
-                switch (((u32)gCurrentActor->actorType)) {
+                switch (gCurrentActor->actorType) {
                 case 0x38:
                     channel = 0x49;
                     break;
@@ -1574,7 +1574,7 @@ void transformBarrelUpdate(void) {
                 sfxAllocateChannel(0xF, 1.0f);
             }
             gCurrentActor->state = 5;
-            if ((gGlobalCutsceneFlags & 2) && ((u32)gCurrentActor->actorType) == 0x19) {
+            if ((gGlobalCutsceneFlags & 2) && gCurrentActor->actorType == 0x19) {
                 state->timer = 1;
             } else {
                 state->timer = 0x5A;
@@ -1593,10 +1593,10 @@ void transformBarrelUpdate(void) {
             } else {
                 tagBarrelResetMovement();
             }
-            if (((u32)gCurrentActor->actorType) != 0x12 && ((u32)gCurrentActor->actorType) != 0x81) {
+            if (gCurrentActor->actorType != 0x12 && gCurrentActor->actorType != 0x81) {
                 slotQueueCancel(5, 0);
             }
-            if (((u32)gCurrentActor->actorType) == 0x60) {
+            if (gCurrentActor->actorType == 0x60) {
                 actorDespawn(gCurrentActor);
             }
         }

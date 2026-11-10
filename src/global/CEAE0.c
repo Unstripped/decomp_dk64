@@ -1728,7 +1728,7 @@ s16 playerSelectCarryMoveState(Actor *actor, f32 targetSpeed, f32 speed, s32 unu
     if (prevTier != tier) {
         switch (tier) {
             case 0:
-                switch ((u32)gActivePlayerState->heldActor->actorType) {
+                switch (gActivePlayerState->heldActor->actorType) {
                     case 0x3D:
                     case 0x3F:
                     case 0x40:
@@ -1746,7 +1746,7 @@ s16 playerSelectCarryMoveState(Actor *actor, f32 targetSpeed, f32 speed, s32 unu
                 nextState = 0x48;
                 break;
             case 1:
-                switch ((u32)gActivePlayerState->heldActor->actorType) {
+                switch (gActivePlayerState->heldActor->actorType) {
                     case 0x3D:
                     case 0x3F:
                     case 0x40:
@@ -1814,7 +1814,7 @@ void playerStartPickupApproach(Actor *target) {
     f32 offsetZ;
     s32 frames = 15; // FAKE: int constant local steers regalloc (literal 15.0f: one sub.s fewer)
 
-    switch ((u32)target->actorType) {
+    switch (target->actorType) {
         case 0x3D:
         case 0x3F:
         case 0x40:

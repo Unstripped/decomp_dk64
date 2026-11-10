@@ -216,7 +216,7 @@ typedef struct Actor {
     /* 0x00C */ f32 modelMtx[4][4];
     /* 0x04C */ u8 unk4C[8];
     /* 0x054 */ s32 instanceId;
-    /* 0x058 */ s32 actorType;
+    /* 0x058 */ u32 actorType;
     /* 0x05C */ u16 collisionFlags;
     /* 0x05E */ u8 unk5E[2];
     /* 0x060 */ u32 flags;

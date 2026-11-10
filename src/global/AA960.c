@@ -369,7 +369,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         *(f32 *)((u8 *)gCurrentActor + 0xC0) = (f32)((f64)((randomLcgNext() / 10000) % 200) * 0.5 + 220.0 - 50.0);
-        if (!(gGlobalOverlayFlags & 0x4000) && (((u32)gCurrentActor->actorType < 0x4B) || ((u32)gCurrentActor->actorType >= 0x50))) {
+        if (!(gGlobalOverlayFlags & 0x4000) && ((gCurrentActor->actorType < 0x4B) || (gCurrentActor->actorType >= 0x50))) {
             gCurrentActor->speedXZ = 30.0f;
         }
         gCurrentActor->state++;
