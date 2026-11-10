@@ -2,13 +2,13 @@
 #ifndef PROTO_GLOBAL_17B90_H
 #define PROTO_GLOBAL_17B90_H
 #include "common.h"
+#include "actor.h"
 struct AnimControllerInit;
 struct AnimControllerRef;
 struct AnimScaleController;
 struct AnimScaleState;
 struct ControllerActorTypeView;
 struct ControllerActorView;
-struct ControllerAnimView;
 struct ControllerCommand;
 struct ControllerCommandOwner;
 struct ControllerStateOwner;
@@ -18,7 +18,6 @@ struct ControllerSubNode;
 struct ControllerView;
 struct DisplayListGroup;
 struct GfxCmdWords;
-struct MotionOwner;
 struct RenderActorView;
 #ifndef PROTO_SKIP_controllerAnimStateLoadAsset
 void *controllerAnimStateLoadAsset();
@@ -51,7 +50,7 @@ u16 controllerLookupStateByHash(u32 *);
 s32 controllerAnimInit(struct AnimControllerInit *, u16);
 #endif
 #ifndef PROTO_SKIP_controllerAnimFree
-void controllerAnimFree(struct ControllerAnimView *);
+void controllerAnimFree(Actor *);
 #endif
 #ifndef PROTO_SKIP_controllerAnimFreeSub
 void controllerAnimFreeSub();
@@ -84,7 +83,7 @@ void controllerAnimSetDirect(struct AnimControllerRef *, u16, f32, u8);
 void *controllerAnimCacheGetOrLoad(s32);
 #endif
 #ifndef PROTO_SKIP_controllerStepMotionWindows
-void controllerStepMotionWindows(struct MotionOwner *);
+void controllerStepMotionWindows(Actor *);
 #endif
 #ifndef PROTO_SKIP_controllerApplyMotionWindow
 void controllerApplyMotionWindow(struct AnimScaleController *, struct AnimScaleState *, f32);

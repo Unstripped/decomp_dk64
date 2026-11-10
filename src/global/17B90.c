@@ -458,7 +458,8 @@ s32 controllerAnimInit(AnimControllerInit *controller, u16 assetId) {
     return 0;
 }
 
-void controllerAnimFree(ControllerAnimView *controller) {
+void controllerAnimFree(Actor *actor) {
+    ControllerAnimView *controller = (ControllerAnimView *)actor;
     void *buffer1;
     void *temp_a1_2;
     void *temp_a1_3;
@@ -1063,7 +1064,7 @@ typedef struct MotionOwner {
     MotionCore *unk4;
 } MotionOwner;
 
-void controllerStepMotionWindows(MotionOwner *owner) {
+void controllerStepMotionWindows(Actor *owner) {
     MotionCore *core;
     MotionWindow *win0;
     MotionWindow *win4;
@@ -1073,7 +1074,7 @@ void controllerStepMotionWindows(MotionOwner *owner) {
     f32 rate;
     f32 step;
 
-    core = owner->unk4;
+    core = (MotionCore *)owner->sub4;
     win0 = core->unk0;
     win4 = core->unk4;
     unk8 = core->unk8;

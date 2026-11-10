@@ -3,9 +3,7 @@
 #define PROTO_SKIP_actorClearTargetAngle // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_actorSub140CreateFromModel // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_collisionClearFlags // PROTO: Type Actor *  of this argument  is incompatible with type vo
-#define PROTO_SKIP_controllerAnimFree // PROTO: owner 17B90.c types the param as its file-local ControllerAnimView; callers pass Actor *
 #define PROTO_SKIP_controllerAnimInit // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_controllerStepMotionWindows // PROTO: owner 17B90.c types the param as its file-local MotionOwner; callers pass Actor *
 #include "proto/global/112080.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -96,8 +94,6 @@ static void actorStub7CA80_03(void);
 static void actorStub7CA80_04(void);
 static void actorStub7CA80_05(void);
 static void actorStub7CA80_06(void);
-void controllerAnimFree(Actor *actor);
-void controllerStepMotionWindows(Actor *actor);
 
 typedef struct Struct807FB630 {
     s16 unk0;
