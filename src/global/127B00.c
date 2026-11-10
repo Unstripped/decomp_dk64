@@ -1,7 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_pathPlaybackStart
-#define PROTO_SKIP_pathPlaybackStopForActor
 #include "proto/global/127B00.h"
 #include "proto/global/15050.h"
 #include "proto/global/2C700.h"

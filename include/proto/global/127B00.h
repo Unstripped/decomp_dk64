@@ -2,6 +2,7 @@
 #ifndef PROTO_GLOBAL_127B00_H
 #define PROTO_GLOBAL_127B00_H
 #include "common.h"
+#include "actor.h"
 #ifndef PROTO_SKIP_pathFreeAsset
 void pathFreeAsset(s32);
 #endif
@@ -12,7 +13,7 @@ void pathTableLoad(s16 *);
 s32 pathExists(u8);
 #endif
 #ifndef PROTO_SKIP_pathPlaybackStart
-s32 pathPlaybackStart(s32, s32, u8, f32, f32, f32, u8);
+s32 pathPlaybackStart(Actor *, s32, u8, f32, f32, f32, u8);
 #endif
 #ifndef PROTO_SKIP_pathPlaybackSetSpeed
 void pathPlaybackSetSpeed(s32, u8);
@@ -33,7 +34,7 @@ void pathPlaybackSetActive(s32, u8);
 void pathPlaybackSetDirection(s32, u8);
 #endif
 #ifndef PROTO_SKIP_pathPlaybackStopForActor
-void pathPlaybackStopForActor(s32);
+void pathPlaybackStopForActor(Actor *);
 #endif
 #ifndef PROTO_SKIP_pathPlaybackFree
 void pathPlaybackFree(s32);
