@@ -20,7 +20,7 @@ typedef struct SynAllocResample {
     void *input;
 } SynAllocResample;
 
-extern s32 _decodeChunk(void *, s32, void *);
+void _decodeChunk(struct DecodeFilter *, s32, struct DecodeWave *);
 
 SynAllocAcmd *n_alResamplePull(SynAllocResample *filter, s16 *outp, s32 outCount, SynAllocAcmd *p) {
     SynAllocAcmd *result = p;

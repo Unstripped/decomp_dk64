@@ -100,8 +100,8 @@ typedef struct {
 extern u8 gPlayerCount;
 extern void *gCurrentActor;
 extern RaceC_Actor *gSpawnedActor;
-void actorSpawn(s32, s32);
-RaceC_Actor *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
+s32 actorSpawn(s32, s32);
+Actor *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
 void actorInitFromSpawnPoint(void *, void *);
 
 void raceRacerRenderCallback(s32 renderContext, RaceC_Actor *actor) {
@@ -163,11 +163,11 @@ void raceInitCompetitorsAndManager(void) {
 
 extern RaceC_Player *gPlayerSlots;
 void actorInitAnimations(void *, void *);
-void actorOrNodeFlags(void *, s32, s32);
+void actorOrNodeFlags(Actor *, s32, u8);
 void func_80690190(void *, void *);
-void camSetTargetScaled(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void camSetTargetScaled(struct CamActor *, struct CamActor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
 void func_8068F72C(void *, void *, s32, s32);
-void renderCallbacksRegister(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, u8);
 void sfxStopSlotSound(void *, u8);
 void actorInterpolateAngles(u8, void *, void *);
 
@@ -470,15 +470,15 @@ s32 raceGetFinishCutsceneCam(s32 state, s32 index) {
 
 void behaviourFrameBegin(void);
 void camRequestPathLength(void);
-s32 camStartPath(void *, s32, s32);
+u16 camStartPath(void *, s16, u8);
 void camResumePath(void);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
-void csModelStateSetFirstByte(s32, s32);
+void csModelStateSetFirstByte(s16, s16);
 void resQueueAttachActor(void *, s32, s32);
-void func_8072881C(s32, void *);
-void hudSpawnTextScreen(s32);
-void playerStateQueueCallback(s32, s32, s32);
+u8 func_8072881C(u8, u32 *);
+void hudSpawnTextScreen(u8);
+s32 playerStateQueueCallback(s16, void *, u8);
 
 void raceOpponentRacerBehaviorUpdate(void) {
     RaceC_State *s0;

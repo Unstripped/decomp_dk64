@@ -33,7 +33,7 @@ void enableCSPChannel(ALCSPlayer *, s32);
 void alCSPChannelSetControl(ALCSPlayer *, s32, u8);
 void setCSPChannelPortamento(ALCSPlayer *, s32, u8);
 void setCSPChannelStopControl(ALCSPlayer *, s32, u8);
-void dmaReadAssetDecompress(s32, s32 *, s32 *, s32, s32, s32, s32);
+void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
 extern s32 D_8000DDCC;
 extern s32 D_8076D200;
 
@@ -81,7 +81,7 @@ void heapFree(u8 *);
 void oscSetupConfig(ALSeqpConfig *, s32);
 void n_alCSPlayerNew(ALCSPlayer *, ALSeqpConfig *);
 void n_alSndpNew(void *);
-void configureCSPOutputMode(s32);
+void configureCSPOutputMode(u8);
 void updateCSPOutputChannelMode(s32, s32);
 void audioThreadStart(void);
 void func_806010A0(void);

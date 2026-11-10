@@ -69,7 +69,7 @@ extern SynCoreSynth *n_syn;
 s32 _n_timeToSamplesNoRound(s32);
 s32 __n_nextSampleTime(SynCorePlayer **);
 void _n_collectPVoices(void);
-void n_alFxPull(void);
+Acmd *n_alFxPull(s32, Acmd *, s32);
 
 
 void n_alSynNew(SynCoreConfig *config) {

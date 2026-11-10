@@ -2,7 +2,6 @@
 #include "actor.h"
 #define PROTO_SKIP_actorResolveKillCreditOwner // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
-#define PROTO_SKIP_func_806F54E0 // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/117190.h"
@@ -788,7 +787,6 @@ void mpUpdateRandomSpawner(MpControllerState *controllerState) {
     }
 }
 
-void func_806F54E0(u8, s16, u8); // FAKE: callee prototype steer
 
 void mpApplyPendingEffect(s32 playerIndex) {
     MpActor *act;

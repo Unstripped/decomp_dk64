@@ -107,7 +107,7 @@ typedef struct Actor_BB40 {
 extern Actor_BB40 *gCurrentActor;
 
 void behaviourFrameBegin(void);
-void actorOrNodeFlags(void *, s32, s32);
+void actorOrNodeFlags(Actor *, s32, u8);
 typedef struct Struct_8002B180_Arg1 {
     char pad[0x4];
     void *unk4;
@@ -121,7 +121,7 @@ extern Actor_BB40 *gCurrentActor;
 
 void playerStateQueueCallback(); // FAKE: callee prototype steer
 s32 sfxStopSlotSound(Actor_BB40 *, u8);
-void resQueueAttachActor(Actor_BB40 *, s32, s32);
+void resQueueAttachActor(Actor *, s32, u8);
 void csModelStateSetFirstByte(s16, s16);
 void hudSpawnTextScreen(u8);
 void actorSpawnNodeEffectFacingCamera(s32, u8);
@@ -167,14 +167,14 @@ typedef struct Struct_8002B610_Arg1 {
     Struct_8002B610_Sub *unk4;
 } Struct_8002B610_Arg1;
 
-void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void camSetTargetScaled(struct CamActor *, struct CamActor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
 
 s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
 void camResumePath(void);
 
 s32 actorSpawn(s32, s32);
-void *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
+Actor *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
 void actorInitFromSpawnPoint(void *, void *);
 
 void raceInitParticipants(Struct_arg0 *raceMgr) {
@@ -356,7 +356,7 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
     }
 }
 
-void actorDrawAnimatedEffect(s32, void *);
+Gfx *actorDrawAnimatedEffect(Gfx *, struct ActorEffect *);
 
 void raceParticleRenderCallback(void *glist, Actor_BB40 *actor) {
     actorDrawAnimatedEffect(raceRenderHud(glist, actor, actor->unk174), actor);

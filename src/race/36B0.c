@@ -130,7 +130,7 @@ s32 raceGetWaypointDiff(s32 pathLength, RaceCursor *curA, RaceCursor *curB) {
     return diff;
 }
 
-void mathPickCloserTargetPoint3D(f32, f32, f32, Point3f *, Point3f *, Point3f *, Point3f *, f32 *, f32 *, f32 *);
+s32 mathPickCloserTargetPoint3D(f32, f32, f32, struct TargetVec3f *, struct TargetVec3f *, struct TargetVec3f *, struct TargetVec3f *, f32 *, f32 *, f32 *);
 
 #define RB_SQ(v) ((v) * (v))
 f32 raceGetWaypointSegmentFraction(s32 pathLength, RaceActor *actor, RaceCursor *cursor) {
@@ -274,10 +274,10 @@ void raceTriggerBoostParticles(void) {
 
 extern f32 D_8002FBD0[];
 extern u8 D_8002FC00[];
-void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
 void sfxStopSlotSound(void *, u8);
-s32 spawnNodeHasActor(u8);
-void *spawnNodeActivate(s16, s32);
+u8 spawnNodeHasActor(u8);
+Actor *spawnNodeActivate(s16, u16);
 
 void raceAiUpdateSpeedAndLane(void) {
     RaceState *state;
@@ -368,7 +368,7 @@ void raceAiUpdateSpeedAndLane(void) {
 }
 
 void rumbleRequest(s32, u8, s32, u8 *);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 
 void raceHandleCollisionRumble(RaceCursor *cursor) {
     RaceActor *v1;
@@ -401,7 +401,7 @@ void raceHandleCollisionRumble(RaceCursor *cursor) {
     }
 }
 
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, u8, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 
 void racePlayTireScreechSfx(void) {
     RaceState *state;
@@ -449,12 +449,12 @@ void behaviourFrameBegin(void);
 void actorClearNodeFlag(void *, s32);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
-void camStartPath(void *, s16, s32);
+u16 camStartPath(void *, s16, u8);
 void camResumePath(void);
-void csModelStateSetFirstByte(s32, s32);
-void hudSpawnTextScreen(s32);
-s32 playerStateQueueCallback(s32, s32, s32);
-void spawnNodeSpawnById(s16, s32, s32, s32, s32, s32, s32);
+void csModelStateSetFirstByte(s16, s16);
+void hudSpawnTextScreen(u8);
+s32 playerStateQueueCallback(s16, void *, u8);
+Actor *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
 f32 mathSinF(s16);
 
 void raceOpponentCarBehaviorUpdate(void) {
@@ -642,7 +642,7 @@ typedef struct {
     char pad8[0x2F0 - 8];
 } RaceBStructPlayer;
 extern RaceBStructPlayer *gPlayerSlots;
-void camSetFixedView(void *, f32, f32, f32, f32, f32, f32, s32);
+void camSetFixedView(struct CamActor *, f32, f32, f32, f32, f32, f32, u8);
 
 void raceCameraBehaviorUpdate(void) {
     s32 pad54[3];
@@ -766,8 +766,8 @@ typedef struct {
 } StructBB70_Race;
 extern StructBB70_Race gActorGlobalState;
 void tagBarrelSpawnActorSmokePuffs(s32, s32);
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void commandQueuePush(void *, s16, s16, s16, s32, s32, s32, s32, s32);
+s32 actorGetNodePos(struct ActorTargetWork *, s32, f32 *, f32 *, f32 *);
+void commandQueuePush(s32, s16, s16, s16, u8, u8, u8, u8, u8);
 
 void raceObstacleCarBehaviorUpdate(void) {
     RaceActor *targetActor;

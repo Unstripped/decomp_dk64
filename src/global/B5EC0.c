@@ -3,7 +3,6 @@
 #define PROTO_SKIP_actorMoveWithinZone // FAKE: callee prototype steer
 #define PROTO_SKIP_actorSetDefaultState // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_func_80724E48 // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_mapGetWorldIndex // FAKE: callee prototype steer
 #define PROTO_SKIP_patrolPathStep // FAKE: callee prototype steer
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
@@ -317,7 +316,6 @@ void actorSetAnimStartFrame(u8 frame) {
 extern u8 gCurrentWorldId;
 extern s32 D_80750600[];
 
-s32 mapGetWorldIndex(u8); // FAKE: callee prototype steer
 
 void func_806B1DD4(u8 mode) {
     u8 flag;

@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorScriptStart // FAKE: callee prototype steer
 #define PROTO_SKIP_actorSpawn // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -99,7 +98,6 @@ extern s8 D_807506A8[];
 extern f32 D_807FC8D4;
 extern s32 gCamActor;
 
-s32 actorScriptStart(void *, s32);  // FAKE: callee prototype steer
 
 typedef struct RingNodePtr178 {
     /* 0x00 */ Actor *unk0;

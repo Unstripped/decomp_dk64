@@ -40,7 +40,7 @@ typedef struct SynCorePVoice {
 
 extern SynCoreSynth *n_syn;
 extern s32 osGetIntMask(s32);
-void n_alEnvmixerParam(void *, s32, SynCoreParam *);
+s32 n_alEnvmixerParam(struct EnvMixerEnv *, s32, void *);
 SynCoreParam *__n_allocParam(void);
 void _n_freePVoice(ALLink *);
 
