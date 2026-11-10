@@ -4,6 +4,7 @@
 #define PROTO_SKIP_actorQueueDelayedCallback // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
+#define PROTO_SKIP_zoneCheckActorInside
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
 #include "proto/global/1332B0.h"
@@ -516,7 +517,7 @@ s32 zoneCanReachPoint(Actor *actor, s16 targetX, s16 targetY, s16 targetZ, Zone 
 }
 
 
-s32 zoneCheckActorInside(Actor *actor, s32 unused1, s32 unused2, Zone *zone) {
+s32 zoneCheckActorInside(Actor *actor, f32 prevX, f32 prevZ, Zone *zone) {
     f32 x;
     f32 y;
     f32 z;
