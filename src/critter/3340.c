@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_currentActorTestClearFlag // FAKE: callee prototype steer
 #include "proto/critter/3340.h"
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
@@ -57,7 +56,6 @@ extern Actor_3340 *gPrimaryPlayerActor;
 extern Actor_3340 *gActivePlayerState;
 extern s32 gFrameCounter;
 
-s32 currentActorTestClearFlag(Actor_3340 *);
 
 
 
@@ -335,7 +333,7 @@ void critterBananaFairyRewardUpdate(void) {
                 gCurrentActor->unk155 = 0;
                 sfxStopSlotSound(gPrimaryPlayerActor, 1);
             }
-        } else if (currentActorTestClearFlag(gCurrentActor) != 0) {
+        } else if (currentActorTestClearFlag() != 0) {
             gCurrentActor->unk155 = 1;
             sfxPlayActorSound(gPrimaryPlayerActor, 0x104, 0x3C, 1, 1, 0xFF, 1.0f, 0);
             slotQueueUpdate(6, 0, 0);

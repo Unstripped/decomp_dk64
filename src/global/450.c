@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_playerViewsRender // FAKE: callee prototype steer
 #define PROTO_SKIP_vtxGradientSetColorA // FAKE: callee prototype steer
 #define PROTO_SKIP_vtxGradientSetColorB // FAKE: callee prototype steer
 #include "proto/boot/30E0.h"
@@ -84,7 +83,6 @@ typedef struct Struct_8076A048 {
 void func_80024000(void);
 void func_80026FD0(s32);
 void func_8002EC08(s32);
-s32 playerViewsRender(Gfx *, Struct_8076A048 *, u32);
 void vtxGradientSetColorA(s32, s32, s32); // FAKE: callee prototype steer
 void vtxGradientSetColorB(s32, s32, s32); // FAKE: callee prototype steer
 
@@ -853,7 +851,7 @@ void gfxBuildFrameDisplayLists(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **
     gSPClearGeometryMode(glist++, -1);
     gSPSetGeometryMode(glist++, 0x200404);
 
-    glist = (Gfx *)func_80701CA0(playerViewsRender(glist, frameGfx, 0xFFFD));
+    glist = (Gfx *)func_80701CA0(playerViewsRender(glist, frameGfx));
     if (gPlayerCount == 1) {
         glist = (Gfx *)lensFlareBuildDisplayList((s32)glist);
     }

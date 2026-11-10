@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_rumbleRequest // FAKE: callee prototype steer
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
 #include "proto/global/131B0.h"
@@ -367,7 +366,6 @@ void raceAiUpdateSpeedAndLane(void) {
     aux->unk14 = distToTarget;
 }
 
-void rumbleRequest(s32, u8, s32, u8 *);
 s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 
 void raceHandleCollisionRumble(RaceCursor *cursor) {
@@ -389,7 +387,7 @@ void raceHandleCollisionRumble(RaceCursor *cursor) {
         y *= 1.5;
         y = (y > 10.0) ? 10.0 : y;
         *flag = 3;
-        rumbleRequest(0, 255.0f * y * 0.1f, *flag, flag);
+        rumbleRequest(0, 255.0f * y * 0.1f, *flag);
         sfxPlayOnFreeSlot(0x18A, 0x7FFF, 64.0f, 1.0f, 0xA, 0);
         if (aux->unk14 < 0.0f) {
             v1->unkB8 -= y;

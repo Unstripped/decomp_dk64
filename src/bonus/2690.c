@@ -3,8 +3,6 @@
 #define PROTO_SKIP_actorScriptStart // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
 #define PROTO_SKIP_func_806FDAB8 // FAKE: callee prototype steer
-#define PROTO_SKIP_func_8072881C // FAKE: callee prototype steer
-#define PROTO_SKIP_playerKongStopSoundByState // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxPlayOnFreeSlot // FAKE: callee prototype steer
 #include "proto/bonus/12A0.h"
 #include "proto/bonus/2690.h"
@@ -198,7 +196,6 @@ typedef struct {
 extern Point3f **D_807F5FD4;
 
 extern u8 D_807FBB85;
-void func_8072881C(s32, void *, void *, void *);
 void func_806FDAB8(u8, f32);  // FAKE: callee prototype steer
 
 extern u8 D_1000118[];
@@ -211,7 +208,6 @@ extern s16 D_8002D8D4[];
 extern s16 D_8002D8E0[];
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
-void playerKongStopSoundByState(void *, s16 *);
 extern f32 D_8002D90C;
 f32 mathCosF(s16);
 f32 mathSinF(s16);
@@ -806,7 +802,7 @@ void bonusTargetUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unk144 = 0x24;
     }
-    func_8072881C(0, sub->unk4, sub, p);
+    func_8072881C(0, sub->unk4);
     switch (gCurrentActor->state) {
     case 0:
         if (D_807FBB85 != 0) {
@@ -1455,7 +1451,7 @@ void bonusLightFlashSpawnTargets(void *ownerActor) {
             gSpawnedActor->flags |= 0x1000;
             gSpawnedActor->yaw = 0x800;
             if (i != 6) {
-                playerKongStopSoundByState(gSpawnedActor, actorProp);
+                playerKongStopSoundByState(gSpawnedActor);
                 actorScriptStart(gSpawnedActor, D_8002D8D4[i - 1]);
             }
             scale = (i != 6) ? 0.25f : 0.04f;

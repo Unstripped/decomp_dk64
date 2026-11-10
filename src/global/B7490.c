@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_behaviourSpawnExplosionAndSound // FAKE: callee prototype steer
-#define PROTO_SKIP_camIsCutsceneActive // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/1295B0.h"
@@ -569,7 +568,6 @@ void actorSpawnPeriodicBoneEffect(void) {
     }
 }
 
-s32 camIsCutsceneActive(void *);
 
 void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2, s16 sfxId) {
     s16 *heightTarget;
@@ -610,7 +608,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
             if (gCurrentActor->y < (f32) (*heightTarget + (0, gBehaviourExtraState->y))) { // FAKE: comma wrapper steers ugen temp order
                 gCurrentActor->y = (f32) ((f64) gCurrentActor->y + ((f64) (u32) gBehaviourExtraState->unkB * 0.03125));
             } else {
-                if ((camIsCutsceneActive(gBehaviourWorkState) == 0) && (callback != NULL)) {
+                if ((camIsCutsceneActive() == 0) && (callback != NULL)) {
                     callback();
                 }
             }

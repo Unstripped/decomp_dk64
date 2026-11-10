@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_hudSpawnCountdownTimer // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/12E800.h"
@@ -149,7 +148,6 @@ void actorCursorSteer(BC3B0Cursor *c, f32 tx, f32 ty) {
 extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
 
-void hudSpawnCountdownTimer(s32, s32, u8, s32 *);
 
 void func_806B7EA0(void) {
     BC3B0Cursor *c;
@@ -160,7 +158,7 @@ void func_806B7EA0(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourAnimState->flags |= 0x60;
         gGlobalOverlayFlags |= 2;
-        hudSpawnCountdownTimer(0xDC, 0x2A, gBehaviourExtraState->unkAWide ? gBehaviourExtraState->unkAWide : 10, &gGlobalOverlayFlags);
+        hudSpawnCountdownTimer(0xDC, 0x2A, gBehaviourExtraState->unkAWide ? gBehaviourExtraState->unkAWide : 10);
         gBehaviourWorkState->unk2E = gBehaviourExtraState->unkAWide != 0 ? 0xF : 0x78;
         if (gBehaviourExtraState->unkAWide != 0) {
             c->unk18 = gBehaviourExtraState->unkAWide;

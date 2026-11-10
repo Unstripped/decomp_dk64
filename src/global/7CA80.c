@@ -1,7 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_collisionClearFlags // FAKE: callee prototype steer
-#define PROTO_SKIP_controllerAnimInit // FAKE: callee prototype steer
 #include "proto/global/112080.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -83,7 +81,6 @@ extern ActorCallbackNode *D_807FBFE0[];
 extern s32 D_807FBFF0[];
 extern s16 D_807FC3F0;
 
-void collisionClearFlags(Actor *);
 static void actorStub7CA80_00(void);
 static void actorStub7CA80_01(void);
 static void actorStub7CA80_02(void);
@@ -604,7 +601,7 @@ void actorUpdateLightingAndFog(void) {
 }
 
 void actorPreTick(Actor *actor) {
-    collisionClearFlags(actor);
+    collisionClearFlags();
     if (actor->collisionFlags & 1) {
         playerSetActiveGlobals(actor);
     }
@@ -1907,7 +1904,6 @@ s32 actorInitFloorAttachment(s32 unused) {
     return 1;
 }
 
-s32 controllerAnimInit(Actor *, u16, void *);
 
 typedef struct ActorSub140View {
     u8 pad0[0xC];
@@ -1920,7 +1916,7 @@ typedef struct ActorInitArg {
 } ActorInitArg;
 
 s32 actorInitAnimAndCollision(ActorInitArg *init) {
-    if (controllerAnimInit(gSpawnedActor, init->unk2, init) != 0) {
+    if (controllerAnimInit(gSpawnedActor, init->unk2) != 0) {
         gSpawnedActor->collision = actorSub140CreateFromModel(gSpawnedActor);
         gSpawnedActor->eyeHeight = (u32)(((f64)((ActorSub140View *)gSpawnedActor->collision)->unkC * 0.15) * 0.5);
         return 1;

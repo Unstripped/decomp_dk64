@@ -1,8 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_controllerAnimFree // FAKE: callee prototype steer
-#define PROTO_SKIP_playerSetSizeMode // FAKE: callee prototype steer
-#define PROTO_SKIP_rumbleRequest // FAKE: callee prototype steer
 #include "proto/global/10D2D0.h"
 #include "proto/global/126260.h"
 #include "proto/global/131B0.h"
@@ -884,14 +881,13 @@ typedef struct G01Arg8F8C {
     /* 0x0C */ u32 unkC;
 } G01Arg8F8C;
 
-void controllerAnimFree(Actor *, void *);
 
 void playerApplyCharacterModel(void *arg) {
     G01Arg8F8C *arg0 = arg;
 
     G01A->unk58 = arg0->unk0;
     gCurrentCharacterIndex = arg0->unk4;
-    controllerAnimFree(gActivePlayerActor, arg0);
+    controllerAnimFree(gActivePlayerActor);
     actorSub140Free(G01A->unk140);
     controllerAnimInit(gActivePlayerActor, arg0->unkA);
     G01A->unk140 = actorSub140CreateFromModel(gActivePlayerActor);
@@ -984,13 +980,12 @@ typedef struct G01Sub4f {
     /* 0x34 */ f32 unk34[3];
 } G01Sub4f;
 
-void playerSetSizeMode(void *, s32, void *, void *);
 
 void playerRevertAnimalTransformation(Actor *arg0, G01Ctl *arg1) {
     s32 i;
 
     if (((G01Player *)gPlayerSlots)[arg1->unk1A4].unk2C0 != 1) {
-        playerSetSizeMode(gActivePlayerActor, 1, arg0, arg1);
+        playerSetSizeMode(gActivePlayerActor, 1);
     }
     if (((G01Sub4f *)arg0->sub4)->unk34[0] != arg1->unk1C0[0]) {
         for (i = 0; i < 3; i++) {
@@ -1169,7 +1164,6 @@ typedef struct G01PlayerFlags {
 
 extern s32 D_807552EC;
 void func_80026E20(u8, s8);
-void rumbleRequest(u8, s32, s32, s8);
 
 s32 func_806C9974(u8 arg0, s8 arg1) {
     G01PlayerFlags *pl;
@@ -1180,7 +1174,7 @@ s32 func_806C9974(u8 arg0, s8 arg1) {
         func_80026E20(arg0, arg1);
     }
     if (arg1 < 0) {
-        rumbleRequest(arg0, 0xFF, 5, arg1);
+        rumbleRequest(arg0, 0xFF, 5);
     }
     if (!(gGlobalOverlayFlags & 0x800)) {
         ((G01Slot *)gPlayerInventoryTable)[arg0].unk2FD += arg1;
