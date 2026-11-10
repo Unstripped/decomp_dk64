@@ -4,9 +4,6 @@
 #include "proto/global/126260.h"
 #include "proto/global/15050.h"
 #include "proto/global/17B90.h"
-#define PROTO_SKIP_actorBuildModelMatrix
-#define PROTO_SKIP_actorBuildModelMatrixFromAngles
-#define PROTO_SKIP_actorUpdateModelMatrix
 #include "proto/global/35000.h"
 #include "proto/global/36880.h"
 #include "proto/global/55B20.h"
