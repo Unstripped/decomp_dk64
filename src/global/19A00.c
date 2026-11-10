@@ -1568,8 +1568,9 @@ void sfxPlayScriptActorSoundForPlayer(Actor *actor, s16 sound, u8 slot) {
     u8 volume;
     s32 pitch;
     s32 priority;
-    priority = (sound * 7 + actor->actorType - 2) & 0xFFFF;
-    sound = gActorScriptSoundTable[priority];
+    s32 index;
+    index = (sound * 7 + actor->actorType - 2) & 0xFFFF;
+    sound = gActorScriptSoundTable[index];
     volume = 0xFF;
     if (sound == 0) {
         if (gActivePlayerState->sfxHandle != 0) {
@@ -1578,13 +1579,13 @@ void sfxPlayScriptActorSoundForPlayer(Actor *actor, s16 sound, u8 slot) {
     }
     priority = gPlayerSlots[gActivePlayerState->playerIndex].unk2C0;
     pitch = 0x7F;
-    if (priority == 2U) {
+    if (priority == 2) {
         priority = 10;
     } else if (priority == 0) {
         priority = 80;
-        volume = (u8)(u32)((f64)(volume) * 0.5);
+        volume *= 0.5;
     } else {
-        if ((s32)actor->actorType == 2 || actor->actorType == 4) { // FAKE: s32 view of the u32 actorType keeps the constant-2 web signed (Q0449; plain, switch, 4U: regalloc mismatch)
+        if (actor->actorType == 2 || actor->actorType == 4) {
             priority = 50;
         } else {
             priority = 60;
@@ -1870,7 +1871,6 @@ s32 scriptOpWaitTimer(Actor *actor) {
 void scriptCmdNop(Actor *actor) {
 }
 
-typedef struct { u8 pad0[0x1A4]; u8 unk1A4; } ProjectileNodeState;
 typedef struct { u8 pad0[2]; u8 unk2; } ProjectileDataView;
 extern f32 D_80753E48[];
 extern s16 D_80753E64[];
@@ -1884,18 +1884,18 @@ void projectileTrySpawnFromSlot(Actor *actor) {
     f32 speed;
     f32 dz;
     f32 dx;
-    ProjectileNodeState *node;
+    PlayerState *playerState;
     s16 pad;
     s16 hitYaw;
     s16 hitPitch;
     s16 aimYaw;
     PlayerSlot *slot;
 
-    node = actor->customState;
+    playerState = actor->customState;
     slotQueueUpdate(4, 0, 0);
-    if ((slotQueueGetValue(4, node->unk1A4) != 0) && (actorCountOwnedByClass(actor, 4, 0) < D_80753E64[gCurrentCharacterIndex])) {
-        slotQueueAddValue(4, node->unk1A4, -1);
-        speed = (f32)((f64)actor->sub4->scaleY * 2.6666667064030967);
+    if ((slotQueueGetValue(4, playerState->playerIndex) != 0) && (actorCountOwnedByClass(actor, 4, 0) < D_80753E64[gCurrentCharacterIndex])) {
+        slotQueueAddValue(4, playerState->playerIndex, -1);
+        speed = actor->sub4->scaleY * 2.6666667064030967;
         switch (actor->actorType) {
             case 2:
             case 6:
@@ -1904,7 +1904,7 @@ void projectileTrySpawnFromSlot(Actor *actor) {
             case 5: radius = 20.0f; break;
             default: radius = 30.0f; break;
         }
-        if (collisionTestSphere(actor->x, (f32)((f64)actor->y + 30.0), actor->z, radius, &hitYaw, &hitPitch, 1, 0) != 0) {
+        if (collisionTestSphere(actor->x, actor->y + 30.0, actor->z, radius, &hitYaw, &hitPitch, 1, 0) != 0) {
             if (actor->state == 2) {
                 slot = &((PlayerSlot *)gPlayerSlots)[gCurrentPlayerIndex]; // FAKE: no-op cast puts the base first in the addu (Q0323)
                 aimYaw = mathAngleBetweenPoints2D(slot->unk228, slot->unk230, slot->unk210, slot->unk218);
@@ -2296,7 +2296,7 @@ void scriptCmdSpawnFallingEffect(Actor *actor) {
     scriptReadU8(&imm6);
     scriptReadU16(&imm7);
     if (D_80750AD0 == 0) {
-        scale = (f32)(u32)imm2 * 0.00048828125f;
+        scale = imm2 * 0.00048828125f;
         effectSetDepth(1);
         effectSetMode(imm3);
         effectSetDuration(imm7);
@@ -2334,18 +2334,12 @@ void scriptCmdSpawnFallingEffect(Actor *actor) {
 typedef struct ChildEffectNodeState {
     s16 unk0;
     s16 unk2;
-    Actor *unk4;
-    s32 unk8;
-    s16 unkC;
+    Actor *parent;
+    s32 parentInstanceId;
+    s16 parentAnimId;
     u8 padE[2];
-    f32 unk10;
+    f32 yOffset;
 } ChildEffectNodeState;
-
-typedef struct ChildEffectActorView {
-    u8 pad0[0x54];
-    s32 unk54;
-} ChildEffectActorView;
-
 
 void scriptCmdSpawnEffectChildAndNode(Actor *actor) {
     u16 imm;
@@ -2355,7 +2349,7 @@ void scriptCmdSpawnEffectChildAndNode(Actor *actor) {
     f32 scale;
     ChildEffectNodeState *node;
 
-    scale = (f32)((f64)actor->sub4->scaleY / 0.15);
+    scale = actor->sub4->scaleY / 0.15;
     scriptReadU16(&imm);
     scriptReadU16(&imm2);
     scriptReadU16(&imm3);
@@ -2366,39 +2360,39 @@ void scriptCmdSpawnEffectChildAndNode(Actor *actor) {
     gSpawnedActor->roll = actor->roll;
     gSpawnedActor->pitch = actor->pitch;
     node = (ChildEffectNodeState *)gSpawnedActor->customState;
-    node->unk10 = 0.0f;
+    node->yOffset = 0.0f;
     if (imm != 0xFFFF) {
         effectSetDuration(-1);
         effectSetDepth(1);
         switch (actor->actorType) {
             default:
-                scale = (f32)((f64)scale * 0.2);
+                scale *= 0.2;
                 break;
             case 0xBB:
-                scale = (f32)((f64)scale * 0.4);
+                scale *= 0.4;
                 effectSetColor(0, 0xFF, 0, 0xFF);
                 break;
             case 4:
             case 5:
                 effectSetMode(0);
-                scale = (f32)((f64)scale * 0.18);
-                node->unk10 = -1.4f;
+                scale *= 0.18;
+                node->yOffset = -1.4f;
                 break;
             case 3:
                 effectSetMode(0);
-                scale = (f32)((f64)scale * 0.25);
-                node->unk10 = -1.4f;
+                scale *= 0.25;
+                node->yOffset = -1.4f;
                 break;
         }
     }
-    gSpawnedActor->y -= node->unk10;
+    gSpawnedActor->y -= node->yOffset;
     if (imm != 0xFFFF) {
         effectCreateAtActorBone(sScriptEffectSprites[imm], scale, gSpawnedActor, 1, 2);
     }
     node->unk0 = imm2;
-    node->unk4 = actor;
-    node->unk8 = ((ChildEffectActorView *)actor)->unk54;
-    node->unkC = actor->sub4->animId;
+    node->parent = actor;
+    node->parentInstanceId = actor->instanceId;
+    node->parentAnimId = actor->sub4->animId;
     node->unk2 = imm4;
 }
 
