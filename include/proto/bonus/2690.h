@@ -6,6 +6,7 @@
 struct BonusB_Sub178;
 struct Struct_174;
 struct Struct_71B4;
+struct Struct_7548;
 #ifndef PROTO_SKIP_bonusRenderCrosshair
 Gfx *bonusRenderCrosshair(Gfx *, Actor *);
 #endif
@@ -22,7 +23,7 @@ void bonusSpawnTarget(s16, s16, s16, u8, struct Struct_71B4 *);
 void bonusDespawnTarget(struct Struct_174 *, struct Struct_71B4 *);
 #endif
 #ifndef PROTO_SKIP_bonusResetAmmo
-void bonusResetAmmo(void *);
+void bonusResetAmmo(struct Struct_7548 *);
 #endif
 #ifndef PROTO_SKIP_bonusFireProjectile
 void bonusFireProjectile(f32, f32, f32);

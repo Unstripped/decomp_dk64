@@ -1,9 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorScriptStart // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
 #define PROTO_SKIP_func_806FDAB8 // FAKE: callee prototype steer
-#define PROTO_SKIP_sfxPlayOnFreeSlot // FAKE: callee prototype steer
 #include "proto/bonus/12A0.h"
 #include "proto/bonus/2690.h"
 #include "proto/global/100180.h"
@@ -35,7 +32,7 @@
 typedef struct Struct_7548 {
     s16 unk0;
     char pad2[2];
-    s32 unk4[5];
+    struct EffectNode *unk4[5];
     u8 unk18[5];
     char pad1D;
     s16 unk1E;
@@ -55,7 +52,6 @@ typedef struct BonusActorExt {
 
 extern Actor *gCurrentActor;
 
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);  // FAKE: callee prototype steer
 
 extern u16 D_807FD63C;
 struct Struct_71B4;
@@ -79,7 +75,7 @@ typedef struct Struct_71B4 {
     char pad1D[3];
     s16 unk20;
     s16 unk22;
-    char pad24;
+    u8 unk24;
     u8 unk25;
     char pad26;
     u8 unk27;
@@ -89,90 +85,22 @@ typedef struct Struct_71B4 {
     f32 unk2C;
 } Struct_71B4;
 typedef struct {
-    s16 unk0;
-    char pad2[6];
-    s8 unk8[6];
-    char padE[8];
-    s16 unk16;
-} Struct_T0;
-
-typedef struct {
     Actor *unk0;
     u8 unk4;
 } Struct_Sp50;
-typedef struct {
-    char pad[0x23];
-    u8 unk23;
-    u8 unk24[2];
-    u8 unk26[2];
-    s16 unk28;
-} Struct_CC08_174;
 typedef struct {
     char pad[6];
     s16 unk6;
 } Struct_AAA4_174;
 
-typedef struct Actor_AAA4_Target {
-    char pad[0x4];
-    void *unk4;
-    char pad8[0x50];
-    s32 unk58;
-    char pad5C[0x7C - 0x5C];
-    f32 unk7C;
-    f32 unk80;
-    char pad84[0x174 - 0x84];
-    struct {
-        char pad[4];
-        u8 unk4;
-    } *unk174;
-} Actor_AAA4_Target;
-
 typedef struct {
-    Actor_AAA4_Target *actor;
+    Actor *actor;
     s32 pad;
 } ActorEntry_B930;
 
 extern ActorEntry_B930 gActiveActors[];
 extern u16 gActiveActorCount;
 extern s16 D_8002D900;
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    char pad8[0x10];
-    s16 unk18;
-    char pad1A[0x10];
-    s16 unk2A;
-    s8 unk2C;
-    u8 unk2D;
-} Struct_B920_S2;
-
-typedef struct Actor_B920 Actor_B920;
-
-typedef struct {
-    Actor_B920 *unk0;
-    f32 unk4;
-    f32 unk8;
-    s16 unkC;
-    s16 unkE;
-} Struct_B920_S1;
-
-struct Actor_B920 {
-    char pad[4];
-    ActorSub4 *unk4;
-    char pad8[0x74];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x5E];
-    s16 unkE6;
-    char padE8[0x40];
-    s16 unk128;
-    char pad12A[0x2A];
-    u8 unk154;
-    char pad155[0x1F];
-    Struct_B920_S2 *unk174;
-};
-
 typedef struct {
     f32 x, y, z;
 } Point3f;
@@ -195,10 +123,8 @@ extern f32 D_8002D90C;
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 extern u8 D_8071FFD4[];
-void effectFreeAndUnlink(s32); // FAKE: callee prototype steer
 
 extern Actor *gSpawnedActor;
-void actorScriptStart();
 
 Gfx *bonusRenderCrosshair(Gfx *gdl, Actor *actor) {
     Struct_7548 *bonusExt = actor->customState;
@@ -218,19 +144,11 @@ Gfx *bonusRenderCrosshair(Gfx *gdl, Actor *actor) {
     return gdl;
 }
 
-typedef struct {
-    char pad0[0x20];
-    u8 unk20;
-    char pad21;
-    s16 unk22;
-    u8 unk24;
-    u8 unk25;
-} BonusA_6940_178;
 Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *actor) {
     Struct_7548 *bonusExt = actor->customState;
-    BonusA_6940_178 *targetExt = ((BonusActorExt *)actor)->unk178;
+    Struct_71B4 *targetExt = ((BonusActorExt *)actor)->unk178;
     s32 pad1[4];
-    s32 textStr;
+    char *textStr;
     s32 pad2[6];
     s32 textX;
     s32 pad3[4];
@@ -274,30 +192,26 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *actor) {
     return gdl;
 }
 
+// customState of the popup marker actor (0x12D)
 typedef struct {
-    char pad0[5];
+    Actor *unk0;
+    char pad4;
     u8 unk5;
-    char pad6[2];
+    u8 unk6;
+    char pad7;
     s16 unk8;
-} BonusA_CF0_Inner;
+} BonusPopupMarker;
+// customState of a popup actor (0x12C)
 typedef struct {
-    char pad0[0x7C];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x174 - 0x88];
-    BonusA_CF0_Inner *unk174;
-} BonusA_CF0_S1;
+    Actor *unk0;
+    Actor *unk4;
+    char pad8[9];
+    u8 unk11;
+    char pad12[0xA];
+    u8 unk1C;
+} BonusPopup;
 typedef struct {
-    char pad0[4];
-    BonusA_CF0_S1 *unk4;
-} BonusA_CF0_Link;
-typedef struct {
-    char pad0[0x174];
-    BonusA_CF0_Link *unk174;
-} BonusA_CF0_Actor;
-typedef struct {
-    BonusA_CF0_Actor *unk0[6];
+    Actor *unk0[6];
 } BonusA_CF0_List;
 
 Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *actor) {
@@ -305,12 +219,12 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *actor) {
     BonusA_CF0_List *popupList = ((BonusActorExt *)actor)->unk178;
     s32 hasSetupGfx = 0;
     s32 textX;
-    s32 textStr;
+    char *textStr;
     s32 i;
-    BonusA_CF0_S1 *targetActor;
-    BonusA_CF0_Inner *targetInner;
-    BonusA_CF0_Actor *popupActor;
-    BonusA_CF0_Link *popupLink;
+    Actor *targetActor;
+    BonusPopupMarker *targetInner;
+    Actor *popupActor;
+    BonusPopup *popupLink;
 
     if (actor->state == 0) {
         if (bonusExt->unk26 != 0) {
@@ -341,12 +255,12 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *actor) {
     }
     for (i = 0; i < 6; i++) {
         popupActor = popupList->unk0[i];
-        popupLink = popupActor->unk174;
+        popupLink = popupActor->customState;
         targetActor = popupLink->unk4;
-        targetInner = targetActor->unk174;
+        targetInner = targetActor->customState;
         if (targetInner->unk5 != 0 && actor->state == 0) {
             if (targetInner->unk8 < 0) {
-                targetInner->unk8 = gfxResourceCreate(1, textTableGetString(0x1A, 9, 1), 9, targetActor->unk7C * 0.25, targetActor->unk80 * 0.25, targetActor->unk84 * 0.25);
+                targetInner->unk8 = gfxResourceCreate(1, textTableGetString(0x1A, 9, 1), 9, targetActor->x * 0.25, targetActor->y * 0.25, targetActor->z * 0.25);
             }
             if (hasSetupGfx == 0) {
                 gSPDisplayList(gdl++, D_1000118);
@@ -359,7 +273,7 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *actor) {
                 gSPMatrix(gdl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 hasSetupGfx = 1;
             }
-            gdl = textDrawAnimated(gdl, targetInner->unk8, 9, targetActor->unk7C, targetActor->unk80 + 20.0f, targetActor->unk84, 0.1f);
+            gdl = textDrawAnimated(gdl, targetInner->unk8, 9, targetActor->x, targetActor->y + 20.0f, targetActor->z, 0.1f);
         } else if (targetInner->unk8 >= 0) {
             gfxResourceFree(targetInner->unk8);
             targetInner->unk8 = -1;
@@ -397,28 +311,22 @@ void bonusDespawnTarget(Struct_174 *targetExt, Struct_71B4 *gameCtx) {
     actorDespawn(gCurrentActor);
 }
 
-void bonusResetAmmo(void *ammoData) {
+void bonusResetAmmo(Struct_7548 *ammo) {
     s16 i;
     s16 y;
-    u8 *ammoFlag;
-    s32 *ammoSlot;
-    s32 p;
     y = 0x118;
     for (i = 0; i < 5; i++) {
-        p = (s32)effectSpriteMatrixUpdate;
-        ammoSlot = (s32 *)ammoData + i;
-        if (ammoSlot[1] != 0) {
-            effectFreeAndUnlink(ammoSlot[1]);
+        if (ammo->unk4[i] != NULL) {
+            effectFreeAndUnlink(ammo->unk4[i]);
         }
-        ammoFlag = (u8 *)ammoData + i;
-        ammoFlag[0x18] = 0;
+        ammo->unk18[i] = 0;
         effectEnableFade();
         effectSetDuration(-1);
         effectSetMode(2);
         effectSetParam(i * 3);
-        effectSetCallback((void *)p);
-        effectSetSpeed(ammoFlag + 0x18);
-        ammoSlot[1] = effectCreateAtPosition(D_8071FFD4, 1.0f, (f32) y, 210.0f, -10.0f);
+        effectSetCallback(effectSpriteMatrixUpdate);
+        effectSetSpeed(&ammo->unk18[i]);
+        ammo->unk4[i] = effectCreateAtPosition(D_8071FFD4, 1.0f, (f32) y, 210.0f, -10.0f);
         y -= 0x1E;
     }
     sfxPlayOnFreeSlot(0x3E4, 0x7FFF, 63.0f, 1.0f, 5, 0);
@@ -436,7 +344,7 @@ u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
     f32 screenY;
     s16 ammoIndex;
     f32 distance;
-    u8 fireStatus[1];
+    u8 fireStatus[1]; // FAKE: one-element array puts the byte at sp+0x40; a scalar u8 sits at sp+0x43 (Q0174)
 
     fireStatus[0] = 0;
     bonusExt->unk26 = 1;
@@ -455,7 +363,7 @@ u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
                     bonusExt->unk23--;
                     effectFreeAndUnlink(bonusExt->unk4[bonusExt->unk23]);
                     rumbleRequest(0, 0xFF, 3);
-                    bonusExt->unk4[bonusExt->unk23] = 0;
+                    bonusExt->unk4[bonusExt->unk23] = NULL;
                     for (ammoIndex = 0; ammoIndex < bonusExt->unk23; ammoIndex++) {
                         bonusExt->unk18[ammoIndex] = 10;
                     }
@@ -484,27 +392,15 @@ typedef struct {
 } BonusB_Ctrl;
 
 extern s32 gCurrentMap;
-extern void *gActivePlayerState;
-typedef struct {
-    char pad0[0x104];
-    void *unk104;
-} BonusB_Cam104;
-#define BB_CAMCTX ((BonusB_Cam104 *)gActivePlayerState)
-
-typedef struct {
-    char pad0[0x104];
-    void *unk104;
-} BonusB_Cam;
-
-#define BCAM ((BonusB_Cam *)gActivePlayerState)
+extern PlayerState *gActivePlayerState;
 
 extern BonusB_Ctrl gPlayerPadState;
 extern u8 gGameMode;
 
 
 void bonusTargetGameUpdate(void) {
-    Struct_7548 *t3c = gCurrentActor->customState;
-    Struct_71B4 *t0 = ((BonusActorExt *)gCurrentActor)->unk178;
+    Struct_7548 *bonusExt = gCurrentActor->customState;
+    Struct_71B4 *game = ((BonusActorExt *)gCurrentActor)->unk178;
     Point3f *p;
     f32 ang;
     u8 c;
@@ -513,62 +409,62 @@ void bonusTargetGameUpdate(void) {
 
     if (!(gCurrentActor->flags & 0x10)) {
         c = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
-        t0->unk25 = c;
+        game->unk25 = c;
         func_806FDAB8(c, 0.0f);
-        t3c->unk23 = 5;
-        t3c->unk0 = -2;
-        t3c->unk22 = 0;
+        bonusExt->unk23 = 5;
+        bonusExt->unk0 = -2;
+        bonusExt->unk22 = 0;
         playerStateQueueCallback(0x48, 0, 0);
-        camSetTarget(BCAM->unk104, gCurrentActor, 4, 0x800, -7, 0, 0x16, 0x2C, 4, 0, 0.05f);
+        camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, -7, 0, 0x16, 0x2C, 4, 0, 0.05f);
         camStartPath(0, 0, 1);
         gCurrentActor->roll = 0x310;
         switch (gCurrentMap) {
         case 0xA:
-            t0->unk27 = 0x55;
-            t0->unk28 = 0x46;
-            t0->unk2C = 0.85f;
-            t0->unk20 = 0x12;
-            t0->unk22 = t0->unk20;
-            t0->unk29 = 0x3C;
+            game->unk27 = 0x55;
+            game->unk28 = 0x46;
+            game->unk2C = 0.85f;
+            game->unk20 = 0x12;
+            game->unk22 = game->unk20;
+            game->unk29 = 0x3C;
             break;
         case 0x73:
-            t0->unk27 = 0x5A;
-            t0->unk28 = 0x46;
-            t0->unk2C = 1.0f;
-            t0->unk20 = 0x16;
-            t0->unk22 = t0->unk20;
-            t0->unk29 = 0x3C;
+            game->unk27 = 0x5A;
+            game->unk28 = 0x46;
+            game->unk2C = 1.0f;
+            game->unk20 = 0x16;
+            game->unk22 = game->unk20;
+            game->unk29 = 0x3C;
             break;
         case 0x74:
-            t0->unk27 = 0x57;
-            t0->unk28 = 0x50;
-            t0->unk2C = 1.2f;
-            t0->unk20 = 0x19;
-            t0->unk22 = t0->unk20;
-            t0->unk29 = 0x3C;
+            game->unk27 = 0x57;
+            game->unk28 = 0x50;
+            game->unk2C = 1.2f;
+            game->unk20 = 0x19;
+            game->unk22 = game->unk20;
+            game->unk29 = 0x3C;
             break;
         case 0x75:
-            t0->unk27 = 0x5C;
-            t0->unk28 = 0x50;
-            t0->unk2C = 1.3f;
-            t0->unk20 = 0x1C;
-            t0->unk22 = t0->unk20;
-            t0->unk29 = 0x3C;
+            game->unk27 = 0x5C;
+            game->unk28 = 0x50;
+            game->unk2C = 1.3f;
+            game->unk20 = 0x1C;
+            game->unk22 = game->unk20;
+            game->unk29 = 0x3C;
             break;
         }
     }
-    if (t3c->unk0 > 0) {
-        t3c->unk22 = 0;
+    if (bonusExt->unk0 > 0) {
+        bonusExt->unk22 = 0;
         if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
             ang = mathAtan2(gPlayerPadState.unk2F, gPlayerPadState.unk2E) / 6.2831855f * 8.0 + 5.5;
             if (9.0f < ang) {
                 ang -= 8.0f;
             }
-            t3c->unk22 = ang;
+            bonusExt->unk22 = ang;
         }
-        p = *D_807F5FD4 + t3c->unk22;
+        p = *D_807F5FD4 + bonusExt->unk22;
         if (bonusAimAndFire(p->x, p->y, p->z) == 2) {
-            t3c->unk25 = 0xFF;
+            bonusExt->unk25 = 0xFF;
             sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
         switch (gCurrentActor->state) {
@@ -576,16 +472,16 @@ void bonusTargetGameUpdate(void) {
             if ((gCurrentActor->parentActor)->state == 5) {
                 gCurrentActor->state = 0xFF;
             }
-            if (t0->unk22 == 0) {
+            if (game->unk22 == 0) {
                 bonusEndWin(0, 0);
                 camStartPath(0, 1, 0x11);
                 gCurrentActor->state = 1;
-            } else if (t0->unk27 < (randomNonNegative() >> 0xF) % 100) {
+            } else if (game->unk27 < (randomNonNegative() >> 0xF) % 100) {
                 r = (randomNonNegative() >> 0xF) % 0xFF;
                 idx = r % 8;
-                if (t0->unk0[idx] == 0) {
+                if (game->unk0[idx] == 0) {
                     p = *D_807F5FD4 + idx + 1;
-                    bonusSpawnTarget(p->x, p->y, p->z, idx, t0);
+                    bonusSpawnTarget(p->x, p->y, p->z, idx, game);
                 }
             }
             if ((gCurrentActor->parentActor)->state == 4 && (gCurrentActor->parentActor)->unk155 != 0xFF) {
@@ -593,7 +489,7 @@ void bonusTargetGameUpdate(void) {
             }
             break;
         case 0xFE:
-            t3c->unk24 = 0xFF;
+            bonusExt->unk24 = 0xFF;
             sfxPlayOnFreeSlot(0x142, 0x7FFF, 63.0f, 1.0f, 0, 0);
             gCurrentActor->state = 0;
             break;
@@ -604,25 +500,25 @@ void bonusTargetGameUpdate(void) {
             break;
         }
     } else {
-        switch (t3c->unk0) {
+        switch (bonusExt->unk0) {
         case -2:
             if (gGameMode != 1) {
-                t3c->unk0++;
-                hudSpawnCountdownTimer(0xDC, 0x2A, t0->unk29);
+                bonusExt->unk0++;
+                hudSpawnCountdownTimer(0xDC, 0x2A, game->unk29);
                 resQueueAttachActor(gCurrentActor, 0, 1);
             }
             break;
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
-                t3c->unk0 = 1;
-                actorSetStateTwo((void *)gCurrentActor->parentActor);
-                bonusResetAmmo(t3c);
+                bonusExt->unk0 = 1;
+                actorSetStateTwo(gCurrentActor->parentActor);
+                bonusResetAmmo(bonusExt);
                 sfxAllocateChannel(8, 1.0f);
             }
             break;
         }
     }
-    if (t3c->unk0 >= -1) {
+    if (bonusExt->unk0 >= -1) {
         renderCallbacksRegister(bonusRenderTargetGameHud, gCurrentActor, 3);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -640,89 +536,89 @@ typedef struct BonusB_Sub178 {
 
 
 void bonusPopupGameUpdate(void) {
-    Struct_7548 *t0 = gCurrentActor->customState;
-    BonusB_Sub178 *s38 = ((BonusActorExt *)gCurrentActor)->unk178;
+    Struct_7548 *bonusExt = gCurrentActor->customState;
+    BonusB_Sub178 *game = ((BonusActorExt *)gCurrentActor)->unk178;
     Point3f *p;
     f32 y;
     f32 z;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        t0->unk23 = 5;
-        t0->unk0 = -2;
+        bonusExt->unk23 = 5;
+        bonusExt->unk0 = -2;
         playerStateQueueCallback(0x48, 0, 0);
-        camSetTarget(BCAM->unk104, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
+        camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
         gCurrentActor->roll = 0x9A;
         switch (gCurrentMap) {
         case 0x12:
-            s38->unk20 = 0.5f;
-            s38->unk1A = 0x2D;
-            s38->unk1B = 0x1E;
-            s38->unk1C = 0x46;
+            game->unk20 = 0.5f;
+            game->unk1A = 0x2D;
+            game->unk1B = 0x1E;
+            game->unk1C = 0x46;
             break;
         case 0x76:
-            s38->unk20 = 0.8f;
-            s38->unk1A = 0x2D;
-            s38->unk1B = 0x14;
-            s38->unk1C = 0x46;
+            game->unk20 = 0.8f;
+            game->unk1A = 0x2D;
+            game->unk1B = 0x14;
+            game->unk1C = 0x46;
             break;
         case 0x77:
-            s38->unk20 = 1.0f;
-            s38->unk1A = 0x3C;
-            s38->unk1B = 0x14;
-            s38->unk1C = 0x46;
+            game->unk20 = 1.0f;
+            game->unk1A = 0x3C;
+            game->unk1B = 0x14;
+            game->unk1C = 0x46;
             break;
         case 0x78:
-            s38->unk20 = 1.5f;
-            s38->unk1A = 0x3C;
-            s38->unk1B = 0x14;
-            s38->unk1C = 0x46;
+            game->unk20 = 1.5f;
+            game->unk1A = 0x3C;
+            game->unk1B = 0x14;
+            game->unk1C = 0x46;
             break;
         }
-        bonusPopupSpawnActors(s38);
+        bonusPopupSpawnActors(game);
     }
     if (gCurrentActor->state == 0) {
         gCurrentActor->unk15F = 1;
     } else {
         gCurrentActor->unk15F = 0;
     }
-    if (t0->unk0 > 0) {
-        t0->unk22 = 0;
+    if (bonusExt->unk0 > 0) {
+        bonusExt->unk22 = 0;
         if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
             if (gPlayerPadState.unk2F > 0) {
                 if (gPlayerPadState.unk2E < -0x28) {
-                    t0->unk22 = 1;
+                    bonusExt->unk22 = 1;
                 } else if (gPlayerPadState.unk2E >= 0x29) {
-                    t0->unk22 = 3;
+                    bonusExt->unk22 = 3;
                 } else {
-                    t0->unk22 = 2;
+                    bonusExt->unk22 = 2;
                 }
             } else if (gPlayerPadState.unk2E < -0x28) {
-                t0->unk22 = 4;
+                bonusExt->unk22 = 4;
             } else if (gPlayerPadState.unk2E >= 0x29) {
-                t0->unk22 = 5;
+                bonusExt->unk22 = 5;
             } else {
-                t0->unk22 = 6;
+                bonusExt->unk22 = 6;
             }
         }
-        p = *D_807F5FD4 + t0->unk22;
+        p = *D_807F5FD4 + bonusExt->unk22;
         y = p->y;
         z = p->z;
-        if (t0->unk22 != 0) {
+        if (bonusExt->unk22 != 0) {
             y += 27.0f;
             z -= 8.0f;
         }
         switch (bonusAimAndFire(p->x, y, z)) {
         case 1:
-            if (t0->unk22) {
-                Actor *e = s38->unk0[t0->unk22 - 1];
-                if (((Struct_174 *)e->customState)->unk1C == 0) {
-                    ((Struct_174 *)e->customState)->unk1C = 6;
+            if (bonusExt->unk22) {
+                Actor *e = game->unk0[bonusExt->unk22 - 1];
+                if (((BonusPopup *)e->customState)->unk1C == 0) {
+                    ((BonusPopup *)e->customState)->unk1C = 6;
                 }
             }
             break;
         case 2:
-            t0->unk25 = 0xFF;
+            bonusExt->unk25 = 0xFF;
             sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         }
@@ -742,7 +638,7 @@ void bonusPopupGameUpdate(void) {
             gCurrentActor->unk155 = 0;
             break;
         case 0xFE:
-            t0->unk24 = 0xFF;
+            bonusExt->unk24 = 0xFF;
             gCurrentActor->state = 0;
             break;
         case 0xFF:
@@ -753,25 +649,25 @@ void bonusPopupGameUpdate(void) {
             break;
         }
     } else {
-        switch (t0->unk0) {
+        switch (bonusExt->unk0) {
         case -2:
             if (gGameMode != 1) {
-                t0->unk0++;
-                hudSpawnCountdownTimer(0xDC, 0x2A, s38->unk1A);
+                bonusExt->unk0++;
+                hudSpawnCountdownTimer(0xDC, 0x2A, game->unk1A);
                 resQueueAttachActor(gCurrentActor, 0, 2);
             }
             break;
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
-                t0->unk0 = 1;
-                actorSetStateTwo((void *)gCurrentActor->parentActor);
-                bonusResetAmmo(t0);
+                bonusExt->unk0 = 1;
+                actorSetStateTwo(gCurrentActor->parentActor);
+                bonusResetAmmo(bonusExt);
                 sfxAllocateChannel(8, 1.0f);
             }
             break;
         }
     }
-    if (t0->unk0 >= -1) {
+    if (bonusExt->unk0 >= -1) {
         renderCallbacksRegister(bonusRenderPopupGameHud, gCurrentActor, 3);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -812,47 +708,32 @@ void bonusTargetUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct {
-    void *unk0;
-    void *unk4;
-    char pad8[9];
-    u8 unk11;
-} BonusB_Sub8648;
-
-typedef struct {
-    void *unk0;
-    char pad4[2];
-    u8 unk6;
-    char pad7;
-    s16 unk8;
-} BonusB_Sub8648b;
-
 void bonusPopupSpawnActors(BonusB_Sub178 *popupState) {
     s32 i;
-    BonusB_Sub8648 *s2;
-    Actor *s5;
-    Point3f *s3;
+    BonusPopup *popup;
+    Actor *popupActor;
+    Point3f *pos;
 
     for (i = 1; i != 7; i++) {
         if (actorSpawn(0x12C, 0x15) != 0) {
-            s2 = (BonusB_Sub8648 *)gSpawnedActor->customState;
-            s2->unk0 = gCurrentActor;
-            s2->unk11 = (((randomNonNegative() >> 0xF) % 0x7FFF) % (popupState->unk1C - popupState->unk1B + 1)) + popupState->unk1B;
-            s3 = *D_807F5FD4 + i;
+            popup = gSpawnedActor->customState;
+            popup->unk0 = gCurrentActor;
+            popup->unk11 = (((randomNonNegative() >> 0xF) % 0x7FFF) % (popupState->unk1C - popupState->unk1B + 1)) + popupState->unk1B;
+            pos = *D_807F5FD4 + i;
             actorScriptStart(gSpawnedActor, 0x1F5);
-            gSpawnedActor->x = s3->x;
-            gSpawnedActor->y = s3->y;
-            gSpawnedActor->z = s3->z;
+            gSpawnedActor->x = pos->x;
+            gSpawnedActor->y = pos->y;
+            gSpawnedActor->z = pos->z;
             gSpawnedActor->flags |= 0x1000;
             gSpawnedActor->yaw = 0x800;
             popupState->unk0[i - 1] = gSpawnedActor;
-            s5 = gSpawnedActor;
+            popupActor = gSpawnedActor;
             if (actorSpawn(0x12D, 0x16) != 0) {
-                BonusB_Sub8648b *v0 = (BonusB_Sub8648b *)gSpawnedActor->customState;
-                v0->unk0 = s5;
-                v0->unk6 = i - 1;
-                s2->unk4 = gSpawnedActor;
-                v0->unk8 = -1;
+                BonusPopupMarker *marker = gSpawnedActor->customState;
+                marker->unk0 = popupActor;
+                marker->unk6 = i - 1;
+                popup->unk4 = gSpawnedActor;
+                marker->unk8 = -1;
             }
         }
     }
@@ -869,27 +750,9 @@ typedef struct {
     u8 unk5;
 } BonusVtxSub;
 
-typedef struct BonusVtxActor BonusVtxActor;
-struct BonusVtxActor {
-    char pad0[4];
-    ActorSub4 *unk4;
-    char pad8[0x58];
-    s32 unk60;
-    char pad64[0x82];
-    s16 unkE6;
-    char padE8[0x5C];
-    u8 unk144;
-    char pad145[0xF];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x1E];
-    void *unk174;
-    BonusVtxInfo *unk178;
-};
-
 typedef struct {
-    BonusVtxActor *unk0;
-    BonusVtxActor *unk4;
+    Actor *unk0;
+    Actor *unk4;
     f32 unk8;
     f32 unkC;
     s8 unk10;
@@ -899,38 +762,37 @@ typedef struct {
     f32 unk18;
     u8 unk1C;
 } BonusVtxLink;
-#define BONUS_VTX_ACTOR ((BonusVtxActor *)gCurrentActor)
 
 extern u8 gBossFightPhase;
 
 void bonusActorUpdateVertexPositions(void) {
-    BonusVtxLink *link = BONUS_VTX_ACTOR->unk174;
-    s16 *timerPtr = link->unk0->unk174;
-    BonusVtxInfo *vtxInfo = link->unk0->unk178;
+    BonusVtxLink *link = gCurrentActor->customState;
+    s16 *timerPtr = link->unk0->customState;
+    BonusVtxInfo *vtxInfo = ((BonusActorExt *)link->unk0)->unk178;
     BonusVtxSub *sub;
     BoneRotation *chk;
-    s32 vb[2];
+    s32 vb[2]; // FAKE: stack pair (index 0, base) read back as vb[1] * 8 + vb[0]; p = chk drops the reloads and shifts the loop
     f32 invScale;
     BoneRotation *p;
     f32 fx;
     f32 fy;
     f32 zOffset;
     s32 i;
-    if (!(BONUS_VTX_ACTOR->unk60 & 0x10)) {
-        BONUS_VTX_ACTOR->unk144 = 0x24;
+    if (!(gCurrentActor->flags & 0x10)) {
+        gCurrentActor->unk144 = 0x24;
         link->unkC = 275.0f;
         link->unk8 = 275.0f;
         link->unk10 = link->unk11;
-        BONUS_VTX_ACTOR->unk4->boneRotations = heapAlloc(0x38);
-        heapClearBlock(BONUS_VTX_ACTOR->unk4->boneRotations);
+        gCurrentActor->sub4->boneRotations = heapAlloc(0x38);
+        heapClearBlock(gCurrentActor->sub4->boneRotations);
     }
-    sub = link->unk4->unk174;
+    sub = link->unk4->customState;
     if (gBossFightPhase == 4 && sub->unk4 == 0 && link->unk10 == -1) {
         link->unk8 = 275.0f;
         link->unk10 = link->unk11;
         sub->unk5 = 0;
     }
-    if (*timerPtr > 0 && link->unk0->unk154 == 0) {
+    if (*timerPtr > 0 && link->unk0->state == 0) {
         if (sub->unk4 == 0) {
             if (link->unk10 >= 0) {
                 link->unk10--;
@@ -940,7 +802,7 @@ void bonusActorUpdateVertexPositions(void) {
             }
         } else {
             link->unk8 += 40.0f;
-            link->unk0->unk154 = 2;
+            link->unk0->state = 2;
         }
     }
     link->unkC = link->unkC + (link->unk8 - link->unkC) * 0.3;
@@ -956,13 +818,13 @@ void bonusActorUpdateVertexPositions(void) {
             actorScriptStart(gCurrentActor, 0x1F6);
         }
     }
-    chk = BONUS_VTX_ACTOR->unk4->boneRotations;
+    chk = gCurrentActor->sub4->boneRotations;
     if (chk != 0) {
         vb[1] = 0;
         vb[0] = (s32)chk;
         invScale = 1.0f - ((link->unkC - 40.0f) / 235.0f);
-        fx = mathSinF(link->unk4->unkE6) * (5000.0f * invScale + 150.0f);
-        fy = mathCosF(link->unk4->unkE6) * (5000.0f * invScale + 150.0f);
+        fx = mathSinF(link->unk4->yaw) * (5000.0f * invScale + 150.0f);
+        fy = mathCosF(link->unk4->yaw) * (5000.0f * invScale + 150.0f);
         zOffset = link->unk14 * 128.0f + -128.0f;
         if (fx < 0.0f) {
             fx = 65535.0f + fx;
@@ -970,7 +832,7 @@ void bonusActorUpdateVertexPositions(void) {
         if (fy < 0.0f) {
             fy = 65535.0f + fy;
         }
-        i = 4;
+        i = 4; // FAKE: loop start hoisted above the p setup; for (i = 4; ...) moves the li
         p = (BoneRotation *)(vb[1] * 8 + vb[0]);
         for (; i < 7; i++) {
             p->bone = i;
@@ -990,7 +852,7 @@ void bonusActorUpdateVertexPositions(void) {
             }
             p++;
         }
-        switch (BONUS_VTX_ACTOR->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
             link->unk18 = link->unk18 + (invScale - link->unk18) * 0.1;
             break;
@@ -1011,7 +873,7 @@ void bonusActorUpdateVertexPositions(void) {
             p->bone = i;
             i++;
             p += 2;
-            p[-2].rotX = 0xD8F0;
+            p[-2].rotX = 0xD8F0; // FAKE: stores through p[-2] after the advance; p->rotX before p += 2 reorders the stores
             p[-2].rotY = 0;
             p[-2].rotZ = 0;
         } while (i < 0xD);
@@ -1021,18 +883,7 @@ void bonusActorUpdateVertexPositions(void) {
 }
 
 typedef struct {
-    char pad0[0xC];
-    f32 unkC;
-    s8 unk10;
-} BonusB_Par8E3C;
-
-typedef struct {
-    char pad0[0x174];
-    BonusB_Par8E3C *unk174;
-} BonusB_Parent8E3C;
-
-typedef struct {
-    BonusB_Parent8E3C *unk0;
+    Actor *unk0;
     u8 unk4;
     u8 unk5;
     u8 unk6;
@@ -1043,12 +894,12 @@ typedef struct {
 extern s16 D_8002D8C0[];
 
 void bonusTurtleTroubleTurtleUpdate(void) {
-    BonusB_Sub8E3C *t0 = gCurrentActor->customState;
-    BonusB_Par8E3C *p40 = t0->unk0->unk174;
+    BonusB_Sub8E3C *turtle = gCurrentActor->customState;
+    BonusVtxLink *parentLink = turtle->unk0->customState;
     f32 temp;
     f64 v;
     s16 idx;
-    s32 a0;
+    s32 volume;
 
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->yaw = (randomNonNegative() >> 0xF) % 4096;
@@ -1057,48 +908,48 @@ void bonusTurtleTroubleTurtleUpdate(void) {
         controllerAnimSetStateIfChanged(gCurrentActor, 0x688, 0.0f, 0.0f);
         scriptSetActorRampTarget(gCurrentActor, 1.0, 0.0f);
     }
-    if (p40->unk10 == -1 && t0->unk4 == 0) {
-        if (p40->unkC < 220.0f) {
-            if (t0->unk5 == 0) {
-                a0 = 0x7F;
-                t0->unk5 = 1;
-                idx = t0->unk6 % 3;
-                if (t0->unk6 / 3 != 0) {
+    if (parentLink->unk10 == -1 && turtle->unk4 == 0) {
+        if (parentLink->unkC < 220.0f) {
+            if (turtle->unk5 == 0) {
+                volume = 0x7F;
+                turtle->unk5 = 1;
+                idx = turtle->unk6 % 3;
+                if (turtle->unk6 / 3 != 0) {
                     idx = 2 - idx;
-                    a0 = 0x64;
+                    volume = 0x64;
                 }
                 idx = D_8002D8C0[idx];
-                sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, idx, 0xFF, a0, 0, 0, 0.0f, 0);
+                sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, idx, 0xFF, volume, 0, 0, 0.0f, 0);
             }
-            if (p40->unkC < 40.0f) {
-                t0->unk4 = 1;
+            if (parentLink->unkC < 40.0f) {
+                turtle->unk4 = 1;
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x1ED, 0xFF, 0x7F, 0, 0, 0.0f, 0);
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x76, 0xFF, 0x7F, 0x1E);
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->speedXZ = 10.0f;
-                actorScriptStart(t0->unk0, 0x1F7);
+                actorScriptStart(turtle->unk0, 0x1F7);
             }
         }
     }
-    if (t0->unk4 == 0) {
-        actorGetNodePos(t0->unk0, 1, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
+    if (turtle->unk4 == 0) {
+        actorGetNodePos(turtle->unk0, 1, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
     } else {
         if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
-            gCurrentActor->speedY = t0->unkC * -0.8f;
-            v = -t0->unkC * 1.5;
+            gCurrentActor->speedY = turtle->unkC * -0.8f;
+            v = -turtle->unkC * 1.5;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, (u8)((255.0 < v) ? 255.0 : v), 0x7F, 0xA);
         }
         gCurrentActor->speedY = gCurrentActor->speedY + gCurrentActor->accelY;
-        t0->unkC = gCurrentActor->speedY;
+        turtle->unkC = gCurrentActor->speedY;
         actorUpdatePrevContactFlags(gCurrentActor);
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     }
-    gCurrentActor->yaw += p40->unkC;
+    gCurrentActor->yaw += parentLink->unkC;
     if (gCurrentActor->yaw >= 0x1000) {
         gCurrentActor->yaw -= 0x1000;
     }
-    temp = 30000.0f / p40->unkC;
+    temp = 30000.0f / parentLink->unkC;
     gCurrentActor->pitch = mathSinF(gCurrentActor->yaw) * -temp;
     gCurrentActor->roll = mathCosF(gCurrentActor->yaw) * temp;
     temp = temp * 0.006666667f;
@@ -1127,8 +978,8 @@ extern s16 D_8002D8FC;
 extern s16 D_8002D8EC[];
 
 void bonusLightFlashGameUpdate(void) {
-    Struct_7548 *t1 = gCurrentActor->customState;
-    BonusLightFlashState *t0 = ((BonusActorExt *)gCurrentActor)->unk178;
+    Struct_7548 *bonusExt = gCurrentActor->customState;
+    BonusLightFlashState *game = ((BonusActorExt *)gCurrentActor)->unk178;
     Point3f *p;
     f32 y;
     f32 z;
@@ -1140,36 +991,36 @@ void bonusLightFlashGameUpdate(void) {
     s16 d;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        t1->unk23 = 5;
-        t1->unk0 = -2;
+        bonusExt->unk23 = 5;
+        bonusExt->unk0 = -2;
         switch (gCurrentMap) {
         case 0x65:
-            t0->unk16 = 0xA;
+            game->unk16 = 0xA;
             D_8002D8F4 = 0x30;
             break;
         case 0x8D:
-            t0->unk16 = 0xF;
+            game->unk16 = 0xF;
             D_8002D8F4 = 0x30;
             break;
         case 0x8E:
-            t0->unk16 = 5;
+            game->unk16 = 5;
             D_8002D8F4 = 0x1E;
             break;
         case 0x8F:
-            t0->unk16 = 0xA;
+            game->unk16 = 0xA;
             D_8002D8F4 = 0x1E;
             break;
         }
-        t0->unk14 = t0->unk16;
-        t0->unkE = 0x3C;
-        t0->unk12 = 0;
+        game->unk14 = game->unk16;
+        game->unkE = 0x3C;
+        game->unk12 = 0;
         c = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
-        t0->unk11 = c;
+        game->unk11 = c;
         func_806FDAB8(c, 0.0f);
-        t0->unk0 = 0x3C;
-        t0->unk4 = 1.0f;
+        game->unk0 = 0x3C;
+        game->unk4 = 1.0f;
         playerStateQueueCallback(0x48, 0, 0);
-        camSetTarget(BCAM->unk104, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
+        camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
         gCurrentActor->roll = 0x9A;
         gCurrentActor->flags |= 0x800000;
@@ -1178,29 +1029,29 @@ void bonusLightFlashGameUpdate(void) {
         gCurrentActor->tintB = 0xFF;
         i = 0;
         do {
-            t0->unk8[i] = i | 0x80;
+            game->unk8[i] = i | 0x80;
         } while (++i < 6);
         bonusLightFlashSpawnTargets(gCurrentActor);
     }
-    if (t1->unk0 > 0) {
+    if (bonusExt->unk0 > 0) {
         if (gCurrentActor->state == 0) {
-            t0->unk0 -= 1;
+            game->unk0 -= 1;
         } else {
-            t0->unk0 = 0x3C;
+            game->unk0 = 0x3C;
         }
-        if (t0->unk0 > 0) {
-            t0->unk4 = t0->unk4 + 0.2f;
+        if (game->unk0 > 0) {
+            game->unk4 = game->unk4 + 0.2f;
         } else {
-            t0->unk4 = t0->unk4 - 0.2f;
+            game->unk4 = game->unk4 - 0.2f;
         }
-        if (t0->unk4 > 1.0) {
-            t0->unk4 = 1.0f;
+        if (game->unk4 > 1.0) {
+            game->unk4 = 1.0f;
         }
-        if (t0->unk4 < 0.0) {
-            t0->unk4 = 0.0f;
+        if (game->unk4 < 0.0) {
+            game->unk4 = 0.0f;
         }
-        lightSetColor(t0->unk4, t0->unk4, t0->unk4, 0);
-        if (t0->unk4 == 0.0f) {
+        lightSetColor(game->unk4, game->unk4, game->unk4, 0);
+        if (game->unk4 == 0.0f) {
             j = (s16)(D_8002D8F8 - 1);
             ((s16 *)&D_8002D8F4)[2] = j;
             if (j <= 0) {
@@ -1217,18 +1068,18 @@ void bonusLightFlashGameUpdate(void) {
             else { d = -100; if (d) {} D_8002D8FC = d | 0; } // FAKE/LAYOUT: dead test and |0 keep d colored in v0; preserve this line.
             j = 1; if (j) {} D_8002D8F8 = j | 0; // FAKE/LAYOUT: dead test and |0 keep j colored in v1; preserve this line.
         }
-        if (t0->unk0 < -0x1E) {
-            t0->unk0 = D_8002D8F4;
+        if (game->unk0 < -0x1E) {
+            game->unk0 = D_8002D8F4;
             i = 0;
             do {
-                t0->unk8[i] = -1;
+                game->unk8[i] = -1;
                 i++;
             } while (i < 6);
             for (i = 0; i != 6; i++) {
                 j = i;
-                r = ((((((((randomLcgNext() & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 7; // FAKE: restore the temporary ring after coloring the two constants.
+                r = randomLcgNext() & 7;
                 while (r >= 0) {
-                    if (t0->unk8[j] == -1) {
+                    if (game->unk8[j] == -1) {
                         r -= 1;
                         if (r >= 0) {
                             j += 1;
@@ -1240,31 +1091,31 @@ void bonusLightFlashGameUpdate(void) {
                         j = 0;
                     }
                 }
-                t0->unk8[j] = i | 0x80;
+                game->unk8[j] = i | 0x80;
             }
         }
-        t1->unk22 = 0;
+        bonusExt->unk22 = 0;
         if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
             if (gPlayerPadState.unk2F > 0) {
                 if (gPlayerPadState.unk2E < -0x28) {
-                    t1->unk22 = 1;
+                    bonusExt->unk22 = 1;
                 } else if (gPlayerPadState.unk2E >= 0x29) {
-                    t1->unk22 = 3;
+                    bonusExt->unk22 = 3;
                 } else {
-                    t1->unk22 = 2;
+                    bonusExt->unk22 = 2;
                 }
             } else if (gPlayerPadState.unk2E < -0x28) {
-                t1->unk22 = 4;
+                bonusExt->unk22 = 4;
             } else if (gPlayerPadState.unk2E >= 0x29) {
-                t1->unk22 = 5;
+                bonusExt->unk22 = 5;
             } else {
-                t1->unk22 = 6;
+                bonusExt->unk22 = 6;
             }
         }
-        p = *D_807F5FD4 + t1->unk22;
+        p = *D_807F5FD4 + bonusExt->unk22;
         y = p->y;
         z = p->z;
-        if (t1->unk22 != 0) {
+        if (bonusExt->unk22 != 0) {
             y += 27.0f;
             z -= 8.0f;
         }
@@ -1272,13 +1123,13 @@ void bonusLightFlashGameUpdate(void) {
         case 1:
             break;
         case 2:
-            t1->unk25 = 0xFF;
+            bonusExt->unk25 = 0xFF;
             sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         }
         switch (gCurrentActor->state) {
         case 0:
-            if (t0->unk14 == 0) {
+            if (game->unk14 == 0) {
                 gCurrentActor->state = 2;
             }
             if ((gCurrentActor->parentActor)->state == 5) {
@@ -1297,19 +1148,19 @@ void bonusLightFlashGameUpdate(void) {
             break;
         }
     } else {
-        switch (t1->unk0) {
+        switch (bonusExt->unk0) {
         case -2:
             if (gGameMode != 1) {
-                t1->unk0++;
-                hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)t0)[0xF]);
+                bonusExt->unk0++;
+                hudSpawnCountdownTimer(0xDC, 0x2A, game->unkE);
                 resQueueAttachActor(gCurrentActor, 0, 9);
             }
             break;
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
-                t1->unk0 = 1;
-                actorSetStateTwo((void *)gCurrentActor->parentActor);
-                bonusResetAmmo(t1);
+                bonusExt->unk0 = 1;
+                actorSetStateTwo(gCurrentActor->parentActor);
+                bonusResetAmmo(bonusExt);
                 sfxAllocateChannel(8, 1.0f);
             }
             break;
@@ -1320,45 +1171,52 @@ void bonusLightFlashGameUpdate(void) {
 }
 
 typedef struct {
-    char pad0[3];
+    s16 unk0;
+    char pad2;
     u8 unk3;
-    char pad4[2];
-    char unk6[2];
-    char unk8[2];
+    s16 unk4;
+    u8 unk6;
+    char pad7;
+    s16 unk8;
     s16 unkA;
-} BonusC_9B9C_A;
+} LargeB1_Sub178;
 
-typedef struct {
-    char pad0[0x11];
-    u8 unk11;
-    char unk12[2];
-    char unk14[2];
-    s16 unk16;
-} BonusC_9B9C_B;
-
-typedef struct {
-    char pad0[0x25];
+typedef struct LargeB5State {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    s16 unk18;
+    char pad1A[2];
+    f32 unk1C;
+    char pad20[2];
+    s16 unk22;
+    u8 unk24;
     u8 unk25;
-    char unk26[2];
-    char unk28[2];
+    u8 unk26;
+    char pad27;
+    s16 unk28;
     s16 unk2A;
-} BonusC_9B9C_C;
+    s8 unk2C;
+    s8 unk2D[1];
+} LargeB5State;
 
-Gfx *func_80029B9C(Gfx *gdl, Actor *srcActor) {
-    Actor *actor;
-    BonusC_9B9C_B *p0;
-    BonusC_9B9C_A *p1;
-    BonusC_9B9C_C *p2;
+Gfx *func_80029B9C(Gfx *gdl, Actor *actor) {
+    s32 pad;
+    BonusLightFlashState *lightFlash;
+    LargeB1_Sub178 *pathPanic;
+    LargeB5State *bugBash;
 
-    p2 = (void *)srcActor->customState;
-    p0 = ((BonusActorExt *)srcActor)->unk178;
-    if (p2) { // FAKE: empty guard steers regalloc
+    bugBash = actor->customState;
+    lightFlash = ((BonusActorExt *)actor)->unk178;
+    if (bugBash) { // FAKE: empty guard steers regalloc
     }
-    p1 = ((BonusActorExt *)srcActor)->unk178;
-    actor = srcActor;
+    pathPanic = ((BonusActorExt *)actor)->unk178;
 
     if (actor->actorType != 0x7E && actor->state == 0 && ((Struct_7548 *)actor->customState)->unk26 != 0) {
-        gdl = bonusRenderCrosshair(gdl, (void *)srcActor);
+        gdl = bonusRenderCrosshair(gdl, actor);
     }
     gSPDisplayList(gdl++, &D_1000118);
     gDPPipeSync(gdl++);
@@ -1369,12 +1227,12 @@ Gfx *func_80029B9C(Gfx *gdl, Actor *srcActor) {
     switch (actor->actorType) {
     case 0x7D:
         if (actor->state != 3) {
-            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, p0->unk11, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p0->unk14, p0->unk16, p0->unk12);
+            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, lightFlash->unk11, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &lightFlash->unk14, lightFlash->unk16, &lightFlash->unk12);
         }
         break;
     case 0x7C:
         if (actor->state != 3) {
-            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, p1->unk3, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p1->unk8, p1->unkA, p1->unk6);
+            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, pathPanic->unk3, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &pathPanic->unk8, pathPanic->unkA, &pathPanic->unk6);
         }
         break;
     case 0x7E:
@@ -1384,7 +1242,7 @@ Gfx *func_80029B9C(Gfx *gdl, Actor *srcActor) {
         case 0:
         case 1:
         case 2:
-            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, p2->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, p2->unk28, p2->unk2A, p2->unk26);
+            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, bugBash->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &bugBash->unk28, bugBash->unk2A, &bugBash->unk26);
             break;
         }
         break;
@@ -1392,20 +1250,15 @@ Gfx *func_80029B9C(Gfx *gdl, Actor *srcActor) {
     return gdl;
 }
 
-typedef struct {
-    void *unk0;
-    u8 unk4;
-} BonusC_9E54_S;
-
 void bonusLightFlashSpawnTargets(void *ownerActor) {
     Actor *a = ownerActor;
     s32 i;
-    s16 *X = &D_8002D8CA - 1;
-    Struct_T0 *base = ((BonusActorExt *)a)->unk178;
+    s16 *X = &D_8002D8CA - 1; // FAKE: the 6-entry table starts at 0x8002D8C8, inside splat's D_8002D8C0; D_8002D8C8[i - 1] is RELOC-EQUIV once that symbol exists
+    BonusLightFlashState *base = ((BonusActorExt *)a)->unk178;
 
     for (i = 1; i != 7; i++) {
         if (actorSpawn(0x147, X[i - 1]) != 0) {
-            BonusC_9E54_S *subExt = (BonusC_9E54_S *)gSpawnedActor->customState;
+            Struct_Sp50 *subExt = gSpawnedActor->customState;
             s16 *actorProp = ((BonusActorExt *)gSpawnedActor)->unk17C;
             Point3f *pt;
             f32 scale;
@@ -1436,7 +1289,7 @@ void bonusLightFlashTargetUpdate(void) {
     f32 scale;
     Struct_Sp50 *subExt;
     Actor *owner;
-    Struct_T0 *base;
+    BonusLightFlashState *base;
     f32 lightR;
     f32 lightG;
     f32 lightB;
@@ -1444,9 +1297,9 @@ void bonusLightFlashTargetUpdate(void) {
     s8 isHit;
     s8 flags;
 
-    subExt = (Struct_Sp50 *)gCurrentActor->customState;
+    subExt = gCurrentActor->customState;
     owner = subExt->unk0;
-    base = (Struct_T0 *)((BonusActorExt *)owner)->unk178;
+    base = ((BonusActorExt *)owner)->unk178;
     if (!(gCurrentActor->flags & 0x10)) {
         if (subExt->unk4 != 5) {
             actorClearAllNodeFlags(gCurrentActor);
@@ -1513,21 +1366,15 @@ void bonusLightFlashTargetUpdate(void) {
 }
 
 typedef struct {
-    s16 unk0;
-    char pad2;
-    u8 unk3;
-    s16 unk4;
-    u8 unk6;
-    char pad7;
-    s16 unk8;
-    s16 unkA;
-} LargeB1_Sub178;
+    Actor *unk0;
+    s8 unk4;
+} BonusC_AD10_S;
 
 extern s8 D_8002D904;
 
 void bonusPerilPathPanicGameUpdate(void) {
-    Struct_7548 *t3c = gCurrentActor->customState;
-    LargeB1_Sub178 *t0 = ((BonusActorExt *)gCurrentActor)->unk178;
+    Struct_7548 *bonusExt = gCurrentActor->customState;
+    LargeB1_Sub178 *game = ((BonusActorExt *)gCurrentActor)->unk178;
     Point3f *p;
     f32 y;
     f32 z;
@@ -1535,40 +1382,40 @@ void bonusPerilPathPanicGameUpdate(void) {
     s32 i;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        t3c->unk23 = 5;
-        t3c->unk0 = -2;
+        bonusExt->unk23 = 5;
+        bonusExt->unk0 = -2;
         D_8002D904 = 0;
         switch (gCurrentMap) {
         case 0x90:
-            t0->unkA = 6;
+            game->unkA = 6;
             D_8002D900 = 0x15;
             break;
         case 0x91:
-            t0->unkA = 8;
+            game->unkA = 8;
             D_8002D900 = 0x12;
             break;
         case 0x92:
-            t0->unkA = 0xA;
+            game->unkA = 0xA;
             D_8002D900 = 0xF;
             break;
         case 0x93:
-            t0->unkA = 0xC;
+            game->unkA = 0xC;
             D_8002D900 = 0xC;
             break;
         }
-        t0->unk4 = 0x3C;
-        t0->unk6 = 0;
-        t0->unk8 = t0->unkA;
-        t0->unk3 = gfxResourceCreate(1, textTableGetString(0x1A, 4, 1), 8, 0.0f, 0.0f, 0.0f);
-        func_806FDAB8(t0->unk3, 0.0f);
-        t0->unk0 = 0x1E;
+        game->unk4 = 0x3C;
+        game->unk6 = 0;
+        game->unk8 = game->unkA;
+        game->unk3 = gfxResourceCreate(1, textTableGetString(0x1A, 4, 1), 8, 0.0f, 0.0f, 0.0f);
+        func_806FDAB8(game->unk3, 0.0f);
+        game->unk0 = 0x1E;
         playerStateQueueCallback(0x48, 0, 0);
-        camSetTarget(BB_CAMCTX->unk104, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
+        camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
         gCurrentActor->roll = 0x9A;
         for (i = 1; i != 7; i++) {
             if (actorSpawn(0x148, 0x21) != 0) {
-                BonusC_9E54_S *u = (BonusC_9E54_S *)gSpawnedActor->customState;
+                BonusC_AD10_S *u = gSpawnedActor->customState;
 
                 u->unk0 = gCurrentActor;
                 u->unk4 = i;
@@ -1584,16 +1431,16 @@ void bonusPerilPathPanicGameUpdate(void) {
             }
         }
     }
-    if (t3c->unk0 > 0) {
-        if (t0->unk0 > 0) {
-            t0->unk0--;
+    if (bonusExt->unk0 > 0) {
+        if (game->unk0 > 0) {
+            game->unk0--;
         } else {
             if (actorSpawn(0x149, 0x3D) != 0) {
-                BonusC_9E54_S *u = (BonusC_9E54_S *)gSpawnedActor->customState;
+                BonusC_AD10_S *u = gSpawnedActor->customState;
 
                 n = D_8002D904;
                 u->unk0 = gCurrentActor;
-                p = *D_807F5FD4 + (n + n + n) + 1;
+                p = *D_807F5FD4 + (n + n + n) + 1; // FAKE: n + n + n keeps two addu; n * 3 becomes sll/subu and shifts the block
                 gSpawnedActor->x = p->x + 50.0;
                 gSpawnedActor->y = p->y + 12.0;
                 gSpawnedActor->z = p->z - 5.0;
@@ -1604,31 +1451,31 @@ void bonusPerilPathPanicGameUpdate(void) {
                 gSpawnedActor->sub4->scaleZ = 0.08f;
             }
             n = D_8002D904;
-            t0->unk0 = 0x5A;
+            game->unk0 = 0x5A;
             ((s8 *)&D_8002D900)[4] = (u16)(1 - n);
         }
-        t3c->unk22 = 0;
+        bonusExt->unk22 = 0;
         if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
             if (gPlayerPadState.unk2F > 0) {
                 if (gPlayerPadState.unk2E < -0x28) {
-                    t3c->unk22 = 1;
+                    bonusExt->unk22 = 1;
                 } else if (gPlayerPadState.unk2E >= 0x29) {
-                    t3c->unk22 = 3;
+                    bonusExt->unk22 = 3;
                 } else {
-                    t3c->unk22 = 2;
+                    bonusExt->unk22 = 2;
                 }
             } else if (gPlayerPadState.unk2E < -0x28) {
-                t3c->unk22 = 4;
+                bonusExt->unk22 = 4;
             } else if (gPlayerPadState.unk2E >= 0x29) {
-                t3c->unk22 = 5;
+                bonusExt->unk22 = 5;
             } else {
-                t3c->unk22 = 6;
+                bonusExt->unk22 = 6;
             }
         }
-        p = *D_807F5FD4 + t3c->unk22;
+        p = *D_807F5FD4 + bonusExt->unk22;
         y = p->y;
         z = p->z;
-        if (t3c->unk22 != 0) {
+        if (bonusExt->unk22 != 0) {
             y += 27.0f;
             z -= 8.0f;
         }
@@ -1636,13 +1483,13 @@ void bonusPerilPathPanicGameUpdate(void) {
         case 1:
             break;
         case 2:
-            t3c->unk25 = 0xFF;
+            bonusExt->unk25 = 0xFF;
             sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         }
         switch (gCurrentActor->state) {
         case 0:
-            if (t0->unk8 == 0) {
+            if (game->unk8 == 0) {
                 gCurrentActor->state = 2;
             }
             if ((gCurrentActor->parentActor)->state == 5) {
@@ -1661,19 +1508,19 @@ void bonusPerilPathPanicGameUpdate(void) {
             break;
         }
     } else {
-        switch (t3c->unk0) {
+        switch (bonusExt->unk0) {
         case -2:
             if (gGameMode != 1) {
-                t3c->unk0++;
-                hudSpawnCountdownTimer(0xDC, 0x2A, (u8)t0->unk4);
+                bonusExt->unk0++;
+                hudSpawnCountdownTimer(0xDC, 0x2A, game->unk4);
                 resQueueAttachActor(gCurrentActor, 0, 0xB);
             }
             break;
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
-                t3c->unk0 = 1;
-                actorSetStateTwo((void *)gCurrentActor->parentActor);
-                bonusResetAmmo(t3c);
+                bonusExt->unk0 = 1;
+                actorSetStateTwo(gCurrentActor->parentActor);
+                bonusResetAmmo(bonusExt);
                 sfxAllocateChannel(8, 1.0f);
             }
             break;
@@ -1683,23 +1530,18 @@ void bonusPerilPathPanicGameUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct {
-    char pad[4];
-    u8 unk4;
-} BonusC_AAA4_T;
-
 void bonusPerilPathPanicKlaptrapUpdate(void) {
     Struct_AAA4_174 *actorExt;
-    Actor_AAA4_Target *targetActor;
+    Actor *targetActor;
     f32 dx;
-    f32 dz;
+    f32 dy;
     s32 animScript;
     AnimSlot *animSub;
     ActorSub4 *modelData;
-    BonusC_AAA4_T *targetExt;
+    BonusC_AD10_S *targetExt;
     s32 i;
 
-    actorExt = (Struct_AAA4_174 *)gCurrentActor->customState;
+    actorExt = gCurrentActor->customState;
     modelData = gCurrentActor->sub4;
     animSub = modelData->model;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -1711,11 +1553,11 @@ void bonusPerilPathPanicKlaptrapUpdate(void) {
     if (animScript == 0x239) {
         for (i = 0; i < gActiveActorCount; i++) {
             targetActor = gActiveActors[i].actor;
-            if (targetActor->unk58 == 0x149) {
-                dx = targetActor->unk7C - gCurrentActor->x;
-                dz = targetActor->unk80 - gCurrentActor->y;
-                if (dx < 5.0 && dx > -5.0 && dz < 20.0f && dz > -20.0) {
-                    targetExt = (BonusC_AAA4_T *)targetActor->unk174;
+            if (targetActor->actorType == 0x149) {
+                dx = targetActor->x - gCurrentActor->x;
+                dy = targetActor->y - gCurrentActor->y;
+                if (dx < 5.0 && dx > -5.0 && dy < 20.0f && dy > -20.0) {
+                    targetExt = targetActor->customState;
                     targetExt->unk4 = 8;
                     actorScriptStart(gCurrentActor, 0x23B);
                 }
@@ -1735,28 +1577,18 @@ void bonusPerilPathPanicKlaptrapUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct {
-    char pad0[0xA];
-    s16 unkA;
-} BonusC_AD10_B;
-
-typedef struct {
-    Actor *unk0;
-    s8 unk4;
-} BonusC_AD10_S;
-
 void bonusPerilPathPanicFairyUpdate(void) {
     s32 pad;
     BonusC_AD10_S *subExt;
     Actor *owner;
-    BonusC_AD10_B *ownerExt;
+    LargeB1_Sub178 *ownerExt;
     Point3f *p;
 
-    subExt = (BonusC_AD10_S *)gCurrentActor->customState;
+    subExt = gCurrentActor->customState;
     owner = subExt->unk0;
     ownerExt = ((BonusActorExt *)owner)->unk178;
     if (!(gCurrentActor->flags & 0x10)) {
-        actorScriptStart(gCurrentActor, 0x2B5, ownerExt);
+        actorScriptStart(gCurrentActor, 0x2B5);
     }
     if (subExt->unk4 == 0 || subExt->unk4 >= 5) {
         gCurrentActor->x = gCurrentActor->x - 1.5;
@@ -1786,317 +1618,234 @@ void bonusPerilPathPanicFairyUpdate(void) {
 }
 
 typedef struct {
-    char pad0[0x210];
-    f32 unk210;
-    f32 unk214;
-    f32 unk218;
-    char pad21C[0x7C];
-    u16 *unk298;
-    char pad29C[0x2C];
-    s16 unk2C8;
-    char pad2CA[0x26];
-} LargeB4Player;
-
-typedef struct {
     char pad0[2];
     s8 unk2;
     s8 unk3;
 } LargeB4Ctrl;
 
 extern Actor *gPrimaryPlayerActor;
-extern LargeB4Player *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern LargeB4Ctrl *D_807ECDEC;
-typedef struct LargeB5Actor {
-    char pad0[4];
-    ActorSub4 *unk4;
-    char pad8[0x58];
-    s32 unk60;
-    char pad64[0x18];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x5E];
-    s16 unkE6;
-    s16 unkE8;
-    char padEA[0x32];
-    struct LargeB5Actor *unk11C;
-    char pad120[0x34];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x1E];
-    struct LargeB5State *unk174;
-} LargeB5Actor;
-
-typedef struct LargeB5State {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    s16 unk18;
-    char pad1A[2];
-    f32 unk1C;
-    char pad20[2];
-    s16 unk22;
-    char pad24;
-    u8 unk25;
-    u8 unk26;
-    char pad27;
-    s16 unk28;
-    s16 unk2A;
-    s8 unk2C;
-    s8 unk2D[1];
-} LargeB5State;
-
-typedef struct {
-    void *unk0;
-    f32 unk4;
-    f32 unk8;
-    char padC[2];
-    s16 unkE;
-} LargeB5Proj;
-
-#define LB5 ((LargeB5Actor *)gCurrentActor)
-
-void bonusBigBugBashGameUpdate(void) {
-    s32 pad0[4];
-    f32 fs0;
-    f32 fs1;
-    f32 diffDelta;
-    AnimSlot *animData = LB5->unk4->model;
-    LargeB5State *t = LB5->unk174;
-    s32 i;
-    u8 c;
-    s32 padz;
-    LargeB5Proj *p0;
-    s16 spawnAngle;
-
-    if (!(LB5->unk60 & 0x10)) {
-        gPrimaryPlayerActor->state = 0x77;
-        gPrimaryPlayerActor->unk155 = 0;
-        t->unk0 = LB5->unk7C + 10.0;
-        t->unk4 = LB5->unk84 + 8.0;
-        LB5->unk80 = LB5->unk80 + 50.0;
-        switch (gCurrentMap) {
-        case 0x66:
-            t->unk2A = 4;
-            break;
-        case 0x94:
-            t->unk2A = 6;
-            break;
-        case 0x95:
-            t->unk2A = 8;
-            break;
-        case 0x96:
-            t->unk2A = 0xA;
-            break;
-        }
-        t->unk26 = 0;
-        t->unk22 = 0x3C;
-        t->unk28 = t->unk2A;
-        fs0 = 1 * 0.0f;
-        c = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, fs0, fs0, fs0);
-        t->unk25 = c;
-        func_806FDAB8(c, fs0);
-        lightSetColor(1.0f, 1.0f, 1.0f, -1);
-        LB5->unkE8 = 0;
-        LB5->unkE6 = 0x800;
-        controllerAnimSetStateIfChanged(gCurrentActor, 0x5FB, 0.0f, 0.0f);
-        LB5->unk4->scaleX = 0.2f;
-        LB5->unk4->scaleY = 0.2f;
-        LB5->unk4->scaleZ = 0.2f;
-        camStartPath(0, 0, 1);
-        LB5->unk154 = 3;
-        t->unk1C = 0.0f;
-        t->unk10 = 0.0f;
-        t->unk14 = 0.0f;
-        t->unk8 = 0.0f;
-        t->unkC = 0.0f;
-        actorSpawn(0x14C, 0x55);
-        p0 = (LargeB5Proj *)gSpawnedActor->customState;
-        p0->unk0 = gCurrentActor;
-        t->unk2C = 0x3C;
-        i = 0;
-        do {
-            t->unk2D[i] = 1;
-            i++;
-        } while (i != 1);
-    }
-    for (i = 0; i < 1; i++) {
-        if (t->unk2D[i] > 0) {
-            t->unk2D[i] -= 1;
-            if (t->unk2D[i] == 0 && actorSpawn(0x14A, 0x53) != 0) {
-                LargeB5Proj *s0 = (LargeB5Proj *)gSpawnedActor->customState;
-
-                s0->unk0 = gCurrentActor;
-                s0->unk4 = gSpawnedActor->x;
-                s0->unk8 = gSpawnedActor->z;
-                s0->unkE = 2;
-                spawnAngle = mathAngleBetweenPoints2D(t->unk0, t->unk4, LB5->unk7C, LB5->unk84) + 0x800;
-                s0->unk4 = mathSinF(spawnAngle) * 70.0 + t->unk0;
-                s0->unk8 = mathCosF(spawnAngle) * 70.0 + t->unk4;
-                if (t->unk2C == 0) {
-                    gSpawnedActor->x = s0->unk4;
-                    gSpawnedActor->y = LB5->unk80 - 30.0;
-                    gSpawnedActor->z = s0->unk8;
-                } else {
-                    gSpawnedActor->x = t->unk0 - 30.0;
-                    gSpawnedActor->z = t->unk0;
-                    gSpawnedActor->y = LB5->unk80 - 30.0;
-                }
-            }
-        }
-    }
-    if (t->unk2C != 0) {
-        t->unk2C -= 1;
-    }
-    t->unk18 += 0x19;
-    if (LB5->unk154 < 2) {
-        f32 fv0;
-        f32 fv1;
-
-        fs1 = mathSinF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
-        fv0 = mathCosF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
-        fs0 = D_807ECDEC->unk2 * 0.04f;
-        fv1 = D_807ECDEC->unk3 * 0.04f;
-
-        diffDelta = (fs0 * fv0 - fv1 * fs1) - t->unk10;
-        t->unk10 += diffDelta * 0.125f;
-        t->unk14 += ((fs0 * fs1 + fv1 * fv0) - t->unk14) * 0.25f;
-        t->unk8 += t->unk10;
-        t->unkC -= t->unk14;
-    }
-    switch (LB5->unk154) {
-    case 0: {
-        f32 prev = t->unk1C;
-
-        t->unk1C += (-diffDelta * 4.0f - t->unk1C) * 0.125f;
-        if (t->unk1C < 0.0f) {
-            if (t->unk1C < -8.0f) {
-                t->unk1C = -8.0f;
-            }
-            if (prev >= 0.0f) {
-                controllerAnimSetStateIfChanged(gCurrentActor, 0x5FC, 0.0f, 0.0f);
-            }
-            if (animData != NULL) {
-                controllerApplyMotionWindow(gCurrentActor, animData, -t->unk1C);
-            }
-        } else {
-            if (t->unk1C > 8.0f) {
-                t->unk1C = 8.0f;
-            }
-            if (prev < 0.0f) {
-                controllerAnimSetStateIfChanged(gCurrentActor, 0x5FB, 0.0f, 0.0f);
-            }
-            if (animData != NULL) {
-                controllerApplyMotionWindow(gCurrentActor, animData, t->unk1C);
-            }
-        }
-        if (t->unk28 == 0) {
-            LB5->unk154 = 5;
-        }
-        if (LB5->unk11C->unk154 == 5) {
-            LB5->unk154 = 6;
-        }
-        if (LB5->unk154 == 0 && (*gPlayerSlots[gCurrentPlayerIndex].unk298 & 0xE000)) {
-            sfxPlayOnFreeSlot(0x25, 0x7FFF, 63.0f, 0.51f, 0, 0);
-            controllerAnimSetStateIfChanged(gCurrentActor, 0x5FD, 0.0f, 1.0f);
-            LB5->unk154 = 1;
-        }
-        break;
-    }
-    case 1:
-    case 2:
-        if (animData->frame > 10.0f && animData->frame < 14.0f) {
-            LB5->unk154 = 2;
-        } else {
-            LB5->unk154 = 1;
-        }
-        if (animData->speed == 0.0f) {
-            controllerAnimSetStateIfChanged(gCurrentActor, 0x5FC, 0.0f, 1.0f);
-            LB5->unk154 = 0;
-            t->unk1C = 0.0f;
-        }
-        break;
-    case 3:
-        if (gGameMode != 1) {
-            LB5->unk154 = 4;
-            hudSpawnCountdownTimer(0xDC, 0x2A, t->unk22);
-            resQueueAttachActor(gCurrentActor, 0, 0xA);
-        }
-        break;
-    case 4:
-        if (!(LB5->unk60 & 0x2000000)) {
-            LB5->unk154 = 0;
-            actorSetStateTwo(LB5->unk11C);
-            sfxAllocateChannel(8, 1.0f);
-        }
-        break;
-    case 5:
-    case 6:
-        if (LB5->unk154 == 6) {
-            bonusEndLose(0, 1);
-        } else {
-            bonusEndWin(0, 0);
-        }
-        camStartPath(0, 1, 0x11);
-        LB5->unk154 = 7;
-        break;
-    }
-    {
-        f32 d;
-
-        fs0 = t->unk8 * 0.85;
-        fs1 = t->unkC - 40.0;
-        d = sqrtf(fs0 * fs0 + fs1 * fs1);
-
-        if (d > 80.0f) {
-            diffDelta = 80.0f / d;
-            d = 0.0f;  // FAKE: kills uopt store-forwarding of the 80/d value so it stays in stack slot
-            t->unk8 = (fs0 * diffDelta) / 0.85;
-            t->unkC = (fs1 * diffDelta) + 40.0;
-        }
-    }
-    LB5->unk7C = mathSinF(t->unk18) * 5.0 + (t->unk0 + t->unk8 * 0.8);
-    LB5->unk84 = 2.0 * mathCosF((s16)(t->unk18 * 2)) + (t->unk4 + t->unkC * 0.9);
-    gPrimaryPlayerActor->x = t->unk0 + t->unk8 * 0.5f;
-    gPrimaryPlayerActor->y = LB5->unk80;
-    gPrimaryPlayerActor->z = t->unk4 + t->unkC * 0.5f;
-    renderCallbacksRegister(func_80029B9C, gCurrentActor, 3);
-    actorUpdateModelMatrix(gCurrentActor, 0);
-}
-
-typedef struct {
-    char pad0[0x34];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-} BonusDModel;
-
 typedef struct {
     Actor *unk0;
     f32 unk4;
     f32 unk8;
     s16 unkC;
     s16 unkE;
-} BonusDB920Link;
+} LargeB5Proj;
 
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    char pad8[0x10];
-    s16 unk18;
-    char pad1A[0x10];
-    s16 unk2A;
-    s8 unk2C;
-    s8 unk2D[2];
-} BonusDB920Tgt;
+void bonusBigBugBashGameUpdate(void) {
+    s32 pad0[4];
+    f32 fx;
+    f32 fz;
+    f32 diffDelta;
+    AnimSlot *animData = gCurrentActor->sub4->model;
+    LargeB5State *game = gCurrentActor->customState;
+    s32 i;
+    u8 c;
+    s32 padz;
+    LargeB5Proj *swatter;
+    s16 spawnAngle;
+
+    if (!(gCurrentActor->flags & 0x10)) {
+        gPrimaryPlayerActor->state = 0x77;
+        gPrimaryPlayerActor->unk155 = 0;
+        game->unk0 = gCurrentActor->x + 10.0;
+        game->unk4 = gCurrentActor->z + 8.0;
+        gCurrentActor->y = gCurrentActor->y + 50.0;
+        switch (gCurrentMap) {
+        case 0x66:
+            game->unk2A = 4;
+            break;
+        case 0x94:
+            game->unk2A = 6;
+            break;
+        case 0x95:
+            game->unk2A = 8;
+            break;
+        case 0x96:
+            game->unk2A = 0xA;
+            break;
+        }
+        game->unk26 = 0;
+        game->unk22 = 0x3C;
+        game->unk28 = game->unk2A;
+        fx = 1 * 0.0f; // FAKE: int-derived zero is a second FP-zero class held in $f20; 0.0f shares the literal register (Q0438)
+        c = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, fx, fx, fx);
+        game->unk25 = c;
+        func_806FDAB8(c, fx);
+        lightSetColor(1.0f, 1.0f, 1.0f, -1);
+        gCurrentActor->roll = 0;
+        gCurrentActor->yaw = 0x800;
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x5FB, 0.0f, 0.0f);
+        gCurrentActor->sub4->scaleX = 0.2f;
+        gCurrentActor->sub4->scaleY = 0.2f;
+        gCurrentActor->sub4->scaleZ = 0.2f;
+        camStartPath(0, 0, 1);
+        gCurrentActor->state = 3;
+        game->unk1C = 0.0f;
+        game->unk10 = 0.0f;
+        game->unk14 = 0.0f;
+        game->unk8 = 0.0f;
+        game->unkC = 0.0f;
+        actorSpawn(0x14C, 0x55);
+        swatter = gSpawnedActor->customState;
+        swatter->unk0 = gCurrentActor;
+        game->unk2C = 0x3C;
+        i = 0;
+        do {
+            game->unk2D[i] = 1;
+            i++;
+        } while (i != 1);
+    }
+    for (i = 0; i < 1; i++) {
+        if (game->unk2D[i] > 0) {
+            game->unk2D[i] -= 1;
+            if (game->unk2D[i] == 0 && actorSpawn(0x14A, 0x53) != 0) {
+                LargeB5Proj *fly = gSpawnedActor->customState;
+
+                fly->unk0 = gCurrentActor;
+                fly->unk4 = gSpawnedActor->x;
+                fly->unk8 = gSpawnedActor->z;
+                fly->unkE = 2;
+                spawnAngle = mathAngleBetweenPoints2D(game->unk0, game->unk4, gCurrentActor->x, gCurrentActor->z) + 0x800;
+                fly->unk4 = mathSinF(spawnAngle) * 70.0 + game->unk0;
+                fly->unk8 = mathCosF(spawnAngle) * 70.0 + game->unk4;
+                if (game->unk2C == 0) {
+                    gSpawnedActor->x = fly->unk4;
+                    gSpawnedActor->y = gCurrentActor->y - 30.0;
+                    gSpawnedActor->z = fly->unk8;
+                } else {
+                    gSpawnedActor->x = game->unk0 - 30.0;
+                    gSpawnedActor->z = game->unk0;
+                    gSpawnedActor->y = gCurrentActor->y - 30.0;
+                }
+            }
+        }
+    }
+    if (game->unk2C != 0) {
+        game->unk2C -= 1;
+    }
+    game->unk18 += 0x19;
+    if (gCurrentActor->state < 2) {
+        f32 cosYaw;
+        f32 stickY;
+
+        fz = mathSinF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+        cosYaw = mathCosF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+        fx = D_807ECDEC->unk2 * 0.04f;
+        stickY = D_807ECDEC->unk3 * 0.04f;
+
+        diffDelta = (fx * cosYaw - stickY * fz) - game->unk10;
+        game->unk10 += diffDelta * 0.125f;
+        game->unk14 += ((fx * fz + stickY * cosYaw) - game->unk14) * 0.25f;
+        game->unk8 += game->unk10;
+        game->unkC -= game->unk14;
+    }
+    switch (gCurrentActor->state) {
+    case 0: {
+        f32 prev = game->unk1C;
+
+        game->unk1C += (-diffDelta * 4.0f - game->unk1C) * 0.125f;
+        if (game->unk1C < 0.0f) {
+            if (game->unk1C < -8.0f) {
+                game->unk1C = -8.0f;
+            }
+            if (prev >= 0.0f) {
+                controllerAnimSetStateIfChanged(gCurrentActor, 0x5FC, 0.0f, 0.0f);
+            }
+            if (animData != NULL) {
+                controllerApplyMotionWindow(gCurrentActor, animData, -game->unk1C);
+            }
+        } else {
+            if (game->unk1C > 8.0f) {
+                game->unk1C = 8.0f;
+            }
+            if (prev < 0.0f) {
+                controllerAnimSetStateIfChanged(gCurrentActor, 0x5FB, 0.0f, 0.0f);
+            }
+            if (animData != NULL) {
+                controllerApplyMotionWindow(gCurrentActor, animData, game->unk1C);
+            }
+        }
+        if (game->unk28 == 0) {
+            gCurrentActor->state = 5;
+        }
+        if (gCurrentActor->parentActor->state == 5) {
+            gCurrentActor->state = 6;
+        }
+        if (gCurrentActor->state == 0 && (*gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr & 0xE000)) {
+            sfxPlayOnFreeSlot(0x25, 0x7FFF, 63.0f, 0.51f, 0, 0);
+            controllerAnimSetStateIfChanged(gCurrentActor, 0x5FD, 0.0f, 1.0f);
+            gCurrentActor->state = 1;
+        }
+        break;
+    }
+    case 1:
+    case 2:
+        if (animData->frame > 10.0f && animData->frame < 14.0f) {
+            gCurrentActor->state = 2;
+        } else {
+            gCurrentActor->state = 1;
+        }
+        if (animData->speed == 0.0f) {
+            controllerAnimSetStateIfChanged(gCurrentActor, 0x5FC, 0.0f, 1.0f);
+            gCurrentActor->state = 0;
+            game->unk1C = 0.0f;
+        }
+        break;
+    case 3:
+        if (gGameMode != 1) {
+            gCurrentActor->state = 4;
+            hudSpawnCountdownTimer(0xDC, 0x2A, game->unk22);
+            resQueueAttachActor(gCurrentActor, 0, 0xA);
+        }
+        break;
+    case 4:
+        if (!(gCurrentActor->flags & 0x2000000)) {
+            gCurrentActor->state = 0;
+            actorSetStateTwo(gCurrentActor->parentActor);
+            sfxAllocateChannel(8, 1.0f);
+        }
+        break;
+    case 5:
+    case 6:
+        if (gCurrentActor->state == 6) {
+            bonusEndLose(0, 1);
+        } else {
+            bonusEndWin(0, 0);
+        }
+        camStartPath(0, 1, 0x11);
+        gCurrentActor->state = 7;
+        break;
+    }
+    {
+        f32 d;
+
+        fx = game->unk8 * 0.85;
+        fz = game->unkC - 40.0;
+        d = sqrtf(fx * fx + fz * fz);
+
+        if (d > 80.0f) {
+            diffDelta = 80.0f / d;
+            d = 0.0f;  // FAKE: kills uopt store-forwarding of the 80/d value so it stays in stack slot
+            game->unk8 = (fx * diffDelta) / 0.85;
+            game->unkC = (fz * diffDelta) + 40.0;
+        }
+    }
+    gCurrentActor->x = mathSinF(game->unk18) * 5.0 + (game->unk0 + game->unk8 * 0.8);
+    gCurrentActor->z = 2.0 * mathCosF((s16)(game->unk18 * 2)) + (game->unk4 + game->unkC * 0.9);
+    gPrimaryPlayerActor->x = game->unk0 + game->unk8 * 0.5f;
+    gPrimaryPlayerActor->y = gCurrentActor->y;
+    gPrimaryPlayerActor->z = game->unk4 + game->unkC * 0.5f;
+    renderCallbacksRegister(func_80029B9C, gCurrentActor, 3);
+    actorUpdateModelMatrix(gCurrentActor, 0);
+}
 
 void bonusBigBugBashFlyUpdate(void) {
-    BonusDB920Link *flyExt = gCurrentActor->customState;
+    LargeB5Proj *flyExt = gCurrentActor->customState;
     Actor *targetActor = flyExt->unk0;
-    BonusDB920Tgt *targetExt = targetActor->customState;
+    LargeB5State *targetExt = targetActor->customState;
     f32 flySpeed;
     f32 wanderRadius;
     f32 dx;
@@ -2184,12 +1933,8 @@ void bonusBigBugBashFlyUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct {
-    Actor *unk0;
-} BonusDBE44Link;
-
 void bonusBigBugBashSwatterShadowUpdate(void) {
-    BonusDBE44Link *link = gCurrentActor->customState;
+    LargeB5Proj *link = gCurrentActor->customState;
     Actor *targetActor = link->unk0;
     AnimSlot *selfAnim = gCurrentActor->sub4->model;
     AnimSlot *targetAnim = targetActor->sub4->model;
@@ -2251,8 +1996,8 @@ typedef struct {
 
 
 void bonusSearchlightSeekGameUpdate(void) {
-    f32 cosAngle;
-    f32 sinAngle;
+    f32 sinYaw;
+    f32 cosYaw;
     f32 targetOffsetZ;
     f32 scale;
     f32 targetOffsetX;
@@ -2296,7 +2041,7 @@ void bonusSearchlightSeekGameUpdate(void) {
         gCurrentActor->sub4->scaleX = 0.33f;
         gCurrentActor->sub4->scaleY = 0.33f;
         gCurrentActor->sub4->scaleZ = 0.33f;
-        camSetTarget(BCAM->unk104, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
+        camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
         gCurrentActor->state = 3;
         subExt->unk14 = 0.0;
@@ -2314,7 +2059,7 @@ void bonusSearchlightSeekGameUpdate(void) {
         if (subExt->unk2A[i] > 0) {
             subExt->unk2A[i] -= 1;
             if (subExt->unk2A[i] == 0 && actorSpawn(0x14B, 0x21) != 0) {
-                spawnExt = (LargeB4Spawn *)gSpawnedActor->customState;
+                spawnExt = gSpawnedActor->customState;
                 spawnExt->unk0 = gCurrentActor;
                 spawnExt->unkC = 2;
                 spawnExt->unkC = (randomLcgNext() & 0x3F) + 0xF;
@@ -2342,15 +2087,15 @@ void bonusSearchlightSeekGameUpdate(void) {
     lightSetColor(subExt->unk0, subExt->unk0, subExt->unk0, -1);
     switch (gCurrentActor->state) {
         case 0: {
-            cosAngle = mathSinF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
-            sinAngle = mathCosF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+            sinYaw = mathSinF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+            cosYaw = mathCosF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
             velX = subExt->unk14;
             targetOffsetZ = subExt->unk18;
             targetOffsetX = D_807ECDEC->unk2 * 0.06f;
             stickY = D_807ECDEC->unk3 * 0.06f;
-            velX = ((targetOffsetX * sinAngle) - (stickY * cosAngle)) - velX;
+            velX = ((targetOffsetX * cosYaw) - (stickY * sinYaw)) - velX;
             subExt->unk14 = subExt->unk14 + velX * 0.155f;
-            subExt->unk18 = subExt->unk18 + ((targetOffsetX * cosAngle + stickY * sinAngle) - targetOffsetZ) * 0.25f;
+            subExt->unk18 = subExt->unk18 + ((targetOffsetX * sinYaw + stickY * cosYaw) - targetOffsetZ) * 0.25f;
             subExt->unkC = subExt->unkC + subExt->unk14;
             subExt->unk10 = subExt->unk10 - subExt->unk18;
             if (subExt->unk26 == 0) {
@@ -2362,11 +2107,11 @@ void bonusSearchlightSeekGameUpdate(void) {
             if (subExt->unk1E > 0) {
                 subExt->unk1E = subExt->unk1E - 1;
             }
-            if (subExt->unk1E <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].unk298 & 0xE000)) {
+            if (subExt->unk1E <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr & 0xE000)) {
                 sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0, 0x1E, 0);
-                targetOffsetZ = mathSinF(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->unk210;
-                scale = gPlayerSlots->unk214 - 25.0f;
-                targetOffsetX = mathCosF(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->unk218;
+                targetOffsetZ = mathSinF(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->camX;
+                scale = gPlayerSlots->camY - 25.0f;
+                targetOffsetX = mathCosF(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->camZ;
                 projectileSetTargetCoords(targetOffsetZ, scale, targetOffsetX);
                 projectileAimAndSpawn(0x23, 1, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 625.0f, gCurrentActor);
                 subExt->unk1E = 0x1E;
@@ -2376,14 +2121,14 @@ void bonusSearchlightSeekGameUpdate(void) {
         case 3:
             if (gGameMode != 1) {
                 gCurrentActor->state = 4;
-                hudSpawnCountdownTimer(0xDC, 0x2A, (u8)subExt->unk20);
+                hudSpawnCountdownTimer(0xDC, 0x2A, subExt->unk20);
                 resQueueAttachActor(gCurrentActor, 0, 0xC);
             }
             break;
         case 4:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 gCurrentActor->state = 0;
-                actorSetStateTwo((void *)gCurrentActor->parentActor);
+                actorSetStateTwo(gCurrentActor->parentActor);
                 sfxAllocateChannel(8, 1.0);
             }
             break;
@@ -2400,9 +2145,9 @@ void bonusSearchlightSeekGameUpdate(void) {
     }
     targetOffsetZ = subExt->unkC;
     targetOffsetX = subExt->unk10;
-    sinAngle = sqrtf(targetOffsetZ * targetOffsetZ + targetOffsetX * targetOffsetX);
-    if (sinAngle > 110.0f) {
-        scale = 110.0f / sinAngle;
+    cosYaw = sqrtf(targetOffsetZ * targetOffsetZ + targetOffsetX * targetOffsetX);
+    if (cosYaw > 110.0f) {
+        scale = 110.0f / cosYaw;
         subExt->unkC = targetOffsetZ * scale;
         subExt->unk10 = targetOffsetX * scale;
     }
@@ -2416,33 +2161,16 @@ void bonusSearchlightSeekGameUpdate(void) {
 }
 
 
-typedef struct {
-    char pad0[4];
-    f32 unk4;
-    f32 unk8;
-    char padC[0x1C];
-    s16 unk28;
-    s8 unk2A[2];
-} BonusDC8ECTgt;
-
-typedef struct {
-    Actor *unk0;
-    s16 unk4;
-    char pad6[2];
-    f32 unk8;
-    s16 unkC;
-} BonusDC8ECLink;
-
 void bonusSearchlightSeekTargetUpdate(void) {
-    s32 e1, e2, e3;
+    s32 pad[3];
     f32 speed;
-    s32 d1, d2, d3;
+    s32 pad2[3];
     f32 targetX, targetZ;
     s16 angle;
     s32 i;
     Actor *targetOwner;
-    BonusDC8ECLink *spawnLink = gCurrentActor->customState;
-    BonusDC8ECTgt *targetExt;
+    LargeB4Spawn *spawnLink = gCurrentActor->customState;
+    LargeB4Sub *targetExt;
 
     targetOwner = spawnLink->unk0;
     targetExt = targetOwner->customState;
@@ -2474,11 +2202,10 @@ void bonusSearchlightSeekTargetUpdate(void) {
             actorScriptStart(gCurrentActor, 0x332);
             gCurrentActor->state = 1;
             sfxPlayOnFreeSlot(0x16, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            i = 0;
             if (targetExt->unk28 != 0) {
                 targetExt->unk28--;
             }
-            for (; i < 1; i++) {
+            for (i = 0; i < 1; i++) {
                 if (targetExt->unk2A[i] == 0) {
                     targetExt->unk2A[i] = 0x1E;
                     i = 1;
@@ -2496,14 +2223,14 @@ void bonusSearchlightSeekTargetUpdate(void) {
 }
 
 Gfx *func_8002CC08(Gfx *gdl, Actor *actor) {
-    Struct_CC08_174 *subExt;
+    LargeB4Sub *subExt;
     f32 projX;
     f32 projY;
     s32 state;
     s16 screenX;
     s16 screenY;
 
-    subExt = (Struct_CC08_174 *)actor->customState;
+    subExt = actor->customState;
     camProjectToScreen(actor->x, actor->y, actor->z, &projX, &projY, 0, 1.0f, gCurrentPlayerIndex);
     screenX = (f32)(projX * 4.0);
     screenY = (f32)(projY * 4.0);
