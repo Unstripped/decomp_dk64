@@ -2,8 +2,7 @@
 #ifndef PROTO_GLOBAL_63EC0_H
 #define PROTO_GLOBAL_63EC0_H
 #include "common.h"
-struct EffectNode;
-struct EffectSubNode;
+#include "water.h"
 #ifndef PROTO_SKIP_effectWaterInitNodes
 void effectWaterInitNodes(u8 *);
 #endif
@@ -11,10 +10,10 @@ void effectWaterInitNodes(u8 *);
 void effectNodeSetTargetPosition(s32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_effectNodeApproachTargetPos
-void effectNodeApproachTargetPos(struct EffectNode *);
+void effectNodeApproachTargetPos(WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_effectGetTableFlag
-u8 effectGetTableFlag(struct EffectNode *);
+u8 effectGetTableFlag(WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_effectUpdateNodes
 void effectUpdateNodes(void);
@@ -23,10 +22,10 @@ void effectUpdateNodes(void);
 void effectWaterUpdateMeshes(f32, f32, f32, u8);
 #endif
 #ifndef PROTO_SKIP_effectNodeComputeBounds
-void effectNodeComputeBounds(struct EffectNode *, f32, f32, f32, u8, void *, void *);
+void effectNodeComputeBounds(WaterSurface *, f32, f32, f32, u8, void *, void *);
 #endif
 #ifndef PROTO_SKIP_effectCheckTargetActive
-s32 effectCheckTargetActive(struct EffectSubNode *);
+s32 effectCheckTargetActive(WaterSurfaceDef *);
 #endif
 #ifndef PROTO_SKIP_effectWaterApplyLights
 void effectWaterApplyLights(f32, f32, f32);
@@ -35,22 +34,22 @@ void effectWaterApplyLights(f32, f32, f32);
 Gfx *effectWaterRenderSurfaces(Gfx *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_effectWaterSetScissor
-Gfx *effectWaterSetScissor(Gfx *, struct EffectNode *);
+Gfx *effectWaterSetScissor(Gfx *, WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_effectWaterBuildMeshGdl
-void effectWaterBuildMeshGdl(void *, void *, struct EffectNode *);
+void effectWaterBuildMeshGdl(void *, void *, WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_effectWaterSetMeshHeightsAlpha
-void effectWaterSetMeshHeightsAlpha(Vtx *, struct EffectNode *);
+void effectWaterSetMeshHeightsAlpha(Vtx *, WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_effectWaterSetMeshColors
-void effectWaterSetMeshColors(Vtx *, struct EffectNode *);
+void effectWaterSetMeshColors(Vtx *, WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_effectWaterGetHeightAt
-f32 effectWaterGetHeightAt(struct EffectNode *, s32, s32, u8);
+f32 effectWaterGetHeightAt(WaterSurface *, s32, s32, u8);
 #endif
 #ifndef PROTO_SKIP_effectWaterSetMeshPositionsUV
-void effectWaterSetMeshPositionsUV(Vtx *, struct EffectNode *);
+void effectWaterSetMeshPositionsUV(Vtx *, WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_mathBitwiseNot
 s32 mathBitwiseNot(s32);
@@ -98,22 +97,22 @@ void waterRippleStop(void);
 void effectInitTextureTableRGBA32(u8);
 #endif
 #ifndef PROTO_SKIP_effectBuildGdlTexture32x32RGBA
-Gfx *effectBuildGdlTexture32x32RGBA(Gfx *, struct EffectNode *, u8);
+Gfx *effectBuildGdlTexture32x32RGBA(Gfx *, WaterSurface *, u8);
 #endif
 #ifndef PROTO_SKIP_effectBuildGdlTexture32x32RGBAWithPrim
-Gfx *effectBuildGdlTexture32x32RGBAWithPrim(Gfx *, struct EffectNode *, u8);
+Gfx *effectBuildGdlTexture32x32RGBAWithPrim(Gfx *, WaterSurface *, u8);
 #endif
 #ifndef PROTO_SKIP_effectNodeStepUVAndPos
-void effectNodeStepUVAndPos(struct EffectNode *);
+void effectNodeStepUVAndPos(WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_effectInitTextureTableCI4
 void effectInitTextureTableCI4(u8);
 #endif
 #ifndef PROTO_SKIP_effectBuildGdlTexture64x64CI4
-Gfx *effectBuildGdlTexture64x64CI4(Gfx *, struct EffectNode *, u8);
+Gfx *effectBuildGdlTexture64x64CI4(Gfx *, WaterSurface *, u8);
 #endif
 #ifndef PROTO_SKIP_effectNodeUpdateAlphaOffset
-void effectNodeUpdateAlphaOffset(struct EffectNode *);
+void effectNodeUpdateAlphaOffset(WaterSurface *);
 #endif
 #ifndef PROTO_SKIP_effectInitTextureTable0
 void effectInitTextureTable0(u8);
@@ -146,21 +145,21 @@ void effectNoopCallback3(s32);
 void effectInitTextureTable3(u8);
 #endif
 #ifndef PROTO_SKIP_effectBuildSingleTextureGdl
-Gfx *effectBuildSingleTextureGdl(Gfx *, struct EffectSubNode **, u8);
+Gfx *effectBuildSingleTextureGdl(Gfx *, WaterSurfaceDef **, u8);
 #endif
 #ifndef PROTO_SKIP_effectInitTextureTable4
 void effectInitTextureTable4(u8);
 #endif
 #ifndef PROTO_SKIP_effectBuildSingleTextureGdlDup
-Gfx *effectBuildSingleTextureGdlDup(Gfx *, struct EffectSubNode **, u8);
+Gfx *effectBuildSingleTextureGdlDup(Gfx *, WaterSurfaceDef **, u8);
 #endif
 #ifndef PROTO_SKIP_effectInitTextureTableDual
 void effectInitTextureTableDual(u8);
 #endif
 #ifndef PROTO_SKIP_effectBuildMultiBlockTextureGdl
-Gfx *effectBuildMultiBlockTextureGdl(Gfx *, struct EffectNode *, u8);
+Gfx *effectBuildMultiBlockTextureGdl(Gfx *, WaterSurface *, u8);
 #endif
 #ifndef PROTO_SKIP_effectNodeUpdateDualAlphaOffset
-void effectNodeUpdateDualAlphaOffset(struct EffectNode *);
+void effectNodeUpdateDualAlphaOffset(WaterSurface *);
 #endif
 #endif

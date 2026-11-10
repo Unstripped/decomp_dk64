@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "water.h"
 #include "sched.h"
 #define PROTO_SKIP_assetEnsureTableLoaded // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_gunzip // FAKE: callee prototype steer
@@ -692,27 +693,7 @@ u8 collisionTestSubmeshBoundary(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     return hit;
 }
 
-// gEffectNodeList water/effect grid nodes; 63EC0.c views the same records as EffectNode / EffectSubNode.
-typedef struct EffectSubNode {
-    /* 0x00 */ u8 pad0[0x46];
-    /* 0x46 */ s16 minX;
-    /* 0x48 */ s16 minZ;
-    /* 0x4A */ s16 maxX;
-    /* 0x4C */ s16 maxZ;
-    /* 0x4E */ u8 pad4E[0x60 - 0x4E];
-    /* 0x60 */ u8 unk60;
-} EffectSubNode;
-typedef struct EffectNode {
-    /* 0x00 */ EffectSubNode *unk0;
-    /* 0x04 */ u8 pad4[0x2C - 0x04];
-    /* 0x2C */ s16 cellSize;
-    /* 0x2E */ u8 pad2E[0x4A - 0x2E];
-    /* 0x4A */ u8 unk4A;
-    /* 0x4B */ u8 pad4B[0x50 - 0x4B];
-    /* 0x50 */ struct EffectNode *next;
-} EffectNode;
-
-extern EffectNode *gEffectNodeList;
+extern WaterSurface *gEffectNodeList;
 
 s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     f32 pz;
@@ -724,7 +705,7 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     CollisionStaticTri tri; // 0x18 slot puts x/y/z at 0xB8
     u8 hit;
     f32 bestY;
-    EffectNode *node;
+    WaterSurface *node;
     f32 floorY;
     f32 threshold;
     s32 cell_x;
@@ -736,22 +717,22 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     threshold = (f32)((f64)*arg2 + 4.0);
     if (node != NULL) {
         do {
-            if (node->unk0->minX <= arg0 && node->unk0->minZ <= arg1 && arg0 <= node->unk0->maxX && arg1 <= node->unk0->maxZ) {
+            if (node->sub->minX <= arg0 && node->sub->minZ <= arg1 && arg0 <= node->sub->maxX && arg1 <= node->sub->maxZ) {
                 floorY = arg0 * 6.0f;
                 pz = arg1 * 6.0f;
                 tableFlag = effectGetTableFlag(node);
-                cell_x = (arg0 - node->unk0->minX) / (f32)node->cellSize;
-                cell_z = (arg1 - node->unk0->minZ) / (f32)node->cellSize;
+                cell_x = (arg0 - node->sub->minX) / (f32)node->gridStep;
+                cell_z = (arg1 - node->sub->minZ) / (f32)node->gridStep;
 
-                x[0] = node->cellSize * cell_x + node->unk0->minX;
-                z[0] = node->cellSize * cell_z + node->unk0->minZ;
+                x[0] = node->gridStep * cell_x + node->sub->minX;
+                z[0] = node->gridStep * cell_z + node->sub->minZ;
                 y[0] = effectWaterGetHeightAt(node, x[0], z[0], tableFlag);
 
-                x[1] = (cell_x + 1) * node->cellSize + node->unk0->minX;
+                x[1] = (cell_x + 1) * node->gridStep + node->sub->minX;
                 z[1] = z[0];
                 y[1] = effectWaterGetHeightAt(node, x[1], z[1], tableFlag);
                 x[2] = x[0];
-                z[2] = (cell_z + 1) * node->cellSize + node->unk0->minZ;
+                z[2] = (cell_z + 1) * node->gridStep + node->sub->minZ;
                 y[2] = effectWaterGetHeightAt(node, x[2], z[2], tableFlag);
 
                 x[3] = x[1];
@@ -779,15 +760,15 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                     floorY = collisionTriangleHeightAtXZ(&tri, floorY, pz) / 6.0f;
                 }
 
-                switch (node->unk0->unk60) {
+                switch (node->sub->unk60) {
                 case 0:
                 case 2:
                 case 3:
                     if (floorY && floorY) {}  // FAKE: deadsweep dead statement (keeps hit out of a register)
                     hit = 1;
-                    if (node->unk0->unk60 == 2 || node->unk0->unk60 == 3) {
+                    if (node->sub->unk60 == 2 || node->sub->unk60 == 3) {
                         if ((floorY < *arg2 ? *arg2 - floorY : -(*arg2 - floorY)) < 6.0f) {
-                            switch (node->unk0->unk60) {
+                            switch (node->sub->unk60) {
                             case 2:
                                 D_807F94AF = 2;
                                 break;
