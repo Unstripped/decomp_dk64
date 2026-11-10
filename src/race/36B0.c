@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_rumbleRequest // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_rumbleRequest // FAKE: callee prototype steer
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
 #include "proto/global/131B0.h"

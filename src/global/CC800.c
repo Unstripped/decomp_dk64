@@ -1,10 +1,10 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorSub140CreateFromModel // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_controllerAnimFree // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_playerSetSizeMode // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_playerTransformAnimalEndSfx // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_rumbleRequest // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_actorSub140CreateFromModel // FAKE: callee prototype steer
+#define PROTO_SKIP_controllerAnimFree // FAKE: callee prototype steer
+#define PROTO_SKIP_playerSetSizeMode // FAKE: callee prototype steer
+#define PROTO_SKIP_playerTransformAnimalEndSfx // FAKE: callee prototype steer
+#define PROTO_SKIP_rumbleRequest // FAKE: callee prototype steer
 #include "proto/global/10D2D0.h"
 #include "proto/global/126260.h"
 #include "proto/global/131B0.h"

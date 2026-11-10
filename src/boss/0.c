@@ -28,7 +28,7 @@ extern BossByteTable6 D_8003598C;
 extern u8 effectDecelDriftFadeUpdate;
 extern u8 sEffectSparkConfig;
 
-void tagBarrelSpawnNodeSmokePuffs(void *, s32, f32);
+void tagBarrelSpawnNodeSmokePuffs(void *, s32, f32); // FAKE: callee prototype steer
 
 void bossArmydilloSpawnSmoke(void) {
     BossByteTable6 smokeBones;
@@ -188,7 +188,7 @@ typedef struct Boss2A_Struct_807FBB40_4300 {
     f32 unk84;
 } Boss2A_Struct_807FBB40_4300;
 
-s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32); // FAKE: callee prototype steer
 f32 mathSinF(s16);
 f32 mathCosF(s16);
 
@@ -427,7 +427,7 @@ u8 bossPieceStep(u8 *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 e
 
 void scriptSetActorRampTarget(void *, f32, f32);
 s16 mathAngleSignedDistance(s16, s16);
-void actorMoveWithinZone(s32, f32, f32, s32, f32);
+void actorMoveWithinZone(s32, f32, f32, s32, f32); // FAKE: callee prototype steer
 
 void bossArmydilloAimTowardTarget(void) {
     s32 res;
@@ -661,7 +661,7 @@ void camStartShake();
 void camSetSecondTarget();
 s32 currentActorTestClearFlag();
 void currentActorClearFlag();
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 void effectSpawnBoneDebris();
 void effectSpawnBoneWhite(void *, s16, f32, f32, f32, f32, s32);
 void effectSpawnJointBeam();

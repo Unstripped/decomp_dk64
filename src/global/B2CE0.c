@@ -2,8 +2,8 @@
 #include "actor.h"
 #define PROTO_SKIP_actorSetDefaultState // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_actorSetUniformScale // FAKE: callee prototype steer
-#define PROTO_SKIP_behaviourCheckRandomAnimTrigger // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_behaviourSpawnExplosionAndSound // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_behaviourCheckRandomAnimTrigger // FAKE: callee prototype steer
+#define PROTO_SKIP_behaviourSpawnExplosionAndSound // FAKE: callee prototype steer
 #define PROTO_SKIP_behaviourUpdateContactAndState // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/103AB0.h"
 #include "proto/global/119370.h"

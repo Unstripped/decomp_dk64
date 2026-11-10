@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorSub140CreateFromModel // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_actorSub140CreateFromModel // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"

@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_flagSet // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_flagSet // FAKE: callee prototype steer
 #include "proto/global/100180.h"
 #include "proto/global/12E800.h"
 #include "proto/global/135D30.h"

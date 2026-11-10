@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_gfxResourceFindById // PROTO: 'unk4' undefined; reoccurrences will not be reported.
+#define PROTO_SKIP_gfxResourceFindById // FAKE: callee prototype steer
 #include "proto/boot/3630.h"
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"

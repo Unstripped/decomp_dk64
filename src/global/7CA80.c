@@ -1,9 +1,9 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorClearTargetAngle // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_actorSub140CreateFromModel // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_collisionClearFlags // PROTO: Type Actor *  of this argument  is incompatible with type vo
-#define PROTO_SKIP_controllerAnimInit // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_actorClearTargetAngle // FAKE: callee prototype steer
+#define PROTO_SKIP_actorSub140CreateFromModel // FAKE: callee prototype steer
+#define PROTO_SKIP_collisionClearFlags // FAKE: callee prototype steer
+#define PROTO_SKIP_controllerAnimInit // FAKE: callee prototype steer
 #include "proto/global/112080.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"

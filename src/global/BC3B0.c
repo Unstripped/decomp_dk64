@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_hudSpawnCountdownTimer // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_hudSpawnCountdownTimer // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/12E800.h"
