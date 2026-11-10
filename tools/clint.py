@@ -5,8 +5,9 @@
 """Read-only clang (libclang) analysis of the game's C: lint, struct layout, metrics, LSP database.
 
 clang never builds anything here: IDO stays the only compiler (tools/fdiff.sh, tools/merge_gate.sh).
-Every tool parses with CLANG_ARGS (the Makefile's -D/-I flags, IDO's -signed as -fsigned-char)
-and without -DNON_MATCHING, so parked blocks are invisible as in the matching build.
+Every tool parses with CLANG_ARGS (the Makefile's -D/-I flags, IDO's -signed as -fsigned-char, IDO's
+va_arg builtins __builtin_classof/__builtin_alignof as macros) and without -DNON_MATCHING, so parked
+blocks are invisible as in the matching build.
 
   uv run tools/clint.py scan [src.c...]                 parse errors (werrors: of the warnings-mode parse
                                                           `uninit` uses, first one shown) and function counts
@@ -39,7 +40,10 @@ from clang.cindex import CursorKind, TypeKind
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CLANG_ARGS = ["-std=gnu89", "-target", "mips-linux-gnu", "-fsigned-char", "-nostdinc", "-Iinclude", "-Iinclude/PR",
               "-Iinclude/libultra", "-Iinclude/compiler/ido", "-D_LANGUAGE_C", "-D_FINALROM", "-DF3DEX_GBI_2",
-              "-DTARGET_N64", "-D_MIPS_SZLONG=32", "-DBUILD_VERSION=VERSION_J", "-Wno-everything"]
+              "-DTARGET_N64", "-D_MIPS_SZLONG=32", "-DBUILD_VERSION=VERSION_J",
+              # IDO's type builtins (compiler/ido/stdarg.h va_arg); clang has neither. classof is
+              # always _INT: the class only picks va_arg's alignment, which no analysis here reads.
+              "-D__builtin_classof(t)=0", "-D__builtin_alignof(t)=__alignof__(t)", "-Wno-everything"]
 UNINIT_FLAGS = ["-Wuninitialized", "-Wsometimes-uninitialized", "-Wconditional-uninitialized"]
 FALLBACK_LIB = "/Library/Developer/CommandLineTools/usr/lib/libclang.dylib"
 M2C_NAME = re.compile(r"^(sp[0-9A-F]+|var_\w+|temp_\w+|phi_\w+|arg[0-9]+)$")
