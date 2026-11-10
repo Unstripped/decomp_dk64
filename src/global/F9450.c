@@ -1203,7 +1203,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                             sub = actor->customState;
                             if (sub->unk1 != 0) {
                                 if (gPlayerCount >= 2) {
-                                    switch (actor->actorType) { // FAKE: unsigned switch range check
+                                    switch (actor->actorType) {
                                     case 0x7A:
                                         playerStateHandleSoundEffects(0x1D2, playerIndex);
                                         func_806F54E0(playerIndex, 0x1D2, 0);
