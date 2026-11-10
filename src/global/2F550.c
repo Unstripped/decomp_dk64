@@ -9,8 +9,6 @@
 #include "proto/global/126260.h"
 #include "proto/global/136820.h"
 #include "proto/global/15050.h"
-#define PROTO_SKIP_mapPurgeNodeList
-s32 mapPurgeNodeList(s32, s16 *, u8);
 #include "proto/global/2F550.h"
 #include "proto/global/35000.h"
 #include "proto/global/36880.h"

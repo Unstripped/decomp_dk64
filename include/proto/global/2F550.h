@@ -112,7 +112,7 @@ void mapTreeResolveNodeAssets(struct MapBspNode *, struct MapVisNode *);
 void func_8062D26C(s32);
 #endif
 #ifndef PROTO_SKIP_mapPurgeNodeList
-void mapPurgeNodeList(s32, s16 *, u8);
+s32 mapPurgeNodeList(s32, s16 *, u8);
 #endif
 #ifndef PROTO_SKIP_mapTreePurgeNodeList
 u8 mapTreePurgeNodeList(struct MapBspNode *, struct MapVisNode *, s32, s16 *, u8);

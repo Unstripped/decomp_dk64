@@ -3,7 +3,6 @@
 #include "sched.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #define PROTO_SKIP_playerSlotMatchesSizeMask // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_mapPurgeNodeList // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_modelSlotInitFromAsset // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_renderReplaceSegment6Commands // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/104F0.h"
@@ -1744,7 +1743,6 @@ typedef struct ModelSlotFreeView {
     /* 0x8C */ u8 pad8C[4];
 } ModelSlotFreeView;
 
-s32 mapPurgeNodeList();
 
 void modelSlotFreeByIndex(slot, isId)
 s32 slot;
