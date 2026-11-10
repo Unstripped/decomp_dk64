@@ -3,16 +3,14 @@
 #define PROTO_GLOBAL_69E60_H
 #include "common.h"
 #include "actor.h"
-struct ActorVelocityCustomWork;
-struct ActorVelocityWork;
 #ifndef PROTO_SKIP_actorStepPhysics
 void actorStepPhysics(Actor *, s16, s16);
 #endif
 #ifndef PROTO_SKIP_actorApplyVelocity
-void actorApplyVelocity(struct ActorVelocityWork *);
+void actorApplyVelocity(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorApplyVelocityCustom
-void actorApplyVelocityCustom(struct ActorVelocityCustomWork *, f32, f32);
+void actorApplyVelocityCustom(Actor *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_actorSkipFloorSnap
 void actorSkipFloorSnap(void);

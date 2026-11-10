@@ -2,8 +2,6 @@
 #include "actor.h"
 #include "proto/global/166A0.h"
 #include "proto/global/35000.h"
-#define PROTO_SKIP_actorApplyVelocity
-#define PROTO_SKIP_actorApplyVelocityCustom
 #include "proto/global/69E60.h"
 #include "proto/global/6AD90.h"
 #include "proto/global/70FD0.h"
