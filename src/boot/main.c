@@ -71,8 +71,8 @@ void dmaCopy(u32 romStart, u32 romEnd, void *dest) {
 }
 
 void decompressGlobal(void *a, void *b) {
-    gunzip(a, b, 0x804FAE00);
-    gunzip(a, b, 0x804FAE00);
+    gunzip(a, b, (void *)0x804FAE00);
+    gunzip(a, b, (void *)0x804FAE00);
 }
 
 void bootResetThread(void *arg) {

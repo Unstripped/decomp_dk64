@@ -917,7 +917,7 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
     if (D_807467E4 != 0) {
         D_807467E4 -= 1;
     }
-    glist = screenStateTickAndDraw(slotQueueBuildDisplayList(healthHudDrawAll((s32)glist)));
+    glist = screenStateTickAndDraw(slotQueueBuildDisplayList(healthHudDrawAll(glist)));
     textFontAgeSheets();
     texCacheUpdate();
     commandQueueReset();

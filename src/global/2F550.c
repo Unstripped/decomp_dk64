@@ -558,12 +558,12 @@ extern u8 gCurrentPlayerIndex;
 extern PlayerStruct *gPlayerSlots;
 
 
-Gfx *playerViewsRender(Gfx *gfx, s32 arg1) {
+Gfx *playerViewsRender(Gfx *gfx, void *frame) {
     s32 i;
     u8 alpha;
     ViewportRect *vp;
 
-    mapFrameBegin(arg1);
+    mapFrameBegin(frame);
     gDPPipeSync(gfx++);
     if (D_807F5FED != 0) {
         gSPSetOtherMode(gfx++, G_SETOTHERMODE_H, G_MDSFT_PIPELINE, 1, G_PM_1PRIMITIVE);
@@ -598,7 +598,7 @@ Gfx *playerViewsRender(Gfx *gfx, s32 arg1) {
 
 
 
-void mapFrameBegin(s32 arg0) {
+void mapFrameBegin(void *frame) {
     lightFlushQueued();
     mapDistributeEntries(D_807F5FF4);
     renderEntryListFreeTranslucent();

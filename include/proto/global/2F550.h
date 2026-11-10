@@ -72,10 +72,10 @@ u8 func_8062BCC8(Actor *, f32, f32, f32, f32 *);
 u8 func_8062BDB0(Actor *, struct MapBspNode *, struct MapVisNode *, f32, f32, f32, f32 *);
 #endif
 #ifndef PROTO_SKIP_playerViewsRender
-Gfx *playerViewsRender(Gfx *, s32);
+Gfx *playerViewsRender(Gfx *, void *);
 #endif
 #ifndef PROTO_SKIP_mapFrameBegin
-void mapFrameBegin(s32);
+void mapFrameBegin(void *);
 #endif
 #ifndef PROTO_SKIP_mapFrameEnd
 void mapFrameEnd(void);

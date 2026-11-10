@@ -195,8 +195,8 @@ void healthApplyPendingDelta(s32 playerIndex, HealthPlayerState *hudState, Healt
 
 f32 sinApprox(f32);
 
-s32 healthHudUpdateDraw(glist, playerIndex, hudState)
-s32 glist;
+Gfx *healthHudUpdateDraw(glist, playerIndex, hudState)
+Gfx *glist;
 s16 playerIndex;
 HealthHudState *hudState;
 {
@@ -276,7 +276,7 @@ HealthHudState *hudState;
     }
     if (hudCanRender() != 0 || (bits & 0x80)) {
         if (hudState->unk2E4 != 0 || HEALTH_HUD_FLAGS(hudState) != 0) {
-            glist = (s32)healthHudDraw((Gfx *)glist, (HealthStats *)hud, elem, hudState);
+            glist = healthHudDraw(glist, (HealthStats *)hud, elem, hudState);
         }
     }
     return glist;
@@ -292,7 +292,7 @@ typedef struct HealthHudPlayerView {
 
 extern s8 D_80744504;
 
-s32 healthHudDrawAll(s32 glist) {
+Gfx *healthHudDrawAll(Gfx *glist) {
     s16 playerIndex;
     s32 slotOffset;
     u16 flags;

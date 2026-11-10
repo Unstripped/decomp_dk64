@@ -4,7 +4,7 @@
 
 extern s32 method;
 extern s32 exit_code;
-extern s32 huftPool;
+extern struct huft *huftPool;
 extern u8 *inbuf;
 extern u8 *slide;
 extern s32 header_bytes;
@@ -15,7 +15,7 @@ extern s32 inptr;
 extern s32 outcnt;
 
 
-void gunzip(u8 **inBufPtr, u8 **outBufPtr, s32 huftStorage) {
+void gunzip(u8 **inBufPtr, u8 **outBufPtr, void *huftStorage) {
     inbuf = *inBufPtr;
     slide = *outBufPtr;
     huftPool = huftStorage;

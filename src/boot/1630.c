@@ -55,7 +55,7 @@ void noExpPakThread(void *arg) {
     void *dst = (void *)0x80280000;
     Words3 unused = sNoExpPakUnusedWords;
 
-    gunzip(&src, &dst, 0x80180000);
+    gunzip(&src, &dst, (void *)0x80180000);
     a = (u16 *)0x80200000;
     b = (u16 *)0x80100000;
     for (i = 0; i < 320 * 240; i++) {
@@ -110,7 +110,7 @@ void noExpPakDrawScreen(void) {
         dmaSegment11(hdr[0], hdr[1] - hdr[0], hdr);
         src = hdr;
         dst = (void *)0x80380000;
-        gunzip(&src, &dst, 0x803C0000);
+        gunzip(&src, &dst, (void *)0x803C0000);
         noExpPakDrawText((u16 *)0x80100000);
     }
 }

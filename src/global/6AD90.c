@@ -3,7 +3,6 @@
 #include "water.h"
 #include "sched.h"
 #define PROTO_SKIP_assetEnsureTableLoaded // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_gunzip // FAKE: callee prototype steer
 #include "proto/boot/30E0.h"
 #include "proto/global/136820.h"
 #include "proto/global/15050.h"
@@ -54,7 +53,6 @@ extern s32 D_807F9518;
 extern u8 D_807F951C;
 extern s32 gCurrentMap;
 extern u8 D_807F94B4;
-void gunzip(u8 **, u8 **, void *); // FAKE: callee prototype steer
 
 void collisionBuildCellTable(CollisionMeshHeader *arg0) {
     s32 off;

@@ -2,7 +2,7 @@
 #ifndef PROTO_GLOBAL_36880_H
 #define PROTO_GLOBAL_36880_H
 #include "common.h"
-#include "proto/global/35000.h"
+#include "render.h"
 struct DisplayListCmd;
 struct ModelAssetData;
 struct ModelChainOwner;

@@ -16,10 +16,10 @@ void hudDrawItemWithAlpha(struct HealthHudInit *);
 void healthApplyPendingDelta(s32, struct HealthPlayerState *, struct HealthPlayerState *, s32);
 #endif
 #ifndef PROTO_SKIP_healthHudUpdateDraw
-s32 healthHudUpdateDraw();
+Gfx *healthHudUpdateDraw();
 #endif
 #ifndef PROTO_SKIP_healthHudDrawAll
-s32 healthHudDrawAll(s32);
+Gfx *healthHudDrawAll(Gfx *);
 #endif
 #ifndef PROTO_SKIP_healthGetPerMelon
 s32 healthGetPerMelon(void);

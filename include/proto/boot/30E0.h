@@ -3,7 +3,7 @@
 #define PROTO_BOOT_30E0_H
 #include "common.h"
 #ifndef PROTO_SKIP_gunzip
-void gunzip(u8 **, u8 **, s32);
+void gunzip(u8 **, u8 **, void *);
 #endif
 #ifndef PROTO_SKIP_get_method
 s32 get_method(void);
