@@ -412,7 +412,6 @@ void raceOpponentBehaviourUpdate(void) {
         ang16 = angU = (s32)((f64)mathAtan2(-dx, -dz) * 4096.0 / 6.2831854820251465);
         mathAngleStepToward(&L4_D->unkE6, (angU + angU - L4_D->unkEE) & 0xFFF, 0x32);
         mathAngleStepToward(&L4_D->unkEE, ang16, 0xF);
-        if (gBehaviourWorkState == 0) {} // FAKE: dead pointer test, steers t-register allocation
         if (gBehaviourWorkState->unk25 == routeRows[gBehaviourWorkState->unk24].unk0 && routeRows[gBehaviourWorkState->unk24].unk8 == 2 && controller->unk34 == 3) {
             if (controller->unk36 == 1) {
                 L4_D->unk154 = 0xA;
