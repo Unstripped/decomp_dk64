@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorUpdatePrevContactFlags // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_actorUpdatePrevContactFlags // FAKE: callee prototype steer
 #include "proto/global/166A0.h"
 #include "proto/global/35000.h"
 #include "proto/global/69E60.h"

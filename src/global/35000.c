@@ -1,5 +1,5 @@
 #include "common.h"
-#define PROTO_SKIP_renderModelQuadGfx // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_renderModelQuadGfx // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/126260.h"
 #include "proto/global/15050.h"

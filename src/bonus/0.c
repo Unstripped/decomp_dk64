@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_camResumePath // PROTO: Type Actor *  of this argument  is incompatible with type vo
+#define PROTO_SKIP_camResumePath // FAKE: callee prototype steer
 #define PROTO_SKIP_commandQueuePush // FAKE: callee prototype steer
 #include "proto/bonus/0.h"
 #include "proto/bonus/12A0.h"

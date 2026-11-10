@@ -2,7 +2,7 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
-#define PROTO_SKIP_mapSurfaceEffectDraw // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_mapSurfaceEffectDraw // FAKE: callee prototype steer
 #define PROTO_SKIP_renderSetSegment6Override // FAKE: callee prototype steer
 #include "proto/global/109660.h"
 #include "proto/global/117190.h"

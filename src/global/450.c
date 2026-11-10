@@ -1,8 +1,8 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_func_8062CA0C // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_playerViewsRender // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_func_8062CA0C // FAKE: callee prototype steer
+#define PROTO_SKIP_playerViewsRender // FAKE: callee prototype steer
 #define PROTO_SKIP_vtxGradientSetColorA // FAKE: callee prototype steer
 #define PROTO_SKIP_vtxGradientSetColorB // FAKE: callee prototype steer
 #include "proto/boot/30E0.h"

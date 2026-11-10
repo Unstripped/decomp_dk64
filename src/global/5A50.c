@@ -23,11 +23,11 @@ typedef struct {
 extern Struct8076BF48 D_8076BF48[];
 extern Struct8076C328 D_8076C328[];
 
-s32 __n_alCSeqNextDelta(Struct8076BF48 *, Struct8076C328 *, u8, s32);
+s32 __n_alCSeqNextDelta(Struct8076BF48 *, Struct8076C328 *, u8, s32); // FAKE: callee prototype steer
 
 extern ALCSPlayer *gSeqPlayers[];
 void alCSPSetUnk84(ALCSPlayer *, s32);
-void setCSPChannelStateValue(ALCSPlayer *, s32, u8);
+void setCSPChannelStateValue(ALCSPlayer *, s32, u8); // FAKE: callee prototype steer
 void alCSPChannelResetControl(ALCSPlayer *, s32);
 void enableCSPChannel(ALCSPlayer *, s32);
 void alCSPChannelSetControl(ALCSPlayer *, s32, u8);

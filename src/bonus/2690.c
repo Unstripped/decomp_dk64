@@ -3,8 +3,8 @@
 #define PROTO_SKIP_actorScriptStart // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
 #define PROTO_SKIP_func_806FDAB8 // FAKE: callee prototype steer
-#define PROTO_SKIP_func_8072881C // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_playerKongStopSoundByState // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_func_8072881C // FAKE: callee prototype steer
+#define PROTO_SKIP_playerKongStopSoundByState // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxPlayOnFreeSlot // FAKE: callee prototype steer
 #include "proto/bonus/12A0.h"
 #include "proto/bonus/2690.h"

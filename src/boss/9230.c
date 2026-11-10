@@ -58,7 +58,7 @@ extern Boss2F_9230_BB4C *gPrimaryPlayerActor;
 extern u8 gBossFightPhase;
 extern Boss2F_9230_D580 *gActivePlayerState;
 
-void csSendActorMessagePayload(s32, s32);
+void csSendActorMessagePayload(s32, s32); // FAKE: callee prototype steer
 s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void scriptSetActorRampTarget(void *, f32, f32);
 void actorScriptStart(Boss2F_9230_Actor *, s32);
