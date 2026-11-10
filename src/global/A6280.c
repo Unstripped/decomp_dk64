@@ -99,7 +99,7 @@ void actorSeekTargetUpdate(void) {
             animSetFinished(gCurrentActor, 0, 1);
             animSetFrameAndSubframe(gCurrentActor, 0, 0, 0);
         }
-        if (gActorGlobalState.unk200 == 4) {
+        if (gActorGlobalState.bossFightPhase == 4) {
             if (gCurrentActor->interactionType == 4) {
                 gCurrentActor->interactionType = 8;
                 sfxAllocateChannel(0x43, 1.0f);

@@ -253,7 +253,7 @@ void bossPufftossStep(void) {
         gCurrentActor->base.interactionType = 1;
     }
     gCurrentActor->base.unk144 = 0x24;
-    if (gActorGlobalState.unk200 == 4) {
+    if (gActorGlobalState.bossFightPhase == 4) {
         if (state->unk14 == 3) {
             actorGetOrSetNodeScale(gCurrentActor, 1, 200.0f);
             bossPufftossNotifyLaser(0);
@@ -278,7 +278,7 @@ void bossPufftossStep(void) {
                 camStartPath(gCurrentActor, 2, 1);
             }
         }
-    } else if ((gActorGlobalState.unk200 == 5) && (gPlayerSlots->unk2C0 != 1)) {
+    } else if ((gActorGlobalState.bossFightPhase == 5) && (gPlayerSlots->unk2C0 != 1)) {
         sndId = 0x14B;
         actorScriptStart(gCurrentActor, 0x2D2);
         actorGetNodePos(gCurrentActor, 2, &nodeX, &nodeY, &nodeZ);
@@ -299,7 +299,7 @@ void bossPufftossStep(void) {
             n_alSndpStop(state->unk1C);
         }
         n_alSndpPlay(D_8076D1F8, sndId, 0x7FFF, 0x3F, 1.0f, 0, &state->unk1C);
-    } else if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (actorTableContains(gActorGlobalState.targetActor) != 0) && (gActorGlobalState.targetActor->collisionFlags == 1)) {
+    } else if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (actorTableContains(gActorGlobalState.targetActor) != 0) && (gActorGlobalState.targetActor->collisionFlags == 1)) {
         playerSetSizeMode(gPrimaryPlayerActor, 2);
         bossPufftossNotifyLaser(1);
         csModelStateSetFirstByte(0, 0xA);

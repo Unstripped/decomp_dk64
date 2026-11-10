@@ -264,7 +264,7 @@ typedef struct ActorGlobalState {
     /* 0x0F8 */ ActorCollisionHit unkF8[4];
     /* 0x1F8 */ s32 unk1F8;
     /* 0x1FC */ struct Actor *targetActor;
-    /* 0x200 */ u8 unk200;
+    /* 0x200 */ u8 bossFightPhase;
     /* 0x201 */ u8 unk201;
     /* 0x202 */ u8 unk202[2];
     /* 0x204 */ s32 unk204[16];

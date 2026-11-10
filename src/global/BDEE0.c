@@ -61,13 +61,13 @@ void behaviourArmadilloPatrol(void) {
         actorClearNodeFlag(gCurrentActor, 4);
         *heightTarget = gBehaviourExtraState->unkAWide * 10;
     }
-    if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
         gBehaviourWorkState->timer = 0x1388;
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x327);
         gCurrentActor->callbackMask &= 0xFFFF7FFF;
-    } else if (gActorGlobalState.unk200 == 4) {
+    } else if (gActorGlobalState.bossFightPhase == 4) {
         behaviourSpawnExplosionAndSound(0x325, 0x31, gActorGlobalState.targetActor);
-    } else if (gActorGlobalState.unk200 == 5) {
+    } else if (gActorGlobalState.bossFightPhase == 5) {
         behaviourSpawnExplosionAndSound(0x326, 0x31, gActorGlobalState.targetActor);
     }
     switch (gCurrentActor->state) {
@@ -150,7 +150,7 @@ void behaviourArmadilloPatrol(void) {
             gCurrentActor->unk155 = 0;
         }
     case 0x23:
-        if (gActorGlobalState.unk200 == 2) {
+        if (gActorGlobalState.bossFightPhase == 2) {
             if (behaviourIsTargetWithinAngle(0x2710) != 0) {
                 gCurrentActor->state = 0x27;
                 gCurrentActor->unk155 = 0;
@@ -371,7 +371,7 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
             BDEE0AA->unkF0 = BDEE0AA->unkF0 - 1;
         }
         if (tgt->unk155 != 0) {
-            if (tgt->unk155 == 1 && gActorGlobalState.unk200 == 2 && actorIsTargetWithinAngleDeg(tgt, gPrimaryPlayerActor, 0x1F40) != 0) {
+            if (tgt->unk155 == 1 && gActorGlobalState.bossFightPhase == 2 && actorIsTargetWithinAngleDeg(tgt, gPrimaryPlayerActor, 0x1F40) != 0) {
                 if (gPlayerSlots->unk2C0 == 1) {
                     playerStateQueueCallback(0x32, gCurrentActor, 0);
                 } else {
@@ -383,7 +383,7 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
                     actorScriptStart(tgt, var);
                     tgt->unk155 = 2;
                 }
-            } else if (gActorGlobalState.unk200 == 4) {
+            } else if (gActorGlobalState.bossFightPhase == 4) {
                 gBehaviourWorkState->unk16 = gBehaviourTargetActor->sub4->model->animId;
                 gCurrentActor->flags |= 0x20000000;
                 if (BDEE0AA->unkF0 == 0) {
@@ -541,7 +541,7 @@ u8 pivotZ;
         return;
     }
     {
-        if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+        if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CA, 0xFF, 0x7F, 0x32);
             behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0);
             gBehaviourWorkState->timer = 0xA6;

@@ -3072,7 +3072,7 @@ void playerStateTransformSparkles(void) {
         }
         break;
     case 2:
-        func_805FF9AC(gActivePlayerState->unk242, 0, 0, 3);
+        mapSaveSlotAndTransition(gActivePlayerState->unk242, 0, 0, 3);
         gCurrentActor->unk155++;
         break;
     }

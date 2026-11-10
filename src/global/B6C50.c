@@ -83,13 +83,13 @@ void func_806B1F50(void) {
         actorScriptStart(gCurrentActor, 0x300);
         sfxPlayActorSound(gCurrentActor, 0x135, 0x64, 0, 0, 0x78, 1.0f, 0);
     }
-    if (gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9) {
+    if (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9) {
         gCurrentActor->unk11C->unk154 = 0;
         camStartPath(gCurrentActor, 6, 5);
         gCurrentActor->unk144 = 1;
         gCurrentActor->unk154 = 0x37;
         gCurrentActor->unk155 = 0;
-    } else if (gActorGlobalState.unk200 == 4) {
+    } else if (gActorGlobalState.bossFightPhase == 4) {
         gCurrentActor->unk155++;
     }
     switch (gCurrentActor->unk154) {
@@ -177,7 +177,7 @@ void func_806B24B8(void) {
         gBehaviourWorkState->unk4 = gPrimaryPlayerActor;
         gBehaviourTargetActor = (Actor *)gBehaviourWorkState->unk4;
     }
-    if (gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9) {
+    if (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9) {
         gCurrentActor->unk144 = 1;
         gCurrentActor->unk154 = 0x40;
         tagBarrelSpawnSmokeAndPuffs(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, gCurrentActor->unk4->scaleY / 0.15, 0, 1);

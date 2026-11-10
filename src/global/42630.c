@@ -1544,7 +1544,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x86:
         playerThrowHeldActor(gActivePlayerActor);
-        func_805FF9AC(0x2A, 0, cmd->a, 2);
+        mapSaveSlotAndTransition(0x2A, 0, cmd->a, 2);
         break;
     case 0x87:
         mapTransitionToPreviousOrExit();
@@ -1586,7 +1586,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             flag = 3;
             break;
         }
-        func_805FF9AC(cmd->a, cmd->b, 0, flag);
+        mapSaveSlotAndTransition(cmd->a, cmd->b, 0, flag);
         break;
     case 0x32:
         mapTransitionExitCurrent(cmd->a, cmd->b);

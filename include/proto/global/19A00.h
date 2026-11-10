@@ -321,17 +321,17 @@ void scriptCmdNop(Actor *);
 #ifndef PROTO_SKIP_projectileTrySpawnFromSlot
 void projectileTrySpawnFromSlot(Actor *);
 #endif
-#ifndef PROTO_SKIP_scriptCmdAttachToParentNode
-void scriptCmdAttachToParentNode(Actor *);
+#ifndef PROTO_SKIP_scriptCmdSpawnDownwardDriftEffect
+void scriptCmdSpawnDownwardDriftEffect(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptCmdEnablePlayerFlag40000
 void scriptCmdEnablePlayerFlag40000(Actor *);
 #endif
-#ifndef PROTO_SKIP_scriptCmdDetachFromParent
-void scriptCmdDetachFromParent(Actor *);
+#ifndef PROTO_SKIP_scriptCmdSpawnUpwardDriftEffect
+void scriptCmdSpawnUpwardDriftEffect(Actor *);
 #endif
-#ifndef PROTO_SKIP_scriptCmdSetActorInteractionTimer
-void scriptCmdSetActorInteractionTimer(Actor *);
+#ifndef PROTO_SKIP_scriptCmdSpawnSineDriftEffect
+void scriptCmdSpawnSineDriftEffect(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptCmdSpawnAttachedActor
 void scriptCmdSpawnAttachedActor(Actor *);

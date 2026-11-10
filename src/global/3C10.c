@@ -284,7 +284,7 @@ void mapRequestTransition(s32 map, s32 exitIndex) {
                 sfxAllocateChannel(0x2C, 1.0f);
             }
             func_807313BC();
-            func_805FF5A0(map);
+            mapLoadSavedSlotSpawn(map);
             if (gGlobalOverlayFlags & 1) {
                 func_8002920C();
             }
@@ -299,7 +299,7 @@ void mapRequestTransitionFast(s32 map, s32 exitIndex) {
     gInitialExit = exitIndex;
     D_8076AEF2 = gCurrentMap;
     func_807313BC();
-    func_805FF5A0(map);
+    mapLoadSavedSlotSpawn(map);
 }
 
 void mapCheckAutoTransition(void) {
@@ -313,7 +313,7 @@ void mapCheckAutoTransition(void) {
     }
 }
 
-void func_805FF5A0(s32 map) {
+void mapLoadSavedSlotSpawn(s32 map) {
     s32 idx = mapFindSlotIndex(map);
 
     if (idx != -1) {
@@ -421,7 +421,7 @@ extern s32 gMapChunkCount;
 extern s32 D_807FD56C;
 extern s16 D_807FD570;
 
-void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
+void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
     Actor *player;
     s32 serializedSize;
     s32 i;
@@ -575,7 +575,7 @@ s32 mapFindSlotIndex(s32 map) {
     return -1;
 }
 
-s16 func_80600174(f32 *outX, f32 *outY, f32 *outZ) {
+s16 mapFindSavedPositionSlot(f32 *outX, f32 *outY, f32 *outZ) {
     s32 i;
 
     for (i = 0; i < 18; i++) {
@@ -597,7 +597,7 @@ s32 func_80600340(s16 *typeList, u8 typeCount, s32 *outMap) {
     f32 posZ;
     u8 slot;
 
-    slot = func_80600174(&posX, &posY, &posZ);
+    slot = mapFindSavedPositionSlot(&posX, &posY, &posZ);
     if (slot == -1) {
         return -1;
     }

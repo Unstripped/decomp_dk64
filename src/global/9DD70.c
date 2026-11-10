@@ -637,7 +637,7 @@ void actorSpotLightUpdate(void) {
         lightState->unk4 = 1.0f;
     }
     scriptSetActorRampTarget(gCurrentActor, ((SpotLightConfig *)gCurrentActor->spawnData)->unk0, 1.0f);
-    if (gActorGlobalState.unk200 == 4) {
+    if (gActorGlobalState.bossFightPhase == 4) {
         lightState->unk0 = D_807503A0;
         lightState->unk4 = 0.0f;
     }
@@ -730,7 +730,7 @@ void func_8069B010(void) {
             }
             lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 100.0f, 0, 0xFF, 0xFF, 0);
         }
-        if (gActorGlobalState.unk200 == 9) {
+        if (gActorGlobalState.bossFightPhase == 9) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CE, 0xFF, 0x7F, 0x1E);
             effectCreateAtPosition(D_8071FE08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, gCurrentActor->unk15F, 0, 0);
@@ -984,7 +984,7 @@ void textMarkerUpdateMatrix(void) {
             gCurrentActor->state = 4;
         }
     }
-    if (gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9) {
+    if (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9) {
         gCurrentActor->state = 4;
         actorReleaseFromPlayerHold(gCurrentActor);
     }

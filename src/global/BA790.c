@@ -78,7 +78,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
     } else {
         diff = BA790A->unkEE - BA790A->unkE6;
     }
-    if (gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) {
+    if (gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) {
         if (gCurrentActor->state != 0x37 && gCurrentActor->state != 0x38) {
             switch (gCurrentActor->actorType) {
             case 0xAF:
@@ -115,7 +115,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
     }
     switch (gCurrentActor->state) {
     case 0x33:
-        if (gActorGlobalState.unk200 == 2) {
+        if (gActorGlobalState.bossFightPhase == 2) {
             BA790A->unkC0 = 150.0f;
             BA790A->unkEE = gActorGlobalState.targetActor->moveYaw;
         }
@@ -286,7 +286,7 @@ void func_806B640C(void) {
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x150, 0xFF, 0x7F, 0x1E, 0x32, 0.3f, 0);
             }
             if (*p == 0) {
-                gActorGlobalState.unk200 = 9;
+                gActorGlobalState.bossFightPhase = 9;
             }
         }
     }

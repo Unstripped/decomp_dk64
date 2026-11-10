@@ -826,7 +826,7 @@ void csCmdInterpolateFloatPair(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         f = gPrimaryPlayerActor->y;
         if ((p->a - f > 200.0 || f < 10.0f) && p->b == 0.0) {
-            func_805FF9AC(0x48, 0x1C, 0, 0);
+            mapSaveSlotAndTransition(0x48, 0x1C, 0, 0);
             p->b = 1.0f;
         }
     }

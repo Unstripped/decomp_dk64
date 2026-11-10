@@ -160,7 +160,7 @@ void tagBarrelInitPeerState(void) {
             gCurrentActor->drawDistance = 0x226;
         }
     }
-    if (gActorGlobalState.unk200 == 4) {
+    if (gActorGlobalState.bossFightPhase == 4) {
         sub->rider = gActorGlobalState.targetActor;
         gCurrentActor->state = 1;
         if (0) {} // FAKE: empty branch steers uopt web colouring (gActorGlobalState address takes v1 not v0)
@@ -679,12 +679,12 @@ void actorTransformCameraUpdate(void) {
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
     }
 
-    if (((gActorGlobalState.unk15 != 0) || (gActorGlobalState.unk200 == 9)) && (state->unk39 == 0)) {
+    if (((gActorGlobalState.unk15 != 0) || (gActorGlobalState.bossFightPhase == 9)) && (state->unk39 == 0)) {
         gCurrentActor->state = 4;
         actorReleaseFromPlayerHold(gCurrentActor);
     }
 
-    if (state->unk39 != 0 && (gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9)) {
+    if (state->unk39 != 0 && (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9)) {
         gCurrentActor->unk144 = 1;
     }
 
@@ -1265,7 +1265,7 @@ void transformBarrelUpdate(void) {
     }
     actorUpdatePrevContactFlags(gCurrentActor);
 
-    if (gCurrentActor->state == 0 && gActorGlobalState.unk200 == 4) {
+    if (gCurrentActor->state == 0 && gActorGlobalState.bossFightPhase == 4) {
         playerState = gPrimaryPlayerActor->customState;
 
         sfxStopChannel(0x6B, 1);
@@ -1703,7 +1703,7 @@ void tagBarrelParticleUpdate(void) {
             gCurrentActor->alpha = 0;
         }
     }
-    if (gActorGlobalState.unk200 == 4) {
+    if (gActorGlobalState.bossFightPhase == 4) {
         sub->rider = gActorGlobalState.targetActor;
         gCurrentActor->state = 1;
         gCurrentActor->unk144 = 1;
@@ -2064,7 +2064,7 @@ void tagBarrelActorUpdate(void) {
     actorUpdatePrevContactFlags(gCurrentActor);
     switch (gCurrentActor->state) {
     case 0:
-        if (gActorGlobalState.unk200 == 4) {
+        if (gActorGlobalState.bossFightPhase == 4) {
             gCurrentActor->state = 1;
             gCurrentActor->unk144 = 1;
             sub->unk8 = 0;
@@ -2104,7 +2104,7 @@ void tagBarrelActorUpdate(void) {
     case 2:
         actorSetCustomFloat(gCurrentActor, 7, 1.0f);
         if (!(gScreenRenderFlags & 1) || gCurrentActor->actorType != 0x6B) {
-            func_805FF9AC(sub->unk6, 0, 0, 3);
+            mapSaveSlotAndTransition(sub->unk6, 0, 0, 3);
         }
         actorDespawn(gCurrentActor);
         break;
@@ -2332,7 +2332,7 @@ void rocketbarrelUpdate(void) {
             }
         }
     }
-    if ((gCurrentActor->state == 0) && (gActorGlobalState.unk200 == 4)) {
+    if ((gCurrentActor->state == 0) && (gActorGlobalState.bossFightPhase == 4)) {
         state->timer = 0xA;
         gCurrentActor->state = 1;
         gCurrentActor->unk144 = 1;
@@ -2537,13 +2537,13 @@ void cannonUpdate(void) {
     switch (gCurrentActor->state) {
     case 0:
         gCurrentActor->interactionType = 1;
-        if (gActorGlobalState.unk200 == 5 && sub->used == 0) {
+        if (gActorGlobalState.bossFightPhase == 5 && sub->used == 0) {
             gCurrentActor->state = 1;
             gCurrentActor->interactionType = 2;
         }
         break;
     case 1:
-        if (gActorGlobalState.unk200 == 4) {
+        if (gActorGlobalState.bossFightPhase == 4) {
             gCurrentActor->state = 2;
             sub->shotsLeft = 6;
             sub->rider = gActorGlobalState.targetActor;
@@ -2850,7 +2850,7 @@ void tagBarrelStartSelection(TagBarrelData *data) {
         break;
     case 0:
     case 0xA:
-        if (gActorGlobalState.unk200 == 4) {
+        if (gActorGlobalState.bossFightPhase == 4) {
             data->player = gActorGlobalState.targetActor;
             data->player->unk144 = 1;
             ((PlayerState *)data->player->customState)->stateFlags |= 0x20000000;

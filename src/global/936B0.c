@@ -1669,7 +1669,7 @@ void projectileDespawnOrExplode(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 10, 10, 1, 0x96, 0x78, 0, 1.0f);
     unkFC = G_PROJECTILE_ACTOR->hasArcBounds;
-    if (unkFC != 0 || (G_PROJECTILE_ACTOR->unk6A & 1) || gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9) {
+    if (unkFC != 0 || (G_PROJECTILE_ACTOR->unk6A & 1) || gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9) {
         other = G_PROJECTILE_ACTOR->unk11C;
         if (other == NULL || other->actorType != 0x2E || (other->actorType == 0x2E && (unkFC != 0 || (G_PROJECTILE_ACTOR->unk6A & 1)))) {
             effectSetDepth(0);
@@ -2949,7 +2949,7 @@ void projectileFallBounceUpdate(void) {
         gCurrentActor->accelY = D_807502F8 - (f32)(((randomNonNegative() >> 15) % 32767) % 10);
         gCurrentActor->contactFlags &= 0xFFFE;
     }
-    if (gActorGlobalState.unk200 == 5) {
+    if (gActorGlobalState.bossFightPhase == 5) {
         sub = ((PlayerActorTrackView *)gActorGlobalState.targetActor)->unk174;
         if (sub->unk88 != NULL && (sub->unk88->actorType == 0x1D || sub->unk88->actorType == 0x50)) {
             camStartShake(sub->unk104, 0xA, 0x14);

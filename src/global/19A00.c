@@ -1659,7 +1659,7 @@ extern f32 sSavedLightColorG;
 extern f32 sSavedLightColorB;
 
 
-void scriptCmdAttachToParentNode(Actor *actor) {
+void scriptCmdSpawnDownwardDriftEffect(Actor *actor) {
     u8 imm;
 
     scriptReadU8(&imm);
@@ -1674,7 +1674,7 @@ void scriptCmdEnablePlayerFlag40000(Actor *actor) {
     gActivePlayerState->stateFlags |= 0x40000;
 }
 
-void scriptCmdDetachFromParent(Actor *actor) {
+void scriptCmdSpawnUpwardDriftEffect(Actor *actor) {
     u8 imm;
 
     scriptReadU8(&imm);
@@ -1692,7 +1692,7 @@ void scriptCmdDetachFromParent(Actor *actor) {
     }
 }
 
-void scriptCmdSetActorInteractionTimer(Actor *actor) {
+void scriptCmdSpawnSineDriftEffect(Actor *actor) {
     u8 imm;
 
     scriptReadU8(&imm);

@@ -84,7 +84,7 @@ void func_806B1290(void) {
 
 extern ActorGlobalState gActorGlobalState;
 void func_806B1348(void) {
-    if (gBehaviourWorkState->stepCount >= 0x65 && gActorGlobalState.unk200 == 2 && behaviourIsTargetWithinAngle(0x2710) != 0) {
+    if (gBehaviourWorkState->stepCount >= 0x65 && gActorGlobalState.bossFightPhase == 2 && behaviourIsTargetWithinAngle(0x2710) != 0) {
         ((B5EC0Actor *)gCurrentActor)->unk154 = 0x27;
         ((B5EC0Actor *)gCurrentActor)->unk155 = 0;
     }
@@ -119,7 +119,7 @@ void func_806B13B4(u8 arg0) {
         sel = gCurrentActor->state;
     }
     if (sel != 0x32 || gActorGlobalState.unk15 != 0) {
-        if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && sel != 0x37) {
+        if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && sel != 0x37) {
             if (((B5EC0Actor *)gCurrentActor)->unk134 < -1) {
                 behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x20C);
                 ((B5EC0Actor *)gCurrentActor)->unkC0 = 250.0f;
@@ -130,10 +130,10 @@ void func_806B13B4(u8 arg0) {
             gBehaviourWorkState->unk35 = 2;
             gCurrentActor->callbackMask &= 0xFFFF7FFF;
             sel = gCurrentActor->state;
-        } else if (gActorGlobalState.unk200 == 4) {
+        } else if (gActorGlobalState.bossFightPhase == 4) {
             behaviourSpawnExplosionAndSound(0x209, 0x31, gActorGlobalState.targetActor);
             sel = gCurrentActor->state;
-        } else if (gActorGlobalState.unk200 == 5) {
+        } else if (gActorGlobalState.bossFightPhase == 5) {
             behaviourSpawnExplosionAndSound(0x20A, 0x32, gActorGlobalState.targetActor);
             ((B5EC0Actor *)gCurrentActor)->unkC0 = 220.0f;
             gCurrentActor->interactionType = 8;

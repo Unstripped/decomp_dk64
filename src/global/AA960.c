@@ -715,7 +715,7 @@ void actorPathCollectibleUpdate(void *spriteAsset) {
                 gCurrentActor->unk144 = 1;
             }
         }
-        if (gActorGlobalState.unk200 == 4) {
+        if (gActorGlobalState.bossFightPhase == 4) {
             effectSpawnBurstParticleCluster(gCurrentActor);
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x2BF, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
             actorDespawn(gCurrentActor);
@@ -790,7 +790,7 @@ void effectActorSparkleTick(void) {
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     }
     actorUpdatePrevContactFlags(gCurrentActor);
-    if (flag != 0 && gActorGlobalState.unk200 == 4 && gFrameCounter % 5 == 0) {
+    if (flag != 0 && gActorGlobalState.bossFightPhase == 4 && gFrameCounter % 5 == 0) {
         idx = (randomNonNegative() >> 15) % 0xFF % 7;
         table = D_807504A4;
         effectSetCallback(&effectOrbitSourceUpdate);

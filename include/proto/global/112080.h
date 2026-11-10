@@ -53,8 +53,8 @@ void resNodeListFree(struct ResQueueActorState *);
 #ifndef PROTO_SKIP_resQueueRemove
 void resQueueRemove(Actor *);
 #endif
-#ifndef PROTO_SKIP_resFreeEntry
-void resFreeEntry(struct ResRecord *);
+#ifndef PROTO_SKIP_resFreeRecordData
+void resFreeRecordData(struct ResRecord *);
 #endif
 #ifndef PROTO_SKIP_resFreeRecord
 void resFreeRecord(struct ResItem *);
@@ -65,8 +65,8 @@ void resFreeRecordList(struct ResItemList *);
 #ifndef PROTO_SKIP_resFreeRecordListArray
 void resFreeRecordListArray(struct ResParsedList *);
 #endif
-#ifndef PROTO_SKIP_resFreeRecordListHolder
-void resFreeRecordListHolder(struct ResNode *);
+#ifndef PROTO_SKIP_resNodeDestroy
+void resNodeDestroy(struct ResNode *);
 #endif
 #ifndef PROTO_SKIP_resListTick
 void resListTick(void);

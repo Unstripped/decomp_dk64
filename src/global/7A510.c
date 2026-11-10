@@ -114,10 +114,10 @@ void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackA
                         }
                         if (entryAllowed) {
                             tv0 = entry->unk8;
-                            tv1 = gActorGlobalState.unk200;
+                            tv1 = gActorGlobalState.bossFightPhase;
                             if (tv1 < tv0) {
                                 gActorGlobalState.targetActor = (s32)attacker;
-                                gActorGlobalState.unk200 = ((u8 *)res)[i * 12 + 8];
+                                gActorGlobalState.bossFightPhase = ((u8 *)res)[i * 12 + 8];
                             }
                             if (gActorGlobalState.unk201 < 0xF) {
                                 gActorGlobalState.unk204[gActorGlobalState.unk201] = (s32)attacker;
@@ -138,7 +138,7 @@ void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackA
                                     }
                                 }
                             }
-                            if (gActorGlobalState.unk200) {}  // FAKE: dead read steers s0/s1 colouring
+                            if (gActorGlobalState.bossFightPhase) {}  // FAKE: dead read steers s0/s1 colouring
                             if (entry->unkA == 0 || entry->unkA == 2) {
                                 done = 1;
                             }
@@ -150,9 +150,9 @@ void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackA
                     i++;
                 }
                 if (targetActor->unk60 & 0x20000000) {
-                    gActorGlobalState.unk200 = 1;
+                    gActorGlobalState.bossFightPhase = 1;
                 }
-                if (gActorGlobalState.unk200 == 6 || gActorGlobalState.unk200 == 7) {
+                if (gActorGlobalState.bossFightPhase == 6 || gActorGlobalState.bossFightPhase == 7) {
                     actorApplyDamage((struct Beh798_Actor *)targetActor, (struct Beh798_Actor *)attacker);
                 }
                 actorCollisionRunInteractionTable((void *)targetActor, (void *)attacker);
@@ -190,7 +190,7 @@ void actorCollisionRunInteractionTable(InteractionActor *actorA, InteractionActo
     entry = D_8074ABCC; do {
         if (actorCollisionPatternMatches(actorA->unk5A, actorA->unk5C, entry->unk0) &&
             actorCollisionPatternMatches(actorB->unk5A, actorB->unk5C, entry->unk2) &&
-            ((entry->unk4 == -1) || entry->unk4 == gActorGlobalState.unk200)) {
+            ((entry->unk4 == -1) || entry->unk4 == gActorGlobalState.bossFightPhase)) {
             if (entry->unk5 != -1) {
                 if (1) {  // FAKE: extra block lowers gActorGlobalState const priority vs actorB (s0/s1 swap)
                     found = 0;
@@ -271,9 +271,9 @@ s32 actorCollisionPatternMatches(s16 actorType, s16 actorFlags, s16 pattern) {
 
 
 void func_80675D70(s32 actor) {
-    if (gActorGlobalState.unk200 < 2) {
+    if (gActorGlobalState.bossFightPhase < 2) {
         gActorGlobalState.targetActor = actor;
-        gActorGlobalState.unk200 = 1;
+        gActorGlobalState.bossFightPhase = 1;
     }
     if (gActorGlobalState.unk201 < 0xF) {
         gActorGlobalState.unk204[gActorGlobalState.unk201] = actor;
@@ -293,15 +293,15 @@ void actorApplyDamage(Beh798_Actor *target, Beh798_Actor *attacker) {
     s32 currentAction;
 
     if ((target->unk134 -= attacker->unk136) <= 0) {
-        gActorGlobalState.unk200 = 9;
+        gActorGlobalState.bossFightPhase = 9;
         return;
     }
-    currentAction = gActorGlobalState.unk200;
+    currentAction = gActorGlobalState.bossFightPhase;
     if (currentAction == 6) {
-        currentAction = gActorGlobalState.unk200 = 4;
+        currentAction = gActorGlobalState.bossFightPhase = 4;
     }
     if (currentAction == 7) {
-        gActorGlobalState.unk200 = 5;
+        gActorGlobalState.bossFightPhase = 5;
     }
 }
 

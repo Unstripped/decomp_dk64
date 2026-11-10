@@ -378,7 +378,7 @@ void resQueueRemove(Actor *targetActor) {
     }
 }
 
-void resFreeEntry(ResRecord *rec) {
+void resFreeRecordData(ResRecord *rec) {
     heapFreeDeferred(rec->data.bytes);
 }
 
@@ -395,7 +395,7 @@ void resFreeRecord(ResItem *item) {
     i = 0;
     if (flags & 1) {
         do {
-            resFreeEntry(&item->variant[i]);
+            resFreeRecordData(&item->variant[i]);
             i++;
         } while (i != 1);
         heapFreeDeferred(item->variant);
@@ -435,7 +435,7 @@ void resFreeRecordListArray(ResParsedList *parsed) {
     heapFreeDeferred(parsed);
 }
 
-void resFreeRecordListHolder(ResNode *node) {
+void resNodeDestroy(ResNode *node) {
     resFreeRecordListArray(node->parsed);
     heapFreeDeferred(node);
 }
@@ -455,7 +455,7 @@ void resListTick(void) {
             if ((*link)->refCount == 0) {
                 node = *link;
                 *link = node->next;
-                resFreeRecordListHolder(node);
+                resNodeDestroy(node);
             } else {
                 link = &(*link)->next;
             }

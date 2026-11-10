@@ -960,8 +960,8 @@ void actorDispatchCallbacks(Actor *actor) {
                 switch ((s32)node->callback) {
                 case 0x8000:
                     actorCollisionProcessHit(actor, node);
-                    if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk200 == 0xA)) && (actor->collisionFlags & 1)) {
-                        playerHandleDamageReaction(actor, gActorGlobalState.targetActor, (gActorGlobalState.unk200 == 0xA));
+                    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.bossFightPhase == 0xA)) && (actor->collisionFlags & 1)) {
+                        playerHandleDamageReaction(actor, gActorGlobalState.targetActor, (gActorGlobalState.bossFightPhase == 0xA));
                     }
                     break;
                 case 0x2:
@@ -1573,7 +1573,7 @@ void actorGlobalStateClearEvents(void) {
     gActorGlobalState.unk91 = 0;
     gActorGlobalState.unk1F8 = 0;
     gActorGlobalState.targetActor = 0;
-    gActorGlobalState.unk200 = 0;
+    gActorGlobalState.bossFightPhase = 0;
     gActorGlobalState.unk201 = 0;
     gActorGlobalState.unk254 = 0;
     gActorGlobalState.unk2 = 0;

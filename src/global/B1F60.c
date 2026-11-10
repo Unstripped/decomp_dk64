@@ -47,7 +47,7 @@ u16 movementFlags;
 {
     Actor *actor;
 
-    if (targetId != 0 && (gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0)) {
+    if (targetId != 0 && (gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0)) {
         actor = gCurrentActor;
         if (actor->state != 0x37) {
             ((B1F60Actor *)actor)->unkC0 = 200.0f;
@@ -210,11 +210,11 @@ void func_806AD9F4(void) {
             actorSpawnLinkedFollower();
         }
     }
-    if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2F7);
         actorSetTargetSpeed(gCurrentActor, 0);
         gCurrentActor->speedXZ = -200.0f;
-    } else if (gActorGlobalState.unk200 == 4) {
+    } else if (gActorGlobalState.bossFightPhase == 4) {
         gCurrentActor->interactionType = 2;
         behaviourSpawnExplosionAndSound(0x2F6, 0x27, gActorGlobalState.targetActor);
         gCurrentActor->speedXZ = gCurrentActor->speedXZ * 2;

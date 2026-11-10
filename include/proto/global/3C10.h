@@ -47,8 +47,8 @@ void mapRequestTransitionFast(s32, s32);
 #ifndef PROTO_SKIP_mapCheckAutoTransition
 void mapCheckAutoTransition(void);
 #endif
-#ifndef PROTO_SKIP_func_805FF5A0
-void func_805FF5A0(s32);
+#ifndef PROTO_SKIP_mapLoadSavedSlotSpawn
+void mapLoadSavedSlotSpawn(s32);
 #endif
 #ifndef PROTO_SKIP_mapTransitionExitCurrent
 void mapTransitionExitCurrent(s32, s32);
@@ -71,8 +71,8 @@ void mapTransitionToMenuOrPrevious(void);
 #ifndef PROTO_SKIP_mapFindSlotByMap
 s32 mapFindSlotByMap(s16);
 #endif
-#ifndef PROTO_SKIP_func_805FF9AC
-void func_805FF9AC(s32, s32, s32, s16);
+#ifndef PROTO_SKIP_mapSaveSlotAndTransition
+void mapSaveSlotAndTransition(s32, s32, s32, s16);
 #endif
 #ifndef PROTO_SKIP_func_805FFE50
 s32 func_805FFE50(s32, s16, s16);
@@ -89,8 +89,8 @@ void mapTransitionToWorldHub(s32);
 #ifndef PROTO_SKIP_mapFindSlotIndex
 s32 mapFindSlotIndex(s32);
 #endif
-#ifndef PROTO_SKIP_func_80600174
-s16 func_80600174(f32 *, f32 *, f32 *);
+#ifndef PROTO_SKIP_mapFindSavedPositionSlot
+s16 mapFindSavedPositionSlot(f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_func_80600340
 s32 func_80600340(s16 *, u8, s32 *);

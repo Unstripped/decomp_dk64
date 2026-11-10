@@ -113,10 +113,10 @@ void func_806B6958(void) {
         gBehaviourWorkState->unk1F = gBehaviourWorkState->unk1F - 1;
         gBehaviourWorkState->unk1E = gBehaviourWorkState->unk1E - 1;
     }
-    if (gActorGlobalState.unk200 == 4) {
+    if (gActorGlobalState.bossFightPhase == 4) {
         func_80724C2C(-0x96);
     }
-    if (gBehaviourWorkState->timer == 0 || gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) {
+    if (gBehaviourWorkState->timer == 0 || gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3B2, 0xFF, 0x7F, 0x1E);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3B7, 0xFF, 0x7F, 0x1E);
         effectSpawnRing();
@@ -188,7 +188,7 @@ void func_806B6DB0(s32 aggroRange) {
         func_80724CA4(2, 2);
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
     }
-    if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+    if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
         tgt = gActorGlobalState.targetActor;
         ((BB300ActorAlt *)gCurrentActor)->unkC0 = 200.0f;
         behaviourCalculateDamageForce(tgt, 0x236);
@@ -330,7 +330,7 @@ void func_806B75F4(void) {
 
 void func_806B761C(void) {
     behaviourFrameBegin();
-    if (gActorGlobalState.unk200 == 4) {
+    if (gActorGlobalState.bossFightPhase == 4) {
         func_80724C2C(-0x64);
     }
     func_806B6DB0(0x2710);
@@ -338,7 +338,7 @@ void func_806B761C(void) {
 
 void func_806B7660(void) {
     behaviourFrameBegin();
-    if (gActorGlobalState.unk200 == 4) {
+    if (gActorGlobalState.bossFightPhase == 4) {
         func_80724C2C(-0x64);
     }
     func_806B6DB0(0x2710);

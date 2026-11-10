@@ -203,7 +203,7 @@ void func_806C6BC8(void) {
                 gPrimaryPlayerActor->z += (z - gPrimaryPlayerActor->z) * 0.05;
                 gBehaviourWorkState->timer--;
                 if (gBehaviourWorkState->timer == 0) {
-                    func_805FF9AC(0x33, 0, 0, 1);
+                    mapSaveSlotAndTransition(0x33, 0, 0, 1);
                 }
             }
             break;

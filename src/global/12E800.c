@@ -93,7 +93,6 @@ void behaviourFrameBegin(void) {
     }
     if (gCurrentActor->actorType != 0xAF && gCurrentActor->state == 0x37 && gCurrentActor->callbackMask != 0) {
         gCurrentActor->callbackMask = 0;
-        if (!gActorGlobalState.unk1B) {} // FAKE: dead use keeps the gActorGlobalState address a coloured web (Q0319, Q0349)
     }
     collisionClearFlags();
 }

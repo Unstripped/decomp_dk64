@@ -2171,7 +2171,7 @@ s32 playerInputCheckMultiplayerPlayerTarget(void) {
                 if (D_8076A0B2 == 0) {
                     sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
                     screenSetTransitionFadeType(0);
-                    func_805FF9AC(gActorGlobalState.unk10, gActorGlobalState.unk12, 0, 0);
+                    mapSaveSlotAndTransition(gActorGlobalState.unk10, gActorGlobalState.unk12, 0, 0);
                 }
                 return 1;
             case 4:
@@ -2234,7 +2234,7 @@ void playerInputStartTransitionToMap(s32 mapId, s32 fade, s32 unused) {
         transitionSetState(2);
         screenSetTransitionFadeType(0);
     }
-    func_805FF9AC(mapId, 0, 0, 0);
+    mapSaveSlotAndTransition(mapId, 0, 0, 0);
 }
 
 
@@ -2827,7 +2827,6 @@ void playerInputStepLadderClimb(void) {
         gPlayerPadState[gCurrentPlayerIndex].stickX = 0;
     }
     playerInputHandleLadderClimb();
-    if (gPlayerPadState) {} // FAKE: keeps &gPlayerPadState live (const-hoist register order)
     if (gActivePlayerState->stateFlags & 8) {
         st->unk3E = 3;
     } else {
@@ -2852,7 +2851,6 @@ void playerInputCheckLadderTopOrBottom(void) {
         n = (*st->unk34 & 0x80) ? 1 : 3;
         if (flag) {
             gPlayerPadState[gCurrentPlayerIndex].stickX = gPlayerPadState[gCurrentPlayerIndex].stickX * -1;
-            if (flag * -1) {} // FAKE: dead test keeping flag a coloured web
         }
         if (gActivePlayerState->stateFlags & 0x10000002) {
             gPlayerPadState[gCurrentPlayerIndex].stickX = gPlayerPadState[gCurrentPlayerIndex].stickX * -1;

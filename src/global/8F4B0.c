@@ -331,7 +331,7 @@ void actorCutsceneDispatchEvents(void) {
                     }
                     screenSetTransitionFadeType(0);
                 }
-                func_805FF9AC(eventData[0], eventData[1], 0, 0);
+                mapSaveSlotAndTransition(eventData[0], eventData[1], 0, 0);
                 playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
@@ -347,7 +347,7 @@ void actorCutsceneDispatchEvents(void) {
             break;
         case 0x7:
             if (!(gGlobalPauseFlags & 0x400)) {
-                func_805FF9AC(eventData[0], eventData[1], eventData[2], 2);
+                mapSaveSlotAndTransition(eventData[0], eventData[1], eventData[2], 2);
                 playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
