@@ -1,10 +1,8 @@
-#define PROTO_SKIP_func_806755A8
 #include "common.h"
 #include "proto/global/15050.h"
 #include "proto/global/2F550.h"
 #include "proto/global/70FD0.h"
 #include "proto/global/79890.h"
-void func_806755A8(s32, s32, s32, s32, s16 *, s16 *);
 #include "proto/global/7CA80.h"
 
 typedef struct CollisionSphereNode {
