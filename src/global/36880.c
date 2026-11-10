@@ -2206,7 +2206,7 @@ void modelSlotFreeNestedBuffer(s32 slotIndex, u8 isId) {
     } else {
         listPtr = (s32 **)((u8 *)slot->unk20 + 0xBC);
     }
-    pp = &listPtr;
+    pp = &listPtr; // FAKE: re-read through pp keeps listPtr in memory (direct use costs 1064)
     if (*pp != NULL) {
         buffer = **pp;
         if (buffer != NULL) {
@@ -3615,6 +3615,7 @@ void texAnimNodeUpdateBuffers(ModelSegmentNode *node, s32 *texAOut, s32 *texBOut
 
 s32 texAnimNodeAdvance(ModelSegmentNode *node, s32 *frameOut, s32 *nextFrameOut) {
     s32 result;
+    s32 frame;
 
     result = 0;
     switch (node->unk48) {
@@ -3641,7 +3642,8 @@ s32 texAnimNodeAdvance(ModelSegmentNode *node, s32 *frameOut, s32 *nextFrameOut)
     if (node->unk54 + 1 == node->unk58) {
         *nextFrameOut = 0;
     } else {
-        *nextFrameOut = node->unk54 + 1U; // FAKE: unsigned one shifts value numbering of the sum (Q0304)
+        frame = node->unk54;
+        *nextFrameOut = frame + 1;
     }
     return result;
 }
@@ -4229,31 +4231,11 @@ typedef struct ModelSlotSerializedOut {
     /* 0x2F */ u8 unk2F;
 } ModelSlotSerializedOut; /* 0x30 */
 
-typedef struct ModelSlotSerializeView {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ u8 *unk20;
-    /* 0x24 */ u8 pad24[0x58];
-    /* 0x7C */ u8 *unk7C;
-    /* 0x80 */ u8 pad80[4];
-    /* 0x84 */ s16 unk84;
-    /* 0x86 */ s16 unk86;
-    /* 0x88 */ s16 pad88;
-    /* 0x8A */ s16 unk8A;
-    /* 0x8C */ u8 pad8C[4];
-} ModelSlotSerializeView; /* 0x90 */
 
 extern u8 *D_807F6010;
 extern u8 gCsVarsDirty[];
 extern u8 D_807F6902;
 
-#define MODEL_SLOT_SERIALIZE_ENTRY ((ModelSlotSerializeView *)((u8 *)gModelSlots + i * 0x90))
 
 void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     s32 count;
@@ -4281,25 +4263,25 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     *(s32 *)D_807F6010 = D_80747D70;
     out = (ModelSlotSerializedOut *)(D_807F6010 + 4);
     for (i = 0; i < D_80747D70; i++, out++) {
-        out->unk0 = MODEL_SLOT_SERIALIZE_ENTRY->unk0;
-        out->unk4 = MODEL_SLOT_SERIALIZE_ENTRY->unk4;
-        out->unk8 = MODEL_SLOT_SERIALIZE_ENTRY->unk8;
-        out->unkC = MODEL_SLOT_SERIALIZE_ENTRY->unkC;
-        out->unk18 = MODEL_SLOT_SERIALIZE_ENTRY->unk10;
-        out->unk1C = MODEL_SLOT_SERIALIZE_ENTRY->unk14;
-        out->unk20 = MODEL_SLOT_SERIALIZE_ENTRY->unk18;
-        out->unk28 = MODEL_SLOT_SERIALIZE_ENTRY->unk84;
-        out->unk2C = MODEL_SLOT_SERIALIZE_ENTRY->unk86;
-        out->unk24 = MODEL_SLOT_SERIALIZE_ENTRY->unk1C;
-        out->unk2A = MODEL_SLOT_SERIALIZE_ENTRY->unk8A;
+        out->unk0 = gModelSlots[i].unk0;
+        out->unk4 = gModelSlots[i].unk4;
+        out->unk8 = gModelSlots[i].unk8;
+        out->unkC = gModelSlots[i].unkC;
+        out->unk18 = gModelSlots[i].unk10;
+        out->unk1C = gModelSlots[i].unk14;
+        out->unk20 = gModelSlots[i].unk18;
+        out->unk28 = gModelSlots[i].unk84;
+        out->unk2C = gModelSlots[i].unk86;
+        out->unk24 = gModelSlots[i].unk1C;
+        out->unk2A = gModelSlots[i].unk8A;
         switch (out->unk2C) {
         case 2:
-            out->unk2F = MODEL_SLOT_SERIALIZE_ENTRY->unk20[0x4E];
-            out->unk2E = MODEL_SLOT_SERIALIZE_ENTRY->unk20[0x5B];
+            out->unk2F = ((u8 *)gModelSlots[i].unk20)[0x4E];
+            out->unk2E = ((u8 *)gModelSlots[i].unk20)[0x5B];
             break;
         case 1:
             out->unk2F = 0;
-            out->unk2E = MODEL_SLOT_SERIALIZE_ENTRY->unk20[0xC3];
+            out->unk2E = ((u8 *)gModelSlots[i].unk20)[0xC3];
             break;
         }
     }
@@ -4318,7 +4300,6 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     *sizeOut = size;
 }
 
-#undef MODEL_SLOT_SERIALIZE_ENTRY
 
 typedef struct ModelSlotPackView {
     /* 0x00 */ u8 pad0[0x24];
