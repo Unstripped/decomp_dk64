@@ -957,8 +957,11 @@ class Resolver:
         return f"no {'C function' if fk else 'site'} {key} at {where}"
 
 
+AGENT_ID = re.compile(r"[A-Za-z0-9_]{1,48}(\.[A-Za-z0-9_]{1,48}){0,3}")  # subagents: `Clean12E800.SnXxx`
+
+
 def cmd_record(a):
-    if not ledger.AGENT.fullmatch(a.agent):
+    if not AGENT_ID.fullmatch(a.agent):
         sys.exit(f"quality: bad agent name {a.agent!r}")
     src = sys.stdin if a.batch == "-" else open(a.batch)
     rows, errors = [], []
