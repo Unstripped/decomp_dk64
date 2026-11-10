@@ -12,7 +12,7 @@ s32 func_805FEF74(s32);
 u8 mapGetWorldIndex(u8);
 #endif
 #ifndef PROTO_SKIP_mapGetConfigValue
-s32 mapGetConfigValue(u8, s32);
+s32 mapGetConfigValue(s32, s32);
 #endif
 #ifndef PROTO_SKIP_mapGetHubWorldIndex
 u8 mapGetHubWorldIndex(u8, u8);

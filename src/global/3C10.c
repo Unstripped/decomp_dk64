@@ -1,4 +1,3 @@
-#define PROTO_SKIP_mapGetConfigValue
 #include "common.h"
 #include "sched.h"
 #include "actor.h"
