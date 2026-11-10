@@ -238,57 +238,41 @@ void func_80724C78(void *mapData) {
     spawnNodeListInitFromMap(mapData, D_80755690, D_80755694);
 }
 
-typedef struct A1Entry10 {
-    /* 0x0 */ u8 unk0;
-    /* 0x1 */ u8 unk1;
-    /* 0x2 */ u8 pad2[2];
-    /* 0x4 */ f32 unk4;
-    /* 0x8 */ f32 unk8;
-    /* 0xC */ f32 unkC;
-} A1Entry10;
-
 void func_80724CA4(s16 first, s16 count) {
-    u8 *table;
+    BoneRotation *table;
 
-    gCurrentActor->sub4->unk1C = heapAlloc(count * 8 + 8);
-    heapClearBlock(gCurrentActor->sub4->unk1C);
-    table = gCurrentActor->sub4->unk1C;
-    table[0] = 0x7F;
-    table[1] = first;
-    table[count << 3] = 0;
+    gCurrentActor->sub4->boneRotations = heapAlloc((count + 1) * sizeof(BoneRotation));
+    heapClearBlock(gCurrentActor->sub4->boneRotations);
+    table = gCurrentActor->sub4->boneRotations;
+    table[0].weight = 0x7F;
+    table[0].bone = first;
+    table[count].weight = 0;
 }
 
 void func_80724D28(s16 first, s16 count) {
-    A1Entry10 *table;
+    BoneVector *table;
 
-    gCurrentActor->sub4->unk24 = heapAlloc(count * 0x10 + 0x10);
-    heapClearBlock(gCurrentActor->sub4->unk24);
-    table = gCurrentActor->sub4->unk24;
-    table[0].unk0 = first;
-    table[0].unk1 = first + 1;
-    ((u8 *)table)[count << 4] = 0xFF; // FAKE: byte-offset store steers the s16 home/reload of count
+    gCurrentActor->sub4->boneOffsets = heapAlloc((count + 1) * sizeof(BoneVector));
+    heapClearBlock(gCurrentActor->sub4->boneOffsets);
+    table = gCurrentActor->sub4->boneOffsets;
+    table[0].bone = first;
+    table[0].lastBone = first + 1;
+    table[count].bone = 0xFF;
 }
 
 void func_80724DB0(s16 first, s16 count) {
-    A1Entry10 *table;
+    BoneVector *table;
 
-    gCurrentActor->sub4->unk20 = heapAlloc(count * 0x10 + 0x10);
-    heapClearBlock(gCurrentActor->sub4->unk20);
-    table = gCurrentActor->sub4->unk20;
-    table[0].unk4 = 1.0f;
-    table[0].unk8 = 1.0f;
-    table[0].unkC = 1.0f;
-    table[0].unk0 = first;
-    table[0].unk1 = first;
-    ((u8 *)table)[count << 4] = 0xFF; // FAKE: byte-offset store steers the s16 home/reload of count
+    gCurrentActor->sub4->boneScales = heapAlloc((count + 1) * sizeof(BoneVector));
+    heapClearBlock(gCurrentActor->sub4->boneScales);
+    table = gCurrentActor->sub4->boneScales;
+    table[0].x = 1.0f;
+    table[0].y = 1.0f;
+    table[0].z = 1.0f;
+    table[0].bone = first;
+    table[0].lastBone = first;
+    table[count].bone = 0xFF;
 }
-
-typedef struct A1Cam {
-    /* 0x0 */ u8 pad0[2];
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ u16 unk4;
-    /* 0x6 */ s16 unk6;
-} A1Cam;
 
 extern u8 gGameMode;
 
@@ -296,8 +280,8 @@ void func_80724E48(u8 mode) {
     f32 angle;
     f32 pitch;
     f32 yaw;
-    A1Cam *cam;
-    f32 camYaw;
+    BoneRotation *rot;
+    f32 curYaw;
     f32 limit;
     s32 pitchArg;
     s16 res;
@@ -307,19 +291,19 @@ void func_80724E48(u8 mode) {
     if (mode == 8) {
         pitchArg = 0x46;
         yaw = gPrimaryPlayerActor->yaw * 3.1415927f * (1.0 / 2048.0);
-        cam = (A1Cam *)gPrimaryPlayerActor->sub4->unk1C;
+        rot = gPrimaryPlayerActor->sub4->boneRotations;
         limit = 1.0431069f;
     } else {
         yaw = gCurrentActor->yaw * 3.1415927f * (1.0 / 2048.0);
-        cam = (A1Cam *)gCurrentActor->sub4->unk1C;
+        rot = gCurrentActor->sub4->boneRotations;
         pitchArg = D_8075EB80[gBehaviourAnimState->unk44].unkD;
         limit = D_8075EB80[gBehaviourAnimState->unk44].unkC * 4 * 3.1415927f * (1.0 / 2048.0);
         if (pitchArg == 0xFF) {
             pitchArg = 0x3E8;
         }
     }
-    if (0 != cam) {
-        camYaw = (f64)(u32)cam->unk4 / 65535.0 * 6.2831854820251465;
+    if (0 != rot) {
+        curYaw = (f64)(u32)rot->rotY / 65535.0 * 6.2831854820251465;
         if (gGameMode == 1 && mode != 5 && mode != 7) {
             mode = 6;
         }
@@ -355,12 +339,12 @@ void func_80724E48(u8 mode) {
         if (limit != 0.0f) {
             if (limit < angle && angle <= 3.1415927f) {
                 angle = limit;
-                if (camYaw > 3.1415927f) {
+                if (curYaw > 3.1415927f) {
                     angle = limit + 6.2831855f;
                 }
             } else if (angle < 6.2831855f - limit && angle > 3.1415927f) {
                 angle = 6.2831855f - limit;
-                if (camYaw < 3.1415927f) {
+                if (curYaw < 3.1415927f) {
                     angle = angle - 6.2831855f;
                 }
             }
@@ -368,13 +352,13 @@ void func_80724E48(u8 mode) {
         if (angle > 3.1415927f) {
             angle -= 6.2831855f;
         }
-        if (camYaw > 3.1415927f) {
-            camYaw -= 6.2831855f;
+        if (curYaw > 3.1415927f) {
+            curYaw -= 6.2831855f;
         }
-        res = mathAngleEaseToward((s32)(camYaw * 2048.0 / 3.1415927410125732), (s32)(angle * 2048.0 / 3.1415927410125732), 5.0f);
-        cam->unk2 = (u32)(pitch / 6.2831855f * 65535.0);
-        cam->unk4 = (u32)(res / 4095.0 * 65535.0);
-        cam->unk6 = 0;
+        res = mathAngleEaseToward((s32)(curYaw * 2048.0 / 3.1415927410125732), (s32)(angle * 2048.0 / 3.1415927410125732), 5.0f);
+        rot->rotX = (u32)(pitch / 6.2831855f * 65535.0);
+        rot->rotY = (u32)(res / 4095.0 * 65535.0);
+        rot->rotZ = 0;
     }
 }
 

@@ -4,8 +4,6 @@
 #include "common.h"
 #include "actor.h"
 struct F56AState;
-struct F5BSlot;
-struct F5CEntry;
 struct F5DDeferredEntry;
 struct F5L1Control;
 struct F5N1Spring;
@@ -60,16 +58,16 @@ void playerKongCalculateHealthScale(Actor *);
 s32 mathCalculateRatioClamped(f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory7
-void playerWeaponCalculateTrajectory7(Actor *, struct F5BSlot *, s32 *);
+void playerWeaponCalculateTrajectory7(Actor *, BoneRotation *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory4
-void playerWeaponCalculateTrajectory4(Actor *, struct F5BSlot *, s32 *);
+void playerWeaponCalculateTrajectory4(Actor *, BoneRotation *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory22
-void playerWeaponCalculateTrajectory22(Actor *, struct F5BSlot *, s32 *);
+void playerWeaponCalculateTrajectory22(Actor *, BoneRotation *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory23
-void playerWeaponCalculateTrajectory23(Actor *, struct F5BSlot *, s32 *);
+void playerWeaponCalculateTrajectory23(Actor *, BoneRotation *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory24
 void playerWeaponCalculateTrajectory24(f32, f32, struct F5N1Spring *, f32 *);
@@ -84,25 +82,25 @@ s32 playerWeaponCalculateTrajectory26(Actor *, struct F56AState *, s32);
 f32 mathAngleRadDeltaTurns(f32 *, f32);
 #endif
 #ifndef PROTO_SKIP_playerWeaponAimTarget
-void playerWeaponAimTarget(Actor *, struct F5BSlot *, s32 *);
+void playerWeaponAimTarget(Actor *, BoneRotation *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponSpawnProjectile
-void playerWeaponSpawnProjectile(Actor *, struct F5BSlot *, s32 *);
+void playerWeaponSpawnProjectile(Actor *, BoneRotation *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponInitCrosshair
-void playerWeaponInitCrosshair(Actor *, struct F5BSlot *, s32 *);
+void playerWeaponInitCrosshair(Actor *, BoneRotation *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCrosshairUpdate
-void playerWeaponCrosshairUpdate(Actor *, struct F5BSlot *, s32 *);
+void playerWeaponCrosshairUpdate(Actor *, BoneRotation *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCrosshairRender
-void playerWeaponCrosshairRender(Actor *, struct F5CEntry *, s32 *);
+void playerWeaponCrosshairRender(Actor *, BoneVector *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponUpdateHomingTarget
-void playerWeaponUpdateHomingTarget(Actor *, struct F5BSlot *, s32 *);
+void playerWeaponUpdateHomingTarget(Actor *, BoneRotation *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponFireGun
-void playerWeaponFireGun(Actor *, struct F5CEntry *, s32 *, u8, u8, f32, f32);
+void playerWeaponFireGun(Actor *, BoneVector *, s32 *, u8, u8, f32, f32);
 #endif
 #ifndef PROTO_SKIP_playerWeaponReload
 void playerWeaponReload(Actor *, PlayerState *, u16);

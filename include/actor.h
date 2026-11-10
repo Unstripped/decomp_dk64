@@ -6,12 +6,35 @@ struct CollisionStaticTri;
 
 struct Actor;
 
+// Bone override lists of an actor's animation state (ActorSub4), applied when the model's
+// bone matrices are built. Each list is heap-allocated by its owner and ends with a
+// terminator record.
+typedef struct BoneRotation {
+    /* 0x0 */ s8 weight;   // constant writers use 0x7F or -0x80; 0 ends the list
+    /* 0x1 */ u8 bone;
+    /* 0x2 */ u16 rotX;    // binary angles, 0x10000 = one turn
+    /* 0x4 */ u16 rotY;
+    /* 0x6 */ u16 rotZ;
+} BoneRotation; // size = 0x8
+
+typedef struct BoneVector {
+    /* 0x0 */ u8 bone;     // 0xFF ends the list
+    /* 0x1 */ u8 lastBone; // last bone of the range, or 0xFF
+    /* 0x2 */ u8 pad2[2];
+    /* 0x4 */ f32 x;
+    /* 0x8 */ f32 y;
+    /* 0xC */ f32 z;
+} BoneVector; // size = 0x10
+
+// Animation state: the 0x90-byte head of the block controllerAnimInit allocates
+// (boneCount * 0x80 + 0x170 bytes: this head, four 0x38-byte animation slots at 0x90,
+// then two arrays of boneCount matrices at 0x170).
 typedef struct ActorSub4 {
     /* 0x00 */ void *model;
     /* 0x04 */ u8 pad04[0x18];
-    /* 0x1C */ u8 *unk1C;
-    /* 0x20 */ void *unk20;
-    /* 0x24 */ void *unk24;
+    /* 0x1C */ BoneRotation *boneRotations;
+    /* 0x20 */ BoneVector *boneScales;
+    /* 0x24 */ BoneVector *boneOffsets;
     /* 0x28 */ u8 pad28[0xC];
     /* 0x34 */ f32 scaleX;
     /* 0x38 */ f32 scaleY;
@@ -20,7 +43,10 @@ typedef struct ActorSub4 {
     /* 0x48 */ f32 unk48;
     /* 0x4C */ u8 pad4C[0x18];
     /* 0x64 */ u16 animId;
-} ActorSub4;
+    /* 0x66 */ u8 pad66[0x22];
+    /* 0x88 */ s32 scriptResult; // comparison result of animation script commands
+    /* 0x8C */ u8 pad8C[4];
+} ActorSub4; // size = 0x90
 
 typedef struct ModelNode {
     /* 0x00 */ f32 x;
@@ -276,8 +302,13 @@ typedef struct Actor {
     /* 0x16C */ u8 tintB;
     /* 0x16D */ u8 tintA;
     /* 0x16E */ u8 unk16E[6];
+    // Component pointers: actorAllocate stores one pointer per entry of the type's component
+    // list (D_8074E218[type], 0 to 5 entries) from 0x174 on, the component data from the
+    // next 8-byte boundary. 0x174 is the first component; 0x178, 0x17C... are pointers only
+    // for types with that many components (for 1-component types 0x178 is already the
+    // component's data), so they stay in per-type views { Actor base; T *unk178; ... }.
     /* 0x174 */ void *customState;
-} Actor;
+} Actor; // size = 0x178, the block actorAllocate gives a type with no components
 
 // Per-behaviour state objects reached through gBehaviourWorkState..gBehaviourExtraState.
 typedef struct BehaviourWorkState {

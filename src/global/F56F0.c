@@ -27,9 +27,7 @@
 #include "proto/global/F9450.h"
 
 struct WaypointNode;
-struct F5BSlot;
 struct F56AState;
-struct F5CEntry;
 struct F5N6Input;
 
 extern Actor *gCurrentActor;
@@ -52,17 +50,7 @@ typedef struct F5ModelState {
     f32 animSpeed;
 } F5ModelState;
 
-typedef struct F5ActorSub4View {
-    F5ModelState *model;
-    u8 pad4[0x18];
-    struct F5BSlot *slots;
-    struct F5CEntry *entries;
-    u8 *flash;
-    u8 pad28[0x60];
-    s32 scriptResult;
-} F5ActorSub4View;
-
-#define F5_SUB4(actor) ((F5ActorSub4View *)(actor)->sub4)
+#define F5_MODEL(actor) ((F5ModelState *)(actor)->sub4->model)
 
 void playerKongStopAudioChannels(Actor *actor, u16 actorType) {
     switch (actorType) {
@@ -335,7 +323,7 @@ void scriptCmdCompareSpeedXZ(Actor *actor) {
     f32 temp;
 
     scriptReadU32(&temp);
-    F5_SUB4(actor)->scriptResult = (s32)(actor->speedXZ - temp);
+    actor->sub4->scriptResult = (s32)(actor->speedXZ - temp);
 }
 
 
@@ -345,7 +333,7 @@ void scriptCmdCompareMoveTier(Actor *actor) {
     u8 temp;
 
     scriptReadU8(&temp);
-    F5_SUB4(actor)->scriptResult =
+    actor->sub4->scriptResult =
         playerSelectMoveTier(actor, actor->speedXZ, actor->speedXZ, gActivePlayerState->unk4C, gCurrentCharacterIndex) - temp;
 }
 
@@ -383,8 +371,8 @@ void playerKongCalculateHealthScale(Actor *actor) {
 
     scriptReadU32(&limit);
     scriptReadU8(&amount);
-    base = F5_SUB4(actor)->model->frame;
-    F5_SUB4(actor)->scriptResult = 0;
+    base = F5_MODEL(actor)->frame;
+    actor->sub4->scriptResult = 0;
     if ((actor->contactFlags & 2) && ((actor->waterY - actor->floorY) > 12.0f)) {
         high = (actor->waterY < actor->floorY) ? actor->floorY : actor->waterY;
         value = actor->y - high;
@@ -396,14 +384,14 @@ void playerKongCalculateHealthScale(Actor *actor) {
     }
     count = mathCalculateRatioClamped(value * 40.0f, actor->speedY, actor->terminalSpeedY, actor->accelY);
     if (count == 0) {
-        F5_SUB4(actor)->scriptResult = 1;
+        actor->sub4->scriptResult = 1;
         return;
     }
     ratio = ((f32)(u32)amount - base) / (f32)count;
     if (ratio < 0.0f) {
         ratio = 0.01f;
     }
-    den = (F5_SUB4(actor)->model->animSpeed < 0.01) ? 0.01 : F5_SUB4(actor)->model->animSpeed;
+    den = (F5_MODEL(actor)->animSpeed < 0.01) ? 0.01 : F5_MODEL(actor)->animSpeed;
     ratio = ratio / den;
     if (limit < ratio) {
         ratio = limit;
@@ -432,17 +420,9 @@ s32 mathCalculateRatioClamped(f32 distance, f32 speed, f32 maxSpeed, f32 accel) 
 }
 
 
-typedef struct F5BSlot {
-    s8 weight;
-    u8 bone;
-    s16 rotX;
-    s16 rotY;
-    s16 rotZ;
-} F5BSlot;
-
 extern u16 D_80752F20[];
 
-void playerWeaponCalculateTrajectory7(Actor *actor, F5BSlot *slots, s32 *count) {
+void playerWeaponCalculateTrajectory7(Actor *actor, BoneRotation *slots, s32 *count) {
     s32 index;
     u16 angle;
     angle = 7U;  // FAKE: the bound shares angle with the table value (one register)
@@ -460,7 +440,7 @@ void playerWeaponCalculateTrajectory7(Actor *actor, F5BSlot *slots, s32 *count) 
 
 extern u16 D_80752F30[];
 
-void playerWeaponCalculateTrajectory4(Actor *actor, F5BSlot *slots, s32 *count) {
+void playerWeaponCalculateTrajectory4(Actor *actor, BoneRotation *slots, s32 *count) {
     s32 index;
     u16 angle;
     angle = 4U;  // FAKE: the bound shares angle with the table value (one register)
@@ -482,7 +462,7 @@ extern u16 D_80752F38[];
 extern u16 D_80752F40[];
 extern f32 mathCosF(s16);
 
-void playerWeaponCalculateTrajectory22(Actor *actor, F5BSlot *slots, s32 *count) {
+void playerWeaponCalculateTrajectory22(Actor *actor, BoneRotation *slots, s32 *count) {
     s32 tableIndex;
     u16 angle;
     s32 zero;
@@ -503,7 +483,7 @@ void playerWeaponCalculateTrajectory22(Actor *actor, F5BSlot *slots, s32 *count)
     }
 }
 
-void playerWeaponCalculateTrajectory23(Actor *actor, F5BSlot *slots, s32 *count) {
+void playerWeaponCalculateTrajectory23(Actor *actor, BoneRotation *slots, s32 *count) {
     u16 angle;
 
     angle = D_80752F40[gActivePlayerState->unk8E];
@@ -595,7 +575,7 @@ typedef struct {
 } F56AActor;
 
 
-void playerWeaponAimTarget(Actor *actor, F5BSlot *slots, s32 *count) {
+void playerWeaponAimTarget(Actor *actor, BoneRotation *slots, s32 *count) {
     F56AState *state = ((F56AActor *) actor)->weaponState;
     F56APair *pair;
     s32 pad5[1];
@@ -655,10 +635,10 @@ void playerWeaponAimTarget(Actor *actor, F5BSlot *slots, s32 *count) {
 
 extern s8 D_80752CBF[];
 
-void playerWeaponSpawnProjectile(Actor *actor, F5BSlot *slots, s32 *count) {
+void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) {
     F56AState *state = ((F56AActor *) actor)->weaponState;
     F56APair *pair;
-    F5BSlot *slot;
+    BoneRotation *slot;
     f32 spE0;
     s32 index;
     s32 kind;
@@ -698,7 +678,7 @@ void playerWeaponSpawnProjectile(Actor *actor, F5BSlot *slots, s32 *count) {
             state->holdTimer -= 1;
         }
     } else {
-        s16 idx = F5_SUB4(actor)->model->animIndex;
+        s16 idx = F5_MODEL(actor)->animIndex;
 
         if (idx >= 0) {
             newvel = D_80752CBF[idx];
@@ -758,7 +738,7 @@ void playerWeaponSpawnProjectile(Actor *actor, F5BSlot *slots, s32 *count) {
 extern s8 D_80752D4E[];
 extern f32 D_80752F4C;
 
-void playerWeaponInitCrosshair(Actor *actor, F5BSlot *slots, s32 *count) {
+void playerWeaponInitCrosshair(Actor *actor, BoneRotation *slots, s32 *count) {
     F56AState *state;
     F56APair *pair;
     s32 index;
@@ -808,8 +788,8 @@ void playerWeaponInitCrosshair(Actor *actor, F5BSlot *slots, s32 *count) {
         fs2 = y - state->prevY;
         dz = fs2 - state->prevVelY;
         fs0 = state->prevAngle - (f32) actor->yaw;
-        if (F5_SUB4(actor)->model->animIndex >= 0) {
-            target = (f32) D_80752D4E[F5_SUB4(actor)->model->animIndex];
+        if (F5_MODEL(actor)->animIndex >= 0) {
+            target = (f32) D_80752D4E[F5_MODEL(actor)->animIndex];
         } else {
             target = -128.0f;
         }
@@ -859,7 +839,7 @@ typedef struct F5N5Chain3 {
     s16 yaw;
 } F5N5Chain3;
 
-void playerWeaponCrosshairUpdate(Actor *actor, F5BSlot *slots, s32 *count) {
+void playerWeaponCrosshairUpdate(Actor *actor, BoneRotation *slots, s32 *count) {
     f32 x;
     s16 delta;
     F5N5Chain3 *chain;
@@ -887,16 +867,8 @@ void playerWeaponCrosshairUpdate(Actor *actor, F5BSlot *slots, s32 *count) {
 }
 
 
-typedef struct F5CEntry {
-    u8 bone;
-    u8 boneEnd;
-    u8 pad2[2];
-    f32 scaleX;
-    f32 scaleY;
-    f32 scaleZ;
-} F5CEntry;
 
-void playerWeaponCrosshairRender(Actor *actor, F5CEntry *entries, s32 *count) {
+void playerWeaponCrosshairRender(Actor *actor, BoneVector *entries, s32 *count) {
     f32 fade;
     f32 scaleY;
     f32 scaleX;
@@ -935,16 +907,16 @@ void playerWeaponCrosshairRender(Actor *actor, F5CEntry *entries, s32 *count) {
     }
     if (entries && entries) {}  // FAKE: dead use of arg1 raises its uopt priority (entries in s0, count stays in a2)
     entries[*count].bone = 0;
-    entries[*count].boneEnd = 0xFF;
-    entries[*count].scaleX = scaleX;
-    entries[*count].scaleY = scaleY;
-    entries[*count].scaleZ = scaleX;
+    entries[*count].lastBone = 0xFF;
+    entries[*count].x = scaleX;
+    entries[*count].y = scaleY;
+    entries[*count].z = scaleX;
     *count += 1;
 }
 
 s16 mathAngleSignedDistance(s16, s16); // FAKE: callee prototype steer
 extern f32 mathSinF(s16);
-void playerWeaponUpdateHomingTarget(Actor *actor, F5BSlot *slots, s32 *count) {
+void playerWeaponUpdateHomingTarget(Actor *actor, BoneRotation *slots, s32 *count) {
     s32 entry_index;
     s8 v;
     u16 angle;
@@ -991,15 +963,15 @@ void playerWeaponUpdateHomingTarget(Actor *actor, F5BSlot *slots, s32 *count) {
 }
 
 
-void playerWeaponFireGun(Actor *actor, F5CEntry *entries, s32 *count, u8 kind0, u8 kind1, f32 charge, f32 amplitude) {
+void playerWeaponFireGun(Actor *actor, BoneVector *entries, s32 *count, u8 kind0, u8 kind1, f32 charge, f32 amplitude) {
     f32 angle;
 
     angle = mathSinF((s16)(charge * 2048.0f));
     entries[*count].bone = kind0;
-    entries[*count].boneEnd = kind1;
-    entries[*count].scaleX = 1.0f;
-    entries[*count].scaleY = ((f32)angle * amplitude) + 1.0;
-    entries[*count].scaleZ = 1.0f;
+    entries[*count].lastBone = kind1;
+    entries[*count].x = 1.0f;
+    entries[*count].y = ((f32)angle * amplitude) + 1.0;
+    entries[*count].z = 1.0f;
     *count += 1;
 }
 
@@ -1070,20 +1042,20 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
     PlayerState *ps;
     s32 slotCount;
     s32 entryCount;
-    F5ActorSub4View *sub;
-    F5BSlot *slots;
-    F5CEntry *entries;
-    u8 *flash;
+    ActorSub4 *sub;
+    BoneRotation *slots;
+    BoneVector *entries;
+    BoneVector *offsets;
     f32 charge;
     f32 t;
     f32 v;
 
     ps = actor->customState;
     if ((actor->state != 0x77) && (actor->flags & 4)) {
-        sub = F5_SUB4(actor);
-        slots = sub->slots;
-        entries = sub->entries;
-        flash = sub->flash;
+        sub = actor->sub4;
+        slots = sub->boneRotations;
+        entries = sub->boneScales;
+        offsets = sub->boneOffsets;
         slotCount = 0;
         entryCount = 0;
         if ((func_80714608(0) != 0) && ((ps->unk21E != 0x1E) || (actor->state == 0x34))) {
@@ -1125,7 +1097,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
             switch (actor->state) {
             case 0x26:
                 if (actor->unk155 != 0) {
-                    t = F5_SUB4(actor)->model->frame;
+                    t = F5_MODEL(actor)->frame;
                     if (t < 6.0f) {
                         v = 0.0f;
                     } else {
@@ -1136,7 +1108,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
                 }
                 break;
             case 0x27: {
-                t = F5_SUB4(actor)->model->frame;
+                t = F5_MODEL(actor)->frame;
                 if (t < 6.0f) {
                     v = 0.0f;
                 } else {
@@ -1147,7 +1119,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
                 break;
             }
             case 0x28: {
-                t = F5_SUB4(actor)->model->frame;
+                t = F5_MODEL(actor)->frame;
                 if (t < 7.0f) {
                     v = 0.0f;
                 } else {
@@ -1159,7 +1131,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
                 break;
             }
             case 0x29: {
-                t = F5_SUB4(actor)->model->frame;
+                t = F5_MODEL(actor)->frame;
                 if (t < 4.0f) {
                     v = 0.0f;
                 } else {
@@ -1189,7 +1161,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
         }
         slots[slotCount].weight = 0;
         entries[entryCount].bone = 0xFF;
-        *flash = 0xFF;
+        offsets->bone = 0xFF;
         if (ps->unk8E != 0) {
             ps->unk8E -= 1;
             if (ps->gunDrawn != 0) {
