@@ -47,7 +47,7 @@ s32 gridAdjustActorCollisionType(s32, s32, u8);
 void cutsceneStartFlag16CPath(void);
 #endif
 #ifndef PROTO_SKIP_func_806F54E0
-void func_806F54E0();
+void func_806F54E0(u8, s32, u8);
 #endif
 #ifndef PROTO_SKIP_func_806F58A0
 void func_806F58A0(u8, s16, struct F9N2At58 *);

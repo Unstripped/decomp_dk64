@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_func_806F54E0
 #include "proto/global/104F0.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -517,7 +516,6 @@ typedef struct F9A_CleanupNode {
 
 
 
-void func_806F54E0(u8, s32, u8);
 
 void gridFreeAllActiveNodes(void) {
     F9A_LinkedNode *var_s0;
