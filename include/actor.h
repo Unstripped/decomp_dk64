@@ -127,7 +127,7 @@ typedef struct ActorCallbackNode {
 
 typedef struct ActorQueueEntry {
     /* 0x00 */ ActorCallbackNode *node;
-    /* 0x04 */ s32 arg0;
+    /* 0x04 */ struct Actor *target;
     /* 0x08 */ s32 arg6;
 } ActorQueueEntry; // size = 0xC
 

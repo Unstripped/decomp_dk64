@@ -102,7 +102,7 @@ void actorCallbackMaskDisable(Actor *, s32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 #endif
 #ifndef PROTO_SKIP_actorQueueDelayedCallback
-void actorQueueDelayedCallback(s32, s32, s32, u8, s32, void *, s32);
+void actorQueueDelayedCallback(Actor *, s32, s32, u8, s32, void *, s32);
 #endif
 #ifndef PROTO_SKIP_actorDelayedCallbacksTick
 void actorDelayedCallbacksTick(void);

@@ -826,12 +826,12 @@ void actorAppendCallback(Actor *actor, s32 source, s32 type, u8 subtype, s32 own
     }
 }
 
-void actorQueueDelayedCallback(s32 target, s32 source, s32 type, u8 subtype, s32 ownsPayload, void *payload, s32 delay) {
+void actorQueueDelayedCallback(Actor *target, s32 source, s32 type, u8 subtype, s32 ownsPayload, void *payload, s32 delay) {
     if (D_807FBFD8 == 16) {
         faultSetMessage(0xF, 0, 0, 0);
     }
     D_807FBF18[D_807FBFD8].node = actorAllocCallbackNode(source, type, subtype, ownsPayload, payload);
-    D_807FBF18[D_807FBFD8].arg0 = target;
+    D_807FBF18[D_807FBFD8].target = target;
     D_807FBF18[D_807FBFD8].arg6 = delay;
     D_807FBFD8++;
 }
@@ -848,7 +848,7 @@ void actorDelayedCallbacksTick(void) {
     for (i = 0; i < D_807FBFD8; i++) {
         D_807FBF18[i].arg6--;
         if (D_807FBF18[i].arg6 == 0) {
-            actor = (Actor *)D_807FBF18[i].arg0;
+            actor = D_807FBF18[i].target;
             if (actorTableContains(actor)) {
                 curr = actor->callbacks;
                 link = &actor->callbacks;
@@ -876,7 +876,7 @@ void actorDelayedCallbacksTick(void) {
         for (i = 0; i < D_807FBFD8; i++) {
             if (D_807FBF18[i].arg6 == 0) {
                 D_807FBF18[i].node = D_807FBF18[D_807FBFD8 - 1].node;
-                D_807FBF18[i].arg0 = D_807FBF18[D_807FBFD8 - 1].arg0;
+                D_807FBF18[i].target = D_807FBF18[D_807FBFD8 - 1].target;
                 D_807FBF18[i].arg6 = D_807FBF18[D_807FBFD8 - 1].arg6;
                 D_807FBFD8--;
                 changed = 1;
@@ -1632,7 +1632,7 @@ void actorAppendCallbackMemcpy8(s32 source, Actor *target, s32 type, u8 subtype,
     if (!delayed) {
         actorAppendCallback(target, source, type, subtype, 1, temp);
     } else {
-        actorQueueDelayedCallback((s32)target, source, type, subtype, 1, temp, 1);
+        actorQueueDelayedCallback(target, source, type, subtype, 1, temp, 1);
     }
 }
 
