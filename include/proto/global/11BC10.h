@@ -65,7 +65,7 @@ void effectShrinkOffsetUpdate();
 void effectShrinkAndVelocityUpdate(struct TimedEffectActorView *);
 #endif
 #ifndef PROTO_SKIP_func_807180F4
-void func_807180F4(s32, s32);
+void func_807180F4(struct RotatingEffectActorView *, void *);
 #endif
 #ifndef PROTO_SKIP_effectSpawnImpactPuff
 void effectSpawnImpactPuff(f32, f32, f32, f32);
@@ -212,7 +212,7 @@ void effectBallisticUpdate(struct TimedEffectActorView *, s8 *);
 void effectFallStateInit(struct OrbitSourceActor *, struct TimedEffectActorView *, s8 *);
 #endif
 #ifndef PROTO_SKIP_effectFloorFallUpdate
-void effectFloorFallUpdate(struct TimedEffectActorView *, s8 *);
+void effectFloorFallUpdate(struct TimedEffectActorView *, u8 *);
 #endif
 #ifndef PROTO_SKIP_effectActorOrbitFollowUpdate
 void effectActorOrbitFollowUpdate(struct TimedEffectActorView *, s8 *);
@@ -275,6 +275,6 @@ void func_8071F660(struct SineScaleActorView *, void *);
 void effectPulseSpinUpdate(struct TimedEffectActorView *, s8 *);
 #endif
 #ifndef PROTO_SKIP_effectLerpPathUpdate
-void effectLerpPathUpdate(struct TimedEffectActorView *, s8 *);
+void effectLerpPathUpdate(struct TimedEffectActorView *, u8 *);
 #endif
 #endif
