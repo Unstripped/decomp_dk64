@@ -676,7 +676,7 @@ void playerSpawnMapHelpers(void) {
         actorScriptStart(gActivePlayerActor, 0);
         controllerAnimSetStateIfChanged(gActivePlayerActor, 0, 0.0f, 0.0f);
         gActivePlayerActor->state = 0x7D;
-        gActivePlayerActor->unk155[0] = 0;
+        gActivePlayerActor->unk155 = 0;
         gActivePlayerActor->flags &= 0xFFFF7FFF;
         gActivePlayerActor->alpha = 0;
         actorSpawn(0x11A, 0x21);
@@ -702,7 +702,7 @@ void playerSpawnMapHelpers(void) {
     case 0x28:
     case 0x51:
         gActivePlayerActor->state = 0x77;
-        gActivePlayerActor->unk155[0] = 0;
+        gActivePlayerActor->unk155 = 0;
         return;
     case 0x4E:
     case 0x4F:
@@ -710,12 +710,12 @@ void playerSpawnMapHelpers(void) {
         playerKongPlaySoundByState(gActivePlayerActor);
         L6V->unk48 = D_80753354[gCurrentCharacterIndex];
         gActivePlayerActor->state = 0x62;
-        gActivePlayerActor->unk155[0] = 0;
+        gActivePlayerActor->unk155 = 0;
         actorScriptStartByIndex(gActivePlayerActor, 0x52);
         return;
     case 0xD3:
         gActivePlayerActor->state = 0x5F;
-        gActivePlayerActor->unk155[0] = 0;
+        gActivePlayerActor->unk155 = 0;
         actorScriptStartByIndex(gActivePlayerActor, 0x4B);
         return;
     case 0x53:
@@ -724,7 +724,7 @@ void playerSpawnMapHelpers(void) {
     case 0xD0:
     case 0xD5:
         gActivePlayerActor->state = 0x77;
-        gActivePlayerActor->unk155[0] = 0;
+        gActivePlayerActor->unk155 = 0;
         return;
     case 0x6F:
         actorSpawnChildActor(gActivePlayerActor);

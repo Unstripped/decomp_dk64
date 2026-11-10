@@ -173,12 +173,12 @@ void actorNodeRingUpdate(void) {
                 sfxAllocateChannel(0x7D, 1.0f);
                 actorScriptStart(gCurrentActor, 0x2F1);
                 gCurrentActor->state = 3;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
             }
             break;
         case 3:
-            if (gCurrentActor->unk155[0] & 1) {
-                gCurrentActor->unk155[0]++;
+            if (gCurrentActor->unk155 & 1) {
+                gCurrentActor->unk155++;
                 shakeMagnitude = 0xF; shakeDuration = 0x28;
             }
             break;
@@ -264,14 +264,14 @@ void func_806BD7B0(void) {
                 sfxPlayOnFreeSlot(0x258, 0x7FFF, 63.0f, 1.0f, 5, 0);
                 camStartPath(gCurrentActor, 0, 1);
                 actorScriptStart(gCurrentActor, 0x291);
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
                 ((R1C0C1Spawned *)gCurrentActor)->unk146 = 1;
             }
             break;
         case 3:
-            if (gCurrentActor->unk155[0] == 1) {
-                gCurrentActor->unk155[0]++;
-            } else if (gCurrentActor->unk155[0] == 2) {
+            if (gCurrentActor->unk155 == 1) {
+                gCurrentActor->unk155++;
+            } else if (gCurrentActor->unk155 == 2) {
                 sfxStopChannel(0x3B, 1);
                 gCurrentActor->alpha -= 8;
                 if (gCurrentActor->alpha <= 0) {
@@ -287,7 +287,7 @@ void func_806BD7B0(void) {
                         actorScriptStart(st->unk4, D_80750684[st->unk2]);
                         st->unk0 = 0;
                         st->unk4->state = 3;
-                        st->unk4->unk155[0] = 0;
+                        st->unk4->unk155 = 0;
                         camStartPath(0, 1, 1);
                         csModelStateSetFirstByte(cutsceneModelIds.b[st->unk2], 2);
                     }

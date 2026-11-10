@@ -118,7 +118,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
         }
         gBehaviourExtraState->unk10 = 0x27;
         gCurrentActor->state = 0x27;
-        gCurrentActor->unk155[0] = 0;
+        gCurrentActor->unk155 = 0;
     }
     {
         s32 d = gBehaviourWorkState->targetY - gBehaviourExtraState->unk6;
@@ -135,7 +135,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
                 if (gPlayerSlots->unk2C0 == 0) {
                     resQueueAttachActor(gCurrentActor, 0x10, 1);
                     gCurrentActor->state = 0x29;
-                    gCurrentActor->unk155[0] = 0;
+                    gCurrentActor->unk155 = 0;
                     gBehaviourExtraState->unk10 = 0x29;
                     R1C8aD->unk1F0 |= 0x10000;
                     playerStateQueueCallback(0x54, 0, 0);
@@ -143,7 +143,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
                 } else {
                     resQueueAttachActor(gCurrentActor, 0x10, 0);
                     gCurrentActor->state = 0x28;
-                    gCurrentActor->unk155[0] = 0;
+                    gCurrentActor->unk155 = 0;
                     gBehaviourExtraState->unk10 = 0x28;
                     if (!camPathId) {
                         camSetTarget(gCamActor, gCurrentActor, 4, 0x800, 0x19, 0, 0xA, 0x14, 0xC, 0x78, 0.1f);
@@ -162,7 +162,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
                     }
                     camStartPath(gPrimaryPlayerActor, 3, 5);
                     gCurrentActor->state = 0x28;
-                    gCurrentActor->unk155[0] = 0;
+                    gCurrentActor->unk155 = 0;
                     gBehaviourExtraState->unk10 = 0x28;
                     R1C8aD->unk1F0 &= 0xFFFEFFFF;
                     R1C8aS->unk1A &= 0x7FFF;
@@ -428,7 +428,7 @@ void func_806C4EE0(u8 subAction, u8 stateValue) {
     resQueueSetValue(1);
     resQueueAttachActor(gCurrentActor, 0xF, subAction);
     gCurrentActor->state = 0x29;
-    gCurrentActor->unk155[0] = 0;
+    gCurrentActor->unk155 = 0;
     gCurrentActor->yawSpeed = stateValue;
     R1C8aA->unkF0 = 0;
 }

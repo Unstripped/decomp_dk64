@@ -135,14 +135,14 @@ void actorPhotoUpdate(void) {
         animSetNodeItem(gCurrentActor, 0, 0, (&subState->unk8)[gGfxBufferIndex]);
     } else {
         animSetNodeItem(gCurrentActor, 0, 0, (s32)subState->unk4);
-        if (gCurrentActor->unk155[0] == 0) {
+        if (gCurrentActor->unk155 == 0) {
             if (((PlayerControlState *)gActivePlayerState)->unk1EC == 1) {
                 slotQueueAddValue(0xC, ((PlayerControlState *)gActivePlayerState)->unk1A4, 1);
                 sfxAllocateChannel(0x2E, 1.0f);
             } else if (((PlayerControlState *)gActivePlayerState)->unk1EC == 2) {
                 sfxPlayOnFreeSlot(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0x80);
             }
-            gCurrentActor->unk155[0]++;
+            gCurrentActor->unk155++;
         }
         if (((PlayerControlState *)gActivePlayerState)->unk1EC != 0xFF && subState->unk10 != 0) {
             renderCallbacksRegister(&func_806FF628, gCurrentActor, 3);
@@ -838,7 +838,7 @@ void func_8069B3FC(void) {
         cam->unk210 = x;
         cam->unk214 = y;
         cam->unk218 = z;
-        if (gCurrentActor->unk155[0] < 4) {
+        if (gCurrentActor->unk155 < 4) {
             for (j = 2; j < 3; j++) {
                 for (i = 0; i < 2; i++) {
                     effectSetCallback(func_80717D4C);
@@ -859,13 +859,13 @@ void func_8069B3FC(void) {
                 }
             }
         }
-        switch (gCurrentActor->unk155[0]) {
+        switch (gCurrentActor->unk155) {
             case 0:
                 *p += 0x1E;
                 break;
             case 1:
-                gPrimaryPlayerActor->unk155[0]++;
-                gCurrentActor->unk155[0]++;
+                gPrimaryPlayerActor->unk155++;
+                gCurrentActor->unk155++;
                 break;
             case 2:
                 *p -= 0x2A;
@@ -878,10 +878,10 @@ void func_8069B3FC(void) {
                 if (*p < 0) {
                     *p = 0;
                 }
-                gPrimaryPlayerActor->unk155[0]++;
+                gPrimaryPlayerActor->unk155++;
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->alpha = 0xFF;
-                gCurrentActor->unk155[0]++;
+                gCurrentActor->unk155++;
                 break;
             case 4:
                 *p -= 0x2A;
@@ -890,7 +890,7 @@ void func_8069B3FC(void) {
                 }
                 gCurrentActor->alpha -= 0x28;
                 if (gCurrentActor->alpha < 0x28) {
-                    gPrimaryPlayerActor->unk155[0]++;
+                    gPrimaryPlayerActor->unk155++;
                     sfxStopChannel(0x3B, 0);
                     actorDespawn(gCurrentActor);
                 }
@@ -1526,7 +1526,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
     TEXT_MARKER_GFX(gfx++, 0xDE000000, &D_1000118);
     TEXT_MARKER_GFX(gfx++, 0xFC119623, 0xFF2FFFFF);
 
-    x = actor->unk155[0];
+    x = actor->unk155;
     switch (x) {
         case 2:
             vtxGradientSetPosition((s16)(actor->unk15F * 3 + 0x4000));
@@ -1626,16 +1626,16 @@ void textMarkerUpdate(void) {
         }
         break;
     case 1:
-        if (gCurrentActor->unk155[0] != 3) {
+        if (gCurrentActor->unk155 != 3) {
             renderCallbacksRegister(textMarkerRenderString, gCurrentActor, 3);
         }
-        switch (gCurrentActor->unk155[0]) {
+        switch (gCurrentActor->unk155) {
         case 0:
             if (gCurrentActor->unk15F <= 0xFF - model[8]) {
                 gCurrentActor->unk15F += model[8];
             } else {
                 gCurrentActor->unk15F = 0xFF;
-                gCurrentActor->unk155[0]++;
+                gCurrentActor->unk155++;
                 gCurrentActor->yawSpeed = *(u16 *)(model + 6);
             }
             break;
@@ -1643,14 +1643,14 @@ void textMarkerUpdate(void) {
             if (gCurrentActor->yawSpeed != 0) {
                 gCurrentActor->yawSpeed--;
             } else {
-                gCurrentActor->unk155[0]++;
+                gCurrentActor->unk155++;
             }
             break;
         case 2:
             if (gCurrentActor->unk15F >= model[9]) {
                 gCurrentActor->unk15F -= model[9];
             } else {
-                gCurrentActor->unk155[0]++;
+                gCurrentActor->unk155++;
                 gCurrentActor->unk15F = 0;
             }
             break;
@@ -1746,8 +1746,8 @@ void textUpdateTwoDigitCounter(void) {
     actor = gCurrentActor;
     model = (s32 *)actor->customState;
     if (!(actor->flags & 0x10)) {
-        model[0] = textBuildDigitNode(0x14, (void *)model[0], 0, actor->unk155[0] / 10, 0x10);
-        model[1] = textBuildDigitNode(0x14, (void *)model[1], 1, gCurrentActor->unk155[0] % 10, 0x10);
+        model[0] = textBuildDigitNode(0x14, (void *)model[0], 0, actor->unk155 / 10, 0x10);
+        model[1] = textBuildDigitNode(0x14, (void *)model[1], 1, gCurrentActor->unk155 % 10, 0x10);
         actor = gCurrentActor;
     }
     actorUpdateModelMatrix(actor, 0);

@@ -190,7 +190,7 @@ void func_806B7EA0(void) {
             return;
         }
         gCurrentActor->state = 0x23;
-        gCurrentActor->unk155[0] = 0;
+        gCurrentActor->unk155 = 0;
         sfxPlayOnFreeSlot(0x1A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
         actorSetStateTwo(gCurrentActor->parentActor);
         gGlobalCutsceneFlags |= 1;
@@ -202,7 +202,7 @@ void func_806B7EA0(void) {
         }
         camStartPath(0, 6, 5);
         gCurrentActor->state = 0x11;
-        gCurrentActor->unk155[0] = 0;
+        gCurrentActor->unk155 = 0;
         c->unk10 = (s32)gBehaviourTargetActor->x;
         c->unk12 = (s32)(gBehaviourTargetActor->y + (u32)gBehaviourTargetActor->eyeHeight);
         c->unk14 = (s32)gBehaviourTargetActor->z;

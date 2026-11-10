@@ -20,19 +20,14 @@
 #include "proto/global/FCCD0.h"
 
 extern Actor *gCurrentActor;
-extern Actor *gSpawnedActor;
-extern Actor *gActivePlayerActor;
-extern Actor *gPrimaryPlayerActor;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern u8 gPlayerInventoryTable[][0x5E];
 extern s32 gCurrentMap;
 extern u8 gCurrentWorldId;
 extern u8 gScreenRenderFlags;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
-extern u8 gNextGameMode;
 extern u8 gGfxBufferIndex;
 
 extern Gfx D_1000118;
@@ -199,7 +194,7 @@ void func_806FFB2C(s32 arg0, Actor *arg1) {
     f32 sp3C;
     Gfx *dl;
 
-    sp3C = arg1->unk155[0] * 1.4;
+    sp3C = arg1->unk155 * 1.4;
     dl = (Gfx *)playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->customState)->unk1A4);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);

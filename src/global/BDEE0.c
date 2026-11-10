@@ -124,12 +124,12 @@ void behaviourArmadilloPatrol(void) {
     }
     switch (gCurrentActor->state) {
     case 0x18:
-        switch (gCurrentActor->unk155[0]) {
+        switch (gCurrentActor->unk155) {
         case 0:
             if (gBehaviourWorkState->timer != 0) {
                 gBehaviourWorkState->timer--;
             } else {
-                gCurrentActor->unk155[0]++;
+                gCurrentActor->unk155++;
                 gBehaviourWorkState->timer = 0xD;
             }
             BDEE0AA->unk4->unk1C->unk6 += 0x7D0;
@@ -140,7 +140,7 @@ void behaviourArmadilloPatrol(void) {
                 break;
             }
             if (BDEE0S90->unk2E != 0) {
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
                 BDEE0S90->unk2E--;
                 gBehaviourWorkState->timer = 0xA;
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1BA, 0x96, 0x7F, 0);
@@ -151,21 +151,21 @@ void behaviourArmadilloPatrol(void) {
         }
         break;
     case 0x31:
-        if ((gCurrentActor->unk155[0] != 0) || (BDEE0AA->unk4->unk0->unk24 == 0.0f)) {
+        if ((gCurrentActor->unk155 != 0) || (BDEE0AA->unk4->unk0->unk24 == 0.0f)) {
             actorSetDefaultState(0x322);
         }
         actorMoveWithinZone(0, 0.0f, 0.0f, 0x4300, 0.0f);
         break;
     case 0x11:
-        switch (gCurrentActor->unk155[0]) {
+        switch (gCurrentActor->unk155) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
             actorScriptStart(gCurrentActor, 0x321);
-            gCurrentActor->unk155[0]++;
+            gCurrentActor->unk155++;
         case 1:
             actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
             if (gCurrentActor->speedXZ < 1.0f) {
-                gCurrentActor->unk155[0]++;
+                gCurrentActor->unk155++;
             }
             break;
         case 2:
@@ -179,11 +179,11 @@ void behaviourArmadilloPatrol(void) {
     case 0x27:
         BDEE0AA->unk4->unk1C->unk6 -= gCurrentActor->speedXZ * 50.0f;
         actorMoveWithinZone(0x23, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
-        switch (gCurrentActor->unk155[0]) {
+        switch (gCurrentActor->unk155) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
             actorScriptStart(gCurrentActor, 0x324);
-            gCurrentActor->unk155[0] = 1;
+            gCurrentActor->unk155 = 1;
             break;
         case 2:
             gCurrentActor->interactionType = 2;
@@ -199,20 +199,20 @@ void behaviourArmadilloPatrol(void) {
     case 1:
         if (behaviourCheckRandomAnimTrigger() != 0) {
             gCurrentActor->state = 0x11;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
         }
     case 0x23:
         if (gActorGlobalState.unk200 == 2) {
             if (behaviourIsTargetWithinAngle(0x2710) != 0) {
                 gCurrentActor->state = 0x27;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
             }
         }
     case 0x10:
         if ((gCurrentActor->state != 0x11) && (gCurrentActor->state != 0x27)) {
-            if (gCurrentActor->unk155[0] == 0) {
+            if (gCurrentActor->unk155 == 0) {
                 *heightTarget = BDEE0S9C->unkA * 2;
-                gCurrentActor->unk155[0] = 1;
+                gCurrentActor->unk155 = 1;
             }
             if (*heightTarget != 0) {
                 (*heightTarget)--;
@@ -223,8 +223,8 @@ void behaviourArmadilloPatrol(void) {
                     gCurrentActor->speedXZ = gCurrentActor->speedXZ - 1.0f;
                 } else {
                     gCurrentActor->state = 0x18;
-                    gCurrentActor->unk155[0] = 0;
-                    gCurrentActor->unk155[0] = 1;
+                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->unk155 = 1;
                     gBehaviourWorkState->timer = 0;
                     BDEE0S90->unk2E = 4;
                 }
@@ -244,13 +244,13 @@ void behaviourArmadilloPatrol(void) {
         if (gBehaviourWorkState->timer != 0) {
             gBehaviourWorkState->timer -= 0x32;
         }
-        switch (gCurrentActor->unk155[0]) {
+        switch (gCurrentActor->unk155) {
         case 0:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
             break;
         case 1:
             sfxSpawnTableNodes(gCurrentActor);
-            gCurrentActor->unk155[0]++;
+            gCurrentActor->unk155++;
         case 2:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
             behaviourFadeOutWithinZone(8);
@@ -370,7 +370,7 @@ s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 
 void behaviourArmadilloInitRollState(void) {
     gCurrentActor->collisionFlags = 2;
     gCurrentActor->state = 0x23;
-    gCurrentActor->unk155[0] = 0;
+    gCurrentActor->unk155 = 0;
     BDEE0AA->unk134 = 1;
     gCurrentActor->interactionType = 1;
     BDEE0S90->unk4 = gPrimaryPlayerActor;
@@ -412,7 +412,7 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
         if (gCurrentActor->state != 0x15 && gCurrentActor->state != 0x17) {
             gCurrentActor->collisionFlags = 0x80;
             gCurrentActor->state = 0x15;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
             actorScriptStart(gCurrentActor, 0);
             gCurrentActor->interactionType = 2;
             p[3] = gCurrentActor->x;
@@ -437,8 +437,8 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
         if (BDEE0AA->unkF0 != 0) {
             BDEE0AA->unkF0 = BDEE0AA->unkF0 - 1;
         }
-        if (tgt->unk155[0] != 0) {
-            if (tgt->unk155[0] == 1 && gBossFightPhase == 2 && actorIsTargetWithinAngleDeg(tgt, gPrimaryPlayerActor, 0x1F40) != 0) {
+        if (tgt->unk155 != 0) {
+            if (tgt->unk155 == 1 && gBossFightPhase == 2 && actorIsTargetWithinAngleDeg(tgt, gPrimaryPlayerActor, 0x1F40) != 0) {
                 if (gPlayerSlots->unk2C0 == 1) {
                     playerStateQueueCallback(0x32, gCurrentActor, 0);
                 } else {
@@ -448,7 +448,7 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
                         var = 0x21E;
                     }
                     actorScriptStart(tgt, var);
-                    tgt->unk155[0] = 2;
+                    tgt->unk155 = 2;
                 }
             } else if (gBossFightPhase == 4) {
                 BDEE0S90->unk16 = ((BDEE0Sub4 *)gBehaviourTargetActor->sub4)->unk0->unk10;
@@ -458,11 +458,11 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
                     effectCreateAtPosition(D_8071FB34, 2.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                     sfxPlayOnFreeSlot(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     actorScriptStart(tgt, 0x220);
-                    tgt->unk155[0] = 2;
+                    tgt->unk155 = 2;
                     ((BDEE0ActorAlt *)tgt)->unk134 = ((BDEE0ActorAlt *)tgt)->unk134 - 1;
                     if (((BDEE0ActorAlt *)tgt)->unk134 == 0) {
                         tgt->state = 0x37;
-                        tgt->unk155[0] = 0;
+                        tgt->unk155 = 0;
                     }
                 }
             }
@@ -529,7 +529,7 @@ void behaviourArmadilloMoveTowardTarget(f32 speedMultiplier) {
             }
             break;
         case 0x37:
-            switch (gCurrentActor->unk155[0]) {
+            switch (gCurrentActor->unk155) {
                 case 2:
                     behaviourFadeOutWithinZone(10);
                     break;
@@ -740,14 +740,14 @@ void behaviourFairyInitPlayerScale(void) {
     switch (gCurrentActor->state) {
         case 4:
             gCurrentActor->state = 0x23;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
         case 0x23:
-            switch (gCurrentActor->unk155[0]) {
+            switch (gCurrentActor->unk155) {
                 case 0:
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x202, 0.0f);
                     break;
                 default:
-                    gCurrentActor->unk155[0] = 1;
+                    gCurrentActor->unk155 = 1;
                     goto join;
                 join:
                 case 1:
@@ -805,7 +805,7 @@ s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, s32 extraParam)
                       ((r3 >> 15) % 1024) + gCurrentActor->yaw - 0x200,
                       animId, subId) != 0) {
         gSpawnedActor->state = 0x17;
-        gSpawnedActor->unk155[0] = 0;
+        gSpawnedActor->unk155 = 0;
         v = gSpawnedActor->customState;
         v->unk2E = 0x1E;
         if (extraParam != 0) {

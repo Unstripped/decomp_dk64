@@ -175,7 +175,7 @@ void playerRefillHealth(Actor *player, s32 playerIndex) {
     healthRefill((u8) playerIndex);
     if (playerIndex == 0) {} // FAKE: keeps playerIndex in a1 with an eager restore after healthRefill
     if (gGlobalOverlayFlags & 1) {
-        player->unk155[0]++;
+        player->unk155++;
         if (gGlobalCutsceneFlags & 2) {
             flagSet(0x5C, 1, 2);
             map = 0x22;
@@ -193,7 +193,7 @@ void playerRefillHealth(Actor *player, s32 playerIndex) {
         return;
     }
     if (gGlobalOverlayFlags & 0x400) {
-        player->unk155[0]++;
+        player->unk155++;
         mapFindPreviousSavedMap(&savedMap, &savedExit);
         mapRequestTransition(savedMap, savedExit);
         return;

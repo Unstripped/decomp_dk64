@@ -104,7 +104,7 @@ void bonusReelNextRound(LB3Obj *obj) {
     LB3Player *player = gPrimaryPlayerActor->customState;
     camSetTarget(player->unk104, gPrimaryPlayerActor, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
     gCurrentActor->state = 3;
-    gCurrentActor->unk155[0] = 1;
+    gCurrentActor->unk155 = 1;
     gCurrentActor->yawSpeed = 0;
 }
 
@@ -180,21 +180,21 @@ void bonusReelGameUpdate(void) {
     }
     if (obj->unk1A != 0 && gCurrentActor->parentActor->state == 5) {
         gCurrentActor->state = 1;
-        gCurrentActor->unk155[0] = 0;
+        gCurrentActor->unk155 = 0;
     }
     switch (gCurrentActor->state) {
     case 0:
-        switch (gCurrentActor->unk155[0]) {
+        switch (gCurrentActor->unk155) {
         case 0:
             if (gGameMode != 1) {
                 resQueueAttachActor(gCurrentActor, 0, 3);
-                gCurrentActor->unk155[0] += 1;
+                gCurrentActor->unk155 += 1;
             }
             break;
         case 1:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 gCurrentActor->state = 3;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
                 effectEnableFade();
                 effectSetMode(2);
                 effectSetDuration(-1);
@@ -204,10 +204,10 @@ void bonusReelGameUpdate(void) {
         }
         break;
     case 3:
-        switch (gCurrentActor->unk155[0]) {
+        switch (gCurrentActor->unk155) {
         case 0:
             hudSpawnCountdownTimer(0xDC, 0x2A, obj->unk1C);
-            gCurrentActor->unk155[0] = 1;
+            gCurrentActor->unk155 = 1;
         case 1:
             if (obj->act[3]->state == 0) {
                 gCurrentActor->state = 2;
@@ -216,11 +216,11 @@ void bonusReelGameUpdate(void) {
         }
         break;
     case 4:
-        switch (gCurrentActor->unk155[0]) {
+        switch (gCurrentActor->unk155) {
         case 0:
             obj->unk10 = 0x400;
             obj->unk12 = 0x40;
-            gCurrentActor->unk155[0] += 1;
+            gCurrentActor->unk155 += 1;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x179, 0xFF, 0x7F, 1);
             if (obj->unk1A == 0) {
                 obj->unk1A = 1;
@@ -238,7 +238,7 @@ void bonusReelGameUpdate(void) {
                 camSetTarget(player->unk104, gActivePlayerActor, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
             } else if (obj->unk10 < 0x400) {
                 gCurrentActor->state = 5;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
             }
             break;
         }
@@ -246,15 +246,15 @@ void bonusReelGameUpdate(void) {
     case 5:
         if (gCurrentActor->yawSpeed == 4) {
             gCurrentActor->state = 7;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
             break;
         }
-        if (gCurrentActor->unk155[0] != 0) {
+        if (gCurrentActor->unk155 != 0) {
             bonusSpawnEffectBurst(obj->act[gCurrentActor->yawSpeed]->x, obj->act[gCurrentActor->yawSpeed]->y, obj->act[gCurrentActor->yawSpeed]->z + 20.0f, 0xF);
             obj->act[gCurrentActor->yawSpeed]->state += 1;
             gCurrentActor->yawSpeed += 1;
             gCurrentActor->state = 6;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
         }
         break;
     case 7:
@@ -267,7 +267,7 @@ void bonusReelGameUpdate(void) {
                 func_806FDAB8(obj->unk19, 3.1415927f);
                 obj->unk16 -= 1;
                 if (obj->unk16 == 0) {
-                    gPrimaryPlayerActor->unk155[0] = 1;
+                    gPrimaryPlayerActor->unk155 = 1;
                     bonusEndWin(0, 0);
                     gCurrentActor->state = 8;
                     obj->unk10 = 0;
@@ -282,7 +282,7 @@ void bonusReelGameUpdate(void) {
                 bonusReelNextRound(obj);
             }
         } else {
-            gPrimaryPlayerActor->unk155[0] = 2;
+            gPrimaryPlayerActor->unk155 = 2;
             bonusEndLose(0, 1);
             gCurrentActor->state = 9;
             obj->unk10 = 0;
@@ -343,7 +343,7 @@ void bonusReelUpdate(void) {
             gCurrentActor->state += 1;
             if (obj->unk0->state < 8) {
                 obj->unk0->state = 5;
-                obj->unk0->unk155[0] = 0;
+                obj->unk0->unk155 = 0;
             }
             gCurrentActor->splineT = asinApprox((obj->unk4 - t) * 0.015625);
             gCurrentActor->yawSpeed = (gCurrentActor->roll + t) & 0xFFF;

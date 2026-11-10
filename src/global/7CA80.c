@@ -639,11 +639,6 @@ void actorPreTick(Actor *actor) {
     }
 }
 
-typedef struct ActorUnk156View {
-    u8 pad[0x156];
-    u8 unk156;
-} ActorUnk156View;
-
 
 void actorPostTick(Actor *actor) {
     if ((void *)actorInitCollisionFromModel == (void *)D_8074DA30[D_8074D8D4[actor->actorType]]) {
@@ -655,7 +650,7 @@ void actorPostTick(Actor *actor) {
         actor->flags &= ~0x200;
         if (actor->sub4 != NULL) {
             controllerStepMotionWindows(actor);
-            if (((actor->flags & 0x500) || ((ActorUnk156View *)actor)->unk156 != 0) && !(actor->flags & 0x4000)) {
+            if (((actor->flags & 0x500) || actor->unk156 != 0) && !(actor->flags & 0x4000)) {
                 actorCheckWorldBounds(actor);
             }
         }
@@ -1327,7 +1322,7 @@ void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
             }
             if (attacker != NULL && attacker->actorType == 0x116) {
                 effectSpawnBurstParticleCluster(actor);
-                switch (attacker->unk155[0]) {
+                switch (attacker->unk155) {
                 case 1:
                     queueReaction = 0;
                     gActivePlayerState->stateFlags ^= 0x80;

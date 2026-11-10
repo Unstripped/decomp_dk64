@@ -1000,33 +1000,33 @@ void func_806C1E44(void) {
                     animSetFrameAndSubframe(gCurrentActor, 0, 1, 0);
                     actorScriptStart(gCurrentActor, 0x2BD);
                     gCurrentActor->state = 0;
-                    gCurrentActor->unk155[0] = 0;
+                    gCurrentActor->unk155 = 0;
                 } else {
                     gCurrentActor->state = 0x27;
-                    gCurrentActor->unk155[0] = 0;
-                    gCurrentActor->unk155[0] = 4;
+                    gCurrentActor->unk155 = 0;
+                    gCurrentActor->unk155 = 4;
                 }
                 break;
             case 0x26:
                 animSetFrameAndSubframe(gCurrentActor, 0, 0, 0);
                 gCurrentActor->state = 5;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
                 break;
         }
     }
     switch (gCurrentActor->state) {
         case 0:
             func_80724A20();
-            switch (gCurrentActor->unk155[0]) {
+            switch (gCurrentActor->unk155) {
                 case 1:
                     gBehaviourWorkState->timer = 3;
-                    gCurrentActor->unk155[0] = 2;
+                    gCurrentActor->unk155 = 2;
                 case 2:
                     if (!(gFrameCounter & 7)) {
                         if (gBehaviourWorkState->timer != 0) {
                             gBehaviourWorkState->timer--;
                             if (gBehaviourWorkState->timer == 0) {
-                                gCurrentActor->unk155[0] = 0;
+                                gCurrentActor->unk155 = 0;
                             }
                             effectSetMode(2);
                             effectSetDepth(1);
@@ -1038,11 +1038,11 @@ void func_806C1E44(void) {
             }
             break;
         case 0x27:
-            switch (gCurrentActor->unk155[0]) {
+            switch (gCurrentActor->unk155) {
                 case 0:
                     animSetFrameAndSubframe(gCurrentActor, 0, 0, 0);
                     actorScriptStart(gCurrentActor, 0x2BE);
-                    gCurrentActor->unk155[0] = 1;
+                    gCurrentActor->unk155 = 1;
                     break;
                 case 3:
                     i = 0;
@@ -1054,7 +1054,7 @@ void func_806C1E44(void) {
                         effectCreateAtActorBone(D_80720B58, 0.7f, gCurrentActor, 1, 0);
                         i++;
                     } while (i != 10);
-                    gCurrentActor->unk155[0]++;
+                    gCurrentActor->unk155++;
                     break;
             }
             break;
@@ -1064,16 +1064,16 @@ void func_806C1E44(void) {
             func_806C13AC(4, 0x4F1, 0x4F7, 0x4F7, 0x4F7);
             if (currentActorTestClearFlag() != 0) {
                 gCurrentActor->state = 0x12;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
             }
             break;
         case 0x12:
-            switch (gCurrentActor->unk155[0]) {
+            switch (gCurrentActor->unk155) {
                 case 0:
                     actorScriptStart(gCurrentActor, 0x2BF);
                     animSetFrameAndSubframe(gCurrentActor, 0, 2, 0);
                     actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
-                    gCurrentActor->unk155[0] = 1;
+                    gCurrentActor->unk155 = 1;
                     break;
                 case 2:
                     actorMoveWithinZone(2, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0, 0.0f);
@@ -1115,7 +1115,7 @@ void func_806C226C(void) {
         if (flagGet(0x9E, 0) != 0) {
             if (((R1C46bState9C *)gBehaviourExtraState)->unk13 == 0x16) {
                 gCurrentActor->state = 0x28;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
             } else {
                 gCurrentActor->state = 0x40;
             }
@@ -1127,7 +1127,7 @@ void func_806C226C(void) {
         if (D_807FBDC8[i] == 3) {
             actorScriptStart(gCurrentActor, 0x2A3);
             gCurrentActor->state = 0x27;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
             camStartPath(gCurrentActor, 0x16, 1);
             flagSet(0x9E, 1, 0);
         }
@@ -1157,15 +1157,15 @@ void func_806C226C(void) {
             }
             break;
         case 0x28:
-            switch (gCurrentActor->unk155[0]) {
+            switch (gCurrentActor->unk155) {
                 case 0:
                     zoneEntryGetPosition(2, 3, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
                     actorScriptStart(gCurrentActor, 0x2A6);
                     ((R1C46bActor *)gCurrentActor)->unkE8 = 0;
-                    gCurrentActor->unk155[0]++;
+                    gCurrentActor->unk155++;
                 case 1:
                     if (actorIsTargetWithinDistance(0xC8) != 0) {
-                        gCurrentActor->unk155[0]++;
+                        gCurrentActor->unk155++;
                         if (flagGet(0xC1, 0) != 0) {
                             if (gPlayerCharacterId == 0 && flagGet(0xA5, 0) == 0) {
                                 resQueueAttachActor(gCurrentActor, 0x1C, 2);
@@ -1176,7 +1176,7 @@ void func_806C226C(void) {
                             camStartPath(gCurrentActor, 0x1E, 1);
                             resQueueSetValue(1);
                             resQueueAttachActor(gCurrentActor, 0x1C, 1);
-                            gCurrentActor->unk155[0] = 0x63;
+                            gCurrentActor->unk155 = 0x63;
                         } else {
                             resQueueAttachActor(gCurrentActor, 0x1C, 0);
                         }
@@ -1184,13 +1184,13 @@ void func_806C226C(void) {
                     break;
                 case 2:
                     if (flagGet(0xC1, 0) == 0 && actorIsTargetWithinDistance(0x12C) == 0) {
-                        gCurrentActor->unk155[0] = 1;
+                        gCurrentActor->unk155 = 1;
                     }
                     break;
                 case 0x63:
                     if (camIsCutsceneActive() == 0 && !(gCurrentActor->flags & 0x2000000)) {
                         resQueueAttachActor(gCurrentActor, 0x1C, 2);
-                        gCurrentActor->unk155[0] = 3;
+                        gCurrentActor->unk155 = 3;
                     }
                     break;
             }
@@ -1674,69 +1674,69 @@ void func_806C3A8C(void) {
         if (flagGet(0xBF, 0) == 0) {
             if (flagGet(0xBA, 0) && flagGet(0xBB, 0) && flagGet(0xBC, 0) && flagGet(0xBD, 0) && flagGet(0xBE, 0)) {
                 gCurrentActor->state = 0x27;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
             } else if (flagGet(0xBA, 0) || flagGet(0xBB, 0) || flagGet(0xBC, 0) || flagGet(0xBD, 0) || flagGet(0xBE, 0)) {
                 gCurrentActor->state = 0x1F;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
             } else {
                 gCurrentActor->state = 0x1E;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
             }
         } else {
             gCurrentActor->state = 0x20;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
         }
     }
     actorScriptedCommandUpdate();
     switch (gCurrentActor->state) {
         case 0x1E:
-            switch (gCurrentActor->unk155[0]) {
+            switch (gCurrentActor->unk155) {
                 case 0:
                     if ((u8)(dist < 0xF424)) {
-                        gCurrentActor->unk155[0]++;
+                        gCurrentActor->unk155++;
                     }
                     break;
                 case 1:
                     if ((u8)(dist < 0x2710)) {
                         actorScriptStart(gCurrentActor, 0x3A4);
                         resQueueAttachActor(gCurrentActor, 0x17, 0);
-                        gCurrentActor->unk155[0]++;
+                        gCurrentActor->unk155++;
                     }
                     break;
             }
             break;
         case 0x1F:
-            if ((u8)(dist < 0x2710) && gCurrentActor->unk155[0] == 0) {
+            if ((u8)(dist < 0x2710) && gCurrentActor->unk155 == 0) {
                 flag4 = flagGet(0xBD, 0);
                 flag3 = flagGet(0xBC, 0);
                 flag2 = flagGet(0xBB, 0);
                 flag1 = flagGet(0xBA, 0);
                 D_80750AC8 = flagGet(0xBE, 0) + flag1 + flag2 + flag3 + flag4;
                 resQueueAttachActor(gCurrentActor, 0x17, 2);
-                gCurrentActor->unk155[0]++;
+                gCurrentActor->unk155++;
             }
             break;
         case 0x20:
-            if ((u8)(dist < 0x2710) && gCurrentActor->unk155[0] == 0 && camIsCutsceneActive() == 0) {
+            if ((u8)(dist < 0x2710) && gCurrentActor->unk155 == 0 && camIsCutsceneActive() == 0) {
                 camStartPath(gCurrentActor, 0x18, 1);
                 resQueueAttachActor(gCurrentActor, 0x17, 3);
-                gCurrentActor->unk155[0]++;
+                gCurrentActor->unk155++;
             }
             break;
         case 0x27:
             if (camIsCutsceneActive() == 0) {
-                switch (gCurrentActor->unk155[0]) {
+                switch (gCurrentActor->unk155) {
                     case 0:
                         camStartPath(gCurrentActor, 0x17, 1);
                         resQueueSetValue(1);
                         resQueueAttachActor(gCurrentActor, 0x17, 1);
-                        gCurrentActor->unk155[0]++;
+                        gCurrentActor->unk155++;
                         break;
                     case 1:
                         if (!(gCurrentActor->flags & 0x2000000)) {
                             csModelStateSetFirstByte(0xE, 0xA);
                             gCurrentActor->state = 0x20;
-                            gCurrentActor->unk155[0] = 0;
+                            gCurrentActor->unk155 = 0;
                         }
                         break;
                 }

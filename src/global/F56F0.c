@@ -1312,7 +1312,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *arg0, u16 arg1) {
         case 2:
             switch (arg0->state) {
             case 0x26:
-                if (arg0->unk155[0] != 0) {
+                if (arg0->unk155 != 0) {
                     t = (*(F56CHead **)arg0->sub4)->unk4;
                     if (t < 6.0f) {
                         v = 0.0f;

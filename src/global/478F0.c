@@ -1128,7 +1128,7 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
         if (gPrimaryPlayerActor->chunkIndex == 0xD) {
             ok = 0;
             a = spawnNodeActivate(0x1F, 0);
-            if (a != NULL && a->state == 0x27 && a->sub4->animId == 0x362 && a->unk155[0] == 2) {
+            if (a != NULL && a->state == 0x27 && a->sub4->animId == 0x362 && a->unk155 == 2) {
                 p->timer = 0x65;
                 ok = 1;
             }
@@ -2602,7 +2602,7 @@ void csCmdStepMultiModelAnimations(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     if (p->cool == 0) {
         pl = gPlayerSlots->actor;
-        if (pl->state == 0x1C && pl->unk155[0] < 7 && gPlayerCharacterId == 0 && pl->attachMode == 1) {
+        if (pl->state == 0x1C && pl->unk155 < 7 && gPlayerCharacterId == 0 && pl->attachMode == 1) {
             if (csId == pl->cutsceneId) {
                 bestD = 100000.0f;
                 best = -1;

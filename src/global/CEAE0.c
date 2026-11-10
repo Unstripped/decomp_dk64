@@ -255,7 +255,7 @@ void playerCheckAndClearCarriedItem(void) {
         } else {
             if (gActivePlayerState->unkC8 == 0 && (gCurrentActor->contactFlags & 1)) {
                 gCurrentActor->state = 0x2D;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
                 slotQueueUpdate(5, 0, 0);
                 slotQueueAddValue(5, gActivePlayerState->playerIndex, (s16)-slotQueueGetCountStep(5));
                 actorScriptStartByIndex(gCurrentActor, 0x42);
@@ -757,7 +757,7 @@ void playerUpdateScaleAndPhysics(void) {
                 flag = 1;
                 if (gActivePlayerState->heldActor != NULL && gActivePlayerActor->actorType == 6 && gActivePlayerActor->state != 0x4A) {
                     gActivePlayerActor->state = 0x4A;
-                    gActivePlayerActor->unk155[0] = 0;
+                    gActivePlayerActor->unk155 = 0;
                     actorScriptStart(gActivePlayerActor, 0x1CD);
                 }
             }
@@ -867,7 +867,7 @@ void playerCheckLandingSfx(void) {
                 sfxPlayActorSound(gCurrentActor, 0x10D, 0, 1, 0, 0xFF, 1.0f, 0);
             }
             gCurrentActor->state = 0xF;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
             gCurrentActor->terminalSpeedY = -900.0f;
             gActivePlayerState->turnRate = D_8075326C[gCurrentCharacterIndex];
             gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
@@ -2289,7 +2289,7 @@ void func_806CF580(void) {
 
 
 void playerSpawnJumpTrailEffects(void) {
-    if (!(gFrameCounter & 3) && gCurrentActor->unk155[0] >= 5 && gCurrentActor->speedY > 30.0f) {
+    if (!(gFrameCounter & 3) && gCurrentActor->unk155 >= 5 && gCurrentActor->speedY > 30.0f) {
         effectSetMode(2);
         effectSetDepth(1);
         effectSetCallback(effectZSpinMatrixUpdate);
@@ -2437,10 +2437,10 @@ void playerEnterFall(Actor *actor) {
     gCurrentActor->peakY = gCurrentActor->y;
     if (gActivePlayerState->gunDrawn) {
         actor->state = 0x1F;
-        actor->unk155[0] = 0;
+        actor->unk155 = 0;
     } else {
         actor->state = 0x1E;
-        actor->unk155[0] = 0;
+        actor->unk155 = 0;
     }
 }
 
@@ -2463,30 +2463,30 @@ void playerResumeLocomotion(Actor *actor) {
     }
     if (gPlayerCharacterId[gCurrentPlayerIndex] == 7) {
         actor->state = 0x7E;
-        actor->unk155[0] = 0;
+        actor->unk155 = 0;
         return;
     }
     if ((p->stateFlags & 0x20) && gPlayerCount == 1) {
         nextState = playerSelectSurfaceState(actor, actor->speedXZ, p->maxSpeed, 1);
         actor->state = nextState;
-        actor->unk155[0] = 0;
+        actor->unk155 = 0;
         if (nextState == 0x3F) {
-            actor->unk155[0] = 1;
+            actor->unk155 = 1;
         }
     } else if (p->heldActor != NULL) {
         actor->state = playerSelectCarryMoveState(actor, actor->speedXZ, p->maxSpeed, 1);
-        actor->unk155[0] = 0;
+        actor->unk155 = 0;
     } else if (p->gunDrawn != 0) {
         nextState = playerSelectCarryState(actor, actor->speedXZ, p->maxSpeed, 1);
         if (actor->state != 2) {
             actor->state = nextState;
-            actor->unk155[0] = 0;
+            actor->unk155 = 0;
         }
     } else {
         nextState = playerSelectWalkRunState(actor, actor->speedXZ, p->maxSpeed, 1);
         if (actor->state != 2) {
             actor->state = nextState;
-            actor->unk155[0] = 0;
+            actor->unk155 = 0;
         }
     }
 }
@@ -2497,7 +2497,7 @@ void playerEnterBarrelTransition(Actor *actor) {
     gActivePlayerState->unk10C = 0;
     actorScriptStartByIndex(actor, 0x7A);
     actor->state = 7;
-    actor->unk155[0] = 0;
+    actor->unk155 = 0;
 }
 
 extern s16 D_80753328[];
@@ -2859,7 +2859,7 @@ void playerClampWaterSurfaceHeight(Actor *unused) {
         actorScriptStartByIndex(gCurrentActor, 0x3D);
         gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
         gCurrentActor->state = 0x4E;
-        gCurrentActor->unk155[0] = 0;
+        gCurrentActor->unk155 = 0;
     }
 }
 

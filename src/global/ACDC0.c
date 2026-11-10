@@ -1840,7 +1840,7 @@ Gfx *hudDrawTwoOptionMenu(Gfx *dl, Actor *actor) {
     u8 c;
 
     dl = hudSetupTextState(dl);
-    sel = actor->unk155[0] == 0;
+    sel = actor->unk155 == 0;
     c = D_807505F8[sel];
     gDPSetPrimColor(dl++, 0, 0, c, c, c, 255);
     dl = hudDrawScaledText(dl, 0x280, 0x1B8, 0.7f, D_807FC7E0[0]);
@@ -1864,13 +1864,13 @@ void hudTwoOptionMenuUpdate(void) {
         gGlobalPauseFlags &= ~0x10030;
         screenWipeStart(7);
         D_807FC80E = 0;
-        gCurrentActor->unk155[0] = 0;
+        gCurrentActor->unk155 = 0;
     }
     i = gPausingPlayer;
     off = i * 0x2F0;
     if (((HudPlayerView *)((u8 *)gPlayerSlots + off))->unk294->unk3 >= 0x33 || ((HudPlayerView *)((u8 *)gPlayerSlots + off))->unk294->unk3 < -0x32) {
         if (!(D_807FC80E & 1)) {
-            gCurrentActor->unk155[0] = 1 - gCurrentActor->unk155[0];
+            gCurrentActor->unk155 = 1 - gCurrentActor->unk155;
             D_807FC80E |= 1;
             sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
@@ -1879,16 +1879,16 @@ void hudTwoOptionMenuUpdate(void) {
     }
     btn = *((HudPlayerView *)((u8 *)gPlayerSlots + off))->unk298;
     if (btn & 0x8000) {
-        if (gCurrentActor->unk155[0] == 0) {
+        if (gCurrentActor->unk155 == 0) {
             gGlobalPauseFlags |= 0x10070;
             for (i = 0; i < 4; i++) {
                 heapFreeDeferred(D_807FC7E0[i]);
             }
             heapFreeDeferred(D_807FC7E0);
-        } else if (gCurrentActor->unk155[0] == 1) {
+        } else if (gCurrentActor->unk155 == 1) {
             D_8076A105 = -1;
             menuReturnToTitleWithMode3();
-            gCurrentActor->unk155[0] = 2;
+            gCurrentActor->unk155 = 2;
         }
     }
     renderCallbacksRegister(hudDrawDimOverlay, gCurrentActor, 1);

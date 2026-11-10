@@ -96,23 +96,23 @@ void func_806BDEC8(void) {
 
     if (func_806BDD90() == 1) {
         gCurrentActor->state = 0x12;
-        gCurrentActor->unk155[0] = 0;
+        gCurrentActor->unk155 = 0;
     }
     if (gCurrentActor->state == 0x12) {
-        switch (gCurrentActor->unk155[0]) {
+        switch (gCurrentActor->unk155) {
         case 0:
             R1C2CBC0->unkC0 = 150.0f;
             actorScriptStart(gCurrentActor, 0x28E);
             camSetTargetCutscene(sub->unk104, gCurrentActor, 4, 0xE77, 0xFA, 2, 0x32, 0x20, 0x3F, 0x4A, 0.16f);
             gBehaviourWorkState->timer = 0x32;
-            gCurrentActor->unk155[0]++;
+            gCurrentActor->unk155++;
             break;
         case 2:
             if (gBehaviourWorkState->timer != 0) {
                 gBehaviourWorkState->timer--;
             } else {
                 actorScriptStart(gCurrentActor, 0x28F);
-                gCurrentActor->unk155[0]++;
+                gCurrentActor->unk155++;
                 gBehaviourWorkState->timer = 0x78;
             }
             break;
@@ -121,7 +121,7 @@ void func_806BDEC8(void) {
                 gBehaviourWorkState->timer--;
             } else if (mapHasCollectedSufficientItems() == 0) {
                 gCurrentActor->state = 0;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
             }
             break;
         }
@@ -171,7 +171,7 @@ void func_806BE09C(void) {
         R1C2CBS->unk2C = slotQueueGetValue(0, 0);
         if (R1C2CBS->unk2C != 0) {
             gCurrentActor->state = 0x12;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
             R1C2CBS->unk2E = 0x32;
             actorScriptStart(gCurrentActor, 0x28A);
             camSetTargetCutsceneUnscaled(sub->unk104, gPrimaryPlayerActor, 4, 0x990, 0x5A, -0x2E, 0x3C, 0xA, 0x20, 0, 0.3f);
@@ -191,7 +191,7 @@ void func_806BE09C(void) {
     switch (gCurrentActor->state) {
     case 0x12:
         actorSetUniformScale(gCurrentActor, (target - gCurrentActor->sub4->scaleX) * 0.1 + gCurrentActor->sub4->scaleX);
-        switch (gCurrentActor->unk155[0]) {
+        switch (gCurrentActor->unk155) {
         case 0:
             if (R1C2CBS->unk2E != 0) {
                 R1C2CBS->unk2E--;
@@ -219,7 +219,7 @@ void func_806BE09C(void) {
                 }
             } else if (R1C2CBS->unk2E == 0) {
                 R1C2CBS->unk2C = 0x1E;
-                gCurrentActor->unk155[0] = 1;
+                gCurrentActor->unk155 = 1;
             }
             break;
         case 1:
@@ -228,16 +228,16 @@ void func_806BE09C(void) {
             } else {
                 actorScriptStart(gCurrentActor, 0x28B);
                 gCurrentActor->state = 0x27;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
             }
             break;
         }
         break;
     case 0x27:
-        if (gCurrentActor->unk155[0] == 1) {
+        if (gCurrentActor->unk155 == 1) {
             effectSpawnMultiTierRing(4.0f, 1, gCurrentActor->x, gCurrentActor->y + 5.0f, gCurrentActor->z);
             gCurrentActor->state = 0x28;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
             R1C2CBS->unk2C = 0x3C;
         }
         break;
@@ -245,7 +245,7 @@ void func_806BE09C(void) {
         R1C2CBS->unk2C--;
         if (R1C2CBS->unk2C == 0) {
             gCurrentActor->state = 0;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
             R1C2CBS->unk2E = 0;
         }
 
@@ -305,7 +305,7 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *actor) {
     gdl = textDrawStringVtx(gdl, 1, (s16)((0x140 - textGetStringWidth(1, buf)) << 1), 0xAA, buf, 1);
     n = actor->yawSpeed-- == 0;
     if (n) {
-        actor->unk155[0]++;
+        actor->unk155++;
     }
     return gdl;
 }

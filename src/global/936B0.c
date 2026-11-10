@@ -3020,9 +3020,9 @@ void projectileFallBounceUpdate(void) {
             actorUpdateFloorContactAndTilt(gCurrentActor, (f32)(((f64)mathCosF((s16)(gCurrentActor->roll + 0x800)) * 0.5 + 0.5) * 15.0));
             onGround = gCurrentActor->contactFlags & 1;
             if (onGround != 0 && !(gCurrentActor->prevContactFlags & 1)) {
-                bounces = gCurrentActor->unk155[0];
+                bounces = gCurrentActor->unk155;
                 if (bounces < 2) {
-                    gCurrentActor->unk155[0] = bounces + 1;
+                    gCurrentActor->unk155 = bounces + 1;
                     gCurrentActor->speedY = (f32)((f64)(gCurrentActor->prevPeakY - gCurrentActor->y) * 1.5);
                     camStartShake(((CameraShakeTargetView *)gActivePlayerState)->unk104, 0xA, 0x14);
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C1, 0xFF, 0x7F, 0x1E);

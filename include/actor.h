@@ -259,7 +259,9 @@ typedef struct Actor {
     /* 0x148 */ u8 unk148[8];
     /* 0x150 */ struct CollisionStaticTri *floorTriangle;
     /* 0x154 */ u8 state;
-    /* 0x155 */ u8 unk155[7];
+    /* 0x155 */ u8 unk155;
+    /* 0x156 */ u8 unk156;
+    /* 0x157 */ u8 unk157[5];
     /* 0x15C */ s16 spawnTimer;
     /* 0x15E */ u8 eyeHeight;
     /* 0x15F */ u8 unk15F;

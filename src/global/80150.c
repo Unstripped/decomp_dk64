@@ -1844,7 +1844,7 @@ void tagBarrelParticleUpdate(void) {
             effectCreateAtActorBone(&D_8071FBC8, 1.6f, gCurrentActor, 1, 2);
             gCurrentActor->flags &= ~0x400;
             gCurrentActor->state = 2;
-            gCurrentActor->unk155[0] = 0x1E;
+            gCurrentActor->unk155 = 0x1E;
         } else {
             cam = ((PlayerState *)sub->rider->customState)->camActor;
             switch (sub->mode) {
@@ -1880,8 +1880,8 @@ void tagBarrelParticleUpdate(void) {
         break;
     case 2:
         tagBarrelDespawnOnKongDeselect();
-        gCurrentActor->unk155[0]--;
-        if (gCurrentActor->unk155[0] == 0) {
+        gCurrentActor->unk155--;
+        if (gCurrentActor->unk155 == 0) {
             gCurrentActor->y = sub->baseY;
             sub->phase = ((f64)sub->frequency != 0.0) ? (4.71238899230957031 / (f64)sub->frequency) : (f64)0;
             gCurrentActor->yaw = sub->baseYaw;
@@ -2888,7 +2888,7 @@ s32 tagBarrelCheckKongFlag(s32 arg0, s32 arg1) {
                 flagSet(sp20.unk2, 1, 0);
                 camStartPath(gPrimaryPlayerActor, 0x19, 4);
                 gCurrentActor->unk144 = 1;
-                gCurrentActor->unk155[0] = 0xB;
+                gCurrentActor->unk155 = 0xB;
             }
         }
         ret = p->unk8 != 0; // FAKE: no explicit return: ret/v0 web, operands read via ilod p
@@ -2913,11 +2913,11 @@ void tagBarrelStartSelection(TagBarrelData *arg0) {
     s32 pad;
     s32 light;
 
-    switch (gCurrentActor->unk155[0]) {
+    switch (gCurrentActor->unk155) {
     case 0xB:
         if (camIsCutsceneActive() == 0) {
             gCurrentActor->unk144 = 2;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
         }
         break;
     case 0:
@@ -2926,7 +2926,7 @@ void tagBarrelStartSelection(TagBarrelData *arg0) {
             arg0->player = gActorGlobalState.targetActor;
             arg0->player->unk144 = 1;
             ((PlayerState *)arg0->player->customState)->stateFlags |= 0x20000000;
-            gCurrentActor->unk155[0] = 1;
+            gCurrentActor->unk155 = 1;
             arg0->timer = 2;
             arg0->frames = 0;
         }
@@ -2971,7 +2971,7 @@ void tagBarrelStartSelection(TagBarrelData *arg0) {
             func_8061B650(playerState->camActor);
             slotQueueClearAllFlags();
             gCurrentActor->state = 1;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
         }
         break;
     }
@@ -3064,7 +3064,7 @@ void tagBarrelUpdateSelection(TagBarrelData *arg0_in) {
                         arg0->kongs[timedOut] = NULL;
                     }
                     gCurrentActor->state = 2;
-                    gCurrentActor->unk155[0] = 0;
+                    gCurrentActor->unk155 = 0;
                     arg0->timer = 30;
                     playerState->stateFlags &= ~0x20000000;
                     value = D_8074E814[arg0->selected].kongIndex;
@@ -3255,10 +3255,10 @@ void tagBarrelUpdate(void) {
             tagBarrelStartSelection(sub);
         }
         actor = gCurrentActor;
-        if (actor->unk155[0] == 0xA) {
+        if (actor->unk155 == 0xA) {
             if (gPrimaryPlayerActor->contactFlags & 4 || playerSpawnAllPlayers() != 0) {
                 actor = gCurrentActor;
-                actor->unk155[0] = 0;
+                actor->unk155 = 0;
             } else if (gPrimaryPlayerActor->attachMode != 1 && (gPrimaryPlayerActor->contactFlags & gPrimaryPlayerActor->prevContactFlags & 1)) {
                 tagBarrelCheckKongFlag(gPrimaryPlayerActor->actorType, 1);
             }
@@ -3278,9 +3278,9 @@ void tagBarrelUpdate(void) {
             actorAppendCallback(sub->player, (s32)gCurrentActor, 0x40, 1, 0, 0);
             slotQueuePopActiveMask();
             gCurrentActor->state = 0;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
             if (tagBarrelCheckKongFlag(gPrimaryPlayerActor->actorType, 0) != 0) {
-                gCurrentActor->unk155[0] = 0xA;
+                gCurrentActor->unk155 = 0xA;
             }
             sub->timer = 0x1E;
         }

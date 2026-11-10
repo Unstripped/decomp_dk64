@@ -483,15 +483,15 @@ u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
                         bonusExt->unk18[ammoIndex] = 10;
                     }
                 } else if (bonusExt->unk23 == 0) {
-                    if (gCurrentActor->unk155[0] == 0) {
+                    if (gCurrentActor->unk155 == 0) {
                         fireStatus[0] = 2;
-                        gCurrentActor->unk155[0] = 1;
+                        gCurrentActor->unk155 = 1;
                     }
                 }
             } else if (bonusExt->unk23 < 5) {
                 bonusExt->unk23 = 5;
                 bonusResetAmmo(bonusExt);
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
             }
         }
     }
@@ -611,7 +611,7 @@ void bonusTargetGameUpdate(void) {
                     bonusSpawnTarget(p->x, p->y, p->z, idx, t0);
                 }
             }
-            if ((gCurrentActor->parentActor)->state == 4 && (gCurrentActor->parentActor)->unk155[0] != 0xFF) {
+            if ((gCurrentActor->parentActor)->state == 4 && (gCurrentActor->parentActor)->unk155 != 0xFF) {
                 gCurrentActor->state = 0xFE;
             }
             break;
@@ -754,7 +754,7 @@ void bonusPopupGameUpdate(void) {
             if ((gCurrentActor->parentActor)->state == 5) {
                 gCurrentActor->state = 0xFF;
             }
-            if ((gCurrentActor->parentActor)->state == 4 && (gCurrentActor->parentActor)->unk155[0] != 0xFF) {
+            if ((gCurrentActor->parentActor)->state == 4 && (gCurrentActor->parentActor)->unk155 != 0xFF) {
                 gCurrentActor->state = 0xFE;
             }
             break;
@@ -762,7 +762,7 @@ void bonusPopupGameUpdate(void) {
             bonusEndLose(0, 1);
             camStartPath(0, 1, 0x11);
             gCurrentActor->state = 1;
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
             break;
         case 0xFE:
             t0->unk24 = 0xFF;
@@ -772,7 +772,7 @@ void bonusPopupGameUpdate(void) {
             bonusEndWin(0, 0);
             camStartPath(0, 1, 0x11);
             gCurrentActor->state = 1;
-            gCurrentActor->unk155[0] = 1;
+            gCurrentActor->unk155 = 1;
             break;
         }
     } else {
@@ -821,13 +821,13 @@ void bonusTargetUpdate(void) {
             func_806FDAB8(p->unk25, 3.1415927f);
             actorScriptStart(gCurrentActor, (sub->unk8 != 0) ? 0x212 : 0x210);
             gCurrentActor->state = 1;
-            gCurrentActor->unk155[0] = 0;
-        } else if (gCurrentActor->unk155[0] != 0) {
+            gCurrentActor->unk155 = 0;
+        } else if (gCurrentActor->unk155 != 0) {
             bonusDespawnTarget(sub, p);
         }
         break;
     case 1:
-        if (gCurrentActor->unk155[0] != 0) {
+        if (gCurrentActor->unk155 != 0) {
             bonusDespawnTarget(sub, p);
         }
         break;
@@ -1925,7 +1925,7 @@ void bonusBigBugBashGameUpdate(void) {
 
     if (!(LB5->unk60 & 0x10)) {
         gPrimaryPlayerActor->state = 0x77;
-        gPrimaryPlayerActor->unk155[0] = 0;
+        gPrimaryPlayerActor->unk155 = 0;
         t->unk0 = LB5->unk7C + 10.0;
         t->unk4 = LB5->unk84 + 8.0;
         LB5->unk80 = LB5->unk80 + 50.0;
@@ -2331,7 +2331,7 @@ void bonusSearchlightSeekGameUpdate(void) {
     s16 spawnAngle;
     if (!(gCurrentActor->flags & 0x10)) {
         gPrimaryPlayerActor->state = 0x77;
-        gPrimaryPlayerActor->unk155[0] = 0;
+        gPrimaryPlayerActor->unk155 = 0;
         gPrimaryPlayerActor->unk144 = 1;
         subExt->unk0 = 1.0f;
         subExt->unk4 = gCurrentActor->x;

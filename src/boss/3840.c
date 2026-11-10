@@ -147,13 +147,13 @@ u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
     switch (BA40->base.state) {
     case 0x54:
         advanceScript = 0;
-        if (BA40->base.unk155[0] != 0) {
+        if (BA40->base.unk155 != 0) {
             if (currentActorTestClearFlag() != 0) {
                 advanceScript = 1;
             }
         } else {
             currentActorClearFlag();
-            BA40->base.unk155[0] = 1;
+            BA40->base.unk155 = 1;
         }
         break;
     case 0x5F:
@@ -204,11 +204,11 @@ block_16:
         break;
     case 0x55:
         advanceScript = 0;
-        if (BA40->base.unk155[0] == 0) {
+        if (BA40->base.unk155 == 0) {
             tmp = s0->scriptPos;
             s0->unk8[0] = (script[tmp] << 8) + script[tmp + 1];
             s0->scriptPos = tmp + 2;
-            BA40->base.unk155[0] = 1;
+            BA40->base.unk155 = 1;
         } else {
             s0->unk8[0] -= 1;
             if (s0->unk8[0] == 0) {
@@ -218,11 +218,11 @@ block_16:
         break;
     case 0x23:
         advanceScript = 0;
-        if (BA40->base.unk155[0] == 0) {
+        if (BA40->base.unk155 == 0) {
             tmp = s0->scriptPos;
             s0->unk8[0] = script[tmp];
             s0->scriptPos = tmp + 1;
-            BA40->base.unk155[0] = 1;
+            BA40->base.unk155 = 1;
             actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
         } else {
             actorMoveWithinZone(0x23, gBehaviourWorkState->unk4->x, gBehaviourWorkState->unk4->z, turnSpeed, fwdSpeed);
@@ -240,7 +240,7 @@ block_16:
         }
         break;
     case 0x53:
-        if (BA40->base.unk155[0] == 0) {
+        if (BA40->base.unk155 == 0) {
             advanceScript = 0;
         }
         break;
@@ -287,13 +287,13 @@ block_16:
         bossPickRandomWaypoint((BossB_Struct_80027950 *)s0, script);
         advanceScript = 0;
         BA40->base.state = 0x42;
-        BA40->base.unk155[0] = 0;
+        BA40->base.unk155 = 0;
         goto block_16;
     case 0x4C:
         bossPickFarthestWaypoint(s0, script);
         advanceScript = 0;
         BA40->base.state = 0x42;
-        BA40->base.unk155[0] = 0;
+        BA40->base.unk155 = 0;
         goto block_16;
     case 0x4B:
         gBehaviourWorkState->unk25++;
@@ -303,24 +303,24 @@ block_16:
         s0->scriptPos += 2;
         advanceScript = 0;
         BA40->base.state = 0x42;
-        BA40->base.unk155[0] = 0;
+        BA40->base.unk155 = 0;
         goto block_16;
     case 0x41:
         gBehaviourWorkState->unk25 = script[s0->scriptPos];
         s0->scriptPos++;
         advanceScript = 0;
         BA40->base.state = 0x42;
-        BA40->base.unk155[0] = 0;
+        BA40->base.unk155 = 0;
         goto block_16;
     case 0x49:
     case 0x4A:
         advanceScript = 0;
-        switch (BA40->base.unk155[0]) {
+        switch (BA40->base.unk155) {
         case 0:
             BA40->base.alpha -= 0xA;
             if (BA40->base.alpha < 0) {
                 BA40->base.alpha = 0;
-                BA40->base.unk155[0]++;
+                BA40->base.unk155++;
             }
             break;
         case 1:
@@ -333,7 +333,7 @@ block_16:
             patrolPathStep(0x49, 0);
             BA40->base.x = gBehaviourWorkState->targetX;
             BA40->base.z = gBehaviourWorkState->targetZ;
-            BA40->base.unk155[0]++;
+            BA40->base.unk155++;
             break;
         case 2:
             BA40->base.alpha += 0xA;
@@ -353,7 +353,7 @@ block_16:
     if (advanceScript != 0) {
         BA40->base.state = script[s0->scriptPos];
         s0->scriptPos++;
-        BA40->base.unk155[0] = 0;
+        BA40->base.unk155 = 0;
     }
     return didLoop;
 }
@@ -503,7 +503,7 @@ void bossRoundFrame(u8 *script) {
                 menuTransitionToMap(0xD7, 0);
                 D_80750AD4 = 0;
                 BA40->base.state = 0x6A;
-                BA40->base.unk155[0] = 0;
+                BA40->base.unk155 = 0;
             }
         }
         n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &s0->sndHandleA);
@@ -512,14 +512,14 @@ void bossRoundFrame(u8 *script) {
     func_80724A20();
     switch (BA40->base.state) {
     case 0x37:
-        if (BA40->base.unk155[0] == 0) {
+        if (BA40->base.unk155 == 0) {
             actorSetStateOne(BA40->base.parentActor);
         }
         break;
     case 0x6A:
-        if (BA40->base.unk155[0] == 0) {
+        if (BA40->base.unk155 == 0) {
             actorScriptStart(gCurrentActor, 0);
-            BA40->base.unk155[0]++;
+            BA40->base.unk155++;
         }
         break;
     case 0x6C:
@@ -530,13 +530,13 @@ void bossRoundFrame(u8 *script) {
         }
         BA40->base.state = script[scriptState->scriptPos];
         scriptState->scriptPos++;
-        BA40->base.unk155[0] = 0;
+        BA40->base.unk155 = 0;
         break;
     default:
         if ((BA40->base.parentActor != NULL) && (BA40->base.parentActor->state == 5)) {
             bossResetAudioChannels();
             BA40->base.state = 0x6A;
-            BA40->base.unk155[0] = 0;
+            BA40->base.unk155 = 0;
             camStartPath(gCurrentActor, D_800359C4[mapOffset], 1);
             flagSet(0x5A, 1, 2);
         }
@@ -569,7 +569,7 @@ void bossRoundFrame(u8 *script) {
                 } else {
                     sfxStopChannel(0x2B, 0);
                     BA40->base.state = 0x6A;
-                    BA40->base.unk155[0] = 0;
+                    BA40->base.unk155 = 0;
                     flagSet(0x5B, 1, 2);
                     menuTransitionToMap(0xD7, 1);
                     D_80750AD4 -= 1;

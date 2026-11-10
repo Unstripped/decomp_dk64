@@ -220,7 +220,7 @@ s32 bossCheckPlayerBelow(BossE_F0D0_Sub14 *sub14, u8 *scriptOpcodes) {
         sub14->unk15 = sub14->unk16;
         gCurrentActor->state = scriptOpcodes[sub14->unk15];
         sub14->unk15++;
-        gCurrentActor->unk155[0] = 0;
+        gCurrentActor->unk155 = 0;
         actorScriptStart(gCurrentActor, 0);
         return 1;
     }
@@ -232,10 +232,10 @@ void bossAdjustHealth(s8 healthDelta) {
     gCurrentActor->alpha += healthDelta;
     if (gCurrentActor->alpha < 0) {
         gCurrentActor->alpha = 0;
-        gCurrentActor->unk155[0]++;
+        gCurrentActor->unk155++;
     } else if (gCurrentActor->alpha >= 0x100) {
         gCurrentActor->alpha = 0xFF;
-        gCurrentActor->unk155[0]++;
+        gCurrentActor->unk155++;
     }
 }
 
@@ -896,7 +896,7 @@ void bossMainStep(void) {
 void bossShockwaveTriggerDamage(void) {
     f32 dx, dz;
 
-    switch (gCurrentActor->unk155[0]) {
+    switch (gCurrentActor->unk155) {
     case 1:
         if (gCurrentActor->state == 0) {
             dx = gPrimaryPlayerActor->x - gCurrentActor->x;

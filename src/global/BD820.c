@@ -66,11 +66,11 @@ void func_806B8C78(void) {
 
     switch (gCurrentActor->state) {
         case 1:
-            switch (gCurrentActor->unk155[0]) {
+            switch (gCurrentActor->unk155) {
                 case 0:
                     BD820A->unkC0 = 0.0f;
                     actorScriptStart(gCurrentActor, 0x290);
-                    gCurrentActor->unk155[0]++;
+                    gCurrentActor->unk155++;
                     break;
                 case 2:
                     if (gCurrentActor->y > -20.0f) {
@@ -154,7 +154,7 @@ void func_806B904C(void) {
     for (i = 0; i < gActorGlobalState.unk254; i++) {
         if (gActorGlobalState.unk258[i] == 3) {
             gCurrentActor->state = gActorGlobalState.unk278[i][1];
-            gCurrentActor->unk155[0] = 0;
+            gCurrentActor->unk155 = 0;
         }
     }
     func_806B8C78();

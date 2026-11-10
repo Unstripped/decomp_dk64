@@ -67,7 +67,7 @@ s32 func_80724A20(void) {
             if (gActorGlobalState.unk258[i] == 3) {
                 found = 1;
                 gCurrentActor->state = gActorGlobalState.unk278[i][1];
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
             }
             i++;
         } while (found == 0 && i < gActorGlobalState.unk254);

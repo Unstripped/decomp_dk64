@@ -93,7 +93,7 @@ void behaviourFrameBegin(void) {
             if (gCurrentActor->state >= 0x23 && gCurrentActor->state < 0x36) {
                 gCurrentActor->unk144 = 1;
                 gCurrentActor->state = 0x3A;
-                gCurrentActor->unk155[0] = 0;
+                gCurrentActor->unk155 = 0;
             }
         }
         if (gActorGlobalState.unk1B) {
@@ -106,7 +106,7 @@ void behaviourFrameBegin(void) {
                     gCurrentActor->flags &= 0xFFFD7FFF;
                     gCurrentActor->unk144 = 1;
                     gCurrentActor->state = 0x39;
-                    gCurrentActor->unk155[0] = 0;
+                    gCurrentActor->unk155 = 0;
                     actorScriptStart(gCurrentActor, D1DC98D->unk2A);
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x16, 0xFF, 0x7F, 0x14);
                     D1AE->unkC0 = -220.0f;
@@ -123,7 +123,7 @@ void behaviourFrameBegin(void) {
                 if ((((D1S174 *)gBehaviourTargetActor->customState)->unk1F0 ^ ((D1S174 *)gBehaviourTargetActor->customState)->unk1F8) & 0x100000) {
                     sfxStopSlotSound(gCurrentActor, 0);
                     gCurrentActor->state = 0;
-                    gCurrentActor->unk155[0] = 0;
+                    gCurrentActor->unk155 = 0;
                     D_807FBB85 = 1;
                 }
             }
@@ -1779,7 +1779,7 @@ s32 behaviourIsTargetWithinAngle(u16 arg0) {
 
 void actorSetDefaultState(s32 arg0) {
     gCurrentActor->state = gBehaviourExtraState->unk10;
-    gCurrentActor->unk155[0] = 0;
+    gCurrentActor->unk155 = 0;
     actorScriptStart(gCurrentActor, arg0);
     actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
 }

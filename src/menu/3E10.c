@@ -393,7 +393,7 @@ void menuInitMainScreen(Actor *actor, s32 unused) {
     D_800337F8 = 0;
     D_800337F4 = 0;
     gPrimaryPlayerActor->state = 0x85;
-    gPrimaryPlayerActor->unk155[0] = 0;
+    gPrimaryPlayerActor->unk155 = 0;
     gAudioOutputMode = eepromGetField(0x1E, 0, 0, 0);
     menuSetAudioMode();
     state->selection = D_8076A0D1[0];
@@ -1465,7 +1465,7 @@ void menuInitCharacterSelect(Actor *actor, s32 unused) {
         }
         gSpawnedActor->state = i;
         i += 1;
-        gSpawnedActor->unk155[0] = D_8076A0E4[i - 1] & 0x7F;
+        gSpawnedActor->unk155 = D_8076A0E4[i - 1] & 0x7F;
         sub = gSpawnedActor->customState;
         sub->unk0 = actor;
         sub->unk8 = 0;
@@ -1589,7 +1589,7 @@ void menuInitMultiplayerResults(Actor *actor, s32 unused) {
             *q = D_8003386C[D_8003387C[i]];
         }
         gSpawnedActor->state = D_80033F20[i] | 0x80;
-        gSpawnedActor->unk155[0] = D_8003387C[i];
+        gSpawnedActor->unk155 = D_8003387C[i];
         sub = gSpawnedActor->customState;
         sub->unk0 = actor;
         sub->unk8 = (i == D_8076A105) + 1;
@@ -2757,9 +2757,9 @@ void menuInit(void) {
         if (D_80744514 != 0) {
             D_80033738 = 0x15;
             gPrimaryPlayerActor->state = 0x85;
-            gPrimaryPlayerActor->unk155[0] = 0;
+            gPrimaryPlayerActor->unk155 = 0;
             actorScriptStart(gPrimaryPlayerActor, 0x347);
-            gPrimaryPlayerActor->unk155[0] = 6;
+            gPrimaryPlayerActor->unk155 = 6;
             func_8061B650(gCamActor);
             D_80033F3C = 1.0f;
             actorState->unk23C = 0x50;
@@ -2785,7 +2785,7 @@ void menuInit(void) {
         default:
             actorScriptStart(gSpawnedActor, 0x349);
             gPrimaryPlayerActor->state = 0x86;
-            gPrimaryPlayerActor->unk155[0] = 0;
+            gPrimaryPlayerActor->unk155 = 0;
             sub->unk12 = 0;
             break;
         }
@@ -3472,15 +3472,15 @@ extern s8 D_80033734;
 void menuActorStateDispatch(void) {
     Actor *actor = gCurrentActor;
 
-    switch (actor->unk155[0]) {
+    switch (actor->unk155) {
     case 0:
         actorScriptStart(actor, 0x345);
         gCurrentActor->yaw = 0;
-        gCurrentActor->unk155[0] = 1;
+        gCurrentActor->unk155 = 1;
         camStartPath(gCurrentActor, 0x13, 5);
         break;
     case 2:
-        actor->unk155[0]++;
+        actor->unk155++;
         break;
     case 4:
         if (D_80033734 == 0) {
@@ -3509,10 +3509,10 @@ void menuUpdateKioskActor(void) {
     if (D_8003369C > 0.0f) {
         D_8003369C = 0.0f;
     }
-    switch (gCurrentActor->unk155[0]) {
+    switch (gCurrentActor->unk155) {
     case 0:
         gCurrentActor->yaw = 0x800;
-        gCurrentActor->unk155[0] = 1;
+        gCurrentActor->unk155 = 1;
         actorScriptStart(gCurrentActor, 0x346);
         func_8061B650(gCamActor);
         D_8003369C = -35.0f;
@@ -3520,7 +3520,7 @@ void menuUpdateKioskActor(void) {
     case 1:
         if (D_8003369C == 0.0f) {
             actorScriptStart(gCurrentActor, 0x347);
-            gCurrentActor->unk155[0] = 2;
+            gCurrentActor->unk155 = 2;
             subState->unk23C = 0;
         }
         break;
@@ -3535,7 +3535,7 @@ void menuUpdateKioskActor(void) {
         if (*gPlayerSlots->unk298 & 0x8000) {
             if (D_800337F0 == 1) {
                 actorScriptStart(gCurrentActor, 0x348);
-                gCurrentActor->unk155[0] = 4;
+                gCurrentActor->unk155 = 4;
                 D_800337F4 = 0x3C;
             } else if (D_800337F0 == -1) {
                 sfxPlayOnFreeSlot(0x98, 0x61A8, 63.0f, 1.0f, 0, 0);
@@ -3547,7 +3547,7 @@ void menuUpdateKioskActor(void) {
         D_80033F3C = D_80033F40;
         D_800337F4 = 0;
         subState->unk23C = 0;
-        gCurrentActor->unk155[0] = 6;
+        gCurrentActor->unk155 = 6;
         break;
     case 6:
     case 7:
@@ -3575,7 +3575,7 @@ void menuUpdateKioskActor(void) {
     if (D_80033698 != 0) {
         D_80033698 -= 1;
     }
-    if (gCurrentActor->unk155[0] < 6) {
+    if (gCurrentActor->unk155 < 6) {
         if (D_8003369C > -30.0) {
             gGlobalPauseFlags |= 0x10000;
         } else {
@@ -3610,7 +3610,7 @@ void menuUpdateKioskPodActor(void) {
     s32 pad2;
 
     pos = gCurrentActor->customState;
-    if (gPrimaryPlayerActor->unk155[0] < 6) {
+    if (gPrimaryPlayerActor->unk155 < 6) {
         if (D_80033738 == 0x14) {
             actorDespawn(gCurrentActor);
             D_80033738 += 1;

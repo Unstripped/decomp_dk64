@@ -140,14 +140,14 @@ void enemyGridStateStep(void) {
                 camResumePath();
                 st->unk39 = 1;
                 gPrimaryPlayerActor->state = 0xC;
-                gPrimaryPlayerActor->unk155[0] = 0;
+                gPrimaryPlayerActor->unk155 = 0;
                 playerResumeLocomotion(gPrimaryPlayerActor);
             }
             if ((D_807ECD58 & 0x4000) && !(D_807ECD60 & 0x4000)) {
                 camResumePath();
                 st->unk39 = 2;
                 gPrimaryPlayerActor->state = 0xC;
-                gPrimaryPlayerActor->unk155[0] = 0;
+                gPrimaryPlayerActor->unk155 = 0;
                 playerResumeLocomotion(gPrimaryPlayerActor);
             }
             break;
