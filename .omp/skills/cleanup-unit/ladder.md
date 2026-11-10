@@ -30,7 +30,7 @@ have `u` as the first hash character: `global:8060ABCD:dead-if:u3f2a1`. Kinds:
 |id|who|what|
 |---|---|---|
 |`remove`|sweep|delete removable sites: alone, all together, pairs, triples|
-|`plain`|sweep|the plain rewrites of one tagged line (`^ 0`, `\| 0`, `+ 0`, `& 0xFFFFFFFF`, `(0, `, `*(T *)&x`, `(s16)(s32)`, `[i * 1]`)|
+|`plain`|sweep|the plain rewrites of one tagged line (`^ 0`, `\| 0`, `+ 0`, `& 0xFFFFFFFF`, `(0, `, `*(T *)&x`, `(s16)(s32)`, `[i * 1]`, and the low-part puns `((T *)&x)[n]` / `*((T *)&x + n)` → `x` for n 1–9, Q0594)|
 |`cond`|sweep|`!= 0`↔bare, `== 0`↔`!x` flips with removals|
 |`classify`|sweep|dead-if → `if (<int local>) {}`; match = class 1 (`kept`), none = class 2|
 |`consolidate`|protos.py|remove the file's declaration in favour of the shared header|

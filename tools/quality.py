@@ -126,10 +126,15 @@ HDR_DIRS = ("include", "include/PR", "include/libultra", "include/compiler/ido")
 INT_KINDS = {TypeKind.BOOL, TypeKind.CHAR_U, TypeKind.UCHAR, TypeKind.USHORT, TypeKind.UINT, TypeKind.ULONG,
              TypeKind.ULONGLONG, TypeKind.CHAR_S, TypeKind.SCHAR, TypeKind.SHORT, TypeKind.INT, TypeKind.LONG,
              TypeKind.LONGLONG}
+LVALUE = r"([A-Za-z_]\w*(?:(?:->|\.)\w+)*)"
 PLAIN = [(re.compile(r"\s*\^\s*0\b"), ""), (re.compile(r"\s*\|\s*0\b"), ""), (re.compile(r"\s*\+\s*0U?\b"), ""),
          (re.compile(r"\s*&\s*0xFFFFFFFF\b"), ""), (re.compile(r"\(0,\s*"), "("),
          (re.compile(r"\*\(\w+\s*\*\)&(\w+)"), r"\1"), (re.compile(r"\(s16\)\(s32\)"), "(s16)"),
-         (re.compile(r"\[([^\]]+) \* 1\]"), r"[\1]")]
+         (re.compile(r"\[([^\]]+) \* 1\]"), r"[\1]"),
+         # the low half/byte of a wider big-endian object, `((T *)&g)[n]` / `*((T *)&g + n)` with
+         # n = sizeof(g) / sizeof(T) - 1: plain `g` when a narrow assignment or parameter truncates (Q0594)
+         (re.compile(r"\(\(\w+\s*\*\)&" + LVALUE + r"\)\[[1-9]\]"), r"\1"),
+         (re.compile(r"\*\(\(\w+\s*\*\)&" + LVALUE + r"\s*\+\s*[1-9]\)"), r"\1")]
 FLIPS = [(re.compile(r"\bif \(([^()]*?) != 0\)"), r"if (\1)"),
          (re.compile(r"\bif \(([^()]*?) == 0\)"), r"if (!\1)"),
          (re.compile(r"\bif \(!([A-Za-z_][\w\->\.\[\]]*)\)"), r"if (\1 == 0)"),

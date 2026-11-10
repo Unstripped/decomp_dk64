@@ -479,6 +479,20 @@ def test_note_text_strips_carry_prefixes():
     assert q.note_text("carried from abc^ (identifier renames only): regalloc swap") == "regalloc swap"
 
 
+@pytest.mark.parametrize("code, plain", [
+    ("x = *(u16 *)&D_807FBB32;", "x = D_807FBB32;"),
+    ("flags = ((u8 *)&anim->layerWeight)[1];", "flags = anim->layerWeight;"),
+    ("v = ((s16 *)&gScore)[1] + 2;", "v = gScore + 2;"),
+    ("v = *((u8 *)&state.count + 3);", "v = state.count;"),
+])
+def test_plain_rewrites_punned_low_part(code, plain):
+    assert plain in {rx.sub(rep, code) for rx, rep in q.PLAIN}
+
+
+def test_plain_rewrites_keep_high_part_puns():
+    for code in ("v = ((u8 *)&gScore)[0];", "v = ((u8 *)&arr[i])[1];", "v = ((u8 *)&gScore)[i];"):
+        assert {rx.sub(rep, code) for rx, rep in q.PLAIN} == {code}
+
 def test_carry_takes_newest_event_by_time(tmp_path, monkeypatch):
     repo = tmp_path.resolve() / "repo"
     (repo / "src" / "global").mkdir(parents=True)
