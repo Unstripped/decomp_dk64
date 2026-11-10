@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_mapObjectCollectIdsByType // FAKE: callee prototype steer
 #include "proto/global/15050.h"
 #include "proto/global/55B20.h"
 #include "proto/global/68AA0.h"
@@ -35,7 +34,6 @@ extern ActorTargetEntry *D_807F9420;
 extern s16 D_807F9424;
 extern s32 D_80747D70;
 
-s16 mapObjectCollectIdsByType(s8, void *, s16); // FAKE: callee prototype steer
 
 void actorInitTargetEntries(void) {
     s32 k = 0;

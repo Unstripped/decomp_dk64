@@ -5,7 +5,6 @@
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #define PROTO_SKIP_flagGet // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_hudSpawnCountdownTimer // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_mapByteArraySet // FAKE: callee prototype steer
 #define PROTO_SKIP_modelAnimEntrySetUnkC // FAKE: callee prototype steer
 #define PROTO_SKIP_modelSlotStepAnimations // FAKE: callee prototype steer
 #define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
@@ -1287,7 +1286,6 @@ extern u32 gGlobalCutsceneFlags;
 
 s16 sfxPlayOnFreeSlot(s16, s32, s32, f32, s32, s32);  // FAKE: callee prototype steer
 void hudSpawnCountdownTimer(s32, s32, u8, void *);
-void mapByteArraySet(s16, u8);  // FAKE: callee prototype steer
 void modelAnimEntrySetUnkC(); // FAKE: callee prototype steer
 u8 sfxSlotAllocateSource(s16, s16, s32, s32, u8, f32, s8);  // FAKE: callee prototype steer
 

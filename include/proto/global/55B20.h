@@ -2,11 +2,14 @@
 #ifndef PROTO_GLOBAL_55B20_H
 #define PROTO_GLOBAL_55B20_H
 #include "common.h"
+#include "actor.h"
 struct MapActorEntry;
 struct MapData;
+struct MapGridPoint;
 struct MapGridQuad;
 struct MapHeader;
 struct MapTriangle;
+struct MapVec3;
 #ifndef PROTO_SKIP_mapChunkAllocLists
 void mapChunkAllocLists(struct MapHeader *);
 #endif
@@ -23,13 +26,13 @@ void mapChunkBuildCellTable();
 s32 mapChunkIsInUse(s16);
 #endif
 #ifndef PROTO_SKIP_mapByteArraySet
-void mapByteArraySet(s16, s8);
+void mapByteArraySet(s16, u8);
 #endif
 #ifndef PROTO_SKIP_mapObjectSetByte
 void mapObjectSetByte(s16, u8, u8);
 #endif
 #ifndef PROTO_SKIP_mapGridTriangleBuildPlane
-void mapGridTriangleBuildPlane(s32, void *);
+void mapGridTriangleBuildPlane(s32, struct MapGridPoint *);
 #endif
 #ifndef PROTO_SKIP_mapChunkResetFlags
 void mapChunkResetFlags(void);
@@ -68,7 +71,7 @@ void mapChunkBuildSpriteChains(f32, f32, f32, u8);
 void mapChunkUpdateModelNodes(void);
 #endif
 #ifndef PROTO_SKIP_mapChunkCheckActorCollision
-s32 mapChunkCheckActorCollision(s32, f32, f32, f32, s32);
+u8 mapChunkCheckActorCollision(Actor *, f32, f32, f32, f32 *);
 #endif
 #ifndef PROTO_SKIP_mapPointIsInRenderedChunk
 s32 mapPointIsInRenderedChunk(f32, f32, f32);
@@ -96,12 +99,6 @@ s32 mapFloorHeightIsBetter(f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapChunkFindNodeAtPoint
 s32 mapChunkFindNodeAtPoint(f32, f32, f32, s16, u8 *, f32 *);
-#endif
-#ifndef PROTO_SKIP_mapNodeBoxContainsPoint
-s32 mapNodeBoxContainsPoint(void *, f32, f32);
-#endif
-#ifndef PROTO_SKIP_mapNodeTriangleContainsPoint
-s32 mapNodeTriangleContainsPoint(void *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapChunkActivate
 void mapChunkActivate(s16);
@@ -131,7 +128,7 @@ void mapChunkRenderNodes(f32, f32, f32);
 void mapChunkBuildClipFrusta(f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapScreenRectBuildFrustum
-void mapScreenRectBuildFrustum(s32, s32, s32, s32, f32, f32, f32, u8, void *, void *, void *);
+void mapScreenRectBuildFrustum(s32, s32, s32, s32, f32, f32, f32, u8, f32 (*)[4], void *, f32 (*)[3]);
 #endif
 #ifndef PROTO_SKIP_mapTriggerCollectZonesAtPoint
 void mapTriggerCollectZonesAtPoint(f32, f32, f32);
@@ -149,7 +146,7 @@ f32 mapTriangleHeightAtPoint(struct MapTriangle *, f32, f32);
 s32 mapTriangleBoundsContainPoint(struct MapTriangle *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapTriangleContainsPoint
-s32 mapTriangleContainsPoint(void *, f32, f32);
+s32 mapTriangleContainsPoint(struct MapTriangle *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapCellUpdateVisibility
 void mapCellUpdateVisibility(f32, f32, f32, s32);
@@ -167,10 +164,10 @@ void mapChunkReleaseAndAdvance(void);
 s32 mapNodeIdListContains(s16, s32);
 #endif
 #ifndef PROTO_SKIP_mapChunksRender
-void mapChunksRender(Gfx *, void *, s32, s32, f32, s32);
+Gfx *mapChunksRender(Gfx *, void *, f32, f32, f32, s32);
 #endif
 #ifndef PROTO_SKIP_mapChunkEmitLayerDisplayLists
-s32 mapChunkEmitLayerDisplayLists();
+Gfx *mapChunkEmitLayerDisplayLists();
 #endif
 #ifndef PROTO_SKIP_mapChunkEffectSetFlag
 void mapChunkEffectSetFlag(s16, s16, u8, u8);
@@ -188,7 +185,7 @@ void mapChunkIdListAddUniqueLimited(s32);
 void mapChunkIdListAddUnique(s16);
 #endif
 #ifndef PROTO_SKIP_mapGridPointEmit
-s32 mapGridPointEmit(s32, f32, f32, f32);
+u8 mapGridPointEmit(s32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapGridQuadContainsPoint
 s32 mapGridQuadContainsPoint(struct MapGridQuad *);
@@ -212,7 +209,7 @@ s32 mapGridPointPlaneDistanceWithin(s32, f32, f32, f32, s16);
 s32 mapGridQuadClipToFrustum(s32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapPolyClipToFrustumPlane
-void mapPolyClipToFrustumPlane(f32 *, f32 *, s32, s32 *, s32);
+void mapPolyClipToFrustumPlane(struct MapVec3 *, struct MapVec3 *, s32, s32 *, s32);
 #endif
 #ifndef PROTO_SKIP_mapFrustumPlaneIntersectEdge
 void mapFrustumPlaneIntersectEdge(f32 *, f32 *, s32, f32 *);
@@ -227,7 +224,7 @@ void mapLoadNodeAsset(s32);
 void mapNodeAssetParse(u8 *);
 #endif
 #ifndef PROTO_SKIP_mapObjectCollectIdsByType
-s16 mapObjectCollectIdsByType();
+s16 mapObjectCollectIdsByType(s8, s8 *, s16);
 #endif
 #ifndef PROTO_SKIP_mapSearchTableReset
 void mapSearchTableReset(void);

@@ -2,8 +2,6 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
-#define PROTO_SKIP_mapChunkCheckActorCollision // FAKE: callee prototype steer
-#define PROTO_SKIP_mapChunksRender // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_mapSurfaceEffectDraw // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_renderSetSegment6Override // FAKE: callee prototype steer
 #include "proto/global/109660.h"
@@ -528,7 +526,6 @@ u8 func_8062BCC8(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     return result;
 }
 
-u8 mapChunkCheckActorCollision(Actor *, f32, f32, f32, f32 *);  // FAKE: callee prototype steer
 
 u8 func_8062BDB0(Actor *arg0, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 arg4, f32 arg5, f32 *arg6) {
     u8 result;
@@ -758,7 +755,6 @@ typedef struct MapLeafLists {
 
 extern s32 D_807F5FFC;
 
-Gfx *mapChunksRender(Gfx *, MapBspNode *, f32, f32, f32, s32);
 struct RawGfxCmd;
 
 #define MAP_LEAF(o) ((MapLeafLists *)(o))
