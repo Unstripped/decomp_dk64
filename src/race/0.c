@@ -259,7 +259,6 @@ void actorApplyVelocity(void *);
 void actorApproachTargetSpeed(u16);
 void actorSetTargetSpeed(void *, s32);
 void actorStepPhysics(void *, s16, s16);
-void behaviourFrameBegin(void *); // FAKE: callee prototype steer
 void camResumePath(void);
 u16 camStartPath(void *, s16, u8);
 void currentActorClearFlag(void);
@@ -306,7 +305,7 @@ void raceOpponentBehaviourUpdate(void) {
     if (kid != NULL) {
         child = kid->unk174;
     }
-    behaviourFrameBegin(kid);
+    behaviourFrameBegin();
     if (!(L4_D->unk60 & 0x10)) {
         L4_D->unk144 = 0x1C;
         L4_D->unk60 |= 0x10400;
