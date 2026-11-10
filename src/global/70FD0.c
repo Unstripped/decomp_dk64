@@ -9,6 +9,7 @@
 #include "proto/global/36880.h"
 #include "proto/global/5E020.h"
 #include "proto/global/6AD90.h"
+#define PROTO_SKIP_actorGetNodePos
 #include "proto/global/70FD0.h"
 #include "proto/global/79890.h"
 #include "proto/global/7BBD0.h"
@@ -2864,18 +2865,18 @@ void actorUpdateNodePositions(ActorSub140PointView *arg0, u8 arg1) {
     }
 }
 
-s32 actorGetNodePos(ActorTargetWork *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
+s32 actorGetNodePos(Actor *actor, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
     s32 pad0;
     s32 pad1;
     s32 pad2;
-    ActorTargetSub140 *sub;
-    ActorTargetNode *node;
+    ActorSub140 *sub;
+    ModelSubNode *node;
     s32 count;
 
-    sub = arg0->unk140;
+    sub = actor->collision;
     if (sub != NULL) {
         actorUpdateNodePositions(sub, 1);
-        node = arg0->unk140->unk90;
+        node = actor->collision->subNodes;
         count = arg1 - 1;
         while (node != NULL && count != 0) {
             count--;
