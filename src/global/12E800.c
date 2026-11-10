@@ -715,7 +715,7 @@ void actorApproachTargetSpeed(u16 arg0) {
 
 void actorSetBehaviourState(u8 arg0, s16 arg1, s32 arg2) {
     D1A3_154 = arg0;
-    *((u8 *)gCurrentActor + 0x155) = 0;
+    gCurrentActor->unk155 = 0;
     if (arg2 != D1A3->unk4->animId) {
         actorScriptStart(gCurrentActor, arg2);
     }

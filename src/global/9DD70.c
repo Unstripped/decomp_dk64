@@ -997,7 +997,7 @@ void textMarkerUpdateMatrix(void) {
             gCurrentActor->unk144 = 2;
             gCurrentActor->flags2 |= 1;
             gCurrentActor->state = 2;
-            *(u8 *)((u8 *)gCurrentActor + 0x155) = 1;
+            gCurrentActor->unk155 = 1;
             markerView->unk1C = 0x1E;
         }
         markerView->unk28 = ((ActorSub124View *)gCurrentActor->spawnData)->unk0;
@@ -1047,7 +1047,7 @@ void textMarkerUpdateMatrix(void) {
     }
     if (D_807FBB95 != 0) {
         gCurrentActor->state = 2;
-        *(u8 *)((u8 *)gCurrentActor + 0x155) = 0;
+        gCurrentActor->unk155 = 0;
         markerView->unk1C = 0x1E;
         gCurrentActor->unk144 = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
@@ -1128,14 +1128,14 @@ void textMarkerUpdateMatrix(void) {
         } else if (actorHasActiveMovementFlags(gCurrentActor) != 0) {
             markerView->unk1C = 0x1E;
         }
-        if ((gCurrentActor->contactFlags & 1) && *(u8 *)((u8 *)gCurrentActor + 0x155) == 0) {
+        if ((gCurrentActor->contactFlags & 1) && gCurrentActor->unk155 == 0) {
             if (gCurrentActor->actorType == 0x55) {
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8B, 0x64, 0x7F, 0x14);
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x97, 0x64, 0x7F, 0x14);
             } else {
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x97, 0xFF, 0x7F, 0x14);
             }
-            (*(u8 *)((u8 *)gCurrentActor + 0x155))++;
+            gCurrentActor->unk155++;
         }
         *(f32 *)((u8 *)gCurrentActor + 0xC0) = -200.0f;
         gCurrentActor->speedXZ = 0.0f;
