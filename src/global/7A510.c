@@ -64,8 +64,11 @@ typedef struct CollisionTableSlot {
 } CollisionTableSlot;
 
 extern CollisionTableSlot D_8074C604[];
-struct Beh798_8074C608;
-extern struct Beh798_8074C608 D_8074C608[];
+typedef struct Beh798_8074C608 {
+    u8 unk0;
+    u8 pad[7];
+} Beh798_8074C608;
+extern Beh798_8074C608 D_8074C608[];
 extern ActorGlobalState gActorGlobalState;
 
 s32 actorTableContains(void *);
@@ -125,7 +128,7 @@ void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackA
                                 if (attacker->unk5C & 1) {
                                     sub = attacker->unk174;
                                     if (sub->unkD4 != 0) {
-                                        if (((u8 *)D_8074C608)[targetActor->unk58 * 8] != 0) {
+                                        if (D_8074C608[targetActor->unk58].unk0 != 0) {
                                             u8 t = gActorGlobalState.unk244[gActorGlobalState.unk201 - 1];
                                             if (t == 5 || t == 0xF) {
                                                 gActorGlobalState.unk201--;
@@ -496,12 +499,6 @@ void actorInitHealth(Beh798_Actor *actor) {
 void actorInitDamage(Beh798_Actor *actor) {
     actor->unk136 = D_8074D0C6[actor->unk58].unk0;
 }
-
-typedef struct Beh798_8074C608 {
-    u8 unk0;
-    u8 pad[7];
-} Beh798_8074C608;
-extern Beh798_8074C608 D_8074C608[];
 
 u8 func_80676208(Actor *actor) {
     return D_8074C608[actor->actorType].unk0;
