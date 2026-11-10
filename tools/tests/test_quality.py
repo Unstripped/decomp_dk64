@@ -376,7 +376,17 @@ def test_token_pasting_macro_falls_back_to_whole_header(tmp_path, monkeypatch):
     assert fp1["h"] == fp0["h"]
 
 
-def test_carry_skips_token_pasting_function(tmp_path, monkeypatch, capsys):
+@pytest.mark.parametrize("macros,new_macros,expect", [
+    # bounded paste (gbi.h `GBL_c##clk`): every VAL_* is in reach, an unrelated deletion carries f
+    ("#define PICK(n) VAL_##n\n#define VAL_1 10\n", None, "carried"),
+    # ... and a changed VAL_* keeps it stale
+    ("#define PICK(n) VAL_##n\n#define VAL_1 10\n", "#define PICK(n) VAL_##n\n#define VAL_1 11\n",
+     "f: not a pure rename"),
+    # two parameters pasted could form any name: not tracked
+    ("#define CAT(a, b) a##b\n#define PICK(n) CAT(VAL_, n)\n#define VAL_1 10\n", None,
+     "f: token-pasting macro CAT: dependencies not tracked"),
+])
+def test_carry_token_pasting_function(tmp_path, monkeypatch, capsys, macros, new_macros, expect):
     repo = tmp_path.resolve() / "repo"
     (repo / "src" / "global").mkdir(parents=True)
     monkeypatch.chdir(repo)
@@ -391,20 +401,55 @@ def test_carry_skips_token_pasting_function(tmp_path, monkeypatch, capsys):
     _git(repo, "config", "user.name", "t")
     src = repo / "src" / "global" / "x.c"
     tail = "int f(void) {\n    return PICK(1);\n}\nint h(void) {\n    return 2;\n}\n"
-    src.write_text("#define PICK(n) VAL_##n\n#define VAL_1 10\ntypedef struct { int c; } ViewC;\n" + tail)
+    src.write_text(macros + "typedef struct { int c; } ViewC;\n" + tail)
     _git(repo, "add", "-A")
     _git(repo, "commit", "-qm", "a")
     rev_a = _git(repo, "rev-parse", "HEAD")
     fns = {fn["name"]: dict(fn, file="src/global/x.c") for fn in q.analyze("src/global/x.c", "global")["functions"]}
     q.append_events([q.event("u1", "a", fns[n], None, "review", "nohit", note="fake=0/0") for n in ("f", "h")])
-    src.write_text("#define PICK(n) VAL_##n\n#define VAL_1 10\n" + tail)  # unused ViewC deleted
+    src.write_text((new_macros or macros) + tail)  # unused ViewC deleted
     _git(repo, "commit", "-qam", "b")
     capsys.readouterr()
     q.main(["carry", "--rev", rev_a, "--unit", "u2"])
     out = capsys.readouterr().out
+    carried = {e["name"] for e in q.load_events() if e.get("agent") == "carry"}
+    if expect == "carried":
+        assert carried == {"f", "h"}
+    else:
+        assert carried == {"h"} and expect in out
+
+
+def test_carry_across_retagged_file_scope_site(tmp_path, monkeypatch, capsys):
+    # D5E10 c9f9b289: `// PROTO:` -> `// FAKE: callee prototype steer` on the function's skip line
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    src = repo / "src" / "global" / "x.c"
+    body = "int g();\nint f(int x) {\n    if (x) {} // FAKE: steers\n    return g(x);\n}\n"
+    src.write_text("#define PROTO_SKIP_g // PROTO: arity\n" + body)
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fn = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    assert sorted(s["kind"] for s in fn["sites"]) == ["dead-if", "proto-type"]
+    dead = next(s for s in fn["sites"] if s["kind"] == "dead-if")
+    q.append_events([q.event("u1", "a", fn, None, "review", "nohit", note="fake=1/0"),
+                     q.event("u1", "a", fn, dead, "diagnose", "nohit", quirks=["Q0001"])])
+    src.write_text("#define PROTO_SKIP_g // FAKE: callee prototype steer\n" + body)
+    _git(repo, "commit", "-qam", "b")
+    q.main(["carry", "--rev", rev_a, "--unit", "u2"])
     carried = [e for e in q.load_events() if e.get("agent") == "carry"]
-    assert {e["name"] for e in carried} == {"h"}
-    assert "f: token-pasting macro PICK: dependencies not tracked" in out
+    assert sorted(e["method"] for e in carried) == ["diagnose", "review"]
+    assert all(e["site"] in (None, dead["key"]) for e in carried)
 
 
 def test_note_text_strips_carry_prefixes():

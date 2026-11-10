@@ -1176,7 +1176,7 @@ class Scope:
     """Name reachability over one TU's top-level declarations (`top_index`), memoized per name."""
 
     def __init__(self, tu):
-        self.idx, self.memo, self.pasting = top_index(tu), {}, set()
+        self.idx, self.memo, self.pasting, self.paste_memo = top_index(tu), {}, set(), {}
 
     def direct(self, name):
         """(sorted (file, text) of NAME's top-level declarations, identifiers their tokens name).
@@ -1193,23 +1193,64 @@ class Scope:
             self.memo[name] = (sorted(vals), names)
         return self.memo[name]
 
-    def closure(self, names):
+    def paste_names(self, name):
+        """Names the `##` pastes of macro NAME can form, or None when one is unbounded. A paste
+        `frag ## param` can only form a name starting with the literal identifier FRAG, `param ##
+        frag` one ending with it (`GBL_c##clk` -> GBL_c1, GBL_c2); two parameters pasted together
+        could form anything."""
+        if name not in self.paste_memo:
+            out = set()
+            for c in self.idx[name]:
+                if c.kind != CursorKind.MACRO_DEFINITION:
+                    continue
+                dt = decl_tokens(c)
+                params = set()
+                if len(dt) > 1 and dt[1].spelling == "(" and dt[1].extent.start.offset == dt[0].extent.end.offset:
+                    for t in dt[2:]:
+                        if t.spelling == ")":
+                            break
+                        if t.kind == TokenKind.IDENTIFIER:
+                            params.add(t.spelling)
+                for i, t in enumerate(dt):
+                    if t.spelling != "##":
+                        continue
+                    left, right = dt[i - 1].spelling, dt[i + 1].spelling if i + 1 < len(dt) else ""
+                    lfix = left if dt[i - 1].kind == TokenKind.IDENTIFIER and left not in params else None
+                    rfix = right if i + 1 < len(dt) and dt[i + 1].kind in (
+                        TokenKind.IDENTIFIER, TokenKind.LITERAL) and right not in params else None
+                    if lfix is None and rfix is None:
+                        out = None
+                        break
+                    out |= {n for n in self.idx if (lfix and n.startswith(lfix)) or (rfix and n.endswith(rfix))}
+                if out is None:
+                    break
+            self.paste_memo[name] = out
+        return self.paste_memo[name]
+
+    def closure(self, names, pastes=False):
         """name -> sorted (file, text) of every top-level declaration NAMES reach, transitively
         through the declarations' own tokens (types, fields' types, macros, prototypes). Name-based,
         so it over-includes (a local shadowing a global name pulls the global in), never
-        under-includes, except through token-pasting macros (`pasted`)."""
+        under-includes, except through token-pasting macros (`pasted`). PASTES follows bounded
+        pastes too (`paste_names`): every name a paste could form is reached."""
         seen, stack = {}, list(names)
         while stack:
             name = stack.pop()
             if name in seen or name not in self.idx:
                 continue
             seen[name], more = self.direct(name)
+            if pastes and name in self.pasting:
+                more = more | (self.paste_names(name) or set())
             stack += [n for n in more if n not in seen]
         return seen
 
     def pasted(self, closure):
         """First (sorted) token-pasting macro in CLOSURE, or None."""
         return min((n for n in closure if n in self.pasting), default=None)
+
+    def unbounded(self, closure):
+        """First (sorted) macro in CLOSURE with a paste `paste_names` cannot bound, or None."""
+        return min((n for n in closure if n in self.pasting and self.paste_names(n) is None), default=None)
 
     def fp_hdr2(self, names, whole):
         """sha1 of the include/ declarations NAMES reach: a function's own header fingerprint
@@ -1241,13 +1282,14 @@ def body_names(by_line, fn):
     return [n for i in range(fn["line"], fn["end"] + 1) for n in by_line.get(i, ())]
 
 
-def scope_equivalent(old_body, new_body, old_names, new_names, old_scope, new_scope):
+def scope_equivalent(old_body, new_body, old_closure, new_closure):
     """Whether a function is unchanged apart from file-scope text it does not use: same body tokens,
-    and every top-level declaration, typedef, record, enum or macro it reaches (`Scope.closure`)
-    has the same text in both versions. Callers parse both versions against the current headers."""
+    and every top-level declaration, typedef, record, enum or macro it reaches (its `Scope.closure`
+    in each version, OLD_CLOSURE and NEW_CLOSURE) has the same text in both versions. Callers parse
+    both versions against the current headers."""
     if [(t.kind, t.spelling) for t in old_body] != [(t.kind, t.spelling) for t in new_body]:
         return False
-    return old_scope.closure(old_names) == new_scope.closure(new_names)
+    return old_closure == new_closure
 
 
 def carry_renames(a, by_site, by_func):
@@ -1278,7 +1320,12 @@ def carry_renames(a, by_site, by_func):
                 continue
             if fo["fp_local"] == fn["fp_local"] and fo["fp_hdr"] == fn["fp_hdr"]:
                 continue  # unchanged: its events are as fresh as they were
-            sites_match = [s["kind"] for s in fo["sites"]] == [s["kind"] for s in fn["sites"]]
+            # a file-scope site (a skip line above the function) may change only its tag comment,
+            # e.g. `// PROTO:` -> `// FAKE: callee prototype steer`: its kind changes, the code does not
+            sites_match = len(fo["sites"]) == len(fn["sites"]) and all(
+                so["kind"] == sn["kind"] or (so["line"] < fo["line"] and sn["line"] < fn["line"]
+                                             and so["code"].split("//")[0] == sn["code"].split("//")[0])
+                for so, sn in zip(fo["sites"], fn["sites"]))
             lo = carry_lines(old["functions"], fo, old_text.count("\n") + 1)
             ln = carry_lines(new["functions"], fn, new_text.count("\n") + 1)
             how = "identifier renames only"
@@ -1289,18 +1336,19 @@ def carry_renames(a, by_site, by_func):
                 if not sites_match:
                     skipped.append(f"{path}: {fn['name']}: sites changed")
                     continue
-                ocl, ncl = oscope.closure(body_names(onames, fo)), nscope.closure(body_names(nnames, fn))
-                paste = oscope.pasted(ocl) or nscope.pasted(ncl)
+                ocl = oscope.closure(body_names(onames, fo), pastes=True)
+                ncl = nscope.closure(body_names(nnames, fn), pastes=True)
+                paste = oscope.unbounded(ocl) or nscope.unbounded(ncl)
                 if paste:
                     skipped.append(f"{path}: {fn['name']}: token-pasting macro {paste}: dependencies not tracked")
                     continue
                 if not scope_equivalent([t for i, t in otoks if fo["line"] <= i <= fo["end"]],
-                                        [t for i, t in ntoks if fn["line"] <= i <= fn["end"]],
-                                        body_names(onames, fo), body_names(nnames, fn), oscope, nscope):
+                                        [t for i, t in ntoks if fn["line"] <= i <= fn["end"]], ocl, ncl):
                     skipped.append(f"{path}: {fn['name']}: not a pure rename; body or a declaration it uses changed")
                     continue
             vram, n0 = f"{fn['vram']:08X}", len(out)
-            keys = [(None, None)] + [(s["key"], sn_) for s, sn_ in zip(fo["sites"], fn["sites"])]
+            keys = [(None, None)] + [(so["key"], sn_) for so, sn_ in zip(fo["sites"], fn["sites"])
+                                     if so["kind"] == sn_["kind"]]  # a retagged site starts its own ladder
             for okey, nsite in keys:
                 evs = by_func[(seg, vram)] if okey is None else by_site.get(okey, [])
                 newest = {}

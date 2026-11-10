@@ -66,7 +66,8 @@ A function with 3+ non-kept sites also needs a fresh function-level `reconstruct
   (only the `include/` declarations, types and macros the function reaches, so a regenerated
   proto header or an edited struct stales only their users; a function reaching a `##`
   token-pasting macro, whose pasted names are untracked, uses the whole-header hash instead and
-  is never carried by `carry`'s unrelated-file-scope or header-carve rules;
+  is never carried by `carry --header-carve`; plain `carry` follows a paste with a literal side
+  (`GBL_c##clk` reaches every `GBL_c*`) and skips only two pasted parameters;
   events from before it fall back to
   `fp_hdr`, every included header) equal the current values. `carry --rev REV --header-carve`
   re-stamps these across header edits (REV parsed with REV's headers) for functions whose
