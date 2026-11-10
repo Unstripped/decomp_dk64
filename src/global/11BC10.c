@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
-#define PROTO_SKIP_lightSetFlags // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/15050.h"
@@ -118,7 +117,6 @@ typedef struct {
     s16 unk6;
 } PuffRiseMotionState;
 
-void lightSetFlags();
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 void effectPuffRiseUpdate(RotatingEffectActorView *effect, void *unused) {
@@ -1257,7 +1255,6 @@ typedef struct TimedLightActorView {
     s32 param;
 } TimedLightActorView;
 
-void lightSetFlags();
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 extern PlayerState *gActivePlayerState;
@@ -1271,7 +1268,7 @@ void effectTimedLightIntensityFade(TimedLightActorView *effect, s8 *isDone) {
         ratio = 1.0f;
     }
     if ((gActivePlayerState->actor == (Actor *)effect->param) && ((void *)effect == D_80028C30)) {
-        lightSetFlags(1, effect);
+        lightSetFlags(1);
         lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f,
                  (f32)((f64)ratio * 50.0), 0, 0xFF,
                  (u32)((-80.0f * ratio) + 255.0f),
@@ -1993,7 +1990,7 @@ void func_8071C48C(TimedLightEffectActorView *effect, s8 *isDone) {
     } else {
         radius = (f32)(s32)(params & 0xFFFF);
     }
-    lightSetFlags(1, effect);
+    lightSetFlags(1);
     lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, radius, 0, 0,
              (u32)((-80.0f * ratio) + 255.0f), 0xFF);
 }

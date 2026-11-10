@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_n_alSndpPostEvent // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_transitionBeginDisplayList // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/10E1D0.h"
 #include "proto/global/110F00.h"
 #include "proto/global/13A7A0.h"
@@ -452,7 +451,6 @@ extern TransitionBuffers *D_807FD9A8;
 extern s32 D_807FD9B0;
 extern s32 D_807FD9B8;
 
-void transitionBeginDisplayList();
 
 void transitionRunFrame(s32 arg0, s32 arg1) {
     Gfx *sp34;
@@ -477,7 +475,7 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
             gGameMode = D_807444F4;
         }
     } else {
-        transitionBeginDisplayList(gGfxCurrentFrameBuffer, &sp34, &gScreenRenderFlags);
+        transitionBeginDisplayList(gGfxCurrentFrameBuffer, &sp34);
         if (transitionRender(&sp34, D_807FD9B8, D_807FD9B0) != 0) {
             switch (gNextGameMode) {
             case 1:

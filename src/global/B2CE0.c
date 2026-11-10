@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorSetDefaultState // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_actorSetUniformScale // FAKE: callee prototype steer
 #define PROTO_SKIP_behaviourCheckRandomAnimTrigger // FAKE: callee prototype steer
 #define PROTO_SKIP_behaviourSpawnExplosionAndSound // FAKE: callee prototype steer
@@ -99,7 +98,6 @@ extern B2CE0Actor *gSpawnedActor;
 
 extern u8 D_8071FBC8[];
 extern ActorGlobalState gActorGlobalState;
-void actorSetDefaultState();
 s32 behaviourCheckRandomAnimTrigger();
 void behaviourUpdateContactAndState();
 void behaviourSpawnExplosionAndSound();
@@ -651,7 +649,7 @@ void func_806AFB58(void) {
     switch (gCurrentActor->unk154) {
     case 0x31:
         if ((gCurrentActor->unk155 != 0) || ((*(B2CE0Node **)gCurrentActor->unk4)->unk24 == 0.0f)) {
-            actorSetDefaultState(0x2D7, sel);
+            actorSetDefaultState(0x2D7);
         }
         actorMoveWithinZone(0, 0.0f, 0.0f, 0x4200, 0.0f);
         break;

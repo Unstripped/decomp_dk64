@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_behaviourCalculateDamageForce // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
 #include "proto/global/166A0.h"
@@ -38,7 +37,6 @@ extern ActorGlobalState gActorGlobalState;
 extern s32 gCurrentMap;
 extern B1F60Global924 *gPlayerSlots;
 
-void behaviourCalculateDamageForce();
 
 void actorPatrolFollowerUpdate(targetId, skipStep, movementFlags)
 s16 targetId;
@@ -51,7 +49,7 @@ u16 movementFlags;
         actor = gCurrentActor;
         if (actor->state != 0x37) {
             ((B1F60Actor *)actor)->unkC0 = 200.0f;
-            behaviourCalculateDamageForce(gActorGlobalState.targetActor, targetId, actor);
+            behaviourCalculateDamageForce(gActorGlobalState.targetActor, targetId);
         }
     }
     if (gCurrentActor->state) {}  // FAKE: raises the actor-type expression's priority so the switch-selector copy colours v0

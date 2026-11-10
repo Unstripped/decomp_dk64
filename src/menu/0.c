@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_currentActorClearFlag // PROTO: Type MenuStruct_80024000 *  of this argument  is incompatibl
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -135,7 +134,6 @@ typedef struct MenuRenderActor {
 } MenuRenderActor;
 extern MenuRenderActor *gCurrentActor;
 extern s16 D_80750AC8;
-void currentActorClearFlag();
 
 
 void menuMainStateStep(MenuStruct_80024000 *menu, s32 playVoice) {
@@ -412,7 +410,7 @@ void menuProcessOptionInput(MenuStruct_80024000 *menu) {
     switch (menu->unk1) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
-            currentActorClearFlag(menu);
+            currentActorClearFlag();
             menu->unk1++;
             D_80750AC8 = menuCalculateBonusDuration();
             resQueueAttachActor(gCurrentActor, 0xB, 8);

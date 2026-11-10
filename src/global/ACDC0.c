@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_hudPauseMenuRefreshTotals // PROTO: Type s8 [2] of this argument  is incompatible with type void
 #define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
 #define PROTO_SKIP_mapGetWorldIndex // FAKE: callee prototype steer
 #define PROTO_SKIP_renderRotatedSprite // FAKE: callee prototype steer
@@ -193,7 +192,6 @@ extern s8 D_807FC8B8;
 
 s32 mapGetWorldIndex(); // FAKE: callee prototype steer
 s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
-void hudPauseMenuRefreshTotals();
 
 #define HUD_PAUSE_MODE (*(s8 *)D_807505CC)
 #define HUD_PAUSE_LIST ((s8 *)&D_80750530)
@@ -278,7 +276,7 @@ void hudPauseMenuUpdate(void) {
         D_807FC7F8[1] = 0;
         D_8075052C = 0;
         D_807FC80E = 1;
-        hudPauseMenuRefreshTotals(D_807FC7F8);
+        hudPauseMenuRefreshTotals();
         hudPauseMenuBuildPage(hud, 0);
         gGlobalPauseFlags &= 0xFFFEFFCF;
         screenWipeStart(7);

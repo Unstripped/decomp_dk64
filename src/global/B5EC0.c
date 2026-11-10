@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_actorMoveWithinZone // FAKE: callee prototype steer
-#define PROTO_SKIP_actorSetDefaultState // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_func_80724E48 // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_patrolPathStep // FAKE: callee prototype steer
 #include "proto/global/1295B0.h"
@@ -92,7 +91,6 @@ void func_806B1348(void) {
 
 extern s32 gCurrentMap;
 
-void actorSetDefaultState();
 void func_80724E48();
 void actorMoveWithinZone(s32, f32, f32, s32, f32); // FAKE: callee prototype steer
 void patrolPathStep(s32, s32); // FAKE: callee prototype steer
@@ -144,7 +142,7 @@ void func_806B13B4(u8 arg0) {
     switch (sel) {
     case 0x31:
         if (((B5EC0Actor *)gCurrentActor)->unk155 != 0 || (*((B5EC0Actor *)gCurrentActor)->unk4)->unk24 == 0.0f) {
-            actorSetDefaultState(0x203, sel);
+            actorSetDefaultState(0x203);
         }
         actorMoveWithinZone(0, 0.0f, 0.0f, 0x4300, 0.0f);
         break;
@@ -174,7 +172,7 @@ void func_806B13B4(u8 arg0) {
             ((B5EC0Actor *)gCurrentActor)->unk155 = 3;
             break;
         case 4:
-            actorSetDefaultState(0x203, sel);
+            actorSetDefaultState(0x203);
             break;
         }
         break;
