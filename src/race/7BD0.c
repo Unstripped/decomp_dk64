@@ -1,8 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_actorDespawn // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_renderCallbacksRegister // PROTO: redeclaration of 'renderCallbacksRegister'; previous declara
-#define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #include "proto/boot/3630.h"
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -28,7 +24,6 @@
 #include "proto/race/6650.h"
 #include "proto/race/7BD0.h"
 #include "proto/race/A960.h"
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 
 struct RaceUnknownActor;
 struct RaceStruct3;
@@ -71,11 +66,15 @@ typedef struct RaceUnknown174 {
     char pad2B;
     void *unk2C;
     struct RaceUnknownActor *unk30;
-    char pad34[2];
+    u8 unk34;
+    u8 unk35;
     u8 unk36;
-    char pad37[0xD];
+    u8 unk37;
+    char pad38[0x44 - 0x38];
     u8 unk44;
-    char pad45[3];
+    u8 unk45;
+    u8 unk46;
+    char pad47;
     Struct806C7C94 *unk48;
     char pad4C[0x88 - 0x4C];
     struct RaceUnknownActor *unk88;
@@ -97,7 +96,9 @@ typedef struct RaceStruct3 {
     u8 unk26;
     u8 unk27;
     u8 unk28;
-    char pad29[0x34 - 0x29];
+    char pad29[0x2C - 0x29];
+    struct RaceUnknownActor *unk2C;
+    struct RaceUnknownActor *unk30;
     u8 unk34;
     u8 unk35;
     u8 unk36;
@@ -142,15 +143,21 @@ typedef struct RaceUnknownActor {
     f32 unkAC;
     char padB0[0xB8 - 0xB0];
     f32 unkB8;
-    char padBC[0xEE - 0xBC];
+    char padBC[0xE4 - 0xBC];
+    s16 unkE4;
+    char padE6[2];
+    s16 unkE8;
+    char padEA[0xEE - 0xEA];
     s16 unkEE;
-    char padF0[0x154 - 0xF0];
+    char padF0[0x128 - 0xF0];
+    s16 unk128;
+    char pad12A[0x154 - 0x12A];
     u8 unk154;
     u8 unk155;
     char pad156[0x174 - 0x156];
     RaceUnknown174 *unk174;
     RaceUnknown174 *unk178;
-    s32 *unk17C;
+    RacePair *unk17C;
 } RaceUnknownActor;
 typedef struct RaceUnknownC {
     char pad0[0xC];
@@ -182,9 +189,7 @@ void raceInitParticipantArray(RaceUnknownActor *actor, s32 count) {
     actor->unk154 = 0;
 }
 
-#define RaceE3 ((RaceStruct3 *)participantData)
-
-void raceRegisterParticipant(RaceUnknownActor *manager, s32 slot, RaceUnknownActor *participant, RaceUnknown174 *participantData) {
+void raceRegisterParticipant(RaceUnknownActor *manager, s32 slot, RaceUnknownActor *participant, RaceStruct3 *participantData) {
     RaceUnknown174 *managerData;
     RacePair *pairs;
     RacePair *slotEntry;
@@ -192,33 +197,34 @@ void raceRegisterParticipant(RaceUnknownActor *manager, s32 slot, RaceUnknownAct
 
     managerData = manager->unk174;
     pairs = managerData->unk20;
-    slotEntry = (RacePair *)((s32)pairs + (slot * 8));
+    slotEntry = pairs;
+    slotEntry += slot;
     slotEntry->unk0 = participant;
-    slotEntry->unk4 = RaceE3;
-    RaceE3->unk45 = 0;
-    RaceE3->unk3A = 0;
-    RaceE3->unk37 = 1;
-    if (RaceE3->unk27 == 0) {
+    slotEntry->unk4 = participantData;
+    participantData->unk45 = 0;
+    participantData->unk3A = 0;
+    participantData->unk37 = 1;
+    if (participantData->unk27 == 0) {
         route = raceGetRoute(managerData->unk26);
         if (route != NULL) {
-            RaceE3->unk3C = *route - 1;
+            participantData->unk3C = *route - 1;
             raceActivateNextGate(participantData, route);
         }
-        RaceE3->unk48 = cameraFindViewportEntry(RaceE3->unk28);
+        participantData->unk48 = cameraFindViewportEntry(participantData->unk28);
     }
 }
-#undef RaceE3
 
-void raceGetParticipantPair(RaceUnknownActor *manager, s32 slot, s32 *outActor, s32 *outData) {
+void raceGetParticipantPair(RaceUnknownActor *manager, s32 slot, RaceUnknownActor **outActor, RaceStruct3 **outData) {
     RaceUnknown174 *managerData;
     RacePair *pairs;
     RacePair *slotEntry;
 
     managerData = manager->unk174;
     pairs = managerData->unk20;
-    slotEntry = (RacePair *)((s32)pairs + (slot * 8));
-    *outActor = (s32)slotEntry->unk0;
-    *outData = (s32)slotEntry->unk4;
+    slotEntry = pairs;
+    slotEntry += slot;
+    *outActor = slotEntry->unk0;
+    *outData = slotEntry->unk4;
 }
 
 typedef struct RaceEBounds {
@@ -291,7 +297,7 @@ extern s16 gScreenWidth;
 Gfx *raceRenderCountdownText(Gfx *dl, RaceUnknownActor *actor) {
     u8 alpha;
     s32 textX;
-    s32 unused;
+    s32 pad;
     RaceUnknown174 *race174;
     s32 countdownVal;
     void *textStr;
@@ -354,7 +360,7 @@ Gfx *raceRenderSpeedBoostHud(Gfx *dl, RaceUnknown174 *race174) {
                 scaledY, 4.0f, 4.0f, 0, 0.0f);
             i++;
             offset += 0x10;
-            dl = next;
+            dl = next; // FAKE: delayed dl update steers the loop schedule
         } while (i < race174->unk2A);
     }
     if (race174->unk2A != 0) {
@@ -371,7 +377,6 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceUnknown174 *race174) {
     f32 halfFontHeight;
     Struct806C7C94 *hudPos;
     f32 savedHalfFontHeight;
-    f32 halfWidthMult;
     f32 spriteX;
     s16 scaledSpriteY;
     s32 xOffset;
@@ -381,7 +386,7 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceUnknown174 *race174) {
 
     hudPos = race174->unk48;
     halfFontHeight = (f32)textGetFontHeight(1) * 0.5f;
-    savedHalfFontHeight = halfFontHeight;
+    savedHalfFontHeight = halfFontHeight; // FAKE: redundant copy steers regalloc of the font-height temp
     posX = (f32)(hudPos->unk4 + 8);
     posY = (f32)(hudPos->unkA - 0x10);
     posY -= 2 * halfFontHeight;
@@ -390,15 +395,14 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceUnknown174 *race174) {
     dl = textDrawStringVtx(dl, 1, (s16)(s32)(2.0f * (posX * 4.0f)), (s16)(s32)(2.0f * (posY * 4.0f)), labelStr, 4);
     WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
     WRITE_GFX(dl++, 0xDA380005, (u32)((u8 *)race174 + (gGfxBufferIndex << 6) + 0x50));
-    halfWidthMult = 0.5f;
-    posX += halfWidthMult * (f32)textGetStringWidth(1, labelStr);
+    posX += 0.5f * (f32)textGetStringWidth(1, labelStr);
     posX = (f32)((f64)posX + 8.0);
     doublePosX = posX + posX;
     posY = (f32)((f64)posY + (0.4 * (f64)savedHalfFontHeight));
     WRITE_GFX(dl++, 0xFA000000, 0xFFFF00FF);
     scaledSpriteY = (s16)(s32)((posY + posY) * 4.0f);
     for (xOffset = 0; xOffset < 0x78; xOffset += 0x18) {
-        spriteX = doublePosX;
+        spriteX = doublePosX; // FAKE: split add steers add.s operand order
         spriteX += (f32)xOffset;
         dl = renderRotatedSprite(dl, 0x4B, 3, 1, 0x40, 0x40, (s32)(spriteX * 4.0f), scaledSpriteY, 1.5f, 1.5f, 0, 0.0f);
     }
@@ -407,12 +411,12 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceUnknown174 *race174) {
     if ((5 - race174->unk44) > 0) {
         xOffset = 0;
         do {
-            spriteX = doublePosX;
+            spriteX = doublePosX; // FAKE: split add steers add.s operand order
             spriteX += (f32)xOffset;
             next = renderRotatedSprite(dl, 0x45, 3, 1, 0x40, 0x40, (s32)(spriteX * 4.0f), scaledSpriteY, 1.5f, 1.5f, 0, 0.0f);
             count += 1;
             xOffset += 0x18;
-            dl = next;
+            dl = next; // FAKE: delayed dl update steers the loop schedule
         } while (count < (5 - race174->unk44));
     }
     WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
@@ -434,52 +438,41 @@ Gfx *raceInitHudDisplayList(Gfx *dl, RaceUnknown174 *race174) {
     return dl;
 }
 
-typedef struct RaceE76CView {
-    char pad0[0x34];
-    u8 unk34;
-    u8 unk35;
-    u8 unk36;
-    u8 unk37;
-    char pad38[0x45 - 0x38];
-    u8 unk45;
-    u8 unk46;
-} RaceE76CView;
 extern s32 D_8002FCC0[];
-#define RaceE76C ((RaceE76CView *)race174)
 
 Gfx *raceDrawHudText(Gfx *dl, RaceUnknown174 *race174) {
     RaceUnknown174 *parent174;
     Struct806C7C94 *hudPos;
-    s32 pad6C;
+    s32 pad;
     void *textBuf;
     u8 lap;
     s32 textX;
     s32 textY;
     s32 placeIdx;
     u32 fontHeight;
-    s32 lapStr;
-    s32 ofStr;
+    u8 *lapStr;
+    u8 *ofStr;
     s32 len;
     s32 hudFlags;
     Gfx *g0;
 
     hudPos = race174->unk48;
-    lap = RaceE76C->unk37;
+    lap = race174->unk37;
     parent174 = race174->unk30->unk174;
     textX = hudPos->unk4 + 8;
     textY = hudPos->unkA - 0x10;
     g0 = dl++;
-        g0->words.w1 = 0;
-        g0->words.w0 = 0xE7000000;
+    g0->words.w1 = 0; // FAKE: w1-before-w0 store order steers the schedule
+    g0->words.w0 = 0xE7000000;
     WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
     hudFlags = parent174->unk0;
     if (hudFlags & 4) {
         lap = (lap < parent174->unk24) ? lap : parent174->unk24;
         lap = (lap >= 2) ? lap : 1;
-        lapStr = (s32)textTableGetString(0x26, 0xB, 1);
-        ofStr = (s32)textTableGetString(0x26, 0xC, 1);
-        len = strlen((u8 *)lapStr);
-        len += strlen((u8 *)ofStr);
+        lapStr = textTableGetString(0x26, 0xB, 1);
+        ofStr = textTableGetString(0x26, 0xC, 1);
+        len = strlen(lapStr);
+        len += strlen(ofStr);
         textBuf = heapAlloc(len + 8);
         heapFreeDeferred(textBuf);
         _sprintf(textBuf, "%s %d %s %d", lapStr, lap, ofStr, parent174->unk24);
@@ -494,17 +487,17 @@ Gfx *raceDrawHudText(Gfx *dl, RaceUnknown174 *race174) {
         hudFlags = parent174->unk0;
     }
     if (hudFlags & 2) {
-        placeIdx = RaceE76C->unk36;
+        placeIdx = race174->unk36;
         if ((placeIdx + 1) == parent174->unk1E) {
             placeIdx = 3;
         }
-        if (RaceE76C->unk45 != 0) {
+        if (race174->unk45 != 0) {
             placeIdx = 4;
         }
         dl = textDrawStringVtx(dl, 1, (s16)(s32)((f32)(textX * 4) + (f32)(textX * 4)), (s16)(s32)(2.0f * (f32)(textY * 4)), textTableGetString(0x26, D_8002FCC0[placeIdx], 1), 4);
     }
-    if (RaceE76C->unk34 >= 3 && RaceE76C->unk34 < 5) {
-        dl = textDrawAnimated(dl, RaceE76C->unk46, 2, 160.0f, 100.0f, 0.0f, 1.5f);
+    if (race174->unk34 >= 3 && race174->unk34 < 5) {
+        dl = textDrawAnimated(dl, race174->unk46, 2, 160.0f, 100.0f, 0.0f, 1.5f);
     }
     return dl;
 }
@@ -540,41 +533,18 @@ Gfx *raceRenderHud(Gfx *dl, RaceUnknownActor *actor, RaceUnknown174 *race174) {
     return dl;
 }
 
-struct RaceECB3;
-typedef struct RaceECBPair {
-    struct RaceUnknownActor *unk0;
-    struct RaceECB3 *unk4;
-} RaceECBPair;
-typedef struct RaceECBView {
-    u8 unk0;
-    char pad1[0x13];
-    u16 unk14;
-    u16 unk16;
-    u16 unk18;
-    u16 unk1A;
-    char pad1C[2];
-    u8 unk1E;
-    char pad1F;
-    RaceECBPair *unk20;
-} RaceECBView;
-typedef struct RaceECB3 {
-    char pad0[0x27];
-    u8 unk27;
-    char pad28[4];
-    struct RaceUnknownActor *unk2C;
-} RaceECB3;
 
 Gfx *raceRenderMinimapAndCountdown(Gfx *dl, RaceUnknownActor *actor) {
-    RaceECBView *radarView;
-    RaceECB3 *participantStruct;
+    RaceUnknown174 *radarView;
+    RaceStruct3 *participantStruct;
     RaceUnknownActor *participantActor;
     RaceUnknownActor *targetActor;
-    RaceECBPair *pairs;
+    RacePair *pairs;
     s32 i;
     int red;
     int blue;
 
-    radarView = (RaceECBView *)actor->unk174;
+    radarView = actor->unk174;
     if (radarView->unk0 & 1) {
         pairs = radarView->unk20;
         WRITE_GFX(dl++, 0xE7000000, 0);
@@ -727,8 +697,6 @@ f32 raceGetHandicapSpeedBonus(RaceStruct3 *race3) {
     return 0.0f;
 }
 
-void actorDespawn(void *, void *);
-
 void raceDespawnProjectile(void *parent, RaceUnknownC *child) {
     RaceUnknownActor *childActor;
     RaceUnknown174 *race174;
@@ -736,7 +704,7 @@ void raceDespawnProjectile(void *parent, RaceUnknownC *child) {
     childActor = child->unkC;
     race174 = childActor->unk174;
     race174->unk2C = NULL;
-    actorDespawn(parent, child);
+    actorDespawn(parent);
 }
 
 RaceUnknownActor *raceFindNearestParticipant(RaceUnknownActor *self) {
@@ -898,28 +866,15 @@ void raceClearIntroCutscenePhase(RaceUnknownActor *actor) {
     }
 }
 
-typedef struct RaceFActorView {
-    char pad0[4];
-    RaceSub4 *unk4;
-    char pad8[0x60 - 8];
-    u32 unk60;
-    char pad64[0xE4 - 0x64];
-    s16 unkE4;
-    char padE6[2];
-    s16 unkE8;
-    char padEA[0x128 - 0xEA];
-    s16 unk128;
-} RaceFActorView;
 
 
 void raceManagerBehaviorUpdate(void) {
-    void renderCallbacksRegister(void *, RaceUnknownActor *, s32);
     RaceUnknown174 *t;
     u16 sound;
     u8 i;
     RaceStruct3 *s;
     f32 scale;
-    RaceFActorView *pa;
+    RaceUnknownActor *pa;
     s32 k;
     RacePair *list;
 
@@ -929,8 +884,8 @@ void raceManagerBehaviorUpdate(void) {
     }
     switch (gCurrentActor->unk154) {
     case 0:
-        if (t->unk1C != 0) {
-            t->unk1C = (u32)t->unk1C - 1;
+        if (t->unk1C) {
+            t->unk1C--;
         } else {
             raceSetAllParticipantsStatus(1);
         }
@@ -946,12 +901,12 @@ void raceManagerBehaviorUpdate(void) {
                 }
                 sfxPlayOnFreeSlot(sound, 0x7FFF, 64.0f, 1.0, 0, 0x80);
             }
-            t->unk1C = (u32)t->unk1C + 1;
+            t->unk1C++;
         }
         break;
     case 2:
         if (t->unk1C < 0x78) {
-            t->unk1C = (u32)t->unk1C + 1;
+            t->unk1C++;
         }
         raceUpdateStandings();
         break;
@@ -960,7 +915,7 @@ void raceManagerBehaviorUpdate(void) {
             raceSetAllParticipantsStatus(4);
             t->unk1C = 0x32;
         } else {
-            t->unk1C = t->unk1C + 1;
+            t->unk1C++;
             if (t->unk1C >= 0x78) {
                 if (t->unk25 == 1) {
                     raceSetAllParticipantsStatus(4);
@@ -972,14 +927,14 @@ void raceManagerBehaviorUpdate(void) {
         }
         break;
     case 4:
-        if (t->unk1C != 0) {
-            t->unk1C = t->unk1C - 1;
+        if (t->unk1C) {
+            t->unk1C--;
         } else {
             list = t->unk20;
             for (i = 0; i < t->unk1E; i++) {
                 s = list[i].unk4;
                 if (s->unk27 == 0) {
-                    pa = (RaceFActorView *)gPlayerSlots[s->unk28].unk4;
+                    pa = gPlayerSlots[s->unk28].unk4;
                     scale = 1.0f;
                     pa->unk128 = 0xFF;
                     pa->unk60 |= 0x8000;
@@ -992,8 +947,6 @@ void raceManagerBehaviorUpdate(void) {
                     pa->unkE8 = 0;
                     pa->unkE4 = 0;
                 }
-            }
-            if (!t->unk1C && !t->unk1C && !t->unk1C) { // FAKE: empty guard steers regalloc
             }
             raceSetAllParticipantsStatus(5);
         }
@@ -1012,7 +965,6 @@ f32 mathSinF(s16);
 void raceUpdateFinishLineFlagBobbing(RaceUnknown174 *race174) {
     s16 angle;
     f32 scale;
-    f32 scaleCopy;
 
     switch (gCurrentActor->unk154) {
     case 0:
@@ -1032,13 +984,10 @@ void raceUpdateFinishLineFlagBobbing(RaceUnknown174 *race174) {
     }
     race174->unk2 = angle & 0xFFF;
     scale = (((mathSinF(race174->unk2) + 1.0f) * 1.5) + 1.0) * race174->unk4;
-    gCurrentActor->unk4->unk34[2] = scale;
-    scaleCopy = gCurrentActor->unk4->unk34[2];
-    gCurrentActor->unk4->unk34[1] = scaleCopy;
-    gCurrentActor->unk4->unk34[0] = scaleCopy;
+    gCurrentActor->unk4->unk34[0] = gCurrentActor->unk4->unk34[1] = gCurrentActor->unk4->unk34[2] = scale;
 }
 
-void raceUpdateCheckeredFlagAnimation() {
+void raceUpdateCheckeredFlagAnimation(void) {
     if (gCurrentActor->unk154 != 0) {
         if (gCurrentActor->unk154 == 1) {
             if (animIsPlaying(gCurrentActor, 0) == 0) {
@@ -1062,10 +1011,10 @@ void raceFinishBannerBehaviorUpdate(void) {
     }
     switch (race174->unk0) {
     case 2:
-        raceUpdateCheckeredFlagAnimation(race174);
+        raceUpdateCheckeredFlagAnimation();
         break;
     case 1:
-        raceUpdateCheckeredFlagAnimation(race174);
+        raceUpdateCheckeredFlagAnimation();
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
         gCurrentActor->unk80 = gCurrentActor->unkAC;
         gCurrentActor->unk6A |= 4;
@@ -1294,7 +1243,7 @@ void raceInitBeetleRaceParticipants(RaceUnknownActor *raceManager) {
         participantData->unk27 = 1;
         raceRegisterParticipant(raceManager, 0, participantActor, participantData);
         slotIndex = 1;
-        raceGetParticipantPair(raceManager, 0, participantActor->unk17C, participantActor->unk17C + 1);
+        raceGetParticipantPair(raceManager, 0, &participantActor->unk17C->unk0, &participantActor->unk17C->unk4);
         managerData->unk25 = 1;
     } else {
         managerData->unk25 = 0;
@@ -1311,7 +1260,7 @@ void raceInitBeetleRaceParticipants(RaceUnknownActor *raceManager) {
     playerIdx = 0;
     if (participantCount > 0) {
         do {
-            raceGetParticipantPair(raceManager, playerIdx, (s32 *)&participantActor, (s32 *)&participantData);
+            raceGetParticipantPair(raceManager, playerIdx, &participantActor, (RaceStruct3 **)&participantData); // FAKE: punned view; RaceUnknown174/RaceStruct3 are two views of participant data
             participantData->unk36 = playerIdx;
             playerIdx++;
             participantData->unk30 = raceManager;
@@ -1325,8 +1274,6 @@ void racePlayerHudRenderCallback(void *gfx, RaceUnknownActor *actor) {
     raceRenderHud(gfx, actor, actor->unk174);
 }
 
-void playerStateQueueCallback(s32, RaceUnknownActor *, u8, RaceUnknownActor *);
-void renderCallbacksRegister(void *, RaceUnknownActor *, s32);
 
 void racePlayerTrackerBehaviorUpdate(void) {
     RaceUnknownActor *playerActor;
@@ -1339,23 +1286,22 @@ void racePlayerTrackerBehaviorUpdate(void) {
     raceData = (RaceStruct3 *)raceActor->unk174;
     playerActor = gPlayerSlots[raceData->unk28].unk4;
     if (!(raceActor->unk60 & 0x10)) {
-        playerStateQueueCallback(0x4E, raceActor, raceData->unk28, playerActor);
+        playerStateQueueCallback(0x4E, raceActor, raceData->unk28);
         gCurrentActor->unk154 = 0;
         gCurrentActor->unk155 = 0;
         raceActor = gCurrentActor;
     }
     if ((raceData->unk34 == 2) && (raceActor->unk154 == 0)) {
-        playerStateQueueCallback(0x57, NULL, raceData->unk28, playerActor);
+        playerStateQueueCallback(0x57, NULL, raceData->unk28);
         raceActor = gCurrentActor;
         raceActor->unk154++;
-        raceActor = gCurrentActor;
+        raceActor = gCurrentActor; // FAKE: redundant global reload steers regalloc
     }
     raceActor->unk7C = playerActor->unk7C;
     gCurrentActor->unk80 = playerActor->unk80;
     gCurrentActor->unk84 = playerActor->unk84;
     if (raceData->unk34 == 2) {
         raceUpdateLapAndWaypointTracker(raceData);
-        raceActor = gCurrentActor;
     }
     if ((raceData->unk34 > 0) && (raceData->unk34 < 5)) {
         renderCallbacksRegister((void *)racePlayerHudRenderCallback, gCurrentActor, 3);
@@ -1364,11 +1310,7 @@ void racePlayerTrackerBehaviorUpdate(void) {
     curMax = raceData->unk18;
     diff = (f32)(raceData->unk3A * 3000) - raceData->unk40;
     raceData->unk14 = diff;
-    if (diff < curMax) {
-        raceData->unk18 = curMax;
-        return;
-    }
-    raceData->unk18 = raceData->unk14;
+    raceData->unk18 = (diff < curMax) ? curMax : raceData->unk14;
 }
 
 typedef struct RaceFE644Arg {
@@ -1384,7 +1326,7 @@ f32 mathCosF(s16);
 
 void raceHandleRacerCollision(RaceFE644Arg *collision) {
     f32 distSq;
-    f32 unused_pad;
+    f32 pad;
     f32 velX;
     f32 velZ;
     f32 playerVel;

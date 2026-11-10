@@ -15,10 +15,10 @@ struct RaceVec3f;
 void raceInitParticipantArray(struct RaceUnknownActor *, s32);
 #endif
 #ifndef PROTO_SKIP_raceRegisterParticipant
-void raceRegisterParticipant(struct RaceUnknownActor *, s32, struct RaceUnknownActor *, struct RaceUnknown174 *);
+void raceRegisterParticipant(struct RaceUnknownActor *, s32, struct RaceUnknownActor *, struct RaceStruct3 *);
 #endif
 #ifndef PROTO_SKIP_raceGetParticipantPair
-void raceGetParticipantPair(struct RaceUnknownActor *, s32, s32 *, s32 *);
+void raceGetParticipantPair(struct RaceUnknownActor *, s32, struct RaceUnknownActor **, struct RaceStruct3 **);
 #endif
 #ifndef PROTO_SKIP_raceCalculatePathBoundingBox
 void raceCalculatePathBoundingBox(struct RaceUnknownActor *);
@@ -96,7 +96,7 @@ void raceManagerBehaviorUpdate(void);
 void raceUpdateFinishLineFlagBobbing(struct RaceUnknown174 *);
 #endif
 #ifndef PROTO_SKIP_raceUpdateCheckeredFlagAnimation
-void raceUpdateCheckeredFlagAnimation();
+void raceUpdateCheckeredFlagAnimation(void);
 #endif
 #ifndef PROTO_SKIP_raceFinishBannerBehaviorUpdate
 void raceFinishBannerBehaviorUpdate(void);
