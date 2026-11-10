@@ -2,6 +2,8 @@
 #include "actor.h"
 #include "proto/global/166A0.h"
 #include "proto/global/35000.h"
+#define PROTO_SKIP_actorApplyVelocity
+#define PROTO_SKIP_actorApplyVelocityCustom
 #include "proto/global/69E60.h"
 #include "proto/global/6AD90.h"
 #include "proto/global/70FD0.h"
@@ -39,91 +41,45 @@ void actorStepPhysics(Actor *self, s16 targetYaw, s16 targetPitch) {
     }
 }
 
-typedef struct ActorVelocityWork {
-    char pad0[0x4];
-    ActorSub4 *unk4;
-    char pad8[0x54];
-    u16 unk5C;
-    char pad5E[2];
-    u32 unk60;
-    char pad64[6];
-    u16 unk6A;
-    char pad6C[0x10];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x30];
-    f32 unkB8;
-    char padBC[4];
-    f32 unkC0;
-    char padC4[0x16];
-    s16 unkDA;
-    char padDC[0x12];
-    s16 unkEE;
-    char padF0[0xA];
-    s16 unkFA;
-    u8 hasArcBounds;
-} ActorVelocityWork;
-
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 extern u32 gFrameDelta;
 
-void actorApplyVelocity(ActorVelocityWork *actor) {
+void actorApplyVelocity(Actor *actor) {
     f32 pad;
     f32 scaleFactor;
     f32 fv1;
     f32 moveSpeed;
 
-    moveSpeed = actor->unkB8;
+    moveSpeed = actor->speedXZ;
     if (actor->hasArcBounds != 0) {
         if ((f32)actor->unkFA < moveSpeed) {
             moveSpeed = actor->unkFA;
         }
     }
-    scaleFactor = (f64)((actor->unk4 != NULL) ? actor->unk4->scaleY : 0.15f) * 0.16666666675;
-    if ((actor->unk5C & 4) && (actor->unk6A & 4)) {
+    scaleFactor = (f64)((actor->sub4 != NULL) ? actor->sub4->scaleY : 0.15f) * 0.16666666675;
+    if ((actor->collisionFlags & 4) && (actor->contactFlags & 4)) {
         scaleFactor = (f64)scaleFactor * 0.5;
     }
     moveSpeed *= scaleFactor;
-    if (actor->unk6A & 1) {
-        if (mathSinF(actor->unkDA) > 0.0f) {
-            fv1 = mathSinF(actor->unkDA);
+    if (actor->contactFlags & 1) {
+        if (mathSinF(actor->floorTiltPitch) > 0.0f) {
+            fv1 = mathSinF(actor->floorTiltPitch);
         } else {
-            fv1 = -mathSinF(actor->unkDA);
+            fv1 = -mathSinF(actor->floorTiltPitch);
         }
         moveSpeed *= fv1;
     }
-    if (actor->unk60 & 0x400000) {
+    if (actor->flags & 0x400000) {
         moveSpeed = (f64)moveSpeed * ((f64)(u32)gFrameDelta * 0.5);
     }
-    actor->unk7C += moveSpeed * mathSinF(actor->unkEE);
-    actor->unk84 += moveSpeed * mathCosF(actor->unkEE);
-    actor->unk80 += actor->unkC0 * scaleFactor;
+    actor->x += moveSpeed * mathSinF(actor->moveYaw);
+    actor->z += moveSpeed * mathCosF(actor->moveYaw);
+    actor->y += actor->speedY * scaleFactor;
 }
 
-typedef struct ActorVelocityCustomWork {
-    char pad0[0x4];
-    ActorSub4 *unk4;
-    char pad8[0x58];
-    u32 unk60;
-    char pad64[0x6];
-    u16 unk6A;
-    char pad6C[0x10];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x52];
-    s16 unkDA;
-    char padDC[0x12];
-    s16 unkEE;
-    char padF0[0xA];
-    s16 unkFA;
-    u8 hasArcBounds;
-} ActorVelocityCustomWork;
 
-
-void actorApplyVelocityCustom(ActorVelocityCustomWork *actor, f32 speedXZ, f32 speedY) {
+void actorApplyVelocityCustom(Actor *actor, f32 speedXZ, f32 speedY) {
     f32 scaleFactor;
     f32 scale;
 
@@ -132,22 +88,22 @@ void actorApplyVelocityCustom(ActorVelocityCustomWork *actor, f32 speedXZ, f32 s
             speedXZ = actor->unkFA;
         }
     }
-    if (actor->unk4 != NULL) {
-        scale = actor->unk4->scaleY;
+    if (actor->sub4 != NULL) {
+        scale = actor->sub4->scaleY;
     } else {
         scale = 0.15f;
     }
     scaleFactor = (f64)scale * 0.16666666675;
     speedXZ *= scaleFactor;
-    if (actor->unk6A & 1) {
-        speedXZ *= (mathSinF(actor->unkDA) > 0.0f) ? mathSinF(actor->unkDA) : -mathSinF(actor->unkDA);
+    if (actor->contactFlags & 1) {
+        speedXZ *= (mathSinF(actor->floorTiltPitch) > 0.0f) ? mathSinF(actor->floorTiltPitch) : -mathSinF(actor->floorTiltPitch);
     }
-    if (actor->unk60 & 0x400000) {
+    if (actor->flags & 0x400000) {
         speedXZ = (f64)speedXZ * ((f64)(u32)gFrameDelta * 0.5);
     }
-    actor->unk7C += speedXZ * mathSinF(actor->unkEE);
-    actor->unk84 += speedXZ * mathCosF(actor->unkEE);
-    actor->unk80 += speedY * scaleFactor;
+    actor->x += speedXZ * mathSinF(actor->moveYaw);
+    actor->z += speedXZ * mathCosF(actor->moveYaw);
+    actor->y += speedY * scaleFactor;
 }
 
 extern u8 D_80748E00;
