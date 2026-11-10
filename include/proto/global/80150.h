@@ -80,7 +80,7 @@ void tagBarrelDespawnEffects(void);
 void tagBarrelSpawnSmokeAndPuffs(f32, f32, f32, f32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_tagBarrelSpawnActorSmokePuffs
-void tagBarrelSpawnActorSmokePuffs();
+void tagBarrelSpawnActorSmokePuffs(u8, u8);
 #endif
 #ifndef PROTO_SKIP_tagBarrelSpawnNodeSmokePuffs
 void tagBarrelSpawnNodeSmokePuffs(s32, u8, f32);
