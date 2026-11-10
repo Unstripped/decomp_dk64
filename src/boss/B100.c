@@ -329,8 +329,8 @@ void bossDogadonStep(void) {
         break;
     }
     behaviourUpdateShadowAlpha();
-    if (func_8072881C(0, gBehaviourWorkState->unk28) != 0) {
-        func_8072881C(0x81, gBehaviourWorkState->unk28);
+    if (func_8072881C(0, &gBehaviourWorkState->unk28) != 0) {
+        func_8072881C(0x81, &gBehaviourWorkState->unk28);
     }
     actorUpdateModelMatrix(MAIN_ACTOR, 0);
 }

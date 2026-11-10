@@ -674,7 +674,7 @@ void bossPufftossStep(void) {
             }
         }
     }
-    func_8072881C(0, gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->unk28);
     if (checkFloor != 0) {
         actorGetNodePos(gCurrentActor, gCurrentActor->base.floorNodeId, &floorCheckX, &floorCheckY, &floorCheckZ);
         collisionCheckActorFloor(gCurrentActor, floorCheckX, floorCheckY, floorCheckZ, &gCurrentActor->base.floorY);

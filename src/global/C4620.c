@@ -574,8 +574,8 @@ void actorScriptedCommandUpdate(void) {
             break;
     }
     behaviourUpdateShadowAlpha();
-    if ((gBehaviourAnimState->flags & 0x1000) && func_8072881C(0, gBehaviourWorkState->unk28) != 0 && (state->unk0 == 1 || state->unk0 == 9 || state->unk0 == 0x68)) {
-        func_8072881C(0x81, gBehaviourWorkState->unk28);
+    if ((gBehaviourAnimState->flags & 0x1000) && func_8072881C(0, &gBehaviourWorkState->unk28) != 0 && (state->unk0 == 1 || state->unk0 == 9 || state->unk0 == 0x68)) {
+        func_8072881C(0x81, &gBehaviourWorkState->unk28);
     }
 }
 
@@ -1093,7 +1093,7 @@ void func_806C226C(void) {
             actorTurnTowardActorYaw(0xA, gBehaviourTargetActor);
             break;
     }
-    func_8072881C(0, gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->unk28);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

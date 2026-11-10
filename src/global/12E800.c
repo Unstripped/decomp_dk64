@@ -1197,7 +1197,7 @@ void actorSetDefaultState(s32 scriptId) {
     actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
 }
 
-void behaviourSpawnExplosionAndSound(void *scriptId, u8 state, Actor *attacker) {
+void behaviourSpawnExplosionAndSound(s32 scriptId, u8 state, Actor *attacker) {
     f32 speed;
 
     behaviourSpawnPuffParticle();

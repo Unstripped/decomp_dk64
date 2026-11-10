@@ -267,7 +267,7 @@ void func_806AD9F4(void) {
             actorPatrolFollowerUpdate(0, 1, 0);
             break;
     }
-    func_8072881C(0, gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->unk28);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

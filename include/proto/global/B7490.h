@@ -2,7 +2,7 @@
 #ifndef PROTO_GLOBAL_B7490_H
 #define PROTO_GLOBAL_B7490_H
 #include "common.h"
-struct B7490Pos;
+#include "actor.h"
 #ifndef PROTO_SKIP_func_806B2790
 void func_806B2790(void);
 #endif
@@ -40,7 +40,7 @@ void behaviourCheckZoneReachAndSpawn(void);
 void func_806B3F3C(void);
 #endif
 #ifndef PROTO_SKIP_actorFlyTowardPosition
-s32 actorFlyTowardPosition(struct B7490Pos *, u8);
+s32 actorFlyTowardPosition(BehaviourWorkState *, u8);
 #endif
 #ifndef PROTO_SKIP_actorSpawnPeriodicBoneEffect
 void actorSpawnPeriodicBoneEffect(void);

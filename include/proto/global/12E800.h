@@ -103,7 +103,7 @@ s32 behaviourIsTargetWithinAngle(u16);
 void actorSetDefaultState(s32);
 #endif
 #ifndef PROTO_SKIP_behaviourSpawnExplosionAndSound
-void behaviourSpawnExplosionAndSound(void *, u8, Actor *);
+void behaviourSpawnExplosionAndSound(s32, u8, Actor *);
 #endif
 #ifndef PROTO_SKIP_actorRollEaseZero
 void actorRollEaseZero(void);

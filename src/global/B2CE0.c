@@ -216,7 +216,7 @@ void func_806AE588(void) {
             gCurrentActor->unk132 = 1;
         }
     }
-    func_8072881C(0, gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->unk28);
     sel = gCurrentActor->unk154;
     if ((sel != 0x32) || (gActorGlobalState.unk15 != 0)) {
         if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (sel != 0x37)) {
@@ -839,7 +839,7 @@ void func_806B0354(void) {
             behaviourUpdateContactAndState(0x378);
             break;
     }
-    func_8072881C(0, gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->unk28);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

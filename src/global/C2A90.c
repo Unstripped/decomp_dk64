@@ -126,7 +126,7 @@ void func_806BDEC8(void) {
             break;
         }
     }
-    func_8072881C(0, gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->unk28);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -243,7 +243,7 @@ void func_806BE09C(void) {
 
         break;
     }
-    func_8072881C(0, gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->unk28);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -535,7 +535,7 @@ void func_806BE8BC(void) {
                     LgBA->unk155 = 0;
                 }
             }
-            func_8072881C(0, gBehaviourWorkState->unk28);
+            func_8072881C(0, &gBehaviourWorkState->unk28);
             actorMoveWithinZone(LgBA->unk154, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x10, 0.0f);
             patrolPathStep(LgBA->unk154, 0);
             break;

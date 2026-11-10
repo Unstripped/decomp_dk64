@@ -531,7 +531,7 @@ typedef struct BehaviourWorkState {
     /* 0x24 */ u8 unk24;
     /* 0x25 */ u8 unk25;
     /* 0x26 */ s16 unk26;
-    /* 0x28 */ u8 unk28[4];
+    /* 0x28 */ u32 unk28;
     /* 0x2C */ s16 timer;
     /* 0x2E */ s16 unk2E;
     /* 0x30 */ f32 scale;

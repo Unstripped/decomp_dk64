@@ -574,7 +574,7 @@ void func_806C4F5C(void) {
             func_806C4EE0(3, 1);
             break;
     }
-    func_8072881C(0, gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->unk28);
 }
 
 void func_806C55D8(void) {
@@ -759,7 +759,7 @@ void func_806C55E0(void) {
             break;
     }
     if (LA->unk154 != 0x1E) {
-        func_8072881C(0, gBehaviourWorkState->unk28);
+        func_8072881C(0, &gBehaviourWorkState->unk28);
     }
 }
 

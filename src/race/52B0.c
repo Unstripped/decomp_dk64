@@ -591,5 +591,5 @@ void raceOpponentRacerBehaviorUpdate(void) {
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
-    func_8072881C(0, gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->unk28);
 }

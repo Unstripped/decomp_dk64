@@ -438,8 +438,8 @@ void bossKRoolChunkyStep(void) {
         billboardSetFlags(1);
         billboardSubmit(BOSS_ACTOR, 0x3C8, 0x40, 0x40, 0x3C, 0x3C, 1, 0x12C, 0xB4, 0, 1.0f);
     }
-    if (func_8072881C(0, gBehaviourWorkState->unk28) != 0) {
-        func_8072881C(0x81, gBehaviourWorkState->unk28);
+    if (func_8072881C(0, &gBehaviourWorkState->unk28) != 0) {
+        func_8072881C(0x81, &gBehaviourWorkState->unk28);
     }
     actorUpdateModelMatrix(BOSS_ACTOR, 0);
 }

@@ -681,7 +681,7 @@ void bossArmydilloStep(void) {
             }
         }
     }
-    func_8072881C(0, gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->unk28);
     if ((gActorGlobalState[0x200] == 9) || (gActorGlobalState[0x15] != 0)) {
         tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 0xC, 2.0f);
         gCurrentActor->unk138 = 0;
