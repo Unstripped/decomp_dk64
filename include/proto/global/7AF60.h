@@ -4,85 +4,85 @@
 #include "common.h"
 #include "actor.h"
 #ifndef PROTO_SKIP_actorCheckPlayerSmallerThanAttacker
-void actorCheckPlayerSmallerThanAttacker(s32, s32, s32);
+void actorCheckPlayerSmallerThanAttacker(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_actorTargetIsVulnerable
-u8 actorTargetIsVulnerable(s32, s32, s32);
+u8 actorTargetIsVulnerable(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_806762C0
-u8 func_806762C0(s32, s32, s32);
+u8 func_806762C0(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_actorIsDamageFatal
-s32 actorIsDamageFatal(void *, void *, u8);
+s32 actorIsDamageFatal(Actor *, Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_actorsFacingEachOther
-u8 actorsFacingEachOther(s32, s32, s32);
+u8 actorsFacingEachOther(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_actorIsFacingTarget
-u8 actorIsFacingTarget(s32, s32, s32);
+u8 actorIsFacingTarget(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_actorIsTargetAbovePitchThreshold
-u8 actorIsTargetAbovePitchThreshold(Actor *, Actor *, s32);
+u8 actorIsTargetAbovePitchThreshold(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_actorIsTargetFallingFromAbove
-u8 actorIsTargetFallingFromAbove(void *, void *, s32);
+u8 actorIsTargetFallingFromAbove(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_actorIsBelowTargetStationary
 u8 actorIsBelowTargetStationary(Actor *, Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_actorIsTargetBelowNode
-u8 actorIsTargetBelowNode(Actor *, Actor *, s32);
+u8 actorIsTargetBelowNode(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676690
-u8 func_80676690(s32, s32, s32);
+u8 func_80676690(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_806766E0
-u8 func_806766E0(s32, s32, s32);
+u8 func_806766E0(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676730
-s32 func_80676730(s32, s32, s32);
+s32 func_80676730(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_8067675C
-s32 func_8067675C(s32, s32, s32);
+s32 func_8067675C(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676788
-s32 func_80676788(s32, s32, s32);
+s32 func_80676788(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_806767B4
-s32 func_806767B4(s32, s32, s32);
+s32 func_806767B4(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_806767E0
-s32 func_806767E0(s32, s32, s32);
+s32 func_806767E0(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_actorCheckPlayerProximityVertical
-s32 actorCheckPlayerProximityVertical();
+s32 actorCheckPlayerProximityVertical(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_806769A8
-u8 func_806769A8(s32, Actor *, s32);
+u8 func_806769A8(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676A0C
-u8 func_80676A0C(s32, Actor *, s32);
+u8 func_80676A0C(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676A70
-u8 func_80676A70(s32, Actor *, s32);
+u8 func_80676A70(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676AB8
-u8 func_80676AB8(Actor *, Actor *, s32);
+u8 func_80676AB8(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676B38
-u8 func_80676B38(Actor *, Actor *, s32);
+u8 func_80676B38(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676B70
-u8 func_80676B70(Actor *, Actor *, s32);
+u8 func_80676B70(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676BCC
-u8 func_80676BCC(s32, Actor *, s32);
+u8 func_80676BCC(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676C10
-u8 func_80676C10(s32, Actor *, s32);
+u8 func_80676C10(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676C64
-s32 func_80676C64(s32, Actor *, s32);
+s32 func_80676C64(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_actorListContainsId
 s32 actorListContainsId();

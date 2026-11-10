@@ -844,4 +844,18 @@ extern SpawnNode *gBehaviourAnimState;
 extern SpawnNode *gBehaviourExtraState;
 extern Zone *D_807FDCA0; // gBehaviourAnimState->zone, latched by behaviourFrameBegin
 
+
+// Collision/hit list passed to the 7AF60 interaction predicates (count @0xC, entries @0x10).
+typedef struct ActorCollisionEntry {
+    u8 pad0[0x14];
+    s32 id;
+    u8 pad18[4];
+} ActorCollisionEntry; // size = 0x1C
+
+typedef struct ActorCollisionList {
+    u8 pad0[0xC];
+    s32 count;
+    ActorCollisionEntry *entries;
+} ActorCollisionList;
+
 #endif
