@@ -103,7 +103,7 @@ void actorSeekTargetUpdate(void) {
             if (gCurrentActor->interactionType == 4) {
                 gCurrentActor->interactionType = 8;
                 sfxAllocateChannel(0x43, 1.0f);
-                actorAppendCallback(targetNode, (s32)gCurrentActor, 0x02000000, (u8)actorId, 0, NULL);
+                actorAppendCallback(targetNode, gCurrentActor, 0x02000000, (u8)actorId, 0, NULL);
             } else {
                 gCurrentActor->interactionType *= 2;
             }

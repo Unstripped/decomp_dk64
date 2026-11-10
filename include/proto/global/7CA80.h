@@ -99,16 +99,16 @@ void actorCallbackMaskEnable(Actor *, s32);
 void actorCallbackMaskDisable(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallback
-void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
+void actorAppendCallback(Actor *, Actor *, s32, u8, s32, void *);
 #endif
 #ifndef PROTO_SKIP_actorQueueDelayedCallback
-void actorQueueDelayedCallback(Actor *, s32, s32, u8, s32, void *, s32);
+void actorQueueDelayedCallback(Actor *, Actor *, s32, u8, s32, void *, s32);
 #endif
 #ifndef PROTO_SKIP_actorDelayedCallbacksTick
 void actorDelayedCallbacksTick(void);
 #endif
 #ifndef PROTO_SKIP_actorAllocCallbackNode
-ActorCallbackNode *actorAllocCallbackNode(s32, s32, u8, s32, void *);
+ActorCallbackNode *actorAllocCallbackNode(Actor *, s32, u8, s32, void *);
 #endif
 #ifndef PROTO_SKIP_actorDispatchCallbacks
 void actorDispatchCallbacks(Actor *);
@@ -126,40 +126,40 @@ void actorCollisionEventsCancel(s32, u8);
 void actorDispatchCollisionResults(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallbackPayloadA69C
-void actorAppendCallbackPayloadA69C(s32, Actor *, f32, f32, u8, u8);
+void actorAppendCallbackPayloadA69C(Actor *, Actor *, f32, f32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallbackPayloadA70C
-void actorAppendCallbackPayloadA70C(s32, Actor *, f32, f32, f32, u8, u8);
+void actorAppendCallbackPayloadA70C(Actor *, Actor *, f32, f32, f32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallback4000
 void actorAppendCallback4000(Actor *, Actor *, s16, f32, s16);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallback10
-void actorAppendCallback10(s32, Actor *, f32, f32, f32, s32, u8);
+void actorAppendCallback10(Actor *, Actor *, f32, f32, f32, s32, u8);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallbackPayloadA864
-void actorAppendCallbackPayloadA864(s32, Actor *, s16, s16, void *, void *, s32, s32, s32);
+void actorAppendCallbackPayloadA864(Actor *, Actor *, s16, s16, void *, void *, s32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallbackPayloadA908
-void actorAppendCallbackPayloadA908(s32, Actor *, void *, void *, s32, s32, s32);
+void actorAppendCallbackPayloadA908(Actor *, Actor *, void *, void *, s32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallbackS32
-void actorAppendCallbackS32(s32, Actor *, s32);
+void actorAppendCallbackS32(Actor *, Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallbackVec3f
-void actorAppendCallbackVec3f(s32, Actor *, f32, f32, f32);
+void actorAppendCallbackVec3f(Actor *, Actor *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallbackVec2f
-void actorAppendCallbackVec2f(s32, Actor *, f32, f32);
+void actorAppendCallbackVec2f(Actor *, Actor *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallbackPayloadAAB8
-void actorAppendCallbackPayloadAAB8(s32, Actor *, s16, f32, s16);
+void actorAppendCallbackPayloadAAB8(Actor *, Actor *, s16, f32, s16);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallbackMemcpy8
-void actorAppendCallbackMemcpy8(s32, Actor *, s32, u8, void *, u8);
+void actorAppendCallbackMemcpy8(Actor *, Actor *, s32, u8, void *, u8);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallbackPayloadABC0
-void actorAppendCallbackPayloadABC0(s32, Actor *, u8, s16, s16, f32, f32, f32);
+void actorAppendCallbackPayloadABC0(Actor *, Actor *, u8, s16, s16, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_actorGlobalStateClearEvents
 void actorGlobalStateClearEvents(void);

@@ -753,7 +753,7 @@ void actorListDispatchEvent(s16 targetId, void *eventData) {
     }
     if (found) {
         if (node->actor != NULL) {
-            actorAppendCallbackMemcpy8((s32)gCurrentActor, node->actor, 0x1000000, 1, eventData, 0);
+            actorAppendCallbackMemcpy8(gCurrentActor, node->actor, 0x1000000, 1, eventData, 0);
         }
     }
 }

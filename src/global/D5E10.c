@@ -469,7 +469,7 @@ void actorRegisterCurrentActorGlobalCallback(void *callbackFn) {
 
     node = heapAlloc(0x14);
     node->callback = callbackFn;
-    node->unk8 = (s32)gActivePlayerActor;
+    node->source = gActivePlayerActor;
     node->unk4 = 1;
     actorRegisterGlobalCallback(node);
 }
@@ -3837,7 +3837,7 @@ void playerStateAttachedCallbackFall(void) {
     gActivePlayerState->respawnTimer = D_80753C84[gCurrentCharacterIndex];
     node = heapAlloc(0x14);
     node->callback = &proxPathFollowerStep;
-    node->unk8 = (s32)gActivePlayerActor;
+    node->source = gActivePlayerActor;
     node->unk4 = 1;
     actorRegisterGlobalCallback(node);
     mathAngleStepToward(&gCurrentActor->yaw, gCurrentActor->moveYaw, 0xC8);
@@ -4113,7 +4113,7 @@ void playerStateAttachedCallbackFallCheck(void) {
     gActivePlayerState->respawnTimer = D_80753CA4[gCurrentCharacterIndex];
     node = heapAlloc(0x14);
     node->callback = &proxPathFollowerStep;
-    node->unk8 = (s32)gActivePlayerActor;
+    node->source = gActivePlayerActor;
     node->unk4 = 1;
     actorRegisterGlobalCallback(node);
     switch (gCurrentActor->unk155) {

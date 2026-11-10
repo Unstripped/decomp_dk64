@@ -292,7 +292,7 @@ void func_8068EF54(void) {
         playerState = owner->customState;
         buf->unk2 = playerState->unk1A0;
         if ((owner->contactFlags & 5) || playerState->unk240 == 1 || (owner->state == 0x42 && playerState->unkBC != 0x31) || owner->state == 0x87) {
-            actorAppendCallback(link->unk4, (s32)gCurrentActor, 0x2000000, 0, 0, 0);
+            actorAppendCallback(link->unk4, gCurrentActor, 0x2000000, 0, 0, 0);
             playerState->unk1A3 = 0;
             actorDespawn(gCurrentActor);
             sfxStopChannel(0x48, 0);
@@ -3236,7 +3236,7 @@ void actorAppendActiveCallback8(void) {
         Actor *actor = gActiveActors[i].actor;
 
         if (actor->collisionFlags & 4) {
-            actorAppendCallback(actor, (s32)gCurrentActor, 8, 0, 0, NULL);
+            actorAppendCallback(actor, gCurrentActor, 8, 0, 0, NULL);
         }
     }
 }

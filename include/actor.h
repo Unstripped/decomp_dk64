@@ -118,7 +118,7 @@ typedef struct ActorCallbackNode {
     /* 0x00 */ void *callback;
     /* 0x04 */ u8 unk4;
     /* 0x05 */ u8 unk5[3];
-    /* 0x08 */ s32 unk8;
+    /* 0x08 */ struct Actor *source;
     /* 0x0C */ s32 unkC;
     /* 0x10 */ void *unk10;
     /* 0x14 */ struct ActorCallbackNode *next;

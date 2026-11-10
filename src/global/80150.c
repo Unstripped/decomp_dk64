@@ -182,12 +182,12 @@ void tagBarrelInitPeerState(void) {
             }
             break;
         case 2:
-            actorAppendCallback(sub->rider, (s32)gCurrentActor, 0x40, 1, 0, 0);
+            actorAppendCallback(sub->rider, gCurrentActor, 0x40, 1, 0, 0);
             peer = sub->rider->customState;
             peer->unkB0 = sub->unk8;
             peer->unkB4 = sub->unkC;
             peer->unkB8 = sub->unk10;
-            actorAppendCallbackPayloadAAB8((s32)gCurrentActor, sub->rider, gCurrentActor->yaw, 0.0f, sub->unk4);
+            actorAppendCallbackPayloadAAB8(gCurrentActor, sub->rider, gCurrentActor->yaw, 0.0f, sub->unk4);
             actorQueueDelayedCallback(gCurrentActor, gCurrentActor, 0x800, 2, 0, 0, 0xA);
             effectSetMode(2);
             effectSetDepth(1);
@@ -1482,7 +1482,7 @@ void transformBarrelUpdate(void) {
             animSetFrameAndSubframe(gCurrentActor, 0, 0xA, 0.0f);
         }
         actorGetNodePos(gCurrentActor, 1, &nodeX, &nodeY, &nodeZ);
-        actorAppendCallback(state->player, (s32)gCurrentActor, 0x40, 1, 0, NULL);
+        actorAppendCallback(state->player, gCurrentActor, 0x40, 1, 0, NULL);
         {
             s16 angle;
             if (gCurrentActor->actorType == 0x12) {
@@ -1490,7 +1490,7 @@ void transformBarrelUpdate(void) {
             } else {
                 angle = state->player->yaw;
             }
-            actorAppendCallbackPayloadAAB8((s32)gCurrentActor, state->player, angle, -40.0f, 0);
+            actorAppendCallbackPayloadAAB8(gCurrentActor, state->player, angle, -40.0f, 0);
         }
         actorSetInteractionTimer(state->player);
         tagBarrelDespawnEffects();
@@ -1771,13 +1771,13 @@ void tagBarrelParticleUpdate(void) {
             }
             gActivePlayerActor->yaw = gCurrentActor->yaw;
             gActivePlayerActor->moveYaw = gCurrentActor->yaw;
-            actorAppendCallback(sub->rider, (s32)gCurrentActor, 0x40, 1, 0, 0);
+            actorAppendCallback(sub->rider, gCurrentActor, 0x40, 1, 0, 0);
             if (gGlobalCutsceneFlags & 2) {
                 param = 0x1F4;
             } else {
                 param = 0x2BC;
             }
-            actorAppendCallbackPayloadAAB8((s32)gCurrentActor, sub->rider, gCurrentActor->yaw, 0.0f, param);
+            actorAppendCallbackPayloadAAB8(gCurrentActor, sub->rider, gCurrentActor->yaw, 0.0f, param);
             actorQueueDelayedCallback(gCurrentActor, gCurrentActor, 0x800, 2, 0, 0, 0xA);
             effectSetMode(2);
             effectCreateAtActorBone(&D_8071FBC8, 1.6f, gCurrentActor, 1, 2);
@@ -2132,13 +2132,13 @@ void tagBarrelActorUpdate(void) {
     case 11:
         sub->timer = 0x32;
         sub->unk8 = 0;
-        actorAppendCallback(gPrimaryPlayerActor, (s32)gCurrentActor, 0x40, 1, 0, 0);
+        actorAppendCallback(gPrimaryPlayerActor, gCurrentActor, 0x40, 1, 0, 0);
         if (((TagBarrelSpawnParams *)gCurrentActor->spawnData)->unk18 == 1.0) {
             angle = D_80750390;
         } else {
             angle = 0xB4;
         }
-        actorAppendCallbackPayloadAAB8((s32)gCurrentActor, gPrimaryPlayerActor, (s16)((gCurrentActor->yaw + 0x800) & 0xFFF), (f32)angle, 0);
+        actorAppendCallbackPayloadAAB8(gCurrentActor, gPrimaryPlayerActor, (s16)((gCurrentActor->yaw + 0x800) & 0xFFF), (f32)angle, 0);
         if (((TagBarrelSpawnParams *)gCurrentActor->spawnData)->unk18 == 1.0) {
             PlayerState *playerState = gPrimaryPlayerActor->customState;
             playerMountBarrel(gPrimaryPlayerActor, 0);
@@ -2378,8 +2378,8 @@ void rocketbarrelUpdate(void) {
         tagBarrelDespawnEffects();
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->alpha = 0;
-        actorAppendCallback(state->rider, (s32)gCurrentActor, 0x40, 1, 0, 0);
-        actorAppendCallbackPayloadAAB8((s32)gCurrentActor, state->rider, state->rider->yaw, (f32) D_80750390, 0);
+        actorAppendCallback(state->rider, gCurrentActor, 0x40, 1, 0, 0);
+        actorAppendCallbackPayloadAAB8(gCurrentActor, state->rider, state->rider->yaw, (f32) D_80750390, 0);
         playerMountBarrel(state->rider, gCurrentActor);
         gActivePlayerState->isHoldingObject = 1;
         gCurrentActor->state = 3;
@@ -2579,7 +2579,7 @@ void cannonUpdate(void) {
         break;
     case 3:
         if (actorCountOwnedByClass(gCurrentActor, 4, 0) == 0) {
-            actorAppendCallback(sub->rider, (s32)gCurrentActor, 0x40, 1, 0, 0);
+            actorAppendCallback(sub->rider, gCurrentActor, 0x40, 1, 0, 0);
             actorAppendCallbackPayloadA70C(gCurrentActor, sub->rider, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z - 42.0f, 2, 1);
             sub->rider->flags &= ~8;
             playerResumeLocomotion(sub->rider);
@@ -3192,8 +3192,8 @@ void tagBarrelUpdate(void) {
         if (sub->timer != 0) {
             sub->timer--;
         } else {
-            actorAppendCallbackPayloadAAB8((s32)gCurrentActor, sub->player, sub->playerYaw, 180.0f, 0x46);
-            actorAppendCallback(sub->player, (s32)gCurrentActor, 0x40, 1, 0, 0);
+            actorAppendCallbackPayloadAAB8(gCurrentActor, sub->player, sub->playerYaw, 180.0f, 0x46);
+            actorAppendCallback(sub->player, gCurrentActor, 0x40, 1, 0, 0);
             slotQueuePopActiveMask();
             gCurrentActor->state = 0;
             gCurrentActor->unk155 = 0;

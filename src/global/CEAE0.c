@@ -1916,7 +1916,7 @@ void playerHeldActorFollowStep(HeldActorFollowArg *follow) {
     outX = (midX - follow->held->x) * follow->blend + follow->held->x;
     outY = (midY - follow->held->y) * follow->blend + follow->held->y;
     outZ = (midZ - follow->held->z) * follow->blend + follow->held->z;
-    actorAppendCallbackPayloadA70C((s32)follow->player, follow->held, outX, outY, outZ, 2, 1);
+    actorAppendCallbackPayloadA70C(follow->player, follow->held, outX, outY, outZ, 2, 1);
 }
 
 /* Payload playerHeldActorAlignStep receives (the node from 0x08 on). */
@@ -2035,9 +2035,9 @@ void playerDropHeldActor(Actor *player) {
     if (player->collisionFlags & 1) {
         p = player->customState;
         if (p->heldActor != NULL) {
-            actorAppendCallback(p->heldActor, (s32)player, 8, 0, 0, NULL);
+            actorAppendCallback(p->heldActor, player, 8, 0, 0, NULL);
         } else if (p->queuedHeldActor != NULL) {
-            actorAppendCallback(p->queuedHeldActor, (s32)player, 8, 0, 0, NULL);
+            actorAppendCallback(p->queuedHeldActor, player, 8, 0, 0, NULL);
         }
         p->heldActor = NULL;
         p->queuedHeldActor = NULL;

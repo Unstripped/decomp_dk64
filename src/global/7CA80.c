@@ -468,7 +468,7 @@ void actorFreeImmediate(Actor *actor) {
     }
     temp = actor->parentActor;
     if (temp != NULL) {
-        actorAppendCallback(temp, (s32)actor, 0x80000, 0, 0, NULL);
+        actorAppendCallback(temp, actor, 0x80000, 0, 0, NULL);
     }
     for (i = 0; i < gActiveActorCount; i++) {
         if (actor == gActiveActors[i].actor->parentActor) {
@@ -767,7 +767,7 @@ void actorRegisterGlobalCallback(ActorCallbackNode *node) {
 void actorGlobalCallbacksDispatchAndFree(id)
 u8 id;
 {
-    ActorCallbackNode **ptr = D_807FBFE0; do { if (((*ptr) != 0) && ((*ptr)->unk4 == id)) { ((void (*)(void *)) (*ptr)->callback)(&(*ptr)->unk8); heapFree(*ptr); *ptr = 0; } ptr++; } while (ptr != ((ActorCallbackNode **) (&D_807FBFF0))); // LAYOUT: one-line statement line coordinates steer mirrored-pair scheduling
+    ActorCallbackNode **ptr = D_807FBFE0; do { if (((*ptr) != 0) && ((*ptr)->unk4 == id)) { ((void (*)(void *)) (*ptr)->callback)(&(*ptr)->source); heapFree(*ptr); *ptr = 0; } ptr++; } while (ptr != ((ActorCallbackNode **) (&D_807FBFF0))); // LAYOUT: one-line statement line coordinates steer mirrored-pair scheduling
 }
 
 void actorFreeCallbackList(Actor *actor) {
@@ -795,7 +795,7 @@ void actorCallbackMaskDisable(Actor *actor, s32 mask) {
     actor->callbackMask &= ~mask;
 }
 
-void actorAppendCallback(Actor *actor, s32 source, s32 type, u8 subtype, s32 ownsPayload, void *payload) {
+void actorAppendCallback(Actor *actor, Actor *source, s32 type, u8 subtype, s32 ownsPayload, void *payload) {
     s32 pad;
     ActorCallbackNode **link;
     ActorCallbackNode *prev;
@@ -819,7 +819,7 @@ void actorAppendCallback(Actor *actor, s32 source, s32 type, u8 subtype, s32 own
     }
 }
 
-void actorQueueDelayedCallback(Actor *target, s32 source, s32 type, u8 subtype, s32 ownsPayload, void *payload, s32 delay) {
+void actorQueueDelayedCallback(Actor *target, Actor *source, s32 type, u8 subtype, s32 ownsPayload, void *payload, s32 delay) {
     if (D_807FBFD8 == 16) {
         faultSetMessage(0xF, 0, 0, 0);
     }
@@ -878,12 +878,12 @@ void actorDelayedCallbacksTick(void) {
     } while (changed);
 }
 
-ActorCallbackNode *actorAllocCallbackNode(s32 source, s32 type, u8 subtype, s32 ownsPayload, void *payload) {
+ActorCallbackNode *actorAllocCallbackNode(Actor *source, s32 type, u8 subtype, s32 ownsPayload, void *payload) {
     ActorCallbackNode *node = heapAlloc(sizeof(ActorCallbackNode));
 
     node->callback = (void *)type;
     node->unk4 = subtype;
-    node->unk8 = source;
+    node->source = source;
     node->unkC = ownsPayload;
     node->unk10 = payload;
     node->next = NULL;
@@ -1058,7 +1058,7 @@ void actorDispatchCallbacks(Actor *actor) {
                     case 1:
                         GSTATE.unk17 = 1;
                         if (actor == gActivePlayerActor) {
-                            playerStateQueueCallback(0xE, node->unk8, gCurrentPlayerIndex);
+                            playerStateQueueCallback(0xE, node->source, gCurrentPlayerIndex);
                         }
                         break;
                     case 2:
@@ -1076,18 +1076,18 @@ void actorDispatchCallbacks(Actor *actor) {
                     case 6:
                         GSTATE.unk1B = 1;
                         if (actor == gActivePlayerActor) {
-                            playerStateQueueCallback(0x36, node->unk8, gCurrentPlayerIndex);
+                            playerStateQueueCallback(0x36, node->source, gCurrentPlayerIndex);
                         }
                         break;
                     case 4:
                     case 5:
                         if (actor == gActivePlayerActor) {
                             if (node->unk4 == 4) {
-                                playerStateQueueCallback(0x2B, node->unk8, gCurrentPlayerIndex);
+                                playerStateQueueCallback(0x2B, node->source, gCurrentPlayerIndex);
                             } else {
-                                playerStateQueueCallback(0x32, node->unk8, gCurrentPlayerIndex);
+                                playerStateQueueCallback(0x32, node->source, gCurrentPlayerIndex);
                             }
-                            player = (Actor *)node->unk8;
+                            player = node->source;
                             if ((player != NULL) && (player->collisionFlags & 2)) {
                                 playerState = (ActorPlayerState *)player->customState;
                                 playerState->unk1A = (u16)(playerState->unk1A | 0x100);
@@ -1097,10 +1097,10 @@ void actorDispatchCallbacks(Actor *actor) {
                     }
                     break;
                 case 0x8:
-                    playerHandleDamageReaction(actor, (Actor *)node->unk8, 0);
+                    playerHandleDamageReaction(actor, node->source, 0);
                     break;
                 case 0x4:
-                    playerHandleDamageReaction(actor, (Actor *)node->unk8, 1);
+                    playerHandleDamageReaction(actor, node->source, 1);
                     break;
                 case 0x800:
                     actor->unk144 = (u8)node->unk4;
@@ -1113,7 +1113,7 @@ void actorDispatchCallbacks(Actor *actor) {
                     PLAYER_STATE_VIEW->unk6C = (f32)viewPayload->unk8;
                     GSTATE.unk1A = 1;
                     if (actor == gActivePlayerActor) {
-                        playerStateQueueCallback(0x17, node->unk8, gCurrentPlayerIndex);
+                        playerStateQueueCallback(0x17, node->source, gCurrentPlayerIndex);
                     }
                     break;
                 case 0x10:
@@ -1145,11 +1145,11 @@ void actorDispatchCallbacks(Actor *actor) {
                     GSTATE.unkDC = vecPayload[1];
                     GSTATE.unkE0 = vecPayload[2];
                     GSTATE.unkE4 = 1;
-                    GSTATE.unkEC = (Actor *)node->unk8;
+                    GSTATE.unkEC = node->source;
                     break;
                 case 0x1000:
                     GSTATE.unk1C = 1;
-                    GSTATE.unk20 = (Actor *)node->unk8;
+                    GSTATE.unk20 = node->source;
                     break;
                 case 0x4000:
                     statePayload = (ActorPayloadAAB8 *)node->unk10;
@@ -1164,12 +1164,12 @@ void actorDispatchCallbacks(Actor *actor) {
                     } else {
                         GSTATE.unk25 = 1;
                     }
-                    GSTATE.unk28 = (Actor *)node->unk8;
+                    GSTATE.unk28 = node->source;
                     break;
                 case 0x80:
                     actor->flags = (s32)(actor->flags | 8);
                     if (actor == gActivePlayerActor) {
-                        playerStateQueueCallback(0x16, node->unk8, gCurrentPlayerIndex);
+                        playerStateQueueCallback(0x16, node->source, gCurrentPlayerIndex);
                     }
                     break;
                 case 0x40:
@@ -1181,15 +1181,15 @@ void actorDispatchCallbacks(Actor *actor) {
                     break;
                 case 0x1:
                     riderPayload = (ActorPayloadA7EC *)node->unk10;
-                    if (actorTableContains(node->unk8) != 0 && GSTATE.unk39 != 4) {
+                    if (actorTableContains(node->source) != 0 && GSTATE.unk39 != 4) {
                         GSTATE.unk3C[GSTATE.unk39][0] = riderPayload->unk0;
                         GSTATE.unk3C[GSTATE.unk39][1] = riderPayload->unk4;
                         GSTATE.unk3C[GSTATE.unk39][2] = riderPayload->unk8;
                         GSTATE.unk6C[GSTATE.unk39] = riderPayload->unkC;
-                        GSTATE.unk7C[GSTATE.unk39] = (Actor *)node->unk8;
+                        GSTATE.unk7C[GSTATE.unk39] = node->source;
                         GSTATE.unk8C[GSTATE.unk39] = riderPayload->unk10;
                         GSTATE.unk39++;
-                        actorRiderListAdd(actor, node->unk8);
+                        actorRiderListAdd(actor, node->source);
                     }
                     break;
                 case 0x20000:
@@ -1200,7 +1200,7 @@ void actorDispatchCallbacks(Actor *actor) {
                         GSTATE.unkF8[GSTATE.unk1F8].unk30 = hit->unk30;
                         GSTATE.unkF8[GSTATE.unk1F8].unk34 = hit->unk34;
                         GSTATE.unkF8[GSTATE.unk1F8].unk38 = hit->unk38;
-                        GSTATE.unkF8[GSTATE.unk1F8].unk3C = (Actor *)node->unk8;
+                        GSTATE.unkF8[GSTATE.unk1F8].unk3C = node->source;
                         GSTATE.unk1F8++;
                     }
                     break;
@@ -1212,7 +1212,7 @@ void actorDispatchCallbacks(Actor *actor) {
                     memcpy(&D_807FBC08, surfacePayload->unk4, 0xC);
                     memcpy(&D_807FBC14, surfacePayload->unk10, 0x24);
                     GSTATE.unkC8 = surfacePayload->unk34;
-                    GSTATE.unkCC = (Actor *)node->unk8;
+                    GSTATE.unkCC = node->source;
                     GSTATE.unkD0 = surfacePayload->unk38;
                     GSTATE.unkD4 = surfacePayload->unk3C;
                     break;
@@ -1444,53 +1444,53 @@ void actorDispatchCollisionResults(Actor *actor) {
             break;
         case 1:
             if (actorCollisionGetNodeHitPoint(actor, gActorGlobalState.unk204[i], &hitX, &hitZ) != 0) {
-                actorAppendCallbackPayloadA69C((s32)actor, (Actor *)gActorGlobalState.unk204[i], hitX, hitZ, 0, 1);
+                actorAppendCallbackPayloadA69C(actor, (Actor *)gActorGlobalState.unk204[i], hitX, hitZ, 0, 1);
             }
             break;
         case 2:
             actorCollisionGetNodeHitPoint(actor, gActorGlobalState.unk204[i], &otherX, &otherZ);
             break;
         case 4:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 1, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 1, 0, 0);
             break;
         case 3:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 0, 0, 0);
             break;
         case 8:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 2, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 2, 0, 0);
             break;
         case 10:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 3, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 3, 0, 0);
             break;
         case 13:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 6, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 6, 0, 0);
             break;
         case 11:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 4, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 4, 0, 0);
             break;
         case 12:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 5, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 5, 0, 0);
             break;
         case 6:
         case 7:
             if (gActorGlobalState.unk244[i] == 6) {
-                actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 0x40, 0, 0, 0);
+                actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 0x40, 0, 0, 0);
             }
-            actorAppendCallbackPayloadA70C((s32)actor, (Actor *)gActorGlobalState.unk204[i], actor->x, actor->y, actor->z, 2, 1);
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 0x80, 0, 0, 0);
+            actorAppendCallbackPayloadA70C(actor, (Actor *)gActorGlobalState.unk204[i], actor->x, actor->y, actor->z, 2, 1);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 0x80, 0, 0, 0);
             playerDropHeldActor(actor);
             break;
         case 5:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 8, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 8, 0, 0, 0);
             break;
         case 15:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 4, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 4, 0, 0, 0);
             break;
         case 9:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 0x1000, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 0x1000, 0, 0, 0);
             break;
         case 14:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 0x02000000, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 0x02000000, 0, 0, 0);
             break;
         }
     }
@@ -1499,7 +1499,7 @@ void actorDispatchCollisionResults(Actor *actor) {
         for (i = 0; i < gActorGlobalState.unk39; i++) {
             if (GSTATE.unk8C[i] == 0) {
                 collisionTransformPointByActorMtx(actor, GSTATE.unk6C[i], &GSTATE.unk3C[i][0], GSTATE.unk3C[i][1], &GSTATE.unk3C[i][2]);
-                actorAppendCallbackPayloadA69C((s32)actor, GSTATE.unk7C[i], GSTATE.unk3C[i][0], GSTATE.unk3C[i][2], 1, 1);
+                actorAppendCallbackPayloadA69C(actor, GSTATE.unk7C[i], GSTATE.unk3C[i][0], GSTATE.unk3C[i][2], 1, 1);
             }
         }
     }
@@ -1513,7 +1513,7 @@ void actorDispatchCollisionResults(Actor *actor) {
     }
 }
 
-void actorAppendCallbackPayloadA69C(s32 source, Actor *target, f32 x, f32 z, u8 arg4, u8 arg5) {
+void actorAppendCallbackPayloadA69C(Actor *source, Actor *target, f32 x, f32 z, u8 arg4, u8 arg5) {
     ActorPayloadA69C *temp = heapAlloc(sizeof(ActorPayloadA69C));
     temp->unk0 = x;
     temp->unk4 = z;
@@ -1522,7 +1522,7 @@ void actorAppendCallbackPayloadA69C(s32 source, Actor *target, f32 x, f32 z, u8 
     actorAppendCallback(target, source, 0x10, 0, 1, temp);
 }
 
-void actorAppendCallbackPayloadA70C(s32 source, Actor *target, f32 x, f32 y, f32 z, u8 arg5, u8 arg6) {
+void actorAppendCallbackPayloadA70C(Actor *source, Actor *target, f32 x, f32 y, f32 z, u8 arg5, u8 arg6) {
     ActorPayloadA70C *temp = heapAlloc(sizeof(ActorPayloadA70C));
     temp->unk0 = x;
     temp->unk4 = y;
@@ -1540,7 +1540,7 @@ void actorAppendCallback4000(Actor *source, Actor *target, s16 arg2, f32 arg3, s
     actorAppendCallback(target, source, 0x4000, 0, 1, temp);
 }
 
-void actorAppendCallback10(s32 source, Actor *target, f32 arg2, f32 arg3, f32 arg4, s32 arg5, u8 arg6) {
+void actorAppendCallback10(Actor *source, Actor *target, f32 arg2, f32 arg3, f32 arg4, s32 arg5, u8 arg6) {
     ActorPayloadA7EC *temp = heapAlloc(sizeof(ActorPayloadA7EC));
     temp->unk0 = arg2;
     temp->unk4 = arg3;
@@ -1560,7 +1560,7 @@ typedef struct ActorPayloadA864 {
     s32 unk3C;
 } ActorPayloadA864;
 
-void actorAppendCallbackPayloadA864(s32 source, Actor *target, s16 arg2, s16 arg3, void *arg4, void *arg5, s32 arg6, s32 arg7, s32 arg8) {
+void actorAppendCallbackPayloadA864(Actor *source, Actor *target, s16 arg2, s16 arg3, void *arg4, void *arg5, s32 arg6, s32 arg7, s32 arg8) {
     ActorPayloadA864 *temp = heapAlloc(sizeof(ActorPayloadA864));
     temp->unk0 = arg2;
     temp->unk2 = arg3;
@@ -1580,7 +1580,7 @@ typedef struct ActorPayloadA908 {
     s32 unk38;
 } ActorPayloadA908;
 
-void actorAppendCallbackPayloadA908(s32 source, Actor *target, void *arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6) {
+void actorAppendCallbackPayloadA908(Actor *source, Actor *target, void *arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6) {
     ActorPayloadA908 *temp = heapAlloc(sizeof(ActorPayloadA908));
     memcpy(temp, arg2, 0xC);
     memcpy((u8 *)temp + 0xC, arg3, 0x24);
@@ -1590,13 +1590,13 @@ void actorAppendCallbackPayloadA908(s32 source, Actor *target, void *arg2, void 
     actorAppendCallback(target, source, 0x20000, 0, 1, temp);
 }
 
-void actorAppendCallbackS32(s32 source, Actor *target, s32 value) {
+void actorAppendCallbackS32(Actor *source, Actor *target, s32 value) {
     s32 *temp = heapAlloc(sizeof(s32));
     *temp = value;
     actorAppendCallback(target, source, 0x40000, 0, 1, temp);
 }
 
-void actorAppendCallbackVec3f(s32 source, Actor *target, f32 x, f32 y, f32 z) {
+void actorAppendCallbackVec3f(Actor *source, Actor *target, f32 x, f32 y, f32 z) {
     f32 *temp = heapAlloc(3 * sizeof(f32));
     temp[0] = x;
     temp[1] = y;
@@ -1604,14 +1604,14 @@ void actorAppendCallbackVec3f(s32 source, Actor *target, f32 x, f32 y, f32 z) {
     actorAppendCallback(target, source, 0x100000, 0, 1, temp);
 }
 
-void actorAppendCallbackVec2f(s32 source, Actor *target, f32 x, f32 z) {
+void actorAppendCallbackVec2f(Actor *source, Actor *target, f32 x, f32 z) {
     f32 *temp = heapAlloc(2 * sizeof(f32));
     temp[0] = x;
     temp[1] = z;
     actorAppendCallback(target, source, 0x200000, 0, 1, temp);
 }
 
-void actorAppendCallbackPayloadAAB8(s32 source, Actor *target, s16 arg2, f32 arg3, s16 arg4) {
+void actorAppendCallbackPayloadAAB8(Actor *source, Actor *target, s16 arg2, f32 arg3, s16 arg4) {
     ActorPayloadAAB8 *temp = heapAlloc(sizeof(ActorPayloadAAB8));
     temp->unk4 = arg3;
     temp->unk8 = arg4;
@@ -1619,7 +1619,7 @@ void actorAppendCallbackPayloadAAB8(s32 source, Actor *target, s16 arg2, f32 arg
     actorAppendCallback(target, source, 0x400, 0, 1, temp);
 }
 
-void actorAppendCallbackMemcpy8(s32 source, Actor *target, s32 type, u8 subtype, void *data, u8 delayed) {
+void actorAppendCallbackMemcpy8(Actor *source, Actor *target, s32 type, u8 subtype, void *data, u8 delayed) {
     void *temp = heapAlloc(8);
     memcpy(temp, data, 8);
     if (!delayed) {
@@ -1629,7 +1629,7 @@ void actorAppendCallbackMemcpy8(s32 source, Actor *target, s32 type, u8 subtype,
     }
 }
 
-void actorAppendCallbackPayloadABC0(s32 source, Actor *target, u8 arg2, s16 arg3, s16 arg4, f32 arg5, f32 arg6, f32 arg7) {
+void actorAppendCallbackPayloadABC0(Actor *source, Actor *target, u8 arg2, s16 arg3, s16 arg4, f32 arg5, f32 arg6, f32 arg7) {
     ActorPayloadABC0 *temp = heapAlloc(sizeof(ActorPayloadABC0));
     temp->unk0 = arg5;
     temp->unk4 = arg6;

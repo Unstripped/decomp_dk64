@@ -875,8 +875,8 @@ s32 actorHasCallbackTargetThisFrame(void) {
         if ((u32)node->callback == 0x8000) {
             Actor *actor;
             void *sub;
-            if (actorTableContains((Actor *)node->unk8) != 0) {
-                actor = (Actor *)node->unk8;
+            if (actorTableContains(node->source) != 0) {
+                actor = node->source;
                 if (actor->collisionFlags & 1) {
                     sub = actor->customState;
                     if ((u32)(gGameFrameCounter - *(s32 *)((u8 *)sub + 0x120)) < 2) {

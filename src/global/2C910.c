@@ -305,15 +305,15 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             screenWipeStart(((u32)arg1 >> 16) & 0xFF);
             return;
         case 0xC:
-            actorAppendCallbackMemcpy8((s32)gCamActor, sp94, 0x01000000, 1, spA0, 0);
+            actorAppendCallbackMemcpy8(gCamActor, sp94, 0x01000000, 1, spA0, 0);
             return;
         case 0xD:
-            actorAppendCallbackMemcpy8((s32)gCamActor, sp94, 0x01000000, 0x10, spA0, 0);
+            actorAppendCallbackMemcpy8(gCamActor, sp94, 0x01000000, 0x10, spA0, 0);
             spA0[3] = -1;
-            actorAppendCallbackMemcpy8((s32)gCamActor, sp94, 0x01000000, 0xE, spA0, 0);
+            actorAppendCallbackMemcpy8(gCamActor, sp94, 0x01000000, 0xE, spA0, 0);
             return;
         case 0x12:
-            actorAppendCallbackMemcpy8((s32)gCamActor, sp94, 0x01000000, 0x14, spA0, 0);
+            actorAppendCallbackMemcpy8(gCamActor, sp94, 0x01000000, 0x14, spA0, 0);
             return;
         case 0x31:
             if (d != 0) {

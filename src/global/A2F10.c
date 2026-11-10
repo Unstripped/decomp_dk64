@@ -165,7 +165,7 @@ void actorAttachChildCallbacks(void) {
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
         if ((s32)actor->parentActor == (s32)gCurrentActor) {
-            actorAppendCallback(actor, (s32)gCurrentActor, 0x2000000, 1, 0, NULL);
+            actorAppendCallback(actor, gCurrentActor, 0x2000000, 1, 0, NULL);
         }
     }
 }
