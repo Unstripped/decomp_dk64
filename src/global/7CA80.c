@@ -902,88 +902,6 @@ extern struct DamageReactionContext *gActivePlayerState;
 
 
 
-typedef struct ActorCollisionHit {
-    u8 unk0[0xC];
-    u8 unkC[0x24];
-    s32 unk30;
-    s32 unk34;
-    s32 unk38;
-    Actor *unk3C;
-} ActorCollisionHit;
-
-typedef struct ActorDispatchState {
-    u8 unk0;
-    u8 unk1;
-    u8 unk2;
-    u8 pad3;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    s16 unk10;
-    s16 unk12;
-    u8 unk14;
-    u8 unk15;
-    u8 unk16;
-    u8 unk17;
-    u8 unk18;
-    u8 unk19;
-    u8 unk1A;
-    u8 unk1B;
-    u8 unk1C;
-    u8 pad1D[3];
-    Actor *unk20;
-    u8 unk24;
-    u8 unk25;
-    u8 pad26[2];
-    Actor *unk28;
-    u8 unk2C;
-    u8 pad2D[3];
-    f32 unk30;
-    s16 unk34;
-    s16 unk36;
-    u8 unk38;
-    u8 unk39;
-    u8 pad3A[2];
-    f32 unk3C[4][3];
-    s32 unk6C[4];
-    Actor *unk7C[4];
-    u8 unk8C[4];
-    u8 unk90;
-    u8 unk91;
-    s16 unk92;
-    s16 unk94;
-    u8 pad96[2];
-    u8 unk98[0xC];
-    u8 unkA4[0x24];
-    s32 unkC8;
-    Actor *unkCC;
-    s32 unkD0;
-    s32 unkD4;
-    f32 unkD8;
-    f32 unkDC;
-    f32 unkE0;
-    u8 unkE4;
-    u8 unkE5;
-    u8 padE6[2];
-    f32 unkE8;
-    Actor *unkEC;
-    f32 unkF0;
-    f32 unkF4;
-    ActorCollisionHit unkF8[4];
-    s32 unk1F8;
-    Actor *unk1FC;
-    u8 unk200;
-    u8 unk201;
-    u8 unk202[2];
-    s32 unk204[16];
-    u8 unk244[16];
-    u8 unk254;
-    u8 pad255[3];
-    s32 unk258[8];
-    void *unk278[8];
-} ActorDispatchState;
-
-#define GSTATE (*(ActorDispatchState *)&gActorGlobalState)
 
 
 typedef struct ActorPayload10000 {
@@ -1042,38 +960,38 @@ void actorDispatchCallbacks(Actor *actor) {
                 switch ((s32)node->callback) {
                 case 0x8000:
                     actorCollisionProcessHit(actor, node);
-                    if (((GSTATE.unk200 == 9) || (GSTATE.unk200 == 0xA)) && (actor->collisionFlags & 1)) {
-                        playerHandleDamageReaction(actor, GSTATE.unk1FC, (GSTATE.unk200 == 0xA));
+                    if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk200 == 0xA)) && (actor->collisionFlags & 1)) {
+                        playerHandleDamageReaction(actor, gActorGlobalState.targetActor, (gActorGlobalState.unk200 == 0xA));
                     }
                     break;
                 case 0x2:
                     switch (node->unk4) {
                     case 0:
-                        GSTATE.unk16 = 1;
+                        gActorGlobalState.unk16 = 1;
                         if (actor == gActivePlayerActor) {
                             playerStateQueueCallback(0x10, NULL, gCurrentPlayerIndex);
                         }
                         break;
                     case 1:
-                        GSTATE.unk17 = 1;
+                        gActorGlobalState.unk17 = 1;
                         if (actor == gActivePlayerActor) {
                             playerStateQueueCallback(0xE, node->source, gCurrentPlayerIndex);
                         }
                         break;
                     case 2:
-                        GSTATE.unk18 = 1;
+                        gActorGlobalState.unk18 = 1;
                         if (actor == gActivePlayerActor) {
                             playerStateQueueCallback(0x12, NULL, gCurrentPlayerIndex);
                         }
                         break;
                     case 3:
-                        GSTATE.unk19 = 1;
+                        gActorGlobalState.unk19 = 1;
                         if (actor == gActivePlayerActor) {
                             playerStateQueueCallback(0x13, NULL, gCurrentPlayerIndex);
                         }
                         break;
                     case 6:
-                        GSTATE.unk1B = 1;
+                        gActorGlobalState.unk1B = 1;
                         if (actor == gActivePlayerActor) {
                             playerStateQueueCallback(0x36, node->source, gCurrentPlayerIndex);
                         }
@@ -1103,14 +1021,14 @@ void actorDispatchCallbacks(Actor *actor) {
                     break;
                 case 0x800:
                     actor->unk144 = (u8)node->unk4;
-                    GSTATE.unk90 = 1;
+                    gActorGlobalState.unk90 = 1;
                     break;
                 case 0x400:
                     viewPayload = (ActorPayloadAAB8 *)node->unk10;
                     PLAYER_STATE_VIEW->unk70 = viewPayload->unk0;
                     PLAYER_STATE_VIEW->unk74 = viewPayload->unk4;
                     PLAYER_STATE_VIEW->unk6C = (f32)viewPayload->unk8;
-                    GSTATE.unk1A = 1;
+                    gActorGlobalState.unk1A = 1;
                     if (actor == gActivePlayerActor) {
                         playerStateQueueCallback(0x17, node->source, gCurrentPlayerIndex);
                     }
@@ -1140,30 +1058,30 @@ void actorDispatchCallbacks(Actor *actor) {
                     break;
                 case 0x100000:
                     vecPayload = (f32 *)node->unk10;
-                    GSTATE.unkD8 = vecPayload[0];
-                    GSTATE.unkDC = vecPayload[1];
-                    GSTATE.unkE0 = vecPayload[2];
-                    GSTATE.unkE4 = 1;
-                    GSTATE.unkEC = node->source;
+                    gActorGlobalState.unkD8 = vecPayload[0];
+                    gActorGlobalState.unkDC = vecPayload[1];
+                    gActorGlobalState.unkE0 = vecPayload[2];
+                    gActorGlobalState.unkE4 = 1;
+                    gActorGlobalState.unkEC = node->source;
                     break;
                 case 0x1000:
-                    GSTATE.unk1C = 1;
-                    GSTATE.unk20 = node->source;
+                    gActorGlobalState.unk1C = 1;
+                    gActorGlobalState.unk20 = node->source;
                     break;
                 case 0x4000:
                     statePayload = (ActorPayloadAAB8 *)node->unk10;
-                    GSTATE.unk2C = 1;
-                    GSTATE.unk30 = statePayload->unk4;
-                    GSTATE.unk34 = statePayload->unk8;
-                    GSTATE.unk36 = statePayload->unk0;
+                    gActorGlobalState.unk2C = 1;
+                    gActorGlobalState.unk30 = statePayload->unk4;
+                    gActorGlobalState.unk34 = statePayload->unk8;
+                    gActorGlobalState.unk36 = statePayload->unk0;
                     break;
                 case 0x2000:
                     if (node->unk4 != 0) {
-                        GSTATE.unk24 = 1;
+                        gActorGlobalState.unk24 = 1;
                     } else {
-                        GSTATE.unk25 = 1;
+                        gActorGlobalState.unk25 = 1;
                     }
-                    GSTATE.unk28 = node->source;
+                    gActorGlobalState.unk28 = node->source;
                     break;
                 case 0x80:
                     actor->flags = (s32)(actor->flags | 8);
@@ -1180,40 +1098,40 @@ void actorDispatchCallbacks(Actor *actor) {
                     break;
                 case 0x1:
                     riderPayload = (ActorPayloadA7EC *)node->unk10;
-                    if (actorTableContains(node->source) != 0 && GSTATE.unk39 != 4) {
-                        GSTATE.unk3C[GSTATE.unk39][0] = riderPayload->unk0;
-                        GSTATE.unk3C[GSTATE.unk39][1] = riderPayload->unk4;
-                        GSTATE.unk3C[GSTATE.unk39][2] = riderPayload->unk8;
-                        GSTATE.unk6C[GSTATE.unk39] = riderPayload->unkC;
-                        GSTATE.unk7C[GSTATE.unk39] = node->source;
-                        GSTATE.unk8C[GSTATE.unk39] = riderPayload->unk10;
-                        GSTATE.unk39++;
+                    if (actorTableContains(node->source) != 0 && gActorGlobalState.unk39 != 4) {
+                        gActorGlobalState.unk3C[gActorGlobalState.unk39][0] = riderPayload->unk0;
+                        gActorGlobalState.unk3C[gActorGlobalState.unk39][1] = riderPayload->unk4;
+                        gActorGlobalState.unk3C[gActorGlobalState.unk39][2] = riderPayload->unk8;
+                        gActorGlobalState.unk6C[gActorGlobalState.unk39] = riderPayload->unkC;
+                        gActorGlobalState.unk7C[gActorGlobalState.unk39] = node->source;
+                        gActorGlobalState.unk8C[gActorGlobalState.unk39] = riderPayload->unk10;
+                        gActorGlobalState.unk39++;
                         actorRiderListAdd(actor, node->source);
                     }
                     break;
                 case 0x20000:
                     hit = (ActorCollisionHit *)node->unk10;
-                    if (GSTATE.unk1F8 != 4) {
-                        memcpy(&GSTATE.unkF8[GSTATE.unk1F8], hit, 0xC);
-                        memcpy(GSTATE.unkF8[GSTATE.unk1F8].unkC, hit->unkC, 0x24);
-                        GSTATE.unkF8[GSTATE.unk1F8].unk30 = hit->unk30;
-                        GSTATE.unkF8[GSTATE.unk1F8].unk34 = hit->unk34;
-                        GSTATE.unkF8[GSTATE.unk1F8].unk38 = hit->unk38;
-                        GSTATE.unkF8[GSTATE.unk1F8].unk3C = node->source;
-                        GSTATE.unk1F8++;
+                    if (gActorGlobalState.unk1F8 != 4) {
+                        memcpy(&gActorGlobalState.unkF8[gActorGlobalState.unk1F8], hit, 0xC);
+                        memcpy(gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unkC, hit->unkC, 0x24);
+                        gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk30 = hit->unk30;
+                        gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk34 = hit->unk34;
+                        gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk38 = hit->unk38;
+                        gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk3C = node->source;
+                        gActorGlobalState.unk1F8++;
                     }
                     break;
                 case 0x10000:
                     surfacePayload = (ActorPayload10000 *)node->unk10;
-                    GSTATE.unk91 = 1;
-                    GSTATE.unk92 = surfacePayload->unk0;
-                    GSTATE.unk94 = surfacePayload->unk2;
-                    memcpy(GSTATE.unk98, surfacePayload->unk4, 0xC);
-                    memcpy(GSTATE.unkA4, surfacePayload->unk10, 0x24);
-                    GSTATE.unkC8 = surfacePayload->unk34;
-                    GSTATE.unkCC = node->source;
-                    GSTATE.unkD0 = surfacePayload->unk38;
-                    GSTATE.unkD4 = surfacePayload->unk3C;
+                    gActorGlobalState.unk91 = 1;
+                    gActorGlobalState.unk92 = surfacePayload->unk0;
+                    gActorGlobalState.unk94 = surfacePayload->unk2;
+                    memcpy(gActorGlobalState.unk98, surfacePayload->unk4, 0xC);
+                    memcpy(gActorGlobalState.unkA4, surfacePayload->unk10, 0x24);
+                    gActorGlobalState.unkC8 = surfacePayload->unk34;
+                    gActorGlobalState.unkCC = node->source;
+                    gActorGlobalState.unkD0 = surfacePayload->unk38;
+                    gActorGlobalState.unkD4 = surfacePayload->unk3C;
                     break;
                 case 0x40000:
                     collisionValue = node->unk10;
@@ -1223,37 +1141,37 @@ void actorDispatchCallbacks(Actor *actor) {
                     }
                     break;
                 case 0x80000:
-                    GSTATE.unk38 = 1;
+                    gActorGlobalState.unk38 = 1;
                     break;
                 case 0x200000:
                     pointPair = (f32 *)node->unk10;
-                    GSTATE.unkF0 = pointPair[0];
-                    GSTATE.unkF4 = pointPair[1];
+                    gActorGlobalState.unkF0 = pointPair[0];
+                    gActorGlobalState.unkF4 = pointPair[1];
                     break;
                 case 0x400000:
-                    GSTATE.unkE8 = (f32)(u32)node->unk4;
-                    GSTATE.unkE5 = 1;
+                    gActorGlobalState.unkE8 = (f32)(u32)node->unk4;
+                    gActorGlobalState.unkE5 = 1;
                     break;
                 case 0x1000000:
-                    if (GSTATE.unk254 < 8) {
-                        GSTATE.unk258[GSTATE.unk254] = node->unk4;
-                        GSTATE.unk278[GSTATE.unk254] = node->unk10;
-                        GSTATE.unk254++;
+                    if (gActorGlobalState.unk254 < 8) {
+                        gActorGlobalState.unk258[gActorGlobalState.unk254] = node->unk4;
+                        gActorGlobalState.unk278[gActorGlobalState.unk254] = node->unk10;
+                        gActorGlobalState.unk254++;
                     }
                     break;
                 case 0x800000:
                     eventPayload = (ActorPayloadABC0 *)node->unk10;
-                    GSTATE.unk4 = eventPayload->unk0;
-                    GSTATE.unk8 = eventPayload->unk4;
-                    GSTATE.unkC = eventPayload->unk8;
-                    GSTATE.unk10 = eventPayload->unkC;
-                    GSTATE.unk12 = eventPayload->unkE;
-                    GSTATE.unk2 = 1;
-                    GSTATE.unk14 = node->unk4;
+                    gActorGlobalState.unk4 = eventPayload->unk0;
+                    gActorGlobalState.unk8 = eventPayload->unk4;
+                    gActorGlobalState.unkC = eventPayload->unk8;
+                    gActorGlobalState.unk10 = eventPayload->unkC;
+                    gActorGlobalState.unk12 = eventPayload->unkE;
+                    gActorGlobalState.unk2 = 1;
+                    gActorGlobalState.unk14 = node->unk4;
                     break;
                 case 0x2000000:
-                    GSTATE.unk0 = 1;
-                    GSTATE.unk1 = node->unk4;
+                    gActorGlobalState.unk0 = 1;
+                    gActorGlobalState.unk1[0] = node->unk4;
                     break;
                 }
             }
@@ -1493,19 +1411,19 @@ void actorDispatchCollisionResults(Actor *actor) {
 
     if (gActorGlobalState.unk39) {
         for (i = 0; i < gActorGlobalState.unk39; i++) {
-            if (GSTATE.unk8C[i] == 0) {
-                collisionTransformPointByActorMtx(actor, GSTATE.unk6C[i], &GSTATE.unk3C[i][0], GSTATE.unk3C[i][1], &GSTATE.unk3C[i][2]);
-                actorAppendCallbackPayloadA69C(actor, GSTATE.unk7C[i], GSTATE.unk3C[i][0], GSTATE.unk3C[i][2], 1, 1);
+            if (gActorGlobalState.unk8C[i] == 0) {
+                collisionTransformPointByActorMtx(actor, gActorGlobalState.unk6C[i], &gActorGlobalState.unk3C[i][0], gActorGlobalState.unk3C[i][1], &gActorGlobalState.unk3C[i][2]);
+                actorAppendCallbackPayloadA69C(actor, gActorGlobalState.unk7C[i], gActorGlobalState.unk3C[i][0], gActorGlobalState.unk3C[i][2], 1, 1);
             }
         }
     }
 
     if (gActorGlobalState.unk91 != 0) {
-        actorCollisionResolveSurfaceHit(actor, GSTATE.unkCC, GSTATE.unk98, GSTATE.unkA4, GSTATE.unkC8, GSTATE.unkD0, GSTATE.unkD4, 1);
+        actorCollisionResolveSurfaceHit(actor, gActorGlobalState.unkCC, gActorGlobalState.unk98, gActorGlobalState.unkA4, gActorGlobalState.unkC8, gActorGlobalState.unkD0, gActorGlobalState.unkD4, 1);
     }
 
     for (i = 0; i < gActorGlobalState.unk1F8; i++) {
-        actorCollisionResolveSurfaceHit(actor, GSTATE.unkF8[i].unk3C, GSTATE.unkF8[i].unk0, GSTATE.unkF8[i].unkC, GSTATE.unkF8[i].unk30, GSTATE.unkF8[i].unk34, GSTATE.unkF8[i].unk38, 0);
+        actorCollisionResolveSurfaceHit(actor, gActorGlobalState.unkF8[i].unk3C, gActorGlobalState.unkF8[i].unk0, gActorGlobalState.unkF8[i].unkC, gActorGlobalState.unkF8[i].unk30, gActorGlobalState.unkF8[i].unk34, gActorGlobalState.unkF8[i].unk38, 0);
     }
 }
 

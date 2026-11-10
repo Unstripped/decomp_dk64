@@ -194,6 +194,15 @@ typedef struct ActorEntry {
     /* 0x04 */ s32 unk4;
 } ActorEntry; // size = 0x8
 
+typedef struct ActorCollisionHit {
+    u8 unk0[0xC];
+    u8 unkC[0x24];
+    s32 unk30;
+    s32 unk34;
+    s32 unk38;
+    struct Actor *unk3C;
+} ActorCollisionHit; // size = 0x40
+
 typedef struct ActorGlobalState {
     /* 0x000 */ u8 unk0;
     /* 0x001 */ u8 unk1[1];
@@ -213,7 +222,8 @@ typedef struct ActorGlobalState {
     /* 0x01A */ u8 unk1A;
     /* 0x01B */ u8 unk1B;
     /* 0x01C */ u8 unk1C;
-    /* 0x01D */ u8 unk1D[7];
+    /* 0x01D */ u8 unk1D[3];
+    /* 0x020 */ struct Actor *unk20;
     /* 0x024 */ u8 unk24;
     /* 0x025 */ u8 unk25;
     /* 0x026 */ u8 unk26[2];
@@ -227,16 +237,22 @@ typedef struct ActorGlobalState {
     /* 0x039 */ u8 unk39;
     /* 0x03A */ u8 unk3A[2];
     /* 0x03C */ f32 unk3C[4][3];
-    /* 0x06C */ u8 unk6C[0x10];
+    /* 0x06C */ s32 unk6C[4];
     /* 0x07C */ struct Actor *unk7C[4];
     /* 0x08C */ u8 unk8C[4];
     /* 0x090 */ u8 unk90;
     /* 0x091 */ u8 unk91;
     /* 0x092 */ s16 unk92;
     /* 0x094 */ s16 unk94;
-    /* 0x096 */ u8 unk96[0x42];
+    /* 0x096 */ u8 unk96[2];
+    /* 0x098 */ u8 unk98[0xC];   // surface hit payload copy (12 bytes, from payload +0x4)
+    /* 0x0A4 */ u8 unkA4[0x24];  // surface hit payload copy (0x24 bytes, from payload +0x10)
+    /* 0x0C8 */ s32 unkC8;
+    /* 0x0CC */ struct Actor *unkCC;
+    /* 0x0D0 */ s32 unkD0;
+    /* 0x0D4 */ s32 unkD4;
     /* 0x0D8 */ f32 unkD8;
-    /* 0x0DC */ u8 unkDC[4];
+    /* 0x0DC */ f32 unkDC;
     /* 0x0E0 */ f32 unkE0;
     /* 0x0E4 */ u8 unkE4;
     /* 0x0E5 */ u8 unkE5;
@@ -245,7 +261,7 @@ typedef struct ActorGlobalState {
     /* 0x0EC */ struct Actor *unkEC;
     /* 0x0F0 */ f32 unkF0;
     /* 0x0F4 */ f32 unkF4;
-    /* 0x0F8 */ u8 unkF8[0x100];
+    /* 0x0F8 */ ActorCollisionHit unkF8[4];
     /* 0x1F8 */ s32 unk1F8;
     /* 0x1FC */ struct Actor *targetActor;
     /* 0x200 */ u8 unk200;
