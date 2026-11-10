@@ -17,7 +17,6 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
-extern u8 gBossFightPhase;
 
 typedef struct BD820Actor {
     /* 0x000 */ u8 pad0[0xC0];

@@ -249,7 +249,6 @@ void tagBarrelPeerUpdate(void) {
     tagBarrelInitPeerState();
 }
 
-extern u8 D_807FBBA8;
 
 
 void tagBarrelAnimSetSpeed(s32 spawnType) {
@@ -271,7 +270,7 @@ void tagBarrelAnimSetSpeed(s32 spawnType) {
             gCurrentActor->state++;
             break;
         case 11:
-            if (D_807FBBA8 != 0) {
+            if (gActorGlobalState.unk38 != 0) {
                 gCurrentActor->state = 0x14;
             }
             break;
@@ -324,7 +323,7 @@ void tagBarrelCheckPlayerState(void) {
     s32 released = 0;
 
     extra = gPrimaryPlayerActor->customState;
-    if ((D_807FBBA8 != 0) && (extra->stateFlags & 0x200000)) {
+    if ((gActorGlobalState.unk38 != 0) && (extra->stateFlags & 0x200000)) {
         released = 1;
     }
     if (!(gCurrentActor->flags & 0x10) || released) {
@@ -415,7 +414,7 @@ s32 tagBarrelCheckProximityAndFall(s32 spawnType, u8 *inRange, u8 *falling, u8 *
         animSetLoopMode(gCurrentActor, 0, 0);
         animSetDirection(gCurrentActor, 0, 0);
         animSetLoopLimit(gCurrentActor, 0, -1);
-        if (D_807FBBA8 != 0 || *inRange != 0 || *triggered != 0) {
+        if (gActorGlobalState.unk38 != 0 || *inRange != 0 || *triggered != 0) {
             *triggered = 0;
             spawn = 1;
         }
@@ -613,9 +612,6 @@ typedef struct ActorC71CState {
 
 
 extern s32 gGlobalOverlayFlags;
-extern u8 D_807FBBA9;
-extern f32 D_807FBC60;
-extern f32 D_807FBC64;
 extern s16 gCurrentCharacterIndex;
 extern u32 gFrameCounter;
 extern s8 D_80029FA0;
@@ -777,7 +773,7 @@ void actorTransformCameraUpdate(void) {
         bob = -5.0 - state->unk24;
         bob = bob / -5.0;
         bob = bob * -0.5;
-        if (D_807FBBA9 == 0) {
+        if (gActorGlobalState.unk39 == 0) {
             bob = -0.5 - bob;
             bob = 0.0 - bob;
         }
@@ -979,9 +975,9 @@ void actorTransformCameraUpdate(void) {
     guMtxCatF(mtx, rot, mtx);
     guRotateF(rot, gCurrentActor->yaw / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx, rot, mtx);
-    guRotateF(rot, state->unk8 - D_807FBC60, 1.0f, 0.0f, 0.0f);
+    guRotateF(rot, state->unk8 - gActorGlobalState.unkF0, 1.0f, 0.0f, 0.0f);
     guMtxCatF(mtx, rot, mtx);
-    guRotateF(rot, (state->unk10 + 90.0f) - D_807FBC64, 0.0f, 1.0f, 0.0f);
+    guRotateF(rot, (state->unk10 + 90.0f) - gActorGlobalState.unkF4, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx, rot, mtx);
 
     if (gCurrentActor->state == 3) {
@@ -1657,7 +1653,14 @@ typedef struct ActorFB6CState {
 
 extern Actor *gActivePlayerActor;
 extern s32 gGlobalCutsceneFlags;
-extern u16 D_807FD63C;
+typedef struct TagBarrelInputPad {
+    u8 pad0[0x2C];
+    u16 unk2C;
+    s8 unk2E;
+    s8 unk2F;
+    u8 unk30;
+} TagBarrelInputPad;
+extern TagBarrelInputPad gPlayerPadState;
 
 f32 mathCosF(s16);
 f32 mathSinF(s16);
@@ -1754,7 +1757,7 @@ void tagBarrelParticleUpdate(void) {
         if (sub->launchDelay) {
             sub->launchDelay--;
         }
-        if (((D_807FD63C & 0xE000) || sub->mode == 3) && sub->launchDelay == 0) {
+        if (((gPlayerPadState.unk2C & 0xE000) || sub->mode == 3) && sub->launchDelay == 0) {
             PlayerState *riderState;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x18, 0xFF, 0x7F, 1);
             riderState = sub->rider->customState;
@@ -1935,8 +1938,6 @@ typedef struct Vec3f {
 
 extern Vec3f D_8074E7D4;
 extern u8 gScreenRenderFlags;
-extern u8 gBossFightPhase;
-extern u8 D_807FBDC4;
 extern u8 D_8071FC58[];
 
 
@@ -2008,7 +2009,7 @@ void tagBarrelActorUpdate(void) {
         gCurrentActor->cullMarginX = val;
         gCurrentActor->cullMarginY = val;
     }
-    for (i = 0; i < D_807FBDC4; i++) {
+    for (i = 0; i < gActorGlobalState.unk254; i++) {
         ptr = gActorGlobalState.unk278[i];
         switch (*ptr) {
             case 2:
@@ -2063,7 +2064,7 @@ void tagBarrelActorUpdate(void) {
     actorUpdatePrevContactFlags(gCurrentActor);
     switch (gCurrentActor->state) {
     case 0:
-        if (gBossFightPhase == 4) {
+        if (gActorGlobalState.unk200 == 4) {
             gCurrentActor->state = 1;
             gCurrentActor->unk144 = 1;
             sub->unk8 = 0;
@@ -2075,7 +2076,7 @@ void tagBarrelActorUpdate(void) {
                 actorSetCustomFloat(gCurrentActor, 6, 0.0f);
             }
         } else {
-            for (i = 0; i < D_807FBDC4; i++) {
+            for (i = 0; i < gActorGlobalState.unk254; i++) {
                 if (gActorGlobalState.unk258[i] == 1 && *gActorGlobalState.unk278[i] == 1) {
                     gCurrentActor->state = 0x14;
                     gCurrentActor->unk144 = 1;
@@ -2192,7 +2193,7 @@ void tagBarrelActorUpdate(void) {
         }
         break;
     case 20:
-        for (i = 0; i < D_807FBDC4; i++) {
+        for (i = 0; i < gActorGlobalState.unk254; i++) {
             if (gActorGlobalState.unk258[i] == 1 && *gActorGlobalState.unk278[i] == 0) {
                 gCurrentActor->unk144 = 2;
                 gCurrentActor->state = 0x15;
@@ -2446,8 +2447,6 @@ extern f32 D_8074E800;
 extern f32 D_8074E804;
 extern f32 D_8074E808;
 extern u8 D_8074E810;
-extern s8 D_807FD63E;
-extern s8 D_807FD63F;
 
 f32 cosApprox(f32);
 
@@ -2474,11 +2473,11 @@ void cannonUpdate(void) {
     }
     if (gCurrentActor->state == 2 || gCurrentActor->state == 3) {
         cam = ((PlayerState *)sub->rider->customState)->camActor;
-        sub->aimYaw = sub->aimYaw - (f64)D_807FD63E * 0.08 * D_8074E7F8 * 4096.0 / 360.0;
+        sub->aimYaw = sub->aimYaw - (f64)gPlayerPadState.unk2E * 0.08 * D_8074E7F8 * 4096.0 / 360.0;
         sub->aimYaw = sub->aimYaw & 0xFFF;
         sinOff = mathSinF(sub->aimYaw) * D_8074E7F4;
         cosOff = mathCosF(sub->aimYaw) * D_8074E7F4;
-        D_8074E804 = D_8074E804 - (f64)D_807FD63F * 0.04 * D_8074E800;
+        D_8074E804 = D_8074E804 - (f64)gPlayerPadState.unk2F * 0.04 * D_8074E800;
         if (D_8074E804 > 50.0) {
             D_8074E804 = 50.0f;
         }
@@ -2560,7 +2559,7 @@ void cannonUpdate(void) {
         }
         break;
     case 2:
-        if ((D_807FD63C & 0x2000) && actorCountOwnedByClass(gCurrentActor, 4, 0) == 0 && sub->shotsLeft != 0) {
+        if ((gPlayerPadState.unk2C & 0x2000) && actorCountOwnedByClass(gCurrentActor, 4, 0) == 0 && sub->shotsLeft != 0) {
             projectileSetTargetCoords(gCurrentActor->x, gCurrentActor->y + D_8074E7FC, gCurrentActor->z);
             x = gPlayerSlots->focusZ - gPlayerSlots->camZ;
             y = gPlayerSlots->focusX - gPlayerSlots->camX;
@@ -2905,14 +2904,6 @@ void tagBarrelStartSelection(TagBarrelData *data) {
     }
 }
 
-typedef struct TagBarrelInputPad {
-    u8 pad0[0x2C];
-    u16 unk2C;
-    s8 unk2E;
-    s8 unk2F;
-    u8 unk30;
-} TagBarrelInputPad;
-extern TagBarrelInputPad gPlayerPadState;
 
 
 

@@ -227,7 +227,6 @@ typedef struct WaveState {
     /* 0x0B8 */ u8 unkB8[4];
 } WaveState;
 
-extern u8 D_807FBBEC;
 extern ActorGlobalState gActorGlobalState;
 f32 sinApprox(f32);
 void *memcpy(void *, const void *, unsigned int);
@@ -325,7 +324,7 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         } while (i < (s32)state->unk94);
         i = 0;
     }
-    memcpy(state->unk74, &D_807FBBEC, 0x10);
+    memcpy(state->unk74, gActorGlobalState.unk7C, 0x10);
     state->unk94 = gActorGlobalState.unk39;
     if ((s32)state->unk94 > 0) {
         do {
@@ -495,14 +494,13 @@ void actorAddNodeForceSlot(f32 forceMagnitude, u8 slotMode) {
 
 extern ActorGlobalState gActorGlobalState;
 
-extern u8 D_807FBBA9;
 
 
 s32 actorCheckAlwaysFalse(void) {
     s32 i;
     s32 v;
 
-    for (i = 0; i < D_807FBBA9; i++) {
+    for (i = 0; i < gActorGlobalState.unk39; i++) {
         v = gActorGlobalState.unk7C[i]->actorType;
         if (v != 2 && v != 3) { // FAKE: keeps both state tests as beq-to-latch (dead carrier v)
             v = 0;
@@ -617,7 +615,6 @@ typedef struct {
     f32 unk14;
 } SpotLightConfig;
 
-extern u8 gBossFightPhase;
 extern s32 gCurrentMap;
 extern s16 D_807503A0;
 
@@ -640,7 +637,7 @@ void actorSpotLightUpdate(void) {
         lightState->unk4 = 1.0f;
     }
     scriptSetActorRampTarget(gCurrentActor, ((SpotLightConfig *)gCurrentActor->spawnData)->unk0, 1.0f);
-    if (gBossFightPhase == 4) {
+    if (gActorGlobalState.unk200 == 4) {
         lightState->unk0 = D_807503A0;
         lightState->unk4 = 0.0f;
     }
@@ -733,7 +730,7 @@ void func_8069B010(void) {
             }
             lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 100.0f, 0, 0xFF, 0xFF, 0);
         }
-        if (gBossFightPhase == 9) {
+        if (gActorGlobalState.unk200 == 9) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CE, 0xFF, 0x7F, 0x1E);
             effectCreateAtPosition(D_8071FE08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, gCurrentActor->unk15F, 0, 0);
@@ -886,14 +883,6 @@ typedef struct ActorNamePair {
     /* 0x0 */ s32 ids[2];
 } ActorNamePair;
 
-extern Actor *D_807FBB98;
-extern u8 D_807FBB85;
-extern u8 D_807FBB94;
-extern u8 D_807FBB95;
-extern u8 D_807FBB9C;
-extern u8 D_807FBDC4;
-extern f32 D_807FBC60;
-extern f32 D_807FBC64;
 extern s16 D_807502D0;
 extern f32 D_807502E4;
 extern u8 D_80720340;
@@ -971,14 +960,14 @@ void textMarkerUpdateMatrix(void) {
             break;
         }
     }
-    if (D_807FBB94 != 0) {
-        markerView->unk14 = D_807FBB98;
+    if (gActorGlobalState.unk24 != 0) {
+        markerView->unk14 = gActorGlobalState.unk28;
         gCurrentActor->state = 1;
         actorCallbackMaskDisable(gCurrentActor, 0x8000);
         actorCollisionEventsCancel(markerView->unk14, 1);
         gCurrentActor->unk144 = 0x2C;
     }
-    if (D_807FBB95 != 0) {
+    if (gActorGlobalState.unk25 != 0) {
         gCurrentActor->state = 2;
         gCurrentActor->unk155 = 0;
         markerView->unk1C = 0x1E;
@@ -995,11 +984,11 @@ void textMarkerUpdateMatrix(void) {
             gCurrentActor->state = 4;
         }
     }
-    if (D_807FBB85 != 0 || gBossFightPhase == 9) {
+    if (gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9) {
         gCurrentActor->state = 4;
         actorReleaseFromPlayerHold(gCurrentActor);
     }
-    if (D_807FBB9C != 0) {
+    if (gActorGlobalState.unk2C != 0) {
         gCurrentActor->state = 3;
         gCurrentActor->unk144 = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
@@ -1026,7 +1015,7 @@ void textMarkerUpdateMatrix(void) {
     case 0x40:
     case 0x41:
     case 0x42:
-        for (i = 0; i < D_807FBDC4; i++) {
+        for (i = 0; i < gActorGlobalState.unk254; i++) {
             if (gActorGlobalState.unk258[i] == 1) {
                 markerView->unk2A = 0;
                 gCurrentActor->state = 5;
@@ -1114,7 +1103,7 @@ void textMarkerUpdateMatrix(void) {
             }
         }
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x162, 0xFF, 0x7F, 0x1E);
-        if (!D_807FBC64) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (!gActorGlobalState.unkF4) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (markerView->unk28 == 0) {
             actorDespawn(gCurrentActor);
         }
@@ -1125,7 +1114,7 @@ void textMarkerUpdateMatrix(void) {
                 offsetY = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
                 offsetZ = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
                 effectSetAngle(particleLoopIdx);
-                if (D_807FBB94 && D_807FBB94) {}  // FAKE: ghost candidate: two reads in the particleLoopIdx loop make D_807FBB94 a high-priority v0 web (with the two tests below) that forces the shared switch temp to v1 / early markerView piece to v0
+                if (gActorGlobalState.unk24 && gActorGlobalState.unk24) {}  // FAKE: ghost candidate: two reads in the particleLoopIdx loop make gActorGlobalState.unk24 a high-priority v0 web (with the two tests below) that forces the shared switch temp to v1 / early markerView piece to v0
                 effectSetDepth(1);
                 if (particleLoopIdx == 0) {
                     callback = effectLightPulseOscillate; effectSetSpeed(0x100FA);  // LAYOUT: keep the callback store in the call's delay slot
@@ -1221,14 +1210,14 @@ void textMarkerUpdateMatrix(void) {
         gCurrentActor->attachMode = 0;
         gCurrentActor->contactFlags &= 0xFBF7;
     }
-    if (D_807FBB94) {}  // FAKE: ghost candidate, extends the D_807FBB94 web over the gCurrentMap switch temp
+    if (gActorGlobalState.unk24) {}  // FAKE: ghost candidate, extends the gActorGlobalState.unk24 web over the gCurrentMap switch temp
     switch (gCurrentMap) {
     case 0x26:
     case 0x71:
     case 0xC2:
         if (gCurrentActor->actorType == 0x3D) {
             if (gCurrentActor->attachMode == 1) {
-                if (D_807FBB94) {}  // FAKE: ghost candidate (see the particleLoopIdx loop), keeps the D_807FBB94 web live across the gCurrentMap switch
+                if (gActorGlobalState.unk24) {}  // FAKE: ghost candidate (see the particleLoopIdx loop), keeps the gActorGlobalState.unk24 web live across the gCurrentMap switch
                 gCurrentActor->flags |= 0x200000;
             } else {
                 gCurrentActor->flags &= ~0x200000;
@@ -1244,9 +1233,9 @@ void textMarkerUpdateMatrix(void) {
     guMtxCatF(mtxA, mtxB, mtxA);
     guRotateF(mtxB, (f32)(((f64)gCurrentActor->yaw / 4095.0) * 360.0), 0.0, 1.0f, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
-    guRotateF(mtxB, (f32)(0.0 - (f64)D_807FBC60), 1.0f, 0.0, 0.0);
+    guRotateF(mtxB, (f32)(0.0 - (f64)gActorGlobalState.unkF0), 1.0f, 0.0, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
-    guRotateF(mtxB, (markerView->unk20 + 90.0f) - D_807FBC64, 0.0, 1.0f, 0.0);
+    guRotateF(mtxB, (markerView->unk20 + 90.0f) - gActorGlobalState.unkF4, 0.0, 1.0f, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
     if (gCurrentActor->state == 3) {
         ang = gCurrentActor->floorSlopePitch;

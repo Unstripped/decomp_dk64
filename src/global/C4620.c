@@ -36,7 +36,6 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
-extern u8 D_807FBDC4;
 
 typedef struct R1C46aActor {
     /* 0x000 */ u8 pad0[4];
@@ -296,7 +295,7 @@ void actorScriptedCommandUpdate(void) {
     if (gCurrentMap == 0x4C) {
         lightUpdateFromActorLighting(&LgBV->unk16A, &LgBV->unk16B, &LgBV->unk16C);
     }
-    for (i = 0; i < D_807FBDC4; i++) {
+    for (i = 0; i < gActorGlobalState.unk254; i++) {
         if (gActorGlobalState.unk258[i] == 3) {
         cmd = (LgBFCmd *)gActorGlobalState.unk278[i];
         switch (cmd->unk2) {
@@ -998,7 +997,6 @@ void func_806C1E44(void) {
 extern f32 D_807502F4;
 extern s16 gCsModelIds[];
 extern u8 gPlayerCharacterId;
-extern s32 D_807FBDC8[];
 extern u8 D_8071FC40;
 
 typedef struct R1C46bActor {
@@ -1028,8 +1026,8 @@ void func_806C226C(void) {
             gCurrentActor->state = 0x40;
         }
     }
-    for (i = 0; i < D_807FBDC4; i++) {
-        if (D_807FBDC8[i] == 3) {
+    for (i = 0; i < gActorGlobalState.unk254; i++) {
+        if (gActorGlobalState.unk258[i] == 3) {
             actorScriptStart(gCurrentActor, 0x2A3);
             gCurrentActor->state = 0x27;
             gCurrentActor->unk155 = 0;

@@ -1410,7 +1410,6 @@ Gfx *hudDrawScaledText(Gfx *dl, s16 x, s16 y, f32 scale, void *text) {
     return dl;
 }
 
-extern s8 D_807FC7F9;
 
 s32 hudPauseMenuSlidePage(HudEntry *iconObj, s32 arg1, s32 arg2) {
     s32 idx;
@@ -1455,7 +1454,7 @@ s32 hudPauseMenuSlidePage(HudEntry *iconObj, s32 arg1, s32 arg2) {
         iconObj->unkC[1] -= d;
         if (iconObj->unkC[iconObj->unk15] == 0) {
             iconObj->unk8[1 - iconObj->unk15] = iconObj->unk8[iconObj->unk15];
-            (&D_807FC7F9)[-iconObj->unk15] = 0;
+            D_807FC7F8[-iconObj->unk15 + 1] = 0;
             arg1 = 0;
             sfxPlayOnFreeSlot(0x97, 0x4650, 63.0f, 1.0f, 0, 0);
             D_8075052C = 3;

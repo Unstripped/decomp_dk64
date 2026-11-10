@@ -231,7 +231,6 @@ s32 mapGetHubWorldIndex(u8, s32); // FAKE: callee prototype steer
 void func_80711F90(f32, s16, f32, s16, f32); // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;
-extern u8 D_807FBDC4;
 extern ActorGlobalState gActorGlobalState;
 extern s16 D_807FDCBC;
 extern s16 D_807FDCB8;
@@ -268,7 +267,7 @@ void actorCutsceneDispatchEvents(void) {
         lightGetColor(&csState->unkC, &csState->unk10, &csState->unk14, 0);
     }
 
-    for (i = 0; i < D_807FBDC4; i++) {
+    for (i = 0; i < gActorGlobalState.unk254; i++) {
         eventData = gActorGlobalState.unk278[i];
         switch (gActorGlobalState.unk258[i]) {
         case 0xFF:
@@ -560,7 +559,7 @@ void func_8068B930(void) {
     s32 i;
     s16 *ptr;
 
-    for (i = 0; i < D_807FBDC4; i++) {
+    for (i = 0; i < gActorGlobalState.unk254; i++) {
         ptr = gActorGlobalState.unk278[i];
         if (gActorGlobalState.unk258[i] == 1) {
             csModelStateSetFirstByte(ptr[0], ptr[1]);
@@ -573,7 +572,7 @@ void func_8068B9B4(void) {
     s32 i;
     s16 *ptr;
 
-    for (i = 0; i < D_807FBDC4; i++) {
+    for (i = 0; i < gActorGlobalState.unk254; i++) {
         ptr = gActorGlobalState.unk278[i];
         if (gActorGlobalState.unk258[i] == 1) {
             actorListDispatchEvent(ptr[1], ptr);

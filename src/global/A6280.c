@@ -55,7 +55,7 @@ typedef struct PlayerSlot_A6280 {
 extern Actor *gPrimaryPlayerActor;
 extern PlayerSlot_A6280 *gPlayerSlots;
 extern u8 D_807506C0[];
-extern u8 gBossFightPhase;
+extern ActorGlobalState gActorGlobalState;
 
 
 void actorSeekTargetUpdate(void) {
@@ -99,7 +99,7 @@ void actorSeekTargetUpdate(void) {
             animSetFinished(gCurrentActor, 0, 1);
             animSetFrameAndSubframe(gCurrentActor, 0, 0, 0);
         }
-        if (gBossFightPhase == 4) {
+        if (gActorGlobalState.unk200 == 4) {
             if (gCurrentActor->interactionType == 4) {
                 gCurrentActor->interactionType = 8;
                 sfxAllocateChannel(0x43, 1.0f);
@@ -166,7 +166,6 @@ void actorNoopA6280(void) {
 
 extern s32 gFrameCounter;
 extern s32 sEffectSparkConfig;
-extern ActorGlobalState gActorGlobalState;
 
 
 void func_806A1AC4(void) {

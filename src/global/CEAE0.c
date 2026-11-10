@@ -296,7 +296,6 @@ extern s32 gGlobalPauseFlags;
 extern s32 gCurrentMap;
 extern u8 D_80770561;
 extern u8 D_807463B8;
-extern u8 D_807FBB8C;
 extern s16 D_807F5FE4;
 extern s16 D_807F5FE6;
 extern s16 D_807F5FE8;
@@ -401,7 +400,7 @@ void playerUpdateCommon(s32 mode) {
     if (gPlayerCount == 1) {
         gCurrentActor->renderFlags &= ~0x200;
     }
-    if ((gActivePlayerState->stateFlags & 0x01000000) && D_807FBB8C != 0 && gCurrentActor->state != 0x47) {
+    if ((gActivePlayerState->stateFlags & 0x01000000) && gActorGlobalState.unk1C != 0 && gCurrentActor->state != 0x47) {
         playerStateQueueCallback(3, NULL, gCurrentPlayerIndex);
     }
     heavyImpact = collisionIsHeavyGroundImpact();

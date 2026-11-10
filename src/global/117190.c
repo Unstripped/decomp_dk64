@@ -34,7 +34,6 @@ extern u8 gMenuTargetMode;
 extern s8 D_8075536C;
 extern s32 D_80755338;
 extern s32 D_8075533C;
-extern u8 D_80755350;
 extern s8 gMenuTransitionFlag;
 extern s8 D_80750754;
 
@@ -90,11 +89,11 @@ void menuTimerInit(void) {
 }
 
 void menuClearTimerFlag(void) {
-    D_80755350 = 0;
+    D_80755340.active = 0;
 }
 
 s32 menuGetTimerFlag(void) {
-    return D_80755350;
+    return D_80755340.active;
 }
 
 void menuTransitionRequestTypeB(s32 map, s32 exit) {
@@ -678,7 +677,6 @@ void func_80713C8C(void) {
     }
 }
 
-extern s32 D_80755348;
 
 Gfx *hudDrawCountdownTimer(Gfx *dl) {
     s32 pad[8];
@@ -690,7 +688,7 @@ Gfx *hudDrawCountdownTimer(Gfx *dl) {
         dlCur = func_807132DC(dl);
         R117D_WRITE_GFX(dlCur++, 0xFC119623, 0xFF2FFFFF);
         R117D_WRITE_GFX(dlCur++, 0xFA000000, 0xFFFFFFFF);
-        dl = renderTimerMinutesSecondsHUD(dlCur, timerX, 214.0f, D_80755348);
+        dl = renderTimerMinutesSecondsHUD(dlCur, timerX, 214.0f, D_80755340.unk8);
     }
     return dl;
 }
@@ -913,7 +911,7 @@ void func_807144B8(u8 saveSlot) {
     s32 exit;
 
     D_807445B8 = osGetTime();
-    D_80755350 = 0;
+    D_80755340.active = 0;
     playerResetSpawnGlobals();
     flagsClearAllBank2();
     eepromLoadPlayerData(saveSlot, 1);

@@ -173,8 +173,6 @@ extern s32 gMapCellCount;
 extern u8 D_807F70AB;
 extern s16 D_807F7138;
 extern u8 D_807F713A;
-extern u8 D_807F7079;
-extern u8 D_807F707A[];
 extern u8 D_807F70AA;
 extern Mtx *D_807F7074;
 extern MapPortal *gMapPortals;

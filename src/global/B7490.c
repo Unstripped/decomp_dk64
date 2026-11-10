@@ -60,7 +60,6 @@ typedef struct B7490Pos {
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
-extern u8 gBossFightPhase;
 extern PlayerState *gActivePlayerState;
 extern u32 gFrameCounter;
 extern s32 gCurrentMap;
@@ -118,7 +117,7 @@ void func_806B2790(void) {
         case 0x23:
             B7490A->unkE4 += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 15);
             actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, ((gCurrentActor->waterY - gCurrentActor->eyeHeight) < gBehaviourTargetActor->y) ? (gCurrentActor->waterY - gCurrentActor->eyeHeight) : gBehaviourTargetActor->y, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
-            if (gBossFightPhase == 2) {
+            if (gActorGlobalState.unk200 == 2) {
                 gCurrentActor->state = 0x27;
                 gCurrentActor->unk155 = 0;
             }
@@ -235,7 +234,7 @@ void func_806B2D64(void) {
         case 0x23:
             actorEmptyStub();
             actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, ((gCurrentActor->waterY - gCurrentActor->eyeHeight) < gBehaviourTargetActor->y) ? (gCurrentActor->waterY - gCurrentActor->eyeHeight) : gBehaviourTargetActor->y, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
-            if (gBossFightPhase == 2) {
+            if (gActorGlobalState.unk200 == 2) {
                 gCurrentActor->state = 0x27;
                 gCurrentActor->unk155 = 0;
             }
@@ -796,7 +795,7 @@ void behaviourEnemyBatUpdate(void) {
     }
     deltaHeight = gBehaviourWorkState->targetY - gBehaviourExtraState->y;
     *heightPtr = (deltaHeight < 0) ? 0 : deltaHeight;
-    if ((gBossFightPhase == 9) && (gCurrentActor->state != 0x37)) {
+    if ((gActorGlobalState.unk200 == 9) && (gCurrentActor->state != 0x37)) {
         gCurrentActor->state = 0x37;
         gCurrentActor->unk155 = 0;
         actorScriptStart(gCurrentActor, 0x248);
@@ -822,7 +821,7 @@ void behaviourEnemyBatUpdate(void) {
     } else {
         gCurrentActor->interactionType = 1;
         gCurrentActor->flags = gCurrentActor->flags & 0xFF7FFFFF;
-        if (gBossFightPhase == 4) {
+        if (gActorGlobalState.unk200 == 4) {
             gCurrentActor->interactionType = 2;
             gBehaviourWorkState->timer = 0x1E;
             gBehaviourWorkState->scale = (f32) ((f64) gBehaviourWorkState->scale * 0.7);

@@ -147,12 +147,11 @@ void zoneEntryGetPosition(u8 zoneId, u8 entryIndex, f32 *outX, f32 *outY, f32 *o
     }
 }
 
-extern Actor *D_807FBD6C;
 
 void func_80724C2C(s16 speed) {
     s16 angle;
 
-    angle = (D_807FBD6C->moveYaw + 0x800) & 0xFFF;
+    angle = (gActorGlobalState.targetActor->moveYaw + 0x800) & 0xFFF;
     gCurrentActor->moveYaw = angle;
     gCurrentActor->yaw = angle;
     gCurrentActor->speedXZ = speed;

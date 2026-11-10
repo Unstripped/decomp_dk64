@@ -132,7 +132,6 @@ s32 actorFindActiveByType(s16 actorType, Actor **outActor) {
     return found;
 }
 
-extern u8 D_807FBDC4;
 extern s16 D_807FDCB8;
 extern s16 D_807FDCBA;
 extern s16 D_807FDCBC;
@@ -153,7 +152,7 @@ void volumeTriggerUpdateAll(void) {
     s32 k;
     VolumeTriggerSubView *sub;
 
-    for (k = 0; k < D_807FBDC4; k++) {
+    for (k = 0; k < gActorGlobalState.unk254; k++) {
         ptr = gActorGlobalState.unk278[k];
         switch (gActorGlobalState.unk258[k]) {
             case 1:

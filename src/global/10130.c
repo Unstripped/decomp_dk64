@@ -134,10 +134,9 @@ void func_8060B750(s32 assetIndex) {
     D_807463B4 = 0;
 }
 
-extern u8 D_807ECE30;
 
 u8 func_8060B7C4(void) {
-    return D_807ECE30;
+    return D_807ECE20.unk10;
 }
 
 

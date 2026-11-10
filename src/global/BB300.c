@@ -16,7 +16,6 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
-extern u8 gBossFightPhase;
 
 typedef struct BB300Actor {
     /* 0x000 */ u8 pad0[4];
@@ -331,7 +330,7 @@ void func_806B75F4(void) {
 
 void func_806B761C(void) {
     behaviourFrameBegin();
-    if (gBossFightPhase == 4) {
+    if (gActorGlobalState.unk200 == 4) {
         func_80724C2C(-0x64);
     }
     func_806B6DB0(0x2710);
@@ -339,7 +338,7 @@ void func_806B761C(void) {
 
 void func_806B7660(void) {
     behaviourFrameBegin();
-    if (gBossFightPhase == 4) {
+    if (gActorGlobalState.unk200 == 4) {
         func_80724C2C(-0x64);
     }
     func_806B6DB0(0x2710);

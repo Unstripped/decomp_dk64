@@ -17,7 +17,6 @@ extern u8 gScreenRenderFlags;
 extern u32 gFrameCounter;
 extern u8 D_807ECD09;
 extern OSMesgQueue D_807ECCF0;
-extern u8 D_807F0474[];
 extern u32 gGlobalPauseFlags;
 extern PlayerStruct *gPlayerSlots;
 
@@ -59,7 +58,7 @@ void rumbleMotorStart(u8 port) {
         rumbleInfoClear(info);
         info->unk00 = 3;
     } else {
-        D_807F0474[port * 0x14] = 1;
+        gRumbleInfo[port].unk04 = 1;
     }
 }
 
@@ -87,7 +86,7 @@ void rumbleMotorStop(u8 port) {
     __osMotorAccess(&gRumblePfs[port], 0);
     __osMotorAccess(&gRumblePfs[port], 0);
     __osMotorAccess(&gRumblePfs[port], 0);
-    D_807F0474[port * 0x14] = 0;
+    gRumbleInfo[port].unk04 = 0;
 }
 
 void rumbleResetAll(s32 unused) {

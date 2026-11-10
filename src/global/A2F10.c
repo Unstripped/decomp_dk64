@@ -887,7 +887,6 @@ typedef struct {
 } NodePosition;
 
 extern void *gCamActor;
-extern u8 gBossFightPhase;
 extern f32 D_80750398;
 extern u8 D_80720BE8;
 
@@ -917,7 +916,7 @@ void actorFallAndBurstUpdate(void) {
     } else {
         actorDespawn(gCurrentActor);
     }
-    if (gBossFightPhase == 4 || ATTACHED_ACTOR->unkFC != 0
+    if (gActorGlobalState.unk200 == 4 || ATTACHED_ACTOR->unkFC != 0
         || ((ATTACHED_ACTOR->unk6A & 1) && !(ATTACHED_ACTOR->unk6C & 1))) {
         camStartShake(gCamActor, 0xF, 0xF);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x162, 0xE1, 0x3C, 1);
