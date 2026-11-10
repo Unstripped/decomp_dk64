@@ -1,22 +1,13 @@
 #include "common.h"
+#include "segment.h"
 #include "proto/boot/1630.h"
 #include "proto/boot/30E0.h"
 #include "proto/boot/main.h"
 
 typedef struct {
-    u32 romStart;
-    u32 romEnd;
-    u32 vramStart;
-    u32 vramEnd;
-    u32 bssStart;
-    u32 bssEnd;
-} SegmentTableEntry;
-
-typedef struct {
     u32 v[3];
 } ViModeIdx;
 
-extern SegmentTableEntry gSegmentTable[18];
 extern s8 sBootResetState;
 extern u32 sAudioFreq;
 extern ViModeIdx sBootViMode;

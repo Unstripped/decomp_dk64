@@ -1,9 +1,11 @@
 #include "common.h"
+#include "segment.h"
 #include "heap.h"
 #include "proto/global/136820.h"
 #include "proto/global/15050.h"
 #include "proto/global/61AA0.h"
 #include "proto/global/FE40.h"
+
 
 extern s32 sHeapReclaimFlag;
 extern u8 sHeapFlags;
@@ -21,18 +23,8 @@ extern s32 gHeapSurvivorCount;
 extern void *gHeapSurvivorList[];
 
 
-typedef struct {
-    u32 romStart;
-    u32 romEnd;
-    u32 vramStart;
-    u32 vramEnd;
-    u32 bssStart;
-    u32 bssEnd;
-} SegmentTableEntry;
-
-extern SegmentTableEntry gSegmentTable[];
 extern u8 gHiResScale;
-extern s32 gFramebuffers;
+extern s32 gFramebuffers[];
 extern s32 D_80744474;
 extern s32 gFrameDelta;
 extern u8 *gGfxDepthBuffer;
@@ -55,7 +47,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     u32 vram;
     s32 bssStart;
     s32 bssSize;
-    s32 addr[10];
+    u8 *addr[10];
     s32 sizes[8];
     s32 pad[2];
     u64 saved[2];
@@ -131,19 +123,19 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
             break;
     }
     if (id != -1) {
-        vram = (u32)gSegmentTable[id].vramStart;
+        vram = gSegmentTable[id].vramStart;
         romStart = gSegmentTable[id].romStart;
-        bssStart = (s32)gSegmentTable[id].bssStart;
+        bssStart = gSegmentTable[id].bssStart;
         bssSize = gSegmentTable[id].bssEnd - gSegmentTable[id].bssStart;
-        size = (s32)gSegmentTable[id].bssStart - (s32)vram;
+        size = (s32)gSegmentTable[id].bssStart - vram;
     }
-    gFramebuffers = (size + (bssSize + 0x8002403F)) & ~0x3F;
+    gFramebuffers[0] = (size + (bssSize + 0x8002403F)) & ~0x3F;
     fb1 = ((size + (bssSize + 0x8002403F)) & ~0x3F) + lo;
     D_80744474 = fb1;
     gGfxDepthBuffer = (u8 *)(0x805FAE00 - cur);
     h = 0x805FAE00 - cur;
     i = 4;
-    for (; i >= 0;) {
+    while (i >= 0) {
         switch (i) {
             case 0:
                 sz = h - (fb1 + lo);
@@ -163,7 +155,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         }
         i--;
         h -= sz;
-        addr[i + 1] = h;
+        addr[i + 1] = (u8 *)h;
         sizes[i + 1] = sz;
     }
 #define HL(k) (*(u8 **)gHeapSurvivorList[k])
@@ -179,7 +171,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
             heapMoveWords((u32)q - 0x10, (u32)dst, total);
             heapRebaseHandles((u32)q - 0x10, (u32)dst, total);
         }
-        dst = (u8 *)addr[0];
+        dst = addr[0];
         total = 0;
         first = (HeapBlock *)(HL(0) - 0x10);
         for (i = 0; i < gHeapSurvivorCount; i++) {
@@ -191,13 +183,13 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         heapMoveWords((u32)first, (u32)dst, total);
         heapRebaseHandles((u32)first, (u32)dst, total);
         q = HL(0) - 0x10;
-        saved[0] = ((u64 *)q)[0];
-        saved[1] = ((u64 *)q)[1];
+        saved[0] = ((u64 *)q)[0]; // FAKE: punned u64 copy of the 16-byte block header (Q0405 pairwise lw/sw)
+        saved[1] = ((u64 *)q)[1]; // FAKE: punned u64 copy of the 16-byte block header (Q0405 pairwise lw/sw)
     } else {
         gHeapSurvivorCount = 0;
         gHeapSurvivorList[0] = NULL;
     }
-    heapInitGeneralPool(0, addr[0], sizes[0]);
+    heapInitGeneralPool(NULL, addr[0], sizes[0]);
     D_807F0974 = heapInitBlockPool(&D_807F0974, addr[1], sizes[1], 0x10);
     D_807F0978 = heapInitBlockPool(&D_807F0978, addr[2], sizes[2], 0x20);
     D_807F097C = heapInitBlockPool(&D_807F097C, addr[3], sizes[3], 0x30);
@@ -215,8 +207,8 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
                 q = (u8 *)blk;
             } while (i < gHeapSurvivorCount);
         }
-        ((u64 *)gHeapPools[0].start)[0] = saved[0];
-        ((u64 *)gHeapPools[0].start)[1] = saved[1];
+        ((u64 *)gHeapPools[0].start)[0] = saved[0]; // FAKE: punned u64 copy of the 16-byte block header (Q0405 pairwise lw/sw)
+        ((u64 *)gHeapPools[0].start)[1] = saved[1]; // FAKE: punned u64 copy of the 16-byte block header (Q0405 pairwise lw/sw)
         ((HeapBlock *)gHeapPools[0].start)->physPrev = NULL;
         sz = gHeapPools[0].size - 0x20;
         gHeapPools[0].freeList = (HeapBlock *)((u32)blk + blk->size + 0x10);
@@ -242,7 +234,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         osInvalICache((void *)vram, size);
     }
     for (id = 0; id < 2; id++) {
-        q = (u8 *)(&gFramebuffers)[id];
+        q = (u8 *)gFramebuffers[id];
         p = (u32 *)(q + (gHiResScale * 0x12C00 * gHiResScale) / 2 * 4);
         if (q < (u8 *)p) {
             do {
@@ -305,23 +297,23 @@ void heapRebaseHandles(u32 oldBase, u32 newBase, u32 size) {
     }
 }
 
-s32 heapInitGeneralPool(s32 owner, s32 start, s32 size) {
+s32 heapInitGeneralPool(void *owner, u8 *start, s32 size) {
     HeapBlock *blk;
     HeapBlock *end;
 
-    gHeapPools[gHeapPoolCount].owner = (void *)owner;
-    gHeapPools[gHeapPoolCount].start = (u8 *)start;
+    gHeapPools[gHeapPoolCount].owner = owner;
+    gHeapPools[gHeapPoolCount].start = start;
     gHeapPools[gHeapPoolCount].freeList = (HeapBlock *)start;
     gHeapPools[gHeapPoolCount].size = size;
     gHeapPools[gHeapPoolCount].blockSize = 0;
     blk = (HeapBlock *)start;
-    *(u64 *)blk = 0;
-    *(u64 *)&blk->next = 0;
+    *(u64 *)blk = 0; // FAKE: punned u64 store zeroes physPrev+size as one 64-bit store pair (Q0137)
+    *(u64 *)&blk->next = 0; // FAKE: punned u64 store zeroes next+prev as one 64-bit store pair (Q0137)
     blk->size = size - 0x20;
     end = (HeapBlock *)(start + size);
     end -= 1;
-    *(u64 *)end = 0;
-    *(u64 *)&end->next = 0;
+    *(u64 *)end = 0; // FAKE: punned u64 store zeroes physPrev+size as one 64-bit store pair (Q0137)
+    *(u64 *)&end->next = 0; // FAKE: punned u64 store zeroes next+prev as one 64-bit store pair (Q0137)
     end->physPrev = blk;
     ((u8 *)end)[0xB] = 2;
     return gHeapPoolCount++;
@@ -363,8 +355,8 @@ s32 heapInitBlockPool(void *owner, u8 *start, u32 size, u16 blockSize) {
         cur = next;
     } while (cur < end);
     prev->next = NULL;
-    *(u64 *)end = 0;
-    *(u64 *)&end->next = 0;
+    *(u64 *)end = 0; // FAKE: punned u64 store zeroes physPrev+size as one 64-bit store pair (Q0137)
+    *(u64 *)&end->next = 0; // FAKE: punned u64 store zeroes next+prev as one 64-bit store pair (Q0137)
     end->size = rem - 0x10;
     ((u8 *)end)[0xB] = 2;
     end->physPrev = prev;
@@ -550,7 +542,7 @@ HeapBlock *heapBestFitAlloc(s32 pool, u32 size) {
         return NULL;
     }
     do {
-        if ((u32)blk->size >= size && (u32)blk->size < bestSize) {
+        if (blk->size >= size && blk->size < bestSize) {
             best = blk;
             bestSize = blk->size;
         }
@@ -560,8 +552,8 @@ HeapBlock *heapBestFitAlloc(s32 pool, u32 size) {
         rem = best->size - size;
         if (rem >= 0x10) {
             newBlk = (HeapBlock *)((u8 *)best + rem);
-            *(u64 *)newBlk = 0;
-            *(u64 *)&newBlk->next = 0;
+            *(u64 *)newBlk = 0; // FAKE: punned u64 store zeroes physPrev+size as one 64-bit store pair (Q0137)
+            *(u64 *)&newBlk->next = 0; // FAKE: punned u64 store zeroes next+prev as one 64-bit store pair (Q0137)
             newBlk->size = size;
             newBlk->physPrev = best;
             best->size = rem - 0x10;
@@ -570,7 +562,7 @@ HeapBlock *heapBestFitAlloc(s32 pool, u32 size) {
         }
         prev = best->prev;
         next = best->next;
-        *(u64 *)&best->next = 0;
+        *(u64 *)&best->next = 0; // FAKE: punned u64 store zeroes next+prev as one 64-bit store pair (Q0137)
         if (prev != NULL) {
             prev->next = next;
         } else {
@@ -586,7 +578,8 @@ HeapBlock *heapBestFitAlloc(s32 pool, u32 size) {
 
 void heapFree(u8 *ptr) {
     if (ptr != gHeapGuardBlock) {
-        if ((ptr -= 0x10)[0xB] == 0) {
+        ptr -= 0x10;
+        if (ptr[0xB] == 0) {
             heapFreeToPool((HeapBlock *)ptr);
         }
     }
@@ -594,7 +587,8 @@ void heapFree(u8 *ptr) {
 
 void heapFreeDeferred(u8 *ptr) {
     if (ptr != gHeapGuardBlock) {
-        if ((ptr -= 0x10)[0xB] == 0) {
+        ptr -= 0x10;
+        if (ptr[0xB] == 0) {
             heapQueueDeferredFree(ptr);
         }
     }
@@ -666,8 +660,7 @@ void heapCoalesce(HeapBlock *block) {
     HeapBlock *temp;
 
     if (block != NULL && block->prev != NULL && block->prev == block->physPrev) {
-        temp = (HeapBlock *)((u8 *)block + block->size);
-        temp = (HeapBlock *)((u8 *)temp + 0x10);
+        temp = (HeapBlock *)((u8 *)(block + 1) + block->size);
         temp->physPrev = block->prev;
         temp = block->prev;
         temp->size = temp->size + block->size + 0x10;
@@ -706,8 +699,7 @@ void heapUnregisterSurvivor(u8 **handle) {
     HeapBlock *b;
     s32 i;
 
-    b = (HeapBlock *)*handle;
-    b = b - 1;
+    b = (HeapBlock *)*handle - 1;
     ((u8 *)b)[0xB] = 0;
     i = 0;
     while (i < gHeapSurvivorCount) {

@@ -1,21 +1,12 @@
 #include "common.h"
+#include "segment.h"
 #include "proto/boot/1630.h"
 #include "proto/boot/30E0.h"
-
-typedef struct {
-    u32 romStart;
-    u32 romEnd;
-    u32 vramStart;
-    u32 vramEnd;
-    u32 bssStart;
-    u32 bssEnd;
-} SegmentTableEntry;
 
 extern OSThread D_800138C0;
 extern u8 *D_80013A70;
 extern OSMesgQueue sNoExpPakViMesgQueue;
 extern OSMesg sNoExpPakViMesgBuf[];
-extern SegmentTableEntry gSegmentTable[];
 
 typedef struct {
     u16 *buf[2];
