@@ -564,7 +564,7 @@ void func_806EAA44(void);
 void func_806EAAA0(void);
 #endif
 #ifndef PROTO_SKIP_func_806EAB44
-void func_806EAB44();
+void func_806EAB44(Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_func_806EAC8C
 void func_806EAC8C(void);

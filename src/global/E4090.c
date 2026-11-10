@@ -2257,22 +2257,6 @@ void playerInputStartTransitionToMap(s32 mapId, s32 fade, s32 unused) {
     func_805FF9AC(mapId, 0, 0, 0);
 }
 
-typedef struct G26Obj {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ u8 pad8[0xAC - 0x8];
-    /* 0xAC */ u32 unkAC;
-    /* 0xB0 */ u8 padB0[2];
-    /* 0xB2 */ s16 unkB2;
-    /* 0xB4 */ f32 unkB4;
-    /* 0xB8 */ f32 unkB8;
-    /* 0xBC */ u8 padBC[0xF1 - 0xBC];
-    /* 0xF1 */ u8 unkF1;
-    /* 0xF2 */ u8 padF2;
-    /* 0xF3 */ u8 unkF3;
-    /* 0xF4 */ u8 padF4;
-    /* 0xF5 */ u8 unkF5;
-} G26Obj;
 
 extern u8 gSplitScreenMode;
 
@@ -2348,7 +2332,7 @@ void playerInputHandleBButtonFairyCamera(void) {
 
 
 void playerInputHandleRButtonCameraLock(void) {
-    G26Obj *obj;
+    CamState *obj;
 
     obj = gActivePlayerState->camActor->customState;
     obj->unkAC |= 4;
@@ -2374,7 +2358,7 @@ void playerInputHandleRButtonCameraLock(void) {
 }
 
 void playerInputHandleRButtonReleaseCameraLock(void) {
-    G26Obj *obj;
+    CamState *obj;
 
     if (!(gGlobalOverlayFlags & 1) && ((gPlayerCount < 2) || (gSplitScreenMode != 0))) {
         obj = gActivePlayerState->camActor->customState;
@@ -2679,8 +2663,6 @@ typedef struct G28State {
     /* 0x42 */ u8 unk42;
 } G28State;
 
-#define G28_PAD(sym, T) (*(T *)((u8 *)&(sym) + gCurrentPlayerIndex * 0x34)) // FAKE: byte-offset pad access keeps the multu stride (Q0303)
-#define G28_PADS ((PadInputState *)((u8 *)gPlayerPadState + gCurrentPlayerIndex * 0x34)) // FAKE: byte-offset pad pointer keeps the multu stride (Q0303)
 
 void playerInputHandleAButtonSuperJump(void) {
     s32 btn;
@@ -2861,17 +2843,17 @@ void playerInputStepLadderClimb(void) {
     G28State *st;
 
     st = gActivePlayerState->actor->customState;
-    if (gPlayerPadState) {} // FAKE: keeps &gPlayerPadState live (const-hoist register order)
     if (st->unk0 != 0) {
-        G28_PAD(D_807FD63E, s8) = 0;
+        D_807FD63E[gCurrentPlayerIndex].value = 0;
     }
     playerInputHandleLadderClimb();
+    if (gPlayerPadState) {} // FAKE: keeps &gPlayerPadState live (const-hoist register order)
     if (gActivePlayerState->stateFlags & 8) {
         st->unk3E = 3;
     } else {
-        st->unk3E = (G28_PADS->stickY / 1.5) + 80.0;
+        st->unk3E = (gPlayerPadState[gCurrentPlayerIndex].stickY / 1.5) + 80.0;
     }
-    st->unk2 = G28_PADS->stickX;
+    st->unk2 = gPlayerPadState[gCurrentPlayerIndex].stickX;
 }
 
 extern s16 D_80750338;
@@ -2879,48 +2861,48 @@ extern s16 D_80750338;
 void playerInputCheckLadderTopOrBottom(void) {
     G28State *st;
     u8 flag;
-    s32 a1;
+    s32 n;
     u8 cnt;
 
     st = gActivePlayerState->actor->customState;
     if (st->unk0 != 0) {
-        G28_PAD(D_807FD63E, s8) = 0;
+        D_807FD63E[gCurrentPlayerIndex].value = 0;
     } else {
         flag = (gActivePlayerState->actor->state == 5) ? 1 : 0;
-        a1 = (*st->unk34 & 0x80) ? 1 : 3;
+        n = (*st->unk34 & 0x80) ? 1 : 3;
         if (flag) {
-            G28_PADS->stickX = G28_PADS->stickX * -1;
+            gPlayerPadState[gCurrentPlayerIndex].stickX = gPlayerPadState[gCurrentPlayerIndex].stickX * -1;
             if (flag * -1) {} // FAKE: dead test keeping flag a coloured web
         }
         if (gActivePlayerState->stateFlags & 0x10000002) {
-            G28_PADS->stickX = G28_PADS->stickX * -1;
+            gPlayerPadState[gCurrentPlayerIndex].stickX = gPlayerPadState[gCurrentPlayerIndex].stickX * -1;
         }
         if (gActivePlayerState->stateFlags & 0x10000002) {
-            G28_PADS->stickY = G28_PADS->stickY * -1;
+            gPlayerPadState[gCurrentPlayerIndex].stickY = gPlayerPadState[gCurrentPlayerIndex].stickY * -1;
         }
         if ((*st->unk34 & 0xC0) &&
-            ((G28_PADS->stickX >= 0x1F && st->unk3F > 0) || (G28_PADS->stickX < -0x1E && st->unk3F < a1))) {
+            ((gPlayerPadState[gCurrentPlayerIndex].stickX >= 0x1F && st->unk3F > 0) || (gPlayerPadState[gCurrentPlayerIndex].stickX < -0x1E && st->unk3F < n))) {
             gActivePlayerState->jumpTimer = gScheduler.unk280; // FAKE: dead store, overwritten below (keeps the gScheduler.unk280 load first)
             gActivePlayerState->actor->speedY = D_80750338;
             gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
             cnt = st->unk3F;
             st->unk2C = 1.0f;
             st->unk40 = cnt;
-            if (G28_PADS->stickX >= 0x1F) {
+            if (gPlayerPadState[gCurrentPlayerIndex].stickX >= 0x1F) {
                 st->unk3F = cnt - 1;
                 if (st->unk3F == 1) {
                     st->unk3F = 0;
                 }
-                a1 = flag ? 0x81 : 0x7D;
-                actorScriptStartByIndex(gCurrentActor, a1);
+                n = flag ? 0x81 : 0x7D;
+                actorScriptStartByIndex(gCurrentActor, n);
                 actorScriptStart(gActivePlayerState->actor, flag ? 0x295 : 0x296);
             } else {
                 st->unk3F = cnt + 1;
                 if (st->unk3F == 1 && (*st->unk34 & 0x40)) {
                     st->unk3F = 2;
                 }
-                a1 = flag ? 0x7D : 0x81;
-                actorScriptStartByIndex(gCurrentActor, a1);
+                n = flag ? 0x7D : 0x81;
+                actorScriptStartByIndex(gCurrentActor, n);
                 actorScriptStart(gActivePlayerState->actor, flag ? 0x296 : 0x295);
             }
         }
@@ -2930,7 +2912,7 @@ void playerInputCheckLadderTopOrBottom(void) {
         gActivePlayerState->actor->speedXZ = 3.0f;
         return;
     }
-    st->unk3E = (G28_PAD(D_807FD63F, s8) / 1.5) + 80.0;
+    st->unk3E = (D_807FD63F[gCurrentPlayerIndex].value / 1.5) + 80.0;
 }
 
 typedef struct G29Obj178 {
@@ -3563,7 +3545,7 @@ void func_806E9964(PlayerState *ps) {
             func_806E9D1C(5, 3, 0);
         }
     } else {
-        func_806EAB44(a, (u8)flag);
+        func_806EAB44(a, flag);
     }
     slotQueueCancel(6, 1);
     slotQueueCancel(0xC, 1);
@@ -3622,13 +3604,9 @@ s32 func_806E9D1C(s16 callbackId, u8 param1, u8 param2) {
     return 0;
 }
 
-typedef struct G30State2 {
-    /* 0x00 */ u8 pad0[0xAC];
-    /* 0xAC */ u32 unkAC;
-} G30State2;
 
 void playerInputHandleCUpCameraZoomIn(void) {
-    G30State2 *state;
+    CamState *state;
     s32 act;
 
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) {
@@ -3643,33 +3621,11 @@ void playerInputHandleCUpCameraZoomIn(void) {
     }
 }
 
-typedef struct G31State {
-    /* 0x00 */ u8 pad0[8];
-    /* 0x08 */ u16 unk8;
-    /* 0x0A */ u8 pad0A[0xA2];
-    /* 0xAC */ u32 unkAC;
-    /* 0xB0 */ s16 unkB0;
-    /* 0xB2 */ s16 unkB2;
-    /* 0xB4 */ f32 unkB4;
-    /* 0xB8 */ f32 unkB8;
-    /* 0xBC */ s16 unkBC;
-    /* 0xBE */ u8 padBE[0x30];
-    /* 0xEE */ u8 unkEE;
-    /* 0xEF */ u8 unkEF;
-    /* 0xF0 */ u8 unkF0;
-    /* 0xF1 */ u8 unkF1;
-    /* 0xF2 */ u8 padF2;
-    /* 0xF3 */ u8 unkF3;
-    /* 0xF4 */ u8 padF4[2];
-    /* 0xF6 */ u8 unkF6;
-    /* 0xF7 */ u8 padF7[5];
-    /* 0xFC */ u8 unkFC;
-} G31State;
 
 
 
 void func_806E9ECC(void) {
-    G31State *state;
+    CamState *state;
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gCurrentActor->contactFlags & 1)) {
         state = gActivePlayerState->camActor->customState;
@@ -3680,7 +3636,7 @@ void func_806E9ECC(void) {
 }
 
 void playerInputHandleCUpMode7(void) {
-    G31State *state;
+    CamState *state;
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) && (gCurrentActor->contactFlags & 1)) {
         state = gActivePlayerState->camActor->customState;
@@ -3698,7 +3654,7 @@ void func_806EA04C(void) {
 
 
 void playerInputCycleCameraZoom(void) {
-    G31State *state;
+    CamState *state;
     u8 max;
     s32 cur;
 
@@ -3727,7 +3683,7 @@ void playerInputCycleCameraZoom(void) {
 }
 
 void playerInputCamRotateLeft(void) {
-    G31State *state;
+    CamState *state;
 
     state = gActivePlayerState->camActor->customState;
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (state->unkF1 < 3)) {
@@ -3737,7 +3693,7 @@ void playerInputCamRotateLeft(void) {
 }
 
 void playerInputCamRotateRight(void) {
-    G31State *state;
+    CamState *state;
 
     state = gActivePlayerState->camActor->customState;
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 1) && (state->unkF1 < 3)) {
@@ -3809,7 +3765,7 @@ void playerInputUpdateStickFirstPersonAim(void) {
 }
 
 void aimUpdateFromStick(void) {
-    G31State *state;
+    CamState *state;
     s16 *angle;
     f32 *dist;
     f32 scale;
@@ -3890,10 +3846,7 @@ void func_806EAAA0(void) {
 }
 
 
-void func_806EAB44(actor, isFirstPerson)
-Actor *actor;
-u8 isFirstPerson;
-{
+void func_806EAB44(Actor *actor, u8 isFirstPerson) {
     PlayerState *state;
 
     state = actor->customState;
