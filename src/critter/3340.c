@@ -1,6 +1,5 @@
 #include "common.h"
 #define PROTO_SKIP_currentActorTestClearFlag // PROTO: Type Actor_3340 *  of this argument  is incompatible with ty
-#define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
 #include "proto/critter/3340.h"
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
@@ -404,7 +403,6 @@ typedef struct FlutterActorView {
 extern u8 gBossFightPhase;
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-s32 mathAngleSignedDistance(s16, s16); // FAKE: callee prototype steer
 
 void critterFlutterFlyUpdate(void) {
     f32 dx;

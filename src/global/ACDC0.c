@@ -3,7 +3,6 @@
 #define PROTO_SKIP_hudPauseMenuRefreshTotals // PROTO: Type s8 [2] of this argument  is incompatible with type void
 #define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
 #define PROTO_SKIP_mapGetWorldIndex // FAKE: callee prototype steer
-#define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
 #define PROTO_SKIP_renderRotatedSprite // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -194,7 +193,6 @@ extern s8 D_807FC8B8;
 
 s32 mapGetWorldIndex(); // FAKE: callee prototype steer
 s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
-s32 mathAngleSignedDistance(s16, s16); // FAKE: callee prototype steer
 void hudPauseMenuRefreshTotals();
 
 #define HUD_PAUSE_MODE (*(s8 *)D_807505CC)

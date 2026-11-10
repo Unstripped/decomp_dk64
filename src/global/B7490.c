@@ -2,7 +2,6 @@
 #include "actor.h"
 #define PROTO_SKIP_behaviourSpawnExplosionAndSound // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_camIsCutsceneActive // PROTO: Type BehaviourWorkState *  of this argument  is incompatible
-#define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/1295B0.h"
@@ -940,7 +939,6 @@ typedef struct {
 
 extern u16 D_80744508;
 f32 mathCosF(s16);
-s32 mathAngleSignedDistance(s16, s16); // FAKE: callee prototype steer
 
 void behaviourEnemyFlyReturn(void) {
     f32 dead;

@@ -320,7 +320,7 @@ void raceUpdateOrientation(RacePathState *pathState) {
     f32 cosVal;
 
     yawOffset = pathState->unk18 + pathState->unkC;
-    rollOffset = mathAngleSignedDistance(0, (s16)pathState->unk1C, pathState);
+    rollOffset = mathAngleSignedDistance(0, (s16)pathState->unk1C);
     yawOffset &= 0xFFF;
     sinVal = mathCosF(yawOffset);
     cosVal = mathSinF(yawOffset);

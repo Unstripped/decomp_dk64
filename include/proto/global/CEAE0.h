@@ -69,7 +69,7 @@ void playerCheckQueueDropCallback(void);
 void playerCheckLandingSfx(void);
 #endif
 #ifndef PROTO_SKIP_mathAngleSignedDistance
-s16 mathAngleSignedDistance();
+s16 mathAngleSignedDistance(s16, s16);
 #endif
 #ifndef PROTO_SKIP_mathAngleDistance
 s16 mathAngleDistance(s16, s16);

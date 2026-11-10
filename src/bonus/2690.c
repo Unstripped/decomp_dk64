@@ -4,7 +4,6 @@
 #define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
 #define PROTO_SKIP_func_806FDAB8 // FAKE: callee prototype steer
 #define PROTO_SKIP_func_8072881C // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
 #define PROTO_SKIP_playerKongStopSoundByState // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_sfxPlayOnFreeSlot // FAKE: callee prototype steer
 #include "proto/bonus/12A0.h"
@@ -216,7 +215,6 @@ void playerKongStopSoundByState(void *, s16 *);
 extern f32 D_8002D90C;
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-s32 mathAngleSignedDistance(s16, s16); // FAKE: callee prototype steer
 extern u8 D_8071FFD4[];
 void effectFreeAndUnlink(s32); // FAKE: callee prototype steer
 

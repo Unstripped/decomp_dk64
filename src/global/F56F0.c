@@ -4,7 +4,6 @@
 #define PROTO_SKIP_assetLoad // FAKE: implicit declaration steer
 #define PROTO_SKIP_controllerAnimFreeStateAsset // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_controllerLookupStateByHash // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
 #define PROTO_SKIP_playerResumeLocomotion // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/117190.h"
@@ -910,7 +909,6 @@ void playerWeaponCrosshairRender(Actor *actor, BoneVector *entries, s32 *count) 
     *count += 1;
 }
 
-s16 mathAngleSignedDistance(s16, s16); // FAKE: callee prototype steer
 extern f32 mathSinF(s16);
 void playerWeaponUpdateHomingTarget(Actor *actor, BoneRotation *slots, s32 *count) {
     s32 entry_index;
