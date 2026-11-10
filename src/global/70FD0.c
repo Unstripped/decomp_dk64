@@ -9,7 +9,6 @@
 #include "proto/global/36880.h"
 #include "proto/global/5E020.h"
 #include "proto/global/6AD90.h"
-#define PROTO_SKIP_actorGetNodePos
 #include "proto/global/70FD0.h"
 #include "proto/global/79890.h"
 #include "proto/global/7BBD0.h"

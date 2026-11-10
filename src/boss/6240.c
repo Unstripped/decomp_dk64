@@ -125,7 +125,7 @@ void bossPufftossSpawnGlow(u8 sparkleInterval, f32 scale) {
     }
 }
 
-s32 actorGetNodePos(struct ActorTargetWork *, s32, f32 *, f32 *, f32 *);
+s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 extern void *D_8074E880[];
 
 void bossSpawnSparkles(void) {

@@ -764,7 +764,7 @@ typedef struct {
 } StructBB70_Race;
 extern StructBB70_Race gActorGlobalState;
 void tagBarrelSpawnActorSmokePuffs(u8, u8);
-s32 actorGetNodePos(struct ActorTargetWork *, s32, f32 *, f32 *, f32 *);
+s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void commandQueuePush(s32, s16, s16, s16, u8, u8, u8, u8, u8);
 
 void raceObstacleCarBehaviorUpdate(void) {

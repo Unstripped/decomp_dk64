@@ -193,7 +193,7 @@ void actorUpdateCollisionSpheres(struct ActorSphereUpdateView *, u8);
 void actorUpdateNodePositions(struct ActorSub140PointView *, u8);
 #endif
 #ifndef PROTO_SKIP_actorGetNodePos
-s32 actorGetNodePos(struct ActorTargetWork *, s32, f32 *, f32 *, f32 *);
+s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_actorGetSubNodePos
 void actorGetSubNodePos(struct ActorTargetWork *, s32, f32 *, f32 *, f32 *);

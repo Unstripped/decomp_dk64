@@ -179,7 +179,7 @@ void func_80724E48(u8);
 s32 behaviourIsTargetWithinAngle(u16);
 void actorSpawnNodeEffectFacingCamera(s32, u8);
 void actorApproachTargetSpeed(u16);
-s32 actorGetNodePos(struct ActorTargetWork *, s32, f32 *, f32 *, f32 *);
+s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void commandQueuePush(s32, s16, s16, s16, u8, u8, u8, u8, u8);
 f32 sqrtf(f32);
 void camSetTarget(struct CamActor *, struct CamActor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
