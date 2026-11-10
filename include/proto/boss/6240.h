@@ -2,6 +2,7 @@
 #ifndef PROTO_BOSS_6240_H
 #define PROTO_BOSS_6240_H
 #include "common.h"
+#include "actor.h"
 #ifndef PROTO_SKIP_bossPufftossBobStep
 void bossPufftossBobStep(void);
 #endif
@@ -15,7 +16,7 @@ void bossPufftossSpawnGlow(u8, f32);
 void bossSpawnSparkles(void);
 #endif
 #ifndef PROTO_SKIP_bossClampPosition
-void bossClampPosition(s32);
+void bossClampPosition(Zone *);
 #endif
 #ifndef PROTO_SKIP_bossPufftossStep
 void bossPufftossStep(void);

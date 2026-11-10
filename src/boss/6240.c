@@ -2,7 +2,6 @@
 #include "actor.h"
 #include "sched.h"
 #include "proto/boss/3840.h"
-#define PROTO_SKIP_bossClampPosition
 #include "proto/boss/6240.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
