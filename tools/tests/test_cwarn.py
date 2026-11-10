@@ -58,3 +58,22 @@ def test_ratchet_new_file_passes(tmp_path, capsys):
     _ratchet(tmp_path, {"src/a.c": 2}, {"src/a.c": 1, "src/n.c": 4})
     out = capsys.readouterr().out
     assert "new src/n.c: 4" in out and "warnings OK (2 -> 5)" in out
+
+
+def test_concurrent_misses_keep_their_inputs(tmp_path, monkeypatch):
+    monkeypatch.setattr(cwarn, "ROOT", str(tmp_path))
+    monkeypatch.setattr(cwarn, "SCRATCH", str(tmp_path / ".scratch" / "cwarn"))
+    monkeypatch.setattr(cwarn, "_static", {"key": ("makefile", "include")})
+    item = [(str(tmp_path / "src" / "global" / "x.c"), "int x;\n", None)]
+    seen, depth = [], []
+
+    def run_jobs(jobs):
+        depth.append(1)
+        if len(depth) == 1:
+            cwarn.collect(item)  # another process misses the same key and finishes first
+        seen.append((tmp_path / jobs[0]["input"]).read_text())
+        return [{"rc": 0, "out": ""}]
+
+    monkeypatch.setattr(cwarn, "run_jobs", run_jobs)
+    assert cwarn.collect(item) == [[]]
+    assert seen == ["int x;\n", "int x;\n"]

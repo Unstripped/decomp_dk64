@@ -152,6 +152,7 @@ def collect(items):
     """[[dict(code, path, line, col, msg)] per item] for ITEMS = [(path, text or None, src or None)]: the
     warnings of compiling PATH (TEXT None: in place) or TEXT with the make flags of SRC (else PATH)."""
     keys, todo = [], {}
+    stage = os.path.join(SCRATCH, "in", str(uuid.uuid4()))  # this call's own inputs: another may share keys
     for path, text, src in items:
         p, flags = rel(path), rel(src or path)
         data = open(os.path.join(ROOT, p), "rb").read() if text is None else text.encode("utf-8")
@@ -162,7 +163,7 @@ def collect(items):
         if text is None:
             inp = p
         else:
-            inp = rel(os.path.join(SCRATCH, "in", key, os.path.basename(p)))
+            inp = rel(os.path.join(stage, key, os.path.basename(p)))
             os.makedirs(os.path.dirname(os.path.join(ROOT, inp)), exist_ok=True)
             open(os.path.join(ROOT, inp), "wb").write(data)
         todo[key] = (p, {"input": inp, "src": flags})
@@ -170,9 +171,7 @@ def collect(items):
         try:
             results = run_jobs([job for _, job in todo.values()])
         finally:
-            for key, (_, job) in todo.items():
-                if job["input"].startswith(rel(os.path.join(SCRATCH, "in")) + os.sep):
-                    shutil.rmtree(os.path.join(SCRATCH, "in", key), ignore_errors=True)
+            shutil.rmtree(stage, ignore_errors=True)
         for (key, (p, job)), r in zip(todo.items(), results):
             if r["rc"] != 0:
                 tail = "\n".join(r["out"].rstrip().splitlines()[-5:])
