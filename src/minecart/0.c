@@ -34,16 +34,9 @@ typedef struct Struct_807FBB40_11C {
 
 struct MinecartCart;
 
-typedef struct Struct_807FBB40_4 {
-    char pad0[0x38];
-    f32 unk38;
-    char pad3C[0x64 - 0x3C];
-    u16 unk64;
-} Struct_807FBB40_4;
-
 typedef struct Struct_807FBB40 {
     char pad0[0x4];
-    Struct_807FBB40_4 *unk4;
+    ActorSub4 *unk4;
     char pad8[4];
     float unkC[4][4];
     char pad4C[0x60 - 0x4C];
@@ -350,7 +343,7 @@ void minecartUpdatePhysics(void) {
     s16 prevVertPos;
     MinecartCart *cart;
 
-    f32 scaleFactor = (f32)((f64)gCurrentActor->unk4->unk38 * 0.16666666675);
+    f32 scaleFactor = (f32)((f64)gCurrentActor->unk4->scaleY * 0.16666666675);
     cart = gCurrentActor->unk174;
     prevVertPos = cart->unk0;
     if (!(gCurrentActor->unk60 & 0x10)) {
@@ -405,7 +398,7 @@ void minecartReverseTrackBehaviour(void) {
     MinecartTrackPoint tmp;
     MinecartCart *s0;
 
-    scaleFactor = (f32)((f64)gCurrentActor->unk4->unk38 * 0.16666666675);
+    scaleFactor = (f32)((f64)gCurrentActor->unk4->scaleY * 0.16666666675);
     s0 = gCurrentActor->unk174;
     prevVertPos = s0->unk0;
     if (!(gCurrentActor->unk60 & 0x10)) {
@@ -524,7 +517,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
     case 1:
     case 2:
     case 3:
-        if (gCurrentActor->unk4->unk64 == 0x292) {
+        if (gCurrentActor->unk4->animId == 0x292) {
             minecartTriggerWin(1, 0x14);
             gCurrentActor->unk154 = 5;
         } else if (gCurrentActor->unk11C != NULL && gCurrentActor->unk11C->unk154 == 5) {
@@ -632,7 +625,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     }
     actorGetNodePos(gCurrentActor, 3, &frontNodePos[0], &frontNodePos[1], &frontNodePos[2]);
     actorGetNodePos(gCurrentActor, 4, &rearNodePos[0], &rearNodePos[1], &rearNodePos[2]);
-    stepDist = (f64)(gCurrentActor->unk4->unk38 * gCurrentActor->unkB8) * 0.16666666675;
+    stepDist = (f64)(gCurrentActor->unk4->scaleY * gCurrentActor->unkB8) * 0.16666666675;
     if (gCurrentMap == 0x4D || gCurrentMap == 0x81 || gCurrentMap == 0x82) {
         stepDist = (f64)stepDist * 1.8;
     } else {
