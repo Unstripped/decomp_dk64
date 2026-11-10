@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_actorQueueDelayedCallback // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/1295B0.h"
@@ -794,7 +793,6 @@ void spawnNodesSetActorStateByFlag(u16 mask, u8 state) {
     }
 }
 
-void actorQueueDelayedCallback(void *, s32, s32, s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void func_80726EE0(u8 command) {
     s16 i;
