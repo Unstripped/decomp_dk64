@@ -577,7 +577,7 @@ void lightAddDedupEntry(s16 arg0) {
 }
 
 extern u8 D_807F5E20[];
-extern u8 D_807F5E68[];
+extern u8 gFrustumPlanes[];
 
 s32 lightCheckVolumeBounds(LightVolume *arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s16 arg9, s32 arg10) {
     Mtx sp60;
@@ -608,9 +608,9 @@ s32 lightCheckVolumeBounds(LightVolume *arg0, f32 arg1, f32 arg2, f32 arg3, s16 
             guLookAt(&sp60, arg0->x, arg0->y, arg0->z, (arg0->x == arg0->unk24) ? (arg0->unk24 + 0.2f) : arg0->unk24, arg0->unk28, arg0->unk2C, 0.0f, 1.0f, 0.0f);
             frustumCalculateCornerRays(arg0->unk8 * 2, 1.0f, (f32)arg0->unk34);
             frustumCornersTransformByInverse(&sp60);
-            frustumOrientPolyNormals(arg0->x, arg0->y, arg0->z, &D_807F5E68, &D_807F5E20);
+            frustumOrientPolyNormals(arg0->x, arg0->y, arg0->z, &gFrustumPlanes, &D_807F5E20);
             planeFromTwoPoints(arg0->x, arg0->y, arg0->z, arg0->unk24, arg0->unk28, arg0->unk2C);
-            return mapBspBoxInFrustum(arg4, arg5, arg6, arg7, arg8, arg9, arg0->x, arg0->y, arg0->z, (f32)arg0->unk34, &D_807F5E68);
+            return mapBspBoxInFrustum(arg4, arg5, arg6, arg7, arg8, arg9, arg0->x, arg0->y, arg0->z, (f32)arg0->unk34, &gFrustumPlanes);
         }
         return 0;
     }

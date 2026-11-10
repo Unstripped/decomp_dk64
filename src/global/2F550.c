@@ -672,7 +672,7 @@ extern f32 D_807F5FAC;
 extern f32 D_807F5FA8;
 extern f32 D_807F5FE0;
 extern f32 D_807F5FDC;
-extern PlanePoly D_807F5E68[];
+extern PlanePoly gFrustumPlanes[];
 extern struct MapDistributeEntry *D_807F5FF0;
 extern s32 gGlobalPauseFlags;
 extern Mtx D_2000180;
@@ -695,7 +695,7 @@ Gfx *mapRenderPlayerView(Gfx *gfx, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 a
     planeFromTwoPoints(arg1, arg2, arg3, arg4, arg5, arg6);
     frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, D_807F5FA8);
     frustumCornersTransformByInverse(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
-    frustumOrientPolyNormals(arg1, arg2, arg3, D_807F5E68, D_807F5E20);
+    frustumOrientPolyNormals(arg1, arg2, arg3, gFrustumPlanes, D_807F5E20);
     mapTreeFrameUpdate(D_807F5DE4, D_807F5E60, D_807F5FF0, arg1, arg2, arg3, 0, !D_807F5FEC, gViewportCount >= 2);
     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
@@ -1113,7 +1113,7 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *
 
 
 s32 mapNodeBoxInFrustum(MapBspNode *arg0, f32 arg1, f32 arg2, f32 arg3) {
-    return mapBspBoxInFrustum(arg0->unkA0, arg0->unkA2, arg0->unkA4, arg0->unkA6, arg0->unkA8, arg0->unkAA, arg1, arg2, arg3, D_807F5FA8, D_807F5E68);
+    return mapBspBoxInFrustum(arg0->unkA0, arg0->unkA2, arg0->unkA4, arg0->unkA6, arg0->unkA8, arg0->unkAA, arg1, arg2, arg3, D_807F5FA8, gFrustumPlanes);
 }
 
 extern f32 D_807F5E50[];

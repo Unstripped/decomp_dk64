@@ -6,7 +6,7 @@
 #define PROTO_SKIP_actorScriptStart // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
-#define PROTO_SKIP_func_806C7BAC // FAKE: callee prototype steer
+#define PROTO_SKIP_playerMountBarrel // FAKE: callee prototype steer
 #define PROTO_SKIP_mapGetConfigValue // FAKE: callee prototype steer
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
@@ -2004,7 +2004,7 @@ extern u8 D_8071FC58[];
 
 
 extern s16 D_80750390;
-void func_806C7BAC(void *, Actor *); // FAKE: callee prototype steer
+void playerMountBarrel(void *, Actor *); // FAKE: callee prototype steer
 
 void tagBarrelActorUpdate(void) {
     s16 kong;
@@ -2202,7 +2202,7 @@ void tagBarrelActorUpdate(void) {
         actorAppendCallbackPayloadAAB8((s32)gCurrentActor, gPrimaryPlayerActor, (s16)((gCurrentActor->yaw + 0x800) & 0xFFF), (f32)angle, 0);
         if (((TagBarrelSpawnParams *)gCurrentActor->spawnData)->unk18 == 1.0) {
             PlayerState *playerState = gPrimaryPlayerActor->customState;
-            func_806C7BAC(gPrimaryPlayerActor, 0);
+            playerMountBarrel(gPrimaryPlayerActor, 0);
             playerState->isHoldingObject = 1;
             playerState->hitActorType = 0x31;
             playerState->hitActorId = -1;
@@ -2376,7 +2376,7 @@ typedef struct RocketbarrelState {
 extern u8 gPlayerInventoryTable[][0x5E];
 extern s16 D_80750390;
 
-void func_806C7BAC(void *, Actor *); // FAKE: callee prototype steer
+void playerMountBarrel(void *, Actor *); // FAKE: callee prototype steer
 
 void rocketbarrelUpdate(void) {
     RocketbarrelState *state;
@@ -2437,7 +2437,7 @@ void rocketbarrelUpdate(void) {
         gCurrentActor->alpha = 0;
         actorAppendCallback(state->rider, (s32)gCurrentActor, 0x40, 1, 0, 0);
         actorAppendCallbackPayloadAAB8((s32)gCurrentActor, state->rider, state->rider->yaw, (f32) D_80750390, 0);
-        func_806C7BAC(state->rider, gCurrentActor);
+        playerMountBarrel(state->rider, gCurrentActor);
         gActivePlayerState->isHoldingObject = 1;
         gCurrentActor->state = 3;
         break;

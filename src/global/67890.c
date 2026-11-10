@@ -117,7 +117,7 @@ typedef struct ActorTargetDistanceEntry {
     s8 unk13;
 } ActorTargetDistanceEntry;
 
-extern u8 *D_807F6C2C;
+extern u8 *gMapPortalVisible;
 extern ActorTargetDistanceEntry *D_807F93F4;
 
 void actorCalculateTargetDistancesAndAngles(f32 camX, f32 camY, f32 camZ) {
@@ -129,7 +129,7 @@ void actorCalculateTargetDistancesAndAngles(f32 camX, f32 camY, f32 camZ) {
 
     for (i = 0; i < D_807F93F8; i++) {
         D_807F93F4[i].unk11 = 0;
-        if (D_807F6C2C[((ActorTargetQuadEntry *)D_807F93F0)[i].unk38] != 0) {
+        if (gMapPortalVisible[((ActorTargetQuadEntry *)D_807F93F0)[i].unk38] != 0) {
             D_807F93F4[i].unk0 = sqrtf((((camX - D_807F93F4[i].unk4) * (camX - D_807F93F4[i].unk4)) + ((camY - D_807F93F4[i].unk8) * (camY - D_807F93F4[i].unk8))) + ((camZ - D_807F93F4[i].unkC) * (camZ - D_807F93F4[i].unkC)));
             ratio = (D_807F93F4[i].unk0 - (f32)((ActorTargetQuadEntry *)D_807F93F0)[i].unk3A) / (f32)(((ActorTargetQuadEntry *)D_807F93F0)[i].unk3C - ((ActorTargetQuadEntry *)D_807F93F0)[i].unk3A);
             if ((f64)ratio > 1.0) {

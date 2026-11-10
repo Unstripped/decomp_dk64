@@ -422,26 +422,26 @@ typedef struct CamFloorHit {
     /* 0x7 */ u8 unk7;
 } CamFloorHit; // size = 0x8
 
-extern u8 D_807F9510;
-extern CamFloorHit D_807F94C0[];
+extern u8 sCamFloorHitCount;
+extern CamFloorHit sCamFloorHits[];
 
 void camSortFloorHits(void) {
     s16 i;
     s16 j;
     CamFloorHit tmp;
 
-    for (i = 1; i < D_807F9510; i++) {
-        if (10000.0f < D_807F94C0[i - 1].height) {
-            D_807F94C0[i - 1].flags = 0;
+    for (i = 1; i < sCamFloorHitCount; i++) {
+        if (10000.0f < sCamFloorHits[i - 1].height) {
+            sCamFloorHits[i - 1].flags = 0;
         }
         j = i;
-        tmp = D_807F94C0[i];
-        while ((j > 0 && tmp.height < D_807F94C0[j - 1].height) || (tmp.height == D_807F94C0[j - 1].height && (D_807F94C0[j - 1].flags & 1))) {
-            D_807F94C0[j] = D_807F94C0[j - 1];
+        tmp = sCamFloorHits[i];
+        while ((j > 0 && tmp.height < sCamFloorHits[j - 1].height) || (tmp.height == sCamFloorHits[j - 1].height && (sCamFloorHits[j - 1].flags & 1))) {
+            sCamFloorHits[j] = sCamFloorHits[j - 1];
             j--;
         }
         if (j != i) {
-            D_807F94C0[j] = tmp;
+            sCamFloorHits[j] = tmp;
         }
     }
 }
@@ -475,24 +475,24 @@ u8 camFloorSnap(CamActor *camActor, CamState *camState, f32 targetDist, f32 *out
     cnt = 0;
     if (collisionCheckActorFloor((Actor *)camActor, targetDist, floorY, stepFactor, &floorY)) {
         camSortFloorHits();
-        if (D_807F9510 == 1 || *outHeight < D_807F94C0[0].height) {
-            flags = D_807F94C0[0].flags;
-            floorY = D_807F94C0[0].height;
-            slopeAngle = D_807F94C0[0].angle;
+        if (sCamFloorHitCount == 1 || *outHeight < sCamFloorHits[0].height) {
+            flags = sCamFloorHits[0].flags;
+            floorY = sCamFloorHits[0].height;
+            slopeAngle = sCamFloorHits[0].angle;
             cnt = 1;
         } else {
-            for (i = 0; i < D_807F9510; i++) {
-                flags = D_807F94C0[i].flags;
+            for (i = 0; i < sCamFloorHitCount; i++) {
+                flags = sCamFloorHits[i].flags;
                 if (flags & 2) {
-                    if (*outHeight < D_807F94C0[i].height || (ceilY != camState->unkC && camState->unkC < *outHeight)) {
-                        ceilY = D_807F94C0[i].height;
+                    if (*outHeight < sCamFloorHits[i].height || (ceilY != camState->unkC && camState->unkC < *outHeight)) {
+                        ceilY = sCamFloorHits[i].height;
                         break;
                     }
                 }
-                if (!(flags & 4) && (flags & 1) && D_807F94C0[i].angle >= 0x1F5) {
-                    floorY = D_807F94C0[i].height;
+                if (!(flags & 4) && (flags & 1) && sCamFloorHits[i].angle >= 0x1F5) {
+                    floorY = sCamFloorHits[i].height;
                     cnt++;
-                    slopeAngle = D_807F94C0[i].angle;
+                    slopeAngle = sCamFloorHits[i].angle;
                 }
             }
         }
@@ -513,14 +513,14 @@ u8 camFloorSnap(CamActor *camActor, CamState *camState, f32 targetDist, f32 *out
         }
         if (*outHeight < floorY + camState->unk18) {
             ret = 1;
-            if (floorY - *outHeight < 35.0 || (D_807F9510 == 1 && slopeAngle >= 0x1F5 && floorY - *outHeight < 80.0)) {
+            if (floorY - *outHeight < 35.0 || (sCamFloorHitCount == 1 && slopeAngle >= 0x1F5 && floorY - *outHeight < 80.0)) {
                 *outHeight = floorY + camState->unk18;
                 camState->unkAC |= 0x800;
                 ret = 2;
             } else if (!(camState->unkAC & 0x82000) && !snapMode && !(gGlobalOverlayFlags & 1) &&
                        ((floorActor->unkC0 < -300.0f && floorActor->unk154 != 0x59) || floorActor->unk154 == 0x15 || floorActor->unk154 == 0x16)) {
                 camFindClearYaw(camActor, -2.0f, camState->unkB2 + 0x800, 0);
-            } else if ((gGlobalOverlayFlags & 1) || D_807F9510 < 2 || (camState->unkAC & 0x80000)) {
+            } else if ((gGlobalOverlayFlags & 1) || sCamFloorHitCount < 2 || (camState->unkAC & 0x80000)) {
                 ret = 0;
             }
         } else {
@@ -561,7 +561,7 @@ u8 camFloorSnap(CamActor *camActor, CamState *camState, f32 targetDist, f32 *out
     }
     if (snapMode) {
         if (!(camState->unkAC & 0x82000)) {
-            if (floorY == 32767.0f || (D_807F9510 == 1 && cnt == 0)) {
+            if (floorY == 32767.0f || (sCamFloorHitCount == 1 && cnt == 0)) {
                 camState->unkA0 -= 10.0f;
                 camState->unkB2 = floorActor->unkE6;
             }
@@ -2631,7 +2631,7 @@ typedef struct CamZoomEntry {
     /* 0x2 */ u16 distance;
 } CamZoomEntry;
 
-extern CamZoomEntry D_80747B60[][4];
+extern CamZoomEntry sCamZoomTable[][4];
 
 u8 camSetZoomLevel(CamActor *cam, s16 level) {
     CamState *st = cam->unk174;
@@ -2661,8 +2661,8 @@ u8 camSetZoomLevel(CamActor *cam, s16 level) {
     } else if (st->unkF3 == 5 || st->unkF3 == 0xC || st->unkF3 == 0xA) {
         zoomSet = 1;
     }
-    st->unkA4 = D_80747B60[zoomSet][level].distance;
-    st->unkB8 = D_80747B60[zoomSet][level].height;
+    st->unkA4 = sCamZoomTable[zoomSet][level].distance;
+    st->unkB8 = sCamZoomTable[zoomSet][level].height;
     st->unkEF = level;
     return old;
 }
@@ -2691,7 +2691,7 @@ void camSetZoomForDistance(CamActor *cam, s16 distance) {
         zoomSet = 1;
     }
     for (i = 2; i < 4; i++) {
-        if (distance >= D_80747B60[zoomSet][i].distance) {
+        if (distance >= sCamZoomTable[zoomSet][i].distance) {
             best = i;
         }
     }

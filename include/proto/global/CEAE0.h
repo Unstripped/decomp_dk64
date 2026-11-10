@@ -80,8 +80,8 @@ s16 mathAngleEaseToward(s16, s16, f32);
 #ifndef PROTO_SKIP_mathAngleLerp
 s16 mathAngleLerp(s16, s16, f32);
 #endif
-#ifndef PROTO_SKIP_func_806CC364
-void func_806CC364(u8);
+#ifndef PROTO_SKIP_playerClampToWaterSurface
+void playerClampToWaterSurface(u8);
 #endif
 #ifndef PROTO_SKIP_playerDecelerateAndApplyMotion
 void playerDecelerateAndApplyMotion(void);
@@ -167,8 +167,8 @@ void playerHeldActorFollowStep(struct HeldActorFollowArg *);
 #ifndef PROTO_SKIP_playerRegisterHeldActorAlign
 void playerRegisterHeldActorAlign(void);
 #endif
-#ifndef PROTO_SKIP_func_806CF138
-void func_806CF138(struct G05CbArg2 *);
+#ifndef PROTO_SKIP_playerHeldActorAlignStep
+void playerHeldActorAlignStep(struct G05CbArg2 *);
 #endif
 #ifndef PROTO_SKIP_playerGetHoldNodeIndices
 void playerGetHoldNodeIndices(s32 *, s32 *);
@@ -254,8 +254,8 @@ void playerSetSizeMode(Actor *, u8);
 #ifndef PROTO_SKIP_playerScaleTransitionStep
 void playerScaleTransitionStep(void);
 #endif
-#ifndef PROTO_SKIP_func_806D0964
-s32 func_806D0964(s32, u8);
+#ifndef PROTO_SKIP_playerSlotMatchesSizeMask
+s32 playerSlotMatchesSizeMask(s32, u8);
 #endif
 #ifndef PROTO_SKIP_func_806D09E8
 void func_806D09E8(Actor *);

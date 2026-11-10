@@ -172,7 +172,7 @@ void func_806BFA8C(u16 animId) {
         case 0x12E:
         case 0x12F:
         case 0x130:
-            func_806C7BAC(gCurrentActor, 0);
+            playerMountBarrel(gCurrentActor, 0);
             break;
         case 0x114:
             playerKongStopSoundByState(gCurrentActor);

@@ -1734,7 +1734,7 @@ u8 actorCollideModelSlots(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
                 } else {
                     buf->unk10 = gFrameCounter;
                 }
-                if (!(arg0->unk5C & 1) || func_806D0964(*(s32 *)gModelSlots[i].unk24, arg0->unk174->unk1A4) == 0) {
+                if (!(arg0->unk5C & 1) || playerSlotMatchesSizeMask(*(s32 *)gModelSlots[i].unk24, arg0->unk174->unk1A4) == 0) {
                     actorUpdateCollisionSpheres(arg0, 0);
                     flag = 1;
                     node = (ActorSphereNodeHit *)sub->nodes;

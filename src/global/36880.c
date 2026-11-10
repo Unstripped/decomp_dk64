@@ -2,7 +2,7 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
-#define PROTO_SKIP_func_806D0964 // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_playerSlotMatchesSizeMask // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_mapPurgeNodeList // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_modelSlotInitFromAsset // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_renderReplaceSegment6Commands // PROTO: The number of arguments doesn't agree with the number in the
@@ -2855,7 +2855,7 @@ typedef struct ModelRenderAnimObj {
     /* 0xC5 */ u8 unkC5;
 } ModelRenderAnimObj;
 
-s32 func_806D0964(s32, u8, s32);
+s32 playerSlotMatchesSizeMask(s32, u8, s32);
 
 #define MODEL_RENDER_PLAYER(i) (((ModelRenderPlayer *)gPlayerSlots)[i])
 
@@ -2936,7 +2936,7 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
         slotIdx = hashTableLookup(obj->unkB6);
         modelSlotResolveAssetTextures(&gModelSlots[slotIdx], 0, 1);
         sel78 = gModelSlots[slotIdx].unk78;
-        if (func_806D0964(*(s32 *)gModelSlots[slotIdx].unk24, gCurrentPlayerIndex, (s32)sel78) != 0) {
+        if (playerSlotMatchesSizeMask(*(s32 *)gModelSlots[slotIdx].unk24, gCurrentPlayerIndex, (s32)sel78) != 0) {
             return gfx;
         }
     }

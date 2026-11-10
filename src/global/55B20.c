@@ -81,12 +81,12 @@ typedef struct MapATpSlot {
     /* 0x9 */ u8 enabled;
 } MapATpSlot;
 
-extern MapATpSlot *D_807F6C1C;
+extern MapATpSlot *gMapPortalSlots;
 
-s32 D_807F6C20;
+s32 gMapPortalSlotCount;
 struct MapGridPoint *gMapGridTrianglePlanes;
 s32 gMapChunkCount;
-u8 *D_807F6C2C;
+u8 *gMapPortalVisible;
 s16 D_807F6C30[20];
 s16 D_807F6C58[20];
 s32 D_807F6C80;
@@ -107,10 +107,10 @@ u8 D_807F7058;
 u8 D_807F7060[16];
 u8 D_807F7070;
 Mtx *D_807F7074;
-u8 D_807F7078[0x32];
+u8 gMapChunkEnabled[0x32];
 u8 D_807F70AA;
 u8 D_807F70AB;
-s32 D_807F70AC;
+s32 gMapCellCount;
 
 typedef struct MapHeader {
     /* 0x000 */ u8 pad0[0x64];
@@ -169,7 +169,7 @@ typedef struct MapPortal {
 } MapPortal;
 
 extern s32 D_807F5DE8;
-extern s32 D_807F70AC;
+extern s32 gMapCellCount;
 extern u8 D_807F70AB;
 extern s16 D_807F7138;
 extern u8 D_807F713A;
@@ -177,8 +177,8 @@ extern u8 D_807F7079;
 extern u8 D_807F707A[];
 extern u8 D_807F70AA;
 extern Mtx *D_807F7074;
-extern MapPortal *D_807F6C0C;
-extern s32 D_807F6C10;
+extern MapPortal *gMapPortals;
+extern s32 gMapPortalCount;
 typedef struct MapGridPoint {
     /* 0x00 */ s64 nx;
     /* 0x08 */ s64 ny;
@@ -198,8 +198,8 @@ typedef struct {
 
 extern MapGridVectors *D_807F6C14;
 extern MapGridPoint *gMapGridTrianglePlanes;
-extern struct MapCell *D_807F70B0;
-extern struct MapBox *D_807F70B4;
+extern struct MapCell *gMapCells;
+extern struct MapBox *gMapCellBoxes;
 
 extern s16 D_807F6C30[20];
 extern s16 D_807F6C58[20];
@@ -228,7 +228,7 @@ void mapChunksInitFromMapData(MapData *data) {
     s32 k;
     s32 size;
 
-    D_807F70AC = 0;
+    gMapCellCount = 0;
     D_807F713A = 0;
     D_807F70AB = 0;
     if (gMapChunkCount != 0) {
@@ -237,10 +237,10 @@ void mapChunksInitFromMapData(MapData *data) {
         D_807F7074 = heapAlloc(0x40);
         guScale(D_807F7074, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
         cellsOff = data->cellsOff;
-        D_807F70AC = *(s32 *)(p + cellsOff);
-        D_807F70B0 = (struct MapCell *)(p + cellsOff + 4);
+        gMapCellCount = *(s32 *)(p + cellsOff);
+        gMapCells = (struct MapCell *)(p + cellsOff + 4);
         boxesOff = data->boxesOff;
-        D_807F70B4 = (struct MapBox *)(p + boxesOff + 4);
+        gMapCellBoxes = (struct MapBox *)(p + boxesOff + 4);
         vecsOff = data->vecsOff;
         D_807F6C14 = (MapGridVectors *)(p + vecsOff);
         if (data) {}  // FAKE: uopt block boundary (boxes holder gets a0, no call in its block)
@@ -248,19 +248,19 @@ void mapChunksInitFromMapData(MapData *data) {
         chunkOff = data->chunksOff;
         base = data->dlBase;
         cellsOff = data->portalsOff;
-        D_807F6C20 = *(s32 *)(p + cellsOff);
-        D_807F6C1C = (MapATpSlot *)(p + cellsOff + 4);
-        D_807F6C2C = heapAlloc(D_807F6C20);
+        gMapPortalSlotCount = *(s32 *)(p + cellsOff);
+        gMapPortalSlots = (MapATpSlot *)(p + cellsOff + 4);
+        gMapPortalVisible = heapAlloc(gMapPortalSlotCount);
         boxesOff = data->relocsOff;
         *(s32 *)((u8 *)&D_807F6C84 - 0x74) = *(s32 *)(p + boxesOff); // FAKE: neighbor-symbol store separates the loop address web
         *(u8 **)((u8 *)D_807F6C88 - 0x7C) = (u8 *)(p + boxesOff + 4); // FAKE: neighbor-symbol store separates the loop address web
-        for (i = 0; i < D_807F6C10; i++) {
-            if (D_807F6C0C[i].dl0 != -1) {
-                D_807F6C0C[i].dl0 += (s32)(p + base);
-                if ((u32)data == (u32)D_807F6C0C[i].dl1) {} // FAKE: keep the pointer reload on the store path and data above the -1 constant in uopt priority
+        for (i = 0; i < gMapPortalCount; i++) {
+            if (gMapPortals[i].dl0 != -1) {
+                gMapPortals[i].dl0 += (s32)(p + base);
+                if ((u32)data == (u32)gMapPortals[i].dl1) {} // FAKE: keep the pointer reload on the store path and data above the -1 constant in uopt priority
             }
-            if (D_807F6C0C[i].dl1 != -1) {
-                D_807F6C0C[i].dl1 += (s32)(p + base);
+            if (gMapPortals[i].dl1 != -1) {
+                gMapPortals[i].dl1 += (s32)(p + base);
             }
         }
         gMapChunks = heapAlloc(gMapChunkCount * 0x1C8);
@@ -348,14 +348,14 @@ void mapChunksInitFromMapData(MapData *data) {
             }
             gMapChunks[n].cellCount = count;
         }
-        gMapGridTrianglePlanes = heapAlloc(D_807F6C20 / 2 * 0x30);
-        for (k = 0; k < D_807F6C20 / 2; k++) {
+        gMapGridTrianglePlanes = heapAlloc(gMapPortalSlotCount / 2 * 0x30);
+        for (k = 0; k < gMapPortalSlotCount / 2; k++) {
             mapGridTriangleBuildPlane(k, &gMapGridTrianglePlanes[k]);
         }
         if (gMapChunks) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         k = 0;
         do {
-            D_807F7078[k] = 1;
+            gMapChunkEnabled[k] = 1;
             k++;
         } while (k < 0x32);
         D_807F70AA = 0;
@@ -381,7 +381,7 @@ typedef struct MapZone {
     /* 0x68 */ u8 linkCount;
 } MapZone; /* 0x6C */
 
-extern MapZone *D_807F70B8[];
+extern MapZone *gMapZones[];
 
 
 void mapFaceBuildTriangleFan(s32 faceId) {
@@ -393,7 +393,7 @@ void mapFaceBuildTriangleFan(s32 faceId) {
     s32 curOff;
     u8 *vtx;
 
-    face = D_807F70B8[faceId];
+    face = gMapZones[faceId];
     if (face->tris != 0) {
         heapFree(face->tris);
     }
@@ -501,7 +501,7 @@ s32 chunk;
                 cidx = 0;
                 cfound = 0;
                 do {
-                    if (key == D_807F70B0[cidx].id) {
+                    if (key == gMapCells[cidx].id) {
                         cfound = 1;
                     } else {
                         cidx += 1;
@@ -513,11 +513,11 @@ s32 chunk;
                         buf[*count].dl[k] = -1;
                     }
                     buf[*count].dl[kind] = list + 8;
-                    buf[*count].vtx[kind] = gMapChunks[chunk].curVtx + (D_807F70B0[cidx].vtxOffset[kind] << 4);
+                    buf[*count].vtx[kind] = gMapChunks[chunk].curVtx + (gMapCells[cidx].vtxOffset[kind] << 4);
                     *count += 1;
                 } else {
                     buf[idx].dl[kind] = list + 8;
-                    buf[idx].vtx[kind] = gMapChunks[chunk].curVtx + (D_807F70B0[cidx].vtxOffset[kind] << 4);
+                    buf[idx].vtx[kind] = gMapChunks[chunk].curVtx + (gMapCells[cidx].vtxOffset[kind] << 4);
                 }
             }
             list += 8;
@@ -543,11 +543,11 @@ s32 mapChunkIsInUse(s16 chunk) {
 }
 
 void mapByteArraySet(s16 index, u8 val) {
-    D_807F7078[index] = val;
+    gMapChunkEnabled[index] = val;
 }
 
 void mapObjectSetByte(s16 objIndex, u8 byteOffset, u8 val) {
-    D_807F6C1C[objIndex * 2 + byteOffset].enabled = val;
+    gMapPortalSlots[objIndex * 2 + byteOffset].enabled = val;
 }
 
 f32 sqrtf(f32);
@@ -600,8 +600,8 @@ void mapChunkResetFlags(void) {
         gMapChunks[i].texAnimPending = 1;
         gMapChunks[i].lightsDone = 0;
     }
-    for (j = 0; j < D_807F70AC; j++) {
-        D_807F70B0[j].seen = 0;
+    for (j = 0; j < gMapCellCount; j++) {
+        gMapCells[j].seen = 0;
     }
 }
 
@@ -615,9 +615,9 @@ void mapChunkClearBounds(void) {
         gMapChunks[i].clipRight = 0;
         gMapChunks[i].clipBottom = 0;
     }
-    for (i = 0; i < D_807F6C20; i++) {
-        D_807F6C1C[i].seen = 0;
-        D_807F6C2C[i] = 0;
+    for (i = 0; i < gMapPortalSlotCount; i++) {
+        gMapPortalSlots[i].seen = 0;
+        gMapPortalVisible[i] = 0;
     }
 }
 
@@ -955,12 +955,12 @@ void mapCellFindAtPoint(f32 x, f32 y, f32 z, s16 chunk, s16 parent, s16 *outCell
     MapBox *box;
 
     i = 0;
-    if (D_807F70AC > 0) {
+    if (gMapCellCount > 0) {
         do {
-            if ((chunk == D_807F70B0[i].chunk) && (parent == D_807F70B0[i].parent)) {
-                id = D_807F70B0[i].id;
+            if ((chunk == gMapCells[i].chunk) && (parent == gMapCells[i].parent)) {
+                id = gMapCells[i].id;
                 if (id) {} // FAKE: raises id's adjsave so the table address is not hoisted into a saved register
-                box = (MapBox *)((u8 *)D_807F70B4 + id * 12);
+                box = (MapBox *)((u8 *)gMapCellBoxes + id * 12);
                 if (box && box) {} // FAKE: keeps box's live range apart from the hoisted cell table address
                 if (((f32)box->minX <= x) && (x <= (f32)box->maxX) && ((f32)box->minY <= y) && (y <= (f32)box->maxY) && ((f32)box->minZ <= z) && (z <= (f32)box->maxZ)) {
                     *outCell = id;
@@ -968,7 +968,7 @@ void mapCellFindAtPoint(f32 x, f32 y, f32 z, s16 chunk, s16 parent, s16 *outCell
                 }
             }
             i++;
-        } while (i < D_807F70AC);
+        } while (i < gMapCellCount);
     }
 }
 
@@ -1308,7 +1308,7 @@ typedef struct MapPlane {
     /* 0x38 */ f64 d;
 } MapPlane;
 
-extern MapPlane D_807F5E68[];
+extern MapPlane gFrustumPlanes[];
 extern u8 gGfxBufferIndex;
 extern f32 D_807F5FB4;
 extern f32 D_807F5FB0;
@@ -1323,7 +1323,7 @@ void mapChunkFrameUpdate(f32 x, f32 y, f32 z) {
     D_807F7138 = (s16)(s32)gPlayerSlots[gCurrentPlayerIndex].fogDist;
     frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, (f32)D_807F7138);
     frustumCornersTransformByInverse(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
-    frustumOrientPolyNormals(x, y, z, &D_807F5E68, &D_807F5E20);
+    frustumOrientPolyNormals(x, y, z, &gFrustumPlanes, &D_807F5E20);
     mapChunkClearBounds();
     mapChunkActivate(gPlayerSlots[gCurrentPlayerIndex].chunk);
     mapTriggerCollectZonesAtPoint(x, y, z);
@@ -1463,8 +1463,8 @@ void mapChunkRenderNodes(f32 x, f32 y, f32 z) {
     s32 i;
 
     mapChunkBuildClipFrusta(x, y, z);
-    for (i = 0; i < D_807F70AC; i++) {
-        D_807F70B0[i].visible = 0;
+    for (i = 0; i < gMapCellCount; i++) {
+        gMapCells[i].visible = 0;
     }
     mapCellUpdateVisibility(x, y, z, -1);
     mapTriggerApplyZones(x, y, z);
@@ -1568,7 +1568,7 @@ void mapTriggerCollectZonesAtPoint(f32 x, f32 y, f32 z) {
 
     D_807F7058 = 0;
     D_807F7070 = 0;
-    for (p = D_807F70B8, i = 0; i != 0x20; i++) {
+    for (p = gMapZones, i = 0; i != 0x20; i++) {
         if (*p != NULL) {
             zone = *p;
             if ((f32)zone->minY <= y && y <= (f32)(zone->maxY + zone->height)) {
@@ -1621,14 +1621,14 @@ void mapTriggerApplyZones(f32 x, f32 y, f32 z) {
     i = 0;
     while (i < D_807F7058) {
         idx = D_807F7048[i];
-        if (D_807F70B8[idx] != 0) {
-            zone = D_807F70B8[idx];
+        if (gMapZones[idx] != 0) {
+            zone = gMapZones[idx];
             if (!done) {
                 if (zone->enterCount != 0) {
                     done = 1;
                     val = zone->enterCells;
-                    for (j = 0; j < D_807F70AC; j++) {
-                        D_807F70B0[j].visible = 0;
+                    for (j = 0; j < gMapCellCount; j++) {
+                        gMapCells[j].visible = 0;
                     }
                     for (j = 0; j < zone->enterCount; j++) {
                         mapCellSetFlag(*val, 1);
@@ -1654,19 +1654,19 @@ void mapCellSetFlag(s32 id, u8 visible) {
 
     i = 0;
     found = 0;
-    while (!found && i < D_807F70AC) {
-        if (id == D_807F70B0[i].id) {
-            D_807F70B0[i].visible = visible;
+    while (!found && i < gMapCellCount) {
+        if (id == gMapCells[i].id) {
+            gMapCells[i].visible = visible;
             if (visible != 0) {
-                D_807F70B0[i].seen = 1;
+                gMapCells[i].seen = 1;
             }
             found = 1;
         }
         i++;
     }
-    for (i = 0; i < D_807F70AC; i++) {
-        if (id == D_807F70B0[i].parent) {
-            mapCellSetFlag(D_807F70B0[i].id, visible);
+    for (i = 0; i < gMapCellCount; i++) {
+        if (id == gMapCells[i].parent) {
+            mapCellSetFlag(gMapCells[i].id, visible);
         }
     }
 }
@@ -1782,26 +1782,26 @@ void mapCellUpdateVisibility(f32 x, f32 y, f32 z, s32 parent) {
     s32 off;
 
     i = 0;
-    if (D_807F70AC > 0) {
+    if (gMapCellCount > 0) {
         off = 0; do { // LAYOUT: scheduling (joins the loop preheader store)
-            if (parent == ((MapCell *)((u8 *)D_807F70B0 + off))->parent) {
-                if (gMapChunks[((MapCell *)((u8 *)D_807F70B0 + off))->chunk].state == 1) {
-                    idx = ((MapCell *)((u8 *)D_807F70B0 + off))->id;
-                    if (mapBspBoxInFrustum(D_807F70B4[idx].minX, D_807F70B4[idx].minY, D_807F70B4[idx].minZ,
-                                      D_807F70B4[idx].maxX, D_807F70B4[idx].maxY, D_807F70B4[idx].maxZ,
+            if (parent == ((MapCell *)((u8 *)gMapCells + off))->parent) {
+                if (gMapChunks[((MapCell *)((u8 *)gMapCells + off))->chunk].state == 1) {
+                    idx = ((MapCell *)((u8 *)gMapCells + off))->id;
+                    if (mapBspBoxInFrustum(gMapCellBoxes[idx].minX, gMapCellBoxes[idx].minY, gMapCellBoxes[idx].minZ,
+                                      gMapCellBoxes[idx].maxX, gMapCellBoxes[idx].maxY, gMapCellBoxes[idx].maxZ,
                                       x, y, z, D_807F5FAC,
-                                      &gMapChunks[((MapCell *)((u8 *)D_807F70B0 + off))->chunk].frustum) != 0) {
-                        ((MapCell *)((u8 *)D_807F70B0 + off))->visible = 1;
-                        ((MapCell *)((u8 *)D_807F70B0 + off))->seen = 1;
+                                      &gMapChunks[((MapCell *)((u8 *)gMapCells + off))->chunk].frustum) != 0) {
+                        ((MapCell *)((u8 *)gMapCells + off))->visible = 1;
+                        ((MapCell *)((u8 *)gMapCells + off))->seen = 1;
                     }
-                    if (((MapCell *)((u8 *)D_807F70B0 + off))->visible != 0) {
-                        mapCellUpdateVisibility(x, y, z, ((MapCell *)((u8 *)D_807F70B0 + off))->id);
+                    if (((MapCell *)((u8 *)gMapCells + off))->visible != 0) {
+                        mapCellUpdateVisibility(x, y, z, ((MapCell *)((u8 *)gMapCells + off))->id);
                     }
                 }
             }
             i++;
             off += 0x1C;
-        } while (i < D_807F70AC);
+        } while (i < gMapCellCount);
     }
 }
 
@@ -1838,15 +1838,15 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
             gMapChunks[i].lightsDone = 1;
             if (gMapChunks[i].kind == 2) {
                 flag = 0;
-                for (k = 0; k < D_807F70AC; k++) {
-                    if ((i == D_807F70B0[k].chunk) && (D_807F70B0[k].seen != 0)) {
+                for (k = 0; k < gMapCellCount; k++) {
+                    if ((i == gMapCells[k].chunk) && (gMapCells[k].seen != 0)) {
                         for (j = 0; j < 2; j++) {
-                            if (D_807F70B0[k].vtxCount[j] != 0) {
-                                boxIdx = D_807F70B0[k].id;
-                                obj = lightCollectVolumesInBounds(x, y, z, D_807F70B4[boxIdx].minX, D_807F70B4[boxIdx].minY, D_807F70B4[boxIdx].minZ, D_807F70B4[boxIdx].maxX, D_807F70B4[boxIdx].maxY, D_807F70B4[boxIdx].maxZ, i, &hit);
+                            if (gMapCells[k].vtxCount[j] != 0) {
+                                boxIdx = gMapCells[k].id;
+                                obj = lightCollectVolumesInBounds(x, y, z, gMapCellBoxes[boxIdx].minX, gMapCellBoxes[boxIdx].minY, gMapCellBoxes[boxIdx].minZ, gMapCellBoxes[boxIdx].maxX, gMapCellBoxes[boxIdx].maxY, gMapCellBoxes[boxIdx].maxZ, i, &hit);
                                 nodeIdx = 0;
                                 found = 0;
-                                key = D_807F70B0[k].id; node = gMapChunks[i].cells;  // LAYOUT: same-line statements steer scheduling
+                                key = gMapCells[k].id; node = gMapChunks[i].cells;  // LAYOUT: same-line statements steer scheduling
                                 do {
                                     if (key == node->id) {
                                         found = 1;
@@ -1859,14 +1859,14 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
                                     q = j;
                                     gMapChunks[i].cells[nodeIdx].vtx[j] = matrixCacheLookup(obj, i, boxIdx, q);
                                     if (gMapChunks[i].cells[nodeIdx].vtx[j] == NULL) {
-                                        gMapChunks[i].cells[nodeIdx].vtx[j] = matrixCacheInsert(obj, i, boxIdx, q, D_807F70B0[k].vtxCount[j], hit);
-                                        src = gMapChunks[i].baseVtx + D_807F70B0[k].vtxOffset[j] * 0x10;
-                                        memcpy(gMapChunks[i].cells[nodeIdx].vtx[j], src, D_807F70B0[k].vtxCount[j] * 0x10);
+                                        gMapChunks[i].cells[nodeIdx].vtx[j] = matrixCacheInsert(obj, i, boxIdx, q, gMapCells[k].vtxCount[j], hit);
+                                        src = gMapChunks[i].baseVtx + gMapCells[k].vtxOffset[j] * 0x10;
+                                        memcpy(gMapChunks[i].cells[nodeIdx].vtx[j], src, gMapCells[k].vtxCount[j] * 0x10);
                                         matrix = gMapChunks[i].cells[nodeIdx].vtx[j];
                                         D_807F7EEC = D_8076A0B4[i];
                                         D_807F7EF0 = D_8076A0B8[i];
                                         D_807F7EF4 = D_8076A0BC[i];
-                                        func_8065C990(matrix, (u8 *)matrix + D_807F70B0[k].vtxCount[j] * 0x10, 1, &D_807F78C0, obj, gMapChunks[i].lightMode == 1);
+                                        func_8065C990(matrix, (u8 *)matrix + gMapCells[k].vtxCount[j] * 0x10, 1, &D_807F78C0, obj, gMapChunks[i].lightMode == 1);
                                     }
                                 }
                             }
@@ -2034,13 +2034,13 @@ Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
         }
         gfx = effectWaterRenderSurfaces(gfx, 0, 0);
         for (i = 0; i < D_807F6C08; i++) {
-            if (D_807F6C0C[D_807F6BF0[i]].dl0 != -1) {
+            if (gMapPortals[D_807F6BF0[i]].dl0 != -1) {
                 gDPPipeSync(gfx++);
-                gSPDisplayList(gfx++, osVirtualToPhysical((void *)D_807F6C0C[D_807F6BF0[i]].dl0));
+                gSPDisplayList(gfx++, osVirtualToPhysical((void *)gMapPortals[D_807F6BF0[i]].dl0));
             }
-            if (D_807F6C0C[D_807F6BF0[i]].dl1 != -1) {
+            if (gMapPortals[D_807F6BF0[i]].dl1 != -1) {
                 gDPPipeSync(gfx++);
-                gSPDisplayList(gfx++, osVirtualToPhysical((void *)D_807F6C0C[D_807F6BF0[i]].dl1));
+                gSPDisplayList(gfx++, osVirtualToPhysical((void *)gMapPortals[D_807F6BF0[i]].dl1));
             }
         }
         gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -2210,14 +2210,14 @@ u8 layer;
                 continue;
             }
             found = 0;
-            node = D_807F70B0; p = (u32 *)&gMapChunks[chunk].cells[i]; do { // LAYOUT: keeps lh a0 before lw v0 // FAKE: reusing the gfx parameter p as the cell pointer preserves its parameter precolor
+            node = gMapCells; p = (u32 *)&gMapChunks[chunk].cells[i]; do { // LAYOUT: keeps lh a0 before lw v0 // FAKE: reusing the gfx parameter p as the cell pointer preserves its parameter precolor
                 if (((MapChunkCell *)p)->id == node->id) {
                     found = 1;
                 } else {
                     node++;
                 }
             } while (found == 0);
-            if (*(u32 *)&D_807F70B0 == 0) {} // FAKE: integer-typed ghost keeps the bound in t1 without coloring the node pointer load
+            if (*(u32 *)&gMapCells == 0) {} // FAKE: integer-typed ghost keeps the bound in t1 without coloring the node pointer load
             if (node->visible == 0) {
                 continue;
             }
@@ -2274,11 +2274,11 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
 
     mapChunkIdListAddUnique(chunk);
     i = 0;
-    if (D_807F6C20 > 0) {
+    if (gMapPortalSlotCount > 0) {
         do {
-            if ((chunk == D_807F6C1C[i].chunk) && (mapNodeIdListContains(D_807F6C1C[i].target, depth) == 0)) {
-                if (D_807F6C1C[i].enabled != 0) {
-                    D_807F6C1C[i].seen = 1;
+            if ((chunk == gMapPortalSlots[i].chunk) && (mapNodeIdListContains(gMapPortalSlots[i].target, depth) == 0)) {
+                if (gMapPortalSlots[i].enabled != 0) {
+                    gMapPortalSlots[i].seen = 1;
                     id = i / 2;
                     if (mapChunkHitListExcludes(id) != 0) {
                         emitted = mapGridPointEmit(id, x, y, z);
@@ -2287,7 +2287,7 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
                             clipLeft = left;
                             clipTop = top;
                             clipBottom = bottom;
-                        } else if (mapGridPointPlaneDistanceWithin(id, x, y, z, D_807F6C1C[i].maxDist) != 0) {
+                        } else if (mapGridPointPlaneDistanceWithin(id, x, y, z, gMapPortalSlots[i].maxDist) != 0) {
                             poly0 = mapGridQuadClipToFrustum(id, x, y, z);
                             if (poly0 != 0) {
                                 mapPolyProjectToScreenRect(poly0, &polyLeft, &polyTop, &polyRight, &polyBottom);
@@ -2297,14 +2297,14 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
                             poly0 = 0;
                             found = 0;
                             k = 0;
-                            while ((found == 0) && (k < D_807F6C10)) {
-                                if ((i == D_807F6C0C[k].portal) && (D_807F6C0C[k].target == D_807F6C1C[i].target)) {
+                            while ((found == 0) && (k < gMapPortalCount)) {
+                                if ((i == gMapPortals[k].portal) && (gMapPortals[k].target == gMapPortalSlots[i].target)) {
                                     found = 1;
                                 } else {
                                     k++;
                                 }
                             }
-                            if ((found != 0) && (mapGridPointPlaneDistanceWithin(id, x, y, z, D_807F6C0C[k].maxDist) != 0)) {
+                            if ((found != 0) && (mapGridPointPlaneDistanceWithin(id, x, y, z, gMapPortals[k].maxDist) != 0)) {
                                 poly = mapGridQuadClipToFrustum(id, x, y, z);
                                 if (poly != 0) {
                                     mapPolyProjectToScreenRect(poly, &polyLeft, &polyTop, &polyRight, &polyBottom);
@@ -2318,15 +2318,15 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
                                 if (poly != 0) {
                                     mapPolyProjectToScreenRect(poly, &polyLeft, &polyTop, &polyRight, &polyBottom);
                                     if (mapRectOverlapTest(polyLeft, polyTop, polyRight, polyBottom, left, top, right, bottom, &clipLeft, &clipTop, &clipRight, &clipBottom) != 0) {
-                                        D_807F6C2C[i] = 1;
+                                        gMapPortalVisible[i] = 1;
                                     }
                                 }
                             }
                         }
                         if (((poly0 != 0) && (overlap != 0)) || emitted) {
-                            D_807F6C2C[i] = 1;
-                            id = D_807F6C1C[i].target;
-                            if (D_807F7078[id] != 0) {
+                            gMapPortalVisible[i] = 1;
+                            id = gMapPortalSlots[i].target;
+                            if (gMapChunkEnabled[id] != 0) {
                                 gMapChunks[id].state = 1;
                                 gMapChunks[id].playerMask |= 1 << gCurrentPlayerIndex;
                                 mapRectIntersect(clipLeft, clipTop, clipRight, clipBottom, gMapChunks[id].clipLeft, gMapChunks[id].clipTop, gMapChunks[id].clipRight, gMapChunks[id].clipBottom, &outLeft, &outTop, &outRight, &outBottom);
@@ -2342,7 +2342,7 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
                 }
             }
             i++;
-        } while (i < D_807F6C20);
+        } while (i < gMapPortalSlotCount);
     }
 }
 
@@ -2644,7 +2644,7 @@ void mapPolyClipToFrustumPlane(MapVec3 *in, MapVec3 *out, s32 count, s32 *outCou
     cur = in;
     n = 0;
     prev = cur + (count - 1);
-    plane = &D_807F5E68[planeIdx];
+    plane = &gFrustumPlanes[planeIdx];
     for (i = 0; i < count; i++, prev = cur) {
         cur = i + in;
         curDist = plane->d + (((plane->a * cur->x) + (plane->b * cur->y)) + (plane->c * cur->z));
@@ -2673,7 +2673,7 @@ void mapFrustumPlaneIntersectEdge(f32 *a, f32 *b, s32 planeIdx, f32 *out) {
     f64 s;
     f64 dist;
 
-    m = (f64 *)(D_807F5E68 + planeIdx);
+    m = (f64 *)(gFrustumPlanes + planeIdx);
     dist = (((m[4] * a[0]) + (m[5] * a[1])) + (m[6] * a[2])) + m[7];
     bx = b[0];
     s = dist / (((m[4] * (a[0] - bx)) + (m[5] * (a[1] - b[1]))) + (m[6] * (a[2] - b[2])));
@@ -2755,7 +2755,7 @@ void mapNodeAssetParse(u8 *data) {
     s32 slot; // FAKE: integer-typed slot address (a MapZone ** local recolours the parse loop)
     void *zone;
 
-    word = (s32 *)(&D_807F70B4 + 1); end = (s32 *)&D_807F7138; // FAKE: same-line statements steer lui/addiu scheduling; the neighbour-symbol spelling keeps this address a separate web from the loop's table base
+    word = (s32 *)(&gMapCellBoxes + 1); end = (s32 *)&D_807F7138; // FAKE: same-line statements steer lui/addiu scheduling; the neighbour-symbol spelling keeps this address a separate web from the loop's table base
     do {
         *word++ = 0;
     } while (word < end);
@@ -2768,7 +2768,7 @@ void mapNodeAssetParse(u8 *data) {
         idx = *(s16 *)p;
         p += 2;
         zone = heapAlloc(0x6C);
-        slot = (s32)&D_807F70B8[idx];
+        slot = (s32)&gMapZones[idx];
         MAP_ZONE_SLOT = zone;
         MAP_ZONE_SLOT->minY = 0x7FFF;
         MAP_ZONE_SLOT->maxY = -0x8000;
@@ -2808,9 +2808,9 @@ s16 mapObjectCollectIdsByType(s8 type, s8 *out, s16 max) {
     if (type == -1) {
         return 0;
     }
-    for (i = 0; i < D_807F6C20 && n < max; ) {
-        if (D_807F6C1C[i].chunk == type) {
-            out[n++] = D_807F6C1C[i].target;
+    for (i = 0; i < gMapPortalSlotCount && n < max; ) {
+        if (gMapPortalSlots[i].chunk == type) {
+            out[n++] = gMapPortalSlots[i].target;
         }
         i++;
     }
@@ -2842,7 +2842,7 @@ void mapSearchTableReset(void) {
     }
 }
 
-extern s32 D_807F7290;
+extern s32 gMapSearchTable;
 extern s32 gFrameCounter;
 
 
@@ -2854,7 +2854,7 @@ void mapSearchTableAddProbe(void *key, s16 x, s16 y, s16 maxDepth) {
     found = 0;
     i = 0;
     while ((i < 10) && !found) {
-        entry = &((MapSearchEntry *)&D_807F7290)[i];
+        entry = &((MapSearchEntry *)&gMapSearchTable)[i];
         if (entry->active != 0) {
             i++;
         } else {
@@ -2862,7 +2862,7 @@ void mapSearchTableAddProbe(void *key, s16 x, s16 y, s16 maxDepth) {
         }
     }
     if (found) {
-        entry = &((MapSearchEntry *)&D_807F7290)[i];
+        entry = &((MapSearchEntry *)&gMapSearchTable)[i];
         entry->active = 1;
         entry->frame = gFrameCounter;
         entry->key = (s32)key;
@@ -2877,17 +2877,17 @@ void mapSearchTableUpdateVisibility(void) {
     s32 i;
 
     for (i = 0; i < 10; i++) {
-        if (((MapSearchEntry *)&D_807F7290)[i].active != 0) {
-            if (gFrameCounter == ((MapSearchEntry *)&D_807F7290)[i].frame) {
-                if ((f32)zbufferDepthToDistance((s16)zbufferReadDepth(((MapSearchEntry *)&D_807F7290)[i].x, ((MapSearchEntry *)&D_807F7290)[i].y)) <= (f32)((MapSearchEntry *)&D_807F7290)[i].maxDepth) {
-                    ((MapSearchEntry *)&D_807F7290)[i].visible = 1;
+        if (((MapSearchEntry *)&gMapSearchTable)[i].active != 0) {
+            if (gFrameCounter == ((MapSearchEntry *)&gMapSearchTable)[i].frame) {
+                if ((f32)zbufferDepthToDistance((s16)zbufferReadDepth(((MapSearchEntry *)&gMapSearchTable)[i].x, ((MapSearchEntry *)&gMapSearchTable)[i].y)) <= (f32)((MapSearchEntry *)&gMapSearchTable)[i].maxDepth) {
+                    ((MapSearchEntry *)&gMapSearchTable)[i].visible = 1;
                 } else {
-                    ((MapSearchEntry *)&D_807F7290)[i].visible = 0;
+                    ((MapSearchEntry *)&gMapSearchTable)[i].visible = 0;
                 }
             }
         }
-        if ((u32)(gFrameCounter - ((MapSearchEntry *)&D_807F7290)[i].frame) >= 3) {
-            ((MapSearchEntry *)&D_807F7290)[i].active = 0;
+        if ((u32)(gFrameCounter - ((MapSearchEntry *)&gMapSearchTable)[i].frame) >= 3) {
+            ((MapSearchEntry *)&gMapSearchTable)[i].active = 0;
         }
     }
 }
@@ -2899,7 +2899,7 @@ extern u8 D_807F72B5;
 u8 mapSearchTableGetValue(s32 key) {
     s32 i;
 
-    if (key == D_807F7290) { return D_807F72A1; } if (key == D_807F72A4) { return D_807F72B5; } // LAYOUT: same-line tests steer as1 scheduling
+    if (key == gMapSearchTable) { return D_807F72A1; } if (key == D_807F72A4) { return D_807F72B5; } // LAYOUT: same-line tests steer as1 scheduling
     for (i = 0; i < 8; i++) {
         if (key == D_807F72B8[i].key) {
             return D_807F72B8[i].visible;

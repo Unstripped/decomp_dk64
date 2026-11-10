@@ -204,7 +204,7 @@ extern u8 D_807F94AD;
 extern u8 D_807F94B2;
 extern u8 D_807F94B6;
 extern PlayerState *D_807F94B8;
-extern u8 D_807F9510;
+extern u8 sCamFloorHitCount;
 
 s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5, u8 *arg6, f32 *arg7, u8 arg8) {
     u8 meshHit;
@@ -247,7 +247,7 @@ s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg
     collisionClearFlags();
     D_807F94B2 = 0;
     D_807F9484 = 0;
-    D_807F9510 = 0;
+    sCamFloorHitCount = 0;
     meshY = arg2;
     meshHit = collisionTestSubmeshBoundary(arg1, arg3, &meshY, arg0);
     if ((meshHit != 0) && (arg0 != NULL)) {
@@ -626,13 +626,13 @@ s32 mathCheckCloserFloatThreshold(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
 extern u8 D_807F9484;
 extern f32 D_807F9488;
 extern u8 D_807F94B5;
-extern u8 D_807F9510;
+extern u8 sCamFloorHitCount;
 
 s32 collisionCheckGroundAtPoint(f32 arg0, f32 arg1, void *arg2) {
     s32 ret;
 
     D_807F9484 = 0;
-    D_807F9510 = 0;
+    sCamFloorHitCount = 0;
     ret = collisionTestSubmeshBoundary(arg0, arg1, arg2, NULL);
     D_807F94A4 = D_807F9498[0];
     D_807F94A2 = D_807F9490[0];
@@ -1082,25 +1082,25 @@ typedef struct CamFloorHit {
     /* 0x7 */ u8 unk7;
 } CamFloorHit; // size = 0x8
 
-extern CamFloorHit D_807F94C0[];
+extern CamFloorHit sCamFloorHits[];
 
 void collisionRecordTriangleS(CollisionStaticTri *arg0, f32 arg1) {
-    if (D_807F9510 != 10) {
-        D_807F94C0[D_807F9510].height = arg1 / 6.0f;
+    if (sCamFloorHitCount != 10) {
+        sCamFloorHits[sCamFloorHitCount].height = arg1 / 6.0f;
         if (collisionCheckTriangleWindingS16(arg0)) {
-            D_807F94C0[D_807F9510].flags = 1;
+            sCamFloorHits[sCamFloorHitCount].flags = 1;
         } else {
-            D_807F94C0[D_807F9510].flags = 2;
+            sCamFloorHits[sCamFloorHitCount].flags = 2;
         }
         if (arg0->unk12 & 1) {
-            D_807F94C0[D_807F9510].flags |= 4;
+            sCamFloorHits[sCamFloorHitCount].flags |= 4;
         }
         if (arg0->unk12 & 0x400) {
-            D_807F94C0[D_807F9510].flags |= 8;
+            sCamFloorHits[sCamFloorHitCount].flags |= 8;
         }
         collisionStoreTriangleNormalAnglesS16(NULL, arg0, 0);
-        D_807F94C0[D_807F9510].angle = D_807F94A8;
-        D_807F9510++;
+        sCamFloorHits[sCamFloorHitCount].angle = D_807F94A8;
+        sCamFloorHitCount++;
     }
 }
 extern s32 gFrameCounter;
@@ -1417,7 +1417,7 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
     }
 
     if (arg0 != NULL && (arg0->collisionFlags & 1)) {
-        if (func_806D0964(*gModelSlots[slotIdx].unk24, ((PlayerState *)arg0->customState)->playerIndex) != 0) {
+        if (playerSlotMatchesSizeMask(*gModelSlots[slotIdx].unk24, ((PlayerState *)arg0->customState)->playerIndex) != 0) {
             return 0;
         }
     }
@@ -1502,16 +1502,16 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
 
 
 void collisionRecordTriangleF(CollisionTriF *arg0, f32 arg1) {
-    if (D_807F9510 != 10) {
-        D_807F94C0[D_807F9510].height = arg1;
+    if (sCamFloorHitCount != 10) {
+        sCamFloorHits[sCamFloorHitCount].height = arg1;
         if (collisionCheckTriangleWindingF32(arg0)) {
-            D_807F94C0[D_807F9510].flags = 1;
+            sCamFloorHits[sCamFloorHitCount].flags = 1;
         } else {
-            D_807F94C0[D_807F9510].flags = 2;
+            sCamFloorHits[sCamFloorHitCount].flags = 2;
         }
         collisionStoreTriangleNormalAnglesF32(NULL, arg0, 0);
-        D_807F94C0[D_807F9510].angle = D_807F94A8;
-        D_807F9510++;
+        sCamFloorHits[sCamFloorHitCount].angle = D_807F94A8;
+        sCamFloorHitCount++;
     }
 }
 
@@ -1932,16 +1932,16 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
 }
 
 void collisionRecordBoxTriangle(CollisionBoxTri *arg0, f32 arg1) {
-    if (D_807F9510 != 0xA) {
-        D_807F94C0[D_807F9510].height = arg1;
+    if (sCamFloorHitCount != 0xA) {
+        sCamFloorHits[sCamFloorHitCount].height = arg1;
         if (collisionCheckBoxTriangleWinding(arg0) != 0) {
-            D_807F94C0[D_807F9510].flags = 1;
+            sCamFloorHits[sCamFloorHitCount].flags = 1;
         } else {
-            D_807F94C0[D_807F9510].flags = 2;
+            sCamFloorHits[sCamFloorHitCount].flags = 2;
         }
         collisionStoreBoxTriangleNormalAngles(NULL, arg0, 0);
-        D_807F94C0[D_807F9510].angle = D_807F94A8;
-        D_807F9510++;
+        sCamFloorHits[sCamFloorHitCount].angle = D_807F94A8;
+        sCamFloorHitCount++;
     }
 }
 

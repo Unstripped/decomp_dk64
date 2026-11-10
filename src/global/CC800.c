@@ -86,7 +86,7 @@ void func_806C7B50(s32 arg0, u8 arg1, Actor *arg2) {
     sub->unk8 = arg1;
 }
 
-void func_806C7BAC(s32 arg0, Actor *arg1) {
+void playerMountBarrel(s32 arg0, Actor *arg1) {
     G00SpawnSub *sub;
 
     actorSpawn(0x25, 0x8C);

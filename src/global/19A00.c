@@ -2059,7 +2059,7 @@ void scriptCmdCheckGlobalToggle(Actor *actor) {
     ((ScriptState *)actor->sub4)->unk88 = 1;
 }
 
-void scriptCmdCheckNegativeUnkC0(Actor *actor) {
+void scriptCmdCheckFalling(Actor *actor) {
     if (actor->speedY < 0.0f) {
         ((ScriptState *)actor->sub4)->unk88 = 1;
         return;
@@ -2075,14 +2075,14 @@ void scriptCmdResetActorScale(Actor *actor) {
     ((ScriptState *)actor->sub4)->unk88 = 0;
 }
 
-void scriptCmdSetActorUnkC0(Actor *actor) {
+void scriptCmdSetActorSpeedY(Actor *actor) {
     s16 value;
 
     scriptReadU16(&value);
     actor->speedY = (f32)value;
 }
 
-void scriptCmdSetActorUnkC4(Actor *actor) {
+void scriptCmdSetActorAccelY(Actor *actor) {
     f32 value;
 
     scriptReadU32(&value);
@@ -2436,6 +2436,6 @@ void scriptCmdIncrementActorResultByte35(Actor *actor) {
     }
 }
 
-void scriptCmdCheckActorUnkDEGe3DA(Actor *actor) {
+void scriptCmdCheckSlopePitch(Actor *actor) {
     ((ScriptState *)actor->sub4)->unk88 = actor->floorSlopePitch >= 0x3DA;
 }

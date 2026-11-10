@@ -354,17 +354,17 @@ void scriptCmdPlayActorSound(Actor *);
 #ifndef PROTO_SKIP_scriptCmdCheckGlobalToggle
 void scriptCmdCheckGlobalToggle(Actor *);
 #endif
-#ifndef PROTO_SKIP_scriptCmdCheckNegativeUnkC0
-void scriptCmdCheckNegativeUnkC0(Actor *);
+#ifndef PROTO_SKIP_scriptCmdCheckFalling
+void scriptCmdCheckFalling(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptCmdResetActorScale
 void scriptCmdResetActorScale(Actor *);
 #endif
-#ifndef PROTO_SKIP_scriptCmdSetActorUnkC0
-void scriptCmdSetActorUnkC0(Actor *);
+#ifndef PROTO_SKIP_scriptCmdSetActorSpeedY
+void scriptCmdSetActorSpeedY(Actor *);
 #endif
-#ifndef PROTO_SKIP_scriptCmdSetActorUnkC4
-void scriptCmdSetActorUnkC4(Actor *);
+#ifndef PROTO_SKIP_scriptCmdSetActorAccelY
+void scriptCmdSetActorAccelY(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptCmdActorCamShake
 void scriptCmdActorCamShake(Actor *);
@@ -417,7 +417,7 @@ void scriptCmdSetActorResultByte35(Actor *);
 #ifndef PROTO_SKIP_scriptCmdIncrementActorResultByte35
 void scriptCmdIncrementActorResultByte35(Actor *);
 #endif
-#ifndef PROTO_SKIP_scriptCmdCheckActorUnkDEGe3DA
-void scriptCmdCheckActorUnkDEGe3DA(Actor *);
+#ifndef PROTO_SKIP_scriptCmdCheckSlopePitch
+void scriptCmdCheckSlopePitch(Actor *);
 #endif
 #endif

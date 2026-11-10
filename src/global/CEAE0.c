@@ -983,7 +983,7 @@ f32 mathSinF(s16);
 
 #define G03_ABS(x) ((x) > 0.0f ? (x) : -(x))
 
-void func_806CC364(u8 clampFall) {
+void playerClampToWaterSurface(u8 clampFall) {
     f32 sum;
     f32 radius;
 
@@ -1014,7 +1014,7 @@ extern f32 D_807539C0[];
 void playerDecelerateAndApplyMotion(void) {
     gCurrentActor->speedXZ = mathApproachF32(gCurrentActor->speedXZ, 0.0f, D_807539C0[gCurrentCharacterIndex]);
     playerApplyMotion();
-    func_806CC364(1);
+    playerClampToWaterSurface(1);
 }
 
 extern s16 D_80753A2C[];
@@ -1068,7 +1068,7 @@ void playerApplyDecelVelocityVector(f32 unused) {
     actorStepPhysics(gCurrentActor, gCurrentActor->moveYaw, gCurrentActor->yaw);
     actorApplyVelocityCustom(gCurrentActor, gCurrentActor->speedXZ, gCurrentActor->speedY);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-    func_806CC364(0);
+    playerClampToWaterSurface(0);
 }
 
 extern u8 D_807FD586;
@@ -2112,7 +2112,7 @@ void playerRegisterHeldActorAlign(void) {
 
     if (gActivePlayerState->heldActor != NULL) {
         node = heapAlloc(0x14);
-        node->callback = func_806CF138;
+        node->callback = playerHeldActorAlignStep;
         node->player = gCurrentActor;
         node->held = gActivePlayerState->heldActor;
         node->done = 0;
@@ -2126,7 +2126,7 @@ typedef struct G05CbArg2 {
 } G05CbArg2;
 
 
-void func_806CF138(G05CbArg2 *align) {
+void playerHeldActorAlignStep(G05CbArg2 *align) {
     f32 bx;
     f32 ax;
     f32 by;
@@ -2673,7 +2673,7 @@ void playerScaleTransitionStep(void) {
     gActivePlayerState->scaleMode = gActivePlayerState->scaleMode + 1;
 }
 
-s32 func_806D0964(s32 mask, u8 playerIndex) {
+s32 playerSlotMatchesSizeMask(s32 mask, u8 playerIndex) {
     s16 type = gPlayerSlots[playerIndex].actor->actorType;
 
     if (type != 6) {

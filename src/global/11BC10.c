@@ -1280,7 +1280,7 @@ void effectTimedLightIntensityFade(TimedLightActorView *effect, s8 *isDone) {
 }
 
 extern s32 D_8002FBB0[];
-extern s32 D_8002FBC0;
+extern s32 gLightSlotsEnd;
 void timedLightOrbitUpdate(TimedLightActorView *effect, s8 *isDone) {
     f32 ratio;
     s32 *slot;
@@ -1300,7 +1300,7 @@ void timedLightOrbitUpdate(TimedLightActorView *effect, s8 *isDone) {
             return;
         }
         slot++;
-    } while (slot != &D_8002FBC0);
+    } while (slot != &gLightSlotsEnd);
 }
 
 
