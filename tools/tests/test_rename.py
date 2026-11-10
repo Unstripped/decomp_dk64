@@ -164,3 +164,58 @@ def test_field_dry_run_lists_every_reference_and_flags_macros(tmp_path, capsys):
     assert "MACRO AX src/global/one.c:4:12" in cap.out
     assert "reference inside a macro" in cap.err
     assert _snapshot(tmp_path) == before
+
+
+FOLD_SRC = """\
+typedef struct P { s32 x; s32 y; } P;
+extern P gPair;
+extern s32 D_80700004;
+s32 f(void) { return D_80700004 + 1; }
+s32 g(void) { return D_80700004; }
+"""
+
+
+def _fold_tree(tmp_path, held=""):
+    _tree(tmp_path, {
+        "src/global/a.c": '#include "common.h"\n' + FOLD_SRC,
+        "symbol_addrs.us.txt": "gPair = 0x80700000;\nD_80700004 = 0x80700004;\nother = 0x80700010;\n",
+        ".scratch/cleanup-brief.md": "# Round 1\n- src: src/global/b.c\n" + held,
+    })
+
+
+def test_fold_replaces_refs_drops_extern_and_symbol(tmp_path, monkeypatch, capsys):
+    _fold_tree(tmp_path)
+    monkeypatch.setattr(rename, "VERIFY", lambda copy, src: 0)
+    assert _run(tmp_path, "fold", "global", "D_80700004", "gPair.y") == 0
+    text = (tmp_path / "src/global/a.c").read_text()
+    assert "D_80700004" not in text and text.count("gPair.y") == 2
+    assert "D_80700004" not in (tmp_path / "symbol_addrs.us.txt").read_text()
+
+
+def test_fold_dry_run_and_mismatch_keep_everything(tmp_path, monkeypatch):
+    _fold_tree(tmp_path)
+    before = _snapshot(tmp_path)
+    monkeypatch.setattr(rename, "VERIFY", lambda copy, src: 0)
+    assert _run(tmp_path, "fold", "global", "D_80700004", "gPair.y", "--dry-run") == 0
+    monkeypatch.setattr(rename, "VERIFY", lambda copy, src: 1)
+    assert _run(tmp_path, "fold", "global", "D_80700004", "gPair.y") == 2
+    after = {p: b for p, b in _snapshot(tmp_path).items() if ".scratch/fold" not in str(p)}
+    assert after == before
+
+
+def test_fold_per_ref_keeps_mismatching_reference(tmp_path, monkeypatch):
+    _fold_tree(tmp_path)
+    # a fold matches only while the reference in g() keeps the label
+    monkeypatch.setattr(rename, "VERIFY", lambda copy, src: 0 if "return D_80700004;" in open(Path(tmp_path) / copy).read() else 1)
+    assert _run(tmp_path, "fold", "global", "D_80700004", "gPair.y", "--per-ref") == 2
+    text = (tmp_path / "src/global/a.c").read_text()
+    assert "return gPair.y + 1;" in text and "return D_80700004;" in text and "extern s32 D_80700004;" in text
+    assert "D_80700004" in (tmp_path / "symbol_addrs.us.txt").read_text()
+
+
+def test_fold_refuses_checked_out_file(tmp_path, monkeypatch):
+    _fold_tree(tmp_path, held="- src: src/global/a.c\n")
+    monkeypatch.setattr(rename, "VERIFY", lambda copy, src: 0)
+    before = _snapshot(tmp_path)
+    assert _run(tmp_path, "fold", "global", "D_80700004", "gPair.y") == 1
+    assert _snapshot(tmp_path) == before

@@ -13,6 +13,19 @@
                                                        when <path> is under include/, else that file only
   uv run tools/rename.py local <file.c> <FUNC> <old> <new>
                                                      a parameter or local of FUNC (works on private copies)
+  uv run tools/rename.py fold <seg> <label> <parent-expr> [--per-ref] [--held SRC...]
+                                                     a split label (D_80744474, D_8002F054) becomes an access
+                                                       through its parent (gFramebuffers[1], jetpacPlayer.y):
+                                                       every AST reference in the segment's src is replaced,
+                                                       each touched file must pass `fdiff --reloc-ok` (else
+                                                       it is left alone; --per-ref keeps the references
+                                                       whose fold still matches), its now-unused extern is
+                                                       dropped, and the symbol-file / undefined_syms line
+                                                       goes once nothing (src, include, asm) names it.
+                                                       Refuses when a reference sits in a checked-out file
+                                                       (--held, default the last `# Round` of
+                                                       .scratch/cleanup-brief.md) or inside a macro.
+                                                       Exit 2 when some references stay.
 
 func/global edit src/<seg>/ for an overlay, every non-libultra src/ file plus the top-level game headers
 (include/*.h) for global and boot. AST renames also parse files with #ifdef NON_MATCHING a second time
@@ -381,6 +394,127 @@ def cmd_local(a):
     apply([(*s, old, new) for s in edits], a.dry_run)
     return 0
 
+# ---- fold: a split label into an access through its parent ----
+
+HELD_BRIEF = ".scratch/cleanup-brief.md"
+
+
+def held_files():
+    """src files checked out by the current cleanup round: the `- src:` lines of the last `# Round`
+    section of .scratch/cleanup-brief.md (none when there is no brief)."""
+    p = os.path.join(ROOT, HELD_BRIEF)
+    if not os.path.exists(p):
+        return set()
+    text = read(HELD_BRIEF)
+    rounds = [m.start() for m in re.finditer(r"(?m)^# Round ", text)]
+    last = text[rounds[-1]:] if rounds else ""
+    return set(re.findall(r"(?m)^- src: (src/\S+?\.c)", last))
+
+
+def fdiff_reloc_ok(copy, src):
+    """Exit status of tools/fdiff.sh --reloc-ok COPY SRC (0: OK or RELOC-EQUIV OK)."""
+    return subprocess.run(["tools/fdiff.sh", "--reloc-ok", copy, src], cwd=ROOT, capture_output=True).returncode
+
+
+VERIFY = fdiff_reloc_ok
+
+
+def label_sites(f, label):
+    """([(line, col)] of DECL_REF_EXPRs naming LABEL, [(line, col, macro)] inside macro expansions,
+    [line] of file-scope declarations of LABEL) in F."""
+    lines_of, refs, macro, decls = line_cache(), set(), set(), set()
+    for extra in modes(f):
+        tu = clint.parse(f, extra)
+        for top in tu.cursor.get_children():
+            if not clint.same_file(top, f):
+                continue
+            if top.kind == CursorKind.VAR_DECL and top.spelling == label:
+                decls.add(top.extent.start.line)
+            for c in clint.walk(top):
+                if c.kind == CursorKind.DECL_REF_EXPR and c.spelling == label:
+                    s, ok = site(c, label, lines_of)
+                    if ok:
+                        refs.add(s[1:])
+                    else:
+                        m = IDENT.match(lines_of(s[0])[s[1] - 1], s[2] - 1)
+                        macro.add((*s[1:], m.group(0) if m else "?"))
+    return sorted(refs), sorted(macro), sorted(decls)
+
+
+def fold_text(text, label, expr, refs, drop_decls):
+    lines = text.split("\n")
+    for ln, col in sorted(refs, reverse=True):
+        s = lines[ln - 1]
+        if s[col - 1:col - 1 + len(label)] != label:
+            raise Refuse(f"line {ln}:{col}: expected {label}")
+        lines[ln - 1] = s[:col - 1] + expr + s[col - 1 + len(label):]
+    for ln in sorted(drop_decls, reverse=True):
+        if not re.match(rf"\s*extern\b[^;]*\b{re.escape(label)}\b[^;]*;\s*(//.*)?$", lines[ln - 1]):
+            raise Refuse(f"line {ln}: not a one-line extern declaration of {label}")
+        del lines[ln - 1]
+    return "\n".join(lines)
+
+
+def cmd_fold(a):
+    seg, label, expr = a.seg, a.label, a.expr
+    parent = IDENT.match(expr)
+    if not parent or parent.group(0) == label:
+        raise Refuse(f"parent expression must start with the parent symbol: {expr}")
+    files = [f for f in scope_files(seg) if f.endswith(".c") and word(label).search(read(f))]
+    if not files:
+        raise Refuse(f"not found: {label}")
+    held = sorted(set(files) & (set(a.held) if a.held is not None else held_files()))
+    if held:
+        raise Refuse("referenced in checked-out files: " + " ".join(held))
+    scratch = os.path.join(ROOT, ".scratch", "fold")
+    folded, kept = {}, []
+    for f in files:
+        refs, macro, decls = label_sites(f, label)
+        if macro:
+            raise Refuse(f"reference inside a macro: {f}:" + " ".join(f"{l}:{c} ({m})" for l, c, m in macro))
+        text = read(f)
+        copy = os.path.join(scratch, f.replace("/", "_"), os.path.basename(f))
+        os.makedirs(os.path.dirname(copy), exist_ok=True)
+
+        def ok(subset):
+            t = fold_text(text, label, expr, subset, decls if len(subset) == len(refs) else [])
+            with open(copy, "w", encoding="latin-1", newline="") as fh:
+                fh.write(t)
+            return VERIFY(rel(copy), f) == 0, t
+
+        good, t = ok(refs)
+        chosen = list(refs) if good else []
+        if not good and a.per_ref:  # greedy: keep each reference whose fold still matches
+            for r in refs:
+                g, _ = ok(chosen + [r])
+                if g:
+                    chosen.append(r)
+            good, t = ok(chosen) if chosen else (False, text)
+        for r in refs:
+            print(f"{f}:{r[0]}:{r[1]} {label}→{expr}" + ("" if r in chosen else "  KEPT (fdiff mismatch)"))
+        if good and (chosen or decls):  # also a file holding only the extern
+            folded[f] = t
+        if len(chosen) < len(refs):
+            kept.append(f)
+    if not a.dry_run:
+        for f, t in folded.items():
+            write(f, t)
+    left = [f for f in scope_files(seg) if word(label).search(folded.get(f) or read(f))]
+    left += [p for p in sorted(glob.glob("asm/**/*.s", root_dir=ROOT, recursive=True))
+             if "nonmatchings" in p and word(label).search(read(p))][:1]
+    if not left:
+        for sf in sorted(glob.glob("symbol_addrs*.txt", root_dir=ROOT)) + sorted(glob.glob("undefined_syms*.txt", root_dir=ROOT)):
+            lines = read(sf).split("\n")
+            keep = [x for x in lines if not re.match(rf"\s*{re.escape(label)}\s*=", x)]
+            if len(keep) != len(lines):
+                print(f"{sf}: drop {label}")
+                if not a.dry_run:
+                    write(sf, "\n".join(keep))
+    print(f"fold: {len(folded)} file(s) folded" + (f", references kept in {' '.join(kept)}" if kept else "")
+          + (" (dry run)" if a.dry_run else ""))
+    return 0 if not kept else 2
+
+
 
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -402,6 +536,12 @@ def main(argv=None):
     s.add_argument("func")
     s.add_argument("old")
     s.add_argument("new")
+    s = sub.add_parser("fold")
+    s.add_argument("seg")
+    s.add_argument("label")
+    s.add_argument("expr")
+    s.add_argument("--per-ref", action="store_true", help="fold only the references whose file still matches")
+    s.add_argument("--held", nargs="*", default=None, help="checked-out src files (default: the brief's last round)")
     for s in sub.choices.values():
         s.add_argument("--dry-run", action="store_true")
     a = p.parse_args(argv)
@@ -409,6 +549,8 @@ def main(argv=None):
     try:
         if a.cmd in ("func", "global"):
             return cmd_symbol(a, a.cmd == "func")
+        if a.cmd == "fold":
+            return cmd_fold(a)
         return cmd_field(a) if a.cmd == "field" else cmd_local(a)
     except Refuse as e:
         print(f"rename: refused: {e}", file=sys.stderr)
