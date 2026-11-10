@@ -77,11 +77,14 @@ typedef struct {
     /* 0x228 */ f32 focusX;
     /* 0x22C */ f32 focusY;
     /* 0x230 */ f32 focusZ;
-    /* 0x234 */ u8 pad234[0xC];
+    /* 0x234 */ f32 unk234;
+    /* 0x238 */ f32 unk238;
+    /* 0x23C */ f32 unk23C;
     /* 0x240 */ f32 upX;
     /* 0x244 */ f32 upY;
     /* 0x248 */ f32 upZ;
-    /* 0x24C */ u8 pad24C[0x270 - 0x24C];
+    /* 0x24C */ f32 unk24C;
+    /* 0x250 */ Vp viewport[2];
     s16 rect[4];
     s16 unk278;
     s16 unk27A;
@@ -90,7 +93,8 @@ typedef struct {
     /* 0x284 */ f32 unk284;
     /* 0x288 */ u8 pad288[4];
     /* 0x28C */ f32 prevFov;
-    /* 0x290 */ u8 pad290[0x29C - 0x290];
+    /* 0x290 */ s16 unk290;
+    /* 0x292 */ u8 pad292[0x29C - 0x292];
     s16 queuedState;
     u8 pad29E[2];
     struct Actor *queuedActor;
@@ -108,7 +112,8 @@ typedef struct {
     /* 0x2C8 */ s16 unk2C8;
     /* 0x2CA */ u8 pad2CA[6];
     /* 0x2D0 */ f32 unk2D0;
-    /* 0x2D4 */ u8 pad2D4[0x2E9 - 0x2D4];
+    /* 0x2D4 */ u8 pad2D4[0x2E8 - 0x2D4];
+    /* 0x2E8 */ u8 unk2E8;
     /* 0x2E9 */ u8 unk2E9;
     u8 unk2EA;
     u8 unk2EB;

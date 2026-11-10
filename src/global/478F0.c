@@ -2524,9 +2524,9 @@ s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
         if (!(actor->flags & 0x2000) && actor->actorType == 4 && actor->attachMode == 1 && csId == actor->cutsceneId) {
-            if (b != actor->unk10E[0] && actor->unk10E[0] != 0) {
-                modelAnimEntryStart(csId, actor->unk10E[0], 2);
-                csSendActorMessagePayload(actor->unk10E[0] + 4, 0);
+            if (b != actor->unk10E && actor->unk10E != 0) {
+                modelAnimEntryStart(csId, actor->unk10E, 2);
+                csSendActorMessagePayload(actor->unk10E + 4, 0);
                 return 1;
             }
         }
@@ -2908,7 +2908,7 @@ s32 csFindPlayerSlotByModel(s32 a, s32 b) {
         do {
             if (p->active != 0) {
                 q = p->actor;
-                if (q->attachMode == 1 && q->cutsceneId == a && q->unk10E[0] == b) {
+                if (q->attachMode == 1 && q->cutsceneId == a && q->unk10E == b) {
                     return i;
                 }
             }

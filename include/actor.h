@@ -271,7 +271,8 @@ typedef struct Actor {
     /* 0x0FD */ u8 collisionHit;
     /* 0x0FE */ u8 unkFE[0xE];
     /* 0x10C */ s16 cutsceneId;
-    /* 0x10E */ u8 unk10E[2];
+    /* 0x10E */ u8 unk10E;
+    /* 0x10F */ u8 unk10F;
     /* 0x110 */ u8 attachMode;
     /* 0x111 */ u8 unk111[3];
     /* 0x114 */ ActorList *riderList;
@@ -282,7 +283,8 @@ typedef struct Actor {
     /* 0x128 */ s16 alpha;
     /* 0x12A */ s16 drawDistance;
     /* 0x12C */ s16 chunkIndex;
-    /* 0x12E */ u8 pad12E[2];
+    /* 0x12E */ u8 pad12E;
+    /* 0x12F */ u8 unk12F;
     /* 0x130 */ u8 cullMarginX;
     /* 0x131 */ u8 cullMarginY;
     /* 0x132 */ s16 interactionType;
@@ -528,7 +530,9 @@ typedef struct PlayerState {
     /* 0x1DC */ f32 targetScaleFactor;
     /* 0x1E0 */ f32 scaleStep;
     /* 0x1E4 */ s32 scaleMode;
-    /* 0x1E8 */ u8 pad1E8[6];
+    /* 0x1E8 */ f32 unk1E8;
+    /* 0x1EC */ u8 unk1EC;
+    /* 0x1ED */ u8 pad1ED;
     /* 0x1EE */ s16 savedActorType;
     /* 0x1F0 */ s32 stateFlags;
     /* 0x1F4 */ s32 stateFlags2;
