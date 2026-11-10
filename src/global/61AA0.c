@@ -9,7 +9,7 @@
 
 extern s8 D_807F7F00;
 
-void renderSetSegment6Override(s8 segment) {
+void renderSetSegment6Override(u8 segment) {
     D_807F7F00 = segment;
 }
 

@@ -758,7 +758,7 @@ void func_80711BD0(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
 }
 
 
-void func_80711F90(f32 density, s16 windAngle, s32 unused, s16 mapChunk, f32 scale) {
+void func_80711F90(f32 density, s16 windAngle, f32 unused, s16 mapChunk, f32 scale) {
     f32 randX;
     s32 idx;
     s32 count;

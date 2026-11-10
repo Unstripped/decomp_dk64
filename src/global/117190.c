@@ -906,7 +906,7 @@ s32 menuIsTransitionTypeAOrE(void) {
 extern s8 D_8074452C;
 extern u8 D_807467C8;
 
-void func_807144B8(u8 saveSlot) {
+void func_807144B8(s8 saveSlot) {
     s32 map;
     s32 exit;
 

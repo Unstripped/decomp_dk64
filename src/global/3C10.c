@@ -332,7 +332,7 @@ void mapTransitionExitCurrent(s32 map, s32 exitIndex) {
     mapRequestTransition(map, exitIndex);
 }
 
-void mapSetTransitionExtraCounter(s8 count) {
+void mapSetTransitionExtraCounter(u8 count) {
     D_80744820 = count;
 }
 

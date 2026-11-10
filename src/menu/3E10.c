@@ -4,7 +4,6 @@
 #define PROTO_SKIP_actorUpdateCollisionSpheres // PROTO: not a function here
 #define PROTO_SKIP_eepromGetField // FAKE: callee prototype steer
 #define PROTO_SKIP_eepromSetCurrentSlot // FAKE: callee prototype steer
-#define PROTO_SKIP_func_807144B8 // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/104F0.h"
@@ -541,7 +540,6 @@ void menuCheckCheatCodeSequence(void) {
     }
 }
 
-void func_807144B8(s8);  // FAKE: callee prototype steer
 extern s8 D_80033F48;
 
 void menuHandleConfirmationInput(Actor *actor, s32 buttons) {

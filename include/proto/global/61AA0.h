@@ -4,7 +4,7 @@
 #include "common.h"
 #include "actor.h"
 #ifndef PROTO_SKIP_renderSetSegment6Override
-void renderSetSegment6Override(s8);
+void renderSetSegment6Override(u8);
 #endif
 #ifndef PROTO_SKIP_renderReplaceSegment6Commands
 void renderReplaceSegment6Commands(Gfx *, Gfx *);

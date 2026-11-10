@@ -1,8 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_func_80711F90 // FAKE: callee prototype steer
 #define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
-#define PROTO_SKIP_mapSetTransitionExtraCounter // FAKE: callee prototype steer
 #include "proto/global/109660.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/114270.h"
@@ -226,9 +224,7 @@ typedef struct {
 } PlayerActorC4;
 struct ActorPlayerPos;
 
-void mapSetTransitionExtraCounter(u8); // FAKE: callee prototype steer
 s32 mapGetHubWorldIndex(u8, s32); // FAKE: callee prototype steer
-void func_80711F90(f32, s16, f32, s16, f32); // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;
 extern ActorGlobalState gActorGlobalState;

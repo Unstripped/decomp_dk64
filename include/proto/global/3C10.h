@@ -54,7 +54,7 @@ void mapLoadSavedSlotSpawn(s32);
 void mapTransitionExitCurrent(s32, s32);
 #endif
 #ifndef PROTO_SKIP_mapSetTransitionExtraCounter
-void mapSetTransitionExtraCounter(s8);
+void mapSetTransitionExtraCounter(u8);
 #endif
 #ifndef PROTO_SKIP_func_805FF670
 void func_805FF670(void);

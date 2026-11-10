@@ -49,7 +49,7 @@ void func_80711950(f32, s16, s16);
 void func_80711BD0(f32, s16, s16, u8);
 #endif
 #ifndef PROTO_SKIP_func_80711F90
-void func_80711F90(f32, s16, s32, s16, f32);
+void func_80711F90(f32, s16, f32, s16, f32);
 #endif
 #ifndef PROTO_SKIP_effectSpritePoolFadeOut
 s32 effectSpritePoolFadeOut(void);

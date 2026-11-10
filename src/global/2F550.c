@@ -2,7 +2,6 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
-#define PROTO_SKIP_renderSetSegment6Override // FAKE: callee prototype steer
 #include "proto/global/109660.h"
 #include "proto/global/117190.h"
 #include "proto/global/126260.h"
@@ -1589,7 +1588,6 @@ extern s32 *D_807F5FD4;
 extern s32 sMapSoundEmitterCount;
 extern s32 sMapSoundEmitters;
 
-void renderSetSegment6Override(u8);  // FAKE: callee prototype steer
 struct MapRelocNode;
 
 void mapHeaderLoad(MapFileHeader *arg0) {

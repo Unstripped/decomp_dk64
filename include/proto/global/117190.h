@@ -160,7 +160,7 @@ s32 menuIsTransitionType5(void);
 s32 menuIsTransitionTypeAOrE(void);
 #endif
 #ifndef PROTO_SKIP_func_807144B8
-void func_807144B8(u8);
+void func_807144B8(s8);
 #endif
 #ifndef PROTO_SKIP_func_8071458C
 void func_8071458C(void);
