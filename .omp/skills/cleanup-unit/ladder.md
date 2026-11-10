@@ -75,10 +75,10 @@ A function with 3+ non-kept sites also needs a fresh function-level `reconstruct
   carved into named fields, a padding array shrunk around them unless `sizeof` is reached); a
   changed prototype, macro, typedef, enum or layout keeps them stale and is listed.
 - `diagnose`, `permute`, `reconstruct`, `goto-hand`, `review`: fresh while `fp_local` is equal
-  and no `knowledge/ido` file committed after the event names the function or is among the top
-  8 hits for the event's note (its free text only: `key=value` tokens such as the review
-  checklist or `quirks=`, and `carried from ...` prefixes, are stripped; a note of only such
-  tokens gets the name check alone).
+  and no `knowledge/ido` file committed after the event names the function; for `diagnose`,
+  `permute` and `reconstruct` also none among the top 8 hits for the event's note (its free text
+  only: `key=value` tokens such as `quirks=`, and `carried from ...` prefixes, are stripped; a
+  note of only such tokens gets the name check alone).
 - A method counts through its newest event by time (carried events keep their original time) if
   that is fresh and not `blocked`. A fresh `hit` makes the site OPEN `next=apply` (the sweep found
   a match nobody merged yet).

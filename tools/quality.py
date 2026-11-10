@@ -48,8 +48,9 @@ Fresh: remove/plain/cond/classify/consolidate/views/names need equal fp_local an
 the include/ declarations, types and macros the function reaches, or the whole header fp_hdr when
 it reaches a `##` macro; events without it: the whole
 header fp_hdr); diagnose/permute/reconstruct/goto-hand/review need equal fp_local and no
-knowledge/ido file committed after the event that names the function or is a top-8 hit for the
-free text of the event's note (key=value tokens and carry prefixes stripped).
+knowledge/ido file committed after the event that names the function or, for diagnose/permute/
+reconstruct only, is a top-8 hit for the free text of the event's note (key=value tokens and carry
+prefixes stripped).
 A function is EXHAUSTED with a fresh `review`, every site exhausted, and (3+ non-kept sites) a
 fresh function-level `reconstruct`; without a fresh review it is OPEN next=review.
 
@@ -101,6 +102,7 @@ LADDER = {"dead-if": ("remove", "cond", "classify", "diagnose", "permute"),
 METHODS = ("remove", "plain", "cond", "classify", "consolidate", "diagnose", "permute", "reconstruct",
            "goto-hand", "views", "names", "review")
 AUTO = {"remove", "plain", "cond", "classify", "consolidate", "views", "names"}
+NOTE_METHODS = {"diagnose", "permute", "reconstruct"}  # knowledge also stales them via their note
 FUNC_ONLY = {"views", "names", "review"}
 OUTCOMES = ("hit", "fixed", "nohit", "kept", "blocked")
 CHECKLIST = ("fake", "goto", "casts", "views", "protos", "temps", "names", "uninit")
@@ -540,7 +542,7 @@ def note_text(note):
 
 def knowledge_after(name, note, t):
     """Whether a knowledge/ido file committed after T names NAME or is a top-8 hit for NOTE's free
-    text (checklist tokens stripped: they match every broad entry)."""
+    text (checklist tokens stripped: they match every broad entry; NOTE None: the name check alone)."""
     if "times" not in _know:
         _know["times"] = ledger.knowledge_times()
         _know["newest"] = max((v for v in _know["times"].values() if v), default="")
@@ -563,12 +565,15 @@ def hdr_fresh(e, now_fp):
 
 
 def fresh(e, now_fp, name):
-    """NOW_FP = (fp_local, fp_hdr[, fp_hdr2])."""
+    """NOW_FP = (fp_local, fp_hdr[, fp_hdr2]). Knowledge stales an agent method through the
+    function's name; only NOTE_METHODS also through the top-8 hits of their note: a review's or
+    goto rewrite's prose (`re-read`, `steer`) matches unrelated broad entries."""
     if e["fp_local"] != now_fp[0]:
         return False
     if e["method"] in AUTO:
         return hdr_fresh(e, now_fp)
-    return not knowledge_after(name or e["name"], e["note"], e["t"])
+    note = e["note"] if e["method"] in NOTE_METHODS else None
+    return not knowledge_after(name or e["name"], note, e["t"])
 
 
 def mark(evs, method, now_fp, name):

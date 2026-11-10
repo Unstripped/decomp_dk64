@@ -293,6 +293,23 @@ def test_review_freshness_ignores_checklist_tokens(monkeypatch):
     assert calls[-1] == "regalloc swap"
 
 
+def test_note_hits_stale_only_diagnose_permute_reconstruct(monkeypatch):
+    # Q0589/Q0118: a broad entry matching a review's prose (`re-read`, `steer`) staled reviews
+    monkeypatch.setattr(q, "knowledge_after", _real_knowledge_after)
+    monkeypatch.setattr(q.ledger, "related_knowledge", lambda corpus, name, note: (
+        {"knowledge/ido/entries/Q9001.md"} if note else set()) | (
+        {"knowledge/ido/entries/Q9002.md"} if name == "named" else set()))
+    times = {"knowledge/ido/entries/Q9001.md": "2026-02-01T00:00:00Z",
+             "knowledge/ido/entries/Q9002.md": "2026-02-01T00:00:00Z"}
+    monkeypatch.setattr(q, "_know", {"times": times, "newest": max(times.values()), "corpus": []})
+    note = "re-read after the steer fix " + REVIEW
+    for m in ("review", "goto-hand"):
+        assert q.fresh(ev(None, m, "nohit", note=note), FP, "f")  # note hit alone: still fresh
+        assert not q.fresh(ev(None, m, "nohit", note=note, name="named"), FP, "named")  # name hit
+    for m in ("diagnose", "permute", "reconstruct"):
+        assert not q.fresh(ev(None, m, "nohit", note=note), FP, "f")
+
+
 def test_newest_by_time_wins_over_carried_older_event():
     fresh = ev(SITE, "diagnose", "nohit", t="2026-01-02T00:00:00Z", quirks=["Q0001"])
     carried = ev(SITE, "diagnose", "blocked", t="2026-01-01T00:00:00Z", agent="carry")
