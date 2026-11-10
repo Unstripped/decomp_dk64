@@ -335,6 +335,61 @@ def test_per_function_header_fingerprint(tmp_path, monkeypatch):
     assert not q.fresh(old, fp2["h"], "h")
 
 
+def test_token_pasting_macro_falls_back_to_whole_header(tmp_path, monkeypatch):
+    root = tmp_path.resolve()
+    (root / "src" / "global").mkdir(parents=True)
+    monkeypatch.chdir(root)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(root))
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: {"f": 0x80600000, "h": 0x80600100}[name])
+    m_h = root / "include" / "m.h"
+    m_h.parent.mkdir()
+    m_h.write_text("#define PICK(n) VAL_##n\n#define VAL_1 10\n#define OTHER 3\n")
+    (root / "src" / "global" / "x.c").write_text(
+        '#include "m.h"\nint f(void) {\n    return PICK(1);\n}\nint h(void) {\n    return OTHER;\n}\n')
+
+    def state():
+        monkeypatch.setattr(q, "_htext", {})
+        return {fn["name"]: fn["fp_hdr2"] for fn in q.analyze("src/global/x.c", "global")["functions"]}
+
+    fp0 = state()
+    m_h.write_text("#define PICK(n) VAL_##n\n#define VAL_1 11\n#define OTHER 3\n")
+    fp1 = state()
+    assert fp1["f"] != fp0["f"]  # VAL_1 only reached through VAL_##n
+    assert fp1["h"] == fp0["h"]
+
+
+def test_carry_skips_token_pasting_function(tmp_path, monkeypatch, capsys):
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: {"f": 0x80600000, "h": 0x80600100}[name])
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    src = repo / "src" / "global" / "x.c"
+    tail = "int f(void) {\n    return PICK(1);\n}\nint h(void) {\n    return 2;\n}\n"
+    src.write_text("#define PICK(n) VAL_##n\n#define VAL_1 10\ntypedef struct { int c; } ViewC;\n" + tail)
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fns = {fn["name"]: dict(fn, file="src/global/x.c") for fn in q.analyze("src/global/x.c", "global")["functions"]}
+    q.append_events([q.event("u1", "a", fns[n], None, "review", "nohit", note="fake=0/0") for n in ("f", "h")])
+    src.write_text("#define PICK(n) VAL_##n\n#define VAL_1 10\n" + tail)  # unused ViewC deleted
+    _git(repo, "commit", "-qam", "b")
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2"])
+    out = capsys.readouterr().out
+    carried = [e for e in q.load_events() if e.get("agent") == "carry"]
+    assert {e["name"] for e in carried} == {"h"}
+    assert "f: token-pasting macro PICK: dependencies not tracked" in out
+
+
 def test_note_text_strips_carry_prefixes():
     assert q.note_text("carried from abc^ (unrelated file-scope changes only): carried from def (identifier "
                        "renames only): " + REVIEW) is None

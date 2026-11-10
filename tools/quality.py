@@ -38,7 +38,8 @@ Ladder (required fresh methods per kind; first missing = next):
 Satisfied by the method's newest event (by time) when fresh and not `blocked`; a fresh `hit` means
 next=apply.
 Fresh: remove/plain/cond/classify/consolidate/views/names need equal fp_local and fp_hdr2 (hash of
-the include/ declarations, types and macros the function reaches; events without it: the whole
+the include/ declarations, types and macros the function reaches, or the whole header fp_hdr when
+it reaches a `##` macro; events without it: the whole
 header fp_hdr); diagnose/permute/reconstruct/goto-hand/review need equal fp_local and no
 knowledge/ido file committed after the event that names the function or is a top-8 hit for the
 free text of the event's note (key=value tokens and carry prefixes stripped).
@@ -434,7 +435,7 @@ def analyze(path, seg, text=None, uninit=False, src=None):
             unresolved.append(d["name"])
         d["fp_local"] = ledger.sha1("\n".join(lines[d["line"] - 1:d["end"]]) + "\0" + top)[:16]
         d["fp_hdr"] = hdr
-        d["fp_hdr2"] = scope.fp_hdr2(body_names(by_line, d))
+        d["fp_hdr2"] = scope.fp_hdr2(body_names(by_line, d), hdr)
         seen = collections.Counter()
         for idx, kind, tagged in sorted(raw[k], key=lambda r: (r[0][0], not r[2])):
             h = ledger.sha1(norm(lines[j] for j in idx))[:6]
@@ -1149,16 +1150,20 @@ class Scope:
     """Name reachability over one TU's top-level declarations (`top_index`), memoized per name."""
 
     def __init__(self, tu):
-        self.idx, self.memo = top_index(tu), {}
+        self.idx, self.memo, self.pasting = top_index(tu), {}, set()
 
     def direct(self, name):
-        """(sorted (file, text) of NAME's top-level declarations, identifiers their tokens name)."""
+        """(sorted (file, text) of NAME's top-level declarations, identifiers their tokens name).
+        Records NAME in `pasting` when one of its macro definitions uses `##`: the identifiers it
+        pastes together are not tokens, so closures through it are incomplete."""
         if name not in self.memo:
             vals, names = set(), set()
             for c in self.idx[name]:
                 dt = decl_tokens(c)
                 vals.add((rel(os.path.join(ROOT, c.location.file.name)), " ".join(t.spelling for t in dt)))
                 names.update(t.spelling for t in dt if t.kind == TokenKind.IDENTIFIER)
+                if c.kind == CursorKind.MACRO_DEFINITION and any(t.spelling == "##" for t in dt):
+                    self.pasting.add(name)
             self.memo[name] = (sorted(vals), names)
         return self.memo[name]
 
@@ -1166,7 +1171,7 @@ class Scope:
         """name -> sorted (file, text) of every top-level declaration NAMES reach, transitively
         through the declarations' own tokens (types, fields' types, macros, prototypes). Name-based,
         so it over-includes (a local shadowing a global name pulls the global in), never
-        under-includes."""
+        under-includes, except through token-pasting macros (`pasted`)."""
         seen, stack = {}, list(names)
         while stack:
             name = stack.pop()
@@ -1176,12 +1181,21 @@ class Scope:
             stack += [n for n in more if n not in seen]
         return seen
 
-    def fp_hdr2(self, names):
+    def pasted(self, closure):
+        """First (sorted) token-pasting macro in CLOSURE, or None."""
+        return min((n for n in closure if n in self.pasting), default=None)
+
+    def fp_hdr2(self, names, whole):
         """sha1 of the include/ declarations NAMES reach: a function's own header fingerprint
-        (a regenerated proto header or an edited struct changes it only for its users)."""
+        (a regenerated proto header or an edited struct changes it only for its users). When they
+        reach a `##` macro the reached set is incomplete, so it derives from WHOLE (fp_hdr) instead."""
         inc = "include" + os.sep
         h = hashlib.sha1()
-        for name, vals in sorted(self.closure(names).items()):
+        cl = self.closure(names)
+        if self.pasted(cl):
+            h.update(f"whole\0{whole}".encode())
+            return h.hexdigest()[:16]
+        for name, vals in sorted(cl.items()):
             for f, text in vals:
                 if f.startswith(inc):
                     h.update(f"{name}\0{f}\0{text}\0".encode("utf-8", "replace"))
@@ -1249,6 +1263,11 @@ def cmd_carry(a):
                 how = "unrelated file-scope changes only"
                 if not sites_match:
                     skipped.append(f"{path}: {fn['name']}: sites changed")
+                    continue
+                ocl, ncl = oscope.closure(body_names(onames, fo)), nscope.closure(body_names(nnames, fn))
+                paste = oscope.pasted(ocl) or nscope.pasted(ncl)
+                if paste:
+                    skipped.append(f"{path}: {fn['name']}: token-pasting macro {paste}: dependencies not tracked")
                     continue
                 if not scope_equivalent([t for i, t in otoks if fo["line"] <= i <= fo["end"]],
                                         [t for i, t in ntoks if fn["line"] <= i <= fn["end"]],
