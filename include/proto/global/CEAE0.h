@@ -3,7 +3,7 @@
 #define PROTO_GLOBAL_CEAE0_H
 #include "common.h"
 #include "actor.h"
-struct G05CbArg2;
+struct HeldActorAlignArg;
 struct HeldActorFollowArg;
 #ifndef PROTO_SKIP_playerUpdateSoundEffect0
 void playerUpdateSoundEffect0(void);
@@ -168,7 +168,7 @@ void playerHeldActorFollowStep(struct HeldActorFollowArg *);
 void playerRegisterHeldActorAlign(void);
 #endif
 #ifndef PROTO_SKIP_playerHeldActorAlignStep
-void playerHeldActorAlignStep(struct G05CbArg2 *);
+void playerHeldActorAlignStep(struct HeldActorAlignArg *);
 #endif
 #ifndef PROTO_SKIP_playerGetHoldNodeIndices
 void playerGetHoldNodeIndices(s32 *, s32 *);
