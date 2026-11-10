@@ -1,3 +1,4 @@
+#define PROTO_SKIP_mapGetConfigValue
 #include "common.h"
 #include "sched.h"
 #include "actor.h"
@@ -157,7 +158,7 @@ u8 mapGetWorldIndex(u8 map) {
     return D_807445E0[map];
 }
 
-s32 mapGetConfigValue(u8 unused, s32 index) {
+s32 mapGetConfigValue(s32 unused, s32 index) {
     s32 value = D_80744720[index];
     return value;
 }
