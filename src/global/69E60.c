@@ -399,7 +399,8 @@ typedef struct ActorTransformWork {
 } ActorTransformWork;
 
 
-void actorSub140CreateFromModel(ActorTransformWork *actor) {
+ActorSub140 *actorSub140CreateFromModel(Actor *self) {
+    ActorTransformWork *actor = (ActorTransformWork *)self;
     f32 fv0;
     f32 fv1;
     f32 ft4;
@@ -423,7 +424,7 @@ void actorSub140CreateFromModel(ActorTransformWork *actor) {
         a1 = actor->unk4->unk14;
         t0 = actor->unk4->unk18;
     }
-    actorSub140CreateFromData(0.0f, 0.0f, 0.0f, ft4, fv0, fv1, &actor->unkC, a1, t0, v1);
+    return actorSub140CreateFromData(0.0f, 0.0f, 0.0f, ft4, fv0, fv1, &actor->unkC, a1, t0, v1);
 }
 
 

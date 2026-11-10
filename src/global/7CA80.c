@@ -1,7 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorClearTargetAngle // FAKE: callee prototype steer
-#define PROTO_SKIP_actorSub140CreateFromModel // FAKE: callee prototype steer
 #define PROTO_SKIP_collisionClearFlags // FAKE: callee prototype steer
 #define PROTO_SKIP_controllerAnimInit // FAKE: callee prototype steer
 #include "proto/global/112080.h"
@@ -85,7 +83,6 @@ extern ActorCallbackNode *D_807FBFE0[];
 extern s32 D_807FBFF0[];
 extern s16 D_807FC3F0;
 
-ActorSub140 *actorSub140CreateFromModel(Actor *);
 void collisionClearFlags(Actor *);
 static void actorStub7CA80_00(void);
 static void actorStub7CA80_01(void);
@@ -688,7 +685,6 @@ void actorUpdatePeakHeight(Actor *actor) {
     }
 }
 
-u8 actorClearTargetAngle();
 extern u8 D_807FBC55;
 extern u8 gCurrentPlayerIndex;
 

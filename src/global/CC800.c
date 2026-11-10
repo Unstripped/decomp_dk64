@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorSub140CreateFromModel // FAKE: callee prototype steer
 #define PROTO_SKIP_controllerAnimFree // FAKE: callee prototype steer
 #define PROTO_SKIP_playerSetSizeMode // FAKE: callee prototype steer
 #define PROTO_SKIP_playerTransformAnimalEndSfx // FAKE: callee prototype steer
@@ -887,7 +886,6 @@ typedef struct G01Arg8F8C {
 } G01Arg8F8C;
 
 void controllerAnimFree(Actor *, void *);
-ActorSub140 *actorSub140CreateFromModel(Actor *);
 
 void playerApplyCharacterModel(void *arg) {
     G01Arg8F8C *arg0 = arg;

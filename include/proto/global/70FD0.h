@@ -136,7 +136,7 @@ void actorSub140TransformTriangles(ActorSub140 *);
 u8 actorSetTargetAngleAndCheck(Actor *, s16);
 #endif
 #ifndef PROTO_SKIP_actorClearTargetAngle
-void actorClearTargetAngle(void);
+u8 actorClearTargetAngle(struct CollisionActor *, s16 *, s16 *, s8 *);
 #endif
 #ifndef PROTO_SKIP_actorCheckTargetAngle
 u8 actorCheckTargetAngle(struct CollisionActor *, s16 *, s16 *, s8 *);

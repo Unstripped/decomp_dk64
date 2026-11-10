@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "heap.h"
-#define PROTO_SKIP_actorCheckTargetAngle // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/boot/30E0.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
@@ -69,7 +68,6 @@ extern u8 D_807FB549;
 extern u8 D_807FB604;
 
 
-u8 actorCheckTargetAngle();
 
 typedef struct ModelSlotAsset {
     /* 0x00 */ u8 pad0[0x60];
@@ -1561,9 +1559,9 @@ u8 actorSetTargetAngleAndCheck(Actor *arg0, s16 arg1) {
     return D_807FB546;
 }
 
-void actorClearTargetAngle(void) {
+u8 actorClearTargetAngle(struct CollisionActor *actor, s16 *arcMin, s16 *arcMax, s8 *hit) {
     D_807FB604 = 0;
-    actorCheckTargetAngle();
+    return actorCheckTargetAngle(actor, arcMin, arcMax, hit);
 }
 
 typedef struct {

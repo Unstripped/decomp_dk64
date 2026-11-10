@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorSub140CreateFromModel // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
@@ -1300,7 +1299,6 @@ typedef struct LgC2DF4Actor {
 
 #define LgV ((LgC2DF4Actor *)gCurrentActor)
 
-ActorSub140 *actorSub140CreateFromModel(Actor *);
 extern s32 gGlobalCutsceneFlags;
 
 void func_806C2DF4(void) {
