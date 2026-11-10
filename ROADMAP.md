@@ -125,24 +125,25 @@ Near-miss and large-function work now follows the stage order with uopt_trace an
 Every function matches; this campaign makes the matched C read like ordinary C without losing a byte. Procedure: `.omp/skills/cleanup-unit/` (one agent per file, private copies, merge gate). Ledger: `drafts/quality.jsonl` (`tools/quality.py`): every C function needs a recorded `review`, and every FAKE/goto/AST-found hack site climbs a fixed ladder of methods until it is fixed or exhausted (`ladder.md`). Tools: `tools/clint.py` (libclang lint, struct-layout guard, metrics, `compile_commands.json`), `tools/protos.py` (generated prototype headers `include/proto/`), `tools/rename.py` (AST renames).
 - [x] **Bootstrap (2026-11-09)** — tools and tests; 44 files' signature structs tagged; 209 generated headers (8 functions skipped: by-value local structs or function pointers naming local types); prototypes consolidated in all 209 files (8,283 callees now take the shared prototype, 261 kept as tagged `PROTO_SKIP_` steers, 134 `// PROTO:` skips, 235 blocked headers in 27 files, mostly conflicting local `gBehaviour*` declarations and audio files overriding `_OS_EXCEPTION_H_`); `unit_check.py protos` mismatches 1,202 → 458. The FAKE count rose because each kept steer is now an explicit tagged define plus its declaration (`proto-steer` 134 → 543). Full-repo sweep: 47 hits, 13 files gated (24 sites).
 - [x] **Pilot round (2026-11-09)** — `global/7130.c` (42/42 functions EXHAUSTED; FAKE 22 → 17 with 7 untagged hacks newly tagged; local views replaced by `Actor`/`PlayerState` fields, sound handles typed `struct GfSndState *` in every declaring file, removing all `n_alSndpStop`/`n_alSndpPostEvent` steers in 7130, arcade/0, bonus/12A0, global/19A00 and jetpac/0; 0 m2c names left) and `menu/E550.c` (3/3 EXHAUSTED; FAKE 11 → 7; GBI macros replace hand-expanded packets; globals named `menuOptionDescFade`, `menuSpotlightR/G/B`). Header changes: `Actor` 0x6E–0x7B (`soundSlots[2]`, `unk72`, `unk74`, `unk78`), `PlayerState.sfxHandle`; `faultSetMessage` takes `u32`.
-- [ ] Remaining: 4,225 functions unreviewed; 1,705 open sites. Next rounds: `uv run tools/quality.py rank`.
+- [x] **Round 1 (2026-11-09)** — 13 files: global/E4090, D5E10, 478F0, 19A00, 201B0, EFDC0, 36880, CEAE0, 6AD90, 80150, 2F550, arcade/0, menu/3E10 (11BC10 deferred: its generated header now needs `actor.h`, which clashes with boss/3840.c's own `gBehaviour*`/`gCurrentActor` views). Shared fields carved into `Actor`, `ActorSub4`, `ActorSub140`, `ActorGlobalState`, `PlayerState`, `PlayerStruct`, `CsState`, `SchedStruct`; `DynamicBuffer` moved to `heap.h`; 14 callee-prototype batches fixed owner definitions (≈100 steers retired). Tools: `record --dry-run`, `carry` across file-scope changes, per-function `fp_hdr2`, review freshness ignoring checklist tokens, `objdiff.sh` always rebuilds, `rename.py field --dry-run` lists macro references.
+- [ ] Remaining: 2,939 functions not reviewed; 1,211 open sites. Next rounds: `uv run tools/quality.py rank`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-09):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-09, after round 1):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 970 | 583 |
-| FAKE dead-if | 263 | 263 |
-| FAKE proto-steer | 520 | 134 |
-| FAKE other kinds | 187 | 186 |
-| LAYOUT | 48 | 47 |
+| FAKE | 934 | 583 |
+| FAKE dead-if | 277 | 263 |
+| FAKE proto-steer | 394 | 134 |
+| FAKE other kinds | 263 | 186 |
+| LAYOUT | 50 | 47 |
 | goto | 39 | 39 |
-| proto-type (`// PROTO:`) | 134 | 0 |
-| protos mismatch | 453 | 1,202 |
-| reviewed / exhausted functions | 45 / 45 of 4,270 | 0 |
-| uninit warnings | 61 | 122 |
+| proto-type (`// PROTO:`) | 120 | 0 |
+| protos mismatch | 389 | 1,202 |
+| reviewed / exhausted functions | 1,331 / 1,258 of 4,270 | 0 |
+| uninit warnings | 67 | 122 |
 | `func_` definitions | 457 | 457 |
-| m2c names | 4,885 | 5,040 |
+| m2c names | 3,191 | 5,040 |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 

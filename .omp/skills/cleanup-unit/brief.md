@@ -28,9 +28,19 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
 - Drop a tag only from a construct that is ordinary C (a named temp, normal statement order).
   Dead ifs, no-op arithmetic, `volatile`, comma expressions, `do {} while (0)`, punned casts
   and value-named constant locals keep their tag while they stay.
-- An untagged hack you cannot remove gets `// FAKE: <what it steers>` on its line (`kept`).
+- An untagged hack you cannot remove gets `// FAKE: <what it steers>` on its line (`kept`);
+  report it as "pre-existing, now tagged" (the hack count, tagged + untagged, never rises).
+- Unused locals that only reproduce a frame size are `pad`/`pad[N]`, untagged (in 201B0 an
+  inline ternary plus `pad[2]` replaced two FAKE temps).
 - Never grow or shift a shared struct. Header changes: write the exact hunk to
   `.scratch/<You>/header-request.md` and message the orchestrator; continue with other work.
+  A function DEFINED in your file whose prototype needs another type is not a header request:
+  retype the definition and fdiff a stand-in copy (`#define PROTO_SKIP_<f>` + the new
+  declaration after the includes); the orchestrator regenerates the header at merge.
+- Relocation-only differences (a split splat label vs parent+offset, `D_x+4` vs `D_x4`) are
+  accepted only with raw-word proof: `objdump -drz` of both objects shows equal instruction words
+  except LO16/HI16 symbol+addend resolving to the same address. deadsweep's normalisation hides
+  displacement and sp-offset differences; it is not proof.
 - goto `kept` only with shared-tail evidence (Q0591: the target's blocks are one shared tail).
 - A permuter result is a hint: rewrite it into natural C; never paste it.
 - Every `tools/permute.py run` with `-j 2 --seconds <600..1800>`.
@@ -78,7 +88,9 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
 2. Per site: key, what you did, result.
 3. A fenced block tagged `LEDGER`, one line per (site or function, method), exactly as below.
    Keys hash the site's code, local names included: a site still present uses its key in the
-   FINAL copy (`sweep <copy> --copy-of <src>`), a site you removed uses its base key. Finish
+   FINAL copy (`sweep <copy> --copy-of <src>`), a site you removed uses its base key; sites that
+   exist only in your copy resolve after the merge (list them separately). `views`, `names`,
+   `reconstruct` and `review` are function-level: key `func:<seg>:<name>`. Finish
    every permute run before reporting (an OPEN rung reopens the file next round):
    `<site-key|func:<seg>:<name>> <method> <outcome> [quirks=Q1,Q2] [seconds=N] [base=N] [best=N] [note="..."]`
    methods `remove plain cond classify consolidate diagnose permute reconstruct goto-hand

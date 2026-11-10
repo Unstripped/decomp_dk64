@@ -50,7 +50,8 @@ never write `.scratch/routes/`, never use workpools routed by `.omp/extensions/d
 Fill the WHOLE [brief.md](brief.md) into `local://cleanup-brief.md` (base commit, file, the
 file's `status` output, model). Spawn one agent per file, named `Clean<File>` (e.g.
 `Clean7130`), task context "Read `local://cleanup-brief.md` FIRST and follow it exactly".
-Per-file phase order (one agent does all five):
+Files of 100+ functions take 2–4 agent turns (per-turn request budgets): merge and record
+between passes and send the agent back with the new base. Per-file phase order (one agent does all five):
 
 1. types: local views of shared globals become shared types; casts become real fields;
    then `uv run tools/quality.py sweep <copy> --copy-of <src>`;
@@ -64,14 +65,26 @@ Per-file phase order (one agent does all five):
 ## 4. Headers
 
 Agents never edit `include/`: they write the exact hunk to `.scratch/<A>/header-request.md`
-and message you. Before applying, list every user of each renamed or split field yourself:
-`uv run tools/rename.py field --dry-run include/<h>.h <Struct> <field> zzProbe` (AST users only;
-agents miss files: the first pilot request missed `936B0.c`). Snapshot those files
-(`merge_drafts.py snapshot`), apply the hunk and their edits, then
-`uv run tools/clint.py layout --base HEAD include/<h>.h` must print `LAYOUT OK`, then
-`tools/merge_gate.sh --commit "include: <what>" --stage include/<h>.h - - <the edited src files>`.
-A layout change is refused, never committed. Then message every running agent (`write
-agent://<A>`) with the new HEAD and the hunk.
+and message you. A function defined in the agent's own file whose generated prototype needs a
+new type is NOT a header request: the agent retypes the definition, verifies with a stand-in
+(`#define PROTO_SKIP_<f>` + the new declaration) and you merge via §5.4. Before applying a
+request: carve only padding, reconcile with fields already landed (keep existing names), list
+every user with `uv run tools/rename.py field --dry-run include/<h>.h <Struct> <field> zzProbe`
+(it lists macro uses as `MACRO`; text-grep casts like `*(f32 *)p->f` too), skip fields used by
+a checked-out file. Snapshot users, edit them, `touch` + `tools/objdiff.sh` each, then
+`uv run tools/clint.py layout --base HEAD include/<h>.h` → `LAYOUT OK`, then
+`tools/merge_gate.sh --commit "include: <what>" --stage include/<h>.h - - <edited src files>`
+(anchor one src file if none). Batch header changes: each commit restales sweep results of the
+functions that reach the changed declarations (`fp_hdr2`; re-sweep them, `carry` the rest).
+Then message every running agent (`write agent://<A>`) with the new HEAD and the hunk.
+
+Callee-prototype work (steers kept because the OWNER's definition has the wrong types) is its
+own workstream: batches by owner file, only when no touched file is checked out. Per batch the
+owner copy is merged alone (it fails on the stale header), then `protos.py gen`, then the caller
+copies, then one commit gate `--stage include/proto/<seg>/<owner>.h - - <all touched files>`
+(snapshot any file lacking a base); sweep + carry every touched file. Round 1 retired ≈100 steers
+this way (`.scratch/Clean478F0/protoplan.md`: group steers by callee, verify each caller with a
+stand-in header, add a tagged steer only where a caller's code really changes).
 
 ## 5. Merge
 
@@ -97,7 +110,10 @@ As each agent reports:
    resolve once it is merged). Commit `drafts/quality.jsonl` (`quality: <unit> <f>`).
 
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full
-ROM gate; the net FAKE count of a merged file never rises.
+ROM gate; the net count of HACKS in a merged file (tagged `// FAKE` + untagged AST sites)
+never rises. Tagging a pre-existing untagged hack is required and raises the tag count; reports
+list such lines as "pre-existing, now tagged". After a merge, `make expected` before sweeping a
+file whose merged C differs from `expected/` only in relocations (else sweep skips it).
 
 ## 6. Round end
 
