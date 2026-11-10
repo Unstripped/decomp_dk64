@@ -273,14 +273,18 @@ typedef struct Actor {
 
 // Per-behaviour state objects reached through gBehaviourWorkState..gBehaviourExtraState.
 typedef struct BehaviourWorkState {
-    /* 0x00 */ u8 pad0[0xA];
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ Actor *unk4;
+    /* 0x08 */ u8 pad8[2];
     /* 0x0A */ s16 targetX;
     /* 0x0C */ s16 targetY;
     /* 0x0E */ s16 targetZ;
     /* 0x10 */ u8 pad10[8];
     /* 0x18 */ u16 stepCount;
     /* 0x1A */ u16 flags;
-    /* 0x1C */ u8 pad1C[0xC];
+    /* 0x1C */ u8 pad1C[9];
+    /* 0x25 */ u8 unk25;
+    /* 0x26 */ u8 pad26[2];
     /* 0x28 */ u8 unk28[4];
     /* 0x2C */ s16 timer;
     /* 0x2E */ s16 unk2E;
@@ -288,7 +292,9 @@ typedef struct BehaviourWorkState {
 } BehaviourWorkState;
 
 typedef struct BehaviourAnimState {
-    /* 0x00 */ u8 pad0[0x26];
+    /* 0x00 */ u8 pad0[0x20];
+    /* 0x20 */ u8 *unk20;
+    /* 0x24 */ u8 pad24[2];
     /* 0x26 */ s16 animId0;
     /* 0x28 */ s16 animId1;
     /* 0x2A */ s16 animId2;
@@ -303,9 +309,11 @@ typedef struct BehaviourExtraState {
     /* 0x0A */ u8 unkA;
     /* 0x0B */ u8 unkB;
     /* 0x0C */ u8 unkC;
-    /* 0x0D */ u8 padD[3];
+    /* 0x0D */ u8 unkD;
+    /* 0x0E */ u8 padE[2];
     /* 0x10 */ u8 unk10;
-    /* 0x11 */ u8 pad11[3];
+    /* 0x11 */ u8 unk11;
+    /* 0x12 */ u8 pad12[2];
     /* 0x14 */ u8 unk14;
 } BehaviourExtraState;
 
