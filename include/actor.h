@@ -692,7 +692,7 @@ typedef struct PlayerState {
     /* 0x254 */ void *effectObj;
     /* 0x258 */ f32 unk258;
     /* 0x25C */ f32 unk25C;
-    /* 0x260 */ u8 pad260[4];
+    /* 0x260 */ struct EffectNode *scoreEffect; // multiplayer score/crown effect (mpUpdateScoreEffects)
     /* 0x264 */ s32 unk264;
     /* 0x268 */ u8 transitionTimer;
     /* 0x269 */ u8 pad269[3];
@@ -814,6 +814,29 @@ typedef struct CamState {
     /* 0xFE */ u8 padFE[0x1];
     /* 0xFF */ u8 unkFF;
 } CamState; // size = 0x100
+
+// Viewport layout entry (D_80750948[], cameraFindViewportEntry).
+typedef struct G00Entry {
+    /* 0x0 */ u8 unk0;
+    /* 0x1 */ u8 unk1;
+    /* 0x2 */ u8 unk2;
+    /* 0x3 */ u8 unk3;
+    /* 0x4 */ s16 unk4;
+    /* 0x6 */ s16 unk6;
+    /* 0x8 */ s16 unk8;
+    /* 0xA */ s16 unkA;
+} G00Entry;
+
+// Spawn position (func_806C96C4).
+typedef struct G01Pos {
+    /* 0x0 */ s16 unk0;
+    /* 0x2 */ s16 unk2;
+    /* 0x4 */ s16 unk4;
+    /* 0x6 */ u8 unk6;
+    /* 0x7 */ u8 unk7;
+    /* 0x8 */ u8 unk8;
+    /* 0x9 */ u8 unk9;
+} G01Pos;
 
 extern BehaviourWorkState *gBehaviourWorkState;
 extern Actor *gBehaviourTargetActor;

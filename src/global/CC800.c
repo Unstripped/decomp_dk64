@@ -166,17 +166,6 @@ void playerSetupViewports(void) {
     }
 }
 
-typedef struct G00Entry {
-    /* 0x0 */ u8 unk0;
-    /* 0x1 */ u8 unk1;
-    /* 0x2 */ u8 unk2;
-    /* 0x3 */ u8 unk3;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ s16 unk6;
-    /* 0x8 */ s16 unk8;
-    /* 0xA */ s16 unkA;
-} G00Entry;
-
 extern G00Entry D_80750948[];
 extern u8 D_80750ABC;
 
@@ -845,16 +834,6 @@ typedef struct G01Act {
     /* 0x174 */ G01Ctl *unk174;
     /* 0x178 */ void *unk178;
 } G01Act;
-
-typedef struct G01Pos {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ u8 unk6;
-    /* 0x7 */ u8 unk7;
-    /* 0x8 */ u8 unk8;
-    /* 0x9 */ u8 unk9;
-} G01Pos;
 
 #define G01A ((G01Act *)gActivePlayerActor)
 
