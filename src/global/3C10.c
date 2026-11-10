@@ -10,6 +10,7 @@
 #include "proto/global/15050.h"
 #include "proto/global/201B0.h"
 #include "proto/global/36880.h"
+#define PROTO_SKIP_func_80600340
 #include "proto/global/3C10.h"
 #include "proto/global/5E2F0.h"
 #include "proto/global/7130.h"
@@ -633,7 +634,7 @@ s16 func_80600174(f32 *outX, f32 *outY, f32 *outZ) {
     return -1;
 }
 
-s32 func_80600340(s32 actorType, u8 flags, s32 *outMap) {
+s32 func_80600340(s16 *typeList, u8 typeCount, s32 *outMap) {
     s32 subtableA;
     s32 subtableB;
     f32 posX;
@@ -647,7 +648,7 @@ s32 func_80600340(s32 actorType, u8 flags, s32 *outMap) {
     }
     modelAssetGetSubtables(((Struct8076A160 *)&D_8076A160)[idx].unk18, &subtableA, &subtableB);
     *outMap = ((Struct8076A160 *)&D_8076A160)[idx].unk12;
-    return actorListFindClosestTargetIndex(subtableB, actorType, flags, posX, posY, posZ);
+    return actorListFindClosestTargetIndex(subtableB, typeList, typeCount, posX, posY, posZ);
 }
 
 void func_806003EC(s16 index) {
