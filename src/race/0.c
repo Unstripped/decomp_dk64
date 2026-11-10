@@ -267,12 +267,12 @@ s32 currentActorTestClearFlag(void);
 void csModelStateSetFirstByte(s16, s16);
 f32 sqrtf(f32);
 void actorUpdateFloorContactAndTilt(void *, f32);
-void billboardSubmit(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
 s32 playerIsDamageOrKnockbackState(void);
 void hudSpawnTextScreen(u8);
-s32 mathAngleStepToward(s16 *, s16, s32);  // FAKE: callee prototype steer
+void mathAngleStepToward(s16 *, s16, s16);
 s32 playerStateQueueCallback(s16, void *, u8);
-s32 sfxStopSlotSound(void *, s32);
+void sfxStopSlotSound(Actor *, u8);
 
 void raceOpponentBehaviourUpdate(void) {
     f32 dx;
