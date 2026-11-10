@@ -227,20 +227,7 @@ typedef struct NodeListHead {
     /* 0x24 */ WaveNode *unk24;
 } NodeListHead;
 
-typedef struct ProximityEntry {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-} ProximityEntry;
 
-typedef struct ProximityGlobals {
-    /* 0x00 */ u8 pad0[0x39];
-    /* 0x39 */ u8 unk39;
-    /* 0x3A */ u8 pad3A[2];
-    /* 0x3C */ ProximityEntry entries[4];
-    /* 0x6C */ u8 pad6C[0x10];
-    /* 0x7C */ void *unk7C[4];
-} ProximityGlobals;
 
 typedef struct WaveState {
     /* 0x000 */ s16 unk0;
@@ -315,7 +302,7 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
             found = 0;
             j = 0;
             while (j < (s32)state->unk94 && found == 0) {
-                if (state->unk74[j] == ((ProximityGlobals *)&gActorGlobalState)->unk7C[i]) {
+                if (state->unk74[j] == gActorGlobalState.unk7C[i]) {
                     found = 1;
                 } else {
                     j++;
@@ -324,10 +311,10 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
             if (!found) {
                 switch (waveType) {
                 case 0:
-                    actorAddNodeForceSlot(((ProximityGlobals *)&gActorGlobalState)->entries[i].unk8, waveType);
+                    actorAddNodeForceSlot(gActorGlobalState.unk3C[i][2], waveType);
                     break;
                 case 1:
-                    actorAddNodeForceSlot(((ProximityGlobals *)&gActorGlobalState)->entries[i].unk0, waveType);
+                    actorAddNodeForceSlot(gActorGlobalState.unk3C[i][0], waveType);
                     break;
                 }
             }
@@ -340,7 +327,7 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
             found = 0;
             j = 0;
             while (j < (s32)gActorGlobalState.unk39 && found == 0) {
-                if (state->unk74[i] == ((ProximityGlobals *)&gActorGlobalState)->unk7C[j]) {
+                if (state->unk74[i] == gActorGlobalState.unk7C[j]) {
                     found = 1;
                 } else {
                     j++;
@@ -359,10 +346,10 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         do {
             switch (waveType) {
             case 0:
-                state->unk84[i] = ((ProximityGlobals *)&gActorGlobalState)->entries[i].unk8;
+                state->unk84[i] = gActorGlobalState.unk3C[i][2];
                 break;
             case 1:
-                state->unk84[i] = ((ProximityGlobals *)&gActorGlobalState)->entries[i].unk8;
+                state->unk84[i] = gActorGlobalState.unk3C[i][2];
                 break;
             }
             i++;
@@ -373,17 +360,17 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         do {
             switch (waveType) {
             case 0:
-                if ((f64)((ProximityGlobals *)&gActorGlobalState)->entries[i].unk8 / 843.0 > 0) {
-                    waveForce = (f32)((f64)((ProximityGlobals *)&gActorGlobalState)->entries[i].unk8 / 843.0);
+                if ((f64)gActorGlobalState.unk3C[i][2] / 843.0 > 0) {
+                    waveForce = (f32)((f64)gActorGlobalState.unk3C[i][2] / 843.0);
                 } else {
-                    waveForce = (f32)-((f64)((ProximityGlobals *)&gActorGlobalState)->entries[i].unk8 / 843.0);
+                    waveForce = (f32)-((f64)gActorGlobalState.unk3C[i][2] / 843.0);
                 }
                 break;
             case 1:
-                if ((f64)((ProximityGlobals *)&gActorGlobalState)->entries[i].unk0 / 480.0 > 0) {
-                    waveForce = (f32)((f64)((ProximityGlobals *)&gActorGlobalState)->entries[i].unk0 / 480.0);
+                if ((f64)gActorGlobalState.unk3C[i][0] / 480.0 > 0) {
+                    waveForce = (f32)((f64)gActorGlobalState.unk3C[i][0] / 480.0);
                 } else {
-                    waveForce = (f32)-((f64)((ProximityGlobals *)&gActorGlobalState)->entries[i].unk0 / 480.0);
+                    waveForce = (f32)-((f64)gActorGlobalState.unk3C[i][0] / 480.0);
                 }
                 break;
             }
@@ -479,7 +466,7 @@ typedef struct {
     u8 unkB8[4];
 } ActorMotionSlots;
 
-/* arg1 is u8: IDO homes the raw incoming a1 to its caller slot (sw a1,4(sp))
+/* slotMode is u8: IDO homes the raw incoming a1 to its caller slot (sw a1,4(sp))
    even in this leaf function and re-narrows it with andi before use. */
 void actorAddNodeForceSlot(f32 forceMagnitude, u8 slotMode) {
     ActorMotionSlots *slots = (ActorMotionSlots *)gCurrentActor->customState;
@@ -525,17 +512,13 @@ extern ActorGlobalState gActorGlobalState;
 
 extern u8 D_807FBBA9;
 
-typedef struct {
-    u8 pad0[0x7C];
-    Actor *unk7C[4];
-} TextActorList;
 
 s32 actorCheckAlwaysFalse(void) {
     s32 i;
     s32 v;
 
     for (i = 0; i < D_807FBBA9; i++) {
-        v = ((TextActorList *)&gActorGlobalState)->unk7C[i]->actorType;
+        v = gActorGlobalState.unk7C[i]->actorType;
         if (v != 2 && v != 3) { // FAKE: keeps both state tests as beq-to-latch (dead carrier v)
             v = 0;
         }
@@ -573,27 +556,11 @@ typedef struct {
     s32 unkC;
 } ProximityState;
 
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-} ProximitySample;
 
-typedef struct {
-    u8 pad0[0xB8];
-    f32 unkB8;
-} ProximityNode;
 
-typedef struct {
-    u8 pad0[0x3C];
-    ProximitySample entries[4];
-    u8 pad6C[0x10];
-    ProximityNode *nodes[4];
-} ProximitySource;
 
 f32 sinApprox(f32);
 
-#define PROX_SRC ((ProximitySource *)&gActorGlobalState)
 
 void actorSagSingleUpdate(void) {
     ProximityState *state;
@@ -622,13 +589,13 @@ void actorSagSingleUpdate(void) {
         state->unk8 = 0.0f;
     }
     for (i = 0; i < (s32)gActorGlobalState.unk39; i++) {
-        dist = sqrtf((PROX_SRC->entries[i].unk0 * PROX_SRC->entries[i].unk0) + (PROX_SRC->entries[i].unk8 * PROX_SRC->entries[i].unk8));
+        dist = sqrtf((gActorGlobalState.unk3C[i][0] * gActorGlobalState.unk3C[i][0]) + (gActorGlobalState.unk3C[i][2] * gActorGlobalState.unk3C[i][2]));
         if (dist > 1347.0f) {
             dist = 1347.0f;
         }
         dist = 1347.0f - dist;
         acc += dist;
-        value = PROX_SRC->nodes[i]->unkB8;
+        value = gActorGlobalState.unk7C[i]->speedXZ;
         value = (f32)((f64)value * 0.1);
         if (state->unk8 < value) {
             state->unk8 = value;
@@ -665,7 +632,6 @@ void actorSagSingleUpdate(void) {
     state->unk4 = gActorGlobalState.unk39;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
-#undef PROX_SRC
 
 typedef struct {
     s16 unk0;
@@ -949,8 +915,7 @@ typedef struct ActorSub124View {
 } ActorSub124View;
 
 typedef struct ActorNamePair {
-    /* 0x0 */ s32 unk0;
-    /* 0x4 */ s32 unk4;
+    /* 0x0 */ s32 ids[2];
 } ActorNamePair;
 
 extern Actor *D_807FBB98;
@@ -990,7 +955,7 @@ void textMarkerUpdateMatrix(void) {
 
     markerView = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        *(s16 *)((u8 *)gCurrentActor + 0xFA) = 0x270F;
+        gCurrentActor->unkFA = 0x270F;
         gCurrentActor->floorY = 99999.0f;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
         if (actorHasActiveMovementFlags(gCurrentActor) != 0) {
@@ -1070,10 +1035,10 @@ void textMarkerUpdateMatrix(void) {
         gCurrentActor->state = 3;
         gCurrentActor->unk144 = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
-        gCurrentActor->yaw = *(s16 *)((u8 *)&gActorGlobalState + 0x36);
-        *(s16 *)((u8 *)gCurrentActor + 0xEE) = *(s16 *)((u8 *)&gActorGlobalState + 0x36);
-        *(f32 *)((u8 *)gCurrentActor + 0xC0) = *(f32 *)((u8 *)&gActorGlobalState + 0x30);
-        gCurrentActor->speedXZ = (f32)*(s16 *)((u8 *)&gActorGlobalState + 0x34);
+        gCurrentActor->yaw = gActorGlobalState.unk36;
+        gCurrentActor->moveYaw = gActorGlobalState.unk36;
+        gCurrentActor->speedY = gActorGlobalState.unk30;
+        gCurrentActor->speedXZ = (f32)gActorGlobalState.unk34;
         actorCollisionEventsCancel(markerView->unk14, 1);
         if (gCurrentActor->actorType == 0x43 && gCurrentMap == 0x1E) {
             gCurrentActor->flags |= 0x200000;
@@ -1137,7 +1102,7 @@ void textMarkerUpdateMatrix(void) {
             }
             gCurrentActor->unk155++;
         }
-        *(f32 *)((u8 *)gCurrentActor + 0xC0) = -200.0f;
+        gCurrentActor->speedY = -200.0f;
         gCurrentActor->speedXZ = 0.0f;
         gCurrentActor->flags2 |= 1;
         if (actorHasCallbackTargetThisFrame() != 0) {
@@ -1145,9 +1110,9 @@ void textMarkerUpdateMatrix(void) {
         }
         break;
     case 3:
-        *(f32 *)((u8 *)gCurrentActor + 0xC0) = *(f32 *)((u8 *)gCurrentActor + 0xC0) + D_807502E4;
-        if (*(f32 *)((u8 *)gCurrentActor + 0xC0) < (f32)D_807502D0) {
-            *(f32 *)((u8 *)gCurrentActor + 0xC0) = (f32)D_807502D0;
+        gCurrentActor->speedY += D_807502E4;
+        if (gCurrentActor->speedY < (f32)D_807502D0) {
+            gCurrentActor->speedY = (f32)D_807502D0;
         }
         stateActive = 0;
         markerView->unk24 = markerView->unk24 - 10.0f;
@@ -1219,7 +1184,7 @@ void textMarkerUpdateMatrix(void) {
                     randVal = randomNonNegative();
                     if (randVal) {}  // FAKE: block split between the randVal def and the call (steers ugen ring / uopt colouring)
                     dz = randomFloat();
-                    effectCreateAtPosition((void *)((s32 *)&namePair)[(randVal >> 15) % 2],
+                    effectCreateAtPosition((void *)namePair.ids[(randVal >> 15) % 2],
                                   (f32)(((f64)dz * 0.5) + 0.2),
                                   gCurrentActor->x + offsetX, gCurrentActor->y + offsetY,
                                   gCurrentActor->z + offsetZ);
@@ -1242,10 +1207,10 @@ void textMarkerUpdateMatrix(void) {
         if (markerView->unk2A >= 0xFB) {
             markerView->unk2A = 0xFA;
         }
-        if (*(s16 *)((u8 *)gCurrentActor + 0x6E) == -1) {
+        if (gCurrentActor->soundSlots[0] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x11A, 0x64, 1, 0, 0x64, 1.0f, 0);
         } else {
-            sfxSetVolumeAndPan(*(s16 *)((u8 *)gCurrentActor + 0x6E),
+            sfxSetVolumeAndPan(gCurrentActor->soundSlots[0],
                                (f32)(((f64)(u32)markerView->unk2A / 400.0) + 0.5), 2.0f);
         }
         lightAdd(gCurrentActor->x, gCurrentActor->y + 30.0f, gCurrentActor->z,
@@ -1264,7 +1229,7 @@ void textMarkerUpdateMatrix(void) {
             } else {
                 spawnArgs[1] = 0;
             }
-            actorListSpawnNodeEntry(*(s16 *)((u8 *)gCurrentActor + 0x5A), markerView->unk4, markerView->unk8,
+            actorListSpawnNodeEntry((s16)gCurrentActor->actorType, markerView->unk4, markerView->unk8,
                                     markerView->unkC, 0, markerView->unk10, 0, (s32)spawnArgs);
             actorDespawn(gCurrentActor);
         }
@@ -1273,7 +1238,7 @@ void textMarkerUpdateMatrix(void) {
         break;
     }
     if (gCurrentActor->state == 2 || gCurrentActor->state == 3) {
-        *(s16 *)((u8 *)gCurrentActor + 0xEE) = gCurrentActor->yaw;
+        gCurrentActor->moveYaw = gCurrentActor->yaw;
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
         if (gCurrentActor->state == 3 && (gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
@@ -1282,8 +1247,8 @@ void textMarkerUpdateMatrix(void) {
         if (gCurrentActor->state == 2 && (gCurrentActor->contactFlags & 4)) {
             gCurrentActor->state = 4;
         }
-        *(s16 *)((u8 *)gCurrentActor + 0xDC) = 0x3FF;
-        *(s16 *)((u8 *)gCurrentActor + 0xDE) = 0x3FF;
+        gCurrentActor->floorSlopeYaw = 0x3FF;
+        gCurrentActor->floorSlopePitch = 0x3FF;
     } else {
         gCurrentActor->attachMode = 0;
         gCurrentActor->contactFlags &= 0xFBF7;
@@ -1316,18 +1281,18 @@ void textMarkerUpdateMatrix(void) {
     guRotateF(mtxB, (markerView->unk20 + 90.0f) - D_807FBC64, 0.0, 1.0f, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
     if (gCurrentActor->state == 3) {
-        ang = *(s16 *)((u8 *)gCurrentActor + 0xDE);
+        ang = gCurrentActor->floorSlopePitch;
 
         if (ang < 0x3E8) {
-            guRotateF(mtxB, (f32)(-(((f64)*(s16 *)((u8 *)gCurrentActor + 0xDC) / 4095.0) * 360.0)),
+            guRotateF(mtxB, (f32)(-(((f64)gCurrentActor->floorSlopeYaw / 4095.0) * 360.0)),
                       0.0, 1.0f, 0.0);
             guMtxCatF(mtxA, mtxB, mtxA);
-            ang = *(s16 *)((u8 *)gCurrentActor + 0xDE);
+            ang = gCurrentActor->floorSlopePitch;
         }
         guRotateF(mtxB, (f32)(90.0 - (((f64)ang / 4095.0) * 360.0)), 1.0f, 0.0, 0.0);
         guMtxCatF(mtxA, mtxB, mtxA);
-        if (*(s16 *)((u8 *)gCurrentActor + 0xDE) < 0x3E8) {
-            guRotateF(mtxB, (f32)(((f64)*(s16 *)((u8 *)gCurrentActor + 0xDC) / 4095.0) * 360.0),
+        if (gCurrentActor->floorSlopePitch < 0x3E8) {
+            guRotateF(mtxB, (f32)(((f64)gCurrentActor->floorSlopeYaw / 4095.0) * 360.0),
                       0.0, 1.0f, 0.0);
             guMtxCatF(mtxA, mtxB, mtxA);
         }
@@ -1388,7 +1353,7 @@ void actorSpawnEffectAndTick(void) {
     }
     textMarkerUpdateMatrix();
     if (!(gCurrentActor->flags & 0x10)) {
-        if (*(s32 *)((u8 *)gCurrentActor->spawnData + 0x8) == 1) {
+        if (((s32 *)gCurrentActor->spawnData)[2] == 1) {
             if (flagGet(0xFD, 0) != 0) {
                 gCurrentActor->interactionType = 4;
             }
@@ -1444,7 +1409,7 @@ void textSpawnMarker(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 
         sub = gSpawnedActor->customState;
         if (fontStyle & 0x80) {
             sub->unkA = gfxResourceCreate((s16)(fontStyle & 0xFF7F), textStr, 2, 160.0f, (f32)y, 0.0f);
-            *(s16 *)((u8 *)gSpawnedActor + 0xEE) = 1;
+            gSpawnedActor->moveYaw = 1;
             gSpawnedActor->y = (f32)y;
             return;
         }
@@ -1663,8 +1628,8 @@ void textMarkerUpdate(void) {
     }
 }
 
-/* Row-major copy: the target keeps the row offset (i * arg2) * 4 as the loop
-   invariant and adds arg1 + j * 4 inside, so arg1 is written before the offset. */
+/* Row-major copy: the target keeps the row offset (i * rowWidth) * 4 as the loop
+   invariant and adds src + j * 4 inside, so src is written before the offset. */
 void textCopyGlyphBlock(s32 *dst, s32 *src, u8 rowWidth) {
     s16 i;
     s16 j;
@@ -1672,7 +1637,7 @@ void textCopyGlyphBlock(s32 *dst, s32 *src, u8 rowWidth) {
     i = 0;
     do {
         for (j = 0; j < rowWidth; j++) {
-            *dst++ = *(s32 *)((u8 *)src + j * 4 + i * rowWidth * 4);
+            *dst++ = src[j + i * rowWidth];
         }
         i++;
     } while (i < 0x20);
@@ -1680,15 +1645,15 @@ void textCopyGlyphBlock(s32 *dst, s32 *src, u8 rowWidth) {
 
 
 s32 textBuildDigitNode(u8 baseFont, void *nodeBuffer, u8 nodeSlot, u8 digit, u8 glyphWidth) {
-    void *temp;
+    void *glyphSheet;
 
-    temp = textFontLoadSheet(baseFont + digit);
+    glyphSheet = textFontLoadSheet(baseFont + digit);
     if (nodeBuffer != NULL) {
         heapFreeDeferred((Mtx *)nodeBuffer);
     }
     /* Reusing the parameter keeps both pointers in one callee-saved register. */
     nodeBuffer = (void *)heapAlloc(glyphWidth << 7);
-    textCopyGlyphBlock((s32 *)nodeBuffer, (s32 *)temp, glyphWidth);
+    textCopyGlyphBlock((s32 *)nodeBuffer, (s32 *)glyphSheet, glyphWidth);
     animSetLoopLimit(gCurrentActor, nodeSlot, -1);
     animSetSpeed(gCurrentActor, nodeSlot, 0.0f);
     animSetNodeItem(gCurrentActor, nodeSlot, 0, (s32)nodeBuffer);
@@ -1708,7 +1673,7 @@ void textUpdateThreeDigitCounter(void) {
     u16 val;
 
     model = (s32 *)gCurrentActor->customState;
-    if (!(gCurrentActor->flags & 0x10) || (*(u32 *)((u8 *)gActivePlayerState + 0x1F0) & 0x20000)) {
+    if (!(gCurrentActor->flags & 0x10) || (((PlayerControlState *)gActivePlayerState)->unk1F0 & 0x20000)) {
         t = mapGetHubWorldIndex(gCurrentWorldId, 0);
         if (t >= 8) {
             t = 0;
@@ -1722,7 +1687,7 @@ void textUpdateThreeDigitCounter(void) {
         gCurrentActor->tintG = 0xFF;
         gCurrentActor->tintB = 0xFF;
         gCurrentActor->flags |= 0x800000;
-        *(u32 *)((u8 *)gActivePlayerState + 0x1F0) &= ~0x20000;
+        ((PlayerControlState *)gActivePlayerState)->unk1F0 &= ~0x20000;
         if (val >= *(u16 *)((u8 *)D_807446C0 + unk)) {
             gCurrentActor->flags &= ~0x8000;
             gCurrentActor->alpha = 0;
