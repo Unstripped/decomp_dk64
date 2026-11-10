@@ -2,7 +2,7 @@
 #ifndef PROTO_JETPAC_0_H
 #define PROTO_JETPAC_0_H
 #include "common.h"
-struct JetpacPlayer;
+#include "jetpac.h"
 #ifndef PROTO_SKIP_jetpacRunFrame
 void jetpacRunFrame(void);
 #endif

@@ -2,7 +2,7 @@
 #ifndef PROTO_JETPAC_1460_H
 #define PROTO_JETPAC_1460_H
 #include "common.h"
-struct JetpacSprite;
+#include "jetpac.h"
 #ifndef PROTO_SKIP_jetpacInitGrid
 void jetpacInitGrid(void);
 #endif

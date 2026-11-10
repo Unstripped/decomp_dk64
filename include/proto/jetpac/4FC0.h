@@ -2,7 +2,7 @@
 #ifndef PROTO_JETPAC_4FC0_H
 #define PROTO_JETPAC_4FC0_H
 #include "common.h"
-struct JetpacActor;
+#include "jetpac.h"
 #ifndef PROTO_SKIP_jetpacFindFreeActor
 struct JetpacActor *jetpacFindFreeActor(void);
 #endif

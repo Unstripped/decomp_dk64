@@ -2,17 +2,15 @@
 #ifndef PROTO_JETPAC_1A60_H
 #define PROTO_JETPAC_1A60_H
 #include "common.h"
-struct JetpacActor;
-struct JetpacExplosion;
-struct JetpacState;
+#include "jetpac.h"
 #ifndef PROTO_SKIP_jetpacUpdateExplosion
 void jetpacUpdateExplosion(struct JetpacExplosion *);
 #endif
 #ifndef PROTO_SKIP_jetpacGetAnimFrame
-s32 jetpacGetAnimFrame(struct JetpacActor *);
+s32 jetpacGetAnimFrame(JetpacPlayerActor *);
 #endif
 #ifndef PROTO_SKIP_jetpacSetFlying
-void jetpacSetFlying(struct JetpacActor *, s32);
+void jetpacSetFlying(JetpacPlayerActor *, s32);
 #endif
 #ifndef PROTO_SKIP_jetpacFindFreeLaser
 struct JetpacActor *jetpacFindFreeLaser(struct JetpacState *);
@@ -33,10 +31,10 @@ void jetpacDrawLaser(struct JetpacActor *);
 void jetpacFireLaser();
 #endif
 #ifndef PROTO_SKIP_jetpacUpdatePlayerMovement
-void jetpacUpdatePlayerMovement(struct JetpacActor *);
+void jetpacUpdatePlayerMovement(JetpacPlayerActor *);
 #endif
 #ifndef PROTO_SKIP_jetpacUpdatePlayerDeath
-void jetpacUpdatePlayerDeath(struct JetpacActor *);
+void jetpacUpdatePlayerDeath(JetpacPlayerActor *);
 #endif
 #ifndef PROTO_SKIP_jetpacDrawPlayer
 void jetpacDrawPlayer(void);
@@ -57,6 +55,6 @@ void jetpacInitPlayer(void);
 s32 jetpacIsSpawnDelay(void);
 #endif
 #ifndef PROTO_SKIP_jetpacSnapActorToGrid
-void jetpacSnapActorToGrid(struct JetpacActor *);
+void jetpacSnapActorToGrid(JetpacPlayerActor *);
 #endif
 #endif

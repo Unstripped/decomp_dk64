@@ -2,9 +2,7 @@
 #ifndef PROTO_JETPAC_3480_H
 #define PROTO_JETPAC_3480_H
 #include "common.h"
-struct JetpacItem;
-struct JetpacLedge;
-struct JetpacPlayer;
+#include "jetpac.h"
 #ifndef PROTO_SKIP_jetpacRandSpawnX
 s32 jetpacRandSpawnX(void);
 #endif

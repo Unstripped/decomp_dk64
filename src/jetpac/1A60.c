@@ -1,4 +1,5 @@
 #include "common.h"
+#include "jetpac.h"
 #include "proto/jetpac/0.h"
 #include "proto/jetpac/1460.h"
 #include "proto/jetpac/1A60.h"
@@ -6,109 +7,9 @@
 #include "proto/jetpac/3480.h"
 #include "proto/jetpac/4FC0.h"
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-typedef struct JetpacActor {
-    f32 x;
-    f32 y;
-    f32 vx;
-    f32 vy;
-    u8 color[4];
-    s32 unk14;
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-    s32 unk24;
-    s32 unk28;
-    s32 unk2C;
-    s32 unk30;
-    s32 unk34;
-    s32 unk38;
-    s32 unk3C;
-    s32 unk40;
-    s32 unk44;
-    void (*unk48)(struct JetpacActor *);
-    s32 unk4C;
-} JetpacActor;
-typedef struct JetpacState {
-    u8 pad0[0x4C];
-    JetpacActor actors[4];
-} JetpacState;
-typedef struct {
-    u8 pad0[0x18];
-} JetpacSprite;
-
 extern JetpacSprite D_8002C4D0[];
 extern JetpacSprite D_8002B9C0[];
-typedef struct {
-    s32 stage;
-    s32 score;
-    s32 lives;
-    s32 unkC;
-    u8 pad10[0x194 - 0x10];
-} JetpacPlayer;
 
-typedef struct {
-    u8 pad0[4];
-    f32 unk4;
-    u8 pad8[0x18];
-    s32 unk20;
-    u8 pad24[4];
-    s32 unk28;
-    u8 pad2C[8];
-} J0a2Ledge;
-
-typedef struct {
-    f32 x;
-    f32 y;
-    f32 vx;
-    f32 vy;
-    u8 color[4];
-    s32 unk14;
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-    s32 unk24;
-    s32 unk28;
-    s32 unk2C;
-    s32 unk30;
-    u8 pad34[0x44 - 0x34];
-    s32 unk44;
-    u8 tint[4];
-} JetpacPlayerActor;
-
-typedef struct {
-    u32 unk0;
-    u8 pad4[0x1C - 4];
-    JetpacPlayer players[2];
-    s32 currentSession;
-    u8 pad348[0x350 - 0x348];
-    J0a2Ledge ledges[4];
-    JetpacPlayerActor player;
-} JetpacGame;
-
-extern JetpacGame jetpacGame;
-typedef struct {
-    s32 x;
-    s32 y;
-    u8 pad8[3];
-    u8 unkB;
-    s32 unkC;
-} JetpacCellItem;
-
-typedef struct JetpacCell {
-    JetpacCellItem items[6];
-    s32 count;
-    u8 color[4];
-} JetpacCell;
-
-extern JetpacCell jetpacGrid[24][32];
-
-
-typedef struct JetpacExplosion {
-    s32 x;
-    s32 y;
-    s32 timer;
-    u8 color[4];
-} JetpacExplosion;
 
 void jetpacUpdateExplosion(JetpacExplosion *explosion) {
     volatile s32 frame; // FAKE: volatile forces stack home
@@ -132,35 +33,35 @@ void jetpacUpdateExplosion(JetpacExplosion *explosion) {
     explosion->timer++;
 }
 
-s32 jetpacGetAnimFrame(JetpacActor *actor) {
-    return (s32)(((s32)actor->x + actor->unk1C) / 2) % 4;
+s32 jetpacGetAnimFrame(JetpacPlayerActor *actor) {
+    return (s32)(((s32)actor->x + actor->boxX1) / 2) % 4;
 }
 
-void jetpacSetFlying(JetpacActor *actor, s32 isFlying) {
-    if (isFlying == 0 && actor->unk30 != 0) {
+void jetpacSetFlying(JetpacPlayerActor *actor, s32 isFlying) {
+    if (isFlying == 0 && actor->flying != 0) {
         actor->x = (f32)((s32)actor->x & 0xFFFE);
-    } else if (isFlying != 0 && actor->unk30 == 0) {
+    } else if (isFlying != 0 && actor->flying == 0) {
         jetpacSnapActorToGrid(actor);
     }
-    actor->unk1C = 0;
-    actor->unk24 = 0x10;
-    actor->unk30 = isFlying;
+    actor->boxX1 = 0;
+    actor->boxX2 = 0x10;
+    actor->flying = isFlying;
 }
 
 JetpacActor *jetpacFindFreeLaser(JetpacState *state) {
     s32 i;
 
     for (i = 0; i < 4; i++) {
-        if (state->actors[i].unk14 == 0) {
-            return &state->actors[i];
+        if (state->lasers[i].state == 0) {
+            return &state->lasers[i];
         }
     }
     return NULL;
 }
 
 void jetpacResetActorState(JetpacActor *actor) {
-    actor->unk14 = 4;
-    actor->unk2C = 0;
+    actor->state = 4;
+    actor->timer = 0;
 }
 
 void jetpacUpdateLaser(JetpacActor *laser) {
@@ -173,27 +74,27 @@ void jetpacUpdateLaser(JetpacActor *laser) {
     s32 step;
     s32 a;
 
-    if (laser->unk14 == 3 && (u32)laser->unk40 < (u32)laser->unk2C) {
+    if (laser->state == 3 && (u32)laser->lifetime < (u32)laser->timer) {
         jetpacResetActorState(laser);
     }
-    if (laser->unk14 == 4 && laser->unk24 == laser->unk1C) {
-        laser->unk14 = 0;
-        laser->unk2C = 0;
+    if (laser->state == 4 && laser->boxX2 == laser->boxX1) {
+        laser->state = 0;
+        laser->timer = 0;
     }
-    if (laser->unk14 != 0) {
-        if (laser->unk14 == 3) {
-            n = laser->unk2C;
-            if (laser->unk18 != 0) {
-                x1 = (f32)laser->unk1C;
+    if (laser->state != 0) {
+        if (laser->state == 3) {
+            n = laser->timer;
+            if (laser->flip != 0) {
+                x1 = (f32)laser->boxX1;
                 step = n < 4 ? n : 4;
                 x2 = (f32)(step * 8) + x1;
             } else {
-                x2 = (f32)laser->unk24;
+                x2 = (f32)laser->boxX2;
                 step = n < 4 ? n : 4;
                 x1 = x2 - (f32)(step * 8);
             }
-            y1 = (f32)laser->unk20;
-            y2 = (f32)laser->unk28;
+            y1 = (f32)laser->boxY1;
+            y2 = (f32)laser->boxY2;
             if (jetpacKillActorInBox(x1, y1, x2, y2) != 0) {
                 jetpacResetActorState(laser);
                 return;
@@ -206,30 +107,30 @@ void jetpacUpdateLaser(JetpacActor *laser) {
                 jetpacResetActorState(laser);
                 return;
             }
-            if (laser->unk18 != 0) {
-                laser->unk1C = laser->unk1C - 8;
-                if (laser->unk2C >= 0xD) {
-                    laser->unk24 = laser->unk24 - 8;
+            if (laser->flip != 0) {
+                laser->boxX1 = laser->boxX1 - 8;
+                if (laser->timer >= 0xD) {
+                    laser->boxX2 = laser->boxX2 - 8;
                 }
             } else {
-                laser->unk24 = laser->unk24 + 8;
-                if (laser->unk2C >= 0xD) {
-                    laser->unk1C = laser->unk1C + 8;
+                laser->boxX2 = laser->boxX2 + 8;
+                if (laser->timer >= 0xD) {
+                    laser->boxX1 = laser->boxX1 + 8;
                 }
             }
-            laser->unk2C = laser->unk2C + 1;
+            laser->timer = laser->timer + 1;
             return;
         }
-        if (laser->unk14 == 4) {
-            a = laser->unk24 - laser->unk1C;
-            if (laser->unk2C + a / 8 >= 0xD) {
-                if (laser->unk18 != 0) {
-                    laser->unk24 = laser->unk24 - 8;
+        if (laser->state == 4) {
+            a = laser->boxX2 - laser->boxX1;
+            if (laser->timer + a / 8 >= 0xD) {
+                if (laser->flip != 0) {
+                    laser->boxX2 = laser->boxX2 - 8;
                 } else {
-                    laser->unk1C = laser->unk1C + 8;
+                    laser->boxX1 = laser->boxX1 + 8;
                 }
             }
-            laser->unk2C = laser->unk2C + 1;
+            laser->timer = laser->timer + 1;
         }
     }
 }
@@ -253,21 +154,21 @@ void jetpacDrawLaser(JetpacActor *laser) {
     s32 flip;
 
     dir = 0;
-    sub = laser->unk14;
-    flip = laser->unk18;
+    sub = laser->state;
+    flip = laser->flip;
     frame = 0;
     if (sub >= 2) {
         y = laser->y;
-        count = (laser->unk24 - laser->unk1C) / 8;
+        count = (laser->boxX2 - laser->boxX1) / 8;
         dir = -8;
         if (sub == 4) {
-            frame = laser->unk2C;
+            frame = laser->timer;
         }
         if (flip != 0) {
             dir = 8;
-            pos = laser->unk1C;
+            pos = laser->boxX1;
         } else {
-            pos = laser->unk24 - 8;
+            pos = laser->boxX2 - 8;
         }
         for (i = 0; i < count; i++) {
             s32 spr;
@@ -288,7 +189,7 @@ void jetpacDrawLaser(JetpacActor *laser) {
 
 
 void jetpacFireLaser(player)
-JetpacActor *player;
+JetpacPlayerActor *player;
 {
     JetpacActor *p;
     s32 ix;
@@ -309,22 +210,22 @@ JetpacActor *player;
             jetpacPlaySound(6);
         }
     } else {
-        p->unk18 = player->unk18;
-        if (p->unk18 != 0) {
-            p->x = (f32)(((s32)(player->x + (f32)player->unk1C) / 8) * 8);
+        p->flip = player->flip;
+        if (p->flip != 0) {
+            p->x = (f32)(((s32)(player->x + (f32)player->boxX1) / 8) * 8);
             p->vx = -8.0f;
         } else {
-            p->x = (f32)(((s32)(player->x + (f32)player->unk24 + 6.0f) / 8) * 8);
+            p->x = (f32)(((s32)(player->x + (f32)player->boxX2 + 6.0f) / 8) * 8);
             p->vx = 8.0f;
         }
         ix = (s32)p->x;
-        p->unk1C = ix;
-        p->unk24 = ix;
+        p->boxX1 = ix;
+        p->boxX2 = ix;
         p->y = player->y + 10.0f;
         p->vy = 0.0f;
         iy = (s32)p->y;
-        p->unk28 = iy + 1;
-        p->unk20 = iy;
+        p->boxY2 = iy + 1;
+        p->boxY1 = iy;
         col = (s32)(jetpacRandFloat() * 3.0f);
         p->color[0] = 0xFF;
         p->color[1] = 0xFF;
@@ -333,11 +234,11 @@ JetpacActor *player;
         }
         p->color[2] = 0xFF;
         p->color[3] = 1;
-        p->unk14 = 3;
-        p->unk2C = 0;
-        p->unk40 = (s32)(jetpacRandFloat() * 8.0f) + 13;
-        p->unk48 = jetpacUpdateLaser;
-        p->unk4C = 0;
+        p->state = 3;
+        p->timer = 0;
+        p->lifetime = (s32)(jetpacRandFloat() * 8.0f) + 13;
+        p->update = jetpacUpdateLaser;
+        p->sprite = 0;
         jetpacPlaySound(6);
     }
 }
@@ -347,14 +248,14 @@ JetpacActor *player;
 
 extern s32 D_8002EF74;
 
-void jetpacUpdatePlayerMovement(JetpacActor *player) {
+void jetpacUpdatePlayerMovement(JetpacPlayerActor *player) {
     JetpacPlayer *pData;
     f32 mx;
     f32 my;
     f32 vx;
     f32 vy;
-    s32 a2;
-    s32 a1;
+    s32 btnA;
+    s32 btnZLR;
     f32 px;
     s32 btnLeft;
     s32 btnRight;
@@ -364,52 +265,52 @@ void jetpacUpdatePlayerMovement(JetpacActor *player) {
     s32 fire;
 
     pData = &jetpacGame.players[D_8002EF74];
-    fire = jetpacGame.unk0 & 0x4000;
-    btnLeft = jetpacGame.unk0 & 0x200;
-    btnRight = jetpacGame.unk0 & 0x100;
-    a2 = jetpacGame.unk0 & 0x8000;
-    a1 = jetpacGame.unk0 & 0x2030;
-    if (fire && player->unk38 >= 5) {
-        jetpacFireLaser(player, a1, a2);
-        player->unk38 = 0;
-    } else if (player->unk38 < 5) {
-        player->unk38++;
+    fire = jetpacGame.buttons & 0x4000;
+    btnLeft = jetpacGame.buttons & 0x200;
+    btnRight = jetpacGame.buttons & 0x100;
+    btnA = jetpacGame.buttons & 0x8000;
+    btnZLR = jetpacGame.buttons & 0x2030;
+    if (fire && player->fireCooldown >= 5) {
+        jetpacFireLaser(player, btnZLR, btnA);
+        player->fireCooldown = 0;
+    } else if (player->fireCooldown < 5) {
+        player->fireCooldown++;
     }
-    if (a2 != 0 && (player->unk30 == 0 || a1 == 0)) {
+    if (btnA != 0 && (player->flying == 0 || btnZLR == 0)) {
         jetpacSetFlying(player, 1);
         player->vy -= 0.2f;
-        u = player->unk30;
-    } else if ((u = player->unk30) != 0) {
-        if (a1 != 0) {
+        u = player->flying;
+    } else if ((u = player->flying) != 0) {
+        if (btnZLR != 0) {
             player->vy = 0.0f;
-            u = (*(volatile s32 *)&player->unk30); // FAKE: volatile forces reload
+            u = (*(volatile s32 *)&player->flying); // FAKE: volatile forces reload
         } else {
             player->vy += 0.2;
-            u = (*(volatile s32 *)&player->unk30); // FAKE: volatile forces reload
+            u = (*(volatile s32 *)&player->flying); // FAKE: volatile forces reload
         }
     }
     if (btnLeft != 0) {
         player->vx -= 0.33333334f;
-        if (player->unk18 == 0 && player->vx <= 0.0f) {
-            player->unk18 = 1;
-            jetpacSetFlying(player, player->unk30);
+        if (player->flip == 0 && player->vx <= 0.0f) {
+            player->flip = 1;
+            jetpacSetFlying(player, player->flying);
         }
-        u = player->unk30;
+        u = player->flying;
     } else if (btnRight != 0) {
         player->vx += 0.33333334f;
-        if (player->unk18 != 0 && player->vx >= 0.0f) {
-            player->unk18 = 0;
-            jetpacSetFlying(player, player->unk30);
+        if (player->flip != 0 && player->vx >= 0.0f) {
+            player->flip = 0;
+            jetpacSetFlying(player, player->flying);
         }
-        u = player->unk30;
+        u = player->flying;
     } else {
         vx = player->vx;
         if (vx > 0.0f) {
             player->vx = vx - 0.16666667f;
-            u = player->unk30;
+            u = player->flying;
         } else if (vx < 0.0f) {
             player->vx = vx + 0.16666667f;
-            u = player->unk30;
+            u = player->flying;
         }
     }
     if (u != 0) {
@@ -430,26 +331,26 @@ void jetpacUpdatePlayerMovement(JetpacActor *player) {
         player->vy = 0.0f;
     }
     vx = player->vx;
-    if (player->unk30 != 0) {
-        idx = jetpacCheckLedgeCollision(player->unk1C + player->x + vx, player->unk20 + player->y + player->vy,
-                                        player->unk24 + player->x + vx, player->unk28 + player->y + player->vy, 1);
+    if (player->flying != 0) {
+        idx = jetpacCheckLedgeCollision(player->boxX1 + player->x + vx, player->boxY1 + player->y + player->vy,
+                                        player->boxX2 + player->x + vx, player->boxY2 + player->y + player->vy, 1);
         if (idx >= 0) {
-            if ((f32)jetpacGame.ledges[idx].unk28 <= player->unk20 + player->y) {
+            if ((f32)jetpacGame.ledges[idx].boxY2 <= player->boxY1 + player->y) {
                 player->vy *= -0.4f;
                 if ((player->vy > 0.0f ? player->vy : -player->vy) <= 0.15f) {
                     player->vy = 0.0f;
                 }
-            } else if (player->unk28 + player->y <= (f32)jetpacGame.ledges[idx].unk20) {
-                player->unk34 = idx;
+            } else if (player->boxY2 + player->y <= (f32)jetpacGame.ledges[idx].boxY1) {
+                player->ledge = idx;
                 player->vy = 0.0f;
                 jetpacSetFlying(player, 0);
-                player->y = jetpacGame.ledges[idx].unk4 - 24.0f;
+                player->y = jetpacGame.ledges[idx].y - 24.0f;
             } else {
                 player->vx *= -0.5f;
             }
         }
     } else {
-        idx = jetpacCheckLedgeEdge(player->unk34, (s32)(player->unk1C + player->x + vx), (s32)(player->unk24 + player->x + vx));
+        idx = jetpacCheckLedgeEdge(player->ledge, (s32)(player->boxX1 + player->x + vx), (s32)(player->boxX2 + player->x + vx));
         switch (idx) {
         case -2:
         case 2:
@@ -458,7 +359,7 @@ void jetpacUpdatePlayerMovement(JetpacActor *player) {
             break;
         case -1:
         case 1:
-            if (player->unk18 == 0 && btnLeft == 0) {
+            if (player->flip == 0 && btnLeft == 0) {
                 player->vx = 1.0f;
             } else if (btnRight == 0) {
                 player->vx = -1.0f;
@@ -467,10 +368,10 @@ void jetpacUpdatePlayerMovement(JetpacActor *player) {
         }
     }
     player->x = player->x + player->vx;
-    if (player->x + player->unk24 > 256.0f) {
+    if (player->x + player->boxX2 > 256.0f) {
         player->x -= 256.0f;
     }
-    if (player->x + player->unk1C < 0.0f) {
+    if (player->x + player->boxX1 < 0.0f) {
         player->x += 256.0f;
     }
     player->y = player->y + player->vy;
@@ -486,11 +387,11 @@ void jetpacUpdatePlayerMovement(JetpacActor *player) {
     }
 }
 
-void jetpacUpdatePlayerDeath(JetpacActor *player) {
-    JetpacPlayer *p = &jetpacGame.players[jetpacGame.currentSession];
+void jetpacUpdatePlayerDeath(JetpacPlayerActor *player) {
+    JetpacPlayer *p = &jetpacGame.players[jetpacGame.activePlayer];
 
-    if (player->unk2C < 14) {
-        player->unk2C++;
+    if (player->timer < 14) {
+        player->timer++;
     } else {
         p->lives--;
         jetpacNextPlayerOrGameOver(p);
@@ -524,8 +425,8 @@ void jetpacDrawPlayer(void) {
         if (*(s32 *)&D_8002F060[4] == 4 && D_8002F094 >= 8) {
             draw = 0;
         }
-        idx = jetpacGetAnimFrame((JetpacActor *)&jetpacPlayer);
-        x = *(f32 *)&jetpacPlayer;
+        idx = jetpacGetAnimFrame(&jetpacPlayer.player);
+        x = jetpacPlayer.player.x;
         y = D_8002F054;
         if (draw != 0) {
             color = D_8002F060;
@@ -567,10 +468,10 @@ void jetpacUpdateLasers(void) {
     s32 i;
 
     for (i = 0; i < 4; i++) {
-        JetpacActor *a = &jetpacPlayer.actors[i];
+        JetpacActor *a = &jetpacPlayer.lasers[i];
 
-        if (a->unk48 != NULL) {
-            a->unk48(a);
+        if (a->update != NULL) {
+            a->update(a);
         }
     }
 }
@@ -587,11 +488,11 @@ void jetpacPlayerStateUpdate(void) {
         }
         D_8002F064 = state;
         if (state == 3) {
-            jetpacUpdatePlayerMovement((JetpacActor *)&jetpacPlayer);
+            jetpacUpdatePlayerMovement(&jetpacPlayer.player);
         }
         state = D_8002F064;
         if (state == 4) {
-            jetpacUpdatePlayerDeath((JetpacActor *)&jetpacPlayer);
+            jetpacUpdatePlayerDeath(&jetpacPlayer.player);
         }
     }
 }
@@ -612,19 +513,19 @@ void jetpacInitPlayer(void) {
     g->color[1] = 0xFF;
     g->color[2] = 0xFF;
     g->color[3] = 1;
-    g->unk14 = 1;
-    g->unk2C = 0;
-    g->unk18 = 0;
-    g->unk44 = 14;
-    g->tint[0] = 0xFF;
-    g->tint[3] = 1;
-    g->unk20 = 0;
-    g->unk1C = 0;
-    g->unk24 = 0x10; g->unk28 = 0x18;
-    g->unk30 = 1;
+    g->state = 1;
+    g->timer = 0;
+    g->flip = 0;
+    g->explosion.timer = 14;
+    g->explosion.color[0] = 0xFF;
+    g->explosion.color[3] = 1;
+    g->boxY1 = 0;
+    g->boxX1 = 0;
+    g->boxX2 = 0x10; g->boxY2 = 0x18;
+    g->flying = 1;
     g->x = 126.0f;
     g->y = 160.0f;
-    jetpacSetFlying((JetpacActor *)&jetpacPlayer, 0);
+    jetpacSetFlying(&jetpacPlayer.player, 0);
     D_8002F084 = 3;
     D_8002F088 = 4;
     {
@@ -644,10 +545,10 @@ s32 jetpacIsSpawnDelay(void) {
     }
 }
 
-void jetpacSnapActorToGrid(JetpacActor *actor) {
-    if (actor->unk44 >= 0xE) {
-        actor->unk44 = 0;
-        actor->unk3C = (s32)actor->x & 0xFFF8;
-        actor->unk40 = (s32)(actor->y + 7.0f);
+void jetpacSnapActorToGrid(JetpacPlayerActor *actor) {
+    if (actor->explosion.timer >= 0xE) {
+        actor->explosion.timer = 0;
+        actor->explosion.x = (s32)actor->x & 0xFFF8;
+        actor->explosion.y = (s32)(actor->y + 7.0f);
     }
 }

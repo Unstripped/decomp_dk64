@@ -1,72 +1,13 @@
 #include "common.h"
+#include "jetpac.h"
 #define PROTO_SKIP_dlSetTextureScaleAndFlip // FAKE: callee prototype steer
 #include "proto/global/1135F0.h"
 #include "proto/jetpac/1460.h"
 #include "proto/jetpac/3060.h"
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-typedef struct JetpacActor {
-    f32 x;
-    f32 y;
-    u8 pad8[8];
-    u8 unk10[4];
-    s32 unk14;
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-    s32 unk24;
-    s32 unk28;
-    s32 unk2C;
-    s32 unk30;
-    u8 pad34[8];
-    s32 unk3C;
-    s32 unk40;
-    s32 unk44;
-    void (*unk48)(struct JetpacActor *);
-    u8 pad4C[4];
-} JetpacActor;
-typedef struct JetpacState {
-    u8 pad0[0x4C];
-    JetpacActor actors[4];
-} JetpacState;
-typedef struct JetpacSprite {
-    u8 pad0[0x18];
-} JetpacSprite;
-
 extern JetpacSprite D_8002C4D0[];
 extern JetpacSprite D_8002B9C0[];
 void dlSetTextureScaleAndFlip(s32 width, s32 height, u8 flip, s32 unk);  // FAKE: callee prototype steer
-typedef struct {
-    u8 pad0[8];
-    s32 lives;
-} JetpacPlayerData;
-
-typedef struct {
-    u8 pad0[0x1C];
-    JetpacPlayerData data;
-    u8 pad28[0x194 - 0x28];
-} JetpacSession;
-
-typedef struct {
-    JetpacSession sessions[2];
-    u8 pad328[0x344 - 0x328];
-    s32 currentSession;
-} JetpacGame;
-
-typedef struct {
-    s32 x;
-    s32 y;
-    s32 unk8;
-    s32 unkC;
-} JetpacCellItem;
-
-typedef struct JetpacCell {
-    JetpacCellItem items[6];
-    s32 count;
-    u8 color[4];
-} JetpacCell;
-
-extern JetpacCell jetpacGrid[24][32];
-
 void jetpacInitGrid(void) {
     JetpacCell *cell = &jetpacGrid[0][0];
     s32 row;
@@ -96,8 +37,8 @@ void jetpacGridAddSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32 flip
         if (item != NULL) {
             item->x = x;
             item->y = y;
-            item->unk8 = flipFlag;
-            item->unkC = (s32)sprite;
+            item->flip = flipFlag;
+            item->texture = (s32)sprite;
             if (cell->color[3] == 0 || (cell->color[3] < 0xFF && jetpacRandFloat() > 0.97)) {
                 src = color;
                 for (i = 0; i < 4; i++) {
@@ -246,8 +187,8 @@ void jetpacGridDraw(Gfx **glistp) {
             if (cell->count > 0) {
                 item_idx = 0;
                 do {
-                    dlAppendTextureLoad(&g, item->unkC);
-                    dlSetTextureScaleAndFlip(0x400, 0x400, item->unk8, 0);
+                    dlAppendTextureLoad(&g, item->texture);
+                    dlSetTextureScaleAndFlip(0x400, 0x400, item->flip, 0);
                     dlAppendTextureRectangle(&g, (item->x + 0x20) << 2, (item->y + 0x18) << 2);
                     item_idx++;
                     item++;

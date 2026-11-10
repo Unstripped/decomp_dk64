@@ -1,4 +1,5 @@
 #include "common.h"
+#include "jetpac.h"
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
 #define PROTO_SKIP_jetpacDrawString // FAKE: callee prototype steer
 #define PROTO_SKIP_jetpacSetTextColor // FAKE: callee prototype steer
@@ -22,47 +23,7 @@ extern s32 D_8002EC48;
 extern struct GfSndState *D_80770DF8[];
 extern s32 D_8076D1F8;
 extern s16 D_8002BA52[];
-typedef struct {
-    u8 pad0[0x1C];
-    s32 unk1C;
-    u8 pad20[0x44 - 0x20];
-    void (*unk44)(void *);
-    u8 pad48[4];
-} J0aItem;
 
-typedef struct JetpacPlayer {
-    s32 stage;
-    s32 score;
-    s32 lives;
-    s32 unkC;
-    s32 unk10;
-    J0aItem items[4];
-    s32 unk144;
-    J0aItem bonus;
-} JetpacPlayer;
-
-typedef struct {
-    u32 unk0;
-    u32 unk4;
-    u32 unk8;
-    s8 unkC;
-    u8 padD[0x18 - 0xD];
-    s32 high_score;
-    JetpacPlayer players[2];
-    s32 active_player;
-    s32 num_players;
-    s32 unk34C;
-    u8 pad350[0x44C - 0x350];
-    s32 unk44C;
-    u8 pad450[0x78C - 0x450];
-    s32 unk78C;
-    s32 unk790;
-    s32 unk794;
-    u8 unk798;
-    u8 unk799;
-} JetpacGlobal;
-
-extern JetpacGlobal jetpacGame;
 
 extern s32 D_8002F064;
 
@@ -145,7 +106,7 @@ void jetpacResetPlayers(void) {
     for (i = 0; i < 2; i++) {
         jetpacGame.players[i].stage = -1;
         jetpacGame.players[i].score = 0;
-        if (i < jetpacGame.num_players) {
+        if (i < jetpacGame.numPlayers) {
             if (jetpacGame.unk798 != 0) {
                 D_8002EC4C[i].lives = 3;
             } else {
@@ -155,7 +116,7 @@ void jetpacResetPlayers(void) {
             D_8002EC4C[i].lives = -1;
         }
     }
-    jetpacGame.active_player = 0;
+    jetpacGame.activePlayer = 0;
 }
 
 extern s32 D_8002BA6C;
@@ -210,15 +171,15 @@ void jetpacStateSelection(s32 glist) {
     jetpacDrawScoreboard(glist);
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     jetpacDrawString(glist, "JETPAC GAME SELECTION", 0x50, 0x38, 0);
-    jetpacDrawString(glist, "1@@@1@PLAYER@GAME", 0x50, 0x50, D_8002BA6C != 0 && jetpacGame.num_players == 1);
-    jetpacDrawString(glist, "2@@@2@PLAYER@GAME", 0x50, 0x60, D_8002BA6C != 0 && jetpacGame.num_players == 2);
-    jetpacDrawString(glist, "3@@@KEYBOARD", 0x50, 0x70, D_8002BA6C != 0 && jetpacGame.unk34C == 0);
-    jetpacDrawString(glist, "4@@@KEMPSTON@JOYSTICK", 0x50, 0x80, D_8002BA6C != 0 && jetpacGame.unk34C != 0);
+    jetpacDrawString(glist, "1@@@1@PLAYER@GAME", 0x50, 0x50, D_8002BA6C != 0 && jetpacGame.numPlayers == 1);
+    jetpacDrawString(glist, "2@@@2@PLAYER@GAME", 0x50, 0x60, D_8002BA6C != 0 && jetpacGame.numPlayers == 2);
+    jetpacDrawString(glist, "3@@@KEYBOARD", 0x50, 0x70, D_8002BA6C != 0 && jetpacGame.controlType == 0);
+    jetpacDrawString(glist, "4@@@KEMPSTON@JOYSTICK", 0x50, 0x80, D_8002BA6C != 0 && jetpacGame.controlType != 0);
     jetpacDrawString(glist, "5   START GAME", 0x50, 0xB8, 0);
     _sprintf(buf, "%c1983 A.C.G. ALL RIGHTS RESERVED", 0x7F);
     jetpacDrawString(glist, buf, 0x20, 0xD8, 0);
     if (jetpacGame.unk798 != 0) {
-        if (!(jetpacGame.unk8 & 0x1000) && jetpacGame.unk799 < 0x78) {
+        if (!(jetpacGame.pressedButtons & 0x1000) && jetpacGame.unk799 < 0x78) {
             jetpacGame.unk799++;
             return;
         }
@@ -226,12 +187,12 @@ void jetpacStateSelection(s32 glist) {
         jetpacStartGame();
         return;
     }
-    flags = jetpacGame.unk8;
+    flags = jetpacGame.pressedButtons;
     if (flags & 0x4000) {
-        jetpacGame.num_players ^= 3;
+        jetpacGame.numPlayers ^= 3;
     }
     if (flags & 0x8000) {
-        jetpacGame.unk34C ^= 1;
+        jetpacGame.controlType ^= 1;
     }
     if (flags & 0x1000) {
         jetpacStartGame();
@@ -249,19 +210,19 @@ void jetpacStateLanding(s32 glist) {
 
 
 void jetpacStateGameplay(s32 glist) {
-    JetpacPlayer *player = &jetpacGame.players[jetpacGame.active_player];
+    JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
 
     if (player->score >= 1000000) {
         player->score -= 1000000;
     }
     jetpacDrawScoreboard(glist);
-    if (player->items[player->unk10].unk44) { // FAKE: empty guard steers regalloc
+    if (player->items[player->currentItem].unk44) { // FAKE: empty guard steers regalloc
     }
     jetpacPlayerStateUpdate();
     jetpacUpdateLasers();
     player->bonus.unk44(&player->bonus);
     {
-        J0aItem *it = &player->items[player->unk10];
+        JetpacItem *it = &player->items[player->currentItem];
         it->unk44(it);
     }
     jetpacUpdateActors();
@@ -274,11 +235,11 @@ void jetpacStateGameplay(s32 glist) {
     jetpacDrawLasers();
     jetpacGridDraw(glist);
     if (jetpacIsSpawnDelay() != 0) {
-        jetpacGame.unk44C++;
+        jetpacGame.player.timer++;
     }
-    if (jetpacGame.unk8 & 0x1000) {
-        jetpacGame.unk78C = 3;
-        jetpacGame.unkC = 1;
+    if (jetpacGame.pressedButtons & 0x1000) {
+        jetpacGame.gameState = 3;
+        jetpacGame.menuSelection = 1;
     }
 }
 
@@ -293,43 +254,43 @@ s32 flagGet(s32, s32); // FAKE: callee prototype steer
 void jetpacStatePause(s32 glist) {
     jetpacDrawScoreboard(glist);
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
-    jetpacDrawString(glist, "RETURN", 0x88, 0x70, D_8002BA6C != 0 && jetpacGame.unkC == 1);
-    jetpacDrawString(glist, "DELETE@HISCORE", 0x68, 0x80, D_8002BA6C != 0 && jetpacGame.unkC == 2);
-    jetpacDrawString(glist, "EXIT@@JETPAC", 0x70, 0x90, D_8002BA6C != 0 && jetpacGame.unkC == 0);
-    if (jetpacGame.unk8 & 0xE000) {
-        switch (jetpacGame.unkC) {
+    jetpacDrawString(glist, "RETURN", 0x88, 0x70, D_8002BA6C != 0 && jetpacGame.menuSelection == 1);
+    jetpacDrawString(glist, "DELETE@HISCORE", 0x68, 0x80, D_8002BA6C != 0 && jetpacGame.menuSelection == 2);
+    jetpacDrawString(glist, "EXIT@@JETPAC", 0x70, 0x90, D_8002BA6C != 0 && jetpacGame.menuSelection == 0);
+    if (jetpacGame.pressedButtons & 0xE000) {
+        switch (jetpacGame.menuSelection) {
         default:
         case 0:
             mapRequestTransition(jetpacGame.unk798 != 0 ? 5 : 0x50, 0);
             break;
         case 1:
-            jetpacGame.unk78C = 2;
+            jetpacGame.gameState = 2;
             break;
         case 2:
-            if (jetpacGame.high_score != 0) {
+            if (jetpacGame.highScore != 0) {
                 eepromInitConfigs(1);
-                jetpacGame.high_score = eepromGetField(0x11, 0, 0, 0);
+                jetpacGame.highScore = eepromGetField(0x11, 0, 0, 0);
                 jetpacSaveHighScore();
             }
             break;
         }
     }
-    if (jetpacGame.unk8 & 0x400) {
-        jetpacGame.unkC++;
+    if (jetpacGame.pressedButtons & 0x400) {
+        jetpacGame.menuSelection++;
     }
-    if (jetpacGame.unk8 & 0x800) {
-        jetpacGame.unkC--;
+    if (jetpacGame.pressedButtons & 0x800) {
+        jetpacGame.menuSelection--;
     }
-    if (jetpacGame.unkC >= 3) {
-        jetpacGame.unkC = 0;
+    if (jetpacGame.menuSelection >= 3) {
+        jetpacGame.menuSelection = 0;
     }
-    if (jetpacGame.unkC < 0) {
-        jetpacGame.unkC = 2;
+    if (jetpacGame.menuSelection < 0) {
+        jetpacGame.menuSelection = 2;
     }
 }
 
 void jetpacStateTakeoff(s32 glist) {
-    JetpacPlayer *player = &jetpacGame.players[jetpacGame.active_player];
+    JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
 
     jetpacDrawScoreboard(glist);
     jetpacUpdateLasers();
@@ -355,18 +316,18 @@ void jetpacStateGameOver(s32 glist) {
         _sprintf(textBuf, "RAREWARE COIN COLLECTED");
         textCol = 5;
     } else {
-        _sprintf(textBuf, "GAME OVER PLAYER %d", jetpacGame.active_player + 1);
+        _sprintf(textBuf, "GAME OVER PLAYER %d", jetpacGame.activePlayer + 1);
     }
     jetpacSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     jetpacDrawString(glist, textBuf, textCol * 8 + 0x20, 0x88, 0);
-    if ((u32)jetpacGame.unk790 >= 0x79U) {
+    if ((u32)jetpacGame.stateTimer >= 0x79U) {
         if (jetpacGame.unk798 != 0) {
             if (jetpacGame.unk799 == 0) {
                 jetpacGame.unk799 = 1;
                 mapRequestTransition(5, 0);
             }
         } else {
-            jetpacNextPlayerOrGameOver(&jetpacGame.players[jetpacGame.active_player]);
+            jetpacNextPlayerOrGameOver(&jetpacGame.players[jetpacGame.activePlayer]);
         }
     }
 }
@@ -397,7 +358,7 @@ void jetpacStopSound(s32 soundId) {
 
 void jetpacSetState(s32 state) {
     s32 pad;
-    JetpacPlayer *player = &jetpacGame.players[jetpacGame.active_player];
+    JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
 
     jetpacGame.unk794 = 0;
     switch (state) {
@@ -408,7 +369,7 @@ void jetpacSetState(s32 state) {
         jetpacPlaceRocketAboveScreen();
         break;
     case 2:
-        if (jetpacGame.unk78C == 1) {
+        if (jetpacGame.gameState == 1) {
             jetpacGame.unk794 = 3;
             player->lives--;
         }
@@ -423,14 +384,14 @@ void jetpacSetState(s32 state) {
         player->lives++;
         break;
     case 5:
-        jetpacGame.unk790 = 0;
+        jetpacGame.stateTimer = 0;
         break;
     }
-    jetpacGame.unk78C = state;
+    jetpacGame.gameState = state;
 }
 
 void jetpacStartStage(void) {
-    JetpacPlayer *player = &jetpacGame.players[jetpacGame.active_player];
+    JetpacPlayer *player = &jetpacGame.players[jetpacGame.activePlayer];
 
     if (player->stage < 0) {
         player->lives--;
@@ -440,7 +401,7 @@ void jetpacStartStage(void) {
     if ((player->stage & 3) == 0) {
         jetpacInitRocketParts(player);
         player->items[3].unk1C = 0;
-        player->unk10 = 1;
+        player->currentItem = 1;
         jetpacSetState(2);
     } else {
         jetpacSpawnFuelPod(player);
@@ -463,42 +424,42 @@ void jetpacUpdateStateAndInput(s32 glist) {
 
     zero = 0;
     if (D_8002BA70 != 0) {
-        jetpacGame.unk78C = 0;
-        jetpacGame.unk790 = 0;
+        jetpacGame.gameState = 0;
+        jetpacGame.stateTimer = 0;
         jetpacGame.unk794 = 3;
-        jetpacGame.num_players = 1;
-        jetpacGame.unk34C = 0;
+        jetpacGame.numPlayers = 1;
+        jetpacGame.controlType = 0;
         D_8002BA70 = zero;
-        jetpacGame.high_score = eepromGetField(0x11, zero, zero, zero);
+        jetpacGame.highScore = eepromGetField(0x11, zero, zero, zero);
         flag = flagGet(0x61, 2);
         jetpacGame.unk798 = flag;
         if (flag != zero) {
             jetpacGame.unk799 = 0;
         }
     }
-    D_8002BA6C = jetpacGame.unk790;
+    D_8002BA6C = jetpacGame.stateTimer;
     D_8002BA6C %= 60;
     D_8002BA6C /= 30;
-    jetpacGame.unk4 = jetpacGame.unk0;
-    jetpacGame.unk0 = D_807ECDE8->unk0;
+    jetpacGame.prevButtons = jetpacGame.buttons;
+    jetpacGame.buttons = D_807ECDE8->unk0;
     if (D_807ECDE8->unk2 >= 0x1F) {
-        jetpacGame.unk0 |= 0x100;
+        jetpacGame.buttons |= 0x100;
     }
     if (D_807ECDE8->unk2 < -0x1E) {
-        jetpacGame.unk0 |= 0x200;
+        jetpacGame.buttons |= 0x200;
     }
     if (D_807ECDE8->unk3 >= 0x1F) {
-        jetpacGame.unk0 |= 0x800;
+        jetpacGame.buttons |= 0x800;
     }
     if (D_807ECDE8->unk3 < -0x1E) {
-        jetpacGame.unk0 |= 0x400;
+        jetpacGame.buttons |= 0x400;
     }
-    jetpacGame.unk8 = (jetpacGame.unk0 ^ jetpacGame.unk4) & jetpacGame.unk0;
+    jetpacGame.pressedButtons = (jetpacGame.buttons ^ jetpacGame.prevButtons) & jetpacGame.buttons;
     if ((u32)jetpacGame.unk794 < 3) {
         jetpacGame.unk794++;
         return;
     }
-    switch (jetpacGame.unk78C) {
+    switch (jetpacGame.gameState) {
     case 0:
         jetpacStateSelection(glist);
         break;
@@ -518,16 +479,16 @@ void jetpacUpdateStateAndInput(s32 glist) {
         jetpacStateGameOver(glist);
         break;
     }
-    jetpacGame.unk790 = jetpacGame.unk790 + 1;
+    jetpacGame.stateTimer = jetpacGame.stateTimer + 1;
 }
 
 void jetpacNextPlayerOrGameOver(JetpacPlayer *player) {
-    s32 other_idx = jetpacGame.active_player ^ 1;
+    s32 other_idx = jetpacGame.activePlayer ^ 1;
     JetpacPlayer *other = &jetpacGame.players[other_idx];
 
-    if (player->lives < 0 && jetpacGame.unk78C != 5) {
-        if (jetpacGame.high_score < player->score) {
-            jetpacGame.high_score = player->score;
+    if (player->lives < 0 && jetpacGame.gameState != 5) {
+        if (jetpacGame.highScore < player->score) {
+            jetpacGame.highScore = player->score;
             jetpacSaveHighScore();
         }
         jetpacSetState(5);
@@ -535,7 +496,7 @@ void jetpacNextPlayerOrGameOver(JetpacPlayer *player) {
     }
 
     if (other->lives >= 0) {
-        jetpacGame.active_player = other_idx;
+        jetpacGame.activePlayer = other_idx;
         if (other->stage < 0) {
             jetpacStartStage();
             return;
