@@ -16,3 +16,9 @@ No size/offset change; unk44[2] is never indexed (only [0],[1] used in 42630.c /
 
 ## Orchestrator notes
 the split is byte-preserving (s16 unk44[3] at 0x44 → s16 unk44[2]; u8 unk48; u8 unk49); 478F0 reads `(u8)cs->unk44[2]` five times (those become `cs->unk49`); 42630 indexes `cs->unk44[cmd->c]` (csCmdExec) and `->unk44[cmd->b]` (csCondEval) with variable indices that must be range-checked before splitting.
+
+## Round 4 decision: not applied
+42630 csCmdExec case 0x3 writes `cs->unk44[cmd->c]` as an s16 script variable, and 478F0 reads
+the third slot as `(u8)cs->unk44[2]` (the low byte, lbu 0x49): unk44 is a 3-slot s16 variable
+array and index 2 is a real s16 slot. Splitting it would turn that write into an out-of-bounds index.
+csCmdLightPulse's byte write to 0x49 (CsLightView) stays a site; do not re-request this split.
