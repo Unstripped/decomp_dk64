@@ -63,6 +63,30 @@ def test_uninit_default_error_warnings_and_parse_errors(tmp_path):
     assert f"{conv} errors=0 werrors=0 functions=2" in r.stdout
 
 
+def test_uninit_base_survives_local_renames(tmp_path):
+    # F9450 round 5: renaming m2c locals already read uninitialised in the base (sp7C -> x) is not new
+    fn = ('#include "common.h"\nvoid f(void) {\n    s32 %(a)s;\n    s32 %(b)s;\n%(init)s'
+          '    if (%(a)s) {}\n    if (%(b)s) {}\n}\n')
+    base = tmp_path / "base.c"
+    base.write_text(fn % dict(a="sp7C", b="sp78", init="    sp78 = 1;\n"))
+    renamed = tmp_path / "renamed.c"
+    renamed.write_text(fn % dict(a="x", b="y", init="    y = 1;\n"))
+    r = uninit_cli(renamed, base)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "RENAMED UNINIT" in r.stdout and " f x (base sp7C)" in r.stdout and "NEW UNINIT" not in r.stdout
+    # the same renames plus a genuinely new uninitialised read of y in that function
+    worse = tmp_path / "worse.c"
+    worse.write_text(fn % dict(a="x", b="y", init=""))
+    r = uninit_cli(worse, base)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert " f x (base sp7C)" in r.stdout and "NEW UNINIT" in r.stdout and " f y" in r.stdout.split("NEW UNINIT")[1]
+    # a retyped local is not matched by position: its read stays new
+    retyped = tmp_path / "retyped.c"
+    retyped.write_text(fn.replace("    s32 %(a)s;", "    u8 %(a)s;") % dict(a="x", b="y", init="    y = 1;\n"))
+    r = uninit_cli(retyped, base)
+    assert r.returncode == 1 and "NEW UNINIT" in r.stdout, r.stdout + r.stderr
+
+
 HEADER = """typedef struct Fix {
     s32 unk0;
     char pad4[0xC];

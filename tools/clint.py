@@ -13,9 +13,11 @@ blocks are invisible as in the matching build.
                                                           `uninit` uses, first one shown) and function counts
   uv run tools/clint.py uninit <copy.c> [--base <src.c>] UNINIT <file>:<line> <function> <variable>;
                                                           --base: exit 1 on a (function, variable) pair
-                                                          the base lacks (NEW UNINIT ...); exit 3 (UNKNOWN
-                                                          <file> ...) when either warnings-mode parse has
-                                                          errors: clang then skips the analysis
+                                                          the base lacks (NEW UNINIT ...); a local only
+                                                          renamed (same function, declaration ordinal and
+                                                          local types) is RENAMED UNINIT, not new; exit 3
+                                                          (UNKNOWN <file> ...) when either warnings-mode
+                                                          parse has errors: clang then skips the analysis
   uv run tools/clint.py layout --base <REV> <include/h.h>...
                                                           record sizes and field offsets vs REV:
                                                           LAYOUT OK (0) or LAYOUT CHANGED <Type> ... (1)
@@ -285,12 +287,20 @@ def cmd_scan(a):
 VARNAME = re.compile(r"variable '(\w+)'")
 
 
-def uninit(path, tu=None):
-    """{(function, variable): line} of the uninitialized-read warnings of one file (TU: an existing
-    parse of PATH with clang_args(warnings=True), to share one parse with other analyses)."""
+def local_decls(fn):
+    """[(name, canonical type spelling)] of function definition FN's local variables, in
+    declaration order (parameters excluded)."""
+    return [(c.spelling, c.type.get_canonical().spelling) for c in fn.walk_preorder() if c.kind == CursorKind.VAR_DECL]
+
+
+def uninit_reads(path, tu=None):
+    """{(function, variable): dict(line, ordinal, types, names)} of the uninitialized-read warnings
+    of one file: the first warning line, the variable's position among its function's locals
+    (`local_decls`, None when it is not one), the function's local types in order and its local
+    names. TU: an existing parse of PATH with clang_args(warnings=True)."""
     tu = tu if tu is not None else parse(path, args=clang_args(warnings=True))
-    spans = [(s, e, n) for n, _, d, _, s, e, _ in functions(tu, path) if d]
-    out = {}
+    fns = [(s, e, n, c) for n, _, d, _, s, e, c in functions(tu, path) if d]
+    out, decls = {}, {}
     for d in tu.diagnostics:
         if d.severity != ci.Diagnostic.Warning or not d.location.file or not same_file(d, path):
             continue
@@ -300,34 +310,70 @@ def uninit(path, tu=None):
         if not m:
             continue
         line = d.location.line
-        fn = next((n for s, e, n in spans if s <= line <= e), "?")
-        out.setdefault((fn, m.group(1)), line)
+        fn, cur = next(((n, c) for s, e, n, c in fns if s <= line <= e), ("?", None))
+        if (fn, m.group(1)) in out:
+            continue
+        if fn not in decls:
+            decls[fn] = local_decls(cur) if cur is not None else []
+        names = [n for n, _ in decls[fn]]
+        out[(fn, m.group(1))] = dict(line=line, ordinal=names.index(m.group(1)) if m.group(1) in names else None,
+                                     types=tuple(t for _, t in decls[fn]), names=frozenset(names))
     return out
 
 
+def uninit(path, tu=None):
+    """{(function, variable): line} of the uninitialized-read warnings of one file (TU: an existing
+    parse of PATH with clang_args(warnings=True), to share one parse with other analyses)."""
+    return {k: v["line"] for k, v in uninit_reads(path, tu).items()}
+
+
+def new_uninit_reads(cur, base):
+    """(new, renamed) of CUR's `uninit_reads` against BASE's. A pair the base has by name is old.
+    So is one whose variable was only renamed: same function, base variable gone from the copy's
+    locals and copy variable absent from the base's, same declaration ordinal, and the function's
+    local types identical in order (a rename changes names only). Each base pair covers at most one
+    copy pair. renamed = [(copy key, base variable)]."""
+    new, renamed, used = [], [], {k for k in cur if k in base}
+    for key, c in sorted(cur.items(), key=lambda x: x[1]["line"]):
+        if key in base:
+            continue
+        fn, var = key
+        match = next((bk for bk, b in sorted(base.items()) if bk[0] == fn and bk not in used
+                      and c["ordinal"] is not None and b["ordinal"] == c["ordinal"]
+                      and b["types"] == c["types"] and bk[1] not in c["names"] and var not in b["names"]), None)
+        if match is None:
+            new.append(key)
+        else:
+            used.add(match)
+            renamed.append((key, match[1]))
+    return new, renamed
+
+
 def analysed_uninit(path):
-    """`uninit(PATH)`, or None after printing `UNKNOWN` when its warnings-mode parse has errors:
-    clang skips the uninitialised-read analysis of every function after a TU's first error, so no
-    warning there is unknown, not none."""
+    """`uninit_reads(PATH)`, or None after printing `UNKNOWN` when its warnings-mode parse has
+    errors: clang skips the uninitialised-read analysis of every function after a TU's first error,
+    so no warning there is unknown, not none."""
     tu = parse(path, args=clang_args(warnings=True))
     if tu.diagnostics_errors:
         print(f"UNKNOWN {path}: {tu.diagnostics_errors} error(s) in the warnings-mode parse, uninitialised "
               f"reads not analysed; first: {first_error(tu)}")
         return None
-    return uninit(path, tu)
+    return uninit_reads(path, tu)
 
 
 def cmd_uninit(a):
     cur = analysed_uninit(a.copy)
-    for (fn, var), line in sorted((cur or {}).items(), key=lambda x: x[1]):
-        print(f"UNINIT {a.copy}:{line} {fn} {var}")
+    for (fn, var), r in sorted((cur or {}).items(), key=lambda x: x[1]["line"]):
+        print(f"UNINIT {a.copy}:{r['line']} {fn} {var}")
     base = analysed_uninit(a.base) if a.base else {}
     if cur is None or base is None:
         sys.exit(3)
     if a.base:
-        new = [(k, v) for k, v in cur.items() if k not in base]
-        for (fn, var), line in sorted(new, key=lambda x: x[1]):
-            print(f"NEW UNINIT {a.copy}:{line} {fn} {var}")
+        new, renamed = new_uninit_reads(cur, base)
+        for (fn, var), old in renamed:
+            print(f"RENAMED UNINIT {a.copy}:{cur[(fn, var)]['line']} {fn} {var} (base {old})")
+        for fn, var in new:
+            print(f"NEW UNINIT {a.copy}:{cur[(fn, var)]['line']} {fn} {var}")
         sys.exit(1 if new else 0)
 
 
