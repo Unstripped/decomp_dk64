@@ -39,9 +39,15 @@ typedef struct ControllerAnimAssetView {
     u8 unk21;
 } ControllerAnimAssetView;
 
-// D_807FB630 is declared with its full type (ControllerStateEntry) further down; this function needs a u8 unk8 view, so it goes through a cast.
-struct ControllerStateEntry;
-extern struct ControllerStateEntry D_807FB630[];
+typedef struct ControllerStateEntry {
+    u16 unk0;
+    u16 unk2;
+    u32 unk4;
+    u32 unk8;
+} ControllerStateEntry;
+
+extern ControllerStateEntry D_807FB630[];
+// Users needing a u8 unk8 go through CONTROLLER_STATE_ENTRY.
 #define CONTROLLER_STATE_ENTRY(i) (((ControllerStateEntryView *)D_807FB630)[i])
 extern void *D_807FB634;
 void *assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
@@ -282,15 +288,6 @@ void controllerCommandRelocateAssets(ControllerCommand *cmdStart, ControllerComm
         } while (cmdStart != cmdEnd);
     }
 }
-
-typedef struct ControllerStateEntry {
-    u16 unk0;
-    u16 unk2;
-    u32 unk4;
-    u32 unk8;
-} ControllerStateEntry;
-
-extern ControllerStateEntry D_807FB630[];
 
 u16 controllerLookupStateByHash(u32 *pHash) {
     u32 val = *pHash;
