@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_actorSpawn // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_sfxPlayAtPositionPooled // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -55,7 +54,6 @@ extern s32 D_807210EC;
 extern s32 D_80721158;
 extern s32 D_8072139C;
 
-s32 actorSpawn();
 
 void effectSpawnActorBone(s32 lifetime, u8 bone, f32 scale) {
     effectSetDepth(1);
@@ -101,7 +99,7 @@ void actorSpawnEffectChild(f32 posX, f32 posY, f32 posZ, f32 scaleXZ, f32 scaleY
             break;
         }
     }
-    actorSpawn(0xFF, actorType, parent);
+    actorSpawn(0xFF, actorType);
     gSpawnedActor->parentActor = parent;
     gSpawnedActor->sub4->scaleX = scaleXZ;
     gSpawnedActor->sub4->scaleZ = scaleXZ;

@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorSpawn // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_heapAlloc // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -178,7 +177,6 @@ typedef struct S112dActorKeyState {
 
 extern void *sResQueueHead;
 extern s8 sResQueueValue;
-extern unsigned long actorSpawn(s32, s32, void *);
 
 void *resQueueGetOrCreate(void *key) {
     S112dLink **link;
@@ -193,7 +191,7 @@ void *resQueueGetOrCreate(void *key) {
         *link = heapAlloc(0x10);
         heapClearBlock(*link);
         (*link)->key = key;
-        actorSpawn(0x12B, 0, key);
+        actorSpawn(0x12B, 0);
         gSpawnedActor->state = 0;
         (*link)->actor = gSpawnedActor;
         state = (S112dActorKeyState *)gSpawnedActor->customState;
