@@ -1417,9 +1417,9 @@ Gfx *menuDrawCharacterSelect(Actor *actor, Gfx *dl) {
     return dl;
 }
 
-typedef struct Menu6_Sub174 {
-    void *unk0;
-    char pad4[4];
+typedef struct Menu6_Sub174 { // customState of the character-select kong actors
+    Actor *unk0; // parent menu actor
+    s32 unk4;
     s8 unk8;
 } Menu6_Sub174;
 extern s16 D_8003386C[];
@@ -1440,14 +1440,12 @@ void menuInitCharacterSelect(Actor *actor, s32 unused) {
     menuUpdateCameraPositions();
     D_80033FAF = 1;
     flag = 0x1D;
-    i = 1;
-    do {
+    for (i = 1; i < 5; i++) {
         if (flagGet(flag, 1) != 0) {
             D_80033FAF |= 1 << i;
         }
-        i += 1;
         flag += 1;
-    } while (i < 5);
+    }
     if (D_80744544 & 1) {
         D_80033FAF |= 0x20;
     }
@@ -1456,21 +1454,19 @@ void menuInitCharacterSelect(Actor *actor, s32 unused) {
     if (D_8076A104 != 0 && D_8074451C >= 5) {
         D_8074451C = 0;
     }
-    i = 0;
     state->selection = D_8074451C;
-    do {
+    for (i = 0; i != 4; i++) {
         actorSpawn(0x151, D_8003386C[D_8076A0E4[i] & 0x7F]);
         {
             s16 *q = ((MenuActorExt *)gSpawnedActor)->unk17C;
             *q = D_8003386C[D_8076A0E4[i] & 0x7F];
         }
         gSpawnedActor->state = i;
-        i += 1;
-        gSpawnedActor->unk155 = D_8076A0E4[i - 1] & 0x7F;
+        gSpawnedActor->unk155 = D_8076A0E4[i] & 0x7F;
         sub = gSpawnedActor->customState;
         sub->unk0 = actor;
         sub->unk8 = 0;
-    } while (i != 4);
+    }
     menuSpawnUiElementEffect(state, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &D_80720C34, 0xA0, 0x7D, 0.75f, 2, 4);
@@ -1599,11 +1595,6 @@ void menuInitMultiplayerResults(Actor *actor, s32 unused) {
 }
 
 
-typedef struct Menu6B_Sub174 {
-    Actor *unk0;
-    s32 unk4;
-    s8 unk8;
-} Menu6B_Sub174;
 typedef struct Menu6B_Pair {
     f32 a;
     f32 b;
@@ -1624,7 +1615,7 @@ void menuCharacterSelectUpdateActor(void) {
     s8 m8;
     s16 idx;
     s16 *actorTypePtr;
-    Menu6B_Sub174 *sub174;
+    Menu6_Sub174 *sub174;
 
     sub174 = gCurrentActor->customState;
     parentState = sub174->unk0->customState;
@@ -1656,7 +1647,7 @@ void menuCharacterSelectUpdateActor(void) {
                 *q = *actorTypePtr;
             }
             gSpawnedActor->state = gCurrentActor->state;
-            gSpawnedActor->unk155 = (s16)idx; // FAKE: no-op narrowing cast, burns one ugen t-ring temp
+            gSpawnedActor->unk155 = idx;
             {
                 Menu6_Sub174 *sub = gSpawnedActor->customState;
                 sub->unk0 = sub174->unk0;
@@ -2474,7 +2465,7 @@ Gfx *menuDrawHighScoreTable(Actor *actor, Gfx *dl) {
     menuComputeElementPosition(state, 160.0f, 20.0f, &posX, &posY, 2, 0, 1.0f);
     dl = textDrawStringVtx(dl, 1, 0x280, (s16)(posY * 4.0), D_80033F28[D_800339A8 + 0x5F], 0x81);
     menuComputeElementPosition(state, 160.0f, 205.0f, &posX, &posY, 2, 0, 1.0f);
-    i = 0;
+    i = 0; // FAKE: loop counter i doubles as the message-drawn flag; a separate flag local recolours
     yPos = (s16)(posY * 4.0);
     if (D_80033F60 >= 0) {
         _sprintf(strBuf, "%s", D_80033F28[0x63]);
@@ -2486,10 +2477,9 @@ Gfx *menuDrawHighScoreTable(Actor *actor, Gfx *dl) {
     if (i != 0) {
         dl = hudDrawScaledText(dl, 0x280, yPos, 0.6f, strBuf);
     }
-    i = 0;
     menuComputeElementPosition(state, 20.0f, 120.0f, &posX, &posY, 2, 0, 2.0f);
     yPos = 0xC8;
-    ft4 = (s16)(s32)(posX * 4.0f);
+    ft4 = (s16)(posX * 4.0f);
     if (D_800339A8 == 0) {
         scoreTable = D_80744548;
     } else {
