@@ -21,7 +21,7 @@ void arcadeSetTextColor(s32, s32, s32, s32);
 void arcadeSetTextPosition(s32, s32);
 #endif
 #ifndef PROTO_SKIP_arcadeDrawString
-void arcadeDrawString(Gfx **, char *);
+void arcadeDrawString(Gfx **, u8 *);
 #endif
 #ifndef PROTO_SKIP_arcadeRand
 s32 arcadeRand(void);

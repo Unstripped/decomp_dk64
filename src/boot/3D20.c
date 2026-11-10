@@ -31,11 +31,11 @@ unsigned char *_itoa(unsigned long long val, unsigned char *end, unsigned int ba
     return p;
 }
 
-int _sprintf(unsigned char *buf, const unsigned char *fmt, ...) {
+int _sprintf(unsigned char *buf, const char *fmt, ...) {
     va_list ap;
 
     va_start(ap, fmt);
-    return vsprintf(buf, fmt, ap);
+    return vsprintf(buf, (const unsigned char *)fmt, ap);
 }
 
 
