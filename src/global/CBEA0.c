@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_viewportSetMargins // FAKE: callee prototype steer
 #include "proto/global/100180.h"
 #include "proto/global/15050.h"
 #include "proto/global/450.h"
@@ -147,7 +146,7 @@ void spriteLinearInterpolateFrame(void) {
         D_807FC8E4--;
         if (D_807FC8E4 <= 0) {
             if (D_80750754 >= 0) {
-                D_80750758 += D_807506D5[D_80750754 * 6];
+                D_80750758 += D_807506D5[D_80750754 * 6]; // FAKE: unk5 read via split label D_807506D5 (D_807506D0[i].unk5 is raw-word identical, relocation-only fdiff 3)
             }
             if (D_80750758 >= D_807FC8E0) {
                 D_80750758 = 0;
@@ -169,7 +168,7 @@ void spriteLinearInterpolateFrame(void) {
         t >>= 1;
         if (t < 0x16) {
             e = &D_8075075C[t * 2];
-            frac = (f64)(f32)k * 0.5;
+            frac = (f32)k * 0.5;
             D_807FC8E8 = e[0] + (e[2] - e[0]) * frac;
             D_807FC8EC = e[1] + (e[3] - e[1]) * frac;
         } else {
@@ -179,8 +178,6 @@ void spriteLinearInterpolateFrame(void) {
     }
     renderCallbacksRegister(renderBannerText, actor, 3);
 }
-
-#define R1C2CB_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
@@ -193,11 +190,6 @@ extern R1C2CB_Col D_80750814;
 extern f32 D_80750818[];
 extern f32 D_80750828[];
 
-void viewportSetMargins(u8, u8, u8, u8); // FAKE: callee prototype steer
-void guScaleF(f32 mf[4][4], f32 x, f32 y, f32 z);
-void guTranslateF(f32 mf[4][4], f32 x, f32 y, f32 z);
-void guMtxCatF(f32 mf[4][4], f32 nf[4][4], f32 res[4][4]);
-void guMtxF2L(f32 mf[4][4], Mtx *m);
 
 Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
     f32 sx;
@@ -231,14 +223,14 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
     }
     mtx = heapAlloc(0x40);
     heapFreeDeferred(mtx);
-    R1C2CB_GFX(gdl++, 0xE7000000, 0);
-    R1C2CB_GFX(gdl++, 0xDE000000, &D_1000118);
-    R1C2CB_GFX(gdl++, 0xE3000A01, 0);
-    R1C2CB_GFX(gdl++, 0xE200001C, 0x504240);
-    R1C2CB_GFX(gdl++, 0xFA000000, 0xFFFFFFFF);
-    R1C2CB_GFX(gdl++, 0xFC119623, 0xFF2FFFFF);
-    R1C2CB_GFX(gdl++, 0xDA380007, &D_20000C0);
-    R1C2CB_GFX(gdl++, 0xDA380003, mtx);
+    gDPPipeSync(gdl++);
+    gSPDisplayList(gdl++, &D_1000118);
+    gDPSetCycleType(gdl++, G_CYC_1CYCLE);
+    gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gDPSetPrimColor(gdl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+    gDPSetCombineLERP(gdl++, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
+    gSPMatrix(gdl++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gdl++, mtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     sx = 1.0;
     sy = 1.0;
     if (i & 1) {
@@ -295,8 +287,8 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
             p++;
         } while (i < D_807506D0[D_80750754].unk5);
     }
-    R1C2CB_GFX(gdl++, 0xD8380002, 0x40);
-    R1C2CB_GFX(gdl++, 0xE7000000, 0);
+    gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
+    gDPPipeSync(gdl++);
     return gdl;
 }
 

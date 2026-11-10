@@ -67,7 +67,7 @@ void gfxEndSubDisplayList(Gfx *, s32, s32 *, u8);
 void mapLoadLevel(void);
 #endif
 #ifndef PROTO_SKIP_viewportSetMargins
-void viewportSetMargins(s8, s8, s8, s8);
+void viewportSetMargins(u8, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_alignInt
 void alignInt(s32 *, s32);

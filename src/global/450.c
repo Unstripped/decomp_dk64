@@ -1187,7 +1187,7 @@ if (((s32) gActivePlayerCount >= 2) && !(gGlobalOverlayFlags & 0x04000000)) {
 }
 
 
-void viewportSetMargins(s8 val0, s8 val1, s8 val2, s8 val3) {
+void viewportSetMargins(u8 val0, u8 val1, u8 val2, u8 val3) {
     gViewportInsetLeft = val0;
     gViewportInsetRight = val1;
     gViewportInsetTop = val2;
