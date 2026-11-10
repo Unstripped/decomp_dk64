@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_69E60_H
 #include "common.h"
 #include "actor.h"
-struct ActorTransformWork;
 struct ActorVelocityCustomWork;
 struct ActorVelocityWork;
 #ifndef PROTO_SKIP_actorStepPhysics
