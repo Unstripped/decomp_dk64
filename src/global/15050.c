@@ -576,20 +576,22 @@ HeapBlock *heapBestFitAlloc(s32 pool, u32 size) {
     return NULL;
 }
 
-void heapFree(u8 *ptr) {
+void heapFree(void *ptr) {
+    HeapBlock *block = (HeapBlock *)ptr - 1;
+
     if (ptr != gHeapGuardBlock) {
-        ptr -= 0x10;
-        if (ptr[0xB] == 0) {
-            heapFreeToPool((HeapBlock *)ptr);
+        if (((u8 *)block)[0xB] == 0) {
+            heapFreeToPool(block);
         }
     }
 }
 
-void heapFreeDeferred(u8 *ptr) {
+void heapFreeDeferred(void *ptr) {
+    HeapBlock *block = (HeapBlock *)ptr - 1;
+
     if (ptr != gHeapGuardBlock) {
-        ptr -= 0x10;
-        if (ptr[0xB] == 0) {
-            heapQueueDeferredFree(ptr);
+        if (((u8 *)block)[0xB] == 0) {
+            heapQueueDeferredFree(block);
         }
     }
 }

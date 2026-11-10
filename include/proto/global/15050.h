@@ -49,10 +49,10 @@ void *heapAllocFromPool(s32, s32);
 HeapBlock *heapBestFitAlloc(s32, u32);
 #endif
 #ifndef PROTO_SKIP_heapFree
-void heapFree(u8 *);
+void heapFree(void *);
 #endif
 #ifndef PROTO_SKIP_heapFreeDeferred
-void heapFreeDeferred(u8 *);
+void heapFreeDeferred(void *);
 #endif
 #ifndef PROTO_SKIP_heapQueueDeferredFree
 void heapQueueDeferredFree(void *);

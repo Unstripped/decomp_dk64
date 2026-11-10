@@ -487,7 +487,7 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
             case 2:
                 heapFreeDeferred((void *)D_807FD9B0);
                 heapFreeDeferred(D_807FD9A8->unk8);
-                heapFreeDeferred((void *)gFbTileTable);
+                heapFreeDeferred(gFbTileTable);
                 heapFreeDeferred(D_807FD9A8->unk10);
                 heapFreeDeferred(D_807FD9A8->unk14);
                 assetFreeBuffer(D_807FD9B8, 0x24B, 0x4A);

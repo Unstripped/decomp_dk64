@@ -38,7 +38,7 @@ extern void *D_8076BF38[];
 extern s32 D_807452B0[];
 void alHeapInit(ALHeap *, u8 *, s32);
 void *heapAlloc(s32);
-void heapFree(u8 *);
+void heapFree(void *);
 void oscSetupConfig(ALSeqpConfig *, s32);
 void n_alCSPlayerNew(ALCSPlayer *, ALSeqpConfig *);
 void configureCSPOutputMode(u8);
