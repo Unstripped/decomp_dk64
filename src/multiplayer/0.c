@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
+#include "sched.h"
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/117190.h"
@@ -26,16 +26,6 @@
 #include "proto/global/FCCD0.h"
 #include "proto/multiplayer/0.h"
 
-typedef struct MpActor MpActor;
-
-typedef struct MpViewport {
-    char pad0[4];
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
-    s16 unkA;
-} MpViewport;
-
 // Match controller state (actor +0x174 of the controller actor).
 typedef struct MpControllerState {
     u64 unk0;
@@ -43,79 +33,24 @@ typedef struct MpControllerState {
     s32 unkC;
     s32 unk10;
     char pad14[4];
-    MpActor *unk18;
+    Actor *unk18;
     s16 unk1C;
     char pad1E[2];
-    MpViewport *unk20[4];
+    G00Entry *unk20[4];
     Mtx *unk30;
     u32 unk34;
     u8 unk38;
     char pad39[3];
-    void *unk3C;
+    struct GfSndState *unk3C;
     s16 unk40;
     s16 unk42;
     void *unk44;
     void *unk48;
     u8 unk4C;
     char pad4D[3];
-    s32 unk50[8];
+    struct EffectNode *unk50[8];
     u8 unk70;
 } MpControllerState;
-
-
-// Kong actor state (actor +0x174 of a player actor).
-typedef struct MpKongState {
-    char pad0[0xD4];
-    s16 unkD4;
-    char padD6[0x1A4 - 0xD6];
-    u8 unk1A4;
-    char pad1A5[0x1F0 - 0x1A5];
-    s32 unk1F0;
-    char pad1F4[0x200 - 0x1F4];
-    s16 unk200;
-    char pad202[0x246 - 0x202];
-    s8 unk246;
-    s8 unk247;
-    char pad248[0x260 - 0x248];
-    s32 unk260;
-    s32 unk264;
-} MpKongState;
-
-struct MpActor {
-    char pad0[0x5C];
-    u16 unk5C;
-    char pad5E[2];
-    s32 unk60;
-    char pad64[0x7C - 0x64];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0xE6 - 0x88];
-    s16 unkE6;
-    char padE8[0x128 - 0xE8];
-    s16 unk128;
-    char pad12A[0x144 - 0x12A];
-    u8 unk144;
-    char pad145[0x154 - 0x145];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x174 - 0x156];
-    MpKongState *unk174;
-};
-
-// gPlayerSlots: player array, stride 0x2F0.
-typedef struct MpPlayer {
-    u8 unk0;
-    char pad1[3];
-    MpActor *unk4;
-    char pad8[0x2A0 - 8];
-    void *unk2A0;
-    char pad2A4[0x2E2 - 0x2A4];
-    u16 unk2E2;
-    char pad2E4[0x2EA - 0x2E4];
-    u8 unk2EA;
-    char pad2EB[0x2F0 - 0x2EB];
-} MpPlayer;
 
 // gPlayerInventoryTable: per-player score array, stride 0x306.
 typedef struct MpScore {
@@ -139,20 +74,13 @@ typedef struct MpSettings {
     s32 unkC;
 } MpSettings;
 
-typedef struct MpFlagState {
-    char pad0[0x21E];
-    s16 unk21E;
-} MpFlagState;
-
 extern u8 gSplitScreenMode;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
 extern u8 D_1000118[];
 extern u8 D_20000C0[];
 
-extern s32 D_807552E8;
 extern MpScore gPlayerInventoryTable[];
-extern s32 D_807552EC;
 extern u8 gPlayerCount;
 extern s32 gGlobalPauseFlags;
 extern s8 D_8076A105;
@@ -173,11 +101,9 @@ typedef struct MpMapEntry {
 } MpMapEntry;
 extern MpMapEntry D_80026FA4[];
 extern s32 gCurrentMap;
-extern unsigned long long __ll_mul(unsigned long long, unsigned long long);
-extern unsigned long long __ull_div(unsigned long long, unsigned long long);
 extern Actor *gCurrentActor;
 extern MpSettings D_807552E4;
-extern MpPlayer *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 
 Gfx *mpDrawTimer(Gfx *glistp, Actor *controller) {
     MpControllerState *state;
@@ -208,19 +134,13 @@ Gfx *mpDrawTimer(Gfx *glistp, Actor *controller) {
 
 s32 mpCalcKillScore(MpScore *score, s32 playerIndex) {
     s32 netKills;
+    s32 i;
 
-    netKills = -*(u16 *)((u8 *)score->unk2FE + (playerIndex << 1));
-    if (playerIndex != 0) {
-        netKills += score->unk2FE[0];
-    }
-    if (playerIndex != 1) {
-        netKills += score->unk2FE[1];
-    }
-    if (playerIndex != 2) {
-        netKills += score->unk2FE[2];
-    }
-    if (playerIndex != 3) {
-        netKills += score->unk2FE[3];
+    netKills = -score->unk2FE[playerIndex];
+    for (i = 0; i < 4; i++) {
+        if (i != playerIndex) {
+            netKills += score->unk2FE[i];
+        }
     }
     return netKills;
 }
@@ -229,7 +149,7 @@ s32 mpGetPlayerScore(s32 playerIndex) {
     s32 score;
 
     score = 0;
-    switch (D_807552E8) {
+    switch (D_807552E4.unk4) {
     case 2:
     case 3:
         score = slotQueueGetValue(1, playerIndex);
@@ -252,21 +172,17 @@ void mpDetermineWinner(MpControllerState *controllerState) {
     s32 i;
     s32 winnerIndex;
 
-    D_807552EC = 2;
+    D_807552E4.unk8 = 2;
     winnerIndex = 0;
     highestScore = -99999;
-    i = 0;
-    if (gPlayerCount > 0) {
-        do {
-            score = mpGetPlayerScore(i);
-            if (highestScore < score) {
-                highestScore = score;
-                winnerIndex = i;
-            } else if (score == highestScore) {
-                winnerIndex = -1;
-            }
-            i += 1;
-        } while (i < gPlayerCount);
+    for (i = 0; i < gPlayerCount; i++) {
+        score = mpGetPlayerScore(i);
+        if (highestScore < score) {
+            highestScore = score;
+            winnerIndex = i;
+        } else if (score == highestScore) {
+            winnerIndex = -1;
+        }
     }
     gGlobalPauseFlags |= 0x40001;
     menuReturnToTitleWithMode3();
@@ -275,13 +191,12 @@ void mpDetermineWinner(MpControllerState *controllerState) {
 
 void mpUpdateMatchTimer(void) {
     MpControllerState *state;
-    u64 x;
+    u64 elapsedUs;
 
     state = gCurrentActor->customState;
-    x = __ull_div(__ll_mul(osGetTime() - state->unk0, 0x40), 0xBB8);
+    elapsedUs = (osGetTime() - state->unk0) * 64 / 3000;
     if (!(gGlobalPauseFlags & 2)) {
-        x = __ull_div(x, 0xF4240);
-        state->unk8 = state->unkC - x;
+        state->unk8 = state->unkC - elapsedUs / 1000000;
     }
     if (state->unk8 <= 0) {
         state->unk8 = 0;
@@ -294,16 +209,12 @@ void mpCheckScoreLimit(void) {
     s32 score;
     s32 i;
 
-    i = 0;
-    if (gPlayerCount > 0) {
-        do {
-            score = mpGetPlayerScore(i);
-            if ((score >= D_807552E4.unkC) || (score < -0x3E7)) {
-                mpDetermineWinner(gCurrentActor->customState);
-                return;
-            }
-            i++;
-        } while (i < gPlayerCount);
+    for (i = 0; i < gPlayerCount; i++) {
+        score = mpGetPlayerScore(i);
+        if (score >= D_807552E4.unkC || score < -999) {
+            mpDetermineWinner(gCurrentActor->customState);
+            return;
+        }
     }
 }
 
@@ -312,14 +223,10 @@ void mpCheckLastPlayerStanding(void) {
     s32 aliveCount;
 
     aliveCount = 0;
-    i = 0;
-    if (gPlayerCount > 0) {
-        do {
-            if (mpGetPlayerScore(i) != 0) {
-                aliveCount++;
-            }
-            i++;
-        } while (i < gPlayerCount);
+    for (i = 0; i < gPlayerCount; i++) {
+        if (mpGetPlayerScore(i) != 0) {
+            aliveCount++;
+        }
     }
     if (aliveCount < 2) {
         mpDetermineWinner(gCurrentActor->customState);
@@ -336,16 +243,16 @@ Gfx *mpDrawGlyph(Gfx *glistp, s16 *pX, s16 y, void *texture, s32 count) {
 Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spacing) {
     s16 glyphX;
     s32 i;
-    s32 nxt;
-    s32 off;
-    s32 sc;
+    s32 next;
+    s32 slotOffset;
+    s32 count;
     s32 half;
     s16 y;
     s32 alpha;
-    MpViewport *sub;
-    MpPlayer *plr;
-    MpScore *scp;
-    MpControllerState *p;
+    G00Entry *viewport;
+    PlayerStruct *player;
+    MpScore *score;
+    MpControllerState *statePtr;
 
     gDPPipeSync(glistp++);
     gSPDisplayList(glistp++, &D_1000118);
@@ -356,55 +263,55 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
     gDPSetTexturePersp(glistp++, G_TP_NONE);
     i = 0;
     if ((s32) gPlayerCount > 0) {
-        p = controllerState;
-        off = 0;
+        statePtr = controllerState;
+        slotOffset = 0;
         do {
-            sub = p->unk20[0];
+            viewport = statePtr->unk20[0];
             alpha = 0xFF;
-            plr = (MpPlayer *)((u8 *)gPlayerSlots + off);
-            if (plr->unk2EA != 0) {
-                alpha = plr->unk4->unk128 & 0xFF;
-                if (plr->unk4->unk128 >= 0x100) {
+            player = (PlayerStruct *)((u8 *)gPlayerSlots + slotOffset); // FAKE: byte-offset walk instead of gPlayerSlots[i] (steers induction vars)
+            if (player->unk2EA != 0) {
+                alpha = player->actor->alpha & 0xFF;
+                if (player->actor->alpha >= 0x100) {
                     alpha = 0xFF;
                 } else {
-                    alpha = plr->unk4->unk128 & 0xFF;
+                    alpha = player->actor->alpha & 0xFF;
                 }
             }
-            if (plr->unk0 == 0 || alpha == 0) {
-                nxt = i + 1;
+            if (player->unk0 == 0 || alpha == 0) {
+                next = i + 1;
             } else {
                 gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, alpha);
-                scp = &gPlayerInventoryTable[i];
-                if (scp != 0) {}  // FAKE: dead use makes scp a cross-block temp (steers uopt)
+                score = &gPlayerInventoryTable[i];
+                if (score != 0) {}  // FAKE: dead use makes scp a cross-block temp (steers uopt)
                 if (gSplitScreenMode == 0) {
-                    nxt = i + 1;
-                    glyphX = sub->unk8 - 0x30;
+                    next = i + 1;
+                    glyphX = viewport->unk8 - 0x30;
                 } else {
-                    nxt = i + 1;
-                    glyphX = (s16) ((f32) nxt * spacing - 20.0);
+                    next = i + 1;
+                    glyphX = (s16) ((f32) next * spacing - 20.0);
                     if (D_1000118) {}  // FAKE: deadsweep dead statement (steers uopt)
                 }
-                y = sub->unk6 + 8;
-                half = scp->unk2FB;
+                y = viewport->unk6 + 8;
+                half = score->unk2FB;
                 if (half < 0) {
-                    sc = 0;
+                    count = 0;
                 } else {
-                    sc = half;
+                    count = half;
                 }
-                half = sc / 2;
+                half = count / 2;
                 if (half != 0) {
                     glistp = mpDrawGlyph(glistp, &glyphX, y, controllerState->unk44, half);
                 }
-                alpha = sc - half * 2;
+                alpha = count - half * 2;
                 if (alpha != 0) {
                     glistp = mpDrawGlyph(glistp, &glyphX, y, controllerState->unk48, alpha);
                 }
                 if (gPlayerCount == 0) {}  // FAKE: deadsweep dead statement (steers uopt)
             }
-            i = nxt;
-            p = (MpControllerState *)((u8 *)p + 4);
-            off += 0x2F0;
-        } while (nxt < (s32) gPlayerCount);
+            i = next;
+            statePtr = (MpControllerState *)((u8 *)statePtr + 4); // FAKE: walks controllerState by 4 to read unk20[i] as p->unk20[0] (steers induction vars)
+            slotOffset += 0x2F0;
+        } while (next < (s32) gPlayerCount);
         if (gPlayerCount == 0) {}  // FAKE: deadsweep dead statement (steers uopt)
     }
     return glistp;
@@ -412,20 +319,20 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
 
 
 Gfx *mpDrawPlayerScores(Gfx *glistp, Actor *controller) {
-    char scoreStr[32];
+    u8 scoreStr[32];
     f32 posY;
     f32 posXStep;
     s32 i;
     MpControllerState *state;
-    void *temp;
+    void *temp; // FAKE: one local for viewport and Gfx* (steers regalloc/frame)
 
     state = controller->customState;
     temp = state->unk20[0];
     posXStep = (f32) gScreenWidth / (f32) (gPlayerCount + 1);
-    posY = (f32) (((MpViewport *)temp)->unk6 + 8);
+    posY = (f32) (((G00Entry *)temp)->unk6 + 8);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
     glistp = mpDrawScoreGlyphs(glistp, state, posXStep);
-    if (D_807552E8 != 3) {
+    if (D_807552E4.unk4 != 3) {
         gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, 180);
         gSPDisplayList(glistp++, &D_1000118);
         gSPMatrix(glistp++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
@@ -450,19 +357,19 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, Actor *controller) {
 
 Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
     MpControllerState *state;
-    Gfx *g0;
+    Gfx *gfx;
     f32 fx;
     f32 fy;
     s32 textY;
     f32 fontHeight;
     Gfx *curGlist;
-    char textBuf[32];
+    u8 textBuf[32];
     s32 playerIndex;
     s32 alpha;
     f32 fontHeight2;
-    s32 pre;
-    MpViewport *rect;
-    Gfx *g2;
+    s32 bonusValue;
+    G00Entry *rect;
+    Gfx *gfx2;
 
     state = controller->customState;
     fontHeight = (f32) textGetFontHeight(1);
@@ -475,10 +382,10 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
     gDPSetCombineMode(curGlist++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     for (playerIndex = 0; playerIndex < gPlayerCount; playerIndex++) {
             rect = state->unk20[playerIndex];
-            if (gPlayerSlots[playerIndex].unk4->unk154 == 0x84) {
+            if (gPlayerSlots[playerIndex].actor->state == 0x84) {
                 fx = (f32) ((f64) rect->unk4 + ((f64) (rect->unk8 - rect->unk4) * 0.5));
                 fy = (f32) ((f64) rect->unk6 + ((f64) (rect->unkA - rect->unk6) * 0.5));
-                alpha = (u8) gPlayerSlots[playerIndex].unk4->unk128;
+                alpha = (u8) gPlayerSlots[playerIndex].actor->alpha;
                 gDPSetPrimColor(curGlist++, 0, 0, 255, 255, 255, (0xFF - alpha));
                 _sprintf(textBuf, "BAD LUCK");
                 fx = (f32) ((f64) fx - ((f64) textGetStringWidth(1, textBuf) * 0.25));
@@ -489,26 +396,26 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
             }
             if (alpha == 0) {
             } else {
-                g0 = curGlist++;
-                g0->words.w1 = (alpha & 0xFF) | 0xFFFFFF00;
-                g0->words.w0 = 0xFA000000;
+                gfx = curGlist++;
+                gfx->words.w1 = (alpha & 0xFF) | 0xFFFFFF00;
+                gfx->words.w0 = 0xFA000000;
                 if (state->unk70 == 0) {
                     fx = (f32) rect->unk4 + 4.0f;
                     fy = (f32) rect->unkA - ((8.0f + fontHeight2) * 0.5f);
                     fy = fy * 8.0f;
-                    pre = (s32) slotQueueGetValue(3, playerIndex);
-                    if (pre != 0) {
-                        g0 = curGlist++; g0->words.w0 = 0xFA000000; g0->words.w1 = (alpha & 0xFF) | 0x641E0000; // LAYOUT: same-line packet stores steer as1 scheduling
-                        _sprintf(textBuf, "%d", pre);
+                    bonusValue = (s32) slotQueueGetValue(3, playerIndex);
+                    if (bonusValue != 0) {
+                        gfx = curGlist++; gfx->words.w0 = 0xFA000000; gfx->words.w1 = (alpha & 0xFF) | 0x641E0000; // LAYOUT: same-line packet stores steer as1 scheduling
+                        _sprintf(textBuf, "%d", bonusValue);
                     } else {
                         _sprintf(textBuf, "%d", slotQueueGetValue(2, playerIndex));
                     }
                     textY = (s16) fy;
                     curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), textY, textBuf, 4);
-                    if (pre != 0) {
-                        g2 = curGlist++;
-                        g2->words.w0 = 0xFA000000;
-                        g2->words.w1 = (alpha & 0xFF) | 0xFFFFFF00;
+                    if (bonusValue != 0) {
+                        gfx2 = curGlist++;
+                        gfx2->words.w0 = 0xFA000000;
+                        gfx2->words.w1 = (alpha & 0xFF) | 0xFFFFFF00;
                     }
                     _sprintf(textBuf, "%d", slotQueueGetValue(4, playerIndex));
                     fx = (f32) rect->unk8 - ((f32) (textGetStringWidth(1, textBuf) + 8) * 0.5f);
@@ -526,8 +433,8 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
 
 
 Gfx *mpDrawHud(Gfx *glistp, Actor *controller) {
-    s32 t0 = D_807552E4.unk8 >= 2;
-    s32 cond = gGlobalPauseFlags & 3;
+    s32 t0 = D_807552E4.unk8 >= 2; // FAKE: early-load local (steers schedule)
+    s32 cond = gGlobalPauseFlags & 3; // FAKE: early-load local (steers schedule)
 
     gDPPipeSync(glistp++);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
@@ -562,26 +469,25 @@ s32 mpRandomSpawnDelay(void) {
 extern u8 gPlayerCharacterId[];
 extern u8 D_8071F3C0;
 extern u8 D_807207BC;
-void effectFreeAndUnlink(s32); // FAKE: callee prototype steer
 
 s32 mpUpdateScoreEffects(void) {
     s32 i;
     s32 ret = -1;
     s32 totalScore;
-    MpScore *sc;
-    MpKongState *ac;
+    MpScore *score;
+    PlayerState *playerState;
     s32 boneIndex;
-    void *p;
+    void *callback;
 
     i = 0;
     if (gPlayerCount > 0) {
         do {
-            ac = gPlayerSlots[i].unk4->unk174;
-            sc = &gPlayerInventoryTable[i];
+            playerState = gPlayerSlots[i].actor->customState;
+            score = &gPlayerInventoryTable[i];
             if (slotQueueGetValue(1, i) != 0) {
-                totalScore = sc->unk2FD + sc->unk2FB;
-                if (ac->unk260 == 0) {
-                    p = (void *)(s32)&D_8071F3C0;
+                totalScore = score->unk2FD + score->unk2FB;
+                if (playerState->scoreEffect == 0) {
+                    callback = (void *)(s32)&D_8071F3C0; // FAKE: cast round-trip keeps the hoisted address register
                     switch (gPlayerCharacterId[i]) {
                     case 0:
                     case 3:
@@ -598,20 +504,20 @@ s32 mpUpdateScoreEffects(void) {
                     effectSetDuration(-1);
                     effectSetMode(2);
                     effectSetColor(0xFF, 0xFF, 0xFF, 0x7F);
-                    effectSetCallback(p);
-                    ac->unk260 = effectCreateAtActorBone(&D_807207BC, 0.5f, gPlayerSlots[i].unk4, boneIndex, 2);
-                    sc->unk2FA = totalScore;
+                    effectSetCallback(callback);
+                    playerState->scoreEffect = effectCreateAtActorBone(&D_807207BC, 0.5f, gPlayerSlots[i].actor, boneIndex, 2);
+                    score->unk2FA = totalScore;
                 }
-                if (sc->unk2FA < totalScore) {
-                    sc->unk2FA = totalScore;
+                if (score->unk2FA < totalScore) {
+                    score->unk2FA = totalScore;
                 }
                 ret = i;
             } else {
-                if (ac->unk260 != 0) {
-                    effectFreeAndUnlink(ac->unk260);
-                    ac->unk260 = 0;
-                    sc = &gPlayerInventoryTable[i];
-                    sc->unk2FA = 0;
+                if (playerState->scoreEffect != 0) {
+                    effectFreeAndUnlink(playerState->scoreEffect);
+                    playerState->scoreEffect = 0;
+                    score = &gPlayerInventoryTable[i];
+                    score->unk2FA = 0;
                 }
             }
             i++;
@@ -636,19 +542,18 @@ s32 mpFindModelSlotByType(s32 slotType) {
 }
 
 
-extern s32 D_807552F0;
 
 void mpUpdateCrownSpawns(MpControllerState *controllerState) {
-    s32 temp;
+    s32 leaderIndex;
     MpSpawnPoint * volatile spawnPoint; // FAKE: volatile forces stack home
 
     spawnPoint = mpFindCurrentMapEntry()->items;
     if (menuIsTransitionType6() != 0 && !(gGlobalPauseFlags & 2)) {
-        if (D_807552E8 == 3) {
+        if (D_807552E4.unk4 == 3) {
             mpUpdateMatchTimer();
         }
-        temp = mpUpdateScoreEffects();
-        if (temp == -1) {
+        leaderIndex = mpUpdateScoreEffects();
+        if (leaderIndex == -1) {
             if (controllerState->unk4C == 0 && actorFindByType(0x7A) == 0 && mpFindModelSlotByType(0x1D2) == 0) {
                 MpSpawnPoint *pos = spawnPoint;
                 if (delayedSpawnQueueContains(0x1D2, 0, pos->x, pos->y, pos->z) == 0) {
@@ -656,7 +561,7 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
                     func_806F5FE8(0x1D2, pos->x, pos->y, pos->z, 10);
                 }
             }
-        } else if (D_807552E8 == 5 && mpGetPlayerScore(temp) >= D_807552F0) {
+        } else if (D_807552E4.unk4 == 5 && mpGetPlayerScore(leaderIndex) >= D_807552E4.unkC) {
             mpDetermineWinner(controllerState);
         }
         if (controllerState->unk4C != 0) {
@@ -670,22 +575,22 @@ f32 mathSinF(s16);
 
 void mpUpdateItemSpawns(void) {
     MpMapEntry *mapEntry;
-    s32 pad80;
+    s32 pad;
     s32 itemIndex;
     MpSpawnPoint *items;
     MpSpawnPoint *item;
     s32 j;
     s32 k;
-    s32 num_outer;
-    s32 num_inner;
+    s32 clusterCount;
+    s32 itemCount;
     s32 spawnDelay;
     s16 angle;
-    f32 fs0;
-    f32 fs1;
-    f32 fs2;
-    f32 fs3;
-    f32 fs4;
-    s16 s2_val;
+    f32 baseY;
+    f32 radius;
+    f32 angleStep;
+    f32 centerX;
+    f32 centerZ;
+    s16 spawnY;
 
     mapEntry = mpFindCurrentMapEntry();
     items = mapEntry->items;
@@ -700,44 +605,44 @@ void mpUpdateItemSpawns(void) {
                 } else {
                     j = 0;
                     if (item->radius == 0) {
-                        num_outer = 1;
+                        clusterCount = 1;
                     } else {
-                        num_outer = ((randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
+                        clusterCount = ((randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
                     }
-                    if (num_outer > 0) {
+                    if (clusterCount > 0) {
                         do {
                             k = 0;
-                            num_inner = ((randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
+                            itemCount = ((randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
                             spawnDelay = (s16) mpRandomSpawnDelay();
-                            fs1 = (f32) ((((f64) randomFloat() * 0.8) + 0.2) * (f64) item->radius);
+                            radius = (f32) ((((f64) randomFloat() * 0.8) + 0.2) * (f64) item->radius);
                             angle = (randomNonNegative() >> 15) % 4096;
-                            fs3 = (f32) item->x;
-                            fs0 = (f32) (item->y - 23);
-                            fs4 = (f32) item->z;
-                            fs3 += fs1 * mathSinF(angle);
-                            fs4 += fs1 * mathCosF(angle);
-                            if (num_inner >= 2) {
+                            centerX = (f32) item->x;
+                            baseY = (f32) (item->y - 23);
+                            centerZ = (f32) item->z;
+                            centerX += radius * mathSinF(angle);
+                            centerZ += radius * mathCosF(angle);
+                            if (itemCount >= 2) {
                                 angle = (randomNonNegative() >> 15) % 4096;
-                                fs1 = 15.0f;
-                                fs2 = 4096.0f / (f32) num_inner;
+                                radius = 15.0f;
+                                angleStep = 4096.0f / (f32) itemCount;
                             } else {
-                                fs1 = 0.0f;
-                                fs2 = 0.0f;
+                                radius = 0.0f;
+                                angleStep = 0.0f;
                                 angle = 0;
                             }
-                            if (num_inner > 0) {
-                                s2_val = (s16) fs0;
+                            if (itemCount > 0) {
+                                spawnY = (s16) baseY;
                                 do {
-                                    f32 x = fs3 + mathSinF(angle) * fs1;
-                                    f32 z = fs4 + mathCosF(angle) * fs1;
-                                    func_806F5F2C(0x7A, spawnDelay, (s16) x, s2_val, (s32) z);
+                                    f32 x = centerX + mathSinF(angle) * radius;
+                                    f32 z = centerZ + mathCosF(angle) * radius;
+                                    func_806F5F2C(0x7A, spawnDelay, (s16) x, spawnY, (s32) z);
                                     k++;
-                                    angle += fs2;
+                                    angle += angleStep;
                                     angle &= 0xFFF;
-                                } while (k != num_inner);
+                                } while (k != itemCount);
                             }
                             j++;
-                        } while (j != num_outer);
+                        } while (j != clusterCount);
                     }
                     item->respawnTimer = mpRandomSpawnDelay();
                 }
@@ -754,7 +659,7 @@ void mpUpdateRandomSpawner(MpControllerState *controllerState) {
 
     spawnNodeId = 0;
     if (controllerState->unk18 != NULL) {
-        if (controllerState->unk18->unk154 == 0x40) {
+        if (controllerState->unk18->state == 0x40) {
             controllerState->unk18 = NULL;
             spawnNodeId = 1;
         }
@@ -780,7 +685,7 @@ void mpUpdateRandomSpawner(MpControllerState *controllerState) {
             controllerState->unk18 = spawnNodeSpawnById((s16)spawnNodeId, 0, 0, 0, 0, 0, 0);
         }
         if (controllerState->unk18 != NULL) {
-            controllerState->unk18->unk154 = 0x36;
+            controllerState->unk18->state = 0x36;
             controllerState->unk18->unk155 = 0;
         }
     }
@@ -788,66 +693,66 @@ void mpUpdateRandomSpawner(MpControllerState *controllerState) {
 
 
 void mpApplyPendingEffect(s32 playerIndex) {
-    MpActor *act;
-    MpKongState *st;
-    MpActor *oact;
-    MpKongState *ost;
+    Actor *playerActor;
+    PlayerState *playerState;
+    Actor *otherActor;
+    PlayerState *otherState;
     s32 i;
 
-    act = gPlayerSlots[playerIndex].unk4;
-    st = act->unk174;
-    switch (st->unk264) {
+    playerActor = gPlayerSlots[playerIndex].actor;
+    playerState = playerActor->customState;
+    switch (playerState->unk264) {
     case 0:
-        playerSetSizeMode(act, 2);
+        playerSetSizeMode(playerActor, 2);
         func_806F54E0(playerIndex, 0x8E, 0);
         break;
     case 1:
         i = 0;
         if (gPlayerCount > 0) {
             do {
-                oact = gPlayerSlots[i].unk4;
-                ost = oact->unk174;
-                if (i != playerIndex && ost->unkD4 == 0 && oact->unk154 != 0x84) {
-                    playerStateQueueCallback(0x27, act, i);
-                    ost->unk200 = 0x96;
+                otherActor = gPlayerSlots[i].actor;
+                otherState = otherActor->customState;
+                if (i != playerIndex && otherState->surfaceTimer == 0 && otherActor->state != 0x84) {
+                    playerStateQueueCallback(0x27, playerActor, i);
+                    otherState->unk200 = 0x96;
                 }
                 i++;
             } while (i < gPlayerCount);
         }
         break;
     case 2:
-        st->unk1F0 |= 0x20;
-        st->unk1F0 &= ~0x08000000;
+        playerState->stateFlags |= 0x20;
+        playerState->stateFlags &= ~0x08000000;
         func_806F54E0(playerIndex, 0x8E, 0);
         break;
     case 3:
-        actorSpawnEffectChild(act->unk7C, act->unk80, act->unk84, 0.1f, 0.1f, act, 1);
+        actorSpawnEffectChild(playerActor->x, playerActor->y, playerActor->z, 0.1f, 0.1f, playerActor, 1);
         break;
     case 4:
         switch ((u32) (randomNonNegative() >> 15) % 5U) {
         case 0:
-            playerSetSizeMode(act, 0);
+            playerSetSizeMode(playerActor, 0);
             func_806F54E0(playerIndex, 0x8E, 0);
             break;
         case 1:
-            st->unk200 = 0x96;
-            st->unk1F0 |= 0x80;
+            playerState->unk200 = 0x96;
+            playerState->stateFlags |= 0x80;
             break;
         case 2:
-            st->unk1F0 |= 0x08000000;
-            st->unk1F0 &= ~0x20;
-            st->unk200 = 0x96;
+            playerState->stateFlags |= 0x08000000;
+            playerState->stateFlags &= ~0x20;
+            playerState->unk200 = 0x96;
             break;
         case 3:
             func_806C9974(playerIndex, 0x40);
             break;
         case 4:
-            actorSpawnEffectChild(act->unk7C, act->unk80, act->unk84, 0.1f, 0.1f, act, 1);
+            actorSpawnEffectChild(playerActor->x, playerActor->y, playerActor->z, 0.1f, 0.1f, playerActor, 1);
             break;
         }
         break;
     }
-    st->unk264 = -1;
+    playerState->unk264 = -1;
 }
 
 
@@ -879,7 +784,7 @@ void mpFreeHudIcons(MpControllerState *controllerState) {
     controllerState->unk70 = 0;
 }
 
-extern s32 D_8076D1F8;
+extern ALBank *D_8076D1F8;
 extern u32 D_80767CC0;
 extern u64 D_807445B0;
 extern u8 D_80026F70;
@@ -892,38 +797,38 @@ typedef struct MpHudIconTableEntry {
 extern MpHudIconTableEntry D_80027024[];
 
 void mpUpdate(void) {
-    MpControllerState *s7;
+    MpControllerState *state;
     s32 i;
     s32 j;
     s32 k;
     s32 flag;
-    MpViewport *vp;
+    G00Entry *vp;
     f32 x;
     f32 y;
-    s32 snd;
-    s32 va;
-    s32 vb;
-    s32 vc;
+    s32 sfxId;
+    s32 volumeDecay;
+    s32 volumeRamp;
+    s32 volumeBoost;
 
-    s7 = gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         flag = 0;
         playerResetSpawnGlobals();
         for (i = 0; i < gPlayerCount; i++) {
-            s7->unk20[i] = cameraFindViewportEntry(i);
+            state->unk20[i] = cameraFindViewportEntry(i);
         }
         D_807552E4.unk8 = 1;
-        s7->unk0 = osGetTime();
-        s7->unk34 = D_80767CC0;
-        s7->unk38 = 0;
-        s7->unk42 = 0;
-        s7->unk40 = 0;
-        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &s7->unk3C);
+        state->unk0 = osGetTime();
+        state->unk34 = D_80767CC0;
+        state->unk38 = 0;
+        state->unk42 = 0;
+        state->unk40 = 0;
+        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &state->unk3C);
         D_80026F70 = 0;
         switch (D_807552E4.unk4) {
         case 3:
         case 5:
-            flag = 1;
+            flag = 1; // FAKE: flag + fallthrough into case 2 (steers branch shape)
         case 2:
             if (flag != 0) {
                 MpSpawnPoint *q = mpFindCurrentMapEntry()->items;
@@ -943,22 +848,22 @@ void mpUpdate(void) {
             func_806F5FA0(0x212, 0xD4, 0x24E);
             func_806F5FA0(0x28E, 0xD4, 0x247);
         }
-        s7->unk30 = heapAlloc(0x40);
-        guScale(s7->unk30, 0.5f, 0.5f, 1.0f);
-        s7->unkC = D_807552E4.unkC;
-        s7->unkC = s7->unkC * 60;
+        state->unk30 = heapAlloc(0x40);
+        guScale(state->unk30, 0.5f, 0.5f, 1.0f);
+        state->unkC = D_807552E4.unkC;
+        state->unkC = state->unkC * 60; // FAKE: double store (steers codegen)
         gCurrentActor->renderFlags |= 2;
-        s7->unk44 = assetLoad(0xE, 0xB9, 0, 0);
-        s7->unk48 = assetLoad(0xE, 0xBA, 0, 0);
-        s7->unk10 = 0;
+        state->unk44 = assetLoad(0xE, 0xB9, 0, 0);
+        state->unk48 = assetLoad(0xE, 0xBA, 0, 0);
+        state->unk10 = 0;
     }
-    s7->unk0 += D_807445B0;
+    state->unk0 += D_807445B0;
     switch (D_807552E4.unk8) {
     case 1:
         switch (D_807552E4.unk4) {
         case 3:
         case 5:
-            mpUpdateCrownSpawns(s7);
+            mpUpdateCrownSpawns(state);
             break;
         case 2:
             mpUpdateItemSpawns();
@@ -983,17 +888,17 @@ void mpUpdate(void) {
             mpApplyPendingEffect(i);
         }
         if (gPlayerCount == 2) {
-            mpUpdateRandomSpawner(s7);
+            mpUpdateRandomSpawner(state);
         }
-    } else if ((gGlobalPauseFlags & 2) || ((s16)((f32)s7->unk10 * 0.033333335f) & 1)) {
-        mpFreeHudIcons(s7);
-    } else if (s7->unk70 == 0) {
+    } else if ((gGlobalPauseFlags & 2) || ((s16)((f32)state->unk10 * 0.033333335f) & 1)) {
+        mpFreeHudIcons(state);
+    } else if (state->unk70 == 0) {
         for (j = 0; j != 2; j++) {
             for (k = 0; k < gPlayerCount; k++) {
                 if (gPlayerSlots[k].unk0 == 0) {
                     continue;
                 }
-                vp = s7->unk20[k];
+                vp = state->unk20[k];
                 effectEnableFade();
                 effectSetDuration(-1);
                 effectSetMode(0);
@@ -1004,62 +909,62 @@ void mpUpdate(void) {
                     x = (f32)(vp->unk8 - 0xB);
                 }
                 y = (f32)(vp->unkA - 0xB);
-                s7->unk50[j * gPlayerCount + k] = effectCreateAtPosition(D_80027024[j].unk0, D_80027024[j].unk4, x, y, -10.0f);
+                state->unk50[j * gPlayerCount + k] = effectCreateAtPosition(D_80027024[j].unk0, D_80027024[j].unk4, x, y, -10.0f);
             }
         }
-        s7->unk70 = 1;
+        state->unk70 = 1;
     }
-    s7->unk10 += 1;
-    s7->unk10 = s7->unk10 % 180;
-    va = s7->unk40 - 100;
-    if (va < 0x1F40) {
-        s7->unk40 = 0x1F40;
+    state->unk10 += 1;
+    state->unk10 = state->unk10 % 180;
+    volumeDecay = state->unk40 - 100;
+    if (volumeDecay < 0x1F40) {
+        state->unk40 = 0x1F40;
     } else {
-        s7->unk40 = va;
+        state->unk40 = volumeDecay;
     }
-    vb = s7->unk42 + 0x3E8;
-    if (s7->unk40 < vb) {
-        s7->unk42 = s7->unk40;
+    volumeRamp = state->unk42 + 0x3E8;
+    if (state->unk40 < volumeRamp) {
+        state->unk42 = state->unk40;
     } else {
-        s7->unk42 = vb;
+        state->unk42 = volumeRamp;
     }
-    n_alSndpPostEvent(s7->unk3C, 8, s7->unk42);
+    n_alSndpPostEvent(state->unk3C, 8, state->unk42);
     if (D_80026F70 & 0x80) {
-        s7->unk40 = 0x7FFF;
+        state->unk40 = 0x7FFF;
         D_80026F70 &= ~0x80;
     }
     if (D_80026F70 & 7) {
-        if (D_80767CC0 - s7->unk34 >= 6) {
-            s7->unk34 = D_80767CC0;
-            s7->unk38 = 0;
-            snd = 0x1E8;
+        if (D_80767CC0 - state->unk34 >= 6) {
+            state->unk34 = D_80767CC0;
+            state->unk38 = 0;
+            sfxId = 0x1E8;
             if (D_80026F70 & 4) {
-                snd = 0x1EA;
+                sfxId = 0x1EA;
             } else if (D_80026F70 & 3) {
                 if ((D_80026F70 & 2) * 300 + 500 < (randomNonNegative() >> 15) % 1000) {
                     if (((randomNonNegative() >> 15) % 1000) & 1) {
-                        snd = 0x1E7;
+                        sfxId = 0x1E7;
                     } else {
-                        snd = 0x1EA;
+                        sfxId = 0x1EA;
                     }
                 }
             }
-            sfxPlayOnFreeSlot(snd, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
+            sfxPlayOnFreeSlot(sfxId, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
         }
-        vc = s7->unk40 + 0x4650;
-        if (vc >= 0x8000) {
-            s7->unk40 = 0x7FFF;
+        volumeBoost = state->unk40 + 0x4650;
+        if (volumeBoost >= 0x8000) {
+            state->unk40 = 0x7FFF;
         } else {
-            s7->unk40 = vc;
+            state->unk40 = volumeBoost;
         }
         D_80026F70 &= ~7;
     }
-    if (s7->unk38 * 35 + 0x384 < D_80767CC0 - s7->unk34) {
-        sfxPlayOnFreeSlot(0x1E9, s7->unk38 * 3000 + 0x511F, 64.0f, 1.0f, 0xA, 0x80);
-        s7->unk38++;
-        if (s7->unk38 == 5) {
-            s7->unk38 = 0;
-            s7->unk34 = D_80767CC0;
+    if (state->unk38 * 35 + 0x384 < D_80767CC0 - state->unk34) {
+        sfxPlayOnFreeSlot(0x1E9, state->unk38 * 3000 + 0x511F, 64.0f, 1.0f, 0xA, 0x80);
+        state->unk38++;
+        if (state->unk38 == 5) {
+            state->unk38 = 0;
+            state->unk34 = D_80767CC0;
         }
     }
     renderCallbacksRegister(mpDrawHud, gCurrentActor, 7);
@@ -1070,29 +975,29 @@ void mpSetFlags(u8 flags) {
     D_80026F70 |= flags;
 }
 
-extern MpFlagState *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 
-void mpResetPlayerOnRespawn(MpActor *playerActor, MpKongState *kongState, MpScore *playerScore) {
+void mpResetPlayerOnRespawn(Actor *playerActor, PlayerState *kongState, MpScore *playerScore) {
     playerScore->unk2F6 = 0;
     playerScore->unk2F0 = 0;
     playerScore->unk2F4 = 0;
     playerScore->unk2F2 = 0;
-    kongState->unkD4 = 90;
+    kongState->surfaceTimer = 90;
     playerKongStopSoundByState(playerActor);
-    playerActor->unk60 &= ~0x20000000;
-    kongState->unk247 = -1;
-    kongState->unk246 = 0;
+    playerActor->flags &= ~0x20000000;
+    kongState->hitSourcePlayerIndex = -1;
+    kongState->hitSourceSpawnNodeId = 0;
     if (func_80714608(0) != 0) {
         gActivePlayerState->unk21E = 0;
     }
-    if (D_807552E8 == 3 || D_807552E8 == 5) {
-        slotQueueAddValue(1, kongState->unk1A4, -10);
+    if (D_807552E4.unk4 == 3 || D_807552E4.unk4 == 5) {
+        slotQueueAddValue(1, kongState->playerIndex, -10);
     }
 }
 
-void mpDeductDeathPenalty(MpKongState *kongState) {
-    if (D_807552E8 == 2) {
-        slotQueueAddValue(1, kongState->unk1A4, -3);
+void mpDeductDeathPenalty(PlayerState *kongState) {
+    if (D_807552E4.unk4 == 2) {
+        slotQueueAddValue(1, kongState->playerIndex, -3);
     }
 }
 
@@ -1101,30 +1006,30 @@ void mpDropItemsOnHit(u8 playerIndex, s8 dropCount) {
     MpControllerState *ctrl;
     s32 ammoCount;
     s32 orangeCount;
-    MpActor *s0;
-    MpScore *s1;
+    Actor *playerActor;
+    MpScore *score;
 
-    s0 = gPlayerSlots[playerIndex].unk4;
-    s1 = &gPlayerInventoryTable[playerIndex];
-    ammoCount = s1->unk2FB + s1->unk2FD + dropCount;
-    orangeCount = s1->unk2FA - ammoCount;
+    playerActor = gPlayerSlots[playerIndex].actor;
+    score = &gPlayerInventoryTable[playerIndex];
+    ammoCount = score->unk2FB + score->unk2FD + dropCount;
+    orangeCount = score->unk2FA - ammoCount;
     if (slotQueueGetValue(1, playerIndex) != 0 && (ammoCount <= 0 || orangeCount >= 2)) {
         ctrl = ((Actor *)actorFindByType(0x13E))->customState;
         ctrl->unk4C = 1;
         slotQueueAddValue(1, playerIndex, -10);
-        if (D_807552E8 == 5) {
+        if (D_807552E4.unk4 == 5) {
             mpResetMapModelStates();
         }
-        actorSpawnNodeEntryScaled(0x7A, s0->unk7C, s0->unk80, s0->unk84, s0->unkE6, 1, -1, 0);
-        s1->unk2FA = 0;
+        actorSpawnNodeEntryScaled(0x7A, playerActor->x, playerActor->y, playerActor->z, playerActor->yaw, 1, -1, 0);
+        score->unk2FA = 0;
     }
 }
 
 void mpApplyDeathPenalty(s32 playerIndex) {
-    MpActor *target;
-    target = gPlayerSlots[playerIndex].unk4;
-    target->unk144 = 12;
-    switch (D_807552E8) {
+    Actor *playerActor;
+    playerActor = gPlayerSlots[playerIndex].actor;
+    playerActor->unk144 = 12;
+    switch (D_807552E4.unk4) {
     case 2:
         slotQueueAddValue(1, playerIndex, -3);
         break;
@@ -1140,64 +1045,58 @@ void mpApplyDeathPenalty(s32 playerIndex) {
     }
 }
 
-typedef struct MpSpawnCoord {
-    s16 x;
-    s16 y;
-    s16 z;
-} MpSpawnCoord;
 
-
-s32 mpFindFurthestSpawn(s32 pos) {
+s32 mpFindFurthestSpawn(s32 playerIndex) {
     s32 i;
     s32 j;
-    s32 best_i;
-    f32 max_dist;
-    f32 min_dist;
-    MpSpawnCoord *coord;
-    MpActor *target;
+    s32 bestSpawn;
+    f32 bestDist;
+    f32 nearestDist;
+    G01Pos *spawn;
+    Actor *playerActor;
     f32 dx;
     f32 dy;
     f32 dz;
     f32 dist;
 
-    best_i = 0;
-    max_dist = 0.0f;
+    bestSpawn = 0;
+    bestDist = 0.0f;
 
     for (i = 0; i < 4; i++) {
-        min_dist = 9999999.0f;
-        coord = func_806C96C4(i);
+        nearestDist = 9999999.0f;
+        spawn = func_806C96C4(i);
         for (j = 0; j < gPlayerCount; j++) {
-            target = gPlayerSlots[j].unk4;
-            if (gPlayerSlots[j].unk0 != 0 && target->unk154 != 0x84) {
-                dx = coord->x - target->unk7C;
-                dy = coord->y - target->unk80;
-                dz = coord->z - target->unk84;
+            playerActor = gPlayerSlots[j].actor;
+            if (gPlayerSlots[j].unk0 != 0 && playerActor->state != 0x84) {
+                dx = spawn->unk0 - playerActor->x;
+                dy = spawn->unk2 - playerActor->y;
+                dz = spawn->unk4 - playerActor->z;
                 dist = (dx * dx + dy * dy) + dz * dz;
-                if (dist < min_dist) {
-                    min_dist = dist;
+                if (dist < nearestDist) {
+                    nearestDist = dist;
                 }
             }
         }
-        if (max_dist < min_dist) {
-            max_dist = min_dist;
-            best_i = i;
+        if (bestDist < nearestDist) {
+            bestDist = nearestDist;
+            bestSpawn = i;
         }
     }
-    return best_i;
+    return bestSpawn;
 }
 
 
-void mpRespawnPlayer(MpActor *playerIndex, s32 isTeamSpawn) {
-    if (D_807552E8 == 4 && mpGetPlayerScore(isTeamSpawn) == 0) {
-        gPlayerInventoryTable[isTeamSpawn].unk2FB = 0;
-        playerIndex->unk155++;
-        playerStateQueueCallback(0x5B, 0, isTeamSpawn);
-        playerIndex->unk144 = 1;
+void mpRespawnPlayer(Actor *playerActor, s32 playerIndex) {
+    if (D_807552E4.unk4 == 4 && mpGetPlayerScore(playerIndex) == 0) {
+        gPlayerInventoryTable[playerIndex].unk2FB = 0;
+        playerActor->unk155++;
+        playerStateQueueCallback(0x5B, 0, playerIndex);
+        playerActor->unk144 = 1;
         return;
     }
-    playerSyncInventoryOnSpawn(mpFindFurthestSpawn(isTeamSpawn));
-    gPlayerSlots[isTeamSpawn].unk2E2 |= 1;
-    playerResumeLocomotion(playerIndex);
+    playerSyncInventoryOnSpawn(mpFindFurthestSpawn(playerIndex));
+    gPlayerSlots[playerIndex].unk2E2 |= 1;
+    playerResumeLocomotion(playerActor);
 }
 
 
@@ -1205,25 +1104,25 @@ void mpCreditKill(u8 victimIndex, s8 killerIndex) {
     void *points;
     s32 pad0;
     s32 pad1;
-    MpScore *killerActor;
-    MpPlayer *victimPlayer;
-    MpActor *killerPlayer;
-    MpKongState *killerScore;
+    MpScore *victimScore;
+    PlayerStruct *victimPlayer;
+    Actor *killer;
+    PlayerState *killerState;
 
-    killerActor = &gPlayerInventoryTable[victimIndex];
+    victimScore = &gPlayerInventoryTable[victimIndex];
     victimPlayer = &gPlayerSlots[victimIndex];
-    if (killerActor->unk2FB + killerActor->unk2FD > 0) {
-        if (victimPlayer->unk2A0 != NULL) {
-            killerPlayer = actorResolveKillCreditOwner(victimPlayer->unk2A0);
-            if (killerPlayer != NULL && killerPlayer->unk5C == 1) {
-                killerScore = killerPlayer->unk174;
-                if (killerActor->unk2FB + killerActor->unk2FD + killerIndex <= 0) {
-                    gPlayerInventoryTable[killerScore->unk1A4].unk2FE[victimIndex]++;
+    if (victimScore->unk2FB + victimScore->unk2FD > 0) {
+        if (victimPlayer->queuedActor != NULL) {
+            killer = actorResolveKillCreditOwner(victimPlayer->queuedActor);
+            if (killer != NULL && killer->collisionFlags == 1) {
+                killerState = killer->customState;
+                if (victimScore->unk2FB + victimScore->unk2FD + killerIndex <= 0) {
+                    gPlayerInventoryTable[killerState->playerIndex].unk2FE[victimIndex]++;
                 }
             }
         }
     }
-    if (D_807552E8 == 3 || D_807552E8 == 5) {
+    if (D_807552E4.unk4 == 3 || D_807552E4.unk4 == 5) {
         mpDropItemsOnHit(victimIndex, killerIndex);
     }
 }

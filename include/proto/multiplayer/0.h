@@ -3,9 +3,7 @@
 #define PROTO_MULTIPLAYER_0_H
 #include "common.h"
 #include "actor.h"
-struct MpActor;
 struct MpControllerState;
-struct MpKongState;
 struct MpMapEntry;
 struct MpScore;
 #ifndef PROTO_SKIP_mpDrawTimer
@@ -81,10 +79,10 @@ void mpUpdate(void);
 void mpSetFlags(u8);
 #endif
 #ifndef PROTO_SKIP_mpResetPlayerOnRespawn
-void mpResetPlayerOnRespawn(struct MpActor *, struct MpKongState *, struct MpScore *);
+void mpResetPlayerOnRespawn(Actor *, PlayerState *, struct MpScore *);
 #endif
 #ifndef PROTO_SKIP_mpDeductDeathPenalty
-void mpDeductDeathPenalty(struct MpKongState *);
+void mpDeductDeathPenalty(PlayerState *);
 #endif
 #ifndef PROTO_SKIP_mpDropItemsOnHit
 void mpDropItemsOnHit(u8, s8);
@@ -96,7 +94,7 @@ void mpApplyDeathPenalty(s32);
 s32 mpFindFurthestSpawn(s32);
 #endif
 #ifndef PROTO_SKIP_mpRespawnPlayer
-void mpRespawnPlayer(struct MpActor *, s32);
+void mpRespawnPlayer(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_mpCreditKill
 void mpCreditKill(u8, s8);
