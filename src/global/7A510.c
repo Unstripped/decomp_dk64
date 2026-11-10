@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorTableContains // PROTO: Type CollisionHitActor *  of this argument  is incompatible 
 #include "proto/global/70FD0.h"
 #include "proto/global/7A510.h"
 #include "proto/global/7CA80.h"
@@ -71,7 +70,6 @@ typedef struct Beh798_8074C608 {
 extern Beh798_8074C608 D_8074C608[];
 extern ActorGlobalState gActorGlobalState;
 
-s32 actorTableContains(void *);
 
 void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackArg *cbArg) {
     CollisionInteractionEntry *entry;
@@ -88,7 +86,7 @@ void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackA
     attacker = cbArg->unk8;
     i = 0;
     done = 0;
-    if (actorTableContains(attacker) && attacker->unk54 == cbArg->unk10->unk18) {
+    if (actorTableContains((Actor *)attacker) && attacker->unk54 == cbArg->unk10->unk18) {
         entries = D_8074C604[targetActor->unk58].unk0;
         if (entries == NULL) {
             if (attacker->unk60 & 0x20000) {

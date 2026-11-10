@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -282,7 +281,6 @@ typedef struct ActorSinkState {
 
 extern s32 D_8071FF18;
 
-s32 actorTableContains(Actor *);
 
 
 void actorSinkAndDespawn(void) {

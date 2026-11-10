@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #include "proto/global/117190.h"
 #include "proto/global/12E800.h"
 #include "proto/global/135D30.h"
@@ -71,7 +70,6 @@ void playerStateSetCallbackParameters(s32 unused, s32 param0, s32 param1, s32 pa
 }
 
 extern void (*gPlayerStateCallbacks[])(void);
-s32 actorTableContains(Actor *);
 
 void playerStateDispatchQueuedCallback(void) {
     if (gPlayerSlots[gCurrentPlayerIndex].queuedState >= 0) {

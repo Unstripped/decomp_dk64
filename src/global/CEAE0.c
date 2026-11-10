@@ -2,7 +2,6 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_actorCopyPoseAndScale // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_actorTableContains // PROTO: shared header declares (void) params; this file passes an Actor *
 #define PROTO_SKIP_collisionCheckActorFloor // PROTO: Reference of an expression of void type or an incomplete typ
 #include "proto/global/10D2D0.h"
 #include "proto/global/119370.h"
@@ -2738,7 +2737,6 @@ typedef struct G07StateA {
 
 
 
-s32 actorTableContains(void *);
 void actorCopyPoseAndScale(void *, void *, f32, void *);
 
 void actorChildEffectUpdate(void) {

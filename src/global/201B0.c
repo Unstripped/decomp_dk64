@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorTableContains // PROTO: Type CamActor *  of this argument  is incompatible 
 #define PROTO_SKIP_camLoadPathData // FAKE: callee prototype steer
 #define PROTO_SKIP_collisionCheckActorFloor // PROTO: The controlling expression of the if statement is not scalar
 #include "proto/global/10130.h"
@@ -2361,7 +2360,6 @@ u8 camShouldAutoRotate(CamActor *camActor, CamState *st, CamActor *target) {
 extern u8 gViewportCount;
 extern f32 gScreenFadeProgress;
 
-s32 actorTableContains(void *);
 
 u8 camComputeFollowPos(CamActor *camActor, CamActor *target, f32 *outX, f32 *outY, f32 *outZ, f32 lookAhead) {
     CamState *cam = camActor->unk174;

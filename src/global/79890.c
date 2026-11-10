@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_actorTableContains // PROTO: Type CollisionHitActor *  of this argument  is incompatible 
 #include "proto/global/15050.h"
 #include "proto/global/2F550.h"
 #include "proto/global/70FD0.h"
@@ -59,7 +58,6 @@ typedef struct CollisionHitActor {
 } CollisionHitActor;
 
 extern u8 D_807FB606;
-s32 actorTableContains(void *);
 s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 
 u8 actorCollisionGetNodeHitPoint(CollisionHitActor *self, CollisionHitActor *other, f32 *outX, f32 *outZ) {
@@ -86,7 +84,7 @@ u8 actorCollisionGetNodeHitPoint(CollisionHitActor *self, CollisionHitActor *oth
     D_807FB606 = 0;
     sub140 = self->unk140;
     actorUpdateCollisionSpheres(self, 1);
-    if (!actorTableContains(other)) {
+    if (!actorTableContains((Actor *)other)) {
         return 0;
     }
 

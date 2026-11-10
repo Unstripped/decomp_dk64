@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorTableContains // PROTO: Type s32  of this argument  is incompatible with type void  
 #include "proto/boot/3630.h"
 #include "proto/global/100180.h"
 #include "proto/global/1025E0.h"
@@ -868,7 +867,6 @@ void func_8069B3FC(void) {
 }
 
 extern s16 gScreenWidth;
-s32 actorTableContains();
 
 s32 actorHasCallbackTargetThisFrame(void) {
     ActorCallbackNode *node = gCurrentActor->callbacks;
@@ -877,7 +875,7 @@ s32 actorHasCallbackTargetThisFrame(void) {
         if ((u32)node->callback == 0x8000) {
             Actor *actor;
             void *sub;
-            if (actorTableContains(node->unk8) != 0) {
+            if (actorTableContains((Actor *)node->unk8) != 0) {
                 actor = (Actor *)node->unk8;
                 if (actor->collisionFlags & 1) {
                     sub = actor->customState;

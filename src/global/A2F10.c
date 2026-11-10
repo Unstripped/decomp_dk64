@@ -3,7 +3,6 @@
 #define PROTO_SKIP_actorAppendCallbackPayloadA70C // FAKE: callee prototype steer
 #define PROTO_SKIP_actorDespawn // FAKE: callee prototype steer
 #define PROTO_SKIP_actorSpawnNodeEntryScaled // FAKE: callee prototype steer
-#define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #define PROTO_SKIP_animGetNodeByIndex // PROTO: 'unkC' undefined; reoccurrences will not be reported.
 #define PROTO_SKIP_playerStateQueueCallback // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
@@ -1024,7 +1023,6 @@ void actorSpawnAttachedTo(Actor *arg0) {
     arg0->contactFlags |= 0x800;
 }
 
-s32 actorTableContains(Actor *);
 extern u8 gGfxBufferIndex;
 
 void actorMirrorParentModelY(void) {
