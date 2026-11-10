@@ -116,6 +116,7 @@ def test_record_agent_ids(tmp_path, monkeypatch, agent, ok):
         with pytest.raises(SystemExit):
             q.main(["record", "--unit", "u1", "--agent", agent, "--batch", str(batch)])
 
+
 def test_record_accepts_permute_stopped_on_zero(tmp_path, monkeypatch):
     ledger_path = tmp_path / "quality.jsonl"
     monkeypatch.setattr(q, "LEDGER", str(ledger_path))
