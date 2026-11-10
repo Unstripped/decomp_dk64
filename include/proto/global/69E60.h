@@ -43,7 +43,7 @@ s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mathCalculatePitchAngle
-void mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s16);
+f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s16);
 #endif
 #ifndef PROTO_SKIP_actorSub140CreateFromModel
 void actorSub140CreateFromModel(struct ActorTransformWork *);

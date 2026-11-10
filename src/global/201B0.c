@@ -4,7 +4,6 @@
 #define PROTO_SKIP_camLoadPathData // FAKE: callee prototype steer
 #define PROTO_SKIP_collisionCheckActorFloor // PROTO: The controlling expression of the if statement is not scalar
 #define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
-#define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Reference of an expression of void type or an incomplete typ
 #include "proto/global/10130.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/117190.h"
@@ -348,7 +347,6 @@ CamCueStep gCamCueTable[9] = {
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 f32 sinApprox(f32);
-f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 f32 sqrtf(f32);
 
 #define CAM_LERP(a, b, t) ((a) + ((b) - (a)) * (t))

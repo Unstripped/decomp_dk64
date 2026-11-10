@@ -7,7 +7,6 @@
 #define PROTO_SKIP_lensFlareAddSource // FAKE: callee prototype steer
 #define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
-#define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Improper cast of non-scalar type expression.
 #define PROTO_SKIP_matrixMakeRotationX // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
 #include "proto/global/119370.h"
@@ -3115,7 +3114,6 @@ typedef struct ProjectileChaseActor {
 #define CHASE_ACTOR ((ProjectileChaseActor *)gCurrentActor)
 #define CHASE_TARGET ((ProjectileChaseActor *)gPrimaryPlayerActor)
 
-f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 
 void projectileChaseTargetUpdate(void) {
     ProjectileChaseState *state;

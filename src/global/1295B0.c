@@ -5,7 +5,6 @@
 #define PROTO_SKIP_behaviourSetAnimIds // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
-#define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Reference of an expression of void type or an incomplete typ
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/1295B0.h"
@@ -277,7 +276,6 @@ typedef struct A1S98 {
     /* 0x44 */ u8 unk44;
 } A1S98;
 
-f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 extern u8 gGameMode;
 #define A1PLR ((A1Plr *)gPlayerSlots)
 #define A1DC90 ((A1S90 *)gBehaviourWorkState)

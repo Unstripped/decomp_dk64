@@ -5,7 +5,6 @@
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
-#define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Reference of an expression of void type or an incomplete typ
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/1295B0.h"
@@ -76,7 +75,6 @@ extern s16 D_80750340;
 f32 mathSinF(s16);
 void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 f32 sqrtf(f32);
-f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 
 void func_806B2790(void) {
     u8 flag;

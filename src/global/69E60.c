@@ -361,7 +361,7 @@ f32 mathAngleBetweenPointsRad(f32 x1, f32 y1, f32 x2, f32 y2) {
 }
 
 
-void mathCalculatePitchAngle(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, s16 minDist) {
+f32 mathCalculatePitchAngle(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, s16 minDist) {
     f32 dx = x1 - x2;
     f32 dz = z1 - z2;
     f32 dist = sqrtf((dx * dx) + (dz * dz));
@@ -373,7 +373,7 @@ void mathCalculatePitchAngle(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, s16
     } else {
         max_dist = dist;
     }
-    mathAtan2(y2 - y1, max_dist);
+    return mathAtan2(y2 - y1, max_dist);
 }
 
 typedef struct ActorSubNodeData {

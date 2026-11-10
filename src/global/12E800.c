@@ -2,7 +2,6 @@
 #include "actor.h"
 #define PROTO_SKIP_collisionCheckActorFloor // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
 #define PROTO_SKIP_zoneCheckActorInside // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/119370.h"
@@ -419,7 +418,6 @@ typedef struct D1ActorView4 {
 
 #define D1A4 ((D1ActorView4 *)gCurrentActor)
 
-f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 
 void actorPitchEaseTowardPoint(s16 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, f32 arg6, f32 arg7, u16 arg8) {
     D1A4->unkE8 = mathAngleEaseToward(D1A4->unkE8, (s16)(s32)(mathCalculatePitchAngle(arg2, arg3, arg4, D1A4->unk7C, D1A4->unk80, D1A4->unk84, arg5) * 2048.0 / 3.14159274101257324), arg6);

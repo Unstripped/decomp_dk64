@@ -4,7 +4,6 @@
 #define PROTO_SKIP_controllerAnimFreeStateAsset // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_controllerLookupStateByHash // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
-#define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_playerResumeLocomotion // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/117190.h"
@@ -1661,7 +1660,6 @@ typedef struct F5L1CamBlock {
 #define F5L1_CLAMP(x) F5L1_MIN(F5L1_MAX(x, -128.0f), 127.0f)
 
 s32 playerStateQueueCallback();
-f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 extern u8 gGameMode;
 extern u8 sHudDisabled;
 #define F5L1_B8 (*(s8 *)&D_807463B8)
