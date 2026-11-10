@@ -19,7 +19,7 @@ void modelSlotCopyData();
 void modelSlotFree(u8 **);
 #endif
 #ifndef PROTO_SKIP_modelSlotStepAnimations
-u8 modelSlotStepAnimations();
+u8 modelSlotStepAnimations(s16);
 #endif
 #ifndef PROTO_SKIP_modelAnimEntryStep
 void modelAnimEntryStep(void *);

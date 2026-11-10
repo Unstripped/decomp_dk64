@@ -3,7 +3,6 @@
 #include "cutscene.h"
 #define PROTO_SKIP_hudSpawnCountdownTimer // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_modelAnimEntrySetUnkC // FAKE: callee prototype steer
-#define PROTO_SKIP_modelSlotStepAnimations // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxSlotAllocateSource // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetDepth // FAKE: callee prototype steer
 #include "proto/global/10130.h"
@@ -496,7 +495,6 @@ extern s16 D_807F6908;
 extern f32 D_807F690C;
 extern f32 D_807F6910;
 extern f32 D_807F6914;
-u8 modelSlotStepAnimations(s16); // FAKE: callee prototype steer (54150 K&R def; needs u8 (s16) in header)
 
 void csStateUpdate(CsStateFull *cs, s16 csId) {
     CsNode *node;

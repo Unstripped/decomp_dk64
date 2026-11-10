@@ -157,9 +157,7 @@ extern u32 D_807F6BE8;
 extern u8 D_807F6BEC;
 extern u8 gGfxBufferIndex;
 
-u8 modelSlotStepAnimations(arg0)
-s16 arg0;
-{
+u8 modelSlotStepAnimations(s16 arg0) {
     u32 *base;
     u8 *p;
     s32 i;
