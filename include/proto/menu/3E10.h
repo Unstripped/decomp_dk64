@@ -2,81 +2,80 @@
 #ifndef PROTO_MENU_3E10_H
 #define PROTO_MENU_3E10_H
 #include "common.h"
-struct Menu10_Spinner;
-struct MenuScreenActor;
+#include "actor.h"
+struct MenuEffect;
 struct MenuScreenState;
-struct MenuUiElemActor;
 #ifndef PROTO_SKIP_menuSetAudioMode
 void menuSetAudioMode(void);
 #endif
 #ifndef PROTO_SKIP_menuTitleScreenHandleInput
-void menuTitleScreenHandleInput(struct MenuScreenActor *, s32);
+void menuTitleScreenHandleInput(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuTitleScreenDraw
 Gfx *menuTitleScreenDraw(void *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuResetCameraAndFlags
-void menuResetCameraAndFlags(struct MenuScreenActor *, s32);
+void menuResetCameraAndFlags(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuUpdateMainScreen
-void menuUpdateMainScreen(void *, s32);
+void menuUpdateMainScreen(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDrawMainScreenTitle
-Gfx *menuDrawMainScreenTitle(struct MenuScreenActor *, Gfx *);
+Gfx *menuDrawMainScreenTitle(Actor *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuInitMainScreen
-void menuInitMainScreen(struct MenuScreenActor *, s32);
+void menuInitMainScreen(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuMainScreenNoop
 void menuMainScreenNoop(void);
 #endif
 #ifndef PROTO_SKIP_menuHandleSelectionInput
-void menuHandleSelectionInput(struct MenuScreenActor *, s32);
+void menuHandleSelectionInput(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDrawAdventureFileSelectTitle
-Gfx *menuDrawAdventureFileSelectTitle(struct MenuScreenActor *, Gfx *);
+Gfx *menuDrawAdventureFileSelectTitle(Actor *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuInitAdventureFileSelect
-void menuInitAdventureFileSelect(struct MenuScreenActor *, s32);
+void menuInitAdventureFileSelect(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuCheckCheatCodeSequence
 void menuCheckCheatCodeSequence(void);
 #endif
 #ifndef PROTO_SKIP_menuHandleConfirmationInput
-void menuHandleConfirmationInput(struct MenuScreenActor *, s32);
+void menuHandleConfirmationInput(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDrawFileSummary
-s32 menuDrawFileSummary(void *, Gfx *);
+Gfx *menuDrawFileSummary(Actor *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuDecodePiAddressConstant
 s32 menuDecodePiAddressConstant(s32);
 #endif
 #ifndef PROTO_SKIP_menuInitFileSummary
-void menuInitFileSummary(void *, s32);
+void menuInitFileSummary(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuHandleFileSelectInput
-void menuHandleFileSelectInput(struct MenuScreenActor *, s32);
+void menuHandleFileSelectInput(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDrawFileSlotLabel
-Gfx *menuDrawFileSlotLabel(void *, Gfx *);
+Gfx *menuDrawFileSlotLabel(Actor *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuInitFileSelect
-void menuInitFileSelect(struct MenuScreenActor *, s32);
+void menuInitFileSelect(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuMysteryHandleInput
-void menuMysteryHandleInput(struct MenuScreenActor *, s32);
+void menuMysteryHandleInput(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuMysteryDrawFileSlotLabel
-Gfx *menuMysteryDrawFileSlotLabel(void *, Gfx *);
+Gfx *menuMysteryDrawFileSlotLabel(Actor *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuMysteryInit
-void menuMysteryInit(struct MenuScreenActor *, s32);
+void menuMysteryInit(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuBossReplayHandleInput
-void menuBossReplayHandleInput(struct MenuScreenActor *, s32);
+void menuBossReplayHandleInput(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDrawSubmenuRing
-Gfx *menuDrawSubmenuRing(struct MenuScreenActor *, Gfx *);
+Gfx *menuDrawSubmenuRing(Actor *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuAssignPlayerControllerSlot
 void menuAssignPlayerControllerSlot(s32, s32);
@@ -85,7 +84,7 @@ void menuAssignPlayerControllerSlot(s32, s32);
 void menuReleasePlayerControllerSlot(s32);
 #endif
 #ifndef PROTO_SKIP_menuInitControllerSlots
-void menuInitControllerSlots(struct MenuScreenActor *, s32);
+void menuInitControllerSlots(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuNextFreeControllerSlot
 s32 menuNextFreeControllerSlot(s32);
@@ -94,52 +93,52 @@ s32 menuNextFreeControllerSlot(s32);
 s32 menuPrevFreeControllerSlot(s32);
 #endif
 #ifndef PROTO_SKIP_menuHandleControllerSlotInput
-void menuHandleControllerSlotInput(struct MenuScreenActor *, s32);
+void menuHandleControllerSlotInput(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDrawCharacterSelect
-Gfx *menuDrawCharacterSelect(struct MenuScreenActor *, Gfx *);
+Gfx *menuDrawCharacterSelect(Actor *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuInitCharacterSelect
-void menuInitCharacterSelect(struct MenuScreenActor *, s32);
+void menuInitCharacterSelect(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuMultiplayerResultsHandleInput
-void menuMultiplayerResultsHandleInput(struct MenuScreenActor *, s32);
+void menuMultiplayerResultsHandleInput(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDrawMultiplayerResults
-s32 menuDrawMultiplayerResults();
+Gfx *menuDrawMultiplayerResults(Actor *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuInitMultiplayerResults
-void menuInitMultiplayerResults(struct MenuScreenActor *, s32);
+void menuInitMultiplayerResults(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuCharacterSelectUpdateActor
 void menuCharacterSelectUpdateActor(void);
 #endif
 #ifndef PROTO_SKIP_menuHandleSoundOptionsInput
-void menuHandleSoundOptionsInput(struct MenuScreenActor *, s32);
+void menuHandleSoundOptionsInput(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuFormatOptionValues
-Gfx *menuFormatOptionValues(struct MenuScreenActor *, Gfx *);
+Gfx *menuFormatOptionValues(Actor *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuInitSoundOptions
-void menuInitSoundOptions(struct MenuScreenActor *, s32);
+void menuInitSoundOptions(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuHandleGameOptionsInput
-void menuHandleGameOptionsInput(struct MenuScreenActor *, s32);
+void menuHandleGameOptionsInput(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDrawGameOptions
-Gfx *menuDrawGameOptions(struct MenuScreenActor *, Gfx *);
+Gfx *menuDrawGameOptions(Actor *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuInitGameOptions
-void menuInitGameOptions(struct MenuScreenActor *, s32);
+void menuInitGameOptions(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuHandleCheatsInput
-void menuHandleCheatsInput(struct MenuScreenActor *, s32);
+void menuHandleCheatsInput(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDrawCheats
-Gfx *menuDrawCheats(struct MenuScreenActor *, Gfx *);
+Gfx *menuDrawCheats(Actor *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuInitCheats
-void menuInitCheats(struct MenuScreenActor *, s32);
+void menuInitCheats(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuLoadHighScores
 void menuLoadHighScores(void);
@@ -148,13 +147,13 @@ void menuLoadHighScores(void);
 void menuSaveHighScores(void);
 #endif
 #ifndef PROTO_SKIP_menuHandleHighScoreNameEntryInput
-void menuHandleHighScoreNameEntryInput(void *, s32);
+void menuHandleHighScoreNameEntryInput(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDrawHighScoreTable
-Gfx *menuDrawHighScoreTable(void *, Gfx *);
+Gfx *menuDrawHighScoreTable(Actor *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_menuInitHighScores
-void menuInitHighScores(struct MenuScreenActor *, s32);
+void menuInitHighScores(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_menuInsertHighScore
 void menuInsertHighScore(void);
@@ -181,22 +180,22 @@ void menuUpdateScrollAnimation(struct MenuScreenState *, s32);
 void menuInit(void);
 #endif
 #ifndef PROTO_SKIP_menuInitGfxState
-void menuInitGfxState(Gfx *, s32);
+void menuInitGfxState(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_menuUpdateStateDispatch
-Gfx *menuUpdateStateDispatch(struct MenuScreenActor *, s32, Gfx *, s32);
+Gfx *menuUpdateStateDispatch(Actor *, s32, Gfx *, s32);
 #endif
 #ifndef PROTO_SKIP_menuSpawnUiElementEffect
 void menuSpawnUiElementEffect(struct MenuScreenState *, void *, s32, s32, f32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_menuSparkleParticleUpdate
-void menuSparkleParticleUpdate(struct Menu10_Spinner *, s32);
+void menuSparkleParticleUpdate(struct MenuEffect *, s32);
 #endif
 #ifndef PROTO_SKIP_menuUpdateElementTargetAndColor
-void menuUpdateElementTargetAndColor(struct MenuUiElemActor *, u8 *);
+void menuUpdateElementTargetAndColor(struct MenuEffect *, u8 *);
 #endif
 #ifndef PROTO_SKIP_menuEvaluateSelectorSpline
-s32 menuEvaluateSelectorSpline(void *, s32, f32 *, f32 *, f32 *, s16 *, s16 *);
+s32 menuEvaluateSelectorSpline(struct MenuScreenState *, s32, f32 *, f32 *, f32 *, s16 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_menuComputeElementPosition
 s32 menuComputeElementPosition(struct MenuScreenState *, f32, f32, f32 *, f32 *, s32, s8, f32);

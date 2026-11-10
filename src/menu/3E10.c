@@ -1,9 +1,7 @@
 #include "common.h"
-#define PROTO_SKIP_actorAppendCallbackMemcpy8 // FAKE: callee prototype steer
+#include "actor.h"
 #define PROTO_SKIP_actorConfigApplyAnimFrameByType // FAKE: callee prototype steer
 #define PROTO_SKIP_actorUpdateCollisionSpheres // PROTO: not a function here
-#define PROTO_SKIP_configureCSPOutputMode // FAKE: callee prototype steer
-#define PROTO_SKIP_controllerSetActiveMask // FAKE: callee prototype steer
 #define PROTO_SKIP_eepromGetField // FAKE: callee prototype steer
 #define PROTO_SKIP_eepromSetCurrentSlot // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
@@ -37,11 +35,6 @@
 #include "proto/global/F600.h"
 #include "proto/menu/3E10.h"
 
-typedef struct MenuScreenActor {
-    char pad0[0x174];
-    void *unk174;
-} MenuScreenActor;
-
 typedef struct MenuScreenState {
     f32 unk0;
     f32 unk4;
@@ -50,18 +43,51 @@ typedef struct MenuScreenState {
     s16 unkE;
     s16 unk10;
     s8 unk12;
-    s8 unk13;
+    s8 nextScreen;
     char pad14;
     s8 unk15;
     s8 unk16;
-    s8 unk17;
+    s8 selection;
 } MenuScreenState;
 
+typedef struct MenuEffect { // effect objects created by effectCreateAtPosition for the menu
+    /* 0x000 */ char pad0[0x128];
+    /* 0x128 */ Mtx mtx[8];
+    /* 0x328 */ char pad328[0x18];
+    /* 0x340 */ f32 posX;
+    /* 0x344 */ f32 posY;
+    /* 0x348 */ char pad348[0x14];
+    /* 0x35C */ struct MenuUiElemCfg *cfg;
+    /* 0x360 */ f32 scaleX;
+    /* 0x364 */ f32 scaleY;
+    /* 0x368 */ char pad368[2];
+    /* 0x36A */ u8 colorR;
+    /* 0x36B */ u8 colorG;
+    /* 0x36C */ u8 colorB;
+    /* 0x36D */ u8 colorA;
+    /* 0x36E */ char pad36E[0x16];
+    /* 0x384 */ void *data;
+    /* 0x388 */ char pad388[6];
+    /* 0x38E */ s16 unk38E;
+    /* 0x390 */ char pad390[2];
+    /* 0x392 */ s16 unk392;
+} MenuEffect;
+
+typedef struct MenuEffectTarget {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+} MenuEffectTarget;
+
+
 extern s8 gAudioOutputMode;
-void configureCSPOutputMode(s32);  // FAKE: callee prototype steer
 
 void menuSetAudioMode(void) {
-    s32 val = 1;
+    u8 val = 1;
     switch (gAudioOutputMode) {
     case 0:
         val = 2;
@@ -76,8 +102,8 @@ void menuSetAudioMode(void) {
 extern s8 D_80033734;
 extern s32 gCamActor;
 
-void menuTitleScreenHandleInput(MenuScreenActor *actor, s32 buttons) {
-    MenuScreenState *state = actor->unk174;
+void menuTitleScreenHandleInput(Actor *actor, s32 buttons) {
+    MenuScreenState *state = actor->customState;
     s32 trigger = 0;
 
     if (D_80033734 != 0) {
@@ -101,45 +127,23 @@ Gfx *menuTitleScreenDraw(void *actor, Gfx *dl) {
     return dl;
 }
 
-typedef struct MenuActorNode {
-    char pad0[0x34];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-} MenuActorNode;
+typedef struct MenuActorExt { // menu actors carry an extra pointer past Actor
+    /* 0x000 */ Actor base;
+    /* 0x178 */ s32 pad178;
+    /* 0x17C */ s16 *unk17C;
+} MenuActorExt;
 
-typedef struct MenuActor {
-    char pad0[4];
-    MenuActorNode *unk4;
-    char pad8[0x60 - 8];
-    u32 unk60;
-    char pad64[0x7C - 0x64];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0xE6 - 0x88];
-    s16 unkE6;
-    s16 unkE8;
-    char padEA[0x154 - 0xEA];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x174 - 0x156];
-    void *unk174;
-    char pad178[4];
-    s16 *unk17C;
-} MenuActor;
-
-extern MenuActor *gCurrentActor;
-extern MenuActor *gSpawnedActor;
-extern MenuActor *gPrimaryPlayerActor;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
+extern Actor *gPrimaryPlayerActor;
 extern s8 D_80033734;
 extern s32 gGlobalPauseFlags;
 
-void menuResetCameraAndFlags(MenuScreenActor *actor, s32 unused) {
-    f32 *stateVal = actor->unk174;
-    gPrimaryPlayerActor->unk7C = 109.0f;
-    gPrimaryPlayerActor->unk80 = 6.0f;
-    gPrimaryPlayerActor->unk84 = 55.0f;
+void menuResetCameraAndFlags(Actor *actor, s32 unused) {
+    f32 *stateVal = actor->customState;
+    gPrimaryPlayerActor->x = 109.0f;
+    gPrimaryPlayerActor->y = 6.0f;
+    gPrimaryPlayerActor->z = 55.0f;
     *stateVal = 0.0f;
     D_80033734 = 0;
     gGlobalPauseFlags |= 0x10000;
@@ -167,9 +171,8 @@ extern f32 D_80033F58;
 extern f32 D_80033F5C;
 extern s8 D_8076A0D2;
 
-void actorAppendCallbackMemcpy8(s32, s32, s32, s32, void *, s32); // FAKE: callee prototype steer
 
-void menuUpdateMainScreen(void *actor, s32 buttons) {
+void menuUpdateMainScreen(Actor *actor, s32 buttons) {
     MenuScreenState *state;
     BonusMenu_Pair pair;
     s32 camTargetActor;
@@ -181,7 +184,7 @@ void menuUpdateMainScreen(void *actor, s32 buttons) {
     s16 startRandIdx;
     s16 randIdx;
 
-    state = *(MenuScreenState **)((u8 *)actor + 0x174);
+    state = actor->customState;
     pair = D_800337FC;
     camAction = 0;
     if (D_800337F4 > 0) {
@@ -193,7 +196,7 @@ void menuUpdateMainScreen(void *actor, s32 buttons) {
     if (state->unk0 == 0.0f && D_80033F3C == 0.0f && D_800337F4 == 0) {
         if (state->unk4 == 0.0f) {
             D_800337F0 = 1;
-            switch (state->unk17) {
+            switch (state->selection) {
             case 2:
                 if (flagGet(0x1C, 1) == 0) {
                     D_800337F0 = -1;
@@ -215,21 +218,21 @@ void menuUpdateMainScreen(void *actor, s32 buttons) {
         if (D_80033F3C > 1.0f) {
             D_80033F3C = 1.0f;
             state->unk16 = 0;
-            switch (state->unk17) {
+            switch (state->selection) {
             default:
-                state->unk13 = 2;
+                state->nextScreen = 2;
                 break;
             case 1:
-                state->unk13 = 8;
+                state->nextScreen = 8;
                 break;
             case 2:
-                state->unk13 = 6;
+                state->nextScreen = 6;
                 break;
             case 3:
-                state->unk13 = 0xA;
+                state->nextScreen = 0xA;
                 break;
             case 4:
-                state->unk13 = 9;
+                state->nextScreen = 9;
                 break;
             }
             if (camIsCutsceneActive() != 0) {
@@ -322,7 +325,7 @@ void menuUpdateMainScreen(void *actor, s32 buttons) {
             D_80033F55 = 1;
             camParam = 1;
         }
-        actorAppendCallbackMemcpy8(gCamActor, camTargetActor, 0x01000000, camParam & 0xFF, &pair, 0);
+        actorAppendCallbackMemcpy8(gCamActor, camTargetActor, 0x01000000, camParam, &pair, 0);
     }
     if (D_80033F56 != 0) {
         targetBrightness = 0.0f;
@@ -346,7 +349,7 @@ void menuUpdateMainScreen(void *actor, s32 buttons) {
 extern char **D_80033F28;
 
 
-Gfx *menuDrawMainScreenTitle(MenuScreenActor *actor, Gfx *dl) {
+Gfx *menuDrawMainScreenTitle(Actor *actor, Gfx *dl) {
     Gfx *g;
     s32 strIdx;
     s32 padCC;
@@ -357,7 +360,7 @@ Gfx *menuDrawMainScreenTitle(MenuScreenActor *actor, Gfx *dl) {
     f32 mScale[4][4];
     f32 mTrans[4][4];
     Mtx *mtx;
-    void *state = actor->unk174;
+    void *state = actor->customState;
 
     gGlobalPauseFlags |= 0x10;
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
@@ -385,22 +388,22 @@ extern u8 D_807211D0;
 extern u8 D_80721444;
 s32 eepromGetField(s32, s32, u8, s32);  // FAKE: callee prototype steer
 
-void menuInitMainScreen(MenuScreenActor *actor, s32 unused) {
-    MenuScreenState *state = actor->unk174;
+void menuInitMainScreen(Actor *actor, s32 unused) {
+    MenuScreenState *state = actor->customState;
 
     D_800337F8 = 0;
     D_800337F4 = 0;
-    gPrimaryPlayerActor->unk154 = 0x85;
-    gPrimaryPlayerActor->unk155 = 0;
+    gPrimaryPlayerActor->state = 0x85;
+    gPrimaryPlayerActor->unk155[0] = 0;
     gAudioOutputMode = eepromGetField(0x1E, 0, 0, 0);
     menuSetAudioMode();
-    state->unk17 = D_8076A0D1[0];
+    state->selection = D_8076A0D1[0];
     menuSpawnUiElementEffect(state, &D_80720C34, 0xA0, 0xD2, 0.75f, 2, 0);
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 0, 0, 1.2f, 2, 0x12);
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 1, 0, 1.2f, 2, 0x12);
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 2, 0, 1.2f, 2, 0x12);
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 3, 0, 1.2f, 2, 0x12);
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 4, 0, 1.2f, 2, 0x12);
+    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 0, 0, 1.2f, 2, 0x12); // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
+    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 1, 0, 1.2f, 2, 0x12); // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
+    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 2, 0, 1.2f, 2, 0x12); // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
+    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 3, 0, 1.2f, 2, 0x12); // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
+    menuSpawnUiElementEffect(state, (void *)(s32)&D_80721444, 4, 0, 1.2f, 2, 0x12); // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
     menuSpawnUiElementEffect(state, &D_8072052C, 0, 0, 0.6f, 2, 6);
     menuSpawnUiElementEffect(state, &D_807211D0, 1, 0, 0.8f, 2, 6);
     if (flagGet(0, 1) == 0) {
@@ -413,9 +416,9 @@ void menuInitMainScreen(MenuScreenActor *actor, s32 unused) {
     menuSpawnUiElementEffect(state, &D_807210EC, 3, 0, 0.6f, 2, 6);
     menuSpawnUiElementEffect(state, &D_80721170, 4, 0, 0.6f, 2, 6);
     menuSpawnUiElementEffect(state, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
-    gPrimaryPlayerActor->unk7C = 700.0f;
-    gPrimaryPlayerActor->unk80 = 100.0f;
-    gPrimaryPlayerActor->unk84 = 70.0f;
+    gPrimaryPlayerActor->x = 700.0f;
+    gPrimaryPlayerActor->y = 100.0f;
+    gPrimaryPlayerActor->z = 70.0f;
     D_80033F54 = 0;
     while (D_800336A4[D_80033F54] != -1) {
         D_80033F54++;
@@ -433,30 +436,30 @@ void menuMainScreenNoop(void) {
 
 extern s8 D_80033F48;
 
-void menuHandleSelectionInput(MenuScreenActor *actor, s32 buttons) {
-    MenuScreenState *state = actor->unk174;
+void menuHandleSelectionInput(Actor *actor, s32 buttons) {
+    MenuScreenState *state = actor->customState;
 
     if (state->unk0 == 0.0f) {
         if (state->unk4 == 0.0f) {
             if (buttons & 1) {
                 state->unk16 = 0;
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                switch (state->unk17) {
+                switch (state->selection) {
                 case 2:
-                    state->unk13 = 4;
+                    state->nextScreen = 4;
                     break;
                 default:
-                    D_80033F48 = state->unk17;
+                    D_80033F48 = state->selection;
                     if (D_80033F48 == 3) {
                         D_80033F48 = 2;
                     }
-                    state->unk13 = 3;
+                    state->nextScreen = 3;
                     break;
                 }
             } else if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 state->unk16 = 0;
-                state->unk13 = 1;
+                state->nextScreen = 1;
             } else {
                 menuHandleScrollInput(state, 4, buttons);
             }
@@ -467,8 +470,8 @@ void menuHandleSelectionInput(MenuScreenActor *actor, s32 buttons) {
 }
 
 
-Gfx *menuDrawAdventureFileSelectTitle(MenuScreenActor *actor, Gfx *dl) {
-    void *state = actor->unk174;
+Gfx *menuDrawAdventureFileSelectTitle(Actor *actor, Gfx *dl) {
+    void *state = actor->customState;
     s32 idx;
     f32 posX;
     f32 posY;
@@ -495,23 +498,23 @@ Gfx *menuDrawAdventureFileSelectTitle(MenuScreenActor *actor, Gfx *dl) {
 extern u8 D_80720D14;
 extern u8 D_807204BC;
 
-void menuInitAdventureFileSelect(MenuScreenActor *actor, s32 unused) {
-    MenuScreenState *state = actor->unk174;
+void menuInitAdventureFileSelect(Actor *actor, s32 unused) {
+    MenuScreenState *state = actor->customState;
 
-    state->unk17 = D_8076A0D2;
+    state->selection = D_8076A0D2;
     menuSpawnUiElementEffect(state, &D_80720C34, 0xA0, 0x78, 0.75f, 2, 4);
     if (menuCheckSaveFile(0) != 0) {
         D_80033F38 = 0;
     }
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_8072052C, 0, 0, 1.0f, 2, 2);
+    menuSpawnUiElementEffect(state, (void *)(s32)&D_8072052C, 0, 0, 1.0f, 2, 2); // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
     if (menuCheckSaveFile(1) != 0) {
         D_80033F38 = 0;
     }
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_8072052C, 1, 0, 1.0f, 2, 2);
+    menuSpawnUiElementEffect(state, (void *)(s32)&D_8072052C, 1, 0, 1.0f, 2, 2); // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
     if (menuCheckSaveFile(2) != 0) {
         D_80033F38 = 0;
     }
-    menuSpawnUiElementEffect(state, (void *)(s32)&D_8072052C, 3, 0, 1.0f, 2, 2);
+    menuSpawnUiElementEffect(state, (void *)(s32)&D_8072052C, 3, 0, 1.0f, 2, 2); // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
     menuSpawnUiElementEffect(state, &D_807204BC, 2, 0, 1.0f, 2, 2);
     menuSpawnUiElementEffect(state, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
@@ -524,7 +527,10 @@ extern s8 D_807563B4;
 extern u16 D_807ECD48;
 
 void menuCheckCheatCodeSequence(void) {
-    if (D_8003381C[D_80033818] == *(u16 *)&D_807ECD48) {
+    u16 *pressed;
+
+    pressed = &D_807ECD48;
+    if (D_8003381C[D_80033818] == *pressed) {
         D_80033818++;
         if (D_80033818 >= 7U) {
             D_807563B4 = 1;
@@ -536,12 +542,11 @@ void menuCheckCheatCodeSequence(void) {
     }
 }
 
-void controllerSetActiveMask(s32);  // FAKE: callee prototype steer
 void func_807144B8(s8);  // FAKE: callee prototype steer
 extern s8 D_80033F48;
 
-void menuHandleConfirmationInput(MenuScreenActor *actor, s32 buttons) {
-    MenuScreenState *state = actor->unk174;
+void menuHandleConfirmationInput(Actor *actor, s32 buttons) {
+    MenuScreenState *state = actor->customState;
 
     if (state->unk0 == 0.0f && state->unk4 == 0.0f) {
         if (buttons & 1) {
@@ -550,7 +555,7 @@ void menuHandleConfirmationInput(MenuScreenActor *actor, s32 buttons) {
         } else if (buttons & 2) {
             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
             state->unk16 = 0;
-            state->unk13 = 2;
+            state->nextScreen = 2;
         }
     }
     menuUpdateItemTransition(actor, state, 1);
@@ -565,11 +570,11 @@ extern s8 D_80033F51;
 extern u32 gFrameCounter;
 f32 mathSinF(s16);
 
-s32 menuDrawFileSummary(void *actor, Gfx *dl) {
+Gfx *menuDrawFileSummary(Actor *actor, Gfx *dl) {
     f32 x = 66.0f;
     s16 y;
     s16 py;
-    void *state = *(void **)((u8 *)actor + 0x174);
+    void *state = actor->customState;
     s8 *p = &D_80033804;
     s32 i = 0;
     f32 sc = 3.0f;
@@ -593,7 +598,7 @@ s32 menuDrawFileSummary(void *actor, Gfx *dl) {
     } while (i != 5);
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
     menuComputeElementPosition(state, 160.0f, 180.0f, &posX, &posY, 5, 1, 2.0f);
-    four = 4.0f;
+    four = 4.0f; // FAKE: value-named constant local holds 4.0f in one FP register
     D_80033F4C = posY * four;
     py = D_80033F4C;
     py -= 0x140;
@@ -630,8 +635,8 @@ s32 menuDrawFileSummary(void *actor, Gfx *dl) {
     menuComputeElementPosition(state, 160.0f, 15.0f, &posX, &posY, 5, 1, 0.3f);
     y = posX * four;
     py = posY * four;
-    _sprintf(strBuf, "%s %d", (char *)D_80033F28[7], D_80033F48 + 1);
-    return (s32)hudDrawScaledText(dl, y, py, 0.6f, strBuf);
+    _sprintf(strBuf, "%s %d", D_80033F28[7], D_80033F48 + 1);
+    return hudDrawScaledText(dl, y, py, 0.6f, strBuf);
 }
 
 s32 menuDecodePiAddressConstant(s32 offset) {
@@ -655,8 +660,8 @@ extern s8 D_80033F51;
 extern u32 actorUpdateCollisionSpheres;
 
 extern s8 D_80033809;
-void menuInitFileSummary(void *actor, s32 unused) {
-    MenuScreenState *state = *(MenuScreenState **)((u8 *)actor + 0x174);
+void menuInitFileSummary(Actor *actor, s32 unused) {
+    MenuScreenState *state = actor->customState;
     u8 *row = gPlayerInventoryTable[0];
     s8 *p;
     s16 *q;
@@ -706,23 +711,23 @@ void menuInitFileSummary(void *actor, s32 unused) {
 }
 
 
-void menuHandleFileSelectInput(MenuScreenActor *actor, s32 buttons) {
-    MenuScreenState *state = actor->unk174;
+void menuHandleFileSelectInput(Actor *actor, s32 buttons) {
+    MenuScreenState *state = actor->customState;
 
     if (state->unk0 == 0.0f) {
         if (state->unk4 == 0.0f) {
             if (buttons & 1) {
-                if (menuCheckSaveFile(state->unk17) == 0) {
+                if (menuCheckSaveFile(state->selection) == 0) {
                     state->unk16 = 0;
-                    state->unk13 = 5;
-                    D_80033F48 = state->unk17;
+                    state->nextScreen = 5;
+                    D_80033F48 = state->selection;
                 } else {
                     sfxPlayOnFreeSlot(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
             } else if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 state->unk16 = 0;
-                state->unk13 = 2;
+                state->nextScreen = 2;
             } else {
                 menuHandleScrollInput(state, 3, buttons);
             }
@@ -734,8 +739,8 @@ void menuHandleFileSelectInput(MenuScreenActor *actor, s32 buttons) {
 
 
 
-Gfx *menuDrawFileSlotLabel(void *actor, Gfx *dl) {
-    void *state = *(void **)((u8 *)actor + 0x174);
+Gfx *menuDrawFileSlotLabel(Actor *actor, Gfx *dl) {
+    void *state = actor->customState;
     s32 fileIdx;
     Gfx *g;
     int ty;
@@ -754,27 +759,27 @@ Gfx *menuDrawFileSlotLabel(void *actor, Gfx *dl) {
     posX = (s16)(textX * 4.0f);
     y = (s16)(textY * 4.0f);
     if (menuCheckSaveFile(fileIdx) != 0) {
-        _sprintf(strBuf, "%s", (char *)D_80033F28[6]);
+        _sprintf(strBuf, "%s", D_80033F28[6]);
     } else {
-        _sprintf(strBuf, "%s %d", (char *)D_80033F28[7], fileIdx + 1);
+        _sprintf(strBuf, "%s %d", D_80033F28[7], fileIdx + 1);
     }
     dl = hudDrawScaledText(dl, posX, y, 0.6f, strBuf);
     y -= 0x3C;
-    return hudDrawScaledText(dl, (s16)(textX * 4.0f), y, 0.6f, (char *)D_80033F28[8]);
+    return hudDrawScaledText(dl, (s16)(textX * 4.0f), y, 0.6f, D_80033F28[8]);
 }
 
 
-void menuInitFileSelect(MenuScreenActor *actor, s32 unused) {
-    MenuScreenState *state = actor->unk174;
+void menuInitFileSelect(Actor *actor, s32 unused) {
+    MenuScreenState *state = actor->customState;
     void *assetPtr;
 
-    state->unk17 = 0;
+    state->selection = 0;
     menuSpawnUiElementEffect(state, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
     if (menuCheckSaveFile(0) != 0) {
         D_80033F38 = 0;
     }
-    assetPtr = (void *)(s32)&D_8072052C;
+    assetPtr = (void *)(s32)&D_8072052C; // FAKE: (void *)(s32) address cast keeps the lui/addiu pair scheduled before the arg loads
     menuSpawnUiElementEffect(state, assetPtr, 0, 0, 1.0f, 2, 3);
     if (menuCheckSaveFile(1) != 0) {
         D_80033F38 = 0;
@@ -794,8 +799,8 @@ void *effectCreateAtPosition(void *, f32, f32, f32, f32);
 void eepromSetCurrentSlot(u8, s32); // FAKE: callee prototype steer
 extern s8 D_80033FAC;
 
-void menuMysteryHandleInput(MenuScreenActor *actor, s32 buttons) {
-    MenuScreenState *state = actor->unk174;
+void menuMysteryHandleInput(Actor *actor, s32 buttons) {
+    MenuScreenState *state = actor->customState;
 
     if (state->unk0 == 0.0f && state->unk4 == 0.0f) {
         if (buttons & 1) {
@@ -807,33 +812,33 @@ void menuMysteryHandleInput(MenuScreenActor *actor, s32 buttons) {
                 sfxPlayOnFreeSlot(0xF6, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 eepromSetCurrentSlot(D_80033F48, 1);
                 state->unk16 = 0;
-                state->unk13 = 2;
+                state->nextScreen = 2;
             } else if ((buttons & 4) && (D_80033FAC != 0)) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 state->unk16 = 0;
-                state->unk13 = 2;
+                state->nextScreen = 2;
             }
         } else if (buttons & 2) {
             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
             state->unk16 = 0;
-            state->unk13 = 2;
+            state->nextScreen = 2;
         }
     }
     menuUpdateItemTransition(actor, state, 1);
 }
 
 
-Gfx *menuMysteryDrawFileSlotLabel(void *actor, Gfx *dl) {
-    void *state = *(void **)((u8 *)actor + 0x174);
+Gfx *menuMysteryDrawFileSlotLabel(Actor *actor, Gfx *dl) {
+    void *state = actor->customState;
     s32 pad;
-    f32 unusedF32_1;
+    f32 pad1;
     Gfx *g;
-    f32 unusedF32_2;
+    f32 pad2;
     f32 textX;
     f32 textY;
-    f32 unusedF32_3;
-    f32 unusedF32_4;
-    f32 unusedF32_5;
+    f32 pad3;
+    f32 pad4;
+    f32 pad5;
     s16 posX;
     s16 y;
     char strBuf[200];
@@ -843,26 +848,26 @@ Gfx *menuMysteryDrawFileSlotLabel(void *actor, Gfx *dl) {
     posX = (s16)(textX * 4.0f);
     y = (s16)(textY * 4.0f);
     if (menuCheckSaveFile(D_80033F48) != 0) {
-        _sprintf(strBuf, "%s", (char *)D_80033F28[6]);
+        _sprintf(strBuf, "%s", D_80033F28[6]);
     } else {
-        _sprintf(strBuf, "%s %d", (char *)D_80033F28[7], D_80033F48 + 1);
+        _sprintf(strBuf, "%s %d", D_80033F28[7], D_80033F48 + 1);
     }
     dl = hudDrawScaledText(dl, posX, y, 0.6f, strBuf);
     y -= 0x3C;
-    dl = hudDrawScaledText(dl, (s16)(textX * 4.0f), y, 0.6f, (char *)D_80033F28[8]);
+    dl = hudDrawScaledText(dl, (s16)(textX * 4.0f), y, 0.6f, D_80033F28[8]);
     menuComputeElementPosition(state, 160.0f, 80.0f, &textX, &textY, 5, 0, 2.0f);
-    dl = hudDrawScaledText(dl, (s16)(textX * 4.0f), (s16)(textY * 4.0f), 0.6f, (char *)D_80033F28[9]);
+    dl = hudDrawScaledText(dl, (s16)(textX * 4.0f), (s16)(textY * 4.0f), 0.6f, D_80033F28[9]);
     menuComputeElementPosition(state, 80.0f, 120.0f, &textX, &textY, 5, 0, 2.0f);
     return hudDrawScaledText(hudDrawScaledText(dl, (s16)(textX * 4.0f), (s16)(textY * 4.0f), 0.6f, D_80033F28[10]), 0x500 - (s16)(textX * 4.0f), (s16)(textY * 4.0f), 0.6f, D_80033F28[11]);
 }
 
 extern s8 D_80033FAC;
 
-void menuMysteryInit(MenuScreenActor *actor, s32 unused) {
-    MenuScreenState *state = actor->unk174;
+void menuMysteryInit(Actor *actor, s32 unused) {
+    MenuScreenState *state = actor->customState;
 
     D_80033FAC = 0;
-    state->unk17 = 0;
+    state->selection = 0;
     menuSpawnUiElementEffect(state, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &D_807204BC, 0xA0, 0x80, 1.0f, 2, 8);
@@ -874,24 +879,24 @@ extern s8 D_80033698;
 extern s8 D_80744538;
 extern s8 D_8076A104;
 
-void menuBossReplayHandleInput(MenuScreenActor *actor, s32 buttons) {
-    MenuScreenState *state = actor->unk174;
+void menuBossReplayHandleInput(Actor *actor, s32 buttons) {
+    MenuScreenState *state = actor->customState;
 
     if (state->unk0 == 0.0f) {
         if (state->unk4 == 0.0f) {
             if (buttons & 1) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 state->unk16 = 0;
-                state->unk13 = 7;
+                state->nextScreen = 7;
             } else if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 state->unk16 = 0;
-                state->unk13 = 1;
+                state->nextScreen = 1;
                 D_80033698 = 3;
             } else {
                 menuHandleScrollInput(state, 2, buttons);
             }
-            if (state->unk17 == 0) {
+            if (state->selection == 0) {
                 if (!(D_80033670 & 0x10) && (buttons & 0x10)) {
                     sfxPlayOnFreeSlot(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     D_80744538++;
@@ -909,16 +914,16 @@ void menuBossReplayHandleInput(MenuScreenActor *actor, s32 buttons) {
         }
         menuUpdateScrollAnimation(state, 2);
     }
-    D_8076A104 = state->unk17;
+    D_8076A104 = state->selection;
     menuUpdateItemTransition(actor, state, 1);
 }
 
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 
-Gfx *menuDrawSubmenuRing(MenuScreenActor *actor, Gfx *dl) {
-    MenuScreenState *state = actor->unk174;
-    s32 padx;
+Gfx *menuDrawSubmenuRing(Actor *actor, Gfx *dl) {
+    MenuScreenState *state = actor->customState;
+    s32 pad;
     s32 idx;
     s32 i;
     s32 id;
@@ -938,7 +943,7 @@ Gfx *menuDrawSubmenuRing(MenuScreenActor *actor, Gfx *dl) {
     }
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
     for (i = 0; i != 0x1000; i += 0x800) {
-        ang = i - (state->unk17 << 11);
+        ang = i - (state->selection << 11);
         ang -= (s32)(state->unk4 * 2048.0);
         posX = 160.0 - mathSinF((s16)ang) * 50.0;
         posY = 120.0 - mathCosF((s16)ang) * 50.0;
@@ -997,12 +1002,12 @@ void menuReleasePlayerControllerSlot(s32 playerIdx) {
 
 extern s8 D_8076A0D6;
 
-void menuInitControllerSlots(MenuScreenActor *actor, s32 unused) {
-    MenuScreenState *state = actor->unk174;
+void menuInitControllerSlots(Actor *actor, s32 unused) {
+    MenuScreenState *state = actor->customState;
     s32 i;
     s32 j;
 
-    state->unk17 = D_8076A0D6;
+    state->selection = D_8076A0D6;
     menuSpawnUiElementEffect(state, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &D_80720C34, 0xA0, 0x78, 0.75f, 2, 4);
@@ -1091,8 +1096,8 @@ extern s32 D_807552E4[];
 extern u8 D_807ECD09;
 extern OSContPad D_807ECD10[];
 
-void menuHandleControllerSlotInput(MenuScreenActor *actor, s32 buttons) {
-    MenuScreenState *state = actor->unk174;
+void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
+    MenuScreenState *state = actor->customState;
     s32 step;
     s32 rest;
     s32 i;
@@ -1141,7 +1146,7 @@ void menuHandleControllerSlotInput(MenuScreenActor *actor, s32 buttons) {
                         gActivePlayerCount += 1;
                     }
                 }
-                controllerSetActiveMask(mask & 0xFF);
+                controllerSetActiveMask(mask);
                 D_807552E4[0] = D_8003382C[D_8076A104];
                 D_807552E4[1] = D_80033834[D_8074451C];
                 D_807552E4[3] = D_80744520;
@@ -1154,7 +1159,7 @@ void menuHandleControllerSlotInput(MenuScreenActor *actor, s32 buttons) {
                 if (buttons & 2) {
                     sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
                     state->unk16 = 0;
-                    state->unk13 = 6;
+                    state->nextScreen = 6;
                 } else if (buttons & 0x40) {
                     state->unkE = state->unkE - 0xF0;
                     if ((D_80033FAD == 2 || D_80033FAD == 3) && D_8076A104 != 1) {
@@ -1196,7 +1201,7 @@ void menuHandleControllerSlotInput(MenuScreenActor *actor, s32 buttons) {
                         edge = (D_8003385C[i] ^ bits) & bits;
                         D_8003385C[i] = bits;
                         if (D_8076A0E4[i] & 0x80) {
-                            if (((u16 *)&D_807ECD48)[i] & 0x1000) {
+                            if ((&D_807ECD48)[i] & 0x1000) {
                                 sfxPlayOnFreeSlot(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 menuAssignPlayerControllerSlot(i, 0);
                             }
@@ -1237,7 +1242,7 @@ void menuHandleControllerSlotInput(MenuScreenActor *actor, s32 buttons) {
                                 sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 menuPrevFreeControllerSlot(i);
                             }
-                            if (i != 0 && (((u16 *)&D_807ECD48)[i] & 0x1000)) {
+                            if (i != 0 && ((&D_807ECD48)[i] & 0x1000)) {
                                 sfxPlayOnFreeSlot(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 menuReleasePlayerControllerSlot(i);
                             }
@@ -1279,11 +1284,9 @@ void menuHandleControllerSlotInput(MenuScreenActor *actor, s32 buttons) {
         menuUpdateScrollAnimation(state, itemCount);
     }
     D_80033858 = buttons;
-    {
-        D_8074451C = state->unk17;
-        if (D_80033834[D_8074451C] == 5 && D_80744520 >= 5) {
-            D_80744520 = 4;
-        }
+    D_8074451C = state->selection;
+    if (D_80033834[D_8074451C] == 5 && D_80744520 >= 5) {
+        D_80744520 = 4;
     }
     menuUpdateItemTransition(actor, state, 1);
     gGlobalPauseFlags |= 0x10000;
@@ -1306,8 +1309,8 @@ extern s8 D_8076A0E5;
 extern s8 D_8076A0E6;
 extern s8 D_8076A0E7;
 
-Gfx *menuDrawCharacterSelect(MenuScreenActor *actor, Gfx *dl) {
-    MenuScreenState *state = actor->unk174;
+Gfx *menuDrawCharacterSelect(Actor *actor, Gfx *dl) {
+    MenuScreenState *state = actor->customState;
     s32 padA0;
     s32 idx;
     s32 id;
@@ -1344,7 +1347,7 @@ Gfx *menuDrawCharacterSelect(MenuScreenActor *actor, Gfx *dl) {
         menuComputeElementPosition(state, 160.0f, 30.0f, &posX, &posY, 2, 0, 1.5f);
         posY = posY + 240.0f;
         dl = textDrawStringVtx(dl, 1, 0x280, posY * 4.0f, D_80033F28[15], 0x81);
-        idx = state->unk17;
+        idx = state->selection;
         if (state->unk4 != 0.0f) {
             if (state->unk4 > 0.5f) {
                 idx++;
@@ -1429,8 +1432,8 @@ extern u8 D_80720D5C;
 extern u8 D_80720D80;
 extern u8 D_807211AC;
 
-void menuInitCharacterSelect(MenuScreenActor *actor, s32 unused) {
-    MenuScreenState *state = actor->unk174;
+void menuInitCharacterSelect(Actor *actor, s32 unused) {
+    MenuScreenState *state = actor->customState;
     s32 flag;
     s32 i;
     Menu6_Sub174 *sub;
@@ -1455,17 +1458,17 @@ void menuInitCharacterSelect(MenuScreenActor *actor, s32 unused) {
         D_8074451C = 0;
     }
     i = 0;
-    state->unk17 = D_8074451C;
+    state->selection = D_8074451C;
     do {
         actorSpawn(0x151, D_8003386C[D_8076A0E4[i] & 0x7F]);
         {
-            s16 *q = gSpawnedActor->unk17C;
+            s16 *q = ((MenuActorExt *)gSpawnedActor)->unk17C;
             *q = D_8003386C[D_8076A0E4[i] & 0x7F];
         }
-        gSpawnedActor->unk154 = i;
+        gSpawnedActor->state = i;
         i += 1;
-        gSpawnedActor->unk155 = D_8076A0E4[i - 1] & 0x7F;
-        sub = gSpawnedActor->unk174;
+        gSpawnedActor->unk155[0] = D_8076A0E4[i - 1] & 0x7F;
+        sub = gSpawnedActor->customState;
         sub->unk0 = actor;
         sub->unk8 = 0;
     } while (i != 4);
@@ -1489,13 +1492,13 @@ void menuInitCharacterSelect(MenuScreenActor *actor, s32 unused) {
 }
 
 
-void menuMultiplayerResultsHandleInput(MenuScreenActor *actor, s32 buttons) {
-    MenuScreenState *state = actor->unk174;
+void menuMultiplayerResultsHandleInput(Actor *actor, s32 buttons) {
+    MenuScreenState *state = actor->customState;
 
     if (state->unk0 == 0.0 && (buttons & 1)) {
         sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
         state->unk16 = 0;
-        state->unk13 = 7;
+        state->nextScreen = 7;
     }
     menuUpdateItemTransition(actor, state, 0);
     menuUpdateCameraPositions();
@@ -1508,10 +1511,7 @@ extern u8 D_80033F20[];
 extern s16 D_80744524[];
 extern s8 D_8076A105;
 
-s32 menuDrawMultiplayerResults(actor, dl)
-void *actor;
-Gfx *dl;
-{
+Gfx *menuDrawMultiplayerResults(Actor *actor, Gfx *dl) {
     void *state;
     s32 step;
     s32 i;
@@ -1525,7 +1525,7 @@ Gfx *dl;
     char strBuf[200];
     s32 sel;
 
-    state = *(void **)((u8 *)actor + 0x174);
+    state = actor->customState;
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
     menuComputeElementPosition(state, 160.0f, 45.0f, &textX, &textY1, 2, 0, 1.8f);
     menuComputeElementPosition(state, 160.0f, 185.0f, &textX, &textY2, 2, 0, 1.8f);
@@ -1541,7 +1541,7 @@ Gfx *dl;
             _sprintf(strBuf, "P %d", *q + 1);
             dl = hudDrawScaledText(dl, x, y, 0.6f, strBuf);
             sel = i == D_8076A105;
-            dl = hudDrawScaledText(dl, x, (s16)(y + 0x30), 0.6f, (char *)D_80033F28[0x1D + sel]);
+            dl = hudDrawScaledText(dl, x, (s16)(y + 0x30), 0.6f, D_80033F28[0x1D + sel]);
             _sprintf(strBuf, "%d", D_80744524[*q]);
             dl = hudDrawScaledText(dl, x, scaledY2, 0.6f, strBuf);
             i += 1;
@@ -1551,7 +1551,7 @@ Gfx *dl;
         } while (i < D_80033878);
         if (i) {} // FAKE: dead if keeps loop counter live after the loop (as1 order)
     }
-    return (s32)hudDrawScaledText(dl, 0x280, (s16)(scaledY2 - 0x50), 0.6f, (char *)D_80033F28[0x1F]);
+    return hudDrawScaledText(dl, 0x280, (s16)(scaledY2 - 0x50), 0.6f, D_80033F28[0x1F]);
 }
 
 
@@ -1562,8 +1562,8 @@ extern s8 D_8076A105;
 extern u8 D_8003387C[];
 extern u8 D_80033F24[];
 
-void menuInitMultiplayerResults(MenuScreenActor *actor, s32 unused) {
-    MenuScreenState *state = actor->unk174;
+void menuInitMultiplayerResults(Actor *actor, s32 unused) {
+    MenuScreenState *state = actor->customState;
     s32 i;
     s8 t;
     s32 n;
@@ -1583,16 +1583,16 @@ void menuInitMultiplayerResults(MenuScreenActor *actor, s32 unused) {
         }
     }
     menuUpdateCameraPositions();
-    state->unk17 = 0;
+    state->selection = 0;
     for (i = 0; i < D_80033878; i++) {
         actorSpawn(0x151, D_8003386C[D_8003387C[i]]);
         {
-            s16 *q = gSpawnedActor->unk17C;
+            s16 *q = ((MenuActorExt *)gSpawnedActor)->unk17C;
             *q = D_8003386C[D_8003387C[i]];
         }
-        gSpawnedActor->unk154 = D_80033F20[i] | 0x80;
-        gSpawnedActor->unk155 = D_8003387C[i];
-        sub = gSpawnedActor->unk174;
+        gSpawnedActor->state = D_80033F20[i] | 0x80;
+        gSpawnedActor->unk155[0] = D_8003387C[i];
+        sub = gSpawnedActor->customState;
         sub->unk0 = actor;
         sub->unk8 = (i == D_8076A105) + 1;
     }
@@ -1600,31 +1600,8 @@ void menuInitMultiplayerResults(MenuScreenActor *actor, s32 unused) {
 }
 
 
-typedef struct MenuModelScale {
-    char pad0[0x34];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-} MenuModelScale;
-typedef struct Menu6B_Actor {
-    char pad0[4];
-    MenuModelScale *unk4;
-    char pad8[0x60 - 8];
-    u32 unk60;
-    char pad64[0x7C - 0x64];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x154 - 0x88];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x174 - 0x156];
-    void *unk174;
-    char pad178[4];
-    s16 *unk17C;
-} Menu6B_Actor;
 typedef struct Menu6B_Sub174 {
-    Menu6B_Actor *unk0;
+    Actor *unk0;
     s32 unk4;
     s8 unk8;
 } Menu6B_Sub174;
@@ -1632,11 +1609,14 @@ typedef struct Menu6B_Pair {
     f32 a;
     f32 b;
 } Menu6B_Pair;
-#define Menu6B_A ((Menu6B_Actor *)gCurrentActor)
-#define Menu6B_N ((Menu6B_Actor *)gSpawnedActor)
 extern s32 D_800338B4[];
 extern Menu6B_Pair D_80033894[];
 void actorConfigApplyAnimFrameByType(void *, s32, s32); // FAKE: callee prototype steer
+
+typedef struct MenuActorU155 { // Actor.unk155 as a scalar: the u8[7] array element gives different uopt candidates here
+    /* 0x000 */ u8 pad0[0x155];
+    /* 0x155 */ u8 unk155;
+} MenuActorU155;
 
 void menuCharacterSelectUpdateActor(void) {
     s32 step;
@@ -1651,54 +1631,54 @@ void menuCharacterSelectUpdateActor(void) {
     s16 *actorTypePtr;
     Menu6B_Sub174 *sub174;
 
-    sub174 = Menu6B_A->unk174;
-    parentStateVal = sub174->unk0->unk174;
+    sub174 = gCurrentActor->customState;
+    parentStateVal = sub174->unk0->customState;
     shouldDespawn = 0;
     func_806BF920();
-    if (!(Menu6B_A->unk60 & 0x10)) {
-        Menu6B_A->unk4->unk34 = 2.0f * Menu6B_A->unk4->unk34;
-        Menu6B_A->unk4->unk38 = 2.0f * Menu6B_A->unk4->unk38;
-        Menu6B_A->unk4->unk3C = 2.0f * Menu6B_A->unk4->unk3C;
+    if (!(gCurrentActor->flags & 0x10)) {
+        gCurrentActor->sub4->scaleX = 2.0f * gCurrentActor->sub4->scaleX;
+        gCurrentActor->sub4->scaleY = 2.0f * gCurrentActor->sub4->scaleY;
+        gCurrentActor->sub4->scaleZ = 2.0f * gCurrentActor->sub4->scaleZ;
         m8 = sub174->unk8;
-        actorScriptStart(Menu6B_A, D_800338B4[(s16)(m8 * 6) + (Menu6B_A->unk155 & 0xF)]);
-        playerKongStopSoundByState(Menu6B_A);
-        Menu6B_A->unk60 |= 0x1000;
-        sub174->unk4 = D_8076A100[Menu6B_A->unk154 & 0xF];
-        actorConfigApplyAnimFrameByType(Menu6B_A, Menu6B_A->unk155 + 2, D_8076A100[Menu6B_A->unk154 & 0xF]);
+        actorScriptStart(gCurrentActor, D_800338B4[(s16)(m8 * 6) + (((MenuActorU155 *)gCurrentActor)->unk155 & 0xF)]);
+        playerKongStopSoundByState(gCurrentActor);
+        gCurrentActor->flags |= 0x1000;
+        sub174->unk4 = D_8076A100[gCurrentActor->state & 0xF];
+        actorConfigApplyAnimFrameByType(gCurrentActor, ((MenuActorU155 *)gCurrentActor)->unk155 + 2, D_8076A100[gCurrentActor->state & 0xF]);
     }
-    sel = Menu6B_A->unk154;
-    if (!(Menu6B_A->unk154 & 0x80)) {
-        if (sub174->unk4 != D_8076A100[Menu6B_A->unk154]) {
-            actorConfigApplyAnimFrameByType(Menu6B_A, Menu6B_A->unk155 + 2, D_8076A100[Menu6B_A->unk154]);
-            sub174->unk4 = D_8076A100[Menu6B_A->unk154];
+    sel = gCurrentActor->state;
+    if (!(gCurrentActor->state & 0x80)) {
+        if (sub174->unk4 != D_8076A100[gCurrentActor->state]) {
+            actorConfigApplyAnimFrameByType(gCurrentActor, ((MenuActorU155 *)gCurrentActor)->unk155 + 2, D_8076A100[gCurrentActor->state]);
+            sub174->unk4 = D_8076A100[gCurrentActor->state];
         }
-        idx = D_8076A0E4[Menu6B_A->unk154] & 0x7F;
-        if (idx != Menu6B_A->unk155) {
+        idx = D_8076A0E4[gCurrentActor->state] & 0x7F;
+        if (idx != ((MenuActorU155 *)gCurrentActor)->unk155) {
             actorTypePtr = &D_8003386C[idx];
             actorSpawn(0x151, *actorTypePtr);
             {
-                s16 *q = Menu6B_N->unk17C;
+                s16 *q = ((MenuActorExt *)gSpawnedActor)->unk17C;
                 *q = *actorTypePtr;
             }
-            Menu6B_N->unk154 = Menu6B_A->unk154;
-            Menu6B_N->unk155 = (s16)idx; // FAKE: no-op narrowing cast, burns one ugen t-ring temp
+            gSpawnedActor->state = gCurrentActor->state;
+            ((MenuActorU155 *)gSpawnedActor)->unk155 = (s16)idx; // FAKE: no-op narrowing cast, burns one ugen t-ring temp
             {
-                Menu6_Sub174 *sub = Menu6B_N->unk174;
+                Menu6_Sub174 *sub = gSpawnedActor->customState;
                 sub->unk0 = sub174->unk0;
             }
             shouldDespawn = 1;
-            if (Menu6B_A->unk154 != 0) {} // FAKE: extra reference of the unk154 value; recolours the shared A->unk154 candidate (t0) and the PRE reload position
-            if (sub174->unk0->unk60 && sub174->unk0->unk60) {} // FAKE: repeated dead load steers uopt lifetimes and the ugen temporary ring
+            if (gCurrentActor->state != 0) {} // FAKE: extra reference of the unk154 value; recolours the shared A->unk154 candidate (t0) and the PRE reload position
+            if (sub174->unk0->flags && sub174->unk0->flags) {} // FAKE: repeated dead load steers uopt lifetimes and the ugen temporary ring
         }
-        row = &D_80033894[Menu6B_A->unk154];
+        row = &D_80033894[gCurrentActor->state];
         menuComputeElementPosition((MenuScreenState *)parentStateVal, row->a, row->b, &posX, &posY, 2, 0, 1.8f);
-        Menu6B_A->unk7C = gPrimaryPlayerActor->unk7C + (posX - 160.0f);
-        Menu6B_A->unk80 = (gPrimaryPlayerActor->unk80 - (posY - 120.0f)) - 20.0f;
-        Menu6B_A->unk84 = gPrimaryPlayerActor->unk84 - 300.0f;
-        if (D_8076A0E4[Menu6B_A->unk154] & 0x80) {
-            Menu6B_A->unk60 &= ~4;
+        gCurrentActor->x = gPrimaryPlayerActor->x + (posX - 160.0f);
+        gCurrentActor->y = (gPrimaryPlayerActor->y - (posY - 120.0f)) - 20.0f;
+        gCurrentActor->z = gPrimaryPlayerActor->z - 300.0f;
+        if (D_8076A0E4[gCurrentActor->state] & 0x80) {
+            gCurrentActor->flags &= ~4;
         } else {
-            Menu6B_A->unk60 |= 4;
+            gCurrentActor->flags |= 4;
         }
     } else {
         idx = D_80033F24[sel & 0xF];
@@ -1706,30 +1686,30 @@ void menuCharacterSelectUpdateActor(void) {
         menuComputeElementPosition((MenuScreenState *)parentStateVal, 160.0f, 150.0f, &posX, &posY, 2, 0, 1.8f);
         posX = (idx * step + (step >> 1)) - 0xA0;
         posX = posX * 0.78;
-        Menu6B_A->unk7C = gPrimaryPlayerActor->unk7C + posX;
-        Menu6B_A->unk80 = (gPrimaryPlayerActor->unk80 - (posY - 120.0f)) + 16.0f;
-        Menu6B_A->unk84 = gPrimaryPlayerActor->unk84 - 300.0f;
+        gCurrentActor->x = gPrimaryPlayerActor->x + posX;
+        gCurrentActor->y = (gPrimaryPlayerActor->y - (posY - 120.0f)) + 16.0f;
+        gCurrentActor->z = gPrimaryPlayerActor->z - 300.0f;
     }
     if (*parentStateVal > 1.0f) {
         shouldDespawn = 1;
     }
     if (shouldDespawn != 0) {
-        actorDespawn(Menu6B_A);
+        actorDespawn(gCurrentActor);
     }
-    actorUpdateModelMatrix(Menu6B_A, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern s8 gSfxVolume;
 extern s8 gMusicVolume;
 
-void menuHandleSoundOptionsInput(MenuScreenActor *actor, s32 buttons) {
-    MenuScreenState *state = actor->unk174;
+void menuHandleSoundOptionsInput(Actor *actor, s32 buttons) {
+    MenuScreenState *state = actor->customState;
     s8 flag = 0;
 
     menuCheckCheatCodeSequence();
     if (state->unk0 == 0.0f) {
         if (state->unk4 == 0.0f) {
-            switch (state->unk17) {
+            switch (state->selection) {
             case 0:
                 if (!(D_80033670 & 0x10) && (buttons & 0x10)) {
                     gAudioOutputMode++;
@@ -1805,7 +1785,7 @@ void menuHandleSoundOptionsInput(MenuScreenActor *actor, s32 buttons) {
                 }
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 state->unk16 = 0;
-                state->unk13 = 1;
+                state->nextScreen = 1;
             } else {
                 menuHandleScrollInput(state, 4, buttons);
             }
@@ -1821,7 +1801,7 @@ void menuHandleSoundOptionsInput(MenuScreenActor *actor, s32 buttons) {
 extern s16 D_80033674;
 extern s8 gAudioOutputMode;
 
-Gfx *menuFormatOptionValues(MenuScreenActor *actor, Gfx *dl) {
+Gfx *menuFormatOptionValues(Actor *actor, Gfx *dl) {
     void *state;
     u32 selectedOption;
     f32 pad5C;
@@ -1832,7 +1812,7 @@ Gfx *menuFormatOptionValues(MenuScreenActor *actor, Gfx *dl) {
     s16 posYShort;
     char strBuf[12];
 
-    state = actor->unk174;
+    state = actor->customState;
     gGlobalPauseFlags &= ~0x10;
     menuComputeElementPosition(state, 160.0f, 20.0f, &posX, &posY, 2, 0, 1.5f);
     dl = menuDrawScrollSelector(
@@ -1871,10 +1851,10 @@ Gfx *menuFormatOptionValues(MenuScreenActor *actor, Gfx *dl) {
 
 extern u8 D_80720D38;
 
-void menuInitSoundOptions(MenuScreenActor *actor, s32 unused) {
+void menuInitSoundOptions(Actor *actor, s32 unused) {
+    MenuScreenState *state = actor->customState;
 
-    MenuScreenState *state = actor->unk174;
-    state->unk17 = 0;
+    state->selection = 0;
     menuSpawnUiElementEffect(state, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &D_80720C34, 0xA0, 0x7D, 0.75f, 2, 4);
     menuSpawnUiElementEffect(state, &D_80720D38, 0xA0, 0xC8, 1.0f, 2, 0xC);
@@ -1887,14 +1867,14 @@ extern u8 D_80744530;
 extern u8 sLanguageIndex;
 extern u16 D_807ECD66;
 
-void menuHandleGameOptionsInput(MenuScreenActor *actor, s32 buttons) {
-    MenuScreenState *state = actor->unk174;
+void menuHandleGameOptionsInput(Actor *actor, s32 buttons) {
+    MenuScreenState *state = actor->customState;
     s8 flag = 0;
     s32 i;
 
     if (state->unk0 == 0.0f) {
         if (state->unk4 == 0.0f) {
-            switch (state->unk17) {
+            switch (state->selection) {
             case 0:
                 if ((buttons & 0x30) && !(D_80033670 & 0x30)) {
                     D_807444C0 = 1 - D_807444C0;
@@ -1939,13 +1919,12 @@ void menuHandleGameOptionsInput(MenuScreenActor *actor, s32 buttons) {
                 break;
             }
             if (buttons & 2) {
-
                 eepromSetField(0x1F, 0, 0, 0, sLanguageIndex);
                 eepromSetField(0x20, 0, 0, 0, D_80744530);
                 func_8060DEA8();
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 state->unk16 = 0;
-                state->unk13 = 1;
+                state->nextScreen = 1;
             } else {
                 menuHandleScrollInput(state, D_800338FC, buttons);
             }
@@ -1964,8 +1943,8 @@ void menuHandleGameOptionsInput(MenuScreenActor *actor, s32 buttons) {
 
 extern s16 D_80033674;
 
-Gfx *menuDrawGameOptions(MenuScreenActor *actor, Gfx *dl) {
-    void *state = actor->unk174;
+Gfx *menuDrawGameOptions(Actor *actor, Gfx *dl) {
+    void *state = actor->customState;
     u32 selectedOption;
     f32 posX;
     f32 posY;
@@ -2017,9 +1996,10 @@ Gfx *menuDrawGameOptions(MenuScreenActor *actor, Gfx *dl) {
     return dl;
 }
 
-void menuInitGameOptions(MenuScreenActor *actor, s32 unused) {
-    MenuScreenState *state = actor->unk174;
-    state->unk17 = 0;
+void menuInitGameOptions(Actor *actor, s32 unused) {
+    MenuScreenState *state = actor->customState;
+
+    state->selection = 0;
     menuSpawnUiElementEffect(state, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &D_80720C34, 0xA0, 0x7D, 0.75f, 2, 4);
     menuSpawnUiElementEffect(state, &D_80720D38, 0xA0, 0xC8, 1.0f, 2, 0xC);
@@ -2045,8 +2025,8 @@ extern s8 D_8074453C[];
 
 extern s8 D_80744540;
 
-void menuHandleCheatsInput(MenuScreenActor *actor, s32 buttons) {
-    MenuScreenState *state = actor->unk174;
+void menuHandleCheatsInput(Actor *actor, s32 buttons) {
+    MenuScreenState *state = actor->customState;
     s8 flag = 0;
     s8 cnt;
     s8 sel;
@@ -2055,7 +2035,7 @@ void menuHandleCheatsInput(MenuScreenActor *actor, s32 buttons) {
 
     if (state->unk0 == 0.0f) {
         if (state->unk4 == 0.0f) {
-            idx = state->unk17;
+            idx = state->selection;
             cnt = D_80033988[idx];
             if (cnt > 0) {
                 if ((buttons & 0x10) && !(D_80033670 & 0x10) && cnt != 1) {
@@ -2092,13 +2072,13 @@ void menuHandleCheatsInput(MenuScreenActor *actor, s32 buttons) {
                         case 0xBF:
                             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                             state->unk16 = 0;
-                            state->unk13 = 0xC;
+                            state->nextScreen = 0xC;
                             D_800339A8 = 0;
                             break;
                         case 0xB8:
                             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                             state->unk16 = 0;
-                            state->unk13 = 0xC;
+                            state->nextScreen = 0xC;
                             D_800339A8 = 1;
                             break;
                         default:
@@ -2133,7 +2113,7 @@ void menuHandleCheatsInput(MenuScreenActor *actor, s32 buttons) {
             if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 state->unk16 = 0;
-                state->unk13 = 1;
+                state->nextScreen = 1;
                 D_80033698 = 3;
             } else {
                 menuHandleScrollInput(state, 5, buttons);
@@ -2152,8 +2132,8 @@ extern s16 D_800339A4;
 extern s8 D_8074453D;
 extern s8 D_8074453E;
 
-Gfx *menuDrawCheats(MenuScreenActor *actor, Gfx *dl) {
-    void *state = actor->unk174;
+Gfx *menuDrawCheats(Actor *actor, Gfx *dl) {
+    void *state = actor->customState;
     u32 optIdx;
     f32 posX;
     f32 posY;
@@ -2213,24 +2193,24 @@ Gfx *menuDrawCheats(MenuScreenActor *actor, Gfx *dl) {
 extern s8 D_8076A0DA;
 
 
-void menuInitCheats(MenuScreenActor *actor, s32 unused) {
-    MenuScreenState *state = actor->unk174;
+void menuInitCheats(Actor *actor, s32 unused) {
+    MenuScreenState *state = actor->customState;
     s32 j;
     s32 i;
     s8 n;
 
-    state->unk17 = D_8076A0DA;
+    state->selection = D_8076A0DA;
     switch (D_80744514) {
     case 0:
         break;
     default:
-        state->unk17 = 0;
+        state->selection = 0;
         break;
     case 4:
-        state->unk17 = 2;
+        state->selection = 2;
         break;
     case 5:
-        state->unk17 = 1;
+        state->selection = 1;
         break;
     }
     menuSpawnUiElementEffect(state, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
@@ -2323,11 +2303,11 @@ void menuInitCheats(MenuScreenActor *actor, s32 unused) {
 }
 
 typedef struct MenuHighScoreEntry {
-    s16 unk0;
-    u8 unk2;
-    u8 unk3;
-    u8 unk4;
-    u8 unk5;
+    s16 score;
+    u8 initial0;
+    u8 initial1;
+    u8 initial2;
+    u8 initial3;
 } MenuHighScoreEntry;
 
 extern MenuHighScoreEntry D_80744548[];
@@ -2338,16 +2318,16 @@ void menuLoadHighScores(void) {
     s32 i;
 
     for (i = 0; i < 5; i++) {
-        D_80744548[i].unk0 = eepromGetField(0x19, 0, i, 0);
-        D_80744548[i].unk2 = eepromGetField(0x16, 0, i, 0);
-        D_80744548[i].unk3 = eepromGetField(0x17, 0, i, 0);
-        D_80744548[i].unk4 = eepromGetField(0x18, 0, i, 0);
-        D_80744548[i].unk5 = 0;
-        D_80744568[i].unk0 = eepromGetField(0x1D, 0, i, 0);
-        D_80744568[i].unk2 = eepromGetField(0x1A, 0, i, 0);
-        D_80744568[i].unk3 = eepromGetField(0x1B, 0, i, 0);
-        D_80744568[i].unk4 = eepromGetField(0x1C, 0, i, 0);
-        D_80744568[i].unk5 = 0;
+        D_80744548[i].score = eepromGetField(0x19, 0, i, 0);
+        D_80744548[i].initial0 = eepromGetField(0x16, 0, i, 0);
+        D_80744548[i].initial1 = eepromGetField(0x17, 0, i, 0);
+        D_80744548[i].initial2 = eepromGetField(0x18, 0, i, 0);
+        D_80744548[i].initial3 = 0;
+        D_80744568[i].score = eepromGetField(0x1D, 0, i, 0);
+        D_80744568[i].initial0 = eepromGetField(0x1A, 0, i, 0);
+        D_80744568[i].initial1 = eepromGetField(0x1B, 0, i, 0);
+        D_80744568[i].initial2 = eepromGetField(0x1C, 0, i, 0);
+        D_80744568[i].initial3 = 0;
     }
 }
 
@@ -2355,14 +2335,14 @@ void menuSaveHighScores(void) {
     s32 i;
 
     for (i = 0; i < 5; i++) {
-        eepromSetField(0x19, 0, i, 0, D_80744548[i].unk0);
-        eepromSetField(0x16, 0, i, 0, D_80744548[i].unk2);
-        eepromSetField(0x17, 0, i, 0, D_80744548[i].unk3);
-        eepromSetField(0x18, 0, i, 0, D_80744548[i].unk4);
-        eepromSetField(0x1D, 0, i, 0, D_80744568[i].unk0);
-        eepromSetField(0x1A, 0, i, 0, D_80744568[i].unk2);
-        eepromSetField(0x1B, 0, i, 0, D_80744568[i].unk3);
-        eepromSetField(0x1C, 0, i, 0, D_80744568[i].unk4);
+        eepromSetField(0x19, 0, i, 0, D_80744548[i].score);
+        eepromSetField(0x16, 0, i, 0, D_80744548[i].initial0);
+        eepromSetField(0x17, 0, i, 0, D_80744548[i].initial1);
+        eepromSetField(0x18, 0, i, 0, D_80744548[i].initial2);
+        eepromSetField(0x1D, 0, i, 0, D_80744568[i].score);
+        eepromSetField(0x1A, 0, i, 0, D_80744568[i].initial0);
+        eepromSetField(0x1B, 0, i, 0, D_80744568[i].initial1);
+        eepromSetField(0x1C, 0, i, 0, D_80744568[i].initial2);
     }
     func_8060DEA8();
 }
@@ -2379,8 +2359,8 @@ extern s8 D_800339C0;
 extern u32 gFrameCounter;
 extern MenuM8_PosPair D_800339B8[];
 
-void menuHandleHighScoreNameEntryInput(void *actor, s32 buttons) {
-    MenuScreenState *state = *(MenuScreenState **)((u8 *)actor + 0x174);
+void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
+    MenuScreenState *state = actor->customState;
     s8 v1;
     MenuHighScoreEntry *table;
     u32 v0;
@@ -2400,7 +2380,7 @@ void menuHandleHighScoreNameEntryInput(void *actor, s32 buttons) {
             if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 state->unk16 = 0;
-                state->unk13 = 0xA;
+                state->nextScreen = 0xA;
             }
         } else {
             if (buttons & 0xC) {
@@ -2423,7 +2403,7 @@ void menuHandleHighScoreNameEntryInput(void *actor, s32 buttons) {
                     }
                 }
             }
-            p = (u8 *)table + D_80033F60 * 6 + D_80033F61 + 2;
+            p = (u8 *)table + D_80033F60 * 6 + D_80033F61 + 2; // FAKE: byte-offset name pointer keeps the multu-free address chain (Q0303)
             if (v0 & 4) {
                 switch (*p) {
                 case 0x20:
@@ -2483,7 +2463,7 @@ extern s16 D_80744518;
 extern char *D_800339AC[];
 extern u32 gFrameCounter;
 
-Gfx *menuDrawHighScoreTable(void *actor, Gfx *dl) {
+Gfx *menuDrawHighScoreTable(Actor *actor, Gfx *dl) {
     void *state;
     f32 posX;
     f32 posY;
@@ -2494,18 +2474,18 @@ Gfx *menuDrawHighScoreTable(void *actor, Gfx *dl) {
     s16 yPos;
     s16 i;
 
-    state = *(void **)((u8 *)actor + 0x174);
+    state = actor->customState;
     gGlobalPauseFlags &= ~0x10;
     menuComputeElementPosition(state, 160.0f, 20.0f, &posX, &posY, 2, 0, 1.0f);
-    dl = textDrawStringVtx(dl, 1, 0x280, (s16)(posY * 4.0), ((void **)D_80033F28)[D_800339A8 + 0x5F], 0x81);
+    dl = textDrawStringVtx(dl, 1, 0x280, (s16)(posY * 4.0), D_80033F28[D_800339A8 + 0x5F], 0x81);
     menuComputeElementPosition(state, 160.0f, 205.0f, &posX, &posY, 2, 0, 1.0f);
     i = 0;
     yPos = (s16)(posY * 4.0);
     if (D_80033F60 >= 0) {
-        _sprintf(strBuf, "%s", ((void **)D_80033F28)[0x63]);
+        _sprintf(strBuf, "%s", D_80033F28[0x63]);
         i = 1;
     } else if (D_80033F60 == -2) {
-        _sprintf(strBuf, "%s %d.", ((void **)D_80033F28)[0x64], D_80744518);
+        _sprintf(strBuf, "%s %d.", D_80033F28[0x64], D_80744518);
         i = 1;
     }
     if (i != 0) {
@@ -2522,11 +2502,11 @@ Gfx *menuDrawHighScoreTable(void *actor, Gfx *dl) {
     }
     for (i = 0; i < 5; i++) {
         _sprintf(strBuf, "%d.", i + 1);
-        e = (MenuHighScoreEntry *)((u8 *)scoreTable + i * 6);
+        e = (MenuHighScoreEntry *)((u8 *)scoreTable + i * 6); // FAKE: byte-offset entry pointer keeps the explicit *6 (Q0303)
         dl = textDrawStringVtx(dl, 1, (s16)(ft4 + 0x50), yPos, strBuf, 1);
-        _sprintf(strBuf, "%c %c %c", e->unk2, e->unk3, e->unk4);
+        _sprintf(strBuf, "%c %c %c", e->initial0, e->initial1, e->initial2);
         dl = textDrawStringVtx(dl, 0x81, (s16)(ft4 + 0x118), yPos, strBuf, 1);
-        _sprintf(strBuf, "%d", e->unk0);
+        _sprintf(strBuf, "%d", e->score);
         dl = textDrawStringVtx(dl, 0x81, (s16)(0x3E8 - ft4), yPos, strBuf, 1);
         if (i == D_80033F60 && (gFrameCounter & 0x1F) < 0x14) {
             dl = textDrawStringVtx(dl, 0x81, (s16)(ft4 + 0x118), yPos + 0x34, D_800339AC[D_80033F61], 1);
@@ -2538,8 +2518,8 @@ Gfx *menuDrawHighScoreTable(void *actor, Gfx *dl) {
 
 extern s8 D_80033F60;
 
-void menuInitHighScores(MenuScreenActor *actor, s32 unused) {
-    MenuScreenState *state = actor->unk174;
+void menuInitHighScores(Actor *actor, s32 unused) {
+    MenuScreenState *state = actor->customState;
 
     if (D_80033F60 == -1) {
         menuSpawnUiElementEffect(state, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
@@ -2562,21 +2542,21 @@ void menuInsertHighScore(void) {
     }
 
     for (i = 0; i < 5; i++) {
-        if (D_80744518 >= table[i].unk0) {
+        if (D_80744518 >= table[i].score) {
             j = 4;
             if (i < 4) {
                 do {
-                    table[j].unk0 = table[j - 1].unk0;
-                    table[j].unk2 = table[j - 1].unk2;
-                    table[j].unk3 = table[j - 1].unk3;
-                    table[j].unk4 = table[j - 1].unk4;
+                    table[j].score = table[j - 1].score;
+                    table[j].initial0 = table[j - 1].initial0;
+                    table[j].initial1 = table[j - 1].initial1;
+                    table[j].initial2 = table[j - 1].initial2;
                     j--;
                 } while (j > i);
             }
-            table[i].unk0 = D_80744518;
-            table[i].unk2 = 0x2E;
-            table[i].unk3 = 0x2E;
-            table[i].unk4 = 0x2E;
+            table[i].score = D_80744518;
+            table[i].initial0 = 0x2E;
+            table[i].initial1 = 0x2E;
+            table[i].initial2 = 0x2E;
             D_80033F60 = i;
             D_80033F61 = 0;
             return;
@@ -2605,19 +2585,19 @@ typedef struct Menu3B_Struct_C924 {
 extern Menu3B_Struct_C924 *gPlayerSlots;
 
 void menuUpdateCameraPositions(void) {
-    gPlayerSlots->unk210 = gPrimaryPlayerActor->unk7C;
-    gPlayerSlots->unk214 = gPrimaryPlayerActor->unk80 + 13.1f;
-    gPlayerSlots->unk218 = gPrimaryPlayerActor->unk84 - 50.0f;
-    gPlayerSlots->unk228 = gPrimaryPlayerActor->unk7C;
+    gPlayerSlots->unk210 = gPrimaryPlayerActor->x;
+    gPlayerSlots->unk214 = gPrimaryPlayerActor->y + 13.1f;
+    gPlayerSlots->unk218 = gPrimaryPlayerActor->z - 50.0f;
+    gPlayerSlots->unk228 = gPrimaryPlayerActor->x;
     gPlayerSlots->unk22C = gPlayerSlots->unk214;
-    gPlayerSlots->unk230 = gPrimaryPlayerActor->unk84 - 100.0f;
+    gPlayerSlots->unk230 = gPrimaryPlayerActor->z - 100.0f;
 }
 
 extern char D_800339C4[];
 extern f32 D_80033F44;
 
 Gfx *menuDrawScrollSelector(Gfx *dl, MenuScreenState *state, char **strTable, s32 itemCount, u32 *outIdx, s16 textFlag, f32 *outOffset, f32 posY, s16 enabledMask) {
-    s32 idx = state->unk17;
+    s32 idx = state->selection;
     f32 v;
     f32 posX;
     f32 posYLocal;
@@ -2673,7 +2653,7 @@ void menuUpdateItemTransition(void *actor, MenuScreenState *state, s32 hasSfx) {
         state->unk0 += 0.13f;
         if (state->unk0 > 1.3f) {
             state->unk0 = 1.0f;
-            state->unk12 = state->unk13;
+            state->unk12 = state->nextScreen;
             state->unk16 = -1;
             menuUpdateStateDispatch(actor, 0, 0, 0);
             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
@@ -2698,10 +2678,10 @@ void menuHandleScrollInput(MenuScreenState *state, s32 itemCount, s32 buttons) {
     if (buttons & 4) {
         sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
         D_80033F44 = -0.1f;
-        state->unk17--;
+        state->selection--;
         state->unk4 = 1.0f;
-        if (state->unk17 < 0) {
-            state->unk17 += itemCount;
+        if (state->selection < 0) {
+            state->selection += itemCount;
         }
         D_800337F0 = 0;
     } else if (buttons & 8) {
@@ -2717,9 +2697,9 @@ void menuUpdateScrollAnimation(MenuScreenState *state, s32 itemCount) {
         state->unk4 += D_80033F44;
         if (state->unk4 >= 1.0f) {
             state->unk4 = 0.0f;
-            state->unk17++;
-            if (state->unk17 >= itemCount) {
-                state->unk17 -= itemCount;
+            state->selection++;
+            if (state->selection >= itemCount) {
+                state->selection -= itemCount;
             }
             D_80033F44 = 0.0f;
         }
@@ -2747,11 +2727,11 @@ extern void *D_80033F34;
 extern s8 D_80033F30;
 
 void menuInit(void) {
-    MenuScreenState *sub = gCurrentActor->unk174;
-    Menu10_Sub174 *actorState = gPrimaryPlayerActor->unk174;
+    MenuScreenState *sub = gCurrentActor->customState;
+    Menu10_Sub174 *actorState = gPrimaryPlayerActor->customState;
     s32 i;
 
-    if (!(gCurrentActor->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         gGlobalPauseFlags |= 0x10;
         menuLoadTextTable();
         menuLoadHighScores();
@@ -2763,25 +2743,25 @@ void menuInit(void) {
                 D_8076A0D1[i + 3] = 0;
             }
         } else {
-            gPrimaryPlayerActor->unk7C = 700.0f;
-            gPrimaryPlayerActor->unk80 = 0.0f;
-            gPrimaryPlayerActor->unk84 = 70.0f;
+            gPrimaryPlayerActor->x = 700.0f;
+            gPrimaryPlayerActor->y = 0.0f;
+            gPrimaryPlayerActor->z = 70.0f;
         }
         D_80033F50 = 0;
         D_80033738 = 0;
         D_80033F60 = -1;
         D_8003369C = 0.0f;
         actorSpawn(0x14D, 0xD7);
-        gSpawnedActor->unk7C = gPrimaryPlayerActor->unk7C;
-        gSpawnedActor->unk80 = gPrimaryPlayerActor->unk80;
-        gSpawnedActor->unk84 = gPrimaryPlayerActor->unk84;
-        gSpawnedActor->unkE6 = gPrimaryPlayerActor->unkE6;
+        gSpawnedActor->x = gPrimaryPlayerActor->x;
+        gSpawnedActor->y = gPrimaryPlayerActor->y;
+        gSpawnedActor->z = gPrimaryPlayerActor->z;
+        gSpawnedActor->yaw = gPrimaryPlayerActor->yaw;
         if (D_80744514 != 0) {
             D_80033738 = 0x15;
-            gPrimaryPlayerActor->unk154 = 0x85;
-            gPrimaryPlayerActor->unk155 = 0;
+            gPrimaryPlayerActor->state = 0x85;
+            gPrimaryPlayerActor->unk155[0] = 0;
             actorScriptStart(gPrimaryPlayerActor, 0x347);
-            gPrimaryPlayerActor->unk155 = 6;
+            gPrimaryPlayerActor->unk155[0] = 6;
             func_8061B650(gCamActor);
             D_80033F3C = 1.0f;
             actorState->unk23C = 0x50;
@@ -2806,15 +2786,15 @@ void menuInit(void) {
             break;
         default:
             actorScriptStart(gSpawnedActor, 0x349);
-            gPrimaryPlayerActor->unk154 = 0x86;
-            gPrimaryPlayerActor->unk155 = 0;
+            gPrimaryPlayerActor->state = 0x86;
+            gPrimaryPlayerActor->unk155[0] = 0;
             sub->unk12 = 0;
             break;
         }
-        gPrimaryPlayerActor->unk4->unk34 = gPrimaryPlayerActor->unk4->unk34 * 0.8;
-        gPrimaryPlayerActor->unk4->unk38 = gPrimaryPlayerActor->unk4->unk38 * 0.8;
-        gPrimaryPlayerActor->unk4->unk3C = gPrimaryPlayerActor->unk4->unk3C * 0.8;
-        sub->unk17 = 0;
+        gPrimaryPlayerActor->sub4->scaleX = gPrimaryPlayerActor->sub4->scaleX * 0.8;
+        gPrimaryPlayerActor->sub4->scaleY = gPrimaryPlayerActor->sub4->scaleY * 0.8;
+        gPrimaryPlayerActor->sub4->scaleZ = gPrimaryPlayerActor->sub4->scaleZ * 0.8;
+        sub->selection = 0;
         sub->unkC = 0;
         sub->unkE = 0;
         sub->unk16 = 1;
@@ -2839,7 +2819,7 @@ extern Gfx D_1000118;
 extern Mtx D_20000C0;
 
 
-void menuInitGfxState(Gfx *glistp, s32 menuActor) {
+void menuInitGfxState(Gfx *glistp, Actor *menuActor) {
     gDPPipeSync(glistp++);
     gSPDisplayList(glistp++, &D_1000118);
     gDPSetCycleType(glistp++, G_CYC_1CYCLE);
@@ -2858,8 +2838,8 @@ typedef struct MenuStickAxis {
 
 extern MenuStickAxis *D_807ECDEC;
 
-Gfx *menuUpdateStateDispatch(MenuScreenActor *actor, s32 opMode, Gfx *dl, s32 subArg) {
-    MenuScreenState *state = actor->unk174;
+Gfx *menuUpdateStateDispatch(Actor *actor, s32 opMode, Gfx *dl, s32 subArg) {
+    MenuScreenState *state = actor->customState;
     s32 buttons = 0;
 
     if (*gPlayerSlots->unk298 & 0x8000) {
@@ -2901,7 +2881,7 @@ Gfx *menuUpdateStateDispatch(MenuScreenActor *actor, s32 opMode, Gfx *dl, s32 su
     case 1:
         break;
     case 2:
-        D_8076A0D0[state->unk12] = state->unk17;
+        D_8076A0D0[state->unk12] = state->selection;
         lightSetColor(1.0f, 1.0f, 1.0f, 0);
         break;
     }
@@ -2938,7 +2918,7 @@ Gfx *menuUpdateStateDispatch(MenuScreenActor *actor, s32 opMode, Gfx *dl, s32 su
         break;
     case 3:
         if (opMode == 1) {
-            return (Gfx *)menuDrawFileSummary(actor, dl);
+            return menuDrawFileSummary(actor, dl);
         }
         if (opMode == 2) {
             menuHandleConfirmationInput(actor, buttons);
@@ -2988,7 +2968,7 @@ Gfx *menuUpdateStateDispatch(MenuScreenActor *actor, s32 opMode, Gfx *dl, s32 su
         break;
     case 11:
         if (opMode == 1) {
-            return (Gfx *)menuDrawMultiplayerResults(actor, dl);
+            return menuDrawMultiplayerResults(actor, dl);
         }
         if (opMode == 2) {
             menuMultiplayerResultsHandleInput(actor, buttons);
@@ -3044,35 +3024,11 @@ Gfx *menuUpdateStateDispatch(MenuScreenActor *actor, s32 opMode, Gfx *dl, s32 su
     return dl;
 }
 
-typedef struct Menu10_Burst {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    f32 unk18;
-} Menu10_Burst;
-
-typedef struct Menu10_Fx {
-    char pad0[0x340];
-    f32 unk340;
-    f32 unk344;
-    char pad348[0x360 - 0x348];
-    f32 unk360;
-    char pad364[0x36A - 0x364];
-    u8 unk36A;
-    u8 unk36B;
-    u8 unk36C;
-    char pad36D[0x384 - 0x36D];
-    Menu10_Burst *unk384;
-} Menu10_Fx;
-
 f32 sqrtf(f32);
 
 void menuSpawnUiElementEffect(MenuScreenState *state, void *assetPtr, s32 posX, s32 posY, f32 elemScale, s32 flags, s32 fxType) {
-    Menu10_Fx *fx;
-    Menu10_Burst *burst;
+    MenuEffect *fx;
+    MenuEffectTarget *burst;
     f32 dx;
     f32 dy;
     f32 dist;
@@ -3086,14 +3042,14 @@ void menuSpawnUiElementEffect(MenuScreenState *state, void *assetPtr, s32 posX, 
     effectSetFlags(1);
     fx = effectCreateAtPosition(assetPtr, elemScale, posX, posY, -10.0f);
     burst = heapAlloc(0x28);
-    fx->unk384 = burst;
+    fx->data = burst;
     burst->unk0 = fxType;
     burst->unk4 = state->unk15;
-    burst->unk8 = fx->unk340;
-    burst->unkC = fx->unk344;
+    burst->unk8 = fx->posX;
+    burst->unkC = fx->posY;
     switch (fxType) {
     case 14:
-        fx->unk360 = -fx->unk360;
+        fx->scaleX = -fx->scaleX;
     case 0:
     case 1:
     case 11:
@@ -3108,7 +3064,7 @@ void menuSpawnUiElementEffect(MenuScreenState *state, void *assetPtr, s32 posX, 
         scale = 1040.0f - dist;
         burst->unk10 = -(dx / dist) * scale;
         burst->unk14 = -(dy / dist) * scale;
-        burst->unk18 = fx->unk360;
+        burst->unk18 = fx->scaleX;
         break;
     case 2:
     case 3:
@@ -3126,9 +3082,9 @@ void menuSpawnUiElementEffect(MenuScreenState *state, void *assetPtr, s32 posX, 
         break;
     }
     if (D_80033F38 == 0) {
-        fx->unk36A = 0x80;
-        fx->unk36B = 0x80;
-        fx->unk36C = 0x80;
+        fx->colorR = 0x80;
+        fx->colorG = 0x80;
+        fx->colorB = 0x80;
     }
     D_80033F38 = 1;
 }
@@ -3140,39 +3096,29 @@ typedef struct Menu10_Spin {
     f32 dir;
 } Menu10_Spin;
 
-typedef struct Menu10_Spinner {
-    char pad0[0x128];
-    Mtx mtx[8];
-    char pad328[0x18];
-    f32 unk340;
-    f32 unk344;
-    char pad348[0x384 - 0x348];
-    Menu10_Spin *unk384;
-} Menu10_Spinner;
-
 extern u8 gGfxBufferIndex;
 
-void menuSparkleParticleUpdate(Menu10_Spinner *spinner, s32 unused) {
+void menuSparkleParticleUpdate(MenuEffect *spinner, s32 unused) {
     Menu10_Spin *p;
     s16 randAngle;
     f32 rotMatrix[4][4];
-    if (spinner->unk384 == NULL) {
-        p = spinner->unk384 = heapAlloc(0x10);
+    if (spinner->data == NULL) {
+        p = spinner->data = heapAlloc(0x10);
         randAngle = randomLcgNext() * 0x10;
         p->vx = mathSinF(randAngle) * 60.0f;
         p->vy = mathCosF(randAngle) * 60.0f;
         p->ang = randomFloat() * 3.141f;
-        spinner->unk340 = spinner->unk340 + p->vx * 3.0f;
-        spinner->unk344 = spinner->unk344 + p->vy * 3.0f;
+        spinner->posX = spinner->posX + p->vx * 3.0f;
+        spinner->posY = spinner->posY + p->vy * 3.0f;
         if (p->vx > 0) {
             p->dir = 0.3f;
         } else {
             p->dir = -0.3f;
         }
     }
-    p = spinner->unk384;
-    spinner->unk340 = spinner->unk340 + p->vx;
-    spinner->unk344 = spinner->unk344 + p->vy;
+    p = spinner->data;
+    spinner->posX = spinner->posX + p->vx;
+    spinner->posY = spinner->posY + p->vy;
     p->ang = p->ang + p->dir;
     guRotateF(rotMatrix, p->ang, 0.0f, 0.0f, 1.0f);
     guMtxF2L(rotMatrix, &spinner->mtx[gGfxBufferIndex]);
@@ -3194,41 +3140,11 @@ typedef struct MenuUiElemCfg {
     s8 unk17;
 } MenuUiElemCfg;
 
-typedef struct MenuUiElemTarget {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-} MenuUiElemTarget;
-
-typedef struct MenuUiElemActor {
-    char pad0[0x340];
-    f32 unk340;
-    f32 unk344;
-    char pad348[0x14];
-    MenuUiElemCfg *unk35C;
-    f32 unk360;
-    f32 unk364;
-    char pad368[2];
-    u8 unk36A;
-    u8 unk36B;
-    u8 unk36C;
-    u8 unk36D;
-    char pad36E[0x16];
-    MenuUiElemTarget *unk384;
-    char pad388[6];
-    s16 unk38E;
-    char pad390[2];
-    s16 unk392;
-} MenuUiElemActor;
-
 extern MenuUiRgba D_800337DC[];
 
-void menuUpdateElementTargetAndColor(MenuUiElemActor *elemActor, u8 *outFlag) {
-    MenuUiElemCfg *p = elemActor->unk35C;
-    MenuUiElemTarget *c;
+void menuUpdateElementTargetAndColor(MenuEffect *elemActor, u8 *outFlag) {
+    MenuUiElemCfg *p = elemActor->cfg;
+    MenuEffectTarget *c;
     f32 f;
     f32 radius;
     f32 stepOrScale;
@@ -3241,8 +3157,8 @@ void menuUpdateElementTargetAndColor(MenuUiElemActor *elemActor, u8 *outFlag) {
     s16 colorComponent;
     s16 alphaVal;
 
-    if (elemActor->unk384 != NULL) {
-        c = elemActor->unk384;
+    if (elemActor->data != NULL) {
+        c = elemActor->data;
         f = p->unk0;
         off = (s32)((f64)p->unkC[(s32)c->unk4] * 4.0);
         type = (s32)c->unk0;
@@ -3251,22 +3167,22 @@ void menuUpdateElementTargetAndColor(MenuUiElemActor *elemActor, u8 *outFlag) {
         case 6:
         case 7:
         case 18: {
-            r = menuEvaluateSelectorSpline(p, (s32)c->unk8 >> 2, &elemActor->unk340, &elemActor->unk344, &stepOrScale, &colorComponent, &alphaVal);
-            elemActor->unk360 = c->unk10 * stepOrScale * 4.0f;
-            elemActor->unk364 = elemActor->unk360;
+            r = menuEvaluateSelectorSpline(p, (s32)c->unk8 >> 2, &elemActor->posX, &elemActor->posY, &stepOrScale, &colorComponent, &alphaVal);
+            elemActor->scaleX = c->unk10 * stepOrScale * 4.0f;
+            elemActor->scaleY = elemActor->scaleX;
             if (type == 7) {
                 t = (gFrameCounter * 0x78) & 0xFFF;
-                elemActor->unk344 += mathSinF(t) * 10.0f;
+                elemActor->posY += mathSinF(t) * 10.0f;
             }
             if (type == 0x12) {
-                elemActor->unk36A = colorComponent;
-                elemActor->unk36B = colorComponent;
-                elemActor->unk36C = colorComponent;
-                elemActor->unk36D = alphaVal;
+                elemActor->colorR = colorComponent;
+                elemActor->colorG = colorComponent;
+                elemActor->colorB = colorComponent;
+                elemActor->colorA = alphaVal;
                 elemActor->unk38E = gPlayerSlots->unk270;
                 elemActor->unk392 = gPlayerSlots->unk274;
-                if (elemActor->unk344 < 360.0) {
-                    if ((f64)elemActor->unk340 < 640) {
+                if (elemActor->posY < 360.0) {
+                    if ((f64)elemActor->posX < 640) {
                         elemActor->unk392 = 0x78;
                     } else {
                         elemActor->unk38E = 0xC8;
@@ -3288,33 +3204,33 @@ void menuUpdateElementTargetAndColor(MenuUiElemActor *elemActor, u8 *outFlag) {
             if (f > 1.0f) {
                 f = 1.0f;
             }
-            elemActor->unk36D = (s32)(f * 255.0f);
+            elemActor->colorA = (s32)(f * 255.0f);
             if (type == 4) {
-                elemActor->unk360 = (f64)(c->unk10 * f) * 4.0;
-                elemActor->unk364 = elemActor->unk360;
+                elemActor->scaleX = (f64)(c->unk10 * f) * 4.0;
+                elemActor->scaleY = elemActor->scaleX;
             }
             f = 0;
-            elemActor->unk344 = c->unkC + (f32)off;
+            elemActor->posY = c->unkC + (f32)off;
             if (type == 8) {
                 D_80033FAC = 0;
                 t = D_807ECDEC->unk2;
                 if (t >= 0xB) {
-                    elemActor->unk340 += (f32)t;
-                    if (elemActor->unk340 > 960.0f) {
-                        elemActor->unk340 = 960.0f;
+                    elemActor->posX += (f32)t;
+                    if (elemActor->posX > 960.0f) {
+                        elemActor->posX = 960.0f;
                         D_80033FAC = 1;
                     }
                 } else if (t < -0xA) {
-                    elemActor->unk340 += (f32)t;
-                    if (elemActor->unk340 < 320.0f) {
-                        elemActor->unk340 = 320.0f;
+                    elemActor->posX += (f32)t;
+                    if (elemActor->posX < 320.0f) {
+                        elemActor->posX = 320.0f;
                         D_80033FAC = 1;
                     }
                 } else {
-                    elemActor->unk340 = (elemActor->unk340 - 640.0) * 0.9 + 640.0;
+                    elemActor->posX = (elemActor->posX - 640.0) * 0.9 + 640.0;
                 }
             } else {
-                elemActor->unk340 = c->unk8;
+                elemActor->posX = c->unk8;
             }
             break;
         case 0:
@@ -3339,49 +3255,49 @@ void menuUpdateElementTargetAndColor(MenuUiElemActor *elemActor, u8 *outFlag) {
                     f = 0.0f;
                 }
             }
-            elemActor->unk340 = c->unk10 * f + c->unk8;
-            elemActor->unk344 = c->unk14 * f + c->unkC + (f32)off;
+            elemActor->posX = c->unk10 * f + c->unk8;
+            elemActor->posY = c->unk14 * f + c->unkC + (f32)off;
             if (type == 9) {
-                elemActor->unk344 = D_80033F4C - 140.0f;
+                elemActor->posY = D_80033F4C - 140.0f;
             }
             if (type == 0xC) {
-                elemActor->unk344 += (f32)D_80033674;
+                elemActor->posY += (f32)D_80033674;
             }
             if (type == 0) {
                 if (off < -0x3BC) {
-                    elemActor->unk364 = 0.0f;
+                    elemActor->scaleY = 0.0f;
                 } else {
-                    elemActor->unk364 = elemActor->unk360;
+                    elemActor->scaleY = elemActor->scaleX;
                 }
             }
             if (type == 0xB || type == 0x13) {
-                elemActor->unk344 += 960;
+                elemActor->posY += 960;
                 if (off >= -3 || off < -0x77C) {
-                    elemActor->unk364 = 0.0f;
+                    elemActor->scaleY = 0.0f;
                 } else {
-                    elemActor->unk364 = elemActor->unk360;
+                    elemActor->scaleY = elemActor->scaleX;
                 }
             }
             if (type == 0xD) {
-                elemActor->unk344 += 1920.0f;
+                elemActor->posY += 1920.0f;
                 if (off >= -0x3C3) {
-                    elemActor->unk364 = 0.0f;
+                    elemActor->scaleY = 0.0f;
                 } else {
-                    elemActor->unk364 = elemActor->unk360;
+                    elemActor->scaleY = elemActor->scaleX;
                 }
             }
             if (type == 0xE) {
                 t = (gFrameCounter * 0x78) & 0xFFF;
-                elemActor->unk344 += mathSinF(t) * 10.0f;
+                elemActor->posY += mathSinF(t) * 10.0f;
             }
             if (type == 0x13 && (D_80033FAD == 4 || D_80033FAD == 1 || D_8076A104 == 1)) {
-                elemActor->unk340 = -400.0f;
+                elemActor->posX = -400.0f;
             }
             if (type == 0x10 && p->unk17 >= 3) {
-                elemActor->unk340 = -400.0f;
+                elemActor->posX = -400.0f;
             }
             if (type == 0x11 && p->unk17 < 3) {
-                elemActor->unk340 = -400.0f;
+                elemActor->posX = -400.0f;
             }
             break;
         case 2:
@@ -3412,33 +3328,33 @@ void menuUpdateElementTargetAndColor(MenuUiElemActor *elemActor, u8 *outFlag) {
             idx -= (s32)(p->unk4 * stepOrScale);
             t = (s16)idx;
             if (D_80033804 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            elemActor->unk340 = 160.0f - mathSinF(t) * radius;
-            elemActor->unk344 = 120.0f - mathCosF(t) * radius;
-            if (menuComputeElementPosition(p, elemActor->unk340, elemActor->unk344, &elemActor->unk340, &elemActor->unk344, splineStep, 0, 1.0f) == (s32)c->unk8) {
+            elemActor->posX = 160.0f - mathSinF(t) * radius;
+            elemActor->posY = 120.0f - mathCosF(t) * radius;
+            if (menuComputeElementPosition(p, elemActor->posX, elemActor->posY, &elemActor->posX, &elemActor->posY, splineStep, 0, 1.0f) == (s32)c->unk8) {
                 stepOrScale = 1.1f;
             } else {
                 stepOrScale = 0.825f;
             }
             f = 0.0f;
-            elemActor->unk340 *= 4.0f;
-            elemActor->unk344 *= 4.0f;
-            elemActor->unk360 = c->unk10 * 4.0f * stepOrScale;
-            elemActor->unk364 = elemActor->unk360;
+            elemActor->posX *= 4.0f;
+            elemActor->posY *= 4.0f;
+            elemActor->scaleX = c->unk10 * 4.0f * stepOrScale;
+            elemActor->scaleY = elemActor->scaleX;
             break;
         }
         case 15: {
             idx = (s32)c->unk8;
-            elemActor->unk340 = D_80033F68[idx];
-            elemActor->unk344 = D_80033F80[idx];
-            elemActor->unk360 = D_80033F98[idx];
+            elemActor->posX = D_80033F68[idx];
+            elemActor->posY = D_80033F80[idx];
+            elemActor->scaleX = D_80033F98[idx];
             if (outFlag != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            elemActor->unk364 = D_80033F98[idx];
+            elemActor->scaleY = D_80033F98[idx];
             D_80033F68[idx] = -200.0f;
             D_80033F80[idx] = -200.0f;
             if (*(&D_80033804 + idx) == 0) {
-                elemActor->unk36A = *((u8 *)D_800337DC + (idx << 2));
-                elemActor->unk36B = *((u8 *)D_800337DC + (idx << 2) + 1);
-                elemActor->unk36C = *((u8 *)D_800337DC + (idx << 2) + 2);
+                elemActor->colorR = *((u8 *)D_800337DC + (idx << 2)); // FAKE: byte-offset rgba read keeps the shared idx << 2 (array form recolours)
+                elemActor->colorG = *((u8 *)D_800337DC + (idx << 2) + 1); // FAKE: byte-offset rgba read keeps the shared idx << 2 (array form recolours)
+                elemActor->colorB = *((u8 *)D_800337DC + (idx << 2) + 2); // FAKE: byte-offset rgba read keeps the shared idx << 2 (array form recolours)
             }
             break;
         }
@@ -3450,22 +3366,13 @@ void menuUpdateElementTargetAndColor(MenuUiElemActor *elemActor, u8 *outFlag) {
 }
 
 
-typedef struct MenuA_SelectorView {
-    f32 unk0;
-    f32 unk4;
-    char pad8[4];
-    s16 unkC;
-    char padE[9];
-    s8 unk17;
-} MenuA_SelectorView;
-
 extern f32 D_8003373C[];
 extern f32 D_8003378C[];
 
-s32 menuEvaluateSelectorSpline(void *view, s32 index, f32 *outPosX, f32 *outPosY, f32 *outScale, s16 *outColor, s16 *outAlpha) {
+s32 menuEvaluateSelectorSpline(MenuScreenState *view, s32 index, f32 *outPosX, f32 *outPosY, f32 *outScale, s16 *outColor, s16 *outAlpha) {
     f32 v;
     s32 ret;
-    index += ((MenuA_SelectorView *)view)->unk17;
+    index += view->selection;
     if (index >= 5) {
         index -= 5;
     }
@@ -3476,8 +3383,8 @@ s32 menuEvaluateSelectorSpline(void *view, s32 index, f32 *outPosX, f32 *outPosY
     D_8003373C[index + 2] = -D_8003378C[index];
     D_8003378C[index + 3] = D_8003373C[1 + index];
     (&D_8003373C[index])[3] = -D_8003378C[1 + index];
-    *outPosX = menuEvaluateSpline((f32 *)((u8 *)D_8003373C + (index << 2)), ((MenuA_SelectorView *)view)->unk4, NULL);
-    *outPosY = menuEvaluateSpline((f32 *)((u8 *)D_8003378C + (index << 2)), ((MenuA_SelectorView *)view)->unk4, NULL);
+    *outPosX = menuEvaluateSpline((f32 *)((u8 *)D_8003373C + (index << 2)), view->unk4, NULL); // FAKE: byte-offset spline pointer pairs with the index << 2 spill
+    *outPosY = menuEvaluateSpline((f32 *)((u8 *)D_8003378C + (index << 2)), view->unk4, NULL); // FAKE: byte-offset spline pointer pairs with the index << 2 spill
     if (*outPosY < -40.0f) {
         v = -*outPosY - 40.0f;
         if (v > 20.0f) {
@@ -3494,14 +3401,14 @@ s32 menuEvaluateSelectorSpline(void *view, s32 index, f32 *outPosX, f32 *outPosY
         *outPosY *= 1.0f - D_80033F3C;
         *outScale += D_80033F3C * 3.5f;
         if (D_80033F3C != 0.0f) {
-            *outAlpha = 0xFF - (s32)(((MenuA_SelectorView *)view)->unk0 * 255.0f);
+            *outAlpha = 0xFF - (s32)(view->unk0 * 255.0f);
             if (*outAlpha < 0) {
                 *outAlpha = 0;
             }
         }
     }
-    *outPosX *= 4.0f + (((MenuA_SelectorView *)view)->unk0 * 4.0f);
-    *outPosY *= 4.0f + (((MenuA_SelectorView *)view)->unk0 * 4.0f);
+    *outPosX *= 4.0f + (view->unk0 * 4.0f);
+    *outPosY *= 4.0f + (view->unk0 * 4.0f);
     *outPosX += 640.0f;
     *outPosY += 480.0f;
     return ret;
@@ -3521,7 +3428,7 @@ s32 menuComputeElementPosition(MenuScreenState *state, f32 baseX, f32 baseY, f32
         dist = 20.0f;
     }
     f = state->unk4;
-    idx = state->unk17;
+    idx = state->selection;
     if (t != f) {
         if (f > 0.5f) {
             idx += 1;
@@ -3565,17 +3472,17 @@ f32 menuEvaluateSpline(f32 *coeffs, f32 t, f32 *outDeriv) {
 extern s8 D_80033734;
 
 void menuActorStateDispatch(void) {
-    MenuActor *actor = gCurrentActor;
+    Actor *actor = gCurrentActor;
 
-    switch (actor->unk155) {
+    switch (actor->unk155[0]) {
     case 0:
         actorScriptStart(actor, 0x345);
-        gCurrentActor->unkE6 = 0;
-        gCurrentActor->unk155 = 1;
+        gCurrentActor->yaw = 0;
+        gCurrentActor->unk155[0] = 1;
         camStartPath(gCurrentActor, 0x13, 5);
         break;
     case 2:
-        actor->unk155++;
+        actor->unk155[0]++;
         break;
     case 4:
         if (D_80033734 == 0) {
@@ -3599,15 +3506,15 @@ void menuUpdateKioskActor(void) {
     Menu10_Sub174 *subState;
     s32 i;
 
-    subState = gCurrentActor->unk174;
+    subState = gCurrentActor->customState;
     D_8003369C += 4.5f;
     if (D_8003369C > 0.0f) {
         D_8003369C = 0.0f;
     }
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->unk155[0]) {
     case 0:
-        gCurrentActor->unkE6 = 0x800;
-        gCurrentActor->unk155 = 1;
+        gCurrentActor->yaw = 0x800;
+        gCurrentActor->unk155[0] = 1;
         actorScriptStart(gCurrentActor, 0x346);
         func_8061B650(gCamActor);
         D_8003369C = -35.0f;
@@ -3615,7 +3522,7 @@ void menuUpdateKioskActor(void) {
     case 1:
         if (D_8003369C == 0.0f) {
             actorScriptStart(gCurrentActor, 0x347);
-            gCurrentActor->unk155 = 2;
+            gCurrentActor->unk155[0] = 2;
             subState->unk23C = 0;
         }
         break;
@@ -3630,7 +3537,7 @@ void menuUpdateKioskActor(void) {
         if (*gPlayerSlots->unk298 & 0x8000) {
             if (D_800337F0 == 1) {
                 actorScriptStart(gCurrentActor, 0x348);
-                gCurrentActor->unk155 = 4;
+                gCurrentActor->unk155[0] = 4;
                 D_800337F4 = 0x3C;
             } else if (D_800337F0 == -1) {
                 sfxPlayOnFreeSlot(0x98, 0x61A8, 63.0f, 1.0f, 0, 0);
@@ -3642,7 +3549,7 @@ void menuUpdateKioskActor(void) {
         D_80033F3C = D_80033F40;
         D_800337F4 = 0;
         subState->unk23C = 0;
-        gCurrentActor->unk155 = 6;
+        gCurrentActor->unk155[0] = 6;
         break;
     case 6:
     case 7:
@@ -3670,7 +3577,7 @@ void menuUpdateKioskActor(void) {
     if (D_80033698 != 0) {
         D_80033698 -= 1;
     }
-    if (gCurrentActor->unk155 < 6) {
+    if (gCurrentActor->unk155[0] < 6) {
         if (D_8003369C > -30.0) {
             gGlobalPauseFlags |= 0x10000;
         } else {
@@ -3678,11 +3585,11 @@ void menuUpdateKioskActor(void) {
         }
     }
     D_80033738 = 0x14;
-    gCurrentActor->unk80 = -D_8003369C;
-    gPlayerSlots->unk210 = gCurrentActor->unk7C;
-    gPlayerSlots->unk214 = (D_80033678[D_80033F50] * 50.0) + (gCurrentActor->unk80 + 13.1f + D_8003369C) - 0.1;
-    gPlayerSlots->unk218 = gCurrentActor->unk84 - 50.0f;
-    gPlayerSlots->unk228 = gCurrentActor->unk7C;
+    gCurrentActor->y = -D_8003369C;
+    gPlayerSlots->unk210 = gCurrentActor->x;
+    gPlayerSlots->unk214 = (D_80033678[D_80033F50] * 50.0) + (gCurrentActor->y + 13.1f + D_8003369C) - 0.1;
+    gPlayerSlots->unk218 = gCurrentActor->z - 50.0f;
+    gPlayerSlots->unk228 = gCurrentActor->x;
     gPlayerSlots->unk22C = gPlayerSlots->unk214;
     gPlayerSlots->unk230 = 10020.0f;
     D_80754CE0 = D_80033678[D_80033F50] * 400.0f;
@@ -3704,30 +3611,30 @@ void menuUpdateKioskPodActor(void) {
     s32 pad1;
     s32 pad2;
 
-    pos = gCurrentActor->unk174;
-    if (gPrimaryPlayerActor->unk155 < 6) {
+    pos = gCurrentActor->customState;
+    if (gPrimaryPlayerActor->unk155[0] < 6) {
         if (D_80033738 == 0x14) {
             actorDespawn(gCurrentActor);
             D_80033738 += 1;
             actorSpawn(0x14D, 0xD7);
-            gSpawnedActor->unk4->unk34 = 0.14f;
-            gSpawnedActor->unk4->unk38 = 0.14f;
-            gSpawnedActor->unk4->unk3C = 0.14f;
+            gSpawnedActor->sub4->scaleX = 0.14f;
+            gSpawnedActor->sub4->scaleY = 0.14f;
+            gSpawnedActor->sub4->scaleZ = 0.14f;
         } else if (D_80033738 == 0x15) {
             actorGetNodePos(gPrimaryPlayerActor, 2, &x[0], &y[0], &z[0]);
             actorGetNodePos(gPrimaryPlayerActor, 3, &x[1], &y[1], &z[1]);
             cx = (x[0] + x[1]) * 0.5f;
             cy = y[0];
             cz = (z[0] + z[1]) * 0.5f;
-            gCurrentActor->unk7C = cx;
-            gCurrentActor->unk80 = cy;
-            gCurrentActor->unk84 = cz;
-            pos->unk0 = gCurrentActor->unk7C;
-            pos->unk4 = gCurrentActor->unk80;
-            pos->unk8 = gCurrentActor->unk84;
-            gCurrentActor->unkE6 = 0;
-            gCurrentActor->unkE8 = 0x400;
-            camProjectToScreen(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, &s[1], &s[0], 0, 1.0f, 0);
+            gCurrentActor->x = cx;
+            gCurrentActor->y = cy;
+            gCurrentActor->z = cz;
+            pos->unk0 = gCurrentActor->x;
+            pos->unk4 = gCurrentActor->y;
+            pos->unk8 = gCurrentActor->z;
+            gCurrentActor->yaw = 0;
+            gCurrentActor->roll = 0x400;
+            camProjectToScreen(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, &s[1], &s[0], 0, 1.0f, 0);
             s[0] = s[0] - 120.0f;
             if (s[0] < -35.0f) {
                 if (s[0] > -75.0f) {
@@ -3737,15 +3644,15 @@ void menuUpdateKioskPodActor(void) {
             }
         }
     } else {
-        gCurrentActor->unk7C = pos->unk0;
-        gCurrentActor->unk80 = pos->unk4 - (D_80033F3C * 19.0f);
-        gCurrentActor->unk84 = pos->unk8 - (D_80033F3C * 50.0f);
+        gCurrentActor->x = pos->unk0;
+        gCurrentActor->y = pos->unk4 - (D_80033F3C * 19.0f);
+        gCurrentActor->z = pos->unk8 - (D_80033F3C * 50.0f);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
     if (D_80033698 != 0) {
-        gCurrentActor->unk60 &= ~4;
+        gCurrentActor->flags &= ~4;
     } else {
-        gCurrentActor->unk60 |= 4;
+        gCurrentActor->flags |= 4;
     }
 }
 
