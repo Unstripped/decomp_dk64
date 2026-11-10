@@ -38,17 +38,6 @@ extern s16 gCurrentCharacterIndex;
 extern s32 gCurrentMap;
 extern u8 gPlayerCharacterId[];
 
-typedef struct F5ModelState {
-    u8 pad0[4];
-    f32 frame;
-    u8 pad8[8];
-    s16 animIndex;
-    u8 pad12[0x12];
-    f32 animSpeed;
-} F5ModelState;
-
-#define F5_MODEL(actor) ((F5ModelState *)(actor)->sub4->model)
-
 void playerKongStopAudioChannels(Actor *actor, u16 actorType) {
     switch (actorType) {
     case 0xC5:
@@ -366,7 +355,7 @@ void playerKongCalculateHealthScale(Actor *actor) {
 
     scriptReadU32(&limit);
     scriptReadU8(&amount);
-    base = F5_MODEL(actor)->frame;
+    base = actor->sub4->model->frame;
     actor->sub4->scriptResult = 0;
     if ((actor->contactFlags & 2) && ((actor->waterY - actor->floorY) > 12.0f)) {
         high = (actor->waterY < actor->floorY) ? actor->floorY : actor->waterY;
@@ -386,7 +375,7 @@ void playerKongCalculateHealthScale(Actor *actor) {
     if (ratio < 0.0f) {
         ratio = 0.01f;
     }
-    den = (F5_MODEL(actor)->animSpeed < 0.01) ? 0.01 : F5_MODEL(actor)->animSpeed;
+    den = (actor->sub4->model->speed < 0.01) ? 0.01 : actor->sub4->model->speed;
     ratio = ratio / den;
     if (limit < ratio) {
         ratio = limit;
@@ -669,7 +658,7 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
             state->holdTimer -= 1;
         }
     } else {
-        s16 idx = F5_MODEL(actor)->animIndex;
+        s16 idx = actor->sub4->model->animId;
 
         if (idx >= 0) {
             newvel = D_80752CBF[idx];
@@ -779,8 +768,8 @@ void playerWeaponInitCrosshair(Actor *actor, BoneRotation *slots, s32 *count) {
         fs2 = y - state->prevY;
         dz = fs2 - state->prevVelY;
         fs0 = state->prevAngle - (f32) actor->yaw;
-        if (F5_MODEL(actor)->animIndex >= 0) {
-            target = (f32) D_80752D4E[F5_MODEL(actor)->animIndex];
+        if (actor->sub4->model->animId >= 0) {
+            target = (f32) D_80752D4E[actor->sub4->model->animId];
         } else {
             target = -128.0f;
         }
@@ -1082,7 +1071,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
             switch (actor->state) {
             case 0x26:
                 if (actor->unk155 != 0) {
-                    t = F5_MODEL(actor)->frame;
+                    t = actor->sub4->model->frame;
                     if (t < 6.0f) {
                         v = 0.0f;
                     } else {
@@ -1093,7 +1082,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
                 }
                 break;
             case 0x27: {
-                t = F5_MODEL(actor)->frame;
+                t = actor->sub4->model->frame;
                 if (t < 6.0f) {
                     v = 0.0f;
                 } else {
@@ -1104,7 +1093,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
                 break;
             }
             case 0x28: {
-                t = F5_MODEL(actor)->frame;
+                t = actor->sub4->model->frame;
                 if (t < 7.0f) {
                     v = 0.0f;
                 } else {
@@ -1116,7 +1105,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
                 break;
             }
             case 0x29: {
-                t = F5_MODEL(actor)->frame;
+                t = actor->sub4->model->frame;
                 if (t < 4.0f) {
                     v = 0.0f;
                 } else {

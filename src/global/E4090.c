@@ -188,13 +188,6 @@ typedef struct PlayerButtonState {
 
 extern PlayerButtonState D_807FD63A[]; // gPlayerPadState[].heldButtons
 
-typedef struct PadStickSlot {
-    /* 0x00 */ s8 value;
-    /* 0x01 */ u8 pad1[0x33];
-} PadStickSlot; // one PadInputState stride, based at a stick byte
-
-extern PadStickSlot D_807FD63E[]; // gPlayerPadState[].stickX
-extern PadStickSlot D_807FD63F[]; // gPlayerPadState[].stickY
 
 
 typedef struct PlayerInputHandlers {
@@ -425,15 +418,6 @@ void playerUpdateMoveTargetFromStick(void) {
     gActivePlayerState->targetYaw = gCurrentActor->yaw;
 }
 
-typedef struct AnimModelView { // ActorSub4.model as seen by the animation controller
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ u8 pad8[8];
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ u8 pad12[0x12];
-    /* 0x24 */ f32 unk24;
-} AnimModelView;
-
 
 void playerInputUpdateStickFacingYaw(void) {
     f32 dist;
@@ -630,7 +614,7 @@ void playerInputUpdateMoveTargetClamped(void) {
     if (dist > 1.0f) {} // FAKE: keeps the scaled dist chain alive (Q0200)
     mathAngleStepToward(&gCurrentActor->yaw, moveYaw, gActivePlayerState->turnRate / 4);
     if (gCurrentActor->state != 0x14) {
-        if (gCurrentActor->state == 0xF && (((AnimModelView *)gCurrentActor->sub4->model)->unk10 == 0x1F2 || ((AnimModelView *)gCurrentActor->sub4->model)->unk10 == 0x1B3)) {
+        if (gCurrentActor->state == 0xF && (gCurrentActor->sub4->model->animId == 0x1F2 || gCurrentActor->sub4->model->animId == 0x1B3)) {
             pad = &gPlayerPadState[gCurrentPlayerIndex];
             if (pad->stickX < -0x1E) {
                 actorScriptStartByIndex(gCurrentActor, 0x61);
@@ -913,7 +897,6 @@ void playerInputNoop(void) {
 }
 
 
-extern u32 D_80767CC0;
 extern SchedStruct gScheduler;
 extern f32 gKongTurnDecelRates[];
 extern f32 gKongCannonInitialPitch[];
@@ -921,11 +904,11 @@ extern f32 D_807535CC[];
 
 void playerInputCheckBButton(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
     gCurrentActor->roll = 0;
     gCurrentActor->pitch = 0;
-    if ((D_80767CC0 - gActivePlayerState->jumpTimer < 0xF) && (gActivePlayerState->unkC8 == -1)) {
+    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (gActivePlayerState->unkC8 == -1)) {
         if (gCurrentActor->floorSlopeFactor != 0.0f) {
             gCurrentActor->moveYaw = gCurrentActor->floorSlopeYaw;
             gCurrentActor->speedXZ = 200.0f;
@@ -942,15 +925,15 @@ void playerInputCheckBButton(void) {
         gCurrentActor->unk155 = 0;
         gActivePlayerState->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x10);
-        gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
 }
 
 void playerInputHandleAButtonState0(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if ((D_80767CC0 - gActivePlayerState->jumpTimer < 0xF) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
+    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
         gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex];
         gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
         gCurrentActor->state = 0x17;
@@ -958,7 +941,7 @@ void playerInputHandleAButtonState0(void) {
         gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
         gActivePlayerState->unk50 = 0;
         actorScriptStart(gCurrentActor, 0xB0);
-        gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
 }
 
@@ -966,9 +949,9 @@ void playerInputHandleAButtonJump(void) {
     f32 speed;
 
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if ((D_80767CC0 - gActivePlayerState->jumpTimer < 0xF) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
+    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
         gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex];
         if (gActivePlayerState->targetSpeed > (speed = gCurrentActor->speedXZ)) {
             gCurrentActor->speedXZ = speed;
@@ -982,31 +965,31 @@ void playerInputHandleAButtonJump(void) {
         gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
         gActivePlayerState->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x10);
-        gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
         if (!gActivePlayerState->targetSpeed) {} // FAKE: dead test, steers uopt candidate priority
     }
 }
 
 void playerInputHandleAButtonState17(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if ((D_80767CC0 - gActivePlayerState->jumpTimer < 0xF) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
+    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
         gCurrentActor->state = 0x17;
         gCurrentActor->unk155 = 0;
         gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
         gActivePlayerState->unk50 = 0;
         actorScriptStart(gCurrentActor, 0xAF);
-        gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
 }
 
 
 void playerInputHandleAButtonGravity(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if (D_80767CC0 - gActivePlayerState->jumpTimer < 0xF) {
+    if (gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) {
         if (gCurrentActor->accelY == -260.0f) {
             gCurrentActor->accelY = -31.0f;
         } else {
@@ -1017,21 +1000,21 @@ void playerInputHandleAButtonGravity(void) {
         gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
         gActivePlayerState->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x67);
-        gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
 }
 
 void playerInputHandleAButtonState41(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if ((D_80767CC0 - gActivePlayerState->jumpTimer < 0xF) && (gActivePlayerState->hitStatus == 0)) {
+    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (gActivePlayerState->hitStatus == 0)) {
         gCurrentActor->state = 0x41;
         gCurrentActor->unk155 = 0;
         gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
         gActivePlayerState->unk50 = 0;
         actorScriptStart(gCurrentActor, 0x156);
-        gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
 }
 
@@ -1041,21 +1024,21 @@ extern u8 D_807FCA6A[];
 void playerInputCheckBButtonChargeCallback(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) && (D_807FCA6A[gCurrentPlayerIndex * 0x306] >= 2) && (gCurrentMap != 0xE)) {
         playerStateQueueCallback(9, 0, gCurrentPlayerIndex);
-        gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
 }
 
 void playerInputHandleAButtonState61(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if ((D_80767CC0 - gActivePlayerState->jumpTimer < 0xF) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
+    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
         gCurrentActor->state = 0x61;
         gCurrentActor->unk155 = 0;
         gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
         gActivePlayerState->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x50);
-        gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
 }
 
@@ -1373,9 +1356,9 @@ extern f32 D_8075378C[];
 
 void playerInputHandleAButtonKong(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if ((D_80767CC0 - gActivePlayerState->jumpTimer < 0xF) && (gPlayerCharacterId[gCurrentPlayerIndex] != 6) &&
+    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (gPlayerCharacterId[gCurrentPlayerIndex] != 6) &&
         (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
         if (gActivePlayerState->unk20 > 70.0f) {
             gCurrentActor->state = 0x1D;
@@ -1384,7 +1367,7 @@ void playerInputHandleAButtonKong(void) {
             gActivePlayerState->unk50 = 0;
             actorScriptStartByIndex(gCurrentActor, 0x1A);
             if (!gCurrentActor) {} // FAKE: dead test, steers uopt candidate priority
-            gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+            gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
             return;
         }
         gCurrentActor->state = 0x3E;
@@ -1392,7 +1375,7 @@ void playerInputHandleAButtonKong(void) {
         gActivePlayerState->jumpVelocityY = D_8075371C[gCurrentCharacterIndex];
         gActivePlayerState->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0xE);
-        gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
 }
 
@@ -1401,9 +1384,9 @@ void playerInputHandleAButtonKong(void) {
 
 void playerInputHandleAButtonSub17(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if (((D_80767CC0 - gActivePlayerState->jumpTimer) < 0xF) && (gCurrentActor->state == 0x17) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
+    if (((gScheduler.unk280 - gActivePlayerState->jumpTimer) < 0xF) && (gCurrentActor->state == 0x17) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
         gCurrentActor->state = 0x17;
         gCurrentActor->unk155 = 0;
         gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
@@ -1415,9 +1398,9 @@ void playerInputHandleAButtonSub17(void) {
 
 void playerInputHandleAButtonSub61(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if (((D_80767CC0 - gActivePlayerState->jumpTimer) < 0xF) && (gCurrentActor->state == 0x61) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
+    if (((gScheduler.unk280 - gActivePlayerState->jumpTimer) < 0xF) && (gCurrentActor->state == 0x61) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
         gCurrentActor->state = 0x61;
         gCurrentActor->unk155 = 0;
         gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
@@ -1467,15 +1450,15 @@ void playerInputInitCannonLaunch(void) {
 
 void playerInputHandleAButtonSub5A(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if ((D_80767CC0 - gActivePlayerState->jumpTimer) < 0xF) {
+    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer) < 0xF) {
         gCurrentActor->state = 0x5A;
         gCurrentActor->unk155 = 0;
         gActivePlayerState->approachTimer = 0;
         gActivePlayerState->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x74);
-        gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
 }
 
@@ -1488,9 +1471,9 @@ void playerInputUpdateCannonAim(void) {
         if (!gCurrentActor && !gCurrentActor) {} // FAKE: dead test, steers uopt candidate priority
     } while (0);
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if ((D_80767CC0 - gActivePlayerState->jumpTimer) < 0xF) {
+    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer) < 0xF) {
         p = gCurrentActor;
         p->state = 0x4C;
         gCurrentActor->unk155 = 0;
@@ -1512,7 +1495,7 @@ void playerInputUpdateCannonAim(void) {
                 actorScriptStartByIndex(gCurrentActor, 0x30);
                 break;
         }
-        gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
 }
 
@@ -1739,7 +1722,6 @@ void playerInputHandlerStartScript15(void) {
 
 
 
-extern u8 D_807FBB8C;
 extern f32 D_807531E0[];
 extern f32 D_8075318C[];
 extern f32 D_807534B8[];
@@ -1757,9 +1739,9 @@ void playerInputHandleBButtonGun(void) {
     PadInputState *pad;
 
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
-        gActivePlayerState->jumpStartTime = D_80767CC0;
+        gActivePlayerState->jumpStartTime = gScheduler.unk280;
     }
-    if (D_807FBB8C && (flagGet(0x185, 0) || (gGlobalOverlayFlags & 0x10000000) || (gPlayerCount >= 2) ||
+    if (gActorGlobalState.unk1C && (flagGet(0x185, 0) || (gGlobalOverlayFlags & 0x10000000) || (gPlayerCount >= 2) ||
                        menuIsTransitionTypeC())) {
         playerStateQueueCallback(3, 0, gCurrentPlayerIndex);
         return;
@@ -1825,7 +1807,7 @@ void playerInputHandleBButtonPunch(void) {
     f32 w;
 
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
-        gActivePlayerState->jumpStartTime = D_80767CC0;
+        gActivePlayerState->jumpStartTime = gScheduler.unk280;
     }
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
         v = gCurrentActor->distToFloor;
@@ -1978,7 +1960,7 @@ void playerInputHandleZButtonFire(void) {
         sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x21, 0x19);
     }
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) {
-        if (D_80767CC0 - gActivePlayerState->unk60 < 0xF) {
+        if (gScheduler.unk280 - gActivePlayerState->unk60 < 0xF) {
             if (gActivePlayerState->gunDrawn) {
                 playerPlayKongSpecificSfx(gCurrentActor);
             }
@@ -1989,7 +1971,7 @@ void playerInputHandleZButtonFire(void) {
                    (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1)) {
             playerToggleGun(gCurrentActor, gActivePlayerState, 1);
         }
-        gActivePlayerState->unk60 = D_80767CC0;
+        gActivePlayerState->unk60 = gScheduler.unk280;
     }
 }
 
@@ -1999,7 +1981,7 @@ void playerInputHandleZButtonShoot(void) {
         sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x21, 0x19);
     }
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) {
-        if (D_80767CC0 - gActivePlayerState->unk60 < 0xF) {
+        if (gScheduler.unk280 - gActivePlayerState->unk60 < 0xF) {
             if (gActivePlayerState->gunDrawn) {
                 playerPlayKongSpecificSfx(gCurrentActor);
             }
@@ -2010,7 +1992,7 @@ void playerInputHandleZButtonShoot(void) {
             playerToggleGun(gCurrentActor, gActivePlayerState, 1);
             gPlayerSlots[gCurrentPlayerIndex].fov = 45.0f;
         }
-        gActivePlayerState->unk60 = D_80767CC0;
+        gActivePlayerState->unk60 = gScheduler.unk280;
     }
 }
 
@@ -2391,13 +2373,13 @@ extern s16 D_80753B44[];
 
 void playerInputRecordAPress(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
 }
 
 void playerInputRecordBPress(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
-        gActivePlayerState->jumpStartTime = D_80767CC0;
+        gActivePlayerState->jumpStartTime = gScheduler.unk280;
     }
 }
 
@@ -2559,9 +2541,9 @@ void playerInputCalculateTurnStep(void) {
 
 void playerInputHandleAButtonJumpQueue(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if (D_80767CC0 - gActivePlayerState->jumpTimer < 0xF) {
+    if (gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) {
         playerStateQueueCallback(1, 0, gCurrentPlayerIndex);
     }
 }
@@ -2579,7 +2561,7 @@ void playerInputCheckAButtonScriptTrigger(void) {
     if (!(gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000) && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000)) {
         actorScriptStartByIndex(gCurrentActor, 0x37);
         gCurrentActor->unk155 = 4;
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
 }
 
@@ -2587,12 +2569,12 @@ void playerInputHandleBButtonDiveAttack(void) {
     if (!(gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000)) {
         actorScriptStartByIndex(gCurrentActor, 0x37);
         gCurrentActor->unk155 = 4;
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
 }
 
 void playerInputHandleBButtonRollingAttack(void) {
-    gActivePlayerState->jumpTimer = D_80767CC0;
+    gActivePlayerState->jumpTimer = gScheduler.unk280;
     scriptSetActorRampTarget(gCurrentActor, 2.0f, 0.0f);
     actorScriptStartByIndex(gCurrentActor, 0x38);
     gCurrentActor->unk155 = 7;
@@ -2619,7 +2601,7 @@ void playerInputHandleBButtonComboPunch(void) {
                 gActivePlayerState->targetSpeed = D_80753AA8[gCurrentCharacterIndex];
             }
             gActivePlayerState->actionTimer = D_80753A98[gCurrentCharacterIndex];
-            gActivePlayerState->jumpStartTime = D_80767CC0;
+            gActivePlayerState->jumpStartTime = gScheduler.unk280;
         } else if (!(gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000)) {
             gActivePlayerState->subTimer = gCurrentActor->roll;
             gActivePlayerState->pitchAngle = gCurrentActor->yaw;
@@ -2642,7 +2624,7 @@ void playerInputHandleBButtonAttack(void) {
             gActivePlayerState->targetSpeed = D_80753AA8[gCurrentCharacterIndex];
         }
         gActivePlayerState->actionTimer = D_80753A98[gCurrentCharacterIndex];
-        gActivePlayerState->jumpStartTime = D_80767CC0;
+        gActivePlayerState->jumpStartTime = gScheduler.unk280;
     }
 }
 
@@ -2677,7 +2659,7 @@ void playerInputHandleAButtonSuperJump(void) {
             gActivePlayerState->targetSpeed = 250.0f;
         }
         gActivePlayerState->actionTimer = 0xF;
-        gActivePlayerState->jumpStartTime = D_80767CC0;
+        gActivePlayerState->jumpStartTime = gScheduler.unk280;
         return;
     }
     if (!(btn & 0x4000)) {
@@ -2704,7 +2686,7 @@ void playerInputHandleAButtonSuperJump2(void) {
             gActivePlayerState->targetSpeed = 250.0f;
         }
         gActivePlayerState->actionTimer = 0xF;
-        gActivePlayerState->jumpStartTime = D_80767CC0;
+        gActivePlayerState->jumpStartTime = gScheduler.unk280;
     }
 }
 
@@ -2717,7 +2699,7 @@ void playerInputHandleBButtonDashAttack(void) {
         actorScriptStartByIndex(gCurrentActor, 0x36);
         gCurrentActor->unk155 = 3;
         gActivePlayerState->actionTimer = D_80753A98[gCurrentCharacterIndex];
-        gActivePlayerState->jumpStartTime = D_80767CC0;
+        gActivePlayerState->jumpStartTime = gScheduler.unk280;
     }
 }
 
@@ -2786,12 +2768,12 @@ void playerInputHandleLadderClimb(void) {
         pad = &gPlayerPadState[gCurrentPlayerIndex];
         if (!(pad->heldButtons & 0x10)) {
             stick = pad->stickX;
-            if (stick < -0x1E && ((AnimModelView *)gCurrentActor->sub4->model)->unk10 != 0xFB) {
+            if (stick < -0x1E && gCurrentActor->sub4->model->animId != 0xFB) {
                 actorScriptStartByIndex(gCurrentActor, 0x81);
                 gCurrentActor->state = 0xA;
                 gCurrentActor->unk155 = 0;
                 st->unk42 = 1;
-            } else if (stick >= 0x1F && ((AnimModelView *)gCurrentActor->sub4->model)->unk10 != 0xFF) {
+            } else if (stick >= 0x1F && gCurrentActor->sub4->model->animId != 0xFF) {
                 actorScriptStartByIndex(gCurrentActor, 0x7D);
                 gCurrentActor->state = 0xB;
                 gCurrentActor->unk155 = 0;
@@ -2842,7 +2824,7 @@ void playerInputStepLadderClimb(void) {
 
     st = gActivePlayerState->actor->customState;
     if (st->unk0 != 0) {
-        D_807FD63E[gCurrentPlayerIndex].value = 0;
+        gPlayerPadState[gCurrentPlayerIndex].stickX = 0;
     }
     playerInputHandleLadderClimb();
     if (gPlayerPadState) {} // FAKE: keeps &gPlayerPadState live (const-hoist register order)
@@ -2864,7 +2846,7 @@ void playerInputCheckLadderTopOrBottom(void) {
 
     st = gActivePlayerState->actor->customState;
     if (st->unk0 != 0) {
-        D_807FD63E[gCurrentPlayerIndex].value = 0;
+        gPlayerPadState[gCurrentPlayerIndex].stickX = 0;
     } else {
         flag = (gActivePlayerState->actor->state == 5) ? 1 : 0;
         n = (*st->unk34 & 0x80) ? 1 : 3;
@@ -2910,7 +2892,7 @@ void playerInputCheckLadderTopOrBottom(void) {
         gActivePlayerState->actor->speedXZ = 3.0f;
         return;
     }
-    st->unk3E = (D_807FD63F[gCurrentPlayerIndex].value / 1.5) + 80.0;
+    st->unk3E = (gPlayerPadState[gCurrentPlayerIndex].stickY / 1.5) + 80.0;
 }
 
 typedef struct G29Obj178 {
@@ -3036,22 +3018,22 @@ void playerInputSetClimbTimer50(void) {
 }
 
 void func_806E854C(G29State *st, s32 idleAnim, s32 moveAnim) {
-    AnimModelView *sub;
+    AnimSlot *sub;
     s32 n;
     f32 f;
     f32 h;
     f32 cur;
 
     sub = gActivePlayerActor->sub4->model;
-    if (moveAnim != sub->unk10) {
-        if (idleAnim == sub->unk10) {
+    if (moveAnim != sub->animId) {
+        if (idleAnim == sub->animId) {
             controllerAnimSetStateIfChanged(gActivePlayerActor, moveAnim, 0.0f, 5.0f);
             return;
         }
-        if (((AnimModelView *)gCurrentActor->sub4->model)->unk24 >= 0.0f && sub->unk4 > 0.0f) {
+        if (gCurrentActor->sub4->model->speed >= 0.0f && sub->frame > 0.0f) {
             scriptSetRampValue(gActivePlayerActor, -1.0f, 0.0f);
         }
-        if (((AnimModelView *)gCurrentActor->sub4->model)->unk4 == 0.0f) {
+        if (gCurrentActor->sub4->model->frame == 0.0f) {
             controllerAnimSetStateIfChanged(gActivePlayerActor, moveAnim, 0.0f, 5.0f);
         }
     } else {
@@ -3059,7 +3041,7 @@ void func_806E854C(G29State *st, s32 idleAnim, s32 moveAnim) {
         f = (cur > 0.0f) ? cur : -cur;
         h = f - 0.2f;
         n = st->unk10 > 1.0 ? 8 : 5;
-        cur = sub->unk4;
+        cur = sub->frame;
         f = n * h * 1.25f;
         if (f - 1.0f <= cur && cur <= f + 1.0f) {
             n = 0;
@@ -3154,12 +3136,12 @@ void playerInputPlayHeldActorClimbSfx(void) {
         st = a->unk174;
         func_806E8724(a, st);
         if (camIsCutsceneActive() == 0 && gActivePlayerActor->sub4->animId != 0x3B5) {
-            if (st->unkC < 0.2f && st->unkC > -0.2f && idleAnim != ((AnimModelView *)gActivePlayerActor->sub4->model)->unk10) {
-                if (((AnimModelView *)gActivePlayerActor->sub4->model)->unk24 >= 0.0f && ((AnimModelView *)gActivePlayerActor->sub4->model)->unk4 > 0.0f) {
+            if (st->unkC < 0.2f && st->unkC > -0.2f && idleAnim != gActivePlayerActor->sub4->model->animId) {
+                if (gActivePlayerActor->sub4->model->speed >= 0.0f && gActivePlayerActor->sub4->model->frame > 0.0f) {
                     scriptSetRampValue(gActivePlayerActor, -1.0f, 5.0f);
                     return;
                 }
-                if (((AnimModelView *)gCurrentActor->sub4->model)->unk4 == 0.0f) {
+                if (gCurrentActor->sub4->model->frame == 0.0f) {
                     controllerAnimSetStateIfChanged(gActivePlayerActor, idleAnim, 0.0f, 5.0f);
                 }
             } else {
@@ -3257,7 +3239,7 @@ void func_806E8C2C(void) {
 
     a = ((G29Act *)gActivePlayerState->actor);
     if (a != NULL) {
-        if (((AnimModelView *)gActivePlayerActor->sub4->model)->unk10 != 0x22A) {
+        if (gActivePlayerActor->sub4->model->animId != 0x22A) {
             controllerAnimSetStateIfChanged(gActivePlayerActor, 0x22A, 0.0f, 0.0f);
         }
         if (a->unk174->unk45 == 0 && a->unk174->unk30->state == 2) {
@@ -3357,15 +3339,15 @@ void func_806E8F04(void) {
 
 void func_806E8F68(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) && !(gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x10)) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if (D_80767CC0 - gActivePlayerState->jumpTimer < 0xF) {
+    if (gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) {
         gCurrentActor->state = 9;
         gCurrentActor->unk155 = 0;
         gActivePlayerState->jumpVelocityY = D_807537E0[gCurrentCharacterIndex];
         gActivePlayerState->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x7C);
-        gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
 }
 
@@ -3915,15 +3897,15 @@ void func_806EACBC(void) {
 
 void func_806EACEC(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = D_80767CC0;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
     if (gCurrentActor->contactFlags & 1) {
-        if ((D_80767CC0 - gActivePlayerState->jumpTimer) < 0xF) {
+        if ((gScheduler.unk280 - gActivePlayerState->jumpTimer) < 0xF) {
             playerSetTerminalVelocity5B0();
             gCurrentActor->speedY = D_807535CC[gCurrentCharacterIndex];
             gActivePlayerState->unk50 = 0;
             gActivePlayerState->airTimer = 0;
-            gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+            gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x309, 0xFF, 0x7F, 0);
         }
     }

@@ -26,11 +26,6 @@ extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
 extern void *gPlayerSlots;
 
-typedef struct D1S10 {
-    /* 0x00 */ u8 pad0[0x10];
-    /* 0x10 */ s16 unk10;
-} D1S10;
-
 typedef struct D1S174 {
     /* 0x000 */ u8 pad0[0x1F0];
     /* 0x1F0 */ u32 unk1F0;
@@ -41,7 +36,6 @@ typedef struct D1S174 {
 
 extern u8 gGameMode;
 extern s32 gCurrentMap;
-extern u8 D_807FBB85;
 
 void behaviourFrameBegin(void) {
     gBehaviourWorkState = gCurrentActor->customState;
@@ -51,7 +45,7 @@ void behaviourFrameBegin(void) {
     gBehaviourWorkState->stepCount++;
     if (gCurrentActor->flags & 0x20000000) {
         if (gCurrentActor->state != 0x37 && gCurrentActor->state != 0x36) {
-            if (((D1S10 *)gBehaviourTargetActor->sub4->model)->unk10 != gBehaviourWorkState->unk16) {
+            if (gBehaviourTargetActor->sub4->model->animId != gBehaviourWorkState->unk16) {
                 gCurrentActor->flags &= ~0x20000000;
             }
         }
@@ -92,7 +86,7 @@ void behaviourFrameBegin(void) {
                     sfxStopSlotSound(gCurrentActor, 0);
                     gCurrentActor->state = 0;
                     gCurrentActor->unk155 = 0;
-                    D_807FBB85 = 1;
+                    gActorGlobalState.unk15 = 1;
                 }
             }
         }
@@ -618,7 +612,7 @@ void behaviourUpdateContactAndState(s32 arg0) {
             break;
         case 0x3A:
             if (gCurrentActor->unk155 == 0) {
-                if (D_807FBB85 == 0) {
+                if (gActorGlobalState.unk15 == 0) {
                     scriptSetActorRampTarget(gCurrentActor, 0.0f, 8.0f);
                     actorSetTargetSpeed(gCurrentActor, 0);
                 }
@@ -1130,10 +1124,9 @@ void behaviourSpawnPuffParticle(void) {
     effectCreateAtPosition(&D_8071FB34, 0.55f, gCurrentActor->x, gCurrentActor->y + gCurrentActor->eyeHeight * 0.5, gCurrentActor->z);
 }
 
-extern Actor *D_807FBD6C;
 
 void sfxPlayAtFBD6CPosition(void) {
-    effectCreateAtPosition(&D_8071FB34, 0.55f, D_807FBD6C->x, D_807FBD6C->y, D_807FBD6C->z);
+    effectCreateAtPosition(&D_8071FB34, 0.55f, gActorGlobalState.targetActor->x, gActorGlobalState.targetActor->y, gActorGlobalState.targetActor->z);
 }
 
 extern u8 D_8071FF18;
@@ -1223,7 +1216,7 @@ void behaviourSpawnExplosionAndSound(void *scriptId, u8 state, Actor *attacker) 
         actorSetBehaviourState(state, 0, scriptId);
     }
     if (attacker == gBehaviourTargetActor) {
-        gBehaviourWorkState->unk16 = ((D1S10 *)gBehaviourTargetActor->sub4->model)->unk10;
+        gBehaviourWorkState->unk16 = gBehaviourTargetActor->sub4->model->animId;
         gCurrentActor->flags |= 0x20000000;
     }
 }
