@@ -37,55 +37,63 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
 
-typedef struct R1C46aActor {
-    /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ ActorSub4 *sub4;
-    /* 0x008 */ u8 pad8[0x52];
-    /* 0x05A */ u16 unk5A;
-    /* 0x05C */ u8 pad5C[4];
-    /* 0x060 */ u32 unk60;
-    /* 0x064 */ u8 pad64[6];
-    /* 0x06A */ u16 unk6A;
-    /* 0x06C */ u8 pad6C[0x10];
-    /* 0x07C */ f32 unk7C;
-    /* 0x080 */ f32 unk80;
-    /* 0x084 */ f32 unk84;
-    /* 0x088 */ u8 pad88[0x30];
-    /* 0x0B8 */ f32 unkB8;
-    /* 0x0BC */ u8 padBC[4];
-    /* 0x0C0 */ f32 unkC0;
-    /* 0x0C4 */ f32 unkC4;
-    /* 0x0C8 */ f32 unkC8;
-    /* 0x0CC */ u8 unkCC;
-    /* 0x0CD */ u8 padCD[0x19];
-    /* 0x0E6 */ s16 unkE6;
-    /* 0x0E8 */ u8 padE8[0x34];
-    /* 0x11C */ struct R1C46aActor *unk11C;
-    /* 0x120 */ u8 pad120[0x20];
-    /* 0x140 */ ActorSub140 *unk140;
-    /* 0x144 */ u8 pad144[2];
-    /* 0x146 */ s16 unk146;
-    /* 0x148 */ u8 pad148[0xC];
-    /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 unk155;
-    /* 0x156 */ u8 pad156[0x22];
-    /* 0x178 */ void *unk178;
-    /* 0x17C */ u16 *unk17C;
-} R1C46aActor;
+typedef struct ScriptedActorState {
+    /* 0x00 */ u16 unk0;
+    /* 0x02 */ s16 yawFrom;
+    /* 0x04 */ s16 yawTo;
+    /* 0x06 */ s16 pitchFrom;
+    /* 0x08 */ s16 pitchTo;
+    /* 0x0A */ s16 rollFrom;
+    /* 0x0C */ s16 rollTo;
+    /* 0x0E */ s16 zoneTo;
+    /* 0x10 */ s16 zoneFrom;
+    /* 0x12 */ u8 pad12[2];
+    /* 0x14 */ f32 scaleFrom;
+    /* 0x18 */ s16 unk18;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ u16 lerpSteps;
+    /* 0x1E */ u16 lerpTimer;
+    /* 0x20 */ u8 pad20[2];
+    /* 0x22 */ u8 particleScalePct;
+    /* 0x23 */ u8 yawSteps;
+    /* 0x24 */ u8 yawTimer;
+    /* 0x25 */ u8 pitchSteps;
+    /* 0x26 */ u8 pitchTimer;
+    /* 0x27 */ u8 rollSteps;
+    /* 0x28 */ u8 rollTimer;
+    /* 0x29 */ u8 scaleSteps;
+    /* 0x2A */ u8 scaleTimer;
+    /* 0x2B */ u8 pad2B;
+    /* 0x2C */ u8 unk2C;
+    /* 0x2D */ u8 pathId;
+    /* 0x2E */ u8 pathSpeed;
+    /* 0x2F */ u8 pathPlayback;
+    /* 0x30 */ u8 particlePath;
+    /* 0x31 */ u8 particleCount;
+    /* 0x32 */ u8 particleColor;
+    /* 0x33 */ u8 particleSprite;
+} ScriptedActorState;
 
-#define R1V ((R1C46aActor *)gCurrentActor)
+typedef struct C4620Actor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ void *unk178;
+    /* 0x17C */ ScriptedActorState *unk17C;
+} C4620Actor;
+
+#define C46V ((C4620Actor *)gCurrentActor)
+
 
 
 void func_806BF920(void) {
-    u16 *state;
+    ScriptedActorState *state;
     s32 outCount;
     s32 bufferSize;
 
-    state = R1V->unk17C;
+    state = C46V->unk17C;
     outCount = 0;
-    if (!(R1V->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         bufferSize = 0;
-        switch (*state) {
+        switch (state->unk0) {
             case 1:
             case 2:
             case 3:
@@ -102,28 +110,28 @@ void func_806BF920(void) {
                 break;
         }
         if (bufferSize != 0) {
-            R1V->sub4->boneRotations = heapAlloc(0x100);
-            func_806C8220(0, R1V->unk178, bufferSize);
+            gCurrentActor->sub4->boneRotations = heapAlloc(0x100);
+            func_806C8220(0, C46V->unk178, bufferSize);
         }
     }
-    switch (*state) {
+    switch (state->unk0) {
         case 1:
         case 2:
         case 3:
-            playerWeaponInitCrosshair(gCurrentActor, R1V->sub4->boneRotations, &outCount);
+            playerWeaponInitCrosshair(gCurrentActor, gCurrentActor->sub4->boneRotations, &outCount);
             break;
         case 9:
         case 10:
         case 11:
-            playerWeaponSpawnProjectile(gCurrentActor, R1V->sub4->boneRotations, &outCount);
+            playerWeaponSpawnProjectile(gCurrentActor, gCurrentActor->sub4->boneRotations, &outCount);
             break;
         case 4:
         case 5:
-            playerWeaponAimTarget(gCurrentActor, R1V->sub4->boneRotations, &outCount);
+            playerWeaponAimTarget(gCurrentActor, gCurrentActor->sub4->boneRotations, &outCount);
             break;
     }
     if (outCount != 0) {
-        R1V->sub4->boneRotations[outCount].weight = 0;
+        gCurrentActor->sub4->boneRotations[outCount].weight = 0;
     }
 }
 
@@ -135,7 +143,7 @@ void func_806BFA8C(u16 animId) {
         case 0x23F:
         case 0x240:
         case 0x4C7:
-            R1V->unk155 = 1;
+            gCurrentActor->unk155 = 1;
             break;
         case 0x112:
             playerKongPlaySoundByState(gCurrentActor);
@@ -169,83 +177,15 @@ void func_806BFBB4(void) {
     actorCheckWorldBounds(gCurrentActor);
 }
 
-typedef struct LgBFState {
-    /* 0x00 */ u16 unk0;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ s16 unk6;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ u8 pad12[2];
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ s16 unk18;
-    /* 0x1A */ s16 unk1A;
-    /* 0x1C */ u16 unk1C;
-    /* 0x1E */ u16 unk1E;
-    /* 0x20 */ u8 pad20[2];
-    /* 0x22 */ u8 unk22;
-    /* 0x23 */ u8 unk23;
-    /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 unk25;
-    /* 0x26 */ u8 unk26;
-    /* 0x27 */ u8 unk27;
-    /* 0x28 */ u8 unk28;
-    /* 0x29 */ u8 unk29;
-    /* 0x2A */ u8 unk2A;
-    /* 0x2B */ u8 pad2B[2];
-    /* 0x2D */ u8 unk2D;
-    /* 0x2E */ u8 unk2E;
-    /* 0x2F */ u8 unk2F;
-    /* 0x30 */ u8 unk30;
-    /* 0x31 */ u8 unk31;
-    /* 0x32 */ u8 unk32;
-    /* 0x33 */ u8 unk33;
-} LgBFState;
 
-typedef struct LgBFActor {
-    /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ ActorSub4 *sub4;
-    /* 0x008 */ u8 pad8[0x58];
-    /* 0x060 */ u32 unk60;
-    /* 0x064 */ u8 pad64[0x18];
-    /* 0x07C */ f32 unk7C;
-    /* 0x080 */ f32 unk80;
-    /* 0x084 */ f32 unk84;
-    /* 0x088 */ u8 pad88[0x30];
-    /* 0x0B8 */ f32 unkB8;
-    /* 0x0BC */ u8 padBC[4];
-    /* 0x0C0 */ f32 unkC0;
-    /* 0x0C4 */ f32 unkC4;
-    /* 0x0C8 */ u8 padC8[0x1C];
-    /* 0x0E4 */ s16 unkE4;
-    /* 0x0E6 */ s16 unkE6;
-    /* 0x0E8 */ s16 unkE8;
-    /* 0x0EA */ u8 padEA[4];
-    /* 0x0EE */ s16 unkEE;
-    /* 0x0F0 */ u8 padF0[0x64];
-    /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 unk155;
-    /* 0x156 */ u8 pad156[9];
-    /* 0x15F */ u8 unk15F;
-    /* 0x160 */ u8 pad160[10];
-    /* 0x16A */ u8 unk16A;
-    /* 0x16B */ u8 unk16B;
-    /* 0x16C */ u8 unk16C;
-    /* 0x16D */ u8 pad16D[0xF];
-    /* 0x17C */ LgBFState *unk17C;
-} LgBFActor;
 
-typedef struct LgBFCmd {
+typedef struct ScriptCommand {
     /* 0x00 */ u8 pad0[2];
-    /* 0x02 */ u16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ s16 unk6;
-} LgBFCmd;
+    /* 0x02 */ u16 opcode;
+    /* 0x04 */ s16 param1;
+    /* 0x06 */ s16 param2;
+} ScriptCommand;
 
-#define LgBV ((LgBFActor *)gCurrentActor)
 
 extern u8 gGameMode;
 extern s32 gCurrentMap;
@@ -259,10 +199,10 @@ extern void *sScriptEffectSprites[];
 
 void actorScriptedCommandUpdate(void) {
     s16 j;
-    s16 t;
+    s16 pad;
     s16 i;
-    LgBFCmd *cmd;
-    LgBFState *state;
+    ScriptCommand *cmd;
+    ScriptedActorState *state;
     f32 ratio;
     f32 ratio2;
     u8 *col;
@@ -272,14 +212,14 @@ void actorScriptedCommandUpdate(void) {
     f32 posY;
     f32 posZ;
 
-    state = LgBV->unk17C;
+    state = C46V->unk17C;
     if (!(gCurrentActor->flags & 0x10)) {
         state->unk1A = 0;
         state->unk18 = 0;
-        state->unk30 = 0xFF;
-        state->unk33 = 0x12;
-        state->unk22 = 0x64;
-        playerKongStopAudioChannels(gCurrentActor, (u16)gCurrentActor->actorType);
+        state->particlePath = 0xFF;
+        state->particleSprite = 0x12;
+        state->particleScalePct = 0x64;
+        playerKongStopAudioChannels(gCurrentActor, gCurrentActor->actorType);
         actorSetTargetSpeed(gCurrentActor, 0);
         gCurrentActor->flags &= 0xFFFDFFFF;
         if (gCurrentMap == 0x4C) {
@@ -288,7 +228,7 @@ void actorScriptedCommandUpdate(void) {
         }
         gCurrentActor->accelY = D_807502E8;
     }
-    if (gGameMode != 1 && gCurrentMap != 0x4C && gCurrentActor->actorType != 0xFEU) { // FAKE: unsigned literal keeps the early 254 const out of the loop-spanning 254 live range
+    if (gGameMode != 1 && gCurrentMap != 0x4C && gCurrentActor->actorType != 0xFE) {
         gCurrentActor->flags &= 0xEFFFFFFF;
         return;
     }
@@ -297,252 +237,252 @@ void actorScriptedCommandUpdate(void) {
     }
     for (i = 0; i < gActorGlobalState.unk254; i++) {
         if (gActorGlobalState.unk258[i] == 3) {
-        cmd = (LgBFCmd *)gActorGlobalState.unk278[i];
-        switch (cmd->unk2) {
-            case 25:
-                state->unk33 = cmd->unk4;
-                state->unk22 = cmd->unk6;
-                break;
-            case 24:
-                state->unk30 = pathPlaybackStart(gCurrentActor, state->unk2D, 0, 0.0f, 0.0f, 0.0f, 0);
-                state->unk31 = cmd->unk4;
-                state->unk32 = cmd->unk6;
-                pathPlaybackSetSpeed(state->unk30, state->unk2E / cmd->unk4);
-                pathPlaybackSetLoopLimit(state->unk30, 1);
-                pathPlaybackSetActive(state->unk30, 1);
-                break;
-            case 23:
-                state->unk2D = cmd->unk4;
-                state->unk2E = cmd->unk6;
-                state->unk2F = pathPlaybackStart(gCurrentActor, state->unk2D, 0, 0.0f, 0.0f, 0.0f, 0);
-                pathPlaybackSetSpeed(state->unk2F, state->unk2E);
-                pathPlaybackSetLoopLimit(state->unk2F, 1);
-                pathPlaybackSetActive(state->unk2F, 1);
-                gCurrentActor->state = 0xC;
-                gCurrentActor->unk155 = 0;
-                break;
-            case 0:
-                gCurrentActor->speedY = cmd->unk4;
-                break;
-            case 7:
-                gCurrentActor->speedXZ = cmd->unk4;
-                gCurrentActor->moveYaw = (cmd->unk6 << 12) / 360;
-                break;
-            case 2:
-                gCurrentActor->sub4->model->animId = -1;
-                actorScriptStart(gCurrentActor, D_80747750[cmd->unk4]);
-                if (cmd->unk6 != 0) {
-                    scriptSetActorRampTarget(gCurrentActor, cmd->unk6 / 100.0, 0.0f);
-                }
-                break;
-            case 3:
-                if (gCurrentActor->sub4->animId != 0) {
-                    actorScriptStart(gCurrentActor, 0);
-                }
-                controllerAnimSetState(gCurrentActor, cmd->unk6 - (0 - D_80747904[cmd->unk4]), 0.0f, 0.0f); // FAKE: cmd6 evaluated before the table lookup (ring order)
-                scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
-                func_806BFA8C(cmd->unk6 - (0 - D_80747904[cmd->unk4])); // FAKE: cmd6 evaluated before the table lookup (ring order)
-                break;
-            case 13:
-                if (gCurrentActor->sub4->animId != 0) {
-                    actorScriptStart(gCurrentActor, 0);
-                }
-                controllerAnimSetState(gCurrentActor, cmd->unk6 - (0 - D_80747904[cmd->unk4]), 0.0f, 8.0f); // FAKE: cmd6 evaluated before the table lookup (ring order)
-                scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
-                func_806BFA8C(cmd->unk6 - (0 - D_80747904[cmd->unk4])); // FAKE: cmd6 evaluated before the table lookup (ring order)
-                break;
-            case 4:
-                scriptSetActorRampTarget(gCurrentActor, cmd->unk4 / 100.0, cmd->unk6);
-                break;
-            case 5:
-                gCurrentActor->state = 2;
-                gCurrentActor->unk155 = 0;
-                if (gBehaviourAnimState->path != NULL) {
-                    heapFree(gBehaviourAnimState->path);
-                }
-                gBehaviourExtraState->pathCount = 1;
-                gBehaviourAnimState->path = heapAlloc(2);
-                gBehaviourAnimState->path[0][1] = 0;
-                gBehaviourAnimState->path[0][0] = cmd->unk4;
-                gBehaviourWorkState->unk25 = 0;
-                actorSetTargetSpeed(gCurrentActor, cmd->unk6);
-                break;
-            case 6:
-                gCurrentActor->speedXZ = 0.0f;
-                gCurrentActor->speedY = 0.0f;
-                gCurrentActor->x = D_807FDCA0->entries[cmd->unk4].x;
-                gCurrentActor->y = D_807FDCA0->entries[cmd->unk4].y;
-                gCurrentActor->z = D_807FDCA0->entries[cmd->unk4].z;
-                gCurrentActor->yaw = (cmd->unk6 << 12) / 360;
-                gCurrentActor->moveYaw = gCurrentActor->yaw;
-                break;
-            case 8:
-                if (cmd->unk6 != 0) {
-                    state->unk2 = gCurrentActor->yaw;
-                    state->unk4 = (cmd->unk4 << 12) / 360;
-                    state->unk23 = cmd->unk6;
-                    state->unk24 = cmd->unk6;
-                } else {
-                    gCurrentActor->yaw = (cmd->unk4 << 12) / 360;
-                }
-                break;
-            case 19:
-                if (cmd->unk6 != 0) {
-                    state->unk6 = gCurrentActor->pitch;
-                    state->unk8 = (cmd->unk4 << 12) / 360;
-                    state->unk25 = cmd->unk6;
-                    state->unk26 = cmd->unk6;
-                } else {
-                    gCurrentActor->pitch = (cmd->unk4 << 12) / 360;
-                }
-                break;
-            case 20:
-                if (cmd->unk6 != 0) {
-                    state->unkA = gCurrentActor->roll;
-                    state->unkC = (cmd->unk4 << 12) / 360;
-                    state->unk27 = cmd->unk6;
-                    state->unk28 = cmd->unk6;
-                } else {
-                    gCurrentActor->roll = (cmd->unk4 << 12) / 360;
-                }
-                break;
-            case 21:
-                gCurrentActor->accelY = cmd->unk4;
-                gCurrentActor->speedY = 0.0f;
-                gCurrentActor->state = 0x1D;
-                break;
-            case 16:
-                if (cmd->unk6 != 0) {
-                    state->unk14 = gCurrentActor->sub4->scaleY;
-                    gBehaviourWorkState->scale = cmd->unk4 * 0.01;
-                    state->unk29 = cmd->unk6;
-                    state->unk2A = cmd->unk6;
-                } else {
-                    actorSetUniformScale(gCurrentActor, cmd->unk4 * 0.01);
-                }
-                break;
-            case 9:
-                gBehaviourWorkState->unk4 = spawnNodeActivate(cmd->unk4, 0);
-                break;
-            case 11:
-                state->unk1C = cmd->unk4;
-                break;
-            case 12:
-                state->unkE = cmd->unk4;
-                state->unk10 = cmd->unk6;
-                state->unk1E = state->unk1C;
-                gCurrentActor->state = 0xE;
-                gCurrentActor->unk155 = 0;
-                break;
-            case 14:
-                state->unkE = cmd->unk4;
-                state->unk10 = cmd->unk6;
-                state->unk1E = state->unk1C;
-                gCurrentActor->state = 0xF;
-                gCurrentActor->unk155 = 0;
-                break;
-            case 10:
-                state->unk18 = (cmd->unk4 << 12) / 360;
-                state->unk1A = cmd->unk6;
-                break;
-            case 15:
-                gCurrentActor->tintR = D_807478F4[cmd->unk4 * 3];
-                gCurrentActor->tintG = D_807478F4[cmd->unk4 * 3 + 1];
-                gCurrentActor->tintB = D_807478F4[cmd->unk4 * 3 + 2];
-                break;
-            case 17:
-                gCurrentActor->flags &= 0xFFFF7FFF;
-                gCurrentActor->state = 0x37;
-                gCurrentActor->unk155 = 0;
-                break;
-            case 18:
-                gCurrentActor->flags &= 0xFF7FFFFF;
-                break;
-            case 26:
-                gBehaviourWorkState->unk4 = spawnNodeActivate(cmd->unk4, 0);
-                gCurrentActor->unk15F = cmd->unk6;
-                gCurrentActor->state = 0xD;
-                gCurrentActor->unk155 = 0;
-                break;
-            case 22:
-                gCurrentActor->state = 2;
-                gCurrentActor->unk155 = 0;
-                break;
+            cmd = (ScriptCommand *)gActorGlobalState.unk278[i];
+            switch (cmd->opcode) {
+                case 25:
+                    state->particleSprite = cmd->param1;
+                    state->particleScalePct = cmd->param2;
+                    break;
+                case 24:
+                    state->particlePath = pathPlaybackStart(gCurrentActor, state->pathId, 0, 0.0f, 0.0f, 0.0f, 0);
+                    state->particleCount = cmd->param1;
+                    state->particleColor = cmd->param2;
+                    pathPlaybackSetSpeed(state->particlePath, state->pathSpeed / cmd->param1);
+                    pathPlaybackSetLoopLimit(state->particlePath, 1);
+                    pathPlaybackSetActive(state->particlePath, 1);
+                    break;
+                case 23:
+                    state->pathId = cmd->param1;
+                    state->pathSpeed = cmd->param2;
+                    state->pathPlayback = pathPlaybackStart(gCurrentActor, state->pathId, 0, 0.0f, 0.0f, 0.0f, 0);
+                    pathPlaybackSetSpeed(state->pathPlayback, state->pathSpeed);
+                    pathPlaybackSetLoopLimit(state->pathPlayback, 1);
+                    pathPlaybackSetActive(state->pathPlayback, 1);
+                    gCurrentActor->state = 0xC;
+                    gCurrentActor->unk155 = 0;
+                    break;
+                case 0:
+                    gCurrentActor->speedY = cmd->param1;
+                    break;
+                case 7:
+                    gCurrentActor->speedXZ = cmd->param1;
+                    gCurrentActor->moveYaw = (cmd->param2 << 12) / 360;
+                    break;
+                case 2:
+                    gCurrentActor->sub4->model->animId = -1;
+                    actorScriptStart(gCurrentActor, D_80747750[cmd->param1]);
+                    if (cmd->param2 != 0) {
+                        scriptSetActorRampTarget(gCurrentActor, cmd->param2 / 100.0, 0.0f);
+                    }
+                    break;
+                case 3:
+                    if (gCurrentActor->sub4->animId != 0) {
+                        actorScriptStart(gCurrentActor, 0);
+                    }
+                    controllerAnimSetState(gCurrentActor, cmd->param2 - (0 - D_80747904[cmd->param1]), 0.0f, 0.0f); // FAKE: param2 evaluated before the table lookup (ring order)
+                    scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
+                    func_806BFA8C(cmd->param2 - (0 - D_80747904[cmd->param1])); // FAKE: param2 evaluated before the table lookup (ring order)
+                    break;
+                case 13:
+                    if (gCurrentActor->sub4->animId != 0) {
+                        actorScriptStart(gCurrentActor, 0);
+                    }
+                    controllerAnimSetState(gCurrentActor, cmd->param2 - (0 - D_80747904[cmd->param1]), 0.0f, 8.0f); // FAKE: param2 evaluated before the table lookup (ring order)
+                    scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
+                    func_806BFA8C(cmd->param2 - (0 - D_80747904[cmd->param1])); // FAKE: param2 evaluated before the table lookup (ring order)
+                    break;
+                case 4:
+                    scriptSetActorRampTarget(gCurrentActor, cmd->param1 / 100.0, cmd->param2);
+                    break;
+                case 5:
+                    gCurrentActor->state = 2;
+                    gCurrentActor->unk155 = 0;
+                    if (gBehaviourAnimState->path != NULL) {
+                        heapFree(gBehaviourAnimState->path);
+                    }
+                    gBehaviourExtraState->pathCount = 1;
+                    gBehaviourAnimState->path = heapAlloc(2);
+                    gBehaviourAnimState->path[0][1] = 0;
+                    gBehaviourAnimState->path[0][0] = cmd->param1;
+                    gBehaviourWorkState->unk25 = 0;
+                    actorSetTargetSpeed(gCurrentActor, cmd->param2);
+                    break;
+                case 6:
+                    gCurrentActor->speedXZ = 0.0f;
+                    gCurrentActor->speedY = 0.0f;
+                    gCurrentActor->x = D_807FDCA0->entries[cmd->param1].x;
+                    gCurrentActor->y = D_807FDCA0->entries[cmd->param1].y;
+                    gCurrentActor->z = D_807FDCA0->entries[cmd->param1].z;
+                    gCurrentActor->yaw = (cmd->param2 << 12) / 360;
+                    gCurrentActor->moveYaw = gCurrentActor->yaw;
+                    break;
+                case 8:
+                    if (cmd->param2 != 0) {
+                        state->yawFrom = gCurrentActor->yaw;
+                        state->yawTo = (cmd->param1 << 12) / 360;
+                        state->yawSteps = cmd->param2;
+                        state->yawTimer = cmd->param2;
+                    } else {
+                        gCurrentActor->yaw = (cmd->param1 << 12) / 360;
+                    }
+                    break;
+                case 19:
+                    if (cmd->param2 != 0) {
+                        state->pitchFrom = gCurrentActor->pitch;
+                        state->pitchTo = (cmd->param1 << 12) / 360;
+                        state->pitchSteps = cmd->param2;
+                        state->pitchTimer = cmd->param2;
+                    } else {
+                        gCurrentActor->pitch = (cmd->param1 << 12) / 360;
+                    }
+                    break;
+                case 20:
+                    if (cmd->param2 != 0) {
+                        state->rollFrom = gCurrentActor->roll;
+                        state->rollTo = (cmd->param1 << 12) / 360;
+                        state->rollSteps = cmd->param2;
+                        state->rollTimer = cmd->param2;
+                    } else {
+                        gCurrentActor->roll = (cmd->param1 << 12) / 360;
+                    }
+                    break;
+                case 21:
+                    gCurrentActor->accelY = cmd->param1;
+                    gCurrentActor->speedY = 0.0f;
+                    gCurrentActor->state = 0x1D;
+                    break;
+                case 16:
+                    if (cmd->param2 != 0) {
+                        state->scaleFrom = gCurrentActor->sub4->scaleY;
+                        gBehaviourWorkState->scale = cmd->param1 * 0.01;
+                        state->scaleSteps = cmd->param2;
+                        state->scaleTimer = cmd->param2;
+                    } else {
+                        actorSetUniformScale(gCurrentActor, cmd->param1 * 0.01);
+                    }
+                    break;
+                case 9:
+                    gBehaviourWorkState->unk4 = spawnNodeActivate(cmd->param1, 0);
+                    break;
+                case 11:
+                    state->lerpSteps = cmd->param1;
+                    break;
+                case 12:
+                    state->zoneTo = cmd->param1;
+                    state->zoneFrom = cmd->param2;
+                    state->lerpTimer = state->lerpSteps;
+                    gCurrentActor->state = 0xE;
+                    gCurrentActor->unk155 = 0;
+                    break;
+                case 14:
+                    state->zoneTo = cmd->param1;
+                    state->zoneFrom = cmd->param2;
+                    state->lerpTimer = state->lerpSteps;
+                    gCurrentActor->state = 0xF;
+                    gCurrentActor->unk155 = 0;
+                    break;
+                case 10:
+                    state->unk18 = (cmd->param1 << 12) / 360;
+                    state->unk1A = cmd->param2;
+                    break;
+                case 15:
+                    gCurrentActor->tintR = D_807478F4[cmd->param1 * 3];
+                    gCurrentActor->tintG = D_807478F4[cmd->param1 * 3 + 1];
+                    gCurrentActor->tintB = D_807478F4[cmd->param1 * 3 + 2];
+                    break;
+                case 17:
+                    gCurrentActor->flags &= 0xFFFF7FFF;
+                    gCurrentActor->state = 0x37;
+                    gCurrentActor->unk155 = 0;
+                    break;
+                case 18:
+                    gCurrentActor->flags &= 0xFF7FFFFF;
+                    break;
+                case 26:
+                    gBehaviourWorkState->unk4 = spawnNodeActivate(cmd->param1, 0);
+                    gCurrentActor->unk15F = cmd->param2;
+                    gCurrentActor->state = 0xD;
+                    gCurrentActor->unk155 = 0;
+                    break;
+                case 22:
+                    gCurrentActor->state = 2;
+                    gCurrentActor->unk155 = 0;
+                    break;
+            }
         }
-        }
     }
-    if (state->unk28 != 0) {
-        ratio = (f32)(u32)state->unk28-- / (f32)(u32)state->unk27;
-        gCurrentActor->roll = mathAngleLerp(state->unkC, state->unkA, ratio);
+    if (state->rollTimer != 0) {
+        ratio = (f32)state->rollTimer-- / state->rollSteps;
+        gCurrentActor->roll = mathAngleLerp(state->rollTo, state->rollFrom, ratio);
     }
-    if (state->unk26 != 0) {
-        ratio = (f32)(u32)state->unk26-- / (f32)(u32)state->unk25;
-        gCurrentActor->pitch = mathAngleLerp(state->unk8, state->unk6, ratio);
+    if (state->pitchTimer != 0) {
+        ratio = (f32)state->pitchTimer-- / state->pitchSteps;
+        gCurrentActor->pitch = mathAngleLerp(state->pitchTo, state->pitchFrom, ratio);
     }
-    if (state->unk24 != 0) {
-        ratio = (f32)(u32)state->unk24-- / (f32)(u32)state->unk23;
-        gCurrentActor->yaw = mathAngleLerp(state->unk4, state->unk2, ratio);
+    if (state->yawTimer != 0) {
+        ratio = (f32)state->yawTimer-- / state->yawSteps;
+        gCurrentActor->yaw = mathAngleLerp(state->yawTo, state->yawFrom, ratio);
         gCurrentActor->moveYaw = gCurrentActor->yaw;
     }
-    if (state->unk2A != 0) {
-        ratio2 = (f32)(u32)state->unk2A-- / (f32)(u32)state->unk29;
-        actorSetUniformScale(gCurrentActor, gBehaviourWorkState->scale + (state->unk14 - gBehaviourWorkState->scale) * ratio2);
+    if (state->scaleTimer != 0) {
+        ratio2 = (f32)state->scaleTimer-- / state->scaleSteps;
+        actorSetUniformScale(gCurrentActor, gBehaviourWorkState->scale + (state->scaleFrom - gBehaviourWorkState->scale) * ratio2);
     }
-    if (state->unk30 != 0xFF) {
-        for (j = 0; j < state->unk31 && state->unk30 != 0xFF; j++) {
+    if (state->particlePath != 0xFF) {
+        for (j = 0; j < state->particleCount && state->particlePath != 0xFF; j++) {
             if (j == 0xFE) {} // FAKE: extra 254 reference gives the 254 const a higher colouring priority (s4); dropping it costs 75 lines
             particleScale = (((randomNonNegative() >> 15) % 32767) % 51 + 0x4B) * 0.01;
-            if (state->unk30 == 0xFE) {
+            if (state->particlePath == 0xFE) {
                 actorGetNodePos(gCurrentActor, 4, &posX, &posY, &posZ);
-            } else if (pathPlaybackIsActive(state->unk30) != 0) {
-                pathPlaybackAdvance(state->unk30);
-                pathPlaybackGetPosition(state->unk30, &posX, &posY, &posZ);
+            } else if (pathPlaybackIsActive(state->particlePath) != 0) {
+                pathPlaybackAdvance(state->particlePath);
+                pathPlaybackGetPosition(state->particlePath, &posX, &posY, &posZ);
                 posY += 10.0f;
             } else {
-                state->unk30 = 0xFF;
+                state->particlePath = 0xFF;
             }
-            if (state->unk30 == 0xFE || (state->unk30 != 0xFF && pathPlaybackIsActive(state->unk30) != 0)) {
+            if (state->particlePath == 0xFE || (state->particlePath != 0xFF && pathPlaybackIsActive(state->particlePath) != 0)) {
                 effectSetMaxDistance(0x7D0);
                 effectSetDepth(1);
                 effectSetMode(2);
-                col = &D_80747B00[state->unk32 * 3u];
+                col = &D_80747B00[state->particleColor * 3u]; // FAKE: unsigned 3 frees a callee-saved register (s5 otherwise)
                 effectSetColor(col[0], col[1], col[2], 0xFF);
                 effectSetCallback(func_80717D4C);
                 effectSetSpeed(-10 - (randomNonNegative() >> 15) % 30);
-                effectCreateAtPosition(sScriptEffectSprites[state->unk33], (f32)state->unk22 * 0.01 * particleScale, posX, posY, posZ);
+                effectCreateAtPosition(sScriptEffectSprites[state->particleSprite], (f32)state->particleScalePct * 0.01 * particleScale, posX, posY, posZ);
             }
         }
     }
     switch (gCurrentActor->state) {
         case 0xD:
             if (gCurrentActor->unk15F != 0) {
-                node = gCurrentActor->unk15F;
+                node = gCurrentActor->unk15F; // FAKE: s32 temp reproduces the original stack slot layout of posX/posY/posZ
                 actorGetNodePos(gBehaviourWorkState->unk4, node, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
             } else {
                 gCurrentActor->x = gBehaviourTargetActor->x;
                 gCurrentActor->y = gBehaviourTargetActor->y;
                 gCurrentActor->z = gBehaviourTargetActor->z;
             }
-        gCurrentActor->yaw = gBehaviourWorkState->unk4->yaw;
+            gCurrentActor->yaw = gBehaviourWorkState->unk4->yaw;
             break;
         case 0xC:
-            pathPlaybackAdvance(state->unk2F);
-            pathPlaybackGetPosition(state->unk2F, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
+            pathPlaybackAdvance(state->pathPlayback);
+            pathPlaybackGetPosition(state->pathPlayback, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
             func_8072E320(8.0f);
             break;
         case 0xE:
         case 0xF:
-            if (state->unk1E != 0) {
-                ZoneEntry *a3 = &D_807FDCA0->entries[state->unkE];
-                ZoneEntry *v1 = &D_807FDCA0->entries[state->unk10];
-                f32 frac = (f32)state->unk1E / (f32)state->unk1C;
-                state->unk1E--;
-                gCurrentActor->x = v1->x + (a3->x - v1->x) * frac;
-                gCurrentActor->z = v1->z + (a3->z - v1->z) * frac;
+            if (state->lerpTimer != 0) {
+                ZoneEntry *to = &D_807FDCA0->entries[state->zoneTo];
+                ZoneEntry *from = &D_807FDCA0->entries[state->zoneFrom];
+                f32 frac = (f32)state->lerpTimer / state->lerpSteps;
+                state->lerpTimer--;
+                gCurrentActor->x = from->x + (to->x - from->x) * frac;
+                gCurrentActor->z = from->z + (to->z - from->z) * frac;
                 if (gCurrentActor->state == 0xF) {
-                    gCurrentActor->y = v1->y + (a3->y - v1->y) * frac;
+                    gCurrentActor->y = from->y + (to->y - from->y) * frac;
                 } else {
-                    actorMoveWithinZone(0, v1->x, v1->z, 0x212, 0.0f);
+                    actorMoveWithinZone(0, from->x, from->z, 0x212, 0.0f);
                 }
             } else {
                 gCurrentActor->state = 0;
@@ -585,19 +525,19 @@ extern Actor *gSpawnedActor;
 void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
     f32 nodeY;
 
-    if (!(R1V->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         playerKongStopSoundByState(gCurrentActor);
         gBehaviourAnimState->flags |= 0x200;
         actorSetTargetSpeed(gCurrentActor, 0);
     }
     func_80724A20();
-    switch (R1V->unk154) {
+    switch (gCurrentActor->state) {
         case 5:
             actorMoveWithinZone(0, 0.0f, 0.0f, 2, 0.0f);
         case 0:
             if (currentActorTestClearFlag()) {
-                R1V->unk154 = 0x12;
-                R1V->unk155 = 0;
+                gCurrentActor->state = 0x12;
+                gCurrentActor->unk155 = 0;
             }
             break;
         case 2:
@@ -605,25 +545,25 @@ void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
             patrolPathStep(2, 0);
             break;
         case 0x12:
-            switch (R1V->unk155) {
+            switch (gCurrentActor->unk155) {
                 case 0:
                     resQueueAttachActor(gCurrentActor, actionId, paramA);
                     actorScriptStart(gCurrentActor, scriptId);
-                    R1V->unk155++;
+                    gCurrentActor->unk155++;
                     break;
                 case 2:
-                    if (!(R1V->unk60 & 0x2000000)) {
+                    if (!(gCurrentActor->flags & 0x2000000)) {
                         controllerAnimSetStateIfChanged(gCurrentActor, 0xE4, 0.0f, 2.0f);
                         actorSpawn(0xE1, 0x98);
                         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.21f);
                         actorGetNodePos(gCurrentActor, 1, &gSpawnedActor->x, &nodeY, &gSpawnedActor->z);
                         actorScriptStart(gSpawnedActor, 0x298);
-                        ((R1C46aActor *)gSpawnedActor)->unk11C = R1V;
-                        R1V->unk155++;
+                        gSpawnedActor->parentActor = gCurrentActor;
+                        gCurrentActor->unk155++;
                     }
                     break;
                 case 3:
-                    R1V->unk80 += 0.5;
+                    gCurrentActor->y += 0.5;
                     break;
             }
             break;
@@ -633,14 +573,14 @@ void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
 extern void *gCamActor;
 
 void func_806C1300(void) {
-    switch (R1V->unk155) {
+    switch (gCurrentActor->unk155) {
         case 1:
-            R1V->unk11C->unk60 &= ~4;
-            R1V->unk155++;
+            gCurrentActor->parentActor->flags &= ~4;
+            gCurrentActor->unk155++;
             break;
         case 3:
             camEndPath(gCamActor);
-            R1V->unk11C->unk154 = 0x40;
+            gCurrentActor->parentActor->state = 0x40;
             actorDespawn(gCurrentActor);
             break;
     }
@@ -652,12 +592,12 @@ void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 an
     s16 val;
     s32 ret;
 
-    if (!(R1V->unk60 & 0x10)) {
-        R1V->unk6A |= 1;
+    if (!(gCurrentActor->flags & 0x10)) {
+        gCurrentActor->contactFlags |= 1;
         actorUpdatePrevContactFlags(gCurrentActor);
-        R1V->unkCC = 1;
+        gCurrentActor->floorNodeId = 1;
     }
-    val = ret = playerSelectMoveTier(gCurrentActor, R1V->unkB8, gBehaviourWorkState->unk26, gBehaviourWorkState->unk34, threshold);
+    val = ret = playerSelectMoveTier(gCurrentActor, gCurrentActor->speedXZ, gBehaviourWorkState->unk26, gBehaviourWorkState->unk34, threshold);
     if (ret != gBehaviourWorkState->unk34) {
         switch (ret) {
             case 0:
@@ -686,14 +626,14 @@ void func_806C151C(u16 actionId, u8 actionParam, s16 flagId) {
     f32 dz;
     s32 near;
 
-    dx = gPrimaryPlayerActor->x - R1V->unk7C;
-    dy = gPrimaryPlayerActor->y - R1V->unk80;
-    dz = gPrimaryPlayerActor->z - R1V->unk84;
+    dx = gPrimaryPlayerActor->x - gCurrentActor->x;
+    dy = gPrimaryPlayerActor->y - gCurrentActor->y;
+    dz = gPrimaryPlayerActor->z - gCurrentActor->z;
     near = 0;
     if (dx * dx + dy * dy + dz * dz < 4900.0f) {
         near = 1;
     }
-    if ((u8)near) {
+    if ((u8)near) { // FAKE: u8 truncation of the s32 flag reproduces the original andi test
         if (!flagGet(flagId, 2)) {
             resQueueAttachActor(gCurrentActor, actionId, actionParam);
             flagSet(flagId, 1, 2);
@@ -703,25 +643,23 @@ void func_806C151C(u16 actionId, u8 actionParam, s16 flagId) {
 
 void func_806C15E8(void) {
     gBehaviourAnimState->flags |= 0x1000;
-    R1V->unk146 = 0;
+    gCurrentActor->unk146 = 0;
     actorSetTargetSpeed(gCurrentActor, 0);
-    R1V->unkCC = 1;
+    gCurrentActor->floorNodeId = 1;
 }
-
-extern s32 gCurrentMap;
 
 void func_806C1640(void) {
     behaviourFrameBegin();
-    if (!(R1V->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         func_806C15E8();
         if (gCurrentMap == 0x4C) {
-            R1V->sub4->scaleX *= 0.8;
-            R1V->sub4->scaleY *= 0.8;
-            R1V->sub4->scaleZ *= 0.8;
+            gCurrentActor->sub4->scaleX *= 0.8;
+            gCurrentActor->sub4->scaleY *= 0.8;
+            gCurrentActor->sub4->scaleZ *= 0.8;
         }
     }
     func_806BF920();
-    if (R1V->unk60 & 0x10000000) {
+    if (gCurrentActor->flags & 0x10000000) {
         actorScriptedCommandUpdate();
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -739,19 +677,19 @@ void func_806C1734(void) {
     u8 nodeIndex;
 
     behaviourFrameBegin();
-    if (!(R1V->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         func_806C15E8();
     }
     func_806BF920();
-    if (R1V->unk60 & 0x10000000) {
-        animFrame = R1V->sub4->model->frame;
+    if (gCurrentActor->flags & 0x10000000) {
+        animFrame = gCurrentActor->sub4->model->frame;
         actorScriptedCommandUpdate();
-        sub = R1V->sub4;
+        sub = gCurrentActor->sub4;
         if (sub->blendFrom->clip == NULL) {
             inner = sub->model;
             switch (inner->animId) {
                 case 0xBB:
-                    if (30.0f < R1V->unkC0 && !(gFrameCounter & 3)) {
+                    if (30.0f < gCurrentActor->speedY && !(gFrameCounter & 3)) {
                         effectSetMode(2);
                         effectSetDepth(1);
                         effectSetCallback(effectShrinkFadeMatrixUpdate);
@@ -764,10 +702,10 @@ void func_806C1734(void) {
                     }
                     break;
                 case 0xEA:
-                    if (R1V->unk155 != 0 && animFrame >= 10) {
-                        R1V->unk155 = 0;
+                    if (gCurrentActor->unk155 != 0 && animFrame >= 10) {
+                        gCurrentActor->unk155 = 0;
                         projectileGetTargetCoords(gCurrentActor, 7);
-                        projectileSpawnNodeEntry(0x29, 0xCA, 0.4f, R1V->unkE6, 250.0f, 0.0f, gCurrentActor);
+                        projectileSpawnNodeEntry(0x29, 0xCA, 0.4f, gCurrentActor->yaw, 250.0f, 0.0f, gCurrentActor);
                     }
                     break;
                 case 0x112:
@@ -796,15 +734,15 @@ extern u8 D_8071FBA0;
 
 void func_806C19F4(void) {
     behaviourFrameBegin();
-    if (!(R1V->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         func_806C15E8();
-        R1V->unk140->radius = 180.0f;
+        gCurrentActor->collision->radius = 180.0f;
         func_80724CA4(2, 1);
-        playerKongStopAudioChannels(gCurrentActor, R1V->unk5A);
+        playerKongStopAudioChannels(gCurrentActor, gCurrentActor->actorType);
     }
-    if (R1V->unk60 & 0x10000000) {
+    if (gCurrentActor->flags & 0x10000000) {
         actorScriptedCommandUpdate();
-        if (R1V->sub4->model->animId == 0x1A4) {
+        if (gCurrentActor->sub4->model->animId == 0x1A4) {
             effectSetDepth(1);
             effectSetColor(0x96, 0xFF, 0xFF, 0xFF);
             effectCreateAtActorBone(&D_8071FBA0, 0.7f, gCurrentActor, 5, 0);
@@ -825,15 +763,15 @@ void func_806C1B50(void) {
     u32 thr;
 
     behaviourFrameBegin();
-    if (!(R1V->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         func_806C15E8();
-        playerKongStopAudioChannels(gCurrentActor, R1V->unk5A);
+        playerKongStopAudioChannels(gCurrentActor, gCurrentActor->actorType);
     }
     func_806BF920();
-    if (R1V->unk60 & 0x10000000) {
+    if (gCurrentActor->flags & 0x10000000) {
         actorScriptedCommandUpdate();
-        if ((R1V->unk60 & 4) && R1V->unk155 != 0) {
-            switch (R1V->sub4->model->animId) {
+        if ((gCurrentActor->flags & 4) && gCurrentActor->unk155 != 0) {
+            switch (gCurrentActor->sub4->model->animId) {
                 case 0x23E:
                     kind = 0xD;
                     thr = 7;
@@ -849,9 +787,9 @@ void func_806C1B50(void) {
                 default:
                     goto done;
             }
-            if ((f32)thr < R1V->sub4->model->frame) {
+            if ((f32)thr < gCurrentActor->sub4->model->frame) {
                 effectCreateAtActorBone(&D_8071FB34, 0.5f, gCurrentActor, kind, 0);
-                R1V->unk155 = 0;
+                gCurrentActor->unk155 = 0;
             }
         }
     } else {
@@ -865,20 +803,20 @@ done:
 
 void func_806C1CCC(void) {
     behaviourFrameBegin();
-    if (!(R1V->unk60 & 0x10)) {
-        R1V->unkC8 = -2000.0f;
-        R1V->unkC4 = -200.0f;
+    if (!(gCurrentActor->flags & 0x10)) {
+        gCurrentActor->terminalSpeedY = -2000.0f;
+        gCurrentActor->accelY = -200.0f;
         func_806C15E8();
         func_80724CA4(2, 1);
         if (gCurrentMap == 0x4C) {
             controllerAnimLoadStateAsset(gCurrentActor, 0xE);
         }
-        playerKongStopAudioChannels(gCurrentActor, R1V->unk5A);
+        playerKongStopAudioChannels(gCurrentActor, gCurrentActor->actorType);
     }
-    if (R1V->unk60 & 0x10000000) {
+    if (gCurrentActor->flags & 0x10000000) {
         actorScriptedCommandUpdate();
-        if (R1V->unk60 & 4) {
-            if (R1V->sub4->model->animId == 0x2C4 && 25.0f < R1V->sub4->model->frame) {
+        if (gCurrentActor->flags & 4) {
+            if (gCurrentActor->sub4->model->animId == 0x2C4 && 25.0f < gCurrentActor->sub4->model->frame) {
                 renderCallbacksRegister(gfxBuildScanlineNoise, 0, 3);
             }
         }
@@ -985,7 +923,7 @@ void func_806C1E44(void) {
                     gCurrentActor->unk155 = 1;
                     break;
                 case 2:
-                    actorMoveWithinZone(2, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0, 0.0f);
+                    actorMoveWithinZone(2, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
                     patrolPathStep(2, 0);
                     break;
             }
@@ -1030,7 +968,7 @@ void func_806C226C(void) {
     switch (gCurrentActor->state) {
         case 0x27:
             if (gCurrentActor->contactFlags & 4) {
-                actorPitchEaseTowardPoint(2, 0, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetY, (f32)gBehaviourWorkState->targetZ, 0x46, 30.0f, 100.0f, 0);
+                actorPitchEaseTowardPoint(2, 0, gBehaviourWorkState->targetX, gBehaviourWorkState->targetY, gBehaviourWorkState->targetZ, 0x46, 30.0f, 100.0f, 0);
                 if (((randomNonNegative() >> 15) % 1000) >= 0x3A3) {
                     effectSetCallback(effectWobbleRiseUpdate);
                     effectSetDepth(1);
@@ -1041,7 +979,7 @@ void func_806C226C(void) {
                 if ((gCurrentActor->contactFlags ^ gCurrentActor->prevContactFlags) & 1) {
                     actorScriptStart(gCurrentActor, 0x2A4);
                 }
-                actorMoveWithinZone(2, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0x200, 0.0f);
+                actorMoveWithinZone(2, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x200, 0.0f);
                 if (gCurrentActor->speedY < -10.0f) {
                     gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, 0x400, 10.0f);
                 }
@@ -1150,8 +1088,6 @@ void effectSpawnColoredParticleAtPoint(u8 r, u8 g, u8 b, f32 x, f32 y, f32 z, vo
     effectCreateAtPosition(particleGfx, scale * 0.2, x, y, z);
 }
 
-extern u8 D_80747B00[];
-
 void actorSpawnParticlesAlongNodeLoop(u8 startNode, u8 endNode, u8 colorIndex, void *particleGfx) {
     f32 scale;
     f32 node1X;
@@ -1189,72 +1125,34 @@ void actorSpawnParticlesAlongNodeRanges(void) {
     actorSpawnParticlesAlongNodeLoop(0x17, 0x1F, 2, sEffectSparkConfig);
 }
 
-typedef struct LgC2DF4State {
-    /* 0x00 */ u16 unk0;
-    /* 0x02 */ u8 pad2[0x2A];
-    /* 0x2C */ u8 unk2C;
-} LgC2DF4State;
 
-typedef struct LgC2DF4Actor {
-    /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ ActorSub4 *sub4;
-    /* 0x008 */ u8 pad8[0x58];
-    /* 0x060 */ u32 unk60;
-    /* 0x064 */ u8 pad64[6];
-    /* 0x06A */ u16 unk6A;
-    /* 0x06C */ u16 unk6C;
-    /* 0x06E */ u8 pad6E[0xE];
-    /* 0x07C */ f32 unk7C;
-    /* 0x080 */ f32 unk80;
-    /* 0x084 */ f32 unk84;
-    /* 0x088 */ u8 pad88[0x40];
-    /* 0x0C8 */ f32 unkC8;
-    /* 0x0CC */ u8 unkCC;
-    /* 0x0CD */ u8 padCD[0x19];
-    /* 0x0E6 */ s16 unkE6;
-    /* 0x0E8 */ s16 unkE8;
-    /* 0x0EA */ u8 padEA[0x40];
-    /* 0x12A */ s16 unk12A;
-    /* 0x12C */ u8 pad12C[0x14];
-    /* 0x140 */ ActorSub140 *unk140;
-    /* 0x144 */ u8 unk144;
-    /* 0x145 */ u8 pad145;
-    /* 0x146 */ s16 unk146;
-    /* 0x148 */ u8 pad148[0xC];
-    /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 unk155;
-    /* 0x156 */ u8 pad156[0x26];
-    /* 0x17C */ LgC2DF4State *unk17C;
-} LgC2DF4Actor;
-
-#define LgV ((LgC2DF4Actor *)gCurrentActor)
 
 extern s32 gGlobalCutsceneFlags;
 
 void func_806C2DF4(void) {
-    LgC2DF4State *state;
-    s32 nodePosX;
-    s32 nodePosY;
-    s32 nodePosZ;
+    ScriptedActorState *state;
+    f32 nodePosX;
+    f32 nodePosY;
+    f32 nodePosZ;
     f32 scale;
     s32 rnd;
 
-    state = LgV->unk17C;
+    state = C46V->unk17C;
     behaviourFrameBegin();
-    if (!(LgV->unk60 & 0x10)) {
-        scale = LgV->sub4->scaleY;
+    if (!(gCurrentActor->flags & 0x10)) {
+        scale = gCurrentActor->sub4->scaleY;
         controllerAnimFree(gCurrentActor);
         controllerAnimInit(gCurrentActor, state->unk0);
-        LgV->unk140 = actorSub140CreateFromModel(gCurrentActor);
-        LgV->unk146 = 0;
-        LgV->unk12A = 0xFA0;
+        gCurrentActor->collision = actorSub140CreateFromModel(gCurrentActor);
+        gCurrentActor->unk146 = 0;
+        gCurrentActor->drawDistance = 0xFA0;
         gBehaviourAnimState->flags |= 0x20;
-        LgV->unk60 &= 0xFEFFFFFF;
-        LgV->unk144 = 1;
+        gCurrentActor->flags &= 0xFEFFFFFF;
+        gCurrentActor->unk144 = 1;
         switch (state->unk0) {
             case 0x21:
                 if (gCurrentMap == 0x98 || gCurrentMap == 0x1C) {
-                    LgV->unk60 |= 0x400;
+                    gCurrentActor->flags |= 0x400;
                     gBehaviourAnimState->flags |= 0x100;
                 }
             case 0x22:
@@ -1267,20 +1165,20 @@ void func_806C2DF4(void) {
             case 0x9:
             case 0xC:
                 gBehaviourAnimState->flags |= 0x1000;
-                LgV->unk60 |= 0x400;
-                LgV->unkCC = 1;
-                LgV->unk60 |= 0x1000;
+                gCurrentActor->flags |= 0x400;
+                gCurrentActor->floorNodeId = 1;
+                gCurrentActor->flags |= 0x1000;
                 func_80724CA4(2, 1);
                 playerKongStopSoundByState(gCurrentActor);
                 break;
             case 0x17:
-                LgV->unkCC = 1;
+                gCurrentActor->floorNodeId = 1;
             case 0x18:
             case 0x49:
                 state->unk2C = 9;
             case 0x6B:
             case 0x88:
-                LgV->unk60 |= 0x1000;
+                gCurrentActor->flags |= 0x1000;
             case 0x38:
             case 0x3A:
             case 0x3C:
@@ -1289,7 +1187,7 @@ void func_806C2DF4(void) {
             case 0x27:
             case 0x2D:
             case 0x66:
-                LgV->unk60 |= 0x400;
+                gCurrentActor->flags |= 0x400;
                 break;
             case 0x31:
                 if (gGlobalCutsceneFlags & 2) {
@@ -1299,21 +1197,21 @@ void func_806C2DF4(void) {
                 }
                 gBehaviourAnimState->flags |= 0x1000;
                 gBehaviourAnimState->flags |= 0x100;
-                LgV->unk60 |= 0x400;
+                gCurrentActor->flags |= 0x400;
                 break;
             case 0x12:
-                LgV->unkCC = 1;
+                gCurrentActor->floorNodeId = 1;
                 if (!(gGlobalCutsceneFlags & 2)) {
-                    LgV->unk146 = 1;
+                    gCurrentActor->unk146 = 1;
                 }
                 break;
             case 0x80:
-                LgV->unk60 |= 0x800000;
+                gCurrentActor->flags |= 0x800000;
                 gBehaviourAnimState->flags |= 0x100;
-                LgV->unk60 |= 0x400;
+                gCurrentActor->flags |= 0x400;
                 break;
             case 0x37:
-                LgV->unk60 |= 0x400;
+                gCurrentActor->flags |= 0x400;
                 animSetLoopLimit(gCurrentActor, 0, 1);
                 animSetFinished(gCurrentActor, 0, 1);
                 animSetFrameAndSubframe(gCurrentActor, 0, gBehaviourExtraState->respawnDelay, 0);
@@ -1321,24 +1219,24 @@ void func_806C2DF4(void) {
             case 0x45:
                 scale *= 10.0f;
             case 0x3D:
-                LgV->unkCC = 2;
-                LgV->unk60 |= 0x400;
+                gCurrentActor->floorNodeId = 2;
+                gCurrentActor->flags |= 0x400;
                 break;
             case 0x3B:
-                LgV->unkC8 = -10.0f;
-                LgV->unk60 |= 0x400;
+                gCurrentActor->terminalSpeedY = -10.0f;
+                gCurrentActor->flags |= 0x400;
                 break;
             case 0x25:
-                LgV->unkC8 = -2000.0f;
-                LgV->unk60 |= 0x400;
-                LgV->unk146 = -1;
+                gCurrentActor->terminalSpeedY = -2000.0f;
+                gCurrentActor->flags |= 0x400;
+                gCurrentActor->unk146 = -1;
                 break;
             case 0x11:
                 gBehaviourAnimState->flags |= 0x1000;
                 if (gCurrentMap == 0x4C) {
-                    LgV->unk146 = 0;
+                    gCurrentActor->unk146 = 0;
                 } else {
-                    LgV->unk146 = 2;
+                    gCurrentActor->unk146 = 2;
                 }
             case 0x13:
             case 0xDC:
@@ -1346,46 +1244,46 @@ void func_806C2DF4(void) {
             case 0xDE:
             case 0xDF:
             case 0xE3:
-                LgV->unk60 |= 0x400;
+                gCurrentActor->flags |= 0x400;
                 break;
             case 0xE2:
                 scale *= 8.0f;
                 actorSetUniformScale(gCurrentActor, scale);
-                LgV->unkE8 = 0xC8;
+                gCurrentActor->roll = 0xC8;
                 func_806BFBB4();
                 actorSpawnParticlesAlongNodeRanges();
                 break;
             case 0x68:
                 if (gCurrentMap == 0xCD) {
-                    LgV->unk146 = 1;
+                    gCurrentActor->unk146 = 1;
                 } else {
-                    LgV->unk146 = 5;
+                    gCurrentActor->unk146 = 5;
                 }
             case 0x70:
                 gBehaviourAnimState->flags |= 0x1000;
-                LgV->unkCC = 1;
+                gCurrentActor->floorNodeId = 1;
             case 0x69:
-                LgV->unk60 |= 0x400;
-                LgV->unk60 |= 0x1000;
+                gCurrentActor->flags |= 0x400;
+                gCurrentActor->flags |= 0x1000;
                 break;
         }
         actorSetUniformScale(gCurrentActor, scale);
         if (gCurrentMap == 0xD0) {
             gBehaviourAnimState->flags |= 0x100;
-            LgV->unk60 &= 0xFEFFFFFF;
+            gCurrentActor->flags &= 0xFEFFFFFF;
         }
     }
     actorGetNodePosOrPosition(gCurrentActor, &nodePosX, &nodePosY, &nodePosZ);
     func_806BF920();
     actorScriptedCommandUpdate();
-    LgV->unk6A = 0;
-    LgV->unk6C = 0;
+    gCurrentActor->contactFlags = 0;
+    gCurrentActor->prevContactFlags = 0;
     if (gBehaviourTargetActor != gPrimaryPlayerActor) {
         func_80724E48(7);
     }
-    switch (LgV->sub4->model->animId) {
+    switch (gCurrentActor->sub4->model->animId) {
         case 0x3EA:
-            LgV->unk146 = 0;
+            gCurrentActor->unk146 = 0;
             break;
         case 0x8E:
         case 0x320:
@@ -1413,13 +1311,13 @@ void func_806C2DF4(void) {
             }
             break;
         case 0x92:
-            if (!(gBehaviourAnimState->flags & 0x1000) && LgV->sub4->model->frame >= 127.0f) {
+            if (!(gBehaviourAnimState->flags & 0x1000) && gCurrentActor->sub4->model->frame >= 127.0f) {
                 gBehaviourAnimState->flags |= 0x1000;
                 currentActorAnimSetFrame(0, 0);
             }
             break;
         case 0x434:
-            if (LgV->sub4->model->frame < 60.0f) {
+            if (gCurrentActor->sub4->model->frame < 60.0f) {
                 break;
             }
         case 0x436:
@@ -1442,29 +1340,29 @@ void func_806C2DF4(void) {
             }
             break;
         case 0x4C7:
-            if (LgV->sub4->model->frame >= 23.0f && LgV->unk155 != 0) {
-                LgV->unk155 = 0;
+            if (gCurrentActor->sub4->model->frame >= 23.0f && gCurrentActor->unk155 != 0) {
+                gCurrentActor->unk155 = 0;
                 projectileGetTargetCoords(gCurrentActor, 2);
-                projectileSpawnNodeEntry(0x29, 0xCB, 0.4f, LgV->unkE6, 400.0f, 0, gCurrentActor);
+                projectileSpawnNodeEntry(0x29, 0xCB, 0.4f, gCurrentActor->yaw, 400.0f, 0, gCurrentActor);
             }
             break;
         case 0x54D:
-            if (LgV->sub4->model->speed == 0) {
-                LgV->unk154 = 0x40;
-            } else if (LgV->sub4->model->frame < 210.0f) {
+            if (gCurrentActor->sub4->model->speed == 0) {
+                gCurrentActor->state = 0x40;
+            } else if (gCurrentActor->sub4->model->frame < 210.0f) {
                 effectSpawnActorBoneEffects(2);
-            } else if (LgV->sub4->model->frame < 235.0f) {
+            } else if (gCurrentActor->sub4->model->frame < 235.0f) {
                 effectSpawnActorBoneEffects(3);
             }
             break;
         case 0x549:
-            if (LgV->sub4->model->frame > 65.0f && LgV->sub4->model->frame < 101.0f) {
+            if (gCurrentActor->sub4->model->frame > 65.0f && gCurrentActor->sub4->model->frame < 101.0f) {
                 rnd = randomNonNegative();
-                effectSpawnChildAtNode(2, (rnd >> 15) % 2048 + LgV->unkE6 - 0x400, (randomNonNegative() >> 15) % 2048);
+                effectSpawnChildAtNode(2, (rnd >> 15) % 2048 + gCurrentActor->yaw - 0x400, (randomNonNegative() >> 15) % 2048);
             }
             break;
         case 0x498:
-            if (LgV->sub4->model->frame < 2.0f) {
+            if (gCurrentActor->sub4->model->frame < 2.0f) {
                 effectSpawnActorScale(gCurrentActor);
             }
             effectActorCheckGroundScaleSpawn(gCurrentActor);
@@ -1477,15 +1375,15 @@ void func_806C2DF4(void) {
             actorPlaySoundSpawnBoneEffects();
             break;
         case 0x43F:
-            if (LgV->sub4->model->frame < 68.0f) {
+            if (gCurrentActor->sub4->model->frame < 68.0f) {
                 actorPlaySoundSpawnBoneEffects();
             }
-            if (65.0f < LgV->sub4->model->frame) {
+            if (65.0f < gCurrentActor->sub4->model->frame) {
                 sfxStopSlotSound(gCurrentActor, 0);
             }
             break;
         case 0x52E:
-            if (LgV->sub4->model->frame < 2.0f) {
+            if (gCurrentActor->sub4->model->frame < 2.0f) {
                 effectCreateAtActorBone(&D_8071FB34, 1.5f, gCurrentActor, 6, 0);
             }
             break;
@@ -1497,17 +1395,17 @@ void func_806C2DF4(void) {
             actorSetGroupState(3, 3);
             break;
     }
-    if (gCurrentMap == 0xD0 && (LgV->unk60 & 0x1000)) {
-        commandQueuePush(gCurrentActor, LgV->unk7C, LgV->unk80 + 30.0f, LgV->unk84, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+    if (gCurrentMap == 0xD0 && (gCurrentActor->flags & 0x1000)) {
+        commandQueuePush(gCurrentActor, gCurrentActor->x, gCurrentActor->y + 30.0f, gCurrentActor->z, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     }
-    if (LgV->sub4->animId == 0x22A) {
-        if ((randomNonNegative() >> 15) % 100 >= 0x47 || LgV->unk155 != 0) {
+    if (gCurrentActor->sub4->animId == 0x22A) {
+        if ((randomNonNegative() >> 15) % 100 >= 0x47 || gCurrentActor->unk155 != 0) {
             effectSpawnJointBeam(7, 0xB, 0x11, 0x20);
             effectSpawnJointBeam(0xC, 0x10, 0x11, 0x20);
-            sfxPlayAtPositionPooled(LgV->unk7C, LgV->unk80, LgV->unk84, 0x8A, 0x64, 0x7F, 0x28, 0, 0.3f, 0);
-            LgV->unk60 |= 4;
+            sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x8A, 0x64, 0x7F, 0x28, 0, 0.3f, 0);
+            gCurrentActor->flags |= 4;
         } else {
-            LgV->unk60 &= ~4;
+            gCurrentActor->flags &= ~4;
             sfxStopSlotSound(gCurrentActor, 0);
         }
     }
@@ -1524,6 +1422,7 @@ void func_806C3A8C(void) {
     u8 flag2;
     u8 flag3;
     u8 flag4;
+    u8 inRange;
 
     dist = (gPrimaryPlayerActor->x - gCurrentActor->x) * (gPrimaryPlayerActor->x - gCurrentActor->x) + (gPrimaryPlayerActor->y - gCurrentActor->y) * (gPrimaryPlayerActor->y - gCurrentActor->y) + (gPrimaryPlayerActor->z - gCurrentActor->z) * (gPrimaryPlayerActor->z - gCurrentActor->z);
     behaviourFrameBegin();
@@ -1555,12 +1454,14 @@ void func_806C3A8C(void) {
         case 0x1E:
             switch (gCurrentActor->unk155) {
                 case 0:
-                    if ((u8)(dist < 0xF424)) {
+                    inRange = dist < 0xF424;
+                    if (inRange) {
                         gCurrentActor->unk155++;
                     }
                     break;
                 case 1:
-                    if ((u8)(dist < 0x2710)) {
+                    inRange = dist < 0x2710;
+                    if (inRange) {
                         actorScriptStart(gCurrentActor, 0x3A4);
                         resQueueAttachActor(gCurrentActor, 0x17, 0);
                         gCurrentActor->unk155++;
@@ -1569,7 +1470,8 @@ void func_806C3A8C(void) {
             }
             break;
         case 0x1F:
-            if ((u8)(dist < 0x2710) && gCurrentActor->unk155 == 0) {
+            inRange = dist < 0x2710;
+            if (inRange && gCurrentActor->unk155 == 0) {
                 flag4 = flagGet(0xBD, 0);
                 flag3 = flagGet(0xBC, 0);
                 flag2 = flagGet(0xBB, 0);
@@ -1580,7 +1482,8 @@ void func_806C3A8C(void) {
             }
             break;
         case 0x20:
-            if ((u8)(dist < 0x2710) && gCurrentActor->unk155 == 0 && camIsCutsceneActive() == 0) {
+            inRange = dist < 0x2710;
+            if (inRange && gCurrentActor->unk155 == 0 && camIsCutsceneActive() == 0) {
                 camStartPath(gCurrentActor, 0x18, 1);
                 resQueueAttachActor(gCurrentActor, 0x17, 3);
                 gCurrentActor->unk155++;
