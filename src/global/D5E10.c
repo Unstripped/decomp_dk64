@@ -2,7 +2,6 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
-#define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type void  of function prototype description
 #define PROTO_SKIP_playerApplyGravityAndMotion // PROTO: Type Actor *  of this argument  is incompatible with type void  of function prototype description
 #define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
@@ -806,7 +805,6 @@ void playerStateVineSwing(void) {
     }
     playerInputUpdate(0x1B);
     r = mapGetVoidHeightForCharacter(gPrimaryPlayerActor->chunkIndex);
-    sel = 0x7E;
     if (r < gCurrentActor->y) {
         gCurrentActor->accelY = D_807536E4[gCurrentCharacterIndex];
         if (gCurrentActor->speedY > 0.0f) {
@@ -883,8 +881,6 @@ void playerStateMinecart(void) {
 extern f32 D_807531E0[];
 
 void playerStateClimbLadder(void) {
-    f32 f;
-
     if (gCurrentActor->unk155 == 0) {
         gCurrentActor->unk155++;
         gActivePlayerState->unkC = -1;
@@ -898,7 +894,7 @@ void playerStateClimbLadder(void) {
             gCurrentActor->unk155 = 0;
         }
     }
-    if ((camIsCutsceneActive() == 0) && ((f = D_807531E0[gCurrentCharacterIndex]) < gCurrentActor->speedXZ) && (f < gActivePlayerState->maxSpeed) &&
+    if ((camIsCutsceneActive() == 0) && (D_807531E0[gCurrentCharacterIndex] < gCurrentActor->speedXZ) && (D_807531E0[gCurrentCharacterIndex] < gActivePlayerState->maxSpeed) &&
         (gActivePlayerState->unkC >= 0) && (mathAngleDistance(gActivePlayerState->unkC, gActivePlayerState->targetYaw) >= 0x401) &&
         (mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->targetYaw) >= 0x539)) {
         gCurrentActor->state = 0xE;
@@ -1401,7 +1397,7 @@ void playerStateBackflip(void) {
     switch (gCurrentActor->unk155) {
     case 0:
         if (gActivePlayerState->approachTimer != 0) {
-            if (mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->approachYaw)) {}
+            if (mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->approachYaw)) {} // FAKE: dead if keeps the ignored s32 result out of $v0 (Q0198)
             playerApproachVelocity(gActivePlayerState->approachYaw, 50.0f, gActivePlayerState->targetSpeed);
             gActivePlayerState->approachTimer--;
         }
@@ -1418,7 +1414,7 @@ void playerStateBackflip(void) {
     case 1:
         playerInputUpdate(0x24);
         if (gActivePlayerState->approachTimer != 0) {
-            if (mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->approachYaw)) {}
+            if (mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->approachYaw)) {} // FAKE: dead if keeps the ignored s32 result out of $v0 (Q0198)
             playerApproachVelocity(gActivePlayerState->approachYaw, 30.0f, gActivePlayerState->targetSpeed);
             gActivePlayerState->approachTimer--;
         }
@@ -1606,7 +1602,7 @@ extern s32 D_80750FCC;
 extern s32 D_80750FD0;
 extern u8 D_80750FD4;
 extern f32 D_80750FD8;
-extern s32 D_8074E880[];
+extern void *D_8074E880[];
 extern f32 D_8075352C[];
 
 void playerStateSlopeSlide(void) {
@@ -2699,7 +2695,6 @@ extern f32 D_80753AE0[];
 void playerStateSurfaceTreadWater(void) {
     f32 t;
     f32 waterLevel;
-    s16 v;
 
     gActivePlayerState->unk24 = gActivePlayerState->unk24 + 1;
     gActivePlayerState->airAccel = D_80753AFC[gCurrentCharacterIndex];
@@ -2846,7 +2841,6 @@ extern s32 D_8072014C;
 
 void playerStateEnterFallOnCheck(void) {
     s32 n;
-    u16 nv;
     u16 b;
     s32 z;
 
@@ -2862,15 +2856,13 @@ void playerStateEnterFallOnCheck(void) {
         effectSetDuration(1);
         effectCreateAtActorBone(&D_8072014C, 0.8f, gCurrentActor, 1, 0);
     }
-    nv = gCurrentActor->prevContactFlags;
-    b = nv;
+    b = gCurrentActor->prevContactFlags;
     z = (b == 0);
     n = (gCurrentActor->contactFlags & b & 1) ? 2 : 1;
-    if (((z ^ 0) & gCurrentActor->contactFlags) & 1) {
+    if (((z ^ 0) & gCurrentActor->contactFlags) & 1) { // FAKE: no-op ^ 0 steers regalloc
         gCurrentActor->speedXZ = gCurrentActor->speedXZ * 0.25;
     }
-    if (z) {
-    }
+    if (z) {} // FAKE: dead guard is a real uopt use (Q0561)
     if (gCurrentActor->speedXZ < (f32)n) {
         gCurrentActor->speedXZ = 0.0f;
     } else {
@@ -2893,7 +2885,6 @@ void playerStateDamageFallTumble(void) {
     f32 fa0;
     f32 fv0;
     s32 n;
-    u16 nv;
     u16 b;
     s32 z;
 
@@ -2908,13 +2899,11 @@ void playerStateDamageFallTumble(void) {
                 effectSetDuration(1);
                 effectCreateAtActorBone(&D_8072014C, 0.8f, gCurrentActor, 1, 0);
             }
-            nv = gCurrentActor->prevContactFlags;
-            b = nv;
+            b = gCurrentActor->prevContactFlags;
             z = (b == 0);
             n = (gCurrentActor->contactFlags & b & 1) ? 2 : 1;
-            if (z) {
-            }
-            if (((z ^ 0) & gCurrentActor->contactFlags) & 1) {
+            if (z) {} // FAKE: dead guard is a real uopt use (Q0561)
+            if (((z ^ 0) & gCurrentActor->contactFlags) & 1) { // FAKE: no-op ^ 0 steers regalloc
                 gCurrentActor->speedXZ = gCurrentActor->speedXZ * 0.25;
             }
             if (gCurrentActor->speedXZ < (f32)n) {
@@ -3058,7 +3047,6 @@ void playerStateCutsceneIdle(void) {
 }
 
 extern f32 D_807FBC58;
-s32 actorTableContains(void *);
 extern f32 gKongHoldPutDownAngles[];
 
 extern u8 D_8071FC8C;
@@ -3067,21 +3055,18 @@ f32 mathSinF(s16);
 void playerStateTransformSparkles(void) {
     f32 pad;
     f32 posY;
-    s32 sel;
 
     playerInputUpdate(1);
-    sel = gCurrentActor->unk155;
-    if (sel == 1 || sel == 2) {
+    if (gCurrentActor->unk155 == 1 || gCurrentActor->unk155 == 2) {
         randomNonNegative();
         posY = (s32)(randomNonNegative() >> 15) % 30 + gCurrentActor->y;
         randomNonNegative();
         effectSetDepth(1);
         effectSetSpeed((gActivePlayerState->unk23C << 16) + (s32)(15.0 * (gCurrentActor->alpha / 255.0)));
         effectSetCallback(effectOrbitXZUpdate);
-        effectCreateAtPosition((s32)&D_8071FC8C, 0.5f, gCurrentActor->x, posY, gCurrentActor->z);
-        sel = gCurrentActor->unk155;
+        effectCreateAtPosition(&D_8071FC8C, 0.5f, gCurrentActor->x, posY, gCurrentActor->z);
     }
-    switch (sel) {
+    switch (gCurrentActor->unk155) {
     case 0:
         gActivePlayerState->unk23C = 0;
         gCurrentActor->unk155++;
@@ -3713,7 +3698,7 @@ void playerStateKnockbackTumble(void) {
             gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
         }
         s = (mathSinF(gActivePlayerState->unkCC) > 0.0f) ? mathSinF(gActivePlayerState->unkCC) : -mathSinF(gActivePlayerState->unkCC);
-        gCurrentActor->yaw = (f64)gCurrentActor->yaw + 120.0 * (0.5 + (f64)s);
+        gCurrentActor->yaw = gCurrentActor->yaw + 120.0 * (0.5 + s);
         break;
     case 3:
         gActivePlayerState->unk108 = gActivePlayerState->unk108 - 1.0f;
@@ -3722,9 +3707,9 @@ void playerStateKnockbackTumble(void) {
             gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
         }
         s = (mathSinF(gActivePlayerState->unkCC) > 0.0f) ? mathSinF(gActivePlayerState->unkCC) : -mathSinF(gActivePlayerState->unkCC);
-        gCurrentActor->yaw = (f64)gCurrentActor->yaw + 120.0 * (0.5 + (f64)s);
+        gCurrentActor->yaw = gCurrentActor->yaw + 120.0 * (0.5 + s);
         s = mathSinF((s16)(gActivePlayerState->unkCC + 0x400));
-        gCurrentActor->pitch = (f32)gCurrentActor->pitch + 60.0f * s;
+        gCurrentActor->pitch = gCurrentActor->pitch + 60.0f * s;
         break;
     case 4:
         playerStateQueueCallback(0x1B, 0, 0);
@@ -3746,11 +3731,11 @@ void playerStateKnockbackTumble(void) {
         effectSetCallback(effectPuffRiseUpdate);
         effectSetSpeed((randomNonNegative() >> 15) % 100 + 0x64);
         if (kind == 2) {
-            effectCreateAtPosition((s32)&D_8071FCC0, 0.5f, px, py, pz);
+            effectCreateAtPosition(&D_8071FCC0, 0.5f, px, py, pz);
         } else if (kind == 1) {
-            effectCreateAtPosition((s32)&D_8071FC8C, 0.5f, px, py, pz);
+            effectCreateAtPosition(&D_8071FC8C, 0.5f, px, py, pz);
         } else {
-            effectCreateAtPosition((s32)&D_8071FC58, 0.5f, px, py, pz);
+            effectCreateAtPosition(&D_8071FC58, 0.5f, px, py, pz);
         }
     }
     gCurrentActor->speedY = 0.0f;
@@ -3986,7 +3971,7 @@ void func_806DCA7C(void) {
     gCurrentActor->flags &= 0xFFBFFFFF;
     gCurrentActor->contactFlags &= 0xFFBF;
     t = gCurrentActor->roll;
-    gCurrentActor->roll = (f64)t + (f64)-t * 0.1;
+    gCurrentActor->roll = t + -t * 0.1;
     switch (gCurrentActor->unk155) {
     case 0:
         playerFindClosestTargetActor();
@@ -4038,8 +4023,8 @@ void func_806DCA7C(void) {
         if (gActivePlayerState->unk158 != 0) {
             actorGetNodePos(gActivePlayerState->unk158, 1, &nodeX, &nodeY, &nodeZ);
             dy = nodeY - gActivePlayerActor->y;
-            dy = (f64)dy / ((f64)gActivePlayerActor->sub4->scaleY * 0.16666666675);
-            dist = (f32)((f64)sqrtf((nodeX - gActivePlayerActor->x) * (nodeX - gActivePlayerActor->x) + (nodeZ - gActivePlayerActor->z) * (nodeZ - gActivePlayerActor->z)) / ((f64)gActivePlayerActor->sub4->scaleY * 0.16666666675));
+            dy = dy / (gActivePlayerActor->sub4->scaleY * 0.16666666675);
+            dist = sqrtf((nodeX - gActivePlayerActor->x) * (nodeX - gActivePlayerActor->x) + (nodeZ - gActivePlayerActor->z) * (nodeZ - gActivePlayerActor->z)) / (gActivePlayerActor->sub4->scaleY * 0.16666666675);
             speed = gActivePlayerActor->speedXZ;
             time = dist / speed - 1.0f;
             if (time < 1.0f) {
@@ -4047,7 +4032,7 @@ void func_806DCA7C(void) {
             }
         }
         if ((gActivePlayerState->unk158 != 0) && (time < 30.0f)) {
-            gActivePlayerActor->speedY = (0.0 - ((D_80753CD0[gCurrentCharacterIndex] * 0.5 * (f64)(time * time)) - (f64)dy)) / (f64)time;
+            gActivePlayerActor->speedY = (0.0 - (D_80753CD0[gCurrentCharacterIndex] * 0.5 * (time * time) - dy)) / time;
             gActivePlayerActor->accelY = -0.001f;
         } else {
             gActivePlayerState->unk158 = 0;
@@ -4291,9 +4276,9 @@ void playerStateKnockbackBounce(void) {
 
 typedef struct LD5Pad {
     /* 0x00 */ u8 pad0[0x2C];
-    /* 0x2C */ u16 unk2C;
+    /* 0x2C */ u16 buttons;
     /* 0x2E */ u8 pad2E;
-    /* 0x2F */ s8 unk2F;
+    /* 0x2F */ s8 stickY;
     /* 0x30 */ u8 pad30[4];
 } LD5Pad;
 
@@ -4312,11 +4297,11 @@ void actorStepPhysics(Actor *, s16, s16); // FAKE: callee prototype steer
 
 void playerStateBounceRecover(void) {
     f32 ledgeY;
-    u8 k;
+    u8 pad1;
     u8 angleOk;
     s16 angle;
     f32 t;
-    s16 h;
+    s16 pad2;
     u8 a;
     f32 f;
     f32 ledgeOffset;
@@ -4325,7 +4310,7 @@ void playerStateBounceRecover(void) {
     s16 hitA;
     s16 hitB;
     u8 onLedge;
-    s32 x;
+    s32 pad3;
 
     onLedge = 0;
     if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
@@ -4385,11 +4370,7 @@ void playerStateBounceRecover(void) {
             }
         }
         if (gCurrentActor->speedXZ < 0.0f) {
-            if (gCurrentActor->speedXZ > 0.0f) {
-                gCurrentActor->speedXZ = gCurrentActor->speedXZ;
-            } else {
-                gCurrentActor->speedXZ = -gCurrentActor->speedXZ;
-            }
+            gCurrentActor->speedXZ = (gCurrentActor->speedXZ > 0.0f) ? gCurrentActor->speedXZ : -gCurrentActor->speedXZ;
             angle = gActivePlayerState->unkEA + 0x400;
             angle &= 0xFFF;
             gCurrentActor->moveYaw = gCurrentActor->arcYawMin + 0xA;
@@ -4414,7 +4395,7 @@ void playerStateBounceRecover(void) {
         }
         break;
     }
-    flag = gPlayerPadState[gCurrentPlayerIndex].unk2F < -0x32 && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x2000);
+    flag = gPlayerPadState[gCurrentPlayerIndex].stickY < -0x32 && (gPlayerPadState[gCurrentPlayerIndex].buttons & 0x2000);
     if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
         a = flag;
         a |= gCurrentActor->y - gCurrentActor->floorY < D_80753DA8[gCurrentCharacterIndex];
@@ -4422,13 +4403,10 @@ void playerStateBounceRecover(void) {
         a = flag;
         a |= gCurrentActor->y - gCurrentActor->floorY < D_80753DB8[gCurrentCharacterIndex];
     }
-    v = 0;
     if (gActivePlayerState->unkF8 == 0) {
-        x = gCurrentActor->hasArcBounds == 0 || onLedge == 0;
-        v = x;
+        v = gCurrentActor->hasArcBounds == 0 || onLedge == 0;
         collisionGetCoords(&hitA, &hitB);
         if (hitB < 0x385) {
-            v = x;
             v |= 1;
         }
     } else {
@@ -4658,7 +4636,7 @@ void playerStateResumeFromCutscene(void) {
 
 typedef struct G20Sub174 {
     /* 0x000 */ u8 pad0[0x1A4];
-    /* 0x1A4 */ u8 unk1A4;
+    /* 0x1A4 */ u8 playerIndex;
 } G20Sub174;
 
 typedef struct G20Light {
@@ -4738,7 +4716,7 @@ void playerStateDialogueWait(void) {
             owner = gCurrentActor->customState;
             currentActorClearFlag();
             playerResumeLocomotion(gCurrentActor);
-            healthRefill(owner->unk1A4);
+            healthRefill(owner->playerIndex);
             p = &D_80750FE0;
             do {
                 slotQueueAddValue(*p, 0, 0x270F);
@@ -4759,16 +4737,16 @@ void playerStateDialogueHold(void) {
 
     playerStateQueueCallback(0x5C, 0, gCurrentPlayerIndex);
     if (gSplitScreenMode == 0) {
-        gPlayerSlots[sub->unk1A4].unk2EA = 1;
+        gPlayerSlots[sub->playerIndex].unk2EA = 1;
     }
-    gPlayerSlots[sub->unk1A4].unk2EB = 1;
+    gPlayerSlots[sub->playerIndex].unk2EB = 1;
     gCurrentActor->flags &= 0xFFFF7FFF;
     cur = gCurrentActor->alpha;
     step = (cur < 4) ? cur : 4;
     gCurrentActor->alpha = cur - step;
     if (gCurrentActor->alpha == 0) {
         if (gSplitScreenMode == 0) {
-            gPlayerSlots[sub->unk1A4].unk0 = 0;
+            gPlayerSlots[sub->playerIndex].unk0 = 0;
         }
         gCurrentActor->flags &= ~4;
     }
