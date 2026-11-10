@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
@@ -28,6 +29,7 @@
 #include "proto/global/ACDC0.h"
 #include "proto/global/C2A90.h"
 #include "proto/global/FCCD0.h"
+void slotQueueAddValue();  // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;

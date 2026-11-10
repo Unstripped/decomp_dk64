@@ -334,7 +334,7 @@ void slotQueueSetShownValue(u8 arg0, u8 arg1, s32 arg2) {
 
 
 extern s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
-u16 slotQueueGetValue(u8 arg0, u8 arg1) {
+s32 slotQueueGetValue(u8 arg0, u8 arg1) {
     u16 var_a2;
     u16 sp26;
     s32 temp_v0;
@@ -560,11 +560,7 @@ typedef struct SlotQueueStatSlot {
 
 extern u8 gPlayerCharacterId;
 
-void slotQueueAddValue(arg0, arg1, arg2)
-s32 arg0;
-u8 arg1;
-s16 arg2;
-{
+void slotQueueAddValue(s32 arg0, u8 arg1, s16 arg2) {
     u8 *pa;
     u8 *sp48;
     s16 *pad0;

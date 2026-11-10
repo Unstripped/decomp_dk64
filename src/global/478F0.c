@@ -4,8 +4,6 @@
 #define PROTO_SKIP_collisionCheckGroundAtPoint // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // PROTO: Improper cast of non-scalar type expression.
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
-#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
-#define PROTO_SKIP_slotQueueGetValue // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #include "proto/global/114270.h"
 #include "proto/global/119370.h"
@@ -2951,8 +2949,6 @@ u8 csCondTransitionState5(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern s32 D_807552F0;
-s32 slotQueueGetValue(s32, u8);  // FAKE: callee prototype steer
-void slotQueueAddValue(s32, u8, s16); // FAKE: callee prototype steer
 
 s32 csCondDepositItem(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 q;

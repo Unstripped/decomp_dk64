@@ -25,7 +25,7 @@ void slotQueueInit(s32);
 void slotQueueSetShownValue(u8, u8, s32);
 #endif
 #ifndef PROTO_SKIP_slotQueueGetValue
-u16 slotQueueGetValue(u8, u8);
+s32 slotQueueGetValue(u8, u8);
 #endif
 #ifndef PROTO_SKIP_slotQueueUpdate
 void slotQueueUpdate(s32, u8, s32);
@@ -49,7 +49,7 @@ s32 func_806F8EB4(void);
 s32 slotQueueGetMaxValue(s32, s32);
 #endif
 #ifndef PROTO_SKIP_slotQueueAddValue
-void slotQueueAddValue();
+void slotQueueAddValue(s32, u8, s16);
 #endif
 #ifndef PROTO_SKIP_bitfieldSetMappedFlag
 void bitfieldSetMappedFlag(u16 *, s32);

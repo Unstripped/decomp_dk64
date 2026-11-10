@@ -2,7 +2,6 @@
 #include "actor.h"
 #define PROTO_SKIP_camResumePath // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #define PROTO_SKIP_commandQueuePush // FAKE: callee prototype steer
-#define PROTO_SKIP_slotQueueGetValue // FAKE: callee prototype steer
 #include "proto/bonus/0.h"
 #include "proto/bonus/12A0.h"
 #include "proto/boot/3630.h"
@@ -95,7 +94,6 @@ extern LB3bTbl gActorGlobalState;
 extern u8 D_8002D863[];
 
 void commandQueuePush(void *, s16, s16, s16, s32, s32, s32, s32, s32); // FAKE: callee prototype steer
-s32 slotQueueGetValue(s32, s32); // FAKE: callee prototype steer
 void camResumePath(void *);
 
 void bonusControllerUpdate(void) {

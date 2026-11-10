@@ -1,7 +1,5 @@
 #include "common.h"
 #define PROTO_SKIP_resQueueAttachActor // FAKE: callee prototype steer
-#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
-#define PROTO_SKIP_slotQueueGetValue // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/104F0.h"
@@ -156,7 +154,6 @@ typedef struct {
 } MenuM1_C924;
 extern MenuM1_C924 *gPlayerSlots;
 extern u8 D_800334DC[];
-void slotQueueAddValue(s32, s32, s16); // FAKE: callee prototype steer
 
 void menuApplyPurchase(Struct_80025D14 *state, u8 *inventory) {
     s16 queueItemId = -1;
@@ -283,7 +280,6 @@ void menuCheckInventoryItemPurchased(Struct_80025D14 *state, u8 *inventory, s32 
     state->unk10 = D_807FCC4C;
 }
 
-s32 slotQueueGetValue(s32, s32); // FAKE: callee prototype steer
 
 s32 menuGetOptionAvailability(Struct_80025D14 *state, s32 optionIdx) {
     s32 ret = 0;

@@ -5,7 +5,6 @@
 #define PROTO_SKIP_playerSetSizeMode // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_playerTransformAnimalEndSfx // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_rumbleRequest // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
 #include "proto/global/10D2D0.h"
 #include "proto/global/126260.h"
 #include "proto/global/131B0.h"
@@ -1231,7 +1230,6 @@ void playerResetSpawnGlobals(void) {
 
 
 extern s32 D_80750B34[];
-void slotQueueAddValue(s32, u8, s32); // FAKE: callee prototype steer
 
 void playerSpawnMapActors(s32 arg0) {
     s32 i;

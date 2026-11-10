@@ -2,7 +2,6 @@
 #include "actor.h"
 #define PROTO_SKIP_collisionCheckActorFloor // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
 #define PROTO_SKIP_zoneCheckActorInside // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -1727,7 +1726,6 @@ void behaviourSpawnDropParticle(void) {
 }
 
 extern u8 gCurrentPlayerIndex;
-void slotQueueAddValue(s32, u8, s16); // FAKE: callee prototype steer
 
 void behaviourAddSlotQueueValueB(s32 arg0) {
     u8 cnt;

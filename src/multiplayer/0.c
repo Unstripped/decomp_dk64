@@ -5,8 +5,6 @@
 #define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_func_806F54E0 // FAKE: callee prototype steer
-#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
-#define PROTO_SKIP_slotQueueGetValue // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/117190.h"
@@ -158,7 +156,6 @@ extern u8 D_20000C0[];
 
 extern s32 D_807552E8;
 extern MpScore gPlayerInventoryTable[];
-s32 slotQueueGetValue(s32, u8); // FAKE: callee prototype steer
 extern s32 D_807552EC;
 extern u8 gPlayerCount;
 extern s32 gGlobalPauseFlags;
@@ -888,7 +885,6 @@ void mpFreeHudIcons(MpControllerState *controllerState) {
     controllerState->unk70 = 0;
 }
 
-void slotQueueAddValue(s32, u8, s32); // FAKE: callee prototype steer
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern s32 D_8076D1F8;
 extern u32 D_80767CC0;
