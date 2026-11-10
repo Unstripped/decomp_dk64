@@ -395,7 +395,7 @@ void playerStateGameOver(void) {
 }
 
 typedef struct NmD5E10aTbl {
-    u16 unk0[3];
+    s16 unk0[3];
 } NmD5E10aTbl;
 
 extern NmD5E10aTbl D_80750FB0;
@@ -421,7 +421,7 @@ void playerStateSquishDeath(void) {
     }
     if ((currentActorTestClearFlag() != 0) || --gActivePlayerState->unk23C == 0) {
         if (menuIsTransitionTypeD() == 0) {
-            r = func_80600340(&table, 3, out);
+            r = func_80600340(table.unk0, 3, out);
             actorListSetCustomFloat(out[1], r, 7, 2.0f);
         }
         mapTransitionToPreviousOrExit();

@@ -10,7 +10,6 @@
 #include "proto/global/15050.h"
 #include "proto/global/201B0.h"
 #include "proto/global/36880.h"
-#define PROTO_SKIP_func_80600340
 #include "proto/global/3C10.h"
 #include "proto/global/5E2F0.h"
 #include "proto/global/7130.h"

@@ -93,7 +93,7 @@ s32 mapFindSlotIndex(s32);
 s16 func_80600174(f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_func_80600340
-s32 func_80600340(s32, u8, s32 *);
+s32 func_80600340(s16 *, u8, s32 *);
 #endif
 #ifndef PROTO_SKIP_func_806003EC
 void func_806003EC(s16);
