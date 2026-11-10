@@ -1,16 +1,14 @@
 #include "common.h"
+#include "sched.h"
 #include "actor.h"
 #define PROTO_SKIP_actorDespawn // FAKE: callee prototype steer
 #define PROTO_SKIP_actorQueueDelayedCallback // FAKE: callee prototype steer
 #define PROTO_SKIP_actorScriptStart // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_effectZSpinMatrixUpdate // PROTO: not a function here
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
 #define PROTO_SKIP_func_806C7BAC // FAKE: callee prototype steer
 #define PROTO_SKIP_mapGetConfigValue // FAKE: callee prototype steer
-#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
-#define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
 #include "proto/global/104F0.h"
@@ -77,10 +75,6 @@ typedef struct TagBarrelState {
     /* 0x18 */ s16 unk18;
 } TagBarrelState;
 
-typedef struct ActorD580 {
-    /* 0x000 */ u8 pad0[0xCA];
-    /* 0x0CA */ u8 unkCA;
-} ActorD580;
 
 typedef struct ActorAnimLookup {
     struct {
@@ -89,28 +83,25 @@ typedef struct ActorAnimLookup {
     } arr[5];
 } ActorAnimLookup;
 
-typedef struct ActorGroup5 {
-    u8 pad0[8];
-    Actor *unk8[5];
-} ActorGroup5;
 
-typedef struct ActorKongAction {
-    u8 pad0[4];
-    u8 unk4;
+typedef struct KongActionEntry {
+    s16 model;
+    s16 kongIndex;
+    u8 action;
     u8 unk5;
-} ActorKongAction;
+} KongActionEntry;
 
 extern Actor *gCurrentActor;
 extern ActorGlobalState gActorGlobalState;
-extern ActorD580 *gActivePlayerState;
-extern void *gPrimaryPlayerActor;
+extern PlayerState *gActivePlayerState;
+extern Actor *gPrimaryPlayerActor;
 extern u16 *gActorScriptIndexTable;
 extern s32 gCurrentMap;
 extern s32 D_8071FE08;
 extern u8 gPlayerCharacterId;
 extern ActorMapFlag D_8074E7A0[];
 extern s16 D_8074E7E0[];
-extern ActorKongAction D_8074E814[];
+extern KongActionEntry D_8074E814[];
 extern ActorAnimLookup D_8074E834;
 extern s32 D_8074E85C[];
 extern u8 D_80720120;
@@ -124,12 +115,12 @@ void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototy
 s32 flagGet(s16, s32);  // FAKE: callee prototype steer
 
 s32 tagBarrelIsSpecial(void *actor) {
-    s32 count = 4;
-    s32 val = actorListFindIdByActor(actor);
+    s32 count = 4; // FAKE: value-named constant local steers regalloc (literal 4: mismatch)
+    s32 listId = actorListFindIdByActor(actor);
     s32 i;
 
     for (i = 0; i < count; i++) {
-        if (gCurrentMap == D_8074E7A0[i].map && val == D_8074E7A0[i].unk2) {
+        if (gCurrentMap == D_8074E7A0[i].map && listId == D_8074E7A0[i].unk2) {
             return flagGet(D_8074E7A0[i].unk4, 0);
         }
     }
@@ -171,19 +162,13 @@ typedef struct ActorB4C8State {
     u8 unk15;
 } ActorB4C8State;
 
-typedef struct ActorB4C8PeerState {
-    u8 pad0[0xB0];
-    f32 unkB0;
-    f32 unkB4;
-    f32 unkB8;
-} ActorB4C8PeerState;
 
 extern u8 D_8071FBC8;
 void actorQueueDelayedCallback(Actor *, Actor *, s32, s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 void tagBarrelInitPeerState(void) {
     ActorB4C8State *sub = gCurrentActor->customState;
-    ActorB4C8PeerState *peer;
+    PlayerState *peer;
     s32 i;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -215,7 +200,7 @@ void tagBarrelInitPeerState(void) {
         }
     }
     if (gActorGlobalState.unk200 == 4) {
-        sub->unk0 = (Actor *)gActorGlobalState.targetActor;
+        sub->unk0 = gActorGlobalState.targetActor;
         gCurrentActor->state = 1;
         if (0) {} // FAKE: empty branch steers uopt web colouring (gActorGlobalState address takes v1 not v0)
         sub->unk14 = 0xA;
@@ -303,12 +288,11 @@ void tagBarrelPeerUpdate(void) {
     tagBarrelInitPeerState();
 }
 
-s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, u8);  // FAKE: callee prototype steer
 extern u8 D_807FBBA8;
 
 
-void tagBarrelAnimSetSpeed(s32 arg0) {
-    if (!(gCurrentActor->flags & 0x10) && (arg0 == 0x13)) {
+void tagBarrelAnimSetSpeed(s32 spawnType) {
+    if (!(gCurrentActor->flags & 0x10) && (spawnType == 0x13)) {
         animSetSpeed(gCurrentActor, 0, 0.5f);
         animSetLoopMode(gCurrentActor, 0, 0);
         animSetDirection(gCurrentActor, 0, 0);
@@ -322,7 +306,7 @@ void tagBarrelAnimSetSpeed(s32 arg0) {
             effectSetDepth(0);
             effectSetDuration(1);
             effectCreateAtPosition(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
-            actorListSpawnNodeEntryDefault(arg0, gCurrentActor->x, gCurrentActor->y + 8.3, gCurrentActor->z, 0, 1.0f, gCurrentActor);
+            actorListSpawnNodeEntryDefault(spawnType, gCurrentActor->x, gCurrentActor->y + 8.3, gCurrentActor->z, 0, 1.0f, gCurrentActor);
             gCurrentActor->state++;
             break;
         case 11:
@@ -331,7 +315,7 @@ void tagBarrelAnimSetSpeed(s32 arg0) {
             }
             break;
         case 20:
-            if (arg0 == 0x95) {
+            if (spawnType == 0x95) {
                 gCurrentActor->yawSpeed = 0x1E;
                 gCurrentActor->state = 0x15;
             }
@@ -344,7 +328,7 @@ void tagBarrelAnimSetSpeed(s32 arg0) {
             }
             break;
     }
-    if (arg0 == 0x13) {
+    if (spawnType == 0x13) {
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
 }
@@ -375,14 +359,14 @@ void tagBarrelSpawnType13F(void) {
 
 
 void tagBarrelCheckPlayerState(void) {
-    char *extra;
-    s32 var_v1 = 0;
+    PlayerState *extra;
+    s32 released = 0;
 
-    extra = (char *)((Actor *)gPrimaryPlayerActor)->customState;
-    if ((D_807FBBA8 != 0) && (*(s32 *) (extra + 0x1F0) & 0x200000)) {
-        var_v1 = 1;
+    extra = gPrimaryPlayerActor->customState;
+    if ((D_807FBBA8 != 0) && (extra->stateFlags & 0x200000)) {
+        released = 1;
     }
-    if (!(gCurrentActor->flags & 0x10) || var_v1) {
+    if (!(gCurrentActor->flags & 0x10) || released) {
         actorListSpawnNodeEntryDefault(0x55, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0, 1.0f, gCurrentActor);
     }
 }
@@ -393,118 +377,124 @@ void tagBarrelSpawnType95(void) {
     gCurrentActor->y = gCurrentActor->floorY;
 }
 
-void tagBarrelCheckProximity(void) {
-    u8 sp1F;
-    u8 *ptr;
+typedef struct TagBarrelFallState {
+    /* 0x0 */ u8 inRange;
+    /* 0x1 */ u8 falling;
+} TagBarrelFallState;
 
-    sp1F = 0;
-    ptr = gCurrentActor->customState;
-    tagBarrelCheckProximityAndFall(0x13, ptr, ptr + 1, &sp1F);
+void tagBarrelCheckProximity(void) {
+    u8 triggered;
+    TagBarrelFallState *state;
+
+    triggered = 0;
+    state = gCurrentActor->customState;
+    tagBarrelCheckProximityAndFall(0x13, &state->inRange, &state->falling, &triggered);
 }
 
+typedef struct TagBarrelProximityState {
+    /* 0x0 */ s16 spawnType;
+    /* 0x2 */ u8 inRange;
+    /* 0x3 */ u8 falling;
+    /* 0x4 */ u8 triggered;
+} TagBarrelProximityState;
+
 void tagBarrelInitDrawDistanceAndState(void) {
-    u8 *t0 = gCurrentActor->customState;
+    TagBarrelProximityState *state = gCurrentActor->customState;
     s16 i;
 
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->drawDistance = 0x7D0;
-        *(s16 *)t0 = 0x1A;
+        state->spawnType = 0x1A;
     }
     for (i = 0; i < gActorGlobalState.unk254; i++) {
         switch (gActorGlobalState.unk258[i]) {
         case 1:
-            *(s16 *)t0 = 0x60;
+            state->spawnType = 0x60;
             break;
         case 2:
-            *(s16 *)t0 = 0;
+            state->spawnType = 0;
             break;
         case 3:
-            *(s16 *)t0 = 0x1A;
+            state->spawnType = 0x1A;
             break;
         }
     }
-    if (*(s16 *)t0 != 0) {
-        if (tagBarrelCheckProximityAndFall(*(s16 *)t0, t0 + 2, t0 + 3, t0 + 4)) {
-            *(s16 *)t0 = 0x1A;
+    if (state->spawnType != 0) {
+        if (tagBarrelCheckProximityAndFall(state->spawnType, &state->inRange, &state->falling, &state->triggered)) {
+            state->spawnType = 0x1A;
         }
     } else {
         if (gActorGlobalState.unk38 != 0) {
-            t0[4] = 1;
+            state->triggered = 1;
         }
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
 }
 
 void tagBarrelCheckProximity1A(void) {
-    u8 *ptr = gCurrentActor->customState;
-    tagBarrelCheckProximityAndFall(0x1A, ptr + 2, ptr + 3, ptr + 4);
+    TagBarrelProximityState *state = gCurrentActor->customState;
+
+    tagBarrelCheckProximityAndFall(0x1A, &state->inRange, &state->falling, &state->triggered);
 }
 
 extern u8 gPlayerCount;
-extern struct PlayerData *gPlayerSlots;
-typedef struct TagBarrelPlayerEntry {
-    u8 unk0;
-    u8 pad1[3];
-    Actor *player;
-    u8 pad8[0x2F0 - 8];
-} TagBarrelPlayerEntry;
-#define TAG_BARREL_PLAYER_TABLE ((TagBarrelPlayerEntry *)gPlayerSlots)
+extern PlayerStruct *gPlayerSlots;
 
-s32 tagBarrelCheckProximityAndFall(s32 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
-    volatile u8 sp47; // FAKE: force stack home
+s32 tagBarrelCheckProximityAndFall(s32 spawnType, u8 *inRange, u8 *falling, u8 *triggered) {
+    volatile u8 spawn; // FAKE: force stack home
     s32 pad[2];
-    u8 var_a0;
-    f32 var_fs0;
-    f32 temp_f0;
-    f32 temp_f1;
-    sp47 = 0;
-    var_fs0 = 99999.0f;
+    u8 i;
+    f32 minDist;
+    f32 dz;
+    f32 dx;
+    spawn = 0;
+    minDist = 99999.0f;
     if (gCurrentActor->flags & 0x10) {
         animSetSpeed(gCurrentActor, 0, 0.5f);
         animSetLoopMode(gCurrentActor, 0, 0);
         animSetDirection(gCurrentActor, 0, 0);
         animSetLoopLimit(gCurrentActor, 0, -1);
-        if (D_807FBBA8 != 0 || *arg1 != 0 || *arg3 != 0) {
-            *arg3 = 0;
-            sp47 = 1;
+        if (D_807FBBA8 != 0 || *inRange != 0 || *triggered != 0) {
+            *triggered = 0;
+            spawn = 1;
         }
-        if (sp47 != 0) {
-            var_a0 = 0;
+        if (spawn != 0) {
+            i = 0;
             if ((s32)gPlayerCount > 0) {
                 do {
-                    if (TAG_BARREL_PLAYER_TABLE[var_a0].unk0 != 0) {
-                        Actor *player = TAG_BARREL_PLAYER_TABLE[var_a0].player;
-                        temp_f0 = player->z - gCurrentActor->z;
-                        temp_f1 = player->x - gCurrentActor->x;
-                        temp_f0 = sqrtf((temp_f0 * temp_f0) + (temp_f1 * temp_f1));
-                        if (temp_f0 < var_fs0) {
-                            var_fs0 = temp_f0;
+                    if (gPlayerSlots[i].unk0 != 0) {
+                        Actor *player = gPlayerSlots[i].actor;
+                        dz = player->z - gCurrentActor->z;
+                        dx = player->x - gCurrentActor->x;
+                        dz = sqrtf((dz * dz) + (dx * dx));
+                        if (dz < minDist) {
+                            minDist = dz;
                         }
                     }
-                    var_a0++;
-                } while (var_a0 < gPlayerCount);
+                    i++;
+                } while (i < gPlayerCount);
             }
-            if ((f64)var_fs0 > 12.0) {
-                *arg1 = 0;
+            if ((f64)minDist > 12.0) {
+                *inRange = 0;
             } else {
-                *arg1 = 1;
-                sp47 = 0;
+                *inRange = 1;
+                spawn = 0;
             }
         }
     } else {
-        sp47 = 1;
-        *arg1 = 0;
+        spawn = 1;
+        *inRange = 0;
         gCurrentActor->speedY = -10.0f;
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
         if (actorHasActiveMovementFlags(gCurrentActor) != 0) {
-            *arg2 = 1;
+            *falling = 1;
         } else {
-            *arg2 = 0;
+            *falling = 0;
         }
     }
-    if (sp47 != 0) {
-        actorListSpawnNodeEntryDefault(arg0, gCurrentActor->x, (f32)((f64)gCurrentActor->y + 8.3), gCurrentActor->z, 0, 1.0f, gCurrentActor);
+    if (spawn != 0) {
+        actorListSpawnNodeEntryDefault(spawnType, gCurrentActor->x, (f32)((f64)gCurrentActor->y + 8.3), gCurrentActor->z, 0, 1.0f, gCurrentActor);
         if (gCurrentActor->flags & 0x10) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x31, 0xFF, 0x7F, 1);
             effectSetDepth(0);
@@ -512,20 +502,20 @@ s32 tagBarrelCheckProximityAndFall(s32 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
             effectCreateAtPosition(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
         }
     }
-    if (*arg2 != 0) {
+    if (*falling != 0) {
         gCurrentActor->speedY = -10.0f;
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
-    return sp47;
+    return spawn;
 }
 
 typedef struct ActorC2B8State {
-    u8 unk0;
+    u8 soundPlaying;
     u8 pad1[3];
-    f32 unk4;
-    u8 unk8;
+    f32 targetSpeed;
+    u8 pushed;
 } ActorC2B8State;
 
 
@@ -533,79 +523,79 @@ typedef struct ActorC2B8State {
 void actorStepPhysics(Actor *, s16, s16); // FAKE: callee prototype steer
 
 void tagBarrelRotateUpdate(void) {
-    ActorC2B8State *temp_v0;
-    f32 temp_fv1;
-    f32 temp_fv0;
-    s16 temp_a1;
+    ActorC2B8State *state;
+    f32 speed;
+    f32 target;
+    s16 yaw;
 
-    temp_v0 = (ActorC2B8State *) gCurrentActor->customState;
+    state = (ActorC2B8State *) gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags2 |= 4;
         gCurrentActor->flags |= 0x80;
-        temp_v0->unk0 = 0;
-        temp_v0->unk8 = 0;
-        temp_v0->unk4 = 0.0f;
+        state->soundPlaying = 0;
+        state->pushed = 0;
+        state->targetSpeed = 0.0f;
     }
     if (!(gCurrentActor->flags2 & 4)) {
         gCurrentActor->speedXZ = 0.0f;
     }
     if (gActorGlobalState.unk90 != 0) {
-        temp_v0->unk8 = 1;
+        state->pushed = 1;
     }
     if (gActorGlobalState.unk91 != 0) {
-        if (temp_v0->unk0 == 0) {
+        if (state->soundPlaying == 0) {
             sfxPlayActorSound(gCurrentActor, 0x10C, 0, 1, 0, 0xFF, 1.0f, 0);
-            temp_v0->unk0 = 1;
+            state->soundPlaying = 1;
         }
-        temp_v0->unk4 = (f64) gActorGlobalState.unk94 / 1.1;
+        state->targetSpeed = (f64) gActorGlobalState.unk94 / 1.1;
         gCurrentActor->moveYaw = gActorGlobalState.unk92;
-        temp_fv1 = gCurrentActor->speedXZ;
-        if (temp_fv1 < temp_v0->unk4) {
-            gCurrentActor->speedXZ = temp_fv1 + 0.8;
-            temp_fv0 = temp_v0->unk4;
-            if (temp_fv0 < gCurrentActor->speedXZ) {
-                gCurrentActor->speedXZ = temp_fv0;
+        speed = gCurrentActor->speedXZ;
+        if (speed < state->targetSpeed) {
+            gCurrentActor->speedXZ = speed + 0.8;
+            target = state->targetSpeed;
+            if (target < gCurrentActor->speedXZ) {
+                gCurrentActor->speedXZ = target;
             }
         } else {
-            gCurrentActor->speedXZ = temp_fv1 - 1.5;
+            gCurrentActor->speedXZ = speed - 1.5;
             if (gCurrentActor->speedXZ < 0.0f) {
                 gCurrentActor->speedXZ = 0.0f;
             }
         }
         gCurrentActor->unkFA = 0x64;
-        temp_a1 = gCurrentActor->moveYaw;
-        actorStepPhysics(gCurrentActor, temp_a1, temp_a1);
+        yaw = gCurrentActor->moveYaw;
+        actorStepPhysics(gCurrentActor, yaw, yaw);
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
         gCurrentActor->y = gCurrentActor->floorY;
-        if (temp_v0->unk8 == 0) {
+        if (state->pushed == 0) {
             gCurrentActor->unk144 = 0x3C;
         }
     } else {
-        if ((temp_v0->unk0 != 0) && ((f64) gCurrentActor->speedXZ == 0.0)) {
-            temp_v0->unk0 = 0;
+        if ((state->soundPlaying != 0) && ((f64) gCurrentActor->speedXZ == 0.0)) {
+            state->soundPlaying = 0;
             sfxStopSlotSound(gCurrentActor, 0);
         }
-        temp_v0->unk4 = 0.0f;
-        temp_fv1 = gCurrentActor->speedXZ;
-        if (temp_fv1 < 0.0f) {
-            gCurrentActor->speedXZ = temp_fv1 + 0.8;
-            temp_fv0 = temp_v0->unk4;
-            if (temp_fv0 < gCurrentActor->speedXZ) {
-                gCurrentActor->speedXZ = temp_fv0;
+        state->targetSpeed = 0.0f;
+        speed = gCurrentActor->speedXZ;
+        if (speed < 0.0f) {
+            gCurrentActor->speedXZ = speed + 0.8;
+            target = state->targetSpeed;
+            if (target < gCurrentActor->speedXZ) {
+                gCurrentActor->speedXZ = target;
             }
         } else {
-            gCurrentActor->speedXZ = temp_fv1 - 1.5;
+            gCurrentActor->speedXZ = speed - 1.5;
             if (gCurrentActor->speedXZ < 0.0f) {
                 gCurrentActor->speedXZ = 0.0f;
             }
         }
         gCurrentActor->unkFA = 0x64;
-        temp_a1 = gCurrentActor->moveYaw;
-        actorStepPhysics(gCurrentActor, temp_a1, temp_a1);
+        yaw = gCurrentActor->moveYaw;
+        actorStepPhysics(gCurrentActor, yaw, yaw);
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-        if (temp_v0->unk8 == 0) {
+        if (state->pushed == 0) {
             if (((f64) gCurrentActor->speedXZ == 0.0) || !(gCurrentActor->flags & 0x10)) {
                 gCurrentActor->unk144 = 2;
             } else {
@@ -685,23 +675,22 @@ extern s16 D_807502D0;
 extern f32 D_807502E4;
 extern s16 D_80753444[];
 
-u32 randomLcgNext(void); // FAKE: callee prototype steer
 f32 sinApprox(f32);
 
 void actorTransformCameraUpdate(void) {
-    ActorC71CState *temp_s1;
-    ActorC71CMtxF spB4;
-    ActorC71CMtxF sp74;
-    f32 var_fv0;
-    f32 var_fv0_2;
-    s16 temp_a0;
-    u8 *tp;
+    ActorC71CState *state;
+    ActorC71CMtxF mtx;
+    ActorC71CMtxF rot;
+    f32 bob;
+    f32 brightness;
+    s16 yaw;
+    PlayerState *holderState;
 
-    temp_s1 = gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unkFA = 0x270F;
-        temp_s1->unk38 = 0;
-        temp_s1->unk39 = 0;
+        state->unk38 = 0;
+        state->unk39 = 0;
         if (gCurrentActor->actorType == 0x1A) {
             gCurrentActor->flags |= 0x1000;
             effectSetDepth(1);
@@ -715,21 +704,21 @@ void actorTransformCameraUpdate(void) {
         if (actorHasActiveMovementFlags(gCurrentActor)) {
             gCurrentActor->state = 2;
             gCurrentActor->flags2 |= 1;
-            temp_s1->unkC = 0x1E;
+            state->unkC = 0x1E;
             gCurrentActor->unk144 = 2;
-            temp_s1->unk8 = 360.0f;
-            temp_s1->unk14 = 0.0f;
+            state->unk8 = 360.0f;
+            state->unk14 = 0.0f;
         }
         gCurrentActor->flags2 |= 0x40;
     }
 
     if (gActorGlobalState.unk24 != 0) {
-        if (temp_s1->unk39 == 0) {
-            temp_s1->unk0 = gActorGlobalState.unk28;
+        if (state->unk39 == 0) {
+            state->unk0 = gActorGlobalState.unk28;
             gCurrentActor->state = 1;
-            temp_s1->unk8 = 360.0f;
+            state->unk8 = 360.0f;
             actorCallbackMaskDisable(gCurrentActor, 0x8000);
-            actorCollisionEventsCancel(temp_s1->unk0, 1);
+            actorCollisionEventsCancel(state->unk0, 1);
             gCurrentActor->unk144 = 0x2C;
             animationOwnerFreeBuffer(gCurrentActor);
         } else {
@@ -739,17 +728,17 @@ void actorTransformCameraUpdate(void) {
 
     if (gActorGlobalState.unk25 != 0) {
         gCurrentActor->state = 2;
-        temp_s1->unkC = 0x1E;
+        state->unkC = 0x1E;
         gCurrentActor->unk144 = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
     }
 
-    if (((gActorGlobalState.unk15 != 0) || (gActorGlobalState.unk200 == 9)) && (temp_s1->unk39 == 0)) {
+    if (((gActorGlobalState.unk15 != 0) || (gActorGlobalState.unk200 == 9)) && (state->unk39 == 0)) {
         gCurrentActor->state = 4;
         actorReleaseFromPlayerHold(gCurrentActor);
     }
 
-    if (temp_s1->unk39 != 0 && (gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9)) {
+    if (state->unk39 != 0 && (gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9)) {
         gCurrentActor->unk144 = 1;
     }
 
@@ -760,19 +749,19 @@ void actorTransformCameraUpdate(void) {
         gCurrentActor->yaw = gActorGlobalState.unk36;
         gCurrentActor->moveYaw = gActorGlobalState.unk36;
         gCurrentActor->speedY = gActorGlobalState.unk30;
-        temp_s1->unk4 = gFrameCounter;
-        temp_s1->unk18 = 0;
-        temp_s1->unk1A = 0;
+        state->unk4 = gFrameCounter;
+        state->unk18 = 0;
+        state->unk1A = 0;
         gCurrentActor->speedXZ = gActorGlobalState.unk34;
-        actorCollisionEventsCancel(temp_s1->unk0, 1);
+        actorCollisionEventsCancel(state->unk0, 1);
     }
 
     actorUpdatePrevContactFlags(gCurrentActor);
     switch (gCurrentActor->state) {
     case 0:
         gCurrentActor->unk144 = 2;
-        temp_s1->unk8 = 360.0f;
-        temp_s1->unk14 = 0.0f;
+        state->unk8 = 360.0f;
+        state->unk14 = 0.0f;
         func_8066E6C8(gCurrentActor, 0, 1);
         func_8066E6C8(gCurrentActor, 1, 0);
         gCurrentActor->flags2 |= 1;
@@ -780,25 +769,25 @@ void actorTransformCameraUpdate(void) {
     case 1:
         func_8066E6C8(gCurrentActor, 0, 0);
         func_8066E6C8(gCurrentActor, 1, 0);
-        tp = (u8 *)temp_s1->unk0->customState;
-        temp_s1->unk8 = *(f32 *)(tp + 0x1BC);
-        if (temp_s1->unk8 < 0.0) {
-            temp_s1->unk8 += 360.0;
+        holderState = state->unk0->customState;
+        state->unk8 = holderState->holdPitch;
+        if (state->unk8 < 0.0) {
+            state->unk8 += 360.0;
         }
-        temp_s1->unk10 = ((f64)temp_s1->unk0->yaw / 4095.0) * 360.0;
+        state->unk10 = ((f64)state->unk0->yaw / 4095.0) * 360.0;
         gCurrentActor->flags2 &= ~1;
         break;
     case 2:
         func_8066E6C8(gCurrentActor, 0, 1);
         func_8066E6C8(gCurrentActor, 1, 0);
-        if (--temp_s1->unkC == 0) {
+        if (--state->unkC == 0) {
             gCurrentActor->state = 0;
         } else if (actorHasActiveMovementFlags(gCurrentActor)) {
-            temp_s1->unkC = 0x1E;
+            state->unkC = 0x1E;
         }
-        temp_s1->unk8 += 16.0;
-        if (temp_s1->unk8 > 360.0) {
-            temp_s1->unk8 = 360.0f;
+        state->unk8 += 16.0;
+        if (state->unk8 > 360.0) {
+            state->unk8 = 360.0f;
         }
         gCurrentActor->speedY = -200.0f;
         gCurrentActor->speedXZ = 0.0f;
@@ -811,7 +800,7 @@ void actorTransformCameraUpdate(void) {
         if (gCurrentActor->speedY < (f32)D_807502D0) {
             gCurrentActor->speedY = (f32)D_807502D0;
         }
-        temp_s1->unk14 -= 10.0f;
+        state->unk14 -= 10.0f;
         if (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x23, 0xFF, 0x7F, 1);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17, 0xFF, 0x7F, 1);
@@ -820,42 +809,42 @@ void actorTransformCameraUpdate(void) {
         gCurrentActor->flags2 &= ~1;
         break;
     case 4:
-        temp_s1->unk39 = 1;
+        state->unk39 = 1;
         gCurrentActor->state = 8;
         break;
     case 5:
         func_8066E6C8(gCurrentActor, 0, 1);
         func_8066E6C8(gCurrentActor, 1, 1);
-        temp_s1->unk28 -= 3.0;
-        if (temp_s1->unk28 < 270.0) {
-            temp_s1->unk28 = 270.0f;
+        state->unk28 -= 3.0;
+        if (state->unk28 < 270.0) {
+            state->unk28 = 270.0f;
         }
-        var_fv0 = sinApprox((f32)temp_s1->unk20 / 12.6);
-        gCurrentActor->y = temp_s1->unk1C + (f32)(var_fv0 * 1.5);
-        var_fv0 = sinApprox((f32)temp_s1->unk20 / 9.34);
-        temp_s1->unk8 = temp_s1->unk28 + var_fv0 * 7.0f;
-        temp_s1->unk20++;
-        var_fv0 = (f32) (-5.0 - temp_s1->unk24);
-        var_fv0 = (f32) (var_fv0 / -5.0);
-        var_fv0 = (f32) (var_fv0 * -0.5);
+        bob = sinApprox((f32)state->unk20 / 12.6);
+        gCurrentActor->y = state->unk1C + (f32)(bob * 1.5);
+        bob = sinApprox((f32)state->unk20 / 9.34);
+        state->unk8 = state->unk28 + bob * 7.0f;
+        state->unk20++;
+        bob = (f32) (-5.0 - state->unk24);
+        bob = (f32) (bob / -5.0);
+        bob = (f32) (bob * -0.5);
         if (D_807FBBA9 == 0) {
-            var_fv0 = (f32) (-0.5 - var_fv0);
-            var_fv0 = (f32) (0.0 - var_fv0);
+            bob = (f32) (-0.5 - bob);
+            bob = (f32) (0.0 - bob);
         }
-        temp_s1->unk24 += var_fv0;
-        gCurrentActor->y += temp_s1->unk24;
-        if (--temp_s1->unk2C == 0 || temp_s1->unk2C == 5 || temp_s1->unk2C == 10 ||
-            temp_s1->unk2C == 15 || temp_s1->unk2C == 20 || temp_s1->unk2C == 26) {
-            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x55, 0xFF, (s16)(0xA7 - temp_s1->unk2C * 2), 0);
+        state->unk24 += bob;
+        gCurrentActor->y += state->unk24;
+        if (--state->unk2C == 0 || state->unk2C == 5 || state->unk2C == 10 ||
+            state->unk2C == 15 || state->unk2C == 20 || state->unk2C == 26) {
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x55, 0xFF, 0xA7 - state->unk2C * 2, 0);
         }
-        if (temp_s1->unk2C == 0 || gCurrentActor->waterY < gCurrentActor->floorY) {
+        if (state->unk2C == 0 || gCurrentActor->waterY < gCurrentActor->floorY) {
             gCurrentActor->state = 6;
-            if (sinApprox((f32)temp_s1->unk20 / 9.34) > 0.0) {
-                temp_s1->unk30 = 1;
+            if (sinApprox((f32)state->unk20 / 9.34) > 0.0) {
+                state->unk30 = 1;
             } else {
-                temp_s1->unk30 = 0;
+                state->unk30 = 0;
             }
-            temp_s1->unk34 = 0.1f;
+            state->unk34 = 0.1f;
         }
         gCurrentActor->speedY = 0.0f;
         gCurrentActor->speedXZ = 35.0f;
@@ -868,50 +857,50 @@ void actorTransformCameraUpdate(void) {
             gCurrentActor->speedXZ = 0.0f;
         }
         if (gCurrentActor->hasArcBounds != 0) {
-            temp_a0 = gCurrentActor->moveYaw;
-            mathAngleClampToArc(temp_a0, temp_a0, gCurrentActor->arcYawMin, gCurrentActor->arcYawMax, &gCurrentActor->unkF2);
+            yaw = gCurrentActor->moveYaw;
+            mathAngleClampToArc(yaw, yaw, gCurrentActor->arcYawMin, gCurrentActor->arcYawMax, &gCurrentActor->unkF2);
             gCurrentActor->moveYaw = gCurrentActor->unkF2;
         }
         break;
     case 6:
-        if (((randomLcgNext() / 100000) % 3) == 0) {
+        if ((((u32)randomLcgNext() / 100000) % 3) == 0) {
             effectSetDepth(1);
             effectSetDuration(-1);
             effectSetCallback(effectWobbleRiseUpdate);
             effectCreateAtPosition(&D_8071FC40, 0.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         }
-        if (temp_s1->unk30 != 0) {
-            if (temp_s1->unk30 == 1) {
-                temp_s1->unk8 += 1.5;
-                if (temp_s1->unk8 > 360.0) {
-                    temp_s1->unk8 = 360.0f;
+        if (state->unk30 != 0) {
+            if (state->unk30 == 1) {
+                state->unk8 += 1.5;
+                if (state->unk8 > 360.0) {
+                    state->unk8 = 360.0f;
                 }
             }
         } else {
-            temp_s1->unk8 -= 1.5;
-            if (temp_s1->unk8 < 0.0) {
-                temp_s1->unk8 = 0.0f;
+            state->unk8 -= 1.5;
+            if (state->unk8 < 0.0) {
+                state->unk8 = 0.0f;
             }
         }
-        temp_s1->unk2C++;
-        if ((temp_s1->unk2C & 3) == 0 && (u32)temp_s1->unk2C < 29) {
-            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x55, (0xC0 - temp_s1->unk2C * 6) & 0xFF, (s16)(temp_s1->unk2C * 2 + 0x50), 0);
+        state->unk2C++;
+        if ((state->unk2C & 3) == 0 && (u32)state->unk2C < 29) {
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x55, 0xC0 - state->unk2C * 6, state->unk2C * 2 + 0x50, 0);
         }
-        temp_s1->unk34 += 2.0;
-        if (temp_s1->unk34 > 40.0) {
-            temp_s1->unk34 = 40.0f;
+        state->unk34 += 2.0;
+        if (state->unk34 > 40.0) {
+            state->unk34 = 40.0f;
         }
-        gCurrentActor->speedY = -temp_s1->unk34;
+        gCurrentActor->speedY = -state->unk34;
         gCurrentActor->speedXZ = 0.0f;
         if ((f64)gCurrentActor->distToFloor < 0.5) {
             gCurrentActor->state = 7;
-            temp_s1->unk2C = 0x78;
+            state->unk2C = 0x78;
         }
         gCurrentActor->flags2 &= ~1;
         break;
     case 7:
         gCurrentActor->y -= 0.15;
-        if (--temp_s1->unk2C == 0) {
+        if (--state->unk2C == 0) {
             gCurrentActor->state = 4;
         }
         gCurrentActor->flags2 &= ~1;
@@ -926,7 +915,7 @@ void actorTransformCameraUpdate(void) {
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->alpha = 0;
                 gCurrentActor->state = 9;
-                temp_s1->unk3A = 0x14;
+                state->unk3A = 0x14;
                 if (!(gGlobalOverlayFlags & 1)) {
                     actorSetNodeFlag(gCurrentActor, 3);
                 }
@@ -951,17 +940,17 @@ void actorTransformCameraUpdate(void) {
         }
         break;
     case 9:
-        if (temp_s1->unk3A == 0) {
+        if (state->unk3A == 0) {
             actorDespawn(gCurrentActor);
         } else {
-            temp_s1->unk3A--;
+            state->unk3A--;
         }
-        var_fv0_2 = ((f32)temp_s1->unk3A / 20.0f) * 200.0;
-        if (var_fv0_2 > 130.0) {
-            var_fv0_2 = 200.0f;
+        brightness = ((f32)state->unk3A / 20.0f) * 200.0;
+        if (brightness > 130.0) {
+            brightness = 200.0f;
         }
-        lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, var_fv0_2, 0, 0xFF, 0xFF, 0xFF);
-        camStartShakeFromPoint(*(s32 *)((u8 *)((Actor *)gPrimaryPlayerActor)->customState + 0x104), 5, 10, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 200.0f, 400.0f);
+        lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, brightness, 0, 0xFF, 0xFF, 0xFF);
+        camStartShakeFromPoint(((PlayerState *)gPrimaryPlayerActor->customState)->camActor, 5, 10, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 200.0f, 400.0f);
         break;
     }
 
@@ -971,18 +960,18 @@ void actorTransformCameraUpdate(void) {
         }
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 7.0f);
-        if (gCurrentActor->state == 2 && temp_s1->unk8 == 360.0f && (gCurrentActor->y - gCurrentActor->prevY) < -2.0f && (gGlobalOverlayFlags & 1)) {
+        if (gCurrentActor->state == 2 && state->unk8 == 360.0f && (gCurrentActor->y - gCurrentActor->prevY) < -2.0f && (gGlobalOverlayFlags & 1)) {
             actorReleaseFromPlayerHold(gCurrentActor);
             gCurrentActor->state = 4;
-            temp_s1->unk39 = 1;
+            state->unk39 = 1;
         }
-        if (gCurrentActor->state == 3 && gCurrentActor->actorType == 0x1A && (u32)D_80753444[gCurrentCharacterIndex] < (u32)(gFrameCounter - temp_s1->unk4)) {
+        if (gCurrentActor->state == 3 && gCurrentActor->actorType == 0x1A && (u32)D_80753444[gCurrentCharacterIndex] < (u32)(gFrameCounter - state->unk4)) {
             gCurrentActor->state = 4;
         }
         if (gCurrentActor->state == 3 && (gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
             gCurrentActor->speedY = 140.0f;
-            temp_s1->unk1A++;
-            if ((gCurrentActor->actorType == 0x1A && temp_s1->unk1A == 4) || (gCurrentActor->actorType == 0x95 && temp_s1->unk1A == 2)) {
+            state->unk1A++;
+            if ((gCurrentActor->actorType == 0x1A && state->unk1A == 4) || (gCurrentActor->actorType == 0x95 && state->unk1A == 2)) {
                 gCurrentActor->state = 4;
             }
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x32, 0xFF, 0x7F, 1);
@@ -990,16 +979,16 @@ void actorTransformCameraUpdate(void) {
         if (gCurrentActor->state == 2 && (gCurrentActor->contactFlags & 4)) {
             gCurrentActor->state = 5;
             gCurrentActor->y = gCurrentActor->waterY;
-            temp_s1->unk2C = 1000;
-            temp_s1->unk1C = gCurrentActor->y - 1.5;
-            temp_s1->unk20 = 0;
-            temp_s1->unk28 = temp_s1->unk8;
+            state->unk2C = 1000;
+            state->unk1C = gCurrentActor->y - 1.5;
+            state->unk20 = 0;
+            state->unk28 = state->unk8;
         }
         if (gCurrentActor->state == 5) {
-            temp_s1->unk1C = gCurrentActor->waterY;
+            state->unk1C = gCurrentActor->waterY;
         }
-        if (gCurrentActor->state == 3 && (gCurrentActor->contactFlags & 4) && temp_s1->unk19 == 0) {
-            switch (temp_s1->unk18) {
+        if (gCurrentActor->state == 3 && (gCurrentActor->contactFlags & 4) && state->unk19 == 0) {
+            switch (state->unk18) {
             case 0:
                 gCurrentActor->speedY = 180.0f;
                 break;
@@ -1012,17 +1001,17 @@ void actorTransformCameraUpdate(void) {
             default:
                 gCurrentActor->state = 5;
                 gCurrentActor->y = gCurrentActor->waterY;
-                temp_s1->unk2C = 1000;
-                temp_s1->unk1C = gCurrentActor->y - 1.5;
-                temp_s1->unk20 = 0;
-                temp_s1->unk28 = temp_s1->unk8;
+                state->unk2C = 1000;
+                state->unk1C = gCurrentActor->y - 1.5;
+                state->unk20 = 0;
+                state->unk28 = state->unk8;
                 break;
             }
-            temp_s1->unk18++;
-            temp_s1->unk19 = 3;
+            state->unk18++;
+            state->unk19 = 3;
             gCurrentActor->speedXZ -= 20.0;
-        } else if (temp_s1->unk19 != 0) {
-            temp_s1->unk19--;
+        } else if (state->unk19 != 0) {
+            state->unk19--;
         }
         gCurrentActor->floorSlopeYaw = 0x3FF;
         gCurrentActor->floorSlopePitch = 0x3FF;
@@ -1031,34 +1020,34 @@ void actorTransformCameraUpdate(void) {
         gCurrentActor->contactFlags &= ~0x408;
     }
 
-    temp_s1->unk38 = gCurrentActor->state;
+    state->unk38 = gCurrentActor->state;
     if (gCurrentActor->state != 9) {
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0xC, 0xC, 1, 0x64, 0x78, 0, 1.0f);
     }
-    guScaleF(spB4, gCurrentActor->sub4->scaleX, gCurrentActor->sub4->scaleY, gCurrentActor->sub4->scaleZ);
-    guRotateF(sp74, temp_s1->unk14, 0.0f, 1.0f, 0.0f);
-    guMtxCatF(spB4, sp74, spB4);
-    guRotateF(sp74, ((f64)gCurrentActor->yaw / 4095.0) * 360.0, 0.0f, 1.0f, 0.0f);
-    guMtxCatF(spB4, sp74, spB4);
-    guRotateF(sp74, temp_s1->unk8 - D_807FBC60, 1.0f, 0.0f, 0.0f);
-    guMtxCatF(spB4, sp74, spB4);
-    guRotateF(sp74, (temp_s1->unk10 + 90.0f) - D_807FBC64, 0.0f, 1.0f, 0.0f);
-    guMtxCatF(spB4, sp74, spB4);
+    guScaleF(mtx, gCurrentActor->sub4->scaleX, gCurrentActor->sub4->scaleY, gCurrentActor->sub4->scaleZ);
+    guRotateF(rot, state->unk14, 0.0f, 1.0f, 0.0f);
+    guMtxCatF(mtx, rot, mtx);
+    guRotateF(rot, ((f64)gCurrentActor->yaw / 4095.0) * 360.0, 0.0f, 1.0f, 0.0f);
+    guMtxCatF(mtx, rot, mtx);
+    guRotateF(rot, state->unk8 - D_807FBC60, 1.0f, 0.0f, 0.0f);
+    guMtxCatF(mtx, rot, mtx);
+    guRotateF(rot, (state->unk10 + 90.0f) - D_807FBC64, 0.0f, 1.0f, 0.0f);
+    guMtxCatF(mtx, rot, mtx);
 
     if (gCurrentActor->state == 3) {
         if (gCurrentActor->floorSlopePitch < 1000) {
-            guRotateF(sp74, -(((f64)gCurrentActor->floorSlopeYaw / 4095.0) * 360.0), 0.0f, 1.0f, 0.0f);
-            guMtxCatF(spB4, sp74, spB4);
+            guRotateF(rot, -(((f64)gCurrentActor->floorSlopeYaw / 4095.0) * 360.0), 0.0f, 1.0f, 0.0f);
+            guMtxCatF(mtx, rot, mtx);
         }
-        guRotateF(sp74, 90.0 - ((f64)gCurrentActor->floorSlopePitch / 4095.0) * 360.0, 1.0f, 0.0f, 0.0f);
-        guMtxCatF(spB4, sp74, spB4);
+        guRotateF(rot, 90.0 - ((f64)gCurrentActor->floorSlopePitch / 4095.0) * 360.0, 1.0f, 0.0f, 0.0f);
+        guMtxCatF(mtx, rot, mtx);
         if (gCurrentActor->floorSlopePitch < 1000) {
-            guRotateF(sp74, ((f64)gCurrentActor->floorSlopeYaw / 4095.0) * 360.0, 0.0f, 1.0f, 0.0f);
-            guMtxCatF(spB4, sp74, spB4);
+            guRotateF(rot, ((f64)gCurrentActor->floorSlopeYaw / 4095.0) * 360.0, 0.0f, 1.0f, 0.0f);
+            guMtxCatF(mtx, rot, mtx);
         }
     }
-    guTranslateF(sp74, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
-    guMtxCatF(spB4, sp74, (float (*)[4])((u8 *)gCurrentActor + 0xC));
+    guTranslateF(rot, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+    guMtxCatF(mtx, rot, (float (*)[4])((u8 *)gCurrentActor + 0xC));
 }
 
 extern s32 D_8071FE64;
@@ -1066,108 +1055,108 @@ extern s32 D_8071FE88;
 extern s32 D_8071FEAC;
 
 void tagBarrelDespawnEffects(void) {
-    void (*sp5C)(void);
-    f32 temp_fs0;
-    s32 temp_s0;
-    s32 var_s1;
+    void (*pad)(void);
+    f32 scale;
+    s32 kind;
+    s32 i;
 
-    temp_fs0 = (f64) gCurrentActor->sub4->scaleY / 0.15;
+    scale = (f64) gCurrentActor->sub4->scaleY / 0.15;
     rumbleRequest(0, 0xB4, 0xA);
     effectSetDepth(0);
     effectSetDuration(1);
-    effectCreateAtPosition(&D_8071FE08, (f64) temp_fs0 * 0.75, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+    effectCreateAtPosition(&D_8071FE08, (f64) scale * 0.75, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x23, 0xFF, 0x7F, 1);
 
-    for (var_s1 = 0; var_s1 != 7; var_s1++) {
-        temp_s0 = ((s32) (randomLcgNext() / 10000U)) % 3;
+    for (i = 0; i != 7; i++) {
+        kind = ((s32) ((u32)randomLcgNext() / 10000U)) % 3;
         effectSetDepth(1);
         effectSetDuration(0xA);
         effectSetCallback(effectTumbleBounceUpdate);
         effectSetMode(2);
         effectSetSpeed(2);
-        switch (temp_s0) {
+        switch (kind) {
         case 0:
-            effectCreateAtPosition(&D_8071FE64, (f64) temp_fs0 * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&D_8071FE64, (f64) scale * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             break;
         case 1:
-            effectCreateAtPosition(&D_8071FE88, (f64) temp_fs0 * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&D_8071FE88, (f64) scale * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             break;
         case 2:
-            effectCreateAtPosition(&D_8071FEAC, (f64) temp_fs0 * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&D_8071FEAC, (f64) scale * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             break;
         }
     }
 }
 
-void tagBarrelSpawnSmokeAndPuffs(f32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
-    f64 sp80;
-    f32 sp7C;
-    f32 temp_fs2;
-    f32 temp_fs1;
-    f32 temp_fs0;
-    s32 var_s0;
+void tagBarrelSpawnSmokeAndPuffs(f32 x, f32 y, f32 z, f32 scale, u8 spray, u8 playSound) {
+    f64 scaleD;
+    f32 puffScale;
+    f32 dy;
+    f32 dx;
+    f32 dz;
+    s32 i;
 
-    if (arg5 != 0) {
-        sfxPlayAtPositionPooled(arg0, arg1, arg2, 0xF6, 0xFF, 0x7F, 0x19, 0x1E, 0.3f, 0);
+    if (playSound != 0) {
+        sfxPlayAtPositionPooled(x, y, z, 0xF6, 0xFF, 0x7F, 0x19, 0x1E, 0.3f, 0);
     }
     effectSetDepth(1);
     effectSetCallback(effectPuffExpandFadeUpdate);
-    effectCreateAtPosition(&D_80720120, 0.0f, arg0, arg1 + 5.0f, arg2);
-    sp80 = (f64) arg3;
-    sp7C = sp80 * 1.5;
-    for (var_s0 = 0; var_s0 < 5; var_s0++) {
-        temp_fs1 = (f32) (((s32) (randomNonNegative() >> 15) % 20) - 10) * arg3;
-        temp_fs2 = (f32) (((s32) (randomNonNegative() >> 15) % 20) - 10) * arg3;
-        temp_fs0 = (f32) (((s32) (randomNonNegative() >> 15) % 20) - 10) * arg3;
+    effectCreateAtPosition(&D_80720120, 0.0f, x, y + 5.0f, z);
+    scaleD = (f64) scale;
+    puffScale = scaleD * 1.5;
+    for (i = 0; i < 5; i++) {
+        dx = (f32) (((s32) (randomNonNegative() >> 15) % 20) - 10) * scale;
+        dy = (f32) (((s32) (randomNonNegative() >> 15) % 20) - 10) * scale;
+        dz = (f32) (((s32) (randomNonNegative() >> 15) % 20) - 10) * scale;
         effectSetAngle(4);
         effectSetDepth(1);
         effectSetDuration(1);
         effectSetCallback(effectSpinBillboardingUpdate);
-        effectCreateAtPosition(&D_80720340, sp7C, arg0 + temp_fs1, arg1 + temp_fs2, arg2 + temp_fs0);
+        effectCreateAtPosition(&D_80720340, puffScale, x + dx, y + dy, z + dz);
     }
     effectSetAngle(4);
     effectSetDepth(1);
     effectSetDuration(1);
     effectSetCallback(effectSpinBillboardingUpdate);
-    effectCreateAtPosition(&D_80720340, sp7C, arg0, arg1, arg2);
-    if (arg4 != 0) {
-        for (var_s0 = 0; var_s0 != 12; var_s0++) {
+    effectCreateAtPosition(&D_80720340, puffScale, x, y, z);
+    if (spray != 0) {
+        for (i = 0; i != 12; i++) {
             effectSetDepth(1);
             effectSetDuration(2);
-            effectSetSpeed(var_s0 + 0x0B020000);
+            effectSetSpeed(i + 0x0B020000);
             effectSetCallback(effectRadialSprayUpdate);
             effectSetMode(1);
-            effectCreateAtPosition(&D_8072038C, (f32)(sp80 * 0.5), arg0, arg1, arg2);
+            effectCreateAtPosition(&D_8072038C, (f32)(scaleD * 0.5), x, y, z);
         }
     }
 }
 
-void tagBarrelSpawnActorSmokePuffs(arg0, arg1)
-u8 arg0;
-u8 arg1;
+void tagBarrelSpawnActorSmokePuffs(spray, playSound)
+u8 spray;
+u8 playSound;
 {
-    tagBarrelSpawnSmokeAndPuffs(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, (f32) ((f64) gCurrentActor->sub4->scaleY / 0.15), arg0, arg1);
+    tagBarrelSpawnSmokeAndPuffs(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, (f32) ((f64) gCurrentActor->sub4->scaleY / 0.15), spray, playSound);
 }
 
-void tagBarrelSpawnNodeSmokePuffs(s32 arg0, u8 arg1, f32 arg2) {
-    f32 sp2C;
-    f32 sp28;
-    f32 sp24;
+void tagBarrelSpawnNodeSmokePuffs(s32 unused, u8 node, f32 scale) {
+    f32 x;
+    f32 y;
+    f32 z;
 
-    actorGetNodePos(gCurrentActor, arg1, &sp2C, &sp28, &sp24);
-    tagBarrelSpawnSmokeAndPuffs(sp2C, sp28, sp24, arg2, 0, 1);
+    actorGetNodePos(gCurrentActor, node, &x, &y, &z);
+    tagBarrelSpawnSmokeAndPuffs(x, y, z, scale, 0, 1);
 }
 
 void tagBarrelResetMovement(void) {
-    TagBarrelState *temp_v0 = gCurrentActor->customState;
+    TagBarrelState *state = gCurrentActor->customState;
 
-    gCurrentActor->sub4->scaleX = temp_v0->unkC;
-    gCurrentActor->sub4->scaleY = temp_v0->unkC;
-    gCurrentActor->sub4->scaleZ = temp_v0->unkC;
-    gCurrentActor->y = temp_v0->unk14;
-    temp_v0->unk8 = 0;
-    temp_v0->unk18 = 0;
-    temp_v0->unk10 = temp_v0->unkC;
+    gCurrentActor->sub4->scaleX = state->unkC;
+    gCurrentActor->sub4->scaleY = state->unkC;
+    gCurrentActor->sub4->scaleZ = state->unkC;
+    gCurrentActor->y = state->unk14;
+    state->unk8 = 0;
+    state->unk18 = 0;
+    state->unk10 = state->unkC;
     gCurrentActor->state = 0;
     gCurrentActor->unk144 = 2;
     gCurrentActor->flags &= ~0x200000;
@@ -1255,13 +1244,6 @@ typedef struct TransformBarrelEntry {
     u8 unk2;
 } TransformBarrelEntry;
 
-typedef struct TransformBarrelPlayerStruct {
-    u8 pad0[0x2C0];
-    u8 unk2C0;
-    u8 pad2C1[0x2C8 - 0x2C1];
-    s16 unk2C8;
-    u8 pad2CA[0x2F0 - 0x2CA];
-} TransformBarrelPlayerStruct;
 
 typedef struct TransformBarrelPlayerState {
     /* 0x000 */ u8 pad0[0x88];
@@ -1298,37 +1280,37 @@ extern s32 gGlobalCutsceneFlags;
 
 
 void transformBarrelUpdate(void) {
-    TransformBarrelState *var_t0;
-    f32 spA0;
-    f32 sp9C;
-    f32 sp98;
+    TransformBarrelState *state;
+    f32 nodeX;
+    f32 nodeY;
+    f32 nodeZ;
     TransformBarrelPlayerState *playerState;
     s32 ret;
     s16 i;
-    s16 sp8C;
-    s16 sp8A = 8;
-    u8 sp89;
+    s16 entry;
+    s16 entryCount = 8;
+    u8 found;
     Actor *player;
-    TransformBarrelPlayerState *activePlayerState;
-    s32 var_v1_2;
-    s32 var_a0c;
-    TransformBarrelPlayerState *ps3;
+    PlayerState *activePlayerState;
+    s32 hide;
+    s32 channel;
+    PlayerState *ps3;
 
-    var_t0 = gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        sp8C = 0;
-        sp89 = 0;
+        entry = 0;
+        found = 0;
         ret = actorListFindIdByActor(gCurrentActor);
-        if ((Actor *)gPrimaryPlayerActor) {} // FAKE: raises &gPrimaryPlayerActor candidate priority
-        var_t0->unk1C = 0;
+        if (gPrimaryPlayerActor) {} // FAKE: raises &gPrimaryPlayerActor candidate priority
+        state->unk1C = 0;
         do {
-            if (gCurrentMap == D_8074E7BC[sp8C].unk0 && ret == D_8074E7BC[sp8C].unk1) {
-                sp89 = 1;
-                var_t0->unk1C = D_8074E7BC[sp8C].unk2;
+            if (gCurrentMap == D_8074E7BC[entry].unk0 && ret == D_8074E7BC[entry].unk1) {
+                found = 1;
+                state->unk1C = D_8074E7BC[entry].unk2;
             } else {
-                sp8C++;
+                entry++;
             }
-        } while (!sp89 && sp8C < sp8A);
+        } while (!found && entry < entryCount);
 
         if (*(s32 *)gCurrentActor->spawnData == 1) {
             if (tagBarrelIsSpecial(gCurrentActor) == 0) {
@@ -1341,25 +1323,25 @@ void transformBarrelUpdate(void) {
         gCurrentActor->floorY = gCurrentActor->y;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
         gCurrentActor->flags |= 2;
-        var_t0->unk10 = gCurrentActor->sub4->scaleY;
-        var_t0->unkC = gCurrentActor->sub4->scaleY;
-        var_t0->unk8 = 0;
-        var_t0->unk18 = 0;
-        var_t0->unk14 = gCurrentActor->y;
+        state->unk10 = gCurrentActor->sub4->scaleY;
+        state->unkC = gCurrentActor->sub4->scaleY;
+        state->unk8 = 0;
+        state->unk18 = 0;
+        state->unk14 = gCurrentActor->y;
         if (((u32)gCurrentActor->actorType) == 0x12 || ((u32)gCurrentActor->actorType) == 0x81) {
-            var_t0->unk1A = ((s32 *)gCurrentActor->spawnData)[1];
+            state->unk1A = ((s32 *)gCurrentActor->spawnData)[1];
         }
     }
     actorUpdatePrevContactFlags(gCurrentActor);
 
     if (gCurrentActor->state == 0 && gActorGlobalState.unk200 == 4) {
-        playerState = ((Actor *)gPrimaryPlayerActor)->customState;
+        playerState = gPrimaryPlayerActor->customState;
 
         sfxStopChannel(0x6B, 1);
         if (((u32)gCurrentActor->actorType) != 0x60) {
             sfxAllocateChannel(0xF, 1.0f);
         }
-        if (var_t0->unk1A != 0) {
+        if (state->unk1A != 0) {
             ret = -1;
 
             if (((u32)gCurrentActor->actorType) == 0x12) {
@@ -1373,79 +1355,79 @@ void transformBarrelUpdate(void) {
             playerState->unk1FD = 1;
         }
         if (gGlobalCutsceneFlags & 2) {
-            var_t0->unk0 = 0x1E;
+            state->unk0 = 0x1E;
         } else {
             switch (((u32)gCurrentActor->actorType)) {
             case 0x60:
-                var_t0->unk0 = 0x32;
+                state->unk0 = 0x32;
                 break;
             case 0x38:
-                var_t0->unk0 = 0x1E;
+                state->unk0 = 0x1E;
                 break;
             default:
-                var_t0->unk0 = 0x64;
+                state->unk0 = 0x64;
                 break;
             }
         }
-        if (var_t0->unk1C != 0) {
-            s32 temp_s0 = slotQueueGetValue(5, playerState->unk1A4);
-            s32 temp_lo = slotQueueGetCountStep(5) * var_t0->unk1C;
+        if (state->unk1C != 0) {
+            s32 queued = slotQueueGetValue(5, playerState->unk1A4);
+            s32 step = slotQueueGetCountStep(5) * state->unk1C;
 
-            if (temp_s0 < temp_lo) {
-                slotQueueAddValue(5, playerState->unk1A4, (s16)(temp_lo - temp_s0));
+            if (queued < step) {
+                slotQueueAddValue(5, playerState->unk1A4, (s16)(step - queued));
             }
         }
         gCurrentActor->state = 1;
         gCurrentActor->unk144 = 1;
-        var_t0->unk4 = (Actor *)gActorGlobalState.targetActor;
+        state->unk4 = gActorGlobalState.targetActor;
         gCurrentActor->flags |= 0x200000;
         if (!(gGlobalOverlayFlags & 0x2000)) {
-            if (var_t0->unk4->collisionFlags & 1) {
-                ps3 = var_t0->unk4->customState;
+            if (state->unk4->collisionFlags & 1) {
+                ps3 = state->unk4->customState;
 
-                if (ps3->unk88 != NULL) {
-                    actorDespawn(ps3->unk88);
-                    ps3->unk88 = NULL;
-                    camSetFollowMode(ps3->unk104);
+                if (ps3->actor != NULL) {
+                    actorDespawn(ps3->actor);
+                    ps3->actor = NULL;
+                    camSetFollowMode(ps3->camActor);
                 }
             }
         }
-        var_t0->unk4->unk144 = 1;
+        state->unk4->unk144 = 1;
     }
 
     if (gCurrentActor->state < 0x14) {
-        s32 var_a0 = 0;
-        s32 var_a1 = 0;
+        s32 itemCount = 0;
+        s32 allowed = 0;
 
         if (gPlayerCharacterId < 5) {
-            var_a0 = gPlayerInventoryTable[gPlayerCharacterId][0];
+            itemCount = gPlayerInventoryTable[gPlayerCharacterId][0];
         }
         player = gPrimaryPlayerActor;
-        if (((u32)player->actorType) == 5 && ((u32)gCurrentActor->actorType) == 0x28 && var_a0 > 0) {
-            var_a1 = 1;
+        if (((u32)player->actorType) == 5 && ((u32)gCurrentActor->actorType) == 0x28 && itemCount > 0) {
+            allowed = 1;
         }
-        if (((u32)player->actorType) == 6 && ((u32)gCurrentActor->actorType) == 0x19 && var_a0 > 0) {
-            var_a1 = 1;
+        if (((u32)player->actorType) == 6 && ((u32)gCurrentActor->actorType) == 0x19 && itemCount > 0) {
+            allowed = 1;
         }
-        if (((u32)player->actorType) == 6 && ((u32)gCurrentActor->actorType) == 0x60 && var_a0 > 0) {
-            var_a1 = 1;
+        if (((u32)player->actorType) == 6 && ((u32)gCurrentActor->actorType) == 0x60 && itemCount > 0) {
+            allowed = 1;
         }
-        if (((u32)player->actorType) == 4 && ((u32)gCurrentActor->actorType) == 0x38 && var_a0 >= 3) {
-            var_a1 = 1;
+        if (((u32)player->actorType) == 4 && ((u32)gCurrentActor->actorType) == 0x38 && itemCount >= 3) {
+            allowed = 1;
         }
-        if (((u32)player->actorType) == 2 && ((u32)gCurrentActor->actorType) == 0x39 && var_a0 >= 2) {
-            var_a1 = 1;
+        if (((u32)player->actorType) == 2 && ((u32)gCurrentActor->actorType) == 0x39 && itemCount >= 2) {
+            allowed = 1;
         }
         if (((u32)player->actorType) == 4 && ((u32)gCurrentActor->actorType) == 0x81) {
-            var_a1 = 1;
+            allowed = 1;
         }
         if (((u32)gCurrentActor->actorType) == 0x12) {
-            var_a1 = 1;
+            allowed = 1;
         }
-        if (((u32)gCurrentActor->actorType) == 0x84 && ((u32)player->actorType) == 9 && (activePlayerState = player->customState)->unk88 == NULL) {
-            var_a1 = 1;
+        if (((u32)gCurrentActor->actorType) == 0x84 && ((u32)player->actorType) == 9 && (activePlayerState = player->customState)->actor == NULL) {
+            allowed = 1;
         }
-        if (var_a1 != 0) {
+        if (allowed != 0) {
             gCurrentActor->flags |= 0x8000;
             *(u16 *)&gCurrentActor->interactionType = 1; // FAKE: unsigned u16 store keeps constant 1 out of the hoisted-constant web
         } else {
@@ -1471,45 +1453,45 @@ void transformBarrelUpdate(void) {
         break;
 
     case 1:
-        if (var_t0->unk0 < 0x1E) {
+        if (state->unk0 < 0x1E) {
             switch (((u32)gCurrentActor->actorType)) {
             case 0x19:
             case 0x60:
-                var_t0->unk10 += (((u32)gCurrentActor->actorType) == 0x19) ? 0.004 : 0.008;
+                state->unk10 += (((u32)gCurrentActor->actorType) == 0x19) ? 0.004 : 0.008;
                 gCurrentActor->y += 0.6;
-                if ((gCurrentActor->y - var_t0->unk14) > 25.0f) {
-                    gCurrentActor->y = var_t0->unk14 + 25.0f;
+                if ((gCurrentActor->y - state->unk14) > 25.0f) {
+                    gCurrentActor->y = state->unk14 + 25.0f;
                 }
                 break;
             case 0x28:
-                var_t0->unk10 -= 0.001;
+                state->unk10 -= 0.001;
                 gCurrentActor->y += 0.6;
-                if ((gCurrentActor->y - var_t0->unk14) > 25.0f) {
-                    gCurrentActor->y = var_t0->unk14 + 25.0f;
+                if ((gCurrentActor->y - state->unk14) > 25.0f) {
+                    gCurrentActor->y = state->unk14 + 25.0f;
                 }
                 break;
             case 0x12:
             case 0x81:
             case 0x84:
-                var_t0->unk10 += 0.006;
+                state->unk10 += 0.006;
                 break;
             }
         }
-        gCurrentActor->sub4->scaleX = sinApprox(var_t0->unk8 * 0.11) * 0.1 + var_t0->unk10;
-        gCurrentActor->sub4->scaleY = sinApprox(var_t0->unk8 * 0.2352) * 0.1 + var_t0->unk10;
-        gCurrentActor->sub4->scaleZ = sinApprox(var_t0->unk8 * 0.176) * 0.1 + var_t0->unk10;
-        var_t0->unk8++;
+        gCurrentActor->sub4->scaleX = sinApprox(state->unk8 * 0.11) * 0.1 + state->unk10;
+        gCurrentActor->sub4->scaleY = sinApprox(state->unk8 * 0.2352) * 0.1 + state->unk10;
+        gCurrentActor->sub4->scaleZ = sinApprox(state->unk8 * 0.176) * 0.1 + state->unk10;
+        state->unk8++;
         if (((u32)gCurrentActor->actorType) != 0x12 && ((u32)gCurrentActor->actorType) != 0x81 && ((u32)gCurrentActor->actorType) != 0x84) {
-            gCurrentActor->yaw += var_t0->unk18;
-            var_t0->unk18 += 10;
-            if (var_t0->unk18 >= 0x65) {
-                var_t0->unk18 = 0x64;
+            gCurrentActor->yaw += state->unk18;
+            state->unk18 += 10;
+            if (state->unk18 >= 0x65) {
+                state->unk18 = 0x64;
             }
         }
-        actorAppendCallbackPayloadA70C(gCurrentActor, var_t0->unk4, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
-        var_t0->unk0--;
-        if (var_t0->unk0 == 0) {
-            var_t0->unk0 = 0xC;
+        actorAppendCallbackPayloadA70C(gCurrentActor, state->unk4, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
+        state->unk0--;
+        if (state->unk0 == 0) {
+            state->unk0 = 0xC;
             gCurrentActor->state = 2;
             if (((u32)gCurrentActor->actorType) != 0x12 && ((u32)gCurrentActor->actorType) != 0x81 && gCurrentMap != 0x52 && !(gGlobalOverlayFlags & 1)) {
                 slotQueueUpdate(5, 1, 0);
@@ -1518,43 +1500,43 @@ void transformBarrelUpdate(void) {
         break;
 
     case 2:
-        var_t0->unk0--;
-        if (var_t0->unk0 == 0) {
+        state->unk0--;
+        if (state->unk0 == 0) {
             gCurrentActor->state = 3;
         }
         break;
 
     case 3: {
-        s16 sp62 = 0;
-        if (((u32)((Actor *)gPrimaryPlayerActor)->actorType) == 9) {}  // FAKE: dead compare steers uopt constant-web (0x81/0x84) colouring order
+        s16 sound = 0;
+        if (((u32)gPrimaryPlayerActor->actorType) == 9) {}  // FAKE: dead compare steers uopt constant-web (0x81/0x84) colouring order
         switch (((u32)gCurrentActor->actorType)) {
         case 0x28:
-            sp62 = 0x10;
+            sound = 0x10;
             sfxPlayOnFreeSlot(0x1A5, 0x58EF, 63.0f, 1.0f, 0, 0);
             break;
         case 0x19:
-            sp62 = 0x11;
+            sound = 0x11;
             sfxPlayOnFreeSlot(0xC7, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         case 0x12:
-            sp62 = 0x24;
+            sound = 0x24;
             sfxPlayOnFreeSlot(0x2EC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             gGlobalPauseFlags |= 0x400;
             break;
         case 0x39:
-            sp62 = 0x47;
+            sound = 0x47;
             break;
         case 0x38:
-            sp62 = 0x49;
+            sound = 0x49;
             break;
         case 0x81:
-            sp62 = 0x7C;
+            sound = 0x7C;
             gGlobalPauseFlags |= 0x400;
             break;
         }
-        if (sp62 != 0 && !(gGlobalCutsceneFlags & 2) && gCurrentMap != 3 && gCurrentMap != 0x11 && gCurrentMap != 0x52 && gCurrentMap != 0xD1) {
+        if (sound != 0 && !(gGlobalCutsceneFlags & 2) && gCurrentMap != 3 && gCurrentMap != 0x11 && gCurrentMap != 0x52 && gCurrentMap != 0xD1) {
             if (gPlayerCharacterId) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            sfxAllocateChannel(sp62, 1.0f);
+            sfxAllocateChannel(sound, 1.0f);
         }
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x9C, 0xFF, 0x7F, 0);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x9D, 0xFF, 0x7F, 0);
@@ -1562,18 +1544,18 @@ void transformBarrelUpdate(void) {
             animResetEndFrame(gCurrentActor, 0);
             animSetFrameAndSubframe(gCurrentActor, 0, 0xA, 0.0f);
         }
-        actorGetNodePos(gCurrentActor, 1, &spA0, &sp9C, &sp98);
-        actorAppendCallback(var_t0->unk4, (s32)gCurrentActor, 0x40, 1, 0, NULL);
+        actorGetNodePos(gCurrentActor, 1, &nodeX, &nodeY, &nodeZ);
+        actorAppendCallback(state->unk4, (s32)gCurrentActor, 0x40, 1, 0, NULL);
         {
             s16 angle;
             if (((u32)gCurrentActor->actorType) == 0x12) {
-                angle = ((TransformBarrelPlayerStruct *)gPlayerSlots)->unk2C8 & 0xFFF;
+                angle = gPlayerSlots->unk2C8 & 0xFFF;
             } else {
-                angle = var_t0->unk4->yaw;
+                angle = state->unk4->yaw;
             }
-            actorAppendCallbackPayloadAAB8((s32)gCurrentActor, var_t0->unk4, angle, -40.0f, 0);
+            actorAppendCallbackPayloadAAB8((s32)gCurrentActor, state->unk4, angle, -40.0f, 0);
         }
-        actorSetInteractionTimer(var_t0->unk4);
+        actorSetInteractionTimer(state->unk4);
         tagBarrelDespawnEffects();
         gCurrentActor->state = 4;
         if (((u32)gCurrentActor->actorType) == 0x39) {
@@ -1586,79 +1568,79 @@ void transformBarrelUpdate(void) {
     }
 
     case 4: {
-        playerState = var_t0->unk4->customState;
-        var_v1_2 = 0;
+        playerState = state->unk4->customState;
+        hide = 0;
 
         switch (((u32)gCurrentActor->actorType)) {
         case 0x19:
         case 0x28:
         case 0x60:
-            if (((TransformBarrelPlayerStruct *)gPlayerSlots)[playerState->unk1A4].unk2C0 != 1) {
-                var_v1_2 = 1;
+            if (gPlayerSlots[playerState->unk1A4].unk2C0 != 1) {
+                hide = 1;
             }
             break;
         case 0x39:
             if (playerState->unk1F0 & 0x10) {
-                var_v1_2 = 1;
+                hide = 1;
             }
             break;
         case 0x38:
             if (playerState->unk1F0 & 0x20) {
-                var_v1_2 = 1;
+                hide = 1;
             }
             break;
         case 0x12:
-            if (((u32)((Actor *)gPrimaryPlayerActor)->actorType) == 8) {
-                var_v1_2 = 1;
+            if (((u32)gPrimaryPlayerActor->actorType) == 8) {
+                hide = 1;
             }
             break;
         case 0x81:
-            if (((u32)((Actor *)gPrimaryPlayerActor)->actorType) == 9) {
-                var_v1_2 = 1;
+            if (((u32)gPrimaryPlayerActor->actorType) == 9) {
+                hide = 1;
             }
             break;
         case 0x84:
             if (playerState->unk88 != NULL) {
-                var_v1_2 = 1;
+                hide = 1;
             }
             break;
         }
 
-        if (var_v1_2 != 0) {
+        if (hide != 0) {
             gCurrentActor->flags &= ~0x8000;
             gCurrentActor->alpha = 0;
         } else {
             gGlobalPauseFlags &= ~0x400;
             if (((u32)gCurrentActor->actorType) != 0x60) {
-                var_a0c = 0;
+                channel = 0;
                 switch (((u32)gCurrentActor->actorType)) {
                 case 0x38:
-                    var_a0c = 0x49;
+                    channel = 0x49;
                     break;
                 case 0x81:
-                    var_a0c = 0x7C;
+                    channel = 0x7C;
                     break;
                 case 0x39:
-                    var_a0c = 0x47;
+                    channel = 0x47;
                     break;
                 case 0x12:
-                    var_a0c = 0x24;
+                    channel = 0x24;
                     break;
                 case 0x19:
-                    var_a0c = 0x11;
+                    channel = 0x11;
                     break;
                 case 0x28:
-                    var_a0c = 0x10;
+                    channel = 0x10;
                     break;
                 }
-                sfxStopChannel(var_a0c, 0);
+                sfxStopChannel(channel, 0);
                 sfxAllocateChannel(0xF, 1.0f);
             }
             gCurrentActor->state = 5;
             if ((gGlobalCutsceneFlags & 2) && ((u32)gCurrentActor->actorType) == 0x19) {
-                var_t0->unk0 = 1;
+                state->unk0 = 1;
             } else {
-                var_t0->unk0 = 0x5A;
+                state->unk0 = 0x5A;
             }
         }
         break;
@@ -1667,8 +1649,8 @@ void transformBarrelUpdate(void) {
     case 5:
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->alpha = 0;
-        var_t0->unk0--;
-        if (var_t0->unk0 == 0) {
+        state->unk0--;
+        if (state->unk0 == 0) {
             if (gCurrentMap == 0xCE) {
                 tagBarrelTriggerRecoil();
             } else {
@@ -1718,28 +1700,24 @@ void tagBarrelDespawnOnKongDeselect(void) {
 }
 
 typedef struct ActorFB6CSpawnData {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
-    s32 unkC;
+    s32 frequency;
+    s32 amplitude;
+    s32 mode;
+    s32 hidden;
 } ActorFB6CSpawnData;
 
-typedef struct ActorFB6CCamHolder {
-    u8 pad0[0x104];
-    s32 unk104;
-} ActorFB6CCamHolder;
 
 typedef struct ActorFB6CState {
-    Actor *unk0;
-    u32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    s16 unk18;
-    u8 unk1A;
-    u8 unk1B;
-    u8 unk1C;
+    Actor *rider;
+    u32 phase;
+    f32 baseY;
+    f32 pitch;
+    f32 amplitude;
+    f32 frequency;
+    s16 baseYaw;
+    u8 launchDelay;
+    u8 animDelay;
+    u8 mode;
 } ActorFB6CState;
 
 extern Actor *gActivePlayerActor;
@@ -1751,14 +1729,14 @@ f32 mathSinF(s16);
 
 void tagBarrelParticleUpdate(void) {
     f64 pad;
-    f32 sp5C;
-    f32 sp58;
-    s32 sp54;
+    f32 dirX;
+    f32 dirZ;
+    Actor *cam;
     s32 pad2;
-    s16 sp4E;
+    s16 viewYaw;
     ActorFB6CState *sub;
-    s32 var_v0;
-    f32 var_fa1;
+    s32 param;
+    f32 camY;
     s16 i;
 
     sub = gCurrentActor->customState;
@@ -1766,21 +1744,21 @@ void tagBarrelParticleUpdate(void) {
         gCurrentActor->drawDistance = 0x320;
         gCurrentActor->cullMarginX = 0x14;
         gCurrentActor->cullMarginY = 0x14;
-        sub->unkC = 90.0f;
-        sub->unk8 = gCurrentActor->y;
-        sub->unk14 = (f64)((ActorFB6CSpawnData *)gCurrentActor->spawnData)->unk0 / 200.0;
-        sub->unk10 = ((ActorFB6CSpawnData *)gCurrentActor->spawnData)->unk4;
-        sub->unk4 = ((f64)sub->unk14 != 0.0) ? (4.71238899230957031 / (f64)sub->unk14) : (f64)0;
-        sub->unk1C = ((ActorFB6CSpawnData *)gCurrentActor->spawnData)->unk8;
-        sub->unk18 = gCurrentActor->yaw;
+        sub->pitch = 90.0f;
+        sub->baseY = gCurrentActor->y;
+        sub->frequency = (f64)((ActorFB6CSpawnData *)gCurrentActor->spawnData)->frequency / 200.0;
+        sub->amplitude = ((ActorFB6CSpawnData *)gCurrentActor->spawnData)->amplitude;
+        sub->phase = ((f64)sub->frequency != 0.0) ? (4.71238899230957031 / (f64)sub->frequency) : (f64)0;
+        sub->mode = ((ActorFB6CSpawnData *)gCurrentActor->spawnData)->mode;
+        sub->baseYaw = gCurrentActor->yaw;
         gCurrentActor->floorY = 99999.0f;
         collisionCheckGroundAtPoint(gCurrentActor->x, gCurrentActor->z, &gCurrentActor->floorY);
-        if (sub->unk1C == 3) {
+        if (sub->mode == 3) {
             gCurrentActor->interactionType = 2;
         } else {
             gCurrentActor->interactionType = 1;
         }
-        if (((ActorFB6CSpawnData *)gCurrentActor->spawnData)->unkC == 1) {
+        if (((ActorFB6CSpawnData *)gCurrentActor->spawnData)->hidden == 1) {
             gCurrentActor->state = 0x14;
             gCurrentActor->unk144 = 1;
             gCurrentActor->flags &= ~0x8000;
@@ -1788,15 +1766,15 @@ void tagBarrelParticleUpdate(void) {
         }
     }
     if (gActorGlobalState.unk200 == 4) {
-        sub->unk0 = (Actor *)gActorGlobalState.targetActor;
+        sub->rider = gActorGlobalState.targetActor;
         gCurrentActor->state = 1;
         gCurrentActor->unk144 = 1;
         gCurrentActor->flags |= 0x400;
-        sub->unk1B = 2;
-        if (sub->unk1C == 3) {
-            sub->unk1A = 1;
+        sub->animDelay = 2;
+        if (sub->mode == 3) {
+            sub->launchDelay = 1;
         } else {
-            sub->unk1A = 2;
+            sub->launchDelay = 2;
         }
     }
     switch (gCurrentActor->state) {
@@ -1805,64 +1783,64 @@ void tagBarrelParticleUpdate(void) {
         break;
     case 1:
         gCurrentActor->flags |= 0x8000;
-        switch (sub->unk1C) {
+        switch (sub->mode) {
         case 0:
         case 4:
-            if (sub->unk1C == 0) {
-                gCurrentActor->y = sinApprox((f32)sub->unk4 * sub->unk14) * sub->unk10 + (sub->unk8 + sub->unk10);
+            if (sub->mode == 0) {
+                gCurrentActor->y = sinApprox((f32)sub->phase * sub->frequency) * sub->amplitude + (sub->baseY + sub->amplitude);
             } else {
-                gCurrentActor->y = sinApprox((f32)sub->unk4 * sub->unk14) * sub->unk10 + sub->unk8;
+                gCurrentActor->y = sinApprox((f32)sub->phase * sub->frequency) * sub->amplitude + sub->baseY;
             }
-            actorAppendCallbackPayloadA70C(gCurrentActor, sub->unk0, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
-            sp4E = gCurrentActor->yaw;
-            sub->unk4++;
+            actorAppendCallbackPayloadA70C(gCurrentActor, sub->rider, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
+            viewYaw = gCurrentActor->yaw;
+            sub->phase++;
             break;
         case 2:
-            gCurrentActor->yaw = (gCurrentActor->yaw + (s32)(sub->unk14 * 200.0f)) & 0xFFF;
-            sp4E = (gCurrentActor->yaw + (s32)(sub->unk14 * 200.0f)) & 0xFFF;
+            gCurrentActor->yaw = (gCurrentActor->yaw + (s32)(sub->frequency * 200.0f)) & 0xFFF;
+            viewYaw = (gCurrentActor->yaw + (s32)(sub->frequency * 200.0f)) & 0xFFF;
             break;
         case 1:
-            gCurrentActor->yaw = ((s16)(sinApprox((f32)sub->unk4 * sub->unk14) * ((sub->unk10 * 4096.0f) / 360.0f)) + sub->unk18) & 0xFFF;
-            sub->unk4++;
-            sp4E = ((s16)(sinApprox((f32)sub->unk4 * sub->unk14) * ((sub->unk10 * 4096.0f) / 360.0f)) + sub->unk18) & 0xFFF;
+            gCurrentActor->yaw = ((s16)(sinApprox((f32)sub->phase * sub->frequency) * ((sub->amplitude * 4096.0f) / 360.0f)) + sub->baseYaw) & 0xFFF;
+            sub->phase++;
+            viewYaw = ((s16)(sinApprox((f32)sub->phase * sub->frequency) * ((sub->amplitude * 4096.0f) / 360.0f)) + sub->baseYaw) & 0xFFF;
             break;
         case 3:
-            sp4E = gCurrentActor->yaw;
+            viewYaw = gCurrentActor->yaw;
             break;
         }
-        sp5C = mathSinF(sp4E) * 50.0f;
-        sp58 = mathCosF(sp4E) * 50.0f;
-        if (sub->unk1B == 1) {
+        dirX = mathSinF(viewYaw) * 50.0f;
+        dirZ = mathCosF(viewYaw) * 50.0f;
+        if (sub->animDelay == 1) {
             controllerAnimLoadStateAsset(gCurrentActor, 0x75);
         }
-        if (sub->unk1B) {
-            sub->unk1B--;
+        if (sub->animDelay) {
+            sub->animDelay--;
         }
-        if (sub->unk1A) {
-            sub->unk1A--;
+        if (sub->launchDelay) {
+            sub->launchDelay--;
         }
-        if (((D_807FD63C & 0xE000) || sub->unk1C == 3) && sub->unk1A == 0) {
-            ActorFB6CCamHolder *temp_s0_2;
+        if (((D_807FD63C & 0xE000) || sub->mode == 3) && sub->launchDelay == 0) {
+            PlayerState *riderState;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x18, 0xFF, 0x7F, 1);
-            temp_s0_2 = sub->unk0->customState;
+            riderState = sub->rider->customState;
             controllerAnimFreeStateAsset(gCurrentActor);
             if (!(gGlobalCutsceneFlags & 2)) {
-                if (sub->unk1C == 3) {
-                    var_v0 = 0x64;
+                if (sub->mode == 3) {
+                    param = 0x64;
                 } else {
-                    var_v0 = 0x32;
+                    param = 0x32;
                 }
-                camSetTargetScaled(temp_s0_2->unk104, sub->unk0, 4, 0x800, var_v0, 0, 0, 0x1E, 0x14, 0x50, 0.3f);
+                camSetTargetScaled(riderState->camActor, sub->rider, 4, 0x800, param, 0, 0, 0x1E, 0x14, 0x50, 0.3f);
             }
             gActivePlayerActor->yaw = gCurrentActor->yaw;
             gActivePlayerActor->moveYaw = gCurrentActor->yaw;
-            actorAppendCallback(sub->unk0, (s32)gCurrentActor, 0x40, 1, 0, 0);
+            actorAppendCallback(sub->rider, (s32)gCurrentActor, 0x40, 1, 0, 0);
             if (gGlobalCutsceneFlags & 2) {
-                var_v0 = 0x1F4;
+                param = 0x1F4;
             } else {
-                var_v0 = 0x2BC;
+                param = 0x2BC;
             }
-            actorAppendCallbackPayloadAAB8((s32)gCurrentActor, sub->unk0, gCurrentActor->yaw, 0.0f, var_v0);
+            actorAppendCallbackPayloadAAB8((s32)gCurrentActor, sub->rider, gCurrentActor->yaw, 0.0f, param);
             actorQueueDelayedCallback(gCurrentActor, gCurrentActor, 0x800, 2, 0, 0, 0xA);
             effectSetMode(2);
             effectCreateAtActorBone(&D_8071FBC8, 1.6f, gCurrentActor, 1, 2);
@@ -1870,32 +1848,32 @@ void tagBarrelParticleUpdate(void) {
             gCurrentActor->state = 2;
             gCurrentActor->unk155[0] = 0x1E;
         } else {
-            sp54 = ((ActorFB6CCamHolder *)sub->unk0->customState)->unk104;
-            switch (sub->unk1C) {
+            cam = ((PlayerState *)sub->rider->customState)->camActor;
+            switch (sub->mode) {
             case 0:
-                var_fa1 = sinApprox((f32)sub->unk4 * sub->unk14) * sub->unk10 + (sub->unk8 + sub->unk10);
+                camY = sinApprox((f32)sub->phase * sub->frequency) * sub->amplitude + (sub->baseY + sub->amplitude);
                 break;
             case 4:
-                var_fa1 = sinApprox((f32)sub->unk4 * sub->unk14) * sub->unk10 + sub->unk8;
+                camY = sinApprox((f32)sub->phase * sub->frequency) * sub->amplitude + sub->baseY;
                 break;
             default:
-                var_fa1 = gCurrentActor->y;
+                camY = gCurrentActor->y;
                 break;
             }
             if (gGlobalCutsceneFlags & 2) {
-                var_v0 = 0;
+                param = 0;
             } else {
-                var_v0 = 1;
+                param = 1;
             }
             camSetFixedView(
-                sp54,
-                (f64)gCurrentActor->x - (f64)sp5C / 5.0,
-                var_fa1,
-                (f64)gCurrentActor->z - (f64)sp58 / 5.0,
-                gCurrentActor->x + sp5C,
-                var_fa1,
-                gCurrentActor->z + sp58,
-                var_v0
+                cam,
+                (f64)gCurrentActor->x - (f64)dirX / 5.0,
+                camY,
+                (f64)gCurrentActor->z - (f64)dirZ / 5.0,
+                gCurrentActor->x + dirX,
+                camY,
+                gCurrentActor->z + dirZ,
+                param
             );
             if (camIsCutsceneActive() == 0) {
                 renderCallbacksRegister(func_806FF01C, gPrimaryPlayerActor, 3);
@@ -1906,9 +1884,9 @@ void tagBarrelParticleUpdate(void) {
         tagBarrelDespawnOnKongDeselect();
         gCurrentActor->unk155[0]--;
         if (gCurrentActor->unk155[0] == 0) {
-            gCurrentActor->y = sub->unk8;
-            sub->unk4 = ((f64)sub->unk14 != 0.0) ? (4.71238899230957031 / (f64)sub->unk14) : (f64)0;
-            gCurrentActor->yaw = sub->unk18;
+            gCurrentActor->y = sub->baseY;
+            sub->phase = ((f64)sub->frequency != 0.0) ? (4.71238899230957031 / (f64)sub->frequency) : (f64)0;
+            gCurrentActor->yaw = sub->baseYaw;
             gCurrentActor->state = 0;
         }
         break;
@@ -1931,41 +1909,23 @@ void tagBarrelParticleUpdate(void) {
     if (gCurrentMap == 0xCB) {
         gCurrentActor->flags |= 0x400;
     }
-    guRotateF((float (*)[4])&gCurrentActor->unk08[4], sub->unkC, 1.0f, 0, 0.0f);
+    guRotateF((float (*)[4])&gCurrentActor->unk08[4], sub->pitch, 1.0f, 0, 0.0f);
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
 
-typedef struct PlayerStateD580 {
-    /* 0x000 */ char unk0[0xCA];
-    /* 0x0CA */ u8 unkCA;
-    /* 0x0CB */ char unkCB[0x1F0 - 0xCB];
-    /* 0x1F0 */ s32 unk1F0;
-    /* 0x1F4 */ s32 unk1F4;
-} PlayerStateD580;
 
-typedef struct PlayerData {
-    /* 0x000 */ u8 unk0[0x210];
-    /* 0x210 */ f32 unk210;
-    /* 0x214 */ f32 unk214;
-    /* 0x218 */ f32 unk218;
-    /* 0x21C */ u8 unk21C[0xA4];
-    /* 0x2C0 */ u8 unk2C0;
-} PlayerData;
 
-extern PlayerData *gPlayerSlots;
 
 void tagBarrelUpdateInteractable(void) {
-    s32 one = 1;
-
-    if (one != gPlayerSlots->unk2C0 || (((PlayerStateD580 *)gActivePlayerState)->unk1F4 & 0x40) || gPlayerCharacterId >= 5) {
+    if (1 != gPlayerSlots->unk2C0 || (gActivePlayerState->stateFlags2 & 0x40) || gPlayerCharacterId >= 5) {
         gCurrentActor->interactionType = 4;
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->alpha = 0x7F;
-    } else if (one == gPlayerSlots->unk2C0 && !(((PlayerStateD580 *)gActivePlayerState)->unk1F0 & 0x40) && gPlayerCharacterId < 5) {
+    } else if (1 == gPlayerSlots->unk2C0 && !(gActivePlayerState->stateFlags & 0x40) && gPlayerCharacterId < 5) {
         gCurrentActor->flags |= 0x8000;
-        gCurrentActor->interactionType = one;
+        gCurrentActor->interactionType = 1;
     }
-    if (((PlayerStateD580 *)gActivePlayerState)->unkCA != 0) {
+    if (gActivePlayerState->unkCA != 0) {
         gCurrentActor->interactionType = 4;
     }
 }
@@ -2037,20 +1997,12 @@ typedef struct Vec3f {
     f32 z;
 } Vec3f;
 
-typedef struct TagBarrelPlayerState {
-    u8 pad0[0xBC];
-    s16 unkBC;
-    s16 unkBE;
-    u8 padC0[0x1A3 - 0xC0];
-    u8 unk1A3;
-} TagBarrelPlayerState;
 
 extern Vec3f D_8074E7D4;
 extern u8 gScreenRenderFlags;
 extern u8 gBossFightPhase;
 extern u8 D_807FBDC4;
 extern u8 D_8071FC58[];
-extern s32 effectZSpinMatrixUpdate;
 
 
 extern s16 D_80750390;
@@ -2061,24 +2013,24 @@ void tagBarrelActorUpdate(void) {
     s16 pad0;
     f32 coord[3];
     s32 i;
-    Vec3f sp90;
+    Vec3f offset;
     s16 *ptr;
-    s16 sp8A;
+    s16 spawnFlag;
     f32 dist;
-    u8 sp83;
+    u8 hidden;
     TagBarrelActorState *sub;
-    f32 temp_f;
+    f32 scaleFactor;
     u32 val;
-    f32 temp_f2;
+    f32 sizeScale;
     s16 angle;
     f32 yOffset;
 
-    sub = (TagBarrelActorState *)gCurrentActor->customState;
+    sub = gCurrentActor->customState;
     if (gCurrentMap == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    sp90 = D_8074E7D4;
-    sp83 = 0;
+    offset = D_8074E7D4;
+    hidden = 0;
     if (!(gCurrentActor->flags & 0x10)) {
-        temp_f = (f64)gCurrentActor->sub4->scaleX / 0.15;
+        scaleFactor = (f64)gCurrentActor->sub4->scaleX / 0.15;
         gCurrentActor->floorY = gCurrentActor->y;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
         gCurrentActor->attachMode = 0;
@@ -2113,11 +2065,11 @@ void tagBarrelActorUpdate(void) {
         } else {
             gCurrentActor->state = 0;
         }
-        temp_f = (f64)temp_f - 1.0;
-        if ((f64)temp_f < 0.0) {
-            temp_f = 0.0f;
+        scaleFactor = (f64)scaleFactor - 1.0;
+        if ((f64)scaleFactor < 0.0) {
+            scaleFactor = 0.0f;
         }
-        val = (u32)(80.0f * temp_f + 20.0f);
+        val = (u32)(80.0f * scaleFactor + 20.0f);
         gCurrentActor->cullMarginX = val;
         gCurrentActor->cullMarginY = val;
     }
@@ -2141,30 +2093,30 @@ void tagBarrelActorUpdate(void) {
     }
     if (gCurrentMap == 0xAA) {
         if (gCurrentActor->state != 0xA && gCurrentActor->state != 0xB && gCurrentActor->state != 0xC && gCurrentActor->state != 0x1E) {
-            if (((PlayerStateD580 *)gActivePlayerState)->unk1F0 & 0x40) {
+            if (gActivePlayerState->stateFlags & 0x40) {
                 gCurrentActor->unk144 = 2;
                 gCurrentActor->flags |= 0x8000;
             } else {
-                sp83 = 1;
+                hidden = 1;
                 gCurrentActor->unk144 = 1;
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->alpha = 0;
             }
         }
     }
-    if ((gCurrentActor->flags & 0x100) && (gCurrentActor->state == 0 || gCurrentActor->state == 1 || (gCurrentActor->state >= 0xA && gCurrentActor->state < 0xD)) && sp83 == 0) {
-        dist = (gPlayerSlots->unk218 - gCurrentActor->z) * (gPlayerSlots->unk218 - gCurrentActor->z) +
-               ((gPlayerSlots->unk210 - gCurrentActor->x) * (gPlayerSlots->unk210 - gCurrentActor->x) +
-                (gPlayerSlots->unk214 - gCurrentActor->y) * (gPlayerSlots->unk214 - gCurrentActor->y));
+    if ((gCurrentActor->flags & 0x100) && (gCurrentActor->state == 0 || gCurrentActor->state == 1 || (gCurrentActor->state >= 0xA && gCurrentActor->state < 0xD)) && hidden == 0) {
+        dist = (gPlayerSlots->camZ - gCurrentActor->z) * (gPlayerSlots->camZ - gCurrentActor->z) +
+               ((gPlayerSlots->camX - gCurrentActor->x) * (gPlayerSlots->camX - gCurrentActor->x) +
+                (gPlayerSlots->camY - gCurrentActor->y) * (gPlayerSlots->camY - gCurrentActor->y));
         if (dist < 40000.0f) {
-            temp_f2 = (f64)gCurrentActor->sub4->scaleX / 0.15;
-            coord[2] = ((f64)((randomNonNegative() >> 15) % (s32)(30.0f * temp_f2)) - (15.0 * (f64)temp_f2)) + gCurrentActor->x;
-            coord[1] = ((f64)((randomNonNegative() >> 15) % (s32)(30.0f * temp_f2)) - (15.0 * (f64)temp_f2)) + gCurrentActor->y;
-            coord[0] = ((f64)((randomNonNegative() >> 15) % (s32)(30.0f * temp_f2)) - (15.0 * (f64)temp_f2)) + gCurrentActor->z;
+            sizeScale = (f64)gCurrentActor->sub4->scaleX / 0.15;
+            coord[2] = ((f64)((randomNonNegative() >> 15) % (s32)(30.0f * sizeScale)) - (15.0 * (f64)sizeScale)) + gCurrentActor->x;
+            coord[1] = ((f64)((randomNonNegative() >> 15) % (s32)(30.0f * sizeScale)) - (15.0 * (f64)sizeScale)) + gCurrentActor->y;
+            coord[0] = ((f64)((randomNonNegative() >> 15) % (s32)(30.0f * sizeScale)) - (15.0 * (f64)sizeScale)) + gCurrentActor->z;
             effectSetDepth(1);
             effectSetFlags(4);
             if (gCurrentActor->state == 0) {
-                effectSetCallback(&effectZSpinMatrixUpdate);
+                effectSetCallback(effectZSpinMatrixUpdate);
                 effectCreateAtPosition(D_8071FC58, 0.5f, coord[2], coord[1], coord[0]);
             } else {
                 effectSetSpeed((s32)(gCurrentActor->sub4->scaleX * 100.0f) + (sub->unk8 << 16));
@@ -2235,8 +2187,8 @@ void tagBarrelActorUpdate(void) {
             if ((f64)gCurrentActor->sub4->scaleX >= 0.15) {
                 gCurrentActor->state = 0xB;
             }
-            temp_f = (0.15 - (f64)gCurrentActor->sub4->scaleX) / 0.13;
-            sub->unk8 = (s32)(temp_f * 400.0f);
+            scaleFactor = (0.15 - (f64)gCurrentActor->sub4->scaleX) / 0.13;
+            sub->unk8 = (s32)(scaleFactor * 400.0f);
             gCurrentActor->yaw += sub->unk8;
         }
         break;
@@ -2251,11 +2203,11 @@ void tagBarrelActorUpdate(void) {
         }
         actorAppendCallbackPayloadAAB8((s32)gCurrentActor, gPrimaryPlayerActor, (s16)((gCurrentActor->yaw + 0x800) & 0xFFF), (f32)angle, 0);
         if (((TagBarrelSpawnParams *)gCurrentActor->spawnData)->unk18 == 1.0) {
-            TagBarrelPlayerState *playerState = ((Actor *)gPrimaryPlayerActor)->customState;
+            PlayerState *playerState = gPrimaryPlayerActor->customState;
             func_806C7BAC(gPrimaryPlayerActor, 0);
-            playerState->unk1A3 = 1;
-            playerState->unkBC = 0x31;
-            playerState->unkBE = -1;
+            playerState->isHoldingObject = 1;
+            playerState->hitActorType = 0x31;
+            playerState->hitActorId = -1;
             sfxAllocateChannel(0x48, 1.0f);
         }
         actorSetCustomFloat(gCurrentActor, 1, 0.0f);
@@ -2273,16 +2225,16 @@ void tagBarrelActorUpdate(void) {
     case 12:
         sub->unkD--;
         if (sub->unkD < 0x28) {
-            sp90.x = ((f64)(u32)((randomLcgNext() / 1000) % 50) - 25.0) / 5.0;
-            sp90.y = ((f64)(u32)((randomLcgNext() / 1000) % 50) - 25.0) / 5.0;
-            sp90.z = ((f64)(u32)((randomLcgNext() / 1000) % 50) - 25.0) / 5.0;
+            offset.x = ((f64)(u32)(((u32)randomLcgNext() / 1000) % 50) - 25.0) / 5.0;
+            offset.y = ((f64)(u32)(((u32)randomLcgNext() / 1000) % 50) - 25.0) / 5.0;
+            offset.z = ((f64)(u32)(((u32)randomLcgNext() / 1000) % 50) - 25.0) / 5.0;
         }
         if (sub->unkD == 0) {
             tagBarrelDespawnEffects();
             if (sub->unkA != 0) {
-                sp8A = func_8073195C(sub->unkA);
+                spawnFlag = func_8073195C(sub->unkA);
             } else {
-                sp8A = -1;
+                spawnFlag = -1;
             }
             kong = tagBarrelGetKongType();
             switch (gCurrentMap) {
@@ -2297,7 +2249,7 @@ void tagBarrelActorUpdate(void) {
                 if (gCurrentMap == 0xAD) {
                     yOffset = -10.0f;
                 }
-                actorSpawnNodeEntryScaled(0x2D, gCurrentActor->x, gCurrentActor->y + yOffset, gCurrentActor->z, 0, kong, sp8A, 0);
+                actorSpawnNodeEntryScaled(0x2D, gCurrentActor->x, gCurrentActor->y + yOffset, gCurrentActor->z, 0, kong, spawnFlag, 0);
                 sfxAllocateChannel(0x14, 1.0f);
                 actorDespawn(gCurrentActor);
                 break;
@@ -2334,7 +2286,7 @@ void tagBarrelActorUpdate(void) {
     gCurrentActor->yaw += 0x50;
     gCurrentActor->y = (mathSinF(sub->unk4) * 5.0) + (f64)sub->unk0;
     sub->unk4 += 0x3C;
-    guTranslateF((f32 (*)[4])((u8 *)gCurrentActor + 0xC), sp90.x, sp90.y, sp90.z);
+    guTranslateF((f32 (*)[4])((u8 *)gCurrentActor + 0xC), offset.x, offset.y, offset.z);
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
 
@@ -2358,7 +2310,7 @@ void tagBarrelCheckDespawn(void) {
 
 void tagBarrelUpdateStateCheck(void) {
     TagBarrelState *sub = gCurrentActor->customState;
-    s32 sp28;
+    s32 flag;
     s32 count;
     s32 i;
 
@@ -2384,19 +2336,19 @@ void tagBarrelUpdateStateCheck(void) {
         }
         switch (sub->unk6) {
         case 0xB1:
-            sp28 = 0x182;
+            flag = 0x182;
             break;
         case 0xB6:
-            sp28 = 0x183;
+            flag = 0x183;
             break;
         case 0xB4:
-            sp28 = 0x184;
+            flag = 0x184;
             break;
         case 0xB5:
-            sp28 = 0x185;
+            flag = 0x185;
             break;
         }
-        if (flagGet(sp28, 0) != 0) {
+        if (flagGet(flag, 0) != 0) {
             sub->unkC_b = 1;
             sub->unkA = 0;
             if (gCurrentActor->state == 0) {
@@ -2417,15 +2369,11 @@ void tagBarrelUpdateStateCheck(void) {
 }
 
 typedef struct RocketbarrelState {
-    s16 unk0;
+    s16 timer;
     s16 pad2;
-    Actor *unk4;
+    Actor *rider;
 } RocketbarrelState;
 
-typedef struct PlayerStateD580Grab {
-    u8 pad0[0x1A3];
-    u8 unk1A3;
-} PlayerStateD580Grab;
 
 extern u8 gPlayerInventoryTable[][0x5E];
 extern s16 D_80750390;
@@ -2433,10 +2381,10 @@ extern s16 D_80750390;
 void func_806C7BAC(void *, Actor *); // FAKE: callee prototype steer
 
 void rocketbarrelUpdate(void) {
-    RocketbarrelState *var_v1;
+    RocketbarrelState *state;
     s32 pad[3];
 
-    var_v1 = (RocketbarrelState *)gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->floorY = 99999.0f;
         collisionCheckGroundAtPoint(gCurrentActor->x, gCurrentActor->z, &gCurrentActor->floorY);
@@ -2450,23 +2398,23 @@ void rocketbarrelUpdate(void) {
         }
     }
     if ((gCurrentActor->state == 0) && (gActorGlobalState.unk200 == 4)) {
-        var_v1->unk0 = 0xA;
+        state->timer = 0xA;
         gCurrentActor->state = 1;
         gCurrentActor->unk144 = 1;
-        var_v1->unk4 = (Actor *)gActorGlobalState.targetActor;
+        state->rider = gActorGlobalState.targetActor;
         gCurrentActor->flags |= 0x200000;
-        if ((gCurrentMap == 0x11) || (gCurrentMap == 0xC9) || (gCurrentMap == 0xCC)) {
+        if ((gCurrentMap == 0x11) || (gCurrentMap == 0xC9) || (gCurrentMap == 0xCC)) { // FAKE: empty then-branch keeps the branch shape (negated condition: mismatch)
         } else {
             sfxAllocateChannel(0x48, 1.0f);
         }
     }
     switch (gCurrentActor->state) {
     case 0: {
-        s32 sp44;
+        s32 itemCount;
         if (gPlayerCharacterId < 5) {
-            sp44 = gPlayerInventoryTable[gPlayerCharacterId][0];
+            itemCount = gPlayerInventoryTable[gPlayerCharacterId][0];
         }
-        if (((Actor *)gPrimaryPlayerActor)->actorType == 3 && sp44 >= 2) {
+        if (gPrimaryPlayerActor->actorType == 3 && itemCount >= 2) {
             gCurrentActor->flags |= 0x8000;
             gCurrentActor->interactionType = 1;
         } else {
@@ -2478,8 +2426,8 @@ void rocketbarrelUpdate(void) {
         break;
     }
     case 1:
-        var_v1->unk0--;
-        if (var_v1->unk0 == 0) {
+        state->timer--;
+        if (state->timer == 0) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C6, 0xFF, 0x7F, 0);
             gCurrentActor->state = 2;
             slotQueueUpdate(5, (gGlobalCutsceneFlags & 2) ? 0 : 1, 0);
@@ -2489,10 +2437,10 @@ void rocketbarrelUpdate(void) {
         tagBarrelDespawnEffects();
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->alpha = 0;
-        actorAppendCallback(var_v1->unk4, (s32)gCurrentActor, 0x40, 1, 0, 0);
-        actorAppendCallbackPayloadAAB8((s32)gCurrentActor, var_v1->unk4, var_v1->unk4->yaw, (f32) D_80750390, 0);
-        func_806C7BAC(var_v1->unk4, gCurrentActor);
-        ((PlayerStateD580Grab *)gActivePlayerState)->unk1A3 = 1;
+        actorAppendCallback(state->rider, (s32)gCurrentActor, 0x40, 1, 0, 0);
+        actorAppendCallbackPayloadAAB8((s32)gCurrentActor, state->rider, state->rider->yaw, (f32) D_80750390, 0);
+        func_806C7BAC(state->rider, gCurrentActor);
+        gActivePlayerState->isHoldingObject = 1;
         gCurrentActor->state = 3;
         break;
     case 3:
@@ -2542,29 +2490,15 @@ void rocketbarrelUpdate(void) {
 }
 
 typedef struct CannonState {
-    u8 unk0;
-    u8 unk1;
-    u8 unk2;
-    u8 unk3;
-    Actor *unk4;
-    s16 unk8;
+    u8 shotsLeft;
+    u8 resetTimer;
+    u8 active;
+    u8 used;
+    Actor *rider;
+    s16 aimYaw;
 } CannonState;
 
-typedef struct CannonCamHolder {
-    u8 pad0[0x104];
-    void *unk104;
-} CannonCamHolder;
 
-typedef struct CannonPlayerView {
-    u8 pad0[0x210];
-    f32 unk210;
-    f32 unk214;
-    f32 unk218;
-    u8 pad21C[0xC];
-    f32 unk228;
-    f32 unk22C;
-    f32 unk230;
-} CannonPlayerView;
 
 extern f32 D_8074E7F4;
 extern f32 D_8074E7F8;
@@ -2594,17 +2528,17 @@ void cannonUpdate(void) {
     f32 z;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->interactionType = 1;
-        sub->unk2 = 0;
-        sub->unk8 = 0;
-        sub->unk1 = 0;
-        sub->unk3 = 0;
+        sub->active = 0;
+        sub->aimYaw = 0;
+        sub->resetTimer = 0;
+        sub->used = 0;
     }
     if (gCurrentActor->state == 2 || gCurrentActor->state == 3) {
-        cam = ((CannonCamHolder *)sub->unk4->customState)->unk104;
-        sub->unk8 = sub->unk8 - (f64)D_807FD63E * 0.08 * D_8074E7F8 * 4096.0 / 360.0;
-        sub->unk8 = sub->unk8 & 0xFFF;
-        sinOff = mathSinF(sub->unk8) * D_8074E7F4;
-        cosOff = mathCosF(sub->unk8) * D_8074E7F4;
+        cam = ((PlayerState *)sub->rider->customState)->camActor;
+        sub->aimYaw = sub->aimYaw - (f64)D_807FD63E * 0.08 * D_8074E7F8 * 4096.0 / 360.0;
+        sub->aimYaw = sub->aimYaw & 0xFFF;
+        sinOff = mathSinF(sub->aimYaw) * D_8074E7F4;
+        cosOff = mathCosF(sub->aimYaw) * D_8074E7F4;
         D_8074E804 = D_8074E804 - (f64)D_807FD63F * 0.04 * D_8074E800;
         if (D_8074E804 > 50.0) {
             D_8074E804 = 50.0f;
@@ -2624,37 +2558,37 @@ void cannonUpdate(void) {
     } else {
         func_8066E6C8(gCurrentActor, 0, 1);
     }
-    if (sub->unk2 != 0) {
+    if (sub->active != 0) {
         renderCallbacksRegister(renderRemainingShotsHUD, sub, 3);
     }
-    child = (Actor *)gCurrentActor->parentActor;
-    if (child != 0 && sub->unk2 != 0 && child->state == 5 && sub->unk1 == 0) {
-        sub->unk1 = 0x1E;
+    child = gCurrentActor->parentActor;
+    if (child != NULL && sub->active != 0 && child->state == 5 && sub->resetTimer == 0) {
+        sub->resetTimer = 0x1E;
     }
-    if (sub->unk1 != 0) {
-        sub->unk1--;
-        if (sub->unk1 == 0) {
+    if (sub->resetTimer != 0) {
+        sub->resetTimer--;
+        if (sub->resetTimer == 0) {
             resetFlag = 1;
         }
     }
     for (i = 0; i < gActorGlobalState.unk254; i++) {
         if (gActorGlobalState.unk258[i] == 1) {
             latchFlag = 1;
-            sub->unk3 = 1;
+            sub->used = 1;
         }
     }
     if (resetFlag != 0 || latchFlag != 0) {
-        sub->unk2 = 0;
+        sub->active = 0;
         if (gCurrentActor->state == 2 || gCurrentActor->state == 3) {
             gCurrentActor->state = 3;
         } else {
             gCurrentActor->state = 0;
             gCurrentActor->unk144 = 2;
         }
-        child = (Actor *)gCurrentActor->parentActor;
-        if (child != 0) {
+        child = gCurrentActor->parentActor;
+        if (child != NULL) {
             actorDespawn(child);
-            gCurrentActor->parentActor = 0;
+            gCurrentActor->parentActor = NULL;
         }
         if (resetFlag) {
             csModelStateSetFirstByte(0x30, 0);
@@ -2665,7 +2599,7 @@ void cannonUpdate(void) {
     switch (gCurrentActor->state) {
     case 0:
         gCurrentActor->interactionType = 1;
-        if (gActorGlobalState.unk200 == 5 && sub->unk3 == 0) {
+        if (gActorGlobalState.unk200 == 5 && sub->used == 0) {
             gCurrentActor->state = 1;
             gCurrentActor->interactionType = 2;
         }
@@ -2673,11 +2607,11 @@ void cannonUpdate(void) {
     case 1:
         if (gActorGlobalState.unk200 == 4) {
             gCurrentActor->state = 2;
-            sub->unk0 = 6;
-            sub->unk4 = (Actor *)gActorGlobalState.targetActor;
-            if (sub->unk2 == 0) {
+            sub->shotsLeft = 6;
+            sub->rider = gActorGlobalState.targetActor;
+            if (sub->active == 0) {
                 csModelStateSetFirstByte(0x30, 0xA);
-                sub->unk2 = 1;
+                sub->active = 1;
                 hudSpawnCountdownTimer(0xC8, 0x20, D_8074E810);
                 actorSetStateTwo(gSpawnedActor);
                 gCurrentActor->flags |= 0x200000;
@@ -2687,27 +2621,27 @@ void cannonUpdate(void) {
         }
         break;
     case 2:
-        if ((D_807FD63C & 0x2000) && actorCountOwnedByClass(gCurrentActor, 4, 0) == 0 && sub->unk0 != 0) {
+        if ((D_807FD63C & 0x2000) && actorCountOwnedByClass(gCurrentActor, 4, 0) == 0 && sub->shotsLeft != 0) {
             projectileSetTargetCoords(gCurrentActor->x, gCurrentActor->y + D_8074E7FC, gCurrentActor->z);
-            x = ((CannonPlayerView *)gPlayerSlots)->unk230 - ((CannonPlayerView *)gPlayerSlots)->unk218;
-            y = ((CannonPlayerView *)gPlayerSlots)->unk228 - ((CannonPlayerView *)gPlayerSlots)->unk210;
-            pitch = mathAtan2(((CannonPlayerView *)gPlayerSlots)->unk22C - ((CannonPlayerView *)gPlayerSlots)->unk214, sqrtf(x * x + y * y));
+            x = gPlayerSlots->focusZ - gPlayerSlots->camZ;
+            y = gPlayerSlots->focusX - gPlayerSlots->camX;
+            pitch = mathAtan2(gPlayerSlots->focusY - gPlayerSlots->camY, sqrtf(x * x + y * y));
             sinV = sinApprox(pitch) * D_8074E808;
             y = cosApprox(pitch) * D_8074E808;
-            projectileSpawnNodeEntry(0x4A, 0, 0.6f, sub->unk8, y, sinV, (s32)gCurrentActor);
+            projectileSpawnNodeEntry(0x4A, 0, 0.6f, sub->aimYaw, y, sinV, (s32)gCurrentActor);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17, 0xFF, 0x7F, 0x19);
-            sub->unk0--;
-            if (sub->unk0 == 0) {
+            sub->shotsLeft--;
+            if (sub->shotsLeft == 0) {
                 gCurrentActor->state = 3;
             }
         }
         break;
     case 3:
         if (actorCountOwnedByClass(gCurrentActor, 4, 0) == 0) {
-            actorAppendCallback(sub->unk4, (s32)gCurrentActor, 0x40, 1, 0, 0);
-            actorAppendCallbackPayloadA70C(gCurrentActor, sub->unk4, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z - 42.0f, 2, 1);
-            sub->unk4->flags &= ~8;
-            playerResumeLocomotion(sub->unk4);
+            actorAppendCallback(sub->rider, (s32)gCurrentActor, 0x40, 1, 0, 0);
+            actorAppendCallbackPayloadA70C(gCurrentActor, sub->rider, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z - 42.0f, 2, 1);
+            sub->rider->flags &= ~8;
+            playerResumeLocomotion(sub->rider);
             gCurrentActor->flags |= 4;
             gCurrentActor->state = 0;
             gCurrentActor->unk144 = 2;
@@ -2717,104 +2651,102 @@ void cannonUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct TagBarrelOrbitKong {
-    u8 pad0[4];
-    u16 unk4;
-    s8 unk6;
-    s8 unk7;
-    Actor *unk8[5];
-    Actor *unk1C;
-    s8 unk20;
-} TagBarrelOrbitKong;
+typedef struct TagBarrelData {
+    /* 0x00 */ Actor *player;
+    /* 0x04 */ u16 timer;
+    /* 0x06 */ s8 selected;
+    /* 0x07 */ s8 previous;
+    /* 0x08 */ Actor *kongs[5];
+    /* 0x1C */ Actor *marker;
+    /* 0x20 */ s8 direction;
+    /* 0x21 */ u8 pad21;
+    /* 0x22 */ s16 baseYaw;
+    /* 0x24 */ f32 baseY;
+    /* 0x28 */ s16 bobPhase;
+    /* 0x2A */ u8 pad2A[2];
+    /* 0x2C */ f32 lightR;
+    /* 0x30 */ f32 lightG;
+    /* 0x34 */ f32 lightB;
+    /* 0x38 */ s16 playerYaw;
+    /* 0x3A */ u8 pad3A[2];
+    /* 0x3C */ u32 frames;
+} TagBarrelData;
 
 
-void tagBarrelOrbitKongs(void *arg0) {
-    TagBarrelOrbitKong *arg = (TagBarrelOrbitKong *)arg0;
-    f32 sp70 = gCurrentActor->x;
-    f32 sp6C = gCurrentActor->y - 10.0f;
-    f32 sp68 = gCurrentActor->z;
-    s32 var_s1;
-    f32 temp_fs1;
-    f32 var_fv0;
-    f32 var_fv1;
-    s16 temp_s5;
-    s16 temp_t0;
+
+void tagBarrelOrbitKongs(void *data) {
+    TagBarrelData *arg = data;
+    f32 centerX = gCurrentActor->x;
+    f32 centerY = gCurrentActor->y - 10.0f;
+    f32 centerZ = gCurrentActor->z;
+    s32 i;
+    f32 blend;
+    f32 glow;
+    f32 clamped;
+    s16 baseYaw;
+    s16 yaw;
     u8 u;
-    u8 *var_s3;
-    Actor *temp_s2;
+    u8 *cursor;
+    Actor *kong;
 
-    temp_fs1 = (f32)(u32)arg->unk4 / 20.0f;
-    temp_s5 = gCurrentActor->yaw;
-    temp_s5 = (s16)(s32)(temp_s5 + (819.2 * arg->unk6)) & 0xFFF;
-    temp_s5 = (s16)(s32)(temp_s5 - (819.2 * temp_fs1) * arg->unk20) & 0xFFF;
-    u = ((u8)(s32)(temp_s5 & 0x7FFF) & 0xFFF); // FAKE: dead narrowing chain burns ugen ring temps (loop-start register ring)
+    blend = (f32)(u32)arg->timer / 20.0f;
+    baseYaw = gCurrentActor->yaw;
+    baseYaw = (s16)(s32)(baseYaw + (819.2 * arg->selected)) & 0xFFF;
+    baseYaw = (s16)(s32)(baseYaw - (819.2 * blend) * arg->direction) & 0xFFF;
+    u = ((u8)(s32)(baseYaw & 0x7FFF) & 0xFFF); // FAKE: dead narrowing chain burns ugen ring temps (loop-start register ring)
     u = ((u8)((s16)(u & 0xFFF) & 0xFFFF) & 0x7FFF); // FAKE: ring temps
     u = (s32)(((u8)(u & 0xFFFF) & 0xFF) & 0x7FFF); // FAKE: ring temps
     u = (u32)u; // FAKE: ring temps
-    var_s1 = 0;
-    var_s3 = (u8 *)arg0;
+    i = 0;
+    cursor = (u8 *)data;
     do {
-        temp_s2 = *(Actor **)(var_s3 + 8);
-        temp_t0 = (s16)((s32)(4096.0 - (var_s1 * 819.2)) + temp_s5) & 0xFFF;
-        temp_s2->x = (mathSinF(temp_t0) * 45.0f) + sp70;
-        temp_s2->z = (mathCosF(temp_t0) * 45.0f) + sp68;
-        var_s3 += 4;
-        temp_s2->y = sp6C;
-        if (var_s1 == arg->unk6) {
-            var_fv0 = 1.0f - temp_fs1;
-        } else if (var_s1 == arg->unk7) {
-            var_fv0 = temp_fs1;
+        kong = *(Actor **)(cursor + 8); // FAKE: byte-pointer walk over the kong array steers the loop induction variable
+        yaw = (s16)((s32)(4096.0 - (i * 819.2)) + baseYaw) & 0xFFF;
+        kong->x = (mathSinF(yaw) * 45.0f) + centerX;
+        kong->z = (mathCosF(yaw) * 45.0f) + centerZ;
+        cursor += 4;
+        kong->y = centerY;
+        if (i == arg->selected) {
+            glow = 1.0f - blend;
+        } else if (i == arg->previous) {
+            glow = blend;
         } else {
-            var_fv0 = 0;
+            glow = 0;
         }
-        var_fv0 = (f64)var_fv0 - 0.6;
-        var_s1++;
-        var_fv0 = (f64)var_fv0 * 2.5;
-        if (var_fv0 < 0) {
-            var_fv0 = 0.0f;
+        glow = (f64)glow - 0.6;
+        i++;
+        glow = (f64)glow * 2.5;
+        if (glow < 0) {
+            glow = 0.0f;
         } else {
-            if (var_fv0 > 1.0f) {
-                var_fv1 = 1.0f;
+            if (glow > 1.0f) {
+                clamped = 1.0f;
             } else {
-                var_fv1 = var_fv0;
+                clamped = glow;
             }
-            var_fv0 = var_fv1;
+            glow = clamped;
         }
-        temp_s2->unk15F = (u32)((12.0f * var_fv0) + 3.0f);
-    } while (var_s1 != 5);
+        kong->unk15F = (u32)((12.0f * glow) + 3.0f);
+    } while (i != 5);
 }
 
-void actorScriptStartByKongIndex(void *arg0, u16 *arg1, s32 arg2) {
-    arg2 = arg2 * 7;
-    arg2 += *arg1 - 2;
-    actorScriptStart(arg0, gActorScriptIndexTable[arg2], arg2);
+void actorScriptStartByKongIndex(void *actor, u16 *kongIndex, s32 index) {
+    index = index * 7;
+    index += *kongIndex - 2;
+    actorScriptStart(actor, gActorScriptIndexTable[index], index);
 }
 
-typedef struct TagBarrelSpawnArgs {
-    u8 pad0[6];
-    s8 unk6;
-    u8 pad7;
-    Actor *unk8[5];
-    Actor *unk1C;
-} TagBarrelSpawnArgs;
-
-typedef struct KongActionEntry {
-    s16 unk0;
-    s16 unk2;
-    u8 unk4;
-    u8 unk5;
-} KongActionEntry;
 
 
-void tagBarrelSpawnKongs(TagBarrelSpawnArgs *arg0) {
+
+void tagBarrelSpawnKongs(TagBarrelData *orbit) {
     s32 i;
     s32 actorType;
     s16 model;
-    u16 *temp_s0;
-    s32 var_a2;
-    s32 flag = 0x40000000;
+    u16 *kongIndex;
+    s32 script;
     actorSpawn(0x136, 0xA8);
-    arg0->unk1C = gSpawnedActor;
+    orbit->marker = gSpawnedActor;
     gSpawnedActor->x = gCurrentActor->x + mathSinF(gCurrentActor->yaw) * 35.0f;
     gSpawnedActor->y = (gCurrentActor->y - 10.0f) - 2.0f;
     gSpawnedActor->z = gCurrentActor->z + mathCosF(gCurrentActor->yaw) * 35.0f;
@@ -2822,40 +2754,40 @@ void tagBarrelSpawnKongs(TagBarrelSpawnArgs *arg0) {
     for (i = 0; i < 5; i++) {
         if (flagGet(mapGetConfigValue(gCurrentActor->actorType, i), 0)) {
             actorType = 0x13C;
-            model = ((KongActionEntry *)D_8074E814)[i].unk0;
+            model = D_8074E814[i].model;
         } else {
             actorType = 0x13D;
             model = 0xD2;
         }
         actorSpawn(actorType, model);
-        arg0->unk8[i] = gSpawnedActor;
+        orbit->kongs[i] = gSpawnedActor;
         gSpawnedActor->yaw = gCurrentActor->yaw;
-        gSpawnedActor->flags |= flag;
+        gSpawnedActor->flags |= 0x40000000;
         if (actorType == 0x13C) {
-            temp_s0 = gSpawnedActor->customState;
-            *temp_s0 = ((KongActionEntry *)D_8074E814)[i].unk2;
-            playerKongStopAudioChannels(gSpawnedActor, *temp_s0);
-            var_a2 = (i == arg0->unk6) ? 0x8B : 0x8A;
-            actorScriptStartByKongIndex(gSpawnedActor, temp_s0, var_a2);
+            kongIndex = gSpawnedActor->customState;
+            *kongIndex = D_8074E814[i].kongIndex;
+            playerKongStopAudioChannels(gSpawnedActor, *kongIndex);
+            script = (i == orbit->selected) ? 0x8B : 0x8A;
+            actorScriptStartByKongIndex(gSpawnedActor, kongIndex, script);
         } else {
             u8 *temp = gSpawnedActor->customState;
             *temp = i;
         }
     }
-    tagBarrelOrbitKongs(arg0);
+    tagBarrelOrbitKongs(orbit);
 }
 
 void tagBarrelUpdateSelectedKong(void) {
-    ActorAnimLookup sp2C;
-    u8 *sp28;
+    ActorAnimLookup anims;
+    u8 *kongIndex;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        sp2C = D_8074E834;
-        sp28 = gCurrentActor->customState;
+        anims = D_8074E834;
+        kongIndex = gCurrentActor->customState;
         gCurrentActor->flags |= 0x1000;
         animSetLoopLimit(gCurrentActor, 0, 1);
         animSetFinished(gCurrentActor, 0, 1);
-        animSetFrameAndSubframe(gCurrentActor, 0, sp2C.arr[*sp28].unk2, 0.0f);
+        animSetFrameAndSubframe(gCurrentActor, 0, anims.arr[*kongIndex].unk2, 0.0f);
         actorScriptStart(gCurrentActor, 0x329);
     }
     gCurrentActor->tintA = gCurrentActor->unk15F;
@@ -2865,10 +2797,10 @@ void tagBarrelUpdateSelectedKong(void) {
 }
 
 typedef struct ActorExtra3158 {
-    u16 unk0;
+    u16 kind;
     u16 pad2;
-    void (*unk4)(Actor *, void *, s32 *);
-    u8 unk8[1];
+    void (*callback)(Actor *, void *, s32 *);
+    u8 timer[1];
 } ActorExtra3158;
 
 typedef struct ActorSub4View3158 {
@@ -2890,39 +2822,39 @@ typedef struct ActorView3158 {
 
 
 void tagBarrelInteractiveUpdate(void) {
-    s32 sp3C;
+    s32 count;
     ActorExtra3158 *extra;
     u8 *extra8;
 
-    sp3C = 0;
+    count = 0;
     extra = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x1000;
         ((ActorSub4View3158 *)gCurrentActor->sub4)->unk1C = heapAlloc(0x100);
         heapClearBlock(((ActorSub4View3158 *)gCurrentActor->sub4)->unk1C);
-        func_806C8220(0, ((ActorView3158 *)gCurrentActor)->unk178, extra->unk0);
-        switch (extra->unk0) {
+        func_806C8220(0, ((ActorView3158 *)gCurrentActor)->unk178, extra->kind);
+        switch (extra->kind) {
         case 2:
-            extra->unk4 = playerWeaponAimTarget;
+            extra->callback = playerWeaponAimTarget;
             break;
         case 3:
-            extra->unk4 = playerWeaponInitCrosshair;
+            extra->callback = playerWeaponInitCrosshair;
             break;
         case 5:
-            extra->unk4 = playerWeaponSpawnProjectile;
+            extra->callback = playerWeaponSpawnProjectile;
             break;
         }
     } else {
-        if (extra->unk4 != NULL) {
-            extra->unk4(gCurrentActor, ((ActorSub4View3158 *)gCurrentActor->sub4)->unk1C, &sp3C);
+        if (extra->callback != NULL) {
+            extra->callback(gCurrentActor, ((ActorSub4View3158 *)gCurrentActor->sub4)->unk1C, &count);
         }
     }
-    *((u8 *)((ActorSub4View3158 *)gCurrentActor->sub4)->unk1C + sp3C * 8) = 0;
+    *((u8 *)((ActorSub4View3158 *)gCurrentActor->sub4)->unk1C + count * 8) = 0;
     gCurrentActor->tintA = gCurrentActor->unk15F;
-    gCurrentActor->yaw = mathAngleBetweenPoints2D(gPlayerSlots->unk210, gPlayerSlots->unk218, gCurrentActor->x, gCurrentActor->z);
-    extra8 = extra->unk8;
+    gCurrentActor->yaw = mathAngleBetweenPoints2D(gPlayerSlots->camX, gPlayerSlots->camZ, gCurrentActor->x, gCurrentActor->z);
+    extra8 = extra->timer;
     if (func_8072881C(0, extra8) != 0) {
-        if (extra->unk0 == 3 || extra->unk0 == 5) {
+        if (extra->kind == 3 || extra->kind == 5) {
             func_8072881C(0x81, extra8);
         }
     }
@@ -2968,54 +2900,20 @@ s32 tagBarrelCheckKongFlag(s32 arg0, s32 arg1) {
     }
 }
 
-typedef struct TagBarrelDataN3 {
-    /* 0x00 */ Actor *unk0;
-    /* 0x04 */ u16 unk4;
-    /* 0x06 */ s8 unk6;
-    /* 0x07 */ s8 unk7;
-    /* 0x08 */ Actor *unk8[5];
-    /* 0x1C */ Actor *unk1C;
-    /* 0x20 */ s8 unk20;
-    /* 0x21 */ u8 pad21;
-    /* 0x22 */ s16 unk22;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ u8 pad2A[2];
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ f32 unk30;
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ s16 unk38;
-    /* 0x3A */ u8 pad3A[2];
-    /* 0x3C */ u32 unk3C;
-} TagBarrelDataN3;
 
-typedef struct TagBarrelKongSub {
-    u8 pad0[0x104];
-    Actor *unk104;
-    u8 pad108[0x1F0 - 0x108];
-    s32 unk1F0;
-} TagBarrelKongSub;
 
-typedef struct TagBarrelActorKong {
-    u8 pad0[0x5A];
-    s16 unk5A;
-    u8 pad5C[0x12C - 0x5C];
-    s16 unk12C;
-} TagBarrelActorKong;
 
-struct TagBarrelData;
 extern s32 D_8074E848[];
 extern s32 gGlobalPauseFlags;
 
 
-void tagBarrelStartSelection(struct TagBarrelData *arg0_in) {
-#define arg0 ((TagBarrelDataN3 *)arg0_in)
-    TagBarrelActorKong *kong;
+void tagBarrelStartSelection(TagBarrelData *arg0) {
+    Actor *kong;
     f32 dummy;
-    Actor *sp34;
-    TagBarrelKongSub *sp30;
-    s32 sp28_pad;
-    s32 sp28;
+    Actor *player;
+    PlayerState *playerState;
+    s32 pad;
+    s32 light;
 
     switch (gCurrentActor->unk155[0]) {
     case 0xB:
@@ -3027,59 +2925,58 @@ void tagBarrelStartSelection(struct TagBarrelData *arg0_in) {
     case 0:
     case 0xA:
         if (gActorGlobalState.unk200 == 4) {
-            arg0->unk0 = (Actor *)gActorGlobalState.targetActor;
-            arg0->unk0->unk144 = 1;
-            ((TagBarrelKongSub *)arg0->unk0->customState)->unk1F0 |= 0x20000000;
+            arg0->player = gActorGlobalState.targetActor;
+            arg0->player->unk144 = 1;
+            ((PlayerState *)arg0->player->customState)->stateFlags |= 0x20000000;
             gCurrentActor->unk155[0] = 1;
-            arg0->unk4 = 2;
-            arg0->unk3C = 0;
+            arg0->timer = 2;
+            arg0->frames = 0;
         }
         break;
     case 1:
-        if (arg0->unk4 != 0) {
-            arg0->unk4--;
+        if (arg0->timer != 0) {
+            arg0->timer--;
         } else {
-            sp34 = arg0->unk0;
-            sp28 = ((TagBarrelActorKong *)sp34)->unk12C;
-            sp30 = sp34->customState;
-            if (sp28 == -1) {
-                sp28 = 0;
+            player = arg0->player;
+            light = player->chunkIndex;
+            playerState = player->customState;
+            if (light == -1) {
+                light = 0;
             }
-            playerRestoreKongState(arg0->unk0, sp30);
-            playerRevertAnimalTransformation(arg0->unk0, sp30);
-            lightGetColor(&arg0->unk2C, &arg0->unk30, &arg0->unk34, (s16)sp28);
-            kong = (TagBarrelActorKong *)sp34;
-            lightSetColor(dummy = 1.0f, 1.0f, 1.0f, (s16)sp28);
-            gCurrentActor->yaw = arg0->unk22;
+            playerRestoreKongState(arg0->player, playerState);
+            playerRevertAnimalTransformation(arg0->player, playerState);
+            lightGetColor(&arg0->lightR, &arg0->lightG, &arg0->lightB, (s16)light);
+            kong = player;
+            lightSetColor(dummy = 1.0f, 1.0f, 1.0f, (s16)light); // FAKE: assignment inside the call argument steers the f32 constant web (plain literal: mismatch)
+            gCurrentActor->yaw = arg0->baseYaw;
             gCurrentActor->unk144 = 1;
-            sp28 = kong->unk5A;
+            light = (s16)kong->actorType;
             gGlobalPauseFlags &= 0xFFFCFFCF;
-            arg0->unk6 = 0;
-            if (sp28 != ((KongActionEntry *)D_8074E814)[arg0->unk6].unk2) {
+            arg0->selected = 0;
+            if (light != D_8074E814[arg0->selected].kongIndex) {
                 do {
-                    arg0->unk6++;
-                } while (sp28 != ((KongActionEntry *)D_8074E814)[arg0->unk6].unk2);
+                    arg0->selected++;
+                } while (light != D_8074E814[arg0->selected].kongIndex);
             }
-            arg0->unk7 = arg0->unk6;
+            arg0->previous = arg0->selected;
             if (gCurrentMap != 0x11) {
                 sfxAllocateChannel(0x65, 1.0f);
-                sfxSetChannelParam(0x65, 0x7E - D_8074E848[arg0->unk6], 1);
+                sfxSetChannelParam(0x65, 0x7E - D_8074E848[arg0->selected], 1);
             }
-            flagSet(mapGetConfigValue(gCurrentActor->actorType, arg0->unk6), 1, 0);
-            tagBarrelSpawnKongs((TagBarrelSpawnArgs *)arg0);
-            camSaveYaw(sp30->unk104);
-            arg0->unk38 = sp34->yaw;
-            sp34->yaw = gCurrentActor->yaw;
+            flagSet(mapGetConfigValue(gCurrentActor->actorType, arg0->selected), 1, 0);
+            tagBarrelSpawnKongs(arg0);
+            camSaveYaw(playerState->camActor);
+            arg0->playerYaw = player->yaw;
+            player->yaw = gCurrentActor->yaw;
             eepromSavePlayerData();
             camStartPath(gCurrentActor, 0xE, 0xC);
-            func_8061B650(sp30->unk104);
+            func_8061B650(playerState->camActor);
             slotQueueClearAllFlags();
             gCurrentActor->state = 1;
             gCurrentActor->unk155[0] = 0;
         }
         break;
     }
-#undef arg0
 }
 
 typedef struct TagBarrelInputPad {
@@ -3096,122 +2993,89 @@ typedef struct TagBarrelPlayerData {
     u16 unk2E2;
 } TagBarrelPlayerData;
 
-typedef struct TagBarrelDataN4 {
-    /* 0x00 */ Actor *unk0;
-    /* 0x04 */ u16 unk4;
-    /* 0x06 */ s8 unk6;
-    /* 0x07 */ s8 unk7;
-    /* 0x08 */ Actor *unk8[5];
-    /* 0x1C */ Actor *unk1C;
-    /* 0x20 */ s8 unk20;
-    /* 0x21 */ u8 pad21;
-    /* 0x22 */ s16 unk22;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ u8 pad2A[2];
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ f32 unk30;
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ s16 unk38;
-    /* 0x3A */ u8 pad3A[2];
-    /* 0x3C */ u32 unk3C;
-} TagBarrelDataN4;
-
-typedef struct TagBarrelKongSubState {
-    u8 pad0[0x8C];
-    u8 unk8C;
-    u8 pad8D[0x104 - 0x8D];
-    Actor *unk104;
-    u8 pad108[0x1F0 - 0x108];
-    u32 unk1F0;
-} TagBarrelKongSubState;
-
-typedef struct TagBarrelOrbitActor {
-    u8 pad0[0x12C];
-    s16 unk12C;
-} TagBarrelOrbitActor;
 
 
-struct TagBarrelData;
 
-void tagBarrelUpdateSelection(struct TagBarrelData *arg0_in) {
-    TagBarrelDataN4 *arg0 = (TagBarrelDataN4 *)arg0_in;
-    u16 sp4A;
-    s32 var_s0;
+
+
+void tagBarrelUpdateSelection(TagBarrelData *arg0_in) {
+    TagBarrelData *arg0 = arg0_in; // FAKE: redundant parameter copy steers regalloc (using the parameter: text=11)
+    u16 prevTimer;
+    s32 value;
     s32 pad2;
     s32 pad[2];
-    Actor *sp34;
-    TagBarrelKongSubState *sp30;
+    Actor *player;
+    PlayerState *playerState;
     s32 light;
-    s32 sp28;
+    s32 timedOut;
 
-    var_s0 = arg0->unk4;
-    sp4A = var_s0;
-    if (var_s0 != 0) {
-        arg0->unk4 = var_s0 - 1;
+    value = arg0->timer; // FAKE: value holds the timer, then the is-kong flag, then the kong index (separate isKong/kong locals: mismatch)
+    prevTimer = value;
+    if (value != 0) {
+        arg0->timer = value - 1;
         tagBarrelOrbitKongs(arg0);
-        var_s0 = arg0->unk4;
+        value = arg0->timer;
     }
-    arg0->unk3C++;
-    if (var_s0 == 0 && hudCanRender() != 0) {
-        var_s0 = ((Actor *)arg0->unk8[arg0->unk6])->actorType == 0x13C;
-        sp28 = arg0->unk3C >= 9001;
-        if (((gPlayerPadState.unk30 >= 0x29) && !sp28) || !var_s0) {
-            arg0->unk4 = 20;
-            if (((Actor *)arg0->unk8[arg0->unk6])->actorType == 0x13C) {
-                actorScriptStartByKongIndex(arg0->unk8[arg0->unk6], (u16 *)((Actor *)arg0->unk8[arg0->unk6])->customState, 0x8C);
+    arg0->frames++;
+    if (value == 0 && hudCanRender() != 0) {
+        value = arg0->kongs[arg0->selected]->actorType == 0x13C;
+        timedOut = arg0->frames >= 9001;
+        if (((gPlayerPadState.unk30 >= 0x29) && !timedOut) || !value) {
+            arg0->timer = 20;
+            if (arg0->kongs[arg0->selected]->actorType == 0x13C) {
+                actorScriptStartByKongIndex(arg0->kongs[arg0->selected], arg0->kongs[arg0->selected]->customState, 0x8C);
             }
-            arg0->unk7 = arg0->unk6;
-            if (var_s0) {
-                arg0->unk20 = (gPlayerPadState.unk2E >= 0) ? 1 : -1;
+            arg0->previous = arg0->selected;
+            if (value) {
+                arg0->direction = (gPlayerPadState.unk2E >= 0) ? 1 : -1;
             }
-            arg0->unk6 += arg0->unk20;
-            if (arg0->unk6 < 0) {
-                arg0->unk6 = 4;
-            } else if (arg0->unk6 >= 5) {
-                arg0->unk6 = 0;
+            arg0->selected += arg0->direction;
+            if (arg0->selected < 0) {
+                arg0->selected = 4;
+            } else if (arg0->selected >= 5) {
+                arg0->selected = 0;
             }
-            if (((Actor *)arg0->unk8[arg0->unk6])->actorType == 0x13C) {
-                actorScriptStartByKongIndex(arg0->unk8[arg0->unk6], (u16 *)((Actor *)arg0->unk8[arg0->unk6])->customState, 0x8B);
+            if (arg0->kongs[arg0->selected]->actorType == 0x13C) {
+                actorScriptStartByKongIndex(arg0->kongs[arg0->selected], arg0->kongs[arg0->selected]->customState, 0x8B);
             }
         } else {
-            if (!sp28 && sp4A != 0) {
-                sfxSetChannelParam(0x65, 0x7E - D_8074E848[arg0->unk6], 3);
-                sfxSetChannelParam(0x65, D_8074E848[arg0->unk6], 2);
+            if (!timedOut && prevTimer != 0) {
+                sfxSetChannelParam(0x65, 0x7E - D_8074E848[arg0->selected], 3);
+                sfxSetChannelParam(0x65, D_8074E848[arg0->selected], 2);
                 return;
             }
-            if (((sp28 && var_s0) || (gPlayerPadState.unk2C & 0xE000)) && screenWipeGetState() == 0) {
-                if (var_s0) {
-                    sp34 = arg0->unk0;
-                    sp30 = sp34->customState;
-                    light = ((TagBarrelOrbitActor *)sp34)->unk12C;
+            if (((timedOut && value) || (gPlayerPadState.unk2C & 0xE000)) && screenWipeGetState() == 0) {
+                if (value) {
+                    player = arg0->player;
+                    playerState = player->customState;
+                    light = player->chunkIndex;
                     if (light == -1) {
                         light = 0;
                     }
-                    lightSetColor(arg0->unk2C, arg0->unk30, arg0->unk34, (s16)light);
+                    lightSetColor(arg0->lightR, arg0->lightG, arg0->lightB, (s16)light);
                     gGlobalPauseFlags |= 0x30030;
                     sfxStopChannel(0x48, 0);
                     sfxStopChannel(0x6B, 0);
                     sfxStopChannel(0x49, 0);
                     sfxStopChannel(0x47, 0);
                     sfxStopChannel(0x65, 0);
-                    actorDespawn(arg0->unk1C);
-                    arg0->unk1C = NULL;
-                    for (sp28 = 0; sp28 < 5; sp28++) {
-                        actorDespawn(arg0->unk8[sp28]);
-                        arg0->unk8[sp28] = NULL;
+                    actorDespawn(arg0->marker);
+                    arg0->marker = NULL;
+                    for (timedOut = 0; timedOut < 5; timedOut++) {
+                        actorDespawn(arg0->kongs[timedOut]);
+                        arg0->kongs[timedOut] = NULL;
                     }
                     gCurrentActor->state = 2;
                     gCurrentActor->unk155[0] = 0;
-                    arg0->unk4 = 30;
-                    sp30->unk1F0 &= ~0x20000000;
-                    var_s0 = ((KongActionEntry *)D_8074E814)[arg0->unk6].unk2;
-                    playerSetKongByActorType(var_s0);
-                    playerKongStopAudioChannels(sp34, var_s0);
-                    *(u8 *)((u8 *)sp30 + 0x8C) = 0;
-                    sp34->yaw = arg0->unk38;
-                    camRestoreYaw(sp30->unk104);
-                    camResetPlayer(sp34, 0);
+                    arg0->timer = 30;
+                    playerState->stateFlags &= ~0x20000000;
+                    value = D_8074E814[arg0->selected].kongIndex;
+                    playerSetKongByActorType(value);
+                    playerKongStopAudioChannels(player, value);
+                    playerState->gunDrawn = 0;
+                    player->yaw = arg0->playerYaw;
+                    camRestoreYaw(playerState->camActor);
+                    camResetPlayer(player, 0);
                     screenWipeStart(3);
                     healthRefill(0);
                     ((TagBarrelPlayerData *)gPlayerSlots)->unk2E2 |= 0x11;
@@ -3223,12 +3087,12 @@ void tagBarrelUpdateSelection(struct TagBarrelData *arg0_in) {
     }
 }
 
-s32 tagBarrelIsKongUnlocked(ActorGroup5 *arg0, s32 arg1) {
-    s32 type = arg0->unk8[arg1]->actorType;
+s32 tagBarrelIsKongUnlocked(TagBarrelData *data, s32 slot) {
+    s32 type = data->kongs[slot]->actorType;
     s32 ret = 0;
 
-    if ((type ^ 0x13C) == 0) {
-        ret = textTableGetString(2, D_8074E85C[arg1], 1);
+    if ((type ^ 0x13C) == 0) { // FAKE: xor-with-constant compare steers branch codegen (type == 0x13C: mismatch)
+        ret = textTableGetString(2, D_8074E85C[slot], 1);
     }
     return ret;
 }
@@ -3240,132 +3104,112 @@ extern s16 gScreenWidth;
 extern s16 gScreenHeight;
 
 
-Gfx *tagBarrelRenderSelectionHud(Gfx *arg0, Actor *arg1) {
+Gfx *tagBarrelRenderSelectionHud(Gfx *gfx, Actor *actor) {
     u8 padF8[0xC];
-    f32 spF8;
+    f32 blend;
     s32 pad244;
-    f32 spF0;
-    f32 temp_fa0_2;
-    f32 temp_fa0_3;
-    f32 temp_fa1;
-    f32 temp_fv0;
-    f32 temp_fv0_2;
-    f32 temp_fv0_3;
-    f32 temp_fv0_4;
-    f32 temp_fv1;
-    f32 temp_fv1_2;
-    f32 var_fa0;
-    f32 var_fa0_2;
-    f32 var_fv0;
-    f32 var_fv0_2;
-    f32 var_fv1;
-    f32 var_fv1_2;
-    s32 temp_v0;
-    TagBarrelDataN3 *temp_s1;
-    s32 spX;
+    f32 textY;
+    f32 pad1;
+    f32 pad2;
+    f32 prevExcess;
+    f32 fade;
+    f32 alphaExcess;
+    f32 prevHalf;
+    f32 prevRamp;
+    f32 half;
+    f32 alphaRamp;
+    f32 textX;
+    f32 prevX;
+    f32 alpha;
+    f32 prevAlpha;
+    f32 clamped;
+    f32 pad3;
+    s32 pad4;
+    TagBarrelData *data;
+    s32 pad5;
     u8 pad70[0x38];
-    s32 sp6C;
-    s16 sp44;
+    s32 text;
+    s16 arrowY;
 
-    temp_s1 = (TagBarrelDataN3 *)arg1->customState;
-    spF0 = (f32)((f64)(gScreenHeight - 0x1E) * 4.0);
-    if (arg1->state != 1) {
-        return arg0;
+    data = actor->customState;
+    textY = (f32)((f64)(gScreenHeight - 0x1E) * 4.0);
+    if (actor->state != 1) {
+        return gfx;
     }
-    gSPDisplayList(arg0++, &D_1000118);
-    gDPSetCombineMode(arg0++, G_CC_DECALRGBA, G_CC_DECALRGBA);
-    gSPMatrix(arg0++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPMatrix(arg0++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    sp44 = (s16)(s32)spF0;
-    arg0 = renderRotatedSprite(arg0, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, 0xA0, sp44, 5.0f, 5.0f, 0, 0.0f);
-    arg0 = renderRotatedSprite(arg0, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, (s32)((f64)(gScreenWidth - 0x28) * 4.0), sp44, 5.0f, 5.0f, 0xB4, 0.0f);
-    spF8 = (f32)(u32)temp_s1->unk4 * 0.05f;
-    sp6C = tagBarrelIsKongUnlocked((ActorGroup5 *)temp_s1, temp_s1->unk6);
-    spF0 -= (f32) textGetFontHeight(1) * 1.2f;
-    gDPSetCombineLERP(arg0++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
-    if (sp6C != 0) {
-        temp_fv0 = 1.0f - spF8;
-        temp_fv1 = temp_fv0 * 0.5f;
-        var_fa0 = temp_fv1;
-        if (temp_s1->unk20 < 0) {
-            var_fa0 = 1.0f - temp_fv1;
+    gSPDisplayList(gfx++, &D_1000118);
+    gDPSetCombineMode(gfx++, G_CC_DECALRGBA, G_CC_DECALRGBA);
+    gSPMatrix(gfx++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    arrowY = (s16)(s32)textY;
+    gfx = renderRotatedSprite(gfx, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, 0xA0, arrowY, 5.0f, 5.0f, 0, 0.0f);
+    gfx = renderRotatedSprite(gfx, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, (s32)((f64)(gScreenWidth - 0x28) * 4.0), arrowY, 5.0f, 5.0f, 0xB4, 0.0f);
+    blend = (f32)(u32)data->timer * 0.05f;
+    text = tagBarrelIsKongUnlocked(data, data->selected);
+    textY -= (f32) textGetFontHeight(1) * 1.2f;
+    gDPSetCombineLERP(gfx++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
+    if (text != 0) {
+        fade = 1.0f - blend;
+        half = fade * 0.5f;
+        textX = half;
+        if (data->direction < 0) {
+            textX = 1.0f - half;
         }
-        temp_fv1_2 = 2.0f * temp_fv0;
-        var_fa0 *= (f32)gScreenWidth * 4.0f;
-        if (temp_fv1_2 < 1.0f) {
-            var_fv0 = 0.0f;
+        alphaRamp = 2.0f * fade;
+        textX *= (f32)gScreenWidth * 4.0f;
+        if (alphaRamp < 1.0f) {
+            alpha = 0.0f;
         } else {
-            temp_fv0_2 = temp_fv1_2 - 1.0f;
-            if (temp_fv0_2 > 1.0f) {
-                var_fv1 = 1.0f;
+            alphaExcess = alphaRamp - 1.0f;
+            if (alphaExcess > 1.0f) {
+                clamped = 1.0f;
             } else {
-                var_fv1 = temp_fv0_2;
+                clamped = alphaExcess;
             }
-            var_fv0 = var_fv1;
+            alpha = clamped;
         }
-        var_fv0 *= 255.0f;
-        gDPSetPrimColor(arg0++, 0, 0, 255, 255, 255, (u32)var_fv0);
-        arg0 = hudDrawScaledText(arg0, (s16)(s32)var_fa0, (s16)(s32)spF0, 0.6f, sp6C);
+        alpha *= 255.0f;
+        gDPSetPrimColor(gfx++, 0, 0, 255, 255, 255, (u32)alpha);
+        gfx = hudDrawScaledText(gfx, (s16)(s32)textX, (s16)(s32)textY, 0.6f, text);
     }
-    if (temp_s1->unk4 != 0) {
-        sp6C = tagBarrelIsKongUnlocked((ActorGroup5 *)temp_s1, temp_s1->unk7);
-        if (sp6C != 0) {
-            temp_fv0_3 = 0.5f * spF8;
-            var_fa0_2 = temp_fv0_3;
-            if (temp_s1->unk20 > 0) {
-                var_fa0_2 = 1.0f - temp_fv0_3;
+    if (data->timer != 0) {
+        text = tagBarrelIsKongUnlocked(data, data->previous);
+        if (text != 0) {
+            prevHalf = 0.5f * blend;
+            prevX = prevHalf;
+            if (data->direction > 0) {
+                prevX = 1.0f - prevHalf;
             }
-            temp_fv0_4 = 2.0f * spF8;
-            var_fa0_2 *= (f32)gScreenWidth * 4.0f;
-            if (temp_fv0_4 < 1.0f) {
-                var_fv0_2 = 0.0f;
+            prevRamp = 2.0f * blend;
+            prevX *= (f32)gScreenWidth * 4.0f;
+            if (prevRamp < 1.0f) {
+                prevAlpha = 0.0f;
             } else {
-                temp_fa1 = temp_fv0_4 - 1.0f;
-                if (temp_fa1 > 1.0f) {
-                    var_fv1 = 1.0f;
+                prevExcess = prevRamp - 1.0f;
+                if (prevExcess > 1.0f) {
+                    clamped = 1.0f;
                 } else {
-                    var_fv1 = temp_fa1;
+                    clamped = prevExcess;
                 }
-                var_fv0_2 = var_fv1;
+                prevAlpha = clamped;
             }
-            var_fv0_2 *= 255.0f;
-            gDPSetPrimColor(arg0++, 0, 0, 255, 255, 255, (u32)var_fv0_2);
-            arg0 = hudDrawScaledText(arg0, (s16)(s32)var_fa0_2, (s16)(s32)spF0, 0.6f, sp6C);
+            prevAlpha *= 255.0f;
+            gDPSetPrimColor(gfx++, 0, 0, 255, 255, 255, (u32)prevAlpha);
+            gfx = hudDrawScaledText(gfx, (s16)(s32)prevX, (s16)(s32)textY, 0.6f, text);
         }
     }
-    return arg0;
+    return gfx;
 }
 
-void tagBarrelInitUnlockedKongs(Actor *arg0) {
+void tagBarrelInitUnlockedKongs(Actor *actor) {
     s32 i;
 
     for (i = 0; i < 5; i++) {
-        if (flagGet(mapGetConfigValue(arg0->actorType, i), 0)) {
-            func_8068A764(arg0, D_8074E814[i].unk4);
+        if (flagGet(mapGetConfigValue(actor->actorType, i), 0)) {
+            func_8068A764(actor, D_8074E814[i].action);
         }
     }
 }
 
-typedef struct TagBarrelData {
-    /* 0x00 */ Actor *unk0;
-    /* 0x04 */ u16 unk4;
-    /* 0x06 */ s8 unk6;
-    /* 0x07 */ s8 unk7;
-    /* 0x08 */ Actor *unk8[5];
-    /* 0x1C */ Actor *unk1C;
-    /* 0x20 */ s8 unk20;
-    /* 0x21 */ u8 pad21;
-    /* 0x22 */ s16 unk22;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ u8 pad2A[2];
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ f32 unk30;
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ s16 unk38;
-    /* 0x3A */ u8 pad3A[2];
-    /* 0x3C */ u32 unk3C;
-} TagBarrelData;
 
 extern u8 D_8071FC8C[];
 
@@ -3374,8 +3218,8 @@ void tagBarrelUpdate(void) {
     TagBarrelData *sub = actor->customState;
 
     if (!(actor->flags & 0x10)) {
-        sub->unk22 = actor->yaw;
-        sub->unk24 = gCurrentActor->y;
+        sub->baseYaw = actor->yaw;
+        sub->baseY = gCurrentActor->y;
         gCurrentActor->unk146 = 0;
         gCurrentActor->eyeHeight = 0;
         effectSetMode(2);
@@ -3383,7 +3227,7 @@ void tagBarrelUpdate(void) {
         effectSetDepth(1);
         effectSetMaxDistance(0x3E8);
         effectSetFlags(4);
-        actor = gCurrentActor;
+        actor = gCurrentActor; // FAKE: repeated actor = gCurrentActor re-reads steer the gCurrentActor web
         effectCreateAtPosition(&D_8071FC8C, 1.3f, actor->x, (f32)((f64)actor->y + 13.0), actor->z);
         if (mapIsBossArena()) {
             gCurrentActor->drawDistance = 0x7D0;
@@ -3404,9 +3248,9 @@ void tagBarrelUpdate(void) {
     actor = gCurrentActor;
     switch (actor->state) {
     case 0:
-        if (sub->unk4 != 0) {
-            sub->unk4--;
-            if (sub->unk4 == 0) {
+        if (sub->timer != 0) {
+            sub->timer--;
+            if (sub->timer == 0) {
                 gCurrentActor->unk144 = 2;
             }
         } else {
@@ -3414,11 +3258,11 @@ void tagBarrelUpdate(void) {
         }
         actor = gCurrentActor;
         if (actor->unk155[0] == 0xA) {
-            if (((Actor *)gPrimaryPlayerActor)->contactFlags & 4 || playerSpawnAllPlayers() != 0) {
+            if (gPrimaryPlayerActor->contactFlags & 4 || playerSpawnAllPlayers() != 0) {
                 actor = gCurrentActor;
                 actor->unk155[0] = 0;
-            } else if (((Actor *)gPrimaryPlayerActor)->attachMode != 1 && (((Actor *)gPrimaryPlayerActor)->contactFlags & ((Actor *)gPrimaryPlayerActor)->prevContactFlags & 1)) {
-                tagBarrelCheckKongFlag(((Actor *)gPrimaryPlayerActor)->actorType, 1);
+            } else if (gPrimaryPlayerActor->attachMode != 1 && (gPrimaryPlayerActor->contactFlags & gPrimaryPlayerActor->prevContactFlags & 1)) {
+                tagBarrelCheckKongFlag(gPrimaryPlayerActor->actorType, 1);
             }
         }
         actor = gCurrentActor;
@@ -3429,18 +3273,18 @@ void tagBarrelUpdate(void) {
         actor = gCurrentActor;
         break;
     case 2:
-        if (sub->unk4 != 0) {
-            sub->unk4--;
+        if (sub->timer != 0) {
+            sub->timer--;
         } else {
-            actorAppendCallbackPayloadAAB8((s32)actor, sub->unk0, sub->unk38, 180.0f, 0x46);
-            actorAppendCallback(sub->unk0, (s32)gCurrentActor, 0x40, 1, 0, 0);
+            actorAppendCallbackPayloadAAB8((s32)actor, sub->player, sub->playerYaw, 180.0f, 0x46);
+            actorAppendCallback(sub->player, (s32)gCurrentActor, 0x40, 1, 0, 0);
             slotQueuePopActiveMask();
             gCurrentActor->state = 0;
             gCurrentActor->unk155[0] = 0;
-            if (tagBarrelCheckKongFlag(((Actor *)gPrimaryPlayerActor)->actorType, 0) != 0) {
+            if (tagBarrelCheckKongFlag(gPrimaryPlayerActor->actorType, 0) != 0) {
                 gCurrentActor->unk155[0] = 0xA;
             }
-            sub->unk4 = 0x1E;
+            sub->timer = 0x1E;
         }
         actor = gCurrentActor;
         break;
@@ -3451,9 +3295,9 @@ void tagBarrelUpdate(void) {
         actor->yaw += 0x32;
         actor = gCurrentActor;
         actor->yaw &= 0xFFF;
-        gCurrentActor->y = mathSinF(sub->unk28) * 5.0f + sub->unk24;
-        sub->unk28 += 0x32;
-        sub->unk28 &= 0xFFF;
+        gCurrentActor->y = mathSinF(sub->bobPhase) * 5.0f + sub->baseY;
+        sub->bobPhase += 0x32;
+        sub->bobPhase &= 0xFFF;
         actor = gCurrentActor;
     }
     actorUpdateModelMatrix(actor, 0);

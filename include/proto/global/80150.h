@@ -3,9 +3,7 @@
 #define PROTO_GLOBAL_80150_H
 #include "common.h"
 #include "actor.h"
-struct ActorGroup5;
 struct TagBarrelData;
-struct TagBarrelSpawnArgs;
 #ifndef PROTO_SKIP_tagBarrelIsSpecial
 s32 tagBarrelIsSpecial(void *);
 #endif
@@ -160,7 +158,7 @@ void tagBarrelOrbitKongs(void *);
 void actorScriptStartByKongIndex(void *, u16 *, s32);
 #endif
 #ifndef PROTO_SKIP_tagBarrelSpawnKongs
-void tagBarrelSpawnKongs(struct TagBarrelSpawnArgs *);
+void tagBarrelSpawnKongs(struct TagBarrelData *);
 #endif
 #ifndef PROTO_SKIP_tagBarrelUpdateSelectedKong
 void tagBarrelUpdateSelectedKong(void);
@@ -178,7 +176,7 @@ void tagBarrelStartSelection(struct TagBarrelData *);
 void tagBarrelUpdateSelection(struct TagBarrelData *);
 #endif
 #ifndef PROTO_SKIP_tagBarrelIsKongUnlocked
-s32 tagBarrelIsKongUnlocked(struct ActorGroup5 *, s32);
+s32 tagBarrelIsKongUnlocked(struct TagBarrelData *, s32);
 #endif
 #ifndef PROTO_SKIP_tagBarrelRenderSelectionHud
 Gfx *tagBarrelRenderSelectionHud(Gfx *, Actor *);
