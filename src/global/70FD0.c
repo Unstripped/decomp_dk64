@@ -1728,7 +1728,7 @@ u8 actorCollideModelSlots(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
     for (i = 0; i < D_80747D70; i++) {
         buf = &gModelSlots[i].unk28;
         if (buf->unk15 & 2) {
-            if (collisionSpheresOverlap(sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius, ((s32 *)buf)[0], ((s32 *)buf)[1], ((s32 *)buf)[2], ((s32 *)buf)[3]) != 0) {
+            if (collisionSpheresOverlap(sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius, buf->unk0, buf->unk4, buf->unk8, buf->unkC) != 0) {
                 if (!(buf->unk15 & 1)) {
                     collisionTransformNode(i, (s32)gModelSlots[i].unk24, gModelSlots[i].unk0[0], gModelSlots[i].unk0[1], gModelSlots[i].unk0[2], gModelSlots[i].unk0[4], gModelSlots[i].unk0[5], gModelSlots[i].unk0[6], gModelSlots[i].unk0[3]);
                 } else {
@@ -1753,7 +1753,7 @@ u8 actorCollideModelSlots(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
                         ret = 0;
                         while (node != NULL && D_807FB5FF == 0) {
                             if (node->unk26 != 0 && node->unk1C != 0 && !(node->unk27 & 6)) {
-                                ret |= func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, ((s32 *)buf)[6], ((s32 *)buf)[7], arg1, arg2);
+                                ret |= func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, (s32)buf->unk18, buf->unk1C, arg1, arg2);
                             }
                             node = node->next;
                         }
@@ -1765,7 +1765,7 @@ u8 actorCollideModelSlots(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
                             }
                         }
                         if (D_807FB5FF != 0) {
-                            actorBuildCollisionHit(i, arg0, ((s32 *)buf)[6]);
+                            actorBuildCollisionHit(i, arg0, (s32)buf->unk18);
                         }
                         if (gModelSlots[i].unk7C != NULL && gModelSlots[i].unk7C->unk6E == 0) {
                             D_807FB602 = savedFlags;
@@ -2206,21 +2206,21 @@ Actor *arg0;
                 }
             }
             if (hit != NULL && hit->unk53 != 0) {
-                ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->arcYawMin, &arg0->arcYawMax) & 0xFF;
+                ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, (s32)buf->unk18, buf->unk1C, &arg0->arcYawMin, &arg0->arcYawMax) & 0xFF;
             } else {
-                actorSetTargetAngleBounds(((s32 *)buf)[6] + sub->unk58 * 0x58);
+                actorSetTargetAngleBounds((s32)buf->unk18 + sub->unk58 * 0x58);
                 switch (kind) {
                 case 0:
-                    ret = func_806738D0(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, ((s32 *)buf)[6], ((s32 *)buf)[7]) & 0xFF;
-                    func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->arcYawMin, &arg0->arcYawMax);
+                    ret = func_806738D0(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, (s32)buf->unk18, buf->unk1C) & 0xFF;
+                    func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, (s32)buf->unk18, buf->unk1C, &arg0->arcYawMin, &arg0->arcYawMax);
                     break;
                 case 1:
                 case 2:
-                    ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->arcYawMin, &arg0->arcYawMax) & 0xFF;
+                    ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, (s32)buf->unk18, buf->unk1C, &arg0->arcYawMin, &arg0->arcYawMax) & 0xFF;
                     break;
                 case 3:
                 case 4:
-                    ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, 0x64, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->arcYawMin, &arg0->arcYawMax) & 0xFF;
+                    ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, 0x64, (s32)buf->unk18, buf->unk1C, &arg0->arcYawMin, &arg0->arcYawMax) & 0xFF;
                     break;
                 }
             }
@@ -2291,7 +2291,7 @@ Actor *arg0;
                 node = sub->unk8C;
                 while (node != NULL) {
                     if (node->unk26 != 0) {
-                        i = func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->arcYawMin, &arg0->arcYawMax); ret = (ret | i) & 0xFF; // LAYOUT: same-line call-result keeps 'or ret,ret,v0' operand order and no extra result var
+                        i = func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, (s32)buf->unk18, buf->unk1C, &arg0->arcYawMin, &arg0->arcYawMax); ret = (ret | i) & 0xFF; // LAYOUT: same-line call-result keeps 'or ret,ret,v0' operand order and no extra result var
                     }
                     node = node->unk28;
                 }

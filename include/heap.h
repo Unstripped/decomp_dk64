@@ -31,13 +31,16 @@ typedef struct DeferredFree {
 
 // Growable buffer released with dynamicBufferFree (70FD0.c); embedded in ModelSlot at +0x28.
 typedef struct DynamicBuffer {
-    /* 0x00 */ u8 pad0[0x10];
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ s32 unk8;
+    /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ u8 unk14;
     /* 0x15 */ u8 unk15;
     /* 0x16 */ u8 pad16[2];
     /* 0x18 */ void *unk18;
-    /* 0x1C */ u8 pad1C[4];
+    /* 0x1C */ s32 unk1C;
 } DynamicBuffer; // size = 0x20
 
 #endif
