@@ -3,14 +3,13 @@
 #define PROTO_GLOBAL_112080_H
 #include "common.h"
 #include "actor.h"
+#include "resqueue.h"
 struct ResItem;
 struct ResItemList;
 struct ResNode;
 struct ResParsedList;
-struct ResQueueActorState;
 struct ResQueueLink;
 struct ResRecord;
-struct ResRow;
 #ifndef PROTO_SKIP_streamReadBytes
 void streamReadBytes(s32, void *, s32 *);
 #endif
