@@ -723,7 +723,7 @@ void *controllerAnimCacheGetOrLoad(s32 id) {
 
     count = D_807FBB32;
     i = 0;
-    if ((bound = count) != 0) { // FAKE: assigned bound and the (u32) latch keep the bound in a0 (Q0428)
+    if (count != 0) {
         entry = D_807FB7B0;
         do {
             if (id == entry->id) {
@@ -731,10 +731,10 @@ void *controllerAnimCacheGetOrLoad(s32 id) {
                 return entry->asset;
             }
             entry++;
-        } while (++i < (u32)bound);
+        } while (++i < count);
     }
 
-    if (count >= 0x20) {
+    if (D_807FBB32 >= 0x20) {
         return NULL;
     }
 

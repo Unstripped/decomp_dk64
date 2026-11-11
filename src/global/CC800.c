@@ -313,7 +313,7 @@ void func_806C8220(s32 mode, void *buffer, u32 kind) {
 
     tbl8 = D_80750AD8;
     count = 1; // FAKE: dead store (every case sets count/n), keeps the frame/stack order
-    n = 4;
+    n = 4; // FAKE: dead store (every case sets n), keeps n in v1 and the buffer copy in a0 (pre-existing, now tagged)
     tbl11 = D_80750AF8;
     out = buffer;
     tbl4 = D_80750B24;

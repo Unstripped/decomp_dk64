@@ -158,7 +158,7 @@ void raceCompetitorMotionUpdate(void) {
                 participant->route = 0;
             }
             if (participant->unk25 != 0) {
-                participant->unk25 -= 1;
+                participant->unk25--;
             }
         }
         func_8068F72C(participant, motion, 1, 1);
@@ -199,7 +199,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
     f32 dx;
     f32 dz;
     f32 distToWaypoint;
-    s32 pad2;
+    f32 span;
     u8 subFlag;
     u8 prevTargetState;
     u8 prevSubPhase;
@@ -222,7 +222,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
     dz = (f32)D_807FDCA0->entries[idx].z - gCurrentActor->z;
     distToWaypoint = sqrtf(dx * dx + dz * dz);
     if (distToWaypoint < (f32)D_807FDCA0->entries[idx].radius) {
-        gBehaviourWorkState->unk25 += 1;
+        gBehaviourWorkState->unk25++;
         gBehaviourWorkState->unk25 = gBehaviourWorkState->unk25 % gBehaviourExtraState->pathCount;
         target->unk10 = (D_807FDCA0->entries[idx].height == 0) && (target->curveMode != 0);
         switch (D_807FDCA0->entries[idx].height) {
@@ -245,11 +245,11 @@ f32 raceRacerSteerTowardWaypoint(void) {
     thr = D_807FDCA0->entries[idx].radius * 1.2;
     if (distToWaypoint < thr) {
         lo = distToWaypoint - (f32)D_807FDCA0->entries[idx].radius;
-        dz = thr - (f32)D_807FDCA0->entries[idx].radius;
-        fr = lo / dz;
+        span = thr - (f32)D_807FDCA0->entries[idx].radius;
+        fr = lo / span;
         ang = ang * (1.0 + (1.0f - fr) * 1.5 * (2.0f * participant->unk4));
     }
-    participant->unkC = participant->unkC + (ang * 0.0033333334f - participant->unkC) * 0.5f;
+    participant->unkC += (ang * 0.0033333334f - participant->unkC) * 0.5f;
     if (participant->unk34 < 2 || participant->unk34 >= 5) {
         return leadDistance;
     }
@@ -297,7 +297,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
                     break;
                 case 2:
                     ang = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, target->actor->x, target->actor->z) - participant->heading;
-                    ang = ang & 0xFFF;
+                    ang &= 0xFFF;
                     break;
                 case 4:
                     raceSetPiecewiseCurveMode(target, 5, D_8002FC20, &D_8002FC50);
@@ -318,7 +318,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
         }
     }
     if (subFlag != 0) {
-        targetSpeed = targetSpeed * 0.9;
+        targetSpeed *= 0.9;
         participant->unk8 = 0.1f;
         gCurrentActor->speedXZ = (gCurrentActor->speedXZ < 350.0f) ? gCurrentActor->speedXZ : 350.0f;
     } else {

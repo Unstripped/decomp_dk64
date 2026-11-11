@@ -557,16 +557,16 @@ void textLayoutAppendCommandList(ResQueueActorState *state, ResItem *item, ResPa
     s32 offset;
     ResRecord *rec;
     ResTextSpan *span;
-    ResParsedList *res;
+    u8 *text;
 
     rec = &item->variant[sLanguageIndex];
-    res = parsed; // FAKE: copying parsed into a local fixes which argument gets $s3/$s4 (Q0233)
     i = 0;
     offset = 0;
     if (rec->count > 0) {
         do {
             span = (ResTextSpan *)(rec->data.bytes + offset);
-            textLayoutAppendRows(state, span->offset + res->payload, span->length);
+            text = span->offset + parsed->payload;
+            textLayoutAppendRows(state, text, span->length);
             i += 1;
             offset += 8;
         } while (i < rec->count);

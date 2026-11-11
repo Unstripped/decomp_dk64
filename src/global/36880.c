@@ -3977,7 +3977,6 @@ typedef struct ModelSlotSerializedOut {
 
 extern u8 *D_807F6010;
 extern u8 gCsVarsDirty[];
-extern u8 D_807F6902;
 
 
 void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
@@ -3994,13 +3993,12 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     }
     size = D_80747D70 * sizeof(ModelSlotSerializedOut) + sizeof(s32);
     size += sizeof(s32);
-    p = gCsVarsDirty; do { // LAYOUT: statement on the do line keeps the lui/addiu hoist order
+    for (p = gCsVarsDirty; p < &gCsVarsDirty[0x212]; p++) {
         if (*p) {
             size += 0x24;
             count++;
         }
-        p++;
-    } while (p < &D_807F6902);
+    }
     size += actorListGetSerializedSize();
     D_807F6010 = heapAlloc(size);
     *(s32 *)D_807F6010 = D_80747D70;
@@ -4033,7 +4031,7 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     for (i = 0, p = gCsVarsDirty; i != 0x212; i++, p++) {
         if (*p != 0) {
             *(s32 *)dst = i;
-            memcpy(dst + 4, (u8 *)gModelSlots[hashTableLookup(gCsModelIds[i])].unk7C + 0x14, 0x20);
+            memcpy(dst + 4, gModelSlots[hashTableLookup(gCsModelIds[i])].unk7C->unk14, 0x20);
             dst += 0x24;
         }
     }
