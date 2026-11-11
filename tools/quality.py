@@ -17,9 +17,13 @@ method ladder that exhausts them, and the per-function `review` coverage.
                                          file-scope text of the .c they do not use (same body tokens,
                                          same text for every declaration/type/macro they reach; both
                                          versions parse against the current headers for these checks;
-                                         REV's sites and fingerprints use REV's headers, and automatic
-                                         results carry only when the reached include/ declarations are
-                                         unchanged since REV).
+                                         a reached declaration that moved between the .c and an
+                                         include/ header counts as unchanged when identical: a record
+                                         with the same clint record_layout, else the same tokens;
+                                         "(moved to|from <header>, identical)"). REV's sites and
+                                         fingerprints use REV's headers, and automatic results carry
+                                         only when the reached include/ declarations apart from moved
+                                         ones are unchanged since REV.
                                          --header-carve: instead carry the automatic results of functions
                                          whose fp_local and sites are unchanged and whose reached include/
                                          declarations changed only by record carves keeping size, offsets,
@@ -1338,10 +1342,11 @@ class Scope:
         """First (sorted) macro in CLOSURE with a paste `paste_names` cannot bound, or None."""
         return min((n for n in closure if n in self.pasting and self.paste_names(n) is None), default=None)
 
-    def fp_hdr2(self, names, whole):
+    def fp_hdr2(self, names, whole, skip=()):
         """sha1 of the include/ declarations NAMES reach: a function's own header fingerprint
         (a regenerated proto header or an edited struct changes it only for its users). When they
-        reach a `##` macro the reached set is incomplete, so it derives from WHOLE (fp_hdr) instead."""
+        reach a `##` macro the reached set is incomplete, so it derives from WHOLE (fp_hdr) instead.
+        SKIP: names left out (declarations `scope_equivalent` found moved unchanged)."""
         inc = "include" + os.sep
         h = hashlib.sha1()
         cl = self.closure(names)
@@ -1349,6 +1354,8 @@ class Scope:
             h.update(f"whole\0{whole}".encode())
             return h.hexdigest()[:16]
         for name, vals in sorted(cl.items()):
+            if name in skip:
+                continue
             for f, text in vals:
                 if f.startswith(inc):
                     h.update(f"{name}\0{f}\0{text}\0".encode("utf-8", "replace"))
@@ -1368,20 +1375,75 @@ def body_names(by_line, fn):
     return [n for i in range(fn["line"], fn["end"] + 1) for n in by_line.get(i, ())]
 
 
-def scope_equivalent(old_body, new_body, old_closure, new_closure):
-    """Whether a function is unchanged apart from file-scope text it does not use: same body tokens,
-    and every top-level declaration, typedef, record, enum or macro it reaches (its `Scope.closure`
-    in each version, OLD_CLOSURE and NEW_CLOSURE) has the same text in both versions. Callers parse
-    both versions against the current headers."""
+def moved_decl(path, name, ov, nv, old_scope, new_scope):
+    """('moved to|from <header>', None) when NAME's top-level declarations only moved between PATH's
+    own file scope and an include/ header: OV and NV (its `Scope.closure` values in OLD_SCOPE and
+    NEW_SCOPE) differ only in entries of one file each, PATH on one side and the header on the
+    other, and the moved declaration is identical: a record (typedef'd or tagged; a tag added to an
+    anonymous typedef'd record keeps its name) with the same `clint.record_layout` (size, alignment,
+    field names, offsets, widths and types: `clint.layout_diff` with types, plus renames), anything
+    else (enum, typedef of a scalar, macro, prototype) with the same token text; else (None, why)."""
+    inc = "include" + os.sep
+    oe, ne = [v for v in ov if v not in nv], [v for v in nv if v not in ov]
+    ofiles, nfiles = {f for f, _ in oe}, {f for f, _ in ne}
+    if len(ofiles) != 1 or len(nfiles) != 1:
+        return None, None
+    (of,), (nf,) = ofiles, nfiles
+    if of == path and nf.startswith(inc):
+        how = f"moved to {nf}"
+    elif nf == path and of.startswith(inc):
+        how = f"moved from {of}"
+    else:
+        return None, None
+    ot, nt = record_type(old_scope.idx.get(name, [])), record_type(new_scope.idx.get(name, []))
+    if ot is not None and nt is not None:
+        lo, ln = clint.record_layout(ot), clint.record_layout(nt)
+        if lo is None or ln is None:
+            return None, f"{name} {how}, incomplete"
+        diff = clint.layout_diff({name: lo}, {name: ln}, types=True)
+        if not diff and lo != ln:  # layout_diff keeps renamed fields (padding names) and bitfield widths
+            diff = [f"{name} {o[0]} -> {n[0]}" if o[0] != n[0] else f"{name} {o[0]} width {o[2]} -> {n[2]}"
+                    for o, n in zip(lo[1], ln[1]) if o != n] or [f"{name} fields {len(lo[1])} -> {len(ln[1])}"]
+        return (None, f"{name} {how}, changed: " + "; ".join(diff)) if diff else (how, None)
+    if ot is not None or nt is not None or sorted(t for _, t in oe) != sorted(t for _, t in ne):
+        return None, f"{name} {how}, changed"
+    return how, None
+
+
+def scope_equivalent(path, old_body, new_body, old_closure, new_closure, old_scope, new_scope, rev=None):
+    """({name: 'moved to|from <header>'}, None) when a function is unchanged apart from file-scope
+    text it does not use: same body tokens, and every top-level declaration, typedef, record, enum
+    or macro it reaches (its `Scope.closure` in each version, OLD_CLOSURE and NEW_CLOSURE) has the
+    same text in both versions or only moved, identical, between PATH's file scope and an include/
+    header (`moved_decl`); else (None, why: '' or the changed moved declaration). Callers parse both
+    versions against the current headers; REV = (scope, closure) of the old text parsed with REV's
+    headers supplies the old side of a name whose declarations differ (the current headers may
+    already hold a declaration moved into them, or no longer one moved out)."""
     if [(t.kind, t.spelling) for t in old_body] != [(t.kind, t.spelling) for t in new_body]:
-        return False
-    return old_closure == new_closure
+        return None, ""
+    moved = {}
+    for name in sorted(set(old_closure) | set(new_closure)):
+        ov, nv, oscope = old_closure.get(name), new_closure.get(name), old_scope
+        if ov == nv:
+            continue
+        if rev is not None:
+            oscope, ov = rev[0], rev[1].get(name)
+            if ov == nv:
+                continue
+        if ov is None or nv is None:
+            return None, ""
+        how, why = moved_decl(path, name, ov, nv, oscope, new_scope)
+        if how is None:
+            return None, why or ""
+        moved[name] = how
+    return moved, None
 
 
 def carry_renames(a, by_site, by_func):
     """(events, skipped, carried lines) re-stamping the newest fresh-at-REV events of every function
     that changed from REV to HEAD only by renames of declared names (`rename_equivalent` over its
-    body and the file's top level), or only by file-scope text of the .c it does not use
+    body and the file's top level), or only by file-scope text of the .c it does not use or by
+    declarations it uses moving unchanged between the .c and an include/ header
     (`scope_equivalent`), with HEAD's fingerprints and site keys. REV's text is analysed (parsed,
     fingerprinted and compiled for its warning sites) with REV's headers."""
     files = a.files or [p for p in ledger.git("diff", "--name-only", a.rev, "HEAD", "--", "src").split()
@@ -1394,8 +1456,9 @@ def carry_renames(a, by_site, by_func):
         new_text = open(os.path.join(ROOT, path), encoding="utf-8", errors="replace").read()
         # REV's sites (its warning sites compiled against REV's headers) and fingerprints, so events
         # recorded at REV are found; the equivalence checks below parse both texts against the current
-        # headers (header changes are --header-carve's)
-        old, new = analyze(path, seg, text=old_text, hdrs=hdrs, rev=a.rev), analyze(path, seg)
+        # headers (header changes are --header-carve's; REV's scope only for declarations moved out of
+        # a header since)
+        old, new = analyze(path, seg, text=old_text, hdrs=hdrs, rev=a.rev, keep=True), analyze(path, seg)
         if len(old["functions"]) != len(new["functions"]):
             skipped.append(f"{path}: function count changed")
             continue
@@ -1423,7 +1486,7 @@ def carry_renames(a, by_site, by_func):
                                          if s not in ob and s["key"] in nkeys]
             lo = carry_lines(old["functions"], fo, old_text.count("\n") + 1)
             ln = carry_lines(new["functions"], fn, new_text.count("\n") + 1)
-            how = "identifier renames only"
+            how, hdr_moved = "identifier renames only", False
             if not sites_match or not rename_equivalent(
                     [t for i, t in otoks if i in lo], [t for i, t in ntoks if i in ln],
                     lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None)):
@@ -1437,10 +1500,21 @@ def carry_renames(a, by_site, by_func):
                 if paste:
                     skipped.append(f"{path}: {fn['name']}: token-pasting macro {paste}: dependencies not tracked")
                     continue
-                if not scope_equivalent([t for i, t in otoks if fo["line"] <= i <= fo["end"]],
-                                        [t for i, t in ntoks if fn["line"] <= i <= fn["end"]], ocl, ncl):
-                    skipped.append(f"{path}: {fn['name']}: not a pure rename; body or a declaration it uses changed")
+                rnames = body_names(old["by_line"], fo)
+                moved, why = scope_equivalent(
+                    path, [t for i, t in otoks if fo["line"] <= i <= fo["end"]],
+                    [t for i, t in ntoks if fn["line"] <= i <= fn["end"]], ocl, ncl, oscope, nscope,
+                    rev=(old["scope"], old["scope"].closure(rnames, pastes=True)))
+                if moved is None:
+                    skipped.append(f"{path}: {fn['name']}: not a pure rename; body or a declaration it uses changed"
+                                   + (f" ({why})" if why else ""))
                     continue
+                if moved:
+                    how = "; ".join(f"{m}, identical" for m in sorted(set(moved.values())))
+                    # the reached include/ declarations apart from the moved ones unchanged since REV:
+                    # automatic results carry too
+                    hdr_moved = old["scope"].fp_hdr2(rnames, fo["fp_hdr"], skip=moved) == nscope.fp_hdr2(
+                        body_names(nnames, fn), fn["fp_hdr"], skip=moved)
             vram, n0 = f"{fn['vram']:08X}", len(out)
             keys = [(None, None)] + [(so["key"], sn_) for so, sn_ in pairs]
             for okey, nsite in keys:
@@ -1452,7 +1526,8 @@ def carry_renames(a, by_site, by_func):
                         if e["method"] not in newest or e["t"] >= newest[e["method"]]["t"]:
                             newest[e["method"]] = e
                 for e in newest.values():
-                    if e["method"] in AUTO and not hdr_fresh(e, (fn["fp_local"], fn["fp_hdr"], fn.get("fp_hdr2"))):
+                    if e["method"] in AUTO and not hdr_fresh(e, (fn["fp_local"], fn["fp_hdr"], fn.get("fp_hdr2"))) \
+                            and not (hdr_moved and e.get("fp_hdr2") is not None):
                         continue  # reached headers changed since REV, not compared: automatic results stay stale
                     c = dict(e, unit=a.unit, agent="carry", name=fn["name"], file=path, fp_local=fn["fp_local"],
                              fp_hdr=fn["fp_hdr"], fp_hdr2=fn.get("fp_hdr2"), site=nsite["key"] if nsite else None,

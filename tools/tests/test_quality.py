@@ -659,6 +659,83 @@ def test_carry_header_carve_padding_array_to_scalar(tmp_path, monkeypatch, capsy
         assert reason in out and "carried 0 events" in out
 
 
+MOVE_REC = "    int a;\n    char b;\n    short pad6;\n"
+MOVE_FN = "extern Info gInfo[];\nint f(int i) {\n    if (gInfo[i].a) {} // FAKE: steers\n    return gInfo[i].b;\n}\n"
+
+
+@pytest.mark.parametrize("direction,new_rec,reason", [
+    ("to", MOVE_REC, None),  # anonymous typedef in x.c -> tagged typedef in include/info.h
+    ("to", MOVE_REC.replace("pad6", "unk6"), "Info moved to include/info.h, changed: Info pad6 -> unk6"),
+    ("to", MOVE_REC.replace("short pad6", "u16 pad6"), "Info moved to include/info.h, changed: "
+                                                       "Info pad6 type short -> unsigned short"),
+    ("from", MOVE_REC, None),  # include/info.h keeps other declarations, x.c gains Info
+])
+def test_carry_declaration_moved_between_file_and_header(tmp_path, monkeypatch, capsys, direction, new_rec, reason):
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    (repo / "include").mkdir()
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "_htext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    src, hdr = repo / "src" / "global" / "x.c", repo / "include" / "info.h"
+    local = "typedef struct {\n%s} Info;\n"
+    shared = "typedef unsigned short u16;\n"
+    tagged = shared + "typedef struct Info {\n%s} Info;\n"
+    if direction == "to":
+        hdr.write_text(shared)
+        src.write_text('#include "info.h"\n' + local % MOVE_REC + MOVE_FN)
+    else:
+        hdr.write_text(tagged % MOVE_REC)
+        src.write_text('#include "info.h"\n' + MOVE_FN)
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fn = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    site = fn["sites"][0]
+    q.append_events([q.event("u1", "sweep", fn, site, "remove", "nohit"),
+                     q.event("u1", "a", fn, None, "views", "nohit", note="no views left"),
+                     q.event("u1", "a", fn, None, "review", "nohit", note=REVIEW),
+                     q.event("u1", "a", fn, site, "diagnose", "nohit", quirks=["Q0001"])])
+    if direction == "to":
+        hdr.write_text(tagged % new_rec)
+        src.write_text('#include "info.h"\n' + MOVE_FN)
+    else:
+        hdr.write_text(shared)
+        src.write_text('#include "info.h"\n' + local % new_rec + MOVE_FN)
+    _git(repo, "commit", "-qam", "b")
+    monkeypatch.setattr(q, "_htext", {})
+    new = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    by_site, by_func = q.index_events(q.load_events())
+    assert q.function_state(new, by_site, by_func)["review"] != "✓"  # x.c's file scope changed
+    before = q.load_events()
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    assert q.load_events() == before
+    if reason is not None:
+        assert f"skipped src/global/x.c: f: not a pure rename; body or a declaration it uses changed ({reason})" in out
+        assert "would carry 0 events" in out
+        return
+    how = f"moved {direction} include/info.h, identical"
+    assert f"would carry src/global/x.c: f: diagnose, remove, review, views ({how})" in out
+    assert "would carry 4 events" in out and "skipped" not in out
+    q.main(["carry", "--rev", rev_a, "--unit", "u2"])
+    carried = [e for e in q.load_events() if e.get("agent") == "carry"]
+    assert all(e["note"].startswith(f"carried from {rev_a} ({how})") for e in carried)
+    by_site, by_func = q.index_events(q.load_events())
+    fp, fevs = (new["fp_local"], new["fp_hdr"], new["fp_hdr2"]), by_func[("global", "80600000")]
+    assert {m: q.mark(fevs, m, fp, "f")[0] for m in ("views", "review")} == {"views": "✓", "review": "✓"}
+    assert q.mark(by_site[new["sites"][0]["key"]], "remove", fp, "f")[0] == "✓"
+
+
 WSITE = dict(key="global:80600000:warning:abc123", kind="warning", name="f", line=4, lines=[3], tagged=False,
              code="g = x;", warning="712 illegal combination of pointer and integer")
 

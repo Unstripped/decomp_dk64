@@ -73,7 +73,8 @@ A function with 3+ non-kept sites (warning sites not counted) also needs a fresh
   proto header or an edited struct stales only their users; a function reaching a `##`
   token-pasting macro, whose pasted names are untracked, uses the whole-header hash instead and
   is never carried by `carry --header-carve`; plain `carry` follows a paste with a literal side
-  (`GBL_c##clk` reaches every `GBL_c*`) and skips only two pasted parameters;
+  (`GBL_c##clk` reaches every `GBL_c*`) and skips only two pasted parameters, and treats a type
+  moved unchanged between the `.c` and an `include/` header as unchanged (`moved to <h>, identical`);
   events from before it fall back to
   `fp_hdr`, every included header) equal the current values. `carry --rev REV --header-carve`
   re-stamps these across header edits (REV parsed with REV's headers) for functions whose
