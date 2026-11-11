@@ -45,9 +45,9 @@ never write `.scratch/routes/`, never use workpools routed by `.omp/extensions/d
 
 ## 3. Dispatch
 
-Fill the WHOLE [brief.md](brief.md) into `local://cleanup-brief.md` (base commit, file, the
-file's `status` output, model). Spawn one agent per file, named `Clean<File>` (e.g.
-`Clean7130`), task context "Read `local://cleanup-brief.md` FIRST and follow it exactly".
+Fill the WHOLE [brief.md](brief.md) into `local://cleanup-brief.md` (director mode:
+`.scratch/cleanup-brief.md`, one `# Round N` section; `rename.py fold` reads the last one). Spawn
+one agent per file, named `Clean<File>`, task context "Read the brief FIRST and follow it exactly".
 Files of 100+ functions take 2–4 agent turns (per-turn request budgets): merge and record
 between passes and send the agent back with the new base. Per-file phase order (one agent does all five):
 
@@ -75,15 +75,15 @@ a checked-out file. Snapshot users, edit them, `touch` + `tools/objdiff.sh` each
 (anchor one src file if none). Each header commit stales the automatic rungs (sweep methods,
 consolidate, views, names) of every function reaching the changed declarations (`fp_hdr2`). After a
 padding carve: `uv run tools/quality.py carry --rev <commit before it> --unit "<unit>" --header-carve`
-(`--dry-run` first) re-stamps them where the body is unchanged and every reached change is a
-layout-keeping record carve; for what it lists as skipped, re-sweep `--record`, re-record the agents'
-lines, re-run `protos.py consolidate <src> --out DIR`. Then message every running agent (`write agent://<A>`) with the new HEAD and the hunk.
+(`--dry-run` first), then plain `carry --rev <same> <touched files>` too (it re-stamps file-scope-only
+changes the carve mode skips); for what both list as skipped, re-sweep `--record`, re-record the agents'
+lines, re-run `protos.py consolidate <src> --out DIR`. Then message every running agent with the new HEAD and the hunk.
 
-Callee-prototype work (steers kept because the OWNER's definition has the wrong types) is its
-own workstream: batches by owner file, only when no touched file is checked out. Per batch the
-owner copy is merged alone (it fails on the stale header), then `protos.py gen`, then the caller
-copies, then one gate `--stage include/proto/<seg>/<owner>.h - - <all touched files>` (snapshot
-any file lacking a base); sweep + carry every touched file.
+Callee-prototype work is its own workstream, prepared by a batch worker in `.scratch/<A>/<name>batch/`
+(owner + caller copies, `measure.json` per-file cfe before/after, `ledger/<file>.txt`). Measure on the
+checked-out agents' copies too: if any would rise, hold the batch and gate it in ONE unit with those
+copies. Merge owner + callers, `protos.py gen`, objdiff every includer, one gate with every `--stage`d
+header; sweep + carry. A batch stales the review of every caller whose BODY it edits: queue a grouped re-review pass.
 
 ## 5. Merge
 
@@ -107,7 +107,7 @@ As each agent reports:
    (all-or-nothing); `make expected`; `sweep <src> --record`; re-record the same lines
    `--base <merge commit>` after applying the key map and dropping the removed sites' lines
    (`no site` in `--dry-run`); `ledger-copy-only.txt` at the merge commit; then `carry --rev
-   <merge>^ <src>`. Re-stamped notes carry no new prose. Commit `drafts/quality.jsonl`.
+   <merge>^ <src>` (record/carry compile REV text against REV headers since bfd62a5f). Commit `drafts/quality.jsonl`.
 
 7. Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
    (`--reloc-ok`), one gate; two `0.c` copies need two dirs. Commit explicit paths only.
@@ -127,10 +127,10 @@ Once every agent of the round is idle:
    `tools/dk make expected`, `python3 tools/unit_check.py vanished` → `vanished OK`.
 3. Commit `<seg>: name N symbols` (symbol files, renamed src, moved drafts, the `include/proto`
    headers `gen` rewrote).
-4. A rename changes the fingerprints of every function it touches: `uv run tools/quality.py
-   carry --rev <commit before the renames> --unit "<unit>"` re-stamps their results (only
-   renames keeping every name's type, field offset or symbol address; keywords, types and macros
-   unchanged; it lists what it skipped). Commit `drafts/quality.jsonl`.
+4. A rename changes the fingerprints of every function it touches: `carry --rev <commit before
+   the renames> --unit "<unit>"` re-stamps pure renames (it lists what it skipped: sweep those). Commit.
+5. Re-review: functions still `review=stale` in the round's touched files (bodies edited by batches)
+   go into ~4 balanced whole-file groups in `.scratch/rereview<N>.md`, one agent per group.
 
 ## 7. Stop rule
 

@@ -60,7 +60,12 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
   (`python3 tools/quirks.py tags` lists tags); cite the IDs you used.
 - `lsp` (clangd, `compile_commands.json` at the repo root) resolves definitions and references.
 - Never re-stamp old evidence: each LEDGER line comes from a run on THIS copy (uopt_trace,
-  as1probe, permute); cite an earlier round's IDs only alongside your own fresh run.
+  as1probe, permute); cite an earlier round's IDs only alongside your own fresh run. Keep the
+  permute dirs and trace files under `.scratch/<You>/` (the orchestrator spot-checks them).
+- `diagnose`/`permute`/`reconstruct` notes: concrete register/offset terms (`$s1 keeps sp+0x34`),
+  not generic words (`steer`, `comma`, `re-read`): a later knowledge entry sharing the words stales them.
+- A `warning` site whose fix needs another file's prototype: `retype blocked` naming that owner
+  file and the exact prototype change; never a silencing cast.
 - Before keeping regalloc hacks: a named pointer local for a repeated `p->a->b` load (Q0601),
   removing coupled steers together (Q0602), an inner `switch` for a reused selector (Q0600), a
   callee's real return width (Q0486), a compare operand swap after a field rewrite (Q0604).

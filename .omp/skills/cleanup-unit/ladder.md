@@ -86,7 +86,9 @@ A function with 3+ non-kept sites (warning sites not counted) also needs a fresh
   and no `knowledge/ido` file committed after the event names the function; for `diagnose`,
   `permute` and `reconstruct` also none among the top 8 hits for the event's note (its free text
   only: `key=value` tokens such as `quirks=`, and `carried from ...` prefixes, are stripped; a
-  note of only such tokens gets the name check alone).
+  note of only such tokens gets the name check alone). So write those notes in concrete
+  register/offset terms (`$s1 holds sp+0x34 across the jal`), not generic words (`comma`,
+  `steer`, `re-read`) that later knowledge entries also use (round 9: Q0282 staled B7490's rungs).
 - A method counts through its newest event by time (carried events keep their original time) if
   that is fresh and not `blocked`. A fresh `hit` makes the site OPEN `next=apply` (the sweep found
   a match nobody merged yet).
