@@ -329,15 +329,15 @@ void animListFree(AnimNode **list) {
     AnimNode *node = *list;
     AnimNode *next;
     void **arr;
-    void **temp;
+    void **buffers;
     s32 i;
 
     if (node != NULL) {
         do {
-            temp = node->unk4;
+            buffers = node->unk4; // FAKE: loads unk4 before the unkA > 0 guard; arr = node->unk4 inside it or a for loop shifts the schedule
             i = 0;
             if (node->unkA > 0) {
-                arr = temp;
+                arr = buffers;
                 do {
                     assetFreeBuffer(*arr, 0x1E6, 0x2C);
                     i++;
