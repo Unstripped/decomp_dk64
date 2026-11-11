@@ -86,7 +86,7 @@ typedef struct ModelSlotHitInfo {
     /* 0x9B */ u8 unk9B;
 } ModelSlotHitInfo;
 
-typedef struct ModelSlot {
+typedef struct ModelSlotView {
     /* 0x00 */ f32 unk0[9];
     /* 0x24 */ ModelSlotAsset *unk24;
     /* 0x28 */ DynamicBuffer unk28;
@@ -97,10 +97,10 @@ typedef struct ModelSlot {
     /* 0x80 */ u8 pad80[8];
     /* 0x88 */ s16 unk88;
     /* 0x8A */ u8 pad8A[6];
-} ModelSlot; // size = 0x90
+} ModelSlotView; // size = 0x90
 
 extern u8 gGfxBufferIndex;
-extern ModelSlot *gModelSlots;
+extern ModelSlotView *gModelSlots;
 
 
 typedef struct ModelCollisionAsset {
@@ -145,8 +145,8 @@ void collisionBuildSlotBoxes(s32 slot, s32 arg1, f32 x, f32 y, f32 z, f32 rotX, 
     s8 lastBone;
     s8 bone;
 
-    off = slot * sizeof(ModelSlot);
-    anim = ((ModelSlot *)((u8 *)gModelSlots + off))->unk78; // FAKE: byte-offset spelling keeps gModelSlots in v1 and the slot * 0x90 product in v0 (gModelSlots[slot].unk78 swaps them)
+    off = slot * sizeof(ModelSlotView);
+    anim = ((ModelSlotView *)((u8 *)gModelSlots + off))->unk78; // FAKE: byte-offset spelling keeps gModelSlots in v1 and the slot * 0x90 product in v0 (gModelSlots[slot].unk78 swaps them)
     lastBone = -1;
     buf = (CollisionSlotBuffer *)&gModelSlots[slot].unk28;
     if (anim != NULL) {
@@ -221,9 +221,9 @@ void modelSlotBuildTransformMatrix(s16 slot, s8 bone, f32 (*outMtx)[4]) {
     f32 tmpMtx[4][4];
     s32 animFrame;
     u8 *boneTable;
-    ModelSlot *entry;
+    ModelSlotView *entry;
 
-    entry = (ModelSlot *)((u8 *)gModelSlots + slot * sizeof(ModelSlot)); // FAKE: byte-offset spelling keeps the slot * 0x90 product in t9 and gModelSlots in t8 (&gModelSlots[slot] swaps them)
+    entry = (ModelSlotView *)((u8 *)gModelSlots + slot * sizeof(ModelSlotView)); // FAKE: byte-offset spelling keeps the slot * 0x90 product in t9 and gModelSlots in t8 (&gModelSlots[slot] swaps them)
     if (entry->unk78 != NULL) {
         animFrame = entry->unk78[gGfxBufferIndex];
     } else {

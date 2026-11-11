@@ -1,6 +1,7 @@
 #include "common.h"
 #include "render.h"
 #include "actor.h"
+#include "model.h"
 #include "sched.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #define PROTO_SKIP_playerSlotMatchesSizeMask // FAKE: callee prototype steer (owner reads no a2; the extra argument steers it)
@@ -31,41 +32,6 @@
 #include "proto/global/7130.h"
 #include "proto/global/8D3E0.h"
 #include "proto/global/CEAE0.h"
-
-typedef struct ModelTriBuffer {
-    /* 0x00 */ u8 *unk0;
-    /* 0x04 */ u8 *unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ f32 unkC[6];
-    /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 unk25[2];
-} ModelTriBuffer;
-
-typedef struct ModelSlot {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ void *unk20;
-    /* 0x24 */ u8 *unk24;
-    /* 0x28 */ DynamicBuffer unk28;
-    /* 0x48 */ ModelTriBuffer unk48;
-    /* 0x70 */ struct ModelPosNode *unk70;
-    /* 0x74 */ struct ModelPosNode *unk74;
-    /* 0x78 */ u8 **unk78;
-    /* 0x7C */ void *unk7C;
-    /* 0x80 */ u8 pad80[4];
-    /* 0x84 */ s16 unk84;
-    /* 0x86 */ s16 unk86;
-    /* 0x88 */ s16 unk88;
-    /* 0x8A */ s16 unk8A;
-    /* 0x8C */ u8 unk8C;
-    /* 0x8D */ u8 pad8D[3];
-} ModelSlot; /* 0x90, indexed by hashTableLookup() */
 
 typedef struct {
     /* 0x00 */ f32 unk0;
@@ -2437,15 +2403,6 @@ u8 restore;
         } while (start != end);
     }
 }
-
-typedef struct ModelAssetHeader {
-    /* 0x00 */ u8 pad0[0x1C];
-    /* 0x1C */ u8 unk1C;
-    /* 0x1D */ u8 pad1D[0x23];
-    /* 0x40 */ s32 unk40;
-    /* 0x44 */ s32 unk44;
-    /* 0x48 */ s32 unk48;
-} ModelAssetHeader;
 
 typedef struct ModelType2Obj {
     /* 0x00 */ u8 pad0[0x14];

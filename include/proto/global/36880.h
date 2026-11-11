@@ -2,6 +2,7 @@
 #ifndef PROTO_GLOBAL_36880_H
 #define PROTO_GLOBAL_36880_H
 #include "common.h"
+#include "model.h"
 #include "render.h"
 struct DisplayListCmd;
 struct ModelAssetData;
@@ -14,11 +15,9 @@ struct ModelRenderAnimObj;
 struct ModelSegmentData;
 struct ModelSegmentNode;
 struct ModelSegmentOwner;
-struct ModelSlot;
 struct ModelSlotAsset;
 struct ModelSlotObjHeader;
 struct ModelSpriteSourceList;
-struct ModelTriBuffer;
 struct ModelVertTable;
 struct RenderQuadModelObj;
 struct SpriteDisplayNode;

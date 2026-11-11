@@ -88,13 +88,13 @@ void modelSlotAllocAnimBuffers(ModelData **outModel, u8 *animAsset) {
     }
 }
 
-typedef struct ModelSlot {
+typedef struct ModelSlotView {
     u8 pad0[0x24];
     u8 *unk24;
     u8 pad28[0x50];
     ModelData *unk78;
     u8 pad7C[0x14];
-} ModelSlot; /* 0x90 */
+} ModelSlotView; /* 0x90 */
 
 typedef struct ModelAnimEntryRaw {
     ModelAnimNodeHeader *unk0;
@@ -107,7 +107,7 @@ typedef struct ModelAnimEntryRaw {
     u8 unk13;
 } ModelAnimEntryRaw;
 
-extern ModelSlot *gModelSlots;
+extern ModelSlotView *gModelSlots;
 
 u32 modelSlotDataSize(s16 slot) {
     u8 *p = gModelSlots[slot].unk24;

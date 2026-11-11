@@ -870,20 +870,20 @@ void gridDispatchRect(u8 playerIndex, GridBounds *bounds) {
     }
 }
 
-typedef struct ModelSlot {
+typedef struct ModelSlotView {
     u8 pad0[0x7C];
     struct { u8 pad0[0x64]; s16 unk64; } *unk7C;
     u8 pad80[0xC];
     u8 unk8C;
     u8 pad8D[3];
-} ModelSlot;
+} ModelSlotView;
 
-extern ModelSlot *gModelSlots;
+extern ModelSlotView *gModelSlots;
 
 s32 gridCheckNodeCondition(s16 modelSlot, u8 playerIndex, u16 modelType) {
     u8 flags;
     PlayerState *ctl;
-    ModelSlot *slot;
+    ModelSlotView *slot;
 
     switch (modelType) {
     case 0x11:

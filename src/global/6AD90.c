@@ -1308,7 +1308,7 @@ typedef struct ModelSlotSubNode {
     /* 0x71 */ u8 unk71;
 } ModelSlotSubNode;
 
-typedef struct ModelSlot {
+typedef struct ModelSlotView {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -1326,10 +1326,10 @@ typedef struct ModelSlot {
     /* 0x80 */ u8 pad80[0x88 - 0x80];
     /* 0x88 */ s16 unk88;
     /* 0x8A */ u8 pad8A[6];
-} ModelSlot; // size = 0x90
+} ModelSlotView; // size = 0x90
 
 
-extern ModelSlot *gModelSlots;
+extern ModelSlotView *gModelSlots;
 extern u8 D_807F946D;
 extern u8 D_807F94AC;
 struct CollisionActorWork;
