@@ -6,29 +6,24 @@
 #include "proto/global/3C10.h"
 
 typedef struct FlagTableEntry {
-    /* 0x0 */ u8 unk0;
+    /* 0x0 */ u8 map;
     /* 0x1 */ u8 pad1;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ u8 unk6;
-    /* 0x7 */ u8 unk7;
+    /* 0x2 */ s16 id;
+    /* 0x4 */ s16 flag;
+    /* 0x6 */ u8 value;
+    /* 0x7 */ u8 active;
 } FlagTableEntry;
 
-typedef struct FlagTableByte8 {
-    u8 unk0;
-    u8 pad[7];
-} FlagTableByte8;
-
 typedef struct FlagTableEntry4 {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ u8 unk2;
+    /* 0x0 */ s16 id;
+    /* 0x2 */ u8 value;
     /* 0x3 */ u8 pad3;
 } FlagTableEntry4;
 
 FlagTableEntry D_807FDCD0[0x18];
 u8 D_807FDD90[14];
 extern FlagTableEntry D_80755A20[];
-extern FlagTableByte8 D_80755DAE[];
+extern FlagTableEntry D_80755DA8[];
 extern FlagTableEntry D_80755EA0[];
 extern FlagTableEntry4 D_80755F4C[];
 extern FlagTableEntry4 D_80755F50[];
@@ -80,10 +75,10 @@ u8 flagGet(s16 flag, u8 bank) {
 }
 
 typedef struct FlagRange {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
+    s16 first;
+    s16 last;
+    s16 required;
+    s16 rewardFlag;
 } FlagRange;
 
 extern FlagRange D_80756024[];
@@ -95,16 +90,14 @@ void flagUpdateRangeCompletion(s16 flag) {
 
     for (i = 0; i < 0x21 && res == -1; i++) {
         e = &D_80756024[i];
-        if (flag >= e->unk0 && flag <= e->unk2) {
-            if (flagCountRange(e->unk0, e->unk2 - e->unk0 + 1, 0) == e->unk4) {
-                res = e->unk6;
+        if (flag >= e->first && flag <= e->last) {
+            if (flagCountRange(e->first, e->last - e->first + 1, 0) == e->required) {
+                res = e->rewardFlag;
             }
         }
     }
-    if (i == 0x99) {
-    }
-    if (flag == 0x99) {
-    }
+    if (i == 0x99) {}  // FAKE: dead read of i after the loop keeps counter s1 beside pointer s0 (no LFTR end pointer, Q0262)
+    if (flag == 0x99) {}  // FAKE: with the i read keeps flag in s3 and res in s2 (Q0262)
     if (res >= 0) {
         flagSet(res, 1, 1);
     }
@@ -145,8 +138,8 @@ void func_807313BC(void) {
     s32 i;
 
     for (i = 0; i < 0x18; i++) {
-        if (mapFindSlotByMap(D_807FDCD0[i].unk0) == 0) {
-            D_807FDCD0[i].unk7 = 0;
+        if (mapFindSlotByMap(D_807FDCD0[i].map) == 0) {
+            D_807FDCD0[i].active = 0;
         }
     }
 }
@@ -155,12 +148,12 @@ void func_80731410(s16 map, s16 id, s16 flag, u8 val) {
     s32 i;
 
     for (i = 0; i < 0x18; i++) {
-        if (D_807FDCD0[i].unk7 == 0) {
-            D_807FDCD0[i].unk0 = map;
-            D_807FDCD0[i].unk2 = id;
-            D_807FDCD0[i].unk4 = flag;
-            D_807FDCD0[i].unk6 = val;
-            D_807FDCD0[i].unk7 = 1;
+        if (D_807FDCD0[i].active == 0) {
+            D_807FDCD0[i].map = map;
+            D_807FDCD0[i].id = id;
+            D_807FDCD0[i].flag = flag;
+            D_807FDCD0[i].value = val;
+            D_807FDCD0[i].active = 1;
             return;
         }
     }
@@ -168,18 +161,18 @@ void func_80731410(s16 map, s16 id, s16 flag, u8 val) {
 
 void func_807314F4(s16 map, s16 id) {
     s32 i;
-    s32 n = 0x71;
+    s32 n = 0x71; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
 
     for (i = 0; i < n; i++) {
-        if (map == D_80755A20[i].unk0 && id == D_80755A20[i].unk2) {
-            flagSet(D_80755A20[i].unk4, 1, 0);
+        if (map == D_80755A20[i].map && id == D_80755A20[i].id) {
+            flagSet(D_80755A20[i].flag, 1, 0);
             return;
         }
     }
     for (i = 0; i < 0x18; i++) {
-        if (D_807FDCD0[i].unk7 != 0 && map == D_807FDCD0[i].unk0 && id == D_807FDCD0[i].unk2) {
-            flagSet(D_807FDCD0[i].unk4, 1, 0);
-            D_807FDCD0[i].unk7 = 0;
+        if (D_807FDCD0[i].active != 0 && map == D_807FDCD0[i].map && id == D_807FDCD0[i].id) {
+            flagSet(D_807FDCD0[i].flag, 1, 0);
+            D_807FDCD0[i].active = 0;
             return;
         }
     }
@@ -187,11 +180,11 @@ void func_807314F4(s16 map, s16 id) {
 
 s32 func_807315D4(s16 map, s16 id) {
     s32 i;
-    s32 n = 0x71;
+    s32 n = 0x71; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
 
     for (i = 0; i < n; i++) {
-        if (map == D_80755A20[i].unk0 && id == D_80755A20[i].unk2) {
-            return flagGet(D_80755A20[i].unk4, 0);
+        if (map == D_80755A20[i].map && id == D_80755A20[i].id) {
+            return flagGet(D_80755A20[i].flag, 0);
         }
     }
     return 0;
@@ -199,32 +192,31 @@ s32 func_807315D4(s16 map, s16 id) {
 
 u8 func_80731654(s16 map, s16 id) {
     s32 i;
-    s32 n = 0x71;
+    s32 n = 0x71; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
 
     for (i = 0; i < n; i++) {
-        if (map == D_80755A20[i].unk0 && id == D_80755A20[i].unk2) {
-            return D_80755A20[i].unk6;
+        if (map == D_80755A20[i].map && id == D_80755A20[i].id) {
+            return D_80755A20[i].value;
         }
     }
     for (i = 0; i < 0x18; i++) {
-        if (D_807FDCD0[i].unk7 != 0 && map == D_807FDCD0[i].unk0 && id == D_807FDCD0[i].unk2) {
-            return D_807FDCD0[i].unk6;
+        if (D_807FDCD0[i].active != 0 && map == D_807FDCD0[i].map && id == D_807FDCD0[i].id) {
+            return D_807FDCD0[i].value;
         }
     }
     return 0;
 }
 
-extern FlagTableEntry D_80755DA8[];
 
 s32 spawnFlagLookup(s16 map, s16 id, s32 *outIdx) {
-    FlagTableEntry *e; s32 n = 0x1F; s32 i; s16 val = map; // LAYOUT: one line (as1 prologue order)
+    FlagTableEntry *e; s32 n = 0x1F; s32 i; s16 val = map; // FAKE: n/val copies keep map in a0, id in a3, base in t0 (Q0582); LAYOUT: one line (as1 prologue order)
     *outIdx = 0; for (i = 0; i < n; ) { // LAYOUT: joined with the loop header
         e = D_80755DA8 + i;
-        if (val == e->unk0 && id == e->unk2) {
-            return e->unk4;
+        if (val == e->map && id == e->id) {
+            return e->flag;
         }
         *outIdx = i + 1;
-        i |= 0; // FAKE: no-code def kills the i + 1 CSE so the store keeps a ring temp
+        i |= 0; // FAKE: no-code def keeps i + 1 in ring temp t3 instead of reusing a1 (Q0500)
         i = *outIdx;
     }
     return -1;
@@ -238,10 +230,10 @@ s32 spawnFlagConditionMet(s16 map, s16 id) {
     r = spawnFlagLookup(map, id, &idx);
     if (r >= 0) {
         flag = flagGet(r, 0);
-        if (flag != 0 && D_80755DAE[idx].unk0 != 0) {
+        if (flag != 0 && D_80755DA8[idx].value != 0) {
             return 1;
         }
-        if (flag == 0 && D_80755DAE[idx].unk0 == 0) {
+        if (flag == 0 && D_80755DA8[idx].value == 0) {
             return 1;
         }
         return 0;
@@ -250,18 +242,18 @@ s32 spawnFlagConditionMet(s16 map, s16 id) {
 }
 
 s32 flagTryTriggerOnce(s16 map, s16 id) {
-    s32 n = 0x16;
+    s32 n = 0x16; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
     s32 i;
     FlagTableEntry *e;
 
     for (i = 0; i < n; i++) {
         e = &D_80755EA0[i];
-        if (map == e->unk0 && id == e->unk2) {
-            if (flagGet(e->unk4, 0) != 0) {
+        if (map == e->map && id == e->id) {
+            if (flagGet(e->flag, 0) != 0) {
                 return 0;
             }
-            if (e->unk6 != 0) {
-                flagSet(e->unk4, 1, 0);
+            if (e->value != 0) {
+                flagSet(e->flag, 1, 0);
             }
             return 1;
         }
@@ -273,16 +265,16 @@ s32 func_8073195C(s16 index) {
     if (index == 0) {
         return -1;
     }
-    return D_80755F4C[index].unk0;
+    return D_80755F4C[index].id;
 }
 
 u8 func_8073198C(s16 id) {
     s32 i;
-    s32 n = 0x35;
+    s32 n = 0x35; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
 
     for (i = 0; i < n; i++) {
-        if (id == D_80755F50[i].unk0) {
-            return D_80755F50[i].unk2;
+        if (id == D_80755F50[i].id) {
+            return D_80755F50[i].value;
         }
     }
     return 0;
