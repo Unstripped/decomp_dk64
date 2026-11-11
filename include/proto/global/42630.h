@@ -4,7 +4,6 @@
 #include "common.h"
 #include "cutscene.h"
 struct CsLoadState;
-struct CsStateFull;
 #ifndef PROTO_SKIP_csModelIdTableReset
 void csModelIdTableReset(void);
 #endif
