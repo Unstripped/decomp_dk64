@@ -80,10 +80,10 @@ void func_8069D0B8(void);
 void func_8069D0D8(void);
 #endif
 #ifndef PROTO_SKIP_textSpawnMarker
-void textSpawnMarker(u8, s16, s16, s32, u16, u16, u8, u8);
+void textSpawnMarker(u8, s16, s16, u8 *, u16, u16, u8, u8);
 #endif
 #ifndef PROTO_SKIP_textSpawnMarkerChecked
-void textSpawnMarkerChecked(u8, s16, s16, s32, u16, u16, u8, u8);
+void textSpawnMarkerChecked(u8, s16, s16, u8 *, u16, u16, u8, u8);
 #endif
 #ifndef PROTO_SKIP_renderAppendScaledMatrix
 void *renderAppendScaledMatrix(void *, struct ActorPositionView *, s16, f32);

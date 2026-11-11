@@ -1349,7 +1349,7 @@ typedef struct TextMarkerState {
 
 extern Actor *gSpawnedActor;
 
-void textSpawnMarker(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 delay, u8 colorMode, u8 extraFlags) {
+void textSpawnMarker(u8 fontStyle, s16 x, s16 y, u8 *textStr, u16 duration, u16 delay, u8 colorMode, u8 extraFlags) {
     s32 len;
     TextMarkerState *sub;
 
@@ -1371,9 +1371,9 @@ void textSpawnMarker(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 
         gSpawnedActor->tintR = 0xFF;
         gSpawnedActor->tintG = 0xFF;
         gSpawnedActor->tintB = 0xFF;
-        len = strlen((char *)textStr) + 1;
+        len = strlen(textStr) + 1;
         sub->unk0 = (void *)heapAlloc(len);
-        _strcpy((char *)sub->unk0, (char *)textStr);
+        _strcpy(sub->unk0, textStr);
         sub->unk4 = duration;
         sub->unk6 = delay;
         sub->unk8 = colorMode;
@@ -1383,7 +1383,7 @@ void textSpawnMarker(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 
 
 extern u8 gPlayerCount;
 
-void textSpawnMarkerChecked(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 delay, u8 colorMode, u8 extraFlags) {
+void textSpawnMarkerChecked(u8 fontStyle, s16 x, s16 y, u8 *textStr, u16 duration, u16 delay, u8 colorMode, u8 extraFlags) {
     if (gPlayerCount < 2) {
         if (menuIsTransitionType5() == 0) {
             if (func_807142D8() == 0) {
