@@ -134,22 +134,23 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 9 (2026-11-10)** — global/41090, arcade/0, B7490, 450, 36880, menu/3E10 (5 passes), 61AA0, 55B20 (2 passes), ACDC0, 127B00, C4620, then a 4-group re-review of 135 callers whose bodies the batches edited. New tracking of IDO cfe warnings (`cwarn.py`, `warning` sites, gate ratchet): 1,890 → 1,296. Callee/type batches: `_sprintf` fmt `const char *`, `heapFree`/`heapFreeDeferred(void *)`, projectile chain and `actorListSpawnNode*` take `Actor *`, text API (`textTableGetString` returns `u8 *`, `gfxResourceCreate` str `void *`), `gunzip`/`healthHudDrawAll`/`playerViewsRender`, `playerMountBarrel`/`commandQueuePush`/`slotQueueGetSpriteAsset`, `vtxGradientSetColorA/B(u8)`. Header changes: new `render.h` (`RenderEntry`, `PlanePoly`), `BehaviourWorkState.unk28` u32, `KongInventory` u16[14] arrays, `gScheduler` one `SchedStruct` (split labels folded). 13 symbols named (matrix cache, `gSegment6Override`, `gPathTable`/`gPathPlaybacks`, A2F10/7CA80 functions). Tools: `record`/`carry` compile REV text against REV headers.
 - [x] **Round 10 (2026-11-10)** — global/100180, 13980, 936B0, 135D30, 90D80, 109660, then re-review passes Rev10A–H over every function whose body a batch edited. Callee/type batches by a batch worker: `effectSpawnActorBone(Actor *)`, `eepromGetSectionBuffer(u8)`, `RenderEntry.unk0` `void *` (render2), `SchedClient` (sched.h), `collisionQueryActorFloor` out-pointers, vertex helpers take `Vtx *`, `texCacheFindOrLoad` returns `void *`, tile-grid `(Gfx **, void *texture, s32 fmt, ...)`, `memcpy` from `compiler/ido/memory.h` (22 files), `LevelSoundEmitter` (new `map.h`), `TextFontInfo`/`TextObject` (new `text.h`), `CollisionBoundingBox`/`CollisionBox` (new `collision.h`), `CsNode`/`CsStateFull` (new `cutscene.h`), `ActorList.items`, ActorSub140/PlayerState/PlayerStruct carves, `textSpawnMarker(u8 *)`, `effectFreeByResource(Actor *)`. cfe warnings 1,296 → 999. 21 symbols named (135D30 flags, 100180 text fonts, 109660 sky/scroll/light, PlayerStruct camYInt/skyRoll). Tools: `carry` handles types moved to a header and respelled declarations; quality/cwarn are cwd-independent.
 - [x] **Round 11 (2026-11-11)** — global/10E1D0, 8F4B0, A8400, 7A510, BDEE0, E4090, 80150, minecart/25F0, then re-review passes Rev11A–D. Batches by a batch worker: merged `MapFileHeader` (map.h; 55B20/70FD0/6AD90/684C0/63EC0 take it), new `model.h` (`ModelSlot`/`ModelTriBuffer`/`ModelAssetHeader`/`ModelPosNode`, typed `unk24`/`unk78`/`unk7C`, every local ModelSlot view retired), new `resqueue.h` (112080 `ResRow`/`ResQueueActorState`, stream cursor `u8 *`), `FrameMatrices` in render.h, `PathFollowState` replaces `ActorFloorContact` (`Actor.pathFollow`), `ActorGlobalState.unk204` `Actor *[16]`, f32 hit-payload arrays, owner retypes in 1292F0/8F050/89250/54150/36880/7A510. cfe warnings 999 → 849. 13 symbols named (10E1D0 transition set, 80150 kong names, minecart junction table, `Actor.pathFollow`). Tools: `carry` treats a pure local typedef rename as pure (c8455c73).
-- [ ] Remaining: 820 functions not reviewed; 1,569 open sites (cfe `warning` sites included). Next rounds: `uv run tools/quality.py rank`.
+- [x] **Round 12 (2026-11-11)** — global/17B90, F56F0, 7130, F600, 136820 (all 5 file agents; Batch12's owner/header requests from Rev11D and round 12 land in round 13). Own-file retypes: 17B90 void * end args, 136820 `unwindDecodeJrRa(..., s32 **)`; `D_807FBB30/32` u16 in 17B90 and 7CA80. cfe warnings 849 → 842. No symbols named (D_807FBB85 fold fails fdiff in 4 files: relocation-only, needs per-file proof).
+- [ ] Remaining: 794 functions not reviewed; 1,495 open sites (cfe `warning` sites included). Next rounds: `uv run tools/quality.py rank`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-11, after round 11):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-11, after round 12):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 809 | 583 |
+| FAKE | 811 | 583 |
 | FAKE dead-if | 282 | 263 |
 | FAKE proto-steer | 134 | 134 |
-| FAKE other kinds | 393 | 186 |
+| FAKE other kinds | 395 | 186 |
 | LAYOUT | 65 | 47 |
 | goto | 35 | 39 |
 | proto-type (`// PROTO:`) | 10 | 0 |
 | protos mismatch | 69 | 1,202 |
-| reviewed / exhausted functions | 3,450 / 3,098 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 849 | 1,890 |
+| reviewed / exhausted functions | 3,476 / 3,144 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 842 | 1,890 |
 | uninit warnings (clint checks every function) | 252 | 122 |
 | `func_` definitions | 434 | 457 |
 | m2c names | 641 | 5,040 |

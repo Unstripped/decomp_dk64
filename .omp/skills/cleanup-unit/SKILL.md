@@ -89,8 +89,7 @@ header; sweep + carry. A batch stales the review of every caller whose BODY it e
 ## 5. Merge
 
 As each agent reports:
-1. Check the report: every site of its file in the LEDGER block, one `review` per function,
-   evidence present (ladder.md rules); missing lines go back to the agent.
+1. Check the report: every site of its file in the LEDGER block, one `review` per function, evidence present (ladder.md); missing lines go back.
 2. `uv run tools/clint.py uninit .scratch/<A>/<f>.c --base src/<seg>/<f>.c` must exit 0.
 3. Merge per decomp-unit merge.md:
    `tools/merge_gate.sh --commit "<seg>: clean <f> (<n> FAKE −, <n> goto −)" .scratch/<A> <base> src/<seg>/<f>.c`.
@@ -110,12 +109,13 @@ As each agent reports:
    (`no site` in `--dry-run`); `ledger-copy-only.txt` at the merge commit; then `carry --rev
    <merge>^ <src>`. A batch's `fixed` lines for sites it removed: `record --base <patch base>`. Commit `drafts/quality.jsonl`.
 7. Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
-   (`--reloc-ok`), one gate; two `0.c` copies need two dirs. Commit explicit paths only.
-Invariants: `src/` and `include/` change only through the gate; every commit passes the full
-ROM gate; a merged file's net HACKS (tagged `// FAKE` + untagged AST sites) and cfe warnings
-(gate ratchet; header stages check every file) never rise. Tagging a pre-existing untagged hack
-is required (reports: "pre-existing, now tagged"). After a merge, `make expected` before sweeping
-a file whose merged C differs from `expected/` only in relocations (else sweep skips it).
+   (`--reloc-ok`), one gate; two `0.c` copies need two dirs. Commit explicit paths only. A copy
+   retyping a shared global's extern: fix every other file's extern in the SAME gate (objdiff each).
+Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
+gate; a merged file's net HACKS (tagged `// FAKE` + untagged AST sites) and cfe warnings never rise.
+Tag pre-existing untagged hacks ("pre-existing, now tagged"). A K&R → ANSI conversion may expose a
+pre-existing uninit read (same code at HEAD): accept with a note. `make expected` before sweeping a
+merged file that differs from `expected/` only in relocations (else sweep skips it).
 
 ## 6. Round end
 
