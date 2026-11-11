@@ -140,23 +140,23 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 15 (2026-11-11)** — global/D5E10, 201B0, arcade/0, 80150, 8F050, then re-review passes Rev15A (70FD0/36880/10D2D0) and Rev15B (45 functions). Batch12 b20 (envmixer param, spritelist protos, PlayerStruct 0x2E0 carve, strcspn, synnewfx, bst void key, gCurrentActor as Actor * in boss/8520, boss/0, race/36B0), b21 (new `race.h`, B5EC0 steer retag, controllerAnimFreeSub ANSI), b22 (shared `PlayerInventory`, B2CE0 and 8-file actor views retired, boss/0 piece views, 70FD0 views); b22 1b (10D2D0 HealthStats) dropped. cfe warnings 764 → 513.
 - [ ] Remaining: 811 functions not reviewed; 1,030 open sites (cfe `warning` sites included); 92 stale reviews in `.scratch/rereview16.md`. Next rounds: `uv run tools/quality.py rank`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-11, after round 15):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-11, after round 16):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 787 | 583 |
-| FAKE dead-if | 280 | 263 |
-| FAKE proto-steer | 106 | 134 |
-| FAKE other kinds | 404 | 186 |
+| FAKE | 763 | 583 |
+| FAKE dead-if | 279 | 263 |
+| FAKE proto-steer | 82 | 134 |
+| FAKE other kinds | 402 | 186 |
 | LAYOUT | 65 | 47 |
 | goto | 35 | 39 |
-| proto-type (`// PROTO:`) | 7 | 0 |
-| protos mismatch | 58 | 1,202 |
-| reviewed / exhausted functions | 3,459 / 3,210 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 513 | 1,890 |
+| proto-type (`// PROTO:`) | 6 | 0 |
+| protos mismatch | 47 | 1,202 |
+| reviewed / exhausted functions | 3,755 / 3,540 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 234 | 1,890 |
 | uninit warnings (clint checks every function) | 252 | 122 |
 | `func_` definitions | 434 | 457 |
-| m2c names | 519 | 5,040 |
+| m2c names | 442 | 5,040 |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 

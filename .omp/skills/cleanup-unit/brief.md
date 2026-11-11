@@ -86,6 +86,11 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
   ~10 requests with "partial" on 54–86-function files was wrong: the budget stop applies only to
   100+ function files and only once the request budget is really spent (then report a valid
   LEDGER for the functions done and name the phases left).
+- Checkpoint as you go: append each LEDGER line to `.scratch/<You>/ledger_<file>.txt` as soon as its
+  run finishes, and at every file boundary refresh `.scratch/<You>/status.md` (copy path, fdiff,
+  uninit, ledger event count, key map, still-OPEN functions), so a budget stop is mergeable as is.
+- IDO findings go in the report only (rule + function + evidence + related Q-IDs); the
+  orchestrator queues them and files them once at round close.
 
 # Phases (in order, one pass over the file each)
 1. types: a file-local struct view of a shared global becomes the shared type (`include/actor.h`
