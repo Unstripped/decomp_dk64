@@ -2,6 +2,8 @@
 #ifndef PROTO_GLOBAL_10E1D0_H
 #define PROTO_GLOBAL_10E1D0_H
 #include "common.h"
+struct AnimModel;
+struct AnimTable;
 struct MeshBlobHeader;
 struct MeshBlobTail;
 struct MeshInfo;
@@ -22,7 +24,7 @@ s32 meshComputeVertexRanges(struct MeshRangeView *);
 void meshDrawTextured(Gfx **, struct MeshInfo *, u8 *);
 #endif
 #ifndef PROTO_SKIP_meshApplyAnimation
-void meshApplyAnimation(void *, s32, s32);
+void meshApplyAnimation(struct AnimModel *, struct AnimTable *, s32);
 #endif
 #ifndef PROTO_SKIP_fbCopySetAlpha
 void fbCopySetAlpha(s32 *, s32 *);
@@ -49,6 +51,6 @@ u8 transitionGetState(void);
 void transitionSetAudioVolume(f32, s32, s32 *);
 #endif
 #ifndef PROTO_SKIP_transitionRender
-u8 transitionRender(Gfx **, s32, s32);
+u8 transitionRender(Gfx **, void *, void *);
 #endif
 #endif

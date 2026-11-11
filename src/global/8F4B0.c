@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
 #include "proto/global/109660.h"
 #include "proto/global/10E1D0.h"
@@ -215,14 +216,9 @@ typedef struct {
     u32 stateFlags;
 } CutscenePlayerFlags;
 typedef struct {
-    char pad[0x4];
-    Actor *unk4;
-} CutscenePlayerEntry;
-typedef struct {
     char pad[0xC4];
     f32 unkC4;
 } PlayerActorC4;
-struct ActorPlayerPos;
 
 s32 mapGetHubWorldIndex(u8, s32); // FAKE: callee prototype steer
 
@@ -233,7 +229,7 @@ extern s16 D_807FDCB8;
 extern s32 gGlobalPauseFlags;
 extern void *gPrimaryPlayerActor;
 extern CutscenePlayerContext *gActivePlayerState;
-extern struct ActorPlayerPos *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern u16 D_80744700[];
 extern u8 gCurrentWorldId;
 extern s32 D_8076A0AC;
@@ -248,7 +244,7 @@ extern u8 D_807FC620;
 void actorCutsceneDispatchEvents(void) {
     CutsceneActorState *csState;
     s32 i;
-    f32 pad;
+    f32 lerpT;
     s16 *eventData;
     s32 sfxVolume;
     s32 pathFlag;
@@ -360,7 +356,7 @@ void actorCutsceneDispatchEvents(void) {
             mapSetTransitionExtraCounter(((u8 *)eventData)[1]);
             break;
         case 0xA:
-            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->customState)->stateFlags |= 0x40000800;
+            ((CutscenePlayerFlags *)gPlayerSlots->actor->customState)->stateFlags |= 0x40000800;
             break;
         case 0xB:
             mapRequestTransition(D_80744700[mapGetHubWorldIndex(gCurrentWorldId, 0)], D_8076A0AC);
@@ -410,7 +406,7 @@ void actorCutsceneDispatchEvents(void) {
             D_8076A0A6 = D_807ECD48;
             break;
         case 0x1A:
-            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->customState)->stateFlags |= 0x80000000;
+            ((CutscenePlayerFlags *)gPlayerSlots->actor->customState)->stateFlags |= 0x80000000;
             break;
         case 0x1B:
             mapChunkSetFlagBit3(eventData[1]);
@@ -420,8 +416,8 @@ void actorCutsceneDispatchEvents(void) {
 
     if (csState->unk1E != 0) {
         csState->unk1E--;
-        pad = (f32)csState->unk1E / (f32)csState->unk1C;
-        lightLerpColors(csState->unkC, csState->unk10, csState->unk14, pad, csState->unk1A);
+        lerpT = (f32)csState->unk1E / (f32)csState->unk1C;
+        lightLerpColors(csState->unkC, csState->unk10, csState->unk14, lerpT, csState->unk1A);
         if (csState->unk1E == 0) {
             lightSetTargetColor(csState->unkC, csState->unk10, csState->unk14, csState->unk1A);
         }
@@ -583,31 +579,19 @@ typedef struct {
     u32 stateFlags;
 } Actor174Player;
 
-typedef struct ActorPlayerPos {
-    char pad[0x210];
-    f32 unk210;
-    f32 unk214;
-    f32 unk218;
-    char pad21C[0xC];
-    f32 unk228;
-    f32 unk22C;
-    f32 unk230;
-} ActorPlayerPos;
-
-extern ActorPlayerPos *gPlayerSlots;
 
 void func_8068BA2C(void) {
     s32 pad;
     CamState *camState;
-    Actor174Player *s1;
+    Actor174Player *playerState;
     s32 hasEvent3;
     s16 i;
     s16 *ptr;
     s32 flags;
 
-    s1 = gActivePlayerActor->customState;
+    playerState = gActivePlayerActor->customState;
     hasEvent3 = 0;
-    camState = ((Actor *)s1->unk104)->customState;
+    camState = ((Actor *)playerState->unk104)->customState;
     for (i = 0; i < gActorGlobalState.unk254; i++) {
         ptr = gActorGlobalState.unk278[i];
         switch ((u32)gActorGlobalState.unk258[i]) {
@@ -620,17 +604,17 @@ void func_8068BA2C(void) {
             break;
         case 3:
             hasEvent3 = 1;
-            if (!(s1->stateFlags & 0x04000000)) {
-                s1->stateFlags |= 0x04000000;
+            if (!(playerState->stateFlags & 0x04000000)) {
+                playerState->stateFlags |= 0x04000000;
             }
             break;
         }
     }
     if (hasEvent3 == 0) {
-        s1->stateFlags &= ~0x04000000;
+        playerState->stateFlags &= ~0x04000000;
     }
     if (camState->unkAC & 1) {
-        lightAdd(gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218, gPlayerSlots->unk228, gPlayerSlots->unk22C, gPlayerSlots->unk230, 0.0f, 1, 0xFF, 0xFF, 0xFF);
+        lightAdd(gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ, gPlayerSlots->focusX, gPlayerSlots->focusY, gPlayerSlots->focusZ, 0.0f, 1, 0xFF, 0xFF, 0xFF);
     }
 }
 
@@ -656,34 +640,32 @@ void playerCameraUpdateFromTarget(void) {
     f32 stepFactor;
     f32 scaleFactor;
     s16 maxDiff;
-    void *player;
+    PlayerStruct *player;
     s32 pad30[1];
     f32 pitchRad;
     f32 dx;
     f32 curAngle;
     f32 dz;
     f32 clampedPitch;
-    Actor *actor;
     s16 angleB;
     s32 minLimit;
     s16 angleDiffRaw;
     s32 stateVal;
-    s32 dd;
-    s16 tmpd;
-    u8 pad_v1;
+    s32 rawDiff;
+    s16 fadeTimer;
     targetState = gCurrentActor->customState;
     angleDiff = 0;
     maxDiff = 0x1E;
     stepFactor = 0.08f;
     scaleFactor = 8.0f;
-    player = (void *)((*(u8 *)((u8 *)targetState + 0xFB) * 0x2F0) + (u8 *)gPlayerSlots);
-    *(s16 *)((u8 *)player + 0x2CC) = ((AimActorAngles *)gCurrentActor)->unkEC;
+    player = &gPlayerSlots[*(u8 *)((u8 *)targetState + 0xFB)];
+    player->skyRoll = ((AimActorAngles *)gCurrentActor)->unkEC;
     ((AimActorAngles *)gCurrentActor)->unkEC = ((AimActorAngles *)gCurrentActor)->unkE4;
-    *(s16 *)((u8 *)player + 0x2CA) = (s16)(s32)*(f32 *)((u8 *)player + 0x214);
-    angleRad = mathAngleBetweenPointsRad(*(f32 *)((u8 *)player + 0x218), *(f32 *)((u8 *)player + 0x210), *(f32 *)((u8 *)player + 0x230), *(f32 *)((u8 *)player + 0x228));
-    dz = *(f32 *)((u8 *)player + 0x230) - *(f32 *)((u8 *)player + 0x218);
-    dx = *(f32 *)((u8 *)player + 0x228) - *(f32 *)((u8 *)player + 0x210);
-    pitchRad = mathAngleBetweenPointsRad(0.0f, *(f32 *)((u8 *)player + 0x214), sqrtf((dz * dz) + (dx * dx)), *(f32 *)((u8 *)player + 0x22C)) + 3.1415927f;
+    player->camYInt = (s16)(s32)player->camY;
+    angleRad = mathAngleBetweenPointsRad(player->camZ, player->camX, player->focusZ, player->focusX);
+    dz = player->focusZ - player->camZ;
+    dx = player->focusX - player->camX;
+    pitchRad = mathAngleBetweenPointsRad(0.0f, player->camY, sqrtf((dz * dz) + (dx * dx)), player->focusY) + 3.1415927f;
     clampedPitch = pitchRad;
     if (pitchRad > 6.2831855f) {
         clampedPitch = pitchRad - 6.2831855f;
@@ -691,12 +673,12 @@ void playerCameraUpdateFromTarget(void) {
     if (clampedPitch > 3.1415927f) {
         clampedPitch = 3.1415927f - (clampedPitch - 3.1415927f);
     }
-    *(f32 *)((u8 *)player + 0x2D4) = 6.2831855f - angleRad;
-    *(f32 *)((u8 *)player + 0x2D8) = 6.2831855f - clampedPitch;
+    player->bgRotX = 6.2831855f - angleRad;
+    player->bgRotY = 6.2831855f - clampedPitch;
     playerGetCharacterIndex(*(u8 *)((u8 *)targetState + 0xFB));
-    angleA = mathAngleBetweenPoints2D(*(f32 *)((u8 *)player + 0x210), *(f32 *)((u8 *)player + 0x218), *(f32 *)((u8 *)player + 0x228), *(f32 *)((u8 *)player + 0x230));
-    camUpdate(gCurrentActor, (u8 *)player + 0x210, (u8 *)player + 0x214, (u8 *)player + 0x218, (u8 *)player + 0x228, (u8 *)player + 0x22C, (u8 *)player + 0x230, (u8 *)player + 0x240, (u8 *)player + 0x244, (u8 *)player + 0x248);
-    angleB = mathAngleBetweenPoints2D(*(f32 *)((u8 *)player + 0x210), *(f32 *)((u8 *)player + 0x218), *(f32 *)((u8 *)player + 0x228), *(f32 *)((u8 *)player + 0x230));
+    angleA = mathAngleBetweenPoints2D(player->camX, player->camZ, player->focusX, player->focusZ);
+    camUpdate(gCurrentActor, &player->camX, &player->camY, &player->camZ, &player->focusX, &player->focusY, &player->focusZ, &player->upX, &player->upY, &player->upZ);
+    angleB = mathAngleBetweenPoints2D(player->camX, player->camZ, player->focusX, player->focusZ);
     if (gPrimaryPlayerActor != *(Actor **)targetState) {
         return;
     }
@@ -712,13 +694,13 @@ void playerCameraUpdateFromTarget(void) {
             }
         }
         if (gGameMode && gGameMode) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        tmpd = D_807FC624 + 0x1E;
-        tmpd &= 0xFFF;
-        D_807FC624 = tmpd;
+        fadeTimer = D_807FC624 + 0x1E;
+        fadeTimer &= 0xFFF;
+        D_807FC624 = fadeTimer;
         return;
     }
     if (gGameMode != 1) {
-            dd = 0;  // FAKE: lengthens dd's live range so its priority drops below the B variable (angleB gets a1)
+            rawDiff = 0;  // FAKE: lengthens rawDiff's live range so its priority drops below the B variable (angleB gets a1)
             stateVal = (*(Actor **)targetState)->state;
             switch (stateVal) {
             case 0x63:
@@ -742,9 +724,9 @@ void playerCameraUpdateFromTarget(void) {
             case 0x69:
             case 0x6D:
 calc_angle:
-                dd = angleA - angleB;
-                angleB = dd;
-                angleDiffRaw = dd;
+                rawDiff = angleA - angleB;
+                angleB = rawDiff;
+                angleDiffRaw = rawDiff;
                 if (angleDiffRaw >= 0x801) {
                     angleDiff = angleDiffRaw - 0x1000;
                 } else {
@@ -755,7 +737,7 @@ calc_angle:
                 }
                 break;
             }
-            if (dd) {}  // FAKE: dead read of dd after the switch (priority steer)
+            if (rawDiff) {}  // FAKE: dead read of rawDiff after the switch (priority steer)
             minLimit = -maxDiff;
             stateVal = (minLimit < angleDiff) ? angleDiff : minLimit;
             stateVal = (stateVal < maxDiff) ? ((minLimit < angleDiff) ? angleDiff : minLimit) : maxDiff;

@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_n_alSndpPostEvent // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/10E1D0.h"
 #include "proto/global/110F00.h"
 #include "proto/global/13A7A0.h"
@@ -33,24 +32,24 @@ extern u8 gGameMode;
 extern u8 D_807444F4;
 extern ALBank *D_8076D1F8;
 extern s32 gGlobalOverlayFlags;
-extern s8 D_807FD9BC;
+extern u8 D_807FD9BC;
 extern u8 D_807FD9BD;
-extern f32 D_807FD9C4;
-extern s32 D_807FD9C8;
+extern union { f32 f; s32 bits; } D_807FD9C4; // sound pitch, posted as raw event bits
+extern struct GfSndState *D_807FD9C8;
 
-void func_807094D0(arg0)
-u8 arg0;
+void func_807094D0(mode)
+u8 mode;
 {
     D_807444F4 = gGameMode;
-    switch (arg0) {
+    switch (mode) {
     case 2:
-        D_807FD9C4 = 1.0f;
+        D_807FD9C4.f = 1.0f;
         D_807FD9BC = 0;
         gNextGameMode = 1;
         gGameMode = 6;
         break;
     case 3:
-        D_807FD9C4 = 0.5f;
+        D_807FD9C4.f = 0.5f;
         D_807FD9BC = 0;
         gNextGameMode = 2;
         gGameMode = 6;
@@ -71,7 +70,7 @@ typedef struct FbTile {
 
 extern FbTile *gFbTileTable;
 
-void fbBuildTileTable(s32 arg0, s32 arg1) {
+void fbBuildTileTable(s32 tileWidth, s32 tileHeight) {
     s32 cols;
     s32 rows;
     s32 remW;
@@ -82,10 +81,10 @@ void fbBuildTileTable(s32 arg0, s32 arg1) {
     s32 col;
     s32 x;
 
-    cols = gScreenWidth / arg0;
-    rows = gScreenHeight / arg1;
-    remW = gScreenWidth - arg0 * cols;
-    remH = gScreenHeight - arg1 * rows;
+    cols = gScreenWidth / tileWidth;
+    rows = gScreenHeight / tileHeight;
+    remW = gScreenWidth - tileWidth * cols;
+    remH = gScreenHeight - tileHeight * rows;
     if (remW > 0) {
         cols++;
     }
@@ -96,7 +95,7 @@ void fbBuildTileTable(s32 arg0, s32 arg1) {
     if (remH != 0) {
         y = gScreenHeight - remH;
     } else {
-        y = gScreenHeight - arg1;
+        y = gScreenHeight - tileHeight;
     }
     for (row = 0; row < rows; row++) {
         x = 0;
@@ -105,45 +104,45 @@ void fbBuildTileTable(s32 arg0, s32 arg1) {
             if (remW != 0 && col == cols - 1) {
                 gFbTileTable[idx].width = remW;
             } else {
-                gFbTileTable[idx].width = arg0;
+                gFbTileTable[idx].width = tileWidth;
             }
             if (remH != 0 && row == 0) {
                 gFbTileTable[idx].height = remH;
             } else {
-                gFbTileTable[idx].height = arg1;
+                gFbTileTable[idx].height = tileHeight;
             }
-            x += arg0;
+            x += tileWidth;
             idx++;
         }
-        y -= arg1;
+        y -= tileHeight;
     }
 }
 
 typedef struct MeshEntry {
-    u32 unk0;
+    u32 v0;
     u8 pad[0x18];
 } MeshEntry;
 
 typedef struct MeshBlobTail {
-    u32 *unk0;
-    s32 *unk4;
-    u8 *unk8;
+    u32 *counts;
+    s32 *indices;
+    u8 *entries;
 } MeshBlobTail;
 
 typedef struct MeshBlobHeader {
-    s32 unk0;
-    s32 unk4;
-    u8 *unk8;
-    u8 *unkC;
-    void *unk10;
-    void *unk14;
-    u32 *unk18;
-    s32 *unk1C;
-    s32 *unk20;
+    s32 vertexCount;
+    s32 cellCount;
+    u8 *vertices;
+    u8 *cells;
+    void *screenVertsA;
+    void *screenVertsB;
+    u32 *columnCounts;
+    s32 *columnEnds;
+    s32 *columnStarts;
 } MeshBlobHeader;
 
 
-s32 hudDrawTextWithShadow(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **arg2, s32 **arg3) {
+s32 hudDrawTextWithShadow(MeshBlobHeader *blob, MeshBlobHeader **outMesh, MeshBlobTail **outAnim, s32 **outEnd) {
     s32 count;
     s32 k;
     s32 sum;
@@ -152,89 +151,89 @@ s32 hudDrawTextWithShadow(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobT
     u32 *r;
     MeshEntry *q;
 
-    if (arg0 == NULL) {
+    if (blob == NULL) {
         return 0;
     }
-    if (arg1 == NULL) {
+    if (outMesh == NULL) {
         return 0;
     }
     gFbTileTable = heapAlloc(0x708);
-    arg0->unk10 = heapAlloc(arg0->unk0 * 0x10);
-    arg0->unk14 = heapAlloc(arg0->unk0 * 0x10);
-    if (arg0 && arg0) {} // FAKE: block split after the 3rd heapAlloc frees $v0 for walker p
+    blob->screenVertsA = heapAlloc(blob->vertexCount * 0x10);
+    blob->screenVertsB = heapAlloc(blob->vertexCount * 0x10);
+    if (blob && blob) {} // FAKE: block split after the 3rd heapAlloc frees $v0 for walker p
     count = 1;
-    arg0->unk8 = (u8 *)arg0 + 0x2C;
-    arg0->unkC = arg0->unk8 + arg0->unk0 * 0xC + ((s32)arg0->unk8 * 0); // FAKE: no-code extra reference of the arg0+0x2C value (colours it a0 before the others)
-    arg0->unk18 = (u32 *)(arg0->unkC + arg0->unk4 * 0x1C + ((s32)arg0->unkC * 0)); // FAKE: no-code extra reference of the unkC value (colours it a1)
-    p = arg0->unk18;
+    blob->vertices = (u8 *)blob + 0x2C;
+    blob->cells = blob->vertices + blob->vertexCount * 0xC + ((s32)blob->vertices * 0); // FAKE: no-code extra reference of the blob+0x2C value (colours it a0 before the others)
+    blob->columnCounts = (u32 *)(blob->cells + blob->cellCount * 0x1C + ((s32)blob->cells * 0)); // FAKE: no-code extra reference of the cells value (colours it a1)
+    p = blob->columnCounts;
     while (*p++ != 0) {
         count++;
     }
-    arg0->unk20 = (s32 *)arg0->unk18 + count;
-    arg0->unk1C = arg0->unk20 + count;
-    *arg1 = arg0;
-    if (arg2 != NULL) {
-        b = (MeshBlobTail *)(arg0->unk1C + count);
-        b->unk8 = (u8 *)(b + 1);
-        q = (MeshEntry *)b->unk8;
+    blob->columnStarts = (s32 *)blob->columnCounts + count;
+    blob->columnEnds = blob->columnStarts + count;
+    *outMesh = blob;
+    if (outAnim != NULL) {
+        b = (MeshBlobTail *)(blob->columnEnds + count);
+        b->entries = (u8 *)(b + 1);
+        q = (MeshEntry *)b->entries;
         if (gFbTileTable && gFbTileTable) {} // FAKE: block split steering loop-2 walker regalloc
         count = 1;
-        while ((q++)->unk0 != 0) {
+        while ((q++)->v0 != 0) {
             count++;
         }
         k = 1;
-        b->unk0 = r = (u32 *)(b->unk8 + count * 0x1C);
+        b->counts = r = (u32 *)(b->entries + count * 0x1C);
         while (*r++ != -1) {
             k++;
             if (r == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
         count = 0;
-        b->unk4 = (s32 *)((u8 *)b->unk0 + k * 4);
+        b->indices = (s32 *)((u8 *)b->counts + k * 4);
         sum = 0;
-        if (b->unk0[0] != -1) {
+        if (b->counts[0] != -1) {
             do {
-                b->unk4[count] = (s32)b->unk4 + k * 4 + sum * 2;
-                sum += b->unk0[count];
+                b->indices[count] = (s32)b->indices + k * 4 + sum * 2;
+                sum += b->counts[count];
                 count++;
-            } while (b->unk0[count] != -1);
+            } while (b->counts[count] != -1);
         }
-        *arg2 = b;
+        *outAnim = b;
     }
-    if (arg3 != NULL) {
-        if (arg2 == NULL) {
-            *arg3 = arg0->unk1C + count;
+    if (outEnd != NULL) {
+        if (outAnim == NULL) {
+            *outEnd = blob->columnEnds + count;
         } else {
-            *arg3 = b->unk4 + count;
+            *outEnd = b->indices + count;
         }
     }
     return 1;
 }
 
-typedef struct MeshRangeView { s32 unk0, unk4, unk8; u8 *unkC; s32 unk10, unk14; s32 *unk18, *unk1C, *unk20; } MeshRangeView;
-typedef struct MeshTriEntry { s32 unk0, unk4, unk8; u8 padC[0x10]; } MeshTriEntry;
-s32 meshComputeVertexRanges(MeshRangeView *arg0) {
+typedef struct MeshRangeView { s32 vertexCount, cellCount, vertices; u8 *cells; s32 screenVertsA, screenVertsB; s32 *columnCounts, *columnEnds, *columnStarts; } MeshRangeView;
+typedef struct MeshTriEntry { s32 v0, v1, v2; u8 padC[0x10]; } MeshTriEntry;
+s32 meshComputeVertexRanges(MeshRangeView *mesh) {
     MeshTriEntry *e;
-    s32 new_var;
+    s32 v2;
     s32 min;
     s32 off;
     s32 max;
     s32 i;
     s32 k;
     k = 0;
-    min = 0;
+    min = 0; // FAKE: dead init (min is set before every use) steers regalloc
     off = 0;
-    while (arg0->unk18[k]) {
-        e = (MeshTriEntry *)(arg0->unkC + off);
-        new_var = e->unk8;
-        min = max = e->unk0;
-        for (i = 0; i < arg0->unk18[k]; i++, off += 0x1C, e++) {
-            if (e->unk0 > max) max = e->unk0; else if (e->unk0 < min) min = e->unk0;
-            if (e->unk4 > max) max = e->unk4; else if (e->unk4 < min) min = e->unk4;
-            new_var = e->unk8;
-            if (new_var > max) max = new_var; else if (new_var < min) min = new_var;
+    while (mesh->columnCounts[k]) {
+        e = (MeshTriEntry *)(mesh->cells + off);
+        v2 = e->v2; // FAKE: dead pre-loop load of the third vertex steers regalloc
+        min = max = e->v0;
+        for (i = 0; i < mesh->columnCounts[k]; i++, off += 0x1C, e++) {
+            if (e->v0 > max) max = e->v0; else if (e->v0 < min) min = e->v0;
+            if (e->v1 > max) max = e->v1; else if (e->v1 < min) min = e->v1;
+            v2 = e->v2;
+            if (v2 > max) max = v2; else if (v2 < min) min = v2;
         }
-        arg0->unk20[k] = min;
-        arg0->unk1C[k] = max;
+        mesh->columnStarts[k] = min;
+        mesh->columnEnds[k] = max;
         k++;
     }
     return 1;
@@ -247,7 +246,7 @@ typedef struct MeshTexInfo {
     s32 offset, width, height;
 } MeshTexInfo;
 typedef struct MeshInfo {
-    s32 vertex_count, unk4;
+    s32 vertex_count, cellCount;
     f32 *vertices;
     MeshCell *cells;
     u8 *screen_vertices[2];
@@ -257,40 +256,40 @@ extern MeshTexInfo D_80754F80[];
 extern u16 D_80754FC8[];
 s16 func_8070C200(f32);
 
-void meshDrawTextured(Gfx **arg0, MeshInfo *arg1, u8 *arg2) {
-    Gfx *glist = *arg0;
+void meshDrawTextured(Gfx **gdl, MeshInfo *mesh, u8 *framebuffer) {
+    Gfx *glist = *gdl;
     s32 j, k, row, texture, prev, base, count;
 
-    for (j = 0; j < arg1->vertex_count; j++) {
-        ((s16 *)(arg1->screen_vertices[gGfxBufferIndex] + j * 0x10))[0] = func_8070C200(arg1->vertices[j * 3]);
-        ((s16 *)(arg1->screen_vertices[gGfxBufferIndex] + j * 0x10))[1] = func_8070C200(arg1->vertices[j * 3 + 1]);
-        ((s16 *)(arg1->screen_vertices[gGfxBufferIndex] + j * 0x10))[2] = func_8070C200(arg1->vertices[j * 3 + 2]);
+    for (j = 0; j < mesh->vertex_count; j++) {
+        ((s16 *)(mesh->screen_vertices[gGfxBufferIndex] + j * 0x10))[0] = func_8070C200(mesh->vertices[j * 3]);
+        ((s16 *)(mesh->screen_vertices[gGfxBufferIndex] + j * 0x10))[1] = func_8070C200(mesh->vertices[j * 3 + 1]);
+        ((s16 *)(mesh->screen_vertices[gGfxBufferIndex] + j * 0x10))[2] = func_8070C200(mesh->vertices[j * 3 + 2]);
     }
     k = 0;
-    for (row = 0; arg1->column_counts[row] != 0; row++) {
+    for (row = 0; mesh->column_counts[row] != 0; row++) {
         prev = -0x63;
-        base = arg1->column_starts[row];
-        count = arg1->column_ends[row] - base + 1;
-        gSPVertex(glist++, osVirtualToPhysical(arg1->screen_vertices[gGfxBufferIndex] + base * 0x10), count, 0);
-        for (j = 0; j < arg1->column_counts[row]; j++) {
-            texture = arg1->cells[k].texture;
+        base = mesh->column_starts[row];
+        count = mesh->column_ends[row] - base + 1;
+        gSPVertex(glist++, osVirtualToPhysical(mesh->screen_vertices[gGfxBufferIndex] + base * 0x10), count, 0);
+        for (j = 0; j < mesh->column_counts[row]; j++) {
+            texture = mesh->cells[k].texture;
             if (texture != prev) {
                 prev = texture;
                 if (texture < 0) {
                     texture = -1 - texture;
                     gDPLoadTextureBlock(glist++, D_80754FC8 + D_80754F80[texture].offset, G_IM_FMT_RGBA, G_IM_SIZ_16b, D_80754F80[texture].width, D_80754F80[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                 } else {
-                    gDPLoadTextureTile(glist++, arg2 + gFbTileTable[texture].offset * 2, G_IM_FMT_RGBA, G_IM_SIZ_16b, 320, 0, 0, 0, gFbTileTable[texture].width, gFbTileTable[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    gDPLoadTextureTile(glist++, framebuffer + gFbTileTable[texture].offset * 2, G_IM_FMT_RGBA, G_IM_SIZ_16b, 320, 0, 0, 0, gFbTileTable[texture].width, gFbTileTable[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                 }
             }
-            gSPModifyVertex(glist++, arg1->cells[k].v0 - base, G_MWO_POINT_ST, arg1->cells[k].st0);
-            gSPModifyVertex(glist++, arg1->cells[k].v1 - base, G_MWO_POINT_ST, arg1->cells[k].st1);
-            gSPModifyVertex(glist++, arg1->cells[k].v2 - base, G_MWO_POINT_ST, arg1->cells[k].st2);
-            gSP1Triangle(glist++, arg1->cells[k].v0 - base, arg1->cells[k].v1 - base, arg1->cells[k].v2 - base, 0);
+            gSPModifyVertex(glist++, mesh->cells[k].v0 - base, G_MWO_POINT_ST, mesh->cells[k].st0);
+            gSPModifyVertex(glist++, mesh->cells[k].v1 - base, G_MWO_POINT_ST, mesh->cells[k].st1);
+            gSPModifyVertex(glist++, mesh->cells[k].v2 - base, G_MWO_POINT_ST, mesh->cells[k].st2);
+            gSP1Triangle(glist++, mesh->cells[k].v0 - base, mesh->cells[k].v1 - base, mesh->cells[k].v2 - base, 0);
             k++;
         }
     }
-    *arg0 = glist;
+    *gdl = glist;
 }
 
 typedef f32 AnimMatrix[4][4];
@@ -302,8 +301,8 @@ typedef struct AnimVec3 {
 } AnimVec3;
 
 typedef struct AnimModel {
-    s32 unk0;
-    s32 unk4;
+    s32 vertexCount;
+    s32 cellCount;
     AnimVec3 *vertices;
 } AnimModel;
 
@@ -324,17 +323,15 @@ typedef struct AnimTable {
 } AnimTable;
 
 
-#define ANIM_MODEL ((AnimModel *)arg0)
-#define ANIM_TABLE ((AnimTable *)arg1)
 
-void meshApplyAnimation(void *arg0, s32 arg1, s32 frame) {
+void meshApplyAnimation(AnimModel *model, AnimTable *table, s32 frame) {
     u32 sidx;
     u32 didx;
-    AnimMatrix m1B8;
-    AnimMatrix m178;
-    AnimMatrix m138;
-    AnimMatrix mF8;
-    AnimMatrix mB8;
+    AnimMatrix lookMtx;
+    AnimMatrix rotMtx;
+    AnimMatrix lookInvMtx;
+    AnimMatrix xformMtx;
+    AnimMatrix tmpMtx;
     s16 idx;
     s32 i;
     s32 count;
@@ -351,64 +348,63 @@ void meshApplyAnimation(void *arg0, s32 arg1, s32 frame) {
     f32 z;
     u32 j;
     s32 kindv;
-    if (i && i) {}
+    if (i && i) {} // FAKE: dead read of i (uninitialised here) steers regalloc of the entry walker
 
     idx = 0;
-    for (; ANIM_TABLE->entries[idx].kind != 0; idx++) {
+    for (; table->entries[idx].kind != 0; idx++) {
         end = frame;
-        if (frame < ANIM_TABLE->entries[idx].start) {
+        if (frame < table->entries[idx].start) {
             continue;
         }
-        kindv = ANIM_TABLE->entries[idx].kind;
-        if (i && i) {}
-        if (ANIM_TABLE->entries[idx].end < frame) {
-            end = ANIM_TABLE->entries[idx].end;
+        kindv = table->entries[idx].kind;
+        if (i && i) {} // FAKE: dead read of i steers regalloc of the entry walker
+        if (table->entries[idx].end < frame) {
+            end = table->entries[idx].end;
         }
         switch (kindv) {
         case 1:
-                sidx = ANIM_TABLE->entries[idx].source;
-                didx = ANIM_TABLE->entries[idx].destination;
-                src = &ANIM_MODEL->vertices[sidx];
-                dst = &ANIM_MODEL->vertices[didx];
-                dx = dst->x - src->x;
-                if (1) {
-                    dy = dst->y - src->y;
-                    dz = dst->z - src->z;
-                    angle = (f32)(ANIM_TABLE->entries[idx].start - end) * ANIM_TABLE->entries[idx].scale;
-                }
-                mtxLookDirPosF(m1B8, m138,
+                sidx = table->entries[idx].source;
+                didx = table->entries[idx].destination;
+                src = &model->vertices[sidx];
+                dst = &model->vertices[didx];
+                x = src->x;
+                dx = dst->x - x;
+                dy = dst->y - src->y;
+                dz = dst->z - src->z;
+                angle = (f32)(table->entries[idx].start - end) * table->entries[idx].scale;
+                mtxLookDirPosF(lookMtx, lookInvMtx,
                     -dx, -dy, -dz,
-                    -src->x, -src->y, -src->z);
-                mtxRotateZDegF(m178, angle);
-                mtxMulAffineF(m178, m1B8, mB8);
-                mtxMulAffineF(m138, mB8, mF8);
-                count = ANIM_TABLE->counts[ANIM_TABLE->entries[idx].group];
-                indices = ANIM_TABLE->indices[ANIM_TABLE->entries[idx].group];
+                    -x, -src->y, -src->z);
+                mtxRotateZDegF(rotMtx, angle);
+                mtxMulAffineF(rotMtx, lookMtx, tmpMtx);
+                mtxMulAffineF(lookInvMtx, tmpMtx, xformMtx);
+                count = table->counts[table->entries[idx].group];
+                indices = table->indices[table->entries[idx].group];
                 for (i = 0; i < count; i++) {
                     j = indices[i];
-                    x = ANIM_MODEL->vertices[j].x;
-                    y = ANIM_MODEL->vertices[j].y;
-                    z = ANIM_MODEL->vertices[j].z;
-                    ANIM_MODEL->vertices[j].x = x * mF8[0][0] + y * mF8[1][0] + z * mF8[2][0] + mF8[3][0];
-                    ANIM_MODEL->vertices[j].y = x * mF8[0][1] + y * mF8[1][1] + z * mF8[2][1] + mF8[3][1];
-                    ANIM_MODEL->vertices[j].z = x * mF8[0][2] + y * mF8[1][2] + z * mF8[2][2] + mF8[3][2];
+                    x = model->vertices[j].x;
+                    y = model->vertices[j].y;
+                    z = model->vertices[j].z;
+                    model->vertices[j].x = x * xformMtx[0][0] + y * xformMtx[1][0] + z * xformMtx[2][0] + xformMtx[3][0];
+                    model->vertices[j].y = x * xformMtx[0][1] + y * xformMtx[1][1] + z * xformMtx[2][1] + xformMtx[3][1];
+                    model->vertices[j].z = x * xformMtx[0][2] + y * xformMtx[1][2] + z * xformMtx[2][2] + xformMtx[3][2];
                 }
             break;
         case 2:
-            sidx = ANIM_TABLE->entries[idx].source;
-            didx = ANIM_TABLE->entries[idx].destination;
-            ANIM_MODEL->vertices[sidx].x = ANIM_MODEL->vertices[didx].x;
-            ANIM_MODEL->vertices[sidx].y = ANIM_MODEL->vertices[didx].y;
-            ANIM_MODEL->vertices[sidx].z = ANIM_MODEL->vertices[didx].z;
+            sidx = table->entries[idx].source;
+            didx = table->entries[idx].destination;
+            model->vertices[sidx].x = model->vertices[didx].x;
+            model->vertices[sidx].y = model->vertices[didx].y;
+            model->vertices[sidx].z = model->vertices[didx].z;
             break;
         }
     }
 }
 
-void fbCopySetAlpha(s32 *arg0, s32 *arg1) {
+void fbCopySetAlpha(s32 *dstBuf, s32 *srcBuf) {
     s32 i;
-    s32 *src = arg1;
-    s32 *dst = arg0;
+    s32 *src = srcBuf; // FAKE: parameter copies steer regalloc
+    s32 *dst = dstBuf;
 
     for (i = 0; i < (gScreenWidth * gScreenHeight) / 16; i++) {
         dst[0] = src[0] | 0x10001;
@@ -425,17 +421,17 @@ void fbCopySetAlpha(s32 *arg0, s32 *arg1) {
 }
 
 typedef struct TransitionBuffers {
-    s32 unk0;
-    s32 unk4;
-    void *unk8;
-    void *unkC;
-    void *unk10;
-    void *unk14;
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-    s32 unk24;
-    s32 unk28;
+    s32 vertexCount;
+    s32 cellCount;
+    void *vertices;
+    void *cells;
+    void *screenVertsA;
+    void *screenVertsB;
+    s32 columnCounts;
+    s32 columnEnds;
+    s32 columnStarts;
+    s32 tileWidth;
+    s32 tileHeight;
 } TransitionBuffers;
 
 extern u8 *gGfxCurrentFrameBuffer;
@@ -445,23 +441,23 @@ extern s32 D_8076A088;
 extern s32 D_8076A08C;
 extern u8 D_8076A0A4;
 extern u8 D_8076A0B2;
-extern Mtx D_80767CE8;
+extern u8 D_80767CE8[];
 extern f32 gScreenFadeProgress;
 extern TransitionBuffers *D_807FD9A8;
-extern s32 D_807FD9B0;
-extern s32 D_807FD9B8;
+extern void *D_807FD9B0;
+extern void *D_807FD9B8;
 
 
-void transitionRunFrame(s32 arg0, s32 arg1) {
-    Gfx *sp34;
-    Gfx *sp30;
+void transitionRunFrame(s32 map, s32 exit) {
+    Gfx *dl;
+    Gfx *subDl;
 
     schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, 1, 0x4D2, 1);
     gGfxBufferIndex ^= 1;
     gFrameCounter += 1;
-    gGfxCurrentFrameBuffer = (gGfxBufferIndex * 0x11B0) + (u8 *)&D_80767CE8;
-    sp30 = (Gfx *)(gGfxCurrentFrameBuffer + 0xDB0);
-    switch (*(u8 *)&D_807FD9BC) {
+    gGfxCurrentFrameBuffer = D_80767CE8 + gGfxBufferIndex * 0x11B0;
+    subDl = (Gfx *)(gGfxCurrentFrameBuffer + 0xDB0);
+    switch (D_807FD9BC) {
     case 1:
         break;
     case 0:
@@ -470,26 +466,26 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
         break;
     }
     if ((gScreenRenderFlags & 1) && (gScreenFadeProgress == 31.0f)) {
-        sp34 = gGfxTaskBuffers[gGfxBufferIndex];
+        dl = gGfxTaskBuffers[gGfxBufferIndex];
         if (D_8076A0B2 == 1) {
             gGameMode = D_807444F4;
         }
     } else {
-        transitionBeginDisplayList(gGfxCurrentFrameBuffer, &sp34);
-        if (transitionRender(&sp34, D_807FD9B8, D_807FD9B0) != 0) {
+        transitionBeginDisplayList(gGfxCurrentFrameBuffer, &dl);
+        if (transitionRender(&dl, D_807FD9B8, D_807FD9B0) != 0) {
             switch (gNextGameMode) {
             case 1:
                 osViBlack(1);
-                mapRequestTransition(arg0, arg1);
+                mapRequestTransition(map, exit);
                 gScreenFadeProgress = 31.0f;
                 gNextGameMode = 2;
                 break;
             case 2:
-                heapFreeDeferred((void *)D_807FD9B0);
-                heapFreeDeferred(D_807FD9A8->unk8);
+                heapFreeDeferred(D_807FD9B0);
+                heapFreeDeferred(D_807FD9A8->vertices);
                 heapFreeDeferred(gFbTileTable);
-                heapFreeDeferred(D_807FD9A8->unk10);
-                heapFreeDeferred(D_807FD9A8->unk14);
+                heapFreeDeferred(D_807FD9A8->screenVertsA);
+                heapFreeDeferred(D_807FD9A8->screenVertsB);
                 assetFreeBuffer(D_807FD9B8, 0x24B, 0x4A);
                 if (((gGameMode = D_807444F4) == 1) && (gGlobalOverlayFlags & 1)) {
                     camRestartPath();
@@ -507,11 +503,11 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
         }
     }
     if ((D_8076A0A4 != 0) && (gGameMode != 6)) {
-        gfxEndDisplayList(sp34, gGfxBufferIndex, &D_8076A088, 0);
-        gfxEndSubDisplayList(sp30, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
+        gfxEndDisplayList(dl, gGfxBufferIndex, &D_8076A088, 0);
+        gfxEndSubDisplayList(subDl, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
         return;
     }
-    gfxEndDisplayList(sp34, gGfxBufferIndex, &D_8076A088, 1);
+    gfxEndDisplayList(dl, gGfxBufferIndex, &D_8076A088, 1);
 }
 
 extern void *D_8076A080;
@@ -519,19 +515,19 @@ extern u16 D_8076A09C;
 extern Gfx D_1000090[];
 
 
-void transitionBeginDisplayList(void *arg0, Gfx **arg1) {
+void transitionBeginDisplayList(void *frame, Gfx **outDl) {
     Gfx *dl = gGfxTaskBuffers[gGfxBufferIndex];
 
     gSPSegment(dl++, 0, 0);
-    gSPSegment(dl++, 2, osVirtualToPhysical(arg0));
+    gSPSegment(dl++, 2, osVirtualToPhysical(frame));
     gSPSegment(dl++, 1, osVirtualToPhysical(D_8076A080));
     gSPDisplayList(dl++, D_1000090);
     dl = gfxClearZBuffer(gfxSetViewportDisplayList(dl));
     gDPPipeSync(dl++);
     gDPSetCycleType(dl++, G_CYC_1CYCLE);
-    guTranslate((Mtx *)arg0 + 6, 0.0f, 0.0f, 0.0f);
-    guLookAt((Mtx *)arg0 + 8, 0.0f, 0.0f, 200.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-    guPerspective((Mtx *)arg0, &D_8076A09C, 61.9f, 1.3333334f, 10.0f, 1000.0f, 1.0f);
+    guTranslate((Mtx *)frame + 6, 0.0f, 0.0f, 0.0f);
+    guLookAt((Mtx *)frame + 8, 0.0f, 0.0f, 200.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    guPerspective((Mtx *)frame, &D_8076A09C, 61.9f, 1.3333334f, 10.0f, 1000.0f, 1.0f);
     gDPPipeSync(dl++);
     dl = gfxSetFrameBufferColorImage(dl);
     gDPSetColorDither(dl++, G_CD_MAGICSQ);
@@ -543,13 +539,13 @@ void transitionBeginDisplayList(void *arg0, Gfx **arg1) {
     gDPFillRectangle(dl++, 0, 0, gScreenWidth - 1, gScreenHeight - 1);
     gSPPerspNormalize(dl++, D_8076A09C);
     gSPClipRatio(dl++, FRUSTRATIO_2);
-    *arg1 = dl;
+    *outDl = dl;
 }
 
 extern s32 gTransitionProgress;
 extern s32 D_8075506C;
 extern void *D_807FD9A4;
-extern s32 D_807FD9AC;
+extern AnimTable *D_807FD9AC;
 extern s32 *gFramebuffers[];
 
 
@@ -564,13 +560,13 @@ void transitionInit(void) {
         break;
     }
     D_807FD9B8 = assetLoad(0x13, 1, 1, 1);
-    D_807FD9B0 = (s32)heapAlloc(gScreenWidth * gScreenHeight * 2);
-    fbCopySetAlpha((s32 *)D_807FD9B0, gFramebuffers[gGfxBufferIndex]);
-    hudDrawTextWithShadow((void *)D_807FD9B8, (void *)&D_807FD9A8, (void *)&D_807FD9AC, 0);
+    D_807FD9B0 = heapAlloc(gScreenWidth * gScreenHeight * 2);
+    fbCopySetAlpha(D_807FD9B0, gFramebuffers[gGfxBufferIndex]);
+    hudDrawTextWithShadow(D_807FD9B8, (void *)&D_807FD9A8, (void *)&D_807FD9AC, 0);
     meshComputeVertexRanges((void *)D_807FD9A8);
-    D_807FD9A4 = D_807FD9A8->unk8;
-    D_807FD9A8->unk8 = heapAlloc(D_807FD9A8->unk0 * 0xC);
-    fbBuildTileTable(D_807FD9A8->unk24, D_807FD9A8->unk28);
+    D_807FD9A4 = D_807FD9A8->vertices;
+    D_807FD9A8->vertices = heapAlloc(D_807FD9A8->vertexCount * 0xC);
+    fbBuildTileTable(D_807FD9A8->tileWidth, D_807FD9A8->tileHeight);
 }
 
 typedef struct TransitionDitherMask {
@@ -579,10 +575,10 @@ typedef struct TransitionDitherMask {
 
 extern TransitionDitherMask D_80755074;
 
-void transitionMaskFramebuffer(u16 *arg0) {
+void transitionMaskFramebuffer(u16 *framebuffer) {
     TransitionDitherMask temp = D_80755074;
     s32 i;
-    u16 *pixels = arg0 + 0x9D;
+    u16 *pixels = framebuffer + 0x9D;
     s32 t = gTransitionProgress - 5;
     s32 count = (t * 0xF0) / 0x50;
 
@@ -608,8 +604,8 @@ void transitionMaskFramebuffer(u16 *arg0) {
 
 extern u8 sTransitionState;
 
-void transitionSetState(u8 arg0) {
-    sTransitionState = arg0;
+void transitionSetState(u8 state) {
+    sTransitionState = state;
 }
 
 u8 transitionGetState(void) {
@@ -638,17 +634,17 @@ void transitionSetAudioVolume(f32 volumeScale, s32 isGroupActive, s32 *channels)
             seqSetChannelVolumeScale(0, volumeScale);
         }
     } else {
-        n_alSndpSetGroupVol(3, (f64)(rawVol * gSfxVolume) / 40);
+        n_alSndpSetGroupVol(3, (f64)(rawVol * gSfxVolume) / 40.0);
         if (D_807550A4 != 0) {
             D_807550A4 = 0;
-            n_alSndpSetGroupVol(2, (f64)(gSfxVolume * 25000) / 40.0f);
-            n_alSndpSetGroupVol(1, (f64)(gSfxVolume * 25000) / 4e1);
+            n_alSndpSetGroupVol(2, (f64)(gSfxVolume * 25000) / 40.0);
+            n_alSndpSetGroupVol(1, (f64)(gSfxVolume * 25000) / 40.0);
         }
     }
     for (i = 0; channels != 0 && channels[i] != 0; i++) {
         seqSetChannelVolumeScale(channels[i], volumeScale);
     }
-    if (D_807550A4 && D_807550A4) {}
+    if (D_807550A4 && D_807550A4) {} // FAKE: dead read keeps &D_807550A4 from being CSE'd into $v0 for the isGroupActive store
     osSetThreadPri(0, oldPri);
 }
 
@@ -658,12 +654,12 @@ typedef struct TransitionChannels {
 
 extern TransitionChannels D_807550A8;
 extern s32 D_807FD9A0;
-extern s32 D_807FD9C0;
+extern void *D_807FD9C0;
 extern Gfx D_1000020[];
 extern Mtx D_2000000;
 extern Mtx D_2000200;
 
-void n_alSndpPostEvent();
+
 
 #define TRANS_RAW(pkt, a, b)              \
     {                                    \
@@ -674,7 +670,7 @@ void n_alSndpPostEvent();
 #define TRANS_MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define TRANS_MIN(a, b) (((a) < (b)) ? (a) : (b))
 
-u8 transitionRender(Gfx **gdl, s32 frameIndex, s32 mode) {
+u8 transitionRender(Gfx **gdl, void *asset, void *framebuffer) {
     Gfx *glist;
     Gfx *start;
     Gfx *out;
@@ -698,21 +694,21 @@ u8 transitionRender(Gfx **gdl, s32 frameIndex, s32 mode) {
     if (D_807FD9C8 != 0) {
         if (gNextGameMode == 1) {
             value = (f64)gTransitionProgress - 20.0;
-            D_807FD9C4 = (f32)((0.9 / ((value * 0.001 * value) + 1.0)) + 0.6);
+            D_807FD9C4.f = (f32)((0.9 / ((value * 0.001 * value) + 1.0)) + 0.6);
             if (gTransitionProgress < 60) {
                 volume = 0x7FFF;
             } else {
                 volume = 0x7FFF - (((gTransitionProgress - 60) * 0x7FFF) / 60);
             }
         } else {
-            D_807FD9C4 = (f32)(((1.5 / (((((f32)(120 - gTransitionProgress) - 40.0f)) * 0.001 * (((f32)(120 - gTransitionProgress) - 40.0f))) + 1.0)) + (0.0002 * ((f32)(120 - gTransitionProgress) - 30.0f) * ((f32)(120 - gTransitionProgress) - 30.0f))) - 0.2);
+            D_807FD9C4.f = (f32)(((1.5 / (((((f32)(120 - gTransitionProgress) - 40.0f)) * 0.001 * (((f32)(120 - gTransitionProgress) - 40.0f))) + 1.0)) + (0.0002 * ((f32)(120 - gTransitionProgress) - 30.0f) * ((f32)(120 - gTransitionProgress) - 30.0f))) - 0.2);
             if ((f32)(120 - gTransitionProgress) < 110.0f) {
                 volume = 0x7FFF;
             } else {
                 volume = (s32)(32767.0f - (((f32)(120 - gTransitionProgress) - 110.0f) * 32767.0f / 10.0f));
             }
         }
-        n_alSndpPostEvent(D_807FD9C8, 0x10, *(s32 *)&D_807FD9C4, volume);
+        n_alSndpPostEvent(D_807FD9C8, 0x10, D_807FD9C4.bits);
         n_alSndpPostEvent(D_807FD9C8, 8, volume);
     }
     {
@@ -728,19 +724,19 @@ u8 transitionRender(Gfx **gdl, s32 frameIndex, s32 mode) {
     gDPSetTexturePersp(glist++, G_TP_PERSP);
     gSPDisplayList(glist++, D_1000020);
     gDPPipeSync(glist++);
-    for (i = 0; i < D_807FD9A8->unk0; i++) {
-        ((f32 *)D_807FD9A8->unk8)[i * 3] = ((f32 *)D_807FD9A4)[i * 3];
-        ((f32 *)D_807FD9A8->unk8)[i * 3 + 1] = ((f32 *)D_807FD9A4)[i * 3 + 1];
-        ((f32 *)D_807FD9A8->unk8)[i * 3 + 2] = ((f32 *)D_807FD9A4)[i * 3 + 2];
+    for (i = 0; i < D_807FD9A8->vertexCount; i++) {
+        ((f32 *)D_807FD9A8->vertices)[i * 3] = ((f32 *)D_807FD9A4)[i * 3];
+        ((f32 *)D_807FD9A8->vertices)[i * 3 + 1] = ((f32 *)D_807FD9A4)[i * 3 + 1];
+        ((f32 *)D_807FD9A8->vertices)[i * 3 + 2] = ((f32 *)D_807FD9A4)[i * 3 + 2];
     }
-    meshApplyAnimation(D_807FD9A8, D_807FD9AC, gTransitionProgress);
+    meshApplyAnimation((AnimModel *)D_807FD9A8, D_807FD9AC, gTransitionProgress);
     if (delta < 0) {
         D_807FD9A0 = ((gTransitionProgress * 0xF0) - 0x960) / 80;
     } else {
         D_807FD9A0 = ((gTransitionProgress * 0xF0) - 0x4B0) / 80;
     }
     if (gTransitionProgress >= 5 && gTransitionProgress < 0x56) {
-        transitionMaskFramebuffer((u16 *)mode);
+        transitionMaskFramebuffer(framebuffer);
     }
     if (gTransitionProgress >= 0x6D && (f64)gTransitionProgress <= 120.0) {
         D_8075506C = 0xDC - gTransitionProgress * 2;
@@ -754,7 +750,7 @@ u8 transitionRender(Gfx **gdl, s32 frameIndex, s32 mode) {
     gSPMatrix(glist++, matrix, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gDPSetColorDither(glist++, G_CD_DISABLE);
     gDPSetAlphaDither(glist++, G_AD_DISABLE);
-    meshDrawTextured(&glist, (MeshInfo *)D_807FD9A8, (u8 *)mode);
+    meshDrawTextured(&glist, (MeshInfo *)D_807FD9A8, framebuffer);
     gTransitionProgress += delta;
     D_807FD9C0 = assetLoad(0xE, 0x6A - TRANS_MIN(TRANS_MAX((s16)(D_807FD9A0 / 26), 0), 9), 1, 1);
     assetFreeBuffer(D_807FD9C0, 0x381, 0x4A);

@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_A8400_H
 #include "common.h"
 #include "actor.h"
-struct ActorStateView;
 struct ChainRowHead;
 struct DrawActor;
 struct DrawListHead;
@@ -11,6 +10,7 @@ struct MotionAngles;
 struct SpriteAnim;
 struct SpriteBehaviour;
 struct SpriteChainState;
+struct SpriteDrawNode;
 struct SpriteHolder;
 struct SpriteRow;
 struct SpriteVector;
@@ -18,10 +18,10 @@ struct SpriteVector;
 void func_806A3700(s32, s32);
 #endif
 #ifndef PROTO_SKIP_textBoxRenderNode
-void textBoxRenderNode(s32 *, void *, void *, void *);
+void textBoxRenderNode(Gfx **, struct DrawActor *, struct DrawListHead *, struct SpriteDrawNode *);
 #endif
 #ifndef PROTO_SKIP_renderAppendNodeChain
-void renderAppendNodeChain(s32 *, struct DrawActor *, struct DrawListHead *, u8, u8 *);
+void renderAppendNodeChain(Gfx **, struct DrawActor *, struct DrawListHead *, u8, u8 *);
 #endif
 #ifndef PROTO_SKIP_renderTextureSprite
 Gfx *renderTextureSprite(Gfx *, s32, u8, s32);
@@ -30,7 +30,7 @@ Gfx *renderTextureSprite(Gfx *, s32, u8, s32);
 void mathAddWaveOffset(f32 *, f32 *, f32, f32, struct MotionAngles *);
 #endif
 #ifndef PROTO_SKIP_textBoxRenderTail
-s32 textBoxRenderTail(s32, struct SpriteAnim *, s32);
+Gfx *textBoxRenderTail(Gfx *, struct SpriteAnim *, s32);
 #endif
 #ifndef PROTO_SKIP_textBoxRender
 Gfx *textBoxRender(Gfx *, Actor *);
@@ -39,7 +39,7 @@ Gfx *textBoxRender(Gfx *, Actor *);
 void textBoxRowUpdateIcon(struct SpriteRow *, struct SpriteVector *, struct SpriteVector *);
 #endif
 #ifndef PROTO_SKIP_textBoxRowUpdateNodes
-void textBoxRowUpdateNodes(f32, struct ActorStateView *, struct SpriteChainState *, struct SpriteHolder *, u8, u8 *);
+void textBoxRowUpdateNodes(f32, Actor *, struct SpriteChainState *, struct SpriteHolder *, u8, u8 *);
 #endif
 #ifndef PROTO_SKIP_textBoxUpdateRows
 void textBoxUpdateRows(Actor *);
