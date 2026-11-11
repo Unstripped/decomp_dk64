@@ -198,8 +198,28 @@ void bossArmydilloDebrisUpdate(void) {
     } while (i < 13);
 }
 
-void bossPieceSetState(u8 *pieceData, u8 index, u8 state) {
-    pieceData[index + 6] = state;
+// Armadillo piece/cannon animation state (BossArmydilloActor.unk17C): per piece a counter, a state and a bone angle.
+typedef struct BossPieceAnim {
+    /* 0x00 */ u8 unk0; // cannon-open animation done (bossArmydilloStep)
+    /* 0x01 */ u8 cnt[5];
+    /* 0x06 */ u8 state[5];
+    /* 0x0B */ u8 pad0B;
+    union {
+        /* 0x0C */ s16 ang[5]; // bone rotX per piece (bossPieceStep)
+        struct {
+            /* 0x0C */ u8 pad0C[4];
+            /* 0x10 */ s16 cannonAngA; // bone 2 rotX (bossArmydilloStep, bossPieceSetAngle(2, ...))
+            /* 0x12 */ s16 cannonAngB; // bone 3 rotX
+            /* 0x14 */ u8 pad14[2];
+        };
+    };
+    /* 0x16 */ u8 pad16[2];
+    /* 0x18 */ f32 f1[5];
+    /* 0x2C */ f32 f2[5];
+} BossPieceAnim; // size = 0x40
+
+void bossPieceSetState(BossPieceAnim *pieceData, u8 index, u8 state) {
+    pieceData->state[index] = state;
 }
 
 void bossPieceSetAngle(u8 index, s16 angle) {
@@ -211,24 +231,13 @@ void bossPieceSetAngle(u8 index, s16 angle) {
 }
 
 
-typedef struct BossPieceAnim {
-    u8 pad0;
-    u8 cnt[5];
-    u8 state[5];
-    u8 pad0B;
-    s16 ang[5];
-    u8 pad16[2];
-    f32 f1[5];
-    f32 f2[5];
-} BossPieceAnim;
 
 void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
 void sfxStopSlotSound();
 void actorScriptStart(void *, s32);
 
-#define OBJ ((BossPieceAnim *)animData)
 
-u8 bossPieceStep(u8 *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 endTimer) {
+u8 bossPieceStep(BossPieceAnim *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 endTimer) {
     u8 ret;
     BoneVector *p1;
     BoneVector *p2;
@@ -238,33 +247,33 @@ u8 bossPieceStep(u8 *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 e
     ret = 0;
     p1 = &boss->sub4->boneOffsets[pieceIdx];
     p2 = &boss->sub4->boneScales[pieceIdx];
-    switch (OBJ->state[pieceIdx]) {
+    switch (animData->state[pieceIdx]) {
     case 5:
-        OBJ->f1[pieceIdx] = 30.0f;
-        OBJ->ang[pieceIdx] = pieceIdx * 0x800 + 0x400;
-        OBJ->f2[pieceIdx] = 100.0f;
-        OBJ->state[pieceIdx] = 6;
+        animData->f1[pieceIdx] = 30.0f;
+        animData->ang[pieceIdx] = pieceIdx * 0x800 + 0x400;
+        animData->f2[pieceIdx] = 100.0f;
+        animData->state[pieceIdx] = 6;
     case 6:
-        p1->x += OBJ->f1[pieceIdx] * mathSinF(OBJ->ang[pieceIdx]);
-        p1->z += OBJ->f1[pieceIdx] * mathCosF(OBJ->ang[pieceIdx]);
-        p1->y += OBJ->f2[pieceIdx];
-        OBJ->f2[pieceIdx] -= 10.0f;
-        if (OBJ->f2[pieceIdx] < -200.0f) {
-            OBJ->f2[pieceIdx] = -200.0f;
+        p1->x += animData->f1[pieceIdx] * mathSinF(animData->ang[pieceIdx]);
+        p1->z += animData->f1[pieceIdx] * mathCosF(animData->ang[pieceIdx]);
+        p1->y += animData->f2[pieceIdx];
+        animData->f2[pieceIdx] -= 10.0f;
+        if (animData->f2[pieceIdx] < -200.0f) {
+            animData->f2[pieceIdx] = -200.0f;
         }
         if (p1->y < -300.0f) {
             p1->y = -300.0f;
-            if (-50.0f < OBJ->f2[pieceIdx]) {
+            if (-50.0f < animData->f2[pieceIdx]) {
                 tagBarrelSpawnNodeSmokePuffs(gCurrentActor, (u8)(pieceIdx + 1), 1.5f);
                 func_8068A784(gCurrentActor, pieceIdx);
-                OBJ->state[pieceIdx] = 0;
+                animData->state[pieceIdx] = 0;
                 ret = 1;
                 break;
             }
             if (!pieceIdx) {
-                sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x36, (u32)(120.0f - OBJ->f2[pieceIdx] > 255.0f ? 255.0f : 120.0f - OBJ->f2[pieceIdx]), 0x7F, 0x28, 0, 0.3f, 0);
+                sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x36, (u32)(120.0f - animData->f2[pieceIdx] > 255.0f ? 255.0f : 120.0f - animData->f2[pieceIdx]), 0x7F, 0x28, 0, 0.3f, 0);
             }
-            OBJ->f2[pieceIdx] *= -0.5;
+            animData->f2[pieceIdx] *= -0.5;
         }
         break;
     case 1:
@@ -280,15 +289,15 @@ u8 bossPieceStep(u8 *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 e
             break;
         }
         func_8068A764(gCurrentActor, pieceIdx);
-        OBJ->state[pieceIdx] = 2;
-        OBJ->cnt[pieceIdx] = 0;
+        animData->state[pieceIdx] = 2;
+        animData->cnt[pieceIdx] = 0;
     case 2:
-        if ((f32)++OBJ->cnt[pieceIdx] < maxTimer) {
-            f32 t = (f32)OBJ->cnt[pieceIdx] / maxTimer;
+        if ((f32)++animData->cnt[pieceIdx] < maxTimer) {
+            f32 t = (f32)animData->cnt[pieceIdx] / maxTimer;
             p1->x = D_800358E0[0][pieceIdx].x + (-D_800358E0[0][pieceIdx].x) * t;
             p1->y = D_800358E0[0][pieceIdx].y + (-D_800358E0[0][pieceIdx].y) * t;
             p1->z = D_800358E0[0][pieceIdx].z + (-D_800358E0[0][pieceIdx].z) * t;
-        } else if (maxTimer == (f32)OBJ->cnt[pieceIdx]) {
+        } else if (maxTimer == (f32)animData->cnt[pieceIdx]) {
             switch (pieceIdx) {
             case 0:
             case 2:
@@ -296,7 +305,7 @@ u8 bossPieceStep(u8 *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 e
                 sfxStopSlotSound(gCurrentActor, 1);
                 break;
             }
-        } else if (scriptTimer == (f32)OBJ->cnt[pieceIdx]) {
+        } else if (scriptTimer == (f32)animData->cnt[pieceIdx]) {
             switch (gCurrentActor->state) {
             case 0x27:
                 actorScriptStart(gCurrentActor, 0x264);
@@ -308,13 +317,13 @@ u8 bossPieceStep(u8 *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 e
                 actorScriptStart(gCurrentActor, 0x266);
                 break;
             }
-        } else if (scriptTimer + 1.0f == (f32)OBJ->cnt[pieceIdx]) {
+        } else if (scriptTimer + 1.0f == (f32)animData->cnt[pieceIdx]) {
             p2->x = 1.0f;
             p2->y = 1.0f;
             p2->z = 1.0f;
-        } else if (endTimer < (f32)OBJ->cnt[pieceIdx]) {
+        } else if (endTimer < (f32)animData->cnt[pieceIdx]) {
             ret = 1;
-            OBJ->state[pieceIdx] = 0;
+            animData->state[pieceIdx] = 0;
         }
         break;
     case 3:
@@ -326,21 +335,21 @@ u8 bossPieceStep(u8 *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 e
             sfxPlayActorSound(gCurrentActor, 0x127, 0, 1, 1, 0xFF, 1.1f, 0);
             break;
         }
-        OBJ->state[pieceIdx] = 4;
-        OBJ->cnt[pieceIdx] = endTimer;
+        animData->state[pieceIdx] = 4;
+        animData->cnt[pieceIdx] = endTimer;
     case 4:
-        if (maxTimer < (f32)--OBJ->cnt[pieceIdx]) {
+        if (maxTimer < (f32)--animData->cnt[pieceIdx]) {
             p2->x = p2->x + (D_800358E0[0][pieceIdx].rotX - p2->x) * 0.08;
             p2->y = p2->y + (D_800358E0[0][pieceIdx].rotY - p2->y) * 0.08;
             p2->z = p2->z + (D_800358E0[0][pieceIdx].rotZ - p2->z) * 0.09;
-        } else if (OBJ->cnt[pieceIdx] > 0) {
-            f32 t = (f32)OBJ->cnt[pieceIdx] / maxTimer;
+        } else if (animData->cnt[pieceIdx] > 0) {
+            f32 t = (f32)animData->cnt[pieceIdx] / maxTimer;
             p1->x = D_800358E0[0][pieceIdx].x + (-D_800358E0[0][pieceIdx].x) * t;
             p1->y = D_800358E0[0][pieceIdx].y + (-D_800358E0[0][pieceIdx].y) * t;
             p1->z = D_800358E0[0][pieceIdx].z + (-D_800358E0[0][pieceIdx].z) * t;
         } else {
             func_8068A784(gCurrentActor, pieceIdx);
-            OBJ->state[pieceIdx] = 0;
+            animData->state[pieceIdx] = 0;
             if (pieceIdx == 0 || pieceIdx == 2) {
                 sfxStopSlotSound(gCurrentActor, 1);
             }
@@ -381,7 +390,7 @@ void bossArmydilloAimTowardTarget(void) {
     }
 }
 
-void bossArmydilloOpenCannons(void *boss, u8 *pieceData, u8 *script, u8 *pieceList) {
+void bossArmydilloOpenCannons(void *boss, BossPieceAnim *pieceData, u8 *script, u8 *pieceList) {
     u8 i;
     u8 res;
 
@@ -415,7 +424,7 @@ void bossArmydilloOpenCannons(void *boss, u8 *pieceData, u8 *script, u8 *pieceLi
     }
 }
 
-void bossPieceListStep(void *boss, u8 *pieceData, u8 *script, u8 *pieceList) {
+void bossPieceListStep(void *boss, BossPieceAnim *pieceData, u8 *script, u8 *pieceList) {
     u8 i;
     u8 res;
 
@@ -489,17 +498,11 @@ typedef struct Boss3B_178 {
     u8 unk18;
     u8 unk19;
 } Boss3B_178;
-typedef struct Boss3B_Sp78 {
-    u8 unk0;
-    u8 pad1[0xF];
-    s16 unk10;
-    s16 unk12;
-} Boss3B_Sp78;
 // Armadillo boss actor: Actor plus its two component pointers (0x178 script state, 0x17C sprite/aim state).
 typedef struct BossArmydilloActor {
     /* 0x000 */ Actor base;
     /* 0x178 */ Boss3B_178 *unk178;
-    /* 0x17C */ Boss3B_Sp78 *unk17C;
+    /* 0x17C */ BossPieceAnim *unk17C;
 } BossArmydilloActor;
 
 extern Actor *gSpawnedActor;
@@ -546,7 +549,7 @@ u8 patrolPathStep(u8, u8);
 
 void bossArmydilloStep(void) {
     s32 pad_top[1];
-    Boss3B_Sp78 *state17C;
+    BossPieceAnim *state17C;
     u8 *scriptData;
     f32 pad_mid;
     u8 cannonBone;
@@ -768,8 +771,8 @@ void bossArmydilloStep(void) {
     case 0x2F:                                      /* switch 1 */
         switch (gCurrentActor->unk155) {                        /* switch 5 */
         case 0:                                     /* switch 5 */
-            if (state17C->unk10 >= -0x3FFF) {
-                state17C->unk10 -= 0x190;
+            if (state17C->cannonAngA >= -0x3FFF) {
+                state17C->cannonAngA -= 0x190;
                 if (gCurrentActor->soundSlots[1] == -1) {
                     sfxPlayActorSound(gCurrentActor, 0x1F0, 1, 1, 1, 0xFF, 1.0f, 0);
                 }
@@ -783,12 +786,12 @@ void bossArmydilloStep(void) {
                 gCurrentActor->speedXZ = 0.0f;
             }
             {
-                s16 val = state17C->unk10; // FAKE: block-scoped s16 copy taken before the unk12 store orders the unk10 loads for bossPieceSetAngle(2, ...) (direct re-read fdiff 1)
+                s16 val = state17C->cannonAngA; // FAKE: block-scoped s16 copy taken before the cannonAngB store orders the cannonAngA loads for bossPieceSetAngle(2, ...) (direct re-read fdiff 1)
 
-                state17C->unk12 = state17C->unk10;
+                state17C->cannonAngB = state17C->cannonAngA;
                 bossPieceSetAngle(2, val);
             }
-            bossPieceSetAngle(3, state17C->unk12);
+            bossPieceSetAngle(3, state17C->cannonAngB);
             break;
         case 1:                                     /* switch 5 */
             gBehaviourWorkState->unk2E += (gCurrentActor->state == 0x2F) ? 10 : 4;
@@ -851,10 +854,10 @@ void bossArmydilloStep(void) {
     case 0x2C:                                      /* switch 1 */
         {
             s32 pad;
-            state17C->unk10 = -state17C->unk10 * 0.1 + state17C->unk10;
-            state17C->unk12 = -state17C->unk12 * 0.1 + state17C->unk12;
-            bossPieceSetAngle(3, state17C->unk12);
-            bossPieceSetAngle(2, state17C->unk10);
+            state17C->cannonAngA = -state17C->cannonAngA * 0.1 + state17C->cannonAngA;
+            state17C->cannonAngB = -state17C->cannonAngB * 0.1 + state17C->cannonAngB;
+            bossPieceSetAngle(3, state17C->cannonAngB);
+            bossPieceSetAngle(2, state17C->cannonAngA);
         }
         /* fallthrough */
     case 0x2B:                                      /* switch 1 */

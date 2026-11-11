@@ -2,6 +2,7 @@
 #ifndef PROTO_BOSS_0_H
 #define PROTO_BOSS_0_H
 #include "common.h"
+struct BossPieceAnim;
 #ifndef PROTO_SKIP_bossArmydilloSpawnSmoke
 void bossArmydilloSpawnSmoke(void);
 #endif
@@ -12,22 +13,22 @@ void bossArmydilloInitArena(void);
 void bossArmydilloDebrisUpdate(void);
 #endif
 #ifndef PROTO_SKIP_bossPieceSetState
-void bossPieceSetState(u8 *, u8, u8);
+void bossPieceSetState(struct BossPieceAnim *, u8, u8);
 #endif
 #ifndef PROTO_SKIP_bossPieceSetAngle
 void bossPieceSetAngle(u8, s16);
 #endif
 #ifndef PROTO_SKIP_bossPieceStep
-u8 bossPieceStep(u8 *, u8, f32, f32, f32);
+u8 bossPieceStep(struct BossPieceAnim *, u8, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_bossArmydilloAimTowardTarget
 void bossArmydilloAimTowardTarget(void);
 #endif
 #ifndef PROTO_SKIP_bossArmydilloOpenCannons
-void bossArmydilloOpenCannons(void *, u8 *, u8 *, u8 *);
+void bossArmydilloOpenCannons(void *, struct BossPieceAnim *, u8 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_bossPieceListStep
-void bossPieceListStep(void *, u8 *, u8 *, u8 *);
+void bossPieceListStep(void *, struct BossPieceAnim *, u8 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_bossArmydilloHideCannons
 void bossArmydilloHideCannons(void);
