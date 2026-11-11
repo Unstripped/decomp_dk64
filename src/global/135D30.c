@@ -104,7 +104,7 @@ void flagUpdateRangeCompletion(s16 flag) {
 void flagSet(s16 flag, u8 val, u8 bank) {
     u8 *base;
     s16 idx;
-    u8 mode = bank;
+    u8 mode = bank; // FAKE: redundant copy of bank steers the switch/call operand (removing it fails fdiff)
     s32 pad;
 
     if (flag == -1) {
