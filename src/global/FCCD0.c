@@ -919,7 +919,6 @@ typedef struct ViewportRect {
 extern Gfx D_1000118;
 extern Mtx D_2000080;
 extern u8 D_807FD7E4;
-extern f32 mathSinF(s16);
 
 Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     s32 *matrix;

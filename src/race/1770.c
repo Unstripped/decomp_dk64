@@ -65,7 +65,6 @@ typedef struct {
 
 extern RaceAPoint3f **gMinecartTrackPoints;
 extern Actor *gCurrentActor;
-f32 mathSinF(s16);
 
 void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPos, s32 nextWaypoint, s32 nextNextWaypoint) {
     s32 padA;
@@ -203,7 +202,6 @@ void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participan
     }
 }
 
-f32 mathCosF(s16);
 extern u8 D_8072006C[];
 extern void *D_8002FBB0[4];
 extern u8 gLightSlotsEnd;

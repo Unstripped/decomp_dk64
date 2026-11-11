@@ -3026,7 +3026,6 @@ void playerStateCutsceneIdle(void) {
 extern f32 gKongHoldPutDownAngles[];
 
 extern u8 D_8071FC8C;
-f32 mathSinF(s16);
 
 void playerStateTransformSparkles(void) {
     f32 pad;

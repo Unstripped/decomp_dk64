@@ -144,7 +144,6 @@ void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s32
 
 extern s16 D_807FDA1E;
 f32 sinApprox(f32);
-f32 mathSinF(s16);
 
 void effectSpriteParticleTrackCamera(EffectSpriteParticle *particle) {
     f32 diff;

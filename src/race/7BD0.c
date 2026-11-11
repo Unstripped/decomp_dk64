@@ -813,7 +813,6 @@ void raceManagerBehaviorUpdate(void) {
     }
 }
 
-f32 mathSinF(s16);
 
 // Finish-line banner/flag component (raceFinishBannerBehaviorUpdate): which banner it is, the flag's
 // bob angle and the model scale it bobs around.
@@ -1161,7 +1160,6 @@ void racePlayerTrackerBehaviorUpdate(void) {
 }
 
 extern u8 gBossFightPhase;
-f32 mathCosF(s16);
 
 void raceHandleRacerCollision(RaceTarget *target) {
     f32 distSq;

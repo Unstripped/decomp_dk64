@@ -159,8 +159,6 @@ Gfx *renderTextureSprite(Gfx *dl, s32 mtx, u8 alpha, s32 frame) {
     return dl;
 }
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 typedef struct MotionAngles {
     /* 0x00 */ u8 pad0[0x38];

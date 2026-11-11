@@ -374,7 +374,6 @@ void raceUpdateOpponentEnginePitch(f32 moveSpeed) {
 extern u8 gBossFightPhase;
 extern s16 D_80750AC8;
 extern s32 D_8002FC0C[];
-f32 mathSinF(s16);
 
 void raceOpponentCarBehaviorUpdate(void) {
     s32 pad70[2];

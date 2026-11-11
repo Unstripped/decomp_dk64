@@ -626,7 +626,6 @@ typedef struct AA960ConfigInt {
 } AA960ConfigInt;
 
 extern u32 gGameFrameCounter;
-f32 mathSinF(s16);
 
 void actorPathCollectibleUpdate(void *spriteAsset) {
     EffectState *state;

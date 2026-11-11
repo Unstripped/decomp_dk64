@@ -51,7 +51,6 @@ void actorScriptStart(void *, s32);
 void func_80724DB0();
 void sfxPlayAtFBD6CPosition(void);
 
-f32 mathSinF(s16);
 
 
 
@@ -88,7 +87,6 @@ void func_80724CA4(s16, s16);
 void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
 u16 camStartPath(void *, s16, u8);
 void hudCountdownTimerSaveElapsed(void *);
-f32 mathCosF(s16);
 void playerWaypointPathStartLineFromActor(Actor *, s16, s16, u8);
 void csSendActorMessagePayload(s16, s16);
 void playerSetSizeMode(Actor *, u8);

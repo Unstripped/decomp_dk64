@@ -375,8 +375,6 @@ typedef struct FlutterActorView {
 #define FLUTTER_ACTOR ((FlutterActorView *)gCurrentActor)
 
 extern u8 gBossFightPhase;
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void critterFlutterFlyUpdate(void) {
     f32 dx;

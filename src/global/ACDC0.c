@@ -570,8 +570,6 @@ Gfx *hudSetupTextState(Gfx *dl) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AAE4.s")
 
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 extern s16 D_807FC992[];
 extern u8 D_807FCC4C;
 extern s8 D_807FCC4B;
@@ -1489,8 +1487,6 @@ typedef struct HudIconObj {
     HudIconState *unk384;
 } HudIconObj;
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 extern f32 D_807FC840[];
 extern f32 D_807FC868[];
 extern f32 D_807FC890[];

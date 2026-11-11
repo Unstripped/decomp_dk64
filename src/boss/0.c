@@ -126,8 +126,6 @@ void bossArmydilloInitArena(void) {
 }
 
 s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32); // FAKE: callee prototype steer
-f32 mathSinF(s16);
-f32 mathCosF(s16);
 
 void bossArmydilloDebrisUpdate(void) {
     s16 i;

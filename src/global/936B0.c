@@ -360,8 +360,6 @@ typedef struct ActorMoveStepFlag {
 
 extern s16 D_8075033C;
 extern u32 gGlobalOverlayFlags;
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 void func_8002F490(void *);
 
 
@@ -932,8 +930,6 @@ extern ModelSlotPosTypeView *gModelSlots;
 extern s32 D_80747D70;
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 s32 projectileFindHomingTarget(collisionMask, outTarget, proj, useAim, levelOnly, includeModels, outX, outY, outZ)
 u16 collisionMask;

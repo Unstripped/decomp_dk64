@@ -48,8 +48,6 @@ extern RaceC_Row D_8002FB10[];
 extern RaceC_Row D_8002FB70[];
 #define RC_A ((RaceC_Act *)gCurrentActor)
 #define RC_B ((RaceC_Act *)gActivePlayerActor)
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 void actorScriptStart(void *, s32);
 
 void raceOpponentFollowWaypoints(void) {

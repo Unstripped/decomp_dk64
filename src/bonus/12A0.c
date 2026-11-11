@@ -130,7 +130,6 @@ extern u8 gGameMode;
 extern struct GfSndState *D_807457E4[];
 extern u8 D_80720CF0;
 void effectFreeAndUnlink(s32); // FAKE: callee prototype steer
-f32 mathSinF(s16);
 
 void bonusReelGameUpdate(void) {
     LB3Player *player;

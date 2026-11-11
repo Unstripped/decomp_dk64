@@ -1212,8 +1212,6 @@ extern f32 D_80770594;
 extern f32 D_80770688[];
 extern u8 gPlayerCount;
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 #define RAND_UNIT() ((u32)randomLcgNext() / 4294967295.0)
 

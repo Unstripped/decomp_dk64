@@ -525,7 +525,6 @@ void effectWaterSetMeshColors(Vtx *vtx, WaterSurface *water) {
     }
 }
 
-f32 mathSinF(s16);
 
 #define WATER_ABS(x) ((x) > 0 ? (x) : -(x))
 

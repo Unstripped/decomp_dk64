@@ -80,7 +80,6 @@ s16 critterLayoutWords(TextData *textData, char *text, s16 xOffset) {
     return wordMidXs[0];
 }
 
-f32 mathSinF(s16);
 extern u8 gGfxBufferIndex;
 
 Gfx *critterDrawWord(Gfx *glistp, TextData *textData, char *word, u8 wordIndex) {

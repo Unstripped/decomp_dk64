@@ -121,7 +121,6 @@ void bossSetAnimationByWaypoint(u8 *waypointIndices) {
     }
 }
 
-f32 mathSinF(s16);
 
 void bossInterpolateWaypoints(u8 *waypointPair, f32 progress) {
     f64 val;

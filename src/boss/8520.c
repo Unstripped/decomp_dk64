@@ -19,8 +19,6 @@ typedef struct BossA_Struct_807FBB44 {
 extern Actor *gCurrentActor;
 extern BossA_Struct_807FBB44 *gSpawnedActor;
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 Actor *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
 
 void bossKutOutSpawnGhost(s16 actorType, s16 distance, s16 angle) {

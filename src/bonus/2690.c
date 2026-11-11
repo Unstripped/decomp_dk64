@@ -119,8 +119,6 @@ extern s16 D_8002D8E0[];
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
 extern f32 D_8002D90C;
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 extern u8 D_8071FFD4[];
 
 extern Actor *gSpawnedActor;

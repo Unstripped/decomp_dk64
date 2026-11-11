@@ -542,8 +542,6 @@ Gfx *renderActorEntryBuildDisplayList(s32 context, Actor *actor, Gfx *glist, u8 
     return glist;
 }
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void actorBuildModelMatrix(Actor *actor, f32 *dst) {
     f32 sinA;

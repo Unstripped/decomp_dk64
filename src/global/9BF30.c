@@ -35,8 +35,6 @@ extern Gfx D_80750280;
 extern u8 gGfxBufferIndex;
 extern u8 *gPlayerSlots;
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 // Writes G_MTX through the function-scope _g pointer to avoid gbi.h's block-local phantom stack slot
 #define gSPMatrixShared(pkt, m, p) { _g = (Gfx *)(pkt); _g->words.w0 = (_SHIFTL(G_MTX, 24, 8) | _SHIFTL(((sizeof(Mtx) - 1) / 8), 19, 5) | _SHIFTL(((p) ^ G_MTX_PUSH), 0, 8)); _g->words.w1 = (u32)(m); }
 

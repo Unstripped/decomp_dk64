@@ -563,7 +563,6 @@ extern u32 D_80033814;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
 extern u32 gFrameCounter;
-f32 mathSinF(s16);
 
 Gfx *menuDrawFileSummary(Actor *actor, Gfx *dl) {
     f32 x = 66.0f;
@@ -910,8 +909,6 @@ void menuBossReplayHandleInput(Actor *actor, s32 buttons) {
     menuUpdateItemTransition(actor, state, 1);
 }
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 Gfx *menuDrawSubmenuRing(Actor *actor, Gfx *dl) {
     MenuScreenState *state = actor->customState;

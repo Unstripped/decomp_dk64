@@ -98,8 +98,6 @@ extern f32 gScreenFadeRate;
 
 /* External functions */
 void func_8002920C(void);
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 // .bss 0x8076A160-0x8076AF00
 Struct8076A160 D_8076A160[18];

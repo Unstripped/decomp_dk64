@@ -53,7 +53,6 @@ Gfx *actorCursorDrawSprite(Gfx *dl, Actor *actor) {
     return renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, (s32)pos[0], (s32)pos[1], 0.5f, 0.5f, 0x2D, 0.0f);
 }
 
-f32 mathSinF(s16);
 
 Gfx *actorCursorDrawBurst(Gfx *dl, Actor *actor) {
     BC3B0CursorSub174 *sub = ((BC3B0CursorActor *)actor)->unk174;

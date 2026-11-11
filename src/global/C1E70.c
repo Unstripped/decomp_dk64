@@ -25,8 +25,6 @@ extern s8 D_80750660;
 extern u8 D_807FC8D0;
 
 s32 actorSpawn();
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 typedef struct R1C0C1Sub174 {
     /* 0x00 */ s16 unk0;

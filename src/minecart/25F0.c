@@ -72,8 +72,6 @@ extern u8 D_80028C34[];
 extern u8 D_80028C40[];
 extern u8 D_80028C48[];
 
-f32 mathSinF(s16);
-f32 mathCosF(s16);
 
 void minecartFollowerBehaviour(void) {
     u8 followDist = 0x96;

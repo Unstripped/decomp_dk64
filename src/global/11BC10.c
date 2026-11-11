@@ -24,8 +24,6 @@ extern u32 gFrameCounter;
 extern s32 gCurrentMap;
 extern Actor *gPrimaryPlayerActor;
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 f32 cosApprox(f32);
 f32 sinApprox(f32);
 

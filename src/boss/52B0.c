@@ -119,8 +119,6 @@ extern u8 *D_80035A00[];
 extern s32 gFrameCounter;
 extern Boss3F_52B0_BB4C *gPrimaryPlayerActor;
 extern Boss3F_52B0_D580 *gActivePlayerState;
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 #define ACTOR ((Boss3F_52B0_Actor *)gCurrentActor)
 

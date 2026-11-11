@@ -18,8 +18,6 @@ extern u8 D_807FDB7E;
 extern u8 D_807FDB7F;
 extern u8 D_807FDB80;
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 typedef struct {
     s32 unk0;

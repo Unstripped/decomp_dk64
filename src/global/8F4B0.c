@@ -63,8 +63,6 @@ extern u8 D_807FC622;
 extern u8 D_807501C0[][3];
 extern LightPosEntry D_80750194[];
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void lightUpdateFromActorLighting(u8 *outR, u8 *outG, u8 *outB) {
     f32 pad;
@@ -625,7 +623,6 @@ typedef struct {
     s16 unkEC;
 } AimActorAngles;
 
-f32 mathSinF(s16);
 extern u8 gGameMode;
 extern s16 D_807FC624;
 

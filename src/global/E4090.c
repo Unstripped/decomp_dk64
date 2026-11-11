@@ -367,7 +367,6 @@ u16 inputRemapButtons(u16 buttons, u16 *map) {
     return mapped | (buttons & ~seen);
 }
 
-f32 mathCosF(s16);
 
 f32 mathScaleByAngleDeltaCos(f32 value, s16 from, s16 to) {
     return mathCosF(to - from) * value;
@@ -1503,7 +1502,6 @@ void playerInputSetBaseGravity(void) {
 
 
 extern f32 D_807536E4[];
-f32 mathSinF(s16);
 
 void playerInputStepCannonPitch(void) {
     f32 b;

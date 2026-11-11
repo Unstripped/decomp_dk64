@@ -39,8 +39,6 @@ void actorStepPhysics(Actor *self, s16 targetYaw, s16 targetPitch) {
     }
 }
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 extern u32 gFrameDelta;
 
 void actorApplyVelocity(Actor *actor) {

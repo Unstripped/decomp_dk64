@@ -55,8 +55,6 @@ void playerResumeLocomotion(void *);
 void camReturnToFollow(void *, void *);
 void csModelStateSetFirstByte(s16, s16);
 s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void bossKRoolChunkySetupFight(BossScriptState *unused) {
     s16 targetYaw;

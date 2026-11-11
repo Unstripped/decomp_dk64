@@ -380,8 +380,6 @@ typedef struct MidpointOrbitState {
 
 #define ORBIT_ACTOR ((MidpointOrbitActorView *)gCurrentActor)
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void actorMidpointOrbitUpdate(void) {
     MidpointOrbitState *sub;

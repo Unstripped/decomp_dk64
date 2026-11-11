@@ -494,8 +494,6 @@ typedef struct BDEE0Actor {
 #define BDEE0A ((BDEE0Actor *)gCurrentActor)
 
 f32 cosApprox(f32);
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void func_806BA93C(sideOffset, rollAmount, pivotZ)
 u8 sideOffset;

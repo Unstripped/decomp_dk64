@@ -22,8 +22,6 @@ extern Actor *gSpawnedActor;
 extern s32 D_8072030C;
 extern u32 gFrameCounter;
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void func_806B1F50(void) {
     u8 tint;

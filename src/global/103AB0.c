@@ -1025,7 +1025,6 @@ void vtxGradientSetColorB(u8 r, u8 g, u8 b) {
 }
 
 
-f32 mathSinF(s16);
 
 void vtxSetColor(Vtx *vtx, u8 r, u8 g, u8 b, u8 a, u8 flags) {
     vtx->v.cn[0] = r;

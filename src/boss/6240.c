@@ -51,8 +51,6 @@ typedef struct BossPufftossActor {
 extern Actor *gCurrentActor;
 extern u32 gFrameCounter;
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void bossPufftossBobStep(void) {
     BossC_6240_17C *s0 = ((BossPufftossActor *)gCurrentActor)->unk17C;

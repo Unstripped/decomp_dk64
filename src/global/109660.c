@@ -186,8 +186,6 @@ void gfxBackgroundReset(void) {
     D_807FD978[0] = NULL;
 }
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
     f32 lightR;

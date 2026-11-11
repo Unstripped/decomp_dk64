@@ -255,7 +255,6 @@ void critterUpdateAudio(CritterObj *obj) {
     }
 }
 
-f32 mathCosF(s16);
 extern u8 D_80770DC9;
 
 void critterUpdateObjType1(CritterObj *obj) {
@@ -326,7 +325,6 @@ Gfx *func_800247F4(Gfx *gdl, CritterObj *obj) {
     return gdl;
 }
 
-f32 mathSinF(s32);
 
 void critterUpdateObjType3(CritterObj *obj) {
     f32 sinVal;

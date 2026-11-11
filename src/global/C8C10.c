@@ -182,8 +182,6 @@ void func_806C43A8(void) {
 
 extern s16 D_80750AC8;
 
-f32 mathSinF(s16);
-f32 mathCosF(s16);
 
 void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 initialCutsceneId, s32 rewardCutsceneId, s32 targetCount, s32 rewardFlag) {
     s16 *heightOffsetPtr = R1C8aA->unk178;

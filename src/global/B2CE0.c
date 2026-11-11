@@ -106,8 +106,6 @@ void actorSpawnChildAtNode(s32 actorType, s16 angleOffset, s16 nodeIndex, s16 ex
     }
 }
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void func_806AE394(f32 distOffset, f32 radius) {
     f32 node1X;

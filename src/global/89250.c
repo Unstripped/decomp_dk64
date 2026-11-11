@@ -727,8 +727,6 @@ void actorSpawnAttachment(Actor *parent, f32 scaleMultiplier) {
     actorCopyPoseAndScale(gSpawnedActor, parent, parent->sub4->scaleY * scaleMultiplier);
 }
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void effectSpawnKongRing(void) {
     s32 boneIndex;

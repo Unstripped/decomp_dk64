@@ -176,7 +176,6 @@ extern s32 gCurrentMap;
 extern u8 gPlayerCount;
 extern PlayerStruct *gPlayerSlots;
 
-f32 mathSinF(s16);
 
 void actorLightPulseUpdate(void) {
     u16 lightRadius;
@@ -968,7 +967,6 @@ void actorSetNodeValuesForFrame(MatrixArray *arg0) {
     }
 }
 
-f32 mathCosF(s16);
 extern u8 D_807503D4[];
 extern u8 D_807503E0[];
 
