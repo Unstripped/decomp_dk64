@@ -1,9 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "text.h"
-#define PROTO_SKIP_textDrawStringCentered
-#define PROTO_SKIP_func_806FD950
-#define PROTO_SKIP_gfxResourceSetString
 #define PROTO_SKIP_textGetStringWidth // FAKE: callee prototype steer
 #define PROTO_SKIP_textGetCharAdvance // FAKE: callee prototype steer
 #include "proto/boot/3630.h"
@@ -14,9 +11,6 @@
 #include "proto/global/450.h"
 #include "proto/global/CEAE0.h"
 
-void textDrawStringCentered(Gfx *, s16, u8 *, s16, u8);
-void func_806FD950(Gfx *, s16, u8 *, s16);
-void gfxResourceSetString(s16, u8 *);
 s32 textGetStringWidth(s16, u8 *); // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;

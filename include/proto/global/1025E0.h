@@ -4,10 +4,10 @@
 #include "common.h"
 #include "text.h"
 #ifndef PROTO_SKIP_textDrawStringCentered
-void textDrawStringCentered(s32, s16, s32, s16, u8);
+void textDrawStringCentered(Gfx *, s16, u8 *, s16, u8);
 #endif
 #ifndef PROTO_SKIP_func_806FD950
-void func_806FD950(s32, s16, s32, s16);
+void func_806FD950(Gfx *, s16, u8 *, s16);
 #endif
 #ifndef PROTO_SKIP_gfxResourceListReset
 void gfxResourceListReset(void);
@@ -31,7 +31,7 @@ void gfxResourceFree(s16);
 s16 gfxResourceCreate(s16, void *, u8, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_gfxResourceSetString
-void gfxResourceSetString(s16, s32);
+void gfxResourceSetString(s16, u8 *);
 #endif
 #ifndef PROTO_SKIP_func_806FDF54
 void func_806FDF54(f32 *, f32 *);
