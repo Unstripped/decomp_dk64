@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "render.h"
 #include "sched.h"
 #include "segment.h"
 #include "proto/boot/30E0.h"
@@ -57,19 +58,6 @@
 #include "proto/global/F9450.h"
 #include "proto/global/FCCD0.h"
 #include "proto/global/FE40.h"
-
-// Per-frame matrices and sub display list (0x11B0 bytes, double-buffered)
-typedef struct Struct_8076A048 {
-    Mtx perspective;
-    Mtx unk40;
-    Mtx ortho;
-    Mtx orthoQuad;
-    Mtx orthoViewport;
-    Mtx orthoDouble;
-    Mtx identity;
-    u8 pad1C0[0xDB0 - 0x1C0];
-    Gfx subDisplayList[(0x11B0 - 0xDB0) / sizeof(Gfx)];
-} FrameMatrices;
 
 void func_80024000(void);
 void func_80026FD0(void *);

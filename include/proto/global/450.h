@@ -2,7 +2,7 @@
 #ifndef PROTO_GLOBAL_450_H
 #define PROTO_GLOBAL_450_H
 #include "common.h"
-struct Struct_8076A048;
+#include "render.h"
 #ifndef PROTO_SKIP_seg11DmaRead
 void seg11DmaRead(s32, s32, void *);
 #endif
@@ -43,7 +43,7 @@ Gfx *gfxSetViewportDisplayList(Gfx *);
 Gfx *gfxInit2DDisplayList(Gfx *);
 #endif
 #ifndef PROTO_SKIP_gfxBuildFrameDisplayLists
-void gfxBuildFrameDisplayLists(struct Struct_8076A048 *, Gfx **, Gfx **);
+void gfxBuildFrameDisplayLists(FrameMatrices *, Gfx **, Gfx **);
 #endif
 #ifndef PROTO_SKIP_gfxClearZBuffer
 Gfx *gfxClearZBuffer(Gfx *);

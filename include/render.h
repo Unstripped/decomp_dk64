@@ -32,4 +32,17 @@ typedef struct PlanePoly {
     /* 0x38 */ f64 d;
 } PlanePoly; // size = 0x40
 
+// Per-frame matrices and sub display list (D_80767CE8[2], gGfxCurrentFrameBuffer); 0x11B0 bytes.
+typedef struct FrameMatrices {
+    /* 0x000 */ Mtx perspective;
+    /* 0x040 */ Mtx unk40;
+    /* 0x080 */ Mtx ortho;
+    /* 0x0C0 */ Mtx orthoQuad;
+    /* 0x100 */ Mtx orthoViewport;
+    /* 0x140 */ Mtx orthoDouble;
+    /* 0x180 */ Mtx identity;
+    /* 0x1C0 */ u8 pad1C0[0xDB0 - 0x1C0];
+    /* 0xDB0 */ Gfx subDisplayList[(0x11B0 - 0xDB0) / sizeof(Gfx)];
+} FrameMatrices; // size = 0x11B0
+
 #endif
