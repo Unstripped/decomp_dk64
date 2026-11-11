@@ -709,17 +709,17 @@ Gfx *func_80701CA0(Gfx *dl) {
 }
 
 
-void gfxDrawTexturedTileGridDefault(Gfx **gfx, s32 fmt, s32 texture, s32 texWidth, s32 texHeight, s32 tileW, s32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0) {
-    gfxDrawTexturedTileGrid(gfx, fmt, texture, texWidth, texHeight, tileW, tileH, x0, y0, x1, y1, s0, t0, 1, 0x10, 0, 0);
+void gfxDrawTexturedTileGridDefault(Gfx **gfx, void *texture, s32 fmt, s32 texWidth, s32 texHeight, s32 tileW, s32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0) {
+    gfxDrawTexturedTileGrid(gfx, texture, fmt, texWidth, texHeight, tileW, tileH, x0, y0, x1, y1, s0, t0, 1, 0x10, 0, 0);
 }
 
-void gfxDrawTexturedTileGridSimple(Gfx **gfx, s32 fmt, s32 texture, s32 texWidth, s32 texHeight, s32 tileW, s32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0, u8 texScale, u8 bitSize) {
-    gfxDrawTexturedTileGrid(gfx, fmt, texture, texWidth, texHeight, tileW, tileH, x0, y0, x1, y1, s0, t0, texScale, bitSize, 0, 0);
+void gfxDrawTexturedTileGridSimple(Gfx **gfx, void *texture, s32 fmt, s32 texWidth, s32 texHeight, s32 tileW, s32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0, u8 texScale, u8 bitSize) {
+    gfxDrawTexturedTileGrid(gfx, texture, fmt, texWidth, texHeight, tileW, tileH, x0, y0, x1, y1, s0, t0, texScale, bitSize, 0, 0);
 }
 
 
 
-void gfxDrawTexturedTileGrid(Gfx **gfx, s32 fmt, s32 texture, u32 texWidth, s32 texHeight, u32 tileW, u32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0, u8 texScale, u8 bitSize, u8 edgeFade, void (*vtxCallback)()) {
+void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s32 texHeight, u32 tileW, u32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0, u8 texScale, u8 bitSize, u8 edgeFade, void (*vtxCallback)()) {
     Gfx *dl;
     s32 y;
     Vtx *vtx;
@@ -781,13 +781,13 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, s32 fmt, s32 texture, u32 texWidth, s32 
             ult = ((y >> 5) - 1) > 0 ? ((y >> 5) - 1) : 0;
             lrt = ((((y >> 5) + tileH) < ((ye >> 5) - 1)) ? ((y >> 5) + tileH) : ((ye >> 5) - 1));
             if (bitSize == 8) {
-                gDPLoadTextureTile(dl++, fmt, texture, G_IM_SIZ_8b, texWidth, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                gDPLoadTextureTile(dl++, texture, fmt, G_IM_SIZ_8b, texWidth, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             } else if (bitSize == 0x10) {
-                gDPLoadTextureTile(dl++, fmt, texture, G_IM_SIZ_16b, texWidth, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                gDPLoadTextureTile(dl++, texture, fmt, G_IM_SIZ_16b, texWidth, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             } else if (bitSize == 0x20) {
-                gDPLoadTextureTile(dl++, fmt, texture, G_IM_SIZ_32b, texWidth, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                gDPLoadTextureTile(dl++, texture, fmt, G_IM_SIZ_32b, texWidth, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             } else if (bitSize == 4) {
-                gDPLoadTextureTile_4b(dl++, fmt, texture, texWidth, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                gDPLoadTextureTile_4b(dl++, texture, fmt, texWidth, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             }
             fsc = (f32)y - 16.0; // FAKE: dead store steers float register allocation
             twf = tileW << 5;

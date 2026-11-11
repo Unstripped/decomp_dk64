@@ -175,7 +175,7 @@ void gfxDrawSkybox(ColorBytesView *colorView, s8 r, s8 g, s8 b) {
     colorView->b = b;
 }
 
-extern s32 D_807FD8A0;
+extern void *D_807FD8A0;
 extern Mtx D_807FD928;
 extern void *D_807FD978[8];
 

@@ -154,10 +154,10 @@ void renderAppendNodeChain(s32 *arg0, DrawActor *arg1, DrawListHead *arg2, u8 ar
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
-s32 texCacheFindOrLoad(s32);  // FAKE: callee prototype steer
+void *texCacheFindOrLoad(s32);  // FAKE: callee prototype steer
 
 Gfx *renderTextureSprite(Gfx *arg0, s32 arg1, u8 arg2, s32 arg3) {
-    s32 tex;
+    void *tex;
 
     tex = texCacheFindOrLoad((arg3 + 0x52) & 0xFFFF);
     WRITE_GFX(arg0++, 0xE7000000, 0);

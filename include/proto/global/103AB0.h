@@ -76,13 +76,13 @@ void func_80701C90(void);
 Gfx *func_80701CA0(Gfx *);
 #endif
 #ifndef PROTO_SKIP_gfxDrawTexturedTileGridDefault
-void gfxDrawTexturedTileGridDefault(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32);
+void gfxDrawTexturedTileGridDefault(Gfx **, void *, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_gfxDrawTexturedTileGridSimple
-void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
+void gfxDrawTexturedTileGridSimple(Gfx **, void *, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_gfxDrawTexturedTileGrid
-void gfxDrawTexturedTileGrid(Gfx **, s32, s32, u32, s32, u32, u32, f32, f32, f32, f32, f32, f32, u8, u8, u8, void (*)());
+void gfxDrawTexturedTileGrid(Gfx **, void *, s32, u32, s32, u32, u32, f32, f32, f32, f32, f32, f32, u8, u8, u8, void (*)());
 #endif
 #ifndef PROTO_SKIP_gfxFillScreenColor
 Gfx *gfxFillScreenColor(Gfx *, u8, u8, u8, u8);

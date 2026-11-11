@@ -154,7 +154,7 @@ Gfx *renderRotatedQuad(Gfx *glist, s32 tex, s16 x, s16 y, s16 angle) {
 extern u16 D_807FC79E;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
-void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);  // FAKE: callee prototype steer (width/height u8: 103AB0.c declares s32)
+void gfxDrawTexturedTileGridSimple(Gfx **, void *, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);  // FAKE: callee prototype steer (width/height u8: 103AB0.c declares s32)
 
 Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 height, s16 x, s16 y, f32 scaleX, f32 scaleY, s32 angle, f32 texScale) {
     void *volatile tex;
