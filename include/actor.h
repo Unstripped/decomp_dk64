@@ -141,7 +141,8 @@ typedef struct ActorSub140 {
     /* 0x10 */ s32 scaledHeight;
     /* 0x14 */ f32 radius;
     /* 0x18 */ f32 height;
-    /* 0x1C */ u8 pad1C[0x8];
+    /* 0x1C */ f32 unk1C; /* arc contact point x */
+    /* 0x20 */ f32 unk20; /* arc contact point z */
     /* 0x24 */ u8 unk24;
     /* 0x25 */ u8 pad25[0x3B];
     /* 0x60 */ s32 unk60;

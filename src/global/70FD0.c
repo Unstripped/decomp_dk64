@@ -3001,19 +3001,6 @@ s32 actorCheckPointInAngleArc(Actor *arg0, f32 arg1, f32 arg2) {
     return actorAngleInArc(arg0, var_a2) ? 1 : 0;
 }
 
-typedef struct ActorMotionSub140 {
-    u8 pad0[0x1C];
-    f32 unk1C;
-    f32 unk20;
-    u8 unk24;
-    u8 pad25[0x3B];
-    s32 unk60;
-    u8 pad64[8];
-    u8 unk6C;
-    u8 pad6D[0x1B];
-    s32 unk88;
-} ActorMotionSub140;
-
 typedef struct ActorMotionSub174 {
     u8 pad0[0x1A3];
     u8 unk1A3;
@@ -3181,7 +3168,7 @@ void actorTouchSub140Timestamp(Actor *actor) {
 
 
 void actorUpdateMovementFlags(Actor *actor) {
-    ActorMotionSub140 *sub;
+    ActorSub140 *sub;
 
     if (actor->unk144 & 8) {
         sub = actor->collision;
