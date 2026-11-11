@@ -201,7 +201,7 @@ void actorTableSort(void);
 void playerSetActiveGlobals(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerFindIndexByActor
-u8 playerFindIndexByActor(s32);
+u8 playerFindIndexByActor(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorCopyPoseAndScale
 void actorCopyPoseAndScale(Actor *, Actor *, f32);

@@ -1625,10 +1625,10 @@ void playerSetActiveGlobals(Actor *actor) {
     player->sizeModeDirty = 0;
 }
 
-u8 playerFindIndexByActor(s32 actor) {
+u8 playerFindIndexByActor(Actor *actor) {
     s32 i;
     for (i = 0; i < gPlayerCount; i++) {
-        if (gPlayerSlots[i].unk0 != 0 && actor == (s32)gPlayerSlots[i].actor) {
+        if (gPlayerSlots[i].unk0 != 0 && actor == gPlayerSlots[i].actor) {
             return (u8)i;
         }
     }
