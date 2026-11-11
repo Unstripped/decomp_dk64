@@ -54,7 +54,7 @@ void n_alSndpNew(GeSndpConfig *c) {
     D_807563C8 = D_807563CC->sndState;
     for (i = 1; i < c->maxSounds; i++) {
         u8 *sndState = D_807563CC->sndState;
-        alLink((ALLink *)(sndState + i * 72), (ALLink *)(sndState + i * 72 - 72));
+        alLink((ALLink *)(sndState + i * 72), (ALLink *)(sndState + (i - 1) * 72));
     }
     D_807FF0E4 = alHeapDBAlloc(0, 0, c->heap, 2, c->maxStates);
     for (i = 0; i < c->maxStates; i++) {

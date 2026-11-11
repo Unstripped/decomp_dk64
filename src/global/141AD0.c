@@ -35,7 +35,7 @@ void n_alSynStartVoiceParams(ALVoice *voice, ALWaveTable *wave, f32 pitch, s16 v
     SynAllocStartParam *param;
 
     if (voice->pvoice != NULL) {
-        param = __n_allocParam();
+        param = (SynAllocStartParam *)__n_allocParam();
         if (param == NULL) {
             return;
         }

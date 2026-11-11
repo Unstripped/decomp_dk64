@@ -120,8 +120,8 @@ extern u16 D_80747750[];
 extern s8 D_8075536C;
 extern s8 D_8076AEE0;
 extern s16 D_8076AEF2;
-extern s32 D_8076D1F8;
-extern s32 D_8076D1FC;
+extern ALBank *D_8076D1F8;
+extern ALBank *D_8076D1FC;
 extern Actor *gCamActor;
 extern u8 D_807F5D6C[];
 extern struct GfSndState *D_807F5D70[];
@@ -415,14 +415,14 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
                 } else {
                     actor = gPrimaryPlayerActor;
                 }
-                D_807F5D7C = sfxPlayAtPositionPooled(actor->x, actor->y, actor->z, b, (u32)(c != 0 ? (f64)c : 127.5), d != 0 ? d : 0x7F, 0, 0, 0.0f, 0);
+                D_807F5D7C = sfxPlayAtPositionPooled(actor->x, actor->y, actor->z, b, (c != 0 ? (f64)c : 127.5), d != 0 ? d : 0x7F, 0, 0, 0.0f, 0);
                 return;
             }
             if (b < 0x800) {
-                n_alSndpPlay((void *)D_8076D1F8, b, (u32)(c != 0 ? ((f64)c / 255.0) * 32767.0 : 16383.5), 0x3F, d != 0 ? (f64)d / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
+                n_alSndpPlay(D_8076D1F8, b, (c != 0 ? ((f64)c / 255.0) * 32767.0 : 16383.5), 0x3F, d != 0 ? (f64)d / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
                 return;
             }
-            n_alSndpPlay((void *)D_8076D1FC, (s16)(b - 0x7FF), (u32)(c != 0 ? ((f64)c / 255.0) * 32767.0 : 16383.5), 0x3F, d != 0 ? (f64)d / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
+            n_alSndpPlay(D_8076D1FC, b - 0x7FF, (c != 0 ? ((f64)c / 255.0) * 32767.0 : 16383.5), 0x3F, d != 0 ? (f64)d / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
             return;
         case 0x19:
             node = (a > 0 ? a : -a) <= 0 ? 0 : (a > 0 ? a : -a) - 1;

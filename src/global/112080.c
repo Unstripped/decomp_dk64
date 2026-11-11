@@ -97,7 +97,7 @@ typedef struct ResQueueLink {
 
 extern ResNode *sResNodeListHead;
 extern ResQueueLink *sResQueueHead;
-extern s8 sResQueueValue;
+extern u8 sResQueueValue;
 
 void streamReadBytes(s32 size, void *dst, u8 **src) {
     memcpy(dst, *src, size);
@@ -227,19 +227,13 @@ void resQueueAddEntry(ResQueueLink *queue, u16 resId, u8 kindIndex) {
 void resQueueAttachActor(Actor *targetActor, u16 id, u8 count) {
     ResQueueActorState *state;
     ResQueueLink *node;
-    u8 value;
 
     node = resQueueGetOrCreate(targetActor);
-    if (1) { // FAKE: the two if (1) blocks and value & 0xFFu reproduce the load/store order around the customState load
-        value = sResQueueValue;
-    }
     state = node->actor->customState;
-    state->queueFlags = value & 0xFFu;
-    if (1) {
-        sResQueueValue = 0;
-        resQueueAddEntry(node, id, count);
-        targetActor->flags |= 0x2000000;
-    }
+    state->queueFlags = sResQueueValue;
+    sResQueueValue = 0;
+    resQueueAddEntry(node, id, count);
+    targetActor->flags |= 0x2000000;
 }
 
 ResNode *resNodeFindById(u16 id) {
