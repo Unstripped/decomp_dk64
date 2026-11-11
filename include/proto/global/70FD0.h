@@ -9,10 +9,7 @@
 #include "model.h"
 struct ActorFacingWork;
 struct ActorHitPlane;
-struct ActorHitView;
 struct ActorPlaneContactView;
-struct ActorSphereUpdateView;
-struct ActorTargetWork;
 struct CollisionActor;
 struct CollisionAssetTri;
 struct CollisionPlane;
@@ -148,7 +145,7 @@ void actorQueueCollisionCallbacks(Actor *);
 u8 actorCollideModelSlots(Actor *, s16 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_actorBuildCollisionHit
-void actorBuildCollisionHit(s32, struct ActorHitView *, struct CollisionBox *);
+void actorBuildCollisionHit(s32, Actor *, CollisionBox *);
 #endif
 #ifndef PROTO_SKIP_actorReflectCollisionAngle
 void actorReflectCollisionAngle(struct CollisionActor *, struct CollisionPlane *, struct CollisionVec3i *);
@@ -169,25 +166,25 @@ void actorCalcPlaneContactPoint(struct ActorPlaneContactView *, s16, struct Acto
 void actorSetTargetAngleBounds(struct CollisionBox *);
 #endif
 #ifndef PROTO_SKIP_actorCheckTargetAngleBounds
-s32 actorCheckTargetAngleBounds(struct ActorTargetWork *, s16 *, s16 *);
+s32 actorCheckTargetAngleBounds(Actor *, s16 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_actorUpdateFacingAndOffset
 void actorUpdateFacingAndOffset(struct ActorFacingWork *, s32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_actorUpdateCollisionExtents
-void actorUpdateCollisionExtents(struct ActorTargetWork *);
+void actorUpdateCollisionExtents(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorUpdateSubActorOffsets
-void actorUpdateSubActorOffsets(struct ActorTargetWork *, u8);
+void actorUpdateSubActorOffsets(Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_actorComputeBoxNormal
-void actorComputeBoxNormal(struct ActorTargetWork *, f32 *, f32 *, f32 *, u8);
+void actorComputeBoxNormal(Actor *, f32 *, f32 *, f32 *, u8);
 #endif
 #ifndef PROTO_SKIP_actorGetPlayerThreshold
-s32 actorGetPlayerThreshold(struct ActorTargetWork *);
+s32 actorGetPlayerThreshold(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorUpdateCollisionSpheres
-void actorUpdateCollisionSpheres(struct ActorSphereUpdateView *, u8);
+void actorUpdateCollisionSpheres(Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_actorUpdateNodePositions
 void actorUpdateNodePositions(ActorSub140 *, u8);
@@ -196,10 +193,10 @@ void actorUpdateNodePositions(ActorSub140 *, u8);
 s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_actorGetSubNodePos
-void actorGetSubNodePos(struct ActorTargetWork *, s32, f32 *, f32 *, f32 *);
+void actorGetSubNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_actorStepSubNodeList
-s32 actorStepSubNodeList(struct ActorTargetWork *, s32);
+s32 actorStepSubNodeList(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_collisionTestSphere
 u8 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, u8, u16);
