@@ -14,7 +14,6 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorGlobalState gActorGlobalState;
 
 typedef struct BC3B0CursorSub174 {
     /* 0x00 */ u8 pad0[0x2C];

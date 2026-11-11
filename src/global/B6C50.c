@@ -20,7 +20,6 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern ActorGlobalState gActorGlobalState;
 extern s32 D_8072030C;
 extern u32 gFrameCounter;
 

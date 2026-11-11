@@ -55,7 +55,6 @@ typedef struct PlayerSlot_A6280 {
 extern Actor *gPrimaryPlayerActor;
 extern PlayerSlot_A6280 *gPlayerSlots;
 extern u8 D_807506C0[];
-extern ActorGlobalState gActorGlobalState;
 
 
 void actorSeekTargetUpdate(void) {

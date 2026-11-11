@@ -33,7 +33,6 @@ typedef struct B1F60Global924 {
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern ActorGlobalState gActorGlobalState;
 extern s32 gCurrentMap;
 extern B1F60Global924 *gPlayerSlots;
 

@@ -34,7 +34,6 @@
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorGlobalState gActorGlobalState;
 extern u16 gActiveActorCount;
 extern ActorEntry gActiveActors[];
 

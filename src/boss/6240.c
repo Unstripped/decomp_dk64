@@ -164,7 +164,6 @@ extern s32 gCurrentMap;
 extern ALBank *D_8076D1F8;
 extern Actor *gCamActor;
 extern void *gSpawnedActor;
-extern ActorGlobalState gActorGlobalState;
 extern PlayerStruct *gPlayerSlots;
 extern PlayerState *gActivePlayerState;
 

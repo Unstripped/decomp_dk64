@@ -96,7 +96,6 @@ extern B2CE0Actor *gCurrentActor;
 extern B2CE0Actor *gSpawnedActor;
 
 extern u8 D_8071FBC8[];
-extern ActorGlobalState gActorGlobalState;
 void behaviourUpdateContactAndState();
 void behaviourSpawnExplosionAndSound();
 extern u16 gActiveActorCount;

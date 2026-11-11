@@ -36,7 +36,6 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorGlobalState gActorGlobalState;
 extern f32 gCsPosX;
 extern f32 gCsPosY;
 extern f32 gCsPosZ;

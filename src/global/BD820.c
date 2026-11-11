@@ -16,7 +16,6 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorGlobalState gActorGlobalState;
 
 typedef struct BD820Actor {
     /* 0x000 */ u8 pad0[0xC0];

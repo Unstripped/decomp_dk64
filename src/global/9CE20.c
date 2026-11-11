@@ -67,7 +67,6 @@ extern s32 gGlobalOverlayFlags;
 extern u32 gFrameDelta;
 extern s16 D_8075037C;
 extern s16 D_80750380;
-extern ActorGlobalState gActorGlobalState;
 
 f32 sinApprox(f32);
 

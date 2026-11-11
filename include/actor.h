@@ -910,6 +910,7 @@ extern Actor *gBehaviourTargetActor;
 extern SpawnNode *gBehaviourAnimState;
 extern SpawnNode *gBehaviourExtraState;
 extern Zone *D_807FDCA0; // gBehaviourAnimState->zone, latched by behaviourFrameBegin
+extern ActorGlobalState gActorGlobalState;
 
 
 // Collision/hit list passed to the 7AF60 interaction predicates (count @0xC, entries @0x10).

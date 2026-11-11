@@ -106,7 +106,6 @@ typedef struct {
 } Point3f;
 extern Point3f **D_807F5FD4;
 
-extern ActorGlobalState gActorGlobalState;
 void func_806FDAB8(u8, f32);  // FAKE: callee prototype steer
 
 extern u8 D_1000118[];

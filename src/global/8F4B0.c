@@ -223,7 +223,6 @@ typedef struct {
 s32 mapGetHubWorldIndex(u8, s32); // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;
-extern ActorGlobalState gActorGlobalState;
 extern s16 D_807FDCBC;
 extern s16 D_807FDCB8;
 extern s32 gGlobalPauseFlags;

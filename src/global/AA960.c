@@ -323,7 +323,6 @@ typedef struct BehaviourConfig {
     /* 0x8 */ f32 unk8;
 } BehaviourConfig;
 
-extern ActorGlobalState gActorGlobalState;
 extern s16 D_8075038C;
 
 void actorDropBounceExpireUpdate(f32 floorOffset) {

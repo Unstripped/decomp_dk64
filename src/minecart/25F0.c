@@ -58,7 +58,6 @@ extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
-extern ActorGlobalState gActorGlobalState;
 extern MinecartTrackPoint **D_807F5FD4;
 extern PlayerStruct *gPlayerSlots;
 extern u32 gFrameCounter;

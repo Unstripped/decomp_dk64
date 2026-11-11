@@ -8,7 +8,6 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorGlobalState gActorGlobalState;
 extern void *gPlayerSlots;
 
 u8 func_8072E5B0(void) {

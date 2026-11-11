@@ -1186,7 +1186,6 @@ extern u8 D_80720340;
 extern u8 D_8072038C;
 extern u32 gGameFrameCounter;
 extern s16 D_80750344;
-extern ActorGlobalState gActorGlobalState;
 
 void projectileBounceParticleUpdate(void *effectCfg) {
     f32 radius;

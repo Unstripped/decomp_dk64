@@ -756,7 +756,6 @@ void raceFindNearestWaypoint(RaceCursor *cursor) {
     }
 }
 
-extern ActorGlobalState gActorGlobalState;
 void tagBarrelSpawnActorSmokePuffs(u8, u8);
 s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void commandQueuePush(Actor *, s16, s16, s16, u8, u8, u8, u8, u8);

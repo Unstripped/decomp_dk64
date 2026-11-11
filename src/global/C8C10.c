@@ -32,7 +32,6 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorGlobalState gActorGlobalState;
 extern PlayerState *gActivePlayerState;
 
 typedef struct R1C8aSub174 {

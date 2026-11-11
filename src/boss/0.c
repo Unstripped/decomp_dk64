@@ -583,7 +583,6 @@ typedef struct Boss3B_Actor {
 
 extern Boss3B_Actor *gSpawnedActor;
 extern Boss3B_Actor *gPrimaryPlayerActor;
-extern ActorGlobalState gActorGlobalState;
 
 extern u8 *D_800358B0[][5];
 extern u8 D_80035980;

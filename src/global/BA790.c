@@ -19,7 +19,6 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorGlobalState gActorGlobalState;
 
 // View of the current actor (gCurrentActor) with the fields func_806B5A90 and func_806B640C need typed.
 typedef struct BA790Actor {

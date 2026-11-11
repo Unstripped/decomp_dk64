@@ -81,7 +81,6 @@ void func_806B1290(void) {
     }
 }
 
-extern ActorGlobalState gActorGlobalState;
 void func_806B1348(void) {
     if (gBehaviourWorkState->stepCount >= 0x65 && gActorGlobalState.bossFightPhase == 2 && behaviourIsTargetWithinAngle(0x2710) != 0) {
         gCurrentActor->state = 0x27;

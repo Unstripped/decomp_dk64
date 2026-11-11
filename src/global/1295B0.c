@@ -26,7 +26,6 @@
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorGlobalState gActorGlobalState;
 extern PlayerStruct *gPlayerSlots;
 
 void actorSetUniformScale(Actor *actor, f32 scale) {

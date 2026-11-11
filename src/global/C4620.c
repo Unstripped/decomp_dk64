@@ -35,7 +35,6 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorGlobalState gActorGlobalState;
 
 typedef struct ScriptedActorState {
     /* 0x00 */ u16 unk0;

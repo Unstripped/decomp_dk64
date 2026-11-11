@@ -33,7 +33,6 @@ typedef struct BossC_A7A0_Actor {
     BossC_A7A0_178 *unk178;
 } BossC_A7A0_Actor;
 
-extern ActorGlobalState gActorGlobalState;
 extern BossC_A7A0_Actor *gCurrentActor;
 extern BossC_A7A0_Actor *gPrimaryPlayerActor;
 void actorDespawn(BossC_A7A0_Actor *);

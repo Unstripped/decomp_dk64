@@ -23,7 +23,6 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorGlobalState gActorGlobalState;
 extern void *gPlayerSlots;
 
 typedef struct D1S174 {

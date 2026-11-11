@@ -33,7 +33,6 @@ typedef struct B7490Actor {
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorGlobalState gActorGlobalState;
 extern PlayerState *gActivePlayerState;
 extern u32 gFrameCounter;
 extern s32 gCurrentMap;

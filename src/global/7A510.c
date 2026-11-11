@@ -37,7 +37,6 @@ typedef struct CollisionTableSlot {
 } CollisionTableSlot;
 
 extern CollisionTableSlot D_8074C604[];
-extern ActorGlobalState gActorGlobalState;
 
 
 void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {

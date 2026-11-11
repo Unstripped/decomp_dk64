@@ -623,8 +623,6 @@ void raceVehicleBehaviorUpdate(void) {
     }
 }
 
-extern ActorGlobalState gActorGlobalState;
-
 extern u8 D_80720340[];
 extern u8 sEffectSparkConfig[];
 

@@ -82,7 +82,6 @@ extern s16 D_8076AEF2;
 extern u16 D_80744508;
 extern s16 D_80750AC4;
 extern u8 D_807FBDC4;
-extern ActorGlobalState gActorGlobalState;
 extern u8 D_8002D863[];
 
 
