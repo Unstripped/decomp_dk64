@@ -647,7 +647,7 @@ void eepromReadAllSectors(void) {
     D_807467C4 = 0;
     D_807467CC = 1;
     if (failed == 0) {
-        failed = _strcasecmp((char *)D_807ED6A8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
+        failed = _strcasecmp(D_807ED6A8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
     }
     if (failed != 0) {
         eepromResetAllSlots();
@@ -678,7 +678,7 @@ void eepromSaveRecords(s32 recordsOnly) {
     u8 *q;
     p = D_807ECD08;
     if (D_807EDEAC == 2) {
-        _sprintf((char *)D_807ECEA8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
+        _sprintf(D_807ECEA8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
         memcpy(workingData, D_807ECEA8, 0x800);
         memcpy(savedData, D_807ED6A8, 0x800);
         if (recordsOnly == 0) {
@@ -899,7 +899,7 @@ void eepromThreadMain(void *arg) {
 
 extern OSMesg D_807EE0B0[];
 extern OSThread D_807EE0E8;
-extern u64 D_807F0298[];
+extern OSMesg D_807F0298[];
 extern s8 D_807467E0;
 
 void eepromInit(void) {
