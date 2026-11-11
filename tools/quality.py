@@ -1463,6 +1463,68 @@ def respelled_decl(path, name, ov, nv, old_scope, new_scope):
     return f"{name} declaration respelled, same type"
 
 
+def type_renames(path, old_body, new_body, old_closure, new_closure, old_scope, new_scope):
+    """({old: new}, closure renamer) when OLD_BODY and NEW_BODY differ only in identifiers naming a
+    file-local typedef, record or enum (typedef name and/or tag) of PATH that was renamed, mapped
+    one-to-one, each renamed declaration identical apart from the name (same token text once renamed;
+    a record also the same `clint.record_layout`, field types included). A local type only in
+    OLD_CLOSURE (reached through a declaration, not the body) pairs with the one new-only local type
+    whose renamed text it matches. ({}, None) when nothing was renamed; else None. The renamer maps
+    a `Scope.closure` of the old side onto new names and texts."""
+    if len(old_body) != len(new_body):
+        return None
+    fwd, back = {}, {}
+    for x, y in zip(old_body, new_body):
+        if x.kind != y.kind or (x.kind != TokenKind.IDENTIFIER and x.spelling != y.spelling):
+            return None
+        if x.spelling != y.spelling and (fwd.setdefault(x.spelling, y.spelling) != y.spelling
+                                         or back.setdefault(y.spelling, x.spelling) != x.spelling):
+            return None
+    want, typed = os.path.realpath(os.path.join(ROOT, path)), (
+        CursorKind.TYPEDEF_DECL, CursorKind.STRUCT_DECL, CursorKind.UNION_DECL, CursorKind.ENUM_DECL)
+
+    def local_type(scope, name):
+        cs = scope.idx.get(name, [])
+        return cs if cs and all(c.kind in typed and c.location.file is not None
+                                and os.path.realpath(c.location.file.name) == want for c in cs) else None
+
+    def texts(scope, name):
+        return sorted((rel(os.path.join(ROOT, c.location.file.name)),
+                       " ".join(fwd.get(t.spelling, t.spelling) if t.kind == TokenKind.IDENTIFIER else t.spelling
+                                for t in decl_tokens(c)))
+                      for c in scope.idx.get(name, []))
+
+    news = [n for n in set(new_closure) - set(old_closure) if local_type(new_scope, n) and n not in old_scope.idx]
+    for o in sorted(set(old_closure) - set(new_closure) - set(fwd)):
+        if not local_type(old_scope, o):
+            continue
+        hits = []
+        for n in news:
+            if n not in back:
+                fwd[o] = n
+                if texts(old_scope, o) == new_scope.direct(n)[0]:
+                    hits.append(n)
+                del fwd[o]
+        if len(hits) == 1:
+            fwd[o], back[hits[0]] = hits[0], o
+    if not fwd:
+        return {}, None
+
+    for o, n in fwd.items():
+        oc, nc = local_type(old_scope, o), local_type(new_scope, n)
+        if oc is None or nc is None or n in old_scope.idx or texts(old_scope, o) != new_scope.direct(n)[0]:
+            return None
+        ot, nt = record_type(oc), record_type(nc)
+        if ot is not None and nt is not None:
+            lo, ln = clint.record_layout(ot), clint.record_layout(nt)
+            if lo is None or ln is None or clint.layout_diff({n: lo}, {n: ln}, types=True):
+                return None
+
+    def renamer(scope, closure):
+        return {fwd.get(k, k): texts(scope, k) if v is not None else v for k, v in closure.items()}
+    return fwd, renamer
+
+
 def scope_equivalent(path, old_body, new_body, old_closure, new_closure, old_scope, new_scope, rev=None):
     """({name: 'NAME moved to|from <header>, identical' or a `respelled_decl` description}, None)
     when a function is unchanged apart from file-scope text it does not use: same body tokens, and
@@ -1474,10 +1536,21 @@ def scope_equivalent(path, old_body, new_body, old_closure, new_closure, old_sco
     and map to None; else (None, why: '' or the changed moved declaration). Callers parse both
     versions against the current headers; REV = (scope, closure) of the old text parsed with REV's
     headers supplies the old side of a name whose declarations differ (the current headers may
-    already hold a declaration moved into them, or no longer one moved out)."""
-    if [(t.kind, t.spelling) for t in old_body] != [(t.kind, t.spelling) for t in new_body]:
+    already hold a declaration moved into them, or no longer one moved out). A file-local typedef,
+    record or enum renamed with an otherwise identical declaration (`type_renames`) maps old name to
+    new in the body and closures: 'type OLD renamed NEW, identical'."""
+    tr = type_renames(path, old_body, new_body, old_closure, new_closure,
+                      rev[0] if rev is not None else old_scope, new_scope)
+    if tr is None:
         return None, ""
-    moved, oneside = {}, []
+    renamed, renamer = tr
+    if renamed:
+        old_closure = renamer(old_scope, old_closure)
+        if rev is not None:
+            rev = (rev[0], renamer(rev[0], rev[1]))
+        old_body = new_body
+    moved = {n: f"type {o} renamed {n}, identical" for o, n in renamed.items()}
+    oneside = []
     for name in sorted(set(old_closure) | set(new_closure)):
         ov, nv, oscope = old_closure.get(name), new_closure.get(name), old_scope
         if ov == nv:

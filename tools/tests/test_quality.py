@@ -797,6 +797,54 @@ def test_carry_declaration_respelled_same_type(tmp_path, monkeypatch, capsys, hd
     assert q.mark(by_site[new["sites"][0]["key"]], "remove", fp, "f")[0] == "✓"
 
 
+TYPE_FN = ("typedef struct %s {\n    char pad0[4];\n    %s a;\n} %s;\n\nextern %s *gSlots;\n\n"
+           "int f(int i) {\n    %s *p = &gSlots[i];\n    if (p) {} // FAKE: steers\n"
+           "    return p->a + sizeof(%s);\n}\n")
+
+
+@pytest.mark.parametrize("field,reason", [("int", None), ("short", "")])  # field type changed: not identical
+def test_carry_local_type_renamed(tmp_path, monkeypatch, capsys, field, reason):
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    (repo / "include").mkdir()
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "_htext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    src = repo / "src" / "global" / "x.c"
+    src.write_text(TYPE_FN % ("Slot", "int", "Slot", "Slot", "Slot", "Slot"))
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fn = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    q.append_events([q.event("u1", "a", fn, None, "views", "nohit", note="no views left"),
+                     q.event("u1", "a", fn, None, "review", "nohit", note=REVIEW)])
+    src.write_text(TYPE_FN % ("SlotView", field, "SlotView", "SlotView", "SlotView", "SlotView"))
+    _git(repo, "commit", "-qam", "b")
+    new = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    if reason is not None:
+        assert "skipped src/global/x.c: f: not a pure rename; body or a declaration it uses changed" in out
+        assert "would carry 0 events" in out
+        return
+    how = "type Slot renamed SlotView, identical"
+    assert f"would carry src/global/x.c: f: review, views ({how})" in out
+    assert "would carry 2 events" in out and "skipped" not in out
+    q.main(["carry", "--rev", rev_a, "--unit", "u2"])
+    by_site, by_func = q.index_events(q.load_events())
+    fp, fevs = (new["fp_local"], new["fp_hdr"], new["fp_hdr2"]), by_func[("global", "80600000")]
+    assert {m: q.mark(fevs, m, fp, "f")[0] for m in ("views", "review")} == {"views": "✓", "review": "✓"}
+
+
 WSITE = dict(key="global:80600000:warning:abc123", kind="warning", name="f", line=4, lines=[3], tagged=False,
              code="g = x;", warning="712 illegal combination of pointer and integer")
 

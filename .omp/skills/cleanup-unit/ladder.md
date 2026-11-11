@@ -76,7 +76,9 @@ A function with 3+ non-kept sites (warning sites not counted) also needs a fresh
   (`GBL_c##clk` reaches every `GBL_c*`) and skips only two pasted parameters, and treats a type
   moved unchanged between the `.c` and an `include/` header as unchanged (`moved to <h>, identical`)
   and a prototype/variable declaration respelled with the same canonical type as unchanged
-  (`<name> declaration respelled|moved to <h>, same type`; K&R vs prototyped is a change);
+  (`<name> declaration respelled|moved to <h>, same type`; K&R vs prototyped is a change),
+  and a file-local typedef/record/enum renamed with an otherwise identical declaration (same
+  renamed text and `clint.record_layout`) as unchanged (`type <old> renamed <new>, identical`);
   events from before it fall back to
   `fp_hdr`, every included header) equal the current values. `carry --rev REV --header-carve`
   re-stamps these across header edits (REV parsed with REV's headers) for functions whose
