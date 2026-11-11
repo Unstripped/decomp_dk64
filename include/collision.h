@@ -31,15 +31,15 @@ typedef struct CollisionBox {
     /* 0x10 */ s64 nz;
     /* 0x18 */ s64 d; // plane offset: -(n . vertex 1)
     /* 0x20 */ f32 len; // |n|; 0 = degenerate triangle
-    /* 0x24 */ s32 unk24;
-    /* 0x28 */ s32 unk28;
-    /* 0x2C */ s32 unk2C;
-    /* 0x30 */ s32 unk30;
-    /* 0x34 */ s32 unk34;
-    /* 0x38 */ s32 unk38;
-    /* 0x3C */ s32 unk3C;
-    /* 0x40 */ s32 unk40;
-    /* 0x44 */ s32 unk44;
+    /* 0x24 */ s32 x0; // vertices, world units * 8 (collisionTransformTriangle)
+    /* 0x28 */ s32 y0;
+    /* 0x2C */ s32 z0;
+    /* 0x30 */ s32 x1;
+    /* 0x34 */ s32 y1;
+    /* 0x38 */ s32 z1;
+    /* 0x3C */ s32 x2;
+    /* 0x40 */ s32 y2;
+    /* 0x44 */ s32 z2;
     /* 0x48 */ s16 unk48;
     /* 0x4A */ u8 axis; // dominant normal axis: 0 = z, 1 = y, 2 = x (collisionBuildPlane)
     /* 0x4B */ u8 unk4B;

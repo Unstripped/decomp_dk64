@@ -422,15 +422,15 @@ s32 collisionTransformTriangle(CollisionAssetTri *tri, CollisionBox *out, f32 (*
         out->unk50 = 0xFF;
     }
     out->unk4E = tri->unk14;
-    out->unk24 = (s32)(x0 * 8.0f);
-    out->unk28 = (s32)(y0 * 8.0f);
-    out->unk2C = (s32)(z0 * 8.0f);
-    out->unk30 = (s32)(x1 * 8.0f);
-    out->unk34 = (s32)(y1 * 8.0f);
-    out->unk38 = (s32)(z1 * 8.0f);
-    out->unk3C = (s32)(x2 * 8.0f);
-    out->unk40 = (s32)(y2 * 8.0f);
-    out->unk44 = (s32)(z2 * 8.0f);
+    out->x0 = (s32)(x0 * 8.0f);
+    out->y0 = (s32)(y0 * 8.0f);
+    out->z0 = (s32)(z0 * 8.0f);
+    out->x1 = (s32)(x1 * 8.0f);
+    out->y1 = (s32)(y1 * 8.0f);
+    out->z1 = (s32)(z1 * 8.0f);
+    out->x2 = (s32)(x2 * 8.0f);
+    out->y2 = (s32)(y2 * 8.0f);
+    out->z2 = (s32)(z2 * 8.0f);
     verts[9] = collisionTriangleNormalYaw(verts, axisOut);
     out->unk4B = collisionTriangleSlopeClass(verts);
     out->unk48 = verts[9];
@@ -1360,15 +1360,15 @@ s32 collisionBuildBoxFromMatrix(f32 *arg0, CollisionBox *arg1) {
         return 0;
     }
 
-    arg1->unk24 = (s32)(arg0[0] * 8.0f);
-    arg1->unk28 = (s32)(arg0[3] * 8.0f);
-    arg1->unk2C = (s32)(arg0[6] * 8.0f);
-    arg1->unk30 = (s32)(arg0[1] * 8.0f);
-    arg1->unk34 = (s32)(arg0[4] * 8.0f);
-    arg1->unk38 = (s32)(arg0[7] * 8.0f);
-    arg1->unk3C = (s32)(arg0[2] * 8.0f);
-    arg1->unk40 = (s32)(arg0[5] * 8.0f);
-    arg1->unk44 = (s32)(arg0[8] * 8.0f);
+    arg1->x0 = (s32)(arg0[0] * 8.0f);
+    arg1->y0 = (s32)(arg0[3] * 8.0f);
+    arg1->z0 = (s32)(arg0[6] * 8.0f);
+    arg1->x1 = (s32)(arg0[1] * 8.0f);
+    arg1->y1 = (s32)(arg0[4] * 8.0f);
+    arg1->z1 = (s32)(arg0[7] * 8.0f);
+    arg1->x2 = (s32)(arg0[2] * 8.0f);
+    arg1->y2 = (s32)(arg0[5] * 8.0f);
+    arg1->z2 = (s32)(arg0[8] * 8.0f);
 
     sp32 = collisionTriangleNormalYaw(sp20, sp34, arg0);
     arg1->unk4B = collisionTriangleSlopeClass(sp20);
@@ -1723,15 +1723,15 @@ void actorBuildCollisionHit(s32 arg0, ActorHitView *arg1, CollisionBox *arg2) {
         if (!(arg1->unk60 & 0x800)) {
             guMtxXFMF(inv, px, py, pz, &sub->unk4C, &sub->unk50, &sub->unk54);
         }
-        x[0] = (f32)D_807FB5D8->unk24 / 8;
-        y[0] = (f32)D_807FB5D8->unk28 / 8;
-        z[0] = (f32)D_807FB5D8->unk2C / 8;
-        x[1] = (f32)D_807FB5D8->unk30 / 8;
-        y[1] = (f32)D_807FB5D8->unk34 / 8;
-        z[1] = (f32)D_807FB5D8->unk38 / 8;
-        x[2] = (f32)D_807FB5D8->unk3C / 8;
-        y[2] = (f32)D_807FB5D8->unk40 / 8;
-        z[2] = (f32)D_807FB5D8->unk44 / 8;
+        x[0] = (f32)D_807FB5D8->x0 / 8;
+        y[0] = (f32)D_807FB5D8->y0 / 8;
+        z[0] = (f32)D_807FB5D8->z0 / 8;
+        x[1] = (f32)D_807FB5D8->x1 / 8;
+        y[1] = (f32)D_807FB5D8->y1 / 8;
+        z[1] = (f32)D_807FB5D8->z1 / 8;
+        x[2] = (f32)D_807FB5D8->x2 / 8;
+        y[2] = (f32)D_807FB5D8->y2 / 8;
+        z[2] = (f32)D_807FB5D8->z2 / 8;
         for (i = 0; i < 3; i++) {
             guMtxXFMF(inv, x[i], y[i], z[i], &sub->unk28[i], &sub->unk34[i], &sub->unk40[i]);
         }
@@ -2513,15 +2513,15 @@ void actorComputeBoxNormal(struct ActorTargetWork *arg0, f32 *arg1, f32 *arg2, f
     } else {
         box = D_807FB5D4;
     }
-    x[0] = (f32)box->unk24 / 8;
-    y[0] = (f32)box->unk28 / 8;
-    z[0] = (f32)box->unk2C / 8;
-    x[1] = (f32)box->unk30 / 8;
-    y[1] = (f32)box->unk34 / 8;
-    z[1] = (f32)box->unk38 / 8;
-    x[2] = (f32)box->unk3C / 8;
-    y[2] = (f32)box->unk40 / 8;
-    z[2] = (f32)box->unk44 / 8;
+    x[0] = (f32)box->x0 / 8;
+    y[0] = (f32)box->y0 / 8;
+    z[0] = (f32)box->z0 / 8;
+    x[1] = (f32)box->x1 / 8;
+    y[1] = (f32)box->y1 / 8;
+    z[1] = (f32)box->z1 / 8;
+    x[2] = (f32)box->x2 / 8;
+    y[2] = (f32)box->y2 / 8;
+    z[2] = (f32)box->z2 / 8;
 
     v1[0] = x[2] - x[0];
     v1[1] = y[2] - y[0];
