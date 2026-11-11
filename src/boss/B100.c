@@ -1,4 +1,5 @@
 #include "common.h"
+#define PROTO_SKIP_func_8002FDF8
 #include "actor.h"
 #include "proto/boss/3840.h"
 #include "proto/boss/B100.h"
@@ -9,6 +10,7 @@
 #include "proto/global/3C10.h"
 #include "proto/global/8CA50.h"
 #include "proto/global/FCCD0.h"
+void func_8002FDF8(void *, u8);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 typedef struct {
@@ -312,7 +314,7 @@ u8 scaleFactor;
     sub->z = 1.0f;
 }
 void func_8002FC48(actorObj, frame)
-s32 actorObj;
+Actor *actorObj;
 u8 frame;
 {
     animSetLoopLimit(actorObj, 0, 1);
@@ -357,7 +359,7 @@ u8 param;
 }
 
 
-void func_8002FDF8(s32 actorObj, u8 scaleVal) {
+void func_8002FDF8(void *actorObj, u8 scaleVal) {
     s32 finalScale;
     s32 animFrame;
 
@@ -444,14 +446,14 @@ void bossKRoolTinyStep(void) {
     st = BOSS_ACTOR->unk178;
     list = BOSS_ACTOR->unk17C;
     behaviourFrameBegin();
-    if (!(BOSS_ACTOR->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         transitionSetState(0);
         slotQueueSetDisplayMode(2, 0, 1);
         gPrimaryPlayerActor->state = 0x5F;
         gPrimaryPlayerActor->unk155 = 0;
         actorScriptStartByIndex(gPrimaryPlayerActor, 0x4B);
-        BOSS_ACTOR->unk154 = 0;
-        BOSS_ACTOR->unk155 = 0;
+        gCurrentActor->state = 0;
+        gCurrentActor->unk155 = 0;
         func_80724DB0(2, 1);
         func_8002FEC0(list, 0, 0x6D);
         func_8002FEC0(list, 1, 0x6E);
@@ -459,7 +461,7 @@ void bossKRoolTinyStep(void) {
         st->unk12 = 0;
         if (flagGet(0x51, 2)) {
             func_8002FC48(gCurrentActor, 4);
-            BOSS_ACTOR->unk15F = 2;
+            gCurrentActor->unk15F = 2;
             list[0]->unk15F = 1;
             st->unk12 = 1;
         }
@@ -479,32 +481,32 @@ void bossKRoolTinyStep(void) {
         bossActorGroupCommand(gCurrentActor, 0xF, 0x40E, 0);
     }
     tbl = D_80035AA4[st->unk14];
-    if (BOSS_ACTOR->unk154) {
+    if (gCurrentActor->state) {
         ZoneEntry *p = D_807FDCA0->entries;
         camClosestPointOnSegment(gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z, p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, &gPrimaryPlayerActor->x, &dummyY, &gPrimaryPlayerActor->z);
         gPrimaryPlayerActor->yaw = 0xFD2;
         gActivePlayerState->unk38 = 150.0f;
     }
-    func_8002FDF8((s32)BOSS_ACTOR, st->unk14);
+    func_8002FDF8(gCurrentActor, st->unk14);
     bossActorGroupCommand(gCurrentActor, (1 << st->unk12) & 0xFF, 1, 0);
-    switch (BOSS_ACTOR->unk154) {
+    switch (gCurrentActor->state) {
     case 0x1F:
-        switch (BOSS_ACTOR->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
             gBehaviourWorkState->timer = tbl[st->unk15++];
-            BOSS_ACTOR->unk155++;
+            gCurrentActor->unk155++;
         case 1:
             if (gBehaviourWorkState->timer) {
                 gBehaviourWorkState->timer--;
             } else {
-                BOSS_ACTOR->unk154 = tbl[st->unk15++];
-                BOSS_ACTOR->unk155 = 0;
+                gCurrentActor->state = tbl[st->unk15++];
+                gCurrentActor->unk155 = 0;
             }
             break;
         }
         break;
     case 0x37:
-        if (BOSS_ACTOR->unk155 == 0) {
+        if (gCurrentActor->unk155 == 0) {
             gPrimaryPlayerActor->state = 0x5F;
             gPrimaryPlayerActor->unk155 = 0;
             actorScriptStartByIndex(gPrimaryPlayerActor, 0x4A);
@@ -512,90 +514,90 @@ void bossKRoolTinyStep(void) {
             transitionSetState(1);
             mapRequestTransition(0xCE, 0);
             flagSet(st->unk12 + 0x51, 1, 2);
-            BOSS_ACTOR->unk155++;
+            gCurrentActor->unk155++;
         }
         break;
     case 0:
         func_80724A20();
         break;
     case 1:
-        bossActorGroupCommand(BOSS_ACTOR, 0xF, 0x410, 0);
-        BOSS_ACTOR->unk154 = tbl[st->unk15++];
-        BOSS_ACTOR->unk155 = 0;
+        bossActorGroupCommand(gCurrentActor, 0xF, 0x410, 0);
+        gCurrentActor->state = tbl[st->unk15++];
+        gCurrentActor->unk155 = 0;
         break;
     case 0x27:
-        switch (BOSS_ACTOR->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
-            BOSS_ACTOR->unk155++;
-            bossActorGroupCommand(BOSS_ACTOR, 0xF, -1, 0);
+            gCurrentActor->unk155++;
+            bossActorGroupCommand(gCurrentActor, 0xF, -1, 0);
             st->unk18 = tbl[st->unk15++];
             st->unk19 = tbl[st->unk15++] + st->unk12 * 10;
             st->unk8 = tbl[st->unk15++];
             if (st->unk18 == 0xFF) {
                 st->unk18 = 8 >> (s32)((gPrimaryPlayerActor->x - 117.0f) / 50.0f);
             }
-            bossActorGroupCommand(BOSS_ACTOR, st->unk18, 0x413, 0);
+            bossActorGroupCommand(gCurrentActor, st->unk18, 0x413, 0);
             gBehaviourWorkState->timer = 0x14;
             break;
         case 1:
             if (gBehaviourWorkState->timer) {
                 gBehaviourWorkState->timer--;
             } else {
-                BOSS_ACTOR->unk155++;
+                gCurrentActor->unk155++;
             }
             break;
         case 2:
-            BOSS_ACTOR->unk155++;
-            bossActorGroupCommand(BOSS_ACTOR, st->unk18, 0x414, (st->unk19 + st->unk12 * 15) & 0xFF);
+            gCurrentActor->unk155++;
+            bossActorGroupCommand(gCurrentActor, st->unk18, 0x414, (st->unk19 + st->unk12 * 15) & 0xFF);
             gBehaviourWorkState->timer = st->unk8;
         case 3:
             if (gBehaviourWorkState->timer) {
                 gBehaviourWorkState->timer--;
             } else {
-                BOSS_ACTOR->unk154 = tbl[st->unk15++];
-                BOSS_ACTOR->unk155 = 0;
+                gCurrentActor->state = tbl[st->unk15++];
+                gCurrentActor->unk155 = 0;
             }
             break;
         }
         break;
     case 0x28:
-        bossActorGroupCommand(BOSS_ACTOR, (1 << st->unk12) & 0xFF, 2, 0);
-        if (st->unk14 == st->unk12 && BOSS_ACTOR->unk138 == 0) {
-            BOSS_ACTOR->unk154 = 0x37;
-            BOSS_ACTOR->unk155 = 0;
+        bossActorGroupCommand(gCurrentActor, (1 << st->unk12) & 0xFF, 2, 0);
+        if (st->unk14 == st->unk12 && gCurrentActor->callbackMask == 0) {
+            gCurrentActor->state = 0x37;
+            gCurrentActor->unk155 = 0;
             break;
         }
-        switch (BOSS_ACTOR->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
             gBehaviourWorkState->timer = tbl[st->unk15++];
-            bossActorGroupCommand(BOSS_ACTOR, (1 << st->unk12) & 0xFF, 0x411, 0);
-            BOSS_ACTOR->unk155++;
+            bossActorGroupCommand(gCurrentActor, (1 << st->unk12) & 0xFF, 0x411, 0);
+            gCurrentActor->unk155++;
             break;
         case 1:
         case 2:
             if (gBehaviourWorkState->timer) {
                 gBehaviourWorkState->timer--;
             } else {
-                if (BOSS_ACTOR->unk155 == 1 && BOSS_ACTOR->unk138) {
-                    bossActorGroupCommand(BOSS_ACTOR, (1 << st->unk12) & 0xFF, 0x412, 0);
+                if (gCurrentActor->unk155 == 1 && gCurrentActor->callbackMask) {
+                    bossActorGroupCommand(gCurrentActor, (1 << st->unk12) & 0xFF, 0x412, 0);
                 }
                 gBehaviourWorkState->timer = 10;
-                BOSS_ACTOR->unk155++;
+                gCurrentActor->unk155++;
             }
             break;
         case 3:
-            if (BOSS_ACTOR->unk138 == 0) {
+            if (gCurrentActor->callbackMask == 0) {
                 st->unk14++;
                 st->unk15 = 0;
                 tbl = D_80035AA4[st->unk14];
             }
-            BOSS_ACTOR->unk154 = tbl[st->unk15++];
-            BOSS_ACTOR->unk155 = 0;
+            gCurrentActor->state = tbl[st->unk15++];
+            gCurrentActor->unk155 = 0;
             break;
         }
         break;
     case 0x29:
-        switch (BOSS_ACTOR->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
             break;
         }
@@ -604,7 +606,7 @@ void bossKRoolTinyStep(void) {
         bossScriptStep(tbl, 0, 0);
         break;
     }
-    actorUpdateModelMatrix(BOSS_ACTOR, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void bossKRoolTinyUpdateMinion(void) {

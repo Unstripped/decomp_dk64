@@ -494,11 +494,11 @@ void renderScaledSprite(Gfx *arg0, Actor *arg1) {
 
 extern char *D_80750338[];
 
-Gfx *actorBannerTextRender(Gfx *arg0, Actor *arg1) {
+Gfx *actorBannerTextRender(Gfx *dl, Actor *actor) {
     f32 scale;
     f32 mtx[4][4];
     f32 translate[4][4];
-    void *mtxBuf;
+    Mtx *mtxBuf;
     u8 text[0x10];
     s16 width;
     u8 font;
@@ -506,23 +506,23 @@ Gfx *actorBannerTextRender(Gfx *arg0, Actor *arg1) {
     f64 size;
     s32 sel;
 
-    if (((f64)arg1->floorSlopeFactor - 2.0) < 0.01) {
+    if (((f64)actor->floorSlopeFactor - 2.0) < 0.01) {
         size = 0.01;
     } else {
-        size = (f64)arg1->floorSlopeFactor - 2.0;
+        size = (f64)actor->floorSlopeFactor - 2.0;
     }
     scale = (f32)(size * 0.3);
     centered = 0;
-    WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
-    WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
-    WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
-    WRITE_GFX(arg0++, 0xE7000000, 0);
-    WRITE_GFX(arg0++, 0xFA000000, (arg1->yaw & 0xFF) | 0xFFFFFF00);
-    arg0 = func_8070068C(arg0);
+    WRITE_GFX(dl++, 0xDE000000, (u32)&D_1000118);
+    WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
+    WRITE_GFX(dl++, 0xE200001C, 0x00504240);
+    WRITE_GFX(dl++, 0xE7000000, 0);
+    WRITE_GFX(dl++, 0xFA000000, (actor->yaw & 0xFF) | 0xFFFFFF00);
+    dl = func_8070068C(dl);
     mtxBuf = heapAlloc(0x40);
     heapFreeDeferred(mtxBuf);
     font = 1;
-    sel = arg1->unk15F;
+    sel = actor->unk15F;
     switch (sel ^ 0) { // FAKE: keeps the switch selector copy (v0) out of copy propagation
     case 0:
         _sprintf(text, "ROUND");
@@ -555,15 +555,15 @@ Gfx *actorBannerTextRender(Gfx *arg0, Actor *arg1) {
     }
     width = textGetStringWidth(font, text);
     if (centered != 0) {
-        arg1->x = (f32)((0x140 - width) << 1);
+        actor->x = (f32)((0x140 - width) << 1);
     }
     guScaleF(mtx, scale, scale, 1.0f);
-    guTranslateF(translate, (f32)((f64)arg1->x + 2.0 * (f64)width),
-                 arg1->y * 4.0f, 0.0f);
+    guTranslateF(translate, (f32)((f64)actor->x + 2.0 * (f64)width),
+                 actor->y * 4.0f, 0.0f);
     guMtxCatF(mtx, translate, mtx);
-    guMtxF2L(mtx, (Mtx *)mtxBuf);
-    WRITE_GFX(arg0++, 0xDA380003, (u32)mtxBuf);
-    return textDrawStringVtx(arg0, (s16)font, (s16)(width * -2), 0, (u8 *)text, 0);
+    guMtxF2L(mtx, mtxBuf);
+    WRITE_GFX(dl++, 0xDA380003, (u32)mtxBuf);
+    return textDrawStringVtx(dl, (s16)font, (s16)(width * -2), 0, text, 0);
 }
 void actorUpdateBannerFade(void) {
     f32 ratio;

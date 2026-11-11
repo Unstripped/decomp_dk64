@@ -801,7 +801,7 @@ void textBoxUpdate(void) {
         flags = sub->unk55;
         if (!(flags & 1)) {
             if (gCurrentActor->state != 4 && gCurrentActor->state != 5) {
-                if (15.0 < (f64)sub->unk0) {
+                if (sub->unk0 > 15.0) {
                     if (D_807ECD66 & 0x4000) {
                         sub->unk55 = flags | 1;
                         flags = sub->unk55;
@@ -825,12 +825,12 @@ void textBoxUpdate(void) {
             }
         }
     }
-    sub->unk38 = sub->unk38 + 0x14;
-    sub->unk3A = sub->unk3A + 0x32;
+    sub->unk38 += 0x14;
+    sub->unk3A += 0x32;
     switch (gCurrentActor->state) {
     case 0:
         if (sub->unk0 < 0x1E) {
-            sub->unk0 = sub->unk0 + 1;
+            sub->unk0++;
         } else {
             gCurrentActor->state = 1;
             sub->unk1D = D_807503F0;
@@ -841,16 +841,16 @@ void textBoxUpdate(void) {
     case 2:
         speed = 2.0f;
         if (sub->unk55 & 4) {
-            speed = speed * 3.0f;
+            speed *= 3.0f;
         } else if (sub->unk55 & 2) {
-            speed = speed * 0.5f;
+            speed *= 0.5f;
         }
         if (!(speed < sub->unk18)) {
             speed = sub->unk18;
         }
-        sub->unk14 = sub->unk14 - speed;
-        sub->unk18 = sub->unk18 - speed;
-        if ((f64)sub->unk18 < 0.0001) {
+        sub->unk14 -= speed;
+        sub->unk18 -= speed;
+        if (sub->unk18 < 0.0001) {
             gCurrentActor->state = 1;
         }
         break;
@@ -861,7 +861,7 @@ void textBoxUpdate(void) {
             if (sub->unkC != NULL) {
                 resNodeListFree(sub);
             }
-            sub->unk0 = sub->unk0 - 1;
+            sub->unk0--;
         } else {
             gCurrentActor->state = 5;
         }

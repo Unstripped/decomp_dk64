@@ -1571,7 +1571,7 @@ void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         t = (randomNonNegative() >> 15) % 100;
         rx = t / 100.0;
         t = (randomNonNegative() >> 15) % 100;
-        rz = t / (f64)100;
+        rz = t / (f64)100; // FAKE: int-converted divisor is a separate f64 constant web from 100.0 (100.0 drops 4 bytes)
         guMtxXFMF(m->mtx, rx * 100.0 + -50.0, 0.0f, rz * 150.0 + -75.0, &x, &y, &z);
         x *= gCsScale;
         z *= gCsScale;

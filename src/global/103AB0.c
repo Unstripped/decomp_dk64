@@ -2,6 +2,7 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_renderRotatedSprite // FAKE: callee prototype steer
+#define PROTO_SKIP_zbufferReadDepth
 #include "proto/global/103AB0.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/112080.h"
@@ -50,6 +51,7 @@ Gfx *playerViewGfxSetup(Gfx *dl, u8 playerIndex) {
 }
 
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32); // FAKE: callee prototype steer
+u16 zbufferReadDepth(s16, s16);
 
 Gfx *func_806FEF7C(Gfx *dl, Actor *player) {
     dl = playerViewGfxSetup(dl, ((PlayerState *)player->customState)->playerIndex);
@@ -409,7 +411,7 @@ typedef struct {
 extern ZbufferDecodeTable D_80754BC4;
 extern u16 *gGfxDepthBuffer;
 
-s32 zbufferReadDepth(s16 x, s16 y) {
+u16 zbufferReadDepth(s16 x, s16 y) {
     ZbufferDecodeTable table;
     u16 z;
     u16 mantissa;
@@ -429,7 +431,7 @@ s32 zbufferReadDepth(s16 x, s16 y) {
     entry = tablePtr->words + (((z >> 13) & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 7) * 2); // FAKE: no-op masks advance the ugen temp ring (Q0374)
     mantissa = z >> 2;
     result = ((mantissa & 0x7FF) << entry[0]) + entry[1];
-    return ((u32)result >> 3) & 0xFFFF;
+    return (u32)result >> 3;
 }
 
 extern s32 gGlobalPauseFlags;
@@ -460,7 +462,6 @@ void func_80700BF4(void) {
     PlayerSampleInfo *pad;
     s32 depth;
     s32 blocked;
-    s32 invalid = 0x7FFF; // FAKE: value-named constant local keeps 0x7FFF in a saved register
 
     if (D_80754BC0 != 0) {
         do {
@@ -479,13 +480,13 @@ void func_80700BF4(void) {
         } while (D_80754BC0 != 0);
     }
     depth = zbufferReadDepth(0xA0, 0xDC);
-    blocked = invalid == depth;
+    blocked = depth == 0x7FFF;
     if (blocked == 0) {
         depth = zbufferReadDepth(0xC, 0x78);
-        blocked = invalid == depth;
+        blocked = depth == 0x7FFF;
         if (blocked == 0) {
             depth = zbufferReadDepth(0x134, 0x78);
-            blocked = invalid == depth;
+            blocked = depth == 0x7FFF;
         }
     }
     D_807FD800 = blocked;

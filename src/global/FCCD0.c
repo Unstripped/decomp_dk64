@@ -456,7 +456,7 @@ void func_806F8DC4(u8 *alpha, s32 count, s32 slot) {
         } else if (flagGridSumRows(0x225, world, world, kongArg) != 0) {
             *alpha = 0xFF;
         }
-    } else if (count < ((u16 *)&gPlayerInventoryTable[kong][0x42])[world]) {
+    } else if (count < ((u16 *)gPlayerInventoryTable[kong])[0x21 + world]) {
         *alpha = 0xFF;
     }
 }
@@ -653,7 +653,7 @@ void slotQueueReleaseSlot(s32 slot) {
     SlotQueueNode **link;
     SlotQueueNode *node;
     SlotQueueNode **next;
-    s32 *effect;
+    void **effect;
 
     link = &gSlotQueue[slot].nodes;
     gSlotQueue[slot].state = 0;
@@ -924,7 +924,7 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     s32 *matrix;
     u8 text[8];
     u8 alpha;
-    ViewportRect *viewport;
+    G00Entry *viewport;
     f32 scale;
     s32 width;
 
@@ -944,7 +944,7 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
         _sprintf(text, "NA");
         break;
     default:
-        _sprintf(text, "%d", (slot * 0x30 == 0xF0) ? (s32)floatCeil((f32)(u32)gSlotQueue[slot].shown * 0.006666667f) : gSlotQueue[slot].shown);
+        _sprintf(text, "%d", (slot == 5) ? (s32)floatCeil((f32)(u32)gSlotQueue[slot].shown * 0.006666667f) : gSlotQueue[slot].shown);
         break;
     }
     gSPMatrix(gfx++, (u8 *)matrix + (gGfxBufferIndex << 6) + 8, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
@@ -954,7 +954,7 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     gSPDisplayList(gfx++, &D_1000118);
     gDPSetCombineLERP(gfx++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
     viewport = cameraFindViewportEntry(0);
-    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, viewport->left, viewport->top, viewport->right, viewport->bottom);
+    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, viewport->unk4, viewport->unk6, viewport->unk8, viewport->unkA);
     if ((f64)gScreenWidth * 0.5 < (f64)gSlotQueue[slot].x) {
         width = textGetStringWidth(0x81, text);
     }
@@ -976,13 +976,13 @@ Gfx *slotQueueDrawPlayerLabels(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     f32 y;
     f32 scale;
     s8 valid;
-    s32 player;
+    s32 world;
     s32 i;
     s32 *cursor;
     f64 u;
 
     cursor = node->data;
-    player = mapGetHubWorldIndex(gCurrentWorldId, 1);
+    world = mapGetHubWorldIndex(gCurrentWorldId, 1);
     active = playerGetResolvedKongId(0);
     savedU16 = gSlotQueue[slot].shown;
     savedY = cursor[1];
@@ -1001,7 +1001,7 @@ Gfx *slotQueueDrawPlayerLabels(s32 slot, SlotQueueNode *node, Gfx *gfx) {
                 gSlotQueue[slot].shown = savedU16;
                 scale = 2.0f;
             } else {
-                gSlotQueue[slot].shown = D_807FC992[i][player];
+                gSlotQueue[slot].shown = D_807FC992[i][world];
                 scale = 1.5f;
             }
             gfx = slotQueueDrawLabel(slot, node, gfx);

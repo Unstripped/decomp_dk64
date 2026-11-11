@@ -365,18 +365,18 @@ void func_8002F490(void *);
 
 void func_8068F72C(state, stepFlag, applyBuoyancy, tilt)
 ActorMoveState *state;
-s32 stepFlag;
+ActorMoveStepFlag *stepFlag;
 u8 applyBuoyancy;
 u8 tilt;
 {
-    f32 fa0;
+    f32 tmpA;
     s32 kongState;
     f32 drag;
     f32 turnRate;
-    f32 fv0;
+    f32 tmpB;
     s16 tiltPitch;
     s16 tiltRoll;
-    u8 fl[4];
+    u8 fl[4]; // FAKE: flag array keeps fl[2]/fl[3] memory-resident (sb/lbu at sp) instead of two register locals
     f32 velX;
     f32 velZ;
     f32 thrust;
@@ -412,24 +412,24 @@ u8 tilt;
     if (fl[3] != 0) {
         thrust = state->unk4 * 50.0f;
         if (kongState == 2) {
-            fa0 = 5000.0f;
+            tmpA = 5000.0f;
         } else {
-            fa0 = 10000.0f;
+            tmpA = 10000.0f;
         }
-        drag = 1.0f / fa0 * (gCurrentActor->speedXZ * gCurrentActor->speedXZ) + state->unk8;
+        drag = 1.0f / tmpA * (gCurrentActor->speedXZ * gCurrentActor->speedXZ) + state->unk8;
         if (state->unk4 != 0.0f) {
             drag = drag + 30.0f;
         } else {
             drag = drag + 3.0f;
         }
     } else {
-        fv0 = 2.0f;
+        tmpB = 2.0f;
         if (fl[2] != 0) {
             thrust = state->unk4 * 4.0f;
-            drag = state->unk8 + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + fv0;
+            drag = state->unk8 + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + tmpB;
         } else {
-            thrust = state->unk4 * fv0;
-            drag = state->unk8 + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + fv0;
+            thrust = state->unk4 * tmpB;
+            drag = state->unk8 + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + tmpB;
         }
     }
     velX += mathSinF(state->unk0) * thrust;
@@ -439,9 +439,9 @@ u8 tilt;
     if (fl[2] != 0) {
         slopeRange = 0x400 - gCurrentActor->floorSlopePitch;
         slopeAngle = mathAngleSignedDistance(gCurrentActor->floorSlopeYaw, state->unk0);
-        fv0 = (f32)slopeRange;
-        tiltPitch = (s16)(s32)(mathCosF(slopeAngle) * fv0);
-        tiltRoll = (s16)(s32)(mathSinF(slopeAngle) * fv0);
+        tmpB = (f32)slopeRange;
+        tiltPitch = (s16)(s32)(mathCosF(slopeAngle) * tmpB);
+        tiltRoll = (s16)(s32)(mathSinF(slopeAngle) * tmpB);
     } else if (!tilt) {
         gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, 0, 4.0f);
         gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, 0, 5.0f);
@@ -465,9 +465,9 @@ u8 tilt;
         gCurrentActor->speedXZ = 0.0f;
         velX = gCurrentActor->speedXZ;
     }
-    fv0 = velX - gCurrentActor->prevSpeedXZ;
-    if (fv0 < 0.0f) {
-        fv0 = 0.0f;
+    tmpB = velX - gCurrentActor->prevSpeedXZ;
+    if (tmpB < 0.0f) {
+        tmpB = 0.0f;
     }
     if (kongState == 2) {
         tiltRoll = -0x1E;
@@ -475,28 +475,28 @@ u8 tilt;
         if (tiltRoll && tiltRoll) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         tiltRoll = -0x28;
     }
-    state->unk0 = (s32)((f64)state->unk0 + (f64)(turnRate * (f32)tiltRoll) * (1.0 + (f64)fv0 * 0.05));
+    state->unk0 = (s32)((f64)state->unk0 + (f64)(turnRate * (f32)tiltRoll) * (1.0 + (f64)tmpB * 0.05));
     state->unk0 = state->unk0 & 0xFFF;
     if (applyBuoyancy) {
-        fa0 = gCurrentActor->y;
+        tmpA = gCurrentActor->y;
         drag = gCurrentActor->waterY;
-        if (fa0 < drag) {
+        if (tmpA < drag) {
             if (fl[3] != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            gCurrentActor->speedY = gCurrentActor->speedY + ((gCurrentActor->waterY - fa0) * 3.0f + 15.0f);
-            fv0 = gCurrentActor->speedY;
-            if (fv0 > 0.0f) {
-                fa0 = fv0;
+            gCurrentActor->speedY = gCurrentActor->speedY + ((gCurrentActor->waterY - tmpA) * 3.0f + 15.0f);
+            tmpB = gCurrentActor->speedY;
+            if (tmpB > 0.0f) {
+                tmpA = tmpB;
             } else {
-                fa0 = -fv0;
+                tmpA = -tmpB;
             }
-            if (fa0 > 20.0f) {
-                gCurrentActor->speedY = fv0 - fv0 / 12.0f;
+            if (tmpA > 20.0f) {
+                gCurrentActor->speedY = tmpB - tmpB / 12.0f;
             }
         }
     }
     gCurrentActor->speedY = gCurrentActor->speedY + gCurrentActor->accelY;
-    if (((ActorMoveStepFlag *)stepFlag)->unk4 != 0) {
-        ((ActorMoveStepFlag *)stepFlag)->unk4 = 0;
+    if (stepFlag->unk4 != 0) {
+        stepFlag->unk4 = 0;
         if (fl[3] != 0) {
             if (kongState == 2) {
                 gCurrentActor->speedY = 200.0f;
@@ -507,9 +507,9 @@ u8 tilt;
             gCurrentActor->speedY = gCurrentActor->speedY + 200.0f;
         }
     }
-    fv0 = gCurrentActor->terminalSpeedY;
-    if (gCurrentActor->speedY < fv0) {
-        gCurrentActor->speedY = fv0;
+    tmpB = gCurrentActor->terminalSpeedY;
+    if (gCurrentActor->speedY < tmpB) {
+        gCurrentActor->speedY = tmpB;
     }
     if (kongState == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     actorStepPhysics(gCurrentActor, gCurrentActor->yaw, state->unk0);

@@ -1,3 +1,4 @@
+#define PROTO_SKIP_zbufferReadDepth
 #include "common.h"
 #include "actor.h"
 #include "map.h"
@@ -17,6 +18,7 @@
 #include "proto/global/67890.h"
 #include "proto/global/68960.h"
 #include "proto/global/6AD90.h"
+u16 zbufferReadDepth(s16, s16);
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 

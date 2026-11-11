@@ -412,7 +412,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     f64 scaleSize;
     f32 mtxScale[4][4];
     f32 mtxTemp[4][4];
-    f64 posX;
+    f64 pad;
     u8 skipNearPlayer;
     u8 skipTimer;
     s16 i;
@@ -491,7 +491,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
             processed++;
             if ((((s32 (*)(EffectSpriteParticle *))D_807FDA24)(entry) != 0) || ((f64)entry->scale < 0.01)) {
                 entry->age = 0;
-                D_807FDA30[D_807FDA1A = D_807FDA1A + 1] = i;
+                D_807FDA30[++D_807FDA1A] = i;
                 D_807550E0->count--;
             }
         }

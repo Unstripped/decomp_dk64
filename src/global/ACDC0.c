@@ -607,10 +607,9 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     f32 fadeInput0;
     f32 fadeInput4;
     s32 cnt;
-    u8 pad[4];
 
     hud = actor->customState;
-    fadeInput0 = hud->unk0;
+    fadeInput0 = hud->unk0; // FAKE: dead store (overwritten in cases 2/3) steers the hud->unk0 load
     tab = gPlayerInventoryTable;
     hubWorld = mapGetHubWorldIndex(gCurrentWorldId, 1);
     list = heapAlloc(0x1F40);
@@ -644,7 +643,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
         case 0:
             ph = ((u8 *)tab)[0x2FC] * 0x34 - 0x34;
             s2 = D_807FCC4B;
-            y0 = 0x140;
+            y0 = 0x140; // FAKE: value-named constant local; y0 * hud->unk0 keeps 0x140 in the y0 register
             y0 = 0xA0 - (s16)(y0 * hud->unk0);
             for (j = 0; j < ((u8 *)tab)[0x2FC]; j++) {
                 s32 off;
@@ -654,7 +653,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 f32 fe;
                 f32 fh;
                 s16 y;
-                fb = (u32)ph;
+                fb = ph;
                 off = (j << 10) + gFrameCounter * 200;
                 ang = off;
                 fa = mathSinF(ang) * 0.3f + 3.0f;
@@ -828,8 +827,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
             }
             break;
     }
-    dl->words.w0 = 0xDF000000; // FAKE: raw EndDisplayList words (gSPEndDisplayList mismatches)
-    dl->words.w1 = 0;
+    gSPEndDisplayList(dl);
     if (D_80750530 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     return ret;
 }
@@ -1404,9 +1402,9 @@ void hudPauseMenuRefreshTotals(void) {
     s32 k;
     s32 m;
 
-    p0 = (s16 *)((u8 *)&D_807FC82A - 2); do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
+    p0 = &D_807FC82A - 1; do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
         *p0++ = 0;
-    } while (p0 < (s16 *)((u8 *)&D_807FC82A + 12));
+    } while (p0 < &D_807FC82A + 6);
     n = 0;
     k = 0; e = gPlayerInventoryTable; do { n += gPlayerInventoryTable[k].unk42[0]; n += gPlayerInventoryTable[k].unk42[1]; // LAYOUT: one-line loop setup (Q0149)
         for (i = 2; i < 14; i++) { // FAKE: first two terms re-read through gPlayerInventoryTable[k] instead of e, loop from 2
