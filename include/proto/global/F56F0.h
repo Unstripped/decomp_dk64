@@ -5,7 +5,6 @@
 #include "actor.h"
 struct F56AState;
 struct F5DDeferredEntry;
-struct F5L1Control;
 struct F5N1Spring;
 struct F5N6Input;
 struct WaypointNode;
@@ -136,7 +135,7 @@ void playerWaypointSnapInput(void);
 void timerDecrementOrSetFlag(u16 *, s16 *, u8 *, u16);
 #endif
 #ifndef PROTO_SKIP_playerStateWaypointAimUpdate
-void playerStateWaypointAimUpdate(struct F5L1Control *, s32);
+void playerStateWaypointAimUpdate(OSContPad *, OSContPad *);
 #endif
 #ifndef PROTO_SKIP_playerWaypointPathsParse
 void playerWaypointPathsParse(void *);

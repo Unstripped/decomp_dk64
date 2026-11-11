@@ -49,15 +49,15 @@ extern u16 D_807463B4;
 extern u16 *D_807ECE94;
 extern s16 *D_807ECE98;
 
-void func_8060B4D4(u8 *controllerData) {
+void func_8060B4D4(OSContPad *pad) {
     if (D_807463AC < (D_807463B0 - 1)) {
-        controllerData[2] = ((s8 *) D_807ECE98)[2];
-        controllerData[3] = ((s8 *) D_807ECE98)[3];
+        pad->stick_x = ((s8 *) D_807ECE98)[2];
+        pad->stick_y = ((s8 *) D_807ECE98)[3];
         if (*D_807ECE98 & 0x8000) {
             D_807463B4 = *D_807ECE94;
             D_807ECE94++;
         }
-        *(s16 *) controllerData = D_807463B4 & 0xEFFF;
+        pad->button = D_807463B4 & 0xEFFF;
     }
 }
 

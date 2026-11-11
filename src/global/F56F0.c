@@ -1336,12 +1336,6 @@ void timerDecrementOrSetFlag(u16 *flags, s16 *timer, u8 *count, u16 bit) {
 }
 
 
-typedef struct F5L1Control {
-    u16 flags;
-    s8 yaw;
-    s8 pitch;
-} F5L1Control;
-
 #define WAYPOINT_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define WAYPOINT_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define WAYPOINT_CLAMP_S8(x) WAYPOINT_MIN(WAYPOINT_MAX(x, -128.0f), 127.0f)
@@ -1350,7 +1344,7 @@ s32 playerStateQueueCallback();
 extern u8 gGameMode;
 extern u8 sHudDisabled;
 
-void playerStateWaypointAimUpdate(F5L1Control *control, s32 unused) {
+void playerStateWaypointAimUpdate(OSContPad *control, OSContPad *unused) {
     PlayerState *tgt;
     f32 ang;
     f32 camAng;
@@ -1381,8 +1375,8 @@ void playerStateWaypointAimUpdate(F5L1Control *control, s32 unused) {
     if ((flags == 0) & 1) {  // FAKE: & 1 steers the flags test
         if (gWaypointCursor != 0) {}  // FAKE: dead test at block start
         gWaypointFlags |= 1;
-        control->yaw = 0;
-        control->pitch = 0;
+        control->stick_x = 0;
+        control->stick_y = 0;
     }
     if (gWaypointFlags || gWaypointCallbackParam) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (close) {
@@ -1410,10 +1404,10 @@ void playerStateWaypointAimUpdate(F5L1Control *control, s32 unused) {
             if (gWaypointIndex || gWaypointFlags) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
     }
-    control->flags = 0;
-    timerDecrementOrSetFlag(&control->flags, &cur->timer3, &cur->timer0, 0x8000);
-    timerDecrementOrSetFlag(&control->flags, &cur->timer4, &cur->timer1, 0x4000);
-    timerDecrementOrSetFlag(&control->flags, &cur->timer5, &cur->timer2, 0x2000);
+    control->button = 0;
+    timerDecrementOrSetFlag(&control->button, &cur->timer3, &cur->timer0, 0x8000);
+    timerDecrementOrSetFlag(&control->button, &cur->timer4, &cur->timer1, 0x4000);
+    timerDecrementOrSetFlag(&control->button, &cur->timer5, &cur->timer2, 0x2000);
     pitchT = 0;
     if (cur->delay != 0) {
         cur->delay = cur->delay - 1;
@@ -1426,7 +1420,7 @@ void playerStateWaypointAimUpdate(F5L1Control *control, s32 unused) {
         if (gWaypointActor->state == 0x4F) {
             ang = mathAngleBetweenPointsDeg(next->x, next->z, gWaypointActor->x, gWaypointActor->z) * 0.017453292f - (gWaypointActor->yaw * 3.1415927f) * 0.00048828125;
             pitch = mathCalculatePitchAngle(next->x, next->y, next->z, gWaypointActor->x, gWaypointActor->y, gWaypointActor->z, 0);
-            control->flags |= 0x4000;
+            control->button |= 0x4000;
             yawT = ang;
             pitchT = WAYPOINT_CLAMP_S8(sinApprox(pitch) * speed);
         } else {
@@ -1436,8 +1430,8 @@ void playerStateWaypointAimUpdate(F5L1Control *control, s32 unused) {
             pitchT = WAYPOINT_CLAMP_S8(cosApprox(ang) * speed);
         }
     }
-    control->yaw = control->yaw + (yawT - control->yaw) * blend;
-    control->pitch = control->pitch + (pitchT - control->pitch) * blend;
+    control->stick_x = control->stick_x + (yawT - control->stick_x) * blend;
+    control->stick_y = control->stick_y + (pitchT - control->stick_y) * blend;
 }
 
 void playerWaypointPathsParse(void *data) {

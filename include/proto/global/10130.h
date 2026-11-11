@@ -11,7 +11,7 @@ void func_8060B430(struct RecordTargetView *, struct PositionRecord *);
 s16 func_8060B49C(struct RecordTargetView *, s32);
 #endif
 #ifndef PROTO_SKIP_func_8060B4D4
-void func_8060B4D4(u8 *);
+void func_8060B4D4(OSContPad *);
 #endif
 #ifndef PROTO_SKIP_func_8060B55C
 void func_8060B55C(s16 *);
