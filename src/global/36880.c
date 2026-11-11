@@ -280,11 +280,14 @@ extern s32 D_807F6004;
 void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 saveFile) {
     struct RenderEntry *renderList;
     s32 entryCount;
-    u8 *noEntries;
     ModelAssetEntry *entry;
+    u8 *pad;
     s32 i;
     s32 n;
-    u8 *rec;
+    struct {
+        /* 0x00 */ s32 modelIndex;
+        /* 0x04 */ u8 vars[0x20];
+    } *rec; /* 0x24-byte records after the entry list's s32 count */
     s32 outCount;
     u16 counter;
     s16 result;
@@ -298,7 +301,6 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
     D_80747D70 = 0;
     if (mapData == NULL) {
         entryCount = 0;
-        entry = (ModelAssetEntry *)noEntries; // FAKE: uninitialised copy gives entry a definition on this path (keeps its web)
     } else {
         entry = (ModelAssetEntry *)(mapData + 4);
         entryCount = *(s32 *)mapData;
@@ -331,8 +333,7 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
                     result = modelSlotInit(outCount, entry->unk28, entry->unk0, entry->unk4, entry->unk8,
                                            entry->unk18, entry->unk1C, entry->unk20, entry->unkC, entry->unk24,
                                            entry->unk2F, entry->unk2E, &renderList);
-                    modelFlagsApplyState(gCurrentMap, gModelSlots[outCount].unk8A,
-                                  (u8 *)(outCount * 0x90 + (s32)gModelSlots + 0x8C));
+                    modelFlagsApplyState(gCurrentMap, gModelSlots[outCount].unk8A, &gModelSlots[outCount].unk8C);
                     gCsModelIds[entry->unk2A] = result;
                     D_80747D70++;
                     outCount++;
@@ -349,10 +350,10 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
         func_8062D1A8();
         csScriptLoad(assetLoad(0xA, gCurrentMap, 1, 0));
         n = *(s32 *)entry;
-        rec = (u8 *)entry + 4;
+        rec = (void *)((s32 *)entry + 1);
         while (n--) {
-            csModelStateSetVars(*(s32 *)rec, rec + 4);
-            rec += 0x24;
+            csModelStateSetVars(rec->modelIndex, rec->vars);
+            rec++;
         }
         modelSkipListClear();
     }
@@ -423,20 +424,16 @@ s32 modelSlotFindByType(s32 type, s32 *cursor, f32 *xOut, f32 *yOut, f32 *zOut, 
 
     found = 0;
     i = *cursor;
-    do {
-    } while (0); // FAKE: empty loop splits the entry block before the range test
-    if (i < D_80747D70) {
-        do {
-            if (gModelSlots[i].unk84 == type) {
-                found = 1;
-                *idOut = gModelSlots[i].unk88;
-                *csIdOut = gModelSlots[i].unk8A;
-                *xOut = gModelSlots[i].unk0;
-                *yOut = gModelSlots[i].unk4;
-                *zOut = gModelSlots[i].unk8;
-            }
-            i++;
-        } while (found == 0 && i < D_80747D70);
+    while (found == 0 && i < D_80747D70) {
+        if (gModelSlots[i].unk84 == type) {
+            found = 1;
+            *idOut = gModelSlots[i].unk88;
+            *csIdOut = gModelSlots[i].unk8A;
+            *xOut = gModelSlots[i].unk0;
+            *yOut = gModelSlots[i].unk4;
+            *zOut = gModelSlots[i].unk8;
+        }
+        i++;
     }
     *cursor = i;
     return found;
@@ -757,7 +754,7 @@ void modelSlotUpdateGroundCoords(s16 slot, u8 isId) {
     s32 padA[4];
     u8 *tbl;
     ModelGroundCoordDst *dst;
-    s32 idx;
+    s32 pad;
     f32 groundY;
     s16 groundX;
     s16 groundZ;
@@ -765,19 +762,18 @@ void modelSlotUpdateGroundCoords(s16 slot, u8 isId) {
     if (isId == 1) {
         slot = hashTableLookup(slot);
     }
-    idx = slot * sizeof(ModelSlot);
-    groundY = ((ModelSlot *)((u8 *)gModelSlots + idx))->unk4 + 20.0f;
-    if (collisionCheckGroundAtPoint(((ModelSlot *)((u8 *)gModelSlots + idx))->unk0, ((ModelSlot *)((u8 *)gModelSlots + idx))->unk8, &groundY) != 0) {
+    groundY = gModelSlots[slot].unk4 + 20.0f;
+    if (collisionCheckGroundAtPoint(gModelSlots[slot].unk0, gModelSlots[slot].unk8, &groundY) != 0) {
         collisionGetCoords(&groundX, &groundZ);
-        switch ((tbl = ((ModelSlot *)((u8 *)gModelSlots + idx))->unk24)[0x1C]) {
+        switch ((tbl = gModelSlots[slot].unk24)[0x1C]) { // FAKE: unused tbl copy takes the asset pointer into its own register (v1)
             case 1:
-                dst = ((ModelSlotObjCoordHolder *)((ModelSlot *)((u8 *)gModelSlots + idx))->unk20)->unkBC;
+                dst = ((ModelSlotObjCoordHolder *)gModelSlots[slot].unk20)->unkBC;
                 break;
             case 2:
-                dst = ((ModelSlotObjCoordHolder *)((ModelSlot *)((u8 *)gModelSlots + idx))->unk20)->unk54;
+                dst = ((ModelSlotObjCoordHolder *)gModelSlots[slot].unk20)->unk54;
                 break;
         }
-        if (((ModelSlot *)((u8 *)gModelSlots + idx))->unk20) {} // FAKE: dead test extends the slot pointer web (steers colouring)
+        if (gModelSlots[slot].unk20) {} // FAKE: dead test extends the slot pointer web (steers colouring)
         if (dst != NULL) {
             dst->unk20 = groundX;
             dst->unk22 = groundZ;
@@ -871,12 +867,10 @@ typedef struct ModelVert {
 } ModelVert;
 
 void modelSlotBuildVertPosList(s32 slot, ModelVertTable *verts, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, u8 mode) {
+    ModelVert *vert;
     ModelPosNode *node;
     ModelPosNode **tail;
-    f32 *pz;
     f32 mtx[4][4];
-    f32 *py;
-    ModelVert *vert;
     s32 *tbl;
     s32 count;
 
@@ -887,17 +881,15 @@ void modelSlotBuildVertPosList(s32 slot, ModelVertTable *verts, f32 x, f32 y, f3
     }
     tbl = (s32 *)(verts->unk54 + (s32)verts);
     count = *tbl;
-    vert = (ModelVert *)((u8 *)tbl + 4);
+    vert = (ModelVert *)(tbl + 1);
     if (count != 0) {
         do {
             switch (mode) {
                 case 0:
-                    node = heapAlloc(0x10);
+                    node = heapAlloc(sizeof(ModelPosNode));
                     *tail = node;
                     tail = &node->next;
                     node->next = NULL;
-                    py = &node->y;
-                    pz = &node->z;
                     break;
                 case 1:
                     if (node == NULL) {
@@ -905,16 +897,10 @@ void modelSlotBuildVertPosList(s32 slot, ModelVertTable *verts, f32 x, f32 y, f3
                     } else {
                         node = node->next;
                     }
-                    py = &node->y;
-                    pz = &node->z;
-                    break;
-                default:
-                    py = &node->y;
-                    pz = &node->z;
                     break;
             }
             modelSlotBuildTransformMatrix(slot, vert->unk6, mtx);
-            guMtxXFMF(mtx, vert->x, vert->y, vert->z, &node->x, py, pz);
+            guMtxXFMF(mtx, vert->x, vert->y, vert->z, &node->x, &node->y, &node->z);
             count--;
             vert++;
         } while (count != 0);
@@ -947,9 +933,7 @@ void modelSlotGetNodePos(s32 slot, u8 isId, s32 index, f32 *xOut, f32 *yOut, f32
         *yOut = node->y;
         *zOut = node->z;
     } else {
-        *zOut = 0.0f;
-        *yOut = 0.0f;
-        *xOut = 0.0f;
+        *xOut = *yOut = *zOut = 0.0f;
     }
 }
 
@@ -957,32 +941,30 @@ Mtx *modelSlotGetNodeMatrix(s32 slot, u8 isId, s32 index) {
     s32 idx;
     f32 mtxF[4][4];
     Mtx *mtx;
-    u8 *base;
-    s8 *p;
+    ModelVertTable *verts;
+    ModelVert *vert;
 
     idx = slot;
     if (isId == 1) {
         idx = hashTableLookup(slot);
     }
-    base = gModelSlots[idx].unk24;
-    p = (s8 *)(base + *(s32 *)(base + 0x58)) + 4;
-    for (index--; p != NULL && index != 0; index--) {
-        p += 8;
+    verts = (ModelVertTable *)gModelSlots[idx].unk24;
+    vert = (ModelVert *)((s32 *)(verts->unk58 + (s32)verts) + 1);
+    for (index--; vert != NULL && index != 0; index--) {
+        vert++;
     }
-    modelSlotBuildTransformMatrix(idx, p[6], mtxF);
-    mtx = heapAlloc(0x40);
+    modelSlotBuildTransformMatrix(idx, vert->unk6, mtxF);
+    mtx = heapAlloc(sizeof(Mtx));
     guMtxF2L(mtxF, mtx);
     return mtx;
 }
 
 void modelSlotBuildNodePosList(s32 slot, ModelVertTable *verts, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, u8 mode) {
+    ModelVert *vert;
     ModelPosNode *node;
     ModelPosNode **tail;
-    f32 *pz;
     f32 nodeMtx[4][4];
     f32 pad[4][4];
-    f32 *py;
-    ModelVert *vert;
     s32 *tbl;
     s32 count;
 
@@ -993,17 +975,15 @@ void modelSlotBuildNodePosList(s32 slot, ModelVertTable *verts, f32 x, f32 y, f3
     }
     tbl = (s32 *)(verts->unk58 + (s32)verts);
     count = *tbl;
-    vert = (ModelVert *)((u8 *)tbl + 4);
+    vert = (ModelVert *)(tbl + 1);
     if (count != 0) {
         do {
             switch (mode) {
                 case 0:
-                    node = heapAlloc(0x10);
+                    node = heapAlloc(sizeof(ModelPosNode));
                     *tail = node;
                     tail = &node->next;
                     node->next = NULL;
-                    py = &node->y;
-                    pz = &node->z;
                     break;
                 case 1:
                     if (node == NULL) {
@@ -1011,16 +991,10 @@ void modelSlotBuildNodePosList(s32 slot, ModelVertTable *verts, f32 x, f32 y, f3
                     } else {
                         node = node->next;
                     }
-                    py = &node->y;
-                    pz = &node->z;
-                    break;
-                default:
-                    py = &node->y;
-                    pz = &node->z;
                     break;
             }
             modelSlotBuildTransformMatrix(slot, vert->unk6, nodeMtx);
-            guMtxXFMF(nodeMtx, vert->x, vert->y, vert->z, &node->x, py, pz);
+            guMtxXFMF(nodeMtx, vert->x, vert->y, vert->z, &node->x, &node->y, &node->z);
             count--;
             vert++;
         } while (count != 0);
@@ -1309,7 +1283,7 @@ void modelSlotLinkTexAnimTextures(u8 *asset, ModelSlot *slot) {
                         found = 1;
                     } else {
                         n--;
-                        p = (s16 *)((u8 *)p + 0x30);
+                        p += 0x18;
                         idx++;
                     }
                 } while (n != 0 && found == 0);
@@ -1360,7 +1334,7 @@ void modelSlotInitTexAnimNodes(u8 *asset, ModelSlot *slot, s32 type) {
             break;
     }
     for (i = 0; i < count; i++) {
-        node = heapAlloc(0xD8);
+        node = heapAlloc(sizeof(TexAnimNode));
         node->unk48 = 1;
         node->unk49 = 0;
         node->unk4A = entry[1];
@@ -2239,7 +2213,7 @@ typedef struct DisplayListFreeRecord {
 extern DisplayListFreeRecord *D_807F6160;
 
 void displayListFreeQueueReset(void) {
-    D_807F6160 = 0;
+    D_807F6160 = NULL;
 }
 
 void displayListFreeQueueAdd(s32 headStart, s32 headEnd, s32 tailStart, s32 tailEnd, ModelSlotObjHeader *counter) {
@@ -2680,13 +2654,13 @@ u8 force;
     u32 size1;
 
     temp = (u32)slot->unk24;
-    seg = ((ModelSlotSegOwner *)slot)->unk20;
+    seg = slot->unk20;
     seg2 = seg;
     obj = (ModelSlotObjHeader *)temp;
-    ((ModelSlotObjHeader *)temp)->unk8 = gFrameCounter;
+    obj->unk8 = gFrameCounter;
     flags = slot->unk8C;
     if (!(flags & 0x20)) {
-        if (!(((ModelSlotObjHeader *)temp)->unk0 & 0x10) || force != 0) {
+        if (!(obj->unk0 & 0x10) || force != 0) {
             temp = (u32)seg; // FAKE: dead redefinition keeps obj's early web (v0) separate from obj (Q0546)
             slot->unk8C = flags | 0x20;
             obj->unk3C += 1;
@@ -2695,7 +2669,7 @@ u8 force;
                 cmds = seg->unkA0;
                 temp = (seg->unkA8 - cmds) >> 3;
                 count = count >> 3;
-                node = (ModelSegmentNode *)((ModelSlotSegOwner *)slot)->unk20->unkB8;
+                node = (ModelSegmentNode *)((ModelSegmentData *)slot->unk20)->unkB8;
                 size0 = temp * 8;
                 temp = 0; // FAKE: dead store keeps size0 a variable instead of a propagated expression
                 res = dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size0), node, force);
@@ -2703,7 +2677,7 @@ u8 force;
                 size1 = count * 8;
                 count = 0; // FAKE: dead store keeps size1 a variable instead of a propagated expression
                 res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size1), node, force);
-                if (node != 0) {
+                if (node != NULL) {
                     cmds = seg->unkA4;
                     res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size0), node, force);
                     cmds = seg->unkAC;
@@ -3417,7 +3391,7 @@ void texAnimUpdateNodes(ModelSegmentData *seg) {
             if (node->unk0[gGfxBufferIndex].unk0 != NULL) {
                 node->unk0[gGfxBufferIndex].unk0->unk4 = texA;
                 if (dualTex == 0) {
-                    dst = &node->unk0[gGfxBufferIndex].unk0->unk30;
+                    dst = &node->unk0[gGfxBufferIndex].unk0->unk30; // FAKE: dst pointer temp for both 0xF2000000 stores (direct field stores fail fdiff)
                     *dst = (node->unk34 << 12) | 0xF2000000 | node->unk36;
                 }
             }
@@ -3856,7 +3830,7 @@ SpriteDisplayNode *spriteListInsertByDepth(SpriteDisplayNode *head, SpriteDispla
 }
 
 void func_8063A8C4(s16 slot, u8 isId, f32 value) {
-    u8 *obj;
+    ModelSlotObjCoordHolder *obj;
     f32 *p;
 
     if (isId == 1) {
@@ -3865,10 +3839,10 @@ void func_8063A8C4(s16 slot, u8 isId, f32 value) {
     obj = gModelSlots[slot].unk20;
     switch (gModelSlots[slot].unk86) {
     case 2:
-        p = *(f32 **)(obj + 0x54);
+        p = (f32 *)obj->unk54;
         break;
     case 1:
-        p = *(f32 **)(obj + 0xBC);
+        p = (f32 *)obj->unkBC;
         break;
     }
     if (p != NULL) {
@@ -4271,7 +4245,6 @@ void modelSlotsPackRecords(u8 **bufOut, s32 *countOut) {
     u8 *rec;
     u8 *cur;
     s32 size = 0;
-    u8 *p;
     s32 j;
 
     for (i = 0; i < D_80747D70; i++) {
@@ -4291,22 +4264,21 @@ void modelSlotsPackRecords(u8 **bufOut, s32 *countOut) {
             if (MODEL_SLOT_PACKED_ENTRY(i)->unk7C != NULL) {
                 if ((MODEL_SLOT_PACKED_ENTRY(i)->unk24[0x3A] != 0 || (MODEL_SLOT_PACKED_ENTRY(i)->unk7C[0x9B] & 1)) && !(MODEL_SLOT_PACKED_ENTRY(i)->unk7C[0x9B] & 2)) {
                     rec = cur;
-                    p = cur;
-                    *(s16 *)p = MODEL_SLOT_PACKED_ENTRY(i)->unk8A;
-                    memcpy(p + 0xCC, MODEL_SLOT_PACKED_ENTRY(i)->unk7C, 0x9C);
+                    *(s16 *)rec = MODEL_SLOT_PACKED_ENTRY(i)->unk8A;
+                    memcpy(rec + 0xCC, MODEL_SLOT_PACKED_ENTRY(i)->unk7C, 0x9C);
                     if (MODEL_SLOT_PACKED_ENTRY(i)->unk78 != NULL) {
-                        memcpy(p + 4, (u8 *)MODEL_SLOT_PACKED_ENTRY(i)->unk78 + 8, 0xC8);
-                        cur[0x250] = modelSlotDataSize(i) >> 6;
-                        memcpy(p + 0x254, *MODEL_SLOT_PACKED_ENTRY(i)->unk78, modelSlotDataSize(i));
+                        memcpy(rec + 4, (u8 *)MODEL_SLOT_PACKED_ENTRY(i)->unk78 + 8, 0xC8);
+                        rec[0x250] = modelSlotDataSize(i) >> 6;
+                        memcpy(rec + 0x254, *MODEL_SLOT_PACKED_ENTRY(i)->unk78, modelSlotDataSize(i));
                     } else {
-                        cur[0x250] = 0;
+                        rec[0x250] = 0;
                     }
                     for (j = 1; j != 5; j++) {
-                        modelSlotGetNodeScrollSpeed(MODEL_SLOT_PACKED_ENTRY(i)->unk88, j, (s16 *)(p + 0x232 + j * 6), (s16 *)(p + 0x234 + j * 6));
-                        modelSlotGetNodeAnimMode(MODEL_SLOT_PACKED_ENTRY(i)->unk88, j, p + 0x236 + j * 6);
+                        modelSlotGetNodeScrollSpeed(MODEL_SLOT_PACKED_ENTRY(i)->unk88, j, (s16 *)(rec + 0x232 + j * 6), (s16 *)(rec + 0x234 + j * 6));
+                        modelSlotGetNodeAnimMode(MODEL_SLOT_PACKED_ENTRY(i)->unk88, j, rec + 0x236 + j * 6);
                     }
-                    mapOffsetSlotsGetTargets((f32 *)(p + 0x168));
-                    effectNodeCopyValues((f32 *)(p + 0x1B8));
+                    mapOffsetSlotsGetTargets((f32 *)(rec + 0x168));
+                    effectNodeCopyValues((f32 *)(rec + 0x1B8));
                     cur += rec[0x250] * 0x40;
                     cur += 0x254;
                 }
@@ -4392,11 +4364,15 @@ void modelSlotsApplyRecords(u8 *records, s32 count) {
 }
 
 void modelSlotOrFlags(s32 csId, u8 flags) {
-    ((u8 *)gModelSlots[hashTableLookup(gCsModelIds[csId])].unk20)[0x4E] |= flags;
+    ModelSubObjectFlags *obj = gModelSlots[hashTableLookup(gCsModelIds[csId])].unk20;
+
+    obj->unk4E |= flags;
 }
 
 void modelSlotClearFlags(s32 csId, u8 flags) {
-    ((u8 *)gModelSlots[hashTableLookup(gCsModelIds[csId])].unk20)[0x4E] &= ~flags;
+    ModelSubObjectFlags *obj = gModelSlots[hashTableLookup(gCsModelIds[csId])].unk20;
+
+    obj->unk4E &= ~flags;
 }
 
 typedef struct ModelSlotStateSub {
@@ -4410,7 +4386,7 @@ s32 func_8063C2A8(s16 id) {
     s16 idx = hashTableLookup(id);
     ModelSlotStateSub *sub = gModelSlots[idx].unk7C;
 
-    if (sub != 0) {
+    if (sub != NULL) {
         if (sub->unk60 == 1 && sub->unk64 == 0) {
             return 0;
         }

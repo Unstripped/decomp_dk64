@@ -3,7 +3,6 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
-#define PROTO_SKIP_heapAlloc // FAKE: callee prototype steer
 #include "proto/global/15050.h"
 #include "proto/global/61AA0.h"
 #include "proto/global/6AD90.h"
@@ -459,7 +458,6 @@ extern f32 *D_8076A0B4;
 extern f32 *D_8076A0B8;
 extern f32 *D_8076A0BC;
 extern MatrixCacheSub D_807F78C0[];
-void *heapAlloc(s32); // FAKE: callee prototype steer
 
 #define DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 
@@ -533,14 +531,14 @@ void *matrixCacheLookup(s32 count, s32 camIndex, s16 modelId, u8 subType) {
 }
 
 void *matrixCacheInsert(s32 count, s32 camIndex, s16 modelId, u8 subType, s32 matrixCount, u8 insertAtTail) {
-    void *dest;
-    u32 allocSize;
+    MatrixCacheSub *dest;
+    s32 allocSize;
     s32 pad;
     MatrixCacheNode *node;
     MatrixCacheNode **bucket;
     MatrixCacheNode *head;
 
-    allocSize = (count << 6) + (matrixCount * 0x10) + 0x30;
+    allocSize = count * sizeof(MatrixCacheSub) + (matrixCount * 0x10) + 0x30;
     node = heapAlloc(allocSize);
 
     bucket = &gMatrixCacheBuckets[matrixCacheHash(count, modelId, subType)];
@@ -559,7 +557,7 @@ void *matrixCacheInsert(s32 count, s32 camIndex, s16 modelId, u8 subType, s32 ma
     node->modelId = modelId;
     node->count = count;
     node->subType = subType;
-    memcpy(dest, D_807F78C0, count << 6);
+    memcpy(dest, D_807F78C0, count * sizeof(MatrixCacheSub));
     node->lastUsedFrame = gFrameCounter;
     node->matrixCount = matrixCount;
     gMatrixCacheBytes += allocSize;
@@ -588,7 +586,7 @@ void *matrixCacheInsert(s32 count, s32 camIndex, s16 modelId, u8 subType, s32 ma
         }
     }
 
-    return count * 0x40 + (u8 *)dest;
+    return &dest[count];
 }
 
 s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {

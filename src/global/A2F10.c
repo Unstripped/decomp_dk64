@@ -794,12 +794,21 @@ void actorSpawnAttachedTo(Actor *arg0) {
 
 extern u8 gGfxBufferIndex;
 
+typedef struct MirrorActorState {
+    /* 0x00 */ Actor *parent;
+    /* 0x04 */ s32 parentInstanceId;
+    /* 0x08 */ u32 parentType;
+    /* 0x0C */ s16 planeOffset;
+    /* 0x0E */ u8 axisFlags;
+    /* 0x0F */ u8 alpha;
+} MirrorActorState;
+
 void actorMirrorParentModelY(void) {
     Mtx mtxL;
     float mtx1[4][4];
     float mtx3[4][4];
     float mtx2[4][4];
-    SubStateView *sub;
+    MirrorActorState *sub;
     Mtx *dst;
     s32 i;
 
@@ -808,44 +817,42 @@ void actorMirrorParentModelY(void) {
         gCurrentActor->flags |= 0x8100000;
         gCurrentActor->flags &= 0xFFFF7FFF;
         controllerAnimLoadStateAsset1(gCurrentActor, controllerLookupStateByHash(gCurrentActor));
-        sub->unk4 = gCurrentActor->parentActor->instanceId;
-        sub->unk0 = (s32) gCurrentActor->parentActor;
-        sub->unk8 = gCurrentActor->parentActor->actorType;
+        sub->parentInstanceId = gCurrentActor->parentActor->instanceId;
+        sub->parent = gCurrentActor->parentActor;
+        sub->parentType = gCurrentActor->parentActor->actorType;
     }
-    if (!actorTableContains((Actor *) sub->unk0) || sub->unk4 != gCurrentActor->parentActor->instanceId) {
+    if (!actorTableContains(sub->parent) || sub->parentInstanceId != gCurrentActor->parentActor->instanceId) {
         actorDespawn(gCurrentActor);
         return;
     }
-    if (!(func_80665AAC((Actor *) sub->unk0) && sub->unk8 == gCurrentActor->parentActor->actorType
-          && actorIsActive((Actor *) sub->unk0) && (((Actor *)sub->unk0)->flags2 & 0x40))) {
+    if (!(func_80665AAC(sub->parent) && sub->parentType == gCurrentActor->parentActor->actorType
+          && actorIsActive(sub->parent) && (sub->parent->flags2 & 0x40))) {
         actorDespawn(gCurrentActor);
-        ((Actor *)sub->unk0)->contactFlags &= 0xF7FF;
+        sub->parent->contactFlags &= 0xF7FF;
         return;
     }
-    {
-        gCurrentActor->alpha = 0xFF;
-        gCurrentActor->unk146 = ((Actor *)sub->unk0)->unk146;
-        gCurrentActor->x = ((Actor *)sub->unk0)->x;
-        gCurrentActor->y = ((Actor *)sub->unk0)->y;
-        gCurrentActor->unkA8 = ((Actor *)sub->unk0)->unkA8;
-        gCurrentActor->z = ((Actor *)sub->unk0)->z;
-        gCurrentActor->flags |= 0x200;
-        gCurrentActor->boneMtx = gCurrentActor->sub4->boneMtx[gGfxBufferIndex];
-        memcpy(gCurrentActor->boneMtx, gCurrentActor->parentActor->boneMtx, ((ActorModel *)gCurrentActor->animState)->unk20 << 6);
-        guMtxIdentF(mtx1);
-        mtx1[1][1] = -1.0f;
-        guTranslateF(mtx2, -gCurrentActor->x, -gCurrentActor->unkA8, -gCurrentActor->z);
-        guMtxCatF(mtx2, mtx1, mtx1);
-        guMtxF2L(mtx1, &mtxL);
-        guTranslateF(mtx2, gCurrentActor->x, gCurrentActor->unkA8, gCurrentActor->z);
-        dst = gCurrentActor->boneMtx;
-        for (i = 0; i < ((ActorModel *)gCurrentActor->animState)->unk20; i++) {
-            guMtxL2F(mtx3, dst);
-            guMtxCatF(mtx3, mtx1, mtx3);
-            guMtxCatF(mtx3, mtx2, mtx3);
-            guMtxF2L(mtx3, dst);
-            dst++;
-        }
+    gCurrentActor->alpha = 0xFF;
+    gCurrentActor->unk146 = sub->parent->unk146;
+    gCurrentActor->x = sub->parent->x;
+    gCurrentActor->y = sub->parent->y;
+    gCurrentActor->unkA8 = sub->parent->unkA8;
+    gCurrentActor->z = sub->parent->z;
+    gCurrentActor->flags |= 0x200;
+    gCurrentActor->boneMtx = gCurrentActor->sub4->boneMtx[gGfxBufferIndex];
+    memcpy(gCurrentActor->boneMtx, gCurrentActor->parentActor->boneMtx, ((ActorModel *)gCurrentActor->animState)->unk20 << 6);
+    guMtxIdentF(mtx1);
+    mtx1[1][1] = -1.0f;
+    guTranslateF(mtx2, -gCurrentActor->x, -gCurrentActor->unkA8, -gCurrentActor->z);
+    guMtxCatF(mtx2, mtx1, mtx1);
+    guMtxF2L(mtx1, &mtxL);
+    guTranslateF(mtx2, gCurrentActor->x, gCurrentActor->unkA8, gCurrentActor->z);
+    dst = gCurrentActor->boneMtx;
+    for (i = 0; i < ((ActorModel *)gCurrentActor->animState)->unk20; i++) {
+        guMtxL2F(mtx3, dst);
+        guMtxCatF(mtx3, mtx1, mtx3);
+        guMtxCatF(mtx3, mtx2, mtx3);
+        guMtxF2L(mtx3, dst);
+        dst++;
     }
 }
 
@@ -856,7 +863,7 @@ void actorMirrorParentModelAxis(void) {
     float mtx1[4][4];
     float mtx3[4][4];
     float mtx2[4][4];
-    SubStateView *sub;
+    MirrorActorState *sub;
     Mtx *dst;
     s32 i;
 
@@ -865,23 +872,23 @@ void actorMirrorParentModelAxis(void) {
         gCurrentActor->flags |= 0x8100000;
         gCurrentActor->flags &= 0xFFFF7FFF;
         controllerAnimLoadStateAsset1(gCurrentActor, controllerLookupStateByHash(gCurrentActor));
-        sub->unk4 = gCurrentActor->parentActor->instanceId;
-        sub->unk0 = (s32) gCurrentActor->parentActor;
-        sub->unk8 = gCurrentActor->parentActor->actorType;
+        sub->parentInstanceId = gCurrentActor->parentActor->instanceId;
+        sub->parent = gCurrentActor->parentActor;
+        sub->parentType = gCurrentActor->parentActor->actorType;
     }
-    if (!actorTableContains((Actor *) sub->unk0) || sub->unk4 != gCurrentActor->parentActor->instanceId) {
+    if (!actorTableContains(sub->parent) || sub->parentInstanceId != gCurrentActor->parentActor->instanceId) {
         actorDespawn(gCurrentActor);
         triggerZoneRemoveSpawned(gCurrentActor);
         return;
     }
-    if (!(sub->unk8 == gCurrentActor->parentActor->actorType && actorIsActive((Actor *) sub->unk0)
-          && (((Actor *)sub->unk0)->flags2 & 0x80))) {
+    if (!(sub->parentType == gCurrentActor->parentActor->actorType && actorIsActive(sub->parent)
+          && (sub->parent->flags2 & 0x80))) {
         actorDespawn(gCurrentActor);
         triggerZoneRemoveSpawned(gCurrentActor);
-        ((Actor *)sub->unk0)->unk156--;
+        sub->parent->unk156--;
         return;
     }
-    gCurrentActor->alpha = sub->unkF;
+    gCurrentActor->alpha = sub->alpha;
     gCurrentActor->unk146 = gCurrentActor->parentActor->unk146;
     gCurrentActor->x = gCurrentActor->parentActor->x;
     gCurrentActor->y = gCurrentActor->parentActor->y;
@@ -891,18 +898,18 @@ void actorMirrorParentModelAxis(void) {
     gCurrentActor->boneMtx = gCurrentActor->sub4->boneMtx[gGfxBufferIndex];
     memcpy(gCurrentActor->boneMtx, gCurrentActor->parentActor->boneMtx, ((ActorModel *)gCurrentActor->animState)->unk20 << 6);
     guMtxIdentF(mtx1);
-    if (sub->unkE & 1) {
+    if (sub->axisFlags & 1) {
         mtx1[0][0] = -1.0f;
-        guTranslateF(mtx2, -sub->unkC, 0.0f, 0.0f);
+        guTranslateF(mtx2, -sub->planeOffset, 0.0f, 0.0f);
         guMtxCatF(mtx2, mtx1, mtx1);
         guMtxF2L(mtx1, &mtxL);
-        guTranslateF(mtx2, sub->unkC, 0.0f, 0.0f);
+        guTranslateF(mtx2, sub->planeOffset, 0.0f, 0.0f);
     } else {
         mtx1[2][2] = -1.0f;
-        guTranslateF(mtx2, 0.0f, 0.0f, -sub->unkC);
+        guTranslateF(mtx2, 0.0f, 0.0f, -sub->planeOffset);
         guMtxCatF(mtx2, mtx1, mtx1);
         guMtxF2L(mtx1, &mtxL);
-        guTranslateF(mtx2, 0.0f, 0.0f, sub->unkC);
+        guTranslateF(mtx2, 0.0f, 0.0f, sub->planeOffset);
     }
     dst = gCurrentActor->boneMtx;
     for (i = 0; i < ((ActorModel *)gCurrentActor->animState)->unk20; i++) {

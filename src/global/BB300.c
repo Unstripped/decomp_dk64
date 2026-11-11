@@ -39,7 +39,6 @@ typedef struct BB300Actor {
     /* 0x178 */ u8 *unk178;
 } BB300Actor;
 
-#define BB300A44 ((BB300Actor *)gSpawnedActor)
 #define BB300A ((BB300Actor *)gCurrentActor)
 
 extern Actor *gSpawnedActor;
@@ -132,17 +131,17 @@ void func_806B6958(void) {
 
 void func_806B6C88(s16 speed, s16 angle) {
     if (actorSpawn(0xD3, 0x24) != 0) {
-        BB300A44->unk154 = 0x23;
+        gSpawnedActor->state = 0x23;
         actorScriptStart(gSpawnedActor, 0x237);
-        BB300A44->unkE6 = angle;
-        BB300A44->unkEE = BB300A44->unkE6;
+        gSpawnedActor->yaw = angle;
+        gSpawnedActor->moveYaw = gSpawnedActor->yaw;
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
-        BB300A44->unkA4 = BB300A->unkA4;
-        BB300A44->unkC4 = D_807502E8;
-        BB300A44->unkC8 = D_807502E0;
-        BB300A44->unkB8 = 0.0f;
+        gSpawnedActor->floorY = gCurrentActor->floorY;
+        gSpawnedActor->accelY = D_807502E8;
+        gSpawnedActor->terminalSpeedY = D_807502E0;
+        gSpawnedActor->speedXZ = 0.0f;
         actorSetTargetSpeed(gCurrentActor, speed * 1.25);
-        memcpy(BB300A44->unk174, BB300A->unk174, 0x3C);
+        memcpy(gSpawnedActor->customState, gCurrentActor->customState, 0x3C);
     }
 }
 

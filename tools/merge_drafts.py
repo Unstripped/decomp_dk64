@@ -197,8 +197,8 @@ def restore_locals(lines, base_lines):
             r"(?:(?:const|volatile|static|register|unsigned|signed|struct|union|enum)\s+)*"
             r"[A-Za-z_]\w*(?:[\s\*]+(?:const|volatile)\b)*[\s\*]+(?:\w+\s*(?:\[[^\]]*\]\s*)*,[\s\*]*)*"
             rf"{re.escape(name)}\s*(?:\[[^\]]*\]\s*)*(?:=|;|,)"
-            # or an inline struct/union type: `union { u16 h; u8 b; } name;`
-            rf"|\}}\s*{re.escape(name)}\s*(?:\[[^\]]*\]\s*)*(?:=|;|,)")
+            # or an inline struct/union type: `union { u16 h; u8 b; } name;` / `struct {...} *name;`
+            rf"|\}}[\s\*]*{re.escape(name)}\s*(?:\[[^\]]*\]\s*)*(?:=|;|,)")
         if re.search(use, header) or any(redecl.search(l) for l in body):
             continue  # a parameter, or declared again elsewhere in the body
         if not any(re.search(use, re.sub(r"//.*|/\*.*?\*/", "", l)) for l in body):

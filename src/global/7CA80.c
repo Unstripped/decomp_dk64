@@ -825,6 +825,14 @@ typedef struct ActorSurfacePayload {
     s32 unk3C;
 } ActorSurfacePayload;
 
+typedef struct ActorHitPayload {
+    u8 unk0[0xC];
+    u8 unkC[0x24];
+    s32 unk30;
+    s32 unk34;
+    s32 unk38;
+} ActorHitPayload;
+
 void actorDispatchCallbacks(Actor *actor) {
     s16 pad[2];
     s32 mask;
@@ -835,10 +843,10 @@ void actorDispatchCallbacks(Actor *actor) {
     u8 pad1;
     u8 skipArcCheck;
     s8 bestPriority;
-    u8 priority10;
-    u8 priority20;
+    s32 priority10;
+    s32 priority20;
     ActorRiderPayload *riderPayload;
-    ActorCollisionHit *hit;
+    ActorHitPayload *hit;
     ActorSurfacePayload *surfacePayload;
     ActorCallbackNode *sorted;
     f32 *pointPair;
@@ -862,7 +870,6 @@ void actorDispatchCallbacks(Actor *actor) {
     mask = actor->callbackMask;
     if (sorted != NULL) {
         do {
-            if ((s32)node->callback == 0) {}  // FAKE: dead test steers uopt colouring of the callback id (a0 vs a1)
             if ((s32)node->callback & mask) {
                 switch ((s32)node->callback) {
                 case 0x8000:
@@ -927,36 +934,36 @@ void actorDispatchCallbacks(Actor *actor) {
                     playerHandleDamageReaction(actor, node->source, 1);
                     break;
                 case 0x800:
-                    actor->unk144 = (u8)node->unk4;
+                    actor->unk144 = node->unk4;
                     gActorGlobalState.unk90 = 1;
                     break;
                 case 0x400:
-                    viewPayload = (ActorStatePayload *)node->unk10;
+                    viewPayload = node->unk10;
                     gActivePlayerState->unk70 = viewPayload->unk0;
                     gActivePlayerState->unk74 = viewPayload->unk4;
-                    gActivePlayerState->unk6C = (f32)viewPayload->unk8;
+                    gActivePlayerState->unk6C = viewPayload->unk8;
                     gActorGlobalState.unk1A = 1;
                     if (actor == gActivePlayerActor) {
                         playerStateQueueCallback(0x17, node->source, gCurrentPlayerIndex);
                     }
                     break;
                 case 0x10:
-                    payload10 = (ActorMovePayload2D *)node->unk10;
+                    payload10 = node->unk10;
                     priority10 = payload10->priority;
-                    if (bestPriority < (s32)priority10) {
+                    if (bestPriority < priority10) {
                         targetX = payload10->x;
-                        bestPriority = (s8)priority10;
+                        bestPriority = priority10;
                         targetZ = payload10->z;
                         bestType = (s32)node->callback;
                         skipArcCheck = payload10->skipArcCheck;
                     }
                     break;
                 case 0x20:
-                    payload20 = (ActorMovePayload3D *)node->unk10;
+                    payload20 = node->unk10;
                     priority20 = payload20->priority;
-                    if (bestPriority < (s32)priority20) {
+                    if (bestPriority < priority20) {
                         targetX = payload20->x;
-                        bestPriority = (s8)priority20;
+                        bestPriority = priority20;
                         targetY = payload20->y;
                         targetZ = payload20->z;
                         bestType = (s32)node->callback;
@@ -964,7 +971,7 @@ void actorDispatchCallbacks(Actor *actor) {
                     }
                     break;
                 case 0x100000:
-                    vecPayload = (f32 *)node->unk10;
+                    vecPayload = node->unk10;
                     gActorGlobalState.unkD8 = vecPayload[0];
                     gActorGlobalState.unkDC = vecPayload[1];
                     gActorGlobalState.unkE0 = vecPayload[2];
@@ -976,7 +983,7 @@ void actorDispatchCallbacks(Actor *actor) {
                     gActorGlobalState.unk20 = node->source;
                     break;
                 case 0x4000:
-                    statePayload = (ActorStatePayload *)node->unk10;
+                    statePayload = node->unk10;
                     gActorGlobalState.unk2C = 1;
                     gActorGlobalState.unk30 = statePayload->unk4;
                     gActorGlobalState.unk34 = statePayload->unk8;
@@ -1004,7 +1011,7 @@ void actorDispatchCallbacks(Actor *actor) {
                     }
                     break;
                 case 0x1:
-                    riderPayload = (ActorRiderPayload *)node->unk10;
+                    riderPayload = node->unk10;
                     if (actorTableContains(node->source) != 0 && gActorGlobalState.unk39 != 4) {
                         gActorGlobalState.unk3C[gActorGlobalState.unk39][0] = riderPayload->x;
                         gActorGlobalState.unk3C[gActorGlobalState.unk39][1] = riderPayload->y;
@@ -1017,9 +1024,9 @@ void actorDispatchCallbacks(Actor *actor) {
                     }
                     break;
                 case 0x20000:
-                    hit = (ActorCollisionHit *)node->unk10;
+                    hit = node->unk10;
                     if (gActorGlobalState.unk1F8 != 4) {
-                        memcpy(&gActorGlobalState.unkF8[gActorGlobalState.unk1F8], hit, 0xC);
+                        memcpy(gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk0, hit->unk0, 0xC);
                         memcpy(gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unkC, hit->unkC, 0x24);
                         gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk30 = hit->unk30;
                         gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk34 = hit->unk34;
@@ -1029,7 +1036,7 @@ void actorDispatchCallbacks(Actor *actor) {
                     }
                     break;
                 case 0x10000:
-                    surfacePayload = (ActorSurfacePayload *)node->unk10;
+                    surfacePayload = node->unk10;
                     gActorGlobalState.unk91 = 1;
                     gActorGlobalState.unk92 = surfacePayload->unk0;
                     gActorGlobalState.unk94 = surfacePayload->unk2;
@@ -1051,7 +1058,7 @@ void actorDispatchCallbacks(Actor *actor) {
                     gActorGlobalState.unk38 = 1;
                     break;
                 case 0x200000:
-                    pointPair = (f32 *)node->unk10;
+                    pointPair = node->unk10;
                     gActorGlobalState.unkF0 = pointPair[0];
                     gActorGlobalState.unkF4 = pointPair[1];
                     break;
@@ -1067,7 +1074,7 @@ void actorDispatchCallbacks(Actor *actor) {
                     }
                     break;
                 case 0x800000:
-                    eventPayload = (ActorEventPayload *)node->unk10;
+                    eventPayload = node->unk10;
                     gActorGlobalState.unk4 = eventPayload->x;
                     gActorGlobalState.unk8 = eventPayload->y;
                     gActorGlobalState.unkC = eventPayload->z;
@@ -1361,14 +1368,6 @@ void actorAppendCallbackPayloadA864(Actor *source, Actor *target, s16 param0, s1
     payload->unk3C = param3C;
     actorAppendCallback(target, source, 0x10000, 0, 1, payload);
 }
-
-typedef struct ActorHitPayload {
-    u8 unk0[0xC];
-    u8 unkC[0x24];
-    s32 unk30;
-    s32 unk34;
-    s32 unk38;
-} ActorHitPayload;
 
 void actorAppendCallbackPayloadA908(Actor *source, Actor *target, void *src0, void *srcC, s32 param30, s32 param34, s32 param38) {
     ActorHitPayload *payload = heapAlloc(sizeof(ActorHitPayload));

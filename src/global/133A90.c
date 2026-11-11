@@ -442,8 +442,8 @@ f32 proxPathAttachToSegment(Actor *actor, H1ActorState *state, ProxPath *path, u
         break;
     case 1:
     case 2:
-        modelSlotGetNodePos(path->unk0, 1, idA, &ax, &ay, &az);
-        modelSlotGetNodePos(path->unk0, 1, idB, &bx, &by, &bz);
+        modelSlotGetNodePos((s32)path->unk0, 1, idA, &ax, &ay, &az);
+        modelSlotGetNodePos((s32)path->unk0, 1, idB, &bx, &by, &bz);
         break;
     }
     actorGetNodePos(actor, 1, &px, &py, &pz);
