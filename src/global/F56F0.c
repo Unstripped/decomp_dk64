@@ -941,7 +941,7 @@ void playerWeaponFireGun(Actor *actor, BoneVector *entries, s32 *count, u8 kind0
     entries[*count].bone = kind0;
     entries[*count].lastBone = kind1;
     entries[*count].x = 1.0f;
-    entries[*count].y = ((f32)angle * amplitude) + 1.0;
+    entries[*count].y = (angle * amplitude) + 1.0;
     entries[*count].z = 1.0f;
     *count += 1;
 }

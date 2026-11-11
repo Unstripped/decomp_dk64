@@ -5,25 +5,32 @@
 #include "proto/global/15050.h"
 #include "proto/global/6AD90.h"
 
+typedef struct InputRecord {
+    s16 durationFlags;
+    s8 stickX;
+    s8 stickY;
+} InputRecord;
+
 typedef struct PositionRecord {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    s16 unkC;
-    u8 unkE[2];
-    u8 unk10;
-    u8 unk11;
-    u8 unk12[];
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 yaw;
+    u8 map;
+    u8 exit;
+    u8 playerIndex;
+    u8 pad11;
+    u8 inventory[];
 } PositionRecord;
 
 extern u8 gPlayerInventoryTable[];
 
 void func_8060B430(Actor *target, PositionRecord *record) {
-    target->x = record->unk0;
-    target->y = record->unk4;
-    target->z = record->unk8;
-    target->yaw = record->unkC;
-    memcpy(&gPlayerInventoryTable[record->unk10 * 0x5E], record->unk12, 0x5E);
+    target->x = record->x;
+    target->y = record->y;
+    target->z = record->z;
+    target->yaw = record->yaw;
+    memcpy(&gPlayerInventoryTable[record->playerIndex * 0x5E], record->inventory, 0x5E);
 }
 
 extern s16 D_807463B0;
@@ -39,13 +46,13 @@ s16 func_8060B49C(Actor *target, s32 unused) {
 extern s16 D_807463AC;
 extern u16 D_807463B4;
 extern u16 *D_807ECE94;
-extern s16 *D_807ECE98;
+extern InputRecord *D_807ECE98;
 
 void func_8060B4D4(OSContPad *pad) {
     if (D_807463AC < (D_807463B0 - 1)) {
-        pad->stick_x = ((s8 *) D_807ECE98)[2];
-        pad->stick_y = ((s8 *) D_807ECE98)[3];
-        if (*D_807ECE98 & 0x8000) {
+        pad->stick_x = D_807ECE98->stickX;
+        pad->stick_y = D_807ECE98->stickY;
+        if (D_807ECE98->durationFlags & 0x8000) {
             D_807463B4 = *D_807ECE94;
             D_807ECE94++;
         }
@@ -55,8 +62,8 @@ void func_8060B4D4(OSContPad *pad) {
 
 void func_8060B55C(s16 *outDuration) {
     if (D_807463AC < (D_807463B0 - 1)) {
-        *outDuration = *D_807ECE98 & 0x7FFF;
-        D_807ECE98 += 2;
+        *outDuration = D_807ECE98->durationFlags & 0x7FFF;
+        D_807ECE98++;
         D_807463AC++;
     } else {
         D_807463B8 = 0;
@@ -64,8 +71,8 @@ void func_8060B55C(s16 *outDuration) {
 }
 
 extern s16 D_807463A0;
-extern s16 *D_807463A8;
-extern s16 *D_807ECE90;
+extern InputRecord *D_807463A8;
+extern u16 *D_807ECE90;
 
 
 
@@ -89,7 +96,7 @@ void recordInitPositionBuffers(s32 src) {
     src += 2;
     byteCount = D_807463A0 * 2;
     memcpy(D_807ECE90, (void *)src, byteCount);
-    byteCount = src + byteCount;
+    byteCount = src + byteCount; // FAKE: count local reused for the end address keeps src in $s1, byteCount in $s0
     memcpy(&D_807ECE20, (void *)byteCount, 0x70);
 }
 
@@ -129,11 +136,11 @@ void func_8060B750(s32 assetIndex) {
 
 
 u8 func_8060B7C4(void) {
-    return D_807ECE20.unk10;
+    return D_807ECE20.playerIndex;
 }
 
 
 void func_8060B7D0(s32 *outMap, s32 *outExit) {
-    *outMap = ((u8 *) &D_807ECE20)[0xE];
-    *outExit = ((u8 *) &D_807ECE20)[0xF];
+    *outMap = D_807ECE20.map;
+    *outExit = D_807ECE20.exit;
 }

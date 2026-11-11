@@ -1365,16 +1365,16 @@ void actorSub140TransformTriangles(ActorSub140 *sub) {
     }
 }
 
-u8 actorSetTargetAngleAndCheck(Actor *arg0, s16 arg1) {
+u8 actorSetTargetAngleAndCheck(Actor *actor, s16 angle) {
     s16 arcMin;
     s16 arcMax;
     u8 actorHit;
 
-    D_807FB544 = arg1;
-    D_807FB540 = arg0;
+    D_807FB544 = angle;
+    D_807FB540 = actor;
     D_807FB546 = 1;
     D_807FB604 = 1;
-    actorCheckTargetAngle(arg0, &arcMin, &arcMax, &actorHit);
+    actorCheckTargetAngle(actor, &arcMin, &arcMax, &actorHit);
     return D_807FB546;
 }
 
