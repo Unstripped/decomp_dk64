@@ -629,39 +629,24 @@ s32 mapChunkContainsPoint(s16 x, s16 y, s16 chunk) {
     return 0;
 }
 
-typedef struct MapActorEntry {
-    /* 0x000 */ void *owner;
-    /* 0x004 */ f32 x;
-    /* 0x008 */ f32 y;
-    /* 0x00C */ f32 z;
-    /* 0x010 */ u8 pad10[0xC];
-    /* 0x01C */ s16 objIndex;
-    /* 0x01E */ s16 modelIndex;
-    /* 0x020 */ s16 chunk;
-    /* 0x022 */ u8 flags;
-    /* 0x023 */ u8 pad23[0x1];
-    /* 0x024 */ u8 kind;
-} MapActorEntry;
-
-
-void mapChunkUpdateEntryNode(MapActorEntry *entry) {
+void mapChunkUpdateEntryNode(RenderEntry *entry) {
     u8 layer;
-    struct RenderEntry **list;
+    RenderEntry **list;
 
-    entry->chunk = mapChunkFindByPosition(entry->x, entry->y, entry->z, entry->chunk);
-    layer = renderEntryIsTranslucent(entry->kind, entry->owner);
-    if (entry->kind == 0) {
-        ((Actor *)entry->owner)->chunkIndex = entry->chunk;
+    entry->unk20 = mapChunkFindByPosition(entry->unk4, entry->unk8, entry->unkC, entry->unk20);
+    layer = renderEntryIsTranslucent(entry->unk24, entry->unk0);
+    if (entry->unk24 == 0) {
+        ((Actor *)entry->unk0)->chunkIndex = entry->unk20;
     }
     switch (layer) {
     case 0:
-        list = &gMapChunks[entry->chunk].opaqueList;
+        list = &gMapChunks[entry->unk20].opaqueList;
         break;
     case 1:
-        list = &gMapChunks[entry->chunk].translucentList;
+        list = &gMapChunks[entry->unk20].translucentList;
         break;
     }
-    *list = renderEntryAddOrUpdate(*list, entry->kind, entry->owner, entry->x, entry->y, entry->z, entry->objIndex, entry->modelIndex, entry->flags, entry->chunk, 0);
+    *list = renderEntryAddOrUpdate(*list, entry->unk24, entry->unk0, entry->unk4, entry->unk8, entry->unkC, entry->unk1C, entry->unk1E, entry->unk22, entry->unk20, 0);
 }
 
 
@@ -707,48 +692,33 @@ extern u8 D_807F7140;
 void mapChunkClearNodeFlags(u8 all) {
     s32 i;
 
-    i = 0;
-    if (gMapChunkCount > 0) {
-        do {
-            if ((gMapChunks[i].state == 1) || all) {
-                renderEntryListClearTouched(gMapChunks[i].opaqueList);
-                renderEntryListClearTouched(gMapChunks[i].translucentList);
-            }
-            i += 1;
-        } while (i < gMapChunkCount);
+    for (i = 0; i < gMapChunkCount; i++) {
+        if ((gMapChunks[i].state == 1) || all) {
+            renderEntryListClearTouched(gMapChunks[i].opaqueList);
+            renderEntryListClearTouched(gMapChunks[i].translucentList);
+        }
     }
 }
 
 void mapChunkFreeNodeLists(u8 all) {
     s32 i;
 
-    i = 0;
-    if (gMapChunkCount > 0) {
-        do {
-            if ((gMapChunks[i].state == 1) || all) {
-                gMapChunks[i].opaqueList = renderEntryListPurgeUntouched(gMapChunks[i].opaqueList);
-                gMapChunks[i].translucentList = renderEntryListPurgeUntouched(gMapChunks[i].translucentList);
-            }
-            i += 1;
-        } while (i < gMapChunkCount);
+    for (i = 0; i < gMapChunkCount; i++) {
+        if ((gMapChunks[i].state == 1) || all) {
+            gMapChunks[i].opaqueList = renderEntryListPurgeUntouched(gMapChunks[i].opaqueList);
+            gMapChunks[i].translucentList = renderEntryListPurgeUntouched(gMapChunks[i].translucentList);
+        }
     }
 }
 
 void mapChunkRebuildNodeLists(f32 x, f32 y, f32 z, u8 all) {
     s32 i;
-    s32 chunk;
 
-    i = 0;
-    if (gMapChunkCount > 0) {
-        chunk = 0;
-        do {
-            if (gMapChunks[chunk].state == 1 || all) {
-                gMapChunks[chunk].opaqueList = renderEntryListSortByDistance(gMapChunks[chunk].opaqueList, x, y, z, &gMapChunks[chunk].opaqueTail);
-                gMapChunks[chunk].translucentList = renderEntryListSortByDistance(gMapChunks[chunk].translucentList, x, y, z, &gMapChunks[chunk].translucentTail);
-            }
-            i += 1;
-            chunk += 1;
-        } while (i < gMapChunkCount);
+    for (i = 0; i < gMapChunkCount; i++) {
+        if (gMapChunks[i].state == 1 || all) {
+            gMapChunks[i].opaqueList = renderEntryListSortByDistance(gMapChunks[i].opaqueList, x, y, z, &gMapChunks[i].opaqueTail);
+            gMapChunks[i].translucentList = renderEntryListSortByDistance(gMapChunks[i].translucentList, x, y, z, &gMapChunks[i].translucentTail);
+        }
     }
 }
 
@@ -768,18 +738,14 @@ void mapChunkResolveNodeAssets(void) {
 void mapChunkBuildSpriteChains(f32 x, f32 y, f32 z, u8 all) {
     s32 i;
 
-    i = 0;
-    if (gMapChunkCount > 0) {
-        do {
-            if (gMapChunks[i].state == 1 || all) {
-                if (gMapChunks[i].noSprites != 0) {
-                    gMapChunks[i].sprites = 0;
-                } else {
-                    gMapChunks[i].sprites = spriteListBuildDisplayChain(gMapChunks[i].opaqueList, gMapChunks[i].translucentList, x, y, z);
-                }
+    for (i = 0; i < gMapChunkCount; i++) {
+        if (gMapChunks[i].state == 1 || all) {
+            if (gMapChunks[i].noSprites != 0) {
+                gMapChunks[i].sprites = NULL;
+            } else {
+                gMapChunks[i].sprites = spriteListBuildDisplayChain(gMapChunks[i].opaqueList, gMapChunks[i].translucentList, x, y, z);
             }
-            i += 1;
-        } while (i < gMapChunkCount);
+        }
     }
 }
 
@@ -792,30 +758,24 @@ void mapChunkUpdateModelNodes(void) {
     void *next;
 
     D_807F7140 = 0;
-    i = 0;
-    if (gMapChunkCount > 0) {
-        do {
-            if (gMapChunks[i].playerMask != 0) {
-                flag = 1;
-            } else {
-                flag = 0;
-            }
-            node = gMapChunks[i].opaqueList;
-            if (node != NULL) {
-                do {
-                    next = ((RenderEntry *)node)->unk14;
-                    modelPendingQueueInsert(node, flag);
-                    node = next;
-                } while (next != NULL);
-            }
-            i += 1;
-        } while (i < gMapChunkCount);
+    for (i = 0; i < gMapChunkCount; i++) {
+        if (gMapChunks[i].playerMask != 0) {
+            flag = 1;
+        } else {
+            flag = 0;
+        }
+        node = gMapChunks[i].opaqueList;
+        while (node != NULL) {
+            next = ((RenderEntry *)node)->unk14;
+            modelPendingQueueInsert(node, flag);
+            node = next;
+        }
     }
 }
 
 
 
-u8 mapChunkCheckActorCollision(Actor *actor, f32 x, f32 z, f32 y, f32 *arg) {
+u8 mapChunkCheckActorCollision(Actor *actor, f32 x, f32 z, f32 y, f32 *outFloorY) {
     RenderEntry *node;
     s32 i;
     u8 pad;
@@ -828,10 +788,10 @@ u8 mapChunkCheckActorCollision(Actor *actor, f32 x, f32 z, f32 y, f32 *arg) {
     mode = renderEntryIsTranslucent(1, 0);
     i = 0;
     if (gMapChunkCount > 0) {
-        gx = (s16)(s32)(x * 6.0f);
+        gx = x * 6.0f;
         do {
             if ((gx >= gMapChunks[i].minX - 0x32) &&
-                ((gz = (s16)(s32)(z * 6.0f)) >= gMapChunks[i].minZ - 0x32) &&
+                ((gz = z * 6.0f) >= gMapChunks[i].minZ - 0x32) &&
                 (gMapChunks[i].maxX + 0x32 >= gx) &&
                 (gMapChunks[i].maxZ + 0x32 >= gz)) {
                 switch (mode) {
@@ -845,7 +805,7 @@ u8 mapChunkCheckActorCollision(Actor *actor, f32 x, f32 z, f32 y, f32 *arg) {
                 if (node != NULL) {
                     do {
                         if (node->unk24 == 1) {
-                            result |= collisionTestDynamicActorFloor(actor, node->unk1E, x, z, y, arg);
+                            result |= collisionTestDynamicActorFloor(actor, node->unk1E, x, z, y, outFloorY);
                         }
                         node = node->unk14;
                     } while (node != NULL);
@@ -1087,8 +1047,6 @@ typedef struct MapCollisionNode {
     /* 0x12 */ u8 flags;
     /* 0x13 */ u8 pad13[1];
 } MapCollisionNode; /* 0x14 */
-s32 mapNodeBoxContainsPoint(MapCollisionNode *, f32, f32);
-s32 mapNodeTriangleContainsPoint(MapCollisionNode *, f32, f32);
 
 s32 mapChunkFindNodeAtPoint(f32 x, f32 y, f32 z, s16 chunk, u8 *outBlocked, f32 *outHeight) {
     MapCollisionNode *node;
@@ -1137,8 +1095,7 @@ s32 mapNodeBoxContainsPoint(MapCollisionNode *box, f32 x, f32 z) {
     s16 x1;
     s16 x0;
 
-    x1 = box->x1;
-    x0 = box->x0;
+    x0 = box->x0; x1 = box->x1; // LAYOUT: same line lets as1 issue the x1 load first
     if (x0 < x1) {
         minX = (f32) x0;
     } else {
@@ -1174,7 +1131,7 @@ s32 mapNodeBoxContainsPoint(MapCollisionNode *box, f32 x, f32 z) {
         maxX = x2;
     }
     if (maxX < x) {
-        return x1 * 0; // FAKE: multiply keeps x1 live into the early return (min/max temps keep their registers)
+        return 0;
     }
     if (z1 < z0) {
         maxZ = (f32) z0;
@@ -1190,7 +1147,7 @@ s32 mapNodeBoxContainsPoint(MapCollisionNode *box, f32 x, f32 z) {
     return 1;
 }
 
-s32 mapNodeTriangleContainsPoint(MapCollisionNode *tri, f32 x, f32 z) {
+u8 mapNodeTriangleContainsPoint(MapCollisionNode *tri, f32 x, f32 z) {
     f64 cz;
     f64 mx;
     f64 cx;
@@ -1237,7 +1194,7 @@ s32 mapNodeTriangleContainsPoint(MapCollisionNode *tri, f32 x, f32 z) {
             flag = 1;
         }
     }
-    return (flag == 0) & 0xFF;
+    return flag == 0;
 }
 
 
@@ -1464,7 +1421,7 @@ void mapChunkBuildClipFrusta(f32 x, f32 y, f32 z) {
             mapScreenRectBuildFrustum(gMapChunks[i].clipLeft, gMapChunks[i].clipTop, gMapChunks[i].clipRight, gMapChunks[i].clipBottom,
                           x, y, z, gCurrentPlayerIndex, invMtx, &gMapChunks[i].frustum[0], corners);
             if (i == D_807482F4) {
-                memcpy(D_807F7148, &gMapChunks[i].frustum[0], 0x140);
+                memcpy(D_807F7148, &gMapChunks[i].frustum[0], sizeof(gMapChunks[i].frustum));
             }
         }
     }
@@ -2085,17 +2042,13 @@ Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
 
 
 
-Gfx *mapChunkEmitLayerDisplayLists(p, chunk, layer)
-u32 *p;
-s32 chunk;
-u8 layer;
-{
+Gfx *mapChunkEmitLayerDisplayLists(Gfx *p, s32 chunk, u8 layer) {
     MapCell *node;
     Gfx *gfx;
     s32 i;
     s32 found;
 
-    gfx = (Gfx *)p;
+    gfx = p;
     if (p == 0) {} // FAKE: rs
     gDPPipeSync(gfx++);
     if (gMapChunks[chunk].kind != 2) {
@@ -2120,7 +2073,7 @@ u8 layer;
                 continue;
             }
             found = 0;
-            node = gMapCells; p = (u32 *)&gMapChunks[chunk].cells[i]; do { // LAYOUT: keeps lh a0 before lw v0 // FAKE: reusing the gfx parameter p as the cell pointer preserves its parameter precolor
+            node = gMapCells; p = (Gfx *)&gMapChunks[chunk].cells[i]; do { // LAYOUT: keeps lh a0 before lw v0 // FAKE: reusing the gfx parameter p as the cell pointer preserves its parameter precolor
                 if (((MapChunkCell *)p)->id == node->id) {
                     found = 1;
                 } else {
@@ -2576,16 +2529,14 @@ void mapPolyClipToFrustumPlane(MapVec3 *in, MapVec3 *out, s32 count, s32 *outCou
 }
 
 void mapFrustumPlaneIntersectEdge(f32 *a, f32 *b, s32 planeIdx, f32 *out) {
-    f32 pad[3];
-    f64 *m;
+    f32 pad[4];
     f32 bx;
     f64 s;
     f64 dist;
 
-    m = (f64 *)(gFrustumPlanes + planeIdx); // FAKE: f64 word view of PlanePoly steers codegen (m->a..d fdiff=1)
-    dist = (((m[4] * a[0]) + (m[5] * a[1])) + (m[6] * a[2])) + m[7];
+    dist = (((gFrustumPlanes[planeIdx].a * a[0]) + (gFrustumPlanes[planeIdx].b * a[1])) + (gFrustumPlanes[planeIdx].c * a[2])) + gFrustumPlanes[planeIdx].d;
     bx = b[0];
-    s = dist / (((m[4] * (a[0] - bx)) + (m[5] * (a[1] - b[1]))) + (m[6] * (a[2] - b[2])));
+    s = dist / (((gFrustumPlanes[planeIdx].a * (a[0] - bx)) + (gFrustumPlanes[planeIdx].b * (a[1] - b[1]))) + (gFrustumPlanes[planeIdx].c * (a[2] - b[2])));
     out[0] = a[0] + ((bx - a[0]) * s);
     out[1] = a[1] + ((b[1] - a[1]) * s);
     out[2] = a[2] + ((b[2] - a[2]) * s);

@@ -407,18 +407,18 @@ typedef struct MapVisNode {
     struct MapVisNode *child1;
 } MapVisNode;
 
-MapVisNode *mapTreeCloneShape(MapBspNode *arg0) {
+MapVisNode *mapTreeCloneShape(MapBspNode *bsp) {
     MapVisNode *node;
 
-    if (arg0 == NULL) {
+    if (bsp == NULL) {
         return NULL;
     }
-    node = heapAlloc(0x14);
-    node->entries = 0;
-    node->sprites = 0;
+    node = heapAlloc(sizeof(MapVisNode));
+    node->entries = NULL;
+    node->sprites = NULL;
     node->visMode = 3;
-    node->child0 = mapTreeCloneShape(arg0->child0);
-    node->child1 = mapTreeCloneShape(arg0->child1);
+    node->child0 = mapTreeCloneShape(bsp->child0);
+    node->child1 = mapTreeCloneShape(bsp->child1);
     return node;
 }
 
@@ -434,49 +434,49 @@ void func_8062BAE4(void) {
 }
 
 
-void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
+void func_8062BB2C(MapBspNode *node, MapVisNode *vis, u8 allowDefault) {
     RenderEntry *entry;
     RenderEntry *next;
 
-    if (arg0 == NULL) {
+    if (node == NULL) {
         return;
     }
-    if (arg1->visMode == 3) {
-        func_8062BB2C(arg0->child0, arg1->child0, 0);
-        func_8062BB2C(arg0->child1, arg1->child1, 0);
+    if (vis->visMode == 3) {
+        func_8062BB2C(node->child0, vis->child0, 0);
+        func_8062BB2C(node->child1, vis->child1, 0);
         return;
     }
-    switch (arg0->kind) {
+    switch (node->kind) {
         case 2:
             mapChunkUpdateModelNodes();
             break;
         case 1:
-            entry = arg1->entries;
+            entry = vis->entries;
             while (entry != NULL) {
                 next = entry->unk14;
-                modelPendingQueueInsert(entry, arg2);
+                modelPendingQueueInsert(entry, allowDefault);
                 entry = next;
             }
             break;
         case 0:
-            switch (arg1->visMode) {
+            switch (vis->visMode) {
                 case 1:
                 case 2:
-                    if (arg1->camSide != 0) {
-                        func_8062BB2C(arg0->child1, arg1->child1, arg2);
-                        func_8062BB2C(arg0->child0, arg1->child0, 0);
+                    if (vis->camSide != 0) {
+                        func_8062BB2C(node->child1, vis->child1, allowDefault);
+                        func_8062BB2C(node->child0, vis->child0, 0);
                     } else {
-                        func_8062BB2C(arg0->child0, arg1->child0, arg2);
-                        func_8062BB2C(arg0->child1, arg1->child1, 0);
+                        func_8062BB2C(node->child0, vis->child0, allowDefault);
+                        func_8062BB2C(node->child1, vis->child1, 0);
                     }
                     break;
                 case 0:
-                    if (arg1->camSide != 0) {
-                        func_8062BB2C(arg0->child0, arg1->child0, arg2);
-                        func_8062BB2C(arg0->child1, arg1->child1, arg2);
+                    if (vis->camSide != 0) {
+                        func_8062BB2C(node->child0, vis->child0, allowDefault);
+                        func_8062BB2C(node->child1, vis->child1, allowDefault);
                     } else {
-                        func_8062BB2C(arg0->child1, arg1->child1, arg2);
-                        func_8062BB2C(arg0->child0, arg1->child0, arg2);
+                        func_8062BB2C(node->child1, vis->child1, allowDefault);
+                        func_8062BB2C(node->child0, vis->child0, allowDefault);
                     }
                     break;
             }
@@ -487,15 +487,15 @@ void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
 extern struct RenderEntry *D_807F5FF4;
 
 
-u8 func_8062BCC8(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
+u8 func_8062BCC8(Actor *actor, f32 x, f32 z, f32 y, f32 *outFloorY) {
     u8 result;
     RenderEntry *item;
 
-    result = func_8062BDB0(arg0, D_807F5DE4, D_807F5E60, arg1, arg2, arg3, arg4);
+    result = func_8062BDB0(actor, D_807F5DE4, D_807F5E60, x, z, y, outFloorY);
     item = D_807F5FF4;
     while (item != NULL) {
         if (item->unk24 == 1) {
-            result |= collisionTestDynamicActorFloor(arg0, item->unk1E, arg1, arg2, arg3, arg4);
+            result |= collisionTestDynamicActorFloor(actor, item->unk1E, x, z, y, outFloorY);
         }
         item = item->unk14;
     }
@@ -503,53 +503,31 @@ u8 func_8062BCC8(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
 }
 
 
-u8 func_8062BDB0(Actor *arg0, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 arg4, f32 arg5, f32 *arg6) {
+u8 func_8062BDB0(Actor *actor, MapBspNode *node, MapVisNode *vis, f32 x, f32 z, f32 y, f32 *outFloorY) {
     u8 result;
-    s32 other;
+    u8 other;
     RenderEntry *item;
 
     result = 0;
-    switch (arg1->kind) {
+    switch (node->kind) {
         case 2:
-            return mapChunkCheckActorCollision(arg0, arg3, arg4, arg5, arg6);
+            return mapChunkCheckActorCollision(actor, x, z, y, outFloorY);
         case 1:
-            item = arg2->entries;
+            item = vis->entries;
             while (item != NULL) {
                 if (item->unk24 == 1) {
-                    result |= collisionTestDynamicActorFloor(arg0, item->unk1E, arg3, arg4, arg5, arg6);
+                    result |= collisionTestDynamicActorFloor(actor, item->unk1E, x, z, y, outFloorY);
                 }
                 item = item->unk14;
             }
             return result;
         case 0:
-            result = func_8062BDB0(arg0, arg1->child0, arg2->child0, arg3, arg4, arg5, arg6);
-            other = func_8062BDB0(arg0, arg1->child1, arg2->child1, arg3, arg4, arg5, arg6);
+            result = func_8062BDB0(actor, node->child0, vis->child0, x, z, y, outFloorY);
+            other = func_8062BDB0(actor, node->child1, vis->child1, x, z, y, outFloorY);
             return result | other;
     }
     return 0;
 }
-
-typedef struct ViewportRect {
-    u8 pad0[4];
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
-    s16 unkA;
-} ViewportRect;
-
-// PlayerStruct fields include/sched.h does not have yet (header request): look target
-// 0x234..0x23C and 0x288.
-typedef struct PlayerViewState {
-    /* 0x000 */ u8 pad0[0x234];
-    /* 0x234 */ f32 unk234;
-    /* 0x238 */ f32 unk238;
-    /* 0x23C */ f32 unk23C;
-    /* 0x240 */ u8 pad240[0x288 - 0x240];
-    /* 0x288 */ f32 unk288;
-    /* 0x28C */ u8 pad28C[0x2F0 - 0x28C];
-} PlayerViewState; // size = 0x2F0
-
-#define PLAYER_VIEW(i) (((PlayerViewState *)gPlayerSlots)[i])
 
 extern Gfx D_1000118;
 extern u8 gViewportCount;
@@ -562,7 +540,7 @@ extern PlayerStruct *gPlayerSlots;
 Gfx *playerViewsRender(Gfx *gfx, void *frame) {
     s32 i;
     u8 alpha;
-    ViewportRect *vp;
+    G00Entry *vp;
 
     mapFrameBegin(frame);
     gDPPipeSync(gfx++);
@@ -575,9 +553,9 @@ Gfx *playerViewsRender(Gfx *gfx, void *frame) {
         if (gPlayerSlots[i].unk0 != 0) {
             gCurrentPlayerIndex = i;
             gfx = mapRenderPlayerView(gfx, gPlayerSlots[i].unk21C, gPlayerSlots[i].unk220, gPlayerSlots[i].unk224,
-                                PLAYER_VIEW(i).unk234, PLAYER_VIEW(i).unk238, PLAYER_VIEW(i).unk23C,
+                                gPlayerSlots[i].unk234, gPlayerSlots[i].unk238, gPlayerSlots[i].unk23C,
                                 gPlayerSlots[i].prevFov, gPlayerSlots[i].unk280 * cameraStepAspectScale(),
-                                PLAYER_VIEW(i).unk288);
+                                gPlayerSlots[i].farClip);
             D_807F5FEC = 0;
         }
         if (gPlayerSlots[i].unk0 == 0 || gPlayerSlots[i].unk2EA != 0) {
@@ -655,24 +633,23 @@ extern Mtx D_2000180;
 
 f32 cosApprox(f32);
 
-Gfx *mapRenderPlayerView(Gfx *gfx, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9) {
+Gfx *mapRenderPlayerView(Gfx *gfx, f32 eyeX, f32 eyeY, f32 eyeZ, f32 atX, f32 atY, f32 atZ, f32 fov, f32 aspect, f32 farClip) {
     Gfx *dl;
-    s32 pad2[1];
-    s32 pad[24];
+    s32 pad[25];
 
     dl = &L8062C29CP.unk1F0[gGfxBufferIndex][0];
     D_807F5E64 = 0;
-    D_807F5FB4 = arg7;
-    D_807F5FB0 = arg8;
-    D_807F5FAC = arg9;
+    D_807F5FB4 = fov;
+    D_807F5FB0 = aspect;
+    D_807F5FAC = farClip;
     D_807F5FA8 = D_807F5FAC;
-    D_807F5FE0 = cosApprox(arg7 * 0.01745329238f);
+    D_807F5FE0 = cosApprox(fov * 0.01745329238f);
     D_807F5FE0 = (D_807F5FE0 - D_807F5FDC) * 3.0 + D_807F5FDC;
-    planeFromTwoPoints(arg1, arg2, arg3, arg4, arg5, arg6);
+    planeFromTwoPoints(eyeX, eyeY, eyeZ, atX, atY, atZ);
     frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, D_807F5FA8);
     frustumCornersTransformByInverse(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
-    frustumOrientPolyNormals(arg1, arg2, arg3, gFrustumPlanes, D_807F5E20);
-    mapTreeFrameUpdate(D_807F5DE4, D_807F5E60, D_807F5FF0, arg1, arg2, arg3, 0, !D_807F5FEC, gViewportCount >= 2);
+    frustumOrientPolyNormals(eyeX, eyeY, eyeZ, gFrustumPlanes, D_807F5E20);
+    mapTreeFrameUpdate(D_807F5DE4, D_807F5E60, D_807F5FF0, eyeX, eyeY, eyeZ, 0, !D_807F5FEC, gViewportCount >= 2);
     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
     gfx = actorBuildLightDisplayList(gfx, gPlayerSlots[gCurrentPlayerIndex].actor, gCurrentPlayerIndex);
@@ -691,7 +668,7 @@ Gfx *mapRenderPlayerView(Gfx *gfx, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 a
     gSPMatrix(gfx++, osVirtualToPhysical(&gPlayerSlots[gCurrentPlayerIndex].projMtx[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(gfx++, osVirtualToPhysical(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(gfx++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    gfx = mapTreeRender(gfx, D_807F5DE4, D_807F5E60, arg1, arg2, arg3, gGlobalPauseFlags);
+    gfx = mapTreeRender(gfx, D_807F5DE4, D_807F5E60, eyeX, eyeY, eyeZ, gGlobalPauseFlags);
     gDPPipeSync(gfx++);
     return gfx;
 }
@@ -937,53 +914,47 @@ u8 mapTreePurgeNodeList(MapBspNode *node, MapVisNode *vis, void *targetId, s16 *
 }
 
 
-void mapDistributeEntries(RenderEntry *arg0) {
-    mapTreeDistributeEntries(D_807F5DE4, D_807F5E60, arg0);
+void mapDistributeEntries(RenderEntry *entries) {
+    mapTreeDistributeEntries(D_807F5DE4, D_807F5E60, entries);
 }
 
 
-void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, RenderEntry *arg2) {
+void mapTreeDistributeEntries(MapBspNode *node, MapVisNode *vis, RenderEntry *entries) {
     s32 pad;
     RenderEntry *listA;
     RenderEntry *listB;
     u8 pad2;
     u8 side;
 
-    listA = 0;
-    listB = 0;
-    if (arg0 == NULL) {
+    listA = NULL;
+    listB = NULL;
+    if (node == NULL) {
         return;
     }
-    switch (arg0->kind) {
+    switch (node->kind) {
         case 2:
-            if (arg2 != NULL) {
-                do {
-                    mapChunkUpdateEntryNode(arg2);
-                    arg2 = arg2->unk14;
-                } while (arg2 != NULL);
+            while (entries != NULL) {
+                mapChunkUpdateEntryNode(entries);
+                entries = entries->unk14;
             }
             break;
         case 1:
-            if (arg2 != NULL) {
-                do {
-                    arg1->entries = renderEntryAddOrUpdate(arg1->entries, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
-                    arg2 = arg2->unk14;
-                } while (arg2 != NULL);
+            while (entries != NULL) {
+                vis->entries = renderEntryAddOrUpdate(vis->entries, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
+                entries = entries->unk14;
             }
             break;
         case 0:
-            if (arg2 != NULL) {
-                do {
-                    if (mapBspPlaneSideTest(arg0, &side, arg2->unk4, arg2->unk8, arg2->unkC) != 0) {
-                        listB = renderEntryAddOrUpdate(listB, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
-                    } else {
-                        listA = renderEntryAddOrUpdate(listA, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
-                    }
-                    arg2 = arg2->unk14;
-                } while (arg2 != NULL);
+            while (entries != NULL) {
+                if (mapBspPlaneSideTest(node, &side, entries->unk4, entries->unk8, entries->unkC) != 0) {
+                    listB = renderEntryAddOrUpdate(listB, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
+                } else {
+                    listA = renderEntryAddOrUpdate(listA, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
+                }
+                entries = entries->unk14;
             }
-            mapTreeDistributeEntries(arg0->child0, arg1->child0, listA);
-            mapTreeDistributeEntries(arg0->child1, arg1->child1, listB);
+            mapTreeDistributeEntries(node->child0, vis->child0, listA);
+            mapTreeDistributeEntries(node->child1, vis->child1, listB);
             renderEntryListFree(listA);
             renderEntryListFree(listB);
             break;
@@ -1080,8 +1051,8 @@ void mapTreeFrameUpdate(MapBspNode *node, MapVisNode *vis, RenderEntry *entries,
 }
 
 
-s32 mapNodeBoxInFrustum(MapBspNode *arg0, f32 arg1, f32 arg2, f32 arg3) {
-    return mapBspBoxInFrustum(arg0->unkA0, arg0->unkA2, arg0->unkA4, arg0->unkA6, arg0->unkA8, arg0->unkAA, arg1, arg2, arg3, D_807F5FA8, gFrustumPlanes);
+s32 mapNodeBoxInFrustum(MapBspNode *node, f32 camX, f32 camY, f32 camZ) {
+    return mapBspBoxInFrustum(node->unkA0, node->unkA2, node->unkA4, node->unkA6, node->unkA8, node->unkAA, camX, camY, camZ, D_807F5FA8, gFrustumPlanes);
 }
 
 extern f32 D_807F5E50[];
@@ -1321,7 +1292,7 @@ void clipEdgeIntersectAxis(s16 *arg0, s16 *arg1, u8 arg2, f64 arg3, s16 *arg4) {
 
 
 
-u8 mapBspPlaneSideTest(MapBspNode *arg0, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
+u8 mapBspPlaneSideTest(MapBspNode *node, u8 *outVisMode, f32 x, f32 y, f32 z) {
     f32 ea[3];
     f32 eb[3];
     f32 c[3];
@@ -1333,17 +1304,17 @@ u8 mapBspPlaneSideTest(MapBspNode *arg0, u8 *arg1, f32 arg2, f32 arg3, f32 arg4)
     f32 ny;
     f32 nz;
     f32 d;
-    *arg1 = mapBspPlaneDistanceCheck(arg0, arg2, arg3, arg4);
-    nz = arg0->unk54;
-    ny = arg0->unk50;
-    nx = arg0->unk4C;
-    d = arg0->unk58;
-    ea[0] = arg0->unk5C[2] - arg0->unk5C[0];
-    ea[1] = arg0->unk62[2] - arg0->unk62[0];
-    ea[2] = arg0->unk68[2] - arg0->unk68[0];
-    eb[0] = arg0->unk5C[1] - arg0->unk5C[0];
-    eb[1] = arg0->unk62[1] - arg0->unk62[0];
-    eb[2] = arg0->unk68[1] - arg0->unk68[0];
+    *outVisMode = mapBspPlaneDistanceCheck(node, x, y, z);
+    nz = node->unk54;
+    ny = node->unk50;
+    nx = node->unk4C;
+    d = node->unk58;
+    ea[0] = node->unk5C[2] - node->unk5C[0];
+    ea[1] = node->unk62[2] - node->unk62[0];
+    ea[2] = node->unk68[2] - node->unk68[0];
+    eb[0] = node->unk5C[1] - node->unk5C[0];
+    eb[1] = node->unk62[1] - node->unk62[0];
+    eb[2] = node->unk68[1] - node->unk68[0];
     c[0] = ea[1] * eb[2] - ea[2] * eb[1];
     c[1] = ea[2] * eb[0] - ea[0] * eb[2];
     c[2] = ea[0] * eb[1] - ea[1] * eb[0];
@@ -1352,12 +1323,12 @@ u8 mapBspPlaneSideTest(MapBspNode *arg0, u8 *arg1, f32 arg2, f32 arg3, f32 arg4)
     n[1] = c[1] / len;
     n[2] = c[2] / len;
     n[0] = n[0] * 20.000f;  // FAKE: separate (uncoloured) 20.0f literal web
-    n[1] = 20.0f * n[1];
+    n[1] = n[1] * 20.0f;
     n[2] = n[2] * 20.00f;  // FAKE: separate (uncoloured) 20.0f literal web
-    p[0] = arg0->unk5C[0] + n[0];
-    p[1] = arg0->unk62[0] + n[1];
-    p[2] = arg0->unk68[0] + n[2];
-    s1 = nx * arg2 + ny * arg3 + nz * arg4 + d;
+    p[0] = node->unk5C[0] + n[0];
+    p[1] = node->unk62[0] + n[1];
+    p[2] = node->unk68[0] + n[2];
+    s1 = nx * x + ny * y + nz * z + d;
     if (s1 > 0.0) {
         if (ny > 0.0f) {}  // FAKE: colours nx/ny/nz f14/f16/f18
         if (nx * p[0] + ny * p[1] + nz * p[2] + d > 0.0) {
@@ -1366,14 +1337,14 @@ u8 mapBspPlaneSideTest(MapBspNode *arg0, u8 *arg1, f32 arg2, f32 arg3, f32 arg4)
         }
     }
     if (s1 < 0.0) {
-        if (nx * p[0] + ny * p[1] + p[2] * nz + d < 0.0) {
+        if (nx * p[0] + ny * p[1] + nz * p[2] + d < 0.0) {
             return 0;
         }
     }
     return 1;
 }
 
-s32 mapBspPlaneDistanceCheck(MapBspNode *arg0, f32 arg1, f32 arg2, f32 arg3) {
+s32 mapBspPlaneDistanceCheck(MapBspNode *node, f32 x, f32 y, f32 z) {
     s32 pad[14];
     s32 i;
     f64 dot;
@@ -1390,8 +1361,8 @@ s32 mapBspPlaneDistanceCheck(MapBspNode *arg0, f32 arg1, f32 arg2, f32 arg3) {
     f64 dz;
 
     i = 0;
-    dot = arg0->unk4C * arg1 + arg0->unk50 * arg2 + arg0->unk54 * arg3 + arg0->unk58;
-    len = sqrtf(arg0->unk4C * arg0->unk4C + arg0->unk50 * arg0->unk50 + arg0->unk54 * arg0->unk54);
+    dot = node->unk4C * x + node->unk50 * y + node->unk54 * z + node->unk58;
+    len = sqrtf(node->unk4C * node->unk4C + node->unk50 * node->unk50 + node->unk54 * node->unk54);
     if (dot && dot) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     dist = dot / len;
     absd = dist;
@@ -1401,13 +1372,13 @@ s32 mapBspPlaneDistanceCheck(MapBspNode *arg0, f32 arg1, f32 arg2, f32 arg3) {
     if (absd > 300.0) {
         return 2;
     }
-    nx = arg0->unk4C;
-    ny = arg0->unk50;
-    nz = arg0->unk54;
+    nx = node->unk4C;
+    ny = node->unk50;
+    nz = node->unk54;
     do {
-        dx = *(f32 *)((u8 *)D_807F5E20 + i * 12) - arg1; // FAKE: byte-offset corner address keeps base+offset addu order (Q0175)
-        dy = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 4) - arg2;
-        dz = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 8) - arg3;
+        dx = *(f32 *)((u8 *)D_807F5E20 + i * 12) - x; // FAKE: byte-offset corner address keeps base+offset addu order (Q0175)
+        dy = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 4) - y;
+        dz = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 8) - z;
         if (dx) {}  // FAKE: lowers dx priority (extra block in its range)
         d = nx * dx + ny * dy + nz * dz;
         if (d > 0.01 || d < -0.01) {
@@ -1437,11 +1408,6 @@ typedef struct MapChunkAnim {
 
 extern u8 sMapChunkAnimCount;
 extern MapChunkAnim *sMapChunkAnims;
-
-typedef struct RawGfxCmd {
-    u32 unk0;
-    u32 unk4;
-} RawGfxCmd;
 
 Gfx *mapChunkEmitSegmentCommands(Gfx *gfx, u8 chunk) {
     s32 i;
@@ -1558,7 +1524,7 @@ extern LevelSoundEmitter *sMapSoundEmitters;
 
 struct MapRelocNode;
 
-void mapHeaderLoad(MapFileHeader *arg0) {
+void mapHeaderLoad(MapFileHeader *header) {
     s32 off30;
     s32 off34;
     s32 off38;
@@ -1568,33 +1534,33 @@ void mapHeaderLoad(MapFileHeader *arg0) {
     s32 pad[5];
     s32 effectSlotCount;
 
-    D_807F5DE0 = (u8 *)arg0;
+    D_807F5DE0 = (u8 *)header;
     effectSlotCount = 0;
     D_807F5FDC = cosApprox(0.7853981853f);
-    fogSetParams(arg0->unk8 & 1);
-    renderSetSegment6Override((arg0->unk8 >> 1) & 1);
-    gGfxFarClip = arg0->unkA;
-    D_807FB5E0 = arg0->unk14 << 3;
-    D_807FB5E4 = arg0->unk16 << 3;
-    D_807FB5E8 = arg0->unk10;
-    D_807FB5EA = arg0->unk12;
-    D_807F9450 = arg0->unk1C;
-    D_807F9452 = arg0->unk1E;
-    D_807F9454 = arg0->unk18;
-    D_807F9456 = arg0->unk1A;
-    D_807FD574 = arg0->unk20;
-    D_807FD576 = arg0->unk22;
-    D_807FD578 = arg0->unk24;
-    D_807F5FE4 = arg0->unk26;
-    D_807F5FE6 = arg0->unk28;
-    D_807F5FE8 = arg0->unk2A;
-    D_807F5FEA = arg0->unk2C;
-    off40 = arg0->unk40;
-    off30 = arg0->unk30;
-    off34 = arg0->unk34;
-    off38 = arg0->unk38;
-    off44 = arg0->unk44;
-    off48 = arg0->unk48;
+    fogSetParams(header->unk8 & 1);
+    renderSetSegment6Override((header->unk8 >> 1) & 1);
+    gGfxFarClip = header->unkA;
+    D_807FB5E0 = header->unk14 << 3;
+    D_807FB5E4 = header->unk16 << 3;
+    D_807FB5E8 = header->unk10;
+    D_807FB5EA = header->unk12;
+    D_807F9450 = header->unk1C;
+    D_807F9452 = header->unk1E;
+    D_807F9454 = header->unk18;
+    D_807F9456 = header->unk1A;
+    D_807FD574 = header->unk20;
+    D_807FD576 = header->unk22;
+    D_807FD578 = header->unk24;
+    D_807F5FE4 = header->unk26;
+    D_807F5FE6 = header->unk28;
+    D_807F5FE8 = header->unk2A;
+    D_807F5FEA = header->unk2C;
+    off40 = header->unk40;
+    off30 = header->unk30;
+    off34 = header->unk34;
+    off38 = header->unk38;
+    off44 = header->unk44;
+    off48 = header->unk48;
     D_807F5FD0 = *(s32 *)(D_807F5DE0 + off40) + 1;
     D_807F5FD4 = (s32 *)(D_807F5DE0 + off40 + 4);
     sMapSoundEmitterCount = *(s32 *)(D_807F5DE0 + off44);
@@ -1606,20 +1572,20 @@ void mapHeaderLoad(MapFileHeader *arg0) {
     D_807F5DEC = D_807F5DE0 + off34;
     lightSetTargetColor(1.0f, 1.0f, 1.0f, -1);
     lightCopyTargetColors(-1);
-    matrixCacheInit(arg0->unkE << 10);
+    matrixCacheInit(header->unkE << 10);
     mapTreeRelocate((struct MapRelocNode *)(s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off34));
-    displayListResolveTextureImages(D_807F5DE0 + off34, D_807F5DE0 + off38);
+    displayListResolveTextureImages((Gfx *)(D_807F5DE0 + off34), (Gfx *)(D_807F5DE0 + off38));
     mapRelocateOffsetTable((s32)(D_807F5DE0 + off40));
     mapSurfaceEffectsReset();
     mapNodeTreeInitSurfaceEffects((MapNodeEffects *)D_807F5DE4, &effectSlotCount);
     mapOffsetSlotsInit(effectSlotCount);
     D_807F5E60 = mapTreeCloneShape(D_807F5DE4);
-    mapChunksInitFromMapData(arg0);
-    collisionInitStaticCache(arg0);
-    collisionBuildCellTable(arg0);
-    effectWaterInitNodes(arg0);
-    actorTargetTableLoad(arg0);
-    triggerZoneInit(arg0);
+    mapChunksInitFromMapData(header);
+    collisionInitStaticCache(header);
+    collisionBuildCellTable(header);
+    effectWaterInitNodes(header);
+    actorTargetTableLoad(header);
+    triggerZoneInit(header);
     func_8062F318();
 }
 
@@ -1651,14 +1617,14 @@ s32 mapGetSoundEmitters(LevelSoundEmitter **outEmitters) {
     return sMapSoundEmitterCount;
 }
 
-void displayListResolveTextureImages(RawGfxCmd *arg0, RawGfxCmd *arg1) {
+void displayListResolveTextureImages(Gfx *cmd, Gfx *end) {
     u32 w;
 
-    for (; arg0 != arg1; arg0++) {
-        w = arg0->unk0;
-        if ((w >> 24) == (0, 0xFD)) { // FAKE: comma-wrapped constant and the empty statement below keep w/arg1 in s1 (Q0434)
-            if (((arg0->unk4 << 4) >> 28) == 0) {
-                arg0->unk4 = assetLoad(0x19, arg0->unk4, 1, 0);
+    for (; cmd != end; cmd++) {
+        w = cmd->words.w0;
+        if ((w >> 24) == (0, 0xFD)) { // FAKE: comma-wrapped G_SETTIMG constant orders the compare (bnel t6,s2); the empty statement below colours end before the constant ($s1/$s2) (Q0434)
+            if (((cmd->words.w1 << 4) >> 28) == 0) {
+                cmd->words.w1 = assetLoad(0x19, cmd->words.w1, 1, 0);
             }
             ;
         }

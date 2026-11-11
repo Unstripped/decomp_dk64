@@ -11,7 +11,6 @@ struct MapNodeEffects;
 struct MapRelocNode;
 struct MapViewEntries;
 struct MapVisNode;
-struct RawGfxCmd;
 #ifndef PROTO_SKIP_cameraStepAspectScale
 f32 cameraStepAspectScale(void);
 #endif
@@ -181,7 +180,7 @@ void mapRelocateOffsetTable(s32);
 s32 mapGetSoundEmitters(LevelSoundEmitter **);
 #endif
 #ifndef PROTO_SKIP_displayListResolveTextureImages
-void displayListResolveTextureImages(struct RawGfxCmd *, struct RawGfxCmd *);
+void displayListResolveTextureImages(Gfx *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_mapTreeRelocate
 void mapTreeRelocate(struct MapRelocNode *, s32, s32);

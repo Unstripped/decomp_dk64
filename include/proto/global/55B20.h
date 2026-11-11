@@ -3,7 +3,7 @@
 #define PROTO_GLOBAL_55B20_H
 #include "common.h"
 #include "actor.h"
-struct MapActorEntry;
+#include "render.h"
 struct MapCollisionNode;
 struct MapData;
 struct MapGridPoint;
@@ -45,7 +45,7 @@ void mapChunkClearBounds(void);
 s32 mapChunkContainsPoint(s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_mapChunkUpdateEntryNode
-void mapChunkUpdateEntryNode(struct MapActorEntry *);
+void mapChunkUpdateEntryNode(RenderEntry *);
 #endif
 #ifndef PROTO_SKIP_mapChunkMarkRenderEntry
 void mapChunkMarkRenderEntry(void *, u8);
@@ -105,7 +105,7 @@ s32 mapChunkFindNodeAtPoint(f32, f32, f32, s16, u8 *, f32 *);
 s32 mapNodeBoxContainsPoint(struct MapCollisionNode *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapNodeTriangleContainsPoint
-s32 mapNodeTriangleContainsPoint(struct MapCollisionNode *, f32, f32);
+u8 mapNodeTriangleContainsPoint(struct MapCollisionNode *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapChunkActivate
 void mapChunkActivate(s16);
@@ -174,7 +174,7 @@ s32 mapNodeIdListContains(s16, s32);
 Gfx *mapChunksRender(Gfx *, void *, f32, f32, f32, s32);
 #endif
 #ifndef PROTO_SKIP_mapChunkEmitLayerDisplayLists
-Gfx *mapChunkEmitLayerDisplayLists();
+Gfx *mapChunkEmitLayerDisplayLists(Gfx *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_mapChunkEffectSetFlag
 void mapChunkEffectSetFlag(s16, s16, u8, u8);
