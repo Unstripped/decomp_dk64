@@ -1356,23 +1356,23 @@ void textSpawnMarker(u8 fontStyle, s16 x, s16 y, u8 *textStr, u16 duration, u16 
     if (actorSpawn(0xE8, 0) != 0) {
         sub = gSpawnedActor->customState;
         if (fontStyle & 0x80) {
-            sub->unkA = gfxResourceCreate((s16)(fontStyle & 0xFF7F), textStr, 2, 160.0f, (f32)y, 0.0f);
+            sub->unkA = gfxResourceCreate((s16)(fontStyle & 0xFF7F), textStr, 2, 160.0f, y, 0.0f);
             gSpawnedActor->moveYaw = 1;
-            gSpawnedActor->y = (f32)y;
+            gSpawnedActor->y = y;
             return;
         }
         if (x == 0) {
-            gSpawnedActor->x = (f32)((gScreenWidth - textGetStringWidth((s16)fontStyle, textStr)) * 2);
+            gSpawnedActor->x = (gScreenWidth - textGetStringWidth((s16)fontStyle, textStr)) * 2;
         } else {
-            gSpawnedActor->x = (f32)(x * 4);
+            gSpawnedActor->x = x * 4;
         }
-        gSpawnedActor->y = (f32)(y * 4);
-        gSpawnedActor->z = (f32)fontStyle;
+        gSpawnedActor->y = y * 4;
+        gSpawnedActor->z = fontStyle;
         gSpawnedActor->tintR = 0xFF;
         gSpawnedActor->tintG = 0xFF;
         gSpawnedActor->tintB = 0xFF;
         len = strlen(textStr) + 1;
-        sub->unk0 = (void *)heapAlloc(len);
+        sub->unk0 = heapAlloc(len);
         _strcpy(sub->unk0, textStr);
         sub->unk4 = duration;
         sub->unk6 = delay;

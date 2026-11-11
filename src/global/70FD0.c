@@ -1772,7 +1772,7 @@ void actorBuildCollisionHit(s32 arg0, ActorHitView *arg1, CollisionBox *arg2) {
     f32 mtx[4][4];
     f32 mtxC[4][4];
     f32 inv[4][4];
-    s32 off;
+    s32 pad2;
     s32 hit;
     u8 ok;
     f32 x[3];
@@ -1792,7 +1792,6 @@ void actorBuildCollisionHit(s32 arg0, ActorHitView *arg1, CollisionBox *arg2) {
         sub->unk58 = D_807FB5D8 - arg2;
         modelSlotBuildTransformMatrix(arg0, D_807FB5D8->unk4E, mtx);
         matrix4Invert(inv, mtx);
-        off = arg0 * 0x90;
         if (gModelSlots[arg0].unk7C != NULL && (gModelSlots[arg0].unk7C->unk9B & 0x24)) {
             hit = 1;
         }
@@ -1820,7 +1819,7 @@ void actorBuildCollisionHit(s32 arg0, ActorHitView *arg1, CollisionBox *arg2) {
         for (i = 0; i < 3; i++) {
             guMtxXFMF(inv, x[i], y[i], z[i], &sub->unk28[i], &sub->unk34[i], &sub->unk40[i]);
         }
-        sub->unk26 = ((ModelSlot *)((u8 *)gModelSlots + off))->unk88;
+        sub->unk26 = gModelSlots[arg0].unk88;
         sub->unk5C = D_807FB5D0;
         if (sub->unk5C < 0x14) {
             sub->unk5C = 0x14;
@@ -3156,11 +3155,9 @@ void actorUpdateMovementFlags(Actor *actor) {
             sub->unk60 = 0;
         }
         if (actor->flags & 0x20) {
-            sub = actor->collision;
-            if (sub->unk24 != 0 && actorCheckPointInAngleArc(actor, sub->unk1C, sub->unk20) != 0) {
-                sub = actor->collision;
-                actor->x = sub->unk1C;
-                actor->z = sub->unk20;
+            if (actor->collision->unk24 != 0 && actorCheckPointInAngleArc(actor, actor->collision->unk1C, actor->collision->unk20) != 0) {
+                actor->x = actor->collision->unk1C;
+                actor->z = actor->collision->unk20;
             }
         }
     } else {
