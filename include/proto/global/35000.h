@@ -38,7 +38,7 @@ struct RenderEntry *renderEntryListSortByDistance(struct RenderEntry *, f32, f32
 Gfx *renderEntryListBuildDisplayList(Gfx *, RenderEntry *, f32, f32, f32, s32, s16, u8);
 #endif
 #ifndef PROTO_SKIP_renderActorEntryBuildDisplayList
-void *renderActorEntryBuildDisplayList(s32, void *, Gfx *, u8);
+void *renderActorEntryBuildDisplayList(s32, Actor *, Gfx *, u8);
 #endif
 #ifndef PROTO_SKIP_actorBuildModelMatrix
 void actorBuildModelMatrix(Actor *, f32 *);

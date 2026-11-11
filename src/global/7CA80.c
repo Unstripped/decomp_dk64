@@ -280,8 +280,8 @@ u16 type;
         actor->floorTriangle = NULL;
         actor->chunkIndex = -1;
         actor->spawnData = NULL;
-        actor->unk148 = NULL;
-        actor->unk14C = NULL;
+        actor->unk148[0] = NULL;
+        actor->unk148[1] = NULL;
         actor->unkD4 = &D_80748D4A;
         actor->unk146 = -1;
         actor->collisionFlags = D_8074D624[type];
@@ -429,11 +429,11 @@ void actorFreeImmediate(Actor *actor) {
     if (actor->pathFollow != NULL) {
         heapFree(actor->pathFollow);
     }
-    if (actor->unk148 != NULL) {
-        heapFree(actor->unk148);
+    if (actor->unk148[0] != NULL) {
+        heapFree(actor->unk148[0]);
     }
-    if (actor->unk14C != NULL) {
-        heapFree(actor->unk14C);
+    if (actor->unk148[1] != NULL) {
+        heapFree(actor->unk148[1]);
     }
     func_8062D26C(actor);
     if (actor->actorType != 0x12B) {

@@ -17,7 +17,6 @@ struct ModelSlotAsset;
 struct ModelSlotObjHeader;
 struct ModelSpriteSourceList;
 struct ModelVertTable;
-struct RenderQuadModelObj;
 struct SpriteDisplayNode;
 struct SpriteGfxNode;
 struct TexAnimNode;

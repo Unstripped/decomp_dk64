@@ -2846,36 +2846,6 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
     return gfx;
 }
 
-typedef struct RenderQuadModelObj {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ u8 pad10[4];
-    /* 0x14 */ Mtx *unk14;
-    /* 0x18 */ Mtx *unk18;
-    /* 0x1C */ Vtx *unk1C;
-    /* 0x20 */ u8 unk20;
-    /* 0x21 */ u8 pad21[3];
-    /* 0x24 */ s32 unk24;
-    /* 0x28 */ u8 pad28[0xC];
-    /* 0x34 */ s32 unk34[4];
-    /* 0x44 */ u8 unk44;
-    /* 0x45 */ u8 unk45;
-    /* 0x46 */ u8 unk46;
-    /* 0x47 */ u8 unk47;
-    /* 0x48 */ s16 unk48;
-    /* 0x4A */ s16 unk4A;
-    /* 0x4C */ s16 unk4C;
-    /* 0x4E */ u8 unk4E;
-    /* 0x4F */ u8 pad4F;
-    /* 0x50 */ u8 pad50[8];
-    /* 0x58 */ s16 unk58;
-    /* 0x5A */ u8 unk5A;
-    /* 0x5B */ u8 unk5B;
-    /* 0x5C */ u8 unk5C;
-} RenderQuadModelObj;
-
 #define WRITE_GFX_PAIR(a, b) { Gfx *_g = (Gfx *)(gfx++); _g->words.w0 = (a); _g->words.w1 = (b); }
 
 extern u8 D_807F6009;

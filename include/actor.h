@@ -420,8 +420,7 @@ typedef struct Actor {
     /* 0x144 */ u8 unk144;
     /* 0x145 */ u8 unk145;
     /* 0x146 */ s16 unk146;
-    /* 0x148 */ void *unk148;
-    /* 0x14C */ void *unk14C;
+    /* 0x148 */ void *unk148[2]; // per gfx buffer (renderActorEntryBuildDisplayList indexes gGfxBufferIndex)
     /* 0x150 */ struct CollisionStaticTri *floorTriangle;
     /* 0x154 */ u8 state;
     /* 0x155 */ u8 unk155;

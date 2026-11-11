@@ -417,43 +417,6 @@ Gfx *renderEntryListBuildDisplayList(Gfx *glist, RenderEntry *list, f32 camX, f3
     return glist;
 }
 
-typedef struct RenderActor {
-    /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ ActorSub4 *sub4;
-    /* 0x008 */ u8 pad8[0x50];
-    /* 0x058 */ s32 actorType;
-    /* 0x05C */ u16 collisionFlags;
-    /* 0x05E */ u8 pad5E[2];
-    /* 0x060 */ u32 flags;
-    /* 0x064 */ u32 renderFlags;
-    /* 0x068 */ u8 pad68[2];
-    /* 0x06A */ u16 contactFlags;
-    /* 0x06C */ u8 pad6C[0x10];
-    /* 0x07C */ f32 x;
-    /* 0x080 */ f32 y;
-    /* 0x084 */ f32 z;
-    /* 0x088 */ u8 pad88[0x45];
-    /* 0x0CD */ u8 unkCD;
-    /* 0x0CE */ s16 unkCE;
-    /* 0x0D0 */ u8 padD0[0x58];
-    /* 0x128 */ s16 alpha;
-    /* 0x12A */ s16 drawDistance;
-    /* 0x12C */ s16 chunkIndex;
-    /* 0x12E */ u8 pad12E[2];
-    /* 0x130 */ u8 cullMarginX;
-    /* 0x131 */ u8 cullMarginY;
-    /* 0x132 */ u8 pad132[0x16];
-    /* 0x148 */ void *unk148[2];
-    /* 0x150 */ u8 pad150[0xE];
-    /* 0x15E */ u8 eyeHeight;
-    /* 0x15F */ u8 pad15F[0xB];
-    /* 0x16A */ u8 tintR;
-    /* 0x16B */ u8 tintG;
-    /* 0x16C */ u8 tintB;
-    /* 0x16D */ u8 tintA;
-    /* 0x16E */ u8 pad16E[6];
-    /* 0x174 */ PlayerState *customState;
-} RenderActor;
 
 extern u8 gGfxBufferIndex;
 extern PlayerStruct *gPlayerSlots;
@@ -461,9 +424,8 @@ extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 
 
-#define RENDER_ACT ((RenderActor *)actor)
 
-void *renderActorEntryBuildDisplayList(s32 context, void *actor, Gfx *glist, u8 playerIndex) {
+void *renderActorEntryBuildDisplayList(s32 context, Actor *actor, Gfx *glist, u8 playerIndex) {
     PlayerState *ctl;
     f32 dz;
     f32 dy;
@@ -479,10 +441,10 @@ void *renderActorEntryBuildDisplayList(s32 context, void *actor, Gfx *glist, u8 
     f64 d;
 
     alphaMult = 1.0f;
-    if (!(RENDER_ACT->flags & 4)) {
+    if (!(actor->flags & 4)) {
         flag = 0;
-        if (gPlayerCount >= 2 && (RENDER_ACT->collisionFlags & 1)) {
-            ctl = RENDER_ACT->customState;
+        if (gPlayerCount >= 2 && (actor->collisionFlags & 1)) {
+            ctl = actor->customState;
             if (gCurrentPlayerIndex != ctl->playerIndex) {
                 flag = 1;
             }
@@ -491,32 +453,32 @@ void *renderActorEntryBuildDisplayList(s32 context, void *actor, Gfx *glist, u8 
             return glist;
         }
     }
-    if (RENDER_ACT->actorType != 0x1F && RENDER_ACT->actorType != 0x27 && RENDER_ACT->actorType != 0xAE && !(RENDER_ACT->flags & 0x400)) {
-        dx = gPlayerSlots[gCurrentPlayerIndex].unk21C - RENDER_ACT->x;
-        dy = gPlayerSlots[gCurrentPlayerIndex].unk220 - RENDER_ACT->y;
-        dz = gPlayerSlots[gCurrentPlayerIndex].unk224 - RENDER_ACT->z;
+    if (actor->actorType != 0x1F && actor->actorType != 0x27 && actor->actorType != 0xAE && !(actor->flags & 0x400)) {
+        dx = gPlayerSlots[gCurrentPlayerIndex].unk21C - actor->x;
+        dy = gPlayerSlots[gCurrentPlayerIndex].unk220 - actor->y;
+        dz = gPlayerSlots[gCurrentPlayerIndex].unk224 - actor->z;
         dx = dx * dx;
         dy = dy * dy;
         dz = dz * dz;
-        if (sqrtf(dx + dy + dz) > renderScaleDistanceByFov(RENDER_ACT->drawDistance)) {
+        if (sqrtf(dx + dy + dz) > renderScaleDistanceByFov(actor->drawDistance)) {
             return glist;
         }
-        if (mapPointOutsideClipBounds(RENDER_ACT->x, RENDER_ACT->y, RENDER_ACT->z, RENDER_ACT->cullMarginX, RENDER_ACT->cullMarginY)) {
+        if (mapPointOutsideClipBounds(actor->x, actor->y, actor->z, actor->cullMarginX, actor->cullMarginY)) {
             return glist;
         }
     }
-    RENDER_ACT->flags |= 0x100;
-    if (!(RENDER_ACT->flags & 0x200)) {
+    actor->flags |= 0x100;
+    if (!(actor->flags & 0x200)) {
         actorCheckWorldBounds(actor);
     }
     gDPPipeSync(glist++);
     gSPSetGeometryMode(glist++, G_ZBUFFER | G_SHADING_SMOOTH);
     gSPClearGeometryMode(glist++, G_FOG | G_CULL_BOTH);
-    if (RENDER_ACT->actorType == 0x135) {
+    if (actor->actorType == 0x135) {
         gSPClearGeometryMode(glist++, G_ZBUFFER);
     }
-    gSPSegment(glist++, 15, osVirtualToPhysical(RENDER_ACT->unk148[gGfxBufferIndex]));
-    if (RENDER_ACT->flags & 0x1000) {
+    gSPSegment(glist++, 15, osVirtualToPhysical(actor->unk148[gGfxBufferIndex]));
+    if (actor->flags & 0x1000) {
         glist = actorBuildLightDisplayList(glist, actor, gCurrentPlayerIndex);
         gSPSetGeometryMode(glist++, G_LIGHTING);
         gDPSetPrimColor(glist++, 0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -528,22 +490,22 @@ void *renderActorEntryBuildDisplayList(s32 context, void *actor, Gfx *glist, u8 
         f32 lightZ;
         f32 tint;
         gSPClearGeometryMode(glist++, G_LIGHTING);
-        if (RENDER_ACT->flags & 0x800000) {
-            primR = RENDER_ACT->tintR;
-            primG = RENDER_ACT->tintG;
-            primB = RENDER_ACT->tintB;
+        if (actor->flags & 0x800000) {
+            primR = actor->tintR;
+            primG = actor->tintG;
+            primB = actor->tintB;
         } else {
-            node = RENDER_ACT->unkCD;
+            node = actor->unkCD;
             if (node) {
                 actorGetNodePos(actor, node, &lightX, &lightY, &lightZ);
             } else {
-                lightX = RENDER_ACT->x;
-                lightY = RENDER_ACT->y;
-                lightZ = RENDER_ACT->z;
+                lightX = actor->x;
+                lightY = actor->y;
+                lightZ = actor->z;
             }
-            lightSampleColorAtPosition(lightX, lightY, lightZ, RENDER_ACT->unkCE, &primR, &primG, &primB, RENDER_ACT->chunkIndex);
-            if (!(RENDER_ACT->renderFlags & 1)) {
-                tint = RENDER_ACT->tintA / 15.0f;
+            lightSampleColorAtPosition(lightX, lightY, lightZ, actor->unkCE, &primR, &primG, &primB, actor->chunkIndex);
+            if (!(actor->renderFlags & 1)) {
+                tint = actor->tintA / 15.0f;
                 primR = primR * tint;
                 primG = primG * tint;
                 primB = primB * tint;
@@ -551,16 +513,16 @@ void *renderActorEntryBuildDisplayList(s32 context, void *actor, Gfx *glist, u8 
         }
         gDPSetPrimColor(glist++, 0, 0xFF, primR, primG, primB, 0xFF);
     }
-    if (RENDER_ACT->flags & 0x8000) {
-        renderCalcPlayerDistanceAlpha(RENDER_ACT->x, RENDER_ACT->y, RENDER_ACT->z, RENDER_ACT->drawDistance, -1, &RENDER_ACT->alpha);
+    if (actor->flags & 0x8000) {
+        renderCalcPlayerDistanceAlpha(actor->x, actor->y, actor->z, actor->drawDistance, -1, &actor->alpha);
     }
-    if (RENDER_ACT->collisionFlags != 0x80 && RENDER_ACT->collisionFlags != 0x40 && RENDER_ACT->collisionFlags != 8) {
-        if ((RENDER_ACT->y - 5.0f < gPlayerSlots[gCurrentPlayerIndex].unk220 && gPlayerSlots[gCurrentPlayerIndex].unk220 < RENDER_ACT->y + 2.0 * RENDER_ACT->eyeHeight) || (RENDER_ACT->contactFlags & 0x2000)) {
-            dy = RENDER_ACT->z - gPlayerSlots[gCurrentPlayerIndex].unk224;
+    if (actor->collisionFlags != 0x80 && actor->collisionFlags != 0x40 && actor->collisionFlags != 8) {
+        if ((actor->y - 5.0f < gPlayerSlots[gCurrentPlayerIndex].unk220 && gPlayerSlots[gCurrentPlayerIndex].unk220 < actor->y + 2.0 * actor->eyeHeight) || (actor->contactFlags & 0x2000)) {
+            dy = actor->z - gPlayerSlots[gCurrentPlayerIndex].unk224;
             if (dy) {} // FAKE: extra use lifts dy's adjsave to dz's 4.5; dy, coloured first, takes $f2 and dz $f14
-            dxb = RENDER_ACT->x - gPlayerSlots[gCurrentPlayerIndex].unk21C;
+            dxb = actor->x - gPlayerSlots[gCurrentPlayerIndex].unk21C;
             distSq = (s32)(dy * dy + dxb * dxb);
-            dz = RENDER_ACT->sub4->scaleY;
+            dz = actor->sub4->scaleY;
             if (dz < 0.01) {
                 dz = 0.01f;
             }
@@ -571,8 +533,8 @@ void *renderActorEntryBuildDisplayList(s32 context, void *actor, Gfx *glist, u8 
             alphaMult = MIN((d > 0.3) ? d - 0.3 : 0.0, 1.0);
         }
     }
-    if (RENDER_ACT->alpha * alphaMult != 0.0f) {
-        glist = renderActorDisplayList(renderSetSegment6AndFog(glist, RENDER_ACT->alpha * alphaMult, 1), actor);
+    if (actor->alpha * alphaMult != 0.0f) {
+        glist = renderActorDisplayList(renderSetSegment6AndFog(glist, actor->alpha * alphaMult, 1), actor);
     }
     gDPPipeSync(glist++);
     gDPSetTextureLUT(glist++, G_TT_NONE);
