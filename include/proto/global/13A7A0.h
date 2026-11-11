@@ -5,7 +5,6 @@
 #include "audio_config.h"
 struct GeSndEvt;
 struct GfSndState;
-struct GfSound;
 #ifndef PROTO_SKIP_n_alSndpNew
 void n_alSndpNew(GeSndpConfig *);
 #endif
@@ -26,9 +25,6 @@ void __n_removeEvents();
 #endif
 #ifndef PROTO_SKIP_n_alSndpCountStates
 u16 n_alSndpCountStates(u16 *, u16 *);
-#endif
-#ifndef PROTO_SKIP___n_allocState
-struct GfSndState *__n_allocState(void *, struct GfSound *);
 #endif
 #ifndef PROTO_SKIP___n_freeState
 void __n_freeState(struct GfSndState *);

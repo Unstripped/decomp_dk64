@@ -8,11 +8,11 @@ typedef u32 OSHWIntr;
 
 extern s32 osGetIntMask(s32 unused);
 
-struct GeSndState;
+struct GfSndState;
 
 typedef struct GeSndEvt {
     u16 type;
-    struct GeSndState *state;
+    struct GfSndState *state;
     union {
         s32 i;
         f32 f;
@@ -25,7 +25,7 @@ typedef struct {
     ALEventQueue evtq;
     ALEvent nextEvent;
     s32 nextEventPad;
-    struct GeSndState *unk3C;
+    struct GfSndState *unk3C;
     u8 *sndState;
     s32 unk44;
     ALMicroTime frameTime;
@@ -116,14 +116,14 @@ typedef struct {
     u8 sampleVolume;
 } GeSndSound;
 
-typedef struct GeSndState {
-    struct GeSndState *next;
-    struct GeSndState *prev;
+typedef struct GfSndState {
+    struct GfSndState *next;
+    struct GfSndState *prev;
     GeSndSound *sound;
     ALVoice voice;
     f32 pitchRatio;
     f32 pitch;
-    struct GeSndState **handle;
+    struct GfSndState **handle;
     s32 retries;
     s16 vol;
     s16 envVol;
@@ -133,16 +133,16 @@ typedef struct GeSndState {
     u8 fxMix;
     u8 flags;
     u8 state;
-} GeSndState;
+} GfSndState;
 
 extern s16 D_807563D0;
-extern GeSndState *D_807563C4;
+extern GfSndState *D_807563C4;
 
 void __n_sndpDestroyState();
 void __n_sndpPostPitch();
 void __n_removeEvents();
 u16 n_alSndpCountStates();
-struct GeSndState *n_alSndpPlay(void *, s16, u16, u8, f32, u8, struct GeSndState **);
+struct GfSndState *n_alSndpPlay(void *, s16, u16, u8, f32, u8, struct GfSndState **);
 s32 n_alSynAllocVoice(void *, void *);
 void n_alSynSetVol(ALVoice *, s16, s32);
 void n_alSynStartVoiceParams(ALVoice *, ALWaveTable *, f32, s16, u8, u8, u8, f32, u8, s32);
@@ -178,8 +178,8 @@ void __n_handleEvent(GeSndEvt *event) {
     s32 mask;
     s32 done;
     s32 voice;
-    GeSndState *state;
-    GeSndState *nextState;
+    GfSndState *state;
+    GfSndState *nextState;
     s16 freeCount;
     s16 usedCount;
 
@@ -220,7 +220,7 @@ void __n_handleEvent(GeSndEvt *event) {
                         state->retries--;
                         alEvtqPostEvent(&D_807563CC->evtq, (ALEvent *)event, 0x8235);
                     } else if (full) {
-                        GeSndState *iter;
+                        GfSndState *iter;
                         GeSndEvt evt3;
 
                         iter = D_807563C4;
@@ -386,13 +386,13 @@ void __n_handleEvent(GeSndEvt *event) {
     } while (!done && state && !mask);
 }
 
-extern GeSndState *D_807563C0;
+extern GfSndState *D_807563C0;
 
 extern void n_alSynStopVoice(void *);
 extern void n_alSynFreeVoice(void *);
-void __n_freeState(GeSndState *state);
+void __n_freeState(GfSndState *state);
 
-void __n_sndpDestroyState(GeSndState *state) {
+void __n_sndpDestroyState(GfSndState *state) {
     if (state->flags & 4) {
         n_alSynStopVoice(&state->voice);
         n_alSynFreeVoice(&state->voice);
@@ -401,7 +401,7 @@ void __n_sndpDestroyState(GeSndState *state) {
     __n_removeEvents(&D_807563CC->evtq, state, 0xFFFF);
 }
 
-void __n_sndpPostPitch(GeSndState *state) {
+void __n_sndpPostPitch(GfSndState *state) {
     GeSndEvt ev;
     f32 pitch;
 
@@ -414,7 +414,7 @@ void __n_sndpPostPitch(GeSndState *state) {
 
 void __n_removeEvents(evtq, state, mask)
 ALEventQueue *evtq;
-GeSndState *state;
+GfSndState *state;
 u16 mask;
 {
     ALLink *thisNode;
@@ -447,9 +447,9 @@ u16 n_alSndpCountStates(u16 *outFree, u16 *outUsed) {
     u16 usedCount;
     u16 freeCount;
     u16 tailCount;
-    GeSndState *p0 = D_807563C0;
-    GeSndState *p8 = (GeSndState *)D_807563C8;
-    GeSndState *p4 = D_807563C4;
+    GfSndState *p0 = D_807563C0;
+    GfSndState *p8 = (GfSndState *)D_807563C8;
+    GfSndState *p4 = D_807563C4;
 
     for (usedCount = 0; p0; usedCount++, p0 = p0->next) {
     }
@@ -462,16 +462,16 @@ u16 n_alSndpCountStates(u16 *outFree, u16 *outUsed) {
     return tailCount;
 }
 
-GeSndState *__n_allocState(void *sndp, GeSndSound *sound);
+GfSndState *__n_allocState(void *sndp, GeSndSound *sound);
 
-GeSndState *__n_allocState(void *sndp, GeSndSound *sound) {
-    GeSndState *state;
+GfSndState *__n_allocState(void *sndp, GeSndSound *sound) {
+    GfSndState *state;
     GeSndKeyMap *km = sound->keyMap;
     s32 stolen;
     s32 intMask;
 
     intMask = osGetIntMask(1);
-    state = (GeSndState *)D_807563C8;
+    state = (GfSndState *)D_807563C8;
     if (state) {
         D_807563C8 = (u8 *)state->next;
         alUnlink((ALLink *)state);
@@ -512,7 +512,7 @@ GeSndState *__n_allocState(void *sndp, GeSndSound *sound) {
     return state;
 }
 
-void __n_freeState(GeSndState *state) {
+void __n_freeState(GfSndState *state) {
     if (D_807563C0 == state) {
         D_807563C0 = state->next;
     }
@@ -521,9 +521,9 @@ void __n_freeState(GeSndState *state) {
     }
     alUnlink((ALLink *)state);
     if (D_807563C8) {
-        state->next = (GeSndState *)D_807563C8;
+        state->next = (GfSndState *)D_807563C8;
         state->prev = 0;
-        ((GeSndState *)D_807563C8)->prev = state;
+        ((GfSndState *)D_807563C8)->prev = state;
         D_807563C8 = (u8 *)state;
     } else {
         state->prev = 0;
@@ -542,13 +542,13 @@ void __n_freeState(GeSndState *state) {
     }
 }
 
-void n_alSndpSetPriority(GeSndState *state, u8 priority) {
+void n_alSndpSetPriority(GfSndState *state, u8 priority) {
     if (state) {
         state->priority = (s16)priority;
     }
 }
 
-u8 n_alSndpGetState(GeSndState *state) {
+u8 n_alSndpGetState(GfSndState *state) {
     if (state) {
         return state->state;
     } else {
@@ -556,9 +556,9 @@ u8 n_alSndpGetState(GeSndState *state) {
     }
 }
 
-GeSndState *n_alSndpPlay(void *bank, s16 sndId, u16 vol, u8 pan, f32 pitch, u8 fxMix, GeSndState **handle) {
-    GeSndState *state;
-    GeSndState *ret;
+GfSndState *n_alSndpPlay(void *bank, s16 sndId, u16 vol, u8 pan, f32 pitch, u8 fxMix, GfSndState **handle) {
+    GfSndState *state;
+    GfSndState *ret;
     GeSndKeyMap *km;
     GeSndSound *sound;
     s16 lastId;
@@ -625,7 +625,7 @@ GeSndState *n_alSndpPlay(void *bank, s16 sndId, u16 vol, u8 pan, f32 pitch, u8 f
     return ret;
 }
 
-void n_alSndpStop(GeSndState *state) {
+void n_alSndpStop(GfSndState *state) {
     GeSndEvt ev;
 
     ev.type = 0x400;
@@ -639,7 +639,7 @@ void n_alSndpStop(GeSndState *state) {
 void __n_sndpStopByFlags(u8 mask) {
     s32 intMask;
     GeSndEvt ev;
-    GeSndState *state;
+    GfSndState *state;
 
     intMask = osGetIntMask(1);
     state = D_807563C0;
@@ -667,7 +667,7 @@ void n_alSndpStopSustained(void) {
     __n_sndpStopByFlags(3);
 }
 
-void n_alSndpPostEvent(GeSndState *state, s16 type, s32 arg) {
+void n_alSndpPostEvent(GfSndState *state, s16 type, s32 arg) {
     GeSndEvt ev;
 
     ev.type = type;
@@ -683,7 +683,7 @@ u16 n_alSndpGetGroupVol(u8 idx) {
 }
 
 void n_alSndpSetGroupVol(u8 idx, u16 val) {
-    GeSndState *state = D_807563C0;
+    GfSndState *state = D_807563C0;
     s32 i;
     GeSndEvt ev;
 
