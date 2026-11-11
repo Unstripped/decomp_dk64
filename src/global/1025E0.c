@@ -1,8 +1,11 @@
 #include "common.h"
 #include "actor.h"
 #include "text.h"
-#define PROTO_SKIP_textGetCharAdvance // FAKE: callee prototype steer
+#define PROTO_SKIP_textDrawStringCentered
+#define PROTO_SKIP_func_806FD950
+#define PROTO_SKIP_gfxResourceSetString
 #define PROTO_SKIP_textGetStringWidth // FAKE: callee prototype steer
+#define PROTO_SKIP_textGetCharAdvance // FAKE: callee prototype steer
 #include "proto/boot/3630.h"
 #include "proto/global/100180.h"
 #include "proto/global/1025E0.h"
@@ -10,6 +13,11 @@
 #include "proto/global/166A0.h"
 #include "proto/global/450.h"
 #include "proto/global/CEAE0.h"
+
+void textDrawStringCentered(Gfx *, s16, u8 *, s16, u8);
+void func_806FD950(Gfx *, s16, u8 *, s16);
+void gfxResourceSetString(s16, u8 *);
+s32 textGetStringWidth(s16, u8 *); // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -27,9 +35,7 @@ extern s16 gScreenHeight;
 extern u8 gNextGameMode;
 extern u8 gGfxBufferIndex;
 
-extern s32 textGetStringWidth(s16, s32); // FAKE: callee prototype steer
-
-void textDrawStringCentered(s32 glist, s16 font, s32 str, s16 y, u8 flags) {
+void textDrawStringCentered(Gfx *glist, s16 font, u8 *str, s16 y, u8 flags) {
     s16 width;
     s16 height;
 
@@ -38,7 +44,7 @@ void textDrawStringCentered(s32 glist, s16 font, s32 str, s16 y, u8 flags) {
     textDrawStringVtx(glist, font, width, height, str, flags);
 }
 
-void func_806FD950(s32 glist, s16 font, s32 str, s16 y) {
+void func_806FD950(Gfx *glist, s16 font, u8 *str, s16 y) {
     textDrawStringVtx(glist, font, 0x60, (s16)(y * 4), str, 1);
 }
 
@@ -99,12 +105,13 @@ extern u8 gHiResScale;
 s16 gfxResourceCreate(s16 font, void *str, u8 mode, f32 posX, f32 posY, f32 posZ) {
     TextObject *node;
     TextObject *tail;
+    u16 id;
     TextObjectElem *entries;
-    void *name;
+    u8 *name;
     u8 count;
     s16 i;
 
-    textGetStringWidth(font, (s32)str);
+    textGetStringWidth(font, str);
     node = heapAlloc(0x20);
     heapClearBlock(node);
     if (gGfxResourceList == NULL) {
@@ -119,13 +126,12 @@ s16 gfxResourceCreate(s16 font, void *str, u8 mode, f32 posX, f32 posY, f32 posZ
         tail->next = node;
         node->next = NULL;
     }
-    node->id = (s16)(gGfxResourceNextId & 0xFFFF);
+    id = gGfxResourceNextId & 0xFFFF;
+    node->id = id;
     gGfxResourceNextId++;
-    if (gGfxResourceNextId && gGfxResourceNextId) {
-    }
     name = heapAlloc(strlen(str) + 1);
     node->text = name;
-    _strcpy((s32)name, (s32)str);
+    _strcpy(name, str);
     count = textCountNonSpace(str);
     node->count = count;
     entries = heapAlloc(count * sizeof(TextObjectElem));
@@ -153,23 +159,19 @@ s16 gfxResourceCreate(s16 font, void *str, u8 mode, f32 posX, f32 posY, f32 posZ
     return node->id;
 }
 
-void gfxResourceSetString(s16 resourceId, s32 str) {
-    _strcpy((s32)gfxResourceFindById(resourceId)->text, str);
+void gfxResourceSetString(s16 resourceId, u8 *str) {
+    _strcpy(gfxResourceFindById(resourceId)->text, str);
 }
 
 
 void func_806FDF54(f32 *pAngle, f32 *pTarget) {
-    if (*pTarget < 0.0f) {
-        do {
-            *pTarget += 6.2831855f;
-        } while (*pTarget < 0.0f);
+    while (*pTarget < 0.0f) {
+        *pTarget += 6.2831855f;
     }
-    if (*pTarget >= 6.2831855f) {
-        do {
-            *pTarget -= 6.2831855f;
-        } while (*pTarget >= 6.2831855f);
+    while (*pTarget >= 6.2831855f) {
+        *pTarget -= 6.2831855f;
     }
-    *pAngle = (f32)((f64)((f32)mathAngleEaseToward((s16)(s32)(((f64)*pAngle * 2048.0) / 3.1415927410125732), (s16)(s32)(((f64)*pTarget * 2048.0) / 3.1415927410125732), 5.0f) * 3.1415927410125732f) * 0.00048828125);
+    *pAngle = (mathAngleEaseToward(*pAngle * 2048.0 / 3.1415927410125732, *pTarget * 2048.0 / 3.1415927410125732, 5.0f) * 3.1415927f) / 2048.0;
 }
 
 extern TextFontInfo gTextFonts[];
@@ -194,7 +196,7 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
     curX = baseX;
     node = gfxResourceFindById(resourceId);
     charIndex = 0;
-    centeredX = (gScreenWidth - textGetStringWidth(node->font, (s32)node->text) * scale) / 2 + -3;
+    centeredX = (gScreenWidth - textGetStringWidth(node->font, node->text) * scale) / 2 + -3;
     waveRadius = gScreenWidth >> 3;
     phase = node->phase;
     phaseStep = 6.2831855f / node->count;

@@ -309,19 +309,19 @@ extern s32 D_80750600[];
 
 void func_806B1DD4(u8 mode) {
     u8 flag;
-    s32 temp;
+    s32 worldIndex;
 
     if (!(gCurrentActor->flags & 0x10)) {
         flag = 0;
-        temp = mapGetWorldIndex(gCurrentWorldId);
-        if (temp != 9 && temp != 0xA) {
-            temp = mapGetHubWorldIndex(gCurrentWorldId, 1);
-            flag = flagGridSumRows(0x1D5, temp, temp, D_80750600[mode]) == 0;
+        worldIndex = mapGetWorldIndex(gCurrentWorldId);
+        if (worldIndex != 9 && worldIndex != 0xA) {
+            worldIndex = mapGetHubWorldIndex(gCurrentWorldId, 1);
+            flag = flagGridSumRows(0x1D5, worldIndex, worldIndex, D_80750600[mode]) == 0;
         }
         actorSetAnimStartFrame(flag != 0 ? mode : 5);
-        ((B5EC0Actor *)gCurrentActor)->unk15F = flag;
+        gCurrentActor->unk15F = flag;
     }
-    func_806B13B4(((B5EC0Actor *)gCurrentActor)->unk15F);
+    func_806B13B4(gCurrentActor->unk15F);
 }
 
 void b5ec0SetMode4(void) {
