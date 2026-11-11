@@ -72,7 +72,7 @@ Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, HealthHudState *h
     s16 x;
 
     pips = stats->health;
-    if (pips - 1 > 3) {} /* dead: stops IDO hoisting pips - 1 above the PrimColor select */
+    if (pips - 1 > 3) {} // FAKE: dead if stops IDO hoisting pips - 1 above the PrimColor select
     fs0 = (f32)((f64)(u32)hudState->unk2E0 / 65535.0);
     amp = ((stats->melons * 0x46) - 0x46) & 0xFF;
     if ((gGlobalPauseFlags & 3) || (menuIsTransitionTypeAOrE() != 0)) {
