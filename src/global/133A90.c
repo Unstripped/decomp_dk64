@@ -3,8 +3,6 @@
 #include "actor.h"
 #include "model.h"
 #include "sched.h"
-#define PROTO_SKIP_proxPathFollowerStep
-#define PROTO_SKIP_proxPathActorFollowSpline
 #include "proto/global/117190.h"
 #include "proto/global/133A90.h"
 #include "proto/global/135D30.h"
@@ -18,9 +16,6 @@
 #include "proto/global/70FD0.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"
-
-void proxPathFollowerStep(Actor **);
-void proxPathActorFollowSpline(Actor *, struct PlayerState *, struct ProxPath *, u8, f32);
 
 extern Actor *gCurrentActor;
 extern Actor *gActivePlayerActor;

@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_133A90_H
 #include "common.h"
 #include "actor.h"
-struct H1ActorB;
 struct ProxPath;
 #ifndef PROTO_SKIP_proxPathListClear
 void proxPathListClear(void);
@@ -51,10 +50,10 @@ void proxPathFindDistanceSegment(struct ProxPath *, f32, u8 *, f32 *);
 void proxPathAdvance(f32);
 #endif
 #ifndef PROTO_SKIP_proxPathFollowerStep
-void proxPathFollowerStep(struct H1ActorB **);
+void proxPathFollowerStep(Actor **);
 #endif
 #ifndef PROTO_SKIP_proxPathActorFollowSpline
-void proxPathActorFollowSpline(struct H1ActorB *, struct PlayerState *, struct ProxPath *, u8, f32);
+void proxPathActorFollowSpline(Actor *, PlayerState *, struct ProxPath *, u8, f32);
 #endif
 #ifndef PROTO_SKIP_proxPathInterpolatePosition
 void proxPathInterpolatePosition(u8, f32, struct ProxPath *, f32 *, f32 *, f32 *);
