@@ -611,7 +611,7 @@ extern s32 gFrameCounter;
 
 Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     s32 pad;
-    s32 tex;
+    void *tex;
     s32 i;
     s32 j;
     s32 x;

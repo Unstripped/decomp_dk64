@@ -12,7 +12,7 @@ void texCacheReset(void);
 void texCacheUpdate(void);
 #endif
 #ifndef PROTO_SKIP_texCacheFindOrLoad
-s32 texCacheFindOrLoad(u16);
+void *texCacheFindOrLoad(u16);
 #endif
 #ifndef PROTO_SKIP_renderCallbacksExecute
 Gfx *renderCallbacksExecute(Gfx *, u8);

@@ -126,7 +126,7 @@ extern s16 gScreenHeight;
 extern u8 gHiResScale;
 
 Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
-    u32 tex;
+    void *tex;
     s32 alpha;
     s32 y;
     s32 xo;

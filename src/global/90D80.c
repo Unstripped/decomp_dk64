@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
-#define PROTO_SKIP_gfxDrawTexturedTileGridSimple // FAKE: callee prototype steer
+#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer (arg1 s32: 6AD90.c declares u32)
+#define PROTO_SKIP_gfxDrawTexturedTileGridSimple // FAKE: callee prototype steer (width/height u8: 103AB0.c declares s32)
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
@@ -11,8 +11,10 @@
 #include "proto/global/6AD90.h"
 #include "proto/global/90D80.h"
 
+void *assetLoad(s32, s32, u8, u8);  // FAKE: callee prototype steer (arg1 s32: 6AD90.c declares u32)
+
 typedef struct TexCacheEntry {
-    /* 0x0 */ s32 unk0;
+    /* 0x0 */ void *unk0;
     /* 0x4 */ u16 unk4;
     /* 0x6 */ u8 unk6;
     /* 0x7 */ u8 unk7;
@@ -44,9 +46,7 @@ void texCacheUpdate(void) {
     }
 }
 
-s32 assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
-
-s32 texCacheFindOrLoad(u16 texId) {
+void *texCacheFindOrLoad(u16 texId) {
     s16 i;
     TexCacheEntry *entry;
 
@@ -106,7 +106,7 @@ void renderCallbacksDisableForActor(Actor *actor) {
     u8 i;
 
     for (i = 0; i < D_807501E0; i++) {
-        if (actor == (Actor *)D_807FC630[i].actor) {
+        if (actor == D_807FC630[i].actor) {
             D_807FC630[i].layer = 8;
         }
     }
@@ -135,7 +135,7 @@ Gfx *renderRotatedQuad(Gfx *glist, s32 tex, s16 x, s16 y, s16 angle) {
     heapFreeDeferred(mtx);
 
     gDPPipeSync(glist++);
-    gDPLoadTextureBlock(glist++, (u8 *)(tex + 0x80000000), G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+    gDPLoadTextureBlock(glist++, (u8 *)tex + 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
 
     matrixMakeRotationZ(rotMtx, (f32)angle);
     guTranslateF(transMtx, (f32)x, (f32)y, 0.0f);
@@ -154,12 +154,12 @@ Gfx *renderRotatedQuad(Gfx *glist, s32 tex, s16 x, s16 y, s16 angle) {
 extern u16 D_807FC79E;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
-void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32);  // FAKE: callee prototype steer
+void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);  // FAKE: callee prototype steer (width/height u8: 103AB0.c declares s32)
 
 Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 height, s16 x, s16 y, f32 scaleX, f32 scaleY, s32 angle, f32 texScale) {
-    volatile s32 tex;
+    void *volatile tex;
     s32 tileSize;
-    Vtx *vtx;
+    Vtx *vtx;  // FAKE: also holds the texel bit size (4/8/16/32) so both share s0
     s32 half_w;
     s32 half_h;
     f32 scaled_w;
@@ -169,7 +169,7 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 h
     Mtx *mtx1;
 
     siz &= ~0xC000;
-    if (!(u16)texId) {
+    if (texId == 0) {
         texId = D_807FC79E;
     }
 
@@ -190,15 +190,15 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 h
 
     tex = texCacheFindOrLoad(texId);
 
-    if (((((s32)vtx * (u8)width * (u8)height) >> 3)) > 0x1000) {
+    if (((((s32)vtx * width * height) >> 3)) > 0x1000) {
         if (D_807FC79E && D_807FC79E) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         WRITE_GFX(glist++, 0xDA380003, (u32)&D_2000180);
         WRITE_GFX(glist++, 0xDA380007, (u32)&D_2000080);
         gDPPipeSync(glist++);
         tileSize = ((s32)vtx < 0x20) ? 0x20 : 0x1E;
-        gfxDrawTexturedTileGridSimple(&glist, tex, fmt, (u8)width, (u8)height, tileSize, tileSize, 0.0f, 0.0f,
-                      (f32)(u32)(u8)width, (f32)(u32)(u8)height,
-                      (f32)((s16)x - ((u8)width >> 1)), (f32)((s16)y - ((u8)height >> 1)),
+        gfxDrawTexturedTileGridSimple(&glist, tex, fmt, width, height, tileSize, tileSize, 0.0f, 0.0f,
+                      (f32)(u32)width, (f32)(u32)height,
+                      (f32)(x - (width >> 1)), (f32)(y - (height >> 1)),
                       1, (s32)vtx);
     } else {
         mtx1 = heapAlloc(sizeof(Mtx));
@@ -208,41 +208,41 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 h
 
         switch (siz) {
         case 0:
-            gDPLoadTextureBlock_4b(glist++, (u8 *)(tex + 0x80000000), fmt, (u8)width, (u8)height, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+            gDPLoadTextureBlock_4b(glist++, (u8 *)tex + 0x80000000, fmt, width, height, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             break;
         case 1:
-            gDPLoadTextureBlock(glist++, (u8 *)(tex + 0x80000000), fmt, G_IM_SIZ_8b, (u8)width, (u8)height, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+            gDPLoadTextureBlock(glist++, (u8 *)tex + 0x80000000, fmt, G_IM_SIZ_8b, width, height, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             break;
         case 2:
-            gDPLoadTextureBlock(glist++, (u8 *)(tex + 0x80000000), fmt, G_IM_SIZ_16b, (u8)width, (u8)height, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+            gDPLoadTextureBlock(glist++, (u8 *)tex + 0x80000000, fmt, G_IM_SIZ_16b, width, height, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             break;
         }
 
         guScaleF(scaleMtx, (scaleX > 0.0f) ? scaleX : -scaleX, (scaleY > 0.0f) ? scaleY : -scaleY, 0.0f);
         matrixMakeRotationZ(tempMtx, (f32)(s16)angle);
         guMtxCatF(scaleMtx, tempMtx, scaleMtx);
-        guTranslateF(tempMtx, (f32)(s16)x, (f32)(s16)y, 0.0f);
+        guTranslateF(tempMtx, (f32)x, (f32)y, 0.0f);
         guMtxCatF(scaleMtx, tempMtx, scaleMtx);
         guMtxF2L(scaleMtx, mtx1);
 
         WRITE_GFX(glist++, 0xDA380003, (u32)mtx1);
 
-        scaled_w = (f32)(u32)(u8)width * texScale;
-        scaled_h = (f32)(u32)(u8)height * texScale;
+        scaled_w = (f32)(u32)width * texScale;
+        scaled_h = (f32)(u32)height * texScale;
 
         if (scaleY > 0.0f) {
-            half_w = (u8)width >> 1;
-            half_h = (u8)height >> 1;
+            half_w = width >> 1;
+            half_h = height >> 1;
 
-            vtxSetPosTex(vtx++, -half_w, half_h, 0.0f - scaled_w, (f32)((u8)height - 1) + scaled_h, 6);
-            vtxSetPosTex(vtx++, half_w, half_h, (f32)((u8)width - 1) + scaled_w, (f32)((u8)height - 1) + scaled_h, 6);
-            vtxSetPosTex(vtx++, half_w, -half_h, (f32)((u8)width - 1) + scaled_w, 0.0f - scaled_h, 6);
+            vtxSetPosTex(vtx++, -half_w, half_h, 0.0f - scaled_w, (f32)(height - 1) + scaled_h, 6);
+            vtxSetPosTex(vtx++, half_w, half_h, (f32)(width - 1) + scaled_w, (f32)(height - 1) + scaled_h, 6);
+            vtxSetPosTex(vtx++, half_w, -half_h, (f32)(width - 1) + scaled_w, 0.0f - scaled_h, 6);
             vtxSetPosTex(vtx++, -half_w, -half_h, 0.0f - scaled_w, 0.0f - scaled_h, 6);
         } else {
-            vtxSetPosTex(vtx++, -((u8)width >> 1), 0, 0.0f - scaled_w, (f32)((u8)height - 1) + scaled_h, 6);
-            vtxSetPosTex(vtx++, (u8)width >> 1, 0, (f32)((u8)width - 1) + scaled_w, (f32)((u8)height - 1) + scaled_h, 6);
-            vtxSetPosTex(vtx++, (u8)width >> 1, -(u8)height, (f32)((u8)width - 1) + scaled_w, 0.0f - scaled_h, 6);
-            vtxSetPosTex(vtx++, -((u8)width >> 1), -(u8)height, 0.0f - scaled_w, 0.0f - scaled_h, 6);
+            vtxSetPosTex(vtx++, -(width >> 1), 0, 0.0f - scaled_w, (f32)(height - 1) + scaled_h, 6);
+            vtxSetPosTex(vtx++, width >> 1, 0, (f32)(width - 1) + scaled_w, (f32)(height - 1) + scaled_h, 6);
+            vtxSetPosTex(vtx++, width >> 1, -height, (f32)(width - 1) + scaled_w, 0.0f - scaled_h, 6);
+            vtxSetPosTex(vtx++, -(width >> 1), -height, 0.0f - scaled_w, 0.0f - scaled_h, 6);
         }
 
         WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(vtx - 4));
@@ -266,7 +266,7 @@ extern Mtx D_2000080;
 extern Mtx D_2000180;
 
 Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *alpha) {
-    s32 texBuf;
+    void *texBuf;
     f32 alphaVal;
     f32 scrollStep;
 
@@ -291,7 +291,7 @@ Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *alpha) {
         gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 35.0f * alphaVal);
     }
 
-    gDPLoadTextureBlock(glist++, (u8 *)(texBuf + 0x80000000), G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, 0, 0);
+    gDPLoadTextureBlock(glist++, (u8 *)texBuf + 0x80000000, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, 0, 0);
 
     gDPSetTileSize(glist++, 0, (s32)D_8075022C, (s32)D_80750228, 63 << 2, 63 << 2);
     gDPSetTile(glist++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 1, 0, G_TX_WRAP, 6, 0, G_TX_WRAP, 6, 0);
@@ -345,8 +345,8 @@ typedef struct CsCountdown {
 } CsCountdown;
 
 Gfx *renderHitCounterHUD(Gfx *glist, CsCountdown *countdown) {
-    char leftStr[12];
-    char firedStr[4];
+    u8 leftStr[12];
+    u8 firedStr[4];
 
     WRITE_GFX(glist++, 0xDE000000, (u32)&D_1000118);
     WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
@@ -358,7 +358,7 @@ Gfx *renderHitCounterHUD(Gfx *glist, CsCountdown *countdown) {
 }
 
 Gfx *renderRemainingShotsHUD(Gfx *glist, u8 *shots) {
-    char shotsStr[8];
+    u8 shotsStr[8];
 
     WRITE_GFX(glist++, 0xDE000000, (u32)&D_1000118);
     WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
@@ -368,7 +368,7 @@ Gfx *renderRemainingShotsHUD(Gfx *glist, u8 *shots) {
 }
 
 Gfx *renderCountdownTimerHUD(Gfx *glist, CsCountdown *countdown) {
-    char timeStr[12];
+    u8 timeStr[12];
 
     WRITE_GFX(glist++, 0xDE000000, (u32)&D_1000118);
     WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
@@ -385,11 +385,11 @@ Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal,
     u8 currOnesStr[2];
     u8 nextTensStr[2];
     u8 nextOnesStr[2];
-    char hundredsStr[4];
+    u8 hundredsStr[4];
     s16 step;
     s16 hundreds;
     s16 val;
-    s32 temp;
+    s32 scissorX;
 
     val = *curVal;
     if (targetVal < val) {
@@ -449,11 +449,11 @@ Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal,
     }
 
     if ((*curVal + step) >= 100) {
-        temp = x - 0x14;
-        if (temp < 0) {
-            temp = 0;
+        scissorX = x - 0x14;
+        if (scissorX < 0) {
+            scissorX = 0;
         }
-        gDPSetScissor(glist++, G_SC_NON_INTERLACE, temp, y, x + 0x34, y + 0x1B);
+        gDPSetScissor(glist++, G_SC_NON_INTERLACE, scissorX, y, x + 0x34, y + 0x1B);
         _sprintf(hundredsStr, "%d", hundreds);
         if (*curVal >= 100 && *curVal != 0xC7) {
             glist = textDrawStringVtx(glist, 3, (x * 4) - 0x50, y * 4, hundredsStr, 1);
@@ -522,7 +522,7 @@ Gfx *renderTimerMinutesSecondsHUD(Gfx *glist, f32 x, f32 y, s32 totalSeconds) {
     f32 curX;
     f32 baseY;
     f32 colonHalfWidth;
-    char timeStr[16];
+    u8 timeStr[16];
     s16 vtxY;
     s32 minutes;
 
