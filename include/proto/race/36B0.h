@@ -3,28 +3,27 @@
 #define PROTO_RACE_36B0_H
 #include "common.h"
 #include "actor.h"
-struct RaceCursor;
-struct RaceState;
+#include "race.h"
 #ifndef PROTO_SKIP_raceGetWaypointDiff
-s32 raceGetWaypointDiff(s32, struct RaceCursor *, struct RaceCursor *);
+s32 raceGetWaypointDiff(s32, RacePathState *, RacePathState *);
 #endif
 #ifndef PROTO_SKIP_raceGetWaypointSegmentFraction
-f32 raceGetWaypointSegmentFraction(s32, Actor *, struct RaceCursor *);
+f32 raceGetWaypointSegmentFraction(s32, Actor *, RacePathState *);
 #endif
 #ifndef PROTO_SKIP_raceGetPathDistance
 f32 raceGetPathDistance(s32, u16, u16);
 #endif
 #ifndef PROTO_SKIP_raceGetPathDistanceBetweenRacers
-f32 raceGetPathDistanceBetweenRacers(Actor *, struct RaceCursor *, Actor *, struct RaceCursor *);
+f32 raceGetPathDistanceBetweenRacers(Actor *, RacePathState *, Actor *, RacePathState *);
 #endif
 #ifndef PROTO_SKIP_raceChangeLaneRelative
-void raceChangeLaneRelative(struct RaceCursor *, s8);
+void raceChangeLaneRelative(RacePathState *, s8);
 #endif
 #ifndef PROTO_SKIP_raceChangeLaneRandom
-void raceChangeLaneRandom(struct RaceCursor *);
+void raceChangeLaneRandom(RacePathState *);
 #endif
 #ifndef PROTO_SKIP_raceGetCompletionFraction
-f32 raceGetCompletionFraction(struct RaceCursor *, struct RaceState *, struct RaceState *);
+f32 raceGetCompletionFraction(RacePathState *, RaceParticipant *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceTriggerBoostParticles
 void raceTriggerBoostParticles(void);
@@ -33,7 +32,7 @@ void raceTriggerBoostParticles(void);
 void raceAiUpdateSpeedAndLane(void);
 #endif
 #ifndef PROTO_SKIP_raceHandleCollisionRumble
-void raceHandleCollisionRumble(struct RaceCursor *);
+void raceHandleCollisionRumble(RacePathState *);
 #endif
 #ifndef PROTO_SKIP_racePlayTireScreechSfx
 void racePlayTireScreechSfx(void);
@@ -48,7 +47,7 @@ void raceOpponentCarBehaviorUpdate(void);
 void raceCameraBehaviorUpdate(void);
 #endif
 #ifndef PROTO_SKIP_raceFindNearestWaypoint
-void raceFindNearestWaypoint(struct RaceCursor *);
+void raceFindNearestWaypoint(RacePathState *);
 #endif
 #ifndef PROTO_SKIP_raceObstacleCarBehaviorUpdate
 void raceObstacleCarBehaviorUpdate(void);

@@ -2,10 +2,9 @@
 #ifndef PROTO_RACE_A960_H
 #define PROTO_RACE_A960_H
 #include "common.h"
-struct RaceActor;
-struct RaceActorState;
+#include "actor.h"
+#include "race.h"
 struct RaceRoute;
-struct RaceTracker;
 struct RaceWaypoint;
 #ifndef PROTO_SKIP_raceGetRoute
 struct RaceRoute *raceGetRoute(u8);
@@ -20,7 +19,7 @@ void raceLoadRouteData(u8 *);
 void raceInitRoute(s32);
 #endif
 #ifndef PROTO_SKIP_raceScaleVelocity
-void raceScaleVelocity(struct RaceActor *, f32);
+void raceScaleVelocity(Actor *, f32);
 #endif
 #ifndef PROTO_SKIP_raceSpawnGateActor
 void raceSpawnGateActor(f32, s32, u8);
@@ -41,21 +40,21 @@ u8 raceIsFacingWaypoint(struct RaceWaypoint *);
 f32 raceGetNormalDistanceToWaypoint(struct RaceWaypoint *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_raceActivateNextGate
-void raceActivateNextGate(struct RaceTracker *, struct RaceRoute *);
+void raceActivateNextGate(RaceParticipant *, struct RaceRoute *);
 #endif
 #ifndef PROTO_SKIP_raceAdvanceActiveGate
-void raceAdvanceActiveGate(struct RaceTracker *, struct RaceRoute *);
+void raceAdvanceActiveGate(RaceParticipant *, struct RaceRoute *);
 #endif
 #ifndef PROTO_SKIP_raceUpdateLapAndWaypointTracker
-void raceUpdateLapAndWaypointTracker(struct RaceTracker *);
+void raceUpdateLapAndWaypointTracker(RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceGetPathDistanceBetweenTrackers
-f32 raceGetPathDistanceBetweenTrackers(struct RaceRoute *, struct RaceTracker *, struct RaceTracker *);
+f32 raceGetPathDistanceBetweenTrackers(struct RaceRoute *, RaceParticipant *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceGetProgressPercent
-f32 raceGetProgressPercent(struct RaceRoute *, struct RaceTracker *, struct RaceActorState *);
+f32 raceGetProgressPercent(struct RaceRoute *, RaceParticipant *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceUpdateWaypointActivation
-void raceUpdateWaypointActivation(struct RaceActorState *);
+void raceUpdateWaypointActivation(RaceParticipant *);
 #endif
 #endif

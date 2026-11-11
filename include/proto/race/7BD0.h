@@ -2,10 +2,10 @@
 #ifndef PROTO_RACE_7BD0_H
 #define PROTO_RACE_7BD0_H
 #include "common.h"
+#include "race.h"
 struct RaceCurvePoint;
 struct RaceFE644Arg;
 struct RacePair;
-struct RaceStruct3;
 struct RaceUnknown174;
 struct RaceUnknownActor;
 struct RaceUnknownC;
@@ -15,10 +15,10 @@ struct RaceVec3f;
 void raceInitParticipantArray(struct RaceUnknownActor *, s32);
 #endif
 #ifndef PROTO_SKIP_raceRegisterParticipant
-void raceRegisterParticipant(struct RaceUnknownActor *, s32, struct RaceUnknownActor *, struct RaceStruct3 *);
+void raceRegisterParticipant(struct RaceUnknownActor *, s32, struct RaceUnknownActor *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceGetParticipantPair
-void raceGetParticipantPair(struct RaceUnknownActor *, s32, struct RaceUnknownActor **, struct RaceStruct3 **);
+void raceGetParticipantPair(struct RaceUnknownActor *, s32, struct RaceUnknownActor **, RaceParticipant **);
 #endif
 #ifndef PROTO_SKIP_raceCalculatePathBoundingBox
 void raceCalculatePathBoundingBox(struct RaceUnknownActor *);
@@ -66,7 +66,7 @@ void raceSetParticipantRaceStatus(struct RacePair *, u8);
 void raceSetAllParticipantsStatus(u8);
 #endif
 #ifndef PROTO_SKIP_raceGetHandicapSpeedBonus
-f32 raceGetHandicapSpeedBonus(struct RaceStruct3 *);
+f32 raceGetHandicapSpeedBonus(RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceDespawnProjectile
 void raceDespawnProjectile(void *, struct RaceUnknownC *);
@@ -132,6 +132,6 @@ void racePlayerTrackerBehaviorUpdate(void);
 void raceHandleRacerCollision(struct RaceFE644Arg *);
 #endif
 #ifndef PROTO_SKIP_raceCheckLapCompletionThreshold
-s32 raceCheckLapCompletionThreshold(struct RaceStruct3 *, struct RaceStruct3 *, s32);
+s32 raceCheckLapCompletionThreshold(RaceParticipant *, RaceParticipant *, s32);
 #endif
 #endif

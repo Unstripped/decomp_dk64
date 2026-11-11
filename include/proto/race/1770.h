@@ -2,9 +2,8 @@
 #ifndef PROTO_RACE_1770_H
 #define PROTO_RACE_1770_H
 #include "common.h"
-struct RaceActor;
-struct RaceParticipant;
-struct RacePathState;
+#include "actor.h"
+#include "race.h"
 #ifndef PROTO_SKIP_raceGetNextWaypointIndex
 s32 raceGetNextWaypointIndex(s32, s32);
 #endif
@@ -18,7 +17,7 @@ void raceInterpolateWaypointPos(struct RacePathState *, f32 *, f32 *, s32, s32);
 void raceInitSplinePoints(void);
 #endif
 #ifndef PROTO_SKIP_raceInitOpponentEntities
-void raceInitOpponentEntities(struct RaceActor *);
+void raceInitOpponentEntities(Actor *);
 #endif
 #ifndef PROTO_SKIP_raceInitSplineAndOpponent
 void raceInitSplineAndOpponent(void);
@@ -48,7 +47,7 @@ void racePlayEngineSfx(void);
 void raceUpdateEngineSoundPitch(f32);
 #endif
 #ifndef PROTO_SKIP_raceVehicleRenderCallback
-void raceVehicleRenderCallback(void *, struct RaceActor *);
+void raceVehicleRenderCallback(void *, Actor *);
 #endif
 #ifndef PROTO_SKIP_raceVehicleBehaviorUpdate
 void raceVehicleBehaviorUpdate(void);

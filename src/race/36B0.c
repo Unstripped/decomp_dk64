@@ -1,4 +1,5 @@
 #include "common.h"
+#include "race.h"
 #include "actor.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -18,48 +19,6 @@ typedef struct {
 
 typedef struct RaceActor RaceActor;
 
-typedef struct RaceCursor {
-    /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 unk1;
-    /* 0x02 */ u16 unk2;
-    /* 0x04 */ u8 unk4;
-    /* 0x05 */ u8 pad5[3];
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ u8 padC[4];
-    /* 0x10 */ u8 unk10;
-    /* 0x11 */ u8 pad11[3];
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ u8 pad18[8];
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ u8 pad24[0xC];
-    /* 0x30 */ Actor *unk30;
-    /* 0x34 */ u8 pad34[5];
-    /* 0x39 */ u8 unk39;
-} RaceCursor;
-
-typedef struct RaceState {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ u8 pad8[0x14];
-    /* 0x1C */ u16 unk1C;
-    /* 0x1E */ u8 pad1E[6];
-    /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 pad25[3];
-    /* 0x28 */ u8 unk28;
-    /* 0x29 */ u8 pad29[7];
-    /* 0x30 */ Actor *unk30;
-    /* 0x34 */ u8 unk34;
-    /* 0x35 */ u8 unk35;
-    /* 0x36 */ u8 unk36;
-    /* 0x37 */ s8 unk37;
-    /* 0x38 */ u8 pad38[2];
-    /* 0x3A */ u16 unk3A;
-    /* 0x3C */ u8 pad3C[9];
-    /* 0x45 */ u8 unk45;
-    /* 0x46 */ u8 pad46[0xBE];
-    /* 0x104 */ void *unk104;
-} RaceState;
-
 typedef struct {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ void *unk4;
@@ -72,15 +31,15 @@ typedef struct {
 
 typedef struct {
     /* 0x174 */ void *unk174;
-    /* 0x178 */ RaceState *unk178;
-    /* 0x17C */ RaceCursor *unk17C;
+    /* 0x178 */ RaceParticipant *unk178;
+    /* 0x17C */ RacePathState *unk17C;
     /* 0x180 */ u8 *unk180;
     /* 0x184 */ RaceAux *unk184;
 } RaceViewA;
 
 typedef struct {
-    /* 0x174 */ RaceState *unk174;
-    /* 0x178 */ RaceCursor *unk178;
+    /* 0x174 */ RaceParticipant *unk174;
+    /* 0x178 */ RacePathState *unk178;
 } RaceViewB;
 
 // Race actor: Actor plus its per-type component pointers from 0x174 on (two layouts).
@@ -96,7 +55,7 @@ extern Point3f **gMinecartTrackPoints;
 extern Actor *gCurrentActor;
 
 
-s32 raceGetWaypointDiff(s32 pathLength, RaceCursor *curA, RaceCursor *curB) {
+s32 raceGetWaypointDiff(s32 pathLength, RacePathState *curA, RacePathState *curB) {
     s32 diff;
     s32 abs_diff;
     s32 sign;
@@ -113,7 +72,7 @@ s32 raceGetWaypointDiff(s32 pathLength, RaceCursor *curA, RaceCursor *curB) {
 s32 mathPickCloserTargetPoint3D(f32, f32, f32, struct TargetVec3f *, struct TargetVec3f *, struct TargetVec3f *, struct TargetVec3f *, f32 *, f32 *, f32 *);
 
 #define RB_SQ(v) ((v) * (v))
-f32 raceGetWaypointSegmentFraction(s32 pathLength, Actor *actor, RaceCursor *cursor) {
+f32 raceGetWaypointSegmentFraction(s32 pathLength, Actor *actor, RacePathState *cursor) {
     s32 idx1;
     s32 idx2;
     Point3f *base;
@@ -154,7 +113,7 @@ f32 raceGetPathDistance(s32 pathLength, u16 laneIndex, u16 waypointIndex) {
     return sqrtf((dx * dx) + (dy * dy) + (dz * dz));
 }
 
-f32 raceGetPathDistanceBetweenRacers(Actor *actorA, RaceCursor *curA, Actor *actorB, RaceCursor *curB) {
+f32 raceGetPathDistanceBetweenRacers(Actor *actorA, RacePathState *curA, Actor *actorB, RacePathState *curB) {
     s32 count;
     s32 dir;
     f32 fracA;
@@ -195,7 +154,7 @@ f32 raceGetPathDistanceBetweenRacers(Actor *actorA, RaceCursor *curA, Actor *act
 }
 
 
-void raceChangeLaneRelative(RaceCursor *cursor, s8 dir) {
+void raceChangeLaneRelative(RacePathState *cursor, s8 dir) {
     if (dir > 0) {
         cursor->unk1++;
     } else {
@@ -204,7 +163,7 @@ void raceChangeLaneRelative(RaceCursor *cursor, s8 dir) {
     cursor->unk8 = 0.0f;
 }
 
-void raceChangeLaneRandom(RaceCursor *cursor) {
+void raceChangeLaneRandom(RacePathState *cursor) {
     switch (cursor->unk0) {
     case 0:
         cursor->unk1++;
@@ -223,14 +182,14 @@ void raceChangeLaneRandom(RaceCursor *cursor) {
     cursor->unk8 = 0.0f;
 }
 
-f32 raceGetCompletionFraction(RaceCursor *cursor, RaceState *state, RaceState *leaderState) {
+f32 raceGetCompletionFraction(RacePathState *cursor, RaceParticipant *state, RaceParticipant *leaderState) {
     f32 result;
     s8 lap;
     s32 count;
     f32 num;
     f32 den;
 
-    lap = state->unk37;
+    lap = state->lap;
     result = 0.0f;
     if (lap > 0) {
         count = gMinecartTrackPoints[cursor->unk0 + 1] - gMinecartTrackPoints[cursor->unk0];
@@ -260,10 +219,10 @@ u8 spawnNodeHasActor(u8);
 Actor *spawnNodeActivate(s16, u16);
 
 void raceAiUpdateSpeedAndLane(void) {
-    RaceState *state;
-    RaceCursor *cursor;
+    RaceParticipant *state;
+    RacePathState *cursor;
     Actor *targetActor;
-    RaceCursor *targetCursor;
+    RacePathState *targetCursor;
     s32 pad44;
     RaceAux *aux;
     f32 distToTarget;
@@ -274,8 +233,8 @@ void raceAiUpdateSpeedAndLane(void) {
     s32 foundCompetitor;
     Actor *competitorActor;
     Actor *leaderActor;
-    RaceState *targetState;
-    RaceCursor *competitorCursor;
+    RaceParticipant *targetState;
+    RacePathState *competitorCursor;
     f32 competitorDist;
 
     state = ((RaceActor *)gCurrentActor)->view.a.unk178;
@@ -287,7 +246,7 @@ void raceAiUpdateSpeedAndLane(void) {
     targetSpeed = raceEvaluateCurveTargetSpeed(aux, distToTarget, D_8002FBD0, D_8002FC00);
     flag = (cursor->unk0 == cursor->unk1) && (cursor->unk4 == 0);
     if (aux->unkF != 0) {
-        leaderActor = state->unk30;
+        leaderActor = state->actor;
         if (raceGetCompletionFraction(cursor, state, ((RaceActor *)leaderActor)->view.b.unk174) > 0.8) {
             raceSetPiecewiseCurveMode(aux, 0, D_8002FBD0, D_8002FC00);
         }
@@ -349,7 +308,7 @@ void raceAiUpdateSpeedAndLane(void) {
 
 s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 
-void raceHandleCollisionRumble(RaceCursor *cursor) {
+void raceHandleCollisionRumble(RacePathState *cursor) {
     Actor *v1;
     s32 pad[2];
     RaceAux *aux;
@@ -383,12 +342,12 @@ void raceHandleCollisionRumble(RaceCursor *cursor) {
 s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 
 void racePlayTireScreechSfx(void) {
-    RaceState *state;
+    RaceParticipant *state;
     Actor *targetActor;
-    RaceState *targetState;
+    RaceParticipant *targetState;
 
     state = ((RaceActor *)gCurrentActor)->view.a.unk178;
-    targetActor = state->unk30;
+    targetActor = state->actor;
     targetState = ((RaceActor *)targetActor)->view.b.unk174;
     switch (targetState->unk1C) {
     case 0x5A:
@@ -442,8 +401,8 @@ void raceOpponentCarBehaviorUpdate(void) {
     RaceAux *aux;
     s32 count;
     Actor *targetActor;
-    RaceState *state;
-    RaceCursor *cursor;
+    RaceParticipant *state;
+    RacePathState *cursor;
     u32 cursorVal;
     f32 unclampedVal;
     s32 phase;
@@ -459,7 +418,7 @@ void raceOpponentCarBehaviorUpdate(void) {
     cursor = ((RaceActor *)gCurrentActor)->view.a.unk17C;
     flagPtr = ((RaceActor *)gCurrentActor)->view.a.unk180;
     aux = ((RaceActor *)gCurrentActor)->view.a.unk184;
-    targetActor = state->unk30;
+    targetActor = state->actor;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         count = gMinecartTrackPoints[cursor->unk0 + 1] - gMinecartTrackPoints[cursor->unk0];
@@ -626,10 +585,10 @@ void camSetFixedView(struct CamActor *, f32, f32, f32, f32, f32, f32, u8);
 void raceCameraBehaviorUpdate(void) {
     s32 pad54[3];
     Actor *targetActor;
-    RaceState *targetState;
-    RaceCursor *targetCursor;
+    RaceParticipant *targetState;
+    RacePathState *targetCursor;
     s32 pad44;
-    RaceState *playerState;
+    RaceParticipant *playerState;
     s32 pad3C;
     int pathLength;
     f32 distToTarget;
@@ -640,8 +599,8 @@ void raceCameraBehaviorUpdate(void) {
     int prevWaypoint;
     u8 tgtStateMode;
     u8 tgtCursorSub;
-    RaceCursor *cursor;
-    RaceState *state;
+    RacePathState *cursor;
+    RaceParticipant *state;
     Actor *playerActor;
 
     cursor = ((RaceActor *)gCurrentActor)->view.b.unk178;
@@ -649,7 +608,7 @@ void raceCameraBehaviorUpdate(void) {
     targetActor = cursor->unk30;
     targetState = ((RaceActor *)targetActor)->view.b.unk174;
     targetCursor = ((RaceActor *)targetActor)->view.b.unk178;
-    playerActor = gPlayerSlots[targetState->unk28].unk4;
+    playerActor = gPlayerSlots[targetState->playerIdx].unk4;
     playerState = ((RaceActor *)playerActor)->view.b.unk174;
     pathLength = gMinecartTrackPoints[cursor->unk0 + 1] - gMinecartTrackPoints[cursor->unk0];
     offsetSign = 1.0f;
@@ -706,7 +665,7 @@ void raceCameraBehaviorUpdate(void) {
 }
 
 
-void raceFindNearestWaypoint(RaceCursor *cursor) {
+void raceFindNearestWaypoint(RacePathState *cursor) {
     Point3f *p;
     s32 count;
     s32 i;
@@ -743,9 +702,9 @@ void commandQueuePush(Actor *, s16, s16, s16, u8, u8, u8, u8, u8);
 
 void raceObstacleCarBehaviorUpdate(void) {
     Actor *targetActor;
-    RaceCursor *cursor;
-    RaceState *state;
-    RaceState *targetState;
+    RacePathState *cursor;
+    RaceParticipant *state;
+    RaceParticipant *targetState;
     f32 nodeZ;
     f32 nodeY;
     f32 nodeX;

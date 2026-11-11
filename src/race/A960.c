@@ -1,4 +1,5 @@
 #include "common.h"
+#include "race.h"
 #include "compiler/ido/memory.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
@@ -13,30 +14,10 @@
 #include "proto/race/7BD0.h"
 #include "proto/race/A960.h"
 
-typedef struct RaceActorState {
-    s8 unk0;
-    u8 pad1[0x23];
-    u8 unk24;
-    u8 pad25;
-    u8 route;
-} RaceActorState;
-
+// Race actor: Actor plus its participant component (0x174).
 typedef struct RaceActor {
-    u8 pad0[4];
-    ActorSub4 *unk4;
-    u8 pad8[0x7C - 8];
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 prevX;
-    f32 prevY;
-    f32 prevZ;
-    u8 pad94[0xE6 - 0x94];
-    s16 angle;
-    u8 padE8[0xEC - 0xE8];
-    s16 unkEC;
-    u8 padEE[0x174 - 0xEE];
-    RaceActorState *state;
+    /* 0x000 */ u8 pad0[0x174];
+    /* 0x174 */ RaceParticipant *state;
 } RaceActor;
 
 typedef struct RaceWaypoint {
@@ -52,7 +33,7 @@ typedef struct RaceWaypoint {
     /* 0x18 */ u8 mode;
     /* 0x19 */ u8 pad19;
     /* 0x1A */ u16 width;
-    /* 0x1C */ RaceActor *actors[2];
+    /* 0x1C */ Actor *actors[2];
     /* 0x24 */ s32 state;
 } RaceWaypoint;
 
@@ -73,23 +54,6 @@ typedef struct RaceRouteTable {
     /* 0x0C */ RaceWaypoint *items2;
 } RaceRouteTable;
 
-typedef struct RaceTracker {
-    u8 pad0[0x27];
-    u8 unk27;
-    u8 playerIdx;
-    u8 pad29[0x30 - 0x29];
-    RaceActor *actor;
-    u8 pad34[0x37 - 0x34];
-    s8 lap;
-    u8 unk38;
-    u8 pad39;
-    u16 unk3A;
-    u16 unk3C;
-    f32 unk40;
-    u8 unk44;
-    u8 unk45;
-} RaceTracker;
-
 typedef struct RacePlayerPos {
     u8 pad0[0x210];
     f32 pos[3];
@@ -101,8 +65,8 @@ typedef struct RacePlayerPos {
 } RacePlayerPos;
 
 extern RaceRouteTable *D_8002FCF0;
-extern RaceActor *gCurrentActor;
-extern RaceActor *gSpawnedActor;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
 extern RacePlayerPos *gPlayerSlots;
 extern u8 gPlayerCount;
 
@@ -203,15 +167,15 @@ void raceInitRoute(s32 routeAssetId) {
     D_80750AC4 = 0;
 }
 
-void raceScaleVelocity(RaceActor *actor, f32 scaleFactor) {
-    actor->unk4->scaleX *= scaleFactor;
-    actor->unk4->scaleY = actor->unk4->scaleX;
-    actor->unk4->scaleZ = actor->unk4->scaleY;
+void raceScaleVelocity(Actor *actor, f32 scaleFactor) {
+    actor->sub4->scaleX *= scaleFactor;
+    actor->sub4->scaleY = actor->sub4->scaleX;
+    actor->sub4->scaleZ = actor->sub4->scaleY;
 }
 
 
 void raceSpawnGateActor(f32 scaleFactor, s32 kind, u8 mode) {
-    RaceActorState *actorState;
+    RaceParticipant *actorState;
 
     switch (kind) {
         case 1:
@@ -227,7 +191,7 @@ void raceSpawnGateActor(f32 scaleFactor, s32 kind, u8 mode) {
             actorSpawn(0x137, mode != 0 ? 0xD8 : 0xD9);
             break;
     }
-    actorState = gSpawnedActor->state;
+    actorState = ((RaceActor *)gSpawnedActor)->state;
     raceScaleVelocity(gSpawnedActor, scaleFactor);
     actorState->unk0 = kind;
 }
@@ -247,11 +211,11 @@ void raceInitGateActors(RaceWaypoint *node) {
                 raceSpawnGateActor(node->unk14, node->kind, i ^ 1);
                 j = i;
                 node->actors[j] = gSpawnedActor;
-                gSpawnedActor->angle = (node->angle + 0x800) & 0xFFF;
+                gSpawnedActor->yaw = (node->angle + 0x800) & 0xFFF;
                 if (j != 0) {
                     xoff *= -1.0f;
                 }
-                guRotateF(mA, gSpawnedActor->angle * 0.087890625f, 0.0f, 1.0f, 0.0f);
+                guRotateF(mA, gSpawnedActor->yaw * 0.087890625f, 0.0f, 1.0f, 0.0f);
                 guTranslateF(mB, node->x, node->y, node->z);
                 guMtxCatF(mA, mB, mA);
                 guMtxXFMF(mA, xoff, 0.0f, 0.0f, &gSpawnedActor->x, &gSpawnedActor->y, &gSpawnedActor->z);
@@ -259,7 +223,7 @@ void raceInitGateActors(RaceWaypoint *node) {
         } else {
             raceSpawnGateActor(node->unk14, node->kind, node->mode == 1);
             node->actors[0] = gSpawnedActor;
-            gSpawnedActor->angle = (node->angle + 0x800) & 0xFFF;
+            gSpawnedActor->yaw = (node->angle + 0x800) & 0xFFF;
             gSpawnedActor->x = node->x;
             gSpawnedActor->y = node->y;
             gSpawnedActor->z = node->z;
@@ -287,8 +251,8 @@ u8 raceCheckGateCrossed(RaceWaypoint *node) {
     f32 gateZ;
     f32 res;
     u8 crossed;
-    RaceActor *a;
-    RaceActor *b;
+    Actor *a;
+    Actor *b;
 
     crossed = 0;
     if (node->kind == 0) {
@@ -352,7 +316,7 @@ f32 raceGetNormalDistanceToWaypoint(RaceWaypoint *node, f32 x, f32 z) {
 }
 
 
-void raceActivateNextGate(RaceTracker *tracker, RaceRoute *route) {
+void raceActivateNextGate(RaceParticipant *tracker, RaceRoute *route) {
     RaceWaypoint *node;
 
     if (route->active != 0) {
@@ -367,7 +331,7 @@ void raceActivateNextGate(RaceTracker *tracker, RaceRoute *route) {
     }
 }
 
-void raceAdvanceActiveGate(RaceTracker *tracker, RaceRoute *route) {
+void raceAdvanceActiveGate(RaceParticipant *tracker, RaceRoute *route) {
     if (route->active != 0) {
         if (tracker->unk3C == tracker->unk3A) {
             u16 val = route->items[tracker->unk3C];
@@ -378,9 +342,9 @@ void raceAdvanceActiveGate(RaceTracker *tracker, RaceRoute *route) {
 }
 
 
-void raceUpdateLapAndWaypointTracker(RaceTracker *tracker) {
-    RaceActor *actor;
-    RaceActorState *state;
+void raceUpdateLapAndWaypointTracker(RaceParticipant *tracker) {
+    Actor *actor;
+    RaceParticipant *state;
     RaceRoute *list;
     RaceWaypoint *node;
     s32 pad;
@@ -388,7 +352,7 @@ void raceUpdateLapAndWaypointTracker(RaceTracker *tracker) {
     u16 val;
 
     actor = tracker->actor;
-    state = actor->state;
+    state = ((RaceActor *)actor)->state;
     list = raceGetRoute(state->route);
     if (list != NULL) {
         val = list->items[tracker->unk3A];
@@ -434,7 +398,7 @@ void raceUpdateLapAndWaypointTracker(RaceTracker *tracker) {
     }
 }
 
-f32 raceGetPathDistanceBetweenTrackers(RaceRoute *route, RaceTracker *trackerA, RaceTracker *trackerB) {
+f32 raceGetPathDistanceBetweenTrackers(RaceRoute *route, RaceParticipant *trackerA, RaceParticipant *trackerB) {
     s32 diff;
     f32 acc;
     f32 prevX;
@@ -477,7 +441,7 @@ f32 raceGetPathDistanceBetweenTrackers(RaceRoute *route, RaceTracker *trackerA, 
     return acc;
 }
 
-f32 raceGetProgressPercent(RaceRoute *route, RaceTracker *tracker, RaceActorState *actorState) {
+f32 raceGetProgressPercent(RaceRoute *route, RaceParticipant *tracker, RaceParticipant *actorState) {
     u16 waypointCount = route->count;
     f32 num = (tracker->lap - 1) * waypointCount + tracker->unk3A;
     f32 den = actorState->unk24 * waypointCount;
@@ -486,7 +450,7 @@ f32 raceGetProgressPercent(RaceRoute *route, RaceTracker *tracker, RaceActorStat
 }
 
 
-void raceUpdateWaypointActivation(RaceActorState *actorState) {
+void raceUpdateWaypointActivation(RaceParticipant *actorState) {
     RaceRoute *list;
     RaceWaypoint *node;
     s32 i;
