@@ -3,8 +3,6 @@
 #define PROTO_GLOBAL_114270_H
 #include "common.h"
 #include "actor.h"
-struct AngAFcccView;
-struct AngAView;
 struct M114aAngle;
 #ifndef PROTO_SKIP_effectSpritePoolReset
 void effectSpritePoolReset(void);
@@ -19,7 +17,7 @@ void effectSpriteParticleTrackCamera(struct M114aAngle *);
 void effectSpriteParticleWrapX(struct M114aAngle *);
 #endif
 #ifndef PROTO_SKIP_func_8070FCCC
-s32 func_8070FCCC(struct AngAFcccView *);
+s32 func_8070FCCC(struct M114aAngle *);
 #endif
 #ifndef PROTO_SKIP_func_8071006C
 s32 func_8071006C(struct M114aAngle *);
@@ -31,7 +29,7 @@ s32 func_80710174(struct M114aAngle *);
 s32 func_807102AC(struct M114aAngle *);
 #endif
 #ifndef PROTO_SKIP_func_807103E0
-s32 func_807103E0(struct AngAView *);
+s32 func_807103E0(struct M114aAngle *);
 #endif
 #ifndef PROTO_SKIP_effectSpritePoolLoadTexture
 Gfx *effectSpritePoolLoadTexture(Gfx *, u8);
