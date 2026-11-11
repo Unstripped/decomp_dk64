@@ -229,10 +229,7 @@ void textFontAgeSheets(void) {
     }
 }
 
-s32 textGetStringWidth(font, str)
-s16 font;
-u8 *str;
-{
+s32 textGetStringWidth(s16 font, u8 *str) {
     s32 len;
     u8 ch;
     s32 step;

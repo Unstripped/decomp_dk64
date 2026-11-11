@@ -1423,7 +1423,7 @@ extern Gfx D_1000118;
 extern s32 D_8074E880[];
 
 Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
-    char **sub;
+    u8 **sub;
     s16 x;
     s16 y;
     u8 state;
@@ -1446,7 +1446,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
             if (actor->z == 1.0f) {
                 s16 w2;
 
-                w2 = (s16)(s32)((((f64)actor->unk15F * 0.0078125 > 1.0 ? 1.0 : (f64)actor->unk15F * 0.0078125) * 0.9) * (f64)textGetStringWidth((s16)(s32)actor->z, (s32)*sub) + (f64)actor->x * 0.25);
+                w2 = (s16)(s32)((((f64)actor->unk15F * 0.0078125 > 1.0 ? 1.0 : (f64)actor->unk15F * 0.0078125) * 0.9) * (f64)textGetStringWidth((s16)(s32)actor->z, *sub) + (f64)actor->x * 0.25);
                 effectSetDepth(1);
                 effectSetCallback(effectConfettiPhysicsUpdate);
                 effectSetSpeed(0xA);
@@ -1462,7 +1462,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
     y = (s16)(s32)actor->y;
     switch (mode) {
         case 1:
-            width = textGetStringWidth((s16)(s32)actor->z, (s32)*sub);
+            width = textGetStringWidth((s16)(s32)actor->z, *sub);
             state = 0x13;
             gfx = renderAppendScaledMatrix(gfx, (ActorPositionView *)actor, width, 0.8f);
             state &= 0xFFFE;
@@ -1476,7 +1476,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
             break;
         case 0:
             mode = 6;
-            width = textGetStringWidth(6, (s32)*sub);
+            width = textGetStringWidth(6, *sub);
             actor->x = (f32)((gScreenWidth - width) * 2);
             gfx = renderAppendScaledMatrix(gfx, (ActorPositionView *)actor, width, 0.8f);
             state = 0;

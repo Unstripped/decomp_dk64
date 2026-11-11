@@ -255,7 +255,7 @@ extern Gfx D_1000118;
 
 Gfx *func_806BE6F0(Gfx *gdl, Actor *actor) {
     u8 v;
-    char buf[3];
+    u8 buf[3];
     s32 n;
 
     v = actor->yawSpeed / 30;

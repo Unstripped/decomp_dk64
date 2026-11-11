@@ -31,7 +31,7 @@ void *textFontLoadSheet(s16);
 void textFontAgeSheets(void);
 #endif
 #ifndef PROTO_SKIP_textGetStringWidth
-s32 textGetStringWidth();
+s32 textGetStringWidth(s16, u8 *);
 #endif
 #ifndef PROTO_SKIP_textCountNonSpace
 s16 textCountNonSpace(u8 *);

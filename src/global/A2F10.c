@@ -500,7 +500,7 @@ Gfx *actorBannerTextRender(Gfx *arg0, Actor *arg1) {
     f32 mtx[4][4];
     f32 translate[4][4];
     void *mtxBuf;
-    char text[0x10];
+    u8 text[0x10];
     s16 width;
     u8 font;
     u8 centered;

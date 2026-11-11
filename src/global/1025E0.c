@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "text.h"
-#define PROTO_SKIP_textGetStringWidth // FAKE: callee prototype steer
 #define PROTO_SKIP_textGetCharAdvance // FAKE: callee prototype steer
 #include "proto/boot/3630.h"
 #include "proto/global/100180.h"
@@ -10,8 +9,6 @@
 #include "proto/global/166A0.h"
 #include "proto/global/450.h"
 #include "proto/global/CEAE0.h"
-
-s32 textGetStringWidth(s16, u8 *); // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;

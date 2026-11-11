@@ -36,7 +36,7 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *actor) {
     BonusEHud *hud = actor->customState;
     s16 i;
     s16 y;
-    char buf[24];
+    u8 buf[24];
 
     gSPDisplayList(gdl++, &D_1000118);
     gDPPipeSync(gdl++);

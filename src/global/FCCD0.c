@@ -923,7 +923,7 @@ extern f32 mathSinF(s16);
 
 Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     s32 *matrix;
-    char text[8];
+    u8 text[8];
     u8 alpha;
     ViewportRect *viewport;
     f32 scale;
