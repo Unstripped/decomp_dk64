@@ -914,17 +914,14 @@ void eepromInit(void) {
 
 extern u8 D_807EDEB0[];
 
-u8 *eepromGetSectionBuffer(s32 section) {
+u8 *eepromGetSectionBuffer(u8 section) {
     u8 *result;
-    s32 selector;
 
-    selector = section & 0xFF;
     result = NULL;
-    switch (selector) {
+    switch (section) {
     case 0:
         if ((func_807142D8() != 0) || (gPlayerCount >= 2)) {
             flagsClearAllBank2();
-            if (section) {}  // FAKE: dead read after the call keeps section's home-slot spill (Q0291)
             bzero(D_807EDEB0, ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
             result = D_807EDEB0;
         } else {

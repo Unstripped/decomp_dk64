@@ -105,7 +105,7 @@ void eepromThreadMain(void *);
 void eepromInit(void);
 #endif
 #ifndef PROTO_SKIP_eepromGetSectionBuffer
-u8 *eepromGetSectionBuffer(s32);
+u8 *eepromGetSectionBuffer(u8);
 #endif
 #ifndef PROTO_SKIP_eepromReadChecksumBit
 u8 eepromReadChecksumBit(u16, u8);

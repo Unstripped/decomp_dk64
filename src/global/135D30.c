@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_eepromGetSectionBuffer // FAKE: callee prototype steer
 #include "proto/global/104F0.h"
 #include "proto/global/135D30.h"
 #include "proto/global/3C10.h"
@@ -28,7 +27,6 @@ extern FlagTableEntry D_80755EA0[];
 extern FlagTableEntry4 D_80755F4C[];
 extern FlagTableEntry4 D_80755F50[];
 
-u8 *eepromGetSectionBuffer(u8); // FAKE: callee prototype steer
 
 void flagsClearAllBank2(void) {
     s32 i;
