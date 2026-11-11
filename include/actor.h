@@ -747,12 +747,9 @@ typedef struct KongInventory {
     /* 0x05 */ u8 unk5;
     /* 0x06 */ u16 unk6;
     /* 0x08 */ s16 unk8;
-    /* 0x0A */ u16 unkA[8];
-    /* 0x1A */ u8 pad1A[0xC];
-    /* 0x26 */ u16 unk26[8];
-    /* 0x36 */ u8 pad36[0xC];
-    /* 0x42 */ u16 unk42[8];
-    /* 0x52 */ u8 pad52[0xC];
+    /* 0x0A */ u16 unkA[14];
+    /* 0x26 */ u16 unk26[14];
+    /* 0x42 */ u16 unk42[14];
 } KongInventory; /* sizeof 0x5E */
 
 // camSetTarget's parameter block inside CamState (0x44).
