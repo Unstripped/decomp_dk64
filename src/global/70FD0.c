@@ -1,6 +1,7 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
+#include "cutscene.h"
 #include "map.h"
 #include "collision.h"
 #include "heap.h"
@@ -50,57 +51,8 @@ extern u8 D_807FB604;
 
 
 
-typedef struct ModelSlotAsset {
-    /* 0x00 */ u8 pad0[0x60];
-    /* 0x60 */ s32 unk60;
-} ModelSlotAsset;
-
-typedef struct ModelSlotTriBuffer {
-    /* 0x00 */ u8 pad0[8];
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ u8 padC[0x18];
-    /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 pad25[3];
-} ModelSlotTriBuffer;
-
-typedef struct ModelSlotHitInfo {
-    /* 0x00 */ u8 pad0[0x50];
-    /* 0x50 */ u8 unk50;
-    /* 0x51 */ u8 unk51;
-    /* 0x52 */ u8 unk52;
-    /* 0x53 */ u8 unk53;
-    /* 0x54 */ u8 pad54[8];
-    /* 0x5C */ u8 unk5C;
-    /* 0x5D */ u8 pad5D;
-    /* 0x5E */ s16 unk5E;
-    /* 0x60 */ u8 pad60[0xE];
-    /* 0x6E */ u8 unk6E;
-    /* 0x6F */ u8 unk6F;
-    /* 0x70 */ u8 unk70;
-    /* 0x71 */ u8 pad71[0x17];
-    /* 0x88 */ s16 unk88;
-    /* 0x8A */ s16 unk8A;
-    /* 0x8C */ f32 unk8C;
-    /* 0x90 */ f32 unk90;
-    /* 0x94 */ u8 pad94[7];
-    /* 0x9B */ u8 unk9B;
-} ModelSlotHitInfo;
-
-typedef struct ModelSlotView {
-    /* 0x00 */ f32 unk0[9];
-    /* 0x24 */ ModelSlotAsset *unk24;
-    /* 0x28 */ DynamicBuffer unk28;
-    /* 0x48 */ ModelSlotTriBuffer unk48;
-    /* 0x70 */ u8 pad70[8];
-    /* 0x78 */ s32 *unk78;
-    /* 0x7C */ struct ModelSlotHitInfo *unk7C;
-    /* 0x80 */ u8 pad80[8];
-    /* 0x88 */ s16 unk88;
-    /* 0x8A */ u8 pad8A[6];
-} ModelSlotView; // size = 0x90
-
 extern u8 gGfxBufferIndex;
-extern ModelSlotView *gModelSlots;
+extern ModelSlot *gModelSlots;
 
 
 typedef struct ModelCollisionAsset {
@@ -130,7 +82,7 @@ typedef struct CollisionSlotBuffer {
 
 void collisionBuildSlotBoxes(s32 slot, s32 arg1, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale) {
     s32 off;
-    s32 *anim;
+    ModelData *anim;
     s32 count;
     u8 *entry;
     u8 *out;
@@ -140,17 +92,17 @@ void collisionBuildSlotBoxes(s32 slot, s32 arg1, f32 x, f32 y, f32 z, f32 rotX, 
     f32 boneWorldMtx[4][4];
     s32 i;
     CollisionSlotBuffer *buf;
-    s32 animFrame;
+    u8 *animFrame;
     u8 *boneTable;
     s8 lastBone;
     s8 bone;
 
-    off = slot * sizeof(ModelSlotView);
-    anim = ((ModelSlotView *)((u8 *)gModelSlots + off))->unk78; // FAKE: byte-offset spelling keeps gModelSlots in v1 and the slot * 0x90 product in v0 (gModelSlots[slot].unk78 swaps them)
+    off = slot * sizeof(ModelSlot);
+    anim = ((ModelSlot *)((u8 *)gModelSlots + off))->unk78; // FAKE: byte-offset spelling keeps gModelSlots in v1 and the slot * 0x90 product in v0 (gModelSlots[slot].unk78 swaps them)
     lastBone = -1;
     buf = (CollisionSlotBuffer *)&gModelSlots[slot].unk28;
     if (anim != NULL) {
-        animFrame = anim[gGfxBufferIndex];
+        animFrame = anim->frames[gGfxBufferIndex];
     } else {
         animFrame = 0;
     }
@@ -219,13 +171,13 @@ void modelSlotBuildTransformMatrix(s16 slot, s8 bone, f32 (*outMtx)[4]) {
     s32 pad;
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
-    s32 animFrame;
+    u8 *animFrame;
     u8 *boneTable;
-    ModelSlotView *entry;
+    ModelSlot *entry;
 
-    entry = (ModelSlotView *)((u8 *)gModelSlots + slot * sizeof(ModelSlotView)); // FAKE: byte-offset spelling keeps the slot * 0x90 product in t9 and gModelSlots in t8 (&gModelSlots[slot] swaps them)
+    entry = (ModelSlot *)((u8 *)gModelSlots + slot * sizeof(ModelSlot)); // FAKE: byte-offset spelling keeps the slot * 0x90 product in t9 and gModelSlots in t8 (&gModelSlots[slot] swaps them)
     if (entry->unk78 != NULL) {
-        animFrame = entry->unk78[gGfxBufferIndex];
+        animFrame = entry->unk78->frames[gGfxBufferIndex];
     } else {
         animFrame = 0;
     }
@@ -393,7 +345,7 @@ extern s16 D_80748E40;
 
 void modelSlotExpireNextBuffers(void) {
     DynamicBuffer *a0;
-    ModelSlotTriBuffer *a1;
+    ModelTriBuffer *a1;
 
     if (D_80747D70 != 0) {
         D_80748E40++;
@@ -1647,7 +1599,7 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
     u8 result;
     ModelNode *node;
     DynamicBuffer *buf;
-    ModelSlotHitInfo *hit;
+    CsStateFull *hit;
     s32 i;
     ActorSub140 *sub;
     u8 savedFlags;
@@ -1663,7 +1615,7 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
         if (buf->unk15 & 2) {
             if (collisionSpheresOverlap(sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius, buf->unk0, buf->unk4, buf->unk8, buf->unkC) != 0) {
                 if (!(buf->unk15 & 1)) {
-                    collisionTransformNode(i, (s32)gModelSlots[i].unk24, gModelSlots[i].unk0[0], gModelSlots[i].unk0[1], gModelSlots[i].unk0[2], gModelSlots[i].unk0[4], gModelSlots[i].unk0[5], gModelSlots[i].unk0[6], gModelSlots[i].unk0[3]);
+                    collisionTransformNode(i, (s32)gModelSlots[i].unk24, gModelSlots[i].unk0, gModelSlots[i].unk4, gModelSlots[i].unk8, gModelSlots[i].unk10, gModelSlots[i].unk14, gModelSlots[i].unk18, gModelSlots[i].unkC);
                 } else {
                     buf->unk10 = gFrameCounter;
                 }
@@ -1882,7 +1834,7 @@ void func_8066FE08(s32 arg0) {
     s16 actorYaw;
     s32 inArc;
     s32 kind;
-    ModelSlotHitInfo *sub;
+    CsStateFull *sub;
     s16 yawDiff;
     f32 posX;
     f32 posY;
@@ -2088,7 +2040,7 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
     s32 ret;
     ModelNode *node;
     f32 inv;
-    ModelSlotHitInfo *hit;
+    CsStateFull *hit;
 
     {
         u8 kind;
@@ -2849,7 +2801,7 @@ u8 collisionTestSphereSlots(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s
     u8 result;
     s32 i;
     ModelSlotBufferView *buf;
-    ModelSlotHitInfo *hitInfo;
+    CsStateFull *hitInfo;
 
     result = 0;
     D_807FB5FD = 0;
