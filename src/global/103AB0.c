@@ -2,7 +2,6 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_renderRotatedSprite // FAKE: callee prototype steer
-#define PROTO_SKIP_zbufferReadDepth
 #include "proto/global/103AB0.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/112080.h"
@@ -51,7 +50,6 @@ Gfx *playerViewGfxSetup(Gfx *dl, u8 playerIndex) {
 }
 
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32); // FAKE: callee prototype steer
-u16 zbufferReadDepth(s16, s16);
 
 Gfx *func_806FEF7C(Gfx *dl, Actor *player) {
     dl = playerViewGfxSetup(dl, ((PlayerState *)player->customState)->playerIndex);

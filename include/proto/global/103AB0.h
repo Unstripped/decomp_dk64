@@ -61,7 +61,7 @@ Gfx *lensFlareBuildDisplayList(Gfx *);
 s16 zbufferDepthToDistance(s16);
 #endif
 #ifndef PROTO_SKIP_zbufferReadDepth
-s32 zbufferReadDepth(s16, s16);
+u16 zbufferReadDepth(s16, s16);
 #endif
 #ifndef PROTO_SKIP_func_80700BF4
 void func_80700BF4(void);

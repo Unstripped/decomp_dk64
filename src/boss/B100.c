@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_func_8002FDF8
 #include "actor.h"
 #include "proto/boss/3840.h"
 #include "proto/boss/B100.h"
@@ -10,7 +9,6 @@
 #include "proto/global/3C10.h"
 #include "proto/global/8CA50.h"
 #include "proto/global/FCCD0.h"
-void func_8002FDF8(void *, u8);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 typedef struct {
