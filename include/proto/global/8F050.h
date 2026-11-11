@@ -3,18 +3,17 @@
 #define PROTO_GLOBAL_8F050_H
 #include "common.h"
 #include "actor.h"
-struct Actor4C;
 #ifndef PROTO_SKIP_animStopAtFrame
-void animStopAtFrame(s32, s32, s32);
+void animStopAtFrame(Actor *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_actorConfigLookup
 s32 actorConfigLookup(s32, s32 *);
 #endif
 #ifndef PROTO_SKIP_actorConfigApplyAnimFrame
-void actorConfigApplyAnimFrame(struct Actor4C *, s32, s32);
+void actorConfigApplyAnimFrame(Actor *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_actorConfigApplyAnimFrameByType
-void actorConfigApplyAnimFrameByType(s32, s32, s32);
+void actorConfigApplyAnimFrameByType(Actor *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_actorProximityUpdate
 void actorProximityUpdate(void);
