@@ -137,25 +137,26 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 12 (2026-11-11)** — global/17B90, F56F0, 7130, F600, 136820 (all 5 file agents; Batch12's owner/header requests from Rev11D and round 12 land in round 13). Own-file retypes: 17B90 void * end args, 136820 `unwindDecodeJrRa(..., s32 **)`; `D_807FBB30/32` u16 in 17B90 and 7CA80. cfe warnings 849 → 842. No symbols named (D_807FBB85 fold fails fdiff in 4 files: relocation-only, needs per-file proof).
 - [x] **Round 13 (2026-11-11)** — global/478F0, 104F0, bonus/2690, global/126260, 35000, then re-review passes Rev13A–B. Batch worker (Batch12) batches b13–b18: `CsStateFull.unk0` void *, Actor unkFE/unk148 carves, `ModelAssetHeader` carves + `unk6C`/`unk70` (0x74), `DynamicBuffer` box pointers, 6AD90/79890 views retired, `RenderQuadModelObj`/`AnimInitData` shared, waypoint and `OSContPad` owner retypes, new `seqplayer.h` (N_CSPlayer etc.; 137C10/13CB50/13ECE0 adopt, IDO 7.1), `_sprintf(void *, const void *, ...)`, `extern ActorGlobalState gActorGlobalState` in actor.h (36 local externs dropped), D_807FBB85 folded, `D_8002D8C0` split, `assetLoad` arg1 s32 (15 steers gone). cfe warnings 842 → 783; proto-steer 134 → 117. 4 symbols named (126260 light queue, `gMinecartTrackPoints`). Tools: merge_gate stages via temp + mv (7e117392; fixes the OrbStack stale-size cfe failures).
 - [x] **Round 14 (2026-11-11)** — global/10D2D0, 140600, 55B20, 114270, 2C910, then re-review pass Rev14A (29 functions incl. B5EC0's 33 view casts onto Actor fields). Batch12 b19: `CollisionBox` plane carve (s64 nx/ny/nz/d, 0x58) and vertex names, plane views retired (70FD0 cfe 4 → 0), ActorSub140 carve + ActorTarget views retired, 36880 `ModelAssetTri` record (bone ^0 FAKE gone). Own-file retypes: 140600 `computeBiquadCoefficients`/`n_alFxNew` (IDO 7.1), 10D2D0 `healthApplyPendingDelta`, 114270 `M114aAngle *`. cfe warnings 783 → 764. No symbols named.
-- [ ] Remaining: 749 functions not reviewed; 1,336 open sites (cfe `warning` sites included). Next rounds: `uv run tools/quality.py rank`.
+- [x] **Round 15 (2026-11-11)** — global/D5E10, 201B0, arcade/0, 80150, 8F050, then re-review passes Rev15A (70FD0/36880/10D2D0) and Rev15B (45 functions). Batch12 b20 (envmixer param, spritelist protos, PlayerStruct 0x2E0 carve, strcspn, synnewfx, bst void key, gCurrentActor as Actor * in boss/8520, boss/0, race/36B0), b21 (new `race.h`, B5EC0 steer retag, controllerAnimFreeSub ANSI), b22 (shared `PlayerInventory`, B2CE0 and 8-file actor views retired, boss/0 piece views, 70FD0 views); b22 1b (10D2D0 HealthStats) dropped. cfe warnings 764 → 513.
+- [ ] Remaining: 811 functions not reviewed; 1,030 open sites (cfe `warning` sites included); 92 stale reviews in `.scratch/rereview16.md`. Next rounds: `uv run tools/quality.py rank`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-11, after round 14):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-11, after round 15):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 800 | 583 |
+| FAKE | 787 | 583 |
 | FAKE dead-if | 280 | 263 |
-| FAKE proto-steer | 116 | 134 |
+| FAKE proto-steer | 106 | 134 |
 | FAKE other kinds | 404 | 186 |
 | LAYOUT | 65 | 47 |
 | goto | 35 | 39 |
-| proto-type (`// PROTO:`) | 10 | 0 |
-| protos mismatch | 61 | 1,202 |
-| reviewed / exhausted functions | 3,521 / 3,218 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 764 | 1,890 |
+| proto-type (`// PROTO:`) | 7 | 0 |
+| protos mismatch | 58 | 1,202 |
+| reviewed / exhausted functions | 3,459 / 3,210 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 513 | 1,890 |
 | uninit warnings (clint checks every function) | 252 | 122 |
 | `func_` definitions | 434 | 457 |
-| m2c names | 566 | 5,040 |
+| m2c names | 519 | 5,040 |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 
