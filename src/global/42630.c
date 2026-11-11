@@ -300,8 +300,8 @@ void csStateFree(CsStateFull *loadState) {
     CsNode *node;
     CsNode *next;
 
-    if (*(void **)loadState != NULL) {
-        heapFree(*(void **)loadState);
+    if (loadState->unk0 != NULL) {
+        heapFree(loadState->unk0);
     }
     node = loadState->unkA0;
     while (node != NULL) {

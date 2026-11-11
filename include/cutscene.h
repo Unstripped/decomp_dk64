@@ -94,7 +94,7 @@ typedef struct CsNode {
 
 // Whole-state layout of the cutscene state (CsState above types only part of it); 0xA4 bytes.
 typedef struct CsStateFull {
-    /* 0x00 */ s32 unk0;
+    /* 0x00 */ void *unk0; // heap block (csStateFree heapFree()s it)
     /* 0x04 */ u32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ f32 unkC;
