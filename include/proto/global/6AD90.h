@@ -21,7 +21,7 @@ void collisionSetQueryMode(u8);
 void collisionQueryActorFloor(Actor *, u8 *, f32 *, u8 *, f32 *, u8);
 #endif
 #ifndef PROTO_SKIP_collisionCheckActorFloor
-void collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
+s32 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
 #endif
 #ifndef PROTO_SKIP_collisionClearFlags
 void collisionClearFlags(void);

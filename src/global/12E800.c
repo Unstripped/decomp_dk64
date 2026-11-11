@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_collisionCheckActorFloor // FAKE: callee prototype steer
 #define PROTO_SKIP_zoneCheckActorInside // FAKE: callee prototype steer (owner reads 4 arguments; the 5th, &zoneYaw, is a stack store)
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -277,7 +276,6 @@ typedef struct E3DcA0 {
 
 #define E3CA0 ((E3DcA0 *)D_807FDCA0)
 
-u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);  // FAKE: callee prototype steer
 s32 zoneCheckActorInside(Actor *, f32, f32, struct Zone *, s16 *);
 f32 mathCosF(s16);
 

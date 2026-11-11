@@ -130,11 +130,12 @@ void collisionQueryActorFloor(Actor *actor, u8 *hasFloor, f32 *floorY, u8 *hasWa
     collisionFindFloorAtPoint(actor, posX, posY, posZ, hasFloor, floorY, hasWater, waterY, mode);
 }
 
-void collisionCheckActorFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
+s32 collisionCheckActorFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     u8 slopeHit;
     u8 normalHit;
     f32 slopeY;
     f32 normalY;
+    s32 found;
 
     if (arg0->actorType == 0xBC) {
         D_807F94B3 = 1;
@@ -142,8 +143,9 @@ void collisionCheckActorFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *ar
         D_807F94B3 = 0;
     }
     D_807F94BC = 1;
-    collisionFindFloorAtPoint(NULL, arg1, arg2, arg3, &slopeHit, &slopeY, &normalHit, &normalY, 0);
+    found = collisionFindFloorAtPoint(NULL, arg1, arg2, arg3, &slopeHit, &slopeY, &normalHit, &normalY, 0);
     *arg4 = D_807F948C;
+    return found;
 }
 
 extern u8 D_807F94AE;

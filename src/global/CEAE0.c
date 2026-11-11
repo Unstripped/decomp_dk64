@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_collisionCheckActorFloor // PROTO: Reference of an expression of void type or an incomplete typ
 #include "proto/global/10D2D0.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -2163,8 +2162,6 @@ void playerCheckLedgeGrab(void) {
         }
     }
 }
-
-u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
 
 u8 playerProbeLedgeAhead(Actor *actor, f32 *outFloorY, u8 forward, f32 distance) {
     f32 dx;

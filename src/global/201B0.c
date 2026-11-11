@@ -1,7 +1,6 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
-#define PROTO_SKIP_collisionCheckActorFloor // PROTO: The controlling expression of the if statement is not scalar
 #include "proto/global/10130.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/117190.h"
@@ -273,8 +272,6 @@ void camApplySway(CamState *state, f32 *posX, f32 *posY, f32 *posZ, f32 ampXZ, f
     *posZ += ampXZ * mathSinF((u32)gFrameCounter * freqXZ) * sinYaw;
     *posY += ampY * mathSinF((u32)gFrameCounter * freqY);
 }
-
-u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
 
 void camSampleFloorHeight(Actor *camActor, CamState *state, f32 sampleX, f32 sampleZ) {
     f32 floorY = 99999.0f;
