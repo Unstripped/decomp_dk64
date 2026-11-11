@@ -28,7 +28,7 @@ void meshDrawTextured(Gfx **, struct MeshInfo *, u8 *);
 void meshApplyAnimation(struct AnimModel *, struct AnimTable *, s32);
 #endif
 #ifndef PROTO_SKIP_fbCopySetAlpha
-void fbCopySetAlpha(s32 *, s32 *);
+void fbCopySetAlpha(void *, void *);
 #endif
 #ifndef PROTO_SKIP_transitionRunFrame
 void transitionRunFrame(s32, s32);

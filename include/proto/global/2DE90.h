@@ -18,16 +18,16 @@ void screenWipeStart();
 Gfx *screenWipeDraw(Gfx *);
 #endif
 #ifndef PROTO_SKIP_screenWipeAlphaRadialSweep
-void screenWipeAlphaRadialSweep(s32, s32, s32);
+void screenWipeAlphaRadialSweep(s32, s32, Vtx *);
 #endif
 #ifndef PROTO_SKIP_screenWipeAlphaFromCorner
-void screenWipeAlphaFromCorner(s32, s32, s32);
+void screenWipeAlphaFromCorner(s32, s32, Vtx *);
 #endif
 #ifndef PROTO_SKIP_screenWipeAlphaFromCentre
-void screenWipeAlphaFromCentre(s32, s32, s32);
+void screenWipeAlphaFromCentre(s32, s32, Vtx *);
 #endif
 #ifndef PROTO_SKIP_screenWipeAlphaByDistance
-void screenWipeAlphaByDistance(s32, s32, s32, s32, s32);
+void screenWipeAlphaByDistance(s32, s32, Vtx *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_blurBuildDivTable
 void blurBuildDivTable(void);

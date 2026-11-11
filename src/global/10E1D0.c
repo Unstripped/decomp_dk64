@@ -402,7 +402,7 @@ void meshApplyAnimation(AnimModel *model, AnimTable *table, s32 frame) {
     }
 }
 
-void fbCopySetAlpha(s32 *dstBuf, s32 *srcBuf) {
+void fbCopySetAlpha(void *dstBuf, void *srcBuf) {
     s32 i;
     s32 *src = srcBuf; // FAKE: parameter copies steer regalloc
     s32 *dst = dstBuf;
