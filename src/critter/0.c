@@ -376,20 +376,20 @@ extern u8 D_8071FC40;
 
 void critterUpdateObjType2(CritterObj *obj) {
     s16 randVal;
-    f32 temp;
+    f32 accel;
     f32 finWave;
     f32 accelVal;
     s16 yawDelta;
-    f32 temp2;
+    f32 wave;
     s32 absv;
 
     if (obj->flags & 1) {
         randVal = randomLcgNext() % 400U;
-        temp = obj->accel;
-        if (temp < 0.0f) {
+        accel = obj->accel;
+        if (accel < 0.0f) {
             accelVal = 0.0f;
         } else {
-            accelVal = temp;
+            accelVal = accel;
         }
         yawDelta = mathAngleSignedDistance(obj->yaw, obj->prevYaw);
         if (randVal <= 0) {
@@ -409,8 +409,9 @@ void critterUpdateObjType2(CritterObj *obj) {
         }
         obj->anim = (s16)((f64)obj->anim + 200.0 * (1.5 + (f64)(150.0f * obj->accel)));
         obj->anim &= 0xFFF;
-        temp2 = mathSinF(obj->anim) * (10.0f + 200.0f * accelVal);
-        finWave = temp2 * 1.0f + temp2 * ((f32)yawDelta * 0.00024414062f);
+        wave = mathSinF(obj->anim) * (10.0f + 200.0f * accelVal);
+        finWave = wave;
+        finWave += wave * ((f32)yawDelta * 0.00024414062f);
         obj->flapB = mathSinF((s16)(obj->anim + 0xC8)) * 2;
         obj->flapA = (f32)((f64)finWave + (f64)yawDelta * 0.2);
     }
@@ -510,36 +511,36 @@ Gfx *critterRenderSetup(Gfx *gdl) {
 
 void critterMakeMatrix(f32 (*m)[4], s16 pitch, s16 yaw, s16 roll, f32 scale, f32 x, f32 y, f32 z) {
     f32 pad;
-    f32 cosYaw;
-    f32 cosRoll;
-    f32 pad2;
     f32 sinYaw;
-    f32 cosPitchCosYaw;
-    f32 sinPitchCosYaw;
-    f32 cosPitch;
-    f32 sinPitch;
     f32 sinRoll;
+    f32 pad2;
+    f32 cosYaw;
+    f32 sinPitchSinYaw;
+    f32 cosPitchSinYaw;
+    f32 sinPitch;
+    f32 cosPitch;
+    f32 cosRoll;
 
-    cosPitch = mathSinF(pitch);
-    sinPitch = mathCosF(pitch);
-    cosYaw = mathSinF(yaw);
-    sinYaw = mathCosF(yaw);
-    cosRoll = mathSinF(roll);
-    sinRoll = mathCosF(roll);
-    m[0][0] = sinYaw * sinRoll * scale;
-    m[0][1] = sinYaw * cosRoll * scale;
-    m[0][2] = -cosYaw * scale;
+    sinPitch = mathSinF(pitch);
+    cosPitch = mathCosF(pitch);
+    sinYaw = mathSinF(yaw);
+    cosYaw = mathCosF(yaw);
+    sinRoll = mathSinF(roll);
+    cosRoll = mathCosF(roll);
+    m[0][0] = cosYaw * cosRoll * scale;
+    m[0][1] = cosYaw * sinRoll * scale;
+    m[0][2] = -sinYaw * scale;
     m[0][3] = 0.0f;
-    cosPitchCosYaw = cosPitch * cosYaw;
-    m[1][0] = ((cosPitchCosYaw * sinRoll) - (sinPitch * cosRoll)) * scale;
+    sinPitchSinYaw = sinPitch * sinYaw;
+    m[1][0] = ((sinPitchSinYaw * cosRoll) - (cosPitch * sinRoll)) * scale;
     m[1][3] = 0.0f;
-    m[1][1] = ((cosPitchCosYaw * cosRoll) + (sinPitch * sinRoll)) * scale;
-    m[1][2] = cosPitch * sinYaw * scale;
-    sinPitchCosYaw = sinPitch * cosYaw;
-    m[2][0] = ((sinPitchCosYaw * sinRoll) + (cosPitch * cosRoll)) * scale;
+    m[1][1] = ((sinPitchSinYaw * sinRoll) + (cosPitch * cosRoll)) * scale;
+    m[1][2] = sinPitch * cosYaw * scale;
+    cosPitchSinYaw = cosPitch * sinYaw;
+    m[2][0] = ((cosPitchSinYaw * cosRoll) + (sinPitch * sinRoll)) * scale;
     m[2][3] = 0.0f;
-    m[2][1] = ((sinPitchCosYaw * cosRoll) - (cosPitch * sinRoll)) * scale;
-    m[2][2] = sinPitch * sinYaw * scale;
+    m[2][1] = ((cosPitchSinYaw * sinRoll) - (sinPitch * cosRoll)) * scale;
+    m[2][2] = cosPitch * cosYaw * scale;
     m[3][0] = x;
     m[3][1] = y;
     m[3][2] = z;
@@ -635,23 +636,23 @@ Gfx *critterRenderGroups(Gfx *gdl, CritterGroups *groups) {
 }
 
 
-void critterSetOffsetAtAngle(CritterZone *zone, CritterObj *obj, u8 angle, s16 radius, u8 heightOffset) {
-    f32 cosVal;
+void critterSetOffsetAtAngle(CritterZone *zone, CritterObj *obj, u8 mode, s16 yaw, u8 heightOffset) {
+    f32 dist;
     f32 sinVal;
     f32 base;
     f32 *px;
     f32 *py;
     f32 *pz;
-    f32 v;
+    f32 height;
 
     base = (f32)zone->shape.unk4;
-    if (angle == 0) {
-        cosVal = (f32)zone->shape.unkC;
+    if (mode == 0) {
+        dist = (f32)zone->shape.unkC;
         base += (f32)zone->shape.unk8;
     } else {
-        cosVal = (f32)zone->shape.unk0 * ((f32)(randomLcgNext() & 0xFFFU) * 0.000244140625f);
+        dist = (f32)zone->shape.unk0 * ((f32)(randomLcgNext() & 0xFFFU) * 0.000244140625f);
     }
-    v = (f32)((f64)((f32)(randomLcgNext() & 0xFFFU) * 0.000244140625f * base) - 0.5 * (f64)base);
+    height = (f32)((f64)((f32)(randomLcgNext() & 0xFFFU) * 0.000244140625f * base) - 0.5 * (f64)base);
     if (heightOffset != 0) {
         px = &obj->offX;
         py = &obj->offY;
@@ -661,9 +662,9 @@ void critterSetOffsetAtAngle(CritterZone *zone, CritterObj *obj, u8 angle, s16 r
         py = &obj->y;
         pz = &obj->z;
     }
-    *py = v;
-    *px = mathSinF(radius) * cosVal;
-    *pz = mathCosF(radius) * cosVal;
+    *py = height;
+    *px = mathSinF(yaw) * dist;
+    *pz = mathCosF(yaw) * dist;
 }
 
 void critterSetRandomOffset(CritterZone *zone, CritterObj *obj, u8 radius, u8 heightOffset) {
@@ -820,62 +821,62 @@ void critterSteerToTarget(CritterObj *obj, CritterGroup *grp, void (*steerFunc)(
     f32 dy;
     f32 dz;
     f32 dist;
-    f32 dxz;
-    f32 d2;
-    f32 old;
-    f32 tgt;
-    f32 spd;
+    f32 distSqXZ;
+    f32 distSq;
+    f32 prevSpeed;
+    f32 targetSpeed;
+    f32 speed;
     f32 rate;
-    CritterZone *off;
-    s32 ret;
-    s16 ang;
-    s32 use_y;
+    CritterZone *zone;
+    s32 reached;
+    s16 targetYaw;
+    s32 useY;
 
     rate = 0.02f;
-    use_y = (obj->flags & 2) == 0;
+    useY = (obj->flags & 2) == 0;
     if (steerFunc != NULL) {
         steerFunc(obj, grp);
     }
-    off = obj->zone;
-    tx = obj->offX + (f32)off->x;
-    ty = obj->offY + (f32)off->y;
-    tz = obj->offZ + (f32)off->z;
+    zone = obj->zone;
+    tx = obj->offX + (f32)zone->x;
+    ty = obj->offY + (f32)zone->y;
+    tz = obj->offZ + (f32)zone->z;
     dx = tx - obj->x;
     dy = ty - obj->y;
     dz = tz - obj->z;
     if (obj->role != 2) {
-        dxz = dx * dx + dz * dz;
-        d2 = dxz;
-        if ((u8)use_y) {
-            d2 += dy * dy;
+        distSqXZ = dx * dx + dz * dz;
+        distSq = distSqXZ;
+        if ((u8)useY) {
+            distSq += dy * dy;
         }
-        tgt = obj->targetSpeed;
-        if (d2 < 2500.0f) {
-            tgt = (f32)((f64)tgt * 0.3 + 0.7 * (f64)tgt * (f64)(d2 * 0.0004f));
+        targetSpeed = obj->targetSpeed;
+        if (distSq < 2500.0f) {
+            targetSpeed = (f32)((f64)targetSpeed * 0.3 + 0.7 * (f64)targetSpeed * (f64)(distSq * 0.0004f));
             rate = 0.1f;
-            if (d2 < 25.0f && targetPred != NULL) {
-                ret = targetPred(obj, grp);
-                if (ret != 0) {
+            if (distSq < 25.0f && targetPred != NULL) {
+                reached = targetPred(obj, grp);
+                if (reached != 0) {
                     return;
                 }
             }
         }
-        old = obj->speed;
-        obj->speed += (tgt - old) * rate;
-        obj->accel = obj->speed - old;
+        prevSpeed = obj->speed;
+        obj->speed += (targetSpeed - prevSpeed) * rate;
+        obj->accel = obj->speed - prevSpeed;
     }
     dist = sqrtf(dx * dx + dz * dz);
-    if ((u8)use_y) {
+    if ((u8)useY) {
         obj->pitch = mathAngleEaseToward(obj->pitch, (s16)(((f64)mathAtan2(dy, dist) * 2048.0) / 3.1415927410125732), obj->turnRate);
     }
-    ang = mathAngleDiscrete(tx, tz, obj->x, obj->z, dist);
+    targetYaw = mathAngleDiscrete(tx, tz, obj->x, obj->z, dist);
     obj->prevYaw = obj->yaw;
-    obj->yaw = mathAngleEaseToward(obj->yaw, ang, obj->turnRate);
-    spd = obj->speed;
-    obj->x += spd * mathSinF(obj->yaw);
-    obj->z += spd * mathCosF(obj->yaw);
-    if ((u8)use_y) {
-        obj->y += spd * func_80612800(obj->pitch);
+    obj->yaw = mathAngleEaseToward(obj->yaw, targetYaw, obj->turnRate);
+    speed = obj->speed;
+    obj->x += speed * mathSinF(obj->yaw);
+    obj->z += speed * mathCosF(obj->yaw);
+    if ((u8)useY) {
+        obj->y += speed * func_80612800(obj->pitch);
     }
 }
 
