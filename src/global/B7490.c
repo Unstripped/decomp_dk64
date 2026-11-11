@@ -563,10 +563,8 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
         case 0x35:
             if (gCurrentActor->y < (f32) (*heightTarget + (0, gBehaviourExtraState->y))) { // FAKE: comma wrapper steers ugen temp order
                 gCurrentActor->y += gBehaviourExtraState->unkB * 0.03125;
-            } else {
-                if ((camIsCutsceneActive() == 0) && (callback != NULL)) {
-                    callback();
-                }
+            } else if (camIsCutsceneActive() == 0 && callback != NULL) {
+                callback();
             }
             actorMoveWithinZone(gCurrentActor->state, targetX, targetZ, 0x2C1, 0.0f);
             gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, 0, 5.0f);

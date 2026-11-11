@@ -109,7 +109,7 @@ void csModelIdTableReset(void) {
     do {
         gCsModelIds[i] = -1;
         i++;
-    } while (&gCsModelIds[i] < (s16 *)gCsVarsDirty); // FAKE: bound is the next bss symbol (end of gCsModelIds); loop shape
+    } while (&gCsModelIds[i] < &gCsModelIds[600]);
     for (j = 0; j < 0x212; j++) { gCsVarsDirty[j] = 0; } // LAYOUT: one-line loop keeps the as1 unroll schedule (Q0364)
 }
 
@@ -682,9 +682,9 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 fAnim;
     u8 uAnim;
     u8 i;
-    f32 height;
+    f32 animProgress;
     u8 *q;
-    PlayerState *cam;
+    PlayerState *playerState;
     u32 mask;
     Actor *b;
 
@@ -777,16 +777,16 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x26:
-        cam = gPlayerSlots->actor->customState;
-        if ((cmd->b + (cmd->a << 16)) & cam->stateFlags) {
+        playerState = gPlayerSlots->actor->customState;
+        if ((cmd->b + (cmd->a << 16)) & playerState->stateFlags) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x27:
-        cam = gPlayerSlots->actor->customState;
-        if ((cmd->b + (cmd->a << 16)) & cam->prevStateFlags) {
+        playerState = gPlayerSlots->actor->customState;
+        if ((cmd->b + (cmd->a << 16)) & playerState->prevStateFlags) {
             ret = 1;
         } else {
             ret = 0;
@@ -1092,12 +1092,12 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = D_807F61F0.unk8;
         break;
     case 0x33:
-        height = actorGetAnimProgress(gPrimaryPlayerActor);
+        animProgress = actorGetAnimProgress(gPrimaryPlayerActor);
         ret = 0;
-        if (cmd->a == 0 && cmd->b < (s16)height) {
+        if (cmd->a == 0 && cmd->b < (s16)animProgress) {
             ret = 1;
         }
-        if (cmd->a == 1 && (s16)height < cmd->b) {
+        if (cmd->a == 1 && (s16)animProgress < cmd->b) {
             ret = 1;
         }
         break;

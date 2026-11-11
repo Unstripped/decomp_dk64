@@ -1396,7 +1396,7 @@ void playerStateWaypointAimUpdate(OSContPad *control, OSContPad *unused) {
             gGlobalPauseFlags &= ~0x400;
             playerInitMoveParams();
         } else {
-            gWaypointIndex += 1;
+            gWaypointIndex++;
             gWaypointCursor++;
             cur = gWaypointCursor;
             next = cur + 1;
@@ -1409,7 +1409,7 @@ void playerStateWaypointAimUpdate(OSContPad *control, OSContPad *unused) {
     timerDecrementOrSetFlag(&control->button, &cur->timer5, &cur->timer2, 0x2000);
     pitchT = 0;
     if (cur->delay != 0) {
-        cur->delay = cur->delay - 1;
+        cur->delay--;
         yawT = 0;
     } else {
         if (gWaypointFlags & 2) {
@@ -1429,8 +1429,8 @@ void playerStateWaypointAimUpdate(OSContPad *control, OSContPad *unused) {
             pitchT = WAYPOINT_CLAMP_S8(cosApprox(ang) * speed);
         }
     }
-    control->stick_x = control->stick_x + (yawT - control->stick_x) * blend;
-    control->stick_y = control->stick_y + (pitchT - control->stick_y) * blend;
+    control->stick_x += (yawT - control->stick_x) * blend;
+    control->stick_y += (pitchT - control->stick_y) * blend;
 }
 
 void playerWaypointPathsParse(void *data) {

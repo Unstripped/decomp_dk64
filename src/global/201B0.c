@@ -2176,12 +2176,12 @@ u8 camComputeFollowPos(Actor *camActor, Actor *target, f32 *outX, f32 *outY, f32
             if (cam->unkFC != 0 && cam->unkA0 * 1.2 < D_807476AC) {
                 if (*outY - (cam->unk90 < cam->unk6C ? cam->unk6C : cam->unk90) > 50.0f && cam->unkEF >= 2) {
                     camSetZoomLevel(camActor, 1);
-                    camActor->distToFloor = camActor->distToFloor - 120.0f;
+                    camActor->distToFloor -= 120.0f;
                 } else {
-                    camActor->distToFloor = camActor->distToFloor + 5.0;
+                    camActor->distToFloor += 5.0;
                 }
             } else if (cam->unkFC == 2) {
-                camActor->distToFloor = camActor->distToFloor + 20.0f;
+                camActor->distToFloor += 20.0f;
             }
         }
     }
@@ -2192,7 +2192,7 @@ u8 camComputeFollowPos(Actor *camActor, Actor *target, f32 *outX, f32 *outY, f32
         case 0x63:
             if (gGlobalCutsceneFlags & 2) {
                 dist = 100.0f;
-                y = y + ((target->y + 30.0f) + (target->y - target->floorY) * 0.5);
+                y += target->y + 30.0f + (target->y - target->floorY) * 0.5;
             } else {
         case 0x0:
         case 0x1A:
@@ -2273,7 +2273,7 @@ u8 camComputeFollowPos(Actor *camActor, Actor *target, f32 *outX, f32 *outY, f32
         cam->unk9C = 0x3C;
     }
     if (cam->unk9C != 0) {
-        cam->unk9C = cam->unk9C - 1;
+        cam->unk9C--;
         y += 130.0f;
     }
     x = target->x - mathSinF(cam->unkB2) * dist;

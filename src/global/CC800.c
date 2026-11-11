@@ -308,7 +308,7 @@ void func_806C8220(s32 mode, void *buffer, u32 kind) {
     s32 i;
     s32 j;
     G00Vtx *v;
-    G00Vtx *vtx; // FAKE: re-read of v through a second pointer steers the inner-loop register allocation
+    s32 pad2[2];
     G00Out *out;
 
     tbl8 = D_80750AD8;
@@ -348,11 +348,10 @@ void func_806C8220(s32 mode, void *buffer, u32 kind) {
         out->unk10 = -128.0f;
         for (j = 0; j < n; j++, v++) {
             v->unk4 = 0.0;
-            vtx = v;
-            vtx->unk0 = tbl[j] * sign;
-            vtx->unk8 = 0.0;
+            v->unk0 = tbl[j] * sign;
+            v->unk8 = 0.0;
             // LAYOUT: one source line; splitting it reorders the three stores
-            vtx->unk14 = 0.0f; vtx->unkC = 0.0f; vtx->unk10 = 0.0f;
+            v->unk14 = 0.0f; v->unkC = 0.0f; v->unk10 = 0.0f;
         }
         out++;
         sign = -sign;
@@ -899,7 +898,7 @@ void playerResetSpawnGlobals(void) {
     s32 j;
 
     for (i = 0; i < 4; i++) {
-        bzero(p, 0x306);
+        bzero(p, sizeof(PlayerInventory));
         if (gActivePlayerCount >= 2) {
             if (D_807552E4 == 1) {
                 for (j = 0; j < 6; j++) {

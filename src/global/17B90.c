@@ -449,9 +449,8 @@ void controllerAnimFreeSub(Actor *controller, u8 slotIndex) {
                 do {
                     val = cmd->unk0 >> 24;
                     if (val == 0xFD) {
-                        val = cmd->unk4;
-                        if ((val >= 0x80000000) && (val < 0xA0000000)) {
-                            assetFreeBuffer((void *)(val ^ 0), 0x270, 0x15); // FAKE: no-op xor keeps val a separate temp from the range test
+                        if (cmd->unk4 >= 0x80000000 && cmd->unk4 < 0xA0000000) {
+                            assetFreeBuffer((void *)cmd->unk4, 0x270, 0x15);
                         }
                     }
                 } while (++cmd != (ControllerCmdB *)cmdList);

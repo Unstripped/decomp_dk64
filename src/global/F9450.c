@@ -527,6 +527,7 @@ void func_806F54E0(u8 playerIndex, s32 modelType, u8 collisionOverride) {
     s32 i;
     s32 slot;
     u8 shouldComplete;
+    GridTypeEntry *entry;
 
     shouldComplete = 0;
     if ((gGlobalOverlayFlags & 0x10000000) && (modelType != 0x56)) {
@@ -534,8 +535,8 @@ void func_806F54E0(u8 playerIndex, s32 modelType, u8 collisionOverride) {
         return;
     }
     if (gCurrentMap != 0xF) {
-        slot = gridIsSpecialActorType(modelType); // FAKE: index reuses `slot` (a separate local or an inline call reallocates)
-        slot = gridAdjustActorCollisionType(D_80753EF0[slot].queueSlot, modelType, collisionOverride);
+        entry = &D_80753EF0[gridIsSpecialActorType(modelType)];
+        slot = gridAdjustActorCollisionType(entry->queueSlot, modelType, collisionOverride);
         switch (modelType) {
         case 0xDD: case 0xDE: case 0xDF: case 0xE0: case 0xE1:
             flagSet((s16) flagGridIndex(0x1D5, mapGetHubWorldIndex(gCurrentWorldId, 1), gPlayerCharacterId[playerIndex]), 1, 0);
@@ -867,7 +868,7 @@ extern ModelSlot *gModelSlots;
 
 s32 gridCheckNodeCondition(s16 modelSlot, u8 playerIndex, u16 modelType) {
     u8 flags;
-    PlayerState *ctl;
+    PlayerState *playerState;
     ModelSlot *slot;
 
     switch (modelType) {
@@ -882,14 +883,14 @@ s32 gridCheckNodeCondition(s16 modelSlot, u8 playerIndex, u16 modelType) {
         }
         break;
     case 0x98:
-        ctl = gPlayerSlots[gCurrentPlayerIndex].actor->customState;
-        if ((ctl->stateFlags2 & 1) == 0) {
+        playerState = gPlayerSlots[gCurrentPlayerIndex].actor->customState;
+        if ((playerState->stateFlags2 & 1) == 0) {
             return 0;
         }
         break;
     case 0x8E:
-        ctl = gPlayerSlots[gCurrentPlayerIndex].actor->customState;
-        if ((ctl->stateFlags2 & 2) == 0) {
+        playerState = gPlayerSlots[gCurrentPlayerIndex].actor->customState;
+        if ((playerState->stateFlags2 & 2) == 0) {
             return 0;
         }
         break;

@@ -3596,9 +3596,9 @@ SpriteDisplayNode *spriteListBuildDisplayChain(RenderEntry *listA, RenderEntry *
             if (tgt != NULL) {
                 r = tgt->unk2C;
                 d2 = (camX - x) * (camX - x) + (camY - y) * (camY - y) + (camZ - z) * (camZ - z);
-                if (d2 < (f32)(r * r)) {
+                if (d2 < r * r) {
                     r2 = tgt->unk2A;
-                    if (d2 < (f32)(r2 * r2)) {
+                    if (d2 < r2 * r2) {
                         tgt->unk2F = tgt->unk2E;
                     } else {
                         d2 = sqrtf(d2);
@@ -3615,18 +3615,18 @@ SpriteDisplayNode *spriteListBuildDisplayChain(RenderEntry *listA, RenderEntry *
                                 }
                             } while (found == 0 && link != NULL);
                         }
-                        tgt->unk26 = (s16)(s32)angleY;
-                        tgt->unk26 = (s16)(s32)((f64)tgt->unk26 + ((f64)(link->unk54 * 0x168 / link->unk58) + ((f64)link->unk50 * 360.0 / (f64)link->unk58) / (f64)link->unk4C));
+                        tgt->unk26 = angleY;
+                        tgt->unk26 += link->unk54 * 0x168 / link->unk58 + link->unk50 * 360.0 / link->unk58 / link->unk4C;
                     } else {
-                        tgt->unk26 = (s16)(s32)angleY;
+                        tgt->unk26 = angleY;
                     }
                     tgt->unk14 = x;
-                    tgt->unk26 = tgt->unk26 + tgt->unk28;
+                    tgt->unk26 += tgt->unk28;
                     tgt->unk18 = y;
                     tgt->unk1C = z;
                     tgt->next = NULL;
-                    tgt->unk10 = (s16)(s32)((f32)tgt->unkC * scale);
-                    tgt->unk12 = (s16)(s32)((f32)tgt->unkE * scale);
+                    tgt->unk10 = tgt->unkC * scale;
+                    tgt->unk12 = tgt->unkE * scale;
                     result = spriteListInsertByDepth(result, tgt);
                 }
             }
@@ -3785,16 +3785,16 @@ Gfx *spriteListRender(Gfx *gfx, SpriteDisplayNode *list) {
             vtxs[vtxIdx + 3].v.ob[0] = -list->unk10;
             vtxs[vtxIdx + 3].v.ob[2] = list->unk12;
             guScaleF(accum, list->unk4, 1.0f, list->unk4);
-            guRotateF(tmp, (f32)list->unk26, 0.0f, 1.0f, 0.0f);
+            guRotateF(tmp, list->unk26, 0.0f, 1.0f, 0.0f);
             guMtxCatF(accum, tmp, accum);
             if (list->unk22 < 0x3E8) {
-                guRotateF(tmp, -((f64)list->unk20 / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
+                guRotateF(tmp, -(list->unk20 / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
                 guMtxCatF(accum, tmp, accum);
             }
-            guRotateF(tmp, 90.0 - (f64)list->unk22 / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
+            guRotateF(tmp, 90.0 - list->unk22 / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
             guMtxCatF(accum, tmp, accum);
             if (list->unk22 < 0x3E8) {
-                guRotateF(tmp, (f64)list->unk20 / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
+                guRotateF(tmp, list->unk20 / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
                 guMtxCatF(accum, tmp, accum);
             }
             guTranslateF(tmp, list->unk14, list->unk18, list->unk1C);
@@ -4037,7 +4037,7 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
             dst += 0x24;
         }
     }
-    actorListSerialize(dst);
+    actorListSerialize((s32 *)dst);
     *bufOut = D_807F6010;
     if (!gCsVarsDirty) {} // FAKE: dead test keeps the table address live (steers colouring)
     *sizeOut = size;
