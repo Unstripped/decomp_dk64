@@ -1,13 +1,10 @@
-// The boot segment's osGetIntMask implementation takes the interrupt mask to set
-// (asm/libultra/os/getintmask.s reads $a0), but ultralib's header prototypes it as
-// osGetIntMask(void). Preempt that header and declare the 1-argument form the
-// game's code calls.
-#define _OS_EXCEPTION_H_
-#include <PR/ultratypes.h>
-typedef u32 OSIntMask;
-typedef u32 OSHWIntr;
-
+#include "common.h"
 #include "sched.h"
+#include "proto/global/131B0.h"
+#include "proto/global/117190.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2DE90.h"
+#include "proto/global/F600.h"
 
 extern s32 __osMotorAccess(OSPfs *, s32);
 
@@ -20,34 +17,12 @@ extern OSMesgQueue D_807ECCF0;
 extern u32 gGlobalPauseFlags;
 extern PlayerStruct *gPlayerSlots;
 
-void rumbleInfoClear(RumbleInfo *info);
-void rumbleMotorStart(u8 port);
-void rumbleMotorStop(u8 port);
-void rumbleResetAll(s32 unused);
-s32 rumbleGetPakState(u8 port);
-void rumbleRequest(u8 playerIndex, u8 intensity, s32 duration);
-void rumbleInfoCancel(RumbleInfo *info);
-void rumbleCancel(u8 playerIndex);
-void rumbleShutdown(void);
-void rumbleInit(void);
-int rumbleShouldPause(void);
-void rumbleUpdate(void);
-void rumbleSetPaused(s32 paused);
-
-u8 controllerGetPort(s32);
-extern u8 controllerGetActiveMask(void);
-u8 screenWipeGetState(void);
-u8 camIsCutsceneActive(void);
-extern s32 menuIsTransitionType6(void);
-extern s32 menuIsTransitionTypeC(void);
-extern s32 menuIsTransitionTypeD(void);
-
 // .bss 0x807F02D0-0x807F04C0
 OSPfs gRumblePfs[4];
 RumbleInfo gRumbleInfo[4];
 
 void rumbleInfoClear(RumbleInfo *info) {
-    bzero(info, 0x14);
+    bzero(info, sizeof(RumbleInfo));
 }
 
 void rumbleMotorStart(u8 port) {
@@ -162,8 +137,8 @@ int rumbleShouldPause(void) {
 void rumbleUpdate(void) {
     RumbleInfo *info;
     s32 i;
-    s32 pad_w;
-    u8 pad;
+    s32 pad;
+    u8 activeMask;
 
     info = gRumbleInfo;
     if (gRumblePaused == 1) {
@@ -182,10 +157,10 @@ void rumbleUpdate(void) {
     gRumbleResetPending = 0;
 
     if (gRumblePaused != 1) {
-        pad = controllerGetActiveMask();
+        activeMask = controllerGetActiveMask();
         for (i = 0; i < 4; i++, info++) {
             if (info->unk00 != 1) {
-                if ((D_807ECD09 & (1 << i)) && (pad & (1 << i)) && (gFrameCounter % 15 == 0)) {
+                if ((D_807ECD09 & (1 << i)) && (activeMask & (1 << i)) && (gFrameCounter % 15 == 0)) {
                     rumbleMotorStop(i);
                 }
             } else {
@@ -215,8 +190,9 @@ void rumbleUpdate(void) {
                             }
                             info->unk08 -= 0x100;
                         } else {
-                            u8 val = info->unk05;
-                            info->unk08 += val * 4;
+                            u8 intensity = info->unk05;
+
+                            info->unk08 += intensity * 4;
                             if (info->unk04 != 0) {
                                 rumbleMotorStop(i);
                             }
