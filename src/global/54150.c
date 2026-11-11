@@ -68,14 +68,6 @@ void modelSlotAllocAnimBuffers(ModelData **outModel, u8 *animAsset) {
     }
 }
 
-typedef struct ModelSlotView {
-    u8 pad0[0x24];
-    u8 *unk24;
-    u8 pad28[0x50];
-    ModelData *unk78;
-    u8 pad7C[0x14];
-} ModelSlotView; /* 0x90 */
-
 typedef struct ModelAnimEntryRaw {
     ModelAnimNodeHeader *unk0;
     f32 unk4;
@@ -87,16 +79,16 @@ typedef struct ModelAnimEntryRaw {
     u8 unk13;
 } ModelAnimEntryRaw;
 
-extern ModelSlotView *gModelSlots;
+extern ModelSlot *gModelSlots;
 
 u32 modelSlotDataSize(s16 slot) {
-    u8 *p = gModelSlots[slot].unk24;
+    ModelAssetHeader *p = gModelSlots[slot].unk24;
 
-    return *(u32 *)(p + *(s32 *)(p + 0x68));
+    return *(u32 *)(p->unk68 + (u8 *)p);
 }
 
 void modelSlotCopyData(u8 *src, s16 slot) {
-    u8 *obj;
+    ModelAssetHeader *obj;
     ModelData *dst;
     s32 n;
     f32 x;
@@ -110,7 +102,7 @@ void modelSlotCopyData(u8 *src, s16 slot) {
 
     obj = gModelSlots[slot].unk24;
     dst = gModelSlots[slot].unk78;
-    n = *(s32 *)(obj + *(s32 *)(obj + 0x68));
+    n = *(s32 *)(obj->unk68 + (u8 *)obj);
     memcpy(dst->frames[0], src, n);
     memcpy(dst->frames[1], src, n);
     modelSlotGetTransformVectors(slot, &x, &y, &z, &a, &b, &c, &d, &e, 0);
