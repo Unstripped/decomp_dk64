@@ -790,7 +790,7 @@ void effectSpawnJointBeam(u8 minBoneA, u8 maxBoneA, u8 minBoneB, u8 maxBoneB) {
     f32 screenBX;
     f32 screenBY;
     f32 screenDist;
-    u8 bones[4];
+    u8 bones[2];
 
     bones[1] = ((randomNonNegative() >> 15) % 0x7FFF) % ((maxBoneA - minBoneA) + 1) + minBoneA;
     bones[0] = ((randomNonNegative() >> 15) % 0x7FFF) % ((maxBoneB - minBoneB) + 1) + minBoneB;
@@ -799,10 +799,10 @@ void effectSpawnJointBeam(u8 minBoneA, u8 maxBoneA, u8 minBoneB, u8 maxBoneB) {
     camProjectToScreen(posAX, posAY, posAZ, &screenAX, &screenAY, 0, 1.0f, 0);
     camProjectToScreen(posBX, posBY, posBZ, &screenBX, &screenBY, 0, 1.0f, 0);
     {
-        f32 temp = (f32)(((s32)(mathAngleBetweenPoints2D(screenBX, screenBY, screenAX, screenAY) * 360) / 4096) + 90);
-        beamAngle = temp;
-        if (temp < 270.0f) {
-            beamAngle = temp + 180.0f;
+        f32 rawAngle = (f32)(((s32)(mathAngleBetweenPoints2D(screenBX, screenBY, screenAX, screenAY) * 360) / 4096) + 90);
+        beamAngle = rawAngle;
+        if (rawAngle < 270.0f) {
+            beamAngle = rawAngle + 180.0f;
         }
     }
     screenDist = sqrtf(((screenAX - screenBX) * (screenAX - screenBX)) + ((screenAY - screenBY) * (screenAY - screenBY)));

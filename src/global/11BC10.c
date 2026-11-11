@@ -1,3 +1,4 @@
+#define PROTO_SKIP_effectShrinkAndVelocityUpdate
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
@@ -17,6 +18,7 @@
 #include "proto/global/7CA80.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"
+void effectShrinkAndVelocityUpdate(struct TimedEffectActorView *, s8 *);
 
 
 extern u8 gGfxBufferIndex;
@@ -208,7 +210,7 @@ void effectConfettiPhysicsUpdate(ConfettiActorView *effect, void *unused) {
 }
 
 
-extern s32 D_8074E880[];
+extern void *D_8074E880[];
 
 void effectTimerCountdownAlphaUpdate(RotatingEffectActorView *effect, u8 *isDone) {
     s32 timer;
@@ -524,11 +526,11 @@ s8 *isDone;
 }
 
 
-void effectShrinkAndVelocityUpdate(TimedEffectActorView *effect) {
+void effectShrinkAndVelocityUpdate(TimedEffectActorView *effect, s8 *isDone) {
     f32 scaleFactor;
     VelocityMotionState *state;
 
-    effectShrinkOffsetUpdate(); // FAKE: K&R call with no arguments forwards the caller's $a1 untouched
+    effectShrinkOffsetUpdate(effect, isDone);
     state = effect->motion;
     effect->scaleX = state->unkC * state->unk8;
     effect->scaleY = effect->scaleX;
@@ -547,7 +549,7 @@ void effectSpawnImpactPuff(f32 scale, f32 x, f32 y, f32 z) {
     effectSetDepth(1);
     effectSetMode(3);
     effectSetCallback(&effectRandomYRotDecalUpdate);
-    effectCreateAtPosition((s32)&sEffectImpactPuffConfig, scale, x, y, z);
+    effectCreateAtPosition(&sEffectImpactPuffConfig, scale, x, y, z);
 }
 
 extern s16 D_807502D0;
@@ -992,7 +994,8 @@ void effectWobbleScaleUpdate(TimedEffectActorView *effect, s8 *isDone) {
     f32 wobbleX;
     f32 wave;
     f32 driftX;
-    WobbleScaleState *state;
+    s32 pad;
+
     if (effect->motion == NULL) {
         effect->motion = heapAlloc(0xC);
         ((WobbleScaleState *) effect->motion)->unk0 = 0;
@@ -1010,12 +1013,9 @@ void effectWobbleScaleUpdate(TimedEffectActorView *effect, s8 *isDone) {
     effect->scaleY = ((WobbleScaleState *) effect->motion)->unk8;
     wobbleX = sinApprox((f32) ((f64) ((WobbleScaleState *) effect->motion)->unk0 * 0.17));
     wave = sinApprox((f32) ((f64) ((WobbleScaleState *) effect->motion)->unk0 * 0.2267));
-    state = (WobbleScaleState *) effect->motion;
     effect->scaleX = (f32) ((f64) effect->scaleX * (1.0 + ((f64) wobbleX * 0.15)));
     effect->scaleY = (f32) ((f64) effect->scaleY * (1.0 + ((f64) wave * 0.15)));
-    if (!((WobbleScaleState *) effect->motion)->unk0) { // FAKE: dead re-read of state->unk0 steers the increment schedule
-    }
-    state->unk0++;
+    ((WobbleScaleState *) effect->motion)->unk0++;
     if ((effect->count - effect->previousCount) < 10) {
         if (effect->alpha >= 0x16) {
             effect->alpha -= 0x14;
@@ -1889,7 +1889,7 @@ void timedLightPulse(PulseFadeActorView *effect, s8 *isDone) {
                 effectSetDuration(-1);
                 effectSetDepth(1);
                 effectSetCallback(effectFallingSparkUpdate);
-                effectCreateAtPosition((s32)&D_807201D4, 0.8f, effect->x, effect->y, effect->z);
+                effectCreateAtPosition(&D_807201D4, 0.8f, effect->x, effect->y, effect->z);
                 return;
             }
             total = (f32)(effect->timerConfig->unk16 * 2);
@@ -1933,7 +1933,7 @@ void effectFallingSparkUpdate(TimedEffectActorView *effect, u8 *isDone) {
     groundY = effect->y;
     if (collisionCheckGroundAtPoint(effect->x, effect->z, &groundY) == 0) {
         *isDone = 1;
-    } else if ((effect->y < groundY) && ((f64)*(f32 *)effect->motion < 0.0)) {
+    } else if ((effect->y < groundY) && ((f64)*(f32 *)effect->motion < 0.0)) { // FAKE: re-read through effect->motion instead of state reloads the motion pointer before the compare
         *isDone = 1;
     }
     if (*isDone != 0) {
@@ -1943,7 +1943,7 @@ void effectFallingSparkUpdate(TimedEffectActorView *effect, u8 *isDone) {
         effectSetSpeed(1);
         effectSetCallback(timedLightPulse);
         effectSetParam(7);
-        effectCreateAtPosition((s32)&D_8071FB54, 0.667f, effect->x, groundY + 10.0f, effect->z);
+        effectCreateAtPosition(&D_8071FB54, 0.667f, effect->x, groundY + 10.0f, effect->z);
     }
     lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, 200.0f, 0, color[0], color[1], color[2]);
 }
@@ -2196,7 +2196,7 @@ void effectConvergeOnNodeUpdate(TimedEffectActorView *effect, s8 *isDone) {
         ((LightApproachMotionState *)effect->motion)->unk0 = 30.0f;
     }
     motion = effect->motion;
-    actorGetNodePos(node, 1, &motion->unk4, &motion->unk8, &motion->unkC);
+    actorGetNodePos((Actor *)node, 1, &motion->unk4, &motion->unk8, &motion->unkC);
     factor = (f32)((f64)motion->unk0 / 30.0);
     effect->x = (gPrimaryPlayerActor->x - motion->unk4) * factor + motion->unk4;
     effect->y = (gPrimaryPlayerActor->y - motion->unk8) * factor + motion->unk8;
@@ -2302,7 +2302,7 @@ void effectOrbitSourceUpdate(TimedEffectActorView *effect, s8 *isDone) {
         effectSetSpeed(0x2A);
         effectSetCallback(&effectLifetimeCountdownUpdate);
         effectSetFlags(0x20);
-        effectCreateAtPosition(*(s32 *) effect->timerConfig, effect->scaleX, effect->x, effect->y, effect->z);
+        effectCreateAtPosition(*(void **) effect->timerConfig, effect->scaleX, effect->x, effect->y, effect->z);
     }
 }
 
@@ -2769,7 +2769,7 @@ void func_8071EDEC(TargetTrackingActorView *effect, s32 unused) {
     f32 nodeY;
     f32 nodeZ;
 
-    actorGetNodePos(effect->param, 1, &nodeX, &nodeY, &nodeZ);
+    actorGetNodePos((Actor *)effect->param, 1, &nodeX, &nodeY, &nodeZ);
     effect->x = (f32)((f64)effect->x + ((f64)(nodeX - effect->x) * 0.1));
     effect->y = (f32)((f64)effect->y + ((f64)(nodeY - effect->y) * 0.1));
     effect->z = (f32)((f64)effect->z + ((f64)(nodeZ - effect->z) * 0.1));
@@ -3066,7 +3066,7 @@ void effectLerpPathUpdate(TimedEffectActorView *effect, u8 *isDone) {
         if (!(gFrameCounter & 3)) {
             effectSetDepth(1);
             effectSetCallback(effectShrinkFadeMatrixUpdate);
-            effectCreateAtPosition((s32)&D_8071FB08, 1.6f, effect->x, effect->y, effect->z);
+            effectCreateAtPosition(&D_8071FB08, 1.6f, effect->x, effect->y, effect->z);
         }
         state->unk4 = state->unk4 + state->unk0;
         guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);

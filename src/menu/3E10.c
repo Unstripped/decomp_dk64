@@ -671,7 +671,7 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
     D_80033F4C = 1600.0f;
     eepromLoadPlayerData((u8)D_80033F48, 0);
     D_80033804 = 1;
-    q = &D_807505B2; p = &D_80033805; i = (s32)&D_80033809; // LAYOUT: keep the three address initializers in one as1 scheduling group
+    q = &D_807505B2; p = &D_80033805; i = (s32)&D_80033809; // FAKE: loop counter i holds the end address (s32); an s8 *end local swaps s1/s2 between q and the end (as1 group kept on one line)
     do {
         k = flagGet(q[-1], 0);
         q++;
@@ -1598,7 +1598,7 @@ void menuCharacterSelectUpdateActor(void) {
     f32 posX;
     f32 posY;
     s8 shouldDespawn;
-    s8 m8;
+    s8 kong;
     s16 idx;
     s16 *actorTypePtr;
     Menu6_Sub174 *sub174;
@@ -1611,8 +1611,8 @@ void menuCharacterSelectUpdateActor(void) {
         gCurrentActor->sub4->scaleX = 2.0f * gCurrentActor->sub4->scaleX;
         gCurrentActor->sub4->scaleY = 2.0f * gCurrentActor->sub4->scaleY;
         gCurrentActor->sub4->scaleZ = 2.0f * gCurrentActor->sub4->scaleZ;
-        m8 = sub174->unk8;
-        actorScriptStart(gCurrentActor, D_800338B4[(s16)(m8 * 6) + (gCurrentActor->unk155 & 0xF)]);
+        kong = sub174->unk8;
+        actorScriptStart(gCurrentActor, D_800338B4[(s16)(kong * 6) + (gCurrentActor->unk155 & 0xF)]);
         playerKongStopSoundByState(gCurrentActor);
         gCurrentActor->flags |= 0x1000;
         sub174->unk4 = D_8076A100[gCurrentActor->state & 0xF];

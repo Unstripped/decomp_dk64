@@ -320,11 +320,7 @@ void menuCheckMapTransitionOnLoad(void) {
     case 3:
         gMenuTransitionCounter++;
         gMenuStateTimer = func_8060B49C(gPlayerSlots->actor, D_8075E5C0[gMenuBonusStageIndex * 4]);
-        if (gMenuStateTimer < *(u16 *) ((u8 *) D_8075E5C2 + gMenuBonusStageIndex * 4)) {
-            gMenuStateTimer = gMenuStateTimer;
-        } else {
-            gMenuStateTimer = *(u16 *) ((u8 *) D_8075E5C2 + gMenuBonusStageIndex * 4);
-        }
+        gMenuStateTimer = MIN(gMenuStateTimer, *(u16 *) ((u8 *) D_8075E5C2 + gMenuBonusStageIndex * 4));
         gMenuBonusStageIndex++;
         gMenuBonusStageIndex = (u32) gMenuBonusStageIndex % 5U;
         gControllerButtonMask = 0x1000;
@@ -517,7 +513,7 @@ Gfx *func_80713438(Gfx *dl, u8 alpha) {
     _sprintf(str, "%c%s", 0x63, text);
     halfWidth = (f64) textGetStringWidth(1, str);
     halfWidth = 0.5 * halfWidth;
-    x = (f32) (((f64) x) - halfWidth);
+    x = x - halfWidth;
     xFixed = (s16) ((s32) (x * 4.0f));
     R117D_WRITE_GFX(dl++, 0xE200001C, 0x504240);
     R117D_WRITE_GFX(dl++, 0xFA000000, alpha & 0xFF);

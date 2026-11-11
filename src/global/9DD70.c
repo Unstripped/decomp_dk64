@@ -79,8 +79,7 @@ typedef struct PlayerControlState {
 typedef struct PanSubState {
     /* 0x00 */ PlayerControlState *unk0;
     /* 0x04 */ s16 *unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ s32 unkC;
+    /* 0x08 */ s16 *unk8[2]; // per-frame-buffer copies of unk4
     /* 0x10 */ u16 unk10;
 } PanSubState;
 
@@ -131,8 +130,8 @@ void actorPhotoUpdate(void) {
     }
     t = PAN_MIN(1.0, ((frameElapsed - 0x1E) < 0 ? 0 : (frameElapsed - 0x1E)) / 60.0f * 5.0);
     if (t < 1.0 && gCurrentActor->actorType != 0xD9) {
-        color5551CopyLerpToWhite((s16 *)subState->unk4, &(&subState->unk8)[gGfxBufferIndex], t);
-        animSetNodeItem(gCurrentActor, 0, 0, (&subState->unk8)[gGfxBufferIndex]);
+        color5551CopyLerpToWhite((s16 *)subState->unk4, &subState->unk8[gGfxBufferIndex], t);
+        animSetNodeItem(gCurrentActor, 0, 0, (s32)subState->unk8[gGfxBufferIndex]);
     } else {
         animSetNodeItem(gCurrentActor, 0, 0, (s32)subState->unk4);
         if (gCurrentActor->unk155 == 0) {
@@ -176,7 +175,7 @@ void actorPhotoUpdate(void) {
         subState->unk0->unk1F0 &= ~0x8000;
         subState->unk0->unk1EC = 0xFF;
         if (gCurrentActor->actorType == 0xD9) {
-            assetFreeBuffer((s32)subState->unk4, 0xF6, 0x45);
+            assetFreeBuffer(subState->unk4, 0xF6, 0x45);
         } else {
             heapFreeDeferred((Mtx *)subState->unk4);
         }
@@ -897,7 +896,7 @@ void textMarkerUpdateMatrix(void) {
     s32 randVal;
     s32 pad74;  // pad: keeps particleLoopIdx at 0x70
     s32 particleLoopIdx;
-    void (*volatile callback)(void);  // FAKE: retain the callback's original stack home
+    void *volatile callback;  // FAKE: retain the callback's original stack home
 
     markerView = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -1092,7 +1091,6 @@ void textMarkerUpdateMatrix(void) {
             }
         }
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x162, 0xFF, 0x7F, 0x1E);
-        if (!gActorGlobalState.unkF4) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (markerView->unk28 == 0) {
             actorDespawn(gCurrentActor);
         }
@@ -1160,7 +1158,7 @@ void textMarkerUpdateMatrix(void) {
                                (f32)(((f64)(u32)markerView->unk2A / 400.0) + 0.5), 2.0f);
         }
         lightAdd(gCurrentActor->x, gCurrentActor->y + 30.0f, gCurrentActor->z,
-                 0, 0.0f, .0f, (f32)(((f64)(u32)markerView->unk2A / 250.0) * 100.0), 0, 0xFF, 0xFF, 0);  // FAKE: .0f spelling = separate zero web (target: two distinct lightAdd zero webs)
+                 0, 0.0f, 0.0, (f32)(((f64)(u32)markerView->unk2A / 250.0) * 100.0), 0, 0xFF, 0xFF, 0);
         gCurrentActor->yaw = gCurrentActor->yaw + markerView->unk2A;
         gCurrentActor->y = gCurrentActor->floorY;
         break;
@@ -1176,7 +1174,7 @@ void textMarkerUpdateMatrix(void) {
                 spawnArgs[1] = 0;
             }
             actorListSpawnNodeEntry((s16)gCurrentActor->actorType, markerView->unk4, markerView->unk8,
-                                    markerView->unkC, 0, markerView->unk10, 0, (s32)spawnArgs);
+                                    markerView->unkC, 0, markerView->unk10, NULL, spawnArgs);
             actorDespawn(gCurrentActor);
         }
         break;
@@ -1437,7 +1435,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
     TEXT_MARKER_GFX(gfx++, 0xDE000000, &D_1000118);
     TEXT_MARKER_GFX(gfx++, 0xFC119623, 0xFF2FFFFF);
 
-    x = actor->unk155;
+    x = actor->unk155; // FAKE: x reused as the unk155 switch selector (direct switch on actor->unk155 scores 15)
     switch (x) {
         case 2:
             vtxGradientSetPosition((s16)(actor->unk15F * 3 + 0x4000));
