@@ -9,33 +9,16 @@
 #include "proto/global/CEAE0.h"
 
 
-typedef struct ActorPhysicsWork {
-    char pad0[0x64];
-    u32 unk64;
-    char pad68[0x86];
-    s16 unkEE;
-    char padF0[2];
-    s16 unkF2;
-    s16 arcYawMin;
-    s16 arcYawMax;
-    s16 unkF8;
-    s16 unkFA;
-    u8 hasArcBounds;
-} ActorPhysicsWork;
-
-
-void actorStepPhysics(Actor *self, s16 targetYaw, s16 targetPitch) {
-    ActorPhysicsWork *actor = (ActorPhysicsWork *)self;
-
-    actorUpdatePrevContactFlags(self);
-    func_80665ACC(self);
+void actorStepPhysics(Actor *actor, s16 targetYaw, s16 targetPitch) {
+    actorUpdatePrevContactFlags(actor);
+    func_80665ACC(actor);
     if (actor->hasArcBounds != 0) {
-        mathAngleClampToArc(actor->unkEE, targetYaw, actor->arcYawMin, actor->arcYawMax, &actor->unkF2);
+        mathAngleClampToArc(actor->moveYaw, targetYaw, actor->arcYawMin, actor->arcYawMax, &actor->unkF2);
         actor->unkFA = func_80672134(actor->arcYawMin, actor->arcYawMax, targetPitch, actor->unkF8);
-        if ((actor->unk64 & 0x200) && (actor->unk64 & 0x100)) {
+        if ((actor->renderFlags & 0x200) && (actor->renderFlags & 0x100)) {
             actor->unkFA = 0;
         }
-        actor->unkEE = actor->unkF2;
+        actor->moveYaw = actor->unkF2;
     }
 }
 
@@ -114,24 +97,20 @@ u8 actorGetFloorSnapped(void) {
 }
 
 
-typedef struct {
-    s16 unk0;
-    char pad2[0x24];
-    s16 unk26;
-} CameraStateView;
+
 
 typedef struct {
-    s16 unk0;
-    u8 unk2;
-    u8 unk3;
+    s16 slopeDivisor;
+    u8 maxPitchDegAlt;
+    u8 maxPitchDeg;
     u8 pad4[2];
-    u8 unk6;
+    u8 minPitchDeg;
     u8 pad7[3];
 } ActorTiltTableEntry;
 
 extern ActorTiltTableEntry D_80748D40[];
 extern ActorTiltTableEntry D_80748DA4;
-extern CameraStateView *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 extern Actor *gCurrentActor;
 extern s32 gCurrentMap;
 
@@ -146,7 +125,7 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
     u8 hasWater;
     f32 heightAboveFloor;
     f32 scale;
-    s32 tmpd;
+    s32 yawDelta;
     s16 effectiveTilt;
     s16 targetTiltYaw;
     s16 targetPitchLimit;
@@ -156,14 +135,14 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
 
     collisionQueryActorFloor(actor, &hasFloor, &floorY, &hasWater, &waterY, 0);
     if (actor->collisionFlags & 1) {
-        func_806D09E8((Actor *)actor);
+        func_806D09E8(actor);
     }
     heightAboveFloor = actor->y - actor->floorY;
     actor->contactFlags &= ~1;
     actor->distToFloor = heightAboveFloor - floorYOffset;
     if ((heightAboveFloor <= floorYOffset) || ((actor->prevContactFlags & 1) && (actor->speedY < 0.0f))) {
-        if ((gCurrentActor->contactFlags & 0x200) || ((u32)gCurrentMap == 0x27) || ((u32)gCurrentMap == 0x6F) || ((u32)gCurrentMap == 0xB9)) {
-            if ((f64)actor->distToFloor < 0.5) {
+        if ((gCurrentActor->contactFlags & 0x200) || (gCurrentMap == 0x27) || (gCurrentMap == 0x6F) || (gCurrentMap == 0xB9)) {
+            if (actor->distToFloor < 0.5) {
                 if (actor->sub4 != NULL) {
                     scale = actor->sub4->scaleY;
                 } else {
@@ -172,7 +151,7 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
                 actor->y = actor->floorY + floorYOffset;
                 actor->distToFloor = 0.0f;
                 actor->contactFlags |= 1;
-                actor->speedY = (actor->floorY + floorYOffset - actor->prevY) * (f32)(40.0 / ((f64)scale * 6.66666667));
+                actor->speedY = (actor->floorY + floorYOffset - actor->prevY) * (f32)(40.0 / (scale * 6.66666667));
             }
         } else if (actor->distToFloor < 5.0f) {
             actor->distToFloor = 0.0f;
@@ -188,7 +167,7 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
         if (actor->speedY > 0.0f) {
             actor->speedY = 0.0f;
         }
-        actor->y = (f64)floorY + (f64)actor->speedY * 0.025;
+        actor->y = floorY + actor->speedY * 0.025;
         D_80748E04 = 1;
     }
     D_80748E00 = 0;
@@ -196,7 +175,7 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
     effectiveTilt = (actor->contactFlags & 1) ? actor->floorTiltPitch : 0x400;
     targetTiltYaw = actor->floorTiltYaw;
     tiltEntry = &D_80748D40[actor->floorSlopeType];
-    switch ((u32)gCurrentMap) {
+    switch (gCurrentMap) {
     case 0x52:
         gActivePlayerState->unk26 = 0x14;
         /* fallthrough */
@@ -212,12 +191,12 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
     if (effectiveTilt >= 0x3F4) {
         targetTiltYaw = actor->floorSlopeYaw;
     }
-    targetPitchLimit = (s16)((tiltEntry->unk6 << 12) / 360);
+    targetPitchLimit = (s16)((tiltEntry->minPitchDeg << 12) / 360);
     if (targetPitchLimit < effectiveTilt) {
         targetPitchLimit = effectiveTilt;
     }
-    diff = tmpd = mathAngleSignedDistance(actor->floorSlopeYaw, targetTiltYaw);
-    if (((tmpd > 0) ? tmpd : -tmpd) >= 0x6AB) {
+    diff = yawDelta = mathAngleSignedDistance(actor->floorSlopeYaw, targetTiltYaw);
+    if (((yawDelta > 0) ? yawDelta : -yawDelta) >= 0x6AB) {
         if (actor->floorSlopePitch >= 0x3C8) {
             actor->floorSlopePitch = 0x400;
             actor->floorSlopeYaw = targetTiltYaw;
@@ -237,15 +216,15 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
         actor->floorSlopePitch &= 0xFFF;
     }
     if (!(actor->contactFlags & 0x20)) {
-        targetPitchLimit = tiltEntry->unk3;
+        targetPitchLimit = tiltEntry->maxPitchDeg;
     } else {
-        targetPitchLimit = tiltEntry->unk2;
+        targetPitchLimit = tiltEntry->maxPitchDegAlt;
     }
     targetPitchLimit = (s16)((targetPitchLimit << 12) / 360);
     if (targetPitchLimit < effectiveTilt) {
         actor->floorSlopeFactor = 0.0f;
     } else {
-        actor->floorSlopeFactor = (f32)((0x400 - effectiveTilt) / tiltEntry->unk0);
+        actor->floorSlopeFactor = (0x400 - effectiveTilt) / tiltEntry->slopeDivisor;
     }
 }
 extern u8 D_80748D48[][10];
@@ -268,9 +247,9 @@ f32 mathAngleBetweenPointsDeg(s32 x1, s32 y1, s32 x2, s32 y2) {
     } else if (x2 >= x1 && y2 < y1) {
         angleRad = 1.570796371f - mathAtan2(y1 - y2, x2 - x1);
     } else if (x2 < x1 && y2 < y1) {
-        angleRad = (f64)mathAtan2(y1 - y2, x1 - x2) + 4.71238911151885986;
+        angleRad = mathAtan2(y1 - y2, x1 - x2) + 4.71238911151885986;
     } else if (x2 < x1 && y2 >= y1) {
-        angleRad = 4.71238911151885986 - (f64)mathAtan2(y2 - y1, x1 - x2);
+        angleRad = 4.71238911151885986 - mathAtan2(y2 - y1, x1 - x2);
     }
     return angleRad * 57.29577637f;
 }
@@ -280,17 +259,17 @@ s32 mathAsinFixed(s32);
 s16 mathAngleDiscrete(f32 x1, f32 y1, f32 x2, f32 y2, f32 dist) {
     s16 angleDiscrete;
 
-    if ((f64)dist < 1.0) {
+    if (dist < 1.0) {
         dist = 1.0f;
     }
     if (x2 <= x1 && y2 <= y1) {
-        angleDiscrete = mathAsinFixed((s32)(((f64)(x1 - x2) * 65535.9) / (f64)dist)) >> 4;
+        angleDiscrete = mathAsinFixed((s32)((x1 - x2) * 65535.9 / dist)) >> 4;
     } else if (x2 <= x1 && y1 < y2) {
-        angleDiscrete = (mathAsinFixed((s32)(((f64)(y2 - y1) * 65535.9) / (f64)dist)) >> 4) + 0x400;
+        angleDiscrete = (mathAsinFixed((s32)((y2 - y1) * 65535.9 / dist)) >> 4) + 0x400;
     } else if (x1 < x2 && y1 < y2) {
-        angleDiscrete = (mathAsinFixed((s32)(((f64)(x2 - x1) * 65535.9) / (f64)dist)) >> 4) + 0x800;
+        angleDiscrete = (mathAsinFixed((s32)((x2 - x1) * 65535.9 / dist)) >> 4) + 0x800;
     } else if (x1 < x2 && y2 <= y1) {
-        angleDiscrete = (mathAsinFixed((s32)(((f64)(y1 - y2) * 65535.9) / (f64)dist)) >> 4) + 0xC00;
+        angleDiscrete = (mathAsinFixed((s32)((y1 - y2) * 65535.9 / dist)) >> 4) + 0xC00;
     }
     return angleDiscrete;
 }
@@ -303,7 +282,7 @@ s16 mathAngleBetweenPoints2D(f32 x1, f32 y1, f32 x2, f32 y2) {
 }
 
 f32 mathAngleBetweenPointsRad(f32 x1, f32 y1, f32 x2, f32 y2) {
-    return (f64)(mathAngleBetweenPoints2D(x1, y1, x2, y2) * 3.141592741f) * 0.00048828125;
+    return mathAngleBetweenPoints2D(x1, y1, x2, y2) * 3.141592741f * 0.00048828125;
 }
 
 
@@ -311,50 +290,34 @@ f32 mathCalculatePitchAngle(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, s16 
     f32 dx = x1 - x2;
     f32 dz = z1 - z2;
     f32 dist = sqrtf((dx * dx) + (dz * dz));
-    f32 f_arg6 = minDist;
-    f32 max_dist;
+    f32 minDistF = minDist;
+    f32 clampedDist;
 
-    if (dist < f_arg6) {
-        max_dist = f_arg6;
+    if (dist < minDistF) {
+        clampedDist = minDistF;
     } else {
-        max_dist = dist;
+        clampedDist = dist;
     }
-    return mathAtan2(y2 - y1, max_dist);
+    return mathAtan2(y2 - y1, clampedDist);
 }
 
 typedef struct ActorSubNodeData {
-    f32 unk0;
-    f32 unk4;
-    u8 unk8[1];
+    f32 radius;
+    f32 height;
+    u8 nodes[1];
 } ActorSubNodeData;
 
 typedef struct ActorSubNodeWrapper {
     char pad[0xC];
-    ActorSubNodeData *unkC;
+    ActorSubNodeData *collision;
 } ActorSubNodeWrapper;
 
-typedef struct ActorScaleConfig {
-    char pad[0x14];
-    s32 unk14;
-    s32 unk18;
-    char pad2[0x1C];
-    f32 unk38;
-} ActorScaleConfig;
-
-typedef struct ActorTransformWork {
-    ActorSubNodeWrapper *unk0;
-    ActorScaleConfig *unk4;
-    char pad[4];
-    u8 unkC[1];
-} ActorTransformWork;
-
-
-ActorSub140 *actorSub140CreateFromModel(Actor *self) {
-    ActorTransformWork *actor = (ActorTransformWork *)self;
+ActorSub140 *actorSub140CreateFromModel(Actor *actor) {
+    ActorSubNodeWrapper *model;
     f32 radius;
     f32 height;
     f32 scale;
-    void *nodeData;
+    u8 *nodeData;
     s32 boneMtx0;
     s32 boneMtx1;
 
@@ -364,17 +327,18 @@ ActorSub140 *actorSub140CreateFromModel(Actor *self) {
     nodeData = NULL;
     boneMtx0 = 0;
     boneMtx1 = 0;
-    if (actor->unk0 != NULL) {
-        radius = actor->unk0->unkC->unk0;
-        height = actor->unk0->unkC->unk4;
-        nodeData = &actor->unk0->unkC->unk8;
+    model = actor->animState;
+    if (model != NULL) {
+        radius = model->collision->radius;
+        height = model->collision->height;
+        nodeData = model->collision->nodes;
     }
-    if (actor->unk4 != NULL) {
-        scale = actor->unk4->unk38;
-        boneMtx0 = actor->unk4->unk14;
-        boneMtx1 = actor->unk4->unk18;
+    if (actor->sub4 != NULL) {
+        scale = actor->sub4->scaleY;
+        boneMtx0 = (s32)actor->sub4->boneMtx[0];
+        boneMtx1 = (s32)actor->sub4->boneMtx[1];
     }
-    return actorSub140CreateFromData(0.0f, 0.0f, 0.0f, scale, radius, height, &actor->unkC, boneMtx0, boneMtx1, nodeData);
+    return actorSub140CreateFromData(0.0f, 0.0f, 0.0f, scale, radius, height, actor->modelMtx, boneMtx0, boneMtx1, nodeData);
 }
 
 
