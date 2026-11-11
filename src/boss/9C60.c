@@ -86,7 +86,7 @@ extern u8 *D_80035A60[];
 extern s32 gCamActor;
 extern Boss2F_9C60_BB4C *gPrimaryPlayerActor;
 
-void actorScriptExecute(BossC_9C60_Actor *);
+void actorScriptExecute(Actor *);
 void actorScriptStart(Actor *, s32);
 u8 camIsCutsceneActive(void);
 u16 camStartPath(void *, s16, u8);

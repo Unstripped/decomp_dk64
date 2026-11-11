@@ -105,7 +105,7 @@ f32 mathCosF(s16);
 s16 mathAngleFromVector2D(f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32, s16); // FAKE: callee prototype steer
 void actorStepPhysics(Actor *, s16, s16);
-void actorApplyVelocity(Actor_BB40 *);
+void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 typedef struct {
     char pad[0x104];

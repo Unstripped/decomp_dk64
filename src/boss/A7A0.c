@@ -21,7 +21,7 @@ typedef struct BossC_A7A0_Actor {
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-void actorDespawn(BossC_A7A0_Actor *);
+void actorDespawn(Actor *);
 
 typedef struct {
     Actor *actor;
@@ -86,7 +86,7 @@ void bossPhaseTick(void) {
 
 
 void actorScriptStart(Actor *, s32);
-void actorScriptExecute(BossC_A7A0_Actor *);
+void actorScriptExecute(Actor *);
 
 void bossKRoolLankySetAnim(s32 scriptId, s16 animId) {
     BossC_A7A0_178 *link = ((BossC_A7A0_Actor *)gCurrentActor)->unk178;
