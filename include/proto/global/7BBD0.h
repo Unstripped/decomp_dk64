@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_7BBD0_H
 #include "common.h"
 #include "actor.h"
-struct ActorMtxOwner;
 struct CollisionActor;
 #ifndef PROTO_SKIP_actorCheckCollisionsAgainstActiveActors
 u8 actorCheckCollisionsAgainstActiveActors(struct CollisionActor *, s32, s32);
@@ -12,7 +11,7 @@ u8 actorCheckCollisionsAgainstActiveActors(struct CollisionActor *, s32, s32);
 u8 actorCollisionReflectAndPush(Actor *, Actor *);
 #endif
 #ifndef PROTO_SKIP_actorGetMatrix
-void actorGetMatrix(struct ActorMtxOwner *, f32[4][4], s8);
+void actorGetMatrix(ActorSub140 *, f32[4][4], s8);
 #endif
 #ifndef PROTO_SKIP_actorCollisionResolveSurfaceHit
 void actorCollisionResolveSurfaceHit(Actor *, Actor *, f32 *, f32 *, s8, s32, s32, u8);

@@ -136,13 +136,13 @@ void raceLoadRouteData(u8 *data) {
     s32 m;
     s32 sz;
 
-    if (data != 0) {
+    if (data != NULL) {
         src = data;
         memcpy(D_8002FCF0, src, 1);
         src += 1;
         memcpy(&D_8002FCF0->count2, src, 2);
         src += 2;
-        D_8002FCF0->items = heapAlloc(D_8002FCF0->count * 12);
+        D_8002FCF0->items = heapAlloc(D_8002FCF0->count * sizeof(RaceRoute));
         heapClearBlock(D_8002FCF0->items);
         ent = D_8002FCF0->items;
         for (i = 0; i < D_8002FCF0->count; i++) {
@@ -154,7 +154,7 @@ void raceLoadRouteData(u8 *data) {
             src += sz;
             ent++;
         }
-        D_8002FCF0->items2 = heapAlloc(D_8002FCF0->count2 * 40);
+        D_8002FCF0->items2 = heapAlloc(D_8002FCF0->count2 * sizeof(RaceWaypoint));
         heapClearBlock(D_8002FCF0->items2);
         node = D_8002FCF0->items2;
         for (m = 0; m < D_8002FCF0->count2; m++) {

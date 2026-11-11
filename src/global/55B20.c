@@ -36,9 +36,9 @@ typedef struct MapChunk {
     /* 0x005 */ u8 kind;
     /* 0x006 */ u8 noSprites;
     /* 0x007 */ u8 streamFlags;
-    /* 0x008 */ s32 loadCursor;
-    /* 0x00C */ s32 loadStart;
-    /* 0x010 */ s32 loadEnd;
+    /* 0x008 */ u8 *loadCursor;
+    /* 0x00C */ u8 *loadStart;
+    /* 0x010 */ u8 *loadEnd;
     /* 0x014 */ struct RenderEntry *opaqueList;
     /* 0x018 */ struct RenderEntry *opaqueTail;
     /* 0x01C */ struct RenderEntry *translucentList;
@@ -63,8 +63,8 @@ typedef struct MapChunk {
     /* 0x06C */ s32 clipTop;
     /* 0x070 */ s32 clipRight;
     /* 0x074 */ s32 clipBottom;
-    /* 0x078 */ u32 collStart;
-    /* 0x07C */ u32 collEnd;
+    /* 0x078 */ struct MapCollisionNode *collStart;
+    /* 0x07C */ struct MapCollisionNode *collEnd;
     /* 0x080 */ s16 minX;
     /* 0x082 */ s16 minZ;
     /* 0x084 */ s16 maxX;
@@ -320,8 +320,8 @@ void mapChunksInitFromMapData(MapData *data) {
             p += 8;
             gMapChunks[n].layerSize3 = *(s32 *)(p - 4);
             total += gMapChunks[n].layerSize3;
-            gMapChunks[n].loadCursor = gMapChunks[n].layerDl0 + ((total >> 3) << 3);
-            gMapChunks[n].loadStart = gMapChunks[n].layerDl0;
+            gMapChunks[n].loadCursor = (u8 *)gMapChunks[n].layerDl0 + ((total >> 3) << 3);
+            gMapChunks[n].loadStart = (u8 *)gMapChunks[n].layerDl0;
             gMapChunks[n].loadEnd = gMapChunks[n].loadCursor;
             if (gMapChunks[n].kind == 2) {
                 mapChunkBuildCellTable(gMapChunks[n].layerDl3, gMapChunks[n].layerSize3, buf, &count, 3, n);
@@ -331,8 +331,8 @@ void mapChunksInitFromMapData(MapData *data) {
             gMapChunks[n].litVtx[0] = NULL;
             gMapChunks[n].litVtx[1] = NULL;
             size = n * 12;
-            gMapChunks[n].collStart = ((R13o6ColEntry *)((u8 *)((s32)data + off + 4) + size))->offset + ((s32)data + off);
-            gMapChunks[n].collEnd = ((R13o6ColEntry *)((u8 *)((s32)data + off + 4) + size))[1].offset + ((s32)data + off);
+            gMapChunks[n].collStart = (struct MapCollisionNode *)(((R13o6ColEntry *)((u8 *)((s32)data + off + 4) + size))->offset + ((s32)data + off));
+            gMapChunks[n].collEnd = (struct MapCollisionNode *)(((R13o6ColEntry *)((u8 *)((s32)data + off + 4) + size))[1].offset + ((s32)data + off));
             gMapChunks[n].minX = ((R13o6ColEntry *)((u8 *)((s32)data + off + 4) + size))->minX;
             gMapChunks[n].minZ = ((R13o6ColEntry *)((u8 *)((s32)data + off + 4) + size))->minZ;
             gMapChunks[n].maxX = ((R13o6ColEntry *)((u8 *)((s32)data + off + 4) + size))->maxX;
@@ -1074,7 +1074,7 @@ s32 mapFloorHeightIsBetter(f32 curY, f32 candY, f32 refY) {
     return 1;
 }
 
-typedef struct {
+typedef struct MapCollisionNode {
     /* 0x00 */ s16 x0;
     /* 0x02 */ s16 x1;
     /* 0x04 */ s16 x2;
@@ -1106,8 +1106,8 @@ s32 mapChunkFindNodeAtPoint(f32 x, f32 y, f32 z, s16 chunk, u8 *outBlocked, f32 
     if ((f32)gMapChunks[chunk].maxZ < z) {
         return 0;
     }
-    node = (MapCollisionNode *)gMapChunks[chunk].collStart;
-    end = (MapCollisionNode *)gMapChunks[chunk].collEnd;
+    node = gMapChunks[chunk].collStart;
+    end = gMapChunks[chunk].collEnd;
     if (node != end) {
         do {
             if ((mapNodeBoxContainsPoint(node, x, z) != 0) && (mapNodeTriangleContainsPoint(node, x, z) != 0)) {
@@ -1384,7 +1384,7 @@ void mapChunkUpdateAssetStreaming(void) {
                 flags[i] = 1;
                 gMapChunks[i].lastSeenFrame = gFrameCounter;
                 if (!(gMapChunks[i].streamFlags & 4)) {
-                    gMapChunks[i].loadCursor = (s32)mapChunkLoadAssetRefs((u8 *)gMapChunks[i].loadCursor, (u8 *)gMapChunks[i].loadEnd, 0x270F);
+                    gMapChunks[i].loadCursor = mapChunkLoadAssetRefs(gMapChunks[i].loadCursor, gMapChunks[i].loadEnd, 0x270F);
                     gMapChunks[i].streamFlags |= 4;
                     gMapChunks[i].streamFlags &= 0xFFFC;
                 }
@@ -1394,7 +1394,7 @@ void mapChunkUpdateAssetStreaming(void) {
                     if (flags[idx] == 0) {
                         if (gMapChunks[idx].playerMask == 0) {
                             if (!(gMapChunks[idx].streamFlags & 4)) {
-                                gMapChunks[idx].loadCursor = (s32)mapChunkLoadAssetRefs((u8 *)gMapChunks[idx].loadCursor, (u8 *)gMapChunks[idx].loadEnd, 5);
+                                gMapChunks[idx].loadCursor = mapChunkLoadAssetRefs(gMapChunks[idx].loadCursor, gMapChunks[idx].loadEnd, 5);
                                 if (gMapChunks[idx].loadCursor == gMapChunks[idx].loadEnd) {
                                     gMapChunks[idx].streamFlags &= 0xFFFD;
                                     gMapChunks[idx].streamFlags |= 4;
@@ -1413,7 +1413,7 @@ void mapChunkUpdateAssetStreaming(void) {
             if (flags[i] == 0) {
                 if (gMapChunks[i].streamFlags & 8) {
                     if (!(gMapChunks[i].streamFlags & 4)) {
-                        gMapChunks[i].loadCursor = (s32)mapChunkLoadAssetRefs((u8 *)gMapChunks[i].loadCursor, (u8 *)gMapChunks[i].loadEnd, 5);
+                        gMapChunks[i].loadCursor = mapChunkLoadAssetRefs(gMapChunks[i].loadCursor, gMapChunks[i].loadEnd, 5);
                         if (gMapChunks[i].loadCursor == gMapChunks[i].loadEnd) {
                             gMapChunks[i].streamFlags &= 0xFFFD;
                             gMapChunks[i].streamFlags |= 4;
@@ -1423,7 +1423,7 @@ void mapChunkUpdateAssetStreaming(void) {
                         gMapChunks[i].streamFlags &= 0xFFFE;
                     }
                 } else if (!(gMapChunks[i].streamFlags & 1) && (u32)(gFrameCounter - gMapChunks[i].lastSeenFrame) >= 3U) {
-                    mapChunkReleaseAssets((u8 *)gMapChunks[i].loadStart, (u8 *)gMapChunks[i].loadCursor);
+                    mapChunkReleaseAssets(gMapChunks[i].loadStart, gMapChunks[i].loadCursor);
                     gMapChunks[i].loadCursor = gMapChunks[i].loadStart;
                     gMapChunks[i].streamFlags |= 1;
                     gMapChunks[i].streamFlags &= ~6;
@@ -1940,7 +1940,7 @@ Gfx *func_80027034(Gfx *);
 Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
     s32 i;
     s32 idx;
-    struct RenderEntry *dl;
+    struct RenderEntry *list;
     u8 flag;
 
     idx = 0;
@@ -1983,7 +1983,7 @@ Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
                 gfx = mapChunkEmitSegmentCommands(gfx, idx);
                 if (gMapChunks[idx].layerDl0 != -1) {
                     gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                    gSPSegment(gfx++, 6, osVirtualToPhysical((void *)gMapChunks[idx].curVtx));
+                    gSPSegment(gfx++, 6, osVirtualToPhysical(gMapChunks[idx].curVtx));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
                     gfx = mapChunkEmitLayerDisplayLists(gfx, idx, 0);
                     gDPPipeSync(gfx++);
@@ -1991,7 +1991,7 @@ Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
                 }
                 if (gMapChunks[idx].layerDl2 != -1) {
                     gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                    gSPSegment(gfx++, 6, osVirtualToPhysical((void *)gMapChunks[idx].curVtx));
+                    gSPSegment(gfx++, 6, osVirtualToPhysical(gMapChunks[idx].curVtx));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
                     gfx = mapChunkEmitLayerDisplayLists(gfx, idx, 2);
                     gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -2004,11 +2004,11 @@ Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
             gfx = spriteListRender(gfx, gMapChunks[idx].sprites);
             D_807F6009 = 0xFF;
             if (flag != 0) {
-                dl = gMapChunks[idx].opaqueTail;
+                list = gMapChunks[idx].opaqueTail;
             } else {
-                dl = gMapChunks[idx].opaqueList;
+                list = gMapChunks[idx].opaqueList;
             }
-            gfx = renderEntryListBuildDisplayList(gfx, dl, x, y, z, flags, idx, flag);
+            gfx = renderEntryListBuildDisplayList(gfx, list, x, y, z, flags, idx, flag);
             if (flags & 0x10) {
                 gSPClearGeometryMode(gfx++, 0xFFFFFFFF);
                 gSPSetGeometryMode(gfx++, 0x200004);
@@ -2016,7 +2016,7 @@ Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
                 gfx = mapChunkEmitSegmentCommands(gfx, idx);
                 if (gMapChunks[idx].layerDl1 != -1) {
                     gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                    gSPSegment(gfx++, 6, osVirtualToPhysical((void *)gMapChunks[idx].curVtx));
+                    gSPSegment(gfx++, 6, osVirtualToPhysical(gMapChunks[idx].curVtx));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
                     gfx = mapChunkEmitLayerDisplayLists(gfx, idx, 1);
                     gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -2024,7 +2024,7 @@ Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
                 }
                 if (gMapChunks[idx].layerDl3 != -1) {
                     gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                    gSPSegment(gfx++, 6, osVirtualToPhysical((void *)gMapChunks[idx].curVtx));
+                    gSPSegment(gfx++, 6, osVirtualToPhysical(gMapChunks[idx].curVtx));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
                     gfx = mapChunkEmitLayerDisplayLists(gfx, idx, 3);
                     gDPPipeSync(gfx++);
@@ -2056,11 +2056,11 @@ Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
             mapSetClipBounds((s16)gMapChunks[idx].clipLeft, (s16)gMapChunks[idx].clipTop, (s16)gMapChunks[idx].clipRight, (s16)gMapChunks[idx].clipBottom);
             D_807F6009 = 0xFF;
             if (flag != 0) {
-                dl = gMapChunks[idx].translucentTail;
+                list = gMapChunks[idx].translucentTail;
             } else {
-                dl = gMapChunks[idx].translucentList;
+                list = gMapChunks[idx].translucentList;
             }
-            gfx = renderEntryListBuildDisplayList(gfx, dl, x, y, z, flags, idx, flag);
+            gfx = renderEntryListBuildDisplayList(gfx, list, x, y, z, flags, idx, flag);
             if (gGlobalOverlayFlags & 0x01000000) {
                 gfx = billboardRenderQueued(gfx, idx);
             }
@@ -2746,7 +2746,7 @@ void mapSearchTableReset(void) {
     s32 i;
 
     D_807F72A0 = 0;
-    for (i = 0, D_807F72B4 = 0; i < 8; i++) {
+    D_807F72B4 = 0; for (i = 0; i < 8; i++) { // LAYOUT: one line keeps as1 from moving the sb D_807F72B4 ahead of the loop setup
         D_807F72B8[i].active = 0;
     }
 }

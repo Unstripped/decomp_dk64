@@ -308,7 +308,7 @@ extern Mtx D_20000C0;
 extern Mtx D_2000180;
 
 #define TEXT_GFX_CMD(g, a, b) \
-    { (g) = (Gfx *)(dl++); (g)->words.w0 = (a); (g)->words.w1 = (b); } // FAKE: function-scope Gfx temps (g8 shared by three commands) instead of gbi's block-scoped _g steer regalloc
+    { (g) = dl++; (g)->words.w0 = (a); (g)->words.w1 = (b); } // FAKE: function-scope Gfx temps (g8 shared by three commands) instead of gbi's block-scoped _g steer regalloc
 #define TEXT_GFX_QUAD(g, v0, v1, v2, v3) \
     TEXT_GFX_CMD(g, (_SHIFTL(G_QUAD, 24, 8) | __gsSP1Quadrangle_w1f(v0, v1, v2, v3, 0)), __gsSP1Quadrangle_w2f(v0, v1, v2, v3, 0))
 #define TEXT_GFX_VTX(g, v, n, v0) \
@@ -324,7 +324,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     Gfx *g12;
     Gfx *g6;
     Vtx *batch;
-    s8 pad;
+    s8 leftPad;
     u8 center;
     u8 started;
     Gfx *g10;
@@ -401,8 +401,8 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                     h = D_80754A34[font].height;
                     if (center) {
                         tmp = (D_80754A34[font].fixedWidth * 4 - w4) / 2;
-                        pad = (tmp < 0) ? 0 : tmp;
-                        x += pad;
+                        leftPad = (tmp < 0) ? 0 : tmp;
+                        x += leftPad;
                     }
                     if (ch >= D_807549FC[font][line - 1] && ch < D_807549FC[font][line]) {
                         if (started == 0) {
@@ -451,7 +451,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                         tmp = D_80754A34[font].fixedWidth * 4;
                         x += (w4 < tmp) ? w4 : tmp;
                         if (w4 < tmp) {
-                            x = x + tmp - pad - w4;
+                            x = x + tmp - leftPad - w4;
                         }
                     } else {
                         x += (D_80754A18[font][ch].width + D_80754A34[font].spacing) * 4;

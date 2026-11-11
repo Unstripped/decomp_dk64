@@ -252,17 +252,17 @@ typedef struct ControllerCommandOwner {
 } ControllerCommandOwner;
 
 void controllerSetCommand(ControllerCommandOwner *owner, s32 commandIndex, ControllerCommand *command) {
-    u32 *arg2_words;
+    u32 *commandWord;
     ControllerCommand *commands;
     ControllerCommand *destination;
 
     if (owner->unk60 & 0x10) {
         return;
     }
-    arg2_words = &command->unk0;
+    commandWord = &command->unk0; // FAKE: pointer temp for the word compare (direct command->unk0 fails fdiff)
     commands = owner->unk0->unk4->unk0;
     destination = commands + commandIndex;
-    if ((destination->unk0 != *arg2_words) || (command->unk4 != destination->unk4)) {
+    if ((destination->unk0 != *commandWord) || (command->unk4 != destination->unk4)) {
         memcpy(destination, command, 8);
     }
 }

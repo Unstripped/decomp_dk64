@@ -561,18 +561,18 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
     return D_807F7BC0;
 }
 
-void lightAddDedupEntry(s16 arg0) {
+void lightAddDedupEntry(s16 index) {
     s32 i;
     u8 val;
 
     if (D_807F7EC8 != 12) {
-        val = D_807F78C0[arg0].unk3F;
+        val = D_807F78C0[index].unk3F;
         for (i = 0; i < D_807F7EC8; i++) {
             if (val == D_807F7BC8[i].unk3F) {
                 return;
             }
         }
-        memcpy(&D_807F7BC8[D_807F7EC8++], &D_807F78C0[arg0], sizeof(LightTrigger));
+        memcpy(&D_807F7BC8[D_807F7EC8++], &D_807F78C0[index], sizeof(LightTrigger));
     }
 }
 

@@ -268,18 +268,18 @@ void modelSlotBuildTransformMatrix(s16 arg0, s8 arg1, f32 (*arg2)[4]) {
     guMtxCatF(mtx, tmpMtx, arg2);
 }
 
-void modelBuildBoneChainMatrix(s32 *arg0, u8 *arg1, f32 (*arg2)[4]) {
+void modelBuildBoneChainMatrix(s32 *boneOffsets, u8 *base, f32 (*outMtx)[4]) {
     s32 i;
-    Mtx sp38;
+    Mtx mtx;
 
     i = 1;
-    memcpy(&sp38, arg0[0] + arg1, 0x40);
-    if (arg0[1] != -1) {
+    memcpy(&mtx, boneOffsets[0] + base, 0x40);
+    if (boneOffsets[1] != -1) {
         do {
-            guMtxCatL(&sp38, (Mtx *)(arg0[i] + arg1), &sp38);
-        } while (arg0[++i] != -1);
+            guMtxCatL(&mtx, (Mtx *)(boneOffsets[i] + base), &mtx);
+        } while (boneOffsets[++i] != -1);
     }
-    guMtxL2F(arg2, &sp38);
+    guMtxL2F(outMtx, &mtx);
 }
 
 void collisionTransformNode(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
@@ -948,9 +948,7 @@ void actorSub140Free(ActorSub140 *arg0) {
 typedef struct ActorSub140Tri {
     /* 0x00 */ f32 x[9];
     /* 0x24 */ f32 out[9];
-    /* 0x48 */ s32 unk48;
-    /* 0x4C */ s32 unk4C;
-    /* 0x50 */ s32 unk50;
+    /* 0x48 */ u32 boneOffset[3];
     /* 0x54 */ s16 unk54;
     /* 0x56 */ u8 unk56;
     /* 0x57 */ u8 pad57;
@@ -1403,57 +1401,57 @@ void actorUpdateModelMatrices(Actor *arg0) {
     }
 }
 
-void actorSub140BuildBoxes(ActorSub140 *arg0) {
+void actorSub140BuildBoxes(ActorSub140 *sub) {
     s32 none;
     s32 i;
     ActorSub140SrcTri *ent;
     Mtx *mtx;
-    u8 var_v1;
-    float spCC[4][4];
-    f32 *var_s0;
-    f32 *var_s1;
-    f32 *var_s2;
-    f32 *var_s3;
-    u32 unk24;
+    u8 bufIdx;
+    float boundsMtx[4][4];
+    f32 *src;
+    f32 *outZ;
+    f32 *outX;
+    f32 *outY;
+    u32 boneOffset;
     s32 padB[10];
     CollisionBox *box;
-    f32 sp80[3];
-    f32 sp74[3];
-    f32 sp68[3];
+    f32 boxZ[3];
+    f32 boxY[3];
+    f32 boxX[3];
     s32 padE[5];
 
     none = -1;
-    if (arg0->boxes != NULL) {
-        if (gFrameCounter == arg0->unk88) {
-            var_v1 = gGfxBufferIndex;
+    if (sub->boxes != NULL) {
+        if (gFrameCounter == sub->unk88) {
+            bufIdx = gGfxBufferIndex;
         } else {
-            var_v1 = (gGfxBufferIndex ^ 1);
+            bufIdx = (gGfxBufferIndex ^ 1);
         }
-        mtx = arg0->unk74[var_v1];
-        ent = arg0->boxes;
-        box = (CollisionBox *)arg0->unkA4;
+        mtx = sub->unk74[bufIdx];
+        ent = sub->boxes;
+        box = (CollisionBox *)sub->unkA4;
         i = 0;
-        if (arg0->boxCount > 0) {
+        if (sub->boxCount > 0) {
             do {
-                if (arg0 == 0) {} // FAKE
-                var_s0 = ent->x;
-                var_s2 = sp68;
-                var_s3 = sp74;
-                var_s1 = sp80;
+                if (sub == 0) {} // FAKE
+                src = ent->x;
+                outX = boxX;
+                outY = boxY;
+                outZ = boxZ;
                 do {
-                    unk24 = ent->boneOffset;
-                    if (none == unk24) {
-                        memcpy(spCC, arg0->boxBounds, 0x40);
-                        guMtxXFMF(spCC, var_s0[0], var_s0[3], var_s0[6], var_s2, var_s3, var_s1);
+                    boneOffset = ent->boneOffset;
+                    if (none == boneOffset) {
+                        memcpy(boundsMtx, sub->boxBounds, 0x40);
+                        guMtxXFMF(boundsMtx, src[0], src[3], src[6], outX, outY, outZ);
                     } else {
-                        guMtxXFML((Mtx *)(((unk24 >> 6) << 6) + (u8 *)mtx), var_s0[0], var_s0[3], var_s0[6], var_s2, var_s3, var_s1);
+                        guMtxXFML((Mtx *)(((boneOffset >> 6) << 6) + (u8 *)mtx), src[0], src[3], src[6], outX, outY, outZ);
                     }
-                    var_s1++;
-                    var_s0++;
-                    var_s2++;
-                    var_s3++;
-                } while (var_s1 != (f32 *)&box); // FAKE: sentinel = addiu fp,sp,0x8C (the frame slot after sp80), steers a lone hoisted constant
-                if (collisionBuildBoxFromMatrix(sp68, box) != 0) {
+                    outZ++;
+                    src++;
+                    outX++;
+                    outY++;
+                } while (outZ != (f32 *)&box); // FAKE: sentinel = addiu fp,sp,0x8C (the frame slot after boxZ at sp+0x80), steers a lone hoisted constant
+                if (collisionBuildBoxFromMatrix(boxX, box) != 0) {
                     if (ent->unk2A == 0) {
                         box->unk4B = 0;
                     }
@@ -1466,9 +1464,9 @@ void actorSub140BuildBoxes(ActorSub140 *arg0) {
                 }
                 ent++;
                 i++;
-            } while (i < arg0->boxCount);
+            } while (i < sub->boxCount);
         }
-        arg0->unkA8 = (s32)box;
+        sub->unkA8 = (s32)box;
     }
 }
 
@@ -1513,36 +1511,36 @@ s32 collisionBuildBoxFromMatrix(f32 *arg0, CollisionBox *arg1) {
     return 1;
 }
 
-void actorSub140TransformTriangles(ActorSub140 *arg0) {
+void actorSub140TransformTriangles(ActorSub140 *sub) {
     ActorSub140Tri *first;
     s32 i;
-    u8 var_v1;
+    u8 bufIdx;
     ActorSub140Tri *curr;
     Mtx *mtx;
-    float sp6C[4][4];
+    float boundsMtx[4][4];
     s32 j;
-    u32 unk48;
+    u32 boneOffset;
 
-    first = arg0->triangles;
+    first = sub->triangles;
     if (first != NULL) {
-        if (gFrameCounter == arg0->unk88) {
-            var_v1 = gGfxBufferIndex;
+        if (gFrameCounter == sub->unk88) {
+            bufIdx = gGfxBufferIndex;
         } else {
-            var_v1 = (gGfxBufferIndex ^ 1);
+            bufIdx = (gGfxBufferIndex ^ 1);
         }
-        mtx = arg0->unk74[var_v1];
+        mtx = sub->unk74[bufIdx];
         curr = first;
-        for (i = 0; i < arg0->triangleCount; i++) {
+        for (i = 0; i < sub->triangleCount; i++) {
             for (j = 0; j < 3; j++) {
-                unk48 = (&curr->unk48)[j];
-                if ((unk48 ^ 0) == -1) { // FAKE: ^ 0 steers bne operand order
-                    memcpy(sp6C, arg0->boxBounds, 0x40);
-                    guMtxXFMF(sp6C, curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
+                boneOffset = curr->boneOffset[j];
+                if ((boneOffset ^ 0) == -1) { // FAKE: ^ 0 steers bne operand order
+                    memcpy(boundsMtx, sub->boxBounds, 0x40);
+                    guMtxXFMF(boundsMtx, curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
                 } else {
-                    guMtxXFML((Mtx *)((((unk48 >> 6) << 6)) + (u8 *)mtx), curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
+                    guMtxXFML((Mtx *)((((boneOffset >> 6) << 6)) + (u8 *)mtx), curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
                 }
             }
-            curr = (ActorSub140Tri *)((u8 *)curr + 0x58);
+            curr++;
         }
     }
 }
@@ -2731,80 +2729,55 @@ s32 actorGetPlayerThreshold(ActorTargetWork *arg0) {
     }
 }
 
-typedef struct ActorSphereNode {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 unkC;
-    s32 unk10;
-    s32 unk14;
-    s32 unk18;
-    s32 unk1C;
-    u32 unk20;
-    u8 pad24[4];
-    struct ActorSphereNode *unk28;
-} ActorSphereNode;
-
-typedef struct ActorSub140SphereView {
-    u8 pad0[0x70];
-    void *unk70;
-    s32 unk74[2];
-    s32 unk7C;
-    s32 unk80;
-    s32 unk84;
-    s32 unk88;
-    ActorSphereNode *unk8C;
-} ActorSub140SphereView;
-
 typedef struct ActorSphereUpdateView {
     u8 pad0[4];
-    f32 *unk4;
+    ActorSub4 *sub4;
     u8 pad8[0x64 - 8];
-    u32 unk64;
+    u32 renderFlags;
     u8 pad68[0x120 - 0x68];
     f32 unk120;
     u8 pad124[0x140 - 0x124];
-    ActorSub140SphereView *unk140;
+    ActorSub140 *collision;
 } ActorSphereUpdateView;
 
-void actorUpdateCollisionSpheres(ActorSphereUpdateView *arg0, u8 arg1) {
+void actorUpdateCollisionSpheres(ActorSphereUpdateView *actor, u8 force) {
     f32 scale = 0.15f;
-    ActorSub140SphereView *sub = arg0->unk140;
-    f32 sp_b4;
-    f32 sp_b0;
-    f32 sp_ac;
+    ActorSub140 *sub = actor->collision;
+    f32 outX;
+    f32 outY;
+    f32 outZ;
     f32 mtx[4][4];
-    ActorSphereNode *node;
+    ModelNode *node;
     s32 base;
     u8 idx;
 
-    if (arg1 != 0 || sub->unk7C != sub->unk80) {
-        if (arg0->unk4 != NULL) {
-            scale = arg0->unk4[0xE];
+    if (force != 0 || sub->unk7C != sub->unk80) {
+        if (actor->sub4 != NULL) {
+            scale = actor->sub4->scaleY;
         }
-        if (arg0->unk64 & 0x800) {
-            scale = arg0->unk120;
+        if (actor->renderFlags & 0x800) {
+            scale = actor->unk120;
         }
         if (gFrameCounter == sub->unk88) {
             idx = gGfxBufferIndex;
         } else {
             idx = gGfxBufferIndex ^ 1;
         }
-        node = sub->unk8C;
-        base = sub->unk74[idx];
+        node = sub->nodes;
+        base = (s32)sub->unk74[idx];
         if (base) {} // FAKE: raises base coloring priority (swaps s5/s6)
         while (node != NULL) {
             if (node->unk20 == -1) {
-                memcpy(mtx, sub->unk70, 0x40);
-                guMtxXFMF(mtx, node->x, node->y, node->z, &sp_b4, &sp_b0, &sp_ac);
+                memcpy(mtx, sub->boxBounds, 0x40);
+                guMtxXFMF(mtx, node->x, node->y, node->z, &outX, &outY, &outZ);
             } else {
-                guMtxXFML((Mtx *)(((node->unk20 >> 6) << 6) + base), node->x, node->y, node->z, &sp_b4, &sp_b0, &sp_ac);
+                guMtxXFML((Mtx *)((((u32)node->unk20 >> 6) << 6) + base), node->x, node->y, node->z, &outX, &outY, &outZ);
             }
-            node->unk10 = sp_b4 * 8.0f;
-            node->unk14 = sp_b0 * 8.0f;
-            node->unk18 = sp_ac * 8.0f;
-            node->unk1C = node->unkC * scale * 8.0f;
-            node = node->unk28;
+            node->unk10 = outX * 8.0f;
+            node->unk14 = outY * 8.0f;
+            node->matrixIndex = outZ * 8.0f;
+            node->unk1C = node->scale * scale * 8.0f;
+            node = node->next;
         }
         sub->unk7C = sub->unk80;
     }
@@ -2829,39 +2802,39 @@ typedef struct ActorSub140PointView {
     ActorTargetNode *unk90;
 } ActorSub140PointView;
 
-void actorUpdateNodePositions(ActorSub140PointView *arg0, u8 arg1) {
+void actorUpdateNodePositions(ActorSub140PointView *sub, u8 force) {
     ActorTargetNode *node;
-    u8 var_v0;
-    f32 spA4;
-    f32 spA0;
-    f32 sp9C;
+    u8 bufIdx;
+    f32 outX;
+    f32 outY;
+    f32 outZ;
     f32 mtx[4][4];
-    s32 mtx_base;
+    s32 mtxBase;
 
-    if (arg1 || (gFrameCounter != arg0->unk84)) {
-        if (gFrameCounter == arg0->unk88) {
-            var_v0 = gGfxBufferIndex;
+    if (force || (gFrameCounter != sub->unk84)) {
+        if (gFrameCounter == sub->unk88) {
+            bufIdx = gGfxBufferIndex;
         } else {
-            var_v0 = gGfxBufferIndex ^ 1;
+            bufIdx = gGfxBufferIndex ^ 1;
         }
-        node = arg0->unk90;
-        mtx_base = arg0->unk74[var_v0];
+        node = sub->unk90;
+        mtxBase = sub->unk74[bufIdx];
         if (node != NULL) {
-            if (mtx_base) {} // FAKE: raises mtx_base register priority so -1 gets s5, mtx_base s6
+            if (mtxBase) {} // FAKE: raises mtx_base register priority so -1 gets s5, mtx_base s6
             do {
                 if (node->unk18 == -1) {
-                    memcpy(&mtx, arg0->unk70, sizeof(mtx));
-                    guMtxXFMF(mtx, node->x, node->y, node->z, &spA4, &spA0, &sp9C);
+                    memcpy(&mtx, sub->unk70, sizeof(mtx));
+                    guMtxXFMF(mtx, node->x, node->y, node->z, &outX, &outY, &outZ);
                 } else {
-                    guMtxXFML((Mtx *)(((node->unk18 >> 6) << 6) + mtx_base), node->x, node->y, node->z, &spA4, &spA0, &sp9C);
+                    guMtxXFML((Mtx *)(((node->unk18 >> 6) << 6) + mtxBase), node->x, node->y, node->z, &outX, &outY, &outZ);
                 }
-                node->unkC = (s32)(spA4 * 8.0f);
-                node->unk10 = (s32)(spA0 * 8.0f);
-                node->unk14 = (s32)(sp9C * 8.0f);
+                node->unkC = (s32)(outX * 8.0f);
+                node->unk10 = (s32)(outY * 8.0f);
+                node->unk14 = (s32)(outZ * 8.0f);
                 node = node->next;
             } while (node != NULL);
         }
-        arg0->unk84 = gFrameCounter;
+        sub->unk84 = gFrameCounter;
     }
 }
 

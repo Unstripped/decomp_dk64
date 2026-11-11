@@ -383,24 +383,9 @@ void collisionHitRecordsFlush(s32 selfId, void *otherActor) {
     actorAppendCallback(otherActor, selfId, 0x8000, 0, D_807FB628, arr);
 }
 
-typedef struct CollisionNodeLink {
-    u8 pad0[0x20];
-    s32 unk20;
-    u8 pad24[0x4];
-    struct CollisionNodeLink *next;
-} CollisionNodeLink;
-
-typedef struct CollisionNodeSub140 {
-    u8 pad0[0x70];
-    void *unk70;
-    Mtx *unk74[2];
-    u8 pad7C[0x10];
-    CollisionNodeLink *unk8C;
-} CollisionNodeSub140;
-
 typedef struct CollisionLocalOwner {
     u8 pad0[0x140];
-    CollisionNodeSub140 *unk140;
+    ActorSub140 *unk140;
 } CollisionLocalOwner;
 
 typedef struct CollisionHitRecordRef {
@@ -414,7 +399,7 @@ typedef struct CollisionHitRecordRef {
 
 void collisionNodeLocalToWorldXZ(CollisionLocalOwner *owner, CollisionHitRecordRef *recordRef, f32 *outWorldX, f32 *outWorldZ) {
     s32 i;
-    CollisionNodeLink *node;
+    ModelNode *node;
     Mtx *mtx;
     float modelMtx[4][4];
     u32 mtxIndex;
@@ -422,14 +407,14 @@ void collisionNodeLocalToWorldXZ(CollisionLocalOwner *owner, CollisionHitRecordR
     f32 worldY;
     f32 worldZ;
 
-    node = owner->unk140->unk8C;
+    node = owner->unk140->nodes;
     for (i = recordRef->unk14 - 1; i != 0; i--) {
         node = node->next;
     }
     mtx = owner->unk140->unk74[gGfxBufferIndex ^ 1];
     mtxIndex = node->unk20;
     if (mtxIndex == -1) {
-        memcpy(modelMtx, owner->unk140->unk70, sizeof(modelMtx));
+        memcpy(modelMtx, owner->unk140->boxBounds, sizeof(modelMtx));
         guMtxXFMF(modelMtx, recordRef->unk4, recordRef->unk8, recordRef->unkC, &worldX, &worldY, &worldZ);
     } else {
         guMtxXFML((Mtx *)(((mtxIndex >> 6) << 6) + (u8 *)mtx), recordRef->unk4, recordRef->unk8, recordRef->unkC, &worldX, &worldY, &worldZ);

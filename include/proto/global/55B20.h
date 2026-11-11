@@ -4,6 +4,7 @@
 #include "common.h"
 #include "actor.h"
 struct MapActorEntry;
+struct MapCollisionNode;
 struct MapData;
 struct MapGridPoint;
 struct MapGridQuad;
@@ -99,6 +100,12 @@ s32 mapFloorHeightIsBetter(f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapChunkFindNodeAtPoint
 s32 mapChunkFindNodeAtPoint(f32, f32, f32, s16, u8 *, f32 *);
+#endif
+#ifndef PROTO_SKIP_mapNodeBoxContainsPoint
+s32 mapNodeBoxContainsPoint(struct MapCollisionNode *, f32, f32);
+#endif
+#ifndef PROTO_SKIP_mapNodeTriangleContainsPoint
+s32 mapNodeTriangleContainsPoint(struct MapCollisionNode *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapChunkActivate
 void mapChunkActivate(s16);

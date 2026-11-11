@@ -154,7 +154,6 @@ typedef struct CollisionActorFull {
     u8 unk144;
 } CollisionActorFull;
 
-struct ActorMtxOwner;
 extern s32 D_807FB5C4;
 extern s32 D_807FB5C8;
 extern s32 D_807FB5CC;
@@ -196,7 +195,7 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
         hitMode = 2;
     }
     selfBounds->unk58 = (s32)((u8 *)D_807FB5D8 - (u8 *)otherBounds->unkA4) / 88;
-    actorGetMatrix((struct ActorMtxOwner *)otherBounds, otherMtx, ((CollisionTarget *)D_807FB5D8)->unk4E);
+    actorGetMatrix((ActorSub140 *)otherBounds, otherMtx, ((CollisionTarget *)D_807FB5D8)->unk4E);
     matrix4Invert(invMtx, otherMtx);
     if (((CollisionActorFull *)other)->unk64 & 0x10) {
         posX = self->x;
@@ -262,17 +261,9 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
 
 typedef f32 ActorMtxF[4][4];
 
-typedef struct ActorMtxOwner {
-    u8 pad0[0x70];
-    void *unk70;
-    Mtx *unk74[2];
-    u8 pad7C[0xC];
-    s32 unk88;
-} ActorMtxOwner;
-
 extern u8 gGfxBufferIndex;
 extern s32 gFrameCounter;
-void actorGetMatrix(ActorMtxOwner *owner, ActorMtxF dst, s8 mtxIndex) {
+void actorGetMatrix(ActorSub140 *owner, ActorMtxF dst, s8 mtxIndex) {
     u8 bufIdx;
     Mtx *mtx;
 
@@ -283,7 +274,7 @@ void actorGetMatrix(ActorMtxOwner *owner, ActorMtxF dst, s8 mtxIndex) {
     }
     mtx = owner->unk74[bufIdx];
     if (mtxIndex == -1) {
-        memcpy(dst, owner->unk70, 0x40);
+        memcpy(dst, owner->boxBounds, 0x40);
     } else {
         guMtxL2F(dst, &mtx[mtxIndex]);
     }
@@ -368,7 +359,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
         hit = 1;
     }
     if (hit != 0) {
-        actorGetMatrix((ActorMtxOwner *)selfBounds, selfMtx, mtxIndex);
+        actorGetMatrix((ActorSub140 *)selfBounds, selfMtx, mtxIndex);
         guMtxXFMF(selfMtx, pos[0], pos[1], pos[2], &worldX, &worldY, &worldZ);
         pushX = worldX;
         pVerts = verts;

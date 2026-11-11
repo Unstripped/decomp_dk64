@@ -61,11 +61,12 @@ typedef struct GfxResourceEntry {
 
 typedef struct GfxResourceNode {
     struct GfxResourceNode *next;
-    void *unk4;
+    u8 *unk4;
     GfxResourceEntry *unk8;
-    s8 unkC;
+    u8 unkC;
     u8 unkD;
-    u8 unkE[6];
+    u8 padE[2];
+    f32 unk10;
     f32 unk14;
     f32 unk18;
     s16 unk1C;
@@ -201,26 +202,13 @@ void func_806FDF54(f32 *pAngle, f32 *pTarget) {
     *pAngle = (f32)((f64)((f32)mathAngleEaseToward((s16)(s32)(((f64)*pAngle * 2048.0) / 3.1415927410125732), (s16)(s32)(((f64)*pTarget * 2048.0) / 3.1415927410125732), 5.0f) * 3.1415927410125732f) * 0.00048828125);
 }
 
-typedef struct GfxResourceNodeView {
-    struct GfxResourceNodeView *next;
-    u8 *unk4;
-    GfxResourceEntry *unk8;
-    u8 unkC;
-    u8 unkD;
-    u8 padE[2];
-    f32 unk10;
-    f32 unk14;
-    f32 unk18;
-    s16 unk1C;
-} GfxResourceNodeView;
-
 extern TextFontInfo D_80754A34[];
 extern s16 textGetCharAdvance(s16, s32); // FAKE: callee prototype steer
 f32 sinApprox(f32);
 f32 cosApprox(f32);
 
 Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 baseY, f32 baseZ, f32 scale) {
-    GfxResourceNodeView *node;
+    GfxResourceNode *node;
     f32 phase;
     f32 curX;
     f32 centeredX;
@@ -234,7 +222,7 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
 
     strPos = 0;
     curX = baseX;
-    node = (GfxResourceNodeView *)gfxResourceFindById(resourceId);
+    node = gfxResourceFindById(resourceId);
     charIndex = 0;
     centeredX = ((f32)gScreenWidth - ((f32)textGetStringWidth(node->unkC, (s32)node->unk4) * scale)) / 2 + -3;
     waveRadius = (f32)(gScreenWidth >> 3);
@@ -379,7 +367,7 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
             }
             phase = (f32)((f64)phase - (f64)D_80754A34[node->unkC].spaceWidth * 0.019);
         }
-        if (phase < 0.0f) { phase += 6.2831855f; } ch = *(u8 *)(strPos + node->unk4); strPos += 1;
+        if (phase < 0.0f) { phase += 6.2831855f; } ch = *(strPos + node->unk4); strPos += 1; // FAKE: index-first spelling keeps the addu operand order
     }
     gDPPipeSync(glist++);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x00504240);
