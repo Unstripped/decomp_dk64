@@ -354,7 +354,7 @@ void bossClearMinigame(void) {
 void sfxAllocateChannel(s32, f32);
 void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, Actor *);
 
-extern s32 D_8074E880[];
+extern void *D_8074E880[];
 
 void bossSpawnParticleRing(flag, x, y, z, unkRot, unkScale)
 u16 flag;
@@ -375,7 +375,7 @@ u8 unkScale;
         effectSetCallback(effectWispHomeUpdate);
         effectSetDuration(-1);
         effectSetDepth(1);
-        effectSetSpeed(gBehaviourTargetActor);
+        effectSetSpeed((s32)gBehaviourTargetActor);
         effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, gBehaviourTargetActor->x, gBehaviourTargetActor->y + (f32)gBehaviourTargetActor->eyeHeight, gBehaviourTargetActor->z);
     }
     actorSpawnNodeEntryScaled(0x48, (f32)x, (f32)y, (f32)z, (s32)unkRot, (s32)unkScale, (s16)flag, 0);
@@ -433,8 +433,8 @@ void bossResetAudioChannels(void) {
 
 typedef struct BossSoundState {
     s32 lastTick;
-    s32 sndHandleA;
-    s32 sndHandleB;
+    struct GfSndState *sndHandleA;
+    struct GfSndState *sndHandleB;
     u8 stepCount;
     u8 flags;
     s16 curVolume;
@@ -447,7 +447,7 @@ extern s16 D_800359AC[];
 extern s16 D_800359B8[];
 extern s16 D_800359C4[];
 extern u8 D_8071FE08[];
-extern s32 D_8076D1F8;
+extern ALBank *D_8076D1F8;
 extern SchedStruct gScheduler;
 extern s32 gCurrentMap;
 

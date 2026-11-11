@@ -5,6 +5,7 @@
 #include "proto/global/17B90.h"
 #include "proto/global/35000.h"
 #include "proto/global/3C10.h"
+#include "proto/global/42630.h"
 
 typedef struct Boss2F_9230_178 {
     char pad0[0x14];
@@ -58,7 +59,6 @@ extern Boss2F_9230_BB4C *gPrimaryPlayerActor;
 extern u8 gBossFightPhase;
 extern Boss2F_9230_D580 *gActivePlayerState;
 
-void csSendActorMessagePayload(s32, s32); // FAKE: callee prototype steer
 s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void scriptSetActorRampTarget(void *, f32, f32);
 void actorScriptStart(Boss2F_9230_Actor *, s32);
@@ -66,7 +66,6 @@ u8 camIsCutsceneActive(void);
 u16 camStartPath(void *, s16, u8);
 void camSetSecondTarget(struct CamActor *, s16, s16);
 s32 currentActorTestClearFlag();
-void csSendActorMessagePayload();
 void projectileSpawnWithShockwave(s16, f32, u8, u8, u8, u8, f32, f32, f32, f32);
 u8 func_8072881C(u8, u32 *);
 void behaviourFrameBegin(void);

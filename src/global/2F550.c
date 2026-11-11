@@ -1003,9 +1003,6 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, RenderEntry *arg2, f
     u8 pad2;
     u8 side;
 
-    if (0) { // FAKE: dead address-of arg6 keeps it in its stack home
-        mapChunkUpdateEntryNode((RenderEntry *)&arg6);
-    }
     listA = 0;
     listB = 0;
     if (arg0 == NULL) {
@@ -1063,7 +1060,7 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, RenderEntry *arg2, f
             } while (arg2 != NULL);
         }
         arg1->unk0 = mapBspPlaneSideTest(arg0, &arg1->unk1, arg3, arg4, arg5);
-        if (arg6 != 0) {
+        if (arg6) {
             mapTreeFrameUpdate(arg0->unk0, arg1->unkC, listA, arg3, arg4, arg5, arg6, arg7, arg8);
             mapTreeFrameUpdate(arg0->unk4, arg1->unk10, listB, arg3, arg4, arg5, arg6, arg7, arg8);
         } else {

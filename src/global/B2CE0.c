@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_actorSetUniformScale // FAKE: callee prototype steer
-#define PROTO_SKIP_behaviourCheckRandomAnimTrigger // FAKE: callee prototype steer
 #define PROTO_SKIP_behaviourSpawnExplosionAndSound // FAKE: callee prototype steer
 #define PROTO_SKIP_behaviourUpdateContactAndState // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/103AB0.h"
@@ -98,7 +97,6 @@ extern B2CE0Actor *gSpawnedActor;
 
 extern u8 D_8071FBC8[];
 extern ActorGlobalState gActorGlobalState;
-s32 behaviourCheckRandomAnimTrigger();
 void behaviourUpdateContactAndState();
 void behaviourSpawnExplosionAndSound();
 extern u16 gActiveActorCount;
@@ -701,7 +699,7 @@ void func_806AFB58(void) {
         }
         break;
     case 1:
-        if (behaviourCheckRandomAnimTrigger((u32)gCurrentActor->unk154, sel) != 0) {
+        if (behaviourCheckRandomAnimTrigger() != 0) {
             gCurrentActor->unk154 = 0x11;
             gCurrentActor->unk155 = 0;
         }

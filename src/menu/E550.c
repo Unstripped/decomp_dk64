@@ -53,7 +53,7 @@ extern s32 gGlobalPauseFlags;
 void menuUpdateLightFadeActor(void) {
     s32 d;
     s32 cur;
-    int maxLevel = 0xFF; // FAKE: an int (not s32) limit local orders the case-1 beq operands (0xFF first).
+    s32 maxLevel = 0xFF;
 
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unk15F = 0;
@@ -74,7 +74,7 @@ void menuUpdateLightFadeActor(void) {
     case 1:
         lightSetFovAngles(20.0f, 40.0f);
         cur = gCurrentActor->unk15F;
-        if (cur != maxLevel) {
+        if (maxLevel != cur) {
             d = (maxLevel - cur < 3) ? maxLevel - cur : 3;
             gCurrentActor->unk15F = cur + d;
         }

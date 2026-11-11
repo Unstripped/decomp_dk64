@@ -2,12 +2,12 @@
 #ifndef PROTO_BOSS_C920_H
 #define PROTO_BOSS_C920_H
 #include "common.h"
-struct BossD_Sub178;
+struct BossScriptState;
 #ifndef PROTO_SKIP_bossKRoolChunkySetupFight
-void bossKRoolChunkySetupFight(s32);
+void bossKRoolChunkySetupFight(struct BossScriptState *);
 #endif
 #ifndef PROTO_SKIP_bossKRoolChunkyResetPhase
-void bossKRoolChunkyResetPhase(struct BossD_Sub178 *);
+void bossKRoolChunkyResetPhase(struct BossScriptState *);
 #endif
 #ifndef PROTO_SKIP_bossKRoolChunkyInterpolatePosition
 void bossKRoolChunkyInterpolatePosition(f32);

@@ -715,7 +715,7 @@ u8 *textTableGetString(s32 tableId, s32 rowIndex, s32 flags) {
     ResItem *row;
     ResRecord *choice;
     ResTextSpan *span;
-    char *source;
+    u8 *source;
     s32 length;
     u8 *dest;
     ResParsedList *table;
@@ -724,7 +724,7 @@ u8 *textTableGetString(s32 tableId, s32 rowIndex, s32 flags) {
     row = table->lists[rowIndex].items;
     choice = row->variant + sLanguageIndex;
     span = choice->data.spans;
-    source = (char *)(span->offset + table->payload);
+    source = (u8 *)(span->offset + table->payload);
     length = span->length;
     dest = heapAlloc(length + 1);
     if (flags & 1) {

@@ -23,10 +23,12 @@ typedef struct BossD_Actor {
     f64 unk160;
 } BossD_Actor;
 
-typedef struct BossD_Sub178 {
+typedef struct BossScriptState {
     u8 pad0[0x14];
     u8 unk14;
-} BossD_Sub178;
+    u8 unk15;
+    u8 unk16;
+} BossScriptState;
 
 typedef struct BossD_D580 {
     u8 pad0[0x1D8];
@@ -56,7 +58,7 @@ s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 
-void bossKRoolChunkySetupFight(s32 unused) {
+void bossKRoolChunkySetupFight(BossScriptState *unused) {
     s16 targetYaw;
 
     gActivePlayerState->unk1FE = 1;
@@ -78,7 +80,7 @@ void bossKRoolChunkySetupFight(s32 unused) {
     }
     camSetTarget(gCamActor, gPrimaryPlayerActor, 4, 0x800, 0x5A, 0, 0x46, 0x64, 0x3A, 0, 0.3f);
 }
-void bossKRoolChunkyResetPhase(BossD_Sub178 *sub178) {
+void bossKRoolChunkyResetPhase(BossScriptState *sub178) {
     bossSetCannonsVisible(0);
     gActivePlayerState->unk1F4 = 0;
     if (gPrimaryPlayerActor->unk154 != 0x36) {
@@ -116,13 +118,6 @@ void bossKRoolChunkyPlayTauntSfx(void) {
     gBehaviourWorkState->flags |= 1;
     sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x2E2, 0xFF, 0x65, 0, 0, 0.0f, 0);
 }
-
-typedef struct BossScriptState {
-    u8 pad0[0x14];
-    u8 unk14;
-    u8 unk15;
-    u8 unk16;
-} BossScriptState;
 
 typedef struct BossActor {
     u8 pad0[0x60];
@@ -268,7 +263,7 @@ void bossKRoolChunkyStep(void) {
                 bossKRoolChunkyPlayTauntSfx();
             }
             BOSS_ACTOR->unk132 = 4;
-            bossKRoolChunkySetupFight((s32)scriptState);
+            bossKRoolChunkySetupFight(scriptState);
             scriptSetActorRampTarget(BOSS_ACTOR, D_80035AE4[scriptState->unk14], 0.0f);
             BOSS_ACTOR->unk155++;
             break;
@@ -342,7 +337,7 @@ void bossKRoolChunkyStep(void) {
                     BOSS_ACTOR->unk132 = 1;
                     scriptState->unk15 = scriptState->unk16;
                 }
-                bossKRoolChunkyResetPhase((BossD_Sub178 *)scriptState);
+                bossKRoolChunkyResetPhase(scriptState);
                 BOSS_ACTOR->unk154 = scriptOpcodes[scriptState->unk15];
                 scriptState->unk15++;
                 BOSS_ACTOR->unk155 = 0;

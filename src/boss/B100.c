@@ -40,8 +40,8 @@ typedef struct BossE_B100_Actor {
     struct BossE_B100_Actor **unk17C;
 } BossE_B100_Actor;
 
-extern BossE_B100_Actor *gCurrentActor;
-extern BossE_B100_Actor *gSpawnedActor;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
 extern u8 gBossFightPhase;
 extern s32 gFrameCounter;
 
@@ -53,20 +53,9 @@ void sfxPlayAtFBD6CPosition(void);
 
 f32 mathSinF(s16);
 
-typedef struct {
-    u8 pad0[0x7C];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0xE6 - 0x88];
-    s16 unkE6;
-    u8 padE8[0x154 - 0xE8];
-    u8 unk154;
-    u8 unk155;
-} BossPlayerActor;
 
 
-extern BossPlayerActor *gPrimaryPlayerActor;
+extern Actor *gPrimaryPlayerActor;
 
 typedef struct BossPhaseState {
     u8 pad0[0x14];
@@ -78,32 +67,7 @@ typedef struct BossPhaseState {
 } BossPhaseState;
 
 typedef struct BossMainActor {
-    u8 pad0[0x60];
-    s32 unk60;
-    u8 pad64[0x7C - 0x64];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0xB8 - 0x88];
-    f32 unkB8;
-    u8 padBC[0xCC - 0xBC];
-    u8 unkCC;
-    u8 padCD[0xE6 - 0xCD];
-    s16 unkE6;
-    u8 padE8[0x11C - 0xE8];
-    void *unk11C;
-    u8 pad120[0x132 - 0x120];
-    s16 unk132;
-    u8 pad134[0x144 - 0x134];
-    u8 unk144;
-    u8 pad145[1];
-    s16 unk146;
-    u8 pad148[0x154 - 0x148];
-    u8 unk154;
-    u8 unk155;
-    u8 pad156[0x168 - 0x156];
-    s16 unk168;
-    u8 pad16A[0x178 - 0x16A];
+    Actor base;
     BossPhaseState *unk178;
 } BossMainActor;
 
@@ -139,8 +103,6 @@ void behaviourUpdateShadowAlpha(void);
 u8 func_8072881C(u8, u32 *);
 
 #define MAIN_ACTOR ((BossMainActor *)gCurrentActor)
-#define PLAYER_ACTOR ((BossMainActor *)gPrimaryPlayerActor)
-#define SECOND_ACTOR ((BossMainActor *)gSpawnedActor)
 
 void bossDogadonStep(void) {
     BossPhaseState *phaseState;
@@ -150,19 +112,19 @@ void bossDogadonStep(void) {
 
     phaseState = MAIN_ACTOR->unk178;
     behaviourFrameBegin();
-    if (!(MAIN_ACTOR->unk60 & 0x10)) {
-        MAIN_ACTOR->unk132 = 8;
+    if (!(gCurrentActor->flags & 0x10)) {
+        gCurrentActor->interactionType = 8;
         transitionSetState(0);
         camSetSecondTarget(gCamActor, 0, 0);
-        MAIN_ACTOR->unk146 = 5;
-        MAIN_ACTOR->unkCC = 1;
+        gCurrentActor->unk146 = 5;
+        gCurrentActor->floorNodeId = 1;
         func_80724CA4(2, 1);
-        MAIN_ACTOR->unk154 = 0x1E;
-        MAIN_ACTOR->unk155 = 0;
+        gCurrentActor->state = 0x1E;
+        gCurrentActor->unk155 = 0;
         if (flagGet(0x54, 2) != 0) {
             phaseState->unk14 = 4;
-            MAIN_ACTOR->unk154 = 0x37;
-            MAIN_ACTOR->unk155 = 0;
+            gCurrentActor->state = 0x37;
+            gCurrentActor->unk155 = 0;
         } else if (flagGet(0x53, 2) != 0) {
             phaseState->unk14 = 3;
         } else if (flagGet(0x52, 2) != 0) {
@@ -170,102 +132,102 @@ void bossDogadonStep(void) {
         } else if (flagGet(0x51, 2) != 0) {
             phaseState->unk14 = 1;
         }
-        if (phaseState->unk14 != 0 && MAIN_ACTOR->unk154 != 0x37) {
-            MAIN_ACTOR->unk154 = 0x31;
-            MAIN_ACTOR->unk155 = 0;
-            zoneEntryGetPosition(1, 0, &MAIN_ACTOR->unk7C, &MAIN_ACTOR->unk80, &MAIN_ACTOR->unk84);
+        if (phaseState->unk14 != 0 && gCurrentActor->state != 0x37) {
+            gCurrentActor->state = 0x31;
+            gCurrentActor->unk155 = 0;
+            zoneEntryGetPosition(1, 0, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
         }
     }
     scriptOpcodes = D_80035A90[phaseState->unk14];
     bossRoundFrame(scriptOpcodes);
-    switch (MAIN_ACTOR->unk154) {
+    switch (gCurrentActor->state) {
     case 0x28:
         if (gBossFightPhase == 5 && gPlayerSlots->unk2C0 != 1) {
-            MAIN_ACTOR->unk144 = 1;
-            PLAYER_ACTOR->unk144 = 1;
+            gCurrentActor->unk144 = 1;
+            gPrimaryPlayerActor->unk144 = 1;
             camStartPath(0, 2, 1);
-            MAIN_ACTOR->unk154 = 0x29;
-            hudCountdownTimerSaveElapsed(MAIN_ACTOR->unk11C);
+            gCurrentActor->state = 0x29;
+            hudCountdownTimerSaveElapsed(gCurrentActor->parentActor);
             screenSetTransitionFadeType(1);
             transitionSetState(1);
             mapRequestTransition(0xD6, 0);
-            PLAYER_ACTOR->unk7C = mathSinF(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk7C;
-            PLAYER_ACTOR->unk84 = mathCosF(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk84;
-            lineDist = mathSinF(MAIN_ACTOR->unkE6 + 0x384);
-            playerWaypointPathStartLineFromActor(PLAYER_ACTOR, (s32)(lineDist * 15.0f + MAIN_ACTOR->unk7C), (s32)(mathCosF(MAIN_ACTOR->unkE6 + 0x384) * 15.0f + MAIN_ACTOR->unk84), 0x50);
+            gPrimaryPlayerActor->x = mathSinF(gCurrentActor->yaw + 0x320) * 30.0 + gCurrentActor->x;
+            gPrimaryPlayerActor->z = mathCosF(gCurrentActor->yaw + 0x320) * 30.0 + gCurrentActor->z;
+            lineDist = mathSinF(gCurrentActor->yaw + 0x384);
+            playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, (s32)(lineDist * 15.0f + gCurrentActor->x), (s32)(mathCosF(gCurrentActor->yaw + 0x384) * 15.0f + gCurrentActor->z), 0x50);
         } else {
-            switch (MAIN_ACTOR->unk155) {
+            switch (gCurrentActor->unk155) {
             case 0:
                 if (phaseState->unk16 != 0) {
                     csSendActorMessagePayload(0, 0);
                 }
-                actorScriptStart(MAIN_ACTOR, 0x3FF);
+                actorScriptStart(gCurrentActor, 0x3FF);
                 gBehaviourWorkState->timer = scriptOpcodes[phaseState->unk15] * 0x1E;
                 phaseState->unk15++;
-                MAIN_ACTOR->unk155++;
+                gCurrentActor->unk155++;
                 break;
             case 1:
                 if (gBehaviourWorkState->timer != 0) {
                     gBehaviourWorkState->timer--;
                 } else {
-                    actorScriptStart(MAIN_ACTOR, 0x400);
-                    MAIN_ACTOR->unk155++;
+                    actorScriptStart(gCurrentActor, 0x400);
+                    gCurrentActor->unk155++;
                 }
                 break;
             case 3:
                 if (gPlayerSlots->unk2C0 != 1) {
-                    playerSetSizeMode(PLAYER_ACTOR, 1);
+                    playerSetSizeMode(gPrimaryPlayerActor, 1);
                 }
                 csSendActorMessagePayload(0, 0xFF);
-                actorScriptStart(MAIN_ACTOR, 0x3E4);
-                MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
+                actorScriptStart(gCurrentActor, 0x3E4);
+                gCurrentActor->state = scriptOpcodes[phaseState->unk15];
                 phaseState->unk15++;
-                MAIN_ACTOR->unk155 = 0;
+                gCurrentActor->unk155 = 0;
                 break;
             }
         }
         break;
     case 0x27:
         actorMoveWithinZone(0, 0.0f, 0.0f, 0x4310, 0.0f);
-        switch (MAIN_ACTOR->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
-            actorSetTargetSpeed(MAIN_ACTOR, 0);
+            actorSetTargetSpeed(gCurrentActor, 0);
             phaseState->unk18 = scriptOpcodes[phaseState->unk15];
             phaseState->unk15++;
-            MAIN_ACTOR->unk155++;
+            gCurrentActor->unk155++;
             /* fallthrough */
         case 1:
             gBehaviourWorkState->timer = 4;
-            actorScriptStart(MAIN_ACTOR, 0x3E7);
-            MAIN_ACTOR->unk155++;
+            actorScriptStart(gCurrentActor, 0x3E7);
+            gCurrentActor->unk155++;
             break;
         case 2:
-            MAIN_ACTOR->unkE6 = mathAngleEaseToward(MAIN_ACTOR->unkE6, mathAngleBetweenPoints2D((f32)D_807FDCA0->entries->x, (f32)D_807FDCA0->entries->z, MAIN_ACTOR->unk7C, MAIN_ACTOR->unk84), 10.0f);
+            gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D((f32)D_807FDCA0->entries->x, (f32)D_807FDCA0->entries->z, gCurrentActor->x, gCurrentActor->z), 10.0f);
             break;
         case 3:
             if (gBehaviourWorkState->timer != 0 && (u32)gFrameCounter % 5 == 0) {
                 projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 150, 3, (f32)((f64)(u32)phaseState->unk14 * 0.01 + 1.04), 0.0f, 0.0f, 0.0f);
                 if (gBehaviourWorkState->timer-- < 4) {
-                    SECOND_ACTOR->unk168 = 0;
+                    gSpawnedActor->yawSpeed = 0;
                 } else {
-                    sfxPlayAtPositionPooled(MAIN_ACTOR->unk7C, MAIN_ACTOR->unk80, MAIN_ACTOR->unk84, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
+                    sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
                 }
-                controllerAnimSetStateIfChanged(SECOND_ACTOR, 0x4F9, 0.0f, 0.0f);
-                scriptSetActorRampTarget(SECOND_ACTOR, 0.5f, 0.0f);
+                controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
+                scriptSetActorRampTarget(gSpawnedActor, 0.5f, 0.0f);
             } else if (gBehaviourWorkState->timer == 0) {
                 gBehaviourWorkState->timer = phaseState->unk18;
-                MAIN_ACTOR->unk155++;
+                gCurrentActor->unk155++;
             }
             break;
         case 4:
             if (gBehaviourWorkState->timer != 0) {
                 gBehaviourWorkState->timer--;
             } else {
-                actorSetTargetSpeed(MAIN_ACTOR, gBehaviourExtraState->targetSpeed);
-                actorScriptStart(MAIN_ACTOR, 0x3E4);
-                MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
+                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
+                actorScriptStart(gCurrentActor, 0x3E4);
+                gCurrentActor->state = scriptOpcodes[phaseState->unk15];
                 phaseState->unk15++;
-                MAIN_ACTOR->unk155 = 0;
+                gCurrentActor->unk155 = 0;
             }
             break;
         }
@@ -273,53 +235,53 @@ void bossDogadonStep(void) {
     case 0x1E:
         phaseState->unk14 = 0;
         phaseState->unk15 = 0;
-        MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
+        gCurrentActor->state = scriptOpcodes[phaseState->unk15];
         phaseState->unk15++;
-        MAIN_ACTOR->unk155 = 0;
-        MAIN_ACTOR->unkB8 = (f32)(u32)gBehaviourExtraState->targetSpeed;
+        gCurrentActor->unk155 = 0;
+        gCurrentActor->speedXZ = (f32)(u32)gBehaviourExtraState->targetSpeed;
         break;
     case 0:
-        switch (MAIN_ACTOR->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
-            actorScriptStart(MAIN_ACTOR, 0x3EA);
-            MAIN_ACTOR->unk155++;
+            actorScriptStart(gCurrentActor, 0x3EA);
+            gCurrentActor->unk155++;
             break;
         case 2:
-            MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
+            gCurrentActor->state = scriptOpcodes[phaseState->unk15];
             phaseState->unk15++;
-            MAIN_ACTOR->unk155 = 0;
+            gCurrentActor->unk155 = 0;
             break;
         }
         break;
     case 0x31:
-        switch (MAIN_ACTOR->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
-            playerSetSizeMode(PLAYER_ACTOR, 0);
-            playerSetSizeMode(PLAYER_ACTOR, 1);
-            camStartPath(MAIN_ACTOR, 1, 1);
-            actorScriptStart(MAIN_ACTOR, 0x3FB);
-            MAIN_ACTOR->unk155++;
+            playerSetSizeMode(gPrimaryPlayerActor, 0);
+            playerSetSizeMode(gPrimaryPlayerActor, 1);
+            camStartPath(gCurrentActor, 1, 1);
+            actorScriptStart(gCurrentActor, 0x3FB);
+            gCurrentActor->unk155++;
             break;
         case 2:
-            actorScriptStart(MAIN_ACTOR, 0x3E4);
-            MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
+            actorScriptStart(gCurrentActor, 0x3E4);
+            gCurrentActor->state = scriptOpcodes[phaseState->unk15];
             phaseState->unk15++;
-            MAIN_ACTOR->unk155 = 0;
+            gCurrentActor->unk155 = 0;
             break;
         }
         break;
     case 0x37:
-        switch (MAIN_ACTOR->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
-            actorScriptStart(MAIN_ACTOR, 0);
-            camStartPath(MAIN_ACTOR, 0x15, 1);
-            MAIN_ACTOR->unk155++;
+            actorScriptStart(gCurrentActor, 0);
+            camStartPath(gCurrentActor, 0x15, 1);
+            gCurrentActor->unk155++;
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
                 screenSetTransitionFadeType(0);
                 mapRequestTransition(0xCF, 0);
-                MAIN_ACTOR->unk155++;
+                gCurrentActor->unk155++;
             }
             break;
         }
@@ -332,7 +294,7 @@ void bossDogadonStep(void) {
     if (func_8072881C(0, &gBehaviourWorkState->unk28) != 0) {
         func_8072881C(0x81, &gBehaviourWorkState->unk28);
     }
-    actorUpdateModelMatrix(MAIN_ACTOR, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 
@@ -342,7 +304,7 @@ u8 scaleFactor;
     BoneVector *sub;
     f32 sin_val;
 
-    sub = gCurrentActor->unk4->boneScales;
+    sub = gCurrentActor->sub4->boneScales;
     sub->bone = 2;
     sub->lastBone = 4;
     sub->x = 1.0f;
@@ -409,7 +371,7 @@ void func_8002FDF8(s32 actorObj, u8 scaleVal) {
     func_8002FB7C(finalScale & 0xFF);
     if (gBossFightPhase == 4) {
         bossActorGroupCommand(actorObj, 0xF, 0, 0);
-        animFrame = (0xA - gCurrentActor->unk134) & 0xFF;
+        animFrame = (0xA - gCurrentActor->health) & 0xFF;
         func_8002FC48(gCurrentActor, animFrame);
         actorScriptStart(gCurrentActor, 0x415);
     }
@@ -424,12 +386,12 @@ u8 slotIndex;
 s32 modelId;
 {
     actorSpawn(0xE5, modelId);
-    actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->unk4->scaleY);
-    gSpawnedActor->unk60 |= 0x1400;
-    gSpawnedActor->unk11C = gCurrentActor;
+    actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
+    gSpawnedActor->flags |= 0x1400;
+    gSpawnedActor->parentActor = gCurrentActor;
     gSpawnedActor->unk144 = gCurrentActor->unk144;
-    gSpawnedActor->unk60 = gCurrentActor->unk60;
-    actorList[slotIndex] = gSpawnedActor;
+    gSpawnedActor->flags = gCurrentActor->flags;
+    actorList[slotIndex] = (BossE_B100_Actor *)gSpawnedActor;
 }
 
 typedef struct {
@@ -487,7 +449,7 @@ void bossKRoolTinyStep(void) {
     if (!(BOSS_ACTOR->unk60 & 0x10)) {
         transitionSetState(0);
         slotQueueSetDisplayMode(2, 0, 1);
-        gPrimaryPlayerActor->unk154 = 0x5F;
+        gPrimaryPlayerActor->state = 0x5F;
         gPrimaryPlayerActor->unk155 = 0;
         actorScriptStartByIndex(gPrimaryPlayerActor, 0x4B);
         BOSS_ACTOR->unk154 = 0;
@@ -521,8 +483,8 @@ void bossKRoolTinyStep(void) {
     tbl = D_80035AA4[st->unk14];
     if (BOSS_ACTOR->unk154) {
         ZoneEntry *p = D_807FDCA0->entries;
-        camClosestPointOnSegment(gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk80, gPrimaryPlayerActor->unk84, p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, &gPrimaryPlayerActor->unk7C, &dummyY, &gPrimaryPlayerActor->unk84);
-        gPrimaryPlayerActor->unkE6 = 0xFD2;
+        camClosestPointOnSegment(gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z, p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, &gPrimaryPlayerActor->x, &dummyY, &gPrimaryPlayerActor->z);
+        gPrimaryPlayerActor->yaw = 0xFD2;
         gActivePlayerState->unk38 = 150.0f;
     }
     func_8002FDF8((s32)BOSS_ACTOR, st->unk14);
@@ -545,7 +507,7 @@ void bossKRoolTinyStep(void) {
         break;
     case 0x37:
         if (BOSS_ACTOR->unk155 == 0) {
-            gPrimaryPlayerActor->unk154 = 0x5F;
+            gPrimaryPlayerActor->state = 0x5F;
             gPrimaryPlayerActor->unk155 = 0;
             actorScriptStartByIndex(gPrimaryPlayerActor, 0x4A);
             screenSetTransitionFadeType(1);
@@ -572,7 +534,7 @@ void bossKRoolTinyStep(void) {
             st->unk19 = tbl[st->unk15++] + st->unk12 * 10;
             st->unk8 = tbl[st->unk15++];
             if (st->unk18 == 0xFF) {
-                st->unk18 = 8 >> (s32)((gPrimaryPlayerActor->unk7C - 117.0f) / 50.0f);
+                st->unk18 = 8 >> (s32)((gPrimaryPlayerActor->x - 117.0f) / 50.0f);
             }
             bossActorGroupCommand(BOSS_ACTOR, st->unk18, 0x413, 0);
             gBehaviourWorkState->timer = 0x14;
@@ -652,9 +614,9 @@ void bossKRoolTinyUpdateMinion(void) {
     BossE_B100_Sub178 *sub178;
     s32 scaleVal;
 
-    sub11C = gCurrentActor->unk11C;
+    sub11C = (BossE_B100_Sub11C *)gCurrentActor->parentActor;
     sub178 = sub11C->unk178;
-    if (!(gCurrentActor->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         func_80724DB0(2, 1, sub11C);
     }
     scaleVal = (gCurrentActor->unk15F == 1) ? sub178->unk14 : 0;

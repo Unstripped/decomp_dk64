@@ -173,7 +173,7 @@ void func_806B6DB0(s32 aggroRange) {
     BB300Sub178 *p;
     s16 diff;
     u8 near;
-    s32 tgt;
+    Actor *tgt;
     s32 sel;
 
     p = ((BB300ActorAlt *)gCurrentActor)->unk178;
@@ -192,7 +192,7 @@ void func_806B6DB0(s32 aggroRange) {
         tgt = gActorGlobalState.targetActor;
         ((BB300ActorAlt *)gCurrentActor)->unkC0 = 200.0f;
         behaviourCalculateDamageForce(tgt, 0x236);
-        if ((tgt != 0 && ((Actor *)tgt)->actorType == 0x29) || (gCurrentMap == 0x10 && gBehaviourExtraState->id < 0x11)) {
+        if ((tgt != NULL && tgt->actorType == 0x29) || (gCurrentMap == 0x10 && gBehaviourExtraState->id < 0x11)) {
             gBehaviourWorkState->flags |= 1;
         }
     }
