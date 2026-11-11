@@ -3,13 +3,12 @@
 #define PROTO_GLOBAL_79890_H
 #include "common.h"
 #include "actor.h"
-struct CollisionHitActor;
 struct CollisionHitRecordRef;
 struct CollisionLocalOwner;
 struct CollisionMtxNode;
 struct CollisionMtxOwner;
 #ifndef PROTO_SKIP_actorCollisionGetNodeHitPoint
-u8 actorCollisionGetNodeHitPoint(struct CollisionHitActor *, struct CollisionHitActor *, f32 *, f32 *);
+u8 actorCollisionGetNodeHitPoint(Actor *, Actor *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_actorCollisionCheckNodeSpheres
 void actorCollisionCheckNodeSpheres(Actor *);

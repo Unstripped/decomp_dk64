@@ -6,21 +6,6 @@
 #include "proto/global/79890.h"
 #include "proto/global/7CA80.h"
 
-typedef struct CollisionSphereNode {
-    u8 pad0[0x10];
-    s32 unk10;
-    s32 unk14;
-    s32 unk18;
-    s32 unk1C;
-    u8 pad20[8];
-    struct CollisionSphereNode *next;
-} CollisionSphereNode;
-
-typedef struct CollisionHitSub140 {
-    u8 pad0[0x8C];
-    CollisionSphereNode *unk8C;
-} CollisionHitSub140;
-
 typedef struct CollisionHitElem {
     f32 unk0;
     f32 unk4;
@@ -31,38 +16,11 @@ typedef struct CollisionHitElem {
     s32 unk18;
 } CollisionHitElem;
 
-typedef struct CollisionHitCallback {
-    s32 type;
-    u8 pad4[4];
-    void *actor;
-    s32 count;
-    CollisionHitElem *elems;
-    struct CollisionHitCallback *next;
-} CollisionHitCallback;
-
-typedef struct CollisionHitActor {
-    u8 pad0[0x64];
-    u32 unk64;
-    u8 pad68[0x14];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0x6C];
-    s16 arcYawMin;
-    s16 arcYawMax;
-    u8 padF8[4];
-    u8 hasArcBounds;
-    u8 unkFD;
-    u8 padFE[0x3E];
-    CollisionHitCallback *callbacks;
-    CollisionHitSub140 *unk140;
-} CollisionHitActor;
-
 extern u8 D_807FB606;
 s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 
-u8 actorCollisionGetNodeHitPoint(CollisionHitActor *self, CollisionHitActor *other, f32 *outX, f32 *outZ) {
-    CollisionHitCallback *cb;
+u8 actorCollisionGetNodeHitPoint(Actor *self, Actor *other, f32 *outX, f32 *outZ) {
+    ActorCallbackNode *cb;
     f32 posX_f;
     f32 posY_f;
     f32 posZ_f;
@@ -70,8 +28,8 @@ u8 actorCollisionGetNodeHitPoint(CollisionHitActor *self, CollisionHitActor *oth
     s32 posY;
     s32 posZ;
     CollisionHitElem *elem;
-    CollisionSphereNode *node;
-    CollisionHitSub140 *sub140;
+    ModelNode *node;
+    ActorSub140 *sub140;
     s32 i;
     s32 j;
     f32 elemX_f;
@@ -83,35 +41,35 @@ u8 actorCollisionGetNodeHitPoint(CollisionHitActor *self, CollisionHitActor *oth
     matched = 0;
     foundCb = 0;
     D_807FB606 = 0;
-    sub140 = self->unk140;
+    sub140 = self->collision;
     actorUpdateCollisionSpheres(self, 1);
-    if (!actorTableContains((Actor *)other)) {
+    if (!actorTableContains(other)) {
         return 0;
     }
 
-    posX_f = other->unk7C;
-    posY_f = other->unk80;
-    posZ_f = other->unk84;
+    posX_f = other->x;
+    posY_f = other->y;
+    posZ_f = other->z;
 
     if (cb != NULL) {
         do {
-            if (cb->type == 0x8000 && cb->actor == other) {
-                elem = cb->elems;
+            if ((s32)cb->callback == 0x8000 && cb->source == other) { // callback holds the s32 type for actor-attached nodes (actorAllocCallbackNode)
+                elem = cb->unk10;
                 foundCb = 1;
-                for (j = 0; j < cb->count; j++, elem++) {
+                for (j = 0; j < cb->unkC; j++, elem++) {
                     elemX_f = elem->unk0;
-                    node = sub140->unk8C;
+                    node = sub140->nodes;
                     for (i = elem->unk14 - 1; i != 0; i--) {
                         node = node->next;
                     }
                     if (collisionSpheresOverlap((s32)(posX_f * 8.0f), (s32)(posY_f * 8.0f), (s32)(posZ_f * 8.0f), (s32)(elemX_f * 8.0f),
-                                      node->unk10, node->unk14, node->unk18, node->unk1C)) {
+                                      node->unk10, node->unk14, node->matrixIndex, node->unk1C)) {
                         matched = 1;
                         collisionNodeLocalToWorldXZ(self, elem, outX, outZ);
                     }
-                    func_806755A8((s32)(posX_f * 8.0f), (s32)(posZ_f * 8.0f), node->unk10, node->unk18, &other->arcYawMin, &other->arcYawMax);
+                    func_806755A8((s32)(posX_f * 8.0f), (s32)(posZ_f * 8.0f), node->unk10, node->matrixIndex, &other->arcYawMin, &other->arcYawMax);
                     other->hasArcBounds = 1;
-                    other->unkFD = 1;
+                    other->collisionHit = 1;
                 }
             }
             cb = cb->next;
@@ -119,7 +77,7 @@ u8 actorCollisionGetNodeHitPoint(CollisionHitActor *self, CollisionHitActor *oth
     }
 
     if (D_807FB606 != 0) {
-        other->unk64 |= 0x100;
+        other->renderFlags |= 0x100;
     }
     return matched;
 }
