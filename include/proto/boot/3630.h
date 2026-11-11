@@ -18,7 +18,7 @@ s32 _strcasecmp(u8 *, u8 *);
 s32 _strncasecmp(u8 *, u8 *, s32);
 #endif
 #ifndef PROTO_SKIP__strcspn
-u32 _strcspn(u8 *, u8 *);
+u32 _strcspn(u8 *, void *);
 #endif
 #ifndef PROTO_SKIP__strspn
 u32 _strspn(u8 *, u8 *);

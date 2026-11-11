@@ -85,7 +85,7 @@ s32 _strncasecmp(u8 *a, u8 *b, s32 n) {
     return 0;
 }
 
-u32 _strcspn(u8 *s, u8 *set) {
+u32 _strcspn(u8 *s, void *set) { // set: u8 buffer or char literal, only forwarded to _strchr
     u32 n = 0;
     u8 c;
 
