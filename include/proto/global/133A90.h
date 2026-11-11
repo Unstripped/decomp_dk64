@@ -4,7 +4,6 @@
 #include "common.h"
 #include "actor.h"
 struct H1ActorB;
-struct H1ActorState;
 struct ProxPath;
 #ifndef PROTO_SKIP_proxPathListClear
 void proxPathListClear(void);
@@ -40,7 +39,7 @@ s32 proxPathFindNearestSegment(Actor *, struct ProxPath *, f32 *, u8 *);
 s32 proxPathSegmentAngleCheck(struct ProxPath *, s32, s16);
 #endif
 #ifndef PROTO_SKIP_proxPathAttachToSegment
-f32 proxPathAttachToSegment(Actor *, struct H1ActorState *, struct ProxPath *, u8);
+f32 proxPathAttachToSegment(Actor *, struct PlayerState *, struct ProxPath *, u8);
 #endif
 #ifndef PROTO_SKIP_proxPathGetDistanceAt
 void proxPathGetDistanceAt(struct ProxPath *, u8, f32, f32 *);
@@ -55,7 +54,7 @@ void proxPathAdvance(f32);
 void proxPathFollowerStep(struct H1ActorB **);
 #endif
 #ifndef PROTO_SKIP_proxPathActorFollowSpline
-void proxPathActorFollowSpline(struct H1ActorB *, struct H1ActorState *, struct ProxPath *, u8, f32);
+void proxPathActorFollowSpline(struct H1ActorB *, struct PlayerState *, struct ProxPath *, u8, f32);
 #endif
 #ifndef PROTO_SKIP_proxPathInterpolatePosition
 void proxPathInterpolatePosition(u8, f32, struct ProxPath *, f32 *, f32 *, f32 *);

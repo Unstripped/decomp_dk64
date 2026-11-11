@@ -34,7 +34,7 @@ void controllerSetCommand(struct ControllerCommandOwner *, s32, struct Controlle
 void controllerCommandRelocateAssets(struct ControllerCommand *, struct ControllerCommand *);
 #endif
 #ifndef PROTO_SKIP_controllerLookupStateByHash
-u16 controllerLookupStateByHash(u32 *);
+u16 controllerLookupStateByHash(Actor *);
 #endif
 #ifndef PROTO_SKIP_controllerAnimInit
 s32 controllerAnimInit(Actor *, u16);

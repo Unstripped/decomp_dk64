@@ -309,7 +309,7 @@ void actorSinkAndDespawn(void) {
             do { i = 0; } while (0);
             if (count != 0) {
                 do {
-                    act = (Actor *)gCurrentActor->riderList->items[i];
+                    act = gCurrentActor->riderList->items[i];
                     if (actorTableContains(act) != 0 && act == gPrimaryPlayerActor) {
                         found = 1;
                     }

@@ -2,8 +2,7 @@
 #ifndef PROTO_GLOBAL_1025E0_H
 #define PROTO_GLOBAL_1025E0_H
 #include "common.h"
-struct GfxResourceEntry;
-struct GfxResourceNode;
+#include "text.h"
 #ifndef PROTO_SKIP_textDrawStringCentered
 void textDrawStringCentered(s32, s16, s32, s16, u8);
 #endif
@@ -14,10 +13,10 @@ void func_806FD950(s32, s16, s32, s16);
 void gfxResourceListReset(void);
 #endif
 #ifndef PROTO_SKIP_gfxResourceFindById
-struct GfxResourceNode *gfxResourceFindById(s16);
+struct TextObject *gfxResourceFindById(s16);
 #endif
 #ifndef PROTO_SKIP_gfxResourceCopyEntry
-struct GfxResourceEntry *gfxResourceCopyEntry(struct GfxResourceEntry *, s16, s16);
+struct TextObjectElem *gfxResourceCopyEntry(struct TextObjectElem *, s16, s16);
 #endif
 #ifndef PROTO_SKIP_func_806FDA8C
 f32 func_806FDA8C(s16);

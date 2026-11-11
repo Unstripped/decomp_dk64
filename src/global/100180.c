@@ -485,27 +485,6 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
 extern Mtx D_2000000;
 extern Mtx D_2000080;
 
-typedef struct {
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 padC[0xC];
-    f32 rotX;
-    f32 rotY;
-    f32 rotZ;
-    u8 pad24[0xC];
-    f32 scale;
-    u8 pad34[4];
-} TextObjectElem;
-
-typedef struct TextObject {
-    u8 pad0[4];
-    u8 *text;
-    TextObjectElem *elems;
-    u8 font;
-    u8 len;
-} TextObject;
-
 extern Mtx D_2000200[];
 
 Gfx *textObjectDrawFlat(Gfx *dl, TextObject *textObj) {
@@ -522,9 +501,9 @@ Gfx *textObjectDrawFlat(Gfx *dl, TextObject *textObj) {
     s32 gh;
 
     idx = 0;
-    vp = heapAlloc(textObj->len << 6);
+    vp = heapAlloc(textObj->count << 6);
     heapFreeDeferred(vp);
-    mp = heapAlloc(textObj->len << 6);
+    mp = heapAlloc(textObj->count << 6);
     heapFreeDeferred(mp);
     vtxBase = vp;
     gDPSetTextureFilter(dl++, G_TF_BILERP);
@@ -598,9 +577,9 @@ Gfx *textObjectDrawRotated(Gfx *dl, TextObject *textObj) {
     f32 fb;
 
     idx = 0;
-    vp = heapAlloc(textObj->len << 6);
+    vp = heapAlloc(textObj->count << 6);
     heapFreeDeferred(vp);
-    mp = heapAlloc(textObj->len << 6);
+    mp = heapAlloc(textObj->count << 6);
     heapFreeDeferred(mp);
     vtxBase = vp;
     gDPSetTextureFilter(dl++, G_TF_BILERP);

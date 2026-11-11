@@ -168,7 +168,7 @@ typedef struct ActorSub140 {
 } ActorSub140; // size = 0xC4
 
 typedef struct ActorList {
-    /* 0x00 */ s32 items[4];
+    /* 0x00 */ struct Actor *items[4];
     /* 0x10 */ u8 count;
 } ActorList; // size = 0x14
 
@@ -659,15 +659,23 @@ typedef struct PlayerState {
     /* 0x11E */ s16 unk11E;
     /* 0x120 */ s32 lastFrame;
     /* 0x124 */ f32 unk124;
-    /* 0x128 */ u8 pad128[8];
+    /* 0x128 */ f32 unk128;
+    /* 0x12C */ u8 unk12C;
+    /* 0x12D */ u8 pad12D[3];
     /* 0x130 */ Actor *unk130;
-    /* 0x134 */ u8 pad134[0x18];
+    /* 0x134 */ u8 unk134;
+    /* 0x135 */ u8 pad135[3];
+    /* 0x138 */ f32 unk138;
+    /* 0x13C */ f32 unk13C;
+    /* 0x140 */ f32 unk140;
+    /* 0x144 */ f32 unk144;
+    /* 0x148 */ f32 unk148;
     /* 0x14C */ f32 unk14C;
     /* 0x150 */ f32 unk150;
     /* 0x154 */ s16 unk154;
     /* 0x156 */ u8 pad156[2];
     /* 0x158 */ Actor *unk158;
-    /* 0x15C */ u8 pad15C[0x40];
+    /* 0x15C */ u8 unk15C[0x40];
     /* 0x19C */ s16 unk19C;
     /* 0x19E */ s16 unk19E;
     /* 0x1A0 */ u16 unk1A0;

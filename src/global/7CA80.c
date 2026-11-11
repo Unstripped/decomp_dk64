@@ -645,7 +645,7 @@ void actorRiderListFree(Actor *actor) {
     }
 }
 
-void actorRiderListAdd(Actor *actor, s32 item) {
+void actorRiderListAdd(Actor *actor, Actor *item) {
     if (actor->riderList == NULL) {
         actor->riderList = heapAlloc(sizeof(ActorList));
         actor->riderList->count = 0;
@@ -656,7 +656,7 @@ void actorRiderListAdd(Actor *actor, s32 item) {
     }
 }
 
-s32 actorRiderListContains(Actor *actor, s32 item) {
+s32 actorRiderListContains(Actor *actor, Actor *item) {
     ActorList *list = actor->riderList;
     s32 i;
 

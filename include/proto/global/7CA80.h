@@ -78,10 +78,10 @@ void actorUpdateArcBounds(Actor *);
 void actorRiderListFree(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorRiderListAdd
-void actorRiderListAdd(Actor *, s32);
+void actorRiderListAdd(Actor *, Actor *);
 #endif
 #ifndef PROTO_SKIP_actorRiderListContains
-s32 actorRiderListContains(Actor *, s32);
+s32 actorRiderListContains(Actor *, Actor *);
 #endif
 #ifndef PROTO_SKIP_actorRegisterGlobalCallback
 void actorRegisterGlobalCallback(ActorCallbackNode *);

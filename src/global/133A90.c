@@ -204,24 +204,6 @@ typedef struct H1PlayerBlock {
     /* 0x2C1 */ u8 pad2C1[0x2F0 - 0x2C1];
 } H1PlayerBlock; // size = 0x2F0
 
-typedef struct H1ActorState {
-    /* 0x000 */ u8 pad0[0x130];
-    /* 0x130 */ Actor *unk130;
-    /* 0x134 */ u8 unk134;
-    /* 0x135 */ u8 pad135[3];
-    /* 0x138 */ f32 unk138;
-    /* 0x13C */ f32 unk13C;
-    /* 0x140 */ f32 unk140;
-    /* 0x144 */ f32 unk144;
-    /* 0x148 */ f32 unk148;
-    /* 0x14C */ u8 pad14C[0x10];
-    /* 0x15C */ u8 unk15C[0x40];
-    /* 0x19C */ s16 unk19C;
-    /* 0x19E */ s16 unk19E;
-    /* 0x1A0 */ u8 pad1A0[4];
-    /* 0x1A4 */ u8 playerIndex;
-} H1ActorState;
-
 f32 sqrtf(f32);
 
 void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowBoss) {
@@ -239,7 +221,7 @@ void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowB
     u8 got;
     f32 out;
     f32 dy;
-    H1ActorState *state;
+    PlayerState *state;
     f32 dz;
     f32 dist;
 
@@ -416,7 +398,7 @@ s32 proxPathSegmentAngleCheck(ProxPath *path, s32 segmentIndex, s16 angle) {
 }
 
 
-f32 proxPathAttachToSegment(Actor *actor, H1ActorState *state, ProxPath *path, u8 segmentIndex) {
+f32 proxPathAttachToSegment(Actor *actor, PlayerState *state, ProxPath *path, u8 segmentIndex) {
     u8 idA;
     u8 idB;
     f32 bz;
@@ -497,20 +479,6 @@ void proxPathFindDistanceSegment(ProxPath *path, f32 dist, u8 *outSegment, f32 *
     *outT = dist / path->unk34[i].unk4;
 }
 
-typedef struct H1CamState {
-    /* 0x000 */ u8 pad0[0x124];
-    /* 0x124 */ f32 unk124;
-    /* 0x128 */ f32 unk128;
-    /* 0x12C */ u8 unk12C;
-    /* 0x12D */ u8 pad12D[3];
-    /* 0x130 */ Actor *unk130;
-    /* 0x134 */ u8 unk134;
-    /* 0x135 */ u8 pad135[3];
-    /* 0x138 */ f32 unk138;
-    /* 0x13C */ u8 pad13C[0x68];
-    /* 0x1A4 */ u8 playerIndex;
-} H1CamState;
-
 typedef struct H1ActorView {
     /* 0x00 */ u8 pad0[0x6A];
     /* 0x6A */ u16 unk6A;
@@ -522,7 +490,7 @@ typedef struct H1ActorView {
 
 #define H1BB48 ((H1ActorView *)gActivePlayerActor)
 
-extern H1CamState *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 extern u32 gFrameDelta;
 
 void proxPathAdvance(f32 speedMultiplier) {
@@ -587,13 +555,13 @@ typedef struct H1ActorB {
     /* 0x0E6 */ s16 unkE6;
     /* 0x0E8 */ s16 unkE8;
     /* 0x0EA */ u8 padEA[0x8A];
-    /* 0x174 */ H1ActorState *unk174;
+    /* 0x174 */ PlayerState *unk174;
 } H1ActorB;
 
 
 void proxPathFollowerStep(H1ActorB **pActor) {
     H1ActorB *actor;
-    H1ActorState *state;
+    PlayerState *state;
     u8 idx;
     f32 t;
     ProxPath *node;
@@ -677,7 +645,7 @@ void proxPathFollowerStep(H1ActorB **pActor) {
 
 
 
-void proxPathActorFollowSpline(H1ActorB *actor, H1ActorState *state, ProxPath *path, u8 segmentIndex, f32 t) {
+void proxPathActorFollowSpline(H1ActorB *actor, PlayerState *state, ProxPath *path, u8 segmentIndex, f32 t) {
     f32 one;
     f32 pad1[20];
     f32 p2[3];

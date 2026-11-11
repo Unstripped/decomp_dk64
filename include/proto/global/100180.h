@@ -2,7 +2,7 @@
 #ifndef PROTO_GLOBAL_100180_H
 #define PROTO_GLOBAL_100180_H
 #include "common.h"
-struct TextObject;
+#include "text.h"
 #ifndef PROTO_SKIP_func_806FB480
 void func_806FB480(void);
 #endif
