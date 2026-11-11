@@ -4,108 +4,23 @@
 typedef u32 OSIntMask;
 typedef u32 OSHWIntr;
 #include "common.h"
+#include "seqplayer.h"
 
 extern s32 osGetIntMask(s32 unused);
 
-typedef struct GcChanState {
-    /* 0x00 */ u8 unk0[8];
-    /* 0x08 */ u8 priority;
-    /* 0x09 */ u8 unk9[4];
-    /* 0x0D */ u8 unkD;
-    /* 0x0E */ u8 unkE;
-    /* 0x0F */ u8 unkF[2];
-    /* 0x11 */ u8 fxmix;
-    /* 0x12 */ s8 pan;
-    /* 0x13 */ u8 unk13;
-    /* 0x14 */ f32 pitchBend;
-    /* 0x18 */ u8 unk18[0x1C];
-} GcChanState; // size 0x34
-
-typedef struct GcVoiceState {
-    /* 0x00 */ struct GcVoiceState *next;
-    /* 0x04 */ ALVoice voice;
-    /* 0x20 */ ALSound *sound;
-    /* 0x24 */ s32 envEndTime;
-    /* 0x28 */ f32 pitch;
-    /* 0x2C */ f32 vibrato;
-    /* 0x30 */ u8 envGain;
-    /* 0x31 */ u8 channel;
-    /* 0x32 */ u8 key;
-    /* 0x33 */ u8 velocity;
-    /* 0x34 */ u8 envPhase;
-    /* 0x35 */ u8 phase;
-    /* 0x36 */ u8 tremelo;
-    /* 0x37 */ u8 flags;
-    /* 0x38 */ void *tremOsc;
-    /* 0x3C */ void *vibOsc;
-} GcVoiceState; // size 0x40
-
-typedef struct GcEvent {
-    /* 0x00 */ u16 type;
-    union {
-        ALNoteEvent note;
-        ALVolumeEvent vol;
-        ALSeqpVolEvent spvol;
-        ALSeqpPriorityEvent sppriority;
-        ALSeqpSeqEvent spseq;
-        ALSeqpBankEvent spbank;
-        ALOscEvent osc;
-        struct {
-            f32 f0;
-            f32 f1;
-        } fpair;
-        struct {
-            u8 b0;
-            u8 b1;
-            u8 b2;
-            u32 w4;
-        } cmd;
-    } msg;
-} GcEvent;
-
-typedef struct GcCSPlayer {
-    /* 0x00 */ ALPlayer node;
-    /* 0x14 */ ALSynth *drvr;
-    /* 0x18 */ ALCSeq *target;
-    /* 0x1C */ ALMicroTime curTime;
-    /* 0x20 */ ALBank *bank;
-    /* 0x24 */ s32 uspt;
-    /* 0x28 */ s32 nextDelta;
-    /* 0x2C */ s32 state;
-    /* 0x30 */ u16 chanMask;
-    /* 0x32 */ s16 vol;
-    /* 0x34 */ u8 maxChannels;
-    /* 0x35 */ u8 debugFlags;
-    /* 0x38 */ GcEvent nextEvent;
-    /* 0x48 */ ALEventQueue evtq;
-    /* 0x5C */ ALMicroTime frameTime;
-    /* 0x60 */ GcChanState *chanState;
-    /* 0x64 */ GcVoiceState *vAllocHead;
-    /* 0x68 */ GcVoiceState *vAllocTail;
-    /* 0x6C */ GcVoiceState *vFreeList;
-    /* 0x70 */ ALOscInit initOsc;
-    /* 0x74 */ ALOscUpdate updateOsc;
-    /* 0x78 */ ALOscStop stopOsc;
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ f32 unk80;
-    /* 0x84 */ s32 unk84;
-    /* 0x88 */ u8 unk88;
-    /* 0x89 */ u8 unk89;
-} GcCSPlayer;
-
 extern ALSynth *n_syn;
-void resetCSPChannelStates(GcCSPlayer *);
-void __n_initChanState(GcCSPlayer *);
-void n_alSynAddCSPPlayer(GcCSPlayer *);
+void resetCSPChannelStates(N_CSPlayer *);
+void __n_initChanState(N_CSPlayer *);
+void n_alSynAddCSPPlayer(N_CSPlayer *);
 ALMicroTime __n_CSPVoiceHandler(void *node);
 
-void n_alCSPlayerNew(GcCSPlayer *seqp, ALSeqpConfig *c) {
+void n_alCSPlayerNew(N_CSPlayer *seqp, ALSeqpConfig *c) {
     s32 i;
-    GcVoiceState *unused0;
-    GcVoiceState *unused1;
+    N_VoiceState *unused0;
+    N_VoiceState *unused1;
     ALEventListItem *items;
-    GcVoiceState *vs;
-    GcVoiceState *vsArray;
+    N_VoiceState *vs;
+    N_VoiceState *vsArray;
     ALHeap *hp = c->heap;
 
     seqp->bank = NULL;
@@ -153,23 +68,23 @@ void n_alCSeqNextEvent(ALCSeq *, ALEvent *, s32);
 void __n_CSPHandleMIDIMsg();
 void __n_CSPPostNextSeqEvent();
 void __n_CSPHandleMetaMsg();
-s16 __n_vsVol(GcVoiceState *, GcCSPlayer *);
-s32 __n_vsDelta(GcVoiceState *, s32);
+s16 __n_vsVol(N_VoiceState *, N_CSPlayer *);
+s32 __n_vsDelta(N_VoiceState *, s32);
 void n_alSynSetVol(ALVoice *, s16, s32);
 void n_alSynSetFXMix(ALVoice *, u8);
 void n_alSynSetPan(ALVoice *, f32);
 f32 n_alSemitonesToPitchRatio(s32);
 
-void __n_CSPHandleNextSeqEvent(GcCSPlayer *);
-void __n_seqpStopOsc(GcCSPlayer *, GcVoiceState *);
-void __n_unmapVoice(GcCSPlayer *, ALVoice *);
+void __n_CSPHandleNextSeqEvent(N_CSPlayer *);
+void __n_seqpStopOsc(N_CSPlayer *, N_VoiceState *);
+void __n_unmapVoice(N_CSPlayer *, ALVoice *);
 u8 __n_voiceNeedsNoteKill(struct VoiceMapCSPlayer *, ALVoice *, s32);
-void __n_seqpReleaseVoice(GcCSPlayer *, ALVoice *, s32);
-void __n_initFromBank(GcCSPlayer *, ALBank *);
+void __n_seqpReleaseVoice(N_CSPlayer *, ALVoice *, s32);
+void __n_initFromBank(N_CSPlayer *, ALBank *);
 void n_alSynStopVoice(ALVoice *);
 void n_alSynFreeVoice(ALVoice *);
 void n_alSynSetPitch(ALVoice *, f32);
-u8 n_alCSPClampVoiceFXMix(GcVoiceState *, GcCSPlayer *);
+u8 n_alCSPClampVoiceFXMix(N_VoiceState *, N_CSPlayer *);
 void n_alSynSetVoiceUnkC(ALVoice *, u8);
 s32 n_alSynGetFXDelay(s16);
 void n_alSynSetFXParam(s32, s16, s32);
@@ -177,11 +92,11 @@ s32 n_alSynGetFXFeedback(s16);
 void n_alSynSetFXFilterParam(struct SynFXFilter *, s16, s32 *);
 
 ALMicroTime __n_CSPVoiceHandler(void *node) {
-    GcCSPlayer *seqp = node;
+    N_CSPlayer *seqp = node;
     ALEvent evt;
     ALVoice *voice;
     ALMicroTime delta;
-    GcVoiceState *vs;
+    N_VoiceState *vs;
     void *oscState;
     f32 oscValue;
     u8 chan;
@@ -220,7 +135,7 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                 n_alSynSetVol(voice, __n_vsVol(vs, seqp), delta);
                 break;
             case 22:
-                vs = (GcVoiceState *)seqp->nextEvent.msg.osc.vs;
+                vs = (N_VoiceState *)seqp->nextEvent.msg.osc.vs;
                 oscState = seqp->nextEvent.msg.osc.oscState;
                 delta = seqp->updateOsc(oscState, &oscValue);
                 vs->tremelo = oscValue;
@@ -231,13 +146,13 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                 alEvtqPostEvent(&seqp->evtq, &evt, delta);
                 break;
             case 23:
-                vs = (GcVoiceState *)seqp->nextEvent.msg.osc.vs;
+                vs = (N_VoiceState *)seqp->nextEvent.msg.osc.vs;
                 oscState = seqp->nextEvent.msg.osc.oscState;
                 chan = seqp->nextEvent.msg.osc.chan;
                 delta = seqp->updateOsc(oscState, &oscValue);
                 vs->vibrato = oscValue;
                 n_alSynSetPitch(&vs->voice, seqp->chanState[chan].pitchBend * (vs->pitch * vs->vibrato));
-                if (seqp->chanState[chan].fxmix != 0) {
+                if (seqp->chanState[chan].unk11 != 0) {
                     n_alSynSetPan(&vs->voice, 440.0f * n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase) * seqp->chanState[chan].pitchBend * vs->vibrato);
                 }
                 evt.type = 0x17;
@@ -309,8 +224,8 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                         }
                     }
                     for (chan = 0; chan < 16; chan++) {
-                        seqp->chanState[chan].unkD = seqp->chanState[chan].unkE;
-                        if (seqp->chanState[chan].unkD == 0) {
+                        seqp->chanState[chan].unk0D = seqp->chanState[chan].unk0E;
+                        if (seqp->chanState[chan].unk0D == 0) {
                             seqp->chanMask &= (1 << chan) ^ 0xFFFF;
                         } else {
                             seqp->chanMask |= 1 << chan;
@@ -348,7 +263,7 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
 }
 
 
-void __n_CSPHandleNextSeqEvent(GcCSPlayer *seqp) {
+void __n_CSPHandleNextSeqEvent(N_CSPlayer *seqp) {
     ALEvent evt;
 
     if (seqp->target == NULL) {
@@ -379,8 +294,8 @@ void __n_CSPHandleNextSeqEvent(GcCSPlayer *seqp) {
     }
 }
 
-void __n_CSPUpdateChanVol(GcCSPlayer *seqp, u8 chan) {
-    GcVoiceState *vs;
+void __n_CSPUpdateChanVol(N_CSPlayer *seqp, u8 chan) {
+    N_VoiceState *vs;
     s16 vol;
 
     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
@@ -391,17 +306,17 @@ void __n_CSPUpdateChanVol(GcCSPlayer *seqp, u8 chan) {
     }
 }
 
-void __n_CSPUpdateChanFxPan(GcCSPlayer *seqp, u8 chan) {
-    GcVoiceState *vs;
+void __n_CSPUpdateChanFxPan(N_CSPlayer *seqp, u8 chan) {
+    N_VoiceState *vs;
     s16 fxmix;
     s8 pan;
     f32 pitchBend;
 
-    pan = seqp->chanState[chan].pan - 0x40;
+    pan = (s8)seqp->chanState[chan].unk12 - 0x40;
     pitchBend = seqp->chanState[chan].pitchBend;
     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
         if (vs->channel == chan) {
-            fxmix = seqp->chanState[chan].fxmix;
+            fxmix = seqp->chanState[chan].unk11;
             n_alSynSetFXMix(&vs->voice, fxmix);
             if (fxmix != 0) {
                 n_alSynSetPan(&vs->voice, n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase + pan) * 440.0f * pitchBend);
@@ -409,45 +324,6 @@ void __n_CSPUpdateChanFxPan(GcCSPlayer *seqp, u8 chan) {
         }
     }
 }
-
-typedef struct {
-    /* 0x00 */ ALInstrument *instrument;
-    /* 0x04 */ s16 bendRange;
-    /* 0x06 */ u8 pad06;
-    /* 0x07 */ u8 pan;
-    /* 0x08 */ u8 priority;
-    /* 0x09 */ u8 vol;
-    /* 0x0A */ u8 fxmix;
-    /* 0x0B */ u8 unk0B;
-    /* 0x0C */ u8 sustain;
-    /* 0x0D */ u8 unk0D;
-    /* 0x0E */ u8 unk0E;
-    /* 0x0F */ u8 unk0F;
-    /* 0x10 */ u8 unk10;
-    /* 0x11 */ u8 unk11;
-    /* 0x12 */ u8 unk12;
-    /* 0x13 */ u8 unk13;
-    /* 0x14 */ f32 pitchBend;
-    /* 0x18 */ s32 unk18;
-    /* 0x1C */ s32 unk1C;
-    /* 0x20 */ s32 unk20;
-    /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 unk25;
-    /* 0x26 */ u8 unk26;
-    /* 0x27 */ s8 unk27;
-    /* 0x28 */ u8 unk28;
-    /* 0x29 */ u8 unk29;
-    /* 0x2A */ u8 unk2A;
-    /* 0x2B */ u8 unk2B;
-    /* 0x2C */ u8 unk2C;
-    /* 0x2D */ u8 unk2D;
-    /* 0x2E */ u8 unk2E;
-    /* 0x2F */ u8 unk2F;
-    /* 0x30 */ u8 pad30;
-    /* 0x31 */ u8 unk31;
-    /* 0x32 */ u8 unk32;
-    /* 0x33 */ u8 pad33;
-} GdChanState;
 
 typedef s32 (*GdOscInit)(void **, f32 *, u8, u8, u8, u8, u8);
 
@@ -458,21 +334,20 @@ typedef struct {
 
 extern s32 D_807FF040[];
 
-ALSound *__n_lookupSoundQuick(GcCSPlayer *seqp, u8 key, u8 vel, u8 chan);
-GcVoiceState *__n_mapVoice(GcCSPlayer *seqp, u8 key, u8 vel, u8 chan);
-GcVoiceState *__n_lookupVoice(GcCSPlayer *seqp, u8 key, u8 chan);
+ALSound *__n_lookupSoundQuick(N_CSPlayer *seqp, u8 key, u8 vel, u8 chan);
+N_VoiceState *__n_mapVoice(N_CSPlayer *seqp, u8 key, u8 vel, u8 chan);
+N_VoiceState *__n_lookupVoice(N_CSPlayer *seqp, u8 key, u8 chan);
 void __n_setInstChanState(struct VoiceMapCSPlayer *, ALInstrument *, s32);
-u8 __n_vsPan(GcVoiceState *vs, GcCSPlayer *seqp);
+u8 __n_vsPan(N_VoiceState *vs, N_CSPlayer *seqp);
 void n_alSynAllocVoicePriorityA(ALVoice *voice, u8 arg);
 void n_alSynAllocVoicePriorityB(ALVoice *voice, u8 arg);
 s32 n_alSynAllocVoice(struct SynAllocVoice *, struct SynAllocVoiceConfig *);
 void n_alSynStartVoiceParams(ALVoice *voice, ALWaveTable *w, f32 pitch, s16 vol, u8 pan, u8 fxmix, u8 unityPitch, f32 fxVolume, u8 fxDelay, s32 samples);
 
-#define GdCH(seqp, c) (((GdChanState *)(seqp)->chanState)[c])
 
-void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
+void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
     ALVoice *voice;
-    GcVoiceState *vs;
+    N_VoiceState *vs;
     s32 status;
     u8 chan;
     u8 key;
@@ -483,9 +358,9 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
     s16 vol;
     ALEvent evt;
     s32 delta;
-    GcVoiceState *voiceState;
+    N_VoiceState *voiceState;
     u8 pan;
-    GdChanState *chanSt;
+    N_ChanState *chanSt;
     s32 oscTypeOrIndex;
     ALVoiceConfig vc;
     ALSound *sound;
@@ -526,7 +401,7 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     break;
                 }
                 {
-                    chanSt = &GdCH(seqp, chan);
+                    chanSt = &seqp->chanState[chan];
                     sound = __n_lookupSoundQuick(seqp, key, vel, chan);
                     if (sound == NULL) {
                         return;
@@ -563,7 +438,7 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     if (chanSt->unk24 != 0) {
                         oscTypeOrIndex = chanSt->unk28;
                     } else {
-                        inst = GdCH(seqp, chan).instrument;
+                        inst = seqp->chanState[chan].instrument;
                         oscTypeOrIndex = inst->tremType;
                     }
                     oscVal = 127.0f;
@@ -652,7 +527,7 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
             if (voiceState == NULL) {
                 return;
             }
-            chanSt = &GdCH(seqp, chan);
+            chanSt = &seqp->chanState[chan];
             if (voiceState->phase == 2) {
                 voiceState->phase = 4;
             } else {
@@ -686,7 +561,7 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
         case 0xB0:
             switch (byte1) {
                 case 0xA:
-                    GdCH(seqp, chan).pan = byte2;
+                    seqp->chanState[chan].pan = byte2;
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan) {
                             pan = __n_vsPan(vs, seqp);
@@ -695,17 +570,17 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     }
                     break;
                 case 0xFD:
-                    GdCH(seqp, chan).unk0F = byte2;
+                    seqp->chanState[chan].unk0F = byte2;
                     break;
                 case 0xFF:
-                    if (GdCH(seqp, chan).unk0F == 0) {
-                        GdCH(seqp, chan).unk0F = 0x90;
+                    if (seqp->chanState[chan].unk0F == 0) {
+                        seqp->chanState[chan].unk0F = 0x90;
                     }
-                    if (GdCH(seqp, chan).unk0E != byte2) {
-                        if (GdCH(seqp, chan).unk0E == GdCH(seqp, chan).unk0D) {
-                            GdCH(seqp, chan).unk0E = byte2;
+                    if (seqp->chanState[chan].unk0E != byte2) {
+                        if (seqp->chanState[chan].unk0E == seqp->chanState[chan].unk0D) {
+                            seqp->chanState[chan].unk0E = byte2;
                         } else {
-                            GdCH(seqp, chan).unk0E = byte2;
+                            seqp->chanState[chan].unk0E = byte2;
                             break;
                         }
                     } else {
@@ -713,9 +588,9 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     }
                     midi->byte1 = 0xFE;
                 case 0xFE:
-                    currentVal = GdCH(seqp, chan).unk0D;
-                    targetVal = GdCH(seqp, chan).unk0E;
-                    vel = GdCH(seqp, chan).unk0F;
+                    currentVal = seqp->chanState[chan].unk0D;
+                    targetVal = seqp->chanState[chan].unk0E;
+                    vel = seqp->chanState[chan].unk0F;
                     stepDelta = targetVal - currentVal;
                     if (stepDelta > 0) {
                         if (vel & 0x80) {
@@ -731,7 +606,7 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                         }
                     }
                     currentVal += stepDelta;
-                    GdCH(seqp, chan).unk0D = currentVal;
+                    seqp->chanState[chan].unk0D = currentVal;
                     if (currentVal != targetVal) {
                         alEvtqPostEvent(&seqp->evtq, event, seqp->uspt * 100);
                     }
@@ -743,8 +618,8 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     __n_CSPUpdateChanVol(seqp, chan);
                     break;
                 case 0xFC:
-                    GdCH(seqp, chan).unk0D = byte2;
-                    GdCH(seqp, chan).unk0E = byte2;
+                    seqp->chanState[chan].unk0D = byte2;
+                    seqp->chanState[chan].unk0E = byte2;
                     if (byte2 == 0) {
                         seqp->chanMask = seqp->chanMask & ((1 << chan) ^ 0xFFFF);
                     } else {
@@ -753,15 +628,15 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     __n_CSPUpdateChanVol(seqp, chan);
                     break;
                 case 0x21:
-                    GdCH(seqp, chan).unk11 = byte2;
+                    seqp->chanState[chan].unk11 = byte2;
                     __n_CSPUpdateChanFxPan(seqp, chan);
                     break;
                 case 0x22:
-                    GdCH(seqp, chan).unk12 = byte2;
+                    seqp->chanState[chan].unk12 = byte2;
                     __n_CSPUpdateChanFxPan(seqp, chan);
                     break;
                 case 0x23:
-                    GdCH(seqp, chan).unk13 = byte2;
+                    seqp->chanState[chan].unk13 = byte2;
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan) {
                             n_alSynAllocVoicePriorityB(&vs->voice, byte2);
@@ -774,7 +649,7 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     }
                     break;
                 case 0x7:
-                    GdCH(seqp, chan).vol = byte2;
+                    seqp->chanState[chan].vol = byte2;
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan && vs->envPhase != 3) {
                             vol = __n_vsVol(vs, seqp);
@@ -783,10 +658,10 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     }
                     break;
                 case 0x10:
-                    GdCH(seqp, chan).priority = byte2;
+                    seqp->chanState[chan].priority = byte2;
                     break;
                 case 0x40:
-                    GdCH(seqp, chan).sustain = byte2;
+                    seqp->chanState[chan].sustain = byte2;
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan && vs->phase != 3) {
                             if (byte2 >= 0x40) {
@@ -798,7 +673,7 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                             } else if (vs->phase == 4) {
                                 vs->phase = 3;
                                 if (chanSt->unk24 != 0) {
-                                    __n_seqpReleaseVoice(seqp, &vs->voice, (GdCH(seqp, chan).unk20 < 0x3E80) ? 0x3E80 : GdCH(seqp, chan).unk20);
+                                    __n_seqpReleaseVoice(seqp, &vs->voice, (seqp->chanState[chan].unk20 < 0x3E80) ? 0x3E80 : seqp->chanState[chan].unk20);
                                 } else {
                                     __n_seqpReleaseVoice(seqp, &vs->voice, (voiceState->sound->envelope->releaseTime < 0x3E80) ? 0x3E80 : voiceState->sound->envelope->releaseTime);
                                 }
@@ -807,32 +682,32 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     }
                     break;
                 case 0x5B:
-                    GdCH(seqp, chan).fxmix = (GdCH(seqp, chan).fxmix & 0x80) | byte2;
-                    byte2 = GdCH(seqp, chan).fxmix >> 7;
+                    seqp->chanState[chan].fxmix = (seqp->chanState[chan].fxmix & 0x80) | byte2;
+                    byte2 = seqp->chanState[chan].fxmix >> 7;
                 case 0x41:
-                    GdCH(seqp, chan).fxmix = (GdCH(seqp, chan).fxmix & 0x7F) | (byte2 << 7);
+                    seqp->chanState[chan].fxmix = (seqp->chanState[chan].fxmix & 0x7F) | (byte2 << 7);
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan) {
-                            n_alSynSetVoiceUnkC(&vs->voice, GdCH(seqp, chan).fxmix);
+                            n_alSynSetVoiceUnkC(&vs->voice, seqp->chanState[chan].fxmix);
                         }
                     }
                     break;
                 case 0x5C:
                     if (byte2 < ((GdBankInfo *)n_syn)->unk3C && byte2 >= 0) {
-                        GdCH(seqp, chan).unk0B = byte2;
+                        seqp->chanState[chan].unk0B = byte2;
                     }
                     break;
                 case 0x1A:
                     break;
                 case 0x20:
-                    GdCH(seqp, chan).unk32 = byte2;
+                    seqp->chanState[chan].unk32 = byte2;
                     break;
                 default:
                     break;
             }
             break;
         case 0xC0:
-            oscTypeOrIndex = (GdCH(seqp, chan).unk32 << 7) + key;
+            oscTypeOrIndex = (seqp->chanState[chan].unk32 << 7) + key;
             if (oscTypeOrIndex < seqp->bank->instCount) {
                 targetInst = (s32)seqp->bank->instArray[oscTypeOrIndex];
                 __n_setInstChanState(seqp, (ALInstrument *)targetInst, chan);
@@ -841,13 +716,13 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
             break;
         case 0xE0:
             bendVal = ((byte2 << 7) + byte1) - 0x2000;
-            bendCents = (GdCH(seqp, chan).bendRange * bendVal) / 8192;
+            bendCents = (seqp->chanState[chan].bendRange * bendVal) / 8192;
             bendRatio = alCents2Ratio(bendCents);
-            GdCH(seqp, chan).pitchBend = bendRatio;
+            seqp->chanState[chan].pitchBend = bendRatio;
             for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                 if (vs->channel == chan) {
                     n_alSynSetPitch(&vs->voice, vs->pitch * bendRatio * vs->vibrato);
-                    if (GdCH(seqp, chan).unk11 != 0) {
+                    if (seqp->chanState[chan].unk11 != 0) {
                         n_alSynSetPan(&vs->voice, n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase) * 440.0f * bendRatio * vs->vibrato);
                     }
                 }
@@ -858,10 +733,10 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
     }
 }
 
-void __n_setUsptFromTempo(GcCSPlayer *seqp, f32 tempo);
+void __n_setUsptFromTempo(N_CSPlayer *seqp, f32 tempo);
 void __n_CSPRepostEvent(ALEventQueue *evtq, ALEventListItem *item);
 
-void __n_CSPHandleMetaMsg(GcCSPlayer *seqp, ALEvent *event) {
+void __n_CSPHandleMetaMsg(N_CSPlayer *seqp, ALEvent *event) {
     ALTempoEvent *tevt = &event->msg.tempo;
     s32 tempo;
     s32 oldUspt;
@@ -934,7 +809,7 @@ void __n_CSPRepostEvent(ALEventQueue *evtq, ALEventListItem *item) {
     osGetIntMask(mask);
 }
 
-void __n_setUsptFromTempo(GcCSPlayer *seqp, f32 tempo) {
+void __n_setUsptFromTempo(N_CSPlayer *seqp, f32 tempo) {
     if (seqp->target != NULL) {
         seqp->uspt = (f32)tempo * (f32)seqp->target->qnpt;
     } else {
@@ -944,7 +819,7 @@ void __n_setUsptFromTempo(GcCSPlayer *seqp, f32 tempo) {
 
 extern s32 __n_alCSeqGetNextDelta(ALCSeq *seq, s32 *ticks);
 
-void __n_CSPPostNextSeqEvent(GcCSPlayer *seqp) {
+void __n_CSPPostNextSeqEvent(N_CSPlayer *seqp) {
     ALEvent evt;
     s32 deltaTicks;
 
@@ -958,6 +833,6 @@ void __n_CSPPostNextSeqEvent(GcCSPlayer *seqp) {
     alEvtqPostEvent(&seqp->evtq, &evt, seqp->uspt * deltaTicks);
 }
 
-void n_alCSPSetMaxVoices(GcCSPlayer *seqp, u8 arg) {
+void n_alCSPSetMaxVoices(N_CSPlayer *seqp, u8 arg) {
     seqp->unk88 = arg;
 }

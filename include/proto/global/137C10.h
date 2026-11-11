@@ -2,38 +2,38 @@
 #ifndef PROTO_GLOBAL_137C10_H
 #define PROTO_GLOBAL_137C10_H
 #include "common.h"
-struct GcCSPlayer;
+#include "seqplayer.h"
 #ifndef PROTO_SKIP_n_alCSPlayerNew
-void n_alCSPlayerNew(struct GcCSPlayer *, ALSeqpConfig *);
+void n_alCSPlayerNew(N_CSPlayer *, ALSeqpConfig *);
 #endif
 #ifndef PROTO_SKIP___n_CSPVoiceHandler
 ALMicroTime __n_CSPVoiceHandler(void *);
 #endif
 #ifndef PROTO_SKIP___n_CSPHandleNextSeqEvent
-void __n_CSPHandleNextSeqEvent(struct GcCSPlayer *);
+void __n_CSPHandleNextSeqEvent(N_CSPlayer *);
 #endif
 #ifndef PROTO_SKIP___n_CSPUpdateChanVol
-void __n_CSPUpdateChanVol(struct GcCSPlayer *, u8);
+void __n_CSPUpdateChanVol(N_CSPlayer *, u8);
 #endif
 #ifndef PROTO_SKIP___n_CSPUpdateChanFxPan
-void __n_CSPUpdateChanFxPan(struct GcCSPlayer *, u8);
+void __n_CSPUpdateChanFxPan(N_CSPlayer *, u8);
 #endif
 #ifndef PROTO_SKIP___n_CSPHandleMIDIMsg
-void __n_CSPHandleMIDIMsg(struct GcCSPlayer *, ALEvent *);
+void __n_CSPHandleMIDIMsg(N_CSPlayer *, ALEvent *);
 #endif
 #ifndef PROTO_SKIP___n_CSPHandleMetaMsg
-void __n_CSPHandleMetaMsg(struct GcCSPlayer *, ALEvent *);
+void __n_CSPHandleMetaMsg(N_CSPlayer *, ALEvent *);
 #endif
 #ifndef PROTO_SKIP___n_CSPRepostEvent
 void __n_CSPRepostEvent(ALEventQueue *, ALEventListItem *);
 #endif
 #ifndef PROTO_SKIP___n_setUsptFromTempo
-void __n_setUsptFromTempo(struct GcCSPlayer *, f32);
+void __n_setUsptFromTempo(N_CSPlayer *, f32);
 #endif
 #ifndef PROTO_SKIP___n_CSPPostNextSeqEvent
-void __n_CSPPostNextSeqEvent(struct GcCSPlayer *);
+void __n_CSPPostNextSeqEvent(N_CSPlayer *);
 #endif
 #ifndef PROTO_SKIP_n_alCSPSetMaxVoices
-void n_alCSPSetMaxVoices(struct GcCSPlayer *, u8);
+void n_alCSPSetMaxVoices(N_CSPlayer *, u8);
 #endif
 #endif
