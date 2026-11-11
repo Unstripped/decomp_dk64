@@ -610,11 +610,11 @@ Gfx *menuDrawFileSummary(Actor *actor, Gfx *dl) {
     py += 0x8C;
     _sprintf(strBuf, "%03d:%02d", D_80033810, D_80033814);
     dl = textDrawStringVtx(dl, 1, 0x280, py, strBuf, 0x81);
-    x = 0.5f;
+    x = 0.5f; // FAKE: x reused as the sprite scale; a separate scale variable fails fdiff
     ang = (gFrameCounter * 0x78) & 0xFFF;
     fv1 = mathSinF(ang) * 0.1f + 0.5f;
     py = (s32)((f32)py + 40.0f);
-    sc = py;
+    sc = py; // FAKE: sc reused as the sprite base y; a separate variable fails fdiff
     posY = sc * 0.25f + 32.0f * fv1;
     posX = 85 * four;
     x *= four;
@@ -625,7 +625,7 @@ Gfx *menuDrawFileSummary(Actor *actor, Gfx *dl) {
     x = x * 0.75f;
     sc = -x;
     posX = 340.0f;
-    i = gFrameCounter % 360U;
+    i = gFrameCounter % 360U; // FAKE: loop counter i reused as the sprite angle; a separate angle variable fails fdiff
     dl = renderRotatedSprite(dl, 0xA0, 3, 0, 0x20, 0x20, (s32)posX, (s32)posY, x, sc * 0.5f, i, 0.0f);
     gDPPipeSync(dl++);
     i = (gFrameCounter * 0xC) % 360U;
@@ -742,19 +742,19 @@ void menuHandleFileSelectInput(Actor *actor, s32 buttons) {
 Gfx *menuDrawFileSlotLabel(Actor *actor, Gfx *dl) {
     MenuScreenState *state = actor->customState;
     s32 fileIdx;
-    Gfx *g;
-    int ty;
-    f32 unusedF32_1;
+    s32 pad0;
+    s32 pad;
+    f32 pad1;
     f32 textX;
     f32 textY;
-    f32 unusedF32_2;
-    f32 unusedF32_3;
-    f32 unusedF32_4;
+    f32 pad2;
+    f32 pad3;
+    f32 pad4;
     s16 posX;
     s16 y;
     u8 strBuf[200];
 
-    g = dl++; g->words.w0 = 0xFA000000; g->words.w1 = -1;
+    gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
     fileIdx = menuComputeElementPosition(state, 160.0f, 25.0f, &textX, &textY, 3, 1, 0.45f);
     posX = (s16)(textX * 4.0f);
     y = (s16)(textY * 4.0f);
@@ -1551,10 +1551,6 @@ Gfx *menuDrawMultiplayerResults(Actor *actor, Gfx *dl) {
 }
 
 
-extern u8 D_80033878;
-extern u8 D_80033F20[];
-extern s16 D_80744524[];
-extern s8 D_8076A105;
 extern u8 D_8003387C[];
 extern u8 D_80033F24[];
 

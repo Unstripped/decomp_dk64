@@ -365,8 +365,8 @@ void actorSwellBurstUpdate(void) {
                     gBehaviourWorkState->scale = 2.0 * gCurrentActor->sub4->scaleY;
                     gCurrentActor->unk155++;
                 case 1:
-                    if (gBehaviourWorkState->scale > (dx = gCurrentActor->sub4->scaleY)) {
-                        actorSetUniformScale(gCurrentActor, dx * 1.01);
+                    if (gBehaviourWorkState->scale > gCurrentActor->sub4->scaleY) {
+                        actorSetUniformScale(gCurrentActor, gCurrentActor->sub4->scaleY * 1.01);
                     } else {
                         for (i = 0; i < 0xC; i++) {
                             effectSetDepth(1);
@@ -394,8 +394,7 @@ void actorSwellBurstUpdate(void) {
             break;
         case 2:
         case 3:
-            dx = gBehaviourWorkState->targetY; // FAKE: dx reused as the target-height temp (a separate local fails fdiff)
-            actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourWorkState->targetX, (dx < (gCurrentActor->waterY - gCurrentActor->eyeHeight)) ? dx : (gCurrentActor->waterY - gCurrentActor->eyeHeight), gBehaviourWorkState->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
+            actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourWorkState->targetX, (gBehaviourWorkState->targetY < (gCurrentActor->waterY - gCurrentActor->eyeHeight)) ? gBehaviourWorkState->targetY : (gCurrentActor->waterY - gCurrentActor->eyeHeight), gBehaviourWorkState->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
             break;
         default:
             behaviourUpdateContactAndState(0x32E);
