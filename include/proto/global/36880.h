@@ -5,11 +5,10 @@
 #include "render.h"
 struct DisplayListCmd;
 struct ModelAssetData;
-struct ModelChainOwner;
-struct ModelLinkedNode;
 struct ModelNodeBufferOwner;
 struct ModelPathTable;
 struct ModelPendingEntry;
+struct ModelPosNode;
 struct ModelQuadOwner;
 struct ModelRenderAnimObj;
 struct ModelSegmentData;
@@ -17,6 +16,7 @@ struct ModelSegmentNode;
 struct ModelSegmentOwner;
 struct ModelSlot;
 struct ModelSlotAsset;
+struct ModelSlotObjHeader;
 struct ModelSpriteSourceList;
 struct ModelTriBuffer;
 struct ModelVertTable;
@@ -91,7 +91,7 @@ void modelSlotBuildProxPaths(s16, struct ModelPathTable *, f32);
 void modelSlotBuildVertPosList(s32, struct ModelVertTable *, f32, f32, f32, f32, f32, f32, f32, u8);
 #endif
 #ifndef PROTO_SKIP_modelPosNodeListFree
-void modelPosNodeListFree(struct ModelLinkedNode *);
+void modelPosNodeListFree(struct ModelPosNode *);
 #endif
 #ifndef PROTO_SKIP_modelSlotGetNodePos
 void modelSlotGetNodePos(s32, u8, s32, f32 *, f32 *, f32 *);
@@ -103,7 +103,7 @@ Mtx *modelSlotGetNodeMatrix(s32, u8, s32);
 void modelSlotBuildNodePosList(s32, struct ModelVertTable *, f32, f32, f32, f32, f32, f32, f32, u8);
 #endif
 #ifndef PROTO_SKIP_modelLinkedNodeListFree
-void modelLinkedNodeListFree(struct ModelLinkedNode *);
+void modelLinkedNodeListFree(struct ModelPosNode *);
 #endif
 #ifndef PROTO_SKIP_modelSlotClearTail
 void modelSlotClearTail(s32);
@@ -217,13 +217,13 @@ void modelSlotFreeAssetEntry(void *, struct ModelSlotAsset *);
 void displayListFreeQueueReset(void);
 #endif
 #ifndef PROTO_SKIP_displayListFreeQueueAdd
-void displayListFreeQueueAdd(s32, s32, s32, s32, s32);
+void displayListFreeQueueAdd(s32, s32, s32, s32, struct ModelSlotObjHeader *);
 #endif
 #ifndef PROTO_SKIP_displayListFreeQueueProcess
 void displayListFreeQueueProcess(void);
 #endif
 #ifndef PROTO_SKIP_modelSegmentFreeUnusedTextures
-void modelSegmentFreeUnusedTextures(struct ModelSlot *, void *, struct ModelChainOwner *);
+void modelSegmentFreeUnusedTextures(struct ModelSlot *, void *, struct ModelSegmentData *);
 #endif
 #ifndef PROTO_SKIP_dlFreeUnusedTextures
 void dlFreeUnusedTextures();

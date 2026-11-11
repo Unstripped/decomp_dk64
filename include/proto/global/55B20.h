@@ -236,7 +236,7 @@ void mapSearchTableAddProbe(void *, s16, s16, s16);
 void mapSearchTableUpdateVisibility(void);
 #endif
 #ifndef PROTO_SKIP_mapSearchTableGetValue
-u8 mapSearchTableGetValue(s32);
+u8 mapSearchTableGetValue(void *);
 #endif
 #ifndef PROTO_SKIP_mapSetClipBounds
 void mapSetClipBounds();

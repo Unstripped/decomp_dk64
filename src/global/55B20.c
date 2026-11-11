@@ -665,32 +665,32 @@ void mapChunkUpdateEntryNode(MapActorEntry *entry) {
 }
 
 
-void mapChunkMarkRenderEntry(void *entryId, u8 value) {
+void mapChunkMarkRenderEntry(void *targetId, u8 forceInfiniteDist) {
     u8 flag;
     s32 i;
 
     flag = 0;
     for (i = 0; i < gMapChunkCount && !flag; i++) {
-        renderEntrySetDistanceOverride(gMapChunks[i].opaqueList, entryId, 0, value, &flag);
+        renderEntrySetDistanceOverride(gMapChunks[i].opaqueList, targetId, 0, forceInfiniteDist, &flag);
         if (!flag) {
-            renderEntrySetDistanceOverride(gMapChunks[i].translucentList, entryId, 0, value, &flag);
+            renderEntrySetDistanceOverride(gMapChunks[i].translucentList, targetId, 0, forceInfiniteDist, &flag);
         }
     }
 }
 
 
-u8 mapChunkPurgeNodeList(void *entryId, s16 *outChunk, u8 all) {
+u8 mapChunkPurgeNodeList(void *targetId, s16 *outChunk, u8 all) {
     u8 flag;
     s32 i;
 
     flag = 0;
     for (i = 0; i < gMapChunkCount && (!flag || all); i++) {
-        gMapChunks[i].opaqueList = renderEntryRemove(gMapChunks[i].opaqueList, entryId, 0, &flag);
+        gMapChunks[i].opaqueList = renderEntryRemove(gMapChunks[i].opaqueList, targetId, 0, &flag);
         if (flag) {
             *outChunk = i;
         }
         if (!flag || all) {
-            gMapChunks[i].translucentList = renderEntryRemove(gMapChunks[i].translucentList, entryId, 0, &flag);
+            gMapChunks[i].translucentList = renderEntryRemove(gMapChunks[i].translucentList, targetId, 0, &flag);
             if (flag) {
                 *outChunk = i;
             }
@@ -2727,7 +2727,7 @@ s16 mapObjectCollectIdsByType(s8 type, s8 *out, s16 max) {
 }
 
 typedef struct MapSearchEntry {
-    /* 0x000 */ s32 key;
+    /* 0x000 */ void *key;
     /* 0x004 */ s16 x;
     /* 0x006 */ s16 y;
     /* 0x008 */ s16 maxDepth;
@@ -2774,7 +2774,7 @@ void mapSearchTableAddProbe(void *key, s16 x, s16 y, s16 maxDepth) {
         entry = &gMapSearchTable[i];
         entry->active = 1;
         entry->frame = gFrameCounter;
-        entry->key = (s32)key;
+        entry->key = key;
         entry->x = x;
         entry->y = y;
         entry->maxDepth = maxDepth;
@@ -2802,10 +2802,10 @@ void mapSearchTableUpdateVisibility(void) {
 }
 
 extern u8 D_807F72A1;
-extern s32 D_807F72A4;
+extern void *D_807F72A4;
 extern u8 D_807F72B5;
 
-u8 mapSearchTableGetValue(s32 key) {
+u8 mapSearchTableGetValue(void *key) {
     s32 i;
 
     if (key == gMapSearchTable[0].key) { return D_807F72A1; } if (key == D_807F72A4) { return D_807F72B5; } // LAYOUT: same-line tests steer as1 scheduling

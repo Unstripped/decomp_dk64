@@ -737,20 +737,20 @@ void effectFreeAll(void) {
 
 
 void effectFreeAndUnlink(EffectNode *effect) {
-    u8 layer;
     void *allocation;
     s32 i;
+    u8 found;
     EffectNode *previous;
     EffectNode *next;
 
     if (effect->mode == 0) {
         if (effect->flags & 4) {
-            renderEntryRemove(0, effect, 4, &layer - 8);
+            renderEntryRemove(NULL, effect, 4, &found);
         } else {
             func_8062D26C(effect);
         }
     } else {
-        renderEntryRemove(0, effect, 3, &layer - 8);
+        renderEntryRemove(NULL, effect, 3, &found);
     }
     allocation = effect->allocation;
     if (allocation != NULL) {
@@ -761,7 +761,7 @@ void effectFreeAndUnlink(EffectNode *effect) {
         heapFreeDeferred(effect->displayLists[i][1]);
     }
     if (osCicId != 0x17D9) {
-        osSetTime((s64)(s32)randomLcgNext());
+        osSetTime((s32)randomLcgNext());
     }
     previous = effect->previous;
     next = effect->next;
