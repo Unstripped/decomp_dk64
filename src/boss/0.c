@@ -65,9 +65,9 @@ void bossArmydilloInitArena(void) {
     u8 mode;
     s16 i;
     ActorSub4 *sub;
-    BoneVector *v0;
-    BoneVector *a0;
-    BoneRotation *a1;
+    BoneVector *offset;
+    BoneVector *scale;
+    BoneRotation *rotation;
     BossA_Struct_8002413C_Template *t;
 
     if (gCurrentMap == 8) {
@@ -87,41 +87,41 @@ void bossArmydilloInitArena(void) {
 
     sub = gCurrentActor->sub4;
     t = D_800358E0[mode];
-    v0 = sub->boneOffsets;
-    a0 = sub->boneScales;
-    a1 = sub->boneRotations;
+    offset = sub->boneOffsets;
+    scale = sub->boneScales;
+    rotation = sub->boneRotations;
 
     for (i = 0; i < 5; i++) {
-        v0->bone = D_800358D8[i];
-        v0->lastBone = 0xFF;
-        v0->x = t[i].x;
-        v0->y = t[i].y;
-        v0->z = t[i].z;
+        offset->bone = D_800358D8[i];
+        offset->lastBone = 0xFF;
+        offset->x = t[i].x;
+        offset->y = t[i].y;
+        offset->z = t[i].z;
 
-        a0->bone = D_800358D8[i];
-        a0->lastBone = 0xFF;
-        a0->x = t[i].rotX;
-        a0->y = t[i].rotY;
-        a0->z = t[i].rotZ;
+        scale->bone = D_800358D8[i];
+        scale->lastBone = 0xFF;
+        scale->x = t[i].rotX;
+        scale->y = t[i].rotY;
+        scale->z = t[i].rotZ;
 
-        a1->weight = -0x80;
-        a1->bone = D_800358D8[i];
-        a1->rotX = 0;
-        a1->rotY = 0;
-        a1->rotZ = 0;
+        rotation->weight = -0x80;
+        rotation->bone = D_800358D8[i];
+        rotation->rotX = 0;
+        rotation->rotY = 0;
+        rotation->rotZ = 0;
 
-        v0++;
-        a0++;
-        a1++;
+        offset++;
+        scale++;
+        rotation++;
     }
 
     for (i = 0; i < 8; i++) {
-        v0->bone = D_80035994[i];
-        v0->lastBone = 0xFF;
-        v0->x = 0.0f;
-        v0->y = 0.0f;
-        v0->z = 0.0f;
-        v0++;
+        offset->bone = D_80035994[i];
+        offset->lastBone = 0xFF;
+        offset->x = 0.0f;
+        offset->y = 0.0f;
+        offset->z = 0.0f;
+        offset++;
     }
 }
 
@@ -554,7 +554,7 @@ void bossArmydilloStep(void) {
     f32 pad_mid;
     u8 cannonBone;
     u8 playSfx;
-    s32 pad_bot[1];
+    s32 pad_bot[2];
     Boss3B_178 *state;
 
 
@@ -785,12 +785,8 @@ void bossArmydilloStep(void) {
                 gBehaviourWorkState->unk2E = 0;
                 gCurrentActor->speedXZ = 0.0f;
             }
-            {
-                s16 val = state17C->cannonAngA; // FAKE: block-scoped s16 copy taken before the cannonAngB store orders the cannonAngA loads for bossPieceSetAngle(2, ...) (direct re-read fdiff 1)
-
-                state17C->cannonAngB = state17C->cannonAngA;
-                bossPieceSetAngle(2, val);
-            }
+            state17C->cannonAngB = state17C->cannonAngA;
+            bossPieceSetAngle(2, state17C->cannonAngA);
             bossPieceSetAngle(3, state17C->cannonAngB);
             break;
         case 1:                                     /* switch 5 */

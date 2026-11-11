@@ -200,7 +200,7 @@ extern u8 D_807F94B6;
 extern PlayerState *D_807F94B8;
 extern u8 sCamFloorHitCount;
 
-s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5, u8 *arg6, f32 *arg7, u8 arg8) {
+s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *arg4, f32 *arg5, u8 *arg6, f32 *arg7, u8 arg8) {
     u8 meshHit;
     u8 dynHit;
     f32 meshY;
@@ -220,17 +220,17 @@ s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg
         D_807F94B4 = 0;
         return 0;
     }
-    if (arg0 != NULL) {
-        arg0->attachMode = 0;
-        arg0->contactFlags &= 0xFBF1;
-        arg0->cutsceneId = -1;
+    if (actor != NULL) {
+        actor->attachMode = 0;
+        actor->contactFlags &= 0xFBF1;
+        actor->cutsceneId = -1;
         D_807F94B6 = 0;
         D_807F9464 = 0;
         D_807F946C = 0;
         D_807F946D = arg8;
-        arg0->renderFlags &= ~0x40;
-        if (arg0->collisionFlags & 1) {
-            D_807F94B8 = arg0->customState;
+        actor->renderFlags &= ~0x40;
+        if (actor->collisionFlags & 1) {
+            D_807F94B8 = actor->customState;
             D_807F94B8->stateFlags &= ~0x6000;
         }
     }
@@ -242,22 +242,22 @@ s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg
     D_807F94B2 = 0;
     D_807F9484 = 0;
     sCamFloorHitCount = 0;
-    meshY = arg2;
-    meshHit = collisionTestSubmeshBoundary(arg1, arg3, &meshY, arg0);
-    if ((meshHit != 0) && (arg0 != NULL)) {
-        arg0->unkA8 = meshY;
-        arg0->floorSurfaceType = D_807F949E[0];
+    meshY = y;
+    meshHit = collisionTestSubmeshBoundary(x, z, &meshY, actor);
+    if ((meshHit != 0) && (actor != NULL)) {
+        actor->unkA8 = meshY;
+        actor->floorSurfaceType = D_807F949E[0];
     }
     if (D_807F94B4 != 2) {
         dynY = 99999.0f;
-        dynHit = func_8062BCC8(arg0, arg1, arg3, arg2, (s32)&dynY);
+        dynHit = func_8062BCC8(actor, x, z, y, &dynY);
         boxY = 99999.0f;
-        boxHit = collisionTestActorBoxFloor(arg0, arg1, arg3, arg2, &boxY);
+        boxHit = collisionTestActorBoxFloor(actor, x, z, y, &boxY);
     } else {
         dynHit = 0;
         boxHit = 0;
     }
-    threshold = (f32)((f64)arg2 + 4.0);
+    threshold = (f32)((f64)y + 4.0);
     dynHit *= 2;
     boxHit *= 4;
     switch ((u8)(meshHit + dynHit + boxHit)) {
@@ -312,13 +312,13 @@ s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg
         D_807F94AA = 0;
         break;
     case 1:
-        if (arg0 != NULL) {
-            arg0->floorSlopeType = D_807F949E[0];
-            arg0->floorTiltPitch = D_807F9498[0];
-            arg0->floorTiltYaw = D_807F9490[0];
-            arg0->floorY = meshY;
-            if ((D_807F94B6 != 0) && (arg0->prevContactFlags & 1)) {
-                arg0->contactFlags |= 0x400;
+        if (actor != NULL) {
+            actor->floorSlopeType = D_807F949E[0];
+            actor->floorTiltPitch = D_807F9498[0];
+            actor->floorTiltYaw = D_807F9490[0];
+            actor->floorY = meshY;
+            if ((D_807F94B6 != 0) && (actor->prevContactFlags & 1)) {
+                actor->contactFlags |= 0x400;
             }
         }
         D_807F94A4 = D_807F9498[0];
@@ -328,13 +328,13 @@ s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg
         D_807F951D = 1;
         break;
     case 2:
-        if (arg0 != NULL) {
-            arg0->floorSlopeType = D_807F949F;
-            arg0->floorTiltPitch = D_807F949A;
-            arg0->floorTiltYaw = D_807F9492;
-            arg0->floorY = dynY;
-            if (arg0->prevContactFlags & 1) {
-                arg0->attachMode = 1;
+        if (actor != NULL) {
+            actor->floorSlopeType = D_807F949F;
+            actor->floorTiltPitch = D_807F949A;
+            actor->floorTiltYaw = D_807F9492;
+            actor->floorY = dynY;
+            if (actor->prevContactFlags & 1) {
+                actor->attachMode = 1;
             }
         }
         D_807F94A4 = D_807F949A;
@@ -344,14 +344,14 @@ s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg
         D_807F951D = 2;
         break;
     case 3:
-        if (arg0 != NULL) {
-            arg0->floorSlopeType = D_807F94A0;
-            arg0->floorTiltPitch = D_807F949C;
-            arg0->floorTiltYaw = D_807F9494;
-            arg0->floorY = boxY;
-            if (arg0->prevContactFlags & 1) {
-                actorAppendCallback10(arg0, D_807F9470, D_807F9474, D_807F9478, D_807F947C, D_807F9480, D_807F94B2);
-                arg0->contactFlags |= 8;
+        if (actor != NULL) {
+            actor->floorSlopeType = D_807F94A0;
+            actor->floorTiltPitch = D_807F949C;
+            actor->floorTiltYaw = D_807F9494;
+            actor->floorY = boxY;
+            if (actor->prevContactFlags & 1) {
+                actorAppendCallback10(actor, D_807F9470, D_807F9474, D_807F9478, D_807F947C, D_807F9480, D_807F94B2);
+                actor->contactFlags |= 8;
             }
         }
         D_807F94A4 = D_807F949C;
@@ -1080,18 +1080,18 @@ void collisionRecordTriangleS(CollisionStaticTri *arg0, f32 arg1) {
 extern s32 gFrameCounter;
 extern u8 D_807F951C;
 
-void dynamicBufferAllocateEntry(s32 arg0) {
-    u32 size;
+void dynamicBufferAllocateEntry(s32 index) {
+    s32 size;
 
-    if (D_807F9514[arg0].tris == NULL) {
-        size = D_807F9514[arg0].size;
+    if (D_807F9514[index].tris == NULL) {
+        size = D_807F9514[index].size;
         if (size != 0) {
-            D_807F9514[arg0].tris = heapAlloc(size);
-            D_807F9514[arg0].trisEnd = D_807F9514[arg0].tris + size / sizeof(CollisionStaticTri);
-            dmaReadAssetDecompress(D_807F9514[arg0].romAddr, D_807F9514[arg0].tris, &size, 0, 0, 0, 0);
+            D_807F9514[index].tris = heapAlloc(size);
+            D_807F9514[index].trisEnd = D_807F9514[index].tris + size / sizeof(CollisionStaticTri);
+            dmaReadAssetDecompress(D_807F9514[index].romAddr, D_807F9514[index].tris, &size, 0, 0, 0, 0);
         }
     }
-    D_807F9514[arg0].lastUsedFrame = gFrameCounter;
+    D_807F9514[index].lastUsedFrame = gFrameCounter;
 }
 
 void dynamicBufferPurgeExpired(void) {
@@ -2262,37 +2262,37 @@ s32 assetGetTableEntry(s32 arg0, s32 arg1) {
     return ret;
 }
 
-void assetEnsureTableLoaded(s32 arg0) {
+void assetEnsureTableLoaded(s32 tableIndex) {
     u32 start;
     s32 pad50;
     u64 header;
     s32 pad44;
     u32 size;
-    u32 headerSize;
+    s32 headerSize;
 
     headerSize = 8;
-    if (D_807F9528[arg0] != NULL) {
+    if (D_807F9528[tableIndex] != NULL) {
         return;
     }
-    start = D_807F9520[arg0];
+    start = D_807F9520[tableIndex];
     dmaReadAssetDecompress(D_8000DDCC + start, &header, &headerSize, 0, 0, 0, 0);
     size = (u32)(header >> 32) - start;
-    D_807F9528[arg0] = heapAlloc(size);
-    dmaReadAssetDecompress(D_8000DDCC + start, D_807F9528[arg0], &size, 0, 0, 0, 0);
-    switch (arg0) {
+    D_807F9528[tableIndex] = heapAlloc(size);
+    dmaReadAssetDecompress(D_8000DDCC + start, D_807F9528[tableIndex], &size, 0, 0, 0, 0);
+    switch (tableIndex) {
         case 4:
         case 7:
         case 14:
         case 25: {
             u32 i;
-            D_807F95A8[arg0] = heapAlloc(size);
+            D_807F95A8[tableIndex] = heapAlloc(size);
             for (i = 0; i < (u32)(size / 4); i++) {
-                D_807F95A8[arg0][i] = 0;
+                D_807F95A8[tableIndex][i] = 0;
             }
             break;
         }
         default:
-            D_807F95A8[arg0] = NULL;
+            D_807F95A8[tableIndex] = NULL;
             break;
     }
 }

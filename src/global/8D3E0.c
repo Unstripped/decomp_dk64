@@ -86,7 +86,7 @@ extern s32 gMapChunkCount;
 typedef struct {
     u8 pad0[0x18];
     s32 unk18;
-    void *unk1C;
+    s32 unk1C;
     void *unk20;
     u8 pad24[0xC0 - 0x24];
 } ModelAssetEntry160;
@@ -100,7 +100,7 @@ extern ModelAssetEntry178 D_8076A178[];
 
 
 void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
-    s32 subtableCount;
+    u8 *subtables;
     s32 *records;
     s32 mapIndex;
     s32 pad;
@@ -125,13 +125,13 @@ void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
         D_807F6010 = modelAsset;
         modelAsset = (s32)D_8076A178[mapIndex].ptr;
     }
-    modelAssetGetSubtables(modelAsset, &subtableCount, &records);
+    modelAssetGetSubtables(modelAsset, &subtables, &records);
     if (skipExtra != 0) {
         modelAsset = 0;
     } else {
         modelAsset = playerGetModelAssetId();
     }
-    modelSlotsLoadMap(subtableCount, modelAsset, (u8)flag, preMapModelCount, mapGetHubWorldIndex(gCurrentWorldId, 1));
+    modelSlotsLoadMap(subtables, modelAsset, (u8)flag, preMapModelCount, mapGetHubWorldIndex(gCurrentWorldId, 1));
     csTimerQueueFire(gCurrentLevelIndex);
     actorListSpawnFromRecords(records);
     if (mapIndex != -1) {
