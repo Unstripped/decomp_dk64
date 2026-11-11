@@ -34,8 +34,8 @@ extern u8 gGameMode;
 extern u8 gScreenRenderFlags;
 
 void schedCreate(SchedStruct *, void *, s32, u8, u8);
-void schedAddClient(SchedStruct *, TaskNode *, s32, s32, s32);
-void schedRemoveClient(SchedStruct *, TaskNode *);
+void schedAddClient(SchedStruct *, SchedClient *, OSMesgQueue *, s32, s32);
+void schedRemoveClient(SchedStruct *, SchedClient *);
 void schedMain(void *);
 void schedHandleNewTask(SchedStruct *, TaskNode *);
 void schedStartAudioOrYield(SchedStruct *);
@@ -76,13 +76,13 @@ u32 D_807F0560;
 s32 D_807F0564;
 ContPadButtons D_807F0568;
 
-void schedCreate(SchedStruct *sc, void *stack, s32 priority, u8 arg3, u8 retraceCount) {
-    SchedConfig sp2C;
+void schedCreate(SchedStruct *sc, void *stack, s32 priority, u8 unused, u8 retraceCount) {
+    SchedConfig config;
 
-    sp2C = D_80746838;
+    config = D_80746838;
     sc->audioListTail = (TaskNode *)&sc->audioListHead;
     sc->gfxListTail = (TaskNode *)&sc->gfxListHead;
-    D_807F04E0 = 0;
+    D_807F04E0 = NULL;
     osCreateMesgQueue(&sc->interruptQ, sc->intMsgs, 16);
     osCreateMesgQueue(&sc->cmdQ, sc->cmdMsgs, 16);
     osSetEventMesg(OS_EVENT_SP, &sc->interruptQ, (OSMesg)0x29B);
@@ -92,39 +92,39 @@ void schedCreate(SchedStruct *sc, void *stack, s32 priority, u8 arg3, u8 retrace
     osStartThread(&sc->thread);
 }
 
-void schedAddClient(SchedStruct *arg0, TaskNode *arg1, s32 arg2, s32 arg3, s32 arg4) {
-    s32 sp14 = osGetIntMask(1);
+void schedAddClient(SchedStruct *sc, SchedClient *client, OSMesgQueue *msgQ, s32 id, s32 kind) {
+    s32 mask = osGetIntMask(1);
 
-    arg1->state = arg2;
-    arg1->next = arg0->clientList;
-    arg0->clientList = arg1;
-    arg1->flags = arg3;
-    arg1->framebuffer = (void *)arg4;
-    osGetIntMask(sp14);
+    client->msgQ = msgQ;
+    client->next = sc->clientList;
+    sc->clientList = client;
+    client->id = id;
+    client->kind = kind;
+    osGetIntMask(mask);
 }
 
-void schedRemoveClient(SchedStruct *arg0, TaskNode *arg1) {
-    TaskNode *sp1C = arg0->clientList;
-    TaskNode *sp18 = NULL;
-    s32 sp14 = osGetIntMask(1);
+void schedRemoveClient(SchedStruct *sc, SchedClient *client) {
+    SchedClient *cur = sc->clientList;
+    SchedClient *prev = NULL;
+    s32 mask = osGetIntMask(1);
 
-    while (sp1C != 0) {
-        if (sp1C == arg1) {
-            if (sp18 != 0) {
-                sp18->next = arg1->next;
+    while (cur != NULL) {
+        if (cur == client) {
+            if (prev != NULL) {
+                prev->next = client->next;
             } else {
-                arg0->clientList = arg1->next;
+                sc->clientList = client->next;
             }
             break;
         }
-        sp18 = sp1C;
-        sp1C = sp1C->next;
+        prev = cur;
+        cur = cur->next;
     }
-    osGetIntMask(sp14);
+    osGetIntMask(mask);
 }
 
-s32 schedGetCmdQueue(SchedStruct *arg0) {
-    return (s32)arg0 + 0x58;
+OSMesgQueue *schedGetCmdQueue(SchedStruct *sc) {
+    return &sc->cmdQ;
 }
 
 extern u8 D_807563B4;
@@ -138,17 +138,17 @@ extern void faultFontInit(s32, s32, s32);
 extern void faultPrintf(const char *, ...);
 
 
-void schedMain(void *arg0) {
-    u32 msg;
+void schedMain(void *arg) {
+    OSMesg msg;
     s32 i;
     s32 flag;
-    s32 pad1;
+    s32 pad;
     s32 fbIdx;
     u32 cnt;
-    s32 pad3;
+    s32 pad2;
 
     for (;;) {
-        osRecvMesg(arg0, (OSMesg *)&msg, OS_MESG_BLOCK);
+        osRecvMesg(arg, &msg, OS_MESG_BLOCK);
         if (D_807563B4 != 0) {
             if (D_80746830 == 0) {
                 D_8074682C--;
@@ -189,7 +189,7 @@ void schedMain(void *arg0) {
             }
             if (D_807F0560 == 0) {}  // FAKE: keeps D_807F0560 un-pointerized (separate lui per access)
         }
-        switch (msg) {
+        switch ((u32)msg) {
         case 0x29A:
             cnt = D_807F0560 + 1;
             D_807F0560 = cnt;
@@ -197,44 +197,44 @@ void schedMain(void *arg0) {
                 D_807F04C8 = D_807F04D0;
                 D_807F04D8 = D_807F04DC;
             }
-            schedHandleRetrace(arg0);
+            schedHandleRetrace(arg);
             break;
         case 0x29E:
-            schedStartAudioOrYield(arg0);
+            schedStartAudioOrYield(arg);
             break;
         case 0x29B:
-            schedHandleRSP(arg0);
+            schedHandleRSP(arg);
             break;
         case 0x29C:
-            schedHandleRDP(arg0);
+            schedHandleRDP(arg);
             break;
         case 0x29F:
-            if (osSendMesg(D_807F0540.mq, D_807F0540.msg, OS_MESG_BLOCK) == -1) {
+            if (osSendMesg(D_807F0540.mq, D_807F0540.msg, OS_MESG_BLOCK) == -1) {  // FAKE: empty body; target compares v0 against -1 (li at,-1; bnel v0,at)
             }
             break;
         case 0x2A0:
         case 0x3F2:
             break;
         default:
-            schedHandleNewTask(arg0, (TaskNode *)msg);
+            schedHandleNewTask(arg, msg);
             break;
         }
     }
 }
 
-void schedHandleNewTask(SchedStruct *arg0, TaskNode *arg1) {
-    schedAppendTask(arg0, arg1);
-    if (arg0->curRSPTask == 0) {
-        schedStartTask(arg0, 1);
+void schedHandleNewTask(SchedStruct *sc, TaskNode *task) {
+    schedAppendTask(sc, task);
+    if (sc->curRSPTask == NULL) {
+        schedStartTask(sc, 1);
     }
 }
 
-void schedStartAudioOrYield(SchedStruct *arg0) {
-    if (arg0->curRSPTask != NULL) {
-        schedYield(arg0);
+void schedStartAudioOrYield(SchedStruct *sc) {
+    if (sc->curRSPTask != NULL) {
+        schedYield(sc);
     } else {
         D_807F04D0 = 0;
-        schedStartTask(arg0, 0);
+        schedStartTask(sc, 0);
     }
 }
 
@@ -244,12 +244,12 @@ extern u32 D_8074684C[];
 
 
 void schedHandleRetrace(SchedStruct *sc) {
-    TaskNode *sp54;
+    OSMesg msg;
     s32 i;
-    s32 s2;
+    s32 pad;
     s32 n;
-    TaskNode *client;
-    TaskNode *fb;
+    SchedClient *client;
+    void *fb;
 
     sc->unk284++;
     sc->unk280++;
@@ -286,7 +286,7 @@ void schedHandleRetrace(SchedStruct *sc) {
         D_807F04E0 = NULL;
     } else {
         fb = osViGetCurrentFramebuffer();
-        if (osViGetNextFramebuffer() == (void *)fb) {
+        if (osViGetNextFramebuffer() == fb) {
             if (osDpGetStatus() & 2) {
                 sc->unk288 = osGetTime();
                 osDpSetStatus(4);
@@ -295,15 +295,15 @@ void schedHandleRetrace(SchedStruct *sc) {
     }
     n = sc->cmdQ.validCount;
     for (i = 0; i < n; i++) {
-        osRecvMesg(&sc->cmdQ, (OSMesg *)&sp54, 0);
-        if (sp54 == (TaskNode *)-1) {}  // FAKE: steers uopt (hoists -1 into s2)
-        if ((u32)sc->unk284 % ((u32 *)sp54->unk50)[2] == 0) {
-            schedAppendTask(sc, sp54);
+        osRecvMesg(&sc->cmdQ, &msg, 0);
+        if (msg == (OSMesg)-1) {}  // FAKE: steers uopt (hoists -1 into s2)
+        if ((u32)sc->unk284 % ((u32 *)((TaskNode *)msg)->unk50)[2] == 0) {
+            schedAppendTask(sc, msg);
         } else {
-            osSendMesg(&sc->cmdQ, (OSMesg)sp54, 0);
+            osSendMesg(&sc->cmdQ, msg, 0);
             if (D_80746858 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
-        if (sp54 == (TaskNode *)-1) {}  // FAKE: steers uopt (hoists -1 into s2)
+        if (msg == (OSMesg)-1) {}  // FAKE: steers uopt (hoists -1 into s2)
     }
     if (sc->audioListHead != NULL) {
         if ((sc->unk284 & 1) == 0) {
@@ -311,8 +311,8 @@ void schedHandleRetrace(SchedStruct *sc) {
         }
     }
     for (client = sc->clientList; client != NULL; client = client->next) {
-        if ((s32)client->framebuffer == 3) {
-            osSendMesg((OSMesgQueue *)client->state, (OSMesg)0x29A, 0);
+        if (client->kind == 3) {
+            osSendMesg(client->msgQ, (OSMesg)0x29A, 0);
         }
     }
 }
@@ -398,7 +398,7 @@ s32 schedTaskDone(SchedStruct *sc, TaskNode *task) {
             }
         }
         if (task->msgQ != NULL) {
-            if (D_807F04E0 == 0 || type != 1) {
+            if (D_807F04E0 == NULL || type != 1) {
                 if (task->flags & 0x40) {
                     schedSendMesgTimed(task->msgQ, task->msg, 0);
                 } else {
@@ -416,10 +416,9 @@ s32 schedTaskDone(SchedStruct *sc, TaskNode *task) {
 }
 
 void schedAppendTask(SchedStruct *sc, TaskNode *task) {
-    s32 state = 2;
     s32 type = task->task.t.type;
 
-    if (type == state) {
+    if (type == 2) {
         sc->audioListTail->next = task;
         sc->audioListTail = task;
     } else {
@@ -427,28 +426,26 @@ void schedAppendTask(SchedStruct *sc, TaskNode *task) {
         sc->gfxListTail = task;
     }
     task->next = NULL;
-    task->state = state;
+    task->state = 2;
 }
 
-void schedStartTask(SchedStruct *arg0, s32 arg1) {
+void schedStartTask(SchedStruct *sc, s32 isGfx) {
     TaskNode *task;
-    TaskNode *head;
 
-    if (arg1 == 0) {
-        head = arg0->audioListHead;
-        task = head;
-        if (head == NULL) {
+    if (isGfx == 0) {
+        task = sc->audioListHead;
+        if (sc->audioListHead == NULL) {  // FAKE: tests the field, not task (task == NULL / head copy variants fdiff=1)
             return;
         }
-        arg0->audioListHead = task->next;
-        if (arg0->audioListHead == NULL) {
-            arg0->audioListTail = (TaskNode *)&arg0->audioListHead;
+        sc->audioListHead = task->next;
+        if (sc->audioListHead == NULL) {
+            sc->audioListTail = (TaskNode *)&sc->audioListHead;
         }
         D_807F0508 = osGetTime();
     } else {
-        task = arg0->gfxListHead;
+        task = sc->gfxListHead;
         if (D_80746828 != 0) {
-            arg0->unk290 = osGetTime();
+            sc->unk290 = osGetTime();
             D_807F04F0 = __ull_div(osGetTime() - D_807F04F8, 0x1E91);
             D_80746828 = 0;
         }
@@ -456,14 +453,14 @@ void schedStartTask(SchedStruct *arg0, s32 arg1) {
     task->state = 1;
     osSpTaskLoad(&task->task);
     osSpTaskStartGo(&task->task);
-    arg0->curRSPTask = task;
+    sc->curRSPTask = task;
     if (task->flags & 0x40) {
-        arg0->curRDPTask = task;
+        sc->curRDPTask = task;
     }
 }
 
-void schedYield(SchedStruct *arg0) {
-    TaskNode *task = arg0->curRSPTask;
+void schedYield(SchedStruct *sc) {
+    TaskNode *task = sc->curRSPTask;
 
     if (task->task.t.type == 1) {
         task->state = 3;
@@ -472,10 +469,10 @@ void schedYield(SchedStruct *arg0) {
     }
 }
 
-void schedSendMesgTimed(OSMesgQueue *arg0, OSMesg arg1, s32 arg2) {
+void schedSendMesgTimed(OSMesgQueue *mq, OSMesg msg, s32 flags) {
     osGetTime();
     osGetTime();
-    osSendMesg(arg0, arg1, arg2);
+    osSendMesg(mq, msg, flags);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/13980/D_80757184.s")
@@ -528,7 +525,7 @@ extern void faultFontSetColorMode(s32);
 extern void controllerStartRead(void);
 
 
-s32 schedDlDebugDump(s32 arg0, s32 arg1) {
+s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
     static s32 D_80746A14 = 0;
     static u32 D_80746A18 = 0;
     static s16 D_80746A1C = 0;
@@ -556,11 +553,11 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
 
     done = 0;
     ret = 0;
-    if (arg0 == 0) {
+    if (reset == 0) {
         osContGetReadData((OSContPad *)((u8 *)&D_807F0564 + 4));  // FAKE: arg spelled off D_807F0564 so uopt does not CSE lda D_807F0568 with the .button read
         raw = D_807F0568.button;
         buttons = raw;
-        if (arg1 != 0 && D_80746A2C != 0) {
+        if (autoAdvance != 0 && D_80746A2C != 0) {
             buttons |= 0x400;
         }
         if (buttons & 0x1000) {

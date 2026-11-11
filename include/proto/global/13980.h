@@ -7,13 +7,13 @@
 void schedCreate(SchedStruct *, void *, s32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_schedAddClient
-void schedAddClient(SchedStruct *, TaskNode *, s32, s32, s32);
+void schedAddClient(SchedStruct *, SchedClient *, OSMesgQueue *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_schedRemoveClient
-void schedRemoveClient(SchedStruct *, TaskNode *);
+void schedRemoveClient(SchedStruct *, SchedClient *);
 #endif
 #ifndef PROTO_SKIP_schedGetCmdQueue
-s32 schedGetCmdQueue(SchedStruct *);
+OSMesgQueue *schedGetCmdQueue(SchedStruct *);
 #endif
 #ifndef PROTO_SKIP_schedMain
 void schedMain(void *);

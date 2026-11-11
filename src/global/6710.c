@@ -1,3 +1,4 @@
+#include "sched.h"
 #include "common.h"
 #include "actor.h"
 #include "audio_config.h"
@@ -91,7 +92,7 @@ AudioSynthesizerConfig D_807452D0 = { {
 s32 D_807454E8[2] = { 1, 0 };
 
 // .bss 0x8076D4C0-0x80770560
-u8 D_8076D4C0[0x10];
+SchedClient D_8076D4C0;
 AudioContext D_8076D4D0;
 OSThread D_8076D4E8;
 OSMesgQueue D_8076D698;

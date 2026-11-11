@@ -187,7 +187,7 @@ u8 D_807656F0[760];
 OSMesgQueue D_807659E8;
 OSMesg D_80765A00[0x810];
 SchedStruct gScheduler;
-u8 D_80767CD8[0x10];
+SchedClient D_80767CD8;
 FrameMatrices D_80767CE8[2];
 FrameMatrices *gGfxCurrentFrameBuffer;
 u32 D_8076A04C;

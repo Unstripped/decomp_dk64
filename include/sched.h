@@ -15,6 +15,14 @@ typedef struct TaskNode {
     /* 0x58 */ OSMesg msg;
 } TaskNode;
 
+// Scheduler client registration (0x10 bytes), linked from SchedStruct.clientList
+typedef struct SchedClient {
+    /* 0x00 */ struct SchedClient *next;
+    /* 0x04 */ OSMesgQueue *msgQ;
+    /* 0x08 */ s32 id;
+    /* 0x0C */ s32 kind;
+} SchedClient;
+
 // Scheduler context (0x298 bytes)
 typedef struct SchedStruct {
     /* 0x000 */ OSMesgQueue interruptQ;
@@ -22,7 +30,7 @@ typedef struct SchedStruct {
     /* 0x058 */ OSMesgQueue cmdQ;
     /* 0x070 */ OSMesg cmdMsgs[16];
     /* 0x0B0 */ OSThread thread;
-    /* 0x260 */ TaskNode *clientList;
+    /* 0x260 */ SchedClient *clientList;
     /* 0x264 */ TaskNode *audioListHead;
     /* 0x268 */ TaskNode *gfxListHead;
     /* 0x26C */ TaskNode *audioListTail;
