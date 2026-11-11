@@ -6,7 +6,6 @@
 #include "collision.h"
 #include "map.h"
 #include "model.h"
-struct CollisionActorWork;
 struct CollisionBoxTri;
 struct CollisionBstFlatItem;
 struct CollisionBstNode;
@@ -127,7 +126,7 @@ void collisionRecordTriangleF(struct CollisionTriF *, f32);
 s32 collisionCheckSurfaceFilter(u8, u8 *);
 #endif
 #ifndef PROTO_SKIP_actorCheckNearbyNodeInteractions
-void actorCheckNearbyNodeInteractions(struct CollisionActorWork *, s16, ModelPosNode *);
+void actorCheckNearbyNodeInteractions(Actor *, s16, ModelPosNode *);
 #endif
 #ifndef PROTO_SKIP_collisionStoreTriangleNormalAnglesF32
 void collisionStoreTriangleNormalAnglesF32(Actor *, struct CollisionTriF *, u8);
@@ -136,10 +135,10 @@ void collisionStoreTriangleNormalAnglesF32(Actor *, struct CollisionTriF *, u8);
 s32 collisionCheckTriangleWindingF32(struct CollisionTriF *);
 #endif
 #ifndef PROTO_SKIP_collisionAttachActorToObjectNode
-void collisionAttachActorToObjectNode(struct CollisionActorWork *, s16, s8, u8, f32, f32, f32);
+void collisionAttachActorToObjectNode(Actor *, s16, s8, u8, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_actorUpdateSubnodeRotationAndMtx
-void actorUpdateSubnodeRotationAndMtx(struct CollisionActorWork *);
+void actorUpdateSubnodeRotationAndMtx(Actor *);
 #endif
 #ifndef PROTO_SKIP_collisionCheckBoundingBoxXZ
 s32 collisionCheckBoundingBoxXZ(struct CollisionBoundingBox *, f32, f32);

@@ -1275,7 +1275,6 @@ s32 collisionPointInTriangleXZS16(CollisionStaticTri *arg0, f32 arg1, f32 arg2) 
 extern ModelSlot *gModelSlots;
 extern u8 D_807F946D;
 extern u8 D_807F94AC;
-struct CollisionActorWork;
 
 u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 *arg5) {
     s32 pad;
@@ -1306,7 +1305,7 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
 
     buf = &gModelSlots[slotIdx].unk48;
     if (arg0 != NULL && gModelSlots[slotIdx].unk70 != NULL && D_807F946D != 0) {
-        actorCheckNearbyNodeInteractions((struct CollisionActorWork *)arg0, slotIdx, gModelSlots[slotIdx].unk70);
+        actorCheckNearbyNodeInteractions(arg0, slotIdx, gModelSlots[slotIdx].unk70);
     }
 
     if (!(buf->flags & 4)) {
@@ -1364,7 +1363,7 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
                         y = (2000.0 * val) - 1000.0;
                         collisionCheckSlopeAngle(arg4, y, 0, arg0, 0);
                         if (collisionGetFloorTriangleNormal(arg4, y, 0, tri->unk24) != 0 && D_807F946D != 0) {
-                            collisionAttachActorToObjectNode((struct CollisionActorWork *)arg0, slotIdx, -1, 0, arg2, y, arg3);
+                            collisionAttachActorToObjectNode(arg0, slotIdx, -1, 0, arg2, y, arg3);
                             arg0->attachMode = 2;
                         }
                     }
@@ -1396,7 +1395,7 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
         }
         if (arg0 != NULL) {
             if (arg0->attachMode != 2 && arg0->attachMode != 3) {
-                collisionAttachActorToObjectNode((struct CollisionActorWork *)arg0, slotIdx, hit_tri->unk26, hit_tri->unk27, arg2, hit_y, arg3);
+                collisionAttachActorToObjectNode(arg0, slotIdx, hit_tri->unk26, hit_tri->unk27, arg2, hit_y, arg3);
             }
             arg0->unk78[0] = hit_tri->unk25;
         }
@@ -1432,34 +1431,8 @@ s32 collisionCheckSurfaceFilter(u8 arg0, u8 *arg1) {
     return 1;
 }
 
-// Actor view: fields at 0x100-0x108, 0x10E, 0x10F and 0x12F are not in include/actor.h yet (header request);
-// the others use the Actor field names.
-typedef struct CollisionActorWork {
-    u8 pad0[0x7C];
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 pad88[0x94 - 0x88];
-    f32 unk94;
-    f32 unk98;
-    u8 pad9C[0xE6 - 0x9C];
-    s16 yaw;
-    u8 padE8[0xFC - 0xE8];
-    u8 hasArcBounds;
-    u8 padFD[3];
-    f32 unk100;
-    f32 unk104;
-    f32 unk108;
-    s16 cutsceneId;
-    s8 unk10E;
-    s8 unk10F;
-    u8 attachMode;
-    u8 pad111[0x12F - 0x111];
-    u8 unk12F;
-} CollisionActorWork;
 
-
-void actorCheckNearbyNodeInteractions(CollisionActorWork *arg0, s16 arg1, ModelPosNode *arg2) {
+void actorCheckNearbyNodeInteractions(Actor *arg0, s16 arg1, ModelPosNode *arg2) {
     u8 count = 0;
 
     if (arg2 != NULL) {
@@ -1520,7 +1493,7 @@ s32 collisionCheckTriangleWindingF32(CollisionTriF *arg0) {
 }
 
 
-void collisionAttachActorToObjectNode(CollisionActorWork *arg0, s16 arg1, s8 arg2, u8 arg3, f32 arg4, f32 arg5, f32 arg6) {
+void collisionAttachActorToObjectNode(Actor *arg0, s16 arg1, s8 arg2, u8 arg3, f32 arg4, f32 arg5, f32 arg6) {
     f32 pad2[10];
     float mtx[4][4];
     float pad[4][4];
@@ -1534,7 +1507,7 @@ void collisionAttachActorToObjectNode(CollisionActorWork *arg0, s16 arg1, s8 arg
     guMtxXFMF(invMtx, arg4, arg5, arg6, &arg0->unk100, &arg0->unk104, &arg0->unk108);
 }
 
-void actorUpdateSubnodeRotationAndMtx(CollisionActorWork *arg0) {
+void actorUpdateSubnodeRotationAndMtx(Actor *arg0) {
     f32 pad[10];
     float mtx[4][4];
     float padMtx[4][4];
