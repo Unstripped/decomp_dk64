@@ -2,7 +2,7 @@
 #ifndef PROTO_GLOBAL_8F050_H
 #define PROTO_GLOBAL_8F050_H
 #include "common.h"
-struct Actor146;
+#include "actor.h"
 struct Actor4C;
 #ifndef PROTO_SKIP_animStopAtFrame
 void animStopAtFrame(s32, s32, s32);
@@ -20,9 +20,9 @@ void actorConfigApplyAnimFrameByType(s32, s32, s32);
 void actorProximityUpdate(void);
 #endif
 #ifndef PROTO_SKIP_func_8068A764
-void func_8068A764(struct Actor146 *, u8);
+void func_8068A764(Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_func_8068A784
-void func_8068A784(struct Actor146 *, u8);
+void func_8068A784(Actor *, u8);
 #endif
 #endif

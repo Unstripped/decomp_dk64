@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #define PROTO_SKIP_controllerAnimFreeSub // FAKE: callee prototype steer
 #include "proto/global/17B90.h"
 #include "proto/global/61AA0.h"
@@ -22,11 +23,6 @@ typedef struct Actor4C {
     u8 pad[0x4C];
     s32 unk4C;
 } Actor4C;
-
-typedef struct Actor146 {
-    u8 pad[0x146];
-    s16 unk146;
-} Actor146;
 
 
 void animStopAtFrame(s32 actor, s32 animSlot, s32 frame) {
@@ -174,10 +170,10 @@ void actorProximityUpdate(void) {
     }
 }
 
-void func_8068A764(Actor146 *actor, u8 bit) {
+void func_8068A764(Actor *actor, u8 bit) {
     actor->unk146 |= (1 << bit);
 }
 
-void func_8068A784(Actor146 *actor, u8 bit) {
+void func_8068A784(Actor *actor, u8 bit) {
     actor->unk146 &= ~(1 << bit);
 }
