@@ -11,22 +11,22 @@ struct ResParsedList;
 struct ResQueueLink;
 struct ResRecord;
 #ifndef PROTO_SKIP_streamReadBytes
-void streamReadBytes(s32, void *, s32 *);
+void streamReadBytes(s32, void *, u8 **);
 #endif
 #ifndef PROTO_SKIP_resParseRecord
-void resParseRecord(struct ResRecord *, s32 *);
+void resParseRecord(struct ResRecord *, u8 **);
 #endif
 #ifndef PROTO_SKIP_resParseVariant
-void resParseVariant(struct ResItem *, s32 *);
+void resParseVariant(struct ResItem *, u8 **);
 #endif
 #ifndef PROTO_SKIP_resParseItem
-void resParseItem(struct ResItemList *, s32 *);
+void resParseItem(struct ResItemList *, u8 **);
 #endif
 #ifndef PROTO_SKIP_resParseItemList
-void resParseItemList(struct ResParsedList *, s32 *);
+void resParseItemList(struct ResParsedList *, u8 **);
 #endif
 #ifndef PROTO_SKIP_resParseList
-struct ResParsedList *resParseList(s32);
+struct ResParsedList *resParseList(u8 *);
 #endif
 #ifndef PROTO_SKIP_resQueueGetOrCreate
 struct ResQueueLink *resQueueGetOrCreate(Actor *);

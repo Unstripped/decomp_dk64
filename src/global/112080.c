@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #include "resqueue.h"
 #include "proto/boot/3D20.h"
@@ -98,12 +99,12 @@ extern ResNode *sResNodeListHead;
 extern ResQueueLink *sResQueueHead;
 extern s8 sResQueueValue;
 
-void streamReadBytes(s32 size, void *dst, s32 *src) {
+void streamReadBytes(s32 size, void *dst, u8 **src) {
     memcpy(dst, *src, size);
     *src += size;
 }
 
-void resParseRecord(ResRecord *rec, s32 *src) {
+void resParseRecord(ResRecord *rec, u8 **src) {
     s32 i;
     u8 *data;
 
@@ -115,7 +116,7 @@ void resParseRecord(ResRecord *rec, s32 *src) {
     }
 }
 
-void resParseVariant(ResItem *item, s32 *src) {
+void resParseVariant(ResItem *item, u8 **src) {
     s32 i;
     u8 *p;
     ResRecord *rec;
@@ -138,7 +139,7 @@ void resParseVariant(ResItem *item, s32 *src) {
     }
 }
 
-void resParseItem(ResItemList *list, s32 *src) {
+void resParseItem(ResItemList *list, u8 **src) {
     s32 i;
     ResItem *item;
 
@@ -157,7 +158,7 @@ void resParseItem(ResItemList *list, s32 *src) {
     }
 }
 
-void resParseItemList(ResParsedList *parsed, s32 *src) {
+void resParseItemList(ResParsedList *parsed, u8 **src) {
     s32 i;
     ResItemList *list;
 
@@ -168,7 +169,7 @@ void resParseItemList(ResParsedList *parsed, s32 *src) {
     }
 }
 
-ResParsedList *resParseList(s32 src) {
+ResParsedList *resParseList(u8 *src) {
     void *payload;
     s32 length;
     ResParsedList *header;
@@ -441,7 +442,7 @@ ResParsedList *resNodeGetOrLoad(u16 id, s32 kind) {
                 link = &(*link)->next;
             } while (*link != NULL);
         }
-        parsed = resParseList((s32)asset);
+        parsed = resParseList(asset);
         assetFreeBuffer(asset, 0x1F1, 0x50);
         node = heapAlloc(0x10);
         *link = node;

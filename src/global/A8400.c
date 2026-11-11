@@ -502,31 +502,10 @@ void textBoxRowUpdateNodes(f32 y, Actor *actor, SpriteChainState *chain, SpriteH
 }
 
 
-typedef struct ChainState {
-    /* 0x00 */ u8 pad0[0x4];
-    /* 0x04 */ void *unk4;
-    /* 0x08 */ u8 pad8[0x4];
-    /* 0x0C */ ResRow *unkC;
-    /* 0x10 */ u8 unk10;
-    /* 0x11 */ u8 pad11;
-    /* 0x12 */ u8 unk12;
-    /* 0x13 */ u8 pad13;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ u8 pad1C[0x4];
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ u8 pad24[0x1C];
-    /* 0x40 */ f32 unk40;
-    /* 0x44 */ f32 unk44;
-    /* 0x48 */ f32 unk48;
-    /* 0x4C */ f32 unk4C;
-    /* 0x50 */ f32 unk50;
-} ChainState;
-
 
 
 void textBoxUpdateRows(Actor *actor) {
-    ChainState *state;
+    ResQueueActorState *state;
     ResRow *node;
     ResRow *cur;
     u8 stop;
@@ -539,7 +518,7 @@ void textBoxUpdateRows(Actor *actor) {
     s32 i;
 
     state = actor->customState;
-    node = state->unkC;
+    node = state->rows;
     stop = 0;
     lim = (f32) ((f64) (1.0f - state->unk20) * 1.47058823529411775);
     if (lim > 1.0f) {
@@ -557,8 +536,8 @@ void textBoxUpdateRows(Actor *actor) {
     state->unk50 = (state->unk50 < (f32) gPlayerSlots->unk276) ? state->unk50 : (f32) gPlayerSlots->unk276;
     acc = state->unk14;
     i = 0;
-    while (((s32) state->unk10 >= i) && (node != NULL) && (stop == 0)) {
-        last = (i == state->unk10);
+    while (((s32) state->rowState >= i) && (node != NULL) && (stop == 0)) {
+        last = (i == state->rowState);
         dt = node->height;
         if (((f64) (acc + dt) > 73.79999542236328) && (actor->state == 1)) {
             actor->state = 2;
@@ -566,8 +545,8 @@ void textBoxUpdateRows(Actor *actor) {
             stop = 1;
         } else if (((acc + dt) < 0.0f) && (actor->state == 2)) {
             state->unk14 = state->unk14 + dt;
-            state->unkC = node->next;
-            state->unk10--;
+            state->rows = node->next;
+            state->rowState--;
             i--;
             acc = acc + dt;
             cur = node;
@@ -593,7 +572,7 @@ void textBoxUpdateRows(Actor *actor) {
         }
     }
     if ((mode == 1) && (node == NULL)) {
-        resQueueProcessNext(actor, state->unk4);
+        resQueueProcessNext(actor, state->key);
     }
 }
 
