@@ -15,8 +15,8 @@ s32 textBlitGlyph(u8, s32, s32, s16, u8, u8 *, u8);
 #ifndef PROTO_SKIP_textBlitString
 void textBlitString(s32, u8, u8 *);
 #endif
-#ifndef PROTO_SKIP_func_806FB8B0
-void func_806FB8B0(s32);
+#ifndef PROTO_SKIP_textBlitDash
+void textBlitDash(s32);
 #endif
 #ifndef PROTO_SKIP_textMapCharToGlyph
 s32 textMapCharToGlyph(s16, u8 *);

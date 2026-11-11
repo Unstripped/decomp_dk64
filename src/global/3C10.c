@@ -282,7 +282,7 @@ void mapRequestTransition(s32 map, s32 exitIndex) {
             if ((gNextGameMode != 1) && (D_8076AEE0 == 1) && !(gGlobalCutsceneFlags & 2) && (gCurrentMap != 0x4C)) {
                 sfxAllocateChannel(0x2C, 1.0f);
             }
-            func_807313BC();
+            flagTempsPruneUnloadedMaps();
             mapLoadSavedSlotSpawn(map);
             if (gGlobalOverlayFlags & 1) {
                 func_8002920C();
@@ -297,7 +297,7 @@ void mapRequestTransitionFast(s32 map, s32 exitIndex) {
     gInitialMap = map;
     gInitialExit = exitIndex;
     D_8076AEF2 = gCurrentMap;
-    func_807313BC();
+    flagTempsPruneUnloadedMaps();
     mapLoadSavedSlotSpawn(map);
 }
 

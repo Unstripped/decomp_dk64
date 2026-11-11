@@ -81,10 +81,10 @@ typedef struct TextGlyph {
     u8 unk3;
 } TextGlyph;
 
-extern TextGlyph *D_80754A18[];
+extern TextGlyph *gTextGlyphTables[];
 extern void **gTextFontSheets;
-extern TextFontInfo D_80754A34[];
-extern u8 *D_807549FC[];
+extern TextFontInfo gTextFonts[];
+extern u8 *gTextFontLineStarts[];
 
 void textBlitString(s32 dst, u8 pitch, u8 *str) {
     s32 i;
@@ -97,10 +97,10 @@ void textBlitString(s32 dst, u8 pitch, u8 *str) {
     while (ch) {
         if (ch != ' ') {
             row = textMapCharToGlyph(0, &ch);
-            for (i = 1; i < D_80754A34[0].lineCount + 1; i++) {
-                if (ch >= D_807549FC[0][i - 1] && ch < D_807549FC[0][i]) {
+            for (i = 1; i < gTextFonts[0].lineCount + 1; i++) {
+                if (ch >= gTextFontLineStarts[0][i - 1] && ch < gTextFontLineStarts[0][i]) {
                     textFontLoadSheet(i - 1);
-                    dst = textBlitGlyph(D_80754A18[0][ch].width, dst, (s32)gTextFontSheets[i - 1], D_80754A18[0][ch].texX, row, &phase, pitch);
+                    dst = textBlitGlyph(gTextGlyphTables[0][ch].width, dst, (s32)gTextFontSheets[i - 1], gTextGlyphTables[0][ch].texX, row, &phase, pitch);
                 }
             }
         } else {
@@ -111,12 +111,12 @@ void textBlitString(s32 dst, u8 pitch, u8 *str) {
     }
 }
 
-void func_806FB8B0(s32 dst) {
+void textBlitDash(s32 dst) {
     u8 phase;
 
     phase = 0;
     textFontLoadSheet(2);
-    textBlitGlyph(D_80754A18[0][0x5F].width, dst, (s32)gTextFontSheets[2], D_80754A18[0][0x5F].texX, 2,
+    textBlitGlyph(gTextGlyphTables[0][0x5F].width, dst, (s32)gTextFontSheets[2], gTextGlyphTables[0][0x5F].texX, 2,
                   &phase, 0x30);
 }
 
@@ -218,7 +218,7 @@ void textFontAgeSheets(void) {
 
     n = 0;
     for (i = 0; i < 8; i++) {
-        e = &D_80754A34[i];
+        e = &gTextFonts[i];
         for (j = 0; j < e->lineCount; j++) {
             if (gTextFontSheetAges[n++]) {
                 sheet = n - 1;
@@ -242,17 +242,17 @@ u8 *str;
     len = 0;
     if (font & 0x80) {
         font ^= 0x80;
-        return strlen(str) * D_80754A34[font].fixedWidth;
+        return strlen(str) * gTextFonts[font].fixedWidth;
     }
     ch = *str++;
     while (ch) {
         if (ch == 0x20) {
-            len += D_80754A34[font].spaceWidth;
-            step = D_80754A34[font].spacing;
+            len += gTextFonts[font].spaceWidth;
+            step = gTextFonts[font].spacing;
         } else {
             textMapCharToGlyph(font, &ch);
-            step = D_80754A34[font].spacing;
-            len += D_80754A18[font][ch].width;
+            step = gTextFonts[font].spacing;
+            len += gTextGlyphTables[font][ch].width;
         }
         len += step;
         ch = *str++;
@@ -275,7 +275,7 @@ s16 textCountNonSpace(u8 *str) {
 Gfx *textLoadFontSheetGfx(Gfx *dl, u8 font, s16 line) {
     s16 sheet;
 
-    sheet = D_80754A34[font].firstSheet + line - 1;
+    sheet = gTextFonts[font].firstSheet + line - 1;
     textFontLoadSheet(sheet);
     switch (font) {
     case 6:
@@ -385,7 +385,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
         TEXT_GFX_CMD(g3, 0xDA380003, (u32)&D_2000180);
     }
     dl = gfxInit2DDisplayList(dl);
-    for (line = 1; line < D_80754A34[font].lineCount + 1; line++) {
+    for (line = 1; line < gTextFonts[font].lineCount + 1; line++) {
         TEXT_GFX_CMD(g8, 0xE7000000, 0);
         started = 0;
         ch = *str++;
@@ -393,18 +393,18 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
             do {
                 if (ch != 0x20) {
                     yoff = textMapCharToGlyph(font, &ch) * 4;
-                    glyph = &D_80754A18[font][ch];
+                    glyph = &gTextGlyphTables[font][ch];
                     w4 = glyph->width * 4;
-                    h4 = D_80754A34[font].height * 4;
+                    h4 = gTextFonts[font].height * 4;
                     gx = glyph->texX;
                     w = glyph->width;
-                    h = D_80754A34[font].height;
+                    h = gTextFonts[font].height;
                     if (center) {
-                        tmp = (D_80754A34[font].fixedWidth * 4 - w4) / 2;
+                        tmp = (gTextFonts[font].fixedWidth * 4 - w4) / 2;
                         leftPad = (tmp < 0) ? 0 : tmp;
                         x += leftPad;
                     }
-                    if (ch >= D_807549FC[font][line - 1] && ch < D_807549FC[font][line]) {
+                    if (ch >= gTextFontLineStarts[font][line - 1] && ch < gTextFontLineStarts[font][line]) {
                         if (started == 0) {
                             dl = textLoadFontSheetGfx(dl, font, line);
                             started = 1;
@@ -448,18 +448,18 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                         }
                     }
                     if (center) {
-                        tmp = D_80754A34[font].fixedWidth * 4;
+                        tmp = gTextFonts[font].fixedWidth * 4;
                         x += (w4 < tmp) ? w4 : tmp;
                         if (w4 < tmp) {
                             x = x + tmp - leftPad - w4;
                         }
                     } else {
-                        x += (D_80754A18[font][ch].width + D_80754A34[font].spacing) * 4;
+                        x += (gTextGlyphTables[font][ch].width + gTextFonts[font].spacing) * 4;
                     }
                 } else if (center) {
-                    x += D_80754A34[font].fixedWidth * 4;
+                    x += gTextFonts[font].fixedWidth * 4;
                 } else {
-                    x += D_80754A34[font].spaceWidth * 4;
+                    x += gTextFonts[font].spaceWidth * 4;
                 }
                 idx++;
                 ch = *str++;
@@ -508,7 +508,7 @@ Gfx *textObjectDrawFlat(Gfx *dl, TextObject *textObj) {
     vtxBase = vp;
     gDPSetTextureFilter(dl++, G_TF_BILERP);
     dl = func_8070068C(dl);
-    for (line = 1; line < D_80754A34[textObj->font].lineCount + 1; line++) {
+    for (line = 1; line < gTextFonts[textObj->font].lineCount + 1; line++) {
         started = 0;
         i = 1;
         chr = textObj->text[0];
@@ -516,10 +516,10 @@ Gfx *textObjectDrawFlat(Gfx *dl, TextObject *textObj) {
             do {
                 if (chr != 0x20) {
                     textMapCharToGlyph(textObj->font, &chr);
-                    if (chr >= D_807549FC[textObj->font][line - 1] && chr < D_807549FC[textObj->font][line]) {
-                        gw = D_80754A18[textObj->font][chr].width;
-                        gx = D_80754A18[textObj->font][chr].texX;
-                        gh = D_80754A34[textObj->font].height;
+                    if (chr >= gTextFontLineStarts[textObj->font][line - 1] && chr < gTextFontLineStarts[textObj->font][line]) {
+                        gw = gTextGlyphTables[textObj->font][chr].width;
+                        gx = gTextGlyphTables[textObj->font][chr].texX;
+                        gh = gTextFonts[textObj->font].height;
                         if (started == 0) {
                             started = 1;
                             dl = textLoadFontSheetGfx(dl, textObj->font, line);
@@ -587,7 +587,7 @@ Gfx *textObjectDrawRotated(Gfx *dl, TextObject *textObj) {
     gSPMatrix(dl++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(dl++, D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(dl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    for (line = 1; line < D_80754A34[textObj->font].lineCount + 1; line++) {
+    for (line = 1; line < gTextFonts[textObj->font].lineCount + 1; line++) {
         started = 0;
         i = 1;
         chr = textObj->text[0];
@@ -595,10 +595,10 @@ Gfx *textObjectDrawRotated(Gfx *dl, TextObject *textObj) {
             do {
                 if (chr != 0x20) {
                     textMapCharToGlyph(textObj->font, &chr);
-                    if (chr >= D_807549FC[textObj->font][line - 1] && chr < D_807549FC[textObj->font][line]) {
-                        gw = D_80754A18[textObj->font][chr].width;
-                        gx = D_80754A18[textObj->font][chr].texX;
-                        gh = D_80754A34[textObj->font].height;
+                    if (chr >= gTextFontLineStarts[textObj->font][line - 1] && chr < gTextFontLineStarts[textObj->font][line]) {
+                        gw = gTextGlyphTables[textObj->font][chr].width;
+                        gx = gTextGlyphTables[textObj->font][chr].texX;
+                        gh = gTextFonts[textObj->font].height;
                         if (started == 0) {
                             started = 1;
                             dl = textLoadFontSheetGfx(dl, textObj->font, line);
@@ -660,16 +660,16 @@ Gfx *textDrawString(Gfx *dl, u8 font, s16 x, s16 y, u8 *str) {
     while (ch) {
         if (ch != 0x20) {
             textMapCharToGlyph(font, &ch);
-            gSPTextureRectangle(dl++, x << 2, y << 2, (x + D_80754A18[font][ch].width) << 2, (D_80754A34[font].height + y) << 2, 0, D_80754A18[font][ch].texX << 5, 0, 0x400, 0x400);
+            gSPTextureRectangle(dl++, x << 2, y << 2, (x + gTextGlyphTables[font][ch].width) << 2, (gTextFonts[font].height + y) << 2, 0, gTextGlyphTables[font][ch].texX << 5, 0, 0x400, 0x400);
             if (flag != 0) {
-                x += D_80754A34[font].fixedWidth;
+                x += gTextFonts[font].fixedWidth;
             } else {
-                x += D_80754A18[font][ch].width + D_80754A34[font].spacing;
+                x += gTextGlyphTables[font][ch].width + gTextFonts[font].spacing;
             }
         } else if (flag != 0) {
-            x += D_80754A34[font].fixedWidth;
+            x += gTextFonts[font].fixedWidth;
         } else {
-            x += D_80754A34[font].spaceWidth;
+            x += gTextFonts[font].spaceWidth;
         }
         ch = *str++;
     }
@@ -686,15 +686,15 @@ s16 textGetCharAdvance(s16 font, u8 ch) {
 
     f = font; // FAKE: s32 copy keeps the extended font in a2 (sll a2,a0,0x10) apart from the a0 argument
     if (f & 0x80) {
-        info = &D_80754A34[(s16)(f ^ 0x80)];
+        info = &gTextFonts[(s16)(f ^ 0x80)];
         advance = info->fixedWidth;
     } else if (ch == ' ') {
-        info = &D_80754A34[f];
+        info = &gTextFonts[f];
         advance = info->spaceWidth;
     } else {
         textMapCharToGlyph(f, &ch);
-        advance = D_80754A18[f][ch].width;
-        info = &D_80754A34[f];
+        advance = gTextGlyphTables[f][ch].width;
+        info = &gTextFonts[f];
     }
     advance += info->spacing;
     return advance;
@@ -704,5 +704,5 @@ u8 textGetFontHeight(s16 font) {
     if (font & 0x80) {
         font ^= 0x80;
     }
-    return D_80754A34[font].height;
+    return gTextFonts[font].height;
 }

@@ -1018,7 +1018,7 @@ void gridUpdatePlayerNodes(u8 playerIndex) {
                         tbl = csModelSlotGetTableIndex(node->modelSlot);
                         D_807FD790[D_807FD798] = tbl;
                         D_807FD798 += 1;
-                        func_807314F4(gCurrentLevelIndex, tbl);
+                        flagSetForMapObject(gCurrentLevelIndex, tbl);
                     }
                 }
                 slotQueueGetPosition(slot, &px, &py, &pz);
@@ -1256,7 +1256,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                     }
                                     slot = modelSlotAppend(D_80753EF0[k].modelType, actor->x, func_806F7378(actor->actorType) + actor->y, actor->z, 0.0f, 0);
                                     tblIdx = csModelSlotGetTableIndex(slot);
-                                    func_80731410(gCurrentLevelIndex, tblIdx, sub->unkA, func_8073198C(sub->unkA));
+                                    flagTempRegister(gCurrentLevelIndex, tblIdx, sub->unkA, flagLookupValueById(sub->unkA));
                                     tblIdx = csModelSlotGetTableIndex(slot);
                                     modelFlagsApplyState(gCurrentLevelIndex, tblIdx, &gModelSlots[hashTableLookup(slot)].unk8C);
                                     gridAddModelNode(slot, D_80753EF0[k].modelType, 0, 1, 0, flag);

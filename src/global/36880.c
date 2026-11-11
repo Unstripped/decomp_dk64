@@ -319,7 +319,7 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
                     used = 1;
                 }
                 if (found == 0 && modelSkipListContains(entry->unk28) == 0 &&
-                    func_807315D4(gCurrentMap, entry->unk2A) == 0 &&
+                    flagGetForMapObject(gCurrentMap, entry->unk2A) == 0 &&
                     func_8063253C(entry->unk28, map) != 0) {
                     gModelSlots[outCount].unk0 = entry->unk0;
                     gModelSlots[outCount].unk4 = entry->unk4;
@@ -685,7 +685,7 @@ void modelFlagsApplyMapPairs(s16 id, u8 *flags) {
 
 
 void modelFlagsApplyState(s16 map, s16 id, u8 *flags) {
-    switch (func_80731654(map, id)) {
+    switch (flagValueForMapObject(map, id)) {
         case 2:
             *flags |= 8;
             break;

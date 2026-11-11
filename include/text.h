@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-// Per-font metrics table entry (D_80754A34[font]); 6 bytes.
+// Per-font metrics table entry (gTextFonts[font]); 6 bytes.
 typedef struct TextFontInfo {
     /* 0x0 */ u8 firstSheet;
     /* 0x1 */ u8 lineCount;

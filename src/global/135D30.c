@@ -19,8 +19,8 @@ typedef struct FlagTableEntry4 {
     /* 0x3 */ u8 pad3;
 } FlagTableEntry4;
 
-FlagTableEntry D_807FDCD0[0x18];
-u8 D_807FDD90[14];
+FlagTableEntry gFlagTempEntries[0x18];
+u8 gFlagBank2[14];
 extern FlagTableEntry D_80755A20[];
 extern FlagTableEntry D_80755DA8[];
 extern FlagTableEntry D_80755EA0[];
@@ -32,7 +32,7 @@ void flagsClearAllBank2(void) {
     s32 i;
 
     for (i = 0; i < 14; i++) {
-        D_807FDD90[i] = 0;
+        gFlagBank2[i] = 0;
     }
 }
 
@@ -65,7 +65,7 @@ u8 flagGet(s16 flag, u8 bank) {
         base = eepromGetSectionBuffer(bank);
         break;
     case 2:
-        base = D_807FDD90;
+        base = gFlagBank2;
         break;
     }
     idx = flag >> 3;
@@ -115,7 +115,7 @@ void flagSet(s16 flag, u8 val, u8 bank) {
         base = eepromGetSectionBuffer(bank);
         break;
     case 2:
-        base = D_807FDD90;
+        base = gFlagBank2;
         break;
     }
     idx = flag >> 3;
@@ -129,34 +129,34 @@ void flagSet(s16 flag, u8 val, u8 bank) {
     }
 }
 
-extern FlagTableEntry D_807FDCD0[];
+extern FlagTableEntry gFlagTempEntries[];
 
-void func_807313BC(void) {
+void flagTempsPruneUnloadedMaps(void) {
     s32 i;
 
     for (i = 0; i < 0x18; i++) {
-        if (mapFindSlotByMap(D_807FDCD0[i].map) == 0) {
-            D_807FDCD0[i].active = 0;
+        if (mapFindSlotByMap(gFlagTempEntries[i].map) == 0) {
+            gFlagTempEntries[i].active = 0;
         }
     }
 }
 
-void func_80731410(s16 map, s16 id, s16 flag, u8 val) {
+void flagTempRegister(s16 map, s16 id, s16 flag, u8 val) {
     s32 i;
 
     for (i = 0; i < 0x18; i++) {
-        if (D_807FDCD0[i].active == 0) {
-            D_807FDCD0[i].map = map;
-            D_807FDCD0[i].id = id;
-            D_807FDCD0[i].flag = flag;
-            D_807FDCD0[i].value = val;
-            D_807FDCD0[i].active = 1;
+        if (gFlagTempEntries[i].active == 0) {
+            gFlagTempEntries[i].map = map;
+            gFlagTempEntries[i].id = id;
+            gFlagTempEntries[i].flag = flag;
+            gFlagTempEntries[i].value = val;
+            gFlagTempEntries[i].active = 1;
             return;
         }
     }
 }
 
-void func_807314F4(s16 map, s16 id) {
+void flagSetForMapObject(s16 map, s16 id) {
     s32 i;
     s32 n = 0x71; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
 
@@ -167,15 +167,15 @@ void func_807314F4(s16 map, s16 id) {
         }
     }
     for (i = 0; i < 0x18; i++) {
-        if (D_807FDCD0[i].active != 0 && map == D_807FDCD0[i].map && id == D_807FDCD0[i].id) {
-            flagSet(D_807FDCD0[i].flag, 1, 0);
-            D_807FDCD0[i].active = 0;
+        if (gFlagTempEntries[i].active != 0 && map == gFlagTempEntries[i].map && id == gFlagTempEntries[i].id) {
+            flagSet(gFlagTempEntries[i].flag, 1, 0);
+            gFlagTempEntries[i].active = 0;
             return;
         }
     }
 }
 
-s32 func_807315D4(s16 map, s16 id) {
+s32 flagGetForMapObject(s16 map, s16 id) {
     s32 i;
     s32 n = 0x71; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
 
@@ -187,7 +187,7 @@ s32 func_807315D4(s16 map, s16 id) {
     return 0;
 }
 
-u8 func_80731654(s16 map, s16 id) {
+u8 flagValueForMapObject(s16 map, s16 id) {
     s32 i;
     s32 n = 0x71; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
 
@@ -197,8 +197,8 @@ u8 func_80731654(s16 map, s16 id) {
         }
     }
     for (i = 0; i < 0x18; i++) {
-        if (D_807FDCD0[i].active != 0 && map == D_807FDCD0[i].map && id == D_807FDCD0[i].id) {
-            return D_807FDCD0[i].value;
+        if (gFlagTempEntries[i].active != 0 && map == gFlagTempEntries[i].map && id == gFlagTempEntries[i].id) {
+            return gFlagTempEntries[i].value;
         }
     }
     return 0;
@@ -265,7 +265,7 @@ s32 func_8073195C(s16 index) {
     return D_80755F4C[index].id;
 }
 
-u8 func_8073198C(s16 id) {
+u8 flagLookupValueById(s16 id) {
     s32 i;
     s32 n = 0x35; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
 

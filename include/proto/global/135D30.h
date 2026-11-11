@@ -20,20 +20,20 @@ void flagUpdateRangeCompletion(s16);
 #ifndef PROTO_SKIP_flagSet
 void flagSet(s16, u8, u8);
 #endif
-#ifndef PROTO_SKIP_func_807313BC
-void func_807313BC(void);
+#ifndef PROTO_SKIP_flagTempsPruneUnloadedMaps
+void flagTempsPruneUnloadedMaps(void);
 #endif
-#ifndef PROTO_SKIP_func_80731410
-void func_80731410(s16, s16, s16, u8);
+#ifndef PROTO_SKIP_flagTempRegister
+void flagTempRegister(s16, s16, s16, u8);
 #endif
-#ifndef PROTO_SKIP_func_807314F4
-void func_807314F4(s16, s16);
+#ifndef PROTO_SKIP_flagSetForMapObject
+void flagSetForMapObject(s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_807315D4
-s32 func_807315D4(s16, s16);
+#ifndef PROTO_SKIP_flagGetForMapObject
+s32 flagGetForMapObject(s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_80731654
-u8 func_80731654(s16, s16);
+#ifndef PROTO_SKIP_flagValueForMapObject
+u8 flagValueForMapObject(s16, s16);
 #endif
 #ifndef PROTO_SKIP_spawnFlagLookup
 s32 spawnFlagLookup(s16, s16, s32 *);
@@ -47,8 +47,8 @@ s32 flagTryTriggerOnce(s16, s16);
 #ifndef PROTO_SKIP_func_8073195C
 s32 func_8073195C(s16);
 #endif
-#ifndef PROTO_SKIP_func_8073198C
-u8 func_8073198C(s16);
+#ifndef PROTO_SKIP_flagLookupValueById
+u8 flagLookupValueById(s16);
 #endif
 #ifndef PROTO_SKIP_flagGridIndex
 s32 flagGridIndex(s32, s32, s32);

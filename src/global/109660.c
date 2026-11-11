@@ -53,19 +53,19 @@ Gfx *gfxDrawSplitScreenDividers(Gfx *dl) {
     return dl;
 }
 
-extern f32 D_807FD968;
-extern f32 D_807FD96C;
-extern f32 D_807FD970;
+extern f32 gLightOverrideR;
+extern f32 gLightOverrideG;
+extern f32 gLightOverrideB;
 
 void lightSetOverrideColor(f32 r, f32 g, f32 b) {
-    D_807FD968 = r;
-    D_807FD96C = g;
-    D_807FD970 = b;
+    gLightOverrideR = r;
+    gLightOverrideG = g;
+    gLightOverrideB = b;
 }
 
 extern Actor *gCamActor;
 extern u8 D_80754EF8[][12];
-extern Vtx *D_80754ED8[];
+extern Vtx *gSkyQuadVtx[];
 extern Mtx D_2000080;
 extern Mtx D_2000180;
 f32 cosApprox(f32);
@@ -92,7 +92,7 @@ Gfx *gfxDrawBackgroundQuad(Gfx *gdl, f32 rotX, f32 angle, Mtx *mtx, u8 skyTypeA,
     y = -(256.0f - (cosApprox(angle) * 300.0f)) - 80.0f;
     camState = gCamActor->customState;
     if (skyTypeA == 5) {
-        y += 0.08 * gPlayerSlots->unk2CA - 75.0;
+        y += 0.08 * gPlayerSlots->camYInt - 75.0;
     }
 
     switch (colorMode) {
@@ -102,10 +102,10 @@ Gfx *gfxDrawBackgroundQuad(Gfx *gdl, f32 rotX, f32 angle, Mtx *mtx, u8 skyTypeA,
         red = 1.0f;
         break;
     case 1:
-        if (D_807FD968 >= 0.0f) {
-            red = D_807FD968;
-            green = D_807FD96C;
-            blue = D_807FD970;
+        if (gLightOverrideR >= 0.0f) {
+            red = gLightOverrideR;
+            green = gLightOverrideG;
+            blue = gLightOverrideB;
         } else {
             if (lightIndex == -1) {
                 lightIndex = gPrimaryPlayerActor->chunkIndex;
@@ -136,10 +136,10 @@ Gfx *gfxDrawBackgroundQuad(Gfx *gdl, f32 rotX, f32 angle, Mtx *mtx, u8 skyTypeA,
     gSPViewport(gdl++, osVirtualToPhysical(&gPlayerSlots->viewport[gGfxBufferIndex]));
     gDPSetScissor(gdl++, G_SC_NON_INTERLACE, gPlayerSlots->rect[0], gPlayerSlots->rect[1], gPlayerSlots->rect[2], gPlayerSlots->rect[3]);
 
-    offset = D_80754ED8[skyTypeA][2].v.ob[1];
-    vtxList = &D_80754ED8[skyTypeA];
+    offset = gSkyQuadVtx[skyTypeA][2].v.ob[1];
+    vtxList = &gSkyQuadVtx[skyTypeA];
     guTranslateF(mtxA, 0.0f, (f32)-offset, 0.0f);
-    matrixMakeRotationZ(mtxB, (((0x1000 - gPlayerSlots->unk2CC) & 0xFFF) * 360) / 4096);
+    matrixMakeRotationZ(mtxB, (((0x1000 - gPlayerSlots->skyRoll) & 0xFFF) * 360) / 4096);
     guMtxCatF(mtxA, mtxB, mtxA);
     guTranslateF(mtxB, 160.0f, (f32)offset + y, 0.0f);
     guMtxCatF(mtxA, mtxB, mtxA);
@@ -182,7 +182,7 @@ extern void *D_807FD978[8];
 void gfxBackgroundReset(void) {
     D_807FD8A0 = NULL;
     guOrtho(&D_807FD928, 0.0f, gScreenWidth * 16.0f - 1.0, gScreenHeight * 16.0f - 1.0, 0.0f, -20000.0f, 20000.0f, 1.0f);
-    D_807FD968 = -1.0f;
+    gLightOverrideR = -1.0f;
     D_807FD978[0] = NULL;
 }
 
@@ -200,7 +200,7 @@ void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
 
     x = mathSinF(azimuthAngle) * 32767.0;
     z = mathCosF(azimuthAngle) * 32767.0;
-    y = elevationAngle - 8.0 * gPlayerSlots->unk2CA;
+    y = elevationAngle - 8.0 * gPlayerSlots->camYInt;
     if (colorMode != 0) {
         if (colorMode == 1) {
             lightGetColor(&lightR, &lightG, &lightB, gPrimaryPlayerActor->chunkIndex);
@@ -244,7 +244,7 @@ Gfx *gfxDrawSkySprite(Gfx *dl, s16 azimuthAngle, s16 elevationAngle, u8 mode) {
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
     x = mathSinF(azimuthAngle) * 32767.0;
     z = mathCosF(azimuthAngle) * 32767.0;
-    y = elevationAngle - 8.0 * gPlayerSlots->unk2CA;
+    y = elevationAngle - 8.0 * gPlayerSlots->camYInt;
     camProjectToScreen(x, y, z, &screenX, &screenY, 0, 4.0f, 0);
     if ((screenX > -320.0f) && (screenX < 1600.0f) && (screenY > -240.0f) && (screenY < 1200.0f)) {
         g = playerViewGfxSetup(dl, 0);
@@ -304,7 +304,7 @@ typedef struct {
     u8 pad;
 } TintKeyframe;
 
-extern TintKeyframe D_80754F58[];
+extern TintKeyframe gTintKeyframes[];
 
 void gfxGetBackgroundTint(s16 yPos, u8 *outR, u8 *outG, u8 *outB) {
     u8 idx;
@@ -314,14 +314,14 @@ void gfxGetBackgroundTint(s16 yPos, u8 *outR, u8 *outG, u8 *outB) {
     switch (gCurrentMap) {
         case 0xE:
             idx = 0;
-            while (yPos < D_80754F58[idx + 1].pos) {
+            while (yPos < gTintKeyframes[idx + 1].pos) {
                 idx++;
             }
-            key = &D_80754F58[idx];
-            t = (f32)(yPos - D_80754F58[idx + 1].pos) / (f32)(key->pos - D_80754F58[idx + 1].pos);
-            *outR = D_80754F58[idx + 1].r + (f32)(key->r - D_80754F58[idx + 1].r) * t;
-            *outG = D_80754F58[idx + 1].g + (f32)(key->g - D_80754F58[idx + 1].g) * t;
-            *outB = D_80754F58[idx + 1].b + (f32)(key->b - D_80754F58[idx + 1].b) * t;
+            key = &gTintKeyframes[idx];
+            t = (f32)(yPos - gTintKeyframes[idx + 1].pos) / (f32)(key->pos - gTintKeyframes[idx + 1].pos);
+            *outR = gTintKeyframes[idx + 1].r + (f32)(key->r - gTintKeyframes[idx + 1].r) * t;
+            *outG = gTintKeyframes[idx + 1].g + (f32)(key->g - gTintKeyframes[idx + 1].g) * t;
+            *outB = gTintKeyframes[idx + 1].b + (f32)(key->b - gTintKeyframes[idx + 1].b) * t;
             return;
         case 0x41:
         case 0x42:
@@ -421,8 +421,8 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
 
 extern s16 D_80754CE0;
 extern s16 D_80754CEC[];
-extern s16 D_80754F70;
-extern s16 D_80754F74;
+extern s16 gBgScrollX;
+extern s16 gBgScrollY;
 
 Gfx *gfxBuildScrollingBackground(Gfx *dl) {
     s32 x;
@@ -445,7 +445,7 @@ Gfx *gfxBuildScrollingBackground(Gfx *dl) {
     gSPTexture(dl++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     gDPPipeSync(dl++);
-    scroll = D_80754F74 + D_80754CE0;
+    scroll = gBgScrollY + D_80754CE0;
     if (scroll < 0) {
         scroll += 0x200;
     }
@@ -465,7 +465,7 @@ Gfx *gfxBuildScrollingBackground(Gfx *dl) {
             gDPPipeSync(dl++);
             tex = D_807FD978[k];
             gDPLoadTextureBlock(dl++, (u32)tex + 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 64, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, G_TX_NOLOD, G_TX_NOLOD);
-            x = (i << 2) - D_80754F70;
+            x = (i << 2) - gBgScrollX;
             for (n = 0; n < 4; n++) {
                 y2 = y;
                 gSPScisTextureRectangle(dl++, x, y2, x + 0x80, y2 + 0x100, 0, 0, 0x7FF, 0x400, -0x400);
@@ -479,14 +479,14 @@ Gfx *gfxBuildScrollingBackground(Gfx *dl) {
             i += 0x20;
         } while (i != 0x80);
     }
-    i = (s16)(D_80754F70 + 4); // FAKE: loop counter i reused for the new scroll value; a separate local adds a home and grows the frame 0x100 -> 0x108
-    D_80754F74 += 4;
-    *(s16 *)((u8 *)D_80754F58 + 0x18) = i; // FAKE: D_80754F70 stored via D_80754F58+0x18 keeps a separate lui at/sh (no lda web in v1, Q0255)
+    i = (s16)(gBgScrollX + 4); // FAKE: loop counter i reused for the new scroll value; a separate local adds a home and grows the frame 0x100 -> 0x108
+    gBgScrollY += 4;
+    *(s16 *)((u8 *)gTintKeyframes + 0x18) = i; // FAKE: gBgScrollX stored via gTintKeyframes+0x18 keeps a separate lui at/sh (no lda web in v1, Q0255)
     if (i >= 0x200) {
-        *(s16 *)((u8 *)D_80754EF8 + 0x78) = 0; // FAKE: D_80754F70 stored via D_80754EF8+0x78 keeps a separate lui at/sh (Q0255)
+        *(s16 *)((u8 *)D_80754EF8 + 0x78) = 0; // FAKE: gBgScrollX stored via D_80754EF8+0x78 keeps a separate lui at/sh (Q0255)
     }
-    if (D_80754F74 >= 0x200) {
-        D_80754F74 = 0;
+    if (gBgScrollY >= 0x200) {
+        gBgScrollY = 0;
     }
     gDPPipeSync(dl++);
     gDPSetTexturePersp(dl++, G_TP_PERSP);

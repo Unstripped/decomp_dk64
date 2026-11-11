@@ -172,7 +172,7 @@ void func_806FDF54(f32 *pAngle, f32 *pTarget) {
     *pAngle = (f32)((f64)((f32)mathAngleEaseToward((s16)(s32)(((f64)*pAngle * 2048.0) / 3.1415927410125732), (s16)(s32)(((f64)*pTarget * 2048.0) / 3.1415927410125732), 5.0f) * 3.1415927410125732f) * 0.00048828125);
 }
 
-extern TextFontInfo D_80754A34[];
+extern TextFontInfo gTextFonts[];
 extern s16 textGetCharAdvance(s16, s32); // FAKE: callee prototype steer
 f32 sinApprox(f32);
 f32 cosApprox(f32);
@@ -310,26 +310,26 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
         } else {
             switch (animMode) {
                 case 1:
-                    phase -= D_80754A34[node->font].spaceWidth * 0.013f;
+                    phase -= gTextFonts[node->font].spaceWidth * 0.013f;
                     break;
                 case 2:
                 case 3:
                 case 4:
                 case 5:
                 case 8:
-                    centeredX += D_80754A34[node->font].spaceWidth;
+                    centeredX += gTextFonts[node->font].spaceWidth;
                     break;
                 case 6:
                     curX += 32.0f;
                     break;
                 case 10:
-                    baseZ += D_80754A34[node->font].spaceWidth;
+                    baseZ += gTextFonts[node->font].spaceWidth;
                     break;
                 default:
-                    curX += D_80754A34[node->font].spaceWidth;
+                    curX += gTextFonts[node->font].spaceWidth;
                     break;
             }
-            phase -= D_80754A34[node->font].spaceWidth * 0.019;
+            phase -= gTextFonts[node->font].spaceWidth * 0.019;
         }
         if (phase < 0.0f) { phase += 6.2831855f; } ch = *(strPos + node->text); strPos += 1; // FAKE: index-first spelling keeps the addu operand order
     }

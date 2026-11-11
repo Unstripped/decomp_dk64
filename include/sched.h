@@ -123,8 +123,8 @@ typedef struct {
     /* 0x2C2 */ u8 pad2C2[2];
     /* 0x2C4 */ f32 unk2C4;
     /* 0x2C8 */ s16 unk2C8;
-    /* 0x2CA */ s16 unk2CA;
-    /* 0x2CC */ s16 unk2CC;
+    /* 0x2CA */ s16 camYInt;
+    /* 0x2CC */ s16 skyRoll;
     /* 0x2CE */ u8 pad2CE[2];
     /* 0x2D0 */ f32 unk2D0;
     /* 0x2D4 */ f32 bgRotX;
