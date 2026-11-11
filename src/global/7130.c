@@ -1855,8 +1855,6 @@ void sfxPlayFromActorDirect(Actor *actor, s16 sfxId, u8 volume, f32 pitch, u8 sp
 extern u8 gPlayerCount;
 
 
-#pragma intrinsic(sqrtf)
-
 s16 sfxPlayAtPositionPooled(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, s16 pitch, u8 spread, u8 range, f32 directionality, u8 fx) {
     f32 diff;
     f32 angle2;
@@ -2296,16 +2294,13 @@ void seqPlayWithDefaultVolume(s32 seqIndex, u8 seqId) {
 }
 
 void seqLoadAndPlayWithReverb(s32 seqIndex, u8 seqId, f32 volume) {
-    f64 level;
     f32 pan, vol;
 
     seqLoadAndPlay(seqIndex, seqId, volume);
-    level = (f64)(u32)D_8077058E;
-    pan = (level * 0.3) / 255.0;
-    vol = ((level * 0.35) / 255.0) + 1.0;
+    pan = ((f64)(u32)D_8077058E * 0.3) / 255.0;
+    vol = (((f64)(u32)D_8077058E * 0.35) / 255.0) + 1.0;
     if (seqIndex != 0) {
         if (sSfxFlagTable[D_80770560[seqIndex]] & 1) {
-            level = (f64)(u32)D_8077058E;  // FAKE: dead reload keeps pan/vol computed before the branch
             alCSPSetChlPanVolume(gSeqPlayers[seqIndex], pan, vol);
         } else {
             alCSPSetChlPanVolume(gSeqPlayers[seqIndex], 0.0f, 1.0f);
