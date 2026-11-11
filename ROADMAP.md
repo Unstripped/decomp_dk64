@@ -132,25 +132,26 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Rounds 6–7 (2026-11-10)** — round 6: global/AA960, 4FC0 (jetpac), 3C10, 15050, 112080, 1295B0, 5A50, plus re-reviews of 12 files after `actorType` u32; round 7: multiplayer/0, global/54150, CBEA0, 7AF60, jetpac/3480, jetpac/0. New shared headers `audio_config.h`, `segment.h`, `jetpac.h`, `water.h`; shared `ActorSub4`/`AnimSlot`/`AnimClip` animation types (QualityTools, 70 views retired); `ActorCollisionList`, `G00Entry`/`G01Pos`, `PlayerState.scoreEffect`, `ActorGlobalState` carve (7CA80's view retired; `bossFightPhase`); split splat labels retired across ~40 files with relocation-equivalent checks (`--reloc-ok`); 9 symbols named. About 144 reviews that QualityTools recorded from diffs are being re-read (ReRead) and are not counted as read here.
 - [x] **Round 8 (2026-11-10)** — global/A2F10, CC800, 110F00 (+ caller 10E1D0), 7CA80 (re-review after its view retirement), bonus/2690, menu/1AF0 (partial). Header carves: `Actor` unkCE/unkD4/unk148/unk14C, `PlayerState` unk1A/unk11E, `PlayerStruct` farClip/contPad/heldButtonsPtr/unk2DC. Views retired onto `Actor`/`PlayerState`/`PlayerStruct`/`KongInventory`; `Mat4F` retired (7 matrix functions take `f32[4][4]`); retyped prototypes for func_806C8220, playerRevertAnimalTransformation, func_806C9830 (ANSI), bonusResetAmmo and two menu/1AF0 draw functions. Tool: `rename.py fold`.
 - [x] **Round 9 (2026-11-10)** — global/41090, arcade/0, B7490, 450, 36880, menu/3E10 (5 passes), 61AA0, 55B20 (2 passes), ACDC0, 127B00, C4620, then a 4-group re-review of 135 callers whose bodies the batches edited. New tracking of IDO cfe warnings (`cwarn.py`, `warning` sites, gate ratchet): 1,890 → 1,296. Callee/type batches: `_sprintf` fmt `const char *`, `heapFree`/`heapFreeDeferred(void *)`, projectile chain and `actorListSpawnNode*` take `Actor *`, text API (`textTableGetString` returns `u8 *`, `gfxResourceCreate` str `void *`), `gunzip`/`healthHudDrawAll`/`playerViewsRender`, `playerMountBarrel`/`commandQueuePush`/`slotQueueGetSpriteAsset`, `vtxGradientSetColorA/B(u8)`. Header changes: new `render.h` (`RenderEntry`, `PlanePoly`), `BehaviourWorkState.unk28` u32, `KongInventory` u16[14] arrays, `gScheduler` one `SchedStruct` (split labels folded). 13 symbols named (matrix cache, `gSegment6Override`, `gPathTable`/`gPathPlaybacks`, A2F10/7CA80 functions). Tools: `record`/`carry` compile REV text against REV headers.
-- [ ] Remaining: 1,072 functions not reviewed; 1,866 open sites (cfe `warning` sites included). Next rounds: `uv run tools/quality.py rank`.
+- [x] **Round 10 (2026-11-10)** — global/100180, 13980, 936B0, 135D30, 90D80, 109660, then re-review passes Rev10A–H over every function whose body a batch edited. Callee/type batches by a batch worker: `effectSpawnActorBone(Actor *)`, `eepromGetSectionBuffer(u8)`, `RenderEntry.unk0` `void *` (render2), `SchedClient` (sched.h), `collisionQueryActorFloor` out-pointers, vertex helpers take `Vtx *`, `texCacheFindOrLoad` returns `void *`, tile-grid `(Gfx **, void *texture, s32 fmt, ...)`, `memcpy` from `compiler/ido/memory.h` (22 files), `LevelSoundEmitter` (new `map.h`), `TextFontInfo`/`TextObject` (new `text.h`), `CollisionBoundingBox`/`CollisionBox` (new `collision.h`), `CsNode`/`CsStateFull` (new `cutscene.h`), `ActorList.items`, ActorSub140/PlayerState/PlayerStruct carves, `textSpawnMarker(u8 *)`, `effectFreeByResource(Actor *)`. cfe warnings 1,296 → 999. 21 symbols named (135D30 flags, 100180 text fonts, 109660 sky/scroll/light, PlayerStruct camYInt/skyRoll). Tools: `carry` handles types moved to a header and respelled declarations; quality/cwarn are cwd-independent.
+- [ ] Remaining: 888 functions not reviewed; 1,527 open sites (cfe `warning` sites included). Next rounds: `uv run tools/quality.py rank`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-10, after round 9):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-10, after round 10):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 798 | 583 |
-| FAKE dead-if | 281 | 263 |
-| FAKE proto-steer | 157 | 134 |
-| FAKE other kinds | 360 | 186 |
-| LAYOUT | 57 | 47 |
+| FAKE | 813 | 583 |
+| FAKE dead-if | 283 | 263 |
+| FAKE proto-steer | 140 | 134 |
+| FAKE other kinds | 390 | 186 |
+| LAYOUT | 65 | 47 |
 | goto | 35 | 39 |
-| proto-type (`// PROTO:`) | 12 | 0 |
-| protos mismatch | 82 | 1,202 |
-| reviewed / exhausted functions | 3,198 / 2,909 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 1,296 | 1,890 |
+| proto-type (`// PROTO:`) | 11 | 0 |
+| protos mismatch | 72 | 1,202 |
+| reviewed / exhausted functions | 3,382 / 3,099 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 999 | 1,890 |
 | uninit warnings (clint checks every function) | 252 | 122 |
-| `func_` definitions | 441 | 457 |
-| m2c names | 982 | 5,040 |
+| `func_` definitions | 434 | 457 |
+| m2c names | 728 | 5,040 |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 

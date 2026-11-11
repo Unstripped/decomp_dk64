@@ -73,11 +73,10 @@ a checked-out file. Snapshot users, edit them, `touch` + `tools/objdiff.sh` each
 `uv run tools/clint.py layout --base HEAD include/<h>.h` → `LAYOUT OK`, then
 `tools/merge_gate.sh --commit "include: <what>" --stage include/<h>.h - - <edited src files>`
 (anchor one src file if none). Each header commit stales the automatic rungs (sweep methods,
-consolidate, views, names) of every function reaching the changed declarations (`fp_hdr2`). After a
-padding carve: `uv run tools/quality.py carry --rev <commit before it> --unit "<unit>" --header-carve`
-(`--dry-run` first), then plain `carry --rev <same> <touched files>` too (it re-stamps file-scope-only
-changes the carve mode skips); for what both list as skipped, re-sweep `--record`, re-record the agents'
-lines, re-run `protos.py consolidate <src> --out DIR`. Then message every running agent with the new HEAD and the hunk.
+consolidate, views, names) of every function reaching the changed declarations (`fp_hdr2`). Gate a
+field TYPE change apart from padding carves and type moves: carry re-stamps carves, moved types and
+respelled declarations (`--header-carve`, then plain `carry --rev <commit before> <touched files>`), never a
+type change; for what both skip, re-sweep `--record` and re-record the agents' lines. Tools are cwd-independent.
 
 Callee-prototype work is its own workstream, prepared by a batch worker in `.scratch/<A>/<name>batch/`
 (owner + caller copies, `measure.json` per-file cfe before/after, `ledger/<file>.txt`). Measure on the

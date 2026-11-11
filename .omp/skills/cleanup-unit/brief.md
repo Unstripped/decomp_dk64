@@ -77,6 +77,8 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
   re-records at the merge, then carries).
 - A retyped definition: a stand-in copy (`#define PROTO_SKIP_<f>` + declaration) that fdiffs, plus
   `standin_<file>.c` for every caller file the new prototype changes; list the callers.
+- Re-review tasks: keep file-scope edits (types, views, renamed fields) out unless you re-read every
+  function they reach; each one you leave stale goes into the next re-review pass.
 - A turn ends only when all five phases are done for EVERY function. Workers stopping after
   ~10 requests with "partial" on 54–86-function files was wrong: the budget stop applies only to
   100+ function files and only once the request budget is really spent (then report a valid
