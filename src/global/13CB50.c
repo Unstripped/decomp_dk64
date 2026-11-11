@@ -28,8 +28,7 @@ void setCSPInstrumentFlags(ALCSPlayer *seqp, s32 instIndex, s32 flags) {
     }
 }
 
-void setCSPChannelStateValue(N_CSPlayer *seqp, s32 chan, s32 value) {
-    value &= 0xFF;
+void setCSPChannelStateValue(N_CSPlayer *seqp, s32 chan, u8 value) {
     seqp->chanState[chan].unk10 = value;
 }
 

@@ -5,6 +5,7 @@
 #include "audio_config.h"
 #include "segment.h"
 #include "proto/global/13A7A0.h"
+#include "proto/global/13CB50.h"
 #include "proto/global/6710.h"
 #include "proto/global/13D170.h"
 
@@ -19,13 +20,6 @@ extern ALCSeqMarker D_8076C328[][4];
 
 
 extern N_CSPlayer *gSeqPlayers[];
-void alCSPSetUnk84(N_CSPlayer *, s32);
-void setCSPChannelStateValue(N_CSPlayer *, s32, u8); // FAKE: callee prototype steer
-void alCSPChannelResetControl(ALCSPlayer *, s32);
-void enableCSPChannel(ALCSPlayer *, s32);
-void alCSPChannelSetControl(ALCSPlayer *, s32, u8);
-void setCSPChannelPortamento(ALCSPlayer *, s32, u8);
-void setCSPChannelStopControl(ALCSPlayer *, s32, u8);
 void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
 extern s32 D_8000DDCC;
 extern s32 D_8076D200;
