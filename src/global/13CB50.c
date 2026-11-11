@@ -1,29 +1,8 @@
 #include "common.h"
+#include "seqplayer.h"
 #include "proto/global/13CB50.h"
 #include "proto/global/13CFA0.h"
 #include "proto/global/13FED0.h"
-
-typedef struct {
-    u8 pad0[0xD];
-    u8 unkD;
-    u8 unkE;
-    u8 unkF;
-    u8 unk10;
-    u8 pad11[0x23];
-} CspApiChanState;
-
-typedef struct CspApiCSPlayer {
-    u8 pad0[0x30];
-    u16 chanMask;
-    u8 pad32[2];
-    u8 maxChannels;
-    u8 pad35[0x13];
-    ALEventQueue evtq;
-    u8 pad5C[4];
-    CspApiChanState *chanState;
-    u8 pad64[0x20];
-    s32 unk84;
-} CspApiCSPlayer;
 
 void alCSPPlay(ALCSPlayer *seqp) {
     ALEvent evt;
@@ -32,7 +11,7 @@ void alCSPPlay(ALCSPlayer *seqp) {
     alEvtqPostEvent(&seqp->evtq, &evt, 0);
 }
 
-void alCSPSetUnk84(CspApiCSPlayer *seqp, s32 val) {
+void alCSPSetUnk84(N_CSPlayer *seqp, s32 val) {
     seqp->unk84 = val;
 }
 
@@ -49,20 +28,20 @@ void setCSPInstrumentFlags(ALCSPlayer *seqp, s32 instIndex, s32 flags) {
     }
 }
 
-void setCSPChannelStateValue(CspApiCSPlayer *seqp, s32 chan, s32 value) {
+void setCSPChannelStateValue(N_CSPlayer *seqp, s32 chan, s32 value) {
     value &= 0xFF;
     seqp->chanState[chan].unk10 = value;
 }
 
-void resetCSPChannelStates(CspApiCSPlayer *seqp) {
+void resetCSPChannelStates(N_CSPlayer *seqp) {
     s32 i;
 
     seqp->chanMask = 0xFFFF;
     i = 0;
     if (seqp->maxChannels > 0) {
         do {
-            seqp->chanState[i].unkE = 0xFF;
-            seqp->chanState[i].unkD = 0xFF;
+            seqp->chanState[i].unk0E = 0xFF;
+            seqp->chanState[i].unk0D = 0xFF;
         } while ((i += 1) < seqp->maxChannels);
     }
 }

@@ -91,30 +91,37 @@ typedef struct N_Event {
     } msg;
 } N_Event;
 
-// The sequence player itself (gSeqPlayers[], 0x8C bytes).
+// The sequence player itself (gSeqPlayers[], 0x8C bytes). Its first 0x7C bytes are libaudio.h's ALCSPlayer
+// field for field; `al` is that SDK view, passed to the libaudio.h API (alCSPPlay, alCSPGetState, ...), while the
+// game code uses the game-typed members (chanState/vAlloc*/nextEvent differ from the SDK element types).
 typedef struct N_CSPlayer {
-    /* 0x00 */ ALPlayer node;
-    /* 0x14 */ ALSynth *drvr;
-    /* 0x18 */ ALCSeq *target;
-    /* 0x1C */ ALMicroTime curTime;
-    /* 0x20 */ ALBank *bank;
-    /* 0x24 */ s32 uspt;
-    /* 0x28 */ s32 nextDelta;
-    /* 0x2C */ s32 state;
-    /* 0x30 */ u16 chanMask;
-    /* 0x32 */ s16 vol;
-    /* 0x34 */ u8 maxChannels;
-    /* 0x35 */ u8 debugFlags;
-    /* 0x38 */ N_Event nextEvent;
-    /* 0x48 */ ALEventQueue evtq;
-    /* 0x5C */ ALMicroTime frameTime;
-    /* 0x60 */ N_ChanState *chanState;
-    /* 0x64 */ N_VoiceState *vAllocHead;
-    /* 0x68 */ N_VoiceState *vAllocTail;
-    /* 0x6C */ N_VoiceState *vFreeList;
-    /* 0x70 */ ALOscInit initOsc;
-    /* 0x74 */ ALOscUpdate updateOsc;
-    /* 0x78 */ ALOscStop stopOsc;
+    union {
+        /* 0x00 */ ALCSPlayer al;
+        struct {
+            /* 0x00 */ ALPlayer node;
+            /* 0x14 */ ALSynth *drvr;
+            /* 0x18 */ ALCSeq *target;
+            /* 0x1C */ ALMicroTime curTime;
+            /* 0x20 */ ALBank *bank;
+            /* 0x24 */ s32 uspt;
+            /* 0x28 */ s32 nextDelta;
+            /* 0x2C */ s32 state;
+            /* 0x30 */ u16 chanMask;
+            /* 0x32 */ s16 vol;
+            /* 0x34 */ u8 maxChannels;
+            /* 0x35 */ u8 debugFlags;
+            /* 0x38 */ N_Event nextEvent;
+            /* 0x48 */ ALEventQueue evtq;
+            /* 0x5C */ ALMicroTime frameTime;
+            /* 0x60 */ N_ChanState *chanState;
+            /* 0x64 */ N_VoiceState *vAllocHead;
+            /* 0x68 */ N_VoiceState *vAllocTail;
+            /* 0x6C */ N_VoiceState *vFreeList;
+            /* 0x70 */ ALOscInit initOsc;
+            /* 0x74 */ ALOscUpdate updateOsc;
+            /* 0x78 */ ALOscStop stopOsc;
+        };
+    };
     /* 0x7C */ f32 unk7C;
     /* 0x80 */ f32 unk80;
     /* 0x84 */ s32 unk84;

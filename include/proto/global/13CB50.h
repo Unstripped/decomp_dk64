@@ -2,21 +2,21 @@
 #ifndef PROTO_GLOBAL_13CB50_H
 #define PROTO_GLOBAL_13CB50_H
 #include "common.h"
-struct CspApiCSPlayer;
+#include "seqplayer.h"
 #ifndef PROTO_SKIP_alCSPPlay
 void alCSPPlay(ALCSPlayer *);
 #endif
 #ifndef PROTO_SKIP_alCSPSetUnk84
-void alCSPSetUnk84(struct CspApiCSPlayer *, s32);
+void alCSPSetUnk84(N_CSPlayer *, s32);
 #endif
 #ifndef PROTO_SKIP_setCSPInstrumentFlags
 void setCSPInstrumentFlags(ALCSPlayer *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_setCSPChannelStateValue
-void setCSPChannelStateValue(struct CspApiCSPlayer *, s32, s32);
+void setCSPChannelStateValue(N_CSPlayer *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_resetCSPChannelStates
-void resetCSPChannelStates(struct CspApiCSPlayer *);
+void resetCSPChannelStates(N_CSPlayer *);
 #endif
 #ifndef PROTO_SKIP_alCSPChannelResetControl
 void alCSPChannelResetControl(ALCSPlayer *, s32);
