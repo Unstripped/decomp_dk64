@@ -1015,13 +1015,13 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
     } else {
         animFrame = NULL;
     }
-    boneTable = (u8 *)(data->unk60 + (s32)data);
+    boneTable = data->unk60 + (u8 *)data;
     if (data->unk0 & 4) {
         buf->unk24 |= 2;
     } else {
         buf->unk24 &= ~2;
     }
-    count = *(s32 *)(data->unk50 + (s32)data);
+    count = *(s32 *)(data->unk50 + (u8 *)data);
     if (count == 0) {
         buf->unk0 = NULL;
         buf->unk4 = NULL;
@@ -1033,7 +1033,7 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
         buf->unk0 = heapAlloc(count * 0x28);
     }
     buf->unk24 |= 4;
-    entry = (u8 *)(data->unk50 + (s32)data) + 0x10;
+    entry = data->unk50 + (u8 *)data + 0x10;
     out = buf->unk0;
     guScaleF(mtx, scale, scale, scale);
     guRotateF(rotMtx, rotX, 1.0f, 0.0f, 0.0f);
@@ -1044,7 +1044,7 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
     guMtxCatF(mtx, rotMtx, mtx);
     guTranslateF(rotMtx, x, y, z);
     guMtxCatF(mtx, rotMtx, mtx);
-    boundsTransformToAabb(mtx, (u8 *)(data->unk50 + (s32)data) + 4, buf);
+    boundsTransformToAabb(mtx, data->unk50 + (u8 *)data + 4, buf);
     for (i = 0; i < count; i++) {
         bone = entry[0x13];
         if ((bone ^ 0) == -1) { // FAKE: no-op xor flips the bne operand order (Q0304)
@@ -2402,7 +2402,7 @@ void modelSlotInitFromAsset(ModelSlot *slot, s32 type) {
     } else {
         slot->unk24 = assetLoad(4, type, 1, 0);
     }
-    hdr = (ModelAssetHeader *)slot->unk24;
+    hdr = slot->unk24;
     slot->unk8C = 0;
     slot->unk86 = hdr->unk1C;
     slot->unk84 = type;

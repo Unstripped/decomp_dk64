@@ -894,7 +894,9 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
         gViewportInsetRight = 0;
         gViewportInsetTop = 0;
         gViewportInsetBottom = 0;
-        dx = vpEntry->unk8 - vpEntry->unk4; dy = vpEntry->unkA - vpEntry->unk6; gPlayerSlots->unk280 = (f32)dx / (f32)dy;
+        dx = vpEntry->unk8 - vpEntry->unk4;
+        dy = vpEntry->unkA - vpEntry->unk6;
+        gPlayerSlots->unk280 = (f32)dx / (f32)dy;
         gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0x0F0A4000);
     }
 
