@@ -127,10 +127,10 @@ void modelSlotTriBufferRelease(struct ModelTriBuffer *);
 void modelSlotBuildTriangleBufferThunk(s32, void *, f32, f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_modelSlotLinkTexAnimTextures
-void modelSlotLinkTexAnimTextures(u8 *, struct ModelSlot *);
+void modelSlotLinkTexAnimTextures(ModelAssetHeader *, ModelSlot *);
 #endif
 #ifndef PROTO_SKIP_modelSlotInitTexAnimNodes
-void modelSlotInitTexAnimNodes(u8 *, struct ModelSlot *, s32);
+void modelSlotInitTexAnimNodes(ModelAssetHeader *, ModelSlot *, s32);
 #endif
 #ifndef PROTO_SKIP_modelSlotSetNodeScrollSpeed
 void modelSlotSetNodeScrollSpeed(s32, s16, s16, s16);
@@ -172,7 +172,7 @@ s32 dlLengthToEndDL(u32 *);
 void modelQuadBuildOutput(ModelSlot *, f32, f32, f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_modelSlotLoadAssetTextures
-void modelSlotLoadAssetTextures(u8 *, struct ModelSlotAsset *);
+void modelSlotLoadAssetTextures(ModelAssetHeader *, struct ModelSlotAsset *);
 #endif
 #ifndef PROTO_SKIP_modelSlotClearAssetTextures
 void modelSlotClearAssetTextures(s32, struct ModelSlotAsset *);

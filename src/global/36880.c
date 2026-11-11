@@ -1187,7 +1187,7 @@ typedef struct ModelSlotObj {
     /* 0xB8 */ TexAnimNode *unkB8;
 } ModelSlotObj;
 
-void modelSlotLinkTexAnimTextures(u8 *asset, ModelSlot *slot) {
+void modelSlotLinkTexAnimTextures(ModelAssetHeader *asset, ModelSlot *slot) {
     TexAnimNode *node;
     s16 *p;
     s32 n;
@@ -1199,8 +1199,8 @@ void modelSlotLinkTexAnimTextures(u8 *asset, ModelSlot *slot) {
     if (node != NULL) {
         do {
             key = node->unk5C;
-            n = *(s32 *)(asset + *(s32 *)(asset + 0x70));
-            p = (s16 *)(asset + *(s32 *)(asset + 0x70) + 4);
+            n = *(s32 *)(asset->unk70 + (u8 *)asset);
+            p = (s16 *)(asset->unk70 + (u8 *)asset + 4);
             found = 0;
             idx = 0;
             if (n != 0) {
@@ -1227,7 +1227,7 @@ void modelSlotLinkTexAnimTextures(u8 *asset, ModelSlot *slot) {
 
 void *memcpy(void *, const void *, unsigned int);
 
-void modelSlotInitTexAnimNodes(u8 *asset, ModelSlot *slot, s32 type) {
+void modelSlotInitTexAnimNodes(ModelAssetHeader *asset, ModelSlot *slot, s32 type) {
     s32 count;
     s32 *entry;
     s32 i;
@@ -1239,7 +1239,7 @@ void modelSlotInitTexAnimNodes(u8 *asset, ModelSlot *slot, s32 type) {
     s32 len2;
     s32 *tbl;
 
-    tbl = (s32 *)(asset + *(s32 *)(asset + 0x6C));
+    tbl = (s32 *)(asset->unk6C + (u8 *)asset);
     count = *tbl;
     entry = tbl + 1;
     switch (type) {
@@ -1517,20 +1517,20 @@ typedef struct ModelQuadOutput {
 void modelQuadBuildOutput(ModelSlot *owner, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, f32 yOffset) {
     ModelQuadOutput *out;
     ModelQuadData *q;
-    u8 *data;
+    ModelAssetHeader *data;
     s32 i;
     s32 j;
     s16 sum;
 
-    data = (u8 *)owner->unk24;
+    data = owner->unk24;
     out = owner->unk20;
-    q = (ModelQuadData *)(*(s32 *)(data + 0x70) + (s32)data + 4);
+    q = (ModelQuadData *)(data->unk70 + (s32)data + 4);
     out->unk0 = x;
     out->unk4 = y;
     out->unk8 = z;
     out->unkC = scale;
     out->unk10 = yOffset;
-    out->unk20 = *(s32 *)(*(s32 *)(data + 0x70) + (s32)data);
+    out->unk20 = *(s32 *)(data->unk70 + (s32)data);
     sum = 0;
     out->unk1C = heapAlloc(out->unk20 << 6);
     for (i = 0; i < out->unk20; i++) {
@@ -1564,13 +1564,13 @@ typedef struct ModelSlotAsset {
     /* 0x34 */ void *unk34[4];
 } ModelSlotAsset;
 
-void modelSlotLoadAssetTextures(u8 *asset, ModelSlotAsset *textures) {
+void modelSlotLoadAssetTextures(ModelAssetHeader *asset, ModelSlotAsset *textures) {
     u8 type;
     s32 i;
     s16 *src;
 
-    src = (s16 *)(asset + *(s32 *)(asset + 0x70) + 4);
-    if (*(s32 *)(asset + *(s32 *)(asset + 0x6C)) != 0) {
+    src = (s16 *)(asset->unk70 + (u8 *)asset + 4);
+    if (*(s32 *)(asset->unk6C + (u8 *)asset) != 0) {
         type = 7;
     } else {
         type = 0x19;
@@ -1698,11 +1698,6 @@ typedef struct ModelTransformKind {
     /* 0x6C */ s16 unk6C;
 } ModelTransformKind;
 
-typedef struct ModelTransformMeta {
-    /* 0x00 */ u8 pad0[0x1E];
-    /* 0x1E */ s16 unk1E;
-} ModelTransformMeta;
-
 typedef struct ModelTransformSlot {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -1713,7 +1708,7 @@ typedef struct ModelTransformSlot {
     /* 0x18 */ f32 unk18;
     /* 0x1C */ f32 unk1C;
     /* 0x20 */ ModelSlotVectors *unk20;
-    /* 0x24 */ ModelTransformMeta *unk24;
+    /* 0x24 */ ModelAssetHeader *unk24;
     /* 0x28 */ u8 pad28[0x54];
     /* 0x7C */ ModelTransformKind *unk7C;
     /* 0x80 */ u8 pad80[6];
@@ -2587,7 +2582,7 @@ u8 force;
                 }
             } else {
                 if (((ModelType2Obj *)seg2)->unk50 != 0 || forceLoad != 0) {
-                    modelSlotLoadAssetTextures((u8 *)obj, (ModelSlotAsset *)seg2);
+                    modelSlotLoadAssetTextures((ModelAssetHeader *)obj, (ModelSlotAsset *)seg2);
                 } else {
                     modelSlotClearAssetTextures((s32)obj, (ModelSlotAsset *)seg2);
                 }

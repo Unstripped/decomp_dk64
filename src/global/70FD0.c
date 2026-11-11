@@ -55,15 +55,6 @@ extern u8 gGfxBufferIndex;
 extern ModelSlot *gModelSlots;
 
 
-typedef struct ModelCollisionAsset {
-    /* 0x00 */ u8 pad0[0x20];
-    /* 0x20 */ s32 unk20;
-    /* 0x24 */ u8 pad24[0x28];
-    /* 0x4C */ s32 unk4C;
-    /* 0x50 */ u8 pad50[0x10];
-    /* 0x60 */ s32 unk60;
-} ModelCollisionAsset;
-
 typedef struct CollisionSlotBuffer {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
@@ -77,10 +68,9 @@ typedef struct CollisionSlotBuffer {
     /* 0x1C */ u8 *unk1C;
 } CollisionSlotBuffer;
 
-#define MODEL_COLLISION_ASSET ((ModelCollisionAsset *)arg1)
 
 
-void collisionBuildSlotBoxes(s32 slot, s32 arg1, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale) {
+void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *arg1, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale) {
     s32 off;
     ModelData *anim;
     s32 count;
@@ -106,18 +96,18 @@ void collisionBuildSlotBoxes(s32 slot, s32 arg1, f32 x, f32 y, f32 z, f32 rotX, 
     } else {
         animFrame = 0;
     }
-    boneTable = (u8 *)(MODEL_COLLISION_ASSET->unk60 + arg1);
-    buf->unkC = (s32)((f32)MODEL_COLLISION_ASSET->unk20 * scale * 8.0f * 1.5);
+    boneTable = arg1->unk60 + (u8 *)arg1;
+    buf->unkC = (s32)((f32)arg1->unk20 * scale * 8.0f * 1.5);
     buf->unk0 = (s32)(x * 8.0f);
     buf->unk4 = (s32)(y * 8.0f);
     buf->unk8 = (s32)(z * 8.0f);
-    count = *(s32 *)(MODEL_COLLISION_ASSET->unk4C + arg1);
+    count = *(s32 *)(arg1->unk4C + (u8 *)arg1);
     if (count != 0) {
         buf->unk15 |= 2;
         if (!(buf->unk15 & 1)) {
             buf->unk18 = heapAlloc(count * 0x58);
         }
-        entry = (u8 *)(MODEL_COLLISION_ASSET->unk4C + arg1) + 4;
+        entry = arg1->unk4C + (u8 *)arg1 + 4;
         out = buf->unk18;
         guScaleF(slotMtx, scale, scale, scale);
         guRotateF(tmpMtx, rotX, 1.0f, 0.0f, 0.0f);
@@ -214,7 +204,7 @@ void modelBuildBoneChainMatrix(s32 *boneOffsets, u8 *base, f32 (*outMtx)[4]) {
     guMtxL2F(outMtx, &mtx);
 }
 
-void collisionTransformNode(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
+void collisionTransformNode(s32 arg0, ModelAssetHeader *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
     collisionBuildSlotBoxes(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 }
 
@@ -1615,7 +1605,7 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
         if (buf->unk15 & 2) {
             if (collisionSpheresOverlap(sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius, buf->unk0, buf->unk4, buf->unk8, buf->unkC) != 0) {
                 if (!(buf->unk15 & 1)) {
-                    collisionTransformNode(i, (s32)gModelSlots[i].unk24, gModelSlots[i].unk0, gModelSlots[i].unk4, gModelSlots[i].unk8, gModelSlots[i].unk10, gModelSlots[i].unk14, gModelSlots[i].unk18, gModelSlots[i].unkC);
+                    collisionTransformNode(i, gModelSlots[i].unk24, gModelSlots[i].unk0, gModelSlots[i].unk4, gModelSlots[i].unk8, gModelSlots[i].unk10, gModelSlots[i].unk14, gModelSlots[i].unk18, gModelSlots[i].unkC);
                 } else {
                     buf->unk10 = gFrameCounter;
                 }

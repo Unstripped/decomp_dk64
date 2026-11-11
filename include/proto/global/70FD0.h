@@ -6,6 +6,7 @@
 #include "collision.h"
 #include "heap.h"
 #include "map.h"
+#include "model.h"
 struct ActorFacingWork;
 struct ActorHitPlane;
 struct ActorHitView;
@@ -17,7 +18,7 @@ struct CollisionPlane;
 struct CollisionTri;
 struct CollisionVec3i;
 #ifndef PROTO_SKIP_collisionBuildSlotBoxes
-void collisionBuildSlotBoxes(s32, s32, f32, f32, f32, f32, f32, f32, f32);
+void collisionBuildSlotBoxes(s32, ModelAssetHeader *, f32, f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_modelSlotBuildTransformMatrix
 void modelSlotBuildTransformMatrix(s16, s8, f32 (*)[4]);
@@ -26,7 +27,7 @@ void modelSlotBuildTransformMatrix(s16, s8, f32 (*)[4]);
 void modelBuildBoneChainMatrix(s32 *, u8 *, f32 (*)[4]);
 #endif
 #ifndef PROTO_SKIP_collisionTransformNode
-void collisionTransformNode(s32, s32, f32, f32, f32, f32, f32, f32, f32);
+void collisionTransformNode(s32, ModelAssetHeader *, f32, f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_dynamicBufferFree
 void dynamicBufferFree(struct DynamicBuffer *);
