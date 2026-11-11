@@ -10,7 +10,7 @@ void func_806FB480(void);
 void textBlitNoop100180(void);
 #endif
 #ifndef PROTO_SKIP_textBlitGlyph
-s32 textBlitGlyph(u8, s32, s32, s16, u8, s8 *, u8);
+s32 textBlitGlyph(u8, s32, s32, s16, u8, u8 *, u8);
 #endif
 #ifndef PROTO_SKIP_textBlitString
 void textBlitString(s32, u8, u8 *);
@@ -37,7 +37,7 @@ s32 textGetStringWidth();
 s16 textCountNonSpace(u8 *);
 #endif
 #ifndef PROTO_SKIP_textLoadFontSheetGfx
-Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
+Gfx *textLoadFontSheetGfx(Gfx *, u8, s16);
 #endif
 #ifndef PROTO_SKIP_textDrawStringVtx
 Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);

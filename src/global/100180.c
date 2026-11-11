@@ -1,6 +1,6 @@
 #include "common.h"
-#include "actor.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
+#include "actor.h"
 #include "proto/boot/3630.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
@@ -8,150 +8,124 @@
 #include "proto/global/450.h"
 #include "proto/global/6AD90.h"
 
-extern Actor *gCurrentActor;
-extern Actor *gSpawnedActor;
-extern Actor *gActivePlayerActor;
-extern Actor *gPrimaryPlayerActor;
-extern void *gPlayerSlots;
-extern u8 gPlayerCount;
-extern u8 gCurrentPlayerIndex;
-extern u8 gPlayerInventoryTable[][0x5E];
-extern s32 gCurrentMap;
-extern u8 gCurrentWorldId;
-extern u8 gScreenRenderFlags;
-extern s16 gScreenWidth;
-extern s16 gScreenHeight;
-extern u8 gNextGameMode;
-extern u8 gGfxBufferIndex;
-
 void func_806FB480(void) {
 }
 
 void textBlitNoop100180(void) {
 }
 
-
-
-s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 arg6) {
+s32 textBlitGlyph(u8 width, s32 dst, s32 sheet, s16 texX, u8 row, u8 *phase, u8 pitch) {
     u8 *srcRow;
-    u8 *dst;
+    u8 *out;
     s16 j;
-    s16 row;
+    s16 y;
     u8 *src;
     u8 phaseBit;
+    u8 srcOdd;
     u8 oddBit;
     u8 *dstRow;
     s32 pad;
-    src = (u8 *)arg2;
-    srcRow = (u8 *)arg2 + (arg3 >> 1);
-    oddBit = arg0 & 1;
-    phaseBit = *(u8 *)arg5 & 1;
-    dstRow = (u8 *)(arg1 + arg6 * 16 + arg6 * arg4);
-    dst = dstRow;
-    *(u8 *)arg5 = *(u8 *)arg5 + arg0;
-    arg0 >>= 1;
-    for (row = 0; row < 0x10; row++) {
+    src = (u8 *)sheet;
+    srcRow = (u8 *)sheet + (texX >> 1);
+    oddBit = width & 1;
+    phaseBit = *phase & 1;
+    dstRow = (u8 *)(dst + pitch * 16 + pitch * row);
+    out = dstRow;
+    *phase += width;
+    width >>= 1;
+    for (y = 0; y < 0x10; y++) {
         j = 0;
-        if (arg0 > 0) {
-            arg4 = arg3 & 1;
+        if (width > 0) {
+            srcOdd = texX & 1;
             do {
-                if (arg4 && !phaseBit) {
-                    *dst |= (*src++ & 0xF) << 4;
-                    *dst++ |= (*src & 0xF0) >> 4;
-                } else if (arg4 && phaseBit) {
-                    *dst |= *src++ & 0xF;
-                    dst++;
-                    *dst |= *src & 0xF0;
-                } else if (!arg4 && phaseBit) {
-                    *dst++ |= (*src & 0xF0) >> 4;
-                    *dst |= (*src++ & 0xF) << 4;
+                if (srcOdd && !phaseBit) {
+                    *out |= (*src++ & 0xF) << 4;
+                    *out++ |= (*src & 0xF0) >> 4;
+                } else if (srcOdd && phaseBit) {
+                    *out |= *src++ & 0xF;
+                    out++;
+                    *out |= *src & 0xF0;
+                } else if (!srcOdd && phaseBit) {
+                    *out++ |= (*src & 0xF0) >> 4;
+                    *out |= (*src++ & 0xF) << 4;
                 } else {
-                    *dst++ |= *src++;
+                    *out++ |= *src++;
                 }
                 j++;
-            } while (j < arg0);
+            } while (j < width);
         }
         srcRow += 0x100;
         if (oddBit) {
-            arg4 = arg3 & 1;
-            if (arg4 && !phaseBit) {
-                *dst |= (*src & 0xF) << 4;
-            } else if (arg4 && phaseBit) {
-                *dst |= (*src & 0xF) << 4;
-            } else if (!arg4 && phaseBit) {
-                *dst |= (*src & 0xF0) >> 4;
+            srcOdd = texX & 1;
+            if (srcOdd && !phaseBit) {
+                *out |= (*src & 0xF) << 4;
+            } else if (srcOdd && phaseBit) {
+                *out |= (*src & 0xF) << 4;
+            } else if (!srcOdd && phaseBit) {
+                *out |= (*src & 0xF0) >> 4;
             } else {
-                *dst |= *src;
+                *out |= *src;
             }
         }
-        dstRow -= arg6;
+        dstRow -= pitch;
         src = srcRow;
-        dst = dstRow;
+        out = dstRow;
     }
-    return (phaseBit && oddBit) + arg1 + (u32)arg0;
+    return (phaseBit && oddBit) + dst + (u32)width; // FAKE: the u32 widening shares width's masked copy (andi t3,a0,0xff) with the loop bound
 }
 
-
-
-
-
-typedef struct TextBlitGlyphInfo {
-    s16 unk0;
-    u8 unk2;
+typedef struct TextGlyph {
+    s16 texX;
+    u8 width;
     u8 unk3;
-} TextBlitGlyphInfo;
+} TextGlyph;
 
+extern TextGlyph *D_80754A18[];
+extern void **gTextFontSheets;
 typedef struct {
-    u8 unk0[0x17C];
-    s16 unk17C;
-    u8 unk17E;
-} TextGlyphTable;
+    u8 firstSheet;
+    u8 lineCount;
+    u8 height;
+    u8 spaceWidth;
+    u8 spacing;
+    u8 fixedWidth;
+} TextFontInfo;
 
-extern TextGlyphTable *D_80754A18[];
-extern void *gTextFontSheets;
-extern u8 D_80754A35[];
+extern TextFontInfo D_80754A34[];
 extern u8 *D_807549FC[];
 
-void textBlitString(s32 arg0, u8 arg1, u8 *arg2) {
+void textBlitString(s32 dst, u8 pitch, u8 *str) {
     s32 i;
-    u8 sp63;
-    u8 sp3;
-    u8 sp61;
+    u8 ch;
+    u8 row;
+    u8 phase;
 
-    sp61 = 0;
-    sp63 = *arg2++;
-    while (sp63) {
-        if (sp63 != 32) {
-            sp3 = textMapCharToGlyph(0, &sp63);
-            for (i = 1; i < D_80754A35[0] + 1; i++) {
-                if (sp63 >= D_807549FC[0][i - 1] && sp63 < D_807549FC[0][i]) {
+    phase = 0;
+    ch = *str++;
+    while (ch) {
+        if (ch != ' ') {
+            row = textMapCharToGlyph(0, &ch);
+            for (i = 1; i < D_80754A34[0].lineCount + 1; i++) {
+                if (ch >= D_807549FC[0][i - 1] && ch < D_807549FC[0][i]) {
                     textFontLoadSheet(i - 1);
-                    arg0 = textBlitGlyph(((TextBlitGlyphInfo *)D_80754A18[0])[sp63].unk2, arg0, ((s32 *)gTextFontSheets)[i - 1], ((TextBlitGlyphInfo *)D_80754A18[0])[sp63].unk0, sp3, (s8 *)&sp61, arg1);
+                    dst = textBlitGlyph(D_80754A18[0][ch].width, dst, (s32)gTextFontSheets[i - 1], D_80754A18[0][ch].texX, row, &phase, pitch);
                 }
             }
         } else {
-            arg0 += 3;
-            sp61 += 6;
+            dst += 3;
+            phase += 6;
         }
-        sp63 = *arg2;
-        arg2++;
+        ch = *str++;
     }
 }
 
+void func_806FB8B0(s32 dst) {
+    u8 phase;
 
-
-typedef struct {
-    u8 unk0[8];
-    s32 unk8;
-} TextSheetBuffer;
-
-void func_806FB8B0(s32 arg0) {
-    s8 sp2F;
-
-    sp2F = 0;
+    phase = 0;
     textFontLoadSheet(2);
-    textBlitGlyph(D_80754A18[0]->unk17E, arg0, ((TextSheetBuffer *) gTextFontSheets)->unk8, D_80754A18[0]->unk17C, 2,
-                  &sp2F, 0x30);
+    textBlitGlyph(D_80754A18[0][0x5F].width, dst, (s32)gTextFontSheets[2], D_80754A18[0][0x5F].texX, 2,
+                  &phase, 0x30);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/100180/D_8075DC20.s")
@@ -164,221 +138,185 @@ extern FcDStr39 D_80754A64;
 extern FcDStr30 D_80754AA0;
 extern FcDStr3A D_8075DC20;
 
-s32 textMapCharToGlyph(s16 arg0, u8 *arg1) {
-    s8 spDF;
-    FcDStr39 spA4;
-    FcDStr30 sp74;
-    FcDStr3A sp38;
+s32 textMapCharToGlyph(s16 font, u8 *ch) {
+    s8 yoff;
+    FcDStr39 charsetA;
+    FcDStr30 charsetB;
+    FcDStr3A charsetC;
 
-    spDF = 0;
-    switch (arg0) {
+    yoff = 0;
+    switch (font) {
     case 0:
-        switch (*arg1) {
+        switch (*ch) {
         case 0x2E:
         case 0x67:
         case 0x70:
         case 0x71:
         case 0x80:
-            spDF = 2;
+            yoff = 2;
             break;
         case 0x61:
         case 0x79:
-            spDF = 1;
+            yoff = 1;
             break;
         }
-        *arg1 -= 0x21;
+        *ch -= 0x21;
         break;
     case 1:
-        spA4 = D_80754A64;
-        *arg1 = _strchr((u8 *)&spA4, *arg1) - (u8 *)&spA4;
+        charsetA = D_80754A64;
+        *ch = _strchr(charsetA.b, *ch) - charsetA.b;
         break;
     case 6:
-        sp74 = D_80754AA0;
-        *arg1 = _strchr((u8 *)&sp74, *arg1) - (u8 *)&sp74;
+        charsetB = D_80754AA0;
+        *ch = _strchr(charsetB.b, *ch) - charsetB.b;
         break;
     case 2:
-        sp38 = D_8075DC20;
-        *arg1 = _strchr((u8 *)&sp38, *arg1) - (u8 *)&sp38;
+        charsetC = D_8075DC20;
+        *ch = _strchr(charsetC.b, *ch) - charsetC.b;
         break;
     case 3:
     case 7: {
-        u8 sp28[] = "0123456789%/";
+        u8 digits[] = "0123456789%/";
 
-        *arg1 = _strchr(sp28, *arg1) - sp28;
+        *ch = _strchr(digits, *ch) - digits;
         break;
     }
     case 4:
-        if (*arg1 == 0x40) {
-            *arg1 = 0x60;
+        if (*ch == 0x40) {
+            *ch = 0x60;
         } else {
-            *arg1 -= 0x21;
+            *ch -= 0x21;
         }
         break;
     case 5:
-        *arg1 -= 0x21;
+        *ch -= 0x21;
         break;
     }
-    return spDF;
+    return yoff;
 }
 
 extern u8 *gTextFontSheetAges;
 
 void textFontInitTables(void) {
-    s32 allocation;
-    s32 *allocation_slot;
-    s32 temp_v0;
-    u8 **heap_buffer;
-
     gTextFontSheets = heapAlloc(0xAC);
-    temp_v0 = heapAlloc(0x2B);
-    heap_buffer = &gTextFontSheetAges;
-    allocation_slot = (s32 *)heap_buffer;
-    allocation = (*allocation_slot = temp_v0);
-    heapClearBlock(allocation);
+    gTextFontSheetAges = heapAlloc(0x2B);
+    heapClearBlock(gTextFontSheetAges);
 }
 
 void *assetLoad(s32, s16, u8, s32);  // FAKE: callee prototype steer
 
+void *textFontLoadSheet(s16 sheet) {
+    u8 *age = &gTextFontSheetAges[sheet];
 
-void *textFontLoadSheet(s16 sheetIndex) {
-    s16 sheet;
-    s32 offset;
-    u8 *agePtr;
-
-    agePtr = sheetIndex + gTextFontSheetAges;
-    sheet = sheetIndex;
-    offset = sheet * 4;
-    if (*agePtr == 0) {
-        sheetIndex = sheetIndex;
-        offset = sheetIndex * 4;
-        *(void **)((u8 *) gTextFontSheets + offset) = assetLoad(0xE, sheet, 1, 1);
-        *(gTextFontSheetAges + sheetIndex) = 3;
+    if (*age == 0) {
+        gTextFontSheets[sheet] = assetLoad(0xE, sheet, 1, 1);
+        gTextFontSheetAges[sheet] = 3;
     } else {
-        *agePtr = 3;
+        *age = 3;
     }
-    return *(void **)((u8 *) gTextFontSheets + offset);
+    return gTextFontSheets[sheet];
 }
-
-extern u8 D_80754A34[];
 
 void textFontAgeSheets(void) {
     s16 i;
     s16 j;
     s16 n;
-    u8 *e;
+    s32 sheet;
+    TextFontInfo *e;
 
     n = 0;
     for (i = 0; i < 8; i++) {
-        j = 0;
-        e = D_80754A34 + i * 6;
-        if (e[1] > 0) {
-            do {
-                if (gTextFontSheetAges[n++]) {
-                    gTextFontSheetAges[n - 1]--;
-                    if (*(u8 *)((s32)gTextFontSheetAges + n - 1) == 0) {
-                        assetFreeBuffer(((void **)gTextFontSheets)[n - 1], 0x156, 0x23);
-                    }
+        e = &D_80754A34[i];
+        for (j = 0; j < e->lineCount; j++) {
+            if (gTextFontSheetAges[n++]) {
+                sheet = n - 1;
+                gTextFontSheetAges[sheet]--;
+                if (gTextFontSheetAges[sheet] == 0) {
+                    assetFreeBuffer(gTextFontSheets[sheet], 0x156, 0x23);
                 }
-                j++;
-            } while (j < e[1]);
+            }
         }
     }
 }
 
-extern u8 D_80754A39[];
-
-s32 textGetStringWidth(arg0, arg1)
-s16 arg0;
-u8 *arg1;
+s32 textGetStringWidth(font, str)
+s16 font;
+u8 *str;
 {
     s32 len;
-    u8 sp4B;
+    u8 ch;
     s32 step;
 
     len = 0;
-    if (arg0 & 0x80) {
-        arg0 ^= 0x80;
-        return strlen(arg1) * D_80754A39[arg0 * 6];
+    if (font & 0x80) {
+        font ^= 0x80;
+        return strlen(str) * D_80754A34[font].fixedWidth;
     }
-    sp4B = *arg1++;
-    while (sp4B) {
-        if (sp4B == 0x20) {
-            len += D_80754A34[arg0 * 6 + 3];
-            step = D_80754A34[arg0 * 6 + 4];
+    ch = *str++;
+    while (ch) {
+        if (ch == 0x20) {
+            len += D_80754A34[font].spaceWidth;
+            step = D_80754A34[font].spacing;
         } else {
-            textMapCharToGlyph(arg0, &sp4B);
-            step = D_80754A34[arg0 * 6 + 4];
-            len += ((u8 **)D_80754A18)[arg0][sp4B * 4 + 2];
+            textMapCharToGlyph(font, &ch);
+            step = D_80754A34[font].spacing;
+            len += D_80754A18[font][ch].width;
         }
         len += step;
-        sp4B = *arg1++;
+        ch = *str++;
     }
     return len;
 }
 
-s16 textCountNonSpace(u8 *arg0) {
-    s16 var_v1;
-    u8 temp_v0;
+s16 textCountNonSpace(u8 *str) {
+    s16 count = 0;
 
-    temp_v0 = *arg0;
-    var_v1 = 0;
-    arg0 += 1;
-    if (temp_v0 != 0) {
-        do {
-            if (arg0[-1] != 0x20) {
-                var_v1 += 1;
-            }
-            temp_v0 = arg0[0];
-            arg0 += 1;
-        } while (temp_v0 != 0);
+    while (*str++) {
+        if (str[-1] != ' ') {
+            count++;
+        }
     }
-    return var_v1;
+    return count;
 }
-
-#define TEXT_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
 /* Loads one font glyph sheet (texture block) for the given font id and line index; case order follows the font id. */
-Gfx *textLoadFontSheetGfx(Gfx *arg0, u8 arg1, s32 arg2) {
-    s16 var_s0;
-    u8 *keep_arg1 = &arg1; /* params stay memory resident (home stores, lbu reloads) */
-    s32 *keep_arg2 = &arg2;
+Gfx *textLoadFontSheetGfx(Gfx *dl, u8 font, s16 line) {
+    s16 sheet;
 
-    s32 line = *keep_arg2;
-    var_s0 = D_80754A34[(u8)(arg1 & 0xFF) * 6] + line - 1;
-    textFontLoadSheet(var_s0);
-    switch (arg1) {
+    sheet = D_80754A34[font].firstSheet + line - 1;
+    textFontLoadSheet(sheet);
+    switch (font) {
     case 6:
-        TEXT_WRITE_GFX(arg0++, 0xFD700000, ((s32 *) gTextFontSheets)[var_s0] + 0x80000000);
-        TEXT_WRITE_GFX(arg0++, 0xF5700000, 0x07080200); TEXT_WRITE_GFX(arg0++, 0xE6000000, 0); TEXT_WRITE_GFX(arg0++, 0xF3000000, 0x0747705E); TEXT_WRITE_GFX(arg0++, 0xE7000000, 0); TEXT_WRITE_GFX(arg0++, 0xF5682C00, 0x00080200); TEXT_WRITE_GFX(arg0++, 0xF2000000, 0x002BC030); break;
+        gDPLoadTextureBlock(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_IA, G_IM_SIZ_8b, 176, 13, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        break;
     case 0:
-        TEXT_WRITE_GFX(arg0++, 0xFD700000, ((s32 *) gTextFontSheets)[var_s0] + 0x80000000);
-        TEXT_WRITE_GFX(arg0++, 0xF5700000, 0x07080200); TEXT_WRITE_GFX(arg0++, 0xE6000000, 0); TEXT_WRITE_GFX(arg0++, 0xF3000000, 0x077FF040); TEXT_WRITE_GFX(arg0++, 0xE7000000, 0); TEXT_WRITE_GFX(arg0++, 0xF5604000, 0x00080200); TEXT_WRITE_GFX(arg0++, 0xF2000000, 0x007FC03C); break;
+        gDPLoadTextureBlock_4b(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_IA, 512, 16, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        break;
     case 1:
-        TEXT_WRITE_GFX(arg0++, 0xFD100000, ((s32 *) gTextFontSheets)[var_s0] + 0x80000000);
-        TEXT_WRITE_GFX(arg0++, 0xF5100000, 0x07080200); TEXT_WRITE_GFX(arg0++, 0xE6000000, 0); TEXT_WRITE_GFX(arg0++, 0xF3000000, 0x0771F06C); TEXT_WRITE_GFX(arg0++, 0xE7000000, 0); TEXT_WRITE_GFX(arg0++, 0xF5102600, 0x00080200); TEXT_WRITE_GFX(arg0++, 0xF2000000, 0x0012C05C); break;
+        gDPLoadTextureBlock(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 76, 24, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        break;
     case 2:
-        TEXT_WRITE_GFX(arg0++, 0xFD900000, ((s32 *) gTextFontSheets)[var_s0] + 0x80000000);
-        TEXT_WRITE_GFX(arg0++, 0xF5900000, 0x07080200); TEXT_WRITE_GFX(arg0++, 0xE6000000, 0); TEXT_WRITE_GFX(arg0++, 0xF3000000, 0x073FF040); TEXT_WRITE_GFX(arg0++, 0xE7000000, 0); TEXT_WRITE_GFX(arg0++, 0xF5804000, 0x00080200); TEXT_WRITE_GFX(arg0++, 0xF2000000, 0x007FC01C); break;
+        gDPLoadTextureBlock_4b(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_I, 512, 8, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        break;
     case 3:
     case 7:
-        TEXT_WRITE_GFX(arg0++, 0xFD100000, ((s32 *) gTextFontSheets)[var_s0] + 0x80000000);
-        TEXT_WRITE_GFX(arg0++, 0xF5100000, 0x07080200); TEXT_WRITE_GFX(arg0++, 0xE6000000, 0); TEXT_WRITE_GFX(arg0++, 0xF3000000, 0x073FF100); TEXT_WRITE_GFX(arg0++, 0xE7000000, 0); TEXT_WRITE_GFX(arg0++, 0xF5101000, 0x00080200); TEXT_WRITE_GFX(arg0++, 0xF2000000, 0x0007C07C); break;
+        gDPLoadTextureBlock(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        break;
     case 4:
-        TEXT_WRITE_GFX(arg0++, 0xFD900000, ((s32 *) gTextFontSheets)[var_s0] + 0x80000000);
-        TEXT_WRITE_GFX(arg0++, 0xF5900000, 0x07080200); TEXT_WRITE_GFX(arg0++, 0xE6000000, 0); TEXT_WRITE_GFX(arg0++, 0xF3000000, 0x077FF020); TEXT_WRITE_GFX(arg0++, 0xE7000000, 0); TEXT_WRITE_GFX(arg0++, 0xF5808000, 0x00080200); TEXT_WRITE_GFX(arg0++, 0xF2000000, 0x00FFC01C); break;
+        gDPLoadTextureBlock_4b(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_I, 1024, 8, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        break;
     case 5:
-        TEXT_WRITE_GFX(arg0++, 0xFD900000, ((s32 *) gTextFontSheets)[var_s0] + 0x80000000);
-        TEXT_WRITE_GFX(arg0++, 0xF5900000, 0x07080200); TEXT_WRITE_GFX(arg0++, 0xE6000000, 0); TEXT_WRITE_GFX(arg0++, 0xF3000000, 0x077FF020); TEXT_WRITE_GFX(arg0++, 0xE7000000, 0); TEXT_WRITE_GFX(arg0++, 0xF5808000, 0x00080200); TEXT_WRITE_GFX(arg0++, 0xF2000000, 0x00FFC01C); break;
+        gDPLoadTextureBlock_4b(dl++, (u8 *)gTextFontSheets[sheet] + 0x80000000, G_IM_FMT_I, 1024, 8, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        break;
     }
-    return arg0;
+    return dl;
 }
 
-
 extern Mtx D_20000C0;
-extern Gfx D_2000180;
+extern Mtx D_2000180;
 
 #define TEXT_GFX_CMD(g, a, b) \
-    { (g) = (Gfx *)(dl++); (g)->words.w0 = (a); (g)->words.w1 = (b); }
+    { (g) = (Gfx *)(dl++); (g)->words.w0 = (a); (g)->words.w1 = (b); } // FAKE: function-scope Gfx temps (g8 shared by three commands) instead of gbi's block-scoped _g steer regalloc
 #define TEXT_GFX_QUAD(g, v0, v1, v2, v3) \
     TEXT_GFX_CMD(g, (_SHIFTL(G_QUAD, 24, 8) | __gsSP1Quadrangle_w1f(v0, v1, v2, v3, 0)), __gsSP1Quadrangle_w2f(v0, v1, v2, v3, 0))
 #define TEXT_GFX_VTX(g, v, n, v0) \
@@ -412,11 +350,11 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     s16 gx;
     s16 w;
     s16 h;
-    TextBlitGlyphInfo *glyph;
-    s32 padStack;
+    TextGlyph *glyph;
+    s32 pad2;
     s32 count;
     Gfx *g11;
-    s32 padFrame;
+    s32 pad3;
 
     idx = 0;
     startX = x;
@@ -427,7 +365,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     if (len == 0) {
         return dl;
     }
-    vp = (Vtx *)heapAlloc(len << 6);
+    vp = heapAlloc(len << 6);
     heapFreeDeferred(vp);
     batch = vp;
     if (flags & 0x80) {
@@ -455,7 +393,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
         TEXT_GFX_CMD(g3, 0xDA380003, (u32)&D_2000180);
     }
     dl = gfxInit2DDisplayList(dl);
-    for (line = 1; line < D_80754A34[font * 6 + 1] + 1; line++) {
+    for (line = 1; line < D_80754A34[font].lineCount + 1; line++) {
         TEXT_GFX_CMD(g8, 0xE7000000, 0);
         started = 0;
         ch = *str++;
@@ -463,24 +401,20 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
             do {
                 if (ch != 0x20) {
                     yoff = textMapCharToGlyph(font, &ch) * 4;
-                    glyph = &((TextBlitGlyphInfo *)D_80754A18[font])[ch];
-                    w4 = glyph->unk2 * 4;
-                    h4 = D_80754A34[font * 6 + 2] * 4;
-                    gx = glyph->unk0;
-                    w = glyph->unk2;
-                    h = D_80754A34[font * 6 + 2];
+                    glyph = &D_80754A18[font][ch];
+                    w4 = glyph->width * 4;
+                    h4 = D_80754A34[font].height * 4;
+                    gx = glyph->texX;
+                    w = glyph->width;
+                    h = D_80754A34[font].height;
                     if (center) {
-                        tmp = (D_80754A34[font * 6 + 5] * 4 - w4) / 2;
-                        if (tmp < 0) {
-                            pad = 0;
-                        } else {
-                            pad = tmp;
-                        }
+                        tmp = (D_80754A34[font].fixedWidth * 4 - w4) / 2;
+                        pad = (tmp < 0) ? 0 : tmp;
                         x += pad;
                     }
                     if (ch >= D_807549FC[font][line - 1] && ch < D_807549FC[font][line]) {
                         if (started == 0) {
-                            dl = textLoadFontSheetGfx(dl, font, (s16)line);
+                            dl = textLoadFontSheetGfx(dl, font, line);
                             started = 1;
                         }
                         vp[0].v.ob[0] = x;
@@ -503,7 +437,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                         vp[3].v.ob[2] = -5;
                         vp[3].v.tc[0] = gx << 6;
                         vp[3].v.tc[1] = 0;
-                        vp++;
+                        vp++; // FAKE: four single increments (not vp += 4) keep the quad's vp steps for uopt
                         vp++;
                         vp++;
                         vp++;
@@ -513,7 +447,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                         count += 4;
                         if (count >= 0x20) {
                             TEXT_GFX_VTX(g7, osVirtualToPhysical(batch), 0x20, 0);
-                            i = count /= 4;
+                            i = count /= 4; // FAKE: dead store to count (reset to 0 below) keeps the quad counter's divide in the target registers
                             while (i-- > 0) {
                                 TEXT_GFX_QUAD(g10, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
                             }
@@ -522,18 +456,18 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                         }
                     }
                     if (center) {
-                        tmp = D_80754A34[font * 6 + 5] * 4;
+                        tmp = D_80754A34[font].fixedWidth * 4;
                         x += (w4 < tmp) ? w4 : tmp;
                         if (w4 < tmp) {
                             x = x + tmp - pad - w4;
                         }
                     } else {
-                        x += (((TextBlitGlyphInfo *)D_80754A18[font])[ch].unk2 + D_80754A34[font * 6 + 4]) * 4;
+                        x += (D_80754A18[font][ch].width + D_80754A34[font].spacing) * 4;
                     }
                 } else if (center) {
-                    x += D_80754A34[font * 6 + 5] * 4;
+                    x += D_80754A34[font].fixedWidth * 4;
                 } else {
-                    x += D_80754A34[font * 6 + 3] * 4;
+                    x += D_80754A34[font].spaceWidth * 4;
                 }
                 idx++;
                 ch = *str++;
@@ -544,7 +478,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
         if (count != 0) {
             TEXT_GFX_VTX(g11, osVirtualToPhysical(batch), count, 0);
             batch = vp;
-            i = count /= 4;
+            i = count /= 4; // FAKE: dead store to count (reset to 0 below) keeps the quad counter's divide in the target registers
             while (i-- > 0) {
                 TEXT_GFX_QUAD(g8, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
             }
@@ -558,33 +492,30 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
 
 extern Mtx D_2000000;
 extern Mtx D_2000080;
-extern Gfx D_2000180;
 
 typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
+    f32 x;
+    f32 y;
+    f32 z;
     u8 padC[0xC];
-    f32 unk18;
-    f32 unk1C;
-    f32 unk20;
+    f32 rotX;
+    f32 rotY;
+    f32 rotZ;
     u8 pad24[0xC];
-    f32 unk30;
+    f32 scale;
     u8 pad34[4];
 } TextObjectElem;
 
 typedef struct TextObject {
     u8 pad0[4];
-    u8 *unk4;
-    TextObjectElem *unk8;
-    u8 unkC;
-    u8 unkD;
+    u8 *text;
+    TextObjectElem *elems;
+    u8 font;
+    u8 len;
 } TextObject;
 
-extern u8 D_80754A36[];
-extern u8 D_2000200[];
+extern Mtx D_2000200[];
 
-typedef struct { s16 unk0; u8 unk2; u8 unk3; } TextObjectGlyph;
 Gfx *textObjectDrawFlat(Gfx *dl, TextObject *textObj) {
     s32 line;
     u8 chr;
@@ -599,63 +530,59 @@ Gfx *textObjectDrawFlat(Gfx *dl, TextObject *textObj) {
     s32 gh;
 
     idx = 0;
-    vp = (Vtx *)heapAlloc(textObj->unkD << 6);
+    vp = heapAlloc(textObj->len << 6);
     heapFreeDeferred(vp);
-    mp = (Mtx *)heapAlloc(textObj->unkD << 6);
+    mp = heapAlloc(textObj->len << 6);
     heapFreeDeferred(mp);
     vtxBase = vp;
     gDPSetTextureFilter(dl++, G_TF_BILERP);
     dl = func_8070068C(dl);
-    line = 1;
-    if (D_80754A35[textObj->unkC * 6] + 1 >= 2) {
-        do {
-            started = 0;
-            i = 1;
-            chr = textObj->unk4[0];
-            if (chr) {
-                do {
-                    if (chr != 0x20) {
-                        textMapCharToGlyph(textObj->unkC, &chr);
-                        if (chr >= (D_807549FC[textObj->unkC] + line)[-1] && chr < (D_807549FC[textObj->unkC] + line)[0]) {
-                            gw = ((TextObjectGlyph *)D_80754A18[textObj->unkC])[chr].unk2;
-                            gx = ((TextObjectGlyph *)D_80754A18[textObj->unkC])[chr].unk0;
-                            gh = D_80754A36[textObj->unkC * 6];
-                            if (started == 0) {
-                                started = 1;
-                                dl = textLoadFontSheetGfx(dl, textObj->unkC, (s16)line);
-                            }
-                            guPosition(mp + idx, 0.0f, 0.0f, textObj->unk8[idx].unk20 * 57.295776f, textObj->unk8[idx].unk30,
-                                       textObj->unk8[idx].unk0, textObj->unk8[idx].unk4, 0.0f);
-                            gSPMatrix(dl++, mp + idx, G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
-                            gDPPipeSync(dl++);
-                            vp[0].v.ob[0] = -(gw * 2); vp[0].v.ob[1] = gh * 2 - 1; vp[0].v.ob[2] = -5;
-                            vp[0].v.tc[0] = gx << 6; vp[0].v.tc[1] = gh << 6;
-                            if (D_2000200) {}
-                            vp[1].v.ob[0] = gw * 2 - 1;
-                            vp[1].v.ob[1] = gh * 2 - 1;
-                            vp[1].v.ob[2] = -5;
-                            vp[1].v.tc[0] = (gx + gw) << 6;
-                            vp[1].v.tc[1] = gh << 6;
-                            vp[2].v.ob[1] = -(gh * 2);
-                            vp[2].v.ob[0] = gw * 2 - 1; vp[2].v.ob[2] = -5;
-                            vp[2].v.tc[0] = (gx + gw) << 6;
-                            vp[2].v.tc[1] = 0;
-                            vp[3].v.ob[0] = -(gw * 2); vp[3].v.ob[1] = -(gh * 2); vp[3].v.ob[2] = -5;
-                            vp[3].v.tc[1] = 0; vp[3].v.tc[0] = gx << 6;
-                            vp += 4;
-                            gSPVertex(dl++, osVirtualToPhysical(vtxBase), 4, 0);
-                            gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);
-                            gSPPopMatrix(dl++, G_MTX_MODELVIEW);
-                            vtxBase = vp;
+    for (line = 1; line < D_80754A34[textObj->font].lineCount + 1; line++) {
+        started = 0;
+        i = 1;
+        chr = textObj->text[0];
+        if (chr) {
+            do {
+                if (chr != 0x20) {
+                    textMapCharToGlyph(textObj->font, &chr);
+                    if (chr >= D_807549FC[textObj->font][line - 1] && chr < D_807549FC[textObj->font][line]) {
+                        gw = D_80754A18[textObj->font][chr].width;
+                        gx = D_80754A18[textObj->font][chr].texX;
+                        gh = D_80754A34[textObj->font].height;
+                        if (started == 0) {
+                            started = 1;
+                            dl = textLoadFontSheetGfx(dl, textObj->font, line);
                         }
-                        idx++;
+                        guPosition(mp + idx, 0.0f, 0.0f, textObj->elems[idx].rotZ * 57.295776f, textObj->elems[idx].scale,
+                                   textObj->elems[idx].x, textObj->elems[idx].y, 0.0f);
+                        gSPMatrix(dl++, mp + idx, G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+                        gDPPipeSync(dl++);
+                        vp[0].v.ob[0] = -(gw * 2); vp[0].v.ob[1] = gh * 2 - 1; vp[0].v.ob[2] = -5;
+                        vp[0].v.tc[0] = gx << 6; vp[0].v.tc[1] = gh << 6;
+                        if (D_2000200) {} // FAKE: deadsweep class 1 dead statement (no rewrite matched)
+                        vp[1].v.ob[0] = gw * 2 - 1;
+                        vp[1].v.ob[1] = gh * 2 - 1;
+                        vp[1].v.ob[2] = -5;
+                        vp[1].v.tc[0] = (gx + gw) << 6;
+                        vp[1].v.tc[1] = gh << 6;
+                        vp[2].v.ob[1] = -(gh * 2);
+                        vp[2].v.ob[0] = gw * 2 - 1; vp[2].v.ob[2] = -5;
+                        vp[2].v.tc[0] = (gx + gw) << 6;
+                        vp[2].v.tc[1] = 0;
+                        vp[3].v.ob[0] = -(gw * 2); vp[3].v.ob[1] = -(gh * 2); vp[3].v.ob[2] = -5;
+                        vp[3].v.tc[1] = 0; vp[3].v.tc[0] = gx << 6;
+                        vp += 4;
+                        gSPVertex(dl++, osVirtualToPhysical(vtxBase), 4, 0);
+                        gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);
+                        gSPPopMatrix(dl++, G_MTX_MODELVIEW);
+                        vtxBase = vp;
                     }
-                    chr = textObj->unk4[i++];
-                } while (chr);
-                idx = 0;
-            }
-            line++;
-        } while (line < D_80754A35[textObj->unkC * 6] + 1);
+                    idx++;
+                }
+                chr = textObj->text[i++];
+            } while (chr);
+            idx = 0;
+        }
     }
     gSPMatrix(dl++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(dl++, D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
@@ -679,89 +606,66 @@ Gfx *textObjectDrawRotated(Gfx *dl, TextObject *textObj) {
     f32 fb;
 
     idx = 0;
-    vp = (Vtx *)heapAlloc(textObj->unkD << 6);
+    vp = heapAlloc(textObj->len << 6);
     heapFreeDeferred(vp);
-    mp = (Mtx *)heapAlloc(textObj->unkD << 6);
+    mp = heapAlloc(textObj->len << 6);
     heapFreeDeferred(mp);
     vtxBase = vp;
     gDPSetTextureFilter(dl++, G_TF_BILERP);
     gSPMatrix(dl++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(dl++, D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(dl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    line = 1;
-    if (D_80754A35[textObj->unkC * 6] + 1 >= 2) {
-        do {
-            started = 0;
-            i = 1;
-            chr = textObj->unk4[0];
-            if (chr) {
-                do {
-                    if (chr != 0x20) {
-                        textMapCharToGlyph(textObj->unkC, &chr);
-                        if (chr >= (D_807549FC[textObj->unkC] + line)[-1] && chr < (D_807549FC[textObj->unkC] + line)[0]) {
-                            gw = ((TextObjectGlyph *)D_80754A18[textObj->unkC])[chr].unk2;
-                            gx = ((TextObjectGlyph *)D_80754A18[textObj->unkC])[chr].unk0;
-                            gh = D_80754A36[textObj->unkC * 6];
-                            if (started == 0) {
-                                started = 1;
-                                dl = textLoadFontSheetGfx(dl, textObj->unkC, (s16)line);
-                            }
-                            guPosition(mp + idx, textObj->unk8[idx].unk18 * 57.295776f,
-                                       textObj->unk8[idx].unk1C * 57.295776f, textObj->unk8[idx].unk20 * 57.295776f,
-                                       textObj->unk8[idx].unk30, textObj->unk8[idx].unk0, textObj->unk8[idx].unk4,
-                                       textObj->unk8[idx].unk8);
-                            gSPMatrix(dl++, mp + idx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                            gDPPipeSync(dl++);
-                            ((s16 *)vp)[0] = -(gw * 2); ((s16 *)vp)[1] = gh * 2 - 1; ((s16 *)vp)[2] = 0;
-                            ((s16 *)vp)[4] = gx << 6; ((s16 *)vp)[5] = gh << 6;
-                            if (i && i) {}
-                            ((s16 *)vp)[8] = gw * 2 - 1;
-                            ((s16 *)vp)[9] = gh * 2 - 1;
-                            ((s16 *)vp)[10] = 0;
-                            ((s16 *)vp)[12] = (gx + gw) << 6;
-                            ((s16 *)vp)[13] = gh << 6;
-                            ((s16 *)vp)[17] = -(gh * 2);
-                            ((s16 *)vp)[16] = gw * 2 - 1; ((s16 *)vp)[18] = 0;
-                            ((s16 *)vp)[20] = (gx + gw) << 6;
-                            ((s16 *)vp)[21] = 0;
-                            ((s16 *)vp)[24] = -(gw * 2); ((s16 *)vp)[25] = -(gh * 2); ((s16 *)vp)[26] = 0;
-                            ((s16 *)vp)[29] = 0; ((s16 *)vp)[28] = gx << 6;
-                            vp += 4;
-                            gSPVertex(dl++, osVirtualToPhysical(vtxBase), 4, 0);
-                            gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);
-                            vtxBase = vp;
+    for (line = 1; line < D_80754A34[textObj->font].lineCount + 1; line++) {
+        started = 0;
+        i = 1;
+        chr = textObj->text[0];
+        if (chr) {
+            do {
+                if (chr != 0x20) {
+                    textMapCharToGlyph(textObj->font, &chr);
+                    if (chr >= D_807549FC[textObj->font][line - 1] && chr < D_807549FC[textObj->font][line]) {
+                        gw = D_80754A18[textObj->font][chr].width;
+                        gx = D_80754A18[textObj->font][chr].texX;
+                        gh = D_80754A34[textObj->font].height;
+                        if (started == 0) {
+                            started = 1;
+                            dl = textLoadFontSheetGfx(dl, textObj->font, line);
                         }
-                        idx++;
+                        guPosition(mp + idx, textObj->elems[idx].rotX * 57.295776f,
+                                   textObj->elems[idx].rotY * 57.295776f, textObj->elems[idx].rotZ * 57.295776f,
+                                   textObj->elems[idx].scale, textObj->elems[idx].x, textObj->elems[idx].y,
+                                   textObj->elems[idx].z);
+                        gSPMatrix(dl++, mp + idx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                        gDPPipeSync(dl++);
+                        vp[0].v.ob[0] = -(gw * 2); vp[0].v.ob[1] = gh * 2 - 1; vp[0].v.ob[2] = 0;
+                        vp[0].v.tc[0] = gx << 6; vp[0].v.tc[1] = gh << 6;
+                        if (i && i) {} // FAKE: deadsweep class 1 dead statement (no rewrite matched)
+                        vp[1].v.ob[0] = gw * 2 - 1;
+                        vp[1].v.ob[1] = gh * 2 - 1;
+                        vp[1].v.ob[2] = 0;
+                        vp[1].v.tc[0] = (gx + gw) << 6;
+                        vp[1].v.tc[1] = gh << 6;
+                        vp[2].v.ob[1] = -(gh * 2);
+                        vp[2].v.ob[0] = gw * 2 - 1; vp[2].v.ob[2] = 0;
+                        vp[2].v.tc[0] = (gx + gw) << 6;
+                        vp[2].v.tc[1] = 0;
+                        vp[3].v.ob[0] = -(gw * 2); vp[3].v.ob[1] = -(gh * 2); vp[3].v.ob[2] = 0;
+                        vp[3].v.tc[1] = 0; vp[3].v.tc[0] = gx << 6;
+                        vp += 4;
+                        gSPVertex(dl++, osVirtualToPhysical(vtxBase), 4, 0);
+                        gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);
+                        vtxBase = vp;
                     }
-                    chr = textObj->unk4[i++];
-                } while (chr);
-                idx = 0;
-            }
-            line++;
-        } while (line < D_80754A35[textObj->unkC * 6] + 1);
+                    idx++;
+                }
+                chr = textObj->text[i++];
+            } while (chr);
+            idx = 0;
+        }
     }
     gDPPipeSync(dl++);
     return dl;
 }
-
-typedef struct {
-    u8 unk0;
-    u8 unk1;
-    u8 unk2;
-    u8 unk3;
-    u8 unk4;
-    u8 unk5;
-} TextFontInfo;
-
-#define TEXT_FONTS ((TextFontInfo *)D_80754A34)
-
-typedef struct {
-    s16 unk0;
-    u8 unk2;
-    u8 unk3;
-} TextDrawGlyph;
-
-#define TEXT_DRAW_GLYPH(f, c) (((TextDrawGlyph *)D_80754A18[f])[c])
 
 Gfx *textDrawString(Gfx *dl, u8 font, s16 x, s16 y, u8 *str) {
     u8 ch;
@@ -782,16 +686,16 @@ Gfx *textDrawString(Gfx *dl, u8 font, s16 x, s16 y, u8 *str) {
     while (ch) {
         if (ch != 0x20) {
             textMapCharToGlyph(font, &ch);
-            gSPTextureRectangle(dl++, x << 2, y << 2, (x + TEXT_DRAW_GLYPH(font, ch).unk2) << 2, (TEXT_FONTS[font].unk2 + y) << 2, 0, TEXT_DRAW_GLYPH(font, ch).unk0 << 5, 0, 0x400, 0x400);
+            gSPTextureRectangle(dl++, x << 2, y << 2, (x + D_80754A18[font][ch].width) << 2, (D_80754A34[font].height + y) << 2, 0, D_80754A18[font][ch].texX << 5, 0, 0x400, 0x400);
             if (flag != 0) {
-                x += TEXT_FONTS[font].unk5;
+                x += D_80754A34[font].fixedWidth;
             } else {
-                x += TEXT_DRAW_GLYPH(font, ch).unk2 + TEXT_FONTS[font].unk4;
+                x += D_80754A18[font][ch].width + D_80754A34[font].spacing;
             }
         } else if (flag != 0) {
-            x += TEXT_FONTS[font].unk5;
+            x += D_80754A34[font].fixedWidth;
         } else {
-            x += TEXT_FONTS[font].unk3;
+            x += D_80754A34[font].spaceWidth;
         }
         ch = *str++;
     }
@@ -801,32 +705,30 @@ Gfx *textDrawString(Gfx *dl, u8 font, s16 x, s16 y, u8 *str) {
     return dl;
 }
 
-s16 textGetCharAdvance(s16 arg0, u8 arg1) {
-    s32 idx;
-    s16 var_v1;
-    TextFontInfo *var_a0;
+s16 textGetCharAdvance(s16 font, u8 ch) {
+    s32 f;
+    s16 advance;
+    TextFontInfo *info;
 
-    idx = arg0;
-    if (idx & 0x80) {
-        var_a0 = &TEXT_FONTS[(s16)(idx ^ 0x80)];
-        var_v1 = var_a0->unk5;
-    } else if (arg1 == 0x20) {
-        var_a0 = &TEXT_FONTS[idx];
-        var_v1 = var_a0->unk3;
+    f = font; // FAKE: s32 copy keeps the extended font in a2 (sll a2,a0,0x10) apart from the a0 argument
+    if (f & 0x80) {
+        info = &D_80754A34[(s16)(f ^ 0x80)];
+        advance = info->fixedWidth;
+    } else if (ch == ' ') {
+        info = &D_80754A34[f];
+        advance = info->spaceWidth;
     } else {
-        textMapCharToGlyph(idx, &arg1);
-        var_v1 = ((u8 *)D_80754A18[idx])[arg1 * 4 + 2];
-        var_a0 = &TEXT_FONTS[idx];
+        textMapCharToGlyph(f, &ch);
+        advance = D_80754A18[f][ch].width;
+        info = &D_80754A34[f];
     }
-    var_v1 += var_a0->unk4;
-    return var_v1;
+    advance += info->spacing;
+    return advance;
 }
 
-extern u8 D_80754A36[];
-
-u8 textGetFontHeight(s16 arg0) {
-    if (arg0 & 0x80) {
-        arg0 ^= 0x80;
+u8 textGetFontHeight(s16 font) {
+    if (font & 0x80) {
+        font ^= 0x80;
     }
-    return D_80754A36[arg0 * 6];
+    return D_80754A34[font].height;
 }
