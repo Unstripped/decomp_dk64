@@ -79,7 +79,8 @@ respelled declarations (`--header-carve`, then plain `carry --rev <commit before
 type change; for what both skip, re-sweep `--record` and re-record the agents' lines. Tools are cwd-independent.
 
 Callee-prototype work is its own workstream, prepared by a batch worker in `.scratch/<A>/<name>batch/`
-(owner + caller copies, `measure.json` per-file cfe before/after, `ledger/<file>.txt`). Measure on the
+(owner + caller copies, `measure.json` per-file cfe before/after, `ledger/<file>.txt`; verify header edits with a
+full copy of `include/` (shadow-prepending leaks through quoted includes in real headers)). Measure on the
 checked-out agents' copies too: if any would rise, hold the batch and gate it in ONE unit with those
 copies. Merge owner + callers, `protos.py gen`, objdiff every includer, one gate with every `--stage`d
 header; sweep + carry. A batch stales the review of every caller whose BODY it edits: queue a grouped re-review pass.
