@@ -2,6 +2,7 @@
 #ifndef PROTO_GLOBAL_10E1D0_H
 #define PROTO_GLOBAL_10E1D0_H
 #include "common.h"
+#include "render.h"
 struct AnimModel;
 struct AnimTable;
 struct MeshBlobHeader;
@@ -33,7 +34,7 @@ void fbCopySetAlpha(s32 *, s32 *);
 void transitionRunFrame(s32, s32);
 #endif
 #ifndef PROTO_SKIP_transitionBeginDisplayList
-void transitionBeginDisplayList(void *, Gfx **);
+void transitionBeginDisplayList(FrameMatrices *, Gfx **);
 #endif
 #ifndef PROTO_SKIP_transitionInit
 void transitionInit(void);

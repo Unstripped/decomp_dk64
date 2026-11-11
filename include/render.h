@@ -41,7 +41,9 @@ typedef struct FrameMatrices {
     /* 0x100 */ Mtx orthoViewport;
     /* 0x140 */ Mtx orthoDouble;
     /* 0x180 */ Mtx identity;
-    /* 0x1C0 */ u8 pad1C0[0xDB0 - 0x1C0];
+    /* 0x1C0 */ Mtx unk1C0;
+    /* 0x200 */ Mtx unk200; // transition camera look-at (transitionBeginDisplayList)
+    /* 0x240 */ u8 pad240[0xDB0 - 0x240];
     /* 0xDB0 */ Gfx subDisplayList[(0x11B0 - 0xDB0) / sizeof(Gfx)];
 } FrameMatrices; // size = 0x11B0
 

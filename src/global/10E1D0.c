@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "render.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/110F00.h"
 #include "proto/global/13A7A0.h"
@@ -434,14 +435,14 @@ typedef struct TransitionBuffers {
     s32 tileHeight;
 } TransitionBuffers;
 
-extern u8 *gGfxCurrentFrameBuffer;
+extern FrameMatrices *gGfxCurrentFrameBuffer;
 extern Gfx *gGfxTaskBuffers[];
 extern s32 gFrameCounter;
 extern s32 D_8076A088;
 extern s32 D_8076A08C;
 extern u8 D_8076A0A4;
 extern u8 D_8076A0B2;
-extern u8 D_80767CE8[];
+extern FrameMatrices D_80767CE8[];
 extern f32 gScreenFadeProgress;
 extern TransitionBuffers *D_807FD9A8;
 extern void *D_807FD9B0;
@@ -455,8 +456,8 @@ void transitionRunFrame(s32 map, s32 exit) {
     schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, 1, 0x4D2, 1);
     gGfxBufferIndex ^= 1;
     gFrameCounter += 1;
-    gGfxCurrentFrameBuffer = D_80767CE8 + gGfxBufferIndex * 0x11B0;
-    subDl = (Gfx *)(gGfxCurrentFrameBuffer + 0xDB0);
+    gGfxCurrentFrameBuffer = &D_80767CE8[gGfxBufferIndex];
+    subDl = gGfxCurrentFrameBuffer->subDisplayList;
     switch (D_807FD9BC) {
     case 1:
         break;
@@ -515,7 +516,7 @@ extern u16 D_8076A09C;
 extern Gfx D_1000090[];
 
 
-void transitionBeginDisplayList(void *frame, Gfx **outDl) {
+void transitionBeginDisplayList(FrameMatrices *frame, Gfx **outDl) {
     Gfx *dl = gGfxTaskBuffers[gGfxBufferIndex];
 
     gSPSegment(dl++, 0, 0);
@@ -525,9 +526,9 @@ void transitionBeginDisplayList(void *frame, Gfx **outDl) {
     dl = gfxClearZBuffer(gfxSetViewportDisplayList(dl));
     gDPPipeSync(dl++);
     gDPSetCycleType(dl++, G_CYC_1CYCLE);
-    guTranslate((Mtx *)frame + 6, 0.0f, 0.0f, 0.0f);
-    guLookAt((Mtx *)frame + 8, 0.0f, 0.0f, 200.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-    guPerspective((Mtx *)frame, &D_8076A09C, 61.9f, 1.3333334f, 10.0f, 1000.0f, 1.0f);
+    guTranslate(&frame->identity, 0.0f, 0.0f, 0.0f);
+    guLookAt(&frame->unk200, 0.0f, 0.0f, 200.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    guPerspective(&frame->perspective, &D_8076A09C, 61.9f, 1.3333334f, 10.0f, 1000.0f, 1.0f);
     gDPPipeSync(dl++);
     dl = gfxSetFrameBufferColorImage(dl);
     gDPSetColorDither(dl++, G_CD_MAGICSQ);
