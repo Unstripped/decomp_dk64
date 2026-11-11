@@ -4,17 +4,17 @@
 #include "common.h"
 #include "actor.h"
 #include "collision.h"
+#include "map.h"
 struct CollisionActorWork;
 struct CollisionBoxTri;
 struct CollisionBstFlatItem;
 struct CollisionBstNode;
 struct CollisionBstNodeBase;
 struct CollisionLinkedNode;
-struct CollisionMeshHeader;
 struct CollisionStaticTri;
 struct CollisionTriF;
 #ifndef PROTO_SKIP_collisionBuildCellTable
-void collisionBuildCellTable(struct CollisionMeshHeader *);
+void collisionBuildCellTable(struct MapFileHeader *);
 #endif
 #ifndef PROTO_SKIP_collisionSetQueryMode
 void collisionSetQueryMode(u8);

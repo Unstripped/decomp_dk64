@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "map.h"
 #include "collision.h"
 #include "water.h"
 #include "sched.h"
@@ -18,16 +19,6 @@
 #include "proto/global/CEAE0.h"
 #include "proto/global/FE40.h"
 
-
-typedef struct CollisionMeshHeader {
-    u8 pad0[4];
-    u32 unk4;
-    u8 pad8;
-    u8 unk9;
-    u8 padA[0xE];
-    s16 unk18;
-    s16 unk1A;
-} CollisionMeshHeader;
 
 typedef struct CollisionStaticTri {
     /* 0x00 */ s16 x[3];
@@ -55,7 +46,7 @@ extern u8 D_807F951C;
 extern s32 gCurrentMap;
 extern u8 D_807F94B4;
 
-void collisionBuildCellTable(CollisionMeshHeader *arg0) {
+void collisionBuildCellTable(MapFileHeader *arg0) {
     s32 off;
     void *compressed;
     u8 *dst;
