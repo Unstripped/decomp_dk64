@@ -1007,7 +1007,7 @@ ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f
         sub140->boxCount = count;
         if (count != 0) {
             sub140->boxes = (a3 = heapAlloc(count * sizeof(ActorSub140SrcTri)));
-            sub140->unkA4 = (s32)heapAlloc(count * sizeof(ActorSub140Tri));
+            sub140->unkA4 = heapAlloc(count * sizeof(ActorSub140Tri));
             sub140->unkA8 = sub140->unkA4;
         }
         if (count > 0) {
@@ -1384,7 +1384,7 @@ void actorSub140BuildBoxes(ActorSub140 *sub) {
         }
         mtx = sub->unk74[bufIdx];
         ent = sub->boxes;
-        box = (CollisionBox *)sub->unkA4;
+        box = sub->unkA4;
         i = 0;
         if (sub->boxCount > 0) {
             do {
@@ -1421,7 +1421,7 @@ void actorSub140BuildBoxes(ActorSub140 *sub) {
                 i++;
             } while (i < sub->boxCount);
         }
-        sub->unkA8 = (s32)box;
+        sub->unkA8 = box;
     }
 }
 

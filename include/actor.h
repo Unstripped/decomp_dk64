@@ -162,8 +162,8 @@ typedef struct ActorSub140 {
     /* 0x98 */ void *triangles;
     /* 0x9C */ s32 boxCount;
     /* 0xA0 */ void *boxes;
-    /* 0xA4 */ s32 unkA4;
-    /* 0xA8 */ s32 unkA8;
+    /* 0xA4 */ struct CollisionBox *unkA4; /* transformed boxes (actorSub140BuildBoxes) */
+    /* 0xA8 */ struct CollisionBox *unkA8; /* one past the last valid box */
     /* 0xAC */ u8 unkAC;
     /* 0xAD */ u8 padAD[0x17];
 } ActorSub140; // size = 0xC4
