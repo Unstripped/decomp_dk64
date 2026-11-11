@@ -962,6 +962,16 @@ void modelSlotUpdateTailKey(s32 slot, u8 isId, u8 newKey, u8 remove) {
 }
 
 
+// One model collision triangle in the asset (ModelAssetHeader.unk50 table, after a 0x10 header); 0x18 bytes.
+typedef struct ModelAssetTri {
+    /* 0x00 */ s16 v[9]; // three vertices x/y/z
+    /* 0x12 */ u8 unk12;
+    /* 0x13 */ s8 bone; // -1: in model space
+    /* 0x14 */ u8 unk14;
+    /* 0x15 */ u8 unk15;
+    /* 0x16 */ u8 pad16[2];
+} ModelAssetTri; // size = 0x18
+
 void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale) {
     s32 count;
     ModelData *anim;
@@ -970,12 +980,11 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
     f32 boneMtx[4][4];
     f32 boneWorldMtx[4][4];
     ModelTriBuffer *buf;
-    u8 *entry;
+    ModelAssetTri *entry;
     CollisionTriF *out;
     s32 i;
     u8 *animFrame;
     u8 *boneTable;
-    s8 bone;
     s8 lastBone;
     s32 off;
     s32 pad2;
@@ -1009,7 +1018,7 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
         buf->tri_start = heapAlloc(count * 0x28);
     }
     buf->flags |= 4;
-    entry = data->unk50 + (u8 *)data + 0x10;
+    entry = (ModelAssetTri *)(data->unk50 + (u8 *)data + 0x10);
     out = buf->tri_start;
     guScaleF(mtx, scale, scale, scale);
     guRotateF(rotMtx, rotX, 1.0f, 0.0f, 0.0f);
@@ -1022,23 +1031,22 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
     guMtxCatF(mtx, rotMtx, mtx);
     boundsTransformToAabb(mtx, data->unk50 + (u8 *)data + 4, buf);
     for (i = 0; i < count; i++) {
-        bone = entry[0x13];
-        if ((bone ^ 0) == -1) { // FAKE: no-op xor flips the bne operand order (Q0304)
+        if (entry->bone == -1) {
             if (modelTriangleTransform(entry, out, mtx) != 0) {
                 out++;
             }
         } else {
-            if (lastBone != bone) {
-                modelBuildBoneChainMatrix((s32 *)(boneTable + (bone << 5)), animFrame, boneMtx);
+            if (lastBone != entry->bone) {
+                modelBuildBoneChainMatrix((s32 *)(boneTable + (entry->bone << 5)), animFrame, boneMtx);
                 guMtxCatF(boneMtx, mtx, boneWorldMtx);
-                lastBone = entry[0x13];
+                lastBone = entry->bone;
             }
             if (modelTriangleTransform(entry, out, boneWorldMtx) != 0) {
                 bboxExpandFromTriangle(out, &buf->bbox);
                 out++;
             }
         }
-        entry += 0x18;
+        entry++;
     }
     buf->tri_end = out;
     buf->flags |= 1;
