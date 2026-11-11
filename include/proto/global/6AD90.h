@@ -3,8 +3,8 @@
 #define PROTO_GLOBAL_6AD90_H
 #include "common.h"
 #include "actor.h"
+#include "collision.h"
 struct CollisionActorWork;
-struct CollisionBoundingBox;
 struct CollisionBoxTri;
 struct CollisionBstFlatItem;
 struct CollisionBstNode;

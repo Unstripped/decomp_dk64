@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "collision.h"
 #include "water.h"
 #include "sched.h"
 #define PROTO_SKIP_assetEnsureTableLoaded // PROTO: The number of arguments doesn't agree with the number in the
@@ -1287,15 +1288,6 @@ typedef struct CollisionTriF {
     /* 0x26 */ s8 unk26;
     /* 0x27 */ u8 unk27;
 } CollisionTriF; // size = 0x28
-
-typedef struct CollisionBoundingBox {
-    f32 minX;
-    f32 minY;
-    f32 minZ;
-    f32 maxX;
-    f32 maxY;
-    f32 maxZ;
-} CollisionBoundingBox;
 
 typedef struct {
     CollisionTriF *tri_start;

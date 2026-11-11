@@ -1,6 +1,7 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
+#include "collision.h"
 #include "heap.h"
 #include "proto/boot/30E0.h"
 #include "proto/global/15050.h"
@@ -36,29 +37,6 @@ typedef struct CollisionTri {
     /* 0x0E */ s16 unkE;
     /* 0x10 */ s16 unk10;
 } CollisionTri; // size = 0x12
-
-typedef struct CollisionBox {
-    /* 0x00 */ u8 pad0[0x24];
-    /* 0x24 */ s32 unk24;
-    /* 0x28 */ s32 unk28;
-    /* 0x2C */ s32 unk2C;
-    /* 0x30 */ s32 unk30;
-    /* 0x34 */ s32 unk34;
-    /* 0x38 */ s32 unk38;
-    /* 0x3C */ s32 unk3C;
-    /* 0x40 */ s32 unk40;
-    /* 0x44 */ s32 unk44;
-    /* 0x48 */ s16 unk48;
-    /* 0x4A */ u8 pad4A;
-    /* 0x4B */ u8 unk4B;
-    /* 0x4C */ u8 unk4C;
-    /* 0x4D */ u8 unk4D;
-    /* 0x4E */ s8 unk4E;
-    /* 0x4F */ u8 unk4F;
-    /* 0x50 */ u8 unk50;
-    /* 0x51 */ u8 unk51;
-    /* 0x52 */ u8 pad52[0x58 - 0x52];
-} CollisionBox; // size = 0x58
 
 extern s32 gFrameCounter;
 extern BufferCacheEntry *D_807FB534;

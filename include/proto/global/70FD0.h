@@ -3,6 +3,7 @@
 #define PROTO_GLOBAL_70FD0_H
 #include "common.h"
 #include "actor.h"
+#include "collision.h"
 #include "heap.h"
 struct ActorFacingWork;
 struct ActorHitPlane;
@@ -11,7 +12,6 @@ struct ActorPlaneContactView;
 struct ActorSphereUpdateView;
 struct ActorTargetWork;
 struct CollisionActor;
-struct CollisionBox;
 struct CollisionPlane;
 struct CollisionStaticHeader;
 struct CollisionTri;
