@@ -495,7 +495,6 @@ extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
 
 struct ModelQuadOwner;
-struct ModelTriBuffer;
 struct ModelPathTable;
 struct ModelVertTable;
 
