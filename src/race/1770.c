@@ -38,7 +38,7 @@ s32 raceGetPrevWaypointIndex(s32 pathLength, s32 curWaypoint) {
     return curWaypoint - 1;
 }
 
-typedef struct {
+typedef struct TargetVec3f {
     f32 x, y, z;
 } RaceAPoint3f;
 
@@ -291,8 +291,8 @@ void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participan
 }
 
 f32 mathCosF(s16);
-extern u8 D_8072006C;
-extern s32 D_8002FBB0[4];
+extern u8 D_8072006C[];
+extern void *D_8002FBB0[4];
 extern u8 gLightSlotsEnd;
 void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
     s16 angle;
@@ -423,11 +423,11 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     pathState->unk18 = pathState->unk18 + pathState->unk28;
     raceUpdateOrientation(pathState);
     if (spawnSparks != 0) {
-        if ((u32)(randomLcgNext() & 0xFF) < gCurrentActor->unkB8 * 0.3 && pathState->unk0 == pathState->unk1) {
+        if ((randomLcgNext() & 0xFF) < gCurrentActor->unkB8 * 0.3 && pathState->unk0 == pathState->unk1) {
             mathPickCloserTargetPoint3D(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, cur, &points[next], &points[next], nxt2, &hx, &hy, &hz);
             effectSetSpeed((s32)gCurrentActor);
             effectSetCallback(timedLightOrbitUpdate);
-            D_8002FBB0[gLightSlotsEnd] = effectCreateAtPosition(&D_8072006C, 0.4f, hx, hy, hz);
+            D_8002FBB0[gLightSlotsEnd] = effectCreateAtPosition(D_8072006C, 0.4f, hx, hy, hz);
             gLightSlotsEnd++;
             gLightSlotsEnd = gLightSlotsEnd % 4;
             sfxPlayAtPositionPooled(hx, hy, hz, 0x8A, 0x96, 0x7F, 0x14, 0x50, 0.3f, 0);

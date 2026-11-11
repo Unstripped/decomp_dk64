@@ -886,10 +886,10 @@ void slotQueueInitEffectSprites(s32 slot) {
     for (i = 0; i < 5; i++) {
         effectEnableFade();
         effectSetDuration(-1);
-        effectSetCallback((void (*)(void))effectSpriteUpdatePosition);
+        effectSetCallback(effectSpriteUpdatePosition);
         effectSetSpeed(i);
         D_807FD7A0[i] = -100.0f;
-        effectCreateAtPosition((s32)D_80750518[i], 1.0f, -200.0f, 0.0f, -10.0f);
+        effectCreateAtPosition(D_80750518[i], 1.0f, -200.0f, 0.0f, -10.0f);
     }
 }
 

@@ -32,8 +32,8 @@
 typedef struct Struct_7548 {
     s16 unk0;
     char pad2[2];
-    struct EffectNode *unk4[5];
-    u8 unk18[5];
+    struct EffectNode *ammoIcons[5];
+    u8 ammoIconSlide[5];
     char pad1D;
     s16 unk1E;
     s16 unk20;
@@ -316,17 +316,17 @@ void bonusResetAmmo(Struct_7548 *ammo) {
     s16 y;
     y = 0x118;
     for (i = 0; i < 5; i++) {
-        if (ammo->unk4[i] != NULL) {
-            effectFreeAndUnlink(ammo->unk4[i]);
+        if (ammo->ammoIcons[i] != NULL) {
+            effectFreeAndUnlink(ammo->ammoIcons[i]);
         }
-        ammo->unk18[i] = 0;
+        ammo->ammoIconSlide[i] = 0;
         effectEnableFade();
         effectSetDuration(-1);
         effectSetMode(2);
         effectSetParam(i * 3);
         effectSetCallback(effectSpriteMatrixUpdate);
-        effectSetSpeed((s32)&ammo->unk18[i]);
-        ammo->unk4[i] = effectCreateAtPosition(D_8071FFD4, 1.0f, (f32) y, 210.0f, -10.0f);
+        effectSetSpeed((s32)&ammo->ammoIconSlide[i]);
+        ammo->ammoIcons[i] = effectCreateAtPosition(D_8071FFD4, 1.0f, (f32) y, 210.0f, -10.0f);
         y -= 0x1E;
     }
     sfxPlayOnFreeSlot(0x3E4, 0x7FFF, 63.0f, 1.0f, 5, 0);
@@ -358,14 +358,14 @@ u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
         if (gCurrentActor->state == 0) {
             fireStatus[0] = 1;
             if (bonusExt->unk22 != 0) {
-                if (bonusExt->unk23 != 0 && bonusExt->unk18[0] == 0) {
+                if (bonusExt->unk23 != 0 && bonusExt->ammoIconSlide[0] == 0) {
                     bonusFireProjectile(aimX, aimY, aimZ);
                     bonusExt->unk23--;
-                    effectFreeAndUnlink(bonusExt->unk4[bonusExt->unk23]);
+                    effectFreeAndUnlink(bonusExt->ammoIcons[bonusExt->unk23]);
                     rumbleRequest(0, 0xFF, 3);
-                    bonusExt->unk4[bonusExt->unk23] = NULL;
+                    bonusExt->ammoIcons[bonusExt->unk23] = NULL;
                     for (ammoIndex = 0; ammoIndex < bonusExt->unk23; ammoIndex++) {
-                        bonusExt->unk18[ammoIndex] = 10;
+                        bonusExt->ammoIconSlide[ammoIndex] = 10;
                     }
                 } else if (bonusExt->unk23 == 0) {
                     if (gCurrentActor->unk155 == 0) {

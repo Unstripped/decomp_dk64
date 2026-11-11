@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_6710_H
 #include "common.h"
 #include "audio_config.h"
-struct AudioAiBuffer;
 struct AudioDmaContext;
 struct AudioTask;
 #ifndef PROTO_SKIP_audioThreadInit
@@ -16,13 +15,13 @@ void audioThreadStart(void);
 void audioThreadStop(s32);
 #endif
 #ifndef PROTO_SKIP_audioThreadMain
-void audioThreadMain(s32);
+void audioThreadMain(void *);
 #endif
 #ifndef PROTO_SKIP_audioBuildTask
-s32 audioBuildTask(struct AudioTask *, struct AudioAiBuffer *);
+s32 audioBuildTask(struct AudioTask *, struct AudioTask *);
 #endif
 #ifndef PROTO_SKIP_audioCheckAiLength
-void audioCheckAiLength(s32);
+void audioCheckAiLength(struct AudioTask *);
 #endif
 #ifndef PROTO_SKIP_audioDmaCallback
 s32 audioDmaCallback(u32, s32, void *);

@@ -505,26 +505,13 @@ void menuDispatchAction(void) {
     actorScriptedCommandUpdate();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
-typedef struct {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
-    s16 unkA;
-    u8 unkC;
-    u8 unkD;
-    u8 unkE;
-    u8 unkF;
-} MenuProgressGridVtx;
-
-extern s32 D_800330D0;
-extern void *D_800330D4;
+extern Mtx *D_800330D0;
+extern Vtx *D_800330D4;
 extern u8 D_800330E0[];
 extern s16 D_80033220[];
 extern u8 D_80033228[];
 extern s8 D_80033258;
-extern MenuProgressGridVtx *D_80033F10;
+extern Vtx *D_80033F10;
 
 void *memcpy(void *, const void *, s32);
 
@@ -541,7 +528,7 @@ void menuUpdateProgressGrid(void) {
     if (!(gCurrentActor->unk60 & 0x10)) {
         *pSlideY = 0xF0;
         gCurrentActor->unk154 = 0;
-        D_800330D0 = (s32)heapAlloc(0x80);
+        D_800330D0 = heapAlloc(0x80);
         D_800330D4 = heapAlloc(0x140);
         memcpy(D_800330D4, D_800330E0, 0x140);
         *pSlideY = -0x3E8;
@@ -555,27 +542,27 @@ void menuUpdateProgressGrid(void) {
                     if (flag != 0) {
                         idx = 0x15;
                     }
-                    D_80033F10[n].unk0 = (j * 30 + 40) << 2;
-                    D_80033F10[n].unk2 = (D_80033220[k] + r * 30 + 0x2D) << 2;
-                    D_80033F10[n].unk4 = -0xA;
-                    D_80033F10[n].unk8 = (j * 30) << 6;
-                    D_80033F10[n].unkA = (D_80033220[k] + r * 30) << 6;
-                    D_80033F10[n].unkC = D_80033228[idx];
-                    D_80033F10[n].unkD = D_80033228[idx + 1];
-                    D_80033F10[n].unkE = D_80033228[idx + 2];
-                    D_80033F10[n].unkF = 0xFF;
-                    D_80033F10[n].unk6 = 0;
+                    D_80033F10[n].v.ob[0] = (j * 30 + 40) << 2;
+                    D_80033F10[n].v.ob[1] = (D_80033220[k] + r * 30 + 0x2D) << 2;
+                    D_80033F10[n].v.ob[2] = -0xA;
+                    D_80033F10[n].v.tc[0] = (j * 30) << 6;
+                    D_80033F10[n].v.tc[1] = (D_80033220[k] + r * 30) << 6;
+                    D_80033F10[n].v.cn[0] = D_80033228[idx];
+                    D_80033F10[n].v.cn[1] = D_80033228[idx + 1];
+                    D_80033F10[n].v.cn[2] = D_80033228[idx + 2];
+                    D_80033F10[n].v.cn[3] = 0xFF;
+                    D_80033F10[n].v.flag = 0;
                     n++;
-                    D_80033F10[n].unk0 = (j * 30 + 70) << 2;
-                    D_80033F10[n].unk2 = (D_80033220[k] + r * 30 + 0x2D) << 2;
-                    D_80033F10[n].unk4 = 0x16;
-                    D_80033F10[n].unk8 = (j * 30 + 30) << 6;
-                    D_80033F10[n].unkA = (D_80033220[k] + r * 30) << 6;
-                    D_80033F10[n].unkC = D_80033228[idx++];
-                    D_80033F10[n].unkD = D_80033228[idx++];
-                    D_80033F10[n].unkE = D_80033228[idx];
-                    D_80033F10[n].unkF = 0xFF;
-                    D_80033F10[n].unk6 = 0;
+                    D_80033F10[n].v.ob[0] = (j * 30 + 70) << 2;
+                    D_80033F10[n].v.ob[1] = (D_80033220[k] + r * 30 + 0x2D) << 2;
+                    D_80033F10[n].v.ob[2] = 0x16;
+                    D_80033F10[n].v.tc[0] = (j * 30 + 30) << 6;
+                    D_80033F10[n].v.tc[1] = (D_80033220[k] + r * 30) << 6;
+                    D_80033F10[n].v.cn[0] = D_80033228[idx++];
+                    D_80033F10[n].v.cn[1] = D_80033228[idx++];
+                    D_80033F10[n].v.cn[2] = D_80033228[idx];
+                    D_80033F10[n].v.cn[3] = 0xFF;
+                    D_80033F10[n].v.flag = 0;
                     n++;
                     idx++;
                 }
@@ -607,7 +594,7 @@ void menuUpdateProgressGrid(void) {
 }
 
 extern u8 gGfxBufferIndex;
-extern s32 gFrameCounter;
+extern u32 gFrameCounter;
 
 Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     s32 pad;
@@ -617,7 +604,7 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     s32 x;
     s32 y;
     s16 *pSlideY = actor->unk174;
-    MenuProgressGridVtx *v;
+    Vtx *v;
     s32 k;
     f32 mf[4][4];
     s8 allCollected;
@@ -630,8 +617,8 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     gDPSetCombine(g++, 0x121803, 0xFF0FFFFF);
     gSPMatrix(g++, D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     guTranslateF(mf, 8.0f, (f32) *pSlideY, 0.0f);
-    guMtxF2L(mf, (Mtx *)((gGfxBufferIndex << 6) + D_800330D0));
-    gSPMatrix(g++, (gGfxBufferIndex << 6) + D_800330D0, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    guMtxF2L(mf, &D_800330D0[gGfxBufferIndex]);
+    gSPMatrix(g++, &D_800330D0[gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPSetOtherMode(g++, G_SETOTHERMODE_H, 12, 2, 0);
     tex = texCacheFindOrLoad(0xA3);
     v = D_80033F10;
@@ -641,7 +628,7 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
         j = 0;
         for (x = 0; x < 240; x += 30) {
             gDPPipeSync(g++);
-            if (flagGet((s16)flagGridIndex(0x1FD, j, i), 0) != 0) {
+            if (flagGet(flagGridIndex(0x1FD, j, i), 0) != 0) {
                 gDPSetPrimColor(g++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
             } else {
                 allCollected = 0;
@@ -671,7 +658,7 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     gSP2Triangles(g++, 8, 9, 10, 0, 8, 10, 11, 0);
     gSP2Triangles(g++, 12, 13, 14, 0, 12, 14, 15, 0);
     gDPPipeSync(g++);
-    if (allCollected != 0 && (gFrameCounter & 0x1F) < 0x14U) {
+    if (allCollected != 0 && (gFrameCounter & 0x1F) < 20) {
         tex = texCacheFindOrLoad(0x44);
         gDPSetPrimColor(g++, 0, 0, 0, 0xFF, 0, 0xFF);
         gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x504240);
@@ -680,9 +667,9 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
         gSP2Triangles(g++, 16, 17, 18, 0, 16, 18, 19, 0);
         if (D_80033258 == 0) {
             for (k = 0; k < 0x140; k++) {
-                D_80033F10[k].unkC = 0;
-                D_80033F10[k].unkD = 0xFF;
-                D_80033F10[k].unkE = 0xFF;
+                D_80033F10[k].v.cn[0] = 0;
+                D_80033F10[k].v.cn[1] = 0xFF;
+                D_80033F10[k].v.cn[2] = 0xFF;
             }
             D_80033258 = 1;
         }

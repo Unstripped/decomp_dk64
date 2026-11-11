@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
@@ -29,7 +28,6 @@
 #include "proto/global/ACDC0.h"
 #include "proto/global/C2A90.h"
 #include "proto/global/FCCD0.h"
-void slotQueueAddValue();  // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -130,33 +128,26 @@ void func_806BDEC8(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct R1C2CB_ActorEE {
-    /* 0x00 */ u8 pad0[0xEE];
-    /* 0xEE */ s16 unkEE;
-} R1C2CB_ActorEE;
-
-#define R1C2CBE ((R1C2CB_ActorEE *)gPrimaryPlayerActor)
-
 extern s32 gFrameCounter;
 
 extern u8 gCurrentWorldId;
 extern u8 gPlayerCharacterId;
 extern u16 D_807446C0[];
 extern u16 gLevelCollectibleCounts[];
-extern u8 gPlayerInventoryTable[][0x5E];
+extern KongInventory gPlayerInventoryTable[];
 
 
 void func_806BE09C(void) {
-    R1C2CB_Sub174 *sub;
+    PlayerState *playerState;
     s16 angle;
     u8 idx;
     f32 ratio;
     f32 target;
-    u8 *row;
+    KongInventory *row;
     s32 sum;
     s32 i;
 
-    sub = gPrimaryPlayerActor->customState;
+    playerState = gPrimaryPlayerActor->customState;
     idx = mapGetHubWorldIndex(gCurrentWorldId, 0);
     ratio = (f32)gLevelCollectibleCounts[idx] / (f32)D_807446C0[idx];
     if (func_806BDD90() == 1) {
@@ -166,10 +157,10 @@ void func_806BE09C(void) {
             gCurrentActor->unk155 = 0;
             gBehaviourWorkState->unk2E = 0x32;
             actorScriptStart(gCurrentActor, 0x28A);
-            camSetTargetCutsceneUnscaled(sub->unk104, gPrimaryPlayerActor, 4, 0x990, 0x5A, -0x2E, 0x3C, 0xA, 0x20, 0, 0.3f);
+            camSetTargetCutsceneUnscaled(playerState->camActor, gPrimaryPlayerActor, 4, 0x990, 0x5A, -0x2E, 0x3C, 0xA, 0x20, 0, 0.3f);
             angle = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z);
             gPrimaryPlayerActor->yaw = angle;
-            R1C2CBE->unkEE = gPrimaryPlayerActor->yaw;
+            gPrimaryPlayerActor->moveYaw = gPrimaryPlayerActor->yaw;
         }
     }
     func_80724E48(0);
@@ -188,17 +179,17 @@ void func_806BE09C(void) {
             if (gBehaviourWorkState->unk2E != 0) {
                 gBehaviourWorkState->unk2E--;
                 if (gBehaviourWorkState->unk2E == 0) {
-                    camSetTargetCutsceneUnscaled(sub->unk104, gCurrentActor, 4, 0x305, 0x14A, 3, 0x32, 0x7F, 0x5A, 0, 0.03f);
+                    camSetTargetCutsceneUnscaled(playerState->camActor, gCurrentActor, 4, 0x305, 0x14A, 3, 0x32, 0x7F, 0x5A, 0, 0.03f);
                 }
             }
             if (gBehaviourWorkState->timer != 0) {
                 if (!(gFrameCounter & 3)) {
-                    row = gPlayerInventoryTable[gPlayerCharacterId];
+                    row = &gPlayerInventoryTable[gPlayerCharacterId];
                     gBehaviourWorkState->timer--;
-                    slotQueueAddValue(0, 0, -1, gPlayerInventoryTable);
-                    ((u16 *)(row + 0x26))[idx] += 1;
+                    slotQueueAddValue(0, 0, -1);
+                    row->unk26[idx] += 1;
                     sum = 0;
-                    for (i = 0; i < 5; i++) sum += ((u16 *)(gPlayerInventoryTable[i] + 0x26))[idx];
+                    for (i = 0; i < 5; i++) sum += gPlayerInventoryTable[i].unk26[idx]; // LAYOUT: body on the for line keeps as1 emitting the unrolled i=1 address add (v0) before the i=0 one (t3)
                     if (sum >= D_807446C0[idx]) {
                         gBehaviourWorkState->timer = 0;
                         slotQueueCancel(0, 0);

@@ -120,21 +120,21 @@ extern u8 D_807F94BC;
 extern f32 D_807F948C;
 
 
-void collisionQueryActorFloor(Actor *arg0, u8 *arg1, f32 *arg2, u8 *arg3, f32 *arg4, u8 arg5) {
+void collisionQueryActorFloor(Actor *actor, u8 *hasFloor, f32 *floorY, u8 *hasWater, f32 *waterY, u8 mode) {
     f32 posX;
     f32 posY;
     f32 posZ;
 
     D_807F94BC = 0;
     D_807F94B3 = 0;
-    if (arg0->floorNodeId && arg0->attachMode == 0 && (arg0->flags & 0x10)) {
-        actorGetNodePos(arg0, arg0->floorNodeId, &posX, &posY, &posZ);
+    if (actor->floorNodeId && actor->attachMode == 0 && (actor->flags & 0x10)) {
+        actorGetNodePos(actor, actor->floorNodeId, &posX, &posY, &posZ);
     } else {
-        posX = arg0->x;
-        posY = arg0->prevY;
-        posZ = arg0->z;
+        posX = actor->x;
+        posY = actor->prevY;
+        posZ = actor->z;
     }
-    collisionFindFloorAtPoint(arg0, posX, posY, posZ, arg1, arg2, arg3, arg4, arg5);
+    collisionFindFloorAtPoint(actor, posX, posY, posZ, hasFloor, floorY, hasWater, waterY, mode);
 }
 
 void collisionCheckActorFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {

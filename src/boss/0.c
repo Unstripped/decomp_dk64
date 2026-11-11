@@ -500,33 +500,25 @@ void bossArmydilloShowCannons(void) {
     actorSetNodeFlag(gCurrentActor, 5);
 }
 
-typedef struct BossActorUnkC0 {
-    u8 pad0[0xC0];
-    f32 unkC0;
-} BossActorUnkC0;
-
-extern u8 effectFollowParentUpdate;
-extern u8 D_80720120;
-
+void effectFollowParentUpdate(struct FollowParentActorView *, s8 *);
+extern u8 D_80720120[];
 
 void bossArmydilloSpawnExhaustSmoke(void) {
-    f32 val;
-    s32 p;
-    f64 dval;
+    f32 scale;
+    f64 speedY;
 
-    dval = (0.0 < (f64)((BossActorUnkC0 *)gCurrentActor)->unkC0) ? (f64)((BossActorUnkC0 *)gCurrentActor)->unkC0 : 0.0;
-    val = (f32)((f32)((dval / 150.0) * 0.12) + 0.3) * 4.0f;
-    p = (s32)&effectFollowParentUpdate;
+    speedY = (0.0 < ((Actor *)gCurrentActor)->speedY) ? ((Actor *)gCurrentActor)->speedY : 0.0;
+    scale = (f32)((f32)((speedY / 150.0) * 0.12) + 0.3) * 4.0f;
     effectSetDepth(1);
-    effectSetCallback((void *)p);
+    effectSetCallback(effectFollowParentUpdate);
     effectSetMaxDistance(1000);
     effectSetSpeed((s32)gCurrentActor);
-    effectCreateAtActorBone(&D_80720120, val, gCurrentActor, 3, 0);
+    effectCreateAtActorBone(D_80720120, scale, gCurrentActor, 3, 0);
     effectSetDepth(1);
-    effectSetCallback((void *)p);
+    effectSetCallback(effectFollowParentUpdate);
     effectSetMaxDistance(1000);
     effectSetSpeed((s32)gCurrentActor);
-    effectCreateAtActorBone(&D_80720120, val, gCurrentActor, 4, 0);
+    effectCreateAtActorBone(D_80720120, scale, gCurrentActor, 4, 0);
 }
 
 typedef struct Boss3B_178 {

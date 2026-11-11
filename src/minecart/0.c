@@ -1,6 +1,5 @@
 #include "common.h"
 #define PROTO_SKIP_camStartPath // FAKE: callee prototype steer
-#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
@@ -171,19 +170,18 @@ void minecartTriggerWin(u8 useCutsceneCam, u8 textIndex) {
     }
 }
 
-extern s32 D_80028C30;
-extern s32 D_8072006C;
+extern void *D_80028C30;
+extern u8 D_8072006C[];
 
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32); // FAKE: callee prototype steer
-s32 effectCreateAtActorBone(void *, s32, void *, s32, s32);
 
 void minecartSpawnWheelEffect(MinecartCart *cart, u8 side, u8 probabilityThreshold) {
-    if ((u32)(u8)randomLcgNext() >= (u32)probabilityThreshold) {
+    if ((randomLcgNext() & 0xFF) >= probabilityThreshold) {
         if (cart->unk0 == 0) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8A, 0x96, 0x7F, 0x32);
             effectSetSpeed((s32)gCurrentActor);
-            effectSetCallback(&effectTimedLightIntensityFade);
-            D_80028C30 = effectCreateAtActorBone(&D_8072006C, 0x3ECCCCCD, gCurrentActor, side + 7, 2);
+            effectSetCallback(effectTimedLightIntensityFade);
+            D_80028C30 = effectCreateAtActorBone(D_8072006C, 0.4f, gCurrentActor, side + 7, 2);
         }
     }
 }
@@ -334,8 +332,6 @@ extern s16 D_807502D0;
 extern f32 D_807502F8;
 extern s16 D_80750338;
 extern s32 D_80028C40;
-
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void minecartUpdatePhysics(void) {
     s32 pad0;

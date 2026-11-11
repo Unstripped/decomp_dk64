@@ -353,30 +353,30 @@ typedef struct ActorTransformWork {
 
 ActorSub140 *actorSub140CreateFromModel(Actor *self) {
     ActorTransformWork *actor = (ActorTransformWork *)self;
-    f32 fv0;
-    f32 fv1;
-    f32 ft4;
-    void *v1;
-    s32 a1;
-    s32 t0;
+    f32 radius;
+    f32 height;
+    f32 scale;
+    void *nodeData;
+    s32 boneMtx0;
+    s32 boneMtx1;
 
-    fv0 = 0.0f;
-    fv1 = 0.0f;
-    ft4 = 1.0f;
-    v1 = NULL;
-    a1 = 0;
-    t0 = 0;
+    radius = 0.0f;
+    height = 0.0f;
+    scale = 1.0f;
+    nodeData = NULL;
+    boneMtx0 = 0;
+    boneMtx1 = 0;
     if (actor->unk0 != NULL) {
-        fv0 = actor->unk0->unkC->unk0;
-        fv1 = actor->unk0->unkC->unk4;
-        v1 = &actor->unk0->unkC->unk8;
+        radius = actor->unk0->unkC->unk0;
+        height = actor->unk0->unkC->unk4;
+        nodeData = &actor->unk0->unkC->unk8;
     }
     if (actor->unk4 != NULL) {
-        ft4 = actor->unk4->unk38;
-        a1 = actor->unk4->unk14;
-        t0 = actor->unk4->unk18;
+        scale = actor->unk4->unk38;
+        boneMtx0 = actor->unk4->unk14;
+        boneMtx1 = actor->unk4->unk18;
     }
-    return actorSub140CreateFromData(0.0f, 0.0f, 0.0f, ft4, fv0, fv1, &actor->unkC, a1, t0, v1);
+    return actorSub140CreateFromData(0.0f, 0.0f, 0.0f, scale, radius, height, &actor->unkC, boneMtx0, boneMtx1, nodeData);
 }
 
 

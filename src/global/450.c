@@ -382,7 +382,7 @@ void mainSystemInit(void) {
     D_8076A084 = gSegmentTable[12].romEnd - gSegmentTable[12].romStart;
     osCreateMesgQueue(&D_807655F0, &D_80765608, 0x32);
     osCreateMesgQueue(&D_807656D0, &D_807656E8, 0xC0);
-    schedCreate(&gScheduler, &D_80765A00[0x810], 0x19, D_8074458B[osTvType + osTvType][0], 1);
+    schedCreate(&gScheduler, &D_80765A00[0x810], 0x19, D_8074458B[osTvType + osTvType][0], 1); // FAKE: osTvType + osTvType gives the two sll-by-2 + addu index into D_8074458B (osTvType * 2 folds to one sll by 3)
     osCreateMesgQueue(&D_807659E8, D_80765A00, 0x10);
     schedAddClient(&gScheduler, &D_80767CD8, &D_807659E8, 1, 1);
     gCurrentMap = gInitialMap;

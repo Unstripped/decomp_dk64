@@ -12,6 +12,7 @@
 #include "proto/global/201B0.h"
 #include "proto/global/35000.h"
 #include "proto/global/63EC0.h"
+#include "proto/global/70FD0.h"
 #include "proto/global/FCCD0.h"
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
@@ -108,16 +109,14 @@ void bossPufftossNotifyLaser(u8 targetIndex) {
 
 extern u8 D_80720120[];
 
-
 void bossPufftossSpawnGlow(u8 sparkleInterval, f32 scale) {
-    if (!(sparkleInterval & gFrameCounter)) {
+    if (!(gFrameCounter & sparkleInterval)) {
         effectSetDepth(1);
         effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
         effectCreateAtActorBone(D_80720120, scale, gCurrentActor, 1, 0);
     }
 }
 
-s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 extern void *D_8074E880[];
 
 void bossSpawnSparkles(void) {

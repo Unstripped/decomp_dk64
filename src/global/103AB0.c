@@ -1035,11 +1035,11 @@ void vtxSetColor(Vtx *vtx, u8 r, u8 g, u8 b, u8 a, u8 flags) {
     if (flags & 0x10) {
         f32 s;
         if (flags & 0x40) {
-            s = mathSinF((s16)(s32)((a * 12.05) + 1024.0));
-            vtx->v.ob[1] = (s16)(s32)((f32)vtx->v.ob[1] + 64.0f * s);
+            s = mathSinF(a * 12.05 + 1024.0);
+            vtx->v.ob[1] += 64.0f * s;
         } else {
-            s = mathSinF((s16)(s32)((a * 12.05) + 1024.0));
-            vtx->v.ob[1] = (s16)(s32)((f32)vtx->v.ob[1] - 64.0f * s);
+            s = mathSinF(a * 12.05 + 1024.0);
+            vtx->v.ob[1] -= 64.0f * s;
         }
     }
 }
@@ -1047,14 +1047,12 @@ void vtxSetColor(Vtx *vtx, u8 r, u8 g, u8 b, u8 a, u8 flags) {
 void vtxSetQuadGradientColors(Vtx *vtx, u8 row, u8 flags) {
     s16 lo;
     s16 hi;
-    s32 t;
+    s16 wrapped;
 
     if (D_807FD892 >= 0x4000) {
-        t = D_807FD892 - 0x4200;
-        lo = t;
-        lo += row * 20;
-        hi = t;
-        hi += row * 20 + 10;
+        wrapped = D_807FD892 - 0x4200;
+        lo = wrapped + row * 20;
+        hi = wrapped + row * 20 + 10;
     } else {
         lo = D_807FD892 - row * 20;
         hi = D_807FD892 - row * 20 - 10;
@@ -1077,12 +1075,12 @@ void vtxSetQuadGradientColors(Vtx *vtx, u8 row, u8 flags) {
     vtxSetColor(vtx, D_807FD897, D_807FD898, D_807FD899, lo, flags | 0x40);
 }
 
-void vtxSetPosTex(Vtx *vtx, s16 s, s16 t, s16 x, s16 y, u8 shift) {
-    vtx->v.ob[0] = s;
-    vtx->v.ob[1] = t;
+void vtxSetPosTex(Vtx *vtx, s16 x, s16 y, s16 s, s16 t, u8 shift) {
+    vtx->v.ob[0] = x;
+    vtx->v.ob[1] = y;
     vtx->v.ob[2] = 0x3E8;
-    vtx->v.tc[0] = (x << shift) & 0xFFFF;
-    vtx->v.tc[1] = (y << shift) & 0xFFFF;
+    vtx->v.tc[0] = (s << shift) & 0xFFFF;
+    vtx->v.tc[1] = (t << shift) & 0xFFFF;
 }
 
 

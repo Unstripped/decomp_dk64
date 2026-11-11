@@ -147,6 +147,7 @@ void func_806BFA8C(u16 animId) {
             break;
         case 0x112:
             playerKongPlaySoundByState(gCurrentActor);
+            /* fallthrough */
         case 0x113:
         case 0x128:
         case 0x129:
@@ -1135,7 +1136,6 @@ void func_806C2DF4(void) {
     f32 nodePosY;
     f32 nodePosZ;
     f32 scale;
-    s32 rnd;
 
     state = C46V->unk17C;
     behaviourFrameBegin();
@@ -1147,7 +1147,7 @@ void func_806C2DF4(void) {
         gCurrentActor->unk146 = 0;
         gCurrentActor->drawDistance = 0xFA0;
         gBehaviourAnimState->flags |= 0x20;
-        gCurrentActor->flags &= 0xFEFFFFFF;
+        gCurrentActor->flags &= ~0x01000000;
         gCurrentActor->unk144 = 1;
         switch (state->unk0) {
             case 0x21:
@@ -1155,14 +1155,15 @@ void func_806C2DF4(void) {
                     gCurrentActor->flags |= 0x400;
                     gBehaviourAnimState->flags |= 0x100;
                 }
+                /* fallthrough */
             case 0x22:
             case 0x23:
                 func_80724CA4(2, 1);
                 break;
-            case 0x1:
-            case 0x4:
-            case 0x6:
-            case 0x9:
+            case 1:
+            case 4:
+            case 6:
+            case 9:
             case 0xC:
                 gBehaviourAnimState->flags |= 0x1000;
                 gCurrentActor->flags |= 0x400;
@@ -1173,17 +1174,21 @@ void func_806C2DF4(void) {
                 break;
             case 0x17:
                 gCurrentActor->floorNodeId = 1;
+                /* fallthrough */
             case 0x18:
             case 0x49:
                 state->unk2C = 9;
+                /* fallthrough */
             case 0x6B:
             case 0x88:
                 gCurrentActor->flags |= 0x1000;
+                /* fallthrough */
             case 0x38:
             case 0x3A:
             case 0x3C:
             case 0x58:
                 gBehaviourAnimState->flags |= 0x100;
+                /* fallthrough */
             case 0x27:
             case 0x2D:
             case 0x66:
@@ -1218,6 +1223,7 @@ void func_806C2DF4(void) {
                 break;
             case 0x45:
                 scale *= 10.0f;
+                /* fallthrough */
             case 0x3D:
                 gCurrentActor->floorNodeId = 2;
                 gCurrentActor->flags |= 0x400;
@@ -1238,6 +1244,7 @@ void func_806C2DF4(void) {
                 } else {
                     gCurrentActor->unk146 = 2;
                 }
+                /* fallthrough */
             case 0x13:
             case 0xDC:
             case 0xDD:
@@ -1259,9 +1266,11 @@ void func_806C2DF4(void) {
                 } else {
                     gCurrentActor->unk146 = 5;
                 }
+                /* fallthrough */
             case 0x70:
                 gBehaviourAnimState->flags |= 0x1000;
                 gCurrentActor->floorNodeId = 1;
+                /* fallthrough */
             case 0x69:
                 gCurrentActor->flags |= 0x400;
                 gCurrentActor->flags |= 0x1000;
@@ -1270,7 +1279,7 @@ void func_806C2DF4(void) {
         actorSetUniformScale(gCurrentActor, scale);
         if (gCurrentMap == 0xD0) {
             gBehaviourAnimState->flags |= 0x100;
-            gCurrentActor->flags &= 0xFEFFFFFF;
+            gCurrentActor->flags &= ~0x01000000;
         }
     }
     actorGetNodePosOrPosition(gCurrentActor, &nodePosX, &nodePosY, &nodePosZ);
@@ -1320,6 +1329,7 @@ void func_806C2DF4(void) {
             if (gCurrentActor->sub4->model->frame < 60.0f) {
                 break;
             }
+            /* fallthrough */
         case 0x436:
             if (!(gFrameCounter & 1)) {
                 effectSetMaxDistance(0x7D0);
@@ -1357,8 +1367,7 @@ void func_806C2DF4(void) {
             break;
         case 0x549:
             if (gCurrentActor->sub4->model->frame > 65.0f && gCurrentActor->sub4->model->frame < 101.0f) {
-                rnd = randomNonNegative();
-                effectSpawnChildAtNode(2, (rnd >> 15) % 2048 + gCurrentActor->yaw - 0x400, (randomNonNegative() >> 15) % 2048);
+                effectSpawnChildAtNode(2, (randomNonNegative() >> 15) % 2048 + gCurrentActor->yaw - 0x400, (randomNonNegative() >> 15) % 2048);
             }
             break;
         case 0x498:
@@ -1378,7 +1387,7 @@ void func_806C2DF4(void) {
             if (gCurrentActor->sub4->model->frame < 68.0f) {
                 actorPlaySoundSpawnBoneEffects();
             }
-            if (65.0f < gCurrentActor->sub4->model->frame) {
+            if (gCurrentActor->sub4->model->frame > 65.0f) {
                 sfxStopSlotSound(gCurrentActor, 0);
             }
             break;

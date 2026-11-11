@@ -376,8 +376,8 @@ void mapOffsetSlotsSetValues(f32 *arg0) {
 
 
 typedef struct MapBspNode {
-    struct MapBspNode *unk0;
-    struct MapBspNode *unk4;
+    struct MapBspNode *child0;
+    struct MapBspNode *child1;
     u8 pad8[0x4C - 0x8];
     /* 0x4C */ f32 unk4C; /* split plane normal x */
     /* 0x50 */ f32 unk50;
@@ -394,17 +394,17 @@ typedef struct MapBspNode {
     /* 0xA8 */ s16 unkA8;
     /* 0xAA */ s16 unkAA;
     u8 padAC[0xB8 - 0xAC];
-    /* 0xB8 */ u8 unkB8;
+    /* 0xB8 */ u8 kind; /* 0 split node, 1 leaf (MapLeafLists/MapViewEntries), 2 map chunks */
 } MapBspNode;
 
 typedef struct MapVisNode {
-    u8 unk0;
-    u8 unk1;
+    u8 camSide; /* mapBspPlaneSideTest of the camera against the split plane */
+    u8 visMode; /* 0 both children drawn, 1/2 one side only, 3 culled */
     u8 pad2[2];
-    struct RenderEntry *unk4; /* render entry list */
-    s32 unk8;
-    struct MapVisNode *unkC;
-    struct MapVisNode *unk10;
+    struct RenderEntry *entries; /* render entry list */
+    struct SpriteDisplayNode *sprites; /* sprite chain built from entries */
+    struct MapVisNode *child0;
+    struct MapVisNode *child1;
 } MapVisNode;
 
 MapVisNode *mapTreeCloneShape(MapBspNode *arg0) {
@@ -414,11 +414,11 @@ MapVisNode *mapTreeCloneShape(MapBspNode *arg0) {
         return NULL;
     }
     node = heapAlloc(0x14);
-    node->unk4 = 0;
-    node->unk8 = 0;
-    node->unk1 = 3;
-    node->unkC = mapTreeCloneShape(arg0->unk0);
-    node->unk10 = mapTreeCloneShape(arg0->unk4);
+    node->entries = 0;
+    node->sprites = 0;
+    node->visMode = 3;
+    node->child0 = mapTreeCloneShape(arg0->child0);
+    node->child1 = mapTreeCloneShape(arg0->child1);
     return node;
 }
 
@@ -441,17 +441,17 @@ void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
     if (arg0 == NULL) {
         return;
     }
-    if (arg1->unk1 == 3) {
-        func_8062BB2C(arg0->unk0, arg1->unkC, 0);
-        func_8062BB2C(arg0->unk4, arg1->unk10, 0);
+    if (arg1->visMode == 3) {
+        func_8062BB2C(arg0->child0, arg1->child0, 0);
+        func_8062BB2C(arg0->child1, arg1->child1, 0);
         return;
     }
-    switch (arg0->unkB8) {
+    switch (arg0->kind) {
         case 2:
             mapChunkUpdateModelNodes();
             break;
         case 1:
-            entry = arg1->unk4;
+            entry = arg1->entries;
             while (entry != NULL) {
                 next = entry->unk14;
                 modelPendingQueueInsert(entry, arg2);
@@ -459,24 +459,24 @@ void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
             }
             break;
         case 0:
-            switch (arg1->unk1) {
+            switch (arg1->visMode) {
                 case 1:
                 case 2:
-                    if (arg1->unk0 != 0) {
-                        func_8062BB2C(arg0->unk4, arg1->unk10, arg2);
-                        func_8062BB2C(arg0->unk0, arg1->unkC, 0);
+                    if (arg1->camSide != 0) {
+                        func_8062BB2C(arg0->child1, arg1->child1, arg2);
+                        func_8062BB2C(arg0->child0, arg1->child0, 0);
                     } else {
-                        func_8062BB2C(arg0->unk0, arg1->unkC, arg2);
-                        func_8062BB2C(arg0->unk4, arg1->unk10, 0);
+                        func_8062BB2C(arg0->child0, arg1->child0, arg2);
+                        func_8062BB2C(arg0->child1, arg1->child1, 0);
                     }
                     break;
                 case 0:
-                    if (arg1->unk0 != 0) {
-                        func_8062BB2C(arg0->unk0, arg1->unkC, arg2);
-                        func_8062BB2C(arg0->unk4, arg1->unk10, arg2);
+                    if (arg1->camSide != 0) {
+                        func_8062BB2C(arg0->child0, arg1->child0, arg2);
+                        func_8062BB2C(arg0->child1, arg1->child1, arg2);
                     } else {
-                        func_8062BB2C(arg0->unk4, arg1->unk10, arg2);
-                        func_8062BB2C(arg0->unk0, arg1->unkC, arg2);
+                        func_8062BB2C(arg0->child1, arg1->child1, arg2);
+                        func_8062BB2C(arg0->child0, arg1->child0, arg2);
                     }
                     break;
             }
@@ -509,11 +509,11 @@ u8 func_8062BDB0(Actor *arg0, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 
     RenderEntry *item;
 
     result = 0;
-    switch (arg1->unkB8) {
+    switch (arg1->kind) {
         case 2:
             return mapChunkCheckActorCollision(arg0, arg3, arg4, arg5, arg6);
         case 1:
-            item = arg2->unk4;
+            item = arg2->entries;
             while (item != NULL) {
                 if (item->unk24 == 1) {
                     result |= collisionTestDynamicActorFloor(arg0, item->unk1E, arg3, arg4, arg5, arg6);
@@ -522,8 +522,8 @@ u8 func_8062BDB0(Actor *arg0, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 
             }
             return result;
         case 0:
-            result = func_8062BDB0(arg0, arg1->unk0, arg2->unkC, arg3, arg4, arg5, arg6);
-            other = func_8062BDB0(arg0, arg1->unk4, arg2->unk10, arg3, arg4, arg5, arg6);
+            result = func_8062BDB0(arg0, arg1->child0, arg2->child0, arg3, arg4, arg5, arg6);
+            other = func_8062BDB0(arg0, arg1->child1, arg2->child1, arg3, arg4, arg5, arg6);
             return result | other;
     }
     return 0;
@@ -711,12 +711,10 @@ extern RenderEntry *D_807F5FF8;
 extern u8 D_807F6009;
 
 
-Gfx *func_8062CA0C(Gfx *arg0, f32 arg1, f32 arg2, f32 arg3) {
+Gfx *func_8062CA0C(Gfx *gfx, f32 camX, f32 camY, f32 camZ) {
     D_807F6009 = 0xFF;
-    return renderEntryListBuildDisplayList(arg0, D_807F5FF8, arg1, arg2, arg3, 0x30030, -1, 0);
+    return renderEntryListBuildDisplayList(gfx, D_807F5FF8, camX, camY, camZ, 0x30030, -1, 0);
 }
-
-struct MapViewEntries;
 
 typedef struct MapLeafLists {
     u8 pad0[8];
@@ -731,76 +729,74 @@ typedef struct MapLeafLists {
 
 extern RenderEntry *D_807F5FFC;
 
-struct RawGfxCmd;
-
 #define MAP_LEAF(o) ((MapLeafLists *)(o))
 
-Gfx *mapTreeRender(Gfx *gfx, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
+Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 camY, f32 camZ, s32 renderMask) {
     Gfx *pad;
 
-    if (arg1 == NULL) {
+    if (node == NULL) {
         return gfx;
     }
-    if (arg2->unk1 == 3) {
+    if (vis->visMode == 3) {
         return gfx;
     }
-    switch (arg1->unkB8) {
+    switch (node->kind) {
         case 2:
-            gfx = mapChunksRender(gfx, arg1, arg3, arg4, arg5, arg6);
+            gfx = mapChunksRender(gfx, node, camX, camY, camZ, renderMask);
             break;
         case 1:
-            D_807F5E64 += MAP_LEAF(arg1)->unk6E;
-            if (arg6 & 0x10) {
+            D_807F5E64 += MAP_LEAF(node)->unk6E;
+            if (renderMask & 0x10) {
                 gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
                 gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
-                gfx = mapViewDrawPass(gfx, (struct MapViewEntries *)arg1, 1);
+                gfx = mapViewDrawPass(gfx, (struct MapViewEntries *)node, 1);
                 gfx = fogRender(gfx);
                 gfx = mapChunkEmitSegmentCommands(gfx, 0xFF);
-                if (MAP_LEAF(arg1)->unk8 != -1) {
-                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(arg1)->unk8));
+                if (MAP_LEAF(node)->unk8 != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(node)->unk8));
                 }
-                if (MAP_LEAF(arg1)->unkC != -1) {
-                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(arg1)->unkC));
+                if (MAP_LEAF(node)->unkC != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(node)->unkC));
                 }
-                if (MAP_LEAF(arg1)->unk14 != -1) {
-                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(arg1)->unk14));
+                if (MAP_LEAF(node)->unk14 != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(node)->unk14));
                 }
-                if (MAP_LEAF(arg1)->unk10 != -1) {
-                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(arg1)->unk10));
+                if (MAP_LEAF(node)->unk10 != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(node)->unk10));
                 }
-                if (MAP_LEAF(arg1)->unk18 != -1) {
-                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(arg1)->unk18));
+                if (MAP_LEAF(node)->unk18 != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(node)->unk18));
                 }
-                gfx = mapViewDrawPass(gfx, (struct MapViewEntries *)arg1, 2);
+                gfx = mapViewDrawPass(gfx, (struct MapViewEntries *)node, 2);
             }
-            gfx = spriteListRender(gfx, arg2->unk8);
+            gfx = spriteListRender(gfx, vis->sprites);
             gfx = billboardRenderQueued(gfx, -1);
             D_807F6009 = 0xFF;
-            gfx = renderEntryListBuildDisplayList(gfx, arg2->unk4, arg3, arg4, arg5, arg6, -1, 0);
-            if (arg6 & 0x10) {
+            gfx = renderEntryListBuildDisplayList(gfx, vis->entries, camX, camY, camZ, renderMask, -1, 0);
+            if (renderMask & 0x10) {
                 gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
                 gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
-                gfx = mapViewDrawPass(gfx, (struct MapViewEntries *)arg1, 3);
+                gfx = mapViewDrawPass(gfx, (struct MapViewEntries *)node, 3);
                 gDPPipeSync(gfx++);
             }
-            gfx = renderEntryListBuildDisplayList(gfx, D_807F5FFC, arg3, arg4, arg5, arg6, -1, 0);
+            gfx = renderEntryListBuildDisplayList(gfx, D_807F5FFC, camX, camY, camZ, renderMask, -1, 0);
             break;
         case 0:
-            switch (arg2->unk1) {
+            switch (vis->visMode) {
                 case 1:
                 case 2:
-                    if (arg2->unk0 != 0) {
-                        return mapTreeRender(gfx, arg1->unk4, arg2->unk10, arg3, arg4, arg5, arg6);
+                    if (vis->camSide != 0) {
+                        return mapTreeRender(gfx, node->child1, vis->child1, camX, camY, camZ, renderMask);
                     } else {
-                        return mapTreeRender(gfx, arg1->unk0, arg2->unkC, arg3, arg4, arg5, arg6);
+                        return mapTreeRender(gfx, node->child0, vis->child0, camX, camY, camZ, renderMask);
                     }
                 case 0:
-                    if (arg2->unk0 != 0) {
-                        gfx = mapTreeRender(gfx, arg1->unk0, arg2->unkC, arg3, arg4, arg5, arg6);
-                        return mapTreeRender(gfx, arg1->unk4, arg2->unk10, arg3, arg4, arg5, arg6);
+                    if (vis->camSide != 0) {
+                        gfx = mapTreeRender(gfx, node->child0, vis->child0, camX, camY, camZ, renderMask);
+                        return mapTreeRender(gfx, node->child1, vis->child1, camX, camY, camZ, renderMask);
                     } else {
-                        gfx = mapTreeRender(gfx, arg1->unk4, arg2->unk10, arg3, arg4, arg5, arg6);
-                        return mapTreeRender(gfx, arg1->unk0, arg2->unkC, arg3, arg4, arg5, arg6);
+                        gfx = mapTreeRender(gfx, node->child1, vis->child1, camX, camY, camZ, renderMask);
+                        return mapTreeRender(gfx, node->child0, vis->child0, camX, camY, camZ, renderMask);
                     }
                 default:
                     break;
@@ -845,31 +841,31 @@ Gfx *mapViewDrawPass(Gfx *gfx, MapViewEntries *arg1, u8 arg2) {
 }
 
 
-void func_8062D094(void *arg0, u8 arg1) {
-    func_8062D0CC(D_807F5DE4, D_807F5E60, arg0, arg1);
+void func_8062D094(void *targetId, u8 forceInfiniteDist) {
+    func_8062D0CC(D_807F5DE4, D_807F5E60, targetId, forceInfiniteDist);
 }
 
 
-u8 func_8062D0CC(MapBspNode *arg0, MapVisNode *arg1, void *arg2, u8 arg3) {
+u8 func_8062D0CC(MapBspNode *node, MapVisNode *vis, void *targetId, u8 forceInfiniteDist) {
     u8 pad;
     u8 found;
 
     found = 0;
-    if (arg0 == NULL) {
+    if (node == NULL) {
         return 0;
     }
-    switch (arg0->unkB8) {
+    switch (node->kind) {
         case 2:
-            mapChunkMarkRenderEntry(arg2, arg3);
+            mapChunkMarkRenderEntry(targetId, forceInfiniteDist);
             return 1;
         case 1:
-            renderEntrySetDistanceOverride(arg1->unk4, arg2, 0, arg3, &found);
+            renderEntrySetDistanceOverride(vis->entries, targetId, 0, forceInfiniteDist, &found);
             return found;
         case 0:
-            if (func_8062D0CC(arg0->unk0, arg1->unkC, arg2, arg3) != 0) {
+            if (func_8062D0CC(node->child0, vis->child0, targetId, forceInfiniteDist) != 0) {
                 return 1;
             }
-            return func_8062D0CC(arg0->unk4, arg1->unk10, arg2, arg3);
+            return func_8062D0CC(node->child1, vis->child1, targetId, forceInfiniteDist);
     }
 }
 
@@ -881,22 +877,22 @@ void func_8062D1A8(void) {
 }
 
 
-void mapTreeResolveNodeAssets(MapBspNode *arg0, MapVisNode *arg1) {
+void mapTreeResolveNodeAssets(MapBspNode *node, MapVisNode *vis) {
     for (;;) {
-        if (arg0 == NULL) {
+        if (node == NULL) {
             return;
         }
-        switch (arg0->unkB8) {
+        switch (node->kind) {
             case 2:
                 mapChunkResolveNodeAssets();
                 return;
             case 1:
-                modelNodeListSyncFlags(arg1->unk4);
+                modelNodeListSyncFlags(vis->entries);
                 return;
             case 0:
-                mapTreeResolveNodeAssets(arg0->unk0, arg1->unkC);
-                arg0 = arg0->unk4;
-                arg1 = arg1->unk10;
+                mapTreeResolveNodeAssets(node->child0, vis->child0);
+                node = node->child1;
+                vis = vis->child1;
                 break;
             default:
                 return;
@@ -905,37 +901,37 @@ void mapTreeResolveNodeAssets(MapBspNode *arg0, MapVisNode *arg1) {
 }
 
 
-void func_8062D26C(void *arg0) {
+void func_8062D26C(void *targetId) {
     u8 removed;
-    s16 count;
+    s16 chunk;
 
-    renderEntryRemove(NULL, arg0, 1, &removed);
-    mapPurgeNodeList(arg0, &count, 1);
+    renderEntryRemove(NULL, targetId, 1, &removed);
+    mapPurgeNodeList(targetId, &chunk, 1);
 }
 
 
-s32 mapPurgeNodeList(void *arg0, s16 *arg1, u8 arg2) {
-    return mapTreePurgeNodeList(D_807F5DE4, D_807F5E60, arg0, arg1, arg2);
+s32 mapPurgeNodeList(void *targetId, s16 *outChunk, u8 all) {
+    return mapTreePurgeNodeList(D_807F5DE4, D_807F5E60, targetId, outChunk, all);
 }
 
 
-u8 mapTreePurgeNodeList(MapBspNode *arg0, MapVisNode *arg1, void *arg2, s16 *arg3, u8 arg4) {
+u8 mapTreePurgeNodeList(MapBspNode *node, MapVisNode *vis, void *targetId, s16 *outChunk, u8 all) {
     u8 removed;
 
-    if (arg0 == NULL) {
+    if (node == NULL) {
         return 0;
     }
-    switch (arg0->unkB8) {
+    switch (node->kind) {
         case 2:
-            return mapChunkPurgeNodeList(arg2, arg3, arg4);
+            return mapChunkPurgeNodeList(targetId, outChunk, all);
         case 1:
-            arg1->unk4 = renderEntryRemove(arg1->unk4, arg2, 0, &removed);
+            vis->entries = renderEntryRemove(vis->entries, targetId, 0, &removed);
             return removed;
         case 0:
-            if (mapTreePurgeNodeList(arg0->unk0, arg1->unkC, arg2, arg3, arg4) != 0 && arg4 == 0) {
+            if (mapTreePurgeNodeList(node->child0, vis->child0, targetId, outChunk, all) != 0 && all == 0) {
                 return 1;
             }
-            return mapTreePurgeNodeList(arg0->unk4, arg1->unk10, arg2, arg3, arg4);
+            return mapTreePurgeNodeList(node->child1, vis->child1, targetId, outChunk, all);
     }
     return 0;
 }
@@ -958,7 +954,7 @@ void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, RenderEntry *a
     if (arg0 == NULL) {
         return;
     }
-    switch (arg0->unkB8) {
+    switch (arg0->kind) {
         case 2:
             if (arg2 != NULL) {
                 do {
@@ -970,7 +966,7 @@ void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, RenderEntry *a
         case 1:
             if (arg2 != NULL) {
                 do {
-                    arg1->unk4 = renderEntryAddOrUpdate(arg1->unk4, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
+                    arg1->entries = renderEntryAddOrUpdate(arg1->entries, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
                     arg2 = arg2->unk14;
                 } while (arg2 != NULL);
             }
@@ -986,8 +982,8 @@ void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, RenderEntry *a
                     arg2 = arg2->unk14;
                 } while (arg2 != NULL);
             }
-            mapTreeDistributeEntries(arg0->unk0, arg1->unkC, listA);
-            mapTreeDistributeEntries(arg0->unk4, arg1->unk10, listB);
+            mapTreeDistributeEntries(arg0->child0, arg1->child0, listA);
+            mapTreeDistributeEntries(arg0->child1, arg1->child1, listB);
             renderEntryListFree(listA);
             renderEntryListFree(listB);
             break;
@@ -996,86 +992,86 @@ void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, RenderEntry *a
 
 
 
-void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, RenderEntry *arg2, f32 arg3, f32 arg4, f32 arg5, u8 arg6, u8 arg7, u8 arg8) {
+void mapTreeFrameUpdate(MapBspNode *node, MapVisNode *vis, RenderEntry *entries, f32 camX, f32 camY, f32 camZ, u8 noCull, u8 keepLists, u8 all) {
     RenderEntry *listA;
     RenderEntry *listB;
     s32 kind;
-    s32 sortCount;
+    RenderEntry *closest;
     u8 pad2;
     u8 side;
 
-    listA = 0;
-    listB = 0;
-    if (arg0 == NULL) {
+    listA = NULL;
+    listB = NULL;
+    if (node == NULL) {
         return;
     }
-    if (arg6 == 0 && mapNodeBoxInFrustum(arg0, arg3, arg4, arg5) == 0) {
-        arg1->unk1 = 3;
+    if (noCull == 0 && mapNodeBoxInFrustum(node, camX, camY, camZ) == 0) {
+        vis->visMode = 3;
         return;
     }
-    kind = arg0->unkB8;
+    kind = node->kind;
     if (kind != 0) {
         if (kind != 1) {
             if (kind == 2) {
-                arg1->unk1 = 0;
-                mapChunkFrameUpdate(arg3, arg4, arg5);
-                if (arg7 == 0) {
-                    mapChunkClearNodeFlags(arg8);
-                    if (arg2 != NULL) {
+                vis->visMode = 0;
+                mapChunkFrameUpdate(camX, camY, camZ);
+                if (keepLists == 0) {
+                    mapChunkClearNodeFlags(all);
+                    if (entries != NULL) {
                         do {
-                            mapChunkUpdateEntryNode(arg2);
-                            arg2 = arg2->unk14;
-                        } while (arg2 != NULL);
+                            mapChunkUpdateEntryNode(entries);
+                            entries = entries->unk14;
+                        } while (entries != NULL);
                     }
-                    mapChunkFreeNodeLists(arg8);
-                    mapChunkRebuildNodeLists(arg3, arg4, arg5, arg8);
-                    mapChunkBuildSpriteChains(arg3, arg4, arg5, arg8);
-                    D_807F5FFC = renderEntryListSortByDistance(D_807F5FFC, arg3, arg4, arg5, &sortCount);
+                    mapChunkFreeNodeLists(all);
+                    mapChunkRebuildNodeLists(camX, camY, camZ, all);
+                    mapChunkBuildSpriteChains(camX, camY, camZ, all);
+                    D_807F5FFC = renderEntryListSortByDistance(D_807F5FFC, camX, camY, camZ, &closest);
                 }
             }
         } else {
-            arg1->unk1 = 0;
-            if (arg7 == 0) {
-                renderEntryListClearTouched(arg1->unk4);
-                if (arg2 != NULL) {
+            vis->visMode = 0;
+            if (keepLists == 0) {
+                renderEntryListClearTouched(vis->entries);
+                if (entries != NULL) {
                     do {
-                        arg1->unk4 = renderEntryAddOrUpdate(arg1->unk4, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
-                        arg2 = arg2->unk14;
-                    } while (arg2 != NULL);
+                        vis->entries = renderEntryAddOrUpdate(vis->entries, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
+                        entries = entries->unk14;
+                    } while (entries != NULL);
                 }
-                arg1->unk4 = renderEntryListPurgeUntouched(arg1->unk4);
-                arg1->unk4 = renderEntryListSortByDistance(arg1->unk4, arg3, arg4, arg5, &sortCount);
-                arg1->unk8 = spriteListBuildDisplayChain((s32)arg1->unk4, 0, arg3, arg4, arg5);
-                D_807F5FFC = renderEntryListSortByDistance(D_807F5FFC, arg3, arg4, arg5, &sortCount);
+                vis->entries = renderEntryListPurgeUntouched(vis->entries);
+                vis->entries = renderEntryListSortByDistance(vis->entries, camX, camY, camZ, &closest);
+                vis->sprites = spriteListBuildDisplayChain(vis->entries, 0, camX, camY, camZ);
+                D_807F5FFC = renderEntryListSortByDistance(D_807F5FFC, camX, camY, camZ, &closest);
             }
         }
     } else {
-        if (arg2 != NULL) {
+        if (entries != NULL) {
             do {
-                if (mapBspPlaneSideTest(arg0, &side, arg2->unk4, arg2->unk8, arg2->unkC) != 0) {
-                    listB = renderEntryAddOrUpdate(listB, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
+                if (mapBspPlaneSideTest(node, &side, entries->unk4, entries->unk8, entries->unkC) != 0) {
+                    listB = renderEntryAddOrUpdate(listB, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
                 } else {
-                    listA = renderEntryAddOrUpdate(listA, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
+                    listA = renderEntryAddOrUpdate(listA, entries->unk24, entries->unk0, entries->unk4, entries->unk8, entries->unkC, entries->unk1C, entries->unk1E, entries->unk22, entries->unk20, 0);
                 }
-                arg2 = arg2->unk14;
-            } while (arg2 != NULL);
+                entries = entries->unk14;
+            } while (entries != NULL);
         }
-        arg1->unk0 = mapBspPlaneSideTest(arg0, &arg1->unk1, arg3, arg4, arg5);
-        if (arg6) {
-            mapTreeFrameUpdate(arg0->unk0, arg1->unkC, listA, arg3, arg4, arg5, arg6, arg7, arg8);
-            mapTreeFrameUpdate(arg0->unk4, arg1->unk10, listB, arg3, arg4, arg5, arg6, arg7, arg8);
+        vis->camSide = mapBspPlaneSideTest(node, &vis->visMode, camX, camY, camZ);
+        if (noCull) {
+            mapTreeFrameUpdate(node->child0, vis->child0, listA, camX, camY, camZ, noCull, keepLists, all);
+            mapTreeFrameUpdate(node->child1, vis->child1, listB, camX, camY, camZ, noCull, keepLists, all);
         } else {
-            if (arg1->unk1 != 0) {
-                if (arg1->unk1 == 1 || arg1->unk1 == 2) {
-                    if (arg1->unk0 != 0) {
-                        mapTreeFrameUpdate(arg0->unk4, arg1->unk10, listB, arg3, arg4, arg5, arg6, arg7, arg8);
+            if (vis->visMode != 0) {
+                if (vis->visMode == 1 || vis->visMode == 2) {
+                    if (vis->camSide != 0) {
+                        mapTreeFrameUpdate(node->child1, vis->child1, listB, camX, camY, camZ, noCull, keepLists, all);
                     } else {
-                        mapTreeFrameUpdate(arg0->unk0, arg1->unkC, listA, arg3, arg4, arg5, arg6, arg7, arg8);
+                        mapTreeFrameUpdate(node->child0, vis->child0, listA, camX, camY, camZ, noCull, keepLists, all);
                     }
                 }
             } else {
-                mapTreeFrameUpdate(arg0->unk0, arg1->unkC, listA, arg3, arg4, arg5, arg6, arg7, arg8);
-                mapTreeFrameUpdate(arg0->unk4, arg1->unk10, listB, arg3, arg4, arg5, arg6, arg7, arg8);
+                mapTreeFrameUpdate(node->child0, vis->child0, listA, camX, camY, camZ, noCull, keepLists, all);
+                mapTreeFrameUpdate(node->child1, vis->child1, listB, camX, camY, camZ, noCull, keepLists, all);
             }
         }
         renderEntryListFree(listA);
@@ -1447,18 +1443,15 @@ typedef struct RawGfxCmd {
     u32 unk4;
 } RawGfxCmd;
 
-Gfx *mapChunkEmitSegmentCommands(Gfx *arg0, u8 arg1) {
-    Gfx *q;
+Gfx *mapChunkEmitSegmentCommands(Gfx *gfx, u8 chunk) {
     s32 i;
 
     for (i = 0; i < sMapChunkAnimCount; i++) {
-        if (arg1 == sMapChunkAnims[i].unk1) {
-            q = arg0++;
-            q->words.w0 = ((sMapChunkAnims[i].unk0 * 4) & 0xFFFF) | 0xDB060000;
-            q->words.w1 = (u32)sMapChunkAnims[i].unk8;
+        if (chunk == sMapChunkAnims[i].unk1) {
+            gSPSegment(gfx++, sMapChunkAnims[i].unk0, sMapChunkAnims[i].unk8);
         }
     }
-    return arg0;
+    return gfx;
 }
 
 s32 assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
@@ -1653,8 +1646,8 @@ void mapRelocateOffsetTable(s32 arg0) {
 }
 
 
-s32 mapGetSoundEmitters(LevelSoundEmitter **arg0) {
-    *arg0 = sMapSoundEmitters;
+s32 mapGetSoundEmitters(LevelSoundEmitter **outEmitters) {
+    *outEmitters = sMapSoundEmitters;
     return sMapSoundEmitterCount;
 }
 

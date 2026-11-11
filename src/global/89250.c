@@ -112,15 +112,15 @@ void actorSpawnEffectChild(f32 posX, f32 posY, f32 posZ, f32 scaleXZ, f32 scaleY
             gSpawnedActor->yawSpeed = 0xF;
             gSpawnedActor->splineT = 1.11;
             gSpawnedActor->unk15F = 1;
-            return;
+        } else {
+            gSpawnedActor->yawSpeed = 0x19;
+            gSpawnedActor->splineT = 1.09;
         }
-        gSpawnedActor->yawSpeed = 0x19;
-        gSpawnedActor->splineT = 1.09;
-        return;
+    } else {
+        gSpawnedActor->yawSpeed = 0x20;
+        gSpawnedActor->splineT = 1.07;
+        gSpawnedActor->unk15F = 0;
     }
-    gSpawnedActor->yawSpeed = 0x20;
-    gSpawnedActor->splineT = 1.07;
-    gSpawnedActor->unk15F = 0;
 }
 
 extern s32 D_8071FF58;
@@ -344,10 +344,10 @@ void effectSpawnMultiTierRingWithActor(Actor *actor, u8 tier) {
     ScaleGrowthState *growthState;
     s32 pad1[1];
 
-    actorScale = (f32)((f64)actor->sub4->scaleY / 0.15);
+    actorScale = actor->sub4->scaleY / 0.15;
     params = D_8074E898;
     if (tier) {
-        effectSpawnMultiTierRing((f32)((f64)actorScale * 0.36), tier, actor->x, actor->y + 4.0f, actor->z);
+        effectSpawnMultiTierRing(actorScale * 0.36, tier, actor->x, actor->y + 4.0f, actor->z);
         actorSpawn(0x145, params.a[tier]);
         actorCopyPoseAndScale(gSpawnedActor, actor, actor->sub4->scaleY * 0.5f);
         growthState = gSpawnedActor->customState;
@@ -578,7 +578,7 @@ void effectSpawnActorOrbitParticles(Actor *actor) {
         effectSetDuration(-1);
         effectSetSpeed((s32)actor);
         effectSetCallback(effectActorOrbitFollowUpdate);
-        effectCreateAtPosition((void *)D_8074E880[i % 3], 0.7f, actor->x, actor->y, actor->z);
+        effectCreateAtPosition(D_8074E880[i % 3], 0.7f, actor->x, actor->y, actor->z);
     }
 }
 
@@ -590,14 +590,14 @@ void effectSpawnRingBursts(Actor *actor, f32 radius, f32 arcHeight, s32 moveSpee
         effectSetDuration(-1);
         effectSetSpeed((s32)actor);
         effectSetCallback(effectArcAroundActorUpdate);
-        func_8071E110(effectCreateAtPosition((void *)D_8074E880[i], 0.7f, actor->x, actor->y, actor->z), 1, (u16)(i * 1365.3334f), radius, arcHeight, moveSpeed);
+        func_8071E110(effectCreateAtPosition(D_8074E880[i], 0.7f, actor->x, actor->y, actor->z), 1, (u16)(i * 1365.3334f), radius, arcHeight, moveSpeed);
     }
     for (i = 0; i < 3; i++) {
         effectSetDepth(1);
         effectSetDuration(-1);
         effectSetSpeed((s32)actor);
         effectSetCallback(effectArcAroundActorUpdate);
-        func_8071E110(effectCreateAtPosition((void *)D_8074E880[i], 0.7f, actor->x, actor->y, actor->z), 0, (u16)(i * 1365.3334f), radius, arcHeight, moveSpeed);
+        func_8071E110(effectCreateAtPosition(D_8074E880[i], 0.7f, actor->x, actor->y, actor->z), 0, (u16)(i * 1365.3334f), radius, arcHeight, moveSpeed);
     }
 }
 
@@ -625,9 +625,9 @@ void effectSpawnParticleRingAtPosition(f32 posX, f32 posY, f32 posZ, void *param
         effectSetDepth(1);
         effectSetDuration(1);
         effectSetCallback(func_80717930);
-        effectSetAngle((s16)(i >> shift));
+        effectSetAngle(i >> shift);
         effectSetSpeed((s32)param);
-        effectCreateAtPosition((void *)D_8074E880[i % 3], 0.5f, posX, posY, posZ);
+        effectCreateAtPosition(D_8074E880[i % 3], 0.5f, posX, posY, posZ);
     }
 }
 
@@ -642,7 +642,7 @@ void effectSpawnChildAtNode(u8 node, s16 rotY, s16 rotZ) {
     }
     gSpawnedActor->yaw = rotY;
     gSpawnedActor->roll = rotZ;
-    gSpawnedActor->sub4->scaleY = (f32)(gSpawnedActor->sub4->scaleY * 0.01);
+    gSpawnedActor->sub4->scaleY *= 0.01;
 }
 
 void effectActorGrowthTick(void) {

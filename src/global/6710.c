@@ -38,7 +38,7 @@ typedef struct AudioTask {
 
 typedef struct AudioContext {
     void *cmdBuffers[2];
-    void *tasks[3];
+    AudioTask *tasks[3];
 } AudioContext;
 
 // Effect parameter tables for the two aux buses (AudioInitArgs.params).
@@ -46,8 +46,11 @@ typedef struct AudioSynthesizerConfig {
     s32 fxParams[2][0x10C / 4];
 } AudioSynthesizerConfig;
 
+// n_audio globals passed to n_alInit/n_alClose. n_alInit also points n_syn at this block, and
+// n_audio's synthesizer outgrows libaudio's ALGlobals, hence the tail.
 typedef struct AudioAlState {
-    s32 words[0x2760 / 4];
+    ALGlobals globals;
+    u8 synthState[0x2760 - sizeof(ALGlobals)];
 } AudioAlState;
 
 typedef struct AudioDmaContext {
@@ -129,7 +132,7 @@ void audioThreadInit(AudioInitArgs *initArgs, s32 threadPriority, AudioTaskConfi
     synConfig = D_807452D0;
     initArgs->params[0] = synConfig.fxParams[0];
     initArgs->params[1] = synConfig.fxParams[1];
-    n_alInit((s32 *)&D_8076D708, initArgs);
+    n_alInit(&D_8076D708.globals, initArgs);
     D_807701A4 = (s32 *)&D_8076D708;
 
     D_8076FE68[0].prev = NULL;
@@ -172,41 +175,34 @@ void audioThreadStop(s32 unused) {
     }
 }
 
-typedef struct AudioSched {
-    OSMesgQueue interruptQ;
-    u8 pad[0x264 - sizeof(OSMesgQueue)];
-    void *audioListHead;
-} AudioSched;
+extern SchedStruct gScheduler;
 
-extern AudioSched gScheduler;
-
-void audioThreadMain(s32 isFirstFrame) {
+void audioThreadMain(void *arg) {
     s32 done;
     OSMesg receivedMsg;
     s32 first;
-    void *prevAiTask;
+    AudioTask *prevAiTask;
     s32 numBuffers;
     done = 0;
     prevAiTask = NULL;
     first = 1;
     schedAddClient(&gScheduler, &D_8076D4C0, &D_8076D698, 2, 2);
-    osSendMesg(&D_8076D698, (OSMesg)5, 0);
+    osSendMesg(&D_8076D698, (OSMesg)5, OS_MESG_NOBLOCK);
     numBuffers = 3;
     do {
-        osRecvMesg(&D_8076D698, &receivedMsg, 1);
+        osRecvMesg(&D_8076D698, &receivedMsg, OS_MESG_BLOCK);
         switch ((s32)receivedMsg) {
         case 5:
             if (gScheduler.audioListHead != NULL) {
-                osSendMesg(&gScheduler.interruptQ, (OSMesg)0x29E, 1);
+                osSendMesg(&gScheduler.interruptQ, (OSMesg)0x29E, OS_MESG_BLOCK);
             }
             audioBuildTask(D_8076D4D0.tasks[D_807452C0 % numBuffers], prevAiTask);
-            isFirstFrame = first != 0;
-            first = 0;
             prevAiTask = D_8076D4D0.tasks[(D_807452C0 + 1) % numBuffers];
-            if (!isFirstFrame) {
-                osRecvMesg(&D_8076D6D0, &receivedMsg, 1);
+            if (!first) {
+                osRecvMesg(&D_8076D6D0, &receivedMsg, OS_MESG_BLOCK);
                 audioCheckAiLength(prevAiTask);
             }
+            first = 0;
             seqUpdateVolumeFades();
             break;
         case 10:
@@ -214,56 +210,51 @@ void audioThreadMain(s32 isFirstFrame) {
             break;
         }
     } while (!done);
-    n_alClose(&D_8076D708);
+    n_alClose(&D_8076D708.globals);
 }
 
-typedef struct AudioAiBuffer {
-    void *buf;
-    s16 len;
-} AudioAiBuffer;
-
-
-extern u32 D_805FB000[];
-extern u32 D_805FB0D0[];
-extern u32 func_80741310[];
+extern u8 D_805FB000[];
+extern u8 D_805FB0D0[];
+extern u64 func_80741310[];
 extern u64 D_80760590[];
 
 
-s32 audioBuildTask(AudioTask *task, AudioAiBuffer *aiBuf) {
+s32 audioBuildTask(AudioTask *task, AudioTask *prevTask) {
     u32 physSampleBuf;
     s32 pad[1];
     s32 cmdCount;
-    u32 aiLen;
-    s32 cmdLen;
+    s32 aiLen;
+    s32 cmdEnd;
     s32 count;
-    s32 zero = 0;
+    s32 *holdFrames;
 
     physSampleBuf = osVirtualToPhysical(task->sampleBuffer);
     audioDmaFrameUpdate();
     aiLen = IO_READ(AI_LEN_REG) >> 2;
-    if (aiBuf != NULL) {
-        osAiSetNextBuffer(aiBuf->buf, aiBuf->len * 4);
+    if (prevTask != NULL) {
+        osAiSetNextBuffer(prevTask->sampleBuffer, prevTask->sampleCount * 4);
     }
-    if (((s32)aiLen < 0x5C) && ((count = D_80770558[zero]) == 0)) {
+    holdFrames = &D_80770558[0];
+    if ((aiLen < 0x5C) && ((count = *holdFrames) == 0)) {
         task->sampleCount = D_8077019C;
         count = (count & 0) + 2; // FAKE: folds to 2 after const-prop; keeps li in count's register ($v0) instead of a scratch li
-        D_80770558[zero] = count;
+        *holdFrames = count;
     } else {
-        count = D_80770558[zero];
-        if (((s32)aiLen >= 0x115) && (count == 0)) {
+        count = *holdFrames;
+        if ((aiLen >= 0x115) && (count == 0)) {
             task->sampleCount = D_80770194;
             count = (count & 0) + 2; // FAKE: folds to 2 after const-prop; keeps li in count's register ($v0) instead of a scratch li
-            D_80770558[zero] = count;
+            *holdFrames = count;
         } else {
             task->sampleCount = 0x2E0;
             if (count != 0) {
                 count--;
-                D_80770558[zero] = count;
+                *holdFrames = count;
             }
         }
     }
 
-    cmdLen = n_alAudioFrame(D_8076D4D0.cmdBuffers[D_807452C8], &cmdCount, physSampleBuf, task->sampleCount);
+    cmdEnd = n_alAudioFrame(D_8076D4D0.cmdBuffers[D_807452C8], &cmdCount, physSampleBuf, task->sampleCount);
     if (cmdCount == 0) {
         return 0;
     }
@@ -274,16 +265,16 @@ s32 audioBuildTask(AudioTask *task, AudioAiBuffer *aiBuf) {
     task->flags = 1;
     task->client = &D_8076D4C0;
     task->task.t.data_ptr = (u64 *)D_8076D4D0.cmdBuffers[D_807452C8];
-    task->task.t.data_size = ((cmdLen - (s32)D_8076D4D0.cmdBuffers[D_807452C8]) >> 3) << 3;
-    task->task.t.type = 2;
-    task->task.t.ucode_boot = (u64 *)&D_805FB000;
-    task->task.t.ucode_boot_size = (u8 *)&D_805FB0D0 - (u8 *)&D_805FB000;
+    task->task.t.data_size = ((cmdEnd - (s32)D_8076D4D0.cmdBuffers[D_807452C8]) >> 3) << 3;
+    task->task.t.type = M_AUDTASK;
+    task->task.t.ucode_boot = (u64 *)D_805FB000;
+    task->task.t.ucode_boot_size = D_805FB0D0 - D_805FB000;
     task->task.t.flags = 0;
-    task->task.t.ucode = (u64 *)&func_80741310;
-    task->task.t.ucode_data = (u64 *)&D_80760590;
-    task->task.t.ucode_data_size = 0x800;
+    task->task.t.ucode = func_80741310;
+    task->task.t.ucode_data = D_80760590;
+    task->task.t.ucode_data_size = SP_UCODE_DATA_SIZE;
     task->task.t.yield_data_ptr = NULL;
-    task->task.t.yield_data_size = 0x400;
+    task->task.t.yield_data_size = OS_YIELD_AUDIO_SIZE;
 
     osWritebackDCacheAll();
     osSendMesg(schedGetCmdQueue(&gScheduler), &task->next, OS_MESG_NOBLOCK);
@@ -291,7 +282,7 @@ s32 audioBuildTask(AudioTask *task, AudioAiBuffer *aiBuf) {
     return 1;
 }
 
-void audioCheckAiLength(s32 unused) {
+void audioCheckAiLength(AudioTask *unused) {
     s32 zero = 0;
     if (((osAiGetLength() >> 2) == 0) && (D_807454E8[zero] == 0)) {
         D_807454E8[zero] = 0;
