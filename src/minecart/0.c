@@ -1,4 +1,3 @@
-#define PROTO_SKIP_minecartPlayerCartUpdate
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
@@ -26,8 +25,6 @@
 #include "proto/global/EFDC0.h"
 #include "proto/global/FCCD0.h"
 #include "proto/minecart/0.h"
-
-void minecartPlayerCartUpdate(u8 initTrackSegment, u8 *trackTable, s16 maxAngleDelta, u8 maxTiltLimit);
 
 
 

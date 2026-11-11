@@ -17,7 +17,7 @@ void minecartSpawnWheelEffect(struct MinecartCart *, u8, u8);
 void minecartStepSpeedToTarget(struct MinecartCart *);
 #endif
 #ifndef PROTO_SKIP_minecartPlayerCartUpdate
-void minecartPlayerCartUpdate(u8, s32, s16, u8);
+void minecartPlayerCartUpdate(u8, u8 *, s16, u8);
 #endif
 #ifndef PROTO_SKIP_minecartUpdateHeadlight
 void minecartUpdateHeadlight(void);
