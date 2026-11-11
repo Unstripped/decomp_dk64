@@ -1,17 +1,9 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
+#include "actor.h"
 #include "proto/global/10130.h"
 #include "proto/global/15050.h"
 #include "proto/global/6AD90.h"
-
-typedef struct RecordTargetView {
-    u8 unk0[0x7C];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 unk88[0x5E];
-    s16 unkE6;
-} RecordTargetView;
 
 typedef struct PositionRecord {
     f32 unk0;
@@ -26,11 +18,11 @@ typedef struct PositionRecord {
 
 extern u8 gPlayerInventoryTable[];
 
-void func_8060B430(RecordTargetView *target, PositionRecord *record) {
-    target->unk7C = record->unk0;
-    target->unk80 = record->unk4;
-    target->unk84 = record->unk8;
-    target->unkE6 = record->unkC;
+void func_8060B430(Actor *target, PositionRecord *record) {
+    target->x = record->unk0;
+    target->y = record->unk4;
+    target->z = record->unk8;
+    target->yaw = record->unkC;
     memcpy(&gPlayerInventoryTable[record->unk10 * 0x5E], record->unk12, 0x5E);
 }
 
@@ -38,7 +30,7 @@ extern s16 D_807463B0;
 extern s8 D_807463B8;
 extern PositionRecord D_807ECE20;
 
-s16 func_8060B49C(RecordTargetView *target, s32 unused) {
+s16 func_8060B49C(Actor *target, s32 unused) {
     D_807463B8 = 2;
     func_8060B430(target, &D_807ECE20);
     return D_807463B0;

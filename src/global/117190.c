@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/boot/3630.h"
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -25,7 +26,7 @@
 #include "proto/global/F600.h"
 
 extern Actor *gCurrentActor;
-extern void *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern s32 gCurrentMap;
 extern u32 gGlobalCutsceneFlags;
 extern u8 gMenuCurrentMode;
@@ -267,11 +268,6 @@ void menuSetupBonusCharacter(void) {
     }
 }
 
-typedef struct R117iPlayerView {
-    s32 unk0;
-    s32 unk4;
-} R117iPlayerView;
-
 extern u16 D_8075E5C2[];
 
 extern u8 D_807467CC;
@@ -323,7 +319,7 @@ void menuCheckMapTransitionOnLoad(void) {
         break;
     case 3:
         gMenuTransitionCounter++;
-        gMenuStateTimer = func_8060B49C(((R117iPlayerView *)gPlayerSlots)->unk4, D_8075E5C0[gMenuBonusStageIndex * 4]);
+        gMenuStateTimer = func_8060B49C(gPlayerSlots->actor, D_8075E5C0[gMenuBonusStageIndex * 4]);
         if (gMenuStateTimer < *(u16 *) ((u8 *) D_8075E5C2 + gMenuBonusStageIndex * 4)) {
             gMenuStateTimer = gMenuStateTimer;
         } else {

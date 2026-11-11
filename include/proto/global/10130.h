@@ -2,13 +2,13 @@
 #ifndef PROTO_GLOBAL_10130_H
 #define PROTO_GLOBAL_10130_H
 #include "common.h"
+#include "actor.h"
 struct PositionRecord;
-struct RecordTargetView;
 #ifndef PROTO_SKIP_func_8060B430
-void func_8060B430(struct RecordTargetView *, struct PositionRecord *);
+void func_8060B430(Actor *, struct PositionRecord *);
 #endif
 #ifndef PROTO_SKIP_func_8060B49C
-s16 func_8060B49C(struct RecordTargetView *, s32);
+s16 func_8060B49C(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_func_8060B4D4
 void func_8060B4D4(OSContPad *);
