@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/global/10D2D0.h"
 #include "proto/global/117190.h"
 #include "proto/global/450.h"
@@ -23,22 +24,6 @@ extern s16 gScreenHeight;
 extern u8 gNextGameMode;
 extern u8 gGfxBufferIndex;
 
-typedef struct HealthHudState {
-    u8 unk0;
-    u8 pad1[0x2DF];
-    u16 unk2E0;
-    union {
-        u16 flags;
-        struct {
-            u8 unk2E2;
-            u8 unk2E3;
-        };
-    };
-    u8 unk2E4;
-    u8 unk2E5;
-    u8 unk2E6;
-} HealthHudState;
-
 typedef struct HealthStats {
     u8 pad0[0x2FB];
     s8 health;
@@ -47,14 +32,14 @@ typedef struct HealthStats {
 } HealthStats;
 
 
-struct HealthHudState; struct HealthStats;
+struct HealthStats;
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern s32 gFrameCounter;
 extern s32 gGlobalPauseFlags;
 f32 mathSinF(s16);
 
-Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, HealthHudState *hudState) {
+Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, PlayerStruct *hudState) {
     s16 i;
     s8 pips;
     u32 centerX;
@@ -141,13 +126,13 @@ void hudDrawItemWithAlpha(HealthHudInit *hudInit) {
 
 void func_80026B0C(s32);
 
-void healthApplyPendingDelta(s32 playerIndex, HealthHudState *hudState, HealthStats *playerState, s32 newHealth) {
+void healthApplyPendingDelta(s32 playerIndex, PlayerStruct *hudState, HealthStats *playerState, s32 newHealth) {
     u8 state;
     s32 limit;
 
-    state = hudState->flags;
+    state = hudState->unk2E2;
     if (state & 0x10) {
-        hudState->flags ^= 0x10;
+        hudState->unk2E2 ^= 0x10;
         if (playerState->healthDelta > 0) {
             limit = healthGetPerMelon();
             newHealth = playerState->health + playerState->healthDelta;
@@ -187,7 +172,7 @@ f32 sinApprox(f32);
 Gfx *healthHudUpdateDraw(glist, playerIndex, hudState)
 Gfx *glist;
 s16 playerIndex;
-HealthHudState *hudState;
+PlayerStruct *hudState;
 {
     s32 idx;
     f32 angle;
@@ -208,7 +193,7 @@ HealthHudState *hudState;
     }
     if (single == 0) {
         healthApplyPendingDelta(playerIndex, hudState, (HealthStats *)hud, (s32)elem);
-        hudState->flags &= 0xFFEA;
+        hudState->unk2E2 &= 0xFFEA;
         bits = hudState->unk2E3;
     }
     if (bits & 0x10) {
@@ -223,7 +208,7 @@ HealthHudState *hudState;
         }
     }
     if (bits & 1) {
-        hudState->flags ^= 1;
+        hudState->unk2E2 ^= 1;
         switch (mode) {
         case 0:
             hudState->unk2E5 = 18;
@@ -238,9 +223,9 @@ HealthHudState *hudState;
         }
     } else if (bits & 4) {
         hudState->unk2E5 = 1;
-        hudState->flags ^= 4;
+        hudState->unk2E2 ^= 4;
         hudState->unk2E4 = 2;
-        hudState->flags &= 8;
+        hudState->unk2E2 &= 8;
     } else {
         switch (mode) {
         case 1:
@@ -264,7 +249,7 @@ HealthHudState *hudState;
         }
     }
     if (hudCanRender() != 0 || (bits & 0x80)) {
-        if (hudState->unk2E4 != 0 || hudState->flags != 0) {
+        if (hudState->unk2E4 != 0 || hudState->unk2E2 != 0) {
             glist = healthHudDraw(glist, (HealthStats *)hud, elem, hudState);
         }
     }
@@ -285,9 +270,9 @@ Gfx *healthHudDrawAll(Gfx *glist) {
         do {
             slotOffset = playerIndex * 0x2F0;
             playerSlot = (s32)gPlayerSlots + slotOffset;
-            if (((HealthHudState *)playerSlot)->unk0 != 0) {
-                flags = ((HealthHudState *)playerSlot)->flags;
-                if (!(flags & 0x20) && (((((HealthHudState *)playerSlot)->unk2E4 != 0 || flags != 0) &&
+            if (((PlayerStruct *)playerSlot)->unk0 != 0) {
+                flags = ((PlayerStruct *)playerSlot)->unk2E2;
+                if (!(flags & 0x20) && (((((PlayerStruct *)playerSlot)->unk2E4 != 0 || flags != 0) &&
                                            D_80744504 == 0) ||
                                           flags & 0x10)) {
                     glist = healthHudUpdateDraw(glist, (s16)(playerIndex + 0), (slotOffset ^ 0) + (s32)gPlayerSlots, (s32)gPlayerSlots); // FAKE: extra argument to the K&R callee (removing it breaks the match)

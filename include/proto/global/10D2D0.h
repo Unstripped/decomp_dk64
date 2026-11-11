@@ -2,17 +2,17 @@
 #ifndef PROTO_GLOBAL_10D2D0_H
 #define PROTO_GLOBAL_10D2D0_H
 #include "common.h"
+#include "sched.h"
 struct HealthHudInit;
-struct HealthHudState;
 struct HealthStats;
 #ifndef PROTO_SKIP_healthHudDraw
-Gfx *healthHudDraw(Gfx *, struct HealthStats *, void *, struct HealthHudState *);
+Gfx *healthHudDraw(Gfx *, struct HealthStats *, void *, PlayerStruct *);
 #endif
 #ifndef PROTO_SKIP_hudDrawItemWithAlpha
 void hudDrawItemWithAlpha(struct HealthHudInit *);
 #endif
 #ifndef PROTO_SKIP_healthApplyPendingDelta
-void healthApplyPendingDelta(s32, struct HealthHudState *, struct HealthStats *, s32);
+void healthApplyPendingDelta(s32, PlayerStruct *, struct HealthStats *, s32);
 #endif
 #ifndef PROTO_SKIP_healthHudUpdateDraw
 Gfx *healthHudUpdateDraw();

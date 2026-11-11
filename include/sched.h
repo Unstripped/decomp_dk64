@@ -129,9 +129,19 @@ typedef struct {
     /* 0x2D0 */ f32 unk2D0;
     /* 0x2D4 */ f32 bgRotX;
     /* 0x2D8 */ f32 bgRotY;
-    /* 0x2DC */ u8 unk2DC[0x2E2 - 0x2DC];
-    /* 0x2E2 */ u16 unk2E2;
-    /* 0x2E4 */ u8 pad2E4[4];
+    /* 0x2DC */ u8 unk2DC[0x2E0 - 0x2DC];
+    /* 0x2E0 */ u16 unk2E0; // health HUD flash phase (sinApprox * 65535)
+    union {
+        /* 0x2E2 */ u16 unk2E2; // HUD flags
+        struct {
+            /* 0x2E2 */ u8 pad2E2;
+            /* 0x2E3 */ u8 unk2E3; // low byte of unk2E2, read on its own by the health HUD
+        };
+    };
+    /* 0x2E4 */ u8 unk2E4;
+    /* 0x2E5 */ u8 unk2E5;
+    /* 0x2E6 */ u8 unk2E6;
+    /* 0x2E7 */ u8 pad2E7;
     /* 0x2E8 */ u8 unk2E8;
     /* 0x2E9 */ u8 unk2E9;
     u8 unk2EA;
