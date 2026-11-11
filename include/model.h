@@ -14,7 +14,8 @@ typedef struct ModelAssetHeader {
     /* 0x1C */ u8 unk1C;
     /* 0x1D */ u8 unk1D;
     /* 0x1E */ s16 unk1E;
-    /* 0x20 */ u8 pad20[8];
+    /* 0x20 */ s32 unk20; // collision sphere radius (collisionBuildSlotBoxes)
+    /* 0x24 */ u8 pad24[4];
     /* 0x28 */ s16 unk28;
     /* 0x2A */ s16 unk2A;
     /* 0x2C */ s16 unk2C;
@@ -35,7 +36,7 @@ typedef struct ModelAssetHeader {
     /* 0x40 */ s32 unk40;
     /* 0x44 */ s32 unk44;
     /* 0x48 */ s32 unk48;
-    /* 0x4C */ u8 pad4C[4];
+    /* 0x4C */ s32 unk4C; // offset of the collision box table (collisionBuildSlotBoxes)
     /* 0x50 */ s32 unk50;
     /* 0x54 */ s32 unk54;
     /* 0x58 */ s32 unk58;
@@ -43,6 +44,8 @@ typedef struct ModelAssetHeader {
     /* 0x60 */ s32 unk60;
     /* 0x64 */ s32 unk64;
     /* 0x68 */ s32 unk68; // offset of the animation data block (modelSlotDataSize)
+    /* 0x6C */ s32 unk6C; // offset of the texture-animation table (modelSlotInitTexAnimNodes)
+    /* 0x70 */ s32 unk70; // offset of the texture / quad table (modelSlotLinkTexAnimTextures, modelQuadBuildOutput)
 } ModelAssetHeader;
 
 // One animation channel of a model slot (ModelData.entries, 54150).
