@@ -125,9 +125,9 @@ extern u8 D_807463B8;
 extern s32 gFrameCounter;
 extern u8 gScreenRenderFlags;
 
-#define CtrlAHeld ((u16 *)D_807ECD40)
-#define CtrlAPressed ((u16 *)D_807ECD48)
-#define CtrlARepeat ((u16 *)D_807ECD50)
+#define CtrlAHeld D_807ECD40
+#define CtrlAPressed D_807ECD48
+#define CtrlARepeat D_807ECD50
 
 void controllerUpdate(void) {
     s16 timer;
@@ -143,7 +143,7 @@ void controllerUpdate(void) {
     u32 bit;
     u8 i;
     u32 *end;
-    s32 padOffset;
+    s32 curButtons;
 
     compact = menuIsTransitionType6();
     D_807ECD60.button = D_807ECD58.button;
@@ -171,7 +171,7 @@ void controllerUpdate(void) {
             if (D_807ECD09) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             i = 0;
             do {
-                if (D_807ECD09 & (1U << i)) {
+                if (D_807ECD09 & (1 << i)) {
                     if (D_807ECD48) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     D_807ECDE8[i].button |= D_807ECDF4[i].button & 0x1000;
                 }
@@ -194,7 +194,7 @@ void controllerUpdate(void) {
     end = (u32 *)heapCodeEnd;
     while (p < end) {
         sum += *p;
-        p += 1;
+        p++;
     }
     padIdx = 0;
     if (sum != 0x624C9A6C) {
@@ -202,41 +202,38 @@ void controllerUpdate(void) {
     }
     for (i = 0; i < 4; i++) {
         if (compact != 0) {
-            mask = D_807ECDF8 & (1U << i);
+            mask = D_807ECDF8 & (1 << i);
         } else {
-            mask = D_807ECD09 & (1U << i);
+            mask = D_807ECD09 & (1 << i);
             padIdx = i;
         }
         if (i == 0 && D_807463B8 == 2) {
             if (D_807463B8 == D_807463B8) {} // FAKE: retain CFG without a mode value live across blocks
             mask = mask | 1;
         }
-        sum = padIdx * 2;
+        sum = padIdx * 2; // FAKE: byte offset in the checksum local orders the held-address candidate before the pad load
         if (mask != 0) {
             pad = &D_807ECD10[padIdx];
-            padOffset = *(u16 *)pad; // FAKE: preserve the initial button value's allocation web
-            pressed = ((*(u16 *)((u8 *)CtrlAHeld + sum)) ^ padOffset) & padOffset;
+            curButtons = pad->button; // FAKE: preserve the initial button value's allocation web
+            pressed = ((*(u16 *)((u8 *)CtrlAHeld + sum)) ^ curButtons) & curButtons;
             (*(u16 *)((u8 *)CtrlAHeld + sum)) = pad->button;
-            buttons = padOffset;
-            if (D_807463B8 == 0) {
-                if (gScreenRenderFlags & 0x11) {
-                    pad->button &= 0x1000;
-                    pad->stick_x = 0;
-                    pad->stick_y = 0;
-                    pressed = 0;
-                    buttons = *(u16 *)pad;
-                }
+            buttons = curButtons;
+            if (D_807463B8 == 0 && (gScreenRenderFlags & 0x11)) {
+                pad->button &= 0x1000;
+                pad->stick_x = 0;
+                pad->stick_y = 0;
+                pressed = 0;
+                buttons = pad->button;
             }
             CtrlAPressed[padIdx] = pressed;
             for (k = 0; k < 16; k++) {
                 bit = 1 << k;
-                if ((buttons & bit)) {
-                    D_807ECD68[padIdx][k]--;
-                    timer = D_807ECD68[padIdx][k];
+                if (buttons & bit) {
+                    timer = --D_807ECD68[padIdx][k];
                     if (timer <= 0) {
                         CtrlARepeat[padIdx] |= bit;
                         D_807ECD68[padIdx][k] = 2;
-                    } else if (timer == 11U) {
+                    } else if (timer == 11U) { // FAKE: unsigned compare of the s16 timer selects the target branch form
                         CtrlARepeat[padIdx] |= bit;
                     } else {
                         CtrlARepeat[padIdx] &= ~bit;
