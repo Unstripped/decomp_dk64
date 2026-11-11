@@ -3,9 +3,9 @@
 #define PROTO_GLOBAL_119370_H
 #include "common.h"
 #include "actor.h"
+#include "render.h"
 struct EffectGridAsset;
 struct EffectGridSlot;
-struct EffectNode;
 #ifndef PROTO_SKIP_effectResetLists
 void effectResetLists(void);
 #endif

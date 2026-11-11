@@ -1,6 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
+#include "render.h"
 #include "proto/global/119370.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
@@ -66,62 +67,6 @@ typedef struct EffectGridNode {
     /* 0x24 */ struct EffectGridNode *next;
 } EffectGridNode;
 
-struct EffectNode;
-typedef void (*EffectCallback)(struct EffectNode *effect, u8 *chunkFound);
-
-typedef struct EffectNode {
-    /* 0x000 */ Gfx *displayLists[4][2];
-    /* 0x020 */ u8 viewportCount;
-    /* 0x021 */ u8 displayListIndex;
-    /* 0x022 */ u8 pad22[6];
-    /* 0x028 */ Vtx vertices[16];
-    /* 0x128 */ Mtx matrices[4][2];
-    /* 0x328 */ EffectCallback callback;
-    /* 0x32C */ u8 state;
-    /* 0x32D */ u8 freePending;
-    /* 0x32E */ u8 pad32E[2];
-    /* 0x330 */ EffectGridNode *grid;
-    /* 0x334 */ u8 anchorType;
-    /* 0x335 */ u8 pad335[3];
-    /* 0x338 */ Actor *owner;
-    /* 0x33C */ s16 boneIndex;
-    /* 0x33E */ u8 subIndex;
-    /* 0x33F */ u8 pad33F;
-    /* 0x340 */ f32 x;
-    /* 0x344 */ f32 y;
-    /* 0x348 */ f32 z;
-    /* 0x34C */ s16 maxDistance;
-    /* 0x34E */ s16 param;
-    /* 0x350 */ u8 frameDelay;
-    /* 0x351 */ u8 frameTimer;
-    /* 0x352 */ u8 pad352[2];
-    /* 0x354 */ s32 duration;
-    /* 0x358 */ s32 durationTimer;
-    /* 0x35C */ s32 speed;
-    /* 0x360 */ f32 scaleX;
-    /* 0x364 */ f32 scaleY;
-    /* 0x368 */ s16 startDelay;
-    /* 0x36A */ u8 red;
-    /* 0x36B */ u8 green;
-    /* 0x36C */ u8 blue;
-    /* 0x36D */ u8 alpha;
-    /* 0x36E */ u8 depth;
-    /* 0x36F */ u8 mode;
-    /* 0x370 */ s32 frames[4];
-    /* 0x380 */ s32 frameCount;
-    /* 0x384 */ void *allocation;
-    /* 0x388 */ s16 chunkFilter;
-    /* 0x38A */ s8 chunk;
-    /* 0x38B */ u8 pad38B;
-    /* 0x38C */ u16 flags;
-    /* 0x38E */ s16 minX;
-    /* 0x390 */ s16 minY;
-    /* 0x392 */ s16 maxX;
-    /* 0x394 */ s16 maxY;
-    /* 0x396 */ u8 pad396[2];
-    /* 0x398 */ struct EffectNode *previous;
-    /* 0x39C */ struct EffectNode *next;
-} EffectNode;
 
 
 extern EffectGridNode *sEffectGridHead;

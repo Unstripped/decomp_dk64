@@ -3,8 +3,6 @@
 #define PROTO_GLOBAL_CEAE0_H
 #include "common.h"
 #include "actor.h"
-struct HeldActorAlignArg;
-struct HeldActorFollowArg;
 #ifndef PROTO_SKIP_playerUpdateSoundEffect0
 void playerUpdateSoundEffect0(void);
 #endif

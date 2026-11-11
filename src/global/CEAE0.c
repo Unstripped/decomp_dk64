@@ -1,6 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
+#include "render.h"
 #include "proto/global/10D2D0.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -267,15 +268,6 @@ typedef struct PadInputState {
 } PadInputState;
 
 extern PadInputState gPlayerPadState[];
-typedef struct PlayerEffectObj {
-    /* 0x000 */ u8 pad0[0x340];
-    /* 0x340 */ f32 unk340;
-    /* 0x344 */ f32 unk344;
-    /* 0x348 */ f32 unk348;
-    /* 0x34C */ u8 pad34C[0x360 - 0x34C];
-    /* 0x360 */ f32 unk360;
-    /* 0x364 */ f32 unk364;
-} PlayerEffectObj;
 
 
 typedef struct PlayerStateFn {
@@ -319,7 +311,7 @@ void playerUpdateCommon(s32 mode) {
     f32 dx;
     f32 projX;
     f32 projY;
-    PlayerEffectObj *fx;
+    EffectNode *fx;
     s16 flags;
     if (gCurrentActor && gCurrentActor) {}  // FAKE: steers uopt candidate colouring (gActivePlayerActor pointer v1)
 
@@ -459,15 +451,15 @@ void playerUpdateCommon(s32 mode) {
             if (fx != NULL) {
                 actorGetNodePos(gActivePlayerActor, 1, &nodeX, &nodeY, &nodeZ);
                 camProjectToScreen(nodeX, nodeY, nodeZ, &projX, &projY, NULL, 1.0f, 0);
-                fx->unk340 = projX * 4.0f;
-                fx->unk344 = projY * 4.0f;
-                fx->unk348 = 5.0f;
+                fx->x = projX * 4.0f;
+                fx->y = projY * 4.0f;
+                fx->z = 5.0f;
                 dz = gPlayerSlots[0].camZ - nodeZ;
                 dx = gPlayerSlots[0].camX - nodeX;
                 dy = gPlayerSlots[0].camY - nodeY;
                 dz = sqrtf(dz * dz + (dx * dx + dy * dy));
-                fx->unk360 = gCurrentActor->sub4->scaleX * (1000.0f / dz) * 6.666666666666667 * 0.7 * 0.008333334f * (f32)gActivePlayerState->effectTimer;
-                fx->unk364 = fx->unk360;
+                fx->scaleX = gCurrentActor->sub4->scaleX * (1000.0f / dz) * 6.666666666666667 * 0.7 * 0.008333334f * (f32)gActivePlayerState->effectTimer;
+                fx->scaleY = fx->scaleX;
             }
         }
     }
@@ -1828,32 +1820,19 @@ void playerStartPickupApproach(Actor *target) {
     gActivePlayerState->unk7C = ((target->z - offsetZ) - gCurrentActor->z) / (f32)frames;
 }
 
-/* Payload playerHeldActorFollowStep receives (the node from 0x08 on). */
-typedef struct HeldActorFollowArg {
-    /* 0x0 */ f32 blend;
-    /* 0x4 */ Actor *player;
-    /* 0x8 */ Actor *held;
-} HeldActorFollowArg;
 
-/* Global callback node (ActorCallbackNode head) carrying a HeldActorFollowArg. */
-typedef struct HeldActorFollowNode {
-    /* 0x00 */ void *callback;
-    /* 0x04 */ u8 done;
-    /* 0x05 */ u8 pad5[3];
-    /* 0x08 */ HeldActorFollowArg arg;
-} HeldActorFollowNode;
 
 
 void playerRegisterHeldActorFollow(f32 blend) {
-    HeldActorFollowNode *node;
+    ActorCallbackNode *node;
 
     if (gActivePlayerState->heldActor != NULL) {
         node = heapAlloc(0x14);
         node->callback = playerHeldActorFollowStep;
-        node->arg.blend = blend;
-        node->arg.player = gCurrentActor;
-        node->arg.held = gActivePlayerState->heldActor;
-        node->done = 0;
+        node->heldFollow.blend = blend;
+        node->heldFollow.player = gCurrentActor;
+        node->heldFollow.held = gActivePlayerState->heldActor;
+        node->unk4 = 0;
         actorRegisterGlobalCallback(node);
     }
 }
@@ -1905,31 +1884,18 @@ void playerHeldActorFollowStep(HeldActorFollowArg *follow) {
     actorAppendMoveTarget3D(follow->player, follow->held, outX, outY, outZ, 2, 1);
 }
 
-/* Payload playerHeldActorAlignStep receives (the node from 0x08 on). */
-typedef struct HeldActorAlignArg {
-    /* 0x0 */ Actor *player;
-    /* 0x4 */ Actor *held;
-} HeldActorAlignArg;
 
-/* Global callback node (ActorCallbackNode head) carrying a HeldActorAlignArg. */
-typedef struct HeldActorAlignNode {
-    /* 0x00 */ void *callback;
-    /* 0x04 */ u8 done;
-    /* 0x05 */ u8 pad5[3];
-    /* 0x08 */ HeldActorAlignArg arg;
-    /* 0x10 */ u8 pad10[4];
-} HeldActorAlignNode;
 
 
 void playerRegisterHeldActorAlign(void) {
-    HeldActorAlignNode *node;
+    ActorCallbackNode *node;
 
     if (gActivePlayerState->heldActor != NULL) {
         node = heapAlloc(0x14);
         node->callback = playerHeldActorAlignStep;
-        node->arg.player = gCurrentActor;
-        node->arg.held = gActivePlayerState->heldActor;
-        node->done = 0;
+        node->heldAlign.player = gCurrentActor;
+        node->heldAlign.held = gActivePlayerState->heldActor;
+        node->unk4 = 0;
         actorRegisterGlobalCallback(node);
     }
 }

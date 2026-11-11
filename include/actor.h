@@ -206,13 +206,32 @@ typedef struct ActorList {
     /* 0x10 */ u8 count;
 } ActorList; // size = 0x14
 
+// Payloads of global callback nodes registered by the player's held-actor code (CEAE0.c);
+// the step callback receives &node->heldFollow / &node->heldAlign.
+typedef struct HeldActorFollowArg {
+    /* 0x0 */ f32 blend;
+    /* 0x4 */ struct Actor *player;
+    /* 0x8 */ struct Actor *held;
+} HeldActorFollowArg;
+
+typedef struct HeldActorAlignArg {
+    /* 0x0 */ struct Actor *player;
+    /* 0x4 */ struct Actor *held;
+} HeldActorAlignArg;
+
 typedef struct ActorCallbackNode {
     /* 0x00 */ void *callback;
     /* 0x04 */ u8 unk4;
     /* 0x05 */ u8 unk5[3];
-    /* 0x08 */ struct Actor *source;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ void *unk10;
+    union {
+        struct {
+            /* 0x08 */ struct Actor *source;
+            /* 0x0C */ s32 unkC;
+            /* 0x10 */ void *unk10;
+        };
+        /* 0x08 */ HeldActorFollowArg heldFollow; // playerRegisterHeldActorFollow (CEAE0.c)
+        /* 0x08 */ HeldActorAlignArg heldAlign; // playerRegisterHeldActorAlign (CEAE0.c)
+    };
     /* 0x14 */ struct ActorCallbackNode *next;
     /* 0x18 */ struct ActorCallbackNode *prev;
 } ActorCallbackNode; // size = 0x1C
