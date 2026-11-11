@@ -613,7 +613,7 @@ void effectSpawnBurstParticleCluster(Actor *actor) {
     }
 }
 
-void effectSpawnParticleRingAtPosition(f32 posX, f32 posY, f32 posZ, void *param) {
+void effectSpawnParticleRingAtPosition(f32 posX, f32 posY, f32 posZ, s32 speed) {
     s32 i;
     s32 shift;
     s32 count;
@@ -626,7 +626,7 @@ void effectSpawnParticleRingAtPosition(f32 posX, f32 posY, f32 posZ, void *param
         effectSetDuration(1);
         effectSetCallback(func_80717930);
         effectSetAngle(i >> shift);
-        effectSetSpeed((s32)param);
+        effectSetSpeed(speed);
         effectCreateAtPosition(D_8074E880[i % 3], 0.5f, posX, posY, posZ);
     }
 }

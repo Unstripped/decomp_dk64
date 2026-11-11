@@ -91,7 +91,7 @@ void effectSpawnRingBursts(Actor *, f32, f32, s32);
 void effectSpawnBurstParticleCluster(Actor *);
 #endif
 #ifndef PROTO_SKIP_effectSpawnParticleRingAtPosition
-void effectSpawnParticleRingAtPosition(f32, f32, f32, void *);
+void effectSpawnParticleRingAtPosition(f32, f32, f32, s32);
 #endif
 #ifndef PROTO_SKIP_effectSpawnChildAtNode
 void effectSpawnChildAtNode(u8, s16, s16);
