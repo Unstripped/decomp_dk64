@@ -2,9 +2,10 @@
 #ifndef PROTO_GLOBAL_63EC0_H
 #define PROTO_GLOBAL_63EC0_H
 #include "common.h"
+#include "map.h"
 #include "water.h"
 #ifndef PROTO_SKIP_effectWaterInitNodes
-void effectWaterInitNodes(u8 *);
+void effectWaterInitNodes(MapFileHeader *);
 #endif
 #ifndef PROTO_SKIP_effectNodeSetTargetPosition
 void effectNodeSetTargetPosition(s32, f32, f32, f32);

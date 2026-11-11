@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "map.h"
 #include "sched.h"
 #include "water.h"
 #include "proto/global/15050.h"
@@ -71,7 +72,7 @@ extern f32 gWaterRippleFalloffStart;
 
 extern s32 gCurrentMap;
 
-void effectWaterInitNodes(u8 *mapData) {
+void effectWaterInitNodes(MapFileHeader *mapData) {
     u8 pad[0x1C];
     s32 i;
     WaterSurfaceDef *base;
@@ -85,14 +86,14 @@ void effectWaterInitNodes(u8 *mapData) {
     pNextNode = &gEffectNodeList;
     if (gCurrentMap == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     gEffectNodeList = NULL;
-    count = *(u8 *)(mapData + *(s32 *)(mapData + 0x4C) + 3);
+    count = *(u8 *)(mapData->unk4C + (u8 *)mapData + 3);
     gWaterRippleActive = 0;
 
     if (count == (count * 0)) {  // FAKE: extra use of count steers the v0/v1 pick
         return;
     }
 
-    base = (WaterSurfaceDef *)(mapData + *(s32 *)(mapData + 0x4C) + 4);
+    base = (WaterSurfaceDef *)(mapData->unk4C + (u8 *)mapData + 4);
     for (i = 0; i < count; i++) {
         WaterSurface *node = heapAlloc(sizeof(WaterSurface));
         s32 gridDimX;
