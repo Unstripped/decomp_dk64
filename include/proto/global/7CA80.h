@@ -4,7 +4,6 @@
 #include "common.h"
 #include "actor.h"
 struct ActorInitArg;
-struct ActorSpawnInfo;
 #ifndef PROTO_SKIP_actorInit
 void actorInit(void);
 #endif

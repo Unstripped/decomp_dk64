@@ -101,7 +101,7 @@ extern ModelAssetEntry178 D_8076A178[];
 
 void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
     u8 *subtables;
-    s32 *records;
+    u8 *records;
     s32 mapIndex;
     s32 pad;
     u16 preMapModelCount;
@@ -399,7 +399,7 @@ void actorListSetPosByActor(Actor *actor, f32 posX, f32 posY, f32 posZ) {
     }
 }
 
-void actorListSpawnFromRecords(s32 *records) {
+void actorListSpawnFromRecords(u8 *records) {
     ActorListRecord *item;
     s32 i;
     void *recordExtData;
@@ -407,7 +407,8 @@ void actorListSpawnFromRecords(s32 *records) {
 
     D_807FC400 = NULL;
     if (records != NULL) {
-        count = *records++;
+        count = *(s32 *)records;
+        records += 4;
         item = (ActorListRecord *)records;
         for (i = 0, recordExtData = (char *)item + 0x10; i < count; i++, item++, recordExtData = (char *)recordExtData + 0x38) { // FAKE: separate recordExtData induction pointer (== item->customData) steers s0-s3 colouring
             actorListSpawnNodeInternal(item->actorType, item->x, item->y, item->z, item->yaw, item->scale, recordExtData, 0, 0, item->id);
@@ -501,17 +502,6 @@ ActorListNode *actorListSpawnNodeInternal(s16 actorType, f32 posX, f32 posY, f32
 }
 
 
-typedef struct ActorListSpawnInfo {
-    s32 actorType;
-    s32 animAssetId;
-    s32 unk8;
-    f32 x;
-    f32 y;
-    f32 z;
-    s16 yaw;
-    s16 unk1A;
-    s32 customData;
-} ActorListSpawnInfo;
 
 
 
@@ -519,7 +509,7 @@ extern Actor *gSpawnedActor;
 
 void actorListUpdateSpawns(void) {
     s32 pad;
-    ActorListSpawnInfo spawnInfo;
+    ActorSpawnInfo spawnInfo;
     Actor *actor;
     ActorListNode *node;
     s32 n;
@@ -561,15 +551,15 @@ void actorListUpdateSpawns(void) {
                         }
                     }
 
-                    spawnInfo.actorType = target;
-                    spawnInfo.unk8 = D_8074E8B0[i].unk4;
-                    spawnInfo.animAssetId = D_8074E8B0[i].animAssetId;
+                    spawnInfo.type = target;
+                    spawnInfo.scriptId = D_8074E8B0[i].unk4;
+                    spawnInfo.spawnArg = D_8074E8B0[i].animAssetId;
                     spawnInfo.x = node->spawnX;
                     spawnInfo.y = node->spawnY;
                     spawnInfo.z = node->spawnZ;
                     spawnInfo.yaw = node->yaw;
-                    spawnInfo.unk1A = 0;
-                    spawnInfo.customData = (s32)node->customData;
+                    spawnInfo.spawnTimer = 0;
+                    spawnInfo.spawnData = node->customData;
                     if (actorSpawnFromInfo(&spawnInfo) != 0) {
                         node->actor = gSpawnedActor;
                         node->spawned = 1;

@@ -44,7 +44,7 @@ void actorListSetPosById(s16, f32, f32, f32);
 void actorListSetPosByActor(Actor *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_actorListSpawnFromRecords
-void actorListSpawnFromRecords(s32 *);
+void actorListSpawnFromRecords(u8 *);
 #endif
 #ifndef PROTO_SKIP_actorListSpawnNodePersistent
 void actorListSpawnNodePersistent(s16, f32, f32, f32, s16, f32);

@@ -940,6 +940,19 @@ typedef struct G01Pos {
     /* 0x9 */ u8 unk9;
 } G01Pos;
 
+// Spawn request read by actorSpawnFromInfo (7CA80.c); spawnArg onward is passed to the type's init function.
+typedef struct ActorSpawnInfo {
+    s32 type;
+    s32 spawnArg;
+    s32 scriptId;
+    f32 x;
+    f32 y;
+    f32 z;
+    s16 yaw;
+    s16 spawnTimer;
+    void *spawnData;
+} ActorSpawnInfo;
+
 extern BehaviourWorkState *gBehaviourWorkState;
 extern Actor *gBehaviourTargetActor;
 extern SpawnNode *gBehaviourAnimState;

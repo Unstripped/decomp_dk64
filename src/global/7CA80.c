@@ -161,17 +161,6 @@ void actorInit(void) {
 void func_80677EC8(s32 unused) {
 }
 
-typedef struct ActorSpawnInfo {
-    s32 type;
-    s32 spawnArg;
-    s32 scriptId;
-    f32 x;
-    f32 y;
-    f32 z;
-    s16 yaw;
-    s16 spawnTimer;
-    void *spawnData;
-} ActorSpawnInfo;
 extern u8 D_8074D8D4[];
 extern s32 (*D_8074DA30[])(s32 *);
 
