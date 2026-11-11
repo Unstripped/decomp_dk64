@@ -67,6 +67,16 @@ typedef struct {
 struct Actor;
 
 // Player struct array (stride 0x2F0) pointed to by gPlayerSlots
+// Health HUD state block (PlayerStruct.healthHud, hudDrawItemWithAlpha in 10D2D0.c).
+typedef struct HealthHudInit {
+    /* 0x0 */ f32 unk0;
+    /* 0x4 */ s16 unk4;
+    /* 0x6 */ s16 unk6;
+    /* 0x8 */ u8 unk8;
+    /* 0x9 */ u8 unk9;
+    /* 0xA */ u8 unkA;
+} HealthHudInit; // size = 0xC
+
 typedef struct {
     /* 0x000 */ u8 unk0;
     /* 0x001 */ u8 pad1[3];
@@ -129,19 +139,24 @@ typedef struct {
     /* 0x2D0 */ f32 unk2D0;
     /* 0x2D4 */ f32 bgRotX;
     /* 0x2D8 */ f32 bgRotY;
-    /* 0x2DC */ u8 unk2DC[0x2E0 - 0x2DC];
-    /* 0x2E0 */ u16 unk2E0; // health HUD flash phase (sinApprox * 65535)
     union {
-        /* 0x2E2 */ u16 unk2E2; // HUD flags
+        /* 0x2DC */ HealthHudInit healthHud; // health HUD state (hudDrawItemWithAlpha, 10D2D0.c)
         struct {
-            /* 0x2E2 */ u8 pad2E2;
-            /* 0x2E3 */ u8 unk2E3; // low byte of unk2E2, read on its own by the health HUD
+            /* 0x2DC */ f32 unk2DC;
+            /* 0x2E0 */ u16 unk2E0; // health HUD flash phase (sinApprox * 65535)
+            union {
+                /* 0x2E2 */ u16 unk2E2; // HUD flags
+                struct {
+                    /* 0x2E2 */ u8 pad2E2;
+                    /* 0x2E3 */ u8 unk2E3; // low byte of unk2E2, read on its own by the health HUD
+                };
+            };
+            /* 0x2E4 */ u8 unk2E4;
+            /* 0x2E5 */ u8 unk2E5;
+            /* 0x2E6 */ u8 unk2E6;
+            /* 0x2E7 */ u8 pad2E7;
         };
     };
-    /* 0x2E4 */ u8 unk2E4;
-    /* 0x2E5 */ u8 unk2E5;
-    /* 0x2E6 */ u8 unk2E6;
-    /* 0x2E7 */ u8 pad2E7;
     /* 0x2E8 */ u8 unk2E8;
     /* 0x2E9 */ u8 unk2E9;
     u8 unk2EA;

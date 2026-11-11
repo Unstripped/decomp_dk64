@@ -95,15 +95,6 @@ Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, PlayerStruct *hud
 }
 
 
-typedef struct HealthHudInit {
-    f32 unk0;
-    s16 unk4;
-    s16 unk6;
-    u8 unk8;
-    u8 unk9;
-    u8 unkA;
-} HealthHudInit;
-
 extern s32 gGlobalOverlayFlags;
 
 void hudDrawItemWithAlpha(HealthHudInit *hudInit) {

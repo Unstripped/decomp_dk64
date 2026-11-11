@@ -210,7 +210,7 @@ void playerAllocSlots(s32 spawnIndex) {
         blk->sizeModeDirty = 1;
         blk->unk2EA = 0;
         blk->unk2EB = 0;
-        hudDrawItemWithAlpha(blk->unk2DC);
+        hudDrawItemWithAlpha(&blk->healthHud);
         if (((gGlobalOverlayFlags & 1) && !(gGlobalCutsceneFlags & 2)) ||
             (gPlayerInventoryTable[i].health + gPlayerInventoryTable[i].healthDelta <= 0)) {
             healthRefill(sel);

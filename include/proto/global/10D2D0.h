@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_10D2D0_H
 #include "common.h"
 #include "sched.h"
-struct HealthHudInit;
 struct HealthStats;
 #ifndef PROTO_SKIP_healthHudDraw
 Gfx *healthHudDraw(Gfx *, struct HealthStats *, void *, PlayerStruct *);
