@@ -1527,7 +1527,7 @@ void mapHeaderLoad(MapFileHeader *header) {
     lightSetTargetColor(1.0f, 1.0f, 1.0f, -1);
     lightCopyTargetColors(-1);
     matrixCacheInit(header->unkE << 10);
-    mapTreeRelocate((struct MapRelocNode *)(s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off34));
+    mapTreeRelocate((struct MapRelocNode *)(s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off34)); // FAKE: (s32) hop on arg0 makes the shared sum land in a1 then copy to a0
     displayListResolveTextureImages((Gfx *)(D_807F5DE0 + off34), (Gfx *)(D_807F5DE0 + off38));
     mapRelocateOffsetTable((s32)(D_807F5DE0 + off40));
     mapSurfaceEffectsReset();

@@ -123,7 +123,7 @@ void resParseVariant(ResItem *item, u8 **src) {
 
     if (item->flags & 1) {
         item->variant = heapAlloc(8);
-        p = (u8 *)item->variant;
+        p = (u8 *)item->variant; // FAKE: u8 * cursor instead of ResRecord * keeps rec and the cursor in separate registers
         for (i = 0; i != 1; i++) {
             resParseRecord((ResRecord *)p, src);
             p += 8;
@@ -437,10 +437,8 @@ ResParsedList *resNodeGetOrLoad(u16 id, s32 kind) {
     if (node == NULL) {
         asset = assetLoad(0xC, id, 1, 1);
         link = &sResNodeListHead;
-        if (*link != NULL) {
-            do {
-                link = &(*link)->next;
-            } while (*link != NULL);
+        while (*link != NULL) {
+            link = &(*link)->next;
         }
         parsed = resParseList(asset);
         assetFreeBuffer(asset, 0x1F1, 0x50);
@@ -688,7 +686,7 @@ u8 *textTableGetString(s32 tableId, s32 rowIndex, s32 flags) {
     row = table->lists[rowIndex].items;
     choice = row->variant + sLanguageIndex;
     span = choice->data.spans;
-    source = (u8 *)(span->offset + table->payload);
+    source = span->offset + table->payload;
     length = span->length;
     dest = heapAlloc(length + 1);
     if (flags & 1) {

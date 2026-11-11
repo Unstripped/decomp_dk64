@@ -46,7 +46,7 @@ extern u8 D_807F951C;
 extern s32 gCurrentMap;
 extern u8 D_807F94B4;
 
-void collisionBuildCellTable(MapFileHeader *arg0) {
+void collisionBuildCellTable(MapFileHeader *header) {
     s32 off;
     void *compressed;
     u8 *dst;
@@ -60,12 +60,12 @@ void collisionBuildCellTable(MapFileHeader *arg0) {
     void *window;
 
     D_807F9514 = heapAlloc(0x11A8);
-    D_807F9518 = (u32)(arg0->unk18 * arg0->unk1A);
-    data = (u8 *)assetLoad(3, gCurrentMap, 1, 0);
+    D_807F9518 = header->unk18 * header->unk1A;
+    data = assetLoad(3, gCurrentMap, 1, 0);
     D_807F951C = 0;
-    if (arg0->unk9 & 2) {
+    if (header->unk9 & 2) {
         compressed = data;
-        data = heapAlloc(arg0->unk4);
+        data = heapAlloc(header->unk4);
         window = heapAlloc(0x2400);
         dst = data;
         src = compressed;

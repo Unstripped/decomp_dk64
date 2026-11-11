@@ -520,35 +520,35 @@ void textBoxUpdateRows(Actor *actor) {
     state = actor->customState;
     node = state->rows;
     stop = 0;
-    lim = (f32) ((f64) (1.0f - state->unk20) * 1.47058823529411775);
+    lim = (1.0f - state->unk20) * 1.47058823529411775;
     if (lim > 1.0f) {
         lim = 1.0f;
     }
     state->unk40 = lim;
     mathAddWaveOffset(&actor->x, &actor->y, state->unk20, lim, (MotionAngles *) state);
-    state->unk44 = actor->x - (f64) (state->unk20 * 136.8f) * 0.5;
-    state->unk48 = actor->y - (f64) (state->unk20 * 79.799995f) * 0.5;
-    state->unk4C = actor->x + (f64) (state->unk20 * 136.8f) * 0.5;
-    state->unk50 = actor->y + (f64) (state->unk20 * 79.799995f) * 0.5;
-    state->unk44 = ((f32) gPlayerSlots->unk270 < state->unk44) ? state->unk44 : (f32) gPlayerSlots->unk270;
-    state->unk48 = ((f32) gPlayerSlots->unk272 < state->unk48) ? state->unk48 : (f32) gPlayerSlots->unk272;
-    state->unk4C = (state->unk4C < (f32) gPlayerSlots->unk274) ? state->unk4C : (f32) gPlayerSlots->unk274;
-    state->unk50 = (state->unk50 < (f32) gPlayerSlots->unk276) ? state->unk50 : (f32) gPlayerSlots->unk276;
+    state->unk44 = actor->x - (state->unk20 * 136.8f) * 0.5;
+    state->unk48 = actor->y - (state->unk20 * 79.799995f) * 0.5;
+    state->unk4C = actor->x + (state->unk20 * 136.8f) * 0.5;
+    state->unk50 = actor->y + (state->unk20 * 79.799995f) * 0.5;
+    state->unk44 = (gPlayerSlots->unk270 < state->unk44) ? state->unk44 : gPlayerSlots->unk270;
+    state->unk48 = (gPlayerSlots->unk272 < state->unk48) ? state->unk48 : gPlayerSlots->unk272;
+    state->unk4C = (state->unk4C < gPlayerSlots->unk274) ? state->unk4C : gPlayerSlots->unk274;
+    state->unk50 = (state->unk50 < gPlayerSlots->unk276) ? state->unk50 : gPlayerSlots->unk276;
     acc = state->unk14;
     i = 0;
-    while (((s32) state->rowState >= i) && (node != NULL) && (stop == 0)) {
+    while ((state->rowState >= i) && (node != NULL) && (stop == 0)) {
         last = (i == state->rowState);
         dt = node->height;
-        if (((f64) (acc + dt) > 73.79999542236328) && (actor->state == 1)) {
+        if ((acc + dt > 73.79999542236328) && (actor->state == 1)) {
             actor->state = 2;
-            state->unk18 = (f32) ((f64) (acc + dt) - 73.79999542236328);
+            state->unk18 = acc + dt - 73.79999542236328;
             stop = 1;
-        } else if (((acc + dt) < 0.0f) && (actor->state == 2)) {
-            state->unk14 = state->unk14 + dt;
+        } else if ((acc + dt < 0.0f) && (actor->state == 2)) {
+            state->unk14 += dt;
             state->rows = node->next;
             state->rowState--;
             i--;
-            acc = acc + dt;
+            acc += dt;
             cur = node;
             node = node->next;
             resNodeFree(cur);
@@ -556,7 +556,7 @@ void textBoxUpdateRows(Actor *actor) {
             textBoxRowUpdateNodes(acc, actor, (SpriteChainState *) state, (SpriteHolder *) node, last, &stop);
             if (stop == 0) {
                 node = node->next;
-                acc = acc + dt;
+                acc += dt;
             }
         }
         i++;
@@ -564,7 +564,7 @@ void textBoxUpdateRows(Actor *actor) {
     mode = actor->state;
     if (mode == 3) {
         if (state->unk12 != 0) {
-            state->unk12 = state->unk12 - 1;
+            state->unk12--;
             mode = actor->state;
         } else {
             mode = actor->state = 1;

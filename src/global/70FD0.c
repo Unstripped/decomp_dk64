@@ -292,7 +292,7 @@ void collisionInitStaticCache(MapFileHeader *header) {
     u8 *gzOut;
     u8 *gzIn;
     s32 *cellHeader;
-    u8 *pad1;
+    u8 *next;
     u8 *cellStart;
     s32 relativeOffset;
     s32 i;
@@ -326,6 +326,7 @@ void collisionInitStaticCache(MapFileHeader *header) {
     for (i = 0; i < D_807FB538; i++) {
         cellStart = data + cellEnd + 4;
         cellEnd = *cellHeader;
+        next = data + cellEnd;
         if (D_807FB549 != 0) {
             ((CollisionStaticCellEntry *)D_807FB534)[i].unk4 = cellStart;
         } else {
@@ -335,9 +336,9 @@ void collisionInitStaticCache(MapFileHeader *header) {
         relativeOffset = cellStart - data;
         ((CollisionStaticCellEntry *)D_807FB534)[i].unkC = assetSize + relativeOffset;
         ((CollisionStaticCellEntry *)D_807FB534)[i].unk10 = (data + cellEnd) - cellStart;
-        cellHeader = (s32 *)(data + cellEnd);
+        cellHeader = (s32 *)next;
         ((CollisionStaticCellEntry *)D_807FB534)[i].unk8 = 0;
-        ((CollisionStaticCellEntry *)D_807FB534)[i].unk14 = ((s32)(data + cellEnd) - (s32)cellStart) / elem_size; // FAKE: s32 casts steer the register pick of the subtraction (v1 vs t-reg)
+        ((CollisionStaticCellEntry *)D_807FB534)[i].unk14 = (next - cellStart) / elem_size;
     }
     if (D_807FB549 == 0) {
         assetSetImmediateFree();
