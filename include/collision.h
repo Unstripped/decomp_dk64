@@ -26,7 +26,11 @@ typedef struct CollisionTriF {
 
 // Transformed collision box (ActorSub140.unkA4 array, built by actorSub140BuildBoxes); 0x58 bytes.
 typedef struct CollisionBox {
-    /* 0x00 */ u8 pad0[0x24];
+    /* 0x00 */ s64 nx; // plane normal (collisionBuildPlane: cross product of the two edges)
+    /* 0x08 */ s64 ny;
+    /* 0x10 */ s64 nz;
+    /* 0x18 */ s64 d; // plane offset: -(n . vertex 1)
+    /* 0x20 */ f32 len; // |n|; 0 = degenerate triangle
     /* 0x24 */ s32 unk24;
     /* 0x28 */ s32 unk28;
     /* 0x2C */ s32 unk2C;
@@ -37,7 +41,7 @@ typedef struct CollisionBox {
     /* 0x40 */ s32 unk40;
     /* 0x44 */ s32 unk44;
     /* 0x48 */ s16 unk48;
-    /* 0x4A */ u8 pad4A;
+    /* 0x4A */ u8 axis; // dominant normal axis: 0 = z, 1 = y, 2 = x (collisionBuildPlane)
     /* 0x4B */ u8 unk4B;
     /* 0x4C */ u8 unk4C;
     /* 0x4D */ u8 unk4D;
