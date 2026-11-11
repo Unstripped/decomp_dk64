@@ -6,7 +6,6 @@
 #include "map.h"
 #include "render.h"
 struct MapBspNode;
-struct MapFileHeader;
 struct MapNodeEffects;
 struct MapRelocNode;
 struct MapViewEntries;

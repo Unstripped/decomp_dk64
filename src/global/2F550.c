@@ -1454,38 +1454,6 @@ void mapChunkFreeHiddenBuffers(void) {
     }
 }
 
-typedef struct MapFileHeader {
-    /* 0x00 */ u8 pad0[8];
-    /* 0x08 */ u8 unk8;
-    /* 0x09 */ u8 pad9;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ u8 padC[2];
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ s16 unk14;
-    /* 0x16 */ s16 unk16;
-    /* 0x18 */ s16 unk18;
-    /* 0x1A */ s16 unk1A;
-    /* 0x1C */ s16 unk1C;
-    /* 0x1E */ s16 unk1E;
-    /* 0x20 */ s16 unk20;
-    /* 0x22 */ s16 unk22;
-    /* 0x24 */ s16 unk24;
-    /* 0x26 */ s16 unk26;
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ s16 unk2A;
-    /* 0x2C */ s16 unk2C;
-    /* 0x2E */ u8 pad2E[2];
-    /* 0x30 */ s32 unk30;
-    /* 0x34 */ s32 unk34;
-    /* 0x38 */ s32 unk38;
-    /* 0x3C */ u8 pad3C[4];
-    /* 0x40 */ s32 unk40;
-    /* 0x44 */ s32 unk44;
-    /* 0x48 */ s32 unk48;
-} MapFileHeader;
-
 
 extern f32 gGfxFarClip;
 extern s32 D_807FB5E0;
@@ -1543,7 +1511,7 @@ void mapHeaderLoad(MapFileHeader *header) {
     D_807F5FEA = header->unk2C;
     off40 = header->unk40;
     off30 = header->unk30;
-    off34 = header->unk34;
+    off34 = header->dlBase;
     off38 = header->unk38;
     off44 = header->unk44;
     off48 = header->unk48;
