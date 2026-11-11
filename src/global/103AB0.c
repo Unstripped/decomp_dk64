@@ -717,24 +717,12 @@ void gfxDrawTexturedTileGridSimple(Gfx **gfx, s32 fmt, s32 texture, s32 texWidth
     gfxDrawTexturedTileGrid(gfx, fmt, texture, texWidth, texHeight, tileW, tileH, x0, y0, x1, y1, s0, t0, texScale, bitSize, 0, 0);
 }
 
-typedef struct VtxColorView {
-    s16 x;
-    s16 y;
-    s16 z;
-    u8 unk6[2];
-    s16 s;
-    s16 t;
-    s8 r;
-    s8 g;
-    s8 b;
-    u8 a;
-} VtxColorView;
 
 
 void gfxDrawTexturedTileGrid(Gfx **gfx, s32 fmt, s32 texture, u32 texWidth, s32 texHeight, u32 tileW, u32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0, u8 texScale, u8 bitSize, u8 edgeFade, void (*vtxCallback)()) {
     Gfx *dl;
     s32 y;
-    VtxColorView *vtx;
+    Vtx *vtx;
     s32 u;
     s32 v;
     u32 ustep;
@@ -814,7 +802,7 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, s32 fmt, s32 texture, u32 texWidth, s32 
             if (vtxCallback != NULL) {
                 vtxCallback(u, v, vtx);
             }
-            vtxSetPosTex((s16 *)vtx++, colS, rowT, xf, (s16)(f32)((f32)rowY - 16.0), flag);
+            vtxSetPosTex(vtx++, colS, rowT, xf, (s16)(f32)((f32)rowY - 16.0), flag);
             if (edgeFade) {
                 if (x + tw >= xe && edgeFade == 2) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -826,7 +814,7 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, s32 fmt, s32 texture, u32 texWidth, s32 
                 vtxCallback((s16)(u + ustep), v, vtx);
             }
             xa = xf + twf;
-            vtxSetPosTex((s16 *)vtx++, ua, rowT, xa, (s16)(f32)((f32)rowY - 16.0), flag);
+            vtxSetPosTex(vtx++, ua, rowT, xa, (s16)(f32)((f32)rowY - 16.0), flag);
             if (edgeFade) {
                 if (x + tw >= xe && edgeFade == 2) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -837,7 +825,7 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, s32 fmt, s32 texture, u32 texWidth, s32 
             if (vtxCallback != NULL) {
                 vtxCallback(ua, vb, vtx);
             }
-            vtxSetPosTex((s16 *)vtx++, ua, vb, xa, (s16)((f32)((f32)rowY - 16.0) + (f32)th), flag);
+            vtxSetPosTex(vtx++, ua, vb, xa, (s16)((f32)((f32)rowY - 16.0) + (f32)th), flag);
             if (edgeFade) {
                 if (x == xs && edgeFade == 1) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -848,7 +836,7 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, s32 fmt, s32 texture, u32 texWidth, s32 
             if (vtxCallback != NULL) {
                 vtxCallback(u, vb, vtx);
             }
-            vtxSetPosTex((s16 *)vtx++, colS, vb, xf, (s16)((f32)((f32)rowY - 16.0) + (f32)th), flag);
+            vtxSetPosTex(vtx++, colS, vb, xf, (s16)((f32)((f32)rowY - 16.0) + (f32)th), flag);
             gSPVertex(dl++, osVirtualToPhysical(vtx - 4), 4, 0);
             gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(dl++);
@@ -1039,24 +1027,24 @@ void vtxGradientSetColorB(u8 r, u8 g, u8 b) {
 
 f32 mathSinF(s16);
 
-void vtxSetColor(VtxColorView *vtx, u8 r, u8 g, u8 b, u8 a, u8 flags) {
-    vtx->r = r;
-    vtx->g = g;
-    vtx->b = b;
-    vtx->a = a;
+void vtxSetColor(Vtx *vtx, u8 r, u8 g, u8 b, u8 a, u8 flags) {
+    vtx->v.cn[0] = r;
+    vtx->v.cn[1] = g;
+    vtx->v.cn[2] = b;
+    vtx->v.cn[3] = a;
     if (flags & 0x10) {
         f32 s;
         if (flags & 0x40) {
             s = mathSinF((s16)(s32)((a * 12.05) + 1024.0));
-            vtx->y = (s16)(s32)((f32)vtx->y + 64.0f * s);
+            vtx->v.ob[1] = (s16)(s32)((f32)vtx->v.ob[1] + 64.0f * s);
         } else {
             s = mathSinF((s16)(s32)((a * 12.05) + 1024.0));
-            vtx->y = (s16)(s32)((f32)vtx->y - 64.0f * s);
+            vtx->v.ob[1] = (s16)(s32)((f32)vtx->v.ob[1] - 64.0f * s);
         }
     }
 }
 
-void vtxSetQuadGradientColors(VtxColorView *vtx, u8 row, u8 flags) {
+void vtxSetQuadGradientColors(Vtx *vtx, u8 row, u8 flags) {
     s16 lo;
     s16 hi;
     s32 t;
@@ -1089,12 +1077,12 @@ void vtxSetQuadGradientColors(VtxColorView *vtx, u8 row, u8 flags) {
     vtxSetColor(vtx, D_807FD897, D_807FD898, D_807FD899, lo, flags | 0x40);
 }
 
-void vtxSetPosTex(s16 *vtx, s16 s, s16 t, s16 x, s16 y, u8 shift) {
-    vtx[0] = s;
-    vtx[1] = t;
-    vtx[2] = 0x3E8;
-    vtx[4] = (x << shift) & 0xFFFF;
-    vtx[5] = (y << shift) & 0xFFFF;
+void vtxSetPosTex(Vtx *vtx, s16 s, s16 t, s16 x, s16 y, u8 shift) {
+    vtx->v.ob[0] = s;
+    vtx->v.ob[1] = t;
+    vtx->v.ob[2] = 0x3E8;
+    vtx->v.tc[0] = (x << shift) & 0xFFFF;
+    vtx->v.tc[1] = (y << shift) & 0xFFFF;
 }
 
 
