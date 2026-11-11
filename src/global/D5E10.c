@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_playerApplyGravityAndMotion // FAKE: callee prototype steer (owner takes no parameter; the extra argument steers a0)
 #include "proto/global/103AB0.h"
 #include "proto/global/10D2D0.h"
 #include "proto/global/117190.h"
@@ -135,22 +134,18 @@ void playerStateUnderwaterSwim(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void playerApplyGravityAndMotion();
 
 void playerStateSurfaceDiving(void) {
-    Actor *a;
-
     gActivePlayerState->unk24 = 0;
     if (gCurrentActor->unk155 == 0) {
         gActivePlayerState->turnRate = 0xA;
         gCurrentActor->accelY = -8.0f;
         gCurrentActor->roll = mathAngleFromVector2D(gCurrentActor->speedXZ, gCurrentActor->speedY);
         mathAngleStepToward(&gCurrentActor->pitch, 0, 0x32);
-        mathAngleStepToward(&gCurrentActor->roll, (s16)mathAngleFromVector2D(gCurrentActor->speedXZ, gCurrentActor->speedY), 0xA);
+        mathAngleStepToward(&gCurrentActor->roll, mathAngleFromVector2D(gCurrentActor->speedXZ, gCurrentActor->speedY), 0xA);
         playerInputUpdate(0x6A);
-        a = gCurrentActor;
-        a->moveYaw = a->yaw;
-        playerApplyGravityAndMotion(a);
+        gCurrentActor->moveYaw = gCurrentActor->yaw;
+        playerApplyGravityAndMotion();
     }
     if ((gCurrentActor->y + 4.0f < gCurrentActor->waterY) && (gCurrentActor->speedY < 0.0f)) {
         gCurrentActor->state = 0x7F;
@@ -2841,7 +2836,7 @@ void playerStateEnterFallOnCheck(void) {
     b = gCurrentActor->prevContactFlags;
     z = (b == 0);
     n = (gCurrentActor->contactFlags & b & 1) ? 2 : 1;
-    if (((z ^ 0) & gCurrentActor->contactFlags) & 1) { // FAKE: no-op ^ 0 steers regalloc
+    if ((b == 0) & gCurrentActor->contactFlags & 1) {
         gCurrentActor->speedXZ = gCurrentActor->speedXZ * 0.25;
     }
     if (z) {} // FAKE: dead guard is a real uopt use (Q0561)
@@ -2885,7 +2880,7 @@ void playerStateDamageFallTumble(void) {
             z = (b == 0);
             n = (gCurrentActor->contactFlags & b & 1) ? 2 : 1;
             if (z) {} // FAKE: dead guard is a real uopt use (Q0561)
-            if (((z ^ 0) & gCurrentActor->contactFlags) & 1) { // FAKE: no-op ^ 0 steers regalloc
+            if ((b == 0) & gCurrentActor->contactFlags & 1) {
                 gCurrentActor->speedXZ = gCurrentActor->speedXZ * 0.25;
             }
             if (gCurrentActor->speedXZ < (f32)n) {

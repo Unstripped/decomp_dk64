@@ -2913,6 +2913,7 @@ void tagBarrelUpdateSelection(TagBarrelData *data) {
     Actor *player;
     PlayerState *playerState;
     s32 light;
+    s32 i;
     s32 timedOut;
     s32 isKong;
     s32 kong;
@@ -2969,9 +2970,9 @@ void tagBarrelUpdateSelection(TagBarrelData *data) {
                     sfxStopChannel(0x65, 0);
                     actorDespawn(data->marker);
                     data->marker = NULL;
-                    for (timedOut = 0; timedOut < 5; timedOut++) { // FAKE: reuses timedOut as the loop index (separate i: mismatch)
-                        actorDespawn(data->kongs[timedOut]);
-                        data->kongs[timedOut] = NULL;
+                    for (i = 0; i < 5; i++) {
+                        actorDespawn(data->kongs[i]);
+                        data->kongs[i] = NULL;
                     }
                     gCurrentActor->state = 2;
                     gCurrentActor->unk155 = 0;
