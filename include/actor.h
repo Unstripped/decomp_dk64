@@ -276,13 +276,17 @@ typedef struct ActorGlobalState {
     /* 0x278 */ s16 *unk278[8];
 } ActorGlobalState;
 
-typedef struct ActorFloorContact {
-    /* 0x00 */ u8 pad0[0xC];
+// Path-follow state (Actor.floorContact; pathFollowUpdateHeading allocates it, actor teardown frees it); 0x14 bytes.
+typedef struct PathFollowState {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ s32 unk4;
+    /* 0x08 */ f32 unk8;
     /* 0x0C */ u8 unkC;
     /* 0x0D */ u8 padD;
     /* 0x0E */ s16 unkE;
     /* 0x10 */ s16 unk10;
-} ActorFloorContact;
+    /* 0x12 */ s16 unk12;
+} PathFollowState; // size = 0x14
 
 // One entry of an actor's segment-animation list (Actor.animList; 8CA50 animListInit builds it from
 // the model asset, animListUpdate steps it, animSetSegments binds each node's current frame to its segment).
@@ -380,7 +384,7 @@ typedef struct Actor {
     /* 0x110 */ u8 attachMode;
     /* 0x111 */ u8 unk111[3];
     /* 0x114 */ ActorList *riderList;
-    /* 0x118 */ struct ActorFloorContact *floorContact;
+    /* 0x118 */ struct PathFollowState *floorContact;
     /* 0x11C */ struct Actor *parentActor;
     /* 0x120 */ f32 unk120;
     /* 0x124 */ void *spawnData;

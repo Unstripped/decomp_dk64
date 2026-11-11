@@ -12,17 +12,6 @@ typedef struct AnimationOwner {
 } AnimationOwner;
 
 
-typedef struct PathFollowState {
-    u8 pad0[4];
-    s32 unk4;
-    f32 unk8;
-    u8 unkC;
-    u8 padD;
-    s16 unkE;
-    s16 unk10;
-    s16 unk12;
-} PathFollowState;
-
 typedef struct PathFollowOwner {
     u8 pad0[0x7C];
     f32 unk7C;
