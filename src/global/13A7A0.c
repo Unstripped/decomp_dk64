@@ -8,89 +8,6 @@ typedef u32 OSHWIntr;
 
 extern s32 osGetIntMask(s32 unused);
 
-struct GfSndState;
-
-typedef struct GeSndEvt {
-    u16 type;
-    struct GfSndState *state;
-    union {
-        s32 i;
-        f32 f;
-    } arg8;
-    void *arg12;
-} GeSndEvt;
-
-typedef struct {
-    ALPlayer node;
-    ALEventQueue evtq;
-    ALEvent nextEvent;
-    s32 nextEventPad;
-    struct GfSndState *unk3C;
-    u8 *sndState;
-    s32 unk44;
-    ALMicroTime frameTime;
-    ALMicroTime nextDelta;
-    ALMicroTime curTime;
-} GeSndp;
-
-extern GeSndp *D_807563CC;
-extern u8 *D_807563C8;
-extern s16 *D_807FF0E4;
-ALMicroTime __n_sndpVoiceHandler(void *);
-void n_alSynAddSndPlayer(void *);
-
-void n_alSndpNew(GeSndpConfig *c) {
-    u32 i;
-    void *ptr;
-    ALEvent evt;
-
-    D_807563CC->unk44 = c->unk8;
-    D_807563CC->unk3C = 0;
-    D_807563CC->frameTime = 16000;
-    ptr = alHeapDBAlloc(0, 0, c->heap, 1, c->maxSounds * 72);
-    D_807563CC->sndState = ptr;
-    ptr = alHeapDBAlloc(0, 0, c->heap, 1, c->maxEvents * 28);
-    alEvtqNew(&D_807563CC->evtq, ptr, c->maxEvents);
-    D_807563C8 = D_807563CC->sndState;
-    for (i = 1; i < c->maxSounds; i++) {
-        u8 *sndState = D_807563CC->sndState;
-        alLink((ALLink *)(sndState + i * 72), (ALLink *)(sndState + (i - 1) * 72));
-    }
-    D_807FF0E4 = alHeapDBAlloc(0, 0, c->heap, 2, c->maxStates);
-    for (i = 0; i < c->maxStates; i++) {
-        D_807FF0E4[i] = 0x7FFF;
-    }
-    D_807563CC->node.next = NULL;
-    D_807563CC->node.handler = __n_sndpVoiceHandler;
-    D_807563CC->node.clientData = D_807563CC;
-    n_alSynAddSndPlayer(D_807563CC);
-    evt.type = 0x20;
-    alEvtqPostEvent(&D_807563CC->evtq, &evt, D_807563CC->frameTime);
-    D_807563CC->nextDelta = alEvtqNextEvent(&D_807563CC->evtq, &D_807563CC->nextEvent);
-}
-
-void __n_handleEvent(GeSndEvt *);
-
-ALMicroTime __n_sndpVoiceHandler(void *node) {
-    GeSndp *sndp = node;
-    ALEvent evt;
-
-    do {
-        switch (sndp->nextEvent.type) {
-            case 0x20:
-                evt.type = 0x20;
-                alEvtqPostEvent(&sndp->evtq, &evt, sndp->frameTime);
-                break;
-            default:
-                __n_handleEvent((GeSndEvt *)&sndp->nextEvent);
-                break;
-        }
-        sndp->nextDelta = alEvtqNextEvent(&sndp->evtq, &sndp->nextEvent);
-    } while (sndp->nextDelta == 0);
-    sndp->curTime += sndp->nextDelta;
-    return sndp->nextDelta;
-}
-
 typedef struct {
     s32 attackTime;
     s32 decayTime;
@@ -134,6 +51,88 @@ typedef struct GfSndState {
     u8 flags;
     u8 state;
 } GfSndState;
+
+typedef struct GeSndEvt {
+    u16 type;
+    struct GfSndState *state;
+    union {
+        s32 i;
+        f32 f;
+    } arg8;
+    void *arg12;
+} GeSndEvt;
+
+typedef struct {
+    ALPlayer node;
+    ALEventQueue evtq;
+    ALEvent nextEvent;
+    s32 nextEventPad;
+    struct GfSndState *unk3C;
+    GfSndState *sndState;
+    s32 unk44;
+    ALMicroTime frameTime;
+    ALMicroTime nextDelta;
+    ALMicroTime curTime;
+} GeSndp;
+
+extern GeSndp *D_807563CC;
+extern GfSndState *D_807563C8;
+extern s16 *D_807FF0E4;
+ALMicroTime __n_sndpVoiceHandler(void *);
+void n_alSynAddSndPlayer(void *);
+
+void n_alSndpNew(GeSndpConfig *c) {
+    u32 i;
+    void *ptr;
+    ALEvent evt;
+
+    D_807563CC->unk44 = c->unk8;
+    D_807563CC->unk3C = 0;
+    D_807563CC->frameTime = 16000;
+    ptr = alHeapDBAlloc(0, 0, c->heap, 1, c->maxSounds * 72);
+    D_807563CC->sndState = ptr;
+    ptr = alHeapDBAlloc(0, 0, c->heap, 1, c->maxEvents * 28);
+    alEvtqNew(&D_807563CC->evtq, ptr, c->maxEvents);
+    D_807563C8 = D_807563CC->sndState;
+    for (i = 1; i < c->maxSounds; i++) {
+        GfSndState *sndState = D_807563CC->sndState;
+        alLink((ALLink *)&sndState[i], (ALLink *)&sndState[i - 1]);
+    }
+    D_807FF0E4 = alHeapDBAlloc(0, 0, c->heap, 2, c->maxStates);
+    for (i = 0; i < c->maxStates; i++) {
+        D_807FF0E4[i] = 0x7FFF;
+    }
+    D_807563CC->node.next = NULL;
+    D_807563CC->node.handler = __n_sndpVoiceHandler;
+    D_807563CC->node.clientData = D_807563CC;
+    n_alSynAddSndPlayer(D_807563CC);
+    evt.type = 0x20;
+    alEvtqPostEvent(&D_807563CC->evtq, &evt, D_807563CC->frameTime);
+    D_807563CC->nextDelta = alEvtqNextEvent(&D_807563CC->evtq, &D_807563CC->nextEvent);
+}
+
+void __n_handleEvent(GeSndEvt *);
+
+ALMicroTime __n_sndpVoiceHandler(void *node) {
+    GeSndp *sndp = node;
+    ALEvent evt;
+
+    do {
+        switch (sndp->nextEvent.type) {
+            case 0x20:
+                evt.type = 0x20;
+                alEvtqPostEvent(&sndp->evtq, &evt, sndp->frameTime);
+                break;
+            default:
+                __n_handleEvent((GeSndEvt *)&sndp->nextEvent);
+                break;
+        }
+        sndp->nextDelta = alEvtqNextEvent(&sndp->evtq, &sndp->nextEvent);
+    } while (sndp->nextDelta == 0);
+    sndp->curTime += sndp->nextDelta;
+    return sndp->nextDelta;
+}
+
 
 extern s16 D_807563D0;
 extern GfSndState *D_807563C4;
@@ -448,7 +447,7 @@ u16 n_alSndpCountStates(u16 *outFree, u16 *outUsed) {
     u16 freeCount;
     u16 tailCount;
     GfSndState *p0 = D_807563C0;
-    GfSndState *p8 = (GfSndState *)D_807563C8;
+    GfSndState *p8 = D_807563C8;
     GfSndState *p4 = D_807563C4;
 
     for (usedCount = 0; p0; usedCount++, p0 = p0->next) {
@@ -471,9 +470,9 @@ GfSndState *__n_allocState(void *sndp, GeSndSound *sound) {
     s32 intMask;
 
     intMask = osGetIntMask(1);
-    state = (GfSndState *)D_807563C8;
+    state = D_807563C8;
     if (state) {
-        D_807563C8 = (u8 *)state->next;
+        D_807563C8 = state->next;
         alUnlink((ALLink *)state);
         if (D_807563C0) {
             state->next = D_807563C0;
@@ -521,14 +520,14 @@ void __n_freeState(GfSndState *state) {
     }
     alUnlink((ALLink *)state);
     if (D_807563C8) {
-        state->next = (GfSndState *)D_807563C8;
+        state->next = D_807563C8;
         state->prev = 0;
-        ((GfSndState *)D_807563C8)->prev = state;
-        D_807563C8 = (u8 *)state;
+        D_807563C8->prev = state;
+        D_807563C8 = state;
     } else {
         state->prev = 0;
         state->next = state->prev;
-        D_807563C8 = (u8 *)state;
+        D_807563C8 = state;
     }
     if (state->flags & 4) {
         D_807563D0--;
