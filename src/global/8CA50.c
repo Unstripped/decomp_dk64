@@ -17,9 +17,8 @@ void animListInit(Actor *actor, AnimInitData *initData) {
     s32 i;
     s32 alloc_size;
     void *res;
-    void **unk0;
-    void **unk4;
-    u8 unk;
+    void **itemSlot;
+    void **bufferSlot;
 
     if (actor->animList != NULL) {
         if (gCurrentMap == 0x50 || gPlayerCount >= 2) {
@@ -32,7 +31,6 @@ void animListInit(Actor *actor, AnimInitData *initData) {
     next_ptr = &actor->animList;
     count = *src++;
     if (count != 0) {
-        unk = 1;
         do {
             node = heapAlloc(sizeof(AnimNode));
             *next_ptr = node;
@@ -43,7 +41,7 @@ void animListInit(Actor *actor, AnimInitData *initData) {
             node->subframe = 0.0f;
             node->loopLimit = 0;
             node->loopCount = 0;
-            node->finished = unk;
+            node->finished = 1;
             node->direction = 0;
             node->loopMode = 0;
             node->itemCount = num;
@@ -55,17 +53,17 @@ void animListInit(Actor *actor, AnimInitData *initData) {
             src += 3;
             node->items = heapAlloc(alloc_size);
             node->buffers = heapAlloc(alloc_size);
-            unk0 = node->items;
-            unk4 = node->buffers;
+            itemSlot = node->items;
+            bufferSlot = node->buffers;
             i = 0;
             if (num > 0) {
                 do {
-                    res = assetLoad(0x19, *src, unk, 0);
+                    res = assetLoad(0x19, *src, 1, 0);
                     i++;
-                    *unk0 = res;
-                    *unk4 = res;
-                    unk0++;
-                    unk4++;
+                    *itemSlot = res;
+                    *bufferSlot = res;
+                    itemSlot++;
+                    bufferSlot++;
                     src++;
                 } while (i != num);
             }
@@ -76,15 +74,15 @@ void animListInit(Actor *actor, AnimInitData *initData) {
 
 Gfx *animSetSegments(Gfx *glist, Actor *actor) {
     AnimNode *node;
-    Gfx *temp;
+    Gfx *cmd;
 
     for (node = actor->animList; node != NULL; node = node->next) {
-        temp = glist;
+        cmd = glist;
         if (node->bindSegment != 0) {
             void *addr = node->items[node->frame];
-            temp->words.w0 = 0xDB060000 | ((node->segment * 4) & 0xFFFF);
+            cmd->words.w0 = 0xDB060000 | ((node->segment * 4) & 0xFFFF);
             glist++;
-            temp->words.w1 = osVirtualToPhysical(addr);
+            cmd->words.w1 = osVirtualToPhysical(addr);
         }
     }
     return glist;
@@ -163,7 +161,7 @@ void animNodeAdvanceTime(AnimNode *node) {
 
         node->subframe -= node->speed;
         subframe = node->subframe;
-        if ((f64)subframe < 0.0) {
+        if (subframe < 0.0) {
             u32 step = (s32)subframe - 1;
             node->frame += step;
             node->subframe = subframe - (f32)(s32)step;
@@ -173,7 +171,7 @@ void animNodeAdvanceTime(AnimNode *node) {
             endFrame = node->endFrame;
             loopLimit = node->loopLimit;
             loopCount = negFrame / endFrame;
-            node->loopCount = (s16)(node->loopCount + loopCount + 1);
+            node->loopCount = node->loopCount + loopCount + 1;
             if (node->loopCount >= loopLimit && loopLimit != -1) {
                 node->frame = 0;
                 node->finished = 1;

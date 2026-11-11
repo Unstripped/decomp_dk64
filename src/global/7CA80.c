@@ -170,7 +170,7 @@ typedef struct ActorSpawnInfo {
     f32 z;
     s16 yaw;
     s16 spawnTimer;
-    s32 spawnData;
+    void *spawnData;
 } ActorSpawnInfo;
 extern u8 D_8074D8D4[];
 extern s32 (*D_8074DA30[])(s32 *);
@@ -692,7 +692,15 @@ void actorRegisterGlobalCallback(ActorCallbackNode *node) {
 void actorGlobalCallbacksDispatchAndFree(id)
 u8 id;
 {
-    ActorCallbackNode **ptr = D_807FBFE0; do { if (((*ptr) != 0) && ((*ptr)->unk4 == id)) { ((void (*)(void *)) (*ptr)->callback)(&(*ptr)->source); heapFree(*ptr); *ptr = 0; } ptr++; } while (ptr != ((ActorCallbackNode **) (&D_807FBFF0))); // LAYOUT: one-line statement line coordinates steer mirrored-pair scheduling
+    s32 i;
+
+    for (i = 0; i < 4; i++) {
+        if (D_807FBFE0[i] != NULL && D_807FBFE0[i]->unk4 == id) {
+            ((void (*)(void *))D_807FBFE0[i]->callback)(&D_807FBFE0[i]->source);
+            heapFree(D_807FBFE0[i]);
+            D_807FBFE0[i] = NULL;
+        }
+    }
 }
 
 void actorFreeCallbackList(Actor *actor) {
@@ -1172,7 +1180,7 @@ void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
                 }
             }
             if (queueReaction != 0) {
-                playerStateQueueCallback((s16)reaction, (s32)attacker, gCurrentPlayerIndex);
+                playerStateQueueCallback(reaction, attacker, gCurrentPlayerIndex);
             }
         }
     }
@@ -1606,18 +1614,16 @@ extern s16 gCurrentCharacterIndex;
 
 void playerSetActiveGlobals(Actor *actor) {
     u8 character;
-    PlayerStruct *player;
 
     gActivePlayerState = actor->customState;
     gCurrentPlayerIndex = gActivePlayerState->playerIndex;
     character = gPlayerCharacterId[gCurrentPlayerIndex];
-    player = (PlayerStruct *)gPlayerSlots + gCurrentPlayerIndex;  // FAKE: same-type cast steers uopt t0/t9 for the slot base/offset
-    gActivePlayerActor = player->actor;
+    gActivePlayerActor = gPlayerSlots[gCurrentPlayerIndex].actor;
     D_807FD568 = &gPlayerInventoryTable[gCurrentPlayerIndex].kong[character];
-    D_807ECDEC = player->contPad;
-    D_807ECDF0 = *player->heldButtonsPtr;
+    D_807ECDEC = gPlayerSlots[gCurrentPlayerIndex].contPad;
+    D_807ECDF0 = *gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr;
     gCurrentCharacterIndex = D_8075C414[character].unk0;
-    player->sizeModeDirty = 0;
+    gPlayerSlots[gCurrentPlayerIndex].sizeModeDirty = 0;
 }
 
 u8 playerFindIndexByActor(Actor *actor) {

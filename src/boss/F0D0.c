@@ -55,7 +55,7 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *sub14, u8 *waypointIndices) {
     min_dist = 0x98967F;
     start_val = val;
     for (i = 0; i < 16; i++) {
-        dists[i] = (s32)(((f32)D_807FDCA0->entries[i].x - gPrimaryPlayerActor->x) * ((f32)D_807FDCA0->entries[i].x - gPrimaryPlayerActor->x) + ((f32)D_807FDCA0->entries[i].z - gPrimaryPlayerActor->z) * ((f32)D_807FDCA0->entries[i].z - gPrimaryPlayerActor->z));
+        dists[i] = (D_807FDCA0->entries[i].x - gPrimaryPlayerActor->x) * (D_807FDCA0->entries[i].x - gPrimaryPlayerActor->x) + (D_807FDCA0->entries[i].z - gPrimaryPlayerActor->z) * (D_807FDCA0->entries[i].z - gPrimaryPlayerActor->z);
         if (dists[i] < min_dist) {
             min_dist = dists[i];
             waypointIndices[3] = i;
@@ -67,8 +67,8 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *sub14, u8 *waypointIndices) {
         return center.b[(randomNonNegative() >> 15) % 4];
     }
 
-    diff_row = (s8)((s32)waypointIndices[0] / 4 - (s32)waypointIndices[3] / 4);
-    diff_col = (s8)((s32)waypointIndices[0] % 4 - (s32)waypointIndices[3] % 4);
+    diff_row = waypointIndices[0] / 4 - waypointIndices[3] / 4;
+    diff_col = waypointIndices[0] % 4 - waypointIndices[3] % 4;
 
     if (diff_row > 0) {
         val -= 4;
@@ -140,7 +140,7 @@ void bossInterpolateWaypoints(u8 *waypointPair, f32 progress) {
 void bossSpawnPuffDebris(void) {
     f32 scale;
 
-    scale = (f32) ((f64) gCurrentActor->sub4->scaleY / 0.15);
+    scale = gCurrentActor->sub4->scaleY / 0.15;
     effectSetMode(2);
     effectSetCallback(&effectPuffRiseUpdate);
     effectSetDepth(1);
@@ -180,10 +180,10 @@ u8 stateByte;
     }
 
     if (pairArray[4] != 0) {
-        csModelStateSetFirstByte((s16)pairArray[4], stateByte);
+        csModelStateSetFirstByte(pairArray[4], stateByte);
     }
     if (pairArray[5] != 0) {
-        csModelStateSetFirstByte((s16)pairArray[5], stateByte);
+        csModelStateSetFirstByte(pairArray[5], stateByte);
     }
     if (stateByte == 0) {
         pairArray[4] = 0;

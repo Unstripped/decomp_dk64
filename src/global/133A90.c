@@ -226,7 +226,7 @@ void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowB
         got = proxPathGetActorPosition(node->owner, node->slotType, &x, &y, &z);
         dx = playerActor->x - x;
         dy = playerActor->y - y;
-                dz = playerActor->z - z;
+        dz = playerActor->z - z;
         dist = sqrtf(dx * dx + dy * dy + dz * dz);
         if (dist < node->attachDist && node->enabled != 0) {
             if (node->pathType == 1 || (allowBoss != 0 && (node->owner->flags & 0x04000000))) {
@@ -480,7 +480,7 @@ void proxPathAdvance(f32 speedMultiplier) {
     gActivePlayerState->unk128 = node->paramD;
     gActivePlayerState->unk12C = node->paramE;
     step = gFrameDelta * 0.5;
-    gActivePlayerState->pathDist = gActivePlayerState->pathDist + node->moveSpeed * step * speedMultiplier;
+    gActivePlayerState->pathDist += node->moveSpeed * step * speedMultiplier;
     gActivePlayerActor->contactFlags &= ~0x80;
     if (node->maxDist < gActivePlayerState->pathDist) {
         if (node->endBehavior == 1 || node->endBehavior == 3) {
@@ -668,7 +668,7 @@ void proxPathActorFollowSpline(Actor *actor, PlayerState *state, ProxPath *path,
         mtxLerpL(&prevMtx, &curMtx, 1.0 - state->unk148, &blendMtx);
         guMtxL2F(actor->modelMtx, &blendMtx);
     }
-    state->unk148 = state->unk148 + 0.1;
+    state->unk148 += 0.1;
     if (state->unk148 > 1.0) {
         state->unk148 = one;
     }
