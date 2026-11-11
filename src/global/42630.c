@@ -659,7 +659,7 @@ extern PlayerStruct *gPlayerSlots;
 extern u8 *D_807FD568;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern u8 gPlayerInventoryTable[];
+extern PlayerInventory gPlayerInventoryTable[];
 extern u8 gGameMode;
 extern u8 gPlayerCharacterId;
 extern s16 D_8076AEF2;
@@ -800,8 +800,8 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x34:
-        h = playerLookupKongByActorType(cmd->a) * 0x5E;
-        q = &gPlayerInventoryTable[gCurrentPlayerIndex * 0x306 + h];
+        h = playerLookupKongByActorType(cmd->a);
+        q = gPlayerInventoryTable[gCurrentPlayerIndex].kong[h].unk0;
         if (*q >= cmd->b) {
             ret = 1;
         } else {

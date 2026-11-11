@@ -52,21 +52,6 @@ typedef struct MpControllerState {
     u8 unk70;
 } MpControllerState;
 
-// gPlayerInventoryTable: per-player score array, stride 0x306.
-typedef struct MpScore {
-    char pad0[0x2F0];
-    s16 unk2F0;
-    s16 unk2F2;
-    s16 unk2F4;
-    s16 unk2F6;
-    char pad2F8[2];
-    s8 unk2FA;
-    s8 unk2FB;
-    s8 unk2FC;
-    s8 unk2FD;
-    u16 unk2FE[4];
-} MpScore;
-
 typedef struct MpSettings {
     s32 unk0;
     s32 unk4;
@@ -80,7 +65,7 @@ extern s16 gScreenHeight;
 extern u8 D_1000118[];
 extern u8 D_20000C0[];
 
-extern MpScore gPlayerInventoryTable[];
+extern PlayerInventory gPlayerInventoryTable[];
 extern u8 gPlayerCount;
 extern s32 gGlobalPauseFlags;
 extern s8 D_8076A105;
@@ -132,14 +117,14 @@ Gfx *mpDrawTimer(Gfx *glistp, Actor *controller) {
     return renderTimerMinutesSecondsHUD(glistp, posX, posY, state->unk8);
 }
 
-s32 mpCalcKillScore(MpScore *score, s32 playerIndex) {
+s32 mpCalcKillScore(PlayerInventory *score, s32 playerIndex) {
     s32 netKills;
     s32 i;
 
-    netKills = -score->unk2FE[playerIndex];
+    netKills = -score->kills[playerIndex];
     for (i = 0; i < 4; i++) {
         if (i != playerIndex) {
-            netKills += score->unk2FE[i];
+            netKills += score->kills[i];
         }
     }
     return netKills;
@@ -251,7 +236,7 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
     s32 alpha;
     G00Entry *viewport;
     PlayerStruct *player;
-    MpScore *score;
+    PlayerInventory *score;
     MpControllerState *statePtr;
 
     gDPPipeSync(glistp++);
@@ -292,7 +277,7 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
                     if (D_1000118) {}  // FAKE: deadsweep dead statement (steers uopt)
                 }
                 y = viewport->unk6 + 8;
-                half = score->unk2FB;
+                half = score->health;
                 if (half < 0) {
                     count = 0;
                 } else {
@@ -474,7 +459,7 @@ s32 mpUpdateScoreEffects(void) {
     s32 i;
     s32 ret = -1;
     s32 totalScore;
-    MpScore *score;
+    PlayerInventory *score;
     PlayerState *playerState;
     s32 boneIndex;
     void *callback;
@@ -485,7 +470,7 @@ s32 mpUpdateScoreEffects(void) {
             playerState = gPlayerSlots[i].actor->customState;
             score = &gPlayerInventoryTable[i];
             if (slotQueueGetValue(1, i) != 0) {
-                totalScore = score->unk2FD + score->unk2FB;
+                totalScore = score->healthDelta + score->health;
                 if (playerState->scoreEffect == 0) {
                     callback = (void *)(s32)&D_8071F3C0; // FAKE: cast round-trip keeps the hoisted address register
                     switch (gPlayerCharacterId[i]) {
@@ -977,7 +962,7 @@ void mpSetFlags(u8 flags) {
 
 extern PlayerState *gActivePlayerState;
 
-void mpResetPlayerOnRespawn(Actor *playerActor, PlayerState *kongState, MpScore *playerScore) {
+void mpResetPlayerOnRespawn(Actor *playerActor, PlayerState *kongState, PlayerInventory *playerScore) {
     playerScore->unk2F6 = 0;
     playerScore->unk2F0 = 0;
     playerScore->unk2F4 = 0;
@@ -1007,11 +992,11 @@ void mpDropItemsOnHit(u8 playerIndex, s8 dropCount) {
     s32 ammoCount;
     s32 orangeCount;
     Actor *playerActor;
-    MpScore *score;
+    PlayerInventory *score;
 
     playerActor = gPlayerSlots[playerIndex].actor;
     score = &gPlayerInventoryTable[playerIndex];
-    ammoCount = score->unk2FB + score->unk2FD + dropCount;
+    ammoCount = score->health + score->healthDelta + dropCount;
     orangeCount = score->unk2FA - ammoCount;
     if (slotQueueGetValue(1, playerIndex) != 0 && (ammoCount <= 0 || orangeCount >= 2)) {
         ctrl = ((Actor *)actorFindByType(0x13E))->customState;
@@ -1088,7 +1073,7 @@ s32 mpFindFurthestSpawn(s32 playerIndex) {
 
 void mpRespawnPlayer(Actor *playerActor, s32 playerIndex) {
     if (D_807552E4.unk4 == 4 && mpGetPlayerScore(playerIndex) == 0) {
-        gPlayerInventoryTable[playerIndex].unk2FB = 0;
+        gPlayerInventoryTable[playerIndex].health = 0;
         playerActor->unk155++;
         playerStateQueueCallback(0x5B, 0, playerIndex);
         playerActor->unk144 = 1;
@@ -1104,20 +1089,20 @@ void mpCreditKill(u8 victimIndex, s8 killerIndex) {
     void *points;
     s32 pad0;
     s32 pad1;
-    MpScore *victimScore;
+    PlayerInventory *victimScore;
     PlayerStruct *victimPlayer;
     Actor *killer;
     PlayerState *killerState;
 
     victimScore = &gPlayerInventoryTable[victimIndex];
     victimPlayer = &gPlayerSlots[victimIndex];
-    if (victimScore->unk2FB + victimScore->unk2FD > 0) {
+    if (victimScore->health + victimScore->healthDelta > 0) {
         if (victimPlayer->queuedActor != NULL) {
             killer = actorResolveKillCreditOwner(victimPlayer->queuedActor);
             if (killer != NULL && killer->collisionFlags == 1) {
                 killerState = killer->customState;
-                if (victimScore->unk2FB + victimScore->unk2FD + killerIndex <= 0) {
-                    gPlayerInventoryTable[killerState->playerIndex].unk2FE[victimIndex]++;
+                if (victimScore->health + victimScore->healthDelta + killerIndex <= 0) {
+                    gPlayerInventoryTable[killerState->playerIndex].kills[victimIndex]++;
                 }
             }
         }

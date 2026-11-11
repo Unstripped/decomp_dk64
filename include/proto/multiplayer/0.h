@@ -5,12 +5,11 @@
 #include "actor.h"
 struct MpControllerState;
 struct MpMapEntry;
-struct MpScore;
 #ifndef PROTO_SKIP_mpDrawTimer
 Gfx *mpDrawTimer(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_mpCalcKillScore
-s32 mpCalcKillScore(struct MpScore *, s32);
+s32 mpCalcKillScore(PlayerInventory *, s32);
 #endif
 #ifndef PROTO_SKIP_mpGetPlayerScore
 s32 mpGetPlayerScore(s32);
@@ -79,7 +78,7 @@ void mpUpdate(void);
 void mpSetFlags(u8);
 #endif
 #ifndef PROTO_SKIP_mpResetPlayerOnRespawn
-void mpResetPlayerOnRespawn(Actor *, PlayerState *, struct MpScore *);
+void mpResetPlayerOnRespawn(Actor *, PlayerState *, PlayerInventory *);
 #endif
 #ifndef PROTO_SKIP_mpDeductDeathPenalty
 void mpDeductDeathPenalty(PlayerState *);

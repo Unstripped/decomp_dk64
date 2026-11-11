@@ -795,6 +795,21 @@ typedef struct KongInventory {
     /* 0x42 */ u16 unk42[14];
 } KongInventory; /* sizeof 0x5E */
 
+// One player's 0x306-byte block of gPlayerInventoryTable: eight kong rows, then the shared counters.
+typedef struct PlayerInventory {
+    /* 0x000 */ KongInventory kong[8];
+    /* 0x2F0 */ s16 unk2F0;
+    /* 0x2F2 */ s16 unk2F2;
+    /* 0x2F4 */ s16 unk2F4;
+    /* 0x2F6 */ s16 unk2F6;
+    /* 0x2F8 */ s16 unk2F8;
+    /* 0x2FA */ s8 unk2FA; // multiplayer: best total (health + healthDelta) so far
+    /* 0x2FB */ s8 health; // melon pips left
+    /* 0x2FC */ u8 melons; // melon count (health capacity = melons * per-melon)
+    /* 0x2FD */ s8 healthDelta; // pending change, applied by healthApplyPendingDelta
+    /* 0x2FE */ u16 kills[4]; // multiplayer: kills of each player
+} PlayerInventory; // size = 0x306
+
 // camSetTarget's parameter block inside CamState (0x44).
 typedef struct CamTargetBlock {
     /* 0x00 */ struct Actor *unk0;

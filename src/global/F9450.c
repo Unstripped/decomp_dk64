@@ -108,14 +108,6 @@ typedef struct DelayedSpawn {
     s32 timer;
 } DelayedSpawn; // size = 0x14
 
-// One player's 0x306-byte block of gPlayerInventoryTable.
-typedef struct PlayerInventory {
-    KongInventory kong[8];
-    u8 pad2F0[0xB];
-    s8 unk2FB;
-    u8 pad2FC[0xA];
-} PlayerInventory; // size = 0x306
-
 extern PlayerInventory gPlayerInventoryTable[];
 
 void gridRebuildNodeLists(void) {
@@ -855,7 +847,7 @@ void gridDispatchRect(u8 playerIndex, GridBounds *bounds) {
     f32 radius;
     s32 cell;
 
-    if (gPlayerInventoryTable[playerIndex].unk2FB > 0) {
+    if (gPlayerInventoryTable[playerIndex].health > 0) {
         radius = bounds->radius;
         x = bounds->x;
         if (x <= ((f32) D_807FD726 + radius)) {
@@ -1177,7 +1169,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
 
     player = gPlayerSlots[playerIndex].actor;
     playerSub = player->customState;
-    if (gPlayerInventoryTable[playerIndex].unk2FB > 0) {
+    if (gPlayerInventoryTable[playerIndex].health > 0) {
         for (k = 0; k < 0x2A; k++) {
             if (D_80753EF0[k].actorType != 0) {
                 for (i = 0; i < gActiveActorCount; i++) {

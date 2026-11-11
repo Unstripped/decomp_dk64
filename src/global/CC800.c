@@ -141,16 +141,6 @@ G00Entry *cameraFindViewportEntry(u8 playerIndex) {
     return &D_80750948[i];
 }
 
-// One player's 0x306-byte block of gPlayerInventoryTable: six KongInventory rows, then shared counters.
-typedef struct PlayerInventory {
-    /* 0x000 */ KongInventory kong[6];
-    /* 0x234 */ u8 pad234[0xC7];
-    /* 0x2FB */ s8 unk2FB;
-    /* 0x2FC */ u8 unk2FC;
-    /* 0x2FD */ s8 unk2FD;
-    /* 0x2FE */ u8 pad2FE[8];
-} PlayerInventory; // size = 0x306
-
 extern PlayerInventory gPlayerInventoryTable[];
 extern OSContPad D_807ECD10[];
 extern u16 D_807ECD48[];
@@ -222,7 +212,7 @@ void playerAllocSlots(s32 spawnIndex) {
         blk->unk2EB = 0;
         hudDrawItemWithAlpha(blk->unk2DC);
         if (((gGlobalOverlayFlags & 1) && !(gGlobalCutsceneFlags & 2)) ||
-            (gPlayerInventoryTable[i].unk2FB + gPlayerInventoryTable[i].unk2FD <= 0)) {
+            (gPlayerInventoryTable[i].health + gPlayerInventoryTable[i].healthDelta <= 0)) {
             healthRefill(sel);
         }
     }
@@ -890,9 +880,9 @@ s32 func_806C9974(u8 playerIndex, s8 delta) {
         rumbleRequest(playerIndex, 0xFF, 5);
     }
     if (!(gGlobalOverlayFlags & 0x800)) {
-        gPlayerInventoryTable[playerIndex].unk2FD += delta;
+        gPlayerInventoryTable[playerIndex].healthDelta += delta;
     }
-    if (gPlayerInventoryTable[playerIndex].unk2FD + gPlayerInventoryTable[playerIndex].unk2FB <= 0) {
+    if (gPlayerInventoryTable[playerIndex].healthDelta + gPlayerInventoryTable[playerIndex].health <= 0) {
         pl->unk2E2 |= 0xC0;
         return 1;
     }
@@ -919,9 +909,9 @@ void playerResetSpawnGlobals(void) {
             for (j = 0; j < 6; j++) {
                 p->kong[j].unk0[1] = 1;
             }
-            p->unk2FC = 1;
+            p->melons = 1;
         } else {
-            p->unk2FC = 1;
+            p->melons = 1;
         }
         healthRefill(i);
         p++;

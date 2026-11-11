@@ -1591,11 +1591,6 @@ void actorTableSort(void) {
     } while (!done);
 }
 
-typedef struct PlayerInventory {
-    KongInventory kongs[8];
-    u8 pad[0x306 - 8 * 0x5E];
-} PlayerInventory;
-
 typedef struct PlayerContext5C414 {
     s32 unk0;
     u8 pad4[12];
@@ -1618,7 +1613,7 @@ void playerSetActiveGlobals(Actor *actor) {
     character = gPlayerCharacterId[gCurrentPlayerIndex];
     player = (PlayerStruct *)gPlayerSlots + gCurrentPlayerIndex;  // FAKE: same-type cast steers uopt t0/t9 for the slot base/offset
     gActivePlayerActor = player->actor;
-    D_807FD568 = &gPlayerInventoryTable[gCurrentPlayerIndex].kongs[character];
+    D_807FD568 = &gPlayerInventoryTable[gCurrentPlayerIndex].kong[character];
     D_807ECDEC = player->contPad;
     D_807ECDF0 = *player->heldButtonsPtr;
     gCurrentCharacterIndex = D_8075C414[character].unk0;

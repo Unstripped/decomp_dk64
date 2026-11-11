@@ -749,7 +749,7 @@ void eepromSaveRecordsOffset(void) {
     eepromSaveRecords(1);
 }
 
-extern KongInventory gPlayerInventoryTable[];
+extern PlayerInventory gPlayerInventoryTable[];
 extern u8 D_807FC952;
 extern u8 gPlayerCharacterId;
 
@@ -758,25 +758,25 @@ void eepromHalveRecords(void) {
 
     if (func_806F6EDC() != 0) {
         u32 v = slotQueueGetMaxValue(5, 0);
-        *(s16 *)((u8 *)gPlayerInventoryTable + 0x2F6) = (u32)(v * 0.5);
+        gPlayerInventoryTable[0].unk2F6 = (u32)(v * 0.5);
     }
     if (flagGet(0x184, 0) != 0) {
         u32 v = slotQueueGetMaxValue(4, 0);
-        *(s16 *)((u8 *)gPlayerInventoryTable + 0x2F4) = (u32)(v * 0.5);
+        gPlayerInventoryTable[0].unk2F4 = (u32)(v * 0.5);
     }
     if (flagGet(0x179, 0) != 0) {
         u32 v = slotQueueGetMaxValue(6, 0);
-        *(s16 *)((u8 *)gPlayerInventoryTable + 0x2F8) = (u32)(v * 0.5);
+        gPlayerInventoryTable[0].unk2F8 = (u32)(v * 0.5);
     }
     if (D_807FC952 != 0) {
         u32 v = slotQueueGetMaxValue(2, 0);
-        *(s16 *)((u8 *)gPlayerInventoryTable + 0x2F0) = (u32)(v * 0.5);
+        gPlayerInventoryTable[0].unk2F0 = (u32)(v * 0.5);
     }
     for (i = 0; i != 5; i++) {
         gPlayerCharacterId = i;
-        if (gPlayerInventoryTable[i].unk0[4] != 0) {
+        if (gPlayerInventoryTable[0].kong[i].unk0[4] != 0) {
             u32 v = slotQueueGetMaxValue(7, 0);
-            gPlayerInventoryTable[i].unk8 = (u32)(v * 0.5);
+            gPlayerInventoryTable[0].kong[i].unk8 = (u32)(v * 0.5);
         }
     }
     gPlayerCharacterId = 0;
@@ -794,7 +794,7 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
     s32 j;
     s32 k;
 
-    base = gPlayerInventoryTable;
+    base = gPlayerInventoryTable[0].kong;
     entry = base;
     gActivePlayerCount = 1;
     playerResetSpawnGlobals();
@@ -808,7 +808,7 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
         eepromCopySlot();
     }
     gPlayerCount = 0;
-    ((u8 *)gPlayerInventoryTable)[0x2FC] = eepromGetField(0xC, 0, 0, slot);
+    gPlayerInventoryTable[0].melons = eepromGetField(0xC, 0, 0, slot);
     healthRefill(0);
     collectibleCountsClear();
     D_80750AB0 = eepromGetField(0xE, 0, 0, slot);
@@ -850,7 +850,7 @@ void eepromSavePlayerData(void) {
 
     if (gPlayerCount == 1) {
         if (menuIsTransitionType7Or9() != 0 || menuIsTransitionType6() != 0) {
-            entry = gPlayerInventoryTable;
+            entry = gPlayerInventoryTable[0].kong;
             total = gfxSetupFrameViewports();
             value = func_8060C724(D_807467C8);
             if (total >= 0x400000U) {
@@ -858,7 +858,7 @@ void eepromSavePlayerData(void) {
             }
             eepromSetField(0xD, 0, 0, D_807467C8, 1);
             eepromSetField(0xE, 0, 0, D_807467C8, total);
-            eepromSetField(0xC, 0, 0, D_807467C8, ((u8 *)gPlayerInventoryTable)[0x2FC]);
+            eepromSetField(0xC, 0, 0, D_807467C8, gPlayerInventoryTable[0].melons);
             eepromSetField(0xF, 0, 0, D_807467C8, D_807467C8);
             eepromSetField(0x10, 0, 0, D_807467C8, value);
             i = 0;
