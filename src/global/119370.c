@@ -745,12 +745,12 @@ void effectFreeAndUnlink(EffectNode *effect) {
 
     if (effect->mode == 0) {
         if (effect->flags & 4) {
-            renderEntryRemove(0, (s32)effect, 4, &layer - 8);
+            renderEntryRemove(0, effect, 4, &layer - 8);
         } else {
             func_8062D26C(effect);
         }
     } else {
-        renderEntryRemove(0, (s32)effect, 3, &layer - 8);
+        renderEntryRemove(0, effect, 3, &layer - 8);
     }
     allocation = effect->allocation;
     if (allocation != NULL) {

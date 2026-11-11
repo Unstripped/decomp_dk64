@@ -630,7 +630,7 @@ s32 mapChunkContainsPoint(s16 x, s16 y, s16 chunk) {
 }
 
 typedef struct MapActorEntry {
-    /* 0x000 */ s32 owner;
+    /* 0x000 */ void *owner;
     /* 0x004 */ f32 x;
     /* 0x008 */ f32 y;
     /* 0x00C */ f32 z;
@@ -665,7 +665,7 @@ void mapChunkUpdateEntryNode(MapActorEntry *entry) {
 }
 
 
-void mapChunkMarkRenderEntry(s32 entryId, u8 value) {
+void mapChunkMarkRenderEntry(void *entryId, u8 value) {
     u8 flag;
     s32 i;
 
@@ -679,7 +679,7 @@ void mapChunkMarkRenderEntry(s32 entryId, u8 value) {
 }
 
 
-u8 mapChunkPurgeNodeList(s32 entryId, s16 *outChunk, u8 all) {
+u8 mapChunkPurgeNodeList(void *entryId, s16 *outChunk, u8 all) {
     u8 flag;
     s32 i;
 

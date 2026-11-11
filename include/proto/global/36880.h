@@ -6,7 +6,6 @@
 struct DisplayListCmd;
 struct ModelAssetData;
 struct ModelChainOwner;
-struct ModelFlagNode;
 struct ModelLinkedNode;
 struct ModelNodeBufferOwner;
 struct ModelPathTable;
@@ -56,7 +55,7 @@ s16 modelSlotsAllocate(s32, u8);
 void modelSlotsLoadMap(u8 *, s32, u8, u16, u8);
 #endif
 #ifndef PROTO_SKIP_modelNodeListSyncFlags
-void modelNodeListSyncFlags(struct ModelFlagNode *);
+void modelNodeListSyncFlags(RenderEntry *);
 #endif
 #ifndef PROTO_SKIP_func_8063253C
 s32 func_8063253C(s16, s32);

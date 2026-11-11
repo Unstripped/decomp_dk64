@@ -4,7 +4,6 @@
 #include "common.h"
 #include "actor.h"
 #include "render.h"
-struct GfxWords;
 #ifndef PROTO_SKIP_renderEntryListsReset
 void renderEntryListsReset(void);
 #endif
@@ -15,10 +14,10 @@ s32 renderEntryIsTranslucent(u8, u8 *);
 void renderEntryListFreeTranslucent(void);
 #endif
 #ifndef PROTO_SKIP_renderEntryAddOrUpdate
-struct RenderEntry *renderEntryAddOrUpdate(struct RenderEntry *, u8, s32, f32, f32, f32, s16, s16, u8, s16, u8);
+RenderEntry *renderEntryAddOrUpdate(RenderEntry *, u8, void *, f32, f32, f32, s16, s16, u8, s16, u8);
 #endif
 #ifndef PROTO_SKIP_renderEntryRemove
-struct RenderEntry *renderEntryRemove(struct RenderEntry *, s32, u8, u8 *);
+RenderEntry *renderEntryRemove(RenderEntry *, void *, u8, u8 *);
 #endif
 #ifndef PROTO_SKIP_renderEntryListFree
 void renderEntryListFree(struct RenderEntry *);
@@ -30,16 +29,16 @@ struct RenderEntry *renderEntryListPurgeUntouched(struct RenderEntry *);
 void renderEntryListClearTouched(struct RenderEntry *);
 #endif
 #ifndef PROTO_SKIP_renderEntrySetDistanceOverride
-void renderEntrySetDistanceOverride(RenderEntry *, s32, u8, u8, u8 *);
+void renderEntrySetDistanceOverride(RenderEntry *, void *, u8, u8, u8 *);
 #endif
 #ifndef PROTO_SKIP_renderEntryListSortByDistance
 struct RenderEntry *renderEntryListSortByDistance(struct RenderEntry *, f32, f32, f32, struct RenderEntry **);
 #endif
 #ifndef PROTO_SKIP_renderEntryListBuildDisplayList
-struct GfxWords *renderEntryListBuildDisplayList(struct GfxWords *, struct RenderEntry *, f32, f32, f32, s32, s16, u8);
+Gfx *renderEntryListBuildDisplayList(Gfx *, RenderEntry *, f32, f32, f32, s32, s16, u8);
 #endif
 #ifndef PROTO_SKIP_renderActorEntryBuildDisplayList
-void *renderActorEntryBuildDisplayList(s32, void *, struct GfxWords *, u8);
+void *renderActorEntryBuildDisplayList(s32, void *, Gfx *, u8);
 #endif
 #ifndef PROTO_SKIP_actorBuildModelMatrix
 void actorBuildModelMatrix(Actor *, f32 *);

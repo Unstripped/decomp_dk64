@@ -707,7 +707,7 @@ void viewportSetFromRect(s16 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     arg0[7] = 0;
 }
 
-extern s32 D_807F5FF8;
+extern RenderEntry *D_807F5FF8;
 extern u8 D_807F6009;
 
 
@@ -729,7 +729,7 @@ typedef struct MapLeafLists {
     s16 unk6E;
 } MapLeafLists;
 
-extern s32 D_807F5FFC;
+extern RenderEntry *D_807F5FFC;
 
 struct RawGfxCmd;
 
@@ -755,7 +755,7 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 a
                 gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
                 gfx = mapViewDrawPass(gfx, (struct MapViewEntries *)arg1, 1);
                 gfx = fogRender(gfx);
-                gfx = (Gfx *)mapChunkEmitSegmentCommands((struct RawGfxCmd *)gfx, 0xFF);
+                gfx = mapChunkEmitSegmentCommands(gfx, 0xFF);
                 if (MAP_LEAF(arg1)->unk8 != -1) {
                     gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(arg1)->unk8));
                 }
@@ -776,7 +776,7 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 a
             gfx = spriteListRender(gfx, arg2->unk8);
             gfx = billboardRenderQueued(gfx, -1);
             D_807F6009 = 0xFF;
-            gfx = renderEntryListBuildDisplayList(gfx, (s32)arg2->unk4, arg3, arg4, arg5, arg6, -1, 0);
+            gfx = renderEntryListBuildDisplayList(gfx, arg2->unk4, arg3, arg4, arg5, arg6, -1, 0);
             if (arg6 & 0x10) {
                 gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
                 gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
@@ -845,12 +845,12 @@ Gfx *mapViewDrawPass(Gfx *gfx, MapViewEntries *arg1, u8 arg2) {
 }
 
 
-void func_8062D094(s32 arg0, u8 arg1) {
+void func_8062D094(void *arg0, u8 arg1) {
     func_8062D0CC(D_807F5DE4, D_807F5E60, arg0, arg1);
 }
 
 
-u8 func_8062D0CC(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, u8 arg3) {
+u8 func_8062D0CC(MapBspNode *arg0, MapVisNode *arg1, void *arg2, u8 arg3) {
     u8 pad;
     u8 found;
 
@@ -905,7 +905,7 @@ void mapTreeResolveNodeAssets(MapBspNode *arg0, MapVisNode *arg1) {
 }
 
 
-void func_8062D26C(s32 arg0) {
+void func_8062D26C(void *arg0) {
     u8 removed;
     s16 count;
 
@@ -914,12 +914,12 @@ void func_8062D26C(s32 arg0) {
 }
 
 
-s32 mapPurgeNodeList(s32 arg0, s16 *arg1, u8 arg2) {
+s32 mapPurgeNodeList(void *arg0, s16 *arg1, u8 arg2) {
     return mapTreePurgeNodeList(D_807F5DE4, D_807F5E60, arg0, arg1, arg2);
 }
 
 
-u8 mapTreePurgeNodeList(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, s16 *arg3, u8 arg4) {
+u8 mapTreePurgeNodeList(MapBspNode *arg0, MapVisNode *arg1, void *arg2, s16 *arg3, u8 arg4) {
     u8 removed;
 
     if (arg0 == NULL) {
@@ -1447,15 +1447,15 @@ typedef struct RawGfxCmd {
     u32 unk4;
 } RawGfxCmd;
 
-RawGfxCmd *mapChunkEmitSegmentCommands(RawGfxCmd *arg0, u8 arg1) {
-    RawGfxCmd *q;
+Gfx *mapChunkEmitSegmentCommands(Gfx *arg0, u8 arg1) {
+    Gfx *q;
     s32 i;
 
     for (i = 0; i < sMapChunkAnimCount; i++) {
         if (arg1 == sMapChunkAnims[i].unk1) {
             q = arg0++;
-            q->unk0 = ((sMapChunkAnims[i].unk0 * 4) & 0xFFFF) | 0xDB060000;
-            q->unk4 = (u32)sMapChunkAnims[i].unk8;
+            q->words.w0 = ((sMapChunkAnims[i].unk0 * 4) & 0xFFFF) | 0xDB060000;
+            q->words.w1 = (u32)sMapChunkAnims[i].unk8;
         }
     }
     return arg0;

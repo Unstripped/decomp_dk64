@@ -5,7 +5,7 @@
 
 // One entry of a render list (map chunk opaque/translucent lists, BSP vis-node lists).
 typedef struct RenderEntry {
-    /* 0x00 */ s32 unk0;
+    /* 0x00 */ void *unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ f32 unkC;

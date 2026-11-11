@@ -47,10 +47,10 @@ s32 mapChunkContainsPoint(s16, s16, s16);
 void mapChunkUpdateEntryNode(struct MapActorEntry *);
 #endif
 #ifndef PROTO_SKIP_mapChunkMarkRenderEntry
-void mapChunkMarkRenderEntry(s32, u8);
+void mapChunkMarkRenderEntry(void *, u8);
 #endif
 #ifndef PROTO_SKIP_mapChunkPurgeNodeList
-u8 mapChunkPurgeNodeList(s32, s16 *, u8);
+u8 mapChunkPurgeNodeList(void *, s16 *, u8);
 #endif
 #ifndef PROTO_SKIP_mapChunkClearNodeFlags
 void mapChunkClearNodeFlags(u8);

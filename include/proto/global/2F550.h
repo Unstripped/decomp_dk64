@@ -97,10 +97,10 @@ Gfx *mapTreeRender(Gfx *, struct MapBspNode *, struct MapVisNode *, f32, f32, f3
 Gfx *mapViewDrawPass(Gfx *, struct MapViewEntries *, u8);
 #endif
 #ifndef PROTO_SKIP_func_8062D094
-void func_8062D094(s32, u8);
+void func_8062D094(void *, u8);
 #endif
 #ifndef PROTO_SKIP_func_8062D0CC
-u8 func_8062D0CC(struct MapBspNode *, struct MapVisNode *, s32, u8);
+u8 func_8062D0CC(struct MapBspNode *, struct MapVisNode *, void *, u8);
 #endif
 #ifndef PROTO_SKIP_func_8062D1A8
 void func_8062D1A8(void);
@@ -109,13 +109,13 @@ void func_8062D1A8(void);
 void mapTreeResolveNodeAssets(struct MapBspNode *, struct MapVisNode *);
 #endif
 #ifndef PROTO_SKIP_func_8062D26C
-void func_8062D26C(s32);
+void func_8062D26C(void *);
 #endif
 #ifndef PROTO_SKIP_mapPurgeNodeList
-s32 mapPurgeNodeList(s32, s16 *, u8);
+s32 mapPurgeNodeList(void *, s16 *, u8);
 #endif
 #ifndef PROTO_SKIP_mapTreePurgeNodeList
-u8 mapTreePurgeNodeList(struct MapBspNode *, struct MapVisNode *, s32, s16 *, u8);
+u8 mapTreePurgeNodeList(struct MapBspNode *, struct MapVisNode *, void *, s16 *, u8);
 #endif
 #ifndef PROTO_SKIP_mapDistributeEntries
 void mapDistributeEntries(RenderEntry *);
@@ -160,7 +160,7 @@ u8 mapBspPlaneSideTest(struct MapBspNode *, u8 *, f32, f32, f32);
 s32 mapBspPlaneDistanceCheck(struct MapBspNode *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapChunkEmitSegmentCommands
-struct RawGfxCmd *mapChunkEmitSegmentCommands(struct RawGfxCmd *, u8);
+Gfx *mapChunkEmitSegmentCommands(Gfx *, u8);
 #endif
 #ifndef PROTO_SKIP_mapChunkAnimateTextures
 void mapChunkAnimateTextures(u8);

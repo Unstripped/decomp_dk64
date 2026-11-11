@@ -1,4 +1,5 @@
 #include "common.h"
+#include "render.h"
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
@@ -365,16 +366,9 @@ typedef struct ModelFlagTarget {
     /* 0x4E */ u8 unk4E;
 } ModelFlagTarget;
 
-typedef struct ModelFlagNode {
-    /* 0x00 */ ModelFlagTarget *unk0;
-    /* 0x04 */ u8 pad4[0x10];
-    /* 0x14 */ struct ModelFlagNode *unk14;
-    /* 0x18 */ u8 pad18[0xC];
-    /* 0x24 */ u8 unk24;
-} ModelFlagNode;
 
 
-void modelNodeListSyncFlags(ModelFlagNode *node) {
+void modelNodeListSyncFlags(RenderEntry *node) {
     ModelFlagTarget *obj;
     s16 flag;
 
@@ -1731,7 +1725,7 @@ void modelSlotsFreeAll(void) {
 
 typedef struct ModelSlotFreeView {
     /* 0x00 */ u8 pad0[0x20];
-    /* 0x20 */ s32 unk20;
+    /* 0x20 */ void *unk20;
     /* 0x24 */ u8 pad24[0x4C];
     /* 0x70 */ ModelLinkedNode *unk70;
     /* 0x74 */ ModelLinkedNode *unk74;
@@ -1941,7 +1935,7 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
                 break;
         }
     }
-    if ((setPos || setYOffset) && mapPurgeNodeList((s32)MODEL_TRANSFORM_SLOT->unk20, &purgeOut, 0)) {
+    if ((setPos || setYOffset) && mapPurgeNodeList(MODEL_TRANSFORM_SLOT->unk20, &purgeOut, 0)) {
         v1 = MODEL_TRANSFORM_SLOT;
         renderEntryAddOrUpdate(0, ((u8 *)v1)[0x87], v1->unk20, v1->unk0, v1->unk4, v1->unk8, v1->unk24->unk1E, v1->unk88, 0, purgeOut, 2);
     }

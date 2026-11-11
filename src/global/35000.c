@@ -53,7 +53,7 @@ void renderEntryListFreeTranslucent(void) {
 }
 
 
-RenderEntry *renderEntryAddOrUpdate(RenderEntry *list, u8 type, s32 targetId, f32 posX, f32 posY, f32 posZ, s16 maxDist, s16 priority, u8 autoPurge, s16 chunkIndex, u8 listIndex) {
+RenderEntry *renderEntryAddOrUpdate(RenderEntry *list, u8 type, void *targetId, f32 posX, f32 posY, f32 posZ, s16 maxDist, s16 priority, u8 autoPurge, s16 chunkIndex, u8 listIndex) {
     s32 found;
     RenderEntry *prev;
     RenderEntry *node;
@@ -131,7 +131,7 @@ RenderEntry *renderEntryAddOrUpdate(RenderEntry *list, u8 type, s32 targetId, f3
 }
 
 
-RenderEntry *renderEntryRemove(RenderEntry *list, s32 targetId, u8 listIndex, u8 *outFound) {
+RenderEntry *renderEntryRemove(RenderEntry *list, void *targetId, u8 listIndex, u8 *outFound) {
     u8 found;
     RenderEntry *prev;
     RenderEntry *head;
@@ -232,7 +232,7 @@ void renderEntryListClearTouched(RenderEntry *list) {
     }
 }
 
-void renderEntrySetDistanceOverride(RenderEntry *list, s32 targetId, u8 listIndex, u8 forceInfiniteDist, u8 *outFound) {
+void renderEntrySetDistanceOverride(RenderEntry *list, void *targetId, u8 listIndex, u8 forceInfiniteDist, u8 *outFound) {
     s8 found;
 
     found = 0;
@@ -379,20 +379,20 @@ void *renderModelQuadGfx(void *, void *, f32, f32, f32, s32, s32, s32);
 
 #define WRITE_GFX_WORDS(pkt, _w0, _w1) { GfxWords *_g = (GfxWords *)(pkt); _g->w0 = (_w0); _g->w1 = (u32)(_w1); }
 
-GfxWords *renderEntryListBuildDisplayList(GfxWords *glist, RenderEntry *list, f32 camX, f32 camY, f32 camZ, s32 renderMask, s16 layer, u8 playerIndex) {
+Gfx *renderEntryListBuildDisplayList(Gfx *glist, RenderEntry *list, f32 camX, f32 camY, f32 camZ, s32 renderMask, s16 layer, u8 playerIndex) {
     s32 ok;
     u8 type;
     EntryModel *model;
-    GfxWords *tmp;
+    Gfx *tmp;
 
     ok = 1;
-    glist->w0 = 0xE7000000;
-    glist->w1 = 0;
+    glist->words.w0 = 0xE7000000;
+    glist->words.w1 = 0;
     glist++;
     if (list != NULL) {
         do {
             type = list->unk24;
-            model = (EntryModel *)list->unk0;
+            model = list->unk0;
             if ((renderMask & 0x20) == 0 && type != 0 && type != 5) {
                 ok = 0;
             }
@@ -406,8 +406,8 @@ GfxWords *renderEntryListBuildDisplayList(GfxWords *glist, RenderEntry *list, f3
                 switch (type) {
                 case 0:
                     tmp = renderActorEntryBuildDisplayList(gGfxCurrentFrameBuffer, model, glist, playerIndex);
-                    tmp->w0 = 0xDA380003;
-                    tmp->w1 = (u32)D_2000180;
+                    tmp->words.w0 = 0xDA380003;
+                    tmp->words.w1 = (u32)D_2000180;
                     glist = tmp + 1;
                     D_807F6009 = 0;
                     break;
@@ -492,7 +492,7 @@ extern u8 gCurrentPlayerIndex;
 #define RENDER_ACT ((RenderActor *)actor)
 #define CUR_PLAYER_VIEW ((PlayerView *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0))
 
-void *renderActorEntryBuildDisplayList(s32 context, void *actor, GfxWords *glist, u8 playerIndex) {
+void *renderActorEntryBuildDisplayList(s32 context, void *actor, Gfx *glist, u8 playerIndex) {
     ActorCtl *ctl;
     f32 dz;
     f32 dy;
