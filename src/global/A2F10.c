@@ -189,7 +189,7 @@ void actorLightPulseUpdate(void) {
     LightPulseState *light;
     Actor *attachedTo;
     f32 wobble;
-    s32 pad;
+    PlayerState *playerState;
     s32 callbackId;
     s32 i;
     Actor *target;
@@ -197,18 +197,18 @@ void actorLightPulseUpdate(void) {
     lightRadius = 0x12C;
     despawned = 0;
     isAttached[3] = 0;
-    attachedTo = (Actor *)gCurrentActor->parentActor;
-    light = (LightPulseState *)gCurrentActor->customState;
+    attachedTo = gCurrentActor->parentActor;
+    light = gCurrentActor->customState;
     if (attachedTo != NULL && (attachedTo->collisionFlags & 1)) {
         host = attachedTo;
         isAttached[3] = 1;
     } else {
         host = gPrimaryPlayerActor;
     }
-    hostState = (PlayerState *)host->customState;
+    hostState = host->customState;
     if (gPlayerCount >= 2 && gSplitScreenMode == 1) {
-        attachedTo = (Actor *)gPrimaryPlayerActor->customState; // FAKE: reuses attachedTo for the player state pointer (register reuse)
-        hostFlags = &((PlayerState *)attachedTo)->stateFlags;
+        playerState = gPrimaryPlayerActor->customState;
+        hostFlags = &playerState->stateFlags;
     } else {
         hostFlags = &hostState->stateFlags;
     }
@@ -268,7 +268,7 @@ void actorLightPulseUpdate(void) {
     gCurrentActor->sub4->scaleZ = gCurrentActor->sub4->scaleX;
     gCurrentActor->sub4->scaleY = gCurrentActor->sub4->scaleY * 1.04;
     wobble = mathSinF(gCurrentActor->moveYaw);
-    gCurrentActor->sub4->scaleY = gCurrentActor->sub4->scaleY + 0.01 * (f64)wobble;
+    gCurrentActor->sub4->scaleY = gCurrentActor->sub4->scaleY + 0.01 * wobble;
     gCurrentActor->moveYaw += 0x1F4;
     gCurrentActor->yaw += 0x32;
     gCurrentActor->state++;
@@ -279,7 +279,7 @@ void actorLightPulseUpdate(void) {
         if (animIsPlaying(gCurrentActor, 0) == 0) {
             despawned = 1;
             *hostFlags &= 0xFDFFFFFF;
-            actorSetCollisionRadius(host, (f32)light->unkC);
+            actorSetCollisionRadius(host, light->unkC);
             actorGetOrSetNodeScale(host, actorTypeToNodeIndex(host->actorType), 0.0f);
             actorDespawn(gCurrentActor);
         }
@@ -300,7 +300,7 @@ void actorLightPulseUpdate(void) {
                 target = gPlayerSlots[i].actor;
                 if (isAttached[3] == 0 ||
                     (i != hostState->playerIndex && target->state != 0x84)) {
-                    if (actorIsTargetInRange(target, (f32)target->eyeHeight, rangeSq) !=
+                    if (actorIsTargetInRange(target, target->eyeHeight, rangeSq) !=
                         0) {
                         playerStateQueueCallback(callbackId, gCurrentActor, i);
                     }
@@ -310,20 +310,20 @@ void actorLightPulseUpdate(void) {
             if (gCurrentActor->unk15F != 0) {
                 actorSetCollisionRadius(
                     gCurrentActor,
-                    (f32)(2.0 * ((f64)(gCurrentActor->sub4->scaleX * (f32)lightRadius) *
+                    (f32)(2.0 * ((gCurrentActor->sub4->scaleX * (f32)lightRadius) *
                                  6.66666667)));
                 actorGetOrSetNodeScale(
                     gCurrentActor, 1,
-                    (f32)((f64)(gCurrentActor->sub4->scaleX * (f32)lightRadius) *
+                    (f32)((gCurrentActor->sub4->scaleX * (f32)lightRadius) *
                           6.66666667));
             }
         } else if (despawned == 0) {
-            actorSetCollisionRadius((Actor *)gCurrentActor->parentActor,
-                          (f32)(2.0 * ((f64)(gCurrentActor->sub4->scaleX * (f32)lightRadius) *
+            actorSetCollisionRadius(gCurrentActor->parentActor,
+                          (f32)(2.0 * ((gCurrentActor->sub4->scaleX * (f32)lightRadius) *
                                        6.66666667)));
             actorGetOrSetNodeScale(
-                (Actor *)gCurrentActor->parentActor, actorTypeToNodeIndex(host->actorType),
-                (f32)((f64)(gCurrentActor->sub4->scaleX * (f32)lightRadius) * 6.66666667));
+                gCurrentActor->parentActor, actorTypeToNodeIndex(host->actorType),
+                (f32)((gCurrentActor->sub4->scaleX * (f32)lightRadius) * 6.66666667));
             actorOrNodeFlags(host, actorTypeToNodeIndex(host->actorType), 3);
         }
     }
@@ -380,19 +380,19 @@ void actorShockwaveUpdate(void) {
         lightSetFlags(1);
         lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f,
                  gCurrentActor->sub4->scaleX * 300.0f, 0,
-                 (u32)((f32)gCurrentActor->tintR * fade),
-                 (u32)((f32)gCurrentActor->tintG * fade),
-                 (u32)((f32)gCurrentActor->tintB * fade));
-        gCurrentActor->sub4->scaleX = (f32)((f64)gCurrentActor->sub4->scaleX * gCurrentActor->splineT);
-        gCurrentActor->sub4->scaleZ = (f32)((f64)gCurrentActor->sub4->scaleZ * gCurrentActor->splineT);
+                 (u32)(gCurrentActor->tintR * fade),
+                 (u32)(gCurrentActor->tintG * fade),
+                 (u32)(gCurrentActor->tintB * fade));
+        gCurrentActor->sub4->scaleX = gCurrentActor->sub4->scaleX * gCurrentActor->splineT;
+        gCurrentActor->sub4->scaleZ = gCurrentActor->sub4->scaleZ * gCurrentActor->splineT;
     }
     switch (gCurrentActor->state) {
     case 0:
         if (gCurrentActor->yawSpeed == 0) {
             gCurrentActor->sub4->scaleX =
-                (f32)((f64)gCurrentActor->sub4->scaleX * gCurrentActor->splineT);
+                gCurrentActor->sub4->scaleX * gCurrentActor->splineT;
             gCurrentActor->sub4->scaleZ =
-                (f32)((f64)gCurrentActor->sub4->scaleZ * gCurrentActor->splineT);
+                gCurrentActor->sub4->scaleZ * gCurrentActor->splineT;
         }
         if (gCurrentActor->sub4->model->speed == 0.0f ||
             gCurrentActor->sub4->model->frame > 5.0f) {
@@ -411,8 +411,8 @@ void actorShockwaveUpdate(void) {
                 }
                 actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
                 gSpawnedActor->movePitch = gCurrentActor->movePitch;
-                gSpawnedActor->sub4->scaleX = (f32)((f64)gCurrentActor->sub4->scaleX + 0.02);
-                gSpawnedActor->sub4->scaleZ = (f32)((f64)gCurrentActor->sub4->scaleZ + 0.02);
+                gSpawnedActor->sub4->scaleX = gCurrentActor->sub4->scaleX + 0.02;
+                gSpawnedActor->sub4->scaleZ = gCurrentActor->sub4->scaleZ + 0.02;
                 gSpawnedActor->unk15F = gCurrentActor->unk15F - 1;
                 gSpawnedActor->splineT = gCurrentActor->splineT;
             }
@@ -448,11 +448,11 @@ void actorShockwaveUpdate(void) {
         }
     }
     if (gCurrentActor->yawSpeed == 0 || gCurrentActor->state != 3) {
-        if (actorIsTargetInCylinder((s16)gCurrentActor->x, (s16)(gCurrentActor->y - 20.0f),
-                          (s16)gCurrentActor->z, height,
+        if (actorIsTargetInCylinder(gCurrentActor->x, gCurrentActor->y - 20.0f,
+                          gCurrentActor->z, height,
                           gCurrentActor->sub4->scaleX * (f32)radius) != 0 &&
-            actorIsTargetInCylinder((s16)gCurrentActor->x, (s16)(gCurrentActor->y - 20.0f),
-                          (s16)gCurrentActor->z, height,
+            actorIsTargetInCylinder(gCurrentActor->x, gCurrentActor->y - 20.0f,
+                          gCurrentActor->z, height,
                           gCurrentActor->sub4->scaleX * (f32)(radius - 0x14)) == 0) {
             playerStateQueueCallback(0x2E, gCurrentActor, 0);
         }
@@ -974,12 +974,12 @@ extern u8 D_807503E0[];
 
 
 void func_806A112C(void) {
-    SubStateView *sub;
+    MatrixArray *sub;
     s16 i;
     u8 n;
     f32 d;
     f32 val;
-    SubStateView *sub2;
+    MatrixArray *sub2;
 
     sub = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -990,7 +990,7 @@ void func_806A112C(void) {
             ((u8 *) gCurrentActor->sub4->boneOffsets)[i * 0x10 + 1] = 0xFF;
         }
         if (gCurrentActor->unk15F == 0) {
-            val = (f32) ((f64) gCurrentActor->sub4->scaleY / 0.15);
+            val = gCurrentActor->sub4->scaleY / 0.15;
             sub->unk0 = assetLoad(0x13, 6, 1, 1);
             n = 0;
             animSetChannelFrames(gCurrentActor, D_807503D4[n], D_807503E0[n++]);
@@ -1023,14 +1023,14 @@ void func_806A112C(void) {
         }
         break;
     case 2:
-        actorSetNodeValuesForFrame((MatrixArray *) sub);
+        actorSetNodeValuesForFrame(sub);
         gCurrentActor->yawSpeed++;
         if (gCurrentActor->yawSpeed == 11) {
             gCurrentActor->state++;
         }
         break;
     case 3:
-        actorSetNodeValuesForFrame((MatrixArray *) sub);
+        actorSetNodeValuesForFrame(sub);
         gCurrentActor->yawSpeed++;
         if (gCurrentActor->yawSpeed >= 52) {
             gCurrentActor->yawSpeed = ((randomNonNegative() >> 15) % 1000) % 3;
@@ -1039,7 +1039,7 @@ void func_806A112C(void) {
         break;
     case 10:
         gCurrentActor->yawSpeed = 11;
-        actorSetNodeValuesForFrame((MatrixArray *) sub);
+        actorSetNodeValuesForFrame(sub);
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);

@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorSetUniformScale // FAKE: callee prototype steer
 #define PROTO_SKIP_behaviourSpawnExplosionAndSound // FAKE: callee prototype steer
 #define PROTO_SKIP_behaviourUpdateContactAndState // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/103AB0.h"
@@ -103,8 +102,6 @@ void func_806ADFE0(void) {
     }
 }
 
-void actorSetUniformScale(void *, s32); // FAKE: callee prototype steer
-
 void actorSpawnChildAtNode(s32 actorType, s16 angleOffset, s16 nodeIndex, s16 extraParam) {
     f32 nodeX;
     f32 nodeY;
@@ -119,7 +116,7 @@ void actorSpawnChildAtNode(s32 actorType, s16 angleOffset, s16 nodeIndex, s16 ex
         gSpawnedActor->x = nodeX;
         gSpawnedActor->y = nodeY;
         gSpawnedActor->z = nodeZ;
-        actorSetUniformScale(gSpawnedActor, *(s32 *)&gCurrentActor->sub4->scaleY);
+        actorSetUniformScale(gSpawnedActor, gCurrentActor->sub4->scaleY);
     }
 }
 
@@ -833,9 +830,9 @@ typedef struct B2CE0Sub64 {
     /* 0x64 */ u16 unk64;
 } B2CE0Sub64;
 
-void behaviourSpawnExplosionAndSound(s32, s32, s32);
+void behaviourSpawnExplosionAndSound(s32, s32, Actor *);
 extern s32 gFrameCounter;
-extern s32 gPrimaryPlayerActor;
+extern Actor *gPrimaryPlayerActor;
 
 void func_806B0848(void) {
     s32 sel;

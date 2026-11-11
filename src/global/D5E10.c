@@ -1661,7 +1661,7 @@ void playerStateRunDecel(void) {
         playerInputUpdate(9);
         gActivePlayerState->decelRate = 10.0f;
         playerApplyDeceleration();
-        mathAngleStepToward(&gCurrentActor->moveYaw, gCurrentActor->yaw, (s16)(gActivePlayerState->turnRate * 1.25));
+        mathAngleStepToward(&gCurrentActor->moveYaw, gCurrentActor->yaw, gActivePlayerState->turnRate * 1.25);
         break;
     case 2:
         if ((u32)(gScheduler.unk280 - gActivePlayerState->jumpStartTime) < 0x32) {
@@ -1995,7 +1995,7 @@ extern s16 D_807538C8[];
 
 s32 playerCheckSlopeLaunchArc(void) {
     if (gCurrentActor->hasArcBounds != 0) {
-        if (mathAngleDistance(gCurrentActor->yaw, (s16)(((((gCurrentActor->arcYawMax - gCurrentActor->arcYawMin) & 0xFFF) / 2) + gCurrentActor->arcYawMin + 0x800) & 0xFFF)) < 0x2BC) {
+        if (mathAngleDistance(gCurrentActor->yaw, ((((gCurrentActor->arcYawMax - gCurrentActor->arcYawMin) & 0xFFF) / 2) + gCurrentActor->arcYawMin + 0x800) & 0xFFF) < 0x2BC) {
             if (gCurrentActor->speedXZ > 150.0f) {
                 actorScriptStartByIndex(gCurrentActor, 0x49);
                 gCurrentActor->moveYaw = (gCurrentActor->yaw + 0x800) % 4096;
@@ -4046,7 +4046,7 @@ void playerFindClosestTargetActor(void) {
             for (i = 0; i < gActiveActorCount; i++) {
                 a = gActiveActors[i].actor;
                 if (!(a->flags & 0x2000) && (a->flags & 0x04000000) && (a != gActivePlayerState->pathOwner) && (a != gActivePlayerActor)) {
-                    ang = (s32)(((f64)(mathAngleBetweenPointsRad(a->x, a->z, gActivePlayerActor->x, gActivePlayerActor->z) * 57.295776f) / 360.0) * 4095.0);
+                    ang = mathAngleBetweenPointsRad(a->x, a->z, gActivePlayerActor->x, gActivePlayerActor->z) * 57.295776f / 360.0 * 4095.0;
                     d = mathAngleDistance(ang, gActivePlayerState->unk154);
                     dx = a->x - gActivePlayerActor->x;
                     dz = a->z - gActivePlayerActor->z;
@@ -4066,7 +4066,7 @@ void playerFindClosestTargetActor(void) {
                 }
             }
         } else {
-            ang = (s32)(((f64)(mathAngleBetweenPointsRad(cur->x, cur->z, gActivePlayerActor->x, gActivePlayerActor->z) * 57.295776f) / 360.0) * 4095.0);
+            ang = mathAngleBetweenPointsRad(cur->x, cur->z, gActivePlayerActor->x, gActivePlayerActor->z) * 57.295776f / 360.0 * 4095.0;
             if (mathAngleDistance(ang, gActivePlayerState->unk154) < 0x258) {
                 gActivePlayerState->unk154 = ang;
             }
