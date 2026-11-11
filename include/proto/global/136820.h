@@ -24,7 +24,7 @@ s32 unwindDecodeLoadRa(s32, s32 *, s32 *);
 s32 unwindDecodeAddiuSp(s32, s32 *);
 #endif
 #ifndef PROTO_SKIP_unwindDecodeJrRa
-s32 unwindDecodeJrRa(u32, s32 *, s32, s32 *);
+s32 unwindDecodeJrRa(u32, s32 *, s32, s32 **);
 #endif
 #ifndef PROTO_SKIP_faultUnwindStack
 void faultUnwindStack(OSThread *);

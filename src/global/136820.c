@@ -1,7 +1,9 @@
 #include "common.h"
+#include "PR/os_internal_error.h"
 #include "proto/boot/3D20.h"
 #include "proto/global/136820.h"
 #include "proto/global/201B0.h"
+
 
 extern s32 D_807FEF80;
 extern s32 D_807FEF78;
@@ -66,13 +68,11 @@ void faultPrintf(const char *fmt, ...) {
     u8 *p;
     u8 buf[0x80];
     u8 c;
-    s32 x;
+    s32 pad;
 
     vsprintf(buf, (const u8 *)fmt, (va_list)(&fmt + 1));
     p = buf;
     c = *p++;
-    if (0) {
-    }
     while (c) {
         switch (c) {
             case 32:
@@ -163,7 +163,7 @@ void faultDrawRegs(OSThread *a0) {
         D_807FEF74 = y;
         faultPrintf("DK 64\n");
         faultPrintf("%X\n", (s32)ctx->pc);
-        faultPrintf("%X\n", ((s32 *)&ctx->ra)[1]);
+        faultPrintf("%X\n", ((s32 *)&ctx->ra)[1]); // FAKE: low-word read of the u64 ra avoids the ucvt temps that shift D_807563B8 from t0 to t2
         if (D_807563B8 >= 4) {
             for (j = 0; j < D_807FF018; j++) {
                 faultPrintf("%X\n", D_807FEF88[j].unk0);
@@ -199,9 +199,9 @@ s32 unwindDecodeAddiuSp(s32 a0, s32 *a1) {
     return 0;
 }
 
-s32 unwindDecodeJrRa(u32 a0, s32 *a1, s32 a2, s32 *a3) {
+s32 unwindDecodeJrRa(u32 a0, s32 *a1, s32 a2, s32 **a3) {
     if ((a0 & 0x3FFFFFF) == 0x3E00008) {
-        unwindDecodeAddiuSp(**(s32 **)a3, a1);
+        unwindDecodeAddiuSp(**a3, a1);
         if (D_807FF018 != 0 && a2 == D_807FEF88[D_807FF018 - 1].unk0) {
             D_807FEF88[D_807FF018 - 1].unk4++;
         } else {
@@ -209,7 +209,7 @@ s32 unwindDecodeJrRa(u32 a0, s32 *a1, s32 a2, s32 *a3) {
             D_807FEF88[D_807FF018].unk4 = 1;
             D_807FF018++;
         }
-        *a3 = a2;
+        *a3 = (s32 *)a2;
         return 1;
     }
     return 0;
@@ -231,7 +231,7 @@ void faultUnwindStack(OSThread *a0) {
     done = 0;
     while (pc != 0 && D_807FF018 < 18 && !done) {
         insn = *pc++;
-        r = unwindDecodeJrRa(insn, &sp, ra, (s32 *)&pc);
+        r = unwindDecodeJrRa(insn, &sp, ra, &pc);
         if (r == 0) {
             r = unwindDecodeLoadRa(insn, (s32 *)sp, &ra);
         }
@@ -252,7 +252,7 @@ void faultThreadMain(void *arg) {
     OSMesg msg;
     OSThread *thread;
     s32 i;
-    s32 x;
+    s32 pad;
 
     osSetEventMesg(12, &D_807FEF58, (OSMesg)0x10);
     for (;;) {
@@ -262,7 +262,7 @@ void faultThreadMain(void *arg) {
                 break;
             }
         }
-        thread = (OSThread *)__osGetCurrFaultedThread();
+        thread = __osGetCurrFaultedThread();
         if (thread != 0) {
             for (;;) {
                 for (i = 0; i < 2; i++) {
