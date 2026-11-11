@@ -106,7 +106,7 @@ typedef struct {
 } Point3f;
 extern Point3f **D_807F5FD4;
 
-extern u8 D_807FBB85;
+extern ActorGlobalState gActorGlobalState;
 void func_806FDAB8(u8, f32);  // FAKE: callee prototype steer
 
 extern u8 D_1000118[];
@@ -688,7 +688,7 @@ void bonusTargetUpdate(void) {
     func_8072881C(0, &sub->unk4);
     switch (gCurrentActor->state) {
     case 0:
-        if (D_807FBB85 != 0) {
+        if (gActorGlobalState.unk15 != 0) {
             if (p->unk22 - ((sub->unk8 != 0) ? 2 : 1) < 0) {
                 p->unk22 = 0;
             } else {
@@ -1316,7 +1316,7 @@ void bonusLightFlashTargetUpdate(void) {
         gCurrentActor->unk144 = 0x24;
     }
     isHit = 0;
-    if (D_807FBB85 == 1 && base->unk0 >= -9) {
+    if (gActorGlobalState.unk15 == 1 && base->unk0 >= -9) {
         isHit = 1;
     }
     if (subExt->unk4 != 5) {
@@ -1562,7 +1562,7 @@ void bonusPerilPathPanicKlaptrapUpdate(void) {
             }
         }
     }
-    if ((animScript == 0x239 || animScript == 0x23B || (animScript == 0x238 && animSub != NULL && animSub->frame > 48.0f)) && D_807FBB85 == 1) {
+    if ((animScript == 0x239 || animScript == 0x23B || (animScript == 0x238 && animSub != NULL && animSub->frame > 48.0f)) && gActorGlobalState.unk15 == 1) {
         actorScriptStart(gCurrentActor, 0x23C);
         actorExt->unk6 = ((randomLcgNext() & 7) + 6) * D_8002D900;
     }
@@ -2194,7 +2194,7 @@ void bonusSearchlightSeekTargetUpdate(void) {
             spawnLink->unk4 += (randomLcgNext() & 0xF) + 3;
             spawnLink->unk8 = 40.0 * randomFloat() + 10.0;
         }
-        if (D_807FBB85 == 1) {
+        if (gActorGlobalState.unk15 == 1) {
             gCurrentActor->alpha = 0xFF;
             gCurrentActor->flags &= ~0x8000;
             actorScriptStart(gCurrentActor, 0x332);
