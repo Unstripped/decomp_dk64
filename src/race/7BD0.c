@@ -250,7 +250,7 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceParticipant *tracker) {
     WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
     dl = textDrawStringVtx(dl, 1, (s16)(s32)(2.0f * (posX * 4.0f)), (s16)(s32)(2.0f * (posY * 4.0f)), labelStr, 4);
     WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
-    WRITE_GFX(dl++, 0xDA380005, (u32)((u8 *)tracker + (gGfxBufferIndex << 6) + 0x50));
+    WRITE_GFX(dl++, 0xDA380005, (u32)tracker->hudScale[gGfxBufferIndex]);
     posX += 0.5f * (f32)textGetStringWidth(1, labelStr);
     posX = (f32)((f64)posX + 8.0);
     doublePosX = posX + posX;
@@ -286,8 +286,8 @@ Gfx *raceInitHudDisplayList(Gfx *dl, RaceParticipant *tracker) {
     dl = gfxInit2DDisplayList(dl);
     WRITE_GFX(dl++, 0xDE000000, (u32)&D_1000118);
     WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
-    guScale((Mtx *)((u8 *)tracker + (gGfxBufferIndex << 6) + 0x50), 0.5f, 0.5f, 1.0f);
-    WRITE_GFX(dl++, 0xDA380005, (u32)((u8 *)tracker + (gGfxBufferIndex << 6) + 0x50));
+    guScale((Mtx *)tracker->hudScale[gGfxBufferIndex], 0.5f, 0.5f, 1.0f);
+    WRITE_GFX(dl++, 0xDA380005, (u32)tracker->hudScale[gGfxBufferIndex]);
     WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
     return dl;
 }
@@ -334,7 +334,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
         g0->words.w0 = 0xDA380007; g0->words.w1 = (u32)&D_20000C0; // LAYOUT: same-line stores steer the ori/addiu schedule
         g0 = dl++;
         g0->words.w0 = 0xDA380005;
-        g0->words.w1 = (u32)((u8 *)tracker + (gGfxBufferIndex << 6) + 0x50);
+        g0->words.w1 = (u32)tracker->hudScale[gGfxBufferIndex];
         fontHeight = textGetFontHeight(1);
         textY = (s32)((f32)textY - (0.5f * (f32)fontHeight));
         hudFlags = managerData->hudFlags;

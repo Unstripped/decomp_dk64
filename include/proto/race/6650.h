@@ -3,38 +3,36 @@
 #define PROTO_RACE_6650_H
 #include "common.h"
 #include "actor.h"
-struct Struct_8002B180_Arg1;
-struct Struct_8002B610_Arg1;
-struct Struct_sp58;
+#include "race.h"
 #ifndef PROTO_SKIP_raceInitParticipants
 void raceInitParticipants(Actor *);
 #endif
 #ifndef PROTO_SKIP_raceUpdateRacerMotion
-void raceUpdateRacerMotion(struct Struct_sp58 *);
+void raceUpdateRacerMotion(RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceParticleRenderCallback
-void raceParticleRenderCallback(void *, Actor *);
+void raceParticleRenderCallback(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_raceParticipantMotionUpdate
 void raceParticipantMotionUpdate(void);
 #endif
 #ifndef PROTO_SKIP_raceSteerTowardTargetWaypoint
-void raceSteerTowardTargetWaypoint(struct Struct_sp58 *, struct Struct_8002B180_Arg1 *);
+void raceSteerTowardTargetWaypoint(RaceParticipant *, RaceTarget *);
 #endif
 #ifndef PROTO_SKIP_raceUpdateCountdownState
-void raceUpdateCountdownState(struct Struct_sp58 *);
+void raceUpdateCountdownState(RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_racePlayIntroCameraCutscene
-void racePlayIntroCameraCutscene(struct Struct_sp58 *, struct Struct_8002B610_Arg1 *);
+void racePlayIntroCameraCutscene(RaceParticipant *, RaceTarget *);
 #endif
 #ifndef PROTO_SKIP_raceGetFinishCameraId
-s32 raceGetFinishCameraId(void *, void *);
+s32 raceGetFinishCameraId(RaceParticipant *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceFinishCameraCutscene
-void raceFinishCameraCutscene(struct Struct_sp58 *, void *);
+void raceFinishCameraCutscene(RaceParticipant *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceHandlePostRaceFinished
-void raceHandlePostRaceFinished(struct Struct_sp58 *, void *);
+void raceHandlePostRaceFinished(RaceParticipant *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceOpponentRacerMotionUpdate
 void raceOpponentRacerMotionUpdate(void);

@@ -42,8 +42,9 @@ typedef struct RaceParticipant {
     union {
         /* 0x00 */ s8 unk0;
         /* 0x00 */ u8 hudFlags; // manager: 2 place, 4 lap counter, 8 coin HUD, 0x10 speed-boost HUD
+        /* 0x00 */ s16 heading; // 52B0 opponent racers: steering yaw (raceRacerSteerTowardWaypoint)
     };
-    /* 0x01 */ u8 pad1[3];
+    /* 0x02 */ s16 unk2; // 52B0 opponent racers: eased yaw offset
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8; // manager 0x04..0x10: minimap scale X, scale Z, centre X, centre Z (raceCalculatePathBoundingBox)
     /* 0x0C */ f32 unkC;
@@ -64,7 +65,10 @@ typedef struct RaceParticipant {
             /* 0x14 */ s16 minimapSprites[4]; // manager: radar background sprite ids
         };
     };
-    /* 0x20 */ struct RacePair *pairs; // manager: the registered participants (raceInitParticipantArray)
+    union {
+        /* 0x20 */ struct RacePair *pairs; // manager: the registered participants (raceInitParticipantArray)
+        /* 0x20 */ s32 unk20; // 6650 racers: nonzero turns the thrust around and caps speed (raceUpdateRacerMotion)
+    };
     /* 0x24 */ u8 unk24;
     /* 0x25 */ u8 unk25;
     /* 0x26 */ u8 route; // route index (raceGetRoute)
@@ -93,7 +97,9 @@ typedef struct RaceParticipant {
     /* 0x46 */ u8 unk46;
     /* 0x47 */ u8 pad47;
     /* 0x48 */ struct G00Entry *unk48; // camera viewport entry (cameraFindViewportEntry)
-    /* 0x4C */ u8 pad4C[0x104 - 0x4C];
+    /* 0x4C */ u8 pad4C[4];
+    /* 0x50 */ Mtx_t hudScale[2]; // per gfx buffer: the HUD text scale matrix (raceInitHudDisplayList guScale)
+    /* 0xD0 */ u8 padD0[0x104 - 0xD0];
     /* 0x104 */ void *unk104;
 } RaceParticipant; // size = 0x108
 
@@ -144,7 +150,10 @@ typedef struct RaceWaypoint {
 typedef struct RaceTarget {
     /* 0x00 */ struct Actor *actor;
     /* 0x04 */ RaceParticipant *participant;
-    /* 0x08 */ u8 pad8[6];
+    /* 0x08 */ u8 unk8; // 52B0 opponents: finish camera path started
+    /* 0x09 */ u8 pad9;
+    /* 0x0A */ u16 unkA; // 52B0 opponents: start countdown frames
+    /* 0x0C */ u8 padC[2];
     /* 0x0E */ u8 bumpCooldown;
     /* 0x0F */ u8 curveMode;
     /* 0x10 */ u8 unk10;
