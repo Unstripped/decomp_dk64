@@ -12,7 +12,6 @@ struct CollisionBstNode;
 struct CollisionBstNodeBase;
 struct CollisionLinkedNode;
 struct CollisionStaticTri;
-struct CollisionTriF;
 #ifndef PROTO_SKIP_collisionBuildCellTable
 void collisionBuildCellTable(struct MapFileHeader *);
 #endif

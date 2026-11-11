@@ -13,6 +13,17 @@ typedef struct CollisionBoundingBox {
     /* 0x14 */ f32 maxZ;
 } CollisionBoundingBox; // size = 0x18
 
+// One world-space collision triangle (ModelTriBuffer.tri_start[], built by modelTriangleTransform); 0x28 bytes.
+typedef struct CollisionTriF {
+    /* 0x00 */ f32 x[3];
+    /* 0x0C */ f32 y[3];
+    /* 0x18 */ f32 z[3];
+    /* 0x24 */ u8 unk24;
+    /* 0x25 */ u8 unk25;
+    /* 0x26 */ s8 unk26;
+    /* 0x27 */ u8 unk27;
+} CollisionTriF; // size = 0x28
+
 // Transformed collision box (ActorSub140.unkA4 array, built by actorSub140BuildBoxes); 0x58 bytes.
 typedef struct CollisionBox {
     /* 0x00 */ u8 pad0[0x24];

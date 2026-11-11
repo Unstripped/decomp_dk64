@@ -1270,16 +1270,6 @@ s32 collisionPointInTriangleXZS16(CollisionStaticTri *arg0, f32 arg1, f32 arg2) 
     return (mismatch == 0) & 0xFF;
 }
 
-typedef struct CollisionTriF {
-    /* 0x00 */ f32 x[3];
-    /* 0x0C */ f32 y[3];
-    /* 0x18 */ f32 z[3];
-    /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 unk25;
-    /* 0x26 */ s8 unk26;
-    /* 0x27 */ u8 unk27;
-} CollisionTriF; // size = 0x28
-
 typedef struct {
     CollisionTriF *tri_start;
     CollisionTriF *tri_end;

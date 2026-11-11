@@ -75,6 +75,14 @@ typedef struct ModelTriBuffer {
     /* 0x25 */ u8 unk25[2];
 } ModelTriBuffer; // size = 0x28
 
+// Model position list node (ModelSlot.unk70/unk74, modelPosNodeListFree); 0x10 bytes.
+typedef struct ModelPosNode {
+    /* 0x0 */ f32 x;
+    /* 0x4 */ f32 y;
+    /* 0x8 */ f32 z;
+    /* 0xC */ struct ModelPosNode *next;
+} ModelPosNode; // size = 0x10
+
 // One placed map model (gModelSlots[], indexed by hashTableLookup()); 0x90 bytes.
 typedef struct ModelSlot {
     /* 0x00 */ f32 unk0;

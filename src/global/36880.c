@@ -789,13 +789,6 @@ void modelSlotBuildProxPaths(s16 id, ModelPathTable *paths, f32 scale) {
 
 
 
-typedef struct ModelPosNode {
-    /* 0x0 */ f32 x;
-    /* 0x4 */ f32 y;
-    /* 0x8 */ f32 z;
-    /* 0xC */ struct ModelPosNode *next;
-} ModelPosNode;
-
 typedef struct ModelVertTable {
     /* 0x00 */ u8 pad0[0x54];
     /* 0x54 */ s32 unk54;

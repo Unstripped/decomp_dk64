@@ -8,7 +8,6 @@ struct DisplayListCmd;
 struct ModelNodeBufferOwner;
 struct ModelPathTable;
 struct ModelPendingEntry;
-struct ModelPosNode;
 struct ModelQuadOwner;
 struct ModelRenderAnimObj;
 struct ModelSegmentData;
