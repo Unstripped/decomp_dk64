@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #include "cutscene.h"
 #include "sched.h"
@@ -221,7 +222,6 @@ extern s16 D_807F693C;
 extern u8 D_807F693E;
 extern u8 D_807F693F;
 struct CsStateFull;
-void *memcpy(void *, const void *, unsigned int);
 
 void csScriptLoad(s16 *scriptData) {
     s16 n;

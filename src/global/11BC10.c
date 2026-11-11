@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
 #include "proto/global/119370.h"
@@ -1461,7 +1462,6 @@ typedef struct FollowParentActorView {
     Mtx *matrix;
 } FollowParentActorView;
 
-void *memcpy(void *, const void *, size_t);
 
 void effectFollowParentUpdate(FollowParentActorView *effect, s8 *isDone) {
     f32 mtx0[4][4];

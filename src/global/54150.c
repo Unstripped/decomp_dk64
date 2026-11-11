@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #include "proto/global/136820.h"
 #include "proto/global/15050.h"
@@ -34,7 +35,6 @@ typedef struct ModelData {
     ModelAnimEntry entries[10];
 } ModelData; /* 0xD0 */
 
-void *memcpy(void *, const void *, unsigned int);
 
 void modelSlotAllocAnimBuffers(ModelData **outModel, u8 *animAsset) {
     u8 *p2;

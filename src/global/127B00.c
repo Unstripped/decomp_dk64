@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #include "proto/global/127B00.h"
 #include "proto/global/15050.h"
@@ -87,7 +88,6 @@ s32 pathExists(u8 pathId) {
     return 0;
 }
 
-void *memcpy(void *, const void *, unsigned int);
 
 s32 pathPlaybackStart(Actor *owner, s32 pathId, u8 prependStartPoint, f32 x, f32 y, f32 z, u8 pointFlag) {
     PathEntry *path;

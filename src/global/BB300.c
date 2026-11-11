@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #define PROTO_SKIP_behaviourUpdateContactAndState // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/1295B0.h"
@@ -45,7 +46,6 @@ extern Actor *gSpawnedActor;
 extern s16 D_807502E0;
 extern f32 D_807502E8;
 
-void *memcpy(void *, const void *, unsigned int);
 
 void actorUpdatePulseIntensity(u8 active) {
     u8 *p = BB300A->unk178;

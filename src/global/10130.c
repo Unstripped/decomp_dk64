@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "proto/global/10130.h"
 #include "proto/global/15050.h"
 #include "proto/global/6AD90.h"

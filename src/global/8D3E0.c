@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #define PROTO_SKIP_controllerAnimFreeSub // FAKE: callee prototype steer
 #include "proto/global/15050.h"
@@ -77,7 +78,6 @@ extern s16 D_807FC5F0[16];
 extern u8 D_807FC610;
 extern u8 D_807FC611;
 
-void *memcpy(void *, const void *, size_t);
 
 extern s16 gCurrentLevelIndex;
 extern u8 gCurrentWorldId;

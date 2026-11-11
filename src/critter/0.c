@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #include "proto/critter/0.h"
@@ -1037,7 +1038,6 @@ void critterUpdateGroups(CritterGroups *groups) {
 }
 
 extern CritterGroups *critterGroups;
-void *memcpy(void *, const void *, unsigned int);
 
 void critterLoadData(u8 *data) {
     s32 g;

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_actorDespawn // FAKE: callee prototype steer

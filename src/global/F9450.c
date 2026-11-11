@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #include "sched.h"
 #include "proto/global/104F0.h"
@@ -148,7 +149,6 @@ extern GridNode *D_807FD72C;
 extern GridActiveNode *D_807FD730;
 extern u8 D_807FD738;
 extern u8 D_807FD798;
-void *memcpy(void *, const void *, unsigned int);
 
 void gridBuildNodeLists(void) {
     s32 cookie;

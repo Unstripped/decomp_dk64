@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #include "proto/global/117190.h"
 #include "proto/global/133A90.h"
@@ -414,7 +415,6 @@ s32 proxPathSegmentAngleCheck(ProxPath *path, s32 segmentIndex, s16 angle) {
     return 0;
 }
 
-void *memcpy(void *, const void *, unsigned int);
 
 f32 proxPathAttachToSegment(Actor *actor, H1ActorState *state, ProxPath *path, u8 segmentIndex) {
     u8 idA;

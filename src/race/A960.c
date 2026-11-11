@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
 #include "proto/global/19A00.h"
@@ -125,7 +126,6 @@ RaceWaypoint *raceGetWaypoint(u8 idx) {
     return e;
 }
 
-void *memcpy(void *, const void *, unsigned int);
 
 void raceLoadRouteData(u8 *data) {
     u8 *src;

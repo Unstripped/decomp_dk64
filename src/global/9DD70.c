@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #include "proto/boot/3630.h"
 #include "proto/global/100180.h"
@@ -229,7 +230,6 @@ typedef struct WaveState {
 
 extern ActorGlobalState gActorGlobalState;
 f32 sinApprox(f32);
-void *memcpy(void *, const void *, unsigned int);
 
 void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
     f32 posOffsets[32];

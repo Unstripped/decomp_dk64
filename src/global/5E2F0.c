@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #include "proto/global/126260.h"
 #include "proto/global/2F550.h"
@@ -559,7 +560,6 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
     }
     return D_807F7BC0;
 }
-void *memcpy(void *, const void *, unsigned int);
 
 void lightAddDedupEntry(s16 arg0) {
     s32 i;

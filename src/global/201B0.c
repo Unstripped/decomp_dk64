@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #define PROTO_SKIP_collisionCheckActorFloor // PROTO: The controlling expression of the if statement is not scalar
 #include "proto/global/10130.h"
@@ -3463,7 +3464,6 @@ void camCopyVec3s(s16 *dst, s16 *src) {
     *dst++ = *src++;
 }
 
-void *memcpy(void *, const void *, u32);
 
 void *camCopyPathPayload(u8 *src, void *dst, u16 size) {
     memcpy(dst, src + 4, size);

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #include "proto/global/15050.h"

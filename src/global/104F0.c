@@ -1,4 +1,5 @@
 #include "common.h"
+#include "compiler/ido/memory.h"
 #include "actor.h"
 #include "proto/boot/3630.h"
 #include "proto/boot/3D20.h"
