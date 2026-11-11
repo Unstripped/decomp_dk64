@@ -884,7 +884,6 @@ void sfxUpdateLevelAmbient(void) {
     }
 }
 
-extern ALCSPlayer *D_8076BF24;
 
 
 void seqUpdateUnderwaterAudio(s32 seqIndex) {
@@ -900,8 +899,8 @@ void seqUpdateUnderwaterAudio(s32 seqIndex) {
                 sfxSetChannelParam(0x60, 0xE, 1);
             } else {
                 sfxSetChannelParam(0x60, 8, 1);
-                alCSPSetChlFX1Mix(D_8076BF24, 1, 0x7F);
-                alCSPSetChlFX1Mix(D_8076BF24, 2, 0x7F);
+                alCSPSetChlFX1Mix(&gSeqPlayers[1]->al, 1, 0x7F);
+                alCSPSetChlFX1Mix(&gSeqPlayers[1]->al, 2, 0x7F);
             }
             sfxSetChannelParam(0x60, 0x10, 0);
         }
@@ -919,8 +918,8 @@ void seqUpdateUnderwaterAudio(s32 seqIndex) {
             }
             sfxSetChannelParam(0x60, 0x10, 1);
             sfxSetChannelParam(0x60, 8, 0);
-            alCSPSetChlFX1Mix(D_8076BF24, 1, 0x64);
-            alCSPSetChlFX1Mix(D_8076BF24, 2, 0x64);
+            alCSPSetChlFX1Mix(&gSeqPlayers[1]->al, 1, 0x64);
+            alCSPSetChlFX1Mix(&gSeqPlayers[1]->al, 2, 0x64);
         }
     }
 }
