@@ -620,8 +620,8 @@ extern f32 D_807F9488;
 extern u8 D_807F94B5;
 extern u8 sCamFloorHitCount;
 
-s32 collisionCheckGroundAtPoint(f32 arg0, f32 arg1, void *arg2) {
-    s32 ret;
+u8 collisionCheckGroundAtPoint(f32 arg0, f32 arg1, f32 *arg2) {
+    u8 ret;
 
     D_807F9484 = 0;
     sCamFloorHitCount = 0;

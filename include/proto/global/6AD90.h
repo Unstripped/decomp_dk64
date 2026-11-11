@@ -69,7 +69,7 @@ s32 collisionGetFloorTriangleNormal(f32, f32, u8, u8);
 s32 mathCheckCloserFloatThreshold(f32, f32, f32, u8);
 #endif
 #ifndef PROTO_SKIP_collisionCheckGroundAtPoint
-s32 collisionCheckGroundAtPoint(f32, f32, void *);
+u8 collisionCheckGroundAtPoint(f32, f32, f32 *);
 #endif
 #ifndef PROTO_SKIP_collisionGetFloorHeight
 u8 collisionGetFloorHeight(f32 *);
