@@ -6,25 +6,9 @@
 #include "proto/global/69E60.h"
 
 
-typedef struct AnimationOwner {
-    u8 unk0[0x118];
-    void *unk118;
-} AnimationOwner;
 
 
-typedef struct PathFollowOwner {
-    u8 pad0[0x7C];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0x28];
-    s8 unkB0;
-    u8 padB1[0x67];
-    PathFollowState *unk118;
-} PathFollowOwner;
-
-
-void pathFollowUpdateHeading(PathFollowOwner *owner, u8 continuous) {
+void pathFollowUpdateHeading(Actor *owner, u8 continuous) {
     s32 fresh;
     PathFollowState *s;
     s32 idx;
@@ -41,18 +25,18 @@ void pathFollowUpdateHeading(PathFollowOwner *owner, u8 continuous) {
 
     pathEnded = 0;
     fresh = 0;
-    if (owner->unk118 == NULL) {
-        owner->unk118 = heapAlloc(0x14);
-        s = owner->unk118;
-        if (owner->unkB0 != -1 && pathExists(owner->unkB0) != 0) {
-            s->unk12 = owner->unkB0;
+    if (owner->floorContact == NULL) {
+        owner->floorContact = heapAlloc(0x14);
+        s = owner->floorContact;
+        if (owner->unkB0[0] != -1 && pathExists(owner->unkB0[0]) != 0) {
+            s->unk12 = owner->unkB0[0];
         } else {
             s->unk12 = -1;
         }
         s->unkC = 0;
         fresh = 1;
     } else {
-        s = owner->unk118;
+        s = owner->floorContact;
     }
     if (continuous != 0 || s->unkC == 0) {
         if (s->unk12 == -1) {
@@ -62,9 +46,9 @@ void pathFollowUpdateHeading(PathFollowOwner *owner, u8 continuous) {
             return;
         }
         if (fresh != 0) {
-            pathFindClosestPoint(s->unk12, owner->unk7C, owner->unk80, owner->unk84, &s->unk4, &s->unk8);
+            pathFindClosestPoint(s->unk12, owner->x, owner->y, owner->z, &s->unk4, &s->unk8);
         } else {
-            pathRefineClosestPoint(s->unk12, owner->unk7C, owner->unk80, owner->unk84, &s->unk4, &s->unk8);
+            pathRefineClosestPoint(s->unk12, owner->x, owner->y, owner->z, &s->unk4, &s->unk8);
         }
         frac = s->unk8;
         idx = s->unk4;
@@ -96,13 +80,13 @@ void pathFollowUpdateHeading(PathFollowOwner *owner, u8 continuous) {
     }
 }
 
-void animationOwnerFreeBuffer(AnimationOwner *owner) {
+void animationOwnerFreeBuffer(Actor *owner) {
     void *buffer;
 
-    buffer = owner->unk118;
+    buffer = owner->floorContact;
     if (buffer != 0) {
         heapFree(buffer);
-        owner->unk118 = NULL;
+        owner->floorContact = NULL;
     }
 }
 
