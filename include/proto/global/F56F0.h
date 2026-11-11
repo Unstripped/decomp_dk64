@@ -115,13 +115,13 @@ void playerWaypointPathsLoad(s16);
 void actorSetPositionAndFacingAngle(Actor *, struct WaypointNode *);
 #endif
 #ifndef PROTO_SKIP_playerWaypointPathStart
-void playerWaypointPathStart(u8, Actor *, s32, s16, u8);
+void playerWaypointPathStart(u8, Actor *, void *, s16, u8);
 #endif
 #ifndef PROTO_SKIP_deferredEntryFree
 void deferredEntryFree(struct F5DDeferredEntry *);
 #endif
 #ifndef PROTO_SKIP_playerWaypointPathStartPacked
-void playerWaypointPathStartPacked(Actor *, s32, s16, s16);
+void playerWaypointPathStartPacked(Actor *, void *, s16, s16);
 #endif
 #ifndef PROTO_SKIP_playerWaypointPathStartLineFromPoint
 void playerWaypointPathStartLineFromPoint(Actor *, struct F5N6Input *, u8);

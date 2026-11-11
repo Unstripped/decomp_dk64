@@ -1206,9 +1206,9 @@ extern WaypointNode *gWaypointCursor;
 extern Actor *gWaypointActor;
 extern s16 gWaypointIndex;
 extern s16 gWaypointCallbackId;
-extern s32 gWaypointCallbackParam;
+extern void *gWaypointCallbackParam;
 
-void playerWaypointPathStart(u8 pathIndex, Actor *actor, s32 callbackParam, s16 callbackId, u8 skipPlace) {
+void playerWaypointPathStart(u8 pathIndex, Actor *actor, void *callbackParam, s16 callbackId, u8 skipPlace) {
     PlayerState *ps;
 
     ps = actor->customState;
@@ -1243,7 +1243,7 @@ void deferredEntryFree(F5DDeferredEntry *entry) {
 
 
 
-void playerWaypointPathStartPacked(Actor *actor, s32 callbackParam, s16 packedPath, s16 callbackId) {
+void playerWaypointPathStartPacked(Actor *actor, void *callbackParam, s16 packedPath, s16 callbackId) {
     s32 skipPlace;
 
     if (packedPath & 0x8000) {
