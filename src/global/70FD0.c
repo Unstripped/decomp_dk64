@@ -1368,7 +1368,7 @@ void actorSub140TransformTriangles(ActorSub140 *sub) {
 u8 actorSetTargetAngleAndCheck(Actor *arg0, s16 arg1) {
     s16 arcMin;
     s16 arcMax;
-    s8 actorHit;
+    u8 actorHit;
 
     D_807FB544 = arg1;
     D_807FB540 = arg0;
@@ -1378,7 +1378,7 @@ u8 actorSetTargetAngleAndCheck(Actor *arg0, s16 arg1) {
     return D_807FB546;
 }
 
-u8 actorClearTargetAngle(Actor *actor, s16 *arcMin, s16 *arcMax, s8 *hit) {
+u8 actorClearTargetAngle(Actor *actor, s16 *arcMin, s16 *arcMax, u8 *hit) {
     D_807FB604 = 0;
     return actorCheckTargetAngle(actor, arcMin, arcMax, hit);
 }
@@ -1396,7 +1396,7 @@ extern u8 D_807FB606;
 
 void func_80672E90(s32, s32, s32);
 
-u8 actorCheckTargetAngle(Actor *actor, s16 *arcMin, s16 *arcMax, s8 *actorHit) {
+u8 actorCheckTargetAngle(Actor *actor, s16 *arcMin, s16 *arcMax, u8 *actorHit) {
     s32 pad;
     u8 boundsHit;
     u8 slotHit;

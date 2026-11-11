@@ -129,10 +129,10 @@ void actorSub140TransformTriangles(ActorSub140 *);
 u8 actorSetTargetAngleAndCheck(Actor *, s16);
 #endif
 #ifndef PROTO_SKIP_actorClearTargetAngle
-u8 actorClearTargetAngle(Actor *, s16 *, s16 *, s8 *);
+u8 actorClearTargetAngle(Actor *, s16 *, s16 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_actorCheckTargetAngle
-u8 actorCheckTargetAngle(Actor *, s16 *, s16 *, s8 *);
+u8 actorCheckTargetAngle(Actor *, s16 *, s16 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_actorQueueCollisionCallbacks
 void actorQueueCollisionCallbacks(Actor *);
