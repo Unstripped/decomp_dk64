@@ -707,13 +707,13 @@ void effectUpdateAll(u8 pGlist) {
 }
 
 
-void effectFreeByResource(s32 resource) {
+void effectFreeByResource(Actor *owner) {
     EffectNode *effect;
 
     effect = sEffectListHead;
     if (effect != NULL) {
         do {
-            if ((Actor *)resource == effect->owner) {
+            if (owner == effect->owner) {
                 effectFreeAndUnlink(effect);
             }
             effect = effect->next;

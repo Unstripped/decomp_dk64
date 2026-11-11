@@ -2,6 +2,7 @@
 #ifndef PROTO_GLOBAL_119370_H
 #define PROTO_GLOBAL_119370_H
 #include "common.h"
+#include "actor.h"
 struct EffectGridAsset;
 struct EffectGridSlot;
 struct EffectNode;
@@ -93,7 +94,7 @@ void effectBuildGridVertices(struct EffectNode *);
 void effectUpdateAll(u8);
 #endif
 #ifndef PROTO_SKIP_effectFreeByResource
-void effectFreeByResource(s32);
+void effectFreeByResource(Actor *);
 #endif
 #ifndef PROTO_SKIP_effectFreeAll
 void effectFreeAll(void);
