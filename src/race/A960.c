@@ -46,7 +46,7 @@ extern RacePlayerPos *gPlayerSlots;
 extern u8 gPlayerCount;
 
 RaceRoute *raceGetRoute(u8 idx) {
-    RaceRoute *e = &D_8002FCF0->items[idx];
+    RaceRoute *e = &D_8002FCF0->items[idx]; // FAKE: unused early address calc; removing it drops the hoisted items load and changes scheduling
 
     if (D_8002FCF0 == NULL || idx >= D_8002FCF0->count) {
         return NULL;
@@ -56,7 +56,7 @@ RaceRoute *raceGetRoute(u8 idx) {
 }
 
 RaceWaypoint *raceGetWaypoint(u8 idx) {
-    RaceWaypoint *e = &D_8002FCF0->items2[idx];
+    RaceWaypoint *e = &D_8002FCF0->items2[idx]; // FAKE: unused early address calc; removing it drops the hoisted items2 load and changes scheduling
 
     if (D_8002FCF0 == NULL || idx >= D_8002FCF0->count2) {
         return NULL;
@@ -175,7 +175,6 @@ void raceInitGateActors(RaceWaypoint *node) {
     f32 mA[4][4];
     f32 mB[4][4];
     f32 pad[5];
-    u32 j;
     f32 xoff;
     u8 i;
 
@@ -184,10 +183,9 @@ void raceInitGateActors(RaceWaypoint *node) {
             xoff = (f32)node->width * 0.5f;
             for (i = 0; i < 2; i++) {
                 raceSpawnGateActor(node->unk14, node->kind, i ^ 1);
-                j = i;
-                node->actors[j] = gSpawnedActor;
+                node->actors[i] = gSpawnedActor;
                 gSpawnedActor->yaw = (node->angle + 0x800) & 0xFFF;
-                if (j != 0) {
+                if (i) {
                     xoff *= -1.0f;
                 }
                 guRotateF(mA, gSpawnedActor->yaw * 0.087890625f, 0.0f, 1.0f, 0.0f);
@@ -397,19 +395,16 @@ f32 raceGetPathDistanceBetweenTrackers(RaceRoute *route, RaceParticipant *tracke
     }
     first = 1;
     if (cur != end) {
-        if (cur <= end) {
-            do {
-                idx = cur % route->count;
-                val = route->items[idx];
-                node = raceGetWaypoint(val);
-                if (!first) {
-                    acc += raceGetNormalDistanceToWaypoint(node, prevX, prevZ);
-                }
-                first = 0;
-                cur++;
-                prevX = node->x;
-                prevZ = node->z;
-            } while (cur <= end);
+        for (; cur <= end; cur++) {
+            idx = cur % route->count;
+            val = route->items[idx];
+            node = raceGetWaypoint(val);
+            if (!first) {
+                acc += raceGetNormalDistanceToWaypoint(node, prevX, prevZ);
+            }
+            first = 0;
+            prevX = node->x;
+            prevZ = node->z;
         }
     }
     acc *= diff >= 0 ? 1 : -1;
@@ -431,7 +426,7 @@ void raceUpdateWaypointActivation(RaceParticipant *actorState) {
     s32 i;
     s32 j;
     s32 k;
-    s32 near;
+    s32 farAway;
     f32 dist;
 
     list = raceGetRoute(actorState->route);
@@ -439,7 +434,7 @@ void raceUpdateWaypointActivation(RaceParticipant *actorState) {
         for (i = 0; i < list->count; i++) {
             node = raceGetWaypoint(list->items[i]);
             if (node->kind != 0) {
-                near = 0;
+                farAway = 0;
                 for (j = 0; j < gPlayerCount; j++) {
                     f32 *p = gPlayerSlots[j].pos;
                     f32 dz = p[2] - node->z;
@@ -447,20 +442,20 @@ void raceUpdateWaypointActivation(RaceParticipant *actorState) {
                     f32 dy = p[1] - node->y;
 
                     dist = dz * dz + (dx * dx + dy * dy);
-                    dz = 302500.0f;
-                    near |= dist > dz;
+                    dz = 302500.0f; // FAKE: constant reloaded through dz; a literal compare shrinks the frame 0x50 -> 0x48
+                    farAway |= dist > dz;
                 }
-                if (near != node->state) {
+                if (farAway != node->state) {
                     for (k = 0; k < 2; k++) {
                         if (node->actors[k] != NULL) {
-                            if (near != 0) {
+                            if (farAway != 0) {
                                 actorDeregisterActive(node->actors[k]);
                             } else {
                                 actorRegisterActive(node->actors[k]);
                             }
                         }
                     }
-                    node->state = near;
+                    node->state = farAway;
                 }
             }
         }

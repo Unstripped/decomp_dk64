@@ -1,5 +1,6 @@
 #include "common.h"
 #include "race.h"
+#include "compiler/ido/memory.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -26,7 +27,7 @@
 s32 raceGetNextWaypointIndex(s32 pathLength, s32 curWaypoint) {
     s32 next = curWaypoint + 1;
     if (pathLength != next) {
-        return curWaypoint + 1;
+        return curWaypoint + 1; // FAKE: recomputes next; returning next changes the addiu placement
     }
     return 0;
 }
@@ -53,18 +54,13 @@ typedef struct RaceActor {
     /* 0x184 */ void *unk184;
 } RaceActor;
 
-typedef struct {
-    Actor *actor;
-    RaceParticipant *participant;
-} RaceNodeLinks;
-
 /* Effect node actor spawned by spawnNodeSpawnById. */
 typedef struct {
     u8 pad0[0x178];
     RaceParticipant *unk178;
     RacePathState *unk17C;
     u8 pad180[4];
-    RaceNodeLinks *unk184;
+    RacePair *unk184;
 } RaceNodeActor;
 
 extern RaceAPoint3f **gMinecartTrackPoints;
@@ -97,13 +93,12 @@ void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPo
 }
 
 extern s32 D_807F5FD0;
-void *memcpy(void *, const void *, unsigned int);
 
 void raceInitSplinePoints(void) {
     RaceAPoint3f *buf;
     u8 *src;
     RaceAPoint3f **tbl;
-    u32 lo; /* byte length first, then the upper table pointer (one slot reused) */
+    u32 lo; // FAKE: one slot holds the byte length, then the tbl[2] pointer; a separate pointer local reallocates the loop
     s32 i;
     s32 count;
 
@@ -139,7 +134,7 @@ void raceInitOpponentEntities(Actor *parent) {
     Actor *s2;
     RacePathState *s1;
     RaceParticipant *s0;
-    RaceNodeLinks *temp;
+    RacePair *temp;
     Actor *spawnedNode;
     Actor *spawnedActor;
     u8 *pad;
@@ -159,7 +154,7 @@ void raceInitOpponentEntities(Actor *parent) {
     spawnedNode = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
     s1->unk30 = spawnedNode;
     temp = ((RaceNodeActor *)spawnedNode)->unk184;
-    temp->participant = s0;
+    temp->data = s0;
     temp->actor = s2;
     actorSpawn(0x130, 0);
     spawnedActor = gSpawnedActor;
@@ -222,7 +217,7 @@ void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
     angle = mathAngleBetweenPointsRad(tgt[0], tgt[2], pos[0], pos[2]) * 2048.0 / 3.1415927f;
     dz = pos[2] - tgt[2];
     dx = pos[0] - tgt[0];
-    offsetDist = sqrtf((dz * dz) + (dx * dx)) * (*(f32 *)&gCurrentActor->speedXZ * 0.03);
+    offsetDist = sqrtf((dz * dz) + (dx * dx)) * (*(f32 *)&gCurrentActor->speedXZ * 0.03); // FAKE: punned re-read of the f32 speedXZ; the plain field changes the load scheduling
     gCurrentActor->x = pos[0] + (mathSinF(angle) * offsetDist);
     gCurrentActor->z = pos[2] + (mathCosF(angle) * offsetDist);
     gCurrentActor->y = gCurrentActor->y + (tgt[1] - gCurrentActor->y) * 0.8;
@@ -232,23 +227,23 @@ void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
 void raceUpdateOrientation(RacePathState *pathState) {
     s16 pad;
     s16 rollOffset;
-    f32 sinVal;
+    f32 cosYaw;
     s16 yawOffset;
     f32 rollScaled;
-    f32 cosVal;
+    f32 sinYaw;
 
     yawOffset = pathState->unk18 + pathState->unkC;
     rollOffset = mathAngleSignedDistance(0, (s16)pathState->unk1C);
     yawOffset &= 0xFFF;
-    sinVal = mathCosF(yawOffset);
-    cosVal = mathSinF(yawOffset);
+    cosYaw = mathCosF(yawOffset);
+    sinYaw = mathSinF(yawOffset);
     gCurrentActor->yaw = gCurrentActor->moveYaw + yawOffset;
     gCurrentActor->yaw &= 0xFFF;
     rollScaled = rollOffset;
-    gCurrentActor->roll = rollScaled * sinVal;
+    gCurrentActor->roll = rollScaled * cosYaw;
     gCurrentActor->roll = gCurrentActor->roll + pathState->unk20;
     gCurrentActor->roll &= 0xFFF;
-    gCurrentActor->pitch = rollScaled * cosVal;
+    gCurrentActor->pitch = rollScaled * sinYaw;
     gCurrentActor->pitch = gCurrentActor->pitch + pathState->unk24;
     gCurrentActor->pitch &= 0xFFF;
 }
