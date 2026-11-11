@@ -985,8 +985,6 @@ extern s32 D_80748114;
 extern f32 D_807480F0;
 f32 sqrtf(f32);
 
-#define CS_POINT (&D_807F5FD4[0][p->idx])
-
 void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 start;
     u8 hit;
@@ -1030,14 +1028,14 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
             p->idx = 0;
         }
         while (!hit && start != p->idx) {
-            if (sqrtf((gPlayerSlots->camX - CS_POINT->x) * (gPlayerSlots->camX - CS_POINT->x) + (gPlayerSlots->camY - CS_POINT->y) * (gPlayerSlots->camY - CS_POINT->y) +
-                      (gPlayerSlots->camZ - CS_POINT->z) * (gPlayerSlots->camZ - CS_POINT->z)) < D_807480F0) {
+            if (sqrtf((gPlayerSlots->camX - D_807F5FD4[0][p->idx].x) * (gPlayerSlots->camX - D_807F5FD4[0][p->idx].x) + (gPlayerSlots->camY - D_807F5FD4[0][p->idx].y) * (gPlayerSlots->camY - D_807F5FD4[0][p->idx].y) +
+                      (gPlayerSlots->camZ - D_807F5FD4[0][p->idx].z) * (gPlayerSlots->camZ - D_807F5FD4[0][p->idx].z)) < D_807480F0) {
                 effectSetDepth(1);
                 effectSetMode(3);
                 effectSetSpeed(0);
                 effectSetCallback(effectLightGrowShrinkUpdate);
                 effectSetMaxDistance(0x320);
-                effectCreateAtPosition(D_80720BC4, 2.5f, CS_POINT->x, CS_POINT->y, CS_POINT->z);
+                effectCreateAtPosition(D_80720BC4, 2.5f, D_807F5FD4[0][p->idx].x, D_807F5FD4[0][p->idx].y, D_807F5FD4[0][p->idx].z);
                 hit = 1;
             } else {
                 p->idx++;
@@ -2040,7 +2038,7 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 py;
     f32 xo;
     f32 pz;
-    void (*cb)(void);
+    void (*cb)(struct TimedEffectActorView *, u8 *);
 
     if (&xs == 0 || &px == 0 || &zo == 0 || &py == 0 || &xo == 0 || &pz == 0) {} // FAKE: address-taken: keeps the six floats in their declaration-order stack homes
     ang = gCsRotY * 4096.0f / 360.0f;
