@@ -124,48 +124,8 @@ u8 actorCollisionGetNodeHitPoint(CollisionHitActor *self, CollisionHitActor *oth
     return matched;
 }
 
-typedef struct CollisionSphereNodeFull {
-    u8 pad0[0x10];
-    s32 unk10;
-    s32 unk14;
-    s32 unk18;
-    s32 unk1C;
-    u8 pad20[4];
-    u16 unk24;
-    u8 unk26;
-    u8 unk27;
-    struct CollisionSphereNodeFull *next;
-} CollisionSphereNodeFull;
-
-typedef struct CollisionSub140Full {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
-    s32 unkC;
-    u8 pad10[0x7C];
-    CollisionSphereNodeFull *unk8C;
-} CollisionSub140Full;
-
-typedef struct CollisionCheckActor {
-    u8 pad0[0x54];
-    s32 unk54;
-    u8 pad58[4];
-    u16 unk5C;
-    u8 pad5E[2];
-    u32 unk60;
-    u8 pad64[0x18];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0x8C];
-    void *riderList;
-    u8 pad118[0x28];
-    CollisionSub140Full *unk140;
-    u8 unk144;
-} CollisionCheckActor;
-
 typedef struct CollisionActorEntry {
-    CollisionCheckActor *actor;
+    Actor *actor;
     s32 unk4;
 } CollisionActorEntry;
 
@@ -180,19 +140,19 @@ extern s32 D_807FB628;
 
 s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 
-void actorCollisionCheckNodeSpheres(CollisionCheckActor *self) {
+void actorCollisionCheckNodeSpheres(Actor *self) {
     s32 i;
-    CollisionCheckActor *actor;
-    CollisionSub140Full *actor_sub140;
+    Actor *actor;
+    ActorSub140 *actor_sub140;
     s32 sub_unk0;
     s32 sub_unk4;
     s32 sub_unk8;
     s32 sub_unkC;
-    CollisionSphereNodeFull *node1;
-    CollisionSphereNodeFull *node2;
+    ModelNode *node1;
+    ModelNode *node2;
     s32 node1Idx;
     s32 node2Idx;
-    CollisionSub140Full *sub140;
+    ActorSub140 *sub140;
     f32 dist;
     f32 hitLocalX;
     f32 hitLocalY;
@@ -202,13 +162,13 @@ void actorCollisionCheckNodeSpheres(CollisionCheckActor *self) {
     u16 mask2;
     CollisionActorEntry *entry;
 
-    sub140 = self->unk140;
+    sub140 = self->collision;
     sub_unk0 = 0;
     if (sub_unk0) {} // FAKE: raises sub_unk0's colouring priority so it gets s7 while unk4 is loaded first
-    sub_unk4 = sub140->unk4;
-    sub_unk0 = sub140->unk0;
-    sub_unk8 = sub140->unk8;
-    sub_unkC = sub140->unkC;
+    sub_unk4 = sub140->scaledY;
+    sub_unk0 = sub140->scaledX;
+    sub_unk8 = sub140->scaledZ;
+    sub_unkC = sub140->scaledRadius;
     i = 0;
     if (gActiveActorCount > 0) {
         entry = gActiveActors;
@@ -218,38 +178,38 @@ void actorCollisionCheckNodeSpheres(CollisionCheckActor *self) {
             D_807FB628 = 0;
             actor = entry->actor;
             s0 = 0;
-            actor_sub140 = actor->unk140;
-            if (actor->riderList != NULL && (actor->unk60 & 0x40) && actorRiderListContains(actor, self)) {
+            actor_sub140 = actor->collision;
+            if (actor->riderList != NULL && (actor->flags & 0x40) && actorRiderListContains(actor, self)) {
                 s0 = 1;
             }
-            if ((self->unk60 & 0x80) && actorRiderListContains(self, actor)) {
+            if ((self->flags & 0x80) && actorRiderListContains(self, actor)) {
                 s0 = 1;
             }
-            if ((actor->unk60 & 0x2000) == 0 &&
+            if ((actor->flags & 0x2000) == 0 &&
                 sub140 != actor_sub140 &&
                 actor->unk144 != 1 &&
-                (actor->unk60 & 0x10) &&
+                (actor->flags & 0x10) &&
                 s0 == 0 &&
                 collisionSpheresOverlap(sub_unk0, sub_unk4, sub_unk8, sub_unkC,
-                              actor_sub140->unk0, actor_sub140->unk4, actor_sub140->unk8, actor_sub140->unkC)) {
+                              actor_sub140->scaledX, actor_sub140->scaledY, actor_sub140->scaledZ, actor_sub140->scaledRadius)) {
                 actorUpdateCollisionSpheres(self, 0);
                 node1Idx = 1;
                 actorUpdateCollisionSpheres(actor, 0);
-                for (node1 = sub140->unk8C; node1 != NULL; node1 = node1->next, node1Idx++) {
-                    if (node1->unk26 != 0 && (node1->unk27 & 8) == 0) {
+                for (node1 = sub140->nodes; node1 != NULL; node1 = node1->next, node1Idx++) {
+                    if (node1->active != 0 && (node1->unk27 & 8) == 0) {
                         node2Idx = 1;
-                        for (node2 = actor_sub140->unk8C; node2 != NULL; node2 = node2->next, node2Idx++) {
-                            if (node2->unk26 != 0 && (node2->unk27 & 8) == 0) {
-                                if (collisionSpheresOverlap(node1->unk10, node1->unk14, node1->unk18, node1->unk1C,
-                                                  node2->unk10, node2->unk14, node2->unk18, node2->unk1C)) {
+                        for (node2 = actor_sub140->nodes; node2 != NULL; node2 = node2->next, node2Idx++) {
+                            if (node2->active != 0 && (node2->unk27 & 8) == 0) {
+                                if (collisionSpheresOverlap(node1->unk10, node1->unk14, node1->matrixIndex, node1->unk1C,
+                                                  node2->unk10, node2->unk14, node2->matrixIndex, node2->unk1C)) {
                                     mask1 = ~node1->unk24;
                                     mask2 = ~node2->unk24;
-                                    if ((mask1 & actor->unk5C) && (mask2 & self->unk5C)) {
+                                    if ((mask1 & actor->collisionFlags) && (mask2 & self->collisionFlags)) {
                                         dist = collisionPointToSphereDistance(sub_unk0, sub_unk4, sub_unk8,
-                                                             node2->unk10, node2->unk14, node2->unk18, node2->unk1C);
-                                        collisionWorldToNodeLocal((struct CollisionMtxOwner *)actor_sub140, self->unk7C, self->unk80, self->unk84, (struct CollisionMtxNode *)node2,
+                                                             node2->unk10, node2->unk14, node2->matrixIndex, node2->unk1C);
+                                        collisionWorldToNodeLocal((struct CollisionMtxOwner *)actor_sub140, self->x, self->y, self->z, (struct CollisionMtxNode *)node2,
                                                       &hitLocalX, &hitLocalY, &hitLocalZ);
-                                        collisionHitRecordAppend(self->unk54, dist, hitLocalX, hitLocalY, hitLocalZ, node1Idx, node2Idx);
+                                        collisionHitRecordAppend(self->instanceId, dist, hitLocalX, hitLocalY, hitLocalZ, node1Idx, node2Idx);
                                     }
                                 }
                             }

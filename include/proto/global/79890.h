@@ -2,7 +2,7 @@
 #ifndef PROTO_GLOBAL_79890_H
 #define PROTO_GLOBAL_79890_H
 #include "common.h"
-struct CollisionCheckActor;
+#include "actor.h"
 struct CollisionHitActor;
 struct CollisionHitRecordRef;
 struct CollisionLocalOwner;
@@ -12,7 +12,7 @@ struct CollisionMtxOwner;
 u8 actorCollisionGetNodeHitPoint(struct CollisionHitActor *, struct CollisionHitActor *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_actorCollisionCheckNodeSpheres
-void actorCollisionCheckNodeSpheres(struct CollisionCheckActor *);
+void actorCollisionCheckNodeSpheres(Actor *);
 #endif
 #ifndef PROTO_SKIP_collisionWorldToNodeLocal
 void collisionWorldToNodeLocal(struct CollisionMtxOwner *, f32, f32, f32, struct CollisionMtxNode *, f32 *, f32 *, f32 *);
