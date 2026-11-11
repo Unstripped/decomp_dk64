@@ -296,9 +296,9 @@ void csScriptLoad(s16 *scriptData) {
 }
 
 
-void csStateFree(CsLoadState *loadState) {
-    CsLoadNode *node;
-    CsLoadNode *next;
+void csStateFree(CsStateFull *loadState) {
+    CsNode *node;
+    CsNode *next;
 
     if (*(void **)loadState != NULL) {
         heapFree(*(void **)loadState);

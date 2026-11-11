@@ -16,7 +16,7 @@ u32 modelSlotDataSize(s16);
 void modelSlotCopyData(u8 *, s16);
 #endif
 #ifndef PROTO_SKIP_modelSlotFree
-void modelSlotFree(u8 **);
+void modelSlotFree(ModelData *);
 #endif
 #ifndef PROTO_SKIP_modelSlotStepAnimations
 u8 modelSlotStepAnimations(s16);

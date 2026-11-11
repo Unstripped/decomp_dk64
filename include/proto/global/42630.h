@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_42630_H
 #include "common.h"
 #include "cutscene.h"
-struct CsLoadState;
 #ifndef PROTO_SKIP_csModelIdTableReset
 void csModelIdTableReset(void);
 #endif
@@ -32,7 +31,7 @@ void csTimerQueueFire(s16);
 void csScriptLoad(s16 *);
 #endif
 #ifndef PROTO_SKIP_csStateFree
-void csStateFree(struct CsLoadState *);
+void csStateFree(CsStateFull *);
 #endif
 #ifndef PROTO_SKIP_csStateInit
 void csStateInit(struct CsStateFull *);

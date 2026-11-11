@@ -29,15 +29,15 @@ void modelSlotAllocAnimBuffers(ModelData **outModel, u8 *animAsset) {
         m = heapAlloc(0xD0);
         *outModel = m;
         n = *(u32 *)(animAsset + *(u32 *)(animAsset + 0x68));
-        m->unk0 = heapAlloc(n);
-        m->unk4 = heapAlloc(n);
+        m->frames[0] = heapAlloc(n);
+        m->frames[1] = heapAlloc(n);
         src = animAsset + *(u32 *)(animAsset + 0x68);
         size = *(u32 *)(src + 4);
-        memcpy(m->unk0, src + 8, size);
-        memcpy(m->unk4, src + 8, size);
+        memcpy(m->frames[0], src + 8, size);
+        memcpy(m->frames[1], src + 8, size);
         i = (n - size) >> 6;
-        p1 = m->unk0 + size;
-        p2 = m->unk4 + size;
+        p1 = m->frames[0] + size;
+        p2 = m->frames[1] + size;
         for (; i != 0; i--) {
             guMtxIdent((Mtx *)p1);
             guMtxIdent((Mtx *)p2);
@@ -111,17 +111,17 @@ void modelSlotCopyData(u8 *src, s16 slot) {
     obj = gModelSlots[slot].unk24;
     dst = gModelSlots[slot].unk78;
     n = *(s32 *)(obj + *(s32 *)(obj + 0x68));
-    memcpy(dst->unk0, src, n);
-    memcpy(dst->unk4, src, n);
+    memcpy(dst->frames[0], src, n);
+    memcpy(dst->frames[1], src, n);
     modelSlotGetTransformVectors(slot, &x, &y, &z, &a, &b, &c, &d, &e, 0);
     modelSlotTransformBoundsAndNodes(slot, x, y, z, a, b, c, d, e, 0, 0, 0, 0, 1);
 }
 
 
-void modelSlotFree(u8 **anim) {
+void modelSlotFree(ModelData *anim) {
     if (anim != NULL) {
-        heapFreeDeferred(anim[0]);
-        heapFreeDeferred(anim[1]);
+        heapFreeDeferred(anim->frames[0]);
+        heapFreeDeferred(anim->frames[1]);
         mtxCopyQueueCancelGroup(anim);
         heapFree(anim);
     }

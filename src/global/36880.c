@@ -988,7 +988,7 @@ void modelSlotUpdateTailKey(s32 slot, u8 isId, u8 newKey, u8 remove) {
 
 void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale) {
     s32 count;
-    u8 **anim;
+    ModelData *anim;
     f32 mtx[4][4];
     f32 rotMtx[4][4];
     f32 boneMtx[4][4];
@@ -1011,7 +1011,7 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
     lastBone = -1;
     buf = (ModelTriBuffer *)((u8 *)buf + 0x48);
     if (anim != NULL) {
-        animFrame = anim[gGfxBufferIndex];
+        animFrame = anim->frames[gGfxBufferIndex];
     } else {
         animFrame = NULL;
     }
@@ -1622,19 +1622,6 @@ void modelSlotsFreeAll(void) {
     hashTableClear();
 }
 
-typedef struct {
-    /* 0x00 */ u8 pad0[0x10];
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ u8 pad14[0x4C];
-    /* 0x60 */ u8 unk60;
-    /* 0x61 */ u8 pad61;
-    /* 0x62 */ s16 unk62;
-    /* 0x64 */ s16 unk64;
-    /* 0x66 */ u8 pad66[0x32];
-    /* 0x98 */ s16 unk98;
-} ModelRenderSlot;
-
 
 void modelSlotFreeByIndex(slot, isId)
 s32 slot;
@@ -1664,11 +1651,11 @@ u8 isId;
     hashTableRemove(entryId);
     proxPathRemoveActor(entryId);
     if (((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C != NULL) {
-        if (((ModelRenderSlot *)((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C)->unk10 != -1) {
-            sfxSlotFreeSource(((ModelRenderSlot *)((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C)->unk10);
+        if ((((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C)->unk10 != -1) {
+            sfxSlotFreeSource((((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C)->unk10);
         }
-        if (((ModelRenderSlot *)((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C)->unk12 != -1) {
-            sfxSlotFreeSource(((ModelRenderSlot *)((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C)->unk12);
+        if ((((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C)->unk12 != -1) {
+            sfxSlotFreeSource((((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C)->unk12);
         }
     }
     if (slot + 1 != D_80747D70) {
@@ -2713,9 +2700,9 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
     f32 dy;
     f32 dz;
     u8 sel;
-    u8 **animBuffers;
+    ModelData *animBuffers;
     f32 scale;
-    ModelRenderSlot *model;
+    CsStateFull *model;
     s32 pad;
     u8 red;
     u8 green;
@@ -2788,7 +2775,7 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
         }
     }
     if (animBuffers != NULL) {
-        gSPSegment(gfx++, 9, osVirtualToPhysical(animBuffers[gGfxBufferIndex]));
+        gSPSegment(gfx++, 9, osVirtualToPhysical(animBuffers->frames[gGfxBufferIndex]));
     }
     gSPMatrix(gfx++, osVirtualToPhysical(&obj->unk20[gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     if (obj->unkB8 != NULL) {
@@ -2821,7 +2808,7 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
     if (useLight != 0) {
         if (obj->unkB6 != -1 && (model = gModelSlots[slotIdx].unk7C) != NULL && model->unk60 == 1) {
             csUpdateStepAndInterpolation(model);
-            alpha = ((ModelRenderSlot *)gModelSlots[slotIdx].unk7C)->unk64;
+            alpha = (gModelSlots[slotIdx].unk7C)->unk64;
         } else {
             renderCalcPlayerDistanceAlpha(obj->unk0, obj->unk4, obj->unk8, obj->unkC0, obj->unkB4, &alpha);
             if (obj->unkB6 != -1) {
@@ -3952,7 +3939,7 @@ typedef struct ModelPendingEntry {
 extern u8 D_807F7140;
 
 void modelPendingQueueInsert(ModelPendingEntry *entry, u8 allowDefault) {
-    u8 *obj;
+    CsStateFull *obj;
     u8 allow;
     s32 pad1;
     s32 pad2;
@@ -3969,7 +3956,7 @@ void modelPendingQueueInsert(ModelPendingEntry *entry, u8 allowDefault) {
     f32 best;
 
     if (0) { csStateTickTimers((s32)&idx); csStateTickTimers((s32)&tbl); } allow = 1; if (entry->unk24 == 1) { idx = hashTableLookup(entry->unk1E); tbl = (u8 *)gModelSlots; obj = ((ModelSlot *)tbl)[idx].unk7C; if (obj != NULL) { // FAKE: dead if (0) takes &idx/&tbl so both get stack homes; the one-line layout keeps as1 line order
-            switch (obj[0x54]) {
+            switch (obj->unk54) {
             case 2:
                 allow = 0;
                 break;
@@ -3986,7 +3973,7 @@ void modelPendingQueueInsert(ModelPendingEntry *entry, u8 allowDefault) {
                     
                     if (gPlayerSlots[i].unk0 != 0) {
                         if (entry && entry) {}  // FAKE: dead test steers register colouring
-                        if (obj[0x54] == 6) {
+                        if (obj->unk54 == 6) {
                             px = &gPlayerSlots[i].actor->x;
                             py = &gPlayerSlots[i].actor->y;
                             newv = &gPlayerSlots[i].actor->z;
@@ -4004,13 +3991,13 @@ void modelPendingQueueInsert(ModelPendingEntry *entry, u8 allowDefault) {
                     }
                     
                 }
-                allow &= best < (f32)*(s32 *)(obj + 0x58);
+                allow &= best < (f32)obj->unk58;
                 break;
             case 5:
                 if (D_807F6028 == 0x14) return;
                 allow = 0;
                 D_807F6030[D_807F6028].id = entry->unk1E;
-                D_807F6030[D_807F6028].key = *(s32 *)(obj + 0x58);
+                D_807F6030[D_807F6028].key = obj->unk58;
                 D_807F6030[D_807F6028++].done = 0;
                 break;
             }
@@ -4019,8 +4006,8 @@ void modelPendingQueueInsert(ModelPendingEntry *entry, u8 allowDefault) {
                 if (D_807F60A8 != 0x46) {
                     D_807F60B0[D_807F60A8] = *(s16 *)(tbl + 0x8A + idx * 0x90);
                     D_807F60A8++;
-                    csStateTickTimers((s32)obj);
-                    csStateUpdate((s32)obj, entry->unk1E);
+                    csStateTickTimers(obj);
+                    csStateUpdate(obj, entry->unk1E);
                 }
             }
         }
@@ -4301,16 +4288,9 @@ void modelSlotClearFlags(s32 csId, u8 flags) {
     obj->unk4E &= ~flags;
 }
 
-typedef struct ModelSlotStateSub {
-    /* 0x00 */ u8 pad0[0x60];
-    /* 0x60 */ u8 unk60;
-    /* 0x61 */ u8 pad61[3];
-    /* 0x64 */ s16 unk64;
-} ModelSlotStateSub;
-
 s32 func_8063C2A8(s16 id) {
     s16 idx = hashTableLookup(id);
-    ModelSlotStateSub *sub = gModelSlots[idx].unk7C;
+    CsStateFull *sub = gModelSlots[idx].unk7C;
 
     if (sub != NULL) {
         if (sub->unk60 == 1 && sub->unk64 == 0) {

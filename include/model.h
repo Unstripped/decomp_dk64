@@ -61,8 +61,7 @@ typedef struct ModelAnimEntry {
 
 // Per-slot animation state (ModelSlot.unk78, modelSlotAllocAnimBuffers).
 typedef struct ModelData {
-    /* 0x00 */ u8 *unk0;
-    /* 0x04 */ u8 *unk4;
+    /* 0x00 */ u8 *frames[2]; // per-gfx-buffer animation data
     /* 0x08 */ ModelAnimEntry entries[10];
 } ModelData; // size = 0xD0
 
@@ -92,8 +91,8 @@ typedef struct ModelSlot {
     /* 0x48 */ ModelTriBuffer unk48;
     /* 0x70 */ struct ModelPosNode *unk70;
     /* 0x74 */ struct ModelPosNode *unk74;
-    /* 0x78 */ u8 **unk78;
-    /* 0x7C */ void *unk7C;
+    /* 0x78 */ ModelData *unk78;
+    /* 0x7C */ struct CsStateFull *unk7C; // per-model cutscene state (csStateInit)
     /* 0x80 */ u8 pad80[4];
     /* 0x84 */ s16 unk84;
     /* 0x86 */ s16 unk86;
