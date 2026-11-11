@@ -227,8 +227,6 @@ void playerAllocSlots(s32 spawnIndex) {
 }
 
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void func_806C80E4(void) {
     f32 pad0;

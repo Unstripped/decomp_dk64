@@ -526,8 +526,6 @@ extern struct GfSndState *D_807457E4[];
 extern s16 D_80770628[];
 extern f32 D_80770B68[];
 extern s32 gFrameCounter;
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimit) {
     u8 i;
     u8 cnt;

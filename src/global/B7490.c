@@ -39,7 +39,6 @@ extern s32 gCurrentMap;
 extern u8 D_8072073C[];
 extern s16 D_80750340;
 
-f32 mathSinF(s16);
 
 void func_806B2790(void) {
     u8 flag;
@@ -886,7 +885,6 @@ typedef struct B7490St178 {
 } B7490St178;
 
 extern u16 D_80744508;
-f32 mathCosF(s16);
 
 void behaviourEnemyFlyReturn(void) {
     f32 pad;

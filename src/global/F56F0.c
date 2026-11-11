@@ -443,7 +443,6 @@ void playerWeaponCalculateTrajectory4(Actor *actor, BoneRotation *slots, s32 *co
 
 extern u16 D_80752F38[];
 extern u16 D_80752F40[];
-extern f32 mathCosF(s16);
 
 void playerWeaponCalculateTrajectory22(Actor *actor, BoneRotation *slots, s32 *count) {
     s32 tableIndex;
@@ -888,7 +887,6 @@ void playerWeaponCrosshairRender(Actor *actor, BoneVector *entries, s32 *count) 
     *count += 1;
 }
 
-extern f32 mathSinF(s16);
 void playerWeaponUpdateHomingTarget(Actor *actor, BoneRotation *slots, s32 *count) {
     s32 entry_index;
     s8 v;

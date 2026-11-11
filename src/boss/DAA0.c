@@ -49,7 +49,6 @@ typedef struct BossD_Actor {
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-f32 mathSinF(s16);
 
 typedef struct BossSpawnState {
     void *unk0;

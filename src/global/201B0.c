@@ -219,8 +219,6 @@ CamCueStep gCamCueTable[9] = {
     { 0 },
 };
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 f32 sinApprox(f32);
 f32 sqrtf(f32);
 
