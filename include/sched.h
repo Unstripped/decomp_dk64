@@ -73,7 +73,7 @@ typedef struct {
     /* 0x004 */ struct Actor *actor;
     /* 0x008 */ Mtx viewMtx[2];
     /* 0x088 */ Mtx projMtx[2];
-    /* 0x108 */ u8 pad108[0x80];
+    /* 0x108 */ Mtx bgMtx[2]; // per-buffer sky quad matrix (gfxDrawBackgroundQuad)
     /* 0x188 */ u16 perspNorm;
     /* 0x18A */ u8 pad18A[0x210 - 0x18A];
     /* 0x210 */ f32 camX;
@@ -120,9 +120,12 @@ typedef struct {
     /* 0x2C2 */ u8 pad2C2[2];
     /* 0x2C4 */ f32 unk2C4;
     /* 0x2C8 */ s16 unk2C8;
-    /* 0x2CA */ u8 pad2CA[6];
+    /* 0x2CA */ s16 unk2CA;
+    /* 0x2CC */ s16 unk2CC;
+    /* 0x2CE */ u8 pad2CE[2];
     /* 0x2D0 */ f32 unk2D0;
-    /* 0x2D4 */ u8 pad2D4[0x2DC - 0x2D4];
+    /* 0x2D4 */ f32 bgRotX;
+    /* 0x2D8 */ f32 bgRotY;
     /* 0x2DC */ u8 unk2DC[0x2E2 - 0x2DC];
     /* 0x2E2 */ u16 unk2E2;
     /* 0x2E4 */ u8 pad2E4[4];

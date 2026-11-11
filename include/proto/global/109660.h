@@ -11,7 +11,7 @@ Gfx *gfxDrawSplitScreenDividers(Gfx *);
 void lightSetOverrideColor(f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_gfxDrawBackgroundQuad
-Gfx *gfxDrawBackgroundQuad(Gfx *, void *, f32, void *, u8, u8, u8, s8, f32);
+Gfx *gfxDrawBackgroundQuad(Gfx *, f32, f32, Mtx *, u8, u8, u8, s8, f32);
 #endif
 #ifndef PROTO_SKIP_gfxDrawSkybox
 void gfxDrawSkybox(struct ColorBytesView *, s8, s8, s8);
@@ -41,7 +41,7 @@ Gfx *gfxBuildScrollingBackground(Gfx *);
 Gfx *gfxClearScreenSetViewportScissor(Gfx *);
 #endif
 #ifndef PROTO_SKIP_gfxDrawMapBackground
-Gfx *gfxDrawMapBackground(Gfx *, void *, void *, void *, s32);
+Gfx *gfxDrawMapBackground(Gfx *, f32, f32, Mtx *, s16);
 #endif
 #ifndef PROTO_SKIP_gfxDrawPlayerViewBackground
 Gfx *gfxDrawPlayerViewBackground(Gfx *, s16);
