@@ -10,8 +10,8 @@
 #include "proto/global/70FD0.h"
 #include "proto/global/8CA50.h"
 
-extern s16 D_807FBB30;
-extern s16 D_807FBB32;
+extern u16 D_807FBB30;
+extern u16 D_807FBB32;
 extern PlayerState *gActivePlayerState;
 
 typedef struct ControllerStateEntryView {
@@ -21,13 +21,13 @@ typedef struct ControllerStateEntryView {
     u8 unk8;
 } ControllerStateEntryView;
 
-typedef struct ControllerAnimAssetView {
+typedef struct AnimInitData {
     void *unk0;
     void **unk4;
     void *unk8;
     void *unkC;
     void *unk10;
-    void *unk14;
+    struct ControllerSubNode *unk14;
     u8 pad18[8];
     u8 unk20;
     u8 unk21;
@@ -57,7 +57,7 @@ unsigned char cullSwap;
     ControllerAnimAssetView *asset;
     s32 delta;
 
-    for (i = 0; i < (u16)D_807FBB30; i++) {
+    for (i = 0; i < D_807FBB30; i++) {
         if (assetId == CONTROLLER_STATE_ENTRY(i).unk0 && CONTROLLER_STATE_ENTRY(i).unk8 == cullSwap) {
             CONTROLLER_STATE_ENTRY(i).unk2++;
             animListInit(controller, CONTROLLER_STATE_ENTRY(i).unk4);
@@ -65,13 +65,13 @@ unsigned char cullSwap;
         }
     }
 
-    if ((u16)D_807FBB32 >= 0x20) {
+    if (D_807FBB32 >= 0x20) {
         return D_807FB634;
     }
 
     asset = (ControllerAnimAssetView *)assetLoad(5, assetId - 1, 1, 1);
     CONTROLLER_STATE_ENTRY(i).unk0 = assetId;
-    D_807FBB30 = (u16)D_807FBB30 + 1;
+    D_807FBB30++;
     CONTROLLER_STATE_ENTRY(i).unk8 = cullSwap;
     CONTROLLER_STATE_ENTRY(i).unk2 = 1;
     CONTROLLER_STATE_ENTRY(i).unk4 = asset;
@@ -110,7 +110,7 @@ typedef struct GfxCmdWords {
     u32 unk0;
     u32 unk4;
 } GfxCmdWords;
-void gfxSwapGeometryModeCullBits(GfxCmdWords *cmdStart, GfxCmdWords *cmdEnd) {
+void gfxSwapGeometryModeCullBits(GfxCmdWords *cmdStart, void *cmdEnd) {
     u32 command;
     u32 op;
     u32 w0;
@@ -185,7 +185,7 @@ typedef struct ControllerSubNode {
 } ControllerSubNode;
 
 
-void controllerBuildSubcommandList(ControllerSubCmd *cmdStart, ControllerSubCmd *cmdEnd, ControllerSubNode **pNodeList) {
+void controllerBuildSubcommandList(ControllerSubCmd *cmdStart, void *cmdEnd, ControllerSubNode **pNodeList) {
     ControllerSubCmd *curr;
     ControllerSubCmd *search;
     ControllerSubNode *node;
@@ -252,28 +252,26 @@ typedef struct ControllerCommandOwner {
 } ControllerCommandOwner;
 
 void controllerSetCommand(ControllerCommandOwner *owner, s32 commandIndex, ControllerCommand *command) {
-    u32 *commandWord;
     ControllerCommand *commands;
     ControllerCommand *destination;
 
     if (owner->unk60 & 0x10) {
         return;
     }
-    commandWord = &command->unk0; // FAKE: pointer temp for the word compare (direct command->unk0 fails fdiff)
     commands = owner->unk0->unk4->unk0;
     destination = commands + commandIndex;
-    if ((destination->unk0 != *commandWord) || (command->unk4 != destination->unk4)) {
+    if ((command->unk0 != destination->unk0) || (command->unk4 != destination->unk4)) {
         memcpy(destination, command, 8);
     }
 }
 
-void controllerCommandRelocateAssets(ControllerCommand *cmdStart, ControllerCommand *cmdEnd) {
-    u32 word;
+void controllerCommandRelocateAssets(ControllerCommand *cmdStart, void *cmdEnd) {
+    u32 op;
 
     if (cmdStart != cmdEnd) {
         do {
-            word = cmdStart->unk0;
-            if ((word >> 0x18) == (0, 0xFD)) { // FAKE: keeps bnel operand order
+            op = cmdStart->unk0 >> 0x18;
+            if (op == 0xFD) {
                 if (((cmdStart->unk4 * 0x10) >> 0x1C) == 0) {
                     cmdStart->unk4 = (u32)assetLoad(0x19, cmdStart->unk4, 0, 0);
                 }
@@ -286,7 +284,7 @@ void controllerCommandRelocateAssets(ControllerCommand *cmdStart, ControllerComm
 u16 controllerLookupStateByHash(Actor *actor) {
     u32 val = (u32)actor->animState;
     s32 i;
-    for (i = (u16)D_807FBB30; i >= 0; i--) {
+    for (i = D_807FBB30; i >= 0; i--) {
         if (val == D_807FB630[i].unk4) {
             break;
         }
@@ -466,26 +464,26 @@ u8 slotIndex;
             cmdList = sub->commands;
             if (cmd != (ControllerCmdB *)cmdList) {
                 do {
-                    val = cmd->unk0;
-                    if ((val >> 24) == (0, 0xFD)) {
+                    val = cmd->unk0 >> 24;
+                    if (val == 0xFD) {
                         val = cmd->unk4;
                         if ((val >= 0x80000000) && (val < 0xA0000000)) {
-                            assetFreeBuffer((void *)(val ^ 0), 0x270, 0x15);
+                            assetFreeBuffer((void *)(val ^ 0), 0x270, 0x15); // FAKE: no-op xor keeps val a separate temp from the range test
                         }
                     }
                 } while (++cmd != (ControllerCmdB *)cmdList);
             }
 
-            D_807FBB30 = (u16)D_807FBB30 - 1;
-            FREESUB_SLOT(i).unk0 = FREESUB_SLOT((u16)D_807FBB30).unk0;
-            FREESUB_SLOT(i).unk4 = FREESUB_SLOT((u16)D_807FBB30).unk4;
-            FREESUB_SLOT(i).unk8 = FREESUB_SLOT((u16)D_807FBB30).unk8;
-            FREESUB_SLOT(i).unk2 = FREESUB_SLOT((u16)D_807FBB30).unk2;
+            D_807FBB30--;
+            FREESUB_SLOT(i).unk0 = FREESUB_SLOT(D_807FBB30).unk0;
+            FREESUB_SLOT(i).unk4 = FREESUB_SLOT(D_807FBB30).unk4;
+            FREESUB_SLOT(i).unk8 = FREESUB_SLOT(D_807FBB30).unk8;
+            FREESUB_SLOT(i).unk2 = FREESUB_SLOT(D_807FBB30).unk2;
 
-            FREESUB_SLOT((u16)D_807FBB30).unk0 = 0;
-            FREESUB_SLOT((u16)D_807FBB30).unk4 = 0;
-            FREESUB_SLOT((u16)D_807FBB30).unk8 = 0;
-            FREESUB_SLOT((u16)D_807FBB30).unk2 = 0;
+            FREESUB_SLOT(D_807FBB30).unk0 = 0;
+            FREESUB_SLOT(D_807FBB30).unk4 = 0;
+            FREESUB_SLOT(D_807FBB30).unk8 = 0;
+            FREESUB_SLOT(D_807FBB30).unk2 = 0;
 
             assetFreeBuffer((void *)sub, 0x281, 0x15);
         }
@@ -499,18 +497,18 @@ int controllerAnimCacheFree(Actor *actor, AnimSlot *slot) {
 
     asset = slot->clip;
     if (asset != NULL) {
-        count = *(u16 *)&D_807FBB32;
+        count = D_807FBB32;
         for (i = 0; i + 1 <= count; i++) { // LAYOUT: plain `i < count` is rewritten to a bne latch by uopt's LFTR
             if (asset == D_807FB7B0[i].asset) {
                 if (--D_807FB7B0[i].refCount == 0) {
                     assetFreeBuffer(D_807FB7B0[i].asset, 0x298, 0x15);
-                    *(u16 *)&D_807FBB32 -= 1;
-                    D_807FB7B0[i].id = D_807FB7B0[*(u16 *)&D_807FBB32].id;
-                    D_807FB7B0[i].asset = D_807FB7B0[*(u16 *)&D_807FBB32].asset;
-                    D_807FB7B0[i].refCount = D_807FB7B0[*(u16 *)&D_807FBB32].refCount;
-                    D_807FB7B0[*(u16 *)&D_807FBB32].id = 0xFFFF;
-                    D_807FB7B0[*(u16 *)&D_807FBB32].asset = NULL;
-                    D_807FB7B0[*(u16 *)&D_807FBB32].refCount = 0;
+                    D_807FBB32--;
+                    D_807FB7B0[i].id = D_807FB7B0[D_807FBB32].id;
+                    D_807FB7B0[i].asset = D_807FB7B0[D_807FBB32].asset;
+                    D_807FB7B0[i].refCount = D_807FB7B0[D_807FBB32].refCount;
+                    D_807FB7B0[D_807FBB32].id = 0xFFFF;
+                    D_807FB7B0[D_807FBB32].asset = NULL;
+                    D_807FB7B0[D_807FBB32].refCount = 0;
                 }
                 break;
             }
@@ -733,7 +731,7 @@ extern AnimCacheEntry D_807FB7B0[];
 void *controllerAnimCacheGetOrLoad(s32 id) {
     AnimCacheEntry *entry;
     u32 i;
-    void *asset;
+    AnimClip *asset;
     s32 count;
     s32 bound;
 
@@ -741,9 +739,9 @@ void *controllerAnimCacheGetOrLoad(s32 id) {
         return NULL;
     }
 
-    count = (u16)D_807FBB32;
+    count = D_807FBB32;
     i = 0;
-    if ((bound = count) != 0) {
+    if ((bound = count) != 0) { // FAKE: assigned bound and the (u32) latch keep the bound in a0 (Q0428)
         entry = D_807FB7B0;
         do {
             if (id == entry->id) {
@@ -759,8 +757,8 @@ void *controllerAnimCacheGetOrLoad(s32 id) {
     }
 
     asset = assetLoad(0xB, id, 1, 1);
-    *(u16 *)((u8 *)asset + 6) += 6;
-    bound = (u16)D_807FBB32;
+    asset->unk6 += 6;
+    bound = D_807FBB32;
     entry = &D_807FB7B0[bound];
     entry->asset = asset;
     entry->refCount++;

@@ -13,7 +13,7 @@ struct GfxCmdWords;
 void *controllerAnimStateLoadAsset();
 #endif
 #ifndef PROTO_SKIP_gfxSwapGeometryModeCullBits
-void gfxSwapGeometryModeCullBits(struct GfxCmdWords *, struct GfxCmdWords *);
+void gfxSwapGeometryModeCullBits(struct GfxCmdWords *, void *);
 #endif
 #ifndef PROTO_SKIP_controllerAnimLoadStateAsset
 void controllerAnimLoadStateAsset(Actor *, s16);
@@ -25,13 +25,13 @@ void controllerAnimLoadStateAsset1(Actor *, s16);
 void controllerAnimFreeStateAsset(Actor *);
 #endif
 #ifndef PROTO_SKIP_controllerBuildSubcommandList
-void controllerBuildSubcommandList(struct ControllerSubCmd *, struct ControllerSubCmd *, struct ControllerSubNode **);
+void controllerBuildSubcommandList(struct ControllerSubCmd *, void *, struct ControllerSubNode **);
 #endif
 #ifndef PROTO_SKIP_controllerSetCommand
 void controllerSetCommand(struct ControllerCommandOwner *, s32, struct ControllerCommand *);
 #endif
 #ifndef PROTO_SKIP_controllerCommandRelocateAssets
-void controllerCommandRelocateAssets(struct ControllerCommand *, struct ControllerCommand *);
+void controllerCommandRelocateAssets(struct ControllerCommand *, void *);
 #endif
 #ifndef PROTO_SKIP_controllerLookupStateByHash
 u16 controllerLookupStateByHash(Actor *);

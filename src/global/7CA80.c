@@ -114,8 +114,8 @@ typedef struct ActorAssetHeader {
 
 extern Struct807FB630 D_807FB630[32];
 extern Struct807FB7B0 D_807FB7B0[32];
-extern s16 D_807FBB30;
-extern s16 D_807FBB32;
+extern u16 D_807FBB30;
+extern u16 D_807FBB32;
 extern ActorAssetHeader *gActorScriptAsset;
 extern void *gActorScriptIndexTable;
 extern void *gActorScriptAnimTable;
