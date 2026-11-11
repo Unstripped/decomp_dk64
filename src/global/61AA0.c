@@ -17,7 +17,7 @@ void renderSetSegment6Override(u8 segment) {
 
 extern Gfx D_80748310[6][2];
 
-void renderReplaceSegment6Commands(Gfx *start, Gfx *end) {
+void renderReplaceSegment6Commands(Gfx *start, void *end) { // end: one past the last command
     while (start != end) {
         s32 found = 0;
         s32 i = 0;

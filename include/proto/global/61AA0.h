@@ -7,7 +7,7 @@
 void renderSetSegment6Override(u8);
 #endif
 #ifndef PROTO_SKIP_renderReplaceSegment6Commands
-void renderReplaceSegment6Commands(Gfx *, Gfx *);
+void renderReplaceSegment6Commands(Gfx *, void *);
 #endif
 #ifndef PROTO_SKIP_renderCalcPlayerDistanceAlpha
 void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
