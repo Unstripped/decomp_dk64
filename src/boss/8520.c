@@ -9,14 +9,6 @@
 #include "proto/global/B1F60.h"
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
-typedef struct BossA_Struct_807FBB40 {
-    u8 pad0[0x7C];
-    f32 unk7C;
-    u8 pad80[4];
-    f32 unk84;
-} BossA_Struct_807FBB40;
-
-
 typedef struct BossA_Struct_807FBB44 {
     u8 pad0[0xC8];
     f32 unkC8;
@@ -24,7 +16,7 @@ typedef struct BossA_Struct_807FBB44 {
     s16 unk12A;
 } BossA_Struct_807FBB44;
 
-extern BossA_Struct_807FBB40 *gCurrentActor;
+extern Actor *gCurrentActor;
 extern BossA_Struct_807FBB44 *gSpawnedActor;
 
 f32 mathCosF(s16);
@@ -40,9 +32,9 @@ void bossKutOutSpawnGhost(s16 actorType, s16 distance, s16 angle) {
     fArg1 = distance;
     spawnNodeSpawnById(
         actorType,
-        sinVal * fArg1 + gCurrentActor->unk7C,
+        sinVal * fArg1 + gCurrentActor->x,
         gBehaviourExtraState->y,
-        mathCosF(angle) * fArg1 + gCurrentActor->unk84,
+        mathCosF(angle) * fArg1 + gCurrentActor->z,
         0, 0, 0
     );
     gSpawnedActor->unkC8 *= 2;
@@ -132,37 +124,10 @@ typedef struct BossSwayState {
     s16 unk4;
 } BossSwayState;
 
+// Boss actor with its sway-state component (the first pointer after Actor, 0x178).
 typedef struct BossActor {
-    char pad0[4];
-    ActorSub4 *unk4;
-    char pad8[0x58];
-    s32 unk60;
-    char pad64[0x18];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0x18];
-    f32 unkA0;
-    f32 unkA4;
-    char padA8[0x18];
-    f32 unkC0;
-    char padC4[0x22];
-    s16 unkE6;
-    s16 unkE8;
-    char padEA[4];
-    s16 unkEE;
-    char padF0[0x42];
-    s16 unk132;
-    s16 unk134;
-    char pad136[0xE];
-    u8 unk144;
-    char pad145[0xF];
-    u8 unk154;
-    u8 unk155;
-    char pad156[8];
-    u8 unk15E;
-    char pad15F[0x19];
-    BossSwayState *unk178;
+    /* 0x000 */ Actor base;
+    /* 0x178 */ BossSwayState *unk178;
 } BossActor;
 
 
@@ -188,54 +153,53 @@ u8 camIsCutsceneActive(void);
 void behaviourSpawnPuffParticle(void);
 u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 
-#define A40 ((BossActor *)gCurrentActor)
 
 void bossKutOutStep(void) {
     BossSwayState *swayState;
 
-    swayState = A40->unk178;
+    swayState = ((BossActor *)gCurrentActor)->unk178;
     behaviourFrameBegin();
-    if (!(A40->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         func_8002C748(0);
         func_8002C748(1);
         gBehaviourAnimState->unk30 = 2.5f;
         gBehaviourAnimState->flags &= 0xFFF7;
         gBehaviourAnimState->flags |= 0x200;
-        A40->unk60 |= 0x400;
-        A40->unk132 = 4;
-        A40->unk154 = 0x1E;
-        actorSetUniformScale(gCurrentActor, 2.0 * A40->unk4->scaleX);
+        gCurrentActor->flags |= 0x400;
+        gCurrentActor->interactionType = 4;
+        gCurrentActor->state = 0x1E;
+        actorSetUniformScale(gCurrentActor, 2.0 * gCurrentActor->sub4->scaleX);
         actorSpawnLinkedFollower();
     }
-    if (((gBossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (A40->unk154 != 0x37)) {
+    if (((gBossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
         if (flagGet(0xF7, 0) != 0) {
             tagBarrelSpawnActorSmokePuffs(0, 1);
-            A40->unk154 = 0x40;
+            gCurrentActor->state = 0x40;
         } else {
             camStartPath(gCurrentActor, 6, 1);
-            A40->unkC0 = 200.0f;
+            gCurrentActor->speedY = 200.0f;
             behaviourCalculateDamageForce(D_807FBD6C, 0x2F7);
         }
     }
-    switch (A40->unk154) {
+    switch (gCurrentActor->state) {
     case 0x28:
-        switch (A40->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
             camStartPath(gCurrentActor, 8, 1);
             actorScriptStart(gCurrentActor, 0);
             controllerAnimSetStateIfChanged(gCurrentActor, 0x589, 0.0f, 0.0f);
             gBehaviourWorkState->timer = 0;
-            A40->unk155 = 1;
-            A40->unk144 = 1;
-            sfxPlayAtPositionPooled(A40->unk7C, A40->unk80, A40->unk84, 0x2FC, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+            gCurrentActor->unk155 = 1;
+            gCurrentActor->unk144 = 1;
+            sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x2FC, 0xFF, 0x7F, 0, 0, 0.0f, 0);
         case 1:
             gBehaviourWorkState->timer += 8;
             if (gBehaviourWorkState->timer >= 0x259) {
-                A40->unk155 = 2;
+                gCurrentActor->unk155 = 2;
             }
-            A40->unk80 += 2.0f;
-            A40->unkE6 += gBehaviourWorkState->timer;
-            actorSetUniformScale(gCurrentActor, ((0.3 - A40->unk4->scaleY) * 0.05) + A40->unk4->scaleY);
+            gCurrentActor->y += 2.0f;
+            gCurrentActor->yaw += gBehaviourWorkState->timer;
+            actorSetUniformScale(gCurrentActor, ((0.3 - gCurrentActor->sub4->scaleY) * 0.05) + gCurrentActor->sub4->scaleY);
             break;
         case 2: {
             s16 v;
@@ -245,69 +209,69 @@ void bossKutOutStep(void) {
                 gBehaviourWorkState->timer = 0;
                 v = gBehaviourWorkState->timer;
             }
-            A40->unkE6 += v;
+            gCurrentActor->yaw += v;
             if (currentActorTestClearFlag() != 0) {
-                A40->unk155 = 3;
-                A40->unk60 &= ~4;
+                gCurrentActor->unk155 = 3;
+                gCurrentActor->flags &= ~4;
             }
             break;
         }
         case 3:
             if (currentActorTestClearFlag() != 0) {
-                A40->unk15E = 0xA;
+                gCurrentActor->eyeHeight = 0xA;
                 DC90->unk28 |= 0x8000;
-                A40->unk132 = 1;
-                A40->unk154 = 0x23;
+                gCurrentActor->interactionType = 1;
+                gCurrentActor->state = 0x23;
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
-                A40->unk144 = 0x24;
+                gCurrentActor->unk144 = 0x24;
                 actorScriptStart(gCurrentActor, 0x2F4);
             }
             break;
         }
         break;
     case 0x1E:
-        switch (A40->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
             if (currentActorTestClearFlag() != 0) {
                 DC90->unk28 |= 0x8000;
-                A40->unk155 = 1;
+                gCurrentActor->unk155 = 1;
             }
             break;
         case 2:
-            if ((A40->unk80 - A40->unkA4) > 300.0f) {
-                A40->unk80 -= 10.0f;
+            if ((gCurrentActor->y - gCurrentActor->floorY) > 300.0f) {
+                gCurrentActor->y -= 10.0f;
             } else {
                 DC90->unk28 |= 0x8000;
-                A40->unk155 = 3;
+                gCurrentActor->unk155 = 3;
             }
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
-                A40->unk154 = 0x27;
-                A40->unk155 = 0;
+                gCurrentActor->state = 0x27;
+                gCurrentActor->unk155 = 0;
                 camSetSecondTarget(gCamActor, 0, 0);
             }
             break;
         }
         break;
     case 0x27:
-        A40->unkE6 = mathAngleEaseToward(A40->unkE6, mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, A40->unk7C, A40->unk84), 8.0f);
-        switch (A40->unk155) {
+        gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z), 8.0f);
+        switch (gCurrentActor->unk155) {
         case 0:
             bossKutOutSpawnGhosts();
-            A40->unk155 = 1;
+            gCurrentActor->unk155 = 1;
             break;
         case 1:
             if ((spawnNodeHasActor(2) == 0) && (spawnNodeHasActor(3) == 0) && (spawnNodeHasActor(4) == 0)) {
-                A40->unk155 = 2;
+                gCurrentActor->unk155 = 2;
                 gBehaviourWorkState->timer = 0x96;
                 DC90->unk28 |= 0x8000;
-                A40->unk132 = 8;
+                gCurrentActor->interactionType = 8;
                 actorScriptStart(gCurrentActor, 0x2FA);
             }
             if ((camIsCutsceneActive() == 0) && ((randomNonNegative() >> 15) % 1000 >= 0x3E4)) {
                 actorScriptStart(gCurrentActor, 0x2FD);
-                A40->unk155 = 3;
+                gCurrentActor->unk155 = 3;
             }
             break;
         case 2:
@@ -319,19 +283,19 @@ void bossKutOutStep(void) {
                     behaviourSpawnPuffParticle();
                     swayState->unk2 = 0x96;
                     swayState->unk4 = 0x800;
-                    A40->unkEE = A40->unkE6;
-                    if (A40->unk134 == 1) {
-                        A40->unk154 = 0x28;
-                        A40->unk155 = 0;
+                    gCurrentActor->moveYaw = gCurrentActor->yaw;
+                    if (gCurrentActor->health == 1) {
+                        gCurrentActor->state = 0x28;
+                        gCurrentActor->unk155 = 0;
                     }
                 }
-                A40->unk132 = 4;
+                gCurrentActor->interactionType = 4;
                 DC90->unk28 |= 0x8000;
-                A40->unk155 = 0;
+                gCurrentActor->unk155 = 0;
             }
             break;
         case 4:
-            A40->unk155 = 1;
+            gCurrentActor->unk155 = 1;
             bossKutOutFireLaser();
             break;
         }
@@ -347,10 +311,10 @@ void bossKutOutStep(void) {
         swayState->unk0 = mathSinF(swayState->unk4) * swayState->unk2;
         swayState->unk4 += 0x32;
         swayState->unk2 -= 1;
-        A40->unkE8 = -swayState->unk0;
-        A40->unk7C = mathSinF(A40->unkEE) * swayState->unk0 + gBehaviourExtraState->x;
-        A40->unk84 = mathCosF(A40->unkEE) * swayState->unk0 + gBehaviourExtraState->z;
-        A40->unk80 = gBehaviourExtraState->y - sqrtf(0x1C390 - swayState->unk0 * swayState->unk0);
+        gCurrentActor->roll = -swayState->unk0;
+        gCurrentActor->x = mathSinF(gCurrentActor->moveYaw) * swayState->unk0 + gBehaviourExtraState->x;
+        gCurrentActor->z = mathCosF(gCurrentActor->moveYaw) * swayState->unk0 + gBehaviourExtraState->z;
+        gCurrentActor->y = gBehaviourExtraState->y - sqrtf(0x1C390 - swayState->unk0 * swayState->unk0);
     }
     if (DC90->unk28 & 0x8000) {
         bossAnimFrameBounceStep();
