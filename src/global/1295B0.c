@@ -503,7 +503,7 @@ s32 zoneCanReachPoint(Actor *actor, s16 targetX, s16 targetY, s16 targetZ, Zone 
 }
 
 
-s32 zoneCheckActorInside(Actor *actor, f32 prevX, f32 prevZ, Zone *zone) {
+s32 zoneCheckActorInside(Actor *actor, f32 prevX, f32 prevZ, Zone *zone, s16 *unused) {
     f32 x;
     f32 y;
     f32 z;

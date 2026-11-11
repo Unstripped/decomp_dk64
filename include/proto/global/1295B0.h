@@ -57,7 +57,7 @@ s32 zoneFindBestReachablePoint(u8, Actor *, Zone *, s16 *, s16 *, s16 *);
 s32 zoneCanReachPoint(Actor *, s16, s16, s16, struct Zone *);
 #endif
 #ifndef PROTO_SKIP_zoneCheckActorInside
-s32 zoneCheckActorInside(Actor *, f32, f32, Zone *);
+s32 zoneCheckActorInside(Actor *, f32, f32, Zone *, s16 *);
 #endif
 #ifndef PROTO_SKIP_actorSetPositionFromPoint
 void actorSetPositionFromPoint(Actor *, struct SpawnNode *);
