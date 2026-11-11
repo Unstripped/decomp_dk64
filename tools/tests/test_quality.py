@@ -736,6 +736,66 @@ def test_carry_declaration_moved_between_file_and_header(tmp_path, monkeypatch, 
     assert q.mark(by_site[new["sites"][0]["key"]], "remove", fp, "f")[0] == "✓"
 
 
+RESPELL_FN = "int f(char *d, char *s) {\n    if (d) {} // FAKE: steers\n    memcpy(d, s, 4);\n    return d[0];\n}\n"
+
+
+@pytest.mark.parametrize("hdr_decl,reason", [
+    ("typedef unsigned int size_t;\nvoid *memcpy(void *, const void *, size_t);\n", None),
+    ("typedef int size_t;\nvoid *memcpy(void *, const void *, size_t);\n",  # parameter type differs
+     "memcpy moved to include/memory.h, changed"),
+    ("void *memcpy();\n", "memcpy moved to include/memory.h, changed"),  # K&R vs prototyped
+])
+def test_carry_declaration_respelled_same_type(tmp_path, monkeypatch, capsys, hdr_decl, reason):
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    (repo / "include").mkdir()
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "_htext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    src, hdr = repo / "src" / "global" / "x.c", repo / "include" / "memory.h"
+    src.write_text("void *memcpy(void *, const void *, unsigned int);\n" + RESPELL_FN)
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fn = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    site = fn["sites"][0]
+    q.append_events([q.event("u1", "sweep", fn, site, "remove", "nohit"),
+                     q.event("u1", "a", fn, None, "views", "nohit", note="no views left"),
+                     q.event("u1", "a", fn, None, "review", "nohit", note=REVIEW),
+                     q.event("u1", "a", fn, site, "diagnose", "nohit", quirks=["Q0001"])])
+    hdr.write_text(hdr_decl)
+    src.write_text('#include "memory.h"\n' + RESPELL_FN)
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "b")
+    monkeypatch.setattr(q, "_htext", {})
+    new = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    before = q.load_events()
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    assert q.load_events() == before
+    if reason is not None:
+        assert f"skipped src/global/x.c: f: not a pure rename; body or a declaration it uses changed ({reason})" in out
+        assert "would carry 0 events" in out
+        return
+    how = "memcpy declaration moved to include/memory.h, same type"
+    assert f"would carry src/global/x.c: f: diagnose, remove, review, views ({how})" in out
+    assert "would carry 4 events" in out and "skipped" not in out
+    q.main(["carry", "--rev", rev_a, "--unit", "u2"])
+    by_site, by_func = q.index_events(q.load_events())
+    fp, fevs = (new["fp_local"], new["fp_hdr"], new["fp_hdr2"]), by_func[("global", "80600000")]
+    assert {m: q.mark(fevs, m, fp, "f")[0] for m in ("views", "review")} == {"views": "✓", "review": "✓"}
+    assert q.mark(by_site[new["sites"][0]["key"]], "remove", fp, "f")[0] == "✓"
+
+
 WSITE = dict(key="global:80600000:warning:abc123", kind="warning", name="f", line=4, lines=[3], tagged=False,
              code="g = x;", warning="712 illegal combination of pointer and integer")
 

@@ -20,7 +20,10 @@ method ladder that exhausts them, and the per-function `review` coverage.
                                          a reached declaration that moved between the .c and an
                                          include/ header counts as unchanged when identical: a record
                                          with the same clint record_layout, else the same tokens;
-                                         "(moved to|from <header>, identical)"). REV's sites and
+                                         "(moved to|from <header>, identical)"; a function or
+                                         variable declaration respelled, in place or so moved, with
+                                         the same canonical clang type counts as unchanged too:
+                                         "(<name> declaration respelled|moved ..., same type)"). REV's sites and
                                          fingerprints use REV's headers, and automatic results carry
                                          only when the reached include/ declarations apart from moved
                                          ones are unchanged since REV.
@@ -1317,18 +1320,21 @@ class Scope:
             self.paste_memo[name] = out
         return self.paste_memo[name]
 
-    def closure(self, names, pastes=False):
+    def closure(self, names, pastes=False, leaves=()):
         """name -> sorted (file, text) of every top-level declaration NAMES reach, transitively
         through the declarations' own tokens (types, fields' types, macros, prototypes). Name-based,
         so it over-includes (a local shadowing a global name pulls the global in), never
         under-includes, except through token-pasting macros (`pasted`). PASTES follows bounded
-        pastes too (`paste_names`): every name a paste could form is reached."""
+        pastes too (`paste_names`): every name a paste could form is reached. LEAVES are reached
+        but not followed."""
         seen, stack = {}, list(names)
         while stack:
             name = stack.pop()
             if name in seen or name not in self.idx:
                 continue
             seen[name], more = self.direct(name)
+            if name in leaves:
+                continue
             if pastes and name in self.pasting:
                 more = more | (self.paste_names(name) or set())
             stack += [n for n in more if n not in seen]
@@ -1410,18 +1416,61 @@ def moved_decl(path, name, ov, nv, old_scope, new_scope):
     return how, None
 
 
+def decl_signature(c):
+    """Canonical type of a function or variable declaration (not a definition): (kind, storage
+    class, canonical type, and for a function its canonical return and parameter types,
+    variadic-ness and written prototype-ness: `T f();` is unprototyped even where clang lends a
+    builtin its prototype), else None."""
+    if c.kind not in (CursorKind.FUNCTION_DECL, CursorKind.VAR_DECL) or c.is_definition():
+        return None
+    t = c.type.get_canonical()
+    sig = (c.kind.name, c.storage_class.name, t.spelling)
+    if c.kind == CursorKind.FUNCTION_DECL:
+        proto = t.kind == TypeKind.FUNCTIONPROTO
+        toks = [x.spelling for x in c.get_tokens()]
+        for i in range(len(toks) - 2):
+            if toks[i] == c.spelling and toks[i + 1] == "(":
+                proto = proto and toks[i + 2] != ")"  # clang gives `T builtin();` the builtin's prototype
+                break
+        sig += (t.get_result().spelling, proto, proto and t.is_function_variadic(),
+                tuple(a.spelling for a in t.argument_types()) if proto else ())
+    return sig
+
+
+def respelled_decl(path, name, ov, nv, old_scope, new_scope):
+    """'NAME declaration respelled|moved to|from <header>, same type' when NAME's top-level
+    declarations (OV and NV, its `Scope.closure` values in OLD_SCOPE and NEW_SCOPE) are function or
+    variable declarations whose text changed, possibly moving between PATH's file scope and an
+    include/ header, but whose `decl_signature`s are identical (K&R vs prototyped is a change);
+    else None."""
+    os_, ns = ([decl_signature(c) for c in sc.idx.get(name, [])] for sc in (old_scope, new_scope))
+    if not os_ or not ns or None in os_ or None in ns or set(os_) != set(ns):
+        return None
+    inc = "include" + os.sep
+    ofiles = {f for f, _ in ov if (f, _) not in nv}
+    nfiles = {f for f, _ in nv if (f, _) not in ov}
+    if ofiles == {path} and len(nfiles) == 1 and next(iter(nfiles)).startswith(inc):
+        return f"{name} declaration moved to {next(iter(nfiles))}, same type"
+    if nfiles == {path} and len(ofiles) == 1 and next(iter(ofiles)).startswith(inc):
+        return f"{name} declaration moved from {next(iter(ofiles))}, same type"
+    return f"{name} declaration respelled, same type"
+
+
 def scope_equivalent(path, old_body, new_body, old_closure, new_closure, old_scope, new_scope, rev=None):
-    """({name: 'moved to|from <header>'}, None) when a function is unchanged apart from file-scope
-    text it does not use: same body tokens, and every top-level declaration, typedef, record, enum
-    or macro it reaches (its `Scope.closure` in each version, OLD_CLOSURE and NEW_CLOSURE) has the
-    same text in both versions or only moved, identical, between PATH's file scope and an include/
-    header (`moved_decl`); else (None, why: '' or the changed moved declaration). Callers parse both
+    """({name: 'NAME moved to|from <header>, identical' or a `respelled_decl` description}, None)
+    when a function is unchanged apart from file-scope text it does not use: same body tokens, and
+    every top-level declaration, typedef, record, enum or macro it reaches (its `Scope.closure` in
+    each version, OLD_CLOSURE and NEW_CLOSURE) has the same text in both versions, only moved,
+    identical, between PATH's file scope and an include/ header (`moved_decl`), or is a function
+    or variable declaration respelled with the same canonical type (`respelled_decl`); names only
+    reached through respelled declarations (a `size_t` in the new prototype) may appear or vanish
+    and map to None; else (None, why: '' or the changed moved declaration). Callers parse both
     versions against the current headers; REV = (scope, closure) of the old text parsed with REV's
     headers supplies the old side of a name whose declarations differ (the current headers may
     already hold a declaration moved into them, or no longer one moved out)."""
     if [(t.kind, t.spelling) for t in old_body] != [(t.kind, t.spelling) for t in new_body]:
         return None, ""
-    moved = {}
+    moved, oneside = {}, []
     for name in sorted(set(old_closure) | set(new_closure)):
         ov, nv, oscope = old_closure.get(name), new_closure.get(name), old_scope
         if ov == nv:
@@ -1431,11 +1480,28 @@ def scope_equivalent(path, old_body, new_body, old_closure, new_closure, old_sco
             if ov == nv:
                 continue
         if ov is None or nv is None:
-            return None, ""
+            oneside.append((name, ov is None))
+            continue
         how, why = moved_decl(path, name, ov, nv, oscope, new_scope)
-        if how is None:
+        if how is not None:
+            moved[name] = f"{how}, identical"
+            continue
+        resp = respelled_decl(path, name, ov, nv, oscope, new_scope)
+        if resp is None:
             return None, why or ""
-        moved[name] = how
+        moved[name] = resp
+    if oneside:
+        # a name on one side only is unchanged when only respelled declarations reach it there
+        leaves = {n for n, m in moved.items() if m.endswith(", same type")}
+        if not leaves:
+            return None, ""
+        roots = {t.spelling for t in old_body if t.kind == TokenKind.IDENTIFIER}
+        oscope = rev[0] if rev is not None else old_scope
+        ocl, ncl = (sc.closure(roots, pastes=True, leaves=leaves) for sc in (oscope, new_scope))
+        for name, new_only in oneside:
+            if name in (ncl if new_only else ocl):
+                return None, ""
+            moved[name] = None
     return moved, None
 
 
@@ -1510,7 +1576,7 @@ def carry_renames(a, by_site, by_func):
                                    + (f" ({why})" if why else ""))
                     continue
                 if moved:
-                    how = "; ".join(f"{m}, identical" for m in sorted(set(moved.values())))
+                    how = "; ".join(sorted({m for m in moved.values() if m}))
                     # the reached include/ declarations apart from the moved ones unchanged since REV:
                     # automatic results carry too
                     hdr_moved = old["scope"].fp_hdr2(rnames, fo["fp_hdr"], skip=moved) == nscope.fp_hdr2(

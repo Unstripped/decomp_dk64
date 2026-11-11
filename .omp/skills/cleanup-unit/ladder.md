@@ -74,7 +74,9 @@ A function with 3+ non-kept sites (warning sites not counted) also needs a fresh
   token-pasting macro, whose pasted names are untracked, uses the whole-header hash instead and
   is never carried by `carry --header-carve`; plain `carry` follows a paste with a literal side
   (`GBL_c##clk` reaches every `GBL_c*`) and skips only two pasted parameters, and treats a type
-  moved unchanged between the `.c` and an `include/` header as unchanged (`moved to <h>, identical`);
+  moved unchanged between the `.c` and an `include/` header as unchanged (`moved to <h>, identical`)
+  and a prototype/variable declaration respelled with the same canonical type as unchanged
+  (`<name> declaration respelled|moved to <h>, same type`; K&R vs prototyped is a change);
   events from before it fall back to
   `fp_hdr`, every included header) equal the current values. `carry --rev REV --header-carve`
   re-stamps these across header edits (REV parsed with REV's headers) for functions whose
