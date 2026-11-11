@@ -3828,8 +3828,8 @@ void playerStateAttachedCallbackFall(void) {
         playerInputUpdate(5);
         gActivePlayerState->unk94 = 0.0f;
         gActivePlayerState->unk158 = 0;
-        gCurrentActor->moveYaw = gActivePlayerState->unk130->yaw;
-        if (mathAngleDistance(gCurrentActor->yaw, gActivePlayerState->unk130->yaw) >= 0x400) {
+        gCurrentActor->moveYaw = gActivePlayerState->pathOwner->yaw;
+        if (mathAngleDistance(gCurrentActor->yaw, gActivePlayerState->pathOwner->yaw) >= 0x400) {
             gCurrentActor->moveYaw = (gCurrentActor->moveYaw + 0x800) & 0xFFF;
         }
         break;
@@ -4045,7 +4045,7 @@ void playerFindClosestTargetActor(void) {
         if (cur == NULL) {
             for (i = 0; i < gActiveActorCount; i++) {
                 a = gActiveActors[i].actor;
-                if (!(a->flags & 0x2000) && (a->flags & 0x04000000) && (a != gActivePlayerState->unk130) && (a != gActivePlayerActor)) {
+                if (!(a->flags & 0x2000) && (a->flags & 0x04000000) && (a != gActivePlayerState->pathOwner) && (a != gActivePlayerActor)) {
                     ang = (s32)(((f64)(mathAngleBetweenPointsRad(a->x, a->z, gActivePlayerActor->x, gActivePlayerActor->z) * 57.295776f) / 360.0) * 4095.0);
                     d = mathAngleDistance(ang, gActivePlayerState->unk154);
                     dx = a->x - gActivePlayerActor->x;

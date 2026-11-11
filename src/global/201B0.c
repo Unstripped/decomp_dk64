@@ -2120,8 +2120,8 @@ u8 camComputeFollowPos(Actor *camActor, Actor *target, f32 *outX, f32 *outY, f32
                 actorGetNodePos(target, 0xC, &nodeAX, &nodeAY, &nodeAZ);
                 actorGetNodePos(target, 1, &nodeBX, &nodeBY, &nodeBZ);
                 nodeYaw = mathAngleBetweenPoints2D(nodeAX, nodeAZ, nodeBX, nodeBZ) & 0xFE00;
-                if (actorTableContains(targetState->unk130) != 0) {
-                    otherYaw = targetState->unk130->yaw;
+                if (actorTableContains(targetState->pathOwner) != 0) {
+                    otherYaw = targetState->pathOwner->yaw;
                     if (nodeYaw < otherYaw) {
                         diff = otherYaw - nodeYaw;
                     } else {

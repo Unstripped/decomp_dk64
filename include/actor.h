@@ -324,23 +324,23 @@ typedef struct PathFollowState {
 // One entry of an actor's segment-animation list (Actor.animList; 8CA50 animListInit builds it from
 // the model asset, animListUpdate steps it, animSetSegments binds each node's current frame to its segment).
 typedef struct AnimNode {
-    /* 0x00 */ void **unk0;
-    /* 0x04 */ void **unk4;
-    /* 0x08 */ u8 unk8;
+    /* 0x00 */ void **items;
+    /* 0x04 */ void **buffers;
+    /* 0x08 */ u8 segment;
     /* 0x09 */ u8 pad9;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
+    /* 0x0A */ s16 itemCount;
+    /* 0x0C */ s16 frame;
     /* 0x0E */ u8 padE[0x2];
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ s16 unk18;
-    /* 0x1A */ s16 unk1A;
-    /* 0x1C */ s16 unk1C;
-    /* 0x1E */ s16 unk1E;
-    /* 0x20 */ u8 unk20;
-    /* 0x21 */ u8 unk21;
-    /* 0x22 */ u8 unk22;
-    /* 0x23 */ u8 unk23;
+    /* 0x10 */ f32 speed;
+    /* 0x14 */ f32 subframe;
+    /* 0x18 */ s16 loopLimit;
+    /* 0x1A */ s16 loopCount;
+    /* 0x1C */ s16 startFrame;
+    /* 0x1E */ s16 endFrame;
+    /* 0x20 */ u8 direction;
+    /* 0x21 */ u8 loopMode;
+    /* 0x22 */ u8 finished;
+    /* 0x23 */ u8 bindSegment;
     /* 0x24 */ struct AnimNode *next;
 } AnimNode;
 
@@ -386,7 +386,7 @@ typedef struct Actor {
     /* 0x0C8 */ f32 terminalSpeedY;
     /* 0x0CC */ u8 floorNodeId;
     /* 0x0CD */ u8 unkCD;
-    /* 0x0CE */ s16 unkCE;
+    /* 0x0CE */ s16 boundingRadius;
     /* 0x0D0 */ u8 floorSurfaceType;
     /* 0x0D1 */ u8 floorSlopeType;
     /* 0x0D2 */ u8 padD2[2];
@@ -702,10 +702,10 @@ typedef struct PlayerState {
     /* 0x128 */ f32 unk128;
     /* 0x12C */ u8 unk12C;
     /* 0x12D */ u8 pad12D[3];
-    /* 0x130 */ Actor *unk130;
-    /* 0x134 */ u8 unk134;
+    /* 0x130 */ Actor *pathOwner;
+    /* 0x134 */ u8 pathIndex;
     /* 0x135 */ u8 pad135[3];
-    /* 0x138 */ f32 unk138;
+    /* 0x138 */ f32 pathDist;
     /* 0x13C */ f32 unk13C;
     /* 0x140 */ f32 unk140;
     /* 0x144 */ f32 unk144;
@@ -716,8 +716,8 @@ typedef struct PlayerState {
     /* 0x156 */ u8 pad156[2];
     /* 0x158 */ Actor *unk158;
     /* 0x15C */ u8 unk15C[0x40];
-    /* 0x19C */ s16 unk19C;
-    /* 0x19E */ s16 unk19E;
+    /* 0x19C */ s16 pathYawMin;
+    /* 0x19E */ s16 pathYawMax;
     /* 0x1A0 */ u16 unk1A0;
     /* 0x1A2 */ u8 unk1A2;
     /* 0x1A3 */ u8 isHoldingObject;

@@ -844,8 +844,8 @@ void playerClampYawToArc(void) {
     s16 cur;
     s32 outside = 0;
 
-    hi = gActivePlayerState->unk19E;
-    lo = gActivePlayerState->unk19C;
+    hi = gActivePlayerState->pathYawMax;
+    lo = gActivePlayerState->pathYawMin;
     if (lo < hi) {
         cur = gCurrentActor->yaw;
         if (cur < lo || hi < cur) {
@@ -859,10 +859,10 @@ void playerClampYawToArc(void) {
     }
     if (outside) {
         distLo = mathAngleDistance(cur, lo);
-        if (distLo < mathAngleDistance(gCurrentActor->yaw, gActivePlayerState->unk19E)) {
-            gCurrentActor->yaw = gActivePlayerState->unk19C;
+        if (distLo < mathAngleDistance(gCurrentActor->yaw, gActivePlayerState->pathYawMax)) {
+            gCurrentActor->yaw = gActivePlayerState->pathYawMin;
         } else {
-            gCurrentActor->yaw = gActivePlayerState->unk19E;
+            gCurrentActor->yaw = gActivePlayerState->pathYawMax;
         }
     }
 }

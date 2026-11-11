@@ -401,7 +401,7 @@ void actorShockwaveUpdate(void) {
         }
         break;
     case 1:
-        if ((gCurrentActor->sub4->model->speed == 0.0f && animGetNodeByIndex(gCurrentActor, 0)->unkC >= 0xE) ||
+        if ((gCurrentActor->sub4->model->speed == 0.0f && animGetNodeByIndex(gCurrentActor, 0)->frame >= 0xE) ||
             gCurrentActor->sub4->model->frame > 9.0f) {
             gCurrentActor->state = 2;
             if (gCurrentActor->unk15F != 0 && actorSpawn(0x102, gCurrentActor->movePitch) != 0) {

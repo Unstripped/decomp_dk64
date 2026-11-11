@@ -37,26 +37,26 @@ void animListInit(Actor *actor, AnimInitData *initData) {
             node = heapAlloc(sizeof(AnimNode));
             *next_ptr = node;
             num = *src;
-            node->unk1C = 0;
-            node->unkC = 0;
-            node->unk10 = 0.0f;
-            node->unk14 = 0.0f;
-            node->unk18 = 0;
-            node->unk1A = 0;
-            node->unk22 = unk;
-            node->unk20 = 0;
-            node->unk21 = 0;
-            node->unkA = num;
-            node->unk1E = num;
+            node->startFrame = 0;
+            node->frame = 0;
+            node->speed = 0.0f;
+            node->subframe = 0.0f;
+            node->loopLimit = 0;
+            node->loopCount = 0;
+            node->finished = unk;
+            node->direction = 0;
+            node->loopMode = 0;
+            node->itemCount = num;
+            node->endFrame = num;
             alloc_size = num * sizeof(void *);
-            node->unk8 = src[1];
+            node->segment = src[1];
             next_ptr = &node->next;
-            node->unk23 = src[2];
+            node->bindSegment = src[2];
             src += 3;
-            node->unk0 = heapAlloc(alloc_size);
-            node->unk4 = heapAlloc(alloc_size);
-            unk0 = node->unk0;
-            unk4 = node->unk4;
+            node->items = heapAlloc(alloc_size);
+            node->buffers = heapAlloc(alloc_size);
+            unk0 = node->items;
+            unk4 = node->buffers;
             i = 0;
             if (num > 0) {
                 do {
@@ -80,9 +80,9 @@ Gfx *animSetSegments(Gfx *glist, Actor *actor) {
 
     for (node = actor->animList; node != NULL; node = node->next) {
         temp = glist;
-        if (node->unk23 != 0) {
-            void *addr = node->unk0[node->unkC];
-            temp->words.w0 = 0xDB060000 | ((node->unk8 * 4) & 0xFFFF);
+        if (node->bindSegment != 0) {
+            void *addr = node->items[node->frame];
+            temp->words.w0 = 0xDB060000 | ((node->segment * 4) & 0xFFFF);
             glist++;
             temp->words.w1 = osVirtualToPhysical(addr);
         }
@@ -94,7 +94,7 @@ void animListUpdate(Actor *actor) {
     AnimNode *node;
 
     for (node = actor->animList; node != NULL; node = node->next) {
-        if (node->unk22 == 0) {
+        if (node->finished == 0) {
             animNodeAdvanceTime(node);
         }
     }
@@ -104,44 +104,44 @@ void animNodeAdvanceTime(AnimNode *node) {
     s16 endFrame;
     s32 frameDelta;
 
-    switch (node->unk20) {
+    switch (node->direction) {
     case 0: {
         f32 subframe;
         s32 loopCount;
         s16 loopLimit;
 
-        node->unk14 += node->unk10;
-        subframe = node->unk14;
+        node->subframe += node->speed;
+        subframe = node->subframe;
         frameDelta = (s32)subframe;
-        node->unkC += frameDelta;
-        node->unk14 = subframe - (f32)frameDelta;
-        endFrame = node->unk1E;
-        if (node->unkC >= endFrame) {
-            loopCount = node->unkC / endFrame;
-            loopLimit = node->unk18;
-            node->unk1A += loopCount;
-            if (node->unk1A >= loopLimit && loopLimit != -1) {
-                node->unkC = endFrame - 1;
-                node->unk22 = 1;
-                node->unk14 = 1.0f;
-                if (node->unk21 == 1) {
-                    node->unk20 = 1;
+        node->frame += frameDelta;
+        node->subframe = subframe - (f32)frameDelta;
+        endFrame = node->endFrame;
+        if (node->frame >= endFrame) {
+            loopCount = node->frame / endFrame;
+            loopLimit = node->loopLimit;
+            node->loopCount += loopCount;
+            if (node->loopCount >= loopLimit && loopLimit != -1) {
+                node->frame = endFrame - 1;
+                node->finished = 1;
+                node->subframe = 1.0f;
+                if (node->loopMode == 1) {
+                    node->direction = 1;
                     return;
                 }
             } else {
-                switch (node->unk21) {
+                switch (node->loopMode) {
                 case 0:
-                    node->unkC = node->unkC % endFrame;
-                    if (node->unkC < node->unk1C) {
-                        node->unkC = node->unk1C;
+                    node->frame = node->frame % endFrame;
+                    if (node->frame < node->startFrame) {
+                        node->frame = node->startFrame;
                         return;
                     }
                     break;
                 case 1:
                     if (loopCount != 0) {
-                        node->unk20 = 1;
-                        node->unkC = endFrame - 1;
-                        node->unk14 = 1.0f;
+                        node->direction = 1;
+                        node->frame = endFrame - 1;
+                        node->subframe = 1.0f;
                         return;
                     }
                     break;
@@ -161,33 +161,33 @@ void animNodeAdvanceTime(AnimNode *node) {
         s32 loopCount;
         s32 inc;
 
-        node->unk14 -= node->unk10;
-        subframe = node->unk14;
+        node->subframe -= node->speed;
+        subframe = node->subframe;
         if ((f64)subframe < 0.0) {
             u32 step = (s32)subframe - 1;
-            node->unkC += step;
-            node->unk14 = subframe - (f32)(s32)step;
+            node->frame += step;
+            node->subframe = subframe - (f32)(s32)step;
         }
-        if (node->unkC < 0) {
-            negFrame = -node->unkC;
-            endFrame = node->unk1E;
-            loopLimit = node->unk18;
+        if (node->frame < 0) {
+            negFrame = -node->frame;
+            endFrame = node->endFrame;
+            loopLimit = node->loopLimit;
             loopCount = negFrame / endFrame;
-            node->unk1A = (s16)(node->unk1A + loopCount + 1);
-            if (node->unk1A >= loopLimit && loopLimit != -1) {
-                node->unkC = 0;
-                node->unk22 = 1;
-                node->unk14 = 0.0f;
-                if (node->unk21 == 1) {
-                    node->unk20 = 0;
+            node->loopCount = (s16)(node->loopCount + loopCount + 1);
+            if (node->loopCount >= loopLimit && loopLimit != -1) {
+                node->frame = 0;
+                node->finished = 1;
+                node->subframe = 0.0f;
+                if (node->loopMode == 1) {
+                    node->direction = 0;
                     return;
                 }
             } else {
-                switch (node->unk21) {
+                switch (node->loopMode) {
                 case 0:
-                    node->unkC = negFrame % (endFrame - 1);
-                    if (node->unkC != 0) {
-                        node->unkC = (endFrame - node->unkC) - 1;
+                    node->frame = negFrame % (endFrame - 1);
+                    if (node->frame != 0) {
+                        node->frame = (endFrame - node->frame) - 1;
                         return;
                     }
                     break;
@@ -195,12 +195,12 @@ void animNodeAdvanceTime(AnimNode *node) {
                     inc = loopCount + 1;
                     if (inc) {} // FAKE: second read keeps lo+1 a real variable (v0) instead of folding to lo != -1
                     if (inc) {
-                        node->unkC = 0;
-                        node->unk20 = 0;
-                        if (node->unkC < node->unk1C) {
-                            node->unkC = node->unk1C;
+                        node->frame = 0;
+                        node->direction = 0;
+                        if (node->frame < node->startFrame) {
+                            node->frame = node->startFrame;
                         }
-                        node->unk14 = 0.0f;
+                        node->subframe = 0.0f;
                     }
                     break;
                 default:
@@ -218,14 +218,14 @@ s32 animGetNodeItem(Actor *actor, s32 index, s16 itemIndex) {
     if (!node) {
         return 0;
     }
-    return ((s32 *)node->unk0)[itemIndex];
+    return ((s32 *)node->items)[itemIndex];
 }
 
 void animSetNodeItem(Actor *actor, s32 index, s16 itemIndex, s32 value) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
-        if (itemIndex < node->unkA) {
-            ((s32 *)node->unk0)[itemIndex] = value;
+        if (itemIndex < node->itemCount) {
+            ((s32 *)node->items)[itemIndex] = value;
         }
     }
 }
@@ -233,73 +233,73 @@ void animSetNodeItem(Actor *actor, s32 index, s16 itemIndex, s32 value) {
 void animSetSpeed(Actor *actor, s32 index, f32 animSpeed) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk10 = animSpeed;
+        node->speed = animSpeed;
     }
 }
 
 void animSetDirection(Actor *actor, s32 index, u8 direction) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk20 = direction;
+        node->direction = direction;
     }
 }
 
 void animSetLoopMode(Actor *actor, s32 index, u8 loopMode) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk21 = loopMode;
+        node->loopMode = loopMode;
     }
 }
 
 void animSetFrameAndSubframe(Actor *actor, s32 index, s16 frame, f32 subframe) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unkC = frame;
-        node->unk14 = subframe;
+        node->frame = frame;
+        node->subframe = subframe;
     }
 }
 
 void animSetLoopLimit(Actor *actor, s32 index, s16 loopLimit) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk18 = loopLimit;
-        node->unk1A = 0;
-        node->unk22 = 0;
+        node->loopLimit = loopLimit;
+        node->loopCount = 0;
+        node->finished = 0;
     }
 }
 
 void animSetFinished(Actor *actor, s32 index, u8 finished) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk22 = finished;
+        node->finished = finished;
     }
 }
 
 void animSetStartFrame(Actor *actor, s32 index, s16 startFrame) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk1C = startFrame;
+        node->startFrame = startFrame;
     }
 }
 
 void animSetEndFrame(Actor *actor, s32 index, s16 endFrame) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk1E = endFrame;
+        node->endFrame = endFrame;
     }
 }
 
 void animResetEndFrame(Actor *actor, s32 index) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk1E = node->unkA;
+        node->endFrame = node->itemCount;
     }
 }
 
 void animClearStartFrame(Actor *actor, s32 index) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk1C = 0;
+        node->startFrame = 0;
     }
 }
 
@@ -308,7 +308,7 @@ s32 animIsPlaying(Actor *actor, s32 index) {
     if (!node) {
         return 0;
     }
-    return (node->unk22 == 0) ? 1 : 0;
+    return (node->finished == 0) ? 1 : 0;
 }
 
 AnimNode *animGetNodeByIndex(Actor *actor, u32 count) {
@@ -333,12 +333,12 @@ void animListFree(AnimNode **list) {
 
     if (node != NULL) {
         do {
-            buffers = node->unk4;
-            for (i = 0; i < node->unkA; i++) {
+            buffers = node->buffers;
+            for (i = 0; i < node->itemCount; i++) {
                 assetFreeBuffer(buffers[i], 0x1E6, 0x2C);
             }
-            heapFree(node->unk0);
-            heapFree(node->unk4);
+            heapFree(node->items);
+            heapFree(node->buffers);
             next = node->next;
             heapFree(node);
             node = next;

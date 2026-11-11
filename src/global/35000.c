@@ -503,7 +503,7 @@ Gfx *renderActorEntryBuildDisplayList(s32 context, Actor *actor, Gfx *glist, u8 
                 lightY = actor->y;
                 lightZ = actor->z;
             }
-            lightSampleColorAtPosition(lightX, lightY, lightZ, actor->unkCE, &primR, &primG, &primB, actor->chunkIndex);
+            lightSampleColorAtPosition(lightX, lightY, lightZ, actor->boundingRadius, &primR, &primG, &primB, actor->chunkIndex);
             if (!(actor->renderFlags & 1)) {
                 tint = actor->tintA / 15.0f;
                 primR = primR * tint;

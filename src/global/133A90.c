@@ -60,17 +60,17 @@ typedef struct ProxPath {
     /* 0x38 */ struct ProxPath *next;
 } ProxPath; // size = 0x3C
 
-extern ProxPath *D_807FDCC0;
+extern ProxPath *gProxPathList;
 
 void proxPathListClear(void) {
-    D_807FDCC0 = NULL;
+    gProxPathList = NULL;
 }
 
 void proxPathSetEnabled(Actor *actor, u8 pathIndex, u8 enabled) {
     ProxPath *node;
     s32 found;
 
-    node = D_807FDCC0;
+    node = gProxPathList;
     found = 0;
     while (node != NULL && !found) {
         if (node->owner == actor && node->pathIndex == pathIndex) {
@@ -88,7 +88,7 @@ void proxPathSetEndBehavior(Actor *actor, u8 pathIndex, u8 endBehavior) {
     ProxPath *node;
     s32 found;
 
-    node = D_807FDCC0;
+    node = gProxPathList;
     found = 0;
     while (node != NULL && !found) {
         if (node->owner == actor && node->pathIndex == pathIndex) {
@@ -106,8 +106,8 @@ void proxPathAdd(Actor *actor, u8 slotType, u8 pathIndex, u8 pathType, u8 segmen
     ProxPath **tail;
     ProxPath *node;
 
-    tail = &D_807FDCC0;
-    node = D_807FDCC0;
+    tail = &gProxPathList;
+    node = gProxPathList;
     while (node != NULL) {
         tail = &node->next;
         node = node->next;
@@ -137,7 +137,7 @@ void proxPathSetSegment(Actor *actor, u8 pathIndex, u8 segmentIndex, u8 startNod
     ProxPath *node;
     s32 found;
 
-    node = D_807FDCC0;
+    node = gProxPathList;
     found = 0;
     while (node != NULL && !found) {
         if (node->owner == actor && node->pathIndex == pathIndex) {
@@ -165,7 +165,7 @@ void proxPathRemoveActor(Actor *actor) {
     ProxPath *node;
     ProxPath *next;
 
-    prev = &D_807FDCC0;
+    prev = &gProxPathList;
     node = *prev;
     while (node != NULL) {
         if (node->owner == actor) {
@@ -216,7 +216,7 @@ void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowB
 
     state = playerActor->customState;
     isPlayer = playerActor->actorType == 6;
-    node = D_807FDCC0;
+    node = gProxPathList;
     bestDist = 9999.0f;
     best = NULL;
     if (isPlayer) {
@@ -245,11 +245,11 @@ void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowB
     }
     if (best != NULL) {
         proxPathGetDistanceAt(best, bestSub, proxPathAttachToSegment(playerActor, state, best, bestSub), &out);
-        state->unk138 = out;
-        state->unk130 = best->owner;
-        state->unk134 = best->pathIndex;
-        state->unk19C = 0;
-        state->unk19E = 0xFFF;
+        state->pathDist = out;
+        state->pathOwner = best->owner;
+        state->pathIndex = best->pathIndex;
+        state->pathYawMin = 0;
+        state->pathYawMax = 0xFFF;
         playerActor->speedXZ = 0.0f;
         isPlayer = best->pathType;
         switch (isPlayer) {
@@ -463,10 +463,10 @@ void proxPathAdvance(f32 speedMultiplier) {
     ProxPath *node;
     s32 found;
 
-    node = D_807FDCC0;
+    node = gProxPathList;
     found = 0;
     while (node != NULL && !found) {
-        if (node->owner == gActivePlayerState->unk130 && node->pathIndex == gActivePlayerState->unk134) {
+        if (node->owner == gActivePlayerState->pathOwner && node->pathIndex == gActivePlayerState->pathIndex) {
             found = 1;
         } else {
             node = node->next;
@@ -480,23 +480,23 @@ void proxPathAdvance(f32 speedMultiplier) {
     gActivePlayerState->unk128 = node->paramD;
     gActivePlayerState->unk12C = node->paramE;
     step = gFrameDelta * 0.5;
-    gActivePlayerState->unk138 = gActivePlayerState->unk138 + node->moveSpeed * step * speedMultiplier;
+    gActivePlayerState->pathDist = gActivePlayerState->pathDist + node->moveSpeed * step * speedMultiplier;
     gActivePlayerActor->contactFlags &= ~0x80;
-    if (node->maxDist < gActivePlayerState->unk138) {
+    if (node->maxDist < gActivePlayerState->pathDist) {
         if (node->endBehavior == 1 || node->endBehavior == 3) {
             gActivePlayerActor->moveYaw = gActivePlayerActor->yaw;
             playerStateQueueCallback(0xD, NULL, gActivePlayerState->playerIndex);
         }
-        gActivePlayerState->unk138 = node->maxDist;
+        gActivePlayerState->pathDist = node->maxDist;
     }
-    if (gActivePlayerState->unk138 < node->minDist) {
+    if (gActivePlayerState->pathDist < node->minDist) {
         if (node->endBehavior == 2 || node->endBehavior == 3) {
             gActivePlayerActor->moveYaw = gActivePlayerActor->yaw;
             playerResumeLocomotion(gActivePlayerActor);
         }
-        gActivePlayerState->unk138 = node->minDist;
+        gActivePlayerState->pathDist = node->minDist;
     }
-    if (node->maxDist <= gActivePlayerState->unk138 || gActivePlayerState->unk138 <= node->minDist) {
+    if (node->maxDist <= gActivePlayerState->pathDist || gActivePlayerState->pathDist <= node->minDist) {
         gActivePlayerActor->contactFlags |= 0x80;
     }
 }
@@ -528,11 +528,11 @@ void proxPathFollowerStep(Actor **pActor) {
     f32 ang;
 
     actor = *pActor;
-    node = D_807FDCC0;
+    node = gProxPathList;
     state = actor->customState;
     found = 0;
     while (node != NULL && !found) {
-        if (node->owner == state->unk130 && node->pathIndex == state->unk134) {
+        if (node->owner == state->pathOwner && node->pathIndex == state->pathIndex) {
             found = 1;
         } else {
             node = node->next;
@@ -542,22 +542,22 @@ void proxPathFollowerStep(Actor **pActor) {
         actor->contactFlags &= ~0x40;
         return;
     }
-    proxPathFindDistanceSegment(node, state->unk138, &idx, &t);
+    proxPathFindDistanceSegment(node, state->pathDist, &idx, &t);
     idA = node->segments[idx].startNode;
     idB = node->segments[idx].endNode;
     switch (node->pathType) {
     case 0:
         proxPathGetSegmentMatrices(node->owner, node->slotType, idA, idB, &mtxFrom, &mtxTo);
         mtxLerpL(mtxFrom, mtxTo, 1.0 - t, &mtx);
-        rot = (actor->yaw - state->unk130->yaw) & 0xFFF;
+        rot = (actor->yaw - state->pathOwner->yaw) & 0xFFF;
         guRotateF(rotMtx, rot / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
-        guTranslateF(transMtx, 0.0f, state->unk138 + -80.0, 0.0f);
+        guTranslateF(transMtx, 0.0f, state->pathDist + -80.0, 0.0f);
         guMtxCatF(rotMtx, transMtx, transMtx);
         guMtxL2F(actor->modelMtx, &mtx);
         guMtxCatF(transMtx, actor->modelMtx, actor->modelMtx);
         actorGetNodePos(actor, 8, &actor->x, &actor->y, &actor->z);
-        state->unk19C = 0;
-        state->unk19E = 0xFFF;
+        state->pathYawMin = 0;
+        state->pathYawMax = 0xFFF;
         if (gCurrentActor->contactFlags & 0x40) {
             switch (actor->actorType) {
             case 2:
@@ -672,18 +672,18 @@ void proxPathActorFollowSpline(Actor *actor, PlayerState *state, ProxPath *path,
     if (state->unk148 > 1.0) {
         state->unk148 = one;
     }
-    state->unk19C = (s16)(path->segments[segmentIndex].minAngle + (path->segments[segmentIndex].maxAngle - path->segments[segmentIndex].minAngle) * t);
-    state->unk19E = (s16)(path->segments[segmentIndex].angleB + (path->segments[segmentIndex].angleC - path->segments[segmentIndex].angleB) * t);
+    state->pathYawMin = (s16)(path->segments[segmentIndex].minAngle + (path->segments[segmentIndex].maxAngle - path->segments[segmentIndex].minAngle) * t);
+    state->pathYawMax = (s16)(path->segments[segmentIndex].angleB + (path->segments[segmentIndex].angleC - path->segments[segmentIndex].angleB) * t);
     switch (path->slotType) {
     case 1:
     case 2:
         slot = hashTableLookup((s32)path->owner);
-        state->unk19C = ((s32)(gModelSlots[slot].unk14 * 4096.0f / 360.0f) + state->unk19C) & 0xFFF;
-        state->unk19E = ((s32)(gModelSlots[slot].unk14 * 4096.0f / 360.0f) + state->unk19E) & 0xFFF;
+        state->pathYawMin = ((s32)(gModelSlots[slot].unk14 * 4096.0f / 360.0f) + state->pathYawMin) & 0xFFF;
+        state->pathYawMax = ((s32)(gModelSlots[slot].unk14 * 4096.0f / 360.0f) + state->pathYawMax) & 0xFFF;
         break;
     case 0:
-        state->unk19C = (state->unk19C + path->owner->yaw) & 0xFFF;
-        state->unk19E = (state->unk19E + path->owner->yaw) & 0xFFF;
+        state->pathYawMin = (state->pathYawMin + path->owner->yaw) & 0xFFF;
+        state->pathYawMax = (state->pathYawMax + path->owner->yaw) & 0xFFF;
         break;
     }
 }

@@ -393,7 +393,7 @@ void raceOpponentRacerBehaviorUpdate(void) {
         camRequestPathLength();
         pathFrames = camStartPath(gCurrentActor, 1, 1) - 0x3C;
         managerData->unk1C = pathFrames;
-        target->unkA = pathFrames;
+        target->startCountdown = pathFrames;
         participant->unk4 = 1.0f;
         gBehaviourWorkState->unk25 = gBehaviourExtraState->pathCount - 5;
         idx = gBehaviourAnimState->path[gBehaviourWorkState->unk25][0];
@@ -402,15 +402,15 @@ void raceOpponentRacerBehaviorUpdate(void) {
         gCurrentActor->z = D_807FDCA0->entries[idx].z;
         D_80750AC8 = 0xA;
     }
-    if (target->unkA != 0) {
-        target->unkA -= 1;
+    if (target->startCountdown != 0) {
+        target->startCountdown -= 1;
     }
     if (participant->unk34 < 5) {
         leadDistance = raceRacerSteerTowardWaypoint();
         if (participant->unk34 == 2) {
             raceHandleRacerCollision(target);
-        } else if (participant->unk34 == 4 && target->unk8 == 0) {
-            target->unk8 = 1;
+        } else if (participant->unk34 == 4 && target->finishCamStarted == 0) {
+            target->finishCamStarted = 1;
             if (flagGet(0xA5, 0) == 0) {
                 camStartPath(target->actor, 0, 1);
                 currentActorClearFlag();

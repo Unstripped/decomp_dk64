@@ -150,9 +150,9 @@ typedef struct RaceWaypoint {
 typedef struct RaceTarget {
     /* 0x00 */ struct Actor *actor;
     /* 0x04 */ RaceParticipant *participant;
-    /* 0x08 */ u8 unk8; // 52B0 opponents: finish camera path started
+    /* 0x08 */ u8 finishCamStarted; // 52B0 opponents: finish camera path started
     /* 0x09 */ u8 pad9;
-    /* 0x0A */ u16 unkA; // 52B0 opponents: start countdown frames
+    /* 0x0A */ u16 startCountdown; // 52B0 opponents: start countdown frames
     /* 0x0C */ u8 padC[2];
     /* 0x0E */ u8 bumpCooldown;
     /* 0x0F */ u8 curveMode;

@@ -291,7 +291,7 @@ u16 type;
         actor->cullMarginX = 0;
         actor->cullMarginY = 0;
         actor->tintA = 0xF;
-        actor->unkCE = 0;
+        actor->boundingRadius = 0;
         actor->unkB0[0] = -1;
         actor->instanceId = D_807FBB38;
         D_807FBB38++;

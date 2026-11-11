@@ -10,20 +10,20 @@
 #include "proto/global/61AA0.h"
 #include "proto/global/69E60.h"
 
-extern u8 D_807F7EF8;
-extern s16 D_807F7EFA;
-extern s16 D_807F7EFC;
+extern u8 gLightNextFlags;
+extern s16 gLightNextOwnerId;
+extern s16 gLightNextActiveRadius;
 
 void lightSetFlags(u8 flags) {
-    D_807F7EF8 = flags;
+    gLightNextFlags = flags;
 }
 
 void lightSetTargetId(s16 targetId) {
-    D_807F7EFA = targetId;
+    gLightNextOwnerId = targetId;
 }
 
 void lightSetRadius(s16 radius) {
-    D_807F7EFC = radius;
+    gLightNextActiveRadius = radius;
 }
 
 extern f32 *D_8076A0B4;
@@ -164,7 +164,7 @@ void lightLerpColors(f32 r, f32 g, f32 b, f32 t, s16 index) {
 }
 
 f32 cosApprox(f32);
-extern s16 D_80748300;
+extern s16 gLightVolumeCount;
 extern f32 D_807F7ECC;
 extern f32 D_807F7ED0;
 extern f32 D_807F7ED4;
@@ -173,7 +173,7 @@ extern f32 D_807F7EDC;
 extern f32 D_807F7EE0;
 extern f32 D_807F7EE4;
 extern f32 D_807F7EE8;
-extern s16 D_807F7EFE;
+extern s16 gLightNextRange;
 
 void lightInitGlobals(void) {
     D_807F7ECC = cosApprox(0.4363323152f);
@@ -184,20 +184,20 @@ void lightInitGlobals(void) {
     D_807F7EE0 = D_807F7ED4;
     D_807F7EE4 = 25.0f;
     D_807F7EE8 = 65.0f;
-    D_80748300 = 0;
-    D_807F7EF8 = 0;
-    D_807F7EFA = -1;
-    D_807F7EFC = 700;
-    D_807F7EFE = 600;
+    gLightVolumeCount = 0;
+    gLightNextFlags = 0;
+    gLightNextOwnerId = -1;
+    gLightNextActiveRadius = 700;
+    gLightNextRange = 600;
 }
 
 void lightClearCount(void) {
-    D_80748300 = 0;
+    gLightVolumeCount = 0;
 }
 
-extern s16 D_807F7EC8;
+extern s16 gActiveLightCount;
 void lightClearActiveCount(void) {
-    D_807F7EC8 = 0;
+    gActiveLightCount = 0;
 }
 
 void lightSetFovAngles(f32 angleA, f32 angleB) {
@@ -209,7 +209,7 @@ void lightSetFovAngles(f32 angleA, f32 angleB) {
 }
 
 void lightSetDistanceThreshold(s16 dist) {
-    D_807F7EFE = dist;
+    gLightNextRange = dist;
 }
 
 typedef struct LightVolume {
@@ -236,40 +236,40 @@ typedef struct LightVolume {
     /* 0x3B */ u8 pad3B;
 } LightVolume;
 
-extern LightVolume D_807F7500[];
+extern LightVolume gLightVolumes[];
 
 void lightAdd(f32 x, f32 y, f32 z, f32 targetX, f32 targetY, f32 targetZ, f32 radius, u8 type, u8 r, u8 g, u8 b) {
-    if (D_80748300 != 0x10) {
-        D_807F7500[D_80748300].range = D_807F7EFE;
-        D_807F7500[D_80748300].flags = D_807F7EF8;
-        D_807F7500[D_80748300].ownerId = D_807F7EFA;
-        D_807F7500[D_80748300].activeRadius = D_807F7EFC;
-        D_807F7500[D_80748300].outerAngle = D_807F7EE8;
-        D_807F7500[D_80748300].innerAngle = D_807F7EE4;
-        D_807F7500[D_80748300].cosOuter = D_807F7EDC;
-        D_807F7500[D_80748300].cosInner = D_807F7ED8;
-        D_807F7500[D_80748300].type = type;
-        D_807F7500[D_80748300].x = x;
-        D_807F7500[D_80748300].y = y;
-        D_807F7500[D_80748300].coneScale = D_807F7EE0;
-        D_807F7500[D_80748300].z = z;
-        D_807F7500[D_80748300].targetX = targetX;
-        D_807F7500[D_80748300].targetY = targetY;
-        D_807F7500[D_80748300].targetZ = targetZ;
-        D_807F7500[D_80748300].radius = radius;
-        D_807F7500[D_80748300].r = r;
-        D_807F7500[D_80748300].g = g;
-        D_807F7500[D_80748300].b = b;
-        D_80748300++;
+    if (gLightVolumeCount != 0x10) {
+        gLightVolumes[gLightVolumeCount].range = gLightNextRange;
+        gLightVolumes[gLightVolumeCount].flags = gLightNextFlags;
+        gLightVolumes[gLightVolumeCount].ownerId = gLightNextOwnerId;
+        gLightVolumes[gLightVolumeCount].activeRadius = gLightNextActiveRadius;
+        gLightVolumes[gLightVolumeCount].outerAngle = D_807F7EE8;
+        gLightVolumes[gLightVolumeCount].innerAngle = D_807F7EE4;
+        gLightVolumes[gLightVolumeCount].cosOuter = D_807F7EDC;
+        gLightVolumes[gLightVolumeCount].cosInner = D_807F7ED8;
+        gLightVolumes[gLightVolumeCount].type = type;
+        gLightVolumes[gLightVolumeCount].x = x;
+        gLightVolumes[gLightVolumeCount].y = y;
+        gLightVolumes[gLightVolumeCount].coneScale = D_807F7EE0;
+        gLightVolumes[gLightVolumeCount].z = z;
+        gLightVolumes[gLightVolumeCount].targetX = targetX;
+        gLightVolumes[gLightVolumeCount].targetY = targetY;
+        gLightVolumes[gLightVolumeCount].targetZ = targetZ;
+        gLightVolumes[gLightVolumeCount].radius = radius;
+        gLightVolumes[gLightVolumeCount].r = r;
+        gLightVolumes[gLightVolumeCount].g = g;
+        gLightVolumes[gLightVolumeCount].b = b;
+        gLightVolumeCount++;
         D_807F7ED8 = D_807F7ECC;
         D_807F7EDC = D_807F7ED0;
         D_807F7EE0 = D_807F7ED4;
         D_807F7EE4 = 25.0f;
         D_807F7EE8 = 65.0f;
-        D_807F7EF8 = 0;
-        D_807F7EFA = -1;
-        D_807F7EFC = 700;
-        D_807F7EFE = 600;
+        gLightNextFlags = 0;
+        gLightNextOwnerId = -1;
+        gLightNextActiveRadius = 700;
+        gLightNextRange = 600;
     }
 }
 
@@ -309,19 +309,19 @@ void lightApplyToActors(void) {
     for (i = 0; i < gActiveActorCount; i++) {
         litActors[i] = 0;
     }
-    for (i = 0; i < D_80748300 && gPlayerCount < 3; i++) {
-        if ((lightCheckPlayerDistance(&D_807F7500[i]) != 0) && (lightCount < 12)) {
+    for (i = 0; i < gLightVolumeCount && gPlayerCount < 3; i++) {
+        if ((lightCheckPlayerDistance(&gLightVolumes[i]) != 0) && (lightCount < 12)) {
             lightCount++;
             for (j = 0; j < gActiveActorCount; j++) {
                 actor = gActiveActors[j].actor;
                 if (actor->flags & 0x2000) {
                     continue;
                 }
-                switch (D_807F7500[i].type) {
+                switch (gLightVolumes[i].type) {
                 case 1:
-                    d[0] = D_807F7500[i].targetX - D_807F7500[i].x;
-                    d[1] = D_807F7500[i].targetY - D_807F7500[i].y;
-                    d[2] = D_807F7500[i].targetZ - D_807F7500[i].z;
+                    d[0] = gLightVolumes[i].targetX - gLightVolumes[i].x;
+                    d[1] = gLightVolumes[i].targetY - gLightVolumes[i].y;
+                    d[2] = gLightVolumes[i].targetZ - gLightVolumes[i].z;
                     dist = sqrtf((d[0] * d[0]) + (d[1] * d[1]) + (d[2] * d[2]));
                     if (dist == 0.0f) {
                         dist = 0.1f;
@@ -329,9 +329,9 @@ void lightApplyToActors(void) {
                     dirX = d[0] / dist;
                     dirY = d[1] / dist;
                     dirZ = d[2] / dist;
-                    d[0] = actor->x - D_807F7500[i].x;
-                    d[1] = actor->y - D_807F7500[i].y;
-                    d[2] = actor->z - D_807F7500[i].z;
+                    d[0] = actor->x - gLightVolumes[i].x;
+                    d[1] = actor->y - gLightVolumes[i].y;
+                    d[2] = actor->z - gLightVolumes[i].z;
                     dist = sqrtf((d[0] * d[0]) + (d[1] * d[1]) + (d[2] * d[2]));
                     if (dist == 0.0f) {
                         dist = 0.1f;
@@ -343,22 +343,22 @@ void lightApplyToActors(void) {
                     if (dot < 0.0f) {
                         dot = 0.0f;
                     }
-                    if (D_807F7500[i].cosOuter <= dot) {
-                        if (D_807F7500[i].cosInner <= dot) {
+                    if (gLightVolumes[i].cosOuter <= dot) {
+                        if (gLightVolumes[i].cosInner <= dot) {
                             dot = 1.0f;
                         } else {
-                            dot -= D_807F7500[i].cosOuter;
-                            dot *= D_807F7500[i].coneScale;
+                            dot -= gLightVolumes[i].cosOuter;
+                            dot *= gLightVolumes[i].coneScale;
                         }
-                        commandQueuePush(actor, D_807F7500[i].x, D_807F7500[i].y,
-                                         D_807F7500[i].z, 0xFF, D_807F7500[i].r * dot,
-                                         D_807F7500[i].g * dot, D_807F7500[i].b * dot,
+                        commandQueuePush(actor, gLightVolumes[i].x, gLightVolumes[i].y,
+                                         gLightVolumes[i].z, 0xFF, gLightVolumes[i].r * dot,
+                                         gLightVolumes[i].g * dot, gLightVolumes[i].b * dot,
                                          0);
                         if ((actor->flags & 0x01000000) && (actor->flags & 4)) {
-                            dist = sqrtf(((D_807F7500[i].x - actor->x) * (D_807F7500[i].x - actor->x)) +
-                                         ((D_807F7500[i].z - actor->z) * (D_807F7500[i].z - actor->z)));
+                            dist = sqrtf(((gLightVolumes[i].x - actor->x) * (gLightVolumes[i].x - actor->x)) +
+                                         ((gLightVolumes[i].z - actor->z) * (gLightVolumes[i].z - actor->z)));
                             dist2d = (dist != 0) ? dist : 0.001f;
-                            scale = (D_807F7500[i].y - actor->y) / dist2d;
+                            scale = (gLightVolumes[i].y - actor->y) / dist2d;
                             if (!(scale > 0)) {
                                 scale = -scale;
                             }
@@ -366,7 +366,7 @@ void lightApplyToActors(void) {
                                 scale = 0.1f;
                             }
                             scale = (actor->eyeHeight * 0.4f) / scale;
-                            angle = mathAngleBetweenPoints2D(D_807F7500[i].x, D_807F7500[i].z, actor->x,
+                            angle = mathAngleBetweenPoints2D(gLightVolumes[i].x, gLightVolumes[i].z, actor->x,
                                                              actor->z);
                             if (actor->sub4 != NULL) {
                                 shadowScale[0] = actor->sub4->scaleX;
@@ -384,21 +384,21 @@ void lightApplyToActors(void) {
                     }
                     break;
                 case 0:
-                    edgeDist = sqrtf(((D_807F7500[i].x - actor->x) * (D_807F7500[i].x - actor->x)) +
-                                     ((D_807F7500[i].y - actor->y) * (D_807F7500[i].y - actor->y)) +
-                                     ((D_807F7500[i].z - actor->z) * (D_807F7500[i].z - actor->z))) -
-                               actor->unkCE;
+                    edgeDist = sqrtf(((gLightVolumes[i].x - actor->x) * (gLightVolumes[i].x - actor->x)) +
+                                     ((gLightVolumes[i].y - actor->y) * (gLightVolumes[i].y - actor->y)) +
+                                     ((gLightVolumes[i].z - actor->z) * (gLightVolumes[i].z - actor->z))) -
+                               actor->boundingRadius;
                     if (edgeDist < 0.0) {
                         edgeDist = 0.1f;
                     }
-                    maxDist = D_807F7500[i].radius * 1.3f;
+                    maxDist = gLightVolumes[i].radius * 1.3f;
                     if ((actor->flags & 0x01000000) && (edgeDist < maxDist) && (actor->flags & 4)) {
-                        dist2d = sqrtf(((D_807F7500[i].x - actor->x) * (D_807F7500[i].x - actor->x)) +
-                                       ((D_807F7500[i].z - actor->z) * (D_807F7500[i].z - actor->z)));
+                        dist2d = sqrtf(((gLightVolumes[i].x - actor->x) * (gLightVolumes[i].x - actor->x)) +
+                                       ((gLightVolumes[i].z - actor->z) * (gLightVolumes[i].z - actor->z)));
                         if (dist2d == 0.0f) {
                             dist2d = 1.0f;
                         }
-                        scale = (D_807F7500[i].y - actor->y) / dist2d;
+                        scale = (gLightVolumes[i].y - actor->y) / dist2d;
                         if (!(scale > 0)) {
                             scale = -scale;
                         }
@@ -406,7 +406,7 @@ void lightApplyToActors(void) {
                             scale = 0.1f;
                         }
                         scale = (actor->eyeHeight * 0.4f) / scale;
-                        angle = mathAngleBetweenPoints2D(D_807F7500[i].x, D_807F7500[i].z, actor->x,
+                        angle = mathAngleBetweenPoints2D(gLightVolumes[i].x, gLightVolumes[i].z, actor->x,
                                                          actor->z);
                         if (scale > 10.0f) {
                             scale = 10.0f;
@@ -422,9 +422,9 @@ void lightApplyToActors(void) {
                     }
                     innerDist = maxDist / 3.0f;
                     if (edgeDist < innerDist) {
-                        commandQueuePush(actor, D_807F7500[i].x, D_807F7500[i].y,
-                                         D_807F7500[i].z, 0xFF, D_807F7500[i].r, D_807F7500[i].g,
-                                         D_807F7500[i].b, 0);
+                        commandQueuePush(actor, gLightVolumes[i].x, gLightVolumes[i].y,
+                                         gLightVolumes[i].z, 0xFF, gLightVolumes[i].r, gLightVolumes[i].g,
+                                         gLightVolumes[i].b, 0);
                         if ((actor->flags & 0x01000000) && (actor->flags & 4)) {
                             alpha = actor->alpha / 255.0;
                             billboardSubmit(actor, 0x3C9, 0x40, 0x40, actor->unk16E[0] * shadowScale[0],
@@ -436,10 +436,10 @@ void lightApplyToActors(void) {
                         range = maxDist - innerDist;
                         if (edgeDist < range) {
                             factor = 1.0f - (edgeDist / range);
-                            commandQueuePush(actor, D_807F7500[i].x, D_807F7500[i].y,
-                                             D_807F7500[i].z, 0xFF, D_807F7500[i].r * factor,
-                                             D_807F7500[i].g * factor,
-                                             D_807F7500[i].b * factor, 0);
+                            commandQueuePush(actor, gLightVolumes[i].x, gLightVolumes[i].y,
+                                             gLightVolumes[i].z, 0xFF, gLightVolumes[i].r * factor,
+                                             gLightVolumes[i].g * factor,
+                                             gLightVolumes[i].b * factor, 0);
                             if ((actor->flags & 0x01000000) && (actor->flags & 4)) {
                                 alpha = actor->alpha / 255.0;
                                 billboardSubmit(actor, 0x3C9, 0x40, 0x40,
@@ -498,8 +498,8 @@ typedef struct LightTrigger {
 } LightTrigger;
 
 extern LightTrigger D_807F78C0[];
-extern LightTrigger D_807F7BC8[];
-extern s16 D_807F7BC0;
+extern LightTrigger gActiveLights[];
+extern s16 gLightCandidateCount;
 s16 lightCollectVolumesInBounds(f32 x, f32 y, f32 z, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ, s32 targetId, s8 *outFlag) {
     f32 pad[3];
     f32 diff[3];
@@ -508,71 +508,71 @@ s16 lightCollectVolumesInBounds(f32 x, f32 y, f32 z, s16 minX, s16 minY, s16 min
     s32 i;
 
     *outFlag = 0;
-    D_807F7BC0 = 0;
-    for (i = 0; i < D_80748300; i++) {
-        if (lightCheckVolumeBounds(&D_807F7500[i], x, y, z, minX, minY, minZ, maxX, maxY, maxZ, targetId)) {
-            if (D_807F7BC0 < 12) {
-                if (D_807F7500[i].flags & 1) {
+    gLightCandidateCount = 0;
+    for (i = 0; i < gLightVolumeCount; i++) {
+        if (lightCheckVolumeBounds(&gLightVolumes[i], x, y, z, minX, minY, minZ, maxX, maxY, maxZ, targetId)) {
+            if (gLightCandidateCount < 12) {
+                if (gLightVolumes[i].flags & 1) {
                     *outFlag = 1;
                 }
-                D_807F78C0[D_807F7BC0].volumeIndex = i;
-                D_807F78C0[D_807F7BC0].x = D_807F7500[i].x * 3.0f;
-                D_807F78C0[D_807F7BC0].y = D_807F7500[i].y * 3.0f;
-                D_807F78C0[D_807F7BC0].z = D_807F7500[i].z * 3.0f;
-                D_807F78C0[D_807F7BC0].r = D_807F7500[i].r / 255.0;
-                D_807F78C0[D_807F7BC0].g = D_807F7500[i].g / 255.0;
-                D_807F78C0[D_807F7BC0].b = D_807F7500[i].b / 255.0;
-                D_807F78C0[D_807F7BC0].type = D_807F7500[i].type;
-                switch ((u32)D_807F7500[i].type) {  // FAKE: u32 switch operand on the u8 type keeps the original jump-table compare
+                D_807F78C0[gLightCandidateCount].volumeIndex = i;
+                D_807F78C0[gLightCandidateCount].x = gLightVolumes[i].x * 3.0f;
+                D_807F78C0[gLightCandidateCount].y = gLightVolumes[i].y * 3.0f;
+                D_807F78C0[gLightCandidateCount].z = gLightVolumes[i].z * 3.0f;
+                D_807F78C0[gLightCandidateCount].r = gLightVolumes[i].r / 255.0;
+                D_807F78C0[gLightCandidateCount].g = gLightVolumes[i].g / 255.0;
+                D_807F78C0[gLightCandidateCount].b = gLightVolumes[i].b / 255.0;
+                D_807F78C0[gLightCandidateCount].type = gLightVolumes[i].type;
+                switch ((u32)gLightVolumes[i].type) {  // FAKE: u32 switch operand on the u8 type keeps the original jump-table compare
                 case 1:
-                    diff[0] = D_807F7500[i].targetX - D_807F7500[i].x;
-                    diff[1] = D_807F7500[i].targetY - D_807F7500[i].y;
-                    diff[2] = D_807F7500[i].targetZ - D_807F7500[i].z;
+                    diff[0] = gLightVolumes[i].targetX - gLightVolumes[i].x;
+                    diff[1] = gLightVolumes[i].targetY - gLightVolumes[i].y;
+                    diff[2] = gLightVolumes[i].targetZ - gLightVolumes[i].z;
                     dist = sqrtf((diff[0] * diff[0] + diff[1] * diff[1]) + diff[2] * diff[2]);
                     if (dist == 0.0f) {
                         dist = 0.1f;
                     }
-                    D_807F78C0[D_807F7BC0].dirX = diff[0] / dist;
-                    D_807F78C0[D_807F7BC0].dirY = diff[1] / dist;
-                    D_807F78C0[D_807F7BC0].dirZ = diff[2] / dist;
-                    D_807F78C0[D_807F7BC0].cosInner = D_807F7500[i].cosInner;
-                    D_807F78C0[D_807F7BC0].rangeSq = 0x127690;
-                    D_807F78C0[D_807F7BC0].cosOuter = D_807F7500[i].cosOuter;
-                    D_807F78C0[D_807F7BC0].coneScale = D_807F7500[i].coneScale;
+                    D_807F78C0[gLightCandidateCount].dirX = diff[0] / dist;
+                    D_807F78C0[gLightCandidateCount].dirY = diff[1] / dist;
+                    D_807F78C0[gLightCandidateCount].dirZ = diff[2] / dist;
+                    D_807F78C0[gLightCandidateCount].cosInner = gLightVolumes[i].cosInner;
+                    D_807F78C0[gLightCandidateCount].rangeSq = 0x127690;
+                    D_807F78C0[gLightCandidateCount].cosOuter = gLightVolumes[i].cosOuter;
+                    D_807F78C0[gLightCandidateCount].coneScale = gLightVolumes[i].coneScale;
                     break;
                 case 0:
-                    if (D_807F7500[i].radius == 0.0f) {
-                        D_807F7500[i].radius = 0.1f;
+                    if (gLightVolumes[i].radius == 0.0f) {
+                        gLightVolumes[i].radius = 0.1f;
                     }
-                    dist = D_807F7500[i].radius * 3.0f;
-                    D_807F78C0[D_807F7BC0].rangeSq = dist * dist;
-                    innerRadius = (D_807F7500[i].radius / 3) * 3.0f;
-                    D_807F78C0[D_807F7BC0].invFalloffLength = 1.0f / (D_807F7500[i].radius * 3.0f - innerRadius);
-                    D_807F78C0[D_807F7BC0].falloffStart = innerRadius;
-                    D_807F78C0[D_807F7BC0].fadeStart = ((D_807F7500[i].radius * 1.3f) / 3) * 3.0f;
-                    D_807F78C0[D_807F7BC0].invFadeLength = 1.0f / ((D_807F7500[i].radius * 1.3f) * 3.0f - D_807F78C0[D_807F7BC0].fadeStart);
+                    dist = gLightVolumes[i].radius * 3.0f;
+                    D_807F78C0[gLightCandidateCount].rangeSq = dist * dist;
+                    innerRadius = (gLightVolumes[i].radius / 3) * 3.0f;
+                    D_807F78C0[gLightCandidateCount].invFalloffLength = 1.0f / (gLightVolumes[i].radius * 3.0f - innerRadius);
+                    D_807F78C0[gLightCandidateCount].falloffStart = innerRadius;
+                    D_807F78C0[gLightCandidateCount].fadeStart = ((gLightVolumes[i].radius * 1.3f) / 3) * 3.0f;
+                    D_807F78C0[gLightCandidateCount].invFadeLength = 1.0f / ((gLightVolumes[i].radius * 1.3f) * 3.0f - D_807F78C0[gLightCandidateCount].fadeStart);
                     break;
                 }
-                lightAddDedupEntry(D_807F7BC0);
-                D_807F7BC0++;
+                lightAddDedupEntry(gLightCandidateCount);
+                gLightCandidateCount++;
             }
         }
     }
-    return D_807F7BC0;
+    return gLightCandidateCount;
 }
 
 void lightAddDedupEntry(s16 index) {
     s32 i;
     u8 val;
 
-    if (D_807F7EC8 != 12) {
+    if (gActiveLightCount != 12) {
         val = D_807F78C0[index].volumeIndex;
-        for (i = 0; i < D_807F7EC8; i++) {
-            if (val == D_807F7BC8[i].volumeIndex) {
+        for (i = 0; i < gActiveLightCount; i++) {
+            if (val == gActiveLights[i].volumeIndex) {
                 return;
             }
         }
-        memcpy(&D_807F7BC8[D_807F7EC8++], &D_807F78C0[index], sizeof(LightTrigger));
+        memcpy(&gActiveLights[gActiveLightCount++], &D_807F78C0[index], sizeof(LightTrigger));
     }
 }
 
@@ -651,7 +651,7 @@ void lightSampleColorAtPosition(f32 x, f32 y, f32 z, s16 radius, u8 *outR, u8 *o
         *outR = *outG = *outB = 0xFF;
         return;
     }
-    if (D_807F7EC8 == 0) {
+    if (gActiveLightCount == 0) {
         *outR = (s32)(D_8076A0B4[chunk] * 255.0f);
         *outG = (s32)(D_8076A0B8[chunk] * 255.0f);
         *outB = (s32)(D_8076A0BC[chunk] * 255.0f);
@@ -659,14 +659,14 @@ void lightSampleColorAtPosition(f32 x, f32 y, f32 z, s16 radius, u8 *outR, u8 *o
     }
     r = D_8076A0B4[chunk]; g = D_8076A0B8[chunk]; b = D_8076A0BC[chunk];  // LAYOUT: one line changes as1 scheduling of the three loads
 
-    for (i = 0; i < D_807F7EC8; i++) {
-        switch (D_807F7BC8[i].type) {
+    for (i = 0; i < gActiveLightCount; i++) {
+        switch (gActiveLights[i].type) {
         case 1: {
             f32 d[3];
             f32 n[3];
-            d[0] = x - D_807F7BC8[i].x / 3;
-            d[1] = y - D_807F7BC8[i].y / 3;
-            d[2] = z - D_807F7BC8[i].z / 3;
+            d[0] = x - gActiveLights[i].x / 3;
+            d[1] = y - gActiveLights[i].y / 3;
+            d[2] = z - gActiveLights[i].z / 3;
             dist = sqrtf((d[0] * d[0]) + (d[1] * d[1]) + (d[2] * d[2]));
             if (dist == 0.0f) {
                 dist = 0.1f;
@@ -674,16 +674,16 @@ void lightSampleColorAtPosition(f32 x, f32 y, f32 z, s16 radius, u8 *outR, u8 *o
             n[0] = d[0] / dist;
             n[1] = d[1] / dist;
             n[2] = d[2] / dist;
-            dot = (n[0] * D_807F7BC8[i].dirX) + (n[1] * D_807F7BC8[i].dirY) + (n[2] * D_807F7BC8[i].dirZ);
+            dot = (n[0] * gActiveLights[i].dirX) + (n[1] * gActiveLights[i].dirY) + (n[2] * gActiveLights[i].dirZ);
             if (dot < 0.0f) {
                 dot = 0.0f;
             }
-            if (D_807F7BC8[i].cosOuter <= dot) {
-                if (D_807F7BC8[i].cosInner <= dot) {
+            if (gActiveLights[i].cosOuter <= dot) {
+                if (gActiveLights[i].cosInner <= dot) {
                     dot = 1.0f;
                 } else {
-                    dot -= D_807F7BC8[i].cosOuter;
-                    dot *= D_807F7BC8[i].coneScale;
+                    dot -= gActiveLights[i].cosOuter;
+                    dot *= gActiveLights[i].coneScale;
                 }
                 if (dist > 300.0) {
                     if (dist > 1100.0) {
@@ -692,9 +692,9 @@ void lightSampleColorAtPosition(f32 x, f32 y, f32 z, s16 radius, u8 *outR, u8 *o
                         dot = dot * (1.0 - ((dist - 300.0) / 800.0));
                     }
                 }
-                r += D_807F7BC8[i].r * dot;
-                g += D_807F7BC8[i].g * dot;
-                b += D_807F7BC8[i].b * dot;
+                r += gActiveLights[i].r * dot;
+                g += gActiveLights[i].g * dot;
+                b += gActiveLights[i].b * dot;
             }
             break;
         }
@@ -705,28 +705,28 @@ void lightSampleColorAtPosition(f32 x, f32 y, f32 z, s16 radius, u8 *outR, u8 *o
             f32 edgeDist;
             f32 range;
             f32 fadeLength;
-            dz = (D_807F7BC8[i].z / 3) - z;
-            dx = (D_807F7BC8[i].x / 3) - x;
-            dy = (D_807F7BC8[i].y / 3) - y;
+            dz = (gActiveLights[i].z / 3) - z;
+            dx = (gActiveLights[i].x / 3) - x;
+            dy = (gActiveLights[i].y / 3) - y;
             dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
             edgeDist = dist - radius;
             if (dist <= radius) {
                 edgeDist = 0.1f;
             }
-            range = D_807F7BC8[i].fadeStart / 3.0f;
+            range = gActiveLights[i].fadeStart / 3.0f;
             if (edgeDist < range) {
-                r += D_807F7BC8[i].r;
-                g += D_807F7BC8[i].g;
-                b += D_807F7BC8[i].b;
+                r += gActiveLights[i].r;
+                g += gActiveLights[i].g;
+                b += gActiveLights[i].b;
             } else {
                 edgeDist -= range;
-                fadeLength = (1.0f / D_807F7BC8[i].invFadeLength) / 3.0f;
+                fadeLength = (1.0f / gActiveLights[i].invFadeLength) / 3.0f;
                 fadeLength -= range;
                 if (edgeDist < fadeLength) {
                     factor = 1.0f - (edgeDist / fadeLength);
-                    r += D_807F7BC8[i].r * factor;
-                    g += D_807F7BC8[i].g * factor;
-                    b += D_807F7BC8[i].b * factor;
+                    r += gActiveLights[i].r * factor;
+                    g += gActiveLights[i].g * factor;
+                    b += gActiveLights[i].b * factor;
                 }
             }
             break;
