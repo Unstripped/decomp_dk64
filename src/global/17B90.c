@@ -21,18 +21,6 @@ typedef struct ControllerStateEntryView {
     u8 unk8;
 } ControllerStateEntryView;
 
-typedef struct AnimInitData {
-    void *unk0;
-    void **unk4;
-    void *unk8;
-    void *unkC;
-    void *unk10;
-    struct ControllerSubNode *unk14;
-    u8 pad18[8];
-    u8 unk20;
-    u8 unk21;
-} ControllerAnimAssetView;
-
 typedef struct ControllerStateEntry {
     u16 unk0;
     u16 unk2;
@@ -54,7 +42,7 @@ s32 assetId;
 unsigned char cullSwap;
 {
     s32 i;
-    ControllerAnimAssetView *asset;
+    AnimInitData *asset;
     s32 delta;
 
     for (i = 0; i < D_807FBB30; i++) {
@@ -69,7 +57,7 @@ unsigned char cullSwap;
         return D_807FB634;
     }
 
-    asset = (ControllerAnimAssetView *)assetLoad(5, assetId - 1, 1, 1);
+    asset = (AnimInitData *)assetLoad(5, assetId - 1, 1, 1);
     CONTROLLER_STATE_ENTRY(i).unk0 = assetId;
     D_807FBB30++;
     CONTROLLER_STATE_ENTRY(i).unk8 = cullSwap;

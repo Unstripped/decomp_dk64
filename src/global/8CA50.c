@@ -4,11 +4,6 @@
 #include "proto/global/6AD90.h"
 #include "proto/global/8CA50.h"
 
-typedef struct AnimInitData {
-    u8 pad[0x10];
-    s16 *unk10;
-} AnimInitData;
-
 extern s32 gCurrentMap;
 extern u8 gPlayerCount;
 

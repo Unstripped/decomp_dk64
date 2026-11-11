@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_8CA50_H
 #include "common.h"
 #include "actor.h"
-struct AnimInitData;
 #ifndef PROTO_SKIP_animListInit
 void animListInit(Actor *, struct AnimInitData *);
 #endif

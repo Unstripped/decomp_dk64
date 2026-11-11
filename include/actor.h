@@ -168,6 +168,19 @@ typedef struct ActorSub140 {
     /* 0xAD */ u8 padAD[0x17];
 } ActorSub140; // size = 0xC4
 
+// Animated-model asset header (controllerAnimStateLoadAsset relocates it, animListInit reads unk10).
+typedef struct AnimInitData {
+    /* 0x00 */ void *unk0;
+    /* 0x04 */ void **unk4; // pointer table; the first entry is the display list
+    /* 0x08 */ void *unk8;
+    /* 0x0C */ void *unkC;
+    /* 0x10 */ void *unk10; // s16 animation node list (animListInit)
+    /* 0x14 */ struct ControllerSubNode *unk14;
+    /* 0x18 */ u8 pad18[8];
+    /* 0x20 */ u8 unk20;
+    /* 0x21 */ u8 unk21;
+} AnimInitData; // size = 0x24
+
 typedef struct ActorList {
     /* 0x00 */ struct Actor *items[4];
     /* 0x10 */ u8 count;
