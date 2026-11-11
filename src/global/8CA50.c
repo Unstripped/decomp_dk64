@@ -328,21 +328,14 @@ AnimNode *animGetNodeByIndex(Actor *actor, u32 count) {
 void animListFree(AnimNode **list) {
     AnimNode *node = *list;
     AnimNode *next;
-    void **arr;
     void **buffers;
     s32 i;
 
     if (node != NULL) {
         do {
-            buffers = node->unk4; // FAKE: loads unk4 before the unkA > 0 guard; arr = node->unk4 inside it or a for loop shifts the schedule
-            i = 0;
-            if (node->unkA > 0) {
-                arr = buffers;
-                do {
-                    assetFreeBuffer(*arr, 0x1E6, 0x2C);
-                    i++;
-                    arr++;
-                } while (i < node->unkA);
+            buffers = node->unk4;
+            for (i = 0; i < node->unkA; i++) {
+                assetFreeBuffer(buffers[i], 0x1E6, 0x2C);
             }
             heapFree(node->unk0);
             heapFree(node->unk4);
