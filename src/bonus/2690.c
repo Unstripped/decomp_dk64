@@ -57,7 +57,7 @@ extern u16 D_807FD63C;
 struct Struct_71B4;
 typedef struct Struct_174 {
     struct Struct_71B4 *unk0;
-    u8 unk4[4];
+    u32 unk4;
     u8 unk8;
     u8 unk9;
     char padA[7];
@@ -344,9 +344,12 @@ u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
     f32 screenY;
     s16 ammoIndex;
     f32 distance;
-    u8 fireStatus[1]; // FAKE: one-element array puts the byte at sp+0x40; a scalar u8 sits at sp+0x43 (Q0174)
+    u8 pad1;
+    u8 pad2;
+    u8 pad3;
+    u8 fireStatus;
 
-    fireStatus[0] = 0;
+    fireStatus = 0;
     bonusExt->unk26 = 1;
     camProjectToScreen(aimX, aimY, aimZ, &screenX, &screenY, 0, 4.0f, 0);
     bonusExt->unk1E = screenX;
@@ -356,7 +359,7 @@ u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
     gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, (s32)(mathAtan2(gCurrentActor->y - aimY, distance) * 2048.0 / 3.1415927f + 150.0), 5.0f);
     if ((D_807FD63C & 0xE000) != 0) {
         if (gCurrentActor->state == 0) {
-            fireStatus[0] = 1;
+            fireStatus = 1;
             if (bonusExt->unk22 != 0) {
                 if (bonusExt->unk23 != 0 && bonusExt->ammoIconSlide[0] == 0) {
                     bonusFireProjectile(aimX, aimY, aimZ);
@@ -369,7 +372,7 @@ u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
                     }
                 } else if (bonusExt->unk23 == 0) {
                     if (gCurrentActor->unk155 == 0) {
-                        fireStatus[0] = 2;
+                        fireStatus = 2;
                         gCurrentActor->unk155 = 1;
                     }
                 }
@@ -380,7 +383,7 @@ u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
             }
         }
     }
-    return fireStatus[0];
+    return fireStatus;
 }
 
 typedef struct {
@@ -611,9 +614,10 @@ void bonusPopupGameUpdate(void) {
         switch (bonusAimAndFire(p->x, y, z)) {
         case 1:
             if (bonusExt->unk22) {
-                Actor *e = game->unk0[bonusExt->unk22 - 1];
-                if (((BonusPopup *)e->customState)->unk1C == 0) {
-                    ((BonusPopup *)e->customState)->unk1C = 6;
+                Actor *popupActor = game->unk0[bonusExt->unk22 - 1];
+                BonusPopup *popup = popupActor->customState;
+                if (popup->unk1C == 0) {
+                    popup->unk1C = 6;
                 }
             }
             break;
@@ -681,7 +685,7 @@ void bonusTargetUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unk144 = 0x24;
     }
-    func_8072881C(0, sub->unk4);
+    func_8072881C(0, &sub->unk4);
     switch (gCurrentActor->state) {
     case 0:
         if (D_807FBB85 != 0) {
@@ -1053,13 +1057,13 @@ void bonusLightFlashGameUpdate(void) {
         lightSetColor(game->unk4, game->unk4, game->unk4, 0);
         if (game->unk4 == 0.0f) {
             j = (s16)(D_8002D8F8 - 1);
-            ((s16 *)&D_8002D8F4)[2] = j;
+            ((s16 *)&D_8002D8F4)[2] = j; // FAKE: storing through D_8002D8F4's base keeps the D_8002D8F8 lh/sh from sharing a hoisted lui/addiu base (Q0332)
             if (j <= 0) {
                 sfxPlayOnFreeSlot(0x1A1, 0x7FFF, 63.0f, 1.0f, 0x50, 0);
                 j = randomLcgNext() & 3; if (gCurrentActor->state && gCurrentActor->state) {} if (j == 9) {} D_8002D8F8 = j + 2; // FAKE/LAYOUT: dead tests make j a coloured candidate (andi v1) and burn one ring temp (addiu t4); one line keeps the lw t0 reload below the sh
             }
             d = D_8002D8FC + 1;
-            ((s16 *)&D_8002D8F4)[4] = d;
+            ((s16 *)&D_8002D8F4)[4] = d; // FAKE: storing through D_8002D8F4's base keeps the D_8002D8FC lh/sh from sharing a hoisted lui/addiu base (Q0332)
             if (d == 0xE) {
                 sfxPlayOnFreeSlot(D_8002D8EC[randomLcgNext() & 3], 0x7FFF, 63.0f, 1.0f, 0x14, 0);
             }
@@ -1204,26 +1208,20 @@ typedef struct LargeB5State {
 } LargeB5State;
 
 Gfx *func_80029B9C(Gfx *gdl, Actor *actor) {
-    s32 pad;
-    BonusLightFlashState *lightFlash;
-    LargeB1_Sub178 *pathPanic;
-    LargeB5State *bugBash;
+    Struct_7548 *bonusExt = actor->customState;
+    BonusLightFlashState *lightFlash = ((BonusActorExt *)actor)->unk178;
+    LargeB1_Sub178 *pathPanic = ((BonusActorExt *)actor)->unk178;
+    LargeB5State *bugBash = actor->customState;
 
-    bugBash = actor->customState;
-    lightFlash = ((BonusActorExt *)actor)->unk178;
-    if (bugBash) { // FAKE: empty guard steers regalloc
-    }
-    pathPanic = ((BonusActorExt *)actor)->unk178;
-
-    if (actor->actorType != 0x7E && actor->state == 0 && ((Struct_7548 *)actor->customState)->unk26 != 0) {
+    if (actor->actorType != 0x7E && actor->state == 0 && bonusExt->unk26 != 0) {
         gdl = bonusRenderCrosshair(gdl, actor);
     }
-    gSPDisplayList(gdl++, &D_1000118);
+    gSPDisplayList(gdl++, D_1000118);
     gDPPipeSync(gdl++);
     gDPSetPrimColor(gdl++, 0, 0, 200, 200, 200, 255);
     gDPSetCombineMode(gdl++, G_CC_MODULATEIDECALA_PRIM, G_CC_MODULATEIDECALA_PRIM);
     gDPSetRenderMode(gdl++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
-    gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPMatrix(gdl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     switch (actor->actorType) {
     case 0x7D:
         if (actor->state != 3) {
@@ -1452,7 +1450,7 @@ void bonusPerilPathPanicGameUpdate(void) {
             }
             n = D_8002D904;
             game->unk0 = 0x5A;
-            ((s8 *)&D_8002D900)[4] = (u16)(1 - n);
+            ((s8 *)&D_8002D900)[4] = (u16)(1 - n); // FAKE: storing through D_8002D900's base keeps the D_8002D904 lb/sb from sharing a hoisted lui/addiu base (Q0332); the (u16) puts the subu in t7
         }
         bonusExt->unk22 = 0;
         if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
@@ -1828,7 +1826,7 @@ void bonusBigBugBashGameUpdate(void) {
 
         if (d > 80.0f) {
             diffDelta = 80.0f / d;
-            d = 0.0f;  // FAKE: kills uopt store-forwarding of the 80/d value so it stays in stack slot
+            d = 0.0f; // FAKE: dead store; without it diffDelta and the 80.0f literal colour $f2/$f12 instead of $f16/$f2
             game->unk8 = (fx * diffDelta) / 0.85;
             game->unkC = (fz * diffDelta) + 40.0;
         }
@@ -2250,7 +2248,7 @@ Gfx *func_8002CC08(Gfx *gdl, Actor *actor) {
     switch (actor->state) {
     case 7:
         do {
-        } while (0); // FAKE: empty do/while(0) steers branch codegen
+        } while (0); // FAKE: empty do/while(0) moves the spill temps up one word (sp+0x50/0x54/0x4C)
         break;
     case 0:
     case 1:

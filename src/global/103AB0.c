@@ -710,11 +710,11 @@ Gfx *func_80701CA0(Gfx *dl) {
 
 
 void gfxDrawTexturedTileGridDefault(Gfx **gfx, void *texture, s32 fmt, s32 texWidth, s32 texHeight, s32 tileW, s32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0) {
-    gfxDrawTexturedTileGrid(gfx, texture, fmt, texWidth, texHeight, tileW, tileH, x0, y0, x1, y1, s0, t0, 1, 0x10, 0, 0);
+    gfxDrawTexturedTileGrid(gfx, texture, fmt, texWidth, texHeight, tileW, tileH, x0, y0, x1, y1, s0, t0, 1, 0x10, 0, NULL);
 }
 
 void gfxDrawTexturedTileGridSimple(Gfx **gfx, void *texture, s32 fmt, s32 texWidth, s32 texHeight, s32 tileW, s32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0, u8 texScale, u8 bitSize) {
-    gfxDrawTexturedTileGrid(gfx, texture, fmt, texWidth, texHeight, tileW, tileH, x0, y0, x1, y1, s0, t0, texScale, bitSize, 0, 0);
+    gfxDrawTexturedTileGrid(gfx, texture, fmt, texWidth, texHeight, tileW, tileH, x0, y0, x1, y1, s0, t0, texScale, bitSize, 0, NULL);
 }
 
 
@@ -753,9 +753,9 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
     dl = *gfx;
     flag = 1;
     vstep = texScale * tileH;
-    xs = (u32)(x0 * 32.0f);
-    xe = (u32)(x1 * 32.0f);
-    ye = (u32)(y1 * 32.0f);
+    xs = x0 * 32.0f;
+    xe = x1 * 32.0f;
+    ye = y1 * 32.0f;
     th = tileH << 5;
     tw = tileW << 5;
     if (texWidth > 0x200) {
@@ -764,12 +764,12 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
     } else {
         gSPTexture(dl++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
     }
-    ys = (u32)(y0 * 32.0f);
-    vtx = heapAlloc((((xe - xs) / tw + 1) * ((ye - ys) / th + 1)) << 6);
+    ys = y0 * 32.0f;
+    vtx = heapAlloc(((xe - xs) / tw + 1) * ((ye - ys) / th + 1) * (4 * sizeof(Vtx)));
     heapFreeDeferred(vtx);
     gDPPipeSync(dl++);
-    for (y = ys, v = (s32)((f32)texScale * t0); y < ye; y += th, v += vstep) {
-        u = ((s32)((f32)texScale * s0));
+    for (y = ys, v = texScale * t0; y < ye; y += th, v += vstep) {
+        u = texScale * s0;
         rowT = v; // FAKE: redundant copy of v steers register allocation
         rowY = y; // FAKE: redundant copy of y steers register allocation
         for (x = xs; x < xe; x += tw, u += ustep) {
@@ -1084,10 +1084,9 @@ void vtxSetPosTex(Vtx *vtx, s16 x, s16 y, s16 s, s16 t, u8 shift) {
 }
 
 
+// Zero-terminated list of sequence channels whose volume follows the fade (transitionSetAudioVolume).
 typedef struct {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
+    s32 ids[3];
 } ScreenFadeChannels;
 
 extern f32 gScreenFadeProgress;
@@ -1101,7 +1100,7 @@ Gfx *screenFadeUpdate(Gfx *dl, u8 mode) {
     u8 textIndex;
     f32 progress;
     s32 pad2;
-    ScreenFadeChannels volume;
+    ScreenFadeChannels channels;
     f32 val;
     u16 alpha;
 
@@ -1156,8 +1155,8 @@ Gfx *screenFadeUpdate(Gfx *dl, u8 mode) {
                 }
             }
             if ((gScreenRenderFlags & 0x41) || !(gScreenRenderFlags & 0x20)) {
-                volume = D_80754CC8;
-                transitionSetAudioVolume(1.0f - progress, gScreenFadeRate >= 0.0f, &volume);
+                channels = D_80754CC8;
+                transitionSetAudioVolume(1.0f - progress, gScreenFadeRate >= 0.0f, channels.ids);
             }
         }
     }

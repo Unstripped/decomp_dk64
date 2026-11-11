@@ -9,8 +9,6 @@ struct ActorHitPlane;
 struct ActorHitView;
 struct ActorPlaneContactView;
 struct ActorSphereUpdateView;
-struct ActorSub140PointView;
-struct ActorTargetBounds;
 struct ActorTargetWork;
 struct CollisionActor;
 struct CollisionBox;
@@ -136,16 +134,16 @@ void actorSub140TransformTriangles(ActorSub140 *);
 u8 actorSetTargetAngleAndCheck(Actor *, s16);
 #endif
 #ifndef PROTO_SKIP_actorClearTargetAngle
-u8 actorClearTargetAngle(struct CollisionActor *, s16 *, s16 *, s8 *);
+u8 actorClearTargetAngle(Actor *, s16 *, s16 *, s8 *);
 #endif
 #ifndef PROTO_SKIP_actorCheckTargetAngle
-u8 actorCheckTargetAngle(struct CollisionActor *, s16 *, s16 *, s8 *);
+u8 actorCheckTargetAngle(Actor *, s16 *, s16 *, s8 *);
 #endif
 #ifndef PROTO_SKIP_actorQueueCollisionCallbacks
-void actorQueueCollisionCallbacks(struct CollisionActor *);
+void actorQueueCollisionCallbacks(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorCollideModelSlots
-u8 actorCollideModelSlots(struct CollisionActor *, s16 *, s16 *);
+u8 actorCollideModelSlots(Actor *, s16 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_actorBuildCollisionHit
 void actorBuildCollisionHit(s32, struct ActorHitView *, struct CollisionBox *);
@@ -160,16 +158,16 @@ s32 actorGetCollisionThreshold(struct CollisionActor *);
 void func_8066FE08(s32);
 #endif
 #ifndef PROTO_SKIP_actorResolveModelSlotCollision
-s32 actorResolveModelSlotCollision();
+s32 actorResolveModelSlotCollision(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorCalcPlaneContactPoint
 void actorCalcPlaneContactPoint(struct ActorPlaneContactView *, s16, struct ActorHitPlane *);
 #endif
 #ifndef PROTO_SKIP_actorSetTargetAngleBounds
-void actorSetTargetAngleBounds(struct ActorTargetBounds *);
+void actorSetTargetAngleBounds(struct CollisionBox *);
 #endif
 #ifndef PROTO_SKIP_actorCheckTargetAngleBounds
-s32 actorCheckTargetAngleBounds(struct ActorTargetWork *, s32, s32);
+s32 actorCheckTargetAngleBounds(struct ActorTargetWork *, s16 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_actorUpdateFacingAndOffset
 void actorUpdateFacingAndOffset(struct ActorFacingWork *, s32, s32, s32);
@@ -190,7 +188,7 @@ s32 actorGetPlayerThreshold(struct ActorTargetWork *);
 void actorUpdateCollisionSpheres(struct ActorSphereUpdateView *, u8);
 #endif
 #ifndef PROTO_SKIP_actorUpdateNodePositions
-void actorUpdateNodePositions(struct ActorSub140PointView *, u8);
+void actorUpdateNodePositions(ActorSub140 *, u8);
 #endif
 #ifndef PROTO_SKIP_actorGetNodePos
 s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);

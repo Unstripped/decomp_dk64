@@ -13,9 +13,9 @@
 typedef struct AudioDmaNode {
     struct AudioDmaNode *next;
     struct AudioDmaNode *prev;
-    u32 unk8;
-    u32 unkC;
-    void *unk10;
+    u32 startAddr;
+    u32 lastFrame;
+    void *ptr;
 } AudioDmaNode;
 
 typedef struct AudioTask {
@@ -54,10 +54,10 @@ typedef struct AudioAlState {
 } AudioAlState;
 
 typedef struct AudioDmaContext {
-    u8 unk0;
+    u8 initialized;
     u8 pad1[3];
-    AudioDmaNode *unk4;
-    AudioDmaNode *unk8;
+    AudioDmaNode *firstUsed;
+    AudioDmaNode *firstFree;
 } AudioDmaContext;
 
 extern s32 sAudioFreq;
@@ -109,7 +109,7 @@ s32 D_80770194;
 s32 D_80770198;
 s32 D_8077019C;
 s32 D_807701A0;
-s32 *D_807701A4;
+AudioAlState *D_807701A4;
 OSIoMesg D_807701A8[32];
 OSMesgQueue D_807704A8;
 OSMesg D_807704C0[32];
@@ -121,7 +121,7 @@ s32 D_80770558[2];
 
 
 void audioThreadInit(AudioInitArgs *initArgs, s32 threadPriority, AudioTaskConfig *taskConfig) {
-    AudioDmaNode *curr;
+    void **cmdBuf;
     AudioSynthesizerConfig synConfig;
     u32 i;
 
@@ -133,7 +133,7 @@ void audioThreadInit(AudioInitArgs *initArgs, s32 threadPriority, AudioTaskConfi
     initArgs->params[0] = synConfig.fxParams[0];
     initArgs->params[1] = synConfig.fxParams[1];
     n_alInit(&D_8076D708.globals, initArgs);
-    D_807701A4 = (s32 *)&D_8076D708;
+    D_807701A4 = &D_8076D708;
 
     D_8076FE68[0].prev = NULL;
     D_8076FE68[0].next = NULL;
@@ -141,21 +141,20 @@ void audioThreadInit(AudioInitArgs *initArgs, s32 threadPriority, AudioTaskConfi
     for (i = 0; (i ^ 0) < 39; i++) { // FAKE: x ^ 0 keeps i from being strength-reduced away (steers LFTR)
         if (taskConfig != 0) {} // FAKE: dead use of taskConfig swaps $s4/$s5 and the i/prev register order
         alLink((ALLink *)&D_8076FE68[i + 1], (ALLink *)&D_8076FE68[i]);
-        D_8076FE68[i].unk10 = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, 0x800);
+        D_8076FE68[i].ptr = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, 0x800);
     }
-    D_8076FE68[i].unk10 = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, 0x800);
+    D_8076FE68[i].ptr = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, 0x800);
 
-    for (curr = (AudioDmaNode *)D_8076D4D0.cmdBuffers; curr < (AudioDmaNode *)D_8076D4D0.tasks; ) {
-        *(void **)curr = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, taskConfig->cmdCount * 8);
-        curr = (AudioDmaNode *)((u8 *)curr + 4);
+    for (cmdBuf = D_8076D4D0.cmdBuffers; cmdBuf < &D_8076D4D0.cmdBuffers[2]; cmdBuf++) {
+        *cmdBuf = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, taskConfig->cmdCount * 8);
     }
 
     D_807701A0 = taskConfig->cmdCount;
     for (i = 0; i < 3; i++) {
-        ((AudioTask **)&D_8076D4D0)[i + 2] = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, sizeof(AudioTask));
-        ((AudioTask **)&D_8076D4D0)[i + 2]->msgBuf = 2;
-        ((AudioTask **)&D_8076D4D0)[i + 2]->self = ((AudioTask **)&D_8076D4D0)[i + 2];
-        ((AudioTask **)&D_8076D4D0)[i + 2]->sampleBuffer = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, D_8077019C * 4);
+        D_8076D4D0.tasks[i] = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, sizeof(AudioTask));
+        D_8076D4D0.tasks[i]->msgBuf = 2;
+        D_8076D4D0.tasks[i]->self = D_8076D4D0.tasks[i];
+        D_8076D4D0.tasks[i]->sampleBuffer = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, D_8077019C * 4);
     }
     osCreateMesgQueue(&D_8076D6D0, D_8076D6E8, 8);
     osCreateMesgQueue(&D_8076D698, D_8076D6B0, 8);
@@ -283,7 +282,7 @@ s32 audioBuildTask(AudioTask *task, AudioTask *prevTask) {
 }
 
 void audioCheckAiLength(AudioTask *unused) {
-    s32 zero = 0;
+    s32 zero = 0; // FAKE: variable index keeps a lui/%lo pair per D_807454E8 access instead of &D_807454E8 CSE'd into $v0 (Q0099)
     if (((osAiGetLength() >> 2) == 0) && (D_807454E8[zero] == 0)) {
         D_807454E8[zero] = 0;
     }
@@ -295,66 +294,62 @@ s32 audioDmaCallback(u32 addr, s32 len, void *state) {
     s32 pad[3];
     AudioDmaNode *node;
     AudioDmaNode *last;
-    s32 head;
+    s32 delta;
     s32 end;
+
     last = NULL;
-    head = (s32)D_80770188.unk4;
-    node = (AudioDmaNode *)head;
-    if (head != 0) {
-        do {
-            end = node->unk8 + 0x800;
-            if (addr < node->unk8) {
-                break;
-            }
-            if (end >= (s32)addr + len) {
-                last = node;
-                node->unkC = D_807452C0;
-                return osVirtualToPhysical((u8 *)node->unk10 + (addr - node->unk8));
-            }
-            last = node;
-            node = node->next;
-        } while (node != NULL);
+    node = D_80770188.firstUsed;
+    while (node != NULL) {
+        end = node->startAddr + 0x800;
+        if (addr < node->startAddr) {
+            break;
+        }
+        if ((s32)addr + len <= end) {
+            node->lastFrame = D_807452C0;
+            dmaBuf = (u8 *)node->ptr + (addr - node->startAddr);
+            return osVirtualToPhysical(dmaBuf);
+        }
+        last = node;
+        node = node->next;
     }
 
-    node = D_80770188.unk8;
+    node = D_80770188.firstFree;
     if (node == NULL) {
-        return osVirtualToPhysical((void *)head);
+        return osVirtualToPhysical(D_80770188.firstUsed);
     }
 
-    D_80770188.unk8 = node->next;
+    D_80770188.firstFree = node->next;
     alUnlink((ALLink *)node);
     if (last != NULL) {
         alLink((ALLink *)node, (ALLink *)last);
+    } else if (D_80770188.firstUsed != NULL) {
+        last = D_80770188.firstUsed;
+        D_80770188.firstUsed = node;
+        node->next = last;
+        node->prev = NULL;
+        last->prev = node;
     } else {
-        head = (s32)D_80770188.unk4;
-        if (head != 0) {
-            D_80770188.unk4 = node;
-            node->next = (AudioDmaNode *)head;
-            node->prev = NULL;
-            ((AudioDmaNode *)head)->prev = node;
-        } else {
-            D_80770188.unk4 = node;
-            node->next = NULL;
-            node->prev = NULL;
-        }
+        D_80770188.firstUsed = node;
+        node->next = NULL;
+        node->prev = NULL;
     }
 
-    head = addr & 1;
-    addr -= head;
-    node->unk8 = addr;
-    node->unkC = D_807452C0;
-    dmaBuf = node->unk10;
-    osPiStartDma(&D_807701A8[D_807452C4++], 1, 0, addr, dmaBuf, 0x800, &D_807704A8);
-    return osVirtualToPhysical(dmaBuf) + head;
+    delta = addr & 1;
+    addr -= delta;
+    node->startAddr = addr;
+    node->lastFrame = D_807452C0;
+    dmaBuf = node->ptr;
+    osPiStartDma(&D_807701A8[D_807452C4++], OS_MESG_PRI_HIGH, OS_READ, addr, dmaBuf, 0x800, &D_807704A8);
+    return osVirtualToPhysical(dmaBuf) + delta;
 }
 
 
 
 void *audioDmaNew(AudioDmaContext **outContext) {
-    if (D_80770188.unk0 == 0) {
-        D_80770188.unk4 = 0;
-        D_80770188.unk8 = &D_8076FE68[0];
-        D_80770188.unk0 = 1;
+    if (D_80770188.initialized == 0) {
+        D_80770188.firstUsed = NULL;
+        D_80770188.firstFree = &D_8076FE68[0];
+        D_80770188.initialized = 1;
     }
     *outContext = &D_80770188;
     return audioDmaCallback;
@@ -369,24 +364,20 @@ void audioDmaFrameUpdate(void) {
     u32 i;
 
     msg = NULL;
-    i = 0;
-    if (D_807452C4 != 0) {
-        do {
-            osRecvMesg(&D_807704A8, &msg, 0);
-            i++;
-        } while (i < D_807452C4);
+    for (i = 0; i < D_807452C4; i++) {
+        osRecvMesg(&D_807704A8, &msg, OS_MESG_NOBLOCK);
     }
-    for (node = D_80770188.unk4; node != NULL; node = next) {
+    for (node = D_80770188.firstUsed; node != NULL; node = next) {
         next = node->next;
-        if ((node->unkC + 1) < D_807452C0) {
-            if (node == D_80770188.unk4) {
-                D_80770188.unk4 = node->next;
+        if ((node->lastFrame + 1) < D_807452C0) {
+            if (node == D_80770188.firstUsed) {
+                D_80770188.firstUsed = node->next;
             }
             alUnlink((ALLink *)node);
-            if (D_80770188.unk8 != NULL) {
-                alLink((ALLink *)node, (ALLink *)D_80770188.unk8);
+            if (D_80770188.firstFree != NULL) {
+                alLink((ALLink *)node, (ALLink *)D_80770188.firstFree);
             } else {
-                D_80770188.unk8 = node;
+                D_80770188.firstFree = node;
                 node->next = NULL;
                 node->prev = NULL;
             }

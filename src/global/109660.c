@@ -180,7 +180,7 @@ extern Mtx D_807FD928;
 extern void *D_807FD978[8];
 
 void gfxBackgroundReset(void) {
-    D_807FD8A0 = 0;
+    D_807FD8A0 = NULL;
     guOrtho(&D_807FD928, 0.0f, gScreenWidth * 16.0f - 1.0, gScreenHeight * 16.0f - 1.0, 0.0f, -20000.0f, 20000.0f, 1.0f);
     D_807FD968 = -1.0f;
     D_807FD978[0] = NULL;

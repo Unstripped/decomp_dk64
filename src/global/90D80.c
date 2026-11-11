@@ -157,13 +157,14 @@ extern Mtx D_2000180;
 void gfxDrawTexturedTileGridSimple(Gfx **, void *, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);  // FAKE: callee prototype steer (width/height u8: 103AB0.c declares s32)
 
 Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 height, s16 x, s16 y, f32 scaleX, f32 scaleY, s32 angle, f32 texScale) {
-    void *volatile tex;
-    s32 tileSize;
-    Vtx *vtx;  // FAKE: also holds the texel bit size (4/8/16/32) so both share s0
-    s32 half_w;
-    s32 half_h;
-    f32 scaled_w;
-    f32 scaled_h;
+    void *tex;
+    s16 tileSize;
+    u16 bpp;
+    Vtx *vtx;
+    s32 halfW;
+    s32 halfH;
+    f32 scaledW;
+    f32 scaledH;
     RenderMtxF scaleMtx;
     RenderMtxF tempMtx;
     Mtx *mtx1;
@@ -175,31 +176,30 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 h
 
     switch (siz) {
     case 0:
-        vtx = (Vtx *)4;
+        bpp = 4;
         break;
     case 1:
-        vtx = (Vtx *)8;
+        bpp = 8;
         break;
     case 3:
-        vtx = (Vtx *)32;
+        bpp = 32;
         break;
     default:
-        vtx = (Vtx *)16;
+        bpp = 16;
         break;
     }
 
     tex = texCacheFindOrLoad(texId);
 
-    if (((((s32)vtx * width * height) >> 3)) > 0x1000) {
-        if (D_807FC79E && D_807FC79E) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        WRITE_GFX(glist++, 0xDA380003, (u32)&D_2000180);
-        WRITE_GFX(glist++, 0xDA380007, (u32)&D_2000080);
+    if (((bpp * width * height) >> 3) > 0x1000) {
+        gSPMatrix(glist++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+        gSPMatrix(glist++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
         gDPPipeSync(glist++);
-        tileSize = ((s32)vtx < 0x20) ? 0x20 : 0x1E;
+        tileSize = (bpp < 0x20) ? 0x20 : 0x1E;
         gfxDrawTexturedTileGridSimple(&glist, tex, fmt, width, height, tileSize, tileSize, 0.0f, 0.0f,
                       (f32)(u32)width, (f32)(u32)height,
                       (f32)(x - (width >> 1)), (f32)(y - (height >> 1)),
-                      1, (s32)vtx);
+                      1, bpp);
     } else {
         mtx1 = heapAlloc(sizeof(Mtx));
         heapFreeDeferred(mtx1);
@@ -225,29 +225,29 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 h
         guMtxCatF(scaleMtx, tempMtx, scaleMtx);
         guMtxF2L(scaleMtx, mtx1);
 
-        WRITE_GFX(glist++, 0xDA380003, (u32)mtx1);
+        gSPMatrix(glist++, mtx1, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
 
-        scaled_w = (f32)(u32)width * texScale;
-        scaled_h = (f32)(u32)height * texScale;
+        scaledW = (f32)(u32)width * texScale;
+        scaledH = (f32)(u32)height * texScale;
 
         if (scaleY > 0.0f) {
-            half_w = width >> 1;
-            half_h = height >> 1;
+            halfW = width >> 1;
+            halfH = height >> 1;
 
-            vtxSetPosTex(vtx++, -half_w, half_h, 0.0f - scaled_w, (f32)(height - 1) + scaled_h, 6);
-            vtxSetPosTex(vtx++, half_w, half_h, (f32)(width - 1) + scaled_w, (f32)(height - 1) + scaled_h, 6);
-            vtxSetPosTex(vtx++, half_w, -half_h, (f32)(width - 1) + scaled_w, 0.0f - scaled_h, 6);
-            vtxSetPosTex(vtx++, -half_w, -half_h, 0.0f - scaled_w, 0.0f - scaled_h, 6);
+            vtxSetPosTex(vtx++, -halfW, halfH, 0.0f - scaledW, (f32)(height - 1) + scaledH, 6);
+            vtxSetPosTex(vtx++, halfW, halfH, (f32)(width - 1) + scaledW, (f32)(height - 1) + scaledH, 6);
+            vtxSetPosTex(vtx++, halfW, -halfH, (f32)(width - 1) + scaledW, 0.0f - scaledH, 6);
+            vtxSetPosTex(vtx++, -halfW, -halfH, 0.0f - scaledW, 0.0f - scaledH, 6);
         } else {
-            vtxSetPosTex(vtx++, -(width >> 1), 0, 0.0f - scaled_w, (f32)(height - 1) + scaled_h, 6);
-            vtxSetPosTex(vtx++, width >> 1, 0, (f32)(width - 1) + scaled_w, (f32)(height - 1) + scaled_h, 6);
-            vtxSetPosTex(vtx++, width >> 1, -height, (f32)(width - 1) + scaled_w, 0.0f - scaled_h, 6);
-            vtxSetPosTex(vtx++, -(width >> 1), -height, 0.0f - scaled_w, 0.0f - scaled_h, 6);
+            vtxSetPosTex(vtx++, -(width >> 1), 0, 0.0f - scaledW, (f32)(height - 1) + scaledH, 6);
+            vtxSetPosTex(vtx++, width >> 1, 0, (f32)(width - 1) + scaledW, (f32)(height - 1) + scaledH, 6);
+            vtxSetPosTex(vtx++, width >> 1, -height, (f32)(width - 1) + scaledW, 0.0f - scaledH, 6);
+            vtxSetPosTex(vtx++, -(width >> 1), -height, 0.0f - scaledW, 0.0f - scaledH, 6);
         }
 
-        WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(vtx - 4));
-        WRITE_GFX(glist++, 0x06000204, 0x00000406);
-        WRITE_GFX(glist++, 0xE7000000, 0);
+        gSPVertex(glist++, osVirtualToPhysical(vtx - 4), 4, 0);
+        gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
+        gDPPipeSync(glist++);
     }
 
     return glist;
