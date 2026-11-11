@@ -7,52 +7,32 @@
 #include "proto/global/3C10.h"
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
+// Actor plus its component pointers (0x174 on).
 typedef struct BossC_9C60_Actor {
-    char pad[4];
-    ActorSub4 *unk4;
-    char pad8[0x58];
-    s32 unk60;
-    char pad64[0x18];
-    f32 unk7C;
-    char pad80[4];
-    f32 unk84;
-    char pad88[0x30];
-    f32 unkB8;
-    char padBC[0x10];
-    u8 unkCC;
-    char padCD[0x19];
-    s16 unkE6;
-    char padE8[0x34];
-    struct BossC_9C60_Actor *unk11C;
-    char pad120[0x26];
-    s16 unk146;
-    char pad148[0xC];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x22];
-    void *unk178;
+    /* 0x000 */ u8 pad0[0x178];
+    /* 0x178 */ void* unk178;
 } BossC_9C60_Actor;
 
-extern BossC_9C60_Actor *gCurrentActor;
-extern BossC_9C60_Actor *gSpawnedActor;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
 
 s32 actorSpawn(s32, s32);
-void actorCopyPoseAndScale(BossC_9C60_Actor *, BossC_9C60_Actor *, f32);
+void actorCopyPoseAndScale(Actor *, Actor *, f32);
 void actorDespawn(void *);
 void bossAttachActor(void) {
-    BossC_9C60_Actor **attachedActorSlot = gCurrentActor->unk178;
+    Actor **attachedActorSlot = ((BossC_9C60_Actor *)gCurrentActor)->unk178;
 
     actorSpawn(0xDD, 0xE3);
-    gSpawnedActor->unk60 |= 0x400;
-    gSpawnedActor->unk11C = gCurrentActor;
+    gSpawnedActor->flags |= 0x400;
+    gSpawnedActor->parentActor = gCurrentActor;
     *attachedActorSlot = gSpawnedActor;
-    actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->unk4->scaleY);
+    actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
 }
 
 void bossUpdateAttachment(void) {
-    actorCopyPoseAndScale(gCurrentActor, gCurrentActor->unk11C, gCurrentActor->unk4->scaleY);
-    gCurrentActor->unk4->unk48 = gCurrentActor->unk11C->unk4->unk48;
-    if (gCurrentActor->unk4->model->animId == 0x675 && gCurrentActor->unk4->model->speed == 0.0f) {
+    actorCopyPoseAndScale(gCurrentActor, gCurrentActor->parentActor, gCurrentActor->sub4->scaleY);
+    gCurrentActor->sub4->unk48 = gCurrentActor->parentActor->sub4->unk48;
+    if (gCurrentActor->sub4->model->animId == 0x675 && gCurrentActor->sub4->model->speed == 0.0f) {
         actorDespawn(gCurrentActor);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -107,21 +87,21 @@ extern s32 gCamActor;
 extern Boss2F_9C60_BB4C *gPrimaryPlayerActor;
 
 void actorScriptExecute(BossC_9C60_Actor *);
-void actorScriptStart(BossC_9C60_Actor *, s32);
+void actorScriptStart(Actor *, s32);
 u8 camIsCutsceneActive(void);
 u16 camStartPath(void *, s16, u8);
 void camStartShake(struct CamActor *, u8, u16);
 void camSetSecondTarget(struct CamActor *, s16, s16);
 s32 currentActorTestClearFlag(void);
 void csModelStateSetFirstByte(s16, s16);
-void projectileGetTargetCoords(BossC_9C60_Actor *, s32);
+void projectileGetTargetCoords(Actor *, s32);
 void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, Actor *);
 void func_80724CA4(s16, s16);
 void func_80724E48(u8);
 u8 func_8072881C(u8, u32 *);
 void behaviourFrameBegin(void);
 void behaviourUpdateShadowAlpha(void);
-void actorSetTargetSpeed(BossC_9C60_Actor *, s32);
+void actorSetTargetSpeed(Actor *, s32);
 void actorTurnTowardActorYaw(u8, Actor *);
 
 void bossKRoolDiddyStep(void) {
@@ -131,34 +111,34 @@ void bossKRoolDiddyStep(void) {
     f32 projectileScale;
     u8 action;
 
-    scriptState = gCurrentActor->unk178;
+    scriptState = ((BossC_9C60_Actor *)gCurrentActor)->unk178;
     scriptOpcodes = D_80035A60[scriptState->unk14];
     projectileScale = (gPrimaryPlayerActor->unk6A & 1) ? 0.7 : 1.0;
     behaviourFrameBegin();
     bossRoundFrame(scriptOpcodes);
-    if (!(gCurrentActor->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         camSetSecondTarget(gCamActor, 0, 0);
         gCurrentActor->unk146 = 5;
-        gCurrentActor->unk154 = 0x1E;
+        gCurrentActor->state = 0x1E;
         gCurrentActor->unk155 = 0;
-        gCurrentActor->unkCC = 1;
+        gCurrentActor->floorNodeId = 1;
         actorScriptStart(gCurrentActor, 0x3E3);
         func_80724CA4(2, 1);
     }
-    if (gCurrentActor->unk154 != 0x28) {
+    if (gCurrentActor->state != 0x28) {
         func_80724E48(5);
     }
-    switch (gCurrentActor->unk154) {
+    switch (gCurrentActor->state) {
     case 0x1E:
         scriptState->unk14 = 0;
         scriptState->unk15 = 0;
-        gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
+        gCurrentActor->state = scriptOpcodes[scriptState->unk15++];
         gCurrentActor->unk155 = 0;
-        gCurrentActor->unkB8 = gBehaviourExtraState->targetSpeed;
+        gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
         break;
     case 0x27:
         actorScriptStart(gCurrentActor, 0x3E1);
-        gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
+        gCurrentActor->state = scriptOpcodes[scriptState->unk15++];
         gCurrentActor->unk155 = 0;
         break;
     case 0x2C:
@@ -174,7 +154,7 @@ void bossKRoolDiddyStep(void) {
             } else {
                 csModelStateSetFirstByte((scriptState->unk14 * 2) + 8, 0xA);
                 csModelStateSetFirstByte((scriptState->unk14 * 2) + 9, 0xA);
-                gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
+                gCurrentActor->state = scriptOpcodes[scriptState->unk15++];
                 gCurrentActor->unk155 = 0;
             }
             break;
@@ -190,7 +170,7 @@ void bossKRoolDiddyStep(void) {
             actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
             break;
         case 2:
-            gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
+            gCurrentActor->state = scriptOpcodes[scriptState->unk15++];
             gCurrentActor->unk155 = 0;
             break;
         }
@@ -212,7 +192,7 @@ void bossKRoolDiddyStep(void) {
         case 3:
             gCurrentActor->unk146 = 6;
             projectileGetTargetCoords(gCurrentActor, 4);
-            projectileSpawnNodeEntry(0xAA, 1, gCurrentActor->unk4->scaleY, 0, (f32)scriptState->unk19 * projectileScale, 0.0f, gCurrentActor);
+            projectileSpawnNodeEntry(0xAA, 1, gCurrentActor->sub4->scaleY, 0, (f32)scriptState->unk19 * projectileScale, 0.0f, gCurrentActor);
             gCurrentActor->unk155++;
             break;
         case 5:
@@ -225,8 +205,8 @@ void bossKRoolDiddyStep(void) {
             /* fallthrough */
         case 8:
             func_80724E48(0);
-            if (gCurrentActor->unk4->boneRotations->rotX < 0x7FFF) {
-                gCurrentActor->unk4->boneRotations->rotX = 0xFFFF;
+            if (gCurrentActor->sub4->boneRotations->rotX < 0x7FFF) {
+                gCurrentActor->sub4->boneRotations->rotX = 0xFFFF;
             }
             actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
             if (gBehaviourWorkState->timer != 0) {
@@ -235,7 +215,7 @@ void bossKRoolDiddyStep(void) {
                 }
                 gBehaviourWorkState->timer--;
             } else {
-                gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
+                gCurrentActor->state = scriptOpcodes[scriptState->unk15++];
                 gCurrentActor->unk155 = 0;
             }
             break;
@@ -251,7 +231,7 @@ void bossKRoolDiddyStep(void) {
             gCurrentActor->unk155++;
             break;
         case 2:
-            gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
+            gCurrentActor->state = scriptOpcodes[scriptState->unk15++];
             gCurrentActor->unk155 = 0;
             break;
         }
@@ -275,7 +255,7 @@ void bossKRoolDiddyStep(void) {
             if (currentActorTestClearFlag() != 0) {
                 camStartShake(gCamActor, 5, 0x14);
                 if (scriptState->unk14 == 3) {
-                    gCurrentActor->unk154 = 0x37;
+                    gCurrentActor->state = 0x37;
                     gCurrentActor->unk155 = 0;
                 } else {
                     bossAttachActor();
@@ -300,7 +280,7 @@ void bossKRoolDiddyStep(void) {
             actorScriptStart(gCurrentActor, 0x406);
             actorScriptExecute(gCurrentActor);
             controllerAnimSetStateIfChanged(scriptState->unk0, 0x674, 0.0f, 0.0f);
-            gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
+            gCurrentActor->state = scriptOpcodes[scriptState->unk15++];
             gCurrentActor->unk155 = 0;
             break;
         }
@@ -308,7 +288,7 @@ void bossKRoolDiddyStep(void) {
     case 0x37:
         switch (gCurrentActor->unk155) {
         case 0:
-            gCurrentActor->unkE6 = mathAngleBetweenPoints2D(D_807FDCA0->entries[4].x, D_807FDCA0->entries[4].z, gCurrentActor->unk7C, gCurrentActor->unk84);
+            gCurrentActor->yaw = mathAngleBetweenPoints2D(D_807FDCA0->entries[4].x, D_807FDCA0->entries[4].z, gCurrentActor->x, gCurrentActor->z);
             actorScriptStart(gCurrentActor, 0);
             camStartPath(gCurrentActor, 2, 1);
             gCurrentActor->unk155++;

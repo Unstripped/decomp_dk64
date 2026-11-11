@@ -13,47 +13,33 @@ typedef struct BossC_A7A0_178 {
     u8 unk14;
 } BossC_A7A0_178;
 
+// Actor plus its component pointers (0x174 on).
 typedef struct BossC_A7A0_Actor {
-    char pad[0x58];
-    s32 unk58;
-    s32 pad5C;
-    s32 unk60;
-    char pad64[0xB8];
-    struct BossC_A7A0_Actor *unk11C;
-    char pad120[8];
-    s16 unk128;
-    char pad12A[0x1A];
-    u8 unk144;
-    char pad145[0xF];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x12];
-    s16 unk168;
-    char pad16A[0xE];
-    BossC_A7A0_178 *unk178;
+    /* 0x000 */ u8 pad0[0x178];
+    /* 0x178 */ BossC_A7A0_178* unk178;
 } BossC_A7A0_Actor;
 
-extern BossC_A7A0_Actor *gCurrentActor;
-extern BossC_A7A0_Actor *gPrimaryPlayerActor;
+extern Actor *gCurrentActor;
+extern Actor *gPrimaryPlayerActor;
 void actorDespawn(BossC_A7A0_Actor *);
 
 typedef struct {
-    BossC_A7A0_Actor *actor;
+    Actor *actor;
     s32 pad;
 } BossC_A7A0_Entry;
 
 extern BossC_A7A0_Entry gActiveActors[];
 extern u16 gActiveActorCount;
 
-void bossResetMinions(BossC_A7A0_Actor *excludeActor) {
+void bossResetMinions(Actor *excludeActor) {
     s16 i;
-    BossC_A7A0_Actor *actor;
+    Actor *actor;
 
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if ((excludeActor == NULL || actor != excludeActor) && actor->unk58 == 0xDE) {
-            actor->unk60 &= ~0x8000;
-            actor->unk154 = 1;
+        if ((excludeActor == NULL || actor != excludeActor) && actor->actorType == 0xDE) {
+            actor->flags &= ~0x8000;
+            actor->state = 1;
             actor->unk155 = 0;
         }
     }
@@ -63,35 +49,35 @@ void bossPhaseTick(void) {
     Actor *other;
     s16 timer;
 
-    if (!(gCurrentActor->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         bossResetMinions(gCurrentActor);
-        gCurrentActor->unk168 = 0x258;
+        gCurrentActor->yawSpeed = 0x258;
         gCurrentActor->unk144 = 2;
     }
-    if (gPrimaryPlayerActor->unk154 != 0x67) {
-        timer = gCurrentActor->unk168;
+    if (gPrimaryPlayerActor->state != 0x67) {
+        timer = gCurrentActor->yawSpeed;
         if (timer != 0) {
-            gCurrentActor->unk168 = timer - 1;
+            gCurrentActor->yawSpeed = timer - 1;
         } else {
-            gCurrentActor->unk60 &= ~0x8000;
-            gCurrentActor->unk154 = 1;
+            gCurrentActor->flags &= ~0x8000;
+            gCurrentActor->state = 1;
             gCurrentActor->unk155 = 0;
         }
     }
     if (((gActorGlobalState.unk15 != 0) || (gActorGlobalState.bossFightPhase == 9)) &&
         ((other = gActorGlobalState.targetActor)->state == 0x2B) &&
         (other->unk155 == 3)) {
-        gCurrentActor->unk154 = 1;
+        gCurrentActor->state = 1;
         gCurrentActor->unk155 = 0;
-        gCurrentActor->unk11C->unk154 = 0x64;
-        gCurrentActor->unk11C->unk155 = 0;
+        gCurrentActor->parentActor->state = 0x64;
+        gCurrentActor->parentActor->unk155 = 0;
         other->unk155 = 0;
         other->state = 0x31;
     }
-    if (gCurrentActor->unk154 == 1) {
+    if (gCurrentActor->state == 1) {
         gCurrentActor->unk144 = 1;
-        gCurrentActor->unk128 -= 10;
-        if (gCurrentActor->unk128 < 0) {
+        gCurrentActor->alpha -= 10;
+        if (gCurrentActor->alpha < 0) {
             actorDespawn(gCurrentActor);
         }
     }
@@ -99,11 +85,11 @@ void bossPhaseTick(void) {
 }
 
 
-void actorScriptStart(BossC_A7A0_Actor *, s32);
+void actorScriptStart(Actor *, s32);
 void actorScriptExecute(BossC_A7A0_Actor *);
 
 void bossKRoolLankySetAnim(s32 scriptId, s16 animId) {
-    BossC_A7A0_178 *link = gCurrentActor->unk178;
+    BossC_A7A0_178 *link = ((BossC_A7A0_Actor *)gCurrentActor)->unk178;
 
     actorScriptStart(gCurrentActor, scriptId);
     actorScriptExecute(gCurrentActor);
@@ -111,10 +97,10 @@ void bossKRoolLankySetAnim(s32 scriptId, s16 animId) {
 }
 
 
-void actorSetTargetSpeed(BossC_A7A0_Actor *, s32);
+void actorSetTargetSpeed(Actor *, s32);
 
 void bossKRoolLankyRunTowardPlayer(void) {
-    BossC_A7A0_178 *link = gCurrentActor->unk178;
+    BossC_A7A0_178 *link = ((BossC_A7A0_Actor *)gCurrentActor)->unk178;
 
     bossKRoolLankySetAnim(0x406, 0x674);
     actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed + (link->unk14 * 10) + 15);
@@ -173,7 +159,7 @@ void bossKRoolLankyStep(void) {
     BossScriptState *scriptState;
     u8 *scriptOpcodes;
 
-    scriptState = (BossScriptState *)gCurrentActor->unk178;
+    scriptState = (BossScriptState *)((BossC_A7A0_Actor *)gCurrentActor)->unk178;
     scriptOpcodes = D_80035A80[scriptState->unk14];
     behaviourFrameBegin();
     bossRoundFrame(scriptOpcodes);

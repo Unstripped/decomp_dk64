@@ -41,25 +41,13 @@ s16 D_80035B60[4] = { 0xDC, 0xDD, 0xDE, 0xDF };
 s8 D_80035B68 = 0;
 s8 D_80035B6C = 0;
 
+// Actor plus its component pointers (0x174 on).
 typedef struct BossD_Actor {
-    u8 pad0[0x7C];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0xE6 - 0x88];
-    s16 unkE6;
-    u8 padE8[0xEE - 0xE8];
-    s16 unkEE;
-    u8 padF0[0x144 - 0xF0];
-    u8 unk144;
-    u8 pad145[0x154 - 0x145];
-    u8 unk154;
-    u8 pad155[0x160 - 0x155];
-    f64 unk160;
+    /* 0x000 */ u8 pad0[0x174];
 } BossD_Actor;
 
-extern BossD_Actor *gCurrentActor;
-extern BossD_Actor *gPrimaryPlayerActor;
+extern Actor *gCurrentActor;
+extern Actor *gPrimaryPlayerActor;
 
 f32 mathSinF(s16);
 
@@ -565,8 +553,8 @@ void bossFollowerActorUpdate(void) {
     static s16 D_80035B74 = 0x78; // function-local static (only user; shadows the file-scope definition, which the .data carve moves here) keeps uopt from pointerizing D_80035B74
 
     if (sub174->unk5 == 0) {
-        f32 dx = gPrimaryPlayerActor->unk7C - ACTOR->unk7C;
-        f32 dz = gPrimaryPlayerActor->unk84 - ACTOR->unk84;
+        f32 dx = gPrimaryPlayerActor->x - ACTOR->unk7C;
+        f32 dz = gPrimaryPlayerActor->z - ACTOR->unk84;
         D_80036DC4 = dx * dx + dz * dz;
     }
     if (!(ACTOR->unk60 & 0x10)) {
@@ -626,7 +614,7 @@ void bossFollowerActorUpdate(void) {
                     f32 xo = D_80035B18[parentState->unk14];
                     D_80035B74 = 0xA;
                     projectileSetTargetCoords(ACTOR->unk7C + xo, ACTOR->unk80 + 270.0f, ACTOR->unk84 + zo);
-                    projectileAimAndSpawn(0x2C, 1, 0.25f, gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk80, gPrimaryPlayerActor->unk84, 2400.0f, ACTOR);
+                    projectileAimAndSpawn(0x2C, 1, 0.25f, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z, 2400.0f, ACTOR);
                 }
             } else {
                 D_80035B74 = 0;

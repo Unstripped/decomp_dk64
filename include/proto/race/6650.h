@@ -2,7 +2,7 @@
 #ifndef PROTO_RACE_6650_H
 #define PROTO_RACE_6650_H
 #include "common.h"
-struct Actor_BB40;
+#include "actor.h"
 struct Struct_8002B180_Arg1;
 struct Struct_8002B610_Arg1;
 struct Struct_arg0;
@@ -14,7 +14,7 @@ void raceInitParticipants(struct Struct_arg0 *);
 void raceUpdateRacerMotion(struct Struct_sp58 *);
 #endif
 #ifndef PROTO_SKIP_raceParticleRenderCallback
-void raceParticleRenderCallback(void *, struct Actor_BB40 *);
+void raceParticleRenderCallback(void *, Actor *);
 #endif
 #ifndef PROTO_SKIP_raceParticipantMotionUpdate
 void raceParticipantMotionUpdate(void);

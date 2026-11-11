@@ -19,34 +19,17 @@
 #include "proto/global/CEAE0.h"
 #include "proto/global/FCCD0.h"
 
+// Actor plus its component pointers (0x174 on).
 typedef struct Actor_3340 {
-    char pad0[4];
-    ActorSub4 *unk4;
-    char pad8[0x60 - 0x8];
-    s32 unk60;
-    s32 unk64;
-    char pad68[0x7C - 0x68];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0xE6 - 0x88];
-    s16 unkE6;
-    char padE8[0x144 - 0xE8];
-    u8 unk144;
-    char pad145[0x154 - 0x145];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x15E - 0x156];
-    u8 unk15E;
-    char pad15F[0x174 - 0x15F];
-    s16 *unk174;
-    char pad178[0x1A4 - 0x178];
-    u8 playerIndex;
+    /* 0x000 */ u8 pad0[0x174];
+    /* 0x174 */ s16* unk174;
+    /* 0x178 */ u8 pad178[0x2C];
+    /* 0x1A4 */ u8 playerIndex;
 } Actor_3340;
 
-extern Actor_3340 *gCurrentActor;
-extern Actor_3340 *gPrimaryPlayerActor;
-extern Actor_3340 *gActivePlayerState;
+extern Actor *gCurrentActor;
+extern Actor *gPrimaryPlayerActor;
+extern Actor *gActivePlayerState;
 extern s32 gFrameCounter;
 
 
@@ -100,7 +83,7 @@ void critterBananaFairyUpdate(void) {
     s8 hasSecretDiscount;
     s8 canSecretUnlock;
 
-    timerPtr = gCurrentActor->unk174;
+    timerPtr = ((Actor_3340 *)gCurrentActor)->unk174;
     canSecretUnlock = 0;
     hasSecretDiscount = 0;
     worldIndex = mapGetHubWorldIndex(gCurrentWorldId, 0);
@@ -112,8 +95,8 @@ void critterBananaFairyUpdate(void) {
     } else {
         requiredCount = D_807446D0[worldIndex];
     }
-    if (!(gCurrentActor->unk60 & 0x10)) {
-        gCurrentActor->unk64 |= 0x20;
+    if (!(gCurrentActor->flags & 0x10)) {
+        gCurrentActor->renderFlags |= 0x20;
         if (gCurrentMap == 0x2A) {
             actorScriptStart(gCurrentActor, 0x39F);
             gCurrentActor->unk155 = 4;
@@ -150,19 +133,19 @@ void critterBananaFairyUpdate(void) {
             }
         }
     }
-    gCurrentActor->unk15E = 0x23;
+    gCurrentActor->eyeHeight = 0x23;
     if (gCurrentMap != 0x2A) {
-        dx = gPrimaryPlayerActor->unk7C - gCurrentActor->unk7C;
-        dy = (f32)(2.0 * (f64)(gPrimaryPlayerActor->unk80 - gCurrentActor->unk80));
-        dz = gPrimaryPlayerActor->unk84 - gCurrentActor->unk84;
+        dx = gPrimaryPlayerActor->x - gCurrentActor->x;
+        dy = (f32)(2.0 * (f64)(gPrimaryPlayerActor->y - gCurrentActor->y));
+        dz = gPrimaryPlayerActor->z - gCurrentActor->z;
         dist = sqrtf(dx * dx + dy * dy + dz * dz);
         if ((f64)dist < 300.0 && flagGet(0x17E, 0) == 0) {
             resQueueSetValue(1);
             resQueueAttachActor(gCurrentActor, 0x1D, 0);
             camStartPath(gCurrentActor, 1, 1);
             flagSet(0x17E, 1, 0);
-        } else if (canSecretUnlock != 0 && (f64)dist < 200.0 && camIsCutsceneActive() == 0 && gPrimaryPlayerActor->unk154 == 0x24 && gPrimaryPlayerActor->unk155 == 2 && (f64)dz > -35.0) {
-            if ((f64)dx > -27.0 && (f64)dx < 27.0 && (gPrimaryPlayerActor->unkE6 < 0x200 || gPrimaryPlayerActor->unkE6 >= 0xE01)) {
+        } else if (canSecretUnlock != 0 && (f64)dist < 200.0 && camIsCutsceneActive() == 0 && gPrimaryPlayerActor->state == 0x24 && gPrimaryPlayerActor->unk155 == 2 && (f64)dz > -35.0) {
+            if ((f64)dx > -27.0 && (f64)dx < 27.0 && (gPrimaryPlayerActor->yaw < 0x200 || gPrimaryPlayerActor->yaw >= 0xE01)) {
                 D_80029F84 = 2;
                 sfxPlayOnFreeSlot(0x145, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 camStartShake(gCamActor, 0xA, 0xA);
@@ -220,12 +203,12 @@ void critterBananaFairyUpdate(void) {
                 if (*timerPtr >= 0x3D) {
                     effectSetDepth(0);
                     effectSetDuration(1);
-                    effectCreateAtPosition(D_80720A7C, 0.5f, (f32)(((f64)randomFloat() * 35.0 + (f64)gCurrentActor->unk7C) - 15.0), (f32)((f64)randomFloat() * 35.0 + (f64)gCurrentActor->unk80), (f32)(((f64)randomFloat() * 35.0 + (f64)gCurrentActor->unk84) - 15.0));
+                    effectCreateAtPosition(D_80720A7C, 0.5f, (f32)(((f64)randomFloat() * 35.0 + (f64)gCurrentActor->x) - 15.0), (f32)((f64)randomFloat() * 35.0 + (f64)gCurrentActor->y), (f32)(((f64)randomFloat() * 35.0 + (f64)gCurrentActor->z) - 15.0));
                 }
                 if (*timerPtr >= 0x51) {
-                    gCurrentActor->unk4->scaleX = (f32)((f64)gCurrentActor->unk4->scaleX * 0.9);
-                    gCurrentActor->unk4->scaleY = gCurrentActor->unk4->scaleX;
-                    gCurrentActor->unk4->scaleZ = gCurrentActor->unk4->scaleX;
+                    gCurrentActor->sub4->scaleX = (f32)((f64)gCurrentActor->sub4->scaleX * 0.9);
+                    gCurrentActor->sub4->scaleY = gCurrentActor->sub4->scaleX;
+                    gCurrentActor->sub4->scaleZ = gCurrentActor->sub4->scaleX;
                 }
                 *timerPtr += 1;
             } else {
@@ -235,19 +218,19 @@ void critterBananaFairyUpdate(void) {
             }
             break;
         case 3:
-            gCurrentActor->unk4->scaleX = 0.0f;
-            gCurrentActor->unk4->scaleY = 0.0f;
-            gCurrentActor->unk4->scaleZ = 0.0f;
+            gCurrentActor->sub4->scaleX = 0.0f;
+            gCurrentActor->sub4->scaleY = 0.0f;
+            gCurrentActor->sub4->scaleZ = 0.0f;
             sfxStopSlotSound(gCurrentActor, 0);
             gCurrentActor->unk155 = 4;
             effectSetDepth(0);
             effectSetDuration(1);
-            effectCreateAtPosition(D_8071FE08, 0.5f, gCurrentActor->unk7C, gCurrentActor->unk80 + 7.0f, gCurrentActor->unk84);
+            effectCreateAtPosition(D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
             break;
         case 4:
-            gCurrentActor->unk4->scaleX = 0.0f;
-            gCurrentActor->unk4->scaleY = 0.0f;
-            gCurrentActor->unk4->scaleZ = 0.0f;
+            gCurrentActor->sub4->scaleX = 0.0f;
+            gCurrentActor->sub4->scaleY = 0.0f;
+            gCurrentActor->sub4->scaleZ = 0.0f;
             break;
         }
         D_8002A1B0 = dist;
@@ -266,9 +249,9 @@ void critterBananaFairyUpdate(void) {
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
     if (gCurrentActor->unk155 != 4) {
-        gCurrentActor->unk60 |= 4;
+        gCurrentActor->flags |= 4;
     } else {
-        gCurrentActor->unk60 &= ~4;
+        gCurrentActor->flags &= ~4;
         gCurrentActor->unk144 = 1;
     }
 }
@@ -277,33 +260,33 @@ void critterBananaFairyUpdate(void) {
 void critterBananaFairyRewardUpdate(void) {
     f32 dx;
     f32 dz;
-    Actor_3340 *savedActor;
+    Actor *savedActor;
     s32 inRangeIntro;
     s32 inRangeReward;
 
     behaviourFrameBegin();
-    if (!(gCurrentActor->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         sfxPlayActorSound(gCurrentActor, 0x10F, 0x46, 1, 0, 0x1E, 1.0f, 0);
-        gCurrentActor->unk154 = 0;
+        gCurrentActor->state = 0;
         if (flagGet(0x179, 0) == 0) {
-            gCurrentActor->unk154 = 1;
+            gCurrentActor->state = 1;
         } else if (flagGet(0x189, 0) != 0) {
             actorScriptStart(gCurrentActor, 0x2B5);
         } else if (flagCountRange(0x24D, 0x14, 0) == 0x14) {
             actorScriptStart(gCurrentActor, 0x2B5);
-            gCurrentActor->unk154 = 3;
+            gCurrentActor->state = 3;
         }
     }
-    dx = gCurrentActor->unk7C - gPrimaryPlayerActor->unk7C;
-    dz = gCurrentActor->unk84 - gPrimaryPlayerActor->unk84;
-    switch (gCurrentActor->unk154) {
+    dx = gCurrentActor->x - gPrimaryPlayerActor->x;
+    dz = gCurrentActor->z - gPrimaryPlayerActor->z;
+    switch (gCurrentActor->state) {
     case 1:
         inRangeIntro = ((dx * dx + dz * dz) < 10000.0f) != 0;
         if (inRangeIntro) {
             flagSet(0x179, 1, 0);
             camStartPath(gPrimaryPlayerActor, 0, 1);
             currentActorClearFlag();
-            gCurrentActor->unk154 = 2;
+            gCurrentActor->state = 2;
         }
         break;
     case 2:
@@ -318,7 +301,7 @@ void critterBananaFairyRewardUpdate(void) {
                 gCurrentActor = savedActor;
             } else {
                 gCurrentActor = gPrimaryPlayerActor;
-                gPrimaryPlayerActor->unk154 = 0x2D;
+                gPrimaryPlayerActor->state = 0x2D;
                 gPrimaryPlayerActor->unk155 = 0;
                 actorScriptStartByIndex(gPrimaryPlayerActor, 0x42);
                 sfxPlayFromActorWithAltitudeCheck(gPrimaryPlayerActor, 0xF2, 0xFF, 0x7F, 0);
@@ -330,7 +313,7 @@ void critterBananaFairyRewardUpdate(void) {
             gCurrentActor->unk155 = 1;
             sfxPlayActorSound(gPrimaryPlayerActor, 0x104, 0x3C, 1, 1, 0xFF, 1.0f, 0);
             slotQueueUpdate(6, 0, 0);
-            slotQueueAddValue(6, gActivePlayerState->playerIndex, 0x3E7);
+            slotQueueAddValue(6, ((Actor_3340 *)gActivePlayerState)->playerIndex, 0x3E7);
         }
         break;
     case 3:
@@ -338,7 +321,7 @@ void critterBananaFairyRewardUpdate(void) {
         if (inRangeReward) {
             camStartPath(gCurrentActor, 1, 1);
             currentActorClearFlag();
-            gCurrentActor->unk154 = 4;
+            gCurrentActor->state = 4;
         }
         break;
     case 4:

@@ -2,7 +2,7 @@
 #ifndef PROTO_CRITTER_4840_H
 #define PROTO_CRITTER_4840_H
 #include "common.h"
-struct Actor_4840;
+#include "actor.h"
 struct TextData;
 #ifndef PROTO_SKIP_critterInitText
 void critterInitText(void);
@@ -14,7 +14,7 @@ s16 critterLayoutWords(struct TextData *, char *, s16);
 Gfx *critterDrawWord(Gfx *, struct TextData *, char *, u8);
 #endif
 #ifndef PROTO_SKIP_critterRenderText
-Gfx *critterRenderText(Gfx *, struct Actor_4840 *);
+Gfx *critterRenderText(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_critterShowText
 void critterShowText(u8, s32, s16, u8, s16, u16);

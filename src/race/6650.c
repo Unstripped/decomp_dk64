@@ -64,47 +64,16 @@ typedef struct {
     u8 unk10;
 } Struct_sp20;
 
+// Actor plus its component pointers (0x174 on); unk4 keeps a file-local type.
 typedef struct Actor_BB40 {
-    char pad[0x4];
-    Actor_BB40_Sub4 *unk4;
-    char pad8[0x60 - 0x8];
-    u32 unk60;
-    char pad64[0x6A - 0x64];
-    u16 unk6A;
-    char pad6C[0x6E - 0x6C];
-    s16 unk6E[2];
-    char pad72[0x7C - 0x72];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0xB8 - 0x88];
-    f32 unkB8;
-    f32 unkBC;
-    f32 unkC0;
-    f32 unkC4;
-    f32 unkC8;
-    char padCC[0xDC - 0xCC];
-    s16 unkDC;
-    s16 unkDE;
-    char padE0[0xE4 - 0xE0];
-    s16 unkE4;
-    s16 unkE6;
-    s16 unkE8;
-    char padEA[0xEE - 0xEA];
-    s16 unkEE;
-    char padF0[0xF8 - 0xF0];
-    s16 unkF8;
-    char padFA[0x144 - 0xFA];
-    u8 unk144;
-    char pad145[0x154 - 0x145];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x174 - 0x156];
-    Struct_sp58 *unk174;
-    Struct_sp58 *unk178;
-    Struct_sp20 *unk17C;
+    /* 0x000 */ u8 pad0[0x4];
+    /* 0x004 */ Actor_BB40_Sub4 * unk4;
+    /* 0x008 */ u8 pad8[0x16C];
+    /* 0x174 */ Struct_sp58 * unk174;
+    /* 0x178 */ Struct_sp58 * unk178;
+    /* 0x17C */ Struct_sp20 * unk17C;
 } Actor_BB40;
-extern Actor_BB40 *gCurrentActor;
+extern Actor *gCurrentActor;
 
 void behaviourFrameBegin(void);
 void actorOrNodeFlags(Actor *, s32, u8);
@@ -117,10 +86,9 @@ typedef struct Struct_8002B180_Arg1 {
 extern void *D_8002FC70;
 extern void *D_8002FCA0;
 extern s16 D_80750AC8;
-extern Actor_BB40 *gCurrentActor;
 
 void playerStateQueueCallback(); // FAKE: callee prototype steer
-s32 sfxStopSlotSound(Actor_BB40 *, u8); // FAKE: callee prototype steer
+s32 sfxStopSlotSound(Actor *, u8); // FAKE: callee prototype steer
 void resQueueAttachActor(Actor *, s32, u8);
 void csModelStateSetFirstByte(s16, s16);
 void hudSpawnTextScreen(u8);
@@ -136,9 +104,9 @@ f32 mathSinF(s16);
 f32 mathCosF(s16);
 s16 mathAngleFromVector2D(f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32, s16); // FAKE: callee prototype steer
-void actorStepPhysics(Actor_BB40 *, s16, s16);
+void actorStepPhysics(Actor *, s16, s16);
 void actorApplyVelocity(Actor_BB40 *);
-void actorUpdateFloorContactAndTilt(Actor_BB40 *, f32);
+void actorUpdateFloorContactAndTilt(Actor *, f32);
 typedef struct {
     char pad[0x104];
     void *unk104;
@@ -244,43 +212,43 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
     s16 a0;
     f32 tiltScale;
 
-    onGround = gCurrentActor->unk6A & 1;
-    a1 = gCurrentActor->unkE6;
-    if (!(gCurrentActor->unk60 & 0x10)) {
+    onGround = gCurrentActor->contactFlags & 1;
+    a1 = gCurrentActor->yaw;
+    if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unk144 = 0x3C;
-        gCurrentActor->unk60 |= 0x10400;
-        gCurrentActor->unk154 = 0;
+        gCurrentActor->flags |= 0x10400;
+        gCurrentActor->state = 0;
         gCurrentActor->unk155 = 0;
-        gCurrentActor->unkB8 = 0.0f;
-        gCurrentActor->unkC4 = -20.0f;
-        gCurrentActor->unkC8 = -900.0f;
+        gCurrentActor->speedXZ = 0.0f;
+        gCurrentActor->accelY = -20.0f;
+        gCurrentActor->terminalSpeedY = -900.0f;
         gCurrentActor->unkF8 = 0x12C;
     }
-    velX = mathSinF(gCurrentActor->unkEE) * gCurrentActor->unkB8;
-    velZ = mathCosF(gCurrentActor->unkEE) * gCurrentActor->unkB8;
+    velX = mathSinF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ;
+    velZ = mathCosF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ;
     if (racerState->unk20 != 0) {
         a1 = a1 + 0x800;
         a1 = a1 & 0xFFF;
         racerState->unk4 = (f32)((f64)racerState->unk4 * 0.85);
     }
     if (onGround != 0) {
-        fv0 = (f32)((f64)(racerState->unk8 * gCurrentActor->unkB8) * 0.2);
+        fv0 = (f32)((f64)(racerState->unk8 * gCurrentActor->speedXZ) * 0.2);
         if (!(fv0 > 1.0f)) {
             fv0 = 1.0f;
         }
-        forwardAccel = (f32)((f64)(racerState->unk4 * 35.0f) + ((f64)gCurrentActor->unkB8 * 0.13));
-        friction = (f32)((f64)(gCurrentActor->unkB8 * gCurrentActor->unkB8 * 0.00025f) + (27.0 + (f64)fv0));
+        forwardAccel = (f32)((f64)(racerState->unk4 * 35.0f) + ((f64)gCurrentActor->speedXZ * 0.13));
+        friction = (f32)((f64)(gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00025f) + (27.0 + (f64)fv0));
     } else {
         forwardAccel = racerState->unk4 * 2;
-        friction = (gCurrentActor->unkB8 * gCurrentActor->unkB8 * 0.00002f) + 2;
+        friction = (gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f) + 2;
     }
     velX += mathSinF(a1) * forwardAccel;
     velZ += mathCosF(a1) * forwardAccel;
-    gCurrentActor->unkB8 = sqrtf((velX * velX) + (velZ * velZ));
-    gCurrentActor->unkEE = (s16)(s32)(mathAtan2(velX, velZ) * 651.8986f);
+    gCurrentActor->speedXZ = sqrtf((velX * velX) + (velZ * velZ));
+    gCurrentActor->moveYaw = (s16)(s32)(mathAtan2(velX, velZ) * 651.8986f);
     if (onGround) {
-        pitchAngle = 0x400 - gCurrentActor->unkDE;
-        signedDist = mathAngleSignedDistance(gCurrentActor->unkDC, gCurrentActor->unkE6);
+        pitchAngle = 0x400 - gCurrentActor->floorSlopePitch;
+        signedDist = mathAngleSignedDistance(gCurrentActor->floorSlopeYaw, gCurrentActor->yaw);
         tiltScale = (f32)pitchAngle;
         targetTilt = (s16)(s32)(mathCosF(signedDist) * tiltScale);
         fv0 = mathSinF(signedDist) * tiltScale;
@@ -288,14 +256,14 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
         a3 = (s32)fv0;
         a3 = a3 & 0xFFF;
     } else {
-        v1 = mathAngleFromVector2D(gCurrentActor->unkB8, gCurrentActor->unkC0);
-        a0 = gCurrentActor->unkEE;
+        v1 = mathAngleFromVector2D(gCurrentActor->speedXZ, gCurrentActor->speedY);
+        a0 = gCurrentActor->moveYaw;
         if (v1 >= 0x800) {
             v1 = 0xFFF - v1;
             a0 = a0 + 0x800;
             a0 = a0 & 0xFFF;
         }
-        yawDelta = mathAngleSignedDistance(a0, gCurrentActor->unkE6);
+        yawDelta = mathAngleSignedDistance(a0, gCurrentActor->yaw);
         tiltScale = (f32)v1;
         targetTilt = (s16)(s32)(mathCosF(yawDelta) * tiltScale);
         a3 = (s32)(mathSinF(yawDelta) * tiltScale);
@@ -319,35 +287,35 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
             steerAmount += 2.0f * (f32)v0 * fv1;
         }
     }
-    gCurrentActor->unkE8 = mathAngleEaseToward(gCurrentActor->unkE8, targetTilt, 4.0f, a3);
-    gCurrentActor->unkE4 = mathAngleEaseToward(gCurrentActor->unkE4, (s32)a3, 4.0f, a3);
-    gCurrentActor->unkB8 = gCurrentActor->unkB8 - friction;
-    fv1 = gCurrentActor->unkB8;
+    gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, targetTilt, 4.0f, a3);
+    gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, (s32)a3, 4.0f, a3);
+    gCurrentActor->speedXZ = gCurrentActor->speedXZ - friction;
+    fv1 = gCurrentActor->speedXZ;
     if (fv1 < 0.0f) {
-        gCurrentActor->unkB8 = 0.0f;
-        fv1 = gCurrentActor->unkB8;
+        gCurrentActor->speedXZ = 0.0f;
+        fv1 = gCurrentActor->speedXZ;
     }
     if (racerState->unk20 != 0) {
         if (fv1 < 100.0f) {
-            gCurrentActor->unkB8 = fv1;
-            fv1 = gCurrentActor->unkB8;
+            gCurrentActor->speedXZ = fv1;
+            fv1 = gCurrentActor->speedXZ;
         } else {
-            gCurrentActor->unkB8 = 100.0f;
-            fv1 = gCurrentActor->unkB8;
+            gCurrentActor->speedXZ = 100.0f;
+            fv1 = gCurrentActor->speedXZ;
         }
     }
-    fv0 = fv1 - gCurrentActor->unkBC;
+    fv0 = fv1 - gCurrentActor->prevSpeedXZ;
     if (fv0 < 0.0f) {
         fv0 = 0.0f;
     }
-    gCurrentActor->unkE6 = (s16)(s32)((f64)gCurrentActor->unkE6 + ((f64)(steerAmount * -40.0f) * (1.0 + ((f64)fv0 * 0.05))));
-    gCurrentActor->unkE6 = gCurrentActor->unkE6 & 0xFFF;
-    gCurrentActor->unkC0 = gCurrentActor->unkC0 + gCurrentActor->unkC4;
-    fv1 = gCurrentActor->unkC8;
-    if (gCurrentActor->unkC0 < fv1) {
-        gCurrentActor->unkC0 = fv1;
+    gCurrentActor->yaw = (s16)(s32)((f64)gCurrentActor->yaw + ((f64)(steerAmount * -40.0f) * (1.0 + ((f64)fv0 * 0.05))));
+    gCurrentActor->yaw = gCurrentActor->yaw & 0xFFF;
+    gCurrentActor->speedY = gCurrentActor->speedY + gCurrentActor->accelY;
+    fv1 = gCurrentActor->terminalSpeedY;
+    if (gCurrentActor->speedY < fv1) {
+        gCurrentActor->speedY = fv1;
     }
-    a0 = gCurrentActor->unkEE;
+    a0 = gCurrentActor->moveYaw;
     actorStepPhysics(gCurrentActor, a0, a0);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
@@ -358,12 +326,12 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
 
 Gfx *actorDrawAnimatedEffect(Gfx *, struct ActorEffect *);
 
-void raceParticleRenderCallback(void *glist, Actor_BB40 *actor) {
-    actorDrawAnimatedEffect(raceRenderHud(glist, actor, actor->unk174), actor);
+void raceParticleRenderCallback(void *glist, Actor *actor) {
+    actorDrawAnimatedEffect(raceRenderHud(glist, actor, ((Actor_BB40 *)actor)->unk174), actor);
 }
 
 void raceParticipantMotionUpdate(void) {
-    Actor_BB40 *actor;
+    Actor *actor;
     Struct_sp58 *racerState;
     s32 i;
     u8 colorMode;
@@ -371,16 +339,16 @@ void raceParticipantMotionUpdate(void) {
     u32 flags;
 
     actor = gCurrentActor;
-    racerState = actor->unk174;
+    racerState = ((Actor_BB40 *)actor)->unk174;
     j = racerState->unk28;
     colorMode = 0xB4;
-    if (!(actor->unk60 & 0x10)) {
+    if (!(actor->flags & 0x10)) {
         playerStateQueueCallback(0x4D, actor, j);
         gCurrentActor->unk144 = 0x3C;
         actor = gCurrentActor;
-        actor->unk60 &= 0xFFFDFFFF;
+        actor->flags &= 0xFFFDFFFF;
         for (i = 0; i < 3; i++) {
-            gCurrentActor->unk4->unk34[i] *= 0.3;
+            ((Actor_BB40 *)gCurrentActor)->unk4->unk34[i] *= 0.3;
         }
         racerState->unk44 = 5;
         actorOrNodeFlags(gCurrentActor, 2, 8);
@@ -396,7 +364,7 @@ void raceParticipantMotionUpdate(void) {
         case 2:
         case 3:
         case 4:
-            raceUpdateEngineSoundPitch(gCurrentActor->unkB8 * 0.0307692308f);
+            raceUpdateEngineSoundPitch(gCurrentActor->speedXZ * 0.0307692308f);
             raceUpdateRacerMotion(racerState);
             break;
         case 5:
@@ -404,11 +372,11 @@ void raceParticipantMotionUpdate(void) {
                 racerState->unk35++;
                 slotQueueCancel(0xB, 0);
                 actor = gCurrentActor;
-                actor->unk60 &= ~4;
-                gCurrentActor->unkB8 = 0.0f;
+                actor->flags &= ~4;
+                gCurrentActor->speedXZ = 0.0f;
                 for (i = 0; i < 2; i++) {
                     actor = gCurrentActor;
-                    if (actor->unk6E[i] != -1) {
+                    if (actor->soundSlots[i] != -1) {
                         sfxStopSlotSound(actor, i);
                     }
                 }
@@ -416,7 +384,7 @@ void raceParticipantMotionUpdate(void) {
             break;
     }
     actor = gCurrentActor;
-    flags = actor->unk60;
+    flags = actor->flags;
     if (racerState->unk4 <= 0 || racerState->unk8 > 0) {
         colorMode = 0xF0;
     }
@@ -426,7 +394,7 @@ void raceParticipantMotionUpdate(void) {
         actor = gCurrentActor;
     }
     if (racerState->unk34 > 0 && racerState->unk34 < 5) {
-        gridSetNodeBounds(racerState->unk28, actor->unk7C, actor->unk80, actor->unk84, actor->unk4->unk34[1] / 0.15 * 40.0);
+        gridSetNodeBounds(racerState->unk28, actor->x, actor->y, actor->z, ((Actor_BB40 *)actor)->unk4->unk34[1] / 0.15 * 40.0);
         renderCallbacksRegister(raceParticleRenderCallback, gCurrentActor, 3);
     }
     actor = gCurrentActor;
@@ -456,19 +424,19 @@ void raceSteerTowardTargetWaypoint(Struct_sp58 *racerState, Struct_8002B180_Arg1
     targetSpeed = raceGetPathDistanceBetweenTrackers(routeIndex, racerState, aux->unk4);
     idx = gBehaviourAnimState->path[gBehaviourWorkState->unk25][0];
     waypoint = &D_807FDCA0->entries[idx];
-    dx = (f32)waypoint->x - gCurrentActor->unk7C;
-    dz = (f32)waypoint->z - gCurrentActor->unk84;
+    dx = (f32)waypoint->x - gCurrentActor->x;
+    dz = (f32)waypoint->z - gCurrentActor->z;
     distToWaypoint = sqrtf((dx * dx) + (dz * dz));
     waypoint = &D_807FDCA0->entries[idx];
     if (distToWaypoint < (f32)waypoint->radius) {
-        if (gCurrentActor->unk7C) { // FAKE: empty guard steers float regalloc
+        if (gCurrentActor->x) { // FAKE: empty guard steers float regalloc
         }
         gBehaviourWorkState->unk25++;
         gBehaviourWorkState->unk25 = gBehaviourWorkState->unk25 % gBehaviourExtraState->pathCount;
     }
     waypoint = &D_807FDCA0->entries[idx];
-    sp_angle = mathAngleDiscrete((f32)waypoint->x, (f32)waypoint->z, gCurrentActor->unk7C, gCurrentActor->unk84, distToWaypoint);
-    angleDelta = mathAngleSignedDistance((s16)sp_angle, gCurrentActor->unkE6);
+    sp_angle = mathAngleDiscrete((f32)waypoint->x, (f32)waypoint->z, gCurrentActor->x, gCurrentActor->z, distToWaypoint);
+    angleDelta = mathAngleSignedDistance((s16)sp_angle, gCurrentActor->yaw);
 
     sp_angle = distToWaypoint;
     steerAngle = angleDelta;
@@ -487,7 +455,7 @@ void raceSteerTowardTargetWaypoint(Struct_sp58 *racerState, Struct_8002B180_Arg1
             raceSetPiecewiseCurveMode(aux, 0, &D_8002FC70, &D_8002FCA0);
         }
         targetVel = raceEvaluateCurveTargetSpeed(aux, targetSpeed, &D_8002FC70, &D_8002FCA0);
-        gCurrentActor->unkB8 = (gCurrentActor->unkB8 < 650.0f) ? gCurrentActor->unkB8 : 650.0f;
+        gCurrentActor->speedXZ = (gCurrentActor->speedXZ < 650.0f) ? gCurrentActor->speedXZ : 650.0f;
         racerState->unk4 = targetVel;
     }
 }
@@ -496,12 +464,12 @@ void raceSteerTowardTargetWaypoint(Struct_sp58 *racerState, Struct_8002B180_Arg1
 void raceUpdateCountdownState(Struct_sp58 *racerState) {
     switch (racerState->unk35) {
         case 0:
-            if (gCurrentActor->unk60 & 0x2000000) {
+            if (gCurrentActor->flags & 0x2000000) {
                 racerState->unk35++;
             }
             break;
         case 1:
-            if (!(gCurrentActor->unk60 & 0x2000000)) {
+            if (!(gCurrentActor->flags & 0x2000000)) {
                 camResumePath();
                 racerState->unk35++;
             }
@@ -561,10 +529,10 @@ void raceHandlePostRaceFinished(Struct_sp58 *racerState, void *aux) {
         case 0:
             if (flagGet(0x145, 0) == 0) {
                 playerStateQueueCallback(0x55, 0, 0);
-                gCurrentActor->unkE4 = 0;
-                gCurrentActor->unkE8 = 0;
+                gCurrentActor->pitch = 0;
+                gCurrentActor->roll = 0;
                 for (i = 0; i < 2; i++) {
-                    if (gCurrentActor->unk6E[i] != -1) {
+                    if (gCurrentActor->soundSlots[i] != -1) {
                         sfxStopSlotSound(gCurrentActor, i);
                     }
                 }
@@ -579,7 +547,7 @@ void raceHandlePostRaceFinished(Struct_sp58 *racerState, void *aux) {
             }
             break;
         case 2:
-            if (!(gCurrentActor->unk60 & 0x2000000)) {
+            if (!(gCurrentActor->flags & 0x2000000)) {
                 camResumePath();
                 racerState->unk35++;
             }
@@ -613,17 +581,17 @@ void raceOpponentRacerMotionUpdate(void) {
     Struct_sp20 *aux;
     s32 i;
 
-    racerState = gCurrentActor->unk178;
-    aux = gCurrentActor->unk17C;
+    racerState = ((Actor_BB40 *)gCurrentActor)->unk178;
+    aux = ((Actor_BB40 *)gCurrentActor)->unk17C;
     behaviourFrameBegin();
-    if (!(gCurrentActor->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         aux->unk10 = 1;
         raceSetPiecewiseCurveMode(aux, 5, &D_8002FC70, &D_8002FCA0);
         gCurrentActor->unk144 = 0x3C;
-        gCurrentActor->unk60 &= 0xFFFDFFFE;
+        gCurrentActor->flags &= 0xFFFDFFFE;
         racerState->unk10 = 1.0f;
         for (i = 0; i < 3; i++) {
-            gCurrentActor->unk4->unk34[i] *= 0.3;
+            ((Actor_BB40 *)gCurrentActor)->unk4->unk34[i] *= 0.3;
         }
         if (flagGet(0x38, 2) == 0 && flagGet(0x145, 0) == 0) {
             camStartPath(gCurrentActor, 0, 1);
@@ -653,9 +621,9 @@ void raceOpponentRacerMotionUpdate(void) {
         raceHandleRacerCollision(aux);
         raceSteerTowardTargetWaypoint(racerState, (Struct_8002B180_Arg1 *)aux);
         raceUpdateRacerMotion(racerState);
-        raceUpdateOpponentEnginePitch(gCurrentActor->unkB8 * 0.0307692308f);
+        raceUpdateOpponentEnginePitch(gCurrentActor->speedXZ * 0.0307692308f);
     } else {
-        gCurrentActor->unkB8 = 0.0f;
+        gCurrentActor->speedXZ = 0.0f;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

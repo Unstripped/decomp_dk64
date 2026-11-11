@@ -2,9 +2,9 @@
 #ifndef PROTO_BOSS_A7A0_H
 #define PROTO_BOSS_A7A0_H
 #include "common.h"
-struct BossC_A7A0_Actor;
+#include "actor.h"
 #ifndef PROTO_SKIP_bossResetMinions
-void bossResetMinions(struct BossC_A7A0_Actor *);
+void bossResetMinions(Actor *);
 #endif
 #ifndef PROTO_SKIP_bossPhaseTick
 void bossPhaseTick(void);

@@ -31,21 +31,19 @@ typedef struct {
     f32 unk80;
 } BossB_ActorBB44;
 
-typedef struct {
-    char pad0[0x7C];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
+// Actor plus its component pointers (0x174 on).
+typedef struct BossB_ActorBB40 {
+    /* 0x000 */ u8 pad0[0x174];
 } BossB_ActorBB40;
 
-extern BossB_ActorBB40 *gCurrentActor;
+extern Actor *gCurrentActor;
 extern BossB_ActorBB44 *gSpawnedActor;
 
 
 void bossMadJackSpawnShockwave(f32 scale) {
     projectileSpawnWithShockwave(0x6A, 1.2f, 0, 0x96, 0xFF, 0xB, 1.015f, 0.0f, 0.0f, 0.0f);
-    sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x221, 0x80, 0x7F, 1, 0, 0.3f, 0);
-    gSpawnedActor->unk80 = gCurrentActor->unk80;
+    sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x221, 0x80, 0x7F, 1, 0, 0.3f, 0);
+    gSpawnedActor->unk80 = gCurrentActor->y;
     gSpawnedActor->unk4->unk38 *= scale;
     controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
     scriptSetActorRampTarget(gSpawnedActor, 1.5f, 0.0f);
