@@ -22,14 +22,12 @@ f32 alCents2Ratio(s32 cents) {
         pow = 0.99942255f;
         cents = -cents;
     }
-    if (cents != 0) {
-        do {
-            if (cents & 1) {
-                ratio *= pow;
-            }
-            pow *= pow;
-            cents = cents >> 1;
-        } while (cents != 0);
+    while (cents != 0) {
+        if (cents & 1) {
+            ratio *= pow;
+        }
+        pow *= pow;
+        cents >>= 1;
     }
     return ratio;
 }
@@ -39,25 +37,22 @@ void __n_unmapVoice(N_CSPlayer *seqp, ALVoice *voice) {
     N_VoiceState *vs;
 
     prev = NULL;
-    vs = seqp->vAllocHead;
-    if (vs != NULL) {
-        do {
-            if (&vs->voice == voice) {
-                if (prev != NULL) {
-                    prev->next = vs->next;
-                } else {
-                    seqp->vAllocHead = vs->next;
-                }
-                if (seqp->vAllocTail == vs) {
-                    seqp->vAllocTail = prev;
-                }
-                vs->next = seqp->vFreeList;
-                seqp->vFreeList = vs;
-                seqp->unk89 = seqp->unk89 - 1;
-                return;
+    for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
+        if (&vs->voice == voice) {
+            if (prev != NULL) {
+                prev->next = vs->next;
+            } else {
+                seqp->vAllocHead = vs->next;
             }
-            prev = vs;
-        } while ((vs = vs->next) != NULL);
+            if (seqp->vAllocTail == vs) {
+                seqp->vAllocTail = prev;
+            }
+            vs->next = seqp->vFreeList;
+            seqp->vFreeList = vs;
+            seqp->unk89--;
+            return;
+        }
+        prev = vs;
     }
 }
 
@@ -66,59 +61,59 @@ void __n_seqpReleaseVoice(N_CSPlayer *seqp, ALVoice *voice, s32 delta) {
     ALVoiceState *vs;
     ALEventListItem *item;
     ALEventListItem *next;
-    ALEventListItem *volatile current;
+    ALEventListItem *current;
     ALEventListItem *nextItem;
 
     vs = voice->clientPrivate;
     if (vs->envPhase == 0) {
         item = (ALEventListItem *)seqp->evtq.allocList.next;
-        if (item != NULL) {
-            do {
-                next = (ALEventListItem *)item->node.next;
-                current = item;
-                nextItem = next;
-                if ((current->evt.type == 6) && (current->evt.msg.osc.vs == (ALVoiceState *)voice)) {
+        while (item != NULL) {
+            next = (ALEventListItem *)item->node.next;
+            current = item;
+            nextItem = next;
+            if (current->evt.type == 6) {
+                if (current->evt.msg.osc.vs == (ALVoiceState *)voice) {
                     if (nextItem != NULL) {
-                        nextItem->delta = nextItem->delta + current->delta;
+                        nextItem->delta += current->delta;
                     }
                     alUnlink(&item->node);
                     alLink(&item->node, &seqp->evtq.freeList);
                 }
-                item = next;
-            } while (item != NULL);
+            }
+            item = next;
         }
     }
-        vs->velocity = 0;
-        vs->envPhase = 3;
-        vs->envGain = 0;
-        vs->envEndTime = seqp->curTime + delta;
-        n_alSynSetPriority(voice, 0);
-        n_alSynSetVol(voice, 0, delta);
-        evt.type = 5;
-        evt.msg.osc.vs = (ALVoiceState *)voice;
-        delta = delta + 0x7D00;
-        alEvtqPostEvent(&seqp->evtq, &evt, delta);
+    vs->velocity = 0;
+    vs->envPhase = 3;
+    vs->envGain = 0;
+    vs->envEndTime = seqp->curTime + delta;
+    n_alSynSetPriority(voice, 0);
+    n_alSynSetVol(voice, 0, delta);
+    evt.type = 5;
+    evt.msg.osc.vs = (ALVoiceState *)voice;
+    delta += 0x7D00;
+    alEvtqPostEvent(&seqp->evtq, &evt, delta);
 }
 
 u8 __n_voiceNeedsNoteKill(N_CSPlayer *seqp, ALVoice *voice, s32 delta) {
     ALEventListItem *item;
     ALEventListItem *next;
-    ALEventListItem *volatile current;
+    ALEventListItem *current;
     s32 elapsed;
     u8 result;
 
     elapsed = 0;
     result = 1;
     item = (ALEventListItem *)seqp->evtq.allocList.next;
-    if (item != NULL) {
-        do {
-            next = (ALEventListItem *)item->node.next;
-            current = item;
-            elapsed += current->delta;
-            if ((current->evt.type == 5) && (current->evt.msg.osc.vs == (ALVoiceState *)voice)) {
+    while (item != NULL) {
+        next = (ALEventListItem *)item->node.next;
+        current = item;
+        elapsed += current->delta;
+        if (current->evt.type == 5) {
+            if (current->evt.msg.osc.vs == (ALVoiceState *)voice) {
                 if (elapsed > delta) {
                     if (next != NULL) {
-                        next->delta = next->delta + current->delta;
+                        next->delta += current->delta;
                     }
                     alUnlink(&item->node);
                     alLink(&item->node, &seqp->evtq.freeList);
@@ -127,8 +122,8 @@ u8 __n_voiceNeedsNoteKill(N_CSPlayer *seqp, ALVoice *voice, s32 delta) {
                 }
                 break;
             }
-            item = next;
-        } while (item != NULL);
+        }
+        item = next;
     }
     return result;
 }
@@ -153,7 +148,7 @@ N_VoiceState *__n_mapVoice(N_CSPlayer *seqp, u8 key, u8 velocity, u8 chan) {
         vs->key = key;
         vs->velocity = velocity;
         vs->voice.clientPrivate = vs;
-        seqp->unk89 = seqp->unk89 + 1;
+        seqp->unk89++;
     }
     return vs;
 }
@@ -162,21 +157,14 @@ N_VoiceState *__n_lookupVoice(N_CSPlayer *seqp, u8 key, u8 chan) {
     N_VoiceState *vs;
 
     vs = seqp->vAllocHead;
-    if (vs != NULL) {
-        do {
-            if ((vs->key == key) && (vs->channel == chan) && (vs->phase != 3) && (vs->phase != 4)) {
-                return vs;
-            }
-            vs = vs->next;
-        } while (vs != NULL);
+    while (vs != NULL) {
+        if ((vs->key == key) && (vs->channel == chan) && (vs->phase != 3) && (vs->phase != 4)) {
+            return vs;
+        }
+        vs = vs->next;
     }
     return NULL;
 }
-
-typedef struct {
-    u8 pad[0xC];
-    ALSound *soundArray[];
-} VoiceNMLookupInstrument;
 
 ALSound *__n_lookupSoundQuick(N_CSPlayer *seqp, u8 key, u8 velocity, u8 chan) {
     ALInstrument *inst;
@@ -190,10 +178,10 @@ ALSound *__n_lookupSoundQuick(N_CSPlayer *seqp, u8 key, u8 velocity, u8 chan) {
     max = inst->soundCount;
     while (max >= min) {
         mid = (min + max) / 2;
-        keyMap = ((VoiceNMLookupInstrument *)inst)->soundArray[mid]->keyMap;
+        keyMap = inst->soundArray[mid - 1]->keyMap;
         if ((key >= keyMap->keyMin) && (keyMap->keyMax >= key)
             && (velocity >= keyMap->velocityMin) && (keyMap->velocityMax >= velocity)) {
-            return ((VoiceNMLookupInstrument *)inst)->soundArray[mid];
+            return inst->soundArray[mid - 1];
         } else {
             if ((key < keyMap->keyMin)
                 || ((velocity < keyMap->velocityMin) && (key <= keyMap->keyMax))) {
@@ -224,7 +212,6 @@ s16 __n_vsVol(N_VoiceState *vs, N_CSPlayer *seqp) {
 u8 n_alCSPClampVoiceFXMix(N_VoiceState *vs, N_CSPlayer *seqp) {
     s32 flags;
     s32 mix;
-    f32 unused;
 
     flags = seqp->chanState[vs->channel].fxmix & 0x80;
     mix = (s32)(((s32)(seqp->unk7C * 127.0f) + (seqp->chanState[vs->channel].fxmix & 0x7F)) * seqp->unk80);
@@ -246,14 +233,8 @@ u8 __n_vsPan(N_VoiceState *vs, N_CSPlayer *seqp) {
     s32 pan;
 
     pan = (seqp->chanState[vs->channel].pan + vs->sound->samplePan) - 0x40;
-    if (pan > 0) {
-    } else {
-        pan = 0;
-    }
-    if (pan < 0x7F) {
-    } else {
-        pan = 0x7F;
-    }
+    pan = (pan > 0) ? pan : 0;
+    pan = (pan < 0x7F) ? pan : 0x7F;
     return pan;
 }
 
@@ -263,10 +244,8 @@ void __n_initFromBank(N_CSPlayer *seqp, ALBank *bank) {
     ALInstrument *inst;
 
     inst = NULL;
-    if ((chan = 0, inst == NULL)) {
-        do {
-            inst = bank->instArray[chan];
-        } while ((chan++, inst == NULL));
+    for (chan = 0; inst == NULL; chan++) {
+        inst = bank->instArray[chan];
     }
     for (chan = 0; chan < seqp->maxChannels; chan++) {
         __n_resetPerfChanState(seqp, chan);
@@ -281,11 +260,9 @@ void __n_initFromBank(N_CSPlayer *seqp, ALBank *bank) {
 void __n_initChanState(N_CSPlayer *seqp) {
     s32 chan;
 
-    if ((chan = 0, seqp->maxChannels > 0)) {
-        do {
-            seqp->chanState[chan].instrument = NULL;
-            __n_resetPerfChanState(seqp, chan);
-        } while (++chan < seqp->maxChannels);
+    for (chan = 0; chan < seqp->maxChannels; chan++) {
+        seqp->chanState[chan].instrument = NULL;
+        __n_resetPerfChanState(seqp, chan);
     }
 }
 
@@ -345,27 +322,25 @@ void __n_seqpStopOsc(N_CSPlayer *seqp, N_VoiceState *vs) {
     s16 type;
 
     item = (ALEventListItem *)seqp->evtq.allocList.next;
-    if (item != NULL) {
-        do {
-            next = (ALEventListItem *)item->node.next;
-            type = item->evt.type;
-            if (((type == 0x16) || (type == 0x17)) && (item->evt.msg.osc.vs == (ALVoiceState *)vs)) {
-                seqp->stopOsc(item->evt.msg.osc.oscState);
-                alUnlink(&item->node);
-                if (next != NULL) {
-                    next->delta = next->delta + item->delta;
-                }
-                alLink(&item->node, &seqp->evtq.freeList);
-                if (type == 0x16) {
-                    vs->flags = vs->flags & 0xFE;
-                } else {
-                    vs->flags = vs->flags & 0xFD;
-                }
-                if (vs->flags == 0) {
-                    return;
-                }
+    while (item != NULL) {
+        next = (ALEventListItem *)item->node.next;
+        type = item->evt.type;
+        if (((type == 0x16) || (type == 0x17)) && (item->evt.msg.osc.vs == (ALVoiceState *)vs)) {
+            seqp->stopOsc(item->evt.msg.osc.oscState);
+            alUnlink(&item->node);
+            if (next != NULL) {
+                next->delta += item->delta;
             }
-            item = next;
-        } while (item != NULL);
+            alLink(&item->node, &seqp->evtq.freeList);
+            if (type == 0x16) {
+                vs->flags &= 0xFE;
+            } else {
+                vs->flags &= 0xFD;
+            }
+            if (vs->flags == 0) {
+                return;
+            }
+        }
+        item = next;
     }
 }
