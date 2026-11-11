@@ -466,7 +466,7 @@ void bossArmydilloSpawnExhaustSmoke(void) {
     f32 scale;
     f64 speedY;
 
-    speedY = (0.0 < ((Actor *)gCurrentActor)->speedY) ? ((Actor *)gCurrentActor)->speedY : 0.0;
+    speedY = (0.0 < gCurrentActor->speedY) ? gCurrentActor->speedY : 0.0;
     scale = (f32)((f32)((speedY / 150.0) * 0.12) + 0.3) * 4.0f;
     effectSetDepth(1);
     effectSetCallback(effectFollowParentUpdate);
@@ -564,7 +564,7 @@ void bossArmydilloStep(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourAnimState->unk38 = 0.002f;
         camSetSecondTarget(gCamActor, 0, 0);
-        bossInitScriptData(&D_80035CC0);
+        bossInitScriptData(D_80035CC0);
         gCurrentActor->accelY = (f32) D_807502F4;
         gCurrentActor->terminalSpeedY = (f32) D_807502D8;
         bossArmydilloHideCannons();
