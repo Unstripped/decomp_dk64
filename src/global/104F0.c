@@ -417,10 +417,7 @@ int save;
     }
 }
 
-void eepromSetCurrentSlot(slotId, save)
-unsigned char slotId;
-int save;
-{
+void eepromSetCurrentSlot(u8 slotId, s32 save) {
     u32 slot = slotId;
 
     D_807467C8 = slot;

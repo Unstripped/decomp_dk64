@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_eepromSetCurrentSlot // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/104F0.h"
@@ -790,7 +789,6 @@ void menuInitFileSelect(Actor *actor, s32 unused) {
 
 extern u8 D_8071FBC8;
 extern u8 D_8071FE08;
-void eepromSetCurrentSlot(u8, s32); // FAKE: callee prototype steer
 extern s8 D_80033FAC;
 
 void menuMysteryHandleInput(Actor *actor, s32 buttons) {

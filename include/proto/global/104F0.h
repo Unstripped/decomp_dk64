@@ -57,7 +57,7 @@ s32 func_8060C724(u8);
 void eepromClearSlotData();
 #endif
 #ifndef PROTO_SKIP_eepromSetCurrentSlot
-void eepromSetCurrentSlot();
+void eepromSetCurrentSlot(u8, s32);
 #endif
 #ifndef PROTO_SKIP_eepromInitConfigs
 void eepromInitConfigs(u8);
