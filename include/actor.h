@@ -377,10 +377,13 @@ typedef struct Actor {
     /* 0x0FA */ s16 unkFA;
     /* 0x0FC */ u8 hasArcBounds;
     /* 0x0FD */ u8 collisionHit;
-    /* 0x0FE */ u8 unkFE[0xE];
+    /* 0x0FE */ u8 padFE[2];
+    /* 0x100 */ f32 unk100; // attach point in the model node's local space (collisionAttachActorToObjectNode)
+    /* 0x104 */ f32 unk104;
+    /* 0x108 */ f32 unk108;
     /* 0x10C */ s16 cutsceneId;
     /* 0x10E */ u8 unk10E;
-    /* 0x10F */ u8 unk10F;
+    /* 0x10F */ s8 unk10F; // attached model bone (modelSlotBuildTransformMatrix), -1 = none
     /* 0x110 */ u8 attachMode;
     /* 0x111 */ u8 unk111[3];
     /* 0x114 */ ActorList *riderList;
