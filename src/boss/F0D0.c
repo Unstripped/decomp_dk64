@@ -284,7 +284,6 @@ extern u8 D_80035BD8[];
 extern u8 D_80035BEC[];
 extern u8 D_80036DD0[];
 extern f32 D_80036C40[];
-extern u8 D_807FBB85;
 extern u8 D_807FBDC4;
 extern s32 gFrameCounter;
 extern s16 D_807502DC;
@@ -375,7 +374,7 @@ void bossMainStep(void) {
             }
         }
     }
-    if ((BF->unk154 == 0x27 && st->unk14 == 4) || (D_807FBB85 != 0 && BF->unk154 != 0x37)) {
+    if ((BF->unk154 == 0x27 && st->unk14 == 4) || (gActorGlobalState.unk15 != 0 && BF->unk154 != 0x37)) {
         if (BP->unk154 == 0x36) {
             BF->unk154 = 0x2B;
             BF->unk155 = 0;

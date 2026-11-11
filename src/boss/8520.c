@@ -170,7 +170,6 @@ typedef struct BossActor {
 
 
 extern u8 gBossFightPhase;
-extern u8 D_807FBB85;
 extern s32 D_807FBD6C;
 extern void *gCamActor;
 
@@ -208,7 +207,7 @@ void bossKutOutStep(void) {
         actorSetUniformScale(gCurrentActor, 2.0 * A40->unk4->scaleX);
         actorSpawnLinkedFollower();
     }
-    if (((gBossFightPhase == 9) || (D_807FBB85 != 0)) && (A40->unk154 != 0x37)) {
+    if (((gBossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (A40->unk154 != 0x37)) {
         if (flagGet(0xF7, 0) != 0) {
             tagBarrelSpawnActorSmokePuffs(0, 1);
             A40->unk154 = 0x40;

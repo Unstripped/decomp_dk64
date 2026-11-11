@@ -278,7 +278,6 @@ typedef struct ProjectileActor {
 extern void *D_807502C0[];
 extern u8 D_8071FBA0;
 extern u32 gGameFrameCounter;
-extern u8 D_807FBB85;
 
 #define G_ACTOR ((ProjectileActor *)gCurrentActor)
 
@@ -321,11 +320,11 @@ void projectileActorUpdate(void) {
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x96, 0x78, 0, 1.0f);
-    if ((G_ACTOR->unk6A & 1) || (G_ACTOR->unkFC != 0) || (D_807FBB85 != 0)) {
+    if ((G_ACTOR->unk6A & 1) || (G_ACTOR->unkFC != 0) || (gActorGlobalState.unk15 != 0)) {
         if (sub->unk13 == 3) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x16, 0xFF, 0x7F, 0x14);
         }
-        if (D_807FBB85 == 0) {
+        if (gActorGlobalState.unk15 == 0) {
             for (particleIdx = 0; particleIdx < 0xC; particleIdx += 2) {
                 effectSetDepth(1);
                 effectSetSpeed(particleIdx + 0xB000000);
