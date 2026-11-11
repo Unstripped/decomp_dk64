@@ -7,14 +7,10 @@
 #include "heap.h"
 #include "map.h"
 #include "model.h"
-struct ActorFacingWork;
 struct ActorHitPlane;
 struct ActorPlaneContactView;
-struct CollisionActor;
 struct CollisionAssetTri;
-struct CollisionPlane;
 struct CollisionTri;
-struct CollisionVec3i;
 #ifndef PROTO_SKIP_collisionBuildSlotBoxes
 void collisionBuildSlotBoxes(s32, ModelAssetHeader *, f32, f32, f32, f32, f32, f32, f32);
 #endif
@@ -148,10 +144,10 @@ u8 actorCollideModelSlots(Actor *, s16 *, s16 *);
 void actorBuildCollisionHit(s32, Actor *, CollisionBox *);
 #endif
 #ifndef PROTO_SKIP_actorReflectCollisionAngle
-void actorReflectCollisionAngle(struct CollisionActor *, struct CollisionPlane *, struct CollisionVec3i *);
+void actorReflectCollisionAngle(Actor *, CollisionBox *, ActorSub140 *);
 #endif
 #ifndef PROTO_SKIP_actorGetCollisionThreshold
-s32 actorGetCollisionThreshold(struct CollisionActor *);
+s32 actorGetCollisionThreshold(Actor *);
 #endif
 #ifndef PROTO_SKIP_func_8066FE08
 void func_8066FE08(s32);
@@ -169,7 +165,7 @@ void actorSetTargetAngleBounds(struct CollisionBox *);
 s32 actorCheckTargetAngleBounds(Actor *, s16 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_actorUpdateFacingAndOffset
-void actorUpdateFacingAndOffset(struct ActorFacingWork *, s32, s32, s32);
+void actorUpdateFacingAndOffset(CollisionBox *, s32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_actorUpdateCollisionExtents
 void actorUpdateCollisionExtents(Actor *);
