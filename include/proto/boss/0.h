@@ -24,10 +24,10 @@ u8 bossPieceStep(u8 *, u8, f32, f32, f32);
 void bossArmydilloAimTowardTarget(void);
 #endif
 #ifndef PROTO_SKIP_bossArmydilloOpenCannons
-void bossArmydilloOpenCannons(void *, u8 *, s32, u8 *);
+void bossArmydilloOpenCannons(void *, u8 *, u8 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_bossPieceListStep
-void bossPieceListStep(void *, u8 *, s32, u8 *);
+void bossPieceListStep(void *, u8 *, u8 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_bossArmydilloHideCannons
 void bossArmydilloHideCannons(void);
