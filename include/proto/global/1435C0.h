@@ -8,7 +8,7 @@ struct EnvMixerEnv;
 s32 n_alEnvmixerPull(void *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_n_alEnvmixerParam
-s32 n_alEnvmixerParam(struct EnvMixerEnv *, s32, void *);
+s32 n_alEnvmixerParam(void *, s32, void *);
 #endif
 #ifndef PROTO_SKIP__pullSubFrame
 struct EnvAcmd *_pullSubFrame(struct EnvMixerEnv *, s16 *, s16 *, s32, struct EnvAcmd *);

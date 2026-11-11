@@ -260,7 +260,7 @@ s32 n_alEnvmixerPull(void *filter, s32 time, s32 cmdList) {
             break;
         default:
             cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, (EnvAcmd *)cmd);
-            n_alEnvmixerParam((EnvMixerEnv *)f, f->unk7C->type, f->unk7C->data.ptr);
+            n_alEnvmixerParam(f, f->unk7C->type, f->unk7C->data.ptr);
             break;
         }
         samplePtr += subSamples * 2;
@@ -280,7 +280,7 @@ s32 n_alEnvmixerPull(void *filter, s32 time, s32 cmdList) {
 }
 
 
-s32 n_alEnvmixerParam(EnvMixerEnv *filter, s32 paramID, void *paramVal) {
+s32 n_alEnvmixerParam(void *filter, s32 paramID, void *paramVal) {
     EnvMixerEnv *env;
 
     env = filter;
