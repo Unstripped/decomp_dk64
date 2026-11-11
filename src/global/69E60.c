@@ -156,7 +156,7 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
     ActorTiltTableEntry *tiltEntry;
     f32 easeRate;
 
-    collisionQueryActorFloor((Actor *)actor, &hasFloor, &floorY, &hasWater, &waterY, 0);
+    collisionQueryActorFloor(actor, &hasFloor, &floorY, &hasWater, &waterY, 0);
     if (actor->collisionFlags & 1) {
         func_806D09E8((Actor *)actor);
     }

@@ -120,7 +120,7 @@ extern u8 D_807F94BC;
 extern f32 D_807F948C;
 
 
-void collisionQueryActorFloor(Actor *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u8 arg5) {
+void collisionQueryActorFloor(Actor *arg0, u8 *arg1, f32 *arg2, u8 *arg3, f32 *arg4, u8 arg5) {
     f32 posX;
     f32 posY;
     f32 posZ;

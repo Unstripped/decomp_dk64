@@ -20,7 +20,7 @@ void collisionBuildCellTable(struct CollisionMeshHeader *);
 void collisionSetQueryMode(u8);
 #endif
 #ifndef PROTO_SKIP_collisionQueryActorFloor
-void collisionQueryActorFloor(Actor *, s32, s32, s32, s32, u8);
+void collisionQueryActorFloor(Actor *, u8 *, f32 *, u8 *, f32 *, u8);
 #endif
 #ifndef PROTO_SKIP_collisionCheckActorFloor
 void collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
