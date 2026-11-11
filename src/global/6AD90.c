@@ -2126,7 +2126,7 @@ void assetSetRomTableOffset(s32 offset) {
 
 extern OSIoMesg D_807F9688[];
 
-void *assetLoad(s32 arg0, u32 arg1, u8 arg2, u8 arg3) {
+void *assetLoad(s32 arg0, s32 arg1, u8 arg2, u8 arg3) { // arg1: asset index, or a K0 address (0x80000000-0x9FFFFFFF) returned as is
     s32 pad;
     s32 romAddr;
     s32 size;

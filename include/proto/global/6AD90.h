@@ -198,7 +198,7 @@ void collisionResolveWallContact(void);
 void assetSetRomTableOffset(s32);
 #endif
 #ifndef PROTO_SKIP_assetLoad
-void *assetLoad(s32, u32, u8, u8);
+void *assetLoad(s32, s32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_assetSetImmediateFree
 void assetSetImmediateFree(void);
