@@ -595,39 +595,34 @@ void sfxUpdateLevelAmbient(void) {
     if (emitterCount != 0 && sSfxAreaAmbientActive != 0 && sSfxMode == 0) {
         D_80770DD4 = 1000000.0f;
         volume = 0.0f;
-        k = 0;
-        n = emitterCount;
-        if (emitterCount > 0) {
-            do {
-                AmbientEmitter *entry = (AmbientEmitter *)((s32)emitters + k * 14);  // FAKE: byte-address sum keeps emitters in t4 and the k*14 index in t5 (addu operand order)
-                f32 dx = gPlayerSlots->x - entry->x;
-                f32 dz = gPlayerSlots->z - entry->z;
-                if (entry->facing == -1) {
-                    D_80770DE4 = sqrtf(dx * dx + dz * dz);
-                    if (D_80770DE4 < entry->radius - 20) {
-                        sfxAllocateChannel(entry->sfxId, 1.0f);
-                    } else if (D_80770DE4 > entry->radius) {
-                        sfxStopChannel(entry->sfxId, 0);
-                    }
-                } else {
-                    f32 dy = gPlayerSlots->y - entry->y;
-                    D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
-                    if (k == 0 || D_80770DE4 < D_80770DD4) {
-                        nearest = k;
-                        D_80770DD4 = D_80770DE4;
-                        angle = (mathAtan2(dx, dz) * 4096.0) / 6.2831854820251465 - entry->facing;
-                    }
+        for (k = 0, n = emitterCount; k < n; k++) {  // FAKE: n caches emitterCount as the loop bound; k < emitterCount moves emitterCount from s1 to s3 (pre-existing copy, now tagged)
+            AmbientEmitter *entry = (AmbientEmitter *)((s32)emitters + k * 14);  // FAKE: byte-address sum keeps emitters in t4 and the k*14 index in t5 (addu operand order)
+            f32 dx = gPlayerSlots->x - entry->x;
+            f32 dz = gPlayerSlots->z - entry->z;
+            if (entry->facing == -1) {
+                D_80770DE4 = sqrtf(dx * dx + dz * dz);
+                if (D_80770DE4 < entry->radius - 20) {
+                    sfxAllocateChannel(entry->sfxId, 1.0f);
+                } else if (D_80770DE4 > entry->radius) {
+                    sfxStopChannel(entry->sfxId, 0);
                 }
-                k++;
-                D_80770DE8 = 32767.0f - (D_80770DE4 - 50.0f) * 120.0f;
-                if (D_80770DE8 > 32767.0f) {
-                    D_80770DE8 = 32767.0f;
+            } else {
+                f32 dy = gPlayerSlots->y - entry->y;
+                D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
+                if (k == 0 || D_80770DE4 < D_80770DD4) {
+                    nearest = k;
+                    D_80770DD4 = D_80770DE4;
+                    angle = (mathAtan2(dx, dz) * 4096.0) / 6.2831854820251465 - entry->facing;
                 }
-                if (D_80770DE8 < 0.0f) {
-                    D_80770DE8 = 0.0f;
-                }
-                volume += D_80770DE8;
-            } while (k < n);
+            }
+            D_80770DE8 = 32767.0f - (D_80770DE4 - 50.0f) * 120.0f;
+            if (D_80770DE8 > 32767.0f) {
+                D_80770DE8 = 32767.0f;
+            }
+            if (D_80770DE8 < 0.0f) {
+                D_80770DE8 = 0.0f;
+            }
+            volume += D_80770DE8;
         }
         D_80770DE4 = D_80770DD4;
         if (nearest >= 0 && D_80770DE4 < emitters[nearest].radius) {
@@ -698,8 +693,8 @@ void sfxUpdateLevelAmbient(void) {
         if (volume < 0.0f) {
             volume = 0.0f;
         }
-        volume = (u32)D_80745BDC[gCurrentMap][1] + (((255.0 - (u32)D_80745BDC[gCurrentMap][1]) * ((u32)D_80770DC8 / 127.0) * volume) / 255.0);
-        D_8077058E = (u8)(u32)volume;
+        volume = D_80745BDC[gCurrentMap][1] + (((255.0 - D_80745BDC[gCurrentMap][1]) * (D_80770DC8 / 127.0) * volume) / 255.0);
+        D_8077058E = volume;
     } else {
         D_8077058E = D_80745BDC[gCurrentMap][1];
     }
@@ -710,8 +705,8 @@ void sfxUpdateLevelAmbient(void) {
     }
 
     if (D_8077058E != D_8077058D) {
-        angle = ((u32)D_8077058E * 0.3) / 255.0;
-        volume = (((u32)D_8077058E * 0.35) / 255.0) + 1.0;
+        angle = (D_8077058E * 0.3) / 255.0;
+        volume = ((D_8077058E * 0.35) / 255.0) + 1.0;
         count = D_8077058E;  // FAKE: reusing the emitter-count local for the reverb level keeps one web (a separate temp recolours 50 rows)
         if (gCurrentMap == 0xE) {
             if (count != 0) {
@@ -859,8 +854,8 @@ void sfxUpdateLevelAmbient(void) {
             n_alSndpPlay(D_8076D1F8, 0x125, 0, 0x3F, 1.0f, 0, &D_807457DC);
         }
         if (D_807457DC != 0) {
-            n_alSndpPostEvent(D_807457DC, 8, (s32)(((u32)D_8077058C[0] * 10767.0) / 255.0));
-            pitch = 1.0 - (((u32)D_8077058E * 0.5) / 255);
+            n_alSndpPostEvent(D_807457DC, 8, (s32)((D_8077058C[0] * 10767.0) / 255.0));
+            pitch = 1.0 - ((D_8077058E * 0.5) / 255);
             if (D_80770DC9 & (D_80770DD4 < 1000.0f)) {
                 angle = mathAngleBetweenPointsRad(gPlayerSlots->x, gPlayerSlots->z, emitters[nearest].x, emitters[nearest].z) - gPlayerSlots->yaw;
                 if (angle < 0.0f) {

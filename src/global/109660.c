@@ -479,10 +479,10 @@ Gfx *gfxBuildScrollingBackground(Gfx *dl) {
             i += 0x20;
         } while (i != 0x80);
     }
-    i = (s16)(gBgScrollX + 4); // FAKE: loop counter i reused for the new scroll value; a separate local adds a home and grows the frame 0x100 -> 0x108
+    scroll = gBgScrollX + 4;
     gBgScrollY += 4;
-    *(s16 *)((u8 *)gTintKeyframes + 0x18) = i; // FAKE: gBgScrollX stored via gTintKeyframes+0x18 keeps a separate lui at/sh (no lda web in v1, Q0255)
-    if (i >= 0x200) {
+    *(s16 *)((u8 *)gTintKeyframes + 0x18) = scroll; // FAKE: gBgScrollX stored via gTintKeyframes+0x18 keeps a separate lui at/sh (no lda web in v1, Q0255)
+    if (scroll >= 0x200) {
         *(s16 *)((u8 *)D_80754EF8 + 0x78) = 0; // FAKE: gBgScrollX stored via D_80754EF8+0x78 keeps a separate lui at/sh (Q0255)
     }
     if (gBgScrollY >= 0x200) {

@@ -835,14 +835,12 @@ void bonusActorUpdateVertexPositions(void) {
         if (fy < 0.0f) {
             fy = 65535.0f + fy;
         }
-        i = 4; // FAKE: loop start hoisted above the p setup; for (i = 4; ...) moves the li
-        p = (BoneRotation *)(vb[1] * 8 + vb[0]);
-        for (; i < 7; i++) {
+        for (i = 4, p = (BoneRotation *)(vb[1] * 8 + vb[0]); i < 7; i++, p++) {
             p->bone = i;
-            p->weight = (s32)zOffset;
-            p->rotX = (u32)fx;
+            p->weight = zOffset;
+            p->rotX = fx;
             p->rotY = 0;
-            p->rotZ = (u32)fy;
+            p->rotZ = fy;
             if (fx > 32767.0f) {
                 fx = fx + (65535.0f - fx) * 0.5;
             } else {
@@ -853,7 +851,6 @@ void bonusActorUpdateVertexPositions(void) {
             } else {
                 fy = fy * 0.5;
             }
-            p++;
         }
         switch (gCurrentActor->unk155) {
         case 0:
@@ -864,22 +861,19 @@ void bonusActorUpdateVertexPositions(void) {
             link->unk18 = link->unk18 + (0.0 - link->unk18) * 0.1;
             break;
         }
-        p->weight = (s32)(link->unk18 * -128.0f);
+        p->weight = link->unk18 * -128.0f;
         p->bone = 0xE;
         p->rotX = 0x61A8;
         p->rotY = 0;
         p->rotZ = 0;
         p++;
-        i = 0xC;
-        do {
-            p->weight = (s32)(link->unk18 * -128.0f);
+        for (i = 0xC; i < 0xD; i++, p += 2) {
+            p->weight = link->unk18 * -128.0f;
             p->bone = i;
-            i++;
-            p += 2;
-            p[-2].rotX = 0xD8F0; // FAKE: stores through p[-2] after the advance; p->rotX before p += 2 reorders the stores
-            p[-2].rotY = 0;
-            p[-2].rotZ = 0;
-        } while (i < 0xD);
+            p->rotX = 0xD8F0;
+            p->rotY = 0;
+            p->rotZ = 0;
+        }
         p->weight = 0;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
