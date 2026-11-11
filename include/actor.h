@@ -144,9 +144,21 @@ typedef struct ActorSub140 {
     /* 0x1C */ f32 unk1C; /* arc contact point x */
     /* 0x20 */ f32 unk20; /* arc contact point z */
     /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 pad25[0x3B];
+    /* 0x25 */ u8 pad25;
+    /* 0x26 */ s16 unk26; // hit model entry id (actorBuildCollisionHit)
+    /* 0x28 */ f32 unk28[3]; // hit triangle in the model's local space (x of the 3 vertices)
+    /* 0x34 */ f32 unk34[3];
+    /* 0x40 */ f32 unk40[3];
+    /* 0x4C */ f32 unk4C; // actor position in the model's local space
+    /* 0x50 */ f32 unk50;
+    /* 0x54 */ f32 unk54;
+    /* 0x58 */ s16 unk58; // hit box index in the slot's box table
+    /* 0x5A */ s8 unk5A; // hit box bone
+    /* 0x5B */ u8 pad5B;
+    /* 0x5C */ s32 unk5C;
     /* 0x60 */ s32 unk60;
-    /* 0x64 */ u8 pad64[4];
+    /* 0x64 */ s16 unk64;
+    /* 0x66 */ s16 unk66;
     /* 0x68 */ s32 unk68;
     /* 0x6C */ u8 unk6C;
     /* 0x6D */ u8 pad6D[3];
@@ -165,7 +177,10 @@ typedef struct ActorSub140 {
     /* 0xA4 */ struct CollisionBox *unkA4; /* transformed boxes (actorSub140BuildBoxes) */
     /* 0xA8 */ struct CollisionBox *unkA8; /* one past the last valid box */
     /* 0xAC */ u8 unkAC;
-    /* 0xAD */ u8 padAD[0x17];
+    /* 0xAD */ u8 padAD[3];
+    /* 0xB0 */ s32 unkB0; // last box contact x/z (actorComputeBoxNormal)
+    /* 0xB4 */ s32 unkB4;
+    /* 0xB8 */ u8 padB8[0xC4 - 0xB8];
 } ActorSub140; // size = 0xC4
 
 // Animated-model asset header (controllerAnimStateLoadAsset relocates it, animListInit reads unk10).
