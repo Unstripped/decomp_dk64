@@ -4,20 +4,19 @@
 #include "common.h"
 #include "actor.h"
 #include "map.h"
-struct TriggerZoneActor;
 struct TriggerZoneData;
 struct TriggerZoneSubNode;
 #ifndef PROTO_SKIP_triggerZoneInit
 void triggerZoneInit(struct MapFileHeader *);
 #endif
 #ifndef PROTO_SKIP_triggerZoneCheckEntry
-void triggerZoneCheckEntry(struct TriggerZoneActor *);
+void triggerZoneCheckEntry(Actor *);
 #endif
 #ifndef PROTO_SKIP_triggerZoneContainsActor
-s32 triggerZoneContainsActor(struct TriggerZoneActor *, struct TriggerZoneSubNode *);
+s32 triggerZoneContainsActor(Actor *, struct TriggerZoneSubNode *);
 #endif
 #ifndef PROTO_SKIP_triggerZoneSpawnTrigger
-void triggerZoneSpawnTrigger(struct TriggerZoneActor *, struct TriggerZoneData *);
+void triggerZoneSpawnTrigger(Actor *, struct TriggerZoneData *);
 #endif
 #ifndef PROTO_SKIP_triggerZoneUpdate
 void triggerZoneUpdate(void);
