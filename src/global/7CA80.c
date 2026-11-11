@@ -1227,7 +1227,7 @@ ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
     return newHead;
 }
 
-void actorCollisionEventsCancel(s32 node, u8 event) {
+void actorCollisionEventsCancel(Actor *node, u8 event) {
     s32 i;
 
     for (i = 0; i < gActorGlobalState.unk201; i++) {
@@ -1251,53 +1251,53 @@ void actorDispatchCollisionResults(Actor *actor) {
             break;
         case 1:
             if (actorCollisionGetNodeHitPoint(actor, gActorGlobalState.unk204[i], &hitX, &hitZ) != 0) {
-                actorAppendMoveTarget2D(actor, (Actor *)gActorGlobalState.unk204[i], hitX, hitZ, 0, 1);
+                actorAppendMoveTarget2D(actor, gActorGlobalState.unk204[i], hitX, hitZ, 0, 1);
             }
             break;
         case 2:
             actorCollisionGetNodeHitPoint(actor, gActorGlobalState.unk204[i], &otherX, &otherZ);
             break;
         case 4:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 1, 0, 0);
+            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 1, 0, 0);
             break;
         case 3:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 0, 0, 0);
+            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 0, 0, 0);
             break;
         case 8:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 2, 0, 0);
+            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 2, 0, 0);
             break;
         case 10:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 3, 0, 0);
+            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 3, 0, 0);
             break;
         case 13:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 6, 0, 0);
+            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 6, 0, 0);
             break;
         case 11:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 4, 0, 0);
+            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 4, 0, 0);
             break;
         case 12:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 2, 5, 0, 0);
+            actorAppendCallback(gActorGlobalState.unk204[i], actor, 2, 5, 0, 0);
             break;
         case 6:
         case 7:
             if (gActorGlobalState.unk244[i] == 6) {
-                actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 0x40, 0, 0, 0);
+                actorAppendCallback(gActorGlobalState.unk204[i], actor, 0x40, 0, 0, 0);
             }
-            actorAppendMoveTarget3D(actor, (Actor *)gActorGlobalState.unk204[i], actor->x, actor->y, actor->z, 2, 1);
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 0x80, 0, 0, 0);
+            actorAppendMoveTarget3D(actor, gActorGlobalState.unk204[i], actor->x, actor->y, actor->z, 2, 1);
+            actorAppendCallback(gActorGlobalState.unk204[i], actor, 0x80, 0, 0, 0);
             playerDropHeldActor(actor);
             break;
         case 5:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 8, 0, 0, 0);
+            actorAppendCallback(gActorGlobalState.unk204[i], actor, 8, 0, 0, 0);
             break;
         case 15:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 4, 0, 0, 0);
+            actorAppendCallback(gActorGlobalState.unk204[i], actor, 4, 0, 0, 0);
             break;
         case 9:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 0x1000, 0, 0, 0);
+            actorAppendCallback(gActorGlobalState.unk204[i], actor, 0x1000, 0, 0, 0);
             break;
         case 14:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 0x02000000, 0, 0, 0);
+            actorAppendCallback(gActorGlobalState.unk204[i], actor, 0x02000000, 0, 0, 0);
             break;
         }
     }

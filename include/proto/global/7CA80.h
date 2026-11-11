@@ -120,7 +120,7 @@ void playerHandleDamageReaction(Actor *, Actor *, u8);
 ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorCollisionEventsCancel
-void actorCollisionEventsCancel(s32, u8);
+void actorCollisionEventsCancel(Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_actorDispatchCollisionResults
 void actorDispatchCollisionResults(Actor *);

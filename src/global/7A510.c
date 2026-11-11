@@ -89,7 +89,7 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
                                 gActorGlobalState.bossFightPhase = ((u8 *)res)[i * 12 + 8];  // FAKE: byte re-read through res (not entry->phase) saves an instruction and keeps entry's induction in $s1 (Q0589)
                             }
                             if (gActorGlobalState.unk201 < 0xF) {
-                                gActorGlobalState.unk204[gActorGlobalState.unk201] = (s32)attacker;
+                                gActorGlobalState.unk204[gActorGlobalState.unk201] = attacker;
                                 gActorGlobalState.unk244[gActorGlobalState.unk201] = entry->event;
                                 gActorGlobalState.unk201++;
                                 if (attacker->collisionFlags & 1) {
@@ -158,7 +158,7 @@ void actorCollisionRunInteractionTable(Actor *actorA, Actor *actorB) {
                     found = 0;
                 }
                 for (j = 0; !found && j < gActorGlobalState.unk201;) {
-                    if (actorB == (Actor *)gActorGlobalState.unk204[j] && gActorGlobalState.unk244[j] == ((s8 *)entry)[5]) {  // FAKE: byte-indexed event read makes IDO emit the load operand first (bnel t2,t0)
+                    if (actorB == gActorGlobalState.unk204[j] && gActorGlobalState.unk244[j] == ((s8 *)entry)[5]) {  // FAKE: byte-indexed event read makes IDO emit the load operand first (bnel t2,t0)
                         found = 1;
                     } else {
                         j++;
@@ -237,7 +237,7 @@ void func_80675D70(Actor *actor) {
         gActorGlobalState.bossFightPhase = 1;
     }
     if (gActorGlobalState.unk201 < 0xF) {
-        gActorGlobalState.unk204[gActorGlobalState.unk201] = (s32)actor;
+        gActorGlobalState.unk204[gActorGlobalState.unk201] = actor;
         gActorGlobalState.unk244[gActorGlobalState.unk201] = 2;
         gActorGlobalState.unk201++;
     }
