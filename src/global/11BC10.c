@@ -1,4 +1,3 @@
-#define PROTO_SKIP_effectShrinkAndVelocityUpdate
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
@@ -18,7 +17,6 @@
 #include "proto/global/7CA80.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"
-void effectShrinkAndVelocityUpdate(struct TimedEffectActorView *, s8 *);
 
 
 extern u8 gGfxBufferIndex;

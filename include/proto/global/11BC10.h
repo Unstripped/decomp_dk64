@@ -62,7 +62,7 @@ void effectDriftXZUpdate(struct RotatingEffectActorView *, void *);
 void effectShrinkOffsetUpdate();
 #endif
 #ifndef PROTO_SKIP_effectShrinkAndVelocityUpdate
-void effectShrinkAndVelocityUpdate(struct TimedEffectActorView *);
+void effectShrinkAndVelocityUpdate(struct TimedEffectActorView *, s8 *);
 #endif
 #ifndef PROTO_SKIP_func_807180F4
 void func_807180F4(struct RotatingEffectActorView *, void *);
