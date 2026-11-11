@@ -51,8 +51,8 @@ extern u16 gActiveActorCount;
 s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 u8 func_80673708(s32, s32, s32, s32, s32, s32, s32, s32);
 
-u8 actorCheckCollisionsAgainstActiveActors(CollisionActor *self, s32 anglePtr1, s32 anglePtr2) {
-    ActorCollisionBounds *sub140;
+u8 actorCheckCollisionsAgainstActiveActors(Actor *self, s16 *arcMin, s16 *arcMax) {
+    ActorSub140 *sub140;
     s32 pad78;
     s32 posX;
     s32 posY;
@@ -66,22 +66,22 @@ u8 actorCheckCollisionsAgainstActiveActors(CollisionActor *self, s32 anglePtr1, 
     u8 ret;
     ActorEntry *entry;
     u8 hitMask;
-    CollisionNode *node;
-    CollisionActor *other;
-    ActorCollisionBounds *other_sub140;
+    ModelNode *node;
+    Actor *other;
+    ActorSub140 *other_sub140;
 
     ret = 0;
     hitMask = 0;
-    if (!(self->unk60 & 0x10)) {
+    if (!(self->flags & 0x10)) {
         return 0;
     }
-    sub140 = self->unk140;
-    posX = sub140->unk0;
-    posY = sub140->unk4;
-    posZ = sub140->unk8;
-    radius = sub140->unkC;
+    sub140 = self->collision;
+    posX = sub140->scaledX;
+    posY = sub140->scaledY;
+    posZ = sub140->scaledZ;
+    radius = sub140->scaledRadius;
     D_807FB600 = 0;
-    i = 0; if (gActiveActorCount > 0) { entry = gActiveActors; do { other = (CollisionActor *) entry->actor; other_sub140 = other->unk140; if ((((!(other->unk60 & 0x2000)) && (sub140 != other_sub140)) && (other->unk144 != 1)) && (other->unk60 & 0x10)) { if (collisionSpheresOverlap(posX, posY, posZ, radius, other_sub140->unk0, other_sub140->unk4, other_sub140->unk8, other_sub140->unkC)) { node = sub140->unk8C; D_807FB5FF = 0; if (other->unk64 & 0x20) { D_807FB5FD = 0; } else { D_807FB5FD = 1; } while ((node != 0) && (D_807FB5FF == 0)) { if ((node->unk26 != 0) && (!(node->unk27 & 2))) { hitMask |= func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, other_sub140->unkA4, other_sub140->unkA8, anglePtr1, anglePtr2); } node = node->next; } if (other->unk64 & 0x20) { self->unkFC |= hitMask; } if (D_807FB5FF != 0) { ret |= actorCollisionReflectAndPush((Actor *) self, (Actor *) other); } } } i++; entry++; } while (i < gActiveActorCount); } // LAYOUT: same-line preheader steers ugen tie-break order
+    i = 0; if (gActiveActorCount > 0) { entry = gActiveActors; do { other = entry->actor; other_sub140 = other->collision; if ((((!(other->flags & 0x2000)) && (sub140 != other_sub140)) && (other->unk144 != 1)) && (other->flags & 0x10)) { if (collisionSpheresOverlap(posX, posY, posZ, radius, other_sub140->scaledX, other_sub140->scaledY, other_sub140->scaledZ, other_sub140->scaledRadius)) { node = sub140->nodes; D_807FB5FF = 0; if (other->renderFlags & 0x20) { D_807FB5FD = 0; } else { D_807FB5FD = 1; } while ((node != 0) && (D_807FB5FF == 0)) { if ((node->active != 0) && (!(node->unk27 & 2))) { hitMask |= func_80673708(node->unk10, node->unk14, node->matrixIndex, node->unk1C, (s32)other_sub140->unkA4, (s32)other_sub140->unkA8, (s32)arcMin, (s32)arcMax); } node = node->next; } if (other->renderFlags & 0x20) { self->hasArcBounds |= hitMask; } if (D_807FB5FF != 0) { ret |= actorCollisionReflectAndPush(self, other); } } } i++; entry++; } while (i < gActiveActorCount); } // LAYOUT: same-line preheader steers ugen tie-break order
     return ret;
 }
 

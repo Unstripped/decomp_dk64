@@ -3,9 +3,8 @@
 #define PROTO_GLOBAL_7BBD0_H
 #include "common.h"
 #include "actor.h"
-struct CollisionActor;
 #ifndef PROTO_SKIP_actorCheckCollisionsAgainstActiveActors
-u8 actorCheckCollisionsAgainstActiveActors(struct CollisionActor *, s32, s32);
+u8 actorCheckCollisionsAgainstActiveActors(Actor *, s16 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_actorCollisionReflectAndPush
 u8 actorCollisionReflectAndPush(Actor *, Actor *);
