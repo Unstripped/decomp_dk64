@@ -2,13 +2,13 @@
 #ifndef PROTO_MINECART_25F0_H
 #define PROTO_MINECART_25F0_H
 #include "common.h"
+#include "actor.h"
 struct MinecartCart;
-struct MinecartTargetState;
 #ifndef PROTO_SKIP_minecartFollowerBehaviour
 void minecartFollowerBehaviour(void);
 #endif
 #ifndef PROTO_SKIP_minecartSetTargetAheadOfPlayer
-s32 minecartSetTargetAheadOfPlayer(struct MinecartTargetState *, f32);
+s32 minecartSetTargetAheadOfPlayer(BehaviourWorkState *, f32);
 #endif
 #ifndef PROTO_SKIP_minecartSpawnRandomParticle
 void minecartSpawnRandomParticle(void);
