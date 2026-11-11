@@ -182,7 +182,7 @@ s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 s32 currentActorTestClearFlag(void);
 void actorSetTargetSpeed(void *, s32);
 void camSetSecondTarget(struct CamActor *, s16, s16);
-s16 mathAngleEaseToward(s16, s16, s32); // FAKE: callee prototype steer
+s16 mathAngleEaseToward(s16, s16, f32);
 u8 spawnNodeHasActor(u8);
 u8 camIsCutsceneActive(void);
 void behaviourSpawnPuffParticle(void);
@@ -291,7 +291,7 @@ void bossKutOutStep(void) {
         }
         break;
     case 0x27:
-        A40->unkE6 = mathAngleEaseToward(A40->unkE6, mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, A40->unk7C, A40->unk84), 0x41000000);
+        A40->unkE6 = mathAngleEaseToward(A40->unkE6, mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, A40->unk7C, A40->unk84), 8.0f);
         switch (A40->unk155) {
         case 0:
             bossKutOutSpawnGhosts();

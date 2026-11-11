@@ -55,7 +55,7 @@ unsigned char cullSwap;
         return D_807FB634;
     }
 
-    asset = (AnimInitData *)assetLoad(5, assetId - 1, 1, 1);
+    asset = assetLoad(5, assetId - 1, 1, 1);
     CONTROLLER_STATE_ENTRY(i).unk0 = assetId;
     D_807FBB30++;
     CONTROLLER_STATE_ENTRY(i).unk8 = cullSwap;

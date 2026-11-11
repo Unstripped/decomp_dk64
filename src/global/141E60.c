@@ -16,7 +16,7 @@ typedef struct SynAllocSynthFx {
 
 extern SynAllocSynthFx *n_syn;
 
-void *n_alSynNewFx(s16 fxId, void *c, void *bus) {
-    n_alFxNew(&n_syn->fx[fxId].result, c, fxId, bus);
+void *n_alSynNewFx(s16 fxId, void *config, void *heap) {
+    n_alFxNew(&n_syn->fx[fxId].result, config, fxId, heap);
     return n_syn->fx[fxId].result;
 }

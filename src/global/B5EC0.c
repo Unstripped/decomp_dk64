@@ -109,20 +109,20 @@ void func_806B13B4(u8 arg0) {
     }
     sel = gCurrentActor->state;
     if (sel == 0x27) {
-        ((B5EC0Actor *)gCurrentActor)->unk132 = 2;
+        gCurrentActor->interactionType = 2;
         sel = gCurrentActor->state;
     } else if (sel != 0x32) {
-        ((B5EC0Actor *)gCurrentActor)->unk132 = 1;
+        gCurrentActor->interactionType = 1;
         sel = gCurrentActor->state;
     }
     if (sel != 0x32 || gActorGlobalState.unk15 != 0) {
         if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && sel != 0x37) {
-            if (((B5EC0Actor *)gCurrentActor)->unk134 < -1) {
+            if (gCurrentActor->health < -1) {
                 behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x20C);
-                ((B5EC0Actor *)gCurrentActor)->unkC0 = 250.0f;
+                gCurrentActor->speedY = 250.0f;
             } else {
                 behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x20B);
-                ((B5EC0Actor *)gCurrentActor)->unkC0 = 200.0f;
+                gCurrentActor->speedY = 200.0f;
             }
             gBehaviourWorkState->unk35 = 2;
             gCurrentActor->callbackMask &= 0xFFFF7FFF;
@@ -132,7 +132,7 @@ void func_806B13B4(u8 arg0) {
             sel = gCurrentActor->state;
         } else if (gActorGlobalState.bossFightPhase == 5) {
             behaviourSpawnExplosionAndSound(0x20A, 0x32, gActorGlobalState.targetActor);
-            ((B5EC0Actor *)gCurrentActor)->unkC0 = 220.0f;
+            gCurrentActor->speedY = 220.0f;
             gCurrentActor->interactionType = 8;
             sel = gCurrentActor->state;
         }
@@ -140,35 +140,35 @@ void func_806B13B4(u8 arg0) {
     sel = gCurrentActor->state;
     switch (sel) {
     case 0x31:
-        if (((B5EC0Actor *)gCurrentActor)->unk155 != 0 || (*((B5EC0Actor *)gCurrentActor)->unk4)->unk24 == 0.0f) {
+        if (gCurrentActor->unk155 != 0 || gCurrentActor->sub4->model->speed == 0.0f) {
             actorSetDefaultState(0x203);
         }
         actorMoveWithinZone(0, 0.0f, 0.0f, 0x4300, 0.0f);
         break;
     case 0x32:
-        ((B5EC0Actor *)gCurrentActor)->unkE6 = mathAngleEaseToward(((B5EC0Actor *)gCurrentActor)->unkE6, ((B5EC0Actor *)gCurrentActor)->unkEE, 7.0f);
-        switch (((B5EC0Actor *)gCurrentActor)->unk155) {
+        gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gCurrentActor->moveYaw, 7.0f);
+        switch (gCurrentActor->unk155) {
         case 0:
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x4300, 0.0f);
             break;
         case 1:
-            ((B5EC0Actor *)gCurrentActor)->unk132 = 1;
+            gCurrentActor->interactionType = 1;
             actorSetDefaultState(0x203);
             break;
         }
         break;
     case 0x28:
-        switch (((B5EC0Actor *)gCurrentActor)->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
             actorScriptStart(gCurrentActor, 0x20D);
-            ((B5EC0Actor *)gCurrentActor)->unk155 = 1;
+            gCurrentActor->unk155 = 1;
             break;
         case 2:
             actorSpawnGroundEffectAtNode(1);
             actorSpawnGroundEffectAtNode(2);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1D5, 0xFF, 0x7F, 1);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x25A, 0xFF, 0x7F, 1);
-            ((B5EC0Actor *)gCurrentActor)->unk155 = 3;
+            gCurrentActor->unk155 = 3;
             break;
         case 4:
             actorSetDefaultState(0x203);
@@ -177,15 +177,15 @@ void func_806B13B4(u8 arg0) {
         break;
     case 0x11:
         func_80724E48(5);
-        switch (((B5EC0Actor *)gCurrentActor)->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
             actorScriptStart(gCurrentActor, 0x205);
-            ((B5EC0Actor *)gCurrentActor)->unk155 += 1;
+            gCurrentActor->unk155 += 1;
         case 1:
-            actorMoveWithinZone(gCurrentActor->state, ((B5EC0View94 *)gBehaviourTargetActor)->unk7C, ((B5EC0View94 *)gBehaviourTargetActor)->unk84, 0x200, 0.0f);
-            if (((B5EC0Actor *)gCurrentActor)->unkB8 < 1.0f) {
-                ((B5EC0Actor *)gCurrentActor)->unk155 += 1;
+            actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
+            if (gCurrentActor->speedXZ < 1.0f) {
+                gCurrentActor->unk155 += 1;
             }
             break;
         case 2:
@@ -197,16 +197,16 @@ void func_806B13B4(u8 arg0) {
         }
         break;
     case 0x27:
-        actorMoveWithinZone(gCurrentActor->state, ((B5EC0View94 *)gBehaviourTargetActor)->unk7C, ((B5EC0View94 *)gBehaviourTargetActor)->unk84, 0x200, 0.0f);
-        switch (((B5EC0Actor *)gCurrentActor)->unk155) {
+        actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
+        switch (gCurrentActor->unk155) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
             if ((randomNonNegative() >> 15) % 1000 >= 0x259) {
                 actorScriptStart(gCurrentActor, 0x208);
-                ((B5EC0Actor *)gCurrentActor)->unk155 = 5;
+                gCurrentActor->unk155 = 5;
             } else {
                 actorScriptStart(gCurrentActor, 0x206);
-                ((B5EC0Actor *)gCurrentActor)->unk155 = 1;
+                gCurrentActor->unk155 = 1;
             }
             break;
         case 1:
@@ -219,7 +219,7 @@ void func_806B13B4(u8 arg0) {
             if (gBehaviourWorkState->flags & 0x100) {
                 gBehaviourWorkState->flags &= 0xFEFF;
                 actorScriptStart(gCurrentActor, 0x207);
-                ((B5EC0Actor *)gCurrentActor)->unk155 = 3;
+                gCurrentActor->unk155 = 3;
             } else {
                 actorSetDefaultState(0x203);
             }
@@ -228,21 +228,21 @@ void func_806B13B4(u8 arg0) {
             if (gBehaviourWorkState->flags & 0x100) {
                 gBehaviourWorkState->flags &= 0xFEFF;
                 actorScriptStart(gCurrentActor, 0x208);
-                ((B5EC0Actor *)gCurrentActor)->unk155 = 5;
+                gCurrentActor->unk155 = 5;
             }
             break;
         case 4:
             actorSetDefaultState(0x203);
             break;
         case 5:
-            ((B5EC0Actor *)gCurrentActor)->unk132 = 4;
+            gCurrentActor->interactionType = 4;
             break;
         }
         break;
     case 1:
         if (behaviourCheckRandomAnimTrigger() != 0) {
             gCurrentActor->state = 0x11;
-            ((B5EC0Actor *)gCurrentActor)->unk155 = 0;
+            gCurrentActor->unk155 = 0;
         }
     case 0x10:
     case 0x23:
@@ -251,7 +251,7 @@ void func_806B13B4(u8 arg0) {
             func_806B1348();
         }
         func_80724E48((u8)(gCurrentActor->state == 1 ? 2 : 0));
-        actorMoveWithinZone(gCurrentActor->state, ((B5EC0View94 *)gBehaviourTargetActor)->unk7C, ((B5EC0View94 *)gBehaviourTargetActor)->unk84, 0, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
         break;
     case 2:
     case 3:
@@ -261,8 +261,8 @@ void func_806B13B4(u8 arg0) {
         actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:
-        ((B5EC0Actor *)gCurrentActor)->unkE6 = mathAngleEaseToward(((B5EC0Actor *)gCurrentActor)->unkE6, ((B5EC0Actor *)gCurrentActor)->unkEE, 7.0f);
-        switch (((B5EC0Actor *)gCurrentActor)->unk155) {
+        gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gCurrentActor->moveYaw, 7.0f);
+        switch (gCurrentActor->unk155) {
         case 0:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
             break;
@@ -270,13 +270,13 @@ void func_806B13B4(u8 arg0) {
             if (arg0 != 0) {
                 sfxSpawnTableNodes(gCurrentActor);
             }
-            ((B5EC0Actor *)gCurrentActor)->unk155 += 1;
+            gCurrentActor->unk155 += 1;
         case 2:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
             behaviourFadeOutWithinZone(8);
             break;
         case 3:
-            ((B5EC0Actor *)gCurrentActor)->unk154 = 0x40;
+            gCurrentActor->state = 0x40;
             break;
         }
         break;

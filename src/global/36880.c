@@ -2378,11 +2378,11 @@ void modelSlotInitFromAsset(ModelSlot *slot, s32 type) {
 
 f32 func_80636A44(s32 type) {
     s32 pad;
-    s32 *asset;
+    f32 *asset;
     f32 result;
 
     asset = assetLoad(4, type, 1, 0);
-    result = ((f32 *)asset)[1];
+    result = asset[1];
     assetFreeBuffer(asset, 0xB87, 7);
     return result;
 }
@@ -2592,7 +2592,7 @@ s32 dlResolveNodeTextures(DisplayListCmd *start, DisplayListCmd *end, ModelSegme
                     } while (found == 0 && node != NULL);
                 }
                 if (found == 0) {
-                    start->unk4 = (s32)assetLoad(0x19, start->unk4, (u8)(keep == 0), 0);
+                    start->unk4 = (s32)assetLoad(0x19, start->unk4, keep == 0, 0);
                     if (start->unk4 & 7) {
                         start->unk4 &= ~0xF;
                         result = 1;

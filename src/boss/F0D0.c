@@ -299,7 +299,7 @@ void bossMainStep(void) {
     BossF_State *st;
     BossF_Sub *sub;
     u8 *tbl;
-    struct { u8 pad0[3]; u8 col[3]; u8 pad1; u8 f7F; u8 pad2[3]; u8 f83; } L;
+    struct { u8 pad0[3]; u8 col[3]; u8 pad1; u8 f7F; u8 pad2[3]; u8 f83; } L; // FAKE: one stack block pins col/flag7F/playerAbove at L+3/L+7/L+0xB; plain u8 locals reorder the frame
     f32 sx;
     f32 sy;
     u8 idx;

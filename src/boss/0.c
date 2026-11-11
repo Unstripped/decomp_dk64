@@ -863,7 +863,7 @@ void bossArmydilloStep(void) {
                 gCurrentActor->unkB8 = 0.0f;
             }
             {
-                s16 val = state17C->unk10;
+                s16 val = state17C->unk10; // FAKE: block-scoped s16 copy taken before the unk12 store orders the unk10 loads for bossPieceSetAngle(2, ...) (direct re-read fdiff 1)
 
                 state17C->unk12 = state17C->unk10;
                 bossPieceSetAngle(2, val);
