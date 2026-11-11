@@ -3415,9 +3415,14 @@ s32 texAnimNodeAdvance(ModelSegmentNode *node, s32 *frameOut, s32 *nextFrameOut)
     return result;
 }
 
+// Sprite draw node: built by spriteListBuildDisplayChain (depth-sorted), drawn by spriteListRender; 0x38 bytes.
 typedef struct SpriteDisplayNode {
     /* 0x00 */ u32 key;
-    /* 0x04 */ u8 pad4[8];
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ u8 unk8;
+    /* 0x09 */ u8 unk9;
+    /* 0x0A */ u8 unkA;
+    /* 0x0B */ u8 unkB;
     /* 0x0C */ s16 unkC;
     /* 0x0E */ s16 unkE;
     /* 0x10 */ s16 unk10;
@@ -3425,7 +3430,8 @@ typedef struct SpriteDisplayNode {
     /* 0x14 */ f32 unk14;
     /* 0x18 */ f32 unk18;
     /* 0x1C */ f32 unk1C;
-    /* 0x20 */ u8 pad20[4];
+    /* 0x20 */ s16 unk20;
+    /* 0x22 */ s16 unk22;
     /* 0x24 */ s16 unk24;
     /* 0x26 */ s16 unk26;
     /* 0x28 */ s16 unk28;
@@ -3433,9 +3439,10 @@ typedef struct SpriteDisplayNode {
     /* 0x2C */ s16 unk2C;
     /* 0x2E */ u8 unk2E;
     /* 0x2F */ u8 unk2F;
-    /* 0x30 */ u8 pad30[4];
+    /* 0x30 */ u8 unk30;
+    /* 0x31 */ u8 pad31[3];
     /* 0x34 */ struct SpriteDisplayNode *next;
-} SpriteDisplayNode;
+} SpriteDisplayNode; // size = 0x38
 
 s32 mathAsinFixed(s32);
 
@@ -3525,17 +3532,10 @@ typedef struct ModelSpriteSource {
     /* 0xBC */ SpriteDisplayNode *unkBC;
 } ModelSpriteSource;
 
-typedef struct ModelSpriteSourceList {
-    /* 0x00 */ ModelSpriteSource *data;
-    /* 0x04 */ u8 pad4[0x10];
-    /* 0x14 */ struct ModelSpriteSourceList *next;
-    /* 0x18 */ u8 pad18[0xC];
-    /* 0x24 */ u8 unk24;
-} ModelSpriteSourceList;
 
 
 
-SpriteDisplayNode *spriteListBuildDisplayChain(ModelSpriteSourceList *listA, ModelSpriteSourceList *listB, f32 camX, f32 camY, f32 camZ) {
+SpriteDisplayNode *spriteListBuildDisplayChain(RenderEntry *listA, RenderEntry *listB, f32 camX, f32 camY, f32 camZ) {
     SpriteDisplayNode *result;
     u8 second;
     f32 x;
@@ -3566,7 +3566,7 @@ SpriteDisplayNode *spriteListBuildDisplayChain(ModelSpriteSourceList *listA, Mod
         do {
             switch (listA->unk24) {
             case 2:
-                d = listA->data;
+                d = listA->unk0;
                 if (d->unk4E & 0x10) {
                     tgt = NULL;
                 } else {
@@ -3580,7 +3580,7 @@ SpriteDisplayNode *spriteListBuildDisplayChain(ModelSpriteSourceList *listA, Mod
                 }
                 break;
             case 1:
-                d1 = listA->data;
+                d1 = listA->unk0;
                 tgt = d1->unkBC;
                 link = d1->unkB8;
                 x = d1->unk0;
@@ -3630,7 +3630,7 @@ SpriteDisplayNode *spriteListBuildDisplayChain(ModelSpriteSourceList *listA, Mod
                     result = spriteListInsertByDepth(result, tgt);
                 }
             }
-            listA = listA->next;
+            listA = listA->unk14;
             if (listA == NULL && second == 0) {
                 listA = listB;
                 second = 1;
@@ -3696,38 +3696,14 @@ void func_8063A8C4(s16 slot, u8 isId, f32 value) {
     }
 }
 
-typedef struct SpriteGfxNode {
-    /* 0x00 */ u32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ u8 unk8;
-    /* 0x09 */ u8 unk9;
-    /* 0x0A */ u8 unkA;
-    /* 0x0B */ u8 unkB;
-    /* 0x0C */ u8 padC[4];
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ s16 unk20;
-    /* 0x22 */ s16 unk22;
-    /* 0x24 */ u8 pad24[2];
-    /* 0x26 */ s16 unk26;
-    /* 0x28 */ u8 pad28[7];
-    /* 0x2F */ u8 unk2F;
-    /* 0x30 */ u8 unk30;
-    /* 0x31 */ u8 pad31[3];
-    /* 0x34 */ struct SpriteGfxNode *unk34;
-} SpriteGfxNode;
-
 u32 osVirtualToPhysical(void *);
 
-Gfx *spriteListRender(Gfx *gfx, SpriteGfxNode *list) {
+Gfx *spriteListRender(Gfx *gfx, SpriteDisplayNode *list) {
     s32 lastTex;
     Vtx *vtxs;
     Mtx *mtxs;
     s32 n;
-    SpriteGfxNode *p;
+    SpriteDisplayNode *p;
     s32 vtxIdx;
     s32 mtxIdx;
     f32 accum[4][4];
@@ -3751,7 +3727,7 @@ Gfx *spriteListRender(Gfx *gfx, SpriteGfxNode *list) {
         p = list;
         if (p != NULL) {
             do {
-                p = p->unk34;
+                p = p->next;
                 n++;
             } while (p != NULL);
         }
@@ -3774,19 +3750,19 @@ Gfx *spriteListRender(Gfx *gfx, SpriteGfxNode *list) {
                 gDPSetRenderMode(gfx++, G_RM_AA_XLU_SURF, G_RM_AA_XLU_SURF2);
                 flag = 0;
             }
-            if (list->unk0 != lastTex) {
+            if (list->key != lastTex) {
                 switch (list->unkB) {
                 case 0:
-                    gDPLoadTextureBlock_4b(gfx++, list->unk0 + 0x80000000, list->unkA, list->unk8, list->unk9, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    gDPLoadTextureBlock_4b(gfx++, list->key + 0x80000000, list->unkA, list->unk8, list->unk9, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                     break;
                 case 1:
-                    gDPLoadTextureBlock(gfx++, list->unk0 + 0x80000000, list->unkA, G_IM_SIZ_8b, list->unk8, list->unk9, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    gDPLoadTextureBlock(gfx++, list->key + 0x80000000, list->unkA, G_IM_SIZ_8b, list->unk8, list->unk9, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                     break;
                 case 2:
-                    gDPLoadTextureBlock(gfx++, list->unk0 + 0x80000000, list->unkA, G_IM_SIZ_16b, list->unk8, list->unk9, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    gDPLoadTextureBlock(gfx++, list->key + 0x80000000, list->unkA, G_IM_SIZ_16b, list->unk8, list->unk9, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                     break;
                 }
-                lastTex = list->unk0;
+                lastTex = list->key;
             }
             vtxs[vtxIdx].v.tc[0] = 0;
             vtxs[vtxIdx].v.tc[1] = 0;
@@ -3830,7 +3806,7 @@ Gfx *spriteListRender(Gfx *gfx, SpriteGfxNode *list) {
             gSP2Triangles(gfx++, 0, 1, 2, 0, 0, 2, 3, 0);
             gSPPopMatrix(gfx++, G_MTX_MODELVIEW);
             vtxIdx += 4;
-            list = list->unk34;
+            list = list->next;
         } while (list != NULL);
     }
     gDPPipeSync(gfx++);

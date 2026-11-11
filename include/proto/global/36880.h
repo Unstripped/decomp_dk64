@@ -13,9 +13,7 @@ struct ModelSegmentData;
 struct ModelSegmentNode;
 struct ModelSegmentOwner;
 struct ModelSlotAsset;
-struct ModelSpriteSourceList;
 struct SpriteDisplayNode;
-struct SpriteGfxNode;
 struct TexAnimNode;
 #ifndef PROTO_SKIP_modelSkipListClear
 void modelSkipListClear(void);
@@ -273,7 +271,7 @@ s32 texAnimNodeAdvance(struct ModelSegmentNode *, s32 *, s32 *);
 void modelCalcFacingAngles(f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *, u8);
 #endif
 #ifndef PROTO_SKIP_spriteListBuildDisplayChain
-struct SpriteDisplayNode *spriteListBuildDisplayChain(struct ModelSpriteSourceList *, struct ModelSpriteSourceList *, f32, f32, f32);
+struct SpriteDisplayNode *spriteListBuildDisplayChain(RenderEntry *, RenderEntry *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_spriteListInsertByDepth
 struct SpriteDisplayNode *spriteListInsertByDepth(struct SpriteDisplayNode *, struct SpriteDisplayNode *);
@@ -282,7 +280,7 @@ struct SpriteDisplayNode *spriteListInsertByDepth(struct SpriteDisplayNode *, st
 void func_8063A8C4(s16, u8, f32);
 #endif
 #ifndef PROTO_SKIP_spriteListRender
-Gfx *spriteListRender(Gfx *, struct SpriteGfxNode *);
+Gfx *spriteListRender(Gfx *, struct SpriteDisplayNode *);
 #endif
 #ifndef PROTO_SKIP_modelPendingCountsReset
 void modelPendingCountsReset(void);
