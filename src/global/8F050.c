@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_controllerAnimFreeSub // FAKE: callee prototype steer (header has K&R decl)
 #include "actor.h"
 #include "sched.h"
 #include "proto/global/17B90.h"
@@ -84,7 +83,6 @@ extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 extern s32 D_807552F4[];
 
-void controllerAnimFreeSub(Actor *, u8); // FAKE: callee prototype steer (header has K&R decl)
 
 void actorProximityUpdate(void) {
     PlayerState *playerState;

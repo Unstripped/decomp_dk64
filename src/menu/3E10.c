@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_actorConfigApplyAnimFrameByType // FAKE: callee prototype steer
 #define PROTO_SKIP_actorUpdateCollisionSpheres // PROTO: not a function here
 #define PROTO_SKIP_eepromGetField // FAKE: callee prototype steer
 #define PROTO_SKIP_eepromSetCurrentSlot // FAKE: callee prototype steer
@@ -1598,7 +1597,6 @@ typedef struct Menu6B_Pair {
 } Menu6B_Pair;
 extern s32 D_800338B4[];
 extern Menu6B_Pair D_80033894[];
-void actorConfigApplyAnimFrameByType(void *, s32, s32); // FAKE: callee prototype steer
 
 
 void menuCharacterSelectUpdateActor(void) {

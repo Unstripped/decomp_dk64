@@ -412,10 +412,7 @@ typedef struct {
 } AnimStateSlot;
 
 #define FREESUB_SLOT(i) (((AnimStateSlot *)D_807FB630)[i])
-void controllerAnimFreeSub(controller, slotIndex)
-Actor *controller;
-u8 slotIndex;
-{
+void controllerAnimFreeSub(Actor *controller, u8 slotIndex) {
     ControllerSubB *sub;
     ControllerCmdB *cmd;
     ControllerCmdListB *cmdList;

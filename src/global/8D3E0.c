@@ -1,7 +1,6 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
-#define PROTO_SKIP_controllerAnimFreeSub // FAKE: callee prototype steer
 #include "proto/global/15050.h"
 #include "proto/global/17B90.h"
 #include "proto/global/36880.h"
@@ -516,7 +515,6 @@ typedef struct ActorListSpawnInfo {
 
 
 
-void controllerAnimFreeSub(Actor *, u8); // FAKE: callee prototype steer
 extern Actor *gSpawnedActor;
 
 void actorListUpdateSpawns(void) {

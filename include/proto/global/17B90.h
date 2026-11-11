@@ -43,7 +43,7 @@ s32 controllerAnimInit(Actor *, u16);
 void controllerAnimFree(Actor *);
 #endif
 #ifndef PROTO_SKIP_controllerAnimFreeSub
-void controllerAnimFreeSub();
+void controllerAnimFreeSub(Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_controllerAnimCacheFree
 int controllerAnimCacheFree(Actor *, AnimSlot *);
