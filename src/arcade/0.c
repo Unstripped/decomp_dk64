@@ -3998,13 +3998,9 @@ void arcadeDrawHud(Gfx **glistp) {
     s32 i;
     Gfx *g;
     u8 buf[0x50];
-    u8 *p;
-    u8 n;
 
     g = *glistp;
-    p = (u8 *)g++; // FAKE: p reused as scissor packet pointer steers regalloc (gDPSetScissor: text=6)
-    ((Gfx *)p)->words.w0 = 0xED000000; ((Gfx *)p)->words.w1 = 0x5003C0;
-    p = buf;
+    gDPSetScissor(g++, G_SC_NON_INTERLACE, 0, 0, 320, 240);
     D_8004C6D4.word = 0x400;
     D_8004C719 = 8;
     D_8004C6D0 = D_8003DA90;
@@ -4020,20 +4016,20 @@ void arcadeDrawHud(Gfx **glistp) {
     arcadeSetTextColor(0xFF, 0, 0, 0xFF);
     if ((D_8004C6D8 & 0x10) || D_8004C724 == 0) {
         arcadeSetTextPosition(0x48, 0x13);
-        _sprintf(p, "1UP");
-        arcadeDrawString(&g, p);
+        _sprintf(buf, "1UP");
+        arcadeDrawString(&g, buf);
     }
     arcadeSetTextPosition(0x78, 0x13);
-    _sprintf(p, "HIGH SCORE");
-    arcadeDrawString(&g, p);
+    _sprintf(buf, "HIGH SCORE");
+    arcadeDrawString(&g, buf);
     arcadeSetTextColor(0, 0, 0xFF, 0xFF);
     arcadeSetTextPosition(0xD8, 0x1B);
-    _sprintf(p, "L=%02d", D_8004A76C);
-    arcadeDrawString(&g, p);
+    _sprintf(buf, "L=%02d", D_8004A76C);
+    arcadeDrawString(&g, buf);
     arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
     arcadeSetTextPosition(0x38, 0x1B);
-    _sprintf(p, "%06d    %06d", D_8004A748, D_8004A760);
-    arcadeDrawString(&g, p);
+    _sprintf(buf, "%06d    %06d", D_8004A748, D_8004A760);
+    arcadeDrawString(&g, buf);
     if (D_8004C724 == 5 || D_8004C724 == 4) {
         if (D_8004A764 != 0) {
             if (D_8004C722 == 2) {
@@ -4044,8 +4040,8 @@ void arcadeDrawHud(Gfx **glistp) {
                 arcadeSetTextColor(0, 0xFF, 0xFF, 0xFF);
             }
             arcadeSetTextPosition(0x78, 0xA3);
-            _sprintf(p, "GAME OVER");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "GAME OVER");
+            arcadeDrawString(&g, buf);
         }
         if (D_8004C724 == 4) {
             if (D_8004A768 == 0 || D_8004C722 == 4) {
@@ -4057,16 +4053,16 @@ void arcadeDrawHud(Gfx **glistp) {
             }
             arcadeSetStageTextColor(0);
             arcadeSetTextPosition(0x88, 0x8B);
-            _sprintf(p, "RETURN");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "RETURN");
+            arcadeDrawString(&g, buf);
             arcadeSetStageTextColor(1);
             arcadeSetTextPosition(0x68, 0x9B);
-            _sprintf(p, "DELETE HISCORE");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "DELETE HISCORE");
+            arcadeDrawString(&g, buf);
             arcadeSetStageTextColor(2);
             arcadeSetTextPosition(0x68, 0xAB);
-            _sprintf(p, "EXIT DK ARCADE");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "EXIT DK ARCADE");
+            arcadeDrawString(&g, buf);
         }
         if (D_8004C722 == 2) {
             if (D_8004C71E < 0xA) {
@@ -4093,32 +4089,34 @@ void arcadeDrawHud(Gfx **glistp) {
         } else {
             i = 0;
         }
-        _sprintf(p, "%02d00", i);
-        arcadeDrawString(&g, p);
+        _sprintf(buf, "%02d00", i);
+        arcadeDrawString(&g, buf);
     }
     if (D_8004C724 == 2) {
+        u8 n;
+
         n = (D_8004C723 & 3) + 1;
         arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
         arcadeSetTextPosition(0x48, 0xD7);
-        _sprintf(p, "HOW HIGH CAN YOU GET ?");
-        arcadeDrawString(&g, p);
+        _sprintf(buf, "HOW HIGH CAN YOU GET ?");
+        arcadeDrawString(&g, buf);
         arcadeSetTextPosition(0x58, 0xC9);
-        _sprintf(p, "@%% m");
-        arcadeDrawString(&g, p);
+        _sprintf(buf, "@%% m");
+        arcadeDrawString(&g, buf);
         if (n >= 2) {
             arcadeSetTextPosition(0x58, 0xAD);
-            _sprintf(p, "%%) m");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "%%) m");
+            arcadeDrawString(&g, buf);
         }
         if (n >= 3) {
             arcadeSetTextPosition(0x58, 0x91);
-            _sprintf(p, "&%% m");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "&%% m");
+            arcadeDrawString(&g, buf);
         }
         if (n >= 4) {
             arcadeSetTextPosition(0x50, 0x75);
-            _sprintf(p, "!)) m");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "!)) m");
+            arcadeDrawString(&g, buf);
         }
     }
     if (D_8004C724 == 3) {
@@ -4128,22 +4126,22 @@ void arcadeDrawHud(Gfx **glistp) {
         if (!(D_8004C6DC & 0x200)) {
             arcadeSetTextColor(0, 0xFF, 0xFF, 0xFF);
             arcadeSetTextPosition(0x70, 0x33);
-            _sprintf(p, "INSERT COIN");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "INSERT COIN");
+            arcadeDrawString(&g, buf);
             arcadeSetTextPosition(0x68, 0x43);
-            _sprintf(p, "PLAYER    COIN");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "PLAYER    COIN");
+            arcadeDrawString(&g, buf);
             arcadeSetTextPosition(0x78, 0x53);
-            _sprintf(p, "1        1");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "1        1");
+            arcadeDrawString(&g, buf);
             arcadeSetTextPosition(0x38, 0x7B);
-            _sprintf(p, "RANK  SCORE  NAME");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "RANK  SCORE  NAME");
+            arcadeDrawString(&g, buf);
             arcadeDrawNameRegistration(&g);
             arcadeSetTextColor(0xFF, 0, 0, 0xFF);
             arcadeSetTextPosition(0x78, 0x63);
-            _sprintf(p, "2        2");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "2        2");
+            arcadeDrawString(&g, buf);
         } else {
             if (D_8004C6DC & 0x182) {
                 arcadeSetTextColor(0xFF, 0xA0, 0x10, 0xFF);
@@ -4151,8 +4149,8 @@ void arcadeDrawHud(Gfx **glistp) {
                 arcadeSetTextColor(0xFF, 0xFF, 0xFF, 0xFF);
             }
             arcadeSetTextPosition(0x68, 0xD7);
-            _sprintf(p, "c NINTENDO 1981");
-            arcadeDrawString(&g, p);
+            _sprintf(buf, "c NINTENDO 1981");
+            arcadeDrawString(&g, buf);
         }
     }
     *glistp = g;
