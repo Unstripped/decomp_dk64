@@ -1151,10 +1151,10 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
 
 
 void playerWaypointPathsLoad(s16 pathsId) {
-    s32 buffer;
+    void *buffer;
 
-    buffer = assetLoad(0x15, pathsId, 1, 0);
-    playerWaypointPathsParse((void *)buffer);
+    buffer = (void *)assetLoad(0x15, pathsId, 1, 0); // implicit assetLoad returns int
+    playerWaypointPathsParse(buffer);
     if (buffer != 0) {
         assetFreeBuffer(buffer, 0x4C, 0x56);
     }
