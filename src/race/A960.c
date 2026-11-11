@@ -37,14 +37,6 @@ typedef struct RaceWaypoint {
     /* 0x24 */ s32 state;
 } RaceWaypoint;
 
-typedef struct RaceRoute {
-    /* 0x00 */ u16 count;
-    /* 0x02 */ u8 pad2[2];
-    /* 0x04 */ u16 *items;
-    /* 0x08 */ u16 active;
-    /* 0x0A */ u8 padA[2];
-} RaceRoute;
-
 typedef struct RaceRouteTable {
     /* 0x00 */ u8 count;
     /* 0x01 */ u8 pad1[3];

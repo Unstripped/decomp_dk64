@@ -76,9 +76,18 @@ typedef struct RaceParticipant {
     /* 0x45 */ u8 unk45;
     /* 0x46 */ u8 unk46;
     /* 0x47 */ u8 pad47;
-    /* 0x48 */ s32 unk48; // camera viewport entry (cameraFindViewportEntry)
+    /* 0x48 */ struct G00Entry *unk48; // camera viewport entry (cameraFindViewportEntry)
     /* 0x4C */ u8 pad4C[0x104 - 0x4C];
     /* 0x104 */ void *unk104;
 } RaceParticipant; // size = 0x108
+
+// One race route (raceGetRoute): the ordered waypoint indices a participant passes.
+typedef struct RaceRoute {
+    /* 0x00 */ u16 count;
+    /* 0x02 */ u8 pad2[2];
+    /* 0x04 */ u16 *items;
+    /* 0x08 */ u16 active;
+    /* 0x0A */ u8 padA[2];
+} RaceRoute;
 
 #endif

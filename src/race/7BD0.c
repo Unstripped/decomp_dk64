@@ -27,13 +27,6 @@
 #include "proto/race/A960.h"
 
 struct RaceUnknownActor;
-typedef struct Struct806C7C94 {
-    u8 pad0[4];
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
-    s16 unkA;
-} Struct806C7C94;
 
 typedef struct RacePair {
     struct RaceUnknownActor *unk0;
@@ -75,7 +68,7 @@ typedef struct RaceUnknown174 {
     u8 unk45;
     u8 unk46;
     char pad47;
-    Struct806C7C94 *unk48;
+    G00Entry *unk48;
     char pad4C[0x88 - 0x4C];
     struct RaceUnknownActor *unk88;
 } RaceUnknown174;
@@ -165,7 +158,7 @@ void raceRegisterParticipant(RaceUnknownActor *manager, s32 slot, RaceUnknownAct
     RaceUnknown174 *managerData;
     RacePair *pairs;
     RacePair *slotEntry;
-    u16 *route;
+    RaceRoute *route;
 
     managerData = manager->unk174;
     pairs = managerData->unk20;
@@ -179,7 +172,7 @@ void raceRegisterParticipant(RaceUnknownActor *manager, s32 slot, RaceUnknownAct
     if (participantData->unk27 == 0) {
         route = raceGetRoute(managerData->unk26);
         if (route != NULL) {
-            participantData->unk3C = *route - 1;
+            participantData->unk3C = route->count - 1;
             raceActivateNextGate(participantData, route);
         }
         participantData->unk48 = cameraFindViewportEntry(participantData->playerIdx);
@@ -306,7 +299,7 @@ Gfx *raceRenderCountdownText(Gfx *dl, RaceUnknownActor *actor) {
 }
 
 Gfx *raceRenderSpeedBoostHud(Gfx *dl, RaceUnknown174 *race174) {
-    Struct806C7C94 *hudPos;
+    G00Entry *hudPos;
     s32 screenX;
     s32 screenY;
     s32 i;
@@ -347,9 +340,9 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceUnknown174 *race174) {
     f32 doublePosX;
     f32 posY;
     f32 halfFontHeight;
-    Struct806C7C94 *hudPos;
+    G00Entry *hudPos;
     f32 savedHalfFontHeight;
-    f32 spriteX;
+    f32 xOffsetF;
     s16 scaledSpriteY;
     s32 xOffset;
     s32 count;
@@ -374,18 +367,16 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceUnknown174 *race174) {
     WRITE_GFX(dl++, 0xFA000000, 0xFFFF00FF);
     scaledSpriteY = (s16)(s32)((posY + posY) * 4.0f);
     for (xOffset = 0; xOffset < 0x78; xOffset += 0x18) {
-        spriteX = doublePosX; // FAKE: split add steers add.s operand order
-        spriteX += (f32)xOffset;
-        dl = renderRotatedSprite(dl, 0x4B, 3, 1, 0x40, 0x40, (s32)(spriteX * 4.0f), scaledSpriteY, 1.5f, 1.5f, 0, 0.0f);
+        xOffsetF = xOffset;
+        dl = renderRotatedSprite(dl, 0x4B, 3, 1, 0x40, 0x40, (s32)((doublePosX + xOffsetF) * 4.0f), scaledSpriteY, 1.5f, 1.5f, 0, 0.0f);
     }
     WRITE_GFX(dl++, 0xFA000000, 0xFF0000FF);
     count = 0;
     if ((5 - race174->unk44) > 0) {
         xOffset = 0;
         do {
-            spriteX = doublePosX; // FAKE: split add steers add.s operand order
-            spriteX += (f32)xOffset;
-            next = renderRotatedSprite(dl, 0x45, 3, 1, 0x40, 0x40, (s32)(spriteX * 4.0f), scaledSpriteY, 1.5f, 1.5f, 0, 0.0f);
+            xOffsetF = xOffset;
+            next = renderRotatedSprite(dl, 0x45, 3, 1, 0x40, 0x40, (s32)((doublePosX + xOffsetF) * 4.0f), scaledSpriteY, 1.5f, 1.5f, 0, 0.0f);
             count += 1;
             xOffset += 0x18;
             dl = next; // FAKE: delayed dl update steers the loop schedule
@@ -414,7 +405,7 @@ extern s32 D_8002FCC0[];
 
 Gfx *raceDrawHudText(Gfx *dl, RaceUnknown174 *race174) {
     RaceUnknown174 *parent174;
-    Struct806C7C94 *hudPos;
+    G00Entry *hudPos;
     s32 pad;
     void *textBuf;
     u8 lap;
@@ -434,8 +425,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceUnknown174 *race174) {
     textX = hudPos->unk4 + 8;
     textY = hudPos->unkA - 0x10;
     g0 = dl++;
-    g0->words.w1 = 0; // FAKE: w1-before-w0 store order steers the schedule
-    g0->words.w0 = 0xE7000000;
+    g0->words.w0 = 0xE7000000; g0->words.w1 = 0; // LAYOUT: same-line stores keep the w1 store first
     WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
     hudFlags = parent174->unk0;
     if (hudFlags & 4) {
@@ -620,20 +610,20 @@ void raceInitBeetleRaceManager(void) {
     race174->unk24 = 1;
 }
 
-extern RaceUnknownActor *gCurrentActor;
+extern Actor *gCurrentActor;
 extern s32 D_8002FCD4[];
 
 void raceSetParticipantRaceStatus(RacePair *pair, u8 newStatus) {
     RaceUnknown174 *t;
-    s32 slot;
+    u32 slot;
 
     if (pair->unk4->unk34 != newStatus) {
         pair->unk4->unk34 = newStatus;
         pair->unk4->unk35 = 0;
         if (newStatus == 3) {
-            t = gCurrentActor->unk174;
+            t = gCurrentActor->customState;
             slot = pair->unk4->unk36;
-            if (slot + 1 == (u32)t->unk1E || pair->unk4->unk45 != 0) {
+            if (slot + 1 == t->unk1E || pair->unk4->unk45 != 0) {
                 slot = 3;
             }
             if (pair->unk4->unk27 == 0) {
@@ -649,9 +639,9 @@ void raceSetAllParticipantsStatus(u8 newStatus) {
     RaceUnknown174 *race174;
     RacePair *pairs;
 
-    race174 = gCurrentActor->unk174;
+    race174 = gCurrentActor->customState;
     pairs = race174->unk20;
-    gCurrentActor->unk154 = newStatus;
+    gCurrentActor->state = newStatus;
     for (i = 0; i < race174->unk1E; i++) {
         if (pairs[i].unk0 != 0) {
             raceSetParticipantRaceStatus(&pairs[i], newStatus);
@@ -717,7 +707,7 @@ void racePlayResultSfx(void) {
     s32 i;
     s32 id;
 
-    race174 = gCurrentActor->unk174;
+    race174 = gCurrentActor->customState;
     id = 0;
     list = race174->unk20;
     i = race174->unk1E - 1;
@@ -777,7 +767,7 @@ void raceUpdateStandings(void) {
     u8 cnt;
     u8 swap;
 
-    t = gCurrentActor->unk174;
+    t = gCurrentActor->customState;
     cnt = 0;
     base = t->unk20;
     for (i = t->unk1E - 1; i >= 0; i--) {
@@ -850,11 +840,11 @@ void raceManagerBehaviorUpdate(void) {
     s32 k;
     RacePair *list;
 
-    t = gCurrentActor->unk174;
-    if (!(gCurrentActor->unk60 & 0x10)) {
+    t = gCurrentActor->customState;
+    if (!(gCurrentActor->flags & 0x10)) {
         t->unk1C = 0x1E;
     }
-    switch (gCurrentActor->unk154) {
+    switch (gCurrentActor->state) {
     case 0:
         if (t->unk1C) {
             t->unk1C--;
@@ -926,7 +916,7 @@ void raceManagerBehaviorUpdate(void) {
     }
     raceUpdateWaypointActivation(t);
     if (func_807142D8() == 0) {
-        if (gCurrentActor->unk154 > 0 && gCurrentActor->unk154 < 5) {
+        if (gCurrentActor->state > 0 && gCurrentActor->state < 5) {
             renderCallbacksRegister((void *)raceRenderMinimapAndCountdown, gCurrentActor, 3);
         }
     }
@@ -938,7 +928,7 @@ void raceUpdateFinishLineFlagBobbing(RaceUnknown174 *race174) {
     s16 angle;
     f32 scale;
 
-    switch (gCurrentActor->unk154) {
+    switch (gCurrentActor->state) {
     case 0:
         angle = race174->unk2;
         if (((s16)(angle % 2048) >= 0x81) && ((0x800 - (s16)(angle % 2048)) >= 0x81)) {
@@ -956,12 +946,12 @@ void raceUpdateFinishLineFlagBobbing(RaceUnknown174 *race174) {
     }
     race174->unk2 = angle & 0xFFF;
     scale = (((mathSinF(race174->unk2) + 1.0f) * 1.5) + 1.0) * race174->unk4;
-    gCurrentActor->unk4->unk34[0] = gCurrentActor->unk4->unk34[1] = gCurrentActor->unk4->unk34[2] = scale;
+    gCurrentActor->sub4->scaleX = gCurrentActor->sub4->scaleY = gCurrentActor->sub4->scaleZ = scale;
 }
 
 void raceUpdateCheckeredFlagAnimation(void) {
-    if (gCurrentActor->unk154 != 0) {
-        if (gCurrentActor->unk154 == 1) {
+    if (gCurrentActor->state != 0) {
+        if (gCurrentActor->state == 1) {
             if (animIsPlaying(gCurrentActor, 0) == 0) {
                 animSetSpeed(gCurrentActor, 0, 1.0f);
                 animSetLoopLimit(gCurrentActor, 0, -1);
@@ -976,10 +966,10 @@ void raceUpdateCheckeredFlagAnimation(void) {
 
 
 void raceFinishBannerBehaviorUpdate(void) {
-    RaceUnknown174 *race174 = gCurrentActor->unk174;
+    RaceUnknown174 *race174 = gCurrentActor->customState;
 
-    if (!(gCurrentActor->unk60 & 0x10)) {
-        race174->unk4 = gCurrentActor->unk4->unk34[1];
+    if (!(gCurrentActor->flags & 0x10)) {
+        race174->unk4 = gCurrentActor->sub4->scaleY;
     }
     switch (race174->unk0) {
     case 2:
@@ -988,9 +978,9 @@ void raceFinishBannerBehaviorUpdate(void) {
     case 1:
         raceUpdateCheckeredFlagAnimation();
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-        gCurrentActor->unk80 = gCurrentActor->unkAC;
-        gCurrentActor->unk6A |= 4;
-        gCurrentActor->unk6C |= 4;
+        gCurrentActor->y = gCurrentActor->waterY;
+        gCurrentActor->contactFlags |= 4;
+        gCurrentActor->prevContactFlags |= 4;
         break;
     default:
         raceUpdateFinishLineFlagBobbing(race174);
@@ -1249,29 +1239,29 @@ void racePlayerHudRenderCallback(void *gfx, RaceUnknownActor *actor) {
 
 void racePlayerTrackerBehaviorUpdate(void) {
     RaceUnknownActor *playerActor;
-    RaceUnknownActor *raceActor;
+    Actor *raceActor;
     RaceParticipant *raceData;
     f32 curMax;
     f32 diff;
 
     raceActor = gCurrentActor;
-    raceData = (RaceParticipant *)raceActor->unk174;
+    raceData = raceActor->customState;
     playerActor = gPlayerSlots[raceData->playerIdx].unk4;
-    if (!(raceActor->unk60 & 0x10)) {
+    if (!(raceActor->flags & 0x10)) {
         playerStateQueueCallback(0x4E, raceActor, raceData->playerIdx);
-        gCurrentActor->unk154 = 0;
+        gCurrentActor->state = 0;
         gCurrentActor->unk155 = 0;
         raceActor = gCurrentActor;
     }
-    if ((raceData->unk34 == 2) && (raceActor->unk154 == 0)) {
+    if ((raceData->unk34 == 2) && (raceActor->state == 0)) {
         playerStateQueueCallback(0x57, NULL, raceData->playerIdx);
         raceActor = gCurrentActor;
-        raceActor->unk154++;
+        raceActor->state++;
         raceActor = gCurrentActor; // FAKE: redundant global reload steers regalloc
     }
-    raceActor->unk7C = playerActor->unk7C;
-    gCurrentActor->unk80 = playerActor->unk80;
-    gCurrentActor->unk84 = playerActor->unk84;
+    raceActor->x = playerActor->unk7C;
+    gCurrentActor->y = playerActor->unk80;
+    gCurrentActor->z = playerActor->unk84;
     if (raceData->unk34 == 2) {
         raceUpdateLapAndWaypointTracker(raceData);
     }
@@ -1286,7 +1276,7 @@ void racePlayerTrackerBehaviorUpdate(void) {
 }
 
 typedef struct RaceFE644Arg {
-    RaceUnknownActor *unk0;
+    Actor *unk0;
     char pad4[0xA];
     u8 unkE;
     u8 unkF;
@@ -1307,29 +1297,29 @@ void raceHandleRacerCollision(RaceFE644Arg *collision) {
     s16 targetAngle;
     f32 bounceScale;
     s32 sfxId;
-    RaceUnknownActor *actor;
+    Actor *actor;
 
     actor = collision->unk0;
-    distSq = (actor->unk7C - gCurrentActor->unk7C) * (actor->unk7C - gCurrentActor->unk7C) + (actor->unk84 - gCurrentActor->unk84) * (actor->unk84 - gCurrentActor->unk84);
-    if (gBossFightPhase == 4 && distSq < collision->unk14 && (collision->unkF == 1 || collision->unkF == 0 || collision->unkF == 4 || (gCurrentActor->unk58 == 0x143 && collision->unkF == 5))) {
-        targetAngle = mathAngleBetweenPoints2D(gCurrentActor->unk7C, gCurrentActor->unk84, actor->unk7C, actor->unk84);
+    distSq = (actor->x - gCurrentActor->x) * (actor->x - gCurrentActor->x) + (actor->z - gCurrentActor->z) * (actor->z - gCurrentActor->z);
+    if (gBossFightPhase == 4 && distSq < collision->unk14 && (collision->unkF == 1 || collision->unkF == 0 || collision->unkF == 4 || (gCurrentActor->actorType == 0x143 && collision->unkF == 5))) {
+        targetAngle = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, actor->x, actor->z);
         bounceScale = 1.0f;
-        if (mathAngleDistance(actor->unkEE, targetAngle) < 0x200) {
+        if (mathAngleDistance(actor->moveYaw, targetAngle) < 0x200) {
             bounceScale = 4.0f;
         }
-        diffAngleActor = (s16)(actor->unkEE - targetAngle) & 0xFFF;
-        diffAnglePlayer = (s16)(gCurrentActor->unkEE - targetAngle);
+        diffAngleActor = (s16)(actor->moveYaw - targetAngle) & 0xFFF;
+        diffAnglePlayer = (s16)(gCurrentActor->moveYaw - targetAngle);
         diffAnglePlayer = diffAnglePlayer & 0xFFF;
-        velX = mathSinF(diffAngleActor) * actor->unkB8;
-        velZ = mathCosF(diffAngleActor) * actor->unkB8;
-        playerVel = mathCosF(diffAnglePlayer) * gCurrentActor->unkB8;
+        velX = mathSinF(diffAngleActor) * actor->speedXZ;
+        velZ = mathCosF(diffAngleActor) * actor->speedXZ;
+        playerVel = mathCosF(diffAnglePlayer) * gCurrentActor->speedXZ;
         velZ = (playerVel - velZ) * bounceScale + playerVel;
-        actor->unkB8 = sqrtf(velX * velX + velZ * velZ);
-        actor->unkEE = (s16)(s32)(((f64)mathAtan2(velX, velZ) * 4096.0) / 6.2831854820251465);
-        actor->unkEE = actor->unkEE + targetAngle;
-        actor->unkEE = actor->unkEE & 0xFFF;
+        actor->speedXZ = sqrtf(velX * velX + velZ * velZ);
+        actor->moveYaw = (s16)(s32)(((f64)mathAtan2(velX, velZ) * 4096.0) / 6.2831854820251465);
+        actor->moveYaw = actor->moveYaw + targetAngle;
+        actor->moveYaw = actor->moveYaw & 0xFFF;
         if (collision->unkE == 0) {
-            switch (gCurrentActor->unk58) {
+            switch (gCurrentActor->actorType) {
             case 0x134:
                 sfxId = 0x1F9;
                 break;
@@ -1337,7 +1327,7 @@ void raceHandleRacerCollision(RaceFE644Arg *collision) {
                 sfxId = 0x18A;
                 break;
             }
-            sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, (s16)sfxId, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+            sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, (s16)sfxId, 0xFF, 0x7F, 0, 0, 0.0f, 0);
             collision->unkE = 0x14;
         }
     }
