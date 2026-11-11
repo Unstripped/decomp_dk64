@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "map.h"
 #include "proto/global/15050.h"
 #include "proto/global/17B90.h"
 #include "proto/global/684C0.h"
@@ -44,7 +45,7 @@ typedef struct TriggerZoneNode {
 extern TriggerZoneNode *D_807F9410;
 extern Actor *gSpawnedActor;
 
-void triggerZoneInit(TriggerZoneActor *actor) {
+void triggerZoneInit(MapFileHeader *header) {
     s32 i;
     TriggerZoneNode **link;
     s32 zoneCount;
@@ -52,8 +53,8 @@ void triggerZoneInit(TriggerZoneActor *actor) {
     TriggerZoneNode *newNode;
 
     link = &D_807F9410;
-    zoneCount = *(s32 *)(actor->unk54 + (u8 *)actor);
-    zones = (TriggerZoneData *)((s32 *)(actor->unk54 + (u8 *)actor) + 1);
+    zoneCount = *(s32 *)(header->unk54 + (u8 *)header);
+    zones = (TriggerZoneData *)((s32 *)(header->unk54 + (u8 *)header) + 1);
     *link = NULL;
     for (i = 0; i < zoneCount; i++) {
         newNode = heapAlloc(sizeof(TriggerZoneNode));

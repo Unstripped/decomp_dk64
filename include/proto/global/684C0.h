@@ -3,11 +3,12 @@
 #define PROTO_GLOBAL_684C0_H
 #include "common.h"
 #include "actor.h"
+#include "map.h"
 struct TriggerZoneActor;
 struct TriggerZoneData;
 struct TriggerZoneSubNode;
 #ifndef PROTO_SKIP_triggerZoneInit
-void triggerZoneInit(struct TriggerZoneActor *);
+void triggerZoneInit(struct MapFileHeader *);
 #endif
 #ifndef PROTO_SKIP_triggerZoneCheckEntry
 void triggerZoneCheckEntry(struct TriggerZoneActor *);
