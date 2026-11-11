@@ -35,8 +35,8 @@ extern ALBank *D_8076D1F8;
 extern s32 gGlobalOverlayFlags;
 extern u8 D_807FD9BC;
 extern u8 D_807FD9BD;
-extern union { f32 f; s32 bits; } D_807FD9C4; // sound pitch, posted as raw event bits
-extern struct GfSndState *D_807FD9C8;
+extern union { f32 f; s32 bits; } sTransitionSoundPitch; // sound pitch, posted as raw event bits
+extern struct GfSndState *sTransitionSound;
 
 void func_807094D0(mode)
 u8 mode;
@@ -44,13 +44,13 @@ u8 mode;
     D_807444F4 = gGameMode;
     switch (mode) {
     case 2:
-        D_807FD9C4.f = 1.0f;
+        sTransitionSoundPitch.f = 1.0f;
         D_807FD9BC = 0;
         gNextGameMode = 1;
         gGameMode = 6;
         break;
     case 3:
-        D_807FD9C4.f = 0.5f;
+        sTransitionSoundPitch.f = 0.5f;
         D_807FD9BC = 0;
         gNextGameMode = 2;
         gGameMode = 6;
@@ -60,7 +60,7 @@ u8 mode;
         }
         break;
     }
-    n_alSndpPlay(D_8076D1F8, 0x1BC, 0x7FFF, 0x3F, 1.0f, 0, &D_807FD9C8);
+    n_alSndpPlay(D_8076D1F8, 0x1BC, 0x7FFF, 0x3F, 1.0f, 0, &sTransitionSound);
 }
 
 typedef struct FbTile {
@@ -143,7 +143,7 @@ typedef struct MeshBlobHeader {
 } MeshBlobHeader;
 
 
-s32 hudDrawTextWithShadow(MeshBlobHeader *blob, MeshBlobHeader **outMesh, MeshBlobTail **outAnim, s32 **outEnd) {
+s32 meshBlobParse(MeshBlobHeader *blob, MeshBlobHeader **outMesh, MeshBlobTail **outAnim, s32 **outEnd) {
     s32 count;
     s32 k;
     s32 sum;
@@ -444,9 +444,9 @@ extern u8 D_8076A0A4;
 extern u8 D_8076A0B2;
 extern FrameMatrices D_80767CE8[];
 extern f32 gScreenFadeProgress;
-extern TransitionBuffers *D_807FD9A8;
-extern void *D_807FD9B0;
-extern void *D_807FD9B8;
+extern TransitionBuffers *sTransitionMesh;
+extern void *sTransitionFramebufferCopy;
+extern void *sTransitionMeshAsset;
 
 
 void transitionRunFrame(s32 map, s32 exit) {
@@ -473,7 +473,7 @@ void transitionRunFrame(s32 map, s32 exit) {
         }
     } else {
         transitionBeginDisplayList(gGfxCurrentFrameBuffer, &dl);
-        if (transitionRender(&dl, D_807FD9B8, D_807FD9B0) != 0) {
+        if (transitionRender(&dl, sTransitionMeshAsset, sTransitionFramebufferCopy) != 0) {
             switch (gNextGameMode) {
             case 1:
                 osViBlack(1);
@@ -482,12 +482,12 @@ void transitionRunFrame(s32 map, s32 exit) {
                 gNextGameMode = 2;
                 break;
             case 2:
-                heapFreeDeferred(D_807FD9B0);
-                heapFreeDeferred(D_807FD9A8->vertices);
+                heapFreeDeferred(sTransitionFramebufferCopy);
+                heapFreeDeferred(sTransitionMesh->vertices);
                 heapFreeDeferred(gFbTileTable);
-                heapFreeDeferred(D_807FD9A8->screenVertsA);
-                heapFreeDeferred(D_807FD9A8->screenVertsB);
-                assetFreeBuffer(D_807FD9B8, 0x24B, 0x4A);
+                heapFreeDeferred(sTransitionMesh->screenVertsA);
+                heapFreeDeferred(sTransitionMesh->screenVertsB);
+                assetFreeBuffer(sTransitionMeshAsset, 0x24B, 0x4A);
                 if (((gGameMode = D_807444F4) == 1) && (gGlobalOverlayFlags & 1)) {
                     camRestartPath();
                 }
@@ -546,7 +546,7 @@ void transitionBeginDisplayList(FrameMatrices *frame, Gfx **outDl) {
 extern s32 gTransitionProgress;
 extern s32 D_8075506C;
 extern void *D_807FD9A4;
-extern AnimTable *D_807FD9AC;
+extern AnimTable *sTransitionAnim;
 extern s32 *gFramebuffers[];
 
 
@@ -560,14 +560,14 @@ void transitionInit(void) {
         gTransitionProgress = 0x78;
         break;
     }
-    D_807FD9B8 = assetLoad(0x13, 1, 1, 1);
-    D_807FD9B0 = heapAlloc(gScreenWidth * gScreenHeight * 2);
-    fbCopySetAlpha(D_807FD9B0, gFramebuffers[gGfxBufferIndex]);
-    hudDrawTextWithShadow(D_807FD9B8, (void *)&D_807FD9A8, (void *)&D_807FD9AC, 0);
-    meshComputeVertexRanges((void *)D_807FD9A8);
-    D_807FD9A4 = D_807FD9A8->vertices;
-    D_807FD9A8->vertices = heapAlloc(D_807FD9A8->vertexCount * 0xC);
-    fbBuildTileTable(D_807FD9A8->tileWidth, D_807FD9A8->tileHeight);
+    sTransitionMeshAsset = assetLoad(0x13, 1, 1, 1);
+    sTransitionFramebufferCopy = heapAlloc(gScreenWidth * gScreenHeight * 2);
+    fbCopySetAlpha(sTransitionFramebufferCopy, gFramebuffers[gGfxBufferIndex]);
+    meshBlobParse(sTransitionMeshAsset, (void *)&sTransitionMesh, (void *)&sTransitionAnim, 0);
+    meshComputeVertexRanges((void *)sTransitionMesh);
+    D_807FD9A4 = sTransitionMesh->vertices;
+    sTransitionMesh->vertices = heapAlloc(sTransitionMesh->vertexCount * 0xC);
+    fbBuildTileTable(sTransitionMesh->tileWidth, sTransitionMesh->tileHeight);
 }
 
 typedef struct TransitionDitherMask {
@@ -655,7 +655,7 @@ typedef struct TransitionChannels {
 
 extern TransitionChannels D_807550A8;
 extern s32 D_807FD9A0;
-extern void *D_807FD9C0;
+extern void *sTransitionBarTexture;
 extern Gfx D_1000020[];
 extern Mtx D_2000000;
 extern Mtx D_2000200;
@@ -692,25 +692,25 @@ u8 transitionRender(Gfx **gdl, void *asset, void *framebuffer) {
     glist = heapAlloc(0x4800);
     heapFreeDeferred(glist);
     start = glist;
-    if (D_807FD9C8 != 0) {
+    if (sTransitionSound != 0) {
         if (gNextGameMode == 1) {
             value = (f64)gTransitionProgress - 20.0;
-            D_807FD9C4.f = (f32)((0.9 / ((value * 0.001 * value) + 1.0)) + 0.6);
+            sTransitionSoundPitch.f = (f32)((0.9 / ((value * 0.001 * value) + 1.0)) + 0.6);
             if (gTransitionProgress < 60) {
                 volume = 0x7FFF;
             } else {
                 volume = 0x7FFF - (((gTransitionProgress - 60) * 0x7FFF) / 60);
             }
         } else {
-            D_807FD9C4.f = (f32)(((1.5 / (((((f32)(120 - gTransitionProgress) - 40.0f)) * 0.001 * (((f32)(120 - gTransitionProgress) - 40.0f))) + 1.0)) + (0.0002 * ((f32)(120 - gTransitionProgress) - 30.0f) * ((f32)(120 - gTransitionProgress) - 30.0f))) - 0.2);
+            sTransitionSoundPitch.f = (f32)(((1.5 / (((((f32)(120 - gTransitionProgress) - 40.0f)) * 0.001 * (((f32)(120 - gTransitionProgress) - 40.0f))) + 1.0)) + (0.0002 * ((f32)(120 - gTransitionProgress) - 30.0f) * ((f32)(120 - gTransitionProgress) - 30.0f))) - 0.2);
             if ((f32)(120 - gTransitionProgress) < 110.0f) {
                 volume = 0x7FFF;
             } else {
                 volume = (s32)(32767.0f - (((f32)(120 - gTransitionProgress) - 110.0f) * 32767.0f / 10.0f));
             }
         }
-        n_alSndpPostEvent(D_807FD9C8, 0x10, D_807FD9C4.bits);
-        n_alSndpPostEvent(D_807FD9C8, 8, volume);
+        n_alSndpPostEvent(sTransitionSound, 0x10, sTransitionSoundPitch.bits);
+        n_alSndpPostEvent(sTransitionSound, 8, volume);
     }
     {
         f32 progress = (f64)gTransitionProgress / 120.0;
@@ -725,12 +725,12 @@ u8 transitionRender(Gfx **gdl, void *asset, void *framebuffer) {
     gDPSetTexturePersp(glist++, G_TP_PERSP);
     gSPDisplayList(glist++, D_1000020);
     gDPPipeSync(glist++);
-    for (i = 0; i < D_807FD9A8->vertexCount; i++) {
-        ((f32 *)D_807FD9A8->vertices)[i * 3] = ((f32 *)D_807FD9A4)[i * 3];
-        ((f32 *)D_807FD9A8->vertices)[i * 3 + 1] = ((f32 *)D_807FD9A4)[i * 3 + 1];
-        ((f32 *)D_807FD9A8->vertices)[i * 3 + 2] = ((f32 *)D_807FD9A4)[i * 3 + 2];
+    for (i = 0; i < sTransitionMesh->vertexCount; i++) {
+        ((f32 *)sTransitionMesh->vertices)[i * 3] = ((f32 *)D_807FD9A4)[i * 3];
+        ((f32 *)sTransitionMesh->vertices)[i * 3 + 1] = ((f32 *)D_807FD9A4)[i * 3 + 1];
+        ((f32 *)sTransitionMesh->vertices)[i * 3 + 2] = ((f32 *)D_807FD9A4)[i * 3 + 2];
     }
-    meshApplyAnimation((AnimModel *)D_807FD9A8, D_807FD9AC, gTransitionProgress);
+    meshApplyAnimation((AnimModel *)sTransitionMesh, sTransitionAnim, gTransitionProgress);
     if (delta < 0) {
         D_807FD9A0 = ((gTransitionProgress * 0xF0) - 0x960) / 80;
     } else {
@@ -751,23 +751,23 @@ u8 transitionRender(Gfx **gdl, void *asset, void *framebuffer) {
     gSPMatrix(glist++, matrix, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gDPSetColorDither(glist++, G_CD_DISABLE);
     gDPSetAlphaDither(glist++, G_AD_DISABLE);
-    meshDrawTextured(&glist, (MeshInfo *)D_807FD9A8, framebuffer);
+    meshDrawTextured(&glist, (MeshInfo *)sTransitionMesh, framebuffer);
     gTransitionProgress += delta;
-    D_807FD9C0 = assetLoad(0xE, 0x6A - TRANS_MIN(TRANS_MAX((s16)(D_807FD9A0 / 26), 0), 9), 1, 1);
-    assetFreeBuffer(D_807FD9C0, 0x381, 0x4A);
+    sTransitionBarTexture = assetLoad(0xE, 0x6A - TRANS_MIN(TRANS_MAX((s16)(D_807FD9A0 / 26), 0), 9), 1, 1);
+    assetFreeBuffer(sTransitionBarTexture, 0x381, 0x4A);
     gDPPipeSync(glist++);
     gDPSetCycleType(glist++, G_CYC_1CYCLE);
     gDPSetTexturePersp(glist++, G_TP_NONE);
     TRANS_RAW(glist++, 0xFCFFFFFF, 0xFFFCF279);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x5041C8);
     gDPPipeSync(glist++);
-    gDPLoadTextureBlock(glist++, D_807FD9C0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 32, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+    gDPLoadTextureBlock(glist++, sTransitionBarTexture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 16, 32, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     gSPTextureRectangle(glist++, 0x260, TRANS_MAX((s16)(D_807FD9A0 << 2), 0), 0x2A0, TRANS_MAX((s16)((D_807FD9A0 + 0x1F) << 2), 0), 0, 0, -((D_807FD9A0 << 2 < 0) ? TRANS_MIN(((s16)(D_807FD9A0 << 2) << 10) >> 7, 0) : 0), 0x400, 0x400);
     gSPEndDisplayList(glist++);
     gSPDisplayList(out++, start);
     *gdl = out;
     if (gTransitionProgress < 0 || (f64)gTransitionProgress > 120.0) {
-        n_alSndpStop(D_807FD9C8);
+        n_alSndpStop(sTransitionSound);
     }
     return gTransitionProgress < 0 || (f64)gTransitionProgress > 120.0;
 }

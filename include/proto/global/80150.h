@@ -175,8 +175,8 @@ void tagBarrelStartSelection(struct TagBarrelData *);
 #ifndef PROTO_SKIP_tagBarrelUpdateSelection
 void tagBarrelUpdateSelection(struct TagBarrelData *);
 #endif
-#ifndef PROTO_SKIP_tagBarrelIsKongUnlocked
-u8 *tagBarrelIsKongUnlocked(struct TagBarrelData *, s32);
+#ifndef PROTO_SKIP_tagBarrelGetKongName
+u8 *tagBarrelGetKongName(struct TagBarrelData *, s32);
 #endif
 #ifndef PROTO_SKIP_tagBarrelRenderSelectionHud
 Gfx *tagBarrelRenderSelectionHud(Gfx *, Actor *);

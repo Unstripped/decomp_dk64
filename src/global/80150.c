@@ -81,7 +81,7 @@ extern ActorMapFlag D_8074E7A0[];
 extern s16 D_8074E7E0[];
 extern KongActionEntry D_8074E814[];
 extern ActorAnimLookup D_8074E834;
-extern s32 D_8074E85C[];
+extern s32 sKongNameTextIds[];
 extern u8 D_80720120;
 extern u8 D_80720340;
 extern u8 D_8072038C;
@@ -797,9 +797,9 @@ void actorTransformCameraUpdate(void) {
         gCurrentActor->speedXZ = 35.0f;
         gCurrentActor->flags2 |= 1;
         pathFollowUpdateHeading(gCurrentActor, 0);
-        if (gCurrentActor->floorContact->unkC == 0) {
-            gCurrentActor->moveYaw = gCurrentActor->floorContact->unkE;
-            gCurrentActor->speedXZ = gCurrentActor->floorContact->unk10;
+        if (gCurrentActor->pathFollow->unkC == 0) {
+            gCurrentActor->moveYaw = gCurrentActor->pathFollow->unkE;
+            gCurrentActor->speedXZ = gCurrentActor->pathFollow->unk10;
         } else {
             gCurrentActor->speedXZ = 0.0f;
         }
@@ -2995,12 +2995,12 @@ void tagBarrelUpdateSelection(TagBarrelData *data) {
     }
 }
 
-u8 *tagBarrelIsKongUnlocked(TagBarrelData *data, s32 slot) {
+u8 *tagBarrelGetKongName(TagBarrelData *data, s32 slot) {
     s32 isKong = data->kongs[slot]->actorType == 0x13C;
     u8 *ret = NULL;
 
     if (isKong) {
-        ret = textTableGetString(2, D_8074E85C[slot], 1);
+        ret = textTableGetString(2, sKongNameTextIds[slot], 1);
     }
     return ret;
 }
@@ -3052,7 +3052,7 @@ Gfx *tagBarrelRenderSelectionHud(Gfx *gfx, Actor *actor) {
     gfx = renderRotatedSprite(gfx, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, 0xA0, arrowY, 5.0f, 5.0f, 0, 0.0f);
     gfx = renderRotatedSprite(gfx, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, (gScreenWidth - 0x28) * 4.0, arrowY, 5.0f, 5.0f, 0xB4, 0.0f);
     blend = (f32)(u32)data->timer * 0.05f;
-    text = tagBarrelIsKongUnlocked(data, data->selected);
+    text = tagBarrelGetKongName(data, data->selected);
     textY -= (f32) textGetFontHeight(1) * 1.2f;
     gDPSetCombineLERP(gfx++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
     if (text != NULL) {
@@ -3080,7 +3080,7 @@ Gfx *tagBarrelRenderSelectionHud(Gfx *gfx, Actor *actor) {
         gfx = hudDrawScaledText(gfx, textX, textY, 0.6f, text);
     }
     if (data->timer != 0) {
-        text = tagBarrelIsKongUnlocked(data, data->previous);
+        text = tagBarrelGetKongName(data, data->previous);
         if (text != NULL) {
             prevHalf = 0.5f * blend;
             prevX = prevHalf;

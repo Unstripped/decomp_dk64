@@ -68,7 +68,7 @@ extern void *D_8074E880[];
 extern u8 D_80720120[];
 extern s32 D_8072030C;
 extern Actor *gCamActor;
-extern struct MinecartElem *D_80028BD0[];
+extern struct MinecartElem *gMinecartJunctionTable[];
 extern u8 D_80028C34[];
 extern u8 D_80028C40[];
 extern u8 D_80028C48[];
@@ -577,7 +577,7 @@ void minecartUpdateObstacleType2(void) {
     case 1:
         if ((gCurrentMap == 0x4D) || (gCurrentMap == 0x81) || (gCurrentMap == 0x82)) {
             minecartChooseBranchSide(cart);
-            minecartApplyJunction(cart, D_80028BD0, 0, 3);
+            minecartApplyJunction(cart, gMinecartJunctionTable, 0, 3);
             actorGetNodePos(gCurrentActor, 1, &node1X, &node1Y, &node1Z);
             actorGetNodePos(gCurrentActor, 2, &node2X, &node2Y, &node2Z);
         }

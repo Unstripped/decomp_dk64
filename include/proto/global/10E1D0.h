@@ -15,8 +15,8 @@ void func_807094D0();
 #ifndef PROTO_SKIP_fbBuildTileTable
 void fbBuildTileTable(s32, s32);
 #endif
-#ifndef PROTO_SKIP_hudDrawTextWithShadow
-s32 hudDrawTextWithShadow(struct MeshBlobHeader *, struct MeshBlobHeader **, struct MeshBlobTail **, s32 **);
+#ifndef PROTO_SKIP_meshBlobParse
+s32 meshBlobParse(struct MeshBlobHeader *, struct MeshBlobHeader **, struct MeshBlobTail **, s32 **);
 #endif
 #ifndef PROTO_SKIP_meshComputeVertexRanges
 s32 meshComputeVertexRanges(struct MeshRangeView *);

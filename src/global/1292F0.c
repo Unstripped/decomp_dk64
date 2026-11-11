@@ -25,9 +25,9 @@ void pathFollowUpdateHeading(Actor *owner, u8 continuous) {
 
     pathEnded = 0;
     fresh = 0;
-    if (owner->floorContact == NULL) {
-        owner->floorContact = heapAlloc(0x14);
-        s = owner->floorContact;
+    if (owner->pathFollow == NULL) {
+        owner->pathFollow = heapAlloc(0x14);
+        s = owner->pathFollow;
         if (owner->unkB0[0] != -1 && pathExists(owner->unkB0[0]) != 0) {
             s->unk12 = owner->unkB0[0];
         } else {
@@ -36,7 +36,7 @@ void pathFollowUpdateHeading(Actor *owner, u8 continuous) {
         s->unkC = 0;
         fresh = 1;
     } else {
-        s = owner->floorContact;
+        s = owner->pathFollow;
     }
     if (continuous != 0 || s->unkC == 0) {
         if (s->unk12 == -1) {
@@ -83,10 +83,10 @@ void pathFollowUpdateHeading(Actor *owner, u8 continuous) {
 void animationOwnerFreeBuffer(Actor *owner) {
     void *buffer;
 
-    buffer = owner->floorContact;
+    buffer = owner->pathFollow;
     if (buffer != 0) {
         heapFree(buffer);
-        owner->floorContact = NULL;
+        owner->pathFollow = NULL;
     }
 }
 

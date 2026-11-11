@@ -464,7 +464,7 @@ void effectActorCheckGroundScaleSpawn(Actor *actor) {
         if ((actor->waterY - floorYOffset) <= actor->y) {
             if (!(gFrameCounter & 3)) {
                 shouldSpawn = (f64)actor->speedXZ != 0.0;
-                if (actor->floorContact != NULL && actor->floorContact->unk10 != 0) {
+                if (actor->pathFollow != NULL && actor->pathFollow->unk10 != 0) {
                     shouldSpawn = 1;
                 }
             }

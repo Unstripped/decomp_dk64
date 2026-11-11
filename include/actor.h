@@ -384,7 +384,7 @@ typedef struct Actor {
     /* 0x110 */ u8 attachMode;
     /* 0x111 */ u8 unk111[3];
     /* 0x114 */ ActorList *riderList;
-    /* 0x118 */ struct PathFollowState *floorContact;
+    /* 0x118 */ struct PathFollowState *pathFollow;
     /* 0x11C */ struct Actor *parentActor;
     /* 0x120 */ f32 unk120;
     /* 0x124 */ void *spawnData;

@@ -273,7 +273,7 @@ u16 type;
         actor->contactFlags = actor->prevContactFlags = 1;
         actor->interactionType = 1;
         actor->riderList = NULL;
-        actor->floorContact = NULL;
+        actor->pathFollow = NULL;
         actor->parentActor = NULL;
         actor->soundSlots[0] = -1;
         actor->soundSlots[1] = -1;
@@ -426,8 +426,8 @@ void actorFreeImmediate(Actor *actor) {
     }
     actorSub140Free(actor->collision);
     proxPathRemoveActor(actor);
-    if (actor->floorContact != NULL) {
-        heapFree(actor->floorContact);
+    if (actor->pathFollow != NULL) {
+        heapFree(actor->pathFollow);
     }
     if (actor->unk148 != NULL) {
         heapFree(actor->unk148);

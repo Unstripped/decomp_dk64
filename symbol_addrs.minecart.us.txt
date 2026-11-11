@@ -24,3 +24,4 @@ minecartPlayPassBySfx = 0x80027EE8; // type:func
 minecartUpdateObstacleType1 = 0x800280BC; // type:func
 minecartUpdateObstacleType2 = 0x8002835C; // type:func
 minecartUpdateObstacleType3 = 0x800286EC; // type:func
+gMinecartJunctionTable = 0x80028BD0;
