@@ -1470,7 +1470,7 @@ extern s16 D_807F5FE6;
 extern s16 D_807F5FE8;
 extern s16 D_807F5FEA;
 extern s32 D_807F5FD0;
-extern s32 *D_807F5FD4;
+extern s32 *gMinecartTrackPoints;
 extern s32 sMapSoundEmitterCount;
 extern LevelSoundEmitter *sMapSoundEmitters;
 
@@ -1514,7 +1514,7 @@ void mapHeaderLoad(MapFileHeader *header) {
     off44 = header->unk44;
     off48 = header->unk48;
     D_807F5FD0 = *(s32 *)(D_807F5DE0 + off40) + 1;
-    D_807F5FD4 = (s32 *)(D_807F5DE0 + off40 + 4);
+    gMinecartTrackPoints = (s32 *)(D_807F5DE0 + off40 + 4);
     sMapSoundEmitterCount = *(s32 *)(D_807F5DE0 + off44);
     sMapSoundEmitters = (LevelSoundEmitter *)(D_807F5DE0 + off44 + 4);
     sMapChunkAnimCount = *(s32 *)(D_807F5DE0 + off48);
@@ -1555,8 +1555,8 @@ void mapRelocateOffsetTable(s32 arg0) {
         i = 0;
         if (D_807F5FD0 >= 0) {
             do {
-                t = D_807F5FD4[i];
-                D_807F5FD4[i] = t + arg0;
+                t = gMinecartTrackPoints[i];
+                gMinecartTrackPoints[i] = t + arg0;
                 i++;
             } while (D_807F5FD0 >= i);
         }

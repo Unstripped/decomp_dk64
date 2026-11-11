@@ -111,7 +111,7 @@ struct RaceActor {
     } view;
 };
 
-extern Point3f **D_807F5FD4;
+extern Point3f **gMinecartTrackPoints;
 extern RaceActor *gCurrentActor;
 
 
@@ -145,7 +145,7 @@ f32 raceGetWaypointSegmentFraction(s32 pathLength, RaceActor *actor, RaceCursor 
 
     idx1 = raceGetNextWaypointIndex(pathLength, cursor->unk2);
     idx2 = raceGetNextWaypointIndex(pathLength, idx1);
-    base = D_807F5FD4[cursor->unk0];
+    base = gMinecartTrackPoints[cursor->unk0];
     p1 = &base[idx1];
     p2 = &base[idx2];
     cur = &base[cursor->unk2];
@@ -164,7 +164,7 @@ f32 raceGetPathDistance(s32 pathLength, u16 laneIndex, u16 waypointIndex) {
     f32 dz;
 
     index = raceGetNextWaypointIndex(pathLength, waypointIndex);
-    points = D_807F5FD4[laneIndex];
+    points = gMinecartTrackPoints[laneIndex];
     p1 = &points[waypointIndex];
     p2 = &points[index];
     dx = p1->x - p2->x;
@@ -185,7 +185,7 @@ f32 raceGetPathDistanceBetweenRacers(RaceActor *actorA, RaceCursor *curA, RaceAc
     s32 sign;
     s32 end;
 
-    count = D_807F5FD4[curB->unk0 + 1] - D_807F5FD4[curB->unk0];
+    count = gMinecartTrackPoints[curB->unk0 + 1] - gMinecartTrackPoints[curB->unk0];
     dir = raceGetWaypointDiff(count, curA, curB);
     fracA = raceGetWaypointSegmentFraction(count, actorA, curA);
     fracB = raceGetWaypointSegmentFraction(count, actorB, curB);
@@ -252,7 +252,7 @@ f32 raceGetCompletionFraction(RaceCursor *cursor, RaceState *state, RaceState *l
     lap = state->unk37;
     result = 0.0f;
     if (lap > 0) {
-        count = D_807F5FD4[cursor->unk0 + 1] - D_807F5FD4[cursor->unk0];
+        count = gMinecartTrackPoints[cursor->unk0 + 1] - gMinecartTrackPoints[cursor->unk0];
         num = (lap - 1) * count + state->unk3A;
         den = leaderState->unk24 * count;
         result = num / den;
@@ -481,7 +481,7 @@ void raceOpponentCarBehaviorUpdate(void) {
     targetActor = state->unk30;
     behaviourFrameBegin();
     if (!(gCurrentActor->unk60 & 0x10)) {
-        count = D_807F5FD4[cursor->unk0 + 1] - D_807F5FD4[cursor->unk0];
+        count = gMinecartTrackPoints[cursor->unk0 + 1] - gMinecartTrackPoints[cursor->unk0];
         gCurrentActor->unk144 = 0x3C;
         gCurrentActor->unk60 &= ~1;
         cursor->unk0 = cursor->unk1 = 2;
@@ -670,7 +670,7 @@ void raceCameraBehaviorUpdate(void) {
     targetCursor = targetActor->view.b.unk178;
     playerActor = gPlayerSlots[targetState->unk28].unk4;
     playerState = playerActor->view.b.unk174;
-    pathLength = D_807F5FD4[cursor->unk0 + 1] - D_807F5FD4[cursor->unk0];
+    pathLength = gMinecartTrackPoints[cursor->unk0 + 1] - gMinecartTrackPoints[cursor->unk0];
     offsetSign = 1.0f;
     if (!(gCurrentActor->unk60 & 0x10)) {
         prevWaypoint = raceGetPrevWaypointIndex(pathLength, targetCursor->unk2);
@@ -736,8 +736,8 @@ void raceFindNearestWaypoint(RaceCursor *cursor) {
     f32 pz;
     f32 d;
 
-    count = D_807F5FD4[1] - D_807F5FD4[0];
-    p = D_807F5FD4[0];
+    count = gMinecartTrackPoints[1] - gMinecartTrackPoints[0];
+    p = gMinecartTrackPoints[0];
     best = 10000000.0f;
     px = gCurrentActor->unk7C;
     py = gCurrentActor->unk80;

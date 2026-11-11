@@ -58,7 +58,7 @@ extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
-extern MinecartTrackPoint **D_807F5FD4;
+extern MinecartTrackPoint **gMinecartTrackPoints;
 extern PlayerStruct *gPlayerSlots;
 extern u32 gFrameCounter;
 extern s32 gCurrentMap;
@@ -323,8 +323,8 @@ void minecartUpdateFollower(void) {
     s16 pointZ;
 
     playerCart = gActivePlayerState->actor->customState;
-    pointX = D_807F5FD4[gCurrentActor->unk15F][gCurrentActor->yawSpeed].x;
-    pointZ = D_807F5FD4[gCurrentActor->unk15F][gCurrentActor->yawSpeed].z;
+    pointX = gMinecartTrackPoints[gCurrentActor->unk15F][gCurrentActor->yawSpeed].x;
+    pointZ = gMinecartTrackPoints[gCurrentActor->unk15F][gCurrentActor->yawSpeed].z;
     if (!(gCurrentActor->flags & 0x10)) {
         controllerAnimSetStateIfChanged(gCurrentActor, 0x5FF, 0.0f, 0.0f);
         animSetSpeed(gCurrentActor, 0, 1.0f);

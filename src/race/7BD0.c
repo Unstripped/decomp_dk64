@@ -232,7 +232,7 @@ typedef struct RaceEBounds {
     char pad4[8];
     f32 *end;
 } RaceEBounds;
-extern RaceEBounds *D_807F5FD4;
+extern RaceEBounds *gMinecartTrackPoints;
 
 void raceCalculatePathBoundingBox(RaceUnknownActor *actor) {
     RaceUnknown174 *race174;
@@ -249,7 +249,7 @@ void raceCalculatePathBoundingBox(RaceUnknownActor *actor) {
     maxX = -1.0f;
     maxZ = -1.0f;
     race174 = actor->unk174;
-    for (p = D_807F5FD4->start; p < D_807F5FD4->end; p += 3) {
+    for (p = gMinecartTrackPoints->start; p < gMinecartTrackPoints->end; p += 3) {
         x = p[0];
         if (x < minX) {
             minX = x;

@@ -149,7 +149,7 @@ typedef struct {
     RaceNodeLinks *unk184;
 } RaceNodeActor;
 
-extern RaceAPoint3f **D_807F5FD4;
+extern RaceAPoint3f **gMinecartTrackPoints;
 extern RaceActor *gCurrentActor;
 f32 mathSinF(s16);
 
@@ -163,7 +163,7 @@ void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPo
     s8 laneDiff;
     RaceAPoint3f *curPoint;
 
-    points = D_807F5FD4[pathState->unk1];
+    points = gMinecartTrackPoints[pathState->unk1];
     curPoint = &points[pathState->unk2];
     laneDiff = pathState->unk0 - pathState->unk1;
     mathPickCloserTargetPoint3D(inPos[0], inPos[1], inPos[2], curPoint, &points[nextWaypoint], &points[nextWaypoint], &points[nextNextWaypoint], &closerTarget[0], &closerTarget[1], &closerTarget[2]);
@@ -189,13 +189,13 @@ void raceInitSplinePoints(void) {
     s32 i;
     s32 count;
 
-    count = (D_807F5FD4[1] - D_807F5FD4[0]) / 2;
+    count = (gMinecartTrackPoints[1] - gMinecartTrackPoints[0]) / 2;
     buf = heapAlloc(count * 0x24);
     tbl = heapAlloc(0x10);
     for (i = 0; i < 4; i++) {
         tbl[i] = buf + i * count;
     }
-    src = (u8 *)D_807F5FD4[0];
+    src = (u8 *)gMinecartTrackPoints[0];
     lo = count * 12;
     buf = tbl[0];
     memcpy(buf, src, lo);
@@ -210,7 +210,7 @@ void raceInitSplinePoints(void) {
         buf[i].z = (((RaceAPoint3f *)lo)[i].z + ((RaceAPoint3f *)src)[i].z) * 0.5;
     }
     D_807F5FD0 = 3;
-    D_807F5FD4 = tbl;
+    gMinecartTrackPoints = tbl;
 }
 
 extern s16 D_80750AC4;
@@ -357,10 +357,10 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     f32 hy;
     f32 hz;
 
-    count = D_807F5FD4[pathState->unk0 + 1] - D_807F5FD4[pathState->unk0];
+    count = gMinecartTrackPoints[pathState->unk0 + 1] - gMinecartTrackPoints[pathState->unk0];
     next = raceGetNextWaypointIndex(count, pathState->unk2);
     next2 = raceGetNextWaypointIndex(count, next);
-    points = D_807F5FD4[pathState->unk0];
+    points = gMinecartTrackPoints[pathState->unk0];
     cur = &points[pathState->unk2];
     nxt2 = &points[next2];
     nxt = &points[next];
@@ -525,7 +525,7 @@ void raceVehicleBehaviorUpdate(void) {
     s1 = gCurrentActor->unk174;
     pathState = gCurrentActor->unk178;
     if (!(gCurrentActor->unk60 & 0x10)) {
-        len = D_807F5FD4[pathState->unk0 + 1] - D_807F5FD4[pathState->unk0];
+        len = gMinecartTrackPoints[pathState->unk0 + 1] - gMinecartTrackPoints[pathState->unk0];
         s1->unk2A = 3;
         gCurrentActor->unk144 = 0x3C;
         pathState->unk2 = raceGetPrevWaypointIndex(len, 0);

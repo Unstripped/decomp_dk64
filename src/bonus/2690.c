@@ -104,7 +104,7 @@ extern s16 D_8002D900;
 typedef struct {
     f32 x, y, z;
 } Point3f;
-extern Point3f **D_807F5FD4;
+extern Point3f **gMinecartTrackPoints;
 
 void func_806FDAB8(u8, f32);  // FAKE: callee prototype steer
 
@@ -464,7 +464,7 @@ void bonusTargetGameUpdate(void) {
             }
             bonusExt->unk22 = ang;
         }
-        p = *D_807F5FD4 + bonusExt->unk22;
+        p = *gMinecartTrackPoints + bonusExt->unk22;
         if (bonusAimAndFire(p->x, p->y, p->z) == 2) {
             bonusExt->unk25 = 0xFF;
             sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -482,7 +482,7 @@ void bonusTargetGameUpdate(void) {
                 r = (randomNonNegative() >> 0xF) % 0xFF;
                 idx = r % 8;
                 if (game->unk0[idx] == 0) {
-                    p = *D_807F5FD4 + idx + 1;
+                    p = *gMinecartTrackPoints + idx + 1;
                     bonusSpawnTarget(p->x, p->y, p->z, idx, game);
                 }
             }
@@ -603,7 +603,7 @@ void bonusPopupGameUpdate(void) {
                 bonusExt->unk22 = 6;
             }
         }
-        p = *D_807F5FD4 + bonusExt->unk22;
+        p = *gMinecartTrackPoints + bonusExt->unk22;
         y = p->y;
         z = p->z;
         if (bonusExt->unk22 != 0) {
@@ -722,7 +722,7 @@ void bonusPopupSpawnActors(BonusB_Sub178 *popupState) {
             popup = gSpawnedActor->customState;
             popup->unk0 = gCurrentActor;
             popup->unk11 = (((randomNonNegative() >> 0xF) % 0x7FFF) % (popupState->unk1C - popupState->unk1B + 1)) + popupState->unk1B;
-            pos = *D_807F5FD4 + i;
+            pos = *gMinecartTrackPoints + i;
             actorScriptStart(gSpawnedActor, 0x1F5);
             gSpawnedActor->x = pos->x;
             gSpawnedActor->y = pos->y;
@@ -1115,7 +1115,7 @@ void bonusLightFlashGameUpdate(void) {
                 bonusExt->unk22 = 6;
             }
         }
-        p = *D_807F5FD4 + bonusExt->unk22;
+        p = *gMinecartTrackPoints + bonusExt->unk22;
         y = p->y;
         z = p->z;
         if (bonusExt->unk22 != 0) {
@@ -1262,7 +1262,7 @@ void bonusLightFlashSpawnTargets(void *ownerActor) {
             *actorProp = D_8002D8C8[i - 1];
             subExt->unk0 = a;
             subExt->unk4 = i - 1;
-            pt = *D_807F5FD4 + (base->unk8[subExt->unk4] & 0x7F) + 1;
+            pt = *gMinecartTrackPoints + (base->unk8[subExt->unk4] & 0x7F) + 1;
             gSpawnedActor->x = pt->x;
             gSpawnedActor->y = pt->y;
             gSpawnedActor->z = pt->z;
@@ -1303,7 +1303,7 @@ void bonusLightFlashTargetUpdate(void) {
         }
         gCurrentActor->unk144 = 0x24;
     }
-    p = *D_807F5FD4 + (base->unk8[subExt->unk4] & 0x7F) + 1;
+    p = *gMinecartTrackPoints + (base->unk8[subExt->unk4] & 0x7F) + 1;
     gCurrentActor->x = p->x;
     gCurrentActor->y = p->y;
     gCurrentActor->z = p->z;
@@ -1415,7 +1415,7 @@ void bonusPerilPathPanicGameUpdate(void) {
 
                 u->unk0 = gCurrentActor;
                 u->unk4 = i;
-                p = *D_807F5FD4 + i;
+                p = *gMinecartTrackPoints + i;
                 gSpawnedActor->x = p->x;
                 gSpawnedActor->y = p->y;
                 gSpawnedActor->z = p->z + 45.0;
@@ -1436,7 +1436,7 @@ void bonusPerilPathPanicGameUpdate(void) {
 
                 n = D_8002D904;
                 u->unk0 = gCurrentActor;
-                p = *D_807F5FD4 + (n + n + n) + 1; // FAKE: n + n + n keeps two addu; n * 3 becomes sll/subu and shifts the block
+                p = *gMinecartTrackPoints + (n + n + n) + 1; // FAKE: n + n + n keeps two addu; n * 3 becomes sll/subu and shifts the block
                 gSpawnedActor->x = p->x + 50.0;
                 gSpawnedActor->y = p->y + 12.0;
                 gSpawnedActor->z = p->z - 5.0;
@@ -1468,7 +1468,7 @@ void bonusPerilPathPanicGameUpdate(void) {
                 bonusExt->unk22 = 6;
             }
         }
-        p = *D_807F5FD4 + bonusExt->unk22;
+        p = *gMinecartTrackPoints + bonusExt->unk22;
         y = p->y;
         z = p->z;
         if (bonusExt->unk22 != 0) {
@@ -1589,7 +1589,7 @@ void bonusPerilPathPanicFairyUpdate(void) {
     if (subExt->unk4 == 0 || subExt->unk4 >= 5) {
         gCurrentActor->x = gCurrentActor->x - 1.5;
     }
-    p = *D_807F5FD4 + 3;
+    p = *gMinecartTrackPoints + 3;
     if (gCurrentActor->x < p->x - 50.0) {
         if (ownerExt->unkA > 0) {
             ownerExt->unkA -= 1;

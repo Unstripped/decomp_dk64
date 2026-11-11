@@ -380,7 +380,7 @@ typedef struct MinecartPlayerActorFlags {
 } MinecartPlayerActorFlags;
 
 extern s32 D_807F5FD0;
-extern MinecartTrackPoint **D_807F5FD4;
+extern MinecartTrackPoint **gMinecartTrackPoints;
 extern s32 D_80028C48;
 extern s32 D_80028C50;
 
@@ -423,11 +423,11 @@ void minecartReverseTrackBehaviour(void) {
     }
     if (gCurrentActor->unk154 == 4) {
         for (i = 0; i < D_807F5FD0; i++) {
-            n = D_807F5FD4[i + 1] - D_807F5FD4[i];
+            n = gMinecartTrackPoints[i + 1] - gMinecartTrackPoints[i];
             for (j = 0; j < n / 2; j++) {
-                tmp = D_807F5FD4[i][j];
-                D_807F5FD4[i][j] = D_807F5FD4[i][n - j - 1];
-                D_807F5FD4[i][n - j - 1] = tmp;
+                tmp = gMinecartTrackPoints[i][j];
+                gMinecartTrackPoints[i][j] = gMinecartTrackPoints[i][n - j - 1];
+                gMinecartTrackPoints[i][n - j - 1] = tmp;
             }
         }
         s0->unk34 = (u8 *)&D_80028C50;
@@ -598,7 +598,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     actorUpdatePrevContactFlags(gCurrentActor);
     if (cart->unk34 != NULL && prevPrevPt == NULL) {
         gCurrentActor->unk144 = 0x24;
-        targetPt = &D_807F5FD4[trackIndex][cart->unk10++];
+        targetPt = &gMinecartTrackPoints[trackIndex][cart->unk10++];
         gCurrentActor->unk7C = targetPt->x;
         targetPt++;
         gCurrentActor->unk80 = targetPt[-1].y;
@@ -611,7 +611,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
         sfxPlayActorSound(gCurrentActor, 0x113, 0, 1, 0, 0xFF, 1.0f, 0);
         cart->unk41 = 1;
     }
-    targetPt = &D_807F5FD4[trackIndex][cart->unk10];
+    targetPt = &gMinecartTrackPoints[trackIndex][cart->unk10];
     if (cart->unk10 >= 2) {
         prevPrevPt = targetPt - 2;
     }
@@ -675,7 +675,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
         cart->unk10++;
     }
     gCurrentActor->unk80 = gCurrentActor->unk80 + (f32)cart->unk0;
-    n = D_807F5FD4[trackIndex + 1] - D_807F5FD4[trackIndex];
+    n = gMinecartTrackPoints[trackIndex + 1] - gMinecartTrackPoints[trackIndex];
     if (D_807F5FD0 == trackIndex + 1) {
         limit = n - 1;
     } else {
@@ -711,7 +711,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     }
     if (cart->unk2C != 0.0f) {
         i = (*cart->unk34 + cart->unk40) & 0x3F;
-        q = &D_807F5FD4[i][cart->unk10];
+        q = &gMinecartTrackPoints[i][cart->unk10];
         mathPickCloserTargetPoint3D(predX, predY, predZ, q - 1, q, q, q + 1, &junctionX, &junctionY, &junctionZ);
         gCurrentActor->unk7C = gCurrentActor->unk7C + (junctionX - gCurrentActor->unk7C) * cart->unk2C;
         gCurrentActor->unk84 = gCurrentActor->unk84 + (junctionZ - gCurrentActor->unk84) * cart->unk2C;

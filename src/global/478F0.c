@@ -48,7 +48,7 @@ extern u32 gFrameCounter;
 typedef struct CsPoint3f {
     f32 x, y, z;
 } CsPoint3f;
-extern CsPoint3f **D_807F5FD4;
+extern CsPoint3f **gMinecartTrackPoints;
 
 
 void csCmdSpawnFixedNodeEffects(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -190,7 +190,7 @@ void csPeriodicPointEffect(s32 a, s32 b, u32 c) {
         effectSetCallback(func_80717D4C);
         effectSetDepth(1);
         effectSetMode(3);
-        p = *D_807F5FD4 + idx;
+        p = *gMinecartTrackPoints + idx;
         effectCreateAtPosition(sEffectSparkConfig, 1.5f, p->x, p->y, p->z);
     }
 }
@@ -208,22 +208,22 @@ void csCmdBobbingLights(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     ang = cs->data;
     sn = mathSinF(*ang);
-    p = D_807F5FD4[1];
+    p = gMinecartTrackPoints[1];
     fy = p[0].y + (p[1].y - p[0].y) * (0, (sn * 0.5 + 0.5)); // FAKE: comma const keeps the M*D operand order
     lightSetRadius(0x5DC);
-    p = D_807F5FD4[1];
+    p = gMinecartTrackPoints[1];
     lightAdd(p[0].x, fy, p[0].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
     sn = mathSinF(*ang + 0x514);
-    p = D_807F5FD4[1];
+    p = gMinecartTrackPoints[1];
     fy = p[2].y + (p[3].y - p[2].y) * (0, (sn * 0.5 + 0.5)); // FAKE: comma const keeps the M*D operand order
     lightSetRadius(0x5DC);
-    p = D_807F5FD4[1];
+    p = gMinecartTrackPoints[1];
     lightAdd(p[2].x, fy, p[2].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
     sn = mathSinF(*ang + 0xA28);
-    p = D_807F5FD4[1];
+    p = gMinecartTrackPoints[1];
     fy = p[4].y + (p[5].y - p[4].y) * (0, (sn * 0.5 + 0.5)); // FAKE: comma const keeps the M*D operand order
     lightSetRadius(0x5DC);
-    p = D_807F5FD4[1];
+    p = gMinecartTrackPoints[1];
     lightAdd(p[4].x, fy, p[4].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
     *ang += 0x32;
 }
@@ -253,15 +253,15 @@ void csCmdPointCycleEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     st = cs->data;
     if (st->timer == 0) {
-        s32 len = D_807F5FD4[1] - D_807F5FD4[0];
+        s32 len = gMinecartTrackPoints[1] - gMinecartTrackPoints[0];
         idx = ++st->idx;
         if (len == idx) {
             st->idx = 0;
             idx = 0;
         }
-        x = (*D_807F5FD4)[idx].x;
-        y = (*D_807F5FD4)[idx].y;
-        z = (*D_807F5FD4)[idx].z;
+        x = (*gMinecartTrackPoints)[idx].x;
+        y = (*gMinecartTrackPoints)[idx].y;
+        z = (*gMinecartTrackPoints)[idx].z;
         effectSetMode(2);
         effectSetDepth(1);
         effectSetSpeed(0);
@@ -614,20 +614,20 @@ void csSplineLightStep(f32 *cursor, s16 path, s16 count, f32 step) {
     idx[1] = i;
     idx[2] = i + 1 >= count ? count - 1 : i + 1;
     idx[3] = i + 2 >= count ? count - 1 : i + 2;
-    p0 = D_807F5FD4[path][idx[0]].x;
-    p1 = D_807F5FD4[path][idx[1]].x;
-    p2 = D_807F5FD4[path][idx[2]].x;
-    p3 = D_807F5FD4[path][idx[3]].x;
+    p0 = gMinecartTrackPoints[path][idx[0]].x;
+    p1 = gMinecartTrackPoints[path][idx[1]].x;
+    p2 = gMinecartTrackPoints[path][idx[2]].x;
+    p3 = gMinecartTrackPoints[path][idx[3]].x;
     px = splineEvalCubic(frac, p0, p1, p2, p3);
-    p0 = D_807F5FD4[path][idx[0]].y;
-    p1 = D_807F5FD4[path][idx[1]].y;
-    p2 = D_807F5FD4[path][idx[2]].y;
-    p3 = D_807F5FD4[path][idx[3]].y;
+    p0 = gMinecartTrackPoints[path][idx[0]].y;
+    p1 = gMinecartTrackPoints[path][idx[1]].y;
+    p2 = gMinecartTrackPoints[path][idx[2]].y;
+    p3 = gMinecartTrackPoints[path][idx[3]].y;
     py = splineEvalCubic(frac, p0, p1, p2, p3);
-    p0 = D_807F5FD4[path][idx[0]].z;
-    p1 = D_807F5FD4[path][idx[1]].z;
-    p2 = D_807F5FD4[path][idx[2]].z;
-    p3 = D_807F5FD4[path][idx[3]].z;
+    p0 = gMinecartTrackPoints[path][idx[0]].z;
+    p1 = gMinecartTrackPoints[path][idx[1]].z;
+    p2 = gMinecartTrackPoints[path][idx[2]].z;
+    p3 = gMinecartTrackPoints[path][idx[3]].z;
     lightAdd(px, py, splineEvalCubic(frac, p0, p1, p2, p3), 0.0f, 0.0f, 0.0f, 250.0f, 0, 0xFF, 0xFF, 0xFF);
 }
 
@@ -682,7 +682,7 @@ void csCmdRandomPointEffects(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetSpeed(0x10064);
         effectSetCallback(effectLightFlickerDecay);
         effectSetColor(0xFF, 0xFF, 0xFF, 0xFF);
-        effectCreateAtPosition(D_80720A7C, 1.2f, D_807F5FD4[0][sel].x, D_807F5FD4[0][sel].y, D_807F5FD4[0][sel].z);
+        effectCreateAtPosition(D_80720A7C, 1.2f, gMinecartTrackPoints[0][sel].x, gMinecartTrackPoints[0][sel].y, gMinecartTrackPoints[0][sel].z);
     }
     if ((u32)randomLcgNext() / 10000 % b == 0) {
         sel = (u32)randomLcgNext() / 10000 % c;
@@ -690,7 +690,7 @@ void csCmdRandomPointEffects(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetSpeed(0x10064);
         effectSetCallback(effectLightFlickerDecay);
         effectSetColor(0xFF, 0xFF, 0xFF, 0xFF);
-        effectCreateAtPosition(D_80720A7C, 1.2f, D_807F5FD4[1][sel].x, D_807F5FD4[1][sel].y, D_807F5FD4[1][sel].z);
+        effectCreateAtPosition(D_80720A7C, 1.2f, gMinecartTrackPoints[1][sel].x, gMinecartTrackPoints[1][sel].y, gMinecartTrackPoints[1][sel].z);
     }
 }
 
@@ -704,15 +704,15 @@ void csCmdGroundPointEffect(CsState *cs, s16 csId, s16 b, s16 c) {
 
     if ((randomLcgNext() / 10000U) % 10U == 0) {
         idx = (randomLcgNext() / 10000U) % (u32)c;
-        y = D_807F5FD4[b][idx].y;
-        if (collisionCheckGroundAtPoint(D_807F5FD4[b][idx].x, D_807F5FD4[b][idx].z, &y)) {
+        y = gMinecartTrackPoints[b][idx].y;
+        if (collisionCheckGroundAtPoint(gMinecartTrackPoints[b][idx].x, gMinecartTrackPoints[b][idx].z, &y)) {
             effectSetSpeed(y + 2.0);
             effectSetCallback(effectFallUpdate);
             effectSetDuration(-1);
             effectSetDepth(1);
             effectSetColor(0xFF, 0xFF, 0xFF, D_807480EF);
-            effectCreateAtPosition(D_80720CD8, D_807480E8, D_807F5FD4[b][idx].x, D_807F5FD4[b][idx].y,
-                          D_807F5FD4[b][idx].z);
+            effectCreateAtPosition(D_80720CD8, D_807480E8, gMinecartTrackPoints[b][idx].x, gMinecartTrackPoints[b][idx].y,
+                          gMinecartTrackPoints[b][idx].z);
         }
     }
 }
@@ -816,7 +816,7 @@ void csCmdInterpolateFloatPair(CsState *cs, s16 csId, s16 b, s16 c) {
     effectSetSpeed(3);
     effectSetCallback(effectLightGrowShrinkUpdate);
     effectSetMaxDistance(0x7D0);
-    effectCreateAtPosition(D_80720BC4, 2.5f, (*D_807F5FD4)[idx].x, (*D_807F5FD4)[idx].y, (*D_807F5FD4)[idx].z);
+    effectCreateAtPosition(D_80720BC4, 2.5f, (*gMinecartTrackPoints)[idx].x, (*gMinecartTrackPoints)[idx].y, (*gMinecartTrackPoints)[idx].z);
     if (c != 0) {
         if (gPrimaryPlayerActor->state == 0x42) {
             p->a = gPrimaryPlayerActor->y;
@@ -1025,14 +1025,14 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
             p->idx = 0;
         }
         while (!hit && start != p->idx) {
-            if (sqrtf((gPlayerSlots->camX - D_807F5FD4[0][p->idx].x) * (gPlayerSlots->camX - D_807F5FD4[0][p->idx].x) + (gPlayerSlots->camY - D_807F5FD4[0][p->idx].y) * (gPlayerSlots->camY - D_807F5FD4[0][p->idx].y) +
-                      (gPlayerSlots->camZ - D_807F5FD4[0][p->idx].z) * (gPlayerSlots->camZ - D_807F5FD4[0][p->idx].z)) < D_807480F0) {
+            if (sqrtf((gPlayerSlots->camX - gMinecartTrackPoints[0][p->idx].x) * (gPlayerSlots->camX - gMinecartTrackPoints[0][p->idx].x) + (gPlayerSlots->camY - gMinecartTrackPoints[0][p->idx].y) * (gPlayerSlots->camY - gMinecartTrackPoints[0][p->idx].y) +
+                      (gPlayerSlots->camZ - gMinecartTrackPoints[0][p->idx].z) * (gPlayerSlots->camZ - gMinecartTrackPoints[0][p->idx].z)) < D_807480F0) {
                 effectSetDepth(1);
                 effectSetMode(3);
                 effectSetSpeed(0);
                 effectSetCallback(effectLightGrowShrinkUpdate);
                 effectSetMaxDistance(0x320);
-                effectCreateAtPosition(D_80720BC4, 2.5f, D_807F5FD4[0][p->idx].x, D_807F5FD4[0][p->idx].y, D_807F5FD4[0][p->idx].z);
+                effectCreateAtPosition(D_80720BC4, 2.5f, gMinecartTrackPoints[0][p->idx].x, gMinecartTrackPoints[0][p->idx].y, gMinecartTrackPoints[0][p->idx].z);
                 hit = 1;
             } else {
                 p->idx++;
@@ -1163,14 +1163,14 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     p = cs->data;
     start = *p;
-    cnt = D_807F5FD4[1] - D_807F5FD4[0];
+    cnt = gMinecartTrackPoints[1] - gMinecartTrackPoints[0];
     (*p)++;
     if (*p == cnt) {
         *p = 0;
     }
     while (hit == 0 && start != *p) {
         pl = gPlayerSlots;
-        v = *p + D_807F5FD4[0];
+        v = *p + gMinecartTrackPoints[0];
         dz = pl->camZ - v->z;
         dx = pl->camX - v->x;
         dy = pl->camY - v->y;
@@ -1181,7 +1181,7 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
             effectSetSpeed(0);
             effectSetCallback(effectLightGrowShrinkUpdate);
             effectSetMaxDistance(0x320);
-            v = *p + D_807F5FD4[0];
+            v = *p + gMinecartTrackPoints[0];
             effectCreateAtPosition(D_80720BC4, 2.5f, v->x, v->y, v->z);
         } else {
             (*p)++;
@@ -1395,7 +1395,7 @@ void csCmdPointListEffect(CsState *cs, s16 csId, s16 b, s16 c) {
         *q = 0;
     }
     idx = *q;
-    p = D_807F5FD4[b] + idx;
+    p = gMinecartTrackPoints[b] + idx;
     x = p->x;
     y = p->y;
     z = p->z;
@@ -1970,7 +1970,7 @@ void csCmdSpawnRandomNodeParticles(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetMaxDistance(0x7D0);
         effectSetCallback(func_8071F660);
         effectSetDuration(8);
-        effectCreateAtPosition(D_80721298, 1.0f, (*D_807F5FD4)[idx].x, (*D_807F5FD4)[idx].y, (*D_807F5FD4)[idx].z);
+        effectCreateAtPosition(D_80721298, 1.0f, (*gMinecartTrackPoints)[idx].x, (*gMinecartTrackPoints)[idx].y, (*gMinecartTrackPoints)[idx].z);
     }
 }
 extern u16 D_807446C0[];

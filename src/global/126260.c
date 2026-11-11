@@ -7,8 +7,8 @@
 #include "proto/global/70FD0.h"
 
 extern s32 gGfxCurrentFrameBuffer;
-extern u8 D_807FDB74;
-extern u8 D_807FDB75;
+extern u8 gLightCommandCount;
+extern u8 gLightSetIndex;
 extern s16 D_807FDB76;
 extern s16 D_807FDB78;
 extern s16 D_807FDB7A;
@@ -46,7 +46,7 @@ typedef struct Command {
 } Command;
 
 extern CommandState D_807FDB60;
-extern Command *D_807FDB70;
+extern Command *gLightCommandQueue;
 
 void commandSetParameters(s16 angleOffset, s16 distance, s16 heightOffset, u8 red, u8 green, u8 blue) {
     D_807FDB76 = angleOffset;
@@ -76,7 +76,7 @@ void commandStateInit(void) {
     D_807FDB60.type = 7;
     D_807FDB60.y = D_807FDB60.z;
     D_807FDB60.x = D_807FDB60.z;
-    D_807FDB70 = heapAlloc(0x200);
+    gLightCommandQueue = heapAlloc(0x200);
     commandSetParameters(0x320, 0x82, 0, 0xFF, 0xFF, 0xFF);
     commandSetFlags(1, 1);
 }
@@ -96,10 +96,10 @@ void func_8072167C(s16 targetRed, s16 targetBlue, s16 targetGreen, s16 targetRot
 void commandQueuePush(Actor *actor, s16 x, s16 y, s16 z, u8 radius, u8 red, u8 green, u8 blue, u8 type) {
     Command *cmd;
 
-    if (D_807FDB74 >= 0x20) {
-        D_807FDB74--;
+    if (gLightCommandCount >= 0x20) {
+        gLightCommandCount--;
     }
-    cmd = &D_807FDB70[D_807FDB74++];
+    cmd = &gLightCommandQueue[gLightCommandCount++];
     cmd->actor = actor;
     cmd->x = x;
     cmd->y = y;
@@ -123,9 +123,9 @@ s32 commandApplyToLight(u8 lightIndex, Command *cmd, f32 actorX, f32 actorY, f32
     u8 c;
     f32 base;
 
-    lights = (Light *)((u8 *)gGfxCurrentFrameBuffer + (D_807FDB75 * 0x78) + 0x278);
-    ambient = (Ambient *)((u8 *)gGfxCurrentFrameBuffer + (D_807FDB75 * 0x78) + 0x270);
-    slot_light = &((Light *)((u8 *)gGfxCurrentFrameBuffer + (D_807FDB75 * 0x78) + 0x278))[lightIndex]; // FAKE: rebuilt from the frame buffer instead of &lights[lightIndex]; the shorter form drops the v1 frame-buffer candidate
+    lights = (Light *)((u8 *)gGfxCurrentFrameBuffer + (gLightSetIndex * 0x78) + 0x278);
+    ambient = (Ambient *)((u8 *)gGfxCurrentFrameBuffer + (gLightSetIndex * 0x78) + 0x270);
+    slot_light = &((Light *)((u8 *)gGfxCurrentFrameBuffer + (gLightSetIndex * 0x78) + 0x278))[lightIndex]; // FAKE: rebuilt from the frame buffer instead of &lights[lightIndex]; the shorter form drops the v1 frame-buffer candidate
 
     if (gGfxCurrentFrameBuffer == 0) {} // FAKE: makes the base load a uopt candidate (v1)
     if (lightIndex >= 7) {
@@ -203,8 +203,8 @@ s32 commandApplyToLight(u8 lightIndex, Command *cmd, f32 actorX, f32 actorY, f32
 }
 
 void commandQueueReset(void) {
-    D_807FDB74 = 0;
-    D_807FDB75 = 0;
+    gLightCommandCount = 0;
+    gLightSetIndex = 0;
 }
 
 extern Actor *gPrimaryPlayerActor;
@@ -258,8 +258,8 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     }
     command = 1;
     color_base = (u8 *)gGfxCurrentFrameBuffer;
-    primary = &((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].a;
-    secondary = &((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].l[0];
+    primary = &((Lights7 *)((u8 *)color_base + 0x270))[gLightSetIndex].a;
+    secondary = &((Lights7 *)((u8 *)color_base + 0x270))[gLightSetIndex].l[0];
 
     if (targetActor->unkCD) {
         actorGetNodePos(targetActor, targetActor->unkCD, &x, &y, &z);
@@ -335,8 +335,8 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
         D_8075568C += (D_807FDB80 - D_8075568C) * 0.05;
     }
 
-    for (i = 0; i < D_807FDB74; i++) {
-        if (D_807FDB70[i].actor == targetActor && commandApplyToLight(command, &D_807FDB70[i], x, y, z, playerSlotIndex) != 0) {
+    for (i = 0; i < gLightCommandCount; i++) {
+        if (gLightCommandQueue[i].actor == targetActor && commandApplyToLight(command, &gLightCommandQueue[i], x, y, z, playerSlotIndex) != 0) {
             command++;
         }
     }
@@ -360,15 +360,15 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     }
 
     for (i = 0; i < command; i++) {
-        gSPLight(glist++, &((Lights7 *)(color_base + 0x270))[D_807FDB75].l[i], i + 1);
+        gSPLight(glist++, &((Lights7 *)(color_base + 0x270))[gLightSetIndex].l[i], i + 1);
     }
-    gSPLight(glist++, &((Lights7 *)(color_base + 0x270))[D_807FDB75].a, command + 1);
+    gSPLight(glist++, &((Lights7 *)(color_base + 0x270))[gLightSetIndex].a, command + 1);
     gSPNumLights(glist++, command);
     gDPPipeSync(glist++);
 
-    D_807FDB75++;
-    if (D_807FDB75 >= 0x18) {
-        D_807FDB75--;
+    gLightSetIndex++;
+    if (gLightSetIndex >= 0x18) {
+        gLightSetIndex--;
     }
     return glist;
 }
