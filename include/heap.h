@@ -39,8 +39,8 @@ typedef struct DynamicBuffer {
     /* 0x14 */ u8 unk14;
     /* 0x15 */ u8 unk15;
     /* 0x16 */ u8 pad16[2];
-    /* 0x18 */ void *unk18;
-    /* 0x1C */ s32 unk1C;
+    /* 0x18 */ struct CollisionBox *box_start; // transformed boxes (collisionBuildSlotBoxes), heapAlloc(count * 0x58)
+    /* 0x1C */ struct CollisionBox *box_end; // one past the last valid box
 } DynamicBuffer; // size = 0x20
 
 #endif

@@ -48,7 +48,7 @@ void collisionBufferCacheUpdate(void);
 void collisionPurgeExpiredBuffers(void);
 #endif
 #ifndef PROTO_SKIP_collisionTransformTriangle
-s32 collisionTransformTriangle(u8 *, u8 *, f32 (*)[4]);
+s32 collisionTransformTriangle(u8 *, CollisionBox *, f32 (*)[4]);
 #endif
 #ifndef PROTO_SKIP_collisionIsTriangleDegenerate
 s32 collisionIsTriangleDegenerate(struct CollisionTri *);
