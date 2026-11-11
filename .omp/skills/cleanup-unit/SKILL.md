@@ -76,7 +76,8 @@ a checked-out file. Snapshot users, edit them, `touch` + `tools/objdiff.sh` each
 consolidate, views, names) of every function reaching the changed declarations (`fp_hdr2`). Gate a
 field TYPE change apart from padding carves and type moves: carry re-stamps carves, moved types and
 respelled declarations (`--header-carve`, then plain `carry --rev <commit before> <touched files>`), never a
-type change; for what both skip, re-sweep `--record` and re-record the agents' lines. Tools are cwd-independent.
+type change; for what both skip, re-sweep `--record` and re-record the agents' lines. Carry also re-stamps a pure
+local typedef rename (c8455c73). A header-only gate still needs one anchor src file (an includer).
 
 Callee-prototype work is its own workstream, prepared by a batch worker in `.scratch/<A>/<name>batch/`
 (owner + caller copies, `measure.json` per-file cfe before/after, `ledger/<file>.txt`; verify header edits with a
@@ -107,8 +108,7 @@ As each agent reports:
    (all-or-nothing); `make expected`; `sweep <src> --record`; re-record the same lines
    `--base <merge commit>` after applying the key map and dropping the removed sites' lines
    (`no site` in `--dry-run`); `ledger-copy-only.txt` at the merge commit; then `carry --rev
-   <merge>^ <src>` (record/carry compile REV text against REV headers since bfd62a5f). Commit `drafts/quality.jsonl`.
-
+   <merge>^ <src>`. A batch's `fixed` lines for sites it removed: `record --base <patch base>`. Commit `drafts/quality.jsonl`.
 7. Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
    (`--reloc-ok`), one gate; two `0.c` copies need two dirs. Commit explicit paths only.
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full
