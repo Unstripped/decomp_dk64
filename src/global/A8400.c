@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "resqueue.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
 #include "proto/global/112080.h"
@@ -500,13 +501,12 @@ void textBoxRowUpdateNodes(f32 y, Actor *actor, SpriteChainState *chain, SpriteH
     }
 }
 
-typedef struct ChainNode ChainNode;
 
 typedef struct ChainState {
     /* 0x00 */ u8 pad0[0x4];
     /* 0x04 */ void *unk4;
     /* 0x08 */ u8 pad8[0x4];
-    /* 0x0C */ ChainNode *unkC;
+    /* 0x0C */ ResRow *unkC;
     /* 0x10 */ u8 unk10;
     /* 0x11 */ u8 pad11;
     /* 0x12 */ u8 unk12;
@@ -523,18 +523,12 @@ typedef struct ChainState {
     /* 0x50 */ f32 unk50;
 } ChainState;
 
-struct ChainNode {
-    /* 0x00 */ u8 pad0[0x18];
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ ChainNode *unk1C;
-};
-
 
 
 void textBoxUpdateRows(Actor *actor) {
     ChainState *state;
-    ChainNode *node;
-    ChainNode *cur;
+    ResRow *node;
+    ResRow *cur;
     u8 stop;
     u8 pad[0x90];
     f32 acc;
@@ -565,24 +559,24 @@ void textBoxUpdateRows(Actor *actor) {
     i = 0;
     while (((s32) state->unk10 >= i) && (node != NULL) && (stop == 0)) {
         last = (i == state->unk10);
-        dt = node->unk18;
+        dt = node->height;
         if (((f64) (acc + dt) > 73.79999542236328) && (actor->state == 1)) {
             actor->state = 2;
             state->unk18 = (f32) ((f64) (acc + dt) - 73.79999542236328);
             stop = 1;
         } else if (((acc + dt) < 0.0f) && (actor->state == 2)) {
             state->unk14 = state->unk14 + dt;
-            state->unkC = node->unk1C;
+            state->unkC = node->next;
             state->unk10--;
             i--;
             acc = acc + dt;
             cur = node;
-            node = node->unk1C;
+            node = node->next;
             resNodeFree(cur);
         } else {
             textBoxRowUpdateNodes(acc, actor, (SpriteChainState *) state, (SpriteHolder *) node, last, &stop);
             if (stop == 0) {
-                node = node->unk1C;
+                node = node->next;
                 acc = acc + dt;
             }
         }
