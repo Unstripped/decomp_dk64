@@ -52,7 +52,14 @@ def in_container():
 
 
 def rel(p):
-    return os.path.relpath(os.path.abspath(p), ROOT)
+    """ROOT-relative form of a repo path. Relative inputs are already ROOT-relative
+    (git, ledger, internal joins) and are never re-resolved against the process cwd."""
+    return os.path.relpath(os.path.join(ROOT, p), ROOT)
+
+
+def cli_path(p):
+    """argparse type: a user-typed path, relative to the user's cwd, made ROOT-relative once."""
+    return rel(os.path.abspath(p))
 
 
 def sha1(b):
@@ -315,11 +322,11 @@ def main(argv=None):
     s = p.add_subparsers(dest="cmd", required=True)
     c = s.add_parser("list")
     c.add_argument("--as", dest="as_")
-    c.add_argument("files", nargs="+")
+    c.add_argument("files", nargs="+", type=cli_path)
     c.set_defaults(fn=cmd_list)
     c = s.add_parser("count")
     c.add_argument("--json", action="store_true")
-    c.add_argument("files", nargs="*")
+    c.add_argument("files", nargs="*", type=cli_path)
     c.set_defaults(fn=cmd_count)
     c = s.add_parser("ratchet")
     c.add_argument("before")

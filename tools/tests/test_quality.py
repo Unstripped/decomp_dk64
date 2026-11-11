@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -856,6 +857,25 @@ def test_analyze_warning_site(tmp_path, monkeypatch):
     assert (s["kind"], s["line"], s["warning"]) == ("warning", 4, "712 illegal combination of pointer and integer")
     assert re.fullmatch(r"global:80600000:warning:[0-9a-f]{6}", s["key"])
     assert an["warnings"] == 2
+
+
+def test_analyze_warning_site_from_subdirectory_cwd(tmp_path, monkeypatch):
+    """ROOT-relative paths (from git grep, the ledger) are never re-resolved against the process cwd:
+    run from a subdirectory, the cfe warning (path rel()'d by cwarn) still lands on the analysed file."""
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    c = tmp_path / "x.c"
+    c.write_text("typedef int s32;\ns32 *g;\nvoid f(s32 x) {\n    g = x;\n}\n")
+    path = q.rel(str(c))  # ROOT-relative, as Resolver.files() gets it from git grep
+    monkeypatch.setattr(q.cwarn, "collect", lambda items, rev=None: [
+        [dict(code=712, path=q.cwarn.rel(p), line=4, col=6, msg="illegal combination of pointer and integer")]
+        for p, _, _ in items])
+    monkeypatch.chdir(os.path.join(q.ROOT, "tools", "tests"))
+    assert q.rel(path) == path and q.cwarn.rel(path) == path
+    assert q.cli_path("test_quality.py") == os.path.join("tools", "tests", "test_quality.py")
+    an = q.analyze(path, "global")
+    fn, = an["functions"]
+    s, = fn["sites"]
+    assert (s["kind"], s["line"]) == ("warning", 4)
 
 
 def test_record_base_compiles_rev_text_against_rev_headers(tmp_path, monkeypatch):

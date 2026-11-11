@@ -159,7 +159,14 @@ FLIPS = [(re.compile(r"\bif \(([^()]*?) != 0\)"), r"if (\1)"),
 
 
 def rel(p):
-    return os.path.relpath(os.path.abspath(p), ROOT)
+    """ROOT-relative form of a repo path. Relative inputs are already ROOT-relative
+    (git, ledger, internal joins) and are never re-resolved against the process cwd."""
+    return os.path.relpath(os.path.join(ROOT, p), ROOT)
+
+
+def cli_path(p):
+    """argparse type: a user-typed path, relative to the user's cwd, made ROOT-relative once."""
+    return rel(os.path.abspath(p))
 
 
 def seg_of(path):
@@ -1847,9 +1854,9 @@ def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     s = p.add_subparsers(dest="cmd", required=True)
     c = s.add_parser("sweep")
-    c.add_argument("files", nargs="+")
+    c.add_argument("files", nargs="+", type=cli_path)
     c.add_argument("-j", type=int, default=2)
-    c.add_argument("--copy-of")
+    c.add_argument("--copy-of", type=cli_path)
     c.add_argument("--record", action="store_true")
     c.add_argument("--unit")
     c.set_defaults(fn=cmd_sweep)
@@ -1861,7 +1868,7 @@ def main(argv=None):
     c.add_argument("--dry-run", action="store_true")
     c.set_defaults(fn=cmd_record)
     c = s.add_parser("status")
-    c.add_argument("--file")
+    c.add_argument("--file", type=cli_path)
     c.add_argument("--func")
     c.set_defaults(fn=cmd_status)
     c = s.add_parser("rank")
@@ -1878,7 +1885,7 @@ def main(argv=None):
     c.add_argument("--header-carve", action="store_true",
                    help="carry automatic results across layout-keeping record carves in include/")
     c.add_argument("--dry-run", action="store_true", help="list what would be carried; write nothing")
-    c.add_argument("files", nargs="*")
+    c.add_argument("files", nargs="*", type=cli_path)
     c.set_defaults(fn=cmd_carry)
     a = p.parse_args(argv)
     try:
