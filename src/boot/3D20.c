@@ -31,11 +31,11 @@ unsigned char *_itoa(unsigned long long val, unsigned char *end, unsigned int ba
     return p;
 }
 
-int _sprintf(unsigned char *buf, const char *fmt, ...) {
+int _sprintf(void *buf, const void *fmt, ...) { // buf/fmt: game u8 buffers and char literals alike; only forwarded to vsprintf
     va_list ap;
 
     va_start(ap, fmt);
-    return vsprintf(buf, (const unsigned char *)fmt, ap);
+    return vsprintf(buf, fmt, ap);
 }
 
 

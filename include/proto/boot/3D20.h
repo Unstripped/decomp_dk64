@@ -7,7 +7,7 @@
 unsigned char *_itoa(unsigned long long, unsigned char *, unsigned int, int);
 #endif
 #ifndef PROTO_SKIP__sprintf
-int _sprintf(unsigned char *, const char *, ...);
+int _sprintf(void *, const void *, ...);
 #endif
 #ifndef PROTO_SKIP_vsprintf
 int vsprintf(unsigned char *, const unsigned char *, va_list);
