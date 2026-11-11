@@ -314,15 +314,15 @@ void menuFormatShopPurchaseText(Struct_80025D14 *state, void *inventory, s32 has
     MenuM1_Pair *pairs;
     u16 textParam1;
     s32 availability;
-    u16 a;
-    u16 b;
-    u16 c;
-    u16 d;
-    s32 avail;
-    u16 v;
+    u16 entry2;
+    u16 entry3;
+    u16 entry6;
+    u16 entry7;
+    s32 otherSlotOwned;
+    u16 introTextId;
     u16 priceOrCount;
-    s32 cnt;
-    s16 f;
+    s32 flagCount;
+    s16 beEntry3;
 
     if (currentActorTestClearFlag() != 0) {
         pairs = NULL;
@@ -332,36 +332,36 @@ void menuFormatShopPurchaseText(Struct_80025D14 *state, void *inventory, s32 has
         state->step++;
         switch (gCurrentActor->base.actorType) {
         case 0xBF:
-            a = 3;
-            b = 7;
-            c = 0xC;
-            d = 0xE;
+            entry2 = 3;
+            entry3 = 7;
+            entry6 = 0xC;
+            entry7 = 0xE;
             if (state->itemSlot >= 0) {
-                avail = menuCheckBitgridOtherSlots(state, 1);
+                otherSlotOwned = menuCheckBitgridOtherSlots(state, 1);
                 if (((u8 *)inventory)[state->itemSlot] & 1) {
-                    b = 9;
+                    entry3 = 9;
                     if (D_807FCC4C < D_800334DD[((u8 *)inventory)[state->itemSlot]]) {
-                        a = 6;
-                        c = 0xD;
-                        d = 0xF;
+                        entry2 = 6;
+                        entry6 = 0xD;
+                        entry7 = 0xF;
                         state->unk12 = 1;
                     } else {
-                        a = 5;
-                        b = 8;
+                        entry2 = 5;
+                        entry3 = 8;
                     }
-                } else if (avail == 0) {
-                    a = 4;
+                } else if (otherSlotOwned == 0) {
+                    entry2 = 4;
                 }
             }
-            D_80033500[2] = a;
-            D_80033500[3] = b;
-            D_80033500[6] = c;
-            D_80033500[7] = d;
+            D_80033500[2] = entry2;
+            D_80033500[3] = entry3;
+            D_80033500[6] = entry6;
+            D_80033500[7] = entry7;
             pairs = (MenuM1_Pair *)D_80033500;
             textParam1 = 9;
             break;
         case 0xBD:
-            v = 0;
+            introTextId = 0;
             hasSecondAction = 0;
             priceOrCount = D_80750AC8;
             availability = menuGetOptionAvailability(state, hasSecondAction);
@@ -376,42 +376,42 @@ void menuFormatShopPurchaseText(Struct_80025D14 *state, void *inventory, s32 has
                     flagSet(0x61, 0, 2);
                     menuResetSubmenuState(state, &availability);
                     if (flagGet(0x17B, 0) != 0) {
-                        v = 0x20;
+                        introTextId = 0x20;
                     } else if (flagGet(0x62, 2) != 0) {
                         flagSet(0x62, 0, 2);
-                        v = 0x22;
+                        introTextId = 0x22;
                     } else {
-                        v = 0x21;
+                        introTextId = 0x21;
                     }
                 } else {
-                    cnt = flagCountRange(0x225, 0x28, 0);
-                    if (cnt >= 0xF) {
+                    flagCount = flagCountRange(0x225, 0x28, 0);
+                    if (flagCount >= 0xF) {
                         menuResetSubmenuState(state, &availability);
                         if (flagGet(0x17B, 0) != 0) {
-                            v = 0x20;
+                            introTextId = 0x20;
                         } else {
-                            v = 2;
-                            priceOrCount = cnt;
+                            introTextId = 2;
+                            priceOrCount = flagCount;
                         }
                     }
                 }
             }
             D_80750AC8 = priceOrCount;
-            D_800334EC[0] = v;
+            D_800334EC[0] = introTextId;
             break;
         case 0xBE:
             pairs = (MenuM1_Pair *)D_80033514;
             if (state->itemSlot == 3) {
                 pairs = (MenuM1_Pair *)D_80033528;
             } else {
-                a = 3;
-                f = 4;
+                entry2 = 3;
+                beEntry3 = 4;
                 if (state->itemSlot >= 0 && (((u8 *)inventory)[state->itemSlot] & 1)) {
-                    a = 5;
-                    f = 6;
+                    entry2 = 5;
+                    beEntry3 = 6;
                 }
-                D_80033514[2] = a;
-                D_80033514[3] = f;
+                D_80033514[2] = entry2;
+                D_80033514[3] = beEntry3;
             }
             textParam1 = 7;
             break;
