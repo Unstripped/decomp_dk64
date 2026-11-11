@@ -228,13 +228,13 @@ void collisionBstLookupByHash(s32, s32 *, s32 *);
 void collisionBstLookupOrAssert(struct CollisionBstNode *, u32, s32 *, s32 *);
 #endif
 #ifndef PROTO_SKIP_collisionBstInsertByHash
-void collisionBstInsertByHash(s32, s32, s32);
+void collisionBstInsertByHash(void *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_collisionBstInsert
 struct CollisionBstNode *collisionBstInsert(struct CollisionBstNode *, u32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_collisionBstLookupAndDecrementByHash
-s32 collisionBstLookupAndDecrementByHash(s32);
+s32 collisionBstLookupAndDecrementByHash(void *);
 #endif
 #ifndef PROTO_SKIP_collisionQueueSearch
 void collisionQueueSearch(s32, u8 *, u16 *, s32 *);
@@ -246,7 +246,7 @@ void collisionQueueAppend(s32, u8, u16);
 s32 collisionBstLookupAndDecrement(struct CollisionBstNodeBase *, u32);
 #endif
 #ifndef PROTO_SKIP_collisionBstDeleteByHash
-void collisionBstDeleteByHash(s32, s32, s32);
+void collisionBstDeleteByHash(void *, s32 *, s32 *);
 #endif
 #ifndef PROTO_SKIP_collisionBstDelete
 struct CollisionBstNode *collisionBstDelete(struct CollisionBstNode *, u32, s32 *, s32 *);

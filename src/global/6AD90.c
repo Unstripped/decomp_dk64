@@ -2136,7 +2136,7 @@ void *assetLoad(s32 arg0, s32 arg1, u8 arg2, u8 arg3) { // arg1: asset index, or
     assetEnsureTableLoaded();
     if (arg3 == 0) {
         if ((arg1 >= 0x80000000U) && (arg1 < 0xA0000000U)) {
-            collisionBstInsertByHash(arg1, arg0, 0);
+            collisionBstInsertByHash((void *)arg1, arg0, 0);
             D_807F967C = 0;
             D_807F9678 = 0;
             return (void *)arg1;
@@ -2357,10 +2357,10 @@ void collisionBstLookupOrAssert(CollisionBstNode *arg0, u32 arg1, s32 *arg2, s32
 }
 
 
-void collisionBstInsertByHash(s32 arg0, s32 arg1, s32 arg2) {
-    u32 index = collisionGetBucketIndex(arg0);
+void collisionBstInsertByHash(void *buffer, s32 table, s32 index) { // keyed by the loaded asset's address
+    u32 bucket = collisionGetBucketIndex((u32)buffer);
 
-    D_807F9628[index] = collisionBstInsert(D_807F9628[index], arg0, arg1, arg2);
+    D_807F9628[bucket] = collisionBstInsert(D_807F9628[bucket], (u32)buffer, table, index);
 }
 
 CollisionBstNode *collisionBstInsert(CollisionBstNode *node, u32 arg1, s32 arg2, s32 arg3) {
@@ -2387,8 +2387,8 @@ CollisionBstNode *collisionBstInsert(CollisionBstNode *node, u32 arg1, s32 arg2,
 }
 
 
-s32 collisionBstLookupAndDecrementByHash(s32 arg0) {
-    return collisionBstLookupAndDecrement(D_807F9628[collisionGetBucketIndex(arg0)], arg0);
+s32 collisionBstLookupAndDecrementByHash(void *buffer) {
+    return collisionBstLookupAndDecrement(D_807F9628[collisionGetBucketIndex((u32)buffer)], (u32)buffer);
 }
 
 typedef struct CollisionQueueEntry {
@@ -2468,10 +2468,10 @@ s32 collisionBstLookupAndDecrement(CollisionBstNodeBase *node, u32 arg1) {
 }
 
 
-void collisionBstDeleteByHash(s32 arg0, s32 arg1, s32 arg2) {
-    u32 index = collisionGetBucketIndex(arg0);
+void collisionBstDeleteByHash(void *buffer, s32 *table, s32 *index) {
+    u32 bucket = collisionGetBucketIndex((u32)buffer);
 
-    D_807F9628[index] = collisionBstDelete(D_807F9628[index], arg0, arg1, arg2);
+    D_807F9628[bucket] = collisionBstDelete(D_807F9628[bucket], (u32)buffer, table, index);
 }
 
 
