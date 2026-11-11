@@ -2,7 +2,8 @@
 #ifndef PROTO_GLOBAL_141E60_H
 #define PROTO_GLOBAL_141E60_H
 #include "common.h"
+#include "audio_config.h"
 #ifndef PROTO_SKIP_n_alSynNewFx
-void *n_alSynNewFx(s16, void *, void *);
+void *n_alSynNewFx(s16, AudioInitArgs *, ALHeap *);
 #endif
 #endif
