@@ -77,12 +77,18 @@ for src in "$@"; do
   [ $rc -eq 0 ] || [ $rc -eq 3 ] || exit $rc
 done
 
+# Copy into the gate tree through a temp file in the same directory + mv: a new inode. Rewriting a
+# file in place that the gate container has already read can leave it with the old size cached, so
+# cfe reads the new text cut short (seen as `An if directive is not terminated` in a staged header).
+stage_copy() {
+  mkdir -p "$(dirname "$2")" && cp -p "$1" "$2.gatetmp.$$" && mv -f "$2.gatetmp.$$" "$2"
+}
 # Gate tree = HEAD + the given files + --stage paths.
 head=$(git rev-parse HEAD) || exit 1
 git -C "$gate" checkout -q -f --detach "$head" || { echo "GATE_FAIL: gate checkout failed"; exit 1; }
 git -C "$gate" clean -fdq -- src include drafts || exit 1
 # The ratchet counts with this checkout's tools/cwarn.py, like this script itself (HEAD's may be older).
-cp -p tools/cwarn.py "$gate/tools/cwarn.py" || exit 1
+stage_copy tools/cwarn.py "$gate/tools/cwarn.py" || exit 1
 [ -d "$gate/bin" ] || cp -Rc bin "$gate/" 2>/dev/null || cp -R bin "$gate/" || exit 1
 [ -e "$gate/baserom.us.z64" ] || cp -c baserom.us.z64 "$gate/" 2>/dev/null || cp baserom.us.z64 "$gate/" || exit 1
 glog=$gate/.scratch/gate.log
@@ -108,7 +114,7 @@ split_if_needed
   { echo "GATE_FAIL: cfe warning count at HEAD failed"; exit 1; }
 for p in "$@" $extra; do
   if [ -e "$p" ]; then
-    mkdir -p "$gate/$(dirname "$p")" && cp -p "$p" "$gate/$p" || exit 1
+    stage_copy "$p" "$gate/$p" || exit 1
   else
     rm -f "$gate/$p"
   fi
