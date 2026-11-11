@@ -605,19 +605,6 @@ void mapFrameEnd(void) {
     displayListFreeQueueProcess();
 }
 
-// PlayerStruct fields include/sched.h does not have yet (header request): per-buffer
-// lookAt, tile sizes, segment-5 display list and viewport.
-typedef struct L8062C29CPlayer {
-    /* 0x000 */ u8 pad0[0x190];
-    /* 0x190 */ u8 unk190[2][0x20];
-    /* 0x1D0 */ u32 unk1D0[2][4];
-    /* 0x1F0 */ Gfx unk1F0[2][2];
-    /* 0x210 */ u8 pad210[0x40];
-    /* 0x250 */ s16 unk250[2][8];
-    /* 0x270 */ u8 pad270[0x80];
-} L8062C29CPlayer; // size = 0x2F0
-
-#define L8062C29CP (((L8062C29CPlayer *)gPlayerSlots)[gCurrentPlayerIndex])
 
 extern s32 D_807F5E64;
 extern f32 D_807F5FB4;
@@ -637,7 +624,7 @@ Gfx *mapRenderPlayerView(Gfx *gfx, f32 eyeX, f32 eyeY, f32 eyeZ, f32 atX, f32 at
     Gfx *dl;
     s32 pad[25];
 
-    dl = &L8062C29CP.unk1F0[gGfxBufferIndex][0];
+    dl = gPlayerSlots[gCurrentPlayerIndex].hiliteDl[gGfxBufferIndex];
     D_807F5E64 = 0;
     D_807F5FB4 = fov;
     D_807F5FB0 = aspect;
@@ -654,15 +641,14 @@ Gfx *mapRenderPlayerView(Gfx *gfx, f32 eyeX, f32 eyeY, f32 eyeZ, f32 atX, f32 at
     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
     gfx = actorBuildLightDisplayList(gfx, gPlayerSlots[gCurrentPlayerIndex].actor, gCurrentPlayerIndex);
     gSPSegment(gfx++, 5, osVirtualToPhysical(dl));
-    gDPSetTileSize(dl++, 0, L8062C29CP.unk1D0[gGfxBufferIndex][0] & 0xFFF, L8062C29CP.unk1D0[gGfxBufferIndex][1] & 0xFFF,
-                   (L8062C29CP.unk1D0[gGfxBufferIndex][0] + 0x7C) & 0xFFF, (L8062C29CP.unk1D0[gGfxBufferIndex][1] + 0x7C) & 0xFFF);
+    gDPSetHilite1Tile(dl++, 0, &gPlayerSlots[gCurrentPlayerIndex].hilite[gGfxBufferIndex], 32, 32);
     gSPEndDisplayList(dl++);
-    viewportSetFromRect(L8062C29CP.unk250[gGfxBufferIndex], gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
+    viewportSetFromRect(gPlayerSlots[gCurrentPlayerIndex].viewport[gGfxBufferIndex].vp.vscale, gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
     gSPPerspNormalize(gfx++, gPlayerSlots[gCurrentPlayerIndex].perspNorm);
-    gSPViewport(gfx++, osVirtualToPhysical(&L8062C29CP.unk250[gGfxBufferIndex]));
+    gSPViewport(gfx++, osVirtualToPhysical(&gPlayerSlots[gCurrentPlayerIndex].viewport[gGfxBufferIndex]));
     gDPSetScissor(gfx++, G_SC_NON_INTERLACE, gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
-    gSPLookAtX(gfx++, osVirtualToPhysical(&L8062C29CP.unk190[gGfxBufferIndex]));
-    gSPLookAtY(gfx++, osVirtualToPhysical(&L8062C29CP.unk190[gGfxBufferIndex]) + 0x10);
+    gSPLookAtX(gfx++, osVirtualToPhysical(&gPlayerSlots[gCurrentPlayerIndex].lookAt[gGfxBufferIndex]));
+    gSPLookAtY(gfx++, osVirtualToPhysical(&gPlayerSlots[gCurrentPlayerIndex].lookAt[gGfxBufferIndex]) + 0x10);
     mapSetClipBounds(gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
     gfx = gfxDrawPlayerViewBackground(fogApply(gfx), gCurrentPlayerIndex);
     gSPMatrix(gfx++, osVirtualToPhysical(&gPlayerSlots[gCurrentPlayerIndex].projMtx[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);

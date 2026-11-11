@@ -75,7 +75,10 @@ typedef struct {
     /* 0x088 */ Mtx projMtx[2];
     /* 0x108 */ Mtx bgMtx[2]; // per-buffer sky quad matrix (gfxDrawBackgroundQuad)
     /* 0x188 */ u16 perspNorm;
-    /* 0x18A */ u8 pad18A[0x210 - 0x18A];
+    /* 0x18A */ u8 pad18A[0x190 - 0x18A];
+    /* 0x190 */ LookAt lookAt[2]; // per-buffer guLookAtHilite output (gSPLookAtX/Y)
+    /* 0x1D0 */ Hilite hilite[2]; // per-buffer specular highlight tile offsets
+    /* 0x1F0 */ Gfx hiliteDl[2][2]; // per-buffer segment-5 display list (gDPSetHilite1Tile)
     /* 0x210 */ f32 camX;
     /* 0x214 */ f32 camY;
     /* 0x218 */ f32 camZ;
