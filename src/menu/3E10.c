@@ -1,8 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_actorUpdateCollisionSpheres // PROTO: not a function here
-#define PROTO_SKIP_eepromGetField // FAKE: callee prototype steer
 #define PROTO_SKIP_eepromSetCurrentSlot // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -386,7 +384,6 @@ extern u8 D_807210EC;
 extern u8 D_80721170;
 extern u8 D_807211D0;
 extern u8 D_80721444;
-s32 eepromGetField(s32, s32, u8, s32);  // FAKE: callee prototype steer
 
 void menuInitMainScreen(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;
@@ -656,7 +653,6 @@ extern s32 D_80033810;
 extern u32 D_80033814;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
-extern u32 actorUpdateCollisionSpheres;
 
 extern s8 D_80033809;
 void menuInitFileSummary(Actor *actor, s32 unused) {
@@ -694,7 +690,7 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
     }
     osPiReadIo(menuDecodePiAddressConstant(0xAFFE1464), &ioVal);
     if ((menuDecodePiAddressConstant(0x0107183B) ^ 0) != ioVal) { // FAKE: ^ 0 flips the commutative bne/beq operand order
-        *(u32 *)(s32)&actorUpdateCollisionSpheres = 0x03E00008;
+        *(u32 *)actorUpdateCollisionSpheres = 0x03E00008;
     }
     D_8003380C = 0;
     for (k = 0; k != 5; k++) {
@@ -2166,7 +2162,7 @@ Gfx *menuDrawCheats(Actor *actor, Gfx *dl) {
             break;
         }
     } else {
-        dl = textDrawStringVtx(dl, 1, posX, y + 0x40, "???", 0x81);
+        dl = textDrawStringVtx(dl, 1, posX, y + 0x40, (u8 *)"???", 0x81);
     }
     return dl;
 }
@@ -3607,7 +3603,7 @@ void menuUpdateKioskPodActor(void) {
 
 
 s32 menuCheckSaveFile(s32 fileSlot) {
-    return eepromGetField(0xD, 0, 0, (u8)fileSlot) == 0;
+    return eepromGetField(0xD, 0, 0, fileSlot) == 0;
 }
 
 typedef struct Menu3R3_StructC828 {

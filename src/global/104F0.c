@@ -788,14 +788,13 @@ extern u16 gLevelCollectibleCounts[];
 extern u8 gPlayerCount;
 
 void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
-    KongInventory *base;
+    s32 pad;
     s32 i;
     KongInventory *entry;
     s32 j;
     s32 k;
 
-    base = gPlayerInventoryTable[0].kong;
-    entry = base;
+    entry = gPlayerInventoryTable[0].kong;
     gActivePlayerCount = 1;
     playerResetSpawnGlobals();
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
@@ -815,16 +814,16 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
     i = 0;
     do {
         for (j = 0; j != 5; j++)
-            entry->unk0[j] = eepromGetField(j + 4, (u8)i, 0, slot);
-        entry->unk6 = eepromGetField(9, (u8)i, 0, slot);
-        entry->unk5 = eepromGetField(0xA, (u8)i, 0, slot);
-        if (eepromGetField(0xB, (u8)i, 0, slot) != 0) {
+            entry->unk0[j] = eepromGetField(j + 4, i, 0, slot);
+        entry->unk6 = eepromGetField(9, i, 0, slot);
+        entry->unk5 = eepromGetField(0xA, i, 0, slot);
+        if (eepromGetField(0xB, i, 0, slot) != 0) {
             entry->unk5 |= 0x80;
         }
         for (k = 0; k != 8; k++) {
-            entry->unkA[k] = eepromGetField(1, (u8)i, (u8)k, slot);
-            gLevelCollectibleCounts[k] += entry->unk26[k] = eepromGetField(2, (u8)i, (u8)k, slot);
-            entry->unk42[k] = eepromGetField(3, (u8)i, (u8)k, slot);
+            entry->unkA[k] = eepromGetField(1, i, k, slot);
+            gLevelCollectibleCounts[k] += entry->unk26[k] = eepromGetField(2, i, k, slot);
+            entry->unk42[k] = eepromGetField(3, i, k, slot);
         }
         i++;
         entry++;
@@ -866,18 +865,17 @@ void eepromSavePlayerData(void) {
             do {
                 j = 0;
                 do {
-                    eepromSetField(j + 4, (u8)i, 0, D_807467C8, entry->unk0[j]);
+                    eepromSetField(j + 4, i, 0, D_807467C8, entry->unk0[j]);
                     j++;
                 } while (j != 5);
-                eepromSetField(9, (u8)i, 0, D_807467C8, entry->unk6);
-                eepromSetField(0xA, (u8)i, 0, D_807467C8, entry->unk5 & 0x7F);
-                eepromSetField(0xB, (u8)i, 0, D_807467C8, (entry->unk5 >> 7) & 1);
+                eepromSetField(9, i, 0, D_807467C8, entry->unk6);
+                eepromSetField(0xA, i, 0, D_807467C8, entry->unk5 & 0x7F);
+                eepromSetField(0xB, i, 0, D_807467C8, (entry->unk5 >> 7) & 1);
                 k = 0;
                 do {
-                    u8 col_idx = k;
-                    eepromSetField(1, (u8)i, col_idx, D_807467C8, entry->unkA[k]);
-                    eepromSetField(2, (u8)i, col_idx, D_807467C8, entry->unk26[k]);
-                    eepromSetField(3, (u8)i, col_idx, D_807467C8, entry->unk42[k]);
+                    eepromSetField(1, i, k, D_807467C8, entry->unkA[k]);
+                    eepromSetField(2, i, k, D_807467C8, entry->unk26[k]);
+                    eepromSetField(3, i, k, D_807467C8, entry->unk42[k]);
                     k++;
                 } while (k != 8);
                 i++;
