@@ -56,12 +56,27 @@ extern ModelSlot *gModelSlots;
 
 
 
+typedef struct CollisionAssetTri {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ s16 unkE;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ u8 unk12;
+    /* 0x13 */ u8 unk13;
+    /* 0x14 */ s8 unk14;
+} CollisionAssetTri;
 
-void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *arg1, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale) {
+
+void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *asset, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale) {
     s32 off;
     ModelData *anim;
     s32 count;
-    u8 *entry;
+    CollisionAssetTri *entry;
     CollisionBox *out;
     f32 slotMtx[4][4];
     f32 tmpMtx[4][4];
@@ -72,7 +87,6 @@ void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *arg1, f32 x, f32 y, f32
     u8 *animFrame;
     u8 *boneTable;
     s8 lastBone;
-    s8 bone;
 
     off = slot * sizeof(ModelSlot);
     anim = ((ModelSlot *)((u8 *)gModelSlots + off))->unk78; // FAKE: byte-offset spelling keeps gModelSlots in v1 and the slot * 0x90 product in v0 (gModelSlots[slot].unk78 swaps them)
@@ -83,18 +97,18 @@ void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *arg1, f32 x, f32 y, f32
     } else {
         animFrame = 0;
     }
-    boneTable = arg1->unk60 + (u8 *)arg1;
-    buf->unkC = (s32)((f32)arg1->unk20 * scale * 8.0f * 1.5);
+    boneTable = asset->unk60 + (u8 *)asset;
+    buf->unkC = (s32)((f32)asset->unk20 * scale * 8.0f * 1.5);
     buf->unk0 = (s32)(x * 8.0f);
     buf->unk4 = (s32)(y * 8.0f);
     buf->unk8 = (s32)(z * 8.0f);
-    count = *(s32 *)(arg1->unk4C + (u8 *)arg1);
+    count = *(s32 *)(asset->unk4C + (u8 *)asset);
     if (count != 0) {
         buf->unk15 |= 2;
         if (!(buf->unk15 & 1)) {
             buf->box_start = heapAlloc(count * 0x58);
         }
-        entry = arg1->unk4C + (u8 *)arg1 + 4;
+        entry = (CollisionAssetTri *)(asset->unk4C + (u8 *)asset + 4);
         out = buf->box_start;
         guScaleF(slotMtx, scale, scale, scale);
         guRotateF(tmpMtx, rotX, 1.0f, 0.0f, 0.0f);
@@ -108,23 +122,22 @@ void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *arg1, f32 x, f32 y, f32
         i = 0;
         if (count > 0) {
             do {
-                bone = entry[0x14];
-                if ((bone ^ 0) == -1) { // FAKE: ^ 0 steers bne operand order
+                if (entry->unk14 == -1) {
                     if (collisionTransformTriangle(entry, out, slotMtx) != 0) {
                         out++;
                     }
                 } else {
-                    if (lastBone != bone) {
-                        modelBuildBoneChainMatrix((s32 *)((bone << 5) + boneTable), animFrame, boneMtx);
+                    if (lastBone != entry->unk14) {
+                        modelBuildBoneChainMatrix((s32 *)((entry->unk14 << 5) + boneTable), animFrame, boneMtx);
                         guMtxCatF(boneMtx, slotMtx, boneWorldMtx);
-                        lastBone = entry[0x14];
+                        lastBone = entry->unk14;
                     }
                     if (collisionTransformTriangle(entry, out, boneWorldMtx) != 0) {
                         out++;
                     }
                 }
                 i++;
-                entry += 0x16;
+                entry++;
             } while (i != count);
         }
         buf->box_end = out;
@@ -191,8 +204,8 @@ void modelBuildBoneChainMatrix(s32 *boneOffsets, u8 *base, f32 (*outMtx)[4]) {
     guMtxL2F(outMtx, &mtx);
 }
 
-void collisionTransformNode(s32 arg0, ModelAssetHeader *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
-    collisionBuildSlotBoxes(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+void collisionTransformNode(s32 slot, ModelAssetHeader *asset, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale) {
+    collisionBuildSlotBoxes(slot, asset, x, y, z, rotX, rotY, rotZ, scale);
 }
 
 void dynamicBufferFree(DynamicBuffer *buf) {
@@ -360,86 +373,69 @@ void collisionPurgeExpiredBuffers(void) {
     }
 }
 
-typedef struct CollisionAssetTri {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ s16 unk6;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ u8 unk12;
-    /* 0x13 */ u8 unk13;
-    /* 0x14 */ s8 unk14;
-} CollisionAssetTri;
+s32 collisionTransformTriangle(CollisionAssetTri *tri, CollisionBox *out, f32 (*mtx)[4]) {
+    u8 axisOut[4];
+    s16 verts[10];
+    f32 x0;
+    f32 y0;
+    f32 z0;
+    f32 x1;
+    f32 y1;
+    f32 z1;
+    f32 x2;
+    f32 y2;
+    f32 z2;
 
-s32 collisionTransformTriangle(u8 *arg0, CollisionBox *out, f32 (*arg2)[4]) {
-#define COLLISION_TRI_IN ((CollisionAssetTri *)arg0)
-    u8 sp6C[4];
-    s16 sp58[10];
-    f32 sp54;
-    f32 sp50;
-    f32 sp4C;
-    f32 sp48;
-    f32 sp44;
-    f32 sp40;
-    f32 sp3C;
-    f32 sp38;
-    f32 sp34;
-
-    guMtxXFMF(arg2, (f32)COLLISION_TRI_IN->unk0, (f32)COLLISION_TRI_IN->unk2, (f32)COLLISION_TRI_IN->unk4, &sp54, &sp50, &sp4C);
-    sp58[0] = (s32)sp54;
-    sp58[1] = (s32)sp50;
-    sp58[2] = (s32)sp4C;
-    guMtxXFMF(arg2, (f32)COLLISION_TRI_IN->unk6, (f32)COLLISION_TRI_IN->unk8, (f32)COLLISION_TRI_IN->unkA, &sp48, &sp44, &sp40);
-    sp58[3] = (s32)sp48;
-    sp58[4] = (s32)sp44;
-    sp58[5] = (s32)sp40;
-    guMtxXFMF(arg2, (f32)COLLISION_TRI_IN->unkC, (f32)COLLISION_TRI_IN->unkE, (f32)COLLISION_TRI_IN->unk10, &sp3C, &sp38, &sp34);
-    sp58[6] = (s32)sp3C;
-    sp58[7] = (s32)sp38;
-    sp58[8] = (s32)sp34;
-    if (collisionIsTriangleDegenerate((CollisionTri *)sp58) != 0) {
+    guMtxXFMF(mtx, (f32)tri->unk0, (f32)tri->unk2, (f32)tri->unk4, &x0, &y0, &z0);
+    verts[0] = (s32)x0;
+    verts[1] = (s32)y0;
+    verts[2] = (s32)z0;
+    guMtxXFMF(mtx, (f32)tri->unk6, (f32)tri->unk8, (f32)tri->unkA, &x1, &y1, &z1);
+    verts[3] = (s32)x1;
+    verts[4] = (s32)y1;
+    verts[5] = (s32)z1;
+    guMtxXFMF(mtx, (f32)tri->unkC, (f32)tri->unkE, (f32)tri->unk10, &x2, &y2, &z2);
+    verts[6] = (s32)x2;
+    verts[7] = (s32)y2;
+    verts[8] = (s32)z2;
+    if (collisionIsTriangleDegenerate((CollisionTri *)verts) != 0) {
         return 0;
     }
-    if (COLLISION_TRI_IN->unk12 & 1) {
+    if (tri->unk12 & 1) {
         out->unk4D = 1;
     } else {
         out->unk4D = 0;
     }
-    if (COLLISION_TRI_IN->unk12 & 2) {
-        out->unk4F = COLLISION_TRI_IN->unk13;
+    if (tri->unk12 & 2) {
+        out->unk4F = tri->unk13;
     } else {
         out->unk4F = 0;
     }
-    if (COLLISION_TRI_IN->unk12 & 4) {
+    if (tri->unk12 & 4) {
         out->unk51 = 1;
     } else {
         out->unk51 = 0;
     }
-    if (COLLISION_TRI_IN->unk12 & 8) {
+    if (tri->unk12 & 8) {
         out->unk50 = 5;
     } else {
         out->unk50 = 0xFF;
     }
-    out->unk4E = COLLISION_TRI_IN->unk14;
-    out->unk24 = (s32)(sp54 * 8.0f);
-    out->unk28 = (s32)(sp50 * 8.0f);
-    out->unk2C = (s32)(sp4C * 8.0f);
-    out->unk30 = (s32)(sp48 * 8.0f);
-    out->unk34 = (s32)(sp44 * 8.0f);
-    out->unk38 = (s32)(sp40 * 8.0f);
-    out->unk3C = (s32)(sp3C * 8.0f);
-    out->unk40 = (s32)(sp38 * 8.0f);
-    out->unk44 = (s32)(sp34 * 8.0f);
-    sp58[9] = collisionTriangleNormalYaw(sp58, sp6C);
-    out->unk4B = collisionTriangleSlopeClass(sp58);
-    out->unk48 = sp58[9];
-    out->unk4C = sp6C[0];
+    out->unk4E = tri->unk14;
+    out->unk24 = (s32)(x0 * 8.0f);
+    out->unk28 = (s32)(y0 * 8.0f);
+    out->unk2C = (s32)(z0 * 8.0f);
+    out->unk30 = (s32)(x1 * 8.0f);
+    out->unk34 = (s32)(y1 * 8.0f);
+    out->unk38 = (s32)(z1 * 8.0f);
+    out->unk3C = (s32)(x2 * 8.0f);
+    out->unk40 = (s32)(y2 * 8.0f);
+    out->unk44 = (s32)(z2 * 8.0f);
+    verts[9] = collisionTriangleNormalYaw(verts, axisOut);
+    out->unk4B = collisionTriangleSlopeClass(verts);
+    out->unk48 = verts[9];
+    out->unk4C = axisOut[0];
     return collisionBuildPlane(out);
-#undef COLLISION_TRI_IN
 }
 
 s32 collisionIsTriangleDegenerate(CollisionTri *arg0) {
@@ -2757,7 +2753,7 @@ extern s32 D_807FB53C;
 
 
 
-u8 collisionTestSphereSlots(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s16 *arg5) {
+u8 collisionTestSphereSlots(f32 fx, f32 fy, f32 fz, f32 fradius, s16 *arcMin, s16 *arcMax) {
     s32 x;
     s32 y;
     s32 z;
@@ -2775,10 +2771,10 @@ u8 collisionTestSphereSlots(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s
             buf = &gModelSlots[i].unk28;
             if (buf->box_start != NULL &&
                 (D_807FB53C != 0xBC || (gModelSlots[i].unk48.flags & 2))) {
-                x = arg0;
-                y = arg1;
-                z = arg2;
-                radius = arg3;
+                x = fx;
+                y = fy;
+                z = fz;
+                radius = fradius;
                 if (collisionSpheresOverlap(x, y, z, radius,
                                   buf->unk0,
                                   buf->unk4,
@@ -2786,7 +2782,7 @@ u8 collisionTestSphereSlots(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s
                                   buf->unkC) != 0 &&
                     (buf->unk15 & 1) &&
                     ((hitInfo = gModelSlots[i].unk7C) == NULL || hitInfo->unk70 != 0)) {
-                    result |= func_80673708(x, y, z, radius, buf->box_start, buf->box_end, arg4, arg5);
+                    result |= func_80673708(x, y, z, radius, buf->box_start, buf->box_end, arcMin, arcMax);
                 }
             }
             i++;

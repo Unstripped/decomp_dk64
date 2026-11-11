@@ -620,12 +620,12 @@ extern f32 D_807F9488;
 extern u8 D_807F94B5;
 extern u8 sCamFloorHitCount;
 
-u8 collisionCheckGroundAtPoint(f32 arg0, f32 arg1, f32 *arg2) {
+u8 collisionCheckGroundAtPoint(f32 x, f32 z, f32 *yInOut) {
     u8 ret;
 
     D_807F9484 = 0;
     sCamFloorHitCount = 0;
-    ret = collisionTestSubmeshBoundary(arg0, arg1, arg2, NULL);
+    ret = collisionTestSubmeshBoundary(x, z, yInOut, NULL);
     D_807F94A4 = D_807F9498[0];
     D_807F94A2 = D_807F9490[0];
     return ret;
@@ -1276,7 +1276,7 @@ extern ModelSlot *gModelSlots;
 extern u8 D_807F946D;
 extern u8 D_807F94AC;
 
-u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 *arg5) {
+u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 refY, f32 *floorYOut) {
     s32 pad;
     CollisionTriF *tri_end;
     CollisionTriF *hit_tri;
@@ -1298,21 +1298,21 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
     hit = 0;
     hit_y = 999999.0f;
 
-    slotIdx = hashTableLookup(arg1);
+    slotIdx = hashTableLookup(slotId);
     if (slotIdx == -1) {
         return 0;
     }
 
     buf = &gModelSlots[slotIdx].unk48;
-    if (arg0 != NULL && gModelSlots[slotIdx].unk70 != NULL && D_807F946D != 0) {
-        actorCheckNearbyNodeInteractions(arg0, slotIdx, gModelSlots[slotIdx].unk70);
+    if (actor != NULL && gModelSlots[slotIdx].unk70 != NULL && D_807F946D != 0) {
+        actorCheckNearbyNodeInteractions(actor, slotIdx, gModelSlots[slotIdx].unk70);
     }
 
     if (!(buf->flags & 4)) {
         return 0;
     }
 
-    if (collisionCheckBoundingBoxXZ(&buf->bbox, arg2, arg3) == 0) {
+    if (collisionCheckBoundingBoxXZ(&buf->bbox, x, z) == 0) {
         return 0;
     }
 
@@ -1320,8 +1320,8 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
         return 0;
     }
 
-    if (arg0 != NULL && (arg0->collisionFlags & 1)) {
-        if (playerSlotMatchesSizeMask(gModelSlots[slotIdx].unk24->unk0, ((PlayerState *)arg0->customState)->playerIndex) != 0) {
+    if (actor != NULL && (actor->collisionFlags & 1)) {
+        if (playerSlotMatchesSizeMask(gModelSlots[slotIdx].unk24->unk0, ((PlayerState *)actor->customState)->playerIndex) != 0) {
             return 0;
         }
     }
@@ -1344,8 +1344,8 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
     tri_end = buf->tri_end;
     if (tri != tri_end) {
         do {
-            if (collisionCheckTriangleBoundingBoxXZ(tri, arg2, arg3) != 0 &&
-                collisionCheckTriangleContainsPointXZ(tri, arg2, arg3) != 0 &&
+            if (collisionCheckTriangleBoundingBoxXZ(tri, x, z) != 0 &&
+                collisionCheckTriangleContainsPointXZ(tri, x, z) != 0 &&
                 collisionCheckSurfaceFilter(tri->unk27, buf->unk25) != 0) {
                 dx01 = tri->x[0] - tri->x[1];
                 dy01 = tri->y[0] - tri->y[1];
@@ -1358,23 +1358,23 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
                 nz_product = dx01 * dy02;
                 d = -((nx * tri->x[1]) + (ny * tri->y[1]) + ((nz_product - (dy01 * dx02)) * tri->z[1]));
                 if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
-                    if (arg0 != NULL) {
-                        val = 0.0 - (((arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * arg3) + d) / (ny * 2000.0));
+                    if (actor != NULL) {
+                        val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
                         y = (2000.0 * val) - 1000.0;
-                        collisionCheckSlopeAngle(arg4, y, 0, arg0, 0);
-                        if (collisionGetFloorTriangleNormal(arg4, y, 0, tri->unk24) != 0 && D_807F946D != 0) {
-                            collisionAttachActorToObjectNode(arg0, slotIdx, -1, 0, arg2, y, arg3);
-                            arg0->attachMode = 2;
+                        collisionCheckSlopeAngle(refY, y, 0, actor, 0);
+                        if (collisionGetFloorTriangleNormal(refY, y, 0, tri->unk24) != 0 && D_807F946D != 0) {
+                            collisionAttachActorToObjectNode(actor, slotIdx, -1, 0, x, y, z);
+                            actor->attachMode = 2;
                         }
                     }
                     if (D_807F94BC != 0) {
-                        val = 0.0 - (((arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * arg3) + d) / (ny * 2000.0));
+                        val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
                         collisionRecordTriangleF(tri, (2000.0 * val) - 1000.0);
                     }
                     if (collisionCheckTriangleWindingF32(tri) != 0) {
-                        val = 0.0 - (((arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * arg3) + d) / (ny * 2000.0));
+                        val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
                         y = (2000.0 * val) - 1000.0;
-                        if (mathCheckCloserFloatThreshold(hit_y, y, arg4 + 4.0, 0) != 0) {
+                        if (mathCheckCloserFloatThreshold(hit_y, y, refY + 4.0, 0) != 0) {
                             hit_tri = tri;
                             hit = 1;
                             hit_y = y;
@@ -1386,18 +1386,18 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
         } while (tri != tri_end);
     }
 
-    if (hit != 0 && mathCheckCloserFloatThreshold(*arg5, hit_y, (f32)((f64)arg4 + 4.0), 0) != 0) {
-        *arg5 = hit_y;
-        collisionStoreTriangleNormalAnglesF32(arg0, hit_tri, 1);
+    if (hit != 0 && mathCheckCloserFloatThreshold(*floorYOut, hit_y, (f32)((f64)refY + 4.0), 0) != 0) {
+        *floorYOut = hit_y;
+        collisionStoreTriangleNormalAnglesF32(actor, hit_tri, 1);
         sub7C = gModelSlots[slotIdx].unk7C;
         if (sub7C != NULL && sub7C->unk4F != 0) {
             D_807F94AC = 1;
         }
-        if (arg0 != NULL) {
-            if (arg0->attachMode != 2 && arg0->attachMode != 3) {
-                collisionAttachActorToObjectNode(arg0, slotIdx, hit_tri->unk26, hit_tri->unk27, arg2, hit_y, arg3);
+        if (actor != NULL) {
+            if (actor->attachMode != 2 && actor->attachMode != 3) {
+                collisionAttachActorToObjectNode(actor, slotIdx, hit_tri->unk26, hit_tri->unk27, x, hit_y, z);
             }
-            arg0->unk78[0] = hit_tri->unk25;
+            actor->unk78[0] = hit_tri->unk25;
         }
         D_807F94B1 = hit_tri->unk25;
     }
@@ -1432,34 +1432,34 @@ s32 collisionCheckSurfaceFilter(u8 arg0, u8 *arg1) {
 }
 
 
-void actorCheckNearbyNodeInteractions(Actor *arg0, s16 arg1, ModelPosNode *arg2) {
+void actorCheckNearbyNodeInteractions(Actor *actor, s16 slot, ModelPosNode *node) {
     u8 count = 0;
 
-    if (arg2 != NULL) {
+    if (node != NULL) {
         do {
-            f32 dx = arg2->x - arg0->x;
-            f32 dz = arg2->z - arg0->z;
+            f32 dx = node->x - actor->x;
+            f32 dz = node->z - actor->z;
             f32 dist;
             f32 dy;
 
             dx = dx * dx;
             dz = dz * dz;
             dist = sqrtf(dx + dz);
-            dy = arg2->y - arg0->y;
+            dy = node->y - actor->y;
             if (dist < 5.0) {
                 if (dy > 0.0f) {
                     if (dy < 25.0) {
-                        collisionAttachActorToObjectNode(arg0, arg1, -1, 0, arg2->x, arg2->y, arg2->z);
-                        arg0->attachMode = 3;
-                        arg0->unk12F = count;
+                        collisionAttachActorToObjectNode(actor, slot, -1, 0, node->x, node->y, node->z);
+                        actor->attachMode = 3;
+                        actor->unk12F = count;
                         D_807F946C = 1;
-                        D_807F9468 = arg2->y - 10.0f;
+                        D_807F9468 = node->y - 10.0f;
                     }
                 }
             }
-            arg2 = arg2->next;
+            node = node->next;
             count++;
-        } while (arg2 != NULL);
+        } while (node != NULL);
     }
 }
 
@@ -1493,21 +1493,21 @@ s32 collisionCheckTriangleWindingF32(CollisionTriF *arg0) {
 }
 
 
-void collisionAttachActorToObjectNode(Actor *arg0, s16 arg1, s8 arg2, u8 arg3, f32 arg4, f32 arg5, f32 arg6) {
+void collisionAttachActorToObjectNode(Actor *actor, s16 slot, s8 bone, u8 surface, f32 x, f32 y, f32 z) {
     f32 pad2[10];
     float mtx[4][4];
     float pad[4][4];
     float invMtx[4][4];
 
-    arg0->cutsceneId = gModelSlots[arg1].unk88;
-    arg0->unk10E = arg3;
-    arg0->unk10F = arg2;
-    modelSlotBuildTransformMatrix(arg1, arg2, mtx);
+    actor->cutsceneId = gModelSlots[slot].unk88;
+    actor->unk10E = surface;
+    actor->unk10F = bone;
+    modelSlotBuildTransformMatrix(slot, bone, mtx);
     matrix4Invert(invMtx, mtx);
-    guMtxXFMF(invMtx, arg4, arg5, arg6, &arg0->unk100, &arg0->unk104, &arg0->unk108);
+    guMtxXFMF(invMtx, x, y, z, &actor->unk100, &actor->unk104, &actor->unk108);
 }
 
-void actorUpdateSubnodeRotationAndMtx(Actor *arg0) {
+void actorUpdateSubnodeRotationAndMtx(Actor *actor) {
     f32 pad[10];
     float mtx[4][4];
     float padMtx[4][4];
@@ -1517,28 +1517,28 @@ void actorUpdateSubnodeRotationAndMtx(Actor *arg0) {
     s16 slot;
     s16 pad40;
 
-    slot = hashTableLookup(arg0->cutsceneId);
+    slot = hashTableLookup(actor->cutsceneId);
     if (slot != -1) {
-        modelSlotBuildTransformMatrix(slot, arg0->unk10F, mtx);
+        modelSlotBuildTransformMatrix(slot, actor->unk10F, mtx);
         if (gModelSlots[slot].unk7C != NULL) {
-            if (arg0->hasArcBounds == 0) {
-                arg0->yaw += (gModelSlots[slot].unk7C->unk34 * 4095.0f) / 360.0f;
-                if (arg0->yaw >= 0x1000) {
-                    arg0->yaw -= 0x1000;
+            if (actor->hasArcBounds == 0) {
+                actor->yaw += (gModelSlots[slot].unk7C->unk34 * 4095.0f) / 360.0f;
+                if (actor->yaw >= 0x1000) {
+                    actor->yaw -= 0x1000;
                 }
-                if (arg0->yaw < 0) {
-                    arg0->yaw += 0xFFF;
+                if (actor->yaw < 0) {
+                    actor->yaw += 0xFFF;
                 }
             }
-            arg0->unk100 += gModelSlots[slot].unk7C->unk8;
-            arg0->unk108 += gModelSlots[slot].unk7C->unkC;
+            actor->unk100 += gModelSlots[slot].unk7C->unk8;
+            actor->unk108 += gModelSlots[slot].unk7C->unkC;
         }
-        guMtxXFMF(mtx, arg0->unk100, arg0->unk104, arg0->unk108, &x, &y, &z);
-        arg0->unk94 = x;
-        arg0->unk98 = z;
-        if (arg0->hasArcBounds == 0) {
-            arg0->x = x;
-            arg0->z = z;
+        guMtxXFMF(mtx, actor->unk100, actor->unk104, actor->unk108, &x, &y, &z);
+        actor->unk94 = x;
+        actor->unk98 = z;
+        if (actor->hasArcBounds == 0) {
+            actor->x = x;
+            actor->z = z;
         }
     }
 }

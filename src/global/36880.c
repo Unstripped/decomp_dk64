@@ -494,8 +494,6 @@ typedef struct ModelSlotSubNode {
 extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
 
-struct ModelPathTable;
-struct ModelVertTable;
 
 s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, f32 yOffset, u8 flags, u8 light, struct RenderEntry **renderListInOut) {
     s32 padA[1];
@@ -517,7 +515,7 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
     if (gGlobalCutsceneFlags & 0x100) {
         info->unk0 &= ~0x10;
     }
-    modelApplyMapOverrideValue(modelType, (u8 *)info);
+    modelApplyMapOverrideValue(modelType, info);
     if (gGlobalOverlayFlags & 0x100) {
         info->unk1E = 0x7D0;
     } else if (gGlobalOverlayFlags & 0x400000) {
@@ -532,9 +530,9 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
     gModelSlots[slot].unk48.flags = 0;
     modelSlotBuildTriangleBuffer(slot, info, x, y, z, rotX, rotY, rotZ, scale);
     modelSlotTriBufferRelease(&gModelSlots[slot].unk48);
-    modelSlotBuildVertPosList(slot, (struct ModelVertTable *)info, x, y, z, rotX, rotY, rotZ, scale, 0);
-    modelSlotBuildNodePosList(slot, (struct ModelVertTable *)info, x, y, z, rotX, rotY, rotZ, scale, 0);
-    modelSlotBuildProxPaths(gModelSlots[slot].unk88, (struct ModelPathTable *)info, scale);
+    modelSlotBuildVertPosList(slot, info, x, y, z, rotX, rotY, rotZ, scale, 0);
+    modelSlotBuildNodePosList(slot, info, x, y, z, rotX, rotY, rotZ, scale, 0);
+    modelSlotBuildProxPaths(gModelSlots[slot].unk88, info, scale);
     if (type == 1) {
         modelSlotReplaceSegment6Commands(&gModelSlots[slot]);
     }
@@ -653,14 +651,14 @@ typedef struct ModelMapIdValueTriple {
 
 extern ModelMapIdValueTriple D_80747D30[];
 
-void modelApplyMapOverrideValue(s32 id, u8 *info) {
+void modelApplyMapOverrideValue(s32 id, ModelAssetHeader *info) {
     s32 i;
     s32 n;
 
     n = 5; // FAKE: constant bound in a variable keeps the loop test in a register
     for (i = 0; i < n; i++) {
         if (gCurrentMap == D_80747D30[i].map && id == D_80747D30[i].id) {
-            *(u16 *)(info + 0x1E) = D_80747D30[i].val;
+            info->unk1E = D_80747D30[i].val;
             return;
         }
     }
@@ -748,13 +746,8 @@ typedef struct ModelPathEntry {
     /* 0x18 */ ModelPathSeg segs[8];
 } ModelPathEntry;
 
-typedef struct ModelPathTable {
-    /* 0x00 */ u8 pad0[0x5C];
-    /* 0x5C */ s32 unk5C;
-} ModelPathTable;
 
-
-void modelSlotBuildProxPaths(s16 id, ModelPathTable *paths, f32 scale) {
+void modelSlotBuildProxPaths(s16 id, ModelAssetHeader *paths, f32 scale) {
     s32 j;
     ModelPathEntry *tbl;
     s32 i;
@@ -787,12 +780,6 @@ void modelSlotBuildProxPaths(s16 id, ModelPathTable *paths, f32 scale) {
 
 
 
-typedef struct ModelVertTable {
-    /* 0x00 */ u8 pad0[0x54];
-    /* 0x54 */ s32 unk54;
-    /* 0x58 */ s32 unk58;
-} ModelVertTable;
-
 typedef struct ModelVert {
     /* 0x0 */ s16 x;
     /* 0x2 */ s16 y;
@@ -800,7 +787,7 @@ typedef struct ModelVert {
     /* 0x6 */ s8 unk6;
 } ModelVert;
 
-void modelSlotBuildVertPosList(s32 slot, ModelVertTable *verts, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, u8 mode) {
+void modelSlotBuildVertPosList(s32 slot, ModelAssetHeader *verts, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, u8 mode) {
     ModelVert *vert;
     ModelPosNode *node;
     ModelPosNode **tail;
@@ -875,14 +862,14 @@ Mtx *modelSlotGetNodeMatrix(s32 slot, u8 isId, s32 index) {
     s32 idx;
     f32 mtxF[4][4];
     Mtx *mtx;
-    ModelVertTable *verts;
+    ModelAssetHeader *verts;
     ModelVert *vert;
 
     idx = slot;
     if (isId == 1) {
         idx = hashTableLookup(slot);
     }
-    verts = (ModelVertTable *)gModelSlots[idx].unk24;
+    verts = gModelSlots[idx].unk24;
     vert = (ModelVert *)((s32 *)(verts->unk58 + (s32)verts) + 1);
     for (index--; vert != NULL && index != 0; index--) {
         vert++;
@@ -893,7 +880,7 @@ Mtx *modelSlotGetNodeMatrix(s32 slot, u8 isId, s32 index) {
     return mtx;
 }
 
-void modelSlotBuildNodePosList(s32 slot, ModelVertTable *verts, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, u8 mode) {
+void modelSlotBuildNodePosList(s32 slot, ModelAssetHeader *verts, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, u8 mode) {
     ModelVert *vert;
     ModelPosNode *node;
     ModelPosNode **tail;
@@ -1821,7 +1808,7 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
                     if (gPlayerCount > 0) {
                         do {
                             if (MODEL_TRANSFORM_PLAYER(i)->unk0 != 0) {
-                                flag |= collisionCheckBoundingBoxY(((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk80) != 0 && collisionCheckBoundingBoxXZ(((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84) != 0; // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
+                                flag |= collisionCheckBoundingBoxY((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk80) != 0 && collisionCheckBoundingBoxXZ((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84) != 0; // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
                             }
                             i = (u8)(i + 1);
                         } while (i < gPlayerCount);
@@ -1835,7 +1822,7 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
                     if (gPlayerCount > 0) {
                         do {
                             if (MODEL_TRANSFORM_PLAYER(i)->unk0 != 0) {
-                                flag |= collisionCheckBoundingBoxXZ(((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84); // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
+                                flag |= collisionCheckBoundingBoxXZ((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84); // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
                             }
                             i = (u8)(i + 1);
                         } while (i < gPlayerCount);
@@ -1858,9 +1845,9 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
         modelSlotBuildTriangleBufferThunk(slot, v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC);
         v1 = MODEL_TRANSFORM_SLOT;
     }
-    modelSlotBuildVertPosList(slot, (ModelVertTable *)v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC, 1);
+    modelSlotBuildVertPosList(slot, v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC, 1);
     v1 = MODEL_TRANSFORM_SLOT;
-    modelSlotBuildNodePosList(slot, (ModelVertTable *)v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC, 1);
+    modelSlotBuildNodePosList(slot, v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC, 1);
 }
 
 typedef struct ActorBoundsView {
@@ -2092,22 +2079,12 @@ void modelSlotFreeAssetEntry(void *asset, ModelSlotAsset *textures) {
     heapFreeDeferred(textures->unk18);
 }
 
-typedef struct ModelSlotObjHeader {
-    /* 0x00 */ u32 unk0;
-    /* 0x04 */ u8 pad4[4];
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ u8 padC[0x10];
-    /* 0x1C */ u8 unk1C;
-    /* 0x1D */ u8 pad1D[0x1F];
-    /* 0x3C */ s16 unk3C;
-} ModelSlotObjHeader;
-
 typedef struct DisplayListFreeRecord {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
     /* 0x08 */ s32 unk8;
     /* 0x0C */ s32 unkC;
-    /* 0x10 */ ModelSlotObjHeader *unk10;
+    /* 0x10 */ ModelAssetHeader *unk10;
     /* 0x14 */ s32 unk14;
     /* 0x18 */ struct DisplayListFreeRecord *unk18;
 } DisplayListFreeRecord;
@@ -2118,7 +2095,7 @@ void displayListFreeQueueReset(void) {
     D_807F6160 = NULL;
 }
 
-void displayListFreeQueueAdd(s32 headStart, s32 headEnd, s32 tailStart, s32 tailEnd, ModelSlotObjHeader *counter) {
+void displayListFreeQueueAdd(s32 headStart, s32 headEnd, s32 tailStart, s32 tailEnd, ModelAssetHeader *counter) {
     DisplayListFreeRecord *rec;
     DisplayListFreeRecord *old;
 
@@ -2232,7 +2209,7 @@ typedef struct ModelSegmentOwner {
 
 
 
-void modelSegmentFreeUnusedTextures(ModelSlot *slot, void *asset, ModelSegmentData *seg) {
+void modelSegmentFreeUnusedTextures(ModelSlot *slot, ModelAssetHeader *asset, ModelSegmentData *seg) {
     TexAnimNode *nodes;
     u32 head, tail;
     u8 flag;
@@ -2249,7 +2226,7 @@ void modelSegmentFreeUnusedTextures(ModelSlot *slot, void *asset, ModelSegmentDa
     }
     if (slot->unk8C & 0x20) {
         if (flag) {
-            ((ModelSlotObjHeader *)asset)->unk3C -= 1;
+            asset->unk3C -= 1;
             dlFreeUnusedTextures(seg->unkA0, seg->unkA0 + head * 8, seg->unkB8, 0, 0);
             dlFreeUnusedTextures(seg->unkA8, seg->unkA8 + tail * 8, seg->unkB8, 1, 0);
             nodes = seg->unkB8;
@@ -2488,7 +2465,7 @@ void modelSlotsStepSegmentCommands(void) {
     u32 head;
     u32 count;
     u8 flag;
-    ModelSlotObjHeader *obj;
+    ModelAssetHeader *obj;
     ModelSlot *slot;
     u32 start;
     u32 len;
@@ -2499,7 +2476,7 @@ void modelSlotsStepSegmentCommands(void) {
             D_80747D74 = 0;
         }
         slot = (ModelSlot *)((u8 *)gModelSlots + D_80747D74 * 0x90);
-        obj = (ModelSlotObjHeader *)slot->unk24;
+        obj = slot->unk24;
         if (obj->unk0 & 0x10) {
             if ((slot->unk8C & 0x20) && gFrameCounter != obj->unk8) {
                 slot->unk8C &= ~0x20;
@@ -2535,7 +2512,7 @@ u8 forceLoad;
 u8 force;
 {
     ModelSegmentData *seg;
-    ModelSlotObjHeader *obj;
+    ModelAssetHeader *obj;
     ModelSegmentData *volatile seg2; // FAKE: memory copy of seg that the else branch reads back (target reloads 0x3C(sp))
     u32 temp;
     u32 cmds;
@@ -2549,7 +2526,7 @@ u8 force;
     temp = (u32)slot->unk24;
     seg = slot->unk20;
     seg2 = seg;
-    obj = (ModelSlotObjHeader *)temp;
+    obj = (ModelAssetHeader *)temp;
     obj->unk8 = gFrameCounter;
     flags = slot->unk8C;
     if (!(flags & 0x20)) {
@@ -2582,7 +2559,7 @@ u8 force;
                 }
             } else {
                 if (((ModelType2Obj *)seg2)->unk50 != 0 || forceLoad != 0) {
-                    modelSlotLoadAssetTextures((ModelAssetHeader *)obj, (ModelSlotAsset *)seg2);
+                    modelSlotLoadAssetTextures(obj, (ModelSlotAsset *)seg2);
                 } else {
                     modelSlotClearAssetTextures((s32)obj, (ModelSlotAsset *)seg2);
                 }

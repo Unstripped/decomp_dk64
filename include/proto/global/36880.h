@@ -7,16 +7,13 @@
 #include "render.h"
 struct DisplayListCmd;
 struct ModelNodeBufferOwner;
-struct ModelPathTable;
 struct ModelPendingEntry;
 struct ModelRenderAnimObj;
 struct ModelSegmentData;
 struct ModelSegmentNode;
 struct ModelSegmentOwner;
 struct ModelSlotAsset;
-struct ModelSlotObjHeader;
 struct ModelSpriteSourceList;
-struct ModelVertTable;
 struct SpriteDisplayNode;
 struct SpriteGfxNode;
 struct TexAnimNode;
@@ -72,7 +69,7 @@ void modelFlagsApplyMapPairs(s16, u8 *);
 void modelFlagsApplyState(s16, s16, u8 *);
 #endif
 #ifndef PROTO_SKIP_modelApplyMapOverrideValue
-void modelApplyMapOverrideValue(s32, u8 *);
+void modelApplyMapOverrideValue(s32, ModelAssetHeader *);
 #endif
 #ifndef PROTO_SKIP_groundSurfaceTypeAt
 s32 groundSurfaceTypeAt(f32, f32, f32);
@@ -81,10 +78,10 @@ s32 groundSurfaceTypeAt(f32, f32, f32);
 void modelSlotUpdateGroundCoords(s16, u8);
 #endif
 #ifndef PROTO_SKIP_modelSlotBuildProxPaths
-void modelSlotBuildProxPaths(s16, struct ModelPathTable *, f32);
+void modelSlotBuildProxPaths(s16, ModelAssetHeader *, f32);
 #endif
 #ifndef PROTO_SKIP_modelSlotBuildVertPosList
-void modelSlotBuildVertPosList(s32, struct ModelVertTable *, f32, f32, f32, f32, f32, f32, f32, u8);
+void modelSlotBuildVertPosList(s32, ModelAssetHeader *, f32, f32, f32, f32, f32, f32, f32, u8);
 #endif
 #ifndef PROTO_SKIP_modelPosNodeListFree
 void modelPosNodeListFree(struct ModelPosNode *);
@@ -96,7 +93,7 @@ void modelSlotGetNodePos(s32, u8, s32, f32 *, f32 *, f32 *);
 Mtx *modelSlotGetNodeMatrix(s32, u8, s32);
 #endif
 #ifndef PROTO_SKIP_modelSlotBuildNodePosList
-void modelSlotBuildNodePosList(s32, struct ModelVertTable *, f32, f32, f32, f32, f32, f32, f32, u8);
+void modelSlotBuildNodePosList(s32, ModelAssetHeader *, f32, f32, f32, f32, f32, f32, f32, u8);
 #endif
 #ifndef PROTO_SKIP_modelLinkedNodeListFree
 void modelLinkedNodeListFree(struct ModelPosNode *);
@@ -213,13 +210,13 @@ void modelSlotFreeAssetEntry(void *, struct ModelSlotAsset *);
 void displayListFreeQueueReset(void);
 #endif
 #ifndef PROTO_SKIP_displayListFreeQueueAdd
-void displayListFreeQueueAdd(s32, s32, s32, s32, struct ModelSlotObjHeader *);
+void displayListFreeQueueAdd(s32, s32, s32, s32, ModelAssetHeader *);
 #endif
 #ifndef PROTO_SKIP_displayListFreeQueueProcess
 void displayListFreeQueueProcess(void);
 #endif
 #ifndef PROTO_SKIP_modelSegmentFreeUnusedTextures
-void modelSegmentFreeUnusedTextures(struct ModelSlot *, void *, struct ModelSegmentData *);
+void modelSegmentFreeUnusedTextures(ModelSlot *, ModelAssetHeader *, struct ModelSegmentData *);
 #endif
 #ifndef PROTO_SKIP_dlFreeUnusedTextures
 void dlFreeUnusedTextures();

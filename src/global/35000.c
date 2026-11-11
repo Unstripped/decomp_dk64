@@ -425,7 +425,7 @@ extern u8 gCurrentPlayerIndex;
 
 
 
-void *renderActorEntryBuildDisplayList(s32 context, Actor *actor, Gfx *glist, u8 playerIndex) {
+Gfx *renderActorEntryBuildDisplayList(s32 context, Actor *actor, Gfx *glist, u8 playerIndex) {
     PlayerState *ctl;
     f32 dz;
     f32 dy;
