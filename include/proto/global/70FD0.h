@@ -5,6 +5,7 @@
 #include "actor.h"
 #include "collision.h"
 #include "heap.h"
+#include "map.h"
 struct ActorFacingWork;
 struct ActorHitPlane;
 struct ActorHitView;
@@ -13,7 +14,6 @@ struct ActorSphereUpdateView;
 struct ActorTargetWork;
 struct CollisionActor;
 struct CollisionPlane;
-struct CollisionStaticHeader;
 struct CollisionTri;
 struct CollisionVec3i;
 #ifndef PROTO_SKIP_collisionBuildSlotBoxes
@@ -32,7 +32,7 @@ void collisionTransformNode(s32, s32, f32, f32, f32, f32, f32, f32, f32);
 void dynamicBufferFree(struct DynamicBuffer *);
 #endif
 #ifndef PROTO_SKIP_collisionInitStaticCache
-void collisionInitStaticCache(struct CollisionStaticHeader *);
+void collisionInitStaticCache(struct MapFileHeader *);
 #endif
 #ifndef PROTO_SKIP_collisionLoadStaticCell
 void collisionLoadStaticCell(s32);

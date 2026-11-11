@@ -1,6 +1,7 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
+#include "map.h"
 #include "collision.h"
 #include "heap.h"
 #include "proto/boot/30E0.h"
@@ -272,15 +273,6 @@ void dynamicBufferFree(DynamicBuffer *buf) {
     buf->unk15 &= ~1;
 }
 
-typedef struct CollisionStaticHeader {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ u8 pad4[5];
-    /* 0x09 */ u8 unk9;
-    /* 0x0A */ u8 padA[6];
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-} CollisionStaticHeader;
-
 typedef struct CollisionStaticCellEntry {
     /* 0x00 */ void *unk0;
     /* 0x04 */ u8 *unk4;
@@ -294,7 +286,7 @@ extern s32 gCurrentMap;
 extern s32 D_807FB530;
 
 
-void collisionInitStaticCache(CollisionStaticHeader *header) {
+void collisionInitStaticCache(MapFileHeader *header) {
     u8 *data;
     void *compressed;
     u8 *gzOut;
