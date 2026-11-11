@@ -24,8 +24,6 @@
 
 struct WaypointNode;
 struct F56AState;
-struct F5N6Input;
-
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
@@ -1256,14 +1254,7 @@ void playerWaypointPathStartPacked(Actor *actor, void *callbackParam, s16 packed
 extern s32 gGlobalPauseFlags;
 
 
-typedef struct F5N6Input {
-    s16 x;
-    s16 y;
-    s16 z;
-    u8 angle;
-} F5N6Input;
-
-void playerWaypointPathStartLineFromPoint(Actor *actor, F5N6Input *input, u8 length) {
+void playerWaypointPathStartLineFromPoint(Actor *actor, G01Pos *spawn, u8 length) {
     WaypointNode *p;
     WaypointNode *q;
     WaypointPath *entry;
@@ -1274,13 +1265,13 @@ void playerWaypointPathStartLineFromPoint(Actor *actor, F5N6Input *input, u8 len
     heapClearBlock(entry->nodes);
     q = entry->nodes + 1;
     p = entry->nodes;
-    p->x = input->x;
-    p->y = input->y;
-    p->z = input->z;
+    p->x = spawn->unk0;
+    p->y = spawn->unk2;
+    p->z = spawn->unk4;
     p->speed = 0x32;
-    q->x = mathSinF((s16)((input->angle / 255.0) * 4095.0)) * length + input->x;
-    q->y = input->y;
-    q->z = mathCosF((s16)((input->angle / 255.0) * 4095.0)) * length + input->z;
+    q->x = mathSinF((s16)((spawn->unk6 / 255.0) * 4095.0)) * length + spawn->unk0;
+    q->y = spawn->unk2;
+    q->z = mathCosF((s16)((spawn->unk6 / 255.0) * 4095.0)) * length + spawn->unk4;
     q->speed = 0x32;
     playerWaypointPathStart(gWaypointPaths->count, actor, 0, 0, 0);
     gWaypointFlags = 0;

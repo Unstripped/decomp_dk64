@@ -6,7 +6,6 @@
 struct F56AState;
 struct F5DDeferredEntry;
 struct F5N1Spring;
-struct F5N6Input;
 struct WaypointNode;
 #ifndef PROTO_SKIP_playerKongStopAudioChannels
 void playerKongStopAudioChannels(Actor *, u16);
@@ -123,7 +122,7 @@ void deferredEntryFree(struct F5DDeferredEntry *);
 void playerWaypointPathStartPacked(Actor *, void *, s16, s16);
 #endif
 #ifndef PROTO_SKIP_playerWaypointPathStartLineFromPoint
-void playerWaypointPathStartLineFromPoint(Actor *, struct F5N6Input *, u8);
+void playerWaypointPathStartLineFromPoint(Actor *, G01Pos *, u8);
 #endif
 #ifndef PROTO_SKIP_playerWaypointPathStartLineFromActor
 void playerWaypointPathStartLineFromActor(Actor *, s16, s16, u8);
