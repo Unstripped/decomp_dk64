@@ -623,13 +623,7 @@ void raceVehicleBehaviorUpdate(void) {
     }
 }
 
-typedef struct {
-    u8 pad0[0x15];
-    u8 unk15;
-    u8 pad16[0x200 - 0x16];
-    u8 unk200;
-} StructBB70_Race;
-extern StructBB70_Race gActorGlobalState;
+extern ActorGlobalState gActorGlobalState;
 
 extern u8 D_80720340[];
 extern u8 sEffectSparkConfig[];
@@ -653,7 +647,7 @@ void raceProjectileBehaviorUpdate(void) {
         gCurrentActor->unk144 = 0x3C;
         participant->unk4 = 5.0f;
     }
-    if ((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0) || (gActorGlobalState.unk200 == 5)) {
+    if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0) || (gActorGlobalState.bossFightPhase == 5)) {
         effectSetDepth(1);
         effectCreateAtPosition(D_80720340, 3.0f, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84);
         sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0xF6, 0xFF, 0x7F, 0x14, 0x32, 0.3f, 0);

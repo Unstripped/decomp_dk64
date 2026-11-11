@@ -74,12 +74,6 @@ typedef struct LB3bSnd {
     u16 unk18;
 } LB3bSnd;
 
-typedef struct LB3bTbl {
-    u8 pad0[0x258];
-    s32 unk258[8];
-    u8 *unk278[8];
-} LB3bTbl;
-
 extern Actor *gCurrentActor;
 extern Actor *gActivePlayerActor;
 extern Actor *gPrimaryPlayerActor;
@@ -88,7 +82,7 @@ extern s16 D_8076AEF2;
 extern u16 D_80744508;
 extern s16 D_80750AC4;
 extern u8 D_807FBDC4;
-extern LB3bTbl gActorGlobalState;
+extern ActorGlobalState gActorGlobalState;
 extern u8 D_8002D863[];
 
 
@@ -179,7 +173,7 @@ tail:
             do {
                 if (gActorGlobalState.unk258[i] == 3) {
                     a2v = 1;
-                    v3 = gActorGlobalState.unk278[i][3];
+                    v3 = ((u8 *)gActorGlobalState.unk278[i])[3]; // unk278[] points at script data read as s16 (1295B0, 80150) and as bytes here
                     switch (challengeType) {
                     case 0:
                         if (s->unk4 != 0) {

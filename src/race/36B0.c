@@ -756,13 +756,7 @@ void raceFindNearestWaypoint(RaceCursor *cursor) {
     }
 }
 
-typedef struct {
-    u8 pad0[0x15];
-    u8 unk15;
-    u8 pad16[0x200 - 0x16];
-    u8 unk200;
-} StructBB70_Race;
-extern StructBB70_Race gActorGlobalState;
+extern ActorGlobalState gActorGlobalState;
 void tagBarrelSpawnActorSmokePuffs(u8, u8);
 s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void commandQueuePush(Actor *, s16, s16, s16, u8, u8, u8, u8, u8);
@@ -789,7 +783,7 @@ void raceObstacleCarBehaviorUpdate(void) {
     }
     targetActor = cursor->unk30;
     targetState = targetActor->view.a.unk178;
-    if ((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) {
+    if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) {
         tagBarrelSpawnActorSmokePuffs(0, 1);
         gCurrentActor->unk154 = 0x40;
     }

@@ -583,7 +583,7 @@ typedef struct Boss3B_Actor {
 
 extern Boss3B_Actor *gSpawnedActor;
 extern Boss3B_Actor *gPrimaryPlayerActor;
-extern u8 gActorGlobalState[];
+extern ActorGlobalState gActorGlobalState;
 
 extern u8 *D_800358B0[][5];
 extern u8 D_80035980;
@@ -674,7 +674,7 @@ void bossArmydilloStep(void) {
         }
     }
     func_8072881C(0, &gBehaviourWorkState->unk28);
-    if ((gActorGlobalState[0x200] == 9) || (gActorGlobalState[0x15] != 0)) {
+    if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) {
         tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 0xC, 2.0f);
         gCurrentActor->unk138 = 0;
         gCurrentActor->unk144 = 1;
@@ -683,7 +683,7 @@ void bossArmydilloStep(void) {
         camStartPath(gCurrentActor, 9, 1);
         gCurrentActor->unk154 = 0x37;
         gCurrentActor->unk155 = 0;
-    } else if (gActorGlobalState[0x200] == 4) {
+    } else if (gActorGlobalState.bossFightPhase == 4) {
         bossArmydilloHideCannons();
         gCurrentActor->unk154 = 0x4D;
         gCurrentActor->unk155 = 0;

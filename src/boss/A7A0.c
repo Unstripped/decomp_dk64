@@ -33,15 +33,7 @@ typedef struct BossC_A7A0_Actor {
     BossC_A7A0_178 *unk178;
 } BossC_A7A0_Actor;
 
-typedef struct BossC_A7A0_BB70 {
-    char pad[0x15];
-    u8 unk15;
-    char pad16[0x1E6];
-    BossC_A7A0_Actor *targetActor;
-    u8 unk200;
-} BossC_A7A0_BB70;
-
-extern BossC_A7A0_BB70 gActorGlobalState;
+extern ActorGlobalState gActorGlobalState;
 extern BossC_A7A0_Actor *gCurrentActor;
 extern BossC_A7A0_Actor *gPrimaryPlayerActor;
 void actorDespawn(BossC_A7A0_Actor *);
@@ -69,7 +61,7 @@ void bossResetMinions(BossC_A7A0_Actor *excludeActor) {
 }
 
 void bossPhaseTick(void) {
-    BossC_A7A0_Actor *other;
+    Actor *other;
     s16 timer;
 
     if (!(gCurrentActor->unk60 & 0x10)) {
@@ -87,15 +79,15 @@ void bossPhaseTick(void) {
             gCurrentActor->unk155 = 0;
         }
     }
-    if (((gActorGlobalState.unk15 != 0) || (gActorGlobalState.unk200 == 9)) &&
-        ((other = gActorGlobalState.targetActor)->unk154 == 0x2B) &&
+    if (((gActorGlobalState.unk15 != 0) || (gActorGlobalState.bossFightPhase == 9)) &&
+        ((other = gActorGlobalState.targetActor)->state == 0x2B) &&
         (other->unk155 == 3)) {
         gCurrentActor->unk154 = 1;
         gCurrentActor->unk155 = 0;
         gCurrentActor->unk11C->unk154 = 0x64;
         gCurrentActor->unk11C->unk155 = 0;
         other->unk155 = 0;
-        other->unk154 = 0x31;
+        other->state = 0x31;
     }
     if (gCurrentActor->unk154 == 1) {
         gCurrentActor->unk144 = 1;
@@ -161,16 +153,6 @@ typedef struct BossActor {
     BossScriptState *unk178;
 } BossActor;
 
-typedef struct BossStageInfo {
-    char pad[0x1B];
-    u8 unk1B;
-    char pad1C[0x200 - 0x1C];
-    u8 unk200;
-} BossStageInfo;
-
-
-
-
 extern u8 *D_80035A80[];
 void behaviourFrameBegin(void);
 void func_80724CA4(s16, s16);
@@ -187,7 +169,6 @@ u8 func_8072881C(u8, u32 *);
 
 #define ACTOR40 ((BossActor *)gCurrentActor)
 #define ACTOR4C ((BossActor *)gPrimaryPlayerActor)
-#define BB70 (*(BossStageInfo *)&gActorGlobalState)
 
 void bossKRoolLankyStep(void) {
     BossScriptState *scriptState;
@@ -226,10 +207,10 @@ void bossKRoolLankyStep(void) {
                 ACTOR40->unk155++;
                 break;
             case 3:
-                if (BB70.unk1B != 0) {
+                if (gActorGlobalState.unk1B != 0) {
                     ACTOR40->unk154 = 0x31;
                     ACTOR40->unk155 = 0;
-                } else if (BB70.unk200 == 2) {
+                } else if (gActorGlobalState.bossFightPhase == 2) {
                     bossResetMinions(NULL);
                     ACTOR40->unk154 = 0x2C;
                     ACTOR40->unk155 = 0;
