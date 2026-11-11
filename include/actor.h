@@ -196,8 +196,8 @@ typedef struct ActorEntry {
 } ActorEntry; // size = 0x8
 
 typedef struct ActorCollisionHit {
-    u8 unk0[0xC];
-    u8 unkC[0x24];
+    f32 unk0[3];
+    f32 unkC[9];
     s32 unk30;
     s32 unk34;
     s32 unk38;
@@ -246,8 +246,8 @@ typedef struct ActorGlobalState {
     /* 0x092 */ s16 unk92;
     /* 0x094 */ s16 unk94;
     /* 0x096 */ u8 unk96[2];
-    /* 0x098 */ u8 unk98[0xC];   // surface hit payload copy (12 bytes, from payload +0x4)
-    /* 0x0A4 */ u8 unkA4[0x24];  // surface hit payload copy (0x24 bytes, from payload +0x10)
+    /* 0x098 */ f32 unk98[3];   // surface hit payload copy (12 bytes, from payload +0x4)
+    /* 0x0A4 */ f32 unkA4[9];  // surface hit payload copy (0x24 bytes, from payload +0x10)
     /* 0x0C8 */ s32 unkC8;
     /* 0x0CC */ struct Actor *unkCC;
     /* 0x0D0 */ s32 unkD0;
