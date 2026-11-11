@@ -3,6 +3,7 @@
 #include "actor.h"
 #include "cutscene.h"
 #include "sched.h"
+#include "model.h"
 #define PROTO_SKIP_hudSpawnCountdownTimer // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_modelAnimEntrySetUnkC // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxSlotAllocateSource // FAKE: callee prototype steer
@@ -113,36 +114,10 @@ void csModelIdTableReset(void) {
     for (j = 0; j < 0x212; j++) { gCsVarsDirty[j] = 0; } // LAYOUT: one-line loop keeps the as1 unroll schedule (Q0364)
 }
 
-struct CsModelSlot;
-extern struct CsModelSlot *gModelSlots;
-
-typedef struct CsLoadNode {
-    /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 pad1;
-    /* 0x02 */ u8 unk2[0x28];
-    /* 0x2A */ u8 unk2A;
-    /* 0x2B */ u8 pad2B;
-    /* 0x2C */ u8 unk2C[0x20];
-    /* 0x4C */ struct CsLoadNode *unk4C;
-} CsLoadNode;
-
-typedef struct CsLoadState {
-    /* 0x00 */ u8 unk0[0x9C];
-    /* 0x9C */ s16 unk9C;
-    /* 0x9E */ u8 pad9E[2];
-    /* 0xA0 */ CsLoadNode *unkA0;
-} CsLoadState;
-
-typedef struct CsLoadSlot {
-    /* 0x00 */ u8 pad0[0x7C];
-    /* 0x7C */ CsLoadState *unk7C;
-    /* 0x80 */ u8 pad80[0xA];
-    /* 0x8A */ s16 unk8A;
-    /* 0x8C */ u8 pad8C[4];
-} CsLoadSlot; /* 0x90 */
+extern ModelSlot *gModelSlots;
 
 s16 csModelSlotGetTableIndex(s16 modelId) {
-    return ((CsLoadSlot *)gModelSlots)[hashTableLookup(modelId)].unk8A;
+    return gModelSlots[hashTableLookup(modelId)].unk8A;
 }
 
 s16 csModelIdTableAlloc(s16 modelId, u8 isLowTable) {
@@ -170,8 +145,8 @@ void csModelStateSetByte(s16 modelIndex, s16 val, s16 byteOffset) {
 
     slot = hashTableLookup(gCsModelIds[modelIndex]);
     if (slot != -1) {
-        ((CsLoadSlot *)gModelSlots)[slot].unk7C->unk0[byteOffset + 0x48] = val;
-        ((CsLoadSlot *)gModelSlots)[slot].unk7C->unk0[0x54] = 1;
+        gModelSlots[slot].unk7C->unk48[byteOffset] = val;
+        gModelSlots[slot].unk7C->unk54 = 1;
     }
 }
 
@@ -232,8 +207,8 @@ void csScriptLoad(s16 *scriptData) {
     s16 c2;
     s32 len1;
     s32 len2;
-    CsLoadNode **tail;
-    CsLoadNode *node;
+    CsNode **tail;
+    CsNode *node;
 
     n = *scriptData;
     p = scriptData + 1;
@@ -243,12 +218,12 @@ void csScriptLoad(s16 *scriptData) {
             p++;
             slot = hashTableLookup(gCsModelIds[id]);
             if (slot != -1) {
-                ((CsLoadSlot *)gModelSlots)[slot].unk7C = heapAlloc(0xA4);
-                csStateInit(((CsLoadSlot *)gModelSlots)[slot].unk7C);
-                ((CsLoadSlot *)gModelSlots)[slot].unk7C->unkA0 = NULL;
+                gModelSlots[slot].unk7C = heapAlloc(0xA4);
+                csStateInit(gModelSlots[slot].unk7C);
+                gModelSlots[slot].unk7C->unkA0 = NULL;
                 m = p[0];
-                tail = &((CsLoadSlot *)gModelSlots)[slot].unk7C->unkA0;
-                ((CsLoadSlot *)gModelSlots)[slot].unk7C->unk9C = p[1];
+                tail = &gModelSlots[slot].unk7C->unkA0;
+                gModelSlots[slot].unk7C->unk9C = p[1];
                 p += 2;
                 while (m != 0) {
                     node = heapAlloc(0x50);
@@ -371,13 +346,6 @@ void csStateInit(CsStateFull *cs) {
     cs->unk90 = 0.0f;
 }
 
-typedef struct CsStateSlot {
-    /* 0x00 */ u8 pad0[0x7C];
-    /* 0x7C */ u8 *unk7C;
-    /* 0x80 */ u8 pad80[0x10];
-} CsStateSlot; /* 0x90 */
-
-struct CsModelSlot;
 extern u8 gCsVarsDirty[];
 
 void csModelStateSetVars(s32 modelIndex, u8 *varsData) {
@@ -385,7 +353,7 @@ void csModelStateSetVars(s32 modelIndex, u8 *varsData) {
 
     slot = hashTableLookup(gCsModelIds[modelIndex]);
     if (slot != -1) {
-        memcpy(((CsStateSlot *)gModelSlots)[slot].unk7C + 0x14, varsData, 0x20);
+        memcpy(gModelSlots[slot].unk7C->unk14, varsData, 0x20);
         gCsVarsDirty[modelIndex] = 1;
     }
 }
@@ -635,19 +603,6 @@ typedef struct CsCondPlayer {
     /* 0x008 */ u8 pad8[0x2F0 - 0x8];
 } CsCondPlayer; /* 0x2F0 */
 
-typedef struct CsCondObj {
-    /* 0x00 */ u8 pad0[0x48];
-    /* 0x48 */ u8 unk48[1];
-} CsCondObj;
-
-typedef struct CsCondSlot {
-    /* 0x00 */ u8 pad0[0x7C];
-    /* 0x7C */ u8 *unk7C;
-    /* 0x80 */ u8 pad80[4];
-    /* 0x84 */ s16 unk84;
-    /* 0x86 */ u8 pad86[0xA];
-} CsCondSlot; /* 0x90 */
-
 typedef struct CsCondRow {
     /* 0x000 */ u8 e[8][0x5E];
     /* 0x2F0 */ u8 pad2F0[0x16];
@@ -872,7 +827,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = csCompareVar(CS_COND_STATE->unk14, cmd->a, cmd->b);
         break;
     case 0x31:
-        if (((CsCondSlot *)gModelSlots)[hashTableLookup(gCsModelIds[cmd->a])].unk7C[cmd->c + 0x48] == ((s16 *)cmd)[2]) { // FAKE: punned cmd->b read keeps bne field,arg operand order
+        if (gModelSlots[hashTableLookup(gCsModelIds[cmd->a])].unk7C->unk48[cmd->c] == ((s16 *)cmd)[2]) { // FAKE: punned cmd->b read keeps bne field,arg operand order
             ret = 1;
         } else {
             ret = 0;
@@ -1010,7 +965,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x10:
         if (CS_COND_STATE->unk5C != 0 && (cmd->b == -1 || cmd->b == CS_COND_STATE->unk5C) &&
             (actorLookupClass(CS_COND_STATE->unk5E) & cmd->a) && csIsPlayerInCutsceneState() != 0) {
-            csSetCameraFollowModel(((CsCondSlot *)gModelSlots)[hashTableLookup(csId)].unk84);
+            csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].unk84);
             ret = 1;
         } else {
             ret = 0;
@@ -1019,7 +974,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x18:
         if (CS_COND_STATE->unk5C != 0 && (cmd->b == -1 || cmd->b == CS_COND_STATE->unk5C) && cmd->a == CS_COND_STATE->unk5E &&
             csIsPlayerInCutsceneState() != 0) {
-            csSetCameraFollowModel(((CsCondSlot *)gModelSlots)[hashTableLookup(csId)].unk84);
+            csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].unk84);
             ret = 1;
         } else {
             ret = 0;
@@ -1113,22 +1068,6 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
 
 // Cutscene script command interpreter (csCmdExec): one 8-byte command per call.
 
-typedef struct CsModelSlot {
-    /* 0x00 */ u8 pad0[0x28];
-    /* 0x28 */ u8 unk28[0x20];
-    /* 0x48 */ u8 unk48[0x34];
-    /* 0x7C */ u8 *unk7C;
-    /* 0x80 */ u8 pad80[0xA];
-    /* 0x8A */ s16 unk8A;
-    /* 0x8C */ u8 pad8C[4];
-} CsModelSlot; /* 0x90 */
-
-typedef struct CsModelSlot2 {
-    /* 0x00 */ u8 pad0[0x3C];
-    /* 0x3C */ s8 unk3C;
-    /* 0x3D */ u8 pad3D[0x90 - 0x3D];
-} CsModelSlot2;
-
 extern CsCmdFunc gCsCmdTable[];
 extern u8 D_80744824;
 extern s8 D_80748094;
@@ -1136,7 +1075,6 @@ extern s16 D_8074809C[];
 extern s16 D_807480AC[];
 extern s16 D_807480BC[];
 extern s32 gCurrentMap;
-extern CsModelSlot *gModelSlots;
 extern CsSpawnReq D_807F61F0;
 extern s16 gCsTrackedModels[16];
 extern u8 gCsTrackedModelCount;
@@ -1733,7 +1671,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             if (idx != -1) {
                 if (gModelSlots[idx].unk7C != NULL) {
                     found = 1;
-                    gModelSlots[idx].unk7C[cmd->b + 0x48] += cmd->c;
+                    gModelSlots[idx].unk7C->unk48[cmd->b] += cmd->c;
                 }
             }
         }
@@ -1785,7 +1723,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         D_807F6908 = cmd->b;
         break;
     case 0x2A:
-        ((CsModelSlot2 *)gModelSlots)[hashTableLookup(csId)].unk3C = cmd->a;
+        gModelSlots[hashTableLookup(csId)].unk28.unk14 = cmd->a;
         break;
     case 0x2E:
         mapByteArraySet(cmd->a, CMDB(cmd)->b);
@@ -1916,7 +1854,7 @@ s32 csModelStateTrySetByte(s16 modelIndex, s16 val, s16 byteOffset) {
     if (modelId != -1) {
         slot = hashTableLookup(modelId);
         if (slot != -1 && gModelSlots[slot].unk7C != NULL) {
-            gModelSlots[slot].unk7C[byteOffset + 0x48] = val;
+            gModelSlots[slot].unk7C->unk48[byteOffset] = val;
             return 1;
         }
     }
@@ -1966,20 +1904,13 @@ void csFreeTrackedModels(void) {
     }
 }
 
-typedef struct CsAuxView {
-    /* 0x00 */ u8 pad0[0x48];
-    /* 0x48 */ u8 unk48;
-    /* 0x49 */ u8 pad49[0x57];
-    /* 0xA0 */ s32 unkA0;
-} CsAuxView;
-
 void csStateShareScript(s16 dstModelId, s16 srcModelId, s16 val) {
     dstModelId = hashTableLookup(dstModelId);
     srcModelId = hashTableLookup(srcModelId);
     gModelSlots[dstModelId].unk7C = heapAlloc(0xA4);
     csStateInit(gModelSlots[dstModelId].unk7C);
-    ((CsAuxView *)gModelSlots[dstModelId].unk7C)->unk48 = val;
-    ((CsAuxView *)gModelSlots[dstModelId].unk7C)->unkA0 = ((CsAuxView *)gModelSlots[srcModelId].unk7C)->unkA0;
+    gModelSlots[dstModelId].unk7C->unk48[0] = val;
+    gModelSlots[dstModelId].unk7C->unkA0 = gModelSlots[srcModelId].unk7C->unkA0;
 }
 
 void csSetActorAlphaByType(s16 actorType, s16 enable, s16 csId) {
