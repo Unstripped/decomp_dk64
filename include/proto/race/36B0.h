@@ -2,20 +2,20 @@
 #ifndef PROTO_RACE_36B0_H
 #define PROTO_RACE_36B0_H
 #include "common.h"
-struct RaceActor;
+#include "actor.h"
 struct RaceCursor;
 struct RaceState;
 #ifndef PROTO_SKIP_raceGetWaypointDiff
 s32 raceGetWaypointDiff(s32, struct RaceCursor *, struct RaceCursor *);
 #endif
 #ifndef PROTO_SKIP_raceGetWaypointSegmentFraction
-f32 raceGetWaypointSegmentFraction(s32, struct RaceActor *, struct RaceCursor *);
+f32 raceGetWaypointSegmentFraction(s32, Actor *, struct RaceCursor *);
 #endif
 #ifndef PROTO_SKIP_raceGetPathDistance
 f32 raceGetPathDistance(s32, u16, u16);
 #endif
 #ifndef PROTO_SKIP_raceGetPathDistanceBetweenRacers
-f32 raceGetPathDistanceBetweenRacers(struct RaceActor *, struct RaceCursor *, struct RaceActor *, struct RaceCursor *);
+f32 raceGetPathDistanceBetweenRacers(Actor *, struct RaceCursor *, Actor *, struct RaceCursor *);
 #endif
 #ifndef PROTO_SKIP_raceChangeLaneRelative
 void raceChangeLaneRelative(struct RaceCursor *, s8);
