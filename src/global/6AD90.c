@@ -1348,39 +1348,39 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
             if (collisionCheckTriangleBoundingBoxXZ(tri, arg2, arg3) != 0 &&
                 collisionCheckTriangleContainsPointXZ(tri, arg2, arg3) != 0 &&
                 collisionCheckSurfaceFilter(tri->unk27, buf->unk25) != 0) {
-                dx01 = (f64)(tri->x[0] - tri->x[1]);
-                dy01 = (f64)(tri->y[0] - tri->y[1]);
-                dz01 = (f64)(tri->z[0] - tri->z[1]);
-                dx02 = (f64)(tri->x[0] - tri->x[2]);
-                dy02 = (f64)(tri->y[0] - tri->y[2]);
-                dz02 = (f64)(tri->z[0] - tri->z[2]);
+                dx01 = tri->x[0] - tri->x[1];
+                dy01 = tri->y[0] - tri->y[1];
+                dz01 = tri->z[0] - tri->z[1];
+                dx02 = tri->x[0] - tri->x[2];
+                dy02 = tri->y[0] - tri->y[2];
+                dz02 = tri->z[0] - tri->z[2];
                 nx = (dy01 * dz02) - (dz01 * dy02);
                 ny = (dz01 * dx02) - (dx01 * dz02);
                 nz_product = dx01 * dy02;
-                d = -((nx * (f64)tri->x[1]) + (ny * (f64)tri->y[1]) + ((nz_product - (dy01 * dx02)) * (f64)tri->z[1]));
+                d = -((nx * tri->x[1]) + (ny * tri->y[1]) + ((nz_product - (dy01 * dx02)) * tri->z[1]));
                 if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
-                if (arg0 != NULL) {
-                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * (f64)arg3) + d) / (ny * 2000.0)));
-                    y = (f32)((2000.0 * val) - 1000.0);
-                    collisionCheckSlopeAngle(arg4, y, 0, arg0, 0);
-                    if (collisionGetFloorTriangleNormal(arg4, y, 0, tri->unk24) != 0 && D_807F946D != 0) {
-                        collisionAttachActorToObjectNode((struct CollisionActorWork *)arg0, slotIdx, -1, 0, arg2, y, arg3);
-                        arg0->attachMode = 2;
+                    if (arg0 != NULL) {
+                        val = 0.0 - (((arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * arg3) + d) / (ny * 2000.0));
+                        y = (2000.0 * val) - 1000.0;
+                        collisionCheckSlopeAngle(arg4, y, 0, arg0, 0);
+                        if (collisionGetFloorTriangleNormal(arg4, y, 0, tri->unk24) != 0 && D_807F946D != 0) {
+                            collisionAttachActorToObjectNode((struct CollisionActorWork *)arg0, slotIdx, -1, 0, arg2, y, arg3);
+                            arg0->attachMode = 2;
+                        }
                     }
-                }
-                if (D_807F94BC != 0) {
-                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * (f64)arg3) + d) / (ny * 2000.0)));
-                    collisionRecordTriangleF(tri, (f32)((2000.0 * val) - 1000.0));
-                }
-                if (collisionCheckTriangleWindingF32(tri) != 0) {
-                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * (f64)arg3) + d) / (ny * 2000.0)));
-                    y = (f32)((2000.0 * val) - 1000.0);
-                    if (mathCheckCloserFloatThreshold(hit_y, y, (f32)((f64)arg4 + 4.0), 0) != 0) {
-                        hit_tri = tri;
-                        hit = 1;
-                        hit_y = y;
+                    if (D_807F94BC != 0) {
+                        val = 0.0 - (((arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * arg3) + d) / (ny * 2000.0));
+                        collisionRecordTriangleF(tri, (2000.0 * val) - 1000.0);
                     }
-                }
+                    if (collisionCheckTriangleWindingF32(tri) != 0) {
+                        val = 0.0 - (((arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * arg3) + d) / (ny * 2000.0));
+                        y = (2000.0 * val) - 1000.0;
+                        if (mathCheckCloserFloatThreshold(hit_y, y, arg4 + 4.0, 0) != 0) {
+                            hit_tri = tri;
+                            hit = 1;
+                            hit_y = y;
+                        }
+                    }
                 }
             }
             tri++;
@@ -1543,15 +1543,13 @@ void actorUpdateSubnodeRotationAndMtx(CollisionActorWork *arg0) {
     f32 z;
     s16 slot;
     s16 pad40;
-    CsStateFull *sub;
 
     slot = hashTableLookup(arg0->cutsceneId);
     if (slot != -1) {
         modelSlotBuildTransformMatrix(slot, arg0->unk10F, mtx);
-        sub = gModelSlots[slot].unk7C;
-        if (sub != NULL) {
+        if (gModelSlots[slot].unk7C != NULL) {
             if (arg0->hasArcBounds == 0) {
-                arg0->yaw += (sub->unk34 * 4095.0f) / 360.0f;
+                arg0->yaw += (gModelSlots[slot].unk7C->unk34 * 4095.0f) / 360.0f;
                 if (arg0->yaw >= 0x1000) {
                     arg0->yaw -= 0x1000;
                 }

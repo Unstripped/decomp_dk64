@@ -494,7 +494,6 @@ typedef struct ModelSlotSubNode {
 extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
 
-struct ModelQuadOwner;
 struct ModelPathTable;
 struct ModelVertTable;
 
@@ -1045,7 +1044,7 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
             }
         } else {
             if (lastBone != bone) {
-                modelBuildBoneChainMatrix(boneTable + (bone << 5), animFrame, boneMtx);
+                modelBuildBoneChainMatrix((s32 *)(boneTable + (bone << 5)), animFrame, boneMtx);
                 guMtxCatF(boneMtx, mtx, boneWorldMtx);
                 lastBone = entry[0x13];
             }
@@ -1515,13 +1514,7 @@ typedef struct ModelQuadOutput {
     /* 0x48 */ s16 unk48;
 } ModelQuadOutput;
 
-typedef struct ModelQuadOwner {
-    /* 0x00 */ u8 pad0[0x20];
-    /* 0x20 */ ModelQuadOutput *unk20;
-    /* 0x24 */ u8 *unk24;
-} ModelQuadOwner;
-
-void modelQuadBuildOutput(ModelQuadOwner *owner, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, f32 yOffset) {
+void modelQuadBuildOutput(ModelSlot *owner, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, f32 yOffset) {
     ModelQuadOutput *out;
     ModelQuadData *q;
     u8 *data;
@@ -1529,7 +1522,7 @@ void modelQuadBuildOutput(ModelQuadOwner *owner, f32 x, f32 y, f32 z, f32 rotX, 
     s32 j;
     s16 sum;
 
-    data = owner->unk24;
+    data = (u8 *)owner->unk24;
     out = owner->unk20;
     q = (ModelQuadData *)(*(s32 *)(data + 0x70) + (s32)data + 4);
     out->unk0 = x;
@@ -1626,34 +1619,34 @@ u8 isId;
     if (isId == 1) {
         slot = hashTableLookup(slot);
     }
-    mapPurgeNodeList(((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk20, &purgeOut, 0);
-    renderEntryRemove(0, ((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk20, 2, &removed);
+    mapPurgeNodeList(gModelSlots[slot].unk20, &purgeOut, 0);
+    renderEntryRemove(0, gModelSlots[slot].unk20, 2, &removed);
     dynamicBufferFree(&gModelSlots[slot].unk28);
     modelSlotTriBufferRelease(&gModelSlots[slot].unk48);
-    modelPosNodeListFree(((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk70);
-    modelLinkedNodeListFree(((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk74);
-    modelSlotFree(((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk78);
+    modelPosNodeListFree(gModelSlots[slot].unk70);
+    modelLinkedNodeListFree(gModelSlots[slot].unk74);
+    modelSlotFree(gModelSlots[slot].unk78);
     modelSlotFreeTexAnimNodes(&gModelSlots[slot]);
-    if (((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C != NULL) {
-        csStateFree(((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C);
+    if (gModelSlots[slot].unk7C != NULL) {
+        csStateFree(gModelSlots[slot].unk7C);
     }
-    gCsModelIds[((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk8A] = -1;
-    actorClearEntrySlot(((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk88);
-    entryId = ((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk88;
+    gCsModelIds[gModelSlots[slot].unk8A] = -1;
+    actorClearEntrySlot(gModelSlots[slot].unk88);
+    entryId = gModelSlots[slot].unk88;
     hashTableRemove(entryId);
     proxPathRemoveActor(entryId);
-    if (((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C != NULL) {
-        if ((((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C)->unk10 != -1) {
-            sfxSlotFreeSource((((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C)->unk10);
+    if (gModelSlots[slot].unk7C != NULL) {
+        if (gModelSlots[slot].unk7C->unk10 != -1) {
+            sfxSlotFreeSource(gModelSlots[slot].unk7C->unk10);
         }
-        if ((((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C)->unk12 != -1) {
-            sfxSlotFreeSource((((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))->unk7C)->unk12);
+        if (gModelSlots[slot].unk7C->unk12 != -1) {
+            sfxSlotFreeSource(gModelSlots[slot].unk7C->unk12);
         }
     }
     if (slot + 1 != D_80747D70) {
-        hashTableInsert(((ModelSlot *)((u8 *)gModelSlots + D_80747D70 * 0x90 - 0x90))->unk88, slot);
+        hashTableInsert(gModelSlots[D_80747D70 - 1].unk88, slot);
     }
-    memcpy(&gModelSlots[slot], &gModelSlots[D_80747D70] - 1, 0x90);
+    memcpy(&gModelSlots[slot], &gModelSlots[D_80747D70 - 1], sizeof(ModelSlot));
     D_80747D70 -= 1;
 }
 
@@ -2762,7 +2755,7 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
         slotIdx = hashTableLookup(obj->unkB6);
         modelSlotResolveAssetTextures(&gModelSlots[slotIdx], 0, 1);
         animBuffers = gModelSlots[slotIdx].unk78;
-        if (playerSlotMatchesSizeMask(*(s32 *)gModelSlots[slotIdx].unk24, gCurrentPlayerIndex, (s32)animBuffers) != 0) {
+        if (playerSlotMatchesSizeMask(gModelSlots[slotIdx].unk24->unk0, gCurrentPlayerIndex, (s32)animBuffers) != 0) {
             return gfx;
         }
     }
@@ -3939,7 +3932,7 @@ void modelPendingQueueInsert(ModelPendingEntry *entry, u8 allowDefault) {
     s32 pad3;
     s32 pad4;
     s32 pad5;
-    u8 *tbl;
+    ModelSlot *tbl;
     f32 *newv;
     s32 i;
     f32 *px;
@@ -3947,7 +3940,7 @@ void modelPendingQueueInsert(ModelPendingEntry *entry, u8 allowDefault) {
     f32 *pz;
     f32 best;
 
-    if (0) { csStateTickTimers((s32)&idx); csStateTickTimers((s32)&tbl); } allow = 1; if (entry->unk24 == 1) { idx = hashTableLookup(entry->unk1E); tbl = (u8 *)gModelSlots; obj = ((ModelSlot *)tbl)[idx].unk7C; if (obj != NULL) { // FAKE: dead if (0) takes &idx/&tbl so both get stack homes; the one-line layout keeps as1 line order
+    if (0) { csStateTickTimers((CsStateFull *)&idx); csStateTickTimers((CsStateFull *)&tbl); } allow = 1; if (entry->unk24 == 1) { idx = hashTableLookup(entry->unk1E); tbl = gModelSlots; obj = tbl[idx].unk7C; if (obj != NULL) { // FAKE: dead if (0) takes &idx/&tbl so both get stack homes; the one-line layout keeps as1 line order
             switch (obj->unk54) {
             case 2:
                 allow = 0;
@@ -3996,7 +3989,7 @@ void modelPendingQueueInsert(ModelPendingEntry *entry, u8 allowDefault) {
             if (allow != 0) {
                 D_807F7140++;
                 if (D_807F60A8 != 0x46) {
-                    D_807F60B0[D_807F60A8] = *(s16 *)(tbl + 0x8A + idx * 0x90);
+                    D_807F60B0[D_807F60A8] = tbl[idx].unk8A;
                     D_807F60A8++;
                     csStateTickTimers(obj);
                     csStateUpdate(obj, entry->unk1E);

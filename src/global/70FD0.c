@@ -138,7 +138,7 @@ void collisionBuildSlotBoxes(s32 slot, s32 arg1, f32 x, f32 y, f32 z, f32 rotX, 
                     }
                 } else {
                     if (lastBone != bone) {
-                        modelBuildBoneChainMatrix((bone << 5) + boneTable, animFrame, boneMtx);
+                        modelBuildBoneChainMatrix((s32 *)((bone << 5) + boneTable), animFrame, boneMtx);
                         guMtxCatF(boneMtx, slotMtx, boneWorldMtx);
                         lastBone = entry[0x14];
                     }
@@ -193,7 +193,7 @@ void modelSlotBuildTransformMatrix(s16 slot, s8 bone, f32 (*outMtx)[4]) {
     guTranslateF(tmpMtx, posX, posY, posZ);
     if (bone != -1) {
         guMtxCatF(mtx, tmpMtx, mtx);
-        modelBuildBoneChainMatrix((bone << 5) + boneTable, animFrame, outMtx);
+        modelBuildBoneChainMatrix((s32 *)((bone << 5) + boneTable), animFrame, outMtx);
         guMtxCatF(outMtx, mtx, outMtx);
         return;
     }
@@ -1619,7 +1619,7 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
                 } else {
                     buf->unk10 = gFrameCounter;
                 }
-                if (!(actor->collisionFlags & 1) || playerSlotMatchesSizeMask(*(s32 *)gModelSlots[i].unk24, ((PlayerState *)actor->customState)->playerIndex) == 0) {
+                if (!(actor->collisionFlags & 1) || playerSlotMatchesSizeMask(gModelSlots[i].unk24->unk0, ((PlayerState *)actor->customState)->playerIndex) == 0) {
                     actorUpdateCollisionSpheres(actor, 0);
                     flag = 1;
                     node = sub->nodes;
@@ -1869,8 +1869,9 @@ void func_8066FE08(s32 arg0) {
     if (gModelSlots[arg0].unk7C != NULL && D_807FB5D8->unk4D != 0) {
         sub = gModelSlots[arg0].unk7C;
         kind = sub->unk50;
-        if (kind != 0) // FAKE: redundant guard keeps sub in v1 (copied to t0) and kind in v0; a bare switch swaps v0/v1 and drops the t0 copy
         switch (kind) {
+        case 0:
+            break;
         case 1:
             sub->unk51 = 1;
             yaw = D_807FB5D8->unk48;

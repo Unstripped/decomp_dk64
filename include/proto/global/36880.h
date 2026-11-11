@@ -9,7 +9,6 @@ struct DisplayListCmd;
 struct ModelNodeBufferOwner;
 struct ModelPathTable;
 struct ModelPendingEntry;
-struct ModelQuadOwner;
 struct ModelRenderAnimObj;
 struct ModelSegmentData;
 struct ModelSegmentNode;
@@ -170,7 +169,7 @@ void dlFindTextureCommands(u32 *, s32, s32, s32, u32 **, u32 **, u32 **);
 s32 dlLengthToEndDL(u32 *);
 #endif
 #ifndef PROTO_SKIP_modelQuadBuildOutput
-void modelQuadBuildOutput(struct ModelQuadOwner *, f32, f32, f32, f32, f32, f32, f32, f32);
+void modelQuadBuildOutput(ModelSlot *, f32, f32, f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_modelSlotLoadAssetTextures
 void modelSlotLoadAssetTextures(u8 *, struct ModelSlotAsset *);
