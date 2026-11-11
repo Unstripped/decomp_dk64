@@ -3,7 +3,6 @@
 #include "actor.h"
 #include "model.h"
 #include "sched.h"
-#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #define PROTO_SKIP_playerSlotMatchesSizeMask // FAKE: callee prototype steer (owner reads no a2; the extra argument steers it)
 #define PROTO_SKIP_renderReplaceSegment6Commands // FAKE: callee prototype steer (owner reads no a2/a3; the extra arguments steer them)
 #include "proto/global/104F0.h"
@@ -91,7 +90,6 @@ s16 modelTypeCountGet(u8 hubIndex) {
     return D_807F6150[hubIndex];
 }
 
-void *assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 extern u8 D_80747D78;
 

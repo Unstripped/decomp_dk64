@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_assetLoad // FAKE: implicit declaration steer
 #define PROTO_SKIP_controllerLookupStateByHash // FAKE: callee prototype steer
 #define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/117190.h"
