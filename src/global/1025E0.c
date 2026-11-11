@@ -194,35 +194,29 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
     curX = baseX;
     node = gfxResourceFindById(resourceId);
     charIndex = 0;
-    centeredX = ((f32)gScreenWidth - ((f32)textGetStringWidth(node->font, (s32)node->text) * scale)) / 2 + -3;
-    waveRadius = (f32)(gScreenWidth >> 3);
+    centeredX = (gScreenWidth - textGetStringWidth(node->font, (s32)node->text) * scale) / 2 + -3;
+    waveRadius = gScreenWidth >> 3;
     phase = node->phase;
-    phaseStep = 6.2831855f / (f32)node->count;
+    phaseStep = 6.2831855f / node->count;
     interpolatePos = 1;
     interpolateScale = 1;
     strPos = 1;
     ch = node->text[0];
     while (ch != 0) {
         if (ch != 0x20) {
-            u32 glyph;
             u8 glyphAdv;
-            u8 glyphAdvFull;
-            s32 halfAdv;
-            u8 halfAdvByte;
+            u8 halfAdv;
 
-            glyph = textGetCharAdvance(node->font, ch) * scale;
-            glyphAdv = glyph;
-            glyphAdvFull = glyph;
+            glyphAdv = textGetCharAdvance(node->font, ch) * scale;
             halfAdv = glyphAdv / 2;
-            halfAdvByte = halfAdv;
             switch (animMode) {
                 case 8:
-                    node->elems[charIndex].targetX = ((f32)halfAdvByte + curX) * 4.0f;
+                    node->elems[charIndex].targetX = (halfAdv + curX) * 4.0f;
                     node->elems[charIndex].targetY = baseY * 4.0f;
-                    curX += (f32)glyphAdvFull;
-                    node->elems[charIndex].targetScale = (f32)((f64)sinApprox(node->timer) * 0.5 + scale);
+                    curX += glyphAdv;
+                    node->elems[charIndex].targetScale = sinApprox(node->timer) * 0.5 + scale;
                     if (node->timer > 0.0f) {
-                        node->timer = (f32)((f64)node->timer - 0.1);
+                        node->timer -= 0.1;
                     } else {
                         node->timer = 0.0f;
                     }
@@ -233,72 +227,72 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
                     node->elems[charIndex].x = (curX + 20.0f) * 4.0f;
                     node->elems[charIndex].y = baseY * 4.0f;
                     curX += 28.0f;
-                    node->elems[charIndex].rotZ = (f32)((f64)sinApprox(node->timer) * 0.35);
+                    node->elems[charIndex].rotZ = sinApprox(node->timer) * 0.35;
                     node->elems[charIndex].scale = 1.5f;
                     break;
                 case 5:
                     interpolatePos = 0;
                     interpolateScale = 0;
-                    node->elems[charIndex].x = ((f32)halfAdvByte + centeredX) * 4.0f;
+                    node->elems[charIndex].x = (halfAdv + centeredX) * 4.0f;
                     node->elems[charIndex].y = baseY * 4.0f;
-                    centeredX += (f32)glyphAdvFull;
+                    centeredX += glyphAdv;
                     node->elems[charIndex].rotZ = 0.0f;
-                    node->elems[charIndex].scale = (f32)((f64)sinApprox(phase) * 0.05 + 1.0);
+                    node->elems[charIndex].scale = sinApprox(phase) * 0.05 + 1.0;
                     phase += phaseStep;
-                    node->phase = (f32)((f64)node->phase + 0.1);
+                    node->phase += 0.1;
                     break;
                 case 4:
-                    node->elems[charIndex].targetX = ((f32)(u8)halfAdv + centeredX) * 4.0f;
+                    node->elems[charIndex].targetX = (halfAdv + centeredX) * 4.0f;
                     node->elems[charIndex].targetY = baseY * 4.0f;
-                    centeredX += (f32)glyphAdv;
+                    centeredX += glyphAdv;
                     node->elems[charIndex].targetScale = 1.0f;
                     break;
                 case 3:
-                    node->elems[charIndex].targetX = ((f32)halfAdvByte + centeredX) * 4.0f;
+                    node->elems[charIndex].targetX = (halfAdv + centeredX) * 4.0f;
                     node->elems[charIndex].targetY = baseY * 4.0f;
-                    centeredX += (f32)glyphAdvFull;
+                    centeredX += glyphAdv;
                     node->elems[charIndex].targetRotZ = 0.0f;
-                    node->elems[charIndex].targetScale = (f32)((f64)sinApprox(phase) * 0.3 + 1.2);
+                    node->elems[charIndex].targetScale = sinApprox(phase) * 0.3 + 1.2;
                     phase += phaseStep;
-                    node->phase = (f32)((f64)node->phase + 0.04);
+                    node->phase += 0.04;
                     break;
                 case 1:
-                    phase -= (f32)halfAdvByte * 0.013f;
+                    phase -= halfAdv * 0.013f;
                     node->elems[charIndex].targetX = (sinApprox(phase) * waveRadius + curX) * 4.0f;
                     node->elems[charIndex].targetY = (cosApprox(phase) * waveRadius + baseY) * 4.0f;
                     node->elems[charIndex].targetRotZ = 3.1415927f - phase;
-                    phase -= (f32)glyphAdvFull * 0.013f;
+                    phase -= glyphAdv * 0.013f;
                     break;
                 case 2:
-                    node->elems[charIndex].targetX = ((f32)halfAdvByte + centeredX) * 4.0f;
-                    node->elems[charIndex].targetY = (f32)(((f64)sinApprox(phase * 2) * 5.0 + baseY) * 4.0);
-                    centeredX += (f32)glyphAdvFull;
+                    node->elems[charIndex].targetX = (halfAdv + centeredX) * 4.0f;
+                    node->elems[charIndex].targetY = (sinApprox(phase * 2) * 5.0 + baseY) * 4.0;
+                    centeredX += glyphAdv;
                     phase += phaseStep;
-                    node->elems[charIndex].rotZ = (f32)((f64)sinApprox(phase * 2) * 0.5);
-                    node->phase = (f32)((f64)node->phase - 0.01);
+                    node->elems[charIndex].rotZ = sinApprox(phase * 2) * 0.5;
+                    node->phase -= 0.01;
                     node->elems[charIndex].targetScale = scale;
                     break;
                 case 9:
-                    node->elems[charIndex].targetX = curX - (f32)(halfAdvByte * 4);
+                    node->elems[charIndex].targetX = curX - halfAdv * 4;
                     node->elems[charIndex].targetY = baseY;
                     node->elems[charIndex].targetZ = baseZ;
-                    curX -= (f32)(glyphAdvFull * 4);
+                    curX -= glyphAdv * 4;
                     phase += phaseStep;
-                    node->elems[charIndex].targetScale = (f32)((f64)sinApprox(phase) * (0.2 * scale) + scale);
+                    node->elems[charIndex].targetScale = sinApprox(phase) * (0.2 * scale) + scale;
                     node->elems[charIndex].targetRotZ = 3.1415927f;
-                    node->phase = (f32)((f64)node->phase - 0.08);
+                    node->phase -= 0.08;
                     break;
                 case 10:
                     node->elems[charIndex].targetX = curX;
                     node->elems[charIndex].targetY = baseY;
-                    node->elems[charIndex].targetZ = (f32)glyphAdvFull + baseZ;
-                    baseZ += (f32)(glyphAdvFull * 4);
+                    node->elems[charIndex].targetZ = glyphAdv + baseZ;
+                    baseZ += glyphAdv * 4;
                     phase += phaseStep;
-                    node->elems[charIndex].targetScale = (f32)((f64)sinApprox(phase) * (0.2 * scale) + scale);
+                    node->elems[charIndex].targetScale = sinApprox(phase) * (0.2 * scale) + scale;
                     node->elems[charIndex].targetRotX = 1.5707964f;
                     node->elems[charIndex].targetRotY = -1.5707964f;
                     node->elems[charIndex].targetRotZ = 0.0f;
-                    node->phase = (f32)((f64)node->phase - 0.08);
+                    node->phase -= 0.08;
                     break;
             }
             if (interpolatePos != 0) {
@@ -316,26 +310,26 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
         } else {
             switch (animMode) {
                 case 1:
-                    phase -= (f32)D_80754A34[node->font].spaceWidth * 0.013f;
+                    phase -= D_80754A34[node->font].spaceWidth * 0.013f;
                     break;
                 case 2:
                 case 3:
                 case 4:
                 case 5:
                 case 8:
-                    centeredX += (f32)D_80754A34[node->font].spaceWidth;
+                    centeredX += D_80754A34[node->font].spaceWidth;
                     break;
                 case 6:
                     curX += 32.0f;
                     break;
                 case 10:
-                    baseZ += (f32)D_80754A34[node->font].spaceWidth;
+                    baseZ += D_80754A34[node->font].spaceWidth;
                     break;
                 default:
-                    curX += (f32)D_80754A34[node->font].spaceWidth;
+                    curX += D_80754A34[node->font].spaceWidth;
                     break;
             }
-            phase = (f32)((f64)phase - (f64)D_80754A34[node->font].spaceWidth * 0.019);
+            phase -= D_80754A34[node->font].spaceWidth * 0.019;
         }
         if (phase < 0.0f) { phase += 6.2831855f; } ch = *(strPos + node->text); strPos += 1; // FAKE: index-first spelling keeps the addu operand order
     }
@@ -346,7 +340,7 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
         case 10:
             return textObjectDrawRotated(glist, node);
         case 0xFF:
-            node->phase = (f32)((f64)node->phase + 0.04);
+            node->phase += 0.04;
             return textObjectDrawRotated(glist, node);
         case 8:
             if (hudCanRender() == 0) {
@@ -354,9 +348,9 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
             }
             break;
         case 1:
-            node->phase = (f32)((f64)node->phase + 0.02);
+            node->phase += 0.02;
             break;
     }
-    node->phase = (f32)((f64)node->phase + 0.04);
+    node->phase += 0.04;
     return textObjectDrawFlat(glist, node);
 }

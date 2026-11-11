@@ -609,7 +609,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     f32 fadeInput0;
     f32 fadeInput4;
     s32 cnt;
-    u8 framePad[4];
+    u8 pad[4];
 
     hud = actor->customState;
     fadeInput0 = hud->unk0;
@@ -647,7 +647,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
             ph = ((u8 *)tab)[0x2FC] * 0x34 - 0x34;
             s2 = D_807FCC4B;
             y0 = 0x140;
-            y0 = 0xA0 - (s16)((f32)y0 * hud->unk0);
+            y0 = 0xA0 - (s16)(y0 * hud->unk0);
             for (j = 0; j < ((u8 *)tab)[0x2FC]; j++) {
                 s32 off;
                 f32 fa;
@@ -656,7 +656,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 f32 fe;
                 f32 fh;
                 s16 y;
-                fb = (f32)(u32)ph;
+                fb = (u32)ph;
                 off = (j << 10) + gFrameCounter * 200;
                 ang = off;
                 fa = mathSinF(ang) * 0.3f + 3.0f;
@@ -669,7 +669,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 fe = (fe * 0.5f + 0.5f) * 30.0f * 0.75f;
                 gDPPipeSync(dl++);
                 gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0x50);
-                y = (s32)((f32)(j * 0x69 + 0x280) + fd - fb);
+                y = (s32)((j * 0x69 + 0x280) + fd - fb);
                 fh = -fc;
                 dl = renderRotatedSprite(dl, 0x5D, 0, 2, 0x30, 0x2A, y, y0 + (s16)(s32)fe, fa, fh, 0, 0.0f);
                 gDPPipeSync(dl++);
@@ -683,7 +683,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     } else {
                         m = 3;
                     }
-                    dl = renderRotatedSprite(dl, (u16)(m + 0x5A), 0, 2, 0x30, 0x2A, y, (s32)((f32)y0 + fe), fa, fh, 0, 0.0f);
+                    dl = renderRotatedSprite(dl, (u16)(m + 0x5A), 0, 2, 0x30, 0x2A, y, (s32)(y0 + fe), fa, fh, 0, 0.0f);
                 }
                 if (s2 - 4 < 0) {
                     s2 = 0;
@@ -749,7 +749,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                         fc = 480.0f + fc;
                         fd = 6.0f * fa;
                         fe = 30.0f * fa;
-                        ff = (f32)((f64)fa * 1.33);
+                        ff = fa * 1.33;
                         for (j = 0; j < 5; j++) {
                             sa = angv;
                             yy = (s32)(mathSinF(sa) * fb);
@@ -757,11 +757,11 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                             y0 = (s32)(mathCosF(sa) * fb);
                             yy += 0x20;
                             off = j + t0;
-                            D_807FC840[off] = (f32)yy - fd;
+                            D_807FC840[off] = yy - fd;
                             D_807FC868[off] = (f32)(s16)((s16)(fc - (f32)y0) + (s32)actor) - fe; // FAKE: narrow before the row offset to steer conversion temporaries.
                             D_807FC890[off] = ff;
                             if (D_80750530[j] != 0) {
-                                D_807FC890[off] = (f32)((f64)D_807FC890[off] * 0.75);
+                                D_807FC890[off] = D_807FC890[off] * 0.75;
                             }
                             angv += 0x333;
                         }
@@ -777,7 +777,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                         fc = fc + fd * 400.0;
                     }
                     j = gPlayerInventoryTable[hud->unk14].unk42[D_80750560[hud->unk8[i]]];
-                    dl = hudDrawCountPair(0x2A8, (s32)((f32)(s32)actor + fc), j, 5, dl, 0, 0.8f);
+                    dl = hudDrawCountPair(0x2A8, (s32)((s32)actor + fc), j, 5, dl, 0, 0.8f);
                 }
             }
             D_80750538++;
@@ -807,7 +807,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     if (off == 0) {
                         fc = fc + fd * 400.0;
                     }
-                    dl = hudDrawCountPair(0x2B0, (s32)((f32)off + fc), cnt, 0x19, dl, 0, 0.8f);
+                    dl = hudDrawCountPair(0x2B0, (s32)(off + fc), cnt, 0x19, dl, 0, 0.8f);
                 }
             }
             break;
@@ -854,7 +854,7 @@ Gfx *hudDrawCountPair(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale)
         w = 0x3C;
     }
     if (flag != 0) {
-        x = (f32)x - (f32)w * scale;
+        x = x - w * scale;
     }
     guScaleF(m1, scale, scale, 1.0f);
     guTranslateF(m2, x, y, 0.0f);
@@ -868,7 +868,7 @@ Gfx *hudDrawCountPair(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale)
     dl->words.w0 = 0xE7000000; // FAKE: raw PipeSync words with a separate dl++ (gDPPipeSync(dl++) mismatches)
     dl->words.w1 = 0;
     dl++;
-    return renderRotatedSprite(dl, 0x9F, 0, 2, 0x20, 0x20, (s32)((f32)x + (f32)(w - 0x10) * scale), (s32)((f32)y + 45.0f * scale), scale * 3.125, scale * 3.125, 0, 0.0f);
+    return renderRotatedSprite(dl, 0x9F, 0, 2, 0x20, 0x20, (s32)(x + (w - 0x10) * scale), (s32)(y + 45.0f * scale), scale * 3.125, scale * 3.125, 0, 0.0f);
 }
 
 typedef struct {

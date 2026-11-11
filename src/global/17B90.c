@@ -372,9 +372,9 @@ s32 controllerAnimInit(Actor *actor, u16 assetId) {
 }
 
 void controllerAnimFree(Actor *actor) {
-    void *buffer1;
-    void *temp_a1_2;
-    void *temp_a1_3;
+    void *rotations;
+    void *scales;
+    void *offsets;
 
     controllerAnimFreeSub(actor, 0);
     controllerAnimFreeSub(actor, 1);
@@ -384,17 +384,17 @@ void controllerAnimFree(Actor *actor) {
     controllerAnimCacheFree(actor, actor->sub4->layer);
     controllerAnimCacheFree(actor, actor->sub4->blendFrom);
     controllerAnimCacheFree(actor, actor->sub4->blendFromLayer);
-    buffer1 = actor->sub4->boneRotations;
-    if (buffer1 != NULL) {
-        heapFreeDeferred(buffer1);
+    rotations = actor->sub4->boneRotations;
+    if (rotations != NULL) {
+        heapFreeDeferred(rotations);
     }
-    temp_a1_2 = actor->sub4->boneScales;
-    if (temp_a1_2 != NULL) {
-        heapFreeDeferred(temp_a1_2);
+    scales = actor->sub4->boneScales;
+    if (scales != NULL) {
+        heapFreeDeferred(scales);
     }
-    temp_a1_3 = actor->sub4->boneOffsets;
-    if (temp_a1_3 != NULL) {
-        heapFreeDeferred(temp_a1_3);
+    offsets = actor->sub4->boneOffsets;
+    if (offsets != NULL) {
+        heapFreeDeferred(offsets);
     }
     heapFreeDeferred(actor->sub4);
 }

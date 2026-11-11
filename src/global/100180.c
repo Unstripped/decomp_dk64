@@ -528,8 +528,9 @@ Gfx *textObjectDrawFlat(Gfx *dl, TextObject *textObj) {
                                    textObj->elems[idx].x, textObj->elems[idx].y, 0.0f);
                         gSPMatrix(dl++, mp + idx, G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
                         gDPPipeSync(dl++);
-                        vp[0].v.ob[0] = -(gw * 2); vp[0].v.ob[1] = gh * 2 - 1; vp[0].v.ob[2] = -5;
-                        vp[0].v.tc[0] = gx << 6; vp[0].v.tc[1] = gh << 6;
+                        vp[0].v.ob[0] = -(gw * 2); vp[0].v.ob[1] = gh * 2 - 1; vp[0].v.ob[2] = -5; // LAYOUT: one line keeps as1's ob store order
+                        vp[0].v.tc[0] = gx << 6;
+                        vp[0].v.tc[1] = gh << 6;
                         if (D_2000200) {} // FAKE: deadsweep class 1 dead statement (no rewrite matched)
                         vp[1].v.ob[0] = gw * 2 - 1;
                         vp[1].v.ob[1] = gh * 2 - 1;
@@ -537,11 +538,12 @@ Gfx *textObjectDrawFlat(Gfx *dl, TextObject *textObj) {
                         vp[1].v.tc[0] = (gx + gw) << 6;
                         vp[1].v.tc[1] = gh << 6;
                         vp[2].v.ob[1] = -(gh * 2);
-                        vp[2].v.ob[0] = gw * 2 - 1; vp[2].v.ob[2] = -5;
+                        vp[2].v.ob[0] = gw * 2 - 1;
+                        vp[2].v.ob[2] = -5;
                         vp[2].v.tc[0] = (gx + gw) << 6;
                         vp[2].v.tc[1] = 0;
-                        vp[3].v.ob[0] = -(gw * 2); vp[3].v.ob[1] = -(gh * 2); vp[3].v.ob[2] = -5;
-                        vp[3].v.tc[1] = 0; vp[3].v.tc[0] = gx << 6;
+                        vp[3].v.ob[0] = -(gw * 2); vp[3].v.ob[1] = -(gh * 2); vp[3].v.ob[2] = -5; // LAYOUT: one line keeps as1's ob store order
+                        vp[3].v.tc[1] = 0; vp[3].v.tc[0] = gx << 6; // LAYOUT: one line keeps as1 storing tc[1] before tc[0]
                         vp += 4;
                         gSPVertex(dl++, osVirtualToPhysical(vtxBase), 4, 0);
                         gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);
@@ -573,8 +575,7 @@ Gfx *textObjectDrawRotated(Gfx *dl, TextObject *textObj) {
     s32 gw;
     s32 gx;
     s32 gh;
-    f32 fa;
-    f32 fb;
+    f32 pad[2];
 
     idx = 0;
     vp = heapAlloc(textObj->count << 6);
@@ -608,8 +609,9 @@ Gfx *textObjectDrawRotated(Gfx *dl, TextObject *textObj) {
                                    textObj->elems[idx].z);
                         gSPMatrix(dl++, mp + idx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                         gDPPipeSync(dl++);
-                        vp[0].v.ob[0] = -(gw * 2); vp[0].v.ob[1] = gh * 2 - 1; vp[0].v.ob[2] = 0;
-                        vp[0].v.tc[0] = gx << 6; vp[0].v.tc[1] = gh << 6;
+                        vp[0].v.ob[0] = -(gw * 2); vp[0].v.ob[1] = gh * 2 - 1; vp[0].v.ob[2] = 0; // LAYOUT: one line keeps as1's ob store order
+                        vp[0].v.tc[0] = gx << 6;
+                        vp[0].v.tc[1] = gh << 6;
                         if (i && i) {} // FAKE: deadsweep class 1 dead statement (no rewrite matched)
                         vp[1].v.ob[0] = gw * 2 - 1;
                         vp[1].v.ob[1] = gh * 2 - 1;
@@ -617,11 +619,12 @@ Gfx *textObjectDrawRotated(Gfx *dl, TextObject *textObj) {
                         vp[1].v.tc[0] = (gx + gw) << 6;
                         vp[1].v.tc[1] = gh << 6;
                         vp[2].v.ob[1] = -(gh * 2);
-                        vp[2].v.ob[0] = gw * 2 - 1; vp[2].v.ob[2] = 0;
+                        vp[2].v.ob[0] = gw * 2 - 1;
+                        vp[2].v.ob[2] = 0;
                         vp[2].v.tc[0] = (gx + gw) << 6;
                         vp[2].v.tc[1] = 0;
-                        vp[3].v.ob[0] = -(gw * 2); vp[3].v.ob[1] = -(gh * 2); vp[3].v.ob[2] = 0;
-                        vp[3].v.tc[1] = 0; vp[3].v.tc[0] = gx << 6;
+                        vp[3].v.ob[0] = -(gw * 2); vp[3].v.ob[1] = -(gh * 2); vp[3].v.ob[2] = 0; // LAYOUT: one line keeps as1's ob store order
+                        vp[3].v.tc[1] = 0; vp[3].v.tc[0] = gx << 6; // LAYOUT: one line keeps as1 storing tc[1] before tc[0]
                         vp += 4;
                         gSPVertex(dl++, osVirtualToPhysical(vtxBase), 4, 0);
                         gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);

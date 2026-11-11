@@ -132,10 +132,10 @@ void effectPuffRiseUpdate(RotatingEffectActorView *effect, void *unused) {
         state->unk6 = -50 - (((randomNonNegative() >> 15) % 10000) % 600);
     }
     state = effect->motion;
-    effect->y = (f32) ((f64) effect->y - (f64) state->unk6 / 100.0);
+    effect->y -= state->unk6 / 100.0;
     state->unk6 += 0x14;
-    effect->x += (0.04 * (f64) state->unk4) * (f64) mathSinF(state->unk0);
-    effect->z += (0.04 * (f64) state->unk4) * (f64) mathCosF(state->unk0);
+    effect->x += 0.04 * state->unk4 * mathSinF(state->unk0);
+    effect->z += 0.04 * state->unk4 * mathCosF(state->unk0);
     state->unk0 += 0x50;
     state->unk4 += state->unk2;
     if (effect->param != 0) {
@@ -1265,34 +1265,34 @@ void effectTimedLightIntensityFade(TimedLightActorView *effect, s8 *isDone) {
     f32 ratio;
 
     ratio = (f32)(effect->timerConfig->unk16 - effect->timer) / (f32)effect->timerConfig->unk16;
-    if ((f64)ratio > 0.7) {
+    if (ratio > 0.7) {
         ratio = 1.0f;
     }
     if ((gActivePlayerState->actor == (Actor *)effect->param) && ((void *)effect == D_80028C30)) {
         lightSetFlags(1);
         lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f,
-                 (f32)((f64)ratio * 50.0), 0, 0xFF,
+                 ratio * 50.0, 0, 0xFF,
                  (u32)((-80.0f * ratio) + 255.0f),
                  (u32)((-205.0f * ratio) + 255.0f));
     }
 }
 
-extern s32 D_8002FBB0[];
-extern s32 gLightSlotsEnd;
+extern void *D_8002FBB0[];
+extern void *gLightSlotsEnd;
 void timedLightOrbitUpdate(TimedLightActorView *effect, s8 *isDone) {
     f32 ratio;
-    s32 *slot;
+    void **slot;
 
     ratio = (f32)(effect->timerConfig->unk16 - effect->timer) / (f32)effect->timerConfig->unk16;
-    if ((f64)ratio > 0.7) {
+    if (ratio > 0.7) {
         ratio = 1.0f;
     }
-    slot = &D_8002FBB0[0];
+    slot = D_8002FBB0;
     do {
-        if ((s32)effect == *slot) {
+        if (effect == *slot) {
             lightSetFlags(1);
             lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f,
-                     (f32)((f64)ratio * 50.0), 0, 0xFF,
+                     ratio * 50.0, 0, 0xFF,
                      (u32)((-80.0f * ratio) + 255.0f),
                      (u32)((-205.0f * ratio) + 255.0f));
             return;
@@ -1310,14 +1310,14 @@ void effectLightPulseOscillate(TimedLightActorView *effect, s8 *isDone) {
 
     duration = effect->timerConfig->unk16;
     ratio = (f32)(duration - effect->timer) / (f32)duration;
-    if ((f64)ratio > 0.7) {
+    if (ratio > 0.7) {
         ratio = 1.0f;
     }
     params = effect->param;
     if (((u32)params >> 16) != 0) {
-        radius = (f32)(params & 0xFFFF) * ratio;
+        radius = (params & 0xFFFF) * ratio;
     } else {
-        radius = (f32)(params & 0xFFFF);
+        radius = params & 0xFFFF;
     }
     lightSetFlags(1);
     lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, radius, 0, 0xFF, (u32)((-80.0f * ratio) + 255.0f), (u32)((-205.0f * ratio) + 255.0f));
@@ -1331,14 +1331,14 @@ void effectLightFlickerDecay(TimedLightActorView *effect, s8 *isDone) {
 
     duration = effect->timerConfig->unk16;
     ratio = (f32)(duration - effect->timer) / (f32)duration;
-    if ((f64)ratio > 0.7) {
+    if (ratio > 0.7) {
         ratio = 1.0f;
     }
     params = effect->param;
     if (((u32)params >> 16) != 0) {
-        radius = (f32)(params & 0xFFFF) * ratio;
+        radius = (params & 0xFFFF) * ratio;
     } else {
-        radius = (f32)(params & 0xFFFF);
+        radius = params & 0xFFFF;
     }
     lightSetFlags(1);
     lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, radius, 0, 0xFF, 0xFF, 0xFF);
@@ -1722,10 +1722,10 @@ void effectSparkSpawnUpdate(SparkSpawnActorView *effect, s8 *isDone) {
         effectSetDepth(1);
         effectSetColor(0x9B, 0x9B, 0x9B, 0x96);
         random = randomNonNegative();
-        effectCreateAtPosition((s32)&sEffectSparkConfig, 0.8f,
-            (f32)(((random >> 15) % 65535) & 7) + effect->x,
+        effectCreateAtPosition(&sEffectSparkConfig, 0.8f,
+            ((random >> 15) % 65535 & 7) + effect->x,
             effect->y + 10.0f,
-            (f32)(((randomNonNegative() >> 15) % 65535) & 7) + effect->z);
+            ((randomNonNegative() >> 15) % 65535 & 7) + effect->z);
     }
 }
 
@@ -1981,14 +1981,14 @@ void func_8071C48C(TimedLightEffectActorView *effect, s8 *isDone) {
 
     duration = effect->timerConfig->unk16;
     ratio = (f32)(duration - effect->timer) / (f32)duration;
-    if ((f64)ratio > 0.7) {
+    if (ratio > 0.7) {
         ratio = 1.0f;
     }
     params = effect->param;
     if ((params >> 0x10) != 0) {
-        radius = (f32)(s32)(params & 0xFFFF) * ratio;
+        radius = (s32)(params & 0xFFFF) * ratio;
     } else {
-        radius = (f32)(s32)(params & 0xFFFF);
+        radius = (s32)(params & 0xFFFF);
     }
     lightSetFlags(1);
     lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, radius, 0, 0,
@@ -2089,7 +2089,7 @@ void effectWispWanderUpdate(TimedEffectActorView *effect, s8 *isDone) {
         state->z = home[1];
         state->target_y = home[2];
         state->rotation = 0;
-        state->y = (s16)effect->y;
+        state->y = effect->y;
     }
     state = effect->motion;
     if (gPrimaryPlayerActor->z < 340.0f) {
@@ -2097,12 +2097,12 @@ void effectWispWanderUpdate(TimedEffectActorView *effect, s8 *isDone) {
         state->z = 0x96;
         state->target_y = 0x64;
     }
-    targetAngle = mathAngleBetweenPoints2D((f32)state->x, (f32)state->target_y, effect->x, effect->z);
-    state->angle = mathAngleEaseToward(state->angle, targetAngle, (f32)(((randomNonNegative() >> 0xF) % 10) + 5));
-    state->y = (s16)((f64)(state->z - state->y) * 0.1 + (f64)state->y);
+    targetAngle = mathAngleBetweenPoints2D(state->x, state->target_y, effect->x, effect->z);
+    state->angle = mathAngleEaseToward(state->angle, targetAngle, (randomNonNegative() >> 0xF) % 10 + 5);
+    state->y = (state->z - state->y) * 0.1 + state->y;
     effect->x += state->speed * mathSinF(state->angle);
     effect->z += state->speed * mathCosF(state->angle);
-    effect->y = (f32)((((f64)mathSinF((state->speed + 0x32) * gFrameCounter)) * 40.0) + (state->y + 0x28));
+    effect->y = mathSinF((state->speed + 0x32) * gFrameCounter) * 40.0 + (state->y + 0x28);
     if (((randomNonNegative() >> 0xF) % 1000) >= 991) {
         homeIndex = ((randomNonNegative() >> 0xF) % 1000) % 6;
         state->x = D_80755650[homeIndex * 3];
@@ -2114,11 +2114,11 @@ void effectWispWanderUpdate(TimedEffectActorView *effect, s8 *isDone) {
     if (!(gFrameCounter & 3)) {
         effectSetDepth(1);
         effectSetCallback(effectShrinkFadeMatrixUpdate);
-        effectCreateAtPosition((s32)&D_8071FB08, 1.6f, effect->x, effect->y, effect->z);
+        effectCreateAtPosition(&D_8071FB08, 1.6f, effect->x, effect->y, effect->z);
     }
     state->rotation += state->speed;
     guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);
-    guRotateF(tmpMtx, (f32)state->rotation, 0.0f, 0.0f, 1.0f);
+    guRotateF(tmpMtx, state->rotation, 0.0f, 0.0f, 1.0f);
     guMtxCatF(mtx, tmpMtx, mtx);
     guMtxF2L(mtx, &effect->mtx[gGfxBufferIndex]);
     effect->mtxState = 2;
@@ -2132,20 +2132,11 @@ typedef struct {
     s16 rotation;
 } WispHomeMotionState;
 
-typedef struct {
-    u8 pad0[0x7C];
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 pad88[0xD6];
-    u8 height;
-} WispHomeTargetActor;
-
 void effectWispHomeUpdate(TimedEffectActorView *effect, s8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     WispHomeMotionState *state;
-    WispHomeTargetActor *actor;
+    Actor *actor;
     s16 currentAngle;
     s16 targetAngle;
     f32 turnRate;
@@ -2155,30 +2146,30 @@ void effectWispHomeUpdate(TimedEffectActorView *effect, s8 *isDone) {
         state = heapAlloc(8);
         effect->motion = state;
         state->angle = 0;
-        state->y = (s16)effect->y;
+        state->y = effect->y;
         state->speed = ((randomNonNegative() >> 0xF) % 5) + 10;
         state->rotation = 0;
     }
     state = effect->motion;
-    actor = (WispHomeTargetActor *)(u32)effect->param;
+    actor = (Actor *)effect->param;
     targetAngle = mathAngleBetweenPoints2D(actor->x, actor->z, effect->x, effect->z);
     turnRate = ((randomNonNegative() >> 0xF) % 10) + 5;
     currentAngle = state->angle;
     state->angle = mathAngleEaseToward(currentAngle, targetAngle, turnRate);
-    state->y = (s16)((((f64)((actor->y + ((f32)((u32)actor->height))) - ((f32)state->y))) * 0.1) + ((f64)state->y));
+    state->y = (actor->y + actor->eyeHeight - state->y) * 0.1 + state->y;
     effect->x += state->speed * mathSinF(state->angle);
     effect->z += state->speed * mathCosF(state->angle);
-    effect->y = (f32)((((f64)mathSinF((state->speed + 0x32) * gFrameCounter)) * 40.0) + (state->y + 0x28));
+    effect->y = mathSinF((state->speed + 0x32) * gFrameCounter) * 40.0 + (state->y + 0x28);
     lightSetFlags(1);
     lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, 150.0f, 0, 0x96, 0x96, 0xFF);
     if (!(gFrameCounter & 3)) {
         effectSetDepth(1);
         effectSetCallback(effectShrinkFadeMatrixUpdate);
-        effectCreateAtPosition((s32)&D_8071FB08, 1.6f, effect->x, effect->y, effect->z);
+        effectCreateAtPosition(&D_8071FB08, 1.6f, effect->x, effect->y, effect->z);
     }
     state->rotation += state->speed;
     guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);
-    guRotateF(tmpMtx, (f32)state->rotation, 0.0f, 0.0f, 1.0f);
+    guRotateF(tmpMtx, state->rotation, 0.0f, 0.0f, 1.0f);
     guMtxCatF(mtx, tmpMtx, mtx);
     guMtxF2L(mtx, &effect->mtx[gGfxBufferIndex]);
     effect->mtxState = 2;
@@ -2611,32 +2602,32 @@ void effectLightGrowShrinkUpdate(TimedEffectActorView *effect, s8 *isDone) {
         effect->motion = newState;
         newState->unk0 = 0.0f;
         newState->unk4 = 0.0f;
-        newState->unk8 = (f32)mapChunkFindByPosition(effect->x, effect->y, effect->z, 0);
+        newState->unk8 = mapChunkFindByPosition(effect->x, effect->y, effect->z, 0);
     }
     state = effect->motion;
-    if ((f64)state->unk4 == 0.0) {
-        state->unk0 = (f32)((f64)state->unk0 + 30.0);
-        size = (f64)state->unk0;
+    if (state->unk4 == 0.0) {
+        state->unk0 += 30.0;
+        size = state->unk0;
         if (size > 300.0) {
             state->unk4 = 1.0f;
             state->unk0 = 300.0f;
         }
     } else {
-        state->unk0 = (f32)((f64)state->unk0 - 30.0);
-        size = (f64)state->unk0;
+        state->unk0 -= 30.0;
+        size = state->unk0;
         if (size < 30.0) {
             *isDone = 1;
             state->unk0 = 30.0f;
         }
     }
-    size = (f64)state->unk0;
+    size = state->unk0;
     if (size < 300.0) {
-        intensity = (f32)(size / 300.0);
+        intensity = size / 300.0;
     } else {
         intensity = 1.0f;
     }
     lightSetRadius(1000);
-    lightSetTargetId((s16)(s32)state->unk8);
+    lightSetTargetId(state->unk8);
     mode = effect->param;
     switch (mode) {
     case 0:

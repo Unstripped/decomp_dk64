@@ -600,22 +600,22 @@ void sfxUpdateLevelAmbient(void) {
         if (emitterCount > 0) {
             do {
                 AmbientEmitter *entry = (AmbientEmitter *)((s32)emitters + k * 14);  // FAKE: byte-address sum keeps emitters in t4 and the k*14 index in t5 (addu operand order)
-                f32 dx = gPlayerSlots->x - (f32)entry->x;
-                f32 dz = gPlayerSlots->z - (f32)entry->z;
+                f32 dx = gPlayerSlots->x - entry->x;
+                f32 dz = gPlayerSlots->z - entry->z;
                 if (entry->facing == -1) {
                     D_80770DE4 = sqrtf(dx * dx + dz * dz);
-                    if (D_80770DE4 < (f32)(entry->radius - 20)) {
+                    if (D_80770DE4 < entry->radius - 20) {
                         sfxAllocateChannel(entry->sfxId, 1.0f);
-                    } else if (D_80770DE4 > (f32)entry->radius) {
+                    } else if (D_80770DE4 > entry->radius) {
                         sfxStopChannel(entry->sfxId, 0);
                     }
                 } else {
-                    f32 dy = gPlayerSlots->y - (f32)entry->y;
+                    f32 dy = gPlayerSlots->y - entry->y;
                     D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
                     if (k == 0 || D_80770DE4 < D_80770DD4) {
                         nearest = k;
                         D_80770DD4 = D_80770DE4;
-                        angle = ((f64)mathAtan2(dx, dz) * 4096.0) / 6.2831854820251465 - (f64)entry->facing;
+                        angle = (mathAtan2(dx, dz) * 4096.0) / 6.2831854820251465 - entry->facing;
                     }
                 }
                 k++;
@@ -630,7 +630,7 @@ void sfxUpdateLevelAmbient(void) {
             } while (k < n);
         }
         D_80770DE4 = D_80770DD4;
-        if (nearest >= 0 && D_80770DE4 < (f32)emitters[nearest].radius) {
+        if (nearest >= 0 && D_80770DE4 < emitters[nearest].radius) {
             if (emitters[nearest].facing >= 0x1001) {
                 D_80770DC9 = emitters[nearest].facing & 1;
             } else {
@@ -692,13 +692,13 @@ void sfxUpdateLevelAmbient(void) {
             }
         }
         if (D_80770560[2] == 0x26) {
-            seqSetVolumeInstant(2, (f32)((f64)volume / 32767.0));
+            seqSetVolumeInstant(2, volume / 32767.0);
         }
         volume = ((volume - 28384.0f) * 100.0f) / 4383.0f;
         if (volume < 0.0f) {
             volume = 0.0f;
         }
-        volume = (f32)((f64)(u32)D_80745BDC[gCurrentMap][1] + (((255.0 - (f64)(u32)D_80745BDC[gCurrentMap][1]) * ((f64)(u32)D_80770DC8 / 127.0) * (f64)volume) / 255.0));
+        volume = (u32)D_80745BDC[gCurrentMap][1] + (((255.0 - (u32)D_80745BDC[gCurrentMap][1]) * ((u32)D_80770DC8 / 127.0) * volume) / 255.0);
         D_8077058E = (u8)(u32)volume;
     } else {
         D_8077058E = D_80745BDC[gCurrentMap][1];
@@ -710,8 +710,8 @@ void sfxUpdateLevelAmbient(void) {
     }
 
     if (D_8077058E != D_8077058D) {
-        angle = (f32)(((f64)(u32)D_8077058E * 0.3) / 255.0);
-        volume = (f32)((((f64)(u32)D_8077058E * 0.35) / 255.0) + 1.0);
+        angle = ((u32)D_8077058E * 0.3) / 255.0;
+        volume = (((u32)D_8077058E * 0.35) / 255.0) + 1.0;
         count = D_8077058E;  // FAKE: reusing the emitter-count local for the reverb level keeps one web (a separate temp recolours 50 rows)
         if (gCurrentMap == 0xE) {
             if (count != 0) {
@@ -751,7 +751,7 @@ void sfxUpdateLevelAmbient(void) {
                 }
                 for (k = count - 1; k >= 0; k--) {
                     if (group + 1 == soundEmitters[k].group) {
-                        sfxUpdateDistanceVolumeAndPan((f32)soundEmitters[k].x, (f32)soundEmitters[k].y, (f32)soundEmitters[k].z,
+                        sfxUpdateDistanceVolumeAndPan(soundEmitters[k].x, soundEmitters[k].y, soundEmitters[k].z,
                             (u8)((soundEmitters[k].volume * D_80745B28[group].volume) / 255.0),
                             D_80745B28[group].range, D_80745B28[group].directionality);
                     }
@@ -766,7 +766,7 @@ void sfxUpdateLevelAmbient(void) {
             }
         }
         if (D_80745B28[group].sfxId == 0x1E) {
-            volume = (f32)((f64)volume * 0.6);
+            volume *= 0.6;
             if ((gScheduler.unk280 / 12U) != D_80770E38[group]) {
                 D_80770E38[group] = (gScheduler.unk280 / 12U);
                 if (volume > 10.0f) {
@@ -811,19 +811,19 @@ void sfxUpdateLevelAmbient(void) {
             }
             if (D_80770DEC < D_80770DE8) {
                 if (D_80770DE8 > 0.0f) {
-                    angle = (f32)(127.0 - (((f64)D_80770DEC * 63.5) / (f64)D_80770DE8));
+                    angle = 127.0 - ((D_80770DEC * 63.5) / D_80770DE8);
                 } else {
                     angle = 0.0f;
                 }
             } else if (D_80770DEC > 0.0f) {
-                angle = (f32)(((f64)D_80770DE8 * 63.5) / (f64)D_80770DEC);
+                angle = (D_80770DE8 * 63.5) / D_80770DEC;
             } else {
                 angle = 0.0f;
             }
             if (D_80745838 != 0) {
-                pitch = (f32)((f64)D_80745B28[group].pitch * 0.5);
+                pitch = D_80745B28[group].pitch * 0.5;
             } else if (D_80770DC9 != 0 && D_80745B28[group].sfxId == 0x106) {
-                pitch = (f32)(1.0 / (((f64)D_80770DD4 / 800.0) + 1.0));
+                pitch = 1.0 / ((D_80770DD4 / 800.0) + 1.0);
             } else {
                 pitch = D_80745B28[group].pitch;
             }
@@ -859,19 +859,19 @@ void sfxUpdateLevelAmbient(void) {
             n_alSndpPlay(D_8076D1F8, 0x125, 0, 0x3F, 1.0f, 0, &D_807457DC);
         }
         if (D_807457DC != 0) {
-            n_alSndpPostEvent(D_807457DC, 8, (s32)(((f64)(u32)D_8077058C[0] * 10767.0) / 255.0));
-            pitch = (f32)(1.0 - (((f64)(u32)D_8077058E * 0.5) / 255));
+            n_alSndpPostEvent(D_807457DC, 8, (s32)(((u32)D_8077058C[0] * 10767.0) / 255.0));
+            pitch = 1.0 - (((u32)D_8077058E * 0.5) / 255);
             if (D_80770DC9 & (D_80770DD4 < 1000.0f)) {
-                angle = mathAngleBetweenPointsRad(gPlayerSlots->x, gPlayerSlots->z, (f32)emitters[nearest].x, (f32)emitters[nearest].z) - gPlayerSlots->yaw;
+                angle = mathAngleBetweenPointsRad(gPlayerSlots->x, gPlayerSlots->z, emitters[nearest].x, emitters[nearest].z) - gPlayerSlots->yaw;
                 if (angle < 0.0f) {
                     angle += 6.2831855f;
                 }
-                if (angle > 1.5707964f && (f64)angle < 4.71238911151886) {
+                if (angle > 1.5707964f && angle < 4.71238911151886) {
                     D_80770DD0 = 128.0f;
                 } else {
                     D_80770DD0 = 0.0f;
                 }
-                D_80770DCC = (f32)((f64)(1.0f - sinApprox(angle)) * 63.5);
+                D_80770DCC = (1.0f - sinApprox(angle)) * 63.5;
             } else {
                 D_80770DCC = 64.0f;
             }
@@ -1245,7 +1245,7 @@ void sfxUpdateSourceGroups(void) {
     s16 animFrame;
     f32 animSpeed;
     u8 animFlags;
-    s32 unused;
+    s32 pad;
 
     actor = NULL;
     if (gActivePlayerState != NULL) {}  // FAKE: dead test keeps &gActivePlayerState out of a register so the store/reload after the loop stays split
@@ -1957,17 +1957,17 @@ void sfxPlayWithRandomPan(s16 sfxId, u8 volume, u8 pitchByte, u8 spread, u8 behi
     f32 pitch;
     u8 reverb = 0;
 
-    vol = (s32)(((f64)(volume * 0x7FFF)) / 255.0);
+    vol = (s32)((volume * 0x7FFF) / 255.0);
     if (vol < 1001) {
         return;
     }
 
-    pitch = (f64)(u32)pitchByte / 127.0;
-    pan = ((f64)(u32)randomLcgNext() / 4294967295.0) * (2.0 * (f64)(u32)spread) + (63.5 - (f64)(u32)spread);
+    pitch = (u32)pitchByte / 127.0;
+    pan = ((u32)randomLcgNext() / 4294967295.0) * (2.0 * (u32)spread) + (63.5 - (u32)spread);
 
     if (spread != 0) {
-        vol = (1.0 - (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)spread / 155.0))) * (f64)vol;
-        pitch = (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)spread / 100.0)) + ((f64)pitch - ((f64)(u32)spread / 255.0));
+        vol = (1.0 - (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 155.0))) * vol;
+        pitch = (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 100.0)) + (pitch - ((u32)spread / 255.0));
     }
 
     if (D_8077058E >= 21) {
@@ -1990,8 +1990,8 @@ s16 sfxPlayOnFreeSlot(s16 sfxId, s32 volume, f32 pan, f32 pitch, u8 spread, u8 f
     s16 i;
 
     if (spread != 0) {
-        volume = (1.0 - (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)spread / 155.0))) * (f64)volume;
-        pitch = (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)spread / 100.0)) + ((f64)pitch - ((f64)(u32)spread / 255.0));
+        volume = (1.0 - (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 155.0))) * volume;
+        pitch = (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 100.0)) + (pitch - ((u32)spread / 255.0));
     }
 
     for (i = 20; i > 0; i--) {
@@ -2032,7 +2032,6 @@ s16 sfxPlayOnFreeSlot(s16 sfxId, s32 volume, f32 pan, f32 pitch, u8 spread, u8 f
 }
 
 extern struct GfSndState *D_807457C8;
-#pragma intrinsic(sqrtf)
 
 void sfxPlayAtPosition(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, f32 pitch, u8 spread, u8 range) {
     s32 dx, dy, dz;
@@ -2045,34 +2044,34 @@ void sfxPlayAtPosition(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, f32 pitch, u8 
     dx = gPlayerSlots->x - x;
     dy = gPlayerSlots->y - y;
     dz = gPlayerSlots->z - z;
-    D_80770DE4 = sqrtf((f32)(dx * dx + dy * dy + dz * dz));
+    D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
     if (D_80770DE4 < 1.0f) {
         D_80770DE4 = 1.0f;
     }
-    vol = (s32)(((f64)((f32)(range * 4000) / sqrtf(D_80770DE4))) - (((f64)(f32)(range * 4000) / 7.74596600000000013) - 32767.0));
+    vol = (s32)((((range * 4000) / sqrtf(D_80770DE4))) - (((f32)(range * 4000) / 7.74596600000000013) - 32767.0));
     if (vol >= 0x8000) {
         vol = 0x7FFF;
     }
-    vol = (s32)((f64)(volume * vol) / 255.0);
+    vol = (s32)((volume * vol) / 255.0);
     if (vol >= 0x8000) {
         vol = 0x7FFF;
     }
     if (vol < 1001) {
         return;
     }
-    vol = (s32)((f64)(volume * vol) / 255.0);
+    vol = (s32)((volume * vol) / 255.0);
     if (spread != 0) {
-        vol = (s32)((1.0 - (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)spread / 155.0))) * (f64)vol);
-        pitch = ((f64)pitch - ((f64)(u32)spread / 255.0)) + (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)spread / 100.0));
+        vol = (s32)((1.0 - (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 155.0))) * vol);
+        pitch = (pitch - ((u32)spread / 255.0)) + (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 100.0));
     }
     pan = mathAngleBetweenPointsRad(gPlayerSlots->x, gPlayerSlots->z, x, z) - gPlayerSlots->yaw;
     if (pan < 0.0f) {
         pan += 6.2831855f;
     }
-    if (pan > 0.7853982f && (f64)pan < 5.497787296772003) {
-        vol = (s32)((((f64)sinApprox(((2.0 * (f64)pan) / 3.0) + 2.617993950843811) * 0.3) + 1.0) * (f64)vol);
+    if (pan > 0.7853982f && pan < 5.497787296772003) {
+        vol = (s32)(((sinApprox(((2.0 * pan) / 3.0) + 2.617993950843811) * 0.3) + 1.0) * vol);
     }
-    pan = (f32)((f64)(1.0f - sinApprox(pan)) * 63.5);
+    pan = (1.0f - sinApprox(pan)) * 63.5;
     if (D_80745838 != 0) {
         reverb = 30;
     } else if (D_8077058E >= 21) {
@@ -2089,8 +2088,6 @@ void sfxPlayAtPosition(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, f32 pitch, u8 
     }
     osSetThreadPri(NULL, 10);
 }
-
-#pragma intrinsic(sqrtf)
 
 extern u8 gCurrentPlayerIndex;
 
@@ -2117,12 +2114,12 @@ void sfxPlayAtPositionForPlayer(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, u8 pi
         angle += 6.2831855f;
     }
 
-    if (angle > 1.5707964f && (f64)angle < 4.71238911151886) {
+    if (angle > 1.5707964f && angle < 4.71238911151886) {
         behind = 1;
     }
 
     if (range == 0) {
-        vol = ((f64)(u32)volume * 32767.0) / 255.0;
+        vol = ((u32)volume * 32767.0) / 255.0;
         if (D_80770DE4 < 23.0f) {
             angle = 0.0f;
         }
@@ -2130,43 +2127,43 @@ void sfxPlayAtPositionForPlayer(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, u8 pi
         dx = gPlayerSlots[gCurrentPlayerIndex].x - x;
         dy = gPlayerSlots[gCurrentPlayerIndex].y - y;
         dz = gPlayerSlots[gCurrentPlayerIndex].z - z;
-        D_80770DE4 = sqrtf((f32)(dx * dx + dy * dy + dz * dz));
+        D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
 
         if (D_80770DE4 < 23.0f) {
             angle = 0.0f;
             behind = 0;
         }
 
-        if (angle > 0.7853982f && (f64)angle < 5.497787296772003) {
-            D_80770DE4 = (1.0f - (sinApprox(((2.0 * (f64)angle) / 3.0) + 2.617993950843811) * directionality)) * D_80770DE4;
+        if (angle > 0.7853982f && angle < 5.497787296772003) {
+            D_80770DE4 = (1.0f - (sinApprox(((2.0 * angle) / 3.0) + 2.617993950843811) * directionality)) * D_80770DE4;
         }
 
         if (D_80770DE4 < 1.0f) {
             D_80770DE4 = 1.0f;
         }
 
-        vol = (((f32)(range * 4000) / sqrtf(D_80770DE4)) - (((f32)(range * 4000) / 7.74596600000000013) - 32767.0));
+        vol = (((range * 4000) / sqrtf(D_80770DE4)) - (((f32)(range * 4000) / 7.74596600000000013) - 32767.0));
         if (vol >= 0x8000) {
             vol = 0x7FFF;
         }
-        vol = ((f64)(volume * vol)) / 255.0;
+        vol = (volume * vol) / 255.0;
     }
 
     if (vol >= 1001) {
         if (spread != 0) {
-            vol = (1.0 - (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)spread / 155.0))) * (f64)vol;
-            pitch = (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)spread / 100.0)) + (1.0 - ((f64)(u32)spread / 255.0));
+            vol = (1.0 - (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 155.0))) * vol;
+            pitch = (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 100.0)) + (1.0 - ((u32)spread / 255.0));
         } else {
             pitch = 1.0f;
         }
 
-        pitch = (f32)(((f64)((f32)(u32)pitchByte * pitch)) / 127.0);
+        pitch = ((u32)pitchByte * pitch) / 127.0;
 
         if (D_8077058E >= 21) {
             fx = (D_8077058E * 100) / 255;
         }
 
-        angle = (f32)((f64)(1.0f - sinApprox(angle)) * 63.5);
+        angle = (1.0f - sinApprox(angle)) * 63.5;
 
         if (behind != 0) {
             fx |= 0x80;
