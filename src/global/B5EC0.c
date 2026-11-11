@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_actorMoveWithinZone // FAKE: callee prototype steer
-#define PROTO_SKIP_func_80724E48 // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_func_80724E48 // FAKE: callee prototype steer (owner 1295B0 takes one u8 and never reads a1; the extra `sel` argument keeps sel in a1 across the call, see func_806B13B4)
 #define PROTO_SKIP_patrolPathStep // FAKE: callee prototype steer
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
