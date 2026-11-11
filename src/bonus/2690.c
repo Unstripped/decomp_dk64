@@ -325,7 +325,7 @@ void bonusResetAmmo(Struct_7548 *ammo) {
         effectSetMode(2);
         effectSetParam(i * 3);
         effectSetCallback(effectSpriteMatrixUpdate);
-        effectSetSpeed(&ammo->unk18[i]);
+        effectSetSpeed((s32)&ammo->unk18[i]);
         ammo->unk4[i] = effectCreateAtPosition(D_8071FFD4, 1.0f, (f32) y, 210.0f, -10.0f);
         y -= 0x1E;
     }

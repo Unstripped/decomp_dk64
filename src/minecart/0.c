@@ -181,7 +181,7 @@ void minecartSpawnWheelEffect(MinecartCart *cart, u8 side, u8 probabilityThresho
     if ((u32)(u8)randomLcgNext() >= (u32)probabilityThreshold) {
         if (cart->unk0 == 0) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8A, 0x96, 0x7F, 0x32);
-            effectSetSpeed(gCurrentActor);
+            effectSetSpeed((s32)gCurrentActor);
             effectSetCallback(&effectTimedLightIntensityFade);
             D_80028C30 = effectCreateAtActorBone(&D_8072006C, 0x3ECCCCCD, gCurrentActor, side + 7, 2);
         }

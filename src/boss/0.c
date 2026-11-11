@@ -520,12 +520,12 @@ void bossArmydilloSpawnExhaustSmoke(void) {
     effectSetDepth(1);
     effectSetCallback((void *)p);
     effectSetMaxDistance(1000);
-    effectSetSpeed(gCurrentActor);
+    effectSetSpeed((s32)gCurrentActor);
     effectCreateAtActorBone(&D_80720120, val, gCurrentActor, 3, 0);
     effectSetDepth(1);
     effectSetCallback((void *)p);
     effectSetMaxDistance(1000);
-    effectSetSpeed(gCurrentActor);
+    effectSetSpeed((s32)gCurrentActor);
     effectCreateAtActorBone(&D_80720120, val, gCurrentActor, 4, 0);
 }
 

@@ -55,10 +55,10 @@ extern s32 D_80721158;
 extern s32 D_8072139C;
 
 
-void effectSpawnActorBone(s32 lifetime, u8 bone, f32 scale) {
+void effectSpawnActorBone(Actor *owner, u8 bone, f32 scale) {
     effectSetDepth(1);
     effectSetCallback(effectFollowParentUpdate);
-    effectSetSpeed(lifetime);
+    effectSetSpeed((s32)owner);
     effectSetFlags(4);
     effectCreateAtActorBone(&D_80720120, scale, gCurrentActor, bone, 0);
 }
@@ -576,7 +576,7 @@ void effectSpawnActorOrbitParticles(Actor *actor) {
     for (i = 0; i < 16; i++) {
         effectSetDepth(1);
         effectSetDuration(-1);
-        effectSetSpeed(actor);
+        effectSetSpeed((s32)actor);
         effectSetCallback(effectActorOrbitFollowUpdate);
         effectCreateAtPosition((void *)D_8074E880[i % 3], 0.7f, actor->x, actor->y, actor->z);
     }
@@ -588,14 +588,14 @@ void effectSpawnRingBursts(Actor *actor, f32 radius, f32 arcHeight, s32 moveSpee
     for (i = 0; i < 3; i++) {
         effectSetDepth(1);
         effectSetDuration(-1);
-        effectSetSpeed(actor);
+        effectSetSpeed((s32)actor);
         effectSetCallback(effectArcAroundActorUpdate);
         func_8071E110(effectCreateAtPosition((void *)D_8074E880[i], 0.7f, actor->x, actor->y, actor->z), 1, (u16)(i * 1365.3334f), radius, arcHeight, moveSpeed);
     }
     for (i = 0; i < 3; i++) {
         effectSetDepth(1);
         effectSetDuration(-1);
-        effectSetSpeed(actor);
+        effectSetSpeed((s32)actor);
         effectSetCallback(effectArcAroundActorUpdate);
         func_8071E110(effectCreateAtPosition((void *)D_8074E880[i], 0.7f, actor->x, actor->y, actor->z), 0, (u16)(i * 1365.3334f), radius, arcHeight, moveSpeed);
     }
@@ -626,7 +626,7 @@ void effectSpawnParticleRingAtPosition(f32 posX, f32 posY, f32 posZ, void *param
         effectSetDuration(1);
         effectSetCallback(func_80717930);
         effectSetAngle((s16)(i >> shift));
-        effectSetSpeed(param);
+        effectSetSpeed((s32)param);
         effectCreateAtPosition((void *)D_8074E880[i % 3], 0.5f, posX, posY, posZ);
     }
 }

@@ -425,7 +425,7 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     if (spawnSparks != 0) {
         if ((u32)(randomLcgNext() & 0xFF) < gCurrentActor->unkB8 * 0.3 && pathState->unk0 == pathState->unk1) {
             mathPickCloserTargetPoint3D(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, cur, &points[next], &points[next], nxt2, &hx, &hy, &hz);
-            effectSetSpeed(gCurrentActor);
+            effectSetSpeed((s32)gCurrentActor);
             effectSetCallback(timedLightOrbitUpdate);
             D_8002FBB0[gLightSlotsEnd] = effectCreateAtPosition(&D_8072006C, 0.4f, hx, hy, hz);
             gLightSlotsEnd++;

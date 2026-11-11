@@ -4,7 +4,7 @@
 #include "common.h"
 #include "actor.h"
 #ifndef PROTO_SKIP_effectSpawnActorBone
-void effectSpawnActorBone(s32, u8, f32);
+void effectSpawnActorBone(Actor *, u8, f32);
 #endif
 #ifndef PROTO_SKIP_effectSpawnRandomBoneDebris
 void effectSpawnRandomBoneDebris(u8, u8);

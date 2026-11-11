@@ -132,7 +132,7 @@ void bossSpawnSparkles(void) {
     sparkZ += (f32)(((randomNonNegative() >> 15) % 80) - 40);
     effectSetDepth(1);
     effectSetCallback(func_8071EDEC);
-    effectSetSpeed(gCurrentActor);
+    effectSetSpeed((s32)gCurrentActor);
     effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
     effectCreateAtPosition(D_80720120, 1.5f, sparkX, sparkY, sparkZ);
     for (i = 0; i < 4; i++) {

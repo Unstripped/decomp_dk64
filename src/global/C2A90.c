@@ -206,7 +206,7 @@ void func_806BE09C(void) {
                     effectSetCallback(effectConvergeOnNodeUpdate);
                     effectSetDuration(-1);
                     effectSetDepth(1);
-                    effectSetSpeed(gCurrentActor);
+                    effectSetSpeed((s32)gCurrentActor);
                     effectCreateAtActorBone(slotQueueGetSpriteAsset(0), 0.3f, gPrimaryPlayerActor, 4, 0);
                 }
             } else if (gBehaviourWorkState->unk2E == 0) {

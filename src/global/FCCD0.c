@@ -759,7 +759,7 @@ void effectSpawnSprite(SlotQueueNode *node, s32 slot, f32 x, f32 y, s32 param) {
     }
     effectSetMode(mode);
     effectSetParam(param);
-    effectSetSpeed(node);
+    effectSetSpeed((s32)node);
     effectSetCallback(effectWaveMotionUpdate);
     effectSetFlags(0x21);
     if (slot == 3) {
@@ -887,7 +887,7 @@ void slotQueueInitEffectSprites(s32 slot) {
         effectEnableFade();
         effectSetDuration(-1);
         effectSetCallback((void (*)(void))effectSpriteUpdatePosition);
-        effectSetSpeed((void *)i);
+        effectSetSpeed(i);
         D_807FD7A0[i] = -100.0f;
         effectCreateAtPosition((s32)D_80750518[i], 1.0f, -200.0f, 0.0f, -10.0f);
     }
