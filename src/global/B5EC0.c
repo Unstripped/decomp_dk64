@@ -1,8 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorMoveWithinZone // FAKE: callee prototype steer
 #define PROTO_SKIP_func_80724E48 // FAKE: callee prototype steer (owner 1295B0 takes one u8 and never reads a1; the extra `sel` argument keeps sel in a1 across the call, see func_806B13B4)
-#define PROTO_SKIP_patrolPathStep // FAKE: callee prototype steer
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
 #include "proto/global/135D30.h"
@@ -91,11 +89,8 @@ void func_806B1348(void) {
 extern s32 gCurrentMap;
 
 void func_80724E48();
-void actorMoveWithinZone(s32, f32, f32, s32, f32); // FAKE: callee prototype steer
-void patrolPathStep(s32, s32); // FAKE: callee prototype steer
 
-void func_806B13B4(u8 arg0) {
-    s32 v;
+void func_806B13B4(u8 spawnSfxNodes) {
     s32 sel;
 
     behaviourFrameBegin();
@@ -267,7 +262,7 @@ void func_806B13B4(u8 arg0) {
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
             break;
         case 1:
-            if (arg0 != 0) {
+            if (spawnSfxNodes != 0) {
                 sfxSpawnTableNodes(gCurrentActor);
             }
             gCurrentActor->unk155 += 1;

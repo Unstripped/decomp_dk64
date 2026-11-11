@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
@@ -25,7 +24,6 @@ extern u32 gFrameCounter;
 
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void func_806B1F50(void) {
     u8 tint;
@@ -109,7 +107,7 @@ void func_806B1F50(void) {
             if (gCurrentActor->unk155 != 0 && actorTableContains(gBehaviourTargetActor) != 0 && gFrameCounter % 7 == 0) {
                 tint = -gCurrentActor->unk155 * 0x1E + 0xB4;
                 effectSetMode(3);
-                effectSetColor(tint, tint, tint & 0xFF, (u8)gCurrentActor->alpha); // FAKE: redundant & 0xFF on the u8 tint emits the target andi a2,a0,0xff for the third argument only
+                effectSetColor(tint, tint, tint, gCurrentActor->alpha);
                 effectSpawnBoneDefault(gBehaviourTargetActor, 1, 1.0f, 0.0f, 0.0f, 0.0f, -0x96);
             }
             break;

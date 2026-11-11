@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_csModelStateSetFirstByte // FAKE: callee prototype steer
-#define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
 #include "proto/boss/3840.h"
 #include "proto/boss/F0D0.h"
 #include "proto/global/119370.h"
@@ -293,13 +292,17 @@ extern u8 D_8071FC58[];
 extern u8 D_80720054[];
 extern u8 D_80720BE8[];
 
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32); // FAKE: callee prototype steer
-
 void bossMainStep(void) {
     BossF_State *st;
     BossF_Sub *sub;
     u8 *tbl;
-    struct { u8 pad0[3]; u8 col[3]; u8 pad1; u8 f7F; u8 pad2[3]; u8 f83; } L; // FAKE: one stack block pins col/flag7F/playerAbove at L+3/L+7/L+0xB; plain u8 locals reorder the frame
+    u8 playerAbove;
+    u8 pad2[3];
+    u8 flag7F;
+    u8 pad1;
+    u8 nextIdx;
+    u8 red;
+    u8 green;
     f32 sx;
     f32 sy;
     u8 idx;
@@ -309,10 +312,8 @@ void bossMainStep(void) {
     f32 boneY;
     f32 boneZ;
     u8 left;
+    u8 bright;
 
-#define playerAbove L.f83
-#define flag7F L.f7F
-#define col L.col
     st = BF->unk178;
     sub = BF->unk17C;
     tbl = D_80035B84[st->unk14];
@@ -353,24 +354,24 @@ void bossMainStep(void) {
     if (st->unk14 < 2) {
         if (sub->unk4 != 0) {
             idx = sub->unk4 - 0x10;
-            col[2] = sub->unk5 - 0x10;
+            nextIdx = sub->unk5 - 0x10;
             if (D_80035BEC[idx] != 0) {
-                col[1] = 0x46;
+                red = 0x46;
             } else {
-                col[1] = 0xFF;
+                red = 0xFF;
             }
             if (D_80035BEC[idx] != 0) {
-                col[0] = 0xA0;
+                green = 0xA0;
             } else {
-                col[0] = 0xFF;
+                green = 0xFF;
             }
             if (idx != sub->unk3) {
                 lightSetRadius(0x1388);
-                lightAdd(D_807FDCA0->entries[idx].x, D_807FDCA0->entries[idx].y - 0x32, D_807FDCA0->entries[idx].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, col[1], col[0], 0xFF);
+                lightAdd(D_807FDCA0->entries[idx].x, D_807FDCA0->entries[idx].y - 0x32, D_807FDCA0->entries[idx].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, red, green, 0xFF);
             }
-            if (sub->unk3 != col[2]) {
+            if (nextIdx != sub->unk3) {
                 lightSetRadius(0x1388);
-                lightAdd(D_807FDCA0->entries[col[2]].x, D_807FDCA0->entries[col[2]].y - 0x32, D_807FDCA0->entries[col[2]].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, col[1], col[0], 0xFF);
+                lightAdd(D_807FDCA0->entries[nextIdx].x, D_807FDCA0->entries[nextIdx].y - 0x32, D_807FDCA0->entries[nextIdx].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, red, green, 0xFF);
             }
         }
     }
@@ -391,14 +392,14 @@ void bossMainStep(void) {
     switch (BF->unk154) {
     case 0x1E:
         for (i = 0; i < 0x10; i++) {
-            if (*(u16 *)(D_80035B98 + ((gBehaviourWorkState->timer & 0x1F) << 1)) & (1 << i)) {
+            if (((u16 *)D_80035B98)[gBehaviourWorkState->timer & 0x1F] & (1 << i)) {
                 D_80036DD0[i] = 0xFA;
             }
             if (D_80036DD0[i] != 0) {
                 sx = D_80035BEC[i] != 0 ? 0.27 : 1.0;
                 sy = D_80035BEC[i] != 0 ? 0.62 : 1.0;
                 lightSetRadius(0x1388);
-                lightAdd(D_807FDCA0->entries[i].x, D_807FDCA0->entries[i].y - 0x28A, D_807FDCA0->entries[i].z, 0, 0.0f, 0.0f, 240.0f, 0, (u32)((f32)(u32)D_80036DD0[i] * sx), (u32)((f32)(u32)D_80036DD0[i] * sy), D_80036DD0[i]);
+                lightAdd(D_807FDCA0->entries[i].x, D_807FDCA0->entries[i].y - 0x28A, D_807FDCA0->entries[i].z, 0, 0.0f, 0.0f, 240.0f, 0, (u32)(D_80036DD0[i] * sx), (u32)(D_80036DD0[i] * sy), D_80036DD0[i]);
                 D_80036DD0[i] -= 0x19;
             }
         }
@@ -411,9 +412,9 @@ void bossMainStep(void) {
         }
         break;
     case 0x1F:
-        i = (u8)(u32)(mathSinF((s16)(gFrameCounter * 0x7D)) * 100.0f + 155.0f);
+        bright = (u32)(mathSinF(gFrameCounter * 0x7D) * 100.0f + 155.0f);
         lightSetRadius(0x1388);
-        lightAdd(D_807FDCA0->entries[5].x, D_807FDCA0->entries[5].y - 0x28A, D_807FDCA0->entries[5].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, i, i, i);
+        lightAdd(D_807FDCA0->entries[5].x, D_807FDCA0->entries[5].y - 0x28A, D_807FDCA0->entries[5].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, bright, bright, bright);
         if (currentActorTestClearFlag() != 0) {
             sfxPlayAtPositionPooled(BF->unk7C, BF->unk80, BF->unk84, 0x19C, 0x64, 0x7F, 0, 0, 0.0f, 0);
             BF->unk154 = 0x20;
@@ -619,16 +620,16 @@ void bossMainStep(void) {
                     effectSpawnBoneDebris(3, 1);
                     flag7F = 1;
                 } else {
-            actorGetNodePos(gCurrentActor, 1, &boneX, &boneY, &boneZ);
-            boneX += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
-            boneY += (f32)((randomNonNegative() >> 15) % 100 + 0x32);
-            boneZ += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
-            effectSetDepth(1);
-            effectSetCallback(D_8071EDEC);
-            effectSetSpeed((s32)gCurrentActor);
-            effectCreateAtPosition(D_8071FC58, 1.5f, boneX, boneY, boneZ);
-            effectCreateAtActorBone(D_80720054, 3.0f, gCurrentActor, 1, 2);
-        }
+                    actorGetNodePos(gCurrentActor, 1, &boneX, &boneY, &boneZ);
+                    boneX += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
+                    boneY += (f32)((randomNonNegative() >> 15) % 100 + 0x32);
+                    boneZ += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
+                    effectSetDepth(1);
+                    effectSetCallback(D_8071EDEC);
+                    effectSetSpeed((s32)gCurrentActor);
+                    effectCreateAtPosition(D_8071FC58, 1.5f, boneX, boneY, boneZ);
+                    effectCreateAtActorBone(D_80720054, 3.0f, gCurrentActor, 1, 2);
+                }
                 break;
             case 4:
                 if (BF->unk154 == 0x25) {
@@ -736,7 +737,7 @@ void bossMainStep(void) {
             flag7F = 1;
             break;
         case 4:
-            bossAdjustHealth(((s8 *)st)[9]);
+            bossAdjustHealth(st->unk8);
             break;
         case 5:
             BF->unk154 = tbl[st->unk15];
@@ -827,9 +828,6 @@ void bossMainStep(void) {
 }
 #undef sub
 #undef tbl
-#undef playerAbove
-#undef flag7F
-#undef col
 #undef BF
 #undef BP
 

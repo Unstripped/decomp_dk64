@@ -519,7 +519,7 @@ void actorSpawnPeriodicBoneEffect(void) {
     }
     if ((period != 0) && ((gFrameCounter % period) == 0)) {
         effectSetMode(3);
-        effectSetColor(col, col, col, (u8)gCurrentActor->alpha);
+        effectSetColor(col, col, col, gCurrentActor->alpha);
         effectSpawnBoneDefault(gCurrentActor, 1, f, 0.0f, 0.0f, 0.0f, -0x50);
     }
 }

@@ -279,7 +279,7 @@ typedef struct E3DcA0 {
 s32 zoneCheckActorInside(Actor *, f32, f32, struct Zone *, s16 *);
 f32 mathCosF(s16);
 
-u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 arg4) {
+u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floorYOffset) {
     f32 area;
     s16 zoneYaw;
     s16 *yawPtr;
@@ -321,7 +321,7 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 arg4)
         if (!(flags & 1)) {
             actorApplyVelocityCustom(gCurrentActor, 0, gCurrentActor->speedY);
         }
-        actorUpdateFloorContactAndTilt(gCurrentActor, arg4);
+        actorUpdateFloorContactAndTilt(gCurrentActor, floorYOffset);
         if (!(flags & 0x2000)) {
             behaviourCheckGroundImpactEffects();
         }
@@ -341,7 +341,7 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 arg4)
         actorApplyVelocity(gCurrentActor);
     }
     if (!(flags & 8)) {
-        actorUpdateFloorContactAndTilt(gCurrentActor, arg4);
+        actorUpdateFloorContactAndTilt(gCurrentActor, floorYOffset);
     } else if (E3CA0->unk19 != 1 && (flags & 0x10)) {
         collisionCheckActorFloor(gCurrentActor, gCurrentActor->x, gCurrentActor->prevY, gCurrentActor->z, &gCurrentActor->floorY);
     }
@@ -927,7 +927,7 @@ s32 patrolGetTargetAngle(void) {
     return mathAngleBetweenPoints2D(x, z, D_807FDCA0->entries[key].x, D_807FDCA0->entries[key].z);
 }
 
-u8 patrolPathStep(u8 arg0, u8 arg1) {
+u8 patrolPathStep(u8 state, u8 flags) {
     u8 dir;
     u8 pad;
     u8 key;
@@ -952,7 +952,7 @@ u8 patrolPathStep(u8 arg0, u8 arg1) {
     z = D_807FDCA0->entries[key].z;
     moved = ((gCurrentActor->x - x) * (gCurrentActor->x - x)) + ((gCurrentActor->z - z) * (gCurrentActor->z - z)) <
             (D_807FDCA0->entries[key].radius * D_807FDCA0->entries[key].radius);
-    if ((arg1 & 1) && gCurrentActor->x == gCurrentActor->prevX && gCurrentActor->z == gCurrentActor->prevZ) {
+    if ((flags & 1) && gCurrentActor->x == gCurrentActor->prevX && gCurrentActor->z == gCurrentActor->prevZ) {
         if (gBehaviourWorkState) {} // FAKE: two uopt blocks in idx's live range drop its priority below key's (key t2, idx t3)
         gBehaviourWorkState->unk20++;
         if (gBehaviourWorkState->unk20++ > 0x10) {
@@ -962,7 +962,7 @@ u8 patrolPathStep(u8 arg0, u8 arg1) {
     } else {
         gBehaviourWorkState->unk20 = 0;
     }
-    switch (arg0) {
+    switch (state) {
         case 0x49:
             v = idx + 1;
             next = (v < gBehaviourExtraState->pathCount) ? v : 0;
