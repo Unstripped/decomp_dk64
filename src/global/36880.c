@@ -531,7 +531,7 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
     collisionBuildSlotBoxes(slot, info, x, y, z, rotX, rotY, rotZ, scale);
     dynamicBufferFree(&gModelSlots[slot].unk28);
     modelSlotClearTail(slot);
-    gModelSlots[slot].unk48.unk24 = 0;
+    gModelSlots[slot].unk48.flags = 0;
     modelSlotBuildTriangleBuffer(slot, info, x, y, z, rotX, rotY, rotZ, scale);
     modelSlotTriBufferRelease(&gModelSlots[slot].unk48);
     modelSlotBuildVertPosList(slot, (struct ModelVertTable *)info, x, y, z, rotX, rotY, rotZ, scale, 0);
@@ -954,7 +954,7 @@ void modelSlotClearTail(s32 slot) {
     for (i = 0; i < 2; i++) {
         p->unk25[i] = 0xFF;
     }
-    p->unk24 = 0;
+    p->flags = 0;
 }
 
 void modelSlotUpdateTailKey(s32 slot, u8 isId, u8 newKey, u8 remove) {
@@ -988,7 +988,7 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
     f32 boneWorldMtx[4][4];
     ModelTriBuffer *buf;
     u8 *entry;
-    u8 *out;
+    CollisionTriF *out;
     s32 i;
     u8 *animFrame;
     u8 *boneTable;
@@ -1010,24 +1010,24 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
     }
     boneTable = data->unk60 + (u8 *)data;
     if (data->unk0 & 4) {
-        buf->unk24 |= 2;
+        buf->flags |= 2;
     } else {
-        buf->unk24 &= ~2;
+        buf->flags &= ~2;
     }
     count = *(s32 *)(data->unk50 + (u8 *)data);
     if (count == 0) {
-        buf->unk0 = NULL;
-        buf->unk4 = NULL;
-        buf->unk24 |= 1;
-        buf->unk8 = gFrameCounter;
+        buf->tri_start = NULL;
+        buf->tri_end = NULL;
+        buf->flags |= 1;
+        buf->timestamp = gFrameCounter;
         return;
     }
-    if (!(buf->unk24 & 1)) {
-        buf->unk0 = heapAlloc(count * 0x28);
+    if (!(buf->flags & 1)) {
+        buf->tri_start = heapAlloc(count * 0x28);
     }
-    buf->unk24 |= 4;
+    buf->flags |= 4;
     entry = data->unk50 + (u8 *)data + 0x10;
-    out = buf->unk0;
+    out = buf->tri_start;
     guScaleF(mtx, scale, scale, scale);
     guRotateF(rotMtx, rotX, 1.0f, 0.0f, 0.0f);
     guMtxCatF(mtx, rotMtx, mtx);
@@ -1042,7 +1042,7 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
         bone = entry[0x13];
         if ((bone ^ 0) == -1) { // FAKE: no-op xor flips the bne operand order (Q0304)
             if (modelTriangleTransform(entry, out, mtx) != 0) {
-                out += 0x28;
+                out++;
             }
         } else {
             if (lastBone != bone) {
@@ -1051,33 +1051,33 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
                 lastBone = entry[0x13];
             }
             if (modelTriangleTransform(entry, out, boneWorldMtx) != 0) {
-                bboxExpandFromTriangle((f32 *)out, buf->unkC);
-                out += 0x28;
+                bboxExpandFromTriangle(out, &buf->bbox);
+                out++;
             }
         }
         entry += 0x18;
     }
-    buf->unk4 = out;
-    buf->unk24 |= 1;
-    buf->unk8 = gFrameCounter;
+    buf->tri_end = out;
+    buf->flags |= 1;
+    buf->timestamp = gFrameCounter;
 }
 
 
-void bboxExpandFromTriangle(f32 *tri, f32 *bounds) {
+void bboxExpandFromTriangle(CollisionTriF *tri, CollisionBoundingBox *bounds) {
     s32 i;
 
     for (i = 0; i < 3; i++) {
-        if (tri[i] < bounds[0]) {
-            bounds[0] = tri[i];
+        if (tri->x[i] < bounds->minX) {
+            bounds->minX = tri->x[i];
         }
-        if (tri[i + 6] < bounds[2]) {
-            bounds[2] = tri[i + 6];
+        if (tri->z[i] < bounds->minZ) {
+            bounds->minZ = tri->z[i];
         }
-        if (bounds[3] < tri[i]) {
-            bounds[3] = tri[i];
+        if (bounds->maxX < tri->x[i]) {
+            bounds->maxX = tri->x[i];
         }
-        if (bounds[5] < tri[i + 6]) {
-            bounds[5] = tri[i + 6];
+        if (bounds->maxZ < tri->z[i]) {
+            bounds->maxZ = tri->z[i];
         }
     }
 }
@@ -1140,10 +1140,10 @@ s32 modelTriangleTransform(void *src, void *dst, f32 (*mtx)[4]) {
 
 
 void modelSlotTriBufferRelease(ModelTriBuffer *buf) {
-    if (buf->unk0 != NULL && (buf->unk24 & 1)) {
-        heapFree(buf->unk0);
+    if (buf->tri_start != NULL && (buf->flags & 1)) {
+        heapFree(buf->tri_start);
     }
-    buf->unk24 &= ~1;
+    buf->flags &= ~1;
 }
 
 
@@ -1834,7 +1834,7 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
                     if (gPlayerCount > 0) {
                         do {
                             if (MODEL_TRANSFORM_PLAYER(i)->unk0 != 0) {
-                                flag |= collisionCheckBoundingBoxY(((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk80) != 0 && collisionCheckBoundingBoxXZ(((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84) != 0; // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (gModelSlots[slot].unk48.unkC flips the addu, + off takes t4)
+                                flag |= collisionCheckBoundingBoxY(((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk80) != 0 && collisionCheckBoundingBoxXZ(((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84) != 0; // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
                             }
                             i = (u8)(i + 1);
                         } while (i < gPlayerCount);
@@ -1848,7 +1848,7 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
                     if (gPlayerCount > 0) {
                         do {
                             if (MODEL_TRANSFORM_PLAYER(i)->unk0 != 0) {
-                                flag |= collisionCheckBoundingBoxXZ(((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84); // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (gModelSlots[slot].unk48.unkC flips the addu, + off takes t4)
+                                flag |= collisionCheckBoundingBoxXZ(((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84); // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
                             }
                             i = (u8)(i + 1);
                         } while (i < gPlayerCount);

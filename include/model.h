@@ -2,6 +2,7 @@
 #define MODEL_H
 
 #include "common.h"
+#include "collision.h"
 #include "heap.h"
 
 // Model asset file header (asset table 4, ModelSlot.unk24); the fields seen so far.
@@ -67,11 +68,11 @@ typedef struct ModelData {
 
 // Per-slot triangle buffer (ModelSlot.unk48, modelSlotTriBufferRelease); 0x28 bytes.
 typedef struct ModelTriBuffer {
-    /* 0x00 */ u8 *unk0;
-    /* 0x04 */ u8 *unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ f32 unkC[6];
-    /* 0x24 */ u8 unk24;
+    /* 0x00 */ CollisionTriF *tri_start;
+    /* 0x04 */ CollisionTriF *tri_end; // one past the last built triangle
+    /* 0x08 */ s32 timestamp; // gFrameCounter at the last build
+    /* 0x0C */ CollisionBoundingBox bbox;
+    /* 0x24 */ u8 flags; // 1 = built (tri_start owned), 2 = model data flag 4, 4 = has triangles
     /* 0x25 */ u8 unk25[2];
 } ModelTriBuffer; // size = 0x28
 

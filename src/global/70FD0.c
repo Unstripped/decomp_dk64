@@ -357,7 +357,7 @@ void modelSlotExpireNextBuffers(void) {
             dynamicBufferFree(a0);
         }
         a1 = &gModelSlots[D_80748E40].unk48;
-        if ((a1->unk24 & 1) && ((u32)(gFrameCounter - a1->unk8) >= 0x1F)) {
+        if ((a1->flags & 1) && ((u32)(gFrameCounter - a1->timestamp) >= 0x1F)) {
             modelSlotTriBufferRelease(a1);
         }
     }
@@ -2810,7 +2810,7 @@ u8 collisionTestSphereSlots(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s
         do {
             buf = (ModelSlotBufferView *)&gModelSlots[i].unk28;
             if (buf->unk18 != 0 &&
-                (D_807FB53C != 0xBC || (gModelSlots[i].unk48.unk24 & 2))) {
+                (D_807FB53C != 0xBC || (gModelSlots[i].unk48.flags & 2))) {
                 x = arg0;
                 y = arg1;
                 z = arg2;

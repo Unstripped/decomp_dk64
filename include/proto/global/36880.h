@@ -2,6 +2,7 @@
 #ifndef PROTO_GLOBAL_36880_H
 #define PROTO_GLOBAL_36880_H
 #include "common.h"
+#include "collision.h"
 #include "model.h"
 #include "render.h"
 struct DisplayListCmd;
@@ -112,7 +113,7 @@ void modelSlotUpdateTailKey(s32, u8, u8, u8);
 void modelSlotBuildTriangleBuffer(s32, ModelAssetHeader *, f32, f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_bboxExpandFromTriangle
-void bboxExpandFromTriangle(f32 *, f32 *);
+void bboxExpandFromTriangle(CollisionTriF *, CollisionBoundingBox *);
 #endif
 #ifndef PROTO_SKIP_boundsTransformToAabb
 void boundsTransformToAabb(f32 (*)[4], void *, void *);
