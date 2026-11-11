@@ -473,23 +473,15 @@ extern Mtx D_20000C0;
 extern s32 gGlobalOverlayFlags;
 
 
+// The owner's component (Actor.customState) as actorDrawAnimatedEffect reads it: a byte pointer at 0x34.
 typedef struct ActorEffect174 {
     u8 pad[0x34];
     u8 *unk34;
 } ActorEffect174;
-
-typedef struct ActorEffect {
-    u8 pad[0xE6];
-    s16 unkE6;
-    u8 padE8[4];
-    s16 unkEC;
-    u8 padEE[0x174 - 0xEE];
-    ActorEffect174 *unk174;
-} ActorEffect;
 #define ANIM_TEX ((u16)(((gFrameCounter >> 1) % 12) + 0x83))
 
-Gfx *actorDrawAnimatedEffect(Gfx *glist, ActorEffect *effect) {
-    s16 unkEC = effect->unkEC + 0x5A;
+Gfx *actorDrawAnimatedEffect(Gfx *glist, Actor *actor) {
+    s16 spriteAngle = actor->unkEC + 0x5A;
 
     WRITE_GFX(glist++, 0xDE000000, (u32)&D_1000118);
     WRITE_GFX(glist++, 0xFCFFFFFF, 0xFFFCF279);
@@ -497,10 +489,10 @@ Gfx *actorDrawAnimatedEffect(Gfx *glist, ActorEffect *effect) {
     WRITE_GFX(glist++, 0xDA380007, (u32)&D_20000C0);
 
     if (gGlobalOverlayFlags & 0x80000) {
-        s16 yaw = effect->unkE6;
-        ActorEffect174 *unk174 = effect->unk174;
+        s16 yaw = actor->yaw;
+        ActorEffect174 *state = actor->customState;
         if (yaw < 0x200 || yaw >= 0xE01 || (yaw >= 0x601 && yaw < 0xA00)) {
-            if (*unk174->unk34 != 0x10 && *unk174->unk34 != 0x13) {
+            if (*state->unk34 != 0x10 && *state->unk34 != 0x13) {
                 glist = renderRotatedSprite(glist, ANIM_TEX, 0, 2, 0x20, 0x10, 0x78, 0x1E0, 4.0f, 4.0f, 0, 0.0f);
                 glist = renderRotatedSprite(glist, ANIM_TEX, 0, 2, 0x20, 0x10, 0x488, 0x1E0, 4.0f, 4.0f, 0xB4, 0.0f);
             }
@@ -509,7 +501,7 @@ Gfx *actorDrawAnimatedEffect(Gfx *glist, ActorEffect *effect) {
             glist = renderRotatedSprite(glist, ANIM_TEX, 0, 2, 0x20, 0x10, 0x280, 0x348, 4.0f, 4.0f, 0x10E, 0.0f);
         }
     } else {
-        glist = renderRotatedSprite(glist, ANIM_TEX, 0, 2, 0x20, 0x10, 0xB4, 0xC8, 8.0f, 8.0f, unkEC, 0.0f);
+        glist = renderRotatedSprite(glist, ANIM_TEX, 0, 2, 0x20, 0x10, 0xB4, 0xC8, 8.0f, 8.0f, spriteAngle, 0.0f);
     }
 
     return glist;

@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_90D80_H
 #include "common.h"
 #include "actor.h"
-struct ActorEffect;
 struct CsCountdown;
 #ifndef PROTO_SKIP_texCacheReset
 void texCacheReset(void);
@@ -51,7 +50,7 @@ Gfx *renderCountdownTimerHUD(Gfx *, struct CsCountdown *);
 Gfx *hudDrawRollingCounter(Gfx *, s16, s16, s16 *, s16, u8 *);
 #endif
 #ifndef PROTO_SKIP_actorDrawAnimatedEffect
-Gfx *actorDrawAnimatedEffect(Gfx *, struct ActorEffect *);
+Gfx *actorDrawAnimatedEffect(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_renderTimerMinutesSecondsHUD
 Gfx *renderTimerMinutesSecondsHUD(Gfx *, f32, f32, s32);

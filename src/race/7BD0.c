@@ -1129,27 +1129,22 @@ void racePlayerHudRenderCallback(Gfx *gfx, Actor *actor) {
 
 void racePlayerTrackerBehaviorUpdate(void) {
     Actor *playerActor;
-    Actor *raceActor;
     RaceParticipant *raceData;
     f32 curMax;
     f32 diff;
 
-    raceActor = gCurrentActor;
-    raceData = raceActor->customState;
+    raceData = gCurrentActor->customState;
     playerActor = gPlayerSlots[raceData->playerIdx].actor;
-    if (!(raceActor->flags & 0x10)) {
-        playerStateQueueCallback(0x4E, raceActor, raceData->playerIdx);
+    if (!(gCurrentActor->flags & 0x10)) {
+        playerStateQueueCallback(0x4E, gCurrentActor, raceData->playerIdx);
         gCurrentActor->state = 0;
         gCurrentActor->unk155 = 0;
-        raceActor = gCurrentActor;
     }
-    if ((raceData->unk34 == 2) && (raceActor->state == 0)) {
+    if ((raceData->unk34 == 2) && (gCurrentActor->state == 0)) {
         playerStateQueueCallback(0x57, NULL, raceData->playerIdx);
-        raceActor = gCurrentActor;
-        raceActor->state++;
-        raceActor = gCurrentActor; // FAKE: redundant global reload steers regalloc
+        gCurrentActor->state++;
     }
-    raceActor->x = playerActor->x;
+    gCurrentActor->x = playerActor->x;
     gCurrentActor->y = playerActor->y;
     gCurrentActor->z = playerActor->z;
     if (raceData->unk34 == 2) {

@@ -426,7 +426,7 @@ void raceVehicleBehaviorUpdate(void) {
     RaceParticipant *participant;
     s16 shakeAngle;
     f32 off;
-    f32 pad; /* unused: its stack home is needed for the frame layout */
+    f32 bonus;
     Actor *manager;
     RaceParticipant *managerData;
     s32 i;
@@ -434,7 +434,7 @@ void raceVehicleBehaviorUpdate(void) {
     f32 bumpY;
     f32 bumpZ;
 
-    participant = ((RaceActor *)gCurrentActor)->unk174;
+    participant = gCurrentActor->customState;
     pathState = ((RaceActor *)gCurrentActor)->unk178;
     if (!(gCurrentActor->flags & 0x10)) {
         len = gMinecartTrackPoints[pathState->unk0 + 1] - gMinecartTrackPoints[pathState->unk0];
@@ -467,7 +467,7 @@ void raceVehicleBehaviorUpdate(void) {
     }
     if (participant->unk34 == 1) {
         manager = participant->actor;
-        managerData = ((RaceActor *)manager)->unk174;
+        managerData = manager->customState;
         if (managerData->unk1C == 8 || managerData->unk1C == 0x13) {
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x187, 0xFF, 0x7F, 0, 0, 0.3f, 0);
         }
@@ -475,10 +475,10 @@ void raceVehicleBehaviorUpdate(void) {
     } else if (participant->unk34 < 5) {
         shakeAngle = 0;
         if (participant->route != 0) {
-            bumpZ = raceGetHandicapSpeedBonus(participant);
-            if (bumpZ != 0) {
-                bumpZ = 1.5f * bumpZ + 1.5f;
-                racePlayCheckpointSfx(pathState, 0x1E, bumpZ);
+            bonus = raceGetHandicapSpeedBonus(participant);
+            if (bonus != 0) {
+                bonus = 1.5f * bonus + 1.5f;
+                racePlayCheckpointSfx(pathState, 0x1E, bonus);
             }
             participant->route = 0;
         }
