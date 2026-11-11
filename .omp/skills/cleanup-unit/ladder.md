@@ -1,6 +1,6 @@
 # The ladder (as `tools/quality.py` implements it)
 
-`drafts/quality.jsonl` is append-only; one event per (site or function, method). `status`
+`drafts/quality/` is append-only; one event per (site or function, method). `status`
 computes everything below from it; this file explains what it prints.
 
 ## Sites

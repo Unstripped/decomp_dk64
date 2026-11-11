@@ -7,7 +7,7 @@ description: Orchestrate one round of the DK64 code-quality campaign (remove FAK
 
 Every function is matched; this campaign makes the matched C readable without losing the
 match. One round = pick up to 6 files, one agent per file in PRIVATE COPY mode, merge through
-the gate, record every result in `drafts/quality.jsonl`, apply cross-file names. AGENTS.md rules
+the gate, record every result in `drafts/quality/`, apply cross-file names. AGENTS.md rules
 always apply. IDO facts: `knowledge/ido/` (`tools/quirks.py`); merge: `skill://decomp-unit/merge.md`.
 
 |File|Read when|
@@ -107,7 +107,7 @@ As each agent reports:
    (all-or-nothing); `make expected`; `sweep <src> --record`; re-record the same lines
    `--base <merge commit>` after applying the key map and dropping the removed sites' lines
    (`no site` in `--dry-run`); `ledger-copy-only.txt` at the merge commit; then `carry --rev
-   <merge>^ <src>`. A batch's `fixed` lines for sites it removed: `record --base <patch base>`. Commit `drafts/quality.jsonl`.
+   <merge>^ <src>`. A batch's `fixed` lines for sites it removed: `record --base <patch base>`. Commit `drafts/quality/`.
 7. Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
    (`--reloc-ok`), one gate; two `0.c` copies need two dirs. Commit explicit paths only. A copy
    retyping a shared global's extern: fix every other file's extern in the SAME gate (objdiff each).

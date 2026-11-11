@@ -34,7 +34,8 @@ method ladder that exhausts them, and the per-function `review` coverage.
                                          headers); any other reached change (prototype, macro, typedef,
                                          enum, layout) is listed as skipped. --dry-run writes nothing.
 
-Ledger: drafts/quality.jsonl (env DK64_QUALITY_LEDGER overrides), append-only. Functions are keyed
+Ledger: drafts/quality/ (env DK64_QUALITY_LEDGER overrides), append-only, sharded: units.jsonl plus
+<seg>/<VRAM top 16 bits>.jsonl (one function's events always share a shard). Functions are keyed
 by (seg, vram): symbol file / asm / link map via tools/ledger.py, else the build ELF symbol table,
 else (statics IDO keeps out of the symbol table) the object's .mdebug procedure symbol plus its
 link-map .text address; an unresolvable function is an error.
@@ -85,6 +86,7 @@ import collections
 import hashlib
 import itertools
 import json
+import glob
 import multiprocessing
 import os
 import re
@@ -106,7 +108,7 @@ import quirks  # noqa: E402
 from clang.cindex import CursorKind, StorageClass, TokenKind, TypeKind  # noqa: E402
 
 ROOT = clint.ROOT
-LEDGER = os.environ.get("DK64_QUALITY_LEDGER") or os.path.join(ROOT, "drafts", "quality.jsonl")
+LEDGER = os.environ.get("DK64_QUALITY_LEDGER") or os.path.join(ROOT, "drafts", "quality")
 SCRATCH = os.path.join(ROOT, ".scratch", "quality")
 
 KINDS = ("dead-if", "volatile", "do-while0", "dead-store", "noop-arith", "comma", "punned-cast",
@@ -559,10 +561,21 @@ def analyze_many(paths, uninit=False):
 
 # ---------------------------------------------------------------- ledger and exhaustion
 
+def _shard(e):
+    """Ledger file for event e: units.jsonl, or <seg>/<VRAM top 16 bits>.jsonl, so every event of one
+    function lands in one shard in append order (shards stay far below GitHub's 50 MB warning)."""
+    if e.get("type") == "unit":
+        return os.path.join(LEDGER, "units.jsonl")
+    return os.path.join(LEDGER, e["seg"], e["vram"][:4] + ".jsonl")
+
+
 def load_events():
-    if not os.path.exists(LEDGER):
+    """Unit events, then every shard in path order; each function's events keep ledger order."""
+    if not os.path.isdir(LEDGER):
         return []
-    return [json.loads(line) for line in open(LEDGER) if line.strip()]
+    units = os.path.join(LEDGER, "units.jsonl")
+    paths = ([units] if os.path.exists(units) else []) + sorted(glob.glob(os.path.join(LEDGER, "*", "*.jsonl")))
+    return [json.loads(line) for p in paths for line in open(p) if line.strip()]
 
 
 def index_events(events):
@@ -575,10 +588,13 @@ def index_events(events):
 
 
 def append_events(events):
-    os.makedirs(os.path.dirname(LEDGER), exist_ok=True)
-    with open(LEDGER, "a") as f:
-        for e in events:
-            f.write(json.dumps(e) + "\n")
+    shards = collections.defaultdict(list)
+    for e in events:
+        shards[_shard(e)].append(e)
+    for path, es in shards.items():
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "a") as f:
+            f.writelines(json.dumps(e) + "\n" for e in es)
 
 
 def unit_events(unit, events):

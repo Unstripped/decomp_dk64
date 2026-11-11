@@ -85,7 +85,7 @@ def test_untagged_dead_if_site(tmp_path, monkeypatch):
 
 
 def test_record_rejects_short_permute_and_kept_remove(tmp_path, monkeypatch, capsys):
-    ledger_path = tmp_path / "quality.jsonl"
+    ledger_path = tmp_path / "quality"
     monkeypatch.setattr(q, "LEDGER", str(ledger_path))
     batch = tmp_path / "batch.txt"
     batch.write_text(f"{SITE['key']} permute nohit seconds=300 base=10 best=8\n{SITE['key']} remove kept\n")
@@ -99,13 +99,13 @@ def test_record_rejects_short_permute_and_kept_remove(tmp_path, monkeypatch, cap
 
 
 def test_record_writes_full_schema(tmp_path, monkeypatch):
-    ledger_path = tmp_path / "quality.jsonl"
+    ledger_path = tmp_path / "quality"
     monkeypatch.setattr(q, "LEDGER", str(ledger_path))
     monkeypatch.setattr(q.Resolver, "find", lambda self, key: (dict(FN, file="src/global/x.c"), SITE))
     batch = tmp_path / "batch.txt"
     batch.write_text(f'{SITE["key"]} diagnose nohit quirks=Q0001,Q0002 note="regalloc"\n')
     q.main(["record", "--unit", "u1", "--agent", "a", "--batch", str(batch)])
-    unit, e = [json.loads(x) for x in ledger_path.read_text().splitlines()]
+    unit, e = q.load_events()
     assert unit["type"] == "unit" and unit["unit"] == "u1" and unit["commit"]
     assert set(e) == set(ev(SITE, "diagnose", "nohit"))
     assert (e["site"], e["kind"], e["quirks"], e["fp_local"]) == (SITE["key"], "dead-if", ["Q0001", "Q0002"], FP[0])
@@ -114,26 +114,26 @@ def test_record_writes_full_schema(tmp_path, monkeypatch):
 @pytest.mark.parametrize("agent,ok", [("Clean12E800.SnXxx", True), ("a.b.c", True), ("a b", False),
                                       ("a/b", False), ("a.", False), (".a", False)])
 def test_record_agent_ids(tmp_path, monkeypatch, agent, ok):
-    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
     monkeypatch.setattr(q.Resolver, "find", lambda self, key: (dict(FN, file="src/global/x.c"), SITE))
     batch = tmp_path / "batch.txt"
     batch.write_text(f'{SITE["key"]} diagnose nohit quirks=Q0001\n')
     if ok:
         q.main(["record", "--unit", "u1", "--agent", agent, "--batch", str(batch)])
-        assert json.loads((tmp_path / "quality.jsonl").read_text().splitlines()[-1])["agent"] == agent
+        assert q.load_events()[-1]["agent"] == agent
     else:
         with pytest.raises(SystemExit):
             q.main(["record", "--unit", "u1", "--agent", agent, "--batch", str(batch)])
 
 
 def test_record_accepts_permute_stopped_on_zero(tmp_path, monkeypatch):
-    ledger_path = tmp_path / "quality.jsonl"
+    ledger_path = tmp_path / "quality"
     monkeypatch.setattr(q, "LEDGER", str(ledger_path))
     monkeypatch.setattr(q.Resolver, "find", lambda self, key: (dict(FN, file="src/global/x.c"), SITE))
     batch = tmp_path / "batch.txt"
     batch.write_text(f'{SITE["key"]} permute nohit seconds=145 base=90 best=0 note="zero only via a hack"\n')
     q.main(["record", "--unit", "u1", "--agent", "a", "--batch", str(batch)])
-    assert json.loads(ledger_path.read_text().splitlines()[-1])["seconds"] == 145
+    assert q.load_events()[-1]["seconds"] == 145
 
 
 def _toks(tmp_path, name, text):
@@ -188,7 +188,7 @@ def test_carry_end_to_end(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(repo)
     for mod in (q, q.clint, q.ledger):
         monkeypatch.setattr(mod, "ROOT", str(repo))
-    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
     monkeypatch.setattr(q, "_know", {})
     monkeypatch.setattr(q, "_symtext", {})
     monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
@@ -227,16 +227,17 @@ def test_carry_end_to_end(tmp_path, monkeypatch, capsys):
 
 
 def test_record_dry_run_validates_without_writing(tmp_path, monkeypatch, capsys):
-    ledger_path = tmp_path / "quality.jsonl"
-    ledger_path.write_text('{"type": "unit", "unit": "u0"}\n')
-    before = ledger_path.read_bytes()
+    ledger_path = tmp_path / "quality"
+    ledger_path.mkdir()
+    (ledger_path / "units.jsonl").write_text('{"type": "unit", "unit": "u0"}\n')
+    before = sorted((p, p.read_bytes()) for p in ledger_path.rglob("*.jsonl"))
     monkeypatch.setattr(q, "LEDGER", str(ledger_path))
     monkeypatch.setattr(q.Resolver, "find", lambda self, key: (dict(FN, file="src/global/x.c"), SITE))
     good = tmp_path / "good.txt"
     good.write_text(f'{SITE["key"]} diagnose nohit quirks=Q0001\n')
     q.main(["record", "--unit", "u1", "--agent", "a", "--batch", str(good), "--dry-run"])
     assert "would record 1 events" in capsys.readouterr().out
-    assert ledger_path.read_bytes() == before
+    assert sorted((p, p.read_bytes()) for p in ledger_path.rglob("*.jsonl")) == before
     bad = tmp_path / "bad.txt"
     bad.write_text(f"{SITE['key']} remove kept\n")
     errs = []
@@ -246,7 +247,7 @@ def test_record_dry_run_validates_without_writing(tmp_path, monkeypatch, capsys)
         assert ex.value.code == 1
         errs.append(capsys.readouterr().err)
     assert errs[0] == errs[1] and "kept is only for classify" in errs[0]
-    assert ledger_path.read_bytes() == before
+    assert sorted((p, p.read_bytes()) for p in ledger_path.rglob("*.jsonl")) == before
 
 
 def test_carry_across_unrelated_file_scope_changes(tmp_path, monkeypatch, capsys):
@@ -255,7 +256,7 @@ def test_carry_across_unrelated_file_scope_changes(tmp_path, monkeypatch, capsys
     monkeypatch.chdir(repo)
     for mod in (q, q.clint, q.ledger):
         monkeypatch.setattr(mod, "ROOT", str(repo))
-    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
     monkeypatch.setattr(q, "_know", {})
     monkeypatch.setattr(q, "_symtext", {})
     monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: {"f": 0x80600000, "h": 0x80600100}[name])
@@ -416,7 +417,7 @@ def test_carry_token_pasting_function(tmp_path, monkeypatch, capsys, macros, new
     monkeypatch.chdir(repo)
     for mod in (q, q.clint, q.ledger):
         monkeypatch.setattr(mod, "ROOT", str(repo))
-    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
     monkeypatch.setattr(q, "_know", {})
     monkeypatch.setattr(q, "_symtext", {})
     monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: {"f": 0x80600000, "h": 0x80600100}[name])
@@ -456,7 +457,7 @@ def test_carry_across_retagged_file_scope_site(tmp_path, monkeypatch, capsys, ol
     monkeypatch.chdir(repo)
     for mod in (q, q.clint, q.ledger):
         monkeypatch.setattr(mod, "ROOT", str(repo))
-    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
     monkeypatch.setattr(q, "_know", {})
     monkeypatch.setattr(q, "_symtext", {})
     monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
@@ -508,7 +509,7 @@ def test_carry_takes_newest_event_by_time(tmp_path, monkeypatch):
     monkeypatch.chdir(repo)
     for mod in (q, q.clint, q.ledger):
         monkeypatch.setattr(mod, "ROOT", str(repo))
-    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
     monkeypatch.setattr(q, "_know", {})
     monkeypatch.setattr(q, "_symtext", {})
     monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
@@ -545,7 +546,7 @@ def _carve_repo(tmp_path, monkeypatch, new_header, ret="p->b"):
     monkeypatch.chdir(repo)
     for mod in (q, q.clint, q.ledger):
         monkeypatch.setattr(mod, "ROOT", str(repo))
-    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
     monkeypatch.setattr(q, "_know", {})
     monkeypatch.setattr(q, "_symtext", {})
     monkeypatch.setattr(q, "_htext", {})
@@ -678,7 +679,7 @@ def test_carry_declaration_moved_between_file_and_header(tmp_path, monkeypatch, 
     monkeypatch.chdir(repo)
     for mod in (q, q.clint, q.ledger):
         monkeypatch.setattr(mod, "ROOT", str(repo))
-    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
     monkeypatch.setattr(q, "_know", {})
     monkeypatch.setattr(q, "_symtext", {})
     monkeypatch.setattr(q, "_htext", {})
@@ -753,7 +754,7 @@ def test_carry_declaration_respelled_same_type(tmp_path, monkeypatch, capsys, hd
     monkeypatch.chdir(repo)
     for mod in (q, q.clint, q.ledger):
         monkeypatch.setattr(mod, "ROOT", str(repo))
-    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
     monkeypatch.setattr(q, "_know", {})
     monkeypatch.setattr(q, "_symtext", {})
     monkeypatch.setattr(q, "_htext", {})
@@ -810,7 +811,7 @@ def test_carry_local_type_renamed(tmp_path, monkeypatch, capsys, field, reason):
     monkeypatch.chdir(repo)
     for mod in (q, q.clint, q.ledger):
         monkeypatch.setattr(mod, "ROOT", str(repo))
-    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
     monkeypatch.setattr(q, "_know", {})
     monkeypatch.setattr(q, "_symtext", {})
     monkeypatch.setattr(q, "_htext", {})
@@ -870,7 +871,7 @@ def test_warning_sites_need_no_reconstruct():
     (f"{WSITE['key']} retype blocked", "retype blocked needs a note"),
 ])
 def test_record_rejects_bad_retype(tmp_path, monkeypatch, capsys, line, msg):
-    ledger_path = tmp_path / "quality.jsonl"
+    ledger_path = tmp_path / "quality"
     monkeypatch.setattr(q, "LEDGER", str(ledger_path))
     monkeypatch.setattr(q.Resolver, "find", lambda self, key: (dict(FN, file="src/global/x.c"), WSITE))
     batch = tmp_path / "batch.txt"
@@ -883,7 +884,7 @@ def test_record_rejects_bad_retype(tmp_path, monkeypatch, capsys, line, msg):
 
 
 def test_record_accepts_retype_kept_with_fdiff(tmp_path, monkeypatch, capsys):
-    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
     monkeypatch.setattr(q.Resolver, "find", lambda self, key: (dict(FN, file="src/global/x.c"), WSITE))
     batch = tmp_path / "batch.txt"
     batch.write_text(f'{WSITE["key"]} retype kept note="tried s32 *g; fdiff=3"\n')
@@ -939,7 +940,7 @@ def test_record_base_compiles_rev_text_against_rev_headers(tmp_path, monkeypatch
     monkeypatch.setattr(q.cwarn, "SCRATCH", str(repo / ".scratch" / "cwarn"))
     monkeypatch.setattr(q.cwarn, "_static", {"key": ("makefile", "include")})
     monkeypatch.setattr(q.cwarn, "collect", REAL_COLLECT)
-    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
     monkeypatch.setattr(q, "_know", {})
     monkeypatch.setattr(q, "_symtext", {})
     monkeypatch.setattr(q, "_htext", {})

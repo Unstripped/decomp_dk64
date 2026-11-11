@@ -151,7 +151,7 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
    note="fake=<kept>/<removed> goto=<n> casts=<n kept> views=<ok|n left> protos=<ok|n steer>
    temps=<ok|n> names=<n m2c left> uninit=<0|n> warn=<n left>"`.
    Validate the block before reporting with `uv run tools/quality.py record --dry-run --unit U
-   --agent <you> --base <base> --batch <file>` (never writes `drafts/quality.jsonl`; never copy
+   --agent <you> --base <base> --batch <file>` (never writes `drafts/quality/`; never copy
    or restore that file yourself).
 4. Proposed cross-file names: `old -> new` + one-line evidence each.
 5. New IDO findings (rule + evidence) for the orchestrator to file; header requests made.
