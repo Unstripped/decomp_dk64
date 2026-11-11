@@ -7,7 +7,7 @@ struct ModelAnimEntryRaw;
 struct ModelAnimEntryView;
 struct ModelBTrack;
 #ifndef PROTO_SKIP_modelSlotAllocAnimBuffers
-void modelSlotAllocAnimBuffers(struct ModelData **, u8 *);
+void modelSlotAllocAnimBuffers(ModelData **, ModelAssetHeader *);
 #endif
 #ifndef PROTO_SKIP_modelSlotDataSize
 u32 modelSlotDataSize(s16);

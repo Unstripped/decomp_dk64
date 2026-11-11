@@ -16,7 +16,7 @@ typedef struct ModelAnimNodeHeader {
 } ModelAnimNodeHeader;
 
 
-void modelSlotAllocAnimBuffers(ModelData **outModel, u8 *animAsset) {
+void modelSlotAllocAnimBuffers(ModelData **outModel, ModelAssetHeader *animAsset) {
     u8 *p2;
     u32 n;
     u8 *p1;
@@ -25,13 +25,13 @@ void modelSlotAllocAnimBuffers(ModelData **outModel, u8 *animAsset) {
     ModelData *m;
     u32 i;
 
-    if (*(u32 *)(animAsset + 0x68) != *(u32 *)(animAsset + 0x64)) {
+    if (animAsset->unk64 != animAsset->unk68) {
         m = heapAlloc(0xD0);
         *outModel = m;
-        n = *(u32 *)(animAsset + *(u32 *)(animAsset + 0x68));
+        n = *(u32 *)(animAsset->unk68 + (u8 *)animAsset);
         m->frames[0] = heapAlloc(n);
         m->frames[1] = heapAlloc(n);
-        src = animAsset + *(u32 *)(animAsset + 0x68);
+        src = animAsset->unk68 + (u8 *)animAsset;
         size = *(u32 *)(src + 4);
         memcpy(m->frames[0], src + 8, size);
         memcpy(m->frames[1], src + 8, size);
@@ -45,7 +45,7 @@ void modelSlotAllocAnimBuffers(ModelData **outModel, u8 *animAsset) {
             p2 += 0x40;
         }
         {
-            u8 *q = animAsset + *(u32 *)(animAsset + 0x64);
+            u8 *q = animAsset->unk64 + (u8 *)animAsset;
             s32 j;
 
             for (j = 0; j < 10; j++) {
