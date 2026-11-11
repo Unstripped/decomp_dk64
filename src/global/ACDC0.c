@@ -1184,11 +1184,10 @@ void hudPauseMenuSpawnIcon(HudEntry *iconObj, s32 sprite, s32 x, s32 y, f32 scal
     effectSetSpeed((s32)iconObj);
     effectSetCallback(hudPauseMenuIconUpdate);
     effectSetFlags(0x101);
+    fy = x;
     if (sprite < 0) {
-        fy = x;
         obj = effectCreateAtPosition((void *)sprite, scale, fy, (f32)y, -10.0f);
     } else {
-        fy = x;
         obj = effectCreateAtPosition(slotQueueGetSpriteAsset(sprite), scale, fy, (f32)y, -10.0f);
     }
     sprite = 7;
