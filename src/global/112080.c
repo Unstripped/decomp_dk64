@@ -458,7 +458,7 @@ extern void *D_8074E778[];
 extern u16 D_80750AC8;
 
 void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) {
-    ResRow **rowHead;
+    s32 pad;
     ResRow **rowLink;
     ResGlyph **rowLines;
     ResGlyph *line;
@@ -473,17 +473,14 @@ void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) 
     ResGlyph *p;
 
     rowLink = &state->rows;
-    rowHead = &state->rows;
     line = NULL;
     lineLink = &line;
     flags = 0;
     width = 0;
     character = 1;
     height = (f32)textGetFontHeight(6);
-    if (*rowHead != NULL) {
-        do {
-            rowLink = &(*rowLink)->next;
-        } while (*rowLink != NULL);
+    while (*rowLink != NULL) {
+        rowLink = &(*rowLink)->next;
     }
     *rowLink = heapAlloc(0x20);
     heapClearBlock(*rowLink);
@@ -491,13 +488,11 @@ void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) 
     (*rowLink)->height = height;
     rowLines = &(*rowLink)->glyphs;
     for (i = 0; i <= length; i++) {
-        if ((i == length) || ((textBytes[i] == 0x20) && (character == 0))) {
+        if ((i == length) || ((textBytes[i] == ' ') && (character == 0))) {
             if (((*rowLink)->width == 0.0f) || ((f64)((*rowLink)->width + (f32)width) < 124.8f)) {
                 (*rowLink)->width += (f32)width;
-                width = 0;
             } else {
-                do { width = 0; } while (0); // FAKE: splits the basic block like the original
-                while ((line != NULL) && (line->code == 0x20)) {
+                while ((line != NULL) && (line->code == ' ')) {
                     p = line;
                     line = p->next;
                     heapFreeDeferred(p);
@@ -515,6 +510,7 @@ void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) 
                     }
                 }
             }
+            width = 0;
             character = 1;
             if (line != NULL) {
                 *rowLines = line;
@@ -529,31 +525,26 @@ void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) 
             flags ^= 1 << textBytes[i];
         } else {
             character = 0;
-            do { } while (0); // FAKE: splits the basic block like the original
-            text = textBuffer;
             switch (textBytes[i]) {
-            case 0x7E:
+            case '~':
                 _sprintf(textBuffer, "%s", D_8074E778[gActivePlayerActor->actorType]);
                 break;
-            case 0x40:
+            case '@':
                 _sprintf(textBuffer, "%d", D_80750AC8);
                 break;
             default:
                 _sprintf(textBuffer, "%c", textBytes[i]);
                 break;
             }
-            if (text[0] != 0) {
-                do {
-                    *lineLink = heapAlloc(0xA8);
-                    heapClearBlock(*lineLink);
-                    (*lineLink)->width = textGetCharAdvance(6, text[0]);
-                    (*lineLink)->attr = flags;
-                    (*lineLink)->code = text[0];
-                    width += (*lineLink)->width;
-                    width &= 0xFFFF;
-                    lineLink = &(*lineLink)->next;
-                    text++;
-                } while (text[0] != 0);
+            for (text = textBuffer; *text != 0; text++) {
+                *lineLink = heapAlloc(0xA8);
+                heapClearBlock(*lineLink);
+                (*lineLink)->width = textGetCharAdvance(6, *text);
+                (*lineLink)->attr = flags;
+                (*lineLink)->code = *text;
+                width += (*lineLink)->width;
+                width &= 0xFFFF;
+                lineLink = &(*lineLink)->next;
             }
         }
     }
