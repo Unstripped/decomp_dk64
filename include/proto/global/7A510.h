@@ -3,44 +3,39 @@
 #define PROTO_GLOBAL_7A510_H
 #include "common.h"
 #include "actor.h"
-struct Beh798_Actor;
-struct CollisionBoundingActor;
-struct CollisionCallbackArg;
-struct CollisionHitActor;
 struct CollisionTableEntry;
-struct InteractionActor;
 #ifndef PROTO_SKIP_actorCollisionProcessHit
-void actorCollisionProcessHit(struct CollisionHitActor *, struct CollisionCallbackArg *);
+void actorCollisionProcessHit(Actor *, ActorCallbackNode *);
 #endif
 #ifndef PROTO_SKIP_actorCollisionRunInteractionTable
-void actorCollisionRunInteractionTable(struct InteractionActor *, struct InteractionActor *);
+void actorCollisionRunInteractionTable(Actor *, Actor *);
 #endif
 #ifndef PROTO_SKIP_actorCollisionPatternMatches
 s32 actorCollisionPatternMatches(s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_func_80675D70
-void func_80675D70(s32);
+void func_80675D70(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorApplyDamage
-void actorApplyDamage(struct Beh798_Actor *, struct Beh798_Actor *);
+void actorApplyDamage(Actor *, Actor *);
 #endif
 #ifndef PROTO_SKIP_actorCollisionFindTableEntry
 s32 actorCollisionFindTableEntry(struct CollisionTableEntry *, s16, s16);
 #endif
 #ifndef PROTO_SKIP_actorCollisionCheckBoundingBoxes
-void actorCollisionCheckBoundingBoxes(struct CollisionBoundingActor *);
+void actorCollisionCheckBoundingBoxes(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorCollisionUpdateNodeFlags
 void actorCollisionUpdateNodeFlags(Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_func_8067618C
-void func_8067618C(Actor *, s8 *);
+void func_8067618C(Actor *, u8 *);
 #endif
 #ifndef PROTO_SKIP_actorInitHealth
-void actorInitHealth(struct Beh798_Actor *);
+void actorInitHealth(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorInitDamage
-void actorInitDamage(struct Beh798_Actor *);
+void actorInitDamage(Actor *);
 #endif
 #ifndef PROTO_SKIP_func_80676208
 u8 func_80676208(Actor *);

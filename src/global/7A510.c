@@ -4,182 +4,144 @@
 #include "proto/global/7A510.h"
 #include "proto/global/7CA80.h"
 
-typedef struct CollisionHitActorSub {
+
+typedef struct CollisionHitState {
     u8 pad0[0xD4];
     s16 unkD4;
-} CollisionHitActorSub;
+} CollisionHitState;
 
-typedef struct CollisionHitActor {
-    u8 pad0[0x54];
-    s32 unk54;
-    union {
-        s32 unk58;
-        struct {
-            s16 unk58_half;
-            s16 unk5A;
-        };
-    };
-    u16 unk5C;
-    u8 pad5E[2];
-    u32 unk60;
-    u32 unk64;
-    u8 pad68[0xB4];
-    struct CollisionHitActor *unk11C;
-    u8 pad120[0x12];
-    s16 unk132;
-    s16 unk134;
-    s16 unk136;
-    u8 pad138[0x3C];
-    CollisionHitActorSub *unk174;
-} CollisionHitActor;
-
-typedef struct CollisionCallbackElem {
+typedef struct CollisionCallbackPayload {
     u8 pad0[0x18];
-    s32 unk18;
-} CollisionCallbackElem;
-
-typedef struct CollisionCallbackArg {
-    u8 pad0[0x8];
-    CollisionHitActor *unk8;
-    u8 padC[4];
-    CollisionCallbackElem *unk10;
-} CollisionCallbackArg;
+    s32 instanceId;
+} CollisionCallbackPayload;
 
 typedef struct CollisionInteractionEntry {
-    s16 unk0;
-    s16 unk2;
-    s32 (*unk4)(CollisionHitActor *, CollisionHitActor *, CollisionCallbackArg *);
-    u8 unk8;
-    u8 unk9;
-    u8 unkA;
-    u8 unkB;
+    s16 targetMask;
+    s16 attackerMask;
+    s32 (*filter)(Actor *, Actor *, ActorCallbackNode *);
+    u8 phase;
+    u8 event;
+    u8 chain;
+    u8 padB;
 } CollisionInteractionEntry;
 
-struct CollisionTableEntry;
-struct Beh798_Actor;
+typedef struct CollisionTableEntry {
+    s16 pattern;
+    s32 entries;
+} CollisionTableEntry;
+
 typedef struct CollisionTableSlot {
-    struct CollisionTableEntry *unk0;
-    u8 pad4[4];
+    CollisionTableEntry *table;
+    u8 unk4;
+    u8 pad5[3];
 } CollisionTableSlot;
 
 extern CollisionTableSlot D_8074C604[];
-typedef struct Beh798_8074C608 {
-    u8 unk0;
-    u8 pad[7];
-} Beh798_8074C608;
-extern Beh798_8074C608 D_8074C608[];
 extern ActorGlobalState gActorGlobalState;
 
 
-void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackArg *cbArg) {
+void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
     CollisionInteractionEntry *entry;
     s32 done;
-    CollisionHitActor *attacker;
+    Actor *attacker;
     s32 res;
-    struct CollisionTableEntry *entries;
+    CollisionTableEntry *entries;
     u8 entryAllowed;
     s32 i;
-    CollisionHitActorSub *sub;
-    u8 tv0;
-    u8 tv1;
+    CollisionHitState *hitState;
+    u8 hitPhase;
+    u8 curPhase;
 
-    attacker = cbArg->unk8;
+    attacker = node->source;
     i = 0;
     done = 0;
-    if (actorTableContains((Actor *)attacker) && attacker->unk54 == cbArg->unk10->unk18) {
-        entries = D_8074C604[targetActor->unk58].unk0;
+    if (actorTableContains(attacker) && attacker->instanceId == ((CollisionCallbackPayload *)node->unk10)->instanceId) {
+        entries = D_8074C604[targetActor->actorType].table;
         if (entries == NULL) {
-            if (attacker->unk60 & 0x20000) {
-                func_80675D70((s32)attacker);
+            if (attacker->flags & 0x20000) {
+                func_80675D70(attacker);
             }
         } else {
-            res = actorCollisionFindTableEntry(entries, attacker->unk5A, attacker->unk5C);
-            if ((attacker->unk60 & 0x80000) || (targetActor->unk60 & 0x80000)) {
-                if (targetActor == attacker->unk11C || attacker == targetActor->unk11C) {
+            res = actorCollisionFindTableEntry(entries, attacker->actorType, attacker->collisionFlags);
+            if ((attacker->flags & 0x80000) || (targetActor->flags & 0x80000)) {
+                if (targetActor == attacker->parentActor || attacker == targetActor->parentActor) {
                     return;
                 }
             }
             if (res == 0) {
-                if (attacker->unk60 & 0x20000) {
-                    func_80675D70((s32)attacker);
+                if (attacker->flags & 0x20000) {
+                    func_80675D70(attacker);
                 }
             } else {
                 while (!done) {
                     entry = &((CollisionInteractionEntry *)res)[i];
-                    if ((entry->unk0 & targetActor->unk132) && (entry->unk2 & attacker->unk132)) {
-                        if (entry->unk4 != NULL) {
-                            entryAllowed = entry->unk4(targetActor, attacker, cbArg);
+                    if ((entry->targetMask & targetActor->interactionType) && (entry->attackerMask & attacker->interactionType)) {
+                        if (entry->filter != NULL) {
+                            entryAllowed = entry->filter(targetActor, attacker, node);
                         } else {
                             entryAllowed = 1;
                         }
                         if (entryAllowed) {
-                            tv0 = entry->unk8;
-                            tv1 = gActorGlobalState.bossFightPhase;
-                            if (tv1 < tv0) {
-                                gActorGlobalState.targetActor = (s32)attacker;
-                                gActorGlobalState.bossFightPhase = ((u8 *)res)[i * 12 + 8];
+                            hitPhase = entry->phase;
+                            curPhase = gActorGlobalState.bossFightPhase;
+                            if (curPhase < hitPhase) {
+                                gActorGlobalState.targetActor = attacker;
+                                gActorGlobalState.bossFightPhase = ((u8 *)res)[i * 12 + 8];  // FAKE: byte re-read through res (not entry->phase) saves an instruction and keeps entry's induction in $s1 (Q0589)
                             }
                             if (gActorGlobalState.unk201 < 0xF) {
                                 gActorGlobalState.unk204[gActorGlobalState.unk201] = (s32)attacker;
-                                gActorGlobalState.unk244[gActorGlobalState.unk201] = entry->unk9;
+                                gActorGlobalState.unk244[gActorGlobalState.unk201] = entry->event;
                                 gActorGlobalState.unk201++;
-                                if (attacker->unk5C & 1) {
-                                    sub = attacker->unk174;
-                                    if (sub->unkD4 != 0) {
-                                        if (D_8074C608[targetActor->unk58].unk0 != 0) {
-                                            u8 t = gActorGlobalState.unk244[gActorGlobalState.unk201 - 1];
-                                            if (t == 5 || t == 0xF) {
+                                if (attacker->collisionFlags & 1) {
+                                    hitState = attacker->customState;
+                                    if (hitState->unkD4 != 0) {
+                                        if (D_8074C604[targetActor->actorType].unk4 != 0) {
+                                            u8 lastEvent = gActorGlobalState.unk244[gActorGlobalState.unk201 - 1];
+                                            if (lastEvent == 5 || lastEvent == 0xF) {
                                                 gActorGlobalState.unk201--;
                                             }
                                         }
                                     }
-                                    if ((targetActor->unk5C & 2) && func_80676220(targetActor->unk5A)) {
-                                        attacker->unk64 |= 0x1000;
+                                    if ((targetActor->collisionFlags & 2) && func_80676220(targetActor->actorType)) {
+                                        attacker->renderFlags |= 0x1000;
                                     }
                                 }
                             }
                             if (gActorGlobalState.bossFightPhase) {}  // FAKE: dead read steers s0/s1 colouring
-                            if (entry->unkA == 0 || entry->unkA == 2) {
+                            if (entry->chain == 0 || entry->chain == 2) {
                                 done = 1;
                             }
                         }
                     }
-                    if (entry->unkA == 0) {
+                    if (entry->chain == 0) {
                         done = 1;
                     }
                     i++;
                 }
-                if (targetActor->unk60 & 0x20000000) {
+                if (targetActor->flags & 0x20000000) {
                     gActorGlobalState.bossFightPhase = 1;
                 }
                 if (gActorGlobalState.bossFightPhase == 6 || gActorGlobalState.bossFightPhase == 7) {
-                    actorApplyDamage((struct Beh798_Actor *)targetActor, (struct Beh798_Actor *)attacker);
+                    actorApplyDamage(targetActor, attacker);
                 }
-                actorCollisionRunInteractionTable((void *)targetActor, (void *)attacker);
+                actorCollisionRunInteractionTable(targetActor, attacker);
             }
         }
     }
 }
 
-typedef struct InteractionActor {
-    u8 pad0[0x5A];
-    s16 unk5A;
-    s16 unk5C;
-} InteractionActor;
-
 typedef struct InteractionEntry {
-    s16 unk0;
-    s16 unk2;
-    s8 unk4;
-    s8 unk5;
-    void (*unk8)(InteractionActor *, InteractionActor *, s32, s32);
-    u8 unkC;
+    s16 patternA;
+    s16 patternB;
+    s8 phase;
+    s8 event;
+    void (*handler)(Actor *, Actor *, u8, u8);
+    u8 chain;
 } InteractionEntry;
 
-extern ActorGlobalState gActorGlobalState;
 extern InteractionEntry D_8074ABCC[];
 
-void actorCollisionRunInteractionTable(InteractionActor *actorA, InteractionActor *actorB) {
+void actorCollisionRunInteractionTable(Actor *actorA, Actor *actorB) {
     InteractionEntry *entry;
     s32 done;
     s32 kind;
@@ -187,16 +149,16 @@ void actorCollisionRunInteractionTable(InteractionActor *actorA, InteractionActo
     s32 j;
 
     done = 0;
-    entry = D_8074ABCC; do {
-        if (actorCollisionPatternMatches(actorA->unk5A, actorA->unk5C, entry->unk0) &&
-            actorCollisionPatternMatches(actorB->unk5A, actorB->unk5C, entry->unk2) &&
-            ((entry->unk4 == -1) || entry->unk4 == gActorGlobalState.bossFightPhase)) {
-            if (entry->unk5 != -1) {
+    for (entry = D_8074ABCC; !done; entry++) {
+        if (actorCollisionPatternMatches(actorA->actorType, actorA->collisionFlags, entry->patternA) &&
+            actorCollisionPatternMatches(actorB->actorType, actorB->collisionFlags, entry->patternB) &&
+            ((entry->phase == -1) || entry->phase == gActorGlobalState.bossFightPhase)) {
+            if (entry->event != -1) {
                 if (1) {  // FAKE: extra block lowers gActorGlobalState const priority vs actorB (s0/s1 swap)
                     found = 0;
                 }
                 for (j = 0; !found && j < gActorGlobalState.unk201;) {
-                    if (actorB == (InteractionActor *)gActorGlobalState.unk204[j] && gActorGlobalState.unk244[j] == ((s8 *)entry)[5]) {  // FAKE: byte-indexed unk5 read makes IDO emit the load operand first (bnel t2,t0)
+                    if (actorB == (Actor *)gActorGlobalState.unk204[j] && gActorGlobalState.unk244[j] == ((s8 *)entry)[5]) {  // FAKE: byte-indexed event read makes IDO emit the load operand first (bnel t2,t0)
                         found = 1;
                     } else {
                         j++;
@@ -206,18 +168,17 @@ void actorCollisionRunInteractionTable(InteractionActor *actorA, InteractionActo
                 found = 1;
             }
             if (found) {
-                entry->unk8(actorA, actorB, entry->unk4 & 0xFF, entry->unk5 & 0xFF);
-                kind = entry->unkC;
+                entry->handler(actorA, actorB, entry->phase, entry->event);
+                kind = entry->chain;
                 if (kind == 0 || kind == 2) {
                     done = 1;
                 }
             }
         }
-        if (entry->unkC == 0) {
+        if (entry->chain == 0) {
             done = 1;
         }
-        entry++;
-    } while (!done);
+    }
 }
 
 s32 actorCollisionPatternMatches(s16 actorType, s16 actorFlags, s16 pattern) {
@@ -270,177 +231,138 @@ s32 actorCollisionPatternMatches(s16 actorType, s16 actorFlags, s16 pattern) {
 }
 
 
-void func_80675D70(s32 actor) {
+void func_80675D70(Actor *actor) {
     if (gActorGlobalState.bossFightPhase < 2) {
         gActorGlobalState.targetActor = actor;
         gActorGlobalState.bossFightPhase = 1;
     }
     if (gActorGlobalState.unk201 < 0xF) {
-        gActorGlobalState.unk204[gActorGlobalState.unk201] = actor;
+        gActorGlobalState.unk204[gActorGlobalState.unk201] = (s32)actor;
         gActorGlobalState.unk244[gActorGlobalState.unk201] = 2;
         gActorGlobalState.unk201++;
     }
 }
 
-typedef struct Beh798_Actor {
-    /* 0x000 */ u8 pad0[0x58];
-    /* 0x058 */ s32 unk58;
-    /* 0x05C */ u8 pad5C[0xD8];
-    /* 0x134 */ s16 unk134;
-    /* 0x136 */ s16 unk136;
-} Beh798_Actor;
-void actorApplyDamage(Beh798_Actor *target, Beh798_Actor *attacker) {
-    s32 currentAction;
-
-    if ((target->unk134 -= attacker->unk136) <= 0) {
+void actorApplyDamage(Actor *target, Actor *attacker) {
+    if ((target->health -= attacker->damage) <= 0) {
         gActorGlobalState.bossFightPhase = 9;
         return;
     }
-    currentAction = gActorGlobalState.bossFightPhase;
-    if (currentAction == 6) {
-        currentAction = gActorGlobalState.bossFightPhase = 4;
+    if (gActorGlobalState.bossFightPhase == 6) {
+        gActorGlobalState.bossFightPhase = 4;
     }
-    if (currentAction == 7) {
+    if (gActorGlobalState.bossFightPhase == 7) {
         gActorGlobalState.bossFightPhase = 5;
     }
 }
 
-typedef struct CollisionTableEntry {
-    s16 unk0;
-    s32 unk4;
-} CollisionTableEntry;
-
 s32 actorCollisionFindTableEntry(CollisionTableEntry *table, s16 actorType, s16 actorFlags) {
-    s32 s1;
-    s32 s2;
+    s32 pattern;
+    s32 entries;
     s32 match;
 
     do {
-        s2 = table->unk0;
-        s1 = s2;
-        s2 = table->unk4;
-        match = actorCollisionPatternMatches(actorType, actorFlags, s1);
+        entries = table->pattern;  // FAKE: dead def raises the result's uopt priority so it colours $s2 before the parameter copies (Q0385)
+        pattern = entries;
+        entries = table->entries;
+        match = actorCollisionPatternMatches(actorType, actorFlags, pattern);
         table++;
         if (match) {
             break;
         }
-    } while (s1 != 0);
-    return s2;
+    } while (pattern != 0);
+    return entries;
 }
 
-typedef struct CollisionActorSub4_Sub0 {
-    u8 pad0[4];
-    f32 unk4;
-    u8 pad8[8];
-    s16 unk10;
-} CollisionActorSub4_Sub0;
-
-typedef struct CollisionActorSub4 {
-    CollisionActorSub4_Sub0 *unk0;
-} CollisionActorSub4;
-
-typedef struct CollisionActorSub174 {
+typedef struct CollisionBoxState {
     u8 pad0[0x11E];
-    s16 unk11E;
-} CollisionActorSub174;
-
-typedef struct CollisionBoundingActor {
-    u8 pad0[4];
-    CollisionActorSub4 *unk4;
-    u8 pad8[0x5C];
-    s32 unk64;
-    u8 pad68[0xCA];
-    s16 unk132;
-    s16 unk134;
-    s16 unk136;
-    u8 pad138[0x3C];
-    CollisionActorSub174 *unk174;
-} CollisionBoundingActor;
+    s16 boxIndex;
+} CollisionBoxState;
 
 typedef struct CollisionThresholdEntry {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-    u8 unk8;
-    u8 unk9;
-    u8 unkA;
-    u8 unkB;
+    s16 animId;
+    s16 frameMin;
+    s16 frameMax;
+    s16 interactionType;
+    u8 damage;
+    u8 nodeFlagSet;
+    u8 flags;
+    u8 padB;
 } CollisionThresholdEntry;
 
 extern CollisionThresholdEntry D_80748FE8[];
 
-void actorCollisionCheckBoundingBoxes(CollisionBoundingActor *actor) {
-    s16 targetType;
-    s16 targetVal;
-    s32 a2;
-    s32 a3;
-    s32 a1;
+void actorCollisionCheckBoundingBoxes(Actor *actor) {
+    s16 animId;
+    s16 frame;
+    s32 index;
+    s32 retry;
+    s32 done;
     CollisionThresholdEntry *entry;
-    CollisionActorSub174 *sub174;
+    CollisionBoxState *boxState;
     u8 pad;
     u8 valid;
 
-    a1 = 0;
-    a2 = 0;
-    targetType = actor->unk4->unk0->unk10;
-    sub174 = actor->unk174;
-    targetVal = (s32)actor->unk4->unk0->unk4;
-    a3 = 0;
+    done = 0;
+    index = 0;
+    animId = actor->sub4->model->animId;
+    boxState = actor->customState;
+    frame = actor->sub4->model->frame;
+    retry = 0;
     valid = 1;
 
-    if (targetType == -1) {
-        actor->unk132 = 0;
+    if (animId == -1) {
+        actor->interactionType = 0;
         return;
     }
 
-    if (sub174->unk11E != -1) {
-        a2 = sub174->unk11E;
-        a3 = 1;
+    if (boxState->boxIndex != -1) {
+        index = boxState->boxIndex;
+        retry = 1;
     }
 
     do {
-        if (D_80748FE8[a2].unk0 == -1) {
-            a1 = 1;
-        } else if (targetType == D_80748FE8[a2].unk0) {
-            if ((targetVal >= D_80748FE8[a2].unk2) && (targetVal <= D_80748FE8[a2].unk4)) {
-                entry = &D_80748FE8[a2];
-                actor->unk132 = entry->unk6;
-                actor->unk136 = entry->unk8;
-                if (entry->unkA & 1) {
-                    actor->unk64 |= 0x80;
+        if (D_80748FE8[index].animId == -1) {
+            done = 1;
+        } else if (animId == D_80748FE8[index].animId) {
+            if ((frame >= D_80748FE8[index].frameMin) && (frame <= D_80748FE8[index].frameMax)) {
+                entry = &D_80748FE8[index];
+                actor->interactionType = entry->interactionType;
+                actor->damage = entry->damage;
+                if (entry->flags & 1) {
+                    actor->renderFlags |= 0x80;
                 } else {
-                    actor->unk64 &= ~0x80;
+                    actor->renderFlags &= ~0x80;
                 }
-                actorCollisionUpdateNodeFlags((Actor *)actor, entry->unk9);
+                actorCollisionUpdateNodeFlags(actor, entry->nodeFlagSet);
                 if (valid) {
-                    sub174->unk11E = a2;
+                    boxState->boxIndex = index;
                 } else {
-                    sub174->unk11E = -1;
+                    boxState->boxIndex = -1;
                 }
                 return;
             }
             valid = 0;
         }
 
-        if (a3) {
-            a2 = 0;
-            a3 = 0;
-            a1 = 0;
+        if (retry) {
+            index = 0;
+            retry = 0;
+            done = 0;
         } else {
-            a2++;
+            index++;
         }
-    } while (!a1);
+    } while (!done);
 
-    actor->unk132 = 0;
-    actor->unk136 = 0;
+    actor->interactionType = 0;
+    actor->damage = 0;
 }
 
 typedef struct CollisionNodeFlagEntry {
-    u16 unk0;
-    u8 unk2;
+    u16 actorType;
+    u8 node;
     u8 pad3;
-    u16 unk4;
+    u16 value;
 } CollisionNodeFlagEntry;
 
 extern s8 D_80748E50[][9];
@@ -452,31 +374,29 @@ void actorCollisionUpdateNodeFlags(Actor *actor, u8 flagIndex) {
     s16 i;
     s8 *ptr;
 
-    func_8067618C(actor, (s8 *)&flagIndex);
-    do {} while (0); // FAKE: regalloc s1/s2 swap
+    func_8067618C(actor, &flagIndex);
     actorClearAllNodeFlags(actor);
     ptr = D_80748E50[flagIndex];
     if (*ptr != -1) {
         do {
             actorSetNodeFlag(actor, *ptr);
             match = 0;
-            i = 0;
-            do {
-                if ((actor->actorType == D_80748F58[i].unk0) && (*ptr == D_80748F58[i].unk2)) {
-                    actorSetNodeValue(actor, *ptr, D_80748F58[i].unk4);
+            for (i = 0; i < 24 && !match;) {
+                if ((actor->actorType == D_80748F58[i].actorType) && (*ptr == D_80748F58[i].node)) {
+                    actorSetNodeValue(actor, *ptr, D_80748F58[i].value);
                     match = 1;
                 } else {
                     actorSetNodeValue(actor, *ptr, 0);
                     i++;
                 }
-            } while ((i < 24) && (!match));
+            }
             ptr++;
         } while (*ptr != -1);
     }
 }
 
 extern s32 gCurrentMap;
-void func_8067618C(Actor *actor, s8 *outFlagIndex) {
+void func_8067618C(Actor *actor, u8 *outFlagIndex) {
     if ((gCurrentMap == 0x53) && (actor->actorType == 6) && (actor->state == 0x1E)) {
         *outFlagIndex = 0x15;
     }
@@ -484,22 +404,21 @@ void func_8067618C(Actor *actor, s8 *outFlagIndex) {
 
 
 typedef struct ActorTypeStat {
-    s16 unk0;
-    s16 unk2;
+    s16 health;
+    s16 damage;
 } ActorTypeStat;
 extern ActorTypeStat D_8074D0C4[];
-extern ActorTypeStat D_8074D0C6[];
 
-void actorInitHealth(Beh798_Actor *actor) {
-    actor->unk134 = D_8074D0C4[actor->unk58].unk0;
+void actorInitHealth(Actor *actor) {
+    actor->health = D_8074D0C4[actor->actorType].health;
 }
 
-void actorInitDamage(Beh798_Actor *actor) {
-    actor->unk136 = D_8074D0C6[actor->unk58].unk0;
+void actorInitDamage(Actor *actor) {
+    actor->damage = D_8074D0C4[actor->actorType].damage;
 }
 
 u8 func_80676208(Actor *actor) {
-    return D_8074C608[actor->actorType].unk0;
+    return D_8074C604[actor->actorType].unk4;
 }
 
 s32 func_80676220(s16 actorType) {
