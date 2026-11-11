@@ -25,23 +25,30 @@ extern u8 gNextGameMode;
 extern u8 gGfxBufferIndex;
 
 typedef struct HealthHudState {
-    u8 pad0[0x2E0];
+    u8 unk0;
+    u8 pad1[0x2DF];
     u16 unk2E0;
-    u8 unk2E2;
-    u8 unk2E3;
+    union {
+        u16 flags;
+        struct {
+            u8 unk2E2;
+            u8 unk2E3;
+        };
+    };
     u8 unk2E4;
     u8 unk2E5;
+    u8 unk2E6;
 } HealthHudState;
-
-#define HEALTH_HUD_FLAGS(p) (*(u16 *)&(p)->unk2E2)
 
 typedef struct HealthStats {
     u8 pad0[0x2FB];
-    s8 unk2FB;
-    u8 unk2FC;
+    s8 health;
+    u8 melons;
+    s8 healthDelta;
 } HealthStats;
 
 
+struct HealthHudState; struct HealthStats;
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern s32 gFrameCounter;
@@ -64,10 +71,10 @@ Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, HealthHudState *h
     s16 y;
     s16 x;
 
-    pips = stats->unk2FB;
+    pips = stats->health;
     if (pips - 1 > 3) {} /* dead: stops IDO hoisting pips - 1 above the PrimColor select */
     fs0 = (f32)((f64)(u32)hudState->unk2E0 / 65535.0);
-    amp = ((stats->unk2FC * 0x46) - 0x46) & 0xFF;
+    amp = ((stats->melons * 0x46) - 0x46) & 0xFF;
     if ((gGlobalPauseFlags & 3) || (menuIsTransitionTypeAOrE() != 0)) {
         return glist;
     }
@@ -76,7 +83,7 @@ Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, HealthHudState *h
     gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
     gSPMatrix(glist++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     i = 0;
-    if (stats->unk2FC > 0) {
+    if (stats->melons > 0) {
         animParams[4] = fs0 * 511.0f;
         animParams[3] = (f32)amp;
         animParams[0] = (f32)(s16)(s32)((f64)fs0 * 200.0);
@@ -89,7 +96,8 @@ Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, HealthHudState *h
             wv = (f32)(((f64)mathSinF(phase) * 0.5 + 0.5) * 30.0);
             gDPPipeSync(glist++);
             gDPSetPrimColor(glist++, 0, 0, 255, 255, 255, (u32)((animParams[4] > 80.0f) ? (f32)80 : animParams[4]));
-            glist = renderRotatedSprite(glist, 0x5D, 0, (0, 2), 0x30, 0x2A, y = (s32)(((f32)((i * 0x8C) + 0x280) + fs0b) - animParams[3]), x = (s32)(animParams[0] + wv), animParams[21], fs1 = -fs2, 0, 0.0f);
+            glist = renderRotatedSprite(glist, 0x5D, 0, 2, 0x30, 0x2A, y = (s32)(((f32)((i * 0x8C) + 0x280) + fs0b) - animParams[3]), x = (s32)(animParams[0] + wv), animParams[21], -fs2, 0, 0.0f); // FAKE: y/x assigned inside the argument list (separate statements break the match)
+            fs1 = -fs2;
             gDPPipeSync(glist++);
             gDPSetPrimColor(glist++, 0, 0, 255, 255, 255, (u32)((animParams[4] > 255.0f) ? 255.0f : animParams[4]));
             if (pips > 0) {
@@ -101,7 +109,7 @@ Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, HealthHudState *h
                 pips = pips - 4;
             }
             i += 1;
-        } while (i < stats->unk2FC);
+        } while (i < stats->melons);
     }
     gDPPipeSync(glist++);
     return glist;
@@ -136,44 +144,30 @@ void hudDrawItemWithAlpha(HealthHudInit *hudInit) {
 
 
 
-typedef struct HealthPlayerState {
-    u8 unk0;
-    u8 pad1[0x2E1];
-    u16 unk2E2;
-    u8 unk2E4;
-    u8 unk2E5;
-    u8 unk2E6;
-    u8 pad2E7[9];
-    s8 unk2F0[0xB];
-    s8 unk2FB;
-    u8 unk2FC;
-    s8 unk2FD;
-} HealthPlayerState;
-
 void func_80026B0C(s32);
 
-void healthApplyPendingDelta(s32 playerIndex, HealthPlayerState *hudState, HealthPlayerState *playerState, s32 newHealth) {
+void healthApplyPendingDelta(s32 playerIndex, HealthHudState *hudState, HealthStats *playerState, s32 newHealth) {
     u8 state;
     s32 limit;
 
-    state = hudState->unk2E2;
+    state = hudState->flags;
     if (state & 0x10) {
-        hudState->unk2E2 ^= 0x10;
-        if (playerState->unk2FD > 0) {
+        hudState->flags ^= 0x10;
+        if (playerState->healthDelta > 0) {
             limit = healthGetPerMelon();
-            newHealth = playerState->unk2FB + playerState->unk2FD;
-            limit = playerState->unk2FC * limit;
+            newHealth = playerState->health + playerState->healthDelta;
+            limit = playerState->melons * limit;
             if (newHealth < limit) {
-                playerState->unk2FB = newHealth;
+                playerState->health = newHealth;
             } else {
-                playerState->unk2FB = limit;
+                playerState->health = limit;
             }
-        } else if (playerState->unk2FD < 0) {
+        } else if (playerState->healthDelta < 0) {
             if ((menuIsTransitionType6() != 0) || (menuIsTransitionTypeC() != 0)) {
-                playerState->unk2FB += playerState->unk2FD;
+                playerState->health += playerState->healthDelta;
             }
-            if (playerState->unk2FB <= 0) {
-                playerState->unk2FB = 0;
+            if (playerState->health <= 0) {
+                playerState->health = 0;
                 hudState->unk2E6 = 0xC;
                 if ((s32)gPlayerCount >= 2) {
                     func_80026B0C(playerIndex);
@@ -182,7 +176,7 @@ void healthApplyPendingDelta(s32 playerIndex, HealthPlayerState *hudState, Healt
                 sfxPlayOnFreeSlot(0x24B, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
         }
-        playerState->unk2FD = 0;
+        playerState->healthDelta = 0;
     }
     if ((!(gGlobalPauseFlags & 2) && (hudCanRender() != 0)) || (state & 0x80)) {
         hudState->unk2E5--;
@@ -218,8 +212,8 @@ HealthHudState *hudState;
         mode = 0;
     }
     if (single == 0) {
-        healthApplyPendingDelta(playerIndex, (HealthPlayerState *)hudState, (HealthPlayerState *)hud, (s32)elem);
-        HEALTH_HUD_FLAGS(hudState) &= 0xFFEA;
+        healthApplyPendingDelta(playerIndex, hudState, (HealthStats *)hud, (s32)elem);
+        hudState->flags &= 0xFFEA;
         bits = hudState->unk2E3;
     }
     if (bits & 0x10) {
@@ -234,7 +228,7 @@ HealthHudState *hudState;
         }
     }
     if (bits & 1) {
-        HEALTH_HUD_FLAGS(hudState) ^= 1;
+        hudState->flags ^= 1;
         switch (mode) {
         case 0:
             hudState->unk2E5 = 18;
@@ -249,9 +243,9 @@ HealthHudState *hudState;
         }
     } else if (bits & 4) {
         hudState->unk2E5 = 1;
-        HEALTH_HUD_FLAGS(hudState) ^= 4;
+        hudState->flags ^= 4;
         hudState->unk2E4 = 2;
-        HEALTH_HUD_FLAGS(hudState) &= 8;
+        hudState->flags &= 8;
     } else {
         switch (mode) {
         case 1:
@@ -263,7 +257,7 @@ HealthHudState *hudState;
             }
             break;
         case 2:
-            healthApplyPendingDelta(playerIndex, (HealthPlayerState *)hudState, (HealthPlayerState *)hud, (s32)elem);
+            healthApplyPendingDelta(playerIndex, hudState, (HealthStats *)hud, (s32)elem);
             break;
         case 3:
             angle = 1.5707963705062866 - hudState->unk2E5 / 18.0 * 1.5707963705062866 + 1.5707963705062866;
@@ -275,20 +269,13 @@ HealthHudState *hudState;
         }
     }
     if (hudCanRender() != 0 || (bits & 0x80)) {
-        if (hudState->unk2E4 != 0 || HEALTH_HUD_FLAGS(hudState) != 0) {
+        if (hudState->unk2E4 != 0 || hudState->flags != 0) {
             glist = healthHudDraw(glist, (HealthStats *)hud, elem, hudState);
         }
     }
     return glist;
 }
 
-
-typedef struct HealthHudPlayerView {
-    u8 unk0;
-    u8 pad1[0x2E1];
-    u16 unk2E2;
-    u8 unk2E4;
-} HealthHudPlayerView;
 
 extern s8 D_80744504;
 
@@ -298,18 +285,17 @@ Gfx *healthHudDrawAll(Gfx *glist) {
     u16 flags;
     s32 playerSlot;
 
-    glist = glist;
     playerIndex = 0;
     if ((s32)gPlayerCount > 0) {
         do {
             slotOffset = playerIndex * 0x2F0;
             playerSlot = (s32)gPlayerSlots + slotOffset;
-            if (((HealthHudPlayerView *)playerSlot)->unk0 != 0) {
-                flags = ((HealthHudPlayerView *)playerSlot)->unk2E2;
-                if (!(flags & 0x20) && (((((HealthHudPlayerView *)playerSlot)->unk2E4 != 0 || flags != 0) &&
+            if (((HealthHudState *)playerSlot)->unk0 != 0) {
+                flags = ((HealthHudState *)playerSlot)->flags;
+                if (!(flags & 0x20) && (((((HealthHudState *)playerSlot)->unk2E4 != 0 || flags != 0) &&
                                            D_80744504 == 0) ||
                                           flags & 0x10)) {
-                    glist = healthHudUpdateDraw(glist, (s16)(playerIndex + 0), (slotOffset ^ 0) + (s32)gPlayerSlots, (s32)gPlayerSlots);
+                    glist = healthHudUpdateDraw(glist, (s16)(playerIndex + 0), (slotOffset ^ 0) + (s32)gPlayerSlots, (s32)gPlayerSlots); // FAKE: extra argument to the K&R callee (removing it breaks the match)
                 }
             }
             playerIndex += 1;
@@ -320,23 +306,20 @@ Gfx *healthHudDrawAll(Gfx *glist) {
 
 
 s32 healthGetPerMelon(void) {
-    s32 ret;
-
-    ret = 4;
-    return ((s32) gPlayerCount >= 2) ? 0xA : ret;
+    return ((s32)gPlayerCount >= 2) ? 0xA : 4;
 }
 
 
 
 void healthRefill(u8 playerIndex) {
     s32 perMelon;
-    s32 playerData;
     s32 product_factor;
+    HealthStats *stats;
 
     perMelon = healthGetPerMelon();
-    playerData = (playerIndex * 0x306) + (s32)gPlayerInventoryTable;
-    *(u8 *)(playerData + 0x2FD) = 0;
-    *(s8 *)(playerData + 0x2FB) = (s8)(*(u8 *)(playerData + 0x2FC) * (product_factor = perMelon));
+    stats = (HealthStats *)((playerIndex * 0x306) + (s32)gPlayerInventoryTable);
+    stats->healthDelta = 0;
+    stats->health = stats->melons * (product_factor = perMelon); // FAKE: assignment-in-expression (plain multiply breaks the match)
 }
 
 

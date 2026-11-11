@@ -4,7 +4,6 @@
 #include "common.h"
 struct HealthHudInit;
 struct HealthHudState;
-struct HealthPlayerState;
 struct HealthStats;
 #ifndef PROTO_SKIP_healthHudDraw
 Gfx *healthHudDraw(Gfx *, struct HealthStats *, void *, struct HealthHudState *);
@@ -13,7 +12,7 @@ Gfx *healthHudDraw(Gfx *, struct HealthStats *, void *, struct HealthHudState *)
 void hudDrawItemWithAlpha(struct HealthHudInit *);
 #endif
 #ifndef PROTO_SKIP_healthApplyPendingDelta
-void healthApplyPendingDelta(s32, struct HealthPlayerState *, struct HealthPlayerState *, s32);
+void healthApplyPendingDelta(s32, struct HealthHudState *, struct HealthStats *, s32);
 #endif
 #ifndef PROTO_SKIP_healthHudUpdateDraw
 Gfx *healthHudUpdateDraw();
