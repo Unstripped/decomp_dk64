@@ -406,6 +406,8 @@ s32 tagBarrelCheckProximityAndFall(s32 spawnType, u8 *inRange, u8 *falling, u8 *
     f32 minDist;
     f32 dz;
     f32 dx;
+    f32 dist;
+
     spawn = 0;
     minDist = 99999.0f;
     if (gCurrentActor->flags & 0x10) {
@@ -419,21 +421,21 @@ s32 tagBarrelCheckProximityAndFall(s32 spawnType, u8 *inRange, u8 *falling, u8 *
         }
         if (spawn != 0) {
             i = 0;
-            if ((s32)gPlayerCount > 0) {
+            if (gPlayerCount > 0) {
                 do {
                     if (gPlayerSlots[i].unk0 != 0) {
                         Actor *player = gPlayerSlots[i].actor;
                         dz = player->z - gCurrentActor->z;
                         dx = player->x - gCurrentActor->x;
-                        dz = sqrtf((dz * dz) + (dx * dx));
-                        if (dz < minDist) {
-                            minDist = dz;
+                        dist = sqrtf((dz * dz) + (dx * dx));
+                        if (dist < minDist) {
+                            minDist = dist;
                         }
                     }
                     i++;
                 } while (i < gPlayerCount);
             }
-            if ((f64)minDist > 12.0) {
+            if (minDist > 12.0) {
                 *inRange = 0;
             } else {
                 *inRange = 1;
@@ -453,7 +455,7 @@ s32 tagBarrelCheckProximityAndFall(s32 spawnType, u8 *inRange, u8 *falling, u8 *
         }
     }
     if (spawn != 0) {
-        actorListSpawnNodeEntryDefault(spawnType, gCurrentActor->x, (f32)((f64)gCurrentActor->y + 8.3), gCurrentActor->z, 0, 1.0f, gCurrentActor);
+        actorListSpawnNodeEntryDefault(spawnType, gCurrentActor->x, gCurrentActor->y + 8.3, gCurrentActor->z, 0, 1.0f, gCurrentActor);
         if (gCurrentActor->flags & 0x10) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x31, 0xFF, 0x7F, 1);
             effectSetDepth(0);
@@ -587,26 +589,26 @@ void actorTransformCameraUpdateD(void) {
 
 extern Actor *gSpawnedActor;
 typedef struct ActorC71CState {
-    /* 0x00 */ struct Actor *unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ u8 unk18;
-    /* 0x19 */ u8 unk19;
-    /* 0x1A */ u16 unk1A;
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ s32 unk20;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ f32 unk28;
-    /* 0x2C */ s32 unk2C;
-    /* 0x30 */ u8 unk30;
+    /* 0x00 */ struct Actor *holder;
+    /* 0x04 */ s32 throwFrame;
+    /* 0x08 */ f32 pitch;
+    /* 0x0C */ s32 settleTimer;
+    /* 0x10 */ f32 holdYaw;
+    /* 0x14 */ f32 spin;
+    /* 0x18 */ u8 waterBounces;
+    /* 0x19 */ u8 bounceCooldown;
+    /* 0x1A */ u16 groundBounces;
+    /* 0x1C */ f32 floatBaseY;
+    /* 0x20 */ s32 floatFrame;
+    /* 0x24 */ f32 floatVelY;
+    /* 0x28 */ f32 floatPitch;
+    /* 0x2C */ u32 timer;
+    /* 0x30 */ u8 tipDir;
     /* 0x31 */ u8 pad31[3];
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ u8 unk38;
-    /* 0x39 */ u8 unk39;
-    /* 0x3A */ u8 unk3A;
+    /* 0x34 */ f32 sinkSpeed;
+    /* 0x38 */ u8 prevState;
+    /* 0x39 */ u8 released;
+    /* 0x3A */ u8 fadeTimer;
 } ActorC71CState;
 
 
@@ -634,13 +636,13 @@ void actorTransformCameraUpdate(void) {
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unkFA = 0x270F;
-        state->unk38 = 0;
-        state->unk39 = 0;
+        state->prevState = 0;
+        state->released = 0;
         if (gCurrentActor->actorType == 0x1A) {
             gCurrentActor->flags |= 0x1000;
             effectSetDepth(1);
             effectSetDuration(-1);
-            effectSetMaxDistance((s16)(gCurrentActor->drawDistance * 0.75));
+            effectSetMaxDistance(gCurrentActor->drawDistance * 0.75);
             effectCreateAtActorBone(&D_8072030C, 0.14f, gCurrentActor, 1, 2);
             actorClearNodeFlag(gCurrentActor, 3);
         }
@@ -649,21 +651,21 @@ void actorTransformCameraUpdate(void) {
         if (actorHasActiveMovementFlags(gCurrentActor)) {
             gCurrentActor->state = 2;
             gCurrentActor->flags2 |= 1;
-            state->unkC = 0x1E;
+            state->settleTimer = 0x1E;
             gCurrentActor->unk144 = 2;
-            state->unk8 = 360.0f;
-            state->unk14 = 0.0f;
+            state->pitch = 360.0f;
+            state->spin = 0.0f;
         }
         gCurrentActor->flags2 |= 0x40;
     }
 
     if (gActorGlobalState.unk24 != 0) {
-        if (state->unk39 == 0) {
-            state->unk0 = gActorGlobalState.unk28;
+        if (state->released == 0) {
+            state->holder = gActorGlobalState.unk28;
             gCurrentActor->state = 1;
-            state->unk8 = 360.0f;
+            state->pitch = 360.0f;
             actorCallbackMaskDisable(gCurrentActor, 0x8000);
-            actorCollisionEventsCancel(state->unk0, 1);
+            actorCollisionEventsCancel(state->holder, 1);
             gCurrentActor->unk144 = 0x2C;
             animationOwnerFreeBuffer(gCurrentActor);
         } else {
@@ -673,17 +675,17 @@ void actorTransformCameraUpdate(void) {
 
     if (gActorGlobalState.unk25 != 0) {
         gCurrentActor->state = 2;
-        state->unkC = 0x1E;
+        state->settleTimer = 0x1E;
         gCurrentActor->unk144 = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
     }
 
-    if (((gActorGlobalState.unk15 != 0) || (gActorGlobalState.bossFightPhase == 9)) && (state->unk39 == 0)) {
+    if (((gActorGlobalState.unk15 != 0) || (gActorGlobalState.bossFightPhase == 9)) && (state->released == 0)) {
         gCurrentActor->state = 4;
         actorReleaseFromPlayerHold(gCurrentActor);
     }
 
-    if (state->unk39 != 0 && (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9)) {
+    if (state->released != 0 && (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9)) {
         gCurrentActor->unk144 = 1;
     }
 
@@ -694,19 +696,19 @@ void actorTransformCameraUpdate(void) {
         gCurrentActor->yaw = gActorGlobalState.unk36;
         gCurrentActor->moveYaw = gActorGlobalState.unk36;
         gCurrentActor->speedY = gActorGlobalState.unk30;
-        state->unk4 = gFrameCounter;
-        state->unk18 = 0;
-        state->unk1A = 0;
+        state->throwFrame = gFrameCounter;
+        state->waterBounces = 0;
+        state->groundBounces = 0;
         gCurrentActor->speedXZ = gActorGlobalState.unk34;
-        actorCollisionEventsCancel(state->unk0, 1);
+        actorCollisionEventsCancel(state->holder, 1);
     }
 
     actorUpdatePrevContactFlags(gCurrentActor);
     switch (gCurrentActor->state) {
     case 0:
         gCurrentActor->unk144 = 2;
-        state->unk8 = 360.0f;
-        state->unk14 = 0.0f;
+        state->pitch = 360.0f;
+        state->spin = 0.0f;
         func_8066E6C8(gCurrentActor, 0, 1);
         func_8066E6C8(gCurrentActor, 1, 0);
         gCurrentActor->flags2 |= 1;
@@ -714,25 +716,25 @@ void actorTransformCameraUpdate(void) {
     case 1:
         func_8066E6C8(gCurrentActor, 0, 0);
         func_8066E6C8(gCurrentActor, 1, 0);
-        holderState = state->unk0->customState;
-        state->unk8 = holderState->holdPitch;
-        if (state->unk8 < 0.0) {
-            state->unk8 += 360.0;
+        holderState = state->holder->customState;
+        state->pitch = holderState->holdPitch;
+        if (state->pitch < 0.0) {
+            state->pitch += 360.0;
         }
-        state->unk10 = state->unk0->yaw / 4095.0 * 360.0;
+        state->holdYaw = state->holder->yaw / 4095.0 * 360.0;
         gCurrentActor->flags2 &= ~1;
         break;
     case 2:
         func_8066E6C8(gCurrentActor, 0, 1);
         func_8066E6C8(gCurrentActor, 1, 0);
-        if (--state->unkC == 0) {
+        if (--state->settleTimer == 0) {
             gCurrentActor->state = 0;
         } else if (actorHasActiveMovementFlags(gCurrentActor)) {
-            state->unkC = 0x1E;
+            state->settleTimer = 0x1E;
         }
-        state->unk8 += 16.0;
-        if (state->unk8 > 360.0) {
-            state->unk8 = 360.0f;
+        state->pitch += 16.0;
+        if (state->pitch > 360.0) {
+            state->pitch = 360.0f;
         }
         gCurrentActor->speedY = -200.0f;
         gCurrentActor->speedXZ = 0.0f;
@@ -745,7 +747,7 @@ void actorTransformCameraUpdate(void) {
         if (gCurrentActor->speedY < D_807502D0) {
             gCurrentActor->speedY = D_807502D0;
         }
-        state->unk14 -= 10.0f;
+        state->spin -= 10.0f;
         if (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x23, 0xFF, 0x7F, 1);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17, 0xFF, 0x7F, 1);
@@ -754,42 +756,42 @@ void actorTransformCameraUpdate(void) {
         gCurrentActor->flags2 &= ~1;
         break;
     case 4:
-        state->unk39 = 1;
+        state->released = 1;
         gCurrentActor->state = 8;
         break;
     case 5:
         func_8066E6C8(gCurrentActor, 0, 1);
         func_8066E6C8(gCurrentActor, 1, 1);
-        state->unk28 -= 3.0;
-        if (state->unk28 < 270.0) {
-            state->unk28 = 270.0f;
+        state->floatPitch -= 3.0;
+        if (state->floatPitch < 270.0) {
+            state->floatPitch = 270.0f;
         }
-        bob = sinApprox((f32)state->unk20 / 12.6);
-        gCurrentActor->y = state->unk1C + (f32)(bob * 1.5);
-        bob = sinApprox((f32)state->unk20 / 9.34);
-        state->unk8 = state->unk28 + bob * 7.0f;
-        state->unk20++;
-        bob = -5.0 - state->unk24;
+        bob = sinApprox((f32)state->floatFrame / 12.6);
+        gCurrentActor->y = state->floatBaseY + (f32)(bob * 1.5);
+        bob = sinApprox((f32)state->floatFrame / 9.34);
+        state->pitch = state->floatPitch + bob * 7.0f;
+        state->floatFrame++;
+        bob = -5.0 - state->floatVelY;
         bob = bob / -5.0;
         bob = bob * -0.5;
         if (gActorGlobalState.unk39 == 0) {
             bob = -0.5 - bob;
             bob = 0.0 - bob;
         }
-        state->unk24 += bob;
-        gCurrentActor->y += state->unk24;
-        if (--state->unk2C == 0 || state->unk2C == 5 || state->unk2C == 10 ||
-            state->unk2C == 15 || state->unk2C == 20 || state->unk2C == 26) {
-            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x55, 0xFF, 0xA7 - state->unk2C * 2, 0);
+        state->floatVelY += bob;
+        gCurrentActor->y += state->floatVelY;
+        if (--state->timer == 0 || state->timer == 5 || state->timer == 10 ||
+            state->timer == 15 || state->timer == 20 || state->timer == 26) {
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x55, 0xFF, 0xA7 - state->timer * 2, 0);
         }
-        if (state->unk2C == 0 || gCurrentActor->waterY < gCurrentActor->floorY) {
+        if (state->timer == 0 || gCurrentActor->waterY < gCurrentActor->floorY) {
             gCurrentActor->state = 6;
-            if (sinApprox((f32)state->unk20 / 9.34) > 0.0) {
-                state->unk30 = 1;
+            if (sinApprox((f32)state->floatFrame / 9.34) > 0.0) {
+                state->tipDir = 1;
             } else {
-                state->unk30 = 0;
+                state->tipDir = 0;
             }
-            state->unk34 = 0.1f;
+            state->sinkSpeed = 0.1f;
         }
         gCurrentActor->speedY = 0.0f;
         gCurrentActor->speedXZ = 35.0f;
@@ -797,7 +799,7 @@ void actorTransformCameraUpdate(void) {
         pathFollowUpdateHeading(gCurrentActor, 0);
         if (gCurrentActor->floorContact->unkC == 0) {
             gCurrentActor->moveYaw = gCurrentActor->floorContact->unkE;
-            gCurrentActor->speedXZ = (f32)gCurrentActor->floorContact->unk10;
+            gCurrentActor->speedXZ = gCurrentActor->floorContact->unk10;
         } else {
             gCurrentActor->speedXZ = 0.0f;
         }
@@ -814,38 +816,38 @@ void actorTransformCameraUpdate(void) {
             effectSetCallback(effectWobbleRiseUpdate);
             effectCreateAtPosition(&D_8071FC40, 0.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         }
-        if (state->unk30 != 0) {
-            if (state->unk30 == 1) {
-                state->unk8 += 1.5;
-                if (state->unk8 > 360.0) {
-                    state->unk8 = 360.0f;
+        if (state->tipDir != 0) {
+            if (state->tipDir == 1) {
+                state->pitch += 1.5;
+                if (state->pitch > 360.0) {
+                    state->pitch = 360.0f;
                 }
             }
         } else {
-            state->unk8 -= 1.5;
-            if (state->unk8 < 0.0) {
-                state->unk8 = 0.0f;
+            state->pitch -= 1.5;
+            if (state->pitch < 0.0) {
+                state->pitch = 0.0f;
             }
         }
-        state->unk2C++;
-        if ((state->unk2C & 3) == 0 && (u32)state->unk2C < 29) {
-            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x55, 0xC0 - state->unk2C * 6, state->unk2C * 2 + 0x50, 0);
+        state->timer++;
+        if ((state->timer & 3) == 0 && state->timer < 29) {
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x55, 0xC0 - state->timer * 6, state->timer * 2 + 0x50, 0);
         }
-        state->unk34 += 2.0;
-        if (state->unk34 > 40.0) {
-            state->unk34 = 40.0f;
+        state->sinkSpeed += 2.0;
+        if (state->sinkSpeed > 40.0) {
+            state->sinkSpeed = 40.0f;
         }
-        gCurrentActor->speedY = -state->unk34;
+        gCurrentActor->speedY = -state->sinkSpeed;
         gCurrentActor->speedXZ = 0.0f;
         if (gCurrentActor->distToFloor < 0.5) {
             gCurrentActor->state = 7;
-            state->unk2C = 0x78;
+            state->timer = 0x78;
         }
         gCurrentActor->flags2 &= ~1;
         break;
     case 7:
         gCurrentActor->y -= 0.15;
-        if (--state->unk2C == 0) {
+        if (--state->timer == 0) {
             gCurrentActor->state = 4;
         }
         gCurrentActor->flags2 &= ~1;
@@ -860,7 +862,7 @@ void actorTransformCameraUpdate(void) {
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->alpha = 0;
                 gCurrentActor->state = 9;
-                state->unk3A = 0x14;
+                state->fadeTimer = 0x14;
                 if (!(gGlobalOverlayFlags & 1)) {
                     actorSetNodeFlag(gCurrentActor, 3);
                 }
@@ -871,7 +873,7 @@ void actorTransformCameraUpdate(void) {
                 actorSpawn(0xDE, 0xE5);
                 actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.15f);
                 gSpawnedActor->parentActor = gCurrentActor->parentActor;
-                gCurrentActor->parentActor = 0;
+                gCurrentActor->parentActor = NULL;
                 gSpawnedActor->y = gCurrentActor->floorY;
                 goto block_despawn;
             case 0x85:
@@ -885,12 +887,12 @@ void actorTransformCameraUpdate(void) {
         }
         break;
     case 9:
-        if (state->unk3A == 0) {
+        if (state->fadeTimer == 0) {
             actorDespawn(gCurrentActor);
         } else {
-            state->unk3A--;
+            state->fadeTimer--;
         }
-        brightness = state->unk3A / 20.0f * 200.0;
+        brightness = state->fadeTimer / 20.0f * 200.0;
         if (brightness > 130.0) {
             brightness = 200.0f;
         }
@@ -905,18 +907,18 @@ void actorTransformCameraUpdate(void) {
         }
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 7.0f);
-        if (gCurrentActor->state == 2 && state->unk8 == 360.0f && (gCurrentActor->y - gCurrentActor->prevY) < -2.0f && (gGlobalOverlayFlags & 1)) {
+        if (gCurrentActor->state == 2 && state->pitch == 360.0f && (gCurrentActor->y - gCurrentActor->prevY) < -2.0f && (gGlobalOverlayFlags & 1)) {
             actorReleaseFromPlayerHold(gCurrentActor);
             gCurrentActor->state = 4;
-            state->unk39 = 1;
+            state->released = 1;
         }
-        if (gCurrentActor->state == 3 && gCurrentActor->actorType == 0x1A && D_80753444[gCurrentCharacterIndex] < gFrameCounter - state->unk4) {
+        if (gCurrentActor->state == 3 && gCurrentActor->actorType == 0x1A && D_80753444[gCurrentCharacterIndex] < gFrameCounter - state->throwFrame) {
             gCurrentActor->state = 4;
         }
         if (gCurrentActor->state == 3 && (gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
             gCurrentActor->speedY = 140.0f;
-            state->unk1A++;
-            if ((gCurrentActor->actorType == 0x1A && state->unk1A == 4) || (gCurrentActor->actorType == 0x95 && state->unk1A == 2)) {
+            state->groundBounces++;
+            if ((gCurrentActor->actorType == 0x1A && state->groundBounces == 4) || (gCurrentActor->actorType == 0x95 && state->groundBounces == 2)) {
                 gCurrentActor->state = 4;
             }
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x32, 0xFF, 0x7F, 1);
@@ -924,16 +926,16 @@ void actorTransformCameraUpdate(void) {
         if (gCurrentActor->state == 2 && (gCurrentActor->contactFlags & 4)) {
             gCurrentActor->state = 5;
             gCurrentActor->y = gCurrentActor->waterY;
-            state->unk2C = 1000;
-            state->unk1C = gCurrentActor->y - 1.5;
-            state->unk20 = 0;
-            state->unk28 = state->unk8;
+            state->timer = 1000;
+            state->floatBaseY = gCurrentActor->y - 1.5;
+            state->floatFrame = 0;
+            state->floatPitch = state->pitch;
         }
         if (gCurrentActor->state == 5) {
-            state->unk1C = gCurrentActor->waterY;
+            state->floatBaseY = gCurrentActor->waterY;
         }
-        if (gCurrentActor->state == 3 && (gCurrentActor->contactFlags & 4) && state->unk19 == 0) {
-            switch (state->unk18) {
+        if (gCurrentActor->state == 3 && (gCurrentActor->contactFlags & 4) && state->bounceCooldown == 0) {
+            switch (state->waterBounces) {
             case 0:
                 gCurrentActor->speedY = 180.0f;
                 break;
@@ -946,17 +948,17 @@ void actorTransformCameraUpdate(void) {
             default:
                 gCurrentActor->state = 5;
                 gCurrentActor->y = gCurrentActor->waterY;
-                state->unk2C = 1000;
-                state->unk1C = gCurrentActor->y - 1.5;
-                state->unk20 = 0;
-                state->unk28 = state->unk8;
+                state->timer = 1000;
+                state->floatBaseY = gCurrentActor->y - 1.5;
+                state->floatFrame = 0;
+                state->floatPitch = state->pitch;
                 break;
             }
-            state->unk18++;
-            state->unk19 = 3;
+            state->waterBounces++;
+            state->bounceCooldown = 3;
             gCurrentActor->speedXZ -= 20.0;
-        } else if (state->unk19 != 0) {
-            state->unk19--;
+        } else if (state->bounceCooldown != 0) {
+            state->bounceCooldown--;
         }
         gCurrentActor->floorSlopeYaw = 0x3FF;
         gCurrentActor->floorSlopePitch = 0x3FF;
@@ -965,18 +967,18 @@ void actorTransformCameraUpdate(void) {
         gCurrentActor->contactFlags &= ~0x408;
     }
 
-    state->unk38 = gCurrentActor->state;
+    state->prevState = gCurrentActor->state;
     if (gCurrentActor->state != 9) {
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0xC, 0xC, 1, 0x64, 0x78, 0, 1.0f);
     }
     guScaleF(mtx, gCurrentActor->sub4->scaleX, gCurrentActor->sub4->scaleY, gCurrentActor->sub4->scaleZ);
-    guRotateF(rot, state->unk14, 0.0f, 1.0f, 0.0f);
+    guRotateF(rot, state->spin, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx, rot, mtx);
     guRotateF(rot, gCurrentActor->yaw / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx, rot, mtx);
-    guRotateF(rot, state->unk8 - gActorGlobalState.unkF0, 1.0f, 0.0f, 0.0f);
+    guRotateF(rot, state->pitch - gActorGlobalState.unkF0, 1.0f, 0.0f, 0.0f);
     guMtxCatF(mtx, rot, mtx);
-    guRotateF(rot, (state->unk10 + 90.0f) - gActorGlobalState.unkF4, 0.0f, 1.0f, 0.0f);
+    guRotateF(rot, (state->holdYaw + 90.0f) - gActorGlobalState.unkF4, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx, rot, mtx);
 
     if (gCurrentActor->state == 3) {
@@ -1093,14 +1095,14 @@ typedef struct TransformBarrelState {
     s16 timer;
     s16 unk2;
     Actor *player;
-    s16 unk8;
+    s16 wobbleFrame;
     s16 unkA;
     f32 baseScale;
     f32 scale;
     f32 baseY;
-    s16 unk18;
-    s16 unk1A;
-    u8 unk1C;
+    s16 spinSpeed;
+    s16 setsFlag;
+    u8 refillCount;
 } TransformBarrelState;
 
 void tagBarrelResetMovement(void) {
@@ -1110,8 +1112,8 @@ void tagBarrelResetMovement(void) {
     gCurrentActor->sub4->scaleY = state->baseScale;
     gCurrentActor->sub4->scaleZ = state->baseScale;
     gCurrentActor->y = state->baseY;
-    state->unk8 = 0;
-    state->unk18 = 0;
+    state->wobbleFrame = 0;
+    state->spinSpeed = 0;
     state->scale = state->baseScale;
     gCurrentActor->state = 0;
     gCurrentActor->unk144 = 2;
@@ -1224,7 +1226,7 @@ void transformBarrelUpdate(void) {
     PlayerState *activePlayerState;
     s32 hide;
     s32 channel;
-    PlayerState *ps3;
+    PlayerState *riderState;
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -1232,11 +1234,11 @@ void transformBarrelUpdate(void) {
         found = 0;
         ret = actorListFindIdByActor(gCurrentActor);
         if (gPrimaryPlayerActor) {} // FAKE: raises &gPrimaryPlayerActor candidate priority
-        state->unk1C = 0;
+        state->refillCount = 0;
         do {
             if (gCurrentMap == D_8074E7BC[entry].map && ret == D_8074E7BC[entry].listId) {
                 found = 1;
-                state->unk1C = D_8074E7BC[entry].count;
+                state->refillCount = D_8074E7BC[entry].count;
             } else {
                 entry++;
             }
@@ -1255,11 +1257,11 @@ void transformBarrelUpdate(void) {
         gCurrentActor->flags |= 2;
         state->scale = gCurrentActor->sub4->scaleY;
         state->baseScale = gCurrentActor->sub4->scaleY;
-        state->unk8 = 0;
-        state->unk18 = 0;
+        state->wobbleFrame = 0;
+        state->spinSpeed = 0;
         state->baseY = gCurrentActor->y;
         if (gCurrentActor->actorType == 0x12 || gCurrentActor->actorType == 0x81) {
-            state->unk1A = ((s32 *)gCurrentActor->spawnData)[1];
+            state->setsFlag = ((s32 *)gCurrentActor->spawnData)[1];
         }
     }
     actorUpdatePrevContactFlags(gCurrentActor);
@@ -1271,7 +1273,7 @@ void transformBarrelUpdate(void) {
         if (gCurrentActor->actorType != 0x60) {
             sfxAllocateChannel(0xF, 1.0f);
         }
-        if (state->unk1A != 0) {
+        if (state->setsFlag != 0) {
             ret = -1;
 
             if (gCurrentActor->actorType == 0x12) {
@@ -1299,9 +1301,9 @@ void transformBarrelUpdate(void) {
                 break;
             }
         }
-        if (state->unk1C != 0) {
+        if (state->refillCount != 0) {
             s32 queued = slotQueueGetValue(5, playerState->playerIndex);
-            s32 step = slotQueueGetCountStep(5) * state->unk1C;
+            s32 step = slotQueueGetCountStep(5) * state->refillCount;
 
             if (queued < step) {
                 slotQueueAddValue(5, playerState->playerIndex, (s16)(step - queued));
@@ -1313,12 +1315,12 @@ void transformBarrelUpdate(void) {
         gCurrentActor->flags |= 0x200000;
         if (!(gGlobalOverlayFlags & 0x2000)) {
             if (state->player->collisionFlags & 1) {
-                ps3 = state->player->customState;
+                riderState = state->player->customState;
 
-                if (ps3->actor != NULL) {
-                    actorDespawn(ps3->actor);
-                    ps3->actor = NULL;
-                    camSetFollowMode(ps3->camActor);
+                if (riderState->actor != NULL) {
+                    actorDespawn(riderState->actor);
+                    riderState->actor = NULL;
+                    camSetFollowMode(riderState->camActor);
                 }
             }
         }
@@ -1407,15 +1409,15 @@ void transformBarrelUpdate(void) {
                 break;
             }
         }
-        gCurrentActor->sub4->scaleX = sinApprox(state->unk8 * 0.11) * 0.1 + state->scale;
-        gCurrentActor->sub4->scaleY = sinApprox(state->unk8 * 0.2352) * 0.1 + state->scale;
-        gCurrentActor->sub4->scaleZ = sinApprox(state->unk8 * 0.176) * 0.1 + state->scale;
-        state->unk8++;
+        gCurrentActor->sub4->scaleX = sinApprox(state->wobbleFrame * 0.11) * 0.1 + state->scale;
+        gCurrentActor->sub4->scaleY = sinApprox(state->wobbleFrame * 0.2352) * 0.1 + state->scale;
+        gCurrentActor->sub4->scaleZ = sinApprox(state->wobbleFrame * 0.176) * 0.1 + state->scale;
+        state->wobbleFrame++;
         if (gCurrentActor->actorType != 0x12 && gCurrentActor->actorType != 0x81 && gCurrentActor->actorType != 0x84) {
-            gCurrentActor->yaw += state->unk18;
-            state->unk18 += 10;
-            if (state->unk18 >= 0x65) {
-                state->unk18 = 0x64;
+            gCurrentActor->yaw += state->spinSpeed;
+            state->spinSpeed += 10;
+            if (state->spinSpeed >= 0x65) {
+                state->spinSpeed = 0x64;
             }
         }
         actorAppendMoveTarget3D(gCurrentActor, state->player, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
@@ -2735,8 +2737,8 @@ void tagBarrelUpdateSelectedKong(void) {
 typedef struct ActorExtra3158 {
     u16 kind;
     u16 pad2;
-    void (*callback)(Actor *, void *, s32 *);
-    u8 timer[1];
+    void (*callback)(Actor *, BoneRotation *, s32 *);
+    u32 lastFrame;
 } ActorExtra3158;
 
 typedef struct ActorView3158 {
@@ -2749,7 +2751,6 @@ typedef struct ActorView3158 {
 void tagBarrelInteractiveUpdate(void) {
     s32 count;
     ActorExtra3158 *extra;
-    u8 *extra8;
 
     count = 0;
     extra = gCurrentActor->customState;
@@ -2777,10 +2778,9 @@ void tagBarrelInteractiveUpdate(void) {
     gCurrentActor->sub4->boneRotations[count].weight = 0;
     gCurrentActor->tintA = gCurrentActor->unk15F;
     gCurrentActor->yaw = mathAngleBetweenPoints2D(gPlayerSlots->camX, gPlayerSlots->camZ, gCurrentActor->x, gCurrentActor->z);
-    extra8 = extra->timer;
-    if (func_8072881C(0, extra8) != 0) {
+    if (func_8072881C(0, &extra->lastFrame) != 0) {
         if (extra->kind == 3 || extra->kind == 5) {
-            func_8072881C(0x81, extra8);
+            func_8072881C(0x81, &extra->lastFrame);
         }
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -2789,16 +2789,15 @@ void tagBarrelInteractiveUpdate(void) {
 
 s32 tagBarrelCheckKongFlag(s32 kongType, s32 setFlag) {
     struct KongFlagInfo {
-        char unk0[2];
-        s16 unk2;
-        s32 unk4;
-        s32 unk8;
-        s32 unkC;
+        s32 value;
+        s32 isSet;
+        s32 found;
+        s32 pad;
     } info;
     struct KongFlagInfo *p = &info;
     s32 ret;
 
-    info.unk4 = 0;
+    info.isSet = 0;
     switch (gCurrentMap) {
     default:
         return 0;
@@ -2808,25 +2807,22 @@ s32 tagBarrelCheckKongFlag(s32 kongType, s32 setFlag) {
     case 38:
     case 42:
     case 48:
-        info.unk8 = func_805FEF10(&info);
-        if (info.unk8 != 0) {
-            info.unk4 = flagGet(info.unk2, 0);
-            if (setFlag != 0 && info.unk4 == 0) {
-                flagSet(info.unk2, 1, 0);
+        info.found = func_805FEF10(&info.value);
+        if (info.found != 0) {
+            info.isSet = flagGet(info.value, 0);
+            if (setFlag != 0 && info.isSet == 0) {
+                flagSet(info.value, 1, 0);
                 camStartPath(gPrimaryPlayerActor, 0x19, 4);
                 gCurrentActor->unk144 = 1;
                 gCurrentActor->unk155 = 0xB;
             }
         }
-        ret = p->unk8 != 0; // FAKE: no explicit return: ret/v0 web, operands read via ilod p
+        ret = p->found != 0; // FAKE: no explicit return: ret/v0 web, operands read via ilod p
         if (ret != 0) {
-            return p->unk4 == 0;
+            return p->isSet == 0;
         }
     }
 }
-
-
-
 
 extern s32 D_8074E848[];
 extern s32 gGlobalPauseFlags;
@@ -2910,10 +2906,10 @@ void tagBarrelStartSelection(TagBarrelData *data) {
 
 
 void tagBarrelUpdateSelection(TagBarrelData *data) {
-    KongActionEntry *kongTable = D_8074E814;
+    s32 pad1;
     u16 prevTimer;
     s32 value;
-    s32 pad[3];
+    s32 pad2[3];
     Actor *player;
     PlayerState *playerState;
     s32 light;
@@ -2964,7 +2960,7 @@ void tagBarrelUpdateSelection(TagBarrelData *data) {
                     if (light == -1) {
                         light = 0;
                     }
-                    lightSetColor(data->lightR, data->lightG, data->lightB, (s16)light);
+                    lightSetColor(data->lightR, data->lightG, data->lightB, light);
                     gGlobalPauseFlags |= 0x30030;
                     sfxStopChannel(0x48, 0);
                     sfxStopChannel(0x6B, 0);
@@ -2981,7 +2977,7 @@ void tagBarrelUpdateSelection(TagBarrelData *data) {
                     gCurrentActor->unk155 = 0;
                     data->timer = 30;
                     playerState->stateFlags &= ~0x20000000;
-                    kong = kongTable[data->selected].kongIndex;
+                    kong = D_8074E814[data->selected].kongIndex;
                     playerSetKongByActorType(kong);
                     playerKongStopAudioChannels(player, kong);
                     playerState->gunDrawn = 0;
@@ -2999,9 +2995,9 @@ void tagBarrelUpdateSelection(TagBarrelData *data) {
     }
 }
 
-s32 tagBarrelIsKongUnlocked(TagBarrelData *data, s32 slot) {
+u8 *tagBarrelIsKongUnlocked(TagBarrelData *data, s32 slot) {
     s32 isKong = data->kongs[slot]->actorType == 0x13C;
-    s32 ret = 0;
+    u8 *ret = NULL;
 
     if (isKong) {
         ret = textTableGetString(2, D_8074E85C[slot], 1);
@@ -3040,11 +3036,11 @@ Gfx *tagBarrelRenderSelectionHud(Gfx *gfx, Actor *actor) {
     TagBarrelData *data;
     s32 pad5;
     u8 pad70[0x38];
-    s32 text;
+    u8 *text;
     s16 arrowY;
 
     data = actor->customState;
-    textY = (f32)((f64)(gScreenHeight - 0x1E) * 4.0);
+    textY = (gScreenHeight - 0x1E) * 4.0;
     if (actor->state != 1) {
         return gfx;
     }
@@ -3052,14 +3048,14 @@ Gfx *tagBarrelRenderSelectionHud(Gfx *gfx, Actor *actor) {
     gDPSetCombineMode(gfx++, G_CC_DECALRGBA, G_CC_DECALRGBA);
     gSPMatrix(gfx++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    arrowY = (s16)(s32)textY;
+    arrowY = textY;
     gfx = renderRotatedSprite(gfx, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, 0xA0, arrowY, 5.0f, 5.0f, 0, 0.0f);
-    gfx = renderRotatedSprite(gfx, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, (s32)((f64)(gScreenWidth - 0x28) * 4.0), arrowY, 5.0f, 5.0f, 0xB4, 0.0f);
+    gfx = renderRotatedSprite(gfx, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, (gScreenWidth - 0x28) * 4.0, arrowY, 5.0f, 5.0f, 0xB4, 0.0f);
     blend = (f32)(u32)data->timer * 0.05f;
     text = tagBarrelIsKongUnlocked(data, data->selected);
     textY -= (f32) textGetFontHeight(1) * 1.2f;
     gDPSetCombineLERP(gfx++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
-    if (text != 0) {
+    if (text != NULL) {
         fade = 1.0f - blend;
         half = fade * 0.5f;
         textX = half;
@@ -3081,11 +3077,11 @@ Gfx *tagBarrelRenderSelectionHud(Gfx *gfx, Actor *actor) {
         }
         alpha *= 255.0f;
         gDPSetPrimColor(gfx++, 0, 0, 255, 255, 255, (u32)alpha);
-        gfx = hudDrawScaledText(gfx, (s16)(s32)textX, (s16)(s32)textY, 0.6f, text);
+        gfx = hudDrawScaledText(gfx, textX, textY, 0.6f, text);
     }
     if (data->timer != 0) {
         text = tagBarrelIsKongUnlocked(data, data->previous);
-        if (text != 0) {
+        if (text != NULL) {
             prevHalf = 0.5f * blend;
             prevX = prevHalf;
             if (data->direction > 0) {
@@ -3106,7 +3102,7 @@ Gfx *tagBarrelRenderSelectionHud(Gfx *gfx, Actor *actor) {
             }
             prevAlpha *= 255.0f;
             gDPSetPrimColor(gfx++, 0, 0, 255, 255, 255, (u32)prevAlpha);
-            gfx = hudDrawScaledText(gfx, (s16)(s32)prevX, (s16)(s32)textY, 0.6f, text);
+            gfx = hudDrawScaledText(gfx, prevX, textY, 0.6f, text);
         }
     }
     return gfx;
