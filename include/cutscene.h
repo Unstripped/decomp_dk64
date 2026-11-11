@@ -115,16 +115,20 @@ typedef struct CsStateFull {
     /* 0x52 */ u8 unk52;
     /* 0x53 */ u8 unk53;
     /* 0x54 */ u8 unk54;
-    /* 0x55 */ u8 pad55[7];
+    /* 0x55 */ u8 pad55[3];
+    /* 0x58 */ s32 unk58;
     /* 0x5C */ u8 unk5C;
-    /* 0x5D */ u8 pad5D[3];
+    /* 0x5D */ u8 pad5D;
+    /* 0x5E */ s16 unk5E;
     /* 0x60 */ u8 unk60;
     /* 0x61 */ u8 pad61;
     /* 0x62 */ s16 unk62;
     /* 0x64 */ s16 unk64;
     /* 0x66 */ u8 unk66;
     /* 0x67 */ u8 unk67;
-    /* 0x68 */ u8 pad68[6];
+    /* 0x68 */ s16 unk68;
+    /* 0x6A */ s16 unk6A;
+    /* 0x6C */ s16 unk6C;
     /* 0x6E */ u8 unk6E;
     /* 0x6F */ u8 unk6F;
     /* 0x70 */ u8 unk70;
@@ -145,7 +149,8 @@ typedef struct CsStateFull {
     /* 0x98 */ s16 unk98;
     /* 0x9A */ u8 unk9A;
     /* 0x9B */ u8 unk9B;
-    /* 0x9C */ u8 pad9C[4];
+    /* 0x9C */ s16 unk9C;
+    /* 0x9E */ u8 pad9E[2];
     /* 0xA0 */ CsNode *unkA0;
 } CsStateFull; // size = 0xA4
 

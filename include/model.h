@@ -40,7 +40,31 @@ typedef struct ModelAssetHeader {
     /* 0x58 */ s32 unk58;
     /* 0x5C */ s32 unk5C;
     /* 0x60 */ s32 unk60;
+    /* 0x64 */ s32 unk64;
+    /* 0x68 */ s32 unk68; // offset of the animation data block (modelSlotDataSize)
 } ModelAssetHeader;
+
+// One animation channel of a model slot (ModelData.entries, 54150).
+typedef struct ModelAnimEntry {
+    /* 0x00 */ u8 *unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ s16 unkA;
+    /* 0x0C */ s16 unkC;
+    /* 0x0E */ u8 unkE;
+    /* 0x0F */ u8 unkF;
+    /* 0x10 */ u8 unk10;
+    /* 0x11 */ s8 unk11;
+    /* 0x12 */ u8 unk12;
+    /* 0x13 */ u8 unk13;
+} ModelAnimEntry; // size = 0x14
+
+// Per-slot animation state (ModelSlot.unk78, modelSlotAllocAnimBuffers).
+typedef struct ModelData {
+    /* 0x00 */ u8 *unk0;
+    /* 0x04 */ u8 *unk4;
+    /* 0x08 */ ModelAnimEntry entries[10];
+} ModelData; // size = 0xD0
 
 // Per-slot triangle buffer (ModelSlot.unk48, modelSlotTriBufferRelease); 0x28 bytes.
 typedef struct ModelTriBuffer {

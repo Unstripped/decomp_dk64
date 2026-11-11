@@ -2,10 +2,10 @@
 #ifndef PROTO_GLOBAL_54150_H
 #define PROTO_GLOBAL_54150_H
 #include "common.h"
+#include "model.h"
 struct ModelAnimEntryRaw;
 struct ModelAnimEntryView;
 struct ModelBTrack;
-struct ModelData;
 #ifndef PROTO_SKIP_modelSlotAllocAnimBuffers
 void modelSlotAllocAnimBuffers(struct ModelData **, u8 *);
 #endif

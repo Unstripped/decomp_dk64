@@ -15,26 +15,6 @@ typedef struct ModelAnimNodeHeader {
     u8 pad3A[2];
 } ModelAnimNodeHeader;
 
-typedef struct ModelAnimEntry {
-    u8 *unk0;
-    f32 unk4;
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-    u8 unkE;
-    u8 unkF;
-    u8 unk10;
-    s8 unk11;
-    u8 unk12;
-    u8 unk13;
-} ModelAnimEntry; /* 0x14 */
-
-typedef struct ModelData {
-    u8 *unk0;
-    u8 *unk4;
-    ModelAnimEntry entries[10];
-} ModelData; /* 0xD0 */
-
 
 void modelSlotAllocAnimBuffers(ModelData **outModel, u8 *animAsset) {
     u8 *p2;
