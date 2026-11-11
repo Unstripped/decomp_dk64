@@ -255,7 +255,7 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
             alpha = 0xFF;
             player = (PlayerStruct *)((u8 *)gPlayerSlots + slotOffset); // FAKE: byte-offset walk instead of gPlayerSlots[i] (steers induction vars)
             if (player->unk2EA != 0) {
-                alpha = player->actor->alpha & 0xFF;
+                alpha = player->actor->alpha & 0xFF; // FAKE: redundant early alpha load (overwritten below) keeps alpha in v1 and the lh in a0; removing it drops 16 bytes
                 if (player->actor->alpha >= 0x100) {
                     alpha = 0xFF;
                 } else {
@@ -501,7 +501,6 @@ s32 mpUpdateScoreEffects(void) {
                 if (playerState->scoreEffect != 0) {
                     effectFreeAndUnlink(playerState->scoreEffect);
                     playerState->scoreEffect = 0;
-                    score = &gPlayerInventoryTable[i];
                     score->unk2FA = 0;
                 }
             }
