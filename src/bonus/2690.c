@@ -113,7 +113,7 @@ extern u8 D_2000180[];
 extern u8 D_20000C0[];
 extern u32 gFrameCounter;
 extern u8 gCurrentPlayerIndex;
-extern s16 D_8002D8CA;
+extern s16 D_8002D8C8[]; // bonusLightFlashSpawnTargets spawn ids (6)
 extern s16 D_8002D8D4[];
 extern s16 D_8002D8E0[];
 extern s16 gScreenWidth;
@@ -1250,17 +1250,16 @@ Gfx *func_80029B9C(Gfx *gdl, Actor *actor) {
 void bonusLightFlashSpawnTargets(void *ownerActor) {
     Actor *a = ownerActor;
     s32 i;
-    s16 *X = &D_8002D8CA - 1; // FAKE: the 6-entry table starts at 0x8002D8C8, inside splat's D_8002D8C0; D_8002D8C8[i - 1] is RELOC-EQUIV once that symbol exists
     BonusLightFlashState *base = ((BonusActorExt *)a)->unk178;
 
     for (i = 1; i != 7; i++) {
-        if (actorSpawn(0x147, X[i - 1]) != 0) {
+        if (actorSpawn(0x147, D_8002D8C8[i - 1]) != 0) {
             Struct_Sp50 *subExt = gSpawnedActor->customState;
             s16 *actorProp = ((BonusActorExt *)gSpawnedActor)->unk17C;
             Point3f *pt;
             f32 scale;
 
-            *actorProp = X[i - 1];
+            *actorProp = D_8002D8C8[i - 1];
             subExt->unk0 = a;
             subExt->unk4 = i - 1;
             pt = *D_807F5FD4 + (base->unk8[subExt->unk4] & 0x7F) + 1;

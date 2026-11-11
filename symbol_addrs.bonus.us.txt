@@ -45,3 +45,5 @@ bonusBigBugBashFlyUpdate = 0x8002B920; // type:func
 bonusBigBugBashSwatterShadowUpdate = 0x8002BE44; // type:func
 bonusSearchlightSeekGameUpdate = 0x8002BF98; // type:func
 bonusSearchlightSeekTargetUpdate = 0x8002C8EC; // type:func
+D_8002D8C0 = 0x8002D8C0; // type:s16 size:0x8
+D_8002D8C8 = 0x8002D8C8; // type:s16 size:0xC
