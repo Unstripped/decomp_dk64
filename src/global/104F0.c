@@ -619,7 +619,7 @@ void eepromResetAllSlots(void) {
 }
 
 extern OSMesgQueue D_807ECCF0;
-extern char *D_807467C0;
+extern u8 *D_807467C0; // save-signature string
 extern s8 D_807467C4;
 extern s8 D_807467CC;
 
@@ -655,7 +655,7 @@ void eepromReadAllSectors(void) {
     func_8060CB9C();
 }
 
-extern char *D_807467C0;
+extern u8 *D_807467C0; // save-signature string
 extern s8 D_807467C4;
 extern s8 D_807467E4;
 extern f32 D_807467E8;
