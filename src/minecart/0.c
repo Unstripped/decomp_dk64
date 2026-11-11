@@ -126,7 +126,7 @@ void minecartTriggerLoss(u8 useCutsceneCam, u8 textIndex) {
 }
 
 void minecartTriggerWin(u8 useCutsceneCam, u8 textIndex) {
-    s32 temp = textTableGetString(0x1A, textIndex, 1);
+    u8 *temp = textTableGetString(0x1A, textIndex, 1);
     textSpawnMarkerChecked(0x81, 0, 0x78, temp, 0, 0x28, 8, 8);
     gCurrentActor->parentActor->state = 0;
     sfxAllocateChannel(0x2A, 1.0f);
@@ -247,8 +247,8 @@ void minecartPlayerCartUpdate(u8 initTrackSegment, s32 trackTable, s16 maxAngleD
         minecartStepSpeedToTarget(s1);
         minecartFollowTrack(s1, maxAngleDelta, maxTiltLimit);
         actorGetNodePos(gCurrentActor, 5, &nodePos[0], &nodePos[1], &nodePos[2]);
-        commandQueuePush(gCurrentActor, (s16)(s32)nodePos[0], (s16)(s32)nodePos[1], (s16)(s32)nodePos[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
-        commandQueuePush(s1->unk4, (s16)(s32)nodePos[0], (s16)(s32)nodePos[1], (s16)(s32)nodePos[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        commandQueuePush(gCurrentActor, nodePos[0], nodePos[1], nodePos[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        commandQueuePush(s1->unk4, nodePos[0], nodePos[1], nodePos[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
         break;
 
     default:
@@ -306,24 +306,24 @@ void minecartUpdatePhysics(void) {
     s16 prevVertPos;
     MinecartCart *cart;
 
-    f32 scaleFactor = (f32)((f64)gCurrentActor->sub4->scaleY * 0.16666666675);
+    f32 scaleFactor = gCurrentActor->sub4->scaleY * 0.16666666675;
     cart = ((Struct_807FBB40 *)gCurrentActor)->unk174;
     prevVertPos = cart->unk0;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->terminalSpeedY = (f32) D_807502D0;
+        gCurrentActor->terminalSpeedY = D_807502D0;
         cart->unk24 = 3.0f;
         cart->unk28 = 12.0f;
     }
     if (cart->unk10 == 0x90) {
         gCurrentActor->speedXZ = 130.0f;
-        gCurrentActor->accelY = (f32) ((f64) D_807502F8 * 0.6);
+        gCurrentActor->accelY = D_807502F8 * 0.6;
         if (cart->unk0 == 0) {
-            gCurrentActor->speedY = (f32) ((f64) D_80750338 * 1.6);
+            gCurrentActor->speedY = D_80750338 * 1.6;
         }
     } else {
-        gCurrentActor->accelY = (f32) D_807502F8;
+        gCurrentActor->accelY = D_807502F8;
     }
-    cart->unk0 = (s16)((f32)cart->unk0 + gCurrentActor->speedY * scaleFactor);
+    cart->unk0 += gCurrentActor->speedY * scaleFactor;
     actorApplyGravity();
     if (cart->unk0 < 0) {
         cart->unk0 = 0;
@@ -361,7 +361,7 @@ void minecartReverseTrackBehaviour(void) {
     MinecartTrackPoint tmp;
     MinecartCart *s0;
 
-    scaleFactor = (f32)((f64)gCurrentActor->sub4->scaleY * 0.16666666675);
+    scaleFactor = gCurrentActor->sub4->scaleY * 0.16666666675;
     s0 = ((Struct_807FBB40 *)gCurrentActor)->unk174;
     prevVertPos = s0->unk0;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -371,7 +371,7 @@ void minecartReverseTrackBehaviour(void) {
         s0->unk24 = 0.1f;
         s0->unk28 = 5.0f;
     }
-    s0->unk0 = (s16)((f32)s0->unk0 + gCurrentActor->speedY * scaleFactor);
+    s0->unk0 += gCurrentActor->speedY * scaleFactor;
     actorApplyGravity();
     if (s0->unk0 < 0) {
         s0->unk0 = 0;
@@ -590,14 +590,14 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     actorGetNodePos(gCurrentActor, 4, &rearNodePos[0], &rearNodePos[1], &rearNodePos[2]);
     stepDist = (f64)(gCurrentActor->sub4->scaleY * gCurrentActor->speedXZ) * 0.16666666675;
     if (gCurrentMap == 0x4D || gCurrentMap == 0x81 || gCurrentMap == 0x82) {
-        stepDist = (f64)stepDist * 1.8;
+        stepDist *= 1.8;
     } else {
         if ((2.0 * (f64)mathSinF(gCurrentActor->roll)) + 1.0 < 0.6) {
             t = 0.6;
         } else {
             t = (2.0 * (f64)mathSinF(gCurrentActor->roll)) + 1.0;
         }
-        stepDist = (f64)stepDist * (2.5 * t);
+        stepDist *= 2.5 * t;
     }
     waypointAngle = mathAngleBetweenPoints2D(targetPt->x, targetPt->z, targetPt[-1].x, targetPt[-1].z);
     if (cart->unk0 == 0) {
@@ -606,7 +606,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
         D_80770B68[D_80770628[gCurrentActor->soundSlots[0]]] = 0.0f;
     }
     if (gCurrentActor->movePitch != 0) {
-        gCurrentActor->movePitch = gCurrentActor->movePitch - 1;
+        gCurrentActor->movePitch--;
         mathPickCloserTargetPoint3D(frontNodePos[0], frontNodePos[1], frontNodePos[2], targetPt, targetPt + 1, targetPt + 1, targetPt + 2, &frontTargetPt[0], &frontTargetPt[1], &frontTargetPt[2]);
         mathPickCloserTargetPoint3D(rearNodePos[0], rearNodePos[1], rearNodePos[2], targetPt - 1, targetPt, targetPt, targetPt + 1, &rearTargetPt[0], &rearTargetPt[1], &rearTargetPt[2]);
     } else {
@@ -641,7 +641,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     if (mathPickCloserTargetPoint3D(predX, predY, predZ, targetPt - 1, targetPt, targetPt, targetPt + 1, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z) != 0) {
         cart->unk10++;
     }
-    gCurrentActor->y = gCurrentActor->y + (f32)cart->unk0;
+    gCurrentActor->y += cart->unk0;
     n = gMinecartTrackPoints[trackIndex + 1] - gMinecartTrackPoints[trackIndex];
     if (D_807F5FD0 == trackIndex + 1) {
         limit = n - 1;
@@ -680,9 +680,9 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
         i = (*cart->unk34 + cart->unk40) & 0x3F;
         q = &gMinecartTrackPoints[i][cart->unk10];
         mathPickCloserTargetPoint3D(predX, predY, predZ, q - 1, q, q, q + 1, &junctionX, &junctionY, &junctionZ);
-        gCurrentActor->x = gCurrentActor->x + (junctionX - gCurrentActor->x) * cart->unk2C;
-        gCurrentActor->z = gCurrentActor->z + (junctionZ - gCurrentActor->z) * cart->unk2C;
-        cart->unk2C = (f64)cart->unk2C - 0.06;
+        gCurrentActor->x += (junctionX - gCurrentActor->x) * cart->unk2C;
+        gCurrentActor->z += (junctionZ - gCurrentActor->z) * cart->unk2C;
+        cart->unk2C -= 0.06;
         if (cart->unk2C < 0.0f) {
             cart->unk2C = 0.0f;
         }
@@ -701,7 +701,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     if (v1 >= 0x1F && v1 < 0x5A) {
         if (cart->unk14 < lim) {
             minecartRampTiltRate(cart);
-            cart->unk14 = cart->unk14 + cart->unk20;
+            cart->unk14 += cart->unk20;
             if (lim < cart->unk14) {
                 cart->unk14 = lim;
             }
@@ -709,7 +709,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     } else if (v1 < -0x1E && v1 >= -0x59) {
         if (-lim < cart->unk14) {
             minecartRampTiltRate(cart);
-            cart->unk14 = cart->unk14 - cart->unk20;
+            cart->unk14 -= cart->unk20;
             if (cart->unk14 < -lim) {
                 cart->unk14 = -lim;
             }
@@ -729,12 +729,12 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
         if (cart->unk18 < 10.0f) {
             cart->unk20 = 0.0f;
             if (cart->unk14 > 0.0f) {
-                cart->unk14 = cart->unk14 - cart->unk1C;
+                cart->unk14 -= cart->unk1C;
                 if (cart->unk14 < 0.0f) {
                     cart->unk14 = 0.0f;
                 }
             } else if (cart->unk14 < 0.0f) {
-                cart->unk14 = cart->unk14 + cart->unk1C;
+                cart->unk14 += cart->unk1C;
                 if (cart->unk14 > 0.0f) {
                     cart->unk14 = 0.0f;
                 }
