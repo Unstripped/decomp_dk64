@@ -95,6 +95,6 @@ void resQueueProcessNext(Actor *, Actor *);
 void resListReset(void);
 #endif
 #ifndef PROTO_SKIP_resQueueSetValue
-void resQueueSetValue(s8);
+void resQueueSetValue(u8);
 #endif
 #endif

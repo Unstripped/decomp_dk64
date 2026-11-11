@@ -708,6 +708,6 @@ void resListReset(void) {
     sResQueueHead = NULL;
 }
 
-void resQueueSetValue(s8 val) {
+void resQueueSetValue(u8 val) {
     sResQueueValue = val;
 }
