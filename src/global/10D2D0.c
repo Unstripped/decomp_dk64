@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_renderRotatedSprite // FAKE: callee prototype steer
 #include "proto/global/10D2D0.h"
 #include "proto/global/117190.h"
 #include "proto/global/450.h"
@@ -54,26 +53,24 @@ extern Mtx D_20000C0;
 extern s32 gFrameCounter;
 extern s32 gGlobalPauseFlags;
 f32 mathSinF(s16);
-Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32); // FAKE: callee prototype steer
 
 Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, HealthHudState *hudState) {
     s16 i;
     s8 pips;
-    u32 amp;
+    u32 centerX;
     s16 phase;
     s32 raw;
-    f32 fs0;
-    f32 animParams[22]; /* only [0] [3] [4] [21] are used: a non-volatile array keeps them memory-resident with IDO's reload pattern */
-    f32 fs1;
-    f32 fs2;
-    f32 fs0b;
-    f32 wv;
-    s16 y;
+    f32 fade;
+    f32 animParams[22]; // FAKE: only [0] [3] [4] [21] are used; the array home keeps them memory-resident (lwc1 0xA4(sp) reload of [4] each iteration)
+    f32 scaleY;
+    f32 bobX;
+    f32 waveY;
     s16 x;
+    s16 y;
 
     pips = stats->health;
-    fs0 = (f32)((f64)(u32)hudState->unk2E0 / 65535.0);
-    amp = ((stats->melons * 0x46) - 0x46) & 0xFF;
+    fade = (f32)((f64)(u32)hudState->unk2E0 / 65535.0);
+    centerX = ((stats->melons * 0x46) - 0x46) & 0xFF;
     if ((gGlobalPauseFlags & 3) || (menuIsTransitionTypeAOrE() != 0)) {
         return glist;
     }
@@ -83,24 +80,23 @@ Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, HealthHudState *h
     gSPMatrix(glist++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     i = 0;
     if (stats->melons > 0) {
-        animParams[4] = fs0 * 511.0f;
-        animParams[3] = (f32)amp;
-        animParams[0] = (f32)(s16)(s32)((f64)fs0 * 200.0);
+        animParams[4] = fade * 511.0f;
+        animParams[3] = (f32)centerX;
+        animParams[0] = (f32)(s16)(s32)((f64)fade * 200.0);
         do {
             raw = (i << 10) + (gFrameCounter * 0xC8);
             phase = raw;
             animParams[21] = (f32)(((f64)mathSinF(phase) * 0.3) + 3.0);
-            fs2 = (f32)(((f64)mathSinF((s16)(raw + 0x800)) * 0.3) + 3.0);
-            fs0b = (f32)((f64)mathSinF((s16)((raw >> 1) + 0x200)) * 10.0);
-            wv = (f32)(((f64)mathSinF(phase) * 0.5 + 0.5) * 30.0);
+            scaleY = (f32)(((f64)mathSinF((s16)(raw + 0x800)) * 0.3) + 3.0);
+            bobX = (f32)((f64)mathSinF((s16)((raw >> 1) + 0x200)) * 10.0);
+            waveY = (f32)(((f64)mathSinF(phase) * 0.5 + 0.5) * 30.0);
             gDPPipeSync(glist++);
-            gDPSetPrimColor(glist++, 0, 0, 255, 255, 255, (u32)((animParams[4] > 80.0f) ? (f32)80 : animParams[4]));
-            glist = renderRotatedSprite(glist, 0x5D, 0, 2, 0x30, 0x2A, y = (s32)(((f32)((i * 0x8C) + 0x280) + fs0b) - animParams[3]), x = (s32)(animParams[0] + wv), animParams[21], -fs2, 0, 0.0f); // FAKE: y/x assigned inside the argument list (separate statements break the match)
-            fs1 = -fs2;
+            gDPSetPrimColor(glist++, 0, 0, 255, 255, 255, (u32)((animParams[4] > 80.0f) ? 80 : animParams[4]));
+            glist = renderRotatedSprite(glist, 0x5D, 0, 2, 0x30, 0x2A, x = (s32)(((f32)((i * 0x8C) + 0x280) + bobX) - animParams[3]), y = (s32)(animParams[0] + waveY), animParams[21], -scaleY, 0, 0.0f); // FAKE: x/y assigned inside the argument list (separate statements break the match)
             gDPPipeSync(glist++);
             gDPSetPrimColor(glist++, 0, 0, 255, 255, 255, (u32)((animParams[4] > 255.0f) ? 255.0f : animParams[4]));
             if (pips > 0) {
-                glist = renderRotatedSprite(glist, ((pips - 1 < 3 ? pips - 1 : 3) + 0x5A) & 0xFFFF, 0, 2, 0x30, 0x2A, y, x, animParams[21], fs1, 0, 0.0f);
+                glist = renderRotatedSprite(glist, (pips - 1 < 3 ? pips - 1 : 3) + 0x5A, 0, 2, 0x30, 0x2A, x, y, animParams[21], -scaleY, 0, 0.0f);
             }
             if (pips - 4 < 0) {
                 pips = 0;

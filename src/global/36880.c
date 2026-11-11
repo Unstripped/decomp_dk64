@@ -991,10 +991,10 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
     s32 pad3;
 
     off = slot * 0x90;
-    anim = ((ModelSlot *)((u8 *)gModelSlots + off))->unk78;
-    buf = (ModelTriBuffer *)((0, off) + (s32)gModelSlots); // FAKE: comma flips the addu operand order (Q0304)
+    anim = gModelSlots[slot].unk78;
+    buf = (ModelTriBuffer *)(off + (u32)gModelSlots);
     lastBone = -1;
-    buf = (ModelTriBuffer *)((u8 *)buf + 0x48);
+    buf = &((ModelSlot *)buf)->unk48;
     if (anim != NULL) {
         animFrame = anim->frames[gGfxBufferIndex];
     } else {

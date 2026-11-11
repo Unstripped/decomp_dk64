@@ -629,129 +629,126 @@ typedef struct CollisionStaticTriOut {
     /* 0x26 */ s16 unk26;
 } CollisionStaticTriOut;
 
-s32 collisionBuildStaticTri(void *arg0, void *arg1) {
-#define COLLISION_TRI_IN ((CollisionStaticTriIn *)arg0)
-#define COLLISION_TRI_OUT ((CollisionStaticTriOut *)arg1)
+s32 collisionBuildStaticTri(void *inData, void *outData) {
     CollisionBox work;
-    s32 pad[2];
-    s16 temp_a0;
-    s16 temp_v1;
-    s16 temp_v0;
+    CollisionStaticTriIn *in = inData;
+    CollisionStaticTriOut *out = outData;
+    s16 y1;
+    s16 y;
+    s16 y2;
 
-    work.x0 = COLLISION_TRI_IN->unk0;
-    work.y0 = COLLISION_TRI_IN->unk2;
-    work.z0 = COLLISION_TRI_IN->unk4;
-    work.x1 = COLLISION_TRI_IN->unk6;
-    work.y1 = COLLISION_TRI_IN->unk8;
-    work.z1 = COLLISION_TRI_IN->unkA;
-    work.x2 = COLLISION_TRI_IN->unkC;
-    work.y2 = COLLISION_TRI_IN->unkE;
-    work.z2 = COLLISION_TRI_IN->unk10;
+    work.x0 = in->unk0;
+    work.y0 = in->unk2;
+    work.z0 = in->unk4;
+    work.x1 = in->unk6;
+    work.y1 = in->unk8;
+    work.z1 = in->unkA;
+    work.x2 = in->unkC;
+    work.y2 = in->unkE;
+    work.z2 = in->unk10;
 
     work.x0 *= 8; work.y0 *= 8; work.z0 *= 8;
     work.x1 *= 8; work.y1 *= 8; work.z1 *= 8;
     work.x2 *= 8; work.y2 *= 8; work.z2 *= 8;
 
-    work.unk48 = COLLISION_TRI_IN->unk12;
-    work.unk4C = COLLISION_TRI_IN->unk14;
+    work.unk48 = in->unk12;
+    work.unk4C = in->unk14;
     work.unk4D = 0;
     work.unk4F = 0;
-    if (COLLISION_TRI_IN->unk16 & 4) {
+    if (in->unk16 & 4) {
         work.unk51 = 1;
     } else {
         work.unk51 = 0;
     }
-    work.unk50 = COLLISION_TRI_IN->unk15;
+    work.unk50 = in->unk15;
     work.unk4B = 1;
     collisionBuildPlane(&work);
 
-    COLLISION_TRI_OUT->nx = work.nx;
-    COLLISION_TRI_OUT->ny = work.ny;
-    COLLISION_TRI_OUT->nz = work.nz;
-    COLLISION_TRI_OUT->d = work.d;
-    COLLISION_TRI_OUT->len = work.len;
+    out->nx = work.nx;
+    out->ny = work.ny;
+    out->nz = work.nz;
+    out->d = work.d;
+    out->len = work.len;
 
-    temp_a0 = COLLISION_TRI_IN->unk8;
-    temp_v1 = COLLISION_TRI_IN->unk2;
-    if (temp_v1 < temp_a0) {
-        COLLISION_TRI_OUT->unk24 = temp_v1;
+    y1 = in->unk8;
+    y = in->unk2;
+    if (y < y1) {
+        out->unk24 = y;
     } else {
-        COLLISION_TRI_OUT->unk24 = temp_a0;
+        out->unk24 = y1;
     }
-    temp_v1 = COLLISION_TRI_OUT->unk24;
-    temp_v0 = COLLISION_TRI_IN->unkE;
-    if (temp_v1 < temp_v0) {
-        COLLISION_TRI_OUT->unk24 = temp_v1;
+    y = out->unk24;
+    y2 = in->unkE;
+    if (y < y2) {
+        out->unk24 = y;
     } else {
-        COLLISION_TRI_OUT->unk24 = temp_v0;
+        out->unk24 = y2;
     }
-    if (temp_a0 == 0) {} // FAKE: extends temp_a0 so it interferes with temp_v0 and takes $a0
+    if (y1 == 0) {} // FAKE: extends y1 so it interferes with y2 and takes $a0
 
-    temp_a0 = COLLISION_TRI_IN->unk8;
-    temp_v1 = COLLISION_TRI_IN->unk2;
-    if (temp_a0 < temp_v1) {
-        COLLISION_TRI_OUT->unk26 = temp_v1;
+    y1 = in->unk8;
+    y = in->unk2;
+    if (y1 < y) {
+        out->unk26 = y;
     } else {
-        COLLISION_TRI_OUT->unk26 = temp_a0;
+        out->unk26 = y1;
     }
-    temp_v0 = COLLISION_TRI_IN->unkE;
-    temp_v1 = COLLISION_TRI_OUT->unk26;
-    if (temp_v0 < temp_v1) {
-        if (temp_v0 == 0) {} // FAKE: extra use raises temp_v0 priority so it takes $v0
-        COLLISION_TRI_OUT->unk26 = temp_v1;
+    y2 = in->unkE;
+    y = out->unk26;
+    if (y2 < y) {
+        if (y2 == 0) {} // FAKE: extra use raises y2 priority so it takes $v0
+        out->unk26 = y;
     } else {
-        COLLISION_TRI_OUT->unk26 = temp_v0;
+        out->unk26 = y2;
     }
 
     return 1;
-#undef COLLISION_TRI_IN
-#undef COLLISION_TRI_OUT
 }
 
-s32 collisionBuildPlane(CollisionBox *arg) {
+s32 collisionBuildPlane(CollisionBox *box) {
     s64 d1[3];
     s64 d2[3];
     s64 ax;
     s64 ay;
     s64 az;
 
-    d1[0] = arg->x0 - arg->x1;
-    d1[1] = arg->y0 - arg->y1;
-    d1[2] = arg->z0 - arg->z1;
-    d2[0] = arg->x0 - arg->x2;
-    d2[1] = arg->y0 - arg->y2;
-    d2[2] = arg->z0 - arg->z2;
-    arg->nx = d1[1] * d2[2] - d1[2] * d2[1];
-    arg->ny = d1[2] * d2[0] - d1[0] * d2[2];
-    arg->nz = d1[0] * d2[1] - d1[1] * d2[0];
-    arg->d = -(arg->nx * arg->x1 + arg->ny * arg->y1 + arg->nz * arg->z1);
-    arg->len = sqrtf((f32)(arg->nx * arg->nx + arg->ny * arg->ny + arg->nz * arg->nz));
-    if (arg->len == 0.0) {
+    d1[0] = box->x0 - box->x1;
+    d1[1] = box->y0 - box->y1;
+    d1[2] = box->z0 - box->z1;
+    d2[0] = box->x0 - box->x2;
+    d2[1] = box->y0 - box->y2;
+    d2[2] = box->z0 - box->z2;
+    box->nx = d1[1] * d2[2] - d1[2] * d2[1];
+    box->ny = d1[2] * d2[0] - d1[0] * d2[2];
+    box->nz = d1[0] * d2[1] - d1[1] * d2[0];
+    box->d = -(box->nx * box->x1 + box->ny * box->y1 + box->nz * box->z1);
+    box->len = sqrtf((f32)(box->nx * box->nx + box->ny * box->ny + box->nz * box->nz));
+    if (box->len == 0.0) {
         return 0;
     }
-    if (arg->nx >= 0) {
-        ax = arg->nx;
+    if (box->nx >= 0) {
+        ax = box->nx;
     } else {
-        ax = 0 - arg->nx;
+        ax = 0 - box->nx;
     }
-    if (arg->ny >= 0) {
-        ay = arg->ny;
+    if (box->ny >= 0) {
+        ay = box->ny;
     } else {
-        ay = 0 - arg->ny;
+        ay = 0 - box->ny;
     }
-    if (arg->nz >= 0) {
-        az = arg->nz;
+    if (box->nz >= 0) {
+        az = box->nz;
     } else {
-        az = 0 - arg->nz;
+        az = 0 - box->nz;
     }
     if (az >= ax && az >= ay) {
-        arg->axis = 0;
+        box->axis = 0;
     }
     if (ay >= ax && ay >= az) {
-        arg->axis = 1;
+        box->axis = 1;
     }
     if (ax >= ay && ax >= az) {
-        arg->axis = 2;
+        box->axis = 2;
     }
     return 1;
 }
@@ -1293,44 +1290,44 @@ void actorSub140BuildBoxes(ActorSub140 *sub) {
     }
 }
 
-s32 collisionBuildBoxFromMatrix(f32 *arg0, CollisionBox *arg1) {
-    u8 sp34[4];
-    s16 sp32;
-    s16 sp20[9];
+s32 collisionBuildBoxFromMatrix(f32 *m, CollisionBox *box) {
+    u8 axisOut[4];
+    s16 yaw;
+    s16 verts[9];
 
-    sp20[0] = arg0[0];
-    sp20[1] = arg0[3];
-    sp20[2] = arg0[6];
-    sp20[3] = arg0[1];
-    sp20[4] = arg0[4];
-    sp20[5] = arg0[7];
-    sp20[6] = arg0[2];
-    sp20[7] = arg0[5];
-    sp20[8] = arg0[8];
+    verts[0] = m[0];
+    verts[1] = m[3];
+    verts[2] = m[6];
+    verts[3] = m[1];
+    verts[4] = m[4];
+    verts[5] = m[7];
+    verts[6] = m[2];
+    verts[7] = m[5];
+    verts[8] = m[8];
 
-    if (collisionIsTriangleDegenerate((CollisionTri *)sp20) != 0) {
+    if (collisionIsTriangleDegenerate((CollisionTri *)verts) != 0) {
         return 0;
     }
 
-    arg1->x0 = (s32)(arg0[0] * 8.0f);
-    arg1->y0 = (s32)(arg0[3] * 8.0f);
-    arg1->z0 = (s32)(arg0[6] * 8.0f);
-    arg1->x1 = (s32)(arg0[1] * 8.0f);
-    arg1->y1 = (s32)(arg0[4] * 8.0f);
-    arg1->z1 = (s32)(arg0[7] * 8.0f);
-    arg1->x2 = (s32)(arg0[2] * 8.0f);
-    arg1->y2 = (s32)(arg0[5] * 8.0f);
-    arg1->z2 = (s32)(arg0[8] * 8.0f);
+    box->x0 = (s32)(m[0] * 8.0f);
+    box->y0 = (s32)(m[3] * 8.0f);
+    box->z0 = (s32)(m[6] * 8.0f);
+    box->x1 = (s32)(m[1] * 8.0f);
+    box->y1 = (s32)(m[4] * 8.0f);
+    box->z1 = (s32)(m[7] * 8.0f);
+    box->x2 = (s32)(m[2] * 8.0f);
+    box->y2 = (s32)(m[5] * 8.0f);
+    box->z2 = (s32)(m[8] * 8.0f);
 
-    sp32 = collisionTriangleNormalYaw(sp20, sp34, arg0);
-    arg1->unk4B = collisionTriangleSlopeClass(sp20);
-    arg1->unk4D = 0;
-    arg1->unk4F = 0;
-    arg1->unk51 = 0;
-    arg1->unk50 = 0xFF;
-    arg1->unk48 = sp32;
-    arg1->unk4C = sp34[0];
-    collisionBuildPlane(arg1);
+    yaw = collisionTriangleNormalYaw(verts, axisOut);
+    box->unk4B = collisionTriangleSlopeClass(verts);
+    box->unk4D = 0;
+    box->unk4F = 0;
+    box->unk51 = 0;
+    box->unk50 = 0xFF;
+    box->unk48 = yaw;
+    box->unk4C = axisOut[0];
+    collisionBuildPlane(box);
     return 1;
 }
 
@@ -1597,14 +1594,14 @@ extern CollisionBox *D_807FB5D8;
 struct ActorFacingWork;
 s32 func_806744A8(struct ActorFacingWork *, s32, s32, s32, s32);
 
-void actorBuildCollisionHit(s32 arg0, Actor *arg1, CollisionBox *arg2) {
+void actorBuildCollisionHit(s32 slot, Actor *actor, CollisionBox *boxes) {
     ActorSub140 *sub;
     f32 pad[7];
     f32 mtx[4][4];
     f32 mtxC[4][4];
     f32 inv[4][4];
     s32 pad2;
-    s32 hit;
+    s32 useActorPos;
     u8 ok;
     f32 x[3];
     f32 y[3];
@@ -1614,28 +1611,28 @@ void actorBuildCollisionHit(s32 arg0, Actor *arg1, CollisionBox *arg2) {
     f32 pz;
     s32 i;
 
-    sub = arg1->collision;
-    hit = 0;
+    sub = actor->collision;
+    useActorPos = 0;
     ok = func_806744A8((struct ActorFacingWork *)D_807FB5D8, sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius);
-    func_8066FE08(arg0);
+    func_8066FE08(slot);
     if (ok != 0) {
         sub->unk5A = D_807FB5D8->unk4E;
-        sub->unk58 = D_807FB5D8 - arg2;
-        modelSlotBuildTransformMatrix(arg0, D_807FB5D8->unk4E, mtx);
+        sub->unk58 = D_807FB5D8 - boxes;
+        modelSlotBuildTransformMatrix(slot, D_807FB5D8->unk4E, mtx);
         matrix4Invert(inv, mtx);
-        if (gModelSlots[arg0].unk7C != NULL && (gModelSlots[arg0].unk7C->unk9B & 0x24)) {
-            hit = 1;
+        if (gModelSlots[slot].unk7C != NULL && (gModelSlots[slot].unk7C->unk9B & 0x24)) {
+            useActorPos = 1;
         }
-        if (hit != 0) {
-            px = arg1->x;
-            py = arg1->y;
-            pz = arg1->z;
+        if (useActorPos != 0) {
+            px = actor->x;
+            py = actor->y;
+            pz = actor->z;
         } else {
             px = (f32)D_807FB5C4 / 8;
             py = (f32)D_807FB5C8 / 8;
             pz = (f32)D_807FB5CC / 8;
         }
-        if (!(arg1->flags & 0x800)) {
+        if (!(actor->flags & 0x800)) {
             guMtxXFMF(inv, px, py, pz, &sub->unk4C, &sub->unk50, &sub->unk54);
         }
         x[0] = (f32)D_807FB5D8->x0 / 8;
@@ -1650,12 +1647,12 @@ void actorBuildCollisionHit(s32 arg0, Actor *arg1, CollisionBox *arg2) {
         for (i = 0; i < 3; i++) {
             guMtxXFMF(inv, x[i], y[i], z[i], &sub->unk28[i], &sub->unk34[i], &sub->unk40[i]);
         }
-        sub->unk26 = gModelSlots[arg0].unk88;
+        sub->unk26 = gModelSlots[slot].unk88;
         sub->unk5C = D_807FB5D0;
         if (sub->unk5C < 0x14) {
             sub->unk5C = 0x14;
         }
-        sub->unk64 = actorGetCollisionThreshold((CollisionActor *)arg1);
+        sub->unk64 = actorGetCollisionThreshold((CollisionActor *)actor);
         sub->unk66 = D_807FB5D8->unk48;
         if (D_807FB5D8->unk4C != 0) {
             sub->unk66 -= 0x800;
@@ -1664,8 +1661,8 @@ void actorBuildCollisionHit(s32 arg0, Actor *arg1, CollisionBox *arg2) {
             sub->unk66 += 0x1000;
         }
         sub->unk6C = 1;
-        if (arg1->collisionFlags & 1) {
-            actorReflectCollisionAngle((CollisionActor *)arg1, (CollisionPlane *)D_807FB5D8, (CollisionVec3i *)sub);
+        if (actor->collisionFlags & 1) {
+            actorReflectCollisionAngle((CollisionActor *)actor, (CollisionPlane *)D_807FB5D8, (CollisionVec3i *)sub);
         }
     }
 }
@@ -2248,28 +2245,28 @@ f32 mathCosF(s16);
 f32 mathSinF(s16);
 s32 func_806732A8(s32, s16);
 
-void actorUpdateFacingAndOffset(ActorFacingWork *arg0, s32 arg1, s32 arg2, s32 arg3) {
+void actorUpdateFacingAndOffset(ActorFacingWork *box, s32 unused1, s32 unused2, s32 unused3) {
     s16 facingDist;
     s32 offsetX;
     s32 pad2C;
     s32 prevThreshold;
-    s32 temp;
+    s32 backDist;
     ActorSub140 *sub;
     f32 cosYaw;
     s32 threshold;
 
-    facingDist = mathAngleDistance(arg0->unk48, D_807FB544);
-    temp = mathAngleDistance((arg0->unk48 + 0x800) & 0xFFF, D_807FB544);
-    if ((facingDist < 0x321) || (temp < 0x321)) {
-        mathAngleDistance(arg0->unk48, gActivePlayerState->unkEA);
-        mathAngleDistance((arg0->unk48 + 0x800) & 0xFFF, gActivePlayerState->unkEA);
-        sub = ((ActorFacingWork *)D_807FB540)->unk140;
-        func_806744A8(arg0, sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius);
+    facingDist = mathAngleDistance(box->unk48, D_807FB544);
+    backDist = mathAngleDistance((box->unk48 + 0x800) & 0xFFF, D_807FB544);
+    if ((facingDist < 0x321) || (backDist < 0x321)) {
+        mathAngleDistance(box->unk48, gActivePlayerState->unkEA);
+        mathAngleDistance((box->unk48 + 0x800) & 0xFFF, gActivePlayerState->unkEA);
+        sub = D_807FB540->collision;
+        func_806744A8(box, sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius);
         prevThreshold = D_807FB5D0;
         offsetX = (s32)(mathSinF(D_807FB544) * 20.0f);
         cosYaw = mathCosF(D_807FB544);
-        sub = ((ActorFacingWork *)D_807FB540)->unk140;
-        func_806744A8(arg0, sub->scaledX + offsetX, sub->scaledY, sub->scaledZ + (s32)(cosYaw * 20.0f), sub->scaledRadius);
+        sub = D_807FB540->collision;
+        func_806744A8(box, sub->scaledX + offsetX, sub->scaledY, sub->scaledZ + (s32)(cosYaw * 20.0f), sub->scaledRadius);
         threshold = D_807FB5D0;
         if (prevThreshold - 2 < threshold) {
             D_807FB546 = 0;
@@ -2277,43 +2274,43 @@ void actorUpdateFacingAndOffset(ActorFacingWork *arg0, s32 arg1, s32 arg2, s32 a
     }
 }
 
-void actorUpdateCollisionExtents(Actor *arg0) {
+void actorUpdateCollisionExtents(Actor *actor) {
     s32 pad4C;
-    ActorFacingSub174 *sp48;
-    f32 sp44;
-    f32 sp40;
-    f32 sp3C;
-    f32 sp38;
+    PlayerState *player;
+    f32 radius;
+    f32 nz;
+    f32 ny;
+    f32 nx;
 
     if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
-        sp44 = D_80753D50[gCurrentCharacterIndex];
+        radius = D_80753D50[gCurrentCharacterIndex];
     } else {
-        sp44 = D_80753D60[gCurrentCharacterIndex];
+        radius = D_80753D60[gCurrentCharacterIndex];
     }
-    if (((ActorFacingWork *)arg0)->unk5C & 1) {
+    if (actor->collisionFlags & 1) {
         f32 scale;
-        f32 temp_c4;
-        f32 temp_cc;
+        f32 hitX;
+        f32 hitZ;
 
-        sp48 = ((ActorFacingWork *)arg0)->unk174;
-        actorComputeBoxNormal(arg0, &sp38, &sp3C, &sp40, 1);
-        scale = sp44 / 8;
-        temp_c4 = (f32)D_807FB5C4 / 8;
-        temp_cc = (f32)D_807FB5CC / 8;
-        sp38 *= scale;
-        sp3C *= scale;
-        sp40 *= scale;
-        sp48->unkE0 = temp_c4 - sp38;
-        sp48->unkE4 = temp_cc - sp40;
-        sp48->unkE8 = 1;
-        actorReflectCollisionAngle((CollisionActor *)arg0, (CollisionPlane *)func_806732A8(D_807FB5DC, D_807FB5F6), (CollisionVec3i *)arg0->collision);
+        player = actor->customState;
+        actorComputeBoxNormal(actor, &nx, &ny, &nz, 1);
+        scale = radius / 8;
+        hitX = (f32)D_807FB5C4 / 8;
+        hitZ = (f32)D_807FB5CC / 8;
+        nx *= scale;
+        ny *= scale;
+        nz *= scale;
+        player->unkE0 = hitX - nx;
+        player->unkE4 = hitZ - nz;
+        player->stateStep = 1;
+        actorReflectCollisionAngle((CollisionActor *)actor, (CollisionPlane *)func_806732A8(D_807FB5DC, D_807FB5F6), (CollisionVec3i *)actor->collision);
     }
-    actorUpdateSubActorOffsets(arg0, 1);
+    actorUpdateSubActorOffsets(actor, 1);
 }
 
-void actorUpdateSubActorOffsets(Actor *arg0, u8 arg1) {
-    if (D_807FB5D0 < actorGetPlayerThreshold(arg0)) {
-        ActorSub140 *sub = arg0->collision;
+void actorUpdateSubActorOffsets(Actor *actor, u8 useHitBox) {
+    if (D_807FB5D0 < actorGetPlayerThreshold(actor)) {
+        ActorSub140 *sub = actor->collision;
         f32 targetX;
         f32 scale;
         f32 targetZ;
@@ -2321,15 +2318,15 @@ void actorUpdateSubActorOffsets(Actor *arg0, u8 arg1) {
         f32 normalY;
         f32 normalX;
 
-        actorComputeBoxNormal(arg0, &normalX, &normalY, &normalZ, arg1);
-        targetX = (f32)D_807FB5C4 / (f32)8;
-        targetZ = (f32)D_807FB5CC / (f32)8;
+        actorComputeBoxNormal(actor, &normalX, &normalY, &normalZ, useHitBox);
+        targetX = (f32)D_807FB5C4 / 8;
+        targetZ = (f32)D_807FB5CC / 8;
         if (D_807FB548 != 0) {
-            scale = (f32)actorGetPlayerThreshold(arg0) / (f32)8;
+            scale = (f32)actorGetPlayerThreshold(actor) / 8;
             normalX *= scale;
             normalZ *= scale;
         } else {
-            scale = (f32)(D_807FB5D0 + 6) / (f32)8;
+            scale = (f32)(D_807FB5D0 + 6) / 8;
             normalX *= scale;
             normalZ *= scale;
         }
@@ -2341,7 +2338,7 @@ void actorUpdateSubActorOffsets(Actor *arg0, u8 arg1) {
 
 extern CollisionBox *D_807FB5D4;
 
-void actorComputeBoxNormal(Actor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, u8 arg4) {
+void actorComputeBoxNormal(Actor *actor, f32 *outX, f32 *outY, f32 *outZ, u8 useHitBox) {
     CollisionBox *box;
     f32 padA;
     ActorSub140 *sub;
@@ -2352,10 +2349,10 @@ void actorComputeBoxNormal(Actor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, u8 arg4
     f32 x[3];
     f32 y[3];
     f32 z[3];
-    f32 inv_len;
+    f32 invLen;
 
-    sub = arg0->collision;
-    if (arg4) {
+    sub = actor->collision;
+    if (useHitBox) {
         box = (CollisionBox *)func_806732A8(D_807FB5DC, D_807FB5F6);
     } else {
         box = D_807FB5D4;
@@ -2381,14 +2378,14 @@ void actorComputeBoxNormal(Actor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, u8 arg4
     n[1] = (v1[2] * v2[0]) - (v1[0] * v2[2]);
     n[2] = (v1[0] * v2[1]) - (v1[1] * v2[0]);
 
-    inv_len = 1.0f / sqrtf((n[0] * n[0]) + (n[1] * n[1]) + (n[2] * n[2]));
-    *arg1 = n[0] * inv_len;
-    *arg2 = n[1] * inv_len;
-    *arg3 = n[2] * inv_len;
+    invLen = 1.0f / sqrtf((n[0] * n[0]) + (n[1] * n[1]) + (n[2] * n[2]));
+    *outX = n[0] * invLen;
+    *outY = n[1] * invLen;
+    *outZ = n[2] * invLen;
 
     func_806744A8((ActorFacingWork *)box, sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius);
-    if (arg4) {
-        if (arg0->flags & 0x800) {
+    if (useHitBox) {
+        if (actor->flags & 0x800) {
             D_807FB5C4 = sub->unkB0;
             D_807FB5CC = sub->unkB4;
         }
@@ -2397,13 +2394,13 @@ void actorComputeBoxNormal(Actor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, u8 arg4
     }
 }
 
-s32 actorGetPlayerThreshold(Actor *arg0) {
-    ActorTargetSub174 *sub;
+s32 actorGetPlayerThreshold(Actor *actor) {
+    PlayerState *player;
 
-    switch (arg0->actorType) {
+    switch (actor->actorType) {
     case 5:
-        sub = arg0->customState; // type 5: the player actor's state
-        if (gPlayerSlots[sub->unk1A4].unk2C0 != 1) {
+        player = actor->customState; // type 5: the player actor's state
+        if (gPlayerSlots[player->playerIndex].unk2C0 != 1) {
             return 0x14;
         }
         return 0x32;
@@ -2525,36 +2522,36 @@ s32 actorGetNodePos(Actor *actor, s32 index, f32 *outX, f32 *outY, f32 *outZ) {
     }
     return 0;
 }
-void actorGetSubNodePos(Actor *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
-    s32 count = arg1 - 1;
-    ModelSubNode *node = arg0->collision->subNodes;
+void actorGetSubNodePos(Actor *actor, s32 index, f32 *outX, f32 *outY, f32 *outZ) {
+    s32 count = index - 1;
+    ModelSubNode *node = actor->collision->subNodes;
 
     while (node != NULL && count != 0) {
         count--;
         node = node->next;
     }
-    *arg2 = node->x;
-    *arg3 = node->y;
-    *arg4 = node->z;
+    *outX = node->x;
+    *outY = node->y;
+    *outZ = node->z;
 }
 
-s32 actorStepSubNodeList(Actor *arg0, s32 arg1) {
-    ActorSub140 *sub = arg0->collision;
-    u8 val;
+s32 actorStepSubNodeList(Actor *actor, s32 index) {
+    ActorSub140 *sub = actor->collision;
+    u8 bufIdx;
     s32 base;
     ModelSubNode *node;
 
     if (gFrameCounter == sub->unk88) {
-        val = gGfxBufferIndex;
+        bufIdx = gGfxBufferIndex;
     } else {
-        val = gGfxBufferIndex ^ 1;
+        bufIdx = gGfxBufferIndex ^ 1;
     }
-    base = (s32)sub->unk74[val]; // matrix-buffer base address for the byte offsets in node->unk18
+    base = (s32)sub->unk74[bufIdx]; // matrix-buffer base address for the byte offsets in node->unk18
 
     node = sub->subNodes;
-    arg1--;
-    while (arg1 != 0) {
-        arg1--;
+    index--;
+    while (index != 0) {
+        index--;
         node = node->next;
     }
 
