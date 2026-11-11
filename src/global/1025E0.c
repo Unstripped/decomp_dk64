@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "text.h"
 #define PROTO_SKIP_textGetCharAdvance // FAKE: callee prototype steer
 #define PROTO_SKIP_textGetStringWidth // FAKE: callee prototype steer
 #include "proto/boot/3630.h"
@@ -213,7 +214,7 @@ typedef struct GfxResourceNodeView {
     s16 unk1C;
 } GfxResourceNodeView;
 
-extern u8 D_80754A37[];
+extern TextFontInfo D_80754A34[];
 extern s16 textGetCharAdvance(s16, s32); // FAKE: callee prototype steer
 f32 sinApprox(f32);
 f32 cosApprox(f32);
@@ -357,26 +358,26 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
         } else {
             switch (animMode) {
                 case 1:
-                    phase -= (f32)D_80754A37[node->unkC * 6] * 0.013f;
+                    phase -= (f32)D_80754A34[node->unkC].spaceWidth * 0.013f;
                     break;
                 case 2:
                 case 3:
                 case 4:
                 case 5:
                 case 8:
-                    centeredX += (f32)D_80754A37[node->unkC * 6];
+                    centeredX += (f32)D_80754A34[node->unkC].spaceWidth;
                     break;
                 case 6:
                     curX += 32.0f;
                     break;
                 case 10:
-                    baseZ += (f32)D_80754A37[node->unkC * 6];
+                    baseZ += (f32)D_80754A34[node->unkC].spaceWidth;
                     break;
                 default:
-                    curX += (f32)D_80754A37[node->unkC * 6];
+                    curX += (f32)D_80754A34[node->unkC].spaceWidth;
                     break;
             }
-            phase = (f32)((f64)phase - (f64)D_80754A37[node->unkC * 6] * 0.019);
+            phase = (f32)((f64)phase - (f64)D_80754A34[node->unkC].spaceWidth * 0.019);
         }
         if (phase < 0.0f) { phase += 6.2831855f; } ch = *(u8 *)(strPos + node->unk4); strPos += 1;
     }

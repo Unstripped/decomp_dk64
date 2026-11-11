@@ -1,6 +1,7 @@
 #include "common.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #include "actor.h"
+#include "text.h"
 #include "proto/boot/3630.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
@@ -82,15 +83,6 @@ typedef struct TextGlyph {
 
 extern TextGlyph *D_80754A18[];
 extern void **gTextFontSheets;
-typedef struct {
-    u8 firstSheet;
-    u8 lineCount;
-    u8 height;
-    u8 spaceWidth;
-    u8 spacing;
-    u8 fixedWidth;
-} TextFontInfo;
-
 extern TextFontInfo D_80754A34[];
 extern u8 *D_807549FC[];
 
