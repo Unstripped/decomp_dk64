@@ -629,55 +629,28 @@ typedef struct CollisionStaticTriOut {
     /* 0x26 */ s16 unk26;
 } CollisionStaticTriOut;
 
-typedef struct CollisionBoxWork {
-    /* 0x00 */ s64 nx;
-    /* 0x08 */ s64 ny;
-    /* 0x10 */ s64 nz;
-    /* 0x18 */ s64 d;
-    /* 0x20 */ f32 len;
-    /* 0x24 */ s32 unk24;
-    /* 0x28 */ s32 unk28;
-    /* 0x2C */ s32 unk2C;
-    /* 0x30 */ s32 unk30;
-    /* 0x34 */ s32 unk34;
-    /* 0x38 */ s32 unk38;
-    /* 0x3C */ s32 unk3C;
-    /* 0x40 */ s32 unk40;
-    /* 0x44 */ s32 unk44;
-    /* 0x48 */ s16 unk48;
-    /* 0x4A */ u8 pad4A;
-    /* 0x4B */ u8 unk4B;
-    /* 0x4C */ u8 unk4C;
-    /* 0x4D */ u8 unk4D;
-    /* 0x4E */ u8 pad4E;
-    /* 0x4F */ u8 unk4F;
-    /* 0x50 */ u8 unk50;
-    /* 0x51 */ u8 unk51;
-    /* 0x52 */ u8 pad52[0x58 - 0x52];
-} CollisionBoxWork;
-
 s32 collisionBuildStaticTri(void *arg0, void *arg1) {
 #define COLLISION_TRI_IN ((CollisionStaticTriIn *)arg0)
 #define COLLISION_TRI_OUT ((CollisionStaticTriOut *)arg1)
-    CollisionBoxWork work;
+    CollisionBox work;
     s32 pad[2];
     s16 temp_a0;
     s16 temp_v1;
     s16 temp_v0;
 
-    work.unk24 = COLLISION_TRI_IN->unk0;
-    work.unk28 = COLLISION_TRI_IN->unk2;
-    work.unk2C = COLLISION_TRI_IN->unk4;
-    work.unk30 = COLLISION_TRI_IN->unk6;
-    work.unk34 = COLLISION_TRI_IN->unk8;
-    work.unk38 = COLLISION_TRI_IN->unkA;
-    work.unk3C = COLLISION_TRI_IN->unkC;
-    work.unk40 = COLLISION_TRI_IN->unkE;
-    work.unk44 = COLLISION_TRI_IN->unk10;
+    work.x0 = COLLISION_TRI_IN->unk0;
+    work.y0 = COLLISION_TRI_IN->unk2;
+    work.z0 = COLLISION_TRI_IN->unk4;
+    work.x1 = COLLISION_TRI_IN->unk6;
+    work.y1 = COLLISION_TRI_IN->unk8;
+    work.z1 = COLLISION_TRI_IN->unkA;
+    work.x2 = COLLISION_TRI_IN->unkC;
+    work.y2 = COLLISION_TRI_IN->unkE;
+    work.z2 = COLLISION_TRI_IN->unk10;
 
-    work.unk24 *= 8; work.unk28 *= 8; work.unk2C *= 8;
-    work.unk30 *= 8; work.unk34 *= 8; work.unk38 *= 8;
-    work.unk3C *= 8; work.unk40 *= 8; work.unk44 *= 8;
+    work.x0 *= 8; work.y0 *= 8; work.z0 *= 8;
+    work.x1 *= 8; work.y1 *= 8; work.z1 *= 8;
+    work.x2 *= 8; work.y2 *= 8; work.z2 *= 8;
 
     work.unk48 = COLLISION_TRI_IN->unk12;
     work.unk4C = COLLISION_TRI_IN->unk14;
@@ -690,7 +663,7 @@ s32 collisionBuildStaticTri(void *arg0, void *arg1) {
     }
     work.unk50 = COLLISION_TRI_IN->unk15;
     work.unk4B = 1;
-    collisionBuildPlane((CollisionBox *)&work);
+    collisionBuildPlane(&work);
 
     COLLISION_TRI_OUT->nx = work.nx;
     COLLISION_TRI_OUT->ny = work.ny;
@@ -735,73 +708,52 @@ s32 collisionBuildStaticTri(void *arg0, void *arg1) {
 #undef COLLISION_TRI_OUT
 }
 
-typedef struct CollisionBoxPlaneView {
-    /* 0x00 */ s64 nx;
-    /* 0x08 */ s64 ny;
-    /* 0x10 */ s64 nz;
-    /* 0x18 */ s64 d;
-    /* 0x20 */ f32 len;
-    /* 0x24 */ s32 x0;
-    /* 0x28 */ s32 y0;
-    /* 0x2C */ s32 z0;
-    /* 0x30 */ s32 x1;
-    /* 0x34 */ s32 y1;
-    /* 0x38 */ s32 z1;
-    /* 0x3C */ s32 x2;
-    /* 0x40 */ s32 y2;
-    /* 0x44 */ s32 z2;
-    /* 0x48 */ s16 unk48;
-    /* 0x4A */ u8 axis;
-} CollisionBoxPlaneView;
-
 s32 collisionBuildPlane(CollisionBox *arg) {
-#define COLLISION_PLANE ((CollisionBoxPlaneView *)arg)
     s64 d1[3];
     s64 d2[3];
     s64 ax;
     s64 ay;
     s64 az;
 
-    d1[0] = COLLISION_PLANE->x0 - COLLISION_PLANE->x1;
-    d1[1] = COLLISION_PLANE->y0 - COLLISION_PLANE->y1;
-    d1[2] = COLLISION_PLANE->z0 - COLLISION_PLANE->z1;
-    d2[0] = COLLISION_PLANE->x0 - COLLISION_PLANE->x2;
-    d2[1] = COLLISION_PLANE->y0 - COLLISION_PLANE->y2;
-    d2[2] = COLLISION_PLANE->z0 - COLLISION_PLANE->z2;
-    COLLISION_PLANE->nx = d1[1] * d2[2] - d1[2] * d2[1];
-    COLLISION_PLANE->ny = d1[2] * d2[0] - d1[0] * d2[2];
-    COLLISION_PLANE->nz = d1[0] * d2[1] - d1[1] * d2[0];
-    COLLISION_PLANE->d = -(COLLISION_PLANE->nx * COLLISION_PLANE->x1 + COLLISION_PLANE->ny * COLLISION_PLANE->y1 + COLLISION_PLANE->nz * COLLISION_PLANE->z1);
-    COLLISION_PLANE->len = sqrtf((f32)(COLLISION_PLANE->nx * COLLISION_PLANE->nx + COLLISION_PLANE->ny * COLLISION_PLANE->ny + COLLISION_PLANE->nz * COLLISION_PLANE->nz));
-    if (COLLISION_PLANE->len == 0.0) {
+    d1[0] = arg->x0 - arg->x1;
+    d1[1] = arg->y0 - arg->y1;
+    d1[2] = arg->z0 - arg->z1;
+    d2[0] = arg->x0 - arg->x2;
+    d2[1] = arg->y0 - arg->y2;
+    d2[2] = arg->z0 - arg->z2;
+    arg->nx = d1[1] * d2[2] - d1[2] * d2[1];
+    arg->ny = d1[2] * d2[0] - d1[0] * d2[2];
+    arg->nz = d1[0] * d2[1] - d1[1] * d2[0];
+    arg->d = -(arg->nx * arg->x1 + arg->ny * arg->y1 + arg->nz * arg->z1);
+    arg->len = sqrtf((f32)(arg->nx * arg->nx + arg->ny * arg->ny + arg->nz * arg->nz));
+    if (arg->len == 0.0) {
         return 0;
     }
-    if (COLLISION_PLANE->nx >= 0) {
-        ax = COLLISION_PLANE->nx;
+    if (arg->nx >= 0) {
+        ax = arg->nx;
     } else {
-        ax = 0 - COLLISION_PLANE->nx;
+        ax = 0 - arg->nx;
     }
-    if (COLLISION_PLANE->ny >= 0) {
-        ay = COLLISION_PLANE->ny;
+    if (arg->ny >= 0) {
+        ay = arg->ny;
     } else {
-        ay = 0 - COLLISION_PLANE->ny;
+        ay = 0 - arg->ny;
     }
-    if (COLLISION_PLANE->nz >= 0) {
-        az = COLLISION_PLANE->nz;
+    if (arg->nz >= 0) {
+        az = arg->nz;
     } else {
-        az = 0 - COLLISION_PLANE->nz;
+        az = 0 - arg->nz;
     }
     if (az >= ax && az >= ay) {
-        COLLISION_PLANE->axis = 0;
+        arg->axis = 0;
     }
     if (ay >= ax && ay >= az) {
-        COLLISION_PLANE->axis = 1;
+        arg->axis = 1;
     }
     if (ax >= ay && ax >= az) {
-        COLLISION_PLANE->axis = 2;
+        arg->axis = 2;
     }
     return 1;
-#undef COLLISION_PLANE
 }
 
 void actorSub140Free(ActorSub140 *arg0) {
