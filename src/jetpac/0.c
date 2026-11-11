@@ -18,7 +18,7 @@
 #include "proto/jetpac/4FC0.h"
 
 extern struct GfSndState *D_80770DF8[];
-extern s32 D_8076D1F8;
+extern ALBank *D_8076D1F8;
 typedef struct {
     s16 sfx;
     s16 unk2;

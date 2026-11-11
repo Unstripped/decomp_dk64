@@ -1,4 +1,5 @@
 #include "common.h"
+#include "map.h"
 #include "actor.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/135D30.h"
@@ -468,13 +469,6 @@ typedef struct {
     f32 pitch;
 } AmbientAudioParam;
 
-typedef struct {
-    s16 x;
-    s16 y;
-    s16 z;
-    u8 volume;
-    u8 group;
-} LevelSoundEmitter;
 
 extern AmbientEmitter D_80745F74[];
 extern AmbientEmitter D_80745FD8[];
@@ -493,8 +487,8 @@ extern u8 D_80745BDC[][4];
 
 #include "sched.h"
 extern SchedStruct gScheduler;
-extern s32 D_8076D1F8;
-extern s32 D_8076D1FC;
+extern ALBank *D_8076D1F8;
+extern ALBank *D_8076D1FC;
 extern struct GfSndState *D_807457DC;
 extern u8 D_80745838;
 extern u8 D_8077058C[];

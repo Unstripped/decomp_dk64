@@ -31,7 +31,7 @@ extern u8 gGfxBufferIndex;
 
 extern u8 gGameMode;
 extern u8 D_807444F4;
-extern s32 D_8076D1F8;
+extern ALBank *D_8076D1F8;
 extern s32 gGlobalOverlayFlags;
 extern s8 D_807FD9BC;
 extern u8 D_807FD9BD;

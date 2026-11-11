@@ -1,4 +1,5 @@
 #include "common.h"
+#include "map.h"
 #include "render.h"
 #include "actor.h"
 #include "sched.h"
@@ -1560,7 +1561,7 @@ extern s16 D_807F5FEA;
 extern s32 D_807F5FD0;
 extern s32 *D_807F5FD4;
 extern s32 sMapSoundEmitterCount;
-extern s32 sMapSoundEmitters;
+extern LevelSoundEmitter *sMapSoundEmitters;
 
 struct MapRelocNode;
 
@@ -1604,7 +1605,7 @@ void mapHeaderLoad(MapFileHeader *arg0) {
     D_807F5FD0 = *(s32 *)(D_807F5DE0 + off40) + 1;
     D_807F5FD4 = (s32 *)(D_807F5DE0 + off40 + 4);
     sMapSoundEmitterCount = *(s32 *)(D_807F5DE0 + off44);
-    sMapSoundEmitters = (s32)(D_807F5DE0 + off44 + 4);
+    sMapSoundEmitters = (LevelSoundEmitter *)(D_807F5DE0 + off44 + 4);
     sMapChunkAnimCount = *(s32 *)(D_807F5DE0 + off48);
     sMapChunkAnims = (MapChunkAnim *)(D_807F5DE0 + off48 + 4);
     D_807F5DE4 = (MapBspNode *)(D_807F5DE0 + off30);
@@ -1652,7 +1653,7 @@ void mapRelocateOffsetTable(s32 arg0) {
 }
 
 
-s32 mapGetSoundEmitters(s32 *arg0) {
+s32 mapGetSoundEmitters(LevelSoundEmitter **arg0) {
     *arg0 = sMapSoundEmitters;
     return sMapSoundEmitterCount;
 }

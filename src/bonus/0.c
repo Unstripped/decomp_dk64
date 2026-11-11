@@ -442,7 +442,7 @@ s32 bonusGetSoundForMap(void) {
     }
 }
 
-extern s32 D_8076D1F8;
+extern ALBank *D_8076D1F8;
 extern void *gActivePlayerState;
 
 typedef struct LB3bInput {

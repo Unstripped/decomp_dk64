@@ -3,6 +3,7 @@
 #define PROTO_GLOBAL_2F550_H
 #include "common.h"
 #include "actor.h"
+#include "map.h"
 #include "render.h"
 struct MapBspNode;
 struct MapFileHeader;
@@ -177,7 +178,7 @@ void func_8062F318(void);
 void mapRelocateOffsetTable(s32);
 #endif
 #ifndef PROTO_SKIP_mapGetSoundEmitters
-s32 mapGetSoundEmitters(s32 *);
+s32 mapGetSoundEmitters(LevelSoundEmitter **);
 #endif
 #ifndef PROTO_SKIP_displayListResolveTextureImages
 void displayListResolveTextureImages(struct RawGfxCmd *, struct RawGfxCmd *);
