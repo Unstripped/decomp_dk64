@@ -2561,11 +2561,11 @@ void cannonUpdate(void) {
     case 2:
         if ((gPlayerPadState.unk2C & 0x2000) && actorCountOwnedByClass(gCurrentActor, 4, 0) == 0 && sub->shotsLeft != 0) {
             projectileSetTargetCoords(gCurrentActor->x, gCurrentActor->y + D_8074E7FC, gCurrentActor->z);
-            x = gPlayerSlots->focusZ - gPlayerSlots->camZ;
+            x = gPlayerSlots->focusZ - gPlayerSlots->camZ; // FAKE: x/y reused for the focus-camera dz/dx (own dz/dx locals: 8 words FPR diff)
             y = gPlayerSlots->focusX - gPlayerSlots->camX;
             pitch = mathAtan2(gPlayerSlots->focusY - gPlayerSlots->camY, sqrtf(x * x + y * y));
             sinV = sinApprox(pitch) * D_8074E808;
-            y = cosApprox(pitch) * D_8074E808;
+            y = cosApprox(pitch) * D_8074E808; // FAKE: y reused for the cosine term (own cosV local: 8 words FPR diff at 0x70a0)
             projectileSpawnNodeEntry(0x4A, 0, 0.6f, sub->aimYaw, y, sinV, gCurrentActor);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17, 0xFF, 0x7F, 0x19);
             sub->shotsLeft--;
