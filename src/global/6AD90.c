@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "cutscene.h"
 #include "map.h"
 #include "collision.h"
 #include "water.h"
@@ -1270,56 +1271,8 @@ s32 collisionPointInTriangleXZS16(CollisionStaticTri *arg0, f32 arg1, f32 arg2) 
     return (mismatch == 0) & 0xFF;
 }
 
-typedef struct {
-    CollisionTriF *tri_start;
-    CollisionTriF *tri_end;
-    s32 timestamp;
-    CollisionBoundingBox bbox;
-    u8 flags;
-    u8 unk25[2];
-} ModelSlotTriBufferView;
 
-typedef struct CollisionLinkedNode {
-    f32 x;
-    f32 y;
-    f32 z;
-    struct CollisionLinkedNode *next;
-} CollisionLinkedNode;
-
-typedef struct ModelSlotSubNode {
-    /* 0x00 */ u8 pad0[8];
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ u8 pad10[0x34 - 0x10];
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ u8 pad38[0x4F - 0x38];
-    /* 0x4F */ u8 unk4F;
-    /* 0x50 */ u8 pad50[0x71 - 0x50];
-    /* 0x71 */ u8 unk71;
-} ModelSlotSubNode;
-
-typedef struct ModelSlotView {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ u8 pad1C[0x24 - 0x1C];
-    /* 0x24 */ s32 *unk24;
-    /* 0x28 */ u8 pad28[0x48 - 0x28];
-    /* 0x48 */ ModelSlotTriBufferView unk48;
-    /* 0x70 */ CollisionLinkedNode *unk70;
-    /* 0x74 */ u8 pad74[0x7C - 0x74];
-    /* 0x7C */ ModelSlotSubNode *unk7C;
-    /* 0x80 */ u8 pad80[0x88 - 0x80];
-    /* 0x88 */ s16 unk88;
-    /* 0x8A */ u8 pad8A[6];
-} ModelSlotView; // size = 0x90
-
-
-extern ModelSlotView *gModelSlots;
+extern ModelSlot *gModelSlots;
 extern u8 D_807F946D;
 extern u8 D_807F94AC;
 struct CollisionActorWork;
@@ -1334,14 +1287,14 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
     f64 val;
     f64 dx01, dy01, dz01, dx02, dy02, dz02;
     f32 y;
-    ModelSlotSubNode *sub7C;
+    CsStateFull *sub7C;
     f32 padB[6];
     f32 hit_y;
     u8 hit;
     s32 pad9C;
     s16 slotIdx;
     s32 pad94;
-    ModelSlotTriBufferView *buf;
+    ModelTriBuffer *buf;
 
     hit = 0;
     hit_y = 999999.0f;
@@ -1369,7 +1322,7 @@ u8 collisionTestDynamicActorFloor(Actor *arg0, s32 arg1, f32 arg2, f32 arg3, f32
     }
 
     if (arg0 != NULL && (arg0->collisionFlags & 1)) {
-        if (playerSlotMatchesSizeMask(*gModelSlots[slotIdx].unk24, ((PlayerState *)arg0->customState)->playerIndex) != 0) {
+        if (playerSlotMatchesSizeMask(gModelSlots[slotIdx].unk24->unk0, ((PlayerState *)arg0->customState)->playerIndex) != 0) {
             return 0;
         }
     }
@@ -1506,7 +1459,7 @@ typedef struct CollisionActorWork {
 } CollisionActorWork;
 
 
-void actorCheckNearbyNodeInteractions(CollisionActorWork *arg0, s16 arg1, CollisionLinkedNode *arg2) {
+void actorCheckNearbyNodeInteractions(CollisionActorWork *arg0, s16 arg1, ModelPosNode *arg2) {
     u8 count = 0;
 
     if (arg2 != NULL) {
@@ -1590,7 +1543,7 @@ void actorUpdateSubnodeRotationAndMtx(CollisionActorWork *arg0) {
     f32 z;
     s16 slot;
     s16 pad40;
-    ModelSlotSubNode *sub;
+    CsStateFull *sub;
 
     slot = hashTableLookup(arg0->cutsceneId);
     if (slot != -1) {

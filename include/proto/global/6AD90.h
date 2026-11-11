@@ -5,12 +5,12 @@
 #include "actor.h"
 #include "collision.h"
 #include "map.h"
+#include "model.h"
 struct CollisionActorWork;
 struct CollisionBoxTri;
 struct CollisionBstFlatItem;
 struct CollisionBstNode;
 struct CollisionBstNodeBase;
-struct CollisionLinkedNode;
 struct CollisionStaticTri;
 #ifndef PROTO_SKIP_collisionBuildCellTable
 void collisionBuildCellTable(struct MapFileHeader *);
@@ -127,7 +127,7 @@ void collisionRecordTriangleF(struct CollisionTriF *, f32);
 s32 collisionCheckSurfaceFilter(u8, u8 *);
 #endif
 #ifndef PROTO_SKIP_actorCheckNearbyNodeInteractions
-void actorCheckNearbyNodeInteractions(struct CollisionActorWork *, s16, struct CollisionLinkedNode *);
+void actorCheckNearbyNodeInteractions(struct CollisionActorWork *, s16, ModelPosNode *);
 #endif
 #ifndef PROTO_SKIP_collisionStoreTriangleNormalAnglesF32
 void collisionStoreTriangleNormalAnglesF32(Actor *, struct CollisionTriF *, u8);
