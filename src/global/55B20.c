@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "map.h"
 #include "render.h"
 #define PROTO_SKIP_renderEntryListBuildDisplayList // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
@@ -113,11 +114,6 @@ u8 D_807F70AA;
 u8 D_807F70AB;
 s32 gMapCellCount;
 
-typedef struct MapHeader {
-    /* 0x000 */ u8 pad0[0x64];
-    /* 0x064 */ s32 chunkCountOff;
-} MapHeader;
-
 extern f32 *D_8076A0B4;
 extern f32 *D_8076A0B8;
 extern f32 *D_8076A0BC;
@@ -125,12 +121,12 @@ extern f32 *D_8076A0C0;
 extern f32 *D_8076A0C4;
 extern f32 *D_8076A0C8;
 
-void mapChunkAllocLists(MapHeader *header) {
+void mapChunkAllocLists(MapFileHeader *header) {
     s32 temp;
     s32 count;
     s32 size;
 
-    temp = gMapChunkCount = *(s32 *)(header->chunkCountOff + (u8 *)header);
+    temp = gMapChunkCount = *(s32 *)(header->collOff + (u8 *)header);
     if (temp >= 2) {
         count = temp & 0xFF;
     } else {
@@ -144,21 +140,6 @@ void mapChunkAllocLists(MapHeader *header) {
     D_8076A0C4 = heapAlloc(size);
     D_8076A0C8 = heapAlloc(size);
 }
-
-typedef struct MapData {
-    /* 0x00 */ u8 pad0[0xC];
-    /* 0x0C */ s16 fogDist;
-    /* 0x0E */ u8 padE[0x26];
-    /* 0x34 */ s32 dlBase;
-    /* 0x38 */ u8 pad38[0x20];
-    /* 0x58 */ s32 cellsOff;
-    /* 0x5C */ s32 boxesOff;
-    /* 0x60 */ s32 vecsOff;
-    /* 0x64 */ s32 collOff;
-    /* 0x68 */ s32 chunksOff;
-    /* 0x6C */ s32 portalsOff;
-    /* 0x70 */ s32 relocsOff;
-} MapData;
 
 typedef struct MapPortal {
     /* 0x0 */ s16 target;
@@ -211,7 +192,7 @@ extern u8 D_807F7070;
 
 typedef struct { s32 offset; s16 minX; s16 minZ; s16 maxX; s16 maxZ; } R13o6ColEntry;
 
-void mapChunksInitFromMapData(MapData *data) {
+void mapChunksInitFromMapData(MapFileHeader *data) {
     s32 i;
     s32 off;
     s32 base;

@@ -3,19 +3,18 @@
 #define PROTO_GLOBAL_55B20_H
 #include "common.h"
 #include "actor.h"
+#include "map.h"
 #include "render.h"
 struct MapCollisionNode;
-struct MapData;
 struct MapGridPoint;
 struct MapGridQuad;
-struct MapHeader;
 struct MapTriangle;
 struct MapVec3;
 #ifndef PROTO_SKIP_mapChunkAllocLists
-void mapChunkAllocLists(struct MapHeader *);
+void mapChunkAllocLists(struct MapFileHeader *);
 #endif
 #ifndef PROTO_SKIP_mapChunksInitFromMapData
-void mapChunksInitFromMapData(struct MapData *);
+void mapChunksInitFromMapData(struct MapFileHeader *);
 #endif
 #ifndef PROTO_SKIP_mapFaceBuildTriangleFan
 void mapFaceBuildTriangleFan(s32);
