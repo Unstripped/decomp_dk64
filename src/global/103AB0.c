@@ -193,7 +193,7 @@ u16 color5551ToSepia(u16 color) {
     return ((u8)(28.0f * f + 3.0f) << 11) + ((u8)(19.0f * f + 3.0f) << 6) + (a << 1) + lsb;
 }
 
-s16 *func_806FFEAC(s16 *dst, u16 *src) {
+u16 *func_806FFEAC(u16 *dst, u16 *src) {
     s16 i;
     s16 j;
 
@@ -212,11 +212,11 @@ void func_806FFF5C(void) {
 
 extern void *gFramebuffers[];
 
-s16 *func_806FFF88(void) {
-    s16 *buf;
+u16 *func_806FFF88(void) {
+    u16 *buf;
     s16 col;
     s16 row;
-    s16 *dst;
+    u16 *dst;
     u16 *src;
 
     if (gCurrentActor->actorType == 0xD9) {

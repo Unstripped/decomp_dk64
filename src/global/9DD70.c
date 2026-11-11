@@ -78,7 +78,7 @@ typedef struct PlayerControlState {
 
 typedef struct PanSubState {
     /* 0x00 */ PlayerControlState *unk0;
-    /* 0x04 */ s16 *unk4;
+    /* 0x04 */ u16 *unk4;
     /* 0x08 */ s16 *unk8[2]; // per-frame-buffer copies of unk4
     /* 0x10 */ u16 unk10;
 } PanSubState;
@@ -116,7 +116,7 @@ void actorPhotoUpdate(void) {
         subState->unk10 = 0x5A;
         gCurrentActor->flags |= 0x400;
         gCurrentActor->drawDistance = 0x3E8;
-        subState->unk4 = (s16 *)func_806FFF88();
+        subState->unk4 = func_806FFF88();
         controllerAnimSetStateIfChanged(gCurrentActor, 0x40B, 0, 0);
         scriptSetActorRampTarget(gCurrentActor, 0.15f, 0);
     }
@@ -130,7 +130,7 @@ void actorPhotoUpdate(void) {
     }
     t = PAN_MIN(1.0, ((frameElapsed - 0x1E) < 0 ? 0 : (frameElapsed - 0x1E)) / 60.0f * 5.0);
     if (t < 1.0 && gCurrentActor->actorType != 0xD9) {
-        color5551CopyLerpToWhite((s16 *)subState->unk4, &subState->unk8[gGfxBufferIndex], t);
+        color5551CopyLerpToWhite(subState->unk4, &subState->unk8[gGfxBufferIndex], t);
         animSetNodeItem(gCurrentActor, 0, 0, (s32)subState->unk8[gGfxBufferIndex]);
     } else {
         animSetNodeItem(gCurrentActor, 0, 0, (s32)subState->unk4);

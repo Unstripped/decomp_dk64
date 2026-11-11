@@ -34,13 +34,13 @@ void func_806FFB2C(Gfx *, Actor *);
 u16 color5551ToSepia(u16);
 #endif
 #ifndef PROTO_SKIP_func_806FFEAC
-s16 *func_806FFEAC(s16 *, u16 *);
+u16 *func_806FFEAC(u16 *, u16 *);
 #endif
 #ifndef PROTO_SKIP_func_806FFF5C
 void func_806FFF5C(void);
 #endif
 #ifndef PROTO_SKIP_func_806FFF88
-s16 *func_806FFF88(void);
+u16 *func_806FFF88(void);
 #endif
 #ifndef PROTO_SKIP_color5551LerpToWhite
 u16 color5551LerpToWhite(f32, u16);
