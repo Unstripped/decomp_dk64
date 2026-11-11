@@ -1,4 +1,5 @@
 #include "common.h"
+#include "audio_config.h"
 #include "proto/global/140600.h"
 #include "proto/global/141E60.h"
 

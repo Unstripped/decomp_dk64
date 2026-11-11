@@ -1,19 +1,23 @@
 #include "common.h"
 #include "proto/global/137120.h"
 #include "proto/global/13E160.h"
+#include "audio_config.h"
 #include "proto/global/140600.h"
 #include "proto/global/1435C0.h"
 #include "proto/global/166A0.h"
 
-typedef struct SynVoiceParam {
-    struct SynVoiceParam *next;
-    s32 delta;
+
+typedef struct SynCoreParam {
+    ALLink *next;
+    s32 timestamp;
     s16 type;
+    s16 pad;
     union {
         f32 f;
         s32 i;
-    } data;
-} SynVoiceParam;
+    } value;
+    s32 delta;
+} SynCoreParam;
 
 typedef struct {
     u8 unk0[0x88];
@@ -23,63 +27,58 @@ typedef struct {
 extern ALSynth *n_syn;
 
 void n_alSynSetPitch(ALVoice *voice, f32 pitch) {
-    SynVoiceParam *param;
+    SynCoreParam *param;
 
     if (voice->pvoice != NULL) {
         param = __n_allocParam();
         if (param == NULL) {
             return;
         }
-        param->delta = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
+        param->timestamp = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
         param->type = 7;
-        param->data.f = pitch;
+        param->value.f = pitch;
         param->next = NULL;
         n_alEnvmixerParam(voice->pvoice, 3, param);
     }
 }
 
 void n_alSynSetPan(ALVoice *voice, f32 pan) {
-    SynVoiceParam *param;
+    SynCoreParam *param;
 
     if (voice->pvoice != NULL) {
         param = __n_allocParam();
         if (param == NULL) {
             return;
         }
-        param->delta = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
+        param->timestamp = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
         param->type = 0x13;
-        param->data.f = pan;
+        param->value.f = pan;
         param->next = NULL;
         n_alEnvmixerParam(voice->pvoice, 3, param);
     }
 }
 
 void n_alSynSetFXMix(ALVoice *voice, u8 fxmix) {
-    SynVoiceParam *param;
+    SynCoreParam *param;
 
     if (voice->pvoice != NULL) {
         param = __n_allocParam();
         if (param == NULL) {
             return;
         }
-        param->delta = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
+        param->timestamp = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
         param->type = 0x12;
-        param->data.i = fxmix;
+        param->value.i = fxmix;
         param->next = NULL;
         n_alEnvmixerParam(voice->pvoice, 3, param);
     }
 }
 
 
-typedef struct LpfNMBiquad {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-} LpfNMBiquad;
 
 
 
-void computeBiquadCoefficients(f32 sampleRate, f32 cutoffFreq, f32 qFactor, LpfNMBiquad *numCoeffs, LpfNMBiquad *denCoeffs) {
+void computeBiquadCoefficients(f32 sampleRate, f32 cutoffFreq, f32 qFactor, f32 *numCoeffs, f32 *denCoeffs) {
     f32 omega;
     f32 omegaSq;
     f32 alpha;
@@ -96,11 +95,11 @@ void computeBiquadCoefficients(f32 sampleRate, f32 cutoffFreq, f32 qFactor, LpfN
     omega = mathAtan2(cutoffFreq * 3.141592741f, sampleRate);
     omegaSq = omega * omega;
     alpha = (omega * 1.414213657f) / qFactor;
-    numCoeffs->unk0 = omegaSq / (1.0f + omegaSq + alpha);
-    numCoeffs->unk4 = 2.0f * numCoeffs->unk0;
-    numCoeffs->unk8 = numCoeffs->unk0;
-    denCoeffs->unk4 = ((omegaSq - 1.0f) * 2.0f) / (1.0f + omegaSq + alpha);
-    denCoeffs->unk8 = ((1.0f + omegaSq) - alpha) / (1.0f + omegaSq + alpha);
+    numCoeffs[0] = omegaSq / (1.0f + omegaSq + alpha);
+    numCoeffs[1] = 2.0f * numCoeffs[0];
+    numCoeffs[2] = numCoeffs[0];
+    denCoeffs[1] = ((omegaSq - 1.0f) * 2.0f) / (1.0f + omegaSq + alpha);
+    denCoeffs[2] = ((1.0f + omegaSq) - alpha) / (1.0f + omegaSq + alpha);
 }
 
 typedef struct SynLPFilter {
@@ -114,58 +113,53 @@ typedef struct SynLPFilter {
 void _init_lpfilter(SynLPFilter *filter) {
     s32 i;
     s32 scaledCoeff;
-    s16 spE;
-    f32 sp8;
-    f32 sp4;
-    f32 sp0;
+    s16 coeff;
+    f32 ratio;
+    f32 power;
+    f32 scale;
 
-    scaledCoeff = (s32)((f32)filter->unk0 * 16384.0f);
-    spE = (s16)(scaledCoeff >> 0xF);
-    filter->unk2 = (s16)(s32)(16384.0f - (f32)spE);
+    scaledCoeff = filter->unk0 * 16384.0f;
+    coeff = scaledCoeff >> 0xF;
+    filter->unk2 = 16384.0f - coeff;
     filter->state = 0;
-    i = 0;
-    do {
+    for (i = 0; i < 8; i++) {
         filter->coeff[i] = 0;
-    } while (++i < 8);
-    filter->coeff[i++] = spE;
-    sp0 = 16384.0f;
-    sp4 = sp8 = (f32)spE / sp0;
-    if (i < 0x10) {
-        do {
-            sp4 *= sp8;
-            filter->coeff[i] = (s16)(s32)(sp4 * sp0);
-        } while (++i < 0x10);
+    }
+    filter->coeff[i++] = coeff;
+    scale = 16384.0f;
+    power = ratio = coeff / scale;
+    for (; i < 16; i++) {
+        power *= ratio;
+        filter->coeff[i] = power * scale;
     }
 }
 
 f32 n_alSemitonesToPitchRatio(s32 semitones) {
-    f32 sp4;
-    f32 sp0;
+    f32 step;
+    f32 ratio;
 
-    sp0 = 1.0f;
+    ratio = 1.0f;
     if (semitones >= 0) {
-        sp4 = 1.0594631f;
+        step = 1.0594631f;
     } else {
-        sp4 = 0.9438743f;
+        step = 0.9438743f;
         semitones = -semitones;
     }
-    if (semitones != 0) {
-        do {
-            if (semitones & 1) {
-                sp0 *= sp4;
-            }
-            sp4 *= sp4;
-            semitones = semitones >> 1;
-        } while (semitones != 0);
+    while (semitones != 0) {
+        if (semitones & 1) {
+            ratio *= step;
+        }
+        step *= step;
+        semitones >>= 1;
     }
-    return sp0;
+    return ratio;
 }
 
 
 void rebuildLowPassCoefficients(SynLPFilter *filter, f32 sampleRate) {
     s32 i;
-    LpfNMBiquad numCoeffs;
-    LpfNMBiquad denCoeffs;
+    f32 numCoeffs[3];
+    f32 denCoeffs[3];
 
     if (filter->unk2 == 0) {
         return;
@@ -173,20 +167,18 @@ void rebuildLowPassCoefficients(SynLPFilter *filter, f32 sampleRate) {
     if (filter->unk2 < 10) {
         filter->unk2 = 10;
     }
-    computeBiquadCoefficients(sampleRate, (f32)filter->unk0 + 10.0f, (f32)filter->unk2 / 10.0f, &numCoeffs, &denCoeffs);
-    i = 3;
-    do {
+    computeBiquadCoefficients(sampleRate, filter->unk0 + 10.0f, filter->unk2 / 10.0f, numCoeffs, denCoeffs);
+    for (i = 3; i < 8; i++) {
         filter->coeff[i] = 0;
-    } while (++i < 8);
-    filter->coeff[0] = (s16)(((f32 *)&numCoeffs)[0] * (26768.0f - ((f32)filter->unk2 * 128.0f)));
-    filter->coeff[1] = (s16)(((f32 *)&numCoeffs)[1] * (26768.0f - ((f32)filter->unk2 * 128.0f)));
+    }
+    filter->coeff[0] = numCoeffs[0] * (26768.0f - filter->unk2 * 128.0f);
+    filter->coeff[1] = numCoeffs[1] * (26768.0f - filter->unk2 * 128.0f);
     filter->coeff[2] = 0;
-    filter->coeff[8] = (s16)(((f32 *)&denCoeffs)[1] * -16384.0f);
-    filter->coeff[9] = (s16)(((f32 *)&denCoeffs)[2] * -16384.0f);
-    i = 10;
-    do {
+    filter->coeff[8] = denCoeffs[1] * -16384.0f;
+    filter->coeff[9] = denCoeffs[2] * -16384.0f;
+    for (i = 10; i < 16; i++) {
         filter->coeff[i] = 0;
-    } while (++i < 16);
+    }
 }
 
 typedef struct {
@@ -205,8 +197,8 @@ typedef struct {
 } LpfNMFilter;
 
 typedef struct {
-    s32 unk0;
-    s32 unk4;
+    u32 unk0;
+    u32 unk4;
     s16 unk8;
     s16 unkA;
     s16 unkC;
@@ -220,7 +212,7 @@ typedef struct {
 } LpfNMFx;
 
 typedef struct {
-    s32 unk0;
+    u32 unk0;
     LpfNMFx *unk4;
     u8 unk8;
     u8 unk9[0x17];
@@ -233,7 +225,7 @@ typedef struct {
 
 extern s32 D_80756458[];
 
-void n_alFxNew(void **outFx, void *config, s16 busIndex, ALHeap *heap) {
+void n_alFxNew(void **outFx, AudioInitArgs *config, s16 busIndex, ALHeap *heap) {
     u16 sectionIdx;
     u16 tableOffset;
     u16 bufIdx;
@@ -244,9 +236,9 @@ void n_alFxNew(void **outFx, void *config, s16 busIndex, ALHeap *heap) {
     paramTable = NULL;
     fxState = alHeapDBAlloc(NULL, 0, heap, 1, 0x30);
     *outFx = fxState;
-    switch (((u8 *)config + busIndex)[0x1C]) {
+    switch (config->fxType[busIndex]) {
         case 6:
-            paramTable = *(s32 **)((u8 *)config + (busIndex * 4) + 0x20);
+            paramTable = config->params[busIndex];
             break;
         default:
             paramTable = D_80756458;
@@ -254,7 +246,7 @@ void n_alFxNew(void **outFx, void *config, s16 busIndex, ALHeap *heap) {
     }
 
     tableOffset = 0;
-    fxState->unk8 = (u8)paramTable[tableOffset];
+    fxState->unk8 = paramTable[tableOffset];
     tableOffset += 1;
     fxState->unk0 = paramTable[tableOffset];
     tableOffset += 1;
@@ -263,26 +255,26 @@ void n_alFxNew(void **outFx, void *config, s16 busIndex, ALHeap *heap) {
     fxState->unk28 = fxState->unk20;
     fxState->unk24 = alHeapDBAlloc(NULL, 0, heap, fxState->unk0, 2);
     fxState->unk2C = fxState->unk24;
-    for (bufIdx = 0; bufIdx < (u32)fxState->unk0; bufIdx++) {
+    for (bufIdx = 0; bufIdx < fxState->unk0; bufIdx++) {
         fxState->unk24[bufIdx] = 0;
         fxState->unk20[bufIdx] = fxState->unk24[bufIdx];
     }
-    for (sectionIdx = 0; (s32)sectionIdx < (s32)fxState->unk8; sectionIdx++) {
+    for (sectionIdx = 0; sectionIdx < fxState->unk8; sectionIdx++) {
         section = &fxState->unk4[sectionIdx];
         section->unk0 = paramTable[tableOffset];
         tableOffset += 1;
         section->unk4 = paramTable[tableOffset];
         tableOffset += 1;
-        section->unkA = (s16)paramTable[tableOffset];
+        section->unkA = paramTable[tableOffset];
         tableOffset += 1;
-        section->unk8 = (s16)paramTable[tableOffset];
+        section->unk8 = paramTable[tableOffset];
         tableOffset += 1;
-        section->unkC = (s16)paramTable[tableOffset];
+        section->unkC = paramTable[tableOffset];
         tableOffset += 1;
         if (paramTable[tableOffset] != 0) {
-            section->unk10 = ((f32)paramTable[tableOffset] / 1000.0f * 2.0f) / (f32)*(s32 *)((u8 *)config + 0x18);
+            section->unk10 = paramTable[tableOffset] / 1000.0f * 2.0f / config->outputRate;
             tableOffset += 1;
-            section->unk1C = ((f32)paramTable[tableOffset] / 173123.4062f) * (f32)(u32)(section->unk4 - section->unk0);
+            section->unk1C = paramTable[tableOffset] / 173123.4062f * (section->unk4 - section->unk0);
             tableOffset += 1;
             section->unk14 = 1.0f;
             section->unk18 = 0;
@@ -300,9 +292,9 @@ void n_alFxNew(void **outFx, void *config, s16 busIndex, ALHeap *heap) {
             section->unk20 = alHeapDBAlloc(NULL, 0, heap, 1, 0x38);
             section->unk20->unk2C = alHeapDBAlloc(NULL, 0, heap, 1, 8);
             section->unk20->unk30 = alHeapDBAlloc(NULL, 0, heap, 1, 8);
-            section->unk20->base.unk0 = (s16)paramTable[tableOffset];
+            section->unk20->base.unk0 = paramTable[tableOffset];
             tableOffset += 1;
-            _init_lpfilter((SynLPFilter *)section->unk20);
+            _init_lpfilter(&section->unk20->base);
         } else {
             section->unk20 = NULL;
             tableOffset += 1;
