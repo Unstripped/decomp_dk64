@@ -63,7 +63,7 @@ typedef struct ModelSlot {
     /* 0x18 */ f32 unk18;
     /* 0x1C */ f32 unk1C;
     /* 0x20 */ void *unk20;
-    /* 0x24 */ u8 *unk24;
+    /* 0x24 */ ModelAssetHeader *unk24;
     /* 0x28 */ DynamicBuffer unk28;
     /* 0x48 */ ModelTriBuffer unk48;
     /* 0x70 */ struct ModelPosNode *unk70;

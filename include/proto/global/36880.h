@@ -5,7 +5,6 @@
 #include "model.h"
 #include "render.h"
 struct DisplayListCmd;
-struct ModelAssetData;
 struct ModelNodeBufferOwner;
 struct ModelPathTable;
 struct ModelPendingEntry;
@@ -111,7 +110,7 @@ void modelSlotClearTail(s32);
 void modelSlotUpdateTailKey(s32, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_modelSlotBuildTriangleBuffer
-void modelSlotBuildTriangleBuffer(s32, struct ModelAssetData *, f32, f32, f32, f32, f32, f32, f32);
+void modelSlotBuildTriangleBuffer(s32, ModelAssetHeader *, f32, f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_bboxExpandFromTriangle
 void bboxExpandFromTriangle(f32 *, f32 *);

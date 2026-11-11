@@ -437,28 +437,6 @@ s16 modelSlotAppend(s32 type, f32 x, f32 y, f32 z, f32 yOffset, u8 force) {
     return slotId;
 }
 
-typedef struct ModelAssetInfo {
-    /* 0x00 */ u32 unk0;
-    /* 0x04 */ u8 pad4[0x18];
-    /* 0x1C */ u8 unk1C;
-    /* 0x1D */ u8 unk1D;
-    /* 0x1E */ s16 unk1E;
-    /* 0x20 */ u8 pad20[8];
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ s16 unk2A;
-    /* 0x2C */ s16 unk2C;
-    /* 0x2E */ s16 unk2E;
-    /* 0x30 */ s16 unk30;
-    /* 0x32 */ u8 unk32;
-    /* 0x33 */ u8 unk33;
-    /* 0x34 */ u8 unk34;
-    /* 0x35 */ u8 unk35;
-    /* 0x36 */ u8 unk36;
-    /* 0x37 */ u8 unk37;
-    /* 0x38 */ u8 unk38;
-    /* 0x39 */ u8 unk39;
-} ModelAssetInfo;
-
 typedef struct ModelType1Obj {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -517,7 +495,6 @@ extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
 
 struct ModelQuadOwner;
-struct ModelAssetData;
 struct ModelTriBuffer;
 struct ModelPathTable;
 struct ModelVertTable;
@@ -528,7 +505,7 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
     s32 padB[1];
     ModelType1Obj *obj1;
     ModelType2ObjView *obj2;
-    ModelAssetInfo *info;
+    ModelAssetHeader *info;
     s32 type;
     ModelSlotSubNode *node;
     void **link;
@@ -718,7 +695,7 @@ typedef struct ModelSlotObjCoordHolder {
 
 void modelSlotUpdateGroundCoords(s16 slot, u8 isId) {
     s32 padA[4];
-    u8 *tbl;
+    ModelAssetHeader *tbl;
     ModelGroundCoordDst *dst;
     s32 pad;
     f32 groundY;
@@ -731,7 +708,7 @@ void modelSlotUpdateGroundCoords(s16 slot, u8 isId) {
     groundY = gModelSlots[slot].unk4 + 20.0f;
     if (collisionCheckGroundAtPoint(gModelSlots[slot].unk0, gModelSlots[slot].unk8, &groundY) != 0) {
         collisionGetCoords(&groundX, &groundZ);
-        switch ((tbl = gModelSlots[slot].unk24)[0x1C]) { // FAKE: unused tbl copy takes the asset pointer into its own register (v1)
+        switch ((tbl = gModelSlots[slot].unk24)->unk1C) { // FAKE: unused tbl copy takes the asset pointer into its own register (v1)
             case 1:
                 dst = ((ModelSlotObjCoordHolder *)gModelSlots[slot].unk20)->unkBC;
                 break;
@@ -1008,16 +985,8 @@ void modelSlotUpdateTailKey(s32 slot, u8 isId, u8 newKey, u8 remove) {
     p[i] = remove ? 0xFF : newKey;
 }
 
-typedef struct ModelAssetData {
-    /* 0x00 */ u32 unk0;
-    /* 0x04 */ u8 pad4[0x4C];
-    /* 0x50 */ s32 unk50;
-    /* 0x54 */ u8 pad54[0xC];
-    /* 0x60 */ s32 unk60;
-} ModelAssetData;
 
-
-void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetData *data, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale) {
+void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale) {
     s32 count;
     u8 **anim;
     f32 mtx[4][4];
