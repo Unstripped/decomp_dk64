@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #include "proto/global/10E1D0.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -33,7 +32,6 @@
 #include "proto/global/EFDC0.h"
 #include "proto/global/F56F0.h"
 #include "proto/global/FCCD0.h"
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -209,7 +207,7 @@ s32 playerInputUpdate(s32 handlerSet) {
     f32 b;
     f32 hi;
     f32 mag;
-    s32 t;
+    s32 pad;
     s32 i;
     s32 old;
     s16 ang;
@@ -270,7 +268,7 @@ s32 playerInputUpdate(s32 handlerSet) {
         b = hi;
     }
     if (b != 0.0f) {
-        hi = (f32)(1.0 - (a / b) * 0.15);
+        hi = 1.0 - (a / b) * 0.15;
         mag = mag * hi;
     }
     if (mag > 70.0f) {
@@ -286,8 +284,8 @@ s32 playerInputUpdate(s32 handlerSet) {
         gPlayerPadState[gCurrentPlayerIndex].stickHeldFrames = gPlayerPadState[gCurrentPlayerIndex].stickHeldFrames + 1;
     }
     if (mag != 0.0f) {
-        t = ang = mathAtan2(gPlayerPadState[gCurrentPlayerIndex].stickX, -gPlayerPadState[gCurrentPlayerIndex].stickY) * 4096.0f / 6.2831855f;
-        gPlayerPadState[gCurrentPlayerIndex].stickAngle = (gPlayerSlots[gCurrentPlayerIndex].unk2C8 + t) & 0xFFF;
+        ang = mathAtan2(gPlayerPadState[gCurrentPlayerIndex].stickX, -gPlayerPadState[gCurrentPlayerIndex].stickY) * 4096.0f / 6.2831855f;
+        gPlayerPadState[gCurrentPlayerIndex].stickAngle = (gPlayerSlots[gCurrentPlayerIndex].unk2C8 + ang) & 0xFFF;
     } else {
         ang = gPlayerPadState[gCurrentPlayerIndex].stickAngleHistory[0];
     }
@@ -600,9 +598,9 @@ void playerInputUpdateMoveTargetClamped(void) {
     moveYaw = gCurrentActor->moveYaw;
     delta = gCurrentActor->yaw - moveYaw;
     if (delta > 0) {
-        dist = (f32)delta;
+        dist = delta;
     } else {
-        dist = (f32)-delta;
+        dist = -delta;
     }
     if (dist > 2048.0f) {
         dist = 4096.0f - dist;
@@ -610,7 +608,7 @@ void playerInputUpdateMoveTargetClamped(void) {
     if (dist > 400.0f) {
         dist = 400.0f;
     }
-    dist = (f32)((f64)dist * (0.25 + 0.75 * (gCurrentActor->speedXZ / gActivePlayerState->targetSpeed)));
+    dist = dist * (0.25 + 0.75 * (gCurrentActor->speedXZ / gActivePlayerState->targetSpeed));
     if (dist > 1.0f) {} // FAKE: keeps the scaled dist chain alive (Q0200)
     mathAngleStepToward(&gCurrentActor->yaw, moveYaw, gActivePlayerState->turnRate / 4);
     if (gCurrentActor->state != 0x14) {
@@ -709,9 +707,9 @@ void playerTurnByStickX(void) {
         yaw = gCurrentActor->yaw;
         delta = yaw - gActivePlayerState->targetYaw;
         if (delta > 0) {
-            turn = (f32)delta;
+            turn = delta;
         } else {
-            turn = (f32)-delta;
+            turn = -delta;
         }
         if (turn > 2048.0f) {
             turn = 4096.0f - turn;
@@ -721,8 +719,8 @@ void playerTurnByStickX(void) {
             if (delta && delta) {} // FAKE: steers uopt candidate priority
         }
         if (turn > 1.0f) {} // FAKE: keeps the 2048/4096/400 compare chain
-        turn = (f32)((pad->stickX * gActivePlayerState->turnRate) / 400);
-        gCurrentActor->yaw = (s16)(s32)((f32)yaw - turn);
+        turn = (pad->stickX * gActivePlayerState->turnRate) / 400;
+        gCurrentActor->yaw = yaw - turn;
         if (1) {} // FAKE: steers uopt candidate priority
         if (gCurrentActor->yaw >= 0x1000) {
             if (!gCurrentActor && !gCurrentActor && !gCurrentActor) {} // FAKE: steers uopt candidate priority
@@ -735,7 +733,7 @@ void playerTurnByStickX(void) {
     }
     pad = &gPlayerPadState[gCurrentPlayerIndex];
     if (!(pad->heldButtons & 0x2000)) {
-        gActivePlayerState->unk1A0 = (u32)((f64)(pad->stickY * 0xCC) * 0.6 + 63000.0);
+        gActivePlayerState->unk1A0 = pad->stickY * 0xCC * 0.6 + 63000.0;
     }
 }
 
@@ -946,18 +944,12 @@ void playerInputHandleAButtonState0(void) {
 }
 
 void playerInputHandleAButtonJump(void) {
-    f32 speed;
-
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
         gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
     if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
         gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex];
-        if (gActivePlayerState->targetSpeed > (speed = gCurrentActor->speedXZ)) {
-            gCurrentActor->speedXZ = speed;
-        } else {
-            gCurrentActor->speedXZ = gActivePlayerState->targetSpeed;
-        }
+        gCurrentActor->speedXZ = INPUT_MIN(gCurrentActor->speedXZ, gActivePlayerState->targetSpeed);
         gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
         gActivePlayerState->airAccel = 20.0f;
         gCurrentActor->state = 0x17;
@@ -1081,8 +1073,8 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
             flags &= ~4;
         }
         slotQueueUpdate(sel, 0, 0);
-        if (slotQueueGetValue((u8)sel, gCurrentPlayerIndex)) {
-            if (actorCountOwnedByClass(gCurrentActor, 4, (s32)actorIsActiveType2B) < D_80753E64[gCurrentCharacterIndex]) {
+        if (slotQueueGetValue(sel, gCurrentPlayerIndex)) {
+            if (actorCountOwnedByClass(gCurrentActor, 4, actorIsActiveType2B) < D_80753E64[gCurrentCharacterIndex]) {
                 hasFlag = flags & 2;
                 slotQueueAddValue(sel, gCurrentPlayerIndex, -1);
                 if (!isFirstPerson) {
@@ -1144,9 +1136,9 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                         break;
                 }
                 if (isFirstPerson) {
-                    sfxPlayOnFreeSlot((s16)sfx, 0x7FFF, 63.0f, 1.0f, vol, 0);
+                    sfxPlayOnFreeSlot(sfx, 0x7FFF, 63.0f, 1.0f, vol, 0);
                 } else {
-                    sfxPlayFromActorWithAltitudeCheck(gCurrentActor, (s16)sfx, 0xFF, 0x7F, vol);
+                    sfxPlayFromActorWithAltitudeCheck(gCurrentActor, sfx, 0xFF, 0x7F, vol);
                 }
                 if (hasFlag != 0) {
                     if (isFirstPerson) {
@@ -1176,9 +1168,8 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                     ang2 = mathAtan2(gPlayerSlots[gCurrentPlayerIndex].focusY - gPlayerSlots[gCurrentPlayerIndex].camY, sqrtf(dz * dz + dx * dx));
                     speedY = D_80753E2C[gCurrentCharacterIndex] * sinApprox(ang2);
                     speedXZ = D_80753E2C[gCurrentCharacterIndex] * cosApprox(ang2);
-                    projectileSpawnNodeEntry(spawnId, (s16)flags, scale,
-                                             mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ),
-                                             speedXZ, speedY, gActivePlayerActor);
+                    ang = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ);
+                    projectileSpawnNodeEntry(spawnId, flags, scale, ang, speedXZ, speedY, gActivePlayerActor);
                 } else {
                     if ((gCurrentActor->actorType == 2 || gCurrentActor->actorType == 3 || gCurrentActor->actorType == 6 || gCurrentActor->actorType == 7)) {
                         effectSetDepth(1);
@@ -1193,9 +1184,9 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                         }
                     }
                     projectileGetTargetCoords(gActivePlayerActor, gActivePlayerState->unk90 + 9);
-                    projectileSpawnNodeEntry(spawnId, (s16)flags, scale, gActivePlayerActor->yaw, D_80753E2C[gCurrentCharacterIndex], 0.0f, gActivePlayerActor);
+                    projectileSpawnNodeEntry(spawnId, flags, scale, gActivePlayerActor->yaw, D_80753E2C[gCurrentCharacterIndex], 0.0f, gActivePlayerActor);
                 }
-                if ((func_80714608(0) != 0) && (slotQueueGetValue((u8)sel, gCurrentPlayerIndex) == 0)) {
+                if ((func_80714608(0) != 0) && (slotQueueGetValue(sel, gCurrentPlayerIndex) == 0)) {
                     playerKongStopSoundByState(gCurrentActor);
                     playerResumeLocomotion(gCurrentActor);
                 }
@@ -1227,10 +1218,10 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                     break;
             }
             if (isFirstPerson) {
-                sfxPlayOnFreeSlot((s16)sfx, 0x7FFF, 63.0f, 1.0f, vol, 0);
+                sfxPlayOnFreeSlot(sfx, 0x7FFF, 63.0f, 1.0f, vol, 0);
                 return;
             }
-            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, (s16)sfx, 0xFF, 0x7F, vol);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, sfx, 0xFF, 0x7F, vol);
         }
     }
 }
@@ -1474,7 +1465,7 @@ void playerInputUpdateCannonAim(void) {
         gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
     if ((gScheduler.unk280 - gActivePlayerState->jumpTimer) < 0xF) {
-        p = gCurrentActor;
+        p = gCurrentActor; // FAKE: one-use pointer web (cand 119, adjsave 2.0) takes $v1, keeping &gActivePlayerState in $a2 and &gCurrentActor in $a3
         p->state = 0x4C;
         gCurrentActor->unk155 = 0;
         gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
@@ -2025,7 +2016,6 @@ extern s32 gGlobalCutsceneFlags;
 
 void playerInputCheckInstrumentPlayback(void) {
     u8 isTarget;
-    u32 n;
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) && (gFrameCounter >= 3) && (D_807FD568[4] & 1) &&
         !(gGlobalOverlayFlags & 0x4000) && !(gGlobalCutsceneFlags & 1) &&
@@ -2034,17 +2024,16 @@ void playerInputCheckInstrumentPlayback(void) {
         (gActivePlayerState->damageCooldown == 0)) {
         isTarget = func_806E560C(gCurrentActor);
         if ((gCurrentMap != 0xCD) || (isTarget != 0)) {
-            n = isTarget; // FAKE: widened copy keeps the u8 result in its own web (n == 0 tests)
-            if ((slotQueueGetValue(7, gCurrentPlayerIndex) != 0) || (n != 0)) {
+            if ((slotQueueGetValue(7, gCurrentPlayerIndex) != 0) || (isTarget != 0)) {
                 playerStateQueueCallback(0x53, 0, gActivePlayerState->playerIndex);
                 if (!(gGlobalCutsceneFlags & 2)) {
                     gCurrentActor->unk144 = 1;
                 }
-                if (n == 0) {
+                if (!isTarget) {
                     slotQueueAddValue(7, gCurrentPlayerIndex, -1);
                 }
             }
-            if (n == 0) {
+            if (!isTarget) {
                 slotQueueUpdate(7, 0, 0);
             }
         }
@@ -2840,7 +2829,7 @@ extern s16 D_80750338;
 void playerInputCheckLadderTopOrBottom(void) {
     G28State *st;
     u8 flag;
-    s32 n;
+    s32 rungLimit;
     u8 cnt;
 
     st = gActivePlayerState->actor->customState;
@@ -2848,7 +2837,7 @@ void playerInputCheckLadderTopOrBottom(void) {
         gPlayerPadState[gCurrentPlayerIndex].stickX = 0;
     } else {
         flag = (gActivePlayerState->actor->state == 5) ? 1 : 0;
-        n = (*st->unk34 & 0x80) ? 1 : 3;
+        rungLimit = (*st->unk34 & 0x80) ? 1 : 3;
         if (flag) {
             gPlayerPadState[gCurrentPlayerIndex].stickX = gPlayerPadState[gCurrentPlayerIndex].stickX * -1;
         }
@@ -2859,8 +2848,8 @@ void playerInputCheckLadderTopOrBottom(void) {
             gPlayerPadState[gCurrentPlayerIndex].stickY = gPlayerPadState[gCurrentPlayerIndex].stickY * -1;
         }
         if ((*st->unk34 & 0xC0) &&
-            ((gPlayerPadState[gCurrentPlayerIndex].stickX >= 0x1F && st->unk3F > 0) || (gPlayerPadState[gCurrentPlayerIndex].stickX < -0x1E && st->unk3F < n))) {
-            gActivePlayerState->jumpTimer = gScheduler.unk280; // FAKE: dead store, overwritten below (keeps the gScheduler.unk280 load first)
+            ((gPlayerPadState[gCurrentPlayerIndex].stickX >= 0x1F && st->unk3F > 0) || (gPlayerPadState[gCurrentPlayerIndex].stickX < -0x1E && st->unk3F < rungLimit))) {
+            gActivePlayerState->jumpTimer = gScheduler.unk280;
             gActivePlayerState->actor->speedY = D_80750338;
             gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
             cnt = st->unk3F;
@@ -2871,16 +2860,14 @@ void playerInputCheckLadderTopOrBottom(void) {
                 if (st->unk3F == 1) {
                     st->unk3F = 0;
                 }
-                n = flag ? 0x81 : 0x7D;
-                actorScriptStartByIndex(gCurrentActor, n);
+                actorScriptStartByIndex(gCurrentActor, flag ? 0x81 : 0x7D);
                 actorScriptStart(gActivePlayerState->actor, flag ? 0x295 : 0x296);
             } else {
                 st->unk3F = cnt + 1;
                 if (st->unk3F == 1 && (*st->unk34 & 0x40)) {
                     st->unk3F = 2;
                 }
-                n = flag ? 0x7D : 0x81;
-                actorScriptStartByIndex(gCurrentActor, n);
+                actorScriptStartByIndex(gCurrentActor, flag ? 0x7D : 0x81);
                 actorScriptStart(gActivePlayerState->actor, flag ? 0x296 : 0x295);
             }
         }
@@ -3419,9 +3406,9 @@ void func_806E9468(void) {
         gActivePlayerState->pitchAngle = gCurrentActor->yaw;
         gActivePlayerState->actionTimer = D_807539DC[gCurrentCharacterIndex];
         gCurrentActor->state = 0x7F;
-        gCurrentActor->unk155 = 0; // FAKE: dead store, overwritten next line
+        gCurrentActor->unk155 = 0;
         gCurrentActor->unk155 = 1;
-        if (0.0f < gCurrentActor->speedY) {
+        if (gCurrentActor->speedY > 0.0f) {
             gCurrentActor->speedY = 0.0f;
         }
         actorScriptStart(gCurrentActor, 0x318);
