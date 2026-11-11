@@ -1,4 +1,5 @@
 #include "common.h"
+#include "seqplayer.h"
 #include "map.h"
 #include "actor.h"
 #include "proto/global/10E1D0.h"
@@ -123,7 +124,7 @@ extern s16 sSfxChannelStates[];
 extern s32 sSfxChannelMasks[][12];
 extern u8 D_80770560[];
 extern f32 D_80770568[];
-extern ALCSPlayer *gSeqPlayers[];
+extern N_CSPlayer *gSeqPlayers[];
 
 /* The two stack arrays are block-copied from these static initialisers (D_80745B20 = -1s, D_80745B24 = 0s):
  * a struct-typed local makes the compiler emit one lw/sw copy and keep &bankChannel in a callee-saved register. */
@@ -154,7 +155,7 @@ void sfxUpdateChannels(void) {
     if (sSfxAreaAmbientActive != 0) {
         i = 0;
         do {
-            seqState.b[i] = alCSPGetState(gSeqPlayers[i]);
+            seqState.b[i] = alCSPGetState(&gSeqPlayers[i]->al);
         } while (++i < 4);
 
         i = 0; do { // LAYOUT: loop init on the do line keeps as1's order
@@ -227,7 +228,7 @@ void sfxUpdateChannels(void) {
                 if (idx != -1) {
                     if (D_80770560[i] == sSfxChannelSounds[idx] && sSfxChannelStates[idx] == 2) {
                         seqSetTargetVolume(i, sSfxChannelVolumes[idx]);
-                        alCSPPlay(gSeqPlayers[i]);
+                        alCSPPlay(&gSeqPlayers[i]->al);
                     } else {
                         seqLoadAndPlayWithReverb(i, (u8)sSfxChannelSounds[idx], sSfxChannelVolumes[idx]);
                         sSfxChannelStates[sfxGetChannelIndex(sSfxChannelSounds[idx])] = 1;
@@ -264,7 +265,6 @@ void sfxAllocateChannel(s32 sfxId, f32 volume) {
 }
 
 extern u8 D_80770560[];
-extern ALCSPlayer *gSeqPlayers[];
 void sfxStopChannel(sfxId, stopSeq)
 s32 sfxId;
 u8 stopSeq;
@@ -320,7 +320,7 @@ s32 sfxId;
 {
     u8 bank = sfxGetBankIndex((s16)sfxId);
     if (sfxId == D_80770560[bank]) {
-        if (alCSPGetState(gSeqPlayers[bank]) == 1) {
+        if (alCSPGetState(&gSeqPlayers[bank]->al) == 1) {
             return D_80770568[bank];
         }
     }
@@ -330,7 +330,7 @@ s32 sfxId;
 void sfxSetChannelTempo(s32 sfxId, f32 scale) {
     u8 bank = sfxGetBankIndex((s16)sfxId);
     if ((sfxId == sSfxChannelSounds[sfxGetChannelIndex((s16)sfxId)]) && (sfxId == D_80770560[bank])) {
-        alCSPSetTempo(gSeqPlayers[bank], (s32)((s32)alCSPGetTempo(gSeqPlayers[bank]) * scale));
+        alCSPSetTempo(&gSeqPlayers[bank]->al, (s32)((s32)alCSPGetTempo(&gSeqPlayers[bank]->al) * scale));
     }
 }
 
@@ -720,13 +720,13 @@ void sfxUpdateLevelAmbient(void) {
             } else {
                 seqSetVolumeInstant(0, 0.6f);
             }
-            alCSPSetChlPanVolume(gSeqPlayers[0], angle, volume);
+            alCSPSetChlPanVolume(&gSeqPlayers[0]->al, angle, volume);
         }
         for (k = 0; k < 4; k++) {
             if (sSfxFlagTable[D_80770560[k]] & 1) {
-                alCSPSetChlPanVolume(gSeqPlayers[k], angle, volume);
+                alCSPSetChlPanVolume(&gSeqPlayers[k]->al, angle, volume);
             } else {
-                alCSPSetChlPanVolume(gSeqPlayers[k], 0.0f, 1.0f);
+                alCSPSetChlPanVolume(&gSeqPlayers[k]->al, 0.0f, 1.0f);
             }
         }
         D_8077058D = D_8077058E;
@@ -890,7 +890,7 @@ extern ALCSPlayer *D_8076BF24;
 void seqUpdateUnderwaterAudio(s32 seqIndex) {
     if (D_80745838 != 0) {
         if (seqIndex == 0 && (sSfxFlagTable[D_80770560[seqIndex]] & 1)) {
-            alCSPSetChlPanVolume(gSeqPlayers[0], 0.3f, 1.35f);
+            alCSPSetChlPanVolume(&gSeqPlayers[0]->al, 0.3f, 1.35f);
         }
         if (D_80770560[seqIndex] == 0x38) {
             sfxSetChannelParam(0x38, 0x3C00, 1);
@@ -907,7 +907,7 @@ void seqUpdateUnderwaterAudio(s32 seqIndex) {
         }
     } else {
         if (seqIndex == 0 && (sSfxFlagTable[D_80770560[seqIndex]] & 1)) {
-            alCSPSetChlPanVolume(gSeqPlayers[0], 0.0f, 1.0f);
+            alCSPSetChlPanVolume(&gSeqPlayers[0]->al, 0.0f, 1.0f);
         }
         if (D_80770560[seqIndex] == 0x38) {
             sfxSetChannelParam(0x38, 0x3C00, 0);
@@ -1153,8 +1153,8 @@ void audioResetAll(void) {
         i = 1;
     }
     for (; i < 4; i++) {
-        alCSPSetChlPanVolume(gSeqPlayers[i], 0.0f, 1.0f);
-        if (alCSPGetState(gSeqPlayers[i]) == 1 && D_80770560[i] != 0x12) {
+        alCSPSetChlPanVolume(&gSeqPlayers[i]->al, 0.0f, 1.0f);
+        if (alCSPGetState(&gSeqPlayers[i]->al) == 1 && D_80770560[i] != 0x12) {
             alSeqpStop((ALSeqPlayer *)gSeqPlayers[i]);
             D_80770560[i] = 0;
         }
@@ -2182,20 +2182,20 @@ void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
     u32 tries;
     tries = 0;
     alSeqpStop((ALSeqPlayer *)gSeqPlayers[seqIndex]);
-    if (alCSPGetState(gSeqPlayers[seqIndex]) != 0) {
+    if (alCSPGetState(&gSeqPlayers[seqIndex]->al) != 0) {
         do {
             tries++;
-            if (alCSPGetState(gSeqPlayers[seqIndex]) == 0) {
+            if (alCSPGetState(&gSeqPlayers[seqIndex]->al) == 0) {
                 break;
             }
         } while (tries != 0x1E8480);
     }
     if (tries >= 0x1E8480) {
         alSeqpStop((ALSeqPlayer *)gSeqPlayers[seqIndex]);
-        if (alCSPGetState(gSeqPlayers[seqIndex]) != 0 && tries < 0x3D0900) {
+        if (alCSPGetState(&gSeqPlayers[seqIndex]->al) != 0 && tries < 0x3D0900) {
             do {
                 tries++;
-                if (alCSPGetState(gSeqPlayers[seqIndex]) == 0) {
+                if (alCSPGetState(&gSeqPlayers[seqIndex]->al) == 0) {
                     break;
                 }
             } while (tries < 0x3D0900);
@@ -2219,7 +2219,7 @@ void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
     alSeqpSetSeq((ALSeqPlayer *)gSeqPlayers[seqIndex], (ALSeq *)&D_8076BF48[seqIndex]);
     resetCSPChannelStates(gSeqPlayers[seqIndex]);
     seqUpdateVolume(seqIndex);
-    alCSPPlay(gSeqPlayers[seqIndex]);
+    alCSPPlay(&gSeqPlayers[seqIndex]->al);
 }
 
 extern s8 gMusicVolume;
@@ -2301,9 +2301,9 @@ void seqLoadAndPlayWithReverb(s32 seqIndex, u8 seqId, f32 volume) {
     vol = (((f64)(u32)D_8077058E * 0.35) / 255.0) + 1.0;
     if (seqIndex != 0) {
         if (sSfxFlagTable[D_80770560[seqIndex]] & 1) {
-            alCSPSetChlPanVolume(gSeqPlayers[seqIndex], pan, vol);
+            alCSPSetChlPanVolume(&gSeqPlayers[seqIndex]->al, pan, vol);
         } else {
-            alCSPSetChlPanVolume(gSeqPlayers[seqIndex], 0.0f, 1.0f);
+            alCSPSetChlPanVolume(&gSeqPlayers[seqIndex]->al, 0.0f, 1.0f);
         }
     }
     seqUpdateUnderwaterAudio(seqIndex);

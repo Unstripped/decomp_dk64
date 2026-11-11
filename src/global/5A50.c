@@ -1,5 +1,6 @@
 #define alCSPSendMidi alCSPSendMidi_unused
 #include "common.h"
+#include "seqplayer.h"
 #undef alCSPSendMidi
 #include "audio_config.h"
 #include "segment.h"
@@ -17,9 +18,9 @@ extern ALCSeq D_8076BF48[];
 extern ALCSeqMarker D_8076C328[][4];
 
 
-extern ALCSPlayer *gSeqPlayers[];
-void alCSPSetUnk84(ALCSPlayer *, s32);
-void setCSPChannelStateValue(ALCSPlayer *, s32, u8); // FAKE: callee prototype steer
+extern N_CSPlayer *gSeqPlayers[];
+void alCSPSetUnk84(N_CSPlayer *, s32);
+void setCSPChannelStateValue(N_CSPlayer *, s32, u8); // FAKE: callee prototype steer
 void alCSPChannelResetControl(ALCSPlayer *, s32);
 void enableCSPChannel(ALCSPlayer *, s32);
 void alCSPChannelSetControl(ALCSPlayer *, s32, u8);
@@ -40,7 +41,7 @@ void alHeapInit(ALHeap *, u8 *, s32);
 void *heapAlloc(s32);
 void heapFree(void *);
 void oscSetupConfig(ALSeqpConfig *, s32);
-void n_alCSPlayerNew(ALCSPlayer *, ALSeqpConfig *);
+void n_alCSPlayerNew(N_CSPlayer *, ALSeqpConfig *);
 void configureCSPOutputMode(u8);
 void updateCSPOutputChannelMode(s32, s32);
 void func_806010A0(void);
@@ -55,8 +56,8 @@ void audioInit(void) {
     ALSeqpConfig seqp;
     AudioTaskConfig task;
     ALBankFile *bankA;
-    ALCSPlayer *player;
-    ALCSPlayer *arg;
+    N_CSPlayer *player;
+    N_CSPlayer *arg;
 
     alHeapInit(&D_8076D1E8, D_80770F50, 0x7BD80);
     args.maxVVoices = 0x2C;
@@ -101,7 +102,7 @@ void audioInit(void) {
             arg = gSeqPlayers[i];
         }
         n_alCSPlayerNew(arg, &seqp);
-        alCSPSetBank(gSeqPlayers[i], bankA->bankArray[0]);
+        alCSPSetBank(&gSeqPlayers[i]->al, bankA->bankArray[0]);
     }
     func_806010A0();
     sndp.maxEvents = 0x40;
@@ -129,13 +130,13 @@ void func_806010A0(void) {
 }
 
 void seqPlayerPlay(u8 playerIndex) {
-    if (alCSPGetState(gSeqPlayers[playerIndex]) == 0) {
-        alCSPPlay(gSeqPlayers[playerIndex]);
+    if (alCSPGetState(&gSeqPlayers[playerIndex]->al) == 0) {
+        alCSPPlay(&gSeqPlayers[playerIndex]->al);
     }
 }
 
 s32 seqPlayerGetState(u8 playerIndex) {
-    return alCSPGetState(gSeqPlayers[playerIndex]);
+    return alCSPGetState(&gSeqPlayers[playerIndex]->al);
 }
 
 void func_806011A0(u8 playerIndex, s32 val) {
@@ -154,19 +155,19 @@ void seqPlayerSetChannelState(u8 playerIndex, s32 channel, u8 value) {
 }
 
 void seqPlayerDisableChannel(u8 playerIndex, s32 channel) {
-    alCSPChannelResetControl(gSeqPlayers[playerIndex], channel);
+    alCSPChannelResetControl(&gSeqPlayers[playerIndex]->al, channel);
 }
 
 void seqPlayerEnableChannel(u8 playerIndex, s32 channel) {
-    enableCSPChannel(gSeqPlayers[playerIndex], channel);
+    enableCSPChannel(&gSeqPlayers[playerIndex]->al, channel);
 }
 
 void seqPlayerSetChannelControl(u8 playerIndex, u8 channel, u8 value) {
-    alCSPChannelSetControl(gSeqPlayers[playerIndex], channel, value);
+    alCSPChannelSetControl(&gSeqPlayers[playerIndex]->al, channel, value);
 }
 
 void seqPlayerSetChannelPortamento(u8 playerIndex, u8 channel, u8 portamento) {
-    setCSPChannelPortamento(gSeqPlayers[playerIndex], channel, portamento);
+    setCSPChannelPortamento(&gSeqPlayers[playerIndex]->al, channel, portamento);
 }
 void seqPlayerSetChannelControlMask(u8 playerIndex, s32 chanMask, u8 value) {
     s32 i;
@@ -179,7 +180,7 @@ void seqPlayerSetChannelControlMask(u8 playerIndex, s32 chanMask, u8 value) {
 }
 
 void seqPlayerSetChannelStopControl(u8 playerIndex, u8 channel, u8 control) {
-    setCSPChannelStopControl(gSeqPlayers[playerIndex], channel, control);
+    setCSPChannelStopControl(&gSeqPlayers[playerIndex]->al, channel, control);
 }
 
 void seqPlayerSetChannelStopControlMask(u8 playerIndex, s32 chanMask, u8 control) {
@@ -187,7 +188,7 @@ void seqPlayerSetChannelStopControlMask(u8 playerIndex, s32 chanMask, u8 control
 
     for (i = 0; i < 16; i++) {
         if (chanMask & (1 << i)) {
-            setCSPChannelStopControl(gSeqPlayers[playerIndex], i, control);
+            setCSPChannelStopControl(&gSeqPlayers[playerIndex]->al, i, control);
         }
     }
 }
@@ -225,34 +226,34 @@ void seqPlayerSetChannelFX2MixMask(u8 playerIndex, s32 chanMask, s32 fxMix) {
 
     for (i = 0; i < 16; i++) {
         if (chanMask & (1 << i)) {
-            alCSPSetChlFX2Mix(gSeqPlayers[playerIndex], i, fxMix);
+            alCSPSetChlFX2Mix(&gSeqPlayers[playerIndex]->al, i, fxMix);
         }
     }
 }
 
 void func_80601678(u8 playerIndex, u8 channel, u8 val) {
-    alCSPSendMidi(gSeqPlayers[playerIndex], 0, (u8)(channel | AL_MIDI_ControlChange), 0x21, val);
+    alCSPSendMidi(&gSeqPlayers[playerIndex]->al, 0, (u8)(channel | AL_MIDI_ControlChange), 0x21, val);
 }
 
 void func_806016D0(u8 playerIndex, u8 channel, u8 val) {
-    alCSPSendMidi(gSeqPlayers[playerIndex], 0, (u8)(channel | AL_MIDI_ControlChange), 0x22, val);
+    alCSPSendMidi(&gSeqPlayers[playerIndex]->al, 0, (u8)(channel | AL_MIDI_ControlChange), 0x22, val);
 }
 
 void func_80601728(u8 playerIndex, u8 channel, u8 val) {
-    alCSPSendMidi(gSeqPlayers[playerIndex], 0, (u8)(channel | AL_MIDI_ControlChange), 0x23, val);
+    alCSPSendMidi(&gSeqPlayers[playerIndex]->al, 0, (u8)(channel | AL_MIDI_ControlChange), 0x23, val);
 }
 void seqPlayerSetTempo(u8 playerIndex, s32 tempo) {
-    alCSPSetTempo(gSeqPlayers[playerIndex], tempo);
+    alCSPSetTempo(&gSeqPlayers[playerIndex]->al, tempo);
 }
 s32 seqPlayerGetTempo(u8 playerIndex) {
-    return alCSPGetTempo(gSeqPlayers[playerIndex]);
+    return alCSPGetTempo(&gSeqPlayers[playerIndex]->al);
 }
 void func_806017E8(u8 playerIndex, u8 b0, u8 b1, u8 b2, s32 w3) {
-    postCSPChannelCommand(gSeqPlayers[playerIndex], b0, b1, b2, w3);
+    postCSPChannelCommand(&gSeqPlayers[playerIndex]->al, b0, b1, b2, w3);
 }
 
 void seqPlayerSetChannelPanVolume(u8 playerIndex, f32 pan, f32 volume) {
-    alCSPSetChlPanVolume(gSeqPlayers[playerIndex], pan, volume);
+    alCSPSetChlPanVolume(&gSeqPlayers[playerIndex]->al, pan, volume);
 }
 
 void seqPlayerAddDeltaTime(u8 playerIndex, s32 delta) {
@@ -271,5 +272,5 @@ void seqPlayerSetMarkerLocation(u8 playerIndex, u8 markerIndex) {
 }
 
 void seqPlayerSendMidi(u8 playerIndex, s32 ticks, u8 status, u8 byte1, s32 byte2) {
-    alCSPSendMidi(gSeqPlayers[playerIndex], ticks, status, byte1, byte2);
+    alCSPSendMidi(&gSeqPlayers[playerIndex]->al, ticks, status, byte1, byte2);
 }
