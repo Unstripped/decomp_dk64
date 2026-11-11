@@ -1,103 +1,15 @@
 #include "common.h"
+#include "seqplayer.h"
 #include "proto/global/13E0E0.h"
 #include "proto/global/13ECE0.h"
 #include "proto/global/13FED0.h"
 #include "proto/global/140530.h"
 #include "proto/global/1435A0.h"
 
-typedef struct VoiceMapVoiceState {
-    struct VoiceMapVoiceState *next;
-    ALVoice voice;
-    ALSound *sound;
-    s32 envEndTime;
-    f32 pitch;
-    f32 vibrato;
-    u8 envGain;
-    u8 channel;
-    u8 key;
-    u8 velocity;
-    u8 envPhase;
-    u8 phase;
-    u8 tremelo;
-    u8 flags;
-    void *tremOsc;
-    void *vibOsc;
-} VoiceMapVoiceState;
-
-typedef struct {
-    ALInstrument *instrument;
-    s16 bendRange;
-    u8 fxId;
-    u8 pan;
-    u8 priority;
-    u8 vol;
-    u8 fxmix;
-    u8 unk0B;
-    u8 unk0C;
-    u8 unk0D;
-    u8 unk0E;
-    u8 unk0F;
-    u8 unk10;
-    u8 unk11;
-    u8 unk12;
-    u8 unk13;
-    f32 pitchBend;
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-    u8 unk24;
-    u8 unk25;
-    u8 unk26;
-    s8 unk27;
-    u8 unk28;
-    u8 unk29;
-    u8 unk2A;
-    u8 unk2B;
-    u8 unk2C;
-    u8 unk2D;
-    u8 unk2E;
-    u8 unk2F;
-    u8 pad30;
-    u8 unk31;
-    u8 unk32;
-    u8 pad33;
-} VoiceMapChanState;
-
 typedef struct {
     u8 unk[0x10];
     ALSound **soundArray;
 } VoiceMapInstrument;
-
-typedef struct VoiceMapCSPlayer {
-    ALPlayer node;
-    ALSynth *drvr;
-    ALCSeq *target;
-    ALMicroTime curTime;
-    ALBank *bank;
-    s32 uspt;
-    s32 nextDelta;
-    s32 state;
-    u16 chanMask;
-    s16 vol;
-    u8 maxChannels;
-    u8 debugFlags;
-    ALEvent nextEvent;
-    ALEventQueue evtq;
-    ALMicroTime frameTime;
-    VoiceMapChanState *chanState;
-    VoiceMapVoiceState *vAllocHead;
-    VoiceMapVoiceState *vAllocTail;
-    VoiceMapVoiceState *vFreeList;
-    ALOscInit initOsc;
-    ALOscUpdate updateOsc;
-    ALOscStop stopOsc;
-    f32 unk7C;
-    f32 unk80;
-    s32 unk84;
-    u8 unk88;
-    u8 unk89;
-} VoiceMapCSPlayer;
-
 
 f32 alCents2Ratio(s32 cents) {
     f32 pow;
@@ -122,9 +34,9 @@ f32 alCents2Ratio(s32 cents) {
     return ratio;
 }
 
-void __n_unmapVoice(VoiceMapCSPlayer *seqp, ALVoice *voice) {
-    VoiceMapVoiceState *prev;
-    VoiceMapVoiceState *vs;
+void __n_unmapVoice(N_CSPlayer *seqp, ALVoice *voice) {
+    N_VoiceState *prev;
+    N_VoiceState *vs;
 
     prev = NULL;
     vs = seqp->vAllocHead;
@@ -149,7 +61,7 @@ void __n_unmapVoice(VoiceMapCSPlayer *seqp, ALVoice *voice) {
     }
 }
 
-void __n_seqpReleaseVoice(VoiceMapCSPlayer *seqp, ALVoice *voice, s32 delta) {
+void __n_seqpReleaseVoice(N_CSPlayer *seqp, ALVoice *voice, s32 delta) {
     ALEvent evt;
     ALVoiceState *vs;
     ALEventListItem *item;
@@ -188,7 +100,7 @@ void __n_seqpReleaseVoice(VoiceMapCSPlayer *seqp, ALVoice *voice, s32 delta) {
         alEvtqPostEvent(&seqp->evtq, &evt, delta);
 }
 
-u8 __n_voiceNeedsNoteKill(VoiceMapCSPlayer *seqp, ALVoice *voice, s32 delta) {
+u8 __n_voiceNeedsNoteKill(N_CSPlayer *seqp, ALVoice *voice, s32 delta) {
     ALEventListItem *item;
     ALEventListItem *next;
     ALEventListItem *volatile current;
@@ -221,8 +133,8 @@ u8 __n_voiceNeedsNoteKill(VoiceMapCSPlayer *seqp, ALVoice *voice, s32 delta) {
     return result;
 }
 
-VoiceMapVoiceState *__n_mapVoice(VoiceMapCSPlayer *seqp, u8 key, u8 velocity, u8 chan) {
-    VoiceMapVoiceState *vs;
+N_VoiceState *__n_mapVoice(N_CSPlayer *seqp, u8 key, u8 velocity, u8 chan) {
+    N_VoiceState *vs;
 
     vs = seqp->vFreeList;
     if (seqp->unk89 > seqp->unk88) {
@@ -246,8 +158,8 @@ VoiceMapVoiceState *__n_mapVoice(VoiceMapCSPlayer *seqp, u8 key, u8 velocity, u8
     return vs;
 }
 
-VoiceMapVoiceState *__n_lookupVoice(VoiceMapCSPlayer *seqp, u8 key, u8 chan) {
-    VoiceMapVoiceState *vs;
+N_VoiceState *__n_lookupVoice(N_CSPlayer *seqp, u8 key, u8 chan) {
+    N_VoiceState *vs;
 
     vs = seqp->vAllocHead;
     if (vs != NULL) {
@@ -266,7 +178,7 @@ typedef struct {
     ALSound *soundArray[];
 } VoiceNMLookupInstrument;
 
-ALSound *__n_lookupSoundQuick(VoiceMapCSPlayer *seqp, u8 key, u8 velocity, u8 chan) {
+ALSound *__n_lookupSoundQuick(N_CSPlayer *seqp, u8 key, u8 velocity, u8 chan) {
     ALInstrument *inst;
     s32 min;
     s32 max;
@@ -294,7 +206,7 @@ ALSound *__n_lookupSoundQuick(VoiceMapCSPlayer *seqp, u8 key, u8 velocity, u8 ch
     return NULL;
 }
 
-s16 __n_vsVol(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
+s16 __n_vsVol(N_VoiceState *vs, N_CSPlayer *seqp) {
     s32 vol;
     s32 chanVol;
 
@@ -309,7 +221,7 @@ s16 __n_vsVol(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
 }
 
 
-u8 n_alCSPClampVoiceFXMix(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
+u8 n_alCSPClampVoiceFXMix(N_VoiceState *vs, N_CSPlayer *seqp) {
     s32 flags;
     s32 mix;
     f32 unused;
@@ -319,7 +231,7 @@ u8 n_alCSPClampVoiceFXMix(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
     return ((mix > 0x7F ? 0x7F : mix) < 0 ? 0 : (mix > 0x7F ? 0x7F : mix)) | flags;
 }
 
-s32 __n_vsDelta(VoiceMapVoiceState *vs, s32 time) {
+s32 __n_vsDelta(N_VoiceState *vs, s32 time) {
     s32 delta;
 
     delta = vs->envEndTime - time;
@@ -330,7 +242,7 @@ s32 __n_vsDelta(VoiceMapVoiceState *vs, s32 time) {
     }
 }
 
-u8 __n_vsPan(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
+u8 __n_vsPan(N_VoiceState *vs, N_CSPlayer *seqp) {
     s32 pan;
 
     pan = (seqp->chanState[vs->channel].pan + vs->sound->samplePan) - 0x40;
@@ -346,7 +258,7 @@ u8 __n_vsPan(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
 }
 
 
-void __n_initFromBank(VoiceMapCSPlayer *seqp, ALBank *bank) {
+void __n_initFromBank(N_CSPlayer *seqp, ALBank *bank) {
     s32 chan;
     ALInstrument *inst;
 
@@ -366,7 +278,7 @@ void __n_initFromBank(VoiceMapCSPlayer *seqp, ALBank *bank) {
     }
 }
 
-void __n_initChanState(VoiceMapCSPlayer *seqp) {
+void __n_initChanState(N_CSPlayer *seqp) {
     s32 chan;
 
     if ((chan = 0, seqp->maxChannels > 0)) {
@@ -377,13 +289,13 @@ void __n_initChanState(VoiceMapCSPlayer *seqp) {
     }
 }
 
-void __n_resetPerfChanState(VoiceMapCSPlayer *seqp, s32 chan) {
+void __n_resetPerfChanState(N_CSPlayer *seqp, s32 chan) {
     seqp->chanState[chan].fxId = 0;
     seqp->chanState[chan].fxmix = 0;
     seqp->chanState[chan].pan = 0x40;
     seqp->chanState[chan].vol = 0x7F;
     seqp->chanState[chan].priority = 5;
-    seqp->chanState[chan].unk0C = 0;
+    seqp->chanState[chan].sustain = 0;
     seqp->chanState[chan].bendRange = 0xC8;
     seqp->chanState[chan].pitchBend = 1.0f;
     seqp->chanState[chan].unk10 = 0;
@@ -397,7 +309,7 @@ void __n_resetPerfChanState(VoiceMapCSPlayer *seqp, s32 chan) {
     seqp->chanState[chan].unk32 = 0;
 }
 
-void __n_setInstChanState(VoiceMapCSPlayer *seqp, ALInstrument *inst, s32 chan) {
+void __n_setInstChanState(N_CSPlayer *seqp, ALInstrument *inst, s32 chan) {
     ALSound **sounds;
 
     seqp->chanState[chan].instrument = inst;
@@ -427,7 +339,7 @@ void __n_setInstChanState(VoiceMapCSPlayer *seqp, ALInstrument *inst, s32 chan) 
     seqp->chanState[chan].unk31 = 0;
 }
 
-void __n_seqpStopOsc(VoiceMapCSPlayer *seqp, VoiceMapVoiceState *vs) {
+void __n_seqpStopOsc(N_CSPlayer *seqp, N_VoiceState *vs) {
     ALEventListItem *item;
     ALEventListItem *next;
     s16 type;

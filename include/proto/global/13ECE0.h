@@ -2,54 +2,53 @@
 #ifndef PROTO_GLOBAL_13ECE0_H
 #define PROTO_GLOBAL_13ECE0_H
 #include "common.h"
-struct VoiceMapCSPlayer;
-struct VoiceMapVoiceState;
+#include "seqplayer.h"
 #ifndef PROTO_SKIP_alCents2Ratio
 f32 alCents2Ratio(s32);
 #endif
 #ifndef PROTO_SKIP___n_unmapVoice
-void __n_unmapVoice(struct VoiceMapCSPlayer *, ALVoice *);
+void __n_unmapVoice(N_CSPlayer *, ALVoice *);
 #endif
 #ifndef PROTO_SKIP___n_seqpReleaseVoice
-void __n_seqpReleaseVoice(struct VoiceMapCSPlayer *, ALVoice *, s32);
+void __n_seqpReleaseVoice(N_CSPlayer *, ALVoice *, s32);
 #endif
 #ifndef PROTO_SKIP___n_voiceNeedsNoteKill
-u8 __n_voiceNeedsNoteKill(struct VoiceMapCSPlayer *, ALVoice *, s32);
+u8 __n_voiceNeedsNoteKill(N_CSPlayer *, ALVoice *, s32);
 #endif
 #ifndef PROTO_SKIP___n_mapVoice
-struct VoiceMapVoiceState *__n_mapVoice(struct VoiceMapCSPlayer *, u8, u8, u8);
+N_VoiceState *__n_mapVoice(N_CSPlayer *, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP___n_lookupVoice
-struct VoiceMapVoiceState *__n_lookupVoice(struct VoiceMapCSPlayer *, u8, u8);
+N_VoiceState *__n_lookupVoice(N_CSPlayer *, u8, u8);
 #endif
 #ifndef PROTO_SKIP___n_lookupSoundQuick
-ALSound *__n_lookupSoundQuick(struct VoiceMapCSPlayer *, u8, u8, u8);
+ALSound *__n_lookupSoundQuick(N_CSPlayer *, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP___n_vsVol
-s16 __n_vsVol(struct VoiceMapVoiceState *, struct VoiceMapCSPlayer *);
+s16 __n_vsVol(N_VoiceState *, N_CSPlayer *);
 #endif
 #ifndef PROTO_SKIP_n_alCSPClampVoiceFXMix
-u8 n_alCSPClampVoiceFXMix(struct VoiceMapVoiceState *, struct VoiceMapCSPlayer *);
+u8 n_alCSPClampVoiceFXMix(N_VoiceState *, N_CSPlayer *);
 #endif
 #ifndef PROTO_SKIP___n_vsDelta
-s32 __n_vsDelta(struct VoiceMapVoiceState *, s32);
+s32 __n_vsDelta(N_VoiceState *, s32);
 #endif
 #ifndef PROTO_SKIP___n_vsPan
-u8 __n_vsPan(struct VoiceMapVoiceState *, struct VoiceMapCSPlayer *);
+u8 __n_vsPan(N_VoiceState *, N_CSPlayer *);
 #endif
 #ifndef PROTO_SKIP___n_initFromBank
-void __n_initFromBank(struct VoiceMapCSPlayer *, ALBank *);
+void __n_initFromBank(N_CSPlayer *, ALBank *);
 #endif
 #ifndef PROTO_SKIP___n_initChanState
-void __n_initChanState(struct VoiceMapCSPlayer *);
+void __n_initChanState(N_CSPlayer *);
 #endif
 #ifndef PROTO_SKIP___n_resetPerfChanState
-void __n_resetPerfChanState(struct VoiceMapCSPlayer *, s32);
+void __n_resetPerfChanState(N_CSPlayer *, s32);
 #endif
 #ifndef PROTO_SKIP___n_setInstChanState
-void __n_setInstChanState(struct VoiceMapCSPlayer *, ALInstrument *, s32);
+void __n_setInstChanState(N_CSPlayer *, ALInstrument *, s32);
 #endif
 #ifndef PROTO_SKIP___n_seqpStopOsc
-void __n_seqpStopOsc(struct VoiceMapCSPlayer *, struct VoiceMapVoiceState *);
+void __n_seqpStopOsc(N_CSPlayer *, N_VoiceState *);
 #endif
 #endif
