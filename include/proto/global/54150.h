@@ -28,7 +28,7 @@ void modelAnimEntryStep(void *);
 void modelAnimEntryBuildNodeMatrices(struct ModelAnimEntryRaw *);
 #endif
 #ifndef PROTO_SKIP_modelAnimEntryQueueMatrixCopies
-void modelAnimEntryQueueMatrixCopies(u32 *, u32 *);
+void modelAnimEntryQueueMatrixCopies(ModelData *, ModelAnimEntry *);
 #endif
 #ifndef PROTO_SKIP_modelAnimEntryBuildKeyMatrix
 void modelAnimEntryBuildKeyMatrix(u8, f32, struct ModelBTrack *, u8 *, u8);
@@ -40,16 +40,16 @@ void modelAnimEntryAdvance(struct ModelAnimEntryView *);
 void mtxCopyQueueReset(void);
 #endif
 #ifndef PROTO_SKIP_mtxCopyQueuePush
-void mtxCopyQueuePush(s32, s32, s32);
+void mtxCopyQueuePush(ModelData *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_mtxCopyQueueCancelDest
 void mtxCopyQueueCancelDest(s32);
 #endif
 #ifndef PROTO_SKIP_mtxCopyQueueCancelGroup
-void mtxCopyQueueCancelGroup(s32);
+void mtxCopyQueueCancelGroup(ModelData *);
 #endif
 #ifndef PROTO_SKIP_mtxCopyQueueFlush
-void mtxCopyQueueFlush(s32);
+void mtxCopyQueueFlush(ModelData *);
 #endif
 #ifndef PROTO_SKIP_modelAnimEntrySetUnk13
 void modelAnimEntrySetUnk13(s16, s16, u8, f32);

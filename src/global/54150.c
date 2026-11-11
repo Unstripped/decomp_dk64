@@ -121,31 +121,27 @@ void modelSlotFree(ModelData *anim) {
 
 extern u32 D_807F6BE0;
 extern u32 D_807F6BE4;
-extern u32 D_807F6BE8;
+extern ModelData *D_807F6BE8;
 extern u8 D_807F6BEC;
 extern u8 gGfxBufferIndex;
 
 u8 modelSlotStepAnimations(s16 modelId) {
     ModelData *group;
-    u8 *p;
     s32 i;
 
     group = gModelSlots[hashTableLookup(modelId)].unk78;
     D_807F6BEC = 0;
     if (group != NULL) {
-        D_807F6BE0 = ((u32 *)group)[gGfxBufferIndex];
-        D_807F6BE4 = ((u32 *)group)[gGfxBufferIndex ^ 1];
-        D_807F6BE8 = (u32)group;
-        i = 0;
-        p = (u8 *)group;
-        for (; i != 0xC8; i += 0x14) {
-            if (((ModelAnimEntry *)(p + 8))->unkE == 1) {
-                modelAnimEntryStep(p + 8);
+        D_807F6BE0 = (u32)group->frames[gGfxBufferIndex];
+        D_807F6BE4 = (u32)group->frames[gGfxBufferIndex ^ 1];
+        D_807F6BE8 = group;
+        for (i = 0; i != 10; i++) {
+            if (group->entries[i].unkE == 1) {
+                modelAnimEntryStep(&group->entries[i]);
                 D_807F6BEC = 1;
             }
-            p += 0x14;
         }
-        mtxCopyQueueFlush((s32)group);
+        mtxCopyQueueFlush(group);
     }
     return D_807F6BEC;
 }
@@ -204,7 +200,7 @@ void modelAnimEntryBuildNodeMatrices(ModelAnimEntryRaw *entry) {
     }
 }
 
-void modelAnimEntryQueueMatrixCopies(u32 *group, u32 *entry) {
+void modelAnimEntryQueueMatrixCopies(ModelData *group, ModelAnimEntry *entry) {
     ModelAnimNodeHeader *node;
     s16 stride;
     s32 i;
@@ -213,20 +209,19 @@ void modelAnimEntryQueueMatrixCopies(u32 *group, u32 *entry) {
     u32 dstBase;
     u32 dst;
 
-    node = (ModelAnimNodeHeader *)*entry;
-    stride = node->keyCount * 0x24 + 8;
-    srcBase = D_807F6BE0 = group[gGfxBufferIndex ^ 1];
-    dstBase = D_807F6BE4 = group[gGfxBufferIndex];
-    if (gGfxBufferIndex == 0) {}  // FAKE: deadsweep dead statement (extends gGfxBufferIndex live range: v1 not v0, address temps a2/a3)
+    node = (ModelAnimNodeHeader *)entry->unk0;
     p = (u8 *)(node + 1);
+    stride = node->keyCount * 0x24 + 8;
+    srcBase = D_807F6BE0 = (u32)group->frames[gGfxBufferIndex ^ 1];
+    dstBase = D_807F6BE4 = (u32)group->frames[gGfxBufferIndex];
     i = 0;
+    if (!p) {}  // FAKE: dead test of p (computed before stride) keeps gGfxBufferIndex in $v1 and the a2/a3 address temps (permuter, uopt LR15 colour)
     while (i < node->matrixCount) {
         dst = *(u32 *)p + dstBase;
         mtxCopyQueuePush(group, *(u32 *)p + srcBase, dst);
         i++;
         p += stride;
     }
-    if (gGfxBufferIndex && gGfxBufferIndex) {}  // FAKE: deadsweep dead statement (extends gGfxBufferIndex live range: v1 not v0, address temps a2/a3)
 }
 
 
@@ -455,7 +450,7 @@ void modelAnimEntryAdvance(ModelAnimEntryView *entry) {
 
 
 typedef struct MtxCopyRequest {
-    s32 group;
+    ModelData *group;
     s32 src;
     s32 dst;
     u8 bufferIndex;
@@ -468,18 +463,18 @@ void mtxCopyQueueReset(void) {
     s32 i;
 
     for (i = 0; i < 0x28; i++) {
-        D_807F6960[i].group = 0;
+        D_807F6960[i].group = NULL;
     }
 }
 
-void mtxCopyQueuePush(s32 group, s32 src, s32 dst) {
+void mtxCopyQueuePush(ModelData *group, s32 src, s32 dst) {
     s32 found;
     s32 i;
 
     found = 0;
     i = 0;
     while (found == 0 && i < 0x28) {
-        if (D_807F6960[i].group == 0) {
+        if (D_807F6960[i].group == NULL) {
             found = 1;
         } else {
             i++;
@@ -500,30 +495,30 @@ void mtxCopyQueuePush(s32 group, s32 src, s32 dst) {
 void mtxCopyQueueCancelDest(s32 dst) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
-        if (D_807F6960[i].group != 0 && D_807F6960[i].dst == dst) {
-            D_807F6960[i].group = 0;
+        if (D_807F6960[i].group != NULL && D_807F6960[i].dst == dst) {
+            D_807F6960[i].group = NULL;
         }
     }
 }
 
 
-void mtxCopyQueueCancelGroup(s32 group) {
+void mtxCopyQueueCancelGroup(ModelData *group) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
         if (D_807F6960[i].group == group) {
-            D_807F6960[i].group = 0;
+            D_807F6960[i].group = NULL;
         }
     }
 }
 
 
 
-void mtxCopyQueueFlush(s32 group) {
+void mtxCopyQueueFlush(ModelData *group) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
         if (D_807F6960[i].group == group && D_807F6960[i].bufferIndex == gGfxBufferIndex) {
             memcpy((void *)D_807F6960[i].dst, (void *)D_807F6960[i].src, 0x40);
-            D_807F6960[i].group = 0;
+            D_807F6960[i].group = NULL;
             D_807F6BEC = 1;
         }
     }

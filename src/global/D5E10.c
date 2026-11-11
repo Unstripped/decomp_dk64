@@ -387,7 +387,7 @@ typedef struct NmD5E10aTbl {
 extern NmD5E10aTbl D_80750FB0;
 
 void playerStateSquishDeath(void) {
-    s16 out[2];
+    s32 out;
     s32 r;
     s32 pad;
     NmD5E10aTbl table = D_80750FB0;
@@ -407,8 +407,8 @@ void playerStateSquishDeath(void) {
     }
     if ((currentActorTestClearFlag() != 0) || --gActivePlayerState->unk23C == 0) {
         if (menuIsTransitionTypeD() == 0) {
-            r = func_80600340(table.unk0, 3, out);
-            actorListSetCustomFloat(out[1], r, 7, 2.0f);
+            r = func_80600340(table.unk0, 3, &out);
+            actorListSetCustomFloat(out, r, 7, 2.0f);
         }
         mapTransitionToPreviousOrExit();
         gCurrentActor->unk155++;
