@@ -500,12 +500,12 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             resQueueSetValue(1);
             /* fallthrough */
         case 0x39:
-            resQueueAttachActor(actorFromSpawnNodeOrDefault(a), (u16)b, (u8)c);
+            resQueueAttachActor(actorFromSpawnNodeOrDefault(a), b, (u8)c);
             return;
         case 0x1E:
             actorSpawn(0x108, 0x1D);
             gSpawnedActor->movePitch = c;
-            resQueueAttachActor(gSpawnedActor, a & 0xFFFF, (u8)b);
+            resQueueAttachActor(gSpawnedActor, a, (u8)b);
             return;
         case 0x1D:
             camPausePath();

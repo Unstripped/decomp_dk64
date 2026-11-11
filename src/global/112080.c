@@ -224,7 +224,7 @@ void resQueueAddEntry(ResQueueLink *queue, u16 resId, u8 kindIndex) {
     }
 }
 
-void resQueueAttachActor(Actor *targetActor, s32 id, u8 count) {
+void resQueueAttachActor(Actor *targetActor, u16 id, u8 count) {
     ResQueueActorState *state;
     ResQueueLink *node;
     u8 value;

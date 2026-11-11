@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_resQueueAttachActor // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/104F0.h"
@@ -306,7 +305,6 @@ extern u16 D_80033500[];
 extern u16 D_80033514[];
 extern u16 D_80033528[];
 extern u8 D_800334DD[];
-void resQueueAttachActor(void *, u16, u8); // FAKE: callee prototype steer
 typedef struct {
     u8 hi;
     u8 lo;

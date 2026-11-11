@@ -35,7 +35,7 @@ struct ResQueueLink *resQueueGetOrCreate(Actor *);
 void resQueueAddEntry(struct ResQueueLink *, u16, u8);
 #endif
 #ifndef PROTO_SKIP_resQueueAttachActor
-void resQueueAttachActor(Actor *, s32, u8);
+void resQueueAttachActor(Actor *, u16, u8);
 #endif
 #ifndef PROTO_SKIP_resNodeFindById
 struct ResNode *resNodeFindById(u16);
