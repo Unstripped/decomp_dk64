@@ -109,10 +109,10 @@ void func_806B1F50(void) {
                 effectSetMode(3);
                 effectSetColor(tint, tint, tint, gCurrentActor->alpha);
                 effectSpawnBoneDefault(gBehaviourTargetActor, 1, 1.0f, 0.0f, 0.0f, 0.0f, -0x96);
+                break;
             }
-            break;
     }
-    actorUpdateModelMatrix((Actor *)*(s32 *)&gCurrentActor, 0); // FAKE: punned reload of gCurrentActor makes every switch exit branch to one shared tail block
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern Actor *gPrimaryPlayerActor;

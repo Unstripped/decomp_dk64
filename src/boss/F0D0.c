@@ -703,7 +703,7 @@ void bossMainStep(void) {
             if (st->unk14 < 3) {
                 actorScriptStart(gCurrentActor, 0x22C);
             } else {
-                BF->unk155 = BF->unk155 + 1;
+                BF->unk155++;
             }
             BF->unk155++;
             break;

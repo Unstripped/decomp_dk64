@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_behaviourSpawnExplosionAndSound // FAKE: callee prototype steer
 #define PROTO_SKIP_behaviourUpdateContactAndState // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/103AB0.h"
 #include "proto/global/119370.h"
@@ -38,24 +37,11 @@ typedef struct B2CE0Actor {
     /* 0x178 */ B2CE0Sub178* unk178;
 } B2CE0Actor;
 
-typedef struct B2CE0Node {
-    /* 0x00 */ u8 pad0[0x24];
-    /* 0x24 */ f32 unk24;
-} B2CE0Node;
-
-typedef struct B2CE0ModelHdr {
-    /* 0x00 */ u8 pad0[0x10];
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ u8 pad12[0x12];
-    /* 0x24 */ f32 unk24;
-} B2CE0ModelHdr;
-
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 
 extern u8 D_8071FBC8[];
 void behaviourUpdateContactAndState();
-void behaviourSpawnExplosionAndSound();
 extern u16 gActiveActorCount;
 extern ActorEntry gActiveActors[];
 
@@ -188,7 +174,7 @@ void func_806AE588(void) {
     sw = sel;
     switch (sel) {
     case 0x31:
-        if ((gCurrentActor->unk155 != 0) || ((*(B2CE0Node **)gCurrentActor->sub4)->unk24 == 0.0f)) {
+        if ((gCurrentActor->unk155 != 0) || (gCurrentActor->sub4->model->speed == 0.0f)) {
             actorSetDefaultState(0x1FB);
         }
         actorMoveWithinZone(0, 0.0f, 0.0f, 0x4300, 0.0f);
@@ -271,7 +257,7 @@ void func_806AE588(void) {
     case 7:
     case 0x35:
         func_80724E48((sw == 0x35) ? 2 : 3);
-        actorMoveWithinZone(gCurrentActor->state, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:
         gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gCurrentActor->moveYaw, 7.0f);
@@ -341,16 +327,16 @@ void func_806AEE84(void) {
             behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2AE);
             gBehaviourWorkState->timer = 0x1C2;
         } else if (gActorGlobalState.bossFightPhase == 4) {
-            behaviourSpawnExplosionAndSound(0x2B2, 0x31, gActorGlobalState.targetActor, &gActorGlobalState);
+            behaviourSpawnExplosionAndSound(0x2B2, 0x31, gActorGlobalState.targetActor);
             gCurrentActor->speedXZ = 0.0f;
         } else if (gActorGlobalState.bossFightPhase == 5) {
-            behaviourSpawnExplosionAndSound(0x2B1, 0x31, gActorGlobalState.targetActor, &gActorGlobalState);
+            behaviourSpawnExplosionAndSound(0x2B1, 0x31, gActorGlobalState.targetActor);
             gCurrentActor->speedXZ = 0.0f;
         }
     }
     switch (gCurrentActor->state) {
         case 0x31:
-            if (gCurrentActor->unk155 != 0 || (*(B2CE0ModelHdr **)gCurrentActor->sub4)->unk24 == 0.0f) {
+            if (gCurrentActor->unk155 != 0 || gCurrentActor->sub4->model->speed == 0.0f) {
                 actorSetDefaultState(0x2AB);
             }
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x4200, 0.0f);
@@ -371,7 +357,7 @@ void func_806AEE84(void) {
                 case 2:
                     func_806AEE08();
                     behaviourUpdateShadowAlpha();
-                    if ((randomNonNegative() >> 15) % 1000 >= 0x3DF && (*(B2CE0ModelHdr **)gCurrentActor->sub4)->unk10 != 0x4C4) {
+                    if ((randomNonNegative() >> 15) % 1000 >= 0x3DF && gCurrentActor->sub4->model->animId != 0x4C4) {
                         actorSetDefaultState(0x2AB);
                     }
             }
@@ -475,8 +461,6 @@ void func_806AEE84(void) {
 }
 
 void func_806AF688(void) {
-    s32 var;
-
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         behaviourSetAnimIds(0x2C0, 0x2C1, 0x2C1);
@@ -596,7 +580,7 @@ void func_806AFB58(void) {
     sel = gCurrentActor->state;
     switch (gCurrentActor->state) {
     case 0x31:
-        if ((gCurrentActor->unk155 != 0) || ((*(B2CE0Node **)gCurrentActor->sub4)->unk24 == 0.0f)) {
+        if ((gCurrentActor->unk155 != 0) || (gCurrentActor->sub4->model->speed == 0.0f)) {
             actorSetDefaultState(0x2D7);
         }
         actorMoveWithinZone(0, 0.0f, 0.0f, 0x4200, 0.0f);
@@ -630,7 +614,7 @@ void func_806AFB58(void) {
         switch (gCurrentActor->unk155) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
-            if (((f64)gCurrentActor->sub4->scaleY > 0.18) && ((randomNonNegative() >> 0xF) % 1000 >= 0x1F5)) {
+            if ((gCurrentActor->sub4->scaleY > 0.18) && ((randomNonNegative() >> 0xF) % 1000 >= 0x1F5)) {
                 actorScriptStart(gCurrentActor, 0x2DB);
             } else {
                 actorScriptStart(gCurrentActor, 0x2DA);
@@ -668,7 +652,7 @@ void func_806AFB58(void) {
     case 7:
     case 0x35:
         func_80724E48((sel == 0x35) ? 2 : 3);
-        actorMoveWithinZone(gCurrentActor->state, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:
         gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gCurrentActor->moveYaw, 7.0f);
@@ -816,21 +800,6 @@ s32 func_806B0770(void) {
     return found;
 }
 
-typedef struct B2CE0NodeHdr {
-    /* 0x00 */ u8 pad0[0x24];
-    /* 0x24 */ f32 unk24;
-} B2CE0NodeHdr;
-
-typedef struct B2CE0Sub4Ptr {
-    /* 0x0 */ B2CE0NodeHdr *unk0;
-} B2CE0Sub4Ptr;
-
-typedef struct B2CE0Sub64 {
-    /* 0x00 */ u8 pad0[0x64];
-    /* 0x64 */ u16 unk64;
-} B2CE0Sub64;
-
-void behaviourSpawnExplosionAndSound(s32, s32, Actor *);
 extern s32 gFrameCounter;
 extern Actor *gPrimaryPlayerActor;
 
@@ -842,10 +811,10 @@ void func_806B0848(void) {
         f64 d;
         f64 m = 255.0;
 
-        d = (f64)gCurrentActor->sub4->scaleY / 0.15 * 100.0;
-        if (d > m) gCurrentActor->cullMarginX = m; else gCurrentActor->cullMarginX = d;
-        d = (f64)gCurrentActor->sub4->scaleY / 0.15 * 100.0;
-        if (d > m) gCurrentActor->cullMarginY = m; else gCurrentActor->cullMarginY = d;
+        d = gCurrentActor->sub4->scaleY / 0.15 * 100.0;
+        if (d > m) gCurrentActor->cullMarginX = m; else gCurrentActor->cullMarginX = d; // LAYOUT: one line keeps as1's order of the li t2/t0 rounding-mode pair
+        d = gCurrentActor->sub4->scaleY / 0.15 * 100.0;
+        if (d > m) gCurrentActor->cullMarginY = m; else gCurrentActor->cullMarginY = d; // LAYOUT: one line keeps as1's order of the li t7/t5 rounding-mode pair
         behaviourSetAnimIds(0x35E, 0x35F, 0x360);
     }
     if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
@@ -870,7 +839,7 @@ void func_806B0848(void) {
                     break;
                 case 1:
                     sfxSpawnTableNodes(gCurrentActor);
-                    gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+                    gCurrentActor->unk155++;
                 case 2:
                     behaviourFadeOutWithinZone(8);
                     break;
@@ -880,7 +849,7 @@ void func_806B0848(void) {
             }
             break;
         case 0x31:
-            if (gCurrentActor->unk155 != 0 || ((B2CE0Sub4Ptr *)gCurrentActor->sub4)->unk0->unk24 == 0.0f) {
+            if (gCurrentActor->unk155 != 0 || gCurrentActor->sub4->model->speed == 0.0f) {
                 actorSetDefaultState(0x35F);
             }
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x4200, 0.0f);
@@ -894,10 +863,10 @@ void func_806B0848(void) {
                     gCurrentActor->unk155 = 1;
                     break;
                 case 2:
-                    gCurrentActor->interactionType = ((B2CE0Sub64 *)gCurrentActor->sub4)->unk64 == 0x362 ? 4 : 2;
+                    gCurrentActor->interactionType = gCurrentActor->sub4->animId == 0x362 ? 4 : 2;
                     break;
                 case 3:
-                    gCurrentActor->interactionType = ((B2CE0Sub64 *)gCurrentActor->sub4)->unk64 == 0x362 ? 8 : 1;
+                    gCurrentActor->interactionType = gCurrentActor->sub4->animId == 0x362 ? 8 : 1;
                     break;
                 case 4:
                     gCurrentActor->interactionType = 1;
@@ -929,11 +898,11 @@ void func_806B0848(void) {
                     case 0:
                         actorSetTargetSpeed(gCurrentActor, 0);
                         actorScriptStart(gCurrentActor, 0x35E);
-                        gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+                        gCurrentActor->unk155++;
                     case 1:
                         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
                         if (gCurrentActor->speedXZ < 1.0f) {
-                            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+                            gCurrentActor->unk155++;
                         }
                         break;
                     case 2:
