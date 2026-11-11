@@ -1906,7 +1906,7 @@ void playerHeldActorFollowStep(HeldActorFollowArg *follow) {
     outX = (midX - follow->held->x) * follow->blend + follow->held->x;
     outY = (midY - follow->held->y) * follow->blend + follow->held->y;
     outZ = (midZ - follow->held->z) * follow->blend + follow->held->z;
-    actorAppendCallbackPayloadA70C(follow->player, follow->held, outX, outY, outZ, 2, 1);
+    actorAppendMoveTarget3D(follow->player, follow->held, outX, outY, outZ, 2, 1);
 }
 
 /* Payload playerHeldActorAlignStep receives (the node from 0x08 on). */

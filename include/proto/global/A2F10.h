@@ -19,11 +19,11 @@ void actorAttachChildCallbacks(void);
 #ifndef PROTO_SKIP_actorIsTargetInRange
 int actorIsTargetInRange(Actor *, f32, f32);
 #endif
-#ifndef PROTO_SKIP_func_8069E724
-s32 func_8069E724(s32);
+#ifndef PROTO_SKIP_actorTypeToNodeIndex
+s32 actorTypeToNodeIndex(s32);
 #endif
-#ifndef PROTO_SKIP_func_8069E774
-void func_8069E774(void);
+#ifndef PROTO_SKIP_actorLightPulseUpdate
+void actorLightPulseUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorIsTargetInCylinder
 s32 actorIsTargetInCylinder(s16, s16, s16, s16, f32);

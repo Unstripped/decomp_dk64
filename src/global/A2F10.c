@@ -117,7 +117,7 @@ void actorPlaceAttachedChildren(s16 arg0) {
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
         if (actor->parentActor == gCurrentActor) {
-            actorAppendCallbackPayloadA70C(gCurrentActor, actor, gCurrentActor->x,
+            actorAppendMoveTarget3D(gCurrentActor, actor, gCurrentActor->x,
                                            gCurrentActor->y + (f32)arg0, gCurrentActor->z, 2, 1);
         }
     }
@@ -145,7 +145,7 @@ int actorIsTargetInRange(Actor *arg0, f32 arg1, f32 arg2) {
            arg0->unk144 != 1;
 }
 
-s32 func_8069E724(s32 arg0) {
+s32 actorTypeToNodeIndex(s32 arg0) {
     switch (arg0) {
     case 2:
         return 0xB;
@@ -178,7 +178,7 @@ extern PlayerStruct *gPlayerSlots;
 
 f32 mathSinF(s16);
 
-void func_8069E774(void) {
+void actorLightPulseUpdate(void) {
     u16 lightRadius;
     f32 rangeSq;
     u8 despawned;
@@ -280,7 +280,7 @@ void func_8069E774(void) {
             despawned = 1;
             *hostFlags &= 0xFDFFFFFF;
             actorSetCollisionRadius(host, (f32)light->unkC);
-            actorGetOrSetNodeScale(host, func_8069E724(host->actorType), 0.0f);
+            actorGetOrSetNodeScale(host, actorTypeToNodeIndex(host->actorType), 0.0f);
             actorDespawn(gCurrentActor);
         }
     }
@@ -322,9 +322,9 @@ void func_8069E774(void) {
                           (f32)(2.0 * ((f64)(gCurrentActor->sub4->scaleX * (f32)lightRadius) *
                                        6.66666667)));
             actorGetOrSetNodeScale(
-                (Actor *)gCurrentActor->parentActor, func_8069E724(host->actorType),
+                (Actor *)gCurrentActor->parentActor, actorTypeToNodeIndex(host->actorType),
                 (f32)((f64)(gCurrentActor->sub4->scaleX * (f32)lightRadius) * 6.66666667));
-            actorOrNodeFlags(host, func_8069E724(host->actorType), 3);
+            actorOrNodeFlags(host, actorTypeToNodeIndex(host->actorType), 3);
         }
     }
     actorUpdateModelMatrix(gCurrentActor, 0);

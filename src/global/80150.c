@@ -1418,7 +1418,7 @@ void transformBarrelUpdate(void) {
                 state->unk18 = 0x64;
             }
         }
-        actorAppendCallbackPayloadA70C(gCurrentActor, state->player, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
+        actorAppendMoveTarget3D(gCurrentActor, state->player, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
         state->timer--;
         if (state->timer == 0) {
             state->timer = 0xC;
@@ -1728,7 +1728,7 @@ void tagBarrelParticleUpdate(void) {
             } else {
                 gCurrentActor->y = sinApprox((f32)sub->phase * sub->frequency) * sub->amplitude + sub->baseY;
             }
-            actorAppendCallbackPayloadA70C(gCurrentActor, sub->rider, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
+            actorAppendMoveTarget3D(gCurrentActor, sub->rider, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
             viewYaw = gCurrentActor->yaw;
             sub->phase++;
             break;
@@ -2575,7 +2575,7 @@ void cannonUpdate(void) {
     case 3:
         if (actorCountOwnedByClass(gCurrentActor, 4, 0) == 0) {
             actorAppendCallback(sub->rider, gCurrentActor, 0x40, 1, 0, 0);
-            actorAppendCallbackPayloadA70C(gCurrentActor, sub->rider, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z - 42.0f, 2, 1);
+            actorAppendMoveTarget3D(gCurrentActor, sub->rider, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z - 42.0f, 2, 1);
             sub->rider->flags &= ~8;
             playerResumeLocomotion(sub->rider);
             gCurrentActor->flags |= 4;

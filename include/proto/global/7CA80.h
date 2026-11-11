@@ -125,11 +125,11 @@ void actorCollisionEventsCancel(s32, u8);
 #ifndef PROTO_SKIP_actorDispatchCollisionResults
 void actorDispatchCollisionResults(Actor *);
 #endif
-#ifndef PROTO_SKIP_actorAppendCallbackPayloadA69C
-void actorAppendCallbackPayloadA69C(Actor *, Actor *, f32, f32, u8, u8);
+#ifndef PROTO_SKIP_actorAppendMoveTarget2D
+void actorAppendMoveTarget2D(Actor *, Actor *, f32, f32, u8, u8);
 #endif
-#ifndef PROTO_SKIP_actorAppendCallbackPayloadA70C
-void actorAppendCallbackPayloadA70C(Actor *, Actor *, f32, f32, f32, u8, u8);
+#ifndef PROTO_SKIP_actorAppendMoveTarget3D
+void actorAppendMoveTarget3D(Actor *, Actor *, f32, f32, f32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallback4000
 void actorAppendCallback4000(Actor *, Actor *, s16, f32, s16);

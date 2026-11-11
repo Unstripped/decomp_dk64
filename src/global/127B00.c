@@ -36,7 +36,7 @@ typedef struct PathPlayback {
     u8 pad22[0xA];
 } PathPlayback;
 
-extern PathEntry *D_807FDB90[];
+extern PathEntry *gPathTable[];
 
 
 
@@ -48,7 +48,7 @@ void pathFreeAsset(s32 assetId) {
     assetFreeBuffer(asset, 0x47, 0x27);
 }
 
-extern PathPlayback *D_807FDBF8[];
+extern PathPlayback *gPathPlaybacks[];
 
 void pathTableLoad(s16 *src) {
     s16 *srcPtr;
@@ -59,29 +59,29 @@ void pathTableLoad(s16 *src) {
     s16 i;
 
     for (i = 0; i < 0x1A; i++) {
-        D_807FDB90[i] = NULL;
+        gPathTable[i] = NULL;
     }
     pathCount = *src;
     srcPtr = src + 1;
     for (i = 0; i < pathCount; i++) {
         pathId = *srcPtr++;
-        D_807FDB90[pathId] = heapAlloc(sizeof(PathEntry));
-        D_807FDB90[pathId]->count = *srcPtr++;
+        gPathTable[pathId] = heapAlloc(sizeof(PathEntry));
+        gPathTable[pathId]->count = *srcPtr++;
         srcPtr++;
-        D_807FDB90[pathId]->points = heapAlloc((D_807FDB90[pathId]->count + 1) * sizeof(PathPoint));
+        gPathTable[pathId]->points = heapAlloc((gPathTable[pathId]->count + 1) * sizeof(PathPoint));
         point = (PathPoint *)srcPtr;
-        for (j = 0; j < D_807FDB90[pathId]->count; j++) {
-            D_807FDB90[pathId]->points[j] = *point++;
+        for (j = 0; j < gPathTable[pathId]->count; j++) {
+            gPathTable[pathId]->points[j] = *point++;
         }
         srcPtr = (s16 *)point;
     }
     for (i = 0; i < 0x20; i++) {
-        D_807FDBF8[i] = NULL;
+        gPathPlaybacks[i] = NULL;
     }
 }
 
 s32 pathExists(u8 pathId) {
-    if (D_807FDB90[pathId] != NULL) {
+    if (gPathTable[pathId] != NULL) {
         return 1;
     }
     return 0;
@@ -103,11 +103,11 @@ s32 pathPlaybackStart(Actor *owner, s32 pathId, u8 prependStartPoint, f32 x, f32
     i = 0;
     found = 0;
     extra = 0;
-    if (D_807FDB90[pathId] == NULL) {
+    if (gPathTable[pathId] == NULL) {
         return -1;
     }
     while (i < 0x20 && !found) {
-        if (D_807FDBF8[i] == NULL) {
+        if (gPathPlaybacks[i] == NULL) {
             found = 1;
         } else {
             i++;
@@ -116,12 +116,12 @@ s32 pathPlaybackStart(Actor *owner, s32 pathId, u8 prependStartPoint, f32 x, f32
     if (!found) {
         return -1;
     }
-    if (D_807FDB90[pathId]->count == 1 && !prependStartPoint) {
+    if (gPathTable[pathId]->count == 1 && !prependStartPoint) {
         return -1;
     }
-    D_807FDBF8[i] = heapAlloc(sizeof(PathPlayback));
-    path = &D_807FDBF8[i]->path;
-    path->count = D_807FDB90[pathId]->count;
+    gPathPlaybacks[i] = heapAlloc(sizeof(PathPlayback));
+    path = &gPathPlaybacks[i]->path;
+    path->count = gPathTable[pathId]->count;
     path->points = heapAlloc(path->count * sizeof(PathPoint) + sizeof(PathPoint));
     if (prependStartPoint != 0) {
         path->count++;
@@ -132,21 +132,21 @@ s32 pathPlaybackStart(Actor *owner, s32 pathId, u8 prependStartPoint, f32 x, f32
         memcpy(path->points, &startPoint, sizeof(PathPoint));
         extra = 1;
     }
-    for (j = 0, dstOff = extra * sizeof(PathPoint), srcOff = 0; j < D_807FDB90[pathId]->count; j++) {
-        memcpy((u8 *)path->points + dstOff, (u8 *)D_807FDB90[pathId]->points + srcOff, sizeof(PathPoint));
+    for (j = 0, dstOff = extra * sizeof(PathPoint), srcOff = 0; j < gPathTable[pathId]->count; j++) {
+        memcpy((u8 *)path->points + dstOff, (u8 *)gPathTable[pathId]->points + srcOff, sizeof(PathPoint));
         srcOff += sizeof(PathPoint);
         dstOff += sizeof(PathPoint);
     }
-    D_807FDBF8[i]->owner = owner;
-    D_807FDBF8[i]->t = 0.0f;
-    D_807FDBF8[i]->loopCount = 0;
-    D_807FDBF8[i]->pointIndex = 0;
-    D_807FDBF8[i]->isLooping = 0;
-    D_807FDBF8[i]->loopMode = 0;
-    D_807FDBF8[i]->direction = 0;
-    D_807FDBF8[i]->loopLimit = 1;
-    D_807FDBF8[i]->active = 0;
-    D_807FDBF8[i]->stepSpeed = 1;
+    gPathPlaybacks[i]->owner = owner;
+    gPathPlaybacks[i]->t = 0.0f;
+    gPathPlaybacks[i]->loopCount = 0;
+    gPathPlaybacks[i]->pointIndex = 0;
+    gPathPlaybacks[i]->isLooping = 0;
+    gPathPlaybacks[i]->loopMode = 0;
+    gPathPlaybacks[i]->direction = 0;
+    gPathPlaybacks[i]->loopLimit = 1;
+    gPathPlaybacks[i]->active = 0;
+    gPathPlaybacks[i]->stepSpeed = 1;
     return i;
 }
 
@@ -155,7 +155,7 @@ void pathPlaybackSetSpeed(s32 slot, u8 stepSpeed) {
     PathPlayback *playback;
 
     if (slot != -1) {
-        playback = D_807FDBF8[slot];
+        playback = gPathPlaybacks[slot];
         if (playback != NULL) {
             playback->stepSpeed = stepSpeed;
         }
@@ -166,7 +166,7 @@ void pathPlaybackSetLooping(s32 slot, u8 isLooping) {
     PathPlayback *playback;
 
     if (slot != -1) {
-        playback = D_807FDBF8[slot];
+        playback = gPathPlaybacks[slot];
         if (playback != NULL) {
             playback->isLooping = isLooping;
         }
@@ -177,7 +177,7 @@ void pathPlaybackSetLoopMode(s32 slot, u8 loopMode) {
     PathPlayback *playback;
 
     if (slot != -1) {
-        playback = D_807FDBF8[slot];
+        playback = gPathPlaybacks[slot];
         if (playback != NULL) {
             playback->loopMode = loopMode;
         }
@@ -188,7 +188,7 @@ void pathPlaybackSetLoopLimit(s32 slot, s32 loopLimit) {
     PathPlayback *playback;
 
     if (slot != -1) {
-        playback = D_807FDBF8[slot];
+        playback = gPathPlaybacks[slot];
         if (playback != NULL) {
             playback->loopLimit = loopLimit;
         }
@@ -199,7 +199,7 @@ void pathPlaybackSetActive(s32 slot, u8 active) {
     PathPlayback *playback;
 
     if (slot != -1) {
-        playback = D_807FDBF8[slot];
+        playback = gPathPlaybacks[slot];
         if (playback != NULL) {
             playback->active = active;
         }
@@ -210,7 +210,7 @@ void pathPlaybackSetDirection(s32 slot, u8 direction) {
     PathPlayback *playback;
 
     if (slot != -1) {
-        playback = D_807FDBF8[slot];
+        playback = gPathPlaybacks[slot];
         if (playback != NULL) {
             playback->direction = direction;
         }
@@ -222,7 +222,7 @@ void pathPlaybackStopForActor(Actor *actor) {
     s32 i;
 
     for (i = 0; i < 0x20; i++) {
-        if (D_807FDBF8[i] != NULL && actor == D_807FDBF8[i]->owner) {
+        if (gPathPlaybacks[i] != NULL && actor == gPathPlaybacks[i]->owner) {
             pathPlaybackFree(i);
         }
     }
@@ -230,9 +230,9 @@ void pathPlaybackStopForActor(Actor *actor) {
 
 
 void pathPlaybackFree(s32 slot) {
-    if ((slot == -1) || (D_807FDBF8[slot] != NULL)) {
-        heapFree(D_807FDBF8[slot]);
-        D_807FDBF8[slot] = NULL;
+    if ((slot == -1) || (gPathPlaybacks[slot] != NULL)) {
+        heapFree(gPathPlaybacks[slot]);
+        gPathPlaybacks[slot] = NULL;
     }
 }
 
@@ -248,8 +248,8 @@ void pathPlaybackAdvance(s32 slot) {
     u32 tq;
     s32 whole;
 
-    if (slot != -1 && D_807FDBF8[slot] != NULL && D_807FDBF8[slot]->active != 0) {
-        pb = D_807FDBF8[slot];
+    if (slot != -1 && gPathPlaybacks[slot] != NULL && gPathPlaybacks[slot]->active != 0) {
+        pb = gPathPlaybacks[slot];
         path = &pb->path;
         if (path == 0) {}  // FAKE: ring/web steer
         if (pb->isLooping == 0) {
@@ -356,9 +356,9 @@ void pathPlaybackGetPosition(s32 slot, f32 *outX, f32 *outY, f32 *outZ) {
     PathEntry *e;
 
     if (slot != -1) {
-        if (D_807FDBF8[slot] != NULL) {
+        if (gPathPlaybacks[slot] != NULL) {
             splineSetBasisTension(0.5f);
-            p = D_807FDBF8[slot];
+            p = gPathPlaybacks[slot];
             e = &p->path;
             if (p->isLooping == 0) {
                 if (p->pointIndex - 1 < 0) {
@@ -404,7 +404,7 @@ void pathPlaybackGetPosition(s32 slot, f32 *outX, f32 *outY, f32 *outZ) {
 u8 pathPlaybackIsActive(s32 slot) {
     PathPlayback *playback;
 
-    if ((slot == -1) || ((playback = D_807FDBF8[slot]) == NULL)) {
+    if ((slot == -1) || ((playback = gPathPlaybacks[slot]) == NULL)) {
         return 0;
     }
     return playback->active;
@@ -415,7 +415,7 @@ void pathSplineSample(s32 pathId, s32 pointIndex, f32 t, f32 *outX, f32 *outY, f
     PathEntry *e;
 
     splineSetBasisTension(0.5f);
-    e = D_807FDB90[pathId];
+    e = gPathTable[pathId];
     if (pointIndex >= e->count) {
         pointIndex = e->count - 1;
     }
@@ -450,7 +450,7 @@ void pathFindClosestPoint(s32 pathId, f32 x, f32 y, f32 z, s32 *outPointIndex, f
     best = 999999.0f;
     frac = 0.0f;
     splineSetBasisTension(0.5f);
-    for (i = 0; i < D_807FDB90[pathId]->count; i++) {
+    for (i = 0; i < gPathTable[pathId]->count; i++) {
         d = pathSplineDistance(pathId, x, y, z, i, 0.0f);
         if (d < best) {
             bestIdx = i;
@@ -506,7 +506,7 @@ void pathRefineClosestPoint(s32 pathId, f32 x, f32 y, f32 z, s32 *outPointIndex,
             best = d;
         }
         frac = frac + 0.05;
-        if (frac >= 1.0f && idx < D_807FDB90[pathId]->count) {
+        if (frac >= 1.0f && idx < gPathTable[pathId]->count) {
             idx += 1;
             frac -= 1.0f;
         } else if (frac >= 1.0f) {
@@ -522,7 +522,7 @@ f32 pathSplineDistance(s32 pathId, f32 x, f32 y, f32 z, s32 pointIndex, f32 t) {
     f32 sy;
     f32 sz;
 
-    e = D_807FDB90[pathId];
+    e = gPathTable[pathId];
     if (pointIndex >= e->count) {
         pointIndex = e->count - 1;
     }
@@ -549,5 +549,5 @@ f32 pathSplineDistance(s32 pathId, f32 x, f32 y, f32 z, s32 pointIndex, f32 t) {
 }
 
 s16 pathEntryCount(s32 pathId) {
-    return D_807FDB90[pathId]->count;
+    return gPathTable[pathId]->count;
 }

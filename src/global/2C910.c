@@ -398,7 +398,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
                 actorClearMovementFlags(sp98 = gPrimaryPlayerActor);
             }
             zoneEntryGetPosition(b, c, &Matcher14_OFF(sp98, f32, 0x7C), &Matcher14_OFF(sp98, f32, 0x80), &Matcher14_OFF(sp98, f32, 0x84));
-            actorAppendCallbackPayloadA69C(0, sp98, Matcher14_OFF(sp98, f32, 0x7C), Matcher14_OFF(sp98, f32, 0x84), 2, 1);
+            actorAppendMoveTarget2D(0, sp98, Matcher14_OFF(sp98, f32, 0x7C), Matcher14_OFF(sp98, f32, 0x84), 2, 1);
             {
                 s32 t = (d << 12) / 360;
                 Matcher14_OFF(sp98, s16, 0xEE) = t;

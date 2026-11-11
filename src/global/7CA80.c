@@ -1243,7 +1243,7 @@ void actorDispatchCollisionResults(Actor *actor) {
             break;
         case 1:
             if (actorCollisionGetNodeHitPoint(actor, gActorGlobalState.unk204[i], &hitX, &hitZ) != 0) {
-                actorAppendCallbackPayloadA69C(actor, (Actor *)gActorGlobalState.unk204[i], hitX, hitZ, 0, 1);
+                actorAppendMoveTarget2D(actor, (Actor *)gActorGlobalState.unk204[i], hitX, hitZ, 0, 1);
             }
             break;
         case 2:
@@ -1275,7 +1275,7 @@ void actorDispatchCollisionResults(Actor *actor) {
             if (gActorGlobalState.unk244[i] == 6) {
                 actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 0x40, 0, 0, 0);
             }
-            actorAppendCallbackPayloadA70C(actor, (Actor *)gActorGlobalState.unk204[i], actor->x, actor->y, actor->z, 2, 1);
+            actorAppendMoveTarget3D(actor, (Actor *)gActorGlobalState.unk204[i], actor->x, actor->y, actor->z, 2, 1);
             actorAppendCallback((Actor *)gActorGlobalState.unk204[i], actor, 0x80, 0, 0, 0);
             playerDropHeldActor(actor);
             break;
@@ -1298,7 +1298,7 @@ void actorDispatchCollisionResults(Actor *actor) {
         for (i = 0; i < gActorGlobalState.unk39; i++) {
             if (gActorGlobalState.unk8C[i] == 0) {
                 collisionTransformPointByActorMtx(actor, gActorGlobalState.unk6C[i], &gActorGlobalState.unk3C[i][0], gActorGlobalState.unk3C[i][1], &gActorGlobalState.unk3C[i][2]);
-                actorAppendCallbackPayloadA69C(actor, gActorGlobalState.unk7C[i], gActorGlobalState.unk3C[i][0], gActorGlobalState.unk3C[i][2], 1, 1);
+                actorAppendMoveTarget2D(actor, gActorGlobalState.unk7C[i], gActorGlobalState.unk3C[i][0], gActorGlobalState.unk3C[i][2], 1, 1);
             }
         }
     }
@@ -1312,7 +1312,7 @@ void actorDispatchCollisionResults(Actor *actor) {
     }
 }
 
-void actorAppendCallbackPayloadA69C(Actor *source, Actor *target, f32 x, f32 z, u8 priority, u8 skipArcCheck) {
+void actorAppendMoveTarget2D(Actor *source, Actor *target, f32 x, f32 z, u8 priority, u8 skipArcCheck) {
     ActorMovePayload2D *payload = heapAlloc(sizeof(ActorMovePayload2D));
     payload->x = x;
     payload->z = z;
@@ -1321,7 +1321,7 @@ void actorAppendCallbackPayloadA69C(Actor *source, Actor *target, f32 x, f32 z, 
     actorAppendCallback(target, source, 0x10, 0, 1, payload);
 }
 
-void actorAppendCallbackPayloadA70C(Actor *source, Actor *target, f32 x, f32 y, f32 z, u8 priority, u8 skipArcCheck) {
+void actorAppendMoveTarget3D(Actor *source, Actor *target, f32 x, f32 y, f32 z, u8 priority, u8 skipArcCheck) {
     ActorMovePayload3D *payload = heapAlloc(sizeof(ActorMovePayload3D));
     payload->x = x;
     payload->y = y;

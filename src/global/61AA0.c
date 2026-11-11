@@ -9,10 +9,10 @@
 #include "proto/global/70FD0.h"
 
 
-extern u8 D_807F7F00;
+extern u8 gSegment6Override;
 
 void renderSetSegment6Override(u8 segment) {
-    D_807F7F00 = segment;
+    gSegment6Override = segment;
 }
 
 extern Gfx D_80748310[6][2];
@@ -83,7 +83,7 @@ extern Gfx D_807483D0[6][2];
 
 Gfx *renderSetSegment6AndFog(Gfx *gdl, s16 fogAlpha, u8 override) {
     if (fogAlpha == 0xFF) {
-        if (D_807F7F00 != 0 || override) {
+        if (gSegment6Override != 0 || override) {
             gSPSegment(gdl++, 6, osVirtualToPhysical(&D_80748310));
         } else {
             gSPSegment(gdl++, 6, osVirtualToPhysical(&D_80748370));
@@ -415,26 +415,26 @@ typedef struct MatrixCacheNode {
     MatrixCacheSub sub[1];
 } MatrixCacheNode;
 
-extern MatrixCacheNode *D_807F8EC0[100];
-extern MatrixCacheNode *D_807F9050;
-extern MatrixCacheNode *D_807F9054;
-extern u32 D_807F905C;
-extern u16 D_807F9060;
-extern u32 D_807F9064;
+extern MatrixCacheNode *gMatrixCacheBuckets[100];
+extern MatrixCacheNode *gMatrixCacheHead;
+extern MatrixCacheNode *gMatrixCacheTail;
+extern u32 gMatrixCacheBytes;
+extern u16 gMatrixCacheCount;
+extern u32 gMatrixCacheLimit;
 
 void matrixCacheInit(s32 limit) {
     s32 i;
     for (i = 0; i < 100; i++) {
-        D_807F8EC0[i] = NULL;
+        gMatrixCacheBuckets[i] = NULL;
     }
-    D_807F9050 = NULL;
-    D_807F9054 = NULL;
-    D_807F905C = 0;
-    D_807F9060 = 0;
+    gMatrixCacheHead = NULL;
+    gMatrixCacheTail = NULL;
+    gMatrixCacheBytes = 0;
+    gMatrixCacheCount = 0;
     if (mapIsBonusOrSpecial()) {
-        D_807F9064 = limit + 0x70000;
+        gMatrixCacheLimit = limit + 0x70000;
     } else {
-        D_807F9064 = limit;
+        gMatrixCacheLimit = limit;
     }
 }
 
@@ -471,7 +471,7 @@ void *matrixCacheLookup(s32 count, s32 camIndex, s16 modelId, u8 subType) {
     MatrixCacheSub *b;
 
     D_807F9058++;
-    node = D_807F8EC0[matrixCacheHash(count, modelId, subType)];
+    node = gMatrixCacheBuckets[matrixCacheHash(count, modelId, subType)];
     while (node != NULL) {
         if (count == node->count && modelId == node->modelId && node->subType == subType) {
             if (node->camX == D_8076A0B4[camIndex] && node->camY == D_8076A0B8[camIndex]) {
@@ -509,16 +509,16 @@ void *matrixCacheLookup(s32 count, s32 camIndex, s16 modelId, u8 subType) {
                         D_807F905A++;
                         if (node->list_prev != NULL) {
                             if (node->list_next == NULL) {
-                                D_807F9054 = node->list_prev;
+                                gMatrixCacheTail = node->list_prev;
                             }
                             node->list_prev->list_next = node->list_next;
                             if (node->list_next != NULL) {
                                 node->list_next->list_prev = node->list_prev;
                             }
-                            D_807F9050->list_prev = node;
+                            gMatrixCacheHead->list_prev = node;
                             node->list_prev = NULL;
-                            node->list_next = D_807F9050;
-                            D_807F9050 = node;
+                            node->list_next = gMatrixCacheHead;
+                            gMatrixCacheHead = node;
                         }
                         node = NULL; // FAKE: redefining node stops uopt forwarding node->sub into the return, keeping it in a0
                         return &sub[count];
@@ -542,7 +542,7 @@ void *matrixCacheInsert(s32 count, s32 camIndex, s16 modelId, u8 subType, s32 ma
     allocSize = (count << 6) + (matrixCount * 0x10) + 0x30;
     node = heapAlloc(allocSize);
 
-    bucket = &D_807F8EC0[matrixCacheHash(count, modelId, subType)];
+    bucket = &gMatrixCacheBuckets[matrixCacheHash(count, modelId, subType)];
     head = *bucket;
     *bucket = node;
     node->hash_next = head;
@@ -561,29 +561,29 @@ void *matrixCacheInsert(s32 count, s32 camIndex, s16 modelId, u8 subType, s32 ma
     memcpy(dest, D_807F78C0, count << 6);
     node->lastUsedFrame = gFrameCounter;
     node->matrixCount = matrixCount;
-    D_807F905C += allocSize;
-    D_807F9060++;
+    gMatrixCacheBytes += allocSize;
+    gMatrixCacheCount++;
     node->allocSize = allocSize;
 
     if (insertAtTail == 0) {
-        node->list_next = D_807F9050;
-        if (D_807F9050 != NULL) {
-            D_807F9050->list_prev = node;
+        node->list_next = gMatrixCacheHead;
+        if (gMatrixCacheHead != NULL) {
+            gMatrixCacheHead->list_prev = node;
         }
         node->list_prev = NULL;
-        D_807F9050 = node;
-        if (D_807F9054 == NULL) {
-            D_807F9054 = node;
+        gMatrixCacheHead = node;
+        if (gMatrixCacheTail == NULL) {
+            gMatrixCacheTail = node;
         }
     } else {
-        node->list_prev = D_807F9054;
-        if (D_807F9054 != NULL) {
-            D_807F9054->list_next = node;
+        node->list_prev = gMatrixCacheTail;
+        if (gMatrixCacheTail != NULL) {
+            gMatrixCacheTail->list_next = node;
         }
         node->list_next = NULL;
-        D_807F9054 = node;
-        if (D_807F9050 == NULL) {
-            D_807F9050 = node;
+        gMatrixCacheTail = node;
+        if (gMatrixCacheHead == NULL) {
+            gMatrixCacheHead = node;
         }
     }
 
@@ -603,7 +603,7 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
     u32 cond;
 
     cond = checkLimit; // FAKE: u32 copy of the u8 parameter steers the compares' register
-    node = D_807F9054;
+    node = gMatrixCacheTail;
     evictedAny = 0;
     if (cond != 0) {
         minAge = 1;
@@ -611,7 +611,7 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
 
     while (1) {
         if (cond != 0) {
-            if (!(D_807F9064 < D_807F905C)) {
+            if (!(gMatrixCacheLimit < gMatrixCacheBytes)) {
                 break;
             }
         }
@@ -619,12 +619,12 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
             break;
         }
         next = node->list_prev;
-        if ((cond == 0 && D_807F9064 < D_807F905C) || (u32)minAge < (u32)(gFrameCounter - node->lastUsedFrame)) {
-            if (node == D_807F9054) {
-                D_807F9054 = node->list_prev;
+        if ((cond == 0 && gMatrixCacheLimit < gMatrixCacheBytes) || (u32)minAge < (u32)(gFrameCounter - node->lastUsedFrame)) {
+            if (node == gMatrixCacheTail) {
+                gMatrixCacheTail = node->list_prev;
             }
-            if (node == D_807F9050) {
-                D_807F9050 = node->list_next;
+            if (node == gMatrixCacheHead) {
+                gMatrixCacheHead = node->list_next;
             }
             if (node->list_next != NULL) {
                 node->list_next->list_prev = node->list_prev;
@@ -632,9 +632,9 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
             if (node->list_prev != NULL) {
                 node->list_prev->list_next = node->list_next;
             }
-            D_807F905C -= node->allocSize;
-            D_807F9060--;
-            bucket = &D_807F8EC0[matrixCacheHash(node->count, node->modelId, node->subType)];
+            gMatrixCacheBytes -= node->allocSize;
+            gMatrixCacheCount--;
+            bucket = &gMatrixCacheBuckets[matrixCacheHash(node->count, node->modelId, node->subType)];
             if (node == *bucket) {
                 *bucket = node->hash_next;
                 if (node->hash_next != NULL) {
@@ -662,8 +662,8 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
 
 
 s32 matrixCacheDecayLimit(void) {
-    D_807F9064 = (D_807F9064 * 3) >> 2;
-    if (D_807F9064 < 0x10000) {
+    gMatrixCacheLimit = (gMatrixCacheLimit * 3) >> 2;
+    if (gMatrixCacheLimit < 0x10000) {
         return 0;
     }
     return matrixCacheEvict(1, 0);
@@ -676,12 +676,12 @@ s32 matrixCacheHash(s32 count, s16 modelId, u8 subType) {
 extern u32 D_807F9068;
 
 void matrixCacheSetDefaultLimit(void) {
-    if (D_807F9064 != 0x9C40) {
-        D_807F9068 = D_807F9064;
+    if (gMatrixCacheLimit != 0x9C40) {
+        D_807F9068 = gMatrixCacheLimit;
     }
-    D_807F9064 = 0x9C40;
+    gMatrixCacheLimit = 0x9C40;
 }
 
 void matrixCacheRestoreLimit(void) {
-    D_807F9064 = D_807F9068;
+    gMatrixCacheLimit = D_807F9068;
 }

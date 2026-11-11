@@ -428,7 +428,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
             pushZ = worldZ - normal[2];
             actorAppendCallbackS32(self, other, clamp);
         }
-        actorAppendCallbackPayloadA69C(self, other, pushX, pushZ, 1, 1);
+        actorAppendMoveTarget2D(self, other, pushX, pushZ, 1, 1);
         for (node = otherBounds->unk8C; node != 0; node = node->next) {
             if (node->unk26 != 0) {
                 other->hasArcBounds |= func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->arcYawMin, (s32)&other->arcYawMax);
