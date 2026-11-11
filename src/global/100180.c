@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #include "actor.h"
 #include "text.h"
 #include "proto/boot/3630.h"
@@ -195,7 +194,6 @@ void textFontInitTables(void) {
     heapClearBlock(gTextFontSheetAges);
 }
 
-void *assetLoad(s32, s16, u8, s32);  // FAKE: callee prototype steer
 
 void *textFontLoadSheet(s16 sheet) {
     u8 *age = &gTextFontSheetAges[sheet];

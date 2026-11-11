@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer (arg1 s32: 6AD90.c declares u32)
 #define PROTO_SKIP_gfxDrawTexturedTileGridSimple // FAKE: callee prototype steer (width/height u8: 103AB0.c declares s32)
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -11,7 +10,6 @@
 #include "proto/global/6AD90.h"
 #include "proto/global/90D80.h"
 
-void *assetLoad(s32, s32, u8, u8);  // FAKE: callee prototype steer (arg1 s32: 6AD90.c declares u32)
 
 typedef struct TexCacheEntry {
     /* 0x0 */ void *unk0;

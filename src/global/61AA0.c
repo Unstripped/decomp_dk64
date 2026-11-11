@@ -2,7 +2,6 @@
 #include "compiler/ido/memory.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #include "proto/global/15050.h"
 #include "proto/global/61AA0.h"
 #include "proto/global/6AD90.h"
@@ -155,7 +154,6 @@ typedef struct {
 extern BillboardData gBillboardQueue[16];
 extern u8 gGfxBufferIndex;
 
-void *assetLoad(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16 halfWidth, s16 halfHeight, u8 texFormat, s16 fadeDistance, u8 flags, s16 rotY, f32 xRatio) {
     s32 found;

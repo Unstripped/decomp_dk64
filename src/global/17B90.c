@@ -1,7 +1,6 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
-#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #include "proto/global/15050.h"
 #include "proto/global/17B90.h"
 #include "proto/global/19A00.h"
@@ -32,7 +31,6 @@ extern ControllerStateEntry D_807FB630[];
 // Users needing a u8 unk8 go through CONTROLLER_STATE_ENTRY.
 #define CONTROLLER_STATE_ENTRY(i) (((ControllerStateEntryView *)D_807FB630)[i])
 extern void *D_807FB634;
-void *assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
 extern u8 D_80746B64[];
 
 

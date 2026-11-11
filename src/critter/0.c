@@ -1,7 +1,6 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
-#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #include "proto/critter/0.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -220,7 +219,6 @@ void critterInitGroupType2(CritterGroup *grp) {
 }
 
 
-void *assetLoad(s32, s32, s32, s32); // FAKE: callee prototype steer (real: u32, u8, u8 args)
 
 void critterPlayAudio(CritterObj *obj) {
     s32 i;

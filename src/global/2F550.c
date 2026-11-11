@@ -3,7 +3,6 @@
 #include "render.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #include "proto/global/109660.h"
 #include "proto/global/117190.h"
 #include "proto/global/126260.h"
@@ -1406,7 +1405,6 @@ Gfx *mapChunkEmitSegmentCommands(Gfx *gfx, u8 chunk) {
     return gfx;
 }
 
-s32 assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 
 void mapChunkAnimateTextures(u8 arg0) {
@@ -1432,7 +1430,7 @@ void mapChunkAnimateTextures(u8 arg0) {
                 if (sMapChunkAnims[i].unk8 != NULL) {
                     assetFreeBuffer(sMapChunkAnims[i].unk8, 0x7E3, 5);
                 }
-                sMapChunkAnims[i].unk8 = (void *)assetLoad(7, sMapChunkAnims[i].unkC[sMapChunkAnims[i].unk5], 0, 0);
+                sMapChunkAnims[i].unk8 = assetLoad(7, sMapChunkAnims[i].unkC[sMapChunkAnims[i].unk5], 0, 0);
             }
         }
     }
@@ -1578,7 +1576,7 @@ void displayListResolveTextureImages(Gfx *cmd, Gfx *end) {
         w = cmd->words.w0;
         if ((w >> 24) == (0, 0xFD)) { // FAKE: comma-wrapped G_SETTIMG constant orders the compare (bnel t6,s2); the empty statement below colours end before the constant ($s1/$s2) (Q0434)
             if (((cmd->words.w1 << 4) >> 28) == 0) {
-                cmd->words.w1 = assetLoad(0x19, cmd->words.w1, 1, 0);
+                cmd->words.w1 = (u32)assetLoad(0x19, cmd->words.w1, 1, 0); // the command word now holds the loaded address
             }
             ;
         }
