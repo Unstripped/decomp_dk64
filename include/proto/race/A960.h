@@ -4,7 +4,6 @@
 #include "common.h"
 #include "actor.h"
 #include "race.h"
-struct RaceWaypoint;
 #ifndef PROTO_SKIP_raceGetRoute
 struct RaceRoute *raceGetRoute(u8);
 #endif

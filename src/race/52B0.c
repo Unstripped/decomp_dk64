@@ -95,7 +95,7 @@ void raceRacerRenderCallback(s32 renderContext, RaceC_Actor *actor) {
     raceRenderHud(renderContext, actor, actor->unk174);
 }
 
-void raceSpawnCompetitors(RaceC_Actor *actor) {
+void raceSpawnCompetitors(Actor *actor) {
     RaceC_State *managerState;
     RaceC_State *racerState;
     RaceC_Actor *spawnedActor;
@@ -105,7 +105,7 @@ void raceSpawnCompetitors(RaceC_Actor *actor) {
 
     numCompetitors = gPlayerCount;
     slotIndex = 0;
-    managerState = actor->unk174;
+    managerState = actor->customState;
     if (numCompetitors == 1) {
         numCompetitors++;
     }

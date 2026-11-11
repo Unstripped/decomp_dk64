@@ -2,50 +2,44 @@
 #ifndef PROTO_RACE_7BD0_H
 #define PROTO_RACE_7BD0_H
 #include "common.h"
+#include "actor.h"
 #include "race.h"
-struct RaceCurvePoint;
-struct RaceFE644Arg;
-struct RacePair;
-struct RaceUnknown174;
-struct RaceUnknownActor;
-struct RaceUnknownC;
-struct RaceUnknownDCF0;
-struct RaceVec3f;
+struct RaceBannerState;
 #ifndef PROTO_SKIP_raceInitParticipantArray
-void raceInitParticipantArray(struct RaceUnknownActor *, s32);
+void raceInitParticipantArray(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_raceRegisterParticipant
-void raceRegisterParticipant(struct RaceUnknownActor *, s32, struct RaceUnknownActor *, RaceParticipant *);
+void raceRegisterParticipant(Actor *, s32, Actor *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceGetParticipantPair
-void raceGetParticipantPair(struct RaceUnknownActor *, s32, struct RaceUnknownActor **, RaceParticipant **);
+void raceGetParticipantPair(Actor *, s32, Actor **, RaceParticipant **);
 #endif
 #ifndef PROTO_SKIP_raceCalculatePathBoundingBox
-void raceCalculatePathBoundingBox(struct RaceUnknownActor *);
+void raceCalculatePathBoundingBox(Actor *);
 #endif
 #ifndef PROTO_SKIP_raceRenderMinimapIcon
-Gfx *raceRenderMinimapIcon(Gfx *, struct RaceUnknownActor *, f32, f32, u8, u8, u8);
+Gfx *raceRenderMinimapIcon(Gfx *, Actor *, f32, f32, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_raceRenderCountdownText
-Gfx *raceRenderCountdownText(Gfx *, struct RaceUnknownActor *);
+Gfx *raceRenderCountdownText(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_raceRenderSpeedBoostHud
-Gfx *raceRenderSpeedBoostHud(Gfx *, struct RaceUnknown174 *);
+Gfx *raceRenderSpeedBoostHud(Gfx *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceRenderCoinHud
-Gfx *raceRenderCoinHud(Gfx *, struct RaceUnknown174 *);
+Gfx *raceRenderCoinHud(Gfx *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceInitHudDisplayList
-Gfx *raceInitHudDisplayList(Gfx *, struct RaceUnknown174 *);
+Gfx *raceInitHudDisplayList(Gfx *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceDrawHudText
-Gfx *raceDrawHudText(Gfx *, struct RaceUnknown174 *);
+Gfx *raceDrawHudText(Gfx *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceRenderHud
-Gfx *raceRenderHud(Gfx *, struct RaceUnknownActor *, struct RaceUnknown174 *);
+Gfx *raceRenderHud(Gfx *, Actor *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceRenderMinimapAndCountdown
-Gfx *raceRenderMinimapAndCountdown(Gfx *, struct RaceUnknownActor *);
+Gfx *raceRenderMinimapAndCountdown(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_raceInitCarRaceManager
 void raceInitCarRaceManager(void);
@@ -69,10 +63,10 @@ void raceSetAllParticipantsStatus(u8);
 f32 raceGetHandicapSpeedBonus(RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_raceDespawnProjectile
-void raceDespawnProjectile(void *, struct RaceUnknownC *);
+void raceDespawnProjectile(Actor *, RaceAuxState *);
 #endif
 #ifndef PROTO_SKIP_raceFindNearestParticipant
-struct RaceUnknownActor *raceFindNearestParticipant(struct RaceUnknownActor *);
+Actor *raceFindNearestParticipant(Actor *);
 #endif
 #ifndef PROTO_SKIP_racePlayResultSfx
 void racePlayResultSfx(void);
@@ -84,16 +78,16 @@ void racePlayStartRaceMusic(void);
 void raceUpdateStandings(void);
 #endif
 #ifndef PROTO_SKIP_raceSetIntroCutscenePhase
-void raceSetIntroCutscenePhase(struct RaceUnknownActor *);
+void raceSetIntroCutscenePhase(Actor *);
 #endif
 #ifndef PROTO_SKIP_raceClearIntroCutscenePhase
-void raceClearIntroCutscenePhase(struct RaceUnknownActor *);
+void raceClearIntroCutscenePhase(Actor *);
 #endif
 #ifndef PROTO_SKIP_raceManagerBehaviorUpdate
 void raceManagerBehaviorUpdate(void);
 #endif
 #ifndef PROTO_SKIP_raceUpdateFinishLineFlagBobbing
-void raceUpdateFinishLineFlagBobbing(struct RaceUnknown174 *);
+void raceUpdateFinishLineFlagBobbing(struct RaceBannerState *);
 #endif
 #ifndef PROTO_SKIP_raceUpdateCheckeredFlagAnimation
 void raceUpdateCheckeredFlagAnimation(void);
@@ -102,7 +96,7 @@ void raceUpdateCheckeredFlagAnimation(void);
 void raceFinishBannerBehaviorUpdate(void);
 #endif
 #ifndef PROTO_SKIP_raceSetGateVisualState
-void raceSetGateVisualState(struct RaceUnknownDCF0 *, s32);
+void raceSetGateVisualState(RaceWaypoint *, s32);
 #endif
 #ifndef PROTO_SKIP_raceLerp
 f32 raceLerp(f32, f32, f32, f32, f32);
@@ -111,25 +105,25 @@ f32 raceLerp(f32, f32, f32, f32, f32);
 f32 raceEvaluatePiecewiseCurve(f32, struct RaceCurvePoint *);
 #endif
 #ifndef PROTO_SKIP_raceSetPiecewiseCurveMode
-void raceSetPiecewiseCurveMode(struct RaceUnknownActor *, u8, struct RaceCurvePoint *, struct RaceVec3f *);
+void raceSetPiecewiseCurveMode(RaceTarget *, u8, RaceCurvePoint *, RaceVec3f *);
 #endif
 #ifndef PROTO_SKIP_raceEvaluateCurveWithRubberband
-f32 raceEvaluateCurveWithRubberband(struct RaceUnknownActor *, f32, struct RaceCurvePoint *, struct RaceVec3f *);
+f32 raceEvaluateCurveWithRubberband(RaceTarget *, f32, RaceCurvePoint *, RaceVec3f *);
 #endif
 #ifndef PROTO_SKIP_raceEvaluateCurveTargetSpeed
-f32 raceEvaluateCurveTargetSpeed(struct RaceUnknownActor *, f32, struct RaceCurvePoint *, struct RaceVec3f *);
+f32 raceEvaluateCurveTargetSpeed(RaceTarget *, f32, RaceCurvePoint *, RaceVec3f *);
 #endif
 #ifndef PROTO_SKIP_raceInitBeetleRaceParticipants
-void raceInitBeetleRaceParticipants(struct RaceUnknownActor *);
+void raceInitBeetleRaceParticipants(Actor *);
 #endif
 #ifndef PROTO_SKIP_racePlayerHudRenderCallback
-void racePlayerHudRenderCallback(void *, struct RaceUnknownActor *);
+void racePlayerHudRenderCallback(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_racePlayerTrackerBehaviorUpdate
 void racePlayerTrackerBehaviorUpdate(void);
 #endif
 #ifndef PROTO_SKIP_raceHandleRacerCollision
-void raceHandleRacerCollision(struct RaceFE644Arg *);
+void raceHandleRacerCollision(RaceTarget *);
 #endif
 #ifndef PROTO_SKIP_raceCheckLapCompletionThreshold
 s32 raceCheckLapCompletionThreshold(RaceParticipant *, RaceParticipant *, s32);

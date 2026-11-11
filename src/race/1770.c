@@ -1,6 +1,5 @@
 #include "common.h"
 #include "race.h"
-#define PROTO_SKIP_sfxStopSlotSound // FAKE: callee prototype steer
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -43,14 +42,6 @@ typedef struct TargetVec3f {
     f32 x, y, z;
 } RaceAPoint3f;
 
-
-/* Auxiliary state (RaceActor.unk17C). */
-typedef struct {
-    u16 unk0;
-    u8 pad2[6];
-    s32 unk8;
-    Actor *unkC;
-} RaceAuxState;
 
 // Race actor: Actor plus its component pointers from 0x174 on.
 typedef struct RaceActor {
@@ -378,8 +369,8 @@ void raceSpawnProjectile(RaceParticipant *participant) {
         actorSpawn(0x131, 0x96);
         projPath = ((RaceActor *)gSpawnedActor)->unk178;
         projAux = ((RaceActor *)gSpawnedActor)->unk17C;
-        projAux->unkC = gCurrentActor;
-        projAux->unk8 = raceFindNearestParticipant(gCurrentActor);
+        projAux->owner = gCurrentActor;
+        projAux->target = raceFindNearestParticipant(gCurrentActor);
         participant->unk2C = gSpawnedActor;
         gSpawnedActor->x = gCurrentActor->x;
         gSpawnedActor->y = gCurrentActor->y;
@@ -433,32 +424,31 @@ void raceVehicleRenderCallback(void *glist, Actor *actor) {
 
 extern u8 gBossFightPhase;
 extern void *gPrimaryPlayerActor;
-void sfxStopSlotSound(void *, s32); // FAKE: callee prototype steer
 
 void raceVehicleBehaviorUpdate(void) {
     s32 len;
     RacePathState *pathState;
-    RaceParticipant *s1;
-    s16 sv;
+    RaceParticipant *participant;
+    s16 shakeAngle;
     f32 off;
     f32 pad; /* unused: its stack home is needed for the frame layout */
-    Actor *o;
-    RaceParticipant *o2;
+    Actor *manager;
+    RaceParticipant *managerData;
     s32 i;
     f32 bumpX;
     f32 bumpY;
     f32 bumpZ;
 
-    s1 = ((RaceActor *)gCurrentActor)->unk174;
+    participant = ((RaceActor *)gCurrentActor)->unk174;
     pathState = ((RaceActor *)gCurrentActor)->unk178;
     if (!(gCurrentActor->flags & 0x10)) {
         len = gMinecartTrackPoints[pathState->unk0 + 1] - gMinecartTrackPoints[pathState->unk0];
-        s1->unk2A = 3;
+        participant->unk2A = 3;
         gCurrentActor->unk144 = 0x3C;
         pathState->unk2 = raceGetPrevWaypointIndex(len, 0);
-        racePathFollowStep(pathState, s1, 1);
+        racePathFollowStep(pathState, participant, 1);
         if (func_807142D8() != 0 || flagGet(0x12, 2) != 0) {
-            playerStateQueueCallback(0x4B, gCurrentActor, s1->playerIdx);
+            playerStateQueueCallback(0x4B, gCurrentActor, participant->playerIdx);
         } else {
             playerWaypointPathStartPacked(gPrimaryPlayerActor, gCurrentActor, 0, 0x4B);
         }
@@ -466,66 +456,66 @@ void raceVehicleBehaviorUpdate(void) {
         racePlayEngineSfx();
     }
     if (gBossFightPhase == 5 && pathState->unk39 == 0) {
-        if (s1->unk34 == 2) {
+        if (participant->unk34 == 2) {
             behaviourAddSlotQueueValueB(3);
         }
         pathState->unk39 = 0x1E;
     }
-    if (s1->unk35 == 0) {
-        if (s1->unk34 == 1) {
+    if (participant->unk35 == 0) {
+        if (participant->unk34 == 1) {
             slotQueueUpdate(0xB, 1, 0);
-            s1->unk35++;
-        } else if (s1->unk34 == 5) {
+            participant->unk35++;
+        } else if (participant->unk34 == 5) {
             slotQueueCancel(0xB, 0);
-            s1->unk35++;
+            participant->unk35++;
         }
     }
-    if (s1->unk34 == 1) {
-        o = s1->actor;
-        o2 = ((RaceActor *)o)->unk174;
-        if (o2->unk1C == 8 || o2->unk1C == 0x13) {
+    if (participant->unk34 == 1) {
+        manager = participant->actor;
+        managerData = ((RaceActor *)manager)->unk174;
+        if (managerData->unk1C == 8 || managerData->unk1C == 0x13) {
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x187, 0xFF, 0x7F, 0, 0, 0.3f, 0);
         }
-        raceUpdateEngineSoundPitch(s1->route * 1.5);
-    } else if (s1->unk34 < 5) {
-        sv = 0;
-        if (s1->route != 0) {
-            bumpZ = raceGetHandicapSpeedBonus(s1);
+        raceUpdateEngineSoundPitch(participant->route * 1.5);
+    } else if (participant->unk34 < 5) {
+        shakeAngle = 0;
+        if (participant->route != 0) {
+            bumpZ = raceGetHandicapSpeedBonus(participant);
             if (bumpZ != 0) {
                 bumpZ = 1.5f * bumpZ + 1.5f;
                 racePlayCheckpointSfx(pathState, 0x1E, bumpZ);
             }
-            s1->route = 0;
+            participant->route = 0;
         }
         if (pathState->unk39 != 0) {
             bumpX = pathState->unk39;
             if (bumpX > 10.0f) {
-                sv = (bumpX - 10.0f) * 204.8f;
+                shakeAngle = (bumpX - 10.0f) * 204.8f;
                 bumpX = 300.0f;
-                pathState->unk20 = mathSinF(sv) * bumpX;
-                pathState->unk24 = mathSinF(sv * 2) * bumpX;
+                pathState->unk20 = mathSinF(shakeAngle) * bumpX;
+                pathState->unk24 = mathSinF(shakeAngle * 2) * bumpX;
             } else {
                 pathState->unk20 = 0.0f;
                 pathState->unk24 = 0.0f;
             }
         }
-        racePathFollowStep(pathState, s1, 1);
-        gCurrentActor->y += 20.0f * mathSinF(sv * 0.5f);
+        racePathFollowStep(pathState, participant, 1);
+        gCurrentActor->y += 20.0f * mathSinF(shakeAngle * 0.5f);
         raceUpdateEngineSoundPitch(gCurrentActor->speedXZ);
-    } else if (s1->unk34 == 5) {
+    } else if (participant->unk34 == 5) {
         gCurrentActor->flags &= ~4;
         gCurrentActor->speedXZ = 0.0f;
         for (i = 0; i != 2; i++) {
             if (gCurrentActor->soundSlots[i] != -1) {
-                sfxStopSlotSound(gCurrentActor, i & 0xFF);
+                sfxStopSlotSound(gCurrentActor, i);
             }
         }
     }
-    if (s1->unk29 != 0) {
-        raceSpawnProjectile(s1);
+    if (participant->unk29 != 0) {
+        raceSpawnProjectile(participant);
     }
-    if (s1->unk34 < 5) {
-        if (s1->unk34 == 2) {
+    if (participant->unk34 < 5) {
+        if (participant->unk34 == 2) {
             off = 10.0;
         } else {
             off = -200.0f;
@@ -533,19 +523,19 @@ void raceVehicleBehaviorUpdate(void) {
         bumpX = gCurrentActor->x;
         bumpZ = gCurrentActor->z;
         bumpY = gCurrentActor->y + off;
-        gridSetNodeBounds(s1->playerIdx, bumpX, bumpY, bumpZ, 12.0f);
+        gridSetNodeBounds(participant->playerIdx, bumpX, bumpY, bumpZ, 12.0f);
         bumpX += gCurrentActor->prevX;
         bumpX *= 0.5;
         bumpZ += gCurrentActor->prevZ;
         bumpZ *= 0.5;
-        gridAppendPositionNode(s1->playerIdx, bumpX, bumpY, bumpZ, 12.0f);
+        gridAppendPositionNode(participant->playerIdx, bumpX, bumpY, bumpZ, 12.0f);
     }
     if (gCurrentActor->flags & 4) {
         actorSpawnNodeEffectFacingCamera(1, 0xC8);
         actorSpawnNodeEffectFacingCamera(2, 0xC8);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
-    if (s1->unk34 > 0 && s1->unk34 < 5) {
+    if (participant->unk34 > 0 && participant->unk34 < 5) {
         renderCallbacksRegister(raceVehicleRenderCallback, gCurrentActor, 3);
     }
 }

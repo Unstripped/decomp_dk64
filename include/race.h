@@ -32,26 +32,39 @@ typedef struct RacePathState {
     /* 0x3A */ u8 pad3A[2];
 } RacePathState; // size = 0x3C
 
-// Race participant record (Actor.customState of racers and the player tracker; registered with the race
-// manager by raceRegisterParticipant, which only touches 0x27..0x48). 0x14..0x1F differ by actor type.
+struct RacePair;
+
+// Race participant record (Actor.customState of racers, the player tracker and the race manager; registered
+// with the manager by raceRegisterParticipant, which only touches 0x27..0x48). 0x00..0x23 differ by actor
+// type: the manager (7BD0 raceInit*RaceManager, raceManagerBehaviorUpdate) keeps its HUD/minimap setup and
+// the registered participant array there.
 typedef struct RaceParticipant {
-    /* 0x00 */ s8 unk0;
+    union {
+        /* 0x00 */ s8 unk0;
+        /* 0x00 */ u8 hudFlags; // manager: 2 place, 4 lap counter, 8 coin HUD, 0x10 speed-boost HUD
+    };
     /* 0x01 */ u8 pad1[3];
     /* 0x04 */ f32 unk4;
-    /* 0x08 */ u8 pad8[0xC];
+    /* 0x08 */ f32 unk8; // manager 0x04..0x10: minimap scale X, scale Z, centre X, centre Z (raceCalculatePathBoundingBox)
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ f32 unk10;
     union {
         struct {
             /* 0x14 */ u8 pad14[8];
-            /* 0x1C */ u16 unk1C; // racers
-            /* 0x1E */ u8 pad1E[2];
+            /* 0x1C */ u16 unk1C; // racers; manager: frame timer
+            /* 0x1E */ u8 unk1E; // manager: registered participant count
+            /* 0x1F */ u8 pad1F;
         };
         struct {
             /* 0x14 */ f32 unk14; // player tracker (racePlayerTrackerBehaviorUpdate)
             /* 0x18 */ f32 unk18;
             /* 0x1C */ f32 unk1Cf;
         };
+        struct {
+            /* 0x14 */ s16 minimapSprites[4]; // manager: radar background sprite ids
+        };
     };
-    /* 0x20 */ u8 pad20[4];
+    /* 0x20 */ struct RacePair *pairs; // manager: the registered participants (raceInitParticipantArray)
     /* 0x24 */ u8 unk24;
     /* 0x25 */ u8 unk25;
     /* 0x26 */ u8 route; // route index (raceGetRoute)
@@ -65,7 +78,10 @@ typedef struct RaceParticipant {
     /* 0x34 */ u8 unk34;
     /* 0x35 */ u8 unk35;
     /* 0x36 */ u8 unk36;
-    /* 0x37 */ s8 lap;
+    union {
+        /* 0x37 */ s8 lap;
+        /* 0x37 */ u8 unk37;
+    };
     /* 0x38 */ u8 unk38;
     /* 0x39 */ u8 pad39;
     /* 0x3A */ u16 unk3A;
@@ -89,5 +105,72 @@ typedef struct RaceRoute {
     /* 0x08 */ u16 active;
     /* 0x0A */ u8 padA[2];
 } RaceRoute;
+
+// One registered participant of the race manager (RaceParticipant.pairs[slot]).
+typedef struct RacePair {
+    /* 0x0 */ struct Actor *actor;
+    /* 0x4 */ RaceParticipant *data;
+} RacePair; // size = 0x8
+
+// Actor types with three components (racers spawned by spawnNodeSpawnById(1, ...)): the 0x178 participant
+// record and the 0x17C rubber-band target, whose actor/participant the race manager fills with the racer
+// to chase (raceGetParticipantPair).
+typedef struct RaceComponentActor {
+    /* 0x000 */ struct Actor base;
+    /* 0x178 */ RaceParticipant *participant;
+    /* 0x17C */ struct RaceTarget *target;
+} RaceComponentActor;
+
+// One waypoint/gate of the race path (raceGetWaypoint).
+typedef struct RaceWaypoint {
+    /* 0x00 */ s16 x;
+    /* 0x02 */ s16 y;
+    /* 0x04 */ s16 z;
+    /* 0x06 */ u16 angle;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ u8 kind;
+    /* 0x11 */ u8 pad11[3];
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ u8 mode;
+    /* 0x19 */ u8 pad19;
+    /* 0x1A */ u16 width;
+    /* 0x1C */ struct Actor *actors[2]; // the two gate posts (raceSetGateVisualState)
+    /* 0x24 */ s32 state;
+} RaceWaypoint;
+
+// Racer rubber-band state (a racer component): the racer it chases, its speed-curve mode
+// (raceSetPiecewiseCurveMode) and the bump cooldown and distance of raceHandleRacerCollision.
+typedef struct RaceTarget {
+    /* 0x00 */ struct Actor *actor;
+    /* 0x04 */ RaceParticipant *participant;
+    /* 0x08 */ u8 pad8[6];
+    /* 0x0E */ u8 bumpCooldown;
+    /* 0x0F */ u8 curveMode;
+    /* 0x10 */ u8 unk10;
+    /* 0x11 */ u8 pad11[3];
+    /* 0x14 */ f32 distSq;
+} RaceTarget; // size = 0x18
+
+// One knot of a piecewise-linear speed curve (raceEvaluatePiecewiseCurve reads 6).
+typedef struct RaceCurvePoint {
+    /* 0x0 */ f32 x;
+    /* 0x4 */ f32 y;
+} RaceCurvePoint;
+
+typedef struct RaceVec3f {
+    /* 0x0 */ f32 x;
+    /* 0x4 */ f32 y;
+    /* 0x8 */ f32 z;
+} RaceVec3f;
+
+// Race projectile component (1770 racer projectiles, the 0x17C component): the racer that fired it and
+// its homing target (raceFindNearestParticipant); raceDespawnProjectile clears the owner's unk2C.
+typedef struct RaceAuxState {
+    /* 0x00 */ u16 unk0;
+    /* 0x02 */ u8 pad2[6];
+    /* 0x08 */ struct Actor *target;
+    /* 0x0C */ struct Actor *owner;
+} RaceAuxState; // size = 0x10
 
 #endif

@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "race.h"
 #include "proto/global/135D30.h"
 #include "proto/global/166A0.h"
 #include "proto/global/35000.h"
@@ -11,12 +12,6 @@
 #include "proto/race/6650.h"
 #include "proto/race/7BD0.h"
 #include "proto/race/A960.h"
-
-typedef struct {
-    char pad[0x25];
-    u8 unk25;
-    u8 unk26;
-} Struct_sp5C;
 
 typedef struct Struct_sp58 {
     char pad0[0x4];
@@ -38,20 +33,8 @@ typedef struct Struct_sp58 {
     u8 unk44;
 } Struct_sp58;
 
-typedef struct {
-    char pad[0x174];
-    Struct_sp58 *unk174;
-    Struct_sp58 *unk178;
-    void *unk17C;
-} Struct_sp54;
-
-typedef struct Struct_arg0 {
-    char pad[0x174];
-    Struct_sp5C *unk174;
-} Struct_arg0;
-
 extern u8 gPlayerCount;
-extern Struct_sp54 *gSpawnedActor;
+extern Actor *gSpawnedActor;
 typedef struct {
     char pad[0x34];
     f32 unk34[3];
@@ -145,51 +128,51 @@ s32 actorSpawn(s32, s32);
 Actor *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
 void actorInitFromSpawnPoint(void *, void *);
 
-void raceInitParticipants(Struct_arg0 *raceMgr) {
-    Struct_sp5C *cursor;
-    Struct_sp58 *racerState;
-    Struct_sp54 *racerActor;
+void raceInitParticipants(Actor *manager) {
+    RaceParticipant *managerData;
+    RaceParticipant *racerState;
+    Actor *racerActor;
     s32 participantIndex;
     s32 i;
     s32 numParticipants;
 
     numParticipants = gPlayerCount;
     participantIndex = 0;
-    cursor = raceMgr->unk174;
+    managerData = manager->customState;
     if (numParticipants == 1) {
         numParticipants++;
     }
-    raceInitParticipantArray(raceMgr, numParticipants);
+    raceInitParticipantArray(manager, numParticipants);
     for (i = 0; i < gPlayerCount; i++) {
         actorSpawn(0x142, 0x95);
         racerActor = gSpawnedActor;
-        racerState = racerActor->unk174;
+        racerState = racerActor->customState;
         racerState->unk27 = 0;
-        raceRegisterParticipant(raceMgr, participantIndex, racerActor, racerState);
+        raceRegisterParticipant(manager, participantIndex, racerActor, racerState);
         participantIndex++;
-        racerState->unk28 = i;
+        racerState->playerIdx = i;
     }
     i = 0;
     if (gPlayerCount == 1) {
         racerActor = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
-        racerState = racerActor->unk178;
+        racerState = ((RaceComponentActor *)racerActor)->participant;
         racerState->unk27 = 1;
-        raceRegisterParticipant(raceMgr, participantIndex, racerActor, racerState);
-        raceGetParticipantPair(raceMgr, 0, racerActor->unk17C, (u8 *)racerActor->unk17C + 4);
-        cursor->unk25 = 1;
+        raceRegisterParticipant(manager, participantIndex, racerActor, racerState);
+        raceGetParticipantPair(manager, 0, &((RaceComponentActor *)racerActor)->target->actor, &((RaceComponentActor *)racerActor)->target->participant);
+        managerData->unk25 = 1;
     } else {
-        cursor->unk25 = 0;
+        managerData->unk25 = 0;
     }
     if (numParticipants > 0) {
         do {
-            raceGetParticipantPair(raceMgr, i, &racerActor, &racerState);
+            raceGetParticipantPair(manager, i, &racerActor, &racerState);
             racerState->unk36 = i;
-            racerState->unk30 = raceMgr;
+            racerState->actor = manager;
             actorInitFromSpawnPoint(racerActor, racerState);
             i++;
         } while (i != numParticipants);
     }
-    cursor->unk26 = 0;
+    managerData->route = 0;
 }
 
 void raceUpdateRacerMotion(Struct_sp58 *racerState) {
@@ -411,17 +394,17 @@ void raceSteerTowardTargetWaypoint(Struct_sp58 *racerState, Struct_8002B180_Arg1
     f32 dz;
     f32 targetVel;
     f32 sp_angle;
-    Struct_sp5C *cursor;
-    s32 routeIndex;
+    RaceParticipant *managerData;
+    RaceRoute *route;
     f32 targetSpeed;
     ZoneEntry *waypoint;
     u8 idx;
-    Struct_arg0 *pad;
+    Actor *manager;
 
-    pad = racerState->unk30;
-    cursor = pad->unk174;
-    routeIndex = raceGetRoute(cursor->unk26);
-    targetSpeed = raceGetPathDistanceBetweenTrackers(routeIndex, racerState, aux->unk4);
+    manager = racerState->unk30;
+    managerData = manager->customState;
+    route = raceGetRoute(managerData->route);
+    targetSpeed = raceGetPathDistanceBetweenTrackers(route, racerState, aux->unk4);
     idx = gBehaviourAnimState->path[gBehaviourWorkState->unk25][0];
     waypoint = &D_807FDCA0->entries[idx];
     dx = (f32)waypoint->x - gCurrentActor->x;
@@ -451,7 +434,7 @@ void raceSteerTowardTargetWaypoint(Struct_sp58 *racerState, Struct_8002B180_Arg1
     }
     racerState->unkC += ((steerAngle * 0.0033333334f) - racerState->unkC) * 0.5f;
     if (racerState->unk34 >= 2 && racerState->unk34 < 5) {
-        if (aux->unkF != 0 && raceGetProgressPercent(routeIndex, racerState, cursor) > 0.75) {
+        if (aux->unkF != 0 && raceGetProgressPercent(route, racerState, managerData) > 0.75) {
             raceSetPiecewiseCurveMode(aux, 0, &D_8002FC70, &D_8002FCA0);
         }
         targetVel = raceEvaluateCurveTargetSpeed(aux, targetSpeed, &D_8002FC70, &D_8002FCA0);

@@ -79,9 +79,14 @@ typedef struct ActorSub4 {
     /* 0x2E */ s16 layerWeightStep;
     /* 0x30 */ s16 motionFlags;          // 1: step by the frame delta
     /* 0x32 */ u8 pad32[2];
-    /* 0x34 */ f32 scaleX;
-    /* 0x38 */ f32 scaleY;
-    /* 0x3C */ f32 scaleZ;
+    union {
+        struct {
+            /* 0x34 */ f32 scaleX;
+            /* 0x38 */ f32 scaleY;
+            /* 0x3C */ f32 scaleZ;
+        };
+        /* 0x34 */ f32 scale[3]; // indexed by axis (raceManagerBehaviorUpdate's per-axis loop)
+    };
     /* 0x40 */ f32 blendTime;
     /* 0x44 */ f32 blendDuration;
     /* 0x48 */ f32 unk48;                // playback speed, ramped from speedFrom to speedTo

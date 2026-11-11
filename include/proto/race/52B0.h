@@ -2,13 +2,14 @@
 #ifndef PROTO_RACE_52B0_H
 #define PROTO_RACE_52B0_H
 #include "common.h"
+#include "actor.h"
 struct RaceC_Actor;
 struct RaceC_Holder;
 #ifndef PROTO_SKIP_raceRacerRenderCallback
 void raceRacerRenderCallback(s32, struct RaceC_Actor *);
 #endif
 #ifndef PROTO_SKIP_raceSpawnCompetitors
-void raceSpawnCompetitors(struct RaceC_Actor *);
+void raceSpawnCompetitors(Actor *);
 #endif
 #ifndef PROTO_SKIP_raceInitCompetitorsAndManager
 void raceInitCompetitorsAndManager(void);

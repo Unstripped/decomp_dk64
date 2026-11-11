@@ -5,10 +5,9 @@
 #include "actor.h"
 struct Struct_8002B180_Arg1;
 struct Struct_8002B610_Arg1;
-struct Struct_arg0;
 struct Struct_sp58;
 #ifndef PROTO_SKIP_raceInitParticipants
-void raceInitParticipants(struct Struct_arg0 *);
+void raceInitParticipants(Actor *);
 #endif
 #ifndef PROTO_SKIP_raceUpdateRacerMotion
 void raceUpdateRacerMotion(struct Struct_sp58 *);
