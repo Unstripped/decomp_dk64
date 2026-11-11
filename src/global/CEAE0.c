@@ -859,8 +859,6 @@ s16 mathAngleLerp(s16 angle, s16 target, f32 t) {
 
 extern s16 D_80753A3C[];
 extern s16 D_80753A4C[];
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 #define ABSF(x) ((x) > 0.0f ? (x) : -(x))
 

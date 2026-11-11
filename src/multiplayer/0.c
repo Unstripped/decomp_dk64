@@ -554,8 +554,6 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
     }
 }
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void mpUpdateItemSpawns(void) {
     MpMapEntry *mapEntry;

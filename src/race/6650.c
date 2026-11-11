@@ -38,8 +38,6 @@ extern s32 gGlobalOverlayFlags;
 
 void playerStateQueueCallback(); // FAKE: callee prototype steer
 s32 sfxStopSlotSound(Actor *, u8); // FAKE: callee prototype steer
-f32 mathSinF(s16);
-f32 mathCosF(s16);
 void actorSpawnNodeEffectFacingCamera(s32, u8);
 void actorInitFromSpawnPoint(void *, void *);
 

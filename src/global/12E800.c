@@ -240,7 +240,6 @@ void actorUpdateStationaryTimer(void) {
     }
 }
 
-f32 mathSinF(s16);
 
 void actorSetPitchVelocity(s16 arg0, f32 arg1, f32 arg2, f32 arg3, u16 arg4) {
     gCurrentActor->speedY = mathSinF(gCurrentActor->movePitch) * -arg3;
@@ -277,7 +276,6 @@ typedef struct E3DcA0 {
 #define E3CA0 ((E3DcA0 *)D_807FDCA0)
 
 s32 zoneCheckActorInside(Actor *, f32, f32, struct Zone *, s16 *);
-f32 mathCosF(s16);
 
 u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floorYOffset) {
     f32 area;

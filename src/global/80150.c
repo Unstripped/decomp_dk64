@@ -1663,8 +1663,6 @@ typedef struct TagBarrelInputPad {
 } TagBarrelInputPad;
 extern TagBarrelInputPad gPlayerPadState;
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 
 void tagBarrelParticleUpdate(void) {
     f64 pad;

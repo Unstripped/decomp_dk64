@@ -2156,8 +2156,6 @@ extern PlayerState *gActivePlayerState;
 extern s32 D_807FB5DC;
 extern s16 D_807FB5F6;
 
-f32 mathCosF(s16);
-f32 mathSinF(s16);
 CollisionBox *func_806732A8(s32, s16); // asm (77B90): returns the hit box left in s0
 
 void actorUpdateFacingAndOffset(CollisionBox *box, s32 unused1, s32 unused2, s32 unused3) {
