@@ -8,13 +8,6 @@ typedef struct SynAllocStartPVoice {
     s32 delta;
 } SynAllocStartPVoice;
 
-typedef struct SynAllocStartVoice {
-    u8 pad0[8];
-    SynAllocStartPVoice *pvoice;
-    u8 padC[0xE];
-    s16 unity;
-} SynAllocStartVoice;
-
 typedef struct SynAllocStartParam {
     struct SynAllocStartParam *next;
     s32 delta;
@@ -28,7 +21,7 @@ typedef struct SynAllocStartParam {
     u8 fxPitch;
     f32 fxVolume;
     s32 samples;
-    void *wave;
+    ALWaveTable *wave;
 } SynAllocStartParam;
 
 typedef struct SynAllocStartSynth {
@@ -38,7 +31,7 @@ typedef struct SynAllocStartSynth {
 
 extern SynAllocStartSynth *n_syn;
 
-void n_alSynStartVoiceParams(SynAllocStartVoice *voice, void *wave, f32 pitch, s16 volume, u8 pan, u8 fxmix, u8 unity, f32 fxVolume, u8 fxDelay, s32 samples) {
+void n_alSynStartVoiceParams(ALVoice *voice, ALWaveTable *wave, f32 pitch, s16 volume, u8 pan, u8 fxmix, u8 unity, f32 fxVolume, u8 fxDelay, s32 samples) {
     SynAllocStartParam *param;
 
     if (voice->pvoice != NULL) {
@@ -46,10 +39,10 @@ void n_alSynStartVoiceParams(SynAllocStartVoice *voice, void *wave, f32 pitch, s
         if (param == NULL) {
             return;
         }
-        param->delta = n_syn->delta + voice->pvoice->delta;
+        param->delta = n_syn->delta + ((SynAllocStartPVoice *)voice->pvoice)->delta;
         param->next = NULL;
         param->type = 13;
-        param->unity = voice->unity;
+        param->unity = voice->unityPitch;
         param->pan = pan;
         param->volume = volume;
         param->fxmix = fxmix;

@@ -2,8 +2,7 @@
 #ifndef PROTO_GLOBAL_141AD0_H
 #define PROTO_GLOBAL_141AD0_H
 #include "common.h"
-struct SynAllocStartVoice;
 #ifndef PROTO_SKIP_n_alSynStartVoiceParams
-void n_alSynStartVoiceParams(struct SynAllocStartVoice *, void *, f32, s16, u8, u8, u8, f32, u8, s32);
+void n_alSynStartVoiceParams(ALVoice *, ALWaveTable *, f32, s16, u8, u8, u8, f32, u8, s32);
 #endif
 #endif
