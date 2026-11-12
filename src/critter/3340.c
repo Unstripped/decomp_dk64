@@ -337,21 +337,14 @@ typedef struct FlutterState {
     f32 unk28;
 } FlutterState;
 
-// view kept for the u32 cursor at 0x160 (Actor has f64 splineT there; union request held, see header-request.md)
-typedef struct FlutterActorView {
-    char pad0[0x160];
-    u32 unk160;
-} FlutterActorView;
-
-
 
 void critterFlutterFlyUpdate(void) {
     f32 dx;
     f32 dz;
     f32 k;
-    f32 v;
+    f32 pad;
     f32 t;
-    f32 w;
+    f32 pad2;
     s32 near;
     s32 angleTmp;
     FlutterState *d;
@@ -467,7 +460,7 @@ void critterFlutterFlyUpdate(void) {
     case 0xB:
         break;
     }
-    func_8072881C(0, &((FlutterActorView *)gCurrentActor)->unk160);
+    func_8072881C(0, &gCurrentActor->frameCursor);
     if (gCurrentActor->state == 0) {
         gCurrentActor->flags = gCurrentActor->flags & ~4;
     } else {
