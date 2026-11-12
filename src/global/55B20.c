@@ -391,10 +391,8 @@ void mapFaceBuildTriangleFan(s32 faceId) {
             k = 0xC;
             do {
                 curOff = cur * 6;
-                if (k && k) {}  // FAKE: deadsweep: steers uopt coloring (keeps unk4 temp in a0)
                 cur = next;
                 *(s16 *)(face->tris + out - 0x24) = *(s16 *)(face->verts);
-                next += 1;
                 *(s16 *)(face->tris + out - 0x1E) = *(s16 *)(face->verts + 2);
                 *(s16 *)(face->tris + out - 0x18) = *(s16 *)(face->verts + 4);
                 *(s16 *)(face->tris + out - 0x22) = *(s16 *)(face->verts + curOff);
@@ -405,6 +403,7 @@ void mapFaceBuildTriangleFan(s32 faceId) {
                 *(s16 *)(face->tris + out - 0x14) = *(s16 *)(face->verts + k + 4);
                 out += 0x12;
                 k += 6;
+                next++;
             } while (next < face->vertCount);
         }
     }
@@ -811,9 +810,9 @@ s32 mapPointIsInRenderedChunk(f32 x, f32 y, f32 z) {
     while (i < D_807F6C80) {
         if (chunk == D_807F6C58[i]) {
             return 1;
+        } else {
+            i++;
         }
-        i++;
-        continue; // FAKE: trailing continue reorders uopt coloring (chunk before the loop bound)
     }
     return 0;
 }
@@ -887,7 +886,8 @@ void mapCellFindAtPoint(f32 x, f32 y, f32 z, s16 chunk, s16 parent, s16 *outCell
             if ((chunk == gMapCells[i].chunk) && (parent == gMapCells[i].parent)) {
                 id = gMapCells[i].id;
                 if (id) {} // FAKE: raises id's adjsave so the table address is not hoisted into a saved register
-                box = (MapBox *)((u8 *)gMapCellBoxes + id * 12); // FAKE: byte-offset box address steers codegen (&gMapCellBoxes[id] fdiff=1)
+                box = gMapCellBoxes;
+                box += id;
                 if (box && box) {} // FAKE: keeps box's live range apart from the hoisted cell table address
                 if (((f32)box->minX <= x) && (x <= (f32)box->maxX) && ((f32)box->minY <= y) && (y <= (f32)box->maxY) && ((f32)box->minZ <= z) && (z <= (f32)box->maxZ)) {
                     *outCell = id;
@@ -1838,16 +1838,17 @@ void mapChunkReleaseAndAdvance(void) {
     }
 }
 
-extern s16 D_807F6C30[];
 
 s32 mapNodeIdListContains(s16 id, s32 count) {
     s32 i;
 
-    for (i = 0; i < count; i++) {
+    i = 0;
+    while (i < count) {
         if (id == D_807F6C30[i]) {
             return 1;
+        } else {
+            i++;
         }
-        continue; // FAKE: trailing continue gives id an unconstrained register
     }
     return 0;
 }
