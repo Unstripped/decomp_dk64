@@ -83,7 +83,7 @@ void tagBarrelSpawnSmokeAndPuffs(f32, f32, f32, f32, u8, u8);
 void tagBarrelSpawnActorSmokePuffs(u8, u8);
 #endif
 #ifndef PROTO_SKIP_tagBarrelSpawnNodeSmokePuffs
-void tagBarrelSpawnNodeSmokePuffs(s32, u8, f32);
+void tagBarrelSpawnNodeSmokePuffs(Actor *, u8, f32);
 #endif
 #ifndef PROTO_SKIP_tagBarrelResetMovement
 void tagBarrelResetMovement(void);

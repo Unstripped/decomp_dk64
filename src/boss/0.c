@@ -8,6 +8,9 @@
 #include "proto/global/17B90.h"
 #include "proto/global/35000.h"
 #include "proto/global/63EC0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/7130.h"
+#include "proto/global/80150.h"
 #include "proto/global/8CA50.h"
 #include "proto/global/8F050.h"
 
@@ -20,7 +23,6 @@ extern BossByteTable6 D_8003598C;
 extern u8 effectDecelDriftFadeUpdate;
 extern u8 sEffectSparkConfig;
 
-void tagBarrelSpawnNodeSmokePuffs(void *, s32, f32); // FAKE: callee prototype steer
 
 void bossArmydilloSpawnSmoke(void) {
     BossByteTable6 smokeBones;
@@ -125,13 +127,12 @@ void bossArmydilloInitArena(void) {
     }
 }
 
-s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32); // FAKE: callee prototype steer
 
 void bossArmydilloDebrisUpdate(void) {
     s16 i;
     BoneVector *debris;
-    s32 soundId;
-    s32 soundVol;
+    s16 soundId;
+    u8 soundVol;
     s16 angle;
 
     debris = gCurrentActor->sub4->boneOffsets;
@@ -231,7 +232,6 @@ void bossPieceSetAngle(u8 index, s16 angle) {
 
 
 void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
-void sfxStopSlotSound();
 void actorScriptStart(void *, s32);
 
 
@@ -527,7 +527,6 @@ void camStartShake();
 void camSetSecondTarget();
 s32 currentActorTestClearFlag();
 void currentActorClearFlag();
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 void effectSpawnBoneDebris();
 void effectSpawnBoneWhite(Actor *, s16, f32, f32, f32, f32, s32);
 void effectSpawnJointBeam();
@@ -551,7 +550,7 @@ void bossArmydilloStep(void) {
     f32 pad_mid;
     u8 cannonBone;
     u8 playSfx;
-    s32 pad_bot[2];
+    s32 pad_bot[1];
     Boss3B_178 *state;
 
 
@@ -565,8 +564,8 @@ void bossArmydilloStep(void) {
         gBehaviourAnimState->unk38 = 0.002f;
         camSetSecondTarget(gCamActor, 0, 0);
         bossInitScriptData(D_80035CC0);
-        gCurrentActor->accelY = (f32) D_807502F4;
-        gCurrentActor->terminalSpeedY = (f32) D_807502D8;
+        gCurrentActor->accelY = D_807502F4;
+        gCurrentActor->terminalSpeedY = D_807502D8;
         bossArmydilloHideCannons();
         gBehaviourAnimState->unk2C = 0.01f;
         gBehaviourAnimState->unk30 = 3.0f;
@@ -636,7 +635,7 @@ void bossArmydilloStep(void) {
             break;
         case 2:
             if (!(gFrameCounter & 3)) {
-                tagBarrelSpawnNodeSmokePuffs(gCurrentActor, (((randomNonNegative() >> 15) % 32767 % 10) + 0xD) & 0xFF, 1.0f);
+                tagBarrelSpawnNodeSmokePuffs(gCurrentActor, ((randomNonNegative() >> 15) % 32767 % 10) + 0xD, 1.0f);
             }
             if (currentActorTestClearFlag() != 0) {
                 bossArmydilloSpawnSmoke();
@@ -673,9 +672,9 @@ void bossArmydilloStep(void) {
             } else {
                 gCurrentActor->moveYaw += 10;
             }
-            actorSetUniformScale(gCurrentActor, (f32) ((f64) gCurrentActor->sub4->scaleX * 0.99));
-            gCurrentActor->y = (f32) ((f64) gCurrentActor->y + ((f64) (356.0f - gCurrentActor->y) * 0.03));
-            if ((f64) gCurrentActor->sub4->scaleY < 0.04) {
+            actorSetUniformScale(gCurrentActor, gCurrentActor->sub4->scaleX * 0.99);
+            gCurrentActor->y += (356.0f - gCurrentActor->y) * 0.03;
+            if (gCurrentActor->sub4->scaleY < 0.04) {
                 gCurrentActor->unk155 = 5;
             }
             break;
@@ -1056,7 +1055,7 @@ void bossArmydilloStep(void) {
             effectSpawnJointBeam(9, 0xB, 0xC, 0xC);
             break;
         case 3:
-            effectSpawnBoneWhite(gCurrentActor, (s16) (((s32) ((s32) (randomNonNegative() >> 0xF) % 32767) % 20) + 9), 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
+            effectSpawnBoneWhite(gCurrentActor, ((randomNonNegative() >> 0xF) % 32767 % 20) + 9, 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
             if (currentActorTestClearFlag() != 0) {
                 gCurrentActor->callbackMask = -1;
                 gCurrentActor->state = scriptData[state->unk15++];

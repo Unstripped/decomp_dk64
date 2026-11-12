@@ -1078,7 +1078,7 @@ void tagBarrelSpawnActorSmokePuffs(u8 spray, u8 playSound) {
     tagBarrelSpawnSmokeAndPuffs(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, (f32) ((f64) gCurrentActor->sub4->scaleY / 0.15), spray, playSound);
 }
 
-void tagBarrelSpawnNodeSmokePuffs(s32 unused, u8 node, f32 scale) {
+void tagBarrelSpawnNodeSmokePuffs(Actor *unused, u8 node, f32 scale) {
     f32 x;
     f32 y;
     f32 z;
