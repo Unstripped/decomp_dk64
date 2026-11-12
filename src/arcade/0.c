@@ -1105,7 +1105,6 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     s32 pad[1];
     Gfx *glist;
     ArcadeGirderSpan *pt;
-    ArcadeLift *bar;
 
     glist = *glistp;
     D_8004C719 = 2;
@@ -1133,21 +1132,19 @@ void arcadeDrawStage3Background(Gfx **glistp) {
         arcadeDrawGirderSpan(&glist, pt->x, pt->y, pt->z);
         pt++;
     } while (pt < (ArcadeGirderSpan *)((s32)D_8004A7C8 + 0x54)); // FAKE: (s32) address arithmetic end pointer steers codegen (&D_8004A7C8[21]: text=16)
-    for (bar = D_8004BC88;;) {
+    for (i = 0; i < 6; i++) {
         if (D_8004C71D == 0 && D_8004C724 == 5) {
-            bar->y = bar->y + bar->vy;
-            if (bar->y < 99.0f) {
-                bar->y = bar->y + 144.0f;
+            D_8004BC88[i].y += D_8004BC88[i].vy;
+            if (D_8004BC88[i].y < 99.0f) {
+                D_8004BC88[i].y += 144.0f;
             }
-            if (bar->y > 243.0f) {
-                bar->y = bar->y - 144.0f;
+            if (D_8004BC88[i].y > 243.0f) {
+                D_8004BC88[i].y -= 144.0f;
             }
         }
         for (j = 0; j < 2; j++) {
-            dlAppendTextureRectangle(&glist, (s32)((bar->x + 40.0f + (f32)(j * 8)) * 4.0f), (s32)(((f64)bar->y * 0.875 + 8.0) * 4.0));
+            dlAppendTextureRectangle(&glist, (s32)((D_8004BC88[i].x + 40.0f + (f32)(j * 8)) * 4.0f), (s32)(((f64)D_8004BC88[i].y * 0.875 + 8.0) * 4.0));
         }
-        bar++;
-        if (bar == (ArcadeLift *)D_8004BCD0) break; // FAKE: end pointer via D_8004BCD0 symbol steers codegen (&D_8004BC88[6]: text=17)
     }
     arcadeDrawStage3Ladders(&glist);
     *glistp = glist;
@@ -1261,7 +1258,7 @@ void arcadeSpawnStage1Entities(void) {
     D_8004C71F = arcadeFindFreeEntity();
     D_8004BCD0[D_8004C71F] = D_8004A398;
     D_8004C170 = D_8004A458;
-    i = i + 0x24;
+    i = i + 0x24; // FAKE: adding onto the early i = 0 steers regalloc (Q0252 placement; i = 0x24 swaps a0/a2)
     D_8004BCD0[i--] = D_8004A638;
     D_8004BCD0[i] = D_8004A638;
     D_8004BCD0[i].x = 68.0f;
@@ -1274,7 +1271,7 @@ void arcadeSpawnStage1Entities(void) {
     D_8004BCD0[i].x = 48.0f;
     i--;
     D_8004BCD0[i] = D_8004A718;
-    D_8004BCD0[i].unk1C = 2; D_8004BCD0[i].y = 65.0f; i--;
+    D_8004BCD0[i].unk1C = 2; D_8004BCD0[i].y = 65.0f; i--; // LAYOUT: one line keeps as1 order (split lines move li t7,2 one slot earlier)
     D_8004BCD0[i] = D_8004A718;
     D_8004BCD0[i].unk1C = 3;
     D_8004BCD0[i].x = 48.0f;
@@ -2619,7 +2616,7 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
         D_8004BCD0[entIndex].x += D_8004BCD0[entIndex].vx;
         floorY = arcadeCheckPlayerCollision((s32)D_8004BCD0[entIndex].x, (s32)D_8004BCD0[entIndex].y);
         arcadeCheckStageLadders((s32)D_8004BCD0[entIndex].x, (s32)D_8004BCD0[entIndex].y);
-        e = &D_8004BCD0[entIndex];
+        e = &D_8004BCD0[entIndex]; // FAKE: mixed e-> and D_8004BCD0[entIndex] spellings steer CSE and regalloc (all e: 86 diff lines, all indexed: 63)
         switch (D_8004BCD0[entIndex].state) {
         case 2:
             D_8004BCD0[entIndex].animTimer = (f32)((f64)e->animTimer + 0.2);
@@ -2656,7 +2653,7 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
             e->animTimer = (f32)((f64)D_8004BCD0[entIndex].animTimer + 0.2);
             e->y = D_8004BCD0[entIndex].y + e->vy;
             e->vy = (f32)((f64)e->vy + 0.06);
-            if ((f32)floorY < e->y && e->y - (f32)floorY < 3.0f) {
+            if (e->y > (f32)floorY && e->y - (f32)floorY < 3.0f) {
                 D_8004BCD0[entIndex].y = (f32)floorY;
                 D_8004BCD0[entIndex].vy = -D_8004BCD0[entIndex].vy / 3.0f;
                 if ((f64)e->vy > -0.2) {
@@ -2667,7 +2664,7 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
         case 5:
             D_8004BCD0[entIndex].animTimer = (f32)((f64)D_8004BCD0[entIndex].animTimer + 0.3);
             e->y = D_8004BCD0[entIndex].y + e->vy;
-            if ((f32)(D_8004C6E8 - 1) < e->y) {
+            if (e->y > (f32)(D_8004C6E8 - 1)) {
                 e->y = (f32)floorY;
                 e->unk1A = 1 - e->unk1A;
                 e->vx = (f32)(1 - D_8004BCD0[entIndex].unk1A * 2);
@@ -2679,7 +2676,7 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
             e->y = D_8004BCD0[entIndex].y + e->vy;
             D_8004BCD0[entIndex].vy = (f32)((f64)e->vy + 0.06);
             floorY = arcadeCheckPlayerCollision((s32)e->x, (s32)e->y);
-            if ((f32)floorY < D_8004BCD0[entIndex].y && e->y - (f32)floorY < 8.0f && D_8004BCD0[entIndex].unk1C < D_8004C6F8) {
+            if (D_8004BCD0[entIndex].y > (f32)floorY && e->y - (f32)floorY < 8.0f && D_8004BCD0[entIndex].unk1C < D_8004C6F8) {
                 D_8004BCD0[entIndex].unk1C = D_8004C6F8;
                 e->y = (f32)floorY;
                 D_8004BCD0[entIndex].vy = 0.0f;
@@ -2696,7 +2693,7 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
             break;
         }
         if (D_8004BCD0[D_8004C71F].unk1C >= D_8004C6F8 || D_8004BCD0[entIndex].unk1D != 0) {
-            if (270.0f < e->x) {
+            if (e->x > 270.0f) {
                 D_8004BCD0[entIndex].unk1A = 1;
                 D_8004BCD0[entIndex].vx = (f32)(1 - D_8004BCD0[entIndex].unk1A * 2);
             } else if (D_8004BCD0[entIndex].x < 50.0f) {
@@ -2704,7 +2701,7 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
                 D_8004BCD0[entIndex].vx = (f32)(1 - e->unk1A * 2);
             }
         }
-        if (278.0f < D_8004BCD0[entIndex].x || D_8004BCD0[entIndex].x < 2.0f) {
+        if (D_8004BCD0[entIndex].x > 278.0f || D_8004BCD0[entIndex].x < 2.0f) {
             D_8004BCD0[entIndex].type = 0;
         }
         if ((e->y > 242.0f) & (D_8004BCD0[entIndex].x < 74.0f)) {
