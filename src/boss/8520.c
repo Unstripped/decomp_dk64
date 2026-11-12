@@ -132,7 +132,6 @@ typedef struct BossActor {
 
 
 
-extern u8 gBossFightPhase;
 extern s32 D_807FBD6C;
 extern void *gCamActor;
 
@@ -169,7 +168,7 @@ void bossKutOutStep(void) {
         actorSetUniformScale(gCurrentActor, 2.0 * gCurrentActor->sub4->scaleX);
         actorSpawnLinkedFollower();
     }
-    if (((gBossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
+    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
         if (flagGet(0xF7, 0) != 0) {
             tagBarrelSpawnActorSmokePuffs(0, 1);
             gCurrentActor->state = 0x40;
@@ -273,10 +272,10 @@ void bossKutOutStep(void) {
             }
             break;
         case 2:
-            if ((gBehaviourWorkState->timer != 0) && (gBossFightPhase != 4)) {
+            if ((gBehaviourWorkState->timer != 0) && (gActorGlobalState.bossFightPhase != 4)) {
                 gBehaviourWorkState->timer -= 1;
             } else {
-                if (gBossFightPhase == 4) {
+                if (gActorGlobalState.bossFightPhase == 4) {
                     actorScriptStart(gCurrentActor, 0x2FC);
                     behaviourSpawnPuffParticle();
                     swayState->unk2 = 0x96;

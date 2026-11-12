@@ -369,7 +369,6 @@ void raceUpdateOpponentEnginePitch(f32 moveSpeed) {
     D_80770BC0[idx] = 1.0f;
 }
 
-extern u8 gBossFightPhase;
 extern s16 D_80750AC8;
 extern s32 D_8002FC0C[];
 
@@ -418,9 +417,9 @@ void raceOpponentCarBehaviorUpdate(void) {
         D_80750AC8 = 0xA;
         actorClearNodeFlag(gCurrentActor, 4);
     }
-    if (gBossFightPhase == 4) {
+    if (gActorGlobalState.bossFightPhase == 4) {
         raceHandleCollisionRumble(cursor);
-    } else if (gBossFightPhase == 5) {
+    } else if (gActorGlobalState.bossFightPhase == 5) {
         cursor->unk39 = 0x1E;
         cursor->unk20 = 0.0f;
     }

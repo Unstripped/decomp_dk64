@@ -56,7 +56,6 @@ extern Actor *gCamActor;
 extern Boss2F_9230_Actor *gCurrentActor;
 extern void *gSpawnedActor;
 extern Boss2F_9230_BB4C *gPrimaryPlayerActor;
-extern u8 gBossFightPhase;
 extern Boss2F_9230_D580 *gActivePlayerState;
 
 s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
@@ -122,7 +121,7 @@ void bossKRoolDkStep(void) {
     case 0x29:
     case 0x2A:
         actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
-        if (gBossFightPhase == 4) {
+        if (gActorGlobalState.bossFightPhase == 4) {
             csSendActorMessagePayload(gActivePlayerState->unkBE, 1);
             if (scriptState->unk14 == 3) {
                 gCurrentActor->unk154 = 0x37;
@@ -132,7 +131,7 @@ void bossKRoolDkStep(void) {
                 camStartPath(gCurrentActor, 1, 1);
                 gCurrentActor->unkB8 *= 0.7;
             }
-        } else if (gBossFightPhase == 2 && gCurrentActor->unk155 > 0) {
+        } else if (gActorGlobalState.bossFightPhase == 2 && gCurrentActor->unk155 > 0) {
             actorScriptStart(gCurrentActor, 0);
             gCurrentActor->unk154 = 0;
             gCurrentActor->unk155 = 0;

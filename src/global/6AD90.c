@@ -1844,13 +1844,13 @@ void collisionTransformPointToActorLocal(Actor *actor, Actor *target, CollisionB
     } else {
         idx = (gGfxBufferIndex ^ 1) & 0xFF;
     }
-    mtx = sub->unk74[idx];
+    mtx = sub->nodeMtx[idx];
     if ((tri->unk4C != tri->unk48) || (tri->unk50 != tri->unk48)) {
         D_807F94B2 = 1;
     }
     D_807F9480 = tri->unk48;
     if (tri->unk48 == -1) {
-        memcpy(xfMtx, sub->boxBounds, 0x40);
+        memcpy(xfMtx, sub->modelMtxF, 0x40);
     } else {
         guMtxL2F(xfMtx, &mtx[tri->unk48 >> 6]);
     }
@@ -1876,9 +1876,9 @@ void collisionTransformPointByActorMtx(Actor *actor, u32 mtxOffset, f32 *xInOut,
         idx = gGfxBufferIndex ^ 1;
         idx = idx & 0xFF; // FAKE: split mask steers sub/idx v0/v1 allocation
     }
-    mtx = sub->unk74[idx];
+    mtx = sub->nodeMtx[idx];
     if (mtxOffset == -1) {
-        memcpy(xfMtx, sub->boxBounds, 0x40);
+        memcpy(xfMtx, sub->modelMtxF, 0x40);
     } else {
         guMtxL2F(xfMtx, &mtx[mtxOffset >> 6]);
     }

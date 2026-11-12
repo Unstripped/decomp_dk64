@@ -25,7 +25,7 @@ void collisionHitRecordsFlush(Actor *, Actor *);
 #ifndef PROTO_SKIP_collisionNodeLocalToWorldXZ
 void collisionNodeLocalToWorldXZ(Actor *, struct CollisionHitRecord *, f32 *, f32 *);
 #endif
-#ifndef PROTO_SKIP_func_806755A8
-void func_806755A8(s32, s32, s32, s32, s16 *, s16 *);
+#ifndef PROTO_SKIP_collisionComputeArcYawBounds
+void collisionComputeArcYawBounds(s32, s32, s32, s32, s16 *, s16 *);
 #endif
 #endif

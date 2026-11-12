@@ -763,7 +763,6 @@ typedef struct {
     u8 unk1C;
 } BonusVtxLink;
 
-extern u8 gBossFightPhase;
 
 void bonusActorUpdateVertexPositions(void) {
     BonusVtxLink *link = gCurrentActor->customState;
@@ -787,7 +786,7 @@ void bonusActorUpdateVertexPositions(void) {
         heapClearBlock(gCurrentActor->sub4->boneRotations);
     }
     sub = link->unk4->customState;
-    if (gBossFightPhase == 4 && sub->unk4 == 0 && link->unk10 == -1) {
+    if (gActorGlobalState.bossFightPhase == 4 && sub->unk4 == 0 && link->unk10 == -1) {
         link->unk8 = 275.0f;
         link->unk10 = link->unk11;
         sub->unk5 = 0;

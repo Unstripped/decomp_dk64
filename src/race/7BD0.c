@@ -1159,7 +1159,6 @@ void racePlayerTrackerBehaviorUpdate(void) {
     raceData->unk18 = (diff < curMax) ? curMax : raceData->unk14;
 }
 
-extern u8 gBossFightPhase;
 
 void raceHandleRacerCollision(RaceTarget *target) {
     f32 distSq;
@@ -1176,7 +1175,7 @@ void raceHandleRacerCollision(RaceTarget *target) {
 
     racer = target->actor;
     distSq = (racer->x - gCurrentActor->x) * (racer->x - gCurrentActor->x) + (racer->z - gCurrentActor->z) * (racer->z - gCurrentActor->z);
-    if (gBossFightPhase == 4 && distSq < target->distSq && (target->curveMode == 1 || target->curveMode == 0 || target->curveMode == 4 || (gCurrentActor->actorType == 0x143 && target->curveMode == 5))) {
+    if (gActorGlobalState.bossFightPhase == 4 && distSq < target->distSq && (target->curveMode == 1 || target->curveMode == 0 || target->curveMode == 4 || (gCurrentActor->actorType == 0x143 && target->curveMode == 5))) {
         targetAngle = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, racer->x, racer->z);
         bounceScale = 1.0f;
         if (mathAngleDistance(racer->moveYaw, targetAngle) < 0x200) {

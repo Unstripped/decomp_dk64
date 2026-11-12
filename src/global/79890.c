@@ -31,9 +31,9 @@ typedef struct CollisionHitRecordNode {
 extern u8 D_807FB606;
 extern u16 gActiveActorCount;
 extern ActorEntry gActiveActors[];
-extern CollisionHitRecordNode *D_807FB620;
-extern CollisionHitRecordNode *D_807FB624;
-extern s32 D_807FB628;
+extern CollisionHitRecordNode *gCollisionHitListHead;
+extern CollisionHitRecordNode *gCollisionHitListTail;
+extern s32 gCollisionHitCount;
 extern u8 gGfxBufferIndex;
 s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 
@@ -77,11 +77,11 @@ u8 actorCollisionGetNodeHitPoint(Actor *self, Actor *other, f32 *outX, f32 *outZ
                     node = node->next;
                 }
                 if (collisionSpheresOverlap(otherX * 8.0f, otherY * 8.0f, otherZ * 8.0f, hitDist * 8.0f,
-                                            node->unk10, node->unk14, node->matrixIndex, node->unk1C)) {
+                                            node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius)) {
                     matched = 1;
                     collisionNodeLocalToWorldXZ(self, hit, outX, outZ);
                 }
-                func_806755A8(otherX * 8.0f, otherZ * 8.0f, node->unk10, node->matrixIndex, &other->arcYawMin, &other->arcYawMax);
+                collisionComputeArcYawBounds(otherX * 8.0f, otherZ * 8.0f, node->scaledX, node->scaledZ, &other->arcYawMin, &other->arcYawMax);
                 other->hasArcBounds = 1;
                 other->collisionHit = 1;
             }
@@ -129,9 +129,9 @@ void actorCollisionCheckNodeSpheres(Actor *self) {
     if (gActiveActorCount > 0) {
         entry = gActiveActors;
         do {
-            D_807FB620 = NULL;
-            D_807FB624 = NULL;
-            D_807FB628 = 0;
+            gCollisionHitListHead = NULL;
+            gCollisionHitListTail = NULL;
+            gCollisionHitCount = 0;
             actor = entry->actor;
             isRider = 0;
             otherCollision = actor->collision;
@@ -156,13 +156,13 @@ void actorCollisionCheckNodeSpheres(Actor *self) {
                         node2Idx = 1;
                         for (node2 = otherCollision->nodes; node2 != NULL; node2 = node2->next, node2Idx++) {
                             if (node2->active != 0 && (node2->unk27 & 8) == 0) {
-                                if (collisionSpheresOverlap(node1->unk10, node1->unk14, node1->matrixIndex, node1->unk1C,
-                                                  node2->unk10, node2->unk14, node2->matrixIndex, node2->unk1C)) {
+                                if (collisionSpheresOverlap(node1->scaledX, node1->scaledY, node1->scaledZ, node1->scaledRadius,
+                                                  node2->scaledX, node2->scaledY, node2->scaledZ, node2->scaledRadius)) {
                                     mask1 = ~node1->unk24;
                                     mask2 = ~node2->unk24;
                                     if ((mask1 & actor->collisionFlags) && (mask2 & self->collisionFlags)) {
                                         dist = collisionPointToSphereDistance(selfX, selfY, selfZ,
-                                                             node2->unk10, node2->unk14, node2->matrixIndex, node2->unk1C);
+                                                             node2->scaledX, node2->scaledY, node2->scaledZ, node2->scaledRadius);
                                         collisionWorldToNodeLocal(otherCollision, self->x, self->y, self->z, node2,
                                                       &hitLocalX, &hitLocalY, &hitLocalZ);
                                         collisionHitRecordAppend(self->instanceId, dist, hitLocalX, hitLocalY, hitLocalZ, node1Idx, node2Idx);
@@ -173,7 +173,7 @@ void actorCollisionCheckNodeSpheres(Actor *self) {
                     }
                 }
             }
-            if (D_807FB620 != NULL) {
+            if (gCollisionHitListHead != NULL) {
                 collisionHitRecordsFlush(self, actor);
             }
             i++; entry++; // LAYOUT: one line keeps the entry/i spill-store order
@@ -187,10 +187,10 @@ void collisionWorldToNodeLocal(ActorSub140 *owner, f32 worldX, f32 worldY, f32 w
     u32 mtxIndex;
     Mtx *mtx;
 
-    mtx = owner->unk74[gGfxBufferIndex];
-    mtxIndex = node->unk20;
+    mtx = owner->nodeMtx[gGfxBufferIndex];
+    mtxIndex = node->mtxOffset;
     if (mtxIndex == -1) {
-        memcpy(worldMtx, owner->boxBounds, sizeof(worldMtx));
+        memcpy(worldMtx, owner->modelMtxF, sizeof(worldMtx));
     } else {
         guMtxL2F(worldMtx, &mtx[mtxIndex >> 6]);
     }
@@ -226,13 +226,13 @@ void collisionHitRecordAppend(s32 sourceId, f32 dist, f32 localX, f32 localY, f3
     recordNode->nodeIndex = node2Idx;
     recordNode->sourceId = sourceId;
     recordNode->next = NULL;
-    if (D_807FB620 != NULL) {
-        D_807FB624->next = recordNode;
+    if (gCollisionHitListHead != NULL) {
+        gCollisionHitListTail->next = recordNode;
     } else {
-        D_807FB620 = recordNode;
+        gCollisionHitListHead = recordNode;
     }
-    D_807FB624 = recordNode;
-    D_807FB628 += 1;
+    gCollisionHitListTail = recordNode;
+    gCollisionHitCount += 1;
 }
 
 void collisionHitRecordsFlush(Actor *self, Actor *otherActor) {
@@ -241,9 +241,9 @@ void collisionHitRecordsFlush(Actor *self, Actor *otherActor) {
     CollisionHitRecordNode *node;
     CollisionHitRecordNode *next;
 
-    records = heapAlloc(D_807FB628 * sizeof(CollisionHitRecord));
-    node = D_807FB620;
-    for (i = 0; i < D_807FB628; i++) {
+    records = heapAlloc(gCollisionHitCount * sizeof(CollisionHitRecord));
+    node = gCollisionHitListHead;
+    for (i = 0; i < gCollisionHitCount; i++) {
         records[i].dist = node->dist;
         records[i].localX = node->localX;
         records[i].localY = node->localY;
@@ -255,7 +255,7 @@ void collisionHitRecordsFlush(Actor *self, Actor *otherActor) {
         heapFree(node);
         node = next;
     }
-    actorAppendCallback(otherActor, self, 0x8000, 0, D_807FB628, records);
+    actorAppendCallback(otherActor, self, 0x8000, 0, gCollisionHitCount, records);
 }
 
 void collisionNodeLocalToWorldXZ(Actor *owner, CollisionHitRecord *record, f32 *outWorldX, f32 *outWorldZ) {
@@ -272,10 +272,10 @@ void collisionNodeLocalToWorldXZ(Actor *owner, CollisionHitRecord *record, f32 *
     for (i = record->nodeIndex - 1; i != 0; i--) {
         node = node->next;
     }
-    mtx = owner->collision->unk74[gGfxBufferIndex ^ 1];
-    mtxIndex = node->unk20;
+    mtx = owner->collision->nodeMtx[gGfxBufferIndex ^ 1];
+    mtxIndex = node->mtxOffset;
     if (mtxIndex == -1) {
-        memcpy(modelMtx, owner->collision->boxBounds, sizeof(modelMtx));
+        memcpy(modelMtx, owner->collision->modelMtxF, sizeof(modelMtx));
         guMtxXFMF(modelMtx, record->localX, record->localY, record->localZ, &worldX, &worldY, &worldZ);
     } else {
         guMtxXFML(&mtx[mtxIndex >> 6], record->localX, record->localY, record->localZ, &worldX, &worldY, &worldZ);
@@ -286,7 +286,7 @@ void collisionNodeLocalToWorldXZ(Actor *owner, CollisionHitRecord *record, f32 *
 
 void func_806742C0(s16, s16, s16 *, s16 *);
 
-void func_806755A8(s32 x1, s32 y1, s32 x2, s32 y2, s16 *outMinAngle, s16 *outMaxAngle) {
+void collisionComputeArcYawBounds(s32 x1, s32 y1, s32 x2, s32 y2, s16 *outMinAngle, s16 *outMaxAngle) {
     s32 pad1;
     s32 pad2;
     f32 dist;

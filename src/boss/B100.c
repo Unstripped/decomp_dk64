@@ -42,7 +42,6 @@ typedef struct BossE_B100_Actor {
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern u8 gBossFightPhase;
 
 s32 actorSpawn(s32, s32);
 void actorCopyPoseAndScale(void *, void *, f32);
@@ -138,7 +137,7 @@ void bossDogadonStep(void) {
     bossRoundFrame(scriptOpcodes);
     switch (gCurrentActor->state) {
     case 0x28:
-        if (gBossFightPhase == 5 && gPlayerSlots->unk2C0 != 1) {
+        if (gActorGlobalState.bossFightPhase == 5 && gPlayerSlots->unk2C0 != 1) {
             gCurrentActor->unk144 = 1;
             gPrimaryPlayerActor->unk144 = 1;
             camStartPath(0, 2, 1);
@@ -365,13 +364,13 @@ void func_8002FDF8(void *actorObj, u8 scaleVal) {
         finalScale = scaleVal;
     }
     func_8002FB7C(finalScale & 0xFF);
-    if (gBossFightPhase == 4) {
+    if (gActorGlobalState.bossFightPhase == 4) {
         bossActorGroupCommand(actorObj, 0xF, 0, 0);
         animFrame = (0xA - gCurrentActor->health) & 0xFF;
         func_8002FC48(gCurrentActor, animFrame);
         actorScriptStart(gCurrentActor, 0x415);
     }
-    if (gBossFightPhase == 5 || gBossFightPhase == 4) {
+    if (gActorGlobalState.bossFightPhase == 5 || gActorGlobalState.bossFightPhase == 4) {
         sfxPlayAtFBD6CPosition();
     }
 }

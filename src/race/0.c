@@ -246,7 +246,6 @@ typedef struct {
 } LargeR4_Row;
 
 extern LargeR4_Act *gPrimaryPlayerActor;
-extern u8 gBossFightPhase;
 extern u16 D_80750AC8;
 extern s32 D_8002FB94[];
 
@@ -337,10 +336,10 @@ void raceOpponentBehaviourUpdate(void) {
         }
     }
     rowIdx = gBehaviourWorkState->unk24;
-    if (child != NULL && controller->unk34 < 3 && gBossFightPhase == 4) {
+    if (child != NULL && controller->unk34 < 3 && gActorGlobalState.bossFightPhase == 4) {
         playerStateQueueCallback(0x33, gCurrentActor, 0);
     }
-    if (controller->unk34 < 3 && L4_D->unk154 == 2 && gBossFightPhase == 5) {
+    if (controller->unk34 < 3 && L4_D->unk154 == 2 && gActorGlobalState.bossFightPhase == 5) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CA, 0xFF, 0x7F, 0xA);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x209, 0xFF, 0x7F, 0xA);
         L4_D->unkB8 = 0.0f;

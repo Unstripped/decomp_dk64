@@ -96,14 +96,14 @@ void bossKRoolChunkyPlayTauntSfx(void) {
     sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x2E2, 0xFF, 0x65, 0, 0, 0.0f, 0);
 }
 
-extern u8 D_80036A90[];
-extern u8 D_80036AA8[];
+extern u8 sKRoolChunkyScriptPhase0[];
+extern u8 sKRoolChunkyScriptLate[];
 
 // C920's .data (0x80035AC0-0x80035AF4; the TU ends here, DAA0's data starts 16-aligned at 0x80035B00)
-u8 *D_80035AC0[4] = { D_80036A90, D_80036AA8, D_80036AA8, D_80036AA8 };
-u8 D_80035AD0[4] = { 3, 0, 2, 1 };
-f32 D_80035AD4[4] = { 0.015f, 0.025f, 0.03f, 0.01f };
-f32 D_80035AE4[4] = { 1.0f, 1.3f, 1.8f, 0.7f };
+u8 *sKRoolChunkyPhaseScripts[4] = { sKRoolChunkyScriptPhase0, sKRoolChunkyScriptLate, sKRoolChunkyScriptLate, sKRoolChunkyScriptLate };
+u8 sKRoolChunkyPathGroupState[4] = { 3, 0, 2, 1 };
+f32 sKRoolChunkyPhaseApproachRate[4] = { 0.015f, 0.025f, 0.03f, 0.01f };
+f32 sKRoolChunkyPhaseRampTarget[4] = { 1.0f, 1.3f, 1.8f, 0.7f };
 
 void bossKRoolChunkyStep(void) {
     BossScriptState *scriptState;
@@ -111,7 +111,7 @@ void bossKRoolChunkyStep(void) {
     s16 waypointCoords[3];
 
     scriptState = ((BossKRoolChunkyActor *)gCurrentActor)->scriptState;
-    scriptOpcodes = D_80035AC0[scriptState->phase];
+    scriptOpcodes = sKRoolChunkyPhaseScripts[scriptState->phase];
     behaviourFrameBegin();
     bossRoundFrame(scriptOpcodes);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -164,7 +164,7 @@ void bossKRoolChunkyStep(void) {
             }
             gCurrentActor->interactionType = 4;
             bossKRoolChunkySetupFight(scriptState);
-            scriptSetActorRampTarget(gCurrentActor, D_80035AE4[scriptState->phase], 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, sKRoolChunkyPhaseRampTarget[scriptState->phase], 0.0f);
             gCurrentActor->unk155++;
             break;
         case 3:
@@ -172,7 +172,7 @@ void bossKRoolChunkyStep(void) {
             gCurrentActor->unk155++;
             /* fallthrough */
         case 4:
-            bossKRoolChunkyInterpolatePosition(D_80035AD4[scriptState->phase]);
+            bossKRoolChunkyInterpolatePosition(sKRoolChunkyPhaseApproachRate[scriptState->phase]);
             if (scriptState->phase == 3) {
                 bossKRoolChunkyOscillateSway();
             }
@@ -198,7 +198,7 @@ void bossKRoolChunkyStep(void) {
                 }
                 csSendActorMessagePayload(2, 0xFF);
             }
-            bossKRoolChunkyInterpolatePosition(D_80035AD4[scriptState->phase]);
+            bossKRoolChunkyInterpolatePosition(sKRoolChunkyPhaseApproachRate[scriptState->phase]);
             if (scriptState->phase == 3) {
                 bossKRoolChunkyOscillateSway();
             }
@@ -220,7 +220,7 @@ void bossKRoolChunkyStep(void) {
         case 9:
             scriptState->scriptPos = 0;
             scriptState->phase++;
-            scriptOpcodes = D_80035AC0[scriptState->phase];
+            scriptOpcodes = sKRoolChunkyPhaseScripts[scriptState->phase];
             /* fallthrough */
         case 10:
         case 11:
@@ -257,7 +257,7 @@ void bossKRoolChunkyStep(void) {
         switch (gCurrentActor->unk155) {
         case 0:
             patrolGetNextWaypointPos(&waypointCoords[2], &waypointCoords[1], &waypointCoords[0]);
-            actorSetGroupState(D_80035AD0[gBehaviourAnimState->path[gBehaviourWorkState->unk25 & 0x7F][0] - 1], 1);
+            actorSetGroupState(sKRoolChunkyPathGroupState[gBehaviourAnimState->path[gBehaviourWorkState->unk25 & 0x7F][0] - 1], 1);
             gCurrentActor->unkEC = mathAngleBetweenPoints2D(waypointCoords[2], waypointCoords[0], gCurrentActor->x, gCurrentActor->z);
             if (mathAngleSignedDistance(gCurrentActor->yaw, gCurrentActor->unkEC) < 0) {
                 actorScriptStart(gCurrentActor, 0x401);
@@ -339,6 +339,6 @@ void bossKRoolChunkyStep(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/C920/D_80036A90.s")
+#pragma GLOBAL_ASM("asm/boss/nonmatchings/C920/sKRoolChunkyScriptPhase0.s")
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/C920/D_80036AA8.s")
+#pragma GLOBAL_ASM("asm/boss/nonmatchings/C920/sKRoolChunkyScriptLate.s")

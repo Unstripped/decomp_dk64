@@ -18,7 +18,6 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern u8 gBossFightPhase;
 
 typedef struct R1C8CBSub178 {
     /* 0x0 */ s16 unk0;
@@ -215,7 +214,7 @@ void func_806C6BC8(void) {
             }
             break;
         case 2:
-            if (gBossFightPhase == 4) {
+            if (gActorGlobalState.bossFightPhase == 4) {
                 actorScriptStart(gCurrentActor, 0);
                 scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
                 R1V->unk154 = 0;

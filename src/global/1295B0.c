@@ -528,7 +528,7 @@ s32 zoneCheckActorInside(Actor *actor, f32 prevX, f32 prevZ, Zone *zone, s16 *un
                     if (e->flags != 0) {} // FAKE: live range steers flags/count10 colouring (a1/t0)
                     if (i == 5) {} // FAKE: steer s3 and s8 constant coloring
                     if (((x - (f32)e->x) * (x - (f32)e->x)) + ((z - (f32)e->z) * (z - (f32)e->z)) < (f32)(e->radius * e->radius)) {
-                        func_806755A8((s32)x, (s32)z, e->x, e->z, &actor->arcYawMin, &actor->arcYawMax);
+                        collisionComputeArcYawBounds((s32)x, (s32)z, e->x, e->z, &actor->arcYawMin, &actor->arcYawMax);
                         found = 1;
                         actor->hasArcBounds = 1;
                         if (zone) {} // FAKE: steers ret temps

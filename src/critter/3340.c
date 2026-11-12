@@ -373,7 +373,6 @@ typedef struct FlutterActorView {
 
 #define FLUTTER_ACTOR ((FlutterActorView *)gCurrentActor)
 
-extern u8 gBossFightPhase;
 
 void critterFlutterFlyUpdate(void) {
     f32 dx;
@@ -464,7 +463,7 @@ void critterFlutterFlyUpdate(void) {
         }
         FLUTTER_ACTOR->unk7C = d->unk8 + (t * (d->unk14 - d->unk8));
         FLUTTER_ACTOR->unk84 = d->unk10 + (t * (d->unk1C - d->unk10));
-        if (gBossFightPhase == 4) {
+        if (gActorGlobalState.bossFightPhase == 4) {
             actorScriptStart(gCurrentActor, 0x43C);
             FLUTTER_ACTOR->unk154 = 2;
             d->unk0 = 0.0f;

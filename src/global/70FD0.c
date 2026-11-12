@@ -835,7 +835,7 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
                 node->y = *((f32 *)data + 1);
                 node->z = *((f32 *)data + 2);
                 node->scale = *((f32 *)data + 3);
-                node->unk20 = *((s32 *)data + 4);
+                node->mtxOffset = *((s32 *)data + 4);
                 node->active = 1;
                 node->unk24 = 0;
                 node->unk27 = 0;
@@ -1013,9 +1013,9 @@ ActorSub140 *actorSub140Alloc(f32 x, f32 y, f32 z, f32 scale, f32 radius, f32 he
     sub->height = height;
     sub->scaledRadius = (s32) (radius * scale * 8.0f);
     sub->scaledHeight = (s32) (height * scale * 8.0f);
-    sub->boxBounds = boxBounds;
-    sub->unk74[0] = mtx0;
-    sub->unk74[1] = mtx1;
+    sub->modelMtxF = boxBounds;
+    sub->nodeMtx[0] = mtx0;
+    sub->nodeMtx[1] = mtx1;
     sub->unk7C = -1;
     sub->unk80 = -2;
     sub->unk84 = -1;
@@ -1080,11 +1080,11 @@ void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
     node->y = arg2;
     node->z = arg3;
     node->scale = arg4;
-    node->unk20 = arg5;
-    node->unk10 = 0;
-    node->unk14 = 0;
-    node->matrixIndex = 0;
-    node->unk1C = 0;
+    node->mtxOffset = arg5;
+    node->scaledX = 0;
+    node->scaledY = 0;
+    node->scaledZ = 0;
+    node->scaledRadius = 0;
     node->active = 1;
     node->unk24 = 0;
     node->unk27 = 0;
@@ -1246,7 +1246,7 @@ void actorSub140BuildBoxes(ActorSub140 *sub) {
         } else {
             bufIdx = (gGfxBufferIndex ^ 1);
         }
-        mtx = sub->unk74[bufIdx];
+        mtx = sub->nodeMtx[bufIdx];
         ent = sub->boxes;
         box = sub->unkA4;
         i = 0;
@@ -1260,7 +1260,7 @@ void actorSub140BuildBoxes(ActorSub140 *sub) {
                 do {
                     boneOffset = ent->boneOffset;
                     if (none == boneOffset) {
-                        memcpy(boundsMtx, sub->boxBounds, 0x40);
+                        memcpy(boundsMtx, sub->modelMtxF, 0x40);
                         guMtxXFMF(boundsMtx, src[0], src[3], src[6], outX, outY, outZ);
                     } else {
                         guMtxXFML((Mtx *)(((boneOffset >> 6) << 6) + (u8 *)mtx), src[0], src[3], src[6], outX, outY, outZ);
@@ -1347,13 +1347,13 @@ void actorSub140TransformTriangles(ActorSub140 *sub) {
         } else {
             bufIdx = (gGfxBufferIndex ^ 1);
         }
-        mtx = sub->unk74[bufIdx];
+        mtx = sub->nodeMtx[bufIdx];
         curr = first;
         for (i = 0; i < sub->triangleCount; i++) {
             for (j = 0; j < 3; j++) {
                 boneOffset = curr->boneOffset[j];
                 if ((boneOffset ^ 0) == -1) { // FAKE: ^ 0 steers bne operand order
-                    memcpy(boundsMtx, sub->boxBounds, 0x40);
+                    memcpy(boundsMtx, sub->modelMtxF, 0x40);
                     guMtxXFMF(boundsMtx, curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
                 } else {
                     guMtxXFML((Mtx *)((((boneOffset >> 6) << 6)) + (u8 *)mtx), curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
@@ -1505,8 +1505,8 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
                         D_807FB5FF = 0;
                         ret = 0;
                         while (node != NULL && D_807FB5FF == 0) {
-                            if (node->active != 0 && node->unk1C != 0 && !(node->unk27 & 6)) {
-                                ret |= func_80673708(node->unk10, node->unk14, node->matrixIndex, node->unk1C, buf->box_start, buf->box_end, arcMin, arcMax);
+                            if (node->active != 0 && node->scaledRadius != 0 && !(node->unk27 & 6)) {
+                                ret |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, buf->box_start, buf->box_end, arcMin, arcMax);
                             }
                             node = node->next;
                         }
@@ -1993,7 +1993,7 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
                 node = sub->nodes;
                 while (node != NULL) {
                     if (node->active != 0) {
-                        i = func_80673708(node->unk10, node->unk14, node->matrixIndex, node->unk1C, buf->box_start, buf->box_end, &actor->arcYawMin, &actor->arcYawMax); ret = (ret | i) & 0xFF; // LAYOUT: same-line call-result keeps 'or ret,ret,v0' operand order and no extra result var
+                        i = func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, buf->box_start, buf->box_end, &actor->arcYawMin, &actor->arcYawMax); ret = (ret | i) & 0xFF; // LAYOUT: same-line call-result keeps 'or ret,ret,v0' operand order and no extra result var
                     }
                     node = node->next;
                 }
@@ -2138,8 +2138,8 @@ s32 actorCheckTargetAngleBounds(Actor *actor, s16 *arcMin, s16 *arcMax) {
         actorUpdateCollisionSpheres(actor, 0);
         node = sub->nodes;
         while (node != NULL) {
-            if (node->active != 0 && node->unk1C != 0 && !(node->unk27 & 1)) {
-                ret |= func_806734E4(node->unk10, node->unk14, node->matrixIndex, node->unk1C, arcMin, arcMax);
+            if (node->active != 0 && node->scaledRadius != 0 && !(node->unk27 & 1)) {
+                ret |= func_806734E4(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, arcMin, arcMax);
             }
             node = node->next;
         }
@@ -2349,19 +2349,19 @@ void actorUpdateCollisionSpheres(Actor *actor, u8 force) {
             idx = gGfxBufferIndex ^ 1;
         }
         node = sub->nodes;
-        base = (s32)sub->unk74[idx];
+        base = (s32)sub->nodeMtx[idx];
         if (base) {} // FAKE: raises base coloring priority (swaps s5/s6)
         while (node != NULL) {
-            if (node->unk20 == -1) {
-                memcpy(mtx, sub->boxBounds, 0x40);
+            if (node->mtxOffset == -1) {
+                memcpy(mtx, sub->modelMtxF, 0x40);
                 guMtxXFMF(mtx, node->x, node->y, node->z, &outX, &outY, &outZ);
             } else {
-                guMtxXFML((Mtx *)((((u32)node->unk20 >> 6) << 6) + base), node->x, node->y, node->z, &outX, &outY, &outZ);
+                guMtxXFML((Mtx *)((((u32)node->mtxOffset >> 6) << 6) + base), node->x, node->y, node->z, &outX, &outY, &outZ);
             }
-            node->unk10 = outX * 8.0f;
-            node->unk14 = outY * 8.0f;
-            node->matrixIndex = outZ * 8.0f;
-            node->unk1C = node->scale * scale * 8.0f;
+            node->scaledX = outX * 8.0f;
+            node->scaledY = outY * 8.0f;
+            node->scaledZ = outZ * 8.0f;
+            node->scaledRadius = node->scale * scale * 8.0f;
             node = node->next;
         }
         sub->unk7C = sub->unk80;
@@ -2384,12 +2384,12 @@ void actorUpdateNodePositions(ActorSub140 *sub, u8 force) {
             bufIdx = gGfxBufferIndex ^ 1;
         }
         node = sub->subNodes;
-        mtxBase = (s32)sub->unk74[bufIdx];
+        mtxBase = (s32)sub->nodeMtx[bufIdx];
         if (node != NULL) {
             if (mtxBase) {} // FAKE: raises mtx_base register priority so -1 gets s5, mtx_base s6
             do {
                 if (node->unk18 == -1) {
-                    memcpy(&mtx, sub->boxBounds, sizeof(mtx));
+                    memcpy(&mtx, sub->modelMtxF, sizeof(mtx));
                     guMtxXFMF(mtx, node->x, node->y, node->z, &outX, &outY, &outZ);
                 } else {
                     guMtxXFML((Mtx *)((((u32)node->unk18 >> 6) << 6) + mtxBase), node->x, node->y, node->z, &outX, &outY, &outZ);
@@ -2458,7 +2458,7 @@ s32 actorStepSubNodeList(Actor *actor, s32 index) {
     } else {
         bufIdx = gGfxBufferIndex ^ 1;
     }
-    base = (s32)sub->unk74[bufIdx]; // matrix-buffer base address for the byte offsets in node->unk18
+    base = (s32)sub->nodeMtx[bufIdx]; // matrix-buffer base address for the byte offsets in node->unk18
 
     node = sub->subNodes;
     index--;

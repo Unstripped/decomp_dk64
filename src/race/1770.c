@@ -413,7 +413,6 @@ void raceVehicleRenderCallback(void *glist, Actor *actor) {
     raceRenderHud(glist, actor, ((RaceActor *)actor)->unk174);
 }
 
-extern u8 gBossFightPhase;
 extern Actor *gPrimaryPlayerActor;
 
 void raceVehicleBehaviorUpdate(void) {
@@ -446,7 +445,7 @@ void raceVehicleBehaviorUpdate(void) {
         actorClearNodeFlag(gCurrentActor, 2);
         racePlayEngineSfx();
     }
-    if (gBossFightPhase == 5 && pathState->unk39 == 0) {
+    if (gActorGlobalState.bossFightPhase == 5 && pathState->unk39 == 0) {
         if (participant->unk34 == 2) {
             behaviourAddSlotQueueValueB(3);
         }

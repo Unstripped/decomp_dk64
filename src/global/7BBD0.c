@@ -61,7 +61,7 @@ u8 actorCheckCollisionsAgainstActiveActors(Actor *self, s16 *arcMin, s16 *arcMax
                 }
                 while (node != NULL && D_807FB5FF == 0) {
                     if (node->active != 0 && !(node->unk27 & 2)) {
-                        hitMask |= func_80673708(node->unk10, node->unk14, node->matrixIndex, node->unk1C, otherSub140->unkA4, otherSub140->unkA8, arcMin, arcMax);
+                        hitMask |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, otherSub140->unkA4, otherSub140->unkA8, arcMin, arcMax);
                     }
                     node = node->next;
                 }
@@ -201,9 +201,9 @@ void actorGetMatrix(ActorSub140 *owner, CollisionMtxF dst, s8 mtxIndex) {
     } else {
         bufIdx = gGfxBufferIndex ^ 1;
     }
-    mtx = owner->unk74[bufIdx];
+    mtx = owner->nodeMtx[bufIdx];
     if (mtxIndex == -1) {
-        memcpy(dst, owner->boxBounds, 0x40);
+        memcpy(dst, owner->modelMtxF, 0x40);
     } else {
         guMtxL2F(dst, &mtx[mtxIndex]);
     }
@@ -335,13 +335,13 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
         actorAppendMoveTarget2D(self, other, pushX, pushZ, 1, 1);
         for (node = otherBounds->nodes; node != 0; node = node->next) {
             if (node->active != 0) {
-                other->hasArcBounds |= func_80673708(node->unk10, node->unk14, node->matrixIndex, node->unk1C, selfBounds->unkA4, selfBounds->unkA8, &other->arcYawMin, &other->arcYawMax);
+                other->hasArcBounds |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, selfBounds->unkA4, selfBounds->unkA8, &other->arcYawMin, &other->arcYawMax);
             }
         }
     } else {
         for (node = otherBounds->nodes; node != 0; node = node->next) {
             if (node->active != 0) {
-                other->hasArcBounds |= func_80673708(node->unk10, node->unk14, node->matrixIndex, node->unk1C, selfBounds->unkA4, selfBounds->unkA8, &other->arcYawMin, &other->arcYawMax);
+                other->hasArcBounds |= func_80673708(node->scaledX, node->scaledY, node->scaledZ, node->scaledRadius, selfBounds->unkA4, selfBounds->unkA8, &other->arcYawMin, &other->arcYawMax);
             }
         }
     }

@@ -116,11 +116,11 @@ typedef struct ModelNode {
     /* 0x04 */ f32 y;
     /* 0x08 */ f32 z;
     /* 0x0C */ f32 scale;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ s32 unk14;
-    /* 0x18 */ s32 matrixIndex;
-    /* 0x1C */ s32 unk1C;
-    /* 0x20 */ s32 unk20;
+    /* 0x10 */ s32 scaledX;
+    /* 0x14 */ s32 scaledY;
+    /* 0x18 */ s32 scaledZ;
+    /* 0x1C */ s32 scaledRadius;
+    /* 0x20 */ s32 mtxOffset;
     /* 0x24 */ u16 unk24;
     /* 0x26 */ u8 active;
     /* 0x27 */ u8 unk27;
@@ -167,8 +167,8 @@ typedef struct ActorSub140 {
     /* 0x68 */ s32 unk68;
     /* 0x6C */ u8 unk6C;
     /* 0x6D */ u8 pad6D[3];
-    /* 0x70 */ void *boxBounds;
-    /* 0x74 */ Mtx *unk74[2]; /* per gfx buffer, indexed by gGfxBufferIndex */
+    /* 0x70 */ void *modelMtxF;
+    /* 0x74 */ Mtx *nodeMtx[2]; /* per gfx buffer, indexed by gGfxBufferIndex */
     /* 0x7C */ s32 unk7C;
     /* 0x80 */ s32 unk80;
     /* 0x84 */ s32 unk84;
