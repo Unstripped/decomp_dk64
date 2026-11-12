@@ -13,71 +13,69 @@
 #include "proto/global/BC3B0.h"
 
 extern Actor *gCurrentActor;
-extern Actor *gPrimaryPlayerActor;
 
-typedef struct BC3B0CursorSub174 {
-    /* 0x00 */ u8 pad0[0x2C];
-    /* 0x2C */ s16 unk2C;
-} BC3B0CursorSub174;
+typedef struct BC3B0Cursor {
+    /* 0x0 */ f32 x;
+    /* 0x4 */ f32 y;
+    /* 0x8 */ f32 vx;
+    /* 0xC */ f32 vy;
+    /* 0x10 */ s16 lockX;
+    /* 0x12 */ s16 lockY;
+    /* 0x14 */ s16 lockZ;
+    /* 0x16 */ u8 pad16[2];
+    /* 0x18 */ f32 beepInterval;
+} BC3B0Cursor;
 
 typedef struct BC3B0CursorActor {
-    /* 0x000 */ u8 pad0[0x6E];
-    /* 0x06E */ s16 unk6E;
-    /* 0x070 */ u8 pad70[0x104];
-    /* 0x174 */ BC3B0CursorSub174 *unk174;
-    /* 0x178 */ f32 *unk178;
+    Actor base;
+    /* 0x178 */ BC3B0Cursor *cursor;
 } BC3B0CursorActor;
 
-#define BC3B0_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
-
-extern u8 D_1000118[];
-extern u8 D_2000080[];
-
+extern Gfx D_1000118;
+extern Mtx D_2000080;
 
 Gfx *actorCursorDrawSprite(Gfx *dl, Actor *actor) {
-    BC3B0CursorSub174 *sub = ((BC3B0CursorActor *)actor)->unk174;
-    f32 *pos = ((BC3B0CursorActor *)actor)->unk178;
+    BehaviourWorkState *work = actor->customState;
+    BC3B0Cursor *cursor = ((BC3B0CursorActor *)actor)->cursor;
 
     gDPPipeSync(dl++);
     if (actor->state == 0x11) {
         gDPSetPrimColor(dl++, 0, 0, 200, 0, 0, 255);
-    } else if (sub->unk2C != 0) {
+    } else if (work->timer != 0) {
         gDPSetPrimColor(dl++, 0, 0, 0, 200, 0, 255);
     } else {
         gDPSetPrimColor(dl++, 0, 0, 220, 180, 0, 255);
     }
-    BC3B0_WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
-    BC3B0_WRITE_GFX(dl++, 0xE200001C, 0x504240);
-    BC3B0_WRITE_GFX(dl++, 0xDE000000, D_1000118);
-    BC3B0_WRITE_GFX(dl++, 0xDA380007, D_2000080);
-    return renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, (s32)pos[0], (s32)pos[1], 0.5f, 0.5f, 0x2D, 0.0f);
+    gDPSetCombineMode(dl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+    gDPSetRenderMode(dl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gSPDisplayList(dl++, &D_1000118);
+    gSPMatrix(dl++, &D_2000080, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+    return renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, cursor->x, cursor->y, 0.5f, 0.5f, 0x2D, 0.0f);
 }
 
-
 Gfx *actorCursorDrawBurst(Gfx *dl, Actor *actor) {
-    BC3B0CursorSub174 *sub = ((BC3B0CursorActor *)actor)->unk174;
-    f32 *pos = ((BC3B0CursorActor *)actor)->unk178;
+    BehaviourWorkState *work = actor->customState;
+    BC3B0Cursor *cursor = ((BC3B0CursorActor *)actor)->cursor;
     f32 t;
     f32 x;
     f32 y;
     s16 angle;
     s16 i;
 
-    t = sub->unk2C / 20.0f;
+    t = work->timer / 20.0f;
     gDPPipeSync(dl++);
     gDPSetPrimColor(dl++, 0, 0, 0, 200, 0, 255);
-    dl = renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, (s32)pos[0], (s32)pos[1], t * 7.5 + 0.5, t * 7.5 + 0.5, (s32)(90.0f * t + 45.0f), 0.0f);
-    angle = (s16)(s32)(2048.0f * t);
-    i = 0;
-    do {
-        x = (0.0f - pos[0]) * t + pos[0];
-        y = (240.0f - pos[1]) * t + pos[1];
-        gDPSetPrimColor(dl++, 0, 0, 0, 200, 0, (u32)(-255.0f * t + 255.0f));
-        dl = renderRotatedSprite(renderRotatedSprite(dl, 0x42, 3, 1, 0x40, 0x40, (s32)x, 0x78, 0.5f, 4.0f, 0, 0.0f), 0x42, 3, 1, 0x40, 0x40, 0xA0, (s32)y, 0.5f, 5.0f, 0x5A, 0.0f);
+    dl = renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, cursor->x, cursor->y, t * 7.5 + 0.5, t * 7.5 + 0.5, 90.0f * t + 45.0f, 0.0f);
+    angle = 2048.0f * t;
+    for (i = 0; i < 5; i++) {
+        x = cursor->x + (0.0f - cursor->x) * t;
+        y = cursor->y + (240.0f - cursor->y) * t;
+        gDPSetPrimColor(dl++, 0, 0, 0, 200, 0, -255.0f * t + 255.0f);
+        dl = renderRotatedSprite(dl, 0x42, 3, 1, 0x40, 0x40, x, 0x78, 0.5f, 4.0f, 0, 0.0f);
+        dl = renderRotatedSprite(dl, 0x42, 3, 1, 0x40, 0x40, 0xA0, y, 0.5f, 5.0f, 0x5A, 0.0f);
         t += 0.1 * mathSinF(angle);
-        i++;
         t = (t > 1.0) ? 1.0 : t;
-    } while (i < 5);
+    }
     return dl;
 }
 
@@ -86,7 +84,7 @@ extern s32 gCurrentMap;
 void actorCursorFireProjectile(void *unused) {
     s32 id;
 
-    if ((gCurrentMap != 0x5A) && (gCurrentMap != 0x64)) {
+    if (gCurrentMap != 0x5A && gCurrentMap != 0x64) {
         id = 0x1E;
     } else {
         id = 0x63;
@@ -94,21 +92,6 @@ void actorCursorFireProjectile(void *unused) {
     projectileSetTargetCoords(gBehaviourTargetActor->x, gBehaviourTargetActor->y + 100.0f, gBehaviourTargetActor->z);
     projectileAimAndSpawn(id, 1, 0.5f, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, 285.0f, gCurrentActor);
 }
-
-typedef struct BC3B0Cursor {
-    /* 0x0 */ f32 x;
-    /* 0x4 */ f32 y;
-    /* 0x8 */ f32 vx;
-    /* 0xC */ f32 vy;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ s16 unk14;
-    /* 0x16 */ u8 pad16[2];
-    /* 0x18 */ f32 unk18;
-} BC3B0Cursor;
-
-#define BC3B0MAX(a, b) ((a) > (b) ? (a) : (b))
-#define BC3B0MIN(a, b) ((a) < (b) ? (a) : (b))
 
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
@@ -136,21 +119,19 @@ void actorCursorSteer(BC3B0Cursor *c, f32 tx, f32 ty) {
             c->vy = 5.0f;
         }
     }
-    c->x = BC3B0MIN(BC3B0MAX(c->x + c->vx, 0.0f), gScreenWidth);
-    c->y = BC3B0MIN(BC3B0MAX(c->y + c->vy, 0.0f), gScreenHeight);
+    c->x = MIN(MAX(c->x + c->vx, 0.0f), gScreenWidth);
+    c->y = MIN(MAX(c->y + c->vy, 0.0f), gScreenHeight);
 }
-
-#define BC3B0CA ((BC3B0CursorActor *)gCurrentActor)
 
 extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
-
 
 void func_806B7EA0(void) {
     BC3B0Cursor *c;
     f32 screenX;
     f32 screenY;
-    c = (BC3B0Cursor *)BC3B0CA->unk178;
+
+    c = ((BC3B0CursorActor *)gCurrentActor)->cursor;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourAnimState->flags |= 0x60;
@@ -158,14 +139,14 @@ void func_806B7EA0(void) {
         hudSpawnCountdownTimer(0xDC, 0x2A, gBehaviourExtraState->unkAWide ? gBehaviourExtraState->unkAWide : 10);
         gBehaviourWorkState->unk2E = gBehaviourExtraState->unkAWide != 0 ? 0xF : 0x78;
         if (gBehaviourExtraState->unkAWide != 0) {
-            c->unk18 = gBehaviourExtraState->unkAWide;
+            c->beepInterval = gBehaviourExtraState->unkAWide;
         } else {
-            c->unk18 = 10.0f;
+            c->beepInterval = 10.0f;
         }
     }
     if (gBehaviourWorkState->unk2E != 0) {
         if (camIsCutsceneActive() == 0) {
-            gBehaviourWorkState->unk2E = gBehaviourWorkState->unk2E - 1;
+            gBehaviourWorkState->unk2E--;
         }
         if (gBehaviourWorkState->unk2E != 0) {
             return;
@@ -177,29 +158,29 @@ void func_806B7EA0(void) {
         gGlobalCutsceneFlags |= 1;
         gGlobalOverlayFlags |= 2;
     }
-    if (((Actor *)gCurrentActor->parentActor)->state == 5 && gCurrentActor->state != 0x11) {
+    if (gCurrentActor->parentActor->state == 5 && gCurrentActor->state != 0x11) {
         if (gBehaviourTargetActor->hasArcBounds != 0) {
             gBehaviourTargetActor->yaw = mathAngleArcMidpoint(gBehaviourTargetActor->arcYawMin, gBehaviourTargetActor->arcYawMax);
         }
         camStartPath(0, 6, 5);
         gCurrentActor->state = 0x11;
         gCurrentActor->unk155 = 0;
-        c->unk10 = (s32)gBehaviourTargetActor->x;
-        c->unk12 = (s32)(gBehaviourTargetActor->y + (u32)gBehaviourTargetActor->eyeHeight);
-        c->unk14 = (s32)gBehaviourTargetActor->z;
+        c->lockX = gBehaviourTargetActor->x;
+        c->lockY = gBehaviourTargetActor->y + gBehaviourTargetActor->eyeHeight;
+        c->lockZ = gBehaviourTargetActor->z;
         gBehaviourWorkState->timer = 0x14;
     }
-    BC3B0CA->unk6E = BC3B0CA->unk6E + 1;
-    if (c->unk18 < (f32)BC3B0CA->unk6E) {
+    gCurrentActor->soundSlots[0]++;
+    if (c->beepInterval < gCurrentActor->soundSlots[0]) {
         sfxPlayOnFreeSlot(0x15B, 0x7FFF, 63.0f, 1.0f, 0, 0x80);
-        BC3B0CA->unk6E = 0;
-        if (c->unk18 > 2.0f) {
-            c->unk18 -= 0.18;
+        gCurrentActor->soundSlots[0] = 0;
+        if (c->beepInterval > 2.0f) {
+            c->beepInterval -= 0.18;
         }
     }
     if (gCurrentActor->state != 0x11) {
         if (gCurrentActor->state == 0x23 && camIsFollowingActive() == 0) {
-            camProjectToScreen(gBehaviourTargetActor->x, gBehaviourTargetActor->y + (u32)gBehaviourTargetActor->eyeHeight, gBehaviourTargetActor->z, &screenX, &screenY, 0, 1.0f, 0);
+            camProjectToScreen(gBehaviourTargetActor->x, gBehaviourTargetActor->y + gBehaviourTargetActor->eyeHeight, gBehaviourTargetActor->z, &screenX, &screenY, 0, 1.0f, 0);
             actorCursorSteer(c, screenX, screenY);
         }
     } else {
@@ -207,7 +188,7 @@ void func_806B7EA0(void) {
             renderCallbacksRegister(actorCursorDrawBurst, gCurrentActor, 3);
         }
         if (gBehaviourWorkState->timer != 0) {
-            gBehaviourWorkState->timer = gBehaviourWorkState->timer - 1;
+            gBehaviourWorkState->timer--;
             if (gBehaviourWorkState->timer == 5) {
                 sfxPlayOnFreeSlot(0x175, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
@@ -215,12 +196,12 @@ void func_806B7EA0(void) {
             actorCursorFireProjectile(c);
             gBehaviourWorkState->unk2E = 0x64;
             if (gBehaviourExtraState->unkAWide != 0) {
-                c->unk18 = gBehaviourExtraState->unkAWide;
+                c->beepInterval = gBehaviourExtraState->unkAWide;
             } else {
-                c->unk18 = 10.0f;
+                c->beepInterval = 10.0f;
             }
         }
-        camProjectToScreen(c->unk10, c->unk12, c->unk14, &c->x, &c->y, 0, 1.0f, 0);
+        camProjectToScreen(c->lockX, c->lockY, c->lockZ, &c->x, &c->y, 0, 1.0f, 0);
     }
     if (camIsFollowingActive() == 0) {
         renderCallbacksRegister(actorCursorDrawSprite, gCurrentActor, 3);
@@ -228,15 +209,12 @@ void func_806B7EA0(void) {
 }
 
 typedef struct BC3B0EmitterActor {
-    /* 0x000 */ u8 pad0[0x178];
-    /* 0x178 */ s16 *unk178;
-    /* 0x17C */ s16 *unk17C;
+    Actor base;
+    /* 0x178 */ s16 *startDelay;
+    /* 0x17C */ s16 *burstCooldown;
 } BC3B0EmitterActor;
 
-#define BC3B0EA ((BC3B0EmitterActor *)gCurrentActor)
-
 extern u8 D_807201D4[];
-
 
 void actorUpdatePeriodicParticleEmitter(void) {
     behaviourFrameBegin();
@@ -252,7 +230,7 @@ void actorUpdatePeriodicParticleEmitter(void) {
         actorSetNodeFlag(gCurrentActor, 1);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x182, 0xFF, 0x7F, 0x1E);
     }
-    gBehaviourWorkState->scale = gBehaviourWorkState->scale - 1.0;
+    gBehaviourWorkState->scale -= 1.0;
     if (gBehaviourWorkState->timer != 0 && gFrameCounter % 5 == 0) {
         effectSetDuration(3);
         effectSetDepth(1);
@@ -299,27 +277,27 @@ void func_806B8898(void) {
 }
 
 void actorUpdateBurstProjectileEmitter(void) {
-    s16 *a = BC3B0EA->unk178;
-    s16 *b = BC3B0EA->unk17C;
+    s16 *delay = ((BC3B0EmitterActor *)gCurrentActor)->startDelay;
+    s16 *cooldown = ((BC3B0EmitterActor *)gCurrentActor)->burstCooldown;
     s16 kind;
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourWorkState->scale = gBehaviourExtraState->unkB;
-        *a = gBehaviourExtraState->unkD;
+        *delay = gBehaviourExtraState->unkD;
     }
-    if (*a != 0) {
-        *a = *a - 1;
+    if (*delay != 0) {
+        (*delay)--;
         return;
     }
     if (gBehaviourWorkState->scale <= 0.001) {
         gBehaviourWorkState->timer = gBehaviourExtraState->unkA;
         gBehaviourWorkState->scale = gBehaviourExtraState->unkB;
-        *b = 0;
+        *cooldown = 0;
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17, 0xFF, 0x7F, 0x19);
     }
-    gBehaviourWorkState->scale = gBehaviourWorkState->scale - 1.0;
-    if (gBehaviourWorkState->timer != 0 && *b == 0) {
+    gBehaviourWorkState->scale -= 1.0;
+    if (gBehaviourWorkState->timer != 0 && *cooldown == 0) {
         projectileSetTargetCoords(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         switch (gCurrentActor->actorType) {
             case 0xDC:
@@ -331,9 +309,9 @@ void actorUpdateBurstProjectileEmitter(void) {
         }
         projectileSpawnNodeEntry(kind, 0, 0.6f, gCurrentActor->yaw, gBehaviourExtraState->targetSpeed * 10, 0.0f, 0);
         gBehaviourWorkState->timer--;
-        *b = gBehaviourExtraState->scale;
+        *cooldown = gBehaviourExtraState->scale;
     }
-    if (*b != 0) {
-        *b = *b - 1;
+    if (*cooldown != 0) {
+        (*cooldown)--;
     }
 }
