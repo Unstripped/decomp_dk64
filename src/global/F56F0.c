@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments does not agree with the number in the
 #include "proto/global/117190.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
@@ -795,7 +795,7 @@ void playerWeaponInitCrosshair(Actor *actor, BoneRotation *slots, s32 *count) {
         }
         slots[index].weight = value[3];
         slots[index].bone = kind;
-        if (kind == 0) {}  // FAKE: extra use raises kind's uopt priority above the hoisted loop addresses (kind in s3)
+        if (kind == 0) {}  // FAKE: extra use raises the uopt priority of kind above the hoisted loop addresses (kind in s3)
 
         slots[index].rotX = (s16) (s32) ((f64) (pair->springX.angle + pair->springX.offset) * 10430.218905280077);
         slots[index].rotY = (s16) (s32) ((f64) (pair->springY.angle + pair->springY.offset) * 10430.218905280077);
