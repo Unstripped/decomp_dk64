@@ -2,10 +2,9 @@
 #ifndef PROTO_GLOBAL_145950_H
 #define PROTO_GLOBAL_145950_H
 #include "common.h"
-struct SynAllocAcmd;
 struct SynAllocResample;
 #ifndef PROTO_SKIP_n_alResamplePull
-struct SynAllocAcmd *n_alResamplePull(struct SynAllocResample *, s16 *, s32, struct SynAllocAcmd *);
+Acmd *n_alResamplePull(struct SynAllocResample *, s16 *, s32, Acmd *);
 #endif
 #ifndef PROTO_SKIP_alResampleParam
 s32 alResampleParam(struct SynAllocResample *, s32, void *);

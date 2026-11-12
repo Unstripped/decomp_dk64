@@ -2,10 +2,9 @@
 #ifndef PROTO_GLOBAL_145D70_H
 #define PROTO_GLOBAL_145D70_H
 #include "common.h"
-struct SynAllocAcmd;
 struct SynAllocSave;
 #ifndef PROTO_SKIP_n_alSavePull
-struct SynAllocAcmd *n_alSavePull(struct SynAllocSave *, s16 *, struct SynAllocAcmd *);
+Acmd *n_alSavePull(struct SynAllocSave *, s16 *, Acmd *);
 #endif
 #ifndef PROTO_SKIP_alSaveParam
 s32 alSaveParam(void *, s32, void *);

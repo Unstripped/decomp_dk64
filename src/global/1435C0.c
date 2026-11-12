@@ -367,7 +367,7 @@ Acmd *_pullSubFrame(EnvMixerEnv *filter, s16 *outp, s16 *samplePtr, s32 count, A
     return ptr;
 }
 
-s16 _getRate(f32 curVol, f32 targetVol, s32 delta, s16 *ratem) {
+s16 _getRate(f32 curVol, f32 targetVol, s32 delta, u16 *ratem) {
     s16 rate;
     s16 round;
     f32 invDelta;
@@ -376,7 +376,7 @@ s16 _getRate(f32 curVol, f32 targetVol, s32 delta, s16 *ratem) {
 
     if (delta == 0) {
         if (curVol <= targetVol) {
-            *(u16 *)ratem = 0xFFFF;
+            *ratem = 0xFFFF;
             return 0x7FFF;
         } else {
             *ratem = 0;
@@ -398,7 +398,7 @@ s16 _getRate(f32 curVol, f32 targetVol, s32 delta, s16 *ratem) {
     round = (s16)(s32)frac;
     rate += round;
     frac -= (f32)round;
-    *ratem = (s16)(u32)(65535.0f * frac);
+    *ratem = (u32)(65535.0f * frac);
     return rate;
 }
 

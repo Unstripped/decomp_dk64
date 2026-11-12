@@ -13,7 +13,7 @@ s32 n_alEnvmixerParam(void *, s32, void *);
 Acmd *_pullSubFrame(struct EnvMixerEnv *, s16 *, s16 *, s32, Acmd *);
 #endif
 #ifndef PROTO_SKIP__getRate
-s16 _getRate(f32, f32, s32, s16 *);
+s16 _getRate(f32, f32, s32, u16 *);
 #endif
 #ifndef PROTO_SKIP__getVol
 s16 _getVol(s16, s32, s16, u16);
