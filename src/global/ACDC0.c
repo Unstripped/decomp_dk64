@@ -99,7 +99,7 @@ extern s16 D_80744710[];
 extern s16 D_80744720[];
 extern s16 D_807505B2[];
 extern s16 D_807505B8[10];
-extern s8 D_807505CC;
+extern s8 gPauseMenuMode;
 extern s8 D_80750530[5];
 extern u8 D_80750531[];
 extern u16 D_807ECD58;
@@ -168,13 +168,13 @@ void hudPauseMenuUpdate(void) {
         case 0x52:
         case 0x6A:
         case 0xB9:
-            D_807505CC = 1;
+            gPauseMenuMode = 1;
             break;
         default:
             if (mapGetWorldIndex(gCurrentMap) == 9 || (gGlobalOverlayFlags & 0x10000000)) {
-                D_807505CC = 2;
+                gPauseMenuMode = 2;
             } else {
-                D_807505CC = 0;
+                gPauseMenuMode = 0;
             }
             break;
     }
@@ -298,7 +298,7 @@ void hudPauseMenuUpdate(void) {
                         if (hud->unk17 == 2) {
                             hud->unk17 = 3;
                         } else if (hud->unk17 == 1) {
-                            if (D_807505CC != 0) {
+                            if (gPauseMenuMode != 0) {
                                 mapRequestTransition(gCurrentMap, 0);
                             } else if (hud->unk18 == 0) {
                                 eepromSavePlayerData();
@@ -318,7 +318,7 @@ void hudPauseMenuUpdate(void) {
                         i = menuGetTimerFlag() != 0;
                     }
                     D_807FC8B8 = 1;
-                    if (D_807505CC == 0 && a2 != 7 && a2 != 0xD && a2 != 9 && i == 0) {
+                    if (gPauseMenuMode == 0 && a2 != 7 && a2 != 0xD && a2 != 9 && i == 0) {
                         if (a2 == 0xA) {
                             menuReturnToTitle();
                         } else if (func_805FEF74(gCurrentMap) == 0) {
@@ -332,8 +332,8 @@ void hudPauseMenuUpdate(void) {
                                 mapTransitionToWorldHub(a2);
                             }
                         }
-                    } else if (D_807505CC != 0) {
-                        if (D_807505CC == 2) {
+                    } else if (gPauseMenuMode != 0) {
+                        if (gPauseMenuMode == 2) {
                             mapTransitionToPreviousOrExit();
                         } else {
                             mapCheckAutoTransition();
@@ -683,14 +683,14 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     } else {
                         gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, ang >> 1);
                     }
-                    if (j == 2 && (hubWorld == 7 || (hubWorld == 8 && menuGetTimerFlag() != 0 && D_807505CC == 0))) {
+                    if (j == 2 && (hubWorld == 7 || (hubWorld == 8 && menuGetTimerFlag() != 0 && gPauseMenuMode == 0))) {
                         j++;
                     }
                     i = j;
-                    if (j == 1 && D_807505CC != 0) {
+                    if (j == 1 && gPauseMenuMode != 0) {
                         i = 4;
                     }
-                    if (i == 2 && D_807505CC != 0) {
+                    if (i == 2 && gPauseMenuMode != 0) {
                         i = 5;
                     }
                     dl = hudDrawScaledText(dl, 0x280, y, 0.7f, D_807FC7E0[i]);

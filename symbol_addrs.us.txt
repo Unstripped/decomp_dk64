@@ -3862,6 +3862,7 @@ sCamZoomTable = 0x80747B60;
 gModelSlotCount = 0x80747D70;
 gLightVolumeCount = 0x80748300;
 sKongNameTextIds = 0x8074E85C;
+gPauseMenuMode = 0x807505CC;
 gTextFontLineStarts = 0x807549FC;
 gTextGlyphTables = 0x80754A18;
 gTextFonts = 0x80754A34;
