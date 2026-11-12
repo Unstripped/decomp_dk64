@@ -227,12 +227,12 @@ Gfx *raceRenderSpeedBoostHud(Gfx *dl, RaceParticipant *tracker) {
 
 
 Gfx *raceRenderCoinHud(Gfx *dl, RaceParticipant *tracker) {
+    s32 pad[2];
     f32 posX;
     f32 doublePosX;
     f32 posY;
     f32 halfFontHeight;
     G00Entry *hudPos;
-    f32 savedHalfFontHeight;
     f32 xOffsetF;
     s16 scaledSpriteY;
     s32 xOffset;
@@ -242,7 +242,6 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceParticipant *tracker) {
 
     hudPos = tracker->unk48;
     halfFontHeight = (f32)textGetFontHeight(1) * 0.5f;
-    savedHalfFontHeight = halfFontHeight; // FAKE: redundant copy steers regalloc of the font-height temp
     posX = (f32)(hudPos->left + 8);
     posY = (f32)(hudPos->bottom - 0x10);
     posY -= 2 * halfFontHeight;
@@ -254,7 +253,7 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceParticipant *tracker) {
     posX += 0.5f * (f32)textGetStringWidth(1, labelStr);
     posX = (f32)((f64)posX + 8.0);
     doublePosX = posX + posX;
-    posY = (f32)((f64)posY + (0.4 * (f64)savedHalfFontHeight));
+    posY = (f32)((f64)posY + (0.4 * (f64)halfFontHeight));
     WRITE_GFX(dl++, 0xFA000000, 0xFFFF00FF);
     scaledSpriteY = (s16)(s32)((posY + posY) * 4.0f);
     for (xOffset = 0; xOffset < 0x78; xOffset += 0x18) {
@@ -1207,7 +1206,7 @@ void raceHandleRacerCollision(RaceTarget *target) {
     }
     target->distSq = distSq;
     if (target->bumpCooldown > 0) {
-        target->bumpCooldown = target->bumpCooldown - 1;
+        target->bumpCooldown--;
     }
 }
 

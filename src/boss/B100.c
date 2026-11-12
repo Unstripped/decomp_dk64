@@ -103,7 +103,7 @@ void bossDogadonStep(void) {
     BossPhaseState *phaseState;
     u8 *scriptOpcodes;
     s32 pad[2];
-    f32 lineDist;
+    f32 offsetSin;
 
     phaseState = MAIN_ACTOR->unk178;
     behaviourFrameBegin();
@@ -148,8 +148,8 @@ void bossDogadonStep(void) {
             mapRequestTransition(0xD6, 0);
             gPrimaryPlayerActor->x = mathSinF(gCurrentActor->yaw + 0x320) * 30.0 + gCurrentActor->x;
             gPrimaryPlayerActor->z = mathCosF(gCurrentActor->yaw + 0x320) * 30.0 + gCurrentActor->z;
-            lineDist = mathSinF(gCurrentActor->yaw + 0x384);
-            playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, (s32)(lineDist * 15.0f + gCurrentActor->x), (s32)(mathCosF(gCurrentActor->yaw + 0x384) * 15.0f + gCurrentActor->z), 0x50);
+            offsetSin = mathSinF(gCurrentActor->yaw + 0x384);
+            playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, (s32)(offsetSin * 15.0f + gCurrentActor->x), (s32)(mathCosF(gCurrentActor->yaw + 0x384) * 15.0f + gCurrentActor->z), 0x50);
         } else {
             switch (gCurrentActor->unk155) {
             case 0:

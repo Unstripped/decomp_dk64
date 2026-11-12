@@ -481,7 +481,7 @@ void raceVehicleBehaviorUpdate(void) {
             bumpX = pathState->unk39;
             if (bumpX > 10.0f) {
                 shakeAngle = (bumpX - 10.0f) * 204.8f;
-                bumpX = 300.0f;
+                bumpX = 300.0f; // FAKE: bumpX reused as the 300.0f shake amplitude; a literal or own local changes regalloc
                 pathState->unk20 = mathSinF(shakeAngle) * bumpX;
                 pathState->unk24 = mathSinF(shakeAngle * 2) * bumpX;
             } else {

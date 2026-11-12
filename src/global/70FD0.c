@@ -1073,9 +1073,9 @@ void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
     ModelNode *curr;
 
     sub = arg0->collision;
-    node = (ModelNode *)heapAlloc(sizeof(ModelNode));
+    node = heapAlloc(sizeof(ModelNode));
     node->next = NULL;
-    head = (ModelNode **)&sub->nodes;
+    head = &sub->nodes;
     node->x = arg1;
     node->y = arg2;
     node->z = arg3;
@@ -1088,7 +1088,7 @@ void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
     node->active = 1;
     node->unk24 = 0;
     node->unk27 = 0;
-    curr = (ModelNode *)sub->nodes;
+    curr = sub->nodes;
     if (curr != NULL) {
         do {
             head = &curr->next;
@@ -1239,7 +1239,7 @@ void actorSub140BuildBoxes(ActorSub140 *sub) {
     f32 boxX[3];
     s32 padE[5];
 
-    none = -1;
+    none = -1; // FAKE: value-named -1 local keeps the constant in $s6 for both bone compares
     if (sub->boxes != NULL) {
         if (gFrameCounter == sub->unk88) {
             bufIdx = gGfxBufferIndex;
@@ -1816,28 +1816,6 @@ void func_8066FE08(s32 arg0) {
     }
 }
 
-typedef struct ActorHitSubView {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ u8 padC[0x26 - 0xC];
-    /* 0x26 */ s16 unk26;
-    /* 0x28 */ f32 unk28[3];
-    /* 0x34 */ f32 unk34[3];
-    /* 0x40 */ f32 unk40[3];
-    /* 0x4C */ f32 unk4C;
-    /* 0x50 */ f32 unk50;
-    /* 0x54 */ f32 unk54;
-    /* 0x58 */ s16 unk58;
-    /* 0x5A */ s8 unk5A;
-    /* 0x5B */ u8 pad5B;
-    /* 0x5C */ s32 unk5C;
-    /* 0x60 */ s32 unk60;
-    /* 0x64 */ s16 unk64;
-    /* 0x66 */ u8 pad66[0x8C - 0x66];
-    /* 0x8C */ ModelNode *nodes;
-} ActorHitSubView;
-
 typedef struct ActorHitRecord {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ u8 pad4[0x30];
@@ -1850,7 +1828,7 @@ struct ActorPlaneContactView;
 struct ActorHitPlane;
 
 s32 actorResolveModelSlotCollision(Actor *actor) {
-    ActorHitSubView *sub;
+    ActorSub140 *sub;
     s8 pad;
     s16 slot;
     DynamicBuffer *buf;
@@ -1878,7 +1856,7 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
         u8 kind;
 
         kind = 0;
-        sub = (ActorHitSubView *)actor->collision;
+        sub = actor->collision;
         ret = 0;
         slot = hashTableLookup(sub->unk26);
         if (slot != -1) {
@@ -1890,7 +1868,7 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
             D_807FB5FD = 1;
             D_807FB600 = 1;
             D_807FB602 = 0;
-            func_80672E90(sub->unk0, sub->unk4, sub->unk8);
+            func_80672E90(sub->scaledX, sub->scaledY, sub->scaledZ);
             actorSetCameraBoundaryMode(actor->actorType);
             hit = gModelSlots[slot].unk7C;
             if (hit != NULL) {
@@ -1908,21 +1886,21 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
                 }
             }
             if (hit != NULL && hit->unk53 != 0) {
-                ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, buf->box_start, buf->box_end, &actor->arcYawMin, &actor->arcYawMax) & 0xFF;
+                ret = func_80673708(sub->scaledX, sub->scaledY, sub->scaledZ, sub->unk5C, buf->box_start, buf->box_end, &actor->arcYawMin, &actor->arcYawMax) & 0xFF;
             } else {
                 actorSetTargetAngleBounds(buf->box_start + sub->unk58);
                 switch (kind) {
                 case 0:
-                    ret = func_806738D0(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, buf->box_start, buf->box_end) & 0xFF;
-                    func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, buf->box_start, buf->box_end, &actor->arcYawMin, &actor->arcYawMax);
+                    ret = func_806738D0(sub->scaledX, sub->scaledY, sub->scaledZ, sub->unk5C, buf->box_start, buf->box_end) & 0xFF;
+                    func_80673708(sub->scaledX, sub->scaledY, sub->scaledZ, sub->unk5C, buf->box_start, buf->box_end, &actor->arcYawMin, &actor->arcYawMax);
                     break;
                 case 1:
                 case 2:
-                    ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, buf->box_start, buf->box_end, &actor->arcYawMin, &actor->arcYawMax) & 0xFF;
+                    ret = func_80673708(sub->scaledX, sub->scaledY, sub->scaledZ, sub->unk5C, buf->box_start, buf->box_end, &actor->arcYawMin, &actor->arcYawMax) & 0xFF;
                     break;
                 case 3:
                 case 4:
-                    ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, 0x64, buf->box_start, buf->box_end, &actor->arcYawMin, &actor->arcYawMax) & 0xFF;
+                    ret = func_80673708(sub->scaledX, sub->scaledY, sub->scaledZ, 0x64, buf->box_start, buf->box_end, &actor->arcYawMin, &actor->arcYawMax) & 0xFF;
                     break;
                 }
             }
@@ -2120,7 +2098,7 @@ void actorSetTargetAngleBounds(CollisionBox *box) {
 }
 
 u8 func_806730A4(s32, s32, s32, s32);
-s32 func_806734E4();
+u8 func_806734E4(s32, s32, s32, s32, s16 *, s16 *);
 s32 actorCheckTargetAngleBounds(Actor *actor, s16 *arcMin, s16 *arcMax) {
     s32 pad0;
     s32 pad1;
