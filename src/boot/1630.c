@@ -51,8 +51,8 @@ void noExpPakThread(void *arg) {
     FbPair fb = sNoExpPakFramebuffers;
     VsyncDelays delay = sNoExpPakVsyncDelays;
     s8 cur = 1;
-    void *src = D_8000DE88;
-    void *dst = (void *)0x80280000;
+    u8 *src = D_8000DE88;
+    u8 *dst = (u8 *)0x80280000;
     Words3 unused = sNoExpPakUnusedWords;
 
     gunzip(&src, &dst, (void *)0x80180000);
@@ -66,9 +66,9 @@ void noExpPakThread(void *arg) {
         for (x = 0; x < 64; x++) {
             ((u16 *)0x80109600)[y * 320 + 128 + x] = ((s16 *)0x80280000)[((63 - y) << 6) + x];
         }
-        x = 0; /* dead store: keeps IDO from unrolling the copy loop */
+        x = 0; // FAKE: dead store keeps IDO from unrolling the copy loop
     }
-    osWritebackDCache((void *)0x80100000, 320 * 240 * 2);
+    osWritebackDCache(b, 320 * 240 * 2);
     osCreateMesgQueue(&sNoExpPakViMesgQueue, sNoExpPakViMesgBuf, 5);
     osViSetEvent(&sNoExpPakViMesgQueue, NULL, 1);
     if (osTvType == 0) {
@@ -76,7 +76,7 @@ void noExpPakThread(void *arg) {
         }
     }
     noExpPakDrawScreen();
-    noExpPakDrawText((u16 *)0x80200000);
+    noExpPakDrawText(a);
     count = 0;
     while (1) {
         osRecvMesg(&sNoExpPakViMesgQueue, NULL, OS_MESG_BLOCK);
@@ -94,8 +94,8 @@ void noExpPakDrawScreen(void) {
     s32 i;
     s32 *hdr;
     s32 pad0;
-    void *src;
-    void *dst;
+    u8 *src;
+    u8 *dst;
     s32 pad1;
     s32 pad2;
     s32 pad3; /* pad0..pad3: unused, reserve stack slots */
@@ -108,8 +108,8 @@ void noExpPakDrawScreen(void) {
         dmaSegment11(0x38, 0x10, hdr);
         dmaSegment11(hdr[0] + 0x4C, 0x10, hdr);
         dmaSegment11(hdr[0], hdr[1] - hdr[0], hdr);
-        src = hdr;
-        dst = (void *)0x80380000;
+        src = (u8 *)hdr;
+        dst = (u8 *)0x80380000;
         gunzip(&src, &dst, (void *)0x803C0000);
         noExpPakDrawText((u16 *)0x80100000);
     }
