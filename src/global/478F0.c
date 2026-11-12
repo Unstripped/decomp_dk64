@@ -2898,7 +2898,7 @@ s32 csCondFindPlayerSlotByModel(CsState *cs, s16 csId, s16 b, s16 c) {
         return 0;
     }
     modelSlotGetTransformVectors(id, &x, &y, &z, &rotX, &rotY, &rotZ, &extra0, &extra1, 1);
-    actorAppendCallbackPayloadABC0(0, gPlayerSlots[idx].actor, 9, (s16)(s32)(rotY * 11.377778f), 0, x, y, z);
+    actorAppendCallbackPayloadABC0(0, gPlayerSlots[idx].actor, 9, rotY * 11.377778f, 0, x, y, z);
     return 0;
 }
 

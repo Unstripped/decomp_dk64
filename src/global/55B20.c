@@ -2115,76 +2115,72 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
     s32 k;
 
     mapChunkIdListAddUnique(chunk);
-    i = 0;
-    if (gMapPortalSlotCount > 0) {
-        do {
-            if ((chunk == gMapPortalSlots[i].chunk) && (mapNodeIdListContains(gMapPortalSlots[i].target, depth) == 0)) {
-                if (gMapPortalSlots[i].enabled != 0) {
-                    gMapPortalSlots[i].seen = 1;
-                    id = i / 2;
-                    if (mapChunkHitListExcludes(id) != 0) {
-                        emitted = mapGridPointEmit(id, x, y, z);
-                        if (emitted != 0) {
-                            clipRight = right;
-                            clipLeft = left;
-                            clipTop = top;
-                            clipBottom = bottom;
-                        } else if (mapGridPointPlaneDistanceWithin(id, x, y, z, gMapPortalSlots[i].maxDist) != 0) {
-                            poly0 = mapGridQuadClipToFrustum(id, x, y, z);
-                            if (poly0 != 0) {
-                                mapPolyProjectToScreenRect(poly0, &polyLeft, &polyTop, &polyRight, &polyBottom);
-                                overlap = mapRectOverlapTest(polyLeft, polyTop, polyRight, polyBottom, left, top, right, bottom, &clipLeft, &clipTop, &clipRight, &clipBottom);
+    for (i = 0; i < gMapPortalSlotCount; i++) {
+        if ((chunk == gMapPortalSlots[i].chunk) && (mapNodeIdListContains(gMapPortalSlots[i].target, depth) == 0)) {
+            if (gMapPortalSlots[i].enabled != 0) {
+                gMapPortalSlots[i].seen = 1;
+                id = i / 2;
+                if (mapChunkHitListExcludes(id) != 0) {
+                    emitted = mapGridPointEmit(id, x, y, z);
+                    if (emitted != 0) {
+                        clipRight = right;
+                        clipLeft = left;
+                        clipTop = top;
+                        clipBottom = bottom;
+                    } else if (mapGridPointPlaneDistanceWithin(id, x, y, z, gMapPortalSlots[i].maxDist) != 0) {
+                        poly0 = mapGridQuadClipToFrustum(id, x, y, z);
+                        if (poly0 != 0) {
+                            mapPolyProjectToScreenRect(poly0, &polyLeft, &polyTop, &polyRight, &polyBottom);
+                            overlap = mapRectOverlapTest(polyLeft, polyTop, polyRight, polyBottom, left, top, right, bottom, &clipLeft, &clipTop, &clipRight, &clipBottom);
+                        }
+                    } else {
+                        poly0 = 0;
+                        found = 0;
+                        k = 0;
+                        while ((found == 0) && (k < gMapPortalCount)) {
+                            if ((i == gMapPortals[k].portal) && (gMapPortals[k].target == gMapPortalSlots[i].target)) {
+                                found = 1;
+                            } else {
+                                k++;
                             }
-                        } else {
-                            poly0 = 0;
-                            found = 0;
-                            k = 0;
-                            while ((found == 0) && (k < gMapPortalCount)) {
-                                if ((i == gMapPortals[k].portal) && (gMapPortals[k].target == gMapPortalSlots[i].target)) {
-                                    found = 1;
-                                } else {
-                                    k++;
-                                }
-                            }
-                            if ((found != 0) && (mapGridPointPlaneDistanceWithin(id, x, y, z, gMapPortals[k].maxDist) != 0)) {
-                                poly = mapGridQuadClipToFrustum(id, x, y, z);
-                                if (poly != 0) {
-                                    mapPolyProjectToScreenRect(poly, &polyLeft, &polyTop, &polyRight, &polyBottom);
-                                    if (mapRectOverlapTest(polyLeft, polyTop, polyRight, polyBottom, left, top, right, bottom, &clipLeft, &clipTop, &clipRight, &clipBottom) != 0) {
-                                        mapChunkIdListAddUniqueLimited(k);
-                                    }
-                                }
-                            }
-                            if (actorTargetTableHasPortalSlot(i) != 0) {
-                                poly = mapGridQuadClipToFrustum(id, x, y, z);
-                                if (poly != 0) {
-                                    mapPolyProjectToScreenRect(poly, &polyLeft, &polyTop, &polyRight, &polyBottom);
-                                    if (mapRectOverlapTest(polyLeft, polyTop, polyRight, polyBottom, left, top, right, bottom, &clipLeft, &clipTop, &clipRight, &clipBottom) != 0) {
-                                        gMapPortalVisible[i] = 1;
-                                    }
+                        }
+                        if ((found != 0) && (mapGridPointPlaneDistanceWithin(id, x, y, z, gMapPortals[k].maxDist) != 0)) {
+                            poly = mapGridQuadClipToFrustum(id, x, y, z);
+                            if (poly != 0) {
+                                mapPolyProjectToScreenRect(poly, &polyLeft, &polyTop, &polyRight, &polyBottom);
+                                if (mapRectOverlapTest(polyLeft, polyTop, polyRight, polyBottom, left, top, right, bottom, &clipLeft, &clipTop, &clipRight, &clipBottom) != 0) {
+                                    mapChunkIdListAddUniqueLimited(k);
                                 }
                             }
                         }
-                        if (((poly0 != 0) && (overlap != 0)) || emitted) {
-                            gMapPortalVisible[i] = 1;
-                            id = gMapPortalSlots[i].target;
-                            if (gMapChunkEnabled[id] != 0) {
-                                gMapChunks[id].state = 1;
-                                gMapChunks[id].playerMask |= 1 << gCurrentPlayerIndex;
-                                mapRectIntersect(clipLeft, clipTop, clipRight, clipBottom, gMapChunks[id].clipLeft, gMapChunks[id].clipTop, gMapChunks[id].clipRight, gMapChunks[id].clipBottom, &outLeft, &outTop, &outRight, &outBottom);
-                                gMapChunks[id].clipLeft = outLeft;
-                                gMapChunks[id].clipTop = outTop;
-                                gMapChunks[id].clipRight = outRight;
-                                gMapChunks[id].clipBottom = outBottom;
-                                D_807F6C30[depth] = chunk;
-                                mapChunkTraversePortals(id, depth + 1, clipLeft, clipTop, clipRight, clipBottom, x, y, z);
+                        if (actorTargetTableHasPortalSlot(i) != 0) {
+                            poly = mapGridQuadClipToFrustum(id, x, y, z);
+                            if (poly != 0) {
+                                mapPolyProjectToScreenRect(poly, &polyLeft, &polyTop, &polyRight, &polyBottom);
+                                if (mapRectOverlapTest(polyLeft, polyTop, polyRight, polyBottom, left, top, right, bottom, &clipLeft, &clipTop, &clipRight, &clipBottom) != 0) {
+                                    gMapPortalVisible[i] = 1;
+                                }
                             }
+                        }
+                    }
+                    if (((poly0 != 0) && (overlap != 0)) || emitted) {
+                        gMapPortalVisible[i] = 1;
+                        id = gMapPortalSlots[i].target;
+                        if (gMapChunkEnabled[id] != 0) {
+                            gMapChunks[id].state = 1;
+                            gMapChunks[id].playerMask |= 1 << gCurrentPlayerIndex;
+                            mapRectIntersect(clipLeft, clipTop, clipRight, clipBottom, gMapChunks[id].clipLeft, gMapChunks[id].clipTop, gMapChunks[id].clipRight, gMapChunks[id].clipBottom, &outLeft, &outTop, &outRight, &outBottom);
+                            gMapChunks[id].clipLeft = outLeft;
+                            gMapChunks[id].clipTop = outTop;
+                            gMapChunks[id].clipRight = outRight;
+                            gMapChunks[id].clipBottom = outBottom;
+                            D_807F6C30[depth] = chunk;
+                            mapChunkTraversePortals(id, depth + 1, clipLeft, clipTop, clipRight, clipBottom, x, y, z);
                         }
                     }
                 }
             }
-            i++;
-        } while (i < gMapPortalSlotCount);
+        }
     }
 }
 

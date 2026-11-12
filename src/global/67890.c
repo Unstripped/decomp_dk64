@@ -53,7 +53,7 @@ void actorTargetTableLoad(MapFileHeader *header) {
     if (gActorTargetCount != 0) {
         gActorTargetQuads = (ActorTargetQuad *)(base + header->unk50 + 4);
         gActorTargetStates = heapAlloc(gActorTargetCount * sizeof(ActorTargetDistanceEntry));
-        gActorTargetVerts = heapAlloc(gActorTargetCount << 6);
+        gActorTargetVerts = heapAlloc(gActorTargetCount * sizeof(Vtx) * 4);
         i = 0;
         if (gActorTargetCount > 0) {
             vtxOffset = start[0] * sizeof(Vtx); // FAKE: zero stored to a stack array and reloaded (sw/lw 0x18(sp)) seeds the vertex offset

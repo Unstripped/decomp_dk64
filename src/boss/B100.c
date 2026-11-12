@@ -417,7 +417,6 @@ extern u8 *D_80035AA4[];
 
 void actorScriptStartByIndex(void *, s32);
 s32 func_80724A20(void);
-void behaviourFrameBegin(void);
 void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
 
 
