@@ -51,7 +51,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     unsigned char space;
     unsigned char alt;
     unsigned char fneg;
-    unsigned char pad;
+    unsigned char padChar;
     int width;
     int prec;
     unsigned char minus;
@@ -60,7 +60,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     int d;
     unsigned long long uv;
     long long sv;
-    unsigned char *p;
+    const unsigned char *p;
     unsigned char nbuf[0x80];
     unsigned char *end;
     double fv;
@@ -78,7 +78,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     int i;
     int i2;
     int *q1;
-    int fillx[4];
+    int pad[4];
     double tmp;
     double etmp;
     double ernd;
@@ -108,7 +108,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                 minus = 0;
                 plus = 0;
                 space = 0;
-                pad = ' ';
+                padChar = ' ';
                 width = 0;
                 prec = -1;
                 ll = 0;
@@ -130,13 +130,13 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         alt = 1;
                         break;
                     case '0':
-                        pad = '0';
+                        padChar = '0';
                         break;
                     }
                     c = *f;
                 }
                 if (minus) {
-                    pad = ' ';
+                    padChar = ' ';
                 }
                 if (c == '*') {
                     width = va_arg(ap, int);
@@ -245,7 +245,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                 numout:
                     end = &nbuf[0x7F];
                     if (prec >= 0) {
-                        pad = ' ';
+                        padChar = ' ';
                     }
                     if (prec == -1) {
                         prec = 1;
@@ -271,7 +271,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     if (neg || plus || space) {
                         width--;
                     }
-                    if (!minus && pad == ' ') {
+                    if (!minus && padChar == ' ') {
                         for (; width-- > 0;) {
                             count++;
                             *buf++ = ' ';
@@ -292,7 +292,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         count += 2;
                         *buf++ = conv;
                     }
-                    if (!minus && pad == '0') {
+                    if (!minus && padChar == '0') {
                         for (; width-- > 0;) { count++; *buf++ = '0'; if (width == 0) {} // FAKE: splits the loop body so the '0' const is not hoisted/coloured (ring temp like the original); LAYOUT: one line
                         }
                     }
@@ -354,10 +354,10 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         exp++;
                     }
                     elen = (fneg2 || plus || space) + (prec > 0 || alt) + prec + (exp >= 100) + 5;
-                    if (!minus && pad == ' ') {
+                    if (!minus && padChar == ' ') {
                         for (; elen < width--;) {
                             count++;
-                            *buf++ = pad;
+                            *buf++ = padChar;
                         }
                     }
                     if (fneg2) {
@@ -370,12 +370,12 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         count++;
                         *buf++ = ' ';
                     }
-                    if (!minus && pad == '0') {
+                    if (!minus && padChar == '0') {
                         d = width; // FAKE
                         for (; elen < width--;) {
-                            if (pad == 0) {}  // FAKE: steers e-arm colouring
+                            if (padChar == 0) {}  // FAKE: steers e-arm colouring
                             count++;
-                            *buf++ = pad;
+                            *buf++ = padChar;
                         }
                         if (d) {} // FAKE
                     }
@@ -461,10 +461,10 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         i2++;
                     }
                     elen = (fneg || plus || space) + (prec > 0 || alt) + i2 + prec;
-                    if (!minus && pad == ' ') {
+                    if (!minus && padChar == ' ') {
                         for (; elen < width--;) {
                             count++;
-                            *buf++ = pad;
+                            *buf++ = padChar;
                         }
                     }
                     if (fneg) {
@@ -477,10 +477,10 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         count++;
                         *buf++ = ' ';
                     }
-                    if (!minus && pad == '0') {
+                    if (!minus && padChar == '0') {
                         for (; elen < width--;) {
                             count++;
-                            *buf++ = pad;
+                            *buf++ = padChar;
                         }
                     }
                     do {
@@ -527,7 +527,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     if (!minus) {
                         while (--width > 0) {
                             count++;
-                            *buf++ = pad;
+                            *buf++ = padChar;
                         }
                     }
                     count++;
@@ -544,10 +544,10 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     p = va_arg(ap, unsigned char *);
                     if (p == 0) {
                         if (prec == -1 || prec >= 6) {
-                            p = (unsigned char *)sNullString;
+                            p = sNullString;
                             len = 6;
                         } else {
-                            p = (unsigned char *)sEmptyString;
+                            p = sEmptyString;
                             len = 0;
                         }
                     } else {
@@ -585,7 +585,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         neg = 0;
                         goto numout;
                     } else {
-                        unsigned char *s;
+                        const unsigned char *s;
                         width -= 5;
                         if (!minus) {
                             for (; width-- > 0;) {
@@ -593,7 +593,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                                 *buf++ = ' ';
                             }
                         }
-                        s = (unsigned char *)sNilString;
+                        s = sNilString;
                         while (*s != 0) {
                             count++;
                             *buf++ = *s;
