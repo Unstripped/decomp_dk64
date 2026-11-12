@@ -3,33 +3,36 @@
 #include "proto/boss/3840.h"
 #include "proto/boss/9C60.h"
 #include "proto/boss/A7A0.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
 #include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
 #include "proto/global/35000.h"
 #include "proto/global/3C10.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/EFDC0.h"
 
-typedef struct BossC_A7A0_178 {
-    s32 unk0;
-    u8 pad4[0x10];
-    u8 unk14;
-} BossC_A7A0_178;
+typedef struct BossScriptState {
+    /* 0x00 */ Actor *linkedActor;
+    /* 0x04 */ u8 pad4[0x10];
+    /* 0x14 */ u8 phase;
+    /* 0x15 */ u8 scriptPos;
+} BossScriptState;
 
-// Actor plus its component pointers (0x174 on).
-typedef struct BossC_A7A0_Actor {
-    /* 0x000 */ u8 pad0[0x178];
-    /* 0x178 */ BossC_A7A0_178* unk178;
-} BossC_A7A0_Actor;
+// K. Rool (Lanky phase) actor: component 1 (0x174) is gBehaviourWorkState, component 2 the script state.
+typedef struct BossKRoolLankyActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ BossScriptState *scriptState;
+} BossKRoolLankyActor;
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-void actorDespawn(Actor *);
-
-typedef struct {
-    Actor *actor;
-    s32 pad;
-} BossC_A7A0_Entry;
-
-extern BossC_A7A0_Entry gActiveActors[];
+extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
+extern u8 *D_80035A80[];
 
 void bossResetMinions(Actor *excludeActor) {
     s16 i;
@@ -47,7 +50,6 @@ void bossResetMinions(Actor *excludeActor) {
 
 void bossPhaseTick(void) {
     Actor *other;
-    s16 timer;
 
     if (!(gCurrentActor->flags & 0x10)) {
         bossResetMinions(gCurrentActor);
@@ -55,9 +57,8 @@ void bossPhaseTick(void) {
         gCurrentActor->unk144 = 2;
     }
     if (gPrimaryPlayerActor->state != 0x67) {
-        timer = gCurrentActor->yawSpeed;
-        if (timer != 0) {
-            gCurrentActor->yawSpeed = timer - 1;
+        if (gCurrentActor->yawSpeed != 0) {
+            gCurrentActor->yawSpeed--;
         } else {
             gCurrentActor->flags &= ~0x8000;
             gCurrentActor->state = 1;
@@ -84,171 +85,115 @@ void bossPhaseTick(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-
-void actorScriptStart(Actor *, s32);
-void actorScriptExecute(Actor *);
-
 void bossKRoolLankySetAnim(s32 scriptId, s16 animId) {
-    BossC_A7A0_178 *link = ((BossC_A7A0_Actor *)gCurrentActor)->unk178;
+    BossScriptState *scriptState = ((BossKRoolLankyActor *)gCurrentActor)->scriptState;
 
     actorScriptStart(gCurrentActor, scriptId);
     actorScriptExecute(gCurrentActor);
-    controllerAnimSetState(link->unk0, animId, 0.0f, 6.0f);
+    controllerAnimSetState(scriptState->linkedActor, animId, 0.0f, 6.0f);
 }
-
-
-void actorSetTargetSpeed(Actor *, s32);
 
 void bossKRoolLankyRunTowardPlayer(void) {
-    BossC_A7A0_178 *link = ((BossC_A7A0_Actor *)gCurrentActor)->unk178;
+    BossScriptState *scriptState = ((BossKRoolLankyActor *)gCurrentActor)->scriptState;
 
     bossKRoolLankySetAnim(0x406, 0x674);
-    actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed + (link->unk14 * 10) + 15);
+    actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed + (scriptState->phase * 10) + 15);
 }
-
-typedef struct BossScriptState {
-    void *unk0;
-    char pad4[0x10];
-    u8 unk14;
-    u8 unk15;
-} BossScriptState;
-
-typedef struct BossActorSub140 {
-    char pad0[0xC];
-    s32 unkC;
-} BossActorSub140;
-
-typedef struct BossActor {
-    char pad0[4];
-    ActorSub4 *unk4;
-    char pad8[0x58];
-    s32 unk60;
-    char pad64[0x60];
-    f32 unkC4;
-    char padC8[4];
-    u8 unkCC;
-    char padCD[0x73];
-    BossActorSub140 *unk140;
-    char pad144[2];
-    s16 unk146;
-    char pad148[0xC];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x22];
-    BossScriptState *unk178;
-} BossActor;
-
-extern u8 *D_80035A80[];
-void behaviourFrameBegin(void);
-void func_80724CA4(s16, s16);
-u16 camStartPath(void *, s16, u8);
-u8 camIsPlayingPath(u8);
-u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
-s32 playerStateQueueCallback(s16, void *, u8);
-ActorSub140 *actorSetCollisionRadius(Actor *, f32);
-void actorOrNodeFlags(Actor *, s32, u8);
-s32 currentActorTestClearFlag(void);
-void scriptSetActorRampTarget(void *, f32, f32);
-void behaviourUpdateShadowAlpha(void);
-u8 func_8072881C(u8, u32 *);
-
-#define ACTOR40 ((BossActor *)gCurrentActor)
-#define ACTOR4C ((BossActor *)gPrimaryPlayerActor)
 
 void bossKRoolLankyStep(void) {
     BossScriptState *scriptState;
     u8 *scriptOpcodes;
 
-    scriptState = (BossScriptState *)((BossC_A7A0_Actor *)gCurrentActor)->unk178;
-    scriptOpcodes = D_80035A80[scriptState->unk14];
+    scriptState = ((BossKRoolLankyActor *)gCurrentActor)->scriptState;
+    scriptOpcodes = D_80035A80[scriptState->phase];
     behaviourFrameBegin();
     bossRoundFrame(scriptOpcodes);
-    if (!(ACTOR40->unk60 & 0x10)) {
-        ACTOR40->unk146 = 1;
-        ACTOR40->unk154 = 0x1E;
-        ACTOR40->unk155 = 0;
-        ACTOR40->unkCC = 1;
+    if (!(gCurrentActor->flags & 0x10)) {
+        gCurrentActor->unk146 = 1;
+        gCurrentActor->state = 0x1E;
+        gCurrentActor->unk155 = 0;
+        gCurrentActor->floorNodeId = 1;
         func_80724CA4(2, 1);
         bossAttachActor();
-        ACTOR40->unkC4 = 0.0f;
+        gCurrentActor->accelY = 0.0f;
     }
-    if ((ACTOR4C->unk154 == 0x48) && !(gBehaviourWorkState->flags & 0x8000)) {
-        camStartPath(ACTOR40, 0, 1);
+    if ((gPrimaryPlayerActor->state == 0x48) && !(gBehaviourWorkState->flags & 0x8000)) {
+        camStartPath(gCurrentActor, 0, 1);
         gBehaviourWorkState->flags |= 0x8000;
     }
-    if ((camIsPlayingPath(0) == 0) && (camIsPlayingPath(1) == 0) && ((ACTOR4C->unk154 != 0x67) || (ACTOR40->unk154 != 0x42))) {
-        switch (ACTOR40->unk154) {
+    if ((camIsPlayingPath(0) == 0) && (camIsPlayingPath(1) == 0) && ((gPrimaryPlayerActor->state != 0x67) || (gCurrentActor->state != 0x42))) {
+        switch (gCurrentActor->state) {
         case 0x2B:
-            switch (ACTOR40->unk155) {
+            switch (gCurrentActor->unk155) {
             case 0:
                 actorSetTargetSpeed(gCurrentActor, 0);
-                camStartPath(ACTOR4C, 9, 1);
+                camStartPath(gPrimaryPlayerActor, 9, 1);
                 bossKRoolLankySetAnim(0x3F5, 0x679);
-                ACTOR40->unk155++;
+                gCurrentActor->unk155++;
                 break;
             case 2:
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
                 bossKRoolLankySetAnim(0x3F4, 0x678);
-                ACTOR40->unk155++;
+                gCurrentActor->unk155++;
                 break;
             case 3:
                 if (gActorGlobalState.unk1B != 0) {
-                    ACTOR40->unk154 = 0x31;
-                    ACTOR40->unk155 = 0;
+                    gCurrentActor->state = 0x31;
+                    gCurrentActor->unk155 = 0;
                 } else if (gActorGlobalState.bossFightPhase == 2) {
                     bossResetMinions(NULL);
-                    ACTOR40->unk154 = 0x2C;
-                    ACTOR40->unk155 = 0;
+                    gCurrentActor->state = 0x2C;
+                    gCurrentActor->unk155 = 0;
                 }
                 actorMoveWithinZone(0x23, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
                 break;
             }
             break;
         case 0x2C:
-            if (ACTOR40->unk155 == 0) {
-                playerStateQueueCallback(0x36, ACTOR40, 0);
+            if (gCurrentActor->unk155 == 0) {
+                playerStateQueueCallback(0x36, gCurrentActor, 0);
                 bossKRoolLankyRunTowardPlayer();
-                ACTOR40->unk154 = 0x42;
-                ACTOR40->unk155 = 0;
+                gCurrentActor->state = 0x42;
+                gCurrentActor->unk155 = 0;
             }
             break;
         case 0x1E:
-            scriptState->unk14 = 0;
-            scriptState->unk15 = 0;
-            ACTOR40->unk154 = scriptOpcodes[scriptState->unk15++];
-            ACTOR40->unk155 = 0;
+            scriptState->phase = 0;
+            scriptState->scriptPos = 0;
+            gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
+            gCurrentActor->unk155 = 0;
             break;
         case 0:
-            switch (ACTOR40->unk155) {
+            switch (gCurrentActor->unk155) {
             case 0:
                 bossKRoolLankySetAnim(0x3F5, 0x679);
-                ACTOR40->unk155++;
+                gCurrentActor->unk155++;
                 break;
             case 2:
                 bossKRoolLankyRunTowardPlayer();
-                ACTOR40->unk154 = scriptOpcodes[scriptState->unk15++];
-                ACTOR40->unk155 = 0;
-                actorSetCollisionRadius(ACTOR4C, (f32)(ACTOR4C->unk140->unkC * 2));
-                actorOrNodeFlags(ACTOR4C, 6, 1);
-                actorOrNodeFlags(ACTOR4C, 7, 1);
-                actorOrNodeFlags(ACTOR4C, 8, 1);
-                actorOrNodeFlags(ACTOR4C, 9, 1);
-                actorOrNodeFlags(ACTOR4C, 0xA, 1);
-                actorOrNodeFlags(ACTOR4C, 0xB, 1);
+                gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
+                gCurrentActor->unk155 = 0;
+                actorSetCollisionRadius(gPrimaryPlayerActor, gPrimaryPlayerActor->collision->scaledRadius * 2);
+                actorOrNodeFlags(gPrimaryPlayerActor, 6, 1);
+                actorOrNodeFlags(gPrimaryPlayerActor, 7, 1);
+                actorOrNodeFlags(gPrimaryPlayerActor, 8, 1);
+                actorOrNodeFlags(gPrimaryPlayerActor, 9, 1);
+                actorOrNodeFlags(gPrimaryPlayerActor, 0xA, 1);
+                actorOrNodeFlags(gPrimaryPlayerActor, 0xB, 1);
                 break;
             }
             break;
         case 0x31:
-            switch (ACTOR40->unk155) {
+            switch (gCurrentActor->unk155) {
             case 0:
-                if (scriptState->unk14 == 3) {
-                    ACTOR40->unk154 = 0x37;
-                    ACTOR40->unk155 = 0;
+                if (scriptState->phase == 3) {
+                    gCurrentActor->state = 0x37;
+                    gCurrentActor->unk155 = 0;
                 } else {
                     actorScriptStart(gCurrentActor, 0x3F2);
-                    actorScriptStart(scriptState->unk0, 0x3F1);
+                    actorScriptStart(scriptState->linkedActor, 0x3F1);
                     actorSetTargetSpeed(gCurrentActor, 0);
-                    ACTOR40->unk155++;
+                    gCurrentActor->unk155++;
                 }
                 break;
             case 1:
@@ -257,27 +202,27 @@ void bossKRoolLankyStep(void) {
             case 2:
                 bossResetMinions(NULL);
                 bossKRoolLankyRunTowardPlayer();
-                scriptState->unk15 = 0;
-                scriptState->unk14++;
-                scriptOpcodes = D_80035A80[scriptState->unk14];
-                ACTOR40->unk154 = scriptOpcodes[scriptState->unk15++];
-                ACTOR40->unk155 = 0;
+                scriptState->scriptPos = 0;
+                scriptState->phase++;
+                scriptOpcodes = D_80035A80[scriptState->phase];
+                gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
+                gCurrentActor->unk155 = 0;
                 break;
             }
             break;
         case 0x37:
-            switch (ACTOR40->unk155) {
+            switch (gCurrentActor->unk155) {
             case 0:
-                actorDespawn(scriptState->unk0);
+                actorDespawn(scriptState->linkedActor);
                 actorScriptStart(gCurrentActor, 0);
-                camStartPath(ACTOR40, 5, 1);
-                ACTOR40->unk155++;
+                camStartPath(gCurrentActor, 5, 1);
+                gCurrentActor->unk155++;
                 break;
             case 1:
                 if (currentActorTestClearFlag() != 0) {
                     screenSetTransitionFadeType(0);
                     mapRequestTransition(0xCE, 0);
-                    ACTOR40->unk155++;
+                    gCurrentActor->unk155++;
                 }
                 break;
             }
@@ -286,8 +231,8 @@ void bossKRoolLankyStep(void) {
             bossScriptStep(scriptOpcodes, 0x10, 0.0f);
             break;
         }
-    } else if (ACTOR40->unk4->animId == 0x406) {
-        scriptSetActorRampTarget(ACTOR40, 0.0f, 0.0f);
+    } else if (gCurrentActor->sub4->animId == 0x406) {
+        scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
     }
     behaviourUpdateShadowAlpha();
     if (func_8072881C(0, &gBehaviourWorkState->unk28) != 0) {
@@ -295,7 +240,6 @@ void bossKRoolLankyStep(void) {
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
-
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/A7A0/D_80036840.s")
 
