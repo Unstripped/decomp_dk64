@@ -1934,7 +1934,7 @@ extern s16 D_80750390;
 
 void tagBarrelActorUpdate(void) {
     s16 kong;
-    s16 pad0;
+    s16 flag;
     f32 coord[3];
     s32 i;
     Vec3f offset;
@@ -1950,7 +1950,6 @@ void tagBarrelActorUpdate(void) {
     f32 yOffset;
 
     sub = gCurrentActor->customState;
-    if (gCurrentMap == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     offset = D_8074E7D4;
     hidden = 0;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -1965,7 +1964,8 @@ void tagBarrelActorUpdate(void) {
         sub->flagIndex = ((TagBarrelSpawnParams *)gCurrentActor->spawnData)->unk8;
         sub->unkE = 0;
         if (gCurrentActor->actorType == 0x1C) {
-            if (flagGet(func_8073195C(sub->flagIndex), 0)) {
+            flag = func_8073195C(sub->flagIndex);
+            if (flagGet(flag, 0)) {
                 actorDespawn(gCurrentActor);
             }
         }
