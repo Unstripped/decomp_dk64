@@ -17,7 +17,6 @@ extern Actor *gPrimaryPlayerActor;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern u8 gPlayerInventoryTable[][0x5E];
 extern s32 gCurrentMap;
 extern u8 gCurrentWorldId;
 extern u8 gScreenRenderFlags;

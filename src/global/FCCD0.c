@@ -23,7 +23,7 @@ extern Actor *gPrimaryPlayerActor;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern u8 gPlayerInventoryTable[][0x5E];
+extern KongInventory gPlayerInventoryTable[];
 extern s32 gCurrentMap;
 extern u8 gCurrentWorldId;
 extern u8 gScreenRenderFlags;
@@ -456,7 +456,7 @@ void func_806F8DC4(u8 *alpha, s32 count, s32 slot) {
         } else if (flagGridSumRows(0x225, world, world, kongArg) != 0) {
             *alpha = 0xFF;
         }
-    } else if (count < ((u16 *)gPlayerInventoryTable[kong])[0x21 + world]) {
+    } else if (count < gPlayerInventoryTable[kong].unk42[world]) {
         *alpha = 0xFF;
     }
 }
@@ -1264,7 +1264,7 @@ void slotQueueSelectPlayerResource(u8 player) {
     s32 resource;
 
     resource = mapGetHubWorldIndex(gCurrentWorldId, 0);
-    gSlotQueue[13].value = &gPlayerInventoryTable[player][resource * 2 + 0x26];
+    gSlotQueue[13].value = &gPlayerInventoryTable[player].unk26[resource];
     gSlotQueue[13].shown = *gSlotQueue[13].value;
     D_80754288 = player;
 }
@@ -1512,7 +1512,7 @@ s32 func_806FB418(void) {
     sum = 0;
     for (j = 0; j < 5; j++) {
         for (i = 0; i < 8; i++) {
-            sum += ((u16 *)gPlayerInventoryTable[j])[0x21 + i];
+            sum += gPlayerInventoryTable[j].unk42[i];
         }
     }
     return sum;
