@@ -48,11 +48,15 @@ typedef struct ResQueueActorState {
     /* 0x1D */ u8 unk1D;
     /* 0x1E */ u8 pad1E[2];
     /* 0x20 */ f32 unk20;
-    /* 0x24 */ u8 pad24[0x10];
+    /* 0x24 */ f32 unk24;
+    /* 0x28 */ f32 unk28;
+    /* 0x2C */ f32 unk2C;
+    /* 0x30 */ f32 unk30;
     /* 0x34 */ void *unk34;
     /* 0x38 */ s16 unk38;
     /* 0x3A */ s16 unk3A;
-    /* 0x3C */ u8 pad3C[4];
+    /* 0x3C */ u8 unk3C;
+    /* 0x3D */ u8 pad3D[3];
     /* 0x40 */ f32 unk40;
     /* 0x44 */ f32 unk44;
     /* 0x48 */ f32 unk48;

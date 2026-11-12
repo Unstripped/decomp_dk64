@@ -585,31 +585,6 @@ typedef struct SpriteActorData {
     /* 0x17C */ SpriteFrameNode *unk17C;
 } SpriteActorData;
 
-typedef struct SpriteBehaviour {
-    /* 0x00 */ u16 unk0;
-    /* 0x02 */ u8 pad2[0x2];
-    /* 0x04 */ SpriteActorData *unk4;
-    /* 0x08 */ u8 pad8[0x4];
-    /* 0x0C */ void *unkC;
-    /* 0x10 */ u8 pad10[0x4];
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ u8 pad1C[0x1];
-    /* 0x1D */ u8 unk1D;
-    /* 0x1E */ u8 pad1E[0x2];
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ f32 unk28;
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ f32 unk30;
-    /* 0x34 */ void *unk34;
-    /* 0x38 */ s16 unk38;
-    /* 0x3A */ s16 unk3A;
-    /* 0x3C */ u8 unk3C;
-    /* 0x3D */ u8 pad3D[0x18];
-    /* 0x55 */ u8 unk55;
-} SpriteBehaviour;
-
 typedef struct MapBounds {
     /* 0x000 */ u8 pad0[0x270];
     /* 0x270 */ s16 unk270;
@@ -626,7 +601,7 @@ extern s16 gScreenWidth;
 #define SPRITE_BOUNDS ((MapBounds *) ((u8 *) gPlayerSlots + (gCurrentPlayerIndex * 0x2F0)))
 #define CLAMP_TO_BOUNDS(x, l, h) ((x) < (l) ? (l) : ((h) < (x) ? (h) : (x)))
 
-void textBoxUpdatePosition(Actor *actor, SpriteBehaviour *sub, f32 step) {
+void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
     f32 screenX, screenY;
     s32 nodeIndex;
     SpriteFrameNode *node;
@@ -634,7 +609,7 @@ void textBoxUpdatePosition(Actor *actor, SpriteBehaviour *sub, f32 step) {
     f32 posX, posY, posZ;
 
     nodeIndex = 0;
-    switch (sub->unk4->base.actorType) {
+    switch (sub->key->actorType) {
     case 0x22:
     case 0x2E:
     case 0x7C:
@@ -648,12 +623,12 @@ void textBoxUpdatePosition(Actor *actor, SpriteBehaviour *sub, f32 step) {
         sub->unk28 = (f32) SPRITE_BOUNDS->unk276;
         break;
     case 0xFE:
-        node = sub->unk4->unk17C;
+        node = ((SpriteActorData *)sub->key)->unk17C;
         nodeIndex = node->unk2C;
         break;
     default:
-        if (sub->unk4->base.animState != NULL) {
-            switch (controllerLookupStateByHash(&sub->unk4->base)) {
+        if (sub->key->animState != NULL) {
+            switch (controllerLookupStateByHash(sub->key)) {
             case 0x11:
             case 0x12:
             case 0x1D:
@@ -699,18 +674,18 @@ void textBoxUpdatePosition(Actor *actor, SpriteBehaviour *sub, f32 step) {
         }
         break;
     }
-    if ((sub->unk4->base.animState == NULL) && (sub->unk3C == 0)) {
+    if ((sub->key->animState == NULL) && (sub->unk3C == 0)) {
         sub->unk3C = 1;
         sub->unk24 = (f32) SPRITE_BOUNDS->unk270;
         sub->unk28 = (f32) SPRITE_BOUNDS->unk272;
     }
     if (sub->unk3C == 0) {
         if (nodeIndex == 0) {
-            posX = sub->unk4->base.x;
-            posY = sub->unk4->base.y + 1.5 * sub->unk4->base.eyeHeight;
-            posZ = sub->unk4->base.z;
+            posX = sub->key->x;
+            posY = sub->key->y + 1.5 * sub->key->eyeHeight;
+            posZ = sub->key->z;
         } else {
-            actorGetNodePos(&sub->unk4->base, nodeIndex, &posX, &posY, &posZ);
+            actorGetNodePos(sub->key, nodeIndex, &posX, &posY, &posZ);
         }
         if (camProjectToScreen(posX, posY, posZ, &screenX, &screenY, 0, 1.0f, gCurrentPlayerIndex) != 0) {
             screenX = sub->unk24;
@@ -786,7 +761,7 @@ extern u8 D_807503F0;
 
 
 void textBoxUpdate(void) {
-    SpriteBehaviour *sub;
+    ResQueueActorState *sub;
     f32 stepSize;
     s32 flags;
     f32 speed;
@@ -834,7 +809,7 @@ void textBoxUpdate(void) {
         } else {
             gCurrentActor->state = 1;
             sub->unk1D = D_807503F0;
-            resQueueProcessNext(gCurrentActor, &sub->unk4->base);
+            resQueueProcessNext(gCurrentActor, sub->key);
             renderCalcChainCenterOffset((ChainRowHead *)sub);
         }
         break;
@@ -858,7 +833,7 @@ void textBoxUpdate(void) {
         if (sub->unk1D) {
             sub->unk1D -= (sub->unk1D >= 0x34) ? 0x33 : sub->unk1D;
         } else if (sub->unk0 != 0) {
-            if (sub->unkC != NULL) {
+            if (sub->rows != NULL) {
                 resNodeListFree(sub);
             }
             sub->unk0--;
@@ -867,7 +842,7 @@ void textBoxUpdate(void) {
         }
         break;
     case 5:
-        resQueueRemove(&sub->unk4->base);
+        resQueueRemove(sub->key);
         break;
     }
     if (gCurrentActor->state != 5) {

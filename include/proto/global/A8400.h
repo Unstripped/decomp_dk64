@@ -3,12 +3,12 @@
 #define PROTO_GLOBAL_A8400_H
 #include "common.h"
 #include "actor.h"
+#include "resqueue.h"
 struct ChainRowHead;
 struct DrawActor;
 struct DrawListHead;
 struct MotionAngles;
 struct SpriteAnim;
-struct SpriteBehaviour;
 struct SpriteChainState;
 struct SpriteDrawNode;
 struct SpriteHolder;
@@ -45,7 +45,7 @@ void textBoxRowUpdateNodes(f32, Actor *, struct SpriteChainState *, struct Sprit
 void textBoxUpdateRows(Actor *);
 #endif
 #ifndef PROTO_SKIP_textBoxUpdatePosition
-void textBoxUpdatePosition(Actor *, struct SpriteBehaviour *, f32);
+void textBoxUpdatePosition(Actor *, ResQueueActorState *, f32);
 #endif
 #ifndef PROTO_SKIP_renderCalcChainCenterOffset
 void renderCalcChainCenterOffset(struct ChainRowHead *);
