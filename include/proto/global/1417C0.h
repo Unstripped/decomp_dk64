@@ -2,13 +2,11 @@
 #ifndef PROTO_GLOBAL_1417C0_H
 #define PROTO_GLOBAL_1417C0_H
 #include "common.h"
-struct SynAllocVoice;
-struct SynAllocVoiceConfig;
-struct SynAllocVoiceNode;
+struct PVoice_s;
 #ifndef PROTO_SKIP_n_alSynAllocVoice
-s32 n_alSynAllocVoice(struct SynAllocVoice *, struct SynAllocVoiceConfig *);
+s32 n_alSynAllocVoice(ALVoice *, ALVoiceConfig *);
 #endif
 #ifndef PROTO_SKIP___n_allocPVoice
-s32 __n_allocPVoice(struct SynAllocVoiceNode **, s16);
+s32 __n_allocPVoice(struct PVoice_s **, s16);
 #endif
 #endif

@@ -7,15 +7,15 @@ struct SynFXFilter;
 void n_alSynSetVoiceUnkC(ALVoice *, u8);
 #endif
 #ifndef PROTO_SKIP_n_alSynGetFXDelay
-s32 n_alSynGetFXDelay(s16);
+void *n_alSynGetFXDelay(s16);
 #endif
 #ifndef PROTO_SKIP_n_alSynGetFXFeedback
-s32 n_alSynGetFXFeedback(s16);
+struct SynFXFilter *n_alSynGetFXFeedback(s16);
 #endif
 #ifndef PROTO_SKIP_n_alSynSetFXParam
-void n_alSynSetFXParam(s32, s16, s32);
+void n_alSynSetFXParam(void *, s16, void *);
 #endif
 #ifndef PROTO_SKIP_n_alSynSetFXFilterParam
-void n_alSynSetFXFilterParam(struct SynFXFilter *, s16, s32 *);
+void n_alSynSetFXFilterParam(struct SynFXFilter *, s16, void *);
 #endif
 #endif

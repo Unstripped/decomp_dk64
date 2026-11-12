@@ -4,29 +4,12 @@
 #include "proto/global/1417C0.h"
 #include "proto/global/1435C0.h"
 
-typedef struct SynAllocVoiceNode SynAllocVoiceNode;
+typedef struct PVoice_s SynAllocVoiceNode;
 
-typedef struct SynAllocVoice {
-    u8 pad0[8];
-    SynAllocVoiceNode *pvoice;
-    void *clientPrivate;
-    u8 pad10[4];
-    s16 state;
-    s16 priority;
-    s16 fxBus;
-    s16 unity;
-} SynAllocVoice;
-
-typedef struct SynAllocVoiceConfig {
-    s16 priority;
-    s16 fxBus;
-    u8 unity;
-} SynAllocVoiceConfig;
-
-struct SynAllocVoiceNode {
+struct PVoice_s {
     SynAllocVoiceNode *next;
     u8 pad4[4];
-    SynAllocVoice *voice;
+    ALVoice *voice;
     u8 padC[0x7C];
     s32 delta;
 };
@@ -53,14 +36,14 @@ typedef struct SynAllocSynth {
 
 extern SynAllocSynth *n_syn;
 
-s32 n_alSynAllocVoice(SynAllocVoice *voice, SynAllocVoiceConfig *config) {
+s32 n_alSynAllocVoice(ALVoice *voice, ALVoiceConfig *config) {
     SynAllocVoiceNode *pvoice = NULL;
     s32 unused;
     SynAllocParam *param;
     s32 allocated;
     voice->priority = config->priority;
-    voice->unity = config->unity;
-    voice->clientPrivate = NULL;
+    voice->unityPitch = config->unityPitch;
+    voice->table = NULL;
     voice->fxBus = config->fxBus;
     voice->state = 0;
     voice->pvoice = NULL;

@@ -11,15 +11,11 @@ typedef struct SynAllocParam {
     s32 data;
 } SynAllocParam;
 
-typedef struct SynAllocPVoice {
+// The physical voice behind ALVoice.pvoice (libaudio leaves struct PVoice_s opaque); only its delta is read here.
+struct PVoice_s {
     u8 pad0[0x88];
     s32 delta;
-} SynAllocPVoice;
-
-typedef struct SynAllocVoice {
-    u8 pad0[8];
-    SynAllocPVoice *pvoice;
-} SynAllocVoice;
+};
 
 typedef struct SynAllocSynth {
     u8 pad0[0x1C];
@@ -28,7 +24,7 @@ typedef struct SynAllocSynth {
 
 extern SynAllocSynth *n_syn;
 
-void n_alSynAllocVoicePriorityA(SynAllocVoice *voice, u8 priority) {
+void n_alSynAllocVoicePriorityA(ALVoice *voice, u8 priority) {
     SynAllocParam *param;
 
     if (voice->pvoice != NULL) {
@@ -44,7 +40,7 @@ void n_alSynAllocVoicePriorityA(SynAllocVoice *voice, u8 priority) {
     }
 }
 
-void n_alSynAllocVoicePriorityB(SynAllocVoice *voice, u8 priority) {
+void n_alSynAllocVoicePriorityB(ALVoice *voice, u8 priority) {
     SynAllocParam *param;
 
     if (voice->pvoice != NULL) {
@@ -60,35 +56,25 @@ void n_alSynAllocVoicePriorityB(SynAllocVoice *voice, u8 priority) {
     }
 }
 
-typedef struct SynAllocCSeq {
-    u8 pad0[4];
-    u32 flags;
-    u8 pad8[8];
-    s32 delta;
-    s32 active;
-    u8 pad18[0xA0];
-    s32 next[16];
-} SynAllocCSeq;
-
-s32 __n_alCSeqGetNextDelta(SynAllocCSeq *seq, s32 *ticks) {
+s32 __n_alCSeqGetNextDelta(ALCSeq *seq, s32 *ticks) {
     u32 i;
     s32 result = -1;
-    s32 delta = seq->delta;
+    s32 delta = seq->lastDeltaTicks;
 
-    if (seq->flags == 0) {
+    if (seq->validTracks == 0) {
         return 0;
     }
     for (i = 0; i < 16; i++) {
-        if ((seq->flags >> i) & 1) {
-            if (seq->active != 0) {
-                seq->next[i] -= delta;
+        if ((seq->validTracks >> i) & 1) {
+            if (seq->deltaFlag != 0) {
+                seq->evtDeltaTicks[i] -= delta;
             }
-            if ((u32)seq->next[i] < (u32)result) {
-                result = seq->next[i];
+            if (seq->evtDeltaTicks[i] < (u32)result) {
+                result = seq->evtDeltaTicks[i];
             }
         }
     }
-    seq->active = 0;
+    seq->deltaFlag = 0;
     *ticks = result;
     return 1;
 }

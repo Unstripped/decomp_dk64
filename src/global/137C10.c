@@ -5,14 +5,21 @@ typedef u32 OSIntMask;
 typedef u32 OSHWIntr;
 #include "common.h"
 #include "seqplayer.h"
+#include "proto/global/137C10.h"
 #include "proto/global/13CB50.h"
+#include "proto/global/13D170.h"
+#include "proto/global/13ECE0.h"
+#include "proto/global/13FED0.h"
+#include "proto/global/140530.h"
+#include "proto/global/140600.h"
+#include "proto/global/141520.h"
+#include "proto/global/1417C0.h"
+#include "proto/global/141AD0.h"
+#include "proto/global/141C00.h"
 
 extern s32 osGetIntMask(s32 unused);
 
 extern ALSynth *n_syn;
-void __n_initChanState(N_CSPlayer *);
-void n_alSynAddCSPPlayer(N_CSPlayer *);
-ALMicroTime __n_CSPVoiceHandler(void *node);
 
 void n_alCSPlayerNew(N_CSPlayer *seqp, ALSeqpConfig *c) {
     s32 i;
@@ -60,35 +67,8 @@ void n_alCSPlayerNew(N_CSPlayer *seqp, ALSeqpConfig *c) {
     seqp->node.next = NULL;
     seqp->node.handler = __n_CSPVoiceHandler;
     seqp->node.clientData = seqp;
-    n_alSynAddCSPPlayer(seqp);
+    n_alSynAddCSPPlayer(&seqp->node);
 }
-
-void n_alCSeqNextEvent(ALCSeq *, ALEvent *, s32);
-void __n_CSPHandleMIDIMsg();
-void __n_CSPPostNextSeqEvent();
-void __n_CSPHandleMetaMsg();
-s16 __n_vsVol(N_VoiceState *, N_CSPlayer *);
-s32 __n_vsDelta(N_VoiceState *, s32);
-void n_alSynSetVol(ALVoice *, s16, s32);
-void n_alSynSetFXMix(ALVoice *, u8);
-void n_alSynSetPan(ALVoice *, f32);
-f32 n_alSemitonesToPitchRatio(s32);
-
-void __n_CSPHandleNextSeqEvent(N_CSPlayer *);
-void __n_seqpStopOsc(N_CSPlayer *, N_VoiceState *);
-void __n_unmapVoice(N_CSPlayer *, ALVoice *);
-u8 __n_voiceNeedsNoteKill(N_CSPlayer *, ALVoice *, s32);
-void __n_seqpReleaseVoice(N_CSPlayer *, ALVoice *, s32);
-void __n_initFromBank(N_CSPlayer *, ALBank *);
-void n_alSynStopVoice(ALVoice *);
-void n_alSynFreeVoice(ALVoice *);
-void n_alSynSetPitch(ALVoice *, f32);
-u8 n_alCSPClampVoiceFXMix(N_VoiceState *, N_CSPlayer *);
-void n_alSynSetVoiceUnkC(ALVoice *, u8);
-s32 n_alSynGetFXDelay(s16);
-void n_alSynSetFXParam(s32, s16, s32);
-s32 n_alSynGetFXFeedback(s16);
-void n_alSynSetFXFilterParam(struct SynFXFilter *, s16, s32 *);
 
 ALMicroTime __n_CSPVoiceHandler(void *node) {
     N_CSPlayer *seqp = node;
@@ -100,8 +80,8 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
     f32 oscValue;
     u8 chan;
     s32 pad;
-    s32 cmdA;
-    void *cmdB;
+    void *cmdA;
+    struct SynFXFilter *cmdB;
 
     do {
         switch (seqp->nextEvent.type) {
@@ -162,10 +142,10 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                 break;
             case 2:
             case 21:
-                __n_CSPHandleMIDIMsg(seqp, &seqp->nextEvent);
+                __n_CSPHandleMIDIMsg(seqp, (ALEvent *)&seqp->nextEvent);
                 break;
             case 7:
-                __n_CSPHandleMetaMsg(seqp, &seqp->nextEvent);
+                __n_CSPHandleMetaMsg(seqp, (ALEvent *)&seqp->nextEvent);
                 break;
             case 10:
                 seqp->vol = seqp->nextEvent.msg.spvol.vol;
@@ -183,7 +163,7 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
             case 25:
                 if (seqp->nextEvent.msg.cmd.b1 < 8) {
                     cmdA = n_alSynGetFXDelay(seqp->nextEvent.msg.cmd.b0);
-                    if (cmdA != 0) {
+                    if (cmdA != NULL) {
                         n_alSynSetFXParam(cmdA, (seqp->nextEvent.msg.cmd.b2 << 3) | (seqp->nextEvent.msg.cmd.b1 & 7), &seqp->nextEvent.msg.cmd.w4);
                     }
                 } else {
@@ -261,7 +241,6 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
     return seqp->nextDelta;
 }
 
-
 void __n_CSPHandleNextSeqEvent(N_CSPlayer *seqp) {
     ALEvent evt;
 
@@ -332,17 +311,6 @@ typedef struct {
 } GdBankInfo;
 
 extern s32 D_807FF040[];
-
-ALSound *__n_lookupSoundQuick(N_CSPlayer *seqp, u8 key, u8 vel, u8 chan);
-N_VoiceState *__n_mapVoice(N_CSPlayer *seqp, u8 key, u8 vel, u8 chan);
-N_VoiceState *__n_lookupVoice(N_CSPlayer *seqp, u8 key, u8 chan);
-void __n_setInstChanState(N_CSPlayer *, ALInstrument *, s32);
-u8 __n_vsPan(N_VoiceState *vs, N_CSPlayer *seqp);
-void n_alSynAllocVoicePriorityA(ALVoice *voice, u8 arg);
-void n_alSynAllocVoicePriorityB(ALVoice *voice, u8 arg);
-s32 n_alSynAllocVoice(struct SynAllocVoice *, struct SynAllocVoiceConfig *);
-void n_alSynStartVoiceParams(ALVoice *voice, ALWaveTable *w, f32 pitch, s16 vol, u8 pan, u8 fxmix, u8 unityPitch, f32 fxVolume, u8 fxDelay, s32 samples);
-
 
 void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
     ALVoice *voice;
@@ -732,9 +700,6 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
     }
 }
 
-void __n_setUsptFromTempo(N_CSPlayer *seqp, f32 tempo);
-void __n_CSPRepostEvent(ALEventQueue *evtq, ALEventListItem *item);
-
 void __n_CSPHandleMetaMsg(N_CSPlayer *seqp, ALEvent *event) {
     ALTempoEvent *tevt = &event->msg.tempo;
     s32 tempo;
@@ -815,8 +780,6 @@ void __n_setUsptFromTempo(N_CSPlayer *seqp, f32 tempo) {
         seqp->uspt = 0x1E8;
     }
 }
-
-extern s32 __n_alCSeqGetNextDelta(ALCSeq *seq, s32 *ticks);
 
 void __n_CSPPostNextSeqEvent(N_CSPlayer *seqp) {
     ALEvent evt;

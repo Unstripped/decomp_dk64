@@ -2,15 +2,13 @@
 #ifndef PROTO_GLOBAL_141C00_H
 #define PROTO_GLOBAL_141C00_H
 #include "common.h"
-struct SynAllocCSeq;
-struct SynAllocVoice;
 #ifndef PROTO_SKIP_n_alSynAllocVoicePriorityA
-void n_alSynAllocVoicePriorityA(struct SynAllocVoice *, u8);
+void n_alSynAllocVoicePriorityA(ALVoice *, u8);
 #endif
 #ifndef PROTO_SKIP_n_alSynAllocVoicePriorityB
-void n_alSynAllocVoicePriorityB(struct SynAllocVoice *, u8);
+void n_alSynAllocVoicePriorityB(ALVoice *, u8);
 #endif
 #ifndef PROTO_SKIP___n_alCSeqGetNextDelta
-s32 __n_alCSeqGetNextDelta(struct SynAllocCSeq *, s32 *);
+s32 __n_alCSeqGetNextDelta(ALCSeq *, s32 *);
 #endif
 #endif

@@ -12,9 +12,9 @@ typedef struct {
 
 typedef struct {
     u8 unk0[0x20];
-    s32 field20;
+    void *field20;
     u8 unk24[0x20];
-    s32 field44;
+    struct SynFXFilter *field44;
 } SynFXBus;
 
 typedef struct {
@@ -65,40 +65,40 @@ void n_alSynSetVoiceUnkC(ALVoice *voice, u8 val) {
     }
 }
 
-s32 n_alSynGetFXDelay(s16 busIndex) {
+void *n_alSynGetFXDelay(s16 busIndex) {
     SynFilter *sp4;
 
     sp4 = n_syn->outputFilter;
     if (sp4->handler == n_alFxPull) {
         return n_syn->fxBus[busIndex].field20;
     } else {
-        return 0;
+        return NULL;
     }
 }
 
-s32 n_alSynGetFXFeedback(s16 busIndex) {
+SynFXFilter *n_alSynGetFXFeedback(s16 busIndex) {
     SynFilter *sp4;
 
     sp4 = n_syn->outputFilter;
     if (sp4->handler == n_alFxPull) {
         return n_syn->fxBus[busIndex].field44;
     } else {
-        return 0;
+        return NULL;
     }
 }
 
-void n_alSynSetFXParam(s32 fxType, s16 paramId, s32 paramVal) {
-    s32 fxParam;
+void n_alSynSetFXParam(void *fxType, s16 paramId, void *paramVal) {
+    void *fxParam;
 
     fxParam = fxType;
     n_alFxParamHdl(fxParam, paramId, paramVal);
 }
 
-void n_alSynSetFXFilterParam(SynFXFilter *filter, s16 paramId, s32 *valuePtr) {
+void n_alSynSetFXFilterParam(SynFXFilter *filter, s16 paramId, void *valuePtr) {
     if (paramId == 8) {
-        filter->unk2 = (s16)(s32)((f32)*valuePtr * 0.1f);
+        filter->unk2 = (s16)(s32)((f32)*(s32 *)valuePtr * 0.1f);
     } else if (paramId == 9) {
-        filter->unk0 = (s16)*valuePtr;
+        filter->unk0 = (s16)*(s32 *)valuePtr;
     }
     rebuildLowPassCoefficients(filter, (f32)n_syn->outputRate);
 }

@@ -5,6 +5,14 @@ typedef u32 OSHWIntr;
 
 #include "common.h"
 #include "audio_config.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/13FED0.h"
+#include "proto/global/140530.h"
+#include "proto/global/140600.h"
+#include "proto/global/141520.h"
+#include "proto/global/1417C0.h"
+#include "proto/global/141AD0.h"
+#include "proto/global/141C00.h"
 
 extern s32 osGetIntMask(s32 unused);
 
@@ -78,8 +86,6 @@ typedef struct {
 extern GeSndp *D_807563CC;
 extern GfSndState *D_807563C8;
 extern s16 *D_807FF0E4;
-ALMicroTime __n_sndpVoiceHandler(void *);
-void n_alSynAddSndPlayer(void *);
 
 void n_alSndpNew(GeSndpConfig *c) {
     u32 i;
@@ -105,13 +111,11 @@ void n_alSndpNew(GeSndpConfig *c) {
     D_807563CC->node.next = NULL;
     D_807563CC->node.handler = __n_sndpVoiceHandler;
     D_807563CC->node.clientData = D_807563CC;
-    n_alSynAddSndPlayer(D_807563CC);
+    n_alSynAddSndPlayer(&D_807563CC->node);
     evt.type = 0x20;
     alEvtqPostEvent(&D_807563CC->evtq, &evt, D_807563CC->frameTime);
     D_807563CC->nextDelta = alEvtqNextEvent(&D_807563CC->evtq, &D_807563CC->nextEvent);
 }
-
-void __n_handleEvent(GeSndEvt *);
 
 ALMicroTime __n_sndpVoiceHandler(void *node) {
     GeSndp *sndp = node;
@@ -133,21 +137,8 @@ ALMicroTime __n_sndpVoiceHandler(void *node) {
     return sndp->nextDelta;
 }
 
-
 extern s16 D_807563D0;
 extern GfSndState *D_807563C4;
-
-void __n_sndpDestroyState();
-void __n_sndpPostPitch();
-void __n_removeEvents();
-u16 n_alSndpCountStates();
-struct GfSndState *n_alSndpPlay(void *, s16, u16, u8, f32, u8, struct GfSndState **);
-s32 n_alSynAllocVoice(void *, void *);
-void n_alSynSetVol(ALVoice *, s16, s32);
-void n_alSynStartVoiceParams(ALVoice *, ALWaveTable *, f32, s16, u8, u8, u8, f32, u8, s32);
-void n_alSynSetPitch(void *, f32);
-void n_alSynAllocVoicePriorityA(void *, u8);
-void n_alSynSetVoiceUnkC(ALVoice *, u8);
 
 #define GE_STATE_VOL(st, km, snd) \
     (D_807FF0E4[(km)->volIndex & 0x1F] * (((st)->envVol * (st)->vol * (snd)->sampleVolume) / 0x3F01) / 0x7FFF)
@@ -179,8 +170,8 @@ void __n_handleEvent(GeSndEvt *event) {
     s32 voice;
     GfSndState *state;
     GfSndState *nextState;
-    s16 freeCount;
-    s16 usedCount;
+    u16 freeCount;
+    u16 usedCount;
 
     done = 1;
     voice = 0;
@@ -387,10 +378,6 @@ void __n_handleEvent(GeSndEvt *event) {
 
 extern GfSndState *D_807563C0;
 
-extern void n_alSynStopVoice(void *);
-extern void n_alSynFreeVoice(void *);
-void __n_freeState(GfSndState *state);
-
 void __n_sndpDestroyState(GfSndState *state) {
     if (state->flags & 4) {
         n_alSynStopVoice(&state->voice);
@@ -460,8 +447,6 @@ u16 n_alSndpCountStates(u16 *outFree, u16 *outUsed) {
     *outUsed = usedCount;
     return tailCount;
 }
-
-GfSndState *__n_allocState(void *sndp, GeSndSound *sound);
 
 GfSndState *__n_allocState(void *sndp, GeSndSound *sound) {
     GfSndState *state;
