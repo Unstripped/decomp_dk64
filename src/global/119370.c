@@ -32,8 +32,8 @@ typedef struct EffectGridAsset {
     /* 0x09 */ u8 green;
     /* 0x0A */ u8 blue;
     /* 0x0B */ u8 alpha;
-    /* 0x0C */ u8 unkC;
-    /* 0x0D */ u8 unkD;
+    /* 0x0C */ u8 unlit;
+    /* 0x0D */ u8 altCategory;
     /* 0x0E */ s16 cellW;
     /* 0x10 */ s16 cellH;
     /* 0x12 */ s16 frameCount;
@@ -58,8 +58,8 @@ typedef struct EffectGridNode {
     /* 0x11 */ u8 green;
     /* 0x12 */ u8 blue;
     /* 0x13 */ u8 alpha;
-    /* 0x14 */ u8 unk14;
-    /* 0x15 */ u8 unk15;
+    /* 0x14 */ u8 unlit;
+    /* 0x15 */ u8 altCategory;
     /* 0x16 */ s16 frameCount;
     /* 0x18 */ s32 lastUsedFrame;
     /* 0x1C */ EffectGridSlot *slots;
@@ -106,13 +106,11 @@ void effectResetLists(void) {
 s32 effectGridFindByTargetId(s32 targetId) {
     EffectGridNode *node = sEffectGridHead;
 
-    if (node != NULL) {
-        do {
-            if (targetId == node->id) {
-                return (s32) node->asset;
-            }
-            node = node->next;
-        } while (node != NULL);
+    while (node != NULL) {
+        if (targetId == node->id) {
+            return (s32) node->asset;
+        }
+        node = node->next;
     }
     return (s32) sEffectGridHead->asset;
 }
@@ -140,50 +138,48 @@ void effectGridGetScaledDimensions(EffectGridAsset *asset, s16 *outScaledW, s16 
 
 void effectGridRegister(EffectGridAsset *asset) {
     EffectGridNode *last;
-    EffectGridNode *newNode;
+    EffectGridNode *node;
     s32 pad;
     s32 count;
     s32 i;
 
-    newNode = sEffectGridHead;
     last = NULL;
-    while (newNode != NULL) {
-        last = newNode;
-        if (asset == newNode->asset) {
+    for (node = sEffectGridHead; node != NULL; node = node->next) {
+        last = node;
+        if (asset == node->asset) {
             return;
         }
-        newNode = newNode->next;
     }
 
-    newNode = heapAlloc(sizeof(EffectGridNode));
-    newNode->next = NULL;
-    newNode->asset = asset;
-    newNode->id = asset->id;
-    effectGridGetByteDimensions(asset, &newNode->width, &newNode->height);
-    newNode->format = asset->format;
-    newNode->size = asset->size;
-    newNode->red = asset->red;
-    newNode->green = asset->green;
-    newNode->blue = asset->blue;
-    newNode->alpha = asset->alpha;
-    newNode->unk14 = asset->unkC;
-    newNode->unk15 = asset->unkD;
-    effectGridGetCellDimensions(asset, &newNode->cellW, &newNode->cellH);
-    newNode->frameCount = asset->frameCount;
-    newNode->lastUsedFrame = -1;
+    node = heapAlloc(sizeof(EffectGridNode));
+    node->next = NULL;
+    node->asset = asset;
+    node->id = asset->id;
+    effectGridGetByteDimensions(asset, &node->width, &node->height);
+    node->format = asset->format;
+    node->size = asset->size;
+    node->red = asset->red;
+    node->green = asset->green;
+    node->blue = asset->blue;
+    node->alpha = asset->alpha;
+    node->unlit = asset->unlit;
+    node->altCategory = asset->altCategory;
+    effectGridGetCellDimensions(asset, &node->cellW, &node->cellH);
+    node->frameCount = asset->frameCount;
+    node->lastUsedFrame = -1;
 
     if (sEffectGridHead != NULL) {
-        last->next = newNode;
+        last->next = node;
     } else {
-        sEffectGridHead = newNode;
+        sEffectGridHead = node;
     }
 
-    count = newNode->width * newNode->height * newNode->frameCount;
-    newNode->slots = heapAlloc(count * 8);
+    count = node->width * node->height * node->frameCount;
+    node->slots = heapAlloc(count * sizeof(EffectGridSlot));
     for (i = 0; i < count; i++) {
-        newNode->slots[i].frame = -1;
+        node->slots[i].frame = -1;
     }
-    newNode->data = asset->data;
+    node->data = asset->data;
 }
 
 void effectSetParam(s32 param) {
@@ -290,7 +286,7 @@ void effectCreateAtModelNode(void *asset, f32 scale, s32 modelSlot, s32 nodeInde
     f32 nodeZ;
 
     modelSlotGetNodePos(modelSlot, 1, nodeIndex, &nodeX, &nodeY, &nodeZ);
-    effectCreate((s32)asset, scale, nodeX, nodeY, nodeZ, NULL, modelSlot, nodeIndex, (s32) flags);
+    effectCreate((s32)asset, scale, nodeX, nodeY, nodeZ, NULL, modelSlot, nodeIndex, flags);
 }
 
 
@@ -306,7 +302,7 @@ void *effectCreateAtActorBone(void *asset, f32 scale, void *actor, s32 boneIndex
     if (!ownerHidden && ((Actor *)actor)->sub4 != NULL && (sEffectPendingFlags & 0x80)) {
         effectFlagsOr(0x40);
     }
-    effectCreate((s32)asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, (s32) flags);
+    effectCreate((s32)asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, flags);
 }
 
 void *effectCreateAtPosition(void *asset, f32 scale, f32 x, f32 y, f32 z) {
@@ -324,14 +320,12 @@ EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, voi
     effectGridRegister((EffectGridAsset *)asset);
     node = sEffectGridHead;
     found = 0;
-    if (node != NULL) {
-        do {
-            if (node->asset == (EffectGridAsset *)asset) {
-                found = 1;
-            } else {
-                node = node->next;
-            }
-        } while ((found == 0) && (node != NULL));
+    while (!found && node != NULL) {
+        if (node->asset == (EffectGridAsset *)asset) {
+            found = 1;
+        } else {
+            node = node->next;
+        }
     }
     if (found == 0) {
         effectResetState();
@@ -497,10 +491,8 @@ void effectUpdateAll(u8 pGlist) {
     u8 chunkFound;
     EffectGridNode *node2;
     s32 i;
-    s32 offset2;
 
-    effect = sEffectListHead;
-    for (; effect != NULL; effect = effect->next) {
+    for (effect = sEffectListHead; effect != NULL; effect = effect->next) {
         if (effect->startDelay == 0) {
             effect->state = 0;
             effect->freePending = 0;
@@ -513,7 +505,7 @@ void effectUpdateAll(u8 pGlist) {
                                     &effect->x, &effect->y,
                                     &effect->z);
                 break;
-            case 2: {
+            case 2:
                 if ((effect->owner->flags & 0x200) != 0 || effect->owner->sub4 == NULL) {
                     actorGetNodePos(effect->owner, effect->subIndex, &effect->x,
                                     &effect->y, &effect->z);
@@ -522,27 +514,22 @@ void effectUpdateAll(u8 pGlist) {
                 }
                 break;
             }
-            }
             chunkFound = 0;
             if (!pGlist || (effect->flags & 1)) {
                 if (effect->callback != NULL) {
                     effect->callback(effect, &chunkFound);
                 }
             } else if (effect->callback != NULL) {
-                if (gViewportCount > 0) {
-                    i = 0;
-                    do {
-                        if (gPlayerSlots[i].unk0 != 0) {
-                            memcpy(&effect->matrices[i][gGfxBufferIndex], &effect->matrices[i][gGfxBufferIndex ^ 1], sizeof(Mtx));
-                        }
-                        i++;
-                    } while (i < gViewportCount);
+                for (i = 0; i < gViewportCount; i++) {
+                    if (gPlayerSlots[i].unk0 != 0) {
+                        memcpy(&effect->matrices[i][gGfxBufferIndex], &effect->matrices[i][gGfxBufferIndex ^ 1], sizeof(Mtx));
+                    }
                 }
                 effect->state = 3;
             }
             if (effect->param == effect->grid->frameCount) {
                 effect->param = 0;
-                effect->durationTimer = effect->durationTimer + 1;
+                effect->durationTimer++;
                 if (effect->durationTimer == effect->duration &&
                     effect->duration != -1) {
                     effect->freePending = 1;
@@ -554,33 +541,25 @@ void effectUpdateAll(u8 pGlist) {
             if (effect->freePending != 0) {
                 effectFreeAndUnlink(effect);
             } else {
-                if (gViewportCount >= 2) {
-                    i = 1;
-                    do {
-                        if (gPlayerSlots[i].unk0 != 0) {
-                            memcpy(&effect->matrices[i][gGfxBufferIndex], &effect->matrices[0][gGfxBufferIndex], sizeof(Mtx));
-                        }
-                        i++;
-                    } while (i < gViewportCount);
+                for (i = 1; i < gViewportCount; i++) {
+                    if (gPlayerSlots[i].unk0 != 0) {
+                        memcpy(&effect->matrices[i][gGfxBufferIndex], &effect->matrices[0][gGfxBufferIndex], sizeof(Mtx));
+                    }
                 }
                 if (effect->state != 3) {
-                    if (gViewportCount > 0) {
-                        i = 0;
-                        do {
-                            if (gPlayerSlots[i].unk0 != 0) {
-                                effectComputeTransformMatrix(&effect->matrices[i][gGfxBufferIndex],
-                                              effect->state,
-                                              effect->scaleX,
-                                              effect->scaleY,
-                                              gPlayerSlots[i].unk21C,
-                                              gPlayerSlots[i].unk220,
-                                              gPlayerSlots[i].unk224,
-                                              effect->x,
-                                              effect->y,
-                                              effect->z, effect->mode);
-                            }
-                            i++;
-                        } while (i < gViewportCount);
+                    for (i = 0; i < gViewportCount; i++) {
+                        if (gPlayerSlots[i].unk0 != 0) {
+                            effectComputeTransformMatrix(&effect->matrices[i][gGfxBufferIndex],
+                                          effect->state,
+                                          effect->scaleX,
+                                          effect->scaleY,
+                                          gPlayerSlots[i].unk21C,
+                                          gPlayerSlots[i].unk220,
+                                          gPlayerSlots[i].unk224,
+                                          effect->x,
+                                          effect->y,
+                                          effect->z, effect->mode);
+                        }
                     }
                     effect->state = 3;
                 }
@@ -606,23 +585,21 @@ void effectUpdateAll(u8 pGlist) {
                                            effect->z, 0, 0, 1, -1, 3);
                 }
                 effectLoadFrameAssets((s16 *)effect->grid->data,
-                              effect->grid->unk15,
+                              effect->grid->altCategory,
                               effect->grid->slots,
                               effect->frameCount, effect->param,
                               effect->frames);
                 if (!pGlist || (effect->flags & 1)) {
-                    effect->frameTimer = effect->frameTimer + 1;
+                    effect->frameTimer++;
                     if (effect->frameTimer == effect->frameDelay) {
-                        effect->param = effect->param + 1;
+                        effect->param++;
                         effect->frameTimer = 0;
                     }
                 }
             }
             effect->flags |= 8;
-        } else {
-            if (!pGlist || (effect->flags & 1)) {
-                effect->startDelay = effect->startDelay - 1;
-            }
+        } else if (!pGlist || (effect->flags & 1)) {
+            effect->startDelay--;
         }
     }
     for (node2 = sEffectGridHead; node2 != NULL; node2 = node2->next) {
@@ -632,20 +609,14 @@ void effectUpdateAll(u8 pGlist) {
         if (node2->lastUsedFrame == -1) {
             continue;
         }
-        if (node2->frameCount * node2->width * node2->height > 0) {
-            i = 0;
-            offset2 = 0;
-            do {
-                if (node2 && node2) {} // FAKE: raises node2 priority above offset2 (node2 -> s1, offset2 -> s2)
-                if (((s32 *)((u8 *)node2->slots + offset2))[1] != -1) {
-                    if (gFrameCounter - node2->lastUsedFrame == 0xA) {
-                        assetFreeBuffer(((void **)((u8 *)node2->slots + offset2))[0], 0x319, 0x1F);
-                        ((s32 *)((u8 *)node2->slots + offset2))[1] = -1;
-                    }
+        for (i = 0; i < node2->frameCount * node2->width * node2->height; i++) {
+            if (node2 && node2) {} // FAKE: raises node2 priority above the slot pointer (node2 -> s1, slot pointer -> s2)
+            if (node2->slots[i].frame != -1) {
+                if (gFrameCounter - node2->lastUsedFrame == 10) {
+                    assetFreeBuffer(node2->slots[i].buffer, 0x319, 0x1F);
+                    node2->slots[i].frame = -1;
                 }
-                i++;
-                offset2 += 8;
-            } while (i < node2->frameCount * node2->width * node2->height);
+            }
         }
     }
 }
@@ -654,14 +625,10 @@ void effectUpdateAll(u8 pGlist) {
 void effectFreeByResource(Actor *owner) {
     EffectNode *effect;
 
-    effect = sEffectListHead;
-    if (effect != NULL) {
-        do {
-            if (owner == effect->owner) {
-                effectFreeAndUnlink(effect);
-            }
-            effect = effect->next;
-        } while (effect != NULL);
+    for (effect = sEffectListHead; effect != NULL; effect = effect->next) {
+        if (owner == effect->owner) {
+            effectFreeAndUnlink(effect);
+        }
     }
 }
 
@@ -670,12 +637,10 @@ void effectFreeAll(void) {
     EffectNode *next;
 
     effect = sEffectListHead;
-    if (effect != NULL) {
-        do {
-            next = effect->next;
-            effectFreeAndUnlink(effect);
-            effect = next;
-        } while (next != NULL);
+    while (effect != NULL) {
+        next = effect->next;
+        effectFreeAndUnlink(effect);
+        effect = next;
     }
 }
 
@@ -727,33 +692,22 @@ void effectLoadFrameAssets(s16 *assetIds, u8 altCategory, EffectGridSlot *slots,
     s32 i;
     s32 index;
     void *buffer;
-    void **out;
-    EffectGridSlot *slot;
 
-    i = 0;
-    if (count > 0) {
-        out = outFrames;
-        index = count * frame;
-        slot = slots;
-        slot += index;
-        do {
-            if (slot->frame == -1) {
-                if (altCategory) {
-                    category = 0x19;
-                } else {
-                    category = 7;
-                }
-                buffer = assetLoad(category, assetIds[index + i], 0, 0);
-                *out = buffer;
-                slot->buffer = buffer;
+    index = count * frame;
+    for (i = 0; i < count; i++) {
+        if (slots[index + i].frame == -1) {
+            if (altCategory) {
+                category = 0x19;
             } else {
-                *out = slot->buffer;
+                category = 7;
             }
-            i += 1;
-            out += 1;
-            slot += 1;
-            slot[-1].frame = frame;
-        } while (i != count);
+            buffer = assetLoad(category, assetIds[index + i], 0, 0);
+            outFrames[i] = buffer;
+            slots[index + i].buffer = buffer;
+        } else {
+            outFrames[i] = slots[index + i].buffer;
+        }
+        slots[index + i].frame = frame;
     }
 }
 
@@ -886,7 +840,7 @@ Gfx *effectGridBuildDisplayList(EffectNode *effect, Gfx *inGlist, s16 chunk) {
     gSPTexture(glist++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
     gDPSetCombine(glist++, 0x119623, 0xFF2FFFFF);
 
-    if (effect->grid->unk14 == 0 && mapChunkIsInUse(chunk)) {
+    if (effect->grid->unlit == 0 && mapChunkIsInUse(chunk)) {
         lightSampleColorAtPosition(effect->x, effect->y, effect->z, 0, &red, &green, &blue, chunk);
         colorRed = (f32)((f64)red / 255.0);
         colorGreen = (f32)((f64)green / 255.0);

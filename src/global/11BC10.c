@@ -1251,8 +1251,6 @@ typedef struct TimedLightActorView {
     s32 param;
 } TimedLightActorView;
 
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);  // FAKE: callee prototype steer
-
 extern PlayerState *gActivePlayerState;
 extern void *D_80028C30;
 

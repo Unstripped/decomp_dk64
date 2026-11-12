@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_renderRotatedSprite // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/112080.h"
@@ -49,7 +48,6 @@ Gfx *playerViewGfxSetup(Gfx *dl, u8 playerIndex) {
     return dl;
 }
 
-Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32); // FAKE: callee prototype steer
 
 Gfx *func_806FEF7C(Gfx *dl, Actor *player) {
     dl = playerViewGfxSetup(dl, ((PlayerState *)player->customState)->playerIndex);
@@ -522,11 +520,10 @@ Vec3f vec3fAdd(Vec3f, Vec3f);
 Vec3f vec3fScale(Vec3f, f32);
 f32 vec3fDot(Vec3f, Vec3f);
 
-Gfx *lensFlareDrawSource(dl, pt, fade, i) // FAKE: K&R 4th parameter `i` (callers pass 3 args) gives the loop counter no frame home
+Gfx *lensFlareDrawSource(dl, pt, fade)
 Gfx *dl;
 LensFlarePoint pt;
 u8 fade;
-s16 i;
 {
     Vec3f axisEnd;
     Vec3f axisSpan;
@@ -538,7 +535,8 @@ s16 i;
     Vec3f src;
     Vec3f pad1[7];
     f32 screenX;
-    f32 pad2[4];
+    s16 i;
+    f32 pad2[3];
     f32 screenY;
     f32 alpha;
     f32 facing;
@@ -581,13 +579,13 @@ s16 i;
         }
         gDPPipeSync(dl++);
         gDPSetPrimColor(dl++, 0, 0, (u32)((pt.r / 255.0) * D_80754AF0[i].r * colorScale), (u32)((pt.g / 255.0) * D_80754AF0[i].g * colorScale), (u32)((pt.b / 255.0) * D_80754AF0[i].b * colorScale), (u32)((f32)D_80754AF0[i].a * alphaScale * alpha));
-        dl = renderRotatedSprite(dl, (D_80754AF0[i].texOffset + 0x4D) & 0xFFFF, 3, 1, 0x40, 0x40, (s32)screenX, (s32)screenY, D_80754AF0[i].scale * 4.0f * alpha, D_80754AF0[i].scale * 4.0f * alpha, 0, 0.0f);
+        dl = renderRotatedSprite(dl, D_80754AF0[i].texOffset + 0x4D, 3, 1, 0x40, 0x40, screenX, screenY, D_80754AF0[i].scale * 4.0f * alpha, D_80754AF0[i].scale * 4.0f * alpha, 0, 0.0f);
     }
-    dl->words.w0 = 0xE7000000; dl->words.w1 = 0;
+    dl->words.w0 = 0xE7000000; dl->words.w1 = 0; // FAKE: raw G_RDPPIPESYNC words; gDPPipeSync's block-local _g home moves the vec3f temps at sp+0xC0/0xCC down 4
     dl++;
     if (facing > 0.97) {
         dl = gfxFillScreenColor(dl, pt.r, pt.g, pt.b, (u32)((facing - 0.97) * 33.0 * 128.0));
-        dl->words.w0 = 0xD7000002; dl->words.w1 = 0x80008000;
+        dl->words.w0 = 0xD7000002; dl->words.w1 = 0x80008000; // FAKE: raw G_TEXTURE + G_SETCOMBINE words; gSPTexture/gDPSetCombine _g homes grow the frame 0x1C0 -> 0x1C8
         dl[1].words.w0 = 0xFC119623; dl[1].words.w1 = 0xFF2FFFFF;
         dl += 2;
     }
