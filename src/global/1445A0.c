@@ -2,11 +2,6 @@
 #include "proto/global/1435C0.h"
 #include "proto/global/1445A0.h"
 
-typedef struct AuxAcmd {
-    u32 w0;
-    u32 w1;
-} AuxAcmd;
-
 typedef struct AuxResample {
     u8 pad0[0x8C];
     u8 pitch;
@@ -40,8 +35,8 @@ typedef struct AuxSynth {
 
 extern AuxSynth *n_syn;
 
-AuxAcmd *n_alAuxBusPull(void *time, AuxAcmd *cmdList, s32 busIndex, s32 *outCount) {
-    AuxAcmd *ptr;
+Acmd *n_alAuxBusPull(s32 time, Acmd *cmdList, s32 busIndex, s32 *outCount) {
+    Acmd *ptr;
     AuxBus *bus;
     AuxPVoice **pvoices;
     s32 i;
@@ -55,11 +50,11 @@ AuxAcmd *n_alAuxBusPull(void *time, AuxAcmd *cmdList, s32 busIndex, s32 *outCoun
     count = 0;
     max = 1;
     {
-        AuxAcmd *cmd;
+        Acmd *cmd;
 
         cmd = ptr++;
-        cmd->w0 = 0x020007C0;
-        cmd->w1 = 0x2E0;
+        cmd->words.w0 = 0x020007C0;
+        cmd->words.w1 = 0x2E0;
     }
     *outCount = 0;
     for (i = 0; i < bus->count; i++) {
@@ -80,25 +75,25 @@ AuxAcmd *n_alAuxBusPull(void *time, AuxAcmd *cmdList, s32 busIndex, s32 *outCoun
             ratio = (u32)(65536.0f / (f32)max);
         }
         {
-            AuxAcmd *cmd;
+            Acmd *cmd;
 
             cmd = ptr++;
-            cmd->w0 = 0x4E0;
-            cmd->w1 = ((ratio & 0xFFFF) << 16) | (max & 0xFFFF);
+            cmd->words.w0 = 0x4E0;
+            cmd->words.w1 = ((ratio & 0xFFFF) << 16) | (max & 0xFFFF);
         }
         {
-            AuxAcmd *cmd;
+            Acmd *cmd;
 
             cmd = ptr++;
-            cmd->w0 = 0x650;
-            cmd->w1 = ((ratio & 0xFFFF) << 16) | (max & 0xFFFF);
+            cmd->words.w0 = 0x650;
+            cmd->words.w1 = ((ratio & 0xFFFF) << 16) | (max & 0xFFFF);
         }
     }
     for (i = 0; i < bus->count; i++) {
         if (((pvoices[i]->env != NULL) && (pvoices[i]->env->time == busIndex) &&
              ((pvoices[i]->env->resample == NULL) || (pvoices[i]->env->resample->pitch < 0x40))) ||
             ((pvoices[i]->env == NULL) && (busIndex == 0))) {
-            AuxAcmd *oldPtr;
+            Acmd *oldPtr;
 
             oldPtr = ptr;
             ptr = n_alEnvmixerPull(pvoices[i], time, ptr);

@@ -2,10 +2,9 @@
 #ifndef PROTO_GLOBAL_141EF0_H
 #define PROTO_GLOBAL_141EF0_H
 #include "common.h"
-struct FxNMModState;
-struct FxNMOutputRing;
-struct FxNMOutputState;
+struct FxParamEntry;
 struct FxParamState;
+struct FxPullRing;
 struct ReverbFilterBuffer;
 #ifndef PROTO_SKIP_n_alFxPull
 Acmd *n_alFxPull(s32, Acmd *, s32);
@@ -14,7 +13,7 @@ Acmd *n_alFxPull(s32, Acmd *, s32);
 s32 n_alFxParamHdl(struct FxParamState *, s32, s32 *);
 #endif
 #ifndef PROTO_SKIP__n_loadOutputBuffer
-Acmd *_n_loadOutputBuffer(struct FxNMOutputRing *, struct FxNMOutputState *, s32, s32, Acmd *);
+Acmd *_n_loadOutputBuffer(struct FxPullRing *, struct FxParamEntry *, s32, s32, Acmd *);
 #endif
 #ifndef PROTO_SKIP__n_loadBuffer
 Acmd *_n_loadBuffer(void *, s32, u8 *, s32, s32, Acmd *);
@@ -26,9 +25,9 @@ Acmd *_n_saveBuffer(void *, s32, u8 *, s32, Acmd *);
 Acmd *_n_filterBuffer(struct ReverbFilterBuffer *, s32, s32, Acmd *);
 #endif
 #ifndef PROTO_SKIP__doModFunc
-f32 _doModFunc(struct FxNMModState *, s32);
+f32 _doModFunc(struct FxParamEntry *, s32);
 #endif
 #ifndef PROTO_SKIP_n_alSynOutputPull
-Acmd *n_alSynOutputPull(void *, s16 *);
+Acmd *n_alSynOutputPull(s32, Acmd *);
 #endif
 #endif

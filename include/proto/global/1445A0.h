@@ -2,8 +2,7 @@
 #ifndef PROTO_GLOBAL_1445A0_H
 #define PROTO_GLOBAL_1445A0_H
 #include "common.h"
-struct AuxAcmd;
 #ifndef PROTO_SKIP_n_alAuxBusPull
-struct AuxAcmd *n_alAuxBusPull(void *, struct AuxAcmd *, s32, s32 *);
+Acmd *n_alAuxBusPull(s32, Acmd *, s32, s32 *);
 #endif
 #endif

@@ -14,7 +14,7 @@ typedef struct {
 
 extern ReverbSynth *n_syn;
 
-typedef struct {
+typedef struct FxParamEntry {
     s32 unk0;
     s32 unk4;
     s16 unk8;
@@ -22,7 +22,8 @@ typedef struct {
     s16 unkC;
     u8 padE[2];
     f32 unk10;
-    u8 pad14[8];
+    f32 unk14;
+    s32 unk18;
     f32 unk1C;
     void *unk20;
     void *unk24;
@@ -45,7 +46,7 @@ typedef struct {
     AuxBus *unk34;
 } SynthView;
 
-typedef struct {
+typedef struct FxPullRing {
     s32 unk0;
     FxParamEntry *unk4;
     u8 unk8;
@@ -257,24 +258,7 @@ s32 n_alFxParamHdl(FxParamState *filter, s32 paramID, s32 *paramVal) {
     return 0;
 }
 
-typedef struct FxNMOutputRing {
-    s32 unk0;
-    u8 pad4[0x1C];
-    u8 *unk20[2];
-    u8 *unk28[2];
-} FxNMOutputRing;
-
-typedef struct FxNMOutputState {
-    s32 unk0;
-    s32 unk4;
-    u8 pad8[0x10];
-    s32 unk18;
-    u8 pad1C[8];
-    void *unk24;
-} FxNMOutputState;
-
-
-Acmd *_n_loadOutputBuffer(FxNMOutputRing *ring, FxNMOutputState *state, s32 bufIdx, s32 dmem, Acmd *cmdList) {
+Acmd *_n_loadOutputBuffer(FxPullRing *ring, FxParamEntry *state, s32 bufIdx, s32 dmem, Acmd *cmdList) {
     Acmd *ptr;
     s32 fixedRatio;
     s32 sampleCount;
@@ -424,15 +408,7 @@ Acmd *_n_filterBuffer(ReverbFilterBuffer *buf, s32 bufIdx, s32 gain, Acmd *cmdLi
     buf->unk28 = 0;
     return ptr;
 }
-typedef struct FxNMModState {
-    u8 pad0[0x10];
-    f32 unk10;
-    f32 unk14;
-    u8 pad18[4];
-    f32 unk1C;
-} FxNMModState;
-
-f32 _doModFunc(FxNMModState *mod, s32 count) {
+f32 _doModFunc(FxParamEntry *mod, s32 count) {
     f32 val;
 
     mod->unk14 += mod->unk10 * count;
@@ -447,14 +423,13 @@ f32 _doModFunc(FxNMModState *mod, s32 count) {
     return mod->unk1C * val;
 }
 
-Acmd *n_alSynOutputPull(void *synth, s16 *cmdList) {
+Acmd *n_alSynOutputPull(s32 sampleCount, Acmd *cmdList) {
     Acmd *cmd;
     Acmd *syncCmd;
     Acmd *outCmd;
-    
 
-    cmd = (Acmd *)cmdList;
-    cmd = n_alMainBusPull(synth, cmd);
+    cmd = cmdList;
+    cmd = n_alMainBusPull(sampleCount, cmd);
     syncCmd = cmd++;
     syncCmd->words.w0 = 0x0D000000;
     outCmd = cmd++;

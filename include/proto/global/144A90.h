@@ -2,8 +2,7 @@
 #ifndef PROTO_GLOBAL_144A90_H
 #define PROTO_GLOBAL_144A90_H
 #include "common.h"
-struct AdpcmNMAcmd;
 #ifndef PROTO_SKIP_n_alMainBusPull
-struct AdpcmNMAcmd *n_alMainBusPull(s32, struct AdpcmNMAcmd *);
+Acmd *n_alMainBusPull(s32, Acmd *);
 #endif
 #endif
