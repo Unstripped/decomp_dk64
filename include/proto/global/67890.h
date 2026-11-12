@@ -2,8 +2,9 @@
 #ifndef PROTO_GLOBAL_67890_H
 #define PROTO_GLOBAL_67890_H
 #include "common.h"
+#include "map.h"
 #ifndef PROTO_SKIP_actorTargetTableLoad
-void actorTargetTableLoad(void *);
+void actorTargetTableLoad(MapFileHeader *);
 #endif
 #ifndef PROTO_SKIP_actorTargetTableContainsId
 s32 actorTargetTableContainsId(s32);

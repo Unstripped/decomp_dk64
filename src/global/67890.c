@@ -1,75 +1,75 @@
 #include "common.h"
 #include "actor.h"
+#include "map.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
 #include "proto/global/67890.h"
 #include "proto/global/69E60.h"
 #include "proto/global/6AD90.h"
 
-struct ActorTargetEntry;
-struct ActorTargetDistanceEntry;
 
-typedef struct ActorTargetQuadRaw {
-    f32 unk0[8];
-    s16 unk20[12];
-    s16 pad38[4];
-} ActorTargetQuadRaw;
+typedef struct ActorTargetQuad {
+    /* 0x00 */ f32 texCoords[4][2];
+    /* 0x20 */ s16 x[4];
+    /* 0x28 */ s16 y[4];
+    /* 0x30 */ s16 z[4];
+    /* 0x38 */ s16 portalSlot;
+    /* 0x3A */ s16 fadeStart;
+    /* 0x3C */ s16 fadeEnd;
+    /* 0x3E */ u8 alphaNear;
+    /* 0x3F */ u8 alphaFar;
+} ActorTargetQuad; // size = 0x40
 
-typedef struct ActorTargetDistRaw {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    u8 pad10[4];
-} ActorTargetDistRaw;
+typedef struct ActorTargetDistanceEntry {
+    /* 0x00 */ f32 distance;
+    /* 0x04 */ f32 centerX;
+    /* 0x08 */ f32 centerY;
+    /* 0x0C */ f32 centerZ;
+    /* 0x10 */ u8 alpha;
+    /* 0x11 */ u8 visible;
+    /* 0x12 */ u8 scrollS;
+    /* 0x13 */ u8 scrollT;
+} ActorTargetDistanceEntry; // size = 0x14
 
-typedef struct ActorTargetVtx {
-    s16 ob[3];
-    s16 flag;
-    s16 tc[2];
-    u8 cn[4];
-} ActorTargetVtx;
-
-extern struct ActorTargetEntry *D_807F93F0;
-extern struct ActorTargetDistanceEntry *D_807F93F4;
+extern ActorTargetQuad *D_807F93F0;
+extern ActorTargetDistanceEntry *D_807F93F4;
 extern s32 D_807F93F8;
-extern ActorTargetVtx *D_807F93FC;
-extern u32 D_807F9400;
+extern Vtx *D_807F93FC;
+extern void *D_807F9400;
+extern u8 *gMapPortalVisible;
 
+#define TARGET_VTX(offset) ((Vtx *)((u8 *)D_807F93FC + (offset)))
 
-#define TARGET_QUAD(i) (&((ActorTargetQuadRaw *)D_807F93F0)[i])
-#define TARGET_VTX(off) ((ActorTargetVtx *)((u8 *)D_807F93FC + (off)))
-
-void actorTargetTableLoad(void *assetData) {
+void actorTargetTableLoad(MapFileHeader *header) {
     s32 j;
-    s32 sp[3];
+    s32 start[3];
     s32 i;
-    s32 vtx_off;
-    u8 *p;
+    s32 vtxOffset;
+    u8 *base;
 
-    p = assetData;
-    sp[0] = 0;
-    D_807F93F8 = *(s32 *)(p + *(s32 *)(p + 0x50));
+    base = (u8 *)header;
+    start[0] = 0;
+    D_807F93F8 = *(s32 *)(base + header->unk50);
     if (D_807F93F8 != 0) {
-        D_807F93F0 = (struct ActorTargetEntry *)(p + *(s32 *)(p + 0x50) + 4);
-        D_807F93F4 = heapAlloc(D_807F93F8 * 0x14);
+        D_807F93F0 = (ActorTargetQuad *)(base + header->unk50 + 4);
+        D_807F93F4 = heapAlloc(D_807F93F8 * sizeof(ActorTargetDistanceEntry));
         D_807F93FC = heapAlloc(D_807F93F8 << 6);
         i = 0;
         if (D_807F93F8 > 0) {
-            vtx_off = sp[0] * 0x10;
+            vtxOffset = start[0] * sizeof(Vtx); // FAKE: zero stored to a stack array and reloaded (sw/lw 0x18(sp)) seeds the vertex offset
             do {
                 for (j = 0; j < 4; j++) {
-                    TARGET_VTX(vtx_off)->ob[0] = TARGET_QUAD(i)->unk20[j];
-                    TARGET_VTX(vtx_off)->ob[1] = TARGET_QUAD(i)->unk20[j + 4];
-                    TARGET_VTX(vtx_off)->ob[2] = TARGET_QUAD(i)->unk20[j + 8];
-                    TARGET_VTX(vtx_off)->tc[0] = (s32)(TARGET_QUAD(i)->unk0[j * 2] * 50.0f) << 5;
-                    TARGET_VTX(vtx_off)->tc[1] = (s32)(TARGET_QUAD(i)->unk0[j * 2 + 1] * 50.0f) << 5;
-                    vtx_off += 0x10;
+                    TARGET_VTX(vtxOffset)->v.ob[0] = D_807F93F0[i].x[j];
+                    TARGET_VTX(vtxOffset)->v.ob[1] = D_807F93F0[i].y[j];
+                    TARGET_VTX(vtxOffset)->v.ob[2] = D_807F93F0[i].z[j];
+                    TARGET_VTX(vtxOffset)->v.tc[0] = (s32)(D_807F93F0[i].texCoords[j][0] * 50.0f) << 5;
+                    TARGET_VTX(vtxOffset)->v.tc[1] = (s32)(D_807F93F0[i].texCoords[j][1] * 50.0f) << 5;
+                    vtxOffset += sizeof(Vtx);
                 }
 
-                ((ActorTargetDistRaw *)D_807F93F4)[i].unk4 = (f32)((f64)(TARGET_QUAD(i)->unk20[0] + TARGET_QUAD(i)->unk20[1] + TARGET_QUAD(i)->unk20[2] + TARGET_QUAD(i)->unk20[3]) * 0.25);
-                ((ActorTargetDistRaw *)D_807F93F4)[i].unk8 = (f32)((f64)(TARGET_QUAD(i)->unk20[4] + TARGET_QUAD(i)->unk20[5] + TARGET_QUAD(i)->unk20[6] + TARGET_QUAD(i)->unk20[7]) * 0.25);
-                ((ActorTargetDistRaw *)D_807F93F4)[i].unkC = (f32)((f64)(TARGET_QUAD(i)->unk20[8] + TARGET_QUAD(i)->unk20[9] + TARGET_QUAD(i)->unk20[10] + TARGET_QUAD(i)->unk20[11]) * 0.25);
+                D_807F93F4[i].centerX = (D_807F93F0[i].x[0] + D_807F93F0[i].x[1] + D_807F93F0[i].x[2] + D_807F93F0[i].x[3]) * 0.25;
+                D_807F93F4[i].centerY = (D_807F93F0[i].y[0] + D_807F93F0[i].y[1] + D_807F93F0[i].y[2] + D_807F93F0[i].y[3]) * 0.25;
+                D_807F93F4[i].centerZ = (D_807F93F0[i].z[0] + D_807F93F0[i].z[1] + D_807F93F0[i].z[2] + D_807F93F0[i].z[3]) * 0.25;
                 i++;
             } while (i < D_807F93F8);
         }
@@ -77,48 +77,16 @@ void actorTargetTableLoad(void *assetData) {
     }
 }
 
-typedef struct ActorTargetEntry {
-    u8 pad0[0x38];
-    s16 unk38;
-    u8 pad3A[6];
-} ActorTargetEntry;
-
-extern ActorTargetEntry *D_807F93F0;
-
-s32 actorTargetTableContainsId(s32 targetId) {
+s32 actorTargetTableContainsId(s32 portalSlot) {
     s32 i;
 
     for (i = 0; i < D_807F93F8; i++) {
-        if (targetId == D_807F93F0[i].unk38) {
+        if (portalSlot == D_807F93F0[i].portalSlot) {
             return 1;
         }
     }
     return 0;
 }
-
-typedef struct ActorTargetQuadEntry {
-    f32 unk0[8];
-    s16 unk20[12];
-    s16 unk38;
-    s16 unk3A;
-    s16 unk3C;
-    u8 unk3E;
-    u8 unk3F;
-} ActorTargetQuadEntry;
-
-typedef struct ActorTargetDistanceEntry {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    u8 unk10;
-    u8 unk11;
-    s8 unk12;
-    s8 unk13;
-} ActorTargetDistanceEntry;
-
-extern u8 *gMapPortalVisible;
-extern ActorTargetDistanceEntry *D_807F93F4;
 
 void actorCalculateTargetDistancesAndAngles(f32 camX, f32 camY, f32 camZ) {
     s32 i;
@@ -128,32 +96,29 @@ void actorCalculateTargetDistancesAndAngles(f32 camX, f32 camY, f32 camZ) {
     f32 dz, dx;
 
     for (i = 0; i < D_807F93F8; i++) {
-        D_807F93F4[i].unk11 = 0;
-        if (gMapPortalVisible[((ActorTargetQuadEntry *)D_807F93F0)[i].unk38] != 0) {
-            D_807F93F4[i].unk0 = sqrtf((((camX - D_807F93F4[i].unk4) * (camX - D_807F93F4[i].unk4)) + ((camY - D_807F93F4[i].unk8) * (camY - D_807F93F4[i].unk8))) + ((camZ - D_807F93F4[i].unkC) * (camZ - D_807F93F4[i].unkC)));
-            ratio = (D_807F93F4[i].unk0 - (f32)((ActorTargetQuadEntry *)D_807F93F0)[i].unk3A) / (f32)(((ActorTargetQuadEntry *)D_807F93F0)[i].unk3C - ((ActorTargetQuadEntry *)D_807F93F0)[i].unk3A);
-            if ((f64)ratio > 1.0) {
-                D_807F93F4[i].unk10 = ((ActorTargetQuadEntry *)D_807F93F0)[i].unk3F;
-            } else if ((f64)ratio < 0.0) {
-                D_807F93F4[i].unk10 = ((ActorTargetQuadEntry *)D_807F93F0)[i].unk3E;
+        D_807F93F4[i].visible = 0;
+        if (gMapPortalVisible[D_807F93F0[i].portalSlot] != 0) {
+            D_807F93F4[i].distance = sqrtf((((camX - D_807F93F4[i].centerX) * (camX - D_807F93F4[i].centerX)) + ((camY - D_807F93F4[i].centerY) * (camY - D_807F93F4[i].centerY))) + ((camZ - D_807F93F4[i].centerZ) * (camZ - D_807F93F4[i].centerZ)));
+            ratio = (D_807F93F4[i].distance - D_807F93F0[i].fadeStart) / (D_807F93F0[i].fadeEnd - D_807F93F0[i].fadeStart);
+            if (ratio > 1.0) {
+                D_807F93F4[i].alpha = D_807F93F0[i].alphaFar;
+            } else if (ratio < 0.0) {
+                D_807F93F4[i].alpha = D_807F93F0[i].alphaNear;
             } else {
-                u8 e3E = ((ActorTargetQuadEntry *)D_807F93F0)[i].unk3E;
-                f32 fa = (u32)e3E;
-                D_807F93F4[i].unk10 = (u8)(u32)(((f32)(((ActorTargetQuadEntry *)D_807F93F0)[i].unk3F - e3E) * ratio) + fa);
+                D_807F93F4[i].alpha = D_807F93F0[i].alphaNear + (D_807F93F0[i].alphaFar - D_807F93F0[i].alphaNear) * ratio;
             }
-            D_807F93F4[i].unk12 = (s32)((f64)mathAngleBetweenPoints2D(camX, camZ, D_807F93F4[i].unk4, D_807F93F4[i].unkC) * 0.5) % 255;
-            dz = camZ - D_807F93F4[i].unkC;
-            dx = camX - D_807F93F4[i].unk4;
+            D_807F93F4[i].scrollS = (s32)(mathAngleBetweenPoints2D(camX, camZ, D_807F93F4[i].centerX, D_807F93F4[i].centerZ) * 0.5) % 255;
+            dz = camZ - D_807F93F4[i].centerZ;
+            dx = camX - D_807F93F4[i].centerX;
             dist2d = sqrtf((dz * dz) + (dx * dx));
-            angle = ((f64)mathAtan2(D_807F93F4[i].unk8 - camY, dist2d) * 2048.0) / 3.1415927410125732;
-            D_807F93F4[i].unk13 = (s32)((f64)angle * 0.5) % 255;
-            D_807F93F4[i].unk11 = 1;
+            angle = (mathAtan2(D_807F93F4[i].centerY - camY, dist2d) * 2048.0) / 3.1415927410125732;
+            D_807F93F4[i].scrollT = (s32)(angle * 0.5) % 255;
+            D_807F93F4[i].visible = 1;
         } else {
-            D_807F93F4[i].unk11 = 0;
+            D_807F93F4[i].visible = 0;
         }
     }
 }
-
 
 Gfx *renderDepthSortedTargets(Gfx *glist) {
     s32 pad;
@@ -168,53 +133,37 @@ Gfx *renderDepthSortedTargets(Gfx *glist) {
     do {
         found = 0;
         bestDist = 0.0f;
-        i = 0;
-        if (D_807F93F8 > 0) {
-            do {
-                if (D_807F93F4[i].unk11 != 0) {
-                    dist = D_807F93F4[i].unk0;
-                    if ((dist < maxDist) && (bestDist < dist)) {
-                        furthestIdx = i;
-                        bestDist = dist;
-                        found = 1;
-                    }
+        for (i = 0; i < D_807F93F8; i++) {
+            if (D_807F93F4[i].visible != 0) {
+                dist = D_807F93F4[i].distance;
+                if ((dist < maxDist) && (bestDist < dist)) {
+                    furthestIdx = i;
+                    bestDist = dist;
+                    found = 1;
                 }
-                i += 1;
-            } while (i < D_807F93F8);
+            }
         }
         maxDist = bestDist;
-        if (found != 0) {
+        if (found) {
             glist = renderTargetQuad(glist, furthestIdx);
         }
-    } while (found != 0);
+    } while (found);
     return glist;
 }
 
-typedef struct ActorTargetDistanceView {
-    u8 pad0[0x10];
-    u8 unk10;
-    u8 unk11;
-    u8 unk12;
-    u8 unk13;
-} ActorTargetDistanceView;
-
-#define TARGET_VIEW ((ActorTargetDistanceView *)D_807F93F4)
-
-#define W(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
-
 Gfx *renderTargetQuad(Gfx *glist, s32 targetIdx) {
-    W(glist++, 0xE7000000, 0);
-    W(glist++, 0xE200001C, 0x00504A50);
-    W(glist++, 0xFC11FE23, 0xFFFFF7FB);
-    W(glist++, 0xE3000A01, 0);
-    W(glist++, 0xD9000000, 0);
-    W(glist++, 0xD9FFFFFF, 0x00200005);
-    gDPSetPrimColor(glist++, 0, 0, 100, 100, 100, TARGET_VIEW[targetIdx].unk10);
-    W(glist++, 0xD7000002, 0xFFFFFFFF);
+    gDPPipeSync(glist++);
+    gDPSetRenderMode(glist++, G_RM_ZB_XLU_SURF, G_RM_ZB_XLU_SURF2);
+    gDPSetCombineMode(glist++, G_CC_MODULATEI_PRIM, G_CC_MODULATEI_PRIM);
+    gDPSetCycleType(glist++, G_CYC_1CYCLE);
+    gSPClearGeometryMode(glist++, 0xFFFFFFFF);
+    gSPSetGeometryMode(glist++, G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH);
+    gDPSetPrimColor(glist++, 0, 0, 100, 100, 100, D_807F93F4[targetIdx].alpha);
+    gSPTexture(glist++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
     gDPLoadTextureBlock(glist++, D_807F9400, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, 0, 0);
-    gDPSetTileSize(glist++, 0, TARGET_VIEW[targetIdx].unk12, TARGET_VIEW[targetIdx].unk13, 63 << 2, 63 << 2);
+    gDPSetTileSize(glist++, 0, D_807F93F4[targetIdx].scrollS, D_807F93F4[targetIdx].scrollT, 63 << 2, 63 << 2);
     gSPVertex(glist++, osVirtualToPhysical(&D_807F93FC[targetIdx * 4]), 4, 0);
-    W(glist++, 0x06000204, 0x00000406);
-    W(glist++, 0xE7000000, 0);
+    gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
+    gDPPipeSync(glist++);
     return glist;
 }
