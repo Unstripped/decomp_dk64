@@ -367,7 +367,7 @@ s32 proxPathSegmentAngleCheck(ProxPath *path, s32 segmentIndex, s16 angle) {
         return 1;
     }
     delta = gModelSlots[slot].unk14 * 4096.0f / 360.0f;
-    if (mathAngleInArcWithMargin((s16)((path->segments[segmentIndex].minAngle + delta) & 0xFFF), (s16)((path->segments[segmentIndex].angleB + delta) & 0xFFF), angle, 0)) {
+    if (mathAngleInArcWithMargin((path->segments[segmentIndex].minAngle + delta) & 0xFFF, (path->segments[segmentIndex].angleB + delta) & 0xFFF, angle, 0)) {
         return 1;
     }
     return 0;

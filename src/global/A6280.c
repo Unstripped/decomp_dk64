@@ -191,7 +191,7 @@ void actorSparkCutsceneUpdate(void) {
             if (!(gFrameCounter & 7)) {
                 for (i = 0; i < 0xC; i++) {
                     driftSpeed = (((randomNonNegative() >> 15) % 32767) % 171 + 0x96) * 0.01;
-                    effectSetCallback((void *)effectDecelDriftFadeUpdate);
+                    effectSetCallback(effectDecelDriftFadeUpdate);
                     effectSetSpeed(i);
                     effectSetDepth(1);
                     effectSetColor(0x8C, 0x8C, 0x8C, 0xFF);

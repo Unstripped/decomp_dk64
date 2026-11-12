@@ -165,7 +165,7 @@ void effectSpriteParticleTrackCamera(EffectSpriteParticle *particle) {
     if (diff < -3.1415927f) {
         diff = -6.2831855f - diff;
     }
-    particle->x = (f32)((f64)particle->x + ((f64)(diff * 180.0f) - 0.3 * (f64)D_807FDA1E));
+    particle->x += diff * 180.0f - 0.3 * D_807FDA1E;
     particle->x += 4.0f * dist1 * sinApprox(diff);
     ang = mathAngleBetweenPoints2D(gPlayerSlots->camX, gPlayerSlots->camZ, gPlayerSlots->eyeX, gPlayerSlots->eyeZ);
     dz = gPlayerSlots->camZ - gPlayerSlots->eyeZ;

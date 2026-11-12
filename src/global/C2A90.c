@@ -48,7 +48,7 @@ u8 func_806BDD90(void) {
             gCurrentActor->drawDistance = 0x3E8;
             func_80724CA4(2, 1);
             gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
-            gCurrentActor->accelY = (f64)gCurrentActor->accelY / 1.5;
+            gCurrentActor->accelY /= 1.5;
         }
     }
     actorApplyGravity();

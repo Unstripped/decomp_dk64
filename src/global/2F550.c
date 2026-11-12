@@ -1308,7 +1308,7 @@ u8 mapBspPlaneSideTest(MapBspNode *node, u8 *outVisMode, f32 x, f32 y, f32 z) {
     n[2] = c[2] / len;
     n[0] = n[0] * 20.000f;  // FAKE: separate (uncoloured) 20.0f literal web
     n[1] = n[1] * 20.0f;
-    n[2] = n[2] * 20.00f;  // FAKE: separate (uncoloured) 20.0f literal web
+    n[2] = n[2] * 20.0f;
     p[0] = node->unk5C[0] + n[0];
     p[1] = node->unk62[0] + n[1];
     p[2] = node->unk68[0] + n[2];

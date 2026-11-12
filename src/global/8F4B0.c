@@ -202,28 +202,14 @@ typedef struct {
     /* 0x20 */ u8 unk20;
     /* 0x21 */ u8 unk21;
 } CutsceneActorState;
-typedef struct {
-    char pad[0x100];
-    u32 unk100;
-    char pad104[0x1F0 - 0x104];
-    u32 stateFlags;
-} CutscenePlayerContext;
-typedef struct {
-    char pad[0x1F0];
-    u32 stateFlags;
-} CutscenePlayerFlags;
-typedef struct {
-    char pad[0xC4];
-    f32 unkC4;
-} PlayerActorC4;
 
 s32 mapGetHubWorldIndex(u8, s32); // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;
 extern s16 gVolumeTriggerFiredZ;
 extern s16 gVolumeTriggerFiredX;
-extern void *gPrimaryPlayerActor;
-extern CutscenePlayerContext *gActivePlayerState;
+extern Actor *gPrimaryPlayerActor;
+extern PlayerState *gActivePlayerState;
 extern PlayerStruct *gPlayerSlots;
 extern u16 D_80744700[];
 extern u8 gCurrentWorldId;
@@ -329,7 +315,7 @@ void actorCutsceneDispatchEvents(void) {
             }
             break;
         case 0x6:
-            gActivePlayerState->unk100 = 1;
+            gActivePlayerState->respawnTimer = 1;
             playerRespawnResetPhysics(eventData[0]);
             break;
         case 0x7:
@@ -351,7 +337,7 @@ void actorCutsceneDispatchEvents(void) {
             mapSetTransitionExtraCounter(((u8 *)eventData)[1]);
             break;
         case 0xA:
-            ((CutscenePlayerFlags *)gPlayerSlots->actor->customState)->stateFlags |= 0x40000800;
+            ((PlayerState *)gPlayerSlots->actor->customState)->stateFlags |= 0x40000800;
             break;
         case 0xB:
             mapRequestTransition(D_80744700[mapGetHubWorldIndex(gCurrentWorldId, 0)], D_8076A0AC);
@@ -366,7 +352,7 @@ void actorCutsceneDispatchEvents(void) {
             playerWaypointPathStartPacked(gPrimaryPlayerActor, 0, eventData[0] + pathFlag, 0);
             break;
         case 0xD:
-            if (((Actor *)gPrimaryPlayerActor)->speedXZ > 250.0f) {
+            if (gPrimaryPlayerActor->speedXZ > 250.0f) {
                 sfxPlayFromActorWithAltitudeCheck(gPrimaryPlayerActor, eventData[0], 0xFF, 0x7F, 0x1E);
             }
             break;
@@ -377,7 +363,7 @@ void actorCutsceneDispatchEvents(void) {
             sfxStopChannel(eventData[0], 0);
             break;
         case 0x11:
-            ((PlayerActorC4 *)gActivePlayerActor)->unkC4 = (f64)eventData[0] / 10.0;
+            gActivePlayerActor->accelY = (f64)eventData[0] / 10.0;
             break;
         case 0x12:
             gActivePlayerActor->contactFlags |= 0x200;
@@ -401,7 +387,7 @@ void actorCutsceneDispatchEvents(void) {
             D_8076A0A6 = D_807ECD48;
             break;
         case 0x1A:
-            ((CutscenePlayerFlags *)gPlayerSlots->actor->customState)->stateFlags |= 0x80000000;
+            ((PlayerState *)gPlayerSlots->actor->customState)->stateFlags |= 0x80000000;
             break;
         case 0x1B:
             mapChunkSetFlagBit3(eventData[1]);
@@ -567,18 +553,12 @@ void func_8068B9B4(void) {
     }
 }
 
-typedef struct {
-    char pad[0x104];
-    Actor *unk104;
-    char pad108[0x1F0 - 0x108];
-    u32 stateFlags;
-} Actor174Player;
 
 
 void func_8068BA2C(void) {
     s32 pad;
     CamState *camState;
-    Actor174Player *playerState;
+    PlayerState *playerState;
     s32 hasEvent3;
     s16 i;
     s16 *ptr;
@@ -586,7 +566,7 @@ void func_8068BA2C(void) {
 
     playerState = gActivePlayerActor->customState;
     hasEvent3 = 0;
-    camState = ((Actor *)playerState->unk104)->customState;
+    camState = playerState->camActor->customState;
     for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
         ptr = gActorGlobalState.volumeTriggerQueueId[i];
         switch ((u32)gActorGlobalState.volumeTriggerQueueOp[i]) {
@@ -613,13 +593,6 @@ void func_8068BA2C(void) {
     }
 }
 
-typedef struct {
-    char pad[0xE4];
-    s16 unkE4;
-    s16 unkE6;
-    char padE8[0x4];
-    s16 unkEC;
-} AimActorAngles;
 
 extern u8 gGameMode;
 extern s16 D_807FC624;
@@ -653,8 +626,8 @@ void playerCameraUpdateFromTarget(void) {
     stepFactor = 0.08f;
     scaleFactor = 8.0f;
     player = &gPlayerSlots[*(u8 *)((u8 *)targetState + 0xFB)];
-    player->skyRoll = ((AimActorAngles *)gCurrentActor)->unkEC;
-    ((AimActorAngles *)gCurrentActor)->unkEC = ((AimActorAngles *)gCurrentActor)->unkE4;
+    player->skyRoll = gCurrentActor->unkEC;
+    gCurrentActor->unkEC = gCurrentActor->pitch;
     player->camYInt = (s16)(s32)player->camY;
     angleRad = mathAngleBetweenPointsRad(player->camZ, player->camX, player->focusZ, player->focusX);
     dz = player->focusZ - player->camZ;
@@ -678,7 +651,7 @@ void playerCameraUpdateFromTarget(void) {
     }
     if ((gCurrentMap == 0x1F) || (gCurrentMap == 0x33)) {
         if (D_807FC624 && D_807FC624) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        ((AimActorAngles *)gCurrentActor)->unkE4 = (s16)(s32)(mathSinF(D_807FC624) * 100.0f);
+        gCurrentActor->pitch = (s16)(s32)(mathSinF(D_807FC624) * 100.0f);
         if (gCurrentMap == 0x1F) {
             if (D_807FC624 < 0x1E) {
                 sfxPlayOnFreeSlot(0x15, 0x7FFF, 64.0f, 1.0f, 10, 128);
@@ -735,7 +708,7 @@ calc_angle:
             minLimit = -maxDiff;
             stateVal = (minLimit < angleDiff) ? angleDiff : minLimit;
             stateVal = (stateVal < maxDiff) ? ((minLimit < angleDiff) ? angleDiff : minLimit) : maxDiff;
-            curAngle = (f32)((AimActorAngles *)gCurrentActor)->unkE4;
-            ((AimActorAngles *)gCurrentActor)->unkE4 = (s16)(s32)(((((f32)stateVal * scaleFactor) - curAngle) * stepFactor) + curAngle);
+            curAngle = (f32)gCurrentActor->pitch;
+            gCurrentActor->pitch = (s16)(s32)(((((f32)stateVal * scaleFactor) - curAngle) * stepFactor) + curAngle);
     }
 }

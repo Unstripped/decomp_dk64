@@ -67,7 +67,7 @@ void bonusInitSounds(void) {
 typedef struct LB3bSnd {
     u16 unk0;
     u8 pad2[2];
-    void *unk4;
+    struct GfSndState *unk4;
     s16 unk8;
     s16 unkA;
     u8 padC[0xC];
@@ -92,15 +92,15 @@ void bonusControllerUpdate(void) {
     u8 targetCount;
     u8 *messageText;
     u8 hasMessage;
-    u8 v3;
-    u8 a2v;
+    u8 triggerKind;
+    u8 endOnTrigger;
     u8 *msgBuf;
     s32 pad5C;
     s32 pad58;
     u8 *msgBufCount;
     s32 pad50;
     s32 pad4C;
-    s32 t;
+    s32 sfxId;
     u8 *pv;
 
     s = *(LB3bState **)((u8 *)gCurrentActor + 0x178);
@@ -156,7 +156,7 @@ tail:
             hasMessage = 1;
             break;
         case 9:
-            ((Actor *)spawnNodeActivate((randomNonNegative() >> 15) % 32767 % 8 + 0x11, 0))->unk15F = 1;
+            spawnNodeActivate((randomNonNegative() >> 15) % 32767 % 8 + 0x11, 0)->unk15F = 1;
             break;
         }
         if (hasMessage != 0) {
@@ -171,8 +171,8 @@ tail:
         if (D_807FBDC4 > 0) {
             do {
                 if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
-                    a2v = 1;
-                    v3 = ((u8 *)gActorGlobalState.volumeTriggerQueueId[i])[3]; // unk278[] points at script data read as s16 (1295B0, 80150) and as bytes here
+                    endOnTrigger = 1;
+                    triggerKind = ((u8 *)gActorGlobalState.volumeTriggerQueueId[i])[3]; // unk278[] points at script data read as s16 (1295B0, 80150) and as bytes here
                     switch (challengeType) {
                     case 0:
                         if (s->unk4 != 0) {
@@ -185,20 +185,20 @@ tail:
                                 msgBuf = textTableGetString(0x1A, 0x10, 1);
                             }
                             textSpawnMarkerChecked(0, 0, 0x8C, msgBuf, 0, 0x28, 8, 8);
-                            a2v = 0;
+                            endOnTrigger = 0;
                         }
                         break;
                     case 16:
-                        if (s->unk2 == 0 && v3 != 0x28) {
+                        if (s->unk2 == 0 && triggerKind != 0x28) {
                             textSpawnMarkerChecked(0, 0, 0x8C, textTableGetString(0x1A, 0x17, 1), 0, 0x28, 8, 8);
-                            a2v = 0;
+                            endOnTrigger = 0;
                         }
-                        if (v3 == 0x28) {
-                            a2v = 0;
+                        if (triggerKind == 0x28) {
+                            endOnTrigger = 0;
                         }
                         break;
                     case 2:
-                        a2v = 1;
+                        endOnTrigger = 1;
                         if (slotQueueGetValue(0xB, 0) < targetCount) {
                             if (s->unk4 >= 2) {
                                 messageText = textTableGetString(0x1A, 0x11, 1);
@@ -208,7 +208,7 @@ tail:
                                 msgBufCount = textTableGetString(0x1A, 0x12, 1);
                             }
                             textSpawnMarkerChecked(0, 0, 0x8C, msgBufCount, 0, 0x28, 8, 8);
-                            a2v = 0;
+                            endOnTrigger = 0;
                         }
                         break;
                     case 7:
@@ -216,13 +216,13 @@ tail:
                     case 9:
                     case 11:
                     case 15:
-                        a2v = 0;
+                        endOnTrigger = 0;
                         break;
                     case 12:
                     case 13:
-                        a2v = 0;
-                        if (v3 != 0x12) {
-                            if (v3 == 0x27) {
+                        endOnTrigger = 0;
+                        if (triggerKind != 0x12) {
+                            if (triggerKind == 0x27) {
                                 gCurrentActor->unk15F += 1;
                                 if (gCurrentActor->unk15F >= 3) {
                                     csModelStateSetFirstByte(2, 0xA);
@@ -233,7 +233,7 @@ tail:
                         }
                         break;
                     }
-                    if (a2v != 0) {
+                    if (endOnTrigger != 0) {
                         bonusEndWin(1, 0xE);
                         func_80726EE0(0);
                     }
@@ -307,7 +307,7 @@ render:
     case 1:
         if (!(gCurrentActor->flags & 0x02000000)) {
             camResumePath();
-            hudCountdownTimerStart((void *)gCurrentActor->parentActor);
+            hudCountdownTimerStart(gCurrentActor->parentActor);
             switch (gCurrentMap) {
             case 3:
             case 0x23:
@@ -319,23 +319,23 @@ render:
             case 0xD2:
             case 0xD3:
             case 0xD4:
-                t = 0x75;
+                sfxId = 0x75;
                 break;
             default:
                 switch (challengeType) {
                 case 1:
-                    t = 0x59;
+                    sfxId = 0x59;
                     break;
                 case 0:
-                    t = 0x52;
+                    sfxId = 0x52;
                     break;
                 default:
-                    t = 8;
+                    sfxId = 8;
                     break;
                 }
                 break;
             }
-            sfxAllocateChannel(t, 1.0f);
+            sfxAllocateChannel(sfxId, 1.0f);
             s->unk0 += 1;
         }
         break;
@@ -436,14 +436,7 @@ s32 bonusGetSoundForMap(void) {
 }
 
 extern ALBank *D_8076D1F8;
-extern void *gActivePlayerState;
-
-typedef struct LB3bInput {
-    u8 pad0[0x1F0];
-    u32 unk1F0;
-} LB3bInput;
-
-#define LD ((LB3bInput *)gActivePlayerState)
+extern PlayerState *gActivePlayerState;
 
 void bonusMazeChallengeUpdate(void) {
     LB3bSnd *snd;
@@ -470,7 +463,7 @@ void bonusMazeChallengeUpdate(void) {
         if (snd->unk18 != 0) {
             snd->unk18--;
         } else {
-            hudCountdownTimerStart((void *)gCurrentActor->parentActor);
+            hudCountdownTimerStart(gCurrentActor->parentActor);
             gCurrentActor->state = 1;
         }
         break;
@@ -507,10 +500,10 @@ void bonusMazeChallengeUpdate(void) {
         }
     }
     n_alSndpPostEvent(snd->unk4, 8, snd->unkA);
-    if (LD->unk1F0 & 0xC0000) {
+    if (gActivePlayerState->stateFlags & 0xC0000) {
         if (snd->unk0 < 0x129) {
             snd->unk0 = 0x12C;
-            if (LD->unk1F0 & 0x40000) {
+            if (gActivePlayerState->stateFlags & 0x40000) {
                 if (((randomNonNegative() >> 15) % 1000) & 1) {
                     sfxPlayOnFreeSlot(0x1E7, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
                 } else {
@@ -528,7 +521,7 @@ void bonusMazeChallengeUpdate(void) {
                 snd->unk8 = boostedPitch;
             }
         }
-        LD->unk1F0 &= ~0xC0000;
+        gActivePlayerState->stateFlags &= ~0xC0000;
     }
     switch (snd->unk0) {
     case 0x0:

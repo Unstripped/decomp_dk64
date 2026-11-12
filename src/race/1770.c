@@ -414,7 +414,7 @@ void raceVehicleRenderCallback(void *glist, Actor *actor) {
 }
 
 extern u8 gBossFightPhase;
-extern void *gPrimaryPlayerActor;
+extern Actor *gPrimaryPlayerActor;
 
 void raceVehicleBehaviorUpdate(void) {
     s32 len;

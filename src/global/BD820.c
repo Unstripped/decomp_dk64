@@ -17,18 +17,6 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-typedef struct BD820Actor {
-    /* 0x000 */ u8 pad0[0xC0];
-    /* 0x0C0 */ f32 unkC0;
-    /* 0x0C4 */ u8 padC4[0x66];
-    /* 0x12A */ s16 unk12A;
-    /* 0x12C */ u8 pad12C[4];
-    /* 0x130 */ u8 unk130;
-    /* 0x131 */ u8 unk131;
-} BD820Actor;
-
-#define BD820A ((BD820Actor *)gCurrentActor)
-
 extern void *D_8074E880[];
 extern u8 sEffectSparkConfig[];
 
@@ -60,16 +48,16 @@ void func_806B8C78(void) {
         case 1:
             switch (gCurrentActor->unk155) {
                 case 0:
-                    BD820A->unkC0 = 0.0f;
+                    gCurrentActor->speedY = 0.0f;
                     actorScriptStart(gCurrentActor, 0x290);
                     gCurrentActor->unk155++;
                     break;
                 case 2:
                     if (gCurrentActor->y > -20.0f) {
-                        gCurrentActor->y = gCurrentActor->y - BD820A->unkC0;
+                        gCurrentActor->y = gCurrentActor->y - gCurrentActor->speedY;
                     }
-                    t = BD820A->unkC0 + 0.5;
-                    BD820A->unkC0 = (t < 8.0) ? t : 8.0;
+                    t = gCurrentActor->speedY + 0.5;
+                    gCurrentActor->speedY = (t < 8.0) ? t : 8.0;
                     break;
             }
             break;
@@ -124,20 +112,20 @@ void func_806B8C78(void) {
 
 void func_806B904C(void) {
     s16 i;
-    f32 v;
+    f32 scale;
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        v = ((f64)gBehaviourExtraState->scale / 255.0) * 0.75;
-        gCurrentActor->sub4->scaleX = v;
-        gCurrentActor->sub4->scaleY = v;
-        gCurrentActor->sub4->scaleZ = v;
+        scale = (gBehaviourExtraState->scale / 255.0) * 0.75;
+        gCurrentActor->sub4->scaleX = scale;
+        gCurrentActor->sub4->scaleY = scale;
+        gCurrentActor->sub4->scaleZ = scale;
         if (mapHasCollectedSufficientItems() != 0) {
             gCurrentActor->state = 0x40;
         } else {
-            BD820A->unk12A = 0x3E8;
-            BD820A->unk130 = 0x3C;
-            BD820A->unk131 = 0x3C;
+            gCurrentActor->drawDistance = 0x3E8;
+            gCurrentActor->cullMarginX = 0x3C;
+            gCurrentActor->cullMarginY = 0x3C;
             controllerAnimSetStateIfChanged(gCurrentActor, 0x482, 0.0f, 0.0f);
         }
         modelSlotOrFlags(5, 0x10);

@@ -742,8 +742,8 @@ void behaviourFairyWanderUpdate(void) {
     s16 x;
     s16 y;
     BDEE0Tbl tbl;
-    u8 t;
-    s32 w;
+    u8 step;
+    s32 alpha;
 
     x = (randomNonNegative() >> 15) % 100 + 0x64;
     y = (randomNonNegative() >> 15) % 250 + 0xC8;
@@ -801,7 +801,7 @@ void behaviourFairyWanderUpdate(void) {
     case 4:
         behaviourFairyPlaySound();
         actorSpawnJitteredChild(0x28, x, y, NULL);
-        if (actorSpawnJitteredChild(0x29, (s16)(x + 0x28), (s16)(y + 0x50), NULL) != 0) {
+        if (actorSpawnJitteredChild(0x29, x + 0x28, y + 0x50, NULL) != 0) {
             gCurrentActor->state++;
         }
         break;
@@ -814,7 +814,7 @@ void behaviourFairyWanderUpdate(void) {
     case 6:
         behaviourFairyPlaySound();
         actorSpawnJitteredChild(0x2B, x, y, NULL);
-        if (actorSpawnJitteredChild(0x2C, (s16)(x + 0x28), (s16)(y + 0x50), NULL) != 0) {
+        if (actorSpawnJitteredChild(0x2C, x + 0x28, y + 0x50, NULL) != 0) {
             gCurrentActor->state++;
         }
         break;
@@ -834,12 +834,12 @@ void behaviourFairyWanderUpdate(void) {
             gBehaviourWorkState->timer--;
         } else {
             tbl = D_80750638;
-            t = 0xA - gCurrentActor->unk155;
+            step = 0xA - gCurrentActor->unk155;
             if (gCurrentActor->unk155 == 0xA) {
                 behaviourFairyPlaySound();
             }
             if (gCurrentActor->unk155) {
-                actorSpawnJitteredChild((u8)(tbl.b[gCurrentActor->unk155--] + 0x22), (s16)(t * 8 + 0x64), (s16)(t * 20 + 0xFA), D_807FDCA0->occupant);
+                actorSpawnJitteredChild(tbl.b[gCurrentActor->unk155--] + 0x22, step * 8 + 0x64, step * 20 + 0xFA, D_807FDCA0->occupant);
             } else {
                 gCurrentActor->flags &= 0xFFFF7FFF;
                 gCurrentActor->unk144 = 1;
@@ -851,11 +851,11 @@ void behaviourFairyWanderUpdate(void) {
         }
         break;
     case 9:
-        w = gCurrentActor->alpha - 0xA;
-        if (w < 0) {
+        alpha = gCurrentActor->alpha - 0xA;
+        if (alpha < 0) {
             gCurrentActor->alpha = 0;
         } else {
-            gCurrentActor->alpha = w;
+            gCurrentActor->alpha = alpha;
         }
         if (spawnNodeHasActor(0x2D) == 0) {
             csSendActorMessagePayload(0x11, 0xFF);
@@ -876,11 +876,11 @@ void behaviourFairyWanderUpdate(void) {
         }
         break;
     case 10:
-        w = gCurrentActor->alpha + 0xA;
-        if (w >= 0x100) {
+        alpha = gCurrentActor->alpha + 0xA;
+        if (alpha >= 0x100) {
             gCurrentActor->alpha = 0xFF;
         } else {
-            gCurrentActor->alpha = w;
+            gCurrentActor->alpha = alpha;
         }
         break;
     }
