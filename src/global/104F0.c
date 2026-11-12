@@ -109,7 +109,7 @@ void eepromCopySlot(void) {
         size = stride;
         src = D_807ECEA8 + (size * original);
         dst = D_807ECEA8 + (size * replacement);
-        stride = stride | 0; // FAKE: no-code def extends stride's live range past dst (keeps the quotient in v0, original in a3)
+        stride = stride | 0; // FAKE: no-code def extends the live range of stride past dst (keeps the quotient in v0, original in a3)
         memcpy(dst, src, size);
         D_807EDEA8[replacement] ^= D_807EDEA8[original];
         D_807EDEA8[original] ^= D_807EDEA8[replacement];
@@ -397,7 +397,6 @@ int save;
 {
     u8 *dst;
     s32 slotId;
-    s32 slotArg;
     s32 size;
     s32 sector;
 
@@ -406,12 +405,11 @@ int save;
         sector = eepromGetSectorForSlot(slotId);
         size = ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
         dst = D_807ECEA8 + (sector * size);
-    } while (0); // FAKE: schedules addiu t0 before lui at
+    } while (0); // FAKE: keeps dst a coloured uopt candidate, so addiu t0 %lo(D_807ECEA8) schedules before lui at %hi(D_807467C8)
     D_807467C8 = slotId;
     bzero(dst, size);
-    slotArg = slotId;
-    eepromSetField(0xC, 0, 0, slotArg, 1);
-    eepromSetField(0xF, 0, 0, slotId ^ 0, slotArg); // FAKE: prevents a3 CSE spill
+    eepromSetField(0xC, 0, 0, slotId, 1);
+    eepromSetField(0xF, 0, 0, slotId ^ 0, slotId); // FAKE: a second u8 cvt web; one CSE cvt of slotId is spilled across the first eepromSetField (sw a3 / lw a3)
     if (save != 0) {
         eepromDispatchCommand(1);
     }
@@ -519,10 +517,8 @@ void eepromValidateSaveSlots(void) {
     u8 failed;
     u8 version;
     failed = 0;
-    ok = 0;
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
     for (i = 0; i < 4; i++) {
-        ok = ok | 0;  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         D_807EDEA8[i] = i;
         sectorOrder[i] = 0xFF;
     }
@@ -542,13 +538,12 @@ void eepromValidateSaveSlots(void) {
         failed |= (ok == 0);
         valid[i] = ok;
     }
-    ok = 0;
-    version = 0;
+    ok = 0;  // FAKE: dead store (pre-existing, now tagged); ok is redefined in the third loop before any read, but removing this def recolours ok/stored and the loop index
     for (i = 0; i < 4; i++) {
         if (valid[i] != 0) {
             if (eepromGetField(0xD, 0, 0, i) != 0) {
                 found = version = eepromGetField(0xF, 0, 0, i);
-                if (D_80744530) {}  // FAKE: steers uopt colouring order of found/version
+                if (ok = D_80744530) {}  // FAKE: dead def of ok in the third loop keeps ok in s0 and stored in s1 (one steer for the old ok = ok | 0 and if (D_80744530) {})
                 for (j = 0; j < 4 && found == version; j++) {
                     if (j != i && valid[j] != 0) {
                         slot2 = j;
@@ -703,16 +698,16 @@ void eepromSaveRecords(s32 recordsOnly) {
         }
         a = offset;
         b = ((offset + 0x40) / 4) - 1;
-        offset = 0;  // FAKE: dead store; the operand is redefined, so b's value is not copy-propagated into the index and b stays the variable (same colour as the loop's b)
+        offset = 0;  // FAKE: dead store; the operand is redefined, so the value of b is not copy-propagated into the index and b stays the variable (same colour as the loop b)
         ((u32 *)workingData)[b] = eepromCalculateCrc32(a + workingData, 0x3C);
         bzero(strlen(D_807467C0) - (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) + workingData + 0x840, (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) - strlen(D_807467C0) - 0x40);
         if (D_807ECEA0) {}  // FAKE: deadsweep dead statement (steers uopt)
         osWritebackDCacheAll();
         if ((u32)D_807EDEAC & ~0x3FU) {}  // FAKE: an unsigned -64 use after the calls keeps the unsigned mask constants of the arm above uncoloured (li at,-64)
-        memcpy(D_807ED6A8 + (u32)sector * 8, workingData + (u32)sector * 8, 0x800 - (sector << 3));  // FAKE: (u32) casts make the products read the variable, not its ucvt widening (widening keeps the shift and the loop test: move s4,s1)
+        memcpy(&((u64 *)D_807ED6A8)[sector], &((u64 *)workingData)[sector], 0x800 - (sector << 3));
         q = (u8 *)((u32)D_807ECD08);  // FAKE: a second, u32-laundered pointer to D_807ECD08 for the first poll test (p reads it in the loop)
         if (*q != 0) do sleepMilliseconds(1.0f); while (*p != 0);
-        if ((u32)sector) {}  // FAKE: direct read of sector raises the variable's priority above its widening (var s1, widening s4)
+        if ((u32)sector) {}  // FAKE: direct read of sector raises the priority of the variable above its widening (var s1, widening s4)
         if (D_80744460 != 0) {
             D_807467C4 = 0;
         } else {
