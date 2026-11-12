@@ -916,7 +916,6 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     s32 *matrix;
     u8 text[8];
     u8 alpha;
-    s16 mode;
     G00Entry *viewport;
     f32 scale;
     s32 width;
@@ -927,12 +926,13 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     width = 0;
     gSPMatrix(gfx++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     guTranslate((Mtx *)((u8 *)matrix + (gGfxBufferIndex << 6) + 8), node->dirX * (1.0f - scale), node->dirY * (1.0f - scale), 0.0f);
-    mode = gSlotQueue[slot].displayMode;
-    switch (mode) {
+    switch (gSlotQueue[slot].displayMode) {
     case 1:
         _sprintf(text, "o");
         break;
     case 2:
+        if (gSlotQueue[slot].displayMode == 0) { // FAKE: dead reference
+        }
         _sprintf(text, "NA");
         break;
     default:
