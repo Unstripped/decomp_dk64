@@ -1020,22 +1020,22 @@ void arcadeDrawStage2Background(Gfx **glistp) {
     if (D_8004C708 == 0) {
         for (i = 1; i < 0x1B; i++) {
             if (i != 7 && i != 0x14) {
-                dlAppendTextureRectangle(&glist, (i << 5) + 0xC0, 0x2F8);
+                dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x2F8);
             }
         }
         for (i = 2; i < 0x1A; i++) {
             if (i != 7 && i != 0x14) {
-                dlAppendTextureRectangle(&glist, (i << 5) + 0xC0, 0x270);
+                dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x270);
             }
         }
         for (i = 3; i < 0x19; i++) {
             if (i != 7 && i != 0x14) {
-                dlAppendTextureRectangle(&glist, (i << 5) + 0xC0, 0x1EC);
+                dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x1EC);
             }
         }
         for (i = 4; i < 0x18; i++) {
             if (i != 7 && i != 0x14) {
-                dlAppendTextureRectangle(&glist, (i << 5) + 0xC0, 0x164);
+                dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x164);
             }
         }
     } else {
@@ -1047,22 +1047,22 @@ void arcadeDrawStage2Background(Gfx **glistp) {
         }
         for (i = 1; i < 0x1B; i++) {
             if (i < 7 || i >= 0x15) {
-                dlAppendTextureRectangle(&glist, (i << 5) + 0xC0, 0x2F8);
+                dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x2F8);
             }
         }
         for (i = 2; i < 0x1A; i++) {
             if (i < 7 || i >= 0x15) {
-                dlAppendTextureRectangle(&glist, (i << 5) + 0xC0, 0x270);
+                dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x270);
             }
         }
         for (i = 3; i < 0x19; i++) {
             if (i < 7 || i >= 0x15) {
-                dlAppendTextureRectangle(&glist, (i << 5) + 0xC0, 0x1EC);
+                dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x1EC);
             }
         }
         for (i = 4; i < 0x18; i++) {
             if (i < 7 || i >= 0x15 || D_8004C708 == 2) {
-                dlAppendTextureRectangle(&glist, (i << 5) + 0xC0, 0x164);
+                dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x164);
             }
         }
     }
