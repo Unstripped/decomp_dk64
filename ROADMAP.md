@@ -147,22 +147,23 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 22 (2026-11-12)** — menu/3E10, jetpac/3480, multiplayer/0, global/55B20, boss/C920 (5 views retired; `gBossFightPhase` split label folded into `gActorGlobalState.bossFightPhase` here and in 10 more files), global/79890 (collision views onto ActorEntry/ActorSub140/ModelNode/CollisionHitRecord); round-21 tail Rev21A/B. cfe warnings 78 → 66; FAKE 751 → 738; names ModelNode `scaledX/Y/Z/scaledRadius/mtxOffset`, ActorSub140 `modelMtxF`/`nodeMtx`, `gCollisionHitList*`, `collisionComputeArcYawBounds`, `sKRoolChunky*`; knowledge Q0683–Q0690.
 - [x] **Round 23 (2026-11-12)** — global/F56F0 (+ `controllerLookupStateByHash` returns s32, 17B90 owner), arcade/0, boot/main (+ include/boot.h boot threads), 1371D0 and 137630 (libultra bnkf/osc shapes), ProxBatch (`ProxPathOwner` union, proxPath calls take `s32 id`); round-22 tail Rev22A/B; race.h `unkD0` carve; Actor 0x160 `union { f64 splineT; u32 frameCursor; }`. cfe warnings 66 → 53; proto-steer 61 → 60; names `proxPathRemoveOwner`, `gOscFreeList`/`gOscStates`, `sNoExpPakThread`; knowledge Q0691–Q0694.
 - [x] **Round 24 (2026-11-12)** — global/166A0 (natural u64 multiply), 5650, BC3B0 (GBI macros), 15050 (`HeapPool.owner` `s32 *`), 55B20, boss/A7A0 (cfe 8 → 0); new include/boss.h with one shared `BossScriptState` (3840, C920, A7A0); round-23 tail Rev23A/B; FAKE-comment apostrophes removed in F56F0/55B20. cfe warnings 53 → 45; names `bossKRoolLankyPhaseScripts`, `timerQueueDecodePiCheck`, `actorUpdateLockOnCursor`; knowledge Q0695.
-- [ ] Remaining (after round 24): 296 OPEN functions in 131 files (re-review groups Rev24A/B prepared for 13 functions; 14 functions staled by the round-24 knowledge commit) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
+- [x] **Round 25 (2026-11-12)** — global/104F0, 478F0, 67890 (`actorTargetTableLoad(MapFileHeader *)`), 17800, jetpac/1460 (jetpac.h JetpacSprite/JetpacCellItem types); ArcadeBatch (`TextureDescriptor` in render.h, arcade/0 proto-steers retired); round-24 tail Rev24 (boss/3840; B100 onto boss.h). cfe warnings 45 → 39; proto-steer 60 → 59; names `gActorTarget*`, `actorTargetTableHasPortalSlot`.
+- [ ] Remaining (after round 25): 268 OPEN functions in 125 files (re-review groups Rev25A/B prepared for 19 functions) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 24):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 25):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 742 | 583 |
+| FAKE | 741 | 583 |
 | FAKE dead-if | 271 | 263 |
-| FAKE proto-steer | 60 | 134 |
+| FAKE proto-steer | 59 | 134 |
 | FAKE other kinds | 411 | 186 |
 | LAYOUT | 68 | 47 |
 | goto | 35 | 39 |
 | proto-type (`// PROTO:`) | 6 | 0 |
-| protos mismatch | 33 | 1,202 |
-| reviewed / exhausted functions | 4,131 / 3,974 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 45 | 1,890 |
+| protos mismatch | 31 | 1,202 |
+| reviewed / exhausted functions | 4,142 / 4,002 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 39 | 1,890 |
 | uninit warnings (clint checks every function) | 251 | 122 |
 | `func_` definitions | 430 | 457 |
 | m2c names | 396 | 5,040 |
