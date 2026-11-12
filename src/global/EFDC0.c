@@ -777,9 +777,9 @@ void playerStateDamageTargetCheck(void) {
     target = gActivePlayerState->actor;
     if (target->speedXZ >= 0.0f) {
         behaviourAddSlotQueueValueB(3);
-        target = gActivePlayerState->actor;
     }
     camTarget = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
+    target = gActivePlayerState->actor;
     if (camTarget != NULL) {
         if (camTarget->speedXZ != 0.0f) {
             v = camTarget->speedXZ > 0.0f ? camTarget->speedXZ : -camTarget->speedXZ;
@@ -793,7 +793,6 @@ void playerStateDamageTargetCheck(void) {
         target->speedXZ = v < 50.0f ? -50.0f : -(target->speedXZ > 0.0f ? target->speedXZ : -target->speedXZ);
     }
     actorScriptStart(gActivePlayerState->actor, 0x292);
-    if (gActivePlayerState && gActivePlayerState) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (gActivePlayerActor->state != 9) {
         actorScriptStartByIndex(gActivePlayerActor, 0x83);
     }

@@ -299,33 +299,33 @@ typedef struct CollisionStaticCellView {
 #define COLLISION_STATIC_CELLS ((CollisionStaticCellView *)D_807FB534)
 
 
-void collisionLoadStaticCell(s32 arg0) {
-    s32 sp54;
+void collisionLoadStaticCell(s32 cell) {
+    s32 size;
     s32 pad;
-    void *s2;
-    void *s1;
+    void *dst;
+    void *src;
     s32 cnt;
 
-    if (COLLISION_STATIC_CELLS[arg0].unk0 == NULL && arg0 < D_807FB538) {
-        sp54 = COLLISION_STATIC_CELLS[arg0].unk10;
-        if (sp54 != 0) {
+    if (COLLISION_STATIC_CELLS[cell].unk0 == NULL && cell < D_807FB538) {
+        size = COLLISION_STATIC_CELLS[cell].unk10;
+        if (size != 0) {
             if (D_807FB549 == 0) {
-                COLLISION_STATIC_CELLS[arg0].unk4 = heapAlloc(sp54);
-                dmaReadAssetDecompress(COLLISION_STATIC_CELLS[arg0].unkC, COLLISION_STATIC_CELLS[arg0].unk4, &sp54, 0, 0, 0, 0);
+                COLLISION_STATIC_CELLS[cell].unk4 = heapAlloc(size);
+                dmaReadAssetDecompress(COLLISION_STATIC_CELLS[cell].unkC, COLLISION_STATIC_CELLS[cell].unk4, &size, 0, 0, 0, 0);
             }
-            cnt = COLLISION_STATIC_CELLS[arg0].unk14;
-            COLLISION_STATIC_CELLS[arg0].unk0 = heapAlloc(cnt * 0x28);
-            s1 = COLLISION_STATIC_CELLS[arg0].unk4;
-            s2 = COLLISION_STATIC_CELLS[arg0].unk0;
+            cnt = COLLISION_STATIC_CELLS[cell].unk14;
+            COLLISION_STATIC_CELLS[cell].unk0 = heapAlloc(cnt * 0x28);
+            src = COLLISION_STATIC_CELLS[cell].unk4;
+            dst = COLLISION_STATIC_CELLS[cell].unk0;
             for (; cnt != 0; cnt--) {
-                if (collisionBuildStaticTri(s1, s2) != 0) {
-                    s2 = (void *)((u8 *)s2 + 0x28);
+                if (collisionBuildStaticTri(src, dst) != 0) {
+                    dst = (void *)((u8 *)dst + 0x28);
                 }
-                s1 = (void *)((u8 *)s1 + 0x18);
+                src = (void *)((u8 *)src + 0x18);
             }
         }
     }
-    COLLISION_STATIC_CELLS[arg0].unk8 = gFrameCounter;
+    COLLISION_STATIC_CELLS[cell].unk8 = gFrameCounter;
 }
 
 extern s32 D_80747D70;
@@ -333,21 +333,21 @@ extern s16 D_80748E40;
 
 
 void modelSlotExpireNextBuffers(void) {
-    DynamicBuffer *a0;
-    ModelTriBuffer *a1;
+    DynamicBuffer *buf;
+    ModelTriBuffer *triBuf;
 
     if (D_80747D70 != 0) {
         D_80748E40++;
         if (D_80748E40 >= D_80747D70) {
             D_80748E40 = 0;
         }
-        a0 = &gModelSlots[D_80748E40].unk28;
-        if ((a0->unk15 & 1) && ((u32)(gFrameCounter - a0->unk10) >= 0x1F)) {
-            dynamicBufferFree(a0);
+        buf = &gModelSlots[D_80748E40].unk28;
+        if ((buf->unk15 & 1) && ((u32)(gFrameCounter - buf->unk10) >= 0x1F)) {
+            dynamicBufferFree(buf);
         }
-        a1 = &gModelSlots[D_80748E40].unk48;
-        if ((a1->flags & 1) && ((u32)(gFrameCounter - a1->timestamp) >= 0x1F)) {
-            modelSlotTriBufferRelease(a1);
+        triBuf = &gModelSlots[D_80748E40].unk48;
+        if ((triBuf->flags & 1) && ((u32)(gFrameCounter - triBuf->timestamp) >= 0x1F)) {
+            modelSlotTriBufferRelease(triBuf);
         }
     }
 }
@@ -805,7 +805,7 @@ typedef struct ActorSub140SrcTri {
     /* 0x2B */ u8 pad2B;
 } ActorSub140SrcTri; // size = 0x2C
 
-ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, void *boxBounds, Mtx *mtx0, Mtx *mtx1, u8 *data) {
+ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radius, f32 height, void *boxBounds, Mtx *mtx0, Mtx *mtx1, u8 *data) {
     ActorSub140 *sub140;
     void *link;
     s32 n;
@@ -813,15 +813,15 @@ ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f
     s32 pad1;
     s32 pad[10];
     void *tris;
-    void *sp54;
+    void *triBase;
     s32 pad50;
-    ActorSub140SrcTri *a3;
+    ActorSub140SrcTri *srcTri;
     ActorSub140Tri *tri;
     s32 count;
     ModelNode *node;
     ModelSubNode *subnode;
 
-    sub140 = actorSub140Alloc(arg0, arg1, arg2, arg3, arg4, arg5, boxBounds, mtx0, mtx1);
+    sub140 = actorSub140Alloc(x, y, z, scale, radius, height, boxBounds, mtx0, mtx1);
     if (data != NULL) {
         n = *(s32 *)data;
         data += 4;
@@ -870,7 +870,7 @@ ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f
         data += 4;
         sub140->boxCount = count;
         if (count != 0) {
-            sub140->boxes = (a3 = heapAlloc(count * sizeof(ActorSub140SrcTri)));
+            sub140->boxes = (srcTri = heapAlloc(count * sizeof(ActorSub140SrcTri)));
             sub140->unkA4 = heapAlloc(count * sizeof(ActorSub140Tri));
             sub140->unkA8 = sub140->unkA4;
         }
@@ -879,7 +879,7 @@ ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f
                 f32 *rec = (f32 *)data;
                 s32 k = 0;
                 s32 j = 0;
-                f32 *dst = a3->x;
+                f32 *dst = srcTri->x;
                 f32 *src = (f32 *)data;
                 do {
                     *dst++ = src[0];
@@ -893,11 +893,11 @@ ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f
                     dst[2] = src[-2];
                     dst[5] = src[-1];
                 } while (j != 3);
-                a3->unk28 = *(s32 *)(rec + k);
-                a3->boneOffset = *(s32 *)(rec + (k + 1));
-                a3->unk2A = 1;
+                srcTri->unk28 = *(s32 *)(rec + k);
+                srcTri->boneOffset = *(s32 *)(rec + (k + 1));
+                srcTri->unk2A = 1;
                 data += 0x2C;
-                a3++;
+                srcTri++;
             } while (++i != count);
             i = 0;
         }
@@ -908,10 +908,10 @@ ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f
         if (count != 0) {
             tris = heapAlloc(count * sizeof(ActorSub140Tri));
             sub140->triangles = tris;
-            sp54 = tris;
+            triBase = tris;
         }
         if (count > 0) {
-            tri = sp54;
+            tri = triBase;
             do {
                 f32 *rec = (f32 *)data;
                 s32 k = 0;
@@ -1002,17 +1002,17 @@ void func_8066E6C8(Actor *actor, s32 id, u8 enabled) {
     }
 }
 
-ActorSub140 *actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, void *boxBounds, Mtx *mtx0, Mtx *mtx1) {
+ActorSub140 *actorSub140Alloc(f32 x, f32 y, f32 z, f32 scale, f32 radius, f32 height, void *boxBounds, Mtx *mtx0, Mtx *mtx1) {
     ActorSub140 *sub;
 
     sub = (ActorSub140 *)heapAlloc(sizeof(ActorSub140));
-    sub->scaledX = (s32) (arg0 * 8.0f);
-    sub->scaledY = (s32) (arg1 * 8.0f);
-    sub->scaledZ = (s32) (arg2 * 8.0f);
-    sub->radius = arg4;
-    sub->height = arg5;
-    sub->scaledRadius = (s32) (arg4 * arg3 * 8.0f);
-    sub->scaledHeight = (s32) (arg5 * arg3 * 8.0f);
+    sub->scaledX = (s32) (x * 8.0f);
+    sub->scaledY = (s32) (y * 8.0f);
+    sub->scaledZ = (s32) (z * 8.0f);
+    sub->radius = radius;
+    sub->height = height;
+    sub->scaledRadius = (s32) (radius * scale * 8.0f);
+    sub->scaledHeight = (s32) (height * scale * 8.0f);
     sub->boxBounds = boxBounds;
     sub->unk74[0] = mtx0;
     sub->unk74[1] = mtx1;

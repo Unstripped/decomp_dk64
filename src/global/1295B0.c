@@ -785,9 +785,7 @@ void spawnNodesSetActorStateByFlag(u16 mask, u8 state) {
 void func_80726EE0(u8 command) {
     s16 i;
     SpawnNode *node;
-    s32 mode;
 
-    mode = command;
     node = D_80755694->nodes;
     for (i = 0; i < D_80755694->count; i++, node++) {
         if (node->flags & 0x80) {
@@ -803,7 +801,7 @@ void func_80726EE0(u8 command) {
             camClearActorRefs(node->actor);
             actorDespawn(node->actor);
         }
-        switch (mode) {
+        switch (command) {
             case 0:
             case 1:
                 node->flags |= 2;
