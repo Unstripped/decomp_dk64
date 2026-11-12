@@ -19,17 +19,9 @@
 #include "proto/global/CEAE0.h"
 #include "proto/global/FCCD0.h"
 
-// Actor plus its component pointers (0x174 on).
-typedef struct Actor_3340 {
-    /* 0x000 */ u8 pad0[0x174];
-    /* 0x174 */ s16* unk174;
-    /* 0x178 */ u8 pad178[0x2C];
-    /* 0x1A4 */ u8 playerIndex;
-} Actor_3340;
-
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern Actor *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 
 
 
@@ -82,7 +74,7 @@ void critterBananaFairyUpdate(void) {
     s8 hasSecretDiscount;
     s8 canSecretUnlock;
 
-    timerPtr = ((Actor_3340 *)gCurrentActor)->unk174;
+    timerPtr = gCurrentActor->customState;
     canSecretUnlock = 0;
     hasSecretDiscount = 0;
     worldIndex = mapGetHubWorldIndex(gCurrentWorldId, 0);
@@ -135,16 +127,16 @@ void critterBananaFairyUpdate(void) {
     gCurrentActor->eyeHeight = 0x23;
     if (gCurrentMap != 0x2A) {
         dx = gPrimaryPlayerActor->x - gCurrentActor->x;
-        dy = (f32)(2.0 * (f64)(gPrimaryPlayerActor->y - gCurrentActor->y));
+        dy = 2.0 * (gPrimaryPlayerActor->y - gCurrentActor->y);
         dz = gPrimaryPlayerActor->z - gCurrentActor->z;
         dist = sqrtf(dx * dx + dy * dy + dz * dz);
-        if ((f64)dist < 300.0 && flagGet(0x17E, 0) == 0) {
+        if (dist < 300.0 && flagGet(0x17E, 0) == 0) {
             resQueueSetValue(1);
             resQueueAttachActor(gCurrentActor, 0x1D, 0);
             camStartPath(gCurrentActor, 1, 1);
             flagSet(0x17E, 1, 0);
-        } else if (canSecretUnlock != 0 && (f64)dist < 200.0 && camIsCutsceneActive() == 0 && gPrimaryPlayerActor->state == 0x24 && gPrimaryPlayerActor->unk155 == 2 && (f64)dz > -35.0) {
-            if ((f64)dx > -27.0 && (f64)dx < 27.0 && (gPrimaryPlayerActor->yaw < 0x200 || gPrimaryPlayerActor->yaw >= 0xE01)) {
+        } else if (canSecretUnlock != 0 && dist < 200.0 && camIsCutsceneActive() == 0 && gPrimaryPlayerActor->state == 0x24 && gPrimaryPlayerActor->unk155 == 2 && dz > -35.0) {
+            if (dx > -27.0 && dx < 27.0 && (gPrimaryPlayerActor->yaw < 0x200 || gPrimaryPlayerActor->yaw >= 0xE01)) {
                 D_80029F84 = 2;
                 sfxPlayOnFreeSlot(0x145, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 camStartShake(gCamActor, 0xA, 0xA);
@@ -162,7 +154,7 @@ void critterBananaFairyUpdate(void) {
             }
             if (*timerPtr >= 0x2E) {
                 gCurrentActor->unk155 = 0;
-                if (func_806FB418() < requiredCount) { // empty in the original: the call and compare are emitted
+                if (func_806FB418() < requiredCount) { // FAKE: empty test; the original emits the call, the slt and the branch
                 }
             }
             break;
@@ -170,7 +162,7 @@ void critterBananaFairyUpdate(void) {
             if (gCurrentMap == 0xAA && gPlayerCharacterId != 4) {
                 D_8002A1B0 = 0.0f;
             }
-            if ((f64)dist < 70.0 && (f64)D_8002A1B0 >= 70.0) {
+            if (dist < 70.0 && D_8002A1B0 >= 70.0) {
                 s16 var;
 
                 resQueueSetValue(1);
@@ -190,7 +182,7 @@ void critterBananaFairyUpdate(void) {
             }
             break;
         case 1:
-            if ((f64)dist > 110.0) {
+            if (dist > 110.0) {
                 gCurrentActor->unk155 = 0;
             }
             break;
@@ -202,10 +194,10 @@ void critterBananaFairyUpdate(void) {
                 if (*timerPtr >= 0x3D) {
                     effectSetDepth(0);
                     effectSetDuration(1);
-                    effectCreateAtPosition(D_80720A7C, 0.5f, (f32)(((f64)randomFloat() * 35.0 + (f64)gCurrentActor->x) - 15.0), (f32)((f64)randomFloat() * 35.0 + (f64)gCurrentActor->y), (f32)(((f64)randomFloat() * 35.0 + (f64)gCurrentActor->z) - 15.0));
+                    effectCreateAtPosition(D_80720A7C, 0.5f, (randomFloat() * 35.0 + gCurrentActor->x) - 15.0, randomFloat() * 35.0 + gCurrentActor->y, (randomFloat() * 35.0 + gCurrentActor->z) - 15.0);
                 }
                 if (*timerPtr >= 0x51) {
-                    gCurrentActor->sub4->scaleX = (f32)((f64)gCurrentActor->sub4->scaleX * 0.9);
+                    gCurrentActor->sub4->scaleX = gCurrentActor->sub4->scaleX * 0.9;
                     gCurrentActor->sub4->scaleY = gCurrentActor->sub4->scaleX;
                     gCurrentActor->sub4->scaleZ = gCurrentActor->sub4->scaleX;
                 }
@@ -312,7 +304,7 @@ void critterBananaFairyRewardUpdate(void) {
             gCurrentActor->unk155 = 1;
             sfxPlayActorSound(gPrimaryPlayerActor, 0x104, 0x3C, 1, 1, 0xFF, 1.0f, 0);
             slotQueueUpdate(6, 0, 0);
-            slotQueueAddValue(6, ((Actor_3340 *)gActivePlayerState)->playerIndex, 0x3E7);
+            slotQueueAddValue(6, gActivePlayerState->playerIndex, 0x3E7);
         }
         break;
     case 3:
@@ -345,33 +337,12 @@ typedef struct FlutterState {
     f32 unk28;
 } FlutterState;
 
-typedef struct FlutterModelView {
-    char pad0[4];
-    f32 unk4;
-} FlutterModelView;
-
+// view kept for the u32 cursor at 0x160 (Actor has f64 splineT there; union request held, see header-request.md)
 typedef struct FlutterActorView {
-    char pad0[4];
-    FlutterModelView **unk4;
-    char pad8[0x60 - 8];
-    s32 unk60;
-    char pad64[0x7C - 0x64];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0xE6 - 0x88];
-    s16 unkE6;
-    char padE8[0x154 - 0xE8];
-    u8 unk154;
-    char pad155[0x15E - 0x155];
-    u8 unk15E;
-    char pad15F[0x160 - 0x15F];
+    char pad0[0x160];
     u32 unk160;
-    char pad164[0x174 - 0x164];
-    FlutterState *unk174;
 } FlutterActorView;
 
-#define FLUTTER_ACTOR ((FlutterActorView *)gCurrentActor)
 
 
 void critterFlutterFlyUpdate(void) {
@@ -384,45 +355,45 @@ void critterFlutterFlyUpdate(void) {
     s32 near;
     s32 angleTmp;
     FlutterState *d;
-    FlutterModelView *sub;
+    AnimSlot *sub;
 
-    d = FLUTTER_ACTOR->unk174;
-    sub = *FLUTTER_ACTOR->unk4;
-    if (!(FLUTTER_ACTOR->unk60 & 0x10)) {
-        FLUTTER_ACTOR->unk154 = 0x78;
+    d = gCurrentActor->customState;
+    sub = gCurrentActor->sub4->model;
+    if (!(gCurrentActor->flags & 0x10)) {
+        gCurrentActor->state = 0x78;
         if (flagGet(0x189, 0) != 0) {
             if (flagGet(0x23, 1) == 0) {
-                FLUTTER_ACTOR->unk154 = 1;
+                gCurrentActor->state = 1;
             } else if (flagGet(0x18A, 0) == 0) {
                 if (flagGet(0x24, 1) != 0) {
-                    FLUTTER_ACTOR->unk154 = 0xA;
+                    gCurrentActor->state = 0xA;
                 } else {
-                    FLUTTER_ACTOR->unk154 = 0x64;
+                    gCurrentActor->state = 0x64;
                 }
             }
             actorScriptStart(gCurrentActor, 0x43B);
         } else {
-            FLUTTER_ACTOR->unk154 = 0;
+            gCurrentActor->state = 0;
         }
-        d->unk20 = FLUTTER_ACTOR->unk7C;
-        d->unk24 = FLUTTER_ACTOR->unk80;
-        d->unk28 = FLUTTER_ACTOR->unk84;
+        d->unk20 = gCurrentActor->x;
+        d->unk24 = gCurrentActor->y;
+        d->unk28 = gCurrentActor->z;
         d->unk4 = 0.028571429f;
         d->unk0 = 2.0f;
         d->unk14 = d->unk20;
         d->unk1C = d->unk28;
     }
-    dx = FLUTTER_ACTOR->unk7C - ((FlutterActorView *)gPrimaryPlayerActor)->unk7C;
-    dz = FLUTTER_ACTOR->unk84 - ((FlutterActorView *)gPrimaryPlayerActor)->unk84;
-    if (FLUTTER_ACTOR->unk154 != 1) {
-        FLUTTER_ACTOR->unkE6 = FLUTTER_ACTOR->unkE6 - (mathAngleSignedDistance(mathAngleBetweenPoints2D(((FlutterActorView *)gPrimaryPlayerActor)->unk7C, ((FlutterActorView *)gPrimaryPlayerActor)->unk84, FLUTTER_ACTOR->unk7C, FLUTTER_ACTOR->unk84), FLUTTER_ACTOR->unkE6) >> 3);
+    dx = gCurrentActor->x - gPrimaryPlayerActor->x;
+    dz = gCurrentActor->z - gPrimaryPlayerActor->z;
+    if (gCurrentActor->state != 1) {
+        gCurrentActor->yaw = gCurrentActor->yaw - (mathAngleSignedDistance(mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z), gCurrentActor->yaw) >> 3);
     }
-    FLUTTER_ACTOR->unk15E = 0xF;
-    switch (FLUTTER_ACTOR->unk154) {
+    gCurrentActor->eyeHeight = 0xF;
+    switch (gCurrentActor->state) {
     case 0:
         if (flagGet(0x189, 0) != 0) {
             actorScriptStart(gCurrentActor, 0x43B);
-            FLUTTER_ACTOR->unk154 = 1;
+            gCurrentActor->state = 1;
         }
         break;
     case 0x64:
@@ -430,24 +401,24 @@ void critterFlutterFlyUpdate(void) {
         if (near != 0 && (D_807ECD48 & 0x8000)) {
             camStartPath(gCurrentActor, 4, 1);
             currentActorClearFlag();
-            FLUTTER_ACTOR->unk154 = 0x65;
+            gCurrentActor->state = 0x65;
         }
         if (flagGet(0x24, 1) != 0) {
-            FLUTTER_ACTOR->unk154 = 0xA;
+            gCurrentActor->state = 0xA;
         }
         break;
     case 0x65:
         if (camIsCutsceneActive() == 0) {
-            FLUTTER_ACTOR->unk154 = 0x64;
+            gCurrentActor->state = 0x64;
         }
         break;
     case 1: {
-        t = sub->unk4 / 19.0;
+        t = sub->frame / 19.0;
         if (t < d->unk0) {
-            d->unk8 = FLUTTER_ACTOR->unk7C;
+            d->unk8 = gCurrentActor->x;
             d->unkC = d->unk24;
-            d->unk10 = FLUTTER_ACTOR->unk84;
-            angleTmp = (s32)(randomFloat() * 4096.0);
+            d->unk10 = gCurrentActor->z;
+            angleTmp = randomFloat() * 4096.0;
             k = randomFloat() * 65.0;
             d->unk14 = (mathCosF((s16)angleTmp) * k) + d->unk20;
             d->unk18 = d->unk24;
@@ -461,11 +432,11 @@ void critterFlutterFlyUpdate(void) {
         if (t < 0.0) {
             t = 0.0f;
         }
-        FLUTTER_ACTOR->unk7C = d->unk8 + (t * (d->unk14 - d->unk8));
-        FLUTTER_ACTOR->unk84 = d->unk10 + (t * (d->unk1C - d->unk10));
+        gCurrentActor->x = d->unk8 + (t * (d->unk14 - d->unk8));
+        gCurrentActor->z = d->unk10 + (t * (d->unk1C - d->unk10));
         if (gActorGlobalState.bossFightPhase == 4) {
             actorScriptStart(gCurrentActor, 0x43C);
-            FLUTTER_ACTOR->unk154 = 2;
+            gCurrentActor->state = 2;
             d->unk0 = 0.0f;
         }
         break;
@@ -476,33 +447,33 @@ void critterFlutterFlyUpdate(void) {
             camStartPath(gCurrentActor, 2, 1);
             currentActorClearFlag();
             d->unk0 = 0.0f;
-            FLUTTER_ACTOR->unk154 = 0x64;
+            gCurrentActor->state = 0x64;
         } else if (d->unk0 < 20.0) {
             k = sqrtf((dx * dx) + (dz * dz));
             if (k > 1.0) {
                 k = 3.0 / k;
-                FLUTTER_ACTOR->unk7C = FLUTTER_ACTOR->unk7C + (dx * k);
-                FLUTTER_ACTOR->unk84 = FLUTTER_ACTOR->unk84 + (dz * k);
+                gCurrentActor->x = gCurrentActor->x + (dx * k);
+                gCurrentActor->z = gCurrentActor->z + (dz * k);
             }
         }
         break;
     case 0xA:
         near = (dx * dx) + (dz * dz) < 2500.0f;
         if (near != 0) {
-            FLUTTER_ACTOR->unk154 = 0xB;
+            gCurrentActor->state = 0xB;
             camStartPath(gCurrentActor, 3, 1);
         }
         break;
     case 0xB:
         break;
     }
-    func_8072881C(0, &FLUTTER_ACTOR->unk160);
-    if (FLUTTER_ACTOR->unk154 == 0) {
-        FLUTTER_ACTOR->unk60 = FLUTTER_ACTOR->unk60 & ~4;
+    func_8072881C(0, &((FlutterActorView *)gCurrentActor)->unk160);
+    if (gCurrentActor->state == 0) {
+        gCurrentActor->flags = gCurrentActor->flags & ~4;
     } else {
-        FLUTTER_ACTOR->unk60 = FLUTTER_ACTOR->unk60 | 4;
+        gCurrentActor->flags = gCurrentActor->flags | 4;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
-        billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x23, 0xF, 1, 0x4B, 0x78, FLUTTER_ACTOR->unkE6, 1.0f);
+        billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x23, 0xF, 1, 0x4B, 0x78, gCurrentActor->yaw, 1.0f);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

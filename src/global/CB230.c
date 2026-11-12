@@ -20,26 +20,20 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
 typedef struct R1C8CBSub178 {
-    /* 0x0 */ s16 unk0;
+    union {
+        /* 0x0 */ s16 unk0;
+        struct {
+            /* 0x0 */ u8 unk0Hi;
+            /* 0x1 */ u8 unk0Lo;
+        };
+    };
     /* 0x2 */ u8 unk2;
 } R1C8CBSub178;
 
 typedef struct R1C8CBActor {
-    /* 0x000 */ u8 pad0[0x11C];
-    /* 0x11C */ struct R1C8CBActor *unk11C;
-    /* 0x120 */ u8 pad120[0xA];
-    /* 0x12A */ s16 unk12A;
-    /* 0x12C */ u8 pad12C[4];
-    /* 0x130 */ u8 unk130;
-    /* 0x131 */ u8 unk131;
-    /* 0x132 */ u8 pad132[0x22];
-    /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 unk155;
-    /* 0x156 */ u8 pad156[0x22];
+    /* 0x000 */ Actor base;
     /* 0x178 */ R1C8CBSub178 *unk178;
 } R1C8CBActor;
-
-#define R1V ((R1C8CBActor *)gCurrentActor)
 
 f32 sqrtf(f32);
 
@@ -59,7 +53,7 @@ void actorUpdateNearestSpotlight(void) {
     f32 dz;
     s32 d;
 
-    p = R1V->unk178;
+    p = ((R1C8CBActor *)gCurrentActor)->unk178;
     found = NULL;
     best = 999999;
     for (i = 0; i < gActiveActorCount; i++) {
@@ -111,7 +105,7 @@ void actorUpdateNearestSpotlight(void) {
             break;
     }
     p->unk0 = mathSinF(gFrameCounter * 130) * 35.0 + 220.0;
-    lightAdd(A[0], A[1], A[2], B[0], B[1], B[2], 0.0f, 1, ((u8 *)p)[1], ((u8 *)p)[1], ((u8 *)p)[1]);
+    lightAdd(A[0], A[1], A[2], B[0], B[1], B[2], 0.0f, 1, p->unk0Lo, p->unk0Lo, p->unk0Lo);
 }
 
 void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
@@ -124,7 +118,7 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
     dz = gCurrentActor->z - gBehaviourTargetActor->z;
     dist = (u16)sqrtf(dx * dx + dz * dz);
     if (!(gCurrentActor->flags & 0x10)) {
-        R1C8CBSub178 *p = R1V->unk178;
+        R1C8CBSub178 *p = ((R1C8CBActor *)gCurrentActor)->unk178;
         gCurrentActor->renderFlags |= 4;
         gCurrentActor->flags |= 0x800000;
         gCurrentActor->tintR = 0xFF;
@@ -170,12 +164,12 @@ void func_806C6BC8(void) {
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        R1V->unk12A = 0x7D0;
-        R1V->unk130 = 0xFF;
-        R1V->unk131 = 0xFF;
+        gCurrentActor->drawDistance = 0x7D0;
+        gCurrentActor->cullMarginX = 0xFF;
+        gCurrentActor->cullMarginY = 0xFF;
         gCurrentActor->flags &= ~0x8000;
-        R1V->unk154 = 0x27;
-        R1V->unk155 = 0;
+        gCurrentActor->state = 0x27;
+        gCurrentActor->unk155 = 0;
         gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
         gBehaviourWorkState->unk2E = 0x96;
         gBehaviourAnimState->flags |= 0x60;
@@ -188,7 +182,7 @@ void func_806C6BC8(void) {
         gCurrentActor->flags &= ~0x400;
     }
     func_8072881C(0, &gBehaviourWorkState->unk28);
-    switch (R1V->unk154) {
+    switch (gCurrentActor->state) {
         case 0:
             if (gBehaviourWorkState->timer != 0) {
                 ratio = (f32)gBehaviourWorkState->timer / (f32)gBehaviourWorkState->unk2E;
@@ -209,44 +203,44 @@ void func_806C6BC8(void) {
                 gBehaviourWorkState->unk2E--;
                 actorSetUniformScale(gCurrentActor, gBehaviourWorkState->scale + (0.01 - gBehaviourWorkState->scale) * (gBehaviourWorkState->unk2E / 150.0));
             } else {
-                R1V->unk154 = 2;
-                R1V->unk155 = 0;
+                gCurrentActor->state = 2;
+                gCurrentActor->unk155 = 0;
             }
             break;
         case 2:
             if (gActorGlobalState.bossFightPhase == 4) {
                 actorScriptStart(gCurrentActor, 0);
                 scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
-                R1V->unk154 = 0;
-                R1V->unk155 = 0;
+                gCurrentActor->state = 0;
+                gCurrentActor->unk155 = 0;
                 camRequestPathLength();
                 gBehaviourWorkState->timer = camStartPath(gCurrentActor, 0x18, 1) - 0x1E;
                 gBehaviourWorkState->unk2E = gBehaviourWorkState->timer;
                 gCurrentActor->unk144 = 1;
             } else {
-                switch (R1V->unk155) {
+                switch (gCurrentActor->unk155) {
                     case 5:
                         actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
-                        R1V->unk155 = 0;
+                        gCurrentActor->unk155 = 0;
                         break;
                     case 3:
                         actorSetTargetSpeed(gCurrentActor, 0);
                         actorScriptStart(gCurrentActor, 0x2BB);
-                        R1V->unk155 = 4;
+                        gCurrentActor->unk155 = 4;
                     case 4:
                     case 0:
                         effectSpawnSparks(3, 1);
-                        if (R1V->unk155 == 0) {
+                        if (gCurrentActor->unk155 == 0) {
                             if ((randomNonNegative() >> 15) % 1000 >= 0x3DF) {
-                                R1V->unk155 = 3;
+                                gCurrentActor->unk155 = 3;
                             }
                         }
-                        if (R1V->unk11C->unk154 == 5 || gPrimaryPlayerActor->actorType != 3) {
+                        if (gCurrentActor->parentActor->state == 5 || gPrimaryPlayerActor->actorType != 3) {
                             actorScriptStart(gCurrentActor, 0x2BA);
                             scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
                             csModelStateSetFirstByte(0x33, 0);
-                            actorDespawn((Actor *)R1V->unk11C);
-                            R1V->unk155 = 1;
+                            actorDespawn(gCurrentActor->parentActor);
+                            gCurrentActor->unk155 = 1;
                         }
                         actorPitchEaseTowardPoint(2, 0, gBehaviourWorkState->targetX, gBehaviourWorkState->targetY, gBehaviourWorkState->targetZ, 0x46, 30.0f, 100.0f, 0x200);
                         patrolPathStep(2, 0);
@@ -255,7 +249,7 @@ void func_806C6BC8(void) {
                         behaviourFadeOutWithinZone(5);
                         break;
                     case 2:
-                        R1V->unk154 = 0x3B;
+                        gCurrentActor->state = 0x3B;
                         break;
                 }
             }

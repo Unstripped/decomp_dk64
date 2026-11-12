@@ -198,21 +198,17 @@ void bossKutOutStep(void) {
             gCurrentActor->yaw += gBehaviourWorkState->timer;
             actorSetUniformScale(gCurrentActor, ((0.3 - gCurrentActor->sub4->scaleY) * 0.05) + gCurrentActor->sub4->scaleY);
             break;
-        case 2: {
-            s16 v;
+        case 2:
             gBehaviourWorkState->timer -= 0x14;
-            v = gBehaviourWorkState->timer;
-            if (v < 0) {
+            if (gBehaviourWorkState->timer < 0) {
                 gBehaviourWorkState->timer = 0;
-                v = gBehaviourWorkState->timer;
             }
-            gCurrentActor->yaw += v;
+            gCurrentActor->yaw += gBehaviourWorkState->timer;
             if (currentActorTestClearFlag() != 0) {
                 gCurrentActor->unk155 = 3;
                 gCurrentActor->flags &= ~4;
             }
             break;
-        }
         case 3:
             if (currentActorTestClearFlag() != 0) {
                 gCurrentActor->eyeHeight = 0xA;
