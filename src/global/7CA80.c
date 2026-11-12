@@ -296,9 +296,9 @@ u16 type;
     return 0;
 }
 
-void actorDespawn(Actor *actor) {
+s32 actorDespawn(Actor *actor) {
     actorListRemoveByActor(actor);
-    actorQueueOrDespawn(actor);
+    return actorQueueOrDespawn(actor);
 }
 
 s32 actorQueueOrDespawn(Actor *actor) {

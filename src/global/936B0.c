@@ -2670,7 +2670,7 @@ void projectileChaseTargetUpdate(void) {
         actorDespawn(gCurrentActor);
         other = gCurrentActor->parentActor;
         if (other != NULL && other->actorType == 0xB9 && other->state != 0x37) {
-            gCurrentActor->parentActor->unk155++;
+            other->unk155++;
         }
     }
     targetYaw = mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z);

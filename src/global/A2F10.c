@@ -2,7 +2,6 @@
 #include "compiler/ido/memory.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_actorDespawn // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
@@ -41,7 +40,6 @@ extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern u32 gFrameDelta;
 extern u8 D_80750AD4;
-s32 actorDespawn(Actor *); // FAKE: callee prototype steer
 
 #define WRITE_GFX(pkt, _w0, _w1)                                               \
     {                                                                          \

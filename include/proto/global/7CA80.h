@@ -23,7 +23,7 @@ s32 func_80678014(s32);
 s32 actorAllocate();
 #endif
 #ifndef PROTO_SKIP_actorDespawn
-void actorDespawn(Actor *);
+s32 actorDespawn(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorQueueOrDespawn
 s32 actorQueueOrDespawn(Actor *);

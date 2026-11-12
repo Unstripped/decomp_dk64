@@ -1,7 +1,6 @@
 #include "common.h"
 #include "sched.h"
 #include "actor.h"
-#define PROTO_SKIP_actorDespawn // FAKE: callee prototype steer
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
@@ -86,7 +85,6 @@ extern u8 D_80720120;
 extern u8 D_80720340;
 extern u8 D_8072038C;
 
-s32 actorDespawn(Actor *);  // FAKE: callee prototype steer
 s32 flagGet(s16, s32);  // FAKE: callee prototype steer
 
 s32 tagBarrelIsSpecial(Actor *actor) {
