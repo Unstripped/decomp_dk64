@@ -81,7 +81,7 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
     u8 chan;
     s32 pad;
     void *cmdA;
-    struct SynFXFilter *cmdB;
+    struct SynLPFilter *cmdB;
 
     do {
         switch (seqp->nextEvent.type) {

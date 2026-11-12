@@ -3,8 +3,8 @@
 #include "proto/global/141C00.h"
 #include "proto/global/1435C0.h"
 
-typedef struct SynAllocParam {
-    struct SynAllocParam *next;
+typedef struct SynCoreParam {
+    struct SynCoreParam *next;
     s32 delta;
     s16 type;
     s16 padA;

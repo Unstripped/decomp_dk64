@@ -14,7 +14,7 @@ typedef struct {
     u8 unk0[0x20];
     void *field20;
     u8 unk24[0x20];
-    struct SynFXFilter *field44;
+    struct SynLPFilter *field44;
 } SynFXBus;
 
 typedef struct {
@@ -27,8 +27,8 @@ typedef struct {
     s32 outputRate;
 } SynSynth;
 
-typedef struct SynVoiceParam {
-    struct SynVoiceParam *next;
+typedef struct SynCoreParam {
+    struct SynCoreParam *next;
     s32 delta;
     s16 type;
     union {
@@ -42,10 +42,11 @@ typedef struct {
     s32 delta;
 } SynPVoice;
 
-typedef struct SynFXFilter {
+// Leading fields of the low-pass filter defined in 140600.c.
+typedef struct SynLPFilter {
     s16 unk0;
     s16 unk2;
-} SynFXFilter;
+} SynLPFilter;
 
 extern SynSynth *n_syn;
 
@@ -66,21 +67,21 @@ void n_alSynSetVoiceUnkC(ALVoice *voice, u8 val) {
 }
 
 void *n_alSynGetFXDelay(s16 busIndex) {
-    SynFilter *sp4;
+    SynFilter *outputFilter;
 
-    sp4 = n_syn->outputFilter;
-    if (sp4->handler == n_alFxPull) {
+    outputFilter = n_syn->outputFilter;
+    if (outputFilter->handler == n_alFxPull) {
         return n_syn->fxBus[busIndex].field20;
     } else {
         return NULL;
     }
 }
 
-SynFXFilter *n_alSynGetFXFeedback(s16 busIndex) {
-    SynFilter *sp4;
+SynLPFilter *n_alSynGetFXFeedback(s16 busIndex) {
+    SynFilter *outputFilter;
 
-    sp4 = n_syn->outputFilter;
-    if (sp4->handler == n_alFxPull) {
+    outputFilter = n_syn->outputFilter;
+    if (outputFilter->handler == n_alFxPull) {
         return n_syn->fxBus[busIndex].field44;
     } else {
         return NULL;
@@ -90,11 +91,11 @@ SynFXFilter *n_alSynGetFXFeedback(s16 busIndex) {
 void n_alSynSetFXParam(void *fxType, s16 paramId, void *paramVal) {
     void *fxParam;
 
-    fxParam = fxType;
+    fxParam = fxType; // FAKE: copy through a local keeps the -g stack round-trip
     n_alFxParamHdl(fxParam, paramId, paramVal);
 }
 
-void n_alSynSetFXFilterParam(SynFXFilter *filter, s16 paramId, void *valuePtr) {
+void n_alSynSetFXFilterParam(SynLPFilter *filter, s16 paramId, void *valuePtr) {
     if (paramId == 8) {
         filter->unk2 = (s16)(s32)((f32)*(s32 *)valuePtr * 0.1f);
     } else if (paramId == 9) {

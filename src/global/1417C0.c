@@ -14,8 +14,8 @@ struct PVoice_s {
     s32 delta;
 };
 
-typedef struct SynAllocParam {
-    struct SynAllocParam *next;
+typedef struct SynCoreParam {
+    struct SynCoreParam *next;
     s32 delta;
     s16 type;
     s16 padA;
@@ -38,7 +38,7 @@ extern SynAllocSynth *n_syn;
 
 s32 n_alSynAllocVoice(ALVoice *voice, ALVoiceConfig *config) {
     SynAllocVoiceNode *pvoice = NULL;
-    s32 unused;
+    s32 pad;
     SynAllocParam *param;
     s32 allocated;
     voice->priority = config->priority;
@@ -61,7 +61,7 @@ s32 n_alSynAllocVoice(ALVoice *voice, ALVoiceConfig *config) {
                 param->data = 0;
                 param->moredata = 0x170;
                 n_alEnvmixerParam(voice->pvoice, 3, param);
-            } else {
+            } else { // FAKE: empty else keeps the -g branch over the else arm
             }
             param = __n_allocParam();
             if (param != NULL) {
@@ -69,7 +69,7 @@ s32 n_alSynAllocVoice(ALVoice *voice, ALVoiceConfig *config) {
                 param->type = 15;
                 param->next = NULL;
                 n_alEnvmixerParam(voice->pvoice, 3, param);
-            } else {
+            } else { // FAKE: empty else keeps the -g branch over the else arm
             }
         } else {
             pvoice->delta = 0;
