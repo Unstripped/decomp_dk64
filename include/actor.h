@@ -824,7 +824,7 @@ typedef struct KongInventory {
     /* 0x00 */ u8 unk0[5];
     /* 0x05 */ u8 unk5;
     /* 0x06 */ u16 unk6;
-    /* 0x08 */ s16 unk8;
+    /* 0x08 */ u16 unk8;
     /* 0x0A */ u16 unkA[14];
     /* 0x26 */ u16 unk26[14];
     /* 0x42 */ u16 unk42[14];
@@ -833,11 +833,11 @@ typedef struct KongInventory {
 // One player's 0x306-byte block of gPlayerInventoryTable: eight kong rows, then the shared counters.
 typedef struct PlayerInventory {
     /* 0x000 */ KongInventory kong[8];
-    /* 0x2F0 */ s16 unk2F0;
-    /* 0x2F2 */ s16 unk2F2;
-    /* 0x2F4 */ s16 unk2F4;
-    /* 0x2F6 */ s16 unk2F6;
-    /* 0x2F8 */ s16 unk2F8;
+    /* 0x2F0 */ u16 unk2F0;
+    /* 0x2F2 */ u16 unk2F2;
+    /* 0x2F4 */ u16 unk2F4;
+    /* 0x2F6 */ u16 unk2F6;
+    /* 0x2F8 */ u16 unk2F8;
     /* 0x2FA */ s8 unk2FA; // multiplayer: best total (health + healthDelta) so far
     /* 0x2FB */ s8 health; // melon pips left
     /* 0x2FC */ u8 melons; // melon count (health capacity = melons * per-melon)
