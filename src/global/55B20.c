@@ -2155,7 +2155,7 @@ void mapChunkTraversePortals(s16 chunk, s32 depth, s32 left, s32 top, s32 right,
                                     }
                                 }
                             }
-                            if (actorTargetTableContainsId(i) != 0) {
+                            if (actorTargetTableHasPortalSlot(i) != 0) {
                                 poly = mapGridQuadClipToFrustum(id, x, y, z);
                                 if (poly != 0) {
                                     mapPolyProjectToScreenRect(poly, &polyLeft, &polyTop, &polyRight, &polyBottom);

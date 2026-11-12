@@ -6,8 +6,8 @@
 #ifndef PROTO_SKIP_actorTargetTableLoad
 void actorTargetTableLoad(MapFileHeader *);
 #endif
-#ifndef PROTO_SKIP_actorTargetTableContainsId
-s32 actorTargetTableContainsId(s32);
+#ifndef PROTO_SKIP_actorTargetTableHasPortalSlot
+s32 actorTargetTableHasPortalSlot(s32);
 #endif
 #ifndef PROTO_SKIP_actorCalculateTargetDistancesAndAngles
 void actorCalculateTargetDistancesAndAngles(f32, f32, f32);
