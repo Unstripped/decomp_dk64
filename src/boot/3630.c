@@ -1,4 +1,6 @@
 #include "common.h"
+#define PROTO_SKIP__strcasecmp
+#define PROTO_SKIP_strlen
 #include "proto/boot/3630.h"
 
 extern u8 *strtokSavePtr;
@@ -34,18 +36,18 @@ u8 *_strcat(u8 *dst, u8 *src) {
     return ret;
 }
 
-s32 _strcasecmp(u8 *a, u8 *b) {
+s32 _strcasecmp(u8 *a, const u8 *b) {
     u8 ca;
     u8 cb;
 
     while (*a != 0 || *b != 0) {
         ca = *a;
-        if (ca >= 0x61 && ca < 0x7B) {
-            ca -= 0x20;
+        if (ca >= 'a' && ca <= 'z') {
+            ca -= 'a' - 'A';
         }
         cb = *b;
-        if (cb >= 0x61 && cb < 0x7B) {
-            cb -= 0x20;
+        if (cb >= 'a' && cb <= 'z') {
+            cb -= 'a' - 'A';
         }
         if (ca < cb) {
             return -1;
@@ -65,12 +67,12 @@ s32 _strncasecmp(u8 *a, u8 *b, s32 n) {
 
     while ((*a != 0 || *b != 0) && n != 0) {
         ca = *a;
-        if (ca >= 0x61 && ca < 0x7B) {
-            ca -= 0x20;
+        if (ca >= 'a' && ca <= 'z') {
+            ca -= 'a' - 'A';
         }
         cb = *b;
-        if (cb >= 0x61 && cb < 0x7B) {
-            cb -= 0x20;
+        if (cb >= 'a' && cb <= 'z') {
+            cb -= 'a' - 'A';
         }
         if (ca < cb) {
             return -1;
@@ -189,7 +191,7 @@ u8 *_strchr(u8 *s, s32 c) {
     return 0;
 }
 
-u32 strlen(u8 *s) {
+u32 strlen(const u8 *s) {
     u32 len = 0;
 
     if (s == 0) {
