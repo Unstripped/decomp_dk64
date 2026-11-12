@@ -1626,7 +1626,7 @@ u8 isId;
     modelEmitterDisable(gModelSlots[slot].id);
     entryId = gModelSlots[slot].id;
     hashTableRemove(entryId);
-    proxPathRemoveActor(entryId);
+    proxPathRemoveOwner(entryId);
     if (gModelSlots[slot].unk7C != NULL) {
         if (gModelSlots[slot].unk7C->unk10 != -1) {
             sfxSlotFreeSource(gModelSlots[slot].unk7C->unk10);

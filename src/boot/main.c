@@ -154,7 +154,7 @@ void bootMainThread(void *arg) {
 }
 
 void bootStartMainThread(void) {
-    osCreateThread(&sMainThread, 1, bootMainThread, NULL, &D_800138C0, 0);
+    osCreateThread(&sMainThread, 1, bootMainThread, NULL, &sNoExpPakThread, 0);
     osStartThread(&sMainThread);
 }
 

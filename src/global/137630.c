@@ -27,8 +27,8 @@ typedef struct OscState_s {
     } data;
 } OscState;
 
-extern OscState *D_807FF030;
-extern OscState *D_807FF034;
+extern OscState *gOscFreeList;
+extern OscState *gOscStates;
 
 f32 oscVibratoDepthPow(u8 n) {
     f32 base = 1.030992985f;
@@ -51,9 +51,9 @@ ALMicroTime oscInit(void **oscState, f32 *initVal, u8 type, u8 rate, u8 depth, u
     if (delay == 0) {
         return 0;
     }
-    if (D_807FF030) {
-        osc = D_807FF030;
-        D_807FF030 = D_807FF030->next;
+    if (gOscFreeList) {
+        osc = gOscFreeList;
+        gOscFreeList = gOscFreeList->next;
         osc->type = type;
         *oscState = osc;
         ret = delay << 14;
@@ -112,8 +112,8 @@ ALMicroTime oscUpdate(void *oscState, f32 *updateVal) {
 void oscStop(void *oscState) {
     OscState *osc = oscState;
 
-    ((OscState *)oscState)->next = D_807FF030;
-    D_807FF030 = oscState;
+    ((OscState *)oscState)->next = gOscFreeList;
+    gOscFreeList = oscState;
 }
 
 f32 oscSinAngle(f32 angle) {
@@ -124,11 +124,11 @@ void oscSetupConfig(ALSeqpConfig *config, s32 count) {
     OscState *ptr;
     s32 i;
 
-    D_807FF030 = D_807FF034 = alHeapAlloc(config->heap, count, sizeof(OscState));
-    D_807FF030 = &D_807FF034[0];
-    ptr = D_807FF034;
+    gOscFreeList = gOscStates = alHeapAlloc(config->heap, count, sizeof(OscState));
+    gOscFreeList = &gOscStates[0];
+    ptr = gOscStates;
     for (i = 0; i < count - 1; i++) {
-        ptr->next = &D_807FF034[i + 1];
+        ptr->next = &gOscStates[i + 1];
         ptr = ptr->next;
     }
     ptr->next = NULL;

@@ -34,8 +34,8 @@ extern u8 sNoExpPakTextLine6[];
 
 void noExpPakScreen(void) {
     sNoExpPakStackBase = (u8 *)0x80130000;
-    osCreateThread(&D_800138C0, 2, noExpPakThread, NULL, sNoExpPakStackBase + 0x3E80, 10);
-    osStartThread(&D_800138C0);
+    osCreateThread(&sNoExpPakThread, 2, noExpPakThread, NULL, sNoExpPakStackBase + 0x3E80, 10);
+    osStartThread(&sNoExpPakThread);
     while (1) {
     }
 }

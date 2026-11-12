@@ -167,7 +167,7 @@ void proxPathSetSegment(Actor *actor, u8 pathIndex, u8 segmentIndex, u8 startNod
     }
 }
 
-void proxPathRemoveActor(s32 id) {
+void proxPathRemoveOwner(s32 id) {
     ProxPath **prev;
     ProxPath *node;
     ProxPath *next;

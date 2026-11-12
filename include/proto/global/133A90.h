@@ -19,8 +19,8 @@ void proxPathAdd(Actor *, u8, u8, u8, u8, f32, f32, f32, f32, f32, f32, u8, f32,
 #ifndef PROTO_SKIP_proxPathSetSegment
 void proxPathSetSegment(Actor *, u8, u8, u8, u8, f32, f32, f32, u8, s16, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_proxPathRemoveActor
-void proxPathRemoveActor(s32);
+#ifndef PROTO_SKIP_proxPathRemoveOwner
+void proxPathRemoveOwner(s32);
 #endif
 #ifndef PROTO_SKIP_proxPathUpdateAllPlayers
 void proxPathUpdateAllPlayers(void);
