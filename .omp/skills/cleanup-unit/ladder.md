@@ -45,7 +45,7 @@ its cfe warning code plus the line's normalized code. Kinds:
 |`review`|agent|whole-function checklist (function-level, required for every function)|
 |`retype`|agent|give the declarations their real types so the warning disappears|
 
-Outcomes: `hit` (sweep found a match, not yet applied), `fixed` (merged), `nohit`, `kept`,
+Outcomes: `hit` (sweep found a match, not yet applied), `fixed` (merged; a `review` with no edit is `nohit`), `nohit`, `kept`,
 `blocked`. `kept` only for `classify` with note `class 1`, for `goto-hand` with a note citing
 the shared-tail pattern (Q0591), and for `retype` with `note="tried <change>; fdiff=<1|3>"`.
 `retype` outcomes are `fixed`, `kept` or `blocked` (note naming the missing header/owner change);

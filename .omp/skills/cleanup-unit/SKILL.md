@@ -121,11 +121,11 @@ applied copy; the tags are the only accepted rise (a new steer replacing untrack
 Once every agent of the round is idle:
 1. Apply proposed `func_`/`D_`/shared-field names ([naming.md](naming.md)) with `rename.py
    func|global|field` (dry-run first; skip names whose dry-run touches a checked-out file). It refuses
-   references inside macros and address-shaped targets (`func_807444E0` data → `D_`): take the
-   `--dry-run` positions, apply them plus the macro lines by hand, one gate.
+   references inside macros and address-shaped targets (`func_807444E0` data → `D_`): apply the
+   `--dry-run` positions incl. the macro-argument lines by hand (`.scratch/r20-rename.py`), one gate.
 2. `tools/dk make split`, touch all src, `make` OK, `make expected`, `unit_check.py vanished` → OK.
 3. `carry --rev <commit before the renames> --unit "<unit>"` (once: a rerun duplicates events) re-stamps pure renames; sweep the files
-   it skipped (agent rungs of skipped functions stay stale). Commit.
+   it skipped AND every file whose automatic rungs a field rename staled (r20: 37 more files). Commit.
 4. Re-review: `review=stale` functions in the round's touched files plus their never-reviewed OPEN
    functions → ~3 whole-file groups in `.scratch/rereview<N>.md`, one agent each (brief.md).
 
