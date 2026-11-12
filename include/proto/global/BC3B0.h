@@ -16,8 +16,8 @@ void actorCursorFireProjectile(void *);
 #ifndef PROTO_SKIP_actorCursorSteer
 void actorCursorSteer(struct BC3B0Cursor *, f32, f32);
 #endif
-#ifndef PROTO_SKIP_func_806B7EA0
-void func_806B7EA0(void);
+#ifndef PROTO_SKIP_actorUpdateLockOnCursor
+void actorUpdateLockOnCursor(void);
 #endif
 #ifndef PROTO_SKIP_actorUpdatePeriodicParticleEmitter
 void actorUpdatePeriodicParticleEmitter(void);

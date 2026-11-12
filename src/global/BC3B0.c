@@ -126,7 +126,7 @@ void actorCursorSteer(BC3B0Cursor *c, f32 tx, f32 ty) {
 extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
 
-void func_806B7EA0(void) {
+void actorUpdateLockOnCursor(void) {
     BC3B0Cursor *c;
     f32 screenX;
     f32 screenY;

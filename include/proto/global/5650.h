@@ -5,8 +5,8 @@
 #ifndef PROTO_SKIP_timerQueueInit
 void timerQueueInit(void);
 #endif
-#ifndef PROTO_SKIP_func_8060095C
-s32 func_8060095C(s32, s32 *, s32 *);
+#ifndef PROTO_SKIP_timerQueueDecodePiCheck
+s32 timerQueueDecodePiCheck(s32, s32 *, s32 *);
 #endif
 #ifndef PROTO_SKIP_timerQueueAdd
 void timerQueueAdd(void *, s32, s32, s32, s32);

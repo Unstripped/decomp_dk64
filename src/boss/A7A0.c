@@ -26,7 +26,7 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
-extern u8 *D_80035A80[];
+extern u8 *bossKRoolLankyPhaseScripts[];
 
 void bossResetMinions(Actor *excludeActor) {
     s16 i;
@@ -99,7 +99,7 @@ void bossKRoolLankyStep(void) {
     u8 *scriptOpcodes;
 
     scriptState = ((BossKRoolLankyActor *)gCurrentActor)->scriptState;
-    scriptOpcodes = D_80035A80[scriptState->phase];
+    scriptOpcodes = bossKRoolLankyPhaseScripts[scriptState->phase];
     behaviourFrameBegin();
     bossRoundFrame(scriptOpcodes);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -198,7 +198,7 @@ void bossKRoolLankyStep(void) {
                 bossKRoolLankyRunTowardPlayer();
                 scriptState->scriptPos = 0;
                 scriptState->phase++;
-                scriptOpcodes = D_80035A80[scriptState->phase];
+                scriptOpcodes = bossKRoolLankyPhaseScripts[scriptState->phase];
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
                 gCurrentActor->unk155 = 0;
                 break;

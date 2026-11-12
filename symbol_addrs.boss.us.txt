@@ -74,6 +74,7 @@ bossCheckPlayerBelow = 0x800339D8; // type:func
 bossAdjustHealth = 0x80033A80; // type:func
 bossMainStep = 0x80033AF0; // type:func
 bossShockwaveTriggerDamage = 0x8003575C; // type:func
+bossKRoolLankyPhaseScripts = 0x80035A80;
 sKRoolChunkyPhaseScripts = 0x80035AC0;
 sKRoolChunkyPathGroupState = 0x80035AD0;
 sKRoolChunkyPhaseApproachRate = 0x80035AD4;

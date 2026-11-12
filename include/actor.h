@@ -539,7 +539,7 @@ typedef struct SpawnNode {
     /* 0x06 */ s16 y;
     /* 0x08 */ s16 z;
     /* 0x0A */ union {
-        s16 unkAWide; // lh users (armadillo patrol, func_806B640C, func_806B7EA0, func_8072AA80)
+        s16 unkAWide; // lh users (armadillo patrol, func_806B640C, actorUpdateLockOnCursor, func_8072AA80)
         struct {
             u8 unkA;
             u8 unkB;

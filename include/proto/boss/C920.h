@@ -2,7 +2,7 @@
 #ifndef PROTO_BOSS_C920_H
 #define PROTO_BOSS_C920_H
 #include "common.h"
-struct BossScriptState;
+#include "boss.h"
 #ifndef PROTO_SKIP_bossKRoolChunkySetupFight
 void bossKRoolChunkySetupFight(struct BossScriptState *);
 #endif

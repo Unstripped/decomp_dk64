@@ -18,7 +18,7 @@ void timerQueueInit(void) {
     gTimerQueue = NULL;
 }
 
-s32 func_8060095C(s32 funcOffset, s32 *valA, s32 *valB) {
+s32 timerQueueDecodePiCheck(s32 funcOffset, s32 *valA, s32 *valB) {
     *valA += 0x50505050;
     *valB += 0x50505050;
     return funcOffset + 0x3FFF00FF;
@@ -38,7 +38,7 @@ void timerQueueAdd(void *callback, s32 delay, s32 param0, s32 param1, s32 param2
     node = heapAlloc(0x18);
     expectedVal = 0xC6F0AFA9;
     checkAddress = 0x5FAFBA0C;
-    piReadIo = (s32 (*)(u32, s32 *))func_8060095C((s32)osPiReadIo + 0xC000FF01, &expectedVal, &checkAddress);
+    piReadIo = (s32 (*)(u32, s32 *))timerQueueDecodePiCheck((s32)osPiReadIo + 0xC000FF01, &expectedVal, &checkAddress);
     piReadIo(checkAddress, &piIoResult);
     if (piIoResult != expectedVal) {
         delay *= 2;
