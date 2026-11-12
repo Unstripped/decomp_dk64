@@ -2614,10 +2614,7 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
     f32 dist;
     f32 drawDist;
 
-    if (0) { // FAKE: dead call takes &useLight so it gets a stack home
-        csUpdateStepAndInterpolation((void *)&useLight);
-    }
-    if (useLight != 0) {
+    if (useLight) {
         dx = gPlayerSlots[gCurrentPlayerIndex].unk21C - obj->unk0;
         dy = gPlayerSlots[gCurrentPlayerIndex].unk220 - obj->unk4;
         dz = gPlayerSlots[gCurrentPlayerIndex].unk224 - obj->unk8;
@@ -2686,16 +2683,17 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
         sel = 0;
     }
     gSPSegment(gfx++, 10, osVirtualToPhysical(obj->unkA0[sel]));
-    { s32 pad4; } // FAKE: block-scoped pad takes the lowest stack slot (Q0251)
     gSPClearGeometryMode(gfx++, G_FOG | G_CULL_BOTH);
-    if (useLight != 0 && obj->unkC2 == 0) {
+    if (useLight && obj->unkC2 == 0) {
+        f32 yOffset;
+
         model = gModelSlots[slotIdx].unk7C;
         if (model != NULL) {
-            scale = model->unk98;
+            yOffset = model->unk98;
         } else {
-            scale = 0.0f;
+            yOffset = 0.0f;
         }
-        lightSampleColorAtPosition(obj->unk0, obj->unk4 + scale, obj->unk8, 0, &red, &green, &blue, lightArg);
+        lightSampleColorAtPosition(obj->unk0, obj->unk4 + yOffset, obj->unk8, 0, &red, &green, &blue, lightArg);
         scale = obj->unkC4 / 15.0f;
         red = red * scale;
         green = green * scale;
@@ -2706,7 +2704,7 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
         red = 0xFF;
     }
     gDPSetPrimColor(gfx++, 0, 0xFF, red, green, blue, 0xFF);
-    if (useLight != 0) {
+    if (useLight) {
         if (obj->unkB6 != -1 && (model = gModelSlots[slotIdx].unk7C) != NULL && model->unk60 == 1) {
             csUpdateStepAndInterpolation(model);
             alpha = (gModelSlots[slotIdx].unk7C)->unk64;
@@ -2761,7 +2759,7 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
         gDPPipeSync(gfx++);
         gSPDisplayList(gfx++, osVirtualToPhysical(obj->unkA8[sel]));
     }
-    { s32 pad6; }
+    { s32 pad6; } // FAKE: block-scoped pad keeps the gfx spill slot at 88(sp) (Q0251/Q0331); pre-existing, now tagged
     gDPPipeSync(gfx++);
     gSPPopMatrix(gfx++, G_MTX_MODELVIEW);
     return gfx;
