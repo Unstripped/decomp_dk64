@@ -1,4 +1,5 @@
 #include "common.h"
+#include "sched.h"
 #include "actor.h"
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
@@ -25,41 +26,26 @@
 extern Actor *gCurrentActor;
 
 
+typedef struct ActorSub178 {
+    u8 unk0;
+    u8 unk1;
+} ActorSub178;
+
+// Actor types with two components: 0x178 is the second component pointer.
 typedef struct ActorView {
-    u8 pad0[0x130];
-    u8 unk130;
-    u8 unk131;
-    u8 pad132[0x178 - 0x132];
-    void *unk178;
+    Actor base;
+    ActorSub178 *unk178;
 } ActorView;
 
-typedef struct ActorSubView {
-    u8 pad0[0xEC];
-    s16 unkEC;
-    u8 padEE[0x15F - 0xEE];
-    u8 unk15F;
-} ActorSubView;
-
-typedef struct PlayerSlot_A6280 {
-    u8 unk0;
-    u8 pad1[0x20F];
-    f32 unk210;
-    f32 unk214;
-    f32 unk218;
-    u8 pad21C[0xC];
-    f32 unk228;
-    f32 unk22C;
-    f32 unk230;
-} PlayerSlot_A6280;
 
 extern Actor *gPrimaryPlayerActor;
-extern PlayerSlot_A6280 *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern u8 D_807506C0[];
 
 
 void actorSeekTargetUpdate(void) {
     s16 actorId;
-    ActorSubView *targetNode;
+    Actor *targetNode;
     f32 targetAngle;
     f32 dx;
     f32 dz;
@@ -67,8 +53,8 @@ void actorSeekTargetUpdate(void) {
     actorId = actorListFindIdByActor(gCurrentActor);
     targetNode = spawnNodeActivate(2, 0);
     if (!(gCurrentActor->flags & 0x10)) {
-        ((ActorView *)gCurrentActor)->unk130 = 0x46;
-        ((ActorView *)gCurrentActor)->unk131 = 0x32;
+        gCurrentActor->cullMarginX = 0x46;
+        gCurrentActor->cullMarginY = 0x32;
         gCurrentActor->contactFlags &= ~1;
         gCurrentActor->unk144 = 2;
         gCurrentActor->flags |= 0x80000000;
@@ -88,7 +74,7 @@ void actorSeekTargetUpdate(void) {
             dz = gCurrentActor->z - gPrimaryPlayerActor->z;
             if (dx * dx + dz * dz > 900.0f) {
                 targetAngle = mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z);
-                targetNode->unkEC = (s16)(targetAngle - mathAngleBetweenPointsDeg((s32)gPlayerSlots->unk228, (s32)gPlayerSlots->unk230, (s32)gPlayerSlots->unk210, (s32)gPlayerSlots->unk218));
+                targetNode->unkEC = (s16)(targetAngle - mathAngleBetweenPointsDeg((s32)gPlayerSlots->focusX, (s32)gPlayerSlots->focusZ, (s32)gPlayerSlots->camX, (s32)gPlayerSlots->camZ));
             }
             if (animIsPlaying(gCurrentActor, 0) == 0) {
                 animSetSpeed(gCurrentActor, 0, 1.0f);
@@ -115,42 +101,31 @@ void actorSeekTargetUpdate(void) {
 }
 
 
-typedef struct ActorSub178 {
-    u8 unk0;
-    u8 unk1;
-} ActorSub178;
-
-typedef struct ActorParentRamp {
-    u8 pad0[0xB8];
-    f32 unkB8;
-} ActorParentRamp;
-
-
 void actorUpdateRampTarget(void) {
     ActorSub178 *rampState;
-    ActorParentRamp *parentRamp;
+    Actor *parent;
 
     rampState = ((ActorView *)gCurrentActor)->unk178;
-    parentRamp = (ActorParentRamp *)gCurrentActor->parentActor;
+    parent = gCurrentActor->parentActor;
     if (!(gCurrentActor->flags & 0x10)) {
         func_80724CA4(2, 2);
     }
-    actorCopyPoseAndScale(gCurrentActor, parentRamp, 0.15f);
+    actorCopyPoseAndScale(gCurrentActor, parent, 0.15f);
     if (gCurrentActor->state != 0) {
         actorUpdatePulseIntensity(1);
         if (rampState->unk1 == 0) {
             gCurrentActor->state = 0;
         }
     }
-    if (0.0f != parentRamp->unkB8) {
-        if (parentRamp->unkB8 > 50.0f && gCurrentActor->sub4->animId != 0x233) {
+    if (0.0f != parent->speedXZ) {
+        if (parent->speedXZ > 50.0f && gCurrentActor->sub4->animId != 0x233) {
             actorScriptStart(gCurrentActor, 0x233);
-        } else if (50.0f >= parentRamp->unkB8) {
+        } else if (50.0f >= parent->speedXZ) {
             if (gCurrentActor->sub4->animId != 0x232) {
                 actorScriptStart(gCurrentActor, 0x232);
             }
         }
-        scriptSetActorRampTarget(gCurrentActor, parentRamp->unkB8 * 0.01, 4.0f);
+        scriptSetActorRampTarget(gCurrentActor, parent->speedXZ * 0.01, 4.0f);
     } else {
         if (gCurrentActor->sub4->animId != 0x234) {
             actorScriptStart(gCurrentActor, 0x234);
@@ -240,7 +215,7 @@ void func_806A1AC4(void) {
         }
         break;
     case 3:
-        func_8072881C(0, (u8 *)gCurrentActor + 0xEC);
+        func_8072881C(0, (u32 *)&gCurrentActor->unkEC);
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -292,8 +267,8 @@ void actorSinkAndDespawn(void) {
         sub->unk0 = 0;
         sub->unk4 = 0.0f;
         sub->unk8 = gCurrentActor->y;
-        ((ActorView *)gCurrentActor)->unk130 = 0x46;
-        ((ActorView *)gCurrentActor)->unk131 = 0x14;
+        gCurrentActor->cullMarginX = 0x46;
+        gCurrentActor->cullMarginY = 0x14;
         node = actorListFindIdByActor(gCurrentActor);
         i = actorListLookupEntry(node);
         if (flagGet(i, 0) != 0) {
@@ -355,13 +330,6 @@ void actorSinkAndDespawn(void) {
 }
 
 
-typedef struct MidpointOrbitActorView {
-    u8 pad0[0xEC];
-    s16 unkEC;
-    u8 padEE[0xFA - 0xEE];
-    s16 unkFA;
-} MidpointOrbitActorView;
-
 typedef struct MidpointOrbitConfig {
     u8 pad0[4];
     f32 unk4;
@@ -377,8 +345,6 @@ typedef struct MidpointOrbitState {
     s16 unk8;
 } MidpointOrbitState;
 
-#define ORBIT_ACTOR ((MidpointOrbitActorView *)gCurrentActor)
-
 
 void actorMidpointOrbitUpdate(void) {
     MidpointOrbitState *sub;
@@ -391,15 +357,15 @@ void actorMidpointOrbitUpdate(void) {
         actorSetUniformScale(gCurrentActor, ((MidpointOrbitConfig *)gCurrentActor->spawnData)->unkC);
         gCurrentActor->yawSpeed = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z);
         gCurrentActor->movePitch = (gPrimaryPlayerActor->y + (f32)gPrimaryPlayerActor->eyeHeight - gCurrentActor->y) * 0.5;
-        ORBIT_ACTOR->unkEC = sqrtf((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z)) * 0.5;
+        gCurrentActor->unkEC = sqrtf((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z)) * 0.5;
         sub->unk0 = gCurrentActor->x + (gPrimaryPlayerActor->x - gCurrentActor->x) * 0.5;
         sub->unk2 = gCurrentActor->y + (gPrimaryPlayerActor->y - gCurrentActor->y) * 0.5;
         sub->unk4 = gCurrentActor->z + (gPrimaryPlayerActor->z - gCurrentActor->z) * 0.5;
         gCurrentActor->unk144 = 0x24;
-        ORBIT_ACTOR->unkFA = 0x2328;
+        gCurrentActor->unkFA = 0x2328;
         gCurrentActor->splineT = ((MidpointOrbitConfig *)gCurrentActor->spawnData)->unk4;
         {
-            f64 v = gCurrentActor->splineT * (ORBIT_ACTOR->unkEC * 0.01);
+            f64 v = gCurrentActor->splineT * (gCurrentActor->unkEC * 0.01);
             gCurrentActor->splineT = (v > 15.0 ? v : 15.0) < 150.0 ? (v > 15.0 ? v : 15.0) : 150.0;
         }
         sub->unk8 = gCurrentActor->splineT;
@@ -407,8 +373,8 @@ void actorMidpointOrbitUpdate(void) {
     actorUpdatePrevContactFlags(gCurrentActor);
     ratio = (sub->unk8 / gCurrentActor->splineT) * -4096.0 + 4096.0;
     sub->unk6 = gCurrentActor->yawSpeed + ratio;
-    gCurrentActor->x = mathSinF(sub->unk6) * ORBIT_ACTOR->unkEC + sub->unk0;
-    gCurrentActor->z = mathCosF(sub->unk6) * ORBIT_ACTOR->unkEC + sub->unk4;
+    gCurrentActor->x = mathSinF(sub->unk6) * gCurrentActor->unkEC + sub->unk0;
+    gCurrentActor->z = mathCosF(sub->unk6) * gCurrentActor->unkEC + sub->unk4;
     gCurrentActor->y = mathCosF(2048.0f + ratio) * gCurrentActor->movePitch + sub->unk2;
     actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     gCurrentActor->yaw += 0x12C;
@@ -438,15 +404,15 @@ void actorPlaceModelAtCamera(void) {
     f32 mtx1[4][4];
     f32 mtx2[4][4];
 
-    mathAngleBetweenPoints3D(&pitchAngle, &yawAngle, gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218, gPlayerSlots->unk228, gPlayerSlots->unk22C, gPlayerSlots->unk230);
+    mathAngleBetweenPoints3D(&pitchAngle, &yawAngle, gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ, gPlayerSlots->focusX, gPlayerSlots->focusY, gPlayerSlots->focusZ);
     gCurrentActor->yaw = yawAngle;
     gCurrentActor->roll = pitchAngle;
     guRotateF(mtx1, pitchAngle / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
     guRotateF(mtx2, yawAngle / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx1, mtx2, mtx1);
-    guTranslateF(mtx2, gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218);
+    guTranslateF(mtx2, gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ);
     guMtxCatF(mtx1, mtx2, mtx1);
     guMtxXFMF(mtx1, 0.0f, 0.0f, -11.0f, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
-    guTranslateF((f32 (*)[4])((u8 *)gCurrentActor + 0xC), 0.0f, -20.0f, 0.0f);
+    guTranslateF(gCurrentActor->modelMtx, 0.0f, -20.0f, 0.0f);
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
