@@ -149,7 +149,7 @@ s16 gfxResourceCreate(s16 font, void *str, u8 mode, f32 posX, f32 posY, f32 posZ
     return node->id;
 }
 
-void gfxResourceSetString(s16 resourceId, u8 *str) {
+void gfxResourceSetString(s16 resourceId, void *str) { // str: u8 buffer or char literal, as in gfxResourceCreate
     _strcpy(gfxResourceFindById(resourceId)->text, str);
 }
 

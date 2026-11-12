@@ -100,7 +100,7 @@ u32 _strcspn(u8 *s, void *set) { // set: u8 buffer or char literal, only forward
     return n;
 }
 
-u32 _strspn(u8 *s, u8 *set) {
+u32 _strspn(u8 *s, void *set) { // set: u8 buffer or char literal, only forwarded to _strchr
     u32 n = 0;
     u8 c;
 
@@ -134,7 +134,7 @@ u8 *_strpbrk(u8 *s, u8 *set) {
     return best;
 }
 
-u8 *_strtok(u8 *str, u8 *delim) {
+u8 *_strtok(u8 *str, void *delim) { // delim: u8 buffer or char literal, only forwarded to _strpbrk/_strchr
     u8 *token;
     u8 *p;
     u8 *x;

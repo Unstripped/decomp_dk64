@@ -21,13 +21,13 @@ s32 _strncasecmp(u8 *, u8 *, s32);
 u32 _strcspn(u8 *, void *);
 #endif
 #ifndef PROTO_SKIP__strspn
-u32 _strspn(u8 *, u8 *);
+u32 _strspn(u8 *, void *);
 #endif
 #ifndef PROTO_SKIP__strpbrk
 u8 *_strpbrk(u8 *, u8 *);
 #endif
 #ifndef PROTO_SKIP__strtok
-u8 *_strtok(u8 *, u8 *);
+u8 *_strtok(u8 *, void *);
 #endif
 #ifndef PROTO_SKIP__memset
 void *_memset(u8 *, s32, u32);
