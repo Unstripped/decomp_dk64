@@ -3,7 +3,7 @@
 State at the round-26 knowledge commit (a33a6217): 235 OPEN functions in 119 files (next rung: review 104, permute 58, diagnose 45, consolidate 15, retype 6, views 3, reconstruct 2, cond 1, remove 1). The knowledge commit (Q0696) staled 2 functions (4 codegen rungs; not re-recorded). Re-review groups Rev26A (10 files, 23 functions) and Rev26B (11 files, 23) in `.scratch/rereview26.md` at c1c73e65 were not run. A future session starts here: `uv run tools/quality.py rank`, then SKILL.md §2.
 
 ## Blocked owner/header changes
-- critter/5110 still declares the split labels D_807FCC40/D_807FCC44 (gPlayerInventoryTable[0].unk2F0/unk2F4); retyping it onto gPlayerInventoryTable retires the last users (round-27 batch candidate).
+- critter/5110 D_807FCC40/44 split labels stay (round 27, def29e0b): folding them into gPlayerInventoryTable fails because the folded form shares one table base (Q0687); the u8 pun is now `extern u16 D_807FCC40[]`, tagged.
 - ACDC0: D_807FC828..D_807FC838 are one s16[9] collectible-count table; declaring the array changes codegen (text 16 bytes smaller), kept as separate symbols.
 - 2F550 MapViewEntries proposal (.scratch/Rev24/header-request.md), held.
 - gGameFrameCounter: s32 and u32 externs (4+4 files), needs one shared u32 declaration.
