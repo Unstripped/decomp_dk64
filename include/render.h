@@ -120,7 +120,7 @@ typedef struct EffectNode {
     /* 0x36D */ u8 alpha;
     /* 0x36E */ u8 depth;
     /* 0x36F */ u8 mode;
-    /* 0x370 */ s32 frames[4];
+    /* 0x370 */ void *frames[4];
     /* 0x380 */ s32 frameCount;
     /* 0x384 */ void *allocation;
     /* 0x388 */ s16 chunkFilter;

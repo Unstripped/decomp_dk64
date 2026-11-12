@@ -41,7 +41,7 @@ typedef struct EffectGridAsset {
 } EffectGridAsset;
 
 typedef struct EffectGridSlot {
-    s32 buffer;
+    void *buffer;
     s32 frame;
 } EffectGridSlot;
 
@@ -639,7 +639,7 @@ void effectUpdateAll(u8 pGlist) {
                 if (node2 && node2) {} // FAKE: raises node2 priority above offset2 (node2 -> s1, offset2 -> s2)
                 if (((s32 *)((u8 *)node2->slots + offset2))[1] != -1) {
                     if (gFrameCounter - node2->lastUsedFrame == 0xA) {
-                        assetFreeBuffer(((s32 *)((u8 *)node2->slots + offset2))[0], 0x319, 0x1F);
+                        assetFreeBuffer(((void **)((u8 *)node2->slots + offset2))[0], 0x319, 0x1F);
                         ((s32 *)((u8 *)node2->slots + offset2))[1] = -1;
                     }
                 }
@@ -722,12 +722,12 @@ void effectFreeAndUnlink(EffectNode *effect) {
     }
 }
 
-void effectLoadFrameAssets(s16 *assetIds, u8 altCategory, EffectGridSlot *slots, s32 count, s32 frame, s32 *outFrames) {
+void effectLoadFrameAssets(s16 *assetIds, u8 altCategory, EffectGridSlot *slots, s32 count, s32 frame, void **outFrames) {
     u8 category;
     s32 i;
     s32 index;
-    s32 buffer;
-    s32 *out;
+    void *buffer;
+    void **out;
     EffectGridSlot *slot;
 
     i = 0;
@@ -832,7 +832,7 @@ f32 distance3D(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
 
 extern Actor *gPrimaryPlayerActor;
 extern u8 D_807F6009;
-extern s32 D_807F600C;
+extern void *D_807F600C;
 extern u8 gCurrentPlayerIndex;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;

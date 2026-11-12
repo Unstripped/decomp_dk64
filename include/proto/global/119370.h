@@ -103,7 +103,7 @@ void effectFreeAll(void);
 void effectFreeAndUnlink(struct EffectNode *);
 #endif
 #ifndef PROTO_SKIP_effectLoadFrameAssets
-void effectLoadFrameAssets(s16 *, u8, struct EffectGridSlot *, s32, s32, s32 *);
+void effectLoadFrameAssets(s16 *, u8, struct EffectGridSlot *, s32, s32, void **);
 #endif
 #ifndef PROTO_SKIP_effectComputeTransformMatrix
 void effectComputeTransformMatrix(Mtx *, u8, f32, f32, f32, f32, f32, f32, f32, f32, u8);
