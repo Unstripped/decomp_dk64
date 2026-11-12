@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorSpawn // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_actorSpawn // PROTO: this call passes a third argument (a2 = &gCurrentActor), the shared prototype takes two
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -26,25 +26,30 @@ extern u8 D_807FC8D0;
 
 s32 actorSpawn();
 
-typedef struct R1C0C1Sub174 {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s8 unk2;
-    /* 0x04 */ Actor *unk4;
-} R1C0C1Sub174;
+// customState of the ring actors (type 0xCD) spawned by func_806BD170
+typedef struct RingState {
+    /* 0x00 */ s16 timer;
+    /* 0x02 */ s8 ringIdx;
+    /* 0x04 */ Actor *node;
+} RingState;
 
-#define R1C0C1_SPAWNED_146 (((R1C0C1Spawned *)gSpawnedActor)->unk146)
-typedef struct R1C0C1Spawned {
-    /* 0x000 */ u8 pad0[0x146];
-    /* 0x146 */ s16 unk146;
-} R1C0C1Spawned;
+// second component of the ring node actor: the model actor spawned in actorNodeRingUpdate
+typedef struct RingNodeModel {
+    /* 0x00 */ Actor *unk0;
+} RingNodeModel;
+
+typedef struct RingNodeActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ RingNodeModel *unk178;
+} RingNodeActor;
 
 void func_806BD170(void) {
     Actor *activeRingActor;
     s16 i;
     s16 activeRingIdx;
-    s16 count;
+    s16 count; // FAKE: unused count keeps the s5 allocation, pre-existing, now tagged
     s16 pos;
-    R1C0C1Sub174 *sub;
+    RingState *sub;
 
     activeRingIdx = -1;
     i = 0;
@@ -64,12 +69,12 @@ void func_806BD170(void) {
             gSpawnedActor->z = mathCosF(pos) * 270.0f + gCurrentActor->z;
             gSpawnedActor->y = 100.0f;
             gSpawnedActor->yaw = pos;
-            R1C0C1_SPAWNED_146 = 0;
+            gSpawnedActor->unk146 = 0;
             gSpawnedActor->state = 0;
             sub = gSpawnedActor->customState;
-            sub->unk0 = 0;
-            sub->unk4 = gCurrentActor;
-            sub->unk2 = i;
+            sub->timer = 0;
+            sub->node = gCurrentActor;
+            sub->ringIdx = i;
             if (flagGet(D_80744710[i], 0) != 0) {
                 activeRingIdx = i;
                 activeRingActor = gSpawnedActor;
@@ -83,7 +88,7 @@ void func_806BD170(void) {
         activeRingIdx = -1;
     }
     if (D_80750660 == 0 && activeRingIdx != -1) {
-        ((R1C0C1Spawned *)activeRingActor)->unk146 = 1;
+        activeRingActor->unk146 = 1;
         activeRingActor->state = 1;
         D_80750660 = 1;
         D_807FC8D0 = activeRingIdx;
@@ -96,25 +101,15 @@ extern s8 D_807506A8[];
 extern f32 D_807FC8D4;
 extern Actor *gCamActor;
 
-
-typedef struct RingNodePtr178 {
-    /* 0x00 */ Actor *unk0;
-} RingNodePtr178;
-
-typedef struct RingNodeActor178 {
-    /* 0x000 */ u8 pad0[0x178];
-    /* 0x178 */ RingNodePtr178 *unk178;
-} RingNodeActor178;
-
 void actorNodeRingUpdate(void) {
-    RingNodePtr178 *nodePtr = ((RingNodeActor178 *)gCurrentActor)->unk178;
+    RingNodeModel *nodePtr = ((RingNodeActor *)gCurrentActor)->unk178;
     f32 dx;
     f32 dz;
     u8 shakeMagnitude;
     u16 shakeDuration;
     s16 v3 = D_8076A0A6;
     s16 idx;
-    s8 *cnt = &D_807506B4;
+    s8 *cnt = &D_807506B4; // FAKE: address local for D_807506B4, shifts the t1/t2 temp numbering from 0x2b4 on
     s8 n;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -125,7 +120,7 @@ void actorNodeRingUpdate(void) {
         gCurrentActor->drawDistance = 0x7D0;
         gCurrentActor->flags |= 0x400;
         v3 = 0;
-        D_807506B4 = 0; actorSpawn(0x73, 0xC4, &gCurrentActor);
+        D_807506B4 = 0; actorSpawn(0x73, 0xC4, &gCurrentActor); // LAYOUT: one line keeps as1 order of the sb zero to D_807506B4 in the jal delay slot
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
         gSpawnedActor->renderFlags |= 0x20;
         gSpawnedActor->flags |= 0x400;
@@ -170,7 +165,7 @@ void actorNodeRingUpdate(void) {
         case 3:
             if (gCurrentActor->unk155 & 1) {
                 gCurrentActor->unk155++;
-                shakeMagnitude = 0xF; shakeDuration = 0x28;
+                shakeMagnitude = 0xF; shakeDuration = 0x28; // LAYOUT: one line keeps the sh of shakeDuration to sp+0x28 at 0x510 (split lines move it one slot later)
             }
             break;
     }
@@ -202,61 +197,51 @@ void actorNodeRingUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-
-typedef struct R1C0C1Ptr178 {
-    /* 0x00 */ Actor *unk0;
-} R1C0C1Ptr178;
-
-typedef struct R1C0C1Act178 {
-    /* 0x000 */ u8 pad0[0x178];
-    /* 0x178 */ R1C0C1Ptr178 *unk178;
-} R1C0C1Act178;
-
-typedef struct R1C0C1Blob8 {
+// per-ring cutscene model ids, copied whole to the stack before indexing
+typedef struct RingModelIds {
     /* 0x00 */ s8 b[8];
-} R1C0C1Blob8;
+} RingModelIds;
 
 extern s16 D_80750664[];
 extern s16 D_80750684[];
-extern R1C0C1Blob8 D_807506B8;
+extern RingModelIds D_807506B8;
 extern u8 D_80720A7C;
 
-
 void func_806BD7B0(void) {
-    R1C0C1Sub174 *st = gCurrentActor->customState;
+    RingState *st = gCurrentActor->customState;
     f32 sparkX;
     f32 sparkY;
     f32 sparkZ;
-    R1C0C1Ptr178 *p;
+    RingNodeModel *p;
     s32 limit;
-    R1C0C1Blob8 cutsceneModelIds;
+    RingModelIds cutsceneModelIds;
 
     switch (gCurrentActor->state) {
         case 5:
             if (D_807506A4 != 0 && camIsCutsceneActive() == 0) {
-                st->unk0++;
-                if (st->unk0 >= 0x29) {
+                st->timer++;
+                if (st->timer >= 0x29) {
                     D_807506A4 = 0;
                     gCurrentActor->state = 1;
                 }
             } else {
-                st->unk0 = 0;
+                st->timer = 0;
             }
             break;
         case 1:
-            st->unk0 = 0;
+            st->timer = 0;
             gCurrentActor->state = 2;
             break;
         case 2:
             if (D_807FC8D4 < 160000.0) {
                 gCurrentActor->state = 3;
-                st->unk0 = 0;
+                st->timer = 0;
                 sfxAllocateChannel(0x3B, 1.0f);
                 sfxPlayOnFreeSlot(0x258, 0x7FFF, 63.0f, 1.0f, 5, 0);
                 camStartPath(gCurrentActor, 0, 1);
                 actorScriptStart(gCurrentActor, 0x291);
                 gCurrentActor->unk155 = 0;
-                ((R1C0C1Spawned *)gCurrentActor)->unk146 = 1;
+                gCurrentActor->unk146 = 1;
             }
             break;
         case 3:
@@ -267,20 +252,20 @@ void func_806BD7B0(void) {
                 gCurrentActor->alpha -= 8;
                 if (gCurrentActor->alpha <= 0) {
                     gCurrentActor->alpha = 0;
-                    st->unk0++;
-                    if (st->unk0 == 1) {
+                    st->timer++;
+                    if (st->timer == 1) {
                         sfxPlayOnFreeSlot(0x1F6, 0x7FFF, 63.0f, 1.0f, 5, 0);
                     }
-                    if (st->unk0 >= 0xB) {
+                    if (st->timer >= 0xB) {
                         cutsceneModelIds = D_807506B8;
                         gCurrentActor->state = 4;
                         sfxAllocateChannel(0x7D, 1.0f);
-                        actorScriptStart(st->unk4, D_80750684[st->unk2]);
-                        st->unk0 = 0;
-                        st->unk4->state = 3;
-                        st->unk4->unk155 = 0;
+                        actorScriptStart(st->node, D_80750684[st->ringIdx]);
+                        st->timer = 0;
+                        st->node->state = 3;
+                        st->node->unk155 = 0;
                         camStartPath(0, 1, 1);
-                        csModelStateSetFirstByte(cutsceneModelIds.b[st->unk2], 2);
+                        csModelStateSetFirstByte(cutsceneModelIds.b[st->ringIdx], 2);
                     }
                 }
                 if (gCurrentActor->alpha < 0x80) {
@@ -298,30 +283,30 @@ void func_806BD7B0(void) {
             break;
         case 4:
             if (func_806BDD2C() != 0) {
-                p = ((R1C0C1Act178 *)st->unk4)->unk178;
+                p = ((RingNodeActor *)st->node)->unk178;
                 p->unk0->y += 5.0;
-                if (st->unk0 == 0x10E) {
+                if (st->timer == 0x10E) {
                     flagSet(0x315, 1, 0);
                     menuTransitionToMap(D_80750664[14], D_80750664[15]);
                 }
             }
             limit = 0xB4;
-            if (st->unk2 == 2 || st->unk2 == 7) {
+            if (st->ringIdx == 2 || st->ringIdx == 7) {
                 if (func_806BDD2C() == 0) {
                     limit = 0x5A;
                 }
             }
-            st->unk0++;
-            if (limit == st->unk0) {
-                if (st->unk2 == 2 || st->unk2 == 7) {
-                    flagSet(st->unk2 + 0x1BC, 1, 0);
+            st->timer++;
+            if (limit == st->timer) {
+                if (st->ringIdx == 2 || st->ringIdx == 7) {
+                    flagSet(st->ringIdx + 0x1BC, 1, 0);
                     if (func_806BDD2C() == 0) {
                         camResumePath();
                         sfxStopChannel(0x7D, 1);
                         D_807506A4 = 1;
                     }
                 } else {
-                    menuTransitionToMap(D_80750664[st->unk2 * 2], D_80750664[st->unk2 * 2 + 1]);
+                    menuTransitionToMap(D_80750664[st->ringIdx * 2], D_80750664[st->ringIdx * 2 + 1]);
                 }
             }
             break;
