@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
+#define PROTO_SKIP_bonusSpawnReel
 #include "proto/bonus/12A0.h"
 #include "proto/global/1025E0.h"
 #include "proto/global/112080.h"
@@ -18,35 +18,37 @@
 #include "proto/global/A7710.h"
 #include "proto/global/EFDC0.h"
 
+Actor *bonusSpawnReel(s32, s16, s16, s16);
+
 extern Gfx D_1000118;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
 
 typedef struct LB3Obj {
     Actor *act[4];
-    s16 unk10;
-    s16 unk12;
-    s16 unk14;
-    s16 unk16;
-    u8 unk18;
-    u8 unk19;
-    u8 unk1A;
+    s16 spinPhase;
+    s16 spinStep;
+    s16 counterShown;
+    s16 hitsLeft;
+    u8 counterState;
+    u8 hitTextId;
+    u8 reelsStarted;
     u8 pad1B;
-    u8 unk1C;
-    u8 unk1D;
-    u8 unk1E;
+    u8 timerSeconds;
+    u8 lastRoundSpeed;
+    u8 firstRoundSpeed;
     u8 pad1F;
-    s32 unk20;
+    struct EffectNode *effect;
 } LB3Obj;
 
 typedef struct LB3Player {
     u8 pad0[0x104];
-    void *unk104;
+    void *cam;
 } LB3Player;
 
 typedef struct BonusEObj {
-    Actor *unk0;
-    s16 unk4;
+    Actor *controller;
+    s16 spinSpeed;
 } BonusEObj;
 
 extern Actor *gCurrentActor;
@@ -64,17 +66,17 @@ Gfx *bonusRenderReelHud(Gfx *gdl, Actor *actor) {
     gSPMatrix(gdl++, &D_2000080, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     return hudDrawRollingCounter(
-        textDrawAnimated(gdl, reelObj->unk19, 8, 30.0f, 36.0f, 0.0f, 1.5f),
-        0x26, 0x32, &reelObj->unk14, reelObj->unk16, &reelObj->unk18);
+        textDrawAnimated(gdl, reelObj->hitTextId, 8, 30.0f, 36.0f, 0.0f, 1.5f),
+        0x26, 0x32, &reelObj->counterShown, reelObj->hitsLeft, &reelObj->counterState);
 }
 
-void *bonusSpawnReel(s32 type, s16 x, s16 y, s16 z) {
+Actor *bonusSpawnReel(s32 type, s16 x, s16 y, s16 z) {
     if (actorSpawn(0xDB, type) != 0) {
         BonusEObj *obj = gSpawnedActor->customState;
-        gSpawnedActor->x = (f32)x;
-        gSpawnedActor->y = (f32)y;
-        gSpawnedActor->z = (f32)z;
-        obj->unk0 = gCurrentActor;
+        gSpawnedActor->x = x;
+        gSpawnedActor->y = y;
+        gSpawnedActor->z = z;
+        obj->controller = gCurrentActor;
     }
     return gSpawnedActor;
 }
@@ -82,8 +84,7 @@ void *bonusSpawnReel(s32 type, s16 x, s16 y, s16 z) {
 extern u8 *D_8002D8B0[];
 
 u8 bonusGetReelSymbol(LB3Obj *obj, u8 reelIndex) {
-    s32 idx = reelIndex;
-    return D_8002D8B0[idx][obj->act[idx]->unk15F];
+    return D_8002D8B0[reelIndex][obj->act[reelIndex]->unk15F];
 }
 
 extern void *D_8074E880[];
@@ -95,25 +96,26 @@ void bonusSpawnEffectBurst(s16 x, s16 y, s16 z, s16 count) {
         effectSetDepth(1);
         effectSetCallback(effectConfettiPhysicsUpdate);
         effectSetSpeed(1);
-        effectCreateAtPosition(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.3f, (f32)x, (f32)y, (f32)z);
+        effectCreateAtPosition(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.3f, x, y, z);
     }
 }
 
 
 void bonusReelNextRound(LB3Obj *obj) {
     LB3Player *player = gPrimaryPlayerActor->customState;
-    camSetTarget(player->unk104, gPrimaryPlayerActor, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
+    camSetTarget(player->cam, gPrimaryPlayerActor, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
     gCurrentActor->state = 3;
     gCurrentActor->unk155 = 1;
     gCurrentActor->yawSpeed = 0;
 }
 
 void bonusInitActors(LB3Obj *obj, u8 timerVal) {
-    u8 i = 0;
-    do {
+    u8 i;
+
+    for (i = 0; i < 4; i++) {
         obj->act[i]->state++;
         obj->act[i]->movePitch = timerVal;
-    } while (++i < 4);
+    }
 }
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/D_8002DC90.s")
@@ -129,7 +131,6 @@ extern Actor *gActivePlayerActor;
 extern u8 gGameMode;
 extern struct GfSndState *D_807457E4[];
 extern u8 D_80720CF0;
-void effectFreeAndUnlink(s32); // FAKE: callee prototype steer
 
 void bonusReelGameUpdate(void) {
     LB3Player *player;
@@ -137,47 +138,47 @@ void bonusReelGameUpdate(void) {
     u8 i;
     s32 two;
 
-    two = 2;
+    two = 2; // FAKE: value-named constant local makes the divisor a runtime cvt.s.w
     player = gPrimaryPlayerActor->customState;
     obj = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->x = 52.0f;
         gCurrentActor->z = 18.0f;
-        obj->unk19 = gfxResourceCreate(1, "HIT", 8, 0.0f, 0.0f, 0.0f);
-        func_806FDAB8(obj->unk19, 0.0f);
-        obj->unk16 = 3;
-        obj->unk14 = 3;
+        obj->hitTextId = gfxResourceCreate(1, "HIT", 8, 0.0f, 0.0f, 0.0f);
+        func_806FDAB8(obj->hitTextId, 0.0f);
+        obj->hitsLeft = 3;
+        obj->counterShown = 3;
         obj->act[0] = bonusSpawnReel(0x90, -0x15, 1, 0x12);
         obj->act[1] = bonusSpawnReel(0x91, -7, 1, 0x12);
         obj->act[2] = bonusSpawnReel(0x92, 7, 1, 0x12);
         obj->act[3] = bonusSpawnReel(0x93, 0x15, 1, 0x12);
         playerStateQueueCallback(0x49, 0, 0);
-        camSetTargetScaled(player->unk104, gPrimaryPlayerActor, 6, 0, 0xAA, 0, 0, 0, 0, 0, 1.0f);
+        camSetTargetScaled(player->cam, gPrimaryPlayerActor, 6, 0, 0xAA, 0, 0, 0, 0, 0, 1.0f);
         camStartPath(0, 1, 1);
         switch (gCurrentMap) {
         case 0x20:
-            obj->unk1C = 0x2D;
-            obj->unk1E = 0x20;
-            obj->unk1D = 0x20;
+            obj->timerSeconds = 0x2D;
+            obj->firstRoundSpeed = 0x20;
+            obj->lastRoundSpeed = 0x20;
             break;
         case 0x79:
-            obj->unk1C = 0x2D;
-            obj->unk1E = 0x34;
-            obj->unk1D = 0x20;
+            obj->timerSeconds = 0x2D;
+            obj->firstRoundSpeed = 0x34;
+            obj->lastRoundSpeed = 0x20;
             break;
         case 0x7A:
-            obj->unk1C = 0x28;
-            obj->unk1E = 0x34;
-            obj->unk1D = 0x2A;
+            obj->timerSeconds = 0x28;
+            obj->firstRoundSpeed = 0x34;
+            obj->lastRoundSpeed = 0x2A;
             break;
         case 0x7B:
-            obj->unk1C = 0x23;
-            obj->unk1E = 0x40;
-            obj->unk1D = 0x37;
+            obj->timerSeconds = 0x23;
+            obj->firstRoundSpeed = 0x40;
+            obj->lastRoundSpeed = 0x37;
             break;
         }
     }
-    if (obj->unk1A != 0 && gCurrentActor->parentActor->state == 5) {
+    if (obj->reelsStarted != 0 && gCurrentActor->parentActor->state == 5) {
         gCurrentActor->state = 1;
         gCurrentActor->unk155 = 0;
     }
@@ -197,7 +198,7 @@ void bonusReelGameUpdate(void) {
                 effectEnableFade();
                 effectSetMode(2);
                 effectSetDuration(-1);
-                obj->unk20 = effectCreateAtPosition(&D_80720CF0, 1.0f, 40.0f, 200.0f, 5.0f);
+                obj->effect = effectCreateAtPosition(&D_80720CF0, 1.0f, 40.0f, 200.0f, 5.0f);
             }
             break;
         }
@@ -205,7 +206,7 @@ void bonusReelGameUpdate(void) {
     case 3:
         switch (gCurrentActor->unk155) {
         case 0:
-            hudSpawnCountdownTimer(0xDC, 0x2A, obj->unk1C);
+            hudSpawnCountdownTimer(0xDC, 0x2A, obj->timerSeconds);
             gCurrentActor->unk155 = 1;
         case 1:
             if (obj->act[3]->state == 0) {
@@ -217,25 +218,25 @@ void bonusReelGameUpdate(void) {
     case 4:
         switch (gCurrentActor->unk155) {
         case 0:
-            obj->unk10 = 0x400;
-            obj->unk12 = 0x40;
+            obj->spinPhase = 0x400;
+            obj->spinStep = 0x40;
             gCurrentActor->unk155 += 1;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x179, 0xFF, 0x7F, 1);
-            if (obj->unk1A == 0) {
-                obj->unk1A = 1;
-                actorSetStateTwo((void *)gCurrentActor->parentActor);
+            if (obj->reelsStarted == 0) {
+                obj->reelsStarted = 1;
+                actorSetStateTwo(gCurrentActor->parentActor);
                 sfxAllocateChannel(8, 1.0f);
             }
             break;
         case 1:
-            gCurrentActor->roll = mathSinF(obj->unk10) * -1024.0f + 1024.0f;
-            obj->unk10 += obj->unk12;
-            if (obj->unk10 >= 0x800) {
-                obj->unk12 = -0x40;
-                bonusInitActors(obj, (u32)((f32)obj->unk1E + (f32)(obj->unk1D - obj->unk1E) * ((f32)(obj->unk16 - 1) / (f32)two)));
+            gCurrentActor->roll = mathSinF(obj->spinPhase) * -1024.0f + 1024.0f;
+            obj->spinPhase += obj->spinStep;
+            if (obj->spinPhase >= 0x800) {
+                obj->spinStep = -0x40;
+                bonusInitActors(obj, (u32)((f32)obj->firstRoundSpeed + (f32)(obj->lastRoundSpeed - obj->firstRoundSpeed) * ((f32)(obj->hitsLeft - 1) / two)));
                 gCurrentActor->soundSlots[0] = sfxPlayOnFreeSlot(0x24D, 0x7FFF, 64.0f, 1.0f, 0, 0);
-                camSetTarget(player->unk104, gActivePlayerActor, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
-            } else if (obj->unk10 < 0x400) {
+                camSetTarget(player->cam, gActivePlayerActor, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
+            } else if (obj->spinPhase < 0x400) {
                 gCurrentActor->state = 5;
                 gCurrentActor->unk155 = 0;
             }
@@ -263,14 +264,14 @@ void bonusReelGameUpdate(void) {
     case 1:
         if (gCurrentActor->parentActor->state != 5) {
             if (bonusGetReelSymbol(obj, 0) == 0 && bonusGetReelSymbol(obj, 0) == bonusGetReelSymbol(obj, 1) && bonusGetReelSymbol(obj, 1) == bonusGetReelSymbol(obj, 2) && bonusGetReelSymbol(obj, 2) == bonusGetReelSymbol(obj, 3)) {
-                func_806FDAB8(obj->unk19, 3.1415927f);
-                obj->unk16 -= 1;
-                if (obj->unk16 == 0) {
+                func_806FDAB8(obj->hitTextId, 3.1415927f);
+                obj->hitsLeft -= 1;
+                if (obj->hitsLeft == 0) {
                     gPrimaryPlayerActor->unk155 = 1;
                     bonusEndWin(0, 0);
                     gCurrentActor->state = 8;
-                    obj->unk10 = 0;
-                    obj->unk1A = 0;
+                    obj->spinPhase = 0;
+                    obj->reelsStarted = 0;
                     camStartPath(0, 0, 0x11);
                 } else {
                     textSpawnMarkerChecked(0, 0, 0xB4, textTableGetString(0x1A, 0xB, 1), 0, 0x28, 8, 8);
@@ -284,29 +285,28 @@ void bonusReelGameUpdate(void) {
             gPrimaryPlayerActor->unk155 = 2;
             bonusEndLose(0, 1);
             gCurrentActor->state = 9;
-            obj->unk10 = 0;
-            obj->unk1A = 0;
+            obj->spinPhase = 0;
+            obj->reelsStarted = 0;
             camStartPath(0, 0, 0x11);
         }
         break;
     case 8:
-        i = 0;
-        do {
-            if (!((obj->unk10 - i * 8 + 0x18) % 32)) {
+        for (i = 0; i < 4; i++) {
+            if (!((obj->spinPhase - i * 8 + 0x18) % 32)) {
                 bonusSpawnEffectBurst(obj->act[i]->x, obj->act[i]->y, obj->act[i]->z + 20.0f, 0xF);
             }
-        } while (++i < 4);
+        }
     case 9:
-        obj->unk10 += 1;
+        obj->spinPhase += 1;
         break;
     }
     if (gCurrentActor->state > 0 && gCurrentActor->state < 8) {
         renderCallbacksRegister(bonusRenderReelHud, gCurrentActor, 3);
     }
     if (gCurrentActor->state >= 8) {
-        if (obj->unk20 != 0) {
-            effectFreeAndUnlink(obj->unk20);
-            obj->unk20 = 0;
+        if (obj->effect != NULL) {
+            effectFreeAndUnlink(obj->effect);
+            obj->effect = NULL;
         }
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -316,7 +316,7 @@ f32 sinApprox(f32);
 
 void bonusReelUpdate(void) {
     BonusEObj *obj;
-    s16 t;
+    s16 toNextSymbol;
 
     obj = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -324,33 +324,33 @@ void bonusReelUpdate(void) {
     }
     switch (gCurrentActor->state) {
     case 1:
-        obj->unk4 = -0x18;
+        obj->spinSpeed = -0x18;
         gCurrentActor->state += 1;
         break;
     case 2:
-        if (obj->unk4 < 0) {
-            gCurrentActor->roll += obj->unk4;
-            obj->unk4 += 2;
+        if (obj->spinSpeed < 0) {
+            gCurrentActor->roll += obj->spinSpeed;
+            obj->spinSpeed += 2;
         } else {
             gCurrentActor->state += 1;
-            obj->unk4 = gCurrentActor->movePitch;
+            obj->spinSpeed = gCurrentActor->movePitch;
         }
         break;
     case 4:
-        t = 0x2AB - (gCurrentActor->roll % 0x2AB);
-        if (t < obj->unk4) {
+        toNextSymbol = 0x2AB - (gCurrentActor->roll % 0x2AB);
+        if (toNextSymbol < obj->spinSpeed) {
             gCurrentActor->state += 1;
-            if (obj->unk0->state < 8) {
-                obj->unk0->state = 5;
-                obj->unk0->unk155 = 0;
+            if (obj->controller->state < 8) {
+                obj->controller->state = 5;
+                obj->controller->unk155 = 0;
             }
-            gCurrentActor->splineT = asinApprox((obj->unk4 - t) * 0.015625);
-            gCurrentActor->yawSpeed = (gCurrentActor->roll + t) & 0xFFF;
+            gCurrentActor->splineT = asinApprox((obj->spinSpeed - toNextSymbol) * 0.015625);
+            gCurrentActor->yawSpeed = (gCurrentActor->roll + toNextSymbol) & 0xFFF;
             gCurrentActor->unk15F = gCurrentActor->yawSpeed / 0x2AB;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17A, 0xFF, 0x7F, 1);
         }
     case 3:
-        gCurrentActor->roll += obj->unk4;
+        gCurrentActor->roll += obj->spinSpeed;
         gCurrentActor->roll &= 0xFFF;
         break;
     case 5:
