@@ -3,7 +3,6 @@
 State at the end of round 25 (no knowledge commit: all round-25 findings were duplicates): 268 OPEN functions in 125 files (next rung: review 128, permute 58, diagnose 53, consolidate 16, retype 5, reconstruct 3, views 3, cond 1, remove 1). Re-review groups Rev25A (2 files, 10 functions) and Rev25B (5 files, 9) in `.scratch/rereview25.md` at b7c32831 were not run. A future session starts here: `uv run tools/quality.py rank`, then SKILL.md §2.
 
 ## Blocked owner/header changes
-- Shared `f32 sinApprox(f32)` / `f32 cosApprox(f32)` declaration (hand asm, asm/global/17A10.s) replacing 26 local prototypes; check whether it fixes bonus/12A0 (round-26 batch).
 - 2F550 MapViewEntries proposal (.scratch/Rev24/header-request.md), held.
 - gGameFrameCounter: s32 and u32 externs (4+4 files), needs one shared u32 declaration.
 - Actor.soundSlots[0] (0x6E) is a frame counter in BC3B0 (beep timing): the shared field name may be too narrow (header owner).
