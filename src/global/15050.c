@@ -57,7 +57,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     HeapBlock *first;
     s32 total;
     u8 *dst;
-    HeapBlock *last;
+    s32 pad2;
     HeapBlock *blk;
     u32 *p;
     u8 *q;
