@@ -40,9 +40,7 @@ typedef struct SynCorePVoice {
 
 extern SynCoreSynth *n_syn;
 extern s32 osGetIntMask(s32);
-s32 n_alEnvmixerParam(void *, s32, void *);
 SynCoreParam *__n_allocParam(void);
-void _n_freePVoice(ALLink *);
 
 void alEvtqNew(ALEventQueue *evtq, ALEventListItem *items, s32 itemCount) {
     s32 i;
@@ -52,10 +50,8 @@ void alEvtqNew(ALEventQueue *evtq, ALEventListItem *items, s32 itemCount) {
     evtq->allocList.prev = NULL;
     evtq->freeList.next = NULL;
     evtq->freeList.prev = NULL;
-    if (itemCount + (i = 0) > 0) {
-        do {
-            alLink(&items[i].node, &evtq->freeList);
-        } while (++i < itemCount);
+    for (i = 0; i < itemCount; i++) {
+        alLink(&items[i].node, &evtq->freeList);
     }
 }
 
@@ -96,7 +92,7 @@ void alEvtqPostEvent(ALEventQueue *evtq, ALEvent *evt, ALMicroTime delta) {
     alUnlink(&item->node);
     bcopy(evt, &item->evt, 0x10);
     if (delta == 0x7FFFFFFF) infinite = -1;
-    if ((node = &evtq->allocList) != NULL) do {
+    for (node = &evtq->allocList; node != NULL; node = node->next) {
         if (node->next == NULL) {
             item->delta = infinite != 0 ? 0 : delta;
             alLink(&item->node, node);
@@ -111,33 +107,31 @@ void alEvtqPostEvent(ALEventQueue *evtq, ALEvent *evt, ALMicroTime delta) {
             }
             delta -= next->delta;
         }
-    } while ((node = node->next) != NULL);
+    }
     osGetIntMask(intMask);
 }
 
 void alEvtqFlushType(ALEventQueue *evtq, s16 type) {
-    ALEventListItem *item;
-    ALEventListItem *next;
-    ALEventListItem *current;
-    ALEventListItem *nextCurrent;
+    ALLink *thisNode;
+    ALLink *nextNode;
+    ALEventListItem *thisItem;
+    ALEventListItem *nextItem;
     s32 intMask;
 
     intMask = osGetIntMask(1);
-    item = (ALEventListItem *)evtq->allocList.next;
-    if (item != NULL) {
-        do {
-            next = (ALEventListItem *)item->node.next;
-            current = item;
-            nextCurrent = next;
-            if (current->evt.type == type) {
-                if (nextCurrent != NULL) {
-                    nextCurrent->delta += current->delta;
-                }
-                alUnlink(&item->node);
-                alLink(&item->node, &evtq->freeList);
+    thisNode = evtq->allocList.next;
+    while (thisNode != NULL) {
+        nextNode = thisNode->next;
+        thisItem = (ALEventListItem *)thisNode;
+        nextItem = (ALEventListItem *)nextNode;
+        if (thisItem->evt.type == type) {
+            if (nextItem != NULL) {
+                nextItem->delta += thisItem->delta;
             }
-            item = next;
-        } while (item != NULL);
+            alUnlink(thisNode);
+            alLink(thisNode, &evtq->freeList);
+        }
+        thisNode = nextNode;
     }
     osGetIntMask(intMask);
 }
@@ -188,7 +182,7 @@ void n_alSynStopVoice(ALVoice *voice) {
 }
 
 void n_alSynFreeVoice(ALVoice *voice) {
-    void *unused;
+    void *pad;
     SynCoreParam *param;
 
     if (voice->pvoice != NULL) {
