@@ -157,40 +157,6 @@ void rebuildLowPassCoefficients(SynLowPass *filter, f32 sampleRate) {
     }
 }
 
-typedef struct {
-    u8 unk0[0x14];
-    void *unk14;
-    void *unk18;
-    u8 unk1C[8];
-    f32 unk24;
-    s32 unk28;
-} LpfNMDelay;
-
-typedef struct {
-    u32 unk0;
-    u32 unk4;
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-    u8 unkE[2];
-    f32 unk10;
-    f32 unk14;
-    s32 unk18;
-    f32 unk1C;
-    SynLPFilter *unk20;
-    LpfNMDelay *unk24;
-} LpfNMFx;
-
-typedef struct {
-    u32 unk0;
-    LpfNMFx *unk4;
-    u8 unk8;
-    u8 unk9[0x17];
-    s16 *unk20;
-    s16 *unk24;
-    s16 *unk28;
-    s16 *unk2C;
-} LpfNMFxState;
 
 
 extern s32 D_80756458[];
@@ -200,11 +166,11 @@ void n_alFxNew(void **outFx, AudioInitArgs *config, s16 busIndex, ALHeap *heap) 
     u16 tableOffset;
     u16 bufIdx;
     s32 *paramTable;
-    LpfNMFx *section;
-    LpfNMFxState *fxState;
+    SynFxDelay *section;
+    SynFx *fxState;
 
     paramTable = NULL;
-    fxState = alHeapDBAlloc(NULL, 0, heap, 1, 0x30);
+    fxState = alHeapDBAlloc(NULL, 0, heap, 1, sizeof(SynFx));
     *outFx = fxState;
     switch (config->fxType[busIndex]) {
         case 6:
@@ -216,57 +182,57 @@ void n_alFxNew(void **outFx, AudioInitArgs *config, s16 busIndex, ALHeap *heap) 
     }
 
     tableOffset = 0;
-    fxState->unk8 = paramTable[tableOffset];
+    fxState->section_count = paramTable[tableOffset];
     tableOffset += 1;
-    fxState->unk0 = paramTable[tableOffset];
+    fxState->length = paramTable[tableOffset];
     tableOffset += 1;
-    fxState->unk4 = alHeapDBAlloc(NULL, 0, heap, fxState->unk8, 0x28);
-    fxState->unk20 = alHeapDBAlloc(NULL, 0, heap, fxState->unk0, 2);
-    fxState->unk28 = fxState->unk20;
-    fxState->unk24 = alHeapDBAlloc(NULL, 0, heap, fxState->unk0, 2);
-    fxState->unk2C = fxState->unk24;
-    for (bufIdx = 0; bufIdx < fxState->unk0; bufIdx++) {
-        fxState->unk24[bufIdx] = 0;
-        fxState->unk20[bufIdx] = fxState->unk24[bufIdx];
+    fxState->delay = alHeapDBAlloc(NULL, 0, heap, fxState->section_count, sizeof(SynFxDelay));
+    fxState->base[0] = alHeapDBAlloc(NULL, 0, heap, fxState->length, 2);
+    fxState->input[0] = fxState->base[0];
+    fxState->base[1] = alHeapDBAlloc(NULL, 0, heap, fxState->length, 2);
+    fxState->input[1] = fxState->base[1];
+    for (bufIdx = 0; bufIdx < fxState->length; bufIdx++) {
+        fxState->base[1][bufIdx] = 0;
+        fxState->base[0][bufIdx] = fxState->base[1][bufIdx];
     }
-    for (sectionIdx = 0; sectionIdx < fxState->unk8; sectionIdx++) {
-        section = &fxState->unk4[sectionIdx];
-        section->unk0 = paramTable[tableOffset];
+    for (sectionIdx = 0; sectionIdx < fxState->section_count; sectionIdx++) {
+        section = &fxState->delay[sectionIdx];
+        section->input = paramTable[tableOffset];
         tableOffset += 1;
-        section->unk4 = paramTable[tableOffset];
+        section->output = paramTable[tableOffset];
         tableOffset += 1;
-        section->unkA = paramTable[tableOffset];
+        section->fbcoef = paramTable[tableOffset];
         tableOffset += 1;
-        section->unk8 = paramTable[tableOffset];
+        section->ffcoef = paramTable[tableOffset];
         tableOffset += 1;
-        section->unkC = paramTable[tableOffset];
+        section->gain = paramTable[tableOffset];
         tableOffset += 1;
         if (paramTable[tableOffset] != 0) {
-            section->unk10 = paramTable[tableOffset] / 1000.0f * 2.0f / config->outputRate;
+            section->rsinc = paramTable[tableOffset] / 1000.0f * 2.0f / config->outputRate;
             tableOffset += 1;
-            section->unk1C = paramTable[tableOffset] / 173123.4062f * (section->unk4 - section->unk0);
+            section->rsgain = paramTable[tableOffset] / 173123.4062f * (section->output - section->input);
             tableOffset += 1;
-            section->unk14 = 1.0f;
-            section->unk18 = 0;
-            section->unk24 = alHeapDBAlloc(NULL, 0, heap, 1, 0x38);
-            section->unk24->unk14 = alHeapDBAlloc(NULL, 0, heap, 1, 0x20);
-            section->unk24->unk18 = alHeapDBAlloc(NULL, 0, heap, 1, 0x20);
-            section->unk24->unk24 = 0.0f;
-            section->unk24->unk28 = 1;
+            section->rsval = 1.0f;
+            section->rsdelta = 0;
+            section->rs = alHeapDBAlloc(NULL, 0, heap, 1, sizeof(SynFxResampler));
+            section->rs->state[0] = alHeapDBAlloc(NULL, 0, heap, 1, 0x20);
+            section->rs->state[1] = alHeapDBAlloc(NULL, 0, heap, 1, 0x20);
+            section->rs->delta = 0.0f;
+            section->rs->first = 1;
         } else {
-            section->unk24 = NULL;
+            section->rs = NULL;
             tableOffset += 1;
             tableOffset += 1;
         }
         if (paramTable[tableOffset] != 0) {
-            section->unk20 = alHeapDBAlloc(NULL, 0, heap, 1, 0x38);
-            section->unk20->lp.fstate = alHeapDBAlloc(NULL, 0, heap, 1, 8);
-            section->unk20->unk30 = alHeapDBAlloc(NULL, 0, heap, 1, 8);
-            section->unk20->lp.fc = paramTable[tableOffset];
+            section->lp = alHeapDBAlloc(NULL, 0, heap, 1, sizeof(SynLPFilter));
+            section->lp->fstate[0] = alHeapDBAlloc(NULL, 0, heap, 1, 8);
+            section->lp->fstate[1] = alHeapDBAlloc(NULL, 0, heap, 1, 8);
+            section->lp->lp.fc = paramTable[tableOffset];
             tableOffset += 1;
-            _init_lpfilter(&section->unk20->lp);
+            _init_lpfilter(&section->lp->lp);
         } else {
-            section->unk20 = NULL;
+            section->lp = NULL;
             tableOffset += 1;
         }
     }
@@ -306,7 +272,7 @@ void alN_PVoiceNew(N_PVoice *pvoice, ALDMANew dmaNew, ALHeap *heap) {
     pvoice->unk8C = 0;
     pvoice->lowpass.fgain = 0;
     pvoice->lowpass.fc = 0;
-    pvoice->lowpass.fstate = alHeapDBAlloc(NULL, 0, heap, 1, 8);
+    pvoice->lowpassState = alHeapDBAlloc(NULL, 0, heap, 1, 8);
     pvoice->lowpass.first = 0;
 }
 

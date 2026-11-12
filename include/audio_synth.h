@@ -58,16 +58,53 @@ typedef struct SynLowPass {
     /* 0x04 */ u32 unk4;
     /* 0x08 */ s16 coeff[16];
     /* 0x28 */ s32 first; // filter-command flags; 2 = coefficients need a rebuild
-    /* 0x2C */ void *fstate; // 8-byte filter state
-} SynLowPass; // size = 0x30
+} SynLowPass; // size = 0x2C; each owner keeps its 8-byte filter state(s) right after it
 
-// Low-pass filter of an aux bus and of an n_alFxNew section (both allocated 0x38 bytes with
-// two 8-byte state buffers).
+// Stereo low-pass of an aux bus and of an n_alFxNew delay section (both allocated 0x38 bytes):
+// one 8-byte filter state per channel, indexed by the channel in _n_filterBuffer (141EF0.c).
 typedef struct SynLPFilter {
     /* 0x00 */ SynLowPass lp;
-    /* 0x30 */ void *unk30; // second 8-byte state buffer
+    /* 0x2C */ void *fstate[2];
     /* 0x34 */ u8 pad34[4];
 } SynLPFilter; // size = 0x38
+
+// Chorus/flange resampler of a delay section (n_ ALResampler, stereo; allocated 0x38 bytes).
+typedef struct SynFxResampler {
+    /* 0x00 */ u8 pad0[0x14];
+    /* 0x14 */ void *state[2]; // per-channel 0x20-byte RESAMPLE_STATE
+    /* 0x1C */ u8 pad1C[8];
+    /* 0x24 */ f32 delta; // fractional sample carried between frames
+    /* 0x28 */ u32 first; // resample-command flags
+    /* 0x2C */ u8 pad2C[0xC];
+} SynFxResampler; // size = 0x38
+
+// One delay section of an aux-bus effect (libultra's ALDelay; field names from
+// synthInternals.h). n_alFxNew (140600.c) fills it from the effect's parameter table and
+// n_alFxParamHdl (141EF0.c) updates it.
+typedef struct SynFxDelay {
+    /* 0x00 */ u32 input; // tap offsets into the delay line, in samples
+    /* 0x04 */ u32 output;
+    /* 0x08 */ s16 ffcoef;
+    /* 0x0A */ s16 fbcoef;
+    /* 0x0C */ s16 gain;
+    /* 0x10 */ f32 rsinc; // chorus rate
+    /* 0x14 */ f32 rsval;
+    /* 0x18 */ s32 rsdelta;
+    /* 0x1C */ f32 rsgain; // chorus depth
+    /* 0x20 */ SynLPFilter *lp;
+    /* 0x24 */ SynFxResampler *rs;
+} SynFxDelay; // size = 0x28
+
+// Aux-bus effect (libultra's ALFx, Rare's stereo variant): one delay line per channel.
+// n_alFxNew builds it, n_alFxPull (141EF0.c) runs it.
+typedef struct SynFx {
+    /* 0x00 */ u32 length; // delay-line length in samples
+    /* 0x04 */ SynFxDelay *delay;
+    /* 0x08 */ u8 section_count;
+    /* 0x09 */ u8 pad9[0x17];
+    /* 0x20 */ s16 *base[2];
+    /* 0x28 */ s16 *input[2]; // write position, advanced one frame per pull
+} SynFx; // size = 0x30
 
 // Physical voice (libultra's N_PVoice: the n_ ADPCM decoder, resampler and envelope mixer
 // flattened into one object, field prefixes dc_/rs_/em_ as in n_synthInternals.h), the target
@@ -115,6 +152,7 @@ typedef struct PVoice_s {
     /* 0x8C */ u8 unk8C; // start fxDelay / param 0x11; n_alResamplePull pitch-shifts when 1..0x3F
     /* 0x8D */ u8 unk8D[3];
     /* 0x90 */ SynLowPass lowpass; // fc: start fxVolume / param 0x13; fgain: start fxPitch / param 0x12
+    /* 0xBC */ void *lowpassState;
 } N_PVoice; // size = 0xC0
 
 // Main bus: its `handler` is n_alFxPull while the aux-bus effects are live.
@@ -129,7 +167,7 @@ typedef struct N_ALAuxBus {
     /* 0x14 */ u32 sourceCount;
     /* 0x18 */ s32 maxSources;
     /* 0x1C */ N_PVoice **sources;
-    /* 0x20 */ void *fx;
+    /* 0x20 */ SynFx *fx;
     /* 0x24 */ u8 pad24[0x20];
     /* 0x44 */ SynLPFilter *filter;
 } N_ALAuxBus; // size = 0x48

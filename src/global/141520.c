@@ -47,7 +47,7 @@ SynLPFilter *n_alSynGetFXFeedback(s16 busIndex) {
 }
 
 void n_alSynSetFXParam(void *fxType, s16 paramId, void *paramVal) {
-    struct FxParamState *fx = fxType;
+    SynFx *fx = fxType;
 
     n_alFxParamHdl(fx, paramId, paramVal);
 }

@@ -44,7 +44,7 @@ Acmd *n_alResamplePull(N_PVoice *filter, s16 *outp, s32 outCount, Acmd *p) {
 
             cmd = result++;
             cmd->words.w0 = 0x0E000000 | ((filter->lowpass.first & 0xFF) << 16) | (*outp & 0xFFFF);
-            cmd->words.w1 = (osVirtualToPhysical(filter->lowpass.fstate) & 0xFFFFFF) & 0xFFFFFF;
+            cmd->words.w1 = (osVirtualToPhysical(filter->lowpassState) & 0xFFFFFF) & 0xFFFFFF;
         }
         filter->lowpass.first = 0;
     }

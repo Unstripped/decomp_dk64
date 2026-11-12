@@ -76,14 +76,14 @@ Acmd *n_alMainBusPull(s32 sampleCount, Acmd *ptr) {
 
                     cmd = result++;
                     cmd->words.w0 = 0x0E0004E0;
-                    cmd->words.w1 = (u32)osVirtualToPhysical(fx->lp.fstate) & 0xFFFFFF & 0xFFFFFF;
+                    cmd->words.w1 = (u32)osVirtualToPhysical(fx->fstate[0]) & 0xFFFFFF & 0xFFFFFF;
                 }
                 {
                     Acmd *cmd;
 
                     cmd = result++;
                     cmd->words.w0 = 0x0E000650;
-                    cmd->words.w1 = (u32)osVirtualToPhysical(fx->unk30) & 0xFFFFFF & 0xFFFFFF;
+                    cmd->words.w1 = (u32)osVirtualToPhysical(fx->fstate[1]) & 0xFFFFFF & 0xFFFFFF;
                 }
                 fx->lp.first = 0;
             }
