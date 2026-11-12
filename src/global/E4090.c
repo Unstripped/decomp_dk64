@@ -2888,7 +2888,7 @@ typedef struct G29Obj178 {
 
 typedef struct G29State {
     u8 pad0[2];
-    s16 unk2;
+    s16 stickInput;
     f32 unk4;
     f32 unk8;
     f32 unkC;
@@ -2905,7 +2905,7 @@ typedef struct G29State {
     u8 pad35[9];
     u8 unk3E;
     u8 pad3F[3];
-    u8 unk42;
+    u8 stickDirection;
     u8 pad43[2];
     u8 unk45;
 } G29State;
@@ -2936,23 +2936,23 @@ void playerInputRegisterAnimatedEffect(void) {
     }
     yaw = gCurrentActor->yaw;
     if (yaw < 0x200 || yaw >= 0xE01) {
-        st->unk2 = gPlayerPadState[gCurrentPlayerIndex].stickX;
+        st->stickInput = gPlayerPadState[gCurrentPlayerIndex].stickX;
         pad = &gPlayerPadState[gCurrentPlayerIndex ^ 0]; // FAKE: no-op xor splits this index from the CSE (keeps the multu of the other arms)
     } else if (yaw >= 0x201 && yaw < 0x600) {
         s8 t;
-        st->unk2 = gPlayerPadState[gCurrentPlayerIndex].stickY;
+        st->stickInput = gPlayerPadState[gCurrentPlayerIndex].stickY;
         pad = &gPlayerPadState[gCurrentPlayerIndex];
         t = pad->stickX;
         pad->stickX = pad->stickY;
         pad->stickY = t;
     } else if (yaw >= 0x601 && yaw < 0xA00) {
-        st->unk2 = -gPlayerPadState[gCurrentPlayerIndex].stickX;
+        st->stickInput = -gPlayerPadState[gCurrentPlayerIndex].stickX;
         pad = &gPlayerPadState[gCurrentPlayerIndex];
         pad->stickX = -pad->stickX;
         pad->stickY = -pad->stickY;
     } else {
         s8 t;
-        st->unk2 = -gPlayerPadState[gCurrentPlayerIndex].stickY;
+        st->stickInput = -gPlayerPadState[gCurrentPlayerIndex].stickY;
         pad = &gPlayerPadState[gCurrentPlayerIndex];
         t = pad->stickX;
         pad->stickX = -pad->stickY;
@@ -2960,14 +2960,14 @@ void playerInputRegisterAnimatedEffect(void) {
     }
     if (pad->stickX < -0x1E) {
         gActivePlayerState->unk23C = 0x28;
-        st->unk42 = 1;
+        st->stickDirection = 1;
     } else if (pad->stickX >= 0x1F) {
         gActivePlayerState->unk23C = 0x28;
-        st->unk42 = 2;
+        st->stickDirection = 2;
     } else if (gActivePlayerState->unk23C != 0) {
         gActivePlayerState->unk23C--;
     } else {
-        st->unk42 = 0;
+        st->stickDirection = 0;
     }
 }
 

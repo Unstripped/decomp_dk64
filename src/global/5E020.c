@@ -10,13 +10,13 @@ typedef struct HashNode {
     struct HashNode *next;
 } HashNode;
 
-extern HashNode *D_807F7370[HASH_BUCKET_COUNT];
+extern HashNode *gHashTableBuckets[HASH_BUCKET_COUNT];
 
 void hashTableInit(void) {
     s32 i;
 
     for (i = 0; i < HASH_BUCKET_COUNT; i++) {
-        D_807F7370[i] = NULL;
+        gHashTableBuckets[i] = NULL;
     }
 }
 
@@ -26,7 +26,7 @@ void hashTableClear(void) {
     HashNode *next;
 
     for (i = 0; i < HASH_BUCKET_COUNT; i++) {
-        node = D_807F7370[i];
+        node = gHashTableBuckets[i];
         while (node != NULL) {
             next = node->next;
             heapFree(node);
@@ -40,7 +40,7 @@ void hashTableInsert(s32 key, s32 value) {
     HashNode *node;
     HashNode **prev;
 
-    prev = &D_807F7370[hashTableHashKey(key)];
+    prev = &gHashTableBuckets[hashTableHashKey(key)];
     node = *prev;
 
     while ((node != NULL) && (key != node->key)) {
@@ -59,7 +59,7 @@ void hashTableInsert(s32 key, s32 value) {
 }
 
 s32 hashTableLookup(s32 key) {
-    HashNode *node = D_807F7370[hashTableHashKey(key)];
+    HashNode *node = gHashTableBuckets[hashTableHashKey(key)];
 
     while (node != NULL) {
         if (key == node->key) {
@@ -71,7 +71,7 @@ s32 hashTableLookup(s32 key) {
 }
 
 void hashTableRemove(s32 key) {
-    HashNode **prev = &D_807F7370[hashTableHashKey(key)];
+    HashNode **prev = &gHashTableBuckets[hashTableHashKey(key)];
     HashNode *node = *prev;
 
     while ((node != NULL) && (key != node->key)) {
@@ -95,7 +95,7 @@ void hashTableTraverse(void) {
     HashNode *node;
 
     for (i = 0; i < HASH_BUCKET_COUNT; i++) {
-        node = D_807F7370[i];
+        node = gHashTableBuckets[i];
         while (node != NULL) {
             node = node->next;
         }
@@ -107,7 +107,7 @@ void hashTableTraverseDuplicate(void) {
     HashNode *node;
 
     for (i = 0; i < HASH_BUCKET_COUNT; i++) {
-        node = D_807F7370[i];
+        node = gHashTableBuckets[i];
         while (node != NULL) {
             node = node->next;
         }

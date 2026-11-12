@@ -26,18 +26,18 @@ extern Actor *gSpawnedActor;
 
 extern Actor *gCurrentActor;
 
-extern u8 (*D_8002A1C0)[32];
-extern Actor *D_8002A1C4;
-extern u16 *D_8002A1C8;
-extern u16 D_8002A1CC;
-extern u16 D_8002A1CE;
+extern u8 (*critterTextTable)[32];
+extern Actor *critterTextActor;
+extern u16 *critterWordTimings;
+extern u16 critterWordCursor;
+extern u16 critterTextFrame;
 
 void critterInitText(void) {
-    D_8002A1C0 = assetLoad(0x13, 4, 1, 1);
-    D_8002A1C8 = assetLoad(0x13, 5, 1, 1);
-    D_8002A1C4 = NULL;
-    D_8002A1CE = 0;
-    D_8002A1CC = 1;
+    critterTextTable = assetLoad(0x13, 4, 1, 1);
+    critterWordTimings = assetLoad(0x13, 5, 1, 1);
+    critterTextActor = NULL;
+    critterTextFrame = 0;
+    critterWordCursor = 1;
 }
 
 s16 critterLayoutWords(TextData *textData, u8 *text, s16 xOffset) {
@@ -123,22 +123,22 @@ void critterShowText(u8 fontIndex, s32 unused, s16 yPos, u8 textIndex, s16 unuse
     s16 startX;
     s16 i;
 
-    startX = (gScreenWidth - textGetStringWidth(fontIndex, D_8002A1C0[textIndex])) * 2;
-    if (D_8002A1C4 != NULL) {
-        textData = D_8002A1C4->customState;
+    startX = (gScreenWidth - textGetStringWidth(fontIndex, critterTextTable[textIndex])) * 2;
+    if (critterTextActor != NULL) {
+        textData = critterTextActor->customState;
         heapFree(textData->wordMidXs);
         heapFree(textData->wordStartXs);
     } else {
         actorSpawn(0x10A, 0);
         textData = gSpawnedActor->customState;
         textData->y = yPos * 4;
-        D_8002A1C4 = gSpawnedActor;
-        D_8002A1C4->unkEC = 0;
+        critterTextActor = gSpawnedActor;
+        critterTextActor->unkEC = 0;
     }
-    D_8002A1C4->x = critterLayoutWords(textData, D_8002A1C0[textIndex], startX);
-    D_8002A1C4->moveYaw = 0;
-    D_8002A1C4->yawSpeed = duration + 0xE;
-    _strcpy(textData->text, D_8002A1C0[textIndex]);
+    critterTextActor->x = critterLayoutWords(textData, critterTextTable[textIndex], startX);
+    critterTextActor->moveYaw = 0;
+    critterTextActor->yawSpeed = duration + 0xE;
+    _strcpy(textData->text, critterTextTable[textIndex]);
     for (i = 1; i < 0x10; i++) {
         textData->timers[i] = 0;
     }
@@ -152,9 +152,9 @@ void critterUpdateText(void) {
     actor = gCurrentActor;
     textData = actor->customState;
 
-    if (D_8002A1CC < 0xF0) {
-        if (D_8002A1CE >= D_8002A1C8[D_8002A1CC]) {
-            D_8002A1CC++;
+    if (critterWordCursor < 0xF0) {
+        if (critterTextFrame >= critterWordTimings[critterWordCursor]) {
+            critterWordCursor++;
             textData->timers[++actor->moveYaw] = 0xC;
             actor = gCurrentActor;
         }
@@ -163,5 +163,5 @@ void critterUpdateText(void) {
         actor->yawSpeed--;
         renderCallbacksRegister(critterRenderText, gCurrentActor, 3);
     }
-    D_8002A1CE++;
+    critterTextFrame++;
 }

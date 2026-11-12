@@ -4,7 +4,7 @@
 #include "proto/boot/30E0.h"
 
 extern OSThread D_800138C0;
-extern u8 *D_80013A70;
+extern u8 *sNoExpPakStackBase;
 extern OSMesgQueue sNoExpPakViMesgQueue;
 extern OSMesg sNoExpPakViMesgBuf[];
 
@@ -20,7 +20,7 @@ typedef struct {
     u32 w[3];
 } Words3;
 
-extern u8 D_8000DE88[];
+extern u8 sNoExpPakImageGz[];
 extern FbPair sNoExpPakFramebuffers;
 extern VsyncDelays sNoExpPakVsyncDelays;
 extern Words3 sNoExpPakUnusedWords;
@@ -33,8 +33,8 @@ extern u8 sNoExpPakTextLine6[];
 
 
 void noExpPakScreen(void) {
-    D_80013A70 = (u8 *)0x80130000;
-    osCreateThread(&D_800138C0, 2, noExpPakThread, NULL, D_80013A70 + 0x3E80, 10);
+    sNoExpPakStackBase = (u8 *)0x80130000;
+    osCreateThread(&D_800138C0, 2, noExpPakThread, NULL, sNoExpPakStackBase + 0x3E80, 10);
     osStartThread(&D_800138C0);
     while (1) {
     }
@@ -51,7 +51,7 @@ void noExpPakThread(void *arg) {
     FbPair fb = sNoExpPakFramebuffers;
     VsyncDelays delay = sNoExpPakVsyncDelays;
     s8 cur = 1;
-    u8 *src = D_8000DE88;
+    u8 *src = sNoExpPakImageGz;
     u8 *dst = (u8 *)0x80280000;
     Words3 unused = sNoExpPakUnusedWords;
 
