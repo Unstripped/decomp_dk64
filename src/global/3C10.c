@@ -1,6 +1,7 @@
 #include "common.h"
 #include "sched.h"
 #include "actor.h"
+#include "map.h"
 #include "proto/global/117190.h"
 #include "proto/global/135D30.h"
 #include "proto/global/136820.h"
@@ -15,22 +16,6 @@
 #include "proto/global/CC800.h"
 #include "proto/global/F9450.h"
 #include "proto/global/FCCD0.h"
-
-typedef struct {
-    u8 inUse;
-    u8 pad1;
-    s16 flags;
-    f32 x;
-    f32 y;
-    f32 z;
-    s16 yaw;
-    s16 map;
-    u8 returnExitIndex;
-    u8 *modelData;
-    s32 recordSize;
-    u8 *records;
-    u8 rgb[52][3];
-} Struct8076A160;
 
 typedef struct {
     s32 map;

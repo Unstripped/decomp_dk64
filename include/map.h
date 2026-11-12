@@ -57,4 +57,22 @@ typedef struct MapFileHeader {
     /* 0x70 */ s32 relocsOff;
 } MapFileHeader; // size = 0x74
 
+// One saved-map slot (D_8076A160[18], owned by src/global/3C10.c): the model slots and actor
+// records of a map left in the background, restored by actorMapModelsSetup.
+typedef struct Struct8076A160 {
+    /* 0x00 */ u8 inUse;
+    /* 0x01 */ u8 pad1;
+    /* 0x02 */ s16 flags;
+    /* 0x04 */ f32 x;
+    /* 0x08 */ f32 y;
+    /* 0x0C */ f32 z;
+    /* 0x10 */ s16 yaw;
+    /* 0x12 */ s16 map;
+    /* 0x14 */ u8 returnExitIndex;
+    /* 0x18 */ u8 *modelData;
+    /* 0x1C */ s32 recordSize;
+    /* 0x20 */ u8 *records;
+    /* 0x24 */ u8 rgb[52][3];
+} Struct8076A160; // size = 0xC0
+
 #endif
