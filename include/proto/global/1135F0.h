@@ -6,7 +6,7 @@
 void dlAppendTextureLoad(Gfx **, void *);
 #endif
 #ifndef PROTO_SKIP_dlSetTextureScaleAndFlip
-void dlSetTextureScaleAndFlip(s16, s16, s8, s8);
+void dlSetTextureScaleAndFlip(s16, s16, u8, u8);
 #endif
 #ifndef PROTO_SKIP_dlAppendTextureRectangle
 void dlAppendTextureRectangle(Gfx **, s16, s16);

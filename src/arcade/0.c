@@ -1,6 +1,5 @@
 #include "common.h"
 #define PROTO_SKIP_dlInitTextureDescriptor // FAKE: callee prototype steer
-#define PROTO_SKIP_dlSetTextureScaleAndFlip // FAKE: callee prototype steer
 #include "proto/arcade/0.h"
 #include "proto/boot/3D20.h"
 #include "proto/boot/6690.h"
@@ -690,7 +689,6 @@ extern ArcadeGfxSlot D_8004BB00[];
 extern u8 D_80032C20[];
 extern u8 D_80032DF8[];
 void dlInitTextureDescriptor(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32); // FAKE: callee prototype steer
-void dlSetTextureScaleAndFlip(s32, s16, s32, u8);  // FAKE: callee prototype steer
 void arcadeDrawBackground(Gfx **glistp) {
     Gfx *glist;
 

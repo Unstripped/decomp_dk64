@@ -1,13 +1,11 @@
 #include "common.h"
 #include "jetpac.h"
-#define PROTO_SKIP_dlSetTextureScaleAndFlip // FAKE: callee prototype steer
 #include "proto/global/1135F0.h"
 #include "proto/jetpac/1460.h"
 #include "proto/jetpac/3060.h"
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 extern JetpacSprite D_8002C4D0[];
 extern JetpacSprite D_8002B9C0[];
-void dlSetTextureScaleAndFlip(s32 width, s32 height, u8 flip, s32 unk);  // FAKE: callee prototype steer
 void jetpacInitGrid(void) {
     JetpacCell *cell = &jetpacGrid[0][0];
     s32 row;
