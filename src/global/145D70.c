@@ -1,24 +1,15 @@
 #include "common.h"
+#include "audio_synth.h"
 #include "proto/global/144E00.h"
 
-typedef struct SynAllocSave {
-    u8 pad0[0x40];
-    void *out;
-    f32 ratio;
-    s32 first;
-    f32 fraction;
-    s32 flags;
-} SynAllocSave;
-
-
-Acmd *n_alSavePull(SynAllocSave *filter, s16 *outp, Acmd *p) {
+Acmd *n_alSavePull(N_PVoice *filter, s16 *outp, Acmd *p) {
     Acmd *result = p;
     s16 samples = 0x170;
     s32 whole;
     s32 value;
     f32 temp;
 
-    if (filter->first != 0) {
+    if (filter->rs_upitch != 0) {
         Acmd *cmd;
 
         result = n_alAdpcmPull(filter, &samples, 0xB8, p);
@@ -28,20 +19,20 @@ Acmd *n_alSavePull(SynAllocSave *filter, s16 *outp, Acmd *p) {
     } else {
         Acmd *cmd;
 
-        if (filter->ratio > 1.99995999999999996) {
-            filter->ratio = 1.999959946f;
+        if (filter->rs_ratio > 1.99995999999999996) {
+            filter->rs_ratio = 1.999959946f;
         }
-        filter->ratio = (s32)(filter->ratio * 32768.0f);
-        filter->ratio = filter->ratio / 32768.0f;
-        temp = filter->fraction + filter->ratio * 184.0f;
+        filter->rs_ratio = (s32)(filter->rs_ratio * 32768.0f);
+        filter->rs_ratio = filter->rs_ratio / 32768.0f;
+        temp = filter->rs_delta + filter->rs_ratio * 184.0f;
         whole = (s32)temp;
-        filter->fraction = temp - (f32)whole;
+        filter->rs_delta = temp - (f32)whole;
         result = n_alAdpcmPull(filter, &samples, whole, p);
-        value = (s32)(filter->ratio * 32768.0f);
+        value = (s32)(filter->rs_ratio * 32768.0f);
         cmd = result++;
-        cmd->words.w0 = 0x05000000 | (osVirtualToPhysical(filter->out) & 0xFFFFFF);
-        cmd->words.w1 = ((filter->flags & 3) << 30) | ((value & 0xFFFF) << 14) | ((samples & 0xFFF) << 2);
-        filter->flags = 0;
+        cmd->words.w0 = 0x05000000 | (osVirtualToPhysical(filter->rs_state) & 0xFFFFFF);
+        cmd->words.w1 = ((filter->rs_first & 3) << 30) | ((value & 0xFFFF) << 14) | ((samples & 0xFFF) << 2);
+        filter->rs_first = 0;
     }
     return result;
 }

@@ -2,7 +2,7 @@
 #ifndef PROTO_GLOBAL_1435C0_H
 #define PROTO_GLOBAL_1435C0_H
 #include "common.h"
-struct EnvMixerEnv;
+#include "audio_synth.h"
 #ifndef PROTO_SKIP_n_alEnvmixerPull
 Acmd *n_alEnvmixerPull(void *, s32, Acmd *);
 #endif
@@ -10,7 +10,7 @@ Acmd *n_alEnvmixerPull(void *, s32, Acmd *);
 s32 n_alEnvmixerParam(void *, s32, void *);
 #endif
 #ifndef PROTO_SKIP__pullSubFrame
-Acmd *_pullSubFrame(struct EnvMixerEnv *, s16 *, s16 *, s32, Acmd *);
+Acmd *_pullSubFrame(N_PVoice *, s16 *, s16 *, s32, Acmd *);
 #endif
 #ifndef PROTO_SKIP__getRate
 s16 _getRate(f32, f32, s32, u16 *);

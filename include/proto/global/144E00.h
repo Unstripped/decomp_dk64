@@ -2,17 +2,14 @@
 #ifndef PROTO_GLOBAL_144E00_H
 #define PROTO_GLOBAL_144E00_H
 #include "common.h"
-struct AdpcmFilter;
-struct AdpcmNMLoadFilter;
-struct DecodeFilter;
-struct DecodeWave;
+#include "audio_synth.h"
 #ifndef PROTO_SKIP_n_alAdpcmPull
-Acmd *n_alAdpcmPull(struct AdpcmFilter *, s16 *, s32, Acmd *);
+Acmd *n_alAdpcmPull(N_PVoice *, s16 *, s32, Acmd *);
 #endif
 #ifndef PROTO_SKIP__decodeChunk
-void _decodeChunk(struct DecodeFilter *, s32, struct DecodeWave *);
+void _decodeChunk(N_PVoice *, s32, ALWaveTable *);
 #endif
 #ifndef PROTO_SKIP_alLoadParam
-Acmd *alLoadParam(Acmd *, struct AdpcmNMLoadFilter *, s32, s32, s16, s16, s32);
+Acmd *alLoadParam(Acmd *, N_PVoice *, s32, s32, s16, s16, s32);
 #endif
 #endif

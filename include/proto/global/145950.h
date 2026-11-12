@@ -2,11 +2,11 @@
 #ifndef PROTO_GLOBAL_145950_H
 #define PROTO_GLOBAL_145950_H
 #include "common.h"
-struct SynAllocResample;
+#include "audio_synth.h"
 #ifndef PROTO_SKIP_n_alResamplePull
-Acmd *n_alResamplePull(struct SynAllocResample *, s16 *, s32, Acmd *);
+Acmd *n_alResamplePull(N_PVoice *, s16 *, s32, Acmd *);
 #endif
 #ifndef PROTO_SKIP_alResampleParam
-s32 alResampleParam(struct SynAllocResample *, s32, void *);
+s32 alResampleParam(N_PVoice *, s32, void *);
 #endif
 #endif

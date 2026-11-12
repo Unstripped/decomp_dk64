@@ -1,109 +1,14 @@
 #include "common.h"
+#include "audio_synth.h"
 #include "proto/global/13E160.h"
 #include "proto/global/1435C0.h"
 #include "proto/global/144E00.h"
 #include "proto/global/145950.h"
 
-
-
-typedef struct EnvMixerEnv {
-    u8 unk0[0x44];
-    f32 unk44;
-    s32 unk48;
-    f32 unk4C;
-    s32 unk50;
-    u8 *unk54;
-    s16 unk58;
-    s16 unk5A;
-    s16 unk5C;
-    s16 unk5E;
-    s16 unk60;
-    s16 unk62;
-    u16 unk64;
-    s16 unk66;
-    s16 unk68;
-    u16 unk6A;
-    s16 unk6C;
-    s16 unk6E;
-    s32 unk70;
-    s32 unk74;
-    s32 unk78;
-    void *unk7C;
-    void *unk80;
-    s32 unk84;
-} EnvMixerEnv;
-
   
-
 
 extern s16 D_80756490[];
 extern s16 D_8075658E[];
-
-typedef union EnvNodeData {
-    f32 f;
-    s32 i;
-    void *ptr;
-    struct {
-        s16 s0;
-        s16 s1;
-    } s;
-} EnvNodeData;
-
-typedef struct EnvNode {
-    struct EnvNode *next;
-    s32 unk4;
-    s16 type;
-    s16 unkA;
-    EnvNodeData data;
-    s16 unk10;
-    u8 unk12;
-    u8 unk13;
-    u8 unk14;
-    u8 unk15;
-    u8 pad16[2];
-    f32 unk18;
-    s32 unk1C;
-    void *unk20;
-} EnvNode;
-
-typedef struct EnvPVoice {
-    u8 pad0[0x88];
-    s32 unk88;
-} EnvPVoice;
-
-typedef struct EnvMixerPullView {
-    u8 pad0[0x44];
-    f32 unk44;
-    s32 unk48;
-    f32 unk4C;
-    s32 unk50;
-    u8 *unk54;
-    s16 unk58;
-    s16 unk5A;
-    s16 unk5C;
-    s16 unk5E;
-    s16 unk60;
-    s16 unk62;
-    u16 unk64;
-    s16 unk66;
-    s16 unk68;
-    u16 unk6A;
-    s16 unk6C;
-    s16 unk6E;
-    s32 unk70;
-    s32 unk74;
-    s32 unk78;
-    EnvNode *unk7C;
-    void *unk80;
-    s32 unk84;
-    u8 pad88[4];
-    u8 unk8C;
-    u8 pad8D[3];
-    s16 unk90;
-    s16 unk92;
-    u8 pad94[0x24];
-    s32 unkB8;
-} EnvMixerPullView;
 
 extern u8 D_807FF0F0;
 extern u8 D_807FF0F1;
@@ -111,19 +16,19 @@ extern u8 D_807FF0F2;
 
 Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
     Acmd *cmd;
-    EnvMixerPullView *f;
+    N_PVoice *f;
     s16 outOffset;
     s32 lastTime;
     s32 curTime;
     s32 subSamples;
     s16 samplePtr;
     s32 ratio;
-    EnvNode *node;
+    SynCoreParam *node;
     s32 samplesLeft;
-    EnvNode *paramNode;
+    SynStartParam *paramNode;
     s32 scaledVol;
-    EnvNode *segNode;
-    EnvNode *freeNode;
+    SynCoreParam *segNode;
+    SynCoreParam *freeNode;
 
     cmd = cmdList;
     f = filter;
@@ -131,9 +36,9 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
     samplePtr = 0;
     samplesLeft = 0xB8;
     outOffset = 0;
-    while (f->unk7C != NULL) {
+    while (f->em_ctrlList != NULL) {
         lastTime = curTime;
-        curTime = f->unk7C->unk4;
+        curTime = f->em_ctrlList->delta;
         subSamples = ((curTime - lastTime + 0xB7) / 184) * 0xB8;
         if (subSamples == 0) {
             curTime = lastTime;
@@ -141,168 +46,167 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
         if (subSamples > samplesLeft) {
             break;
         }
-        switch (f->unk7C->type) {
+        switch (f->em_ctrlList->type) {
         case 13:
-            paramNode = f->unk7C;
-            if (paramNode->unkA != 0) {
-                f->unk48 = 1;
+            paramNode = (SynStartParam *)f->em_ctrlList;
+            if (paramNode->unity != 0) {
+                f->rs_upitch = 1;
             }
-            _decodeChunk(f, 5, paramNode->unk20);
-            f->unk84 = 1;
-            f->unk78 = 1;
-            f->unk70 = 0;
-            f->unk74 = ((paramNode->unk1C + 0xB7) / 184) * 0xB8;
-            scaledVol = (paramNode->unk10 + paramNode->unk10) / 2;
-            f->unk5A = scaledVol;
-            f->unk58 = paramNode->unk12;
-            f->unk60 = (D_80756490[paramNode->unk13 & 0x7F] & 0xFFFE) | ((s32)paramNode->unk13 >> 7);
+            _decodeChunk(f, 5, paramNode->wave);
+            f->em_motion = 1;
+            f->em_first = 1;
+            f->em_delta = 0;
+            f->em_segEnd = ((paramNode->samples + 0xB7) / 184) * 0xB8;
+            scaledVol = (paramNode->volume + paramNode->volume) / 2;
+            f->em_volume = scaledVol;
+            f->em_pan = paramNode->pan;
+            f->em_dryamt = (D_80756490[paramNode->fxmix & 0x7F] & 0xFFFE) | ((s32)paramNode->fxmix >> 7);
             if (D_807FF0F0 == 0) {
-                f->unk60 &= 0xFFFE;
+                f->em_dryamt &= 0xFFFE;
             }
-            f->unk62 = D_8075658E[-(paramNode->unk13 & 0x7F)] & 0xFFFE;
+            f->em_wetamt = D_8075658E[-(paramNode->fxmix & 0x7F)] & 0xFFFE;
             if (D_807FF0F2 != 0) {
-                f->unk58 = (f->unk58 >> 1) + 0x20;
+                f->em_pan = (f->em_pan >> 1) + 0x20;
             } else if (D_807FF0F1 != 0) {
-                f->unk58 = 0x40;
+                f->em_pan = 0x40;
             }
-            if (paramNode->unk1C != 0) {
-                f->unk5C = 1;
-                f->unk5E = 1;
+            if (paramNode->samples != 0) {
+                f->em_cvolL = 1;
+                f->em_cvolR = 1;
             } else {
-                f->unk5C = (D_80756490[f->unk58] * f->unk5A) >> 15;
-                f->unk5E = (D_8075658E[-f->unk58] * f->unk5A) >> 15;
+                f->em_cvolL = (D_80756490[f->em_pan] * f->em_volume) >> 15;
+                f->em_cvolR = (D_8075658E[-f->em_pan] * f->em_volume) >> 15;
             }
-            f->unk44 = paramNode->data.f;
-            f->unk92 = paramNode->unk15;
-            f->unk90 = paramNode->unk18;
+            f->rs_ratio = paramNode->pitch;
+            f->unk92 = paramNode->fxPitch;
+            f->unk90 = paramNode->fxVolume;
             f->unkB8 = 1;
-            f->unk8C = paramNode->unk14;
+            f->unk8C = paramNode->fxDelay;
             break;
         case 11:
         case 12:
         case 16:
-            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, cmd);
-            if (f->unk70 >= f->unk74) {
-                f->unk68 = (D_80756490[f->unk58] * f->unk5A) >> 15;
-                f->unk6E = (D_8075658E[-f->unk58] * f->unk5A) >> 15;
-                f->unk70 = f->unk74;
-                f->unk5C = f->unk68;
-                f->unk5E = f->unk6E;
+            cmd = _pullSubFrame(f, &outOffset, &samplePtr, subSamples, cmd);
+            if (f->em_delta >= f->em_segEnd) {
+                f->em_ltgt = (D_80756490[f->em_pan] * f->em_volume) >> 15;
+                f->em_rtgt = (D_8075658E[-f->em_pan] * f->em_volume) >> 15;
+                f->em_delta = f->em_segEnd;
+                f->em_cvolL = f->em_ltgt;
+                f->em_cvolR = f->em_rtgt;
             } else {
-                f->unk5C = _getVol(f->unk5C, f->unk70, f->unk66, f->unk64);
-                f->unk5E = _getVol(f->unk5E, f->unk70, f->unk6C, f->unk6A);
+                f->em_cvolL = _getVol(f->em_cvolL, f->em_delta, f->em_lratm, f->em_lratl);
+                f->em_cvolR = _getVol(f->em_cvolR, f->em_delta, f->em_rratm, f->em_rratl);
             }
-            if (f->unk5C == 0) {
-                f->unk5C = 1;
+            if (f->em_cvolL == 0) {
+                f->em_cvolL = 1;
             }
-            if (f->unk5E == 0) {
-                f->unk5E = 1;
+            if (f->em_cvolR == 0) {
+                f->em_cvolR = 1;
             }
-            if (f->unk7C->type == 0xC) {
+            if (f->em_ctrlList->type == 0xC) {
                 if (D_807FF0F2 != 0) {
-                    f->unk58 = (f->unk7C->data.s.s1 >> 1) + 0x20;
+                    f->em_pan = (f->em_ctrlList->data.s.s1 >> 1) + 0x20;
                 } else if (D_807FF0F1 != 0) {
-                    f->unk58 = 0x40;
+                    f->em_pan = 0x40;
                 } else {
-                    f->unk58 = f->unk7C->data.i;
+                    f->em_pan = f->em_ctrlList->data.i;
                 }
             }
-            if (f->unk7C->type == 0xB) {
-                f->unk70 = 0;
-                ratio = f->unk7C->data.i;
+            if (f->em_ctrlList->type == 0xB) {
+                f->em_delta = 0;
+                ratio = f->em_ctrlList->data.i;
                 ratio = (ratio + ratio) / 2;
-                f->unk5A = ratio;
-                f->unk74 = ((*(s32 *)&f->unk7C->unk10 + 0xB7) / 184) * 0xB8;
+                f->em_volume = ratio;
+                f->em_segEnd = ((f->em_ctrlList->moredata.i + 0xB7) / 184) * 0xB8;
             }
-            if (f->unk7C->type == 0x10) {
-                if (((((f->unk60 ^ f->unk62) & 1) ^ ((f->unk7C->data.i + 1) >> 7)) != 0) && (D_807FF0F0 != 0)) {
-                    if (f->unk58 >= 0x41) {
-                        f->unk60 ^= 1;
+            if (f->em_ctrlList->type == 0x10) {
+                if (((((f->em_dryamt ^ f->em_wetamt) & 1) ^ ((f->em_ctrlList->data.i + 1) >> 7)) != 0) && (D_807FF0F0 != 0)) {
+                    if (f->em_pan >= 0x41) {
+                        f->em_dryamt ^= 1;
                     } else {
-                        f->unk62 ^= 1;
+                        f->em_wetamt ^= 1;
                     }
                 }
-                f->unk60 = (D_80756490[f->unk7C->data.i & 0x7F] & 0xFFFE) | (f->unk60 & 1);
-                f->unk62 = (D_8075658E[-(f->unk7C->data.i & 0x7F)] & 0xFFFE) | (f->unk62 & 1);
+                f->em_dryamt = (D_80756490[f->em_ctrlList->data.i & 0x7F] & 0xFFFE) | (f->em_dryamt & 1);
+                f->em_wetamt = (D_8075658E[-(f->em_ctrlList->data.i & 0x7F)] & 0xFFFE) | (f->em_wetamt & 1);
             }
-            f->unk78 = 1;
+            f->em_first = 1;
             break;
         case 14:
-            segNode = f->unk7C;
-            if (segNode->unkA != 0) {
-                f->unk48 = 1;
+            segNode = f->em_ctrlList;
+            if (segNode->unity != 0) {
+                f->rs_upitch = 1;
             }
             _decodeChunk(f, 5, segNode->data.ptr);
-            f->unk84 = 1;
+            f->em_motion = 1;
             break;
         case 15:
-            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, cmd);
+            cmd = _pullSubFrame(f, &outOffset, &samplePtr, subSamples, cmd);
             n_alEnvmixerParam(f, 4, 0);
             break;
         case 0:
-            freeNode = f->unk7C;
-            ((EnvPVoice *)freeNode->data.ptr)->unk88 = 0;
+            freeNode = f->em_ctrlList;
+            ((N_PVoice *)freeNode->data.ptr)->delta = 0;
             _n_freePVoice(freeNode->data.ptr);
             break;
         case 7:
-            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, cmd);
-            f->unk44 = f->unk7C->data.f;
+            cmd = _pullSubFrame(f, &outOffset, &samplePtr, subSamples, cmd);
+            f->rs_ratio = f->em_ctrlList->data.f;
             break;
         case 8:
-            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, cmd);
-            f->unk48 = 1;
+            cmd = _pullSubFrame(f, &outOffset, &samplePtr, subSamples, cmd);
+            f->rs_upitch = 1;
             break;
         case 5:
-            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, cmd);
-            _decodeChunk(f, 5, f->unk7C->data.ptr);
+            cmd = _pullSubFrame(f, &outOffset, &samplePtr, subSamples, cmd);
+            _decodeChunk(f, 5, f->em_ctrlList->data.ptr);
             break;
         default:
-            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, cmd);
-            n_alEnvmixerParam(f, f->unk7C->type, f->unk7C->data.ptr);
+            cmd = _pullSubFrame(f, &outOffset, &samplePtr, subSamples, cmd);
+            n_alEnvmixerParam(f, f->em_ctrlList->type, f->em_ctrlList->data.ptr);
             break;
         }
         samplePtr += subSamples * 2;
         samplesLeft -= subSamples;
-        node = f->unk7C;
-        f->unk7C = f->unk7C->next;
-        if (f->unk7C == NULL) {
-            f->unk80 = 0;
+        node = f->em_ctrlList;
+        f->em_ctrlList = f->em_ctrlList->next;
+        if (f->em_ctrlList == NULL) {
+            f->em_ctrlTail = 0;
         }
         __n_freeParam(node);
     }
-    cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, samplesLeft, cmd);
-    if (f->unk70 > f->unk74) {
-        f->unk70 = f->unk74;
+    cmd = _pullSubFrame(f, &outOffset, &samplePtr, samplesLeft, cmd);
+    if (f->em_delta > f->em_segEnd) {
+        f->em_delta = f->em_segEnd;
     }
     return cmd;
 }
 
-
 s32 n_alEnvmixerParam(void *filter, s32 paramID, void *paramVal) {
-    EnvMixerEnv *env;
+    N_PVoice *env;
 
     env = filter;
     switch (paramID) {
     case 3:
-        if (env->unk80 != NULL) {
-            *(void **)env->unk80 = paramVal;
+        if (env->em_ctrlTail != NULL) {
+            env->em_ctrlTail->next = paramVal;
         } else {
-            env->unk7C = paramVal;
+            env->em_ctrlList = paramVal;
         }
-        env->unk80 = paramVal;
+        env->em_ctrlTail = paramVal;
         break;
     case 4:
-        env->unk78 = 1;
-        env->unk84 = 0;
-        env->unk5A = 1;
-        env->unk74 = 0;
-        env->unk4C = 0.0f;
-        env->unk50 = 1;
-        env->unk48 = 0;
+        env->em_first = 1;
+        env->em_motion = 0;
+        env->em_volume = 1;
+        env->em_segEnd = 0;
+        env->rs_delta = 0.0f;
+        env->rs_first = 1;
+        env->rs_upitch = 0;
         alResampleParam(env, 4, paramVal);
         break;
     case 9:
-        env->unk84 = 1;
+        env->em_motion = 1;
         break;
     default:
         alResampleParam(env, paramID, paramVal);
@@ -311,59 +215,59 @@ s32 n_alEnvmixerParam(void *filter, s32 paramID, void *paramVal) {
     return 0;
 }
 
-Acmd *_pullSubFrame(EnvMixerEnv *filter, s16 *outp, s16 *samplePtr, s32 count, Acmd *cmdList) {
+Acmd *_pullSubFrame(N_PVoice *filter, s16 *outp, s16 *samplePtr, s32 count, Acmd *cmdList) {
     Acmd *ptr;
-    EnvMixerEnv *env;
+    N_PVoice *env;
 
     ptr = cmdList;
     env = filter;
-    if ((env->unk84 != 1) || (count == 0)) {
+    if ((env->em_motion != 1) || (count == 0)) {
         return ptr;
     }
     ptr = n_alResamplePull(env, outp, count, cmdList);
-    if (env->unk78 != 0) {
-        env->unk78 = 0;
-        env->unk68 = (D_80756490[env->unk58] * env->unk5A) >> 15;
-        env->unk66 = _getRate((f32)env->unk5C, (f32)env->unk68, env->unk74, &env->unk64);
-        env->unk6E = (D_8075658E[-env->unk58] * env->unk5A) >> 15;
-        env->unk6C = _getRate((f32)env->unk5E, (f32)env->unk6E, env->unk74, &env->unk6A);
+    if (env->em_first != 0) {
+        env->em_first = 0;
+        env->em_ltgt = (D_80756490[env->em_pan] * env->em_volume) >> 15;
+        env->em_lratm = _getRate((f32)env->em_cvolL, (f32)env->em_ltgt, env->em_segEnd, &env->em_lratl);
+        env->em_rtgt = (D_8075658E[-env->em_pan] * env->em_volume) >> 15;
+        env->em_rratm = _getRate((f32)env->em_cvolR, (f32)env->em_rtgt, env->em_segEnd, &env->em_rratl);
         {
             Acmd *cmd;
 
             cmd = ptr++;
-            cmd->words.w0 = 0x09060000 | (env->unk5C & 0xFFFF);
-            cmd->words.w1 = ((env->unk60 & 0xFFFF) << 16) | (env->unk62 & 0xFFFF);
+            cmd->words.w0 = 0x09060000 | (env->em_cvolL & 0xFFFF);
+            cmd->words.w1 = ((env->em_dryamt & 0xFFFF) << 16) | (env->em_wetamt & 0xFFFF);
         }
         {
             Acmd *cmd;
 
             cmd = ptr++;
-            cmd->words.w0 = 0x09040000 | (env->unk6E & 0xFFFF);
-            cmd->words.w1 = ((env->unk6C & 0xFFFF) << 16) | (env->unk6A & 0xFFFF);
+            cmd->words.w0 = 0x09040000 | (env->em_rtgt & 0xFFFF);
+            cmd->words.w1 = ((env->em_rratm & 0xFFFF) << 16) | (env->em_rratl & 0xFFFF);
         }
         {
             Acmd *cmd;
 
             cmd = ptr++;
-            cmd->words.w0 = 0x09000000 | (env->unk68 & 0xFFFF);
-            cmd->words.w1 = ((env->unk66 & 0xFFFF) << 16) | (env->unk64 & 0xFFFF);
+            cmd->words.w0 = 0x09000000 | (env->em_ltgt & 0xFFFF);
+            cmd->words.w1 = ((env->em_lratm & 0xFFFF) << 16) | (env->em_lratl & 0xFFFF);
         }
         {
             Acmd *cmd;
 
             cmd = ptr++;
-            cmd->words.w0 = 0x03010000 | (env->unk5E & 0xFFFF);
-            cmd->words.w1 = osVirtualToPhysical(env->unk54);
+            cmd->words.w0 = 0x03010000 | (env->em_cvolR & 0xFFFF);
+            cmd->words.w1 = osVirtualToPhysical(env->em_state);
         }
     } else {
         Acmd *cmd;
 
         cmd = ptr++;
         cmd->words.w0 = 0x03000000;
-        cmd->words.w1 = osVirtualToPhysical(env->unk54);
+        cmd->words.w1 = osVirtualToPhysical(env->em_state);
     }
     *outp += 0x170;
-    env->unk70 += 0xB8;
+    env->em_delta += 0xB8;
     return ptr;
 }
 
@@ -401,7 +305,6 @@ s16 _getRate(f32 curVol, f32 targetVol, s32 delta, u16 *ratem) {
     *ratem = (u32)(65535.0f * frac);
     return rate;
 }
-
 
 s16 _getVol(s16 init, s32 delta, s16 rate, u16 ratem) {
     s32 change;
