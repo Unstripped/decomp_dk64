@@ -3,17 +3,16 @@
 #define PROTO_GLOBAL_144E00_H
 #include "common.h"
 struct AdpcmFilter;
-struct AdpcmNMAcmd;
 struct AdpcmNMLoadFilter;
 struct DecodeFilter;
 struct DecodeWave;
 #ifndef PROTO_SKIP_n_alAdpcmPull
-struct AdpcmNMAcmd *n_alAdpcmPull(struct AdpcmFilter *, s16 *, s32, struct AdpcmNMAcmd *);
+Acmd *n_alAdpcmPull(struct AdpcmFilter *, s16 *, s32, Acmd *);
 #endif
 #ifndef PROTO_SKIP__decodeChunk
 void _decodeChunk(struct DecodeFilter *, s32, struct DecodeWave *);
 #endif
 #ifndef PROTO_SKIP_alLoadParam
-struct AdpcmNMAcmd *alLoadParam(struct AdpcmNMAcmd *, struct AdpcmNMLoadFilter *, s32, s32, s16, s16, s32);
+Acmd *alLoadParam(Acmd *, struct AdpcmNMLoadFilter *, s32, s32, s16, s16, s32);
 #endif
 #endif

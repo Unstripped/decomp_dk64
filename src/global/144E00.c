@@ -1,12 +1,7 @@
 #include "common.h"
 #include "proto/global/144E00.h"
 
-struct AdpcmNMAcmd;
 struct AdpcmNMLoadFilter;
-typedef struct {
-    u32 w0;
-    u32 w1;
-} AdpcmAcmd;
 
 typedef struct {
     s32 unk0;
@@ -33,8 +28,8 @@ typedef struct AdpcmFilter {
 } AdpcmFilter;
 
 
-struct AdpcmNMAcmd *n_alAdpcmPull(AdpcmFilter *filter, s16 *outp, s32 count, struct AdpcmNMAcmd *cmdList) {
-    AdpcmAcmd *cmd;
+Acmd *n_alAdpcmPull(AdpcmFilter *filter, s16 *outp, s32 count, Acmd *cmdList) {
+    Acmd *cmd;
     s16 state;
     s32 neededSamples;
     s32 frameBlocks;
@@ -49,21 +44,21 @@ struct AdpcmNMAcmd *n_alAdpcmPull(AdpcmFilter *filter, s16 *outp, s32 count, str
     s32 wasLoaded;
     s32 isLooping;
     AdpcmFilter *f;
-    AdpcmAcmd *initCmd;
-    AdpcmAcmd *dmaCmd;
-    AdpcmAcmd *clearCmd;
+    Acmd *initCmd;
+    Acmd *dmaCmd;
+    Acmd *clearCmd;
 
-    cmd = (AdpcmAcmd *)cmdList;
+    cmd = cmdList;
     wasLoaded = 0;
     isLooping = 0;
     f = filter;
     if (count == 0) {
-        return (struct AdpcmNMAcmd *)cmd;
+        return cmd;
     }
     state = 0;
     initCmd = cmd++;
-    initCmd->w0 = (f->unk24 & 0xFFFFFF) | 0x0B000000;
-    initCmd->w1 = ((u32)f->unk20->loop + 8) & 0x1FFFFFFF;
+    initCmd->words.w0 = (f->unk24 & 0xFFFFFF) | 0x0B000000;
+    initCmd->words.w1 = ((u32)f->unk20->loop + 8) & 0x1FFFFFFF;
     isLooping = ((u32)(f->unk30 + count) > (u32)f->unk18) && f->unk1C;
     if (isLooping != 0) {
         chunkCount = f->unk18 - f->unk30;
@@ -82,7 +77,7 @@ struct AdpcmNMAcmd *n_alAdpcmPull(AdpcmFilter *filter, s16 *outp, s32 count, str
     frameBlocks = (neededSamples + 0xF) >> 4;
     byteCount = frameBlocks * 9;
     if (isLooping != 0) {
-        cmd = (AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)cmd, (struct AdpcmNMLoadFilter *)f, neededSamples, byteCount, *outp, state, f->unk38);
+        cmd = alLoadParam(cmd, (struct AdpcmNMLoadFilter *)f, neededSamples, byteCount, *outp, state, f->unk38);
         if (f->unk34 != 0) {
             *outp += f->unk34 * 2;
         } else {
@@ -107,16 +102,16 @@ struct AdpcmNMAcmd *n_alAdpcmPull(AdpcmFilter *filter, s16 *outp, s32 count, str
                 }
                 frameBlocks = (neededSamples + 0xF) >> 4;
                 byteCount = frameBlocks * 9;
-                cmd = (AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)cmd, (struct AdpcmNMLoadFilter *)f, neededSamples, byteCount, dmaOut, state, f->unk38 | 2);
+                cmd = alLoadParam(cmd, (struct AdpcmNMLoadFilter *)f, neededSamples, byteCount, dmaOut, state, f->unk38 | 2);
                 dmaCmd = cmd++;
-                dmaCmd->w0 = (((f->unk34 * 2) + dmaOut) & 0xFFFFFF) | 0x0A000000;
-                dmaCmd->w1 = ((outAddr & 0xFFFF) << 0x10) | ((chunkCount * 2) & 0xFFFF);
+                dmaCmd->words.w0 = (((f->unk34 * 2) + dmaOut) & 0xFFFFFF) | 0x0A000000;
+                dmaCmd->words.w1 = ((outAddr & 0xFFFF) << 0x10) | ((chunkCount * 2) & 0xFFFF);
             } while (count > chunkCount);
         }
         f->unk34 = (f->unk34 + count) & 0xF;
         f->unk30 = f->unk30 + count;
         f->unk3C = f->unk3C + (frameBlocks * 9);
-        return (struct AdpcmNMAcmd *)cmd;
+        return cmd;
     }
     chunkCount = frameBlocks << 4;
     wasteBytes = (f->unk3C + byteCount) - (f->unk20->unk0 + f->unk20->unk4);
@@ -130,7 +125,7 @@ struct AdpcmNMAcmd *n_alAdpcmPull(AdpcmFilter *filter, s16 *outp, s32 count, str
     byteCount -= wasteBytes;
     if ((clearBytes - (clearBytes & 0xF)) < count) {
         wasLoaded = 1;
-        cmd = (AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)cmd, (struct AdpcmNMLoadFilter *)f, chunkCount - clearBytes, byteCount, *outp, state, f->unk38);
+        cmd = alLoadParam(cmd, (struct AdpcmNMLoadFilter *)f, chunkCount - clearBytes, byteCount, *outp, state, f->unk38);
         if (f->unk34 != 0) {
             *outp += f->unk34 * 2;
         } else {
@@ -151,10 +146,10 @@ struct AdpcmNMAcmd *n_alAdpcmPull(AdpcmFilter *filter, s16 *outp, s32 count, str
             clearOffset = 0;
         }
         clearCmd = cmd++;
-        clearCmd->w0 = ((*outp + clearOffset) & 0xFFFFFF) | 0x02000000;
-        clearCmd->w1 = clearBytes * 2;
+        clearCmd->words.w0 = ((*outp + clearOffset) & 0xFFFFFF) | 0x02000000;
+        clearCmd->words.w1 = clearBytes * 2;
     }
-    return (struct AdpcmNMAcmd *)cmd;
+    return cmd;
 }
 
 typedef struct DecodeBook {
@@ -243,11 +238,6 @@ void _decodeChunk(DecodeFilter *filter, s32 paramID, DecodeWave *wave) {
     }
 }
 
-typedef struct AdpcmNMAcmd {
-    u32 w0;
-    u32 w1;
-} AdpcmNMAcmd;
-
 typedef struct AdpcmNMLoadFilter {
     u8 pad0[0xC];
     void *unkC;
@@ -260,35 +250,35 @@ typedef struct AdpcmNMLoadFilter {
     void *unk3C;
 } AdpcmNMLoadFilter;
 
-AdpcmNMAcmd *alLoadParam(AdpcmNMAcmd *ptr, AdpcmNMLoadFilter *filter, s32 samples, s32 count, s16 out, s16 state, s32 flags) {
+Acmd *alLoadParam(Acmd *ptr, AdpcmNMLoadFilter *filter, s32 samples, s32 count, s16 out, s16 state, s32 flags) {
     s32 offset;
     s32 dmaAddr;
 
     if (count > 0) {
-        AdpcmNMAcmd *cmd;
+        Acmd *cmd;
 
         dmaAddr = filter->dma(filter->unk3C, count, filter->unk2C);
         offset = dmaAddr & 7;
         count += offset;
         cmd = ptr++;
-        cmd->w0 = 0x04000000 | ((((count - (count & 7)) + 8) & 0xFFF) << 12) | (state & 0xFFF);
-        cmd->w1 = (s32)(dmaAddr - offset);
+        cmd->words.w0 = 0x04000000 | ((((count - (count & 7)) + 8) & 0xFFF) << 12) | (state & 0xFFF);
+        cmd->words.w1 = (s32)(dmaAddr - offset);
     } else {
         offset = 0;
     }
     if (flags & 2) {
-        AdpcmNMAcmd *cmd;
+        Acmd *cmd;
 
         cmd = ptr++;
-        cmd->w0 = 0x0F000000;
-        cmd->w1 = (u32)filter->unk10 & 0x1FFFFFFF;
+        cmd->words.w0 = 0x0F000000;
+        cmd->words.w1 = (u32)filter->unk10 & 0x1FFFFFFF;
     }
     {
-        AdpcmNMAcmd *cmd;
+        Acmd *cmd;
 
         cmd = ptr++;
-        cmd->w0 = ((u32)filter->unkC & 0x1FFFFFFF & 0xFFFFFF) | 0x01000000;
-        cmd->w1 = ((flags & 0xF) << 28) | (((samples * 2) & 0xFFF) << 16) | ((offset & 0xF) << 12) | (out & 0xFFF);
+        cmd->words.w0 = ((u32)filter->unkC & 0x1FFFFFFF & 0xFFFFFF) | 0x01000000;
+        cmd->words.w1 = ((flags & 0xF) << 28) | (((samples * 2) & 0xFFF) << 16) | ((offset & 0xF) << 12) | (out & 0xFFF);
     }
     filter->unk38 = 0;
     return ptr;
