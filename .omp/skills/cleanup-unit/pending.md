@@ -17,7 +17,7 @@ State at the end of round 25 (no knowledge commit: all round-25 findings were du
 - Shared boot inflate header (`.scratch/CleanBoot1CC0/header-request.md`): inptr/outcnt are u32 in 1CC0 vs s32 in 30E0 (include/boot.h now exists).
 - gActiveActors/gActiveActorCount: file-local externs in 33 files (header move candidate, actor.h).
 - 42630 csCmdExec proto-type 89a542 (hudSpawnCountdownTimer arity, owner A7710) and W712 3ae317 (effectCreateAtModelNode, owner 119370); 450 2e505d actorMapModelsSetup.
-- Extern unification left: gPrimaryPlayerActor keeps a view type in boss/9C60; gPlayerSlots keeps void * in 1025E0, 10E1D0, 11BC10, 12E800, 1332B0, 2C910, F93B0, FCCD0, u8 * in 9BF30, s32 in 9DD70, plus 17 file-local view types (retire the views first).
+- Extern unification left: gPlayerSlots keeps void * in 1025E0, 10E1D0, 11BC10, 12E800, 1332B0, 2C910, F93B0, FCCD0, u8 * in 9BF30, s32 in 9DD70, plus 17 file-local view types (retire the views first).
 - File-scope views: PLAYER_VIEWS (450), ModelSlotPosTypeView (936B0), MODEL_TRANSFORM_SLOT (36880), TagBarrelInputPad (80150, needs a shared pad type); actorBoneChainSwingUpdate near-miss hint in the Rev20A report.
 - jetpac/4FC0 6c4893 W709 retype kept: the text API reads unsigned bytes (`textDrawString` reads `*str++`), so its parameter stays `u8 *`.
 - 1332B0 volumeTriggerUpdate PlayerSlot stride view of gPlayerSlots kept (Q0606, views blocked).
