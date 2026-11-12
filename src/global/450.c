@@ -344,7 +344,7 @@ void viModeSetup(u8 overlaySlot) {
     }
     loadOverlay(overlaySlot, overlayId, overlayParam);
     if (D_807445A4 == 0) {
-        osViSetMode(&osViModeTable[D_80744588[osTvType + osTvType + gHiResScale - 1]]);
+        osViSetMode(&osViModeTable[D_80744588[osTvType + osTvType + gHiResScale - 1]]); // FAKE: osTvType + osTvType keeps v0 holding osTvType for the sll-by-2 index (osTvType * 2 reloads it into t6)
         if (D_807445A0 == 0) {
             osViBlack(1);
         }

@@ -925,7 +925,6 @@ void func_80727678(void) {
     SpawnNode *node;
     s16 j;
     s16 *ptr;
-    SpawnEntry *entry;
 
     node = D_80755694->nodes;
     for (i = 0; i < D_80755694->count; i++, node++) {
@@ -937,8 +936,7 @@ void func_80727678(void) {
                         if ((node->state == 0) && (spawnFlagConditionMet(gCurrentMap, node->id) != 0) && (actorSpawn(D_8075EB80[node->entryIndex].actorType, D_8075EB80[node->entryIndex].unk2) != 0)) {
                             spawnNodeInitActorFromEntry(gSpawnedActor, node);
                         } else if ((node->state == 3) && (spawnFlagConditionMet(gCurrentMap, node->id) != 0)) {
-                            entry = &D_8075EB80[node->entryIndex];
-                            if (actorSpawn(entry->actorType, entry->unk2) != 0) {
+                            if (actorSpawn(D_8075EB80[node->entryIndex].actorType, D_8075EB80[node->entryIndex].unk2) != 0) {
                                 spawnNodeInitActorFromEntry(gSpawnedActor, node);
                                 gSpawnedActor->state = 0x36;
                             }

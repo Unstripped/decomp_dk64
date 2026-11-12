@@ -1,19 +1,12 @@
 #include "common.h"
 #include "actor.h"
+#include "model.h"
+#include "sched.h"
 #include "proto/global/15050.h"
 #include "proto/global/55B20.h"
 #include "proto/global/68AA0.h"
 #include "proto/global/7130.h"
 
-
-typedef struct ActorTargetSource {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    u8 padC[0x84 - 0xC];
-    s16 unk84;
-    u8 pad86[0xA];
-} ActorTargetSource;
 
 typedef struct ActorTargetEntry {
     s16 unk0;
@@ -23,13 +16,13 @@ typedef struct ActorTargetEntry {
     union {
         struct {
             s8 unk7;
-            s8 pad8[4];
+            s8 ids[4];
         } s;
         s8 unk7_arr[5];
     } u;
 } ActorTargetEntry;
 
-extern ActorTargetSource *gModelSlots;
+extern ModelSlot *gModelSlots;
 extern ActorTargetEntry *D_807F9420;
 extern s16 D_807F9424;
 extern s32 gModelSlotCount;
@@ -38,7 +31,6 @@ extern s32 gModelSlotCount;
 void actorInitTargetEntries(void) {
     s32 k = 0;
     s32 i;
-    s32 res;
 
     D_807F9424 = 0;
     for (i = 0; i < gModelSlotCount; i++) {
@@ -55,14 +47,14 @@ void actorInitTargetEntries(void) {
             u8 res = cond;
             if (cond) {
                 s32 temp;
-                D_807F9420[k].unk0 = gModelSlots[i].unk0;
-                D_807F9420[k].unk2 = gModelSlots[i].unk4;
-                D_807F9420[k].unk4 = gModelSlots[i].unk8;
+                D_807F9420[k].unk0 = gModelSlots[i].x;
+                D_807F9420[k].unk2 = gModelSlots[i].y;
+                D_807F9420[k].unk4 = gModelSlots[i].z;
                 D_807F9420[k].unk6 = res;
-                D_807F9420[k].u.s.unk7 = mapChunkFindByPosition(gModelSlots[i].unk0, gModelSlots[i].unk4, gModelSlots[i].unk8, 0);
-                temp = mapObjectCollectIdsByType(D_807F9420[k].u.s.unk7, &D_807F9420[k].u.s.pad8, 4);
+                D_807F9420[k].u.s.unk7 = mapChunkFindByPosition(gModelSlots[i].x, gModelSlots[i].y, gModelSlots[i].z, 0);
+                temp = mapObjectCollectIdsByType(D_807F9420[k].u.s.unk7, &D_807F9420[k].u.s.ids[0], 4);
                 if (temp != 4) {
-                    D_807F9420[k].u.s.pad8[temp] = -1;
+                    D_807F9420[k].u.s.ids[temp] = -1;
                 }
                 k++;
             }
@@ -70,14 +62,8 @@ void actorInitTargetEntries(void) {
     }
 }
 
-typedef struct ActorTargetType {
-    u8 pad[0x84];
-    s16 unk84;
-    u8 pad86[0xA];
-} ActorTargetType;
-
 u8 mapObjectIsTargetType(s16 objIndex) {
-    s16 val = ((ActorTargetType *)gModelSlots)[objIndex].unk84;
+    s16 val = gModelSlots[objIndex].modelType;
 
     if (val == 1 || val == 0xC || val == 0x10 || val == 0xF3 || val == 0x134 || val == 0x135 || val == 0x138) {
         return 1;
@@ -85,12 +71,7 @@ u8 mapObjectIsTargetType(s16 objIndex) {
     return 0;
 }
 
-typedef struct PlayerAreaView {
-    u8 pad0[0x290];
-    s16 unk290;
-} PlayerAreaView;
-
-extern PlayerAreaView *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 
 
 void actorTargetEntriesUpdateSfx(u8 targetType, u8 volume, u8 sfxId, f32 factor) {

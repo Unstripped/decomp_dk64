@@ -688,7 +688,7 @@ typedef struct ModelSlotObjCoordHolder {
 
 void modelSlotUpdateGroundCoords(s16 slot, u8 isId) {
     s32 padA[4];
-    ModelAssetHeader *tbl;
+    ModelAssetHeader *info;
     ModelGroundCoordDst *dst;
     s32 pad;
     f32 groundY;
@@ -701,7 +701,8 @@ void modelSlotUpdateGroundCoords(s16 slot, u8 isId) {
     groundY = gModelSlots[slot].y + 20.0f;
     if (collisionCheckGroundAtPoint(gModelSlots[slot].x, gModelSlots[slot].z, &groundY) != 0) {
         collisionGetCoords(&groundX, &groundZ);
-        switch ((tbl = gModelSlots[slot].unk24)->unk1C) { // FAKE: unused tbl copy takes the asset pointer into its own register (v1)
+        info = gModelSlots[slot].unk24;
+        switch (info->unk1C) {
             case 1:
                 dst = ((ModelSlotObjCoordHolder *)gModelSlots[slot].unk20)->unkBC;
                 break;
@@ -2436,7 +2437,7 @@ void modelSlotsStepSegmentCommands(void) {
         if (D_80747D74 >= gModelSlotCount) {
             D_80747D74 = 0;
         }
-        slot = (ModelSlot *)((u8 *)gModelSlots + D_80747D74 * 0x90);
+        slot = (ModelSlot *)((u8 *)gModelSlots + D_80747D74 * 0x90); // FAKE: byte-offset slot address keeps li t3,0x90 with the gModelSlots base in t2 (&gModelSlots[D_80747D74] swaps t2/t3)
         obj = slot->unk24;
         if (obj->unk0 & 0x10) {
             if ((slot->unk8C & 0x20) && gFrameCounter != obj->unk8) {

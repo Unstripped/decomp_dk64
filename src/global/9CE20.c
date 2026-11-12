@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/global/117190.h"
 #include "proto/global/133A90.h"
 #include "proto/global/135D30.h"
@@ -28,41 +29,9 @@ typedef struct BoneChainData {
     /* 0x28 */ u8 unk28;
 } BoneChainData;
 
-typedef struct BoneChainPlayerState {
-    /* 0x130 */ u8 pad0[0x130];
-    /* 0x130 */ void *unk130;
-    /* 0x134 */ u8 pad134[4];
-    /* 0x138 */ f32 unk138;
-    /* 0x13C */ u8 pad13C[0x10];
-    /* 0x14C */ f32 unk14C;
-    /* 0x150 */ f32 unk150;
-    /* 0x154 */ s16 unk154;
-    /* 0x156 */ u8 pad156[0x9A];
-    /* 0x1F0 */ u32 unk1F0;
-} BoneChainPlayerState;
-
-typedef struct BoneChainPlayerRoot {
-    /* 0x000 */ u8 pad0[0x174];
-    /* 0x174 */ BoneChainPlayerState *unk174;
-} BoneChainPlayerRoot;
-
-typedef struct BoneChainMain {
-    /* 0x0 */ u8 pad0[4];
-    /* 0x4 */ BoneChainPlayerRoot *unk4;
-} BoneChainMain;
-
-typedef struct BoneChainActor2 {
-    /* 0x06A */ u8 pad0[0x6A];
-    /* 0x06A */ u16 unk6A;
-    /* 0x06C */ u8 pad6C[0x7A];
-    /* 0x0E6 */ s16 unkE6;
-    /* 0x0E8 */ u8 padE8[0x6C];
-    /* 0x154 */ u8 unk154;
-} BoneChainActor2;
-
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern void *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern s32 gGlobalOverlayFlags;
 extern u32 gFrameDelta;
 extern s16 D_8075037C;
@@ -77,14 +46,14 @@ u8 nodeCount;
     BoneRotation *node;
     s16 i;
     f32 padA;
-    BoneChainPlayerState *player;
+    PlayerState *player;
     f32 padC;
     s16 *p;
     u8 dir;
     f32 limit = 15.0f;
 
     data = gCurrentActor->customState;
-    player = ((BoneChainMain *)gPlayerSlots)->unk4->unk174;
+    player = gPlayerSlots->actor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         data->unk0 = 0.0f;
         data->unk4 = 0.10471976f;
@@ -101,19 +70,19 @@ u8 nodeCount;
         for (i = 1; i <= nodeCount; i++) {
             proxPathSetSegment(gCurrentActor, 0, i - 1, i, i + 1, 0.333333f, 0.0f, 0.0f, 0, 0, 0, 0, 0);
         }
-        ((u8 *)gCurrentActor)[0x130] = 0x3C;
-        ((u8 *)gCurrentActor)[0x131] = 0xC8;
+        gCurrentActor->cullMarginX = 0x3C;
+        gCurrentActor->cullMarginY = 0xC8;
         data->unk14 = 0;
         data->unk15 = 0;
         data->unk28 = flagGet(0x183, 0) != 0 || (gGlobalOverlayFlags & 0x10000000) != 0 || func_807142D8() != 0;
     }
     if (gPrimaryPlayerActor->state == 0x63 || data->unk28 == 0 ||
-        (*(s32 *)gCurrentActor->spawnData == 1 && !(player->unk1F0 & 0x40))) {
+        (*(s32 *)gCurrentActor->spawnData == 1 && !(player->stateFlags & 0x40))) {
         gCurrentActor->flags &= 0xFBFFFFFB;
     } else {
         gCurrentActor->flags |= 0x04000004;
     }
-    if (gActorGlobalState.volumeTriggerQueueCount == 0) {}
+    if (gActorGlobalState.volumeTriggerQueueCount == 0) {} // FAKE: dead test of the queue count keeps gCurrentActor in t2 (removing it shifts the t2..t4 ring from the prologue on)
     for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
         p = gActorGlobalState.volumeTriggerQueueId[i];
         if (!*p) {
@@ -188,7 +157,7 @@ u8 nodeCount;
     } else if (data->unk15 != 0) {
         data->unk15--;
     }
-    if ((gPrimaryPlayerActor->contactFlags & 0x40) && data->unk14 == 0 && gCurrentActor == player->unk130) {
+    if ((gPrimaryPlayerActor->contactFlags & 0x40) && data->unk14 == 0 && gCurrentActor == player->pathOwner) {
         data->unk0 = 15.0f;
         if (mathAngleDistance(gPrimaryPlayerActor->yaw, gCurrentActor->yaw) < 0x400) {
             data->unkC = 3.1415927f;
@@ -202,7 +171,7 @@ u8 nodeCount;
     if (data->unkC < 0.0f) {
         data->unkC += 6.2831855f;
     }
-    if ((gPrimaryPlayerActor->contactFlags & 0x40) && gCurrentActor == player->unk130) {
+    if ((gPrimaryPlayerActor->contactFlags & 0x40) && gCurrentActor == player->pathOwner) {
         data->unk14 = 1;
         data->unk0 += 0.2;
         if (data->unk0 > 15.0f) {
@@ -215,8 +184,8 @@ u8 nodeCount;
             data->unk0 = 0.0f;
         }
     }
-    if ((gPrimaryPlayerActor->contactFlags & 0x40) && gCurrentActor == player->unk130) {
-        if (player->unk138 < 1.5 && (((f64)data->unkC > 4.0 && (f64)data->unkC < 4.712389f) ||
+    if ((gPrimaryPlayerActor->contactFlags & 0x40) && gCurrentActor == player->pathOwner) {
+        if (player->pathDist < 1.5 && (((f64)data->unkC > 4.0 && (f64)data->unkC < 4.712389f) ||
                                      ((f64)data->unkC < 1.5707964f && (f64)data->unkC > 0.9))) {
             player->unk14C = (f32)D_8075037C * (data->unk0 / 15.0f);
             player->unk150 = (f32)D_80750380 * (data->unk0 / 15.0f);

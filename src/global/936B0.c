@@ -944,7 +944,7 @@ f32 *outZ;
     Actor *actor;
     u8 active;
     s32 j;
-    PlayerStruct *pl;
+    s32 pad;
     u8 idx;
     ProjectileActorSub174 *sub;
     f32 d[3];
@@ -984,13 +984,12 @@ f32 *outZ;
     *outTarget = NULL;
     if (useAim) {
         idx = ((ProjectileActorSub174 *)proj->customState)->unk1A4;
-        pl = &gPlayerSlots[0] + idx; // FAKE: base-plus-index spelling keeps the target t8/t9 ring order
-        aimX = pl->focusX;
-        aimY = pl->focusY;
-        aimZ = pl->focusZ;
-        ox = pl->camX;
-        oy = pl->camY;
-        oz = pl->camZ;
+        aimX = gPlayerSlots[idx].focusX;
+        aimY = gPlayerSlots[idx].focusY;
+        aimZ = gPlayerSlots[idx].focusZ;
+        ox = gPlayerSlots[idx].camX;
+        oy = gPlayerSlots[idx].camY;
+        oz = gPlayerSlots[idx].camZ;
     } else {
         scale = proj->speedXZ * 0.025f;
         aimX = mathSinF(proj->moveYaw) * scale + proj->x;
