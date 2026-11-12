@@ -1,6 +1,6 @@
-# Pending after cleanup round 26
+# Pending after cleanup round 27
 
-State at the round-26 knowledge commit (a33a6217): 235 OPEN functions in 119 files (next rung: review 104, permute 58, diagnose 45, consolidate 15, retype 6, views 3, reconstruct 2, cond 1, remove 1). The knowledge commit (Q0696) staled 2 functions (4 codegen rungs; not re-recorded). Re-review groups Rev26A (10 files, 23 functions) and Rev26B (11 files, 23) in `.scratch/rereview26.md` at c1c73e65 were not run. A future session starts here: `uv run tools/quality.py rank`, then SKILL.md §2.
+State at the round-27 knowledge commit (460c9717): 178 OPEN functions in 98 files (next rung: review 84, permute 43, diagnose 33, consolidate 8, retype 6, views 3, reconstruct 1). The knowledge commit (Q0697) staled 3 functions (3 codegen rungs; not re-recorded). Re-review groups Rev27A (2 files, 4 functions) and Rev27B (3 files, 3) in `.scratch/rereview27.md` at 2b6abe0c were not run. A future session starts here: `uv run tools/quality.py rank`, then SKILL.md §2.
 
 ## Blocked owner/header changes
 - critter/5110 D_807FCC40/44 split labels stay (round 27, def29e0b): folding them into gPlayerInventoryTable fails because the folded form shares one table base (Q0687); the u8 pun is now `extern u16 D_807FCC40[]`, tagged.
@@ -17,7 +17,7 @@ State at the round-26 knowledge commit (a33a6217): 235 OPEN functions in 119 fil
 - jetpac/4FC0 `extern JetpacPlayerActor jetpacPlayer`: JetpacState raises its cfe 1 -> 2 (3480 and 1A60 already use JetpacState).
 - Shared boot inflate header (`.scratch/CleanBoot1CC0/header-request.md`): inptr/outcnt are u32 in 1CC0 vs s32 in 30E0 (include/boot.h now exists).
 - gActiveActors/gActiveActorCount: file-local externs in 33 files (header move candidate, actor.h).
-- 42630 csCmdExec proto-type 89a542 (hudSpawnCountdownTimer arity, owner A7710) and W712 3ae317 (effectCreateAtModelNode, owner 119370); 450 2e505d actorMapModelsSetup.
+- 42630 csCmdExec proto-type 89a542 (hudSpawnCountdownTimer arity, owner A7710) and W712 3ae317 (effectCreateAtModelNode, owner 119370); 450 2e505d actorMapModelsSetup. Round 27: 8D3E0 kept actorMapModelsSetup(s32, u8, u8) (not resolved).
 - Extern unification left: gPlayerSlots keeps void * in 1025E0, 10E1D0, 11BC10, 12E800, 1332B0, 2C910, F93B0, FCCD0, u8 * in 9BF30, s32 in 9DD70, plus 17 file-local view types (retire the views first).
 - File-scope views: PLAYER_VIEWS (450), ModelSlotPosTypeView (936B0), MODEL_TRANSFORM_SLOT (36880), TagBarrelInputPad (80150, needs a shared pad type); actorBoneChainSwingUpdate near-miss hint in the Rev20A report.
 - String convention (W709, string literals passed to `u8 *`): jetpac/4FC0 6c4893, global/90D80 renderHitCounterHUD/hudDrawRollingCounter, global/C0EE0 func_806BCF98 are blocked on 100180 `textDrawStringVtx`/`textDrawString` taking `u8 *` (the text API reads unsigned bytes, `*str++`). Decide one convention (e.g. `char *` parameters with an unsigned read) and fix all callers in one batch.
@@ -37,24 +37,19 @@ State at the round-26 knowledge commit (a33a6217): 235 OPEN functions in 119 fil
 
 
 ## OPEN functions (file (count): function(next rung))
-- bonus/12A0.c (1): bonusReelGameUpdate(diagnose)
 - bonus/2690.c (3): bonusTargetGameUpdate(consolidate), bonusLightFlashGameUpdate(permute), bonusPerilPathPanicGameUpdate(permute)
 - bonus/9010.c (4): bonusRenderScoreHud(review), bonusScoreHudUpdate(review), bonusQueueScore(review), bonusRegisterHit(review)
 - boot/1CC0.c (1): inflate_dynamic(review)
 - boot/30E0.c (4): gunzip(review), get_method(review), bi_reverse(review), clear_bufs(review)
-- boot/3D20.c (3): _itoa(review), _sprintf(review), vsprintf(review)
-- boss/0.c (4): bossArmydilloSpawnSmoke(consolidate), bossArmydilloDebrisUpdate(consolidate), bossArmydilloAimTowardTarget(consolidate), bossArmydilloStep(consolidate)
-- boss/3840.c (1): bossRoundFrame(consolidate); boss/DAA0.c (2): bossSpawnerUpdate(review), bossFollowerActorUpdate(permute); boss/F0D0.c (2): bossPickWaypointStep(permute), bossSetRandomObjectPair(diagnose)
-- critter/5110.c (3): critterBitwiseNot(review), critterBattleArenaUpdate(review), critterRenderCenterImage(review)
-- global/0.c (2): globalInit(retype), mainThreadHalt(review); global/100180.c (2): textBlitGlyph(permute), textDrawStringVtx(diagnose); global/10130.c (2): func_8060B430(review), recordInitPositionBuffers(permute); global/1025E0.c (1): gfxResourceSetString(review)
-- global/103AB0.c (4): zbufferDepthToDistance(permute), zbufferReadDepth(diagnose), func_80700BF4(permute), gfxDrawTexturedTileGrid(diagnose)
-- global/10D2D0.c (1): healthRefill(permute); global/10E1D0.c (1): meshBlobParse(permute); global/110F00.c (1): mtxIdentityF(cond); global/112080.c (2): resParseVariant(diagnose), textLayoutAppendCommandList(review)
-- global/1135F0.c (2): dlAppendTextureLoad(review), dlAppendTextureRectangle(review); global/114270.c (1): func_8071006C(permute); global/117190.c (2): playerRefillHealth(permute), func_807135B4(permute); global/119370.c (2): effectCreateAtActorBone(permute), effectUpdateAll(diagnose)
+- boss/0.c (3): bossPieceStep(review), bossArmydilloAimTowardTarget(diagnose), bossArmydilloStep(review)
+- boss/DAA0.c (2): bossSpawnerUpdate(review), bossFollowerActorUpdate(permute); boss/F0D0.c (2): bossPickWaypointStep(permute), bossSetRandomObjectPair(diagnose); critter/5110.c (1): critterBattleArenaUpdate(permute); global/0.c (2): globalInit(retype), mainThreadHalt(review)
+- global/100180.c (2): textBlitGlyph(permute), textDrawStringVtx(diagnose); global/10130.c (2): func_8060B430(review), recordInitPositionBuffers(permute); global/10D2D0.c (1): healthRefill(permute); global/10E1D0.c (1): meshBlobParse(permute)
+- global/112080.c (2): resParseVariant(diagnose), textLayoutAppendCommandList(review); global/1135F0.c (2): dlAppendTextureLoad(review), dlAppendTextureRectangle(review); global/117190.c (2): playerRefillHealth(permute), func_807135B4(permute); global/119370.c (2): effectCreateAtActorBone(permute), effectUpdateAll(diagnose)
 - global/126260.c (1): commandApplyToLight(diagnose); global/127B00.c (1): pathPlaybackAdvance(diagnose); global/1292F0.c (2): pathFollowUpdateHeading(review), animationOwnerFreeBuffer(review); global/12E800.c (1): enemyAggroStateUpdate(diagnose)
 - global/1332B0.c (1): volumeTriggerUpdateAll(diagnose)
 - global/135D30.c (3): flagUpdateRangeCompletion(diagnose), flagGetForMapObject(diagnose), spawnFlagLookup(permute)
-- global/137120.c (2): alHeapInit(review), alHeapDBAlloc(review); global/13980.c (1): schedHandleRetrace(diagnose); global/13A750.c (1): alCSPSetBank(review); global/13A7A0.c (1): __n_sndpPostPitch(permute)
-- global/13C920.c (2): configureCSPOutputMode(review), updateCSPOutputChannelMode(review); global/13CB30.c (1): alCSPGetState(review)
+- global/137120.c (2): alHeapInit(review), alHeapDBAlloc(review); global/13A750.c (1): alCSPSetBank(review); global/13A7A0.c (1): __n_sndpPostPitch(permute); global/13C920.c (2): configureCSPOutputMode(review), updateCSPOutputChannelMode(review)
+- global/13CB30.c (1): alCSPGetState(review)
 - global/13CE70.c (3): alCSPSetChlFX1Mix(review), alCSPSetChlPanVolume(review), alCSPSetChlFX2Mix(review)
 - global/13CFA0.c (1): alCSPSendMidi(review); global/13D020.c (1): alCSPSetTempo(review); global/13D0B0.c (1): alCSPGetTempo(review); global/13D100.c (1): postCSPChannelCommand(review)
 - global/13E0E0.c (2): alLink(review), alUnlink(review); global/13EC00.c (2): alSeqpStop(review), alSeqpSetSeq(review); global/13EC90.c (1): alSeqpSetVol(review); global/141E40.c (1): n_alSynDelete(review)
@@ -62,38 +57,26 @@ State at the round-26 knowledge commit (a33a6217): 235 OPEN functions in 119 fil
 - global/14CF0.c (3): func_8060FFF0(review), schedSubmitGfxTask(review), func_80610268(review)
 - global/16550.c (2): acosApprox(review), asinApprox(review); global/169F0.c (2): truncateFloat(review), floatToS32(review)
 - global/16A20.c (3): mathFixedPointInterp(review), acosFixed16(review), asinFixed16(review)
-- global/17B40.c (1): floatCeil(review); global/19A00.c (2): projectileTrySpawnFromSlot(diagnose), scriptCmdSpawnFallingEffect(review); global/201B0.c (2): camFloorSnap(permute), camComputeEyeFocus(permute); global/2C700.c (2): splineEvalCubic(review), splineSetBasisTension(review)
-- global/2C910.c (2): textSpawnSubtitle(consolidate), camPathCommandDispatch(consolidate); global/2F550.c (2): mapBspPlaneDistanceCheck(permute), displayListResolveTextureImages(diagnose); global/35000.c (1): renderEntryListBuildDisplayList(consolidate)
+- global/17B40.c (1): floatCeil(review); global/19A00.c (2): projectileTrySpawnFromSlot(diagnose), scriptCmdSpawnFallingEffect(review); global/2C700.c (2): splineEvalCubic(review), splineSetBasisTension(review); global/2C910.c (2): textSpawnSubtitle(consolidate), camPathCommandDispatch(consolidate)
+- global/35000.c (1): renderEntryListBuildDisplayList(consolidate)
 - global/36880.c (3): modelSlotFreeAssetTextures(permute), modelSlotResolveAssetTextures(permute), modelPendingQueueInsert(permute)
 - global/3C10.c (1): mapSaveSlotAndTransition(diagnose); global/42630.c (2): csCondEval(diagnose), csCmdExec(views); global/450.c (1): mapLoadLevel(retype)
 - global/5230.c (3): frameTimingGetMapIndex(review), frameTimingReset(review), frameTimingUpdate(review)
 - global/54150.c (2): modelAnimEntryBuildNodeMatrices(retype), modelAnimEntryQueueMatrixCopies(permute)
 - global/5DE10.c (4): fogSetParams(review), fogGetEnabled(review), fogApply(review), fogRender(review)
-- global/5E2F0.c (1): lightCheckPlayerDistance(review); global/61AA0.c (1): billboardSubmit(permute)
+- global/61AA0.c (1): billboardSubmit(permute)
 - global/63810.c (3): lightQueueKeyframed(review), lightFlushQueued(review), actorSetTargetSlotByte(review)
 - global/63EC0.c (1): effectWaterInitNodes(permute); global/6710.c (1): audioThreadInit(diagnose); global/67890.c (1): actorTargetTableLoad(review); global/68960.c (1): mapUpdateFogDistance(review)
-- global/68EA0.c (1): modelEmitterSpawnScaledParticle(permute); global/699B0.c (2): particleFindPathIndices(review), particleSpawnPathTrail(review); global/6AD90.c (1): collisionTestGridMeshHeight(permute); global/70FD0.c (1): actorSub140BuildBoxes(permute)
-- global/7130.c (3): sfxStartAreaAmbient(permute), sfxUpdateChannels(diagnose), sfxUpdateLevelAmbient(permute)
+- global/68EA0.c (1): modelEmitterSpawnScaledParticle(permute); global/699B0.c (2): particleFindPathIndices(review), particleSpawnPathTrail(review); global/6AD90.c (1): collisionTestGridMeshHeight(permute); global/7130.c (1): sfxUpdateChannels(permute)
 - global/7A510.c (3): actorCollisionProcessHit(diagnose), actorCollisionRunInteractionTable(diagnose), actorCollisionFindTableEntry(diagnose)
-- global/7AF60.c (1): func_80676C10(diagnose); global/7BA00.c (1): actorTriggerPlayerKnockbackSound(review); global/7BBD0.c (1): actorCollisionResolveSurfaceHit(remove); global/7CA80.c (1): actorAllocate(permute)
-- global/80150.c (4): tagBarrelIsSpecial(consolidate), tagBarrelInitPeerState(permute), transformBarrelUpdate(reconstruct), tagBarrelOrbitKongs(diagnose)
-- global/89250.c (1): effectSpawnJointBeam(consolidate); global/8CA50.c (1): animNodeAdvanceTime(permute)
-- global/8D3E0.c (4): actorMapModelsSetup(review), actorListSpawnFromRecords(review), actorListUpdateSpawns(review), actorListFindClosestTargetIndex(diagnose)
-- global/8F050.c (1): actorConfigLookup(diagnose); global/8F4B0.c (1): actorCutsceneDispatchEvents(consolidate)
-- global/90D80.c (4): renderRotatedSprite(consolidate), renderScrollingBackdropQuad(permute), renderHitCounterHUD(retype), hudDrawRollingCounter(retype)
+- global/7AF60.c (1): func_80676C10(diagnose); global/7BA00.c (1): actorTriggerPlayerKnockbackSound(review); global/7CA80.c (1): actorAllocate(permute); global/80150.c (1): tagBarrelSpawnNodeSmokePuffs(review)
+- global/89250.c (1): effectSpawnJointBeam(consolidate); global/8CA50.c (1): animNodeAdvanceTime(permute); global/8F050.c (1): actorConfigLookup(diagnose); global/8F4B0.c (1): actorCutsceneDispatchEvents(consolidate)
+- global/90D80.c (3): renderRotatedSprite(consolidate), renderHitCounterHUD(retype), hudDrawRollingCounter(retype)
 - global/936B0.c (3): func_8068EF54(permute), func_8068F72C(permute), projectileSteerTowardTarget(permute)
 - global/9BF30.c (4): projectileRenderSpriteRing(review), loadModelAssetTable(review), projectileSpriteRingUpdate(review), projectileActorUpdate(review)
-- global/9DD70.c (4): actorSagWaveUpdate(permute), actorCheckAlwaysFalse(permute), textMarkerUpdateMatrix(diagnose), textMarkerRenderString(diagnose)
-- global/A2F10.c (1): actorLightPulseUpdate(permute); global/A7710.c (2): hudCountdownTimerSaveElapsed(review), hudCountdownTimerUpdate(review)
-- global/B1F60.c (4): actorPatrolFollowerUpdate(review), func_806AD7AC(review), actorFollowLinkedNodeFadeUpdate(review), actorSpawnLinkedFollower(review)
-- global/B2CE0.c (1): func_806AE588(views); global/B5EC0.c (1): func_806B13B4(review); global/BB300.c (1): func_806B6958(views); global/C0EE0.c (1): func_806BCF98(retype)
-- global/C1E70.c (4): func_806BD170(review), actorNodeRingUpdate(review), func_806BD7B0(review), func_806BDD2C(review)
-- global/C4620.c (2): actorScriptedCommandUpdate(diagnose), func_806C151C(permute)
-- global/CEAE0.c (3): playerUpdateCommon(permute), playerStartPickupApproach(diagnose), actorReleaseFromPlayerHold(review)
-- global/D5E10.c (2): playerStateApproachVelocity(permute), playerStateDialogueHold(review)
-- global/E4090.c (7): playerInputUpdate(diagnose), inputRemapButtons(review), playerTurnByStickX(permute), playerInputHandleAButtonJump(permute), actorTestNodeSegmentCollision(permute), playerInputHandleAButtonKong(permute), playerInputRegisterAnimatedEffect(diagnose)
-- global/F4C0.c (1): mapActionLookupEntry(review); global/F600.c (1): controllerUpdate(diagnose); global/F93B0.c (1): mapGetVoidHeightForCharacter(review); global/FCCD0.c (1): slotQueueInit(consolidate)
-- global/FE40.c (1): dmaReadAssetDecompress(review)
+- global/A2F10.c (1): actorLightPulseUpdate(permute); global/B2CE0.c (1): func_806AE588(views); global/B5EC0.c (1): func_806B13B4(review); global/BB300.c (1): func_806B6958(views)
+- global/C0EE0.c (2): enemyGridStateStep(permute), func_806BCF98(retype); global/C4620.c (2): actorScriptedCommandUpdate(diagnose), func_806C151C(permute); global/D5E10.c (2): playerStateApproachVelocity(permute), playerStateDialogueHold(review); global/F4C0.c (1): mapActionLookupEntry(review)
+- global/F600.c (1): controllerUpdate(diagnose); global/F93B0.c (1): mapGetVoidHeightForCharacter(review); global/FE40.c (1): dmaReadAssetDecompress(review)
 - jetpac/1A60.c (3): jetpacUpdateExplosion(diagnose), jetpacUpdatePlayerMovement(diagnose), jetpacDrawPlayer(diagnose)
 - jetpac/3480.c (4): jetpacRocketItemUpdate(review), jetpacBonusItemUpdate(diagnose), jetpacUpdateRocketFlight(permute), jetpacDrawLedges(diagnose)
 - menu/3E10.c (7): menuInitMainScreen(reconstruct), menuInitFileSummary(permute), menuHandleControllerSlotInput(permute), menuDrawMultiplayerResults(permute), menuInitMultiplayerResults(review), menuHandleHighScoreNameEntryInput(diagnose), menuUpdateElementTargetAndColor(permute)
