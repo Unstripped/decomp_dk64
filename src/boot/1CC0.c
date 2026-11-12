@@ -20,7 +20,6 @@ extern u32 inptr;
 extern u32 outcnt;
 
 extern u8 border[];
-extern u8 D_8000EDF3;
 extern u16 cplens[];
 extern u8 cplext[];
 extern u16 cpdist[];
@@ -31,7 +30,7 @@ extern int dbits;
 
 #define NEEDBITS(n)                                      \
     while (k < (n)) {                                    \
-        b |= ((u32)inbuf[inptr++]) << k;       \
+        b |= ((u32)inbuf[inptr++]) << k;                 \
         k += 8;                                          \
     }
 #define DUMPBITS(n) \
@@ -208,12 +207,12 @@ int inflate_codes(struct huft *tl, struct huft *td, int bl, int bd) {
     md = mask_bits[bd];
     for (;;) {
         NEEDBITS((u32)bl)
-        if ((e = (t = tl + ((u32)b & ml))->e) > 16) {
+        if ((e = (t = tl + (b & ml))->e) > 16) {
             do {
                 e -= 16;
                 DUMPBITS(t->b)
                 NEEDBITS(e)
-            } while ((e = (t = t->v.t + ((u32)b & mask_bits[e]))->e) > 16);
+            } while ((e = (t = t->v.t + (b & mask_bits[e]))->e) > 16);
         }
         DUMPBITS(t->b)
         if (e == 16) {
@@ -223,23 +222,22 @@ int inflate_codes(struct huft *tl, struct huft *td, int bl, int bd) {
                 break;
             }
             NEEDBITS(e)
-            n = t->v.n + ((u32)b & mask_bits[e]);
+            n = t->v.n + (b & mask_bits[e]);
             DUMPBITS(e)
             NEEDBITS((u32)bd)
-            if ((e = (t = td + ((u32)b & md))->e) > 16) {
+            if ((e = (t = td + (b & md))->e) > 16) {
                 do {
                     e -= 16;
                     DUMPBITS(t->b)
                     NEEDBITS(e)
-                } while ((e = (t = t->v.t + ((u32)b & mask_bits[e]))->e) > 16);
+                } while ((e = (t = t->v.t + (b & mask_bits[e]))->e) > 16);
             }
             DUMPBITS(t->b)
             NEEDBITS(e)
-            d = w - t->v.n - ((u32)b & mask_bits[e]);
+            d = w - t->v.n - (b & mask_bits[e]);
             DUMPBITS(e)
             do {
-                e = n;
-                n = 0;
+                n -= (e = n);
                 do {
                     slide[w++] = slide[d++];
                 } while (--e);
@@ -337,26 +335,22 @@ int inflate_dynamic(void) {
     k = bk;
 
     NEEDBITS(5)
-    nl = 257 + ((u32)b & 0x1F);
+    nl = 257 + (b & 0x1F);
     DUMPBITS(5)
     NEEDBITS(5)
-    nd = 1 + ((u32)b & 0x1F);
+    nd = 1 + (b & 0x1F);
     DUMPBITS(5)
     NEEDBITS(4)
-    nb = 4 + ((u32)b & 0xF);
+    nb = 4 + (b & 0xF);
     DUMPBITS(4)
 
     for (j = 0; j < nb; j++) {
         NEEDBITS(3)
-        ll[border[j]] = (u32)b & 7;
+        ll[border[j]] = b & 7;
         DUMPBITS(3)
     }
-    /* border + 19 is reached through the splat label D_8000EDF3 */
-    if (j < 19) {
-        do {
-            ll[border[j]] = 0;
-            j++;
-        } while (&border[j] < &D_8000EDF3);
+    for (; j < 19; j++) {
+        ll[border[j]] = 0;
     }
 
     bl = 7;
@@ -367,7 +361,7 @@ int inflate_dynamic(void) {
     i = l = 0;
     while ((u32)i < n) {
         NEEDBITS((u32)bl)
-        td = tl + ((u32)b & m);
+        td = tl + (b & m);
         j = td->b;
         DUMPBITS(j)
         j = td->v.n;
@@ -375,14 +369,14 @@ int inflate_dynamic(void) {
             ll[i++] = l = j;
         } else if (j == 16) {
             NEEDBITS(2)
-            j = 3 + ((u32)b & 3);
+            j = 3 + (b & 3);
             DUMPBITS(2)
             while (j--) {
                 ll[i++] = l;
             }
         } else if (j == 17) {
             NEEDBITS(3)
-            j = 3 + ((u32)b & 7);
+            j = 3 + (b & 7);
             DUMPBITS(3)
             while (j--) {
                 ll[i++] = 0;
@@ -390,7 +384,7 @@ int inflate_dynamic(void) {
             l = 0;
         } else {
             NEEDBITS(7)
-            j = 11 + ((u32)b & 0x7F);
+            j = 11 + (b & 0x7F);
             DUMPBITS(7)
             while (j--) {
                 ll[i++] = 0;
@@ -420,11 +414,11 @@ int inflate_block(int *e) {
     k = bk;
 
     NEEDBITS(1)
-    *e = (int)b & 1;
+    *e = b & 1;
     DUMPBITS(1)
 
     NEEDBITS(2)
-    t = (u32)b & 3;
+    t = b & 3;
     DUMPBITS(2)
 
     bb = b;
@@ -457,7 +451,7 @@ int inflate(void) {
         if ((r = inflate_block(&e)) != 0) {
             return r;
         }
-        if (h < hufts) {
+        if (hufts > h) {
             h = hufts;
         }
     } while (!e);
