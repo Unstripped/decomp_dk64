@@ -235,8 +235,7 @@ void mtxIdentityF(f32 mf[4][4]) {
 
     one = 1.0f;
     zero = 0.0f;
-    if (one) {
-    }
+    if (one) {} // FAKE: dead test on one makes it the first FP web, so 1.0f takes $f0 and 0.0f $f2
     mf[1][0] = zero;
     mf[2][0] = zero;
     mf[3][0] = zero;

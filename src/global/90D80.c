@@ -201,7 +201,7 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 h
     } else {
         mtx1 = heapAlloc(sizeof(Mtx));
         heapFreeDeferred(mtx1);
-        vtx = heapAlloc(sizeof(Mtx));
+        vtx = heapAlloc(4 * sizeof(Vtx));
         heapFreeDeferred(vtx);
 
         switch (siz) {
@@ -413,7 +413,7 @@ Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal,
     hundreds = 0;
     val = *curVal;
     while (val >= 100) {
-        (val -= 100), hundreds++;
+        val -= 100, hundreds++;  // FAKE: one comma statement interleaves the s16 truncations of val and hundreds (sll t2,v1 before addiu s0); two statements or a for loop move them after (score 430)
     }
     if (val == 99) {
         hundreds++;
