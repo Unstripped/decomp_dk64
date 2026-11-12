@@ -476,7 +476,10 @@ typedef struct Actor {
     /* 0x15C */ s16 spawnTimer;
     /* 0x15E */ u8 eyeHeight;
     /* 0x15F */ u8 unk15F;
-    /* 0x160 */ f64 splineT;
+    union {
+        /* 0x160 */ f64 splineT;
+        /* 0x160 */ u32 frameCursor; // func_8072881C frame cursor (critterFlutterFlyUpdate, 3340.c)
+    };
     /* 0x168 */ s16 yawSpeed;
     /* 0x16A */ u8 tintR;
     /* 0x16B */ u8 tintG;
