@@ -5,19 +5,18 @@ typedef u32 OSIntMask;
 typedef u32 OSHWIntr;
 #include "common.h"
 #include "seqplayer.h"
+#include "proto/global/13CB50.h"
 
 extern s32 osGetIntMask(s32 unused);
 
 extern ALSynth *n_syn;
-void resetCSPChannelStates(N_CSPlayer *);
 void __n_initChanState(N_CSPlayer *);
 void n_alSynAddCSPPlayer(N_CSPlayer *);
 ALMicroTime __n_CSPVoiceHandler(void *node);
 
 void n_alCSPlayerNew(N_CSPlayer *seqp, ALSeqpConfig *c) {
     s32 i;
-    N_VoiceState *unused0;
-    N_VoiceState *unused1;
+    s32 pad[2];
     ALEventListItem *items;
     N_VoiceState *vs;
     N_VoiceState *vsArray;
@@ -78,7 +77,7 @@ f32 n_alSemitonesToPitchRatio(s32);
 void __n_CSPHandleNextSeqEvent(N_CSPlayer *);
 void __n_seqpStopOsc(N_CSPlayer *, N_VoiceState *);
 void __n_unmapVoice(N_CSPlayer *, ALVoice *);
-u8 __n_voiceNeedsNoteKill(struct VoiceMapCSPlayer *, ALVoice *, s32);
+u8 __n_voiceNeedsNoteKill(N_CSPlayer *, ALVoice *, s32);
 void __n_seqpReleaseVoice(N_CSPlayer *, ALVoice *, s32);
 void __n_initFromBank(N_CSPlayer *, ALBank *);
 void n_alSynStopVoice(ALVoice *);
@@ -100,8 +99,8 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
     void *oscState;
     f32 oscValue;
     u8 chan;
-    s32 unused;
-    void *cmdA;
+    s32 pad;
+    s32 cmdA;
     void *cmdB;
 
     do {
@@ -184,7 +183,7 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
             case 25:
                 if (seqp->nextEvent.msg.cmd.b1 < 8) {
                     cmdA = n_alSynGetFXDelay(seqp->nextEvent.msg.cmd.b0);
-                    if (cmdA != NULL) {
+                    if (cmdA != 0) {
                         n_alSynSetFXParam(cmdA, (seqp->nextEvent.msg.cmd.b2 << 3) | (seqp->nextEvent.msg.cmd.b1 & 7), &seqp->nextEvent.msg.cmd.w4);
                     }
                 } else {
@@ -337,7 +336,7 @@ extern s32 D_807FF040[];
 ALSound *__n_lookupSoundQuick(N_CSPlayer *seqp, u8 key, u8 vel, u8 chan);
 N_VoiceState *__n_mapVoice(N_CSPlayer *seqp, u8 key, u8 vel, u8 chan);
 N_VoiceState *__n_lookupVoice(N_CSPlayer *seqp, u8 key, u8 chan);
-void __n_setInstChanState(struct VoiceMapCSPlayer *, ALInstrument *, s32);
+void __n_setInstChanState(N_CSPlayer *, ALInstrument *, s32);
 u8 __n_vsPan(N_VoiceState *vs, N_CSPlayer *seqp);
 void n_alSynAllocVoicePriorityA(ALVoice *voice, u8 arg);
 void n_alSynAllocVoicePriorityB(ALVoice *voice, u8 arg);
