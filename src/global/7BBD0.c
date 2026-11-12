@@ -262,7 +262,6 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
 typedef f32 ActorMtxF[4][4];
 
 extern u8 gGfxBufferIndex;
-extern s32 gFrameCounter;
 void actorGetMatrix(ActorSub140 *owner, ActorMtxF dst, s8 mtxIndex) {
     u8 bufIdx;
     Mtx *mtx;

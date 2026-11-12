@@ -127,7 +127,6 @@ typedef struct CamPathData {
 extern u8 gGameMode;
 extern u8 D_807463B8;
 extern u8 gSplitScreenMode;
-extern s32 gFrameCounter;
 extern s32 gCurrentMap;
 extern u8 gScreenRenderFlags;
 extern u8 sHudDisabled;

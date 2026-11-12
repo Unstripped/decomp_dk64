@@ -111,7 +111,6 @@ void func_806FDAB8(u8, f32);  // FAKE: callee prototype steer
 extern u8 D_1000118[];
 extern u8 D_2000180[];
 extern u8 D_20000C0[];
-extern u32 gFrameCounter;
 extern u8 gCurrentPlayerIndex;
 extern s16 D_8002D8C8[]; // bonusLightFlashSpawnTargets spawn ids (6)
 extern s16 D_8002D8D4[];

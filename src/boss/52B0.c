@@ -56,7 +56,6 @@ typedef struct Boss3F_52B0_Actor {
 } Boss3F_52B0_Actor;
 
 extern u8 *D_80035A00[];
-extern s32 gFrameCounter;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 

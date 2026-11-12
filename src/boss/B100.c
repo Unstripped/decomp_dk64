@@ -43,7 +43,6 @@ typedef struct BossE_B100_Actor {
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern u8 gBossFightPhase;
-extern s32 gFrameCounter;
 
 s32 actorSpawn(s32, s32);
 void actorCopyPoseAndScale(void *, void *, f32);

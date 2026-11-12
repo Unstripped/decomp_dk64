@@ -322,7 +322,6 @@ Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *alpha) {
 }
 
 extern Gfx D_1000118;
-extern u32 gFrameCounter;
 
 
 Gfx *renderBonusTargetMarker(Gfx *glist, s32 pad) {

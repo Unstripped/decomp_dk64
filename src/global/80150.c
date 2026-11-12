@@ -612,7 +612,6 @@ typedef struct ActorC71CState {
 
 extern s32 gGlobalOverlayFlags;
 extern s16 gCurrentCharacterIndex;
-extern u32 gFrameCounter;
 extern s8 D_80029FA0;
 extern u8 D_8071FC40;
 extern u8 D_8072030C;

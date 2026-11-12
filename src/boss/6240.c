@@ -49,7 +49,6 @@ typedef struct BossPufftossActor {
 
 
 extern Actor *gCurrentActor;
-extern u32 gFrameCounter;
 
 
 void bossPufftossBobStep(void) {

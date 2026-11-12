@@ -196,7 +196,6 @@ typedef struct OwnerLinkState {
     s32 unk8;
 } OwnerLinkState;
 
-extern u32 gFrameCounter;
 extern s32 gCurrentMap;
 extern Actor *gActivePlayerActor;
 

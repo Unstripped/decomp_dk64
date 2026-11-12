@@ -42,7 +42,6 @@ extern f32 gCsPosZ;
 extern PlayerStruct *gPlayerSlots;
 extern u8 D_8071FF18[];
 extern u8 sEffectSparkConfig[];
-extern u32 gFrameCounter;
 typedef struct CsPoint3f {
     f32 x, y, z;
 } CsPoint3f;

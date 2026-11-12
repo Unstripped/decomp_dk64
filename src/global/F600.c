@@ -122,7 +122,6 @@ void controllerGetReadData(OSContPad *pad) {
 }
 
 extern u8 D_807463B8;
-extern s32 gFrameCounter;
 extern u8 gScreenRenderFlags;
 
 #define CtrlAHeld D_807ECD40

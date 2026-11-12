@@ -421,7 +421,6 @@ void actorUpdateAnimSpeedFromSpeed(u16 flags) {
     }
 }
 
-extern u32 gFrameCounter;
 
 void actorApproachTargetSpeed(u16 flags) {
     s32 spd;

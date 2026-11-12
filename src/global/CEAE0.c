@@ -207,7 +207,6 @@ void playerClearCarriedItemState(void) {
 }
 
 
-extern s32 gFrameCounter;
 extern s32 gGlobalOverlayFlags;
 extern u16 D_807FD63A[][0x1A];
 

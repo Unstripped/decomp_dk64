@@ -164,7 +164,6 @@ typedef struct BB300ActorAlt {
     /* 0x178 */ BB300Sub178 *unk178;
 } BB300ActorAlt;
 
-extern s32 gFrameCounter;
 extern s32 gCurrentMap;
 
 void func_806B6DB0(s32 aggroRange) {

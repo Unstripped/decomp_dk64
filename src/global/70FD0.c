@@ -40,7 +40,6 @@ typedef struct CollisionTri {
     /* 0x10 */ s16 unk10;
 } CollisionTri; // size = 0x12
 
-extern s32 gFrameCounter;
 extern BufferCacheEntry *D_807FB534;
 extern s32 D_807FB538;
 extern Actor *D_807FB540;

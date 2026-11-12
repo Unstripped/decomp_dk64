@@ -665,7 +665,6 @@ void func_806C1640(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u32 gFrameCounter;
 extern u8 D_8071FB08;
 extern u8 D_807200D4;
 

@@ -11,7 +11,6 @@ extern s32 __osMotorAccess(OSPfs *, s32);
 extern s32 gRumblePaused;
 extern u8 gRumbleResetPending;
 extern u8 gScreenRenderFlags;
-extern u32 gFrameCounter;
 extern u8 D_807ECD09;
 extern OSMesgQueue D_807ECCF0;
 extern PlayerStruct *gPlayerSlots;

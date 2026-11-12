@@ -64,7 +64,6 @@ void frameTimingReset(s32 mapId) {
 
 extern u32 gFrameDelta;
 extern u8 D_80745290;
-extern s32 gFrameCounter;
 #define SCHED284 (*(volatile s32 *)&gScheduler.unk284)
 
 void frameTimingUpdate(void) {

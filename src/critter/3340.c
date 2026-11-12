@@ -30,7 +30,6 @@ typedef struct Actor_3340 {
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern Actor *gActivePlayerState;
-extern s32 gFrameCounter;
 
 
 

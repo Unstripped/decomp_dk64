@@ -341,7 +341,6 @@ ActorSub140 *actorSub140CreateFromModel(Actor *actor) {
 }
 
 
-extern s32 gFrameCounter;
 
 void actorUpdatePositionAndSub140(Actor *actor) {
     f32 x;

@@ -2008,7 +2008,6 @@ s32 actorAnyActiveHasFlag2000000(void) {
     return ret;
 }
 
-extern u32 gFrameCounter;
 extern s32 gGlobalCutsceneFlags;
 
 void playerInputCheckInstrumentPlayback(void) {

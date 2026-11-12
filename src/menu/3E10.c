@@ -561,7 +561,6 @@ extern s32 D_80033810;
 extern u32 D_80033814;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
-extern u32 gFrameCounter;
 
 Gfx *menuDrawFileSummary(Actor *actor, Gfx *dl) {
     f32 x = 66.0f;
@@ -2327,7 +2326,6 @@ extern s8 D_80033F60;
 extern s8 D_800339A8;
 extern s8 D_80033F61;
 extern s8 D_800339C0;
-extern u32 gFrameCounter;
 extern MenuM8_PosPair D_800339B8[];
 
 void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
@@ -2432,7 +2430,6 @@ extern s8 D_80033F60;
 extern s8 D_80033F61;
 extern s16 D_80744518;
 extern u8 *D_800339AC[];
-extern u32 gFrameCounter;
 
 Gfx *menuDrawHighScoreTable(Actor *actor, Gfx *dl) {
     MenuScreenState *state;

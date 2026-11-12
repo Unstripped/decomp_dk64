@@ -490,7 +490,6 @@ void effectBuildGridVertices(EffectNode *effect) {
     }
 }
 
-extern u32 gFrameCounter;
 extern PlayerStruct *gPlayerSlots;
 
 void effectUpdateAll(u8 pGlist) {

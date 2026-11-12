@@ -58,7 +58,6 @@ typedef struct {
 
 extern ParticlePlayerPosition *gPlayerSlots;
 extern u8 gPlayerCount;
-extern u32 gFrameCounter;
 extern s32 D_8072140C;
 extern s32 D_8071FF18;
 

@@ -1292,7 +1292,6 @@ void playerStateDamageCheck3(void) {
 extern f32 gKongSwimStrokeSpeeds[], D_80753040[], gKongSwimTurnSpeeds[], D_80753078[];
 extern s16 D_807530B0[], D_807530D0[], D_807530E0[], D_80753160[], D_8075386C[];
 extern f32 gKongSwimPaddleSpeeds[], D_8075310C[], D_80753128[], gKongSwimSpeeds[], gKongTurnDecelRates[], D_8075389C[];
-extern s32 gFrameCounter;
 
 void playerTakeDamage(s16 damage) {
     s16 yaw;

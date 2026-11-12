@@ -127,7 +127,6 @@ void func_806BDEC8(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern s32 gFrameCounter;
 
 extern u8 gCurrentWorldId;
 extern u8 gPlayerCharacterId;

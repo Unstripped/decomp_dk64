@@ -180,7 +180,7 @@ FrameMatrices *gGfxCurrentFrameBuffer;
 u32 D_8076A04C;
 Gfx *gGfxTaskBuffers[4];
 u8 *gGfxDepthBuffer;
-s32 gFrameCounter;
+u32 gFrameCounter;
 s32 gGameFrameCounter;
 s32 D_8076A06C;
 s32 D_8076A070[3];

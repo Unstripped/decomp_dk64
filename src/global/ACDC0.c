@@ -572,7 +572,6 @@ Gfx *hudSetupTextState(Gfx *dl) {
 extern s16 D_807FC992[];
 extern u8 D_807FCC4C;
 extern s8 D_807FCC4B;
-extern s32 gFrameCounter;
 extern u8 gCurrentWorldId;
 extern s8 D_80750538;
 extern s16 D_8075056C[];
@@ -1488,7 +1487,6 @@ extern f32 D_807FC840[];
 extern f32 D_807FC868[];
 extern f32 D_807FC890[];
 extern u8 D_8075054C[][4];
-extern s32 gFrameCounter;
 
 void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *done) {
     HudIconSource *src;

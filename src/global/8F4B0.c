@@ -56,7 +56,6 @@ typedef struct {
     /* 0x0C */ s16 unkC;
 } LightPosEntry;
 
-extern s32 gFrameCounter;
 extern Actor *gCurrentActor;
 extern u8 D_807FC621;
 extern u8 D_807FC622;

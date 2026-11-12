@@ -37,7 +37,6 @@ typedef struct LightKeyframeSet {
 } LightKeyframeSet;
 
 extern LightKeyframeSet gLightKeyframeTable[];
-extern s32 gFrameCounter;
 
 void lightQueueKeyframed(u8 keyframeSetIndex, s16 lightId, f32 x, f32 y, f32 z, s16 radius, f32 fade, s16 targetId) {
     u8 count;
@@ -65,7 +64,7 @@ void lightQueueKeyframed(u8 keyframeSetIndex, s16 lightId, f32 x, f32 y, f32 z, 
             total += gLightKeyframeTable[keyframeSetIndex].sub[i].unkA;
         }
 
-        cyclePos = (lightId + gFrameCounter) % total;
+        cyclePos = (s32)(lightId + gFrameCounter) % total;
         accum = gLightKeyframeTable[keyframeSetIndex].sub[0].unkA;
         i = 1;
         while (cyclePos >= accum) {

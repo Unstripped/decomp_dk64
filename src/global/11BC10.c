@@ -20,7 +20,6 @@
 
 
 extern u8 gGfxBufferIndex;
-extern u32 gFrameCounter;
 extern s32 gCurrentMap;
 extern Actor *gPrimaryPlayerActor;
 

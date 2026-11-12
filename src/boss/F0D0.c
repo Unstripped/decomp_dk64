@@ -283,7 +283,6 @@ extern u8 D_80035BEC[];
 extern u8 D_80036DD0[];
 extern f32 D_80036C40[];
 extern u8 D_807FBDC4;
-extern s32 gFrameCounter;
 extern s16 D_807502DC;
 extern f32 D_807502F0;
 extern u8 D_8071EDEC[];

@@ -163,7 +163,6 @@ void actorUpdateRampTarget(void) {
 void actorNoopA6280(void) {
 }
 
-extern s32 gFrameCounter;
 extern s32 sEffectSparkConfig;
 
 

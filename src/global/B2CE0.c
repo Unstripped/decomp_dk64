@@ -798,7 +798,6 @@ s32 func_806B0770(void) {
     return found;
 }
 
-extern s32 gFrameCounter;
 extern Actor *gPrimaryPlayerActor;
 
 void func_806B0848(void) {

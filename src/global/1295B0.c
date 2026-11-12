@@ -1375,7 +1375,6 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
     }
 }
 
-extern u32 gFrameCounter;
 
 
 u8 func_8072881C(u8 anim, u32 *lastFrame) {

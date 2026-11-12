@@ -732,7 +732,6 @@ void playerInputUpdateCase11(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u32 gFrameCounter;
 
 void playerStateClimbTree(void) {
     s32 sel = 0x13;

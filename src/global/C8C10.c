@@ -77,7 +77,6 @@ typedef struct R1C8aPlayer {
 
 extern R1C8aPlayer *gPlayerSlots;
 extern s32 gCamActor;
-extern s32 gFrameCounter;
 extern s32 gCurrentMap;
 
 

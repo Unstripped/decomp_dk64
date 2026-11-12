@@ -1077,7 +1077,6 @@ void collisionRecordTriangleS(CollisionStaticTri *arg0, f32 arg1) {
         sCamFloorHitCount++;
     }
 }
-extern s32 gFrameCounter;
 extern u8 D_807F951C;
 
 void dynamicBufferAllocateEntry(s32 index) {

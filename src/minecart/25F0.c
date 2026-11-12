@@ -60,7 +60,6 @@ extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 extern MinecartTrackPoint **gMinecartTrackPoints;
 extern PlayerStruct *gPlayerSlots;
-extern u32 gFrameCounter;
 extern s32 gCurrentMap;
 extern s32 D_80717D4C;
 extern void *D_8074E880[];

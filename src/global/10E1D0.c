@@ -432,7 +432,6 @@ typedef struct TransitionBuffers {
 
 extern FrameMatrices *gGfxCurrentFrameBuffer;
 extern Gfx *gGfxTaskBuffers[];
-extern s32 gFrameCounter;
 extern s32 D_8076A088;
 extern s32 D_8076A08C;
 extern u8 D_8076A0A4;

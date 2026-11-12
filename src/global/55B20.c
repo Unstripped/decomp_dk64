@@ -1303,7 +1303,6 @@ void mapChunkSetFlagBit3(s16 chunk) {
 }
 
 extern u32 gGlobalCutsceneFlags;
-extern s32 gFrameCounter;
 
 void mapChunkUpdateAssetStreaming(void) {
     s32 i;
@@ -2683,7 +2682,6 @@ void mapSearchTableReset(void) {
 }
 
 extern MapSearchEntry gMapSearchTable[];
-extern s32 gFrameCounter;
 
 
 void mapSearchTableAddProbe(void *key, s16 x, s16 y, s16 maxDepth) {

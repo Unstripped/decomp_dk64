@@ -122,7 +122,6 @@ void billboardCacheInit(void) {
 }
 
 extern u8 gBillboardQueueCount;
-extern s32 gFrameCounter;
 
 void billboardCacheEvictStale(void) {
     s32 i;

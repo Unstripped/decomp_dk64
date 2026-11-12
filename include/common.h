@@ -13,5 +13,6 @@ typedef struct TargetVec3f {
 } TargetVec3f;
 
 extern u32 gGlobalPauseFlags;
+extern u32 gFrameCounter;
 
 #endif

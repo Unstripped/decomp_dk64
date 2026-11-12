@@ -528,7 +528,6 @@ typedef struct {
 
 extern u8 gHiResScale;
 extern R117fPair D_80755370;
-extern s32 gFrameCounter;
 extern u8 D_807ECD09;
 
 Gfx *func_807135B4(Gfx *dl) {

@@ -34,7 +34,6 @@ extern u8 gGameMode;
 extern Gfx *gGfxTaskBuffers[];
 extern s32 D_8076A088;
 extern s32 D_8076A08C;
-extern s32 gFrameCounter;
 extern u8 *gGfxCurrentFrameBuffer;
 extern u8 D_80767CE8;
 extern u8 gScreenRenderFlags;

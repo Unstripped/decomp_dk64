@@ -35,7 +35,6 @@ typedef struct HealthStats {
 struct HealthStats;
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
-extern s32 gFrameCounter;
 
 Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, PlayerStruct *hudState) {
     s16 i;

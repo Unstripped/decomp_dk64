@@ -54,7 +54,6 @@ typedef struct BA790Actor {
 #define BA790A ((BA790Actor *)gCurrentActor)
 
 extern u8 gGameMode;
-extern s32 gFrameCounter;
 extern s16 D_80770628[];
 extern s16 D_80770710[];
 extern s32 gCamActor;

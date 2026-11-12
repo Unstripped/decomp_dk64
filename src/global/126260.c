@@ -206,7 +206,6 @@ void commandQueueReset(void) {
 }
 
 extern Actor *gPrimaryPlayerActor;
-extern u32 gFrameCounter;
 extern f32 *D_8076A0B4;
 extern f32 *D_8076A0B8;
 extern f32 *D_8076A0BC;

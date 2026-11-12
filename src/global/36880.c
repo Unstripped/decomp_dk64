@@ -54,7 +54,6 @@ extern ModelSlot *gModelSlots;
 
 extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
-extern s32 gFrameCounter;
 extern s32 gCurrentMap;
 extern u8 gGfxBufferIndex;
 

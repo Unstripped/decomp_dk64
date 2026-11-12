@@ -37,7 +37,6 @@ extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern ScaleTierTable D_8074E88C;
 extern void *D_8074E880[];
-extern u32 gFrameCounter;
 extern u8 D_80750AD0;
 extern s32 D_8071FC0C;
 extern s32 D_8071FE08;

@@ -594,7 +594,6 @@ void menuUpdateProgressGrid(void) {
 }
 
 extern u8 gGfxBufferIndex;
-extern u32 gFrameCounter;
 
 Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     s32 pad;

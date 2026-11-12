@@ -770,7 +770,6 @@ typedef struct SfxTable {
 
 extern u8 gPlayerCharacterId;
 extern KongInventory gPlayerInventoryTable[];
-extern u32 gFrameCounter;
 extern u8 D_80721170;
 extern SfxTable D_807504A4;
 

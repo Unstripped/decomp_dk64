@@ -480,7 +480,6 @@ void csStateEndUpdate(CsStateFull *cs) {
     D_807F693F = 0;
 }
 
-extern u32 gFrameCounter;
 
 void csUpdateStepAndInterpolation(CsStateFull *cs) {
     s16 a;

@@ -235,7 +235,6 @@ typedef struct BC3B0EmitterActor {
 
 #define BC3B0EA ((BC3B0EmitterActor *)gCurrentActor)
 
-extern u32 gFrameCounter;
 extern u8 D_807201D4[];
 
 
