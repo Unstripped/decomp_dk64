@@ -558,7 +558,7 @@ void menuHandleConfirmationInput(Actor *actor, s32 buttons) {
 extern s8 D_80033804;
 extern s32 D_8003380C;
 extern s32 D_80033810;
-extern u32 D_80033814;
+extern s32 D_80033814;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
 
@@ -574,7 +574,7 @@ Gfx *menuDrawFileSummary(Actor *actor, Gfx *dl) {
     f32 posX;
     f32 posY;
     s32 ang;
-    f32 fv1;
+    f32 bob;
     u8 strBuf[0x20];
 
     do {
@@ -604,16 +604,15 @@ Gfx *menuDrawFileSummary(Actor *actor, Gfx *dl) {
     dl = textDrawStringVtx(dl, 1, 0x280, py, strBuf, 0x81);
     x = 0.5f; // FAKE: x reused as the sprite scale; a separate scale variable fails fdiff
     ang = (gFrameCounter * 0x78) & 0xFFF;
-    fv1 = mathSinF(ang) * 0.1f + 0.5f;
-    py = (s32)((f32)py + 40.0f);
-    sc = py; // FAKE: sc reused as the sprite base y; a separate variable fails fdiff
-    posY = sc * 0.25f + 32.0f * fv1;
+    bob = mathSinF(ang) * 0.1f + 0.5f;
+    py += 40.0f;
+    posY = py * 0.25f + 32.0f * bob;
     posX = 85 * four;
     x *= four;
     posY *= four;
-    dl = renderRotatedSprite(dl, 0xA1, 3, 0, 0x40, 0x40, (s32)posX, (s32)posY, x, -(fv1 * four), 0, 0.0f);
+    dl = renderRotatedSprite(dl, 0xA1, 3, 0, 0x40, 0x40, (s32)posX, (s32)posY, x, -(bob * four), 0, 0.0f);
     gDPPipeSync(dl++);
-    posY = sc;
+    posY = py;
     x = x * 0.75f;
     sc = -x;
     posX = 340.0f;
@@ -641,19 +640,18 @@ extern u8 D_80720C34;
 extern void *D_80750518[];
 extern s16 D_807505B2;
 extern u32 D_80750AB0;
-extern u8 gPlayerInventoryTable[][0x5E];
+extern KongInventory gPlayerInventoryTable[];
 extern s8 D_80033804;
 extern s8 D_80033805;
 extern s32 D_8003380C;
 extern s32 D_80033810;
-extern u32 D_80033814;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
 
 extern s8 D_80033809;
 void menuInitFileSummary(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;
-    u8 *row = gPlayerInventoryTable[0];
+    KongInventory *row = gPlayerInventoryTable;
     s8 *p;
     s16 *q;
     s32 pad;
@@ -667,7 +665,7 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
     menuSpawnUiElementEffect(state, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &D_8072052C, 0x76, 0x91, 0.6f, 2, 9);
     D_80033F4C = 1600.0f;
-    eepromLoadPlayerData((u8)D_80033F48, 0);
+    eepromLoadPlayerData(D_80033F48, 0);
     D_80033804 = 1;
     q = &D_807505B2; p = &D_80033805; i = (s32)&D_80033809; // FAKE: loop counter i holds the end address (s32); an s8 *end local swaps s1/s2 between q and the end (as1 group kept on one line)
     do {
@@ -691,13 +689,13 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
     D_8003380C = 0;
     for (k = 0; k != 5; k++) {
         for (j = 0; j != 8; j++) {
-            D_8003380C += *(u16 *)(row + 0x42 + j * 2);
+            D_8003380C += row->unk42[j];
         }
-        row += 0x5E;
+        row++;
     }
     D_80033814 = D_80750AB0 / 60;
-    D_80033810 = (s32)D_80033814 / 60;
-    D_80033814 = D_80033814 - D_80033810 * 60;
+    D_80033810 = D_80033814 / 60;
+    D_80033814 -= D_80033810 * 60;
     D_80033F51 = menuCalculateGamePercentage();
 }
 
@@ -1546,20 +1544,18 @@ void menuInitMultiplayerResults(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;
     s32 i;
     s8 t;
-    s32 n;
     Menu6_Sub174 *sub;
 
     for (i = 0; i < 4; i++) {
         t = D_8076A0E4[i];
         if (!(t & 0x80)) {
-            n = D_80033878;
-            D_8003387C[n] = t & 0x7F;
-            D_80033F20[n] = i;
-            D_80033F24[i] = n;
-            if ((n ^ 0) == D_8076A105) { // FAKE: no-op `^ 0` steers codegen
+            D_8003387C[D_80033878] = t & 0x7F;
+            D_80033F20[D_80033878] = i;
+            D_80033F24[i] = D_80033878;
+            if (D_80033878 == D_8076A105) {
                 D_80744524[i] += 1;
             }
-            D_80033878 = n + 1;
+            D_80033878++;
         }
     }
     menuUpdateCameraPositions();
