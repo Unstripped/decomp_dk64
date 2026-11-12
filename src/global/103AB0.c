@@ -526,10 +526,10 @@ u8 fade;
     Vec3f pad1[7];
     f32 screenX;
     s16 i;
-    f32 pad2[3];
+    f32 pad2[2];
+    f32 facing;
     f32 screenY;
     f32 alpha;
-    f32 facing;
     f32 colorScale;
     f32 alphaScale;
 
@@ -571,8 +571,7 @@ u8 fade;
         gDPSetPrimColor(dl++, 0, 0, (u32)((pt.r / 255.0) * D_80754AF0[i].r * colorScale), (u32)((pt.g / 255.0) * D_80754AF0[i].g * colorScale), (u32)((pt.b / 255.0) * D_80754AF0[i].b * colorScale), (u32)((f32)D_80754AF0[i].a * alphaScale * alpha));
         dl = renderRotatedSprite(dl, D_80754AF0[i].texOffset + 0x4D, 3, 1, 0x40, 0x40, screenX, screenY, D_80754AF0[i].scale * 4.0f * alpha, D_80754AF0[i].scale * 4.0f * alpha, 0, 0.0f);
     }
-    dl->words.w0 = 0xE7000000; dl->words.w1 = 0; // FAKE: raw G_RDPPIPESYNC words; gDPPipeSync's block-local _g home moves the vec3f temps at sp+0xC0/0xCC down 4
-    dl++;
+    gDPPipeSync(dl++);
     if (facing > 0.97) {
         dl = gfxFillScreenColor(dl, pt.r, pt.g, pt.b, (u32)((facing - 0.97) * 33.0 * 128.0));
         dl->words.w0 = 0xD7000002; dl->words.w1 = 0x80008000; // FAKE: raw G_TEXTURE + G_SETCOMBINE words; gSPTexture/gDPSetCombine _g homes grow the frame 0x1C0 -> 0x1C8
