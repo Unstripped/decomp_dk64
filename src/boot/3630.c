@@ -1,6 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP__strcasecmp
-#define PROTO_SKIP_strlen
 #include "proto/boot/3630.h"
 
 extern u8 *strtokSavePtr;

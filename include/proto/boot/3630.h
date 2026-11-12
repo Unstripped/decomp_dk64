@@ -12,7 +12,7 @@ u8 *_strncpy(u8 *, u8 *, u32);
 u8 *_strcat(u8 *, u8 *);
 #endif
 #ifndef PROTO_SKIP__strcasecmp
-s32 _strcasecmp(u8 *, u8 *);
+s32 _strcasecmp(u8 *, const u8 *);
 #endif
 #ifndef PROTO_SKIP__strncasecmp
 s32 _strncasecmp(u8 *, u8 *, s32);
@@ -36,7 +36,7 @@ void *_memset(u8 *, s32, u32);
 u8 *_strchr(u8 *, s32);
 #endif
 #ifndef PROTO_SKIP_strlen
-u32 strlen(u8 *);
+u32 strlen(const u8 *);
 #endif
 #ifndef PROTO_SKIP__strstr
 u8 *_strstr(u8 *, u8 *);
