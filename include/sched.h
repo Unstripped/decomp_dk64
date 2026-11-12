@@ -10,7 +10,7 @@ typedef struct TaskNode {
     /* 0x08 */ u32 flags;
     /* 0x0C */ void *framebuffer;
     /* 0x10 */ OSTask task;
-    /* 0x50 */ s32 unk50;
+    /* 0x50 */ struct SchedClient *client;
     /* 0x54 */ OSMesgQueue *msgQ;
     /* 0x58 */ OSMesg msg;
 } TaskNode;

@@ -8,14 +8,12 @@ typedef u32 OSIntMask;
 typedef u32 OSHWIntr;
 
 #include "sched.h"
+#include "proto/global/13980.h"
+#include "proto/global/136820.h"
+#include "proto/global/F600.h"
 
 extern s32 osGetIntMask(s32 arg0);
 extern unsigned long long __ull_div(unsigned long long, unsigned long long);
-
-extern SchedConfig D_80746838;
-extern s32 D_80746820;
-extern s32 D_80746824;
-extern u8 D_80746828;
 
 // 13980's .data (0x80746820-0x80746A30), declaration order = address order
 s32 D_80746820 = 2;
@@ -32,27 +30,6 @@ s16 D_80746858 = 0;
 
 extern u8 gGameMode;
 extern u8 gScreenRenderFlags;
-
-void schedCreate(SchedStruct *, void *, s32, u8, u8);
-void schedAddClient(SchedStruct *, SchedClient *, OSMesgQueue *, s32, s32);
-void schedRemoveClient(SchedStruct *, SchedClient *);
-void schedMain(void *);
-void schedHandleNewTask(SchedStruct *, TaskNode *);
-void schedStartAudioOrYield(SchedStruct *);
-void schedHandleRetrace(SchedStruct *);
-void schedHandleRSP(SchedStruct *);
-void schedHandleRDP(SchedStruct *);
-s32 schedTaskDone(SchedStruct *, TaskNode *);
-void schedAppendTask(SchedStruct *, TaskNode *);
-void schedStartTask(SchedStruct *, s32);
-void schedYield(SchedStruct *);
-void schedSendMesgTimed(OSMesgQueue *, OSMesg, s32);
-s32 schedDlDebugDump(s32, s32);
-
-typedef struct {
-    u16 button;
-    u8 pad2[6];
-} ContPadButtons;
 
 // .bss 0x807F04C0-0x807F0570
 u64 D_807F04C0;
@@ -74,7 +51,7 @@ u16 D_807F0518[20];
 OSTimer D_807F0540;
 u32 D_807F0560;
 s32 D_807F0564;
-ContPadButtons D_807F0568;
+OSContPad D_807F0568;
 
 void schedCreate(SchedStruct *sc, void *stack, s32 priority, u8 unused, u8 retraceCount) {
     SchedConfig config;
@@ -128,14 +105,8 @@ OSMesgQueue *schedGetCmdQueue(SchedStruct *sc) {
 }
 
 extern u8 D_807563B4;
-extern s8 D_80746830;
-extern s16 D_8074682C;
-extern s8 D_80746844;
-extern s8 D_80746848;
 extern u32 D_8076154C;
 extern u32 gFramebuffers[];
-extern void faultFontInit(s32, s32, s32);
-extern void faultPrintf(const char *, ...);
 
 
 void schedMain(void *arg) {
@@ -239,8 +210,6 @@ void schedStartAudioOrYield(SchedStruct *sc) {
 }
 
 extern s8 D_80744510;
-extern s16 D_80746858;
-extern u32 D_8074684C[];
 
 
 void schedHandleRetrace(SchedStruct *sc) {
@@ -297,7 +266,7 @@ void schedHandleRetrace(SchedStruct *sc) {
     for (i = 0; i < n; i++) {
         osRecvMesg(&sc->cmdQ, &msg, 0);
         if (msg == (OSMesg)-1) {}  // FAKE: steers uopt (hoists -1 into s2)
-        if ((u32)sc->unk284 % ((u32 *)((TaskNode *)msg)->unk50)[2] == 0) {
+        if ((u32)sc->unk284 % ((TaskNode *)msg)->client->id == 0) {
             schedAppendTask(sc, msg);
         } else {
             osSendMesg(&sc->cmdQ, msg, 0);
@@ -307,7 +276,7 @@ void schedHandleRetrace(SchedStruct *sc) {
     }
     if (sc->audioListHead != NULL) {
         if ((sc->unk284 & 1) == 0) {
-            osSetTimer(&D_807F0540, 0x445C0, 0, ((OSMesgQueue **)sc->audioListHead->unk50)[1], (OSMesg)5);
+            osSetTimer(&D_807F0540, 0x445C0, 0, sc->audioListHead->client->msgQ, (OSMesg)5);
         }
     }
     for (client = sc->clientList; client != NULL; client = client->next) {
@@ -520,22 +489,19 @@ extern char D_80757188[];
 char *D_80746A0C[2] = { D_80757184, D_80757188 };
 extern u32 D_807F05A4;
 extern u32 D_807F0984;
-extern u32 gFrameDelta;
-extern void faultFontSetColorMode(s32);
-extern void controllerStartRead(void);
 
 
 s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
-    static s32 D_80746A14 = 0;
-    static u32 D_80746A18 = 0;
-    static s16 D_80746A1C = 0;
-    static u32 D_80746A20 = 0;
-    static s32 D_80746A24 = 0;
-    static s32 D_80746A28 = 0;
-    static s8 D_80746A2C = 4;
+    static s32 sDumpBase = 0;
+    static u32 sNextPageAddr = 0;
+    static s16 sPrevButtons = 0;
+    static u32 sPageAddr = 0;
+    static s32 sPageMode = 0;
+    static s32 sNextPageMode = 0;
+    static s8 sAutoPageCount = 4;
     u32 p;
     s32 size;
-    char *q;
+    s32 pad;
     u16 colorIdx;
     u8 op;
     s16 buttons;
@@ -555,58 +521,57 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
     ret = 0;
     if (reset == 0) {
         osContGetReadData((OSContPad *)((u8 *)&D_807F0564 + 4));  // FAKE: arg spelled off D_807F0564 so uopt does not CSE lda D_807F0568 with the .button read
-        raw = D_807F0568.button;
+        raw = D_807F0568.button;  // FAKE: int copy keeps the lhu value in v0 for ori 0x400 (direct s16 read gives lh v1)
         buttons = raw;
-        if (autoAdvance != 0 && D_80746A2C != 0) {
+        if (autoAdvance != 0 && sAutoPageCount != 0) {
             buttons |= 0x400;
         }
         if (buttons & 0x1000) {
-            if (!(D_80746A1C & 0x1000)) {
-                if (D_80746A2C > 0) {
-                    D_80746A2C -= 1;
+            if (!(sPrevButtons & 0x1000)) {
+                if (sAutoPageCount > 0) {
+                    sAutoPageCount -= 1;
                 }
             }
         }
         if (buttons & 0x400) {
-            if (!(D_80746A1C & 0x400)) {
-                if (D_80746A18 != 0) {
-                    D_80746A24 = D_80746A28;
-                    D_80746A20 = D_80746A18;
+            if (!(sPrevButtons & 0x400)) {
+                if (sNextPageAddr != 0) {
+                    sPageMode = sNextPageMode;
+                    sPageAddr = sNextPageAddr;
                 }
             }
         }
         if (buttons & 0x800) {
-            if (!(D_80746A1C & 0x800)) {
+            if (!(sPrevButtons & 0x800)) {
                 if (D_807F05A4 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                D_80746A24 = 0;
-                D_80746A20 = D_807F05A4;
+                sPageMode = 0;
+                sPageAddr = D_807F05A4;
             }
         }
         if (buttons & 0x10) {
-            if (!(D_80746A1C & 0x10)) {
+            if (!(sPrevButtons & 0x10)) {
                 ret = 1;
             }
         }
-        D_80746A1C = buttons;
+        sPrevButtons = buttons;
     } else {
-        D_80746A24 = 0;
-        D_80746A14 = D_807F05A4;
-        D_80746A20 = D_807F05A4;
-        D_80746A1C = 0;
-        D_80746A18 = 0;
+        sPageMode = 0;
+        sDumpBase = D_807F05A4;
+        sPageAddr = D_807F05A4;
+        sPrevButtons = 0;
+        sNextPageAddr = 0;
     }
-    p = 0;
-    do {
+    for (p = 0; p < 2; p++) {
         faultFontInit(gFramebuffers[p], 0, 1);
         line = 0;
-        mode = D_80746A24;
-        cur = *(u32 *)&D_80746A20;
-        if (*(u32 *)&D_80746A20) {}  // FAKE: second ilod of D_80746A20 makes uopt keep the load in a CSE temp ($v0), so as1 expands it via lui $v0 and moves it to s5
+        mode = sPageMode;
+        cur = *(u32 *)&sPageAddr;
+        if (*(u32 *)&sPageAddr) {}  // FAKE: second ilod of sPageAddr makes uopt keep the load in a CSE temp ($v0), so as1 expands it via lui $v0 and moves it to s5
         while (done == 0 && line < 0xF) {
             off = cur - D_807F05A4;
             if (line < 0xE) {
-                D_80746A28 = mode;
-                D_80746A18 = cur;
+                sNextPageMode = mode;
+                sNextPageAddr = cur;
             }
             op = (*(u32 *)cur >> 24) & 0xFFFF;  // FAKE: burns one ugen ring slot before opcode/extent temporaries
             if (D_807F05A4 + D_807F0984 < cur) {
@@ -640,9 +605,9 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
                         faultPrintf("  %08x.%08x.%08x.%08x\n", ((u32 *)cur)[i], ((u32 *)cur)[i + 1], ((u32 *)cur)[i + 2], ((u32 *)cur)[i + 3]);
                         line++;
                     }
-                    D_80746A18 = cur + size * 4;
+                    sNextPageAddr = cur + size * 4;
                 } else {
-                    D_80746A18 = cur;
+                    sNextPageAddr = cur;
                 }
                 while (line < 0xF) {
                     faultPrintf("  ----------------------------------\n");
@@ -650,7 +615,7 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
                 }
                 line = 0x1E;
             } else {
-                if (D_80746A20 && D_80746A20) {}  // FAKE: dead read at the opcode branch start steers uopt candidate order (i = 0 is scheduled first)
+                if (sPageAddr && sPageAddr) {}  // FAKE: dead read at the opcode branch start steers uopt candidate order (i = 0 is scheduled first)
                 colorIdx = 0;
                 found = 0;
                 if (op == 0xE7) {
@@ -698,8 +663,7 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
             faultFontSetColorMode(0);
             cur += size * 4U;
         }
-        p += 1;
-    } while (&gFrameDelta != &gFramebuffers[p]);
+    }
     controllerStartRead();
     return ret;
 }
