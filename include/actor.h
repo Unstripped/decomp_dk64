@@ -421,8 +421,13 @@ typedef struct Actor {
     /* 0x0E6 */ s16 yaw;
     /* 0x0E8 */ s16 roll;
     /* 0x0EA */ s16 unkEA;
-    /* 0x0EC */ s16 unkEC;
-    /* 0x0EE */ s16 moveYaw;
+    union {
+        struct {
+            /* 0x0EC */ s16 unkEC;
+            /* 0x0EE */ s16 moveYaw;
+        };
+        /* 0x0EC */ u32 animLastFrame; // func_8072881C frame cursor (func_806A1AC4, A6280.c)
+    };
     /* 0x0F0 */ s16 movePitch;
     /* 0x0F2 */ s16 unkF2;
     /* 0x0F4 */ s16 arcYawMin;
