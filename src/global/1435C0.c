@@ -22,11 +22,11 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
     s32 curTime;
     s32 subSamples;
     s16 samplePtr;
-    s32 ratio;
+    s32 volume;
     SynCoreParam *node;
     s32 samplesLeft;
     SynStartParam *paramNode;
-    s32 scaledVol;
+    s32 startVolume;
     SynCoreParam *segNode;
     SynCoreParam *freeNode;
 
@@ -57,8 +57,8 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
             f->em_first = 1;
             f->em_delta = 0;
             f->em_segEnd = ((paramNode->samples + 0xB7) / 184) * 0xB8;
-            scaledVol = (paramNode->volume + paramNode->volume) / 2;
-            f->em_volume = scaledVol;
+            startVolume = (paramNode->volume + paramNode->volume) / 2;
+            f->em_volume = startVolume;
             f->em_pan = paramNode->pan;
             f->em_dryamt = (D_80756490[paramNode->fxmix & 0x7F] & 0xFFFE) | ((s32)paramNode->fxmix >> 7);
             if (D_807FF0F0 == 0) {
@@ -114,9 +114,9 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
             }
             if (f->em_ctrlList->type == 0xB) {
                 f->em_delta = 0;
-                ratio = f->em_ctrlList->data.i;
-                ratio = (ratio + ratio) / 2;
-                f->em_volume = ratio;
+                volume = f->em_ctrlList->data.i;
+                volume = (volume + volume) / 2;
+                f->em_volume = volume;
                 f->em_segEnd = ((f->em_ctrlList->moredata.i + 0xB7) / 184) * 0xB8;
             }
             if (f->em_ctrlList->type == 0x10) {
