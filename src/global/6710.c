@@ -219,15 +219,15 @@ extern u64 D_80760590[];
 
 
 s32 audioBuildTask(AudioTask *task, AudioTask *prevTask) {
-    u32 physSampleBuf;
+    s16 *physSampleBuf;
     s32 pad[1];
     s32 cmdCount;
     s32 aiLen;
-    s32 cmdEnd;
+    Acmd *cmdEnd;
     s32 count;
     s32 *holdFrames;
 
-    physSampleBuf = osVirtualToPhysical(task->sampleBuffer);
+    physSampleBuf = (s16 *)osVirtualToPhysical(task->sampleBuffer);
     audioDmaFrameUpdate();
     aiLen = IO_READ(AI_LEN_REG) >> 2;
     if (prevTask != NULL) {
@@ -264,7 +264,7 @@ s32 audioBuildTask(AudioTask *task, AudioTask *prevTask) {
     task->flags = 1;
     task->client = &D_8076D4C0;
     task->task.t.data_ptr = (u64 *)D_8076D4D0.cmdBuffers[D_807452C8];
-    task->task.t.data_size = ((cmdEnd - (s32)D_8076D4D0.cmdBuffers[D_807452C8]) >> 3) << 3;
+    task->task.t.data_size = (cmdEnd - (Acmd *)D_8076D4D0.cmdBuffers[D_807452C8]) * sizeof(Acmd);
     task->task.t.type = M_AUDTASK;
     task->task.t.ucode_boot = (u64 *)D_805FB000;
     task->task.t.ucode_boot_size = D_805FB0D0 - D_805FB000;

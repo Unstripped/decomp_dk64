@@ -2,7 +2,7 @@
 #ifndef PROTO_GLOBAL_1417C0_H
 #define PROTO_GLOBAL_1417C0_H
 #include "common.h"
-struct PVoice_s;
+#include "audio_synth.h"
 #ifndef PROTO_SKIP_n_alSynAllocVoice
 s32 n_alSynAllocVoice(ALVoice *, ALVoiceConfig *);
 #endif

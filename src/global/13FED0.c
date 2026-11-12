@@ -4,43 +4,11 @@
 typedef u32 OSIntMask;
 typedef u32 OSHWIntr;
 #include "common.h"
-typedef struct SynCoreParam {
-    ALLink *next;
-    s32 timestamp;
-    s16 type;
-    s16 pad;
-    s32 value;
-    s32 delta;
-} SynCoreParam;
+#include "audio_synth.h"
+#include "proto/global/13E160.h"
 
-typedef struct SynCoreSynth {
-    ALPlayer *head;
-    ALLink pFreeList;
-    ALLink pAllocList;
-    ALLink pLameList;
-    s32 paramSamples;
-    s32 curSamples;
-    void *dma;
-    void *paramPool;
-    SynCoreParam *paramFreeList;
-    void *mainBus;
-    void *auxBuses;
-    s32 numPVoices;
-    s32 maxAuxBusses;
-    s32 outputRate;
-    s32 maxOutSamples;
-    void *outBuffer;
-    s32 unk4C;
-} SynCoreSynth;
-
-typedef struct SynCorePVoice {
-    u8 pad0[0x88];
-    s32 envOffset;
-} SynCorePVoice;
-
-extern SynCoreSynth *n_syn;
+extern N_ALSynth *n_syn;
 extern s32 osGetIntMask(s32);
-SynCoreParam *__n_allocParam(void);
 
 void alEvtqNew(ALEventQueue *evtq, ALEventListItem *items, s32 itemCount) {
     s32 i;
@@ -174,7 +142,7 @@ void n_alSynStopVoice(ALVoice *voice) {
         if (param == NULL) {
             return;
         }
-        param->timestamp = n_syn->paramSamples + ((SynCorePVoice *)voice->pvoice)->envOffset;
+        param->delta = n_syn->paramSamples + voice->pvoice->delta;
         param->type = 0xF;
         param->next = NULL;
         n_alEnvmixerParam(voice->pvoice, 3, param);
@@ -186,17 +154,17 @@ void n_alSynFreeVoice(ALVoice *voice) {
     SynCoreParam *param;
 
     if (voice->pvoice != NULL) {
-        if (((SynCorePVoice *)voice->pvoice)->envOffset != 0) {
+        if (voice->pvoice->delta != 0) {
             param = __n_allocParam();
             if (param == NULL) {
                 return;
             }
-            param->timestamp = n_syn->paramSamples + ((SynCorePVoice *)voice->pvoice)->envOffset;
+            param->delta = n_syn->paramSamples + voice->pvoice->delta;
             param->type = 0;
-            param->value = (s32)voice->pvoice;
+            param->data.ptr = voice->pvoice;
             n_alEnvmixerParam(voice->pvoice, 3, param);
         } else {
-            _n_freePVoice((ALLink *)voice->pvoice);
+            _n_freePVoice(voice->pvoice);
         }
         voice->pvoice = NULL;
     }

@@ -2,7 +2,7 @@
 #ifndef PROTO_GLOBAL_141520_H
 #define PROTO_GLOBAL_141520_H
 #include "common.h"
-struct SynLPFilter;
+#include "audio_synth.h"
 #ifndef PROTO_SKIP_n_alSynSetVoiceUnkC
 void n_alSynSetVoiceUnkC(ALVoice *, u8);
 #endif

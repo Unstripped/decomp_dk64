@@ -2,29 +2,13 @@
 #include "proto/global/137120.h"
 #include "proto/global/13E160.h"
 #include "audio_config.h"
+#include "audio_synth.h"
 #include "proto/global/140600.h"
 #include "proto/global/1435C0.h"
 #include "proto/global/166A0.h"
 
 
-typedef struct SynCoreParam {
-    ALLink *next;
-    s32 timestamp;
-    s16 type;
-    s16 pad;
-    union {
-        f32 f;
-        s32 i;
-    } value;
-    s32 delta;
-} SynCoreParam;
-
-typedef struct {
-    u8 unk0[0x88];
-    s32 delta;
-} SynPVoice;
-
-extern ALSynth *n_syn;
+extern N_ALSynth *n_syn;
 
 void n_alSynSetPitch(ALVoice *voice, f32 pitch) {
     SynCoreParam *param;
@@ -34,9 +18,9 @@ void n_alSynSetPitch(ALVoice *voice, f32 pitch) {
         if (param == NULL) {
             return;
         }
-        param->timestamp = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
+        param->delta = n_syn->paramSamples + voice->pvoice->delta;
         param->type = 7;
-        param->value.f = pitch;
+        param->data.f = pitch;
         param->next = NULL;
         n_alEnvmixerParam(voice->pvoice, 3, param);
     }
@@ -50,9 +34,9 @@ void n_alSynSetPan(ALVoice *voice, f32 pan) {
         if (param == NULL) {
             return;
         }
-        param->timestamp = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
+        param->delta = n_syn->paramSamples + voice->pvoice->delta;
         param->type = 0x13;
-        param->value.f = pan;
+        param->data.f = pan;
         param->next = NULL;
         n_alEnvmixerParam(voice->pvoice, 3, param);
     }
@@ -66,9 +50,9 @@ void n_alSynSetFXMix(ALVoice *voice, u8 fxmix) {
         if (param == NULL) {
             return;
         }
-        param->timestamp = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
+        param->delta = n_syn->paramSamples + voice->pvoice->delta;
         param->type = 0x12;
-        param->value.i = fxmix;
+        param->data.i = fxmix;
         param->next = NULL;
         n_alEnvmixerParam(voice->pvoice, 3, param);
     }
@@ -101,14 +85,6 @@ void computeBiquadCoefficients(f32 sampleRate, f32 cutoffFreq, f32 qFactor, f32 
     denCoeffs[1] = ((omegaSq - 1.0f) * 2.0f) / (1.0f + omegaSq + alpha);
     denCoeffs[2] = ((1.0f + omegaSq) - alpha) / (1.0f + omegaSq + alpha);
 }
-
-typedef struct SynLPFilter {
-    s16 unk0;
-    s16 unk2;
-    u32 unk4;
-    s16 coeff[16];
-    s32 state;
-} SynLPFilter;
 
 void _init_lpfilter(SynLPFilter *filter) {
     s32 i;
@@ -191,12 +167,6 @@ typedef struct {
 } LpfNMDelay;
 
 typedef struct {
-    SynLPFilter base;
-    void *unk2C;
-    void *unk30;
-} LpfNMFilter;
-
-typedef struct {
     u32 unk0;
     u32 unk4;
     s16 unk8;
@@ -207,7 +177,7 @@ typedef struct {
     f32 unk14;
     s32 unk18;
     f32 unk1C;
-    LpfNMFilter *unk20;
+    SynLPFilter *unk20;
     LpfNMDelay *unk24;
 } LpfNMFx;
 
@@ -292,9 +262,9 @@ void n_alFxNew(void **outFx, AudioInitArgs *config, s16 busIndex, ALHeap *heap) 
             section->unk20 = alHeapDBAlloc(NULL, 0, heap, 1, 0x38);
             section->unk20->unk2C = alHeapDBAlloc(NULL, 0, heap, 1, 8);
             section->unk20->unk30 = alHeapDBAlloc(NULL, 0, heap, 1, 8);
-            section->unk20->base.unk0 = paramTable[tableOffset];
+            section->unk20->unk0 = paramTable[tableOffset];
             tableOffset += 1;
-            _init_lpfilter(&section->unk20->base);
+            _init_lpfilter(section->unk20);
         } else {
             section->unk20 = NULL;
             tableOffset += 1;
@@ -302,53 +272,10 @@ void n_alFxNew(void **outFx, AudioInitArgs *config, s16 busIndex, ALHeap *heap) 
     }
 }
 
-typedef struct SynPVoiceInit {
-    u8 unk0[0xC];
-    void *unkC;
-    void *unk10;
-    u8 unk14[0x14];
-    s32 unk28;
-    u8 unk2C[8];
-    s32 unk34;
-    s32 unk38;
-    s32 unk3C;
-    void *unk40;
-    f32 unk44;
-    s32 unk48;
-    f32 unk4C;
-    s32 unk50;
-    void *unk54;
-    s16 unk58;
-    s16 unk5A;
-    s16 unk5C;
-    s16 unk5E;
-    s16 unk60;
-    s16 unk62;
-    s16 unk64;
-    s16 unk66;
-    s16 unk68;
-    u8 unk6A[4];
-    s16 unk6E;
-    s32 unk70;
-    s32 unk74;
-    s32 unk78;
-    s32 unk7C;
-    s32 unk80;
-    s32 unk84;
-    u8 unk88[4];
-    u8 unk8C;
-    u8 unk8D[3];
-    s16 unk90;
-    s16 unk92;
-    u8 unk94[0x24];
-    s32 unkB8;
-    void *unkBC;
-} SynPVoiceInit;
-
-void alN_PVoiceNew(SynPVoiceInit *pvoice, s32 (*initCallback)(void *), ALHeap *heap) {
+void alN_PVoiceNew(N_PVoice *pvoice, ALDMANew dmaNew, ALHeap *heap) {
     pvoice->unkC = alHeapDBAlloc(NULL, 0, heap, 1, 0x20);
     pvoice->unk10 = alHeapDBAlloc(NULL, 0, heap, 1, 0x20);
-    pvoice->unk28 = initCallback(pvoice->unk2C);
+    pvoice->dma = dmaNew(pvoice->dmaState);
     pvoice->unk34 = 0;
     pvoice->unk38 = 1;
     pvoice->unk3C = 0;

@@ -3,25 +3,24 @@
 #define PROTO_GLOBAL_13E160_H
 #include "common.h"
 #include "audio_config.h"
-struct SynCoreParam;
-struct SynCorePlayer;
+#include "audio_synth.h"
 #ifndef PROTO_SKIP_n_alSynNew
 void n_alSynNew(AudioInitArgs *);
 #endif
 #ifndef PROTO_SKIP_n_alAudioFrame
-s32 n_alAudioFrame(s32, s32 *, s32, s32);
+Acmd *n_alAudioFrame(Acmd *, s32 *, s16 *, s32);
 #endif
 #ifndef PROTO_SKIP___n_allocParam
-struct SynCoreParam *__n_allocParam(void);
+SynCoreParam *__n_allocParam(void);
 #endif
 #ifndef PROTO_SKIP___n_freeParam
-void __n_freeParam(struct SynCoreParam *);
+void __n_freeParam(SynCoreParam *);
 #endif
 #ifndef PROTO_SKIP__n_collectPVoices
 void _n_collectPVoices(void);
 #endif
 #ifndef PROTO_SKIP__n_freePVoice
-void _n_freePVoice(ALLink *);
+void _n_freePVoice(N_PVoice *);
 #endif
 #ifndef PROTO_SKIP__n_timeToSamplesNoRound
 s32 _n_timeToSamplesNoRound(s32);
@@ -30,6 +29,6 @@ s32 _n_timeToSamplesNoRound(s32);
 s32 _n_timeToSamples(s32);
 #endif
 #ifndef PROTO_SKIP___n_nextSampleTime
-s32 __n_nextSampleTime(struct SynCorePlayer **);
+s32 __n_nextSampleTime(ALPlayer **);
 #endif
 #endif

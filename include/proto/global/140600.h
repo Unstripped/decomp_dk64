@@ -3,8 +3,7 @@
 #define PROTO_GLOBAL_140600_H
 #include "common.h"
 #include "audio_config.h"
-struct SynLPFilter;
-struct SynPVoiceInit;
+#include "audio_synth.h"
 #ifndef PROTO_SKIP_n_alSynSetPitch
 void n_alSynSetPitch(ALVoice *, f32);
 #endif
@@ -30,6 +29,6 @@ void rebuildLowPassCoefficients(struct SynLPFilter *, f32);
 void n_alFxNew(void **, AudioInitArgs *, s16, ALHeap *);
 #endif
 #ifndef PROTO_SKIP_alN_PVoiceNew
-void alN_PVoiceNew(struct SynPVoiceInit *, s32 (*)(void *), ALHeap *);
+void alN_PVoiceNew(N_PVoice *, ALDMANew, ALHeap *);
 #endif
 #endif
