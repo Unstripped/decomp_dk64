@@ -2937,7 +2937,7 @@ void playerInputRegisterAnimatedEffect(void) {
     yaw = gCurrentActor->yaw;
     if (yaw < 0x200 || yaw >= 0xE01) {
         st->unk2 = gPlayerPadState[gCurrentPlayerIndex].stickX;
-        pad = &gPlayerPadState[gCurrentPlayerIndex ^ 0]; // FAKE: no-op xor splits this index from the CSE (keeps the other arms' multu)
+        pad = &gPlayerPadState[gCurrentPlayerIndex ^ 0]; // FAKE: no-op xor splits this index from the CSE (keeps the multu of the other arms)
     } else if (yaw >= 0x201 && yaw < 0x600) {
         s8 t;
         st->unk2 = gPlayerPadState[gCurrentPlayerIndex].stickY;
