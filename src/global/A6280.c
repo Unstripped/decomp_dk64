@@ -141,7 +141,7 @@ void actorNoopA6280(void) {
 extern s32 sEffectSparkConfig;
 
 
-void func_806A1AC4(void) {
+void actorSparkCutsceneUpdate(void) {
     f32 driftSpeed;
     s16 i;
 

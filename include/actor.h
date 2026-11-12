@@ -426,7 +426,7 @@ typedef struct Actor {
             /* 0x0EC */ s16 unkEC;
             /* 0x0EE */ s16 moveYaw;
         };
-        /* 0x0EC */ u32 animLastFrame; // func_8072881C frame cursor (func_806A1AC4, A6280.c)
+        /* 0x0EC */ u32 animLastFrame; // func_8072881C frame cursor (actorSparkCutsceneUpdate, A6280.c)
     };
     /* 0x0F0 */ s16 movePitch;
     /* 0x0F2 */ s16 unkF2;

@@ -3794,6 +3794,7 @@ collisionTestDynamicActorFloor = 0x80668E9C; // type:func
 collisionResolveWallContact = 0x8066B0DC; // type:func
 actorTypeToNodeIndex = 0x8069E724; // type:func
 actorLightPulseUpdate = 0x8069E774; // type:func
+actorSparkCutsceneUpdate = 0x806A1AC4; // type:func
 playerMountBarrel = 0x806C7BAC; // type:func
 playerClampToWaterSurface = 0x806CC364; // type:func
 playerHeldActorAlignStep = 0x806CF138; // type:func

@@ -11,8 +11,8 @@ void actorUpdateRampTarget(void);
 #ifndef PROTO_SKIP_actorNoopA6280
 void actorNoopA6280(void);
 #endif
-#ifndef PROTO_SKIP_func_806A1AC4
-void func_806A1AC4(void);
+#ifndef PROTO_SKIP_actorSparkCutsceneUpdate
+void actorSparkCutsceneUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorFinishInRange
 void actorFinishInRange(void);
