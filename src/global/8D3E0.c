@@ -1,6 +1,7 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
+#include "map.h"
 #include "proto/global/15050.h"
 #include "proto/global/17B90.h"
 #include "proto/global/36880.h"
@@ -83,20 +84,7 @@ extern u8 gCurrentWorldId;
 extern s32 D_807F6010;
 extern s32 gMapChunkCount;
 
-typedef struct {
-    u8 pad0[0x18];
-    s32 unk18;
-    s32 unk1C;
-    void *unk20;
-    u8 pad24[0xC0 - 0x24];
-} ModelAssetEntry160;
-extern ModelAssetEntry160 D_8076A160[];
-
-typedef struct {
-    void *ptr;
-    u8 pad4[0xC0 - 4];
-} ModelAssetEntry178;
-extern ModelAssetEntry178 D_8076A178[];
+extern Struct8076A160 D_8076A160[];
 
 
 void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
@@ -123,7 +111,7 @@ void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
         }
     } else {
         D_807F6010 = modelAsset;
-        modelAsset = (s32)D_8076A178[mapIndex].ptr;
+        modelAsset = (s32)D_8076A160[mapIndex].modelData;
     }
     modelAssetGetSubtables(modelAsset, &subtables, &records);
     if (skipExtra != 0) {
@@ -131,18 +119,18 @@ void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
     } else {
         modelAsset = playerGetModelAssetId();
     }
-    modelSlotsLoadMap(subtables, modelAsset, (u8)flag, preMapModelCount, mapGetHubWorldIndex(gCurrentWorldId, 1));
+    modelSlotsLoadMap(subtables, modelAsset, flag, preMapModelCount, mapGetHubWorldIndex(gCurrentWorldId, 1));
     csTimerQueueFire(gCurrentLevelIndex);
     actorListSpawnFromRecords(records);
     if (mapIndex != -1) {
-        if (D_8076A160[mapIndex].unk20 != NULL) {
-            modelSlotsApplyRecords(D_8076A160[mapIndex].unk20, D_8076A160[mapIndex].unk1C);
+        if (D_8076A160[mapIndex].records != NULL) {
+            modelSlotsApplyRecords(D_8076A160[mapIndex].records, D_8076A160[mapIndex].recordSize);
         }
         if (gMapChunkCount > 0) {
             flag = 0; modelAsset = (s32)&D_8076A160[mapIndex]; do { lightSetColor( // LAYOUT: init + call on one line steers as1 order of the hoisted ldc1 vs addu
-                (f32)((f64)(u32)((u8 *)modelAsset)[0x24] / 255.0),
-                (f32)((f64)(u32)((u8 *)modelAsset)[0x25] / 255.0),
-                (f32)((f64)(u32)((u8 *)modelAsset)[0x26] / 255.0),
+                (u32)((u8 *)modelAsset)[0x24] / 255.0,
+                (u32)((u8 *)modelAsset)[0x25] / 255.0,
+                (u32)((u8 *)modelAsset)[0x26] / 255.0,
                 flag);
                 flag++;
                 modelAsset += 3;
@@ -306,19 +294,17 @@ void actorListSetCustomFloat(s16 mapIndex, s16 targetId, s16 index, f32 val) {
     found = 0;
     modelIndex = mapFindSlotIndex(mapIndex);
     if (modelIndex != -1) {
-        modelAssetGetSubtables(D_8076A178[modelIndex].ptr, &subtableA, &subtables);
+        modelAssetGetSubtables(D_8076A160[modelIndex].modelData, &subtableA, &subtables);
         count = *(s32 *)subtables;
         subtables += sizeof(s32);
         item = (ActorListRecord *)subtables;
-        if (count != 0) {
-            do {
-                if (item->id == targetId) {
-                    item->customData[index] = val;
-                    found = 1;
-                }
-                count--;
-                item++;
-            } while (count != 0 && !found);
+        while (count != 0 && !found) {
+            if (item->id == targetId) {
+                item->customData[index] = val;
+                found = 1;
+            }
+            count--;
+            item++;
         }
     }
 }
@@ -400,18 +386,16 @@ void actorListSetPosByActor(Actor *actor, f32 posX, f32 posY, f32 posZ) {
 }
 
 void actorListSpawnFromRecords(u8 *records) {
-    ActorListRecord *item;
+    ActorListRecord *items;
     s32 i;
-    void *recordExtData;
     s32 count;
 
     D_807FC400 = NULL;
     if (records != NULL) {
         count = *(s32 *)records;
-        records += 4;
-        item = (ActorListRecord *)records;
-        for (i = 0, recordExtData = (char *)item + 0x10; i < count; i++, item++, recordExtData = (char *)recordExtData + 0x38) { // FAKE: separate recordExtData induction pointer (== item->customData) steers s0-s3 colouring
-            actorListSpawnNodeInternal(item->actorType, item->x, item->y, item->z, item->yaw, item->scale, recordExtData, 0, 0, item->id);
+        items = (ActorListRecord *)(records + 4);
+        for (i = 0; i < count; i++) {
+            actorListSpawnNodeInternal(items[i].actorType, items[i].x, items[i].y, items[i].z, items[i].yaw, items[i].scale, items[i].customData, 0, 0, items[i].id);
         }
         actorListClearForcedIds();
     }
@@ -518,69 +502,65 @@ void actorListUpdateSpawns(void) {
     s16 target;
 
     n = 0x80;
-    node = D_807FC400;
-    if (node != NULL) {
-        do {
-            if (node->spawned != 0) {
-                if (node->shouldDespawn(node) != 0) {
-                    actor = node->actor;
-                    if (!(actor->flags & 0x200000)) {
-                        actorDeregisterActive(actor);
-                        actor = node->actor;
-                        node->spawned = 0;
-                        node->x = actor->x;
-                        node->y = actor->y;
-                        node->z = actor->z;
-                        node->chunkIndex = actor->chunkIndex;
-                        controllerAnimFreeSub(actor, 0);
-                        controllerAnimFreeSub(node->actor, 1);
-                        controllerAnimFreeSub(node->actor, 2);
-                    }
-                }
-            } else if (node->shouldSpawn(node) != 0) {
+    for (node = D_807FC400; node != NULL; node = node->next) {
+        if (node->spawned != 0) {
+            if (node->shouldDespawn(node) != 0) {
                 actor = node->actor;
-                i = 0;
-                found = 0;
-                if (actor == NULL) {
-                    target = node->actorType + 0x10;
-                    while (!found && i < n) {
-                        if (target == D_8074E8B0[i].actorType) {
-                            found = 1;
-                        } else {
-                            i++;
-                        }
-                    }
-
-                    spawnInfo.type = target;
-                    spawnInfo.scriptId = D_8074E8B0[i].unk4;
-                    spawnInfo.spawnArg = D_8074E8B0[i].animAssetId;
-                    spawnInfo.x = node->spawnX;
-                    spawnInfo.y = node->spawnY;
-                    spawnInfo.z = node->spawnZ;
-                    spawnInfo.yaw = node->yaw;
-                    spawnInfo.spawnTimer = 0;
-                    spawnInfo.spawnData = node->customData;
-                    if (actorSpawnFromInfo(&spawnInfo) != 0) {
-                        node->actor = gSpawnedActor;
-                        node->spawned = 1;
-                        gSpawnedActor->parentActor = node->extraParam;
-                        if (gSpawnedActor->sub4 != NULL) {
-                            gSpawnedActor->sub4->scaleX = (f32)(node->scale * 0.15);
-                            gSpawnedActor->sub4->scaleY = (f32)(node->scale * 0.15);
-                            gSpawnedActor->sub4->scaleZ = (f32)(node->scale * 0.15);
-                        }
-                    }
-                } else if (node->spawned == 0) {
-                    if (node->animAssetId != 0) {
-                        node->actor->animState = controllerAnimStateLoadAsset(actor, node->animAssetId, 0);
-                        actor = node->actor;
-                    }
-                    actorRegisterActive(actor);
-                    node->spawned = 1;
+                if (!(actor->flags & 0x200000)) {
+                    actorDeregisterActive(actor);
+                    actor = node->actor;
+                    node->spawned = 0;
+                    node->x = actor->x;
+                    node->y = actor->y;
+                    node->z = actor->z;
+                    node->chunkIndex = actor->chunkIndex;
+                    controllerAnimFreeSub(actor, 0);
+                    controllerAnimFreeSub(node->actor, 1);
+                    controllerAnimFreeSub(node->actor, 2);
                 }
             }
-            node = node->next;
-        } while (node != NULL);
+        } else if (node->shouldSpawn(node) != 0) {
+            actor = node->actor;
+            i = 0;
+            found = 0;
+            if (actor == NULL) {
+                target = node->actorType + 0x10;
+                while (!found && i < n) {
+                    if (target == D_8074E8B0[i].actorType) {
+                        found = 1;
+                    } else {
+                        i++;
+                    }
+                }
+
+                spawnInfo.type = target;
+                spawnInfo.scriptId = D_8074E8B0[i].unk4;
+                spawnInfo.spawnArg = D_8074E8B0[i].animAssetId;
+                spawnInfo.x = node->spawnX;
+                spawnInfo.y = node->spawnY;
+                spawnInfo.z = node->spawnZ;
+                spawnInfo.yaw = node->yaw;
+                spawnInfo.spawnTimer = 0;
+                spawnInfo.spawnData = node->customData;
+                if (actorSpawnFromInfo(&spawnInfo) != 0) {
+                    node->actor = gSpawnedActor;
+                    node->spawned = 1;
+                    gSpawnedActor->parentActor = node->extraParam;
+                    if (gSpawnedActor->sub4 != NULL) {
+                        gSpawnedActor->sub4->scaleX = node->scale * 0.15;
+                        gSpawnedActor->sub4->scaleY = node->scale * 0.15;
+                        gSpawnedActor->sub4->scaleZ = node->scale * 0.15;
+                    }
+                }
+            } else if (node->spawned == 0) {
+                if (node->animAssetId != 0) {
+                    node->actor->animState = controllerAnimStateLoadAsset(actor, node->animAssetId, 0);
+                    actor = node->actor;
+                }
+                actorRegisterActive(actor);
+                node->spawned = 1;
+            }
+        }
     }
     actorListClearForcedIds();
 }
@@ -801,19 +781,17 @@ s32 actorListFindClosestTargetIndex(s32 *recordList, s16 *typeList, u8 typeCount
     f32 minDistance = 9999999.0f;
     s32 i;
     s32 j;
-    ActorListRecord *item;
-    s32 *list;
+    ActorListRecord *records;
     f32 dist;
 
-    list = recordList; // FAKE: second pointer to the list moves the item/j colours (permuter find)
+    records = (ActorListRecord *)(recordList + 1);
     for (i = 0; i < total; i++) {
-        item = &((ActorListRecord *)(list + 1))[i];
         for (j = 0; j < typeCount; j++) {
-            if (typeList[j] == (*item).actorType + 0x10) { // FAKE: (*item). spelling (vs item->) keeps typeList[j] first in the bnel compare and stops x - 16 == y
-                dist = ((item->z - posZ) * (item->z - posZ)) + (((item->x - posX) * (item->x - posX)) + ((item->y - posY) * (item->y - posY)));
+            if (typeList[j] == records[i].actorType + 0x10) {
+                dist = (records[i].x - posX) * (records[i].x - posX) + (records[i].y - posY) * (records[i].y - posY) + (records[i].z - posZ) * (records[i].z - posZ);
                 if (dist < minDistance) {
                     minDistance = dist;
-                    bestIndex = item->id;
+                    bestIndex = records[i].id;
                 }
             }
         }
