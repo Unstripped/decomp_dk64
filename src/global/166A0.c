@@ -2,12 +2,11 @@
 #include "proto/global/16550.h"
 #include "proto/global/166A0.h"
 
-extern s32 sRandomSeed;
-extern u64 __ll_mul(u64, u64);
+extern u32 sRandomSeed;
 
 u32 randomLcgNext(void) {
-    u64 seed = (u32)sRandomSeed;
-    u64 prod = __ll_mul(seed, 0x01DF5E0DULL);
+    u64 seed = sRandomSeed;
+    u64 prod = seed * 0x01DF5E0D;
     return sRandomSeed = (prod + 1) & 0xFFFFFFFF;
 }
 
@@ -15,9 +14,8 @@ void setRandomSeed(s32 seed) {
     sRandomSeed = seed;
 }
 
-
 f32 randomFloat(void) {
-    return (f32)(u32)randomLcgNext() * 2.3283064e-10f;
+    return randomLcgNext() * 2.3283064e-10f;
 }
 
 s32 randomNonNegative(void) {
@@ -29,32 +27,29 @@ void mathNudgeCoords(f32 refX, f32 refY, f32 *outX, f32 *outY) {
     f64 delta;
 
     value = *outX;
-    delta = (f64)(value - refX);
+    delta = value - refX;
     if ((delta < 0.25) && (delta >= 0.0)) {
-        *outX = (f32)((f64)value + 0.125);
+        *outX = value + 0.125;
     }
     value = *outY;
-    delta = (f64)(value - refY);
+    delta = value - refY;
     if ((delta < 0.25) && (delta >= 0.0)) {
-        *outY = (f32)((f64)value + 0.125);
+        *outY = value + 0.125;
     }
     value = *outX;
-    delta = (f64)(value - refX);
+    delta = value - refX;
     if ((delta > -0.25) && (delta <= 0.0)) {
-        *outX = (f32)((f64)value - 0.125);
+        *outX = value - 0.125;
     }
     value = *outY;
-    delta = (f64)(value - refY);
+    delta = value - refY;
     if ((delta > -0.25) && (delta <= 0.0)) {
-        *outY = (f32)((f64)value - 0.125);
+        *outY = value - 0.125;
     }
 }
 
-
 f32 mathAtan2(f32 dx, f32 dy) {
-    f32 angleA;
     f32 hypot;
-    f32 acosVal;
     f32 angle;
 
     if (dx == 0.0f) {
@@ -72,16 +67,14 @@ f32 mathAtan2(f32 dx, f32 dy) {
     } else {
         hypot = sqrtf((dx * dx) + (dy * dy));
         if (dy < dx) {
-            acosVal = acosApprox(dy / hypot);
-            angle = acosVal;
+            angle = acosApprox(dy / hypot);
             if (dx < 0.0f) {
-                angle = 6.2831855f - acosVal;
+                angle = 6.2831855f - angle;
             }
         } else {
-            angleA = 1.5707964f - acosApprox(dx / hypot);
-            angle = angleA;
+            angle = 1.5707964f - acosApprox(dx / hypot);
             if (dy < 0.0f) {
-                angle = 3.1415927f - angleA;
+                angle = 3.1415927f - angle;
             }
             if (angle < 0.0f) {
                 angle += 6.2831855f;
