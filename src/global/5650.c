@@ -13,7 +13,6 @@ typedef struct QueuedFunction {
 
 extern s32 gGameFrameCounter;
 extern QueuedFunction *gTimerQueue;
-s32 osPiReadIo(u32, u32 *);
 
 void timerQueueInit(void) {
     gTimerQueue = NULL;
@@ -29,10 +28,9 @@ void timerQueueAdd(void *callback, s32 delay, s32 param0, s32 param1, s32 param2
     QueuedFunction *curr;
     QueuedFunction *node;
     QueuedFunction *prev;
-    s32 pad1;
-    s32 pad2;
+    s32 pad[2];
     s32 piIoResult;
-    s32 pad3;
+    s32 (*piReadIo)(u32, s32 *);
     s32 expectedVal;
     s32 checkAddress;
 
@@ -40,7 +38,8 @@ void timerQueueAdd(void *callback, s32 delay, s32 param0, s32 param1, s32 param2
     node = heapAlloc(0x18);
     expectedVal = 0xC6F0AFA9;
     checkAddress = 0x5FAFBA0C;
-    ((s32 (*)(u32, s32 *))func_8060095C((s32)osPiReadIo + 0xC000FF01, &expectedVal, &checkAddress))(checkAddress, &piIoResult);
+    piReadIo = (s32 (*)(u32, s32 *))func_8060095C((s32)osPiReadIo + 0xC000FF01, &expectedVal, &checkAddress);
+    piReadIo(checkAddress, &piIoResult);
     if (piIoResult != expectedVal) {
         delay *= 2;
     }
@@ -66,25 +65,23 @@ void timerQueueAdd(void *callback, s32 delay, s32 param0, s32 param1, s32 param2
         } else {
             curr->next = node;
         }
-        return;
+    } else {
+        gTimerQueue = node;
     }
-    gTimerQueue = node;
 }
 
 void timerQueueUpdate(void) {
     QueuedFunction *node = gTimerQueue;
     s32 done = 0;
 
-    if (node != NULL) {
-        do {
-            if (gGameFrameCounter >= (node->time & 0x7FFFFFFF)) {
-                node->callback(node->param0, node->param1, node->param2);
-                heapFree(node);
-                node = node->next;
-            } else {
-                done = 1;
-            }
-        } while (node != NULL && done == 0);
+    while (node != NULL && done == 0) {
+        if (gGameFrameCounter >= (node->time & 0x7FFFFFFF)) {
+            node->callback(node->param0, node->param1, node->param2);
+            heapFree(node);
+            node = node->next;
+        } else {
+            done = 1;
+        }
     }
     gTimerQueue = node;
 }
@@ -93,21 +90,19 @@ void timerQueueCancel(void *callback) {
     QueuedFunction *node = gTimerQueue;
     QueuedFunction *prev = NULL;
 
-    if (node != NULL) {
-        do {
-            if (((void *)node->callback == callback) || ((callback == NULL) && (node->time & 0x80000000))) {
-                heapFree(node);
-                node = node->next;
-                if (prev != NULL) {
-                    prev->next = node;
-                } else {
-                    gTimerQueue = node;
-                }
+    while (node != NULL) {
+        if (((void *)node->callback == callback) || ((callback == NULL) && (node->time & 0x80000000))) {
+            heapFree(node);
+            node = node->next;
+            if (prev != NULL) {
+                prev->next = node;
             } else {
-                prev = node;
-                node = node->next;
+                gTimerQueue = node;
             }
-        } while (node != NULL);
+        } else {
+            prev = node;
+            node = node->next;
+        }
     }
 }
 
@@ -116,25 +111,21 @@ void timerQueuePurgeFlagged(void) {
     QueuedFunction *prev = NULL;
     s32 done = 0;
 
-    if (node != NULL) {
-        do {
-            s32 time = node->time;
-
-            if ((u32)(time & 0x7FFFFFFF) < gGameFrameCounter) {
-                if (time & 0x80000000) {
-                    if (prev != NULL) {
-                        prev->next = node->next;
-                    } else {
-                        gTimerQueue = node->next;
-                    }
-                    heapFree(node);
+    while (node != NULL && done == 0) {
+        if ((node->time & 0x7FFFFFFF) < gGameFrameCounter) {
+            if (node->time & 0x80000000) {
+                if (prev != NULL) {
+                    prev->next = node->next;
                 } else {
-                    prev = node;
+                    gTimerQueue = node->next;
                 }
-                node = node->next;
+                heapFree(node);
             } else {
-                done = 1;
+                prev = node;
             }
-        } while (node != NULL && done == 0);
+            node = node->next;
+        } else {
+            done = 1;
+        }
     }
 }
