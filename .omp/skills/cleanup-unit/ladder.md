@@ -54,8 +54,8 @@ warning sites take no other method.
 Tooling rules (were Q0626/Q0634/Q0638):
 - `fdiff.sh <copy> <src> FUNC` prints no diff lines when a long function's first difference is past
   asm-differ's window: trust its exit code, or diff the objects with `objdump -drz`.
-- A permute `best=0` that only swaps one steer for another (`if (1) {}`, empty do-while, goto to an
-  adjacent label, `(0, x)`, `& 0xFFFFFFFFu`, a copy temp) is `permute nohit`; name the steer in the note.
+- A `best=0` or review rewrite that only swaps one steer for another (`if (1) {}`, empty do-while, goto,
+  `(0, x)`, `& 0xFFFFFFFFu`, a copy temp, a selector local of another width in place of a dead read) is `nohit`; keep the tagged site.
 - The permuter's pycparser rejects `x * sizeof(T) + sizeof(s32)` and a one-line `p = x; do {`:
   rewrite them in the permuter base only, then translate the hint back into the copy.
 - Never write `'` in a `//` comment (FAKE notes): asm-processor/cfe read it as a char literal (compile

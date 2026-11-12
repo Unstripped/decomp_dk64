@@ -148,22 +148,23 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 23 (2026-11-12)** — global/F56F0 (+ `controllerLookupStateByHash` returns s32, 17B90 owner), arcade/0, boot/main (+ include/boot.h boot threads), 1371D0 and 137630 (libultra bnkf/osc shapes), ProxBatch (`ProxPathOwner` union, proxPath calls take `s32 id`); round-22 tail Rev22A/B; race.h `unkD0` carve; Actor 0x160 `union { f64 splineT; u32 frameCursor; }`. cfe warnings 66 → 53; proto-steer 61 → 60; names `proxPathRemoveOwner`, `gOscFreeList`/`gOscStates`, `sNoExpPakThread`; knowledge Q0691–Q0694.
 - [x] **Round 24 (2026-11-12)** — global/166A0 (natural u64 multiply), 5650, BC3B0 (GBI macros), 15050 (`HeapPool.owner` `s32 *`), 55B20, boss/A7A0 (cfe 8 → 0); new include/boss.h with one shared `BossScriptState` (3840, C920, A7A0); round-23 tail Rev23A/B; FAKE-comment apostrophes removed in F56F0/55B20. cfe warnings 53 → 45; names `bossKRoolLankyPhaseScripts`, `timerQueueDecodePiCheck`, `actorUpdateLockOnCursor`; knowledge Q0695.
 - [x] **Round 25 (2026-11-12)** — global/104F0, 478F0, 67890 (`actorTargetTableLoad(MapFileHeader *)`), 17800, jetpac/1460 (jetpac.h JetpacSprite/JetpacCellItem types); ArcadeBatch (`TextureDescriptor` in render.h, arcade/0 proto-steers retired); round-24 tail Rev24 (boss/3840; B100 onto boss.h). cfe warnings 45 → 39; proto-steer 60 → 59; names `gActorTarget*`, `actorTargetTableHasPortalSlot`.
-- [ ] Remaining (after round 25): 268 OPEN functions in 125 files (re-review groups Rev25A/B prepared for 19 functions) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
+- [x] **Round 26 (2026-11-12)** — global/ACDC0, C0EE0, 13980 (sched.h `TaskNode.client`), FCCD0, boss/9C60; SinBatch (shared `sinApprox`/`cosApprox` in common.h, 26 files); actor.h inventory counters u16; round-25 tail Rev25. cfe warnings 39 → 34; proto-steer 59 → 54; protos mismatch 31 → 26; name `gPauseMenuMode`.
+- [ ] Remaining (after round 26): 235 OPEN functions in 119 files (re-review groups Rev26A/B prepared for 46 functions) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 25):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 26):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 741 | 583 |
+| FAKE | 738 | 583 |
 | FAKE dead-if | 271 | 263 |
-| FAKE proto-steer | 59 | 134 |
+| FAKE proto-steer | 54 | 134 |
 | FAKE other kinds | 411 | 186 |
 | LAYOUT | 68 | 47 |
 | goto | 35 | 39 |
 | proto-type (`// PROTO:`) | 6 | 0 |
-| protos mismatch | 31 | 1,202 |
-| reviewed / exhausted functions | 4,142 / 4,002 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 39 | 1,890 |
+| protos mismatch | 26 | 1,202 |
+| reviewed / exhausted functions | 4,166 / 4,035 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 34 | 1,890 |
 | uninit warnings (clint checks every function) | 251 | 122 |
 | `func_` definitions | 430 | 457 |
 | m2c names | 396 | 5,040 |
