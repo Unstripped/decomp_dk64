@@ -133,17 +133,17 @@ void slotQueueGetPosition(s32 slot, f32 *x, f32 *y, f32 *z) {
 
 void func_806F8278(u8 player) {
     s32 sum;
-    u16 (*p)[0x2F];
+    PlayerInventory *inv;
     s32 i;
     s32 j;
     s8 n;
 
     sum = 0;
-    p = (u16 (*)[0x2F])((u8 *)gPlayerInventoryTable + (u32)player * 0x306);
+    inv = (PlayerInventory *)gPlayerInventoryTable + player;
     n = 14; // FAKE: variable s8 bound keeps the slt loop test (Q0257)
     for (i = 0; i < n; i++) {
         for (j = 0; j < 5; j++) {
-            sum += p[j][i + 0x21];
+            sum += inv->kong[j].unk42[i];
         }
     }
     gSlotQueue[player * 15 + 9].shown = sum;
@@ -164,10 +164,10 @@ void slotQueueInit(s32 reset) {
     u32 j;
     s32 i;
     s16 shownMask;
-    u8 *fp;
+    PlayerInventory *inv;
     u8 world;
     SlotQueueSlot *base;
-    u8 *kongInv;
+    KongInventory *kongInv;
     s32 flag;
     u8 player;
 
@@ -182,11 +182,11 @@ void slotQueueInit(s32 reset) {
         gSlotQueueMaskList = NULL;
     }
     if (gPlayerCount > 0) {
-        fp = (u8 *)gPlayerInventoryTable;
+        inv = (PlayerInventory *)gPlayerInventoryTable;
         i = 0;
         do {
-            kongInv = (u8 *)(playerGetResolvedKongId(i) * 0x5E);
-            kongInv = (u8 *)((s32)fp + (s32)kongInv);
+            kongInv = (KongInventory *)(playerGetResolvedKongId(i) * sizeof(KongInventory)); // FAKE: byte offset parked in kongInv makes the addu take inv first (addu t9,s8,t8)
+            kongInv = (KongInventory *)((u8 *)inv + (s32)kongInv);
             player = i;
             if (player && player) { // FAKE: dead reference fixes the register for the u8 argument
             }
@@ -207,7 +207,7 @@ void slotQueueInit(s32 reset) {
                 }
                 switch (j) {
                 case 0:
-                    base[j].value = &((u16 *)(kongInv + 0xA))[world];
+                    base[j].value = &kongInv->unkA[world];
                     base[j].x = 0x1E; base[j].y = 0x26;
                     func_806F8004(15.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
@@ -217,7 +217,7 @@ void slotQueueInit(s32 reset) {
                     func_806F8004(-5.5f, -26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 8:
-                    base[j].value = &((u16 *)(kongInv + 0x42))[world];
+                    base[j].value = &kongInv->unk42[world];
                     base[j].x = 0x1E; base[j].y = 0x48;
                     func_806F8004(1.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
@@ -237,42 +237,42 @@ void slotQueueInit(s32 reset) {
                     break;
                 case 5:
                     if (shownMask & 0x20) {
-                        *(s16 *)(fp+0x2F6) = slotQueueGetMaxValue(5, i);
+                        inv->unk2F6 = slotQueueGetMaxValue(5, i);
                         flag = 1;
                     }
-                    base[j].value = (u16 *)(fp + 0x2F6);
+                    base[j].value = &inv->unk2F6;
                     base[j].x = 0x122; base[j].y = 0x8C;
                     func_806F8004(-5.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 2:
-                    base[j].value = (u16 *)(fp + 0x2F0);
+                    base[j].value = &inv->unk2F0;
                     base[j].x = 0x122; base[j].y = 0x48;
                     func_806F8004(8.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 3:
                     if (shownMask & 0x4) {
-                        *(s16 *)(fp+0x2F2) = slotQueueGetMaxValue(3, i);
+                        inv->unk2F2 = slotQueueGetMaxValue(3, i);
                         flag = 1;
                     }
-                    base[j].value = (u16 *)(fp + 0x2F2);
+                    base[j].value = &inv->unk2F2;
                     base[j].x = 0x122; base[j].y = 0x48;
                     func_806F8004(8.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 4:
                     if (shownMask & 0x8) {
-                        *(s16 *)(fp+0x2F4) = slotQueueGetMaxValue(4, i);
+                        inv->unk2F4 = slotQueueGetMaxValue(4, i);
                         flag = 1;
                     }
-                    base[j].value = (u16 *)(fp + 0x2F4);
+                    base[j].value = &inv->unk2F4;
                     base[j].x = 0x122; base[j].y = 0x6A;
                     func_806F8004(1.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 6:
                     if (shownMask & 0x10) {
-                        *(s16 *)(fp+0x2F8) = slotQueueGetMaxValue(6, i);
+                        inv->unk2F8 = slotQueueGetMaxValue(6, i);
                         flag = 1;
                     }
-                    base[j].value = (u16 *)(fp + 0x2F8);
+                    base[j].value = &inv->unk2F8;
                     base[j].x = 0x122; base[j].y = 0xD0;
                     func_806F8004(-19.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
@@ -283,19 +283,19 @@ void slotQueueInit(s32 reset) {
                     break;
                 case 1:
                     if (shownMask & 0x2) {
-                        *(s16 *)(kongInv+6) = slotQueueGetMaxValue(1, i);
+                        kongInv->unk6 = slotQueueGetMaxValue(1, i);
                         flag = 1;
                     }
-                    base[j].value = (u16 *)(kongInv + 6);
+                    base[j].value = &kongInv->unk6;
                     base[j].x = 0x122; base[j].y = 0x26;
                     func_806F8004(16.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 7:
                     if (shownMask & 0x40) {
-                        *(s16 *)(kongInv+8) = slotQueueGetMaxValue(7, i);
+                        kongInv->unk8 = slotQueueGetMaxValue(7, i);
                         flag = 1;
                     }
-                    base[j].value = (u16 *)(kongInv + 8);
+                    base[j].value = &kongInv->unk8;
                     base[j].x = 0x122; base[j].y = 0xAE;
                     func_806F8004(-12.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
@@ -316,7 +316,7 @@ void slotQueueInit(s32 reset) {
             } while (j != 0xF);
             func_806F8278(player);
             i++;
-            fp += 0x306;
+            inv++;
         } while (i < gPlayerCount);
     }
     if (gCurrentMap == 0x11 || gCurrentMap == 0x52) {
@@ -538,8 +538,8 @@ extern u8 gPlayerCharacterId;
 
 void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
     u8 *pa;
-    u8 *kongInv;
-    s16 *pad0;
+    KongInventory *kongInv;
+    s32 max;
     s32 slots;
     s32 flag;
     s32 total;
@@ -549,9 +549,9 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
     s32 playerIdx;
 
     pa = &player;  // FAKE: keeps player memory-resident (plain lbu per use)
-    playerIdx = player;
+    playerIdx = player; // FAKE: s32 copy of player (home sp+0x28) feeds slotQueueGetMaxValue as lw a1,40(sp)
     value = playerGetResolvedKongId(player);
-    kongInv = (u8 *)gPlayerInventoryTable + (player * 0x306 + value * 0x5E);
+    kongInv = &((PlayerInventory *)gPlayerInventoryTable)[player].kong[value];
     slots = slotQueueGetAddress(player);
     entry = (SlotQueueSlot *)slots + slot;
     if (((entry->locked == 0) || (delta >= 0)) && (entry->displayMode == 0)) {
@@ -561,22 +561,19 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
             if ((*counter + delta) < 0) {
                 *counter = 0;
             } else {
-                counter = ((SlotQueueSlot *)slots)[slot].value;
-                *counter += delta;
-                value = slotQueueGetMaxValue(slot, playerIdx);
-                counter = ((SlotQueueSlot *)slots)[slot].value;
-                if (gCurrentWorldId && gCurrentWorldId) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
-                if (value < *counter) {
-                    *counter = value;
+                *((SlotQueueSlot *)slots)[slot].value += delta; // FAKE: slots + slot * 0x30 spelling, not entry: keeps a2 (sw a2,32(sp)) across the call
+                max = slotQueueGetMaxValue(slot, playerIdx);
+                if (max < *((SlotQueueSlot *)slots)[slot].value) { // FAKE: re-read through slots after the call (lw a2,32(sp); lw v1,0(a2))
+                    *((SlotQueueSlot *)slots)[slot].value = max;
                 }
                 if ((slot == 8) && (func_805FEF10(&flag) != 0)) {
                     flagSet(flag, 1, 0);
                 }
                 if ((delta > 0) && (slot == 0)) {
-                    value = mapGetHubWorldIndex(gCurrentWorldId, 1);
-                    total = ((u16 *)(kongInv + 0xA))[value] + ((u16 *)(kongInv + 0x26))[value];
+                    value = mapGetHubWorldIndex(gCurrentWorldId, 1); // FAKE: value reused for the world index (a separate world local costs 9 words)
+                    total = kongInv->unkA[value] + kongInv->unk26[value];
                     if ((total >= 0x4B) && ((total - delta) < 0x4B)) {
-                        slots = flagGridIndex(0x225, value, (&gPlayerCharacterId)[player]);
+                        slots = flagGridIndex(0x225, value, (&gPlayerCharacterId)[player]); // FAKE: slots reused for the flag index (direct argument costs 9 words)
                         flagSet(slots, 1, 0);
                         func_80687C48();
                     }
@@ -919,6 +916,7 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     s32 *matrix;
     u8 text[8];
     u8 alpha;
+    s16 mode;
     G00Entry *viewport;
     f32 scale;
     s32 width;
@@ -929,13 +927,12 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     width = 0;
     gSPMatrix(gfx++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     guTranslate((Mtx *)((u8 *)matrix + (gGfxBufferIndex << 6) + 8), node->dirX * (1.0f - scale), node->dirY * (1.0f - scale), 0.0f);
-    switch (gSlotQueue[slot].displayMode) {
+    mode = gSlotQueue[slot].displayMode;
+    switch (mode) {
     case 1:
         _sprintf(text, "o");
         break;
     case 2:
-        if (gSlotQueue[slot].displayMode == 0) { // FAKE: dead reference
-        }
         _sprintf(text, "NA");
         break;
     default:
