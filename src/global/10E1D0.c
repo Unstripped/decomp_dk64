@@ -347,8 +347,6 @@ void meshApplyAnimation(AnimModel *model, AnimTable *table, s32 frame) {
     f32 y;
     f32 z;
     u32 j;
-    s32 kindv;
-    if (i && i) {} // FAKE: dead read of i (uninitialised here) steers regalloc of the entry walker
 
     idx = 0;
     for (; table->entries[idx].kind != 0; idx++) {
@@ -356,12 +354,10 @@ void meshApplyAnimation(AnimModel *model, AnimTable *table, s32 frame) {
         if (frame < table->entries[idx].start) {
             continue;
         }
-        kindv = table->entries[idx].kind;
-        if (i && i) {} // FAKE: dead read of i steers regalloc of the entry walker
         if (table->entries[idx].end < frame) {
             end = table->entries[idx].end;
         }
-        switch (kindv) {
+        switch (table->entries[idx].kind) {
         case 1:
                 sidx = table->entries[idx].source;
                 didx = table->entries[idx].destination;
@@ -403,7 +399,7 @@ void meshApplyAnimation(AnimModel *model, AnimTable *table, s32 frame) {
 
 void fbCopySetAlpha(void *dstBuf, void *srcBuf) {
     s32 i;
-    s32 *src = srcBuf; // FAKE: parameter copies steer regalloc
+    s32 *src = srcBuf;
     s32 *dst = dstBuf;
 
     for (i = 0; i < (gScreenWidth * gScreenHeight) / 16; i++) {

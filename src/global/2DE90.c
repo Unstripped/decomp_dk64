@@ -311,7 +311,7 @@ void screenBlurApply(void) {
     } else {
         for (row = 0; row < D_80747B34; row++) {
             sumR = 0;
-            sumB = 0; // FAKE: sumB/sumG init order steers regalloc
+            sumB = 0;
             sumG = 0;
             for (i = 0; i < D_80747B28; i++) {
                 r[i] = 0;
@@ -351,7 +351,7 @@ void screenBlurApply(void) {
                 sumB -= b[idx];
                 b[idx] = vb;
                 idx++;
-                sumB += vb; // FAKE: sumB update after the store steers schedule (Q0483)
+                sumB += vb;
                 *dst = 1 | (lut[sumB] << 1) | (lut[sumG] << 6) | (lut[sumR] << 11);
                 dst++;
             }
