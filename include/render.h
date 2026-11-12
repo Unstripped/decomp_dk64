@@ -136,4 +136,19 @@ typedef struct EffectNode {
     /* 0x39C */ struct EffectNode *next;
 } EffectNode;
 
+// A texture tile descriptor filled by dlInitTextureDescriptor (boot/6690) and loaded by
+// dlAppendTextureLoad (global/1135F0); arcade double-buffers them at a 0x18-byte stride.
+typedef struct TextureDescriptor {
+    /* 0x00 */ void *image;
+    /* 0x04 */ s32 pal;
+    /* 0x08 */ s16 width;
+    /* 0x0A */ s16 rectWidth;
+    /* 0x0C */ s16 rectHeight;
+    /* 0x0E */ u8 format;
+    /* 0x0F */ u8 type;
+    /* 0x10 */ s16 s;
+    /* 0x12 */ s16 t;
+    /* 0x14 */ u8 pad14[4];
+} TextureDescriptor; // size = 0x18
+
 #endif

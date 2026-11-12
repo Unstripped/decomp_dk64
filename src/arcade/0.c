@@ -1,5 +1,5 @@
 #include "common.h"
-#define PROTO_SKIP_dlInitTextureDescriptor // FAKE: callee prototype steer
+#include "render.h"
 #include "proto/arcade/0.h"
 #include "proto/boot/3D20.h"
 #include "proto/boot/6690.h"
@@ -33,10 +33,6 @@ typedef struct ArcadeEntity {
 
 extern ArcadeEntity D_8004BCD0[];
 
-/* One double-buffered texture descriptor slot (0x18 bytes) for dlInitTextureDescriptor. */
-typedef struct ArcadeGfxSlot {
-    u8 data[0x18];
-} ArcadeGfxSlot;
 extern void *D_8004C6D0;
 typedef union ArcadeTexScale {
     s32 word;
@@ -674,10 +670,10 @@ void arcadeDemoLoop(Gfx **glistp) {
 extern u8 D_80032B48[];
 extern u8 D_80032B90[];
 extern u8 D_80032BD8[];
-extern ArcadeGfxSlot D_8004BB30[];
-extern ArcadeGfxSlot D_8004BB60[];
-extern ArcadeGfxSlot D_8004BB90[];
-extern ArcadeGfxSlot D_8004BBC0[];
+extern TextureDescriptor D_8004BB30[];
+extern TextureDescriptor D_8004BB60[];
+extern TextureDescriptor D_8004BB90[];
+extern TextureDescriptor D_8004BBC0[];
 typedef struct ArcadeTitleBitmap {
     s32 words[12];
 } ArcadeTitleBitmap;
@@ -685,10 +681,9 @@ extern ArcadeTitleBitmap D_8004A798;
 extern u8 D_8004C719;
 extern u8 D_8004C71A;
 extern u8 gGfxBufferIndex;
-extern ArcadeGfxSlot D_8004BB00[];
+extern TextureDescriptor D_8004BB00[];
 extern u8 D_80032C20[];
 extern u8 D_80032DF8[];
-void dlInitTextureDescriptor(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32); // FAKE: callee prototype steer
 void arcadeDrawBackground(Gfx **glistp) {
     Gfx *glist;
 
@@ -986,7 +981,7 @@ void arcadeDrawStage1Background(Gfx **glistp) {
 }
 
 extern u8 D_80032F18[];
-extern ArcadeGfxSlot D_8004BC50[];
+extern TextureDescriptor D_8004BC50[];
 void arcadeDrawStage2Background(Gfx **glistp) {
     s32 i;
     Gfx *glist;
@@ -1153,7 +1148,7 @@ void arcadeDrawStage3Background(Gfx **glistp) {
 extern u8 D_80032CA8[];
 extern u8 D_80032D50[];
 extern u8 D_800342B8[];
-extern ArcadeGfxSlot D_8004BC20[];
+extern TextureDescriptor D_8004BC20[];
 void arcadeDrawStage4Background(Gfx **glistp) {
     s32 step;
     s32 one;
@@ -1349,7 +1344,7 @@ extern s32 D_8004C6F8;
 extern u8 D_8004A338[];
 extern u8 D_8004A358[];
 extern u8 D_8004A378[];
-extern ArcadeGfxSlot D_8004AC00[][80];
+extern TextureDescriptor D_8004AC00[][80];
 extern u8 gGfxBufferIndex;
 
 extern f32 D_8004BCF4;
@@ -3986,7 +3981,7 @@ void arcadeSetStageTextColor(s8 stageIndex) {
 
 extern s32 D_8004A83C;
 extern u8 D_8003DA90[];
-extern ArcadeGfxSlot D_8004BBF0[];
+extern TextureDescriptor D_8004BBF0[];
 
 void arcadeDrawHud(Gfx **glistp) {
     s32 i;
