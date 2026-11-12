@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/104F0.h"
@@ -25,13 +24,6 @@
 #include "proto/global/FCCD0.h"
 #include "proto/menu/0.h"
 
-typedef struct {
-    char pad0[0x340];
-    f32 x;
-    f32 y;
-    f32 z;
-} MenuActor_340;
-
 typedef struct MenuStruct_80024000 {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 unk1;
@@ -39,11 +31,11 @@ typedef struct MenuStruct_80024000 {
     /* 0x03 */ char pad3[3];
     /* 0x06 */ u8 unk6;
     /* 0x07 */ char pad7[1];
-    /* 0x08 */ MenuActor_340 *unk8;
+    /* 0x08 */ struct EffectNode *unk8;
     /* 0x0C */ f32 unkC;
     /* 0x10 */ f32 unk10;
     /* 0x14 */ f32 unk14;
-    /* 0x18 */ char pad18;
+    /* 0x18 */ s8 unk18; // stick y of the previous frame (menuUpdateOptionsState)
     /* 0x19 */ s8 unk19;
     /* 0x1A */ u8 unk1A;
 } MenuStruct_80024000;
@@ -76,7 +68,6 @@ void menuPlaySoundFromTable(MenuStruct_80024000 *menu) {
 
 
 extern u8 D_80720268;
-MenuActor_340 *effectCreateAtPosition(void *, s32, s32, s32, f32);
 
 void menuSpawnPositionalActor(MenuStruct_80024000 *menu) {
     menu->unk10 = 11.35f;
@@ -87,12 +78,12 @@ void menuSpawnPositionalActor(MenuStruct_80024000 *menu) {
     effectSetDepth(1);
     effectSetDuration(-1);
     effectSetMode(0);
-    menu->unk8 = effectCreateAtPosition(&D_80720268, 0x3E99999A, 0x43350000, 0x40400000, 82.0f);
+    menu->unk8 = effectCreateAtPosition(&D_80720268, 0.3f, 181.0f, 3.0f, 82.0f);
 }
 
 
 void menuUpdateFallingActor(MenuStruct_80024000 *menu) {
-    MenuActor_340 *actor = menu->unk8;
+    struct EffectNode *actor = menu->unk8;
     actor->x += menu->unkC;
     actor->z += menu->unk14;
     menu->unk10 += -1.0f;
@@ -105,7 +96,7 @@ void menuUpdateFallingActor(MenuStruct_80024000 *menu) {
     }
 }
 
-extern void *gPrimaryPlayerActor;
+extern Actor *gPrimaryPlayerActor;
 
 void menuResetAudioState(void) {
     playerResumeLocomotion(gPrimaryPlayerActor);
@@ -120,19 +111,14 @@ typedef struct {
     s8 unk19;
 } MenuSubStruct_180;
 
+// Per-type view of the menu actor: components after the 0x174 customState (the s16 slide offset).
 typedef struct MenuRenderActor {
-    char pad0[0x60];
-    s32 unk60;
-    char pad64[0xF0];
-    u8 unk154;
-    char pad155[0xA];
-    u8 unk15F;
-    char pad160[0x14];
-    s16 *unk174;
-    char pad178[8];
-    MenuStruct_80024000 *unk180;
+    Actor base;
+    /* 0x178 */ void *unk178;
+    /* 0x17C */ void *unk17C;
+    /* 0x180 */ MenuStruct_80024000 *unk180;
 } MenuRenderActor;
-extern MenuRenderActor *gCurrentActor;
+extern Actor *gCurrentActor;
 extern s16 D_80750AC8;
 
 
@@ -167,7 +153,7 @@ void menuMainStateStep(MenuStruct_80024000 *menu, s32 playVoice) {
         }
         break;
     case 1:
-        if (!(gCurrentActor->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->flags & 0x02000000)) {
             camResumePath();
             menu->unk1++;
         }
@@ -220,7 +206,7 @@ u8 targetState;
         }
         break;
     case 1:
-        if (!(gCurrentActor->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->flags & 0x02000000)) {
             camResumePath();
             menu->unk1++;
         }
@@ -247,7 +233,7 @@ extern u8 D_2000180[];
 Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
     s32 y;
     MenuStruct_80024000 *menu = actor->unk180;
-    char textBuf[0x28];
+    u8 textBuf[0x28];
 
     WRITE_GFX(glist++, 0xDE000000, D_1000118);
     WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
@@ -267,7 +253,7 @@ Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
             y += 0x3C;
         }
     } else {
-        WRITE_GFX(glist++, 0xFA000000, (actor->unk15F & 0xFF) | ~0xFF);
+        WRITE_GFX(glist++, 0xFA000000, (actor->base.unk15F & 0xFF) | ~0xFF);
         _sprintf(textBuf, "q %s", textTableGetString(0x2A, 0, 1));
         glist = textDrawStringVtx(glist, 1, 0x15E, 0x190, textBuf, 1);
         _sprintf(textBuf, "b %s", textTableGetString(0x2A, 1, 1));
@@ -291,7 +277,6 @@ typedef struct {
     s8 unk3;
 } MenuStickAxis;
 
-#define MenuM0_X18(p) (((s8 *)(p))[0x18])
 
 extern MenuControllerPad gPlayerPadState[];
 extern MenuStickAxis *D_807ECDEC;
@@ -383,12 +368,12 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
             menu->unk1 = 1;
         } else {
             s8 v1 = D_807ECDEC->unk3;
-            if (v1 >= 0x29 && MenuM0_X18(menu) < 0x29) {
+            if (v1 >= 0x29 && menu->unk18 < 0x29) {
                 menu->unk1--;
                 sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 64.0f, 1.0f, 0, 0);
                 v1 = D_807ECDEC->unk3;
             }
-            if (v1 < -0x28 && MenuM0_X18(menu) >= -0x28) {
+            if (v1 < -0x28 && menu->unk18 >= -0x28) {
                 menu->unk1++;
                 sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 64.0f, 1.0f, 0, 0);
             }
@@ -402,7 +387,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
         renderCallbacksRegister(menuDrawOptionsOverlay, gCurrentActor, 3);
         break;
     }
-    MenuM0_X18(menu) = D_807ECDEC->unk3;
+    menu->unk18 = D_807ECDEC->unk3;
 }
 
 
@@ -417,7 +402,7 @@ void menuProcessOptionInput(MenuStruct_80024000 *menu) {
         }
         break;
     case 1:
-        if (!(gCurrentActor->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->flags & 0x02000000)) {
             camResumePath();
             menu->unk1++;
         }
@@ -438,8 +423,8 @@ void menuDispatchAction(void) {
 
     targetState = -1;
     isSessionActive = 0;
-    menu = gCurrentActor->unk180;
-    if (!(gCurrentActor->unk60 & 0x10)) {
+    menu = ((MenuRenderActor *)gCurrentActor)->unk180;
+    if (!(gCurrentActor->flags & 0x10)) {
         camPathIndex = 1;
         menu->unk2 = flagCountRange(0x1FD, 0x28, 0);
         menu->unk1A = flagGridSumRows(0x1D5, 0, 7, gPlayerCharacterId);
@@ -524,10 +509,10 @@ void menuUpdateProgressGrid(void) {
     s32 k;
     s32 idx;
 
-    pSlideY = gCurrentActor->unk174;
-    if (!(gCurrentActor->unk60 & 0x10)) {
+    pSlideY = gCurrentActor->customState;
+    if (!(gCurrentActor->flags & 0x10)) {
         *pSlideY = 0xF0;
-        gCurrentActor->unk154 = 0;
+        gCurrentActor->state = 0;
         D_800330D0 = heapAlloc(0x80);
         D_800330D4 = heapAlloc(0x140);
         memcpy(D_800330D4, D_800330E0, 0x140);
@@ -602,7 +587,7 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     s32 j;
     s32 x;
     s32 y;
-    s16 *pSlideY = actor->unk174;
+    s16 *pSlideY = actor->base.customState;
     Vtx *v;
     s32 k;
     f32 mf[4][4];
