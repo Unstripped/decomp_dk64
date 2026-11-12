@@ -6,7 +6,7 @@
 
 void n_alCSeqNew(ALCSeq *seq, ALCMidiHdr *base) {
     u32 i;
-    u8 *track;
+    u32 offset;
     s32 validTrack;
 
     seq->base = base;
@@ -19,11 +19,11 @@ void n_alCSeqNew(ALCSeq *seq, ALCMidiHdr *base) {
         seq->lastStatus[i] = 0;
         seq->curBUPtr[i] = NULL;
         seq->curBULen[i] = 0;
-        track = (u8 *)seq->base->trackOffset[i];
-        if (track != NULL) {
+        offset = seq->base->trackOffset[i];
+        if (offset != 0) {
             validTrack = 1 << i;
             seq->validTracks |= validTrack;
-            seq->curLoc[i] = (u8 *)base + (s32)track;
+            seq->curLoc[i] = (u8 *)base + offset;
             seq->evtDeltaTicks[i] = __readVarLen(seq, i);
         } else {
             seq->curLoc[i] = NULL;
@@ -209,6 +209,7 @@ void __n_alCSeqNextDelta(ALCSeq *seq, ALCSeqMarker *markers, u32 count, u32 firs
     s32 markerCount;
     ALCSeqMarker marker;
     s32 pad;
+
     n_alCSeqNew(&cseq, seq->base);
     for (markerCount = 0; markerCount < count; markerCount++) {
         markers[markerCount].lastTicks = 0;
@@ -227,8 +228,8 @@ void __n_alCSeqNextDelta(ALCSeq *seq, ALCSeqMarker *markers, u32 count, u32 firs
         } while (++i < 16);
         n_alCSeqNextEvent(&cseq, &event, 0);
         if ((event.type == AL_CSP_LOOPSTART) &&
-            ((u32)((s32)event.msg.midi.duration >> 8) >= firstMarker) &&
-            ((u32)((s32)event.msg.midi.duration >> 8) < firstMarker + count)) {
+            (((s32)event.msg.midi.duration >> 8) >= firstMarker) &&
+            (((s32)event.msg.midi.duration >> 8) < firstMarker + count)) {
             if (markers[((s32)event.msg.midi.duration >> 8) - firstMarker].lastTicks == 0) {
                 markers[((s32)event.msg.midi.duration >> 8) - firstMarker] = marker;
                 if (--markerCount <= 0) {
@@ -240,41 +241,41 @@ void __n_alCSeqNextDelta(ALCSeq *seq, ALCSeqMarker *markers, u32 count, u32 firs
 }
 
 u8 __getTrackByte(ALCSeq *seq, s32 track) {
-    u8 result;
-    u8 byte3;
-    u8 byte2;
-    u8 byte1;
-    u8 byte4;
-    s32 offset;
+    u8 theByte;
+    u8 loBackUp;
+    u8 hiBackUp;
+    u8 theLen;
+    u8 nextByte;
+    s32 backup;
 
     if (seq->curBULen[track] != 0) {
-        result = *seq->curBUPtr[track];
+        theByte = *seq->curBUPtr[track];
         seq->curBUPtr[track]++;
         seq->curBULen[track]--;
     } else {
-        result = *seq->curLoc[track];
+        theByte = *seq->curLoc[track];
         seq->curLoc[track]++;
-        if (result == AL_CMIDI_BLOCK_CODE) {
-            byte4 = *seq->curLoc[track];
+        if (theByte == AL_CMIDI_BLOCK_CODE) {
+            nextByte = *seq->curLoc[track];
             seq->curLoc[track]++;
-            if (byte4 != AL_CMIDI_BLOCK_CODE) {
-                byte2 = byte4;
-                byte3 = *seq->curLoc[track];
+            if (nextByte != AL_CMIDI_BLOCK_CODE) {
+                hiBackUp = nextByte;
+                loBackUp = *seq->curLoc[track];
                 seq->curLoc[track]++;
-                byte1 = *seq->curLoc[track];
+                theLen = *seq->curLoc[track];
                 seq->curLoc[track]++;
-                offset = byte2;
-                offset <<= 8;
-                offset += byte3;
-                seq->curBUPtr[track] = seq->curLoc[track] - offset - 4;
-                seq->curBULen[track] = byte1;
-                result = *seq->curBUPtr[track];
+                backup = hiBackUp;
+                backup <<= 8;
+                backup += loBackUp;
+                seq->curBUPtr[track] = seq->curLoc[track] - backup - 4;
+                seq->curBULen[track] = theLen;
+                theByte = *seq->curBUPtr[track];
                 seq->curBUPtr[track]++;
                 seq->curBULen[track]--;
             }
         }
     }
-    return result;
+    return theByte;
 }
 
 s32 __readVarLen(ALCSeq *seq, s32 track) {
