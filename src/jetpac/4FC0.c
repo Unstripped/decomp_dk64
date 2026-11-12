@@ -491,7 +491,7 @@ void jetpacActorSteerToPlayer(JetpacActor *actor) {
     f32 cx1;
 
     cx1 = jetpacGetEntityCenterX(actor);
-    cx2 = jetpacGetEntityCenterX(&jetpacPlayer);
+    cx2 = jetpacGetEntityCenterX((JetpacActor *)&jetpacPlayer);
     dx = cx2 - cx1;
     if (cx1 < cx2) {
         dxw = dx - 256.0f;
