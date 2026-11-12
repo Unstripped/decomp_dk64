@@ -1995,11 +1995,6 @@ void csCmdShowRemainingDigits(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 
-typedef struct CsObjStateView {
-    /* 0x000 */ u8 pad0[0x384];
-    /* 0x384 */ void *state;
-} CsObjStateView;
-
 typedef struct CsPartF32 {
     /* 0x00 */ f32 frames;
     /* 0x04 */ f32 t;
@@ -2015,7 +2010,7 @@ typedef struct CsPartF32 {
 
 void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     PlayerState *p;
-    CsObjStateView *obj;
+    EffectNode *obj;
     CsPartF32 *q;
     s32 flag;
     s16 ang;
@@ -2070,8 +2065,8 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetDuration(-1);
         effectSetDepth(0);
         effectSetCallback(cb);
-        obj = (CsObjStateView *)effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, px, py, pz);
-        q = obj->state = heapAlloc(0x28);
+        obj = effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, px, py, pz);
+        q = obj->allocation = heapAlloc(0x28);
         q->frames = (randomNonNegative() >> 15) % 5 + 10;
         q->t = 0.0f;
         q->x = xs;
@@ -2870,22 +2865,17 @@ u8 csCondActorFacingPos(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern u8 gPlayerCount;
 
-s32 csFindPlayerSlotByModel(s32 a, s32 b) {
-    s32 i = 0;
-    PlayerStruct *p;
-    Actor *q;
-    if (gPlayerCount > 0) {
-        p = gPlayerSlots;
-        do {
-            if (p->active != 0) {
-                q = p->actor;
-                if (q->attachMode == 1 && q->cutsceneId == a && q->unk10E == b) {
-                    return i;
-                }
+s32 csFindPlayerSlotByModel(s32 cutsceneId, s32 b) {
+    s32 i;
+    Actor *actor;
+
+    for (i = 0; i < gPlayerCount; i++) {
+        if (gPlayerSlots[i].active != 0) {
+            actor = gPlayerSlots[i].actor;
+            if (actor->attachMode == 1 && actor->cutsceneId == cutsceneId && actor->unk10E == b) {
+                return i;
             }
-            i++;
-            p++;
-        } while (i < gPlayerCount);
+        }
     }
     return -1;
 }
