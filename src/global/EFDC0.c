@@ -286,7 +286,6 @@ void playerStateEnterState4F(void) {
 }
 
 void playerStateEnterStunState1(void) {
-    extern u32 gGlobalPauseFlags;
 
     gGlobalPauseFlags |= 0x4000;
     gActivePlayerActor->state = 1;

@@ -743,7 +743,6 @@ void func_806F5FE8(s32 type, s16 x, s16 y, s16 z, s32 delay) {
     }
 }
 
-extern s32 gGlobalPauseFlags;
 
 void delayedSpawnQueueTick(void) {
     s32 i;

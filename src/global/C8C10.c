@@ -827,7 +827,6 @@ typedef struct R1C8CB580 {
 
 extern s16 gCurrentLevelIndex;
 extern s32 D_8071FB08;
-extern u32 gGlobalPauseFlags;
 #define R1C8CBP ((R1C8CBPlayer *)gPlayerSlots)
 extern s16 D_807FD802;
 extern s16 D_807FD804;

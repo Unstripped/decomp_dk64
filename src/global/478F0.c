@@ -967,7 +967,6 @@ typedef struct CsPointHitState {
 } CsPointHitState;
 
 
-extern u32 gGlobalPauseFlags;
 extern u8 D_80748108;
 extern s32 D_807480F4;
 extern s32 D_807480F8;

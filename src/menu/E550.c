@@ -48,7 +48,6 @@ void menuLightSpotlightActorUpdate(void) {
 }
 
 extern u8 menuOptionDescFade;
-extern s32 gGlobalPauseFlags;
 
 void menuUpdateLightFadeActor(void) {
     s32 d;

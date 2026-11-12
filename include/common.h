@@ -12,4 +12,6 @@ typedef struct TargetVec3f {
     f32 x, y, z;
 } TargetVec3f;
 
+extern u32 gGlobalPauseFlags;
+
 #endif

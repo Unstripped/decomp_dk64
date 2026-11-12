@@ -614,7 +614,6 @@ extern f32 D_807F5FE0;
 extern f32 D_807F5FDC;
 extern PlanePoly gFrustumPlanes[];
 extern struct RenderEntry *D_807F5FF0;
-extern s32 gGlobalPauseFlags;
 extern Mtx D_2000180;
 
 f32 cosApprox(f32);

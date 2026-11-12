@@ -83,7 +83,6 @@ extern Mtx D_20000C0;
 extern s8 D_80750560[9];
 extern HudTextEntry *D_807FC7F0[2];
 extern s8 D_807FC7F8[2];
-extern u32 gGlobalPauseFlags;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;

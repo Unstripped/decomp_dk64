@@ -225,7 +225,6 @@ extern u8 gMenuDemoActive;
 extern u64 D_807445B8;
 extern u64 D_807445C0;
 extern s8 D_80746B60;
-extern u32 gGlobalPauseFlags;
 extern s32 D_80755320;
 
 

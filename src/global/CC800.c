@@ -653,7 +653,6 @@ void playerApplyCharacterModel(void *arg) {
 }
 
 extern s16 D_8076AEE2;
-extern s32 gGlobalPauseFlags;
 extern s8 D_80770DC9;
 
 void playerWarpToSpawnPoint(s32 spawnIndex) {

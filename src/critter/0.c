@@ -1089,7 +1089,6 @@ void critterInit(void *groups) {
     heapClearBlock(critterPlayerZone);
 }
 
-extern s32 gGlobalPauseFlags;
 
 Gfx *critterRender(Gfx *glist) {
     if (gGlobalPauseFlags & 0x10) {

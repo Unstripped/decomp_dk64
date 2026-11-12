@@ -68,7 +68,6 @@ typedef struct PadU16Slot {
 
 extern PadU16Slot D_807FD63C[];
 
-extern u32 gGlobalPauseFlags;
 extern PadU16Slot D_807FD63A[];
 
 void playerStateCarried(void) {

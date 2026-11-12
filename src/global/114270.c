@@ -500,7 +500,6 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
 }
 
 
-extern s32 gGlobalPauseFlags;
 extern u8 D_807FDA1B;
 extern f32 *D_8076A0B4;
 extern u8 D_8077058C[];

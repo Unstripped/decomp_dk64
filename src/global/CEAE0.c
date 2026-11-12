@@ -282,7 +282,6 @@ extern s32 D_8076A090;
 extern s32 D_8076A094;
 extern s32 D_8076A098;
 extern s32 D_807552E4;
-extern s32 gGlobalPauseFlags;
 extern s32 gCurrentMap;
 extern u8 D_80770561;
 extern u8 D_807463B8;

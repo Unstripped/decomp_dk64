@@ -134,7 +134,6 @@ extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
 extern s8 D_80033734;
-extern s32 gGlobalPauseFlags;
 
 void menuResetCameraAndFlags(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;

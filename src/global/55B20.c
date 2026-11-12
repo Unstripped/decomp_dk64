@@ -1718,7 +1718,6 @@ void func_8065C990(void *, void *, s32, void *, s32, s32);
 extern f32 D_807F7EEC;
 extern f32 D_807F7EF0;
 extern f32 D_807F7EF4;
-extern s32 gGlobalPauseFlags;
 extern u8 D_807F78C0;
 
 void mapChunksApplyLights(f32 x, f32 y, f32 z) {

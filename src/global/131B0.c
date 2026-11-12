@@ -14,7 +14,6 @@ extern u8 gScreenRenderFlags;
 extern u32 gFrameCounter;
 extern u8 D_807ECD09;
 extern OSMesgQueue D_807ECCF0;
-extern u32 gGlobalPauseFlags;
 extern PlayerStruct *gPlayerSlots;
 
 // .bss 0x807F02D0-0x807F04C0

@@ -432,7 +432,6 @@ u16 zbufferReadDepth(s16 x, s16 y) {
     return (u32)result >> 3;
 }
 
-extern s32 gGlobalPauseFlags;
 extern s16 D_807FD800;
 extern s16 D_807FD802;
 extern s16 D_807FD804;

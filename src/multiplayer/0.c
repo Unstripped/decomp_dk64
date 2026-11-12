@@ -67,7 +67,6 @@ extern u8 D_20000C0[];
 
 extern PlayerInventory gPlayerInventoryTable[];
 extern u8 gPlayerCount;
-extern s32 gGlobalPauseFlags;
 extern s8 D_8076A105;
 typedef struct MpSpawnPoint {
     s16 x;

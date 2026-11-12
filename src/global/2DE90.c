@@ -85,7 +85,6 @@ extern s16 gGfxScreenBottom;
 extern s32 D_80747B24;
 extern f32 D_807F5D90;
 extern Mtx D_807F5D98;
-extern s32 gGlobalPauseFlags;
 
 Gfx *screenWipeDraw(Gfx *glist) {
     s32 stepScale;

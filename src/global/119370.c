@@ -832,7 +832,6 @@ f32 distance3D(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
 #define EFFECT_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 extern Actor *gPrimaryPlayerActor;
-extern s32 gGlobalPauseFlags;
 extern u8 D_807F6009;
 extern s32 D_807F600C;
 extern u8 gCurrentPlayerIndex;

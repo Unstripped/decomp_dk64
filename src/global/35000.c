@@ -364,7 +364,6 @@ RenderEntry *renderEntryListSortByDistance(RenderEntry *list, f32 camX, f32 camY
 
 extern s32 gGfxCurrentFrameBuffer;
 extern u8 D_807F6009;
-extern s32 gGlobalPauseFlags;
 extern u8 D_2000180[];
 
 void *renderModelQuadGfx(void *, void *, f32, f32, f32, s32, s32, s32);

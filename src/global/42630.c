@@ -452,7 +452,6 @@ void csStateUpdate(CsStateFull *cs, s16 csId) {
     }
 }
 
-extern u32 gGlobalPauseFlags;
 
 void csStateEndUpdate(CsStateFull *cs) {
     Actor *actor;

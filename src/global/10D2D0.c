@@ -36,7 +36,6 @@ struct HealthStats;
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern s32 gFrameCounter;
-extern s32 gGlobalPauseFlags;
 
 Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, PlayerStruct *hudState) {
     s16 i;

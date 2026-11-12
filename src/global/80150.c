@@ -1205,7 +1205,6 @@ typedef struct TransformBarrelEntry {
 extern TransformBarrelEntry D_8074E7BC[];
 extern u8 gPlayerInventoryTable[][0x5E];
 
-extern s32 gGlobalPauseFlags;
 extern s32 gGlobalCutsceneFlags;
 
 
@@ -2821,7 +2820,6 @@ s32 tagBarrelCheckKongFlag(s32 kongType, s32 setFlag) {
 }
 
 extern s32 D_8074E848[];
-extern s32 gGlobalPauseFlags;
 
 
 void tagBarrelStartSelection(TagBarrelData *data) {

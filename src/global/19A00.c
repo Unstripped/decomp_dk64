@@ -1648,7 +1648,6 @@ void projectileTrySpawnFromSlot(Actor *actor) {
 
 extern u8 D_8071FE08[];
 extern u8 D_8071FF18[];
-extern s32 gGlobalPauseFlags;
 extern f32 sSavedLightColorR;
 extern f32 sSavedLightColorG;
 extern f32 sSavedLightColorB;

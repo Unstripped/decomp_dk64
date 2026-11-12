@@ -506,7 +506,6 @@ u32 D_80770E38[16];
 f32 D_80770E78[16];
 f32 D_80770EB8[16];
 f32 D_80770EF8[16];
-extern u32 gGlobalPauseFlags;
 extern PlayerState *gActivePlayerState;
 
 

@@ -112,7 +112,6 @@ void lightQueueKeyframed(u8 keyframeSetIndex, s16 lightId, f32 x, f32 y, f32 z, 
 
 extern s32 gCurrentMap;
 extern Actor *gPrimaryPlayerActor;
-extern s32 gGlobalPauseFlags;
 extern s32 gGlobalCutsceneFlags;
 
 

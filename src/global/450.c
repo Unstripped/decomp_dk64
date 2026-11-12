@@ -95,7 +95,6 @@ extern OSIoMesg D_807ECE00;
 extern s16 *D_807ECDF4;
 extern s8 D_807F6008;
 extern s32 D_807F6010;
-extern u32 gGlobalPauseFlags;
 extern u32 gGlobalOverlayFlags;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;

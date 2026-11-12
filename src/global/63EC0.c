@@ -58,7 +58,6 @@ extern EffectTableEntry D_80748A90[];
 extern TextureCacheEntry D_80748A9C[];
 extern EffectTableFlags D_80748AA5[];
 extern EffectBufferEntry *gMapChunks;
-extern s32 gGlobalPauseFlags;
 extern u8 gGfxBufferIndex;
 extern u8 gWaterRippleActive;
 extern f32 gWaterRippleCenter[2];

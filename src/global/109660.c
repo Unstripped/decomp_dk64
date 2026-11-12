@@ -673,7 +673,6 @@ Gfx *gfxDrawMapBackground(Gfx *dl, f32 rotX, f32 rotY, Mtx *mtx, s16 player) {
     return dl;
 }
 
-extern s32 gGlobalPauseFlags;
 extern s32 D_807552EC;
 
 Gfx *gfxDrawPlayerViewBackground(Gfx *glist, s16 player) {

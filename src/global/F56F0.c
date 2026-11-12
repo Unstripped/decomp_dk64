@@ -1251,7 +1251,6 @@ void playerWaypointPathStartPacked(Actor *actor, void *callbackParam, s16 packed
     gWaypointFlags = 0;
 }
 
-extern s32 gGlobalPauseFlags;
 
 
 void playerWaypointPathStartLineFromPoint(Actor *actor, G01Pos *spawn, u8 length) {

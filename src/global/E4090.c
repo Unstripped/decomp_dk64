@@ -2334,7 +2334,6 @@ void playerInputHandleRButtonReleaseCameraLock(void) {
 }
 
 extern u8 gPausingPlayer;
-extern s32 gGlobalPauseFlags;
 extern f32 gScreenFadeProgress;
 
 void playerInputRequestPause(void) {

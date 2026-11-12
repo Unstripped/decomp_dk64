@@ -482,7 +482,6 @@ void menuTransitionToSubmenu(Struct_80025D14 *state, u8 *inventory) {
     playerStateQueueCallback(0x1B, gCurrentActor, 0);
 }
 
-extern s32 gGlobalPauseFlags;
 
 
 void menuUpdateShopPurchaseStep(Struct_80025D14 *state, u8 *inventory) {
