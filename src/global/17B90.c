@@ -267,7 +267,7 @@ void controllerCommandRelocateAssets(ControllerCommand *cmdStart, void *cmdEnd) 
     }
 }
 
-u16 controllerLookupStateByHash(Actor *actor) {
+s32 controllerLookupStateByHash(Actor *actor) {
     u32 val = (u32)actor->animState;
     s32 i;
     for (i = D_807FBB30; i >= 0; i--) {

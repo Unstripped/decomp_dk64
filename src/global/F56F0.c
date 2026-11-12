@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_controllerLookupStateByHash // FAKE: callee prototype steer
 #define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/117190.h"
 #include "proto/global/15050.h"
@@ -91,13 +90,11 @@ void playerPlayKongSpecificSfx(Actor *actor) {
     }
 }
 
-s32 controllerLookupStateByHash(void);
-
 void playerKongStopSoundByState(Actor *actor) {
     s32 pad;
     PlayerState *extra;
 
-    switch (controllerLookupStateByHash()) {
+    switch (controllerLookupStateByHash(actor)) {
     case 1:
     case 2:
     case 3:
@@ -143,13 +140,13 @@ void playerKongStopSoundByState(Actor *actor) {
     }
 }
 
-extern u8 D_807FC952[];
+extern PlayerInventory gPlayerInventoryTable[];
 
 void playerKongPlaySoundByState(Actor *actor) {
     s32 pad;
     PlayerState *extra;
 
-    switch (controllerLookupStateByHash()) {
+    switch (controllerLookupStateByHash(actor)) {
     case 1:
     case 2:
         func_8068A764(actor, 0);
@@ -207,7 +204,7 @@ void playerKongPlaySoundByState(Actor *actor) {
             extra->gunDrawn = 1;
         }
         if (func_80714608(0) != 0) {
-            D_807FC952[extra->playerIndex * 0x306 + playerGetResolvedKongId(extra->playerIndex) * 0x5E] = 1;
+            gPlayerInventoryTable[extra->playerIndex].kong[playerGetResolvedKongId(extra->playerIndex)].unk0[2] = 1;
             func_806F5A48(extra->playerIndex, 0, actor, 0x8F);
         }
     }
@@ -446,7 +443,7 @@ void playerWeaponCalculateTrajectory22(Actor *actor, BoneRotation *slots, s32 *c
     s32 tableIndex;
     u16 angle;
 
-    angle = 0x16;  // FAKE: the base shares angle's register with the table value
+    angle = 0x16;  // FAKE: the base shares the angle register with the table value (Q0214)
     tableIndex = gActivePlayerState->unk8E - angle;
     if ((tableIndex >= 0) && ((u32)tableIndex < 4U)) {
         angle = D_80752F38[tableIndex];
@@ -849,17 +846,21 @@ void playerWeaponCrosshairRender(Actor *actor, BoneVector *entries, s32 *count) 
     s32 sel;
     if (gActivePlayerState && gActivePlayerState) {}  // FAKE: dead global test steers uopt (ps in v0, u16 in v1)
     timer = gActivePlayerState->unk21E;
-    fade = (f32)timer * 0.03333333507f;
-    if ((f64)fade < 1e-05) fade = 0.000009999999747f;
+    fade = timer * 0.033333335f;
+    if (fade < 1e-05) {
+        fade = 1e-05f;
+    }
     sel = actor->state;
     if ((sel == 0x34) || (sel == 0x84)) {
-        if ((f64)gActivePlayerState->unk25C > 0.01) {
-            gActivePlayerState->unk258 = (f32)((f64)gActivePlayerState->unk258 * 1.07);
-            gActivePlayerState->unk25C = (f32)((f64)gActivePlayerState->unk25C * 0.7);
+        if (gActivePlayerState->unk25C > 0.01) {
+            gActivePlayerState->unk258 *= 1.07;
+            gActivePlayerState->unk25C *= 0.7;
         } else {
             actor->flags &= ~0x8000;
-            if (gActivePlayerState->unk21E != 0) gActivePlayerState->unk21E -= 1;
-            actor->alpha = (s16)(255.0f * fade);
+            if (gActivePlayerState->unk21E != 0) {
+                gActivePlayerState->unk21E--;
+            }
+            actor->alpha = 255.0f * fade;
         }
         scaleX = gActivePlayerState->unk258;
         scaleY = gActivePlayerState->unk25C;
