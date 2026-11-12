@@ -39,9 +39,7 @@ s32 raceGetPrevWaypointIndex(s32 pathLength, s32 curWaypoint) {
     return curWaypoint - 1;
 }
 
-typedef struct TargetVec3f {
-    f32 x, y, z;
-} RaceAPoint3f;
+typedef TargetVec3f RaceAPoint3f;
 
 
 // Race actor: Actor plus its component pointers from 0x174 on.

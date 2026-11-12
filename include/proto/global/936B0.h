@@ -8,7 +8,6 @@ struct ProjectileActorSync;
 struct ProjectileAngleStep;
 struct ProjectileAngleTarget;
 struct SpawnPointActor;
-struct TargetVec3f;
 #ifndef PROTO_SKIP_actorSnapToBone
 void actorSnapToBone(Actor **);
 #endif

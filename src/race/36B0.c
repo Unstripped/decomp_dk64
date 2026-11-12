@@ -25,9 +25,7 @@
 #include "proto/race/36B0.h"
 #include "proto/race/7BD0.h"
 
-typedef struct TargetVec3f {
-    f32 x, y, z;
-} Point3f;
+typedef TargetVec3f Point3f;
 
 typedef struct RaceActor RaceActor;
 

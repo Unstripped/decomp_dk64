@@ -43,12 +43,8 @@ typedef struct Struct_807FC924 {
     char pad8[0x214 - 0x8];
     f32 unk214;
 } Struct_807FC924;
-// Same layout as 936B0.c TargetVec3f (mathPickCloserTargetPoint3D's point type).
-typedef struct TargetVec3f {
-    f32 x;
-    f32 y;
-    f32 z;
-} MinecartTrackPoint;
+// A track point is a TargetVec3f (mathPickCloserTargetPoint3D's point type).
+typedef TargetVec3f MinecartTrackPoint;
 
 typedef struct MinecartCart {
     s16 unk0;

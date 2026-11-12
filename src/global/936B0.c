@@ -115,9 +115,6 @@ void actorSyncTransformFromParent(ProjectileActorSync **actorRef) {
     actorUpdateModelMatrix((Actor *)self, 0);
 }
 
-typedef struct TargetVec3f {
-    f32 x, y, z;
-} TargetVec3f;
 s32 mathPickCloserTargetPoint3D(f32 x, f32 y, f32 z, TargetVec3f *segAStart, TargetVec3f *segAEnd, TargetVec3f *segBStart, TargetVec3f *segBEnd, f32 *outX, f32 *outY, f32 *outZ) {
     f32 bz;
     f32 by;
