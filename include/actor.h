@@ -748,7 +748,8 @@ typedef struct PlayerState {
     /* 0x1A2 */ u8 unk1A2;
     /* 0x1A3 */ u8 isHoldingObject;
     /* 0x1A4 */ u8 playerIndex;
-    /* 0x1A5 */ u8 pad1A5[7];
+    /* 0x1A5 */ u8 pad1A5[3];
+    /* 0x1A8 */ Actor *countdownTimer;
     /* 0x1AC */ Actor *heldActor;
     /* 0x1B0 */ Actor *queuedHeldActor;
     /* 0x1B4 */ s32 queuedHeldActorId;
