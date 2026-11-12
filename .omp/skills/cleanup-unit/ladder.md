@@ -58,6 +58,8 @@ Tooling rules (were Q0626/Q0634/Q0638):
   adjacent label, `(0, x)`, `& 0xFFFFFFFFu`, a copy temp) is `permute nohit`; name the steer in the note.
 - The permuter's pycparser rejects `x * sizeof(T) + sizeof(s32)` and a one-line `p = x; do {`:
   rewrite them in the permuter base only, then translate the hint back into the copy.
+- Never write `'` in a `//` comment (FAKE notes): asm-processor/cfe read it as a char literal (compile
+  error); two in one comment cancel out and hide the code between them (false matches).
 
 ## Required fresh methods per kind
 

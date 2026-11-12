@@ -109,7 +109,8 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
    <paste the "Required fresh methods per kind" table from ladder.md>
    - `remove`/`plain`/`cond`/`classify`: done by the sweep; re-run it after phase 1 changes.
    - `diagnose`: `tools/uopt_trace.sh -s <src> .scratch/<You>/<file>.c FUNC` for regalloc,
-     `tools/dk python3 tools/as1probe.py keep|scan` for schedule; name the IDs (`quirks=`).
+     `tools/dk python3 tools/as1probe.py keep|scan` for schedule; name the IDs (`quirks=`). libaudio
+     (Makefile `GLOBAL_G_FILES`: 13E160…145D70, IDO 7.1 `-g`) has no uopt: compare the `-g` asm by hand.
    - `permute`: `tools/permute.py setup <seg> FUNC --from .scratch/<You>/<file>.c --src <src>
      --out .scratch/<You>/perm_<FUNC>` after removing the site, then `run ... -j 2 --seconds 900`,
      `best ...`; record `seconds= base= best=`. Start each `run` as its own background command

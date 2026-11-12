@@ -26,7 +26,7 @@ Use the model the user named for every worker spawn (`task` `model`; none named:
 
 ## 1. Ingest
 
-1. `git status` (unexpected changes are the user's: never stage them).
+1. `git status` + `git log -3` (unexpected changes are the user's: never stage them; a lead whose handle died may still run: new commits or a dirty `drafts/quality/` → message it, wait until quiet).
 2. `find src -name '*.c' -exec touch {} +`; `tools/dk make` must end `build/dk64.us.z64: OK`;
    `tools/dk make expected`.
 3. `uv run tools/protos.py gen --check` exits 0 (else regenerate and commit `include/proto` first);
@@ -72,8 +72,8 @@ and pure typedef renames, never a type change. Before committing a widely reache
 non-sweep rungs AND functions turning EXHAUSTED→OPEN (round 18's 0xEC union: 2 measured, 112 re-opened in 42 files, one sweep). Hold above ~100 non-sweep losses; sweep the rest.
 
 Callee-prototype work is its own workstream, prepared by a batch worker in `.scratch/<A>/<name>batch/`
-(owner + caller copies, `measure.json` per-file cfe before/after, `ledger/<file>.txt`; verify header edits with a
-full copy of `include/` (shadow-prepending leaks through quoted includes in real headers)). Measure on the
+(owner + caller copies, `measure.json` per-file cfe before/after, `ledger/<file>.txt`; verify header edits with make's compile
+and `-I include` swapped for a full `include/` copy: `fdiff.sh`/`cwarn --as` shadow-prepend, so headers nested in proto headers hit the repo's). Measure on the
 checked-out agents' copies too: if any would rise, hold the batch and gate it in ONE unit with those
 copies. Merge owner + callers, `protos.py gen`, objdiff every includer, one gate with every `--stage`d
 header; sweep + carry. A batch stales the review of every caller whose BODY it edits: list them and
@@ -113,8 +113,8 @@ As each agent reports:
    keeps its type and goes to the follow-ups).
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
 gate; a merged file's net HACKS (tagged `// FAKE` + untagged AST sites) and cfe warnings never rise.
-Tag pre-existing untagged hacks ("pre-existing, now tagged"); accept a pre-existing uninit read a
-K&R → ANSI conversion exposes (note). `make expected` before sweeping a relocation-only diff.
+Tag pre-existing untagged hacks ("pre-existing, now tagged", one copy-only line each): compare `status --file` site totals base vs
+applied copy; the tags are the only accepted rise (a new steer replacing untracked puns goes back, r19 b7). Accept a pre-existing uninit read a K&R → ANSI conversion exposes (note). `make expected` before sweeping a relocation-only diff.
 
 ## 6. Round end
 
@@ -124,7 +124,7 @@ Once every agent of the round is idle:
    references inside macros and address-shaped targets (`func_807444E0` data → `D_`): take the
    `--dry-run` positions, apply them plus the macro lines by hand, one gate.
 2. `tools/dk make split`, touch all src, `make` OK, `make expected`, `unit_check.py vanished` → OK.
-3. `carry --rev <commit before the renames> --unit "<unit>"` re-stamps pure renames; sweep the files
+3. `carry --rev <commit before the renames> --unit "<unit>"` (once: a rerun duplicates events) re-stamps pure renames; sweep the files
    it skipped (agent rungs of skipped functions stay stale). Commit.
 4. Re-review: `review=stale` functions in the round's touched files plus their never-reviewed OPEN
    functions → ~3 whole-file groups in `.scratch/rereview<N>.md`, one agent each (brief.md).
