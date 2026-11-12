@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_9DD70_H
 #include "common.h"
 #include "actor.h"
-struct ActorPositionView;
 #ifndef PROTO_SKIP_mathAngleBetweenPoints3D
 void mathAngleBetweenPoints3D(s16 *, s16 *, f32, f32, f32, f32, f32, f32);
 #endif
@@ -86,7 +85,7 @@ void textSpawnMarker(u8, s16, s16, u8 *, u16, u16, u8, u8);
 void textSpawnMarkerChecked(u8, s16, s16, u8 *, u16, u16, u8, u8);
 #endif
 #ifndef PROTO_SKIP_renderAppendScaledMatrix
-void *renderAppendScaledMatrix(void *, struct ActorPositionView *, s16, f32);
+void *renderAppendScaledMatrix(void *, Actor *, s16, f32);
 #endif
 #ifndef PROTO_SKIP_textMarkerRenderString
 Gfx *textMarkerRenderString(Gfx *, Actor *);

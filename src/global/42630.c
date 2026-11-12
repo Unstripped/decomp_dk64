@@ -1102,7 +1102,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 cg;
     f32 cb;
     s16 idx;
-    PlayerState *cam;
+    PlayerState *playerState;
     Actor *actor;
     s32 map;
     s32 b;
@@ -1129,7 +1129,8 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         D_807F693C = 0x80;
         break;
     case 0x92:
-        ((PlayerState *)gPlayerSlots->actor->customState)->stateFlags |= 0x40000800;
+        playerState = gPlayerSlots->actor->customState;
+        playerState->stateFlags |= 0x40000800;
         break;
     case 0x91:
         gPrimaryPlayerActor->speedXZ = cmd->a;
@@ -1208,10 +1209,10 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x78:
         modelSlotGetNodePos(csId, 1, cmd->a, &px, &py, &pz);
-        cam = gPlayerSlots->actor->customState;
-        cam->savedX = px;
-        cam->savedY = py;
-        cam->savedZ = pz;
+        playerState = gPlayerSlots->actor->customState;
+        playerState->savedX = px;
+        playerState->savedY = py;
+        playerState->savedZ = pz;
         break;
     case 0x74:
         cs->unk9B |= cmd->a;
@@ -1272,16 +1273,20 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         actorSetTargetSlotByte(csId, CMDB(cmd)->a);
         break;
     case 0x5F:
-        ((PlayerState *)gPlayerSlots->actor->customState)->stateFlags |= (cmd->a << 16) + cmd->b;
+        playerState = gPlayerSlots->actor->customState;
+        playerState->stateFlags |= (cmd->a << 16) + cmd->b;
         break;
     case 0x3B:
-        ((PlayerState *)gPlayerSlots->actor->customState)->stateFlags &= ~((cmd->a << 16) + cmd->b);
+        playerState = gPlayerSlots->actor->customState;
+        playerState->stateFlags &= ~((cmd->a << 16) + cmd->b);
         break;
     case 0x8C:
-        ((PlayerState *)gPlayerSlots->actor->customState)->stateFlags2 |= (cmd->a << 16) + cmd->b;
+        playerState = gPlayerSlots->actor->customState;
+        playerState->stateFlags2 |= (cmd->a << 16) + cmd->b;
         break;
     case 0x8B:
-        ((PlayerState *)gPlayerSlots->actor->customState)->stateFlags2 &= ~((cmd->a << 16) + cmd->b);
+        playerState = gPlayerSlots->actor->customState;
+        playerState->stateFlags2 &= ~((cmd->a << 16) + cmd->b);
         break;
     case 0x5D:
         screenSetTransitionFadeType(CMDB(cmd)->a);
@@ -1713,8 +1718,8 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         modelSlotSetNodeScrollSpeed(csId, cmd->a, cmd->b, cmd->c);
         break;
     case 0x29:
-        cam = gPlayerSlots->actor->customState;
-        camStartShakeFromPoint(cam->camActor, CMDB(cmd)->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, D_807F6906, D_807F6908);
+        playerState = gPlayerSlots->actor->customState;
+        camStartShakeFromPoint(playerState->camActor, CMDB(cmd)->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, D_807F6906, D_807F6908);
         break;
     case 0x44:
         D_807F6906 = cmd->a;

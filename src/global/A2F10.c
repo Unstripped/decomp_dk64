@@ -693,9 +693,9 @@ void actorUpdateSpinAndVelocityWrapperB(void) {
 }
 
 typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
+    f32 z;
+    f32 y;
+    f32 x;
     u8 padC[0x24];
 } NodePosition;
 
@@ -734,12 +734,12 @@ void actorFallAndBurstUpdate(void) {
         camStartShake(gCamActor, 0xF, 0xF);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x162, 0xE1, 0x3C, 1);
         for (i = 1; i != 7; i++) {
-            actorGetNodePos(gCurrentActor, i, &pos.unk8, &pos.unk4, &pos.unk0);
+            actorGetNodePos(gCurrentActor, i, &pos.x, &pos.y, &pos.z);
             effectSetAngle(i);
             effectSetDepth(1);
             effectSetCallback(effectSpinBillboardingUpdate);
             effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
-            effectCreateAtPosition(&D_80720BE8, 1.5f, pos.unk8, pos.unk4, pos.unk0);
+            effectCreateAtPosition(&D_80720BE8, 1.5f, pos.x, pos.y, pos.z);
         }
         actorDespawn(gCurrentActor);
     }

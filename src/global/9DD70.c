@@ -77,7 +77,7 @@ typedef struct PlayerControlState {
 } PlayerControlState;
 
 typedef struct PanSubState {
-    /* 0x00 */ PlayerControlState *unk0;
+    /* 0x00 */ PlayerState *player;
     /* 0x04 */ u16 *unk4;
     /* 0x08 */ s16 *unk8[2]; // per-frame-buffer copies of unk4
     /* 0x10 */ u16 unk10;
@@ -107,11 +107,11 @@ void actorPhotoUpdate(void) {
     f32 mtx2[4][4];
     s16 frameElapsed;
     s32 l1Angle;
-    u8 pad;
+    u8 fadedOut;
     f32 t;
 
     subState = gCurrentActor->customState;
-    pad = 0;
+    fadedOut = 0;
     if (!(gCurrentActor->flags & 0x10)) {
         subState->unk10 = 0x5A;
         gCurrentActor->flags |= 0x400;
@@ -135,15 +135,15 @@ void actorPhotoUpdate(void) {
     } else {
         animSetNodeItem(gCurrentActor, 0, 0, (s32)subState->unk4);
         if (gCurrentActor->unk155 == 0) {
-            if (((PlayerControlState *)gActivePlayerState)->unk1EC == 1) {
-                slotQueueAddValue(0xC, ((PlayerControlState *)gActivePlayerState)->unk1A4, 1);
+            if (((PlayerState *)gActivePlayerState)->unk1EC == 1) {
+                slotQueueAddValue(0xC, ((PlayerState *)gActivePlayerState)->playerIndex, 1);
                 sfxAllocateChannel(0x2E, 1.0f);
-            } else if (((PlayerControlState *)gActivePlayerState)->unk1EC == 2) {
+            } else if (((PlayerState *)gActivePlayerState)->unk1EC == 2) {
                 sfxPlayOnFreeSlot(0x98, 0x7FFF, 63.0f, 1.0f, 0, 0x80);
             }
             gCurrentActor->unk155++;
         }
-        if (((PlayerControlState *)gActivePlayerState)->unk1EC != 0xFF && subState->unk10 != 0) {
+        if (((PlayerState *)gActivePlayerState)->unk1EC != 0xFF && subState->unk10 != 0) {
             renderCallbacksRegister(&func_806FF628, gCurrentActor, 3);
         }
     }
@@ -164,22 +164,22 @@ void actorPhotoUpdate(void) {
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->alpha -= 0xA;
         if (gCurrentActor->alpha <= 0) {
-            pad = 1;
+            fadedOut = 1;
         }
     }
-    if (pad || !(subState->unk0->unk1F0 & 0x8000)) {
-        if (subState->unk0->unk1EC == 1) {
+    if (fadedOut || !(subState->player->stateFlags & 0x8000)) {
+        if (subState->player->unk1EC == 1) {
             playerStateQueueCallback(0x58, NULL, 0);
         }
         sfxStopSlotSound(gCurrentActor, 0);
-        subState->unk0->unk1F0 &= ~0x8000;
-        subState->unk0->unk1EC = 0xFF;
+        subState->player->stateFlags &= ~0x8000;
+        subState->player->unk1EC = 0xFF;
         if (gCurrentActor->actorType == 0xD9) {
             assetFreeBuffer(subState->unk4, 0xF6, 0x45);
         } else {
             heapFreeDeferred((Mtx *)subState->unk4);
         }
-        subState->unk0->unk88 = 0;
+        subState->player->actor = NULL;
         actorDespawn(gCurrentActor);
     } else {
         guTranslateF(gCurrentActor->modelMtx, 0.0f, -70.0f, 0.0f);
@@ -1391,14 +1391,9 @@ void textSpawnMarkerChecked(u8 fontStyle, s16 x, s16 y, u8 *textStr, u16 duratio
     }
 }
 
-typedef struct ActorPositionView {
-    u8 pad0[0x7C];
-    f32 unk7C;
-    f32 unk80;
-} ActorPositionView;
 
 
-void *renderAppendScaledMatrix(void *glistp, ActorPositionView *actor, s16 xOffset, f32 scale) {
+void *renderAppendScaledMatrix(void *glistp, Actor *actor, s16 xOffset, f32 scale) {
     Mtx *temp;
     f32 mtxA[4][4];
     f32 mtxB[4][4];
@@ -1406,7 +1401,7 @@ void *renderAppendScaledMatrix(void *glistp, ActorPositionView *actor, s16 xOffs
     temp = heapAlloc(0x40);
     heapFreeDeferred(temp);
     guScaleF(mtxA, scale, scale, 1.0f);
-    guTranslateF(mtxB, (f32)((f64)actor->unk7C + 2.0 * (f64)xOffset), actor->unk80, 0.0f);
+    guTranslateF(mtxB, (f32)((f64)actor->x + 2.0 * (f64)xOffset), actor->y, 0.0f);
     guMtxCatF(mtxA, mtxB, mtxA);
     guMtxF2L(mtxA, temp);
     ((u32 *)glistp)[0] = 0xDA380003;
@@ -1462,7 +1457,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
         case 1:
             width = textGetStringWidth((s16)(s32)actor->z, *sub);
             state = 0x13;
-            gfx = renderAppendScaledMatrix(gfx, (ActorPositionView *)actor, width, 0.8f);
+            gfx = renderAppendScaledMatrix(gfx, actor, width, 0.8f);
             state &= 0xFFFE;
             x = -(width * 2);
             y = 0;
@@ -1476,14 +1471,14 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
             mode = 6;
             width = textGetStringWidth(6, *sub);
             actor->x = (f32)((gScreenWidth - width) * 2);
-            gfx = renderAppendScaledMatrix(gfx, (ActorPositionView *)actor, width, 0.8f);
+            gfx = renderAppendScaledMatrix(gfx, actor, width, 0.8f);
             state = 0;
             x = -(width * 2);
             y = 0;
             break;
         case 10:
             mode = 6;
-            gfx = renderAppendScaledMatrix(gfx, (ActorPositionView *)actor, 0, 0.8f);
+            gfx = renderAppendScaledMatrix(gfx, actor, 0, 0.8f);
             state = 0;
             x = 0;
             y = 0;
