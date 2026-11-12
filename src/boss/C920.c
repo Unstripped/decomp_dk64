@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "boss.h"
 #include "sched.h"
 #include "proto/boss/3840.h"
 #include "proto/boss/C920.h"
@@ -18,13 +19,6 @@
 #include "proto/global/CC800.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"
-
-typedef struct BossScriptState {
-    u8 pad0[0x14];
-    u8 phase;
-    u8 scriptPos;
-    u8 loopPos;
-} BossScriptState;
 
 // K. Rool (Chunky phase) actor: component 1 (0x174) is gBehaviourWorkState, component 2 the script state.
 typedef struct BossKRoolChunkyActor {

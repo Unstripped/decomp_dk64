@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "boss.h"
 #include "sched.h"
 #include "proto/boot/3D20.h"
 #include "proto/boss/3840.h"
@@ -84,19 +85,6 @@ void bossPickFarthestWaypoint(void *state, u8 *waypointRanges) {
     ((BossB_Struct_80027950 *)state)->scriptPos += 2;
 }
 
-
-typedef struct BossScriptState {
-    char pad0[4];
-    s16 unk4;
-    char pad6[2];
-    s16 unk8[5];
-    u16 unk12;
-    u8 unk14;
-    u8 scriptPos;
-    u8 loopPos;
-    u8 pad17;
-    u8 unk18[8];
-} BossScriptState;
 
 typedef struct BossActor {
     Actor base;
@@ -478,7 +466,7 @@ void bossRoundFrame(u8 *script) {
         slotQueueSetDisplayMode(5, 0, 1);
         slotQueueSetDisplayMode(2, 0, 1);
         BA40->base.flags &= 0xFFFDFFFF;
-        if ((scriptState->unk14 == 0) || (BA40->base.actorType != 0x126)) {
+        if ((scriptState->phase == 0) || (BA40->base.actorType != 0x126)) {
             if (flagGet(0x5A, 2) == 0) {
                 healthRefill(0);
             }
@@ -512,7 +500,7 @@ void bossRoundFrame(u8 *script) {
     case 0x6C:
         scriptState->unk12 |= 1;
         bossStartCountdownTimer();
-        if ((scriptState->unk14 != 0) && (BA40->base.actorType == 0x126)) {
+        if ((scriptState->phase != 0) && (BA40->base.actorType == 0x126)) {
             hudCountdownTimerResume(BA40->base.parentActor);
         }
         BA40->base.state = script[scriptState->scriptPos];

@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "boss.h"
 #include "proto/boss/3840.h"
 #include "proto/boss/9C60.h"
 #include "proto/boss/A7A0.h"
@@ -14,13 +15,6 @@
 #include "proto/global/70FD0.h"
 #include "proto/global/7CA80.h"
 #include "proto/global/EFDC0.h"
-
-typedef struct BossScriptState {
-    /* 0x00 */ Actor *linkedActor;
-    /* 0x04 */ u8 pad4[0x10];
-    /* 0x14 */ u8 phase;
-    /* 0x15 */ u8 scriptPos;
-} BossScriptState;
 
 // K. Rool (Lanky phase) actor: component 1 (0x174) is gBehaviourWorkState, component 2 the script state.
 typedef struct BossKRoolLankyActor {
