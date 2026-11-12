@@ -75,7 +75,6 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     int exp;
     double rnd;
     int c;
-    int i;
     int i2;
     int *q1;
     int pad[4];
