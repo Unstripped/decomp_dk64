@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -111,7 +110,6 @@ void minecartTriggerWin(u8 useCutsceneCam, u8 textIndex) {
 extern void *D_80028C30;
 extern u8 D_8072006C[];
 
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void minecartSpawnWheelEffect(MinecartCart *cart, u8 side, u8 probabilityThreshold) {
     if ((randomLcgNext() & 0xFF) >= probabilityThreshold) {
@@ -735,7 +733,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     }
     if (((cart->unk14 > 0.0f) ? 1 : ((cart->unk14 < 0.0f) ? -1 : 0)) != prevTiltSign) {
         if (cart->unk39 != 0 && cart->unk0 == 0) {
-            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8B, ((cart->unk39 / maxTiltLimit) * 0x7F + 0x80) & 0xFF, 0x7F, 0x1E);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8B, (cart->unk39 / maxTiltLimit) * 0x7F + 0x80, 0x7F, 0x1E);
             cart->unk39 = 0;
         }
     }
