@@ -145,22 +145,23 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 20 (2026-11-12)** — global/1332B0 (`volumeTriggerSetPosition` void, dead-if gone), 68EA0 (ModelSlot/PlayerStruct replace the proximity/position views), 131B0, 5E020, jetpac/3060 (+ 4FC0 caller), 103AB0; round-19 tail Rev19A/B and Perm19 (libaudio all EXHAUSTED). cfe warnings 107 → 103; FAKE 750 → 755 (5 pre-existing hacks newly tagged); names `gVolumeTrigger*`, `gModelEmitters`/`gModelSlotCount`, `modelEmitter*` (8 functions), ModelSlot `x/y/z/scale/rotY/modelType/id`, PlayerStruct `eyeX/Y/Z`, ActorGlobalState `volumeTriggerQueue*`; knowledge Q0675–Q0678.
 - [x] **Round 21 (2026-11-12)** — global/135D30, boot/1630, boot/1CC0 (split label retired), 17540 (shared `Vec3f` in common.h; 103AB0/80150 local typedefs dropped; the 6 by-value helpers get prototypes), critter/4840 (4 proto-steers removed), E4090; StrBatch string convention (`u8 *` strings, `void *` pass-through sinks: `_strtok`, `_strspn`, `gfxResourceSetString`); round-20 tail Rev20A/B/C and Perm20B. cfe warnings 103 → 78; proto-steer 65 → 61; names `critterText*`/`critterWord*`, `sNoExpPak*`, `gHashTableBuckets`, G29State `stickInput`/`stickDirection`; knowledge Q0679–Q0682.
 - [x] **Round 22 (2026-11-12)** — menu/3E10, jetpac/3480, multiplayer/0, global/55B20, boss/C920 (5 views retired; `gBossFightPhase` split label folded into `gActorGlobalState.bossFightPhase` here and in 10 more files), global/79890 (collision views onto ActorEntry/ActorSub140/ModelNode/CollisionHitRecord); round-21 tail Rev21A/B. cfe warnings 78 → 66; FAKE 751 → 738; names ModelNode `scaledX/Y/Z/scaledRadius/mtxOffset`, ActorSub140 `modelMtxF`/`nodeMtx`, `gCollisionHitList*`, `collisionComputeArcYawBounds`, `sKRoolChunky*`; knowledge Q0683–Q0690.
-- [ ] Remaining (after round 22): 382 OPEN functions in 146 files (re-review groups Rev22A/B prepared for 61 functions; 70 functions staled by the round-22 knowledge commit) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
+- [x] **Round 23 (2026-11-12)** — global/F56F0 (+ `controllerLookupStateByHash` returns s32, 17B90 owner), arcade/0, boot/main (+ include/boot.h boot threads), 1371D0 and 137630 (libultra bnkf/osc shapes), ProxBatch (`ProxPathOwner` union, proxPath calls take `s32 id`); round-22 tail Rev22A/B; race.h `unkD0` carve; Actor 0x160 `union { f64 splineT; u32 frameCursor; }`. cfe warnings 66 → 53; proto-steer 61 → 60; names `proxPathRemoveOwner`, `gOscFreeList`/`gOscStates`, `sNoExpPakThread`; knowledge Q0691–Q0694.
+- [ ] Remaining (after round 23): 343 OPEN functions in 140 files (re-review groups Rev23A/B prepared for 25 functions; 48 functions staled by the round-23 knowledge commit) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 22):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 23):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 738 | 583 |
+| FAKE | 742 | 583 |
 | FAKE dead-if | 271 | 263 |
-| FAKE proto-steer | 61 | 134 |
-| FAKE other kinds | 406 | 186 |
-| LAYOUT | 67 | 47 |
+| FAKE proto-steer | 60 | 134 |
+| FAKE other kinds | 411 | 186 |
+| LAYOUT | 68 | 47 |
 | goto | 35 | 39 |
 | proto-type (`// PROTO:`) | 6 | 0 |
-| protos mismatch | 36 | 1,202 |
-| reviewed / exhausted functions | 4,045 / 3,888 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 66 | 1,890 |
+| protos mismatch | 35 | 1,202 |
+| reviewed / exhausted functions | 4,104 / 3,927 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 53 | 1,890 |
 | uninit warnings (clint checks every function) | 251 | 122 |
 | `func_` definitions | 432 | 457 |
 | m2c names | 401 | 5,040 |
