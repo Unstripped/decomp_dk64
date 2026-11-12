@@ -153,7 +153,7 @@ void seqPlayerDisableChannel(u8 playerIndex, s32 channel) {
 }
 
 void seqPlayerEnableChannel(u8 playerIndex, s32 channel) {
-    enableCSPChannel(&gSeqPlayers[playerIndex]->al, channel);
+    enableCSPChannel(gSeqPlayers[playerIndex], channel);
 }
 
 void seqPlayerSetChannelControl(u8 playerIndex, u8 channel, u8 value) {

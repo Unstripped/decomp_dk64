@@ -10,7 +10,7 @@ void alCSPPlay(ALCSPlayer *);
 void alCSPSetUnk84(N_CSPlayer *, s32);
 #endif
 #ifndef PROTO_SKIP_setCSPInstrumentFlags
-void setCSPInstrumentFlags(ALCSPlayer *, s32, s32);
+void setCSPInstrumentFlags(N_CSPlayer *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_setCSPChannelStateValue
 void setCSPChannelStateValue(N_CSPlayer *, s32, u8);
@@ -22,7 +22,7 @@ void resetCSPChannelStates(N_CSPlayer *);
 void alCSPChannelResetControl(ALCSPlayer *, s32);
 #endif
 #ifndef PROTO_SKIP_enableCSPChannel
-void enableCSPChannel(ALCSPlayer *, s32);
+void enableCSPChannel(N_CSPlayer *, s32);
 #endif
 #ifndef PROTO_SKIP_alCSPChannelSetControl
 void alCSPChannelSetControl(ALCSPlayer *, s32, u8);
