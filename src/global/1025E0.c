@@ -166,8 +166,6 @@ void func_806FDF54(f32 *pAngle, f32 *pTarget) {
 
 extern TextFontInfo gTextFonts[];
 extern s16 textGetCharAdvance(s16, s32); // FAKE: callee prototype steer
-f32 sinApprox(f32);
-f32 cosApprox(f32);
 
 Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 baseY, f32 baseZ, f32 scale) {
     TextObject *node;

@@ -155,7 +155,6 @@ void healthApplyPendingDelta(s32 playerIndex, PlayerStruct *hudState, HealthStat
     }
 }
 
-f32 sinApprox(f32);
 
 Gfx *healthHudUpdateDraw(glist, playerIndex, hudState)
 Gfx *glist;

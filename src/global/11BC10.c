@@ -23,8 +23,6 @@ extern u8 gGfxBufferIndex;
 extern s32 gCurrentMap;
 extern Actor *gPrimaryPlayerActor;
 
-f32 cosApprox(f32);
-f32 sinApprox(f32);
 
 typedef struct RotatingEffectActorView {
     u8 pad0[0x128];

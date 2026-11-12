@@ -374,7 +374,6 @@ Gfx *renderCountdownTimerHUD(Gfx *glist, CsCountdown *countdown) {
     return textDrawStringVtx(glist, 3, 0x370, 0x50, timeStr, 1);
 }
 
-f32 sinApprox(f32);
 
 Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal, u8 *timer) {
     f32 rollOffset;

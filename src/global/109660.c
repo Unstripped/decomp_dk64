@@ -68,7 +68,6 @@ extern u8 D_80754EF8[][12];
 extern Vtx *gSkyQuadVtx[];
 extern Mtx D_2000080;
 extern Mtx D_2000180;
-f32 cosApprox(f32);
 
 // Channel `off` of the sky colour table, blended from skyTypeA to skyTypeB by alpha and scaled by mul.
 #define BG_BLEND(off, mul) \

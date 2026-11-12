@@ -943,7 +943,6 @@ Gfx *screenFadeDrawGradient(Gfx *dl, u8 alpha) {
 
 extern u8 gHiResScale;
 extern u8 D_80754C08[];
-f32 sinApprox(f32);
 
 Gfx *screenFadeDrawSpinTexture(Gfx *dl, u8 alpha) {
     Mtx *mtx;

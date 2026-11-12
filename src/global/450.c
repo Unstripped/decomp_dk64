@@ -635,7 +635,6 @@ s32 hudCanRender(void) {
 }
 
 extern u8 gViewportCount;
-f32 sinApprox(f32);
 
 typedef struct {
     u8 pad0[0x104];

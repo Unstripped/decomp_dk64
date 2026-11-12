@@ -217,7 +217,6 @@ CamCueStep gCamCueTable[9] = {
     { 0 },
 };
 
-f32 sinApprox(f32);
 f32 sqrtf(f32);
 
 #define CAM_LERP(a, b, t) ((a) + ((b) - (a)) * (t))
@@ -1054,7 +1053,6 @@ void camSnapBehindTarget(Actor *camActor) {
 
 extern u32 gFrameDelta;
 
-f32 cosApprox(f32);
 
 #define CAM_PATH_NODE (gCamActivePaths->unkD8[gCamPathNode])
 #define CAM_PATH_STEP_LIST (gCamActivePaths->unkD0[gCamPathIndex])

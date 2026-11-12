@@ -474,8 +474,6 @@ typedef struct F5N1Spring {
     f32 velocity;
 } F5N1Spring;
 
-f32 cosApprox(f32);
-f32 sinApprox(f32);
 
 void playerWeaponCalculateTrajectory24(f32 force, f32 damping, F5N1Spring *spring, f32 *angle) {
     s32 pad[1];

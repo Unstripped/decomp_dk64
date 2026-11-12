@@ -37,7 +37,6 @@ extern u32 gFrameDelta;
 extern s16 D_8075037C;
 extern s16 D_80750380;
 
-f32 sinApprox(f32);
 
 void actorBoneChainSwingUpdate(nodeCount)
 u8 nodeCount;

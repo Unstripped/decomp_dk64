@@ -337,8 +337,6 @@ void sfxSetChannelTempo(s32 sfxId, f32 scale) {
 extern f32 D_80770DDC;
 extern f32 D_80770DE0;
 extern f32 D_80770DE4;
-f32 sinApprox(f32);
-f32 cosApprox(f32);
 f32 sqrtf(f32);
 #pragma intrinsic(sqrtf)
 

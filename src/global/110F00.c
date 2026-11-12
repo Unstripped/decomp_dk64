@@ -127,8 +127,6 @@ void mtxRotateYRatioF(f32 mf[4][4], f32 z, f32 x, f32 dist) {
     mf[2][2] = cos;
 }
 
-f32 sinApprox(f32);
-f32 cosApprox(f32);
 
 
 void mtxRotateZRatioF(f32 mf[4][4], f32 x, f32 y, f32 dist) {

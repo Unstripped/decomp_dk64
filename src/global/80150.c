@@ -619,7 +619,6 @@ extern s16 D_807502D0;
 extern f32 D_807502E4;
 extern s16 D_80753444[];
 
-f32 sinApprox(f32);
 
 void actorTransformCameraUpdate(void) {
     ActorC71CState *state;
@@ -2436,7 +2435,6 @@ extern f32 D_8074E804;
 extern f32 D_8074E808;
 extern u8 D_8074E810;
 
-f32 cosApprox(f32);
 
 void cannonUpdate(void) {
     CannonState *sub = gCurrentActor->customState;

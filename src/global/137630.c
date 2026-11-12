@@ -4,7 +4,6 @@
 #include "proto/global/13ECE0.h"
 
 
-f32 sinApprox(f32);
 
 enum OscType {
     OSC_TREMOLO_SIN = 0x01,

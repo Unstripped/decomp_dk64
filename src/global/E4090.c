@@ -1039,8 +1039,6 @@ extern u8 D_8071FBC8;
 extern u8 D_807200D4;
 extern f32 D_80753E2C[];
 extern u8 *D_807FD568;
-f32 cosApprox(f32);
-f32 sinApprox(f32);
 extern s16 D_80753E64[];
 
 

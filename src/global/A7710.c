@@ -73,8 +73,6 @@ extern Gfx D_1000118;
 extern Mtx D_2000180;
 extern Gfx D_8071FC58;
 extern PlayerStruct *gPlayerSlots;
-f32 sinApprox(f32);
-f32 cosApprox(f32);
 
 Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
     CountdownTimerState *timer;

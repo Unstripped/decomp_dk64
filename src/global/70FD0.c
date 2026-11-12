@@ -1657,8 +1657,6 @@ s32 actorGetCollisionThreshold(Actor *arg0) {
 }
 
 extern Actor *gCurrentActor;
-f32 sinApprox(f32);
-f32 cosApprox(f32);
 
 void func_8066FE08(s32 arg0) {
     s16 yaw;

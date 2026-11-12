@@ -143,7 +143,6 @@ void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s32
 }
 
 extern s16 D_807FDA1E;
-f32 sinApprox(f32);
 
 void effectSpriteParticleTrackCamera(EffectSpriteParticle *particle) {
     f32 diff;
@@ -191,7 +190,6 @@ extern Actor *gPrimaryPlayerActor;
 extern u32 gGlobalCutsceneFlags;
 extern f32 D_807FD9EC;
 extern u8 sEffectImpactPuffConfig;
-f32 cosApprox(f32);
 
 #define ANGA_CAM ((CamState *)gCamActor->customState)
 #define ANGA_DIST(x) ((x) < gPlayerSlots->camY ? gPlayerSlots->camY - (x) : -(gPlayerSlots->camY - (x)))

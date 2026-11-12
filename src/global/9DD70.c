@@ -227,7 +227,6 @@ typedef struct WaveState {
     /* 0x0B8 */ u8 unkB8[4];
 } WaveState;
 
-f32 sinApprox(f32);
 
 void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
     f32 posOffsets[32];
@@ -523,7 +522,6 @@ typedef struct {
 
 
 
-f32 sinApprox(f32);
 
 
 void actorSagSingleUpdate(void) {

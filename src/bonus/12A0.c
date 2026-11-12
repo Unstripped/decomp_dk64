@@ -310,7 +310,6 @@ void bonusReelGameUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-f32 sinApprox(f32);
 
 void bonusReelUpdate(void) {
     BonusEObj *obj;

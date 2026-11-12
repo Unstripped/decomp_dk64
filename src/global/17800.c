@@ -24,8 +24,6 @@ f32 floorLog10(s16 val) {
     return digits - 1;
 }
 
-f32 cosApprox(f32);
-f32 sinApprox(f32);
 
 void matrixMakeRotationX(f32 (*dst)[4], f32 angleDeg) {
     f32 sine;

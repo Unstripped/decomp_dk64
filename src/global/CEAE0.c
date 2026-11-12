@@ -2393,7 +2393,6 @@ void playerSetSizeMode(Actor *actor, u8 mode) {
 }
 
 
-f32 sinApprox(f32);
 
 void playerScaleTransitionStep(void) {
     if (gActivePlayerState->currentScale[0] < gActivePlayerState->targetScale[0]) {

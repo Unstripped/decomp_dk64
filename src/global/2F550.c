@@ -616,7 +616,6 @@ extern PlanePoly gFrustumPlanes[];
 extern struct RenderEntry *D_807F5FF0;
 extern Mtx D_2000180;
 
-f32 cosApprox(f32);
 
 Gfx *mapRenderPlayerView(Gfx *gfx, f32 eyeX, f32 eyeY, f32 eyeZ, f32 atX, f32 atY, f32 atZ, f32 fov, f32 aspect, f32 farClip) {
     Gfx *dl;

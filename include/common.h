@@ -7,6 +7,10 @@ f32 mathSinF(s16);
 f32 mathCosF(s16);
 s32 mathAsinFixed(s32);
 
+// Hand-written asm (asm/global/17A10.s): polynomial sine/cosine of an angle in radians.
+f32 sinApprox(f32);
+f32 cosApprox(f32);
+
 // A point in world space (mathPickCloserTargetPoint3D, 936B0.c).
 typedef struct TargetVec3f {
     f32 x, y, z;

@@ -57,7 +57,6 @@ typedef struct DrawActor {
 extern u8 gGfxBufferIndex;
 extern u16 D_8075A740;
 
-f32 sinApprox(f32);
 
 void textBoxRenderNode(Gfx **gdl, DrawActor *pos, DrawListHead *source, SpriteDrawNode *drawNode) {
     union { u16 h; u8 b; u8 text[8]; } str;

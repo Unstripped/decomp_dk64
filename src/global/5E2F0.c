@@ -163,7 +163,6 @@ void lightLerpColors(f32 r, f32 g, f32 b, f32 t, s16 index) {
     }
 }
 
-f32 cosApprox(f32);
 extern s16 gLightVolumeCount;
 extern f32 D_807F7ECC;
 extern f32 D_807F7ED0;
