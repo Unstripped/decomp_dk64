@@ -2,17 +2,12 @@
 #include "proto/global/17800.h"
 
 f32 powfInt(f32 base, s16 exp) {
-    f32 result;
+    f32 result = 1.0f;
     s16 i;
 
-    result = 1.0f;
     if (exp != 0) {
-        i = 0;
-        if (exp > 0) {
-            do {
-                i++;
-                result *= base;
-            } while (i < exp);
+        for (i = 0; i < exp; i++) {
+            result *= base;
         }
     }
     return result;
@@ -22,13 +17,11 @@ f32 floorLog10(s16 val) {
     s16 digits;
 
     digits = 0;
-    if (val != 0) {
-        do {
-            val = (s16)(val / 10);
-            digits++;
-        } while (val != 0);
+    while (val != 0) {
+        val /= 10;
+        digits++;
     }
-    return (f32)(digits - 1);
+    return digits - 1;
 }
 
 f32 cosApprox(f32);
@@ -47,6 +40,7 @@ void matrixMakeRotationX(f32 (*dst)[4], f32 angleDeg) {
     dst[1][1] = cosine;
     dst[2][2] = cosine;
 }
+
 void matrixMakeRotationY(f32 (*dst)[4], f32 angleDeg) {
     f32 sine;
     f32 cosine;
@@ -74,5 +68,3 @@ void matrixMakeRotationZ(f32 (*dst)[4], f32 angleDeg) {
     dst[0][0] = cosine;
     dst[1][1] = cosine;
 }
-
-
