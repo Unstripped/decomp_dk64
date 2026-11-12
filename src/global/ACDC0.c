@@ -1,8 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
-#define PROTO_SKIP_mapGetWorldIndex // FAKE: callee prototype steer
 #define PROTO_SKIP_renderRotatedSprite // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -69,12 +67,6 @@ typedef struct HudTextObj {
     /* 0x384 */ f32 *unk384;
 } HudTextObj;
 
-typedef struct HudCountEntry {
-    /* 0x00 */ u8 pad0[0x42];
-    /* 0x42 */ u16 unk42[14];
-} HudCountEntry; // size = 0x5E
-
-#define HUD_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
 extern Gfx D_1000118;
 extern Mtx D_2000180;
@@ -102,13 +94,12 @@ extern s16 D_807FC832;
 extern s16 D_807FC834;
 extern s16 D_807FC836;
 extern s16 D_807FC838;
-extern HudCountEntry gPlayerInventoryTable[];
-extern HudCountEntry D_807FCB26[];
+extern PlayerInventory gPlayerInventoryTable[];
 extern s16 D_80744710[];
 extern s16 D_80744720[];
 extern s16 D_807505B2[];
-extern s16 D_807505B8[];
-extern s16 D_807505CC[];
+extern s16 D_807505B8[10];
+extern s8 D_807505CC;
 extern s8 D_80750530[5];
 extern u8 D_80750531[];
 extern u16 D_807ECD58;
@@ -119,7 +110,7 @@ extern s8 gPausingPlayer;
 extern PlayerStruct *gPlayerSlots;
 extern s8 D_8076A105;
 
-Gfx *renderRotatedSprite(Gfx *, s32, s32, u8, s32, s32, s32, s32, f32, f32, s32, f32); // FAKE: callee prototype steer
+Gfx *renderRotatedSprite(Gfx *, u16, s32, u8, u8, u8, s16, s16, f32, f32, s32, f32); // FAKE: callee prototype steer
 f32 sqrtf(f32);
 
 s32 hudFindItemIndex(s8 itemId) {
@@ -153,10 +144,6 @@ extern s16 D_807FC83A;
 extern s8 D_807FC83C;
 extern s8 D_807FC8B8;
 
-s32 mapGetWorldIndex(); // FAKE: callee prototype steer
-s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
-
-#define HUD_PAUSE_MODE (*(s8 *)D_807505CC)
 
 void hudPauseMenuUpdate(void) {
     HudEntry *hud;
@@ -168,7 +155,6 @@ void hudPauseMenuUpdate(void) {
     s32 x;
     s32 a2;
     s32 lim;
-    s16 half;
     if (D_807505D4) {} // FAKE: dead read, splits the D_807505D4 address web
 
     hud = gCurrentActor->customState;
@@ -182,13 +168,13 @@ void hudPauseMenuUpdate(void) {
         case 0x52:
         case 0x6A:
         case 0xB9:
-            HUD_PAUSE_MODE = 1;
+            D_807505CC = 1;
             break;
         default:
-            if (mapGetWorldIndex(gCurrentMap & 0xFF) == 9 || (gGlobalOverlayFlags & 0x10000000)) {
-                HUD_PAUSE_MODE = 2;
+            if (mapGetWorldIndex(gCurrentMap) == 9 || (gGlobalOverlayFlags & 0x10000000)) {
+                D_807505CC = 2;
             } else {
-                HUD_PAUSE_MODE = 0;
+                D_807505CC = 0;
             }
             break;
     }
@@ -312,7 +298,7 @@ void hudPauseMenuUpdate(void) {
                         if (hud->unk17 == 2) {
                             hud->unk17 = 3;
                         } else if (hud->unk17 == 1) {
-                            if (HUD_PAUSE_MODE != 0) {
+                            if (D_807505CC != 0) {
                                 mapRequestTransition(gCurrentMap, 0);
                             } else if (hud->unk18 == 0) {
                                 eepromSavePlayerData();
@@ -328,12 +314,11 @@ void hudPauseMenuUpdate(void) {
                     }
                 } else if (buttons & 0x8000) {
                     i = (a2 = mapGetHubWorldIndex(gCurrentWorldId, 1)) == 8;
-                    if (D_807FC8B8 && D_807FC8B8) {} // FAKE: steers seq temp register (a0 not v1)
                     if (i) {
                         i = menuGetTimerFlag() != 0;
                     }
                     D_807FC8B8 = 1;
-                    if (HUD_PAUSE_MODE == 0 && a2 != 7 && a2 != 0xD && a2 != 9 && i == 0) {
+                    if (D_807505CC == 0 && a2 != 7 && a2 != 0xD && a2 != 9 && i == 0) {
                         if (a2 == 0xA) {
                             menuReturnToTitle();
                         } else if (func_805FEF74(gCurrentMap) == 0) {
@@ -347,8 +332,8 @@ void hudPauseMenuUpdate(void) {
                                 mapTransitionToWorldHub(a2);
                             }
                         }
-                    } else if (HUD_PAUSE_MODE != 0) {
-                        if (HUD_PAUSE_MODE == 2) {
+                    } else if (D_807505CC != 0) {
+                        if (D_807505CC == 2) {
                             mapTransitionToPreviousOrExit();
                         } else {
                             mapCheckAutoTransition();
@@ -504,7 +489,6 @@ void hudPauseMenuUpdate(void) {
     renderCallbacksRegister(hudPauseMenuRender, gCurrentActor, 5);
 }
 
-#undef HUD_PAUSE_MODE
 
 void hudFreeBuffers(void) {
     s32 i;
@@ -536,7 +520,7 @@ Gfx *hudSetupTextState(Gfx *dl) {
     gSPMatrix(dl++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gDPPipeSync(dl++);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
-    HUD_WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
+    gDPSetCombineMode(dl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     return dl;
 }
 
@@ -569,9 +553,6 @@ Gfx *hudSetupTextState(Gfx *dl) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AAE4.s")
 
 
-extern s16 D_807FC992[];
-extern u8 D_807FCC4C;
-extern s8 D_807FCC4B;
 extern u8 gCurrentWorldId;
 extern s8 D_80750538;
 extern s16 D_8075056C[];
@@ -590,7 +571,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     s32 off;
     s32 t0;
     HudTextEntry *it;
-    HudCountEntry *tab;
+    PlayerInventory *tab;
     Gfx *ret;
     Gfx *list;
     s32 hubWorld;
@@ -639,11 +620,11 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     if (list == NULL) {} // FAKE: keeps list in memory
     switch (hud->unk12) {
         case 0:
-            ph = ((u8 *)tab)[0x2FC] * 0x34 - 0x34;
-            s2 = D_807FCC4B;
+            ph = tab->melons * 0x34 - 0x34;
+            s2 = gPlayerInventoryTable[0].health;
             y0 = 0x140; // FAKE: value-named constant local; y0 * hud->unk0 keeps 0x140 in the y0 register
             y0 = 0xA0 - (s16)(y0 * hud->unk0);
-            for (j = 0; j < ((u8 *)tab)[0x2FC]; j++) {
+            for (j = 0; j < tab->melons; j++) {
                 s32 off;
                 f32 fa;
                 f32 fc;
@@ -666,7 +647,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0x50);
                 y = (s32)((j * 0x69 + 0x280) + fd - fb);
                 fh = -fc;
-                dl = renderRotatedSprite(dl, 0x5D, 0, 2, 0x30, 0x2A, y, y0 + (s16)(s32)fe, fa, fh, 0, 0.0f);
+                dl = renderRotatedSprite(dl, 0x5D, 0, 2, 0x30, 0x2A, y, y0 + (s16)fe, fa, fh, 0, 0.0f);
                 gDPPipeSync(dl++);
                 (dl++)->words.w1 = 0xFFFFFFFF; // FAKE: raw SetPrimColor words, w1 first through dl[-1], steer the store order (gDPSetPrimColor mismatches)
                 dl[-1].words.w0 = 0xFA000000;
@@ -678,7 +659,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     } else {
                         m = 3;
                     }
-                    dl = renderRotatedSprite(dl, (u16)(m + 0x5A), 0, 2, 0x30, 0x2A, y, (s32)(y0 + fe), fa, fh, 0, 0.0f);
+                    dl = renderRotatedSprite(dl, m + 0x5A, 0, 2, 0x30, 0x2A, y, y0 + fe, fa, fh, 0, 0.0f);
                 }
                 if (s2 - 4 < 0) {
                     s2 = 0;
@@ -702,14 +683,14 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     } else {
                         gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, ang >> 1);
                     }
-                    if (j == 2 && (hubWorld == 7 || (hubWorld == 8 && menuGetTimerFlag() != 0 && *(s8 *)D_807505CC == 0))) {
+                    if (j == 2 && (hubWorld == 7 || (hubWorld == 8 && menuGetTimerFlag() != 0 && D_807505CC == 0))) {
                         j++;
                     }
                     i = j;
-                    if (j == 1 && *(s8 *)D_807505CC != 0) {
+                    if (j == 1 && D_807505CC != 0) {
                         i = 4;
                     }
-                    if (i == 2 && *(s8 *)D_807505CC != 0) {
+                    if (i == 2 && D_807505CC != 0) {
                         i = 5;
                     }
                     dl = hudDrawScaledText(dl, 0x280, y, 0.7f, D_807FC7E0[i]);
@@ -753,7 +734,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                             yy += 0x20;
                             off = j + t0;
                             D_807FC840[off] = yy - fd;
-                            D_807FC868[off] = (f32)(s16)((s16)(fc - (f32)y0) + (s32)actor) - fe; // FAKE: narrow before the row offset to steer conversion temporaries.
+                            D_807FC868[off] = (s16)((s16)(fc - y0) + (s32)actor) - fe;
                             D_807FC890[off] = ff;
                             if (D_80750530[j] != 0) {
                                 D_807FC890[off] *= 0.75;
@@ -771,7 +752,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     if ((s32)actor == 0) {
                         fc += fd * 400.0;
                     }
-                    j = gPlayerInventoryTable[hud->unk14].unk42[D_80750560[hud->unk8[i]]];
+                    j = gPlayerInventoryTable[0].kong[hud->unk14].unk42[D_80750560[hud->unk8[i]]];
                     dl = hudDrawCountPair(0x2A8, (s32)((s32)actor + fc), j, 5, dl, 0, 0.8f);
                 }
             }
@@ -788,7 +769,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 }
                 cnt = 0;
                 for (j = 0; j < 5; j++) {
-                    cnt += gPlayerInventoryTable[j].unk42[D_80750560[hud->unk8[i]]];
+                    cnt += gPlayerInventoryTable[0].kong[j].unk42[D_80750560[hud->unk8[i]]];
                 }
                 if (hud->unk8[i] != 8) {
                     fadeInput4 = hud->unk4;
@@ -862,21 +843,8 @@ Gfx *hudDrawCountPair(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale)
     dl->words.w0 = 0xE7000000; // FAKE: raw PipeSync words with a separate dl++ (gDPPipeSync(dl++) mismatches)
     dl->words.w1 = 0;
     dl++;
-    return renderRotatedSprite(dl, 0x9F, 0, 2, 0x20, 0x20, (s32)(x + (w - 0x10) * scale), (s32)(y + 45.0f * scale), scale * 3.125, scale * 3.125, 0, 0.0f);
+    return renderRotatedSprite(dl, 0x9F, 0, 2, 0x20, 0x20, x + (w - 0x10) * scale, y + 45.0f * scale, scale * 3.125, scale * 3.125, 0, 0.0f);
 }
-
-typedef struct {
-    /* 0x00 */ u8 pad0[2];
-    /* 0x02 */ u8 unk2;
-    /* 0x03 */ u8 pad3;
-    /* 0x04 */ u8 unk4;
-    /* 0x05 */ u8 pad5;
-    /* 0x06 */ u16 unk6;
-    /* 0x08 */ u16 unk8;
-    /* 0x0A */ u16 unkA[14];
-    /* 0x26 */ u16 unk26[14];
-    /* 0x42 */ u16 unk42[14];
-} HudPauseCountEntry;
 
 typedef struct {
     /* 0x00 */ u8 unk0;
@@ -886,7 +854,6 @@ typedef struct {
 } HudPauseFlagEntry;
 
 extern u8 gPlayerCharacterId;
-#define HUD_PAUSE_COUNT(i) ((HudPauseCountEntry *)((u8 *)gPlayerInventoryTable + (i) * 0x5E))
 extern HudPauseFlagEntry D_80755DA8[];
 extern s8 D_807FC800;
 extern f32 D_807FC804;
@@ -894,13 +861,8 @@ extern s8 D_807FC80D;
 extern s8 D_807FC818[];
 extern s16 D_807FC83A;
 extern s8 D_807FC83C;
-extern u16 D_807FCC40;
-extern u16 D_807FCC44;
-extern u16 D_807FCC46;
-extern u16 D_807FCC48;
 extern void *D_80750518[];
 extern s16 D_807505A4[];
-extern s16 D_807505CA;
 extern void *D_807505D8[];
 extern s32 D_80720C34;
 extern s32 D_80720D38;
@@ -914,13 +876,14 @@ extern s32 D_80721474;
 extern s32 D_80721518;
 
 
+
 void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
     s32 saved;
-    HudPauseCountEntry *e2;
-    HudPauseCountEntry *ent;
+    KongInventory *e2;
+    KongInventory *ent;
     s32 i;
     s32 idx;
-    s8 *fp;
+    s32 pad1;
     s32 sum;
     f32 f;
     s32 sum3;
@@ -930,28 +893,27 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
     s32 flag;
     void *s;
     s32 j;
-    HudPauseFlagEntry *q;
+    s32 pad2;
     s32 x;
     s32 cnt;
-    HudEntry *hud;
+    s32 pad3;
 
-    hud = iconObj; // FAKE: redundant copy of the parameter steers regalloc (iconObj-> everywhere mismatches)
     saved = gPlayerCharacterId;
-    e2 = HUD_PAUSE_COUNT(playerGetResolvedKongId(0));
-    gPlayerCharacterId = hud->unk14;
-    ent = HUD_PAUSE_COUNT(hud->unk14);
-    idx = hud->unk8[hud->unk15];
-    D_807FC7F8[hud->unk15] = 0;
+    e2 = &gPlayerInventoryTable[0].kong[playerGetResolvedKongId(0)];
+    gPlayerCharacterId = iconObj->unk14;
+    ent = &gPlayerInventoryTable[0].kong[iconObj->unk14];
+    idx = iconObj->unk8[iconObj->unk15];
+    D_807FC7F8[iconObj->unk15] = 0;
     idx = D_80750560[idx];
     if (refresh == 0) {
-        D_807FC800 = hud->unk14;
+        D_807FC800 = iconObj->unk14;
         D_807FC80D = D_807FC80C;
-        hud->unk10 = 0;
-        hud->unk4 = 0.0f;
+        iconObj->unk10 = 0;
+        iconObj->unk4 = 0.0f;
         D_807FC804 = 0.0f;
     }
     D_807FC80F = 1;
-    switch (hud->unk12) {
+    switch (iconObj->unk12) {
     case 0:
         gPlayerCharacterId = saved;
         idx = mapGetHubWorldIndex(gCurrentWorldId, 1);
@@ -963,35 +925,35 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             hudPauseMenuSpawnIcon(iconObj, 0, 0x1E, 0x1E, 0.75f, 2, 1);
         }
         if (flagGet(0x184, 0)) {
-            hudPauseMenuAddCounter(iconObj, 0x1E, 0x5A, 0xC, -0xA, D_807FCC44, 1, 1);
+            hudPauseMenuAddCounter(iconObj, 0x1E, 0x5A, 0xC, -0xA, gPlayerInventoryTable[0].unk2F4, 1, 1);
             hudPauseMenuSpawnIcon(iconObj, 4, 0x1E, 0x5A, 0.75f, 2, 1);
         }
-        if (e2->unk2 != 0) {
-            hudPauseMenuAddCounter(iconObj, 0x1E, 0x7D, 0xC, -0xA, D_807FCC40, 1, 1);
+        if (e2->unk0[2] != 0) {
+            hudPauseMenuAddCounter(iconObj, 0x1E, 0x7D, 0xC, -0xA, gPlayerInventoryTable[0].unk2F0, 1, 1);
             hudPauseMenuSpawnIcon(iconObj, 2, 0x1E, 0x7D, 0.65f, 2, 1);
         }
         if (func_806F6E58(gPlayerCharacterId)) {
             f = slotQueueGetCountStep(5);
-            hudPauseMenuAddCounter(iconObj, 0x1E, 0xA0, 0xC, -0xA, (s32)floatCeil((f32)(u32)D_807FCC46 / f), 1, 1);
+            hudPauseMenuAddCounter(iconObj, 0x1E, 0xA0, 0xC, -0xA, (s32)floatCeil((f32)(u32)gPlayerInventoryTable[0].unk2F6 / f), 1, 1);
             hudPauseMenuSpawnIcon(iconObj, 5, 0x1E, 0xA0, 0.65f, 2, 1);
         }
         if (flagGet(0x18C, 0)) {
             hudPauseMenuAddCounter(iconObj, 0x122, 0x5A, -0xF, -0xA, e2->unk6, 1, 0x80);
             hudPauseMenuSpawnIcon(iconObj, 1, 0x122, 0x5A, 0.75f, 2, 1);
         }
-        if (ent->unk4 & 1) {
+        if (ent->unk0[4] & 1) {
             hudPauseMenuAddCounter(iconObj, 0x122, 0x7D, -0xC, -0xA, ent->unk8, 2, 0x81);
             hudPauseMenuSpawnIcon(iconObj, 7, 0x122, 0x7D, 0.75f, 2, 7);
         }
         if (flagGet(0x179, 0)) {
-            hudPauseMenuAddCounter(iconObj, 0x122, 0xA0, -0xC, -0xA, D_807FCC48, 1, 0x81);
+            hudPauseMenuAddCounter(iconObj, 0x122, 0xA0, -0xC, -0xA, gPlayerInventoryTable[0].unk2F8, 1, 0x81);
             hudPauseMenuSpawnIcon(iconObj, 6, 0x122, 0xA0, 0.65f, 2, 1);
         }
         if (D_807FC828 > 0) {
             hudPauseMenuAddCounter(iconObj, 0x91, 0xBE, 0xF, -0xA, D_807FC828, 1, 0);
             hudPauseMenuSpawnIcon(iconObj, 9, 0x91, 0xBE, 1.0f, 2, 1);
         }
-        gPlayerCharacterId = hud->unk14;
+        gPlayerCharacterId = iconObj->unk14;
         break;
     case 1:
         if (idx != 7) {
@@ -1004,7 +966,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             }
             if (D_807FC82E > 0) {
                 if (idx != 8) {
-                    D_807FC80F = (HUD_PAUSE_COUNT(gPlayerCharacterId)->unkA[idx] + HUD_PAUSE_COUNT(gPlayerCharacterId)->unk26[idx]) >= 0x4B;
+                    D_807FC80F = (gPlayerInventoryTable[0].kong[gPlayerCharacterId].unkA[idx] + gPlayerInventoryTable[0].kong[gPlayerCharacterId].unk26[idx]) >= 0x4B;
                 } else {
                     D_807FC80F = flagGridSumRows(0x225, i, i, gPlayerCharacterId);
                 }
@@ -1043,7 +1005,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             }
         }
         if (refresh == 0) {
-            hud->unk10 = D_807505A4[hud->unk14];
+            iconObj->unk10 = D_807505A4[iconObj->unk14];
             hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
             if (D_807505D0 > 0) {
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D80, 0xA0, 0x19, 0.5f, 2, 0xB);
@@ -1055,8 +1017,8 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         sum = 0;
         sum3 = 0;
         for (i = 0; i < 5; i++) {
-            sum += HUD_PAUSE_COUNT(i)->unkA[idx] + HUD_PAUSE_COUNT(i)->unk26[idx];
-            sum3 += HUD_PAUSE_COUNT(i)->unk42[idx];
+            sum += (gPlayerInventoryTable[0].kong + i)->unkA[idx] + (gPlayerInventoryTable[0].kong + i)->unk26[idx];
+            sum3 += (gPlayerInventoryTable[0].kong + i)->unk42[idx];
         }
         cnt8 = 0;
         for (i = 0; i < 4; i++) {
@@ -1082,7 +1044,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             i = 0;
             do {
                 if (idx != 8) {
-                    D_807FC80F = (HUD_PAUSE_COUNT(i)->unkA[idx] + HUD_PAUSE_COUNT(i)->unk26[idx]) >= 0x4B;
+                    D_807FC80F = ((gPlayerInventoryTable[0].kong + i)->unkA[idx] + (gPlayerInventoryTable[0].kong + i)->unk26[idx]) >= 0x4B;
                 } else {
                     D_807FC80F = flagGridSumRows(0x225, j, j, i);
                 }
@@ -1106,7 +1068,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             if (D_807FC82A > 0) {
                 D_807FC80F = flagGet(D_807505B8[idx], 0);
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_807210EC, 0xA0, 0x55, 1.0f, 2, 4);
-                D_807FC80F = flagGet(D_807505CA, 0);
+                D_807FC80F = flagGet(D_807505B8[9], 0);
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_807210EC, 0xA0, 0x91, 1.0f, 2, 4);
             }
             if (flagGet(0x179, 0)) {
@@ -1153,7 +1115,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
                 cnt++;
             }
         }
-        hud->unk10 = D_807FC83A * D_807FC80C;
+        iconObj->unk10 = D_807FC83A * D_807FC80C;
         hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
         break;
     }
@@ -1394,7 +1356,7 @@ s32 hudPauseMenuSlidePage(HudEntry *hud, s32 sliding, s32 buttons) {
 void hudPauseMenuRefreshTotals(void) {
     s16 *p;
     s16 *p0;
-    HudCountEntry *e;
+    KongInventory *e;
     s32 n;
     s32 i;
     s32 k;
@@ -1404,13 +1366,13 @@ void hudPauseMenuRefreshTotals(void) {
         *p0++ = 0;
     } while (p0 < &D_807FC82A + 6);
     n = 0;
-    k = 0; e = gPlayerInventoryTable; do { n += gPlayerInventoryTable[k].unk42[0]; n += gPlayerInventoryTable[k].unk42[1]; // LAYOUT: one-line loop setup (Q0149)
-        for (i = 2; i < 14; i++) { // FAKE: first two terms re-read through gPlayerInventoryTable[k] instead of e, loop from 2
+    k = 0; e = gPlayerInventoryTable[0].kong; do { n += gPlayerInventoryTable[0].kong[k].unk42[0]; n += gPlayerInventoryTable[0].kong[k].unk42[1]; // LAYOUT: one-line loop setup (Q0149)
+        for (i = 2; i < 14; i++) { // FAKE: first two terms re-read through gPlayerInventoryTable[0].kong[k] instead of e, loop from 2
             n += e->unk42[i];
         }
         e++;
         k++;
-    } while (&gPlayerInventoryTable[k] < D_807FCB26);
+    } while (&gPlayerInventoryTable[0].kong[k] < &gPlayerInventoryTable[0].kong[5]);
     D_807FC828 = n;
     n = 0;
     p = D_80744710; do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
@@ -1428,7 +1390,7 @@ void hudPauseMenuRefreshTotals(void) {
             m++;
         }
         p++;
-    } while (p < D_807505CC);
+    } while (p < D_807505B8 + 10);
     D_807FC82A = m;
     D_807FC834 = flagGet(0x84, 0);
     D_807FC830 = flagGet(0x17B, 0);
@@ -1792,7 +1754,7 @@ void hudTwoOptionMenuUpdate(void) {
             sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
     } else {
-        D_807FC80E &= 0xFFFE;
+        D_807FC80E &= ~1;
     }
     btn = *gPlayerSlots[i].heldButtonsPtr;
     if (btn & 0x8000) {
