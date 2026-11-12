@@ -3444,7 +3444,6 @@ typedef struct SpriteDisplayNode {
     /* 0x34 */ struct SpriteDisplayNode *next;
 } SpriteDisplayNode; // size = 0x38
 
-s32 mathAsinFixed(s32);
 
 void modelCalcFacingAngles(f32 x, f32 y, f32 z, f32 targetX, f32 targetY, f32 targetZ, f32 *angleXOut, f32 *angleYOut, f32 *angleZOut, u8 mode) {
     f32 len;

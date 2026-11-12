@@ -5,5 +5,6 @@
 
 f32 mathSinF(s16);
 f32 mathCosF(s16);
+s32 mathAsinFixed(s32);
 
 #endif

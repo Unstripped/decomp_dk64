@@ -806,7 +806,7 @@ typedef struct ActorSub140SrcTri {
     /* 0x2B */ u8 pad2B;
 } ActorSub140SrcTri; // size = 0x2C
 
-ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8, u8 *data) {
+ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, void *boxBounds, Mtx *mtx0, Mtx *mtx1, u8 *data) {
     ActorSub140 *sub140;
     void *link;
     s32 n;
@@ -822,7 +822,7 @@ ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f
     ModelNode *node;
     ModelSubNode *subnode;
 
-    sub140 = actorSub140Alloc(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+    sub140 = actorSub140Alloc(arg0, arg1, arg2, arg3, arg4, arg5, boxBounds, mtx0, mtx1);
     if (data != NULL) {
         n = *(s32 *)data;
         data += 4;
@@ -1003,7 +1003,7 @@ void func_8066E6C8(Actor *actor, s32 id, u8 enabled) {
     }
 }
 
-ActorSub140 *actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8) {
+ActorSub140 *actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, void *boxBounds, Mtx *mtx0, Mtx *mtx1) {
     ActorSub140 *sub;
 
     sub = (ActorSub140 *)heapAlloc(sizeof(ActorSub140));
@@ -1014,9 +1014,9 @@ ActorSub140 *actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, 
     sub->height = arg5;
     sub->scaledRadius = (s32) (arg4 * arg3 * 8.0f);
     sub->scaledHeight = (s32) (arg5 * arg3 * 8.0f);
-    sub->boxBounds = (void *)arg6;
-    sub->unk74[0] = (Mtx *)arg7;
-    sub->unk74[1] = (Mtx *)arg8;
+    sub->boxBounds = boxBounds;
+    sub->unk74[0] = mtx0;
+    sub->unk74[1] = mtx1;
     sub->unk7C = -1;
     sub->unk80 = -2;
     sub->unk84 = -1;
@@ -2592,7 +2592,6 @@ s16 func_80672134(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
 }
 
 
-s32 mathAsinFixed(s32);
 
 s32 actorCheckPointInAngleArc(Actor *arg0, f32 arg1, f32 arg2) {
     s32 sp28;

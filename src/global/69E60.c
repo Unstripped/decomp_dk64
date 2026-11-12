@@ -254,7 +254,6 @@ f32 mathAngleBetweenPointsDeg(s32 x1, s32 y1, s32 x2, s32 y2) {
     return angleRad * 57.29577637f;
 }
 
-s32 mathAsinFixed(s32);
 
 s16 mathAngleDiscrete(f32 x1, f32 y1, f32 x2, f32 y2, f32 dist) {
     s16 angleDiscrete;
@@ -318,15 +317,15 @@ ActorSub140 *actorSub140CreateFromModel(Actor *actor) {
     f32 height;
     f32 scale;
     u8 *nodeData;
-    s32 boneMtx0;
-    s32 boneMtx1;
+    Mtx *boneMtx0;
+    Mtx *boneMtx1;
 
     radius = 0.0f;
     height = 0.0f;
     scale = 1.0f;
     nodeData = NULL;
-    boneMtx0 = 0;
-    boneMtx1 = 0;
+    boneMtx0 = NULL;
+    boneMtx1 = NULL;
     model = actor->animState;
     if (model != NULL) {
         radius = model->collision->radius;
@@ -335,8 +334,8 @@ ActorSub140 *actorSub140CreateFromModel(Actor *actor) {
     }
     if (actor->sub4 != NULL) {
         scale = actor->sub4->scaleY;
-        boneMtx0 = (s32)actor->sub4->boneMtx[0];
-        boneMtx1 = (s32)actor->sub4->boneMtx[1];
+        boneMtx0 = actor->sub4->boneMtx[0];
+        boneMtx1 = actor->sub4->boneMtx[1];
     }
     return actorSub140CreateFromData(0.0f, 0.0f, 0.0f, scale, radius, height, actor->modelMtx, boneMtx0, boneMtx1, nodeData);
 }

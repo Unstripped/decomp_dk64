@@ -758,7 +758,6 @@ void effectLoadFrameAssets(s16 *assetIds, u8 altCategory, EffectGridSlot *slots,
     }
 }
 
-s32 mathAsinFixed(s32);
 
 void effectComputeTransformMatrix(Mtx *dst, u8 state, f32 scaleX, f32 scaleY, f32 camX, f32 camY, f32 camZ, f32 x, f32 y, f32 z, u8 mode) {
     f32 pad[2];

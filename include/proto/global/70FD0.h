@@ -63,7 +63,7 @@ s32 collisionBuildPlane(struct CollisionBox *);
 void actorSub140Free(ActorSub140 *);
 #endif
 #ifndef PROTO_SKIP_actorSub140CreateFromData
-ActorSub140 *actorSub140CreateFromData(f32, f32, f32, f32, f32, f32, s32, s32, s32, u8 *);
+ActorSub140 *actorSub140CreateFromData(f32, f32, f32, f32, f32, f32, void *, Mtx *, Mtx *, u8 *);
 #endif
 #ifndef PROTO_SKIP_actorSetNodeValue
 void actorSetNodeValue(Actor *, s32, u16);
@@ -81,7 +81,7 @@ void func_8066E664(Actor *, s32, u8);
 void func_8066E6C8(Actor *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_actorSub140Alloc
-ActorSub140 *actorSub140Alloc(f32, f32, f32, f32, f32, f32, s32, s32, s32);
+ActorSub140 *actorSub140Alloc(f32, f32, f32, f32, f32, f32, void *, Mtx *, Mtx *);
 #endif
 #ifndef PROTO_SKIP_actorAppendModelSubNode
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);

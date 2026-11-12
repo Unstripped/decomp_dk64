@@ -341,7 +341,6 @@ void collisionNodeLocalToWorldXZ(CollisionLocalOwner *owner, CollisionHitRecordR
     *outWorldZ = worldZ;
 }
 
-s32 mathAsinFixed(s32);
 void func_806742C0(s16, s16, s16 *, s16 *);
 
 void func_806755A8(s32 x1, s32 y1, s32 x2, s32 y2, s16 *outMinAngle, s16 *outMaxAngle) {
