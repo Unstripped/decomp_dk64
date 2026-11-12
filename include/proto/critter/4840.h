@@ -8,10 +8,10 @@ struct TextData;
 void critterInitText(void);
 #endif
 #ifndef PROTO_SKIP_critterLayoutWords
-s16 critterLayoutWords(struct TextData *, char *, s16);
+s16 critterLayoutWords(struct TextData *, u8 *, s16);
 #endif
 #ifndef PROTO_SKIP_critterDrawWord
-Gfx *critterDrawWord(Gfx *, struct TextData *, char *, u8);
+Gfx *critterDrawWord(Gfx *, struct TextData *, u8 *, u8);
 #endif
 #ifndef PROTO_SKIP_critterRenderText
 Gfx *critterRenderText(Gfx *, Actor *);
