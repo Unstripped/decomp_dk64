@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_flagSet // FAKE: callee prototype steer
 #include "proto/global/100180.h"
 #include "proto/global/12E800.h"
 #include "proto/global/135D30.h"
@@ -22,64 +21,45 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
 typedef struct BC1E0_State {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ f32 unk28;
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ f32 unk30;
-    /* 0x34 */ s16 unk34;
-    /* 0x36 */ s8 unk36;
-    /* 0x37 */ s8 unk37;
-    /* 0x38 */ u8 unk38;
-    /* 0x39 */ u8 unk39;
+    /* 0x00 */ f32 progress;
+    /* 0x04 */ f32 step;
+    /* 0x08 */ f32 startX;
+    /* 0x0C */ f32 startY;
+    /* 0x10 */ f32 startZ;
+    /* 0x14 */ f32 targetX;
+    /* 0x18 */ f32 targetY;
+    /* 0x1C */ f32 targetZ;
+    /* 0x20 */ f32 gravity;
+    /* 0x24 */ f32 homeX;
+    /* 0x28 */ f32 homeY;
+    /* 0x2C */ f32 homeZ;
+    /* 0x30 */ f32 homeScaleY;
+    /* 0x34 */ s16 delay;
+    /* 0x36 */ s8 gridX;
+    /* 0x37 */ s8 gridY;
+    /* 0x38 */ u8 state;
+    /* 0x39 */ u8 subState;
 } BC1E0_State;
 
 typedef struct BC1E0_Actor {
-    /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ ActorSub4 *sub4;
-    /* 0x008 */ u8 pad8[0x58];
-    /* 0x060 */ u32 unk60;
-    /* 0x064 */ u8 pad64[0x18];
-    /* 0x07C */ f32 unk7C;
-    /* 0x080 */ f32 unk80;
-    /* 0x084 */ f32 unk84;
-    /* 0x088 */ u8 pad88[0x94];
-    /* 0x11C */ Actor *unk11C;
-    /* 0x120 */ u8 pad120[8];
-    /* 0x128 */ s16 unk128;
-    /* 0x12A */ u8 pad12A[0x34];
-    /* 0x15E */ u8 unk15E;
-    /* 0x15F */ u8 pad15F[0x19];
-    /* 0x178 */ BC1E0_State *unk178;
+    /* 0x000 */ Actor base;
+    /* 0x178 */ BC1E0_State *gridState;
 } BC1E0_Actor;
-
-#define BC1E0_LGB ((BC1E0_Actor *)gCurrentActor)
 
 extern s8 D_80750650;
 extern s8 D_807FC8C0[16];
 extern u16 D_807ECD58;
 extern u16 D_807ECD60;
-void flagSet();
-
-extern s8 D_807FC8D0;
 
 void enemyGridStateStep(void) {
-    f32 acc;
+    f32 roll;
     f32 old;
     f32 a;
     f32 t;
     f32 b;
     f32 targetScaleY;
     s16 i;
-    s16 adx;
+    s16 dist;
     BC1E0_State *st;
     AnimSlot *obj;
     s32 j;
@@ -90,51 +70,51 @@ void enemyGridStateStep(void) {
     s8 cand[16];
     s16 ones;
     s16 zeros;
-    f64 fx;
+    s8 cell;
 
-    st = BC1E0_LGB->unk178;
-    obj = BC1E0_LGB->sub4->model;
+    st = ((BC1E0_Actor *)gCurrentActor)->gridState;
+    obj = gCurrentActor->sub4->model;
     behaviourFrameBegin();
-    if (!(BC1E0_LGB->unk60 & 0x10)) {
-        st->unk4 = 0.0f;
+    if (!(gCurrentActor->flags & 0x10)) {
+        st->step = 0.0f;
         func_806BD0CC();
-        BC1E0_LGB->unk128 = 0x80;
-        BC1E0_LGB->unk60 &= 0xFFFF7FFF;
-        st->unk24 = BC1E0_LGB->unk7C;
-        st->unk28 = BC1E0_LGB->unk80;
-        st->unk2C = BC1E0_LGB->unk84;
-        st->unk30 = BC1E0_LGB->sub4->scaleY;
+        gCurrentActor->alpha = 0x80;
+        gCurrentActor->flags &= ~0x8000;
+        st->homeX = gCurrentActor->x;
+        st->homeY = gCurrentActor->y;
+        st->homeZ = gCurrentActor->z;
+        st->homeScaleY = gCurrentActor->sub4->scaleY;
         currentActorClearFlag();
     }
-    switch (st->unk38) {
+    switch (st->state) {
     case 0:
         if (flagGet(0x10F, 0) == 0) {
-            if ((BC1E0_LGB->unk7C - gPrimaryPlayerActor->x) * (BC1E0_LGB->unk7C - gPrimaryPlayerActor->x) + (BC1E0_LGB->unk84 - gPrimaryPlayerActor->z) * (BC1E0_LGB->unk84 - gPrimaryPlayerActor->z) < 14400.0) {
+            if ((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z) < 14400.0) {
                 camStartPath(gCurrentActor, 0, 1);
-                st->unk39 = 0;
-                st->unk38 = 1;
+                st->subState = 0;
+                st->state = 1;
             }
         }
         break;
     case 1:
         if (currentActorTestClearFlag() != 0) {
-            st->unk38 = 2;
+            st->state = 2;
         }
         break;
     case 2:
-        switch (st->unk39) {
+        switch (st->subState) {
         case 0:
             renderCallbacksRegister(func_806BCF98, gCurrentActor, 5);
             if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
                 camResumePath();
-                st->unk39 = 1;
+                st->subState = 1;
                 gPrimaryPlayerActor->state = 0xC;
                 gPrimaryPlayerActor->unk155 = 0;
                 playerResumeLocomotion(gPrimaryPlayerActor);
             }
             if ((D_807ECD58 & 0x4000) && !(D_807ECD60 & 0x4000)) {
                 camResumePath();
-                st->unk39 = 2;
+                st->subState = 2;
                 gPrimaryPlayerActor->state = 0xC;
                 gPrimaryPlayerActor->unk155 = 0;
                 playerResumeLocomotion(gPrimaryPlayerActor);
@@ -142,35 +122,35 @@ void enemyGridStateStep(void) {
             break;
         case 1:
             camStartPath(gCurrentActor, 1, 1);
-            st->unk39 = 3;
+            st->subState = 3;
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
                 D_80750650 = 1;
-                st->unk38 = 3;
-                st->unk4 = 0.025f;
-                st->unk0 = 0.0f;
-                st->unk8 = BC1E0_LGB->unk7C;
-                st->unkC = BC1E0_LGB->unk80;
-                st->unk10 = BC1E0_LGB->unk84;
-                st->unk14 = 294.0f;
-                st->unk18 = 0.0f;
-                st->unk1C = 359.0f;
-                st->unk36 = 3;
-                st->unk37 = 0;
-                st->unk20 = -500.0f;
+                st->state = 3;
+                st->step = 0.025f;
+                st->progress = 0.0f;
+                st->startX = gCurrentActor->x;
+                st->startY = gCurrentActor->y;
+                st->startZ = gCurrentActor->z;
+                st->targetX = 294.0f;
+                st->targetY = 0.0f;
+                st->targetZ = 359.0f;
+                st->gridX = 3;
+                st->gridY = 0;
+                st->gravity = -500.0f;
                 actorScriptStart(gCurrentActor, 0x31C);
                 hudSpawnCountdownTimer(0xDC, 0x2A, 0x3C);
                 flagSet(0x30, 1, 2);
                 sfxAllocateChannel(0x78, 1.0f);
-                hudCountdownTimerStart(BC1E0_LGB->unk11C);
+                hudCountdownTimerStart(gCurrentActor->parentActor);
             }
             break;
         case 2:
             if (camIsCutsceneActive() == 0) {
-                if ((BC1E0_LGB->unk7C - gPrimaryPlayerActor->x) * (BC1E0_LGB->unk7C - gPrimaryPlayerActor->x) + (BC1E0_LGB->unk84 - gPrimaryPlayerActor->z) * (BC1E0_LGB->unk84 - gPrimaryPlayerActor->z) > 25600.0) {
-                    st->unk39 = 0;
-                    st->unk38 = 0;
+                if ((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z) > 25600.0) {
+                    st->subState = 0;
+                    st->state = 0;
                 }
             }
             break;
@@ -178,41 +158,39 @@ void enemyGridStateStep(void) {
         break;
     case 3:
     case 4:
-        if (st->unk4 == 0.0f) {
-            if (st->unk38 == 3) {
-                st->unk38 = 4;
+        if (st->step == 0.0f) {
+            if (st->state == 3) {
+                st->state = 4;
             }
-            if (BC1E0_LGB->unk11C != NULL && BC1E0_LGB->unk11C->state == 5) {
+            if (gCurrentActor->parentActor != NULL && gCurrentActor->parentActor->state == 5) {
                 ones = 0;
                 zeros = 0;
-                j = 0;
-                do {
+                for (j = 0; &D_807FC8C0[j] < &D_807FC8C0[16]; j++) { // FAKE: pointer-compare bound keeps sltu+bnezl (j < 16 gives bnel v1,a0)
                     if (D_807FC8C0[j] == 1) {
                         ones++;
                     }
                     if (D_807FC8C0[j] == 0) {
                         zeros++;
                     }
-                    j++;
-                } while (&D_807FC8C0[j] < &D_807FC8D0); // FAKE: pointer-compare bound steers loop strength reduction
-                flagSet(0x30, 0, 2, ones);
+                }
+                flagSet(0x30, 0, 2);
                 actorScriptStart(gCurrentActor, 0x31C);
                 D_80750650 = 1;
                 if (ones < zeros) {
-                    st->unk38 = 6;
+                    st->state = 6;
                 } else {
-                    st->unk38 = 7;
+                    st->state = 7;
                 }
-                st->unk4 = 0.0125f;
-                st->unk0 = 0.0f;
-                st->unk8 = BC1E0_LGB->unk7C;
-                st->unkC = 0.0f;
-                st->unk10 = BC1E0_LGB->unk84;
-                st->unk14 = st->unk24;
-                st->unk18 = st->unk28;
-                st->unk1C = st->unk2C;
-                st->unk20 = -500.0f;
-                st->unk34 = 0x1E;
+                st->step = 0.0125f;
+                st->progress = 0.0f;
+                st->startX = gCurrentActor->x;
+                st->startY = 0.0f;
+                st->startZ = gCurrentActor->z;
+                st->targetX = st->homeX;
+                st->targetY = st->homeY;
+                st->targetZ = st->homeZ;
+                st->gravity = -500.0f;
+                st->delay = 0x1E;
             } else {
                 actorScriptStart(gCurrentActor, 0);
                 D_80750650 = 0;
@@ -220,76 +198,75 @@ void enemyGridStateStep(void) {
                 n = 0;
                 for (i = 0; i < 16; i++) {
                     if (D_807FC8C0[i] == 0 || D_807FC8C0[i] == -1) {
-                        dx = (s16)((s16)(i & 3) - st->unk36);  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
-                        dy = (s16)((s16)(i >> 2) - st->unk37);  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
+                        dx = (s16)((s16)(i & 3) - st->gridX);  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
+                        dy = (s16)((s16)(i >> 2) - st->gridY);  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
                         if (dx > 0) {
-                            adx = dx;
+                            dist = dx;
                         } else {
-                            adx = -dx;
+                            dist = -dx;
                         }
-                        if (adx < (dy > 0 ? dy : -dy)) {
+                        if (dist < (dy > 0 ? dy : -dy)) {
                             if (dy > 0) {
-                                adx = dy;
+                                dist = dy;
                             } else {
-                                adx = -dy;
+                                dist = -dy;
                             }
                         }
-                        if (adx > 0) {
-                            if (adx < best) {
+                        if (dist > 0) {
+                            if (dist < best) {
                                 cand[0] = i;
                                 n = 1;
-                                best = adx;
-                            } else if (adx == best) {
+                                best = dist;
+                            } else if (dist == best) {
                                 cand[n++] = i;
                             }
                         }
                     }
                 }
                 if (n > 0) {
-                    acc = randomFloat();
-                    adx = cand[(s32)(acc * (f32)(n - 1))];  // FAKE: reuses adx for the chosen cell (no separate s8 home keeps the 0x88 frame)
-                    dx = (s16)(adx & 3) - st->unk36;  // FAKE: redundant operand narrowing
-                    dy = (u16)(adx >> 2) - st->unk37;  // FAKE: redundant operand narrowing
-                    dx = (s16)dx;  // FAKE: s32 dx/dy with deferred s16 narrowing orders ugen's ring temps (adx >> 2 before dx's sll)
+                    roll = randomFloat();
+                    cell = cand[(s32)(roll * (n - 1))];
+                    dx = (s16)(cell & 3) - st->gridX;  // FAKE: redundant operand narrowing
+                    dy = (u16)(cell >> 2) - st->gridY;  // FAKE: redundant operand narrowing
+                    dx = (s16)dx;  // FAKE: s32 dx/dy with deferred s16 narrowing orders ugen ring temps (cell >> 2 before the dx sll)
                     dy = (s16)dy;  // FAKE: see dx above
                     if (dx < -1) {
                         dx = -1;
-                        if (ones == 0) {}  // FAKE: dummy statement steers uopt
+                        if (ones == 0) {}  // FAKE: dead test (with the cell test below) keeps lb gridX/gridY in t0/t1, removal gives v1/a3
                     }
                     if (dx >= 2) {
                         dx = 1;
                     }
                     if (dy < -1) {
                         dy = -1;
-                        if (adx & 3) {}  // FAKE: dummy statement steers uopt
+                        if (cell & 3) {}  // FAKE: dead test, see the ones test above
                     }
                     if (dy >= 2) {
                         dy = 1;
                     }
-                    st->unk36 += dx;
-                    st->unk37 += dy;
+                    st->gridX += dx;
+                    st->gridY += dy;
                 }
-                st->unk4 = 0.01369863f;
-                st->unk0 = 0.0f;
-                st->unk8 = st->unk14;
-                st->unkC = 0.0f;
-                st->unk10 = st->unk1C;
-                fx = st->unk36;
-                st->unk14 = fx * -11.666666666666666 + 329.0 + (f64)st->unk37 * -28.666666666666668;
-                st->unk18 = 0.0f;
-                st->unk1C = fx * 28.333333333333332 + 274.0 + (f64)st->unk37 * -11.333333333333334;
-                st->unk20 = -250.0f;
+                st->step = 0.01369863f;
+                st->progress = 0.0f;
+                st->startX = st->targetX;
+                st->startY = 0.0f;
+                st->startZ = st->targetZ;
+                st->targetX = st->gridX * -11.666666666666666 + 329.0 + st->gridY * -28.666666666666668;
+                st->targetY = 0.0f;
+                st->targetZ = st->gridX * 28.333333333333332 + 274.0 + st->gridY * -11.333333333333334;
+                st->gravity = -250.0f;
             }
         }
         break;
     case 6:
-        if (st->unk34 == 0 && st->unk4 == 0.0f) {
+        if (st->delay == 0 && st->step == 0.0f) {
             sfxStopChannel(0x78, 1);
             sfxAllocateChannel(0x56, 1.0f);
             actorScriptStart(gCurrentActor, 0x31C);
-            actorDespawn(BC1E0_LGB->unk11C);
+            actorDespawn(gCurrentActor->parentActor);
             camStartPath(gCurrentActor, 2, 1);
-            st->unk38 = 8;
+            st->state = 8;
         }
         break;
     case 8:
@@ -298,7 +275,7 @@ void enemyGridStateStep(void) {
             if (flagGet(0x10F, 0) == 0) {
                 csModelStateSetFirstByte(0x10, 0xA);
             }
-            st->unk38 = 0xA;
+            st->state = 0xA;
             sfxStopChannel(0x56, 1);
             sfxAllocateChannel(0x67, 1.0f);
         }
@@ -306,11 +283,11 @@ void enemyGridStateStep(void) {
     case 10:
         break;
     case 7:
-        if (st->unk34 == 0 && st->unk4 == 0.0f) {
-            actorDespawn(BC1E0_LGB->unk11C);
+        if (st->delay == 0 && st->step == 0.0f) {
+            actorDespawn(gCurrentActor->parentActor);
             actorScriptStart(gCurrentActor, 0x31C);
             camStartPath(gCurrentActor, 3, 1);
-            st->unk38 = 9;
+            st->state = 9;
             sfxStopChannel(0x78, 1);
             sfxAllocateChannel(0x57, 1.0f);
         }
@@ -320,87 +297,81 @@ void enemyGridStateStep(void) {
             sfxStopChannel(0x57, 1);
             sfxAllocateChannel(0x67, 1.0f);
             func_806BD0CC();
-            st->unk39 = 0;
-            st->unk38 = 2;
+            st->subState = 0;
+            st->state = 2;
         }
         break;
     default:
         break;
     }
-    BC1E0_LGB->unk60 |= 0x400;
-    BC1E0_LGB->unk15E = 0x14;
-    st->unk34--;
-    if (st->unk34 < 0) {
-        st->unk34 = 0;
+    gCurrentActor->flags |= 0x400;
+    gCurrentActor->eyeHeight = 0x14;
+    st->delay--;
+    if (st->delay < 0) {
+        st->delay = 0;
     }
-    targetScaleY = st->unk30;
-    if (st->unk4 != 0.0f && st->unk34 == 0) {
-        a = st->unk4;
-        old = st->unk0;
-        st->unk0 = old + a;
+    targetScaleY = st->homeScaleY;
+    if (st->step != 0.0f && st->delay == 0) {
+        a = st->step;
+        old = st->progress;
+        st->progress = old + a;
         if (D_80750650 == 0) {
-            if (old < 0.63f && st->unk0 >= 0.63f) {
-                csModelStateSetByte(st->unk36 + st->unk37 * 4, 1, 1);
+            if (old < 0.63f && st->progress >= 0.63f) {
+                csModelStateSetByte(st->gridX + st->gridY * 4, 1, 1);
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x361, 0xFF, 0x7F, 0xA);
             }
         } else {
-            targetScaleY += (st->unk0 - 0.5f) * 0.25f;
+            targetScaleY += (st->progress - 0.5f) * 0.25f;
         }
-        if ((f64)st->unk0 >= 1.0) {
-            st->unk0 = 0;
-            st->unk4 = 0;
-            BC1E0_LGB->unk7C = st->unk14;
-            BC1E0_LGB->unk80 = st->unk18;
-            BC1E0_LGB->unk84 = st->unk1C;
+        if (st->progress >= 1.0) {
+            st->progress = 0;
+            st->step = 0;
+            gCurrentActor->x = st->targetX;
+            gCurrentActor->y = st->targetY;
+            gCurrentActor->z = st->targetZ;
         } else {
-            t = st->unk0;
+            t = st->progress;
             if (D_80750650 == 0) {
-                t = st->unk0;
-                t = 2.0 * (f64)t;
-                if ((f64)t > 1.0) {
+                t = 2.0 * t;
+                if (t > 1.0) {
                     t = 1.0f;
                 }
             }
-            BC1E0_LGB->unk7C = st->unk8 + t * (st->unk14 - st->unk8);
-            BC1E0_LGB->unk84 = st->unk10 + t * (st->unk1C - st->unk10);
+            gCurrentActor->x = st->startX + t * (st->targetX - st->startX);
+            gCurrentActor->z = st->startZ + t * (st->targetZ - st->startZ);
             if (D_80750650 == 0) {
-                old = st->unkC;
-                BC1E0_LGB->unk80 = st->unkC + t * (st->unk18 - st->unkC);
+                gCurrentActor->y = st->startY + t * (st->targetY - st->startY);
             } else {
-                t = st->unk20;
-                old = st->unkC;
-                a = st->unk0;
-                b = (f32)((f64)(st->unk18 - st->unkC) - (f64)t * 0.5);
-                BC1E0_LGB->unk80 = (f64)old + ((f64)(b * a) + (f64)(a * a * t) * 0.5);
+                t = st->gravity;
+                old = st->startY;
+                a = st->progress;
+                b = (st->targetY - st->startY) - t * 0.5;
+                gCurrentActor->y = old + (b * a + a * a * t * 0.5);
             }
         }
-        if (D_80750650 == 0 && obj != NULL && st->unk0 != 0.0f) {
+        if (D_80750650 == 0 && obj != NULL && st->progress != 0.0f) {
             if (obj->animId != 0x5C3) {
                 controllerAnimSetStateIfChanged(gCurrentActor, 0x5C3, 0.0f, 0.0f);
             }
-            controllerApplyMotionWindow(gCurrentActor, obj, st->unk0 * 40.0f);
+            controllerApplyMotionWindow(gCurrentActor, obj, st->progress * 40.0f);
         }
     }
-    BC1E0_LGB->sub4->scaleY = BC1E0_LGB->sub4->scaleY + (targetScaleY - BC1E0_LGB->sub4->scaleY) * 0.25f;
+    gCurrentActor->sub4->scaleY += (targetScaleY - gCurrentActor->sub4->scaleY) * 0.25f;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 D_1000118[];
-extern u8 D_2000180[];
-#define R1C0C1_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
-
+extern Gfx D_1000118[];
+extern Mtx D_2000180;
 
 Gfx *func_806BCF98(Gfx *dl, Actor *actor) {
-    R1C0C1_WRITE_GFX(dl++, 0xDE000000, D_1000118);
-    R1C0C1_WRITE_GFX(dl++, 0xE200001C, 0x504240);
+    gSPDisplayList(dl++, D_1000118);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
-    R1C0C1_WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
-    R1C0C1_WRITE_GFX(dl++, 0xDA380003, D_2000180);
+    gDPSetCombineMode(dl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+    gSPMatrix(dl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     dl = textDrawStringVtx(dl, 1, 0x208, 0xC8, "q YES", 1);
     return textDrawStringVtx(dl, 1, 0x208, 0x12C, "b NO", 1);
 }
-
-extern s8 D_807FC8C0[];
 
 void func_806BD094(s16 idx, s8 val) {
     if (idx >= 0 && idx < 0x10) {
@@ -408,7 +379,6 @@ void func_806BD094(s16 idx, s8 val) {
     }
 }
 
-void flagSet(s32, s32, s32);
 
 void func_806BD0CC(void) {
     s32 i;
