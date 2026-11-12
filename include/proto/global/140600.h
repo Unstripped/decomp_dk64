@@ -17,13 +17,13 @@ void n_alSynSetFXMix(ALVoice *, u8);
 void computeBiquadCoefficients(f32, f32, f32, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP__init_lpfilter
-void _init_lpfilter(struct SynLPFilter *);
+void _init_lpfilter(SynLowPass *);
 #endif
 #ifndef PROTO_SKIP_n_alSemitonesToPitchRatio
 f32 n_alSemitonesToPitchRatio(s32);
 #endif
 #ifndef PROTO_SKIP_rebuildLowPassCoefficients
-void rebuildLowPassCoefficients(struct SynLPFilter *, f32);
+void rebuildLowPassCoefficients(SynLowPass *, f32);
 #endif
 #ifndef PROTO_SKIP_n_alFxNew
 void n_alFxNew(void **, AudioInitArgs *, s16, ALHeap *);

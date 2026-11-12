@@ -1,35 +1,8 @@
 #include "common.h"
+#include "audio_synth.h"
 #include "proto/global/140600.h"
 
-typedef struct AdpcmNMFX {
-    u8 pad0[2];
-    s16 count;
-    u8 pad4[0x24];
-    void *unk28;
-    void *unk2C;
-    void *unk30;
-} AdpcmNMFX;
-
-typedef struct AdpcmNMAuxBus {
-    u8 pad0[0x44];
-    AdpcmNMFX *fx;
-} AdpcmNMAuxBus;
-
-typedef struct AdpcmNMMainBus {
-    u8 pad0[4];
-    Acmd *(*pull)(s32, Acmd *, s32);
-} AdpcmNMMainBus;
-
-typedef struct AdpcmNMSynth {
-    u8 pad0[0x30];
-    AdpcmNMMainBus *mainBus;
-    AdpcmNMAuxBus *auxBuses;
-    u8 pad38[4];
-    s32 maxAuxBusses;
-    s32 outputRate;
-} AdpcmNMSynth;
-
-extern AdpcmNMSynth *n_syn;
+extern N_ALSynth *n_syn;
 extern u8 D_807FF0F4[];
 extern u8 D_807FF0F6[];
 
@@ -47,7 +20,7 @@ Acmd *n_alMainBusPull(s32 sampleCount, Acmd *ptr) {
     }
     if (n_syn->maxAuxBusses > (i = 0)) {
         do {
-            result = n_syn->mainBus->pull(sampleCount, result, i);
+            result = n_syn->mainBus->handler(sampleCount, result, i);
             if (D_807FF0F4[i] != 0) {
                 if (D_807FF0F6[i] != 0) {
                     Acmd *cmd;
@@ -84,26 +57,26 @@ Acmd *n_alMainBusPull(s32 sampleCount, Acmd *ptr) {
                     cmd->words.w1 = 0x07C004E0;
                 }
             }
-            if (n_syn->auxBuses[i].fx->count > 0) {
-                AdpcmNMFX *fx;
+            if (n_syn->auxBus[i].filter->lp.fgain > 0) {
+                SynLPFilter *fx;
 
-                fx = n_syn->auxBuses[i].fx;
-                if (fx->unk28 != 0) {
-                    rebuildLowPassCoefficients(fx, (f32)n_syn->outputRate);
+                fx = n_syn->auxBus[i].filter;
+                if (fx->lp.first != 0) {
+                    rebuildLowPassCoefficients(&fx->lp, (f32)n_syn->outputRate);
                 }
                 {
                     Acmd *cmd;
 
                     cmd = result++;
                     cmd->words.w0 = 0x0B000020;
-                    cmd->words.w1 = osVirtualToPhysical((u8 *)fx + 8);
+                    cmd->words.w1 = osVirtualToPhysical(fx->lp.coeff);
                 }
                 {
                     Acmd *cmd;
 
                     cmd = result++;
                     cmd->words.w0 = 0x0E0004E0;
-                    cmd->words.w1 = (u32)osVirtualToPhysical(fx->unk2C) & 0xFFFFFF & 0xFFFFFF;
+                    cmd->words.w1 = (u32)osVirtualToPhysical(fx->lp.fstate) & 0xFFFFFF & 0xFFFFFF;
                 }
                 {
                     Acmd *cmd;
@@ -112,7 +85,7 @@ Acmd *n_alMainBusPull(s32 sampleCount, Acmd *ptr) {
                     cmd->words.w0 = 0x0E000650;
                     cmd->words.w1 = (u32)osVirtualToPhysical(fx->unk30) & 0xFFFFFF & 0xFFFFFF;
                 }
-                fx->unk28 = 0;
+                fx->lp.first = 0;
             }
         } while (++i < n_syn->maxAuxBusses);
     }

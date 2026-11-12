@@ -49,17 +49,23 @@ typedef struct SynStartParam {
     /* 0x20 */ ALWaveTable *wave;
 } SynStartParam; // size = 0x24
 
-// Low-pass filter of an aux bus and of an n_alFxNew section (both allocated 0x38 bytes with
-// two 8-byte state buffers). _init_lpfilter derives `coeff` from the cutoff `unk0`;
-// rebuildLowPassCoefficients reads `unk2` as the resonance (Q * 10).
-typedef struct SynLPFilter {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
+// Low-pass filter core (libultra's ALLowPass, n_ flavour): what _init_lpfilter and
+// rebuildLowPassCoefficients operate on, and what the 0x0B (load coefficients) and 0x0E
+// (filter) commands address. Embedded in every N_PVoice and at the head of SynLPFilter.
+typedef struct SynLowPass {
+    /* 0x00 */ s16 fc; // cutoff
+    /* 0x02 */ s16 fgain; // gain; rebuildLowPassCoefficients reads it as the resonance (Q * 10); 0 = off
     /* 0x04 */ u32 unk4;
     /* 0x08 */ s16 coeff[16];
-    /* 0x28 */ s32 state;
-    /* 0x2C */ void *unk2C;
-    /* 0x30 */ void *unk30;
+    /* 0x28 */ s32 first; // filter-command flags; 2 = coefficients need a rebuild
+    /* 0x2C */ void *fstate; // 8-byte filter state
+} SynLowPass; // size = 0x30
+
+// Low-pass filter of an aux bus and of an n_alFxNew section (both allocated 0x38 bytes with
+// two 8-byte state buffers).
+typedef struct SynLPFilter {
+    /* 0x00 */ SynLowPass lp;
+    /* 0x30 */ void *unk30; // second 8-byte state buffer
     /* 0x34 */ u8 pad34[4];
 } SynLPFilter; // size = 0x38
 
@@ -108,14 +114,7 @@ typedef struct PVoice_s {
     /* 0x88 */ s32 delta; // samples until the envelope's release ends; 0 = free to steal
     /* 0x8C */ u8 unk8C; // start fxDelay / param 0x11; n_alResamplePull pitch-shifts when 1..0x3F
     /* 0x8D */ u8 unk8D[3];
-    // 0x90..0xBF: per-voice low-pass, laid out like SynLPFilter's first 0x30 bytes
-    // (n_alResamplePull hands &unk90 to rebuildLowPassCoefficients).
-    /* 0x90 */ s16 unk90; // start fxVolume / param 0x13: cutoff
-    /* 0x92 */ s16 unk92; // start fxPitch / param 0x12: > 0 enables the filter
-    /* 0x94 */ u8 unk94[4];
-    /* 0x98 */ s16 unk98[16]; // coefficients (loaded by the 0x0B command)
-    /* 0xB8 */ s32 unkB8; // filter flags (2 = rebuild)
-    /* 0xBC */ void *unkBC; // filter state
+    /* 0x90 */ SynLowPass lowpass; // fc: start fxVolume / param 0x13; fgain: start fxPitch / param 0x12
 } N_PVoice; // size = 0xC0
 
 // Main bus: its `handler` is n_alFxPull while the aux-bus effects are live.
@@ -127,7 +126,7 @@ typedef struct N_ALMainBus {
 
 typedef struct N_ALAuxBus {
     /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ s32 sourceCount;
+    /* 0x14 */ u32 sourceCount;
     /* 0x18 */ s32 maxSources;
     /* 0x1C */ N_PVoice **sources;
     /* 0x20 */ void *fx;

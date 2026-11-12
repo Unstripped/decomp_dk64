@@ -54,9 +54,9 @@ void n_alSynSetFXParam(void *fxType, s16 paramId, void *paramVal) {
 
 void n_alSynSetFXFilterParam(SynLPFilter *filter, s16 paramId, void *valuePtr) {
     if (paramId == 8) {
-        filter->unk2 = (s16)(s32)((f32)*(s32 *)valuePtr * 0.1f);
+        filter->lp.fgain = (s16)(s32)((f32)*(s32 *)valuePtr * 0.1f);
     } else if (paramId == 9) {
-        filter->unk0 = (s16)*(s32 *)valuePtr;
+        filter->lp.fc = (s16)*(s32 *)valuePtr;
     }
-    rebuildLowPassCoefficients(filter, (f32)n_syn->outputRate);
+    rebuildLowPassCoefficients(&filter->lp, (f32)n_syn->outputRate);
 }

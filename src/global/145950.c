@@ -25,28 +25,28 @@ Acmd *n_alResamplePull(N_PVoice *filter, s16 *outp, s32 outCount, Acmd *p) {
         cmd->words.w0 = *outp & 0xFFFF;
         cmd->words.w1 = (((u32)ratio & 0xFFFF) << 16) | (u16)(filter->unk8C + 1);
     }
-    if (filter->unk92 > 0) {
-        if (filter->unkB8 != 0) {
-            rebuildLowPassCoefficients(&filter->unk90, 22050.0f);
+    if (filter->lowpass.fgain > 0) {
+        if (filter->lowpass.first != 0) {
+            rebuildLowPassCoefficients(&filter->lowpass, 22050.0f);
         }
         {
             Acmd *cmd;
 
             cmd = result++;
             cmd->words.w0 = 0x0B000020;
-            cmd->words.w1 = osVirtualToPhysical(filter->unk98);
+            cmd->words.w1 = osVirtualToPhysical(filter->lowpass.coeff);
         }
-        if (filter->unkB8 == 2) {
-            filter->unkB8 = 0;
+        if (filter->lowpass.first == 2) {
+            filter->lowpass.first = 0;
         }
         {
             Acmd *cmd;
 
             cmd = result++;
-            cmd->words.w0 = 0x0E000000 | ((filter->unkB8 & 0xFF) << 16) | (*outp & 0xFFFF);
-            cmd->words.w1 = (osVirtualToPhysical(filter->unkBC) & 0xFFFFFF) & 0xFFFFFF;
+            cmd->words.w0 = 0x0E000000 | ((filter->lowpass.first & 0xFF) << 16) | (*outp & 0xFFFF);
+            cmd->words.w1 = (osVirtualToPhysical(filter->lowpass.fstate) & 0xFFFFFF) & 0xFFFFFF;
         }
-        filter->unkB8 = 0;
+        filter->lowpass.first = 0;
     }
     return result;
 }
@@ -56,16 +56,16 @@ s32 alResampleParam(N_PVoice *filter, s32 paramID, void *param) {
 
     switch (paramID) {
         case 4:
-            filter->unk92 = 0;
+            filter->lowpass.fgain = 0;
             _decodeChunk(filter, 4, param);
             break;
         case 0x12:
-            filter->unk92 = (s32)param;
-            filter->unkB8 |= 2;
+            filter->lowpass.fgain = (s32)param;
+            filter->lowpass.first |= 2;
             break;
         case 0x13:
-            filter->unk90 = (s16)*(f32 *)arg;
-            filter->unkB8 |= 2;
+            filter->lowpass.fc = (s16)*(f32 *)arg;
+            filter->lowpass.first |= 2;
             break;
         case 0x11:
             filter->unk8C = (s32)param;

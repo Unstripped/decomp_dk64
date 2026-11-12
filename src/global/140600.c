@@ -86,7 +86,7 @@ void computeBiquadCoefficients(f32 sampleRate, f32 cutoffFreq, f32 qFactor, f32 
     denCoeffs[2] = ((1.0f + omegaSq) - alpha) / (1.0f + omegaSq + alpha);
 }
 
-void _init_lpfilter(SynLPFilter *filter) {
+void _init_lpfilter(SynLowPass *filter) {
     s32 i;
     s32 scaledCoeff;
     s16 coeff;
@@ -94,10 +94,10 @@ void _init_lpfilter(SynLPFilter *filter) {
     f32 power;
     f32 scale;
 
-    scaledCoeff = filter->unk0 * 16384.0f;
+    scaledCoeff = filter->fc * 16384.0f;
     coeff = scaledCoeff >> 0xF;
-    filter->unk2 = 16384.0f - coeff;
-    filter->state = 0;
+    filter->fgain = 16384.0f - coeff;
+    filter->first = 0;
     for (i = 0; i < 8; i++) {
         filter->coeff[i] = 0;
     }
@@ -132,23 +132,23 @@ f32 n_alSemitonesToPitchRatio(s32 semitones) {
 }
 
 
-void rebuildLowPassCoefficients(SynLPFilter *filter, f32 sampleRate) {
+void rebuildLowPassCoefficients(SynLowPass *filter, f32 sampleRate) {
     s32 i;
     f32 numCoeffs[3];
     f32 denCoeffs[3];
 
-    if (filter->unk2 == 0) {
+    if (filter->fgain == 0) {
         return;
     }
-    if (filter->unk2 < 10) {
-        filter->unk2 = 10;
+    if (filter->fgain < 10) {
+        filter->fgain = 10;
     }
-    computeBiquadCoefficients(sampleRate, filter->unk0 + 10.0f, filter->unk2 / 10.0f, numCoeffs, denCoeffs);
+    computeBiquadCoefficients(sampleRate, filter->fc + 10.0f, filter->fgain / 10.0f, numCoeffs, denCoeffs);
     for (i = 3; i < 8; i++) {
         filter->coeff[i] = 0;
     }
-    filter->coeff[0] = numCoeffs[0] * (26768.0f - filter->unk2 * 128.0f);
-    filter->coeff[1] = numCoeffs[1] * (26768.0f - filter->unk2 * 128.0f);
+    filter->coeff[0] = numCoeffs[0] * (26768.0f - filter->fgain * 128.0f);
+    filter->coeff[1] = numCoeffs[1] * (26768.0f - filter->fgain * 128.0f);
     filter->coeff[2] = 0;
     filter->coeff[8] = denCoeffs[1] * -16384.0f;
     filter->coeff[9] = denCoeffs[2] * -16384.0f;
@@ -260,11 +260,11 @@ void n_alFxNew(void **outFx, AudioInitArgs *config, s16 busIndex, ALHeap *heap) 
         }
         if (paramTable[tableOffset] != 0) {
             section->unk20 = alHeapDBAlloc(NULL, 0, heap, 1, 0x38);
-            section->unk20->unk2C = alHeapDBAlloc(NULL, 0, heap, 1, 8);
+            section->unk20->lp.fstate = alHeapDBAlloc(NULL, 0, heap, 1, 8);
             section->unk20->unk30 = alHeapDBAlloc(NULL, 0, heap, 1, 8);
-            section->unk20->unk0 = paramTable[tableOffset];
+            section->unk20->lp.fc = paramTable[tableOffset];
             tableOffset += 1;
-            _init_lpfilter(section->unk20);
+            _init_lpfilter(&section->unk20->lp);
         } else {
             section->unk20 = NULL;
             tableOffset += 1;
@@ -304,9 +304,9 @@ void alN_PVoiceNew(N_PVoice *pvoice, ALDMANew dmaNew, ALHeap *heap) {
     pvoice->em_ctrlList = 0;
     pvoice->em_ctrlTail = 0;
     pvoice->unk8C = 0;
-    pvoice->unk92 = 0;
-    pvoice->unk90 = 0;
-    pvoice->unkBC = alHeapDBAlloc(NULL, 0, heap, 1, 8);
-    pvoice->unkB8 = 0;
+    pvoice->lowpass.fgain = 0;
+    pvoice->lowpass.fc = 0;
+    pvoice->lowpass.fstate = alHeapDBAlloc(NULL, 0, heap, 1, 8);
+    pvoice->lowpass.first = 0;
 }
 

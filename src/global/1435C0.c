@@ -78,9 +78,9 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
                 f->em_cvolR = (D_8075658E[-f->em_pan] * f->em_volume) >> 15;
             }
             f->rs_ratio = paramNode->pitch;
-            f->unk92 = paramNode->fxPitch;
-            f->unk90 = paramNode->fxVolume;
-            f->unkB8 = 1;
+            f->lowpass.fgain = paramNode->fxPitch;
+            f->lowpass.fc = paramNode->fxVolume;
+            f->lowpass.first = 1;
             f->unk8C = paramNode->fxDelay;
             break;
         case 11:

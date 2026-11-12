@@ -52,8 +52,8 @@ void n_alSynNew(AudioInitArgs *config) {
             n_syn->auxBus[i].fx = NULL;
         }
         n_syn->auxBus[i].filter = alHeapDBAlloc(NULL, 0, heap, 1, sizeof(SynLPFilter));
-        n_syn->auxBus[i].filter->unk2 = 0;
-        n_syn->auxBus[i].filter->unk2C = alHeapDBAlloc(NULL, 0, heap, 1, 8);
+        n_syn->auxBus[i].filter->lp.fgain = 0;
+        n_syn->auxBus[i].filter->lp.fstate = alHeapDBAlloc(NULL, 0, heap, 1, 8);
         n_syn->auxBus[i].filter->unk30 = alHeapDBAlloc(NULL, 0, heap, 1, 8);
     }
     n_syn->mainBus = alHeapDBAlloc(NULL, 0, heap, 1, sizeof(N_ALMainBus));
