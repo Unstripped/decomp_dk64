@@ -172,9 +172,9 @@ void playerAllocSlots(s32 spawnIndex) {
         blk->camZ = 100.0f;
         blk->camY = 100.0f;
         blk->camX = 100.0f;
-        blk->unk224 = 100.0f;
-        blk->unk220 = 100.0f;
-        blk->unk21C = 100.0f;
+        blk->eyeZ = 100.0f;
+        blk->eyeY = 100.0f;
+        blk->eyeX = 100.0f;
         blk->focusZ = 0.0f;
         blk->focusY = 0.0f;
         blk->focusX = 0.0f;
@@ -945,9 +945,9 @@ void playerInitKongActor(s32 playerIndex, s32 unused1, s32 unused2) {
 void playerGetCharacterIndex(u8 playerIndex) {
     PlayerStruct *p = &gPlayerSlots[playerIndex];
 
-    p->unk21C = p->camX;
-    p->unk220 = p->camY;
-    p->unk224 = p->camZ;
+    p->eyeX = p->camX;
+    p->eyeY = p->camY;
+    p->eyeZ = p->camZ;
     p->unk234 = p->focusX;
     p->unk238 = p->focusY;
     p->unk23C = p->focusZ;

@@ -1003,8 +1003,8 @@ void textMarkerUpdateMatrix(void) {
     case 0x40:
     case 0x41:
     case 0x42:
-        for (i = 0; i < gActorGlobalState.unk254; i++) {
-            if (gActorGlobalState.unk258[i] == 1) {
+        for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+            if (gActorGlobalState.volumeTriggerQueueOp[i] == 1) {
                 markerView->unk2A = 0;
                 gCurrentActor->state = 5;
             }

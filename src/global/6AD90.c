@@ -1334,9 +1334,9 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
 
     if (!(buf->flags & 1)) {
         modelSlotBuildTriangleBufferThunk(slotIdx, gModelSlots[slotIdx].unk24,
-            gModelSlots[slotIdx].unk0, gModelSlots[slotIdx].unk4, gModelSlots[slotIdx].unk8,
-            gModelSlots[slotIdx].unk10, gModelSlots[slotIdx].unk14, gModelSlots[slotIdx].unk18,
-            gModelSlots[slotIdx].unkC);
+            gModelSlots[slotIdx].x, gModelSlots[slotIdx].y, gModelSlots[slotIdx].z,
+            gModelSlots[slotIdx].rotY, gModelSlots[slotIdx].unk14, gModelSlots[slotIdx].unk18,
+            gModelSlots[slotIdx].scale);
     } else {
         buf->timestamp = gFrameCounter;
     }
@@ -1500,7 +1500,7 @@ void collisionAttachActorToObjectNode(Actor *actor, s16 slot, s8 bone, u8 surfac
     float pad[4][4];
     float invMtx[4][4];
 
-    actor->cutsceneId = gModelSlots[slot].unk88;
+    actor->cutsceneId = gModelSlots[slot].id;
     actor->unk10E = surface;
     actor->unk10F = bone;
     modelSlotBuildTransformMatrix(slot, bone, mtx);

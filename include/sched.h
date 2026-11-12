@@ -92,9 +92,9 @@ typedef struct {
     /* 0x210 */ f32 camX;
     /* 0x214 */ f32 camY;
     /* 0x218 */ f32 camZ;
-    /* 0x21C */ f32 unk21C;
-    /* 0x220 */ f32 unk220;
-    /* 0x224 */ f32 unk224;
+    /* 0x21C */ f32 eyeX;
+    /* 0x220 */ f32 eyeY;
+    /* 0x224 */ f32 eyeZ;
     /* 0x228 */ f32 focusX;
     /* 0x22C */ f32 focusY;
     /* 0x230 */ f32 focusZ;

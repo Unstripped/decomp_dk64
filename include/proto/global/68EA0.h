@@ -2,28 +2,28 @@
 #ifndef PROTO_GLOBAL_68EA0_H
 #define PROTO_GLOBAL_68EA0_H
 #include "common.h"
-#ifndef PROTO_SKIP_actorInitEntryPoints
-void actorInitEntryPoints(void);
+#ifndef PROTO_SKIP_modelEmittersInit
+void modelEmittersInit(void);
 #endif
-#ifndef PROTO_SKIP_actorApplyRotatedOffset
-void actorApplyRotatedOffset(s32, s32, f32);
+#ifndef PROTO_SKIP_modelEmitterApplyOffset
+void modelEmitterApplyOffset(s32, s32, f32);
 #endif
-#ifndef PROTO_SKIP_actorUpdateEntryCoordinates
-void actorUpdateEntryCoordinates(s16, f32, f32, f32, f32, f32);
+#ifndef PROTO_SKIP_modelEmitterSetPosition
+void modelEmitterSetPosition(s16, f32, f32, f32, f32, f32);
 #endif
-#ifndef PROTO_SKIP_actorClearEntrySlot
-void actorClearEntrySlot(s16);
+#ifndef PROTO_SKIP_modelEmitterDisable
+void modelEmitterDisable(s16);
 #endif
-#ifndef PROTO_SKIP_actorEntryTypeIsEmitter
-s32 actorEntryTypeIsEmitter(s16);
+#ifndef PROTO_SKIP_modelTypeIsEmitter
+s32 modelTypeIsEmitter(s16);
 #endif
-#ifndef PROTO_SKIP_actorUpdateEntryEmitters
-void actorUpdateEntryEmitters(void);
+#ifndef PROTO_SKIP_modelEmittersUpdate
+void modelEmittersUpdate(void);
 #endif
-#ifndef PROTO_SKIP_actorEntryEmitJitterParticle
-void actorEntryEmitJitterParticle(s16);
+#ifndef PROTO_SKIP_modelEmitterSpawnJitterParticle
+void modelEmitterSpawnJitterParticle(s16);
 #endif
-#ifndef PROTO_SKIP_actorEntryEmitScaledParticle
-void actorEntryEmitScaledParticle(s16);
+#ifndef PROTO_SKIP_modelEmitterSpawnScaledParticle
+void modelEmitterSpawnScaledParticle(s16);
 #endif
 #endif

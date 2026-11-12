@@ -47,7 +47,7 @@ void renderCalcPlayerDistanceAlpha(f32 x, f32 y, f32 z, f32 maxDist, s16 actorTy
     f32 fadeStart;
     f32 fadeEnd;
 
-    dist = sqrtf(R2A_SQ(x - gPlayerSlots[gCurrentPlayerIndex].unk21C) + R2A_SQ(y - gPlayerSlots[gCurrentPlayerIndex].unk220) + R2A_SQ(z - gPlayerSlots[gCurrentPlayerIndex].unk224));
+    dist = sqrtf(R2A_SQ(x - gPlayerSlots[gCurrentPlayerIndex].eyeX) + R2A_SQ(y - gPlayerSlots[gCurrentPlayerIndex].eyeY) + R2A_SQ(z - gPlayerSlots[gCurrentPlayerIndex].eyeZ));
     if (gCurrentMap == 0x26) {
         maxDist = renderAdjustActorDistance(actorType, maxDist);
         if (maxDist < dist) {

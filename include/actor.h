@@ -324,10 +324,10 @@ typedef struct ActorGlobalState {
     /* 0x202 */ u8 unk202[2];
     /* 0x204 */ struct Actor *unk204[16];
     /* 0x244 */ u8 unk244[16];
-    /* 0x254 */ u8 unk254;
+    /* 0x254 */ u8 volumeTriggerQueueCount;
     /* 0x255 */ u8 unk255[3];
-    /* 0x258 */ s32 unk258[8];
-    /* 0x278 */ s16 *unk278[8];
+    /* 0x258 */ s32 volumeTriggerQueueOp[8];
+    /* 0x278 */ s16 *volumeTriggerQueueId[8];
 } ActorGlobalState;
 
 // Path-follow state (Actor.floorContact; pathFollowUpdateHeading allocates it, actor teardown frees it); 0x14 bytes.

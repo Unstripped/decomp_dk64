@@ -220,8 +220,8 @@ typedef struct {
 s32 mapGetHubWorldIndex(u8, s32); // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;
-extern s16 D_807FDCBC;
-extern s16 D_807FDCB8;
+extern s16 gVolumeTriggerFiredZ;
+extern s16 gVolumeTriggerFiredX;
 extern void *gPrimaryPlayerActor;
 extern CutscenePlayerContext *gActivePlayerState;
 extern PlayerStruct *gPlayerSlots;
@@ -254,9 +254,9 @@ void actorCutsceneDispatchEvents(void) {
         lightGetColor(&csState->unkC, &csState->unk10, &csState->unk14, 0);
     }
 
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        eventData = gActorGlobalState.unk278[i];
-        switch (gActorGlobalState.unk258[i]) {
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        eventData = gActorGlobalState.volumeTriggerQueueId[i];
+        switch (gActorGlobalState.volumeTriggerQueueOp[i]) {
         case 0xFF:
             csState->unk1E = 0;
             csState->unk0 = 0xFF;
@@ -301,7 +301,7 @@ void actorCutsceneDispatchEvents(void) {
                 } else {
                     mapRequestTransition(paramA, eventData[1]);
                 }
-                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, gVolumeTriggerFiredX, gVolumeTriggerFiredZ, 0x46);
             }
             break;
         case 0x15:
@@ -319,13 +319,13 @@ void actorCutsceneDispatchEvents(void) {
                     screenSetTransitionFadeType(0);
                 }
                 mapSaveSlotAndTransition(eventData[0], eventData[1], 0, 0);
-                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, gVolumeTriggerFiredX, gVolumeTriggerFiredZ, 0x46);
             }
             break;
         case 0x5:
             if (!(gGlobalPauseFlags & 0x400)) {
                 mapTransitionExitCurrent(eventData[0], eventData[1]);
-                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, gVolumeTriggerFiredX, gVolumeTriggerFiredZ, 0x46);
             }
             break;
         case 0x6:
@@ -335,13 +335,13 @@ void actorCutsceneDispatchEvents(void) {
         case 0x7:
             if (!(gGlobalPauseFlags & 0x400)) {
                 mapSaveSlotAndTransition(eventData[0], eventData[1], eventData[2], 2);
-                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, gVolumeTriggerFiredX, gVolumeTriggerFiredZ, 0x46);
             }
             break;
         case 0x8:
             if (!(gGlobalPauseFlags & 0x400)) {
                 mapTransitionToPreviousOrExit();
-                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, gVolumeTriggerFiredX, gVolumeTriggerFiredZ, 0x46);
             }
             break;
         case 0x19:
@@ -355,7 +355,7 @@ void actorCutsceneDispatchEvents(void) {
             break;
         case 0xB:
             mapRequestTransition(D_80744700[mapGetHubWorldIndex(gCurrentWorldId, 0)], D_8076A0AC);
-            playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
+            playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, gVolumeTriggerFiredX, gVolumeTriggerFiredZ, 0x46);
             break;
         case 0xC:
             if (eventData[1] != 0) {
@@ -476,7 +476,7 @@ void actorCutsceneDispatchEvents(void) {
         break;
     }
 
-    actorUpdateEntryEmitters();
+    modelEmittersUpdate();
     particleSpawnPathTrail();
     D_807FC621 |= 0x80;
 }
@@ -546,9 +546,9 @@ void func_8068B930(void) {
     s32 i;
     s16 *ptr;
 
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        ptr = gActorGlobalState.unk278[i];
-        if (gActorGlobalState.unk258[i] == 1) {
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        ptr = gActorGlobalState.volumeTriggerQueueId[i];
+        if (gActorGlobalState.volumeTriggerQueueOp[i] == 1) {
             csModelStateSetFirstByte(ptr[0], ptr[1]);
         }
     }
@@ -559,9 +559,9 @@ void func_8068B9B4(void) {
     s32 i;
     s16 *ptr;
 
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        ptr = gActorGlobalState.unk278[i];
-        if (gActorGlobalState.unk258[i] == 1) {
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        ptr = gActorGlobalState.volumeTriggerQueueId[i];
+        if (gActorGlobalState.volumeTriggerQueueOp[i] == 1) {
             actorListDispatchEvent(ptr[1], ptr);
         }
     }
@@ -587,9 +587,9 @@ void func_8068BA2C(void) {
     playerState = gActivePlayerActor->customState;
     hasEvent3 = 0;
     camState = ((Actor *)playerState->unk104)->customState;
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        ptr = gActorGlobalState.unk278[i];
-        switch ((u32)gActorGlobalState.unk258[i]) {
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        ptr = gActorGlobalState.volumeTriggerQueueId[i];
+        switch ((u32)gActorGlobalState.volumeTriggerQueueOp[i]) {
         case 1:
             flags = (ptr[1] != 0) ? 4 : 0;
             camStartPath(0, ptr[0], flags | 1);

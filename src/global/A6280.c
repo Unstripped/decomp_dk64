@@ -164,7 +164,7 @@ void actorSparkCutsceneUpdate(void) {
     }
     switch (gCurrentActor->state) {
     case 0:
-        if (gActorGlobalState.unk254 != 0 && gActorGlobalState.unk258[0] == 1) {
+        if (gActorGlobalState.volumeTriggerQueueCount != 0 && gActorGlobalState.volumeTriggerQueueOp[0] == 1) {
             resQueueRemove(gCurrentActor);
             resQueueAttachActor(gCurrentActor, 0x1F, 1);
             camStartPath(gCurrentActor, 0x12, 1);
@@ -178,7 +178,7 @@ void actorSparkCutsceneUpdate(void) {
         }
         break;
     case 1:
-        if (gActorGlobalState.unk254 != 0 && gActorGlobalState.unk258[0] == 1) {
+        if (gActorGlobalState.volumeTriggerQueueCount != 0 && gActorGlobalState.volumeTriggerQueueOp[0] == 1) {
             actorScriptStart(gCurrentActor, 0x328);
             gCurrentActor->state = 2;
             gCurrentActor->unk144 = 2;

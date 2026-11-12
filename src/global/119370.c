@@ -553,9 +553,9 @@ void effectUpdateAll(u8 pGlist) {
                                           effect->state,
                                           effect->scaleX,
                                           effect->scaleY,
-                                          gPlayerSlots[i].unk21C,
-                                          gPlayerSlots[i].unk220,
-                                          gPlayerSlots[i].unk224,
+                                          gPlayerSlots[i].eyeX,
+                                          gPlayerSlots[i].eyeY,
+                                          gPlayerSlots[i].eyeZ,
                                           effect->x,
                                           effect->y,
                                           effect->z, effect->mode);

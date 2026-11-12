@@ -114,7 +114,7 @@ Gfx *gfxDrawBackgroundQuad(Gfx *gdl, f32 rotX, f32 angle, Mtx *mtx, u8 skyTypeA,
         }
         break;
     }
-    if ((camState->unkFA != 0) && (gPlayerSlots->unk220 < (camState->unk90 + 3.0f))) {
+    if ((camState->unkFA != 0) && (gPlayerSlots->eyeY < (camState->unk90 + 3.0f))) {
         red *= 0.1;
         green *= 0.1;
         blue *= 0.3;

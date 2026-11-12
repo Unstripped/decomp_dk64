@@ -1913,9 +1913,9 @@ void camFindClearYaw(Actor *camActor, f32 unused, s16 yaw, u8 failCount) {
         camSetZoomForDistance(camActor, cam->unkA0);
     } else {
         cam->unkFF += failCount;
-        x = gPlayerSlots->unk21C;
-        y = gPlayerSlots->unk220;
-        z = gPlayerSlots->unk224;
+        x = gPlayerSlots->eyeX;
+        y = gPlayerSlots->eyeY;
+        z = gPlayerSlots->eyeZ;
         camSetZoomLevel(camActor, 1);
         cam->unkA0 = cam->unkA4;
         camActor->distToFloor = cam->unkB8;

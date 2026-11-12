@@ -32,7 +32,7 @@ typedef struct ActorTargetEntry {
 extern ActorTargetSource *gModelSlots;
 extern ActorTargetEntry *D_807F9420;
 extern s16 D_807F9424;
-extern s32 D_80747D70;
+extern s32 gModelSlotCount;
 
 
 void actorInitTargetEntries(void) {
@@ -41,7 +41,7 @@ void actorInitTargetEntries(void) {
     s32 res;
 
     D_807F9424 = 0;
-    for (i = 0; i < D_80747D70; i++) {
+    for (i = 0; i < gModelSlotCount; i++) {
         if (mapObjectIsTargetType(i)) {
             D_807F9424++;
         }
@@ -50,7 +50,7 @@ void actorInitTargetEntries(void) {
     D_807F9420 = NULL;
     if (D_807F9424 != 0) {
         D_807F9420 = heapAlloc(D_807F9424 * sizeof(ActorTargetEntry));
-        for (i = 0; i < D_80747D70; i++) {
+        for (i = 0; i < gModelSlotCount; i++) {
             s32 cond = mapObjectIsTargetType(i);
             u8 res = cond;
             if (cond) {

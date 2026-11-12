@@ -170,9 +170,9 @@ tail:
         i = 0;
         if (D_807FBDC4 > 0) {
             do {
-                if (gActorGlobalState.unk258[i] == 3) {
+                if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
                     a2v = 1;
-                    v3 = ((u8 *)gActorGlobalState.unk278[i])[3]; // unk278[] points at script data read as s16 (1295B0, 80150) and as bytes here
+                    v3 = ((u8 *)gActorGlobalState.volumeTriggerQueueId[i])[3]; // unk278[] points at script data read as s16 (1295B0, 80150) and as bytes here
                     switch (challengeType) {
                     case 0:
                         if (s->unk4 != 0) {

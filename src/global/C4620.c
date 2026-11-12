@@ -235,9 +235,9 @@ void actorScriptedCommandUpdate(void) {
     if (gCurrentMap == 0x4C) {
         lightUpdateFromActorLighting(&gCurrentActor->tintR, &gCurrentActor->tintG, &gCurrentActor->tintB);
     }
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        if (gActorGlobalState.unk258[i] == 3) {
-            cmd = (ScriptCommand *)gActorGlobalState.unk278[i];
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
+            cmd = (ScriptCommand *)gActorGlobalState.volumeTriggerQueueId[i];
             switch (cmd->opcode) {
                 case 25:
                     state->particleSprite = cmd->param1;
@@ -955,8 +955,8 @@ void func_806C226C(void) {
             gCurrentActor->state = 0x40;
         }
     }
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        if (gActorGlobalState.unk258[i] == 3) {
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
             actorScriptStart(gCurrentActor, 0x2A3);
             gCurrentActor->state = 0x27;
             gCurrentActor->unk155 = 0;

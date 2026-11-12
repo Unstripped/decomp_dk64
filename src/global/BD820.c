@@ -143,9 +143,9 @@ void func_806B904C(void) {
         modelSlotOrFlags(5, 0x10);
         modelSlotOrFlags(7, 0x10);
     }
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        if (gActorGlobalState.unk258[i] == 3) {
-            gCurrentActor->state = gActorGlobalState.unk278[i][1];
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
+            gCurrentActor->state = gActorGlobalState.volumeTriggerQueueId[i][1];
             gCurrentActor->unk155 = 0;
         }
     }

@@ -488,8 +488,8 @@ void minecartUpdateObstacleType1(void) {
     }
     switch (gCurrentActor->state) {
     case 0:
-        if (gActorGlobalState.unk254 != 0) {
-            routeInfo = gActorGlobalState.unk278[0];
+        if (gActorGlobalState.volumeTriggerQueueCount != 0) {
+            routeInfo = gActorGlobalState.volumeTriggerQueueId[0];
             alloc = heapAlloc(2);
             alloc[0] = routeInfo[1];
             alloc[1] = 0xFF;
@@ -555,8 +555,8 @@ void minecartUpdateObstacleType2(void) {
     }
     switch (gCurrentActor->state) {
     case 0:
-        if (gActorGlobalState.unk254 != 0) {
-            routeInfo = gActorGlobalState.unk278[0];
+        if (gActorGlobalState.volumeTriggerQueueCount != 0) {
+            routeInfo = gActorGlobalState.volumeTriggerQueueId[0];
             alloc = heapAlloc(4);
             alloc[0] = routeInfo[1];
             alloc[1] = 0xFF;
@@ -627,7 +627,7 @@ void minecartUpdateObstacleType3(void) {
     func_80724A20();
     switch (gCurrentActor->state) {
     case 0:
-        if (gActorGlobalState.unk254 != 0) {
+        if (gActorGlobalState.volumeTriggerQueueCount != 0) {
             switch (gCurrentMap) {
             case 0x37:
                 cart->routeCursor = D_80028C40;

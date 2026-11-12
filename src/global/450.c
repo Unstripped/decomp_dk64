@@ -1126,7 +1126,7 @@ void mapLoadLevel(void) {
         seqSetChannelVolumeScale(1, 1.0f);
         seqSetChannelVolumeScale(2, 1.0f);
         mapSlotFree(gCurrentMap);
-        actorInitEntryPoints();
+        modelEmittersInit();
     }
     menuCheckMapTransitionOnLoad();
     func_805FF670();

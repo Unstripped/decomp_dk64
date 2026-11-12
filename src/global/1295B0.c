@@ -57,15 +57,15 @@ s32 func_80724A20(void) {
 
     found = 0;
     i = 0;
-    if (gActorGlobalState.unk254 > 0) {
+    if (gActorGlobalState.volumeTriggerQueueCount > 0) {
         do {
-            if (gActorGlobalState.unk258[i] == 3) {
+            if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
                 found = 1;
-                gCurrentActor->state = gActorGlobalState.unk278[i][1];
+                gCurrentActor->state = gActorGlobalState.volumeTriggerQueueId[i][1];
                 gCurrentActor->unk155 = 0;
             }
             i++;
-        } while (found == 0 && i < gActorGlobalState.unk254);
+        } while (found == 0 && i < gActorGlobalState.volumeTriggerQueueCount);
     }
     return found;
 }
@@ -929,10 +929,10 @@ void func_80727678(void) {
 
     node = D_80755694->nodes;
     for (i = 0; i < D_80755694->count; i++, node++) {
-        for (j = 0; j < gActorGlobalState.unk254; j++) {
-            ptr = gActorGlobalState.unk278[j];
+        for (j = 0; j < gActorGlobalState.volumeTriggerQueueCount; j++) {
+            ptr = gActorGlobalState.volumeTriggerQueueId[j];
             if (node->id == *ptr) {
-                switch (gActorGlobalState.unk258[j]) {
+                switch (gActorGlobalState.volumeTriggerQueueOp[j]) {
                     case 1:
                         if ((node->state == 0) && (spawnFlagConditionMet(gCurrentMap, node->id) != 0) && (actorSpawn(D_8075EB80[node->entryIndex].actorType, D_8075EB80[node->entryIndex].unk2) != 0)) {
                             spawnNodeInitActorFromEntry(gSpawnedActor, node);
@@ -952,7 +952,7 @@ void func_80727678(void) {
                     case 3:
                     case 4:
                         if (node->state == 5) {
-                            actorAppendCallbackMemcpy8(gCurrentActor, node->actor, 0x01000000, gActorGlobalState.unk258[j], ptr, 0);
+                            actorAppendCallbackMemcpy8(gCurrentActor, node->actor, 0x01000000, gActorGlobalState.volumeTriggerQueueOp[j], ptr, 0);
                         }
                         break;
                 }

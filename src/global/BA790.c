@@ -269,8 +269,8 @@ void func_806B640C(void) {
         *p = -gBehaviourExtraState->unkAWide;
     }
     if (gGameMode == 1) {
-        for (i = 0; i < gActorGlobalState.unk254; i++) {
-            if (gActorGlobalState.unk258[i] == 3) {
+        for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+            if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
                 gCurrentActor->unk144 = 0x24;
                 actorScriptStart(gCurrentActor, 0x24F);
             }

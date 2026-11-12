@@ -551,7 +551,7 @@ Gfx *playerViewsRender(Gfx *gfx, void *frame) {
     for (i = 0; i < gViewportCount; i++) {
         if (gPlayerSlots[i].active != 0) {
             gCurrentPlayerIndex = i;
-            gfx = mapRenderPlayerView(gfx, gPlayerSlots[i].unk21C, gPlayerSlots[i].unk220, gPlayerSlots[i].unk224,
+            gfx = mapRenderPlayerView(gfx, gPlayerSlots[i].eyeX, gPlayerSlots[i].eyeY, gPlayerSlots[i].eyeZ,
                                 gPlayerSlots[i].unk234, gPlayerSlots[i].unk238, gPlayerSlots[i].unk23C,
                                 gPlayerSlots[i].prevFov, gPlayerSlots[i].unk280 * cameraStepAspectScale(),
                                 gPlayerSlots[i].farClip);

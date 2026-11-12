@@ -963,7 +963,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x10:
         if (CS_COND_STATE->unk5C != 0 && (cmd->b == -1 || cmd->b == CS_COND_STATE->unk5C) &&
             (actorLookupClass(CS_COND_STATE->unk5E) & cmd->a) && csIsPlayerInCutsceneState() != 0) {
-            csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].unk84);
+            csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].modelType);
             ret = 1;
         } else {
             ret = 0;
@@ -972,7 +972,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x18:
         if (CS_COND_STATE->unk5C != 0 && (cmd->b == -1 || cmd->b == CS_COND_STATE->unk5C) && cmd->a == CS_COND_STATE->unk5E &&
             csIsPlayerInCutsceneState() != 0) {
-            csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].unk84);
+            csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].modelType);
             ret = 1;
         } else {
             ret = 0;

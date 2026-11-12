@@ -760,8 +760,8 @@ void behaviourFairyWanderUpdate(void) {
     }
     switch (gCurrentActor->state) {
     case 0:
-        for (i = 0; i < gActorGlobalState.unk254; i++) {
-            if (gActorGlobalState.unk258[i] == 3) {
+        for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+            if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
                 gCurrentActor->state++;
             }
         }

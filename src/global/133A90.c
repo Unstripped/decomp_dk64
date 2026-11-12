@@ -279,9 +279,9 @@ u8 proxPathGetActorPosition(Actor *actor, u8 mode, f32 *outX, f32 *outY, f32 *ou
     case 1:
     case 2:
         slot = hashTableLookup((s32)actor);
-        *outX = gModelSlots[slot].unk0;
-        *outY = gModelSlots[slot].unk4;
-        *outZ = gModelSlots[slot].unk8;
+        *outX = gModelSlots[slot].x;
+        *outY = gModelSlots[slot].y;
+        *outZ = gModelSlots[slot].z;
         if (gModelSlots[slot].unk24->unk0 & 1) {
             ret = 1;
         }
@@ -363,7 +363,7 @@ s32 proxPathSegmentAngleCheck(ProxPath *path, s32 segmentIndex, s16 angle) {
         return 1;
     }
     slot = hashTableLookup((s32)path->owner);
-    if (!(gModelSlots[slot].unk84 == 0xC9 || gModelSlots[slot].unk84 == 0xCA || gModelSlots[slot].unk84 == 0x1CB || gModelSlots[slot].unk84 == 0x1F7 || gModelSlots[slot].unk84 == 0x1F8)) {
+    if (!(gModelSlots[slot].modelType == 0xC9 || gModelSlots[slot].modelType == 0xCA || gModelSlots[slot].modelType == 0x1CB || gModelSlots[slot].modelType == 0x1F7 || gModelSlots[slot].modelType == 0x1F8)) {
         return 1;
     }
     delta = gModelSlots[slot].unk14 * 4096.0f / 360.0f;

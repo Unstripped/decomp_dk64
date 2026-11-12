@@ -64,8 +64,8 @@ void actorTriggerRampWithSfx(void) {
         scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
         actor = gCurrentActor;
     }
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        event = gActorGlobalState.unk278[i];
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        event = gActorGlobalState.volumeTriggerQueueId[i];
         if (*event == 0) {
             flags = actor->flags; // FAKE: flags copied through a temp before the or (load order)
             actor->flags = flags | 4;

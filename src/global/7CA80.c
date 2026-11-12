@@ -1064,10 +1064,10 @@ void actorDispatchCallbacks(Actor *actor) {
                     gActorGlobalState.unkE5 = 1;
                     break;
                 case 0x1000000:
-                    if (gActorGlobalState.unk254 < 8) {
-                        gActorGlobalState.unk258[gActorGlobalState.unk254] = node->unk4;
-                        gActorGlobalState.unk278[gActorGlobalState.unk254] = node->unk10;
-                        gActorGlobalState.unk254++;
+                    if (gActorGlobalState.volumeTriggerQueueCount < 8) {
+                        gActorGlobalState.volumeTriggerQueueOp[gActorGlobalState.volumeTriggerQueueCount] = node->unk4;
+                        gActorGlobalState.volumeTriggerQueueId[gActorGlobalState.volumeTriggerQueueCount] = node->unk10;
+                        gActorGlobalState.volumeTriggerQueueCount++;
                     }
                     break;
                 case 0x800000:
@@ -1447,7 +1447,7 @@ void actorGlobalStateClearEvents(void) {
     gActorGlobalState.targetActor = 0;
     gActorGlobalState.bossFightPhase = 0;
     gActorGlobalState.unk201 = 0;
-    gActorGlobalState.unk254 = 0;
+    gActorGlobalState.volumeTriggerQueueCount = 0;
     gActorGlobalState.unk2 = 0;
     gActorGlobalState.unk0 = 0;
     gActorGlobalState.unkE8 = 0.0f;

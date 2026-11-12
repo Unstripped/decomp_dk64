@@ -328,7 +328,7 @@ void collisionLoadStaticCell(s32 cell) {
     COLLISION_STATIC_CELLS[cell].unk8 = gFrameCounter;
 }
 
-extern s32 D_80747D70;
+extern s32 gModelSlotCount;
 extern s16 D_80748E40;
 
 
@@ -336,9 +336,9 @@ void modelSlotExpireNextBuffers(void) {
     DynamicBuffer *buf;
     ModelTriBuffer *triBuf;
 
-    if (D_80747D70 != 0) {
+    if (gModelSlotCount != 0) {
         D_80748E40++;
-        if (D_80748E40 >= D_80747D70) {
+        if (D_80748E40 >= gModelSlotCount) {
             D_80748E40 = 0;
         }
         buf = &gModelSlots[D_80748E40].unk28;
@@ -1478,12 +1478,12 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
     sub = actor->collision;
     sub->unk6C = 0;
     D_807FB548 = 0;
-    for (i = 0; i < D_80747D70; i++) {
+    for (i = 0; i < gModelSlotCount; i++) {
         buf = &gModelSlots[i].unk28;
         if (buf->unk15 & 2) {
             if (collisionSpheresOverlap(sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius, buf->unk0, buf->unk4, buf->unk8, buf->unkC) != 0) {
                 if (!(buf->unk15 & 1)) {
-                    collisionTransformNode(i, gModelSlots[i].unk24, gModelSlots[i].unk0, gModelSlots[i].unk4, gModelSlots[i].unk8, gModelSlots[i].unk10, gModelSlots[i].unk14, gModelSlots[i].unk18, gModelSlots[i].unkC);
+                    collisionTransformNode(i, gModelSlots[i].unk24, gModelSlots[i].x, gModelSlots[i].y, gModelSlots[i].z, gModelSlots[i].rotY, gModelSlots[i].unk14, gModelSlots[i].unk18, gModelSlots[i].scale);
                 } else {
                     buf->unk10 = gFrameCounter;
                 }
@@ -1595,7 +1595,7 @@ void actorBuildCollisionHit(s32 slot, Actor *actor, CollisionBox *boxes) {
         for (i = 0; i < 3; i++) {
             guMtxXFMF(inv, x[i], y[i], z[i], &sub->unk28[i], &sub->unk34[i], &sub->unk40[i]);
         }
-        sub->unk26 = gModelSlots[slot].unk88;
+        sub->unk26 = gModelSlots[slot].id;
         sub->unk5C = D_807FB5D0;
         if (sub->unk5C < 0x14) {
             sub->unk5C = 0x14;
@@ -2511,7 +2511,7 @@ u8 collisionTestSphereSlots(f32 fx, f32 fy, f32 fz, f32 fradius, s16 *arcMin, s1
     result = 0;
     D_807FB5FD = 0;
     i = 0;
-    if (D_80747D70 > 0) {
+    if (gModelSlotCount > 0) {
         do {
             buf = &gModelSlots[i].unk28;
             if (buf->box_start != NULL &&
@@ -2531,7 +2531,7 @@ u8 collisionTestSphereSlots(f32 fx, f32 fy, f32 fz, f32 fradius, s16 *arcMin, s1
                 }
             }
             i++;
-        } while (i < D_80747D70);
+        } while (i < gModelSlotCount);
     }
     return result;
 }

@@ -453,9 +453,9 @@ Gfx *renderActorEntryBuildDisplayList(s32 context, Actor *actor, Gfx *glist, u8 
         }
     }
     if (actor->actorType != 0x1F && actor->actorType != 0x27 && actor->actorType != 0xAE && !(actor->flags & 0x400)) {
-        dx = gPlayerSlots[gCurrentPlayerIndex].unk21C - actor->x;
-        dy = gPlayerSlots[gCurrentPlayerIndex].unk220 - actor->y;
-        dz = gPlayerSlots[gCurrentPlayerIndex].unk224 - actor->z;
+        dx = gPlayerSlots[gCurrentPlayerIndex].eyeX - actor->x;
+        dy = gPlayerSlots[gCurrentPlayerIndex].eyeY - actor->y;
+        dz = gPlayerSlots[gCurrentPlayerIndex].eyeZ - actor->z;
         dx = dx * dx;
         dy = dy * dy;
         dz = dz * dz;
@@ -516,10 +516,10 @@ Gfx *renderActorEntryBuildDisplayList(s32 context, Actor *actor, Gfx *glist, u8 
         renderCalcPlayerDistanceAlpha(actor->x, actor->y, actor->z, actor->drawDistance, -1, &actor->alpha);
     }
     if (actor->collisionFlags != 0x80 && actor->collisionFlags != 0x40 && actor->collisionFlags != 8) {
-        if ((actor->y - 5.0f < gPlayerSlots[gCurrentPlayerIndex].unk220 && gPlayerSlots[gCurrentPlayerIndex].unk220 < actor->y + 2.0 * actor->eyeHeight) || (actor->contactFlags & 0x2000)) {
-            dy = actor->z - gPlayerSlots[gCurrentPlayerIndex].unk224;
+        if ((actor->y - 5.0f < gPlayerSlots[gCurrentPlayerIndex].eyeY && gPlayerSlots[gCurrentPlayerIndex].eyeY < actor->y + 2.0 * actor->eyeHeight) || (actor->contactFlags & 0x2000)) {
+            dy = actor->z - gPlayerSlots[gCurrentPlayerIndex].eyeZ;
             if (dy) {} // FAKE: extra use lifts dy's adjsave to dz's 4.5; dy, coloured first, takes $f2 and dz $f14
-            dxb = actor->x - gPlayerSlots[gCurrentPlayerIndex].unk21C;
+            dxb = actor->x - gPlayerSlots[gCurrentPlayerIndex].eyeX;
             distSq = (s32)(dy * dy + dxb * dxb);
             dz = actor->sub4->scaleY;
             if (dz < 0.01) {

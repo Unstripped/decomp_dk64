@@ -923,7 +923,7 @@ typedef struct ModelSlotPosTypeView {
 } ModelSlotPosTypeView;
 
 extern ModelSlotPosTypeView *gModelSlots;
-extern s32 D_80747D70;
+extern s32 gModelSlotCount;
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 
@@ -1053,7 +1053,7 @@ f32 *outZ;
         }
     }
     if (includeModels != 0) {
-        if (D_80747D70 > 0) {
+        if (gModelSlotCount > 0) {
             j = 0; do { // LAYOUT: init and do on one line (one as1 line) steers the loop-limit candidate priority
                 switch (((ModelSlotPosTypeView *)((u8 *)gModelSlots + j))->unk84) {
                     case 0x125:
@@ -1094,7 +1094,7 @@ f32 *outZ;
                         break;
                 }
                 j += 0x90;
-            } while (j < D_80747D70 * 0x90);
+            } while (j < gModelSlotCount * 0x90);
         }
     }
     return ret;
@@ -2558,8 +2558,8 @@ void projectileFallBounceUpdate(void) {
             actorDespawn(gCurrentActor);
         }
     } else {
-        for (i = 0; i < gActorGlobalState.unk254; i++) {
-            if (gActorGlobalState.unk258[i] == 1) {
+        for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+            if (gActorGlobalState.volumeTriggerQueueOp[i] == 1) {
                 gCurrentActor->state = 1;
             }
         }

@@ -54,9 +54,9 @@ u8 func_806BDD90(void) {
     actorApplyGravity();
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        if (gActorGlobalState.unk258[i] == 3) {
-            return ((u8 *)gActorGlobalState.unk278[i])[3];
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
+            return ((u8 *)gActorGlobalState.volumeTriggerQueueId[i])[3];
         }
     }
     return 0;
@@ -458,8 +458,8 @@ void func_806BE8BC(void) {
                     }
                 }
             }
-            for (i = 0; i < gActorGlobalState.unk254; i++) {
-                if (gActorGlobalState.unk258[i] == 3) {
+            for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+                if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
                     gCurrentActor->state = 0x28;
                     gCurrentActor->unk155 = 0;
                 }

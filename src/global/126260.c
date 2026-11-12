@@ -309,10 +309,10 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     secondary->l.colc[1] = secondary->l.col[1];
     secondary->l.colc[2] = secondary->l.col[2];
 
-    angle = mathAngleBetweenPoints2D(x, z, gPlayerSlots[playerSlotIndex].unk21C, gPlayerSlots[playerSlotIndex].unk224) + D_807FDB76;
-    dx = (gPlayerSlots[playerSlotIndex].unk21C - (mathSinF(angle) * (f32)D_807FDB78)) - x;
+    angle = mathAngleBetweenPoints2D(x, z, gPlayerSlots[playerSlotIndex].eyeX, gPlayerSlots[playerSlotIndex].eyeZ) + D_807FDB76;
+    dx = (gPlayerSlots[playerSlotIndex].eyeX - (mathSinF(angle) * (f32)D_807FDB78)) - x;
     dy = (f32)(camera_rotation + D_807FDB7A);
-    dz = (gPlayerSlots[playerSlotIndex].unk224 - (mathCosF(angle) * (f32)D_807FDB78)) - z;
+    dz = (gPlayerSlots[playerSlotIndex].eyeZ - (mathCosF(angle) * (f32)D_807FDB78)) - z;
     inv_distance = 127.0f / sqrtf((dx * dx) + (dy * dy) + (dz * dz));
     secondary->l.dir[0] = (s8)(dx * inv_distance);
     secondary->l.dir[1] = (s8)(dy * inv_distance);

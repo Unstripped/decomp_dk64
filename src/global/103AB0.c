@@ -316,7 +316,7 @@ void lensFlareAddSource(f32 x, f32 y, f32 z, f32 dirX, f32 dirY, f32 dirZ, f32 m
             }
         }
         if (visible != 0) {
-            D_807FD840[gGfxBufferIndex][D_80754BC0].depth = sqrtf((gPlayerSlots->unk224 - z) * (gPlayerSlots->unk224 - z) + ((gPlayerSlots->unk21C - x) * (gPlayerSlots->unk21C - x) + (gPlayerSlots->unk220 - y) * (gPlayerSlots->unk220 - y))) > 995.0f ? 995.0f : sqrtf((gPlayerSlots->unk224 - z) * (gPlayerSlots->unk224 - z) + ((gPlayerSlots->unk21C - x) * (gPlayerSlots->unk21C - x) + (gPlayerSlots->unk220 - y) * (gPlayerSlots->unk220 - y)));
+            D_807FD840[gGfxBufferIndex][D_80754BC0].depth = sqrtf((gPlayerSlots->eyeZ - z) * (gPlayerSlots->eyeZ - z) + ((gPlayerSlots->eyeX - x) * (gPlayerSlots->eyeX - x) + (gPlayerSlots->eyeY - y) * (gPlayerSlots->eyeY - y))) > 995.0f ? 995.0f : sqrtf((gPlayerSlots->eyeZ - z) * (gPlayerSlots->eyeZ - z) + ((gPlayerSlots->eyeX - x) * (gPlayerSlots->eyeX - x) + (gPlayerSlots->eyeY - y) * (gPlayerSlots->eyeY - y)));
             camProjectToScreen(x, y, z, &screenX, &screenY, 0, 4.0f, 0);
             D_807FD840[gGfxBufferIndex][D_80754BC0].x = screenX * 0.25;
             D_807FD840[gGfxBufferIndex][D_80754BC0].y = screenY * 0.25;
@@ -545,7 +545,7 @@ u8 fade;
 
     alpha = fade / 5.0;
     vec3fSet(&src, pt.x, pt.y, pt.z);
-    vec3fSet(&eye, gPlayerSlots->unk21C, gPlayerSlots->unk220, gPlayerSlots->unk224);
+    vec3fSet(&eye, gPlayerSlots->eyeX, gPlayerSlots->eyeY, gPlayerSlots->eyeZ);
     vec3fSet(&at, gPlayerSlots->unk234, gPlayerSlots->unk238, gPlayerSlots->unk23C);
     vec3fNormalize(&viewDir, vec3fSub(at, eye));
     axisEnd = vec3fAdd(eye, vec3fScale(viewDir, 5000.0f));
@@ -636,7 +636,7 @@ Gfx *func_80701CA0(Gfx *dl) {
             playerState = gPlayerSlots[i].actor->customState;
             camActor = playerState->camActor;
             camState = camActor->customState;
-            if (force != 0 || (gPlayerSlots[i].unk2E8 != 0 && gPlayerSlots[i].unk220 < gPlayerSlots[i].unk24C + 3.0f)) {
+            if (force != 0 || (gPlayerSlots[i].unk2E8 != 0 && gPlayerSlots[i].eyeY < gPlayerSlots[i].unk24C + 3.0f)) {
                 vtx = (Vtx *)heapAlloc(0x40);
                 heapFreeDeferred(vtx);
                 vtx[0].v.ob[0] = gPlayerSlots[i].rect[0];
@@ -656,7 +656,7 @@ Gfx *func_80701CA0(Gfx *dl) {
                 gDPSetScissor(dl++, G_SC_NON_INTERLACE, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight, gGfxScreenBottom);
                 gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
                 gDPSetCombineMode(dl++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
-                depthDiff = gPlayerSlots[i].unk24C - gPlayerSlots[i].unk220;
+                depthDiff = gPlayerSlots[i].unk24C - gPlayerSlots[i].eyeY;
                 switch (gCurrentMap) {
                 case 0x1E:
                     depthDiff = depthDiff * 0.07;

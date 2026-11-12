@@ -18,7 +18,7 @@ u8 func_8072E5B0(void) {
 
 // One action a volume trigger fires: an 8-byte callback payload sent to the actor of a hook.
 typedef struct VolumeTriggerAction {
-    /* 0x0 */ s16 hookIndex; // index into D_807557A0
+    /* 0x0 */ s16 hookIndex; // index into gVolumeTriggerHooks
     /* 0x2 */ u8 payload[8];
 } VolumeTriggerAction; // size = 0xA
 
@@ -48,22 +48,22 @@ typedef struct {
     /* 0x04 */ VolumeTrigger *entries;
 } VolumeTriggerTable;
 
-extern VolumeTriggerTable *D_80755A14;
+extern VolumeTriggerTable *gVolumeTriggerTable;
 
 void volumeTriggerTableLoad(s16 *data) {
     VolumeTriggerDef *src;
     VolumeTrigger *e;
     s16 i;
 
-    D_80755A14->count = 0;
-    D_80755A14->entries = NULL;
+    gVolumeTriggerTable->count = 0;
+    gVolumeTriggerTable->entries = NULL;
     if (data != NULL) {
         src = (VolumeTriggerDef *)(data + 1);
-        D_80755A14->count = *data;
-        for (i = 0; i < D_80755A14->count; i++, src++) {
+        gVolumeTriggerTable->count = *data;
+        for (i = 0; i < gVolumeTriggerTable->count; i++, src++) {
             if (i == 0) {
-                D_80755A14->entries = heapAlloc(D_80755A14->count * sizeof(VolumeTrigger));
-                e = D_80755A14->entries;
+                gVolumeTriggerTable->entries = heapAlloc(gVolumeTriggerTable->count * sizeof(VolumeTrigger));
+                e = gVolumeTriggerTable->entries;
             } else {
                 e++;
             }
@@ -84,7 +84,7 @@ typedef struct {
     /* 0x0C */ s32 (*condition)(void); // NULL: always fire
 } VolumeTriggerHook; // size = 0x10
 
-extern VolumeTriggerHook D_807557A0[];
+extern VolumeTriggerHook gVolumeTriggerHooks[];
 
 void volumeTriggerTableInit(s32 mapId) {
     VolumeTriggerHook *hook;
@@ -99,7 +99,7 @@ void volumeTriggerTableInit(s32 mapId) {
     if (buf != NULL) {
         assetFreeBuffer(buf, 0xC1, 0x3D);
     }
-    hook = D_807557A0;
+    hook = gVolumeTriggerHooks;
     for (i = 0; i < hookCount; i++, hook++) {
         actorFindActiveByType(hook->actorType, &actor);
         hook->actor = actor;
@@ -126,9 +126,9 @@ s32 actorFindActiveByType(s16 actorType, Actor **outActor) {
     return found;
 }
 
-extern s16 D_807FDCB8;
-extern s16 D_807FDCBA;
-extern s16 D_807FDCBC;
+extern s16 gVolumeTriggerFiredX;
+extern s16 gVolumeTriggerFiredY;
+extern s16 gVolumeTriggerFiredZ;
 
 void volumeTriggerUpdateAll(void) {
     s32 pad[2];
@@ -140,9 +140,9 @@ void volumeTriggerUpdateAll(void) {
     s32 k;
     VolumeTriggerAction *action;
 
-    for (k = 0; k < gActorGlobalState.unk254; k++) {
-        idPtr = gActorGlobalState.unk278[k];
-        switch (gActorGlobalState.unk258[k]) {
+    for (k = 0; k < gActorGlobalState.volumeTriggerQueueCount; k++) {
+        idPtr = gActorGlobalState.volumeTriggerQueueId[k];
+        switch (gActorGlobalState.volumeTriggerQueueOp[k]) {
             case 1:
                 volumeTriggerSetEnabled(*idPtr, 1);
                 break;
@@ -151,17 +151,17 @@ void volumeTriggerUpdateAll(void) {
                 break;
         }
     }
-    e = D_80755A14->entries;
-    for (i = 0; i < D_80755A14->count; i++, e++) {
+    e = gVolumeTriggerTable->entries;
+    for (i = 0; i < gVolumeTriggerTable->count; i++, e++) {
         if (volumeTriggerUpdate(e)) {
             for (j = 0; j < e->def.actionCount; j++) {
                 action = &e->def.actions[j];
-                if (D_807557A0[e->def.actions[j].hookIndex].condition == NULL || D_807557A0[e->def.actions[j].hookIndex].condition()) { // FAKE: condition reads hookIndex via e->def.actions[j], the body via action: keeps the hook address recomputed after the call (no CSE)
-                    delayed = D_807557A0[action->hookIndex].actorType == 0xA ? 1 : 0;
-                    actorAppendCallbackMemcpy8(gCurrentActor, D_807557A0[action->hookIndex].actor, 0x01000000, D_807557A0[action->hookIndex].subtype, e->def.actions[j].payload, delayed);
-                    D_807FDCB8 = e->def.x;
-                    D_807FDCBA = e->def.y;
-                    D_807FDCBC = e->def.z;
+                if (gVolumeTriggerHooks[e->def.actions[j].hookIndex].condition == NULL || gVolumeTriggerHooks[e->def.actions[j].hookIndex].condition()) { // FAKE: condition reads hookIndex via e->def.actions[j], the body via action: keeps the hook address recomputed after the call (no CSE)
+                    delayed = gVolumeTriggerHooks[action->hookIndex].actorType == 0xA ? 1 : 0;
+                    actorAppendCallbackMemcpy8(gCurrentActor, gVolumeTriggerHooks[action->hookIndex].actor, 0x01000000, gVolumeTriggerHooks[action->hookIndex].subtype, e->def.actions[j].payload, delayed);
+                    gVolumeTriggerFiredX = e->def.x;
+                    gVolumeTriggerFiredY = e->def.y;
+                    gVolumeTriggerFiredZ = e->def.z;
                 }
             }
         }
@@ -225,10 +225,10 @@ s32 volumeTriggerUpdate(VolumeTrigger *trigger) {
 
 void volumeTriggerSetEnabled(s32 triggerId, u8 enabled) {
     s32 found = 0;
-    VolumeTrigger *e = D_80755A14->entries;
+    VolumeTrigger *e = gVolumeTriggerTable->entries;
     s32 i;
 
-    for (i = 0; i < D_80755A14->count && !found; i++, e++) {
+    for (i = 0; i < gVolumeTriggerTable->count && !found; i++, e++) {
         if (triggerId == e->def.id) {
             e->enabled = enabled;
             found = 1;
@@ -238,10 +238,10 @@ void volumeTriggerSetEnabled(s32 triggerId, u8 enabled) {
 
 void volumeTriggerSetPosition(s32 triggerId, s16 x, s16 y, s16 z) {
     s32 found = 0;
-    VolumeTrigger *e = D_80755A14->entries;
+    VolumeTrigger *e = gVolumeTriggerTable->entries;
     s32 i;
 
-    for (i = 0; i < D_80755A14->count && !found; i++, e++) {
+    for (i = 0; i < gVolumeTriggerTable->count && !found; i++, e++) {
         if (triggerId == e->def.id) {
             e->def.x = x;
             e->def.y = y;

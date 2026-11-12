@@ -215,8 +215,8 @@ void tagBarrelInitPeerState(void) {
         case 19:
             break;
         case 20:
-            for (i = 0; i < gActorGlobalState.unk254; i++) {
-                if (gActorGlobalState.unk258[i] == 1) {
+            for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+                if (gActorGlobalState.volumeTriggerQueueOp[i] == 1) {
                     gCurrentActor->unk144 = 2;
                     gCurrentActor->state = 0x15;
                 }
@@ -363,8 +363,8 @@ void tagBarrelInitDrawDistanceAndState(void) {
         gCurrentActor->drawDistance = 0x7D0;
         state->spawnType = 0x1A;
     }
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        switch (gActorGlobalState.unk258[i]) {
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        switch (gActorGlobalState.volumeTriggerQueueOp[i]) {
         case 1:
             state->spawnType = 0x60;
             break;
@@ -1129,8 +1129,8 @@ void tagBarrelTriggerRecoil(void) {
 void tagBarrelCheckRecoil(void) {
     s16 i;
 
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        if (gActorGlobalState.unk258[i] == 1 && *gActorGlobalState.unk278[i] == 0xFF) {
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        if (gActorGlobalState.volumeTriggerQueueOp[i] == 1 && *gActorGlobalState.volumeTriggerQueueId[i] == 0xFF) {
             tagBarrelTriggerRecoil();
         }
     }
@@ -1153,8 +1153,8 @@ void transformBarrelInitScale(void) {
         gCurrentActor->drawDistance = 0x7D0;
     }
     if (gCurrentActor->state == 0) {
-        for (i = 0; i < gActorGlobalState.unk254; i++) {
-            if (gActorGlobalState.unk258[i] == 1) {
+        for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+            if (gActorGlobalState.volumeTriggerQueueOp[i] == 1) {
                 effectSetDepth(0);
                 effectSetDuration(1);
                 effectCreateAtPosition(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
@@ -1594,8 +1594,8 @@ void transformBarrelUpdate(void) {
         break;
 
     case 20:
-        for (i = 0; i < gActorGlobalState.unk254; i++) {
-            if (gActorGlobalState.unk258[i] == 1 && *gActorGlobalState.unk278[i] != 0xFF) {
+        for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+            if (gActorGlobalState.volumeTriggerQueueOp[i] == 1 && *gActorGlobalState.volumeTriggerQueueId[i] != 0xFF) {
                 gCurrentActor->unk144 = 2;
                 gCurrentActor->state = 0x15;
             }
@@ -1619,8 +1619,8 @@ void transformBarrelUpdate(void) {
 void tagBarrelDespawnOnKongDeselect(void) {
     s16 i;
 
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        if (gActorGlobalState.unk258[i] == 1 && *gActorGlobalState.unk278[i] == 1) {
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        if (gActorGlobalState.volumeTriggerQueueOp[i] == 1 && *gActorGlobalState.volumeTriggerQueueId[i] == 1) {
             tagBarrelDespawnEffects();
             actorDespawn(gCurrentActor);
         }
@@ -1824,8 +1824,8 @@ void tagBarrelParticleUpdate(void) {
         }
         break;
     case 20:
-        for (i = 0; i < gActorGlobalState.unk254; i++) {
-            if (gActorGlobalState.unk258[i] == 1 && *gActorGlobalState.unk278[i] == 0) {
+        for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+            if (gActorGlobalState.volumeTriggerQueueOp[i] == 1 && *gActorGlobalState.volumeTriggerQueueId[i] == 0) {
                 gCurrentActor->unk144 = 2;
                 gCurrentActor->state = 0x15;
             }
@@ -2003,8 +2003,8 @@ void tagBarrelActorUpdate(void) {
         gCurrentActor->cullMarginX = val;
         gCurrentActor->cullMarginY = val;
     }
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        ptr = gActorGlobalState.unk278[i];
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        ptr = gActorGlobalState.volumeTriggerQueueId[i];
         switch (*ptr) {
             case 2:
                 sub->unkE = 0x8C;
@@ -2070,8 +2070,8 @@ void tagBarrelActorUpdate(void) {
                 actorSetCustomFloat(gCurrentActor, 6, 0.0f);
             }
         } else {
-            for (i = 0; i < gActorGlobalState.unk254; i++) {
-                if (gActorGlobalState.unk258[i] == 1 && *gActorGlobalState.unk278[i] == 1) {
+            for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+                if (gActorGlobalState.volumeTriggerQueueOp[i] == 1 && *gActorGlobalState.volumeTriggerQueueId[i] == 1) {
                     gCurrentActor->state = 0x14;
                     gCurrentActor->unk144 = 1;
                     gCurrentActor->flags &= ~0x8000;
@@ -2187,8 +2187,8 @@ void tagBarrelActorUpdate(void) {
         }
         break;
     case 20:
-        for (i = 0; i < gActorGlobalState.unk254; i++) {
-            if (gActorGlobalState.unk258[i] == 1 && *gActorGlobalState.unk278[i] == 0) {
+        for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+            if (gActorGlobalState.volumeTriggerQueueOp[i] == 1 && *gActorGlobalState.volumeTriggerQueueId[i] == 0) {
                 gCurrentActor->unk144 = 2;
                 gCurrentActor->state = 0x15;
                 sfxAllocateChannel(0x28, 1.0f);
@@ -2404,8 +2404,8 @@ void rocketbarrelUpdate(void) {
         break;
     case 20: {
         s16 i;
-        for (i = 0; i < gActorGlobalState.unk254; i++) {
-            if (gActorGlobalState.unk258[i] == 1) {
+        for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+            if (gActorGlobalState.volumeTriggerQueueOp[i] == 1) {
                 gCurrentActor->unk144 = 2;
                 gCurrentActor->state = 0x15;
             }
@@ -2503,8 +2503,8 @@ void cannonUpdate(void) {
             resetFlag = 1;
         }
     }
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        if (gActorGlobalState.unk258[i] == 1) {
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        if (gActorGlobalState.volumeTriggerQueueOp[i] == 1) {
             latchFlag = 1;
             sub->used = 1;
         }

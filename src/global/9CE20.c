@@ -113,9 +113,9 @@ u8 nodeCount;
     } else {
         gCurrentActor->flags |= 0x04000004;
     }
-    if (gActorGlobalState.unk254 == 0) {}
-    for (i = 0; i < gActorGlobalState.unk254; i++) {
-        p = gActorGlobalState.unk278[i];
+    if (gActorGlobalState.volumeTriggerQueueCount == 0) {}
+    for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
+        p = gActorGlobalState.volumeTriggerQueueId[i];
         if (!*p) {
             data->unk16 = 0x50;
         }

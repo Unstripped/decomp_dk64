@@ -89,11 +89,11 @@ typedef struct ModelPosNode {
 
 // One placed map model (gModelSlots[], indexed by hashTableLookup()); 0x90 bytes.
 typedef struct ModelSlot {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+    /* 0x0C */ f32 scale;
+    /* 0x10 */ f32 rotY;
     /* 0x14 */ f32 unk14;
     /* 0x18 */ f32 unk18;
     /* 0x1C */ f32 unk1C;
@@ -106,9 +106,9 @@ typedef struct ModelSlot {
     /* 0x78 */ ModelData *unk78;
     /* 0x7C */ struct CsStateFull *unk7C; // per-model cutscene state (csStateInit)
     /* 0x80 */ u8 pad80[4];
-    /* 0x84 */ s16 unk84;
+    /* 0x84 */ s16 modelType;
     /* 0x86 */ s16 unk86;
-    /* 0x88 */ s16 unk88;
+    /* 0x88 */ s16 id;
     /* 0x8A */ s16 unk8A;
     /* 0x8C */ u8 unk8C;
     /* 0x8D */ u8 pad8D[3];
