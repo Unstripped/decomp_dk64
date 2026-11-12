@@ -124,7 +124,7 @@ void bonusScoreHudUpdate(void) {
                 camStartPath(gPrimaryPlayerActor, 1, 1);
                 gCurrentActor->state = 2;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
-                actorSetStateTwo((void *)gCurrentActor->parentActor);
+                hudCountdownTimerStart((void *)gCurrentActor->parentActor);
             }
         }
         break;
@@ -132,7 +132,7 @@ void bonusScoreHudUpdate(void) {
         if (!(gCurrentActor->flags & 0x02000000) || ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000))) {
             camResumePath();
             gCurrentActor->state = 2;
-            actorSetStateTwo((void *)gCurrentActor->parentActor);
+            hudCountdownTimerStart((void *)gCurrentActor->parentActor);
         }
         break;
     case 2:

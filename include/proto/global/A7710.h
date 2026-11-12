@@ -6,17 +6,17 @@
 #ifndef PROTO_SKIP_hudSpawnCountdownTimer
 void hudSpawnCountdownTimer(s16, s16, u8);
 #endif
-#ifndef PROTO_SKIP_actorSetStateTwo
-void actorSetStateTwo(Actor *);
+#ifndef PROTO_SKIP_hudCountdownTimerStart
+void hudCountdownTimerStart(Actor *);
 #endif
-#ifndef PROTO_SKIP_actorSetStateOne
-void actorSetStateOne(Actor *);
+#ifndef PROTO_SKIP_hudCountdownTimerHold
+void hudCountdownTimerHold(Actor *);
 #endif
 #ifndef PROTO_SKIP_hudCountdownTimerSaveElapsed
 void hudCountdownTimerSaveElapsed(Actor *);
 #endif
-#ifndef PROTO_SKIP_actorSetStateThree
-void actorSetStateThree(Actor *);
+#ifndef PROTO_SKIP_hudCountdownTimerResume
+void hudCountdownTimerResume(Actor *);
 #endif
 #ifndef PROTO_SKIP_renderActorSpriteCallback
 Gfx *renderActorSpriteCallback(Gfx *, Actor *);

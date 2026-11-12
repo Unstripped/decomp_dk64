@@ -2545,7 +2545,7 @@ void cannonUpdate(void) {
                 csModelStateSetFirstByte(0x30, 0xA);
                 sub->active = 1;
                 hudSpawnCountdownTimer(0xC8, 0x20, D_8074E810);
-                actorSetStateTwo(gSpawnedActor);
+                hudCountdownTimerStart(gSpawnedActor);
                 gCurrentActor->flags |= 0x200000;
             }
             gCurrentActor->flags &= ~4;

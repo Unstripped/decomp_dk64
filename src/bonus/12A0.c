@@ -222,7 +222,7 @@ void bonusReelGameUpdate(void) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x179, 0xFF, 0x7F, 1);
             if (obj->reelsStarted == 0) {
                 obj->reelsStarted = 1;
-                actorSetStateTwo(gCurrentActor->parentActor);
+                hudCountdownTimerStart(gCurrentActor->parentActor);
                 sfxAllocateChannel(8, 1.0f);
             }
             break;

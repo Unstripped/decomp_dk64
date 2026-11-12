@@ -163,7 +163,7 @@ void enemyGridStateStep(void) {
                 hudSpawnCountdownTimer(0xDC, 0x2A, 0x3C);
                 flagSet(0x30, 1, 2);
                 sfxAllocateChannel(0x78, 1.0f);
-                actorSetStateTwo(BC1E0_LGB->unk11C);
+                hudCountdownTimerStart(BC1E0_LGB->unk11C);
             }
             break;
         case 2:

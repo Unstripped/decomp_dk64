@@ -1254,7 +1254,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x67:
         if (D_807F61F0.unk8 != 0) {
-            actorSetStateTwo(D_807F61F0.unk0);
+            hudCountdownTimerStart(D_807F61F0.unk0);
         }
         break;
     case 0x68:

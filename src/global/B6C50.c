@@ -63,7 +63,7 @@ void func_806B1F50(void) {
         case 0:
             if (currentActorTestClearFlag() != 0) {
                 hudSpawnCountdownTimer(0xDC, 0x2A, 0x1E);
-                actorSetStateTwo(gCurrentActor->parentActor);
+                hudCountdownTimerStart(gCurrentActor->parentActor);
                 gCurrentActor->state = 7;
                 gCurrentActor->unk155 = 0;
             }

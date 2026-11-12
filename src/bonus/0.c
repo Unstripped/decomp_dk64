@@ -307,7 +307,7 @@ render:
     case 1:
         if (!(gCurrentActor->flags & 0x02000000)) {
             camResumePath();
-            actorSetStateTwo((void *)gCurrentActor->parentActor);
+            hudCountdownTimerStart((void *)gCurrentActor->parentActor);
             switch (gCurrentMap) {
             case 3:
             case 0x23:
@@ -470,7 +470,7 @@ void bonusMazeChallengeUpdate(void) {
         if (snd->unk18 != 0) {
             snd->unk18--;
         } else {
-            actorSetStateTwo((void *)gCurrentActor->parentActor);
+            hudCountdownTimerStart((void *)gCurrentActor->parentActor);
             gCurrentActor->state = 1;
         }
         break;

@@ -382,11 +382,11 @@ u8 unkScale;
 }
 
 void hudSpawnCountdownTimer(s16, s16, u8);
-void actorSetStateTwo(s32);
+void hudCountdownTimerStart(s32);
 
 void bossStartCountdownTimer(void) {
     hudSpawnCountdownTimer(-0x7F83, 0xD2, 0xB4);
-    actorSetStateTwo(gCurrentActor->parentActor);
+    hudCountdownTimerStart(gCurrentActor->parentActor);
 }
 
 #define Boss2C_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
@@ -453,8 +453,8 @@ extern s32 gCurrentMap;
 
 void sfxStopChannel(s32, s32);
 void func_80724A20(void);  // FAKE: callee prototype steer
-void actorSetStateOne(void *);
-void actorSetStateThree(void *);
+void hudCountdownTimerHold(void *);
+void hudCountdownTimerResume(void *);
 f32 sfxGetChannelVolume(s32);
 void renderCallbacksRegister(void *, void *, u8);
 
@@ -500,7 +500,7 @@ void bossRoundFrame(u8 *script) {
     switch (BA40->base.state) {
     case 0x37:
         if (BA40->base.unk155 == 0) {
-            actorSetStateOne(BA40->base.parentActor);
+            hudCountdownTimerHold(BA40->base.parentActor);
         }
         break;
     case 0x6A:
@@ -513,7 +513,7 @@ void bossRoundFrame(u8 *script) {
         scriptState->unk12 |= 1;
         bossStartCountdownTimer();
         if ((scriptState->unk14 != 0) && (BA40->base.actorType == 0x126)) {
-            actorSetStateThree(BA40->base.parentActor);
+            hudCountdownTimerResume(BA40->base.parentActor);
         }
         BA40->base.state = script[scriptState->scriptPos];
         scriptState->scriptPos++;

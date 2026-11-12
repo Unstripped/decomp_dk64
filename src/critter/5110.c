@@ -114,7 +114,7 @@ void critterBattleArenaUpdate(void) {
         if (!(gCurrentActor->unk60 & 0x02000000)) {
             camResumePath();
             gCurrentActor->unk154 = 2;
-            actorSetStateTwo(gCurrentActor->unk11C);
+            hudCountdownTimerStart(gCurrentActor->unk11C);
             sfxAllocateChannel(8, 1.0f);
         }
         break;

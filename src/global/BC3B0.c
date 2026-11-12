@@ -173,7 +173,7 @@ void func_806B7EA0(void) {
         gCurrentActor->state = 0x23;
         gCurrentActor->unk155 = 0;
         sfxPlayOnFreeSlot(0x1A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
-        actorSetStateTwo(gCurrentActor->parentActor);
+        hudCountdownTimerStart(gCurrentActor->parentActor);
         gGlobalCutsceneFlags |= 1;
         gGlobalOverlayFlags |= 2;
     }

@@ -470,7 +470,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
     case 10:
         sfxAllocateChannel(0x5A, 1.0f);
         hudSpawnCountdownTimer(0x78, 0x78, (gCurrentMap == 0x4D) ? 0x1E : (gCurrentMap == 0x81) ? 0x2D : 0x3C);
-        actorSetStateTwo(gCurrentActor->parentActor);
+        hudCountdownTimerStart(gCurrentActor->parentActor);
         playerState->stateFlags &= ~8;
         gCurrentActor->state = 3;
         break;

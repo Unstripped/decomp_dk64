@@ -26,8 +26,8 @@ typedef struct CountdownTimerState {
     /* 0x10 */ u8 textId;
 } CountdownTimerState;
 
-u64 D_807FC7D0;
-u8 D_807FC7D8;
+u64 gHudCountdownSavedElapsed;
+u8 gHudCountdownHundredths;
 
 void hudSpawnCountdownTimer(s16 x, s16 y, u8 seconds) {
     actorSpawn(0xB0, 0);
@@ -47,13 +47,13 @@ void hudSpawnCountdownTimer(s16 x, s16 y, u8 seconds) {
     gSpawnedActor->alpha = 0;
 }
 
-void actorSetStateTwo(Actor *actor) {
+void hudCountdownTimerStart(Actor *actor) {
     actor->state = 2;
     actor->unk155 = 0;
     actor->alpha = 0xFF;
 }
 
-void actorSetStateOne(Actor *actor) {
+void hudCountdownTimerHold(Actor *actor) {
     if (actor != NULL) {
         actor->state = 1;
         actor->unk155 = 0;
@@ -61,10 +61,10 @@ void actorSetStateOne(Actor *actor) {
 }
 
 void hudCountdownTimerSaveElapsed(Actor *actor) {
-    D_807FC7D0 = osGetTime() - ((CountdownTimerState *)actor->customState)->startTime;
+    gHudCountdownSavedElapsed = osGetTime() - ((CountdownTimerState *)actor->customState)->startTime;
 }
 
-void actorSetStateThree(Actor *actor) {
+void hudCountdownTimerResume(Actor *actor) {
     actor->state = 3;
     actor->unk155 = 0;
 }
@@ -139,7 +139,7 @@ void hudCountdownTimerUpdate(void) {
         timer->textId = gfxResourceCreate(gCurrentActor->unk15F == 0xB ? 6 : 3, text, gCurrentActor->unk15F, 0.0f, 0.0f, 0.0f);
     }
     if (gCurrentActor->state == 3) {
-        timer->startTime = osGetTime() - D_807FC7D0;
+        timer->startTime = osGetTime() - gHudCountdownSavedElapsed;
         gCurrentActor->state = 2;
         gCurrentActor->unk155 = 1;
     }
@@ -150,7 +150,7 @@ void hudCountdownTimerUpdate(void) {
     usec = OS_CYCLES_TO_USEC(osGetTime() - timer->startTime);
     timer->elapsedSecs = usec / 1000000;
     if (gCamPathTimeDelta == 0) {
-        D_807FC7D8 = usec / 10000 % 100;
+        gHudCountdownHundredths = usec / 10000 % 100;
     }
     nextBeepAngle = (s32)((func_806FDA8C(timer->textId) - 1.5707964f) / 3.1415927f) * 3.1415927f + 3.1415927f + 1.5707964f;
     angle = usec / 10000.0 / 100.0 * 3.1415927410125732 + 1.5707963705062866;
@@ -185,7 +185,7 @@ void hudCountdownTimerUpdate(void) {
             gCurrentActor->splineT = angle < 0.0f ? 0.0f : angle;
             if (nextBeepAngle <= angle) {
                 if (timer->elapsedSecs >= timer->totalSecs
-                    && (gCurrentActor->unk15F == 6 || timer->totalSecs < timer->elapsedSecs || D_807FC7D8 >= 91)) {
+                    && (gCurrentActor->unk15F == 6 || timer->totalSecs < timer->elapsedSecs || gHudCountdownHundredths >= 91)) {
                     gCurrentActor->state = 5;
                     gCurrentActor->unk155 = 0;
                 } else if (gCurrentActor->unk15F == 6) {
@@ -202,7 +202,7 @@ void hudCountdownTimerUpdate(void) {
             if (gCurrentActor->unk15F == 6) {
                 _sprintf(text, "%.2d", secsLeft);
             } else if (gCurrentActor->state != 5) {
-                _sprintf(text, "%.2d:%.2d:%.2d", secsLeft / 60, secsLeft % 60, 99 - D_807FC7D8);
+                _sprintf(text, "%.2d:%.2d:%.2d", secsLeft / 60, secsLeft % 60, 99 - gHudCountdownHundredths);
             } else {
                 _sprintf(text, "00:00:00");
             }

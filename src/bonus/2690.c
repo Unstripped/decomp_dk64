@@ -510,7 +510,7 @@ void bonusTargetGameUpdate(void) {
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
                 bonusExt->unk0 = 1;
-                actorSetStateTwo(gCurrentActor->parentActor);
+                hudCountdownTimerStart(gCurrentActor->parentActor);
                 bonusResetAmmo(bonusExt);
                 sfxAllocateChannel(8, 1.0f);
             }
@@ -660,7 +660,7 @@ void bonusPopupGameUpdate(void) {
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
                 bonusExt->unk0 = 1;
-                actorSetStateTwo(gCurrentActor->parentActor);
+                hudCountdownTimerStart(gCurrentActor->parentActor);
                 bonusResetAmmo(bonusExt);
                 sfxAllocateChannel(8, 1.0f);
             }
@@ -1153,7 +1153,7 @@ void bonusLightFlashGameUpdate(void) {
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
                 bonusExt->unk0 = 1;
-                actorSetStateTwo(gCurrentActor->parentActor);
+                hudCountdownTimerStart(gCurrentActor->parentActor);
                 bonusResetAmmo(bonusExt);
                 sfxAllocateChannel(8, 1.0f);
             }
@@ -1506,7 +1506,7 @@ void bonusPerilPathPanicGameUpdate(void) {
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
                 bonusExt->unk0 = 1;
-                actorSetStateTwo(gCurrentActor->parentActor);
+                hudCountdownTimerStart(gCurrentActor->parentActor);
                 bonusResetAmmo(bonusExt);
                 sfxAllocateChannel(8, 1.0f);
             }
@@ -1791,7 +1791,7 @@ void bonusBigBugBashGameUpdate(void) {
     case 4:
         if (!(gCurrentActor->flags & 0x2000000)) {
             gCurrentActor->state = 0;
-            actorSetStateTwo(gCurrentActor->parentActor);
+            hudCountdownTimerStart(gCurrentActor->parentActor);
             sfxAllocateChannel(8, 1.0f);
         }
         break;
@@ -2115,7 +2115,7 @@ void bonusSearchlightSeekGameUpdate(void) {
         case 4:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 gCurrentActor->state = 0;
-                actorSetStateTwo(gCurrentActor->parentActor);
+                hudCountdownTimerStart(gCurrentActor->parentActor);
                 sfxAllocateChannel(8, 1.0);
             }
             break;

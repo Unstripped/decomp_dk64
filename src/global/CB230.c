@@ -181,7 +181,7 @@ void func_806C6BC8(void) {
         gBehaviourWorkState->unk2E = 0x96;
         gBehaviourAnimState->flags |= 0x60;
         hudSpawnCountdownTimer(0xDC, 0x2A, 0x64);
-        actorSetStateTwo(gSpawnedActor);
+        hudCountdownTimerStart(gSpawnedActor);
     }
     if (gBehaviourWorkState->flags & 0x80) {
         gCurrentActor->flags |= 0x400;
