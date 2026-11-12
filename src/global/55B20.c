@@ -885,10 +885,10 @@ void mapCellFindAtPoint(f32 x, f32 y, f32 z, s16 chunk, s16 parent, s16 *outCell
         do {
             if ((chunk == gMapCells[i].chunk) && (parent == gMapCells[i].parent)) {
                 id = gMapCells[i].id;
-                if (id) {} // FAKE: raises id's adjsave so the table address is not hoisted into a saved register
+                if (id) {} // FAKE: raises the adjsave of id so the table address is not hoisted into a saved register
                 box = gMapCellBoxes;
                 box += id;
-                if (box && box) {} // FAKE: keeps box's live range apart from the hoisted cell table address
+                if (box && box) {} // FAKE: keeps the box live range apart from the hoisted cell table address
                 if (((f32)box->minX <= x) && (x <= (f32)box->maxX) && ((f32)box->minY <= y) && (y <= (f32)box->maxY) && ((f32)box->minZ <= z) && (z <= (f32)box->maxZ)) {
                     *outCell = id;
                     mapCellFindAtPoint(x, y, z, chunk, id, outCell);
@@ -1285,7 +1285,7 @@ void mapChunkReleaseAssets(u8 *cmd, u8 *end) {
     if (cmd != end) {
         do {
             if ((op = (*(u32 *)cmd >> 0x18)) == 0xFD) {
-                if (orig) {} // FAKE: dead read of the lookup result keeps the BST out-params' web out of $a0
+                if (orig) {} // FAKE: dead read of the lookup result keeps the web of the BST out-params out of $a0
                 addr = *(u32 *)(cmd + 4);
                 if ((addr >= 0x80000000U) && (addr < 0xA0000000U)) {
                     collisionBstLookupByHash(addr, &node, &orig);
@@ -1549,7 +1549,7 @@ void mapTriggerApplyZones(f32 x, f32 y, f32 z) {
                     }
                 } else {
                     val = zone->exitCells;
-                    if (!zone->enterCount) {} // FAKE: re-test of the count reorders the loop's register candidates
+                    if (!zone->enterCount) {} // FAKE: re-test of the count reorders the register candidates of the loop
                     for (j = 0; j < zone->exitCount; j++) {
                         mapCellSetFlag(*val, 0);
                         val++;
@@ -2595,7 +2595,7 @@ void mapNodeAssetParse(u8 *data) {
     s32 slot; // FAKE: integer-typed slot address (a MapZone ** local recolours the parse loop)
     void *zone;
 
-    word = (s32 *)(&gMapCellBoxes + 1); end = (s32 *)&D_807F7138; // FAKE: same-line statements steer lui/addiu scheduling; the neighbour-symbol spelling keeps this address a separate web from the loop's table base
+    word = (s32 *)(&gMapCellBoxes + 1); end = (s32 *)&D_807F7138; // FAKE: same-line statements steer lui/addiu scheduling; the neighbour-symbol spelling keeps this address a separate web from the loop table base
     do {
         *word++ = 0;
     } while (word < end);
