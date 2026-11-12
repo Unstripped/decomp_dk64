@@ -8,7 +8,7 @@ struct LB3Obj;
 Gfx *bonusRenderReelHud(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_bonusSpawnReel
-void *bonusSpawnReel(s32, s16, s16, s16);
+Actor *bonusSpawnReel(s32, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_bonusGetReelSymbol
 u8 bonusGetReelSymbol(struct LB3Obj *, u8);

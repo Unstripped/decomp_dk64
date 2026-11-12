@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_bonusSpawnReel
 #include "proto/bonus/12A0.h"
 #include "proto/global/1025E0.h"
 #include "proto/global/112080.h"
@@ -18,7 +17,6 @@
 #include "proto/global/A7710.h"
 #include "proto/global/EFDC0.h"
 
-Actor *bonusSpawnReel(s32, s16, s16, s16);
 
 extern Gfx D_1000118;
 extern Mtx D_2000080;
