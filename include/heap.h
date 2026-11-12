@@ -16,7 +16,7 @@ typedef struct HeapBlock {
 
 // One arena: pool 0 is the general best-fit heap, the others fixed-size block pools.
 typedef struct HeapPool {
-    /* 0x00 */ void *owner;      // handle variable that refers to this pool
+    /* 0x00 */ s32 *owner;       // variable holding this pool's index (heapReleasePool rewrites it)
     /* 0x04 */ u8 *start;
     /* 0x08 */ HeapBlock *freeList;
     /* 0x0C */ s32 size;
