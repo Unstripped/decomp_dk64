@@ -11,7 +11,7 @@ extern N_ALSynth *n_syn;
 extern u8 D_807FF0F4[];
 extern u8 D_807FF0F6[];
 
-#define SWAP(in, out) { dmemTmp = out; out = in; in = dmemTmp; }
+#define SWAP(in, out) { s16 t = out; out = in; in = t; }
 
 Acmd *n_alFxPull(s32 time, Acmd *cmdList, s32 busIndex) {
     Acmd *ptr;
@@ -29,18 +29,6 @@ Acmd *n_alFxPull(s32 time, Acmd *cmdList, s32 busIndex) {
     s32 pad5C;
     s32 auxCount;
     u32 busChan;
-    Acmd *cmd1;
-    Acmd *cmd2;
-    Acmd *clearCmd;
-    s16 dmemTmp;
-    Acmd *mixCmd1;
-    Acmd *mixCmd2;
-    Acmd *scaleCmd1;
-    u32 scaledGain;
-    Acmd *scaleCmd2;
-    Acmd *panCmd1;
-    Acmd *panCmd2;
-    Acmd *dmaCmd;
 
     ptr = cmdList;
     ring = n_syn->auxBus[busIndex].fx;
@@ -52,21 +40,15 @@ Acmd *n_alFxPull(s32 time, Acmd *cmdList, s32 busIndex) {
     dmemIn = 0;
     dmemOut = 0x170;
     if (D_807FF0F4[busIndex] == 0) {
-        cmd1 = ptr++;
-        cmd1->words.w0 = 0x0C00C000;
-        cmd1->words.w1 = (inDmem & 0xFFFF) | 0x07C00000;
-        cmd2 = ptr++;
-        cmd2->words.w0 = 0x0C004000;
-        cmd2->words.w1 = (inDmem & 0xFFFF) | 0x09300000;
+        aMix(ptr++, 0, 0xC000, 0x7C0, inDmem);
+        aMix(ptr++, 0, 0x4000, 0x930, inDmem);
     }
     ptr = _n_saveBuffer(ring, 0, ring->input[0], inDmem, ptr);
     if (D_807FF0F4[busIndex] != 0) {
         ptr = _n_saveBuffer(ring, 1, ring->input[1], 0x930, ptr);
     }
     for (busChan = 0; busChan <= D_807FF0F4[busIndex]; busChan++) {
-        clearCmd = ptr++;
-        clearCmd->words.w0 = (outDmem & 0xFFFFFF) | 0x02000000;
-        clearCmd->words.w1 = 0x170;
+        aClearBuffer(ptr++, outDmem, 0x170);
         for (sectionIdx = 0; sectionIdx < ring->section_count; sectionIdx++) {
             section = ring->delay + sectionIdx;
             inPtr = &ring->input[busChan][-section->input];
@@ -82,17 +64,13 @@ Acmd *n_alFxPull(s32 time, Acmd *cmdList, s32 busIndex) {
             }
             ptr = _n_loadOutputBuffer(ring, section, busChan, dmemOut, ptr);
             if (section->ffcoef != 0) {
-                mixCmd1 = ptr++;
-                mixCmd1->words.w0 = ((u16)section->ffcoef & 0xFFFF) | 0x0C000000;
-                mixCmd1->words.w1 = ((dmemIn & 0xFFFF) << 16) | (dmemOut & 0xFFFF);
+                aMix(ptr++, 0, (u16)section->ffcoef, dmemIn, dmemOut);
                 if ((section->rs == NULL) && (section->lp == NULL)) {
                     ptr = _n_saveBuffer(ring, busChan, outPtr, dmemOut, ptr);
                 }
             }
             if (section->fbcoef != 0) {
-                mixCmd2 = ptr++;
-                mixCmd2->words.w0 = ((u16)section->fbcoef & 0xFFFF) | 0x0C000000;
-                mixCmd2->words.w1 = ((dmemOut & 0xFFFF) << 16) | (dmemIn & 0xFFFF);
+                aMix(ptr++, 0, (u16)section->fbcoef, dmemOut, dmemIn);
                 ptr = _n_saveBuffer(ring, busChan, inPtr, dmemIn, ptr);
             }
             if (section->lp != NULL) {
@@ -103,18 +81,14 @@ Acmd *n_alFxPull(s32 time, Acmd *cmdList, s32 busIndex) {
             }
             if (section->gain != 0) {
                 if (D_807FF0F4[busIndex] != 0) {
-                    scaleCmd1 = ptr++;
-                    scaleCmd1->words.w0 = ((u16)section->gain & 0xFFFF) | 0x0C000000;
-                    scaleCmd1->words.w1 = ((dmemOut & 0xFFFF) << 16) | (outDmem & 0xFFFF);
-                    ; // FAKE: own .loc line keeps the w1 sw out of the arm-closing b delay slot (Q0430, Q0183; removing it: 44 lines differ)
+                    aMix(ptr++, 0, (u16)section->gain, dmemOut, outDmem);
                 } else {
-                    scaledGain = (u32)((f32)section->gain * 1.4142f);
+                    u32 scaledGain = (u32)((f32)section->gain * 1.4142f);
+
                     if (scaledGain >= 0x8000) {
                         scaledGain = 0x7FFF;
                     }
-                    scaleCmd2 = ptr++;
-                    scaleCmd2->words.w0 = ((u16)scaledGain & 0xFFFF) | 0x0C000000;
-                    scaleCmd2->words.w1 = ((dmemOut & 0xFFFF) << 16) | (outDmem & 0xFFFF);
+                    aMix(ptr++, 0, (u16)scaledGain, dmemOut, outDmem);
                 }
             }
             lastInPtr = &ring->input[busChan][section->output];
@@ -122,19 +96,12 @@ Acmd *n_alFxPull(s32 time, Acmd *cmdList, s32 busIndex) {
         if ((D_807FF0F4[busIndex] != 0) && (busChan == 0)) {
             ptr = _n_loadBuffer(ring, 1, ring->input[1], inDmem, 0xB8, ptr);
             if (D_807FF0F6[busIndex] != 0) {
-                panCmd1 = ptr++;
-                panCmd1->words.w0 = 0x0C005A82;
-                panCmd1->words.w1 = ((outDmem & 0xFFFF) << 16) | 0x650;
-                ; // FAKE: own .loc line keeps the w1 sw out of the arm-closing b delay slot (Q0430, Q0183; removing it: 34 lines differ)
+                aMix(ptr++, 0, 0x5A82, outDmem, 0x650);
             } else {
-                panCmd2 = ptr++;
-                panCmd2->words.w0 = 0x0C005A82;
-                panCmd2->words.w1 = ((outDmem & 0xFFFF) << 16) | 0x4E0;
+                aMix(ptr++, 0, 0x5A82, outDmem, 0x4E0);
             }
         } else {} // FAKE: empty else arm emits the target b join; nop under IDO 7.1 -g (Q0671; removing it: 31 lines differ)
-        dmaCmd = ptr++;
-        dmaCmd->words.w0 = (outDmem & 0xFFFFFF) | 0x0A000000;
-        dmaCmd->words.w1 = 0x07C00170;
+        aDMEMMove(ptr++, outDmem, 0x7C0, 0x170);
         ring->input[busChan] += 0xB8;
         if (ring->input[busChan] > &ring->base[busChan][ring->length]) {
             ring->input[busChan] -= ring->length;
