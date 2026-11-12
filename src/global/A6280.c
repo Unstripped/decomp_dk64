@@ -215,7 +215,7 @@ void func_806A1AC4(void) {
         }
         break;
     case 3:
-        func_8072881C(0, (u32 *)&gCurrentActor->unkEC);
+        func_8072881C(0, &gCurrentActor->animLastFrame);
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
