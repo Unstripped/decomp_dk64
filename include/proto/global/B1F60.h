@@ -3,7 +3,7 @@
 #define PROTO_GLOBAL_B1F60_H
 #include "common.h"
 #ifndef PROTO_SKIP_actorPatrolFollowerUpdate
-void actorPatrolFollowerUpdate();
+void actorPatrolFollowerUpdate(s16, u8, u16);
 #endif
 #ifndef PROTO_SKIP_func_806AD54C
 void func_806AD54C(void);

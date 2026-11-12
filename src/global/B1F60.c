@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
 #include "proto/global/166A0.h"
@@ -10,48 +11,24 @@
 #include "proto/global/AA960.h"
 #include "proto/global/B1F60.h"
 
-// File-local view of Actor for the fields the shared Actor lacks or types differently.
-typedef struct B1F60Actor {
-    /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ ActorSub4 *sub4;
-    /* 0x008 */ u8 pad8[0xB8];
-    /* 0x0C0 */ f32 unkC0;
-    /* 0x0C4 */ u8 padC4[0x24];
-    /* 0x0E8 */ s16 unkE8;
-    /* 0x0EA */ u8 padEA[4];
-    /* 0x0EE */ s16 unkEE;
-    /* 0x0F0 */ u8 padF0[0x65];
-    /* 0x155 */ u8 unk155;
-} B1F60Actor;
-
-typedef struct B1F60Global924 {
-    /* 0x000 */ u8 pad0[0x2C8];
-    /* 0x2C8 */ s16 unk2C8;
-} B1F60Global924;
-
-#define B1F60A ((B1F60Actor *)gCurrentActor)
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern s32 gCurrentMap;
-extern B1F60Global924 *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 
 
-void actorPatrolFollowerUpdate(targetId, skipStep, movementFlags)
-s16 targetId;
-u8 skipStep;
-u16 movementFlags;
-{
+void actorPatrolFollowerUpdate(s16 targetId, u8 skipStep, u16 movementFlags) {
     Actor *actor;
 
     if (targetId != 0 && (gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0)) {
         actor = gCurrentActor;
         if (actor->state != 0x37) {
-            ((B1F60Actor *)actor)->unkC0 = 200.0f;
+            actor->speedY = 200.0f;
             behaviourCalculateDamageForce(gActorGlobalState.targetActor, targetId);
         }
     }
-    if (gCurrentActor->state) {}  // FAKE: raises the actor-type expression's priority so the switch-selector copy colours v0
+    if (gCurrentActor->state) {}  // FAKE: an IL-only use that lets uopt colour the targetId parameter (range 0 is left uncoloured without it)
     actor = gCurrentActor;
     switch (gCurrentActor->state) {
         case 1:
@@ -64,22 +41,22 @@ u16 movementFlags;
         case 3:
         case 7:
         case 0x35:
-            actorMoveWithinZone(gCurrentActor->state, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, movementFlags, 0.0f);
+            actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, movementFlags, 0.0f);
             break;
         case 0x37:
-            switch (((B1F60Actor *)actor)->unk155) {
+            switch (actor->unk155) {
                 case 0:
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, movementFlags | 0x4200, 0.0f);
                     break;
                 case 1:
                     sfxSpawnTableNodes(actor);
                     if (skipStep != 0) {
-                        B1F60A->unk155 = 2;
+                        gCurrentActor->unk155 = 2;
                         break;
                     }
-                    B1F60A->unkC0 = 100.0f;
-                    actor = gCurrentActor;
-                    ((B1F60Actor *)actor)->unk155++;
+                    gCurrentActor->speedY = 100.0f;
+                    actor = gCurrentActor;  // FAKE: re-read into the actor local so the reloaded pointer colours a2
+                    actor->unk155++;
                 case 2:
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, movementFlags | 0x4200, 0.0f);
                     break;
@@ -129,12 +106,12 @@ void func_806AD54C(void) {
                     dz = found->z - gCurrentActor->z;
                     if ((dx * dx) + (dz * dz) < 1600.0f) {
                         dir = (((found->yaw - gCurrentActor->yaw) & 0xFFF) > 0x800) ? 1 : -1;
-                        gCurrentActor->speedXZ = (f64)(u32)gBehaviourExtraState->unkD * 1.8;
+                        gCurrentActor->speedXZ = gBehaviourExtraState->unkD * 1.8;
                         gCurrentActor->yaw += dir * 0x190;
-                        B1F60A->unkEE = gCurrentActor->yaw;
+                        gCurrentActor->moveYaw = gCurrentActor->yaw;
                         gBehaviourWorkState->flags |= 0x8000;
                         gCurrentActor->state = 0x10;
-                        B1F60A->unk155 = 0;
+                        gCurrentActor->unk155 = 0;
                     }
                 }
             } else {
@@ -169,13 +146,13 @@ void actorFollowLinkedNodeFadeUpdate(void) {
     }
     switch (gCurrentActor->state) {
         case 0:
-            linked = (Actor *)gCurrentActor->parentActor;
+            linked = gCurrentActor->parentActor;
             if (linked == NULL || (linked->contactFlags & 1)) {
                 gCurrentActor->state = 1;
                 gCurrentActor->flags &= ~0x8000;
             } else {
                 actorGetNodePos(linked, 2, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
-                B1F60A->unkE8 = ((B1F60Actor *)gCurrentActor->parentActor)->unkE8;
+                gCurrentActor->roll = gCurrentActor->parentActor->roll;
             }
             break;
         case 1:
@@ -192,7 +169,7 @@ void actorFollowLinkedNodeFadeUpdate(void) {
 
 void actorSpawnLinkedFollower(void) {
     actorSpawn(0x118, 0xC0);
-    gSpawnedActor->parentActor = (s32)gCurrentActor;
+    gSpawnedActor->parentActor = gCurrentActor;
     gSpawnedActor->drawDistance = 0x7D0;
 }
 
@@ -214,13 +191,13 @@ void func_806AD9F4(void) {
     } else if (gActorGlobalState.bossFightPhase == 4) {
         gCurrentActor->interactionType = 2;
         behaviourSpawnExplosionAndSound(0x2F6, 0x27, gActorGlobalState.targetActor);
-        gCurrentActor->speedXZ = gCurrentActor->speedXZ * 2;
+        gCurrentActor->speedXZ *= 2;
         gBehaviourWorkState->timer = 0x1F4;
     }
     switch (gCurrentActor->state) {
         case 0x1E:
             actorMoveWithinZone(0, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x4202, 0.0f);
-            if (B1F60A->unk155 != 0) {
+            if (gCurrentActor->unk155 != 0) {
                 actorSetDefaultState(0x2F4);
             }
             break;
@@ -231,23 +208,23 @@ void func_806AD9F4(void) {
                 gBehaviourWorkState->timer -= 0x14;
             } else {
                 gBehaviourWorkState->timer = 0;
-                B1F60A->unkEE = gCurrentActor->yaw;
+                gCurrentActor->moveYaw = gCurrentActor->yaw;
             }
-            if (B1F60A->unk155 != 0 && gBehaviourWorkState->timer == 0) {
+            if (gCurrentActor->unk155 != 0 && gBehaviourWorkState->timer == 0) {
                 gCurrentActor->interactionType = 1;
                 actorSetDefaultState(0x2F4);
             }
             break;
         case 0x28:
-            switch (B1F60A->unk155) {
+            switch (gCurrentActor->unk155) {
                 case 0:
                     actorSetTargetSpeed(gCurrentActor, 0);
                     actorScriptStart(gCurrentActor, 0x2F5);
-                    B1F60A->unk155++;
+                    gCurrentActor->unk155++;
                 case 1:
                     actorMoveWithinZone(0, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x4200, 0.0f);
                     if (gCurrentActor->speedXZ < 1.0f) {
-                        B1F60A->unk155++;
+                        gCurrentActor->unk155++;
                     }
                     break;
                 case 3:
@@ -259,7 +236,7 @@ void func_806AD9F4(void) {
             if ((randomNonNegative() >> 15) % 1000 >= 0x3E4) {
                 if (gCurrentActor->contactFlags & 1) {
                     gCurrentActor->state = 0x28;
-                    B1F60A->unk155 = 0;
+                    gCurrentActor->unk155 = 0;
                 }
             }
         default:
@@ -282,33 +259,33 @@ void func_806ADDD8(void) {
             if (actorIsTargetWithinDistance(0x12C) != 0) {
                 actorScriptStart(gCurrentActor, 0x31A);
                 gCurrentActor->state = 0x23;
-                B1F60A->unk155 = 0;
+                gCurrentActor->unk155 = 0;
             }
             break;
         case 4:
-            if (B1F60A->sub4->animId != 0x319) {
+            if (gCurrentActor->sub4->animId != 0x319) {
                 gCurrentActor->state = 0x23;
-                B1F60A->unk155 = 0;
+                gCurrentActor->unk155 = 0;
             } else if (actorIsTargetWithinDistance(0x64) != 0) {
                 actorScriptStart(gCurrentActor, 0x31B);
                 gCurrentActor->state = 0x1E;
-                B1F60A->unk155 = 0;
+                gCurrentActor->unk155 = 0;
             }
             break;
         case 0x1E:
-            if (B1F60A->sub4->animId == 0x31A) {
+            if (gCurrentActor->sub4->animId == 0x31A) {
                 gCurrentActor->state = 0x23;
-                B1F60A->unk155 = 0;
+                gCurrentActor->unk155 = 0;
             }
             break;
         case 0x23:
-            if (B1F60A->sub4->animId == 0x31A && B1F60A->sub4->model->frame > 4.0f) {
+            if (gCurrentActor->sub4->animId == 0x31A && gCurrentActor->sub4->model->frame > 4.0f) {
                 actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
             }
             if (actorIsTargetWithinDistance(0x12C) == 0) {
                 actorScriptStart(gCurrentActor, 0x31C);
                 gCurrentActor->state = 0;
-                B1F60A->unk155 = 0;
+                gCurrentActor->unk155 = 0;
             }
             break;
         default:
