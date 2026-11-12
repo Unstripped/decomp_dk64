@@ -26,6 +26,6 @@ s32 volumeTriggerUpdate(struct VolumeTrigger *);
 void volumeTriggerSetEnabled(s32, u8);
 #endif
 #ifndef PROTO_SKIP_volumeTriggerSetPosition
-s32 volumeTriggerSetPosition(s32, s16, s16, s16);
+void volumeTriggerSetPosition(s32, s16, s16, s16);
 #endif
 #endif

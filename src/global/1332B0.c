@@ -11,29 +11,36 @@ extern Actor *gPrimaryPlayerActor;
 extern void *gPlayerSlots;
 
 u8 func_8072E5B0(void) {
-    Actor *a = gPrimaryPlayerActor;
+    Actor *player = gPrimaryPlayerActor;
 
-    return !(a->contactFlags & 1) && !(a->attachMode == 1) && !(a->state == 0x63);
+    return !(player->contactFlags & 1) && !(player->attachMode == 1) && !(player->state == 0x63);
 }
 
-typedef struct {
-    /* 0x00 */ u8 b[0x38];
-} VolumeTriggerRaw;
+// One action a volume trigger fires: an 8-byte callback payload sent to the actor of a hook.
+typedef struct VolumeTriggerAction {
+    /* 0x0 */ s16 hookIndex; // index into D_807557A0
+    /* 0x2 */ u8 payload[8];
+} VolumeTriggerAction; // size = 0xA
+
+// Volume trigger record as stored in the map asset (table 0x12): a vertical cylinder.
+typedef struct VolumeTriggerDef {
+    /* 0x00 */ s16 x;
+    /* 0x02 */ s16 y;
+    /* 0x04 */ s16 z;
+    /* 0x06 */ s16 radius;
+    /* 0x08 */ s16 height; // -1: no vertical bound
+    /* 0x0A */ s16 id; // also the flag index passed to flagTryTriggerOnce
+    /* 0x0C */ u8 mode; // 0: on entry, 1: on exit, 2: while inside
+    /* 0x0D */ u8 startEnabled;
+    /* 0x0E */ u8 actionCount;
+    /* 0x0F */ u8 padF;
+    /* 0x10 */ VolumeTriggerAction actions[4];
+} VolumeTriggerDef; // size = 0x38
 
 typedef struct VolumeTrigger {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ s16 unk6;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ u8 unkC;
-    /* 0x0D */ u8 unkD;
-    /* 0x0E */ u8 unkE;
-    /* 0x0F */ u8 padF;
-    /* 0x10 */ struct { s16 unk0; u8 unk2[8]; } subs[4];
-    /* 0x38 */ u8 unk38;
-    /* 0x39 */ u8 unk39;
+    /* 0x00 */ VolumeTriggerDef def;
+    /* 0x38 */ u8 wasOutside;
+    /* 0x39 */ u8 enabled;
 } VolumeTrigger; // size = 0x3A
 
 typedef struct {
@@ -44,49 +51,46 @@ typedef struct {
 extern VolumeTriggerTable *D_80755A14;
 
 void volumeTriggerTableLoad(s16 *data) {
-    VolumeTriggerRaw *src;
+    VolumeTriggerDef *src;
     VolumeTrigger *e;
     s16 i;
 
     D_80755A14->count = 0;
     D_80755A14->entries = NULL;
     if (data != NULL) {
-        src = (VolumeTriggerRaw *)(data + 1);
-        i = 0;
+        src = (VolumeTriggerDef *)(data + 1);
         D_80755A14->count = *data;
-        while (i < D_80755A14->count) {
+        for (i = 0; i < D_80755A14->count; i++, src++) {
             if (i == 0) {
-                D_80755A14->entries = heapAlloc(D_80755A14->count * 0x3A);
+                D_80755A14->entries = heapAlloc(D_80755A14->count * sizeof(VolumeTrigger));
                 e = D_80755A14->entries;
             } else {
                 e++;
             }
-            *(VolumeTriggerRaw *)e = *src;
-            e->unk38 = 0;
-            e->unk39 = e->unkD;
-            i++;
-            src++;
+            e->def = *src;
+            e->wasOutside = 0;
+            e->enabled = e->def.startEnabled;
         }
     }
 }
 
+// Receiver of the actions of a volume trigger: an actor found by type at map load.
 typedef struct {
     /* 0x00 */ u8 pad0[2];
-    /* 0x02 */ s16 unk2;
+    /* 0x02 */ u16 actorType;
     /* 0x04 */ u8 pad4[3];
-    /* 0x07 */ u8 unk7;
-    /* 0x08 */ Actor *unk8;
-    /* 0x0C */ s32 (*unkC)(void);
+    /* 0x07 */ u8 subtype; // callback subtype
+    /* 0x08 */ Actor *actor;
+    /* 0x0C */ s32 (*condition)(void); // NULL: always fire
 } VolumeTriggerHook; // size = 0x10
 
 extern VolumeTriggerHook D_807557A0[];
 
 void volumeTriggerTableInit(s32 mapId) {
-    VolumeTriggerHook *p;
+    VolumeTriggerHook *hook;
     s32 i;
-    s32 n = 0x27;
-    s32 ua0;
-    s32 ua1;
+    s32 hookCount = 0x27;
+    s32 pad[2];
     Actor *actor;
     void *buf;
 
@@ -95,19 +99,14 @@ void volumeTriggerTableInit(s32 mapId) {
     if (buf != NULL) {
         assetFreeBuffer(buf, 0xC1, 0x3D);
     }
-    p = D_807557A0;
-    for (i = 0; i < n; i++, p++) {
-        actorFindActiveByType(p->unk2, &actor);
-        p->unk8 = actor;
+    hook = D_807557A0;
+    for (i = 0; i < hookCount; i++, hook++) {
+        actorFindActiveByType(hook->actorType, &actor);
+        hook->actor = actor;
     }
 }
 
-typedef struct {
-    /* 0x0 */ Actor *actor;
-    /* 0x4 */ s32 unk4;
-} ActiveActorEntry;
-
-extern ActiveActorEntry gActiveActors[];
+extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 
 s32 actorFindActiveByType(s16 actorType, Actor **outActor) {
@@ -115,17 +114,13 @@ s32 actorFindActiveByType(s16 actorType, Actor **outActor) {
     s32 i = 0;
     Actor *actor;
 
-    if (i) {
-    }
-    if (gActiveActorCount > 0) {
-        do {
-            actor = gActiveActors[i].actor;
-            if (actor->actorType == (actorType & 0xFFFFFFFFu)) {
-                found = 1;
-            } else {
-                i++;
-            }
-        } while (!found && i < gActiveActorCount);
+    while (!found && i < gActiveActorCount) {
+        actor = gActiveActors[i].actor;
+        if (actor->actorType == actorType) {
+            found = 1;
+        } else {
+            i++;
+        }
     }
     *outActor = actor;
     return found;
@@ -135,44 +130,38 @@ extern s16 D_807FDCB8;
 extern s16 D_807FDCBA;
 extern s16 D_807FDCBC;
 
-typedef struct {
-    s16 unk0;
-    u8 unk2[8];
-} VolumeTriggerSubView;
-
 void volumeTriggerUpdateAll(void) {
-    s32 ua0;
-    s32 ua1;
+    s32 pad[2];
     s32 i;
     VolumeTrigger *e;
-    s16 *ptr;
+    s16 *idPtr;
     s32 j;
-    s32 flag;
+    s32 delayed;
     s32 k;
-    VolumeTriggerSubView *sub;
+    VolumeTriggerAction *action;
 
     for (k = 0; k < gActorGlobalState.unk254; k++) {
-        ptr = gActorGlobalState.unk278[k];
+        idPtr = gActorGlobalState.unk278[k];
         switch (gActorGlobalState.unk258[k]) {
             case 1:
-                volumeTriggerSetEnabled(*ptr, 1);
+                volumeTriggerSetEnabled(*idPtr, 1);
                 break;
             case 2:
-                volumeTriggerSetEnabled(*ptr, 0);
+                volumeTriggerSetEnabled(*idPtr, 0);
                 break;
         }
     }
     e = D_80755A14->entries;
     for (i = 0; i < D_80755A14->count; i++, e++) {
         if (volumeTriggerUpdate(e)) {
-            for (j = 0; j < e->unkE; j++) {
-                sub = (VolumeTriggerSubView *)&e->subs[j];
-                if (D_807557A0[e->subs[j].unk0].unkC == NULL || D_807557A0[e->subs[j].unk0].unkC()) {
-                    flag = (u16)D_807557A0[sub->unk0].unk2 == 0xA ? 1 : 0;
-                    actorAppendCallbackMemcpy8(gCurrentActor, D_807557A0[sub->unk0].unk8, 0x01000000, D_807557A0[sub->unk0].unk7, e->subs[j].unk2, flag);
-                    D_807FDCB8 = e->unk0;
-                    D_807FDCBA = e->unk2;
-                    D_807FDCBC = e->unk4;
+            for (j = 0; j < e->def.actionCount; j++) {
+                action = &e->def.actions[j];
+                if (D_807557A0[e->def.actions[j].hookIndex].condition == NULL || D_807557A0[e->def.actions[j].hookIndex].condition()) { // FAKE: condition reads hookIndex via e->def.actions[j], the body via action: keeps the hook address recomputed after the call (no CSE)
+                    delayed = D_807557A0[action->hookIndex].actorType == 0xA ? 1 : 0;
+                    actorAppendCallbackMemcpy8(gCurrentActor, D_807557A0[action->hookIndex].actor, 0x01000000, D_807557A0[action->hookIndex].subtype, e->def.actions[j].payload, delayed);
+                    D_807FDCB8 = e->def.x;
+                    D_807FDCBA = e->def.y;
+                    D_807FDCBC = e->def.z;
                 }
             }
         }
@@ -189,82 +178,74 @@ extern u8 gPlayerCount;
 extern s16 gCurrentLevelIndex;
 
 s32 volumeTriggerUpdate(VolumeTrigger *trigger) {
-    u8 found = 0;
-    f32 y;
+    u8 inside = 0;
+    f32 distSq;
     u8 result = 0;
-    PlayerSlot *players;
+    PlayerSlot *player;
     u8 i;
 
     for (i = 0; i < gPlayerCount; i++) {
-        players = &((PlayerSlot *)gPlayerSlots)[i];
-        if (players->active) {
-            if (trigger->unk8 == -1 || ((f32)trigger->unk2 <= players->actor->y && players->actor->y < (f32)(trigger->unk2 + trigger->unk8))) {
-                y = ((f32)trigger->unk4 - players->actor->z) * ((f32)trigger->unk4 - players->actor->z) + ((f32)trigger->unk0 - players->actor->x) * ((f32)trigger->unk0 - players->actor->x);
-                if (y < (f32)(trigger->unk6 * trigger->unk6)) {
-                    found = 1;
+        player = &((PlayerSlot *)gPlayerSlots)[i];
+        if (player->active) {
+            if (trigger->def.height == -1 || ((f32)trigger->def.y <= player->actor->y && player->actor->y < (f32)(trigger->def.y + trigger->def.height))) {
+                distSq = ((f32)trigger->def.z - player->actor->z) * ((f32)trigger->def.z - player->actor->z) + ((f32)trigger->def.x - player->actor->x) * ((f32)trigger->def.x - player->actor->x);
+                if (distSq < (f32)(trigger->def.radius * trigger->def.radius)) {
+                    inside = 1;
                 }
             }
         }
     }
-    switch (trigger->unkC) {
+    switch (trigger->def.mode) {
         case 0:
-            if (found && trigger->unk38 == 1 && trigger->unk39) {
+            if (inside && trigger->wasOutside == 1 && trigger->enabled) {
                 result = 1;
             }
             break;
         case 1:
-            if (!found && !trigger->unk38 && trigger->unk39) {
+            if (!inside && !trigger->wasOutside && trigger->enabled) {
                 result = 1;
             }
             break;
         case 2:
-            if (found && trigger->unk39) {
+            if (inside && trigger->enabled) {
                 result = 1;
             }
             break;
     }
-    if (result) {
-        if (!flagTryTriggerOnce(gCurrentLevelIndex, trigger->unkA)) {
-            result = 0;
-        }
+    if (result && !flagTryTriggerOnce(gCurrentLevelIndex, trigger->def.id)) {
+        result = 0;
     }
-    if (found) {
-        trigger->unk38 = 0;
+    if (inside) {
+        trigger->wasOutside = 0;
     } else {
-        trigger->unk38 = 1;
+        trigger->wasOutside = 1;
     }
     return result;
 }
 
-
 void volumeTriggerSetEnabled(s32 triggerId, u8 enabled) {
-    s32 found;
-    VolumeTrigger *e;
+    s32 found = 0;
+    VolumeTrigger *e = D_80755A14->entries;
     s32 i;
 
-    found = 0;
-    e = D_80755A14->entries;
-
     for (i = 0; i < D_80755A14->count && !found; i++, e++) {
-        if (triggerId == e->unkA) {
-            e->unk39 = enabled;
+        if (triggerId == e->def.id) {
+            e->enabled = enabled;
             found = 1;
         }
     }
 }
 
-s32 volumeTriggerSetPosition(s32 triggerId, s16 x, s16 y, s16 z) {
-    s32 found;
-    VolumeTrigger *e;
+void volumeTriggerSetPosition(s32 triggerId, s16 x, s16 y, s16 z) {
+    s32 found = 0;
+    VolumeTrigger *e = D_80755A14->entries;
     s32 i;
 
-    found = 0;
-    e = D_80755A14->entries;
     for (i = 0; i < D_80755A14->count && !found; i++, e++) {
-        if (triggerId == e->unkA) {
-            e->unk0 = x;
-            e->unk2 = y;
-            e->unk4 = z;
+        if (triggerId == e->def.id) {
+            e->def.x = x;
+            e->def.y = y;
+            e->def.z = z;
             found = 1;
         }
     }
