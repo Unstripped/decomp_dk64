@@ -414,7 +414,7 @@ void actorFreeImmediate(Actor *actor) {
         }
     }
     actorSub140Free(actor->collision);
-    proxPathRemoveActor(actor);
+    proxPathRemoveActor((s32)actor);
     if (actor->pathFollow != NULL) {
         heapFree(actor->pathFollow);
     }

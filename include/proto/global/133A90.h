@@ -8,10 +8,10 @@ struct ProxPath;
 void proxPathListClear(void);
 #endif
 #ifndef PROTO_SKIP_proxPathSetEnabled
-void proxPathSetEnabled(Actor *, u8, u8);
+void proxPathSetEnabled(s32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_proxPathSetEndBehavior
-void proxPathSetEndBehavior(Actor *, u8, u8);
+void proxPathSetEndBehavior(s32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_proxPathAdd
 void proxPathAdd(Actor *, u8, u8, u8, u8, f32, f32, f32, f32, f32, f32, u8, f32, f32, u8);
@@ -20,7 +20,7 @@ void proxPathAdd(Actor *, u8, u8, u8, u8, f32, f32, f32, f32, f32, f32, u8, f32,
 void proxPathSetSegment(Actor *, u8, u8, u8, u8, f32, f32, f32, u8, s16, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_proxPathRemoveActor
-void proxPathRemoveActor(Actor *);
+void proxPathRemoveActor(s32);
 #endif
 #ifndef PROTO_SKIP_proxPathUpdateAllPlayers
 void proxPathUpdateAllPlayers(void);

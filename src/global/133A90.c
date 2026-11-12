@@ -36,8 +36,15 @@ typedef struct ProxPathSegment {
     /* 0x19 */ u8 pad19[3];
 } ProxPathSegment; // size = 0x1C
 
+// A path's owner key: an actor (slotType 0) or a model slot id (slotType 1/2, the
+// hashTableLookup/modelSlotGetNodePos key). Lookups by key compare the raw word.
+typedef union ProxPathOwner {
+    Actor *actor;
+    s32 id;
+} ProxPathOwner;
+
 typedef struct ProxPath {
-    /* 0x00 */ Actor *owner;
+    /* 0x00 */ ProxPathOwner owner;
     /* 0x04 */ u8 slotType;
     /* 0x05 */ u8 pathIndex;
     /* 0x06 */ u8 pathType;
@@ -66,14 +73,14 @@ void proxPathListClear(void) {
     gProxPathList = NULL;
 }
 
-void proxPathSetEnabled(Actor *actor, u8 pathIndex, u8 enabled) {
+void proxPathSetEnabled(s32 id, u8 pathIndex, u8 enabled) {
     ProxPath *node;
     s32 found;
 
     node = gProxPathList;
     found = 0;
     while (node != NULL && !found) {
-        if (node->owner == actor && node->pathIndex == pathIndex) {
+        if (node->owner.id == id && node->pathIndex == pathIndex) {
             found = 1;
         } else {
             node = node->next;
@@ -84,14 +91,14 @@ void proxPathSetEnabled(Actor *actor, u8 pathIndex, u8 enabled) {
     }
 }
 
-void proxPathSetEndBehavior(Actor *actor, u8 pathIndex, u8 endBehavior) {
+void proxPathSetEndBehavior(s32 id, u8 pathIndex, u8 endBehavior) {
     ProxPath *node;
     s32 found;
 
     node = gProxPathList;
     found = 0;
     while (node != NULL && !found) {
-        if (node->owner == actor && node->pathIndex == pathIndex) {
+        if (node->owner.id == id && node->pathIndex == pathIndex) {
             found = 1;
         } else {
             node = node->next;
@@ -113,7 +120,7 @@ void proxPathAdd(Actor *actor, u8 slotType, u8 pathIndex, u8 pathType, u8 segmen
         node = node->next;
     }
     node = *tail = heapAlloc(0x3C);
-    node->owner = actor;
+    node->owner.actor = actor;
     node->slotType = slotType;
     node->pathIndex = pathIndex;
     node->pathType = pathType;
@@ -140,7 +147,7 @@ void proxPathSetSegment(Actor *actor, u8 pathIndex, u8 segmentIndex, u8 startNod
     node = gProxPathList;
     found = 0;
     while (node != NULL && !found) {
-        if (node->owner == actor && node->pathIndex == pathIndex) {
+        if (node->owner.actor == actor && node->pathIndex == pathIndex) {
             found = 1;
         } else {
             node = node->next;
@@ -160,7 +167,7 @@ void proxPathSetSegment(Actor *actor, u8 pathIndex, u8 segmentIndex, u8 startNod
     }
 }
 
-void proxPathRemoveActor(Actor *actor) {
+void proxPathRemoveActor(s32 id) {
     ProxPath **prev;
     ProxPath *node;
     ProxPath *next;
@@ -168,7 +175,7 @@ void proxPathRemoveActor(Actor *actor) {
     prev = &gProxPathList;
     node = *prev;
     while (node != NULL) {
-        if (node->owner == actor) {
+        if (node->owner.id == id) {
             *prev = node->next;
             next = node->next;
             heapFree(node);
@@ -223,13 +230,13 @@ void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowB
         isPlayer = gPlayerSlots[state->playerIndex].unk2C0 == 2;
     }
     while (node != NULL) {
-        got = proxPathGetActorPosition(node->owner, node->slotType, &x, &y, &z);
+        got = proxPathGetActorPosition(node->owner.actor, node->slotType, &x, &y, &z);
         dx = playerActor->x - x;
         dy = playerActor->y - y;
         dz = playerActor->z - z;
         dist = sqrtf(dx * dx + dy * dy + dz * dz);
         if (dist < node->attachDist && node->enabled != 0) {
-            if (node->pathType == 1 || (allowBoss != 0 && (node->owner->flags & 0x04000000))) {
+            if (node->pathType == 1 || (allowBoss != 0 && (node->owner.actor->flags & 0x04000000))) {
                 if (got == 0 || !(u8)isPlayer) {
                     if (proxPathFindNearestSegment(playerActor, node, &d, &sub)) {
                         if (d < bestDist) {
@@ -246,7 +253,7 @@ void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowB
     if (best != NULL) {
         proxPathGetDistanceAt(best, bestSub, proxPathAttachToSegment(playerActor, state, best, bestSub), &out);
         state->pathDist = out;
-        state->pathOwner = best->owner;
+        state->pathOwner = best->owner.actor;
         state->pathIndex = best->pathIndex;
         state->pathYawMin = 0;
         state->pathYawMax = 0xFFF;
@@ -327,13 +334,13 @@ s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *o
             idB = path->segments[i].endNode;
             switch (path->slotType) {
             case 0:
-                actorGetNodePos(path->owner, idA, &ax, &ay, &az);
-                actorGetNodePos(path->owner, idB, &bx, &by, &bz);
+                actorGetNodePos(path->owner.actor, idA, &ax, &ay, &az);
+                actorGetNodePos(path->owner.actor, idB, &bx, &by, &bz);
                 break;
             case 1:
             case 2:
-                modelSlotGetNodePos((s32)path->owner, 1, idA, &ax, &ay, &az);
-                modelSlotGetNodePos((s32)path->owner, 1, idB, &bx, &by, &bz);
+                modelSlotGetNodePos(path->owner.id, 1, idA, &ax, &ay, &az);
+                modelSlotGetNodePos(path->owner.id, 1, idB, &bx, &by, &bz);
                 break;
             }
             camClosestPointOnSegment(actor->x, actor->y, actor->z, ax, ay, az, bx, by, bz, &ox, &oy, &oz);
@@ -362,7 +369,7 @@ s32 proxPathSegmentAngleCheck(ProxPath *path, s32 segmentIndex, s16 angle) {
     if (path->slotType == 0) {
         return 1;
     }
-    slot = hashTableLookup((s32)path->owner);
+    slot = hashTableLookup(path->owner.id);
     if (!(gModelSlots[slot].modelType == 0xC9 || gModelSlots[slot].modelType == 0xCA || gModelSlots[slot].modelType == 0x1CB || gModelSlots[slot].modelType == 0x1F7 || gModelSlots[slot].modelType == 0x1F8)) {
         return 1;
     }
@@ -395,13 +402,13 @@ f32 proxPathAttachToSegment(Actor *actor, PlayerState *state, ProxPath *path, u8
     idB = path->segments[segmentIndex].endNode;
     switch (path->slotType) {
     case 0:
-        actorGetNodePos(path->owner, idA, &ax, &ay, &az);
-        actorGetNodePos(path->owner, idB, &bx, &by, &bz);
+        actorGetNodePos(path->owner.actor, idA, &ax, &ay, &az);
+        actorGetNodePos(path->owner.actor, idB, &bx, &by, &bz);
         break;
     case 1:
     case 2:
-        modelSlotGetNodePos((s32)path->owner, 1, idA, &ax, &ay, &az);
-        modelSlotGetNodePos((s32)path->owner, 1, idB, &bx, &by, &bz);
+        modelSlotGetNodePos(path->owner.id, 1, idA, &ax, &ay, &az);
+        modelSlotGetNodePos(path->owner.id, 1, idB, &bx, &by, &bz);
         break;
     }
     actorGetNodePos(actor, 1, &px, &py, &pz);
@@ -466,7 +473,7 @@ void proxPathAdvance(f32 speedMultiplier) {
     node = gProxPathList;
     found = 0;
     while (node != NULL && !found) {
-        if (node->owner == gActivePlayerState->pathOwner && node->pathIndex == gActivePlayerState->pathIndex) {
+        if (node->owner.actor == gActivePlayerState->pathOwner && node->pathIndex == gActivePlayerState->pathIndex) {
             found = 1;
         } else {
             node = node->next;
@@ -532,7 +539,7 @@ void proxPathFollowerStep(Actor **pActor) {
     state = actor->customState;
     found = 0;
     while (node != NULL && !found) {
-        if (node->owner == state->pathOwner && node->pathIndex == state->pathIndex) {
+        if (node->owner.actor == state->pathOwner && node->pathIndex == state->pathIndex) {
             found = 1;
         } else {
             node = node->next;
@@ -547,7 +554,7 @@ void proxPathFollowerStep(Actor **pActor) {
     idB = node->segments[idx].endNode;
     switch (node->pathType) {
     case 0:
-        proxPathGetSegmentMatrices(node->owner, node->slotType, idA, idB, &mtxFrom, &mtxTo);
+        proxPathGetSegmentMatrices(node->owner.actor, node->slotType, idA, idB, &mtxFrom, &mtxTo);
         mtxLerpL(mtxFrom, mtxTo, 1.0 - t, &mtx);
         rot = (actor->yaw - state->pathOwner->yaw) & 0xFFF;
         guRotateF(rotMtx, rot / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
@@ -677,13 +684,13 @@ void proxPathActorFollowSpline(Actor *actor, PlayerState *state, ProxPath *path,
     switch (path->slotType) {
     case 1:
     case 2:
-        slot = hashTableLookup((s32)path->owner);
+        slot = hashTableLookup(path->owner.id);
         state->pathYawMin = ((s32)(gModelSlots[slot].unk14 * 4096.0f / 360.0f) + state->pathYawMin) & 0xFFF;
         state->pathYawMax = ((s32)(gModelSlots[slot].unk14 * 4096.0f / 360.0f) + state->pathYawMax) & 0xFFF;
         break;
     case 0:
-        state->pathYawMin = (state->pathYawMin + path->owner->yaw) & 0xFFF;
-        state->pathYawMax = (state->pathYawMax + path->owner->yaw) & 0xFFF;
+        state->pathYawMin = (state->pathYawMin + path->owner.actor->yaw) & 0xFFF;
+        state->pathYawMax = (state->pathYawMax + path->owner.actor->yaw) & 0xFFF;
         break;
     }
 }
@@ -700,16 +707,16 @@ void proxPathInterpolatePosition(u8 segmentIndex, f32 t, ProxPath *path, f32 *ou
     switch (path->slotType) {
     case 1:
     case 2:
-        modelSlotGetNodePos((s32)path->owner, 1, ids[0], &p[0][0], &p[0][1], &p[0][2]);
-        modelSlotGetNodePos((s32)path->owner, 1, ids[1], &p[1][0], &p[1][1], &p[1][2]);
-        modelSlotGetNodePos((s32)path->owner, 1, ids[2], &p[2][0], &p[2][1], &p[2][2]);
-        modelSlotGetNodePos((s32)path->owner, 1, ids[3], &p[3][0], &p[3][1], &p[3][2]);
+        modelSlotGetNodePos(path->owner.id, 1, ids[0], &p[0][0], &p[0][1], &p[0][2]);
+        modelSlotGetNodePos(path->owner.id, 1, ids[1], &p[1][0], &p[1][1], &p[1][2]);
+        modelSlotGetNodePos(path->owner.id, 1, ids[2], &p[2][0], &p[2][1], &p[2][2]);
+        modelSlotGetNodePos(path->owner.id, 1, ids[3], &p[3][0], &p[3][1], &p[3][2]);
         break;
     case 0:
-        actorGetNodePos(path->owner, ids[0], &p[0][0], &p[0][1], &p[0][2]);
-        actorGetNodePos(path->owner, ids[1], &p[0][0], &p[0][1], &p[0][2]);
-        actorGetNodePos(path->owner, ids[1], &p[0][0], &p[0][1], &p[0][2]);
-        actorGetNodePos(path->owner, ids[2], &p[0][0], &p[0][1], &p[0][2]);
+        actorGetNodePos(path->owner.actor, ids[0], &p[0][0], &p[0][1], &p[0][2]);
+        actorGetNodePos(path->owner.actor, ids[1], &p[0][0], &p[0][1], &p[0][2]);
+        actorGetNodePos(path->owner.actor, ids[1], &p[0][0], &p[0][1], &p[0][2]);
+        actorGetNodePos(path->owner.actor, ids[2], &p[0][0], &p[0][1], &p[0][2]);
         break;
     }
     *outX = splineEvalCubic(t, p[0][0], p[1][0], p[2][0], p[3][0]);
