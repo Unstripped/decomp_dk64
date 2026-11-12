@@ -109,8 +109,8 @@ As each agent reports:
    --stop)`, rerun; swap a main-tree header via temp + `mv` (new inode). Commit explicit paths only; headers go in `--stage`, never as a
    gate file argument. A copy byte-identical to its base is ledger-only (`cmp` first); one whose file
    changed since its base merges 3-way (`<copy-dir> <base>`). A copy retyping a shared global's extern:
-   fix every other file's extern in the SAME gate (objdiff each; a file whose cfe count would rise
-   keeps its type and goes to the follow-ups).
+   fix every other file's extern in the SAME gate (objdiff each; a file whose cfe would rise or that no longer
+   compiles keeps its type and goes to the follow-ups). Check a batch copy has the edits its request claims (r21 17540).
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
 gate; a merged file's net HACKS (tagged `// FAKE` + untagged AST sites) and cfe warnings never rise.
 Tag pre-existing untagged hacks ("pre-existing, now tagged", one copy-only line each): compare `status --file` site totals base vs

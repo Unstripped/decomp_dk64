@@ -143,22 +143,23 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 18 (2026-11-12)** — boot/3630 (const `strlen`/`_strcasecmp`), global/137C10, 13D170, 36880 (2 passes, 100/100), A6280 (3 views retired, Actor 0xEC union `animLastFrame`), bonus/12A0 (`bonusSpawnReel` returns `Actor *`); n_alSyn callee batch (141520/1417C0/141C00/137C10/13A7A0: real libaudio types) and re-review passes Rev18A/B (SynLPFilter/SynCoreParam tags, `_DEBUG __osError` arms and a typed `FxParamState *` local replace 3 FAKEs). cfe warnings 177 → 155; proto-steer 68 → 66; name `func_806A1AC4` → `actorSparkCutsceneUpdate`; knowledge Q0669–Q0672.
 - [x] **Round 19 (2026-11-12)** — global/13FED0, 13CB50 + 5A50, A7710 (`PlayerState.countdownTimer`), 15050 (30/30), 13E160 (new `include/audio_synth.h`: SynCoreParam/SynLPFilter/N_PVoice, 8 libaudio files); 141EF0 libaudio bundles b1–b7 (pull chain to `Acmd *`, filter-chain views → N_PVoice/SynStartParam/ALWaveTable, SynLowPass, fx types SynFx/SynFxDelay/SynFxResampler; every libaudio view retired except 1445A0's; n_alFxPull mix commands via `PR/abi.h` macros, 2 FAKE −); actor.h carve; re-review Rev19C. cfe warnings 155 → 107; protos mismatch 42 → 37; names `actorSetStateOne/Two/Three` → `hudCountdownTimerHold/Start/Resume`, `D_807FC7D0/D8` → `gHudCountdownSavedElapsed/Hundredths`; knowledge Q0673–Q0674.
 - [x] **Round 20 (2026-11-12)** — global/1332B0 (`volumeTriggerSetPosition` void, dead-if gone), 68EA0 (ModelSlot/PlayerStruct replace the proximity/position views), 131B0, 5E020, jetpac/3060 (+ 4FC0 caller), 103AB0; round-19 tail Rev19A/B and Perm19 (libaudio all EXHAUSTED). cfe warnings 107 → 103; FAKE 750 → 755 (5 pre-existing hacks newly tagged); names `gVolumeTrigger*`, `gModelEmitters`/`gModelSlotCount`, `modelEmitter*` (8 functions), ModelSlot `x/y/z/scale/rotY/modelType/id`, PlayerStruct `eyeX/Y/Z`, ActorGlobalState `volumeTriggerQueue*`; knowledge Q0675–Q0678.
-- [ ] Remaining (after round 20): 479 OPEN functions in 155 files (re-review groups Rev20A/B/C prepared for 132 functions the field renames staled; 32 functions staled by the round-20 knowledge commit) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
+- [x] **Round 21 (2026-11-12)** — global/135D30, boot/1630, boot/1CC0 (split label retired), 17540 (shared `Vec3f` in common.h; 103AB0/80150 local typedefs dropped; the 6 by-value helpers get prototypes), critter/4840 (4 proto-steers removed), E4090; StrBatch string convention (`u8 *` strings, `void *` pass-through sinks: `_strtok`, `_strspn`, `gfxResourceSetString`); round-20 tail Rev20A/B/C and Perm20B. cfe warnings 103 → 78; proto-steer 65 → 61; names `critterText*`/`critterWord*`, `sNoExpPak*`, `gHashTableBuckets`, G29State `stickInput`/`stickDirection`; knowledge Q0679–Q0682.
+- [ ] Remaining (after round 21): 358 OPEN functions in 131 files (re-review groups Rev21A/B prepared for 36 functions; 30 functions staled by the round-21 knowledge commit) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 20):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 21):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 755 | 583 |
+| FAKE | 751 | 583 |
 | FAKE dead-if | 276 | 263 |
-| FAKE proto-steer | 65 | 134 |
+| FAKE proto-steer | 61 | 134 |
 | FAKE other kinds | 414 | 186 |
 | LAYOUT | 66 | 47 |
 | goto | 35 | 39 |
 | proto-type (`// PROTO:`) | 6 | 0 |
-| protos mismatch | 37 | 1,202 |
-| reviewed / exhausted functions | 3,941 / 3,791 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 103 | 1,890 |
+| protos mismatch | 36 | 1,202 |
+| reviewed / exhausted functions | 4,047 / 3,912 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 78 | 1,890 |
 | uninit warnings (clint checks every function) | 251 | 122 |
 | `func_` definitions | 433 | 457 |
 | m2c names | 401 | 5,040 |
