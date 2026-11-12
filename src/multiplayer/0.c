@@ -832,7 +832,7 @@ void mpUpdate(void) {
         state->unk30 = heapAlloc(0x40);
         guScale(state->unk30, 0.5f, 0.5f, 1.0f);
         state->unkC = D_807552E4.unkC;
-        state->unkC = state->unkC * 60; // FAKE: double store (steers codegen)
+        state->unkC = state->unkC * 60; // the target stores unkC twice (raw value, then * 60)
         gCurrentActor->renderFlags |= 2;
         state->unk44 = assetLoad(0xE, 0xB9, 0, 0);
         state->unk48 = assetLoad(0xE, 0xBA, 0, 0);
