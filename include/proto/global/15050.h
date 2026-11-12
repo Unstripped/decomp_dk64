@@ -16,10 +16,10 @@ void heapMoveWords(u32, u32, u32);
 void heapRebaseHandles(u32, u32, u32);
 #endif
 #ifndef PROTO_SKIP_heapInitGeneralPool
-s32 heapInitGeneralPool(void *, u8 *, s32);
+s32 heapInitGeneralPool(s32 *, u8 *, s32);
 #endif
 #ifndef PROTO_SKIP_heapInitBlockPool
-s32 heapInitBlockPool(void *, u8 *, u32, u16);
+s32 heapInitBlockPool(s32 *, u8 *, u32, u16);
 #endif
 #ifndef PROTO_SKIP_heapSortPools
 void heapSortPools(void);

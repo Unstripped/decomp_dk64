@@ -7,6 +7,7 @@
 #include "proto/global/FE40.h"
 
 
+
 extern s32 sHeapReclaimFlag;
 extern u8 sHeapFlags;
 extern HeapPool gHeapPools[];
@@ -38,10 +39,10 @@ extern s32 gHeapUnused5A60;
 
 
 
-void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
+void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
     s32 sz;
     s32 id;
-    s32 lo;
+    s32 fbSize;
     s32 size;
     s32 romStart;
     u32 vram;
@@ -52,7 +53,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     s32 pad[2];
     u64 saved[2];
     s32 fb1;
-    u32 h;
+    u32 top;
     u8 **hp;
     HeapBlock *first;
     s32 total;
@@ -62,9 +63,9 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     u32 *p;
     u8 *q;
     s32 i;
-    s32 cur;
+    s32 depthSize;
 
-    lo = gHiResScale * 0x25800 * gHiResScale;
+    fbSize = gHiResScale * 0x25800 * gHiResScale;
     gHeapPoolCount = 0;
     size = 0;
     gHeapBlockPoolCount = 0;
@@ -78,48 +79,48 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     gHeapDeferredFreeDelay = 2;
     bssSize = 0;
     id = -1;
-    switch (arg1) {
+    switch (overlayId) {
         default:
-            cur = lo;
+            depthSize = fbSize;
             break;
         case 0:
-            cur = 0;
+            depthSize = 0;
             break;
         case 9:
             id = 8;
-            cur = 0;
+            depthSize = 0;
             break;
         case 10:
             id = 9;
-            cur = 0;
+            depthSize = 0;
             break;
         case 7:
             id = 7;
-            cur = lo;
+            depthSize = fbSize;
             break;
         case 6:
             id = 6;
-            cur = lo;
+            depthSize = fbSize;
             break;
         case 5:
             id = 5;
-            cur = lo;
+            depthSize = fbSize;
             break;
         case 8:
             id = 4;
-            cur = lo;
+            depthSize = fbSize;
             break;
         case 4:
             id = 3;
-            cur = lo;
+            depthSize = fbSize;
             break;
         case 3:
             id = 2;
-            cur = lo;
+            depthSize = fbSize;
             break;
         case 2:
             id = 10;
-            cur = lo;
+            depthSize = fbSize;
             break;
     }
     if (id != -1) {
@@ -130,15 +131,15 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         size = (s32)gSegmentTable[id].bssStart - vram;
     }
     gFramebuffers[0] = (size + (bssSize + 0x8002403F)) & ~0x3F;
-    fb1 = ((size + (bssSize + 0x8002403F)) & ~0x3F) + lo;
+    fb1 = ((size + (bssSize + 0x8002403F)) & ~0x3F) + fbSize;
     D_80744474 = fb1;
-    gGfxDepthBuffer = (u8 *)(0x805FAE00 - cur);
-    h = 0x805FAE00 - cur;
+    gGfxDepthBuffer = (u8 *)(0x805FAE00 - depthSize);
+    top = 0x805FAE00 - depthSize;
     i = 4;
     while (i >= 0) {
         switch (i) {
             case 0:
-                sz = h - (fb1 + lo);
+                sz = top - (fb1 + fbSize);
                 break;
             case 1:
                 sz = 0x3810;
@@ -154,12 +155,12 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
                 break;
         }
         i--;
-        h -= sz;
-        addr[i + 1] = (u8 *)h;
+        top -= sz;
+        addr[i + 1] = (u8 *)top;
         sizes[i + 1] = sz;
     }
 #define HL(k) (*(u8 **)gHeapSurvivorList[k])
-    if (arg0 && gHeapSurvivorCount) {
+    if (keepSurvivors && gHeapSurvivorCount) {
         heapSortSurvivors();
         for (i = 1; i < gHeapSurvivorCount; i++) {
             q = HL(i - 1);
@@ -222,7 +223,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     }
     gHeapGuardBlock = heapAlloc(0x10);
     heapLockBlock(gHeapGuardBlock);
-    D_807F0984 = (arg2 == 0) ? 0x28000 : arg2;
+    D_807F0984 = (bufferSize == 0) ? 0x28000 : bufferSize;
     D_807F05A4 = heapAlloc(D_807F0984 + 0x80);
     heapLockBlock(D_807F05A4);
     if (size != 0) {
@@ -297,7 +298,7 @@ void heapRebaseHandles(u32 oldBase, u32 newBase, u32 size) {
     }
 }
 
-s32 heapInitGeneralPool(void *owner, u8 *start, s32 size) {
+s32 heapInitGeneralPool(s32 *owner, u8 *start, s32 size) {
     HeapBlock *blk;
     HeapBlock *end;
 
@@ -320,7 +321,7 @@ s32 heapInitGeneralPool(void *owner, u8 *start, s32 size) {
 }
 
 
-s32 heapInitBlockPool(void *owner, u8 *start, u32 size, u16 blockSize) {
+s32 heapInitBlockPool(s32 *owner, u8 *start, u32 size, u16 blockSize) {
     u32 bs;
     u32 stride;
     u32 rem;
@@ -330,7 +331,7 @@ s32 heapInitBlockPool(void *owner, u8 *start, u32 size, u16 blockSize) {
     HeapBlock *end;
 
     blockSize = (blockSize + 0xF) & ~0xF;
-    bs = (u32)blockSize;
+    bs = blockSize;
     stride = blockSize + 0x10;
     rem = size % stride;
     if (rem == 0) {
@@ -428,7 +429,7 @@ s32 heapReleasePool(s32 idx) {
                 if (bs != 0) {
                     gHeapBlockPoolCount--;
                 }
-                *(u32 *)gHeapPools[gHeapPoolCount].owner = *(u32 *)gHeapPools[idx].owner;
+                *gHeapPools[gHeapPoolCount].owner = *gHeapPools[idx].owner;
                 gHeapPools[idx].owner = gHeapPools[gHeapPoolCount].owner;
                 gHeapPools[idx].start = gHeapPools[gHeapPoolCount].start;
                 gHeapPools[idx].freeList = gHeapPools[gHeapPoolCount].freeList;
@@ -737,9 +738,9 @@ void heapFillBlock(s32 *ptr, s32 val) {
     }
 }
 
-void heapTickDeferredFreesHook(s32 arg0, s32 arg1) {
-    &arg0;
-    &arg1;
+void heapTickDeferredFreesHook(s32 notExpected, s32 addrBias) {
+    &notExpected;
+    &addrBias;
 }
 
 void heapTickDeferredFrees(void) {
