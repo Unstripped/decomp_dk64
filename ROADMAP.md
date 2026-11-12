@@ -144,24 +144,25 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 19 (2026-11-12)** — global/13FED0, 13CB50 + 5A50, A7710 (`PlayerState.countdownTimer`), 15050 (30/30), 13E160 (new `include/audio_synth.h`: SynCoreParam/SynLPFilter/N_PVoice, 8 libaudio files); 141EF0 libaudio bundles b1–b7 (pull chain to `Acmd *`, filter-chain views → N_PVoice/SynStartParam/ALWaveTable, SynLowPass, fx types SynFx/SynFxDelay/SynFxResampler; every libaudio view retired except 1445A0's; n_alFxPull mix commands via `PR/abi.h` macros, 2 FAKE −); actor.h carve; re-review Rev19C. cfe warnings 155 → 107; protos mismatch 42 → 37; names `actorSetStateOne/Two/Three` → `hudCountdownTimerHold/Start/Resume`, `D_807FC7D0/D8` → `gHudCountdownSavedElapsed/Hundredths`; knowledge Q0673–Q0674.
 - [x] **Round 20 (2026-11-12)** — global/1332B0 (`volumeTriggerSetPosition` void, dead-if gone), 68EA0 (ModelSlot/PlayerStruct replace the proximity/position views), 131B0, 5E020, jetpac/3060 (+ 4FC0 caller), 103AB0; round-19 tail Rev19A/B and Perm19 (libaudio all EXHAUSTED). cfe warnings 107 → 103; FAKE 750 → 755 (5 pre-existing hacks newly tagged); names `gVolumeTrigger*`, `gModelEmitters`/`gModelSlotCount`, `modelEmitter*` (8 functions), ModelSlot `x/y/z/scale/rotY/modelType/id`, PlayerStruct `eyeX/Y/Z`, ActorGlobalState `volumeTriggerQueue*`; knowledge Q0675–Q0678.
 - [x] **Round 21 (2026-11-12)** — global/135D30, boot/1630, boot/1CC0 (split label retired), 17540 (shared `Vec3f` in common.h; 103AB0/80150 local typedefs dropped; the 6 by-value helpers get prototypes), critter/4840 (4 proto-steers removed), E4090; StrBatch string convention (`u8 *` strings, `void *` pass-through sinks: `_strtok`, `_strspn`, `gfxResourceSetString`); round-20 tail Rev20A/B/C and Perm20B. cfe warnings 103 → 78; proto-steer 65 → 61; names `critterText*`/`critterWord*`, `sNoExpPak*`, `gHashTableBuckets`, G29State `stickInput`/`stickDirection`; knowledge Q0679–Q0682.
-- [ ] Remaining (after round 21): 358 OPEN functions in 131 files (re-review groups Rev21A/B prepared for 36 functions; 30 functions staled by the round-21 knowledge commit) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
+- [x] **Round 22 (2026-11-12)** — menu/3E10, jetpac/3480, multiplayer/0, global/55B20, boss/C920 (5 views retired; `gBossFightPhase` split label folded into `gActorGlobalState.bossFightPhase` here and in 10 more files), global/79890 (collision views onto ActorEntry/ActorSub140/ModelNode/CollisionHitRecord); round-21 tail Rev21A/B. cfe warnings 78 → 66; FAKE 751 → 738; names ModelNode `scaledX/Y/Z/scaledRadius/mtxOffset`, ActorSub140 `modelMtxF`/`nodeMtx`, `gCollisionHitList*`, `collisionComputeArcYawBounds`, `sKRoolChunky*`; knowledge Q0683–Q0690.
+- [ ] Remaining (after round 22): 382 OPEN functions in 146 files (re-review groups Rev22A/B prepared for 61 functions; 70 functions staled by the round-22 knowledge commit) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 21):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 22):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 751 | 583 |
-| FAKE dead-if | 276 | 263 |
+| FAKE | 738 | 583 |
+| FAKE dead-if | 271 | 263 |
 | FAKE proto-steer | 61 | 134 |
-| FAKE other kinds | 414 | 186 |
-| LAYOUT | 66 | 47 |
+| FAKE other kinds | 406 | 186 |
+| LAYOUT | 67 | 47 |
 | goto | 35 | 39 |
 | proto-type (`// PROTO:`) | 6 | 0 |
 | protos mismatch | 36 | 1,202 |
-| reviewed / exhausted functions | 4,047 / 3,912 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 78 | 1,890 |
+| reviewed / exhausted functions | 4,045 / 3,888 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 66 | 1,890 |
 | uninit warnings (clint checks every function) | 251 | 122 |
-| `func_` definitions | 433 | 457 |
+| `func_` definitions | 432 | 457 |
 | m2c names | 401 | 5,040 |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.

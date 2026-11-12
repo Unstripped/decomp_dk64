@@ -122,10 +122,11 @@ Once every agent of the round is idle:
 1. Apply proposed `func_`/`D_`/shared-field names ([naming.md](naming.md)) with `rename.py
    func|global|field` (dry-run first; skip names whose dry-run touches a checked-out file). It refuses
    references inside macros and address-shaped targets (`func_807444E0` data → `D_`): apply the
-   `--dry-run` positions incl. the macro-argument lines by hand (`.scratch/r20-rename.py`), one gate.
+   `--dry-run` positions incl. the macro-argument lines by hand (`.scratch/r20-rename.py`), one gate. A renamed
+   GLOBAL_ASM data label needs `tools/dk make split` BEFORE that gate; split labels: `rename.py fold` (dry-run first).
 2. `tools/dk make split`, touch all src, `make` OK, `make expected`, `unit_check.py vanished` → OK.
-3. `carry --rev <commit before the renames> --unit "<unit>"` (once: a rerun duplicates events) re-stamps pure renames; sweep the files
-   it skipped AND every file whose automatic rungs a field rename staled (r20: 37 more files). Commit.
+3. `carry --rev <commit before the renames> --unit "<unit>" <files>` (once: a rerun duplicates events; leave out files whose
+   GLOBAL_ASM paths were renamed) re-stamps pure renames; sweep what it skipped AND every file with stale automatic rungs. Commit.
 4. Re-review: `review=stale` functions in the round's touched files plus their never-reviewed OPEN
    functions → ~3 whole-file groups in `.scratch/rereview<N>.md`, one agent each (brief.md).
 
