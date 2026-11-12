@@ -1924,12 +1924,6 @@ typedef struct TagBarrelSpawnParams {
     /* 0x1C */ f32 unk1C;
 } TagBarrelSpawnParams;
 
-typedef struct Vec3f {
-    f32 x;
-    f32 y;
-    f32 z;
-} Vec3f;
-
 
 extern Vec3f D_8074E7D4;
 extern u8 gScreenRenderFlags;

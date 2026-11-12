@@ -2,7 +2,24 @@
 #ifndef PROTO_GLOBAL_17540_H
 #define PROTO_GLOBAL_17540_H
 #include "common.h"
-struct Vec3f;
+#ifndef PROTO_SKIP_vec3fSub
+Vec3f vec3fSub(Vec3f, Vec3f);
+#endif
+#ifndef PROTO_SKIP_vec3fAdd
+Vec3f vec3fAdd(Vec3f, Vec3f);
+#endif
+#ifndef PROTO_SKIP_vec3fScale
+Vec3f vec3fScale(Vec3f, f32);
+#endif
+#ifndef PROTO_SKIP_vec3fNormalize
+Vec3f vec3fNormalize(Vec3f);
+#endif
+#ifndef PROTO_SKIP_vec3fDot
+f32 vec3fDot(Vec3f, Vec3f);
+#endif
+#ifndef PROTO_SKIP_vec3fCross
+Vec3f vec3fCross(Vec3f, Vec3f);
+#endif
 #ifndef PROTO_SKIP_vec3fSet
 void vec3fSet(struct Vec3f *, f32, f32, f32);
 #endif

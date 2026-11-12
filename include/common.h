@@ -12,6 +12,11 @@ typedef struct TargetVec3f {
     f32 x, y, z;
 } TargetVec3f;
 
+// A 3D float vector passed and returned by value (vec3f* helpers, 17540.c).
+typedef struct Vec3f {
+    f32 x, y, z;
+} Vec3f;
+
 extern u32 gGlobalPauseFlags;
 extern u32 gFrameCounter;
 

@@ -1,12 +1,6 @@
 #include "common.h"
 #include "proto/global/17540.h"
 
-typedef struct Vec3f {
-    f32 x;
-    f32 y;
-    f32 z;
-} Vec3f;
-
 Vec3f vec3fSub(Vec3f a, Vec3f b) {
     Vec3f r;
 

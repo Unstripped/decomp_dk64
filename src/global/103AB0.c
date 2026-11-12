@@ -275,12 +275,6 @@ typedef struct LensFlarePoint {
     u8 unkF;
 } LensFlarePoint;
 
-typedef struct Vec3f {
-    f32 x;
-    f32 y;
-    f32 z;
-} Vec3f;
-
 extern u8 D_80754BC0;
 extern LensFlarePoint D_807FD808[2];
 
@@ -302,11 +296,11 @@ void lensFlareAddSource(f32 x, f32 y, f32 z, f32 dirX, f32 dirY, f32 dirZ, f32 m
             delta.x = dirX - x;
             delta.y = dirY - y;
             delta.z = dirZ - z;
-            vec3fNormalize(&dir, delta);
+            dir = vec3fNormalize(delta);
             delta.x = gPlayerSlots->camX - x;
             delta.y = gPlayerSlots->camY - y;
             delta.z = gPlayerSlots->camZ - z;
-            vec3fNormalize(&toCam, delta);
+            toCam = vec3fNormalize(delta);
             dot = (toCam.x * dir.x) + (toCam.y * dir.y) + (toCam.z * dir.z);
             if (dot < 0.0) {
                 dot = 0.0f;
@@ -515,10 +509,6 @@ typedef struct {
 } LensFlareSprite;
 
 extern LensFlareSprite D_80754AF0[];
-Vec3f vec3fSub(Vec3f, Vec3f);
-Vec3f vec3fAdd(Vec3f, Vec3f);
-Vec3f vec3fScale(Vec3f, f32);
-f32 vec3fDot(Vec3f, Vec3f);
 
 Gfx *lensFlareDrawSource(dl, pt, fade)
 Gfx *dl;
@@ -547,9 +537,9 @@ u8 fade;
     vec3fSet(&src, pt.x, pt.y, pt.z);
     vec3fSet(&eye, gPlayerSlots->eyeX, gPlayerSlots->eyeY, gPlayerSlots->eyeZ);
     vec3fSet(&at, gPlayerSlots->unk234, gPlayerSlots->unk238, gPlayerSlots->unk23C);
-    vec3fNormalize(&viewDir, vec3fSub(at, eye));
+    viewDir = vec3fNormalize(vec3fSub(at, eye));
     axisEnd = vec3fAdd(eye, vec3fScale(viewDir, 5000.0f));
-    vec3fNormalize(&srcDir, vec3fSub(src, eye));
+    srcDir = vec3fNormalize(vec3fSub(src, eye));
     facing = vec3fDot(srcDir, viewDir) < 1e-05 ? 1e-05 : vec3fDot(srcDir, viewDir);
     src = vec3fAdd(eye, vec3fScale(vec3fScale(srcDir, 5000.0f), 1.0f / facing));
     axisSpan = vec3fSub(src, axisEnd);
