@@ -97,7 +97,6 @@ s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void scriptSetActorRampTarget(void *, f32, f32);
 s32 currentActorTestClearFlag(void);
 void behaviourUpdateShadowAlpha(void);
-u8 func_8072881C(u8, u32 *);
 
 #define MAIN_ACTOR ((BossMainActor *)gCurrentActor)
 

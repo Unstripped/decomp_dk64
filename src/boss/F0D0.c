@@ -34,7 +34,7 @@ typedef struct BossE_F0D0_Sub14 {
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern void *gCamActor;
+extern Actor *gCamActor;
 extern void *effectPuffRiseUpdate;
 extern void *D_8074E880[];
 typedef struct {

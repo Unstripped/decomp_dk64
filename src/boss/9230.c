@@ -52,7 +52,7 @@ typedef struct Boss2F_9230_D580 {
 
 
 extern u8 *D_80035A50[];
-extern s32 gCamActor;
+extern Actor *gCamActor;
 extern Boss2F_9230_Actor *gCurrentActor;
 extern void *gSpawnedActor;
 extern Boss2F_9230_BB4C *gPrimaryPlayerActor;

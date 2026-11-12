@@ -83,7 +83,7 @@ typedef struct Boss2F_9C60_BB4C {
 
 
 extern u8 *D_80035A60[];
-extern s32 gCamActor;
+extern Actor *gCamActor;
 extern Boss2F_9C60_BB4C *gPrimaryPlayerActor;
 
 void actorScriptExecute(Actor *);

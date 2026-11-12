@@ -76,7 +76,7 @@ typedef struct R1C8aPlayer {
 #define R1C8aD ((R1C8aD580 *)gActivePlayerState)
 
 extern R1C8aPlayer *gPlayerSlots;
-extern s32 gCamActor;
+extern Actor *gCamActor;
 extern s32 gCurrentMap;
 
 
@@ -111,7 +111,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
                     gCurrentActor->state = 0x29;
                     gCurrentActor->unk155 = 0;
                     gBehaviourExtraState->actorState = 0x29;
-                    R1C8aD->unk1F0 |= 0x10000;
+                    gActivePlayerState->stateFlags |= 0x10000;
                     playerStateQueueCallback(0x54, 0, 0);
                     gBehaviourWorkState->flags |= 0x8000;
                 } else {
@@ -138,7 +138,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
                     gCurrentActor->state = 0x28;
                     gCurrentActor->unk155 = 0;
                     gBehaviourExtraState->actorState = 0x28;
-                    R1C8aD->unk1F0 &= 0xFFFEFFFF;
+                    gActivePlayerState->stateFlags &= 0xFFFEFFFF;
                     gBehaviourWorkState->flags &= 0x7FFF;
                 } else {
                     if (!camPathId) {
@@ -186,12 +186,12 @@ void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 
     s16 *heightOffsetPtr = R1C8aA->unk178;
     R1C8aSub174 *sub = gPlayerSlots->unk4->unk174;
     Actor *subActor = sub->unk88;
-    s32 var;
+    s32 pathId;
 
     D_80750AC8 = targetCount;
     lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 80.0f, 0, 0xFF, 0xFF, 0xFF);
     if (!(gCurrentActor->flags & 0x10)) {
-        var = -1;
+        pathId = -1;
         if (flagGet(rewardFlag, 0) != 0 || func_807142D8() != 0) {
             if (initialCutsceneId == gBehaviourExtraState->id) {
                 func_806C43A8();
@@ -201,22 +201,22 @@ void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 
         }
         func_80724CA4(1, 1);
         if (initialCutsceneId == gBehaviourExtraState->id) {
-            var = defaultPathId;
+            pathId = defaultPathId;
         } else {
             playerStateQueueCallback(0x46, 0, 0);
             if (slotQueueGetValue(0xB, 0) < targetCount) {
                 gCurrentActor->unk15F = 0;
-                var = lowCountPathId;
+                pathId = lowCountPathId;
             } else {
                 if (flagGet(rewardFlag, 0) == 0) {
-                    var = rewardPathId;
+                    pathId = rewardPathId;
                 }
                 gCurrentActor->unk15F = 0x80;
             }
         }
         *heightOffsetPtr = 0xF;
-        if (var >= 0) {
-            camStartPath(0, (s16)var, 1);
+        if (pathId >= 0) {
+            camStartPath(0, (s16)pathId, 1);
         }
         if (subActor != 0) {
             subActor->yawSpeed = 0;
@@ -229,10 +229,10 @@ void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 
     actorPlaceAttachedChildren(-0x1E);
     func_80724E48(0);
     gCurrentActor->yaw = (gBehaviourTargetActor->yaw + 0x800) & 0xFFF;
-    gCurrentActor->x = mathSinF(R1C8aA->unkEE) * 12.0f + gBehaviourTargetActor->x;
-    gCurrentActor->z = mathCosF(R1C8aA->unkEE) * 15.0f + gBehaviourTargetActor->z;
+    gCurrentActor->x = mathSinF(gCurrentActor->moveYaw) * 12.0f + gBehaviourTargetActor->x;
+    gCurrentActor->z = mathCosF(gCurrentActor->moveYaw) * 15.0f + gBehaviourTargetActor->z;
     gCurrentActor->y = gBehaviourTargetActor->y + (f32)*heightOffsetPtr + mathSinF(gFrameCounter * 100) * 5.0f;
-    R1C8aA->unkEE += 0x3C;
+    gCurrentActor->moveYaw += 0x3C;
     switch (gCurrentActor->unk15F & 0x7F) {
         case 0:
             if (!(gCurrentActor->flags & 0x2000000)) {
@@ -759,43 +759,12 @@ void func_806C55E0(void) {
     }
 }
 
-typedef struct R1C8CBG {
-    /* 0x000 */ u8 pad0[0x1F4];
-    /* 0x1F4 */ u32 unk1F4;
-} R1C8CBG;
-
-typedef struct R1C8CBA {
-    /* 0x000 */ u8 pad0[0x60];
-    /* 0x060 */ u32 unk60;
-    /* 0x064 */ u8 pad64[0x18];
-    /* 0x07C */ f32 unk7C;
-    /* 0x080 */ f32 unk80;
-    /* 0x084 */ f32 unk84;
-    /* 0x088 */ u8 pad88[0x5C];
-    /* 0x0E4 */ s16 unkE4;
-    /* 0x0E6 */ s16 unkE6;
-    /* 0x0E8 */ s16 unkE8;
-    /* 0x0EA */ u8 padEA[2];
-    /* 0x0EC */ s16 unkEC;
-    /* 0x0EE */ s16 unkEE;
-    /* 0x0F0 */ s16 unkF0;
-    /* 0x0F2 */ u8 padF2[0x62];
-    /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 unk155;
-    /* 0x156 */ u8 pad156[9];
-    /* 0x15F */ u8 unk15F;
-    /* 0x160 */ u8 pad160[8];
-    /* 0x168 */ s16 unk168;
-    /* 0x16A */ u8 pad16A[0xA];
-    /* 0x174 */ R1C8CBG *unk174;
-} R1C8CBA;
-
 typedef struct R1C8CBCfg {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ Actor *unkC;
-    /* 0x10 */ R1C8CBA *unk10;
+    /* 0x10 */ Actor *unk10;
     /* 0x14 */ s16 unk14;
     /* 0x16 */ s16 unk16;
     /* 0x18 */ u8 pad18[2];
@@ -813,16 +782,6 @@ typedef struct R1C8CBPlayer {
     /* 0x284 */ f32 unk284;
 } R1C8CBPlayer;
 
-typedef struct R1C8CB580 {
-    /* 0x000 */ u8 pad0[0x1EC];
-    /* 0x1EC */ u8 unk1EC;
-    /* 0x1ED */ u8 pad1ED[3];
-    /* 0x1F0 */ s32 unk1F0;
-} R1C8CB580;
-
-#define R1A ((R1C8CBA *)gCurrentActor)
-#define R1A4C ((R1C8CBA *)gPrimaryPlayerActor)
-#define R1D580 ((R1C8CB580 *)gActivePlayerState)
 
 extern s16 gCurrentLevelIndex;
 extern s32 D_8071FB08;
@@ -860,20 +819,20 @@ void func_806C5C20(void) {
                      (R1C8CBP->unk210 - gCurrentActor->x) * (R1C8CBP->unk210 - gCurrentActor->x)) -
                R1C8CBP->unk284;
         if (D_807FD804 >= 0x8A && D_807FD804 < 0xB1 && D_807FD806 >= 0x61 && D_807FD806 < 0x88 && dist < D_807FD802) {
-            if (R1D580->unk1EC != 1) {
+            if (gActivePlayerState->unk1EC != 1) {
                 if (behaviourIsTargetWithinAngle(0x1388) != 0) {
                     actorScriptStart(gCurrentActor, 0x2B6);
                 }
             }
-            R1D580->unk1EC = 1;
+            gActivePlayerState->unk1EC = 1;
         } else {
-            if (R1D580->unk1EC != 2) {
+            if (gActivePlayerState->unk1EC != 2) {
                 actorScriptStart(gCurrentActor, 0x2B5);
             }
-            R1D580->unk1EC = 2;
+            gActivePlayerState->unk1EC = 2;
         }
     }
-    if ((gActivePlayerState->stateFlags & 0x8000) && R1D580->unk1EC == 1) {
+    if ((gActivePlayerState->stateFlags & 0x8000) && gActivePlayerState->unk1EC == 1) {
         if (gCurrentActor->state != 0x40) {
             flagSet(spawnFlagLookup(gCurrentLevelIndex, spawnNodeIdForActor(gCurrentActor), outFlag), 1, 0);
             eepromSavePlayerData();
@@ -903,10 +862,10 @@ void func_806C5FEC(void) {
     p->unk1C++;
     switch (p->unk1E) {
         case 1:
-            if (R1A4C->unk155 == 3) {
+            if (gPrimaryPlayerActor->unk155 == 3) {
                 resQueueAttachActor(gCurrentActor, 0x1E, 3);
                 p->unk1E = 2;
-            } else if (p->unk10->unk154 != 0x83) {
+            } else if (p->unk10->state != 0x83) {
                 p->unk1E = 3;
             }
             break;
@@ -917,12 +876,12 @@ void func_806C5FEC(void) {
             }
             break;
         default:
-            if (p->unk10->unk154 != 0x83) {
-                p->unk10->unk174->unk1F4 &= ~0x10;
-                p->unk10->unk60 &= ~0x40000000;
-                p->unk10->unk60 |= 1;
-                p->unk10->unkE8 = p->unk16;
-                p->unk10->unkE4 = p->unk14;
+            if (p->unk10->state != 0x83) {
+                ((PlayerState *)p->unk10->customState)->stateFlags2 &= ~0x10;
+                p->unk10->flags &= ~0x40000000;
+                p->unk10->flags |= 1;
+                p->unk10->roll = p->unk16;
+                p->unk10->pitch = p->unk14;
                 gGlobalPauseFlags |= 0x10030;
                 lightSetColor(p->unk0, p->unk4, p->unk8, p->unk1A);
                 sfxStopChannel(0x3B, 0);
@@ -942,51 +901,51 @@ void func_806C61C8(void) {
     f32 sinv;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        R1A->unkEC = 0x3C;
+        gCurrentActor->unkEC = 0x3C;
         actorScriptStart(gCurrentActor, 0x23D);
-        if (R1A4C->unk154 == 0xC) {
-            actorScriptStartByIndex((Actor *)gPrimaryPlayerActor, 0x87);
+        if (gPrimaryPlayerActor->state == 0xC) {
+            actorScriptStartByIndex(gPrimaryPlayerActor, 0x87);
         }
     }
-    x = mathSinF(R1A4C->unkE6) * 50.0f + R1A4C->unk7C;
-    z = mathCosF(R1A4C->unkE6) * 50.0f + R1A4C->unk84;
-    R1A->unkE6 = (R1A4C->unkE6 + 0x800) & 0xFFF;
-    if (R1A->unkEC == 0x3C) {
-        gCurrentActor->x = mathSinF(R1A->unkEE) * 10.0f + x;
-        gCurrentActor->z = mathCosF(R1A->unkEE) * 10.0f + z;
+    x = mathSinF(gPrimaryPlayerActor->yaw) * 50.0f + gPrimaryPlayerActor->x;
+    z = mathCosF(gPrimaryPlayerActor->yaw) * 50.0f + gPrimaryPlayerActor->z;
+    gCurrentActor->yaw = (gPrimaryPlayerActor->yaw + 0x800) & 0xFFF;
+    if (gCurrentActor->unkEC == 0x3C) {
+        gCurrentActor->x = mathSinF(gCurrentActor->moveYaw) * 10.0f + x;
+        gCurrentActor->z = mathCosF(gCurrentActor->moveYaw) * 10.0f + z;
     }
-    R1A->unk80 = mathSinF(gFrameCounter * 100) * 5.0f + (R1A->unk15F + R1A4C->unk80 + 3.0f + R1A->unkEC);
+    gCurrentActor->y = mathSinF(gFrameCounter * 100) * 5.0f + (gCurrentActor->unk15F + gPrimaryPlayerActor->y + 3.0f + gCurrentActor->unkEC);
     if (!(gCurrentActor->flags & 0x10)) {
-        if (R1A->unkF0 != 0) {
-            R1A->unk15F = 0x14;
-            actorSpawnNodeEntryAtActor(0x2D, func_8073195C(R1A->unkF0));
+        if (gCurrentActor->movePitch != 0) {
+            gCurrentActor->unk15F = 0x14;
+            actorSpawnNodeEntryAtActor(0x2D, func_8073195C(gCurrentActor->movePitch));
         }
     }
-    if (R1A->unkF0 != 0) {
+    if (gCurrentActor->movePitch != 0) {
         actorPlaceAttachedChildren(-0x1E);
     }
     sinv = mathSinF(gFrameCounter * 50);
-    R1A->unkEE = R1A->unkEE + 60.0f * sinv;
+    gCurrentActor->moveYaw = gCurrentActor->moveYaw + 60.0f * sinv;
     if (gCurrentActor->flags & 0x2000000) {
-        R1A->unk168 = 0x14;
+        gCurrentActor->yawSpeed = 0x14;
     }
-    if (R1A->unk168 != 0) {
-        R1A->unk168--;
+    if (gCurrentActor->yawSpeed != 0) {
+        gCurrentActor->yawSpeed--;
     }
-    if (R1A->unk168 == 0) {
-        R1A->unkEC++;
-        if (R1A->unkEC >= 0x3D) {
-            if (R1A->unkF0 != 0) {
+    if (gCurrentActor->yawSpeed == 0) {
+        gCurrentActor->unkEC++;
+        if (gCurrentActor->unkEC >= 0x3D) {
+            if (gCurrentActor->movePitch != 0) {
                 actorAttachChildCallbacks();
             }
             actorDespawn(gCurrentActor);
             camResumePath();
-            if (R1A4C->unk154 == 0xC) {
-                actorScriptStartByIndex((Actor *)gPrimaryPlayerActor, 9);
+            if (gPrimaryPlayerActor->state == 0xC) {
+                actorScriptStartByIndex(gPrimaryPlayerActor, 9);
             }
         }
-    } else if (R1A->unkEC >= 0x10) {
-        R1A->unkEC--;
+    } else if (gCurrentActor->unkEC >= 0x10) {
+        gCurrentActor->unkEC--;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

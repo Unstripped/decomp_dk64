@@ -94,7 +94,7 @@ extern s16 D_8076A0A6;
 extern s8 D_807506B4;
 extern s8 D_807506A8[];
 extern f32 D_807FC8D4;
-extern s32 gCamActor;
+extern Actor *gCamActor;
 
 
 typedef struct RingNodePtr178 {
