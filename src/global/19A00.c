@@ -1924,11 +1924,11 @@ void scriptCmdToggleActorVisibility(Actor *actor) {
 
     scriptReadU8(&imm);
     if (imm != 0) {
-        actor->flags &= 0xBFFFFFFF;
+        actor->flags &= ~0x40000000;
         gGlobalPauseFlags |= 0x10030;
     } else {
         actor->flags |= 0x40000000;
-        gGlobalPauseFlags &= 0xFFFEFFCF;
+        gGlobalPauseFlags &= ~0x10030;
         playerClearPitchRollFlags(actor);
     }
 }
@@ -1978,11 +1978,6 @@ void scriptCmdSpawnSplashPuff(Actor *actor) {
     }
 }
 
-typedef struct FallingEffectView {
-    u8 pad0[0x35C];
-    s32 unk35C;
-} FallingEffectView;
-
 extern u8 D_80750AD0;
 extern void (*sScriptEffectCallbacks[])(void);
 
@@ -1998,7 +1993,7 @@ void scriptCmdSpawnFallingEffect(Actor *actor) {
     f32 x;
     f32 y;
     f32 z;
-    FallingEffectView *effect;
+    EffectNode *effect;
     u8 freed;
     u8 node;
 
@@ -2033,10 +2028,10 @@ void scriptCmdSpawnFallingEffect(Actor *actor) {
                 effectFallStateInit(actor, effect, &freed);
                 break;
             case 2:
-                effect->unk35C = 1;
+                effect->speed = 1;
                 break;
             case 4:
-                effect->unk35C = -50 - ((randomNonNegative() >> 15) % 50);
+                effect->speed = -50 - ((randomNonNegative() >> 15) % 50);
                 break;
         }
         if (freed != 0) {

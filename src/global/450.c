@@ -994,7 +994,7 @@ void mapLoadLevel(void) {
     D_8076A090 = 0;
     D_8076A094 = 0;
     D_8076A098 = 0;
-    gGlobalPauseFlags &= 0xFFEB3FFC;
+    gGlobalPauseFlags &= ~0x14C003;
     menuSeedRandom();
     D_80750AC4 = 0;
     D_8076A0A4 = 0;
@@ -1005,7 +1005,7 @@ void mapLoadLevel(void) {
     D_80744508 = 0;
     *D_807ECDF4 = 0;
     texCacheReset();
-    gScreenRenderFlags &= 0xFFCF;
+    gScreenRenderFlags &= ~0x30;
     effectSpritePoolReset();
     if (gGameMode == 1) {
         gGameMode = 0;
@@ -1020,10 +1020,10 @@ void mapLoadLevel(void) {
         if (gCurrentMap != 0x51) {
             gGlobalPauseFlags |= 0x30030;
         } else {
-            gGlobalPauseFlags &= 0xFFFCFFCF;
+            gGlobalPauseFlags &= ~0x30030;
         }
     } else {
-        gGlobalPauseFlags &= 0xFFFEFFCF;
+        gGlobalPauseFlags &= ~0x10030;
     }
     if (activeMap == 2) {
         gGameMode = 3;

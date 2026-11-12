@@ -1323,7 +1323,7 @@ void mapChunkUpdateAssetStreaming(void) {
                 if (!(gMapChunks[i].streamFlags & 4)) {
                     gMapChunks[i].loadCursor = mapChunkLoadAssetRefs(gMapChunks[i].loadCursor, gMapChunks[i].loadEnd, 0x270F);
                     gMapChunks[i].streamFlags |= 4;
-                    gMapChunks[i].streamFlags &= 0xFFFC;
+                    gMapChunks[i].streamFlags &= ~3;
                 }
                 n = mapObjectCollectIdsByType((s8)i, buf, 0x10);
                 for (j = 0; j < n; j++) {
@@ -1333,12 +1333,12 @@ void mapChunkUpdateAssetStreaming(void) {
                             if (!(gMapChunks[idx].streamFlags & 4)) {
                                 gMapChunks[idx].loadCursor = mapChunkLoadAssetRefs(gMapChunks[idx].loadCursor, gMapChunks[idx].loadEnd, 5);
                                 if (gMapChunks[idx].loadCursor == gMapChunks[idx].loadEnd) {
-                                    gMapChunks[idx].streamFlags &= 0xFFFD;
+                                    gMapChunks[idx].streamFlags &= ~2;
                                     gMapChunks[idx].streamFlags |= 4;
                                 } else {
                                     gMapChunks[idx].streamFlags |= 2;
                                 }
-                                gMapChunks[idx].streamFlags &= 0xFFFE;
+                                gMapChunks[idx].streamFlags &= ~1;
                             }
                             flags[idx] = 1;
                         }
@@ -1352,12 +1352,12 @@ void mapChunkUpdateAssetStreaming(void) {
                     if (!(gMapChunks[i].streamFlags & 4)) {
                         gMapChunks[i].loadCursor = mapChunkLoadAssetRefs(gMapChunks[i].loadCursor, gMapChunks[i].loadEnd, 5);
                         if (gMapChunks[i].loadCursor == gMapChunks[i].loadEnd) {
-                            gMapChunks[i].streamFlags &= 0xFFFD;
+                            gMapChunks[i].streamFlags &= ~2;
                             gMapChunks[i].streamFlags |= 4;
                         } else {
                             gMapChunks[i].streamFlags |= 2;
                         }
-                        gMapChunks[i].streamFlags &= 0xFFFE;
+                        gMapChunks[i].streamFlags &= ~1;
                     }
                 } else if (!(gMapChunks[i].streamFlags & 1) && (u32)(gFrameCounter - gMapChunks[i].lastSeenFrame) >= 3U) {
                     mapChunkReleaseAssets(gMapChunks[i].loadStart, gMapChunks[i].loadCursor);
@@ -1757,8 +1757,8 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
                                     if (key == node->id) {
                                         found = 1;
                                     } else {
-                                        nodeIdx += 1;
-                                        node += 1;
+                                        nodeIdx++;
+                                        node++;
                                     }
                                 } while (found == 0);
                                 if (gGlobalPauseFlags & 0x10) {
@@ -1865,7 +1865,7 @@ extern u8 D_807F5FEC;
 extern void *D_807F5DEC;
 extern s32 gGlobalOverlayFlags;
 extern u8 D_807F6009;
-extern s32 D_807F600C;
+extern void *D_807F600C;
 extern struct RenderEntry *D_807F5FFC;
 extern Gfx D_2000180;
 
@@ -2013,7 +2013,7 @@ Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
     gDPPipeSync(gfx++);
     gDPSetScissor(gfx++, G_SC_NON_INTERLACE, gPlayerSlots[gCurrentPlayerIndex].viewLeft, gPlayerSlots[gCurrentPlayerIndex].viewTop, gPlayerSlots[gCurrentPlayerIndex].viewRight, gPlayerSlots[gCurrentPlayerIndex].viewBottom);
     mapSetClipBounds(gPlayerSlots[gCurrentPlayerIndex].viewLeft, gPlayerSlots[gCurrentPlayerIndex].viewTop, gPlayerSlots[gCurrentPlayerIndex].viewRight, gPlayerSlots[gCurrentPlayerIndex].viewBottom);
-    D_807F600C = 0;
+    D_807F600C = NULL;
     gfx = renderEntryListBuildDisplayList(gfx, D_807F5FFC, x, y, z, flags, -1, 0);
     return billboardRenderQueued(gfx, -1);
 }

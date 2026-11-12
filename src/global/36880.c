@@ -989,11 +989,10 @@ void modelSlotBuildTriangleBuffer(s32 slot, ModelAssetHeader *data, f32 x, f32 y
     s32 pad2;
     s32 pad3;
 
-    off = slot * 0x90;
+    off = slot * 0x90; // FAKE: dead store keeps slot * 0x90 in v0 and the gModelSlots load in v1 (addu t6,v1,v0 / addu s6,v0,v1)
     anim = gModelSlots[slot].unk78;
-    buf = (ModelTriBuffer *)(off + (u32)gModelSlots);
     lastBone = -1;
-    buf = &((ModelSlot *)buf)->unk48;
+    buf = &gModelSlots[slot].unk48;
     if (anim != NULL) {
         animFrame = anim->frames[gGfxBufferIndex];
     } else {
@@ -2104,7 +2103,7 @@ void displayListFreeQueueAdd(s32 headStart, s32 headEnd, s32 tailStart, s32 tail
     DisplayListFreeRecord *rec;
     DisplayListFreeRecord *old;
 
-    rec = heapAlloc(0x1C);
+    rec = heapAlloc(sizeof(DisplayListFreeRecord));
     old = D_807F6160;
     D_807F6160 = rec;
     rec->unk18 = old;
@@ -2129,7 +2128,7 @@ void displayListFreeQueueProcess(void) {
         do {
             next = cur->unk18;
             if (gFrameCounter == cur->unk14) {
-                cur->unk10->unk3C -= 1;
+                cur->unk10->unk3C--;
                 dlFreeUnusedTextures(cur->unk0, cur->unk4, 0, 0, cur->unk10->unk3C == 0);
                 dlFreeUnusedTextures(cur->unk8, cur->unkC, 0, 1, cur->unk10->unk3C == 0);
                 assetFreeBuffer(cur->unk10, 0xAB1, 7);
@@ -2476,7 +2475,7 @@ void modelSlotsStepSegmentCommands(void) {
     u32 len;
 
     if (D_80747D70 != 0) {
-        D_80747D74 += 1;
+        D_80747D74++;
         if (D_80747D74 >= D_80747D70) {
             D_80747D74 = 0;
         }
@@ -2485,13 +2484,13 @@ void modelSlotsStepSegmentCommands(void) {
         if (obj->unk0 & 0x10) {
             if ((slot->unk8C & 0x20) && gFrameCounter != obj->unk8) {
                 slot->unk8C &= ~0x20;
-                obj->unk3C -= 1;
+                obj->unk3C--;
                 if (obj->unk3C != 0) {
                     flag = 0;
                 } else {
                     flag = 1;
                 }
-                seg = ((ModelSlot *)((u8 *)gModelSlots + D_80747D74 * 0x90))->unk20;
+                seg = ((ModelSlot *)((u8 *)gModelSlots + D_80747D74 * 0x90))->unk20; // FAKE: re-derives the slot from gModelSlots + D_80747D74 * 0x90 (pre-existing, now tagged; slot->unk20 loses li t3,144 and the t1 base for &D_80747D74)
                 mid = seg->unkA8;
                 head = seg->unkA0;
                 start = head;
@@ -2538,13 +2537,13 @@ u8 force;
         if (!(obj->unk0 & 0x10) || force != 0) {
             temp = (u32)seg; // FAKE: dead redefinition keeps obj's early web (v0) separate from obj (Q0546)
             slot->unk8C = flags | 0x20;
-            obj->unk3C += 1;
+            obj->unk3C++;
             if (obj->unk1C == 1) {
                 count = seg->unkB0 - seg->unkA8;
                 cmds = seg->unkA0;
                 temp = (seg->unkA8 - cmds) >> 3;
                 count = count >> 3;
-                node = (ModelSegmentNode *)((ModelSegmentData *)slot->unk20)->unkB8;
+                node = (ModelSegmentNode *)((ModelSegmentData *)slot->unk20)->unkB8; // FAKE: re-reads slot->unk20 instead of seg (pre-existing, now tagged; seg->unkB8 drops the sw a0,72(sp) slot home)
                 size0 = temp * 8;
                 temp = 0; // FAKE: dead store keeps size0 a variable instead of a propagated expression
                 res = dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size0), node, force);
@@ -2831,7 +2830,7 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
 #define WRITE_GFX_PAIR(a, b) { Gfx *_g = (Gfx *)(gfx++); _g->words.w0 = (a); _g->words.w1 = (b); }
 
 extern u8 D_807F6009;
-extern s32 D_807F600C;
+extern void *D_807F600C;
 extern s32 D_807F5FD8;
 
 
@@ -2983,7 +2982,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
         case 0:
             WRITE_GFX_PAIR(0xFC1197FF, 0xFFFFFE38);
             gSPTexture(gfx++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
-            if (D_807F6009 != 2 || texA != D_807F600C) {
+            if (D_807F6009 != 2 || texA != (s32)D_807F600C) {
                 switch (obj->unk46) {
                 case 0:
                     gDPLoadTextureBlock_4b(gfx++, texA + 0x80000000, obj->unk47, obj->unk44, obj->unk45, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
@@ -3015,7 +3014,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
                     break;
                 }
             }
-            D_807F600C = texA;
+            D_807F600C = (void *)texA;
             break;
         case 1:
             WRITE_GFX_PAIR(0xFC272C03, 0x1F1C93F8);
@@ -3034,7 +3033,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
             gDPSetTileSize(gfx++, G_TX_RENDERTILE, 2, 2, ((obj->unk44 - 1) << 2) + 2, ((obj->unk45 - 1) << 2) + 2);
             gDPSetTile(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, obj->unk44 / 4, 0x100, 1, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0);
             gDPSetTileSize(gfx++, 1, 2, 2, ((obj->unk44 - 1) << 2) + 2, ((obj->unk45 - 1) << 2) + 2);
-            D_807F600C = 0;
+            D_807F600C = NULL;
             break;
         }
         gSPVertex(gfx++, osVirtualToPhysical(obj->unk1C + vtxOffset), 4, 0);
@@ -3293,14 +3292,12 @@ void texAnimFindNodeFrame(ModelSegmentOwner *owner, s32 index, s32 *texAOut, s32
     if (node != NULL) {
         key = owner->unk24[index];
         found = 0;
-        if (node != NULL) {
-            do {
-                if (key == node->unk44) {
-                    found = 1;
-                } else {
-                    node = node->unkD4;
-                }
-            } while (node != NULL && found == 0);
+        while (node != NULL && found == 0) {
+            if (key == node->unk44) {
+                found = 1;
+            } else {
+                node = node->unkD4;
+            }
         }
         if (found != 0) {
             texAnimNodeUpdateBuffers(node, texAOut, texBOut, dualOut, lodOut);
@@ -3832,20 +3829,9 @@ typedef struct ModelPendingQueueEntry {
 extern ModelPendingQueueEntry D_807F6030[];
 extern s16 D_807F60B0[];
 
-typedef struct ModelPendingEntry {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ u8 pad10[0xE];
-    /* 0x1E */ s16 unk1E;
-    /* 0x20 */ u8 pad20[4];
-    /* 0x24 */ u8 unk24;
-} ModelPendingEntry;
-
 extern u8 D_807F7140;
 
-void modelPendingQueueInsert(ModelPendingEntry *entry, u8 allowDefault) {
+void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
     CsStateFull *obj;
     u8 allow;
     s32 pad1;

@@ -374,7 +374,7 @@ u8 camFloorSnap(Actor *camActor, CamState *camState, f32 targetDist, f32 *outHei
         if (camState->unk18 < lim) {
             camState->unk18 = lim;
         } else {
-            camState->unk18 = camState->unk18 + (lim - camState->unk18) * 0.05;
+            camState->unk18 += (lim - camState->unk18) * 0.05;
         }
         if (*outHeight < floorY + camState->unk18) {
             ret = 1;
@@ -849,7 +849,7 @@ void camUpdateFollowHeight(CamState *cam) {
         case 0x4C:
         case 0x61:
             if (cam->unk70 < cam->unk6C && actor->peakY - actor->y > 50.0f) {
-                cam->unk6C = cam->unk6C + (cam->unk70 - cam->unk6C) * 0.3;
+                cam->unk6C += (cam->unk70 - cam->unk6C) * 0.3;
             }
             break;
         case 0x44:
@@ -860,12 +860,12 @@ void camUpdateFollowHeight(CamState *cam) {
             break;
         default:
             if (cam->unk70 < cam->unk6C) {
-                cam->unk6C = cam->unk6C + (cam->unk70 - cam->unk6C) * 0.3;
+                cam->unk6C += (cam->unk70 - cam->unk6C) * 0.3;
             }
             break;
     }
     if (cam->unk6C <= cam->unk70) {
-        cam->unk6C = cam->unk6C + (cam->unk70 - cam->unk6C) * 0.8;
+        cam->unk6C += (cam->unk70 - cam->unk6C) * 0.8;
     }
 }
 
@@ -1599,7 +1599,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                         type = e->unk16;
                         if (k == st->unkC4 && type == 8) {
                             if (e->unk18 >= 0xF) {
-                                rad = rad * (e->unk18 - 0xD);
+                                rad *= e->unk18 - 0xD;
                             }
                         }
                         switch (mode) {
@@ -1613,8 +1613,8 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                         }
                         if (tgt->chunkIndex == gCamActivePaths->unkC8[gCamZoneSorted[k * 2]] || type == 8 ||
                             gCamActivePaths->unkC8[gCamZoneSorted[k * 2]] == -1) {
-                            if ((mode == 2 && distSq < (f32)(rad * rad) && weight < e->unk18 && !((s16)(s32)y < pos[1]) &&
-                                 pos[1] + spread * 2 >= (s16)(s32)y) ||
+                            if ((mode == 2 && distSq < (f32)(rad * rad) && weight < e->unk18 && !((s16)y < pos[1]) &&
+                                 pos[1] + spread * 2 >= (s16)y) ||
                                 (mode != 2 && distSq < (f32)(rad * rad) && weight < e->unk18)) {
                                 switch (type) {
                                     case 4:
@@ -1787,7 +1787,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
         }
         if ((st->unkAC & 0x8000) || gScreenFadeProgress > 27.0f || (best->unk17 & 0x38)) {
             gGlobalPauseFlags |= 0x2000;
-            st->unkAC &= 0xFFFF7FFF;
+            st->unkAC &= ~0x8000;
         }
         if (handled == 0) {
             st->unkC6 = -1;
@@ -1898,7 +1898,7 @@ void camFindClearYaw(Actor *camActor, f32 unused, s16 yaw, u8 failCount) {
         } else if ((hit || sawCol) && cnt < 0x1000) {
             again = 1;
             cam->unkB2 = ((dir ? -1 : 1) * step + base) & 0xFFF;
-            dir = dir ^ 1;
+            dir ^= 1;
             if (!dir) {
                 step += 0x80;
             }

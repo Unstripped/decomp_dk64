@@ -52,10 +52,9 @@ void actorUpdatePulseIntensity(u8 active) {
     s32 pad2;
     f32 f;
     f32 x;
-    u32 a;
 
     if (!active) {
-        p[0] = -p[0] * 0.2 + (u32)p[0];
+        p[0] += -p[0] * 0.2;
         p[1] = 0;
     } else {
         switch (p[1]) {
@@ -71,12 +70,10 @@ void actorUpdatePulseIntensity(u8 active) {
                 break;
             case 2:
                 p[0] -= 0x50;
-                a = p[0];
-                if (p[0] >= 0x64 && (s32)a < 0xB4) {
+                if (p[0] >= 0x64 && p[0] < 0xB4) {
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x16C, 0xFF, 0xA0, 6);
-                    a = p[0];
                 }
-                if ((s32)a < 0x50) {
+                if (p[0] < 0x50) {
                     p[0] = 0;
                     p[1] = 0;
                 }
@@ -149,18 +146,9 @@ typedef struct BB300Sub178 {
     /* 0x2 */ s16 unk2;
 } BB300Sub178;
 
-// Second view of the current actor (gCurrentActor): same object as BB300Actor, but unk178 is typed as BB300Sub178.
+// Second view of the current actor: the component pointer at 0x178 typed as BB300Sub178 (BB300Actor types it u8 *).
 typedef struct BB300ActorAlt {
-    /* 0x000 */ u8 pad0[0xC0];
-    /* 0x0C0 */ f32 unkC0;
-    /* 0x0C4 */ u8 padC4[0x22];
-    /* 0x0E6 */ s16 unkE6;
-    /* 0x0E8 */ u8 padE8[6];
-    /* 0x0EE */ s16 unkEE;
-    /* 0x0F0 */ u8 padF0[0x64];
-    /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 unk155;
-    /* 0x156 */ u8 pad156[0x22];
+    /* 0x000 */ u8 pad0[0x178];
     /* 0x178 */ BB300Sub178 *unk178;
 } BB300ActorAlt;
 
@@ -174,10 +162,10 @@ void func_806B6DB0(s32 aggroRange) {
     s32 sel;
 
     p = ((BB300ActorAlt *)gCurrentActor)->unk178;
-    if (((BB300ActorAlt *)gCurrentActor)->unkEE < gCurrentActor->yaw) {
-        diff = gCurrentActor->yaw - ((BB300ActorAlt *)gCurrentActor)->unkEE;
+    if (gCurrentActor->moveYaw < gCurrentActor->yaw) {
+        diff = gCurrentActor->yaw - gCurrentActor->moveYaw;
     } else {
-        diff = ((BB300ActorAlt *)gCurrentActor)->unkEE - gCurrentActor->yaw;
+        diff = gCurrentActor->moveYaw - gCurrentActor->yaw;
     }
     near = ((gCurrentActor->x - gBehaviourTargetActor->x) * (gCurrentActor->x - gBehaviourTargetActor->x) + (gCurrentActor->z - gBehaviourTargetActor->z) * (gCurrentActor->z - gBehaviourTargetActor->z)) < 2500.0f;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -187,7 +175,7 @@ void func_806B6DB0(s32 aggroRange) {
     }
     if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
         tgt = gActorGlobalState.targetActor;
-        ((BB300ActorAlt *)gCurrentActor)->unkC0 = 200.0f;
+        gCurrentActor->speedY = 200.0f;
         behaviourCalculateDamageForce(tgt, 0x236);
         if ((tgt != NULL && tgt->actorType == 0x29) || (gCurrentMap == 0x10 && gBehaviourExtraState->id < 0x11)) {
             gBehaviourWorkState->flags |= 1;
@@ -195,7 +183,7 @@ void func_806B6DB0(s32 aggroRange) {
     }
     sel = gCurrentActor->state;
     if (sel == 0x23 && gCurrentActor->speedXZ > 90.0f && diff >= 0x1F5 && diff < 0xE0C) {
-        diff = ((BB300ActorAlt *)gCurrentActor)->unkEE - gCurrentActor->yaw;
+        diff = gCurrentActor->moveYaw - gCurrentActor->yaw;
         if (diff < 0 || diff >= 0x801) {
             p->unk2 = 0x8C;
         } else {
@@ -206,27 +194,27 @@ void func_806B6DB0(s32 aggroRange) {
     }
     switch (sel) {
     case 0x14:
-        switch (((BB300ActorAlt *)gCurrentActor)->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
             gBehaviourWorkState->timer = 0x1E;
-            ((BB300ActorAlt *)gCurrentActor)->unk155 += 1;
+            gCurrentActor->unk155++;
             break;
         case 1:
             if (gBehaviourWorkState->timer != 0) {
                 gCurrentActor->yaw += p->unk2;
                 p->unk2 += -p->unk2 * 0.01;
-                gBehaviourWorkState->timer -= 1;
+                gBehaviourWorkState->timer--;
                 if (!(gFrameCounter & 3)) {
                     behaviourSpawnDropParticle();
                 }
             } else {
-                ((BB300ActorAlt *)gCurrentActor)->unk155 = 2;
+                gCurrentActor->unk155 = 2;
             }
             break;
         case 2:
             sfxStopSlotSound(gCurrentActor, 0);
             actorSetBehaviourState(1, gBehaviourExtraState->targetSpeed, 0x232);
-            ((BB300ActorAlt *)gCurrentActor)->unkEE = gCurrentActor->yaw;
+            gCurrentActor->moveYaw = gCurrentActor->yaw;
             break;
         }
         func_80724E48(5);
@@ -236,7 +224,7 @@ void func_806B6DB0(s32 aggroRange) {
     case 1:
         if ((randomNonNegative() >> 15) % 1000 >= 0x3E3) {
             gCurrentActor->state = 0x11;
-            ((BB300ActorAlt *)gCurrentActor)->unk155 = 0;
+            gCurrentActor->unk155 = 0;
         }
     case 0x10:
     case 0x23:
@@ -258,13 +246,13 @@ void func_806B6DB0(s32 aggroRange) {
         func_8072881C(0, &gBehaviourWorkState->unk28);
         actorUpdatePulseIntensity(0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 2, 0.0f);
-        switch (((BB300ActorAlt *)gCurrentActor)->unk155) {
+        switch (gCurrentActor->unk155) {
         case 1:
             break;
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
             actorScriptStart(gCurrentActor, 0x234);
-            ((BB300ActorAlt *)gCurrentActor)->unk155 += 1;
+            gCurrentActor->unk155++;
             break;
         case 2:
             actorSetBehaviourState(1, gBehaviourExtraState->targetSpeed, 0x232);
@@ -272,23 +260,24 @@ void func_806B6DB0(s32 aggroRange) {
         }
         break;
     case 0x37:
-        switch (((BB300ActorAlt *)gCurrentActor)->unk155) {
+        switch (gCurrentActor->unk155) {
         case 0:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x20, 0.0f);
             break;
         case 1:
             sfxSpawnTableNodes(gCurrentActor);
-            ((BB300ActorAlt *)gCurrentActor)->unkC0 = 100.0f;
-            ((BB300ActorAlt *)gCurrentActor)->unk155 += 1;
+            gCurrentActor->speedY = 100.0f;
+            gCurrentActor->unk155++;
+        /* fallthrough */
         case 2:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x20, 0.0f);
             break;
         case 3:
             if (gBehaviourWorkState->flags & 1) {
-                ((BB300ActorAlt *)gCurrentActor)->unk155 += 1;
+                gCurrentActor->unk155++;
             } else {
                 func_806B6C88(gBehaviourExtraState->unkD, mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z));
-                ((BB300ActorAlt *)gCurrentActor)->unk155 = 5;
+                gCurrentActor->unk155 = 5;
             }
             break;
         case 4:
@@ -301,6 +290,7 @@ void func_806B6DB0(s32 aggroRange) {
         break;
     case 0x16:
         gBehaviourWorkState->flags |= 1;
+    /* fallthrough */
     default:
         behaviourUpdateContactAndState(0x232, sel);
         break;
@@ -313,6 +303,7 @@ void func_806B6DB0(s32 aggroRange) {
     case 2:
     case 3:
         patrolPathStep(gCurrentActor->state, 1);
+    /* fallthrough */
     default:
         enemyAggroStateUpdate(aggroRange, 0x232, 0x233);
         break;

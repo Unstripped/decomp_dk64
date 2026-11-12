@@ -102,7 +102,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
     }
     if (diff >= 0x1F5 && diff < 0xE0C) {
         func_80685210(0.5f, 0x32, (gFrameCounter & 1) + 2);
-        gCurrentActor->speedXZ = gCurrentActor->speedXZ / 2;
+        gCurrentActor->speedXZ /= 2;
         if (gCurrentActor->soundSlots[0] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x122, 0, 0, 0, 0xFF, 1.0f, 0);
         }
@@ -156,7 +156,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             break;
         case 0:
             actorScriptStart(gCurrentActor, 0x24B);
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+            gCurrentActor->unk155++;
             break;
         case 2:
             tagBarrelSpawnActorSmokePuffs(0, 1);
@@ -204,14 +204,14 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         switch (sel) {
         case 0:
             actorScriptStart(gCurrentActor, 0x24B);
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+            gCurrentActor->unk155++;
             break;
         case 2:
             sfxSpawnTableNodes(gCurrentActor);
             tagBarrelSpawnActorSmokePuffs(1, 1);
             actorSetNodeFlag(gCurrentActor, 3);
             camStartShakeFromPoint(gCamActor, 5, 0x14, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 200.0f, 400.0f);
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+            gCurrentActor->unk155++;
             break;
         case 4:
             sfxStopSlotSound(gCurrentActor, 0);
@@ -225,7 +225,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             effectSetCallback(effectSparkSpawnUpdate);
             effectCreateAtPosition(&D_80720630, 0.3f, gCurrentActor->x, gCurrentActor->floorY + 7.0f, gCurrentActor->z);
             gCurrentActor->flags &= ~4;
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+            gCurrentActor->unk155++;
             break;
         case 1:
         case 3:
@@ -233,8 +233,9 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         case 5:
             gCurrentActor->callbackMask = 0;
             actorClearNodeFlag(gCurrentActor, 3);
-        default:
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+        /* fallthrough */
+    default:
+            gCurrentActor->unk155++;
             break;
         }
         break;

@@ -658,9 +658,9 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 fc = mathSinF(off + 0x800) * 0.3f + 3.0f;
                 fd = mathSinF((off >> 1) + 0x200) * 10.0f;
                 fe = mathSinF(ang);
-                fa = fa * 0.75f;
-                fd = fd * 0.75f;
-                fc = fc * 0.75f;
+                fa *= 0.75f;
+                fd *= 0.75f;
+                fc *= 0.75f;
                 fe = (fe * 0.5f + 0.5f) * 30.0f * 0.75f;
                 gDPPipeSync(dl++);
                 gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0x50);
@@ -683,7 +683,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 if (s2 - 4 < 0) {
                     s2 = 0;
                 } else {
-                    s2 = s2 - 4;
+                    s2 -= 4;
                 }
             }
             gDPPipeSync(dl++);
@@ -739,7 +739,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                         s16 yy;
                         t0 = i * 5;
                         fb = 180.0f * fa;
-                        fa = fa * 3.0f;
+                        fa *= 3.0f;
                         fc = 32.0f * fa;
                         fc = 480.0f + fc;
                         fd = 6.0f * fa;
@@ -756,7 +756,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                             D_807FC868[off] = (f32)(s16)((s16)(fc - (f32)y0) + (s32)actor) - fe; // FAKE: narrow before the row offset to steer conversion temporaries.
                             D_807FC890[off] = ff;
                             if (D_80750530[j] != 0) {
-                                D_807FC890[off] = D_807FC890[off] * 0.75;
+                                D_807FC890[off] *= 0.75;
                             }
                             angv += 0x333;
                         }
@@ -769,7 +769,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     fd = (hud->unk4 < hud->unk0) ? hud->unk0 : hud->unk4;
                     fc = 780.0f;
                     if ((s32)actor == 0) {
-                        fc = fc + fd * 400.0;
+                        fc += fd * 400.0;
                     }
                     j = gPlayerInventoryTable[hud->unk14].unk42[D_80750560[hud->unk8[i]]];
                     dl = hudDrawCountPair(0x2A8, (s32)((s32)actor + fc), j, 5, dl, 0, 0.8f);
@@ -800,7 +800,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     }
                     fc = 780.0f;
                     if (off == 0) {
-                        fc = fc + fd * 400.0;
+                        fc += fd * 400.0;
                     }
                     dl = hudDrawCountPair(0x2B0, (s32)(off + fc), cnt, 0x19, dl, 0, 0.8f);
                 }
@@ -1561,7 +1561,7 @@ void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *done) {
             if (type != 3) {
                 sc = 240.0f;
             }
-            sc = sc * t;
+            sc *= t;
             iconObj->unk360 = (f64)(item->unk10 * t) * 4.0;
             iconObj->unk364 = iconObj->unk360;
             t = 0.0;
@@ -1570,7 +1570,7 @@ void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *done) {
             if (type == 8) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
                 sc = mathSinF(ang);
-                iconObj->unk344 = iconObj->unk344 + sc * 10.0f;
+                iconObj->unk344 += sc * 10.0f;
             }
             if (type == 0xF) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
@@ -1614,7 +1614,7 @@ void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *done) {
             if (sc > 8.0) {
                 sc = 8.0f;
             }
-            item->unk10 = item->unk10 + sc;
+            item->unk10 += sc;
             sc = (f64)(item->unk1C - item->unk14) * 0.1;
             if (sc < -8.0) {
                 sc = -8.0f;
@@ -1622,7 +1622,7 @@ void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *done) {
             if (sc > 8.0) {
                 sc = 8.0f;
             }
-            item->unk14 = item->unk14 + sc;
+            item->unk14 += sc;
             ang = (gFrameCounter * 0x78) & 0xFFF;
             iconObj->unk340 = item->unk10 + item->unk8;
             sc = mathSinF(ang);

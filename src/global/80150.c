@@ -1352,7 +1352,7 @@ void transformBarrelUpdate(void) {
         if (gCurrentActor->actorType == 0x12) {
             allowed = 1;
         }
-        if (gCurrentActor->actorType == 0x84 && player->actorType == 9 && (activePlayerState = player->customState)->actor == NULL) {
+        if (gCurrentActor->actorType == 0x84 && player->actorType == 9 && (activePlayerState = player->customState)->actor == NULL) { // FAKE: activePlayerState assigned inside the test (pre-existing, now tagged; ((PlayerState *)player->customState)->actor fdiff=1)
             allowed = 1;
         }
         if (allowed != 0) {
@@ -2825,7 +2825,7 @@ void tagBarrelStartSelection(TagBarrelData *data) {
     s32 pad1[2];
     Actor *player;
     PlayerState *playerState;
-    s32 pad;
+    s32 kong;
     s32 light;
 
     switch (gCurrentActor->unk155) {
@@ -2862,13 +2862,11 @@ void tagBarrelStartSelection(TagBarrelData *data) {
             lightSetColor(1.0f, 1.0f, 1.0f, (s16)light);
             gCurrentActor->yaw = data->baseYaw;
             gCurrentActor->unk144 = 1;
-            light = (s16)player->actorType;
-            gGlobalPauseFlags &= 0xFFFCFFCF;
+            kong = (s16)player->actorType;
+            gGlobalPauseFlags &= ~0x30030;
             data->selected = 0;
-            if (light != D_8074E814[data->selected].kongIndex) {
-                do {
-                    data->selected++;
-                } while (light != D_8074E814[data->selected].kongIndex);
+            while (kong != D_8074E814[data->selected].kongIndex) {
+                data->selected++;
             }
             data->previous = data->selected;
             if (gCurrentMap != 0x11) {

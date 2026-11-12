@@ -157,7 +157,7 @@ void playerAllocSlots(s32 spawnIndex) {
     u8 sel;
     G00Entry *e;
 
-    gPlayerSlots = heapAlloc(gPlayerCount * 0x2F0);
+    gPlayerSlots = heapAlloc(gPlayerCount * sizeof(PlayerStruct));
     heapClearBlock(gPlayerSlots);
     for (i = 0; i < gPlayerCount; i++) {
         blk = &gPlayerSlots[i];
@@ -683,7 +683,7 @@ void playerWarpToSpawnPoint(s32 spawnIndex) {
         playerWaypointPathStartLineFromPoint(gActivePlayerActor, spawn, 0x32);
         break;
     }
-    gActivePlayerActor->contactFlags &= 0xFDFF;
+    gActivePlayerActor->contactFlags &= ~0x200;
     ps->camActor->unk15F = (spawn->unk7 <= 0) ? 1 : spawn->unk7;
     if (spawn->unk9 & 1) {
         D_80770DC9 = 1;

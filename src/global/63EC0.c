@@ -202,12 +202,10 @@ u8 effectGetTableFlag(WaterSurface *node) {
 void effectUpdateNodes(void) {
     WaterSurface *node = gEffectNodeList;
 
-    if (node != NULL) {
-        do {
-            node->flags = 0;
-            effectNodeApproachTargetPos(node);
-            node = node->next;
-        } while (node != NULL);
+    while (node != NULL) {
+        node->flags = 0;
+        effectNodeApproachTargetPos(node);
+        node = node->next;
     }
     if (!(gGlobalPauseFlags & 2)) {
         waterRippleStep();
@@ -327,28 +325,26 @@ void effectWaterApplyLights(f32 camX, f32 camY, f32 camZ) {
     u8 flags;
 
     node = gEffectNodeList;
-    if (node != NULL) {
-        do {
-            flags = node->flags;
-            if ((flags & 1) && !(flags & 2)) {
-                target = node->sub;
-                chunkIdx = target->chunkIds[0];
-                if (target->useLights != 0) {
-                    lights = lightCollectVolumesInBounds(camX, camY, camZ, target->minX,
-                                           (s32)(((f32)target->surfaceY + node->level) - (target->waveAmpZ + target->waveAmpX)), target->minZ, target->maxX,
-                                           (s32)(((f32)target->surfaceY + node->level) + (target->waveAmpZ + target->waveAmpX)), target->maxZ, chunkIdx, &lightCount);
-                    D_807F7EEC = D_8076A0B4[chunkIdx];
-                    D_807F7EF0 = D_8076A0B8[chunkIdx];
-                    D_807F7EF4 = D_8076A0BC[chunkIdx];
-                    if (gGlobalPauseFlags & 0x10) {
-                        vtxBuffer = node->meshVtx[gGfxBufferIndex];
-                        func_8065C990(vtxBuffer, vtxBuffer + node->vtxCount, 1, &D_807F78C0, lights, gMapChunks[chunkIdx].lightMode == 1);
-                    }
-                    node->flags |= 2;
+    while (node != NULL) {
+        flags = node->flags;
+        if ((flags & 1) && !(flags & 2)) {
+            target = node->sub;
+            chunkIdx = target->chunkIds[0];
+            if (target->useLights != 0) {
+                lights = lightCollectVolumesInBounds(camX, camY, camZ, target->minX,
+                                       (s32)(((f32)target->surfaceY + node->level) - (target->waveAmpZ + target->waveAmpX)), target->minZ, target->maxX,
+                                       (s32)(((f32)target->surfaceY + node->level) + (target->waveAmpZ + target->waveAmpX)), target->maxZ, chunkIdx, &lightCount);
+                D_807F7EEC = D_8076A0B4[chunkIdx];
+                D_807F7EF0 = D_8076A0B8[chunkIdx];
+                D_807F7EF4 = D_8076A0BC[chunkIdx];
+                if (gGlobalPauseFlags & 0x10) {
+                    vtxBuffer = node->meshVtx[gGfxBufferIndex];
+                    func_8065C990(vtxBuffer, vtxBuffer + node->vtxCount, 1, &D_807F78C0, lights, gMapChunks[chunkIdx].lightMode == 1);
                 }
+                node->flags |= 2;
             }
-            node = node->next;
-        } while (node != NULL);
+        }
+        node = node->next;
     }
 }
 

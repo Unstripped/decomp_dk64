@@ -7,7 +7,6 @@
 #include "render.h"
 struct DisplayListCmd;
 struct ModelNodeBufferOwner;
-struct ModelPendingEntry;
 struct ModelRenderAnimObj;
 struct ModelSegmentData;
 struct ModelSegmentNode;
@@ -286,7 +285,7 @@ Gfx *spriteListRender(Gfx *, struct SpriteDisplayNode *);
 void modelPendingCountsReset(void);
 #endif
 #ifndef PROTO_SKIP_modelPendingQueueInsert
-void modelPendingQueueInsert(struct ModelPendingEntry *, u8);
+void modelPendingQueueInsert(RenderEntry *, u8);
 #endif
 #ifndef PROTO_SKIP_modelPendingEntriesProcess
 void modelPendingEntriesProcess(void);

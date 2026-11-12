@@ -168,8 +168,7 @@ void slotQueueInit(s32 reset) {
     u8 world;
     SlotQueueSlot *base;
     u8 *kongInv;
-    s32 off;
-    s8 flag;
+    s32 flag;
     u8 player;
 
     shownMask = D_80744544;
@@ -193,127 +192,125 @@ void slotQueueInit(s32 reset) {
             }
             base = (SlotQueueSlot *)slotQueueGetAddress(player);
             j = 0;
-            off = 0;
             do {
                 flag = 0;
                 if (reset != 0) {
-                    (base + j)->state = 0;
-                    (base + j)->timer = 0;
-                    (base + j)->showArg = 0;
-                    (base + j)->visible = 0;
-                    (base + j)->nodes = 0;
-                    (base + j)->displayMode = 0;
+                    base[j].state = 0;
+                    base[j].timer = 0;
+                    base[j].showArg = 0;
+                    base[j].visible = 0;
+                    base[j].nodes = 0;
+                    base[j].displayMode = 0;
                 }
                 if (func_807142D8() != 0) {
-                    (base + j)->displayMode = 1;
+                    base[j].displayMode = 1;
                 }
                 switch (j) {
                 case 0:
-                    (base + j)->value = &((u16 *)(kongInv + 0xA))[world];
-                    (base + j)->x = 0x1E; (base + j)->y = 0x26;
-                    func_806F8004(15.5f, 26.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = &((u16 *)(kongInv + 0xA))[world];
+                    base[j].x = 0x1E; base[j].y = 0x26;
+                    func_806F8004(15.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 13:
-                    (base + j)->value = NULL;
-                    (base + j)->x = 0x122; (base + j)->y = 0x26;
-                    func_806F8004(-5.5f, -26.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = NULL;
+                    base[j].x = 0x122; base[j].y = 0x26;
+                    func_806F8004(-5.5f, -26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 8:
-                    (base + j)->value = &((u16 *)(kongInv + 0x42))[world];
-                    (base + j)->x = 0x1E; (base + j)->y = 0x48;
-                    func_806F8004(1.5f, 26.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = &((u16 *)(kongInv + 0x42))[world];
+                    base[j].x = 0x1E; base[j].y = 0x48;
+                    func_806F8004(1.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 12:
-                    (base + j)->value = NULL;
-                    (base + j)->x = 0xC2; (base + j)->y = 0xD0;
-                    func_806F8004(-26.5f, 26.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = NULL;
+                    base[j].x = 0xC2; base[j].y = 0xD0;
+                    func_806F8004(-26.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 10:
-                    (base + j)->value = NULL;
-                    (base + j)->x = 0x52; (base + j)->y = 0xD0;
-                    func_806F8004(-26.5f, 26.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = NULL;
+                    base[j].x = 0x52; base[j].y = 0xD0;
+                    func_806F8004(-26.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 9:
-                    (base + j)->value = NULL;
-                    (base + j)->x = 0x7A; (base + j)->y = 0xD0;
+                    base[j].value = NULL;
+                    base[j].x = 0x7A; base[j].y = 0xD0;
                     break;
                 case 5:
                     if (shownMask & 0x20) {
                         *(s16 *)(fp+0x2F6) = slotQueueGetMaxValue(5, i);
                         flag = 1;
                     }
-                    (base + j)->value = (u16 *)(fp + 0x2F6);
-                    (base + j)->x = 0x122; (base + j)->y = 0x8C;
-                    func_806F8004(-5.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = (u16 *)(fp + 0x2F6);
+                    base[j].x = 0x122; base[j].y = 0x8C;
+                    func_806F8004(-5.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 2:
-                    (base + j)->value = (u16 *)(fp + 0x2F0);
-                    (base + j)->x = 0x122; (base + j)->y = 0x48;
-                    func_806F8004(8.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = (u16 *)(fp + 0x2F0);
+                    base[j].x = 0x122; base[j].y = 0x48;
+                    func_806F8004(8.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 3:
                     if (shownMask & 0x4) {
                         *(s16 *)(fp+0x2F2) = slotQueueGetMaxValue(3, i);
                         flag = 1;
                     }
-                    (base + j)->value = (u16 *)(fp + 0x2F2);
-                    (base + j)->x = 0x122; (base + j)->y = 0x48;
-                    func_806F8004(8.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = (u16 *)(fp + 0x2F2);
+                    base[j].x = 0x122; base[j].y = 0x48;
+                    func_806F8004(8.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 4:
                     if (shownMask & 0x8) {
                         *(s16 *)(fp+0x2F4) = slotQueueGetMaxValue(4, i);
                         flag = 1;
                     }
-                    (base + j)->value = (u16 *)(fp + 0x2F4);
-                    (base + j)->x = 0x122; (base + j)->y = 0x6A;
-                    func_806F8004(1.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = (u16 *)(fp + 0x2F4);
+                    base[j].x = 0x122; base[j].y = 0x6A;
+                    func_806F8004(1.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 6:
                     if (shownMask & 0x10) {
                         *(s16 *)(fp+0x2F8) = slotQueueGetMaxValue(6, i);
                         flag = 1;
                     }
-                    (base + j)->value = (u16 *)(fp + 0x2F8);
-                    (base + j)->x = 0x122; (base + j)->y = 0xD0;
-                    func_806F8004(-19.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = (u16 *)(fp + 0x2F8);
+                    base[j].x = 0x122; base[j].y = 0xD0;
+                    func_806F8004(-19.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 11:
-                    (base + j)->value = &D_80750AC4;
-                    (base + j)->x = 0x122; (base + j)->y = 0x26;
-                    func_806F8004(16.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = &D_80750AC4;
+                    base[j].x = 0x122; base[j].y = 0x26;
+                    func_806F8004(16.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 1:
                     if (shownMask & 0x2) {
                         *(s16 *)(kongInv+6) = slotQueueGetMaxValue(1, i);
                         flag = 1;
                     }
-                    (base + j)->value = (u16 *)(kongInv + 6);
-                    (base + j)->x = 0x122; (base + j)->y = 0x26;
-                    func_806F8004(16.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = (u16 *)(kongInv + 6);
+                    base[j].x = 0x122; base[j].y = 0x26;
+                    func_806F8004(16.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 7:
                     if (shownMask & 0x40) {
                         *(s16 *)(kongInv+8) = slotQueueGetMaxValue(7, i);
                         flag = 1;
                     }
-                    (base + j)->value = (u16 *)(kongInv + 8);
-                    (base + j)->x = 0x122; (base + j)->y = 0xAE;
-                    func_806F8004(-12.5f, -19.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = (u16 *)(kongInv + 8);
+                    base[j].x = 0x122; base[j].y = 0xAE;
+                    func_806F8004(-12.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 14:
-                    (base + j)->value = &D_80750AC8;
-                    (base + j)->x = 0x1E; (base + j)->y = 0x26;
-                    func_806F8004(15.5f, 26.0f, (f32 *)(off + 0x10 + (s32)base), (f32 *)(off + 0x14 + (s32)base), (f32 *)(off + 0x18 + (s32)base));
+                    base[j].value = &D_80750AC8;
+                    base[j].x = 0x1E; base[j].y = 0x26;
+                    func_806F8004(15.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 }
-                (base + j)->locked = flag;
+                base[j].locked = flag;
                 if (flag & 0xFF) {
-                    (base + j)->displayMode = 1;
+                    base[j].displayMode = 1;
                 }
-                off += 0x30;
-                if ((base + j)->value != NULL) {
-                    (base + j)->shown = *(base + j)->value;
+                if (base[j].value != NULL) {
+                    base[j].shown = *base[j].value;
                 }
                 j++;
             } while (j != 0xF);
@@ -441,19 +438,17 @@ s32 slot;
 
 void func_806F8DC4(u8 *alpha, s32 count, s32 slot) {
     s32 world;
-    s32 kongArg;
     s32 kong;
 
     world = mapGetHubWorldIndex(gCurrentWorldId, 1);
     kong = playerGetResolvedKongId(0);
-    kongArg = kong;
     *alpha = 0x7F;
     if (slot != 8) {
         if (slot != 0xA) {
-            if ((slot == 0xC) && (flagGridSumRows(0x1D5, world, world, kongArg) != 0)) {
+            if ((slot == 0xC) && (flagGridSumRows(0x1D5, world, world, kong) != 0)) {
                 *alpha = 0xFF;
             }
-        } else if (flagGridSumRows(0x225, world, world, kongArg) != 0) {
+        } else if (flagGridSumRows(0x225, world, world, kong) != 0) {
             *alpha = 0xFF;
         }
     } else if (count < gPlayerInventoryTable[kong].unk42[world]) {
@@ -574,12 +569,12 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
                 if (value < *counter) {
                     *counter = value;
                 }
-                if (((slot * 0x30) == 0x180) && (func_805FEF10(&flag) != 0)) {
+                if ((slot == 8) && (func_805FEF10(&flag) != 0)) {
                     flagSet(flag, 1, 0);
                 }
-                if ((delta > 0) && ((slot * 0x30) == 0)) {
+                if ((delta > 0) && (slot == 0)) {
                     value = mapGetHubWorldIndex(gCurrentWorldId, 1);
-                    total = *(u16 *)(kongInv + 0xA + (value * 2)) + *(u16 *)(kongInv + 0x26 + (value * 2));
+                    total = ((u16 *)(kongInv + 0xA))[value] + ((u16 *)(kongInv + 0x26))[value];
                     if ((total >= 0x4B) && ((total - delta) < 0x4B)) {
                         slots = flagGridIndex(0x225, value, (&gPlayerCharacterId)[player]);
                         flagSet(slots, 1, 0);
@@ -592,7 +587,7 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
             }
             if (playerIdx) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
         }
-        if ((slot * 0x30) == 0x180) {
+        if (slot == 8) {
             func_806F8278(player);
         }
     }
