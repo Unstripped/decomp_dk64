@@ -17,16 +17,6 @@ typedef struct CritterBattleArenaState {
     s16 timeLimit;
 } CritterBattleArenaState;
 
-typedef struct Struct_807FBB40 {
-    char pad0[0x60];
-    s32 unk60;
-    char pad64[0x11C - 0x64];
-    struct Struct_807FBB40 *unk11C;
-    char pad120[0x154 - 0x120];
-    u8 unk154;
-    char pad155[0x174 - 0x155];
-    CritterBattleArenaState *unk174;
-} Struct_807FBB40;
 
 s32 critterBitwiseNot(s32 val) {
     return ~val;
@@ -39,9 +29,9 @@ extern u8 gGameMode;
 extern u8 D_807655F0[];
 extern s32 gCurrentMap;
 extern u8 D_807ECE00[];
-extern Struct_807FBB40 *gCurrentActor;
+extern Actor *gCurrentActor;
 extern u16 D_807FCC44;
-extern u8 D_807FCC40[];
+extern u16 D_807FCC40[];
 
 
 void critterBattleArenaUpdate(void) {
@@ -59,11 +49,11 @@ void critterBattleArenaUpdate(void) {
     s32 pad40[4];
     s32 returnMap;
     s32 returnExit;
-    challengeState = gCurrentActor->unk174;
-    if (!(gCurrentActor->unk60 & 0x10)) {
+    challengeState = gCurrentActor->customState;
+    if (!(gCurrentActor->flags & 0x10)) {
         D_80029FA8 = 0;
         camStartPath(0, 0, 1);
-        tmp = *(u16 *)&D_807FCC40[4];
+        tmp = D_807FCC40[2]; // FAKE: reads gPlayerInventoryTable[0].unk2F4 through a second label so IDO keeps two lui pairs instead of one table base (gPlayerInventoryTable spelling tried, base CSE)
         D_80029FA4 = tmp;
         D_807FCC44 = 0;
         slotQueueSetShownValue(4, 0, 0);
@@ -85,10 +75,10 @@ void critterBattleArenaUpdate(void) {
             D_80029FA0 = 5;
             break;
         }
-        gCurrentActor->unk154 = 0;
+        gCurrentActor->state = 0;
     }
 
-    switch (gCurrentActor->unk154) {
+    switch (gCurrentActor->state) {
     case 0x0:
         if ((gGameMode == 1) && (camIsPathPaused() != 0)) {
             switch (gCurrentMap) {
@@ -105,16 +95,16 @@ void critterBattleArenaUpdate(void) {
                 mapChallengeIdx = 3;
                 break;
             }
-            resQueueAttachActor(gCurrentActor, 0x19, *(u8 *)((char *)&mapChallengeIdx + 3));
-            gCurrentActor->unk154 = 1;
-            hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)challengeState)[5]);
+            resQueueAttachActor(gCurrentActor, 0x19, *(u8 *)((char *)&mapChallengeIdx + 3)); // FAKE: byte read through the address of mapChallengeIdx; the plain u8 argument compiles the same but the default-less switch then leaves it uninitialised (clint)
+            gCurrentActor->state = 1;
+            hudSpawnCountdownTimer(0xDC, 0x2A, challengeState->timeLimit);
         }
         break;
     case 0x1:
-        if (!(gCurrentActor->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->flags & 0x02000000)) {
             camResumePath();
-            gCurrentActor->unk154 = 2;
-            hudCountdownTimerStart(gCurrentActor->unk11C);
+            gCurrentActor->state = 2;
+            hudCountdownTimerStart(gCurrentActor->parentActor);
             sfxAllocateChannel(8, 1.0f);
         }
         break;
@@ -127,13 +117,13 @@ void critterBattleArenaUpdate(void) {
         }
         dcacheFunc = (void (*)(void *, s32))critterBitwiseNot(~(s32)osWritebackDCache);
         if (D_80029FA0 <= 0) {
-            gCurrentActor->unk154 = 3;
+            gCurrentActor->state = 3;
         }
         dcacheFunc(alignedBuf, 0x10);
         dmaRomOffset = critterBitwiseNot(-0xDC1);
         ((void (*)(void *, s32, s32, s32, void *, s32, void *))critterBitwiseNot(~(s32)osPiStartDma))(&D_807ECE00, 0, 0, dmaRomOffset, alignedBuf, 0x10, &D_807655F0);
-        if (gCurrentActor->unk11C->unk154 == 5) {
-            gCurrentActor->unk154 = 0xFF;
+        if (gCurrentActor->parentActor->state == 5) {
+            gCurrentActor->state = 0xFF;
         }
         ((void (*)(void *, s32, s32))critterBitwiseNot(~(s32)osRecvMesg))(&D_807655F0, 0, 1);
         ((void (*)(void *, s32))critterBitwiseNot(~(s32)osInvalDCache))(alignedBuf, 0x10);
@@ -143,11 +133,11 @@ void critterBattleArenaUpdate(void) {
         }
         break;
     case 0x3:
-        gCurrentActor->unk11C->unk154 = 1;
+        gCurrentActor->parentActor->state = 1;
         challengeState->textGfxHandle = gfxResourceCreate(1, "WELL DONE!", 2, 160.0f, 100.0f, 0.0f);
         sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
         challengeState->timer = 0x78;
-        gCurrentActor->unk154 = 0xFE;
+        gCurrentActor->state = 0xFE;
         D_80029FA8 = 1;
         break;
     case 0xFE:
@@ -187,7 +177,7 @@ void critterBattleArenaUpdate(void) {
         D_80029FA8 = 0;
         challengeState->textGfxHandle = gfxResourceCreate(1, "TIME OUT!", 2, 160.0f, 100.0f, 0.0f);
         challengeState->timer = 0x78;
-        gCurrentActor->unk154 = 0xFE;
+        gCurrentActor->state = 0xFE;
         break;
     }
     renderCallbacksRegister(&critterRenderCenterImage, gCurrentActor, 3);
@@ -198,8 +188,8 @@ extern u8 D_2000180[];
 
 
 
-Gfx *critterRenderCenterImage(Gfx *glistp, Struct_807FBB40 *actor) {
-    CritterBattleArenaState *t1 = actor->unk174;
+Gfx *critterRenderCenterImage(Gfx *glistp, Actor *actor) {
+    CritterBattleArenaState *t1 = actor->customState;
 
     gSPDisplayList(glistp++, &D_1000118);
     gDPPipeSync(glistp++);
@@ -207,7 +197,7 @@ Gfx *critterRenderCenterImage(Gfx *glistp, Struct_807FBB40 *actor) {
     gDPSetCombineMode(glistp++, G_CC_MODULATEIDECALA_PRIM, G_CC_MODULATEIDECALA_PRIM);
     gDPSetRenderMode(glistp++, G_RM_OPA_SURF, G_RM_TEX_EDGE2);
     gSPMatrix(glistp++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    if (actor->unk154 == 0xFE) {
+    if (actor->state == 0xFE) {
         glistp = textDrawAnimated(glistp, t1->textGfxHandle, 2, 160.0f, 100.0f, 0.0f, 1.5f);
     }
     return glistp;

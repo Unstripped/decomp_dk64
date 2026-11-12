@@ -2,7 +2,7 @@
 #ifndef PROTO_CRITTER_5110_H
 #define PROTO_CRITTER_5110_H
 #include "common.h"
-struct Struct_807FBB40;
+#include "actor.h"
 #ifndef PROTO_SKIP_critterBitwiseNot
 s32 critterBitwiseNot(s32);
 #endif
@@ -10,6 +10,6 @@ s32 critterBitwiseNot(s32);
 void critterBattleArenaUpdate(void);
 #endif
 #ifndef PROTO_SKIP_critterRenderCenterImage
-Gfx *critterRenderCenterImage(Gfx *, struct Struct_807FBB40 *);
+Gfx *critterRenderCenterImage(Gfx *, Actor *);
 #endif
 #endif
