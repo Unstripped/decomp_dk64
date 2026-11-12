@@ -2,18 +2,17 @@
 #ifndef PROTO_GLOBAL_137630_H
 #define PROTO_GLOBAL_137630_H
 #include "common.h"
-struct GbNode_s;
 #ifndef PROTO_SKIP_oscVibratoDepthPow
 f32 oscVibratoDepthPow(u8);
 #endif
 #ifndef PROTO_SKIP_oscInit
-s32 oscInit(struct GbNode_s **, f32 *, u8, u8, u8, u8);
+ALMicroTime oscInit(void **, f32 *, u8, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_oscUpdate
-s32 oscUpdate(struct GbNode_s *, f32 *);
+ALMicroTime oscUpdate(void *, f32 *);
 #endif
 #ifndef PROTO_SKIP_oscStop
-void oscStop(struct GbNode_s *);
+void oscStop(void *);
 #endif
 #ifndef PROTO_SKIP_oscSinAngle
 f32 oscSinAngle(f32);
