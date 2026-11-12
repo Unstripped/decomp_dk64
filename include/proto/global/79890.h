@@ -3,10 +3,7 @@
 #define PROTO_GLOBAL_79890_H
 #include "common.h"
 #include "actor.h"
-struct CollisionHitRecordRef;
-struct CollisionLocalOwner;
-struct CollisionMtxNode;
-struct CollisionMtxOwner;
+struct CollisionHitRecord;
 #ifndef PROTO_SKIP_actorCollisionGetNodeHitPoint
 u8 actorCollisionGetNodeHitPoint(Actor *, Actor *, f32 *, f32 *);
 #endif
@@ -14,7 +11,7 @@ u8 actorCollisionGetNodeHitPoint(Actor *, Actor *, f32 *, f32 *);
 void actorCollisionCheckNodeSpheres(Actor *);
 #endif
 #ifndef PROTO_SKIP_collisionWorldToNodeLocal
-void collisionWorldToNodeLocal(struct CollisionMtxOwner *, f32, f32, f32, struct CollisionMtxNode *, f32 *, f32 *, f32 *);
+void collisionWorldToNodeLocal(ActorSub140 *, f32, f32, f32, ModelNode *, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_collisionPointToSphereDistance
 f32 collisionPointToSphereDistance(s32, s32, s32, s32, s32, s32, s32);
@@ -23,10 +20,10 @@ f32 collisionPointToSphereDistance(s32, s32, s32, s32, s32, s32, s32);
 void collisionHitRecordAppend(s32, f32, f32, f32, f32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_collisionHitRecordsFlush
-void collisionHitRecordsFlush(s32, void *);
+void collisionHitRecordsFlush(Actor *, Actor *);
 #endif
 #ifndef PROTO_SKIP_collisionNodeLocalToWorldXZ
-void collisionNodeLocalToWorldXZ(struct CollisionLocalOwner *, struct CollisionHitRecordRef *, f32 *, f32 *);
+void collisionNodeLocalToWorldXZ(Actor *, struct CollisionHitRecord *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_func_806755A8
 void func_806755A8(s32, s32, s32, s32, s16 *, s16 *);
