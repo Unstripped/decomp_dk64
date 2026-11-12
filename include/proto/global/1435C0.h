@@ -2,16 +2,15 @@
 #ifndef PROTO_GLOBAL_1435C0_H
 #define PROTO_GLOBAL_1435C0_H
 #include "common.h"
-struct EnvAcmd;
 struct EnvMixerEnv;
 #ifndef PROTO_SKIP_n_alEnvmixerPull
-s32 n_alEnvmixerPull(void *, s32, s32);
+Acmd *n_alEnvmixerPull(void *, s32, Acmd *);
 #endif
 #ifndef PROTO_SKIP_n_alEnvmixerParam
 s32 n_alEnvmixerParam(void *, s32, void *);
 #endif
 #ifndef PROTO_SKIP__pullSubFrame
-struct EnvAcmd *_pullSubFrame(struct EnvMixerEnv *, s16 *, s16 *, s32, struct EnvAcmd *);
+Acmd *_pullSubFrame(struct EnvMixerEnv *, s16 *, s16 *, s32, Acmd *);
 #endif
 #ifndef PROTO_SKIP__getRate
 s16 _getRate(f32, f32, s32, s16 *);

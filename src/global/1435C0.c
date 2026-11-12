@@ -36,8 +36,6 @@ typedef struct EnvMixerEnv {
   
 
 
-typedef struct EnvAcmd EnvAcmd;
-
 extern s16 D_80756490[];
 extern s16 D_8075658E[];
 
@@ -111,8 +109,8 @@ extern u8 D_807FF0F0;
 extern u8 D_807FF0F1;
 extern u8 D_807FF0F2;
 
-s32 n_alEnvmixerPull(void *filter, s32 time, s32 cmdList) {
-    s32 cmd;
+Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
+    Acmd *cmd;
     EnvMixerPullView *f;
     s16 outOffset;
     s32 lastTime;
@@ -183,7 +181,7 @@ s32 n_alEnvmixerPull(void *filter, s32 time, s32 cmdList) {
         case 11:
         case 12:
         case 16:
-            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, (EnvAcmd *)cmd);
+            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, cmd);
             if (f->unk70 >= f->unk74) {
                 f->unk68 = (D_80756490[f->unk58] * f->unk5A) >> 15;
                 f->unk6E = (D_8075658E[-f->unk58] * f->unk5A) >> 15;
@@ -238,7 +236,7 @@ s32 n_alEnvmixerPull(void *filter, s32 time, s32 cmdList) {
             f->unk84 = 1;
             break;
         case 15:
-            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, (EnvAcmd *)cmd);
+            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, cmd);
             n_alEnvmixerParam(f, 4, 0);
             break;
         case 0:
@@ -247,19 +245,19 @@ s32 n_alEnvmixerPull(void *filter, s32 time, s32 cmdList) {
             _n_freePVoice(freeNode->data.ptr);
             break;
         case 7:
-            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, (EnvAcmd *)cmd);
+            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, cmd);
             f->unk44 = f->unk7C->data.f;
             break;
         case 8:
-            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, (EnvAcmd *)cmd);
+            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, cmd);
             f->unk48 = 1;
             break;
         case 5:
-            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, (EnvAcmd *)cmd);
+            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, cmd);
             _decodeChunk(f, 5, f->unk7C->data.ptr);
             break;
         default:
-            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, (EnvAcmd *)cmd);
+            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, cmd);
             n_alEnvmixerParam(f, f->unk7C->type, f->unk7C->data.ptr);
             break;
         }
@@ -272,7 +270,7 @@ s32 n_alEnvmixerPull(void *filter, s32 time, s32 cmdList) {
         }
         __n_freeParam(node);
     }
-    cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, samplesLeft, (EnvAcmd *)cmd);
+    cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, samplesLeft, cmd);
     if (f->unk70 > f->unk74) {
         f->unk70 = f->unk74;
     }
@@ -313,14 +311,8 @@ s32 n_alEnvmixerParam(void *filter, s32 paramID, void *paramVal) {
     return 0;
 }
 
-struct EnvAcmd {
-    u32 w0;
-    u32 w1;
-};
-
-
-EnvAcmd *_pullSubFrame(EnvMixerEnv *filter, s16 *outp, s16 *samplePtr, s32 count, EnvAcmd *cmdList) {
-    EnvAcmd *ptr;
+Acmd *_pullSubFrame(EnvMixerEnv *filter, s16 *outp, s16 *samplePtr, s32 count, Acmd *cmdList) {
+    Acmd *ptr;
     EnvMixerEnv *env;
 
     ptr = cmdList;
@@ -336,39 +328,39 @@ EnvAcmd *_pullSubFrame(EnvMixerEnv *filter, s16 *outp, s16 *samplePtr, s32 count
         env->unk6E = (D_8075658E[-env->unk58] * env->unk5A) >> 15;
         env->unk6C = _getRate((f32)env->unk5E, (f32)env->unk6E, env->unk74, &env->unk6A);
         {
-            EnvAcmd *cmd;
+            Acmd *cmd;
 
             cmd = ptr++;
-            cmd->w0 = 0x09060000 | (env->unk5C & 0xFFFF);
-            cmd->w1 = ((env->unk60 & 0xFFFF) << 16) | (env->unk62 & 0xFFFF);
+            cmd->words.w0 = 0x09060000 | (env->unk5C & 0xFFFF);
+            cmd->words.w1 = ((env->unk60 & 0xFFFF) << 16) | (env->unk62 & 0xFFFF);
         }
         {
-            EnvAcmd *cmd;
+            Acmd *cmd;
 
             cmd = ptr++;
-            cmd->w0 = 0x09040000 | (env->unk6E & 0xFFFF);
-            cmd->w1 = ((env->unk6C & 0xFFFF) << 16) | (env->unk6A & 0xFFFF);
+            cmd->words.w0 = 0x09040000 | (env->unk6E & 0xFFFF);
+            cmd->words.w1 = ((env->unk6C & 0xFFFF) << 16) | (env->unk6A & 0xFFFF);
         }
         {
-            EnvAcmd *cmd;
+            Acmd *cmd;
 
             cmd = ptr++;
-            cmd->w0 = 0x09000000 | (env->unk68 & 0xFFFF);
-            cmd->w1 = ((env->unk66 & 0xFFFF) << 16) | (env->unk64 & 0xFFFF);
+            cmd->words.w0 = 0x09000000 | (env->unk68 & 0xFFFF);
+            cmd->words.w1 = ((env->unk66 & 0xFFFF) << 16) | (env->unk64 & 0xFFFF);
         }
         {
-            EnvAcmd *cmd;
+            Acmd *cmd;
 
             cmd = ptr++;
-            cmd->w0 = 0x03010000 | (env->unk5E & 0xFFFF);
-            cmd->w1 = osVirtualToPhysical(env->unk54);
+            cmd->words.w0 = 0x03010000 | (env->unk5E & 0xFFFF);
+            cmd->words.w1 = osVirtualToPhysical(env->unk54);
         }
     } else {
-        EnvAcmd *cmd;
+        Acmd *cmd;
 
         cmd = ptr++;
-        cmd->w0 = 0x03000000;
-        cmd->w1 = osVirtualToPhysical(env->unk54);
+        cmd->words.w0 = 0x03000000;
+        cmd->words.w1 = osVirtualToPhysical(env->unk54);
     }
     *outp += 0x170;
     env->unk70 += 0xB8;
