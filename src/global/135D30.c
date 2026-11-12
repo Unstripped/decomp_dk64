@@ -129,8 +129,6 @@ void flagSet(s16 flag, u8 val, u8 bank) {
     }
 }
 
-extern FlagTableEntry gFlagTempEntries[];
-
 void flagTempsPruneUnloadedMaps(void) {
     s32 i;
 
