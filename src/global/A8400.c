@@ -619,8 +619,8 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
     case 0xDA:
     case 0x100:
         sub->unk3C = 1;
-        sub->unk24 = (f32) SPRITE_BOUNDS->unk274;
-        sub->unk28 = (f32) SPRITE_BOUNDS->unk276;
+        sub->unk24 = (f32) gPlayerSlots[gCurrentPlayerIndex].unk274;
+        sub->unk28 = (f32) gPlayerSlots[gCurrentPlayerIndex].unk276;
         break;
     case 0xFE:
         node = ((SpriteActorData *)sub->key)->unk17C;
@@ -676,8 +676,8 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
     }
     if ((sub->key->animState == NULL) && (sub->unk3C == 0)) {
         sub->unk3C = 1;
-        sub->unk24 = (f32) SPRITE_BOUNDS->unk270;
-        sub->unk28 = (f32) SPRITE_BOUNDS->unk272;
+        sub->unk24 = (f32) gPlayerSlots[gCurrentPlayerIndex].unk270;
+        sub->unk28 = (f32) gPlayerSlots[gCurrentPlayerIndex].unk272;
     }
     if (sub->unk3C == 0) {
         if (nodeIndex == 0) {
@@ -691,8 +691,8 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
             screenX = sub->unk24;
             screenY = sub->unk28;
         }
-        screenX = CLAMP_TO_BOUNDS(screenX, (f32) (SPRITE_BOUNDS->unk270 - 0x64), (f32) (SPRITE_BOUNDS->unk274 + 0x64));
-        screenY = CLAMP_TO_BOUNDS(screenY, (f32) (SPRITE_BOUNDS->unk272 - 0x64), (f32) (SPRITE_BOUNDS->unk276 + 0x64));
+        screenX = CLAMP_TO_BOUNDS(screenX, (f32) (gPlayerSlots[gCurrentPlayerIndex].unk270 - 0x64), (f32) (gPlayerSlots[gCurrentPlayerIndex].unk274 + 0x64));
+        screenY = CLAMP_TO_BOUNDS(screenY, (f32) (gPlayerSlots[gCurrentPlayerIndex].unk272 - 0x64), (f32) (gPlayerSlots[gCurrentPlayerIndex].unk276 + 0x64));
         sub->unk24 = screenX;
         sub->unk28 = screenY;
     }
@@ -706,10 +706,10 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
     if (screenY > 60.7999992370605469) {
         screenY = screenY - 60.7999992370605469;
     }
-    screenX = (f32) CLAMP_TO_BOUNDS((f64) screenX, (f64) SPRITE_BOUNDS->unk270 + 91.1999969482421875 + 5.0,
-                           (f64) SPRITE_BOUNDS->unk274 - 96.1999969482421875);
-    screenY = (f32) CLAMP_TO_BOUNDS((f64) screenY, (f64) SPRITE_BOUNDS->unk272 + 60.7999992370605469 + 5.0,
-                           (f64) SPRITE_BOUNDS->unk276 - 65.7999992370605469);
+    screenX = (f32) CLAMP_TO_BOUNDS((f64) screenX, (f64) gPlayerSlots[gCurrentPlayerIndex].unk270 + 91.1999969482421875 + 5.0,
+                           (f64) gPlayerSlots[gCurrentPlayerIndex].unk274 - 96.1999969482421875);
+    screenY = (f32) CLAMP_TO_BOUNDS((f64) screenY, (f64) gPlayerSlots[gCurrentPlayerIndex].unk272 + 60.7999992370605469 + 5.0,
+                           (f64) gPlayerSlots[gCurrentPlayerIndex].unk276 - 65.7999992370605469);
     sub->unk2C = ((screenX - sub->unk2C) * step) + sub->unk2C;
     sub->unk30 = ((screenY - sub->unk30) * step) + sub->unk30;
     actor->x = (((sub->unk2C - sub->unk24) * sub->unk20) + sub->unk24);

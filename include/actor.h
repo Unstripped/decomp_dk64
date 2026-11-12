@@ -185,7 +185,9 @@ typedef struct ActorSub140 {
     /* 0xAD */ u8 padAD[3];
     /* 0xB0 */ s32 unkB0; // last box contact x/z (actorComputeBoxNormal)
     /* 0xB4 */ s32 unkB4;
-    /* 0xB8 */ u8 padB8[0xC4 - 0xB8];
+    /* 0xB8 */ f32 unkB8; // actor position in the hit box's local space (actorCollisionReflectAndPush)
+    /* 0xBC */ f32 unkBC;
+    /* 0xC0 */ f32 unkC0;
 } ActorSub140; // size = 0xC4
 
 // Animated-model asset header (controllerAnimStateLoadAsset relocates it, animListInit reads unk10).

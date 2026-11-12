@@ -548,7 +548,7 @@ Gfx *func_807135B4(Gfx *dl) {
         }
         if (&D_80755370 && &D_80755370 && &D_80755370) {}  // FAKE: dead address test, steers as1 delay-slot fill (bne+nop instead of bnel)
         x = (f32) ((f64) x * 0.5);
-        R117D_WRITE_GFX(dl++, 0xFCFFFFFF, 0xFFFCF279);
+        gDPSetCombineMode(dl++, G_CC_DECALRGBA, G_CC_DECALRGBA);
         dl = hudDrawScaledText(dl, (s16) (s32) (x * 4.0f), (s16) (s32) ((f32) gHiResScale * y * 4.0f), 0.7f, textTableGetString(0xC, (s32) (&textIds.unk0)[textIndex], 1));
     }
     return dl;
@@ -753,7 +753,7 @@ Gfx *screenStateTickAndDraw(Gfx *dl) {
         dl = hudDrawScaledText(dl, 0x280, 0x1E0, 1.0f, buffer);
     }
     D_807552E0 = 0;
-    R117D_WRITE_GFX(dl++, 0xE7000000, 0);
+    gDPPipeSync(dl++);
     if (D_80755334 < 0x5A) {
         D_80755334++;
     }

@@ -136,8 +136,8 @@ void func_806AE394(f32 distOffset, f32 radius) {
 extern s32 gCurrentMap;
 
 void func_806AE588(void) {
-    s32 sel;
-    s32 sw;
+    s32 state;
+    s32 entryState;
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
@@ -149,9 +149,9 @@ void func_806AE588(void) {
         }
     }
     func_8072881C(0, &gBehaviourWorkState->unk28);
-    sel = gCurrentActor->state;
-    if ((sel != 0x32) || (gActorGlobalState.unk15 != 0)) {
-        if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (sel != 0x37)) {
+    state = gCurrentActor->state;
+    if ((state != 0x32) || (gActorGlobalState.unk15 != 0)) {
+        if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (state != 0x37)) {
             if (gCurrentActor->health < -1) {
                 behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x202);
                 gCurrentActor->speedY = 250.0f;
@@ -168,9 +168,9 @@ void func_806AE588(void) {
             gCurrentActor->speedY = 220.0f;
         }
     }
-    sel = gCurrentActor->state;
-    sw = sel;
-    switch (sel) {
+    state = gCurrentActor->state;
+    entryState = state;
+    switch (state) {
     case 0x31:
         if ((gCurrentActor->unk155 != 0) || (gCurrentActor->sub4->model->speed == 0.0f)) {
             actorSetDefaultState(0x1FB);
@@ -245,16 +245,16 @@ void func_806AE588(void) {
             gCurrentActor->state = 0x27;
             gCurrentActor->unk155 = 0;
         }
-        sel = gCurrentActor->state;
+        state = gCurrentActor->state;
     case 0x10:
-        func_80724E48((sel == 1) ? 2 : 0);
+        func_80724E48((state == 1) ? 2 : 0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
         break;
     case 2:
     case 3:
     case 7:
     case 0x35:
-        func_80724E48((sw == 0x35) ? 2 : 3);
+        func_80724E48((entryState == 0x35) ? 2 : 3);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:
@@ -281,11 +281,11 @@ void func_806AE588(void) {
     case 0x40:
         break;
     default:
-        behaviourUpdateContactAndState(0x1FB, sel);
+        behaviourUpdateContactAndState(0x1FB, state);
         break;
     }
-    sel = gCurrentActor->state;
-    switch (sel) {
+    state = gCurrentActor->state;
+    switch (state) {
     case 0x31:
     case 0x37:
     case 0x40:
@@ -546,7 +546,7 @@ void effectSpawnActorParticleBurst(u8 nodeIndex) {
 }
 
 void func_806AFB58(void) {
-    s32 sel;
+    s32 state;
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
@@ -575,7 +575,7 @@ void func_806AFB58(void) {
         gBehaviourWorkState->unk26 = 0;
         gCurrentActor->speedXZ = 0.0f;
     }
-    sel = gCurrentActor->state;
+    state = gCurrentActor->state;
     switch (gCurrentActor->state) {
     case 0x31:
         if ((gCurrentActor->unk155 != 0) || (gCurrentActor->sub4->model->speed == 0.0f)) {
@@ -640,16 +640,16 @@ void func_806AFB58(void) {
             gCurrentActor->state = 0x27;
             gCurrentActor->unk155 = 0;
         }
-        sel = gCurrentActor->state;
+        state = gCurrentActor->state;
     case 0x10:
-        func_80724E48((sel == 1) ? 2 : 0);
+        func_80724E48((state == 1) ? 2 : 0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
         break;
     case 2:
     case 3:
     case 7:
     case 0x35:
-        func_80724E48((sel == 0x35) ? 2 : 3);
+        func_80724E48((state == 0x35) ? 2 : 3);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:
@@ -672,11 +672,11 @@ void func_806AFB58(void) {
     case 0x40:
         break;
     default:
-        behaviourUpdateContactAndState(0x2D7, sel);
+        behaviourUpdateContactAndState(0x2D7, state);
         break;
     }
-    sel = gCurrentActor->state;
-    switch (sel) {
+    state = gCurrentActor->state;
+    switch (state) {
     case 0x31:
     case 0x37:
     case 0x40:
@@ -801,7 +801,7 @@ s32 func_806B0770(void) {
 extern Actor *gPrimaryPlayerActor;
 
 void func_806B0848(void) {
-    s32 sel;
+    s32 state;
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
@@ -822,12 +822,12 @@ void func_806B0848(void) {
     } else if (gActorGlobalState.bossFightPhase == 5) {
         behaviourSpawnExplosionAndSound(0x366, 0x31, gActorGlobalState.targetActor);
     }
-    sel = gCurrentActor->state;
-    if (sel == 4) {
+    state = gCurrentActor->state;
+    if (state == 4) {
         gCurrentActor->state = 1;
-        sel = gCurrentActor->state;
+        state = gCurrentActor->state;
     }
-    switch (sel) {
+    switch (state) {
         case 0x37:
             gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gCurrentActor->moveYaw, 7.0f);
             switch (gCurrentActor->unk155) {

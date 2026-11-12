@@ -533,7 +533,7 @@ void effectShrinkAndVelocityUpdate(TimedEffectActorView *effect, s8 *isDone) {
     effect->scaleY = effect->scaleX;
     scaleFactor = state->unkC;
     if (scaleFactor < 2.0f) {
-        state->unkC = (f32) ((f64) scaleFactor + 0.2);
+        state->unkC = scaleFactor + 0.2;
     }
 }
 

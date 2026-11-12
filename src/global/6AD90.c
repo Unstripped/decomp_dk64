@@ -1279,17 +1279,17 @@ extern u8 D_807F94AC;
 
 u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 refY, f32 *floorYOut) {
     s32 pad;
-    CollisionTriF *tri_end;
-    CollisionTriF *hit_tri;
+    CollisionTriF *triEnd;
+    CollisionTriF *hitTri;
     CollisionTriF *tri;
-    f64 nx, ny, nz_product;
+    f64 nx, ny, nzPart;
     f64 d;
     f64 val;
     f64 dx01, dy01, dz01, dx02, dy02, dz02;
     f32 y;
     CsStateFull *sub7C;
     f32 padB[6];
-    f32 hit_y;
+    f32 hitY;
     u8 hit;
     s32 pad9C;
     s16 slotIdx;
@@ -1297,7 +1297,7 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
     ModelTriBuffer *buf;
 
     hit = 0;
-    hit_y = 999999.0f;
+    hitY = 999999.0f;
 
     slotIdx = hashTableLookup(slotId);
     if (slotIdx == -1) {
@@ -1342,8 +1342,8 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
     }
 
     tri = buf->tri_start;
-    tri_end = buf->tri_end;
-    if (tri != tri_end) {
+    triEnd = buf->tri_end;
+    if (tri != triEnd) {
         do {
             if (collisionCheckTriangleBoundingBoxXZ(tri, x, z) != 0 &&
                 collisionCheckTriangleContainsPointXZ(tri, x, z) != 0 &&
@@ -1356,11 +1356,11 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
                 dz02 = tri->z[0] - tri->z[2];
                 nx = (dy01 * dz02) - (dz01 * dy02);
                 ny = (dz01 * dx02) - (dx01 * dz02);
-                nz_product = dx01 * dy02;
-                d = -((nx * tri->x[1]) + (ny * tri->y[1]) + ((nz_product - (dy01 * dx02)) * tri->z[1]));
+                nzPart = dx01 * dy02;
+                d = -((nx * tri->x[1]) + (ny * tri->y[1]) + ((nzPart - (dy01 * dx02)) * tri->z[1]));
                 if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
                     if (actor != NULL) {
-                        val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
+                        val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nzPart - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
                         y = (2000.0 * val) - 1000.0;
                         collisionCheckSlopeAngle(refY, y, 0, actor, 0);
                         if (collisionGetFloorTriangleNormal(refY, y, 0, tri->unk24) != 0 && D_807F946D != 0) {
@@ -1369,38 +1369,38 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
                         }
                     }
                     if (D_807F94BC != 0) {
-                        val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
+                        val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nzPart - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
                         collisionRecordTriangleF(tri, (2000.0 * val) - 1000.0);
                     }
                     if (collisionCheckTriangleWindingF32(tri) != 0) {
-                        val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
+                        val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nzPart - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
                         y = (2000.0 * val) - 1000.0;
-                        if (mathCheckCloserFloatThreshold(hit_y, y, refY + 4.0, 0) != 0) {
-                            hit_tri = tri;
+                        if (mathCheckCloserFloatThreshold(hitY, y, refY + 4.0, 0) != 0) {
+                            hitTri = tri;
                             hit = 1;
-                            hit_y = y;
+                            hitY = y;
                         }
                     }
                 }
             }
             tri++;
-        } while (tri != tri_end);
+        } while (tri != triEnd);
     }
 
-    if (hit != 0 && mathCheckCloserFloatThreshold(*floorYOut, hit_y, (f32)((f64)refY + 4.0), 0) != 0) {
-        *floorYOut = hit_y;
-        collisionStoreTriangleNormalAnglesF32(actor, hit_tri, 1);
+    if (hit != 0 && mathCheckCloserFloatThreshold(*floorYOut, hitY, refY + 4.0, 0) != 0) {
+        *floorYOut = hitY;
+        collisionStoreTriangleNormalAnglesF32(actor, hitTri, 1);
         sub7C = gModelSlots[slotIdx].unk7C;
         if (sub7C != NULL && sub7C->unk4F != 0) {
             D_807F94AC = 1;
         }
         if (actor != NULL) {
             if (actor->attachMode != 2 && actor->attachMode != 3) {
-                collisionAttachActorToObjectNode(actor, slotIdx, hit_tri->unk26, hit_tri->unk27, x, hit_y, z);
+                collisionAttachActorToObjectNode(actor, slotIdx, hitTri->unk26, hitTri->unk27, x, hitY, z);
             }
-            actor->unk78[0] = hit_tri->unk25;
+            actor->unk78[0] = hitTri->unk25;
         }
-        D_807F94B1 = hit_tri->unk25;
+        D_807F94B1 = hitTri->unk25;
     }
     return hit;
 }
@@ -1830,45 +1830,45 @@ extern f32 D_807F947C;
 extern u32 D_807F9480;
 
 
-void collisionTransformPointToActorLocal(Actor *arg0, Actor *arg1, CollisionBoxTri *arg2, f32 arg3, f32 arg4, f32 arg5) {
+void collisionTransformPointToActorLocal(Actor *actor, Actor *target, CollisionBoxTri *tri, f32 x, f32 y, f32 z) {
     float xfMtx[4][4];
     float invMtx[4][4];
     ActorSub140 *sub;
     s32 idx;
     Mtx *mtx;
 
-    D_807F9470 = arg1;
-    sub = arg1->collision;
+    D_807F9470 = target;
+    sub = target->collision;
     if (gFrameCounter == sub->unk88) {
         idx = gGfxBufferIndex;
     } else {
         idx = (gGfxBufferIndex ^ 1) & 0xFF;
     }
     mtx = sub->unk74[idx];
-    if ((arg2->unk4C != arg2->unk48) || (arg2->unk50 != arg2->unk48)) {
+    if ((tri->unk4C != tri->unk48) || (tri->unk50 != tri->unk48)) {
         D_807F94B2 = 1;
     }
-    D_807F9480 = arg2->unk48;
-    if (arg2->unk48 == -1) {
+    D_807F9480 = tri->unk48;
+    if (tri->unk48 == -1) {
         memcpy(xfMtx, sub->boxBounds, 0x40);
     } else {
-        guMtxL2F(xfMtx, &mtx[arg2->unk48 >> 6]);
+        guMtxL2F(xfMtx, &mtx[tri->unk48 >> 6]);
     }
     matrix4Invert(invMtx, xfMtx);
-    guMtxXFMF(invMtx, arg3, arg4, arg5, &D_807F9474, &D_807F9478, &D_807F947C);
+    guMtxXFMF(invMtx, x, y, z, &D_807F9474, &D_807F9478, &D_807F947C);
 }
 
-void collisionTransformPointByActorMtx(Actor *actor, u32 arg1, f32 *arg2, f32 arg3, f32 *arg4) {
+void collisionTransformPointByActorMtx(Actor *actor, u32 mtxOffset, f32 *xInOut, f32 yIn, f32 *zInOut) {
     s32 idx;
-    f32 x;
-    f32 y;
-    f32 z;
+    f32 xIn;
+    f32 zIn;
+    f32 yOut;
     ActorSub140 *sub;
     Mtx *mtx;
     float xfMtx[4][4];
 
-    x = *arg2;
-    y = *arg4;
+    xIn = *xInOut;
+    zIn = *zInOut;
     sub = actor->collision;
     if (gFrameCounter == sub->unk88) {
         idx = gGfxBufferIndex;
@@ -1877,12 +1877,12 @@ void collisionTransformPointByActorMtx(Actor *actor, u32 arg1, f32 *arg2, f32 ar
         idx = idx & 0xFF; // FAKE: split mask steers sub/idx v0/v1 allocation
     }
     mtx = sub->unk74[idx];
-    if (arg1 == -1) {
+    if (mtxOffset == -1) {
         memcpy(xfMtx, sub->boxBounds, 0x40);
     } else {
-        guMtxL2F(xfMtx, &mtx[arg1 >> 6]);
+        guMtxL2F(xfMtx, &mtx[mtxOffset >> 6]);
     }
-    guMtxXFMF(xfMtx, x, arg3, y, arg2, &z, arg4);
+    guMtxXFMF(xfMtx, xIn, yIn, zIn, xInOut, &yOut, zInOut);
 }
 
 s32 collisionCheckBoxTriangleBoundsXZ(CollisionBoxTri *arg0, f32 arg1, f32 arg2) {
@@ -2335,25 +2335,25 @@ typedef struct CollisionBstNode {
     /* 0x18 */ struct CollisionBstNode *right;
 } CollisionBstNode;
 
-void collisionBstLookupOrAssert(CollisionBstNode *arg0, u32 arg1, s32 *arg2, s32 *arg3) {
+void collisionBstLookupOrAssert(CollisionBstNode *node, u32 key, s32 *outTable, s32 *outIndex) {
     u8 idxA;
     u16 idxB;
     s32 frame;
 
-    if (arg0 == NULL) {
+    if (node == NULL) {
         idxA = 0;
         idxB = 0;
         frame = 0;
-        collisionQueueSearch(arg1, &idxA, &idxB, &frame);
+        collisionQueueSearch(key, &idxA, &idxB, &frame);
         faultSetMessage(7, idxA, idxB, gFrameCounter - frame);
     }
-    if (arg1 == arg0->unk0) {
-        *arg2 = arg0->unk4;
-        *arg3 = arg0->unk8;
-    } else if (arg0->unk0 < arg1) {
-        collisionBstLookupOrAssert(arg0->right, arg1, arg2, arg3);
+    if (key == node->unk0) {
+        *outTable = node->unk4;
+        *outIndex = node->unk8;
+    } else if (node->unk0 < key) {
+        collisionBstLookupOrAssert(node->right, key, outTable, outIndex);
     } else {
-        collisionBstLookupOrAssert(arg0->left, arg1, arg2, arg3);
+        collisionBstLookupOrAssert(node->left, key, outTable, outIndex);
     }
 }
 
@@ -2420,14 +2420,14 @@ void collisionQueueSearch(s32 arg0, u8 *arg1, u16 *arg2, s32 *arg3) {
     }
 }
 
-void collisionQueueAppend(s32 arg0, u8 arg1, u16 arg2) {
+void collisionQueueAppend(s32 key, u8 table, u16 index) {
     u8 idx = D_807FB221;
     CollisionQueueEntry *item = &D_807FB228[idx];
 
     item->unk0 = gFrameCounter;
-    item->unk4 = arg0;
-    item->unkA = arg1;
-    item->unk8 = arg2;
+    item->unk4 = key;
+    item->unkA = table;
+    item->unk8 = index;
     D_807FB221 = idx + 1;
 
     if (D_807FB221 == 0x40) {

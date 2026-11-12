@@ -871,20 +871,20 @@ Gfx *effectGridBuildDisplayList(EffectNode *effect, Gfx *inGlist, s16 chunk) {
     }
     glist = effect->displayLists[effect->displayListIndex][gGfxBufferIndex];
     effect->displayListIndex++;
-    EFFECT_WRITE_GFX(inGlist++, 0xDE000000, osVirtualToPhysical(glist));
+    gSPDisplayList(inGlist++, osVirtualToPhysical(glist));
     gDPPipeSync(glist++);
-    EFFECT_WRITE_GFX(glist++, 0xE3000A01, 0);
-    EFFECT_WRITE_GFX(glist++, 0xD9000000, 0);
-    EFFECT_WRITE_GFX(glist++, 0xE3001801, 0xC0);
+    gDPSetCycleType(glist++, G_CYC_1CYCLE);
+    gSPClearGeometryMode(glist++, 0xFFFFFFFF);
+    gDPSetColorDither(glist++, G_CD_DISABLE);
     if (effect->depth != 0) {
-        EFFECT_WRITE_GFX(glist++, 0xD9FFFFFF, 0x200005);
-        EFFECT_WRITE_GFX(glist++, 0xE200001C, 0x504B50);
+        gSPSetGeometryMode(glist++, G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH);
+        gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504B50);
     } else {
-        EFFECT_WRITE_GFX(glist++, 0xD9FFFFFF, 0x200004);
-        EFFECT_WRITE_GFX(glist++, 0xE200001C, 0x504240);
+        gSPSetGeometryMode(glist++, G_SHADE | G_SHADING_SMOOTH);
+        gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
     }
-    EFFECT_WRITE_GFX(glist++, 0xD7000002, 0xFFFFFFFF);
-    EFFECT_WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
+    gSPTexture(glist++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
+    gDPSetCombine(glist++, 0x119623, 0xFF2FFFFF);
 
     if (effect->grid->unk14 == 0 && mapChunkIsInUse(chunk)) {
         lightSampleColorAtPosition(effect->x, effect->y, effect->z, 0, &red, &green, &blue, chunk);
@@ -894,14 +894,14 @@ Gfx *effectGridBuildDisplayList(EffectNode *effect, Gfx *inGlist, s16 chunk) {
     }
     gDPSetPrimColor(glist++, 0, 0, (u32)((f32)effect->red * colorRed), (u32)((f32)effect->green * colorGreen), (u32)((f32)effect->blue * colorBlue), effect->alpha);
     if (effect->mode != 0) {
-        EFFECT_WRITE_GFX(glist++, 0xDA380007, &D_20000C0);
-        EFFECT_WRITE_GFX(glist++, 0xDA380003, &D_2000180);
+        gSPMatrix(glist++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+        gSPMatrix(glist++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
         glist = gfxInit2DDisplayList(glist);
         if (effect->chunkFilter == -1) {
-            EFFECT_WRITE_GFX(glist++, 0xED000000 | (((s32)((f32)effect->minX * 4.0f) & 0xFFF) << 12) | ((s32)((f32)effect->minY * 4.0f) & 0xFFF), (((s32)((f32)effect->maxX * 4.0f) & 0xFFF) << 12) | ((s32)((f32)effect->maxY * 4.0f) & 0xFFF));
+            gDPSetScissorFrac(glist++, G_SC_NON_INTERLACE, (f32)effect->minX * 4.0f, (f32)effect->minY * 4.0f, (f32)effect->maxX * 4.0f, (f32)effect->maxY * 4.0f);
         }
     }
-    EFFECT_WRITE_GFX(glist++, 0xDA380000, osVirtualToPhysical(&effect->matrices[gCurrentPlayerIndex][gGfxBufferIndex]));
+    gSPMatrix(glist++, osVirtualToPhysical(&effect->matrices[gCurrentPlayerIndex][gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
 
     for (i = 0; i < effect->frameCount; i++) {
         if (D_807F6009 != 5 || D_807F600C != effect->frames[i]) {
@@ -922,17 +922,17 @@ Gfx *effectGridBuildDisplayList(EffectNode *effect, Gfx *inGlist, s16 chunk) {
             }
             D_807F600C = effect->frames[i];
         }
-        EFFECT_WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(effect->vertices + (i << 2)));
-        EFFECT_WRITE_GFX(glist++, 0x06000206, 0x406);
+        gSPVertex(glist++, osVirtualToPhysical(effect->vertices + (i << 2)), 4, 0);
+        gSP2Triangles(glist++, 0, 1, 3, 0, 0, 2, 3, 0);
     }
-    EFFECT_WRITE_GFX(glist++, 0xD8380002, 0x40);
+    gSPPopMatrix(glist++, G_MTX_MODELVIEW);
     gDPPipeSync(glist++);
-    EFFECT_WRITE_GFX(glist++, 0xE3001801, 0);
+    gDPSetColorDither(glist++, G_CD_MAGICSQ);
     if (effect->mode != 0) {
-        EFFECT_WRITE_GFX(glist++, 0xDA380007, &D_2000000);
-        EFFECT_WRITE_GFX(glist++, 0xDA380005, &D_2000200);
+        gSPMatrix(glist++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+        gSPMatrix(glist++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
         if (effect->chunkFilter == -1) {
-            EFFECT_WRITE_GFX(glist++, 0xED000000, ((((s32)((f32)gScreenWidth * 4.0f) & 0xFFF) << 12) | ((s32)((f32)gScreenHeight * 4.0f) & 0xFFF)));
+            gDPSetScissorFrac(glist++, G_SC_NON_INTERLACE, 0, 0, (f32)gScreenWidth * 4.0f, (f32)gScreenHeight * 4.0f);
         }
     }
     gDPPipeSync(glist++);
