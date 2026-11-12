@@ -68,9 +68,8 @@ OK`, `tools/merge_gate.sh --commit "include: <what>" --stage include/<h>.h - - <
 one includer). A header commit stales the automatic rungs of every function reaching the changed
 declarations (`fp_hdr2`). Gate a field TYPE change apart from carves/moves: `carry --header-carve`
 then plain `carry --rev <commit before> <files>` re-stamp carves, moved types, respelled declarations
-and pure typedef renames, never a type change. Before committing a widely reached change, measure
-the stale cost (full `status` before/after, functions losing fresh non-sweep rungs after a carry
-`--dry-run`); hold it above ~100 functions.
+and pure typedef renames, never a type change. Before committing a widely reached change, measure the stale cost on a temp-swapped header (full `status` before/after): functions losing fresh
+non-sweep rungs AND functions turning EXHAUSTED→OPEN (round 18's 0xEC union: 2 measured, 112 re-opened in 42 files, one sweep). Hold above ~100 non-sweep losses; sweep the rest.
 
 Callee-prototype work is its own workstream, prepared by a batch worker in `.scratch/<A>/<name>batch/`
 (owner + caller copies, `measure.json` per-file cfe before/after, `ledger/<file>.txt`; verify header edits with a
@@ -83,15 +82,15 @@ run a grouped re-review pass after the batches (batch → re-review loop, round 
 ## 5. Merge
 
 As each agent reports:
-1. Check the report: every site of its file in the LEDGER block, one `review` per function, evidence present (ladder.md); missing lines go back.
+1. Check the report: every site of its file in the LEDGER block, one `review` per function, evidence present (ladder.md); missing lines go back. A `review` must come from a full read of the function at the base (13D170's first pass, reviews written from a skim, went back).
 2. `uv run tools/clint.py uninit .scratch/<A>/<f>.c --base src/<seg>/<f>.c` must exit 0.
 3. Merge per decomp-unit merge.md:
    `tools/merge_gate.sh --commit "<seg>: clean <f> (<n> FAKE −, <n> goto −)" .scratch/<A> <base> src/<seg>/<f>.c`.
    Read `GATE_OK` and `COMMITTED`; never pipe the gate.
-4. A copy that changed a non-static signature carries stand-in `#define PROTO_SKIP_<f>` lines plus
-   declarations: after the merge delete both, `protos.py gen` (a SKIPped function keeps its in-file
-   declaration), objdiff every caller and includer, gate `--stage include/proto/<seg>/<f>.h - -
-   src/<seg>/<f>.c` (one `--stage` per header written); `protos.py gen --check` then exits 0.
+4. A copy that changed a non-static signature carries stand-in `#define PROTO_SKIP_<f>` + declarations:
+   after the merge put the src without both into `.scratch/<x>/<f>.c`, `protos.py gen` (prints the new
+   signature already), gate `--stage include/proto/<seg>/<f>.h .scratch/<x> <merge> src/<seg>/<f>.c`
+   (one `--stage` per header; `- -` gates need `.scratch/bases/` snapshots); `gen --check` exits 0.
 5. Knowledge is queued, not filed: append the report's IDO findings (file, function, merge commit,
    rule, see-also IDs) to `.scratch/r<N>-knowledge-queue.md`. A knowledge commit stales every rung
    whose function it names or whose note ranks it in the top 8, so filing per merge staled the
@@ -105,9 +104,9 @@ As each agent reports:
    <merge>^ <src>`. A batch's `fixed` lines for sites it removed: `record --base <patch base>`. Commit `drafts/quality/`.
 7. Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
    (`--reloc-ok`), one gate. Copies keyed by the same basename (`boss/52B0` vs `race/52B0`,
-   `critter/0` vs `minecart/0`) need separate dirs and gates. A gate failing with `cfe: ... if
-   directive is not terminated` on unchanged headers is a stale dkd server: `(cd .scratch/gate &&
-   ../../tools/dk --stop)` and rerun. Commit explicit paths only; headers go in `--stage`, never as a
+   `critter/0` vs `minecart/0`) need separate dirs and gates. `cfe: ... if directive is not terminated`
+   on unchanged headers is a stale dkd file-size cache (rounds 13, 18): `(cd .scratch/gate && ../../tools/dk
+   --stop)`, rerun; swap a main-tree header via temp + `mv` (new inode). Commit explicit paths only; headers go in `--stage`, never as a
    gate file argument. A copy byte-identical to its base is ledger-only (`cmp` first); one whose file
    changed since its base merges 3-way (`<copy-dir> <base>`). A copy retyping a shared global's extern:
    fix every other file's extern in the SAME gate (objdiff each; a file whose cfe count would rise

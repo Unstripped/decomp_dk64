@@ -139,26 +139,27 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 14 (2026-11-11)** — global/10D2D0, 140600, 55B20, 114270, 2C910, then re-review pass Rev14A (29 functions incl. B5EC0's 33 view casts onto Actor fields). Batch12 b19: `CollisionBox` plane carve (s64 nx/ny/nz/d, 0x58) and vertex names, plane views retired (70FD0 cfe 4 → 0), ActorSub140 carve + ActorTarget views retired, 36880 `ModelAssetTri` record (bone ^0 FAKE gone). Own-file retypes: 140600 `computeBiquadCoefficients`/`n_alFxNew` (IDO 7.1), 10D2D0 `healthApplyPendingDelta`, 114270 `M114aAngle *`. cfe warnings 783 → 764. No symbols named.
 - [x] **Round 15 (2026-11-11)** — global/D5E10, 201B0, arcade/0, 80150, 8F050, then re-review passes Rev15A (70FD0/36880/10D2D0) and Rev15B (45 functions). Batch12 b20 (envmixer param, spritelist protos, PlayerStruct 0x2E0 carve, strcspn, synnewfx, bst void key, gCurrentActor as Actor * in boss/8520, boss/0, race/36B0), b21 (new `race.h`, B5EC0 steer retag, controllerAnimFreeSub ANSI), b22 (shared `PlayerInventory`, B2CE0 and 8-file actor views retired, boss/0 piece views, 70FD0 views); b22 1b (10D2D0 HealthStats) dropped. cfe warnings 764 → 513.
 - [x] **Round 16 (2026-11-11)** — race/7BD0 (4 passes + race.h/actor.h bundles), menu/1AF0, global/133A90, 13A7A0, 5E2F0, 8CA50, CleanRaceB, re-review groups Rev16A–K (~100 files), Batch16 callee/type batches. cfe warnings 513 → 234; proto-steer 106 → 82; 33 symbols named.
-- [x] **Round 17 (2026-11-12, final round)** — global/131B0, 69E60, 13ECE0, 2DE90, 10E1D0, arcade/0; Batch16 set 4 (actorDespawn s32, ResQueue, inventory, sub140, TargetVec3f, gGlobalPauseFlags), gFrameCounter u32 (58 files), `dlSetTextureScaleAndFlip`, `modelPendingQueueInsert(RenderEntry *, u8)`; re-review groups Rev17L/M/N (69 files) + Rev17P; ActorSub140 0xB8 carve, `EffectNode.frames` void *[4], gCamActor/D_807F600C externs unified. cfe warnings 234 → 177; proto-steer 82 → 68; 14 names (RumbleInfo, G00Entry rect, PlayerStruct.active, RaceParticipant.reverseThrust, gChunkLight*, gLightCandidates, MenuShopState, D_807444E0); knowledge Q0664–Q0668.
-- [ ] Remaining (campaign stopped after round 17): 568 OPEN functions in 163 files (436 need a re-review) and the blocked owner/header changes, listed in `.omp/skills/cleanup-unit/pending.md`; 436 functions not reviewed; 480 open sites. Resume with `uv run tools/quality.py rank`.
+- [x] **Round 17 (2026-11-12)** — global/131B0, 69E60, 13ECE0, 2DE90, 10E1D0, arcade/0; Batch16 set 4 (actorDespawn s32, ResQueue, inventory, sub140, TargetVec3f, gGlobalPauseFlags), gFrameCounter u32 (58 files), `dlSetTextureScaleAndFlip`, `modelPendingQueueInsert(RenderEntry *, u8)`; re-review groups Rev17L/M/N (69 files) + Rev17P; ActorSub140 0xB8 carve, `EffectNode.frames` void *[4], gCamActor/D_807F600C externs unified. cfe warnings 234 → 177; proto-steer 82 → 68; 14 names (RumbleInfo, G00Entry rect, PlayerStruct.active, RaceParticipant.reverseThrust, gChunkLight*, gLightCandidates, MenuShopState, D_807444E0); knowledge Q0664–Q0668.
+- [x] **Round 18 (2026-11-12)** — boot/3630 (const `strlen`/`_strcasecmp`), global/137C10, 13D170, 36880 (2 passes, 100/100), A6280 (3 views retired, Actor 0xEC union `animLastFrame`), bonus/12A0 (`bonusSpawnReel` returns `Actor *`); n_alSyn callee batch (141520/1417C0/141C00/137C10/13A7A0: real libaudio types) and re-review passes Rev18A/B (SynLPFilter/SynCoreParam tags, `_DEBUG __osError` arms and a typed `FxParamState *` local replace 3 FAKEs). cfe warnings 177 → 155; proto-steer 68 → 66; name `func_806A1AC4` → `actorSparkCutsceneUpdate`; knowledge Q0669–Q0672.
+- [ ] Remaining (after round 18): 519 OPEN functions in 166 files (39 staled by the round-18 knowledge commit) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 17):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 18):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 752 | 583 |
+| FAKE | 750 | 583 |
 | FAKE dead-if | 276 | 263 |
-| FAKE proto-steer | 68 | 134 |
+| FAKE proto-steer | 66 | 134 |
 | FAKE other kinds | 408 | 186 |
 | LAYOUT | 66 | 47 |
 | goto | 35 | 39 |
 | proto-type (`// PROTO:`) | 6 | 0 |
 | protos mismatch | 42 | 1,202 |
-| reviewed / exhausted functions | 3,834 / 3,702 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 177 | 1,890 |
+| reviewed / exhausted functions | 3,904 / 3,751 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 155 | 1,890 |
 | uninit warnings (clint checks every function) | 251 | 122 |
-| `func_` definitions | 434 | 457 |
-| m2c names | 403 | 5,040 |
+| `func_` definitions | 433 | 457 |
+| m2c names | 401 | 5,040 |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 
