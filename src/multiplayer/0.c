@@ -28,28 +28,28 @@
 
 // Match controller state (actor +0x174 of the controller actor).
 typedef struct MpControllerState {
-    u64 unk0;
-    s32 unk8;
-    s32 unkC;
-    s32 unk10;
+    u64 startTime;
+    s32 timeLeft;
+    s32 timeLimit;
+    s32 blinkTimer;
     char pad14[4];
-    Actor *unk18;
-    s16 unk1C;
+    Actor *spawnerActor;
+    s16 spawnerDelay;
     char pad1E[2];
-    G00Entry *unk20[4];
-    Mtx *unk30;
-    u32 unk34;
-    u8 unk38;
+    G00Entry *viewports[4];
+    Mtx *hudScaleMtx;
+    u32 sfxLastTick;
+    u8 sfxStep;
     char pad39[3];
-    struct GfSndState *unk3C;
-    s16 unk40;
-    s16 unk42;
-    void *unk44;
-    void *unk48;
-    u8 unk4C;
+    struct GfSndState *ambientSound;
+    s16 volumeTarget;
+    s16 volume;
+    void *glyphFull;
+    void *glyphHalf;
+    u8 crownSpawnDelay;
     char pad4D[3];
-    struct EffectNode *unk50[8];
-    u8 unk70;
+    struct EffectNode *hudIcons[8];
+    u8 hudIconsShown;
 } MpControllerState;
 
 typedef struct MpSettings {
@@ -113,7 +113,7 @@ Gfx *mpDrawTimer(Gfx *glistp, Actor *controller) {
     }
     gDPSetCombineMode(glistp++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, 255);
-    return renderTimerMinutesSecondsHUD(glistp, posX, posY, state->unk8);
+    return renderTimerMinutesSecondsHUD(glistp, posX, posY, state->timeLeft);
 }
 
 s32 mpCalcKillScore(PlayerInventory *score, s32 playerIndex) {
@@ -178,12 +178,12 @@ void mpUpdateMatchTimer(void) {
     u64 elapsedUs;
 
     state = gCurrentActor->customState;
-    elapsedUs = (osGetTime() - state->unk0) * 64 / 3000;
+    elapsedUs = (osGetTime() - state->startTime) * 64 / 3000;
     if (!(gGlobalPauseFlags & 2)) {
-        state->unk8 = state->unkC - elapsedUs / 1000000;
+        state->timeLeft = state->timeLimit - elapsedUs / 1000000;
     }
-    if (state->unk8 <= 0) {
-        state->unk8 = 0;
+    if (state->timeLeft <= 0) {
+        state->timeLeft = 0;
         mpDetermineWinner(state);
     }
     renderCallbacksRegister(mpDrawTimer, gCurrentActor, 7);
@@ -227,16 +227,13 @@ Gfx *mpDrawGlyph(Gfx *glistp, s16 *pX, s16 y, void *texture, s32 count) {
 Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spacing) {
     s16 glyphX;
     s32 i;
-    s32 next;
-    s32 slotOffset;
     s32 count;
     s32 half;
+    s32 rem;
     s16 y;
     s32 alpha;
     G00Entry *viewport;
-    PlayerStruct *player;
     PlayerInventory *score;
-    MpControllerState *statePtr;
 
     gDPPipeSync(glistp++);
     gSPDisplayList(glistp++, &D_1000118);
@@ -245,58 +242,41 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
     gSPMatrix(glistp++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gDPSetTextureFilter(glistp++, G_TF_POINT);
     gDPSetTexturePersp(glistp++, G_TP_NONE);
-    i = 0;
-    if ((s32) gPlayerCount > 0) {
-        statePtr = controllerState;
-        slotOffset = 0;
-        do {
-            viewport = statePtr->unk20[0];
-            alpha = 0xFF;
-            player = (PlayerStruct *)((u8 *)gPlayerSlots + slotOffset); // FAKE: byte-offset walk instead of gPlayerSlots[i] (steers induction vars)
-            if (player->unk2EA != 0) {
-                alpha = player->actor->alpha & 0xFF; // FAKE: redundant early alpha load (overwritten below) keeps alpha in v1 and the lh in a0; removing it drops 16 bytes
-                if (player->actor->alpha >= 0x100) {
-                    alpha = 0xFF;
-                } else {
-                    alpha = player->actor->alpha & 0xFF;
-                }
-            }
-            if (player->active == 0 || alpha == 0) {
-                next = i + 1;
+    for (i = 0; i < gPlayerCount; i++) {
+        viewport = controllerState->viewports[i];
+        alpha = 0xFF;
+        if (gPlayerSlots[i].unk2EA != 0) {
+            alpha = gPlayerSlots[i].actor->alpha & 0xFF; // FAKE: redundant early alpha load (overwritten below) keeps alpha in v1 and the lh in a0 (else: alpha in a0, beqzl at shape)
+            if (gPlayerSlots[i].actor->alpha >= 0x100) {
+                alpha = 0xFF;
             } else {
-                gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, alpha);
-                score = &gPlayerInventoryTable[i];
-                if (score != 0) {}  // FAKE: dead use makes scp a cross-block temp (steers uopt)
-                if (gSplitScreenMode == 0) {
-                    next = i + 1;
-                    glyphX = viewport->right - 0x30;
-                } else {
-                    next = i + 1;
-                    glyphX = (s16) ((f32) next * spacing - 20.0);
-                    if (D_1000118) {}  // FAKE: deadsweep dead statement (steers uopt)
-                }
-                y = viewport->top + 8;
-                half = score->health;
-                if (half < 0) {
-                    count = 0;
-                } else {
-                    count = half;
-                }
-                half = count / 2;
-                if (half != 0) {
-                    glistp = mpDrawGlyph(glistp, &glyphX, y, controllerState->unk44, half);
-                }
-                alpha = count - half * 2;
-                if (alpha != 0) {
-                    glistp = mpDrawGlyph(glistp, &glyphX, y, controllerState->unk48, alpha);
-                }
-                if (gPlayerCount == 0) {}  // FAKE: deadsweep dead statement (steers uopt)
+                alpha = gPlayerSlots[i].actor->alpha & 0xFF;
             }
-            i = next;
-            statePtr = (MpControllerState *)((u8 *)statePtr + 4); // FAKE: walks controllerState by 4 to read unk20[i] as p->unk20[0] (steers induction vars)
-            slotOffset += 0x2F0;
-        } while (next < (s32) gPlayerCount);
-        if (gPlayerCount == 0) {}  // FAKE: deadsweep dead statement (steers uopt)
+        }
+        if (gPlayerSlots[i].active == 0 || alpha == 0) {
+            continue;
+        }
+        gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, alpha);
+        score = &gPlayerInventoryTable[i];
+        if (gSplitScreenMode == 0) {
+            glyphX = viewport->right - 0x30;
+        } else {
+            glyphX = (s16) ((f32) (i + 1) * spacing - 20.0);
+        }
+        y = viewport->top + 8;
+        if (score->health < 0) {
+            count = 0;
+        } else {
+            count = score->health;
+        }
+        half = count / 2;
+        if (half != 0) {
+            glistp = mpDrawGlyph(glistp, &glyphX, y, controllerState->glyphFull, half);
+        }
+        rem = count - half * 2;
+        if (rem != 0) {
+            glistp = mpDrawGlyph(glistp, &glyphX, y, controllerState->glyphHalf, rem);
+        }
     }
     return glistp;
 }
@@ -308,31 +288,26 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, Actor *controller) {
     f32 posXStep;
     s32 i;
     MpControllerState *state;
-    void *temp; // FAKE: one local for viewport and Gfx* (steers regalloc/frame)
+    G00Entry *viewport;
 
     state = controller->customState;
-    temp = state->unk20[0];
+    viewport = state->viewports[0];
     posXStep = (f32) gScreenWidth / (f32) (gPlayerCount + 1);
-    posY = (f32) (((G00Entry *)temp)->top + 8);
+    posY = (f32) (viewport->top + 8);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
     glistp = mpDrawScoreGlyphs(glistp, state, posXStep);
     if (D_807552E4.unk4 != 3) {
         gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, 180);
         gSPDisplayList(glistp++, &D_1000118);
         gSPMatrix(glistp++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-        gSPMatrix(glistp++, state->unk30, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPMatrix(glistp++, state->hudScaleMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gDPPipeSync(glistp++);
         gDPSetCombineMode(glistp++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, 180);
         posY += 8.0f;
-        i = 0;
-        if (gPlayerCount > 0) {
-            do {
-                _sprintf(scoreStr, "%d", mpGetPlayerScore(i));
-                temp = textDrawStringVtx(glistp, 1, (s16) ((((f32) (i + 1) * posXStep) - (f32) ((f32) textGetStringWidth(1, scoreStr) * 0.25)) * 8.0f), (s16) (posY * 8.0f), scoreStr, 4);
-                i = i + 1;
-                glistp = temp;
-            } while (i < gPlayerCount);
+        for (i = 0; i < gPlayerCount; i++) {
+            _sprintf(scoreStr, "%d", mpGetPlayerScore(i));
+            glistp = textDrawStringVtx(glistp, 1, (s16) ((((f32) (i + 1) * posXStep) - (f32) ((f32) textGetStringWidth(1, scoreStr) * 0.25)) * 8.0f), (s16) (posY * 8.0f), scoreStr, 4);
         }
     }
     return glistp;
@@ -353,7 +328,7 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
     f32 fontHeight2;
     s32 bonusValue;
     G00Entry *rect;
-    Gfx *gfx2;
+    Gfx *gfx2; // FAKE: second packet pointer for the colour reset (reusing gfx moves the 0x641E0000 packet registers)
 
     state = controller->customState;
     fontHeight = (f32) textGetFontHeight(1);
@@ -361,56 +336,56 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
     curGlist = mpDrawScoreGlyphs(glist, state, 0.0f);
     gSPDisplayList(curGlist++, &D_1000118);
     gSPMatrix(curGlist++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-    gSPMatrix(curGlist++, state->unk30, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPMatrix(curGlist++, state->hudScaleMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPPipeSync(curGlist++);
     gDPSetCombineMode(curGlist++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     for (playerIndex = 0; playerIndex < gPlayerCount; playerIndex++) {
-            rect = state->unk20[playerIndex];
-            if (gPlayerSlots[playerIndex].actor->state == 0x84) {
-                fx = (f32) ((f64) rect->left + ((f64) (rect->right - rect->left) * 0.5));
-                fy = (f32) ((f64) rect->top + ((f64) (rect->bottom - rect->top) * 0.5));
-                alpha = (u8) gPlayerSlots[playerIndex].actor->alpha;
-                gDPSetPrimColor(curGlist++, 0, 0, 255, 255, 255, (0xFF - alpha));
-                _sprintf(textBuf, "BAD LUCK");
-                fx = (f32) ((f64) fx - ((f64) textGetStringWidth(1, textBuf) * 0.25));
-                fy = (f32) ((f64) fy - ((f64) fontHeight * 0.25));
-                curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), (s16) (fy * 8.0f), textBuf, 4);
+        rect = state->viewports[playerIndex];
+        if (gPlayerSlots[playerIndex].actor->state == 0x84) {
+            fx = rect->left + (rect->right - rect->left) * 0.5;
+            fy = rect->top + (rect->bottom - rect->top) * 0.5;
+            alpha = (u8) gPlayerSlots[playerIndex].actor->alpha;
+            gDPSetPrimColor(curGlist++, 0, 0, 255, 255, 255, (0xFF - alpha));
+            _sprintf(textBuf, "BAD LUCK");
+            fx = fx - textGetStringWidth(1, textBuf) * 0.25;
+            fy = fy - fontHeight * 0.25;
+            curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), (s16) (fy * 8.0f), textBuf, 4);
+        } else {
+            alpha = 0xFF;
+        }
+        if (alpha == 0) {
+            continue;
+        }
+        gfx = curGlist++;
+        gfx->words.w1 = (alpha & 0xFF) | 0xFFFFFF00; // FAKE: hand-written G_SETPRIMCOLOR storing w1 before w0 (the gDPSetPrimColor w0-first order reschedules the loop)
+        gfx->words.w0 = 0xFA000000;
+        if (state->hudIconsShown == 0) {
+            fx = (f32) rect->left + 4.0f;
+            fy = (f32) rect->bottom - ((8.0f + fontHeight2) * 0.5f);
+            fy = fy * 8.0f;
+            bonusValue = slotQueueGetValue(3, playerIndex);
+            if (bonusValue != 0) {
+                gfx = curGlist++; gfx->words.w0 = 0xFA000000; gfx->words.w1 = (alpha & 0xFF) | 0x641E0000; // LAYOUT: same-line packet stores steer as1 scheduling
+                _sprintf(textBuf, "%d", bonusValue);
             } else {
-                alpha = 0xFF;
+                _sprintf(textBuf, "%d", slotQueueGetValue(2, playerIndex));
             }
-            if (alpha == 0) {
-            } else {
-                gfx = curGlist++;
-                gfx->words.w1 = (alpha & 0xFF) | 0xFFFFFF00;
-                gfx->words.w0 = 0xFA000000;
-                if (state->unk70 == 0) {
-                    fx = (f32) rect->left + 4.0f;
-                    fy = (f32) rect->bottom - ((8.0f + fontHeight2) * 0.5f);
-                    fy = fy * 8.0f;
-                    bonusValue = (s32) slotQueueGetValue(3, playerIndex);
-                    if (bonusValue != 0) {
-                        gfx = curGlist++; gfx->words.w0 = 0xFA000000; gfx->words.w1 = (alpha & 0xFF) | 0x641E0000; // LAYOUT: same-line packet stores steer as1 scheduling
-                        _sprintf(textBuf, "%d", bonusValue);
-                    } else {
-                        _sprintf(textBuf, "%d", slotQueueGetValue(2, playerIndex));
-                    }
-                    textY = (s16) fy;
-                    curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), textY, textBuf, 4);
-                    if (bonusValue != 0) {
-                        gfx2 = curGlist++;
-                        gfx2->words.w0 = 0xFA000000;
-                        gfx2->words.w1 = (alpha & 0xFF) | 0xFFFFFF00;
-                    }
-                    _sprintf(textBuf, "%d", slotQueueGetValue(4, playerIndex));
-                    fx = (f32) rect->right - ((f32) (textGetStringWidth(1, textBuf) + 8) * 0.5f);
-                    curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), textY, textBuf, 4);
-                }
-                _sprintf(textBuf, "%d", mpGetPlayerScore(playerIndex));
-                fx = (f32) rect->right - (((f32) textGetStringWidth(1, textBuf) * 0.5f) + 50.0f);
-                fy = (f32) ((f64) rect->top + (8.0 + ((f64) (8.0f - (fontHeight2 * 0.5f)) * 0.5)));
-                fy = fy * 8.0f;
-                curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), (s16) fy, textBuf, 4);
+            textY = (s16) fy;
+            curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), textY, textBuf, 4);
+            if (bonusValue != 0) {
+                gfx2 = curGlist++;
+                gfx2->words.w0 = 0xFA000000;
+                gfx2->words.w1 = (alpha & 0xFF) | 0xFFFFFF00;
             }
+            _sprintf(textBuf, "%d", slotQueueGetValue(4, playerIndex));
+            fx = (f32) rect->right - ((f32) (textGetStringWidth(1, textBuf) + 8) * 0.5f);
+            curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), textY, textBuf, 4);
+        }
+        _sprintf(textBuf, "%d", mpGetPlayerScore(playerIndex));
+        fx = (f32) rect->right - (((f32) textGetStringWidth(1, textBuf) * 0.5f) + 50.0f);
+        fy = rect->top + (8.0 + (8.0f - fontHeight2 * 0.5f) * 0.5);
+        fy = fy * 8.0f;
+        curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), (s16) fy, textBuf, 4);
     }
     return curGlist;
 }
@@ -537,7 +512,7 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
         }
         leaderIndex = mpUpdateScoreEffects();
         if (leaderIndex == -1) {
-            if (controllerState->unk4C == 0 && actorFindByType(0x7A) == 0 && mpFindModelSlotByType(0x1D2) == 0) {
+            if (controllerState->crownSpawnDelay == 0 && actorFindByType(0x7A) == 0 && mpFindModelSlotByType(0x1D2) == 0) {
                 MpSpawnPoint *pos = spawnPoint;
                 if (delayedSpawnQueueContains(0x1D2, 0, pos->x, pos->y, pos->z) == 0) {
                     pos = spawnPoint;
@@ -547,8 +522,8 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
         } else if (D_807552E4.unk4 == 5 && mpGetPlayerScore(leaderIndex) >= D_807552E4.unkC) {
             mpDetermineWinner(controllerState);
         }
-        if (controllerState->unk4C != 0) {
-            controllerState->unk4C--;
+        if (controllerState->crownSpawnDelay != 0) {
+            controllerState->crownSpawnDelay--;
         }
     }
 }
@@ -639,35 +614,35 @@ void mpUpdateRandomSpawner(MpControllerState *controllerState) {
     s32 spawnNodeId;
 
     spawnNodeId = 0;
-    if (controllerState->unk18 != NULL) {
-        if (controllerState->unk18->state == 0x40) {
-            controllerState->unk18 = NULL;
+    if (controllerState->spawnerActor != NULL) {
+        if (controllerState->spawnerActor->state == 0x40) {
+            controllerState->spawnerActor = NULL;
             spawnNodeId = 1;
         }
     } else {
         spawnNodeId = 1;
     }
 
-    if (controllerState->unk1C == 0) {
+    if (controllerState->spawnerDelay == 0) {
         if (spawnNodeId != 0) {
-            controllerState->unk1C = (((randomNonNegative() >> 15) % 0x7FFF) % 271) + 30;
+            controllerState->spawnerDelay = (((randomNonNegative() >> 15) % 0x7FFF) % 271) + 30;
         }
     } else {
-        controllerState->unk1C--;
+        controllerState->spawnerDelay--;
     }
 
-    if (spawnNodeId != 0 && controllerState->unk1C == 0) {
+    if (spawnNodeId != 0 && controllerState->spawnerDelay == 0) {
         spawnNodeId = (((randomNonNegative() >> 15) % 0x7FFF) % 3) + 1;
         if (spawnNodeId == 3) {
             spawnNodeId += (((randomNonNegative() >> 15) % 0x7FFF) % 5);
         }
-        controllerState->unk18 = spawnNodeActivate(spawnNodeId, 0);
-        if (controllerState->unk18 == NULL) {
-            controllerState->unk18 = spawnNodeSpawnById((s16)spawnNodeId, 0, 0, 0, 0, 0, 0);
+        controllerState->spawnerActor = spawnNodeActivate(spawnNodeId, 0);
+        if (controllerState->spawnerActor == NULL) {
+            controllerState->spawnerActor = spawnNodeSpawnById(spawnNodeId, 0, 0, 0, 0, 0, 0);
         }
-        if (controllerState->unk18 != NULL) {
-            controllerState->unk18->state = 0x36;
-            controllerState->unk18->unk155 = 0;
+        if (controllerState->spawnerActor != NULL) {
+            controllerState->spawnerActor->state = 0x36;
+            controllerState->spawnerActor->unk155 = 0;
         }
     }
 }
@@ -754,15 +729,15 @@ void mpResetMapModelStates(void) {
 void mpFreeHudIcons(MpControllerState *controllerState) {
     s32 i;
 
-    if (controllerState->unk70 != 0) {
+    if (controllerState->hudIconsShown != 0) {
         for (i = 0; i < gPlayerCount * 2; i++) {
-            if (controllerState->unk50[i] != 0) {
-                effectFreeAndUnlink(controllerState->unk50[i]);
+            if (controllerState->hudIcons[i] != 0) {
+                effectFreeAndUnlink(controllerState->hudIcons[i]);
             }
-            controllerState->unk50[i] = 0;
+            controllerState->hudIcons[i] = 0;
         }
     }
-    controllerState->unk70 = 0;
+    controllerState->hudIconsShown = 0;
 }
 
 extern ALBank *D_8076D1F8;
@@ -796,15 +771,15 @@ void mpUpdate(void) {
         flag = 0;
         playerResetSpawnGlobals();
         for (i = 0; i < gPlayerCount; i++) {
-            state->unk20[i] = cameraFindViewportEntry(i);
+            state->viewports[i] = cameraFindViewportEntry(i);
         }
         D_807552E4.unk8 = 1;
-        state->unk0 = osGetTime();
-        state->unk34 = gScheduler.unk280;
-        state->unk38 = 0;
-        state->unk42 = 0;
-        state->unk40 = 0;
-        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &state->unk3C);
+        state->startTime = osGetTime();
+        state->sfxLastTick = gScheduler.unk280;
+        state->sfxStep = 0;
+        state->volume = 0;
+        state->volumeTarget = 0;
+        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &state->ambientSound);
         D_80026F70 = 0;
         switch (D_807552E4.unk4) {
         case 3:
@@ -829,16 +804,16 @@ void mpUpdate(void) {
             func_806F5FA0(0x212, 0xD4, 0x24E);
             func_806F5FA0(0x28E, 0xD4, 0x247);
         }
-        state->unk30 = heapAlloc(0x40);
-        guScale(state->unk30, 0.5f, 0.5f, 1.0f);
-        state->unkC = D_807552E4.unkC;
-        state->unkC = state->unkC * 60; // the target stores unkC twice (raw value, then * 60)
+        state->hudScaleMtx = heapAlloc(0x40);
+        guScale(state->hudScaleMtx, 0.5f, 0.5f, 1.0f);
+        state->timeLimit = D_807552E4.unkC;
+        state->timeLimit = state->timeLimit * 60; // the target stores unkC twice (raw value, then * 60)
         gCurrentActor->renderFlags |= 2;
-        state->unk44 = assetLoad(0xE, 0xB9, 0, 0);
-        state->unk48 = assetLoad(0xE, 0xBA, 0, 0);
-        state->unk10 = 0;
+        state->glyphFull = assetLoad(0xE, 0xB9, 0, 0);
+        state->glyphHalf = assetLoad(0xE, 0xBA, 0, 0);
+        state->blinkTimer = 0;
     }
-    state->unk0 += D_807445B0;
+    state->startTime += D_807445B0;
     switch (D_807552E4.unk8) {
     case 1:
         switch (D_807552E4.unk4) {
@@ -871,15 +846,15 @@ void mpUpdate(void) {
         if (gPlayerCount == 2) {
             mpUpdateRandomSpawner(state);
         }
-    } else if ((gGlobalPauseFlags & 2) || ((s16)((f32)state->unk10 * 0.033333335f) & 1)) {
+    } else if ((gGlobalPauseFlags & 2) || ((s16)((f32)state->blinkTimer * 0.033333335f) & 1)) {
         mpFreeHudIcons(state);
-    } else if (state->unk70 == 0) {
+    } else if (state->hudIconsShown == 0) {
         for (j = 0; j != 2; j++) {
             for (k = 0; k < gPlayerCount; k++) {
                 if (gPlayerSlots[k].active == 0) {
                     continue;
                 }
-                vp = state->unk20[k];
+                vp = state->viewports[k];
                 effectEnableFade();
                 effectSetDuration(-1);
                 effectSetMode(0);
@@ -890,34 +865,34 @@ void mpUpdate(void) {
                     x = (f32)(vp->right - 0xB);
                 }
                 y = (f32)(vp->bottom - 0xB);
-                state->unk50[j * gPlayerCount + k] = effectCreateAtPosition(D_80027024[j].unk0, D_80027024[j].unk4, x, y, -10.0f);
+                state->hudIcons[j * gPlayerCount + k] = effectCreateAtPosition(D_80027024[j].unk0, D_80027024[j].unk4, x, y, -10.0f);
             }
         }
-        state->unk70 = 1;
+        state->hudIconsShown = 1;
     }
-    state->unk10 += 1;
-    state->unk10 = state->unk10 % 180;
-    volumeDecay = state->unk40 - 100;
+    state->blinkTimer += 1;
+    state->blinkTimer = state->blinkTimer % 180;
+    volumeDecay = state->volumeTarget - 100;
     if (volumeDecay < 0x1F40) {
-        state->unk40 = 0x1F40;
+        state->volumeTarget = 0x1F40;
     } else {
-        state->unk40 = volumeDecay;
+        state->volumeTarget = volumeDecay;
     }
-    volumeRamp = state->unk42 + 0x3E8;
-    if (state->unk40 < volumeRamp) {
-        state->unk42 = state->unk40;
+    volumeRamp = state->volume + 0x3E8;
+    if (state->volumeTarget < volumeRamp) {
+        state->volume = state->volumeTarget;
     } else {
-        state->unk42 = volumeRamp;
+        state->volume = volumeRamp;
     }
-    n_alSndpPostEvent(state->unk3C, 8, state->unk42);
+    n_alSndpPostEvent(state->ambientSound, 8, state->volume);
     if (D_80026F70 & 0x80) {
-        state->unk40 = 0x7FFF;
+        state->volumeTarget = 0x7FFF;
         D_80026F70 &= ~0x80;
     }
     if (D_80026F70 & 7) {
-        if (gScheduler.unk280 - state->unk34 >= 6) {
-            state->unk34 = gScheduler.unk280;
-            state->unk38 = 0;
+        if (gScheduler.unk280 - state->sfxLastTick >= 6) {
+            state->sfxLastTick = gScheduler.unk280;
+            state->sfxStep = 0;
             sfxId = 0x1E8;
             if (D_80026F70 & 4) {
                 sfxId = 0x1EA;
@@ -932,20 +907,20 @@ void mpUpdate(void) {
             }
             sfxPlayOnFreeSlot(sfxId, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
         }
-        volumeBoost = state->unk40 + 0x4650;
+        volumeBoost = state->volumeTarget + 0x4650;
         if (volumeBoost >= 0x8000) {
-            state->unk40 = 0x7FFF;
+            state->volumeTarget = 0x7FFF;
         } else {
-            state->unk40 = volumeBoost;
+            state->volumeTarget = volumeBoost;
         }
         D_80026F70 &= ~7;
     }
-    if (state->unk38 * 35 + 0x384 < gScheduler.unk280 - state->unk34) {
-        sfxPlayOnFreeSlot(0x1E9, state->unk38 * 3000 + 0x511F, 64.0f, 1.0f, 0xA, 0x80);
-        state->unk38++;
-        if (state->unk38 == 5) {
-            state->unk38 = 0;
-            state->unk34 = gScheduler.unk280;
+    if (state->sfxStep * 35 + 0x384 < gScheduler.unk280 - state->sfxLastTick) {
+        sfxPlayOnFreeSlot(0x1E9, state->sfxStep * 3000 + 0x511F, 64.0f, 1.0f, 0xA, 0x80);
+        state->sfxStep++;
+        if (state->sfxStep == 5) {
+            state->sfxStep = 0;
+            state->sfxLastTick = gScheduler.unk280;
         }
     }
     renderCallbacksRegister(mpDrawHud, gCurrentActor, 7);
@@ -995,8 +970,8 @@ void mpDropItemsOnHit(u8 playerIndex, s8 dropCount) {
     ammoCount = score->health + score->healthDelta + dropCount;
     orangeCount = score->unk2FA - ammoCount;
     if (slotQueueGetValue(1, playerIndex) != 0 && (ammoCount <= 0 || orangeCount >= 2)) {
-        ctrl = ((Actor *)actorFindByType(0x13E))->customState;
-        ctrl->unk4C = 1;
+        ctrl = actorFindByType(0x13E)->customState;
+        ctrl->crownSpawnDelay = 1;
         slotQueueAddValue(1, playerIndex, -10);
         if (D_807552E4.unk4 == 5) {
             mpResetMapModelStates();
