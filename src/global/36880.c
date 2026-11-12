@@ -1667,57 +1667,14 @@ void modelSlotGetTransformVectors(s32 slot, f32 *xOut, f32 *yOut, f32 *zOut, f32
     *yOffsetOut = gModelSlots[slot].unk1C;
 }
 
-typedef struct ModelTransformPlayerTarget {
-    /* 0x00 */ u8 pad0[0x7C];
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ f32 unk80;
-    /* 0x84 */ f32 unk84;
-} ModelTransformPlayerTarget;
-
-typedef struct ModelTransformPlayer {
-    /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 pad1[3];
-    /* 0x04 */ ModelTransformPlayerTarget *unk4;
-    /* 0x08 */ u8 pad8[0x2E8];
-} ModelTransformPlayer;
-
-typedef struct ModelTransformKind {
-    /* 0x00 */ u8 pad0[0x67];
-    /* 0x67 */ u8 unk67;
-    /* 0x68 */ s16 unk68;
-    /* 0x6A */ s16 unk6A;
-    /* 0x6C */ s16 unk6C;
-} ModelTransformKind;
-
-typedef struct ModelTransformSlot {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ ModelSlotVectors *unk20;
-    /* 0x24 */ ModelAssetHeader *unk24;
-    /* 0x28 */ u8 pad28[0x54];
-    /* 0x7C */ ModelTransformKind *unk7C;
-    /* 0x80 */ u8 pad80[6];
-    /* 0x86 */ s16 unk86;
-    /* 0x88 */ s16 unk88;
-    /* 0x8A */ s16 unk8A;
-    /* 0x8C */ u8 pad8C[4];
-} ModelTransformSlot;
-
 extern u8 gPlayerCount;
 
-#define MODEL_TRANSFORM_PLAYER(i) ((ModelTransformPlayer *)((u8 *)gPlayerSlots + (i) * 0x2F0U))
-#define MODEL_TRANSFORM_SLOT0 ((ModelTransformSlot *)((u8 *)gModelSlots + slot * 0x90))
-#define MODEL_TRANSFORM_SLOT ((ModelTransformSlot *)((u8 *)gModelSlots + off))
+#define MODEL_TRANSFORM_SLOT0 ((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))
+#define MODEL_TRANSFORM_SLOT ((ModelSlot *)((u8 *)gModelSlots + off))
 
 void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, f32 yOffset, u8 setPos, u8 setRot, u8 setScale, u8 setYOffset, u8 isId) {
-    ModelTransformSlot *v1;
-    ModelSlotVectors *p;
+    ModelSlot *xform;
+    ModelSlotVectors *vecs;
     s16 purgeOut;
     u8 flag;
     u8 sel;
@@ -1731,15 +1688,15 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
     }
     if (setYOffset) {
         MODEL_TRANSFORM_SLOT0->unk1C = yOffset;
-        v1 = MODEL_TRANSFORM_SLOT0;
-        switch (v1->unk86) {
+        xform = MODEL_TRANSFORM_SLOT0;
+        switch (xform->unk86) {
             case 2:
-                p = v1->unk20;
-                p->unk10 = yOffset;
+                vecs = xform->unk20;
+                vecs->unk10 = yOffset;
                 break;
             case 1:
-                p = v1->unk20;
-                p->unk1C = yOffset;
+                vecs = xform->unk20;
+                vecs->unk1C = yOffset;
                 break;
         }
     }
@@ -1749,19 +1706,19 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
         MODEL_TRANSFORM_SLOT->unk4 = y;
         MODEL_TRANSFORM_SLOT->unk8 = z;
         if (flag) {}  // FAKE: dead test raises flag candidate priority (steers uopt colouring)
-        v1 = MODEL_TRANSFORM_SLOT;
-        switch (v1->unk86) {
+        xform = MODEL_TRANSFORM_SLOT;
+        switch (xform->unk86) {
             case 2:
-                p = v1->unk20;
-                p->unk0 = x;
-                p->unk4 = y;
-                p->unk8 = z;
+                vecs = xform->unk20;
+                vecs->unk0 = x;
+                vecs->unk4 = y;
+                vecs->unk8 = z;
                 break;
             case 1:
-                p = v1->unk20;
-                p->unk0 = x;
-                p->unk4 = y;
-                p->unk8 = z;
+                vecs = xform->unk20;
+                vecs->unk0 = x;
+                vecs->unk4 = y;
+                vecs->unk8 = z;
                 break;
         }
     }
@@ -1769,39 +1726,39 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
         MODEL_TRANSFORM_SLOT->unk10 = rotX;
         MODEL_TRANSFORM_SLOT->unk14 = rotY;
         MODEL_TRANSFORM_SLOT->unk18 = rotZ;
-        v1 = MODEL_TRANSFORM_SLOT;
-        if (v1->unk86 == 1) {
-            p = v1->unk20;
-            p->unk10 = rotX;
-            p->unk14 = rotY;
-            p->unk18 = rotZ;
+        xform = MODEL_TRANSFORM_SLOT;
+        if (xform->unk86 == 1) {
+            vecs = xform->unk20;
+            vecs->unk10 = rotX;
+            vecs->unk14 = rotY;
+            vecs->unk18 = rotZ;
         }
     }
     if (setScale) {
         MODEL_TRANSFORM_SLOT->unkC = scale;
-        v1 = MODEL_TRANSFORM_SLOT;
-        switch (v1->unk86) {
+        xform = MODEL_TRANSFORM_SLOT;
+        switch (xform->unk86) {
             case 2:
-                p = v1->unk20;
-                p->unkC = scale;
+                vecs = xform->unk20;
+                vecs->unkC = scale;
                 break;
             case 1:
-                p = v1->unk20;
-                p->unkC = scale;
+                vecs = xform->unk20;
+                vecs->unkC = scale;
                 break;
         }
     }
     if ((setPos || setYOffset) && mapPurgeNodeList(MODEL_TRANSFORM_SLOT->unk20, &purgeOut, 0)) {
-        v1 = MODEL_TRANSFORM_SLOT;
-        renderEntryAddOrUpdate(0, v1->unk86, v1->unk20, v1->unk0, v1->unk4, v1->unk8, v1->unk24->unk1E, v1->unk88, 0, purgeOut, 2);
+        xform = MODEL_TRANSFORM_SLOT;
+        renderEntryAddOrUpdate(0, xform->unk86, xform->unk20, xform->unk0, xform->unk4, xform->unk8, xform->unk24->unk1E, xform->unk88, 0, purgeOut, 2);
     }
-    v1 = MODEL_TRANSFORM_SLOT;
+    xform = MODEL_TRANSFORM_SLOT;
     if (setPos || setYOffset || setRot) {
-        actorUpdateEntryCoordinates(v1->unk88, v1->unk0, v1->unk4, v1->unk8, v1->unkC, v1->unk14);
-        v1 = MODEL_TRANSFORM_SLOT;
+        actorUpdateEntryCoordinates(xform->unk88, xform->unk0, xform->unk4, xform->unk8, xform->unkC, xform->unk14);
+        xform = MODEL_TRANSFORM_SLOT;
     }
-    if (v1->unk7C != NULL) {
-        sel = v1->unk7C->unk67;
+    if (xform->unk7C != NULL) {
+        sel = xform->unk7C->unk67;
         switch (sel) {
             case 0:
                 flag = 1;
@@ -1811,12 +1768,12 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
                     i = 0;
                     if (gPlayerCount > 0) {
                         do {
-                            if (MODEL_TRANSFORM_PLAYER(i)->unk0 != 0) {
-                                flag |= collisionCheckBoundingBoxY((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk80) != 0 && collisionCheckBoundingBoxXZ((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84) != 0; // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
+                            if (gPlayerSlots[i].active != 0) {
+                                flag |= collisionCheckBoundingBoxY((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), gPlayerSlots[i].actor->y) != 0 && collisionCheckBoundingBoxXZ((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), gPlayerSlots[i].actor->x, gPlayerSlots[i].actor->z) != 0; // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
                             }
                             i = (u8)(i + 1);
                         } while (i < gPlayerCount);
-                        v1 = MODEL_TRANSFORM_SLOT;
+                        xform = MODEL_TRANSFORM_SLOT;
                     }
                 }
                 break;
@@ -1825,33 +1782,33 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
                     i = 0;
                     if (gPlayerCount > 0) {
                         do {
-                            if (MODEL_TRANSFORM_PLAYER(i)->unk0 != 0) {
-                                flag |= collisionCheckBoundingBoxXZ((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84); // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
+                            if (gPlayerSlots[i].active != 0) {
+                                flag |= collisionCheckBoundingBoxXZ((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), gPlayerSlots[i].actor->x, gPlayerSlots[i].actor->z); // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
                             }
                             i = (u8)(i + 1);
                         } while (i < gPlayerCount);
-                        v1 = MODEL_TRANSFORM_SLOT;
+                        xform = MODEL_TRANSFORM_SLOT;
                     }
                 }
                 break;
             case 3:
             case 4:
                 if (gPlayerSlots != NULL) {
-                    flag = activeActorBoxOverlapTest(v1->unk0, v1->unk4, v1->unk8, v1->unk7C->unk68, v1->unk7C->unk6A, v1->unk7C->unk6C, sel == 3 ? 0xEF : 1);
-                    v1 = MODEL_TRANSFORM_SLOT;
+                    flag = activeActorBoxOverlapTest(xform->unk0, xform->unk4, xform->unk8, xform->unk7C->unk68, xform->unk7C->unk6A, xform->unk7C->unk6C, sel == 3 ? 0xEF : 1);
+                    xform = MODEL_TRANSFORM_SLOT;
                 }
                 break;
         }
     }
     if (flag != 0) {
-        collisionTransformNode(slot, v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC);
-        v1 = MODEL_TRANSFORM_SLOT;
-        modelSlotBuildTriangleBufferThunk(slot, v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC);
-        v1 = MODEL_TRANSFORM_SLOT;
+        collisionTransformNode(slot, xform->unk24, xform->unk0, xform->unk4, xform->unk8, xform->unk10, xform->unk14, xform->unk18, xform->unkC);
+        xform = MODEL_TRANSFORM_SLOT;
+        modelSlotBuildTriangleBufferThunk(slot, xform->unk24, xform->unk0, xform->unk4, xform->unk8, xform->unk10, xform->unk14, xform->unk18, xform->unkC);
+        xform = MODEL_TRANSFORM_SLOT;
     }
-    modelSlotBuildVertPosList(slot, v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC, 1);
-    v1 = MODEL_TRANSFORM_SLOT;
-    modelSlotBuildNodePosList(slot, v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC, 1);
+    modelSlotBuildVertPosList(slot, xform->unk24, xform->unk0, xform->unk4, xform->unk8, xform->unk10, xform->unk14, xform->unk18, xform->unkC, 1);
+    xform = MODEL_TRANSFORM_SLOT;
+    modelSlotBuildNodePosList(slot, xform->unk24, xform->unk0, xform->unk4, xform->unk8, xform->unk10, xform->unk14, xform->unk18, xform->unkC, 1);
 }
 
 typedef struct ActorBoundsView {
@@ -2611,21 +2568,6 @@ s32 dlResolveNodeTextures(DisplayListCmd *start, DisplayListCmd *end, ModelSegme
     return result;
 }
 
-typedef struct {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ struct ModelRenderPlayerCtl *unk4;
-    /* 0x08 */ u8 pad8[0x214];
-    /* 0x21C */ f32 unk21C;
-    /* 0x220 */ f32 unk220;
-    /* 0x224 */ f32 unk224;
-    /* 0x228 */ u8 pad228[0xC8];
-} ModelRenderPlayer; /* 0x2F0 */
-
-typedef struct ModelRenderPlayerCtl {
-    /* 0x00 */ u8 pad0[0x58];
-    /* 0x58 */ s32 unk58;
-} ModelRenderPlayerCtl;
-
 typedef struct ModelRenderAnimObj {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -2651,8 +2593,6 @@ typedef struct ModelRenderAnimObj {
 } ModelRenderAnimObj;
 
 s32 playerSlotMatchesSizeMask(s32, u8, s32);
-
-#define MODEL_RENDER_PLAYER(i) (((ModelRenderPlayer *)gPlayerSlots)[i])
 
 Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 camY, f32 camZ, u8 useLight, s16 lightArg, s32 unused) {
     f32 mtx[4][4];
@@ -2798,19 +2738,19 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
         if (obj->unkB6 != -1) {
             u8 fl = gModelSlots[slotIdx].unk8C;
             if (fl != 0) {
-                if ((gModelSlots[slotIdx].unk8C & 0x8) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 2) {
+                if ((gModelSlots[slotIdx].unk8C & 0x8) && gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 2) {
                     alpha = 0x64;
                 }
-                if ((gModelSlots[slotIdx].unk8C & 0x2) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 3) {
+                if ((gModelSlots[slotIdx].unk8C & 0x2) && gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 3) {
                     alpha = 0x64;
                 }
-                if ((gModelSlots[slotIdx].unk8C & 0x4) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 5) {
+                if ((gModelSlots[slotIdx].unk8C & 0x4) && gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 5) {
                     alpha = 0x64;
                 }
-                if ((gModelSlots[slotIdx].unk8C & 0x1) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 6) {
+                if ((gModelSlots[slotIdx].unk8C & 0x1) && gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 6) {
                     alpha = 0x64;
                 }
-                if ((gModelSlots[slotIdx].unk8C & 0x10) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 4) {
+                if ((gModelSlots[slotIdx].unk8C & 0x10) && gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 4) {
                     alpha = 0x64;
                 }
             }
@@ -3840,15 +3780,15 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
     s32 pad3;
     s32 pad4;
     s32 pad5;
-    ModelSlot *tbl;
-    f32 *newv;
+    ModelSlot *slots;
+    f32 *zPtr;
     s32 i;
     f32 *px;
     f32 *py;
     f32 *pz;
     f32 best;
 
-    if (0) { csStateTickTimers((CsStateFull *)&idx); csStateTickTimers((CsStateFull *)&tbl); } allow = 1; if (entry->unk24 == 1) { idx = hashTableLookup(entry->unk1E); tbl = gModelSlots; obj = tbl[idx].unk7C; if (obj != NULL) { // FAKE: dead if (0) takes &idx/&tbl so both get stack homes; the one-line layout keeps as1 line order
+    if (0) { csStateTickTimers((CsStateFull *)&idx); csStateTickTimers((CsStateFull *)&slots); } allow = 1; if (entry->unk24 == 1) { idx = hashTableLookup(entry->unk1E); slots = gModelSlots; obj = slots[idx].unk7C; if (obj != NULL) { // FAKE: dead if (0) takes &idx/&slots so both get stack homes; the one-line layout keeps as1 line order
             switch (obj->unk54) {
             case 2:
                 allow = 0;
@@ -3857,7 +3797,7 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
                 allow = allowDefault;
                 break;
             case 4:
-                if (newv != 0) {}  // FAKE: dead test steers register colouring
+                if (zPtr != 0) {}  // FAKE: dead test steers register colouring
                 allow = allowDefault;
             case 3:
             case 6:
@@ -3869,8 +3809,8 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
                         if (obj->unk54 == 6) {
                             px = &gPlayerSlots[i].actor->x;
                             py = &gPlayerSlots[i].actor->y;
-                            newv = &gPlayerSlots[i].actor->z;
-                            pz = newv;
+                            zPtr = &gPlayerSlots[i].actor->z;
+                            pz = zPtr;
                         } else {
                             px = &gPlayerSlots[i].unk21C;
                             py = &gPlayerSlots[i].unk220;
@@ -3880,7 +3820,7 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
                         if ((*px - entry->unk4) * (*px - entry->unk4) + (*py - entry->unk8) * (*py - entry->unk8) + (*pz - entry->unkC) * (*pz - entry->unkC) < best) {
                             best = (*px - entry->unk4) * (*px - entry->unk4) + (*py - entry->unk8) * (*py - entry->unk8) + (*pz - entry->unkC) * (*pz - entry->unkC);
                         }
-                        if (tbl && tbl) {}  // FAKE: dead test steers register colouring
+                        if (slots && slots) {}  // FAKE: dead test steers register colouring
                     }
                     
                 }
@@ -3897,7 +3837,7 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
             if (allow != 0) {
                 D_807F7140++;
                 if (D_807F60A8 != 0x46) {
-                    D_807F60B0[D_807F60A8] = tbl[idx].unk8A;
+                    D_807F60B0[D_807F60A8] = slots[idx].unk8A;
                     D_807F60A8++;
                     csStateTickTimers(obj);
                     csStateUpdate(obj, entry->unk1E);
