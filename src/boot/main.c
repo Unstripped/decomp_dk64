@@ -1,9 +1,13 @@
 #include "common.h"
 #include "segment.h"
+#include "boot.h"
 #include "proto/boot/1630.h"
 #include "proto/boot/30E0.h"
 #include "proto/boot/main.h"
 
+
+// Index into osViModeTable per osTvType: {OS_VI_PAL_LPF1, OS_VI_NTSC_LPN1, OS_VI_MPAL_LPN1}.
+// Probably a local initialiser originally; its data is still in the boot asm data blob.
 typedef struct {
     u32 v[3];
 } ViModeIdx;
@@ -13,9 +17,6 @@ extern u32 sAudioFreq;
 extern ViModeIdx sBootViMode;
 extern OSMesgQueue sResetMesgQueue;
 extern OSMesg sResetMesgBuf[10];
-extern OSThread sResetThread;
-extern OSThread sMainThread;
-extern u8 D_800138C0[];
 
 extern u8 boot_ROM_START[];
 extern u8 boot_ROM_END[];
@@ -60,6 +61,9 @@ extern u8 global_LOAD_END[];
 extern u8 seg11_FALLBACK_START[];
 extern u8 seg11_FALLBACK_END[];
 
+// The global segment is not linked into boot: its entry globalInit is called through its
+// fixed load address (jalr), not a jal.
+#define GLOBAL_INIT ((void (*)(OSMesgQueue *, s32))0x805FB300)
 
 void dmaCopy(u32 romStart, u32 romEnd, void *dest) {
     u32 size = romEnd - romStart;
@@ -70,20 +74,20 @@ void dmaCopy(u32 romStart, u32 romEnd, void *dest) {
     } while (osPiGetStatus() & PI_STATUS_DMA_BUSY);
 }
 
-void decompressGlobal(void *a, void *b) {
-    gunzip(a, b, (void *)0x804FAE00);
-    gunzip(a, b, (void *)0x804FAE00);
+void decompressGlobal(u8 **src, u8 **dst) {
+    gunzip(src, dst, (void *)0x804FAE00);
+    gunzip(src, dst, (void *)0x804FAE00);
 }
 
 void bootResetThread(void *arg) {
-    s32 msg;
+    OSMesg msg;
     s32 pad;
 
-    osRecvMesg(&sResetMesgQueue, (OSMesg *)&msg, OS_MESG_BLOCK);
-    switch (msg) {
+    osRecvMesg(&sResetMesgQueue, &msg, OS_MESG_BLOCK);
+    switch ((s32)msg) {
     case 0x29D:
         if (sBootResetState != 0) {
-            ((void (*)(OSMesgQueue *, s32))0x805FB300)(&sResetMesgQueue, 2);
+            GLOBAL_INIT(&sResetMesgQueue, 2);
         } else {
             osViBlack(1);
             for (;;) {}
@@ -91,17 +95,16 @@ void bootResetThread(void *arg) {
         break;
     case 0x309:
         osSetThreadPri(NULL, 0x12);
-        ((void (*)(OSMesgQueue *, s32))0x805FB300)(&sResetMesgQueue, 1);
+        GLOBAL_INIT(&sResetMesgQueue, 1);
         for (;;) {}
-        break;
     }
 }
 
 #define SEG(i, n) gSegmentTable[i].romStart = (u32)n##_START; gSegmentTable[i].romEnd = (u32)n##_END;
 
 void bootMainThread(void *arg) {
-    void *src;
-    void *dst;
+    u8 *src;
+    u8 *dst;
     u32 pad;
     ViModeIdx viModes = sBootViMode;
 
@@ -112,18 +115,18 @@ void bootMainThread(void *arg) {
     osCreateViManager(OS_PRIORITY_VIMGR);
     osViSetMode(&osViModeTable[viModes.v[osTvType]]);
     osViBlack(1);
-    if (osMemSize < 0x800000 || osTvType == 0) {
+    if (osMemSize < 0x800000 || osTvType == OS_TV_PAL) {
         SEG(11, seg11_FALLBACK)
         noExpPakScreen();
     } else {
         dmaCopy((u32)rspboot_ROM_START, (u32)rspboot_ROM_END, (void *)0x805FB000);
-        sAudioFreq = osAiSetFrequency(0x5622);
+        sAudioFreq = osAiSetFrequency(22050);
         bzero((void *)0x805FB300, 0x204D00);
-        src = (void *)0x80020000;
-        dst = (void *)0x805FB300;
+        src = (u8 *)0x80020000;
+        dst = (u8 *)0x805FB300;
         dmaCopy((u32)global_LOAD_START, (u32)global_LOAD_END, src);
         decompressGlobal(&src, &dst);
-        osInvalICache((void *)0x805FB300, (u32)dst - 0x805FB300);
+        osInvalICache((void *)0x805FB300, dst - (u8 *)0x805FB300);
         osWritebackDCacheAll();
         SEG(0, boot_ROM)
         SEG(1, global_ROM)
@@ -145,27 +148,23 @@ void bootMainThread(void *arg) {
         SEG(17, seg17_ROM)
         osSetThreadPri(NULL, 0);
         sBootResetState = 1;
-        ((void (*)(OSMesgQueue *, s32))0x805FB300)(&sResetMesgQueue, 0);
+        GLOBAL_INIT(&sResetMesgQueue, 0);
     }
     for (;;) {}
 }
 
 void bootStartMainThread(void) {
-    osCreateThread(&sMainThread, 1, bootMainThread, NULL, D_800138C0, 0);
+    osCreateThread(&sMainThread, 1, bootMainThread, NULL, &D_800138C0, 0);
     osStartThread(&sMainThread);
 }
 
 void bootMain(void) {
-    u32 *p;
-    u32 *q;
+    u32 *handshake;
 
     osInitialize();
-    p = (u32 *)0xA02FE1C0;
-    q = (u32 *)0xA02FE1C0;
-    if (*p != 0xAD170014) {
-        do {
-        } while (*q != 0xAD170014);
+    handshake = (u32 *)0xA02FE1C0;
+    while (*handshake != 0xAD170014) {
     }
-    *p = 0xF0F0F0F0;
+    *handshake = 0xF0F0F0F0;
     bootStartMainThread();
 }

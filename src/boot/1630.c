@@ -1,9 +1,9 @@
 #include "common.h"
 #include "segment.h"
+#include "boot.h"
 #include "proto/boot/1630.h"
 #include "proto/boot/30E0.h"
 
-extern OSThread D_800138C0;
 extern u8 *sNoExpPakStackBase;
 extern OSMesgQueue sNoExpPakViMesgQueue;
 extern OSMesg sNoExpPakViMesgBuf[];

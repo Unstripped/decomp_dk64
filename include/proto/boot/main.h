@@ -6,7 +6,7 @@
 void dmaCopy(u32, u32, void *);
 #endif
 #ifndef PROTO_SKIP_decompressGlobal
-void decompressGlobal(void *, void *);
+void decompressGlobal(u8 **, u8 **);
 #endif
 #ifndef PROTO_SKIP_bootResetThread
 void bootResetThread(void *);
