@@ -45,7 +45,7 @@ s32 n_alSynAllocVoice(ALVoice *voice, ALVoiceConfig *config) {
     voice->unityPitch = config->unityPitch;
     voice->table = NULL;
     voice->fxBus = config->fxBus;
-    voice->state = 0;
+    voice->state = AL_STOPPED;
     voice->pvoice = NULL;
     allocated = __n_allocPVoice(&pvoice, config->priority);
     if (pvoice != NULL) {
@@ -61,7 +61,10 @@ s32 n_alSynAllocVoice(ALVoice *voice, ALVoiceConfig *config) {
                 param->data = 0;
                 param->moredata = 0x170;
                 n_alEnvmixerParam(voice->pvoice, 3, param);
-            } else { // FAKE: empty else keeps the -g branch over the else arm
+            } else {
+#ifdef _DEBUG
+                __osError(ERR_ALSYN_NO_UPDATE, 0);
+#endif
             }
             param = __n_allocParam();
             if (param != NULL) {
@@ -69,7 +72,10 @@ s32 n_alSynAllocVoice(ALVoice *voice, ALVoiceConfig *config) {
                 param->type = 15;
                 param->next = NULL;
                 n_alEnvmixerParam(voice->pvoice, 3, param);
-            } else { // FAKE: empty else keeps the -g branch over the else arm
+            } else {
+#ifdef _DEBUG
+                __osError(ERR_ALSYN_NO_UPDATE, 0);
+#endif
             }
         } else {
             pvoice->delta = 0;

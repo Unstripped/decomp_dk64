@@ -89,10 +89,9 @@ SynLPFilter *n_alSynGetFXFeedback(s16 busIndex) {
 }
 
 void n_alSynSetFXParam(void *fxType, s16 paramId, void *paramVal) {
-    void *fxParam;
+    struct FxParamState *fx = fxType;
 
-    fxParam = fxType; // FAKE: copy through a local keeps the -g stack round-trip
-    n_alFxParamHdl(fxParam, paramId, paramVal);
+    n_alFxParamHdl(fx, paramId, paramVal);
 }
 
 void n_alSynSetFXFilterParam(SynLPFilter *filter, s16 paramId, void *valuePtr) {
