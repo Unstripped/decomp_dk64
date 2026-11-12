@@ -2,8 +2,9 @@
 #ifndef PROTO_BOSS_3840_H
 #define PROTO_BOSS_3840_H
 #include "common.h"
+#include "actor.h"
+#include "boss.h"
 struct BossB_Struct_800278F4;
-struct BossB_Struct_80027950;
 #ifndef PROTO_SKIP_bossInitScriptData
 void bossInitScriptData(u8 *);
 #endif
@@ -11,10 +12,10 @@ void bossInitScriptData(u8 *);
 void bossLerpCoords(struct BossB_Struct_800278F4 *, f32, s16, s16);
 #endif
 #ifndef PROTO_SKIP_bossPickRandomWaypoint
-void bossPickRandomWaypoint(struct BossB_Struct_80027950 *, u8 *);
+void bossPickRandomWaypoint(BossScriptState *, u8 *);
 #endif
 #ifndef PROTO_SKIP_bossPickFarthestWaypoint
-void bossPickFarthestWaypoint(void *, u8 *);
+void bossPickFarthestWaypoint(BossScriptState *, u8 *);
 #endif
 #ifndef PROTO_SKIP_bossScriptStep
 u8 bossScriptStep(u8 *, u16, f32);
@@ -29,7 +30,7 @@ void bossSpawnParticleRing();
 void bossStartCountdownTimer(void);
 #endif
 #ifndef PROTO_SKIP_bossDrawRoundText
-void bossDrawRoundText(Gfx *, s32);
+Gfx *bossDrawRoundText(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_bossResetAudioChannels
 void bossResetAudioChannels(void);

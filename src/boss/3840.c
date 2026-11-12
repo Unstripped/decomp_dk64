@@ -5,22 +5,31 @@
 #include "proto/boot/3D20.h"
 #include "proto/boss/3840.h"
 #include "proto/global/100180.h"
+#include "proto/global/103AB0.h"
 #include "proto/global/10D2D0.h"
+#include "proto/global/112080.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
+#include "proto/global/12E800.h"
 #include "proto/global/135D30.h"
 #include "proto/global/13A7A0.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
 #include "proto/global/3C10.h"
 #include "proto/global/450.h"
+#include "proto/global/90D80.h"
+#include "proto/global/A7710.h"
 #include "proto/global/FCCD0.h"
 #include "proto/global/7130.h"
 
+
 void bossInitScriptData(u8 *data) {
     s16 i;
-    u8 *dst;
+    u8 (*dst)[2];
 
     if (gBehaviourAnimState->path != NULL) {
         heapFree(gBehaviourAnimState->path);
@@ -29,9 +38,9 @@ void bossInitScriptData(u8 *data) {
     gBehaviourAnimState->path = heapAlloc(*data * 2);
     dst = gBehaviourAnimState->path;
     for (i = 0; i < *data; i++) {
-        dst[0] = data[i + 1];
-        dst[1] = 0;
-        dst += 2;
+        (*dst)[0] = data[i + 1];
+        (*dst)[1] = 0;
+        dst++;
     }
 }
 
@@ -46,13 +55,7 @@ void bossLerpCoords(BossB_Struct_800278F4 *coords, f32 factor, s16 targetY, s16 
     coords->x += ((f32)targetX - coords->x) * factor;
 }
 
-typedef struct BossB_Struct_80027950 {
-    char pad0[0x15];
-    u8 scriptPos;
-} BossB_Struct_80027950;
-
-
-void bossPickRandomWaypoint(BossB_Struct_80027950 *state, u8 *waypointRanges) {
+void bossPickRandomWaypoint(BossScriptState *state, u8 *waypointRanges) {
     u8 prev = gBehaviourWorkState->unk25;
     do {
         s32 rand = randomNonNegative() >> 15;
@@ -64,11 +67,11 @@ void bossPickRandomWaypoint(BossB_Struct_80027950 *state, u8 *waypointRanges) {
 
 extern Actor *gCurrentActor;
 
-void bossPickFarthestWaypoint(void *state, u8 *waypointRanges) {
+void bossPickFarthestWaypoint(BossScriptState *state, u8 *waypointRanges) {
     s16 i;
-    s32 max_dist = 0;
+    s32 maxDist = 0;
 
-    for (i = waypointRanges[((BossB_Struct_80027950 *)state)->scriptPos]; i <= waypointRanges[((BossB_Struct_80027950 *)state)->scriptPos + 1]; i++) {
+    for (i = waypointRanges[state->scriptPos]; i <= waypointRanges[state->scriptPos + 1]; i++) {
         u8 idx = gBehaviourAnimState->path[i][0];
         Actor *actor = gCurrentActor;
         ZoneEntry *pt = &D_807FDCA0->entries[idx];
@@ -77,19 +80,20 @@ void bossPickFarthestWaypoint(void *state, u8 *waypointRanges) {
         f32 dy = actor->y - (f32)pt->y;
         s32 dist = (s32)sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
 
-        if (dist > max_dist) {
-            max_dist = dist;
+        if (dist > maxDist) {
+            maxDist = dist;
             gBehaviourWorkState->unk25 = i;
         }
     }
-    ((BossB_Struct_80027950 *)state)->scriptPos += 2;
+    state->scriptPos += 2;
 }
 
 
+// Boss actor: Actor plus its component pointers (0x178 script state, 0x17C per-boss state).
 typedef struct BossActor {
-    Actor base;
-    BossScriptState *scriptState;
-    u8 *script;
+    /* 0x000 */ Actor base;
+    /* 0x178 */ BossScriptState *scriptState;
+    /* 0x17C */ void *typeState;
 } BossActor;
 
 extern Actor *gPrimaryPlayerActor;
@@ -97,70 +101,62 @@ extern u8 gGameMode;
 extern u8 gScreenRenderFlags;
 extern s8 sHudDisabled;
 
-void camEndPath(s32);
-void currentActorClearFlag();
-s32 currentActorTestClearFlag(void);
-void actorSetTargetSpeed(void *, s32);
-void resQueueAttachActor(Actor *, s32, u8);
-u8 patrolPathStep(u8, u8);
-u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
-void actorScriptStart(void *, s32);
 
-#define BA40 ((BossActor *)gCurrentActor)
+#define BOSS_ACTOR ((BossActor *)gCurrentActor)
 
 u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
     PlayerState *playerData;
-    BossScriptState *s0;
+    BossScriptState *scriptState;
     u8 advanceScript;
     u8 didLoop;
-    u8 tmp;
+    u8 pos;
 
     playerData = gPrimaryPlayerActor->customState;
-    s0 = BA40->scriptState;
+    scriptState = BOSS_ACTOR->scriptState;
     didLoop = 0;
     advanceScript = 1;
-    switch (BA40->base.state) {
+    switch (BOSS_ACTOR->base.state) {
     case 0x54:
         advanceScript = 0;
-        if (BA40->base.unk155 != 0) {
+        if (BOSS_ACTOR->base.unk155 != 0) {
             if (currentActorTestClearFlag() != 0) {
                 advanceScript = 1;
             }
         } else {
             currentActorClearFlag();
-            BA40->base.unk155 = 1;
+            BOSS_ACTOR->base.unk155 = 1;
         }
         break;
     case 0x5F:
-        camStartPath(gCurrentActor, script[s0->scriptPos++], 1);
+        camStartPath(gCurrentActor, script[scriptState->scriptPos++], 1);
         break;
     case 0x5E:
         if (gGameMode == 1) {
             camEndPath(playerData->camActor);
         }
         sHudDisabled = 0;
-        BA40->base.flags &= ~4;
+        BOSS_ACTOR->base.flags &= ~4;
         gScreenRenderFlags |= 0x10;
-        s0->unk4 = script[s0->scriptPos++] * 30;
+        scriptState->unk4 = script[scriptState->scriptPos++] * 30;
         break;
     case 0x5D:
-        actorSetTargetSpeed(gCurrentActor, script[s0->scriptPos++]);
+        actorSetTargetSpeed(gCurrentActor, script[scriptState->scriptPos++]);
         break;
     case 0x5C:
         {
-            u8 *p = BA40->script;
-            *p = script[s0->scriptPos];
-            s0->scriptPos++;
+            u8 *p = BOSS_ACTOR->typeState;
+            *p = script[scriptState->scriptPos];
+            scriptState->scriptPos++;
         }
         break;
     case 0x5A:
-        resQueueAttachActor(gCurrentActor, script[s0->scriptPos], script[s0->scriptPos + 1]);
-        s0->scriptPos += 2;
+        resQueueAttachActor(gCurrentActor, script[scriptState->scriptPos], script[scriptState->scriptPos + 1]);
+        scriptState->scriptPos += 2;
         break;
     case 0x42:
-block_16:
+patrol:
         actorMoveWithinZone(0x42, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, turnSpeed, fwdSpeed);
-        if (patrolPathStep(BA40->base.state, 0) == 0) {
+        if (patrolPathStep(BOSS_ACTOR->base.state, 0) == 0) {
             advanceScript = 0;
         }
         break;
@@ -168,41 +164,41 @@ block_16:
         gBehaviourWorkState->flags |= 0x20;
         break;
     case 0x58:
-        BA40->base.flags |= 4;
+        BOSS_ACTOR->base.flags |= 4;
         break;
     case 0x59:
-        BA40->base.flags &= ~4;
+        BOSS_ACTOR->base.flags &= ~4;
         break;
     case 0x51:
-        actorScriptStart(gCurrentActor, (script[s0->scriptPos] << 8) + script[s0->scriptPos + 1]);
-        s0->scriptPos += 2;
+        actorScriptStart(gCurrentActor, (script[scriptState->scriptPos] << 8) + script[scriptState->scriptPos + 1]);
+        scriptState->scriptPos += 2;
         break;
     case 0x55:
         advanceScript = 0;
-        if (BA40->base.unk155 == 0) {
-            tmp = s0->scriptPos;
-            s0->unk8[0] = (script[tmp] << 8) + script[tmp + 1];
-            s0->scriptPos = tmp + 2;
-            BA40->base.unk155 = 1;
+        if (BOSS_ACTOR->base.unk155 == 0) {
+            pos = scriptState->scriptPos;
+            scriptState->unk8[0] = (script[pos] << 8) + script[pos + 1];
+            scriptState->scriptPos = pos + 2;
+            BOSS_ACTOR->base.unk155 = 1;
         } else {
-            s0->unk8[0] -= 1;
-            if (s0->unk8[0] == 0) {
+            scriptState->unk8[0] -= 1;
+            if (scriptState->unk8[0] == 0) {
                 advanceScript = 1;
             }
         }
         break;
     case 0x23:
         advanceScript = 0;
-        if (BA40->base.unk155 == 0) {
-            tmp = s0->scriptPos;
-            s0->unk8[0] = script[tmp];
-            s0->scriptPos = tmp + 1;
-            BA40->base.unk155 = 1;
+        if (BOSS_ACTOR->base.unk155 == 0) {
+            pos = scriptState->scriptPos;
+            scriptState->unk8[0] = script[pos];
+            scriptState->scriptPos = pos + 1;
+            BOSS_ACTOR->base.unk155 = 1;
             actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
         } else {
             actorMoveWithinZone(0x23, gBehaviourWorkState->unk4->x, gBehaviourWorkState->unk4->z, turnSpeed, fwdSpeed);
-            s0->unk8[0] -= 1;
-            if ((s0->unk8[0] == 0) || (playerData->stateFlags & 0x80000)) {
+            scriptState->unk8[0] -= 1;
+            if ((scriptState->unk8[0] == 0) || (playerData->stateFlags & 0x80000)) {
                 playerData->stateFlags &= ~0x80000;
                 advanceScript = 1;
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
@@ -210,43 +206,43 @@ block_16:
         }
         break;
     case 0x52:
-        if (!(BA40->base.contactFlags & 1)) {
+        if (!(BOSS_ACTOR->base.contactFlags & 1)) {
             advanceScript = 0;
         }
         break;
     case 0x53:
-        if (BA40->base.unk155 == 0) {
+        if (BOSS_ACTOR->base.unk155 == 0) {
             advanceScript = 0;
         }
         break;
     case 0x4F:
-        s0->loopPos = s0->scriptPos;
+        scriptState->loopPos = scriptState->scriptPos;
         break;
     case 0x50:
-        s0->scriptPos = s0->loopPos;
+        scriptState->scriptPos = scriptState->loopPos;
         break;
     case 0x66:
         if (gBehaviourWorkState->flags & 8) {
-            s0->scriptPos = s0->loopPos;
+            scriptState->scriptPos = scriptState->loopPos;
         }
         break;
     case 0x63:
-        tmp = s0->scriptPos;
-        if (s0->unk8[script[tmp]] != 0) {
-            s0->unk8[script[tmp]] -= 1;
+        pos = scriptState->scriptPos;
+        if (scriptState->unk8[script[pos]] != 0) {
+            scriptState->unk8[script[pos]] -= 1;
             advanceScript = 0;
         } else {
-            s0->scriptPos = tmp + 1;
+            scriptState->scriptPos = pos + 1;
         }
         break;
     case 0x62:
-        s0->unk8[script[s0->scriptPos]] = script[s0->scriptPos + 1];
-        s0->scriptPos += 2;
+        scriptState->unk8[script[scriptState->scriptPos]] = script[scriptState->scriptPos + 1];
+        scriptState->scriptPos += 2;
         didLoop = 1;
         break;
     case 0x64:
-        s0->unk18[script[s0->scriptPos]] = script[s0->scriptPos + 1];
-        s0->scriptPos += 2;
+        scriptState->unk18[script[scriptState->scriptPos]] = script[scriptState->scriptPos + 1];
+        scriptState->scriptPos += 2;
         didLoop = 1;
         break;
     case 0x68:
@@ -254,66 +250,66 @@ block_16:
         didLoop = 1;
         break;
     case 0x65:
-        gBehaviourWorkState->timer = script[s0->scriptPos];
-        s0->scriptPos++;
+        gBehaviourWorkState->timer = script[scriptState->scriptPos];
+        scriptState->scriptPos++;
         didLoop = 1;
         break;
     case 0x67:
-        bossPickRandomWaypoint((BossB_Struct_80027950 *)s0, script);
+        bossPickRandomWaypoint(scriptState, script);
         advanceScript = 0;
-        BA40->base.state = 0x42;
-        BA40->base.unk155 = 0;
-        goto block_16;
+        BOSS_ACTOR->base.state = 0x42;
+        BOSS_ACTOR->base.unk155 = 0;
+        goto patrol;
     case 0x4C:
-        bossPickFarthestWaypoint(s0, script);
+        bossPickFarthestWaypoint(scriptState, script);
         advanceScript = 0;
-        BA40->base.state = 0x42;
-        BA40->base.unk155 = 0;
-        goto block_16;
+        BOSS_ACTOR->base.state = 0x42;
+        BOSS_ACTOR->base.unk155 = 0;
+        goto patrol;
     case 0x4B:
         gBehaviourWorkState->unk25++;
-        if (script[s0->scriptPos + 1] < gBehaviourWorkState->unk25) {
-            gBehaviourWorkState->unk25 = script[s0->scriptPos];
+        if (script[scriptState->scriptPos + 1] < gBehaviourWorkState->unk25) {
+            gBehaviourWorkState->unk25 = script[scriptState->scriptPos];
         }
-        s0->scriptPos += 2;
+        scriptState->scriptPos += 2;
         advanceScript = 0;
-        BA40->base.state = 0x42;
-        BA40->base.unk155 = 0;
-        goto block_16;
+        BOSS_ACTOR->base.state = 0x42;
+        BOSS_ACTOR->base.unk155 = 0;
+        goto patrol;
     case 0x41:
-        gBehaviourWorkState->unk25 = script[s0->scriptPos];
-        s0->scriptPos++;
+        gBehaviourWorkState->unk25 = script[scriptState->scriptPos];
+        scriptState->scriptPos++;
         advanceScript = 0;
-        BA40->base.state = 0x42;
-        BA40->base.unk155 = 0;
-        goto block_16;
+        BOSS_ACTOR->base.state = 0x42;
+        BOSS_ACTOR->base.unk155 = 0;
+        goto patrol;
     case 0x49:
     case 0x4A:
         advanceScript = 0;
-        switch (BA40->base.unk155) {
+        switch (BOSS_ACTOR->base.unk155) {
         case 0:
-            BA40->base.alpha -= 0xA;
-            if (BA40->base.alpha < 0) {
-                BA40->base.alpha = 0;
-                BA40->base.unk155++;
+            BOSS_ACTOR->base.alpha -= 0xA;
+            if (BOSS_ACTOR->base.alpha < 0) {
+                BOSS_ACTOR->base.alpha = 0;
+                BOSS_ACTOR->base.unk155++;
             }
             break;
         case 1:
-            if (BA40->base.state == 0x49) {
-                gBehaviourWorkState->unk25 = script[s0->scriptPos];
-                s0->scriptPos++;
+            if (BOSS_ACTOR->base.state == 0x49) {
+                gBehaviourWorkState->unk25 = script[scriptState->scriptPos];
+                scriptState->scriptPos++;
             } else {
-                bossPickRandomWaypoint((BossB_Struct_80027950 *)s0, script);
+                bossPickRandomWaypoint(scriptState, script);
             }
             patrolPathStep(0x49, 0);
-            BA40->base.x = gBehaviourWorkState->targetX;
-            BA40->base.z = gBehaviourWorkState->targetZ;
-            BA40->base.unk155++;
+            BOSS_ACTOR->base.x = gBehaviourWorkState->targetX;
+            BOSS_ACTOR->base.z = gBehaviourWorkState->targetZ;
+            BOSS_ACTOR->base.unk155++;
             break;
         case 2:
-            BA40->base.alpha += 0xA;
-            if (BA40->base.alpha >= 0x100) {
-                BA40->base.alpha = 0xFF;
+            BOSS_ACTOR->base.alpha += 0xA;
+            if (BOSS_ACTOR->base.alpha >= 0x100) {
+                BOSS_ACTOR->base.alpha = 0xFF;
                 advanceScript = 1;
             }
             break;
@@ -326,9 +322,9 @@ block_16:
         break;
     }
     if (advanceScript != 0) {
-        BA40->base.state = script[s0->scriptPos];
-        s0->scriptPos++;
-        BA40->base.unk155 = 0;
+        BOSS_ACTOR->base.state = script[scriptState->scriptPos];
+        scriptState->scriptPos++;
+        BOSS_ACTOR->base.unk155 = 0;
     }
     return didLoop;
 }
@@ -369,29 +365,22 @@ u8 unkScale;
     actorSpawnNodeEntryScaled(0x48, (f32)x, (f32)y, (f32)z, (s32)unkRot, (s32)unkScale, (s16)flag, 0);
 }
 
-void hudSpawnCountdownTimer(s16, s16, u8);
-void hudCountdownTimerStart(s32);
+
 
 void bossStartCountdownTimer(void) {
     hudSpawnCountdownTimer(-0x7F83, 0xD2, 0xB4);
     hudCountdownTimerStart(gCurrentActor->parentActor);
 }
 
-#define Boss2C_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-
-typedef float Boss2C_MtxF[4][4];
-
 extern PlayerStruct *gPlayerSlots;
 extern u8 D_80750AD4;
 extern Gfx D_1000118;
 
-void *func_8070068C(Gfx *);
-
-void bossDrawRoundText(Gfx *glist, s32 unused) {
-    Boss2C_MtxF scaleMtx;
-    Boss2C_MtxF transMtx;
+Gfx *bossDrawRoundText(Gfx *glist, Actor *actor) {
+    f32 scaleMtx[4][4];
+    f32 transMtx[4][4];
     Mtx *mtx;
-    char textBuf[16];
+    u8 textBuf[16];
 
     mtx = heapAlloc(sizeof(Mtx));
     heapFreeDeferred(mtx);
@@ -399,14 +388,14 @@ void bossDrawRoundText(Gfx *glist, s32 unused) {
     guTranslateF(transMtx, 100.0f, (f32)(gPlayerSlots->rect[3] * 4 - 0x3C), 0.0f);
     guMtxCatF(scaleMtx, transMtx, scaleMtx);
     guMtxF2L(scaleMtx, mtx);
-    Boss2C_WRITE_GFX(glist++, 0xDA380003, (u32)mtx);
+    gSPMatrix(glist++, mtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     _sprintf(textBuf, "ROUND %d", D_80750AD4);
-    Boss2C_WRITE_GFX(glist++, 0xDE000000, (u32)&D_1000118);
-    Boss2C_WRITE_GFX(glist++, 0xE7000000, 0);
-    Boss2C_WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
-    Boss2C_WRITE_GFX(glist++, 0xFA000000, 0xFFFFFFFF);
+    gSPDisplayList(glist++, &D_1000118);
+    gDPPipeSync(glist++);
+    gDPSetCombineMode(glist++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+    gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     glist = func_8070068C(glist);
-    textDrawStringVtx(glist, 1, 0, 0, textBuf, 0);
+    return textDrawStringVtx(glist, 1, 0, 0, textBuf, 0);
 }
 
 static void bossRoundDummy(void) {}
@@ -439,34 +428,29 @@ extern ALBank *D_8076D1F8;
 extern SchedStruct gScheduler;
 extern s32 gCurrentMap;
 
-void sfxStopChannel(s32, s32);
 void func_80724A20(void);  // FAKE: callee prototype steer
-void hudCountdownTimerHold(void *);
-void hudCountdownTimerResume(void *);
-f32 sfxGetChannelVolume(s32);
-void renderCallbacksRegister(void *, void *, u8);
 
 
 void bossRoundFrame(u8 *script) {
     BossScriptState *scriptState;
     u8 mapOffset;
     s16 mapFlag;
-    BossSoundState *s0;
+    BossSoundState *sound;
 
-    scriptState = BA40->scriptState;
+    scriptState = BOSS_ACTOR->scriptState;
     mapOffset = gCurrentMap - 0xCB;
-    s0 = (BossSoundState *)BA40->script;
+    sound = BOSS_ACTOR->typeState;
     if (gPrimaryPlayerActor->y < 30.0f) {
         gPrimaryPlayerActor->x = 780.0f;
         gPrimaryPlayerActor->y = 50.0f;
         gPrimaryPlayerActor->z = 750.0f;
         effectCreateAtPosition(D_8071FE08, 1.0f, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z);
     }
-    if (!(BA40->base.flags & 0x10)) {
+    if (!(BOSS_ACTOR->base.flags & 0x10)) {
         slotQueueSetDisplayMode(5, 0, 1);
         slotQueueSetDisplayMode(2, 0, 1);
-        BA40->base.flags &= 0xFFFDFFFF;
-        if ((scriptState->phase == 0) || (BA40->base.actorType != 0x126)) {
+        BOSS_ACTOR->base.flags &= 0xFFFDFFFF;
+        if ((scriptState->phase == 0) || (BOSS_ACTOR->base.actorType != 0x126)) {
             if (flagGet(0x5A, 2) == 0) {
                 healthRefill(0);
             }
@@ -477,47 +461,47 @@ void bossRoundFrame(u8 *script) {
                 flagSet(0x55, 0, 2);
                 menuTransitionToMap(0xD7, 0);
                 D_80750AD4 = 0;
-                BA40->base.state = 0x6A;
-                BA40->base.unk155 = 0;
+                BOSS_ACTOR->base.state = 0x6A;
+                BOSS_ACTOR->base.unk155 = 0;
             }
         }
-        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &s0->sndHandleA);
-        n_alSndpPlay(D_8076D1F8, 0x119, 0, 0x40, 1.0f, 0x80, &s0->sndHandleB);
+        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &sound->sndHandleA);
+        n_alSndpPlay(D_8076D1F8, 0x119, 0, 0x40, 1.0f, 0x80, &sound->sndHandleB);
     }
     func_80724A20();
-    switch (BA40->base.state) {
+    switch (BOSS_ACTOR->base.state) {
     case 0x37:
-        if (BA40->base.unk155 == 0) {
-            hudCountdownTimerHold(BA40->base.parentActor);
+        if (BOSS_ACTOR->base.unk155 == 0) {
+            hudCountdownTimerHold(BOSS_ACTOR->base.parentActor);
         }
         break;
     case 0x6A:
-        if (BA40->base.unk155 == 0) {
+        if (BOSS_ACTOR->base.unk155 == 0) {
             actorScriptStart(gCurrentActor, 0);
-            BA40->base.unk155++;
+            BOSS_ACTOR->base.unk155++;
         }
         break;
     case 0x6C:
         scriptState->unk12 |= 1;
         bossStartCountdownTimer();
-        if ((scriptState->phase != 0) && (BA40->base.actorType == 0x126)) {
-            hudCountdownTimerResume(BA40->base.parentActor);
+        if ((scriptState->phase != 0) && (BOSS_ACTOR->base.actorType == 0x126)) {
+            hudCountdownTimerResume(BOSS_ACTOR->base.parentActor);
         }
-        BA40->base.state = script[scriptState->scriptPos];
+        BOSS_ACTOR->base.state = script[scriptState->scriptPos];
         scriptState->scriptPos++;
-        BA40->base.unk155 = 0;
+        BOSS_ACTOR->base.unk155 = 0;
         break;
     default:
-        if ((BA40->base.parentActor != NULL) && (BA40->base.parentActor->state == 5)) {
+        if ((BOSS_ACTOR->base.parentActor != NULL) && (BOSS_ACTOR->base.parentActor->state == 5)) {
             bossResetAudioChannels();
-            BA40->base.state = 0x6A;
-            BA40->base.unk155 = 0;
+            BOSS_ACTOR->base.state = 0x6A;
+            BOSS_ACTOR->base.unk155 = 0;
             camStartPath(gCurrentActor, D_800359C4[mapOffset], 1);
             flagSet(0x5A, 1, 2);
         }
         break;
     }
-    if (!(BA40->base.flags & 0x10)) {
+    if (!(BOSS_ACTOR->base.flags & 0x10)) {
         if (menuIsTransitionTypeC() != 0) {
             flagSet(0x55, 0, 2);
         }
@@ -543,8 +527,8 @@ void bossRoundFrame(u8 *script) {
                     flagSet(0x5A, 0, 2);
                 } else {
                     sfxStopChannel(0x2B, 0);
-                    BA40->base.state = 0x6A;
-                    BA40->base.unk155 = 0;
+                    BOSS_ACTOR->base.state = 0x6A;
+                    BOSS_ACTOR->base.unk155 = 0;
                     flagSet(0x5B, 1, 2);
                     menuTransitionToMap(0xD7, 1);
                     D_80750AD4 -= 1;
@@ -555,57 +539,57 @@ void bossRoundFrame(u8 *script) {
         }
     }
     if ((gActivePlayerActor->state == 0x67) || (sfxGetChannelVolume(0xF) > 0.1)) {
-        s0->curVolume = 0x1D4C;
-        if (s0->targetVolume - 0x3E8 < 0x1D4C) {
-            s0->targetVolume = 0x1D4C;
+        sound->curVolume = 0x1D4C;
+        if (sound->targetVolume - 0x3E8 < 0x1D4C) {
+            sound->targetVolume = 0x1D4C;
         } else {
-            s0->targetVolume = s0->targetVolume - 0x3E8;
+            sound->targetVolume = sound->targetVolume - 0x3E8;
         }
     } else {
-        if (s0->curVolume - 0x64 < 0x1F40) {
-            s0->curVolume = 0x1F40;
+        if (sound->curVolume - 0x64 < 0x1F40) {
+            sound->curVolume = 0x1F40;
         } else {
-            s0->curVolume = s0->curVolume - 0x64;
+            sound->curVolume = sound->curVolume - 0x64;
         }
-        if (s0->curVolume < s0->targetVolume + 0x3E8) {
-            s0->targetVolume = s0->curVolume;
+        if (sound->curVolume < sound->targetVolume + 0x3E8) {
+            sound->targetVolume = sound->curVolume;
         } else {
-            s0->targetVolume = s0->targetVolume + 0x3E8;
+            sound->targetVolume = sound->targetVolume + 0x3E8;
         }
     }
-    n_alSndpPostEvent(s0->sndHandleA, 8, s0->targetVolume);
-    n_alSndpPostEvent(s0->sndHandleB, 8, s0->targetVolume);
-    if (s0->flags & 0x17) {
+    n_alSndpPostEvent(sound->sndHandleA, 8, sound->targetVolume);
+    n_alSndpPostEvent(sound->sndHandleB, 8, sound->targetVolume);
+    if (sound->flags & 0x17) {
         s16 snd = 0x1E8;
-        if ((gScheduler.unk280 - s0->lastTick) >= 6U) {
-            s0->lastTick = gScheduler.unk280;
-            s0->stepCount = 0;
-            if (s0->flags & 0x10) {
+        if ((gScheduler.unk280 - sound->lastTick) >= 6U) {
+            sound->lastTick = gScheduler.unk280;
+            sound->stepCount = 0;
+            if (sound->flags & 0x10) {
                 snd = 0x42B;
-            } else if (s0->flags & 4) {
+            } else if (sound->flags & 4) {
                 snd = 0x1EA;
-            } else if (s0->flags & 2) {
+            } else if (sound->flags & 2) {
                 snd = 0x1E7;
             }
             sfxPlayOnFreeSlot(snd, 0x58EF, 64.0f, 1.0f, 0x14, 0x80);
         }
-        if (s0->curVolume + 0x4650 >= 0x8000) {
-            s0->curVolume = 0x7FFF;
+        if (sound->curVolume + 0x4650 >= 0x8000) {
+            sound->curVolume = 0x7FFF;
         } else {
-            s0->curVolume = s0->curVolume + 0x4650;
+            sound->curVolume = sound->curVolume + 0x4650;
         }
-        s0->flags &= 0xFFE0;
+        sound->flags &= 0xFFE0;
     }
-    if (s0->flags & 8) {
-        if ((gScheduler.unk280 - s0->lastTick) >= 6U) {
-            if (s0->stepCount == 0) {
-                s0->lastTick = gScheduler.unk280;
+    if (sound->flags & 8) {
+        if ((gScheduler.unk280 - sound->lastTick) >= 6U) {
+            if (sound->stepCount == 0) {
+                sound->lastTick = gScheduler.unk280;
             }
-            s0->stepCount++;
-            switch (s0->stepCount) {
+            sound->stepCount++;
+            switch (sound->stepCount) {
             case 0x3E:
-                s0->stepCount = 0;
-                s0->flags &= 0xFFF7;
+                sound->stepCount = 0;
+                sound->flags &= 0xFFF7;
             case 1:
             case 0x10:
             case 0x1D:
@@ -615,10 +599,10 @@ void bossRoundFrame(u8 *script) {
                 break;
             }
         }
-        if (s0->curVolume + 0x4650 >= 0x8000) {
-            s0->curVolume = 0x7FFF;
+        if (sound->curVolume + 0x4650 >= 0x8000) {
+            sound->curVolume = 0x7FFF;
         } else {
-            s0->curVolume = s0->curVolume + 0x4650;
+            sound->curVolume = sound->curVolume + 0x4650;
         }
     }
     if ((scriptState->unk12 & 1) && (hudCanRender() != 0)) {
