@@ -107,34 +107,34 @@ As each agent reports:
    (`--reloc-ok`), one gate. Copies keyed by the same basename (`boss/52B0` vs `race/52B0`,
    `critter/0` vs `minecart/0`) need separate dirs and gates. A gate failing with `cfe: ... if
    directive is not terminated` on unchanged headers is a stale dkd server: `(cd .scratch/gate &&
-   ../../tools/dk --stop)` and rerun. Commit explicit paths only. A copy retyping a shared global's
-   extern: fix every other file's extern in the SAME gate (objdiff each).
+   ../../tools/dk --stop)` and rerun. Commit explicit paths only; headers go in `--stage`, never as a
+   gate file argument. A copy byte-identical to its base is ledger-only (`cmp` first); one whose file
+   changed since its base merges 3-way (`<copy-dir> <base>`). A copy retyping a shared global's extern:
+   fix every other file's extern in the SAME gate (objdiff each; a file whose cfe count would rise
+   keeps its type and goes to the follow-ups).
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
 gate; a merged file's net HACKS (tagged `// FAKE` + untagged AST sites) and cfe warnings never rise.
-Tag pre-existing untagged hacks ("pre-existing, now tagged"). A K&R → ANSI conversion may expose a
-pre-existing uninit read (same code at HEAD): accept with a note. `make expected` before sweeping a
-merged file that differs from `expected/` only in relocations (else sweep skips it).
+Tag pre-existing untagged hacks ("pre-existing, now tagged"); accept a pre-existing uninit read a
+K&R → ANSI conversion exposes (note). `make expected` before sweeping a relocation-only diff.
 
 ## 6. Round end
 
 Once every agent of the round is idle:
 1. Apply proposed `func_`/`D_`/shared-field names ([naming.md](naming.md)) with `rename.py
-   func|global|field` (dry-run first; skip names whose dry-run touches a checked-out file).
-2. `tools/dk make split`, touch all src, `tools/dk make` OK, `tools/dk make expected`,
-   `python3 tools/unit_check.py vanished` → `vanished OK`; commit `<seg>: name N symbols` (symbol
-   files, renamed src, moved drafts, the `include/proto` headers `gen` rewrote).
-3. A rename changes the fingerprints of every function it touches: `carry --rev <commit before
-   the renames> --unit "<unit>"` re-stamps pure renames (it lists what it skipped: sweep those). Commit.
-4. Re-review: functions still `review=stale` in the round's touched files (bodies edited by batches)
-   plus those files' never-reviewed OPEN functions go into ~3 whole-file groups in
-   `.scratch/rereview<N>.md`, one agent per group (checkpointing per brief.md).
+   func|global|field` (dry-run first; skip names whose dry-run touches a checked-out file). It refuses
+   references inside macros and address-shaped targets (`func_807444E0` data → `D_`): take the
+   `--dry-run` positions, apply them plus the macro lines by hand, one gate.
+2. `tools/dk make split`, touch all src, `make` OK, `make expected`, `unit_check.py vanished` → OK.
+3. `carry --rev <commit before the renames> --unit "<unit>"` re-stamps pure renames; sweep the files
+   it skipped (agent rungs of skipped functions stay stale). Commit.
+4. Re-review: `review=stale` functions in the round's touched files plus their never-reviewed OPEN
+   functions → ~3 whole-file groups in `.scratch/rereview<N>.md`, one agent each (brief.md).
 
 ## 7. Stop rule
 
-A file is done when `quality.py status --file` shows every function EXHAUSTED (fresh `review`, every
-site fixed or exhausted); one with any OPEN function goes back into the next ranking. The campaign is
-done when `report` shows `reviewed <n>/<n>` and `rank` lists no OPEN function. A `proto-type` site stops blocking its
-function only once the types phase recorded `views` `blocked` with a reason.
+A file is done when `status --file` shows every function EXHAUSTED; any OPEN function goes back into
+the ranking. The campaign is done at `reviewed <n>/<n>` with no OPEN function in `rank`. A
+`proto-type` site stops blocking once the types phase recorded `views` `blocked` with a reason.
 
 ## 8. Close
 

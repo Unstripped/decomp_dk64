@@ -77,9 +77,9 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
   re-records at the merge, then carries).
 - A retyped definition: a stand-in copy (`#define PROTO_SKIP_<f>` + declaration) that fdiffs, plus
   `standin_<file>.c` for every caller file the new prototype changes; list the callers.
-- Re-review tasks: keep file-scope edits (types, views, renamed fields) out unless you re-read every
-  function they reach; each one you leave stale goes into the next re-review pass. Rev11B/C/D kept
-  edits body-only and left no stale reviews: do the same; file-scope changes go to header-request.md.
+- Re-review tasks: keep file-scope edits (types, views, renamed fields, loop rewrites of shared
+  helpers) out unless you record a fresh `review` for EVERY function they reach; each one left stale
+  goes into the next pass (Rev17P staled 5 this way). File-scope changes go to header-request.md.
 - Before tagging or removing a "dead" store as a hack, read the target object: a store the target
   really performs twice is behaviour, not a steer (E4090 451398/78d921, BDEE0 unk155).
 - A turn ends only when all five phases are done for EVERY function. Workers stopping after
