@@ -2877,7 +2877,7 @@ s32 csFindPlayerSlotByModel(s32 a, s32 b) {
     if (gPlayerCount > 0) {
         p = gPlayerSlots;
         do {
-            if (p->unk0 != 0) {
+            if (p->active != 0) {
                 q = p->actor;
                 if (q->attachMode == 1 && q->cutsceneId == a && q->unk10E == b) {
                     return i;

@@ -206,16 +206,16 @@ void commandQueueReset(void) {
 }
 
 extern Actor *gPrimaryPlayerActor;
-extern f32 *D_8076A0B4;
-extern f32 *D_8076A0B8;
-extern f32 *D_8076A0BC;
+extern f32 *gChunkLightR;
+extern f32 *gChunkLightG;
+extern f32 *gChunkLightB;
 extern PlayerStruct *gPlayerSlots;
 extern f32 D_807444CC;
 extern f32 D_807444D0;
 extern f32 D_807444D4;
 extern f32 D_807444D8;
 extern f32 D_807444DC;
-extern f32 func_807444E0;
+extern f32 D_807444E0;
 
 
 typedef struct {
@@ -293,9 +293,9 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
         color[1] = targetActor->tintG / 255.0;
         color[2] = targetActor->tintB / 255.0;
     } else {
-        color[0] = D_8076A0B4[sequence];
-        color[1] = D_8076A0B8[sequence];
-        color[2] = D_8076A0BC[sequence];
+        color[0] = gChunkLightR[sequence];
+        color[1] = gChunkLightG[sequence];
+        color[2] = gChunkLightB[sequence];
     }
 
     primary->l.col[0] = primary->l.colc[0] = (u8)((D_807FDB7C ? color[0] * scale : 1.0) * (u8)D_807FDB60.red);
@@ -324,7 +324,7 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
         D_807444D4 = secondary->l.dir[2];
         D_807444D8 = 10.0f;
         D_807444DC = -10.0f;
-        func_807444E0 = 10.0f;
+        D_807444E0 = 10.0f;
         D_80755680 += -D_80755680 * 0.05;
         D_80755684 += (D_807FDB7E - D_80755684) * 0.05;
         D_80755688 += (D_807FDB7F - D_80755688) * 0.05;

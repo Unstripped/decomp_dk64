@@ -451,10 +451,10 @@ void matrixCacheResetStats(void) {
     D_807F905A = 0;
 }
 
-extern f32 *D_8076A0B4;
-extern f32 *D_8076A0B8;
-extern f32 *D_8076A0BC;
-extern MatrixCacheSub D_807F78C0[];
+extern f32 *gChunkLightR;
+extern f32 *gChunkLightG;
+extern f32 *gChunkLightB;
+extern MatrixCacheSub gLightCandidates[];
 
 #define DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 
@@ -470,14 +470,14 @@ void *matrixCacheLookup(s32 count, s32 camIndex, s16 modelId, u8 subType) {
     node = gMatrixCacheBuckets[matrixCacheHash(count, modelId, subType)];
     while (node != NULL) {
         if (count == node->count && modelId == node->modelId && node->subType == subType) {
-            if (node->camX == D_8076A0B4[camIndex] && node->camY == D_8076A0B8[camIndex]) {
-                if (node->camZ == D_8076A0BC[camIndex]) {
+            if (node->camX == gChunkLightR[camIndex] && node->camY == gChunkLightG[camIndex]) {
+                if (node->camZ == gChunkLightB[camIndex]) {
                     i = 0;
                     mismatch = 0;
                     for (; !mismatch && i < count; i++) {
                         mismatch = 1;
                         for (j = 0; mismatch && j < count; j++) {
-                            b = &D_807F78C0[j];
+                            b = &gLightCandidates[j];
                             a = &node->sub[i];
                             if (b->unk3E == 1) {
                                 if (a->unk38 == b->unk38 && a->unk3A == b->unk3A && a->unk3C == b->unk3C &&
@@ -548,13 +548,13 @@ void *matrixCacheInsert(s32 count, s32 camIndex, s16 modelId, u8 subType, s32 ma
     node->hash_prev = NULL;
 
     dest = node->sub;
-    node->camX = D_8076A0B4[camIndex];
-    node->camY = D_8076A0B8[camIndex];
-    node->camZ = D_8076A0BC[camIndex];
+    node->camX = gChunkLightR[camIndex];
+    node->camY = gChunkLightG[camIndex];
+    node->camZ = gChunkLightB[camIndex];
     node->modelId = modelId;
     node->count = count;
     node->subType = subType;
-    memcpy(dest, D_807F78C0, count * sizeof(MatrixCacheSub));
+    memcpy(dest, gLightCandidates, count * sizeof(MatrixCacheSub));
     node->lastUsedFrame = gFrameCounter;
     node->matrixCount = matrixCount;
     gMatrixCacheBytes += allocSize;

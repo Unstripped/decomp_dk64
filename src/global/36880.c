@@ -3864,7 +3864,7 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
                 best = 1e8f;
                 for (i = 0; i < gViewportCount; i = (u8)(i + 1)) {
                     
-                    if (gPlayerSlots[i].unk0 != 0) {
+                    if (gPlayerSlots[i].active != 0) {
                         if (entry && entry) {}  // FAKE: dead test steers register colouring
                         if (obj->unk54 == 6) {
                             px = &gPlayerSlots[i].actor->x;

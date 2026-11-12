@@ -187,7 +187,7 @@ void proxPathUpdateAllPlayers(void) {
     u8 i;
 
     for (i = 0; i < gPlayerCount; i++) {
-        if (gPlayerSlots[i].unk0 != 0) {
+        if (gPlayerSlots[i].active != 0) {
             proxPathAttachNearestToPlayer(gPlayerSlots[i].actor, i, flagGet(0x183, 0) || (gGlobalOverlayFlags & 0x10000000) || gPlayerCount >= 2 || func_807142D8());
         }
     }

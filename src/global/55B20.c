@@ -114,12 +114,12 @@ u8 D_807F70AA;
 u8 D_807F70AB;
 s32 gMapCellCount;
 
-extern f32 *D_8076A0B4;
-extern f32 *D_8076A0B8;
-extern f32 *D_8076A0BC;
-extern f32 *D_8076A0C0;
-extern f32 *D_8076A0C4;
-extern f32 *D_8076A0C8;
+extern f32 *gChunkLightR;
+extern f32 *gChunkLightG;
+extern f32 *gChunkLightB;
+extern f32 *gChunkLightTargetR;
+extern f32 *gChunkLightTargetG;
+extern f32 *gChunkLightTargetB;
 
 void mapChunkAllocLists(MapFileHeader *header) {
     s32 temp;
@@ -133,12 +133,12 @@ void mapChunkAllocLists(MapFileHeader *header) {
         count = 1;
     }
     size = count * 4;
-    D_8076A0B4 = heapAlloc(size);
-    D_8076A0B8 = heapAlloc(size);
-    D_8076A0BC = heapAlloc(size);
-    D_8076A0C0 = heapAlloc(size);
-    D_8076A0C4 = heapAlloc(size);
-    D_8076A0C8 = heapAlloc(size);
+    gChunkLightR = heapAlloc(size);
+    gChunkLightG = heapAlloc(size);
+    gChunkLightB = heapAlloc(size);
+    gChunkLightTargetR = heapAlloc(size);
+    gChunkLightTargetG = heapAlloc(size);
+    gChunkLightTargetB = heapAlloc(size);
 }
 
 typedef struct MapPortal {
@@ -1717,7 +1717,7 @@ void func_8065C990(void *, void *, s32, void *, s32, s32);
 extern f32 D_807F7EEC;
 extern f32 D_807F7EF0;
 extern f32 D_807F7EF4;
-extern u8 D_807F78C0;
+extern u8 gLightCandidates;
 
 void mapChunksApplyLights(f32 x, f32 y, f32 z) {
     s32 i;
@@ -1768,10 +1768,10 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
                                         src = gMapChunks[i].baseVtx + gMapCells[k].vtxOffset[j] * 0x10;
                                         memcpy(gMapChunks[i].cells[nodeIdx].vtx[j], src, gMapCells[k].vtxCount[j] * 0x10);
                                         matrix = gMapChunks[i].cells[nodeIdx].vtx[j];
-                                        D_807F7EEC = D_8076A0B4[i];
-                                        D_807F7EF0 = D_8076A0B8[i];
-                                        D_807F7EF4 = D_8076A0BC[i];
-                                        func_8065C990(matrix, (u8 *)matrix + gMapCells[k].vtxCount[j] * 0x10, 1, &D_807F78C0, obj, gMapChunks[i].lightMode == 1);
+                                        D_807F7EEC = gChunkLightR[i];
+                                        D_807F7EF0 = gChunkLightG[i];
+                                        D_807F7EF4 = gChunkLightB[i];
+                                        func_8065C990(matrix, (u8 *)matrix + gMapCells[k].vtxCount[j] * 0x10, 1, &gLightCandidates, obj, gMapChunks[i].lightMode == 1);
                                     }
                                 }
                             }
@@ -1787,11 +1787,11 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
                     gMapChunks[i].litVtx[gGfxBufferIndex] = heapAlloc(gMapChunks[i].vtxSize);
                 }
                 memcpy(gMapChunks[i].litVtx[gGfxBufferIndex], gMapChunks[i].baseVtx, gMapChunks[i].vtxSize);
-                D_807F7EEC = D_8076A0B4[i];
-                D_807F7EF0 = D_8076A0B8[i];
-                D_807F7EF4 = D_8076A0BC[i];
+                D_807F7EEC = gChunkLightR[i];
+                D_807F7EF0 = gChunkLightG[i];
+                D_807F7EF4 = gChunkLightB[i];
                 if (gGlobalPauseFlags & 0x10) {
-                    func_8065C990((s32)gMapChunks[i].litVtx[gGfxBufferIndex], (s32)gMapChunks[i].litVtx[gGfxBufferIndex] + gMapChunks[i].vtxSize, 1, &D_807F78C0, obj, gMapChunks[i].lightMode == 1);  // FAKE: s32 args steer the a0 register (callee takes void * here)
+                    func_8065C990((s32)gMapChunks[i].litVtx[gGfxBufferIndex], (s32)gMapChunks[i].litVtx[gGfxBufferIndex] + gMapChunks[i].vtxSize, 1, &gLightCandidates, obj, gMapChunks[i].lightMode == 1);  // FAKE: s32 args steer the a0 register (callee takes void * here)
                 }
             }
             gMapChunks[i].curVtx = gMapChunks[i].litVtx[gGfxBufferIndex];

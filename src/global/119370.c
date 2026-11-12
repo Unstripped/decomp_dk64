@@ -521,7 +521,7 @@ void effectUpdateAll(u8 pGlist) {
                 }
             } else if (effect->callback != NULL) {
                 for (i = 0; i < gViewportCount; i++) {
-                    if (gPlayerSlots[i].unk0 != 0) {
+                    if (gPlayerSlots[i].active != 0) {
                         memcpy(&effect->matrices[i][gGfxBufferIndex], &effect->matrices[i][gGfxBufferIndex ^ 1], sizeof(Mtx));
                     }
                 }
@@ -542,13 +542,13 @@ void effectUpdateAll(u8 pGlist) {
                 effectFreeAndUnlink(effect);
             } else {
                 for (i = 1; i < gViewportCount; i++) {
-                    if (gPlayerSlots[i].unk0 != 0) {
+                    if (gPlayerSlots[i].active != 0) {
                         memcpy(&effect->matrices[i][gGfxBufferIndex], &effect->matrices[0][gGfxBufferIndex], sizeof(Mtx));
                     }
                 }
                 if (effect->state != 3) {
                     for (i = 0; i < gViewportCount; i++) {
-                        if (gPlayerSlots[i].unk0 != 0) {
+                        if (gPlayerSlots[i].active != 0) {
                             effectComputeTransformMatrix(&effect->matrices[i][gGfxBufferIndex],
                                           effect->state,
                                           effect->scaleX,

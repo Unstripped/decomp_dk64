@@ -26,14 +26,14 @@ void lightSetRadius(s16 radius) {
     gLightNextActiveRadius = radius;
 }
 
-extern f32 *D_8076A0B4;
-extern f32 *D_8076A0B8;
-extern f32 *D_8076A0BC;
+extern f32 *gChunkLightR;
+extern f32 *gChunkLightG;
+extern f32 *gChunkLightB;
 
 void lightGetColor(f32 *outR, f32 *outG, f32 *outB, s16 index) {
-    *outR = D_8076A0B4[index];
-    *outG = D_8076A0B8[index];
-    *outB = D_8076A0BC[index];
+    *outR = gChunkLightR[index];
+    *outG = gChunkLightG[index];
+    *outB = gChunkLightB[index];
 }
 
 extern s32 gMapChunkCount;
@@ -49,22 +49,22 @@ void lightSetColor(f32 r, f32 g, f32 b, s16 index) {
     }
     if (index != -1) {
         if (index < count) {
-            D_8076A0B4[index] = (r <= 1.0f) ? r : 1.0f;
-            D_8076A0B8[index] = (g <= 1.0f) ? g : 1.0f;
-            D_8076A0BC[index] = (b <= 1.0f) ? b : 1.0f;
+            gChunkLightR[index] = (r <= 1.0f) ? r : 1.0f;
+            gChunkLightG[index] = (g <= 1.0f) ? g : 1.0f;
+            gChunkLightB[index] = (b <= 1.0f) ? b : 1.0f;
         }
     } else {
         for (i = 0; i < count; i++) {
-            D_8076A0B4[i] = (r <= 1.0f) ? r : 1.0f;
-            D_8076A0B8[i] = (g <= 1.0f) ? g : 1.0f;
-            D_8076A0BC[i] = (b <= 1.0f) ? b : 1.0f;
+            gChunkLightR[i] = (r <= 1.0f) ? r : 1.0f;
+            gChunkLightG[i] = (g <= 1.0f) ? g : 1.0f;
+            gChunkLightB[i] = (b <= 1.0f) ? b : 1.0f;
         }
     }
 }
 
-extern f32 *D_8076A0C0;
-extern f32 *D_8076A0C4;
-extern f32 *D_8076A0C8;
+extern f32 *gChunkLightTargetR;
+extern f32 *gChunkLightTargetG;
+extern f32 *gChunkLightTargetB;
 
 void lightCopyTargetColors(s16 index) {
     u8 count;
@@ -78,15 +78,15 @@ void lightCopyTargetColors(s16 index) {
 
     if (index != -1) {
         if (index < count) {
-            D_8076A0B4[index] = D_8076A0C0[index];
-            D_8076A0B8[index] = D_8076A0C4[index];
-            D_8076A0BC[index] = D_8076A0C8[index];
+            gChunkLightR[index] = gChunkLightTargetR[index];
+            gChunkLightG[index] = gChunkLightTargetG[index];
+            gChunkLightB[index] = gChunkLightTargetB[index];
         }
     } else {
         for (i = 0; i < count; i++) {
-            D_8076A0B4[i] = D_8076A0C0[i];
-            D_8076A0B8[i] = D_8076A0C4[i];
-            D_8076A0BC[i] = D_8076A0C8[i];
+            gChunkLightR[i] = gChunkLightTargetR[i];
+            gChunkLightG[i] = gChunkLightTargetG[i];
+            gChunkLightB[i] = gChunkLightTargetB[i];
         }
     }
 }
@@ -103,36 +103,36 @@ void lightSetTargetColor(f32 r, f32 g, f32 b, s16 index) {
 
     if (index != -1) {
         if (r <= 1.0f) {
-            D_8076A0C0[index] = r;
+            gChunkLightTargetR[index] = r;
         } else {
-            D_8076A0C0[index] = 1.0f;
+            gChunkLightTargetR[index] = 1.0f;
         }
         if (g <= 1.0f) {
-            D_8076A0C4[index] = g;
+            gChunkLightTargetG[index] = g;
         } else {
-            D_8076A0C4[index] = 1.0f;
+            gChunkLightTargetG[index] = 1.0f;
         }
         if (b <= 1.0f) {
-            D_8076A0C8[index] = b;
+            gChunkLightTargetB[index] = b;
         } else {
-            D_8076A0C8[index] = 1.0f;
+            gChunkLightTargetB[index] = 1.0f;
         }
     } else {
         for (i = 0; i < count; i++) {
             if (r <= 1.0f) {
-                D_8076A0C0[i] = r;
+                gChunkLightTargetR[i] = r;
             } else {
-                D_8076A0C0[i] = 1.0f;
+                gChunkLightTargetR[i] = 1.0f;
             }
             if (g <= 1.0f) {
-                D_8076A0C4[i] = g;
+                gChunkLightTargetG[i] = g;
             } else {
-                D_8076A0C4[i] = 1.0f;
+                gChunkLightTargetG[i] = 1.0f;
             }
             if (b <= 1.0f) {
-                D_8076A0C8[i] = b;
+                gChunkLightTargetB[i] = b;
             } else {
-                D_8076A0C8[i] = 1.0f;
+                gChunkLightTargetB[i] = 1.0f;
             }
         }
     }
@@ -150,15 +150,15 @@ void lightLerpColors(f32 r, f32 g, f32 b, f32 t, s16 index) {
 
     if (index != -1) {
         if (index < count) {
-            D_8076A0B4[index] = ((D_8076A0C0[index] - r) * t) + r;
-            D_8076A0B8[index] = ((D_8076A0C4[index] - g) * t) + g;
-            D_8076A0BC[index] = ((D_8076A0C8[index] - b) * t) + b;
+            gChunkLightR[index] = ((gChunkLightTargetR[index] - r) * t) + r;
+            gChunkLightG[index] = ((gChunkLightTargetG[index] - g) * t) + g;
+            gChunkLightB[index] = ((gChunkLightTargetB[index] - b) * t) + b;
         }
     } else {
         for (i = 0; i < count; i++) {
-            D_8076A0B4[i] = ((D_8076A0C0[i] - r) * t) + r;
-            D_8076A0B8[i] = ((D_8076A0C4[i] - g) * t) + g;
-            D_8076A0BC[i] = ((D_8076A0C8[i] - b) * t) + b;
+            gChunkLightR[i] = ((gChunkLightTargetR[i] - r) * t) + r;
+            gChunkLightG[i] = ((gChunkLightTargetG[i] - g) * t) + g;
+            gChunkLightB[i] = ((gChunkLightTargetB[i] - b) * t) + b;
         }
     }
 }
@@ -497,7 +497,7 @@ typedef struct LightTrigger {
     /* 0x3F */ u8 volumeIndex;
 } LightTrigger;
 
-extern LightTrigger D_807F78C0[];
+extern LightTrigger gLightCandidates[];
 extern LightTrigger gActiveLights[];
 extern s16 gLightCandidateCount;
 s16 lightCollectVolumesInBounds(f32 x, f32 y, f32 z, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ, s32 targetId, s8 *outFlag) {
@@ -515,14 +515,14 @@ s16 lightCollectVolumesInBounds(f32 x, f32 y, f32 z, s16 minX, s16 minY, s16 min
                 if (gLightVolumes[i].flags & 1) {
                     *outFlag = 1;
                 }
-                D_807F78C0[gLightCandidateCount].volumeIndex = i;
-                D_807F78C0[gLightCandidateCount].x = gLightVolumes[i].x * 3.0f;
-                D_807F78C0[gLightCandidateCount].y = gLightVolumes[i].y * 3.0f;
-                D_807F78C0[gLightCandidateCount].z = gLightVolumes[i].z * 3.0f;
-                D_807F78C0[gLightCandidateCount].r = gLightVolumes[i].r / 255.0;
-                D_807F78C0[gLightCandidateCount].g = gLightVolumes[i].g / 255.0;
-                D_807F78C0[gLightCandidateCount].b = gLightVolumes[i].b / 255.0;
-                D_807F78C0[gLightCandidateCount].type = gLightVolumes[i].type;
+                gLightCandidates[gLightCandidateCount].volumeIndex = i;
+                gLightCandidates[gLightCandidateCount].x = gLightVolumes[i].x * 3.0f;
+                gLightCandidates[gLightCandidateCount].y = gLightVolumes[i].y * 3.0f;
+                gLightCandidates[gLightCandidateCount].z = gLightVolumes[i].z * 3.0f;
+                gLightCandidates[gLightCandidateCount].r = gLightVolumes[i].r / 255.0;
+                gLightCandidates[gLightCandidateCount].g = gLightVolumes[i].g / 255.0;
+                gLightCandidates[gLightCandidateCount].b = gLightVolumes[i].b / 255.0;
+                gLightCandidates[gLightCandidateCount].type = gLightVolumes[i].type;
                 switch ((u32)gLightVolumes[i].type) {  // FAKE: u32 switch operand on the u8 type keeps the original jump-table compare
                 case 1:
                     diff[0] = gLightVolumes[i].targetX - gLightVolumes[i].x;
@@ -532,25 +532,25 @@ s16 lightCollectVolumesInBounds(f32 x, f32 y, f32 z, s16 minX, s16 minY, s16 min
                     if (dist == 0.0f) {
                         dist = 0.1f;
                     }
-                    D_807F78C0[gLightCandidateCount].dirX = diff[0] / dist;
-                    D_807F78C0[gLightCandidateCount].dirY = diff[1] / dist;
-                    D_807F78C0[gLightCandidateCount].dirZ = diff[2] / dist;
-                    D_807F78C0[gLightCandidateCount].cosInner = gLightVolumes[i].cosInner;
-                    D_807F78C0[gLightCandidateCount].rangeSq = 0x127690;
-                    D_807F78C0[gLightCandidateCount].cosOuter = gLightVolumes[i].cosOuter;
-                    D_807F78C0[gLightCandidateCount].coneScale = gLightVolumes[i].coneScale;
+                    gLightCandidates[gLightCandidateCount].dirX = diff[0] / dist;
+                    gLightCandidates[gLightCandidateCount].dirY = diff[1] / dist;
+                    gLightCandidates[gLightCandidateCount].dirZ = diff[2] / dist;
+                    gLightCandidates[gLightCandidateCount].cosInner = gLightVolumes[i].cosInner;
+                    gLightCandidates[gLightCandidateCount].rangeSq = 0x127690;
+                    gLightCandidates[gLightCandidateCount].cosOuter = gLightVolumes[i].cosOuter;
+                    gLightCandidates[gLightCandidateCount].coneScale = gLightVolumes[i].coneScale;
                     break;
                 case 0:
                     if (gLightVolumes[i].radius == 0.0f) {
                         gLightVolumes[i].radius = 0.1f;
                     }
                     dist = gLightVolumes[i].radius * 3.0f;
-                    D_807F78C0[gLightCandidateCount].rangeSq = dist * dist;
+                    gLightCandidates[gLightCandidateCount].rangeSq = dist * dist;
                     innerRadius = (gLightVolumes[i].radius / 3) * 3.0f;
-                    D_807F78C0[gLightCandidateCount].invFalloffLength = 1.0f / (gLightVolumes[i].radius * 3.0f - innerRadius);
-                    D_807F78C0[gLightCandidateCount].falloffStart = innerRadius;
-                    D_807F78C0[gLightCandidateCount].fadeStart = ((gLightVolumes[i].radius * 1.3f) / 3) * 3.0f;
-                    D_807F78C0[gLightCandidateCount].invFadeLength = 1.0f / ((gLightVolumes[i].radius * 1.3f) * 3.0f - D_807F78C0[gLightCandidateCount].fadeStart);
+                    gLightCandidates[gLightCandidateCount].invFalloffLength = 1.0f / (gLightVolumes[i].radius * 3.0f - innerRadius);
+                    gLightCandidates[gLightCandidateCount].falloffStart = innerRadius;
+                    gLightCandidates[gLightCandidateCount].fadeStart = ((gLightVolumes[i].radius * 1.3f) / 3) * 3.0f;
+                    gLightCandidates[gLightCandidateCount].invFadeLength = 1.0f / ((gLightVolumes[i].radius * 1.3f) * 3.0f - gLightCandidates[gLightCandidateCount].fadeStart);
                     break;
                 }
                 lightAddDedupEntry(gLightCandidateCount);
@@ -566,13 +566,13 @@ void lightAddDedupEntry(s16 index) {
     u8 val;
 
     if (gActiveLightCount != 12) {
-        val = D_807F78C0[index].volumeIndex;
+        val = gLightCandidates[index].volumeIndex;
         for (i = 0; i < gActiveLightCount; i++) {
             if (val == gActiveLights[i].volumeIndex) {
                 return;
             }
         }
-        memcpy(&gActiveLights[gActiveLightCount++], &D_807F78C0[index], sizeof(LightTrigger));
+        memcpy(&gActiveLights[gActiveLightCount++], &gLightCandidates[index], sizeof(LightTrigger));
     }
 }
 
@@ -627,7 +627,7 @@ s32 lightCheckPlayerDistance(LightVolume *light) {
     s32 i;
 
     for (i = 0; i < gViewportCount; i++) {
-        if (gPlayerSlots[i].unk0 != 0) {
+        if (gPlayerSlots[i].active != 0) {
             if (sqrtf(SQ(light->x - gPlayerSlots[i].camX) + SQ(light->y - gPlayerSlots[i].camY) + SQ(light->z - gPlayerSlots[i].camZ)) < light->activeRadius) {
                 return 1;
             }
@@ -652,12 +652,12 @@ void lightSampleColorAtPosition(f32 x, f32 y, f32 z, s16 radius, u8 *outR, u8 *o
         return;
     }
     if (gActiveLightCount == 0) {
-        *outR = (s32)(D_8076A0B4[chunk] * 255.0f);
-        *outG = (s32)(D_8076A0B8[chunk] * 255.0f);
-        *outB = (s32)(D_8076A0BC[chunk] * 255.0f);
+        *outR = (s32)(gChunkLightR[chunk] * 255.0f);
+        *outG = (s32)(gChunkLightG[chunk] * 255.0f);
+        *outB = (s32)(gChunkLightB[chunk] * 255.0f);
         return;
     }
-    r = D_8076A0B4[chunk]; g = D_8076A0B8[chunk]; b = D_8076A0BC[chunk];  // LAYOUT: one line changes as1 scheduling of the three loads
+    r = gChunkLightR[chunk]; g = gChunkLightG[chunk]; b = gChunkLightB[chunk];  // LAYOUT: one line changes as1 scheduling of the three loads
 
     for (i = 0; i < gActiveLightCount; i++) {
         switch (gActiveLights[i].type) {

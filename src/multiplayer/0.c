@@ -261,7 +261,7 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
                     alpha = player->actor->alpha & 0xFF;
                 }
             }
-            if (player->unk0 == 0 || alpha == 0) {
+            if (player->active == 0 || alpha == 0) {
                 next = i + 1;
             } else {
                 gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, alpha);
@@ -269,13 +269,13 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
                 if (score != 0) {}  // FAKE: dead use makes scp a cross-block temp (steers uopt)
                 if (gSplitScreenMode == 0) {
                     next = i + 1;
-                    glyphX = viewport->unk8 - 0x30;
+                    glyphX = viewport->right - 0x30;
                 } else {
                     next = i + 1;
                     glyphX = (s16) ((f32) next * spacing - 20.0);
                     if (D_1000118) {}  // FAKE: deadsweep dead statement (steers uopt)
                 }
-                y = viewport->unk6 + 8;
+                y = viewport->top + 8;
                 half = score->health;
                 if (half < 0) {
                     count = 0;
@@ -313,7 +313,7 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, Actor *controller) {
     state = controller->customState;
     temp = state->unk20[0];
     posXStep = (f32) gScreenWidth / (f32) (gPlayerCount + 1);
-    posY = (f32) (((G00Entry *)temp)->unk6 + 8);
+    posY = (f32) (((G00Entry *)temp)->top + 8);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
     glistp = mpDrawScoreGlyphs(glistp, state, posXStep);
     if (D_807552E4.unk4 != 3) {
@@ -367,8 +367,8 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
     for (playerIndex = 0; playerIndex < gPlayerCount; playerIndex++) {
             rect = state->unk20[playerIndex];
             if (gPlayerSlots[playerIndex].actor->state == 0x84) {
-                fx = (f32) ((f64) rect->unk4 + ((f64) (rect->unk8 - rect->unk4) * 0.5));
-                fy = (f32) ((f64) rect->unk6 + ((f64) (rect->unkA - rect->unk6) * 0.5));
+                fx = (f32) ((f64) rect->left + ((f64) (rect->right - rect->left) * 0.5));
+                fy = (f32) ((f64) rect->top + ((f64) (rect->bottom - rect->top) * 0.5));
                 alpha = (u8) gPlayerSlots[playerIndex].actor->alpha;
                 gDPSetPrimColor(curGlist++, 0, 0, 255, 255, 255, (0xFF - alpha));
                 _sprintf(textBuf, "BAD LUCK");
@@ -384,8 +384,8 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
                 gfx->words.w1 = (alpha & 0xFF) | 0xFFFFFF00;
                 gfx->words.w0 = 0xFA000000;
                 if (state->unk70 == 0) {
-                    fx = (f32) rect->unk4 + 4.0f;
-                    fy = (f32) rect->unkA - ((8.0f + fontHeight2) * 0.5f);
+                    fx = (f32) rect->left + 4.0f;
+                    fy = (f32) rect->bottom - ((8.0f + fontHeight2) * 0.5f);
                     fy = fy * 8.0f;
                     bonusValue = (s32) slotQueueGetValue(3, playerIndex);
                     if (bonusValue != 0) {
@@ -402,12 +402,12 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
                         gfx2->words.w1 = (alpha & 0xFF) | 0xFFFFFF00;
                     }
                     _sprintf(textBuf, "%d", slotQueueGetValue(4, playerIndex));
-                    fx = (f32) rect->unk8 - ((f32) (textGetStringWidth(1, textBuf) + 8) * 0.5f);
+                    fx = (f32) rect->right - ((f32) (textGetStringWidth(1, textBuf) + 8) * 0.5f);
                     curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), textY, textBuf, 4);
                 }
                 _sprintf(textBuf, "%d", mpGetPlayerScore(playerIndex));
-                fx = (f32) rect->unk8 - (((f32) textGetStringWidth(1, textBuf) * 0.5f) + 50.0f);
-                fy = (f32) ((f64) rect->unk6 + (8.0 + ((f64) (8.0f - (fontHeight2 * 0.5f)) * 0.5)));
+                fx = (f32) rect->right - (((f32) textGetStringWidth(1, textBuf) * 0.5f) + 50.0f);
+                fy = (f32) ((f64) rect->top + (8.0 + ((f64) (8.0f - (fontHeight2 * 0.5f)) * 0.5)));
                 fy = fy * 8.0f;
                 curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), (s16) fy, textBuf, 4);
             }
@@ -876,7 +876,7 @@ void mpUpdate(void) {
     } else if (state->unk70 == 0) {
         for (j = 0; j != 2; j++) {
             for (k = 0; k < gPlayerCount; k++) {
-                if (gPlayerSlots[k].unk0 == 0) {
+                if (gPlayerSlots[k].active == 0) {
                     continue;
                 }
                 vp = state->unk20[k];
@@ -885,11 +885,11 @@ void mpUpdate(void) {
                 effectSetMode(0);
                 effectSetParam(D_80027024[j].unk8);
                 if (j == 0) {
-                    x = (f32)(vp->unk4 + 0xB);
+                    x = (f32)(vp->left + 0xB);
                 } else {
-                    x = (f32)(vp->unk8 - 0xB);
+                    x = (f32)(vp->right - 0xB);
                 }
-                y = (f32)(vp->unkA - 0xB);
+                y = (f32)(vp->bottom - 0xB);
                 state->unk50[j * gPlayerCount + k] = effectCreateAtPosition(D_80027024[j].unk0, D_80027024[j].unk4, x, y, -10.0f);
             }
         }
@@ -1048,7 +1048,7 @@ s32 mpFindFurthestSpawn(s32 playerIndex) {
         spawn = func_806C96C4(i);
         for (j = 0; j < gPlayerCount; j++) {
             playerActor = gPlayerSlots[j].actor;
-            if (gPlayerSlots[j].unk0 != 0 && playerActor->state != 0x84) {
+            if (gPlayerSlots[j].active != 0 && playerActor->state != 0x84) {
                 dx = spawn->unk0 - playerActor->x;
                 dy = spawn->unk2 - playerActor->y;
                 dz = spawn->unk4 - playerActor->z;

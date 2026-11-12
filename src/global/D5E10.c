@@ -4718,7 +4718,7 @@ void playerStateDialogueHold(void) {
     gCurrentActor->alpha = cur - step;
     if (gCurrentActor->alpha == 0) {
         if (gSplitScreenMode == 0) {
-            gPlayerSlots[sub->playerIndex].unk0 = 0;
+            gPlayerSlots[sub->playerIndex].active = 0;
         }
         gCurrentActor->flags &= ~4;
     }

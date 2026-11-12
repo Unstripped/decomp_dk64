@@ -944,10 +944,10 @@ typedef struct G00Entry {
     /* 0x1 */ u8 unk1;
     /* 0x2 */ u8 unk2;
     /* 0x3 */ u8 unk3;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ s16 unk6;
-    /* 0x8 */ s16 unk8;
-    /* 0xA */ s16 unkA;
+    /* 0x4 */ s16 left;
+    /* 0x6 */ s16 top;
+    /* 0x8 */ s16 right;
+    /* 0xA */ s16 bottom;
 } G00Entry;
 
 // Spawn position (func_806C96C4).

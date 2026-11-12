@@ -1017,7 +1017,7 @@ f32 *outZ;
                 active = 1;
                 if (actor->collisionFlags & 1) {
                     sub = actor->customState;
-                    active = gPlayerSlots[sub->unk1A4].unk0;
+                    active = gPlayerSlots[sub->unk1A4].active;
                 }
                 if (active != 0) {
                     tmp = (f32)((f64)actor->y + (f64)actor->eyeHeight * 0.5);

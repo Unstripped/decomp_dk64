@@ -1344,7 +1344,7 @@ void camResetAllPlayers(void) {
     u8 i;
 
     for (i = 0; i < gPlayerCount; i++) {
-        if (gPlayerSlots[i].unk0) {
+        if (gPlayerSlots[i].active) {
             camResetPlayer(gPlayerSlots[i].actor, i);
         }
     }

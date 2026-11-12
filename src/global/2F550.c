@@ -549,7 +549,7 @@ Gfx *playerViewsRender(Gfx *gfx, void *frame) {
         gSPSetOtherMode(gfx++, G_SETOTHERMODE_H, G_MDSFT_PIPELINE, 1, G_PM_NPRIMITIVE);
     }
     for (i = 0; i < gViewportCount; i++) {
-        if (gPlayerSlots[i].unk0 != 0) {
+        if (gPlayerSlots[i].active != 0) {
             gCurrentPlayerIndex = i;
             gfx = mapRenderPlayerView(gfx, gPlayerSlots[i].unk21C, gPlayerSlots[i].unk220, gPlayerSlots[i].unk224,
                                 gPlayerSlots[i].unk234, gPlayerSlots[i].unk238, gPlayerSlots[i].unk23C,
@@ -557,7 +557,7 @@ Gfx *playerViewsRender(Gfx *gfx, void *frame) {
                                 gPlayerSlots[i].farClip);
             D_807F5FEC = 0;
         }
-        if (gPlayerSlots[i].unk0 == 0 || gPlayerSlots[i].unk2EA != 0) {
+        if (gPlayerSlots[i].active == 0 || gPlayerSlots[i].unk2EA != 0) {
             alpha = gPlayerSlots[i].actor->alpha;
             vp = cameraFindViewportEntry(i);
             gSPDisplayList(gfx++, &D_1000118);
@@ -565,7 +565,7 @@ Gfx *playerViewsRender(Gfx *gfx, void *frame) {
             gDPPipeSync(gfx++);
             gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, 0xFF - alpha);
             gDPSetCombineMode(gfx++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
-            gDPFillRectangle(gfx++, vp->unk4, vp->unk6, vp->unk8, vp->unkA);
+            gDPFillRectangle(gfx++, vp->left, vp->top, vp->right, vp->bottom);
             gDPPipeSync(gfx++);
         }
     }

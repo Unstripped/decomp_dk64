@@ -3,60 +3,60 @@
 #define PROTO_MENU_1AF0_H
 #include "common.h"
 struct MenuShopActor;
-struct Struct_80025D14;
+struct MenuShopState;
 #ifndef PROTO_SKIP_menuCheckBitgridOtherSlots
-s32 menuCheckBitgridOtherSlots(struct Struct_80025D14 *, s32);
+s32 menuCheckBitgridOtherSlots(struct MenuShopState *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDrawShopCostPrompt
 Gfx *menuDrawShopCostPrompt(Gfx *, struct MenuShopActor *);
 #endif
 #ifndef PROTO_SKIP_menuSetBitgridValue
-void menuSetBitgridValue(struct Struct_80025D14 *, s32);
+void menuSetBitgridValue(struct MenuShopState *, s32);
 #endif
 #ifndef PROTO_SKIP_menuSetBitgridBit
-void menuSetBitgridBit(struct Struct_80025D14 *, s32);
+void menuSetBitgridBit(struct MenuShopState *, s32);
 #endif
 #ifndef PROTO_SKIP_menuUpdateAllBitgridSlots
-void menuUpdateAllBitgridSlots(struct Struct_80025D14 *, u8);
+void menuUpdateAllBitgridSlots(struct MenuShopState *, u8);
 #endif
 #ifndef PROTO_SKIP_menuApplyPurchase
-void menuApplyPurchase(struct Struct_80025D14 *, u8 *);
+void menuApplyPurchase(struct MenuShopState *, u8 *);
 #endif
 #ifndef PROTO_SKIP_menuCheckInventoryItemPurchased
-void menuCheckInventoryItemPurchased(struct Struct_80025D14 *, u8 *, s32);
+void menuCheckInventoryItemPurchased(struct MenuShopState *, u8 *, s32);
 #endif
 #ifndef PROTO_SKIP_menuGetOptionAvailability
-s32 menuGetOptionAvailability(struct Struct_80025D14 *, s32);
+s32 menuGetOptionAvailability(struct MenuShopState *, s32);
 #endif
 #ifndef PROTO_SKIP_menuIsSpecialMovePurchased
-s32 menuIsSpecialMovePurchased(struct Struct_80025D14 *);
+s32 menuIsSpecialMovePurchased(struct MenuShopState *);
 #endif
 #ifndef PROTO_SKIP_menuResetSubmenuState
-void menuResetSubmenuState(struct Struct_80025D14 *, s32 *);
+void menuResetSubmenuState(struct MenuShopState *, s32 *);
 #endif
 #ifndef PROTO_SKIP_menuFormatShopPurchaseText
-void menuFormatShopPurchaseText(struct Struct_80025D14 *, void *, s32);
+void menuFormatShopPurchaseText(struct MenuShopState *, void *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDispatchSubmenuAction
-void menuDispatchSubmenuAction(struct Struct_80025D14 *, u8 *, s32);
+void menuDispatchSubmenuAction(struct MenuShopState *, u8 *, s32);
 #endif
 #ifndef PROTO_SKIP_menuExitSubmenu
-s32 menuExitSubmenu(struct Struct_80025D14 *, u8 *, s32);
+s32 menuExitSubmenu(struct MenuShopState *, u8 *, s32);
 #endif
 #ifndef PROTO_SKIP_menuTransitionToSubmenu
-void menuTransitionToSubmenu(struct Struct_80025D14 *, u8 *);
+void menuTransitionToSubmenu(struct MenuShopState *, u8 *);
 #endif
 #ifndef PROTO_SKIP_menuUpdateShopPurchaseStep
-void menuUpdateShopPurchaseStep(struct Struct_80025D14 *, u8 *);
+void menuUpdateShopPurchaseStep(struct MenuShopState *, u8 *);
 #endif
 #ifndef PROTO_SKIP_menuUpdateShopDialogueStep
-void menuUpdateShopDialogueStep(struct Struct_80025D14 *, void *, s32);
+void menuUpdateShopDialogueStep(struct MenuShopState *, void *, s32);
 #endif
 #ifndef PROTO_SKIP_menuUpdateShopExitingStep
-void menuUpdateShopExitingStep(struct Struct_80025D14 *, u8 *, s32);
+void menuUpdateShopExitingStep(struct MenuShopState *, u8 *, s32);
 #endif
 #ifndef PROTO_SKIP_menuDispatchCurrentMenuAction
-void menuDispatchCurrentMenuAction(struct Struct_80025D14 *, u8 *, s32);
+void menuDispatchCurrentMenuAction(struct MenuShopState *, u8 *, s32);
 #endif
 #ifndef PROTO_SKIP_menuUpdateCrankyShopActor
 void menuUpdateCrankyShopActor(void);

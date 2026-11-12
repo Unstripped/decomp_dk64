@@ -305,10 +305,10 @@ s32 effectCheckTargetActive(WaterSurfaceDef *subNode) {
     return 0;
 }
 
-extern f32 *D_8076A0B4;
-extern f32 *D_8076A0B8;
-extern f32 *D_8076A0BC;
-extern u8 D_807F78C0[];
+extern f32 *gChunkLightR;
+extern f32 *gChunkLightG;
+extern f32 *gChunkLightB;
+extern u8 gLightCandidates[];
 extern f32 D_807F7EEC;
 extern f32 D_807F7EF0;
 extern f32 D_807F7EF4;
@@ -334,12 +334,12 @@ void effectWaterApplyLights(f32 camX, f32 camY, f32 camZ) {
                 lights = lightCollectVolumesInBounds(camX, camY, camZ, target->minX,
                                        (s32)(((f32)target->surfaceY + node->level) - (target->waveAmpZ + target->waveAmpX)), target->minZ, target->maxX,
                                        (s32)(((f32)target->surfaceY + node->level) + (target->waveAmpZ + target->waveAmpX)), target->maxZ, chunkIdx, &lightCount);
-                D_807F7EEC = D_8076A0B4[chunkIdx];
-                D_807F7EF0 = D_8076A0B8[chunkIdx];
-                D_807F7EF4 = D_8076A0BC[chunkIdx];
+                D_807F7EEC = gChunkLightR[chunkIdx];
+                D_807F7EF0 = gChunkLightG[chunkIdx];
+                D_807F7EF4 = gChunkLightB[chunkIdx];
                 if (gGlobalPauseFlags & 0x10) {
                     vtxBuffer = node->meshVtx[gGfxBufferIndex];
-                    func_8065C990(vtxBuffer, vtxBuffer + node->vtxCount, 1, &D_807F78C0, lights, gMapChunks[chunkIdx].lightMode == 1);
+                    func_8065C990(vtxBuffer, vtxBuffer + node->vtxCount, 1, &gLightCandidates, lights, gMapChunks[chunkIdx].lightMode == 1);
                 }
                 node->flags |= 2;
             }

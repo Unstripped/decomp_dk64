@@ -134,7 +134,7 @@ f32 D_807444D0 = 1.0f;
 f32 D_807444D4 = 1.0f;
 f32 D_807444D8 = 1.0f;
 f32 D_807444DC = 1.0f;
-f32 func_807444E0 = 1.0f;
+f32 D_807444E0 = 1.0f;
 s32 gInitialMap = 0x28;
 s32 gInitialExit = 0;
 u8 gGameMode = 0;
@@ -204,12 +204,12 @@ u8 D_8076A0B0;
 u8 gScreenRenderFlags;
 u8 D_8076A0B2;
 u8 sHudDisabled;
-f32 *D_8076A0B4;
-f32 *D_8076A0B8;
-f32 *D_8076A0BC;
-f32 *D_8076A0C0;
-f32 *D_8076A0C4;
-f32 *D_8076A0C8;
+f32 *gChunkLightR;
+f32 *gChunkLightG;
+f32 *gChunkLightB;
+f32 *gChunkLightTargetR;
+f32 *gChunkLightTargetG;
+f32 *gChunkLightTargetB;
 u32 D_8076A0CC;
 u8 D_8076A0D0[48];
 u32 D_8076A100;
@@ -707,7 +707,7 @@ void playerViewsBuildMatrices(void *outMtx) {
                            PLAYER_VIEWS[i].unk228, PLAYER_VIEWS[i].unk22C, PLAYER_VIEWS[i].unk230,
                            PLAYER_VIEWS[i].unk240, PLAYER_VIEWS[i].unk244, PLAYER_VIEWS[i].unk248,
                            D_807444CC, D_807444D0, D_807444D4,
-                           D_807444D8, D_807444DC, func_807444E0,
+                           D_807444D8, D_807444DC, D_807444E0,
                            0x20, 0x20);
             fov = PLAYER_VIEWS[i].unk280;
             cc = D_807445CC;
@@ -856,10 +856,10 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
         G00Entry *vpEntry;
         s16 dx, dy;
         vpEntry = cameraFindViewportEntry(0);
-        gPlayerSlots->rect[0] = (s16)(vpEntry->unk4 + gViewportInsetLeft);
-        gPlayerSlots->rect[2] = (s16)(vpEntry->unk8 - gViewportInsetRight);
-        gPlayerSlots->rect[1] = (s16)(vpEntry->unk6 + gViewportInsetTop);
-        gPlayerSlots->rect[3] = (s16)(vpEntry->unkA - gViewportInsetBottom);
+        gPlayerSlots->rect[0] = (s16)(vpEntry->left + gViewportInsetLeft);
+        gPlayerSlots->rect[2] = (s16)(vpEntry->right - gViewportInsetRight);
+        gPlayerSlots->rect[1] = (s16)(vpEntry->top + gViewportInsetTop);
+        gPlayerSlots->rect[3] = (s16)(vpEntry->bottom - gViewportInsetBottom);
 
         gDPPipeSync(glist++);
         gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0x300000);
@@ -869,16 +869,16 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
         gDPSetScissor(glist++, G_SC_NON_INTERLACE, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight, gGfxScreenBottom);
 
         if (gViewportInsetLeft != 0) {
-            gDPFillRectangle(glist++, vpEntry->unk4, vpEntry->unk6, gPlayerSlots->rect[0], vpEntry->unkA);
+            gDPFillRectangle(glist++, vpEntry->left, vpEntry->top, gPlayerSlots->rect[0], vpEntry->bottom);
         }
         if (gViewportInsetRight != 0) {
-            gDPFillRectangle(glist++, gPlayerSlots->rect[2], vpEntry->unk6, vpEntry->unk8, vpEntry->unkA);
+            gDPFillRectangle(glist++, gPlayerSlots->rect[2], vpEntry->top, vpEntry->right, vpEntry->bottom);
         }
         if (gViewportInsetTop != 0) {
-            gDPFillRectangle(glist++, gPlayerSlots->rect[0], vpEntry->unk6, gPlayerSlots->rect[2], gPlayerSlots->rect[1]);
+            gDPFillRectangle(glist++, gPlayerSlots->rect[0], vpEntry->top, gPlayerSlots->rect[2], gPlayerSlots->rect[1]);
         }
         if (gViewportInsetBottom != 0) {
-            gDPFillRectangle(glist++, gPlayerSlots->rect[0], gPlayerSlots->rect[3], gPlayerSlots->rect[2], vpEntry->unkA);
+            gDPFillRectangle(glist++, gPlayerSlots->rect[0], gPlayerSlots->rect[3], gPlayerSlots->rect[2], vpEntry->bottom);
         }
 
         gDPPipeSync(glist++);
@@ -893,8 +893,8 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
         gViewportInsetRight = 0;
         gViewportInsetTop = 0;
         gViewportInsetBottom = 0;
-        dx = vpEntry->unk8 - vpEntry->unk4;
-        dy = vpEntry->unkA - vpEntry->unk6;
+        dx = vpEntry->right - vpEntry->left;
+        dy = vpEntry->bottom - vpEntry->top;
         gPlayerSlots->unk280 = (f32)dx / (f32)dy;
         gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0x0F0A4000);
     }

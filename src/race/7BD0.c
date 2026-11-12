@@ -200,8 +200,8 @@ Gfx *raceRenderSpeedBoostHud(Gfx *dl, RaceParticipant *tracker) {
     f32 f_offset;
 
     hudPos = tracker->unk48;
-    screenX = (s32)((f64)(hudPos->unk4 + 8) + 4.0);
-    screenY = hudPos->unkA - 0x22;
+    screenX = (s32)((f64)(hudPos->left + 8) + 4.0);
+    screenY = hudPos->bottom - 0x22;
     WRITE_GFX(dl++, 0xFA000000, 0xFFC800B4);
     i = 0;
     if (tracker->unk2A > 0) {
@@ -243,8 +243,8 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceParticipant *tracker) {
     hudPos = tracker->unk48;
     halfFontHeight = (f32)textGetFontHeight(1) * 0.5f;
     savedHalfFontHeight = halfFontHeight; // FAKE: redundant copy steers regalloc of the font-height temp
-    posX = (f32)(hudPos->unk4 + 8);
-    posY = (f32)(hudPos->unkA - 0x10);
+    posX = (f32)(hudPos->left + 8);
+    posY = (f32)(hudPos->bottom - 0x10);
     posY -= 2 * halfFontHeight;
     labelStr = textTableGetString(0x26, 0xA, 1);
     WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
@@ -313,8 +313,8 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
     hudPos = tracker->unk48;
     lap = tracker->unk37;
     managerData = tracker->actor->customState;
-    textX = hudPos->unk4 + 8;
-    textY = hudPos->unkA - 0x10;
+    textX = hudPos->left + 8;
+    textY = hudPos->bottom - 0x10;
     g0 = dl++;
     g0->words.w0 = 0xE7000000; g0->words.w1 = 0; // LAYOUT: same-line stores keep the w1 store first
     WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);

@@ -2002,7 +2002,7 @@ u8 csPosOnScreenOfNearPlayer(s16 radius) {
     u8 ret = 0;
 
     for (i = 0; i < gViewportCount; i++) {
-        if (gPlayerSlots[i].unk0 != 0) {
+        if (gPlayerSlots[i].active != 0) {
             a = gPlayerSlots[i].actor;
             dx = gCsPosX - a->x;
             dy = gCsPosY - a->y;

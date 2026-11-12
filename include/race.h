@@ -67,7 +67,7 @@ typedef struct RaceParticipant {
     };
     union {
         /* 0x20 */ struct RacePair *pairs; // manager: the registered participants (raceInitParticipantArray)
-        /* 0x20 */ s32 unk20; // 6650 racers: nonzero turns the thrust around and caps speed (raceUpdateRacerMotion)
+        /* 0x20 */ s32 reverseThrust; // 6650 racers: nonzero turns the thrust around and caps speed (raceUpdateRacerMotion)
     };
     /* 0x24 */ u8 unk24;
     /* 0x25 */ u8 unk25;

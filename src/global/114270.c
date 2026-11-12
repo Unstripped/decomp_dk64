@@ -501,7 +501,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
 
 
 extern u8 D_807FDA1B;
-extern f32 *D_8076A0B4;
+extern f32 *gChunkLightR;
 extern u8 D_8077058C[];
 
 void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scale) {
@@ -534,7 +534,7 @@ void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scal
         } else {
             count = (s32)density;
         }
-        D_807FDA1B = (u8)(u32)((*D_8076A0B4 * 100.0f) + 100.0f);
+        D_807FDA1B = (u8)(u32)((*gChunkLightR * 100.0f) + 100.0f);
         for (idx = 0; idx < count; idx++) {
             randX = (f32)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 320);
             effectSpritePoolSpawn(0, mapChunk, (f32)(((f64)(f32)((f64)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 125) / 800.0) + 0.1) * 2.5 * (f64)scale), (s16)(s32)randX, -10, 90.0f * scale);

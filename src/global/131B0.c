@@ -29,9 +29,9 @@ void rumbleMotorStart(u8 port) {
     if (__osMotorAccess(&gRumblePfs[port], 1) == 4) {
         info = &gRumbleInfo[port];
         rumbleInfoClear(info);
-        info->unk00 = 3;
+        info->pakState = 3;
     } else {
-        gRumbleInfo[port].unk04 = 1;
+        gRumbleInfo[port].motorOn = 1;
     }
 }
 
@@ -40,16 +40,16 @@ void rumbleMotorInit(u8 port) {
 
     switch (ret) {
     case 0:
-        gRumbleInfo[port].unk00 = 1;
+        gRumbleInfo[port].pakState = 1;
         break;
     case 1:
-        gRumbleInfo[port].unk00 = 0;
+        gRumbleInfo[port].pakState = 0;
         break;
     case 11:
-        gRumbleInfo[port].unk00 = 2;
+        gRumbleInfo[port].pakState = 2;
         break;
     case 4:
-        gRumbleInfo[port].unk00 = 3;
+        gRumbleInfo[port].pakState = 3;
         break;
     }
 }
@@ -59,7 +59,7 @@ void rumbleMotorStop(u8 port) {
     __osMotorAccess(&gRumblePfs[port], 0);
     __osMotorAccess(&gRumblePfs[port], 0);
     __osMotorAccess(&gRumblePfs[port], 0);
-    gRumbleInfo[port].unk04 = 0;
+    gRumbleInfo[port].motorOn = 0;
 }
 
 void rumbleResetAll(s32 unused) {
@@ -68,7 +68,7 @@ void rumbleResetAll(s32 unused) {
 
     for (i = 0; i < 4; i++) {
         rumbleInfoClear(&gRumbleInfo[i]);
-        gRumbleInfo[i].unk00 = 0;
+        gRumbleInfo[i].pakState = 0;
         if (D_807ECD09 & (1 << i)) {
             for (j = 0; j < 2; j++) {
                 rumbleMotorStop(i);
@@ -81,32 +81,32 @@ s32 rumbleGetPakState(u8 port) {
     if (port >= 4) {
         return 0;
     }
-    return gRumbleInfo[controllerGetPort(port)].unk00;
+    return gRumbleInfo[controllerGetPort(port)].pakState;
 }
 
 void rumbleRequest(u8 playerIndex, u8 intensity, s32 duration) {
     RumbleInfo *info;
 
     info = &gRumbleInfo[controllerGetPort(playerIndex)];
-    if (gRumblePaused != 1 && info->unk00 == 1 && gPlayerSlots[playerIndex].unk2EB == 0) {
+    if (gRumblePaused != 1 && info->pakState == 1 && gPlayerSlots[playerIndex].unk2EB == 0) {
         if (menuIsTransitionType6() != 0 || menuIsTransitionTypeC() != 0) {
-            if (info->unk12 != 0) {
-                if (info->unk10 >= 0x1F) {
+            if (info->overheated != 0) {
+                if (info->heat >= 0x1F) {
                     return;
                 }
-                info->unk12 = 0;
-                info->unk10 = 0;
+                info->overheated = 0;
+                info->heat = 0;
             }
-            info->unk0C = duration;
-            info->unk05 = intensity;
+            info->duration = duration;
+            info->intensity = intensity;
         }
     }
 }
 
 void rumbleInfoCancel(RumbleInfo *info) {
-    if (info->unk00 == 1) {
-        info->unk05 = 0;
-        info->unk0C = 0;
+    if (info->pakState == 1) {
+        info->intensity = 0;
+        info->duration = 0;
     }
 }
 
@@ -157,41 +157,41 @@ void rumbleUpdate(void) {
     if (gRumblePaused != 1) {
         activeMask = controllerGetActiveMask();
         for (i = 0; i < 4; i++, info++) {
-            if (info->unk00 != 1) {
+            if (info->pakState != 1) {
                 if ((D_807ECD09 & (1 << i)) && (activeMask & (1 << i)) && (gFrameCounter % 15 == 0)) {
                     rumbleMotorStop(i);
                 }
             } else {
-                if (info->unk12 == 0) {
-                    info->unk12 = info->unk10 >= 0x33;
+                if (info->overheated == 0) {
+                    info->overheated = info->heat >= 0x33;
                 }
-                if (info->unk0C == 0 && info->unk05 == 0) {
-                    if (info->unk10 != 0) {
-                        info->unk10--;
+                if (info->duration == 0 && info->intensity == 0) {
+                    if (info->heat != 0) {
+                        info->heat--;
                     }
                 }
-                if (info->unk05 == 0) {
-                    if (info->unk04 != 0) {
+                if (info->intensity == 0) {
+                    if (info->motorOn != 0) {
                         rumbleMotorStop(i);
                     }
                 } else {
-                    if (info->unk0C != 0) {
-                        info->unk0C--;
-                        info->unk10++;
+                    if (info->duration != 0) {
+                        info->duration--;
+                        info->heat++;
                     }
-                    if (info->unk0C == 0 || info->unk12 != 0) {
+                    if (info->duration == 0 || info->overheated != 0) {
                         rumbleInfoCancel(info);
                     } else {
-                        if (info->unk08 >= 0x100) {
-                            if (info->unk04 == 0) {
+                        if (info->pwmAccum >= 0x100) {
+                            if (info->motorOn == 0) {
                                 rumbleMotorStart(i);
                             }
-                            info->unk08 -= 0x100;
+                            info->pwmAccum -= 0x100;
                         } else {
-                            u8 intensity = info->unk05;
+                            u8 intensity = info->intensity;
 
-                            info->unk08 += intensity * 4;
-                            if (info->unk04 != 0) {
+                            info->pwmAccum += intensity * 4;
+                            if (info->motorOn != 0) {
                                 rumbleMotorStop(i);
                             }
                         }

@@ -24,7 +24,7 @@
 #include "proto/menu/1AF0.h"
 #include "sched.h"
 
-typedef struct Struct_80025D14 {
+typedef struct MenuShopState {
     char pad0[4];
     s16 price;
     char pad6[4];
@@ -37,19 +37,19 @@ typedef struct Struct_80025D14 {
     u8 unk10;
     u8 itemLevel;
     u8 unk12;
-} Struct_80025D14;
+} MenuShopState;
 
 // Shop actors (Cranky/Funky/Candy) and the shop's overlay widget actor: one component.
 typedef struct MenuShopActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ Struct_80025D14 *unk178;
+    /* 0x178 */ MenuShopState *unk178;
 } MenuShopActor;
 
 
 extern u8 gPlayerInventoryTable[][0x5E];
 extern u8 gPlayerCharacterId;
 
-s32 menuCheckBitgridOtherSlots(Struct_80025D14 *state, s32 bitOffset) {
+s32 menuCheckBitgridOtherSlots(MenuShopState *state, s32 bitOffset) {
     s32 found = 0;
     s32 i;
 
@@ -69,7 +69,7 @@ extern Gfx D_1000118[];
 extern Mtx D_20000C0;
 
 Gfx *menuDrawShopCostPrompt(Gfx *dl, MenuShopActor *actor) {
-    Struct_80025D14 *st = actor->unk178;
+    MenuShopState *st = actor->unk178;
     u8 buf[0x28];
 
     if (st->mode == 1) {
@@ -109,16 +109,16 @@ typedef struct {
 
 extern MenuShopActor *gCurrentActor;
 
-void menuSetBitgridValue(Struct_80025D14 *state, s32 slot) {
+void menuSetBitgridValue(MenuShopState *state, s32 slot) {
     gPlayerInventoryTable[slot][state->itemSlot] = state->itemLevel;
 }
 
-void menuSetBitgridBit(Struct_80025D14 *state, s32 slot) {
+void menuSetBitgridBit(MenuShopState *state, s32 slot) {
     u8 *ptr = &gPlayerInventoryTable[slot][state->itemSlot];
     *ptr |= 1 << (state->itemLevel - 1);
 }
 
-void menuUpdateAllBitgridSlots(Struct_80025D14 *state, u8 asBit) {
+void menuUpdateAllBitgridSlots(MenuShopState *state, u8 asBit) {
     s32 i = 0;
 
     do {
@@ -134,7 +134,7 @@ void menuUpdateAllBitgridSlots(Struct_80025D14 *state, u8 asBit) {
 extern PlayerStruct *gPlayerSlots;
 extern u8 D_800334DC[];
 
-void menuApplyPurchase(Struct_80025D14 *state, u8 *inventory) {
+void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
     s16 queueItemId = -1;
     u8 hasItem = func_806F6E58(gPlayerCharacterId);
 
@@ -198,7 +198,7 @@ extern MenuM1_Entry D_80033334[][7];
 extern MenuM1_Entry D_80033408[][7];
 extern u8 gCurrentWorldId;
 
-void menuCheckInventoryItemPurchased(Struct_80025D14 *state, u8 *inventory, s32 isExiting) {
+void menuCheckInventoryItemPurchased(MenuShopState *state, u8 *inventory, s32 isExiting) {
     MenuM1_Entry *tbl;
     s32 found = 0;
     s32 count = 6;
@@ -260,7 +260,7 @@ void menuCheckInventoryItemPurchased(Struct_80025D14 *state, u8 *inventory, s32 
 }
 
 
-s32 menuGetOptionAvailability(Struct_80025D14 *state, s32 optionIdx) {
+s32 menuGetOptionAvailability(MenuShopState *state, s32 optionIdx) {
     s32 ret = 0;
 
     state->unkF = 3;
@@ -283,7 +283,7 @@ s32 menuGetOptionAvailability(Struct_80025D14 *state, s32 optionIdx) {
     return ret;
 }
 
-s32 menuIsSpecialMovePurchased(Struct_80025D14 *state) {
+s32 menuIsSpecialMovePurchased(MenuShopState *state) {
     s32 ret = gCurrentActor->base.actorType == 0xBD;
 
     if (ret != 0) {
@@ -294,7 +294,7 @@ s32 menuIsSpecialMovePurchased(Struct_80025D14 *state) {
     }
 }
 
-void menuResetSubmenuState(Struct_80025D14 *state, s32 *outAvailability) {
+void menuResetSubmenuState(MenuShopState *state, s32 *outAvailability) {
     *outAvailability = 0;
     state->unkF = 1;
     state->itemSlot = -1;
@@ -310,7 +310,7 @@ typedef struct {
     u8 lo;
 } MenuM1_Pair;
 
-void menuFormatShopPurchaseText(Struct_80025D14 *state, void *inventory, s32 hasSecondAction) {
+void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSecondAction) {
     MenuM1_Pair *pairs;
     u16 textParam1;
     s32 availability;
@@ -429,7 +429,7 @@ void menuFormatShopPurchaseText(Struct_80025D14 *state, void *inventory, s32 has
 }
 
 
-void menuDispatchSubmenuAction(Struct_80025D14 *state, u8 *inventory, s32 flag) {
+void menuDispatchSubmenuAction(MenuShopState *state, u8 *inventory, s32 flag) {
     switch (state->step) {
     case 0:
         menuFormatShopPurchaseText(state, inventory, flag);
@@ -447,7 +447,7 @@ void menuDispatchSubmenuAction(Struct_80025D14 *state, u8 *inventory, s32 flag) 
 
 extern Actor *gPrimaryPlayerActor;
 
-s32 menuExitSubmenu(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
+s32 menuExitSubmenu(MenuShopState *state, u8 *inventory, s32 flagId) {
     s32 flag = flagGet((s16)flagId, 0) == 0;
 
     menuCheckInventoryItemPurchased(state, inventory, flag);
@@ -472,7 +472,7 @@ s32 menuExitSubmenu(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
 
 
 
-void menuTransitionToSubmenu(Struct_80025D14 *state, u8 *inventory) {
+void menuTransitionToSubmenu(MenuShopState *state, u8 *inventory) {
     state->unkA = 1;
     camStartPath(0, 0xF, 1);
     currentActorClearFlag();
@@ -484,7 +484,7 @@ void menuTransitionToSubmenu(Struct_80025D14 *state, u8 *inventory) {
 
 
 
-void menuUpdateShopPurchaseStep(Struct_80025D14 *state, u8 *inventory) {
+void menuUpdateShopPurchaseStep(MenuShopState *state, u8 *inventory) {
     s32 textParam1;
     s32 textParam2;
 
@@ -565,7 +565,7 @@ extern u16 D_80033A50[][4];
 extern u16 D_80033A78[];
 extern u16 D_800334E4[];
 
-void menuUpdateShopDialogueStep(Struct_80025D14 *state, void *inventory, s32 flagId) {
+void menuUpdateShopDialogueStep(MenuShopState *state, void *inventory, s32 flagId) {
     s32 textParam2;
     s32 textParam1;
     s32 extraTextParam;
@@ -634,7 +634,7 @@ void menuUpdateShopDialogueStep(Struct_80025D14 *state, void *inventory, s32 fla
 }
 
 
-void menuUpdateShopExitingStep(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
+void menuUpdateShopExitingStep(MenuShopState *state, u8 *inventory, s32 flagId) {
     s32 slotIndex;
     s32 camPathId;
     s32 textParam1;
@@ -713,7 +713,7 @@ void menuUpdateShopExitingStep(Struct_80025D14 *state, u8 *inventory, s32 flagId
 }
 
 
-void menuDispatchCurrentMenuAction(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
+void menuDispatchCurrentMenuAction(MenuShopState *state, u8 *inventory, s32 flagId) {
     s32 flag = flagGet((s16)flagId, 0) == 0;
 
     switch (state->mode) {
@@ -738,7 +738,7 @@ void menuUpdateCrankyShopActor(void) {
     s32 i;
     s32 count;
     s32 camPathId;
-    Struct_80025D14 *st;
+    MenuShopState *st;
     s32 pad;
     u8 *inventory;
     s32 flag;
@@ -872,7 +872,7 @@ s32 menuDecodeAddressConstant(s32 val) {
 extern s32 csCmdExec;
 
 void menuCheckControllerAntiPiracy(void) {
-    Struct_80025D14 *st;
+    MenuShopState *st;
     u8 *inventory;
     s32 pad[4];
     s32 *dest;
@@ -912,7 +912,7 @@ void menuCheckControllerAntiPiracy(void) {
 void menuUpdateFunkyShopActor(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 1) {
-        Struct_80025D14 *st = gCurrentActor->unk178;
+        MenuShopState *st = gCurrentActor->unk178;
         u8 *inventory = gPlayerInventoryTable[gPlayerCharacterId];
 
         if (!(gCurrentActor->base.flags & 0x10)) {
@@ -969,7 +969,7 @@ extern s16 D_80033542;
 void menuUpdateTransformedWidgets(void) {
     MenuWidgetState *widget = gCurrentActor->base.customState;
     s32 done = 0;
-    Struct_80025D14 *st = NULL;
+    MenuShopState *st = NULL;
     f32 mA[4][4];
     f32 mB[4][4];
     MenuTextIdPair textIds;

@@ -53,14 +53,14 @@ typedef struct {
 
 // Rumble-pak state struct (0x14 bytes each), array at gRumbleInfo
 typedef struct {
-    /* 0x00 */ s32 unk00;
-    /* 0x04 */ u8 unk04;
-    /* 0x05 */ u8 unk05;
+    /* 0x00 */ s32 pakState;
+    /* 0x04 */ u8 motorOn;
+    /* 0x05 */ u8 intensity;
     /* 0x06 */ u8 pad06[2];
-    /* 0x08 */ u32 unk08;
-    /* 0x0C */ s32 unk0C;
-    /* 0x10 */ u16 unk10;
-    /* 0x12 */ u8 unk12;
+    /* 0x08 */ u32 pwmAccum;
+    /* 0x0C */ s32 duration;
+    /* 0x10 */ u16 heat;
+    /* 0x12 */ u8 overheated;
     /* 0x13 */ u8 pad13;
 } RumbleInfo;
 
@@ -78,7 +78,7 @@ typedef struct HealthHudInit {
 } HealthHudInit; // size = 0xC
 
 typedef struct {
-    /* 0x000 */ u8 unk0;
+    /* 0x000 */ u8 active;
     /* 0x001 */ u8 pad1[3];
     /* 0x004 */ struct Actor *actor;
     /* 0x008 */ Mtx viewMtx[2];

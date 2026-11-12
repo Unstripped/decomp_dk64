@@ -2000,7 +2000,7 @@ void actorReleaseFromPlayerHold(Actor *actor) {
     PlayerState *p;
 
     for (i = 0; i < gPlayerCount; i++) {
-        if (gPlayerSlots[i].unk0 != 0) {
+        if (gPlayerSlots[i].active != 0) {
             p = gPlayerSlots[i].actor->customState;
             if ((actor == p->heldActor && p->heldActor != NULL) || (actor == p->queuedHeldActor && p->queuedHeldActor != NULL)) {
                 p->heldActor = NULL;

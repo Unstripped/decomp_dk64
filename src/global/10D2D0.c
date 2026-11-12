@@ -258,7 +258,7 @@ Gfx *healthHudDrawAll(Gfx *glist) {
         do {
             slotOffset = playerIndex * 0x2F0;
             playerSlot = (s32)gPlayerSlots + slotOffset;
-            if (((PlayerStruct *)playerSlot)->unk0 != 0) {
+            if (((PlayerStruct *)playerSlot)->active != 0) {
                 flags = ((PlayerStruct *)playerSlot)->unk2E2;
                 if (!(flags & 0x20) && (((((PlayerStruct *)playerSlot)->unk2E4 != 0 || flags != 0) &&
                                            D_80744504 == 0) ||

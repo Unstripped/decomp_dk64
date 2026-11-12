@@ -421,7 +421,7 @@ s32 tagBarrelCheckProximityAndFall(s32 spawnType, u8 *inRange, u8 *falling, u8 *
             i = 0;
             if (gPlayerCount > 0) {
                 do {
-                    if (gPlayerSlots[i].unk0 != 0) {
+                    if (gPlayerSlots[i].active != 0) {
                         Actor *player = gPlayerSlots[i].actor;
                         dz = player->z - gCurrentActor->z;
                         dx = player->x - gCurrentActor->x;

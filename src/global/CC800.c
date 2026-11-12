@@ -161,7 +161,7 @@ void playerAllocSlots(s32 spawnIndex) {
     heapClearBlock(gPlayerSlots);
     for (i = 0; i < gPlayerCount; i++) {
         blk = &gPlayerSlots[i];
-        blk->unk0 = 1;
+        blk->active = 1;
         sel = i;
         gCurrentPlayerIndex = i;
         playerSetupCharacterForSlot(spawnIndex++, sel);
@@ -182,10 +182,10 @@ void playerAllocSlots(s32 spawnIndex) {
         blk->upX = 0.0f;
         blk->upY = 1.0f;
         e = cameraFindViewportEntry(sel);
-        blk->rect[0] = e->unk4;
-        blk->rect[1] = e->unk6;
-        blk->rect[2] = e->unk8;
-        blk->rect[3] = e->unkA;
+        blk->rect[0] = e->left;
+        blk->rect[1] = e->top;
+        blk->rect[2] = e->right;
+        blk->rect[3] = e->bottom;
         if (osViGetCurrentMode() == D_8074458C[osTvType + osTvType]) {
             blk->rect[0] *= 2;
             blk->rect[1] *= 2;

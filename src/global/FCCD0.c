@@ -949,7 +949,7 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     gSPDisplayList(gfx++, &D_1000118);
     gDPSetCombineLERP(gfx++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
     viewport = cameraFindViewportEntry(0);
-    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, viewport->unk4, viewport->unk6, viewport->unk8, viewport->unkA);
+    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, viewport->left, viewport->top, viewport->right, viewport->bottom);
     if ((f64)gScreenWidth * 0.5 < (f64)gSlotQueue[slot].x) {
         width = textGetStringWidth(0x81, text);
     }

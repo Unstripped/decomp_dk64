@@ -488,7 +488,7 @@ void func_80700BF4(void) {
     D_807FD802 = zbufferDepthToDistance(zbufferReadDepth(D_807FD804, D_807FD806));
     margin = 40; // FAKE: constant local (a literal shrinks the frame by 8)
     for (i = 0; i < gPlayerCount; i++) {
-        if (gPlayerSlots[i].unk0 != 0) {
+        if (gPlayerSlots[i].active != 0) {
             state = gPlayerSlots[i].actor->customState;
             pad = &gPlayerPadState[i];
             x = state->targetPitch;
@@ -632,7 +632,7 @@ Gfx *func_80701CA0(Gfx *dl) {
         break;
     }
     for (i = 0; i < gPlayerCount; i++) {
-        if (gPlayerSlots[i].unk0 != 0) {
+        if (gPlayerSlots[i].active != 0) {
             playerState = gPlayerSlots[i].actor->customState;
             camActor = playerState->camActor;
             camState = camActor->customState;

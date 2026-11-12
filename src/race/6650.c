@@ -122,7 +122,7 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
     }
     velX = mathSinF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ;
     velZ = mathCosF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ;
-    if (racerState->unk20 != 0) {
+    if (racerState->reverseThrust != 0) {
         thrustYaw = thrustYaw + 0x800;
         thrustYaw = thrustYaw & 0xFFF;
         racerState->unk4 = (f32)((f64)racerState->unk4 * 0.85);
@@ -189,7 +189,7 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
     if (gCurrentActor->speedXZ < 0.0f) {
         gCurrentActor->speedXZ = 0.0f;
     }
-    if (racerState->unk20 != 0) {
+    if (racerState->reverseThrust != 0) {
         gCurrentActor->speedXZ = (gCurrentActor->speedXZ < 100.0f) ? gCurrentActor->speedXZ : 100.0f;
     }
     factor = gCurrentActor->speedXZ - gCurrentActor->prevSpeedXZ;
