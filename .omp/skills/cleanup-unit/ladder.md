@@ -31,10 +31,10 @@ its cfe warning code plus the line's normalized code. Kinds:
 
 |id|who|what|
 |---|---|---|
-|`remove`|sweep|delete removable sites: alone, all together, pairs, triples|
+|`remove`|sweep|delete removable sites (lone dead ifs, `do {` … `} while (0);` pairs and one-line `do {} while (0);`, `(void)x`, dead stores, `volatile`): alone, all together, pairs, triples; a site with no such edit (a dead test or `do {` sharing its line with other statements) is recorded `nohit` (`no removal`)|
 |`plain`|sweep|the plain rewrites of one tagged line (`^ 0`, `\| 0`, `+ 0`, `& 0xFFFFFFFF`, `(0, `, `*(T *)&x`, `(s16)(s32)`, `[i * 1]`, and the low-part puns `((T *)&x)[n]` / `*((T *)&x + n)` → `x` for n 1–9, Q0594)|
-|`cond`|sweep|`!= 0`↔bare, `== 0`↔`!x` flips with removals|
-|`classify`|sweep|dead-if → `if (<int local>) {}`; match = class 1 (`kept`), none = class 2|
+|`cond`|sweep|`!= 0`↔bare, `== 0`↔`!x` flips with removals (`no removal` without one)|
+|`classify`|sweep|dead-if → `if (<int local>) {}`; match = class 1 (`kept`), none = class 2; a dead test sharing its line is `nohit` (`no guard`). By-hand removals/flips of such sites go into the `diagnose` note: the next sweep's event supersedes a hand-recorded sweep method|
 |`consolidate`|protos.py|remove the file's declaration in favour of the shared header|
 |`diagnose`|agent|uopt/as1 diagnosis; `quirks=Q....` required|
 |`permute`|agent|`tools/permute.py run -j 2 --seconds ≥600`; `seconds=`, `base=`, `best=` required (a run stopped at `best=0` may be shorter)|

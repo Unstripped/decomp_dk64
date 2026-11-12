@@ -74,7 +74,10 @@ sweep: remove (dead ifs, (void)x, dead stores, do{}while(0) wrappers, volatile; 
   with all / each removal, pre-scored by deadsweep score --body), classify (dead if -> `if (<int
   local>) {}`: kept = class 1). A hit needs tools/fdiff.sh --reloc-ok exit 0 (OK or RELOC-EQUIV OK) and no new clint uninit pair; it
   is written to .scratch/quality/hits/<seg>_<file>_<n>.c (`HIT <keys> <method> <path>`), never
-  applied. --record appends one event per site and method (agent `sweep`). Warning sites are not
+  applied. --record appends one event per site and method (agent `sweep`), every sweep method of
+  the site's ladder included: a site the sweep has no edit for (a dead test or `do {` sharing its
+  line with other statements, an if with a body) records remove/cond `nohit` (`no removal`) and
+  classify `nohit` (`no guard`), so the next sweep refreshes them after a header change. Warning sites are not
   swept; each prints `WARN <key> line <n> [W<code> <msg>]` (a copy's warning-site keys).
 record line: <site-key|func:<seg>:<name>> <method> <outcome> [quirks=Q1,Q2] [seconds=N] [base=N]
   [best=N] [commit=H] [note="..."]; all lines validated (keys at HEAD, fixed sites at --base REV:
@@ -137,6 +140,7 @@ STORE = re.compile(r"^\s*[A-Za-z_]\w*(\[[^\]]*\])?\s*=\s*[^=;][^;]*;\s*//")
 DEAD_WORD = re.compile(r"dead|kill|no-code|extra web|ghost", re.I)
 DO_OPEN = re.compile(r"^\s*do \{\s*$")
 DO_CLOSE = re.compile(r"^\s*\}\s*while \(0\);\s*$")
+DO_LINE = re.compile(r"^\s*do \{\s*\} while \(0\);\s*$")
 GOTO = re.compile(r"\bgoto\b")
 SITE_KEY = re.compile(r"^(\w+):([0-9A-F]{8}):([a-z0-9-]+):([0-9a-fu][0-9a-f]{5})(?:#(\d+))?$")
 FUNC_KEY = re.compile(r"^func:(\w+):(\w+)$")
@@ -794,7 +798,9 @@ def remove_edit(site, lines, fn):
         return None
     l = lines[idx[0]]
     if site["kind"] == "do-while0":
-        return {i: None for i in idx} if len(idx) == 2 else None
+        if len(idx) == 2:
+            return {i: None for i in idx}
+        return {idx[0]: None} if DO_LINE.match(split_comment(l)[0]) else None
     if site["kind"] == "volatile" and "volatile " in split_comment(l)[0]:
         return {idx[0]: untag(l.replace("volatile ", "", 1))}
     if site["kind"] == "dead-if" and GUARD.match(l):
@@ -857,6 +863,12 @@ def plan_file(an, path, src, pool):
         for s, _ in rem:
             tried[(s["key"], "remove")] = None
             tried[(s["key"], "cond")] = None if flips else "no flips"
+        removable = {s["key"] for s, _ in rem}
+        for s in sites:  # no edit to try still records the rung: else it stays stale after a header change
+            if "remove" in LADDER[s["kind"]] and s["key"] not in removable:
+                tried[(s["key"], "remove")] = tried[(s["key"], "cond")] = "no removal"
+            if s["kind"] == "dead-if" and not GUARD.match(lines[s["lines"][0]]):
+                tried[(s["key"], "classify")] = "no guard"
         for s in sites:
             i = s["lines"][0]
             if s["kind"] in PLAIN_KINDS:

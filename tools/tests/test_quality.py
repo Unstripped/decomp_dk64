@@ -503,6 +503,61 @@ def test_plain_rewrites_keep_high_part_puns():
     for code in ("v = ((u8 *)&gScore)[0];", "v = ((u8 *)&arr[i])[1];", "v = ((u8 *)&gScore)[i];"):
         assert {rx.sub(rep, code) for rx, rep in q.PLAIN} == {code}
 
+
+class _NoHit:
+    def result(self):
+        return False
+
+
+class _NoHitPool:
+    """plan_file's pool, every check a miss (nothing compiles)."""
+
+    def submit(self, fn, *args):
+        return _NoHit()
+
+
+SWEEP_C = ("typedef int s32;\ns32 g;\nvoid f(s32 x) {\n"
+           "    do {} while (0); // FAKE: one-line block split\n"
+           "    x = g; if (x) {} g = x; // FAKE: dead test sharing its line\n"
+           "    if (g) {} // FAKE: steers\n"
+           "    x = g; do { // FAKE: do sharing its line\n"
+           "        g++;\n"
+           "    } while (0);\n}\n")
+
+
+def test_sweep_records_every_sweep_rung(tmp_path, monkeypatch):
+    """A site whose shape the sweep cannot edit (a dead test or `do {` sharing its line) still gets a
+    sweep event for every sweep method of its ladder: otherwise its hand-recorded rungs went stale on
+    a header change and `sweep --record` never refreshed them (2690, 42630, 7BBD0 rounds 23-26)."""
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    c = tmp_path / "x.c"
+    c.write_text(SWEEP_C)
+    path = q.rel(str(c))
+    an = q.analyze(path, "global")
+    plan = q.plan_file(an, path, path, _NoHitPool())
+    out, hits, _ = q.finish(plan)
+    assert not hits
+    fn, = an["functions"]
+    site = {s["line"]: s for s in fn["sites"]}
+    by_key = {s["key"]: s for s in fn["sites"]}
+    assert {ln: s["kind"] for ln, s in site.items()} == {4: "do-while0", 5: "dead-if", 6: "dead-if", 7: "do-while0"}
+    sweep = ("remove", "plain", "cond", "classify")
+    assert {(s["key"], m) for s in fn["sites"] for m in q.LADDER[s["kind"]] if m in sweep} <= set(out)
+    alone = [text for method, keys, _, text in plan["jobs"] if method == "remove" and keys == [site[4]["key"]]]
+    assert len(alone) == 1 and "do {} while (0);" not in alone[0]  # a one-line wrapper is deleted, like a pair
+    assert out[(site[5]["key"], "remove")] == out[(site[5]["key"], "cond")] == ["nohit", "no removal"]
+    assert out[(site[5]["key"], "classify")] == ["nohit", "no guard"]
+    assert out[(site[7]["key"], "remove")] == out[(site[7]["key"], "cond")] == ["nohit", "no removal"]
+    # hand-recorded rungs at older fingerprints (a header changed since) are refreshed by the sweep
+    old = ("0" * 16, "0" * 16)
+    hand = [ev(s, m, "nohit", fp=old) for s in fn["sites"] for m in q.LADDER[s["kind"]] if m in sweep]
+    swept = [dict(q.event("u", "sweep", dict(fn, file=path), by_key[k], m, o, note=n), t="2026-01-02T00:00:00Z")
+             for (k, m), (o, n) in out.items()]
+    by_site, by_func = q.index_events(hand + swept)
+    st = q.function_state(fn, by_site, by_func)
+    assert {v for _, r in st["sites"] for m, v in r["marks"].items() if m in sweep} == {"✓"}
+
+
 def test_carry_takes_newest_event_by_time(tmp_path, monkeypatch):
     repo = tmp_path.resolve() / "repo"
     (repo / "src" / "global").mkdir(parents=True)
