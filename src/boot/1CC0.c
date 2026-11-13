@@ -1,5 +1,6 @@
 #include "common.h"
 #include "proto/boot/1CC0.h"
+#include "gzip.h"
 
 struct huft {
     u8 e;
@@ -10,14 +11,9 @@ struct huft {
     } v;
 };
 
-extern struct huft *huftPool;
 extern u32 bb;
 extern u32 bk;
 extern u32 hufts;
-extern u8 *inbuf;
-extern u8 *slide;
-extern u32 inptr;
-extern u32 outcnt;
 
 extern u8 border[];
 extern u16 cplens[];
