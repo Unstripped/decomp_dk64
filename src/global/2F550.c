@@ -1,3 +1,5 @@
+#define PROTO_SKIP_mapNodeTreeInitSurfaceEffects
+#define PROTO_SKIP_mapTreeRelocate
 #include "common.h"
 #include "map.h"
 #include "render.h"
@@ -24,6 +26,8 @@
 #include "proto/global/6AD90.h"
 #include "proto/global/70FD0.h"
 #include "proto/global/CC800.h"
+void mapNodeTreeInitSurfaceEffects(struct MapBspNode *, s32 *);
+void mapTreeRelocate(struct MapBspNode *, s32, s32);
 
 extern u8 gGfxBufferIndex;
 
@@ -124,77 +128,77 @@ void frustumCornersTransformByInverse(Mtx *arg0) {
 
 
 
-void frustumOrientPolyNormals(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32 *arg4) {
+void frustumOrientPolyNormals(f32 eyeX, f32 eyeY, f32 eyeZ, PlanePoly *planes, f32 *corners) {
     s32 i;
     f32 xs[5];
     f32 ys[5];
     f32 zs[5];
     PlanePoly *poly;
-    poly = arg3;
+    poly = planes;
     for (i = 0; i < 4; i++) {
         poly++;
-        poly[-1].v[0] = arg0;
-        poly[-1].v[1] = arg1;
-        poly[-1].v[2] = arg2;
+        poly[-1].v[0] = eyeX;
+        poly[-1].v[1] = eyeY;
+        poly[-1].v[2] = eyeZ;
         poly[-1].type = 3;
     }
-    arg3[0].v[3] = arg4[0];
-    arg3[0].v[4] = arg4[1];
-    arg3[0].v[5] = arg4[2];
-    arg3[0].v[6] = arg4[3];
-    arg3[0].v[7] = arg4[4];
-    arg3[0].v[8] = arg4[5];
-    xs[0] = arg4[6];
-    ys[0] = arg4[7];
-    zs[0] = arg4[8];
-    arg3[1].v[3] = arg4[6];
-    arg3[1].v[4] = arg4[7];
-    arg3[1].v[5] = arg4[8];
-    arg3[1].v[6] = arg4[0];
-    arg3[1].v[7] = arg4[1];
-    arg3[1].v[8] = arg4[2];
-    xs[1] = arg4[9];
-    ys[1] = arg4[10];
-    zs[1] = arg4[11];
-    arg3[2].v[3] = arg4[9];
-    arg3[2].v[4] = arg4[10];
-    arg3[2].v[5] = arg4[11];
-    arg3[2].v[6] = arg4[6];
-    arg3[2].v[7] = arg4[7];
-    arg3[2].v[8] = arg4[8];
-    xs[2] = arg4[0];
-    ys[2] = arg4[1];
-    zs[2] = arg4[2];
-    arg3[3].v[3] = arg4[3];
-    arg3[3].v[4] = arg4[4];
-    arg3[3].v[5] = arg4[5];
-    arg3[3].v[6] = arg4[9];
-    arg3[3].v[7] = arg4[10];
-    arg3[3].v[8] = arg4[11];
-    xs[3] = arg4[0];
-    ys[3] = arg4[1];
-    zs[3] = arg4[2];
-    arg3[4].type = 4;
-    arg3[4].v[0] = arg4[6];
-    arg3[4].v[1] = arg4[7];
-    arg3[4].v[2] = arg4[8];
-    arg3[4].v[3] = arg4[9];
-    arg3[4].v[4] = arg4[10];
-    arg3[4].v[5] = arg4[11];
-    arg3[4].v[6] = arg4[0];
-    arg3[4].v[7] = arg4[1];
-    arg3[4].v[8] = arg4[2];
-    arg3[4].v[9] = arg4[3];
-    arg3[4].v[10] = arg4[4];
-    arg3[4].v[11] = arg4[5];
-    zs[4] = arg2;
-    ys[4] = arg1;
-    xs[4] = arg0;
-    poly = arg3;
+    planes[0].v[3] = corners[0];
+    planes[0].v[4] = corners[1];
+    planes[0].v[5] = corners[2];
+    planes[0].v[6] = corners[3];
+    planes[0].v[7] = corners[4];
+    planes[0].v[8] = corners[5];
+    xs[0] = corners[6];
+    ys[0] = corners[7];
+    zs[0] = corners[8];
+    planes[1].v[3] = corners[6];
+    planes[1].v[4] = corners[7];
+    planes[1].v[5] = corners[8];
+    planes[1].v[6] = corners[0];
+    planes[1].v[7] = corners[1];
+    planes[1].v[8] = corners[2];
+    xs[1] = corners[9];
+    ys[1] = corners[10];
+    zs[1] = corners[11];
+    planes[2].v[3] = corners[9];
+    planes[2].v[4] = corners[10];
+    planes[2].v[5] = corners[11];
+    planes[2].v[6] = corners[6];
+    planes[2].v[7] = corners[7];
+    planes[2].v[8] = corners[8];
+    xs[2] = corners[0];
+    ys[2] = corners[1];
+    zs[2] = corners[2];
+    planes[3].v[3] = corners[3];
+    planes[3].v[4] = corners[4];
+    planes[3].v[5] = corners[5];
+    planes[3].v[6] = corners[9];
+    planes[3].v[7] = corners[10];
+    planes[3].v[8] = corners[11];
+    xs[3] = corners[0];
+    ys[3] = corners[1];
+    zs[3] = corners[2];
+    planes[4].type = 4;
+    planes[4].v[0] = corners[6];
+    planes[4].v[1] = corners[7];
+    planes[4].v[2] = corners[8];
+    planes[4].v[3] = corners[9];
+    planes[4].v[4] = corners[10];
+    planes[4].v[5] = corners[11];
+    planes[4].v[6] = corners[0];
+    planes[4].v[7] = corners[1];
+    planes[4].v[8] = corners[2];
+    planes[4].v[9] = corners[3];
+    planes[4].v[10] = corners[4];
+    planes[4].v[11] = corners[5];
+    zs[4] = eyeZ;
+    ys[4] = eyeY;
+    xs[4] = eyeX;
+    poly = planes;
     for (i = 0; i < 5; poly++, i++) {
         planePolyCalcEquation(poly);
         if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < (0, 0.0)) {}  // FAKE: second use of the sum makes it a coloured candidate (f0) and keeps its tree order for LFTR
-        if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < (0, 0.0)) {
+        if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < 0.0) {
             polyFlipWinding(poly);
             planePolyCalcEquation(poly);
         }
@@ -246,34 +250,25 @@ void planePolyCalcEquation(PlanePoly *arg0) {
     p->d = -((p->v[0] * ((f64)p->v[4] * p->v[8] - (f64)p->v[7] * p->v[5]) + p->v[3] * ((f64)p->v[7] * p->v[2] - (f64)p->v[1] * p->v[8])) + p->v[6] * ((f64)p->v[1] * p->v[5] - p->v[4] * (f64)p->v[2]));
 }
 
-typedef struct MapNodeEffects {
-    /* 0x00 */ struct MapNodeEffects *unk0;
-    /* 0x04 */ struct MapNodeEffects *unk4;
-    /* 0x08 */ u8 pad8[0x68];
-    /* 0x70 */ s16 unk70[0x1C];
-    /* 0xA8 */ u8 padA8[4];
-    /* 0xAC */ u8 unkAC[0x19];
-    /* 0xC5 */ u8 unkC5;
-} MapNodeEffects;
 
 
-void mapNodeTreeInitSurfaceEffects(MapNodeEffects *arg0, s32 *arg1) {
+void mapNodeTreeInitSurfaceEffects(MapBspNode *node, s32 *slotCount) {
     s32 i;
-    s32 temp;
+    s32 count;
 
     for (;;) {
-        if (arg0 == NULL) {
+        if (node == NULL) {
             break;
         }
-        for (i = 0; i < arg0->unkC5; i++) {
-            mapSurfaceEffectInit(arg0->unk70[i]);
-            temp = arg0->unkAC[i] + 1;
-            if (*arg1 < temp) {
-                *arg1 = temp;
+        for (i = 0; i < node->unkC5; i++) {
+            mapSurfaceEffectInit(node->unk70[i]);
+            count = node->unkAC[i] + 1;
+            if (*slotCount < count) {
+                *slotCount = count;
             }
         }
-        mapNodeTreeInitSurfaceEffects(arg0->unk0, arg1);
-        arg0 = arg0->unk4;
+        mapNodeTreeInitSurfaceEffects(node->child0, slotCount);
+        node = node->child1;
     }
 }
 
@@ -1263,7 +1258,7 @@ u8 mapBspPlaneSideTest(MapBspNode *node, u8 *outVisMode, f32 x, f32 y, f32 z) {
     n[0] = c[0] / len;
     n[1] = c[1] / len;
     n[2] = c[2] / len;
-    n[0] = n[0] * 20;
+    n[0] = n[0] * 20; // FAKE: int literal 20 (the other two use 20.0f) recolours the node plane loads (f8/f18 instead of f10/f4); pre-existing, now tagged
     n[1] = n[1] * 20.0f;
     n[2] = n[2] * 20.0f;
     p[0] = node->unk5C[0] + n[0];
@@ -1430,8 +1425,6 @@ extern s32 *gMinecartTrackPoints;
 extern s32 sMapSoundEmitterCount;
 extern LevelSoundEmitter *sMapSoundEmitters;
 
-struct MapRelocNode;
-
 void mapHeaderLoad(MapFileHeader *header) {
     s32 off30;
     s32 off34;
@@ -1481,11 +1474,11 @@ void mapHeaderLoad(MapFileHeader *header) {
     lightSetTargetColor(1.0f, 1.0f, 1.0f, -1);
     lightCopyTargetColors(-1);
     matrixCacheInit(header->unkE << 10);
-    mapTreeRelocate((struct MapRelocNode *)(s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off34)); // FAKE: (s32) hop on arg0 makes the shared sum land in a1 then copy to a0
+    mapTreeRelocate((MapBspNode *)(s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off34)); // FAKE: (s32) hop on arg0 makes the shared sum land in a1 then copy to a0
     displayListResolveTextureImages((Gfx *)(D_807F5DE0 + off34), (Gfx *)(D_807F5DE0 + off38));
     mapRelocateOffsetTable((s32)(D_807F5DE0 + off40));
     mapSurfaceEffectsReset();
-    mapNodeTreeInitSurfaceEffects((MapNodeEffects *)D_807F5DE4, &effectSlotCount);
+    mapNodeTreeInitSurfaceEffects(D_807F5DE4, &effectSlotCount);
     mapOffsetSlotsInit(effectSlotCount);
     D_807F5E60 = mapTreeCloneShape(D_807F5DE4);
     mapChunksInitFromMapData(header);
@@ -1539,33 +1532,19 @@ void displayListResolveTextureImages(Gfx *cmd, Gfx *end) {
     }
 }
 
-typedef struct MapRelocNode {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ s32 unk14;
-    /* 0x18 */ s32 unk18;
-    /* 0x1C */ s32 unk1C[1];
-    /* 0x20 */ u8 pad20[0x98];
-    /* 0xB8 */ u8 unkB8;
-    /* 0xB9 */ u8 padB9[0xC];
-    /* 0xC5 */ u8 unkC5;
-} MapRelocNode;
 
-void mapTreeRelocate(MapRelocNode *arg0, s32 arg1, s32 arg2) {
+void mapTreeRelocate(MapBspNode *node, s32 base, s32 dlBase) {
     s32 i;
 
-    if (arg0 == NULL) {
+    if (node == NULL) {
         return;
     }
-    switch (arg0->unkB8) {
+    switch (node->kind) {
         case 0:
-            arg0->unk0 += arg1;
-            arg0->unk4 += arg1;
-            mapTreeRelocate((MapRelocNode *)arg0->unk0, arg1, arg2);
-            mapTreeRelocate((MapRelocNode *)arg0->unk4, arg1, arg2);
+            node->child0 = (MapBspNode *)((s32)node->child0 + base);
+            node->child1 = (MapBspNode *)((s32)node->child1 + base);
+            mapTreeRelocate(node->child0, base, dlBase);
+            mapTreeRelocate(node->child1, base, dlBase);
             return;
         case 1:
         case 2:
@@ -1573,23 +1552,23 @@ void mapTreeRelocate(MapRelocNode *arg0, s32 arg1, s32 arg2) {
         default:
             return;
     }
-    if (arg0->unk8 != -1) {
-        arg0->unk8 += arg2;
+    if (node->dl != -1) {
+        node->dl += dlBase;
     }
-    if (arg0->unkC != -1) {
-        arg0->unkC += arg2;
+    if (node->unkC != -1) {
+        node->unkC += dlBase;
     }
-    if (arg0->unk10 != -1) {
-        arg0->unk10 += arg2;
+    if (node->unk10 != -1) {
+        node->unk10 += dlBase;
     }
-    if (arg0->unk14 != -1) {
-        arg0->unk14 += arg2;
+    if (node->unk14 != -1) {
+        node->unk14 += dlBase;
     }
-    if (arg0->unk18 != -1) {
-        arg0->unk18 += arg2;
+    if (node->unk18 != -1) {
+        node->unk18 += dlBase;
     }
-    for (i = 0; i < arg0->unkC5; i++) {
-        arg0->unk1C[i] += arg2;
+    for (i = 0; i < node->unkC5; i++) {
+        node->unk1C[i] = (void *)((s32)node->unk1C[i] + dlBase);
     }
 }
 
