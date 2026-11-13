@@ -1,5 +1,3 @@
-#define PROTO_SKIP_mapNodeTreeInitSurfaceEffects
-#define PROTO_SKIP_mapTreeRelocate
 #include "common.h"
 #include "map.h"
 #include "render.h"
@@ -26,8 +24,6 @@
 #include "proto/global/6AD90.h"
 #include "proto/global/70FD0.h"
 #include "proto/global/CC800.h"
-void mapNodeTreeInitSurfaceEffects(struct MapBspNode *, s32 *);
-void mapTreeRelocate(struct MapBspNode *, s32, s32);
 
 extern u8 gGfxBufferIndex;
 

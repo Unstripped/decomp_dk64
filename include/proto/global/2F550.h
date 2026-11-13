@@ -5,8 +5,6 @@
 #include "actor.h"
 #include "map.h"
 #include "render.h"
-struct MapNodeEffects;
-struct MapRelocNode;
 struct MapVisNode;
 #ifndef PROTO_SKIP_cameraStepAspectScale
 f32 cameraStepAspectScale(void);
@@ -27,7 +25,7 @@ void polyFlipWinding(struct PlanePoly *);
 void planePolyCalcEquation(struct PlanePoly *);
 #endif
 #ifndef PROTO_SKIP_mapNodeTreeInitSurfaceEffects
-void mapNodeTreeInitSurfaceEffects(struct MapNodeEffects *, s32 *);
+void mapNodeTreeInitSurfaceEffects(struct MapBspNode *, s32 *);
 #endif
 #ifndef PROTO_SKIP_mapOffsetSlotsInit
 void mapOffsetSlotsInit(s32);
@@ -180,7 +178,7 @@ s32 mapGetSoundEmitters(LevelSoundEmitter **);
 void displayListResolveTextureImages(Gfx *, Gfx *);
 #endif
 #ifndef PROTO_SKIP_mapTreeRelocate
-void mapTreeRelocate(struct MapRelocNode *, s32, s32);
+void mapTreeRelocate(struct MapBspNode *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_matrix3SwapRows
 void matrix3SwapRows(f32 (*)[3], s32, s32, s32);
