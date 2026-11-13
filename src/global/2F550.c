@@ -1,3 +1,5 @@
+#define PROTO_SKIP_mapChunksRender
+#define PROTO_SKIP_mapViewDrawPass
 #include "common.h"
 #include "map.h"
 #include "render.h"
@@ -24,6 +26,8 @@
 #include "proto/global/6AD90.h"
 #include "proto/global/70FD0.h"
 #include "proto/global/CC800.h"
+Gfx *mapChunksRender(Gfx *, struct MapBspNode *, f32, f32, f32, s32);
+Gfx *mapViewDrawPass(Gfx *, struct MapBspNode *, u8);
 
 extern u8 gGfxBufferIndex;
 
@@ -374,27 +378,6 @@ void mapOffsetSlotsSetValues(f32 *arg0) {
 }
 
 
-typedef struct MapBspNode {
-    struct MapBspNode *child0;
-    struct MapBspNode *child1;
-    u8 pad8[0x4C - 0x8];
-    /* 0x4C */ f32 unk4C; /* split plane normal x */
-    /* 0x50 */ f32 unk50;
-    /* 0x54 */ f32 unk54;
-    /* 0x58 */ f32 unk58; /* split plane d */
-    /* 0x5C */ s16 unk5C[3];
-    /* 0x62 */ s16 unk62[3];
-    /* 0x68 */ s16 unk68[3];
-    u8 pad6E[0xA0 - 0x6E];
-    /* 0xA0 */ s16 unkA0; /* bounds min x/y/z, max x/y/z */
-    /* 0xA2 */ s16 unkA2;
-    /* 0xA4 */ s16 unkA4;
-    /* 0xA6 */ s16 unkA6;
-    /* 0xA8 */ s16 unkA8;
-    /* 0xAA */ s16 unkAA;
-    u8 padAC[0xB8 - 0xAC];
-    /* 0xB8 */ u8 kind; /* 0 split node, 1 leaf (MapLeafLists/MapViewEntries), 2 map chunks */
-} MapBspNode;
 
 typedef struct MapVisNode {
     u8 camSide; /* mapBspPlaneSideTest of the camera against the split plane */
@@ -676,20 +659,9 @@ Gfx *func_8062CA0C(Gfx *gfx, f32 camX, f32 camY, f32 camZ) {
     return renderEntryListBuildDisplayList(gfx, D_807F5FF8, camX, camY, camZ, 0x30030, -1, 0);
 }
 
-typedef struct MapLeafLists {
-    u8 pad0[8];
-    s32 unk8;
-    s32 unkC;
-    s32 unk10;
-    s32 unk14;
-    s32 unk18;
-    u8 pad1C[0x52];
-    s16 unk6E;
-} MapLeafLists;
 
 extern RenderEntry *D_807F5FFC;
 
-#define MAP_LEAF(o) ((MapLeafLists *)(o))
 
 Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 camY, f32 camZ, s32 renderMask) {
     Gfx *pad;
@@ -702,32 +674,32 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
     }
     switch (node->kind) {
         case 2:
-            gfx = mapChunksRender(gfx, (struct MapViewEntries *)node, camX, camY, camZ, renderMask);
+            gfx = mapChunksRender(gfx, node, camX, camY, camZ, renderMask);
             break;
         case 1:
-            D_807F5E64 += MAP_LEAF(node)->unk6E;
+            D_807F5E64 += node->unk6E;
             if (renderMask & 0x10) {
                 gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
                 gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
-                gfx = mapViewDrawPass(gfx, (struct MapViewEntries *)node, 1);
+                gfx = mapViewDrawPass(gfx, node, 1);
                 gfx = fogRender(gfx);
                 gfx = mapChunkEmitSegmentCommands(gfx, 0xFF);
-                if (MAP_LEAF(node)->unk8 != -1) {
-                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(node)->unk8));
+                if (node->dl != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->dl));
                 }
-                if (MAP_LEAF(node)->unkC != -1) {
-                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(node)->unkC));
+                if (node->unkC != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->unkC));
                 }
-                if (MAP_LEAF(node)->unk14 != -1) {
-                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(node)->unk14));
+                if (node->unk14 != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->unk14));
                 }
-                if (MAP_LEAF(node)->unk10 != -1) {
-                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(node)->unk10));
+                if (node->unk10 != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->unk10));
                 }
-                if (MAP_LEAF(node)->unk18 != -1) {
-                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)MAP_LEAF(node)->unk18));
+                if (node->unk18 != -1) {
+                    gSPDisplayList(gfx++, osVirtualToPhysical((void *)node->unk18));
                 }
-                gfx = mapViewDrawPass(gfx, (struct MapViewEntries *)node, 2);
+                gfx = mapViewDrawPass(gfx, node, 2);
             }
             gfx = spriteListRender(gfx, vis->sprites);
             gfx = billboardRenderQueued(gfx, -1);
@@ -736,7 +708,7 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
             if (renderMask & 0x10) {
                 gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
                 gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
-                gfx = mapViewDrawPass(gfx, (struct MapViewEntries *)node, 3);
+                gfx = mapViewDrawPass(gfx, node, 3);
                 gDPPipeSync(gfx++);
             }
             gfx = renderEntryListBuildDisplayList(gfx, D_807F5FFC, camX, camY, camZ, renderMask, -1, 0);
@@ -768,7 +740,7 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
 
 
 
-Gfx *mapViewDrawPass(Gfx *gfx, MapViewEntries *view, u8 pass) {
+Gfx *mapViewDrawPass(Gfx *gfx, MapBspNode *view, u8 pass) {
     s32 i;
     u8 idx;
 

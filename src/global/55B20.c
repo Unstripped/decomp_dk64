@@ -1,3 +1,5 @@
+#define PROTO_SKIP_mapChunksRender
+#define PROTO_SKIP_mapViewDrawPass
 #include "common.h"
 #include "actor.h"
 #include "map.h"
@@ -17,6 +19,8 @@
 #include "proto/global/67890.h"
 #include "proto/global/68960.h"
 #include "proto/global/6AD90.h"
+Gfx *mapChunksRender(Gfx *, struct MapBspNode *, f32, f32, f32, s32);
+Gfx *mapViewDrawPass(Gfx *, struct MapBspNode *, u8);
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
@@ -1870,7 +1874,7 @@ u32 osVirtualToPhysical(void *);
 Gfx *renderEntryListBuildDisplayList(Gfx *, struct RenderEntry *, f32, f32, f32, s32, s16, s32); // FAKE: callee prototype steer
 Gfx *func_80027034(Gfx *);
 
-Gfx *mapChunksRender(Gfx *gfx, MapViewEntries *view, f32 x, f32 y, f32 z, s32 flags) {
+Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags) {
     s32 i;
     s32 idx;
     struct RenderEntry *list;

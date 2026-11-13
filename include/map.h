@@ -75,17 +75,38 @@ typedef struct Struct8076A160 {
     /* 0x24 */ u8 rgb[52][3];
 } Struct8076A160; // size = 0xC0
 
-// Map BSP node seen as a draw view: leaf nodes (kind 1) go to mapViewDrawPass, chunk nodes (kind 2) to mapChunksRender.
-typedef struct MapViewEntries {
-    /* 0x00 */ u8 pad0[0x8];
+// One map BSP tree node (src/global/2F550.c): kind 0 split nodes use child0/child1 and the
+// split plane, kind 1 leaves are drawn by mapTreeRender/mapViewDrawPass, kind 2 nodes by
+// mapChunksRender (src/global/55B20.c).
+typedef struct MapBspNode {
+    /* 0x00 */ struct MapBspNode *child0;
+    /* 0x04 */ struct MapBspNode *child1;
     /* 0x08 */ s32 dl; // display list address, or -1 when the node has none
-    /* 0x0C */ u8 padC[0x1C - 0xC];
-    /* 0x1C */ void *unk1C[21];
+    /* 0x0C */ s32 unkC; // leaf display lists, -1 when absent
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ void *unk1C[12]; // per-entry display lists drawn by mapViewDrawPass
+    /* 0x4C */ f32 unk4C; /* split plane normal x */
+    /* 0x50 */ f32 unk50;
+    /* 0x54 */ f32 unk54;
+    /* 0x58 */ f32 unk58; /* split plane d */
+    /* 0x5C */ s16 unk5C[3];
+    /* 0x62 */ s16 unk62[3];
+    /* 0x68 */ s16 unk68[3];
+    /* 0x6E */ s16 unk6E; // added to D_807F5E64 when a leaf is drawn
     /* 0x70 */ s16 unk70[12];
-    /* 0x88 */ s16 unk88[18];
-    /* 0xAC */ u8 unkAC[13];
+    /* 0x88 */ s16 unk88[12];
+    /* 0xA0 */ s16 unkA0; /* bounds min x/y/z, max x/y/z */
+    /* 0xA2 */ s16 unkA2;
+    /* 0xA4 */ s16 unkA4;
+    /* 0xA6 */ s16 unkA6;
+    /* 0xA8 */ s16 unkA8;
+    /* 0xAA */ s16 unkAA;
+    /* 0xAC */ u8 unkAC[12];
+    /* 0xB8 */ u8 kind; /* 0 split node, 1 leaf, 2 map chunks */
     /* 0xB9 */ u8 unkB9[12];
-    /* 0xC5 */ u8 unkC5;
-} MapViewEntries;
+    /* 0xC5 */ u8 unkC5; // entry count of the per-entry arrays
+} MapBspNode;
 
 #endif
