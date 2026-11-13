@@ -316,9 +316,9 @@ void playerUpdateCommon(s32 mode) {
     if (D_807463B8 == 0) {
         gCurrentActor->flags |= 0x400000;
     } else {
-        gCurrentActor->flags &= 0xFFBFFFFF;
+        gCurrentActor->flags &= ~0x400000;
     }
-    gCurrentActor->flags &= 0xF7FFFFFF;
+    gCurrentActor->flags &= ~0x08000000;
     gPlayerSlots[gCurrentPlayerIndex].prevFov = gPlayerSlots[gCurrentPlayerIndex].fov;
     if (gCurrentActor->renderFlags & 0x100) {
         gActivePlayerState->lastFrame = gGameFrameCounter;
@@ -335,16 +335,16 @@ void playerUpdateCommon(s32 mode) {
     if (flags & 8) {
         gCurrentActor->flags2 |= 2;
     } else {
-        gCurrentActor->flags2 &= 0xFFFD;
+        gCurrentActor->flags2 &= ~2;
     }
     if ((flags & 0x20) && gActivePlayerState->invulnTimer == 0 && gCurrentActor->actorType != 8 && gCurrentActor->actorType != 9) {
         gCurrentActor->flags2 |= 0x10;
     } else {
-        gCurrentActor->flags2 &= 0xFFEF;
+        gCurrentActor->flags2 &= ~0x10;
         gCurrentActor->flags &= ~0x800;
     }
     if (gActivePlayerState->invulnTimer != 0) {
-        gActivePlayerState->invulnTimer = gActivePlayerState->invulnTimer - 1;
+        gActivePlayerState->invulnTimer--;
     }
     if (flags & 0x40) {
         gCurrentActor->flags |= 0x4000;
@@ -354,13 +354,13 @@ void playerUpdateCommon(s32 mode) {
     if ((flags & 0x80) && gActivePlayerState->respawnTimer == 0 && gCurrentActor->actorType != 8 && gCurrentActor->actorType != 9) {
         gCurrentActor->flags2 |= 0x20;
     } else {
-        gCurrentActor->flags2 &= 0xFFDF;
+        gCurrentActor->flags2 &= ~0x20;
     }
     if (gActivePlayerState->respawnTimer != 0) {
-        gActivePlayerState->respawnTimer = gActivePlayerState->respawnTimer - 1;
+        gActivePlayerState->respawnTimer--;
     }
     if (gActivePlayerState->damageCooldown != 0) {
-        gActivePlayerState->damageCooldown = gActivePlayerState->damageCooldown - 1;
+        gActivePlayerState->damageCooldown--;
     }
     playerUpdateScaleAndPhysics();
     playerCheckAndClearCarriedItem();
@@ -369,7 +369,7 @@ void playerUpdateCommon(s32 mode) {
         sfxStopChannel(0x6B, 0);
     }
     if (gActivePlayerState->unkCA != 0) {
-        gActivePlayerState->unkCA = gActivePlayerState->unkCA - 1;
+        gActivePlayerState->unkCA--;
     }
     if (gCurrentActor->flags2 & 0x20) {
         proxPathUpdateAllPlayers();
@@ -397,13 +397,13 @@ void playerUpdateCommon(s32 mode) {
         playerCheckLedgeGrab();
     }
     gActivePlayerState->stateStep = 0;
-    gActivePlayerState->stateFlags &= 0xBFFFFFFF;
+    gActivePlayerState->stateFlags &= ~0x40000000;
     func_806CF580();
     gActivePlayerState->prevState = gActivePlayerActor->state;
     if (gPlayerCount >= 2) {
         if (gCurrentActor->contactFlags & 1) {
             if (gActivePlayerState->attackTimer != 0) {
-                gActivePlayerState->attackTimer = gActivePlayerState->attackTimer - 1;
+                gActivePlayerState->attackTimer--;
             } else {
                 gActivePlayerState->attackerPlayerIndex = -1;
                 gActivePlayerState->attackerSpawnNodeId = 0;
@@ -424,7 +424,7 @@ void playerUpdateCommon(s32 mode) {
         if (D_807552E4.unk0 == 0) {
             if (gActivePlayerActor->state == 0x3C) {
                 if (gActivePlayerState->effectTimer != 0) {
-                    gActivePlayerState->effectTimer = gActivePlayerState->effectTimer - 1;
+                    gActivePlayerState->effectTimer--;
                 }
                 if (gActivePlayerState->effectObj == NULL) {
                     effectSetDuration(-1);
@@ -435,7 +435,7 @@ void playerUpdateCommon(s32 mode) {
                 }
             } else {
                 if (gActivePlayerState->effectTimer < 0x78) {
-                    gActivePlayerState->effectTimer = gActivePlayerState->effectTimer + 1;
+                    gActivePlayerState->effectTimer++;
                 }
                 if (gActivePlayerState->effectObj != NULL) {
                     fx = gActivePlayerState->effectObj;
@@ -460,7 +460,7 @@ void playerUpdateCommon(s32 mode) {
         }
     }
     if (gActivePlayerState->surfaceTimer != 0) {
-        gActivePlayerState->surfaceTimer = gActivePlayerState->surfaceTimer - 1;
+        gActivePlayerState->surfaceTimer--;
     }
     if (groundImpact != 0) {
         playerStateQueueCallback(0x3F, attacker, gCurrentPlayerIndex);
@@ -477,7 +477,7 @@ case1:
     if (gActivePlayerState->stateFlags & 0x10) {
         gActivePlayerState->breathTimer = 0;
     } else {
-        gActivePlayerState->breathTimer = gActivePlayerState->breathTimer + 1;
+        gActivePlayerState->breathTimer++;
         playerStateQueueCallback(0x2E, attacker, gCurrentPlayerIndex);
         if (gCurrentActor->state != 0x36 && gCurrentActor->state != 0x3B && gActivePlayerState->surfaceTimer == 0) {
             s16 snd = 0x2C0;
@@ -515,7 +515,7 @@ done:
     gActivePlayerState->targetYawAngle = screenY;
     gActivePlayerState->prevStateFlags = gActivePlayerState->stateFlags;
     if (gActivePlayerState->transitionTimer != 0) {
-        gActivePlayerState->transitionTimer = gActivePlayerState->transitionTimer - 1;
+        gActivePlayerState->transitionTimer--;
     }
     if ((gCurrentActor->x < D_807F5FE4 || gCurrentActor->z < D_807F5FE6 || D_807F5FE8 < gCurrentActor->x || D_807F5FEA < gCurrentActor->z || materialType != 0) && gActivePlayerState->idleTimeoutFlag == 0 && gFrameCounter >= 0x65 && !(gGlobalOverlayFlags & 0x4000) && gCurrentMap != 0xE) {
         if (gPlayerCount == 1) {

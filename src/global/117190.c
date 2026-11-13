@@ -933,8 +933,8 @@ void menuSetFlag5324(void) {
 s32 func_80714608(s32 value) {
     s32 isMultiplayer;
 
-    isMultiplayer = (s32) gPlayerCount >= 2;
-    if (isMultiplayer != 0) {
+    isMultiplayer = gPlayerCount >= 2;
+    if (isMultiplayer) {
         return value == D_807552E4.unk0;
     }
 }

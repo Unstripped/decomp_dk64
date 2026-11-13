@@ -1938,36 +1938,36 @@ u8 camResolveWallCollision(Actor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, f32
     u8 pad;
     s16 pushYaw;
     s16 pushDist;
-    f32 v;
+    f32 radius;
 
     arcMin = 0;
     arcMax = 0xFFF;
     camActor->hasArcBounds = 0;
     st->unkFC = 0;
-    v = 0.0f;
-    v += 0.2 * ((180.0f < st->unkA0) ? 180.0f : st->unkA0);
+    radius = 0.0f;
+    radius += 0.2 * ((180.0f < st->unkA0) ? 180.0f : st->unkA0);
     if (st->unkF5 != 0) {
-        v -= 0.1 * st->unkF5;
+        radius -= 0.1 * st->unkF5;
     } else {
-        v -= 0.1 * st->unkF1;
+        radius -= 0.1 * st->unkF1;
     }
-    if (collisionTestSphere(*eyeX, eyeY, *eyeZ, v, &arcMin, &arcMax, 1, 0xBC)) {
+    if (collisionTestSphere(*eyeX, eyeY, *eyeZ, radius, &arcMin, &arcMax, 1, 0xBC)) {
         if (D_807FB606 != 0) {
             st->unkFC = 2;
             pushYaw = (camActor->moveYaw + 0x800) & 0xFFF;
             pushDist = 0;
         } else {
             s16 arcMid;
-            s16 t;
+            s16 proximity;
 
             arcMid = mathAngleArcMidpoint(arcMin, arcMax);
             prevX += 0.5 * mathSinF(arcMid);
             prevZ += 0.5 * mathCosF(arcMid);
             st->unkFC = 1;
             mathAngleClampToArc(camActor->moveYaw, camActor->moveYaw, arcMin, arcMax, &pushYaw);
-            t = mathAngleArcProximityScale(arcMin, arcMax, camActor->yaw, 100);
-            if (t < maxPush) {
-                pushDist = t;
+            proximity = mathAngleArcProximityScale(arcMin, arcMax, camActor->yaw, 100);
+            if (proximity < maxPush) {
+                pushDist = proximity;
             } else {
                 pushDist = maxPush;
             }

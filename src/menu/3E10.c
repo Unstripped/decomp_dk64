@@ -1093,11 +1093,10 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
     s32 itemCount;
     s32 cap;
     s32 lim;
-    s32 mask;
+    u8 mask;
     s32 pressed;
 
-    step = state->unkC;
-    step = state->unkE - step;
+    step = state->unkE - state->unkC;
     if (step >= 0x15) {
         step = 0x14;
     }
@@ -1126,9 +1125,9 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     bits = 1 << j;
                     if (!(D_8076A0E4[j] & 0x80)) {
                         gPlayerCharacterId[j] = D_8076A0E4[j];
-                        mask = (mask | bits) & 0xFF;
+                        mask |= bits;
                         D_807552E4.unk10[gActivePlayerCount] = D_8076A100[j];
-                        gActivePlayerCount += 1;
+                        gActivePlayerCount++;
                     }
                 }
                 controllerSetActiveMask(mask);
@@ -1168,8 +1167,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
             }
             pressed = (buttons ^ D_80033858) & buttons;
             if (state->unkC == 0 && D_80033FAE == 0) {
-                i = 0;
-                do {
+                for (i = 0; i != 4; i++) {
                     bits = 0;
                     if (D_807ECD09 & (1 << i)) {
                         if (D_807ECD10[i].stick_x < -0x28) {
@@ -1197,7 +1195,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                                     idx = 0;
                                 }
                                 while (!(D_80033FAF & (1 << idx))) {
-                                    idx += 1;
+                                    idx++;
                                     if (idx >= 6) {
                                         idx = 0;
                                     }
@@ -1211,7 +1209,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                                     idx = 5;
                                 }
                                 while (!(D_80033FAF & (1 << idx))) {
-                                    idx -= 1;
+                                    idx--;
                                     if (idx < 0) {
                                         idx = 5;
                                     }
@@ -1232,32 +1230,31 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                             }
                         }
                     }
-                    i += 1;
-                } while (i != 4);
+                }
             } else if (state->unkC == -0xF0) {
-                if (((buttons ^ D_80033858) & buttons) & 0x10) {
+                if (((buttons ^ D_80033858) & buttons) & 0x10) { // FAKE: recomputes pressed so the test reads the v0 CSE value, not s0 pressed
                     cap = 5;
                     if (D_80033834[D_8074451C] == 5) {
                         cap = 4;
                     }
                     if (D_80744520 < cap) {
-                        D_80744520 += 1;
+                        D_80744520++;
                         sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     }
-                } else if ((((buttons ^ D_80033858) & buttons) & 0x20) && D_80744520 >= 2) {
-                    D_80744520 -= 1;
+                } else if ((((buttons ^ D_80033858) & buttons) & 0x20) && D_80744520 >= 2) { // FAKE: recomputes pressed so the test reads the v0 CSE value, not s0 pressed
+                    D_80744520--;
                     sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
                 menuHandleScrollInput(state, itemCount, pressed);
             } else if (state->unkC == -0x1E0) {
-                if (((buttons ^ D_80033858) & buttons) & 0x10) {
-                    D_80744534 += 1;
+                if (((buttons ^ D_80033858) & buttons) & 0x10) { // FAKE: recomputes pressed so the test reads the v0 CSE value, not s0 pressed
+                    D_80744534++;
                     if (D_80744534 >= 3) {
                         D_80744534 = 0;
                     }
                     sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                } else if (((buttons ^ D_80033858) & buttons) & 0x20) {
-                    D_80744534 -= 1;
+                } else if (((buttons ^ D_80033858) & buttons) & 0x20) { // FAKE: recomputes pressed so the test reads the v0 CSE value, not s0 pressed
+                    D_80744534--;
                     if (D_80744534 < 0) {
                         D_80744534 = 2;
                     }
@@ -1278,7 +1275,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
     D_80033FAD = 0;
     for (i = 0; i < 4; i++) {
         if (!(D_8076A0E4[i] & 0x80)) {
-            D_80033FAD += 1;
+            D_80033FAD++;
         }
     }
 }

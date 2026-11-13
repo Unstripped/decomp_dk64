@@ -9,12 +9,12 @@
 #include "proto/global/CEAE0.h"
 
 
-void actorStepPhysics(Actor *actor, s16 targetYaw, s16 targetPitch) {
+void actorStepPhysics(Actor *actor, s16 targetYaw, s16 facingYaw) {
     actorUpdatePrevContactFlags(actor);
     func_80665ACC(actor);
     if (actor->hasArcBounds != 0) {
         mathAngleClampToArc(actor->moveYaw, targetYaw, actor->arcYawMin, actor->arcYawMax, &actor->unkF2);
-        actor->unkFA = mathAngleArcProximityScale(actor->arcYawMin, actor->arcYawMax, targetPitch, actor->unkF8);
+        actor->unkFA = mathAngleArcProximityScale(actor->arcYawMin, actor->arcYawMax, facingYaw, actor->unkF8);
         if ((actor->renderFlags & 0x200) && (actor->renderFlags & 0x100)) {
             actor->unkFA = 0;
         }
