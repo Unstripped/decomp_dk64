@@ -119,7 +119,7 @@ void frameTimingUpdate(void) {
         if (flag != 0) {
             gFrameDelta = sample;
         }
-        if ((u32)gFrameCounter >= 0xB) {
+        if (gFrameCounter >= 0xB) {
             p = &gScheduler.unk284;
             limit = D_8076AF10 + gFrameDelta;
             if (SCHED284 < limit) {

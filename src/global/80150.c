@@ -3033,8 +3033,8 @@ Gfx *tagBarrelRenderSelectionHud(Gfx *gfx, Actor *actor) {
     gSPMatrix(gfx++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     arrowY = textY;
-    gfx = renderRotatedSprite(gfx, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, 0xA0, arrowY, 5.0f, 5.0f, 0, 0.0f);
-    gfx = renderRotatedSprite(gfx, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, (gScreenWidth - 0x28) * 4.0, arrowY, 5.0f, 5.0f, 0xB4, 0.0f);
+    gfx = renderRotatedSprite(gfx, (u16)(((gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, 0xA0, arrowY, 5.0f, 5.0f, 0, 0.0f);
+    gfx = renderRotatedSprite(gfx, (u16)(((gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, (gScreenWidth - 0x28) * 4.0, arrowY, 5.0f, 5.0f, 0xB4, 0.0f);
     blend = (f32)(u32)data->timer * 0.05f;
     text = tagBarrelGetKongName(data, data->selected);
     textY -= (f32) textGetFontHeight(1) * 1.2f;

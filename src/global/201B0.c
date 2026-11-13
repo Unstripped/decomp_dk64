@@ -262,10 +262,10 @@ void camApplySway(CamState *state, f32 *posX, f32 *posY, f32 *posZ, f32 ampXZ, f
     f32 sinYaw;
 
     sinYaw = mathSinF(state->unkB2 + 0x400);
-    *posX += ampXZ * mathSinF((u32)gFrameCounter * freqXZ) * sinYaw;
+    *posX += ampXZ * mathSinF(gFrameCounter * freqXZ) * sinYaw;
     sinYaw = mathCosF(state->unkB2 + 0x400);
-    *posZ += ampXZ * mathSinF((u32)gFrameCounter * freqXZ) * sinYaw;
-    *posY += ampY * mathSinF((u32)gFrameCounter * freqY);
+    *posZ += ampXZ * mathSinF(gFrameCounter * freqXZ) * sinYaw;
+    *posY += ampY * mathSinF(gFrameCounter * freqY);
 }
 
 void camSampleFloorHeight(Actor *camActor, CamState *state, f32 sampleX, f32 sampleZ) {
@@ -361,8 +361,8 @@ u8 camFloorSnap(Actor *camActor, CamState *camState, f32 targetDist, f32 *outHei
             }
         }
         bonus = 15.0f;
-        if (gCurrentMap == 0x30 && (u32)gFrameCounter > 0x3C) {
-            ramp = CAM_MIN(1.0, ((u32)gFrameCounter - 0x3C) * 0.01);
+        if (gCurrentMap == 0x30 && gFrameCounter > 0x3C) {
+            ramp = CAM_MIN(1.0, (gFrameCounter - 0x3C) * 0.01);
             bonus += 10.0 * ramp;
         }
         if ((gGlobalOverlayFlags & 8) && !(flags & 8)) {

@@ -201,7 +201,7 @@ void bossDogadonStep(void) {
             gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D((f32)D_807FDCA0->entries->x, (f32)D_807FDCA0->entries->z, gCurrentActor->x, gCurrentActor->z), 10.0f);
             break;
         case 3:
-            if (gBehaviourWorkState->timer != 0 && (u32)gFrameCounter % 5 == 0) {
+            if (gBehaviourWorkState->timer != 0 && gFrameCounter % 5 == 0) {
                 projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 150, 3, (f32)((f64)(u32)phaseState->unk14 * 0.01 + 1.04), 0.0f, 0.0f, 0.0f);
                 if (gBehaviourWorkState->timer-- < 4) {
                     gSpawnedActor->yawSpeed = 0;

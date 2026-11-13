@@ -128,7 +128,7 @@ void billboardCacheEvictStale(void) {
 
     gBillboardQueueCount = 0;
     for (i = 0; i < 4; i++) {
-        if (gBillboardCache[i].lastUsedFrame != -1 && (u32)(gFrameCounter - gBillboardCache[i].lastUsedFrame) >= 21) {
+        if (gBillboardCache[i].lastUsedFrame != -1 && (gFrameCounter - gBillboardCache[i].lastUsedFrame) >= 21) {
             assetFreeBuffer(gBillboardCache[i].texture, 0x65, 0x4D);
             gBillboardCache[i].lastUsedFrame = -1;
         }
@@ -398,7 +398,7 @@ typedef struct MatrixCacheNode {
     f32 camX;
     f32 camY;
     f32 camZ;
-    s32 lastUsedFrame;
+    u32 lastUsedFrame;
     s32 allocSize;
     struct MatrixCacheNode *hash_next;
     struct MatrixCacheNode *hash_prev;
@@ -615,7 +615,7 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
             break;
         }
         next = node->list_prev;
-        if ((cond == 0 && gMatrixCacheLimit < gMatrixCacheBytes) || (u32)minAge < (u32)(gFrameCounter - node->lastUsedFrame)) {
+        if ((cond == 0 && gMatrixCacheLimit < gMatrixCacheBytes) || (u32)minAge < (gFrameCounter - node->lastUsedFrame)) {
             if (node == gMatrixCacheTail) {
                 gMatrixCacheTail = node->list_prev;
             }
@@ -644,7 +644,7 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
                     node->hash_prev->hash_next = node->hash_next;
                 }
             }
-            if ((u32)(gFrameCounter - node->lastUsedFrame) >= 2) {
+            if ((gFrameCounter - node->lastUsedFrame) >= 2) {
                 heapFree(node);
                 evictedAny = 1;
             } else {

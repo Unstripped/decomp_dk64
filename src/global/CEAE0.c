@@ -2047,7 +2047,7 @@ void func_806CF580(void) {
         func_8072881C(0x81, &gActivePlayerState->unk84);
     }
     if ((gCurrentActor->state == 0x4F || gCurrentActor->state == 0x7F) && D_80750AD0 == 0 &&
-        (u32)(gActivePlayerState->unkD0 + 9) < (u32)gFrameCounter && (u32)randomLcgNext() % 2500 / 200 == 0) {
+        (u32)(gActivePlayerState->unkD0 + 9) < gFrameCounter && (u32)randomLcgNext() % 2500 / 200 == 0) {
         effectSetCallback(effectWobbleRiseUpdate);
         effectSetDepth(1);
         effectSetDuration(-1);

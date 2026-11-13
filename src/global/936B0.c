@@ -2421,7 +2421,7 @@ void projectileParticleSpawnerTick(void) {
         effectSetSpeed((s32)gCurrentActor);
         effectCreateAtPosition(&D_8071FC40, 0.3f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
-    if (((gCurrentActor->hasArcBounds != 0) && ((u32)(gGameFrameCounter - extra->unk0) >= 6)) || gActorGlobalState.unk15 != 0) {
+    if (((gCurrentActor->hasArcBounds != 0) && ((gGameFrameCounter - extra->unk0) >= 6)) || gActorGlobalState.unk15 != 0) {
         if ((gActorGlobalState.unk15 != 0) && (extra->unk13 != 0xA)) {
             effectSetDepth(1);
             effectSetSpeed(0x100D2);
@@ -2486,7 +2486,7 @@ void projectileHomingParticleUpdate(void) {
     }
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 14, 14, 1, 150, 120, 0, 1.0f);
     i = 0;
-    if ((gCurrentActor->contactFlags & 1) || ((gCurrentActor->hasArcBounds != 0) && ((u32)(gGameFrameCounter - *spawnFrame) >= 6)) || gActorGlobalState.unk15 != 0) {
+    if ((gCurrentActor->contactFlags & 1) || ((gCurrentActor->hasArcBounds != 0) && ((gGameFrameCounter - *spawnFrame) >= 6)) || gActorGlobalState.unk15 != 0) {
         do {
             jitterX = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
             jitterY = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;

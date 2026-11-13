@@ -1098,7 +1098,7 @@ void dynamicBufferPurgeExpired(void) {
 
     if (!D_807F951C) {
         for (i = 0; i < D_807F9518; i++) {
-            if (D_807F9514[i].tris != NULL && (u32)(gFrameCounter - D_807F9514[i].lastUsedFrame) >= 21) {
+            if (D_807F9514[i].tris != NULL && (gFrameCounter - D_807F9514[i].lastUsedFrame) >= 21) {
                 actorClearBufferReferences(i);
                 heapFree(D_807F9514[i].tris);
                 D_807F9514[i].tris = NULL;

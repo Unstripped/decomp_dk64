@@ -24,7 +24,7 @@
 typedef struct BufferCacheEntry {
     /* 0x00 */ void *unk0;
     /* 0x04 */ void *unk4;
-    /* 0x08 */ s32 unk8;
+    /* 0x08 */ u32 unk8;
     /* 0x0C */ u8 padC[0xC];
 } BufferCacheEntry; // size = 0x18
 
@@ -217,7 +217,7 @@ void dynamicBufferFree(DynamicBuffer *buf) {
 typedef struct CollisionStaticCellEntry {
     /* 0x00 */ void *unk0;
     /* 0x04 */ u8 *unk4;
-    /* 0x08 */ s32 unk8;
+    /* 0x08 */ u32 unk8;
     /* 0x0C */ s32 unkC;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s32 unk14;
@@ -290,7 +290,7 @@ void collisionInitStaticCache(MapFileHeader *header) {
 typedef struct CollisionStaticCellView {
     void *unk0;
     void *unk4;
-    s32 unk8;
+    u32 unk8;
     s32 unkC;
     s32 unk10;
     s32 unk14;
@@ -342,11 +342,11 @@ void modelSlotExpireNextBuffers(void) {
             D_80748E40 = 0;
         }
         buf = &gModelSlots[D_80748E40].unk28;
-        if ((buf->unk15 & 1) && ((u32)(gFrameCounter - buf->unk10) >= 0x1F)) {
+        if ((buf->unk15 & 1) && ((gFrameCounter - buf->unk10) >= 0x1F)) {
             dynamicBufferFree(buf);
         }
         triBuf = &gModelSlots[D_80748E40].unk48;
-        if ((triBuf->flags & 1) && ((u32)(gFrameCounter - triBuf->timestamp) >= 0x1F)) {
+        if ((triBuf->flags & 1) && ((gFrameCounter - triBuf->timestamp) >= 0x1F)) {
             modelSlotTriBufferRelease(triBuf);
         }
     }
@@ -361,7 +361,7 @@ void collisionPurgeExpiredBuffers(void) {
     s32 i;
 
     for (i = 0; i < D_807FB538; i++) {
-        if (D_807FB534[i].unk0 != NULL && (u32)(gFrameCounter - D_807FB534[i].unk8) >= 0x15) {
+        if (D_807FB534[i].unk0 != NULL && (gFrameCounter - D_807FB534[i].unk8) >= 0x15) {
             if (D_807FB549 == 0) {
                 heapFree(D_807FB534[i].unk4);
                 D_807FB534[i].unk4 = NULL;

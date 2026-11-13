@@ -1359,7 +1359,7 @@ void mapChunkUpdateAssetStreaming(void) {
                         }
                         gMapChunks[i].streamFlags &= ~1;
                     }
-                } else if (!(gMapChunks[i].streamFlags & 1) && (u32)(gFrameCounter - gMapChunks[i].lastSeenFrame) >= 3U) {
+                } else if (!(gMapChunks[i].streamFlags & 1) && (gFrameCounter - gMapChunks[i].lastSeenFrame) >= 3U) {
                     mapChunkReleaseAssets(gMapChunks[i].loadStart, gMapChunks[i].loadCursor);
                     gMapChunks[i].loadCursor = gMapChunks[i].loadStart;
                     gMapChunks[i].streamFlags |= 1;
@@ -2659,7 +2659,7 @@ typedef struct MapSearchEntry {
     /* 0x006 */ s16 y;
     /* 0x008 */ s16 maxDepth;
     /* 0x00A */ u8 padA[0x2];
-    /* 0x00C */ s32 frame;
+    /* 0x00C */ u32 frame;
     /* 0x010 */ u8 active;
     /* 0x011 */ u8 visible;
     /* 0x012 */ u8 pad12[0x2];
@@ -2721,7 +2721,7 @@ void mapSearchTableUpdateVisibility(void) {
                 }
             }
         }
-        if ((u32)(gFrameCounter - gMapSearchTable[i].frame) >= 3) {
+        if ((gFrameCounter - gMapSearchTable[i].frame) >= 3) {
             gMapSearchTable[i].active = 0;
         }
     }
