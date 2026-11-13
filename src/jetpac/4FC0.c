@@ -310,7 +310,7 @@ void jetpacActorInitWander(JetpacActor *actor) {
         actor->vx = 1.2f;
     }
     jetpacActorPickWanderDirection(actor);
-    actor->timer = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
+    actor->timer = jetpacRandFloat() * 60.0f + 10.0f;
 }
 
 void jetpacActorPickWanderDirection(JetpacActor *actor) {
@@ -332,7 +332,7 @@ void jetpacActorUpdateWander(JetpacActor *actor) {
     case 3:
         if (--actor->timer == 0) {
             jetpacActorPickWanderDirection(actor);
-            actor->timer = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
+            actor->timer = jetpacRandFloat() * 60.0f + 10.0f;
         }
         res = jetpacCheckLedgeCollision((f32)actor->boxX1 + actor->x + actor->vx,
                             (f32)actor->boxY1 + actor->y + actor->vy,
@@ -365,7 +365,7 @@ void jetpacActorUpdateWander(JetpacActor *actor) {
 void jetpacActorInitFighter(JetpacActor *actor) {
     actor->update = jetpacActorUpdateFighter;
     actor->points = 0x37;
-    actor->timer = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
+    actor->timer = jetpacRandFloat() * 60.0f + 10.0f;
     actor->lifetime = (jetpacRandFloat() * 180.0f) + 10.0f;
     actor->boxY2 = 8;
     if (actor->y < 88.0f) {
