@@ -1,5 +1,6 @@
 #include "common.h"
 #include "race.h"
+#include "sched.h"
 #include "compiler/ido/memory.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
@@ -14,12 +15,6 @@
 #include "proto/race/7BD0.h"
 #include "proto/race/A960.h"
 
-// Race actor: Actor plus its participant component (0x174).
-typedef struct RaceActor {
-    /* 0x000 */ u8 pad0[0x174];
-    /* 0x174 */ RaceParticipant *state;
-} RaceActor;
-
 typedef struct RaceRouteTable {
     /* 0x00 */ u8 count;
     /* 0x01 */ u8 pad1[3];
@@ -29,20 +24,10 @@ typedef struct RaceRouteTable {
     /* 0x0C */ RaceWaypoint *items2;
 } RaceRouteTable;
 
-typedef struct RacePlayerPos {
-    u8 pad0[0x210];
-    f32 pos[3];
-    u8 pad21C[0xC];
-    f32 f228;
-    f32 f22C;
-    f32 f230;
-    u8 pad234[0x2F0 - 0x234];
-} RacePlayerPos;
-
 extern RaceRouteTable *D_8002FCF0;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern RacePlayerPos *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 
 RaceRoute *raceGetRoute(u8 idx) {
@@ -166,7 +151,7 @@ void raceSpawnGateActor(f32 scaleFactor, s32 kind, u8 mode) {
             actorSpawn(0x137, mode != 0 ? 0xD8 : 0xD9);
             break;
     }
-    actorState = ((RaceActor *)gSpawnedActor)->state;
+    actorState = gSpawnedActor->customState;
     raceScaleVelocity(gSpawnedActor, scaleFactor);
     actorState->unk0 = kind;
 }
@@ -325,7 +310,7 @@ void raceUpdateLapAndWaypointTracker(RaceParticipant *tracker) {
     u16 val;
 
     actor = tracker->actor;
-    state = ((RaceActor *)actor)->state;
+    state = actor->customState;
     list = raceGetRoute(state->route);
     if (list != NULL) {
         val = list->items[tracker->unk3A];
@@ -334,10 +319,10 @@ void raceUpdateLapAndWaypointTracker(RaceParticipant *tracker) {
             if (((f32)node->x - gCurrentActor->x) * ((f32)node->x - gCurrentActor->x) + ((f32)node->z - gCurrentActor->z) * ((f32)node->z - gCurrentActor->z) > 900.0f) {
                 headingAngle = mathAngleBetweenPointsDeg(node->x, node->z, (s32)gCurrentActor->x, (s32)gCurrentActor->z);
                 gCurrentActor->unkEC = (s32)(headingAngle - mathAngleBetweenPointsDeg(
-                    (s32)gPlayerSlots[tracker->playerIdx].f228,
-                    (s32)gPlayerSlots[tracker->playerIdx].f230,
-                    (s32)gPlayerSlots[tracker->playerIdx].pos[tracker->playerIdx],
-                    (s32)gPlayerSlots->pos[2]));
+                    (s32)gPlayerSlots[tracker->playerIdx].focusX,
+                    (s32)gPlayerSlots[tracker->playerIdx].focusZ,
+                    (s32)(&gPlayerSlots[tracker->playerIdx].camX)[tracker->playerIdx],
+                    (s32)gPlayerSlots->camZ));
             }
             if (tracker->unk38 != 0) {
                 tracker->unk38 = raceIsFacingWaypoint(node);
@@ -436,7 +421,7 @@ void raceUpdateWaypointActivation(RaceParticipant *actorState) {
             if (node->kind != 0) {
                 farAway = 0;
                 for (j = 0; j < gPlayerCount; j++) {
-                    f32 *p = gPlayerSlots[j].pos;
+                    f32 *p = &gPlayerSlots[j].camX;
                     f32 dz = p[2] - node->z;
                     f32 dx = p[0] - node->x;
                     f32 dy = p[1] - node->y;
