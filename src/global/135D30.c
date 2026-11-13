@@ -82,11 +82,11 @@ typedef struct FlagRange {
 extern FlagRange D_80756024[];
 
 void flagUpdateRangeCompletion(s16 flag) {
-    u32 i;
+    s32 i;
     s32 res = -1;
     FlagRange *e;
 
-    for (i = 0; i < 0x21 && res == -1; i++) {
+    for (i = 0; i < 0x21U && res == -1; i++) { // FAKE: unsigned bound on the s32 counter keeps i in s1 with sltiu (a literal bound LFTRs to an end pointer, Q0582)
         e = &D_80756024[i];
         if (flag >= e->first && flag <= e->last) {
             if (flagCountRange(e->first, e->last - e->first + 1, 0) == e->required) {
@@ -94,8 +94,6 @@ void flagUpdateRangeCompletion(s16 flag) {
             }
         }
     }
-    if (i == 0x99) {}  // FAKE: dead read of i after the loop keeps counter s1 beside pointer s0 (no LFTR end pointer, Q0262)
-    if (flag == 0x99) {}  // FAKE: with the i read keeps flag in s3 and res in s2 (Q0262)
     if (res >= 0) {
         flagSet(res, 1, 1);
     }
@@ -204,15 +202,12 @@ u8 flagValueForMapObject(s16 map, s16 id) {
 
 
 s32 spawnFlagLookup(s16 map, s16 id, s32 *outIdx) {
-    FlagTableEntry *e; s32 n = 0x1F; s32 i; s16 val = map; // FAKE: n/val copies keep map in a0, id in a3, base in t0 (Q0582); LAYOUT: one line (as1 prologue order)
-    *outIdx = 0; for (i = 0; i < n; ) { // LAYOUT: joined with the loop header
-        e = D_80755DA8 + i;
-        if (val == e->map && id == e->id) {
-            return e->flag;
+    s32 n = 0x1F; // FAKE: bound local keeps 0x1F in v0 for slt (a literal bound gives slti and moves the table base from t0 to a3, Q0263)
+
+    for (*outIdx = 0; *outIdx < n; (*outIdx)++) {
+        if (map == D_80755DA8[*outIdx].map && id == D_80755DA8[*outIdx].id) {
+            return D_80755DA8[*outIdx].flag;
         }
-        *outIdx = i + 1;
-        i |= 0; // FAKE: no-code def keeps i + 1 in ring temp t3 instead of reusing a1 (Q0500)
-        i = *outIdx;
     }
     return -1;
 }
