@@ -384,17 +384,17 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
 
 
 Gfx *mpDrawHud(Gfx *glistp, Actor *controller) {
-    s32 t0 = D_807552E4.unk8 >= 2; // FAKE: early-load local (steers schedule)
-    s32 cond = gGlobalPauseFlags & 3; // FAKE: early-load local (steers schedule)
+    s32 matchOver = D_807552E4.unk8 >= 2; // FAKE: early-load local (reads unk8 before the display-list stores, slti/xori result in t0)
+    s32 paused = gGlobalPauseFlags & 3; // FAKE: early-load local (reads gGlobalPauseFlags before the display-list stores)
 
     gDPPipeSync(glistp++);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
-    if (!cond) {
+    if (!paused) {
         if (D_807552E4.unk0 == 0) {
-            if ((D_807552E4.unk8 == 1) || t0) {
+            if ((D_807552E4.unk8 == 1) || matchOver) {
                 glistp = mpDrawPlayerScores(glistp, controller);
             }
-        } else if ((D_807552E4.unk8 == 1) || t0) {
+        } else if ((D_807552E4.unk8 == 1) || matchOver) {
             glistp = mpDrawPlayerViewportHud(glistp, controller);
         }
     }
@@ -495,28 +495,27 @@ s32 mpFindModelSlotByType(s32 slotType) {
 
 void mpUpdateCrownSpawns(MpControllerState *controllerState) {
     s32 leaderIndex;
-    MpSpawnPoint * volatile spawnPoint; // FAKE: volatile forces stack home
+    MpSpawnPoint *spawnPoint;
 
     spawnPoint = mpFindCurrentMapEntry()->items;
-    if (menuIsTransitionType6() != 0 && !(gGlobalPauseFlags & 2)) {
-        if (D_807552E4.unk4 == 3) {
-            mpUpdateMatchTimer();
-        }
-        leaderIndex = mpUpdateScoreEffects();
-        if (leaderIndex == -1) {
-            if (controllerState->crownSpawnDelay == 0 && actorFindByType(0x7A) == 0 && mpFindModelSlotByType(0x1D2) == 0) {
-                MpSpawnPoint *pos = spawnPoint;
-                if (delayedSpawnQueueContains(0x1D2, 0, pos->x, pos->y, pos->z) == 0) {
-                    pos = spawnPoint;
-                    func_806F5FE8(0x1D2, pos->x, pos->y, pos->z, 10);
-                }
+    if (menuIsTransitionType6() == 0 || (gGlobalPauseFlags & 2)) {
+        return;
+    }
+    if (D_807552E4.unk4 == 3) {
+        mpUpdateMatchTimer();
+    }
+    leaderIndex = mpUpdateScoreEffects();
+    if (leaderIndex == -1) {
+        if (controllerState->crownSpawnDelay == 0 && actorFindByType(0x7A) == 0 && mpFindModelSlotByType(0x1D2) == 0) {
+            if (delayedSpawnQueueContains(0x1D2, 0, spawnPoint->x, spawnPoint->y, spawnPoint->z) == 0) {
+                func_806F5FE8(0x1D2, spawnPoint->x, spawnPoint->y, spawnPoint->z, 10);
             }
-        } else if (D_807552E4.unk4 == 5 && mpGetPlayerScore(leaderIndex) >= D_807552E4.unkC) {
-            mpDetermineWinner(controllerState);
         }
-        if (controllerState->crownSpawnDelay != 0) {
-            controllerState->crownSpawnDelay--;
-        }
+    } else if (D_807552E4.unk4 == 5 && mpGetPlayerScore(leaderIndex) >= D_807552E4.unkC) {
+        mpDetermineWinner(controllerState);
+    }
+    if (controllerState->crownSpawnDelay != 0) {
+        controllerState->crownSpawnDelay--;
     }
 }
 
@@ -949,19 +948,19 @@ void mpDeductDeathPenalty(PlayerState *kongState) {
     }
 }
 
-void mpDropItemsOnHit(u8 playerIndex, s8 dropCount) {
+void mpDropItemsOnHit(u8 playerIndex, s8 delta) {
     s32 pad0;
     MpControllerState *ctrl;
-    s32 ammoCount;
-    s32 orangeCount;
+    s32 healthAfter;
+    s32 healthLost;
     Actor *playerActor;
     PlayerInventory *score;
 
     playerActor = gPlayerSlots[playerIndex].actor;
     score = &gPlayerInventoryTable[playerIndex];
-    ammoCount = score->health + score->healthDelta + dropCount;
-    orangeCount = score->unk2FA - ammoCount;
-    if (slotQueueGetValue(1, playerIndex) != 0 && (ammoCount <= 0 || orangeCount >= 2)) {
+    healthAfter = score->health + score->healthDelta + delta;
+    healthLost = score->unk2FA - healthAfter;
+    if (slotQueueGetValue(1, playerIndex) != 0 && (healthAfter <= 0 || healthLost >= 2)) {
         ctrl = actorFindByType(0x13E)->customState;
         ctrl->crownSpawnDelay = 1;
         slotQueueAddValue(1, playerIndex, -10);
@@ -1048,10 +1047,8 @@ void mpRespawnPlayer(Actor *playerActor, s32 playerIndex) {
 }
 
 
-void mpCreditKill(u8 victimIndex, s8 killerIndex) {
-    void *points;
-    s32 pad0;
-    s32 pad1;
+void mpCreditKill(u8 victimIndex, s8 delta) {
+    s32 pad[3];
     PlayerInventory *victimScore;
     PlayerStruct *victimPlayer;
     Actor *killer;
@@ -1064,13 +1061,13 @@ void mpCreditKill(u8 victimIndex, s8 killerIndex) {
             killer = actorResolveKillCreditOwner(victimPlayer->queuedActor);
             if (killer != NULL && killer->collisionFlags == 1) {
                 killerState = killer->customState;
-                if (victimScore->health + victimScore->healthDelta + killerIndex <= 0) {
+                if (victimScore->health + victimScore->healthDelta + delta <= 0) {
                     gPlayerInventoryTable[killerState->playerIndex].kills[victimIndex]++;
                 }
             }
         }
     }
     if (D_807552E4.unk4 == 3 || D_807552E4.unk4 == 5) {
-        mpDropItemsOnHit(victimIndex, killerIndex);
+        mpDropItemsOnHit(victimIndex, delta);
     }
 }
