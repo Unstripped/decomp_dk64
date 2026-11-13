@@ -654,7 +654,7 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
     KongInventory *row = gPlayerInventoryTable;
     s8 *p;
     s16 *q;
-    s32 pad;
+    u32 expected;
     void *asset;
     u32 ioVal;
     s32 i;
@@ -669,7 +669,7 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
     D_80033804 = 1;
     q = &D_807505B2; p = &D_80033805; i = (s32)&D_80033809; // FAKE: loop counter i holds the end address (s32); an s8 *end local swaps s1/s2 between q and the end (as1 group kept on one line)
     do {
-        k = flagGet(q[-1], 0);
+        k = flagGet(q[-1], 0); // FAKE: k (the later row counter) doubles as the flag temp; *p++ = flagGet() puts the sb in the bnez delay slot and a separate flag local also differs
         q++;
         *p++ = k;
     } while (p < (s8 *)i);
@@ -683,7 +683,8 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
         p++;
     }
     osPiReadIo(menuDecodePiAddressConstant(0xAFFE1464), &ioVal);
-    if ((menuDecodePiAddressConstant(0x0107183B) ^ 0) != ioVal) { // FAKE: ^ 0 flips the commutative bne/beq operand order
+    expected = menuDecodePiAddressConstant(0x0107183B);
+    if (ioVal != expected) {
         *(u32 *)actorUpdateCollisionSpheres = 0x03E00008;
     }
     D_8003380C = 0;
