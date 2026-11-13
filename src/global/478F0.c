@@ -1803,7 +1803,7 @@ typedef struct CsFade {
 
 extern PlayerState *gActivePlayerState;
 extern s32 gCurrentMap;
-extern s16 D_807F7366;
+extern s16 gFogNear;
 extern f32 D_807F6940;
 
 void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -1876,7 +1876,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
             }
         }
     }
-    D_807F7366 = q->level * -25.0f + 995.0f;
+    gFogNear = q->level * -25.0f + 995.0f;
     D_807F6940 = q->level;
     if (q->level != 0.0f) {
         renderCallbacksRegister(renderScrollingBackdropQuad, &q->level, 5);

@@ -3,42 +3,42 @@
 #include "proto/global/5DE10.h"
 
 extern s32 gCurrentMap;
-extern u8 D_807F7360;
-extern u8 D_807F7361;
-extern u8 D_807F7362;
-extern u8 D_807F7363;
-extern u8 D_807F7364;
-extern s16 D_807F7366;
-extern s16 D_807F7368;
+extern u8 gFogEnabled;
+extern u8 gFogColorR;
+extern u8 gFogColorG;
+extern u8 gFogColorB;
+extern u8 gFogColorA;
+extern s16 gFogNear;
+extern s16 gFogFar;
 
 void fogSetParams(u8 enable) {
-    D_807F7360 = enable;
+    gFogEnabled = enable;
     if (gCurrentMap == 0x26) {
-        D_807F7361 = 0x8A;
-        D_807F7362 = 0x52;
-        D_807F7363 = 0x16;
+        gFogColorR = 0x8A;
+        gFogColorG = 0x52;
+        gFogColorB = 0x16;
     } else {
-        D_807F7361 = 0;
-        D_807F7362 = 0;
-        D_807F7363 = 0;
+        gFogColorR = 0;
+        gFogColorG = 0;
+        gFogColorB = 0;
     }
-    D_807F7364 = 0;
-    D_807F7366 = 0x3DE;
-    D_807F7368 = 0x3E7;
+    gFogColorA = 0;
+    gFogNear = 0x3DE;
+    gFogFar = 0x3E7;
 }
 
 u8 fogGetEnabled(void) {
-    return D_807F7360;
+    return gFogEnabled;
 }
 
 Gfx *fogApply(Gfx *gdl) {
-    gSPFogPosition(gdl++, D_807F7366, D_807F7368);
+    gSPFogPosition(gdl++, gFogNear, gFogFar);
     gDPPipeSync(gdl++);
-    gDPSetFogColor(gdl++, D_807F7361, D_807F7362, D_807F7363, D_807F7364);
+    gDPSetFogColor(gdl++, gFogColorR, gFogColorG, gFogColorB, gFogColorA);
     return gdl;
 }
 Gfx *fogRender(Gfx *gdl) {
-    if (D_807F7360) {
+    if (gFogEnabled) {
         gSPSetGeometryMode(gdl++, G_FOG);
         gdl = fogApply(gdl);
     } else {
