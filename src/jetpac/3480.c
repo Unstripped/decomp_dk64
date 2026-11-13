@@ -84,8 +84,7 @@ typedef struct JetW2FpABox {
 
 void jetpacRocketItemUpdate(JetpacItem *item) {
     JetpacPlayer *inner = &jetpacGame.players[jetpacGame.activePlayer];
-    f32 *playerX;
-    f32 *playerY;
+    JetpacPlayerActor *player;
     JetW2FpABox *playerBox;
 
     if (item->unk1C == 0) {
@@ -101,8 +100,7 @@ void jetpacRocketItemUpdate(JetpacItem *item) {
     if (item->unk1C == 1) {
         item->unk1C = 2;
     }
-    playerX = &jetpacPlayer.player.x; // FAKE: pointer to global steers load order/regalloc of box args
-    playerY = &D_8002F054; // FAKE: pointer to global steers load order/regalloc of box args
+    player = &jetpacPlayer.player; // FAKE: pointer to the jetman keeps player->x/y uncoloured ilods loaded late for the box args (direct reads colour early)
     playerBox = (JetW2FpABox *)&D_8002F06C; // FAKE: pointer view of global steers its load
     if (item->unk38 == 0) {
         if (item->unk14 > 0.0f && D_8002F064 != 4) {
@@ -117,8 +115,8 @@ void jetpacRocketItemUpdate(JetpacItem *item) {
         }
         if (D_8002F064 == 3) {
             if (jetpacCheckAabbOverlapWrapped(item->unk8 + item->unk24, item->unkC + item->unk28, item->unk8 + item->unk2C, item->unkC + item->unk30,
-                              *playerX + D_8002F06C, *playerY + D_8002F070, *playerX + D_8002F074,
-                              *playerY + D_8002F078)) {
+                              player->x + D_8002F06C, player->y + D_8002F070, player->x + D_8002F074,
+                              player->y + D_8002F078)) {
                 item->unk38 = 1;
                 inner->score += item->unk3C;
                 jetpacPlaySound(4);
@@ -235,8 +233,7 @@ void jetpacBonusItemUpdate(JetpacItem *item) {
     s32 flashTime;
     s32 colorTime;
     s32 blinkTime;
-    f32 *playerX;
-    f32 *playerY;
+    JetpacPlayerActor *player;
 
     if (inner->unkC == 0) {
         return;
@@ -248,8 +245,7 @@ void jetpacBonusItemUpdate(JetpacItem *item) {
     if (item->unk1C == 1) {
         item->unk1C = 2;
     }
-    playerX = &jetpacPlayer.player.x; // FAKE: pointer to global steers load order/regalloc of box args
-    playerY = &D_8002F054; // FAKE: pointer to global steers load order/regalloc of box args
+    player = &jetpacPlayer.player; // FAKE: pointer to the jetman keeps player->x/y uncoloured ilods loaded late for the box args (direct reads colour early)
     if (item->unk38 == 0) {
         if (item->unk14 > 0.0f) {
             s32 hit = jetpacCheckLedgeCollision(item->unk24 + item->unk8 + item->unk10, item->unk28 + item->unkC + item->unk14,
@@ -263,8 +259,8 @@ void jetpacBonusItemUpdate(JetpacItem *item) {
         }
         if (jetpacGame.gameState == 2 && D_8002F064 == 3) {
             if (jetpacCheckAabbOverlapWrapped(item->unk8 + item->unk24, item->unkC + item->unk28, item->unk8 + item->unk2C, item->unkC + item->unk30,
-                              *playerX + D_8002F06C, *playerY + D_8002F070, *playerX + D_8002F074,
-                              *playerY + D_8002F078)) {
+                              player->x + D_8002F06C, player->y + D_8002F070, player->x + D_8002F074,
+                              player->y + D_8002F078)) {
                 if (item->unk40 == 6) {
                     flagSet(0x62, 1, 2);
                 }
@@ -579,7 +575,6 @@ s32 jetpacCheckLedgeEdge(s32 ledgeIndex, s32 x1, s32 x2) {
 extern JetpacSprite D_8002DE68;
 extern JetpacSprite D_8002DE80;
 extern JetpacSprite D_8002DE98;
-extern u8 D_8002EF90[];
 
 void jetpacDrawLedges(void) {
     s32 i;
@@ -589,16 +584,16 @@ void jetpacDrawLedges(void) {
     JetpacLedge *l;
 
     for (i = 0; i < 4; i++) {
-        x = (s32)jetpacGame.ledges[i].x;
-        y = (s32)jetpacGame.ledges[i].y;
-        l = &jetpacLedges[i];
-        jetpacGridAddTiledSprite(&D_8002DE68, x, y, &D_8002EF90[i * 0x34], 0); // FAKE: split label of jetpacLedges[i].color, index spelling (vs pointer add below) keeps a second IV copy in $s8 beside $s3
+        l = &jetpacGame.ledges[i];
+        x = l->x;
+        y = l->y;
+        jetpacGridAddTiledSprite(&D_8002DE68, x, y, l->color, 0);
         x += 8;
         for (j = 0; j < l->unk30; j++) {
-            jetpacGridAddTiledSprite(&D_8002DE80, x, y, D_8002EF90 + i * 0x34, 0);
+            jetpacGridAddTiledSprite(&D_8002DE80, x, y, l->color, 0);
             x += 8;
         }
-        jetpacGridAddTiledSprite(&D_8002DE98, x, y, D_8002EF90 + i * 0x34, 0);
+        jetpacGridAddTiledSprite(&D_8002DE98, x, y, l->color, 0);
     }
 }
 
