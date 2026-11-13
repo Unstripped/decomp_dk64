@@ -233,7 +233,7 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
     s16 y;
     s32 alpha;
     G00Entry *viewport;
-    PlayerInventory *score;
+    PlayerInventory *inventory;
 
     gDPPipeSync(glistp++);
     gSPDisplayList(glistp++, &D_1000118);
@@ -257,17 +257,17 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
             continue;
         }
         gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, alpha);
-        score = &gPlayerInventoryTable[i];
+        inventory = &gPlayerInventoryTable[i];
         if (gSplitScreenMode == 0) {
             glyphX = viewport->right - 0x30;
         } else {
             glyphX = (s16) ((f32) (i + 1) * spacing - 20.0);
         }
         y = viewport->top + 8;
-        if (score->health < 0) {
+        if (inventory->health < 0) {
             count = 0;
         } else {
-            count = score->health;
+            count = inventory->health;
         }
         half = count / 2;
         if (half != 0) {
