@@ -768,22 +768,21 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
 
 
 
-Gfx *mapViewDrawPass(Gfx *gfx, MapViewEntries *arg1, u8 arg2) {
+Gfx *mapViewDrawPass(Gfx *gfx, MapViewEntries *view, u8 pass) {
     s32 i;
     u8 idx;
 
-    for (i = 0; i < arg1->unkC5; i++) {
-        if (arg2 == arg1->unkB9[i] && (arg1->unk88[i] == -1 || mapChunkIsActive(arg1->unk88[i]) != 0)) {
-            gfx = mapSurfaceEffectDraw(gfx, arg1->unk70[i]);
+    for (i = 0; i < view->unkC5; i++) {
+        if (pass == view->unkB9[i] && (view->unk88[i] == -1 || mapChunkIsActive(view->unk88[i]) != 0)) {
+            gfx = mapSurfaceEffectDraw(gfx, view->unk70[i]);
             gSPClearGeometryMode(gfx++, G_CULL_BACK);
-            idx = arg1->unkAC[i];
+            idx = view->unkAC[i];
             if (D_807F5FB8[idx].unk80 != 0.0 && D_807F5FB8[idx].unk8C != 0) {
-                gSPMatrix(gfx++, osVirtualToPhysical((u8 *)D_807F5FB8 + idx * 0x90 + (gGfxBufferIndex << 6)),
-                          G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-                gSPDisplayList(gfx++, osVirtualToPhysical(arg1->unk1C[i]));
+                gSPMatrix(gfx++, osVirtualToPhysical(&D_807F5FB8[idx].mtx[gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+                gSPDisplayList(gfx++, osVirtualToPhysical(view->unk1C[i]));
                 gSPPopMatrix(gfx++, G_MTX_MODELVIEW);
             } else {
-                gSPDisplayList(gfx++, osVirtualToPhysical(arg1->unk1C[i]));
+                gSPDisplayList(gfx++, osVirtualToPhysical(view->unk1C[i]));
             }
             gDPPipeSync(gfx++);
         }
