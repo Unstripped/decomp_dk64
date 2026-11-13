@@ -14,7 +14,7 @@ void alCSPSetChlFX1Mix(ALCSPlayer *seqp, u8 chan, u8 vol) {
 }
 
 void alCSPSetChlPanVolume(ALCSPlayer *seqp, f32 pan, f32 volume) {
-    s32 unused;
+    s32 pad;
     struct {
         s16 type;
         s16 pad;
