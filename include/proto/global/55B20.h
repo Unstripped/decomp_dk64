@@ -170,7 +170,7 @@ void mapChunkReleaseAndAdvance(void);
 s32 mapNodeIdListContains(s16, s32);
 #endif
 #ifndef PROTO_SKIP_mapChunksRender
-Gfx *mapChunksRender(Gfx *, void *, f32, f32, f32, s32);
+Gfx *mapChunksRender(Gfx *, struct MapViewEntries *, f32, f32, f32, s32);
 #endif
 #ifndef PROTO_SKIP_mapChunkEmitLayerDisplayLists
 Gfx *mapChunkEmitLayerDisplayLists(Gfx *, s32, u8);
