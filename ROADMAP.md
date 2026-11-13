@@ -156,25 +156,26 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 31 (2026-11-12, final)** — global/13CE70, 14CF0, 16A20, C4620, 42630 (cutscene.h `unk5E` u16; 119370 `effectGridFindByTargetId` returns `EffectGridAsset *`); ParticleRingBatch (`bossSpawnParticleRing` ANSI); round-30 tail Rev30. cfe warnings 27 → 26; proto-steer 52 → 48.
 - [x] **Round 32 (2026-11-12)** — global/7A510, 117190, 119370, 100180, boss/F0D0 (ledger-only), global/14CF0 (2 FAKE removed); all 6 files EXHAUSTED. FAKE 730 → 728; OPEN 135 → 121.
 - [x] **Round 33 (2026-11-12, stopped early)** — global/70FD0 (FAKE removed), race/A960 (views retired), race/7BD0 (string/scalar types), global/6710 (partial ledger). Knowledge Q0701–Q0703.
-- [ ] Paused after round 33. Leftovers: 156 OPEN functions in 108 files (the Q0701–Q0703 commit staled codegen rungs) and the blocked owner/header changes, listed in `.omp/skills/cleanup-unit/pending.md`; resume from `uv run tools/quality.py rank`.
+- [x] **Round 34 (2026-11-13)** — global/36880, 103AB0, 42630, menu/3E10 (ledger-only), global/70FD0 (views 4 → 0, m2c names 111 → 0), global/450 (3 FAKE removed, views retired); shared `MpSettings` in actor.h (5 files' views retired, fields named, `D_807552EC` folded), `PlayerState.attackerSpawnNodeId` s8; carry learned body renames and header field renames (`--func`); re-review Rev34A–C (multiplayer/0 volatile removed). Knowledge Q0704–Q0719.
+- [ ] Paused after round 34. Leftovers: 275 OPEN functions in 132 files (the Q0704–Q0719 commit staled 147 functions' codegen rungs, not re-recorded) and the blocked owner/header changes, listed in `.omp/skills/cleanup-unit/pending.md`; resume from `uv run tools/quality.py rank`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 33):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-13, after round 34):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 727 | 583 |
+| FAKE | 728 | 583 |
 | FAKE dead-if | 267 | 263 |
 | FAKE proto-steer | 48 | 134 |
-| FAKE other kinds | 412 | 186 |
+| FAKE other kinds | 413 | 186 |
 | LAYOUT | 69 | 47 |
 | goto | 35 | 39 |
 | proto-type (`// PROTO:`) | 6 | 0 |
 | protos mismatch | 23 | 1,202 |
-| reviewed / exhausted functions | 4,219 / 4,114 of 4,270 | 0 |
+| reviewed / exhausted functions | 4,207 / 3,995 of 4,270 | 0 |
 | cfe warnings (start column = round 9 start, when tracking began) | 26 | 1,890 |
 | uninit warnings (clint checks every function) | 251 | 122 |
-| `func_` definitions | 430 | 457 |
-| m2c names | 392 | 5,040 |
+| `func_` definitions | 427 | 457 |
+| m2c names | 282 | 5,040 |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 

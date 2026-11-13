@@ -37,7 +37,7 @@ its cfe warning code plus the line's normalized code. Kinds:
 |`classify`|sweep|dead-if → `if (<int local>) {}`; match = class 1 (`kept`), none = class 2; a dead test sharing its line is `nohit` (`no guard`). By-hand removals/flips of such sites go into the `diagnose` note: the next sweep's event supersedes a hand-recorded sweep method|
 |`consolidate`|protos.py|remove the file's declaration in favour of the shared header|
 |`diagnose`|agent|uopt/as1 diagnosis; `quirks=Q....` required|
-|`permute`|agent|`tools/permute.py run -j 2 --seconds ≥600`; `seconds=`, `base=`, `best=` required (a run stopped at `best=0` may be shorter)|
+|`permute`|agent|`tools/permute.py run -j 2 --seconds ≥600`; `seconds=`, `base=`, `best=` required (a run stopped at `best=0` may be shorter); the lead checks `seconds=` against `setup.json` → first `output-*` mtime and `base=` against the log `Setup: ... baseline N` (r34 corrected 6)|
 |`reconstruct`|agent|rewrite of the function from scratch around the steering|
 |`goto-hand`|agent|structured-control rewrite of a goto|
 |`views`|agent|types phase result (function-level)|
@@ -74,7 +74,7 @@ Tooling rules (were Q0626/Q0634/Q0638):
 |`proto-type`|never (types phase: record `views` `blocked` with the reason)|
 |`warning`|`retype` (`fixed`; `kept` only with `note="tried <change>; fdiff=<1\|3>"`; `blocked` keeps it open)|
 
-A function with 3+ non-kept sites (warning sites not counted) also needs a fresh function-level `reconstruct`.
+A function with 3+ non-kept sites (warning sites not counted) also needs a fresh function-level `reconstruct` — also when tagging pre-existing hacks lifts it to 3 (r34 3E10).
 
 ## Freshness
 
@@ -108,6 +108,11 @@ A function with 3+ non-kept sites (warning sites not counted) also needs a fresh
 - A method counts through its newest event by time (carried events keep their original time) if
   that is fresh and not `blocked`. A fresh `hit` makes the site OPEN `next=apply` (the sweep found
   a match nobody merged yet).
+- `carry` re-stamps a body that differs only by local/param renames even beside unrelated
+  file-scope edits (abee1d87, `(renames; unrelated file-scope changes only)`), and renamed fields of
+  an `include/` record that keep its layout (8220de44); `--func NAME` limits it to named
+  functions so a second pass never duplicates events. A fold (`D_x` → `base.field`), a renamed
+  site line (new key) and a reached type change are never carried: those go to re-review.
 
 ## Function state
 
