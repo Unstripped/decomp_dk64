@@ -7,7 +7,6 @@ State at the round-27 knowledge commit (460c9717): 178 OPEN functions in 98 file
 - critter/5110 D_807FCC40/44 split labels stay (round 27, def29e0b): folding them into gPlayerInventoryTable fails because the folded form shares one table base (Q0687); the u8 pun is now `extern u16 D_807FCC40[]`, tagged.
 - ACDC0: D_807FC828..D_807FC838 are one s16[9] collectible-count table; declaring the array changes codegen (text 16 bytes smaller), kept as separate symbols.
 - 2F550 MapViewEntries proposal (.scratch/Rev24/header-request.md), held.
-- gGameFrameCounter: s32 and u32 externs (4+4 files), needs one shared u32 declaration.
 - Actor.soundSlots[0] (0x6E) is a frame counter in BC3B0 (beep timing): the shared field name may be too narrow (header owner).
 - 55B20 MapZone.tris as MapTriangle * would remove 23 casts (a natural rewrite does not match yet); mapChunksRender never reviewed (blocked on 2F550 MapViewEntries + 35000 renderEntryListBuildDisplayList u8).
 - arcade/0: tag the same `i += 0x24` hack in arcadeSpawnStage3Entities.
