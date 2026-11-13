@@ -2430,7 +2430,6 @@ void modelSlotsStepSegmentCommands(void) {
     ModelAssetHeader *obj;
     ModelSlot *slot;
     u32 start;
-    u32 len;
 
     if (gModelSlotCount != 0) {
         D_80747D74++;
@@ -2452,13 +2451,11 @@ void modelSlotsStepSegmentCommands(void) {
                 mid = seg->unkA8;
                 head = seg->unkA0;
                 start = head;
-                len = seg->unkB0 - mid;
+                count = seg->unkB0 - mid;
                 head = (mid - head) >> 3;
-                count = len >> 3;
+                count >>= 3;
                 dlFreeSegmentCommandTextures((DisplayListCmd *)start, (DisplayListCmd *)start + head, flag);
-                len = count;
-                count = 0; // FAKE: dead store keeps count a separate web from len
-                dlFreeSegmentCommandTextures((DisplayListCmd *)seg->unkA8, (DisplayListCmd *)seg->unkA8 + len, flag);
+                dlFreeSegmentCommandTextures((DisplayListCmd *)seg->unkA8, (DisplayListCmd *)seg->unkA8 + count, flag);
             }
         }
     }
