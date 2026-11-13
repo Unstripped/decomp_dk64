@@ -144,10 +144,6 @@ void arcadeLoadHighScores(void) {
     D_8004A760 = D_8004A74C[0];
 }
 
-extern u8 D_8004C725;
-extern u8 D_8004C726;
-extern u8 D_8004C727;
-extern u8 D_8004C728;
 void arcadeSetTextColor(s32 r, s32 g, s32 b, s32 a) {
     D_8004C725 = r;
     D_8004C726 = g;
@@ -1391,7 +1387,7 @@ void arcadeSpawnStage3Entities(void) {
     D_8004BCD0[D_8004C71F].x = 56.0f;
     D_8004BCD0[D_8004C71F].y = 231.0f;
     D_8004C170 = D_8004A478;
-    i = i + 0x24;
+    i = i + 0x24; // FAKE: adding onto the early i = 0 steers regalloc (plain i = 0x24 grows .text by 16 bytes)
     p = &D_8004BCD0[i];
     *p = D_8004A478;
     p->x = 144.0f;
