@@ -15,7 +15,6 @@ State at the round-27 knowledge commit (460c9717): 178 OPEN functions in 98 file
 - D_807552E4 MpSettings: different views in 117190, CC800, CEAE0, menu/3E10 (shared type needed).
 - Shared MapViewEntries (owner 2F550, 0x8 = dl) would let 55B20 drop MapChunkArg; renderEntryListBuildDisplayList last parameter s32 vs u8 (owner 35000) blocks the mapChunksRender proto-steer.
 - jetpac/4FC0 `extern JetpacPlayerActor jetpacPlayer`: JetpacState raises its cfe 1 -> 2 (3480 and 1A60 already use JetpacState).
-- Shared boot inflate header (`.scratch/CleanBoot1CC0/header-request.md`): inptr/outcnt are u32 in 1CC0 vs s32 in 30E0 (include/boot.h now exists).
 - gActiveActors/gActiveActorCount: file-local externs in 33 files (header move candidate, actor.h).
 - 42630 csCmdExec proto-type 89a542 (hudSpawnCountdownTimer arity, owner A7710) and W712 3ae317 (effectCreateAtModelNode, owner 119370); 450 2e505d actorMapModelsSetup. Round 27: 8D3E0 kept actorMapModelsSetup(s32, u8, u8) (not resolved).
 - Extern unification left: gPlayerSlots keeps void * in 1025E0, 10E1D0, 11BC10, 12E800, 1332B0, 2C910, F93B0, FCCD0, u8 * in 9BF30, s32 in 9DD70, plus 17 file-local view types (retire the views first).
