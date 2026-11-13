@@ -1,4 +1,3 @@
-#define PROTO_SKIP_actorCalcPlaneContactPoint
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
@@ -21,7 +20,6 @@
 #include "proto/global/7CA80.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/FE40.h"
-void actorCalcPlaneContactPoint(Actor *actor, s16 slot, ActorSub140 *hit);
 
 
 typedef struct BufferCacheEntry {

@@ -7,8 +7,6 @@
 #include "heap.h"
 #include "map.h"
 #include "model.h"
-struct ActorHitPlane;
-struct ActorPlaneContactView;
 struct CollisionAssetTri;
 struct CollisionTri;
 #ifndef PROTO_SKIP_collisionBuildSlotBoxes
@@ -156,7 +154,7 @@ void func_8066FE08(s32);
 s32 actorResolveModelSlotCollision(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorCalcPlaneContactPoint
-void actorCalcPlaneContactPoint(struct ActorPlaneContactView *, s16, struct ActorHitPlane *);
+void actorCalcPlaneContactPoint(Actor *, s16, ActorSub140 *);
 #endif
 #ifndef PROTO_SKIP_actorSetTargetAngleBounds
 void actorSetTargetAngleBounds(struct CollisionBox *);
