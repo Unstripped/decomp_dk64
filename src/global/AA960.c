@@ -480,7 +480,7 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
         state->unk1 = 1;
         state->unkA = ((BehaviourConfig *)gCurrentActor->spawnData)->unk8;
         gCurrentActor->unkFA = 0x270F;
-        func_806C9974(0, 0x40);
+        playerAddHealthDelta(0, 0x40);
     }
     if ((f32)state->unk8 < 30.0f) {
         state->unk8++;

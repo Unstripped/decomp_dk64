@@ -477,7 +477,7 @@ void bonusMazeChallengeUpdate(void) {
         }
         if (gPrimaryPlayerActor->state == 0x39) {
             mapTransitionToPreviousOrExit();
-            func_806C9974(0, 0x40);
+            playerAddHealthDelta(0, 0x40);
             gCurrentActor->state = 2;
         }
         break;

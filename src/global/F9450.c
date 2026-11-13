@@ -571,7 +571,7 @@ void func_806F54E0(u8 playerIndex, s32 modelType, u8 collisionOverride) {
             slotQueueAddValue(slot, playerIndex, 0x96);
             break;
         case 0x57:
-            func_806C9974(playerIndex, 1);
+            playerAddHealthDelta(playerIndex, 1);
             break;
         case 0x13C:
             shouldComplete = 1;

@@ -863,7 +863,7 @@ s8 func_806C9830(s8 delta, Actor *actor) {
 
 void func_80026E20(u8, s8);
 
-s32 func_806C9974(u8 playerIndex, s8 delta) {
+s32 playerAddHealthDelta(u8 playerIndex, s8 delta) {
     PlayerStruct *pl;
 
     pl = &gPlayerSlots[playerIndex];

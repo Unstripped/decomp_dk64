@@ -223,7 +223,7 @@ void bossKRoolChunkyStep(void) {
                 playerSetSizeMode(gPrimaryPlayerActor, 1);
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
                 if (gCurrentActor->interactionType != 1) {
-                    if (func_806C9974(0, -1) != 0) {
+                    if (playerAddHealthDelta(0, -1) != 0) {
                         actorScriptStartByIndex(gPrimaryPlayerActor, 0x27);
                         gPrimaryPlayerActor->state = 0x36;
                         gPrimaryPlayerActor->unk155 = 0;

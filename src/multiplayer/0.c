@@ -691,7 +691,7 @@ void mpApplyPendingEffect(s32 playerIndex) {
             playerState->unk200 = 0x96;
             break;
         case 3:
-            func_806C9974(playerIndex, 0x40);
+            playerAddHealthDelta(playerIndex, 0x40);
             break;
         case 4:
             actorSpawnEffectChild(playerActor->x, playerActor->y, playerActor->z, 0.1f, 0.1f, playerActor, 1);

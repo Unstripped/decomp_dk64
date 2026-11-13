@@ -3803,6 +3803,7 @@ actorLightPulseUpdate = 0x8069E774; // type:func
 actorSparkCutsceneUpdate = 0x806A1AC4; // type:func
 actorUpdateLockOnCursor = 0x806B7EA0; // type:func
 playerMountBarrel = 0x806C7BAC; // type:func
+playerAddHealthDelta = 0x806C9974; // type:func
 playerClampToWaterSurface = 0x806CC364; // type:func
 playerHeldActorAlignStep = 0x806CF138; // type:func
 playerSlotMatchesSizeMask = 0x806D0964; // type:func

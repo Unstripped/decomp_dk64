@@ -1067,7 +1067,7 @@ void playerStateThrowHeldActorWithScript(void) {
 void playerStateEnterDamageTake(void) {
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
         playerClearCarriedItemState();
-        if (func_806C9974(gCurrentPlayerIndex, -1) != 0) {
+        if (playerAddHealthDelta(gCurrentPlayerIndex, -1) != 0) {
             if (gActivePlayerActor->contactFlags & 4) {
                 actorScriptStartByIndex(gActivePlayerActor, 0x29);
             } else {
@@ -1115,7 +1115,7 @@ void playerStateDamageSelector(void) {
         if ((target != NULL) && (target->actorType == 0x123)) {
             selector = -2;
         }
-        if (func_806C9974(gCurrentPlayerIndex, selector) != 0) {
+        if (playerAddHealthDelta(gCurrentPlayerIndex, selector) != 0) {
             shake = 0;
             if (gActivePlayerActor->contactFlags & 4) {
                 actorScriptStartByIndex(gActivePlayerActor, 0x29);
@@ -1143,7 +1143,7 @@ void playerTakeFallDamage(void) {
     s32 shake = 1;
 
     playerClearCarriedItemState();
-    if ((playerCanTakeHit(gActivePlayerActor) != 0) && (func_806C9974(gCurrentPlayerIndex, -1) != 0)) {
+    if ((playerCanTakeHit(gActivePlayerActor) != 0) && (playerAddHealthDelta(gCurrentPlayerIndex, -1) != 0)) {
         shake = 0;
         if ((gActivePlayerActor->contactFlags & 4) != 0) {
             actorScriptStartByIndex(gActivePlayerActor, 0x29);
@@ -1270,7 +1270,7 @@ void playerStateDamageCheck2(void) {
         gCurrentActor->state = 0x34;
         gCurrentActor->unk155 = 0;
         actorScriptStart(gCurrentActor, 0);
-        func_806C9974(gCurrentPlayerIndex, -0x40);
+        playerAddHealthDelta(gCurrentPlayerIndex, -0x40);
         playerSetBaseGravity();
         scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
     }
@@ -1351,7 +1351,7 @@ void playerTakeDamage(s16 damage) {
                     (func_807142D8() == 0)) {
                     healthDelta = func_806C9830((s8)-damage, gActivePlayerActor);
                     if (healthDelta < 0) {
-                        isDead = func_806C9974(gCurrentPlayerIndex, healthDelta);
+                        isDead = playerAddHealthDelta(gCurrentPlayerIndex, healthDelta);
                     }
                 }
                 if (isDead != 0) {
@@ -1531,7 +1531,7 @@ void playerStateEnterDamageReaction(void) {
     gActivePlayerState->unk11C = 0x19;
     camSnapToTargetHeight(gActivePlayerState->camActor);
     if ((gCurrentMap != 0x52) && (gCurrentMap != 0xE)) {
-        func_806C9974(gCurrentPlayerIndex, -0x40);
+        playerAddHealthDelta(gCurrentPlayerIndex, -0x40);
     } else {
         ride = gActivePlayerState->actor->customState;
         ride->unk45 = 1;
@@ -1548,7 +1548,7 @@ void playerStateEnterDamageReaction2(void) {
                 actorScriptStartByIndex(gActivePlayerActor, 0x2A);
                 gActivePlayerActor->state = 0x3B;
                 gActivePlayerActor->unk155 = 0;
-                func_806C9974(gCurrentPlayerIndex, -0x40);
+                playerAddHealthDelta(gCurrentPlayerIndex, -0x40);
                 camStartPath(gActivePlayerActor, 0xB, 0x85);
                 gActivePlayerActor->speedXZ = 0.0f;
             }

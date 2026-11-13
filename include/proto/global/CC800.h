@@ -84,8 +84,8 @@ struct G01Pos *func_806C96C4(s32);
 #ifndef PROTO_SKIP_func_806C9830
 s8 func_806C9830(s8, Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806C9974
-s32 func_806C9974(u8, s8);
+#ifndef PROTO_SKIP_playerAddHealthDelta
+s32 playerAddHealthDelta(u8, s8);
 #endif
 #ifndef PROTO_SKIP_playerResetSpawnGlobals
 void playerResetSpawnGlobals(void);
