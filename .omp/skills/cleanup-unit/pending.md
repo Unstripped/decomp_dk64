@@ -4,8 +4,6 @@ State at the round-30 knowledge commit (0ebf89ca): 170 OPEN functions in 106 fil
 
 ## Blocked owner/header changes
 - Cast sweep (round 30): 55B20 MapChunk.lastSeenFrame and 61AA0 BillboardCacheEntry.lastUsedFrame stay s32 (u32 retype fdiff 1). model.h/heap.h frame stamps landed u32 after Rev29.
-- boss/3840 `bossSpawnParticleRing` K&R -> `(u16, s16, s16, s16, s16, u8)` (DAA0 header request): callers boss/0, 52B0, 6240, F0D0 need stand-ins.
-- boss/DAA0 bossSpawnerUpdate proto-steers c617f1 and 263392 (bossSpawnParticleRing local `(u16, s16, s16, s16, s16, u8)`) wait on a boss/3840 owner retype, or stay (sfx int bit-pattern args).
 - 90D80 renderRotatedSprite proto-steer (02809d, 0d85ab) stays: the 103AB0 owner is 32-bit by its own asm (texWidth forwarded in a3 without andi, texHeight read with lw 0x60(sp)); a u8 owner adds andi/lbu. Closed as not applicable (round 29, dbf5cc61: owner texWidth/texHeight u32 instead).
 - critter/5110 D_807FCC40/44 split labels stay (round 27, def29e0b): folding them into gPlayerInventoryTable fails because the folded form shares one table base (Q0687); the u8 pun is now `extern u16 D_807FCC40[]`, tagged.
 - ACDC0: D_807FC828..D_807FC838 are one s16[9] collectible-count table; declaring the array changes codegen (text 16 bytes smaller), kept as separate symbols.
