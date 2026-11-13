@@ -168,7 +168,7 @@ void modelQuadBuildOutput(ModelSlot *, f32, f32, f32, f32, f32, f32, f32, f32);
 void modelSlotLoadAssetTextures(ModelAssetHeader *, struct ModelSlotAsset *);
 #endif
 #ifndef PROTO_SKIP_modelSlotClearAssetTextures
-void modelSlotClearAssetTextures(s32, struct ModelSlotAsset *);
+void modelSlotClearAssetTextures(ModelAssetHeader *, struct ModelSlotAsset *);
 #endif
 #ifndef PROTO_SKIP_modelSlotsFreeAll
 void modelSlotsFreeAll(void);
@@ -195,7 +195,7 @@ void modelSlotFreeTexAnimNodes(struct ModelSlot *);
 void modelSlotFreeTexAnimBuffers(struct ModelNodeBufferOwner *, u8);
 #endif
 #ifndef PROTO_SKIP_modelSlotFreeAssetTextures
-void modelSlotFreeAssetTextures(u8 *, u8);
+void modelSlotFreeAssetTextures(struct ModelSlotAsset *, u8);
 #endif
 #ifndef PROTO_SKIP_modelSlotFreeNestedBuffer
 void modelSlotFreeNestedBuffer(s32, u8);
@@ -237,7 +237,7 @@ void dlFreeSegmentCommandTextures(struct DisplayListCmd *, struct DisplayListCmd
 void modelSlotsStepSegmentCommands(void);
 #endif
 #ifndef PROTO_SKIP_modelSlotResolveAssetTextures
-s32 modelSlotResolveAssetTextures();
+void modelSlotResolveAssetTextures(ModelSlot *, u8, u8);
 #endif
 #ifndef PROTO_SKIP_dlResolveNodeTextures
 s32 dlResolveNodeTextures(struct DisplayListCmd *, struct DisplayListCmd *, struct ModelSegmentNode *, u8);

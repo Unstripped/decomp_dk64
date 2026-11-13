@@ -1554,6 +1554,8 @@ typedef struct ModelSlotAsset {
     /* 0x21 */ u8 pad21[3];
     /* 0x24 */ void *unk24[4];
     /* 0x34 */ void *unk34[4];
+    /* 0x44 */ u8 pad44[0xC];
+    /* 0x50 */ s32 unk50;
 } ModelSlotAsset;
 
 void modelSlotLoadAssetTextures(ModelAssetHeader *asset, ModelSlotAsset *textures) {
@@ -1578,7 +1580,7 @@ void modelSlotLoadAssetTextures(ModelAssetHeader *asset, ModelSlotAsset *texture
     }
 }
 
-void modelSlotClearAssetTextures(s32 asset, ModelSlotAsset *textures) {
+void modelSlotClearAssetTextures(ModelAssetHeader *asset, ModelSlotAsset *textures) {
     s32 i;
 
     for (i = 0; i < textures->unk20; i++) {
@@ -1961,35 +1963,33 @@ void modelSlotFreeTexAnimBuffers(ModelNodeBufferOwner *owner, u8 type) {
     }
 }
 
-void modelSlotFreeAssetTextures(u8 *asset, u8 type) {
-    s32 *p;
-    u8 *base;
-    s32 *cur;
+void modelSlotFreeAssetTextures(ModelSlotAsset *asset, u8 type) {
+    void **p;
+    ModelSlotAsset *base;
     s32 i;
     void *q;
 
-    if (type == 2 && *(s32 *)(asset + 0x50) == 0) {
+    if (type == 2 && asset->unk50 == 0) {
         base = asset;
         i = 0;
-        p = (s32 *)asset;
-        if (base[0x20] > 0) {
+        p = (void **)asset;
+        if (base->unk20 > 0) {
             do {
-                q = (void *)p[9];
+                q = p[9];
                 if (q != NULL) {
                     assetFreeBuffer(q, 0xA2B, 7);
-                    p[9] = 0;
+                    p[9] = NULL;
                 }
                 if (base) {} // FAKE: dead test steers register colouring
-                cur = p;
-                q = (void *)cur[13];
+                q = p[13];
                 if (q != NULL) {
                     assetFreeBuffer(q, 0xA30, 7);
                     if (base && base && base) {} // FAKE: dead test steers register colouring
-                    p[13] = 0;
+                    p[13] = NULL;
                 }
                 i++;
                 p++;
-            } while (i < base[0x20]);
+            } while (i < base->unk20);
         }
     }
 }
@@ -2468,14 +2468,10 @@ void modelSlotsStepSegmentCommands(void) {
 
 
 
-s32 modelSlotResolveAssetTextures(slot, forceLoad, force)
-ModelSlot *slot;
-u8 forceLoad;
-u8 force;
-{
+void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
     ModelSegmentData *seg;
     ModelAssetHeader *obj;
-    ModelSegmentData *volatile seg2; // FAKE: memory copy of seg that the else branch reads back (target reloads 0x3C(sp))
+    ModelSlotAsset *volatile textures; // FAKE: memory copy of seg that the else branch reads back (target reloads 0x3C(sp))
     u32 temp;
     u32 cmds;
     u32 count;
@@ -2487,7 +2483,7 @@ u8 force;
 
     temp = (u32)slot->unk24;
     seg = slot->unk20;
-    seg2 = seg;
+    textures = (ModelSlotAsset *)seg;
     obj = (ModelAssetHeader *)temp;
     obj->unk8 = gFrameCounter;
     flags = slot->unk8C;
@@ -2520,10 +2516,10 @@ u8 force;
                     obj->unk0 &= ~0x10;
                 }
             } else {
-                if (((ModelType2Obj *)seg2)->unk50 != 0 || forceLoad != 0) {
-                    modelSlotLoadAssetTextures(obj, (ModelSlotAsset *)seg2);
+                if (textures->unk50 != 0 || forceLoad != 0) {
+                    modelSlotLoadAssetTextures(obj, textures);
                 } else {
-                    modelSlotClearAssetTextures((s32)obj, (ModelSlotAsset *)seg2);
+                    modelSlotClearAssetTextures(obj, textures);
                 }
             }
         }
@@ -3781,7 +3777,7 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
     s32 pad5;
     ModelSlot *slots;
     f32 *zPtr;
-    s32 i;
+    u8 i;
     f32 *px;
     f32 *py;
     f32 *pz;
@@ -3801,8 +3797,7 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
             case 3:
             case 6:
                 best = 1e8f;
-                for (i = 0; i < gViewportCount; i = (u8)(i + 1)) {
-                    
+                for (i = 0; i < gViewportCount; i++) {
                     if (gPlayerSlots[i].active != 0) {
                         if (entry && entry) {}  // FAKE: dead test steers register colouring
                         if (obj->unk54 == 6) {
@@ -3821,7 +3816,6 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
                         }
                         if (slots && slots) {}  // FAKE: dead test steers register colouring
                     }
-                    
                 }
                 allow &= best < (f32)obj->unk58;
                 break;
