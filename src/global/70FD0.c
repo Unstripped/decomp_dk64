@@ -231,7 +231,7 @@ void collisionInitStaticCache(MapFileHeader *header) {
     s32 relativeOffset;
     s32 i;
     s32 cellEnd;
-    s32 elem_size;
+    s32 pad1;
     s32 assetSize;
     s32 pad2;
     void *gzWork;
@@ -255,7 +255,6 @@ void collisionInitStaticCache(MapFileHeader *header) {
     D_807FB530 = *(s32 *)data;
     D_807FB534 = heapAlloc(0x1518);
     cellHeader = (s32 *)(data + 4);
-    elem_size = 24; // FAKE: value-named constant local; dividing by a literal 24 changes the divide codegen (pre-existing, now tagged)
     D_807FB538 = header->unk10 * header->unk12;
     for (i = 0; i < D_807FB538; i++) {
         cellStart = data + cellEnd + 4;
@@ -272,7 +271,7 @@ void collisionInitStaticCache(MapFileHeader *header) {
         D_807FB534[i].unk10 = (data + cellEnd) - cellStart;
         cellHeader = (s32 *)next;
         D_807FB534[i].unk8 = 0;
-        D_807FB534[i].unk14 = (next - cellStart) / elem_size;
+        D_807FB534[i].unk14 = (next - cellStart) / 24;
     }
     if (D_807FB549 == 0) {
         assetSetImmediateFree();
