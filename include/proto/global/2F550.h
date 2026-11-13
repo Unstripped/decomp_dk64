@@ -8,7 +8,6 @@
 struct MapBspNode;
 struct MapNodeEffects;
 struct MapRelocNode;
-struct MapViewEntries;
 struct MapVisNode;
 #ifndef PROTO_SKIP_cameraStepAspectScale
 f32 cameraStepAspectScale(void);
