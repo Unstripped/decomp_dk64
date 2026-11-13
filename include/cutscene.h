@@ -119,7 +119,7 @@ typedef struct CsStateFull {
     /* 0x58 */ s32 unk58;
     /* 0x5C */ u8 unk5C;
     /* 0x5D */ u8 pad5D;
-    /* 0x5E */ s16 unk5E;
+    /* 0x5E */ u16 unk5E;
     /* 0x60 */ u8 unk60;
     /* 0x61 */ u8 pad61;
     /* 0x62 */ s16 unk62;
