@@ -64,7 +64,7 @@ extern OSMesgQueue gScheduler;
 
 void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers, s32 taskId, u8 writebackAll) {
     SchedGfxTask *msg;
-    s32 size;
+    s32 pad;
 
     if (D_80744460 != 0) {
         return;
@@ -99,9 +99,8 @@ void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers
     if (writebackAll) {
         osWritebackDCacheAll();
     } else {
-        size = numCommands * 8; // FAKE: temp computed before the writebacks keeps the original schedule
         osWritebackDCache(msg, sizeof(SchedGfxTask));
-        osWritebackDCache(glist, size);
+        osWritebackDCache(glist, numCommands * 8);
         osWritebackDCache(D_80767CE8 + gGfxBufferIndex * 0x11B0, 0x11B0);
     }
     osSendMesg(&gScheduler, msg, 1);
@@ -118,7 +117,7 @@ void func_80610268(s32 targetTaskId) {
         osRecvMesg(&D_807659E8, &receivedMsg, 1);
         D_80746834 = 0;
         D_807F059C[(u32)receivedMsg >> 0x10] = 0;
-        receivedTaskId = ((s32)receivedMsg & 0xFFFF) & 0xFFFF;
-        receivedMsg = (void *)receivedTaskId; // FAKE: double mask and store-back reproduce the original codegen
+        receivedMsg = (void *)((u32)receivedMsg & 0xFFFF);
+        receivedTaskId = (s32)receivedMsg;
     } while (receivedTaskId != targetTaskId);
 }
