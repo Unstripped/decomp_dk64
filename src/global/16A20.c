@@ -14,7 +14,6 @@ s32 mathFixedPointInterp(s32 inputVal) {
     u16 cur;
     u16 next;
     s32 masked;
-    s32 diff;
 
     mask = 7;
     if (inputVal >= 0x7FE0) {
@@ -38,8 +37,7 @@ s32 mathFixedPointInterp(s32 inputVal) {
     next = table[index + 1];
     masked = inputVal & mask;
     val = cur;
-    diff = val - next;
-    return val - (((s32)(((u32)diff) * masked)) >> shift);
+    return val - ((s32)((val - next) * masked) >> shift);
 }
 
 
