@@ -1,5 +1,3 @@
-#define PROTO_SKIP_mapChunksRender
-#define PROTO_SKIP_mapViewDrawPass
 #include "common.h"
 #include "map.h"
 #include "render.h"
@@ -26,8 +24,6 @@
 #include "proto/global/6AD90.h"
 #include "proto/global/70FD0.h"
 #include "proto/global/CC800.h"
-Gfx *mapChunksRender(Gfx *, struct MapBspNode *, f32, f32, f32, s32);
-Gfx *mapViewDrawPass(Gfx *, struct MapBspNode *, u8);
 
 extern u8 gGfxBufferIndex;
 

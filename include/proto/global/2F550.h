@@ -5,7 +5,6 @@
 #include "actor.h"
 #include "map.h"
 #include "render.h"
-struct MapBspNode;
 struct MapNodeEffects;
 struct MapRelocNode;
 struct MapVisNode;
@@ -91,7 +90,7 @@ Gfx *func_8062CA0C(Gfx *, f32, f32, f32);
 Gfx *mapTreeRender(Gfx *, struct MapBspNode *, struct MapVisNode *, f32, f32, f32, s32);
 #endif
 #ifndef PROTO_SKIP_mapViewDrawPass
-Gfx *mapViewDrawPass(Gfx *, struct MapViewEntries *, u8);
+Gfx *mapViewDrawPass(Gfx *, struct MapBspNode *, u8);
 #endif
 #ifndef PROTO_SKIP_func_8062D094
 void func_8062D094(void *, u8);
