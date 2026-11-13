@@ -1,3 +1,4 @@
+#define PROTO_SKIP_actorCalcPlaneContactPoint
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
@@ -5,6 +6,7 @@
 #include "map.h"
 #include "collision.h"
 #include "heap.h"
+#include "sched.h"
 #include "proto/boot/30E0.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
@@ -19,6 +21,7 @@
 #include "proto/global/7CA80.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/FE40.h"
+void actorCalcPlaneContactPoint(Actor *actor, s16 slot, ActorSub140 *hit);
 
 
 typedef struct BufferCacheEntry {
@@ -31,15 +34,15 @@ typedef struct BufferCacheEntry {
 } BufferCacheEntry; // size = 0x18
 
 typedef struct CollisionTri {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ s16 unk6;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
+    /* 0x00 */ s16 x0;
+    /* 0x02 */ s16 y0;
+    /* 0x04 */ s16 z0;
+    /* 0x06 */ s16 x1;
+    /* 0x08 */ s16 y1;
+    /* 0x0A */ s16 z1;
+    /* 0x0C */ s16 x2;
+    /* 0x0E */ s16 y2;
+    /* 0x10 */ s16 z2;
 } CollisionTri; // size = 0x12
 
 extern BufferCacheEntry *D_807FB534;
@@ -418,21 +421,21 @@ s32 collisionTransformTriangle(CollisionAssetTri *tri, CollisionBox *out, f32 (*
     return collisionBuildPlane(out);
 }
 
-s32 collisionIsTriangleDegenerate(CollisionTri *arg0) {
+s32 collisionIsTriangleDegenerate(CollisionTri *tri) {
     s16 x2;
     s16 x1;
     s16 x0;
 
-    x1 = arg0->unk6;
-    x0 = arg0->unk0;
-    if ((x1 == x0) && (arg0->unk2 == arg0->unk8) && (arg0->unk4 == arg0->unkA)) {
+    x1 = tri->x1;
+    x0 = tri->x0;
+    if ((x1 == x0) && (tri->y0 == tri->y1) && (tri->z0 == tri->z1)) {
         return 1;
     }
-    x2 = arg0->unkC;
-    if ((x1 == x2) && (arg0->unkE == arg0->unk8) && (arg0->unk10 == arg0->unkA)) {
+    x2 = tri->x2;
+    if ((x1 == x2) && (tri->y2 == tri->y1) && (tri->z2 == tri->z1)) {
         return 1;
     }
-    if ((x2 == x0) && (arg0->unk2 == arg0->unkE) && (arg0->unk4 == arg0->unk10)) {
+    if ((x2 == x0) && (tri->y0 == tri->y2) && (tri->z0 == tri->z2)) {
         return 1;
     }
     return 0;
@@ -478,108 +481,108 @@ s8 collisionTriangleSlopeClass(s16 *a) {
     return 0;
 }
 
-s16 collisionTriangleNormalYaw(arg0, arg1)
-s16 *arg0;
-u8 *arg1;
+s16 collisionTriangleNormalYaw(verts, outFlag)
+s16 *verts;
+u8 *outFlag;
 {
-    f32 sp9C[3];
-    f32 sp90[3];
-    f32 sp84[3];
-    f32 sp78[3];
-    f32 sp68[4];
+    f32 edgeA[3];
+    f32 edgeB[3];
+    f32 normal[3];
+    f32 unitNormal[3];
+    f32 probe[4];
     f32 len;
-    f32 var_fa0;
-    f32 var_fa1;
+    f32 absX;
+    f32 absZ;
     f32 angle;
-    f32 sp54;
+    f32 planeD;
     f32 dist;
-    f32 temp_ft5;
-    f32 sp38;
-    f32 sp34;
-    s16 var_v1;
+    f32 nx;
+    f32 ny;
+    f32 nz;
+    s16 yaw;
 
-    sp9C[0] = arg0[6] - arg0[0];
-    sp9C[1] = arg0[7] - arg0[1];
-    sp9C[2] = arg0[8] - arg0[2];
+    edgeA[0] = verts[6] - verts[0];
+    edgeA[1] = verts[7] - verts[1];
+    edgeA[2] = verts[8] - verts[2];
 
-    sp90[0] = arg0[3] - arg0[0];
-    sp90[1] = arg0[4] - arg0[1];
-    sp90[2] = arg0[5] - arg0[2];
+    edgeB[0] = verts[3] - verts[0];
+    edgeB[1] = verts[4] - verts[1];
+    edgeB[2] = verts[5] - verts[2];
 
-    sp84[0] = sp9C[1] * sp90[2] - sp9C[2] * sp90[1];
-    sp84[1] = sp9C[2] * sp90[0] - sp9C[0] * sp90[2];
-    sp84[2] = sp9C[0] * sp90[1] - sp9C[1] * sp90[0];
+    normal[0] = edgeA[1] * edgeB[2] - edgeA[2] * edgeB[1];
+    normal[1] = edgeA[2] * edgeB[0] - edgeA[0] * edgeB[2];
+    normal[2] = edgeA[0] * edgeB[1] - edgeA[1] * edgeB[0];
 
-    len = sqrtf(sp84[0] * sp84[0] + sp84[1] * sp84[1] + sp84[2] * sp84[2]);
+    len = sqrtf(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
     if ((f64)len < 0.01) {
         len = 0.01f;
     }
     len = 1.0f / len;
 
-    sp78[0] = sp84[0] * len;
-    sp78[1] = sp84[1] * len;
-    sp78[2] = sp84[2] * len;
+    unitNormal[0] = normal[0] * len;
+    unitNormal[1] = normal[1] * len;
+    unitNormal[2] = normal[2] * len;
 
-    if (sp84[0] >= 0.0f) {
-        var_fa0 = sp84[0];
+    if (normal[0] >= 0.0f) {
+        absX = normal[0];
     } else {
-        var_fa0 = 0.0 - sp84[0];
+        absX = 0.0 - normal[0];
     }
 
-    if (sp84[2] >= 0.0f) {
-        var_fa1 = sp84[2];
+    if (normal[2] >= 0.0f) {
+        absZ = normal[2];
     } else {
-        var_fa1 = 0.0 - sp84[2];
+        absZ = 0.0 - normal[2];
     }
 
-    if ((f64)var_fa1 < 0.01 && (f64)var_fa1 > -0.01) {
+    if ((f64)absZ < 0.01 && (f64)absZ > -0.01) {
         angle = 1.57f;
     } else {
-        angle = mathAtan2(var_fa0, var_fa1);
+        angle = mathAtan2(absX, absZ);
     }
 
-    if (0.0 <= (f64)sp84[0] && 0.0 <= (f64)sp84[2]) {
-        var_v1 = (s32)((f64)(f32)((f64)angle * 57.29577791868205) * 11.375);
+    if (0.0 <= (f64)normal[0] && 0.0 <= (f64)normal[2]) {
+        yaw = (s32)((f64)(f32)((f64)angle * 57.29577791868205) * 11.375);
     }
-    if (0.0 <= (f64)sp84[0] && (f64)sp84[2] < 0.0) {
-        var_v1 = (s32)((180.0 - (f64)(f32)((f64)angle * 57.29577791868205)) * 11.375);
+    if (0.0 <= (f64)normal[0] && (f64)normal[2] < 0.0) {
+        yaw = (s32)((180.0 - (f64)(f32)((f64)angle * 57.29577791868205)) * 11.375);
     }
-    if ((f64)sp84[0] < 0.0 && (f64)sp84[2] < 0.0) {
-        var_v1 = (s32)(((f64)(f32)((f64)angle * 57.29577791868205) + 180.0) * 11.375);
+    if ((f64)normal[0] < 0.0 && (f64)normal[2] < 0.0) {
+        yaw = (s32)(((f64)(f32)((f64)angle * 57.29577791868205) + 180.0) * 11.375);
     }
-    if ((f64)sp84[0] < 0.0 && 0.0 <= (f64)sp84[2]) {
-        var_v1 = (s32)((360.0 - (f64)(f32)((f64)angle * 57.29577791868205)) * 11.375);
+    if ((f64)normal[0] < 0.0 && 0.0 <= (f64)normal[2]) {
+        yaw = (s32)((360.0 - (f64)(f32)((f64)angle * 57.29577791868205)) * 11.375);
     }
 
-    sp78[0] *= 20.0f;
-    sp78[1] *= 20.0f;
-    sp78[2] *= 20.0f;
-    sp68[0] = arg0[0] + sp78[0];
-    sp68[1] = arg0[1] + sp78[1];
-    sp68[2] = arg0[2] + sp78[2];
-    sp9C[0] = arg0[0] - arg0[3];
-    sp9C[1] = arg0[1] - arg0[4];
-    sp9C[2] = arg0[2] - arg0[5];
-    sp90[0] = arg0[0] - arg0[6];
-    sp90[1] = arg0[1] - arg0[7];
-    sp90[2] = arg0[2] - arg0[8];
-    temp_ft5 = sp9C[1] * sp90[2] - sp9C[2] * sp90[1];
-    sp38 = sp9C[2] * sp90[0] - sp9C[0] * sp90[2];
-    sp34 = sp9C[0] * sp90[1] - sp9C[1] * sp90[0];
-    sp54 = -((sp34 * (f32)arg0[5]) + ((sp38 * (f32)arg0[4]) + (temp_ft5 * arg0[3])));
-    dist = (temp_ft5 * sp68[0]) + (sp38 * sp68[1]) + (sp34 * sp68[2]) + sp54;
+    unitNormal[0] *= 20.0f;
+    unitNormal[1] *= 20.0f;
+    unitNormal[2] *= 20.0f;
+    probe[0] = verts[0] + unitNormal[0];
+    probe[1] = verts[1] + unitNormal[1];
+    probe[2] = verts[2] + unitNormal[2];
+    edgeA[0] = verts[0] - verts[3];
+    edgeA[1] = verts[1] - verts[4];
+    edgeA[2] = verts[2] - verts[5];
+    edgeB[0] = verts[0] - verts[6];
+    edgeB[1] = verts[1] - verts[7];
+    edgeB[2] = verts[2] - verts[8];
+    nx = edgeA[1] * edgeB[2] - edgeA[2] * edgeB[1];
+    ny = edgeA[2] * edgeB[0] - edgeA[0] * edgeB[2];
+    nz = edgeA[0] * edgeB[1] - edgeA[1] * edgeB[0];
+    planeD = -((nz * (f32)verts[5]) + ((ny * (f32)verts[4]) + (nx * verts[3])));
+    dist = (nx * probe[0]) + (ny * probe[1]) + (nz * probe[2]) + planeD;
 
-    if ((!(0.0 < (f64)dist) || !(0.0 < (f64)sp54)) && (!((f64)dist < 0.0) || !((f64)sp54 < 0.0))) {
-        var_v1 -= 0x800;
-        if (var_v1 < 0) {
-            var_v1 += 0xFFF;
+    if ((!(0.0 < (f64)dist) || !(0.0 < (f64)planeD)) && (!((f64)dist < 0.0) || !((f64)planeD < 0.0))) {
+        yaw -= 0x800;
+        if (yaw < 0) {
+            yaw += 0xFFF;
         }
-        *arg1 = 1;
+        *outFlag = 1;
     } else {
-        *arg1 = 0;
+        *outFlag = 0;
     }
 
-    return var_v1;
+    return yaw;
 }
 
 
@@ -733,15 +736,15 @@ s32 collisionBuildPlane(CollisionBox *box) {
     return 1;
 }
 
-void actorSub140Free(ActorSub140 *arg0) {
+void actorSub140Free(ActorSub140 *sub) {
     void *temp;
     ModelNode *curr8C;
     ModelNode *next8C;
     ModelSubNode *curr90;
     ModelSubNode *next90;
 
-    if (arg0 != NULL) {
-        curr8C = arg0->nodes;
+    if (sub != NULL) {
+        curr8C = sub->nodes;
         if (curr8C != NULL) {
             do {
                 next8C = curr8C->next;
@@ -749,7 +752,7 @@ void actorSub140Free(ActorSub140 *arg0) {
                 curr8C = next8C;
             } while (next8C != NULL);
         }
-        curr90 = arg0->subNodes;
+        curr90 = sub->subNodes;
         if (curr90 != NULL) {
             do {
                 next90 = curr90->next;
@@ -757,15 +760,15 @@ void actorSub140Free(ActorSub140 *arg0) {
                 curr90 = next90;
             } while (next90 != NULL);
         }
-        temp = arg0->boxes;
+        temp = sub->boxes;
         if (temp != NULL) {
             heapFree(temp);
         }
-        temp = arg0->triangles;
+        temp = sub->triangles;
         if (temp != NULL) {
             heapFree(temp);
         }
-        heapFree(arg0);
+        heapFree(sub);
     }
 }
 
@@ -924,44 +927,44 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
     return sub140;
 }
 
-void actorSetNodeValue(Actor *arg0, s32 arg1, u16 arg2) {
+void actorSetNodeValue(Actor *actor, s32 index, u16 value) {
     ModelNode *node;
 
-    node = actorGetModelNodeByIndex(arg0, arg1);
+    node = actorGetModelNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk24 = arg2;
+        node->unk24 = value;
     }
 }
 
-void actorOrNodeFlags(Actor *arg0, s32 arg1, u8 arg2) {
+void actorOrNodeFlags(Actor *actor, s32 index, u8 flags) {
     ModelNode *node;
 
-    node = actorGetModelNodeByIndex(arg0, arg1);
+    node = actorGetModelNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk27 |= arg2;
+        node->unk27 |= flags;
     }
 }
 
-void actorClearNodeFlags(Actor *arg0, s32 arg1, u8 arg2) {
+void actorClearNodeFlags(Actor *actor, s32 index, u8 flags) {
     ModelNode *node;
 
-    node = actorGetModelNodeByIndex(arg0, arg1);
+    node = actorGetModelNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk27 &= ~arg2;
+        node->unk27 &= ~flags;
     }
 }
 
-void func_8066E664(Actor *arg0, s32 arg1, u8 arg2) {
+void func_8066E664(Actor *actor, s32 id, u8 value) {
     ActorSub140 *sub;
     ActorSub140SrcTri *ent;
     s32 i;
 
-    sub = arg0->collision;
-    if (arg0->collision != NULL) { // FAKE: second read of unk140 keeps the sub copy in $v0
+    sub = actor->collision;
+    if (actor->collision != NULL) { // FAKE: second read of unk140 keeps the sub copy in $v0
         ent = sub->boxes;
         for (i = 0; i < sub->boxCount; i++) {
-            if (arg1 == ent[i].unk28) {
-                ent[i].unk2A = arg2;
+            if (id == ent[i].unk28) {
+                ent[i].unk2A = value;
             }
         }
     }
@@ -1018,21 +1021,21 @@ ActorSub140 *actorSub140Alloc(f32 x, f32 y, f32 z, f32 scale, f32 radius, f32 he
 
 
 
-void actorAppendModelSubNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
+void actorAppendModelSubNode(Actor *actor, f32 x, f32 y, f32 z, s32 value) {
     f32 pad[3];
     ActorSub140 *sub;
     ModelSubNode *node;
     ModelSubNode **head;
     ModelSubNode *curr;
 
-    sub = arg0->collision;
+    sub = actor->collision;
     node = (ModelSubNode *)heapAlloc(sizeof(ModelSubNode));
     node->next = NULL;
     head = (ModelSubNode **)&sub->subNodes;
-    node->x = arg1;
-    node->y = arg2;
-    node->z = arg3;
-    node->unk18 = arg4;
+    node->x = x;
+    node->y = y;
+    node->z = z;
+    node->unk18 = value;
     node->unkC = 0;
     node->unk10 = 0;
     node->unk14 = 0;
@@ -1046,22 +1049,22 @@ void actorAppendModelSubNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4
     *head = node;
 }
 
-void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5) {
+void actorAppendModelNode(Actor *actor, f32 x, f32 y, f32 z, f32 scale, s32 mtxOffset) {
     f32 pad[3];
     ActorSub140 *sub;
     ModelNode *node;
     ModelNode **head;
     ModelNode *curr;
 
-    sub = arg0->collision;
+    sub = actor->collision;
     node = heapAlloc(sizeof(ModelNode));
     node->next = NULL;
     head = &sub->nodes;
-    node->x = arg1;
-    node->y = arg2;
-    node->z = arg3;
-    node->scale = arg4;
-    node->mtxOffset = arg5;
+    node->x = x;
+    node->y = y;
+    node->z = z;
+    node->scale = scale;
+    node->mtxOffset = mtxOffset;
     node->scaledX = 0;
     node->scaledY = 0;
     node->scaledZ = 0;
@@ -1080,12 +1083,12 @@ void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
 }
 
 
-void actorFreeModelNodeList(Actor *arg0) {
+void actorFreeModelNodeList(Actor *actor) {
     ActorSub140 *sub;
     ModelNode *node;
     ModelNode *next;
 
-    sub = arg0->collision;
+    sub = actor->collision;
     if (sub != NULL) {
         node = sub->nodes;
         if (node != NULL) {
@@ -1099,18 +1102,18 @@ void actorFreeModelNodeList(Actor *arg0) {
     }
 }
 
-f32 actorGetOrSetNodeScale(Actor *arg0, s32 arg1, f32 arg2) {
-    ActorSub140 *sub = arg0->collision;
+f32 actorGetOrSetNodeScale(Actor *actor, s32 index, f32 scale) {
+    ActorSub140 *sub = actor->collision;
     ModelNode *node;
 
-    arg1--;
+    index--;
     node = sub->nodes;
-    while (arg1-- && node != NULL) {
+    while (index-- && node != NULL) {
         node = node->next;
     }
     if (node != NULL) {
-        if (arg2 != -1.0f) {
-            node->scale = arg2;
+        if (scale != -1.0f) {
+            node->scale = scale;
         }
         return node->scale;
     }
@@ -1148,16 +1151,16 @@ void actorClearAllNodeFlags(Actor *actor) {
     }
 }
 
-ModelNode *actorGetModelNodeByIndex(Actor *arg0, s32 arg1) {
+ModelNode *actorGetModelNodeByIndex(Actor *actor, s32 index) {
     ActorSub140 *sub;
     ModelNode *node;
 
-    sub = arg0->collision;
-    arg1--;
+    sub = actor->collision;
+    index--;
     if (sub != NULL) {
         node = sub->nodes;
-        while (arg1 != 0 && node != NULL) {
-            arg1--;
+        while (index != 0 && node != NULL) {
+            index--;
             node = node->next;
         }
         if (node != NULL) {
@@ -1168,23 +1171,23 @@ ModelNode *actorGetModelNodeByIndex(Actor *arg0, s32 arg1) {
     return NULL;
 }
 
-ActorSub140 *actorSetCollisionRadius(Actor *arg0, f32 arg1) {
-    ActorSub140 *sub = arg0->collision;
-    sub->radius = arg1;
+ActorSub140 *actorSetCollisionRadius(Actor *actor, f32 radius) {
+    ActorSub140 *sub = actor->collision;
+    sub->radius = radius;
     return sub;
 }
 
-void actorSub140SetVectors(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
-    ActorSub140 *sub = arg0->collision;
+void actorSub140SetVectors(Actor *actor, f32 x, f32 y, f32 z, f32 scale) {
+    ActorSub140 *sub = actor->collision;
 
-    if (arg0->renderFlags & 0x800) {
-        arg4 = arg0->unk120;
+    if (actor->renderFlags & 0x800) {
+        scale = actor->unk120;
     }
-    sub->scaledX = (s32)(arg1 * 8.0f);
-    sub->scaledY = (s32)(arg2 * 8.0f);
-    sub->scaledZ = (s32)(arg3 * 8.0f);
-    sub->scaledRadius = (s32)(sub->radius * arg4 * 8.0f);
-    sub->scaledHeight = (s32)(sub->height * arg4 * 8.0f);
+    sub->scaledX = (s32)(x * 8.0f);
+    sub->scaledY = (s32)(y * 8.0f);
+    sub->scaledZ = (s32)(z * 8.0f);
+    sub->scaledRadius = (s32)(sub->radius * scale * 8.0f);
+    sub->scaledHeight = (s32)(sub->height * scale * 8.0f);
 }
 
 void actorUpdateModelMatrices(Actor *actor) {
@@ -1363,12 +1366,7 @@ u8 actorClearTargetAngle(Actor *actor, s16 *arcMin, s16 *arcMax, u8 *hit) {
     return actorCheckTargetAngle(actor, arcMin, arcMax, hit);
 }
 
-typedef struct {
-    u8 pad[0x2C0];
-    u8 unk2C0;
-    u8 pad2[0x2F0 - 0x2C1];
-} KongPlayerData;
-extern KongPlayerData *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern u8 D_807FB547;
 extern u8 D_807FB602;
 extern u8 D_807FB605;
@@ -1596,16 +1594,16 @@ void actorBuildCollisionHit(s32 slot, Actor *actor, CollisionBox *boxes) {
     }
 }
 
-void actorReflectCollisionAngle(Actor *arg0, CollisionBox *arg1, ActorSub140 *arg2) {
-    PlayerState *sub = arg0->customState;
+void actorReflectCollisionAngle(Actor *actor, CollisionBox *box, ActorSub140 *coll) {
+    PlayerState *sub = actor->customState;
     s64 total;
     s64 x_prod;
     s64 y_prod;
-    sub->unkEA = arg1->unk48;
-    y_prod = arg1->ny * arg2->scaledY;
-    x_prod = arg1->nx * arg2->scaledX;
-    total = (arg1->nz * arg2->scaledZ) + x_prod + y_prod + arg1->d;
-    if (arg1->d > 0) {
+    sub->unkEA = box->unk48;
+    y_prod = box->ny * coll->scaledY;
+    x_prod = box->nx * coll->scaledX;
+    total = (box->nz * coll->scaledZ) + x_prod + y_prod + box->d;
+    if (box->d > 0) {
         if (total <= 0) {
             sub->unkEA += 0x800;
         }
@@ -1615,10 +1613,10 @@ void actorReflectCollisionAngle(Actor *arg0, CollisionBox *arg1, ActorSub140 *ar
     sub->unkEA &= 0xFFF;
 }
 
-s32 actorGetCollisionThreshold(Actor *arg0) {
-    switch (arg0->actorType) {
+s32 actorGetCollisionThreshold(Actor *actor) {
+    switch (actor->actorType) {
     case 5: {
-        PlayerState *sub = arg0->customState;
+        PlayerState *sub = actor->customState;
         if (gPlayerSlots[sub->playerIndex].unk2C0 == 1) {
             return 0x32;
         }
@@ -1639,7 +1637,7 @@ s32 actorGetCollisionThreshold(Actor *arg0) {
 
 extern Actor *gCurrentActor;
 
-void func_8066FE08(s32 arg0) {
+void func_8066FE08(s32 slot) {
     s16 yaw;
     s16 actorYaw;
     s32 inArc;
@@ -1676,8 +1674,8 @@ void func_8066FE08(s32 arg0) {
     f32 angle;
 
     inArc = 0;
-    if (gModelSlots[arg0].unk7C != NULL && D_807FB5D8->unk4D != 0) {
-        sub = gModelSlots[arg0].unk7C;
+    if (gModelSlots[slot].unk7C != NULL && D_807FB5D8->unk4D != 0) {
+        sub = gModelSlots[slot].unk7C;
         kind = sub->unk50;
         switch (kind) {
         case 0:
@@ -1748,7 +1746,7 @@ void func_8066FE08(s32 arg0) {
                 inArc = 1;
             }
             if (yawDiff < 0x258 && inArc != 0) {
-                modelSlotGetTransformVectors(arg0, &posX, &posY, &posZ, &rotX, &rotY, &rotZ, &scale, &yOffset, 0);
+                modelSlotGetTransformVectors(slot, &posX, &posY, &posZ, &rotX, &rotY, &rotZ, &scale, &yOffset, 0);
                 guScaleF(mtx, scale, scale, scale);
                 guRotateF(tmp, rotX, 1.0f, 0.0f, 0.0f);
                 guMtxCatF(mtx, tmp, mtx);
@@ -1803,8 +1801,6 @@ typedef struct ActorHitRecord {
 extern u8 D_807FB603;
 extern ActorHitRecord D_807FD614[];
 s32 func_806738D0(s32, s32, s32, s32, CollisionBox *, CollisionBox *);
-struct ActorPlaneContactView;
-struct ActorHitPlane;
 
 s32 actorResolveModelSlotCollision(Actor *actor) {
     ActorSub140 *sub;
@@ -1894,7 +1890,7 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
                 ret = 1;
             }
             if (actor->collisionFlags & 1) {
-                actorCalcPlaneContactPoint((struct ActorPlaneContactView *)actor, slot, (struct ActorHitPlane *)sub);
+                actorCalcPlaneContactPoint(actor, slot, sub);
             }
             if (ret != 0) {
                 modelSlotBuildTransformMatrix(slot, sub->unk5A, mtx);
@@ -1960,75 +1956,51 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
     return ret;
 }
 
-typedef struct ActorHitPlane {
-    u8 pad0[0x28];
-    f32 unk28[3];
-    f32 unk34[3];
-    f32 unk40[3];
-    f32 unk4C;
-    f32 unk50;
-    f32 unk54;
-    u8 pad58[2];
-    s8 unk5A;
-} ActorHitPlane;
-
-typedef struct ActorPlaneContactState {
-    u8 pad0[0xE0];
-    f32 unkE0;
-    f32 unkE4;
-    u8 unkE8;
-} ActorPlaneContactState;
-
-typedef struct ActorPlaneContactView {
-    u8 pad0[0x174];
-    ActorPlaneContactState *unk174;
-} ActorPlaneContactView;
-
 extern s16 D_80753D50[];
 extern s16 D_80753D60[];
 extern u8 gCurrentPlayerIndex;
 extern s16 gCurrentCharacterIndex;
 
-void actorCalcPlaneContactPoint(ActorPlaneContactView *arg0, s16 arg1, ActorHitPlane *arg2) {
+void actorCalcPlaneContactPoint(Actor *actor, s16 slot, ActorSub140 *hit) {
     f32 mtx[4][4];
-    f32 spCC;
-    f32 spC8;
-    f32 spC4;
+    f32 originX;
+    f32 originY;
+    f32 originZ;
     s32 i;
-    f32 spB4[3];
-    f32 spA8[3];
-    f32 sp9C[3];
+    f32 triX[3];
+    f32 triY[3];
+    f32 triZ[3];
     f32 normal[3];
     f32 v1[3];
     f32 v2[3];
     f32 inv_len;
     f32 norm[3];
     f32 out[3];
-    ActorPlaneContactState *sub;
-    f32 sp54;
+    PlayerState *player;
+    f32 radius;
     f32 scale;
 
-    sub = arg0->unk174;
+    player = actor->customState;
     if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
-        sp54 = D_80753D50[gCurrentCharacterIndex];
+        radius = D_80753D50[gCurrentCharacterIndex];
     } else {
-        sp54 = D_80753D60[gCurrentCharacterIndex];
+        radius = D_80753D60[gCurrentCharacterIndex];
     }
 
-    modelSlotBuildTransformMatrix(arg1, arg2->unk5A, mtx);
-    guMtxXFMF(mtx, arg2->unk4C, arg2->unk50, arg2->unk54, &spCC, &spC8, &spC4);
+    modelSlotBuildTransformMatrix(slot, hit->unk5A, mtx);
+    guMtxXFMF(mtx, hit->unk4C, hit->unk50, hit->unk54, &originX, &originY, &originZ);
 
     for (i = 0; i < 3; i++) {
-        guMtxXFMF(mtx, arg2->unk28[i], arg2->unk34[i], arg2->unk40[i], &spB4[i], &spA8[i], &sp9C[i]);
+        guMtxXFMF(mtx, hit->unk28[i], hit->unk34[i], hit->unk40[i], &triX[i], &triY[i], &triZ[i]);
     }
 
-    v1[0] = spB4[2] - spB4[0];
-    v1[1] = spA8[2] - spA8[0];
-    v1[2] = sp9C[2] - sp9C[0];
+    v1[0] = triX[2] - triX[0];
+    v1[1] = triY[2] - triY[0];
+    v1[2] = triZ[2] - triZ[0];
 
-    v2[0] = spB4[1] - spB4[0];
-    v2[1] = spA8[1] - spA8[0];
-    v2[2] = sp9C[1] - sp9C[0];
+    v2[0] = triX[1] - triX[0];
+    v2[1] = triY[1] - triY[0];
+    v2[2] = triZ[1] - triZ[0];
 
     normal[0] = (v1[1] * v2[2]) - (v1[2] * v2[1]);
     normal[1] = (v1[2] * v2[0]) - (v1[0] * v2[2]);
@@ -2039,14 +2011,14 @@ void actorCalcPlaneContactPoint(ActorPlaneContactView *arg0, s16 arg1, ActorHitP
     norm[1] = normal[1] * inv_len;
     norm[2] = normal[2] * inv_len;
 
-    scale = sp54 / 8;
+    scale = radius / 8;
     out[0] = norm[0] * scale;
     out[1] = norm[1] * scale;
     out[2] = norm[2] * scale;
 
-    sub->unkE0 = spCC - out[0];
-    sub->unkE4 = spC4 - out[2];
-    sub->unkE8 = 1;
+    player->unkE0 = originX - out[0];
+    player->unkE4 = originZ - out[2];
+    player->stateStep = 1;
 }
 
 extern s16 D_807FB5EC;
@@ -2494,31 +2466,31 @@ u8 collisionTestSphereSlots(f32 fx, f32 fy, f32 fz, f32 fradius, s16 *arcMin, s1
 }
 
 
-s16 func_80672134(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
+s16 func_80672134(s16 angle, s16 arcMin, s16 arcMax, s16 maxValue) {
     s16 opposite;
     f32 ratio;
     s16 bisect;
     s16 diff1;
     s16 diff2;
 
-    if (arg1 >= arg0) {
-        if (arg2 >= arg0 && arg1 >= arg2) {
+    if (arcMin >= angle) {
+        if (arcMax >= angle && arcMin >= arcMax) {
             return 0x270F;
         }
-    } else if (arg2 >= arg0 || arg1 >= arg2) {
+    } else if (arcMax >= angle || arcMin >= arcMax) {
         return 0x270F;
     }
 
-    opposite = arg2 + 0x800;
+    opposite = arcMax + 0x800;
     if (opposite >= 0x1000) {
         opposite -= 0x1000;
     }
 
-    bisect = mathAngleArcMidpoint(arg0, arg1);
-    if ((arg0 - bisect) > 0) {
-        diff1 = arg0 - bisect;
+    bisect = mathAngleArcMidpoint(angle, arcMin);
+    if ((angle - bisect) > 0) {
+        diff1 = angle - bisect;
     } else {
-        diff1 = -(arg0 - bisect);
+        diff1 = -(angle - bisect);
     }
     if (diff1 >= 0x800) {
         diff1 = 0xFFF - diff1;
@@ -2544,44 +2516,44 @@ s16 func_80672134(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
     if (ratio < 0.2) {
         ratio = 0.0f;
     }
-    return (s16)(s32)((f32)arg3 * ratio);
+    return (s16)(s32)((f32)maxValue * ratio);
 }
 
 
 
-s32 actorCheckPointInAngleArc(Actor *arg0, f32 arg1, f32 arg2) {
-    s32 sp28;
-    s32 sp24;
-    s32 sp44;
-    s32 sp40;
-    s32 sp20;
-    s32 sp1C;
-    f32 sp34;
-    s16 var_a2;
+s32 actorCheckPointInAngleArc(Actor *actor, f32 x, f32 z) {
+    s32 px;
+    s32 pz;
+    s32 actorX;
+    s32 actorZ;
+    s32 dx;
+    s32 dz;
+    f32 dist;
+    s16 angle;
 
-    sp44 = (s32)(arg0->prevX * 8.0f);
-    sp40 = (s32)(arg0->prevZ * 8.0f);
-    sp28 = (s32)(arg1 * 8.0f);
-    sp24 = (s32)(arg2 * 8.0f);
-    sp20 = sp28 - sp44;
-    sp1C = sp24 - sp40;
-    sp34 = sqrtf((f32)((sp20 * sp20) + (sp1C * sp1C)));
-    if ((f64)sp34 == 0.0) {
+    actorX = (s32)(actor->prevX * 8.0f);
+    actorZ = (s32)(actor->prevZ * 8.0f);
+    px = (s32)(x * 8.0f);
+    pz = (s32)(z * 8.0f);
+    dx = px - actorX;
+    dz = pz - actorZ;
+    dist = sqrtf((f32)((dx * dx) + (dz * dz)));
+    if ((f64)dist == 0.0) {
         return 1;
     }
-    if (sp20 >= 0 && sp1C >= 0) {
-        var_a2 = (s16)(mathAsinFixed((s32)(((f64)sp20 * 65535.9) / (f64)sp34)) >> 4);
+    if (dx >= 0 && dz >= 0) {
+        angle = (s16)(mathAsinFixed((s32)(((f64)dx * 65535.9) / (f64)dist)) >> 4);
     }
-    if (sp20 >= 0 && sp1C < 0) {
-        var_a2 = (mathAsinFixed((s32)(((f64)(sp40 - sp24) * 65535.9) / (f64)sp34)) >> 4) + 0x400;
+    if (dx >= 0 && dz < 0) {
+        angle = (mathAsinFixed((s32)(((f64)(actorZ - pz) * 65535.9) / (f64)dist)) >> 4) + 0x400;
     }
-    if (sp20 < 0 && sp1C < 0) {
-        var_a2 = (mathAsinFixed((s32)(((f64)(sp44 - sp28) * 65535.9) / (f64)sp34)) >> 4) + 0x800;
+    if (dx < 0 && dz < 0) {
+        angle = (mathAsinFixed((s32)(((f64)(actorX - px) * 65535.9) / (f64)dist)) >> 4) + 0x800;
     }
-    if (sp20 < 0 && sp1C >= 0) {
-        var_a2 = (mathAsinFixed((s32)(((f64)sp1C * 65535.9) / (f64)sp34)) >> 4) + 0xC00;
+    if (dx < 0 && dz >= 0) {
+        angle = (mathAsinFixed((s32)(((f64)dz * 65535.9) / (f64)dist)) >> 4) + 0xC00;
     }
-    return actorAngleInArc(arg0, var_a2) ? 1 : 0;
+    return actorAngleInArc(actor, angle) ? 1 : 0;
 }
 
 typedef struct ActorMotionSub174 {
@@ -2595,47 +2567,47 @@ typedef struct ActorMotionSub174 {
 
 
 
-s32 actorAngleInArc(Actor *arg0, s16 arg1) {
+s32 actorAngleInArc(Actor *actor, s16 angle) {
     s16 clamp[2];
 
-    return mathAngleClampToArc(clamp[0], arg1, arg0->arcYawMin, arg0->arcYawMax, &clamp[1]);
+    return mathAngleClampToArc(clamp[0], angle, actor->arcYawMin, actor->arcYawMax, &clamp[1]);
 }
 
 
-s32 mathAngleInArcWithMargin(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
+s32 mathAngleInArcWithMargin(s16 arcMin, s16 arcMax, s16 angle, s16 margin) {
     s16 clamp[2];
 
-    return mathAngleClampToArcWithMargin(clamp[0], arg2, arg0, arg1, &clamp[1], arg3);
+    return mathAngleClampToArcWithMargin(clamp[0], angle, arcMin, arcMax, &clamp[1], margin);
 }
 
-s32 actorAngleInArcWithMargin(Actor *arg0, s16 arg1, s16 arg2) {
+s32 actorAngleInArcWithMargin(Actor *actor, s16 angle, s16 margin) {
     s16 clamp[2];
 
-    return mathAngleClampToArcWithMargin(clamp[0], arg1, arg0->arcYawMin, arg0->arcYawMax, &clamp[1], arg2);
+    return mathAngleClampToArcWithMargin(clamp[0], angle, actor->arcYawMin, actor->arcYawMax, &clamp[1], margin);
 }
 
-s32 mathAngleClampToArc(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 *arg4) {
-    return mathAngleClampToArcWithMargin(arg0, arg1, arg2, arg3, arg4, 10);
+s32 mathAngleClampToArc(s16 unused, s16 angle, s16 arcMin, s16 arcMax, s16 *out) {
+    return mathAngleClampToArcWithMargin(unused, angle, arcMin, arcMax, out, 10);
 }
 
 
-s32 mathAngleClampToArcWithMargin(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 *arg4, s16 arg5) {
+s32 mathAngleClampToArcWithMargin(s32 unused, s16 angle, s16 arcMin, s16 arcMax, s16 *out, s16 margin) {
     s16 innerMin;
     s16 innerMax;
     s16 wrapMin;
     s16 wrapMax;
     u8 wrapCase;
 
-    innerMin = arg2 + arg5;
-    innerMax = arg3 - arg5;
+    innerMin = arcMin + margin;
+    innerMax = arcMax - margin;
     wrapMin = innerMin;
     wrapMax = innerMax;
-    if (arg3 >= arg2) {
-        if (innerMin < innerMax && arg1 >= innerMin && innerMax >= arg1) {
-            *arg4 = arg1;
+    if (arcMax >= arcMin) {
+        if (innerMin < innerMax && angle >= innerMin && innerMax >= angle) {
+            *out = angle;
             return 1;
         }
-        *arg4 = mathAngleNearestArcPoint(arg2, arg3, arg1);
+        *out = mathAngleNearestArcPoint(arcMin, arcMax, angle);
     } else {
         wrapCase = 0;
         if (innerMin >= 0x1000) {
@@ -2651,22 +2623,22 @@ s32 mathAngleClampToArcWithMargin(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 *a
         default:
             return 0;
         case 0:
-            if (arg1 >= wrapMin || wrapMax >= arg1) {
-                *arg4 = arg1;
+            if (angle >= wrapMin || wrapMax >= angle) {
+                *out = angle;
                 return 1;
             }
-            *arg4 = mathAngleNearestArcPoint(arg2, arg3, arg1);
+            *out = mathAngleNearestArcPoint(arcMin, arcMax, angle);
             break;
         case 1:
         case 2:
-            if (wrapMin < wrapMax && arg1 >= wrapMin && wrapMax >= arg1) {
-                *arg4 = arg1;
+            if (wrapMin < wrapMax && angle >= wrapMin && wrapMax >= angle) {
+                *out = angle;
                 return 1;
             }
-            *arg4 = mathAngleNearestArcPoint(arg2, arg3, arg1);
+            *out = mathAngleNearestArcPoint(arcMin, arcMax, angle);
             break;
         case 3:
-            *arg4 = mathAngleNearestArcPoint(arg2, arg3, arg1);
+            *out = mathAngleNearestArcPoint(arcMin, arcMax, angle);
             break;
         }
     }
@@ -2675,7 +2647,7 @@ s32 mathAngleClampToArcWithMargin(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 *a
 }
 
 
-s16 mathAngleNearestArcPoint(s16 arg0, s16 arg1, s16 arg2) {
+s16 mathAngleNearestArcPoint(s16 arcMin, s16 arcMax, s16 angle) {
     s32 diffMin;
     s32 diffMax;
     s16 distMin;
@@ -2684,15 +2656,15 @@ s16 mathAngleNearestArcPoint(s16 arg0, s16 arg1, s16 arg2) {
     s16 distMax;
     s16 result;
 
-    nearMin = arg0 + 10;
-    nearMax = arg1 - 10;
-    diffMin = arg0 - arg2;
+    nearMin = arcMin + 10;
+    nearMax = arcMax - 10;
+    diffMin = arcMin - angle;
     if (diffMin > 0) {
         distMin = diffMin;
     } else {
         distMin = -diffMin;
     }
-    diffMax = arg1 - arg2;
+    diffMax = arcMax - angle;
     if (distMin >= 0x801) {
         distMin = 0xFFF - distMin;
     }
@@ -2715,24 +2687,24 @@ s16 mathAngleNearestArcPoint(s16 arg0, s16 arg1, s16 arg2) {
         }
         result = nearMax;
     }
-    if (arg1 >= arg0) {
-        if ((result < arg0) || (arg1 < result)) {
-            result = mathAngleArcMidpoint(arg0, arg1);
+    if (arcMax >= arcMin) {
+        if ((result < arcMin) || (arcMax < result)) {
+            result = mathAngleArcMidpoint(arcMin, arcMax);
         }
-    } else if ((result < arg0) && (arg1 < result)) {
-        result = mathAngleArcMidpoint(arg0, arg1);
+    } else if ((result < arcMin) && (arcMax < result)) {
+        result = mathAngleArcMidpoint(arcMin, arcMax);
     }
     return result;
 }
 
-s16 mathAngleArcMidpoint(s16 arg0, s16 arg1) {
+s16 mathAngleArcMidpoint(s16 start, s16 end) {
     s16 mid;
     s16 wrapped;
 
-    if (arg1 >= arg0) {
-        return (arg0 + arg1) >> 1;
+    if (end >= start) {
+        return (start + end) >> 1;
     }
-    mid = ((arg1 - arg0 + 0xFFF) / 2) + arg0;
+    mid = ((end - start + 0xFFF) / 2) + start;
     wrapped = mid;
     if (mid >= 0x1000) {
         wrapped = mid - 0xFFF;
@@ -2774,12 +2746,12 @@ void actorUpdateMovementFlags(Actor *actor) {
     }
 }
 
-u8 actorHasActiveMovementFlags(Actor *arg0) {
-    return arg0->attachMode != 0
-        || arg0->collision->unk6C != 0
-        || arg0->collision->unk24 != 0
-        || (arg0->contactFlags & 8) != 0
-        || (arg0->contactFlags & 0x400) != 0;
+u8 actorHasActiveMovementFlags(Actor *actor) {
+    return actor->attachMode != 0
+        || actor->collision->unk6C != 0
+        || actor->collision->unk24 != 0
+        || (actor->contactFlags & 8) != 0
+        || (actor->contactFlags & 0x400) != 0;
 }
 
 void actorClearMovementFlags(Actor *actor) {
@@ -2799,9 +2771,9 @@ void actorClearMovementFlags(Actor *actor) {
 extern s16 D_807FB5F8;
 extern s16 D_807FB5FA;
 
-void actorSetCameraBoundaryMode(s32 arg0) {
-    D_807FB53C = arg0;
-    if (arg0 != 0 && arg0 != 0xBC) {
+void actorSetCameraBoundaryMode(s32 mode) {
+    D_807FB53C = mode;
+    if (mode != 0 && mode != 0xBC) {
         D_807FB5F8 = 2;
         D_807FB5FA = 10;
     } else {
@@ -2812,10 +2784,10 @@ void actorSetCameraBoundaryMode(s32 arg0) {
 
 extern Actor *gPrimaryPlayerActor;
 
-s32 actorCheckCameraBoundaryCondition(s8 arg0) {
+s32 actorCheckCameraBoundaryCondition(s8 condition) {
     ActorMotionSub174 *state;
 
-    switch (arg0) {
+    switch (condition) {
     case 0:
         if (D_807FB53C == 0xBC) {
             return 1;
