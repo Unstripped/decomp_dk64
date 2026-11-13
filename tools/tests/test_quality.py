@@ -629,10 +629,10 @@ def test_carry_takes_newest_event_by_time(tmp_path, monkeypatch):
 CARVE_H = "void g(int);\ntypedef struct S {\n    int a;\n    char pad4[4];\n    int b;\n} S;\n"
 
 
-def _carve_repo(tmp_path, monkeypatch, new_header, ret="p->b"):
+def _carve_repo(tmp_path, monkeypatch, new_header, ret="p->b", edit=None, old_header=CARVE_H):
     """Repo whose f (returning RET) reaches S (and g) through include/s.h, with automatic and agent
-    results for f recorded under CARVE_H; then the header becomes NEW_HEADER (f's body untouched).
-    Returns (repo, rev before the header edit)."""
+    results for f recorded under OLD_HEADER; then the header becomes NEW_HEADER (f's body untouched,
+    unless EDIT rewrites the .c text in the same commit). Returns (repo, rev before the header edit)."""
     repo = tmp_path.resolve() / "repo"
     (repo / "src" / "global").mkdir(parents=True)
     (repo / "include").mkdir()
@@ -647,7 +647,7 @@ def _carve_repo(tmp_path, monkeypatch, new_header, ret="p->b"):
     _git(repo, "init", "-q")
     _git(repo, "config", "user.email", "t@example.com")
     _git(repo, "config", "user.name", "t")
-    (repo / "include" / "s.h").write_text(CARVE_H)
+    (repo / "include" / "s.h").write_text(old_header)
     (repo / "src" / "global" / "x.c").write_text(
         ('#include "s.h"\nint f(S *p) {\n    if (p->a) {} // FAKE: steers\n    g(p->a);\n    return %s;\n}\n'
          "int h(int x) {\n    return x;\n}\n") % ret)
@@ -661,6 +661,9 @@ def _carve_repo(tmp_path, monkeypatch, new_header, ret="p->b"):
                      q.event("u1", "a", f, None, "review", "nohit", note=REVIEW),
                      q.event("u1", "a", fns["h"], None, "views", "nohit")])
     (repo / "include" / "s.h").write_text(new_header)
+    if edit:
+        x = repo / "src" / "global" / "x.c"
+        x.write_text(edit(x.read_text()))
     _git(repo, "commit", "-qam", "b")
     monkeypatch.setattr(q, "_htext", {})
     return repo, rev_a
@@ -699,6 +702,61 @@ def test_carry_header_carve_keeping_layout(tmp_path, monkeypatch, capsys):
     n = len(q.load_events())
     q.main(["carry", "--rev", rev_a, "--unit", "u3", "--header-carve"])  # nothing left to carry
     assert len(q.load_events()) == n
+
+
+@pytest.mark.parametrize("old,new,reason", [
+    (None, None, None),
+    ("    int b;\n", "    unsigned int b;\n", ""),  # a field the body uses changed type
+    ("    char pad4[4];\n", "    unsigned char pad4[4];\n", " (layout changed: S pad4 type"),  # one it does not
+])
+def test_carry_header_field_rename(tmp_path, monkeypatch, capsys, old, new, reason):
+    # MpSettings unk4 -> gameMode (b99abd19): the body follows a field rename of a shared include/
+    # record keeping its layout; with a field's type changed too the record no longer matches
+    hdr = CARVE_H.replace("    int a;\n", "    int mode;\n")
+    if old:
+        hdr = hdr.replace(old, new)
+    _, rev_a = _carve_repo(tmp_path, monkeypatch, hdr, edit=lambda s: s.replace("p->a", "p->mode"))
+    before = q.load_events()
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    if reason is not None:
+        assert f"skipped src/global/x.c: f: not a pure rename; body or a declaration it uses changed{reason}" in out
+        assert "would carry 0 events" in out
+        return
+    assert "would carry src/global/x.c: f: remove, review, views (renames; header field renames: S)" in out
+    assert "would carry 3 events" in out and "skipped" not in out and q.load_events() == before
+    q.main(["carry", "--rev", rev_a, "--unit", "u2"])
+    st = _carve_state()
+    assert st["f"] == {"views": "✓", "review": "✓", "remove": "✓"}
+
+
+def test_carry_header_field_fold_is_no_rename(tmp_path, monkeypatch, capsys):
+    # D_807552EC -> D_807552E4.matchPhase: a global replaced by a field access changes the body
+    _, rev_a = _carve_repo(tmp_path, monkeypatch, CARVE_H + "extern S gS;\n", ret="gB",
+                           edit=lambda s: s.replace("return gB;", "return gS.b;"),
+                           old_header=CARVE_H + "extern int gB;\nextern S gS;\n")
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    assert "skipped src/global/x.c: f: not a pure rename" in out and "would carry 0 events" in out
+
+
+def test_carry_func_limits_functions(tmp_path, monkeypatch, capsys):
+    hdr = CARVE_H.replace("    int a;\n", "    int mode;\n")
+    _, rev_a = _carve_repo(tmp_path, monkeypatch, hdr, edit=lambda s: s.replace("p->a", "p->mode").replace(
+        "int h(int x) {\n    return x;", "int h(int y) {\n    return y;"))
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    assert "would carry src/global/x.c: f: " in out and "would carry src/global/x.c: h: views" in out
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run", "--func", "h"])
+    out = capsys.readouterr().out
+    assert "x.c: f:" not in out and "would carry src/global/x.c: h: views" in out
+    assert "would carry 1 events" in out
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--header-carve", "--dry-run", "--func", "f"])
+    out = capsys.readouterr().out
+    assert "x.c: h:" not in out
 
 
 def test_carry_header_carve_rejects_shifted_offset(tmp_path, monkeypatch, capsys):

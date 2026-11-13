@@ -10,7 +10,7 @@ method ladder that exhausts them, and the per-function `review` coverage.
   uv run tools/quality.py status [--file src/..c] [--func NAME]
   uv run tools/quality.py rank [--seg S] [--limit N]
   uv run tools/quality.py report [--baseline REV] [--markdown]
-  uv run tools/quality.py carry --rev REV --unit U [--header-carve] [--dry-run] [src.c...]
+  uv run tools/quality.py carry --rev REV --unit U [--header-carve] [--dry-run] [--func NAME]... [src.c...]
                                          re-stamp results of functions that
                                          changed since REV only by renames of declared names (same type,
                                          field offset or symbol address; clang-checked) or only by
@@ -26,13 +26,21 @@ method ladder that exhausts them, and the per-function `review` coverage.
                                          "(<name> declaration respelled|moved ..., same type)"). REV's sites and
                                          fingerprints use REV's headers, and automatic results carry
                                          only when the reached include/ declarations apart from moved
-                                         ones are unchanged since REV.
+                                         ones are unchanged since REV. A body renaming fields of a
+                                         reached include/ record carries (automatic results too) when
+                                         its body parsed at REV with REV's headers is such a rename of
+                                         HEAD's and every declaration it reaches (.c or header) is unchanged
+                                         apart from the renames, each changed record keeping its clint
+                                         record_layout modulo field names; unused file-scope text may differ
+                                         ("(renames; header field renames: <record>)"); a global replaced by
+                                         a field access (a split-label fold) is no rename.
                                          --header-carve: instead carry the automatic results of functions
                                          whose fp_local and sites are unchanged and whose reached include/
                                          declarations changed only by record carves keeping size, offsets,
                                          alignment and field types (clint layout_diff; REV parsed with REV's
                                          headers); any other reached change (prototype, macro, typedef,
                                          enum, layout) is listed as skipped. --dry-run writes nothing.
+                                         --func NAME (repeatable; REV's or HEAD's name): only those functions.
 
 Ledger: drafts/quality/ (env DK64_QUALITY_LEDGER overrides), append-only, sharded: units.jsonl plus
 <seg>/<VRAM top 16 bits>.jsonl (one function's events always share a shard). Functions are keyed
@@ -1211,6 +1219,8 @@ def token_meaning(tok):
     map pins which local); a global or function its kind and type (its address is checked
     separately); a field its type, offset and record size."""
     c = tok.cursor
+    if c is None:
+        return None
     ref = c.referenced or c
     k = ref.kind
     if k in (CursorKind.VAR_DECL, CursorKind.PARM_DECL):
@@ -1224,6 +1234,12 @@ def token_meaning(tok):
     return None
 
 
+def field_record(tok):
+    """Canonical spelling of the record declaring the field identifier TOK names."""
+    p = (tok.cursor.referenced or tok.cursor).semantic_parent
+    return p.type.get_canonical().spelling if p is not None else None
+
+
 def file_tokens(tu, path):
     """Non-comment tokens of PATH's own text, in order."""
     want = os.path.realpath(os.path.join(ROOT, path))
@@ -1232,42 +1248,90 @@ def file_tokens(tu, path):
             and os.path.realpath(os.path.join(ROOT, t.location.file.name)) == want]
 
 
-def rename_equivalent(old_toks, new_toks, addr_old, addr_new):
-    """Whether NEW_TOKS is OLD_TOKS with only declared names renamed: keywords, literals,
-    punctuation and every non-renameable identifier (types, macros, labels, enum constants) unchanged;
-    names mapped one-to-one; each renamed token keeping its declaration kind and canonical type, a
-    field its offset, a global or function its address (ADDR_OLD / ADDR_NEW: name -> address or
-    None). `PROTO_SKIP_<name>` follows the mapping of <name>."""
+def rename_map(old_toks, new_toks, addr_old, addr_new):
+    """{old: new} of every renamed identifier when NEW_TOKS is OLD_TOKS with only declared names
+    renamed: keywords, literals, punctuation and every non-renameable identifier (types, macros,
+    labels, enum constants) unchanged; names mapped one-to-one (a field's name per record: keys
+    and values ('field', record type, name)); each renamed token keeping its declaration kind and
+    canonical type, a field its offset, a global or function its address (ADDR_OLD / ADDR_NEW:
+    name -> address or None). `PROTO_SKIP_<name>` follows the mapping of <name>. Else None."""
     if len(old_toks) != len(new_toks):
-        return False
+        return None
     fwd, back = {}, {}
     for x, y in zip(old_toks, new_toks):
         if x.kind != y.kind:
-            return False
+            return None
         xs, ys = x.spelling, y.spelling
         if x.kind != TokenKind.IDENTIFIER:
             if xs != ys:
-                return False
+                return None
             continue
         px, py = xs.startswith("PROTO_SKIP_"), ys.startswith("PROTO_SKIP_")
         if px or py:
             if not (px and py):
-                return False
+                return None
             xs, ys = xs[len("PROTO_SKIP_"):], ys[len("PROTO_SKIP_"):]
         else:
             mx, my = token_meaning(x), token_meaning(y)
             if mx != my:
-                return False
+                return None
             if xs != ys:
                 if mx is None:
-                    return False
+                    return None
                 if mx[0] in ("global", "func"):
                     a = addr_old(xs)
                     if a is None or a != addr_new(ys):
-                        return False
+                        return None
+            if mx is not None and mx[0] == "field":
+                xs, ys = ("field", field_record(x), xs), ("field", field_record(y), ys)
         if fwd.setdefault(xs, ys) != ys or back.setdefault(ys, xs) != xs:
-            return False
-    return True
+            return None
+    return {x: y for x, y in fwd.items() if x != y}
+
+
+def rename_equivalent(old_toks, new_toks, addr_old, addr_new):
+    """Whether NEW_TOKS is OLD_TOKS with only declared names renamed (`rename_map`)."""
+    return rename_map(old_toks, new_toks, addr_old, addr_new) is not None
+
+
+def header_renames(old_scope, old_closure, new_scope, new_closure, fwd):
+    """(sorted records whose fields were renamed, None) when every declaration OLD_CLOSURE reaches
+    (in OLD_SCOPE: REV's text parsed with REV's headers) has NEW_CLOSURE's text once FWD's
+    (`rename_map`) name renames apply (a renamed function or global keyed by its new name), or is a
+    record keeping size, alignment and every field offset, width and type (`clint.record_layout`
+    modulo field names) whose text matches once its field renames apply too; else (None, why)."""
+    def texts(scope, name, m):  # `Scope.direct`'s texts with M's renames applied
+        return sorted({(rel(os.path.join(ROOT, c.location.file.name)),
+                        " ".join(m.get(t.spelling, t.spelling) if t.kind == TokenKind.IDENTIFIER else t.spelling
+                                 for t in decl_tokens(c)))
+                       for c in scope.idx.get(name, [])})
+
+    def unnamed(lay):
+        return lay[0], [f[1:] for f in lay[1]], lay[2]
+
+    fwd = {k: v for k, v in fwd.items() if isinstance(k, str)}
+    olds, recs = {fwd.get(k, k): k for k in old_closure}, []
+    for name in sorted(set(olds) | set(new_closure)):
+        if name not in olds or name not in new_closure:
+            return None, f"{name} only {'at HEAD' if name in new_closure else 'at REV'}"
+        o, nv = olds[name], new_closure[name]
+        if texts(old_scope, o, fwd) == nv:
+            continue
+        ot, nt = record_type(old_scope.idx[o]), record_type(new_scope.idx[name])
+        if ot is None or nt is None:
+            return None, f"{name} changed"
+        lo, ln = clint.record_layout(ot), clint.record_layout(nt)
+        if lo is None or ln is None:
+            return None, f"record {name} incomplete"
+        if unnamed(lo) != unnamed(ln):
+            diff = clint.layout_diff({name: lo}, {name: ln}, types=True)
+            return None, "layout changed: " + ("; ".join(diff) if diff else f"{name} fields")
+        fmap = dict(fwd)
+        fmap.update((x[0], y[0]) for x, y in zip(lo[1], ln[1]) if x[0] != y[0])
+        if texts(old_scope, o, fmap) != nv:
+            return None, f"record {name} changed beyond field renames"
+        recs.append(name)
+    return recs, None
 
 
 def carry_lines(fns, fn, nlines):
@@ -1651,10 +1715,13 @@ def params_renamed(old_closure, new_closure, old_name, new_name):
 def carry_renames(a, by_site, by_func):
     """(events, skipped, carried lines) re-stamping the newest fresh-at-REV events of every function
     that changed from REV to HEAD only by renames of declared names (`rename_equivalent` over its
-    body and the file's top level), or only by file-scope text of the .c it does not use or by
-    declarations it uses moving unchanged between the .c and an include/ header
-    (`scope_equivalent`), with HEAD's fingerprints and site keys. REV's text is analysed (parsed,
-    fingerprinted and compiled for its warning sites) with REV's headers."""
+    body and the file's top level), or by renames in its body (REV's parsed with REV's headers, so
+    renamed fields of an include/ record resolve) with every declaration it reaches equal modulo
+    the renames (`header_renames`: records keeping their layout modulo field names), or only by
+    file-scope text of the .c it does not use or by declarations it uses moving unchanged between
+    the .c and an include/ header (`scope_equivalent`), with HEAD's fingerprints and site keys.
+    REV's text is analysed (parsed, fingerprinted and compiled for its warning sites) with REV's
+    headers. A.func: only functions so named at REV or HEAD."""
     files = a.files or [p for p in ledger.git("diff", "--name-only", a.rev, "HEAD", "--", "src").split()
                         if p.endswith(".c") and "/libultra/" not in p and os.path.exists(os.path.join(ROOT, p))]
     out, skipped, lines = [], [], []
@@ -1678,6 +1745,8 @@ def carry_renames(a, by_site, by_func):
         oscope, nscope = Scope(otu), Scope(ntu)
         onames, nnames = idents_by_line(t for _, t in otoks), idents_by_line(t for _, t in ntoks)
         for fo, fn in zip(old["functions"], new["functions"]):
+            if a.func and fo["name"] not in a.func and fn["name"] not in a.func:
+                continue
             if fn["vram"] is None or fo["vram"] not in (None, fn["vram"]):
                 skipped.append(f"{path}: {fn['name']}: identity changed")
                 continue
@@ -1724,9 +1793,26 @@ def carry_renames(a, by_site, by_func):
                     path, obody, obody if body_renamed else nbody, ocl, ncl, oscope, nscope,
                     rev=(old["scope"], old["scope"].closure(rnames, pastes=True)))
                 if moved is None:
-                    skipped.append(f"{path}: {fn['name']}: not a pure rename; body or a declaration it uses changed"
-                                   + (f" ({why})" if why else ""))
-                    continue
+                    # renamed fields of a reached include/ record only resolve in REV's text against
+                    # REV's headers: compare that parse of the body with HEAD's, and every declaration
+                    # the body reaches (the .c's own ones too, so unused file-scope text may differ)
+                    # modulo the renames
+                    fwd = rename_map([t for t in old["toks"] if fo["line"] <= t.location.line <= fo["end"]],
+                                     nbody, lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None))
+                    recs = None
+                    if fwd:
+                        ocl = old["scope"].closure(rnames, pastes=True)
+                        paste = old["scope"].unbounded(ocl)
+                        recs, hwhy = (None, f"token-pasting macro {paste}") if paste else header_renames(
+                            old["scope"], ocl, nscope, nscope.closure(body_names(nnames, fn), pastes=True), fwd)
+                        why = why or hwhy
+                    if recs is None:
+                        skipped.append(f"{path}: {fn['name']}: not a pure rename; body or a declaration it uses changed"
+                                       + (f" ({why})" if why else ""))
+                        continue
+                    # every reached declaration unchanged apart from the renames: automatic results carry too
+                    moved, body_renamed, hdr_moved = {}, False, True
+                    how = "renames" + ("; header field renames: " + ", ".join(recs) if recs else "")
                 if moved:
                     how = "; ".join(sorted({m for m in moved.values() if m}))
                     # the reached include/ declarations apart from the moved ones unchanged since REV:
@@ -1888,6 +1974,8 @@ def carry_carves(a, by_site, by_func):
     for res, skips in results:
         skipped += skips
         for r in res:
+            if a.func and r["name"] not in a.func:
+                continue
             vram, rev_fp, now_fp, carry = f"{r['vram']:08X}", r["rev_fp"], r["now_fp"], []
             for key in [None] + r["keys"]:
                 evs = by_func[(r["seg"], vram)] if key is None else by_site.get(key, [])
@@ -2032,6 +2120,8 @@ def main(argv=None):
     c.add_argument("--header-carve", action="store_true",
                    help="carry automatic results across layout-keeping record carves in include/")
     c.add_argument("--dry-run", action="store_true", help="list what would be carried; write nothing")
+    c.add_argument("--func", action="append", default=[], metavar="NAME",
+                   help="only this function (REV's or HEAD's name; repeatable)")
     c.add_argument("files", nargs="*", type=cli_path)
     c.set_defaults(fn=cmd_carry)
     a = p.parse_args(argv)
