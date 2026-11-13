@@ -55,7 +55,7 @@ void csUpdateStepAndInterpolation(struct CsStateFull *);
 void csStateIntegrateMotion(struct CsStateFull *);
 #endif
 #ifndef PROTO_SKIP_csCondEval
-s32 csCondEval(CsCmd *, CsState *, s16);
+u8 csCondEval(CsCmd *, CsState *, s16);
 #endif
 #ifndef PROTO_SKIP_csCmdExec
 void csCmdExec(CsCmd *, CsState *, s16);
@@ -100,7 +100,7 @@ void func_80641F68(void);
 u8 csPosOnScreenOfNearPlayer(s16);
 #endif
 #ifndef PROTO_SKIP_csPosWithinRadius
-s32 csPosWithinRadius(s16, f32, f32, f32);
+u8 csPosWithinRadius(s16, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_csPlayerNearPos
 s32 csPlayerNearPos(s16);

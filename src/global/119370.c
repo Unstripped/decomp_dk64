@@ -103,16 +103,16 @@ void effectResetLists(void) {
     effectResetState();
 }
 
-s32 effectGridFindByTargetId(s32 targetId) {
+EffectGridAsset *effectGridFindByTargetId(s32 targetId) {
     EffectGridNode *node = sEffectGridHead;
 
     while (node != NULL) {
         if (targetId == node->id) {
-            return (s32) node->asset;
+            return node->asset;
         }
         node = node->next;
     }
-    return (s32) sEffectGridHead->asset;
+    return sEffectGridHead->asset;
 }
 
 void effectGridGetByteDimensions(EffectGridAsset *asset, u8 *outW, u8 *outH) {

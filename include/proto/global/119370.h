@@ -10,7 +10,7 @@ struct EffectGridSlot;
 void effectResetLists(void);
 #endif
 #ifndef PROTO_SKIP_effectGridFindByTargetId
-s32 effectGridFindByTargetId(s32);
+struct EffectGridAsset *effectGridFindByTargetId(s32);
 #endif
 #ifndef PROTO_SKIP_effectGridGetByteDimensions
 void effectGridGetByteDimensions(struct EffectGridAsset *, u8 *, u8 *);

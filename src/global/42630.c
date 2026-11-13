@@ -51,17 +51,17 @@ extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
 
 typedef struct CsTimer {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ u8 unk6;
+    /* 0x0 */ s16 timerId;
+    /* 0x2 */ s16 modelIndex;
+    /* 0x4 */ s16 value;
+    /* 0x6 */ u8 active;
     /* 0x7 */ u8 pad7;
 } CsTimer;
 
 typedef struct CsSpawnReq {
-    /* 0x0 */ Actor *unk0;
-    /* 0x4 */ Actor *unk4;
-    /* 0x8 */ u8 unk8;
+    /* 0x0 */ Actor *timerActor;
+    /* 0x4 */ Actor *hostActor;
+    /* 0x8 */ u8 active;
 } CsSpawnReq;
 
 // .bss 0x807F61B0-0x807F6940
@@ -158,7 +158,7 @@ void csTimerQueueClear(void) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        gCsTimerQueue[i].unk6 = 0;
+        gCsTimerQueue[i].active = 0;
     }
 }
 
@@ -167,17 +167,17 @@ void csTimerQueueAdd(s16 timerId, s16 modelIndex, s16 val) {
     s32 found = 0;
 
     while (!found && i < 8) {
-        if (gCsTimerQueue[i].unk6 == 0) {
+        if (gCsTimerQueue[i].active == 0) {
             found = 1;
         } else {
             i++;
         }
     }
     if (found) {
-        gCsTimerQueue[i].unk6 = 1;
-        gCsTimerQueue[i].unk0 = timerId;
-        gCsTimerQueue[i].unk2 = modelIndex;
-        gCsTimerQueue[i].unk4 = val;
+        gCsTimerQueue[i].active = 1;
+        gCsTimerQueue[i].timerId = timerId;
+        gCsTimerQueue[i].modelIndex = modelIndex;
+        gCsTimerQueue[i].value = val;
     }
 }
 
@@ -185,9 +185,9 @@ void csTimerQueueFire(s16 timerId) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        if (gCsTimerQueue[i].unk6 != 0 && timerId == gCsTimerQueue[i].unk0) {
-            csModelStateSetFirstByte(gCsTimerQueue[i].unk2, gCsTimerQueue[i].unk4);
-            gCsTimerQueue[i].unk6 = 0;
+        if (gCsTimerQueue[i].active != 0 && timerId == gCsTimerQueue[i].timerId) {
+            csModelStateSetFirstByte(gCsTimerQueue[i].modelIndex, gCsTimerQueue[i].value);
+            gCsTimerQueue[i].active = 0;
         }
     }
 }
@@ -265,9 +265,9 @@ void csScriptLoad(s16 *scriptData) {
     D_807F6902 = 0;
     D_807F6903 = 0;
     D_807F693C = 0;
-    D_807F61F0.unk0 = NULL;
-    D_807F61F0.unk4 = NULL;
-    D_807F61F0.unk8 = 0;
+    D_807F61F0.timerActor = NULL;
+    D_807F61F0.hostActor = NULL;
+    D_807F61F0.active = 0;
 }
 
 
@@ -399,7 +399,7 @@ void csStateUpdate(CsStateFull *cs, s16 csId) {
     CsNode *node;
     s32 i;
     s32 j;
-    s32 ok;
+    u8 ok;
     s32 stepped;
     u8 moved;
     u8 rotated;
@@ -423,7 +423,7 @@ void csStateUpdate(CsStateFull *cs, s16 csId) {
             i = 0;
             ok = 1;
             while (i < node->unk0 && ok) {
-                ok = csCondEval(&node->unk2[i], (CsState *)cs, csId) & 0xFF;
+                ok = csCondEval(&node->unk2[i], (CsState *)cs, csId);
                 i++;
             }
             if (ok) {
@@ -575,29 +575,13 @@ void csStateIntegrateMotion(CsStateFull *cs) {
 // Operand-order notes: two cases still need `field == ((s16 *)cmd)[N]` (instead of `== cmd->a/b`) for `bne field,arg`
 // (a plain cmd->x leaf is canonicalised to the left operand and its ring temp comes first); the actor loops
 // use their own pointer local `b` (not `a`, the player-loop pointer) and index `h` (not `k`).
-typedef struct CsCondState {
-    /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ f32 unk14[9];
-    /* 0x38 */ s32 unk38;
-    /* 0x3C */ u8 pad3C[8];
-    /* 0x44 */ s16 unk44[2];
-    /* 0x48 */ u8 unk48[9];
-    /* 0x51 */ u8 unk51;
-    /* 0x52 */ u8 unk52;
-    /* 0x53 */ u8 pad53[9];
-    /* 0x5C */ u8 unk5C;
-    /* 0x5D */ u8 pad5D;
-    /* 0x5E */ u16 unk5E;
-    /* 0x60 */ u8 pad60[0x3A];
-    /* 0x9A */ u8 unk9A;
-} CsCondState;
 
 // Stride view of gPlayerSlots (PlayerStruct): indexing the shared type directly swaps the
 // `addu base,off` operands of the player loops; this record type reproduces the target.
 typedef struct CsCondPlayer {
-    /* 0x000 */ u8 unk0;
+    /* 0x000 */ u8 active;
     /* 0x001 */ u8 pad1[3];
-    /* 0x004 */ Actor *unk4;
+    /* 0x004 */ Actor *actor;
     /* 0x008 */ u8 pad8[0x2F0 - 0x8];
 } CsCondPlayer; /* 0x2F0 */
 
@@ -618,10 +602,10 @@ extern u8 gPlayerCharacterId;
 extern s16 D_8076AEF2;
 extern s32 (*gCsCondTable[])(CsState *, s16, s16, s16);
 
-#define CS_COND_STATE ((CsCondState *)cs)
+#define CS_COND_STATE ((CsStateFull *)cs)
 #define CS_COND_PLAYER ((CsCondPlayer *)gPlayerSlots)
 
-s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
+u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
     u8 neg;
     u8 ret;
     s16 type;
@@ -853,8 +837,8 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
             p = &CS_COND_PLAYER[i];
-            if (p->unk0 != 0) {
-                a = p->unk4;
+            if (p->active != 0) {
+                a = p->actor;
                 if (a->attachMode == 1 && csId == a->cutsceneId) {
                     ret = 1;
                 }
@@ -865,8 +849,8 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
             p = &CS_COND_PLAYER[i];
-            if (p->unk0 != 0) {
-                a = p->unk4;
+            if (p->active != 0) {
+                a = p->actor;
                 if (a->attachMode == 1 && csId == a->cutsceneId && cmd->a == a->unk10E) {
                     ret = 1;
                 }
@@ -920,8 +904,8 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
             p = &CS_COND_PLAYER[i];
-            if (p->unk0 != 0) {
-                a = p->unk4;
+            if (p->active != 0) {
+                a = p->actor;
                 if (a->attachMode == 3 && cmd->a == a->unk12F && csId == a->cutsceneId) {
                     ret = 1;
                 }
@@ -932,8 +916,8 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
             p = &CS_COND_PLAYER[i];
-            if (p->unk0 != 0) {
-                a = p->unk4;
+            if (p->active != 0) {
+                a = p->actor;
                 if (a->attachMode == 2 && csId == a->cutsceneId) {
                     ret = 1;
                 } else {
@@ -982,8 +966,8 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
             p = &CS_COND_PLAYER[i];
-            if (p->unk0 != 0) {
-                a = p->unk4;
+            if (p->active != 0) {
+                a = p->actor;
                 if (cmd->a == a->state) {
                     if (cmd->b != 0) {
                         if (a->unk155 == cmd->b) {
@@ -1000,7 +984,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
             p = &CS_COND_PLAYER[i];
-            if (p->unk0 != 0 && cmd->a == p->unk4->unk155) {
+            if (p->active != 0 && cmd->a == p->actor->unk155) {
                 ret = 1;
             }
         }
@@ -1031,8 +1015,8 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = listContainsS16(cmd->a);
         break;
     case 0x2A:
-        if (D_807F61F0.unk8 != 0) {
-            if (D_807F61F0.unk0->state == 5) {
+        if (D_807F61F0.active != 0) {
+            if (D_807F61F0.timerActor->state == 5) {
                 ret = 1;
             } else {
                 ret = 0;
@@ -1042,7 +1026,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x2B:
-        ret = D_807F61F0.unk8;
+        ret = D_807F61F0.active;
         break;
     case 0x33:
         animProgress = actorGetAnimProgress(gPrimaryPlayerActor);
@@ -1109,7 +1093,8 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     s32 c;
     s32 exit;
     s16 flag;
-    s32 pad[2];
+    struct EffectGridAsset *asset;
+    s32 pad;
     f32 sx;
     f32 sy;
     f32 sz;
@@ -1242,28 +1227,28 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         flagSet(cmd->a, CMDB(cmd)->b, 1);
         break;
     case 0x66:
-        if (D_807F61F0.unk8 == 0) {
+        if (D_807F61F0.active == 0) {
             actorSpawn(0xB1, 0);
             actor = gCurrentActor;
-            D_807F61F0.unk4 = gSpawnedActor;
+            D_807F61F0.hostActor = gSpawnedActor;
             gCurrentActor = gSpawnedActor;
             hudSpawnCountdownTimer(0xDC, 0x2A, CMDB(cmd)->a, &D_807F61F0);
-            D_807F61F0.unk0 = gSpawnedActor;
-            D_807F61F0.unk8 = 1;
+            D_807F61F0.timerActor = gSpawnedActor;
+            D_807F61F0.active = 1;
             gCurrentActor = actor;
         }
         break;
     case 0x67:
-        if (D_807F61F0.unk8 != 0) {
-            hudCountdownTimerStart(D_807F61F0.unk0);
+        if (D_807F61F0.active != 0) {
+            hudCountdownTimerStart(D_807F61F0.timerActor);
         }
         break;
     case 0x68:
-        if (D_807F61F0.unk8 != 0) {
-            actorDespawn(D_807F61F0.unk0);
-            b = (s32)D_807F61F0.unk4; if (b) {} // FAKE: live range of b (a3) splits the &D_807F61F0 piece (v0)
-            actorDespawn(D_807F61F0.unk4);
-            D_807F61F0.unk8 = 0;
+        if (D_807F61F0.active != 0) {
+            actorDespawn(D_807F61F0.timerActor);
+            b = (s32)D_807F61F0.hostActor; if (b) {} // FAKE: live range of b (a3) splits the &D_807F61F0 piece (v0)
+            actorDespawn(D_807F61F0.hostActor);
+            D_807F61F0.active = 0;
         }
         break;
     case 0x62:
@@ -1323,9 +1308,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x4E:
-        slot = effectGridFindByTargetId(cmd->a);
+        asset = effectGridFindByTargetId(cmd->a);
         effectSetDepth(1);
-        effectCreateAtModelNode(slot, cmd->b / 100.0, csId, cmd->c, 0);
+        effectCreateAtModelNode(asset, cmd->b / 100.0, csId, cmd->c, 0);
         break;
     case 0x4C:
         h = (s16)(modelAnimEntryGetUnkC(csId, cmd->a) + cmd->b);
@@ -1864,15 +1849,8 @@ s32 csModelStateTrySetByte(s16 modelIndex, s16 val, s16 byteOffset) {
     return 0;
 }
 
-typedef struct CsObjView {
-    /* 0x00 */ u8 pad0[0x54];
-    /* 0x54 */ u8 unk54;
-    /* 0x55 */ u8 pad55[3];
-    /* 0x58 */ s32 unk58;
-} CsObjView;
-
 void csSetObjectTrackParam(void *obj, s16 b, s16 c) {
-    CsObjView *o = obj;
+    CsStateFull *o = obj;
 
     o->unk54 = b;
     switch (b & 0xFF) {
@@ -2030,17 +2008,17 @@ u8 csPosOnScreenOfNearPlayer(s16 radius) {
 // Stride view of gPlayerSlots (PlayerStruct camX/camY/camZ at 0x210): as CsCondPlayer, the
 // shared type swaps the `addu base,off` operands of the loops below.
 typedef struct CsPlayerPosView {
-    /* 0x000 */ u8 unk0;
+    /* 0x000 */ u8 active;
     /* 0x001 */ u8 pad1[3];
-    /* 0x004 */ Actor *unk4;
+    /* 0x004 */ Actor *actor;
     /* 0x008 */ u8 pad8[0x208];
-    /* 0x210 */ f32 unk210;
-    /* 0x214 */ f32 unk214;
-    /* 0x218 */ f32 unk218;
+    /* 0x210 */ f32 camX;
+    /* 0x214 */ f32 camY;
+    /* 0x218 */ f32 camZ;
     /* 0x21C */ u8 pad21C[0x2F0 - 0x21C];
 } CsPlayerPosView; // size = 0x2F0
 
-s32 csPosWithinRadius(s16 radius, f32 x, f32 y, f32 z) {
+u8 csPosWithinRadius(s16 radius, f32 x, f32 y, f32 z) {
     f32 dx = gCsPosX - x;
     f32 dy = gCsPosY - y;
     f32 dz = gCsPosZ - z;
@@ -2048,7 +2026,7 @@ s32 csPosWithinRadius(s16 radius, f32 x, f32 y, f32 z) {
     dx *= dx;
     dy *= dy;
     dz *= dz;
-    return (u8)(sqrtf(dx + dy + dz) < radius);
+    return sqrtf(dx + dy + dz) < radius;
 }
 
 
@@ -2059,8 +2037,8 @@ s32 csPlayerNearPos(s16 radius) {
 
     for (i = 0; i < gViewportCount; i++) {
         p = (CsPlayerPosView *)gPlayerSlots + i;
-        if (p->unk0 != 0) {
-            Actor *a = p->unk4;
+        if (p->active != 0) {
+            Actor *a = p->actor;
             if (csPosWithinRadius(radius, a->x, a->y, a->z)) {
                 return 1;
             }
@@ -2075,7 +2053,7 @@ s32 csPlayerSavedPosNearPos(s16 radius) {
 
     for (i = 0; i < gViewportCount; i++) {
         p = (CsPlayerPosView *)gPlayerSlots + i;
-        if (p->unk0 != 0 && csPosWithinRadius(radius, p->unk210, p->unk214, p->unk218)) {
+        if (p->active != 0 && csPosWithinRadius(radius, p->camX, p->camY, p->camZ)) {
             return 1;
         }
     }
