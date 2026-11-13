@@ -334,10 +334,10 @@ void jetpacActorUpdateWander(JetpacActor *actor) {
             jetpacActorPickWanderDirection(actor);
             actor->timer = jetpacRandFloat() * 60.0f + 10.0f;
         }
-        res = jetpacCheckLedgeCollision((f32)actor->boxX1 + actor->x + actor->vx,
-                            (f32)actor->boxY1 + actor->y + actor->vy,
-                            (f32)actor->boxX2 + actor->x + actor->vx,
-                            (f32)actor->boxY2 + actor->y + actor->vy, 1);
+        res = jetpacCheckLedgeCollision(actor->boxX1 + actor->x + actor->vx,
+                            actor->boxY1 + actor->y + actor->vy,
+                            actor->boxX2 + actor->x + actor->vx,
+                            actor->boxY2 + actor->y + actor->vy, 1);
         if (res >= 0) {
             jetpacBounceOffLedge(actor, res);
             if (actor->timer < 10) {

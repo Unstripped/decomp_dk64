@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_gfxDrawTexturedTileGridSimple // FAKE: callee prototype steer (width/height u8: 103AB0.c declares s32)
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
@@ -152,7 +151,6 @@ Gfx *renderRotatedQuad(Gfx *glist, s32 tex, s16 x, s16 y, s16 angle) {
 extern u16 D_807FC79E;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
-void gfxDrawTexturedTileGridSimple(Gfx **, void *, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);  // FAKE: callee prototype steer (width/height u8: 103AB0.c declares s32)
 
 Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 height, s16 x, s16 y, f32 scaleX, f32 scaleY, s32 angle, f32 texScale) {
     void *tex;
@@ -195,7 +193,7 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 h
         gDPPipeSync(glist++);
         tileSize = (bpp < 0x20) ? 0x20 : 0x1E;
         gfxDrawTexturedTileGridSimple(&glist, tex, fmt, width, height, tileSize, tileSize, 0.0f, 0.0f,
-                      (f32)(u32)width, (f32)(u32)height,
+                      width, height,
                       (f32)(x - (width >> 1)), (f32)(y - (height >> 1)),
                       1, bpp);
     } else {
@@ -219,14 +217,14 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 h
         guScaleF(scaleMtx, (scaleX > 0.0f) ? scaleX : -scaleX, (scaleY > 0.0f) ? scaleY : -scaleY, 0.0f);
         matrixMakeRotationZ(tempMtx, (f32)(s16)angle);
         guMtxCatF(scaleMtx, tempMtx, scaleMtx);
-        guTranslateF(tempMtx, (f32)x, (f32)y, 0.0f);
+        guTranslateF(tempMtx, x, y, 0.0f);
         guMtxCatF(scaleMtx, tempMtx, scaleMtx);
         guMtxF2L(scaleMtx, mtx1);
 
         gSPMatrix(glist++, mtx1, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
 
-        scaledW = (f32)(u32)width * texScale;
-        scaledH = (f32)(u32)height * texScale;
+        scaledW = width * texScale;
+        scaledH = height * texScale;
 
         if (scaleY > 0.0f) {
             halfW = width >> 1;
@@ -428,19 +426,19 @@ Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal,
     nextOnesStr[0] = ((val + step) % 10) + '0';
     nextOnesStr[1] = 0;
 
-    rollOffset = sinApprox((((f64)*timer / 12.0) * 1.57079637050628662) + 1.57079637050628662) * 96.0;
+    rollOffset = sinApprox(((*timer / 12.0) * 1.57079637050628662) + 1.57079637050628662) * 96.0;
 
     if (targetVal == *curVal) {
         glist = textDrawStringVtx(glist, 3, x * 4, y * 4, currTensStr, 1);
         glist = textDrawStringVtx(glist, 3, (x * 4) + 0x50, y * 4, currOnesStr, 1);
     } else if (currTensStr[0] != nextTensStr[0]) {
-        glist = textDrawStringVtx(glist, 3, x * 4, (s16)((f32)(y * 4 - 0x60) + rollOffset), nextTensStr, 1);
+        glist = textDrawStringVtx(glist, 3, x * 4, y * 4 - 0x60 + rollOffset, nextTensStr, 1);
         glist = textDrawStringVtx(glist, 3, x * 4, (s16)((f32)(y * 4 + 4) + rollOffset), currTensStr, 1);
-        glist = textDrawStringVtx(glist, 3, (x * 4) + 0x50, (s16)((f32)(y * 4 - 0x60) + rollOffset), nextOnesStr, 1);
+        glist = textDrawStringVtx(glist, 3, (x * 4) + 0x50, y * 4 - 0x60 + rollOffset, nextOnesStr, 1);
         glist = textDrawStringVtx(glist, 3, (x * 4) + 0x50, (s16)((f32)(y * 4 + 4) + rollOffset), currOnesStr, 1);
     } else {
         glist = textDrawStringVtx(glist, 3, x * 4, y * 4, currTensStr, 1);
-        glist = textDrawStringVtx(glist, 3, (x * 4) + 0x50, (s16)((f32)(y * 4 - 0x60) + rollOffset), nextOnesStr, 1);
+        glist = textDrawStringVtx(glist, 3, (x * 4) + 0x50, y * 4 - 0x60 + rollOffset, nextOnesStr, 1);
         glist = textDrawStringVtx(glist, 3, (x * 4) + 0x50, (s16)((f32)(y * 4 + 4) + rollOffset), currOnesStr, 1);
     }
 
@@ -454,7 +452,7 @@ Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal,
         if (*curVal >= 100 && *curVal != 0xC7) {
             glist = textDrawStringVtx(glist, 3, (x * 4) - 0x50, y * 4, hundredsStr, 1);
         } else if (*curVal == 0x63 || *curVal == 0xC7) {
-            glist = textDrawStringVtx(glist, 3, (x * 4) - 0x50, (s16)((f32)(y * 4 - 0x60) + rollOffset), hundredsStr, 1);
+            glist = textDrawStringVtx(glist, 3, (x * 4) - 0x50, y * 4 - 0x60 + rollOffset, hundredsStr, 1);
             if (*curVal == 0xC7) {
                 glist = textDrawStringVtx(glist, 3, (x * 4) - 0x50, (s16)((f32)(y * 4 + 4) + rollOffset), "1", 1);
             }

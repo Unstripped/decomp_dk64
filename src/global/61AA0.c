@@ -524,7 +524,7 @@ void *matrixCacheLookup(s32 count, s32 camIndex, s16 modelId, u8 subType) {
         }
         node = node->hash_next;
     }
-    return 0;
+    return NULL;
 }
 
 void *matrixCacheInsert(s32 count, s32 camIndex, s16 modelId, u8 subType, s32 matrixCount, u8 insertAtTail) {
@@ -615,7 +615,7 @@ s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
             break;
         }
         next = node->list_prev;
-        if ((cond == 0 && gMatrixCacheLimit < gMatrixCacheBytes) || (u32)minAge < (gFrameCounter - node->lastUsedFrame)) {
+        if ((cond == 0 && gMatrixCacheLimit < gMatrixCacheBytes) || minAge < (gFrameCounter - node->lastUsedFrame)) {
             if (node == gMatrixCacheTail) {
                 gMatrixCacheTail = node->list_prev;
             }

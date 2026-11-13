@@ -1325,7 +1325,7 @@ void mapChunkUpdateAssetStreaming(void) {
                     gMapChunks[i].streamFlags |= 4;
                     gMapChunks[i].streamFlags &= ~3;
                 }
-                n = mapObjectCollectIdsByType((s8)i, buf, 0x10);
+                n = mapObjectCollectIdsByType(i, buf, 0x10);
                 for (j = 0; j < n; j++) {
                     idx = buf[j];
                     if (flags[idx] == 0) {
@@ -2665,20 +2665,17 @@ typedef struct MapSearchEntry {
     /* 0x012 */ u8 pad12[0x2];
 } MapSearchEntry;
 
-extern u8 D_807F72A0;
-extern u8 D_807F72B4;
 extern MapSearchEntry D_807F72B8[];
+extern MapSearchEntry gMapSearchTable[];
 
 void mapSearchTableReset(void) {
     s32 i;
 
-    D_807F72A0 = 0;
-    D_807F72B4 = 0; for (i = 0; i < 8; i++) { // LAYOUT: one line keeps as1 from moving the sb D_807F72B4 ahead of the loop setup
-        D_807F72B8[i].active = 0;
+    for (i = 0; i < 10; i++) {
+        gMapSearchTable[i].active = 0;
     }
 }
 
-extern MapSearchEntry gMapSearchTable[];
 
 
 void mapSearchTableAddProbe(void *key, s16 x, s16 y, s16 maxDepth) {
@@ -2714,7 +2711,7 @@ void mapSearchTableUpdateVisibility(void) {
     for (i = 0; i < 10; i++) {
         if (gMapSearchTable[i].active != 0) {
             if (gFrameCounter == gMapSearchTable[i].frame) {
-                if ((f32)zbufferDepthToDistance((s16)zbufferReadDepth(gMapSearchTable[i].x, gMapSearchTable[i].y)) <= (f32)gMapSearchTable[i].maxDepth) {
+                if ((f32)zbufferDepthToDistance(zbufferReadDepth(gMapSearchTable[i].x, gMapSearchTable[i].y)) <= (f32)gMapSearchTable[i].maxDepth) {
                     gMapSearchTable[i].visible = 1;
                 } else {
                     gMapSearchTable[i].visible = 0;

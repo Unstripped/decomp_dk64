@@ -25,7 +25,9 @@ typedef struct BufferCacheEntry {
     /* 0x00 */ void *unk0;
     /* 0x04 */ void *unk4;
     /* 0x08 */ u32 unk8;
-    /* 0x0C */ u8 padC[0xC];
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
 } BufferCacheEntry; // size = 0x18
 
 typedef struct CollisionTri {
@@ -214,15 +216,6 @@ void dynamicBufferFree(DynamicBuffer *buf) {
     buf->unk15 &= ~1;
 }
 
-typedef struct CollisionStaticCellEntry {
-    /* 0x00 */ void *unk0;
-    /* 0x04 */ u8 *unk4;
-    /* 0x08 */ u32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ s32 unk14;
-} CollisionStaticCellEntry;
-
 extern s32 gCurrentMap;
 extern s32 D_807FB530;
 
@@ -262,41 +255,30 @@ void collisionInitStaticCache(MapFileHeader *header) {
     D_807FB530 = *(s32 *)data;
     D_807FB534 = heapAlloc(0x1518);
     cellHeader = (s32 *)(data + 4);
-    elem_size = 24;
+    elem_size = 24; // FAKE: value-named constant local; dividing by a literal 24 changes the divide codegen (pre-existing, now tagged)
     D_807FB538 = header->unk10 * header->unk12;
     for (i = 0; i < D_807FB538; i++) {
         cellStart = data + cellEnd + 4;
         cellEnd = *cellHeader;
         next = data + cellEnd;
         if (D_807FB549 != 0) {
-            ((CollisionStaticCellEntry *)D_807FB534)[i].unk4 = cellStart;
+            D_807FB534[i].unk4 = cellStart;
         } else {
-            ((CollisionStaticCellEntry *)D_807FB534)[i].unk4 = NULL;
+            D_807FB534[i].unk4 = NULL;
         }
-        ((CollisionStaticCellEntry *)D_807FB534)[i].unk0 = NULL;
+        D_807FB534[i].unk0 = NULL;
         relativeOffset = cellStart - data;
-        ((CollisionStaticCellEntry *)D_807FB534)[i].unkC = assetSize + relativeOffset;
-        ((CollisionStaticCellEntry *)D_807FB534)[i].unk10 = (data + cellEnd) - cellStart;
+        D_807FB534[i].unkC = assetSize + relativeOffset;
+        D_807FB534[i].unk10 = (data + cellEnd) - cellStart;
         cellHeader = (s32 *)next;
-        ((CollisionStaticCellEntry *)D_807FB534)[i].unk8 = 0;
-        ((CollisionStaticCellEntry *)D_807FB534)[i].unk14 = (next - cellStart) / elem_size;
+        D_807FB534[i].unk8 = 0;
+        D_807FB534[i].unk14 = (next - cellStart) / elem_size;
     }
     if (D_807FB549 == 0) {
         assetSetImmediateFree();
         assetFreeBuffer(data, 0x17C, 0xA);
     }
 }
-
-typedef struct CollisionStaticCellView {
-    void *unk0;
-    void *unk4;
-    u32 unk8;
-    s32 unkC;
-    s32 unk10;
-    s32 unk14;
-} CollisionStaticCellView;
-
-#define COLLISION_STATIC_CELLS ((CollisionStaticCellView *)D_807FB534)
 
 
 void collisionLoadStaticCell(s32 cell) {
@@ -306,17 +288,17 @@ void collisionLoadStaticCell(s32 cell) {
     void *src;
     s32 cnt;
 
-    if (COLLISION_STATIC_CELLS[cell].unk0 == NULL && cell < D_807FB538) {
-        size = COLLISION_STATIC_CELLS[cell].unk10;
+    if (D_807FB534[cell].unk0 == NULL && cell < D_807FB538) {
+        size = D_807FB534[cell].unk10;
         if (size != 0) {
             if (D_807FB549 == 0) {
-                COLLISION_STATIC_CELLS[cell].unk4 = heapAlloc(size);
-                dmaReadAssetDecompress(COLLISION_STATIC_CELLS[cell].unkC, COLLISION_STATIC_CELLS[cell].unk4, &size, 0, 0, 0, 0);
+                D_807FB534[cell].unk4 = heapAlloc(size);
+                dmaReadAssetDecompress(D_807FB534[cell].unkC, D_807FB534[cell].unk4, &size, 0, 0, 0, 0);
             }
-            cnt = COLLISION_STATIC_CELLS[cell].unk14;
-            COLLISION_STATIC_CELLS[cell].unk0 = heapAlloc(cnt * 0x28);
-            src = COLLISION_STATIC_CELLS[cell].unk4;
-            dst = COLLISION_STATIC_CELLS[cell].unk0;
+            cnt = D_807FB534[cell].unk14;
+            D_807FB534[cell].unk0 = heapAlloc(cnt * 0x28);
+            src = D_807FB534[cell].unk4;
+            dst = D_807FB534[cell].unk0;
             for (; cnt != 0; cnt--) {
                 if (collisionBuildStaticTri(src, dst) != 0) {
                     dst = (void *)((u8 *)dst + 0x28);
@@ -325,7 +307,7 @@ void collisionLoadStaticCell(s32 cell) {
             }
         }
     }
-    COLLISION_STATIC_CELLS[cell].unk8 = gFrameCounter;
+    D_807FB534[cell].unk8 = gFrameCounter;
 }
 
 extern s32 gModelSlotCount;
@@ -2351,7 +2333,7 @@ void actorUpdateNodePositions(ActorSub140 *sub, u8 force) {
     f32 outY;
     f32 outZ;
     f32 mtx[4][4];
-    s32 mtxBase;
+    u8 *mtxBase;
 
     if (force || (gFrameCounter != sub->unk84)) {
         if (gFrameCounter == sub->unk88) {
@@ -2360,7 +2342,7 @@ void actorUpdateNodePositions(ActorSub140 *sub, u8 force) {
             bufIdx = gGfxBufferIndex ^ 1;
         }
         node = sub->subNodes;
-        mtxBase = (s32)sub->nodeMtx[bufIdx];
+        mtxBase = (u8 *)sub->nodeMtx[bufIdx];
         if (node != NULL) {
             if (mtxBase) {} // FAKE: raises mtx_base register priority so -1 gets s5, mtx_base s6
             do {
@@ -2368,11 +2350,11 @@ void actorUpdateNodePositions(ActorSub140 *sub, u8 force) {
                     memcpy(&mtx, sub->modelMtxF, sizeof(mtx));
                     guMtxXFMF(mtx, node->x, node->y, node->z, &outX, &outY, &outZ);
                 } else {
-                    guMtxXFML((Mtx *)((((u32)node->unk18 >> 6) << 6) + mtxBase), node->x, node->y, node->z, &outX, &outY, &outZ);
+                    guMtxXFML((Mtx *)(mtxBase + (((u32)node->unk18 >> 6) << 6)), node->x, node->y, node->z, &outX, &outY, &outZ);
                 }
-                node->unkC = (s32)(outX * 8.0f);
-                node->unk10 = (s32)(outY * 8.0f);
-                node->unk14 = (s32)(outZ * 8.0f);
+                node->unkC = outX * 8.0f;
+                node->unk10 = outY * 8.0f;
+                node->unk14 = outZ * 8.0f;
                 node = node->next;
             } while (node != NULL);
         }

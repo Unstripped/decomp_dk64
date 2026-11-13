@@ -431,23 +431,23 @@ u8 tilt;
     velX += mathSinF(state->unk0) * thrust;
     velZ += mathCosF(state->unk0) * thrust;
     gCurrentActor->speedXZ = sqrtf(velX * velX + velZ * velZ);
-    gCurrentActor->moveYaw = (s16)(s32)(mathAtan2(velX, velZ) * 4096.0 / 6.2831854820251465);
+    gCurrentActor->moveYaw = (mathAtan2(velX, velZ) * 4096.0 / 6.2831854820251465);
     if (fl[2] != 0) {
         slopeRange = 0x400 - gCurrentActor->floorSlopePitch;
         slopeAngle = mathAngleSignedDistance(gCurrentActor->floorSlopeYaw, state->unk0);
-        tmpB = (f32)slopeRange;
-        tiltPitch = (s16)(s32)(mathCosF(slopeAngle) * tmpB);
-        tiltRoll = (s16)(s32)(mathSinF(slopeAngle) * tmpB);
+        tmpB = slopeRange;
+        tiltPitch = (mathCosF(slopeAngle) * tmpB);
+        tiltRoll = (mathSinF(slopeAngle) * tmpB);
     } else if (!tilt) {
         gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, 0, 4.0f);
         gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, 0, 5.0f);
     }
     turnRate = state->unk10 * state->unkC;
     if (tilt) {
-        tiltRoll = (s32)((f32)tiltRoll + turnRate * 200.0f);
+        tiltRoll = tiltRoll + turnRate * 200.0f;
         tiltRoll &= 0xFFF;
         if (fl[3] != 0 || fl[2] != 0) {
-            tiltPitch = (s32)((f64)tiltPitch + ((f64)(state->unk4 * -50.0f) + (f64)gCurrentActor->speedXZ * -0.5));
+            tiltPitch = tiltPitch + (state->unk4 * -50.0f + gCurrentActor->speedXZ * -0.5);
             tiltPitch &= 0xFFF;
         } else {
             tiltPitch = gCurrentActor->roll;
@@ -471,7 +471,7 @@ u8 tilt;
         if (tiltRoll && tiltRoll) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         tiltRoll = -0x28;
     }
-    state->unk0 = (s32)((f64)state->unk0 + (f64)(turnRate * (f32)tiltRoll) * (1.0 + (f64)tmpB * 0.05));
+    state->unk0 = state->unk0 + turnRate * tiltRoll * (1.0 + tmpB * 0.05);
     state->unk0 = state->unk0 & 0xFFF;
     if (applyBuoyancy) {
         tmpA = gCurrentActor->y;
@@ -497,7 +497,7 @@ u8 tilt;
             if (kongState == 2) {
                 gCurrentActor->speedY = 200.0f;
             } else {
-                gCurrentActor->speedY = (f32)D_8075033C;
+                gCurrentActor->speedY = D_8075033C;
             }
         } else if (fl[2] != 0) {
             gCurrentActor->speedY = gCurrentActor->speedY + 200.0f;
@@ -2386,7 +2386,7 @@ extern u8 D_80720804;
 void projectileParticleSpawnerTick(void) {
     ProjectileBeamActorExtra *extra;
     s32 i;
-    extra = (ProjectileBeamActorExtra *)gCurrentActor->customState;
+    extra = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unkFA = 0x270F;
         gCurrentActor->soundSlots[0] = -2;
@@ -2394,7 +2394,7 @@ void projectileParticleSpawnerTick(void) {
         gCurrentActor->moveYaw = (s16)((((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
         gCurrentActor->speedXZ = ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk4;
         gCurrentActor->speedY = ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk8;
-        extra->unk13 = (u8)(u32)((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk10;
+        extra->unk13 = ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk10;
         gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 110.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 100.0f, -1);
@@ -2441,7 +2441,7 @@ void projectileParticleSpawnerTick(void) {
         }
         actorDespawn(gCurrentActor);
     }
-    if ((u32)(extra->unk0 + D_80750344) < gGameFrameCounter) {
+    if (extra->unk0 + D_80750344 < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -2458,7 +2458,7 @@ void projectileHomingParticleUpdate(void) {
     f32 minSpeed;
     s32 i;
 
-    spawnFrame = (u32 *)gCurrentActor->customState;
+    spawnFrame = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unkFA = 0x270F;
         gCurrentActor->soundSlots[0] = -2;
@@ -2480,7 +2480,7 @@ void projectileHomingParticleUpdate(void) {
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
     gCurrentActor->speedY += D_80750274;
-    minSpeed = (f32)D_807502D0;
+    minSpeed = D_807502D0;
     if (gCurrentActor->speedY < minSpeed) {
         gCurrentActor->speedY = minSpeed;
     }
@@ -2488,9 +2488,9 @@ void projectileHomingParticleUpdate(void) {
     i = 0;
     if ((gCurrentActor->contactFlags & 1) || ((gCurrentActor->hasArcBounds != 0) && ((gGameFrameCounter - *spawnFrame) >= 6)) || gActorGlobalState.unk15 != 0) {
         do {
-            jitterX = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
-            jitterY = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
-            jitterZ = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
+            jitterX = ((randomNonNegative() >> 15) % 8191 / 200.0) - 20.0;
+            jitterY = ((randomNonNegative() >> 15) % 8191 / 200.0) - 20.0;
+            jitterZ = ((randomNonNegative() >> 15) % 8191 / 200.0) - 20.0;
             effectSetAngle(i);
             effectSetDepth(1);
             if (i == 0) {
@@ -2507,7 +2507,7 @@ void projectileHomingParticleUpdate(void) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3C, 0xFF, 0x7F, 0x1E);
         actorDespawn(gCurrentActor);
     }
-    if ((u32)(*spawnFrame + D_80750344) < gGameFrameCounter) {
+    if (*spawnFrame + D_80750344 < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }

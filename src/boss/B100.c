@@ -202,7 +202,7 @@ void bossDogadonStep(void) {
             break;
         case 3:
             if (gBehaviourWorkState->timer != 0 && gFrameCounter % 5 == 0) {
-                projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 150, 3, (f32)((f64)(u32)phaseState->unk14 * 0.01 + 1.04), 0.0f, 0.0f, 0.0f);
+                projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 150, 3, (f32)((f64)phaseState->unk14 * 0.01 + 1.04), 0.0f, 0.0f, 0.0f);
                 if (gBehaviourWorkState->timer-- < 4) {
                     gSpawnedActor->yawSpeed = 0;
                 } else {
@@ -234,7 +234,7 @@ void bossDogadonStep(void) {
         gCurrentActor->state = scriptOpcodes[phaseState->unk15];
         phaseState->unk15++;
         gCurrentActor->unk155 = 0;
-        gCurrentActor->speedXZ = (f32)(u32)gBehaviourExtraState->targetSpeed;
+        gCurrentActor->speedXZ = (f32)gBehaviourExtraState->targetSpeed;
         break;
     case 0:
         switch (gCurrentActor->unk155) {

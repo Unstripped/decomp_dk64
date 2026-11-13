@@ -7,8 +7,7 @@ extern s32 gCurrentMap;
 extern SchedStruct gScheduler;
 
 // .bss 0x8076AF00-0x8076AF20
-s16 D_8076AF00[7];
-u16 D_8076AF0E;
+s16 D_8076AF00[8];
 s32 D_8076AF10;
 u8 D_8076AF14;
 u8 D_8076AF15;
@@ -75,7 +74,7 @@ void frameTimingUpdate(void) {
     s32 i;
     s32 idx;
     u32 limit;
-    s32 *p;
+    volatile s32 *p;
 
     max = 1;
     min = 20;
@@ -122,9 +121,7 @@ void frameTimingUpdate(void) {
         if (gFrameCounter >= 0xB) {
             p = &gScheduler.unk284;
             limit = D_8076AF10 + gFrameDelta;
-            if (SCHED284 < limit) {
-                do {
-                } while (*(volatile s32 *)p < limit);
+            while (*p < limit) {
             }
         }
         D_8076AF10 = SCHED284;

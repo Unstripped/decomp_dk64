@@ -688,7 +688,7 @@ u8 collisionTestSubmeshBoundary(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
 
 extern WaterSurface *gEffectNodeList;
 
-s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
+s32 collisionTestGridMeshHeight(f32 posX, f32 posZ, f32 *height, Actor *actor) {
     f32 pz;
     u8 tableFlag;
     f32 pad[2]; // pad: reproduces frame 0xF8 (unused)
@@ -707,15 +707,15 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     hit = 0;
     bestY = 999999.0f;
     node = gEffectNodeList;
-    threshold = (f32)((f64)*arg2 + 4.0);
+    threshold = *height + 4.0;
     if (node != NULL) {
         do {
-            if (node->sub->minX <= arg0 && node->sub->minZ <= arg1 && arg0 <= node->sub->maxX && arg1 <= node->sub->maxZ) {
-                floorY = arg0 * 6.0f;
-                pz = arg1 * 6.0f;
+            if (node->sub->minX <= posX && node->sub->minZ <= posZ && posX <= node->sub->maxX && posZ <= node->sub->maxZ) {
+                floorY = posX * 6.0f;
+                pz = posZ * 6.0f;
                 tableFlag = effectGetTableFlag(node);
-                cell_x = (arg0 - node->sub->minX) / (f32)node->gridStep;
-                cell_z = (arg1 - node->sub->minZ) / (f32)node->gridStep;
+                cell_x = (posX - node->sub->minX) / (f32)node->gridStep;
+                cell_z = (posZ - node->sub->minZ) / (f32)node->gridStep;
 
                 x[0] = node->gridStep * cell_x + node->sub->minX;
                 z[0] = node->gridStep * cell_z + node->sub->minZ;
@@ -760,7 +760,7 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                     if (floorY && floorY) {}  // FAKE: deadsweep dead statement (keeps hit out of a register)
                     hit = 1;
                     if (node->sub->unk60 == 2 || node->sub->unk60 == 3) {
-                        if ((floorY < *arg2 ? *arg2 - floorY : -(*arg2 - floorY)) < 6.0f) {
+                        if ((floorY < *height ? *height - floorY : -(*height - floorY)) < 6.0f) {
                             switch (node->sub->unk60) {
                             case 2:
                                 D_807F94AF = 2;
@@ -776,16 +776,16 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                     }
                     break;
                 case 1:
-                    if (arg3 != 0) {
-                        if (arg3->y < floorY) {
-                            arg3->contactFlags |= 4;
-                            arg3->unkB0[0] = -1;
+                    if (actor != NULL) {
+                        if (actor->y < floorY) {
+                            actor->contactFlags |= 4;
+                            actor->unkB0[0] = -1;
                             if (node->unk4A & 1) {
                                 D_807F94B0 = 1;
                             }
                         }
-                        arg3->waterY = floorY;
-                        arg3->contactFlags |= 2;
+                        actor->waterY = floorY;
+                        actor->contactFlags |= 2;
                     }
                     D_807F9484 = 1;
                     D_807F9488 = floorY;
@@ -796,7 +796,7 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
         } while (node != NULL);
     }
     if (hit) {
-        *arg2 = bestY;
+        *height = bestY;
     }
     return hit;
 }
