@@ -40,7 +40,7 @@ typedef struct JetpacActor {
     /* 0x28 */ s32 boxY2;
     /* 0x2C */ s32 timer;
     /* 0x30 */ JetpacExplosion explosion;
-    /* 0x40 */ s32 lifetime;
+    /* 0x40 */ u32 lifetime;
     /* 0x44 */ s32 points;
     /* 0x48 */ void (*update)(struct JetpacActor *);
     /* 0x4C */ JetpacSprite *sprite;

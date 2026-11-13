@@ -366,7 +366,7 @@ void jetpacActorInitFighter(JetpacActor *actor) {
     actor->update = jetpacActorUpdateFighter;
     actor->points = 0x37;
     actor->timer = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
-    actor->lifetime = (u32)((jetpacRandFloat() * 180.0f) + 10.0f);
+    actor->lifetime = (jetpacRandFloat() * 180.0f) + 10.0f;
     actor->boxY2 = 8;
     if (actor->y < 88.0f) {
         actor->flip = 0;
