@@ -1139,30 +1139,28 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                 D_80033FAE = 1;
                 D_80744514 = 2;
                 mpStartMatch();
-            } else {
-                if (buttons & 2) {
+            } else if (buttons & 2) {
+                sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
+                state->unk16 = 0;
+                state->nextScreen = 6;
+            } else if (buttons & 0x40) {
+                state->unkE -= 0xF0;
+                if ((D_80033FAD == 2 || D_80033FAD == 3) && D_8076A104 != 1) {
+                    lim = -0x1E0;
+                } else {
+                    lim = -0xF0;
+                }
+                if (state->unkE < lim) {
+                    state->unkE = lim;
+                } else {
                     sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
-                    state->unk16 = 0;
-                    state->nextScreen = 6;
-                } else if (buttons & 0x40) {
-                    state->unkE = state->unkE - 0xF0;
-                    if ((D_80033FAD == 2 || D_80033FAD == 3) && D_8076A104 != 1) {
-                        lim = -0x1E0;
-                    } else {
-                        lim = -0xF0;
-                    }
-                    if (state->unkE < lim) {
-                        state->unkE = lim;
-                    } else {
-                        sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
-                    }
-                } else if (buttons & 0x80) {
-                    state->unkE += 0xF0;
-                    if (state->unkE > 0) {
-                        state->unkE = 0;
-                    } else {
-                        sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
-                    }
+                }
+            } else if (buttons & 0x80) {
+                state->unkE += 0xF0;
+                if (state->unkE > 0) {
+                    state->unkE = 0;
+                } else {
+                    sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
                 }
             }
             pressed = (buttons ^ D_80033858) & buttons;

@@ -284,16 +284,9 @@ void menuCheckMapTransitionOnLoad(void) {
     if (D_807467CC == 0) {
         eepromInit();
     }
-    if (mapGetHubWorldIndex(gCurrentWorldId, 1) == 8) {
-        if ((gGlobalCutsceneFlags & 2) == 0) {
-            if (gCurrentMap != 0xD6) {
-                if (menuGetTimerFlag() == 0) {
-                    if (blocked == 0) {
-                        menuTimerInit();
-                    }
-                }
-            }
-        }
+    if (mapGetHubWorldIndex(gCurrentWorldId, 1) == 8 && !(gGlobalCutsceneFlags & 2) && gCurrentMap != 0xD6
+        && menuGetTimerFlag() == 0 && blocked == 0) {
+        menuTimerInit();
     }
     guScale(&D_807FDAC0, 0.5f, 0.5f, 1.0f);
     switch (gMenuCurrentMode) {
@@ -318,9 +311,9 @@ void menuCheckMapTransitionOnLoad(void) {
     case 3:
         gMenuTransitionCounter++;
         gMenuStateTimer = func_8060B49C(gPlayerSlots->actor, D_8075E5C0[gMenuBonusStageIndex * 4]);
-        gMenuStateTimer = MIN(gMenuStateTimer, *(u16 *) ((u8 *) D_8075E5C2 + gMenuBonusStageIndex * 4));
+        gMenuStateTimer = MIN(gMenuStateTimer, *(u16 *) ((u8 *) D_8075E5C2 + gMenuBonusStageIndex * 4)); // FAKE: byte-offset punned read of the u16 half of a 4-byte table entry; D_8075E5C2[i * 2] shifts the ugen temp ring (t2/t3 at gMenuTargetMode)
         gMenuBonusStageIndex++;
-        gMenuBonusStageIndex = (u32) gMenuBonusStageIndex % 5U;
+        gMenuBonusStageIndex %= 5U;
         gControllerButtonMask = 0x1000;
         break;
     case 7:
