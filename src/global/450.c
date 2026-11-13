@@ -344,7 +344,7 @@ void viModeSetup(u8 overlaySlot) {
     }
     loadOverlay(overlaySlot, overlayId, overlayParam);
     if (D_807445A4 == 0) {
-        osViSetMode(&osViModeTable[D_80744588[osTvType + osTvType + gHiResScale - 1]]); // FAKE: osTvType + osTvType keeps v0 holding osTvType for the sll-by-2 index (osTvType * 2 reloads it into t6)
+        osViSetMode(&osViModeTable[D_80744588[osTvType + osTvType + gHiResScale - 1]]);
         if (D_807445A0 == 0) {
             osViBlack(1);
         }
@@ -369,7 +369,7 @@ void mainSystemInit(void) {
     D_8076A084 = gSegmentTable[12].romEnd - gSegmentTable[12].romStart;
     osCreateMesgQueue(&D_807655F0, &D_80765608, 0x32);
     osCreateMesgQueue(&D_807656D0, &D_807656E8, 0xC0);
-    schedCreate(&gScheduler, &D_80765A00[0x810], 0x19, D_8074458B[osTvType + osTvType][0], 1); // FAKE: osTvType + osTvType gives the two sll-by-2 + addu index into D_8074458B (osTvType * 2 folds to one sll by 3)
+    schedCreate(&gScheduler, &D_80765A00[0x810], 0x19, D_8074458B[osTvType + osTvType][0], 1);
     osCreateMesgQueue(&D_807659E8, D_80765A00, 0x10);
     schedAddClient(&gScheduler, &D_80767CD8, &D_807659E8, 1, 1);
     gCurrentMap = gInitialMap;
@@ -636,52 +636,11 @@ s32 hudCanRender(void) {
 
 extern u8 gViewportCount;
 
-typedef struct {
-    u8 pad0[0x104];
-    Actor *unk104;
-    u8 pad108[0x1F0 - 0x108];
-    s32 unk1F0;
-} PlayerActorData;
-
-typedef struct {
-    u8 unk0;
-    u8 pad1[3];
-    Actor *unk4;
-    Mtx unk8[2];
-    Mtx unk88[2];
-    u8 pad108[0x188 - 0x108];
-    u16 unk188;
-    u8 pad18A[6];
-    LookAt unk190[2];
-    Hilite unk1D0[2];
-    u8 pad1F0[0x210 - 0x1F0];
-    f32 unk210;
-    f32 unk214;
-    f32 unk218;
-    u8 pad21C[4];
-    f32 unk220;
-    u8 pad224[4];
-    f32 unk228;
-    f32 unk22C;
-    f32 unk230;
-    u8 pad234[0xC];
-    f32 unk240;
-    f32 unk244;
-    f32 unk248;
-    u8 pad24C[0x27C - 0x24C];
-    f32 unk27C;
-    f32 unk280;
-    f32 unk284;
-    f32 unk288;
-    u8 pad28C[0x2F0 - 0x28C];
-} PlayerViewData;
-
-#define PLAYER_VIEWS ((PlayerViewData *)gPlayerSlots)
 #define ABS_DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 
 void playerViewsBuildMatrices(void *outMtx) {
     Actor *pa;
-    PlayerActorData *pl;
+    PlayerState *pl;
     CamState *camState;
     s32 i;
     f32 fov;
@@ -695,43 +654,43 @@ void playerViewsBuildMatrices(void *outMtx) {
         func_8062754C(func_806276AC());
     }
     for (i = 0; i < gViewportCount; i++) {
-        if (PLAYER_VIEWS[i].unk0 != 0) {
-            if (ABS_DIFF(PLAYER_VIEWS[i].unk210, PLAYER_VIEWS[i].unk228) < 0.5 && ABS_DIFF(PLAYER_VIEWS[i].unk218, PLAYER_VIEWS[i].unk230) < 0.5) {
+        if (gPlayerSlots[i].active != 0) {
+            if (ABS_DIFF(gPlayerSlots[i].camX, gPlayerSlots[i].focusX) < 0.5 && ABS_DIFF(gPlayerSlots[i].camZ, gPlayerSlots[i].focusZ) < 0.5) {
                 offs = 1.0f;
             } else {
                 offs = 0.0f;
             }
-            guLookAtHilite(&PLAYER_VIEWS[i].unk8[gGfxBufferIndex], &PLAYER_VIEWS[i].unk190[gGfxBufferIndex], &PLAYER_VIEWS[i].unk1D0[gGfxBufferIndex],
-                           PLAYER_VIEWS[i].unk210 + offs, PLAYER_VIEWS[i].unk214, PLAYER_VIEWS[i].unk218 + offs,
-                           PLAYER_VIEWS[i].unk228, PLAYER_VIEWS[i].unk22C, PLAYER_VIEWS[i].unk230,
-                           PLAYER_VIEWS[i].unk240, PLAYER_VIEWS[i].unk244, PLAYER_VIEWS[i].unk248,
+            guLookAtHilite(&gPlayerSlots[i].viewMtx[gGfxBufferIndex], &gPlayerSlots[i].lookAt[gGfxBufferIndex], &gPlayerSlots[i].hilite[gGfxBufferIndex],
+                           gPlayerSlots[i].camX + offs, gPlayerSlots[i].camY, gPlayerSlots[i].camZ + offs,
+                           gPlayerSlots[i].focusX, gPlayerSlots[i].focusY, gPlayerSlots[i].focusZ,
+                           gPlayerSlots[i].upX, gPlayerSlots[i].upY, gPlayerSlots[i].upZ,
                            D_807444CC, D_807444D0, D_807444D4,
                            D_807444D8, D_807444DC, D_807444E0,
                            0x20, 0x20);
-            fov = PLAYER_VIEWS[i].unk280;
+            fov = gPlayerSlots[i].unk280;
             cc = D_807445CC;
-            pl = (PlayerActorData *)PLAYER_VIEWS[i].unk4->customState;
-            pa = pl->unk104;
+            pl = gPlayerSlots[i].actor->customState;
+            pa = pl->camActor;
             camState = pa->customState;
-            if (pl->unk1F0 & 0x100) {
+            if (pl->stateFlags & 0x100) {
                 fov += 0.5 * sinApprox(cc[0] * 0.1);
-            } else if (pl->unk1F0 & 0x2000000) {
+            } else if (pl->stateFlags & 0x2000000) {
                 fov += 0.05 * sinApprox(cc[0] * 0.4);
-            } else if (camState->unkFA != 0 && PLAYER_VIEWS[i].unk220 < camState->unk90 + 3.0f) {
+            } else if (camState->unkFA != 0 && gPlayerSlots[i].eyeY < camState->unk90 + 3.0f) {
                 fov += 0.04 * sinApprox(cc[0] * 0.1);
             }
-            guPerspective(&PLAYER_VIEWS[i].unk88[gGfxBufferIndex], &(i + PLAYER_VIEWS)->unk188, PLAYER_VIEWS[i].unk27C, fov * aspect, PLAYER_VIEWS[i].unk284, PLAYER_VIEWS[i].unk288, 1.0f);  // FAKE: i + base operand order avoids CSE with PLAYER_VIEWS[i]
+            guPerspective(&gPlayerSlots[i].projMtx[gGfxBufferIndex], &gPlayerSlots[i].perspNorm, gPlayerSlots[i].fov, fov * aspect, gPlayerSlots[i].unk284, gPlayerSlots[i].farClip, 1.0f);
         }
     }
-    if (ABS_DIFF(PLAYER_VIEWS->unk210, PLAYER_VIEWS->unk228) < 0.5 && ABS_DIFF(PLAYER_VIEWS->unk218, PLAYER_VIEWS->unk230) < 0.5) {
+    if (ABS_DIFF(gPlayerSlots->camX, gPlayerSlots->focusX) < 0.5 && ABS_DIFF(gPlayerSlots->camZ, gPlayerSlots->focusZ) < 0.5) {
         offs = 1.0f;
     } else {
         offs = 0.0f;
     }
-    guPerspective((Mtx *)outMtx, &D_8076A09C, PLAYER_VIEWS->unk27C, fov * aspect, PLAYER_VIEWS->unk284, PLAYER_VIEWS->unk288, 1.0f);
-    guLookAt((Mtx *)((u8 *)outMtx + 0x200), PLAYER_VIEWS->unk210 + offs, PLAYER_VIEWS->unk214, PLAYER_VIEWS->unk218 + offs,
-             PLAYER_VIEWS->unk228, PLAYER_VIEWS->unk22C, PLAYER_VIEWS->unk230,
-             PLAYER_VIEWS->unk240, PLAYER_VIEWS->unk244, PLAYER_VIEWS->unk248);
+    guPerspective((Mtx *)outMtx, &D_8076A09C, gPlayerSlots->fov, fov * aspect, gPlayerSlots->unk284, gPlayerSlots->farClip, 1.0f);
+    guLookAt((Mtx *)((u8 *)outMtx + 0x200), gPlayerSlots->camX + offs, gPlayerSlots->camY, gPlayerSlots->camZ + offs,
+             gPlayerSlots->focusX, gPlayerSlots->focusY, gPlayerSlots->focusZ,
+             gPlayerSlots->upX, gPlayerSlots->upY, gPlayerSlots->upZ);
     D_807445CC[0]++;
 }
 
