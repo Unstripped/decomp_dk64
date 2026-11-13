@@ -273,7 +273,6 @@ extern u8 D_807467CC;
 extern u8 gCurrentWorldId;
 extern u8 gMenuTransitionCounter;
 extern s32 D_80755334;
-extern s32 D_807552EC;
 extern Mtx D_807FDAC0;
 
 void menuCheckMapTransitionOnLoad(void) {
@@ -331,7 +330,7 @@ void menuCheckMapTransitionOnLoad(void) {
         gControllerButtonMask = 0x9000;
         break;
     case 5:
-        D_807552EC = 0;
+        D_807552E4.matchPhase = 0;
     case 6:
     case 12:
     case 13:
@@ -911,7 +910,7 @@ void func_807144B8(s8 saveSlot) {
 
 
 
-void func_8071458C(void) {
+void mpStartMatch(void) {
     s32 map;
 
     playerResetSpawnGlobals();
@@ -920,7 +919,7 @@ void func_8071458C(void) {
         gSplitScreenMode = 1;
         map = 0x6B;
     } else {
-        map = D_80755384[D_807552E4.unk20];
+        map = D_80755384[D_807552E4.mapIndex];
     }
     menuTransitionWithState(map, 0, 6);
 }
@@ -941,7 +940,7 @@ s32 func_80714608(s32 value) {
 
 void menuReturnToTitleWithMode3(void) {
     menuReturnToTitle();
-    D_807552EC = 3;
+    D_807552E4.matchPhase = 3;
 }
 
 void menuNoop714660(void) {

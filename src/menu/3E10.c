@@ -1132,13 +1132,13 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                 }
                 controllerSetActiveMask(mask);
                 D_807552E4.unk0 = D_8003382C[D_8076A104];
-                D_807552E4.unk4 = D_80033834[D_8074451C];
-                D_807552E4.unkC = D_80744520;
-                D_807552E4.unk20 = D_80744538;
+                D_807552E4.gameMode = D_80033834[D_8074451C];
+                D_807552E4.limit = D_80744520;
+                D_807552E4.mapIndex = D_80744538;
                 D_80750ABC = D_8003384C[D_80744534];
                 D_80033FAE = 1;
                 D_80744514 = 2;
-                func_8071458C();
+                mpStartMatch();
             } else {
                 if (buttons & 2) {
                     sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);

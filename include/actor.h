@@ -1006,11 +1006,11 @@ typedef struct ActorCollisionList {
 
 typedef struct MpSettings {
     s32 unk0;
-    s32 unk4;
-    s32 unk8;
-    s32 unkC;
+    s32 gameMode;
+    s32 matchPhase;
+    s32 limit;
     s32 unk10[4];
-    s32 unk20;
+    s32 mapIndex;
 } MpSettings; /* size 0x24 */
 
 extern MpSettings D_807552E4;

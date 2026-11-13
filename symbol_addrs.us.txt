@@ -3854,6 +3854,7 @@ playerInputClearHeldActorVineSpeed = 0x806E88AC; // type:func
 playerInputPlayHeldActorClimbSfx = 0x806E88D8; // type:func
 playerInputScaleHeldActorVineClimb = 0x806E8A8C; // type:func
 textBlitDash = 0x806FB8B0; // type:func
+mpStartMatch = 0x8071458C; // type:func
 flagTempsPruneUnloadedMaps = 0x807313BC; // type:func
 flagTempRegister = 0x80731410; // type:func
 flagSetForMapObject = 0x807314F4; // type:func

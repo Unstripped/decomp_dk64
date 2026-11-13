@@ -861,7 +861,6 @@ s8 func_806C9830(s8 delta, Actor *actor) {
 }
 
 
-extern s32 D_807552EC;
 void func_80026E20(u8, s8);
 
 s32 func_806C9974(u8 playerIndex, s8 delta) {
@@ -869,7 +868,7 @@ s32 func_806C9974(u8 playerIndex, s8 delta) {
 
     pl = &gPlayerSlots[playerIndex];
     pl->unk2E2 |= 0x11;
-    if (gPlayerCount >= 2 && delta < 0 && D_807552EC == 1) {
+    if (gPlayerCount >= 2 && delta < 0 && D_807552E4.matchPhase == 1) {
         func_80026E20(playerIndex, delta);
     }
     if (delta < 0) {

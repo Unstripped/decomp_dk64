@@ -672,7 +672,6 @@ Gfx *gfxDrawMapBackground(Gfx *dl, f32 rotX, f32 rotY, Mtx *mtx, s16 player) {
     return dl;
 }
 
-extern s32 D_807552EC;
 
 Gfx *gfxDrawPlayerViewBackground(Gfx *glist, s16 player) {
     s32 clearView;
@@ -690,7 +689,7 @@ Gfx *gfxDrawPlayerViewBackground(Gfx *glist, s16 player) {
                 } else {
                     forceClear = 1;
                 }
-                forceClear |= (D_807552EC >= 2);
+                forceClear |= (D_807552E4.matchPhase >= 2);
                 clearView |= forceClear;
             }
             if (clearView == 0) {

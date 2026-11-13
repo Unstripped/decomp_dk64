@@ -83,8 +83,8 @@ void mpResetPlayerOnRespawn(Actor *, PlayerState *, PlayerInventory *);
 #ifndef PROTO_SKIP_mpDeductDeathPenalty
 void mpDeductDeathPenalty(PlayerState *);
 #endif
-#ifndef PROTO_SKIP_mpDropItemsOnHit
-void mpDropItemsOnHit(u8, s8);
+#ifndef PROTO_SKIP_mpDropCrownOnHit
+void mpDropCrownOnHit(u8, s8);
 #endif
 #ifndef PROTO_SKIP_mpApplyDeathPenalty
 void mpApplyDeathPenalty(s32);

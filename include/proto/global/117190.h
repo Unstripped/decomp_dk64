@@ -162,8 +162,8 @@ s32 menuIsTransitionTypeAOrE(void);
 #ifndef PROTO_SKIP_func_807144B8
 void func_807144B8(s8);
 #endif
-#ifndef PROTO_SKIP_func_8071458C
-void func_8071458C(void);
+#ifndef PROTO_SKIP_mpStartMatch
+void mpStartMatch(void);
 #endif
 #ifndef PROTO_SKIP_menuSetFlag5324
 void menuSetFlag5324(void);

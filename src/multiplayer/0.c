@@ -125,7 +125,7 @@ s32 mpGetPlayerScore(s32 playerIndex) {
     s32 score;
 
     score = 0;
-    switch (D_807552E4.unk4) {
+    switch (D_807552E4.gameMode) {
     case 2:
     case 3:
         score = slotQueueGetValue(1, playerIndex);
@@ -148,7 +148,7 @@ void mpDetermineWinner(MpControllerState *controllerState) {
     s32 i;
     s32 winnerIndex;
 
-    D_807552E4.unk8 = 2;
+    D_807552E4.matchPhase = 2;
     winnerIndex = 0;
     highestScore = -99999;
     for (i = 0; i < gPlayerCount; i++) {
@@ -187,7 +187,7 @@ void mpCheckScoreLimit(void) {
 
     for (i = 0; i < gPlayerCount; i++) {
         score = mpGetPlayerScore(i);
-        if (score >= D_807552E4.unkC || score < -999) {
+        if (score >= D_807552E4.limit || score < -999) {
             mpDetermineWinner(gCurrentActor->customState);
             return;
         }
@@ -288,7 +288,7 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, Actor *controller) {
     posY = (f32) (viewport->top + 8);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
     glistp = mpDrawScoreGlyphs(glistp, state, posXStep);
-    if (D_807552E4.unk4 != 3) {
+    if (D_807552E4.gameMode != 3) {
         gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, 180);
         gSPDisplayList(glistp++, &D_1000118);
         gSPMatrix(glistp++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
@@ -384,17 +384,17 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
 
 
 Gfx *mpDrawHud(Gfx *glistp, Actor *controller) {
-    s32 matchOver = D_807552E4.unk8 >= 2; // FAKE: early-load local (reads unk8 before the display-list stores, slti/xori result in t0)
+    s32 matchOver = D_807552E4.matchPhase >= 2; // FAKE: early-load local (reads unk8 before the display-list stores, slti/xori result in t0)
     s32 paused = gGlobalPauseFlags & 3; // FAKE: early-load local (reads gGlobalPauseFlags before the display-list stores)
 
     gDPPipeSync(glistp++);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
     if (!paused) {
         if (D_807552E4.unk0 == 0) {
-            if ((D_807552E4.unk8 == 1) || matchOver) {
+            if ((D_807552E4.matchPhase == 1) || matchOver) {
                 glistp = mpDrawPlayerScores(glistp, controller);
             }
-        } else if ((D_807552E4.unk8 == 1) || matchOver) {
+        } else if ((D_807552E4.matchPhase == 1) || matchOver) {
             glistp = mpDrawPlayerViewportHud(glistp, controller);
         }
     }
@@ -501,7 +501,7 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
     if (menuIsTransitionType6() == 0 || (gGlobalPauseFlags & 2)) {
         return;
     }
-    if (D_807552E4.unk4 == 3) {
+    if (D_807552E4.gameMode == 3) {
         mpUpdateMatchTimer();
     }
     leaderIndex = mpUpdateScoreEffects();
@@ -511,7 +511,7 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
                 func_806F5FE8(0x1D2, spawnPoint->x, spawnPoint->y, spawnPoint->z, 10);
             }
         }
-    } else if (D_807552E4.unk4 == 5 && mpGetPlayerScore(leaderIndex) >= D_807552E4.unkC) {
+    } else if (D_807552E4.gameMode == 5 && mpGetPlayerScore(leaderIndex) >= D_807552E4.limit) {
         mpDetermineWinner(controllerState);
     }
     if (controllerState->crownSpawnDelay != 0) {
@@ -764,7 +764,7 @@ void mpUpdate(void) {
         for (i = 0; i < gPlayerCount; i++) {
             state->viewports[i] = cameraFindViewportEntry(i);
         }
-        D_807552E4.unk8 = 1;
+        D_807552E4.matchPhase = 1;
         state->startTime = osGetTime();
         state->sfxLastTick = gScheduler.unk280;
         state->sfxStep = 0;
@@ -772,7 +772,7 @@ void mpUpdate(void) {
         state->volumeTarget = 0;
         n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &state->ambientSound);
         D_80026F70 = 0;
-        switch (D_807552E4.unk4) {
+        switch (D_807552E4.gameMode) {
         case 3:
         case 5:
             flag = 1; // FAKE: flag + fallthrough into case 2 (steers branch shape)
@@ -784,7 +784,7 @@ void mpUpdate(void) {
             break;
         case 4:
             for (i = 0; i < gPlayerCount; i++) {
-                slotQueueAddValue(7, i, D_807552E4.unkC);
+                slotQueueAddValue(7, i, D_807552E4.limit);
             }
             slotQueueInit(0);
             break;
@@ -797,7 +797,7 @@ void mpUpdate(void) {
         }
         state->hudScaleMtx = heapAlloc(0x40);
         guScale(state->hudScaleMtx, 0.5f, 0.5f, 1.0f);
-        state->timeLimit = D_807552E4.unkC;
+        state->timeLimit = D_807552E4.limit;
         state->timeLimit = state->timeLimit * 60; // the target stores unkC twice (raw value, then * 60)
         gCurrentActor->renderFlags |= 2;
         state->glyphFull = assetLoad(0xE, 0xB9, 0, 0);
@@ -805,9 +805,9 @@ void mpUpdate(void) {
         state->blinkTimer = 0;
     }
     state->startTime += D_807445B0;
-    switch (D_807552E4.unk8) {
+    switch (D_807552E4.matchPhase) {
     case 1:
-        switch (D_807552E4.unk4) {
+        switch (D_807552E4.gameMode) {
         case 3:
         case 5:
             mpUpdateCrownSpawns(state);
@@ -937,18 +937,18 @@ void mpResetPlayerOnRespawn(Actor *playerActor, PlayerState *kongState, PlayerIn
     if (func_80714608(0) != 0) {
         gActivePlayerState->unk21E = 0;
     }
-    if (D_807552E4.unk4 == 3 || D_807552E4.unk4 == 5) {
+    if (D_807552E4.gameMode == 3 || D_807552E4.gameMode == 5) {
         slotQueueAddValue(1, kongState->playerIndex, -10);
     }
 }
 
 void mpDeductDeathPenalty(PlayerState *kongState) {
-    if (D_807552E4.unk4 == 2) {
+    if (D_807552E4.gameMode == 2) {
         slotQueueAddValue(1, kongState->playerIndex, -3);
     }
 }
 
-void mpDropItemsOnHit(u8 playerIndex, s8 delta) {
+void mpDropCrownOnHit(u8 playerIndex, s8 delta) {
     s32 pad0;
     MpControllerState *ctrl;
     s32 healthAfter;
@@ -964,7 +964,7 @@ void mpDropItemsOnHit(u8 playerIndex, s8 delta) {
         ctrl = actorFindByType(0x13E)->customState;
         ctrl->crownSpawnDelay = 1;
         slotQueueAddValue(1, playerIndex, -10);
-        if (D_807552E4.unk4 == 5) {
+        if (D_807552E4.gameMode == 5) {
             mpResetMapModelStates();
         }
         actorSpawnNodeEntryScaled(0x7A, playerActor->x, playerActor->y, playerActor->z, playerActor->yaw, 1, -1, 0);
@@ -976,7 +976,7 @@ void mpApplyDeathPenalty(s32 playerIndex) {
     Actor *playerActor;
     playerActor = gPlayerSlots[playerIndex].actor;
     playerActor->unk144 = 12;
-    switch (D_807552E4.unk4) {
+    switch (D_807552E4.gameMode) {
     case 2:
         slotQueueAddValue(1, playerIndex, -3);
         break;
@@ -984,7 +984,7 @@ void mpApplyDeathPenalty(s32 playerIndex) {
         slotQueueAddValue(7, playerIndex, -0x40);
         /* fallthrough */
     case 3:
-        mpDropItemsOnHit(playerIndex, 0);
+        mpDropCrownOnHit(playerIndex, 0);
         break;
     case 4:
         slotQueueAddValue(7, playerIndex, -1);
@@ -1034,7 +1034,7 @@ s32 mpFindFurthestSpawn(s32 playerIndex) {
 
 
 void mpRespawnPlayer(Actor *playerActor, s32 playerIndex) {
-    if (D_807552E4.unk4 == 4 && mpGetPlayerScore(playerIndex) == 0) {
+    if (D_807552E4.gameMode == 4 && mpGetPlayerScore(playerIndex) == 0) {
         gPlayerInventoryTable[playerIndex].health = 0;
         playerActor->unk155++;
         playerStateQueueCallback(0x5B, 0, playerIndex);
@@ -1067,7 +1067,7 @@ void mpCreditKill(u8 victimIndex, s8 delta) {
             }
         }
     }
-    if (D_807552E4.unk4 == 3 || D_807552E4.unk4 == 5) {
-        mpDropItemsOnHit(victimIndex, delta);
+    if (D_807552E4.gameMode == 3 || D_807552E4.gameMode == 5) {
+        mpDropCrownOnHit(victimIndex, delta);
     }
 }
