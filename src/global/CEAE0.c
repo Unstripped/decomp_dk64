@@ -279,7 +279,6 @@ extern PlayerStateFn gPlayerStateHandlers[];
 extern s32 D_8076A090;
 extern s32 D_8076A094;
 extern s32 D_8076A098;
-extern s32 D_807552E4;
 extern s32 gCurrentMap;
 extern u8 D_80770561;
 extern u8 D_807463B8;
@@ -422,7 +421,7 @@ void playerUpdateCommon(s32 mode) {
                 }
             }
         }
-        if (D_807552E4 == 0) {
+        if (D_807552E4.unk0 == 0) {
             if (gActivePlayerActor->state == 0x3C) {
                 if (gActivePlayerState->effectTimer != 0) {
                     gActivePlayerState->effectTimer = gActivePlayerState->effectTimer - 1;

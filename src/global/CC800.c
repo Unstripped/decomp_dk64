@@ -885,7 +885,6 @@ s32 func_806C9974(u8 playerIndex, s8 delta) {
     return 0;
 }
 
-extern s32 D_807552E4;
 extern s8 D_80750ACC;
 extern s32 D_807FD56C;
 
@@ -897,7 +896,7 @@ void playerResetSpawnGlobals(void) {
     for (i = 0; i < 4; i++) {
         bzero(p, sizeof(PlayerInventory));
         if (gActivePlayerCount >= 2) {
-            if (D_807552E4 == 1) {
+            if (D_807552E4.unk0 == 1) {
                 for (j = 0; j < 6; j++) {
                     p->kong[j].unk0[2] = 7;
                 }

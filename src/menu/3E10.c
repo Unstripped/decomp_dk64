@@ -1078,7 +1078,6 @@ extern s32 D_8003385C[];
 extern s8 gPlayerCharacterId[];
 extern u8 D_80750ABC;
 extern u8 gActivePlayerCount;
-extern s32 D_807552E4[];
 extern u8 D_807ECD09;
 extern OSContPad D_807ECD10[];
 
@@ -1128,15 +1127,15 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     if (!(D_8076A0E4[j] & 0x80)) {
                         gPlayerCharacterId[j] = D_8076A0E4[j];
                         mask = (mask | bits) & 0xFF;
-                        D_807552E4[4 + gActivePlayerCount] = D_8076A100[j];
+                        D_807552E4.unk10[gActivePlayerCount] = D_8076A100[j];
                         gActivePlayerCount += 1;
                     }
                 }
                 controllerSetActiveMask(mask);
-                D_807552E4[0] = D_8003382C[D_8076A104];
-                D_807552E4[1] = D_80033834[D_8074451C];
-                D_807552E4[3] = D_80744520;
-                D_807552E4[8] = D_80744538;
+                D_807552E4.unk0 = D_8003382C[D_8076A104];
+                D_807552E4.unk4 = D_80033834[D_8074451C];
+                D_807552E4.unkC = D_80744520;
+                D_807552E4.unk20 = D_80744538;
                 D_80750ABC = D_8003384C[D_80744534];
                 D_80033FAE = 1;
                 D_80744514 = 2;

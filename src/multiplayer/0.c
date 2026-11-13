@@ -52,13 +52,6 @@ typedef struct MpControllerState {
     u8 hudIconsShown;
 } MpControllerState;
 
-typedef struct MpSettings {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
-    s32 unkC;
-} MpSettings;
-
 extern u8 gSplitScreenMode;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
@@ -86,7 +79,6 @@ typedef struct MpMapEntry {
 extern MpMapEntry D_80026FA4[];
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
-extern MpSettings D_807552E4;
 extern PlayerStruct *gPlayerSlots;
 
 Gfx *mpDrawTimer(Gfx *glistp, Actor *controller) {

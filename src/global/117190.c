@@ -790,23 +790,8 @@ Gfx *screenStateTickAndDraw(Gfx *dl) {
     return dl;
 }
 
-typedef struct {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
-    s32 unkC;
-    s32 unk10;
-    s32 unk14;
-    s32 unk18;
-    s32 unk1C;
-    s32 unk20;
-} R117cState;
-
-extern s32 D_807552E4;
 extern s32 D_80755384[];
 extern s8 gSplitScreenMode;
-#define R117c_STATE ((R117cState *) &D_807552E4)
-
 
 s32 func_807142D8(void) {
     s32 match;
@@ -931,11 +916,11 @@ void func_8071458C(void) {
 
     playerResetSpawnGlobals();
     gSplitScreenMode = 0;
-    if (R117c_STATE->unk0 == 0) {
+    if (D_807552E4.unk0 == 0) {
         gSplitScreenMode = 1;
         map = 0x6B;
     } else {
-        map = D_80755384[R117c_STATE->unk20];
+        map = D_80755384[D_807552E4.unk20];
     }
     menuTransitionWithState(map, 0, 6);
 }
@@ -950,7 +935,7 @@ s32 func_80714608(s32 value) {
 
     isMultiplayer = (s32) gPlayerCount >= 2;
     if (isMultiplayer != 0) {
-        return value == D_807552E4;
+        return value == D_807552E4.unk0;
     }
 }
 
