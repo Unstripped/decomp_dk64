@@ -5,11 +5,6 @@
 #include "proto/global/7CA80.h"
 
 
-typedef struct CollisionHitState {
-    u8 pad0[0xD4];
-    s16 unkD4;
-} CollisionHitState;
-
 typedef struct CollisionCallbackPayload {
     u8 pad0[0x18];
     s32 instanceId;
@@ -43,11 +38,11 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
     CollisionInteractionEntry *entry;
     s32 done;
     Actor *attacker;
-    s32 res;
-    CollisionTableEntry *entries;
+    s32 interactions;
+    CollisionTableEntry *table;
     u8 entryAllowed;
     s32 i;
-    CollisionHitState *hitState;
+    PlayerState *playerState;
     u8 hitPhase;
     u8 curPhase;
 
@@ -55,25 +50,25 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
     i = 0;
     done = 0;
     if (actorTableContains(attacker) && attacker->instanceId == ((CollisionCallbackPayload *)node->unk10)->instanceId) {
-        entries = D_8074C604[targetActor->actorType].table;
-        if (entries == NULL) {
+        table = D_8074C604[targetActor->actorType].table;
+        if (table == NULL) {
             if (attacker->flags & 0x20000) {
                 func_80675D70(attacker);
             }
         } else {
-            res = actorCollisionFindTableEntry(entries, attacker->actorType, attacker->collisionFlags);
+            interactions = actorCollisionFindTableEntry(table, attacker->actorType, attacker->collisionFlags);
             if ((attacker->flags & 0x80000) || (targetActor->flags & 0x80000)) {
                 if (targetActor == attacker->parentActor || attacker == targetActor->parentActor) {
                     return;
                 }
             }
-            if (res == 0) {
+            if (interactions == 0) {
                 if (attacker->flags & 0x20000) {
                     func_80675D70(attacker);
                 }
             } else {
                 while (!done) {
-                    entry = &((CollisionInteractionEntry *)res)[i];
+                    entry = &((CollisionInteractionEntry *)interactions)[i];
                     if ((entry->targetMask & targetActor->interactionType) && (entry->attackerMask & attacker->interactionType)) {
                         if (entry->filter != NULL) {
                             entryAllowed = entry->filter(targetActor, attacker, node);
@@ -85,19 +80,21 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
                             curPhase = gActorGlobalState.bossFightPhase;
                             if (curPhase < hitPhase) {
                                 gActorGlobalState.targetActor = attacker;
-                                gActorGlobalState.bossFightPhase = ((u8 *)res)[i * 12 + 8];  // FAKE: byte re-read through res (not entry->phase) saves an instruction and keeps entry's induction in $s1 (Q0589)
+                                gActorGlobalState.bossFightPhase = ((u8 *)interactions)[i * 12 + 8];  // FAKE: byte re-read through interactions (not entry->phase) saves an instruction and keeps the entry induction in $s1 (Q0589)
                             }
                             if (gActorGlobalState.unk201 < 0xF) {
                                 gActorGlobalState.unk204[gActorGlobalState.unk201] = attacker;
                                 gActorGlobalState.unk244[gActorGlobalState.unk201] = entry->event;
                                 gActorGlobalState.unk201++;
                                 if (attacker->collisionFlags & 1) {
-                                    hitState = attacker->customState;
-                                    if (hitState->unkD4 != 0) {
+                                    playerState = attacker->customState;
+                                    if (playerState->surfaceTimer != 0) {
                                         if (D_8074C604[targetActor->actorType].unk4 != 0) {
-                                            u8 lastEvent = gActorGlobalState.unk244[gActorGlobalState.unk201 - 1];
-                                            if (lastEvent == 5 || lastEvent == 0xF) {
+                                            switch (gActorGlobalState.unk244[gActorGlobalState.unk201 - 1]) {
+                                            case 5:
+                                            case 0xF:
                                                 gActorGlobalState.unk201--;
+                                                break;
                                             }
                                         }
                                     }
@@ -106,7 +103,6 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
                                     }
                                 }
                             }
-                            if (gActorGlobalState.bossFightPhase) {}  // FAKE: dead read steers s0/s1 colouring
                             if (entry->chain == 0 || entry->chain == 2) {
                                 done = 1;
                             }
@@ -261,7 +257,7 @@ s32 actorCollisionFindTableEntry(CollisionTableEntry *table, s16 actorType, s16 
     s32 match;
 
     do {
-        entries = table->pattern;  // FAKE: dead def raises the result's uopt priority so it colours $s2 before the parameter copies (Q0385)
+        entries = table->pattern;  // FAKE: dead def raises the result uopt priority so it colours $s2 before the parameter copies (Q0385)
         pattern = entries;
         entries = table->entries;
         match = actorCollisionPatternMatches(actorType, actorFlags, pattern);
@@ -272,11 +268,6 @@ s32 actorCollisionFindTableEntry(CollisionTableEntry *table, s16 actorType, s16 
     } while (pattern != 0);
     return entries;
 }
-
-typedef struct CollisionBoxState {
-    u8 pad0[0x11E];
-    s16 boxIndex;
-} CollisionBoxState;
 
 typedef struct CollisionThresholdEntry {
     s16 animId;
@@ -298,14 +289,14 @@ void actorCollisionCheckBoundingBoxes(Actor *actor) {
     s32 retry;
     s32 done;
     CollisionThresholdEntry *entry;
-    CollisionBoxState *boxState;
+    PlayerState *playerState;
     u8 pad;
     u8 valid;
 
     done = 0;
     index = 0;
     animId = actor->sub4->model->animId;
-    boxState = actor->customState;
+    playerState = actor->customState;
     frame = actor->sub4->model->frame;
     retry = 0;
     valid = 1;
@@ -315,8 +306,8 @@ void actorCollisionCheckBoundingBoxes(Actor *actor) {
         return;
     }
 
-    if (boxState->boxIndex != -1) {
-        index = boxState->boxIndex;
+    if (playerState->unk11E != -1) {
+        index = playerState->unk11E;
         retry = 1;
     }
 
@@ -335,9 +326,9 @@ void actorCollisionCheckBoundingBoxes(Actor *actor) {
                 }
                 actorCollisionUpdateNodeFlags(actor, entry->nodeFlagSet);
                 if (valid) {
-                    boxState->boxIndex = index;
+                    playerState->unk11E = index;
                 } else {
-                    boxState->boxIndex = -1;
+                    playerState->unk11E = -1;
                 }
                 return;
             }
