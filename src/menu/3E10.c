@@ -1095,7 +1095,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
     s32 cap;
     s32 lim;
     s32 mask;
-    s16 cur;
+    s32 pressed;
 
     step = state->unkC;
     step = state->unkE - step;
@@ -1167,9 +1167,8 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     }
                 }
             }
-            i = (buttons ^ D_80033858) & buttons; // FAKE: loop counter i reused as the pressed mask; a separate local recolours (uopt CSEs the re-spelled tests into v0, i stays the s0 copy)
-            cur = state->unkC;
-            if (cur == 0 && D_80033FAE == 0) {
+            pressed = (buttons ^ D_80033858) & buttons;
+            if (state->unkC == 0 && D_80033FAE == 0) {
                 i = 0;
                 do {
                     bits = 0;
@@ -1236,7 +1235,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     }
                     i += 1;
                 } while (i != 4);
-            } else if (cur == -0xF0) {
+            } else if (state->unkC == -0xF0) {
                 if (((buttons ^ D_80033858) & buttons) & 0x10) {
                     cap = 5;
                     if (D_80033834[D_8074451C] == 5) {
@@ -1250,8 +1249,8 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     D_80744520 -= 1;
                     sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
-                menuHandleScrollInput(state, itemCount, i);
-            } else if (cur == -0x1E0) {
+                menuHandleScrollInput(state, itemCount, pressed);
+            } else if (state->unkC == -0x1E0) {
                 if (((buttons ^ D_80033858) & buttons) & 0x10) {
                     D_80744534 += 1;
                     if (D_80744534 >= 3) {
