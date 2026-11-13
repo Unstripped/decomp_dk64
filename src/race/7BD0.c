@@ -156,7 +156,7 @@ Gfx *raceRenderCountdownText(Gfx *dl, Actor *actor) {
     s32 pad;
     RaceParticipant *managerData;
     s32 countdownVal;
-    void *textStr;
+    u8 *textStr;
     f32 fadeFactor;
 
     alpha = 0xFF;
@@ -237,7 +237,7 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceParticipant *tracker) {
     s16 scaledSpriteY;
     s32 xOffset;
     s32 count;
-    void *labelStr;
+    u8 *labelStr;
     Gfx *next;
 
     hudPos = tracker->unk48;
@@ -297,7 +297,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
     RaceParticipant *managerData;
     G00Entry *hudPos;
     s32 pad;
-    void *textBuf;
+    u8 *textBuf;
     u8 lap;
     s32 textX;
     s32 textY;
@@ -393,8 +393,8 @@ Gfx *raceRenderMinimapAndCountdown(Gfx *dl, Actor *actor) {
     Actor *targetActor;
     RacePair *pairs;
     s32 i;
-    int red;
-    int blue;
+    s32 red;
+    s32 blue;
 
     managerData = actor->customState;
     if (managerData->hudFlags & 1) {
@@ -419,8 +419,8 @@ Gfx *raceRenderMinimapAndCountdown(Gfx *dl, Actor *actor) {
         WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
         WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
         WRITE_GFX(dl++, 0xD7000002, 0x80008000);
-        dl = renderRotatedSprite(dl, managerData->minimapSprites[0], 3, 1, 0x40, 0x40, 0x88, 0x130, 2.0, 2.0, 0, 0.0f);
-        dl = renderRotatedSprite(dl, managerData->minimapSprites[1], 3, 1, 0x40, 0x40, 0x108, 0x130, 2, 2, 0, 0.0f);
+        dl = renderRotatedSprite(dl, managerData->minimapSprites[0], 3, 1, 0x40, 0x40, 0x88, 0x130, 2.0f, 2.0f, 0, 0.0f);
+        dl = renderRotatedSprite(dl, managerData->minimapSprites[1], 3, 1, 0x40, 0x40, 0x108, 0x130, 2.0f, 2.0f, 0, 0.0f);
         dl = renderRotatedSprite(dl, managerData->minimapSprites[2], 3, 1, 0x40, 0x40, 0x88, 0xB0, 2.0f, 2.0f, 0, 0.0f);
         dl = renderRotatedSprite(dl, managerData->minimapSprites[3], 3, 1, 0x40, 0x40, 0x108, 0xB0, 2.0f, 2.0f, 0, 0.0f);
         for (i = 0; i < managerData->unk1E; i++) {
