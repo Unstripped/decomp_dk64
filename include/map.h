@@ -75,4 +75,17 @@ typedef struct Struct8076A160 {
     /* 0x24 */ u8 rgb[52][3];
 } Struct8076A160; // size = 0xC0
 
+// Map BSP node seen as a draw view: leaf nodes (kind 1) go to mapViewDrawPass, chunk nodes (kind 2) to mapChunksRender.
+typedef struct MapViewEntries {
+    /* 0x00 */ u8 pad0[0x8];
+    /* 0x08 */ s32 dl; // display list address, or -1 when the node has none
+    /* 0x0C */ u8 padC[0x1C - 0xC];
+    /* 0x1C */ void *unk1C[21];
+    /* 0x70 */ s16 unk70[12];
+    /* 0x88 */ s16 unk88[18];
+    /* 0xAC */ u8 unkAC[13];
+    /* 0xB9 */ u8 unkB9[12];
+    /* 0xC5 */ u8 unkC5;
+} MapViewEntries;
+
 #endif

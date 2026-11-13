@@ -1,3 +1,4 @@
+#define PROTO_SKIP_mapChunksRender
 #include "common.h"
 #include "map.h"
 #include "render.h"
@@ -24,6 +25,7 @@
 #include "proto/global/6AD90.h"
 #include "proto/global/70FD0.h"
 #include "proto/global/CC800.h"
+Gfx *mapChunksRender(Gfx *, struct MapViewEntries *, f32, f32, f32, s32);
 
 extern u8 gGfxBufferIndex;
 
@@ -702,7 +704,7 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
     }
     switch (node->kind) {
         case 2:
-            gfx = mapChunksRender(gfx, node, camX, camY, camZ, renderMask);
+            gfx = mapChunksRender(gfx, (struct MapViewEntries *)node, camX, camY, camZ, renderMask);
             break;
         case 1:
             D_807F5E64 += MAP_LEAF(node)->unk6E;
@@ -765,15 +767,6 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *node, MapVisNode *vis, f32 camX, f32 ca
     return gfx;
 }
 
-typedef struct MapViewEntries {
-    u8 pad0[0x1C];
-    void *unk1C[21];
-    s16 unk70[12];
-    s16 unk88[18];
-    u8 unkAC[13];
-    u8 unkB9[12];
-    u8 unkC5;
-} MapViewEntries;
 
 
 

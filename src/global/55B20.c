@@ -1,3 +1,4 @@
+#define PROTO_SKIP_mapChunksRender
 #include "common.h"
 #include "actor.h"
 #include "map.h"
@@ -17,6 +18,7 @@
 #include "proto/global/67890.h"
 #include "proto/global/68960.h"
 #include "proto/global/6AD90.h"
+Gfx *mapChunksRender(Gfx *, struct MapViewEntries *, f32, f32, f32, s32);
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
@@ -1856,10 +1858,6 @@ s32 mapNodeIdListContains(s16 id, s32 count) {
 extern s16 D_807F6BF0[];
 
 
-typedef struct {
-    /* 0x000 */ u8 pad0[0x8];
-    /* 0x008 */ s32 dl;
-} MapChunkArg;
 
 
 extern u8 D_807F5FEC;
@@ -1874,7 +1872,7 @@ u32 osVirtualToPhysical(void *);
 Gfx *renderEntryListBuildDisplayList(Gfx *, struct RenderEntry *, f32, f32, f32, s32, s16, s32); // FAKE: callee prototype steer
 Gfx *func_80027034(Gfx *);
 
-Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
+Gfx *mapChunksRender(Gfx *gfx, MapViewEntries *view, f32 x, f32 y, f32 z, s32 flags) {
     s32 i;
     s32 idx;
     struct RenderEntry *list;
@@ -1888,9 +1886,9 @@ Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
         gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
         gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
         gfx = mapViewDrawPass(gfx, view, 1);
-        if (((MapChunkArg *)view)->dl != -1) {
+        if (view->dl != -1) {
             gDPPipeSync(gfx++);
-            gSPDisplayList(gfx++, osVirtualToPhysical((void *)((MapChunkArg *)view)->dl));
+            gSPDisplayList(gfx++, osVirtualToPhysical((void *)view->dl));
         }
         gfx = effectWaterRenderSurfaces(gfx, 0, 0);
         for (i = 0; i < D_807F6C08; i++) {
