@@ -11,7 +11,6 @@ typedef struct QueuedFunction {
     s32 param2;
 } QueuedFunction;
 
-extern s32 gGameFrameCounter;
 extern QueuedFunction *gTimerQueue;
 
 void timerQueueInit(void) {
@@ -24,7 +23,7 @@ s32 timerQueueDecodePiCheck(s32 funcOffset, s32 *valA, s32 *valB) {
     return funcOffset + 0x3FFF00FF;
 }
 
-void timerQueueAdd(void *callback, s32 delay, s32 param0, s32 param1, s32 param2) {
+void timerQueueAdd(void *callback, u32 delay, s32 param0, s32 param1, s32 param2) {
     QueuedFunction *curr;
     QueuedFunction *node;
     QueuedFunction *prev;

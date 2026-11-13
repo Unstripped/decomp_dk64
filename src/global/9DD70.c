@@ -680,7 +680,6 @@ typedef struct CameraPoseView {
 
 extern Actor *gPrimaryPlayerActor;
 extern s16 D_80750378;
-extern s32 gGameFrameCounter;
 extern u8 D_8071FE08[];
 extern u8 D_80720E14[];
 
@@ -722,7 +721,7 @@ void func_8069B010(void) {
             actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, gCurrentActor->unk15F, 0, 0);
             actorDespawn(gCurrentActor);
         }
-        if (gCurrentMap != 0x48 && gCurrentMap != 0x11 && (u32)(*p + D_80750378) < (u32)gGameFrameCounter) {
+        if (gCurrentMap != 0x48 && gCurrentMap != 0x11 && (u32)(*p + D_80750378) < gGameFrameCounter) {
             actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, 0xFF, 0, 0);
             actorDespawn(gCurrentActor);
         }

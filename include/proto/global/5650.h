@@ -9,7 +9,7 @@ void timerQueueInit(void);
 s32 timerQueueDecodePiCheck(s32, s32 *, s32 *);
 #endif
 #ifndef PROTO_SKIP_timerQueueAdd
-void timerQueueAdd(void *, s32, s32, s32, s32);
+void timerQueueAdd(void *, u32, s32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_timerQueueUpdate
 void timerQueueUpdate(void);

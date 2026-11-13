@@ -23,5 +23,6 @@ typedef struct Vec3f {
 
 extern u32 gGlobalPauseFlags;
 extern u32 gFrameCounter;
+extern u32 gGameFrameCounter; // advances like gFrameCounter except while gGlobalPauseFlags & 2 (450.c)
 
 #endif

@@ -276,7 +276,6 @@ typedef struct PlayerStateFn {
 
 
 extern PlayerStateFn gPlayerStateHandlers[];
-extern s32 gGameFrameCounter;
 extern s32 D_8076A090;
 extern s32 D_8076A094;
 extern s32 D_8076A098;

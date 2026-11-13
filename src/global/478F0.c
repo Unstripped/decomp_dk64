@@ -1601,7 +1601,6 @@ extern u8 D_8072121C[];
 extern u8 D_80721238[];
 extern u8 D_80721250[];
 extern u8 D_8072126C[];
-extern u32 gGameFrameCounter;
 
 void csCmdSpawnOrbitingSparks(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 *tex;

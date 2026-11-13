@@ -921,8 +921,6 @@ void camUpdateFollowTargetDistance(Actor *camActor) {
     }
 }
 
-extern s32 gGameFrameCounter;
-
 void camEndPath(Actor *camActor) {
     CamState *cam = camActor->customState;
 

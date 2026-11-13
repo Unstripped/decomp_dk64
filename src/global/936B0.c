@@ -1175,7 +1175,6 @@ typedef struct ProjectileBounceState {
 
 extern u8 D_80720340;
 extern u8 D_8072038C;
-extern u32 gGameFrameCounter;
 extern s16 D_80750344;
 
 void projectileBounceParticleUpdate(void *effectCfg) {

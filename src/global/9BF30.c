@@ -275,7 +275,6 @@ typedef struct ProjectileActor {
 
 extern void *D_807502C0[];
 extern u8 D_8071FBA0;
-extern u32 gGameFrameCounter;
 
 #define G_ACTOR ((ProjectileActor *)gCurrentActor)
 
