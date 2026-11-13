@@ -73,7 +73,9 @@ it reaches a `##` macro; events without it: the whole
 header fp_hdr); diagnose/permute/reconstruct/goto-hand/retype/review need equal fp_local and no
 knowledge/ido file committed after the event that names the function or, for diagnose/permute/
 reconstruct only, is a top-8 hit for the free text of the event's note (key=value tokens and carry
-prefixes stripped). Review checklist tokens: fake goto casts views protos temps names uninit warn.
+prefixes stripped), except an entry naming the function whose frontmatter `unit` produced the event
+(a carried event: the event it copies).
+Review checklist tokens: fake goto casts views protos temps names uninit warn.
 A function is EXHAUSTED with a fresh `review`, every site exhausted, and (3+ non-kept non-warning sites) a
 fresh function-level `reconstruct`; without a fresh review it is OPEN next=review.
 
@@ -639,9 +641,11 @@ def note_text(note):
     return rest.strip() if re.search(r"\w", rest) else None
 
 
-def knowledge_after(name, note, t):
+def knowledge_after(name, note, t, unit=None):
     """Whether a knowledge/ido file committed after T names NAME or is a top-8 hit for NOTE's free
-    text (checklist tokens stripped: they match every broad entry; NOTE None: the name check alone)."""
+    text (checklist tokens stripped: they match every broad entry; NOTE None: the name check alone),
+    entries filed by UNIT (frontmatter `unit`) that name NAME aside: the event's own unit derived
+    them from runs like it, so it already had the finding."""
     if "times" not in _know:
         _know["times"] = ledger.knowledge_times()
         _know["newest"] = max((v for v in _know["times"].values() if v), default="")
@@ -652,7 +656,28 @@ def knowledge_after(name, note, t):
     key = (name, note_text(note))
     if key not in _know:
         _know[key] = ledger.related_knowledge(_know["corpus"], name, key[1])
-    return any((_know["times"].get(p) or "") > t for p in _know[key])
+    new = {p for p in _know[key] if (_know["times"].get(p) or "") > t}
+    return bool(new) and not new <= own_knowledge(name, unit)
+
+
+def own_knowledge(name, unit):
+    """Repo-relative paths of the entries filed by UNIT that name NAME (its current or func_ADDR
+    name, as `quirks.py func` matches)."""
+    if not unit:
+        return set()
+    if "units" not in _know:
+        _know["units"] = collections.defaultdict(list)
+        for e in _know["corpus"].entries.values():
+            if e.unit:
+                _know["units"][e.unit].append(e)
+    if not _know["units"].get(unit):
+        return set()
+    key = ("own", name, unit)
+    if key not in _know:
+        aliases = quirks.function_aliases(name, ledger.ROOT)
+        _know[key] = {os.path.relpath(str(e.path), ledger.ROOT) for e in _know["units"][unit]
+                      if aliases & set(e.functions)}
+    return _know[key]
 
 
 def hdr_fresh(e, now_fp):
@@ -663,16 +688,28 @@ def hdr_fresh(e, now_fp):
     return e["fp_hdr"] == now_fp[1]
 
 
-def fresh(e, now_fp, name):
+def origin_unit(e, evs=()):
+    """The unit whose agent produced E. A carried event (agent `carry`) holds an earlier result under
+    the carrying unit: its producer is the uncarried event of the same method and time in EVS (None
+    when that is not among them, e.g. a re-keyed site)."""
+    if e.get("agent") != "carry":
+        return e.get("unit")
+    return next((x.get("unit") for x in evs
+                 if x.get("agent") != "carry" and x["method"] == e["method"] and x["t"] == e["t"]), None)
+
+
+def fresh(e, now_fp, name, evs=()):
     """NOW_FP = (fp_local, fp_hdr[, fp_hdr2]). Knowledge stales an agent method through the
     function's name; only NOTE_METHODS also through the top-8 hits of their note: a review's or
-    goto rewrite's prose (`re-read`, `steer`) matches unrelated broad entries."""
+    goto rewrite's prose (`re-read`, `steer`) matches unrelated broad entries. An entry filed by
+    the unit that produced the event (`origin_unit` over EVS) and naming the function stales
+    neither way (`own_knowledge`)."""
     if e["fp_local"] != now_fp[0]:
         return False
     if e["method"] in AUTO:
         return hdr_fresh(e, now_fp)
     note = e["note"] if e["method"] in NOTE_METHODS else None
-    return not knowledge_after(name or e["name"], note, e["t"])
+    return not knowledge_after(name or e["name"], note, e["t"], origin_unit(e, evs))
 
 
 def mark(evs, method, now_fp, name):
@@ -685,7 +722,7 @@ def mark(evs, method, now_fp, name):
             e = x
     if e is None:
         return "—", None, False
-    if not fresh(e, now_fp, name):
+    if not fresh(e, now_fp, name, evs):
         return "stale", e, False
     return ("—" if e["outcome"] == "blocked" else "✓"), e, True
 

@@ -7,12 +7,13 @@
     python3 tools/quirks.py get ID...           # Q0042, guide-slug, guide-slug#3
     python3 tools/quirks.py tags                # phases and symptom tags with counts
     python3 tools/quirks.py add --title T --phase P --symptom S... (--body TEXT | --body-file F)
-                                [--function F]... [--source PATH@COMMIT]... [--see-also ID]...
+                                [--function F]... [--source PATH@COMMIT]... [--see-also ID]... [--unit U]
     python3 tools/quirks.py check               # validate every file
 
 Store (`--root DIR` overrides `knowledge/ido`):
   entries/QNNNN.md  one quirk each: `---`, one `key: <JSON literal>` line per key (title,
-                    phase, symptoms, functions, section, sources, see_also), `---`, markdown body.
+                    phase, symptoms, functions, section, sources, see_also, optional unit: the
+                    cleanup unit whose agents produced the finding), `---`, markdown body.
   guides/<slug>.md  long-form notes and runbooks: frontmatter title, description, origin; body.
                     Guides are searched per `##`/`###` section (`slug#n`).
 
@@ -74,7 +75,7 @@ SYMPTOMS: Dict[str, str] = {
     "tooling": "behaviour of repo tools (fdiff, objdiff, permuter, uopt_trace, as1probe, deadsweep, merge_gate)",
 }
 
-ENTRY_KEYS = ("title", "phase", "symptoms", "functions", "section", "sources", "see_also")
+ENTRY_KEYS = ("title", "phase", "symptoms", "functions", "section", "sources", "see_also", "unit")
 LIST_KEYS = ("symptoms", "functions", "sources", "see_also")
 GUIDE_KEYS = ("title", "description", "origin")
 ID_RE = re.compile(r"^Q(\d{4})$")
@@ -147,6 +148,7 @@ class Entry:
     see_also: List[str]
     body: str
     path: Path
+    unit: str = ""  # cleanup unit whose agents produced the finding (quality.py freshness)
 
 
 @dataclass
@@ -262,6 +264,8 @@ def load(root: Path = DEFAULT_ROOT) -> Corpus:
         for k in LIST_KEYS:
             if k in meta and not isinstance(meta[k], list):
                 corpus.problems.append(f"{p.name}: {k} must be a list")
+        if "unit" in meta and not (isinstance(meta["unit"], str) and meta["unit"].strip()):
+            corpus.problems.append(f"{p.name}: unit must be a non-empty string")
         eid = p.stem
         corpus.entries[eid] = Entry(
             id=eid,
@@ -274,6 +278,7 @@ def load(root: Path = DEFAULT_ROOT) -> Corpus:
             see_also=[str(s) for s in _as_list(meta, "see_also")],
             body=body,
             path=p,
+            unit=meta["unit"] if isinstance(meta.get("unit"), str) else "",
         )
     for p in sorted(gdir.glob("*.md")) if gdir.is_dir() else []:
         try:
@@ -316,6 +321,7 @@ def add_entry(
     sources: Iterable[dict] = (),
     see_also: Iterable[str] = (),
     section: str = "",
+    unit: str = "",
 ) -> str:
     _validate(title, phase, list(symptoms))
     edir = Path(root) / "entries"
@@ -331,6 +337,8 @@ def add_entry(
         "sources": list(sources),
         "see_also": list(see_also),
     }
+    if unit:
+        meta["unit"] = unit
     text = format_file(meta, ENTRY_KEYS, body)
     while True:
         eid = f"Q{n:04d}"
@@ -555,6 +563,8 @@ def print_entry(e: Entry) -> None:
         print(f"sources: {'; '.join(parts)}")
     if e.see_also:
         print(f"see also: {', '.join(e.see_also)}")
+    if e.unit:
+        print(f"unit: {e.unit}")
     print()
     print(e.body)
 
@@ -654,7 +664,7 @@ def cmd_add(a) -> int:
     try:
         eid = add_entry(
             a.root, a.title, a.phase, a.symptom, body,
-            functions=a.function, sources=[_parse_source(s) for s in a.source], see_also=a.see_also,
+            functions=a.function, sources=[_parse_source(s) for s in a.source], see_also=a.see_also, unit=a.unit,
         )
     except ValueError as e:
         print(str(e), file=sys.stderr)
@@ -721,6 +731,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     p.add_argument("--function", action="append", default=[])
     p.add_argument("--source", action="append", default=[], metavar="PATH@COMMIT")
     p.add_argument("--see-also", action="append", default=[], metavar="ID")
+    p.add_argument("--unit", default="", metavar="U",
+                   help="cleanup unit whose agents produced the finding: its own rungs on the --function names stay fresh")
     p.set_defaults(fn=cmd_add)
 
     p = sub.add_parser("check", help="validate the store")

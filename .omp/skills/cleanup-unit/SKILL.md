@@ -140,11 +140,11 @@ the ranking. The campaign is done at `reviewed <n>/<n>` with no OPEN function in
 
 1. `uv run tools/quality.py report --baseline 2b2532bc --markdown` (campaign start) replaces
    the table in ROADMAP.md `### 11. Code quality (ongoing)` under "To do".
-2. File the knowledge queue in ONE commit: a new entry per finding with `--see-also` (extend an
-   entry only to correct it: an edit stales every rung citing it); drop pure confirmations; tooling
-   rules go into ladder.md, not `knowledge/ido`; `quirks.py check`. Then count what it staled: for
-   each OPEN function's stale rung compare `fp_local` (text), `hdr_fresh` (automatic rungs) and
-   `ledger.related_knowledge` paths committed after the event (`.scratch/r16_census.py`). Re-record
-   only rungs staled by procedure-only entries with unchanged text, never codegen-staled ones.
+2. File the knowledge queue in ONE commit: one entry per finding with `--see-also` and `--unit U`
+   (the round: its own rungs on the entry's `functions` stay fresh); extend an entry only to correct
+   it (an edit stales every rung citing it); drop pure confirmations; tooling rules → ladder.md;
+   `quirks.py check`. Count what it staled per OPEN stale rung: `fp_local` (text), `hdr_fresh`
+   (automatic) and `ledger.related_knowledge` paths newer than the event (`.scratch/r16_census.py`);
+   re-record only rungs staled by procedure-only entries with unchanged text, never codegen ones.
 3. Procedure lessons → this skill (caps: SKILL.md and references ≤150 lines, brief.md ≤180; a
    lesson replaces or merges text). 4. One [run-log.md](run-log.md) row; commit `cleanup-unit skill: …`.

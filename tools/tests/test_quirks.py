@@ -7,7 +7,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from tools.quirks import add_entry, check, function_aliases, load, search
+from tools.quirks import add_entry, check, function_aliases, load, main, search
 
 
 def _guide(root: Path, slug: str, body: str, title: str = "Guide") -> None:
@@ -82,3 +82,22 @@ def test_guide_chunking(tmp_path):
     assert len(b) >= 3 and all(len(c.text) <= 3000 for c in b)
     assert not any(c.heading == "Sources" for c in chunks)
     assert [c.id for c in chunks] == [f"g#{i}" for i in range(1, len(chunks) + 1)]
+
+
+def test_unit_roundtrip_cli_and_check(tmp_path, capsys):
+    unit = "2026-11-13: cleanup round 34"
+    assert main(["--root", str(tmp_path), "add", "--title", "t", "--phase", "cfe", "--symptom", "loop",
+                 "--body", "b", "--function", "f", "--unit", unit]) == 0
+    eid = add_entry(tmp_path, "u", "cfe", ["loop"], "b")  # no unit: no key written
+    corpus = load(tmp_path)
+    (with_unit,) = [e for e in corpus.entries.values() if e.id != eid]
+    assert with_unit.unit == unit and corpus.entries[eid].unit == ""
+    assert with_unit.path.read_text().split("\n")[8] == f'unit: "{unit}"'  # after see_also
+    assert "unit:" not in corpus.entries[eid].path.read_text()
+    assert check(corpus) == []
+    assert main(["--root", str(tmp_path), "check"]) == 0
+    p = corpus.entries[eid].path
+    for bad in ("5", '""'):
+        p.write_text(p.read_text().replace("---\nb\n", f"unit: {bad}\n---\nb\n"))
+        assert any("unit must be a non-empty string" in x for x in check(load(tmp_path)))
+        p.write_text(p.read_text().replace(f"unit: {bad}\n", ""))

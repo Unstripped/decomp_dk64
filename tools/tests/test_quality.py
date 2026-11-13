@@ -32,7 +32,7 @@ def ev(site, method, outcome, fp=FP, note=None, **kw):
 
 @pytest.fixture(autouse=True)
 def no_new_knowledge(monkeypatch):
-    monkeypatch.setattr(q, "knowledge_after", lambda name, note, t: False)
+    monkeypatch.setattr(q, "knowledge_after", lambda name, note, t, unit=None: False)
 
 
 @pytest.fixture(autouse=True)
@@ -364,13 +364,58 @@ def test_note_hits_stale_only_diagnose_permute_reconstruct(monkeypatch):
         {"knowledge/ido/entries/Q9002.md"} if name == "named" else set()))
     times = {"knowledge/ido/entries/Q9001.md": "2026-02-01T00:00:00Z",
              "knowledge/ido/entries/Q9002.md": "2026-02-01T00:00:00Z"}
-    monkeypatch.setattr(q, "_know", {"times": times, "newest": max(times.values()), "corpus": []})
+    monkeypatch.setattr(q, "_know", {"times": times, "newest": max(times.values()),
+                                     "corpus": q.quirks.Corpus(Path("."))})
     note = "re-read after the steer fix " + REVIEW
     for m in ("review", "goto-hand"):
         assert q.fresh(ev(None, m, "nohit", note=note), FP, "f")  # note hit alone: still fresh
         assert not q.fresh(ev(None, m, "nohit", note=note, name="named"), FP, "named")  # name hit
     for m in ("diagnose", "permute", "reconstruct"):
         assert not q.fresh(ev(None, m, "nohit", note=note), FP, "f")
+
+
+R34 = "2026-11-13: cleanup round 34"
+
+
+def _knowledge_repo(tmp_path, monkeypatch):
+    """(repo, its knowledge/ido root): ledger.ROOT at REPO, the real knowledge_after."""
+    repo = tmp_path.resolve() / "repo"
+    kroot = repo / "knowledge" / "ido"
+    kroot.mkdir(parents=True)
+    monkeypatch.setattr(q.ledger, "ROOT", str(repo))
+    monkeypatch.setattr(q, "knowledge_after", _real_knowledge_after)
+    return repo, kroot
+
+
+def test_own_unit_entry_naming_function_does_not_stale(tmp_path, monkeypatch):
+    # round 34: Q0704-Q0719, derived from the round's own runs, staled those very runs (circular)
+    repo, kroot = _knowledge_repo(tmp_path, monkeypatch)
+    (repo / "symbol_addrs.us.txt").write_text("fooBar = 0x80600000; // type:func\n")
+    own = q.quirks.add_entry(kroot, "spill across the jal", "uopt", ["regalloc"], "sp+0x34 spill across the jal",
+                             functions=["func_80600000"], unit=R34)  # names fooBar by its address
+    older = q.quirks.add_entry(kroot, "dead store kept", "uopt", ["dead-code"], "a dead store", functions=["fooBar"])
+    times = {f"knowledge/ido/entries/{own}.md": "2026-02-01T00:00:00Z",
+             f"knowledge/ido/entries/{older}.md": "2026-01-15T00:00:00Z"}
+    monkeypatch.setattr(q, "_know", {"times": times, "newest": max(times.values()), "corpus": q.quirks.load(kroot)})
+
+    def fresh(name, method, unit, t="2026-01-20T00:00:00Z"):
+        note = "spill across the jal" if method in q.NOTE_METHODS else REVIEW
+        return q.fresh(ev(None, method, "nohit", note=note, name=name, unit=unit, t=t), FP, name)
+
+    for m in ("review", "goto-hand", "retype", "diagnose", "permute", "reconstruct"):
+        assert fresh("fooBar", m, R34)  # same unit, named (also a note hit): its agents had the finding
+        assert not fresh("fooBar", m, "2026-11-12: cleanup round 33")  # earlier unit: staled
+        assert not fresh("fooBar", m, R34, t="2026-01-10T00:00:00Z")  # another newer entry names it
+    for m in ("diagnose", "permute", "reconstruct"):
+        assert not fresh("otherFn", m, R34)  # same unit, not in `functions`: note hit still stales
+    assert fresh("otherFn", "review", R34)
+    # a carried event holds an earlier agent's result under the carrying unit: the copied event's unit counts
+    t = "2026-01-20T00:00:00Z"
+    for orig_unit, ok in ((R34, True), ("2026-11-12: cleanup round 22", False)):
+        orig = ev(SITE, "diagnose", "nohit", note="spill across the jal", name="fooBar", unit=orig_unit, t=t)
+        carried = dict(orig, unit=R34, agent="carry", note="carried from abc (renames) spill across the jal")
+        assert q.mark([orig, carried], "diagnose", FP, "fooBar")[2] is ok
+    assert not q.mark([carried], "diagnose", FP, "fooBar")[2]  # its original not among them: unknown
 
 
 def test_newest_by_time_wins_over_carried_older_event():
