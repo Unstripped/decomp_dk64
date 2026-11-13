@@ -72,8 +72,8 @@ void actorOrNodeFlags(Actor *, s32, u8);
 #ifndef PROTO_SKIP_actorClearNodeFlags
 void actorClearNodeFlags(Actor *, s32, u8);
 #endif
-#ifndef PROTO_SKIP_func_8066E664
-void func_8066E664(Actor *, s32, u8);
+#ifndef PROTO_SKIP_actorSetBoxEnableById
+void actorSetBoxEnableById(Actor *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_func_8066E6C8
 void func_8066E6C8(Actor *, s32, u8);
@@ -198,8 +198,8 @@ u8 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, u8, u16);
 #ifndef PROTO_SKIP_collisionTestSphereSlots
 u8 collisionTestSphereSlots(f32, f32, f32, f32, s16 *, s16 *);
 #endif
-#ifndef PROTO_SKIP_func_80672134
-s16 func_80672134(s16, s16, s16, s16);
+#ifndef PROTO_SKIP_mathAngleArcProximityScale
+s16 mathAngleArcProximityScale(s16, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_actorCheckPointInAngleArc
 s32 actorCheckPointInAngleArc(Actor *, f32, f32);

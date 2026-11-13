@@ -14,7 +14,7 @@ void actorStepPhysics(Actor *actor, s16 targetYaw, s16 targetPitch) {
     func_80665ACC(actor);
     if (actor->hasArcBounds != 0) {
         mathAngleClampToArc(actor->moveYaw, targetYaw, actor->arcYawMin, actor->arcYawMax, &actor->unkF2);
-        actor->unkFA = func_80672134(actor->arcYawMin, actor->arcYawMax, targetPitch, actor->unkF8);
+        actor->unkFA = mathAngleArcProximityScale(actor->arcYawMin, actor->arcYawMax, targetPitch, actor->unkF8);
         if ((actor->renderFlags & 0x200) && (actor->renderFlags & 0x100)) {
             actor->unkFA = 0;
         }

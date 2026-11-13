@@ -1965,7 +1965,7 @@ u8 camResolveWallCollision(Actor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, f32
             prevZ += 0.5 * mathCosF(arcMid);
             st->unkFC = 1;
             mathAngleClampToArc(camActor->moveYaw, camActor->moveYaw, arcMin, arcMax, &pushYaw);
-            t = func_80672134(arcMin, arcMax, camActor->yaw, 100);
+            t = mathAngleArcProximityScale(arcMin, arcMax, camActor->yaw, 100);
             if (t < maxPush) {
                 pushDist = t;
             } else {

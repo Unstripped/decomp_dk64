@@ -952,7 +952,7 @@ void actorClearNodeFlags(Actor *actor, s32 index, u8 flags) {
     }
 }
 
-void func_8066E664(Actor *actor, s32 id, u8 value) {
+void actorSetBoxEnableById(Actor *actor, s32 id, u8 value) {
     ActorSub140 *sub;
     ActorSub140SrcTri *ent;
     s32 i;
@@ -2464,7 +2464,7 @@ u8 collisionTestSphereSlots(f32 fx, f32 fy, f32 fz, f32 fradius, s16 *arcMin, s1
 }
 
 
-s16 func_80672134(s16 angle, s16 arcMin, s16 arcMax, s16 maxValue) {
+s16 mathAngleArcProximityScale(s16 angle, s16 arcMin, s16 arcMax, s16 maxValue) {
     s16 opposite;
     f32 ratio;
     s16 bisect;
