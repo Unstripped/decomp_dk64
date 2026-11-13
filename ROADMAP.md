@@ -153,22 +153,23 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 28 (2026-11-12)** — menu/3E10, bonus/9010, boot/30E0 (new `include/gzip.h`), global/5DE10, race/6650; FrameCounterBatch (one `u32 gGameFrameCounter` in common.h); round-27 tail Rev27. cfe warnings 31 → 30; names `gFog*`.
 - [x] **Round 29 (2026-11-12)** — global/36880, 7A510, bonus/2690, jetpac/1A60 (jetpac.h `lifetime` u32), boss/DAA0; GridSimpleBatch (103AB0 width/height u32); round-28 tail Rev28. cfe warnings 30 → 29; FAKE 738 → 735.
 - [x] **Round 30 (2026-11-12)** — multiplayer/0, jetpac/3480, 135D30, 63810, 2C910; CastSweepBatch (21 no-op counter casts; frame stamps u32 incl. model.h/heap.h); round-29 tail Rev29. cfe warnings 29 → 27; FAKE 735 → 731.
-- [ ] Remaining (after round 30): 170 OPEN functions in 106 files (re-review groups Rev30A/B prepared for 38 functions) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
+- [x] **Round 31 (2026-11-12, final)** — global/13CE70, 14CF0, 16A20, C4620, 42630 (cutscene.h `unk5E` u16; 119370 `effectGridFindByTargetId` returns `EffectGridAsset *`); ParticleRingBatch (`bossSpawnParticleRing` ANSI); round-30 tail Rev30. cfe warnings 27 → 26; proto-steer 52 → 48.
+- [ ] Campaign closed after round 31. Leftovers: 135 OPEN functions in 100 files and the blocked owner/header changes, listed in `.omp/skills/cleanup-unit/pending.md`; a future campaign resumes from `uv run tools/quality.py rank`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 30):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 31, campaign closed):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 731 | 583 |
+| FAKE | 730 | 583 |
 | FAKE dead-if | 271 | 263 |
-| FAKE proto-steer | 52 | 134 |
+| FAKE proto-steer | 48 | 134 |
 | FAKE other kinds | 411 | 186 |
-| LAYOUT | 70 | 47 |
+| LAYOUT | 69 | 47 |
 | goto | 35 | 39 |
 | proto-type (`// PROTO:`) | 6 | 0 |
 | protos mismatch | 23 | 1,202 |
-| reviewed / exhausted functions | 4,188 / 4,100 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 27 | 1,890 |
+| reviewed / exhausted functions | 4,220 / 4,135 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 26 | 1,890 |
 | uninit warnings (clint checks every function) | 251 | 122 |
 | `func_` definitions | 430 | 457 |
 | m2c names | 396 | 5,040 |
