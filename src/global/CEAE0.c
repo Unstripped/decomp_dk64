@@ -414,11 +414,8 @@ void playerUpdateCommon(s32 mode) {
             s8 attackerIndex = gActivePlayerState->attackerPlayerIndex;
             if (attackerIndex >= 0 && (u32)attackerIndex != gActivePlayerState->playerIndex) { // FAKE: (u32) cast on a != compare steers codegen
                 attacker = gPlayerSlots[attackerIndex].actor;
-            } else {
-                s8 spawnNodeId = gActivePlayerState->attackerSpawnNodeId;
-                if (spawnNodeId > 0) {
-                    attacker = spawnNodeActivate(spawnNodeId, 0);
-                }
+            } else if (gActivePlayerState->attackerSpawnNodeId > 0) {
+                attacker = spawnNodeActivate(gActivePlayerState->attackerSpawnNodeId, 0);
             }
         }
         if (D_807552E4.unk0 == 0) {

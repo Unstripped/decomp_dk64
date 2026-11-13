@@ -803,7 +803,7 @@ typedef struct PlayerState {
     /* 0x246 */ s8 hitSourceSpawnNodeId;
     /* 0x247 */ s8 hitSourcePlayerIndex;
     /* 0x248 */ s8 attackerPlayerIndex;
-    /* 0x249 */ u8 attackerSpawnNodeId;
+    /* 0x249 */ s8 attackerSpawnNodeId;
     /* 0x24A */ u8 attackTimer;
     /* 0x24B */ u8 pad24B;
     /* 0x24C */ u16 hitModelId;
