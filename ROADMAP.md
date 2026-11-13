@@ -150,13 +150,14 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 25 (2026-11-12)** — global/104F0, 478F0, 67890 (`actorTargetTableLoad(MapFileHeader *)`), 17800, jetpac/1460 (jetpac.h JetpacSprite/JetpacCellItem types); ArcadeBatch (`TextureDescriptor` in render.h, arcade/0 proto-steers retired); round-24 tail Rev24 (boss/3840; B100 onto boss.h). cfe warnings 45 → 39; proto-steer 60 → 59; names `gActorTarget*`, `actorTargetTableHasPortalSlot`.
 - [x] **Round 26 (2026-11-12)** — global/ACDC0, C0EE0, 13980 (sched.h `TaskNode.client`), FCCD0, boss/9C60; SinBatch (shared `sinApprox`/`cosApprox` in common.h, 26 files); actor.h inventory counters u16; round-25 tail Rev25. cfe warnings 39 → 34; proto-steer 59 → 54; protos mismatch 31 → 26; name `gPauseMenuMode`.
 - [x] **Round 27 (2026-11-12)** — boss/0 (+ 80150), global/8D3E0 (map.h `Struct8076A160`), B1F60, C1E70, boot/3D20, critter/5110; round-26 tail Rev26A/B; quality.py sweep fix for sites it cannot edit. cfe warnings 34 → 31; proto-steer 54 → 51; protos mismatch 26 → 23.
-- [ ] Remaining (after round 27): 178 OPEN functions in 98 files (re-review groups Rev27A/B prepared for 7 functions) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
+- [x] **Round 28 (2026-11-12)** — menu/3E10, bonus/9010, boot/30E0 (new `include/gzip.h`), global/5DE10, race/6650; FrameCounterBatch (one `u32 gGameFrameCounter` in common.h); round-27 tail Rev27. cfe warnings 31 → 30; names `gFog*`.
+- [ ] Remaining (after round 28): 162 OPEN functions in 95 files (re-review groups Rev28A/B prepared for 19 functions) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 27):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-12, after round 28):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 739 | 583 |
+| FAKE | 738 | 583 |
 | FAKE dead-if | 271 | 263 |
 | FAKE proto-steer | 51 | 134 |
 | FAKE other kinds | 411 | 186 |
@@ -164,8 +165,8 @@ Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc -
 | goto | 35 | 39 |
 | proto-type (`// PROTO:`) | 6 | 0 |
 | protos mismatch | 23 | 1,202 |
-| reviewed / exhausted functions | 4,186 / 4,092 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 31 | 1,890 |
+| reviewed / exhausted functions | 4,191 / 4,108 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 30 | 1,890 |
 | uninit warnings (clint checks every function) | 251 | 122 |
 | `func_` definitions | 430 | 457 |
 | m2c names | 396 | 5,040 |
