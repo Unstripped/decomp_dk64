@@ -25,8 +25,7 @@ typedef struct BonusEHud {
     s16 unk4;
     u8 unk6;
     u8 unk7;
-    u8 unk8;
-    u8 pad9;
+    s16 unk8;
     s16 unkA;
     u8 unkC;
     u8 unkD;
@@ -119,12 +118,12 @@ void bonusScoreHudUpdate(void) {
                 }
                 resQueueAttachActor(gCurrentActor, 0, actionParam);
                 gCurrentActor->state = 1;
-                hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
+                hudSpawnCountdownTimer(0xDC, 0x2A, hud->unk4);
             } else if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
                 camStartPath(gPrimaryPlayerActor, 1, 1);
                 gCurrentActor->state = 2;
-                hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
-                hudCountdownTimerStart((void *)gCurrentActor->parentActor);
+                hudSpawnCountdownTimer(0xDC, 0x2A, hud->unk4);
+                hudCountdownTimerStart(gCurrentActor->parentActor);
             }
         }
         break;
@@ -132,7 +131,7 @@ void bonusScoreHudUpdate(void) {
         if (!(gCurrentActor->flags & 0x02000000) || ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000))) {
             camResumePath();
             gCurrentActor->state = 2;
-            hudCountdownTimerStart((void *)gCurrentActor->parentActor);
+            hudCountdownTimerStart(gCurrentActor->parentActor);
         }
         break;
     case 2:
