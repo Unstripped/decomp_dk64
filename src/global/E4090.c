@@ -1,6 +1,8 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
+#define PROTO_SKIP_playerInputCanFireWeapon
+#define PROTO_SKIP_playerInputCanPerformFairySnap
 #include "proto/global/10E1D0.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -32,6 +34,9 @@
 #include "proto/global/EFDC0.h"
 #include "proto/global/F56F0.h"
 #include "proto/global/FCCD0.h"
+
+u8 playerInputCanFireWeapon(void);
+u8 playerInputCanPerformFairySnap(void);
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -170,7 +175,6 @@ typedef struct PadInputState {
 
 extern PadInputState gPlayerPadState[];
 
-f32 sqrtf(f32);
 
 typedef struct PadRawInput {
     /* 0x0 */ u16 unk0;
@@ -422,14 +426,14 @@ void playerInputUpdateStickFacingYaw(void) {
 
     playerUpdateMoveTargetFromStick();
     scale = gPlayerPadState[gCurrentPlayerIndex].stickMagNorm;
-    if ((f64)scale < 0.3) {
+    if (scale < 0.3) {
         scale = 0.3f;
     }
     delta = gCurrentActor->moveYaw - gActivePlayerState->targetYaw;
     if (delta > 0) {
-        dist = (f32)delta;
+        dist = delta;
     } else {
-        dist = (f32)-delta;
+        dist = -delta;
     }
     if (dist > 2048.0f) {
         dist = 4096.0f - dist;
@@ -438,7 +442,7 @@ void playerInputUpdateStickFacingYaw(void) {
         dist = 400.0f;
     }
     dist = dist * 0.2;
-    mathAngleStepToward(&gCurrentActor->moveYaw, gActivePlayerState->targetYaw, (s16)(s32)(dist * scale));
+    mathAngleStepToward(&gCurrentActor->moveYaw, gActivePlayerState->targetYaw, (s16)(dist * scale));
 }
 
 void playerInputUpdateStickFacingYawSlow(void) {
@@ -448,14 +452,14 @@ void playerInputUpdateStickFacingYawSlow(void) {
 
     playerUpdateMoveTargetFromStick();
     scale = gPlayerPadState[gCurrentPlayerIndex].stickMagNorm;
-    if ((f64)scale < 0.3) {
+    if (scale < 0.3) {
         scale = 0.3f;
     }
     delta = gCurrentActor->moveYaw - gActivePlayerState->targetYaw;
     if (delta > 0) {
-        dist = (f32)delta;
+        dist = delta;
     } else {
-        dist = (f32)-delta;
+        dist = -delta;
     }
     if (dist > 2048.0f) {
         dist = 4096.0f - dist;
@@ -463,8 +467,8 @@ void playerInputUpdateStickFacingYawSlow(void) {
     if (dist > 400.0f) {
         dist = 400.0f;
     }
-    dist = dist * ((f64)gActivePlayerState->turnRate / 400.0);
-    mathAngleStepToward(&gCurrentActor->yaw, gActivePlayerState->targetYaw, (s16)(s32)(dist * scale));
+    dist = dist * (gActivePlayerState->turnRate / 400.0);
+    mathAngleStepToward(&gCurrentActor->yaw, gActivePlayerState->targetYaw, (s16)(dist * scale));
 }
 
 f32 inputLerpByStickAbsX(f32 from, f32 to) {
@@ -524,9 +528,9 @@ void playerInputUpdateStickMoveTarget(void) {
         scale = (pad->stickMagNorm * 0.7) + 0.3;
         delta = gCurrentActor->yaw - gActivePlayerState->targetYaw;
         if (delta > 0) {
-            dist = (f32)delta;
+            dist = delta;
         } else {
-            dist = (f32)-delta;
+            dist = -delta;
         }
         if (dist > 2048.0f) {
             dist = 4096.0f - dist;
@@ -534,8 +538,8 @@ void playerInputUpdateStickMoveTarget(void) {
         if (dist > 400.0f) {
             dist = 400.0f;
         }
-        dist = dist * ((f64)gActivePlayerState->turnRate / 400.0);
-        mathAngleStepToward(&gCurrentActor->yaw, gActivePlayerState->targetYaw, (s16)(s32)(dist * scale));
+        dist = dist * (gActivePlayerState->turnRate / 400.0);
+        mathAngleStepToward(&gCurrentActor->yaw, gActivePlayerState->targetYaw, (s16)(dist * scale));
     }
 }
 
@@ -669,14 +673,14 @@ void playerInputUpdateMoveTargetWithDeadzone(void) {
     if (gActivePlayerState->maxSpeed != 0.0f) {
         scale = gPlayerPadState[gCurrentPlayerIndex].stickMagNorm;
         scale = scale * scale;
-        if ((f64)scale < 0.2) {
+        if (scale < 0.2) {
             scale = 0.2f;
         }
         delta = gCurrentActor->yaw - gActivePlayerState->targetYaw;
         if (delta > 0) {
-            dist = (f32)delta;
+            dist = delta;
         } else {
-            dist = (f32)-delta;
+            dist = -delta;
         }
         if (dist > 2048.0f) {
             dist = 4096.0f - dist;
@@ -684,8 +688,8 @@ void playerInputUpdateMoveTargetWithDeadzone(void) {
         if (dist > 400.0f) {
             dist = 400.0f;
         }
-        dist = dist * ((f64)gActivePlayerState->turnRate / 400.0);
-        mathAngleStepToward(&gCurrentActor->yaw, gActivePlayerState->targetYaw, (s16)(s32)(dist * scale));
+        dist = dist * (gActivePlayerState->turnRate / 400.0);
+        mathAngleStepToward(&gCurrentActor->yaw, gActivePlayerState->targetYaw, (s16)(dist * scale));
     }
 }
 
@@ -745,11 +749,11 @@ void playerInputUpdateMoveTargetWithDeadzone2(void) {
     if (gActivePlayerState->maxSpeed != 0.0f && !gCurrentActor->speedXZ) {
         scale = gPlayerPadState[gCurrentPlayerIndex].stickMagNorm;
         scale = scale * scale;
-        if ((f64)scale < 0.2) {
+        if (scale < 0.2) {
             scale = 0.2f;
         }
         targetYaw = gActivePlayerState->targetYaw;
-        turn = (f32)(gCurrentActor->yaw - targetYaw);
+        turn = gCurrentActor->yaw - targetYaw;
         if (turn >= 2048.0f) {
             turn -= 4096.0f;
         }
@@ -762,14 +766,14 @@ void playerInputUpdateMoveTargetWithDeadzone2(void) {
         if (turn < -400.0f) {
             turn = -400.0f;
         }
-        turn = (f32)((f64)turn * ((f64)gActivePlayerState->turnRate / 400.0));
+        turn = turn * (gActivePlayerState->turnRate / 400.0);
         turn = turn * scale;
         if (turn > 0.0f) {
             scale = turn;
         } else {
             scale = -turn;
         }
-        mathAngleStepToward(&gCurrentActor->yaw, targetYaw, (s16)(s32)scale);
+        mathAngleStepToward(&gCurrentActor->yaw, targetYaw, (s16)scale);
         if (turn != 0.0f) {
             if (gCurrentActor->state != 0x3C) {
                 if (gCurrentActor->state == 0x62) {
@@ -777,14 +781,14 @@ void playerInputUpdateMoveTargetWithDeadzone2(void) {
                     if (gCurrentActor->sub4->animId != script) {
                         actorScriptStart(gCurrentActor, script);
                     }
-                    scriptSetActorRampTarget(gCurrentActor, (f32)((f64)turn / 80.0), 0.0f);
+                    scriptSetActorRampTarget(gCurrentActor, turn / 80.0, 0.0f);
                 }
             } else {
                 script = gActorScriptIndexTable[gCurrentActor->actorType + 0x52];
                 if (gCurrentActor->sub4->animId != script) {
                     actorScriptStart(gCurrentActor, script);
                 }
-                scriptSetActorRampTarget(gCurrentActor, (f32)((f64)turn / 80.0), 0.0f);
+                scriptSetActorRampTarget(gCurrentActor, turn / 80.0, 0.0f);
             }
         }
     } else {
@@ -1032,7 +1036,6 @@ void playerInputHandleAButtonState61(void) {
     }
 }
 
-f32 sqrtf(f32);
 
 
 extern u8 D_8071FBC8;
@@ -1275,7 +1278,7 @@ void playerInputToggleActiveState(Actor *actor) {
 
 extern s32 gGlobalOverlayFlags;
 
-s32 playerInputCanFireWeapon(void) {
+u8 playerInputCanFireWeapon(void) {
     s32 ok;
 
     ok = !func_80714608(0) && !(gGlobalOverlayFlags & 0x200) && slotQueueGetValue(4, gCurrentPlayerIndex) &&
@@ -1283,7 +1286,7 @@ s32 playerInputCanFireWeapon(void) {
            actorCountOwnedByClass(gCurrentActor, 4, 0) < D_80753E64[gCurrentCharacterIndex] &&
            (flagGet(0x184, 0) || (gGlobalOverlayFlags & 0x10000000) || gPlayerCount >= 2 || func_807142D8() ||
             menuIsTransitionTypeC());
-    return ok & 0xFF;
+    return ok;
 }
 
 
@@ -1515,7 +1518,7 @@ void playerInputStepCannonPitch(void) {
     if (gCurrentActor->soundSlots[0] == -1) {
         sfxPlayActorSound(gCurrentActor, 0x114, 0, 0, 0, 0xFF, 1.0f, 0);
     }
-    t = (s16)(s32)a;
+    t = (s16)a;
     c = mathCosF(t);
     b = D_807536E4[gCurrentCharacterIndex];
     gCurrentActor->accelY = D_807536E4[gCurrentCharacterIndex] + (-2.0f * b * c);
@@ -1598,10 +1601,10 @@ void playerStepPitchAngleToward(f32 target) {
 
     ps = gActivePlayerState;
     raw = ps->unk1A0;
-    if ((s32)raw < 0x8000) {
-        pitch = (s32)raw + 0x10000;
+    if (raw < 0x8000) {
+        pitch = raw + 0x10000;
     } else {
-        pitch = (u32)raw;
+        pitch = raw;
     }
     if (target < pitch) {
         pitch -= 3000.0f;
@@ -1615,7 +1618,7 @@ void playerStepPitchAngleToward(f32 target) {
             pitch = target;
         }
     }
-    ps->unk1A0 = (u32)pitch;
+    ps->unk1A0 = pitch;
 }
 
 void playerInputHandleStickAction(void) {
@@ -1636,7 +1639,7 @@ void playerInputHandleStickAction(void) {
         if (ang < 0.0f) {
             ang += 4096.0f;
         }
-        t = (s32)ang;
+        t = (s16)ang;
         ground = mathSinF(t) * gCurrentActor->speedXZ;
         if (ground > 0.0f) {
             a = ground;
@@ -1672,7 +1675,7 @@ void playerInputHandleStickAction(void) {
             } else {
                 a = -ground;
             }
-            arg = (f64)(mathAtan2(a, ang) - 1.5707964f) * 16384.0 / 1.5707963705062866 + 63000.0;
+            arg = (mathAtan2(a, ang) - 1.5707964f) * 16384.0 / 1.5707963705062866 + 63000.0;
         } else {
             arg = 63000.0f;
         }
@@ -1810,10 +1813,7 @@ void playerInputHandleBButtonPunch(void) {
 }
 
 void playerInputHandleBButtonSpecial(void) {
-    u8 idx;
-
-    idx = gCurrentPlayerIndex;
-    if (gPlayerPadState[idx].pressedButtons & 0x4000) {
+    if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
         if ((D_8075318C[gCurrentCharacterIndex] < gActivePlayerState->unk20) &&
             ((gPlayerCharacterId[gCurrentPlayerIndex] == 3) || (gPlayerCharacterId[gCurrentPlayerIndex] == 0) || (gPlayerCharacterId[gCurrentPlayerIndex] == 5))) {
             if (gPlayerCharacterId[gCurrentPlayerIndex] == 3) {
@@ -2234,7 +2234,7 @@ int func_806E5C74(void) {
             fv = t;
         }
     }
-    return ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000) != 0) && ((f64)gActivePlayerState->currentScale[0] * 66.0 < (f64)fv) &&
+    return ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000) != 0) && (gActivePlayerState->currentScale[0] * 66.0 < fv) &&
            (gPlayerCharacterId[gCurrentPlayerIndex] != 6) && (D_807FD568[1] != 0);
 }
 
@@ -2435,13 +2435,13 @@ void playerInputUpdateStickTurnYaw(void) {
 
     playerUpdateMoveTargetFromStick();
     if (gActivePlayerState->maxSpeed != 0.0f) {
-        scale = (f32)(((f64)gPlayerPadState[gCurrentPlayerIndex].stickMagNorm * 0.5) + 0.5);
+        scale = gPlayerPadState[gCurrentPlayerIndex].stickMagNorm * 0.5 + 0.5;
         targetYaw = gActivePlayerState->targetYaw;
         delta = gCurrentActor->yaw - targetYaw;
         if (delta > 0) {
-            dist = (f32)delta;
+            dist = delta;
         } else {
-            dist = (f32)-delta;
+            dist = -delta;
         }
         if (dist > 2048.0f) {
             dist = 4096.0f - dist;
@@ -2449,8 +2449,8 @@ void playerInputUpdateStickTurnYaw(void) {
         if (dist > 400.0f) {
             dist = 400.0f;
         }
-        dist = dist * ((f64)gActivePlayerState->turnRate / 400.0);
-        mathAngleStepToward(&gCurrentActor->yaw, targetYaw, (s16)(s32)(dist * scale));
+        dist = dist * (gActivePlayerState->turnRate / 400.0);
+        mathAngleStepToward(&gCurrentActor->yaw, targetYaw, (s16)(dist * scale));
     }
     mathAngleStepToward(&gCurrentActor->roll, 0, 0x10);
     mathAngleStepToward(&gCurrentActor->pitch, 0, 0x10);
@@ -2471,13 +2471,13 @@ void playerInputUpdateStickTurnYawFast(void) {
 
     playerUpdateMoveTargetFromStick();
     if (gActivePlayerState->maxSpeed != 0.0f) {
-        scale = (f32)(((f64)gPlayerPadState[gCurrentPlayerIndex].stickMagNorm * 0.5) + 0.5);
+        scale = gPlayerPadState[gCurrentPlayerIndex].stickMagNorm * 0.5 + 0.5;
         targetYaw = gActivePlayerState->targetYaw;
         delta = gCurrentActor->yaw - targetYaw;
         if (delta > 0) {
-            dist = (f32)delta;
+            dist = delta;
         } else {
-            dist = (f32)-delta;
+            dist = -delta;
         }
         if (dist > 2048.0f) {
             dist = 4096.0f - dist;
@@ -2486,7 +2486,7 @@ void playerInputUpdateStickTurnYawFast(void) {
             dist = 400.0f;
         }
         dist = dist * 0.45;
-        mathAngleStepToward(&gCurrentActor->yaw, targetYaw, (s16)(s32)(dist * scale));
+        mathAngleStepToward(&gCurrentActor->yaw, targetYaw, (s16)(dist * scale));
     }
     mathAngleStepToward(&gCurrentActor->roll, 0, 0x10);
     mathAngleStepToward(&gCurrentActor->pitch, 0, 0x10);
@@ -2502,9 +2502,9 @@ void playerInputCalculateTurnStep(void) {
     rollStep = 0x10;
     if (gPlayerPadState[gCurrentPlayerIndex].stickAbsX != 0) {
         if (gPlayerCharacterId[gCurrentPlayerIndex] == 7) {
-            ang = (s16)(s32)((f64)ang - ((f64)gPlayerPadState[gCurrentPlayerIndex].stickX * 0.8));
+            ang -= gPlayerPadState[gCurrentPlayerIndex].stickX * 0.8;
         } else {
-            ang = (s16)(s32)((f64)ang - ((f64)gPlayerPadState[gCurrentPlayerIndex].stickX * 0.5));
+            ang -= gPlayerPadState[gCurrentPlayerIndex].stickX * 0.5;
         }
         gCurrentActor->yaw = ang & 0xFFF;
         target = gKongStickTurnRates[gCurrentCharacterIndex] * ((gPlayerPadState[gCurrentPlayerIndex].stickX >= 0) ? 1 : -1);
@@ -2516,7 +2516,7 @@ void playerInputCalculateTurnStep(void) {
     target = (D_80753B44[gCurrentCharacterIndex] * gPlayerPadState[gCurrentPlayerIndex].stickY) / 70;
     target = target & 0xFFF;
     if (gPlayerCharacterId[gCurrentPlayerIndex] == 7) {
-        rollStep = (s16)(s32)((((f64)gPlayerPadState[gCurrentPlayerIndex].stickY * 0.5) > 0.0 ? ((f64)gPlayerPadState[gCurrentPlayerIndex].stickY * 0.5) : -((f64)gPlayerPadState[gCurrentPlayerIndex].stickY * 0.5)) + 16.0);
+        rollStep = ((gPlayerPadState[gCurrentPlayerIndex].stickY * 0.5 > 0.0) ? gPlayerPadState[gCurrentPlayerIndex].stickY * 0.5 : -(gPlayerPadState[gCurrentPlayerIndex].stickY * 0.5)) + 16.0;
     }
     mathAngleStepToward(&gCurrentActor->roll, target, rollStep);
 }
@@ -2697,11 +2697,11 @@ void playerInputHandleCDownFairyCheck(void) {
     gActivePlayerState->decelRate = 8.0f;
 }
 
-s32 playerInputCanPerformFairySnap(void) {
+u8 playerInputCanPerformFairySnap(void) {
     s32 ok;
 
     ok = flagGet(0x182, 0) || (gGlobalOverlayFlags & 0x10000000) || gPlayerCount >= 2 || menuIsTransitionTypeC();
-    return ok & 0xFF;
+    return ok;
 }
 
 
@@ -2909,11 +2909,8 @@ typedef struct G29State {
 } G29State;
 
 typedef struct G29Act {
-    u8 pad0[0xB8];
-    f32 unkB8;
-    u8 padBC[0xB8];
-    G29State *unk174;
-    G29Obj178 *unk178;
+    /* 0x000 */ Actor base;
+    /* 0x178 */ G29Obj178 *unk178;
 } G29Act;
 
 
@@ -3052,7 +3049,7 @@ void func_806E8724(G29Act *actor, G29State *st) {
         st->unkC = x;
         st->unkC = x * D_80750FFC;
         if (st->unk20 == 0) {
-            st->unk20 = (actor->unkB8 < D_80750FF8) & t;
+            st->unk20 = (actor->base.speedXZ < D_80750FF8) & t;
         } else {
             st->unk20 = t;
         }
@@ -3067,28 +3064,28 @@ void playerInputUpdateHeldActorVineClimb(void) {
 
     a = ((G29Act *)gActivePlayerState->actor);
     if (a != NULL) {
-        func_806E8724(a, a->unk174);
+        func_806E8724(a, a->base.customState);
     }
 }
 
 void playerInputSetHeldActorVineSpeed(void) {
-    G29Act *a;
+    Actor *a;
     G29State *st;
 
-    a = ((G29Act *)gActivePlayerState->actor);
+    a = gActivePlayerState->actor;
     if (a != NULL) {
-        st = a->unk174;
+        st = a->customState;
         st->unk8 = D_80751000;
     }
 }
 
 void playerInputClearHeldActorVineSpeed(void) {
-    G29Act *a;
+    Actor *a;
     G29State *st;
 
-    a = ((G29Act *)gActivePlayerState->actor);
+    a = gActivePlayerState->actor;
     if (a != NULL) {
-        st = a->unk174;
+        st = a->customState;
         st->unk8 = 0.0f;
     }
 }
@@ -3111,7 +3108,7 @@ void playerInputPlayHeldActorClimbSfx(void) {
             leftAnim = 0x54;
             rightAnim = 0x55;
         }
-        st = a->unk174;
+        st = a->base.customState;
         func_806E8724(a, st);
         if (camIsCutsceneActive() == 0 && gActivePlayerActor->sub4->animId != 0x3B5) {
             if (st->unkC < 0.2f && st->unkC > -0.2f && idleAnim != gActivePlayerActor->sub4->model->animId) {
@@ -3136,12 +3133,12 @@ void playerInputPlayHeldActorClimbSfx(void) {
 }
 
 void playerInputScaleHeldActorVineClimb(void) {
-    G29Act *a;
+    Actor *a;
     G29State *st;
 
-    a = ((G29Act *)gActivePlayerState->actor);
+    a = gActivePlayerState->actor;
     if (a != NULL) {
-        st = a->unk174;
+        st = a->customState;
         if (st->unk45 == 0 && st->unk34 == 2) {
             if (st->unk25 == 0) {
                 st->unk4 = 1.1f;
@@ -3153,12 +3150,12 @@ void playerInputScaleHeldActorVineClimb(void) {
 }
 
 void func_806E8AF0(void) {
-    G29Act *a;
+    Actor *a;
     G29State *st;
 
-    a = ((G29Act *)gActivePlayerState->actor);
+    a = gActivePlayerState->actor;
     if (a != NULL) {
-        st = a->unk174;
+        st = a->customState;
         if (st->unk25 == 0) {
             st->unk4 = 0.0f;
         }
@@ -3172,7 +3169,7 @@ void func_806E8B28(void) {
 
     a = ((G29Act *)gActivePlayerState->actor);
     if (a != NULL) {
-        st = a->unk174;
+        st = a->base.customState;
         if (st->unk45 == 0 && st->unk34 == 2) {
             o = a->unk178;
             if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
@@ -3183,12 +3180,12 @@ void func_806E8B28(void) {
 }
 
 void func_806E8BA4(void) {
-    G29Act *a;
+    Actor *a;
     G29State *st;
 
-    a = ((G29Act *)gActivePlayerState->actor);
+    a = gActivePlayerState->actor;
     if (a != NULL) {
-        st = a->unk174;
+        st = a->customState;
         if (st->unk45 == 0 && st->unk34 == 2) {
             st->unk10 = 2.0f;
         } else {
@@ -3198,18 +3195,19 @@ void func_806E8BA4(void) {
 }
 
 void func_806E8BFC(void) {
-    G29Act *a;
+    Actor *a;
     G29State *st;
 
-    a = ((G29Act *)gActivePlayerState->actor);
+    a = gActivePlayerState->actor;
     if (a != NULL) {
-        st = a->unk174;
+        st = a->customState;
         st->unk10 = 1.0f;
     }
 }
 
 void func_806E8C2C(void) {
     G29Act *a;
+    G29State *st;
     G29Obj178 *o;
     s32 current;
     s32 target;
@@ -3220,7 +3218,8 @@ void func_806E8C2C(void) {
         if (gActivePlayerActor->sub4->model->animId != 0x22A) {
             controllerAnimSetStateIfChanged(gActivePlayerActor, 0x22A, 0.0f, 0.0f);
         }
-        if (a->unk174->unk45 == 0 && a->unk174->unk30->state == 2) {
+        st = a->base.customState;
+        if (st->unk45 == 0 && st->unk30->state == 2) {
             o = a->unk178;
             target = o->unk1;
             current = o->unk0;
@@ -3250,7 +3249,7 @@ void func_806E8D54(void) {
 
     a = ((G29Act *)gActivePlayerState->actor);
     if (a != NULL) {
-        st = a->unk174;
+        st = a->base.customState;
         if (st->unk34 != 0 && st->unk34 < 3 && st->unk45 == 0) {
             o = a->unk178;
             st->unk4 = o->unk14 + 1.1;
@@ -3265,7 +3264,7 @@ void func_806E8DB4(void) {
 
     a = ((G29Act *)gActivePlayerState->actor);
     if (a != NULL) {
-        st = a->unk174;
+        st = a->base.customState;
         if (st->unk34 != 0 && st->unk34 < 3 && st->unk45 == 0) {
             o = a->unk178;
             st->unk4 = o->unk14;
@@ -3274,12 +3273,12 @@ void func_806E8DB4(void) {
 }
 
 void func_806E8E00(void) {
-    G29Act *a;
+    Actor *a;
     G29State *st;
 
-    a = ((G29Act *)gActivePlayerState->actor);
+    a = gActivePlayerState->actor;
     if (a != NULL) {
-        st = a->unk174;
+        st = a->customState;
         if (st->unk45 == 0 && st->unk34 == 2 && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000)) {
             st->unk29 = 1;
         }
@@ -3434,7 +3433,7 @@ s32 playerInputPostUpdate(void) {
             if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 2) {
                 n = 0x3C;
             }
-            if (((f32)n < diff) && playerInputCanPerformFairySnap()) {
+            if ((n < diff) && playerInputCanPerformFairySnap()) {
                 playerStateQueueCallback(0x3E, 0, gCurrentPlayerIndex);
                 playerClearCarriedItemState();
             } else if (gCurrentActor->contactFlags & 1) {
@@ -3731,14 +3730,14 @@ void aimUpdateFromStick(void) {
     if (!(gActivePlayerState->stateFlags & 0x8000)) {
         state = gActivePlayerState->camActor->customState;
         angle = &state->unkB2;
-        *angle = (f64)*angle - (((f64)aimStickSpeedScale() * ((f64)gPlayerPadState[gCurrentPlayerIndex].stickX * 0.08) * 4096.0) / 360.0);
+        *angle = *angle - aimStickSpeedScale() * (gPlayerPadState[gCurrentPlayerIndex].stickX * 0.08) * 4096.0 / 360.0;
         dist = &state->unkB8;
         scale = aimStickSpeedScale();
-        *dist = ((f64)gPlayerPadState[gCurrentPlayerIndex].stickY * 0.04 * scale) + (f64)*dist;
+        *dist = gPlayerPadState[gCurrentPlayerIndex].stickY * 0.04 * scale + *dist;
         *angle &= 0xFFF;
-        if ((f32)(state->unkBC + 0x32) < *dist) {
+        if (state->unkBC + 0x32 < *dist) {
             *dist = state->unkBC + 0x32;
-        } else if (*dist < (f32)(state->unkBC - 0x50)) {
+        } else if (*dist < state->unkBC - 0x50) {
             *dist = state->unkBC - 0x50;
         }
         gActivePlayerState->camActor->distToFloor = *dist;
@@ -3847,10 +3846,7 @@ typedef struct G32Inner {
 } G32Inner;
 
 typedef struct G32Mid {
-    /* 0x000 */ u8 pad0[0x154];
-    /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 unk155;
-    /* 0x156 */ u8 pad156[0x22];
+    /* 0x000 */ Actor base;
     /* 0x178 */ G32Inner *unk178;
 } G32Mid;
 
