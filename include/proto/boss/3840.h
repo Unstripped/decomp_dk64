@@ -24,7 +24,7 @@ u8 bossScriptStep(u8 *, u16, f32);
 void bossClearMinigame(void);
 #endif
 #ifndef PROTO_SKIP_bossSpawnParticleRing
-void bossSpawnParticleRing();
+void bossSpawnParticleRing(u16, s16, s16, s16, s16, u8);
 #endif
 #ifndef PROTO_SKIP_bossStartCountdownTimer
 void bossStartCountdownTimer(void);

@@ -316,7 +316,7 @@ block_28:
         break;
     case 0x37:
         if (currentActorTestClearFlag() != 0) {
-            bossSpawnParticleRing(0xA8, (s16)gCurrentActor->x, (s16)gCurrentActor->y, (s16)gCurrentActor->z, 0x5DC, 1);
+            bossSpawnParticleRing(0xA8, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x5DC, 1);
             gCurrentActor->state = 0x40;
         }
         break;

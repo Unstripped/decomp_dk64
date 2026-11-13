@@ -340,14 +340,7 @@ void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, Actor *);
 
 extern void *D_8074E880[];
 
-void bossSpawnParticleRing(flag, x, y, z, unkRot, unkScale)
-u16 flag;
-s16 x;
-s16 y;
-s16 z;
-s16 unkRot;
-u8 unkScale;
-{
+void bossSpawnParticleRing(u16 flag, s16 x, s16 y, s16 z, s16 unkRot, u8 unkScale) {
     s16 s0;
 
     sfxAllocateChannel(0x36, 1.0f);

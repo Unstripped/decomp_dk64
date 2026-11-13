@@ -681,7 +681,7 @@ void bossArmydilloStep(void) {
         case 5:
             sfxStopSlotSound(gCurrentActor, 1);
             gCurrentActor->state = 0x40;
-            bossSpawnParticleRing(0x124, (s16)gCurrentActor->x, (s16)gCurrentActor->y, (s16)gCurrentActor->z, mathAngleBetweenPoints2D((f32) D_807FDCA0->entries[13].x, (f32) D_807FDCA0->entries[13].z, gCurrentActor->x, gCurrentActor->z), 5);
+            bossSpawnParticleRing(0x124, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, mathAngleBetweenPoints2D((f32) D_807FDCA0->entries[13].x, (f32) D_807FDCA0->entries[13].z, gCurrentActor->x, gCurrentActor->z), 5);
             break;
         }
         break;

@@ -362,7 +362,7 @@ void bossPufftossStep(void) {
         bossClampPosition(&D_807FDCA0[1]);
         if ((gCurrentActor->unk155 == 0) && (currentActorTestClearFlag() != 0)) {
             gCurrentActor->unk155 += 1;
-            bossSpawnParticleRing(0xEC, D_807FDCA0->entries[16].x, (s16)(D_807FDCA0->entries[16].y + 0x14), D_807FDCA0->entries[16].z, 0x5DC, 4);
+            bossSpawnParticleRing(0xEC, D_807FDCA0->entries[16].x, D_807FDCA0->entries[16].y + 0x14, D_807FDCA0->entries[16].z, 0x5DC, 4);
         }
         break;
     case 0x27:
@@ -597,7 +597,7 @@ void bossPufftossStep(void) {
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xC, 0xFF, 0x50, 0, 0, 0, 0);
             }
             if ((gCurrentMap == 0xC5) && (state->unk14 == 3) && (currentActorTestClearFlag() != 0)) {
-                bossSpawnParticleRing(0x4A, D_807FDCA0->entries[16].x, (s16)(D_807FDCA0->entries[16].y + 0x14), D_807FDCA0->entries[16].z, 0x5DC, 4);
+                bossSpawnParticleRing(0x4A, D_807FDCA0->entries[16].x, D_807FDCA0->entries[16].y + 0x14, D_807FDCA0->entries[16].z, 0x5DC, 4);
             }
             break;
         case 3:

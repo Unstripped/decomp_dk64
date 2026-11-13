@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_bossSpawnParticleRing // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxAllocateChannel // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxPlayOnFreeSlot // FAKE: callee prototype steer
 #include "proto/boss/3840.h"
@@ -72,7 +71,6 @@ extern f32 D_80036DC4;
 
 void sfxPlayOnFreeSlot();  // FAKE: callee prototype steer
 s32 sfxAllocateChannel();  // FAKE: callee prototype steer
-void bossSpawnParticleRing(u16, s16, s16, s16, s16, u8); // FAKE: callee prototype steer
 
 void bossSpawnerUpdate(void) {
     f32 dx;
