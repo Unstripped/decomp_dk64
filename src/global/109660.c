@@ -411,7 +411,7 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     gfxWrapRectSpan(spans, &count, 0, width);
     gfxWrapRectSpan(spans, &count, 1, height);
     for (i = 0; i < count; i++) {
-        gfxDrawTexturedTileGridSimple(&glist, D_807FD8A0, 0, (u32)width, (u32)height, 0x20, 0x20, spans[i].v[0][0], spans[i].v[0][1], spans[i].v[1][0], spans[i].v[1][1], spans[i].v[2][0], spans[i].v[2][1], 0x10, 0x10);
+        gfxDrawTexturedTileGridSimple(&glist, D_807FD8A0, 0, width, height, 0x20, 0x20, spans[i].v[0][0], spans[i].v[0][1], spans[i].v[1][0], spans[i].v[1][1], spans[i].v[2][0], spans[i].v[2][1], 0x10, 0x10);
     }
     return glist;
 }

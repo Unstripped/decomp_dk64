@@ -698,7 +698,7 @@ void gfxDrawTexturedTileGridDefault(Gfx **gfx, void *texture, s32 fmt, s32 texWi
     gfxDrawTexturedTileGrid(gfx, texture, fmt, texWidth, texHeight, tileW, tileH, x0, y0, x1, y1, s0, t0, 1, 0x10, 0, NULL);
 }
 
-void gfxDrawTexturedTileGridSimple(Gfx **gfx, void *texture, s32 fmt, s32 texWidth, s32 texHeight, s32 tileW, s32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0, u8 texScale, u8 bitSize) {
+void gfxDrawTexturedTileGridSimple(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, u32 texHeight, s32 tileW, s32 tileH, f32 x0, f32 y0, f32 x1, f32 y1, f32 s0, f32 t0, u8 texScale, u8 bitSize) {
     gfxDrawTexturedTileGrid(gfx, texture, fmt, texWidth, texHeight, tileW, tileH, x0, y0, x1, y1, s0, t0, texScale, bitSize, 0, NULL);
 }
 

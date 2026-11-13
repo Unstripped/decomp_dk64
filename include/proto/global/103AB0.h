@@ -79,7 +79,7 @@ Gfx *func_80701CA0(Gfx *);
 void gfxDrawTexturedTileGridDefault(Gfx **, void *, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_gfxDrawTexturedTileGridSimple
-void gfxDrawTexturedTileGridSimple(Gfx **, void *, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
+void gfxDrawTexturedTileGridSimple(Gfx **, void *, s32, u32, u32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_gfxDrawTexturedTileGrid
 void gfxDrawTexturedTileGrid(Gfx **, void *, s32, u32, s32, u32, u32, f32, f32, f32, f32, f32, f32, u8, u8, u8, void (*)());
