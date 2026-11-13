@@ -1,8 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_playerInputCanFireWeapon
-#define PROTO_SKIP_playerInputCanPerformFairySnap
 #include "proto/global/10E1D0.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -35,8 +33,6 @@
 #include "proto/global/F56F0.h"
 #include "proto/global/FCCD0.h"
 
-u8 playerInputCanFireWeapon(void);
-u8 playerInputCanPerformFairySnap(void);
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;

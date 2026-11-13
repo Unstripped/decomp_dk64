@@ -132,7 +132,7 @@ u8 actorTestNodeSegmentCollision(void *);
 void playerInputToggleActiveState(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerInputCanFireWeapon
-s32 playerInputCanFireWeapon(void);
+u8 playerInputCanFireWeapon(void);
 #endif
 #ifndef PROTO_SKIP_playerInputHandlerCheckZAndTriggerState2C
 void playerInputHandlerCheckZAndTriggerState2C(void);
@@ -354,7 +354,7 @@ void playerInputHandleBButtonDashAttack(void);
 void playerInputHandleCDownFairyCheck(void);
 #endif
 #ifndef PROTO_SKIP_playerInputCanPerformFairySnap
-s32 playerInputCanPerformFairySnap(void);
+u8 playerInputCanPerformFairySnap(void);
 #endif
 #ifndef PROTO_SKIP_playerInputHandleCDownCameraSnap
 void playerInputHandleCDownCameraSnap(void);
