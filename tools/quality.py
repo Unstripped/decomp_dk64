@@ -1613,6 +1613,41 @@ def scope_equivalent(path, old_body, new_body, old_closure, new_closure, old_sco
     return moved, None
 
 
+PARAM_TYPE_PREFIX = {"(", ",", "const", "volatile", "unsigned", "signed", "short", "long", "struct", "union",
+                     "enum", "register"}
+C_TYPE_WORDS = PARAM_TYPE_PREFIX | {"void", "int", "char", "float", "double"}
+
+
+def params_renamed(old_closure, new_closure, old_name, new_name):
+    """NEW_CLOSURE with each function whose declarations differ from OLD_CLOSURE's only in
+    parameter names (a prototype naming none counts as the same) given OLD_CLOSURE's entry;
+    the carried function itself may have been renamed from OLD_NAME to NEW_NAME."""
+    def proto(s, rename=None):
+        w = s.split(" ")
+        if rename:
+            w = [old_name if x == rename else x for x in w]
+        return {" ".join(x for i, x in enumerate(w) if not (
+            0 < i < len(w) - 1 and w[i + 1] in (",", ")") and w[i - 1] not in PARAM_TYPE_PREFIX
+            and re.fullmatch(r"[A-Za-z_]\w*", x) and x not in C_TYPE_WORDS))}
+
+    def sig(v, rename=None):
+        return set().union(*(proto(s, rename) for _, s in v)) if v else None
+
+    out = dict(new_closure)
+    if old_name != new_name:
+        if old_name in out or new_name not in out or old_name not in old_closure:
+            return new_closure
+        nv = out.pop(new_name)
+        if len(sig(old_closure[old_name])) != 1 or sig(nv, new_name) != sig(old_closure[old_name]):
+            return new_closure
+        out[old_name] = old_closure[old_name]
+    for name, nv in out.items():
+        ov = old_closure.get(name)
+        if ov is not None and ov != nv and len(sig(ov)) == 1 and sig(ov) == sig(nv):
+            out[name] = ov
+    return out
+
+
 def carry_renames(a, by_site, by_func):
     """(events, skipped, carried lines) re-stamping the newest fresh-at-REV events of every function
     that changed from REV to HEAD only by renames of declared names (`rename_equivalent` over its
@@ -1675,9 +1710,18 @@ def carry_renames(a, by_site, by_func):
                     skipped.append(f"{path}: {fn['name']}: token-pasting macro {paste}: dependencies not tracked")
                     continue
                 rnames = body_names(old["by_line"], fo)
+                obody = [t for i, t in otoks if fo["line"] <= i <= fo["end"]]
+                nbody = [t for i, t in ntoks if fn["line"] <= i <= fn["end"]]
+                # a body differing only by renames of its own locals/params (each keeping its
+                # type) is compared at file scope as REV's body: renamed names are never
+                # file-scope (rename_equivalent rejects globals/functions), so the reach is the same
+                body_renamed = len(obody) == len(nbody) and any(
+                    x.spelling != y.spelling for x, y in zip(obody, nbody)) and rename_equivalent(
+                    obody, nbody, lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None))
+                if body_renamed:
+                    ncl = params_renamed(ocl, ncl, fo["name"], fn["name"])
                 moved, why = scope_equivalent(
-                    path, [t for i, t in otoks if fo["line"] <= i <= fo["end"]],
-                    [t for i, t in ntoks if fn["line"] <= i <= fn["end"]], ocl, ncl, oscope, nscope,
+                    path, obody, obody if body_renamed else nbody, ocl, ncl, oscope, nscope,
                     rev=(old["scope"], old["scope"].closure(rnames, pastes=True)))
                 if moved is None:
                     skipped.append(f"{path}: {fn['name']}: not a pure rename; body or a declaration it uses changed"
@@ -1689,6 +1733,8 @@ def carry_renames(a, by_site, by_func):
                     # automatic results carry too
                     hdr_moved = old["scope"].fp_hdr2(rnames, fo["fp_hdr"], skip=moved) == nscope.fp_hdr2(
                         body_names(nnames, fn), fn["fp_hdr"], skip=moved)
+                if body_renamed:
+                    how = f"renames; {how}"
             vram, n0 = f"{fn['vram']:08X}", len(out)
             keys = [(None, None)] + [(so["key"], sn_) for so, sn_ in pairs]
             for okey, nsite in keys:

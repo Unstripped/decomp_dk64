@@ -292,6 +292,44 @@ def test_carry_across_unrelated_file_scope_changes(tmp_path, monkeypatch, capsys
     assert q.function_state(new["h"], by_site, by_func)["review"] != "✓"
 
 
+def test_carry_renames_with_unrelated_file_scope_changes(tmp_path, monkeypatch, capsys):
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    vrams = {"f": 0x80600000, "h": 0x80600100, "k": 0x80600200}
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: vrams[name])
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    src = repo / "src" / "global" / "x.c"
+    fns_text = ("int f(ViewA *%s) {\n    if (%s->a) {} // FAKE: steers\n    return %s->a;\n}\n"
+                "int h(ViewB *%s) {\n    return %s->b;\n}\n"
+                "int k(%s %s) {\n    return %s;\n}\n")
+    old = "typedef struct { int a; } ViewA;\ntypedef struct { int b; } ViewB;\ntypedef struct { int c; } ViewC;\n"
+    src.write_text(old + fns_text % ("arg0", "arg0", "arg0", "arg0", "arg0", "int", "arg0", "arg0"))
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fns = {fn["name"]: dict(fn, file="src/global/x.c") for fn in q.analyze("src/global/x.c", "global")["functions"]}
+    q.append_events([q.event("u1", "a", fns[n], None, "review", "nohit", note="fake=0/0") for n in vrams])
+
+    # ViewC (reached by nobody) deleted, ViewB (reached by h) changed; every parameter renamed, k's retyped
+    src.write_text("typedef struct { int a; } ViewA;\ntypedef struct { int pad; int b; } ViewB;\n"
+                   + fns_text % ("view", "view", "view", "p", "p", "unsigned", "n", "n"))
+    _git(repo, "commit", "-qam", "b")
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    assert "would carry src/global/x.c: f: review (renames; unrelated file-scope changes only)" in out
+    assert "h: not a pure rename" in out and "k: not a pure rename" in out
+    assert not [e for e in q.load_events() if e.get("agent") == "carry"]
+
+
 _real_knowledge_after = q.knowledge_after
 
 
