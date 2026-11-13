@@ -3,7 +3,7 @@
 State at the round-29 knowledge commit (d77a2491): 169 OPEN functions in 109 files (next rung: review 70, permute 50, diagnose 33, retype 6, consolidate 6, views 3, reconstruct 1). The knowledge commit (Q0698) staled 30 functions (49 codegen rungs, 27 EXHAUSTED->OPEN; not re-recorded). Re-review groups Rev29A (1 file, 9 functions) and Rev29B (2 files, 2) in `.scratch/rereview29.md` at 127319f5 were not run. A future session starts here: `uv run tools/quality.py rank`, then SKILL.md §2.
 
 ## Blocked owner/header changes
-- Cast sweep (round 30): 55B20 MapChunk.lastSeenFrame and 61AA0 BillboardCacheEntry.lastUsedFrame stay s32 (u32 retype fdiff 1). Header retype model.h ModelTriBuffer.timestamp + heap.h DynamicBuffer.unk10 -> u32 (.scratch/CastSweepBatch/include.patch, 14 users fdiff 0) waits for Rev29 (36880) to merge; re-run the 14-user objdiff then.
+- Cast sweep (round 30): 55B20 MapChunk.lastSeenFrame and 61AA0 BillboardCacheEntry.lastUsedFrame stay s32 (u32 retype fdiff 1). model.h/heap.h frame stamps landed u32 after Rev29.
 - boss/3840 `bossSpawnParticleRing` K&R -> `(u16, s16, s16, s16, s16, u8)` (DAA0 header request): callers boss/0, 52B0, 6240, F0D0 need stand-ins.
 - boss/DAA0 bossSpawnerUpdate proto-steers c617f1 and 263392 (bossSpawnParticleRing local `(u16, s16, s16, s16, s16, u8)`) wait on a boss/3840 owner retype, or stay (sfx int bit-pattern args).
 - 90D80 renderRotatedSprite proto-steer (02809d, 0d85ab) stays: the 103AB0 owner is 32-bit by its own asm (texWidth forwarded in a3 without andi, texHeight read with lw 0x60(sp)); a u8 owner adds andi/lbu. Closed as not applicable (round 29, dbf5cc61: owner texWidth/texHeight u32 instead).
