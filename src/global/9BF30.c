@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/15050.h"
@@ -15,7 +16,7 @@
 #include "proto/global/936B0.h"
 #include "proto/global/9BF30.h"
 
-extern u8 *D_807FC7C0;
+extern void **D_807FC7C0;
 
 typedef struct ActorTrailState {
     /* 0x00 */ s16 unk0;
@@ -33,7 +34,7 @@ extern Mtx D_2000000;
 extern Mtx D_2000200;
 extern Gfx D_80750280;
 extern u8 gGfxBufferIndex;
-extern u8 *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 
 // Writes G_MTX through the function-scope _g pointer to avoid gbi.h's block-local phantom stack slot
 #define gSPMatrixShared(pkt, m, p) { _g = (Gfx *)(pkt); _g->words.w0 = (_SHIFTL(G_MTX, 24, 8) | _SHIFTL(((sizeof(Mtx) - 1) / 8), 19, 5) | _SHIFTL(((p) ^ G_MTX_PUSH), 0, 8)); _g->words.w1 = (u32)(m); }
@@ -96,7 +97,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
                 vz = 0.0f;
                 break;
             case 1:
-                q0 = ((f64)((*((s16 *)(((u8 *)actor) + 0xEE))) - actor->unk15F)) * 0.05;
+                q0 = ((f64)(actor->moveYaw - actor->unk15F)) * 0.05;
                 q1 = (1.0 < q0) ? (1.0) : (q0);
                 f = (f32)((q1 * 0.028999999999999998) + 0.001);
                 vscale = 130.0f * f;
@@ -108,11 +109,11 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
             if (actor->unk15F != 0) {
                 actorAppendModelNode(actor, vx, vz, vy, (f32)(((f64)vscale) * 80.0), -1);
             }
-            _g = (Gfx *)(glist++); _g->words.w0 = 0xFD180000; _g->words.w1 = ((s32 *)D_807FC7C0)[idx];
+            _g = (Gfx *)(glist++); _g->words.w0 = 0xFD180000; _g->words.w1 = (u32)D_807FC7C0[idx];
             gDPSetTile(glist++, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0, 0, G_TX_LOADTILE, 0, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD); gDPLoadSync(glist++); gDPLoadBlock(glist++, G_TX_LOADTILE, 0, 0, 0x3FF, 0x80); gDPPipeSync(glist++); _g = (Gfx *)(glist++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; gDPSetTileSize(glist++, G_TX_RENDERTILE, 0, 0, 0x7C, 0x7C); // LAYOUT: same-line texture block statements steer as1 scheduling
 
             guScaleF(mtx2, vscale, vscale, vscale);
-            matrixMakeRotationY(mtx1, (f32)(((*((s16 *)(gPlayerSlots + 0x2C8))) * 0x168) / 4096));
+            matrixMakeRotationY(mtx1, (f32)((gPlayerSlots->unk2C8 * 0x168) / 4096));
             guMtxCatF(mtx2, mtx1, mtx2);
             guTranslateF(mtx1, actor->x + vx, actor->y, actor->z + vy);
             guMtxCatF(mtx2, mtx1, mtx2);
@@ -136,7 +137,7 @@ void loadModelAssetTable(void) {
     i = 0;
     D_807FC7C0 = heapAlloc(0xC0);
     for (j = 0; j < 0x30; j++) {
-        ((s32 *)D_807FC7C0)[i++] = assetLoad(0x19, i + 0x1654, 1, 1);
+        D_807FC7C0[i++] = assetLoad(0x19, i + 0x1654, 1, 1);
     }
 }
 
@@ -158,11 +159,10 @@ void projectileSpriteRingUpdate(void) {
     ProjectileState *sub;
     u8 kind;
     f64 temp;
-    f64 max;
 
     sub = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        *(s16 *)((u8 *)gCurrentActor + 0xEE) = gCurrentActor->unk15F;
+        gCurrentActor->moveYaw = gCurrentActor->unk15F;
         sub->unk4 = heapAlloc(0x1000);
         if (gCurrentActor->unk15F != 0) {
             gCurrentActor->unk144 = 0x24;
@@ -192,12 +192,7 @@ void projectileSpriteRingUpdate(void) {
         if (gCurrentActor->unk15F != 0) {
             sub->unk8 += sub->unkC;
             temp = (f64)sub->unk8 * 0.3;
-            max = 32.0;
-            if (temp > 32.0) {
-                sub->unk0 = max;
-            } else {
-                sub->unk0 = temp;
-            }
+            sub->unk0 = (temp > 32.0) ? 32.0 : temp;
         } else {
             sub->unk8 = sub->unk8 + (f32)((gCurrentActor->yawSpeed - sub->unk10) + 0x10)
                 * (sub->unkC * 0.0625);
@@ -232,9 +227,7 @@ typedef struct ProjectileConfig {
 } ProjectileConfig;
 
 typedef struct ProjectileTriple {
-    void *unk0;
-    void *unk4;
-    void *unk8;
+    void *sprite[3];
 } ProjectileTriple;
 
 typedef struct ProjectileSubState {
@@ -244,57 +237,26 @@ typedef struct ProjectileSubState {
     u8 unk13;
 } ProjectileSubState;
 
-typedef struct ProjectileActor {
-    u8 pad0[0x60];
-    u32 unk60;
-    u8 pad64[6];
-    u16 unk6A;
-    u8 pad6C[2];
-    s16 unk6E;
-    u8 pad70[0xC];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0x30];
-    f32 unkB8;
-    u8 padBC[4];
-    f32 unkC0;
-    u8 padC4[0x2A];
-    s16 unkEE;
-    u8 padF0[0xC];
-    u8 unkFC;
-    u8 padFD[0x27];
-    ProjectileConfig *unk124;
-    u8 pad128[0x1C];
-    u8 unk144;
-    u8 pad145[0x10];
-    u8 unk155;
-    u8 pad156[0x1E];
-    ProjectileSubState *unk174;
-} ProjectileActor;
-
 extern void *D_807502C0[];
 extern u8 D_8071FBA0;
-
-#define G_ACTOR ((ProjectileActor *)gCurrentActor)
 
 void projectileActorUpdate(void) {
     ProjectileSubState *sub;
     ProjectileTriple spriteTriple;
     s16 particleIdx;
 
-    sub = ((ProjectileActor *)gCurrentActor)->unk174;
-    if (!(G_ACTOR->unk60 & 0x10)) {
+    sub = gCurrentActor->customState;
+    if (!(gCurrentActor->flags & 0x10)) {
         spriteTriple = *(ProjectileTriple *)D_807502C0;
-        G_ACTOR->unk6A &= (G_ACTOR->unk6E = -2);
-        G_ACTOR->unkEE = (s16)((G_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
-        G_ACTOR->unkB8 = G_ACTOR->unk124->unk4;
-        G_ACTOR->unkC0 = G_ACTOR->unk124->unk8;
-        G_ACTOR->unk144 = 0x3C;
+        gCurrentActor->contactFlags &= (gCurrentActor->soundSlots[0] = -2);
+        gCurrentActor->moveYaw = (s16)((((ProjectileConfig *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
+        gCurrentActor->speedXZ = ((ProjectileConfig *)gCurrentActor->spawnData)->unk4;
+        gCurrentActor->speedY = ((ProjectileConfig *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 40.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 30.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        sub->unk13 = (u8)(u32)G_ACTOR->unk124->unk10;
+        sub->unk13 = (u8)((ProjectileConfig *)gCurrentActor->spawnData)->unk10;
         effectSetDuration(-1);
         effectSetMode(2);
         effectSetDepth(1);
@@ -307,17 +269,17 @@ void projectileActorUpdate(void) {
         if (sub->unk13 == 3) {
             effectSetCallback(effectPulseSpinUpdate);
         }
-        effectCreateAtActorBone(((void **)&spriteTriple)[sub->unk13 - 1], G_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(spriteTriple.sprite[sub->unk13 - 1], ((ProjectileConfig *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
         sub->unk0 = gGameFrameCounter;
         sub->unk12 = 0;
-        G_ACTOR->unk60 |= 0x80000;
-        G_ACTOR->unk155 = sub->unk13;
+        gCurrentActor->flags |= 0x80000;
+        gCurrentActor->unk155 = sub->unk13;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x96, 0x78, 0, 1.0f);
-    if ((G_ACTOR->unk6A & 1) || (G_ACTOR->unkFC != 0) || (gActorGlobalState.unk15 != 0)) {
+    if ((gCurrentActor->contactFlags & 1) || (gCurrentActor->hasArcBounds != 0) || (gActorGlobalState.unk15 != 0)) {
         if (sub->unk13 == 3) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x16, 0xFF, 0x7F, 0x14);
         }
@@ -327,7 +289,7 @@ void projectileActorUpdate(void) {
                 effectSetSpeed(particleIdx + 0xB000000);
                 effectSetCallback(effectRadialSprayUpdate);
                 effectCreateAtPosition(&D_8071FBA0, (f32)(((f64)((s32)(randomNonNegative() >> 15) % 10) * 0.05) + 0.2),
-                    G_ACTOR->unk7C, G_ACTOR->unk80, G_ACTOR->unk84);
+                    gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
         actorDespawn(gCurrentActor);

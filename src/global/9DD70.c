@@ -721,7 +721,7 @@ void func_8069B010(void) {
             actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, gCurrentActor->unk15F, 0, 0);
             actorDespawn(gCurrentActor);
         }
-        if (gCurrentMap != 0x48 && gCurrentMap != 0x11 && (u32)(*p + D_80750378) < gGameFrameCounter) {
+        if (gCurrentMap != 0x48 && gCurrentMap != 0x11 && *p + D_80750378 < gGameFrameCounter) {
             actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, 0xFF, 0, 0);
             actorDespawn(gCurrentActor);
         }
@@ -831,7 +831,7 @@ s32 actorHasCallbackTargetThisFrame(void) {
                 actor = node->source;
                 if (actor->collisionFlags & 1) {
                     sub = actor->customState;
-                    if ((u32)(gGameFrameCounter - *(s32 *)((u8 *)sub + 0x120)) < 2) {
+                    if (gGameFrameCounter - *(s32 *)((u8 *)sub + 0x120) < 2) {
                         return 1;
                     }
                 }
@@ -891,7 +891,7 @@ void textMarkerUpdateMatrix(void) {
     s32 pad84[3];
     s32 spawnArgs[2];
     s32 randVal;
-    s32 pad74;  // pad: keeps particleLoopIdx at 0x70
+    f32 scale;
     s32 particleLoopIdx;
     void *volatile callback;  // FAKE: retain the callback's original stack home
 
@@ -1059,7 +1059,7 @@ void textMarkerUpdateMatrix(void) {
         stateActive = 0;
         markerView->unk24 = markerView->unk24 - 10.0f;
         if (gCurrentActor->actorType == 0x43 && gCurrentMap == 0x1E &&
-            (u32)(gGameFrameCounter - markerView->unk0) >= 0x5B) {
+            gGameFrameCounter - markerView->unk0 >= 0x5B) {
             stateActive = 1;
         }
         if (stateActive != 0 || (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0)) {
@@ -1124,9 +1124,9 @@ void textMarkerUpdateMatrix(void) {
                     effectSetSpeed(2);
                     randVal = randomNonNegative();
                     if (randVal) {}  // FAKE: block split between the randVal def and the call (steers ugen ring / uopt colouring)
-                    dz = randomFloat();
+                    scale = randomFloat();
                     effectCreateAtPosition((void *)namePair.ids[(randVal >> 15) % 2],
-                                  (f32)(((f64)dz * 0.5) + 0.2),
+                                  (f32)(((f64)scale * 0.5) + 0.2),
                                   gCurrentActor->x + offsetX, gCurrentActor->y + offsetY,
                                   gCurrentActor->z + offsetZ);
                 }
@@ -1152,10 +1152,10 @@ void textMarkerUpdateMatrix(void) {
             sfxPlayActorSound(gCurrentActor, 0x11A, 0x64, 1, 0, 0x64, 1.0f, 0);
         } else {
             sfxSetVolumeAndPan(gCurrentActor->soundSlots[0],
-                               (f32)(((f64)(u32)markerView->unk2A / 400.0) + 0.5), 2.0f);
+                               (f32)(((f64)markerView->unk2A / 400.0) + 0.5), 2.0f);
         }
         lightAdd(gCurrentActor->x, gCurrentActor->y + 30.0f, gCurrentActor->z,
-                 0, 0.0f, 0.0, (f32)(((f64)(u32)markerView->unk2A / 250.0) * 100.0), 0, 0xFF, 0xFF, 0);
+                 0, 0.0f, 0.0, (f32)(((f64)markerView->unk2A / 250.0) * 100.0), 0, 0xFF, 0xFF, 0);
         gCurrentActor->yaw = gCurrentActor->yaw + markerView->unk2A;
         gCurrentActor->y = gCurrentActor->floorY;
         break;

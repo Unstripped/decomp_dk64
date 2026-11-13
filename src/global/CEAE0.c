@@ -518,7 +518,7 @@ done:
     if (gActivePlayerState->transitionTimer != 0) {
         gActivePlayerState->transitionTimer = gActivePlayerState->transitionTimer - 1;
     }
-    if ((gCurrentActor->x < D_807F5FE4 || gCurrentActor->z < D_807F5FE6 || D_807F5FE8 < gCurrentActor->x || D_807F5FEA < gCurrentActor->z || materialType != 0) && gActivePlayerState->idleTimeoutFlag == 0 && (u32)gFrameCounter >= 0x65 && !(gGlobalOverlayFlags & 0x4000) && gCurrentMap != 0xE) {
+    if ((gCurrentActor->x < D_807F5FE4 || gCurrentActor->z < D_807F5FE6 || D_807F5FE8 < gCurrentActor->x || D_807F5FEA < gCurrentActor->z || materialType != 0) && gActivePlayerState->idleTimeoutFlag == 0 && gFrameCounter >= 0x65 && !(gGlobalOverlayFlags & 0x4000) && gCurrentMap != 0xE) {
         if (gPlayerCount == 1) {
             if (flagGet(0x186, 0) == 0) {
                 mapSetPendingTransition(0xB0, 1);
