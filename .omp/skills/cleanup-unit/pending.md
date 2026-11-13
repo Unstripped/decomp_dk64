@@ -3,6 +3,7 @@
 State at the round-27 knowledge commit (460c9717): 178 OPEN functions in 98 files (next rung: review 84, permute 43, diagnose 33, consolidate 8, retype 6, views 3, reconstruct 1). The knowledge commit (Q0697) staled 3 functions (3 codegen rungs; not re-recorded). Re-review groups Rev27A (2 files, 4 functions) and Rev27B (3 files, 3) in `.scratch/rereview27.md` at 2b6abe0c were not run. A future session starts here: `uv run tools/quality.py rank`, then SKILL.md §2.
 
 ## Blocked owner/header changes
+- 103AB0 `gfxDrawTexturedTileGridSimple` width/height as u8 (Q0188) would let 90D80 renderRotatedSprite consolidate its proto-steer; small owner retype for a later batch.
 - critter/5110 D_807FCC40/44 split labels stay (round 27, def29e0b): folding them into gPlayerInventoryTable fails because the folded form shares one table base (Q0687); the u8 pun is now `extern u16 D_807FCC40[]`, tagged.
 - ACDC0: D_807FC828..D_807FC838 are one s16[9] collectible-count table; declaring the array changes codegen (text 16 bytes smaller), kept as separate symbols.
 - 2F550 MapViewEntries proposal (.scratch/Rev24/header-request.md), held.
