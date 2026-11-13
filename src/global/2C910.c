@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #define PROTO_SKIP_csModelStateSetFirstByte // FAKE: callee prototype steer
 #define PROTO_SKIP_textSpawnMarkerChecked // FAKE: callee prototype steer
 #include "proto/boot/3630.h"
@@ -59,7 +60,7 @@ void actorSetTintFromPalette(u8 paletteIdx) {
 
 void textSpawnMarkerChecked(s32, s32, s32, u8 *, s32, s32, s32, s32); // FAKE: callee prototype steer
 
-void textSpawnSubtitle(textId, duration, paletteIdx)
+void textSpawnSubtitle(textId, duration, paletteIdx) // FAKE: K&R definition keeps the caller passing promoted ints (callee prototype steer)
 u8 textId;
 u16 duration;
 u8 paletteIdx;
@@ -71,7 +72,7 @@ u8 paletteIdx;
     s16 idx;
 
     s = textTableGetString(1, textId, 1);
-    if (_strchr(s, ':') != 0) {
+    if (_strchr(s, ':') != NULL) {
         _strncpy(speaker, s, idx = _strcspn(s, ":") + 1);
         speaker[idx] = 0;
         textSpawnMarkerChecked(0xA, 0x14, 0x18, speaker, 0, (s16)duration, 0x32, 0x32);
@@ -80,10 +81,8 @@ u8 paletteIdx;
     }
     if ((s16)textGetStringWidth(6, s) >= 0x12D) {
         idx = (s32)strlen(s) / 2;
-        if (s[idx] != ' ') {
-            do {
-                idx--;
-            } while (s[idx] != ' ');
+        while (s[idx] != ' ') {
+            idx--;
         }
         _strncpy(line1, s, idx);
         line1[idx] = 0;
@@ -106,14 +105,31 @@ Actor *actorFromSpawnNodeOrDefault(s16 nodeId) {
     if (nodeId != 0) {
         v = spawnNodeActivate(nodeId, 0);
     }
-    if ((nodeId == 0) || (v == 0)) {
+    if (nodeId == 0 || v == NULL) {
         v = gPrimaryPlayerActor;
     }
     return v;
 }
 
 
-#define Matcher14_OFF(p, T, o) (*(T *)((u8 *)(p) + (o)))
+// Third component (0x17C) of the actors that cutscene commands 0x33, 0x34 and 0x3C address.
+typedef struct CamPathCmdComponent {
+    /* 0x00 */ u8 pad0[0xD];
+    /* 0x0D */ u8 unkD;
+    /* 0x0E */ u8 padE[0x22 - 0xE];
+    /* 0x22 */ u8 unk22;
+    /* 0x23 */ u8 pad23[0x30 - 0x23];
+    /* 0x30 */ u8 unk30;
+    /* 0x31 */ u8 unk31;
+    /* 0x32 */ u8 unk32;
+    /* 0x33 */ u8 unk33;
+} CamPathCmdComponent;
+
+typedef struct CamPathCmdActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ void *unk178;
+    /* 0x17C */ CamPathCmdComponent *unk17C;
+} CamPathCmdActor;
 
 extern struct GfSndState *D_807457E4[];
 extern u16 D_80747750[];
@@ -123,12 +139,11 @@ extern s16 D_8076AEF2;
 extern ALBank *D_8076D1F8;
 extern ALBank *D_8076D1FC;
 extern Actor *gCamActor;
-extern u8 D_807F5D6C[];
 extern struct GfSndState *D_807F5D70[];
 extern s16 D_807F5D7C;
 extern Actor *gActivePlayerActor;
 extern s32 gGlobalCutsceneFlags;
-extern void *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern f32 gScreenFadeRate;
 
 void func_80028EE8(s32, s32, s32, s32, s32, s32, s32, s32);
@@ -150,6 +165,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
     s16 idx;
     s16 node;
     Actor *p;
+    CamPathCmdComponent *comp;
 
     playerState = gPrimaryPlayerActor->customState;
     actorFindActiveByType(0xC, &camTarget);
@@ -189,16 +205,16 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             playerKongStopSoundByState(gPrimaryPlayerActor);
             return;
         case 0x33:
-            q = Matcher14_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C);
-            Matcher14_OFF(q, u8, 0x30) = 0xFE;
-            Matcher14_OFF(q, u8, 0x33) = b;
-            Matcher14_OFF(q, u8, 0x22) = c;
-            Matcher14_OFF(q, u8, 0x32) = d;
-            Matcher14_OFF(q, u8, 0x31) = 1;
+            comp = ((CamPathCmdActor *)actorFromSpawnNodeOrDefault(a))->unk17C;
+            comp->unk30 = 0xFE;
+            comp->unk33 = b;
+            comp->unk22 = c;
+            comp->unk32 = d;
+            comp->unk31 = 1;
             return;
         case 0x34:
-            q = Matcher14_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C);
-            Matcher14_OFF(q, u8, 0x30) = 0xFF;
+            comp = ((CamPathCmdActor *)actorFromSpawnNodeOrDefault(a))->unk17C;
+            comp->unk30 = 0xFF;
             return;
         case 0x0:
             playerState->unk70 = gPrimaryPlayerActor->yaw;
@@ -224,16 +240,14 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
         case 0x4:
             if (a != 0) {
                 func_80724994(3, a, b, c, d);
-                return;
-            }
-            if (b == 2) {
+            } else if (b == 2) {
                 gActivePlayerActor->sub4->model->animId = -1;
                 actorScriptStart(gActivePlayerActor, D_80747750[c]);
                 if (d != 0) {
                     scriptSetActorRampTarget(gActivePlayerActor, d / 100.0, 0);
-                    return;
                 }
             }
+            return;
         default:
             return;
         case 0x6:
@@ -279,25 +293,20 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
                 p = spawnNodeActivate(a, 0);
                 if (b != 0) {
                     p->flags |= 4;
-                    return;
+                } else {
+                    p->flags &= ~4;
                 }
-                p->flags &= ~4;
                 return;
             }
             idx = 1;
-            p = spawnNodeActivate(idx++, 0);
-            if (p != NULL) {
-                do {
-                    if (b != 0) {
-                        p->flags |= 4;
-                    } else {
-                        p->flags &= ~4;
-                    }
-                    p = spawnNodeActivate(idx++, 0);
-                } while (p != NULL);
-                return;
+            while ((p = spawnNodeActivate(idx++, 0)) != NULL) {
+                if (b != 0) {
+                    p->flags |= 4;
+                } else {
+                    p->flags &= ~4;
+                }
             }
-            break;
+            return;
         case 0xB:
             zoneEntrySpawnEffect(a, b, c, d);
             return;
@@ -319,10 +328,10 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             if (d != 0) {
                 commandSetParameters(0x320, 0x82, 0, 0x64, 0x64, 0x64);
                 commandSetFlags(1, 1);
-                return;
+            } else {
+                commandSetParameters(0x320, 0x82, 0, a, b, c);
+                commandSetFlags(1, 0);
             }
-            commandSetParameters(0x320, 0x82, 0, a, b, c);
-            commandSetFlags(1, 0);
             return;
         case 0x32:
             effectNodeSetTargetPosition(a, b, c, d * 0.01);
@@ -337,12 +346,11 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
                     actorCopyPoseAndScale(gPrimaryPlayerActor, actor, actor->sub4->scaleY);
                 } else {
                     actorCopyPoseAndScale(gPrimaryPlayerActor, actor, 0.15f);
-                    Matcher14_OFF(gPlayerSlots, u8, 0x2C0) = 1;
+                    gPlayerSlots->unk2C0 = 1;
                 }
                 playerResumeLocomotion(gPrimaryPlayerActor);
                 gPrimaryPlayerActor->flags |= 4;
                 actor->state = 0x40;
-                return;
             }
             break;
         case 0x20:
@@ -351,20 +359,17 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
                 actorCopyPoseAndScale(p, gPrimaryPlayerActor, gPrimaryPlayerActor->sub4->scaleY);
                 gPrimaryPlayerActor->state = 0x77;
                 gPrimaryPlayerActor->unk155 = 0;
-                return;
             }
             break;
         case 0x29:
             if (camCueTimerIsRunning() == 0) {
                 menuTransitionToMap(a, b);
-                return;
             }
             break;
         case 0x43:
             if (camCueTimerIsRunning() == 0) {
                 D_8075536C = c;
                 menuTransitionToMap(a, b);
-                return;
             }
             break;
         case 0x3F:
@@ -374,7 +379,6 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             p = spawnNodeActivate(a, 0);
             if (p != NULL) {
                 p->state = 0x3C;
-                return;
             }
             break;
         case 0x28:
@@ -382,12 +386,11 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             if (actor != NULL) {
                 q = spawnNodeActivate(b, 0);
                 if (q != NULL) {
-                                        actorCopyPoseAndScale(actor, q, q->sub4->scaleY);
+                    actorCopyPoseAndScale(actor, q, q->sub4->scaleY);
                     controllerAnimSetState(actor, q->sub4->model->animId, q->sub4->model->frame, 0.0f);
                     controllerStepMotionWindows(actor);
                     actor->flags |= 4;
                     q->flags &= ~4;
-                    return;
                 }
             }
             break;
@@ -395,15 +398,12 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             if (a != 0) {
                 actor = spawnNodeActivate(a, 0);
             } else {
-                actorClearMovementFlags(actor = gPrimaryPlayerActor);
+                actor = gPrimaryPlayerActor;
+                actorClearMovementFlags(actor);
             }
             zoneEntryGetPosition(b, c, &actor->x, &actor->y, &actor->z);
             actorAppendMoveTarget2D(0, actor, actor->x, actor->z, 2, 1);
-            {
-                s32 t = (d << 12) / 360;
-                actor->moveYaw = t;
-                actor->yaw = t;
-            }
+            actor->yaw = actor->moveYaw = (d << 12) / 360;
             actor->peakY = actor->y;
             actorUpdateModelMatrix(actor, 0);
             actorCheckWorldBounds(actor);
@@ -416,18 +416,15 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
                     actor = gPrimaryPlayerActor;
                 }
                 D_807F5D7C = sfxPlayAtPositionPooled(actor->x, actor->y, actor->z, b, (c != 0 ? (f64)c : 127.5), d != 0 ? d : 0x7F, 0, 0, 0.0f, 0);
-                return;
+            } else if (b < 0x800) {
+                n_alSndpPlay(D_8076D1F8, b, (c != 0 ? ((f64)c / 255.0) * 32767.0 : 16383.5), 0x3F, d != 0 ? (f64)d / 127.0 : 1.0, 0, &D_807F5D70[-1 - a]);
+            } else {
+                n_alSndpPlay(D_8076D1FC, b - 0x7FF, (c != 0 ? ((f64)c / 255.0) * 32767.0 : 16383.5), 0x3F, d != 0 ? (f64)d / 127.0 : 1.0, 0, &D_807F5D70[-1 - a]);
             }
-            if (b < 0x800) {
-                n_alSndpPlay(D_8076D1F8, b, (c != 0 ? ((f64)c / 255.0) * 32767.0 : 16383.5), 0x3F, d != 0 ? (f64)d / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
-                return;
-            }
-            n_alSndpPlay(D_8076D1FC, b - 0x7FF, (c != 0 ? ((f64)c / 255.0) * 32767.0 : 16383.5), 0x3F, d != 0 ? (f64)d / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
             return;
         case 0x19:
             node = (a > 0 ? a : -a) <= 0 ? 0 : (a > 0 ? a : -a) - 1;
-            idx = node;
-            n_alSndpStop(D_807F5D70[idx]);
+            n_alSndpStop(D_807F5D70[node]);
             return;
         case 0x1A:
             n_alSndpStop(D_807457E4[D_807F5D7C]);
@@ -455,14 +452,14 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             sfxSetMode(a & 0xFF);
             return;
         case 0x3C:
-            q = Matcher14_OFF(spawnNodeActivate(1, 0), void *, 0x17C);
-            Matcher14_OFF(q, u8, 0xD) |= a;
+            comp = ((CamPathCmdActor *)spawnNodeActivate(1, 0))->unk17C;
+            comp->unkD |= a;
             return;
         case 0x3B:
             actorFromSpawnNodeOrDefault(a)->unk146 = b;
             return;
         case 0x1C:
-            actorFromSpawnNodeOrDefault(a)->yaw = Matcher14_OFF(gPlayerSlots, s16, 0x2C8) & 0xFFF;
+            actorFromSpawnNodeOrDefault(a)->yaw = gPlayerSlots->unk2C8 & 0xFFF;
             return;
         case 0x30:
             p = actorFromSpawnNodeOrDefault(a);
@@ -471,9 +468,9 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
                 p->flags |= 0x800000;
                 p->tintG = c;
                 p->tintB = d;
-                return;
+            } else {
+                p->flags &= ~0x800000;
             }
-            p->flags &= 0xFF7FFFFF;
             return;
         case 0x2C:
             actor = actorFromSpawnNodeOrDefault(a);
@@ -487,7 +484,6 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             }
             if (c != 0) {
                 csModelStateSetFirstByte((s16)c, (s16)d);
-                return;
             }
             break;
         case 0x15:
@@ -516,9 +512,9 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
         case 0x22:
             if (a != 0) {
                 mapRequestTransition(a, b);
-                return;
+            } else {
+                playerRefillHealth(gPrimaryPlayerActor, 0);
             }
-            playerRefillHealth(gPrimaryPlayerActor, 0);
             return;
         case 0x23:
             D_8076AEE0 = a;
@@ -534,7 +530,6 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             break;
     }
 }
-#undef Matcher14_OFF
 
 
 extern Actor *gCurrentActor;
@@ -543,12 +538,12 @@ s32 currentActorTestClearFlag(void) {
     s32 r = 0;
 
     if (gCurrentActor->contactFlags & 0x100) {
-        gCurrentActor->contactFlags &= 0xFEFF;
+        gCurrentActor->contactFlags &= ~0x100;
         r = 1;
     }
     return r;
 }
 
 void currentActorClearFlag(void) {
-    gCurrentActor->contactFlags &= 0xFEFF;
+    gCurrentActor->contactFlags &= ~0x100;
 }
