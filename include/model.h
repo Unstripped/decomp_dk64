@@ -73,7 +73,7 @@ typedef struct ModelData {
 typedef struct ModelTriBuffer {
     /* 0x00 */ CollisionTriF *tri_start;
     /* 0x04 */ CollisionTriF *tri_end; // one past the last built triangle
-    /* 0x08 */ s32 timestamp; // gFrameCounter at the last build
+    /* 0x08 */ u32 timestamp; // gFrameCounter at the last build
     /* 0x0C */ CollisionBoundingBox bbox;
     /* 0x24 */ u8 flags; // 1 = built (tri_start owned), 2 = model data flag 4, 4 = has triangles
     /* 0x25 */ u8 unk25[2];

@@ -35,7 +35,7 @@ typedef struct DynamicBuffer {
     /* 0x04 */ s32 unk4;
     /* 0x08 */ s32 unk8;
     /* 0x0C */ s32 unkC;
-    /* 0x10 */ s32 unk10;
+    /* 0x10 */ u32 unk10;
     /* 0x14 */ u8 unk14;
     /* 0x15 */ u8 unk15;
     /* 0x16 */ u8 pad16[2];
