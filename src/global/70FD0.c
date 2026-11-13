@@ -1208,7 +1208,7 @@ void actorSub140BuildBoxes(ActorSub140 *sub) {
     ActorSub140SrcTri *ent;
     Mtx *mtx;
     u8 bufIdx;
-    float boundsMtx[4][4];
+    f32 boundsMtx[4][4];
     f32 *src;
     f32 *outZ;
     f32 *outX;
@@ -1226,7 +1226,7 @@ void actorSub140BuildBoxes(ActorSub140 *sub) {
         if (gFrameCounter == sub->unk88) {
             bufIdx = gGfxBufferIndex;
         } else {
-            bufIdx = (gGfxBufferIndex ^ 1);
+            bufIdx = gGfxBufferIndex ^ 1;
         }
         mtx = sub->nodeMtx[bufIdx];
         ent = sub->boxes;
@@ -1242,10 +1242,10 @@ void actorSub140BuildBoxes(ActorSub140 *sub) {
                 do {
                     boneOffset = ent->boneOffset;
                     if (none == boneOffset) {
-                        memcpy(boundsMtx, sub->modelMtxF, 0x40);
+                        memcpy(boundsMtx, sub->modelMtxF, sizeof(boundsMtx));
                         guMtxXFMF(boundsMtx, src[0], src[3], src[6], outX, outY, outZ);
                     } else {
-                        guMtxXFML((Mtx *)(((boneOffset >> 6) << 6) + (u8 *)mtx), src[0], src[3], src[6], outX, outY, outZ);
+                        guMtxXFML(&mtx[boneOffset >> 6], src[0], src[3], src[6], outX, outY, outZ);
                     }
                     outZ++;
                     src++;
@@ -1318,27 +1318,25 @@ void actorSub140TransformTriangles(ActorSub140 *sub) {
     u8 bufIdx;
     ActorSub140Tri *curr;
     Mtx *mtx;
-    float boundsMtx[4][4];
+    f32 boundsMtx[4][4];
     s32 j;
-    u32 boneOffset;
 
     first = sub->triangles;
     if (first != NULL) {
         if (gFrameCounter == sub->unk88) {
             bufIdx = gGfxBufferIndex;
         } else {
-            bufIdx = (gGfxBufferIndex ^ 1);
+            bufIdx = gGfxBufferIndex ^ 1;
         }
         mtx = sub->nodeMtx[bufIdx];
         curr = first;
         for (i = 0; i < sub->triangleCount; i++) {
             for (j = 0; j < 3; j++) {
-                boneOffset = curr->boneOffset[j];
-                if ((boneOffset ^ 0) == -1) { // FAKE: ^ 0 steers bne operand order
-                    memcpy(boundsMtx, sub->modelMtxF, 0x40);
+                if (curr->boneOffset[j] == -1) {
+                    memcpy(boundsMtx, sub->modelMtxF, sizeof(boundsMtx));
                     guMtxXFMF(boundsMtx, curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
                 } else {
-                    guMtxXFML((Mtx *)((((boneOffset >> 6) << 6)) + (u8 *)mtx), curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
+                    guMtxXFML(&mtx[curr->boneOffset[j] >> 6], curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
                 }
             }
             curr++;
@@ -2260,7 +2258,7 @@ void actorUpdateCollisionSpheres(Actor *actor, u8 force) {
     f32 outZ;
     f32 mtx[4][4];
     ModelNode *node;
-    s32 base;
+    Mtx *base;
     u8 idx;
 
     if (force != 0 || sub->unk7C != sub->unk80) {
@@ -2276,14 +2274,14 @@ void actorUpdateCollisionSpheres(Actor *actor, u8 force) {
             idx = gGfxBufferIndex ^ 1;
         }
         node = sub->nodes;
-        base = (s32)sub->nodeMtx[idx];
+        base = sub->nodeMtx[idx];
         if (base) {} // FAKE: raises base coloring priority (swaps s5/s6)
         while (node != NULL) {
             if (node->mtxOffset == -1) {
-                memcpy(mtx, sub->modelMtxF, 0x40);
+                memcpy(mtx, sub->modelMtxF, sizeof(mtx));
                 guMtxXFMF(mtx, node->x, node->y, node->z, &outX, &outY, &outZ);
             } else {
-                guMtxXFML((Mtx *)((((u32)node->mtxOffset >> 6) << 6) + base), node->x, node->y, node->z, &outX, &outY, &outZ);
+                guMtxXFML(&base[(u32)node->mtxOffset >> 6], node->x, node->y, node->z, &outX, &outY, &outZ);
             }
             node->scaledX = outX * 8.0f;
             node->scaledY = outY * 8.0f;
@@ -2302,7 +2300,7 @@ void actorUpdateNodePositions(ActorSub140 *sub, u8 force) {
     f32 outY;
     f32 outZ;
     f32 mtx[4][4];
-    u8 *mtxBase;
+    Mtx *mtxBase;
 
     if (force || (gFrameCounter != sub->unk84)) {
         if (gFrameCounter == sub->unk88) {
@@ -2311,15 +2309,15 @@ void actorUpdateNodePositions(ActorSub140 *sub, u8 force) {
             bufIdx = gGfxBufferIndex ^ 1;
         }
         node = sub->subNodes;
-        mtxBase = (u8 *)sub->nodeMtx[bufIdx];
+        mtxBase = sub->nodeMtx[bufIdx];
         if (node != NULL) {
             if (mtxBase) {} // FAKE: raises mtx_base register priority so -1 gets s5, mtx_base s6
             do {
                 if (node->unk18 == -1) {
-                    memcpy(&mtx, sub->modelMtxF, sizeof(mtx));
+                    memcpy(mtx, sub->modelMtxF, sizeof(mtx));
                     guMtxXFMF(mtx, node->x, node->y, node->z, &outX, &outY, &outZ);
                 } else {
-                    guMtxXFML((Mtx *)(mtxBase + (((u32)node->unk18 >> 6) << 6)), node->x, node->y, node->z, &outX, &outY, &outZ);
+                    guMtxXFML(&mtxBase[(u32)node->unk18 >> 6], node->x, node->y, node->z, &outX, &outY, &outZ);
                 }
                 node->unkC = outX * 8.0f;
                 node->unk10 = outY * 8.0f;
