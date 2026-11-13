@@ -28,7 +28,7 @@ void jetpacDrawLaserSegment(s32, s32 *, s32, s32, u8 *, s32);
 void jetpacDrawLaser(struct JetpacActor *);
 #endif
 #ifndef PROTO_SKIP_jetpacFireLaser
-void jetpacFireLaser();
+void jetpacFireLaser(JetpacPlayerActor *);
 #endif
 #ifndef PROTO_SKIP_jetpacUpdatePlayerMovement
 void jetpacUpdatePlayerMovement(JetpacPlayerActor *);
