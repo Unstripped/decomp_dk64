@@ -741,6 +741,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
     u32 ret;
     s32 near;
     Actor *me;
+    s16 *range;
 
     playerState = gBehaviourTargetActor->customState;
     me = gCurrentActor;
@@ -790,8 +791,8 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
             }
             break;
         case 0x34:
-            me = (Actor *)C1B40->secondComponent; // FAKE: reuses me for the second component pointer
-            if (dist < *(s16 *)me) {
+            range = C1B40->secondComponent;
+            if (dist < *range) {
                 actorSetBehaviourState(0x24, 0, returnScriptId);
                 return;
             }
