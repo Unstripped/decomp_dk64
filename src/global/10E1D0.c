@@ -24,7 +24,6 @@ extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
 extern Actor *gPrimaryPlayerActor;
-extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern s32 gCurrentMap;

@@ -1,6 +1,7 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/15050.h"
@@ -358,22 +359,12 @@ typedef struct TimedEffectActorView {
 extern u8 sEffectImpactPuffConfig;
 
 typedef struct {
-    u8 pad0[0x210];
-    f32 unk210;
-    f32 unk214;
-    f32 unk218;
-    f32 unk21C;
-    f32 unk220;
-    f32 unk224;
-} PlayerDistanceView;
-
-typedef struct {
     s16 unk0;
     s16 unk2;
     s16 unk4;
 } PlayerDistanceFadeState;
 
-extern void *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 
 void effectPlayerDistanceFadeUpdate(effect, isDone)
 TimedEffectActorView *effect;
@@ -403,9 +394,9 @@ s8 *isDone;
     } else {
         state->unk0 = curStep + 1;
     }
-    dz = ((PlayerDistanceView *) gPlayerSlots)->unk218 - effect->z;
-    dx = ((PlayerDistanceView *) gPlayerSlots)->unk210 - effect->x;
-    dy = ((PlayerDistanceView *) gPlayerSlots)->unk214 - effect->y;
+    dz = gPlayerSlots->camZ - effect->z;
+    dx = gPlayerSlots->camX - effect->x;
+    dy = gPlayerSlots->camY - effect->y;
     dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
     if (dist < scale) {
         effect->alpha = state->unk4;
@@ -2687,7 +2678,7 @@ void effectBurstParticleUpdate(TimedEffectActorView *effect, s8 *isDone) {
 
 void effectProximityFadeUpdate(TimedEffectActorView *effect, s8 *isDone) {
     f32 *state;
-    PlayerDistanceView *player;
+    PlayerStruct *player;
     f32 limit;
     f32 dist;
     f32 dx;
@@ -2702,9 +2693,9 @@ void effectProximityFadeUpdate(TimedEffectActorView *effect, s8 *isDone) {
     }
     state = (f32 *)effect->motion;
     player = gPlayerSlots;
-    dz = player->unk224 - effect->z;
-    dx = player->unk21C - effect->x;
-    dy = player->unk220 - effect->y;
+    dz = player->eyeZ - effect->z;
+    dx = player->eyeX - effect->x;
+    dy = player->eyeY - effect->y;
     dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
     if (dist < limit) {
         effect->alpha = (u32)*state;

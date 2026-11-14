@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/127B00.h"
@@ -21,7 +22,7 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern void *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 
 typedef struct D1S174 {
     /* 0x000 */ u8 pad0[0x1F0];
@@ -692,12 +693,6 @@ typedef struct D1S174b {
     /* 0x1F0 */ u32 unk1F0;
 } D1S174b;
 
-typedef struct D1PlayerView {
-    /* 0x000 */ u8 pad0[0x2C0];
-    /* 0x2C0 */ u8 unk2C0;
-} D1PlayerView;
-
-
 extern u8 gPlayerCount;
 extern u32 gGlobalOverlayFlags;
 
@@ -709,7 +704,7 @@ u8 behaviourCheckTargetCollisionMode(u8 checkMode, u8 *outTarget) {
     *outTarget = 1;
     if (gCurrentActor->collisionFlags & 2) {
         if (gCurrentActor->state != 0x15 &&
-            ((gBehaviourTargetActor->actorType == 6 && ((D1PlayerView *)gPlayerSlots)->unk2C0 == 2 && gPlayerCount == 1) ||
+            ((gBehaviourTargetActor->actorType == 6 && gPlayerSlots->unk2C0 == 2 && gPlayerCount == 1) ||
              ((gBehaviourTargetActor->collisionFlags & 1) && (st->unk1F0 & 0x10)))) {
             ret = 7;
         } else if (gBehaviourWorkState->unk37 == 7 && checkMode != 0 && !(gBehaviourWorkState->flags & 0x200) && gBehaviourWorkState->unk20 == 0) {
