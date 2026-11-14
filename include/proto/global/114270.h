@@ -8,7 +8,7 @@ struct M114aAngle;
 void effectSpritePoolReset(void);
 #endif
 #ifndef PROTO_SKIP_effectSpritePoolSpawn
-void effectSpritePoolSpawn(u8, s16, f32, s16, s32, u8);
+void effectSpritePoolSpawn(u8, s16, f32, s16, s16, u8);
 #endif
 #ifndef PROTO_SKIP_effectSpriteParticleTrackCamera
 void effectSpriteParticleTrackCamera(struct M114aAngle *);
@@ -17,19 +17,19 @@ void effectSpriteParticleTrackCamera(struct M114aAngle *);
 void effectSpriteParticleWrapX(struct M114aAngle *);
 #endif
 #ifndef PROTO_SKIP_func_8070FCCC
-s32 func_8070FCCC(struct M114aAngle *);
+u8 func_8070FCCC(struct M114aAngle *);
 #endif
 #ifndef PROTO_SKIP_func_8071006C
-s32 func_8071006C(struct M114aAngle *);
+u8 func_8071006C(struct M114aAngle *);
 #endif
 #ifndef PROTO_SKIP_func_80710174
-s32 func_80710174(struct M114aAngle *);
+u8 func_80710174(struct M114aAngle *);
 #endif
 #ifndef PROTO_SKIP_func_807102AC
-s32 func_807102AC(struct M114aAngle *);
+u8 func_807102AC(struct M114aAngle *);
 #endif
 #ifndef PROTO_SKIP_func_807103E0
-s32 func_807103E0(struct M114aAngle *);
+u8 func_807103E0(struct M114aAngle *);
 #endif
 #ifndef PROTO_SKIP_effectSpritePoolLoadTexture
 Gfx *effectSpritePoolLoadTexture(Gfx *, u8);

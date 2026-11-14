@@ -1,9 +1,3 @@
-#define PROTO_SKIP_func_8070FCCC
-#define PROTO_SKIP_func_8071006C
-#define PROTO_SKIP_func_80710174
-#define PROTO_SKIP_func_807102AC
-#define PROTO_SKIP_func_807103E0
-#define PROTO_SKIP_effectSpritePoolSpawn
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
@@ -19,13 +13,6 @@
 #include "proto/global/6AD90.h"
 #include "proto/global/90D80.h"
 #include "proto/global/CEAE0.h"
-
-void effectSpritePoolSpawn(u8, s16, f32, s16, s16, u8);
-u8 func_8070FCCC(struct M114aAngle *);
-u8 func_8071006C(struct M114aAngle *);
-u8 func_80710174(struct M114aAngle *);
-u8 func_807102AC(struct M114aAngle *);
-u8 func_807103E0(struct M114aAngle *);
 
 typedef struct M114aAngle {
     s16 mapChunk;
