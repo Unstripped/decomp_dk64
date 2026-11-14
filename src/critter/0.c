@@ -16,14 +16,14 @@
 #include "proto/global/CEAE0.h"
 
 typedef struct CritterZoneShape {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
+    /* 0x00 */ s16 radius;
+    /* 0x02 */ s16 reactDistSq;
+    /* 0x04 */ s16 height;
     /* 0x06 */ s16 unk6;
-    /* 0x08 */ s16 unk8;
+    /* 0x08 */ s16 extraHeight;
     /* 0x0A */ s16 unkA;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ s32 unk10;
+    /* 0x0C */ s32 ringRadius;
+    /* 0x10 */ s32 nearDistSq;
 } CritterZoneShape;
 
 typedef struct CritterZone {
@@ -636,12 +636,12 @@ void critterSetOffsetAtAngle(CritterZone *zone, CritterObj *obj, u8 mode, s16 ya
     f32 *pz;
     f32 height;
 
-    base = (f32)zone->shape.unk4;
+    base = (f32)zone->shape.height;
     if (mode == 0) {
-        dist = (f32)zone->shape.unkC;
-        base += (f32)zone->shape.unk8;
+        dist = (f32)zone->shape.ringRadius;
+        base += (f32)zone->shape.extraHeight;
     } else {
-        dist = (f32)zone->shape.unk0 * ((f32)(randomLcgNext() & 0xFFFU) * 0.000244140625f);
+        dist = (f32)zone->shape.radius * ((f32)(randomLcgNext() & 0xFFFU) * 0.000244140625f);
     }
     height = (f32)((f64)((f32)(randomLcgNext() & 0xFFFU) * 0.000244140625f * base) - 0.5 * (f64)base);
     if (heightOffset != 0) {
@@ -658,8 +658,8 @@ void critterSetOffsetAtAngle(CritterZone *zone, CritterObj *obj, u8 mode, s16 ya
     *pz = mathCosF(yaw) * dist;
 }
 
-void critterSetRandomOffset(CritterZone *zone, CritterObj *obj, u8 radius, u8 heightOffset) {
-    critterSetOffsetAtAngle(zone, obj, radius, (s16)(randomLcgNext() & 0xFFF), heightOffset);
+void critterSetRandomOffset(CritterZone *zone, CritterObj *obj, u8 mode, u8 heightOffset) {
+    critterSetOffsetAtAngle(zone, obj, mode, (s16)(randomLcgNext() & 0xFFF), heightOffset);
 }
 
 void critterPlaceInZone(CritterZone *zone, CritterObj *obj, u8 isRandom) {
@@ -681,9 +681,9 @@ void critterUpdateZoneProximity(CritterObj *obj) {
     s32 f;
 
     fv0 = 0.0f;
-    lim = (f32)(obj->homeZone->shape.unk10 + 0x1DE84);
+    lim = (f32)(obj->homeZone->shape.nearDistSq + 0x1DE84);
     if (obj->homeZone->frame != gGfxBufferIndex) {
-        half = (obj->homeZone->shape.unk4 + obj->homeZone->shape.unk8) >> 1;
+        half = (obj->homeZone->shape.height + obj->homeZone->shape.extraHeight) >> 1;
         dist = ((f32)obj->homeZone->x - gActivePlayerActor->x) * ((f32)obj->homeZone->x - gActivePlayerActor->x) + ((f32)obj->homeZone->z - gActivePlayerActor->z) * ((f32)obj->homeZone->z - gActivePlayerActor->z);
         fv0 = 0.0f;
         f = critterPlayerZone->y < obj->homeZone->y + half;
@@ -693,7 +693,7 @@ void critterUpdateZoneProximity(CritterObj *obj) {
         f = (u8)f != 0;
         if (f) {
             f = 0;
-            if (dist < (f32)obj->homeZone->shape.unk10) {
+            if (dist < (f32)obj->homeZone->shape.nearDistSq) {
                 f = 1;
             }
         }
@@ -905,7 +905,7 @@ void critterUpdateFollowTarget(CritterObj *obj, CritterGroup *grp) {
                 critterTryActivate(obj, grp);
                 return;
             }
-            if (obj->state == 2 && obj->distSq < (f32)critterPlayerZone->shape.unk2) {
+            if (obj->state == 2 && obj->distSq < (f32)critterPlayerZone->shape.reactDistSq) {
                 angleDiff = mathAngleBetweenPoints2D(obj->x, obj->z, gActivePlayerActor->x, gActivePlayerActor->z);
                 angleDiff += (randomLcgNext() & 0x7FF) - 0x400;
                 obj->state = 1;
@@ -953,40 +953,40 @@ s32 critterCheckZoneState(CritterObj *obj, CritterGroup *grp) {
 }
 
 void critterDispatchAll(CritterGroup *grp) {
-    s32 (*cb)(CritterObj *, CritterGroup *);
-    void (*obj)(CritterObj *);
+    s32 (*arriveFn)(CritterObj *, CritterGroup *);
+    void (*updateFn)(CritterObj *);
     s32 objIdx;
-    CritterObj *groupIdx;
-    groupIdx = grp->objs;
+    CritterObj *obj;
+    obj = grp->objs;
     switch (grp->type) {
     case 0:
     case 1:
-        obj = critterUpdateObjType1;
+        updateFn = critterUpdateObjType1;
         break;
     case 2:
-        obj = critterUpdateObjType2;
+        updateFn = critterUpdateObjType2;
         break;
     case 3:
-        obj = critterUpdateObjType3;
+        updateFn = critterUpdateObjType3;
         break;
     case 4:
-        obj = critterUpdateObjType4;
+        updateFn = critterUpdateObjType4;
         break;
     default:
-        obj = NULL;
+        updateFn = NULL;
         break;
     }
-    cb = critterCheckZoneState;
-    for (objIdx = 0; objIdx < grp->count; objIdx++, groupIdx++) {
-        critterUpdateZoneProximity(groupIdx);
-        if (groupIdx->state == 0) {
-            critterUpdateIdle(groupIdx, grp);
+    arriveFn = critterCheckZoneState;
+    for (objIdx = 0; objIdx < grp->count; objIdx++, obj++) {
+        critterUpdateZoneProximity(obj);
+        if (obj->state == 0) {
+            critterUpdateIdle(obj, grp);
         } else {
-            critterSteerToTarget(groupIdx, grp, critterUpdateFollowTarget, cb);
+            critterSteerToTarget(obj, grp, critterUpdateFollowTarget, arriveFn);
         }
-        groupIdx->prevAnim = groupIdx->anim;
-        if (obj != NULL) {
-            obj(groupIdx);
+        obj->prevAnim = obj->anim;
+        if (updateFn != NULL) {
+            updateFn(obj);
         }
     }
 }
@@ -994,33 +994,33 @@ void critterDispatchAll(CritterGroup *grp) {
 extern u8 gPlayerCharacterId;
 typedef struct CritterZoneRow {
     CritterZoneShape shape;
-    s16 unk14;
+    s16 yOffset;
     s16 pad16;
 } CritterZoneRow;
 extern CritterZoneRow D_80029BAC[][5];
 
 void critterUpdateGroups(CritterGroups *groups) {
     s32 i;
-    CritterGroup *p;
-    CritterZoneRow *tbl;
-    CritterZoneRow *e;
-    s16 idx;
-    u8 sel = gPlayerCharacterId;
+    CritterGroup *grp;
+    CritterZoneRow *rows;
+    CritterZoneRow *row;
+    s16 rowIdx;
+    u8 character = gPlayerCharacterId;
 
     if (groups != NULL) {
-        p = groups->groups;
+        grp = groups->groups;
         critterPlayerZone->x = (s16)gActivePlayerActor->x;
-        tbl = D_80029BAC[sel];
+        rows = D_80029BAC[character];
         critterPlayerZone->z = (s16)gActivePlayerActor->z;
-        for (i = 0; i < groups->count; i++, p++) {
-            idx = p->type;
-            if (idx > 0) {
-                idx = idx - 1;
+        for (i = 0; i < groups->count; i++, grp++) {
+            rowIdx = grp->type;
+            if (rowIdx > 0) {
+                rowIdx = rowIdx - 1;
             }
-            e = &tbl[idx];
-            critterPlayerZone->y = (s16)(gActivePlayerActor->y + (f32)e->unk14);
-            critterPlayerZone->shape = e->shape;
-            critterDispatchAll(p);
+            row = &rows[rowIdx];
+            critterPlayerZone->y = (s16)(gActivePlayerActor->y + (f32)row->yOffset);
+            critterPlayerZone->shape = row->shape;
+            critterDispatchAll(grp);
         }
     }
 }
@@ -1028,19 +1028,19 @@ void critterUpdateGroups(CritterGroups *groups) {
 extern CritterGroups *critterGroups;
 
 void critterLoadData(u8 *data) {
-    s32 g;
+    s32 groupIdx;
     CritterGroup *grp;
-    CritterZone *ent;
-    s32 j;
+    CritterZone *zone;
+    s32 zoneIdx;
     u8 *src;
 
     if (data != NULL) {
         memcpy(critterGroups, data, 1);
         src = data + 1;
-        for (g = 0; g < critterGroups->count; g++) {
-            j = 0;
-            if (g == 0) {
-                critterGroups->groups = heapAlloc(critterGroups->count * 0xC);
+        for (groupIdx = 0; groupIdx < critterGroups->count; groupIdx++) {
+            zoneIdx = 0;
+            if (groupIdx == 0) {
+                critterGroups->groups = heapAlloc(critterGroups->count * sizeof(CritterGroup));
                 heapClearBlock(critterGroups->groups);
                 grp = critterGroups->groups;
             } else {
@@ -1050,21 +1050,21 @@ void critterLoadData(u8 *data) {
             src += 3;
             if (grp->zoneCount > 0) {
                 do {
-                    if (j == 0) {
-                        grp->zones = heapAlloc(grp->zoneCount * 0x2C);
+                    if (zoneIdx == 0) {
+                        grp->zones = heapAlloc(grp->zoneCount * sizeof(CritterZone));
                         heapClearBlock(grp->zones);
-                        ent = grp->zones;
+                        zone = grp->zones;
                     } else {
-                        ent++;
+                        zone++;
                     }
-                    memcpy(ent, src, 0x20);
+                    memcpy(zone, src, 0x20);
                     if (gMapChunkCount != 0) {
-                        ent->chunkIdx = mapChunkFindByPosition((f32)ent->x, (f32)ent->y, (f32)ent->z, 0);
-                        ent->frame = 0xFF;
+                        zone->chunkIdx = mapChunkFindByPosition((f32)zone->x, (f32)zone->y, (f32)zone->z, 0);
+                        zone->frame = 0xFF;
                     }
-                    j++;
+                    zoneIdx++;
                     src += 0x20;
-                } while (j < grp->zoneCount);
+                } while (zoneIdx < grp->zoneCount);
             }
             critterInitGroup(grp);
         }
