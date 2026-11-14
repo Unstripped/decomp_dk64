@@ -25,11 +25,11 @@ typedef struct CollisionStaticTri {
     /* 0x00 */ s16 x[3];
     /* 0x06 */ s16 y[3];
     /* 0x0C */ s16 z[3];
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ u8 unk14;
+    /* 0x12 */ s16 flags;
+    /* 0x14 */ u8 slopeType;
     /* 0x15 */ u8 unk15;
     /* 0x16 */ u8 unk16;
-    /* 0x17 */ s8 unk17;
+    /* 0x17 */ s8 offsetSlot;
 } CollisionStaticTri; // size = 0x18
 
 // Streamed static-mesh cell: triangles [tris, trisEnd) loaded on demand from romAddr.
@@ -104,8 +104,8 @@ void collisionBuildCellTable(MapFileHeader *header) {
 
 extern u8 D_807F94B4;
 
-void collisionSetQueryMode(u8 arg0) {
-    D_807F94B4 = arg0;
+void collisionSetQueryMode(u8 mode) {
+    D_807F94B4 = mode;
 }
 
 extern u8 D_807F94B3;
@@ -130,21 +130,21 @@ void collisionQueryActorFloor(Actor *actor, u8 *hasFloor, f32 *floorY, u8 *hasWa
     collisionFindFloorAtPoint(actor, posX, posY, posZ, hasFloor, floorY, hasWater, waterY, mode);
 }
 
-s32 collisionCheckActorFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
+s32 collisionCheckActorFloor(Actor *actor, f32 x, f32 y, f32 z, f32 *outFloorY) {
     u8 slopeHit;
     u8 normalHit;
     f32 slopeY;
     f32 normalY;
     s32 found;
 
-    if (arg0->actorType == 0xBC) {
+    if (actor->actorType == 0xBC) {
         D_807F94B3 = 1;
     } else {
         D_807F94B3 = 0;
     }
     D_807F94BC = 1;
-    found = collisionFindFloorAtPoint(NULL, arg1, arg2, arg3, &slopeHit, &slopeY, &normalHit, &normalY, 0);
-    *arg4 = D_807F948C;
+    found = collisionFindFloorAtPoint(NULL, x, y, z, &slopeHit, &slopeY, &normalHit, &normalY, 0);
+    *outFloorY = D_807F948C;
     return found;
 }
 
@@ -200,7 +200,7 @@ extern u8 D_807F94B6;
 extern PlayerState *D_807F94B8;
 extern u8 sCamFloorHitCount;
 
-s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *arg4, f32 *arg5, u8 *arg6, f32 *arg7, u8 arg8) {
+s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor, f32 *outFloorY, u8 *outHasWater, f32 *outWaterY, u8 mode) {
     u8 meshHit;
     u8 dynHit;
     f32 meshY;
@@ -215,8 +215,8 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *arg4, f32 *
     D_807F946E = 0;
     if (D_807F94B4 == 1) {
         collisionClearFlags();
-        *arg4 = 0;
-        *arg6 = 0;
+        *outHasFloor = 0;
+        *outHasWater = 0;
         D_807F94B4 = 0;
         return 0;
     }
@@ -227,7 +227,7 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *arg4, f32 *
         D_807F94B6 = 0;
         D_807F9464 = 0;
         D_807F946C = 0;
-        D_807F946D = arg8;
+        D_807F946D = mode;
         actor->renderFlags &= ~0x40;
         if (actor->collisionFlags & 1) {
             D_807F94B8 = actor->customState;
@@ -361,10 +361,10 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *arg4, f32 *
         D_807F951D = 3;
         break;
     }
-    *arg4 = D_807F9464;
-    *arg5 = D_807F9460;
-    *arg6 = D_807F946C;
-    *arg7 = D_807F9468;
+    *outHasFloor = D_807F9464;
+    *outFloorY = D_807F9460;
+    *outHasWater = D_807F946C;
+    *outWaterY = D_807F9468;
     D_807F94B4 = 0;
     return (u8)(meshHit | dynHit | boxHit);
 }
@@ -411,7 +411,7 @@ u8 collisionGetHitFlags(void) {
 extern s16 D_807F94A6;
 extern s16 D_807F94A8;
 
-void collisionStoreSurfaceNormalAngles(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5, u8 arg6) {
+void collisionStoreSurfaceNormalAngles(Actor *actor, f32 normalX, f32 normalY, f32 normalZ, u8 slopeType, u8 record, u8 source) {
     f32 horiz;
     f32 absX;
     f32 absY;
@@ -421,55 +421,55 @@ void collisionStoreSurfaceNormalAngles(Actor *arg0, f32 arg1, f32 arg2, f32 arg3
     s16 pitch;
     u8 type;
 
-    type = arg4;
-    if (arg4 == 0xFF) {
-        arg4 = 0;
+    type = slopeType;
+    if (slopeType == 0xFF) {
+        slopeType = 0;
         type = 0;
     }
     if (type == 0xFE) {
-        arg4 = 0;
+        slopeType = 0;
     }
-    D_807F949E[arg6] = arg4;
-    if (arg3 > 0.0f) {
-        absZ = arg3;
+    D_807F949E[source] = slopeType;
+    if (normalZ > 0.0f) {
+        absZ = normalZ;
     } else {
-        absZ = -arg3;
+        absZ = -normalZ;
     }
     if ((f64) absZ < 0.01) {
         yaw = 0x400;
     } else {
-        if (arg1 > 0.0f) {
-            absX = arg1;
+        if (normalX > 0.0f) {
+            absX = normalX;
         } else {
-            absX = -arg1;
+            absX = -normalX;
         }
         yaw = (s16)((mathAtan2(absX, absZ) / 3.1415927f) * 2048.0f);
     }
-    nx = (f64) arg1;
-    if ((nx >= 0.0) && ((f64) arg3 >= 0.0)) {
+    nx = (f64) normalX;
+    if ((nx >= 0.0) && ((f64) normalZ >= 0.0)) {
         yaw -= 0x800;
-    } else if ((nx >= 0.0) && ((f64) arg3 < 0.0)) {
+    } else if ((nx >= 0.0) && ((f64) normalZ < 0.0)) {
         yaw = -yaw;
-    } else if ((nx < 0.0) && ((f64) arg3 >= 0.0)) {
+    } else if ((nx < 0.0) && ((f64) normalZ >= 0.0)) {
         yaw = 0x800 - yaw;
     }
-    if (arg5) {
-        D_807F9490[arg6] = yaw & 0xFFF;
+    if (record) {
+        D_807F9490[source] = yaw & 0xFFF;
     }
     D_807F94A6 = yaw & 0xFFF;
-    horiz = sqrtf((arg1 * arg1) + (arg3 * arg3));
+    horiz = sqrtf((normalX * normalX) + (normalZ * normalZ));
     if ((f64) horiz < 0.01) {
         pitch = 0x400;
     } else {
-        if (arg2 > 0.0f) {
-            absY = arg2;
+        if (normalY > 0.0f) {
+            absY = normalY;
         } else {
-            absY = -arg2;
+            absY = -normalY;
         }
         pitch = (s16)((mathAtan2(absY, horiz) / 3.1415927f) * 2048.0f);
     }
-    if (arg5) {
-        D_807F9498[arg6] = pitch;
+    if (record) {
+        D_807F9498[source] = pitch;
     }
     D_807F94A8 = pitch;
 }
@@ -485,7 +485,7 @@ extern f32 D_80752FEC[];
 extern f32 D_80753008[];
 extern f32 D_807F9460;
 
-void collisionCheckSlopeAngle(f32 arg0, f32 arg1, u8 arg2, Actor *arg3, u8 arg4) {
+void collisionCheckSlopeAngle(f32 refY, f32 floorY, u8 scaled, Actor *actor, u8 halveMin) {
     f32 *maxTable;
     f32 *minTable;
     f32 maxStep;
@@ -495,8 +495,8 @@ void collisionCheckSlopeAngle(f32 arg0, f32 arg1, u8 arg2, Actor *arg3, u8 arg4)
     f32 diff;
     u8 kong;
 
-    if (arg0 < arg1) {
-        if ((arg3 != NULL) && (arg3->collisionFlags & 1)) {
+    if (refY < floorY) {
+        if ((actor != NULL) && (actor->collisionFlags & 1)) {
             kong = gPlayerSlots[gCurrentPlayerIndex].unk2C0;
             if (kong != 0) {
                 if (kong != 2) {
@@ -515,25 +515,25 @@ void collisionCheckSlopeAngle(f32 arg0, f32 arg1, u8 arg2, Actor *arg3, u8 arg4)
             minHeight = 10.0f;
             maxHeight = 20.0f;
         }
-        if (arg4 != 0) {
+        if (halveMin != 0) {
             minHeight /= 2;
         }
-        if (arg2 == 1) {
+        if (scaled == 1) {
             minStep = minHeight * 6.0f;
         } else {
             minStep = minHeight;
         }
-        diff = arg1 - arg0;
+        diff = floorY - refY;
         if (minStep < diff) {
-            if (arg2 == 1) {
+            if (scaled == 1) {
                 maxStep = maxHeight * 6.0f;
             } else {
                 maxStep = maxHeight;
             }
             if (diff < maxStep) {
                 D_807F9464 = 1;
-                D_807F9460 = arg1 - maxStep;
-                if (arg2) {
+                D_807F9460 = floorY - maxStep;
+                if (scaled) {
                     D_807F9460 /= 6.0f;
                 }
             }
@@ -544,18 +544,18 @@ void collisionCheckSlopeAngle(f32 arg0, f32 arg1, u8 arg2, Actor *arg3, u8 arg4)
 extern f32 D_807F9468;
 extern u8 D_807F946C;
 
-s32 collisionGetFloorTriangleNormal(f32 arg0, f32 arg1, u8 arg2, u8 arg3) {
+s32 collisionGetFloorTriangleNormal(f32 refY, f32 floorY, u8 scaled, u8 slopeType) {
     f32 limit;
     s32 hit;
 
     hit = 0;
-    if (arg3 == 0xFF && arg0 < arg1) {
-        limit = (arg2 == 1) ? 150.0 : 25.0;
-        if ((arg1 - arg0) < limit) {
+    if (slopeType == 0xFF && refY < floorY) {
+        limit = (scaled == 1) ? 150.0 : 25.0;
+        if ((floorY - refY) < limit) {
             D_807F946C = 1;
             hit = 1;
-            D_807F9468 = arg1 - limit;
-            if (arg2) {
+            D_807F9468 = floorY - limit;
+            if (scaled) {
                 D_807F9468 /= 6.0f;
             }
             D_807F9468 = (f64)D_807F9468 + 6.0;
@@ -564,26 +564,26 @@ s32 collisionGetFloorTriangleNormal(f32 arg0, f32 arg1, u8 arg2, u8 arg3) {
     return hit;
 }
 
-s32 mathCheckCloserFloatThreshold(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
+s32 mathCheckCloserFloatThreshold(f32 firstY, f32 secondY, f32 threshold, u8 wide) {
     f32 limit;
     f32 diff0;
     f32 diff1;
     s32 cond0;
     s32 cond1;
 
-    limit = (arg3 == 1) ? 60.0 : 10.0;
+    limit = (wide == 1) ? 60.0 : 10.0;
 
-    if (arg0 <= arg2) {
+    if (firstY <= threshold) {
         cond0 = 1;
-    } else if ((arg0 - arg2) < limit) {
+    } else if ((firstY - threshold) < limit) {
         cond0 = 1;
     } else {
         cond0 = 0;
     }
 
-    if (arg1 <= arg2) {
+    if (secondY <= threshold) {
         cond1 = 1;
-    } else if ((arg1 - arg2) < limit) {
+    } else if ((secondY - threshold) < limit) {
         cond1 = 1;
     } else {
         cond1 = 0;
@@ -599,16 +599,16 @@ s32 mathCheckCloserFloatThreshold(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
         return 1;
     }
 
-    if (arg2 < arg0) {
-        diff0 = arg0 - arg2;
+    if (threshold < firstY) {
+        diff0 = firstY - threshold;
     } else {
-        diff0 = arg2 - arg0;
+        diff0 = threshold - firstY;
     }
 
-    if (arg2 < arg1) {
-        diff1 = arg1 - arg2;
+    if (threshold < secondY) {
+        diff1 = secondY - threshold;
     } else {
-        diff1 = arg2 - arg1;
+        diff1 = threshold - secondY;
     }
 
     if (diff0 < diff1) {
@@ -633,8 +633,8 @@ u8 collisionCheckGroundAtPoint(f32 x, f32 z, f32 *yInOut) {
     return ret;
 }
 
-u8 collisionGetFloorHeight(f32 *arg0) {
-    *arg0 = D_807F9488;
+u8 collisionGetFloorHeight(f32 *outY) {
+    *outY = D_807F9488;
     return D_807F9484;
 }
 
@@ -644,7 +644,7 @@ u8 collisionGetSurfaceType(void) {
 
 extern u8 D_807F94B6;
 
-u8 collisionTestSubmeshBoundary(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
+u8 collisionTestSubmeshBoundary(f32 x, f32 z, f32 *yInOut, Actor *actor) {
     u8 staticHit;
     f32 staticY;
     f32 gridY;
@@ -653,28 +653,28 @@ u8 collisionTestSubmeshBoundary(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     u8 val;
     s32 hit;
 
-    staticY = *arg2;
-    staticHit = collisionTestStaticMeshFloor(arg0, arg1, &staticY, arg3);
-    gridY = *arg2;
-    val = collisionTestGridMeshHeight(arg0, arg1, &gridY, arg3) * 2;
+    staticY = *yInOut;
+    staticHit = collisionTestStaticMeshFloor(x, z, &staticY, actor);
+    gridY = *yInOut;
+    val = collisionTestGridMeshHeight(x, z, &gridY, actor) * 2;
     val += staticHit;
     switch (val) {
     case 0:
         break;
     case 1:
-        *arg2 = staticY;
+        *yInOut = staticY;
         break;
     case 2:
-        *arg2 = gridY;
+        *yInOut = gridY;
         D_807F94B6 = 1;
         break;
     case 3:
-        temp = (f64)*arg2 + 4.0;
+        temp = (f64)*yInOut + 4.0;
         if (mathCheckCloserFloatThreshold(staticY, gridY, temp, 0) != 0) {
-            *arg2 = gridY;
+            *yInOut = gridY;
             D_807F94B6 = 1;
         } else {
-            *arg2 = staticY;
+            *yInOut = staticY;
         }
         break;
     }
@@ -800,18 +800,18 @@ s32 collisionTestGridMeshHeight(f32 posX, f32 posZ, f32 *height, Actor *actor) {
     return hit;
 }
 
-f32 collisionTriangleHeightAtXZ(CollisionStaticTri *arg0, f32 arg1, f32 arg2) {
-    f64 dx01 = arg0->x[0] - arg0->x[1];
-    f64 dy01 = arg0->y[0] - arg0->y[1];
-    f64 dz01 = arg0->z[0] - arg0->z[1];
-    f64 dx02 = arg0->x[0] - arg0->x[2];
-    f64 dy02 = arg0->y[0] - arg0->y[2];
-    f64 dz02 = arg0->z[0] - arg0->z[2];
+f32 collisionTriangleHeightAtXZ(CollisionStaticTri *tri, f32 x, f32 z) {
+    f64 dx01 = tri->x[0] - tri->x[1];
+    f64 dy01 = tri->y[0] - tri->y[1];
+    f64 dz01 = tri->z[0] - tri->z[1];
+    f64 dx02 = tri->x[0] - tri->x[2];
+    f64 dy02 = tri->y[0] - tri->y[2];
+    f64 dz02 = tri->z[0] - tri->z[2];
     f64 nx = (dy01 * dz02) - (dz01 * dy02);
     f64 ny = (dz01 * dx02) - (dx01 * dz02);
     f64 nz = (dx01 * dy02) - (dy01 * dx02);
-    f64 d = -((nx * arg0->x[1]) + (ny * arg0->y[1]) + (nz * arg0->z[1]));
-    f64 val = ((nx * arg1) + (ny * -1000.0) + (nz * arg2) + d) / (ny * 2000.0);
+    f64 d = -((nx * tri->x[1]) + (ny * tri->y[1]) + (nz * tri->z[1]));
+    f64 val = ((nx * x) + (ny * -1000.0) + (nz * z) + d) / (ny * 2000.0);
     val = 0.0 - val;
     return (2000.0 * val) - 1000.0;
 }
@@ -825,7 +825,7 @@ extern u16 D_807F9456;
 extern u8 D_807F5FC0;
 extern u8 D_807F94AB;
 
-u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
+u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
     f32 offset;
     CollisionStaticTri *triEnd;
     CollisionStaticTri *hitTri;
@@ -852,41 +852,41 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
 
     spS.cb = 0;
     spS.cc = 999999.0f;
-    cell = ((s32)arg1 / D_807F9452) * D_807F9454 + (s32)arg0 / D_807F9450;
-    cur = *arg2;
-    threshold = (f32)((f64)*arg2 + 4.0);
+    cell = ((s32)z / D_807F9452) * D_807F9454 + (s32)x / D_807F9450;
+    cur = *yInOut;
+    threshold = (f32)((f64)*yInOut + 4.0);
     threshold = threshold * 6.0f;
     if (cell >= D_807F9518) {
         return 0;
     }
-    if (D_807F9454 <= arg0 / D_807F9450 || arg0 < 0.0) {
-        if (gCurrentMap == 0x57 && arg3 != NULL) {
-            return collisionTestHardcodedFloorPlane(&spS.cc, threshold, cur, arg2);
+    if (D_807F9454 <= x / D_807F9450 || x < 0.0) {
+        if (gCurrentMap == 0x57 && actor != NULL) {
+            return collisionTestHardcodedFloorPlane(&spS.cc, threshold, cur, yInOut);
         }
         return 0;
     }
-    if (D_807F9456 <= arg1 / D_807F9452 || arg1 < 0.0) {
-        if (gCurrentMap == 0x57 && arg3 != NULL) {
-            return collisionTestHardcodedFloorPlane(&spS.cc, threshold, cur, arg2);
+    if (D_807F9456 <= z / D_807F9452 || z < 0.0) {
+        if (gCurrentMap == 0x57 && actor != NULL) {
+            return collisionTestHardcodedFloorPlane(&spS.cc, threshold, cur, yInOut);
         }
         return 0;
     }
     dynamicBufferAllocateEntry(cell);
-    arg0 = arg0 * 6.0f;
-    arg1 = arg1 * 6.0f;
-    if (arg3 != NULL && arg3->floorTriangle != NULL && collisionCheckTriangleXZBoundsS16(arg3->floorTriangle, (s32)arg0, (s32)arg1) != 0 &&
-        collisionPointInTriangleXZS16(arg3->floorTriangle, arg0, arg1) != 0 && D_807F5FC0 == 0) {
-        tri = arg3->floorTriangle;
+    x = x * 6.0f;
+    z = z * 6.0f;
+    if (actor != NULL && actor->floorTriangle != NULL && collisionCheckTriangleXZBoundsS16(actor->floorTriangle, (s32)x, (s32)z) != 0 &&
+        collisionPointInTriangleXZS16(actor->floorTriangle, x, z) != 0 && D_807F5FC0 == 0) {
+        tri = actor->floorTriangle;
         triEnd = tri + 1;
     } else {
         tri = D_807F9514[cell].tris;
         triEnd = D_807F9514[cell].trisEnd;
     }
     if (tri != triEnd) {
-        iz = (s32)arg1;
-        ix = (s32)arg0;
+        iz = (s32)z;
+        ix = (s32)x;
         do {
-            if (collisionCheckTriangleXZBoundsS16(tri, ix, iz) != 0 && collisionPointInTriangleXZS16(tri, arg0, arg1) != 0) {
+            if (collisionCheckTriangleXZBoundsS16(tri, ix, iz) != 0 && collisionPointInTriangleXZS16(tri, x, z) != 0) {
                 dx01 = (f64)(tri->x[0] - tri->x[1]);
                 dy01 = (f64)(tri->y[0] - tri->y[1]);
                 dz01 = (f64)(tri->z[0] - tri->z[1]);
@@ -897,39 +897,39 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                 ny = (dz01 * dx02) - (dx01 * dz02);
                 d = -((nx * tri->x[1]) + (ny * tri->y[1]) + (((dx01 * dy02) - (dy01 * dx02)) * tri->z[1]));
                 if (ny * 2000.0 > 0.01 || ny * 2000.0 < -0.01) {
-                    val = 0.0 - ((((arg0 * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * arg1) + d) / (ny * 2000.0));
+                    val = 0.0 - ((((x * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
                     h2 = (2000.0 * val) - 1000.0;
-                    if (tri->unk12 & 4) {
-                        offset = mapOffsetSlotGetValue(tri->unk17) * 6.0f;
-                        h2 = ((2000.0 * (0.0 - ((((arg0 * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * arg1) + d) / (ny * 2000.0)))) - 1000.0) + offset; // FAKE: recomputes the height formula instead of reusing val, keeping it a separate f64 web (f20) for add.d f24,f20,f6
+                    if (tri->flags & 4) {
+                        offset = mapOffsetSlotGetValue(tri->offsetSlot) * 6.0f;
+                        h2 = ((2000.0 * (0.0 - ((((x * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * z) + d) / (ny * 2000.0)))) - 1000.0) + offset; // FAKE: recomputes the height formula instead of reusing val, keeping it a separate f64 web (f20) for add.d f24,f20,f6
                     }
-                    if ((tri->unk12 & 0x4000) && arg3 != NULL && (arg3->collisionFlags & 1)) {
+                    if ((tri->flags & 0x4000) && actor != NULL && (actor->collisionFlags & 1)) {
                         D_807F94B7 = 1;
                     }
-                    if ((tri->unk12 & 0x80) && (f64)(*arg2 * 6.0f) < h2) {
+                    if ((tri->flags & 0x80) && (f64)(*yInOut * 6.0f) < h2) {
                         D_807F94B0 = 1;
                     }
-                    if ((tri->unk12 & 0x100) && arg3 != NULL && (arg3->collisionFlags & 1)) {
-                        if ((f64)(*arg2 * 6.0f) < h2 && ((diff = h2 - (f64)(*arg2 * 6.0f)) < 600.0f)) {
+                    if ((tri->flags & 0x100) && actor != NULL && (actor->collisionFlags & 1)) {
+                        if ((f64)(*yInOut * 6.0f) < h2 && ((diff = h2 - (f64)(*yInOut * 6.0f)) < 600.0f)) {
                             D_807F94B8->stateFlags |= 0x2000;
                         }
                     }
-                    if ((tri->unk12 & 0xA00) && arg3 != NULL && (arg3->collisionFlags & 1)) {
-                        if ((f64)(*arg2 * 6.0f) < h2 && ((diff = h2 - (f64)(*arg2 * 6.0f)) < 800.0f)) {
+                    if ((tri->flags & 0xA00) && actor != NULL && (actor->collisionFlags & 1)) {
+                        if ((f64)(*yInOut * 6.0f) < h2 && ((diff = h2 - (f64)(*yInOut * 6.0f)) < 800.0f)) {
                             D_807F94B8->stateFlags |= 0x4000;
                         }
                     }
-                    if (tri->unk12 & 0x4850) {
-                        if (arg3 != NULL) {
-                            if (h2 < (f64)(*arg2 * 6.0f)) {
-                                diff = (f64)(*arg2 * 6.0f) - h2;
+                    if (tri->flags & 0x4850) {
+                        if (actor != NULL) {
+                            if (h2 < (f64)(*yInOut * 6.0f)) {
+                                diff = (f64)(*yInOut * 6.0f) - h2;
                             } else {
-                                diff = -((f64)(*arg2 * 6.0f) - h2);
+                                diff = -((f64)(*yInOut * 6.0f) - h2);
                             }
-                            if ((tri->unk12 & 0x10) && diff < 40.0f) {
+                            if ((tri->flags & 0x10) && diff < 40.0f) {
                                 D_807F94AE = 1;
                             }
-                            if ((tri->unk12 & 0x40) && diff < 40.0f) {
+                            if ((tri->flags & 0x40) && diff < 40.0f) {
                                 D_807F94AF = 1;
                             }
                         }
@@ -937,19 +937,19 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                         if (D_807F94BC != 0) {
                             collisionRecordTriangleS(tri, (f32)h2);
                         }
-                        if (!(tri->unk12 & 1)) {
-                            collisionCheckSlopeAngle(*arg2 * 6.0f, (f32)h2, 1, arg3, 0);
-                            collisionGetFloorTriangleNormal(*arg2 * 6.0f, (f32)h2, 1, tri->unk14);
+                        if (!(tri->flags & 1)) {
+                            collisionCheckSlopeAngle(*yInOut * 6.0f, (f32)h2, 1, actor, 0);
+                            collisionGetFloorTriangleNormal(*yInOut * 6.0f, (f32)h2, 1, tri->slopeType);
                             closer = mathCheckCloserFloatThreshold(spS.cc, (f32)h2, threshold, 1);
                             if (collisionCheckTriangleWindingS16(tri) != 0 && closer != 0) {
                                 spS.cb = 1;
                                 spS.cc = (f32)h2;
                                 hitTri = tri;
                                 D_807F94B5 = tri->unk16 & 0xF;
-                                if (h2 < (f64)(*arg2 * 6.0f)) {
-                                    diff = (f64)(*arg2 * 6.0f) - h2;
+                                if (h2 < (f64)(*yInOut * 6.0f)) {
+                                    diff = (f64)(*yInOut * 6.0f) - h2;
                                 } else {
-                                    diff = -((f64)(*arg2 * 6.0f) - h2);
+                                    diff = -((f64)(*yInOut * 6.0f) - h2);
                                 }
                                 if (diff > 30.0f) {
                                     t = (diff - 30.0f) / 120.0f;
@@ -959,43 +959,43 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                                         D_807F94B5 = (u32)((f32)D_807F94B5 + (f32)(0xF - D_807F94B5) * t);
                                     }
                                 }
-                                collisionStoreTriangleNormalAnglesS16(arg3, tri, 1);
-                                if (arg3 != NULL) {
-                                    arg3->unk78[0] = tri->unk15;
-                                    arg3->tintA = D_807F94B5;
+                                collisionStoreTriangleNormalAnglesS16(actor, tri, 1);
+                                if (actor != NULL) {
+                                    actor->unk78[0] = tri->unk15;
+                                    actor->tintA = D_807F94B5;
                                 }
                                 D_807F94B1 = tri->unk15;
-                                if (tri->unk12 & 2) {
-                                    *arg2 = spS.cc / 6.0f;
-                                    if (!(tri->unk12 & 8)) {
+                                if (tri->flags & 2) {
+                                    *yInOut = spS.cc / 6.0f;
+                                    if (!(tri->flags & 8)) {
                                         D_807F94AB = 1;
                                     }
-                                    if (tri->unk12 & 0x2000) {
+                                    if (tri->flags & 0x2000) {
                                         D_807F946E = 1;
                                     }
-                                    if (arg3 != NULL && (tri->unk12 & 0x1000)) {
-                                        arg3->renderFlags |= 0x40;
+                                    if (actor != NULL && (tri->flags & 0x1000)) {
+                                        actor->renderFlags |= 0x40;
                                     }
-                                    if (arg3 != NULL) {
-                                        arg3->floorTriangle = tri;
+                                    if (actor != NULL) {
+                                        actor->floorTriangle = tri;
                                     }
                                     return 1;
                                 }
                             }
                         } else {
-                            if (arg3 != NULL) {
-                                if ((f64)(arg3->y * 6.0f) < h2) {
-                                    arg3->contactFlags |= 4;
-                                    arg3->unkB0[0] = tri->unk16 >> 4;
-                                    if (arg3->unkB0[0] == 0xF) {
-                                        arg3->unkB0[0] = -1;
+                            if (actor != NULL) {
+                                if ((f64)(actor->y * 6.0f) < h2) {
+                                    actor->contactFlags |= 4;
+                                    actor->unkB0[0] = tri->unk16 >> 4;
+                                    if (actor->unkB0[0] == 0xF) {
+                                        actor->unkB0[0] = -1;
                                     }
                                 }
-                                arg3->contactFlags |= 2;
-                                arg3->waterY = h2 / 6.0;
+                                actor->contactFlags |= 2;
+                                actor->waterY = h2 / 6.0;
                             }
-                            if (tri->unk12 & 0x20) {
-                                collisionCheckSlopeAngle(*arg2 * 6.0f, (f32)h2, 1, arg3, 1);
+                            if (tri->flags & 0x20) {
+                                collisionCheckSlopeAngle(*yInOut * 6.0f, (f32)h2, 1, actor, 1);
                             }
                             D_807F9484 = 1;
                             D_807F9488 = (f32)(h2 / 6.0);
@@ -1007,32 +1007,32 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
         } while (tri != triEnd);
     }
     if (spS.cb != 0) {
-        *arg2 = spS.cc / 6.0f;
-        if (!(hitTri->unk12 & 8)) {
+        *yInOut = spS.cc / 6.0f;
+        if (!(hitTri->flags & 8)) {
             D_807F94AB = 1;
         }
-        if (hitTri->unk12 & 0x2000) {
+        if (hitTri->flags & 0x2000) {
             D_807F946E = 1;
         }
-        if (arg3 != NULL && (hitTri->unk12 & 0x1000)) {
-            arg3->renderFlags |= 0x40;
+        if (actor != NULL && (hitTri->flags & 0x1000)) {
+            actor->renderFlags |= 0x40;
         }
     }
-    if (gCurrentMap == 0x57 && arg3 != NULL) {
-        spS.cb |= collisionTestHardcodedFloorPlane(&spS.cc, threshold, cur, arg2);
+    if (gCurrentMap == 0x57 && actor != NULL) {
+        spS.cb |= collisionTestHardcodedFloorPlane(&spS.cc, threshold, cur, yInOut);
     }
-    if (arg3 != NULL) {
-        arg3->floorTriangle = NULL;
+    if (actor != NULL) {
+        actor->floorTriangle = NULL;
     }
     return spS.cb;
 }
 
 
-u8 collisionTestHardcodedFloorPlane(f32 *arg0, f32 arg1, f32 arg2, f32 *arg3) {
+u8 collisionTestHardcodedFloorPlane(f32 *bestY, f32 threshold, f32 refY, f32 *yInOut) {
     f32 diff;
     f64 val;
 
-    val = (f64)(arg2 * 6.0f);
+    val = (f64)(refY * 6.0f);
     if (val > 1614.0) {
         diff = val - 1614.0;
     } else {
@@ -1041,8 +1041,8 @@ u8 collisionTestHardcodedFloorPlane(f32 *arg0, f32 arg1, f32 arg2, f32 *arg3) {
     if (diff < 40.0f) {
         D_807F94AE = 1;
     }
-    if (mathCheckCloserFloatThreshold(*arg0, 684.0f, arg1, 1)) {
-        *arg3 = 114.0f;
+    if (mathCheckCloserFloatThreshold(*bestY, 684.0f, threshold, 1)) {
+        *yInOut = 114.0f;
         return 1;
     }
     return 0;
@@ -1057,21 +1057,21 @@ typedef struct CamFloorHit {
 
 extern CamFloorHit sCamFloorHits[];
 
-void collisionRecordTriangleS(CollisionStaticTri *arg0, f32 arg1) {
+void collisionRecordTriangleS(CollisionStaticTri *tri, f32 height) {
     if (sCamFloorHitCount != 10) {
-        sCamFloorHits[sCamFloorHitCount].height = arg1 / 6.0f;
-        if (collisionCheckTriangleWindingS16(arg0)) {
+        sCamFloorHits[sCamFloorHitCount].height = height / 6.0f;
+        if (collisionCheckTriangleWindingS16(tri)) {
             sCamFloorHits[sCamFloorHitCount].flags = 1;
         } else {
             sCamFloorHits[sCamFloorHitCount].flags = 2;
         }
-        if (arg0->unk12 & 1) {
+        if (tri->flags & 1) {
             sCamFloorHits[sCamFloorHitCount].flags |= 4;
         }
-        if (arg0->unk12 & 0x400) {
+        if (tri->flags & 0x400) {
             sCamFloorHits[sCamFloorHitCount].flags |= 8;
         }
-        collisionStoreTriangleNormalAnglesS16(NULL, arg0, 0);
+        collisionStoreTriangleNormalAnglesS16(NULL, tri, 0);
         sCamFloorHits[sCamFloorHitCount].angle = D_807F94A8;
         sCamFloorHitCount++;
     }
@@ -1107,10 +1107,10 @@ void dynamicBufferPurgeExpired(void) {
     }
 }
 
-void actorClearBufferReferences(s32 arg0) {
+void actorClearBufferReferences(s32 cell) {
     s32 i;
-    CollisionStaticTri *min = D_807F9514[arg0].tris;
-    CollisionStaticTri *max = D_807F9514[arg0].trisEnd;
+    CollisionStaticTri *min = D_807F9514[cell].tris;
+    CollisionStaticTri *max = D_807F9514[cell].trisEnd;
 
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
@@ -1128,13 +1128,13 @@ typedef struct CrossProductStack {
     f32 v1[3];
 } CrossProductStack;
 
-s32 collisionCheckTriangleWindingS16(CollisionStaticTri *arg0) {
+s32 collisionCheckTriangleWindingS16(CollisionStaticTri *tri) {
     CrossProductStack sp;
 
-    sp.v1[0] = arg0->x[2] - arg0->x[0];
-    sp.v1[2] = arg0->z[2] - arg0->z[0];
-    sp.v0[0] = arg0->x[1] - arg0->x[0];
-    sp.v0[2] = arg0->z[1] - arg0->z[0];
+    sp.v1[0] = tri->x[2] - tri->x[0];
+    sp.v1[2] = tri->z[2] - tri->z[0];
+    sp.v0[0] = tri->x[1] - tri->x[0];
+    sp.v0[2] = tri->z[1] - tri->z[0];
     sp.cross = (sp.v1[2] * sp.v0[0]) - (sp.v1[0] * sp.v0[2]);
     if (sp.cross <= 0.0) {
         return 1;
@@ -1148,34 +1148,34 @@ typedef struct CrossProductStack3D {
     f32 v1[3];
 } CrossProductStack3D;
 
-void collisionStoreTriangleNormalAnglesS16(Actor *arg0, CollisionStaticTri *arg1, u8 arg2) {
+void collisionStoreTriangleNormalAnglesS16(Actor *actor, CollisionStaticTri *tri, u8 record) {
     CrossProductStack3D sp;
 
-    sp.v1[0] = arg1->x[2] - arg1->x[0];
-    sp.v1[1] = arg1->y[2] - arg1->y[0];
-    sp.v1[2] = arg1->z[2] - arg1->z[0];
-    sp.v0[0] = arg1->x[1] - arg1->x[0];
-    sp.v0[1] = arg1->y[1] - arg1->y[0];
-    sp.v0[2] = arg1->z[1] - arg1->z[0];
+    sp.v1[0] = tri->x[2] - tri->x[0];
+    sp.v1[1] = tri->y[2] - tri->y[0];
+    sp.v1[2] = tri->z[2] - tri->z[0];
+    sp.v0[0] = tri->x[1] - tri->x[0];
+    sp.v0[1] = tri->y[1] - tri->y[0];
+    sp.v0[2] = tri->z[1] - tri->z[0];
     sp.cross[0] = (sp.v1[1] * sp.v0[2]) - (sp.v1[2] * sp.v0[1]);
     sp.cross[1] = (sp.v1[2] * sp.v0[0]) - (sp.v1[0] * sp.v0[2]);
     sp.cross[2] = (sp.v1[0] * sp.v0[1]) - (sp.v1[1] * sp.v0[0]);
-    collisionStoreSurfaceNormalAngles(arg0, sp.cross[0], sp.cross[1], sp.cross[2], arg1->unk14, arg2, 0);
+    collisionStoreSurfaceNormalAngles(actor, sp.cross[0], sp.cross[1], sp.cross[2], tri->slopeType, record, 0);
 }
 
-s32 collisionCheckTriangleXZBoundsS16(CollisionStaticTri *arg0, s32 arg1, s32 arg2) {
+s32 collisionCheckTriangleXZBoundsS16(CollisionStaticTri *tri, s32 x, s32 z) {
     s32 p0, p1, p2;
     s32 val;
 
-    p0 = arg0->x[0];
-    p1 = arg0->x[1];
-    p2 = arg0->x[2];
+    p0 = tri->x[0];
+    p1 = tri->x[1];
+    p2 = tri->x[2];
 
     val = (p0 < p1) ? p0 : p1;
     if (val >= p2) {
         val = p2;
     }
-    if (arg1 < val) {
+    if (x < val) {
         return 0;
     }
 
@@ -1183,19 +1183,19 @@ s32 collisionCheckTriangleXZBoundsS16(CollisionStaticTri *arg0, s32 arg1, s32 ar
     if (val <= p2) {
         val = p2;
     }
-    if (val < arg1) {
+    if (val < x) {
         return 0;
     }
 
-    p0 = arg0->z[0];
-    p1 = arg0->z[1];
-    p2 = arg0->z[2];
+    p0 = tri->z[0];
+    p1 = tri->z[1];
+    p2 = tri->z[2];
 
     val = (p0 < p1) ? p0 : p1;
     if (val >= p2) {
         val = p2;
     }
-    if (arg2 < val) {
+    if (z < val) {
         return 0;
     }
 
@@ -1203,14 +1203,14 @@ s32 collisionCheckTriangleXZBoundsS16(CollisionStaticTri *arg0, s32 arg1, s32 ar
     if (val <= p2) {
         val = p2;
     }
-    if (val < arg2) {
+    if (val < z) {
         return 0;
     }
 
     return 1;
 }
 
-s32 collisionPointInTriangleXZS16(CollisionStaticTri *arg0, f32 arg1, f32 arg2) {
+s32 collisionPointInTriangleXZS16(CollisionStaticTri *tri, f32 x, f32 z) {
     f64 pad; // pad: reproduces slot layout (unused)
     f64 hx;
     f64 pad0[1]; // pad: reproduces slot layout (unused)
@@ -1229,36 +1229,36 @@ s32 collisionPointInTriangleXZS16(CollisionStaticTri *arg0, f32 arg1, f32 arg2) 
     s32 i;
     u32 mismatch = 0;
 
-    hx = (f64)(arg0->x[1] + arg0->x[2]) * 0.5;
-    hz = (f64)(arg0->z[1] + arg0->z[2]) * 0.5;
-    mid_x = ((f64)arg0->x[0] + hx) * 0.5;
-    z0 = arg0->z[0];
+    hx = (f64)(tri->x[1] + tri->x[2]) * 0.5;
+    hz = (f64)(tri->z[1] + tri->z[2]) * 0.5;
+    mid_x = ((f64)tri->x[0] + hx) * 0.5;
+    z0 = tri->z[0];
     mid_z = (z0 + hz) * 0.5;
 
     for (i = 0; i < 3; i++) {
         switch (i) {
         case 0:
-            ex = (f64)(arg0->x[1] - arg0->x[0]);
-            ez = (f64)(arg0->z[1] - arg0->z[0]);
-            ox = (f64)arg0->x[0];
+            ex = (f64)(tri->x[1] - tri->x[0]);
+            ez = (f64)(tri->z[1] - tri->z[0]);
+            ox = (f64)tri->x[0];
             oz = z0;
             break;
         case 1:
-            ex = (f64)(arg0->x[2] - arg0->x[0]);
-            ez = (f64)(arg0->z[2] - arg0->z[0]);
-            ox = (f64)arg0->x[0];
+            ex = (f64)(tri->x[2] - tri->x[0]);
+            ez = (f64)(tri->z[2] - tri->z[0]);
+            ox = (f64)tri->x[0];
             oz = z0;
             break;
         case 2:
-            ex = (f64)(arg0->x[2] - arg0->x[1]);
-            ez = (f64)(arg0->z[2] - arg0->z[1]);
-            ox = (f64)arg0->x[1];
-            oz = (f64)arg0->z[1];
+            ex = (f64)(tri->x[2] - tri->x[1]);
+            ez = (f64)(tri->z[2] - tri->z[1]);
+            ox = (f64)tri->x[1];
+            oz = (f64)tri->z[1];
             break;
         }
 
-        sidePt = ((f64)arg1 - ox) * ez;
-        sideRef = ((f64)arg2 - oz) * ex;
+        sidePt = ((f64)x - ox) * ez;
+        sideRef = ((f64)z - oz) * ex;
         sideMid = ((mid_x - ox) * ez) - ((mid_z - oz) * ex);
 
         if ((sideRef <= sidePt ? 1 : -1) != (sideMid >= 0.0 ? 1 : -1)) {
@@ -1403,25 +1403,25 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
 }
 
 
-void collisionRecordTriangleF(CollisionTriF *arg0, f32 arg1) {
+void collisionRecordTriangleF(CollisionTriF *tri, f32 height) {
     if (sCamFloorHitCount != 10) {
-        sCamFloorHits[sCamFloorHitCount].height = arg1;
-        if (collisionCheckTriangleWindingF32(arg0)) {
+        sCamFloorHits[sCamFloorHitCount].height = height;
+        if (collisionCheckTriangleWindingF32(tri)) {
             sCamFloorHits[sCamFloorHitCount].flags = 1;
         } else {
             sCamFloorHits[sCamFloorHitCount].flags = 2;
         }
-        collisionStoreTriangleNormalAnglesF32(NULL, arg0, 0);
+        collisionStoreTriangleNormalAnglesF32(NULL, tri, 0);
         sCamFloorHits[sCamFloorHitCount].angle = D_807F94A8;
         sCamFloorHitCount++;
     }
 }
 
-s32 collisionCheckSurfaceFilter(u8 arg0, u8 *arg1) {
+s32 collisionCheckSurfaceFilter(u8 surface, u8 *excluded) {
     u8 i = 0;
 
     do {
-        if (arg1[i] != 0xFF && arg1[i] == arg0) {
+        if (excluded[i] != 0xFF && excluded[i] == surface) {
             return 0;
         }
         i++;
@@ -1461,28 +1461,28 @@ void actorCheckNearbyNodeInteractions(Actor *actor, s16 slot, ModelPosNode *node
     }
 }
 
-void collisionStoreTriangleNormalAnglesF32(Actor *arg0, CollisionTriF *arg1, u8 arg2) {
+void collisionStoreTriangleNormalAnglesF32(Actor *actor, CollisionTriF *tri, u8 record) {
     CrossProductStack3D sp;
 
-    sp.v1[0] = arg1->x[2] - arg1->x[0];
-    sp.v1[1] = arg1->y[2] - arg1->y[0];
-    sp.v1[2] = arg1->z[2] - arg1->z[0];
-    sp.v0[0] = arg1->x[1] - arg1->x[0];
-    sp.v0[1] = arg1->y[1] - arg1->y[0];
-    sp.v0[2] = arg1->z[1] - arg1->z[0];
+    sp.v1[0] = tri->x[2] - tri->x[0];
+    sp.v1[1] = tri->y[2] - tri->y[0];
+    sp.v1[2] = tri->z[2] - tri->z[0];
+    sp.v0[0] = tri->x[1] - tri->x[0];
+    sp.v0[1] = tri->y[1] - tri->y[0];
+    sp.v0[2] = tri->z[1] - tri->z[0];
     sp.cross[0] = (sp.v1[1] * sp.v0[2]) - (sp.v1[2] * sp.v0[1]);
     sp.cross[1] = (sp.v1[2] * sp.v0[0]) - (sp.v1[0] * sp.v0[2]);
     sp.cross[2] = (sp.v1[0] * sp.v0[1]) - (sp.v1[1] * sp.v0[0]);
-    collisionStoreSurfaceNormalAngles(arg0, sp.cross[0], sp.cross[1], sp.cross[2], arg1->unk24, arg2, 1);
+    collisionStoreSurfaceNormalAngles(actor, sp.cross[0], sp.cross[1], sp.cross[2], tri->unk24, record, 1);
 }
 
-s32 collisionCheckTriangleWindingF32(CollisionTriF *arg0) {
+s32 collisionCheckTriangleWindingF32(CollisionTriF *tri) {
     CrossProductStack sp;
 
-    sp.v1[0] = arg0->x[2] - arg0->x[0];
-    sp.v1[2] = arg0->z[2] - arg0->z[0];
-    sp.v0[0] = arg0->x[1] - arg0->x[0];
-    sp.v0[2] = arg0->z[1] - arg0->z[0];
+    sp.v1[0] = tri->x[2] - tri->x[0];
+    sp.v1[2] = tri->z[2] - tri->z[0];
+    sp.v0[0] = tri->x[1] - tri->x[0];
+    sp.v0[2] = tri->z[1] - tri->z[0];
     sp.cross = (sp.v1[2] * sp.v0[0]) - (sp.v1[0] * sp.v0[2]);
     if (sp.cross <= 0.0) {
         return 1;
@@ -1541,79 +1541,79 @@ void actorUpdateSubnodeRotationAndMtx(Actor *actor) {
     }
 }
 
-s32 collisionCheckBoundingBoxXZ(CollisionBoundingBox *arg0, f32 arg1, f32 arg2) {
-    if (arg1 < arg0->minX) {
+s32 collisionCheckBoundingBoxXZ(CollisionBoundingBox *box, f32 x, f32 z) {
+    if (x < box->minX) {
         return 0;
     }
-    if (arg2 < arg0->minZ) {
+    if (z < box->minZ) {
         return 0;
     }
-    if (arg0->maxX < arg1) {
+    if (box->maxX < x) {
         return 0;
     }
-    if (arg0->maxZ < arg2) {
-        return 0;
-    }
-    return 1;
-}
-
-s32 collisionCheckBoundingBoxY(CollisionBoundingBox *arg0, f32 arg1) {
-    if (arg1 < arg0->minY) {
-        return 0;
-    }
-    if (arg0->maxY < arg1) {
+    if (box->maxZ < z) {
         return 0;
     }
     return 1;
 }
 
-s32 collisionCheckTriangleBoundingBoxXZ(CollisionTriF *arg0, f32 arg1, f32 arg2) {
+s32 collisionCheckBoundingBoxY(CollisionBoundingBox *box, f32 y) {
+    if (y < box->minY) {
+        return 0;
+    }
+    if (box->maxY < y) {
+        return 0;
+    }
+    return 1;
+}
+
+s32 collisionCheckTriangleBoundingBoxXZ(CollisionTriF *tri, f32 x, f32 z) {
     f32 x0, x1, x2;
     f32 z0, z1, z2;
     f32 min;
     f32 max;
 
-    x0 = arg0->x[0];
-    x1 = arg0->x[1];
-    x2 = arg0->x[2];
+    x0 = tri->x[0];
+    x1 = tri->x[1];
+    x2 = tri->x[2];
 
     min = (x0 < x1) ? x0 : x1;
     if (!(min < x2)) {
         min = x2;
     }
-    if (arg1 < min) {
+    if (x < min) {
         return 0;
     }
     max = (x1 < x0) ? x0 : x1;
     if (!(x2 < max)) {
         max = x2;
     }
-    if (max < arg1) {
+    if (max < x) {
         return 0;
     }
 
-    z0 = arg0->z[0];
-    z1 = arg0->z[1];
-    z2 = arg0->z[2];
+    z0 = tri->z[0];
+    z1 = tri->z[1];
+    z2 = tri->z[2];
 
     min = (z0 < z1) ? z0 : z1;
     if (!(min < z2)) {
         min = z2;
     }
-    if (arg2 < min) {
+    if (z < min) {
         return 0;
     }
     max = (z1 < z0) ? z0 : z1;
     if (!(z2 < max)) {
         max = z2;
     }
-    if (max < arg2) {
+    if (max < z) {
         return 0;
     }
     return 1;
 }
 
-u8 collisionCheckTriangleContainsPointXZ(CollisionTriF *arg0, f32 arg1, f32 arg2) {
+u8 collisionCheckTriangleContainsPointXZ(CollisionTriF *tri, f32 x, f32 z) {
     f64 cx;
     f64 cz;
     f64 a;
@@ -1630,33 +1630,33 @@ u8 collisionCheckTriangleContainsPointXZ(CollisionTriF *arg0, f32 arg1, f32 arg2
     s32 pad; // frame size (D = 96)
 
     outside = 0;
-    a = (f64)(arg0->x[1] + arg0->x[2]) * 0.5;
-    b = (f64)(arg0->z[1] + arg0->z[2]) * 0.5;
-    cx = (arg0->x[0] + a) * 0.5;
-    cz = (arg0->z[0] + b) * 0.5;
+    a = (f64)(tri->x[1] + tri->x[2]) * 0.5;
+    b = (f64)(tri->z[1] + tri->z[2]) * 0.5;
+    cx = (tri->x[0] + a) * 0.5;
+    cz = (tri->z[0] + b) * 0.5;
     i = 0; sideC = 0; do { // LAYOUT: i = 0 joined to the loop head (move v0,zero lands after the hoisted ldc1s); FAKE: dead init sideC = 0 gives sideC an earlier first appearance than sideP (uopt colours ties in first-appearance order: sideC a0, sideP a1)
         switch (i) {
         case 0:
-            dx = arg0->x[1] - arg0->x[0];
-            dz = arg0->z[1] - arg0->z[0];
-            ox = arg0->x[0];
-            oz = arg0->z[0];
+            dx = tri->x[1] - tri->x[0];
+            dz = tri->z[1] - tri->z[0];
+            ox = tri->x[0];
+            oz = tri->z[0];
             break;
         case 1:
-            dx = arg0->x[2] - arg0->x[0];
-            dz = arg0->z[2] - arg0->z[0];
-            ox = arg0->x[0];
-            oz = arg0->z[0];
+            dx = tri->x[2] - tri->x[0];
+            dz = tri->z[2] - tri->z[0];
+            ox = tri->x[0];
+            oz = tri->z[0];
             break;
         case 2:
-            dx = arg0->x[2] - arg0->x[1];
-            dz = arg0->z[2] - arg0->z[1];
-            ox = arg0->x[1];
-            oz = arg0->z[1];
+            dx = tri->x[2] - tri->x[1];
+            dz = tri->z[2] - tri->z[1];
+            ox = tri->x[1];
+            oz = tri->z[1];
             break;
         }
-        a = (arg1 - ox) * dz;
-        b = (arg2 - oz) * dx;
+        a = (x - ox) * dz;
+        b = (z - oz) * dx;
         c = (cx - ox) * dz - (cz - oz) * dx;
         i++;
         if (b <= a) {
@@ -1685,9 +1685,9 @@ extern s32 *D_807F95A8[];
 extern u8 D_80748E18[];
 extern s32 *D_807FB1A0[];
 typedef struct {
-    void *unk0;
-    void *unk4;
-    u8 unk8;
+    void *dmaDst;
+    void *buffer;
+    u8 compressed;
 } DmaQueueEntry;
 
 // Actor collision box triangle (ActorSub140.triangles, stride 0x58). 70FD0 views the same record as
@@ -1703,9 +1703,9 @@ typedef struct CollisionBoxTri {
     /* 0x3C */ f32 z0;
     /* 0x40 */ f32 z1;
     /* 0x44 */ f32 z2;
-    /* 0x48 */ u32 unk48; // per-vertex matrix byte offsets (0x40 per Mtx), -1 = box bounds
-    /* 0x4C */ u32 unk4C;
-    /* 0x50 */ u32 unk50;
+    /* 0x48 */ u32 mtxOffset0; // per-vertex matrix byte offsets (0x40 per Mtx), -1 = box bounds
+    /* 0x4C */ u32 mtxOffset1;
+    /* 0x50 */ u32 mtxOffset2;
     /* 0x54 */ u8 pad54[2];
     /* 0x56 */ u8 unk56;
     /* 0x57 */ u8 pad57;
@@ -1714,7 +1714,7 @@ typedef struct CollisionBoxTri {
 
 
 
-s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
+s32 collisionTestActorBoxFloor(Actor *self, f32 x, f32 z, f32 refY, f32 *outFloorY) {
     f32 pad;
     CollisionBoxTri *hit_tri;
     f64 nx, ny, nz;
@@ -1742,13 +1742,13 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
         do {
             actor = gActiveActors[i].actor;
             if (!(actor->flags & 0x2000)) {
-                if (actor->collision != NULL && arg0 != actor && (actor->flags & 0x10)) {
+                if (actor->collision != NULL && self != actor && (actor->flags & 0x10)) {
                     tri = actor->collision->triangles;
                     j = 0;
                     if (actor->collision->triangleCount > 0) {
                         do {
-                            if ((collisionCheckBoxTriangleBoundsXZ(tri, arg1, arg2) != 0) &&
-                                (collisionCheckBoxTriangleContainsPointXZ(tri, arg1, arg2) != 0) &&
+                            if ((collisionCheckBoxTriangleBoundsXZ(tri, x, z) != 0) &&
+                                (collisionCheckBoxTriangleContainsPointXZ(tri, x, z) != 0) &&
                                 (tri->unk56 != 0)) {
                                 dx01 = (f64)(tri->x0 - tri->x1);
                                 dy01 = (f64)(tri->y0 - tri->y1);
@@ -1762,18 +1762,18 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
                                 dy02 = 0.0;  // FAKE: kills nz store forwarding into d
                                 d = -(nz * (f64)tri->z1 + (nx * (f64)tri->x1 + ny * (f64)tri->y1));
                                 if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
-                                    if (arg0 != NULL) {
-                                        val = (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)));
-                                        collisionCheckSlopeAngle(arg3, (f32)((2000.0 * val) - 1000.0), 0, arg0, 0);
+                                    if (self != NULL) {
+                                        val = (0.0 - ((((f64)x * nx) + (ny * -1000.0) + (nz * (f64)z) + d) / (ny * 2000.0)));
+                                        collisionCheckSlopeAngle(refY, (f32)((2000.0 * val) - 1000.0), 0, self, 0);
                                     }
                                     if (D_807F94BC != 0) {
-                                        val = (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)));
+                                        val = (0.0 - ((((f64)x * nx) + (ny * -1000.0) + (nz * (f64)z) + d) / (ny * 2000.0)));
                                         collisionRecordBoxTriangle(tri, (f32)((2000.0 * val) - 1000.0));
                                     }
                                     if (collisionCheckBoxTriangleWinding(tri) != 0) {
-                                        val = (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)));
+                                        val = (0.0 - ((((f64)x * nx) + (ny * -1000.0) + (nz * (f64)z) + d) / (ny * 2000.0)));
                                         y = (f32)((2000.0 * val) - 1000.0);
-                                        if (mathCheckCloserFloatThreshold(hit_y, y, (f32)((f64)arg3 + 4.0), 0) != 0) {
+                                        if (mathCheckCloserFloatThreshold(hit_y, y, (f32)((f64)refY + 4.0), 0) != 0) {
                                             hit_tri = tri;
                                             hit_actor = actor;
                                             hit = 1;
@@ -1792,28 +1792,28 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
         } while (i < (s32)gActiveActorCount);
     }
 
-    if (hit != 0 && mathCheckCloserFloatThreshold(*arg4, hit_y, (f32)((f64)arg3 + 4.0), 0) != 0) {
-        *arg4 = hit_y;
-        collisionStoreBoxTriangleNormalAngles(arg0, hit_tri, 1);
+    if (hit != 0 && mathCheckCloserFloatThreshold(*outFloorY, hit_y, (f32)((f64)refY + 4.0), 0) != 0) {
+        *outFloorY = hit_y;
+        collisionStoreBoxTriangleNormalAngles(self, hit_tri, 1);
         if (hit_actor->flags2 & 8) {
             D_807F94AD = 1;
         }
-        if (arg0 != NULL) {
-            collisionTransformPointToActorLocal(arg0, hit_actor, hit_tri, arg1, hit_y, arg2);
+        if (self != NULL) {
+            collisionTransformPointToActorLocal(self, hit_actor, hit_tri, x, hit_y, z);
         }
     }
     return hit;
 }
 
-void collisionRecordBoxTriangle(CollisionBoxTri *arg0, f32 arg1) {
+void collisionRecordBoxTriangle(CollisionBoxTri *tri, f32 height) {
     if (sCamFloorHitCount != 0xA) {
-        sCamFloorHits[sCamFloorHitCount].height = arg1;
-        if (collisionCheckBoxTriangleWinding(arg0) != 0) {
+        sCamFloorHits[sCamFloorHitCount].height = height;
+        if (collisionCheckBoxTriangleWinding(tri) != 0) {
             sCamFloorHits[sCamFloorHitCount].flags = 1;
         } else {
             sCamFloorHits[sCamFloorHitCount].flags = 2;
         }
-        collisionStoreBoxTriangleNormalAngles(NULL, arg0, 0);
+        collisionStoreBoxTriangleNormalAngles(NULL, tri, 0);
         sCamFloorHits[sCamFloorHitCount].angle = D_807F94A8;
         sCamFloorHitCount++;
     }
@@ -1842,14 +1842,14 @@ void collisionTransformPointToActorLocal(Actor *actor, Actor *target, CollisionB
         idx = (gGfxBufferIndex ^ 1) & 0xFF;
     }
     mtx = sub->nodeMtx[idx];
-    if ((tri->unk4C != tri->unk48) || (tri->unk50 != tri->unk48)) {
+    if ((tri->mtxOffset1 != tri->mtxOffset0) || (tri->mtxOffset2 != tri->mtxOffset0)) {
         D_807F94B2 = 1;
     }
-    D_807F9480 = tri->unk48;
-    if (tri->unk48 == -1) {
+    D_807F9480 = tri->mtxOffset0;
+    if (tri->mtxOffset0 == -1) {
         memcpy(xfMtx, sub->modelMtxF, 0x40);
     } else {
-        guMtxL2F(xfMtx, &mtx[tri->unk48 >> 6]);
+        guMtxL2F(xfMtx, &mtx[tri->mtxOffset0 >> 6]);
     }
     matrix4Invert(invMtx, xfMtx);
     guMtxXFMF(invMtx, x, y, z, &D_807F9474, &D_807F9478, &D_807F947C);
@@ -1882,7 +1882,7 @@ void collisionTransformPointByActorMtx(Actor *actor, u32 mtxOffset, f32 *xInOut,
     guMtxXFMF(xfMtx, xIn, yIn, zIn, xInOut, &yOut, zInOut);
 }
 
-s32 collisionCheckBoxTriangleBoundsXZ(CollisionBoxTri *arg0, f32 arg1, f32 arg2) {
+s32 collisionCheckBoxTriangleBoundsXZ(CollisionBoxTri *tri, f32 x, f32 z) {
     s32 pad;
     f32 min_z;
     f32 max_x;
@@ -1895,14 +1895,14 @@ s32 collisionCheckBoxTriangleBoundsXZ(CollisionBoxTri *arg0, f32 arg1, f32 arg2)
     f32 z2;
     f32 max_z;
 
-    min_x = ((x0 = arg0->x0) < (x1 = arg0->x1)) ? x0 : x1;
-    x2 = arg0->x2;
+    min_x = ((x0 = tri->x0) < (x1 = tri->x1)) ? x0 : x1;
+    x2 = tri->x2;
     min_x = (min_x < x2) ? min_x : x2;
 
-    z0 = arg0->z0;
-    z1 = arg0->z1;
+    z0 = tri->z0;
+    z1 = tri->z1;
     min_z = (z0 < z1) ? z0 : z1;
-    z2 = arg0->z2;
+    z2 = tri->z2;
     min_z = (min_z < z2) ? min_z : z2;
 
     max_x = (x1 < x0) ? x0 : x1;
@@ -1911,13 +1911,13 @@ s32 collisionCheckBoxTriangleBoundsXZ(CollisionBoxTri *arg0, f32 arg1, f32 arg2)
     max_z = (z1 < z0) ? z0 : z1;
     max_z = (z2 < max_z) ? max_z : z2;
 
-    if ((arg1 < min_x) || (max_x < arg1) || (arg2 < min_z) || (max_z < arg2)) {
+    if ((x < min_x) || (max_x < x) || (z < min_z) || (max_z < z)) {
         return 0;
     }
     return 1;
 }
 
-u8 collisionCheckBoxTriangleContainsPointXZ(CollisionBoxTri *arg0, f32 arg1, f32 arg2) {
+u8 collisionCheckBoxTriangleContainsPointXZ(CollisionBoxTri *tri, f32 x, f32 z) {
     f64 cx;
     f64 cz;
     f64 a;
@@ -1934,33 +1934,33 @@ u8 collisionCheckBoxTriangleContainsPointXZ(CollisionBoxTri *arg0, f32 arg1, f32
     s32 pad; // frame size (D = 96)
 
     outside = 0;
-    a = (f64)(arg0->x2 + arg0->x1) * 0.5;
-    b = (f64)(arg0->z2 + arg0->z1) * 0.5;
-    cx = (arg0->x0 + a) * 0.5;
-    cz = (arg0->z0 + b) * 0.5;
+    a = (f64)(tri->x2 + tri->x1) * 0.5;
+    b = (f64)(tri->z2 + tri->z1) * 0.5;
+    cx = (tri->x0 + a) * 0.5;
+    cz = (tri->z0 + b) * 0.5;
     i = 0; sideC = 0; do { // LAYOUT: i = 0 joined to the loop head (move v0,zero lands after the hoisted ldc1s); FAKE: dead init sideC = 0 gives sideC an earlier first appearance than sideP (uopt colours ties in first-appearance order: sideC a0, sideP a1)
         switch (i) {
         case 0:
-            dx = arg0->x1 - arg0->x0;
-            dz = arg0->z1 - arg0->z0;
-            ox = arg0->x0;
-            oz = arg0->z0;
+            dx = tri->x1 - tri->x0;
+            dz = tri->z1 - tri->z0;
+            ox = tri->x0;
+            oz = tri->z0;
             break;
         case 1:
-            dx = arg0->x2 - arg0->x0;
-            dz = arg0->z2 - arg0->z0;
-            ox = arg0->x0;
-            oz = arg0->z0;
+            dx = tri->x2 - tri->x0;
+            dz = tri->z2 - tri->z0;
+            ox = tri->x0;
+            oz = tri->z0;
             break;
         case 2:
-            dx = arg0->x2 - arg0->x1;
-            dz = arg0->z2 - arg0->z1;
-            ox = arg0->x1;
-            oz = arg0->z1;
+            dx = tri->x2 - tri->x1;
+            dz = tri->z2 - tri->z1;
+            ox = tri->x1;
+            oz = tri->z1;
             break;
         }
-        a = (arg1 - ox) * dz;
-        b = (arg2 - oz) * dx;
+        a = (x - ox) * dz;
+        b = (z - oz) * dx;
         c = (cx - ox) * dz - (cz - oz) * dx;
         i++;
         if (b <= a) {
@@ -1980,13 +1980,13 @@ u8 collisionCheckBoxTriangleContainsPointXZ(CollisionBoxTri *arg0, f32 arg1, f32
     return outside == 0;
 }
 
-s32 collisionCheckBoxTriangleWinding(CollisionBoxTri *arg0) {
+s32 collisionCheckBoxTriangleWinding(CollisionBoxTri *tri) {
     CrossProductStack sp;
 
-    sp.v1[0] = arg0->x2 - arg0->x0;
-    sp.v1[2] = arg0->z2 - arg0->z0;
-    sp.v0[0] = arg0->x1 - arg0->x0;
-    sp.v0[2] = arg0->z1 - arg0->z0;
+    sp.v1[0] = tri->x2 - tri->x0;
+    sp.v1[2] = tri->z2 - tri->z0;
+    sp.v0[0] = tri->x1 - tri->x0;
+    sp.v0[2] = tri->z1 - tri->z0;
     sp.cross = (sp.v1[2] * sp.v0[0]) - (sp.v1[0] * sp.v0[2]);
     if (sp.cross <= 0.0) {
         return 1;
@@ -1994,19 +1994,19 @@ s32 collisionCheckBoxTriangleWinding(CollisionBoxTri *arg0) {
     return 0;
 }
 
-void collisionStoreBoxTriangleNormalAngles(Actor *arg0, CollisionBoxTri *arg1, u8 arg2) {
+void collisionStoreBoxTriangleNormalAngles(Actor *actor, CollisionBoxTri *tri, u8 record) {
     CrossProductStack3D sp;
 
-    sp.v1[0] = arg1->x2 - arg1->x0;
-    sp.v1[1] = arg1->y2 - arg1->y0;
-    sp.v1[2] = arg1->z2 - arg1->z0;
-    sp.v0[0] = arg1->x1 - arg1->x0;
-    sp.v0[1] = arg1->y1 - arg1->y0;
-    sp.v0[2] = arg1->z1 - arg1->z0;
+    sp.v1[0] = tri->x2 - tri->x0;
+    sp.v1[1] = tri->y2 - tri->y0;
+    sp.v1[2] = tri->z2 - tri->z0;
+    sp.v0[0] = tri->x1 - tri->x0;
+    sp.v0[1] = tri->y1 - tri->y0;
+    sp.v0[2] = tri->z1 - tri->z0;
     sp.cross[0] = (sp.v1[1] * sp.v0[2]) - (sp.v1[2] * sp.v0[1]);
     sp.cross[1] = (sp.v1[2] * sp.v0[0]) - (sp.v1[0] * sp.v0[2]);
     sp.cross[2] = (sp.v1[0] * sp.v0[1]) - (sp.v1[1] * sp.v0[0]);
-    collisionStoreSurfaceNormalAngles(arg0, sp.cross[0], sp.cross[1], sp.cross[2], 1, arg2, 2);
+    collisionStoreSurfaceNormalAngles(actor, sp.cross[0], sp.cross[1], sp.cross[2], 1, record, 2);
 }
 
 extern s32 D_8000DDCC;
@@ -2051,17 +2051,17 @@ void collisionInitTables(void) {
     D_807FB221 = 0;
 }
 
-void assetInflateAndFree(void *arg0, void *arg1) {
+void assetInflateAndFree(void *compressed, void *out) {
     u8 *src;
     u8 *dst;
 
-    src = arg0;
-    dst = arg1;
+    src = compressed;
+    dst = out;
     if (D_80748E14 == NULL) {
         D_80748E14 = heapAlloc(0x2400);
     }
     gunzip(&src, &dst, D_80748E14);
-    heapFree(arg0);
+    heapFree(compressed);
 }
 
 extern DmaQueueEntry D_807FA8A0[];
@@ -2077,8 +2077,8 @@ void dmaDrainQueueAndFreeBuffer(void) {
             D_80746834 = 7;
             osRecvMesg(&D_807656D0, NULL, 1);
             D_80746834 = 0;
-            if (D_807FA8A0[i].unk8 != 0) {
-                assetInflateAndFree(D_807FA8A0[i].unk0, D_807FA8A0[i].unk4);
+            if (D_807FA8A0[i].compressed != 0) {
+                assetInflateAndFree(D_807FA8A0[i].dmaDst, D_807FA8A0[i].buffer);
             }
         } while (++i < D_807F9680);
     }
@@ -2089,27 +2089,27 @@ void dmaDrainQueueAndFreeBuffer(void) {
     D_807F9680 = 0;
 }
 
-s32 assetGetSize(s32 arg0, s32 arg1) {
+s32 assetGetSize(s32 table, s32 index) {
     s32 romAddr;
     s32 size;
 
     assetEnsureTableLoaded();
-    assetResolveRomRange(arg0, arg1, &romAddr, &size);
+    assetResolveRomRange(table, index, &romAddr, &size);
     if (size == 0) {
         return 0;
     }
     return romAddr;
 }
 
-s32 assetGetCachedSizeOrResolve(s32 arg0, s32 arg1) {
+s32 assetGetCachedSizeOrResolve(s32 table, s32 index) {
     s32 romAddr;
     s32 size;
 
-    if (D_80748E18[arg0] != 0) {
-        size = D_807FB1A0[arg0][arg1];
+    if (D_80748E18[table] != 0) {
+        size = D_807FB1A0[table][index];
     } else {
         assetEnsureTableLoaded();
-        assetResolveRomRange(arg0, arg1, &romAddr, &size);
+        assetResolveRomRange(table, index, &romAddr, &size);
     }
     return size;
 }
@@ -2124,7 +2124,7 @@ void assetSetRomTableOffset(s32 offset) {
 
 extern OSIoMesg D_807F9688[];
 
-void *assetLoad(s32 arg0, s32 arg1, u8 arg2, u8 arg3) { // arg1: asset index, or a K0 address (0x80000000-0x9FFFFFFF) returned as is
+void *assetLoad(s32 table, s32 index, u8 sync, u8 noCache) { // index: asset index, or a K0 address (0x80000000-0x9FFFFFFF) returned as is
     s32 pad;
     s32 romAddr;
     s32 size;
@@ -2132,29 +2132,29 @@ void *assetLoad(s32 arg0, s32 arg1, u8 arg2, u8 arg3) { // arg1: asset index, or
     void *buffer;
 
     assetEnsureTableLoaded();
-    if (arg3 == 0) {
-        if ((arg1 >= 0x80000000U) && (arg1 < 0xA0000000U)) {
-            collisionBstInsertByHash((void *)arg1, arg0, 0);
+    if (noCache == 0) {
+        if ((index >= 0x80000000U) && (index < 0xA0000000U)) {
+            collisionBstInsertByHash((void *)index, table, 0);
             D_807F967C = 0;
             D_807F9678 = 0;
-            return (void *)arg1;
+            return (void *)index;
         }
-        buffer = (void *)assetGetTableEntry(arg0, arg1);
+        buffer = (void *)assetGetTableEntry(table, index);
         if (buffer != NULL) {
-            collisionBstInsertByHash(buffer, arg0, arg1);
+            collisionBstInsertByHash(buffer, table, index);
             D_807F967C = 0;
             D_807F9678 = 0;
             return buffer;
         }
     }
-    assetResolveRomRange(arg0, arg1, &romAddr, &size);
+    assetResolveRomRange(table, index, &romAddr, &size);
     if (size == 0) {
         D_807F967C = 0;
         D_807F9678 = 0;
         return NULL;
     }
-    if (D_80748E18[arg0] != 0) {
-        allocSize = D_807FB1A0[arg0][arg1];
+    if (D_80748E18[table] != 0) {
+        allocSize = D_807FB1A0[table][index];
     } else {
         allocSize = size;
     }
@@ -2163,8 +2163,8 @@ void *assetLoad(s32 arg0, s32 arg1, u8 arg2, u8 arg3) { // arg1: asset index, or
     } else {
         buffer = heapAllocFromPool(D_807F9678, allocSize);
     }
-    if (arg2 != 0) {
-        if (D_80748E18[arg0] != 0) {
+    if (sync != 0) {
+        if (D_80748E18[table] != 0) {
             void *compressed = heapAlloc(size);
             dmaReadAssetDecompress(romAddr, compressed, &size, 0, 0, 0, 0);
             assetInflateAndFree(compressed, buffer);
@@ -2175,20 +2175,20 @@ void *assetLoad(s32 arg0, s32 arg1, u8 arg2, u8 arg3) { // arg1: asset index, or
         if (D_807F9680 == 0xC0) {
             faultSetMessage(6, 0, 0, 0);
         }
-        D_807FA8A0[D_807F9680].unk8 = D_80748E18[arg0];
-        if (D_80748E18[arg0] != 0) {
-            D_807FA8A0[D_807F9680].unk0 = heapAlloc(size);
-            D_807FA8A0[D_807F9680].unk4 = buffer;
+        D_807FA8A0[D_807F9680].compressed = D_80748E18[table];
+        if (D_80748E18[table] != 0) {
+            D_807FA8A0[D_807F9680].dmaDst = heapAlloc(size);
+            D_807FA8A0[D_807F9680].buffer = buffer;
         } else {
-            D_807FA8A0[D_807F9680].unk4 = buffer;
-            D_807FA8A0[D_807F9680].unk0 = buffer;
+            D_807FA8A0[D_807F9680].buffer = buffer;
+            D_807FA8A0[D_807F9680].dmaDst = buffer;
         }
-        osInvalDCache(D_807FA8A0[D_807F9680].unk0, size);
-        osPiStartDma(&D_807F9688[D_807F9680], 0, 0, romAddr, D_807FA8A0[D_807F9680].unk0, (u32)size, &D_807656D0);
+        osInvalDCache(D_807FA8A0[D_807F9680].dmaDst, size);
+        osPiStartDma(&D_807F9688[D_807F9680], 0, 0, romAddr, D_807FA8A0[D_807F9680].dmaDst, (u32)size, &D_807656D0);
         D_807F9680 += 1;
     }
-    assetSetTableEntry(arg0, arg1, (s32)buffer);
-    collisionBstInsertByHash(buffer, arg0, arg1);
+    assetSetTableEntry(table, index, (s32)buffer);
+    collisionBstInsertByHash(buffer, table, index);
     D_807F967C = 0;
     D_807F9678 = 0;
     return buffer;
@@ -2198,29 +2198,29 @@ void assetSetImmediateFree(void) {
     D_807F967D = 1;
 }
 
-void assetFreeBuffer(void *arg0, s32 arg1, s32 arg2) {
+void assetFreeBuffer(void *buffer, s32 line, s32 fileId) {
     s32 table;
     s32 index;
 
-    if (collisionBstLookupAndDecrementByHash(arg0) == 0) {
-        collisionBstDeleteByHash(arg0, &table, &index);
+    if (collisionBstLookupAndDecrementByHash(buffer) == 0) {
+        collisionBstDeleteByHash(buffer, &table, &index);
         assetSetTableEntry(table, index, 0);
         if (D_807F967D == 0) {
-            heapFreeDeferred(arg0);
+            heapFreeDeferred(buffer);
         } else {
-            heapFree(arg0);
+            heapFree(buffer);
         }
     }
     D_807F967D = 0;
 }
 
-void assetSetTableEntry(s32 arg0, s32 arg1, s32 arg2) {
-    if (D_807F95A8[arg0] != NULL) {
-        D_807F95A8[arg0][arg1] = arg2;
+void assetSetTableEntry(s32 table, s32 index, s32 value) {
+    if (D_807F95A8[table] != NULL) {
+        D_807F95A8[table][index] = value;
     }
 }
 
-s32 assetResolveRomRange(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3) {
+s32 assetResolveRomRange(s32 tableId, s32 assetIndex, s32 *outRomAddr, s32 *outSize) {
     s32 pad[2];
     s32 target;
     s32 end;
@@ -2230,30 +2230,30 @@ s32 assetResolveRomRange(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3) {
     s32 size;
     s32 index;
 
-    index = arg1;
-    table = &D_807F9528[arg0][arg1];
+    index = assetIndex;
+    table = &D_807F9528[tableId][assetIndex];
     start = table[0];
     if (start & 0x80000000) {
         size = 8;
         start &= 0x7FFFFFFF;
         dmaReadAssetDecompress(D_8000DDCC + start, &header, &size, 0, 0, 0, 0);
         target = (s16)(header >> 48);
-        assetResolveRomRange(arg0, target, arg2, arg3);
+        assetResolveRomRange(tableId, target, outRomAddr, outSize);
         index = target;
     } else {
         end = table[1] & 0x7FFFFFFF;
-        *arg2 = D_8000DDCC + start;
-        *arg3 = end - start;
+        *outRomAddr = D_8000DDCC + start;
+        *outSize = end - start;
     }
     return index;
 }
 
-s32 assetGetTableEntry(s32 arg0, s32 arg1) {
-    s32 *ptr = D_807F95A8[arg0];
+s32 assetGetTableEntry(s32 table, s32 index) {
+    s32 *ptr = D_807F95A8[table];
     s32 ret = 0;
 
     if (ptr != NULL) {
-        ret = ptr[arg1];
+        ret = ptr[index];
     }
     return ret;
 }
@@ -2295,13 +2295,13 @@ void assetEnsureTableLoaded(s32 tableIndex) {
 
 
 typedef struct CollisionBstNodeBase {
-    /* 0x00 */ s32 unk0;
+    /* 0x00 */ s32 key;
     /* 0x04 */ u8 pad4[3];
-    /* 0x07 */ u8 unk7;
+    /* 0x07 */ u8 table;
     /* 0x08 */ u16 pad8;
-    /* 0x0A */ u16 unkA;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ u8 unk10;
+    /* 0x0A */ u16 index;
+    /* 0x0C */ s32 refCount;
+    /* 0x10 */ u8 persistent;
     /* 0x11 */ u8 pad11[3];
     /* 0x14 */ struct CollisionBstNodeBase *left;
     /* 0x18 */ struct CollisionBstNodeBase *right;
@@ -2318,16 +2318,16 @@ s32 collisionBstCountNodes(CollisionBstNodeBase *node) {
 }
 
 
-void collisionBstLookupByHash(s32 arg0, s32 *arg1, s32 *arg2) {
-    collisionBstLookupOrAssert(D_807F9628[collisionGetBucketIndex(arg0)], arg0, arg1, arg2);
+void collisionBstLookupByHash(s32 key, s32 *outTable, s32 *outIndex) {
+    collisionBstLookupOrAssert(D_807F9628[collisionGetBucketIndex(key)], key, outTable, outIndex);
 }
 
 typedef struct CollisionBstNode {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ u8 unk10;
+    /* 0x00 */ s32 key;
+    /* 0x04 */ s32 table;
+    /* 0x08 */ s32 index;
+    /* 0x0C */ s32 refCount;
+    /* 0x10 */ u8 persistent;
     /* 0x14 */ struct CollisionBstNode *left;
     /* 0x18 */ struct CollisionBstNode *right;
 } CollisionBstNode;
@@ -2344,10 +2344,10 @@ void collisionBstLookupOrAssert(CollisionBstNode *node, u32 key, s32 *outTable, 
         collisionQueueSearch(key, &idxA, &idxB, &frame);
         faultSetMessage(7, idxA, idxB, gFrameCounter - frame);
     }
-    if (key == node->unk0) {
-        *outTable = node->unk4;
-        *outIndex = node->unk8;
-    } else if (node->unk0 < key) {
+    if (key == node->key) {
+        *outTable = node->table;
+        *outIndex = node->index;
+    } else if (node->key < key) {
         collisionBstLookupOrAssert(node->right, key, outTable, outIndex);
     } else {
         collisionBstLookupOrAssert(node->left, key, outTable, outIndex);
@@ -2361,25 +2361,25 @@ void collisionBstInsertByHash(void *buffer, s32 table, s32 index) { // keyed by 
     D_807F9628[bucket] = collisionBstInsert(D_807F9628[bucket], (u32)buffer, table, index);
 }
 
-CollisionBstNode *collisionBstInsert(CollisionBstNode *node, u32 arg1, s32 arg2, s32 arg3) {
+CollisionBstNode *collisionBstInsert(CollisionBstNode *node, u32 key, s32 table, s32 index) {
     if (node == NULL) {
         node = (CollisionBstNode *)heapAlloc(sizeof(CollisionBstNode));
-        node->unkC = 1;
-        node->unk0 = arg1;
-        node->unk4 = arg2;
-        node->unk8 = arg3;
-        node->unk10 = D_807F967C;
+        node->refCount = 1;
+        node->key = key;
+        node->table = table;
+        node->index = index;
+        node->persistent = D_807F967C;
         node->right = NULL;
         node->left = NULL;
-    } else if (arg1 == node->unk0) {
-        node->unkC++;
+    } else if (key == node->key) {
+        node->refCount++;
         if (D_807F967C) {
-            node->unk10 = 1;
+            node->persistent = 1;
         }
-    } else if (node->unk0 < arg1) {
-        node->right = collisionBstInsert(node->right, arg1, arg2, arg3);
+    } else if (node->key < key) {
+        node->right = collisionBstInsert(node->right, key, table, index);
     } else {
-        node->left = collisionBstInsert(node->left, arg1, arg2, arg3);
+        node->left = collisionBstInsert(node->left, key, table, index);
     }
     return node;
 }
@@ -2390,25 +2390,25 @@ s32 collisionBstLookupAndDecrementByHash(void *buffer) {
 }
 
 typedef struct CollisionQueueEntry {
-    s32 unk0;
-    s32 unk4;
-    u16 unk8;
-    u8 unkA;
+    s32 frame;
+    s32 key;
+    u16 index;
+    u8 table;
 } CollisionQueueEntry;
 
 extern CollisionQueueEntry D_807FB228[];
 
-void collisionQueueSearch(s32 arg0, u8 *arg1, u16 *arg2, s32 *arg3) {
+void collisionQueueSearch(s32 key, u8 *outTable, u16 *outIndex, s32 *outFrame) {
     s32 i;
 
     if ((i = D_807FB221 - 1) < 0) {
         i = 0x3F;
     }
     while (i != D_807FB220) {
-        if (arg0 == D_807FB228[i].unk4) {
-            *arg1 = D_807FB228[i].unkA;
-            *arg2 = D_807FB228[i].unk8;
-            *arg3 = D_807FB228[i].unk0;
+        if (key == D_807FB228[i].key) {
+            *outTable = D_807FB228[i].table;
+            *outIndex = D_807FB228[i].index;
+            *outFrame = D_807FB228[i].frame;
             break;
         }
         if (--i < 0) {
@@ -2421,10 +2421,10 @@ void collisionQueueAppend(s32 key, u8 table, u16 index) {
     u8 idx = D_807FB221;
     CollisionQueueEntry *item = &D_807FB228[idx];
 
-    item->unk0 = gFrameCounter;
-    item->unk4 = key;
-    item->unkA = table;
-    item->unk8 = index;
+    item->frame = gFrameCounter;
+    item->key = key;
+    item->table = table;
+    item->index = index;
     D_807FB221 = idx + 1;
 
     if (D_807FB221 == 0x40) {
@@ -2440,7 +2440,7 @@ void collisionQueueAppend(s32 key, u8 table, u16 index) {
 }
 
 
-s32 collisionBstLookupAndDecrement(CollisionBstNodeBase *node, u32 arg1) {
+s32 collisionBstLookupAndDecrement(CollisionBstNodeBase *node, u32 key) {
     u8 idxA;
     u16 idxB;
     s32 frame;
@@ -2449,20 +2449,20 @@ s32 collisionBstLookupAndDecrement(CollisionBstNodeBase *node, u32 arg1) {
         idxA = 0;
         idxB = 0;
         frame = 0;
-        collisionQueueSearch(arg1, &idxA, &idxB, &frame);
+        collisionQueueSearch(key, &idxA, &idxB, &frame);
         return 0;
     }
-    if (arg1 == node->unk0) {
-        if (node->unk10 == 0) {
-            node->unkC--;
+    if (key == node->key) {
+        if (node->persistent == 0) {
+            node->refCount--;
         }
-        collisionQueueAppend(arg1, node->unk7, node->unkA);
-        return node->unkC;
+        collisionQueueAppend(key, node->table, node->index);
+        return node->refCount;
     }
-    if (node->unk0 < arg1) {
-        return collisionBstLookupAndDecrement(node->right, arg1);
+    if (node->key < key) {
+        return collisionBstLookupAndDecrement(node->right, key);
     }
-    return collisionBstLookupAndDecrement(node->left, arg1);
+    return collisionBstLookupAndDecrement(node->left, key);
 }
 
 
@@ -2477,9 +2477,9 @@ CollisionBstNode *collisionBstDelete(CollisionBstNode *node, u32 key, s32 *out_v
     CollisionBstNode *old;
 
     if (node != NULL) {
-        if (key == node->unk0) {
-            *out_val1 = node->unk4;
-            *out_val2 = node->unk8;
+        if (key == node->key) {
+            *out_val1 = node->table;
+            *out_val2 = node->index;
             if (node->left == NULL && node->right == NULL) {
                 heapFree(node);
                 node = NULL;
@@ -2492,9 +2492,9 @@ CollisionBstNode *collisionBstDelete(CollisionBstNode *node, u32 key, s32 *out_v
                 node = node->left;
                 heapFree(old);
             } else {
-                node->right = collisionBstExtractMin(node->right, &node->unk0, &node->unk4, &node->unk8, &node->unkC, &node->unk10);
+                node->right = collisionBstExtractMin(node->right, &node->key, &node->table, &node->index, &node->refCount, &node->persistent);
             }
-        } else if (node->unk0 < key) {
+        } else if (node->key < key) {
             node->right = collisionBstDelete(node->right, key, out_val1, out_val2);
         } else {
             node->left = collisionBstDelete(node->left, key, out_val1, out_val2);
@@ -2503,23 +2503,23 @@ CollisionBstNode *collisionBstDelete(CollisionBstNode *node, u32 key, s32 *out_v
     return node;
 }
 
-CollisionBstNode *collisionBstExtractMin(CollisionBstNode *node, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4, u8 *arg5) {
+CollisionBstNode *collisionBstExtractMin(CollisionBstNode *node, s32 *outKey, s32 *outTable, s32 *outIndex, s32 *outRefCount, u8 *outPersistent) {
     void *pad;
     CollisionBstNode *left = node->left;
 
     if (left == NULL) {
         CollisionBstNode *old;
 
-        *arg1 = node->unk0;
-        *arg2 = node->unk4;
-        *arg3 = node->unk8;
-        *arg4 = node->unkC;
-        *arg5 = node->unk10;
+        *outKey = node->key;
+        *outTable = node->table;
+        *outIndex = node->index;
+        *outRefCount = node->refCount;
+        *outPersistent = node->persistent;
         old = node;
         node = node->right;
         heapFree(old);
     } else {
-        node->left = collisionBstExtractMin(left, arg1, arg2, arg3, arg4, arg5);
+        node->left = collisionBstExtractMin(left, outKey, outTable, outIndex, outRefCount, outPersistent);
     }
     return node;
 }
@@ -2534,29 +2534,29 @@ void collisionBstRebalanceAll(void) {
 }
 
 typedef struct CollisionBstFlatItem {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ u8 unk10;
+    /* 0x00 */ s32 key;
+    /* 0x04 */ s32 table;
+    /* 0x08 */ s32 index;
+    /* 0x0C */ s32 refCount;
+    /* 0x10 */ u8 persistent;
 } CollisionBstFlatItem;
 
 
-void collisionBstRebalanceBucket(s32 arg0) {
+void collisionBstRebalanceBucket(s32 bucket) {
     s32 count;
     void *buffer;
     CollisionBstNodeBase *new_root;
     s32 index;
 
     index = 0;
-    count = collisionBstCountNodes(D_807F9628[arg0]);
+    count = collisionBstCountNodes(D_807F9628[bucket]);
     if (count != 0) {
         buffer = heapAlloc(count * 20);
-        collisionBstFlatten(D_807F9628[arg0], buffer, &index);
+        collisionBstFlatten(D_807F9628[bucket], buffer, &index);
         collisionBstSortFlatItems(buffer, 0, count - 1);
         new_root = collisionBstBuildBalanced(buffer, 0, count - 1);
-        collisionBstFreeTree(D_807F9628[arg0]);
-        D_807F9628[arg0] = new_root;
+        collisionBstFreeTree(D_807F9628[bucket]);
+        D_807F9628[bucket] = new_root;
         heapFree(buffer);
     }
 }
@@ -2577,11 +2577,11 @@ CollisionBstNodeBase *collisionBstBuildBalanced(CollisionBstFlatItem *buffer, s3
     node = (CollisionBstNode *)heapAlloc(sizeof(CollisionBstNode));
     mid = (start + end) / 2;
 
-    node->unk0 = buffer[mid].unk0;
-    node->unk4 = buffer[mid].unk4;
-    node->unk8 = buffer[mid].unk8;
-    node->unkC = buffer[mid].unkC;
-    node->unk10 = buffer[mid].unk10;
+    node->key = buffer[mid].key;
+    node->table = buffer[mid].table;
+    node->index = buffer[mid].index;
+    node->refCount = buffer[mid].refCount;
+    node->persistent = buffer[mid].persistent;
 
     if (start != mid) {
         node->left = (CollisionBstNode *)collisionBstBuildBalanced(buffer, start, mid - 1);
@@ -2602,11 +2602,11 @@ void collisionBstFlatten(CollisionBstNode *node, CollisionBstFlatItem *buffer, s
     if (node == NULL) {
         return;
     }
-    buffer[*index].unk0 = node->unk0;
-    buffer[*index].unk4 = node->unk4;
-    buffer[*index].unk8 = node->unk8;
-    buffer[*index].unkC = node->unkC;
-    buffer[*index].unk10 = node->unk10;
+    buffer[*index].key = node->key;
+    buffer[*index].table = node->table;
+    buffer[*index].index = node->index;
+    buffer[*index].refCount = node->refCount;
+    buffer[*index].persistent = node->persistent;
     (*index)++;
     collisionBstFlatten(node->left, buffer, index);
     collisionBstFlatten(node->right, buffer, index);
@@ -2625,51 +2625,51 @@ void collisionBstSortFlatItems(CollisionBstFlatItem *arr, s32 low, s32 high) {
 
     if (low < high) {
         pivot_ptr = (CollisionBstFlatItem *)((u8 *)arr + high * sizeof(CollisionBstFlatItem)); // FAKE: byte-offset pivot address keeps arr first in addu t5,s3,t6; &arr[high] swaps the operands
-        pivot = pivot_ptr->unk0;
+        pivot = pivot_ptr->key;
         i = low - 1;
         j = high;
 
         while (1) {
-            while (arr[++i].unk0 < pivot && i < high)
+            while (arr[++i].key < pivot && i < high)
                 ;
-            while (pivot < arr[--j].unk0 && low < j)
+            while (pivot < arr[--j].key && low < j)
                 ;
             if (i >= j) {
                 break;
             }
-            temp0 = arr[i].unk0;
-            temp1 = arr[i].unk4;
-            temp2 = arr[i].unk8;
-            temp3 = arr[i].unkC;
-            temp4 = arr[i].unk10;
-            arr[i].unk0 = arr[j].unk0;
-            arr[i].unk4 = arr[j].unk4;
-            arr[i].unk8 = arr[j].unk8;
-            arr[i].unkC = arr[j].unkC;
-            arr[i].unk10 = arr[j].unk10;
-            arr[j].unk0 = temp0;
-            arr[j].unk4 = temp1;
-            arr[j].unk8 = temp2;
-            arr[j].unkC = temp3;
-            arr[j].unk10 = temp4;
+            temp0 = arr[i].key;
+            temp1 = arr[i].table;
+            temp2 = arr[i].index;
+            temp3 = arr[i].refCount;
+            temp4 = arr[i].persistent;
+            arr[i].key = arr[j].key;
+            arr[i].table = arr[j].table;
+            arr[i].index = arr[j].index;
+            arr[i].refCount = arr[j].refCount;
+            arr[i].persistent = arr[j].persistent;
+            arr[j].key = temp0;
+            arr[j].table = temp1;
+            arr[j].index = temp2;
+            arr[j].refCount = temp3;
+            arr[j].persistent = temp4;
         }
 
-        temp0 = arr[i].unk0;
-        temp1 = arr[i].unk4;
-        temp2 = arr[i].unk8;
-        temp3 = arr[i].unkC;
-        temp4 = arr[i].unk10;
-        arr[i].unk0 = pivot_ptr->unk0;
-        arr[i].unk4 = pivot_ptr->unk4;
-        arr[i].unk8 = pivot_ptr->unk8;
-        arr[i].unkC = pivot_ptr->unkC;
-        arr[i].unk10 = pivot_ptr->unk10;
+        temp0 = arr[i].key;
+        temp1 = arr[i].table;
+        temp2 = arr[i].index;
+        temp3 = arr[i].refCount;
+        temp4 = arr[i].persistent;
+        arr[i].key = pivot_ptr->key;
+        arr[i].table = pivot_ptr->table;
+        arr[i].index = pivot_ptr->index;
+        arr[i].refCount = pivot_ptr->refCount;
+        arr[i].persistent = pivot_ptr->persistent;
         if (!arr) {} // FAKE: dead check steers uopt coloring of the a0-a3 temps
-        pivot_ptr->unk0 = temp0;
-        pivot_ptr->unk4 = temp1;
-        pivot_ptr->unk8 = temp2;
-        pivot_ptr->unkC = temp3;
-        pivot_ptr->unk10 = temp4;
+        pivot_ptr->key = temp0;
+        pivot_ptr->table = temp1;
+        pivot_ptr->index = temp2;
+        pivot_ptr->refCount = temp3;
+        pivot_ptr->persistent = temp4;
 
         collisionBstSortFlatItems(arr, low, i - 1);
         collisionBstSortFlatItems(arr, i + 1, high);
