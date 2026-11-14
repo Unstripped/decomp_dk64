@@ -339,3 +339,4 @@
 {"type": "unit", "t": "2026-11-14T19:03:53Z", "unit": "2026-11-14: cleanup Hackn_alFxPull", "commit": "72d531f3e6db3f3f7f0f2cc2a81208d7631f0a95"}
 {"type": "unit", "t": "2026-11-14T19:03:59Z", "unit": "2026-11-14: cleanup HackmodelAnimEntryQueueMatrixCopies", "commit": "0b5db288d24f4edb26bd890561dd9c8bc451a7be"}
 {"type": "unit", "t": "2026-11-14T19:04:05Z", "unit": "2026-11-14: cleanup HackmapHeaderLoad", "commit": "dff529c238c9902c8e120432580daa9948692135"}
+{"type": "unit", "t": "2026-11-14T19:07:19Z", "unit": "2026-11-14: cleanup HacknoExpPakThread", "commit": "6c2bb070c5ac9645235b153f2609f09f62ff66ad"}
