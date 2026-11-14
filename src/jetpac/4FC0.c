@@ -108,11 +108,9 @@ void jetpacDrawActor(JetpacActor *actor) {
 
 JetpacActor *jetpacAllocActor(void) {
     s32 pad;
-    JetpacActor *actor;
-    JetpacActor templateActor;
+    JetpacActor *actor = jetpacFindFreeActor();
+    JetpacActor templateActor = D_8002E914;
 
-    actor = jetpacFindFreeActor();
-    templateActor = D_8002E914; // FAKE: template copied before the NULL check (block order)
     if (actor == NULL) {
         return NULL;
     }
