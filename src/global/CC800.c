@@ -438,7 +438,6 @@ void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     playerSpawnMapHelpers();
 }
 
-extern s32 gCurrentMap;
 extern s16 D_80753354[];
 void func_80028840(void);
 
@@ -583,7 +582,7 @@ void playerSetKongByActorType(s16 actorType) {
         if (actorType == gKongCharacterTable[i].actorType) {
             found = 1;
         } else {
-            gPlayerCharacterId[gCurrentPlayerIndex] = i + 1; i = gPlayerCharacterId[gCurrentPlayerIndex];
+            gPlayerCharacterId[gCurrentPlayerIndex] = i + 1; i = gPlayerCharacterId[gCurrentPlayerIndex]; // LAYOUT: one source line; split, the sb of i + 1 schedules one slot earlier (Q0202)
         }
     } while (found == 0);
     playerApplyCharacterModel(&gKongCharacterTable[i]);
@@ -693,7 +692,7 @@ void func_800268DC(Actor *, void *, void *); /* mpResetPlayerOnRespawn (multipla
 void playerSyncInventoryOnSpawn(s32 spawnIndex) {
     PlayerState *ps = gActivePlayerActor->customState;
     s32 pad[1];
-    void *vtxBuffer = KONG_ACTOR->chains;
+    KongChain *chains = KONG_ACTOR->chains;
     s32 pad2[1];
     PlayerInventory *inventory;
     u8 i;
@@ -707,7 +706,7 @@ void playerSyncInventoryOnSpawn(s32 spawnIndex) {
         i++;
     } while (i < 2);
     playerWarpToSpawnPoint(spawnIndex);
-    kongChainInit(0, vtxBuffer, gActivePlayerActor->actorType);
+    kongChainInit(0, chains, gActivePlayerActor->actorType);
     healthRefill(ps->playerIndex);
     gActivePlayerActor->speedXZ = 0.0f;
     ps->stateFlags &= 0xF7FFFF5F;
