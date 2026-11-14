@@ -1967,9 +1967,6 @@ void playerInputUpdateStickSwimming(void) {
     }
 }
 
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
-
 s32 actorAnyActiveHasFlag2000000(void) {
     s32 ret;
     s32 i;

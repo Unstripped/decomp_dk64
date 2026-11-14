@@ -916,8 +916,6 @@ u8 straight;
 
 extern ModelSlot *gModelSlots;
 extern s32 gModelSlotCount;
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
 
 s32 projectileFindHomingTarget(collisionMask, outTarget, proj, useAim, levelOnly, includeModels, outX, outY, outZ)
 u16 collisionMask;
@@ -2733,9 +2731,6 @@ void projectileChaseReflectUpdate(void) {
     t = (t + 0x800) & 0xFFF;
     gCurrentActor->moveYaw = midYaw + (s16)(midYaw - t);
 }
-
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
 
 void actorAppendActiveCallback8(void) {
     s16 i;

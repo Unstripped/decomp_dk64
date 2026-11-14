@@ -2459,9 +2459,6 @@ void csCmdUpdateSlotIdView8A(CsState *cs, s16 csId, s16 b, s16 c) {
     func_806BD094(gModelSlots[hashTableLookup(csId)].unk8A, b);
 }
 
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
-
 s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
     Actor *actor;

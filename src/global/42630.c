@@ -590,8 +590,6 @@ typedef struct CsCondRow {
     /* 0x2F0 */ u8 pad2F0[0x16];
 } CsCondRow; /* 0x306 */
 
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
 extern PlayerStruct *gPlayerSlots;
 extern KongInventory *D_807FD568;
 extern u8 gPlayerCount;
