@@ -1,7 +1,6 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
-#define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/15050.h"
@@ -113,7 +112,6 @@ typedef struct {
     s16 unk6;
 } PuffRiseMotionState;
 
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 void effectPuffRiseUpdate(RotatingEffectActorView *effect, void *unused) {
     PuffRiseMotionState *state;
@@ -1641,13 +1639,13 @@ void effectGroundBounceUpdate(GroundBounceActorView *effect, s8 *isDone) {
 
 void effectFadeRatioStepUpdate(TimedEffectActorView *effect, s8 *isDone) {
     f32 ratio;
-    s32 intensity;
+    u8 intensity;
 
     ratio = (f32)(effect->timerConfig->unk16 - effect->timer) / (f32)effect->timerConfig->unk16;
     if ((f64)ratio > 0.7) {
         ratio = 1.0f;
     }
-    intensity = (u32)((-155.0f * ratio) + 255.0f) & 0xFF;
+    intensity = (u32)((-155.0f * ratio) + 255.0f);
     lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, 50.0f, 0, intensity, intensity, intensity);
 }
 
@@ -2460,9 +2458,9 @@ void effectActorOrbitFollowUpdate(TimedEffectActorView *effect, s8 *isDone) {
         state->unk0 = state->unk0 + 0.033333335f;
     }
     state->unk4 = (f32)(state->unk4 + state->unk8);
-    state->unk4 = (f32)((((s32)state->unk4 & 0xFFF) & 0xFFFF) & 0xFFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
+    state->unk4 = (f32)((s16)(s32)state->unk4 & 0xFFF);
     state->unkC = (f32)(state->unkC + state->unk10);
-    state->unkC = (f32)((((s32)state->unkC & 0xFFF) & 0xFFFF) & 0xFFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
+    state->unkC = (f32)((s16)(s32)state->unkC & 0xFFF);
     effect->x = (f32) (((((mathSinF((s16) (s32) state->unk4) * (15.0f * state->unk0)) + target->x) - effect->x) * blend) + effect->x);
     effect->z = (f32) (((((mathCosF((s16) (s32) state->unk4) * (15.0f * state->unk0)) + target->z) - effect->z) * blend) + effect->z);
     effect->y = (f32) (((((((mathSinF((s16) (s32) state->unkC) * (state->unk14 * state->unk0)) + 1.0f) * 15.0f) + target->y) - effect->y) * blend) + effect->y);
@@ -2532,10 +2530,10 @@ void effectArcAroundActorUpdate(TimedEffectActorView *effect, s8 *isDone) {
         return;
     }
     arcAngle = state->unk10 * ((1.0f - (state->unk0 * 2)) * 2048.0f);
-    arcAngle = (f32)((((s32)arcAngle & 0xFFFF) & 0xFFFF) & 0xFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
+    arcAngle = (f32)((s16)(s32)arcAngle & 0xFFF);
     radius = mathSinF((s16)(s32)arcAngle) * state->unk8;
     state->unk14 = (f32)((f64)state->unk14 + (2.0 * (f64)((1.0f - (state->unk0 * 2)) * 4096.0f) * (f64)state->unkC));
-    state->unk14 = (f32)((((s32)state->unk14 & 0xFFF) & 0xFFFF) & 0xFFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
+    state->unk14 = (f32)((s16)(s32)state->unk14 & 0xFFF);
     offsetX = mathSinF((s16)(s32)state->unk14) * radius;
     cosYaw = mathCosF((s16)(s32)state->unk14);
     height = state->unk4;
