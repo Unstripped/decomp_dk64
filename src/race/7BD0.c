@@ -306,7 +306,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
     textY = hudPos->bottom - 0x10;
     g0 = dl++;
     g0->words.w0 = 0xE7000000; g0->words.w1 = 0; // LAYOUT: same-line stores keep the w1 store first
-    WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
+    gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     hudFlags = managerData->hudFlags;
     if (hudFlags & 4) {
         lap = (lap < managerData->unk24) ? lap : managerData->unk24;
@@ -389,26 +389,26 @@ Gfx *raceRenderMinimapAndCountdown(Gfx *dl, Actor *actor) {
     managerData = actor->customState;
     if (managerData->hudFlags & 1) {
         pairs = managerData->pairs;
-        WRITE_GFX(dl++, 0xE7000000, 0);
-        WRITE_GFX(dl++, 0xD7000000, 0xFFFFFFFF);
-        WRITE_GFX(dl++, 0xE200001C, 0x00504240);
+        gDPPipeSync(dl++);
+        gSPTexture(dl++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
+        gDPSetRenderMode(dl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         dl = gfxInit2DDisplayList(dl);
-        WRITE_GFX(dl++, 0xFA000000, 0x3CA0);
-        WRITE_GFX(dl++, 0xE3000A01, 0);
-        WRITE_GFX(dl++, 0xFCFFFFFF, 0xFFFDF6FB);
-        WRITE_GFX(dl++, 0xF6148170, 0x00048070);
-        WRITE_GFX(dl++, 0xE7000000, 0);
-        WRITE_GFX(dl++, 0xFA000000, 0x8000FF64);
-        WRITE_GFX(dl++, 0xF6150070, 0x00040068);
-        WRITE_GFX(dl++, 0xF6150178, 0x00040170);
-        WRITE_GFX(dl++, 0xF6048170, 0x00040070);
-        WRITE_GFX(dl++, 0xF6150170, 0x00148070);
-        WRITE_GFX(dl++, 0xE7000000, 0);
-        WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFB4);
-        WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
-        WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
-        WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
-        WRITE_GFX(dl++, 0xD7000002, 0x80008000);
+        gDPSetPrimColor(dl++, 0, 0, 0x00, 0x00, 0x3C, 0xA0);
+        gDPSetCycleType(dl++, G_CYC_1CYCLE);
+        gDPSetCombineMode(dl++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
+        gDPFillRectangle(dl++, 0x12, 0x1C, 0x52, 0x5C);
+        gDPPipeSync(dl++);
+        gDPSetPrimColor(dl++, 0, 0, 0x80, 0x00, 0xFF, 0x64);
+        gDPFillRectangle(dl++, 0x10, 0x1A, 0x54, 0x1C);
+        gDPFillRectangle(dl++, 0x10, 0x5C, 0x54, 0x5E);
+        gDPFillRectangle(dl++, 0x10, 0x1C, 0x12, 0x5C);
+        gDPFillRectangle(dl++, 0x52, 0x1C, 0x54, 0x5C);
+        gDPPipeSync(dl++);
+        gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xB4);
+        gDPSetCombineMode(dl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+        gSPMatrix(dl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPMatrix(dl++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+        gSPTexture(dl++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
         dl = renderRotatedSprite(dl, managerData->minimapSprites[0], 3, 1, 0x40, 0x40, 0x88, 0x130, 2.0f, 2.0f, 0, 0.0f);
         dl = renderRotatedSprite(dl, managerData->minimapSprites[1], 3, 1, 0x40, 0x40, 0x108, 0x130, 2.0f, 2.0f, 0, 0.0f);
         dl = renderRotatedSprite(dl, managerData->minimapSprites[2], 3, 1, 0x40, 0x40, 0x88, 0xB0, 2.0f, 2.0f, 0, 0.0f);
@@ -590,19 +590,15 @@ void racePlayResultSfx(void) {
     managerData = gCurrentActor->customState;
     sfxId = 0;
     pairs = managerData->pairs;
-    i = managerData->unk1E - 1;
-    if (i >= 0) {
-        do {
-            participantData = pairs[i].data;
-            if (participantData->isCpu == 1) {
-                if (participantData->place != 0) {
-                    sfxId = 0x56;
-                } else {
-                    sfxId = 0x57;
-                }
+    for (i = managerData->unk1E - 1; sfxId == 0 && i >= 0; i--) {
+        participantData = pairs[i].data;
+        if (participantData->isCpu == 1) {
+            if (participantData->place != 0) {
+                sfxId = 0x56;
+            } else {
+                sfxId = 0x57;
             }
-            i--;
-        } while (sfxId == 0 && i >= 0);
+        }
     }
     if (sfxId == 0) {
         sfxId = 0x56;
@@ -1097,14 +1093,10 @@ void raceInitBeetleRaceParticipants(Actor *raceManager) {
         slotIndex++;
         participantData->playerIdx = playerIdx;
     }
-    playerIdx = 0;
-    if (participantCount > 0) {
-        do {
-            raceGetParticipantPair(raceManager, playerIdx, &participantActor, &participantData);
-            participantData->place = playerIdx;
-            playerIdx++;
-            participantData->actor = raceManager;
-        } while (playerIdx != participantCount);
+    for (playerIdx = 0; playerIdx < participantCount; playerIdx++) {
+        raceGetParticipantPair(raceManager, playerIdx, &participantActor, &participantData);
+        participantData->place = playerIdx;
+        participantData->actor = raceManager;
     }
     managerData->route = 0;
 }

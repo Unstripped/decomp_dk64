@@ -488,7 +488,7 @@ void raceVehicleBehaviorUpdate(void) {
     } else if (participant->raceStatus == 5) {
         gCurrentActor->flags &= ~4;
         gCurrentActor->speedXZ = 0.0f;
-        for (i = 0; i != 2; i++) {
+        for (i = 0; i < 2; i++) {
             if (gCurrentActor->soundSlots[i] != -1) {
                 sfxStopSlotSound(gCurrentActor, i);
             }

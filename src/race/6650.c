@@ -65,7 +65,6 @@ void raceInitParticipants(Actor *manager) {
         participantIndex++;
         racerState->playerIdx = i;
     }
-    i = 0;
     if (gPlayerCount == 1) {
         racerActor = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         racerState = ((RaceComponentActor *)racerActor)->participant;
@@ -76,14 +75,11 @@ void raceInitParticipants(Actor *manager) {
     } else {
         managerData->unk25 = 0;
     }
-    if (numParticipants > 0) {
-        do {
-            raceGetParticipantPair(manager, i, &racerActor, &racerState);
-            racerState->place = i;
-            racerState->actor = manager;
-            actorInitFromSpawnPoint(racerActor, racerState);
-            i++;
-        } while (i != numParticipants);
+    for (i = 0; i < numParticipants; i++) {
+        raceGetParticipantPair(manager, i, &racerActor, &racerState);
+        racerState->place = i;
+        racerState->actor = manager;
+        actorInitFromSpawnPoint(racerActor, racerState);
     }
     managerData->route = 0;
 }
@@ -96,7 +92,7 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
     s16 thrustYaw;
     s16 targetRoll;
     s16 targetPitch;
-    f32 value;
+    f32 brake;
     f32 friction;
     f32 steerAmount;
     f32 factor;
@@ -165,11 +161,11 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
         targetRoll &= 0xFFF;
         targetPitch &= 0xFFF;
     }
-    value = racerState->brake;
+    brake = racerState->brake;
     steerAmount = racerState->steerGain * racerState->steer;
-    if (value > 0) {
+    if (brake > 0) {
         if (steerAmount > 0.0f) {
-            factor = steerAmount;
+            factor = steerAmount; // FAKE: factor reused for the brake drag, |steer| and the speed gain; separate locals cost 39-51 words
         } else {
             factor = -steerAmount;
         }
@@ -179,7 +175,7 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
             } else {
                 steerSign = -1;
             }
-            steerAmount += 2.0f * (f32)steerSign * value;
+            steerAmount += 2.0f * (f32)steerSign * brake;
         }
     }
     gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, targetRoll, 4.0f);
@@ -227,7 +223,7 @@ void raceParticipantMotionUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         playerStateQueueCallback(0x4D, gCurrentActor, playerIdx);
         gCurrentActor->unk144 = 0x3C;
-        gCurrentActor->flags &= 0xFFFDFFFF;
+        gCurrentActor->flags &= ~0x20000;
         for (i = 0; i < 3; i++) {
             gCurrentActor->sub4->scale[i] *= 0.3;
         }
@@ -303,15 +299,13 @@ void raceSteerTowardTargetWaypoint(RaceParticipant *racerState, RaceTarget *targ
     dx = (f32)waypoint->x - gCurrentActor->x;
     dz = (f32)waypoint->z - gCurrentActor->z;
     distToWaypoint = sqrtf((dx * dx) + (dz * dz));
-    waypoint = &D_807FDCA0->entries[idx];
-    if (distToWaypoint < (f32)waypoint->radius) {
+    if (distToWaypoint < (f32)D_807FDCA0->entries[idx].radius) {
         if (gCurrentActor->x) { // FAKE: empty guard steers float regalloc
         }
         gBehaviourWorkState->unk25++;
         gBehaviourWorkState->unk25 = gBehaviourWorkState->unk25 % gBehaviourExtraState->pathCount;
     }
-    waypoint = &D_807FDCA0->entries[idx];
-    work = mathAngleDiscrete((f32)waypoint->x, (f32)waypoint->z, gCurrentActor->x, gCurrentActor->z, distToWaypoint);
+    work = mathAngleDiscrete((f32)D_807FDCA0->entries[idx].x, (f32)D_807FDCA0->entries[idx].z, gCurrentActor->x, gCurrentActor->z, distToWaypoint);
     angleDelta = mathAngleSignedDistance((s16)work, gCurrentActor->yaw);
 
     work = distToWaypoint; // FAKE: the angle temp reused for a distance copy steers float regalloc
@@ -462,7 +456,7 @@ void raceOpponentRacerMotionUpdate(void) {
         target->unk10 = 1;
         raceSetPiecewiseCurveMode(target, 5, D_8002FC70, &D_8002FCA0);
         gCurrentActor->unk144 = 0x3C;
-        gCurrentActor->flags &= 0xFFFDFFFE;
+        gCurrentActor->flags &= ~0x20001;
         racerState->steerGain = 1.0f;
         for (i = 0; i < 3; i++) {
             gCurrentActor->sub4->scale[i] *= 0.3;

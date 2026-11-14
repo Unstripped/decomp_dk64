@@ -79,7 +79,6 @@ void raceSpawnCompetitors(Actor *actor) {
         slotIndex++;
         racerState->playerIdx = i;
     }
-    i = 0;
     if (gPlayerCount == 1) {
         spawnedActor = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         racerState = ((RaceOpponentActor *)spawnedActor)->participant;
@@ -90,16 +89,13 @@ void raceSpawnCompetitors(Actor *actor) {
     } else {
         managerData->unk25 = 0;
     }
-    if (numCompetitors > 0) {
-        do {
-            raceGetParticipantPair(actor, i, &spawnedActor, &racerState);
-            racerState->place = i;
-            racerState->actor = actor;
-            if (racerState->isCpu == 0) {
-                actorInitFromSpawnPoint(spawnedActor, racerState);
-            }
-            i++;
-        } while (i != numCompetitors);
+    for (i = 0; i < numCompetitors; i++) {
+        raceGetParticipantPair(actor, i, &spawnedActor, &racerState);
+        racerState->place = i;
+        racerState->actor = actor;
+        if (racerState->isCpu == 0) {
+            actorInitFromSpawnPoint(spawnedActor, racerState);
+        }
     }
     managerData->route = 0;
 }
@@ -131,7 +127,7 @@ void raceCompetitorMotionUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         actorInitAnimations(gCurrentActor, gPlayerSlots[participant->playerIdx].actor);
         gCurrentActor->unk144 |= 0x10;
-        gCurrentActor->flags &= 0xFFFDFFFF;
+        gCurrentActor->flags &= ~0x20000;
         participant->unk44 = 5;
         actorOrNodeFlags(gCurrentActor, 2, 0xC);
     }
@@ -386,7 +382,7 @@ void raceOpponentRacerBehaviorUpdate(void) {
         manager = participant->actor;
         managerData = manager->customState;
         participant->steerGain = 1.0f;
-        gCurrentActor->flags &= 0xFFFDFFFE;
+        gCurrentActor->flags &= ~0x20001;
         gCurrentActor->drawDistance = 0x5DC;
         raceSetPiecewiseCurveMode(target, 5, D_8002FC20, &D_8002FC50);
         participant->raceStatus = 0;

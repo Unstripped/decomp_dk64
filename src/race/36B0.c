@@ -213,7 +213,7 @@ void raceAiUpdateSpeedAndLane(void) {
     f32 distToTarget;
     f32 targetSpeed;
     u8 flag;
-    u32 randVal;
+    u8 laneRoll;
     s32 nodeIndex;
     s32 foundCompetitor;
     Actor *competitorActor;
@@ -242,18 +242,17 @@ void raceAiUpdateSpeedAndLane(void) {
     case 0:
     case 1:
         if (flag) {
-            randVal = randomLcgNext();
-            if ((D_8002FBD0[1].x < distToTarget) && (distToTarget < D_8002FBD0[2].x) && (cursor->unk0 != targetCursor->unk0) && ((u8)((randVal & 0xFF) < 0x14))) {
+            laneRoll = (randomLcgNext() & 0xFF) < 0x14;
+            if ((D_8002FBD0[1].x < distToTarget) && (distToTarget < D_8002FBD0[2].x) && (cursor->unk0 != targetCursor->unk0) && laneRoll) {
                 raceChangeLaneRelative(cursor, targetCursor->unk0 - cursor->unk0);
-            } else if ((D_8002FBD0[3].x < distToTarget) && (distToTarget < D_8002FBD0[4].x) && (cursor->unk0 == targetCursor->unk0) && ((u8)((randVal & 0xFF) < 0x14))) {
+            } else if ((D_8002FBD0[3].x < distToTarget) && (distToTarget < D_8002FBD0[4].x) && (cursor->unk0 == targetCursor->unk0) && laneRoll) {
                 raceChangeLaneRandom(cursor);
             }
             flag = (cursor->unk0 == cursor->unk1) && (cursor->unk4 == 0);
             if (flag) {
-                nodeIndex = 2;
                 if ((distToTarget < D_8002FBD0[1].x) || (D_8002FBD0[2].x < distToTarget)) {
                     foundCompetitor = 0;
-                    do {
+                    for (nodeIndex = 2; nodeIndex < 7 && foundCompetitor == 0; nodeIndex++) {
                         if (spawnNodeHasActor(nodeIndex) != 0) {
                             competitorActor = spawnNodeActivate(nodeIndex, 0);
                             competitorCursor = ((RacePathActor *)competitorActor)->path;
@@ -265,8 +264,7 @@ void raceAiUpdateSpeedAndLane(void) {
                                 }
                             }
                         }
-                        nodeIndex++;
-                    } while ((nodeIndex < 7) && (foundCompetitor == 0));
+                    }
                 }
             }
         }
@@ -469,11 +467,9 @@ void raceOpponentCarBehaviorUpdate(void) {
             raceSetIntroCutscenePhase(targetActor);
         } else {
             raceClearIntroCutscenePhase(targetActor);
-            idx = 2;
-            do {
+            for (idx = 2; idx < 7; idx++) {
                 spawnNodeSpawnById(idx, 0, 0, 0, 0, 0, 0);
-                idx += 1;
-            } while (idx < 7);
+            }
         }
     } else if (state->raceStatus == 4) {
         if (state->unk35 == 0) {
@@ -553,13 +549,12 @@ void raceCameraBehaviorUpdate(void) {
     s32 pad44;
     RaceParticipant *playerState;
     s32 pad3C;
-    int pathLength;
+    s32 pathLength;
     f32 distToTarget;
     f32 offsetSign;
     f32 dist;
     f32 camYOffset;
     f32 distNorm;
-    int prevWaypoint;
     u8 tgtStateMode;
     u8 tgtCursorSub;
     RacePathState *cursor;
@@ -576,9 +571,8 @@ void raceCameraBehaviorUpdate(void) {
     pathLength = gMinecartTrackPoints[cursor->unk0 + 1] - gMinecartTrackPoints[cursor->unk0];
     offsetSign = 1.0f;
     if (!(gCurrentActor->flags & 0x10)) {
-        prevWaypoint = raceGetPrevWaypointIndex(pathLength, targetCursor->unk2);
-        cursor->unk2 = prevWaypoint;
-        cursor->unk2 = raceGetPrevWaypointIndex(pathLength, (u16)prevWaypoint);
+        cursor->unk2 = raceGetPrevWaypointIndex(pathLength, targetCursor->unk2);
+        cursor->unk2 = raceGetPrevWaypointIndex(pathLength, cursor->unk2);
         cursor->unk0 = cursor->unk1 = 1;
         racePathFollowStep(cursor, state, 0);
     }
