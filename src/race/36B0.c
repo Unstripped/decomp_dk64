@@ -1,6 +1,7 @@
 #include "common.h"
 #include "race.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
 #include "proto/global/131B0.h"
@@ -549,12 +550,7 @@ void raceOpponentCarBehaviorUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct {
-    char pad0[4];
-    Actor *unk4;
-    char pad8[0x2F0 - 8];
-} RaceBStructPlayer;
-extern RaceBStructPlayer *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 
 void raceCameraBehaviorUpdate(void) {
     s32 pad54[3];
@@ -582,7 +578,7 @@ void raceCameraBehaviorUpdate(void) {
     targetActor = cursor->unk30;
     targetState = ((RaceActor *)targetActor)->view.b.unk174;
     targetCursor = ((RaceActor *)targetActor)->view.b.unk178;
-    playerActor = gPlayerSlots[targetState->playerIdx].unk4;
+    playerActor = gPlayerSlots[targetState->playerIdx].actor;
     playerState = ((RaceActor *)playerActor)->view.b.unk174;
     pathLength = gMinecartTrackPoints[cursor->unk0 + 1] - gMinecartTrackPoints[cursor->unk0];
     offsetSign = 1.0f;

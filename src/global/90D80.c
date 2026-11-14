@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
@@ -249,11 +250,7 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 h
     return glist;
 }
 
-typedef struct PlayerRect {
-    u8 pad[0x270];
-    s16 rect[4];
-} PlayerRect;
-extern PlayerRect *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern u32 gFrameDelta;
 extern f32 D_8075022C, D_80750228;
 extern u32 D_80750230;
