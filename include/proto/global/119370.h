@@ -79,7 +79,7 @@ void effectResetState(void);
 void effectCreateAtModelNode(void *, f32, s32, s32, u8);
 #endif
 #ifndef PROTO_SKIP_effectCreateAtActorBone
-void *effectCreateAtActorBone(void *, f32, void *, s32, u8);
+void *effectCreateAtActorBone(void *, f32, Actor *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_effectCreateAtPosition
 void *effectCreateAtPosition(void *, f32, f32, f32, f32);

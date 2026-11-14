@@ -290,19 +290,16 @@ void effectCreateAtModelNode(void *asset, f32 scale, s32 modelSlot, s32 nodeInde
 }
 
 
-// no return statement: the original falls off the end and callers read effectCreate's result in v0
-void *effectCreateAtActorBone(void *asset, f32 scale, void *actor, s32 boneIndex, u8 flags) {
+void *effectCreateAtActorBone(void *asset, f32 scale, Actor *actor, s32 boneIndex, u8 flags) {
     f32 boneX;
     f32 boneY;
     f32 boneZ;
-    u16 ownerHidden;
 
     actorGetNodePos(actor, boneIndex, &boneX, &boneY, &boneZ);
-    ownerHidden = ((Actor *)actor)->flags & 0x200; // FAKE: u16 temp keeps the reloaded actor pointer in v1
-    if (!ownerHidden && ((Actor *)actor)->sub4 != NULL && (sEffectPendingFlags & 0x80)) {
+    if (!(actor->flags & 0x200) && actor->sub4 != NULL && (sEffectPendingFlags & 0x80)) {
         effectFlagsOr(0x40);
     }
-    effectCreate((s32)asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, flags);
+    return effectCreate((s32)asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, flags);
 }
 
 void *effectCreateAtPosition(void *asset, f32 scale, f32 x, f32 y, f32 z) {
@@ -605,18 +602,13 @@ void effectUpdateAll(u8 pGlist) {
         }
     }
     for (node2 = sEffectGridHead; node2 != NULL; node2 = node2->next) {
-        if (gFrameCounter - node2->lastUsedFrame >= 0xB) {
-            continue;
-        }
-        if (node2->lastUsedFrame == -1) {
-            continue;
-        }
-        for (i = 0; i < node2->frameCount * node2->width * node2->height; i++) {
-            if (node2 && node2) {} // FAKE: raises node2 priority above the slot pointer (node2 -> s1, slot pointer -> s2)
-            if (node2->slots[i].frame != -1) {
-                if (gFrameCounter - node2->lastUsedFrame == 10) {
-                    assetFreeBuffer(node2->slots[i].buffer, 0x319, 0x1F);
-                    node2->slots[i].frame = -1;
+        if (gFrameCounter - node2->lastUsedFrame < 0xB && node2->lastUsedFrame != -1) {
+            for (i = 0; i < node2->frameCount * node2->width * node2->height; i++) {
+                if (node2->slots[i].frame != -1) {
+                    if (gFrameCounter - node2->lastUsedFrame == 10) {
+                        assetFreeBuffer(node2->slots[i].buffer, 0x319, 0x1F);
+                        node2->slots[i].frame = -1;
+                    }
                 }
             }
         }
