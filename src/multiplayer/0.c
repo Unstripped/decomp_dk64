@@ -321,7 +321,6 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
     f32 fontHeight2;
     s32 bonusValue;
     G00Entry *rect;
-    Gfx *gfx2; // FAKE: second packet pointer for the colour reset (reusing gfx moves the 0x641E0000 packet registers)
 
     state = controller->customState;
     fontHeight = (f32) textGetFontHeight(1);
@@ -350,8 +349,7 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
             continue;
         }
         gfx = curGlist++;
-        gfx->words.w1 = (alpha & 0xFF) | 0xFFFFFF00; // FAKE: hand-written G_SETPRIMCOLOR storing w1 before w0 (the gDPSetPrimColor w0-first order reschedules the loop)
-        gfx->words.w0 = 0xFA000000;
+        gfx->words.w0 = 0xFA000000; gfx->words.w1 = (alpha & 0xFF) | 0xFFFFFF00; // LAYOUT: same-line packet stores (as1 stores w1 first)
         if (state->hudIconsShown == 0) {
             fx = (f32) rect->left + 4.0f;
             fy = (f32) rect->bottom - ((8.0f + fontHeight2) * 0.5f);
@@ -366,9 +364,7 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
             textY = (s16) fy;
             curGlist = textDrawStringVtx(curGlist, 1, (s16) (fx * 8.0f), textY, textBuf, 4);
             if (bonusValue != 0) {
-                gfx2 = curGlist++;
-                gfx2->words.w0 = 0xFA000000;
-                gfx2->words.w1 = (alpha & 0xFF) | 0xFFFFFF00;
+                gDPSetColor(curGlist++, G_SETPRIMCOLOR, (alpha & 0xFF) | 0xFFFFFF00);
             }
             _sprintf(textBuf, "%d", slotQueueGetValue(4, playerIndex));
             fx = (f32) rect->right - ((f32) (textGetStringWidth(1, textBuf) + 8) * 0.5f);
