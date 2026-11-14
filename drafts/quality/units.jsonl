@@ -238,3 +238,4 @@
 {"type": "unit", "t": "2026-11-14T01:25:26Z", "unit": "2026-11-13: cleanup round 37", "commit": "ebbced4b47eac23fc5c18686c1848d4a48818d18"}
 {"type": "unit", "t": "2026-11-14T02:57:28Z", "unit": "2026-11-13: cleanup round 38", "commit": "4ad88c3306b3921f68136b0587dd63fca6e437b7"}
 {"type": "unit", "t": "2026-11-14T05:59:47Z", "unit": "2026-11-14: recipe sweep", "commit": "1ed666b5d452580a2d5291b182897e2cea8b9f58"}
+{"type": "unit", "t": "2026-11-14T17:02:56Z", "unit": "2026-11-14: cleanup PolishGlobal1292F0", "commit": "22217cdcb39e2a82d89052b2c50e4ca09c871ccb"}
