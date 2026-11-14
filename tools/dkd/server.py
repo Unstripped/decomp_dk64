@@ -29,7 +29,9 @@ Invariants:
 import asyncio
 import hmac
 import itertools
+import json
 import os
+import re
 import secrets
 import signal
 import subprocess
@@ -64,9 +66,113 @@ TMP_SETUP = ('mount -t tmpfs -o mode=1777 tmpfs /tmp || '
 # The server's own credentials must never reach jobs.
 SERVER_ONLY_ENV = ("DKD_TOKEN", "DKD_IMAGE")
 
+# OrbStack's bind mount (2.2.x) keeps a stale size and mtime for a file the host rewrote (in
+# place or by temp file + mv) once this long-lived container has read it, until the file is read
+# to EOF here; `stat` and a bare `open` do not refresh it. make's up-to-date check then sees the
+# old mtime (skipped rebuilds) and cfe reads a header cut to its old size ("An if directive is
+# not terminated"). Before every RUN job, read the build inputs and the files the job's argv
+# names to EOF. New paths are never stale, so only previously seen ones matter.
+REFRESH_DIRS = ("src", "include", "asm", "assets")
+REFRESH_TOP_SUFFIXES = (".yaml", ".txt", ".ld")
+REFRESH_SKIP = ("build", "expected", ".git")
+REFRESH_DIR_CAP = 2000      # files read for one directory named in argv
+REFRESH_SIBLING_CAP = 200   # files read beside one file named in argv
+REFRESH_JSON_MAX = 1 << 20  # argv JSON files (cwarn compile-json) are scanned for more paths
+REFRESH_TOKEN_SPLIT = re.compile(r"[\s;|&<>()'\"`=,:]+")
+
 
 def log(msg):
     print("dkd %s %s" % (time.strftime("%H:%M:%S"), msg), file=sys.stderr, flush=True)
+
+
+def _read_to_eof(path):
+    try:
+        with open(path, "rb") as f:
+            while f.read(1 << 20):
+                pass
+    except OSError:
+        pass
+
+
+def _files_under(top, cap):
+    out = []
+    for dirpath, dirs, files in os.walk(top):
+        dirs[:] = [d for d in dirs if d not in REFRESH_SKIP]
+        out.extend(os.path.join(dirpath, f) for f in files)
+        if len(out) >= cap:
+            return out[:cap]
+    return out
+
+
+def _argv_paths(argv, scan_json=True):
+    """Existing paths inside WORKDIR named by argv tokens (shell strings are split on blanks
+    and metacharacters; a leading -I is stripped), excluding WORKDIR itself and build outputs.
+    A small *.json token contributes the paths among its string values."""
+    found = []
+    for arg in argv:
+        for tok in REFRESH_TOKEN_SPLIT.split(arg):
+            if tok.startswith("-I"):
+                tok = tok[2:]
+            if not tok or tok.startswith("-"):
+                continue
+            path = os.path.normpath(os.path.join(WORKDIR, tok))
+            rel = os.path.relpath(path, WORKDIR)
+            if rel == "." or rel.startswith("..") or rel.split(os.sep)[0] in REFRESH_SKIP:
+                continue
+            if not os.path.exists(path):
+                continue
+            found.append(path)
+            if scan_json and path.endswith(".json") and os.path.isfile(path):
+                try:
+                    if os.path.getsize(path) <= REFRESH_JSON_MAX:
+                        with open(path) as f:
+                            data = json.load(f)
+                        found.extend(_argv_paths(_json_strings(data), scan_json=False))
+                except (OSError, ValueError):
+                    pass
+    return found
+
+
+def _json_strings(data):
+    if isinstance(data, str):
+        return [data]
+    if isinstance(data, dict):
+        data = list(data.values())
+    if isinstance(data, list):
+        return [s for v in data for s in _json_strings(v)]
+    return []
+
+
+def refresh_host_view(argv):
+    """Read to EOF: every file under REFRESH_DIRS, the top-level config, and each file named by
+    the job's argv together with the files beside it (each directory named: its tree, capped)."""
+    paths = []
+    for d in REFRESH_DIRS:
+        paths.extend(_files_under(os.path.join(WORKDIR, d), float("inf")))
+    try:
+        paths.extend(os.path.join(WORKDIR, f) for f in os.listdir(WORKDIR)
+                     if f.endswith(REFRESH_TOP_SUFFIXES) or f == "Makefile")
+    except OSError:
+        pass
+    seen_dirs = set()
+    for p in _argv_paths(argv):
+        if os.path.isdir(p):
+            if p not in seen_dirs:
+                seen_dirs.add(p)
+                paths.extend(_files_under(p, REFRESH_DIR_CAP))
+            continue
+        paths.append(p)
+        parent = os.path.dirname(p)
+        if parent in seen_dirs or parent == WORKDIR:
+            continue
+        seen_dirs.add(parent)
+        try:
+            beside = [os.path.join(parent, f) for f in sorted(os.listdir(parent))]
+        except OSError:
+            continue
+        paths.extend(b for b in beside[:REFRESH_SIBLING_CAP] if os.path.isfile(b))
+    for p in dict.fromkeys(paths):
+        _read_to_eof(p)
 
 
 def isolated_argv(argv):
@@ -715,6 +821,10 @@ class Server:
 
     async def execute(self, job, conn):
         """Spawn the isolated job, stream its output, return the client-visible exit status."""
+        try:
+            await asyncio.get_running_loop().run_in_executor(None, refresh_host_view, job.argv)
+        except Exception as e:  # a refresh failure must never cost the job
+            log("job %s: host-view refresh failed: %r" % (job.id, e))
         try:
             proc = await asyncio.create_subprocess_exec(
                 *isolated_argv(job.argv), stdin=asyncio.subprocess.DEVNULL,

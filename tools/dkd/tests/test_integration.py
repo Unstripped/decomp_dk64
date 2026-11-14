@@ -43,7 +43,9 @@ Invariant -> check
 * leases: `test_lease_*`.   startup race / recovery / retire / throughput: the same-named tests.
 * regressions: `test_retire_during_lease_does_not_deadlock` (code change while a hold runs),
   `test_parallel_makes_in_job_vs_external_exclusive` (upgrade-path release/request gap, interval log),
-  `test_shim_wait_prints_exactly_one_notice`, `test_slow_reader_gets_all_bytes` (4 MiB, 12 s late reader).
+  `test_shim_wait_prints_exactly_one_notice`, `test_slow_reader_gets_all_bytes` (4 MiB, 12 s late reader),
+  `test_host_rewrite_seen_by_next_job` (a file the host replaces after the container read it: the
+  next job's fstat-sized read and mtime must be the host's, not the bind mount's cached ones).
 * containers are found by label `dk64.root` (re-verified per container); the name/`dk64.rootid` label
   are checked once, in `test_startup_race_single_container`, against sha256("<st_dev>:<st_ino>")[:12].
 
@@ -1110,3 +1112,57 @@ def test_throughput_vs_docker_run(fresh_root, request):
     request.node.user_properties.append(("throughput", summary))
     assert statistics.mean(dkd_times) < statistics.mean(docker_times), summary
     assert statistics.median(dkd_times) < statistics.median(docker_times), summary
+
+
+# --------------------------------------------------------------------------------------------
+# 11. host rewrites seen by the next job (bind-mount attribute cache)
+# --------------------------------------------------------------------------------------------
+
+# Reads like cfe does: fstat's size, then exactly that many bytes. Prints size, mtime (s) and the
+# bytes read, hex-encoded.
+_SIZED_READ = ("import os, sys\n"
+               "for p in sys.argv[1:]:\n"
+               "    fd = os.open(p, os.O_RDONLY)\n"
+               "    st = os.fstat(fd)\n"
+               "    data = os.read(fd, st.st_size) if st.st_size else b''\n"
+               "    print(st.st_size, int(st.st_mtime), data.hex())\n")
+_WARM = ("import os, sys, time\n"
+         "end = time.monotonic() + 2\n"
+         "while time.monotonic() < end:\n"
+         "    for p in sys.argv[1:]:\n"
+         "        fd = os.open(p, os.O_RDONLY); os.read(fd, os.fstat(fd).st_size); os.close(fd)\n"
+         "        os.stat(p)\n")
+
+
+@pytest.mark.parametrize("grow", [True, False], ids=["grow", "shrink"])
+def test_host_rewrite_seen_by_next_job(shared_root, grow):
+    """A long-lived container must not serve a stale size or mtime for a file the host replaced
+    (temp file + rename, like merge_gate.sh stage_copy) after the container had read it: neither
+    for a build input under include/ nor for a .scratch file named in the job's argv. OrbStack 2.2
+    cut such a header at its old size (cfe: "An if directive is not terminated") or padded it
+    with NULs, and showed make the old mtime. Needs Docker (module-level skip)."""
+    r = shared_root
+    tag = uuid.uuid4().hex[:8]
+    rels = ["include/stale_%s.h" % tag, ".scratch/stale_%s/copy.c" % tag]
+    small = b"#ifndef S\n#define S 1\n#endif\n"
+    big = b"#ifndef S\n" + b"".join(b"#define M%d %d\n" % (i, i) for i in range(300)) + b"#endif\n"
+    old, new = (small, big) if grow else (big, small)
+    for rel in rels:
+        (r.path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (r.path / rel).write_bytes(old)
+    res = r.dk("python3", "-c", _WARM, *rels)
+    assert res.rc == 0, res.text()
+    past = time.time() - 30  # a distinct, whole-second mtime the stale cache cannot hold
+    for rel in rels:
+        tmp = r.path / (rel + ".tmp")
+        tmp.write_bytes(new)
+        os.utime(tmp, (past, past))
+        os.replace(tmp, r.path / rel)
+    res = r.dk("python3", "-c", _SIZED_READ, *rels)
+    assert res.rc == 0, res.text()
+    seen = res.out.decode().split("\n")[:len(rels)]
+    for rel, line in zip(rels, seen):
+        size, mtime, data = line.split(" ")
+        assert (int(size), bytes.fromhex(data)) == (len(new), new), \
+            "%s: container read %s bytes %r..., host has %d" % (rel, size, bytes.fromhex(data)[-16:], len(new))
+        assert int(mtime) == int(past), "%s: container mtime %s, host %d" % (rel, mtime, int(past))
