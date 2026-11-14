@@ -45,7 +45,7 @@ void n_alCSPlayerNew(N_CSPlayer *seqp, ALSeqpConfig *c) {
     seqp->stopOsc = c->stopOsc;
     seqp->unk7C = 0.0f;
     seqp->unk80 = 1.0f;
-    seqp->unk84 = 0;
+    seqp->eventQueue = NULL;
     seqp->unk89 = 0;
     seqp->unk88 = c->maxVoices;
     seqp->nextEvent.type = 9;
@@ -477,8 +477,8 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
                         D_807FF040[chan] = delta;
                         alEvtqPostEvent(&seqp->evtq, &evt, delta);
                     }
-                    if ((chanSt->unk10 & 1) && ((OSMesgQueue *)seqp->unk84) != NULL) {
-                        osSendMesg(((OSMesgQueue *)seqp->unk84), (OSMesg)((D_807FF040[chan] & ~0xFF) | (chanSt->unk10 >> 2)), 0);
+                    if ((chanSt->unk10 & 1) && seqp->eventQueue != NULL) {
+                        osSendMesg(seqp->eventQueue, (OSMesg)((D_807FF040[chan] & ~0xFF) | (chanSt->unk10 >> 2)), 0);
                     }
                 }
                 break;
@@ -499,8 +499,8 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
                     __n_seqpReleaseVoice(seqp, &voiceState->voice, voiceState->sound->envelope->releaseTime);
                 }
             }
-            if ((chanSt->unk10 & 2) && ((OSMesgQueue *)seqp->unk84) != NULL) {
-                osSendMesg(((OSMesgQueue *)seqp->unk84), (OSMesg)((key << 16) | 8 | (chanSt->unk10 >> 2)), 0);
+            if ((chanSt->unk10 & 2) && seqp->eventQueue != NULL) {
+                osSendMesg(seqp->eventQueue, (OSMesg)((key << 16) | 8 | (chanSt->unk10 >> 2)), 0);
             }
             break;
         case 0xA0:
@@ -605,8 +605,8 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
                     }
                     break;
                 case 0x1E:
-                    if (((OSMesgQueue *)seqp->unk84) != NULL) {
-                        osSendMesg(((OSMesgQueue *)seqp->unk84), (OSMesg)(((byte2 & 7) | 0x10) | ((seqp->node.samplesLeft << 5) & ~0xFF)), 0);
+                    if (seqp->eventQueue != NULL) {
+                        osSendMesg(seqp->eventQueue, (OSMesg)(((byte2 & 7) | 0x10) | ((seqp->node.samplesLeft << 5) & ~0xFF)), 0);
                     }
                     break;
                 case 0x7:

@@ -133,8 +133,8 @@ s32 seqPlayerGetState(u8 playerIndex) {
     return alCSPGetState(&gSeqPlayers[playerIndex]->al);
 }
 
-void func_806011A0(u8 playerIndex, s32 val) {
-    alCSPSetUnk84(gSeqPlayers[playerIndex], val);
+void func_806011A0(u8 playerIndex, OSMesgQueue *queue) {
+    alCSPSetUnk84(gSeqPlayers[playerIndex], queue);
 }
 
 typedef struct Struct806011D4 {

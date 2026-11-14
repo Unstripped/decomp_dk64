@@ -7,7 +7,7 @@
 void alCSPPlay(ALCSPlayer *);
 #endif
 #ifndef PROTO_SKIP_alCSPSetUnk84
-void alCSPSetUnk84(N_CSPlayer *, s32);
+void alCSPSetUnk84(N_CSPlayer *, OSMesgQueue *);
 #endif
 #ifndef PROTO_SKIP_setCSPInstrumentFlags
 void setCSPInstrumentFlags(N_CSPlayer *, s32, s32);

@@ -15,7 +15,7 @@ void seqPlayerPlay(u8);
 s32 seqPlayerGetState(u8);
 #endif
 #ifndef PROTO_SKIP_func_806011A0
-void func_806011A0(u8, s32);
+void func_806011A0(u8, OSMesgQueue *);
 #endif
 #ifndef PROTO_SKIP_seqPlayerSetChannelState
 void seqPlayerSetChannelState(u8, s32, u8);
