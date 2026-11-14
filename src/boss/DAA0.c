@@ -1,6 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_sfxAllocateChannel // FAKE: callee prototype steer
-#define PROTO_SKIP_sfxPlayOnFreeSlot // FAKE: callee prototype steer
 #include "proto/boss/3840.h"
 #include "proto/boss/DAA0.h"
 #include "proto/global/1295B0.h"
@@ -37,8 +35,6 @@ s8 D_80035B44[5] = { 2, 3, 4, 0, 1 };
 s16 D_80035B4C[5] = { 2, 3, 4, 5, 6 };
 u8 D_80035B58[5] = { 2, 1, 3, 4, 0 };
 s16 D_80035B60[4] = { 0xDC, 0xDD, 0xDE, 0xDF };
-s8 D_80035B68 = 0;
-s8 D_80035B6C = 0;
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -69,12 +65,9 @@ extern u8 D_807FBDC4;
 extern s8 D_80036DC0;
 extern f32 D_80036DC4;
 
-void sfxPlayOnFreeSlot();  // FAKE: callee prototype steer
-s32 sfxAllocateChannel();  // FAKE: callee prototype steer
-
 void bossSpawnerUpdate(void) {
-    f32 dx;
-    s32 pad;
+    f32 r;
+    s32 level;
     s32 k;
     s32 i;
     BossSpawnerState *s;
@@ -85,9 +78,11 @@ void bossSpawnerUpdate(void) {
     s8 topReached;
     BossSpawnState *st;
     s32 cutsceneId;
-    f32 lx;
-    f32 lz;
+    f32 x;
+    f32 z;
     s16 j;
+    static s8 D_80035B68 = 0;
+    static s8 D_80035B6C = 0;
     static s16 D_80035B70 = 0;
 
     s = gCurrentActor->customState;
@@ -158,9 +153,9 @@ void bossSpawnerUpdate(void) {
         break;
     case 1:
         gPrimaryPlayerActor->flags |= 4;
-        dx = gPrimaryPlayerActor->x - gCurrentActor->x;
-        lz = gPrimaryPlayerActor->z - gCurrentActor->z;
-        if (dx > 700.0 || dx < -700.0 || lz > 700.0 || lz < -700.0) {
+        x = gPrimaryPlayerActor->x - gCurrentActor->x;
+        z = gPrimaryPlayerActor->z - gCurrentActor->z;
+        if (x > 700.0 || x < -700.0 || z > 700.0 || z < -700.0) {
             if (D_80036DC0 < 5) {
                 gCurrentActor->state = 0;
                 camStartPath(0, 2, 1);
@@ -218,11 +213,11 @@ void bossSpawnerUpdate(void) {
             s->unk15++;
             if (s->unk15 < j) {
                 s->unk13 = 1;
-                sfxPlayOnFreeSlot(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x37D, 0x7D00, 63.0, 1.0, 0, 0);
                 if (s->unk12 == 2) {
-                    sfxPlayOnFreeSlot(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x381, 0x7D00, 63.0, 1.0, 0, 0);
                 } else {
-                    sfxPlayOnFreeSlot(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x37F, 0x7D00, 63.0, 1.0, 0, 0);
                 }
             } else {
                 s->unk13 = 2;
@@ -254,22 +249,21 @@ void bossSpawnerUpdate(void) {
             if (i < s->unk10) {
                 s->unk13 = 0;
                 s->unk15++;
-                sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x17D, 0x3E80, 63.0, 1.0, 0, 0);
             }
             if (hitPlayer != 0) {
-                sfxPlayOnFreeSlot(0x97, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x97, 0x7D00, 63.0, 1.0, 0, 0);
                 s->unk16++;
                 s->unk15 = 0;
                 s->unk13 = 2;
                 if (s->unk16 == 3) {
-                    sfxPlayOnFreeSlot(0x385, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x385, 0x7D00, 63.0, 1.0, 0, 0);
                     s->unk16 = 0;
                     camPausePath();
-                    if (D_80035B68 == 0) {} // FAKE: dead test steers uopt colouring/ring (case 1 arm)
                     s->unk13 = 4;
                 } else {
-                    sfxPlayOnFreeSlot(0x38E, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
-                    sfxPlayOnFreeSlot(0x383, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x38E, 0x7D00, 63.0, 1.0, 0, 0);
+                    sfxPlayOnFreeSlot(0x383, 0x7D00, 63.0, 1.0, 0, 0);
                 }
             }
         }
@@ -280,8 +274,8 @@ void bossSpawnerUpdate(void) {
             s->unk15++;
             if (s->unk15 < 3) {
                 s->unk13 = 3;
-                sfxPlayOnFreeSlot(0x37D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
-                sfxPlayOnFreeSlot(0x380, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x37D, 0x7D00, 63.0, 1.0, 0, 0);
+                sfxPlayOnFreeSlot(0x380, 0x7D00, 63.0, 1.0, 0, 0);
             } else {
                 s->unk13 = 0;
                 s->unk15 = 0;
@@ -295,7 +289,7 @@ void bossSpawnerUpdate(void) {
         s->unk8 = 0.1f;
         if (s->unk10 >= 0x1F) {
             s->unk13 = 2;
-            sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
+            sfxPlayOnFreeSlot(0x17D, 0x3E80, 63.0, 1.0, 0, 0);
         }
         if (bounceDir != 0) {
             s->unk17 = 1;
@@ -336,7 +330,7 @@ void bossSpawnerUpdate(void) {
         if (bounceDir == -1) {
             topReached = 1;
             if (D_80035B70 < s->unk10) {
-                sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x17D, 0x3E80, 63.0, 1.0, 0, 0);
                 D_80035B70++;
                 s->unk10 = 0;
                 if (D_80035B70 >= 0x10) {
@@ -346,8 +340,8 @@ void bossSpawnerUpdate(void) {
                     D_80035B70 = (randomLcgNext() & 3) + 4;
                     s->unk13 = 1;
                     s->unk15++;
-                    sfxPlayOnFreeSlot(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
-                    sfxPlayOnFreeSlot(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                    sfxPlayOnFreeSlot(0x37F, 0x7D00, 63.0, 1.0, 0, 0);
+                    sfxPlayOnFreeSlot(0x381, 0x7D00, 63.0, 1.0, 0, 0);
                 }
                 spawnParticle = 1;
             }
@@ -371,7 +365,7 @@ void bossSpawnerUpdate(void) {
     case 8:
         s->unk8 = -0.1f;
         if (D_807FBDC4 != 0) {
-            sfxAllocateChannel(0x35, 0x3F800000);
+            sfxAllocateChannel(0x35, 1.0);
             bossSpawnParticleRing(0x13D, gCurrentActor->x, gCurrentActor->y + 200.0f, gCurrentActor->z + 40.0f, 0x800, 1);
             s->unk13 = 9;
         }
@@ -393,8 +387,8 @@ void bossSpawnerUpdate(void) {
         if (s->unk12 == 2 || s->unk12 == 3) {
             s->unk14++;
         } else {
-            dx = randomFloat(); // FAKE: dx reused as the randomFloat temp (randomFloat() inline fails fdiff)
-            s->unk14 += (s32)(dx * 2.99f) + 1;
+            r = randomFloat();
+            s->unk14 += (s32)(r * 2.99f) + 1;
         }
         k = s->unk14;
         if (k >= 4) {
@@ -403,28 +397,28 @@ void bossSpawnerUpdate(void) {
     }
     D_80035B68++;
     if (topReached != 0) {
-        cutsceneId = (D_80035B68 & 0x1F) - 0x10; // FAKE: cutsceneId reused as the light level (a separate s32 level local fails fdiff)
-        i = cutsceneId;
+        level = (D_80035B68 & 0x1F) - 0x10;
+        i = level;
         k = s->unk14;
-        if (cutsceneId < 0) {
-            i = -cutsceneId;
+        if (level < 0) {
+            i = -level;
         }
         if (i >= 0x10) {
             i = 0xF;
         }
-        cutsceneId = (i << 4) & 0xFF;
-        if (cutsceneId && cutsceneId) {} // FAKE: pins the cutsceneId def before the lx/lz loads
-        lx = D_80035B00[k] * 0.33 + gCurrentActor->x;
-        lz = D_80035B08[k] * 0.33 + gCurrentActor->z;
-        lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, cutsceneId, cutsceneId, cutsceneId);
+        level = (i << 4) & 0xFF;
+        if (level && level) {} // FAKE: pins the level def before the x/z loads
+        x = D_80035B00[k] * 0.33 + gCurrentActor->x;
+        z = D_80035B08[k] * 0.33 + gCurrentActor->z;
+        lightAdd(x, 400.0f, z, x, 300.0f, z, 200.0f, 0, level, level, level);
         if (s->unk12 == 1) {
             k = s->unk14 + 2;
             if (k >= 4) {
                 k -= 4;
             }
-            lx = D_80035B00[k] * 0.33 + gCurrentActor->x;
-            lz = D_80035B08[k] * 0.33 + gCurrentActor->z;
-            lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, cutsceneId, cutsceneId, cutsceneId);
+            x = D_80035B00[k] * 0.33 + gCurrentActor->x;
+            z = D_80035B08[k] * 0.33 + gCurrentActor->z;
+            lightAdd(x, 400.0f, z, x, 300.0f, z, 200.0f, 0, level, level, level);
         }
     }
     s->unkC--;
@@ -483,7 +477,7 @@ void bossFollowerActorUpdate(void) {
             s32 animId = link->unk4 + 0x66B;
             if (animId != anim->animId) {
                 controllerAnimSetStateIfChanged(gCurrentActor, animId, 0.0f, 0.0f);
-                sfxPlayOnFreeSlot(0x38D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x38D, 0x7D00, 63.0, 1.0, 0, 0);
             } else {
                 controllerApplyMotionWindow(gCurrentActor, anim, anim->frame + 0.75f);
             }
@@ -504,7 +498,7 @@ void bossFollowerActorUpdate(void) {
                 }
             }
             if (gCurrentActor->y < 0.0) {
-                sfxPlayOnFreeSlot(0x384, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
+                sfxPlayOnFreeSlot(0x384, 0x7D00, 63.0, 1.0, 0, 0);
                 actorDespawn(gCurrentActor);
             }
         }
