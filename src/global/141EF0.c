@@ -99,7 +99,8 @@ Acmd *n_alFxPull(s32 time, Acmd *cmdList, s32 busIndex) {
             } else {
                 aMix(ptr++, 0, 0x5A82, outDmem, 0x4E0);
             }
-        } else {} // FAKE: empty else arm emits the target b join; nop under IDO 7.1 -g (Q0671; removing it: 31 lines differ)
+        } else { // ORIG: target branches over the empty else arm at 0x740 (b 0x748; nop), n_alFxPull+0x740
+        }
         aDMEMMove(ptr++, outDmem, 0x7C0, 0x170);
         ring->input[busChan] += 0xB8;
         if (ring->input[busChan] > &ring->base[busChan][ring->length]) {
