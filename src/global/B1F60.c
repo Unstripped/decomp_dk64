@@ -19,23 +19,18 @@ extern PlayerStruct *gPlayerSlots;
 
 
 void actorPatrolFollowerUpdate(s16 targetId, u8 skipStep, u16 movementFlags) {
-    Actor *actor;
-
     if (targetId != 0 && (gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0)) {
-        actor = gCurrentActor;
-        if (actor->state != 0x37) {
-            actor->speedY = 200.0f;
+        if (gCurrentActor->state != 0x37) {
+            gCurrentActor->speedY = 200.0f;
             behaviourCalculateDamageForce(gActorGlobalState.targetActor, targetId);
         }
     }
-    if (gCurrentActor->state) {}  // FAKE: an IL-only use that lets uopt colour the targetId parameter (range 0 is left uncoloured without it)
-    actor = gCurrentActor;
     switch (gCurrentActor->state) {
         case 1:
         case 0x10:
         case 0x15:
         case 0x23:
-            actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, (actor->contactFlags & 1) ? movementFlags : (movementFlags | 2), 0.0f);
+            actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, (gCurrentActor->contactFlags & 1) ? movementFlags : (movementFlags | 2), 0.0f);
             break;
         case 2:
         case 3:
@@ -44,19 +39,18 @@ void actorPatrolFollowerUpdate(s16 targetId, u8 skipStep, u16 movementFlags) {
             actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, movementFlags, 0.0f);
             break;
         case 0x37:
-            switch (actor->unk155) {
+            switch (gCurrentActor->unk155) {
                 case 0:
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, movementFlags | 0x4200, 0.0f);
                     break;
                 case 1:
-                    sfxSpawnTableNodes(actor);
+                    sfxSpawnTableNodes(gCurrentActor);
                     if (skipStep != 0) {
                         gCurrentActor->unk155 = 2;
                         break;
                     }
                     gCurrentActor->speedY = 100.0f;
-                    actor = gCurrentActor;  // FAKE: re-read into the actor local so the reloaded pointer colours a2
-                    actor->unk155++;
+                    gCurrentActor->unk155++;
                 case 2:
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, movementFlags | 0x4200, 0.0f);
                     break;
@@ -64,7 +58,7 @@ void actorPatrolFollowerUpdate(s16 targetId, u8 skipStep, u16 movementFlags) {
                     behaviourFadeOutWithinZone(0xA);
                     break;
                 case 4:
-                    actor->state = 0x40;
+                    gCurrentActor->state = 0x40;
                     break;
             }
             break;
