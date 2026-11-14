@@ -1,27 +1,22 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/global/7130.h"
 #include "proto/global/7BA00.h"
 #include "proto/global/EFDC0.h"
 
-typedef struct PlayerData {
-    u8 pad[0x2C0];
-    u8 unk2C0;
-    u8 pad2[0x2F0 - 0x2C1];
-} PlayerData;
-
-extern PlayerData *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern Actor *gPrimaryPlayerActor;
 
 void actorTriggerPlayerKnockbackSound(Actor* attacker, Actor* target, s32 unused2, s32 unused3) {
     u8 kong;
-    u8* beh;
+    PlayerState* ps;
 
     if (target == gPrimaryPlayerActor) {
-        beh = target->customState;
-        kong = beh[0x1A4];
-        *(s32*)(beh + 0x1F0) |= 0x80000;
-        if (*(s16*)(beh + 0xD4) == (beh[0x1A4] * 0)) { // FAKE: keeps kong live across check
+        ps = target->customState;
+        kong = ps->playerIndex;
+        ps->stateFlags |= 0x80000;
+        if (ps->surfaceTimer == (ps->playerIndex * 0)) { // FAKE: 2nd use makes the 0x1A4 load a web, attacker gets no reg and stays in 0x38(sp)
             if (gPrimaryPlayerActor->state != 0x36) {
                 if (playerCanTakeHit(gPrimaryPlayerActor)) {
                     if (gPrimaryPlayerActor->actorType == 6 && gPlayerSlots[kong].unk2C0 == 2) {
