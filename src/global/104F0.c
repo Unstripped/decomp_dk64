@@ -852,27 +852,19 @@ void eepromSavePlayerData(void) {
             eepromSetField(0xC, 0, 0, D_807467C8, gPlayerInventoryTable[0].melons);
             eepromSetField(0xF, 0, 0, D_807467C8, D_807467C8);
             eepromSetField(0x10, 0, 0, D_807467C8, value);
-            i = 0;
-            if (value && value) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            do {
-                j = 0;
-                do {
+            for (i = 0; i < 5; i++, entry++) {
+                for (j = 0; j < 5; j++) {
                     eepromSetField(j + 4, i, 0, D_807467C8, entry->unk0[j]);
-                    j++;
-                } while (j != 5);
+                }
                 eepromSetField(9, i, 0, D_807467C8, entry->unk6);
                 eepromSetField(0xA, i, 0, D_807467C8, entry->unk5 & 0x7F);
                 eepromSetField(0xB, i, 0, D_807467C8, (entry->unk5 >> 7) & 1);
-                k = 0;
-                do {
+                for (k = 0; k < 8; k++) {
                     eepromSetField(1, i, k, D_807467C8, entry->unkA[k]);
                     eepromSetField(2, i, k, D_807467C8, entry->unk26[k]);
                     eepromSetField(3, i, k, D_807467C8, entry->unk42[k]);
-                    k++;
-                } while (k != 8);
-                i++;
-                entry++;
-            } while (i != 5);
+                }
+            }
             eepromDispatchCommand(1);
         }
     }
