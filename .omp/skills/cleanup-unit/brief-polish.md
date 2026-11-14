@@ -42,8 +42,9 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
   not a header request: retype the definition and fdiff a stand-in copy (`#define PROTO_SKIP_<f>` +
   the new declaration after the includes); the orchestrator regenerates the header at merge.
   Retyping a definition other files call: deliver a bundle (owner copy + stand-in copies of the
-  callers that fdiff). For a header change you need now, put a shadow header beside your copies
-  (quoted includes find it first), fdiff against it, and deliver the hunk as a `.patch`.
+  callers that fdiff). For a header change you need now, compile against a shadow header with
+  `-I <shadowdir>` ahead of `-I include` (a header beside the copy does NOT reach IDO: asm-processor
+  preprocesses a temp file; clint does need one beside the copy), and deliver the hunk as a `.patch`.
 - A `warning` site whose fix needs another file's prototype: `retype blocked` naming that owner
   file and the exact prototype change; never a silencing cast.
 - Shared types to retire views with: `CamState`/`CamTargetBlock`, `SpawnNode`/`Zone`,

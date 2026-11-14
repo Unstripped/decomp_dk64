@@ -48,8 +48,9 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
   retype the definition and fdiff a stand-in copy (`#define PROTO_SKIP_<f>` + the new
   declaration after the includes); the orchestrator regenerates the header at merge.
   Retyping a definition other files call: deliver a bundle (owner copy + stand-in copies of the
-  callers that fdiff). For a header change you need now, put a shadow header beside your copies
-  (quoted includes find it first), fdiff against it, and deliver the hunk as a `.patch`.
+  callers that fdiff). For a header change you need now, compile against a shadow header with
+  `-I <shadowdir>` ahead of `-I include` (a header beside the copy does NOT reach IDO: asm-processor
+  preprocesses a temp file; clint does need one beside the copy), and deliver the hunk as a `.patch`.
 - Relocation-only differences (a split splat label vs parent+offset, `D_x+4` vs `D_x4`) are
   accepted only with raw-word proof: `objdump -drz` of both objects shows equal instruction words
   except LO16/HI16 symbol+addend resolving to the same address. deadsweep's normalisation hides
