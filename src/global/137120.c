@@ -16,7 +16,7 @@ void *alHeapDBAlloc(u8 *file, s32 line, ALHeap *hp, s32 num, s32 size) {
     if ((hp->cur + bytes) <= (hp->base + hp->len)) {
         ptr = hp->cur;
         hp->cur += bytes;
-    } else {
+    } else { // ORIG: target branches over this empty else at 0x88 (b 0x90; libultra _DEBUG __osError slot)
     }
     return ptr;
 }
