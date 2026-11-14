@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -184,14 +185,12 @@ s32 scriptOpWaitRegisterCountdown(Actor *actor) {
 }
 
 s32 scriptOpCheckSelectorActive(Actor *actor) {
-    ActorSub4 *state;
     AnimSlot *value;
 
-    state = actor->sub4;
-    if (state->waitOnLayer != 0) {
-        value = state->layer;
+    if (actor->sub4->waitOnLayer != 0) {
+        value = actor->sub4->layer;
     } else {
-        value = state->model;
+        value = actor->sub4->model;
     }
     sScriptPc++;
     if ((value->speed != 0.0f) || ((value->speedTo != 0.0f) && (value->speedRampDuration != 0.0f))) {
@@ -453,6 +452,7 @@ s32 scriptOpAnimSetStateDefault(Actor *actor) {
     controllerAnimSetState(actor, imm, 0.0f, 0);
     return 1;
 }
+
 s32 scriptOpAnimSetRemapBlend(Actor *actor) {
     s16 imm;
     f32 imm2;
@@ -517,22 +517,18 @@ s32 scriptOpAnimSetFromTable(Actor *actor) {
 s32 scriptOpReadRampInterpolation(Actor *actor) {
     u8 imm;
     AnimSlot *value;
-    AnimSlot *selected;
-    ActorSub4 *state;
 
-    state = actor->sub4;
-    if (state->waitOnLayer != 0) {
-        value = state->layer;
+    if (actor->sub4->waitOnLayer != 0) {
+        value = actor->sub4->layer;
     } else {
-        value = state->model;
+        value = actor->sub4->model;
     }
-    selected = value;
     sScriptPc++;
     scriptReadU8(&imm);
     if (imm == 0xFF) {
         imm = actor->sub4->scriptResult;
     }
-    controllerApplyMotionWindow(actor, selected, (f32)imm);
+    controllerApplyMotionWindow(actor, value, (f32)imm);
     return 1;
 }
 
@@ -540,7 +536,7 @@ extern u8 sMotionWindowProgress;
 
 s32 func_80615CE4(Actor *actor) {
     u8 imm;
-    void *selected;
+    AnimSlot *selected;
     ActorSub4 *state;
 
     state = actor->sub4;
@@ -601,7 +597,7 @@ s32 scriptOpApplyMotionFriction(Actor *actor) {
     scriptReadU8(&imm);
     scriptReadU8(&imm2);
     current = motion->frameIndex;
-    if ((u32)current == imm) {
+    if ((u32)current == imm) { // FAKE: u32 cast of the s16 frame index makes uopt emit bne a0(imm),v1(current), not bne v1,a0
         currentF = (f32)current;
         target = motion->frame;
         motion->jumpFrom = current;
@@ -661,15 +657,17 @@ s32 scriptOpScaleMotionVelocity(Actor *actor) {
     f32 imm;
     AnimSlot *motion;
 
-    motion = actor->sub4->waitOnLayer != 0
-        ? actor->sub4->layer
-        : actor->sub4->model;
+    if (actor->sub4->waitOnLayer != 0) {
+        motion = actor->sub4->layer;
+    } else {
+        motion = actor->sub4->model;
+    }
     sScriptPc++;
     scriptReadU32(&imm);
     if (motion->clip != NULL) {
         start = motion->clip->speed;
     } else {
-        start = .0f;
+        start = 0.0;
     }
     if (imm > 0.0f) {
         motion->speedRampDuration = imm;
@@ -795,13 +793,11 @@ s32 scriptOpEnableFlag8000(Actor *actor) {
 s32 scriptOpResetRampVelocity(Actor *actor) {
     f32 imm;
     AnimSlot *value;
-    ActorSub4 *state;
 
-    state = actor->sub4;
-    if (state->waitOnLayer != 0) {
-        value = state->layer;
+    if (actor->sub4->waitOnLayer != 0) {
+        value = actor->sub4->layer;
     } else {
-        value = state->model;
+        value = actor->sub4->model;
     }
     sScriptPc++;
     scriptReadU32(&imm);
@@ -847,8 +843,7 @@ s32 scriptOpCompareGlobalCountdown(Actor *actor) {
 
     sScriptPc++;
     scriptReadU16(&imm);
-    actor->sub4->scriptResult =
-        gActivePlayerState->unk4E - imm;
+    actor->sub4->scriptResult = gActivePlayerState->unk4E - imm;
     return 1;
 }
 
@@ -957,6 +952,7 @@ s32 scriptOpCall(Actor *actor) {
     sScriptPc = state->scriptPc;
     return sScriptContinueRunning;
 }
+
 s32 scriptOpReturn(Actor *actor) {
     s32 savedReg;
     ActorSub4 *state;
@@ -971,7 +967,7 @@ s32 scriptOpReturn(Actor *actor) {
     return 1;
 }
 
-typedef void (*ScriptCommandFn)();
+typedef void (*ScriptCommandFn)(Actor *);
 
 extern ScriptCommandFn sScriptCommandTable[];
 
@@ -1012,8 +1008,7 @@ s32 scriptOpPlaySoundOnFreeSlot(Actor *actor) {
     scriptReadU8(&imm3);
     scriptReadU16(&imm4);
     scriptReadU8(&imm5);
-    sfxPlayOnFreeSlot(imm, (s32)(((f64)imm2 * 32767.0) / 255.0), (f32)imm3,
-                  (f32)((f64)imm4 / 127.0), (s32)imm5, 0);
+    sfxPlayOnFreeSlot(imm, (imm2 * 32767.0) / 255.0, imm3, imm4 / 127.0, imm5, 0);
     return 1;
 }
 
@@ -1082,15 +1077,16 @@ s32 scriptOpDisableFlag84(Actor *actor) {
     return 1;
 }
 
-typedef struct ActorTargetView {
-    u8 pad0[0x17C];
-    void *unk17C;
-} ActorTargetView;
-
 typedef struct ScriptTarget {
     u8 pad0[0xD];
     u8 flags;
 } ScriptTarget;
+
+typedef struct ActorTargetView {
+    Actor base;
+    void *unk178;
+    ScriptTarget *unk17C;
+} ActorTargetView;
 
 s32 scriptOpHalt(Actor *actor) {
     return 0;
@@ -1100,34 +1096,20 @@ s32 func_80616DB4(Actor *actor) {
     ScriptTarget *target;
     u8 flag;
 
-    target = (ScriptTarget *)((ActorTargetView *)actor)->unk17C;
+    target = ((ActorTargetView *)actor)->unk17C;
     sScriptPc++;
     scriptReadU8(&flag);
     target->flags |= flag;
     return 1;
 }
 
-typedef struct PlayerSlot {
-    u8 pad0[0x210];
-    f32 unk210;
-    u8 pad214[4];
-    f32 unk218;
-    u8 pad21C[0xC];
-    f32 unk228;
-    u8 pad22C[4];
-    f32 unk230;
-    u8 pad234[0x8C];
-    u8 unk2C0;
-    u8 pad2C1[0x2F0 - 0x2C1];
-} PlayerSlot;
-
-extern PlayerSlot *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 
 
 
 s32 scriptOpPlaySoundAndShake(Actor *actor) {
     s16 imm;
-    volatile u8 imm2; // FAKE: volatile loads are not hoistable, keeps the 0xFF arm's lbu out of the bnez delay slot
+    volatile u8 imm2; // FAKE: volatile loads are not hoistable, keeps the lbu of the 0xFF arm out of the bnez delay slot
     s16 imm3;
     u8 imm4;
     u8 priority;
@@ -1141,12 +1123,12 @@ s32 scriptOpPlaySoundAndShake(Actor *actor) {
     if (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 2) {
         priority = 0xA;
         if (imm == 1) {
-            imm2 = (u32)((f64)(u32)imm2 * 0.5);
+            imm2 = (u32)imm2 * 0.5;
         }
         camStartShakeFromPoint(gActivePlayerState->camActor, 0xA, 8, actor->x, actor->y, actor->z, 100.0f, 800.0f);
     } else if (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 0) {
         priority = 0xFF;
-        imm2 = (u32)((f64)(u32)imm2 * 0.5);
+        imm2 = (u32)imm2 * 0.5;
     } else {
         switch (actor->actorType) {
         case 6:
@@ -1165,7 +1147,7 @@ s32 scriptOpPlaySoundAndShake(Actor *actor) {
             break;
         }
     }
-    if (actor && actor && actor) {} // FAKE: empty guard adds a block to as1's XBB window (limit 10), pushing the then-arm's lh/li hoists out
+    if (actor && actor && actor) {} // FAKE: empty guard adds a block to the as1 XBB window (limit 10), pushing the lh/li hoists of the then-arm out
     if (actor && actor && actor) {} // FAKE: same (6 guards needed)
     if (actor && actor && actor) {} // FAKE: same
     if (actor && actor && actor) {} // FAKE: same
@@ -1175,7 +1157,7 @@ s32 scriptOpPlaySoundAndShake(Actor *actor) {
     if ((imm == 2) || (imm == 8)) {
         imm4 = 0xA;
     }
-    sfxPlayAtPositionPooled(actor->x, actor->y, actor->z, imm, (s32)imm2, (s32)imm3, (s32)imm4, (s32)priority, 0.3f, 0);
+    sfxPlayAtPositionPooled(actor->x, actor->y, actor->z, imm, imm2, imm3, imm4, priority, 0.3f, 0);
     return 1;
 }
 
@@ -1194,16 +1176,15 @@ s32 func_80617140(Actor *actor) {
     scriptReadU8(&imm2);
     scriptReadU8(&imm3);
     scriptReadU8(&imm4);
-    if (D_807457C8 != 0) {
+    if (D_807457C8 != NULL) {
         n_alSndpStop(D_807457C8);
-        D_807457C8 = 0;
+        D_807457C8 = NULL;
     }
     sound = mapActionLookupEntry(imm, actor, actor->unk78[0]);
     if (sound == 8) {
         imm4 = 4;
     }
-    sfxPlayFromActorDirect(actor, sound, imm2, (f32)((f64)imm3 / 127.0),
-                           (s32)imm4, 0x4B);
+    sfxPlayFromActorDirect(actor, sound, imm2, imm3 / 127.0, imm4, 0x4B);
     return 1;
 }
 
@@ -1316,7 +1297,7 @@ s32 scriptOpPlayDistanceVolumeSound(Actor *actor) {
     scriptReadU8(&imm3);
     scriptReadU8(&imm4);
     scriptReadU8(&imm5);
-    val = (((((f64)actor->sub4->scaleX / 0.4381361) * 200.0) + 55.0) * (f64)imm2) / 255;
+    val = (((actor->sub4->scaleX / 0.4381361) * 200.0 + 55.0) * imm2) / 255;
     volume = (val > 255.0) ? 255.0 : val;
     sfxPlayAtPositionPooled(actor->x, actor->y, actor->z, imm, (u32)volume, imm3, imm4, imm5, 0.3f, 0);
     return 1;
@@ -1329,8 +1310,9 @@ void sfxPlayScriptActorSoundForPlayer(Actor *actor, s16 sound, u8 slot) {
     u8 volume;
     s32 pitch;
     s32 priority;
-    s32 index;
-    index = (sound * 7 + actor->actorType - 2) & 0xFFFF;
+    u16 index;
+
+    index = sound * 7 + actor->actorType - 2;
     sound = gActorScriptSoundTable[index];
     volume = 0xFF;
     if (sound == 0) {
@@ -1395,7 +1377,7 @@ s32 scriptOpSetSoundVolumeAndPan(Actor *actor) {
     scriptReadU8(&imm);
     scriptReadU32(&imm2);
     scriptReadU8(&imm3);
-    sfxSetVolumeAndPan(actor->soundSlots[imm], imm2, (f32)imm3);
+    sfxSetVolumeAndPan(actor->soundSlots[imm], imm2, imm3);
     return 1;
 }
 
@@ -1431,7 +1413,7 @@ s32 scriptOpAllocateSoundChannel(Actor *actor) {
     sScriptPc++;
     scriptReadU8(&imm);
     scriptReadU8(&imm2);
-    sfxAllocateChannel(sScriptChannelIndexTable[imm], (f32)((f64)imm2 / 255.0));
+    sfxAllocateChannel(sScriptChannelIndexTable[imm], imm2 / 255.0);
     return 1;
 }
 
@@ -1471,11 +1453,6 @@ void func_80617D20(Actor *actor) {
     }
     scriptOpBranchOnCondition(actor, (s16)value->frame);
 }
-
-typedef struct ActorFlagsView {
-    u8 pad0[0x146];
-    s16 unk146;
-} ActorFlagsView;
 
 void scriptOpBranchByTimer8A(Actor *actor) {
     scriptOpBranchOnCondition(actor, actor->sub4->scriptResult);
@@ -1572,16 +1549,14 @@ extern u32 gFrameDelta;
 
 s32 scriptOpWaitTimer(Actor *actor) {
     f32 step;
-    ActorSub4 *state;
 
-    state = actor->sub4;
-    if (state->motionFlags & 1) {
-        step = (f32)gFrameDelta * 0.5f;
+    if (actor->sub4->motionFlags & 1) {
+        step = gFrameDelta * 0.5f;
     } else {
         step = 1.0f;
     }
-    state->scriptTimer -= step;
-    if ((f64)actor->sub4->scriptTimer <= 0.0) {
+    actor->sub4->scriptTimer -= step;
+    if (actor->sub4->scriptTimer <= 0.0) {
         sScriptPc++;
         return 1;
     }
@@ -1591,12 +1566,11 @@ s32 scriptOpWaitTimer(Actor *actor) {
 void scriptCmdNop(Actor *actor) {
 }
 
-typedef struct { u8 pad0[2]; u8 unk2; } ProjectileDataView;
 extern f32 D_80753E48[];
 extern s16 D_80753E64[];
 extern Actor *gActivePlayerActor;
 extern u8 gCurrentPlayerIndex;
-extern ProjectileDataView *D_807FD568;
+extern KongInventory *D_807FD568;
 extern s16 gCurrentCharacterIndex;
 
 void projectileTrySpawnFromSlot(Actor *actor) {
@@ -1609,7 +1583,6 @@ void projectileTrySpawnFromSlot(Actor *actor) {
     s16 hitYaw;
     s16 hitPitch;
     s16 aimYaw;
-    PlayerSlot *slot;
 
     playerState = actor->customState;
     slotQueueUpdate(4, 0, 0);
@@ -1626,8 +1599,7 @@ void projectileTrySpawnFromSlot(Actor *actor) {
         }
         if (collisionTestSphere(actor->x, actor->y + 30.0, actor->z, radius, &hitYaw, &hitPitch, 1, 0) != 0) {
             if (actor->state == 2) {
-                slot = &((PlayerSlot *)gPlayerSlots)[gCurrentPlayerIndex]; // FAKE: no-op cast puts the base first in the addu (Q0323)
-                aimYaw = mathAngleBetweenPoints2D(slot->unk228, slot->unk230, slot->unk210, slot->unk218);
+                aimYaw = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ);
             } else {
                 aimYaw = actor->yaw;
             }
@@ -1635,22 +1607,20 @@ void projectileTrySpawnFromSlot(Actor *actor) {
         }
         if (actor->state == 2) {
             projectileGetTargetCoords(gActivePlayerActor, 6);
-            dz = gPlayerSlots[gCurrentPlayerIndex].unk230 - gPlayerSlots[gCurrentPlayerIndex].unk218;
-            dx = gPlayerSlots[gCurrentPlayerIndex].unk228 - gPlayerSlots[gCurrentPlayerIndex].unk210;
+            dz = gPlayerSlots[gCurrentPlayerIndex].focusZ - gPlayerSlots[gCurrentPlayerIndex].camZ;
+            dx = gPlayerSlots[gCurrentPlayerIndex].focusX - gPlayerSlots[gCurrentPlayerIndex].camX;
             sqrtf((dz * dz) + (dx * dx));
-            projectileSpawnNodeEntry(0x29, D_807FD568->unk2, speed, mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].unk228, gPlayerSlots[gCurrentPlayerIndex].unk230, gPlayerSlots[gCurrentPlayerIndex].unk210, gPlayerSlots[gCurrentPlayerIndex].unk218), D_80753E48[gCurrentCharacterIndex], 0.0f, actor);
+            projectileSpawnNodeEntry(0x29, D_807FD568->unk0[2], speed, mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ), D_80753E48[gCurrentCharacterIndex], 0.0f, actor);
             return;
         }
         projectileGetTargetCoords(actor, 7);
-        projectileSpawnNodeEntry(0x29, D_807FD568->unk2, speed, actor->yaw, D_80753E48[gCurrentCharacterIndex], 0.0f, actor);
+        projectileSpawnNodeEntry(0x29, D_807FD568->unk0[2], speed, actor->yaw, D_80753E48[gCurrentCharacterIndex], 0.0f, actor);
     }
 }
 
 extern u8 D_8071FE08[];
 extern u8 D_8071FF18[];
-extern f32 sSavedLightColorR;
-extern f32 sSavedLightColorG;
-extern f32 sSavedLightColorB;
+extern f32 sSavedLightColorR[3];
 
 
 void scriptCmdSpawnDownwardDriftEffect(Actor *actor) {
@@ -1743,14 +1713,14 @@ void scriptCmdSetActorFlag146(Actor *actor) {
     s16 imm;
 
     scriptReadU16(&imm);
-    ((ActorFlagsView *)actor)->unk146 |= imm;
+    actor->unk146 |= imm;
 }
 
 void scriptCmdClearActorFlag146(Actor *actor) {
     s16 imm;
 
     scriptReadU16(&imm);
-    ((ActorFlagsView *)actor)->unk146 &= ~imm;
+    actor->unk146 &= ~imm;
 }
 
 void scriptCmdPlayActorSound(Actor *actor) {
@@ -1760,7 +1730,7 @@ void scriptCmdPlayActorSound(Actor *actor) {
 }
 
 typedef struct ActorScriptView {
-    u8 pad0[0x178];
+    Actor base;
     void *unk178;
 } ActorScriptView;
 
@@ -1793,7 +1763,7 @@ void scriptCmdSetActorSpeedY(Actor *actor) {
     s16 value;
 
     scriptReadU16(&value);
-    actor->speedY = (f32)value;
+    actor->speedY = value;
 }
 
 void scriptCmdSetActorAccelY(Actor *actor) {
@@ -1821,13 +1791,14 @@ void scriptCmdActorCamShake(Actor *actor) {
     scriptReadU8(&imm2);
     scriptReadU16(&imm3);
     scriptReadU16(&imm4);
-    imm2 = (u32)((f64)imm2 * ((f64)actor->sub4->scaleY / 0.15));
+    imm2 = imm2 * (actor->sub4->scaleY / 0.15);
     type = actor->actorType;
     if ((type == 0xCC) || ((actor->contactFlags & 1) && ((actor->flags & 4) || (type == 0xE4)) && (gGameMode != 1))) {
         duration = (imm2 >= 21) ? 20 : imm2;
-        camStartShakeFromPoint(gActivePlayerState->camActor, imm, duration, x, y, z, (f32)imm3, (f32)imm4);
+        camStartShakeFromPoint(gActivePlayerState->camActor, imm, duration, x, y, z, imm3, imm4);
     }
 }
+
 void scriptCmdSetActorAlpha(Actor *actor) {
     f32 x;
     f32 y;
@@ -1842,14 +1813,8 @@ void scriptCmdSetActorAlpha(Actor *actor) {
     scriptReadU8(&imm2);
     scriptReadU16(&imm3);
     scriptReadU16(&imm4);
-    camStartShakeFromPoint(gActivePlayerState->camActor, imm, imm2, x, y, z, (f32)imm3, (f32)imm4);
+    camStartShakeFromPoint(gActivePlayerState->camActor, imm, imm2, x, y, z, imm3, imm4);
 }
-
-
-typedef struct GlobalTimerView {
-    u8 pad0[0xCA];
-    u8 unkCA;
-} GlobalTimerView;
 
 void func_80618C00(Actor *actor, u8 node) {
     f32 x;
@@ -1874,7 +1839,7 @@ void scriptCmdSpawnActorParticleBurst(Actor *actor) {
         node = 8;
     }
     func_80618C00(actor, node);
-    ((GlobalTimerView *)gActivePlayerState)->unkCA = 0x28;
+    gActivePlayerState->unkCA = 0x28;
 }
 
 void scriptCmdSetActorNodeFlag(Actor *actor) {
@@ -1882,7 +1847,7 @@ void scriptCmdSetActorNodeFlag(Actor *actor) {
 
     scriptReadU8(&imm);
     if (imm & 0x80) {
-        actor->interactionType = (s16)(imm & 0x7F);
+        actor->interactionType = imm & 0x7F;
         return;
     }
     actorSetNodeFlag(actor, imm);
@@ -1893,7 +1858,7 @@ void scriptCmdClearActorNodeFlag(Actor *actor) {
 
     scriptReadU8(&imm);
     if (imm & 0x80) {
-        actor->interactionType = (s16)(imm & 0x7F);
+        actor->interactionType = imm & 0x7F;
         return;
     }
     actorClearNodeFlag(actor, imm);
@@ -1970,11 +1935,11 @@ void scriptCmdSpawnSplashPuff(Actor *actor) {
     scriptReadU8(&imm);
     if (imm != 0) {
         if (actor->chunkIndex != -1) {
-            lightGetColor(&sSavedLightColorR, &sSavedLightColorG, &sSavedLightColorB, actor->chunkIndex);
+            lightGetColor(&sSavedLightColorR[0], &sSavedLightColorR[1], &sSavedLightColorR[2], actor->chunkIndex);
             lightSetColor(107.0f, 48.0f, 80.0f, actor->chunkIndex);
         }
     } else if (actor->chunkIndex != -1) {
-        lightSetColor(((f32 *)&sSavedLightColorR)[0], ((f32 *)&sSavedLightColorR)[1], ((f32 *)&sSavedLightColorR)[2], actor->chunkIndex);
+        lightSetColor(sSavedLightColorR[0], sSavedLightColorR[1], sSavedLightColorR[2], actor->chunkIndex);
     }
 }
 
@@ -1995,7 +1960,6 @@ void scriptCmdSpawnFallingEffect(Actor *actor) {
     f32 z;
     EffectNode *effect;
     u8 freed;
-    u8 node;
 
     scriptReadU16(&imm);
     scriptReadU16(&imm2);
@@ -2009,15 +1973,14 @@ void scriptCmdSpawnFallingEffect(Actor *actor) {
         effectSetDepth(1);
         effectSetMode(imm3);
         effectSetDuration(imm7);
-        node = imm4;
-        if (node == 0) {
+        if (!imm4) {
             x = actor->x;
             y = actor->y;
             z = actor->z;
         } else {
-            actorGetNodePos(actor, node, &x, &y, &z);
+            actorGetNodePos(actor, imm4, &x, &y, &z);
         }
-        y += (f32)imm5 * scale;
+        y += imm5 * scale;
         if (imm6 != 0) {
             effectSetCallback(sScriptEffectCallbacks[imm6]);
         }
@@ -2068,7 +2031,7 @@ void scriptCmdSpawnEffectChildAndNode(Actor *actor) {
     gSpawnedActor->yaw = actor->yaw;
     gSpawnedActor->roll = actor->roll;
     gSpawnedActor->pitch = actor->pitch;
-    node = (ChildEffectNodeState *)gSpawnedActor->customState;
+    node = gSpawnedActor->customState;
     node->yOffset = 0.0f;
     if (imm != 0xFFFF) {
         effectSetDuration(-1);
