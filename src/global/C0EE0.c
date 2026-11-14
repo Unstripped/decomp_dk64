@@ -20,7 +20,7 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-typedef struct BC1E0_State {
+typedef struct EnemyGridState {
     /* 0x00 */ f32 progress;
     /* 0x04 */ f32 step;
     /* 0x08 */ f32 startX;
@@ -39,29 +39,30 @@ typedef struct BC1E0_State {
     /* 0x37 */ s8 gridY;
     /* 0x38 */ u8 state;
     /* 0x39 */ u8 subState;
-} BC1E0_State;
+} EnemyGridState;
 
-typedef struct BC1E0_Actor {
+typedef struct EnemyGridActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ BC1E0_State *gridState;
-} BC1E0_Actor;
+    /* 0x178 */ EnemyGridState *gridState;
+} EnemyGridActor;
 
 extern s8 D_80750650;
 extern s8 D_807FC8C0[16];
-extern u16 D_807ECD58;
-extern u16 D_807ECD60;
+extern OSContPad D_807ECD58;
+extern OSContPad D_807ECD60;
 
 void enemyGridStateStep(void) {
     f32 roll;
     f32 old;
-    f32 a;
+    s16 col;
+    s16 row;
     f32 t;
-    f32 b;
+    f32 velY;
     f32 targetScaleY;
     s16 i;
     s16 dist;
-    BC1E0_State *st;
-    AnimSlot *obj;
+    EnemyGridState *st;
+    AnimSlot *anim;
     s32 j;
     s32 dx;
     s32 dy;
@@ -72,8 +73,8 @@ void enemyGridStateStep(void) {
     s16 zeros;
     s8 cell;
 
-    st = ((BC1E0_Actor *)gCurrentActor)->gridState;
-    obj = gCurrentActor->sub4->model;
+    st = ((EnemyGridActor *)gCurrentActor)->gridState;
+    anim = gCurrentActor->sub4->model;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         st->step = 0.0f;
@@ -105,14 +106,14 @@ void enemyGridStateStep(void) {
         switch (st->subState) {
         case 0:
             renderCallbacksRegister(func_806BCF98, gCurrentActor, 5);
-            if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
+            if ((D_807ECD58.button & 0x8000) && !(D_807ECD60.button & 0x8000)) {
                 camResumePath();
                 st->subState = 1;
                 gPrimaryPlayerActor->state = 0xC;
                 gPrimaryPlayerActor->unk155 = 0;
                 playerResumeLocomotion(gPrimaryPlayerActor);
             }
-            if ((D_807ECD58 & 0x4000) && !(D_807ECD60 & 0x4000)) {
+            if ((D_807ECD58.button & 0x4000) && !(D_807ECD60.button & 0x4000)) {
                 camResumePath();
                 st->subState = 2;
                 gPrimaryPlayerActor->state = 0xC;
@@ -198,8 +199,10 @@ void enemyGridStateStep(void) {
                 n = 0;
                 for (i = 0; i < 16; i++) {
                     if (D_807FC8C0[i] == 0 || D_807FC8C0[i] == -1) {
-                        dx = (s16)((s16)(i & 3) - st->gridX);  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
-                        dy = (s16)((s16)(i >> 2) - st->gridY);  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
+                        col = i & 3;
+                        row = i >> 2;
+                        dx = (s16)(col - st->gridX);
+                        dy = (s16)(row - st->gridY);
                         if (dx > 0) {
                             dist = dx;
                         } else {
@@ -226,7 +229,8 @@ void enemyGridStateStep(void) {
                 if (n > 0) {
                     roll = randomFloat();
                     cell = cand[(s32)(roll * (n - 1))];
-                    dx = (s16)(cell & 3) - st->gridX;  // FAKE: redundant operand narrowing
+                    col = cell & 3;
+                    dx = col - st->gridX;
                     dy = (u16)(cell >> 2) - st->gridY;  // FAKE: redundant operand narrowing
                     dx = (s16)dx;  // FAKE: s32 dx/dy with deferred s16 narrowing orders ugen ring temps (cell >> 2 before the dx sll)
                     dy = (s16)dy;  // FAKE: see dx above
@@ -312,9 +316,8 @@ void enemyGridStateStep(void) {
     }
     targetScaleY = st->homeScaleY;
     if (st->step != 0.0f && st->delay == 0) {
-        a = st->step;
         old = st->progress;
-        st->progress = old + a;
+        st->progress += st->step;
         if (D_80750650 == 0) {
             if (old < 0.63f && st->progress >= 0.63f) {
                 csModelStateSetByte(st->gridX + st->gridY * 4, 1, 1);
@@ -342,18 +345,17 @@ void enemyGridStateStep(void) {
             if (D_80750650 == 0) {
                 gCurrentActor->y = st->startY + t * (st->targetY - st->startY);
             } else {
-                t = st->gravity;
-                old = st->startY;
-                a = st->progress;
-                b = (st->targetY - st->startY) - t * 0.5;
-                gCurrentActor->y = old + (b * a + a * a * t * 0.5);
+                f32 gravity = st->gravity;
+
+                velY = (st->targetY - st->startY) - gravity * 0.5;
+                gCurrentActor->y = st->startY + (velY * st->progress + st->progress * st->progress * gravity * 0.5);
             }
         }
-        if (D_80750650 == 0 && obj != NULL && st->progress != 0.0f) {
-            if (obj->animId != 0x5C3) {
+        if (D_80750650 == 0 && anim != NULL && st->progress != 0.0f) {
+            if (anim->animId != 0x5C3) {
                 controllerAnimSetStateIfChanged(gCurrentActor, 0x5C3, 0.0f, 0.0f);
             }
-            controllerApplyMotionWindow(gCurrentActor, obj, st->progress * 40.0f);
+            controllerApplyMotionWindow(gCurrentActor, anim, st->progress * 40.0f);
         }
     }
     gCurrentActor->sub4->scaleY += (targetScaleY - gCurrentActor->sub4->scaleY) * 0.25f;
@@ -365,7 +367,7 @@ extern Mtx D_2000180;
 
 Gfx *func_806BCF98(Gfx *dl, Actor *actor) {
     gSPDisplayList(dl++, D_1000118);
-    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
+    gDPSetRenderMode(dl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
     gDPSetCombineMode(dl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gSPMatrix(dl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -378,7 +380,6 @@ void func_806BD094(s16 idx, s8 val) {
         D_807FC8C0[idx] = val;
     }
 }
-
 
 void func_806BD0CC(void) {
     s32 i;
