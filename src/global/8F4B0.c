@@ -334,7 +334,7 @@ void actorCutsceneDispatchEvents(void) {
             mapTransitionToMenuOrPrevious();
             break;
         case 0x9:
-            mapSetTransitionExtraCounter(((u8 *)eventData)[1]);
+            mapSetTransitionExtraCounter(eventData[0]);
             break;
         case 0xA:
             ((PlayerState *)gPlayerSlots->actor->customState)->stateFlags |= 0x40000800;
