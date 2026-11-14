@@ -769,7 +769,7 @@ def test_carry_header_field_rename(tmp_path, monkeypatch, capsys, old, new, reas
         assert f"skipped src/global/x.c: f: not a pure rename; body or a declaration it uses changed{reason}" in out
         assert "would carry 0 events" in out
         return
-    assert "would carry src/global/x.c: f: remove, review, views (renames; header field renames: S)" in out
+    assert "would carry src/global/x.c: f: remove, review, views (renames; record field renames: S)" in out
     assert "would carry 3 events" in out and "skipped" not in out and q.load_events() == before
     q.main(["carry", "--rev", rev_a, "--unit", "u2"])
     st = _carve_state()
@@ -1040,6 +1040,72 @@ def test_carry_local_type_renamed(tmp_path, monkeypatch, capsys, field, reason):
     by_site, by_func = q.index_events(q.load_events())
     fp, fevs = (new["fp_local"], new["fp_hdr"], new["fp_hdr2"]), by_func[("global", "80600000")]
     assert {m: q.mark(fevs, m, fp, "f")[0] for m in ("views", "review")} == {"views": "✓", "review": "✓"}
+
+
+LOCAL_REC = ("typedef struct T {\n    int unk0;\n    short unk4;\n    short unk6;\n"
+             "    struct {\n        short unk0;\n        short unk2;\n    } arr[2];\n} T;\n")
+LOCAL_FN = ('#include "g.h"\n%s%s'
+            "int f(T *p) {\n    if (p) {} // FAKE: steers\n    return p->unk0 + gG.v + %s;\n}\n")
+
+
+@pytest.mark.parametrize("rec,body,how", [
+    # 80150.c TagBarrelActorState (23d222d5): unread fields renamed, body unchanged
+    ((("unk4", "destMap"), ("unk6", "pad6"), ("unk2", "frame")), "0", "record field renames: T"),
+    # ... and the body following the renames, a nested unnamed record's field too (ActorAnimLookup)
+    ((("unk4", "destMap"), ("unk2", "frame")), "p->unk4 + p->arr[1].unk2", "renames; record field renames: T"),
+    ((("short unk4", "int destMap"), ("short unk6;\n", "")), "0", None),  # layout changed
+    ((("short unk4", "unsigned short destMap"),), "0", None),  # a field's type changed
+    ((("short unk2", "unsigned short frame"),), "0", None),  # a nested field's type changed
+])
+def test_carry_local_record_field_rename(tmp_path, monkeypatch, capsys, rec, body, how):
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    (repo / "include").mkdir()
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "_htext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    (repo / "include" / "g.h").write_text("typedef struct G {\n    int v;\n} G;\nextern G gG;\n")
+    src = repo / "src" / "global" / "x.c"
+    # gActorGlobalState: a redundant extern, declared identically in an included header, removed
+    src.write_text(LOCAL_FN % (LOCAL_REC, "extern G gG;\n", body))
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fn = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    q.append_events([q.event("u1", "sweep", fn, fn["sites"][0], "remove", "nohit"),
+                     q.event("u1", "a", fn, None, "views", "nohit", note="no views left"),
+                     q.event("u1", "a", fn, None, "review", "nohit", note=REVIEW)])
+    new_rec, new_body = LOCAL_REC, body
+    for old, new in rec:
+        new_rec = new_rec.replace(old, new)
+        new_body = new_body.replace(old.split()[-1], new.split()[-1] if new else "")
+    src.write_text(LOCAL_FN % (new_rec, "", new_body))
+    _git(repo, "commit", "-qam", "b")
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2", "--dry-run"])
+    out = capsys.readouterr().out
+    if how is None:
+        assert "skipped src/global/x.c: f: not a pure rename; body or a declaration it uses changed (layout changed: T" \
+            in out
+        assert "would carry 0 events" in out
+        return
+    how += "; gG declaration respelled, same type"
+    assert f"would carry src/global/x.c: f: remove, review, views ({how})" in out
+    assert "would carry 3 events" in out and "skipped" not in out
+    q.main(["carry", "--rev", rev_a, "--unit", "u2"])
+    new = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    by_site, by_func = q.index_events(q.load_events())
+    fp, fevs = (new["fp_local"], new["fp_hdr"], new["fp_hdr2"]), by_func[("global", "80600000")]
+    assert {m: q.mark(fevs, m, fp, "f")[0] for m in ("views", "review")} == {"views": "✓", "review": "✓"}
+    assert q.mark(by_site[new["sites"][0]["key"]], "remove", fp, "f")[0] == "✓"
 
 
 WSITE = dict(key="global:80600000:warning:abc123", kind="warning", name="f", line=4, lines=[3], tagged=False,

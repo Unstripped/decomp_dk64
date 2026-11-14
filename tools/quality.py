@@ -27,12 +27,15 @@ method ladder that exhausts them, and the per-function `review` coverage.
                                          fingerprints use REV's headers, and automatic results carry
                                          only when the reached include/ declarations apart from moved
                                          ones are unchanged since REV. A body renaming fields of a
-                                         reached include/ record carries (automatic results too) when
-                                         its body parsed at REV with REV's headers is such a rename of
-                                         HEAD's and every declaration it reaches (.c or header) is unchanged
-                                         apart from the renames, each changed record keeping its clint
-                                         record_layout modulo field names; unused file-scope text may differ
-                                         ("(renames; header field renames: <record>)"); a global replaced by
+                                         reached record (include/ or the .c's own), or unchanged while
+                                         such a record's unused fields were renamed, carries
+                                         (automatic results too) when its body parsed at REV with REV's
+                                         headers is such a rename of (or equal to) HEAD's and every
+                                         declaration it reaches (.c or header) is unchanged apart from the
+                                         renames (or moved/respelled with the same type, as above), each
+                                         changed record keeping its clint record_layout modulo field names
+                                         (nested unnamed records' too); unused file-scope text may differ
+                                         ("(renames; record field renames: <record>)"); a global replaced by
                                          a field access (a split-label fold) is no rename.
                                          --header-carve: instead carry the automatic results of functions
                                          whose fp_local and sites are unchanged and whose reached include/
@@ -1331,44 +1334,89 @@ def rename_equivalent(old_toks, new_toks, addr_old, addr_new):
     return rename_map(old_toks, new_toks, addr_old, addr_new) is not None
 
 
-def header_renames(old_scope, old_closure, new_scope, new_closure, fwd):
-    """(sorted records whose fields were renamed, None) when every declaration OLD_CLOSURE reaches
-    (in OLD_SCOPE: REV's text parsed with REV's headers) has NEW_CLOSURE's text once FWD's
-    (`rename_map`) name renames apply (a renamed function or global keyed by its new name), or is a
-    record keeping size, alignment and every field offset, width and type (`clint.record_layout`
-    modulo field names) whose text matches once its field renames apply too; else (None, why)."""
+def field_renames(ot, nt):
+    """{(record spelling, old field name): new name} of the fields renamed between records OT and NT
+    (equal `clint.record_layout` modulo field names), unnamed records nested in their field types
+    (as `clint.type_sig` spells them out) included; None when an anonymous member gains or loses a
+    name."""
+    out = {}
+
+    def inner(t):
+        t = t.get_canonical()
+        while t.kind in (TypeKind.POINTER, TypeKind.CONSTANTARRAY):
+            t = (t.get_pointee() if t.kind == TypeKind.POINTER else t.element_type).get_canonical()
+        return t
+
+    def walk(a, b):
+        for fa, fb in zip(a.get_fields(), b.get_fields()):
+            na, nb = clint.field_name(fa), clint.field_name(fb)
+            if na != nb:
+                if not na or not nb:
+                    return False
+                out[(a.spelling, na)] = nb
+            ta, tb = inner(fa.type), inner(fb.type)
+            if ta.kind == TypeKind.RECORD and clint.UNNAMED.search(ta.spelling) and not walk(ta, tb):
+                return False
+        return True
+
+    return out if walk(ot.get_canonical(), nt.get_canonical()) else None
+
+
+def header_renames(path, old_scope, old_closure, new_scope, new_closure, fwd, old_body):
+    """(sorted records whose fields were renamed, {name: `respelled_decl`/`moved_decl` description},
+    None) when every declaration OLD_CLOSURE reaches (in OLD_SCOPE: REV's text parsed with REV's
+    headers) has NEW_CLOSURE's text once FWD's (`rename_map`) name renames apply (a renamed function
+    or global keyed by its new name), is a function or variable declaration moved or respelled with
+    the same type (`moved_decl`, `respelled_decl`), or is a record (include/ or PATH's own) keeping
+    size, alignment and every field offset, width and type (`clint.record_layout` modulo field
+    names, nested unnamed records' too) whose text matches once its field renames apply, every
+    renamed field OLD_BODY (REV's body tokens, in OLD_SCOPE's parse) uses renamed alike in FWD (an
+    unchanged body uses none); else (None, None, why)."""
     def texts(scope, name, m):  # `Scope.direct`'s texts with M's renames applied
         return sorted({(rel(os.path.join(ROOT, c.location.file.name)),
                         " ".join(m.get(t.spelling, t.spelling) if t.kind == TokenKind.IDENTIFIER else t.spelling
                                  for t in decl_tokens(c)))
                        for c in scope.idx.get(name, [])})
 
-    def unnamed(lay):
-        return lay[0], [f[1:] for f in lay[1]], lay[2]
+    def unnamed(lay):  # field names dropped, nested unnamed records' (`name@offset:`) too
+        return lay[0], [(o, w, re.sub(r"\w*@", "@", s)) for _, o, w, s in lay[1]], lay[2]
 
-    fwd = {k: v for k, v in fwd.items() if isinstance(k, str)}
-    olds, recs = {fwd.get(k, k): k for k in old_closure}, []
+    used = {(field_record(t), t.spelling) for t in old_body
+            if t.kind == TokenKind.IDENTIFIER and (token_meaning(t) or ("",))[0] == "field"}
+    sfwd = {k: v for k, v in fwd.items() if isinstance(k, str)}
+    olds, recs, moved = {sfwd.get(k, k): k for k in old_closure}, [], {}
     for name in sorted(set(olds) | set(new_closure)):
         if name not in olds or name not in new_closure:
-            return None, f"{name} only {'at HEAD' if name in new_closure else 'at REV'}"
+            return None, None, f"{name} only {'at HEAD' if name in new_closure else 'at REV'}"
         o, nv = olds[name], new_closure[name]
-        if texts(old_scope, o, fwd) == nv:
+        if texts(old_scope, o, sfwd) == nv:
             continue
         ot, nt = record_type(old_scope.idx[o]), record_type(new_scope.idx[name])
         if ot is None or nt is None:
-            return None, f"{name} changed"
+            how, mwhy = moved_decl(path, name, old_closure[o], nv, old_scope, new_scope) if o == name else (None, None)
+            resp = respelled_decl(path, name, old_closure[o], nv, old_scope, new_scope) if o == name else None
+            if how is None and resp is None:
+                return None, None, mwhy or f"{name} changed"
+            moved[name] = f"{how}, identical" if how is not None else resp
+            continue
         lo, ln = clint.record_layout(ot), clint.record_layout(nt)
         if lo is None or ln is None:
-            return None, f"record {name} incomplete"
+            return None, None, f"record {name} incomplete"
         if unnamed(lo) != unnamed(ln):
             diff = clint.layout_diff({name: lo}, {name: ln}, types=True)
-            return None, "layout changed: " + ("; ".join(diff) if diff else f"{name} fields")
-        fmap = dict(fwd)
-        fmap.update((x[0], y[0]) for x, y in zip(lo[1], ln[1]) if x[0] != y[0])
-        if texts(old_scope, o, fmap) != nv:
-            return None, f"record {name} changed beyond field renames"
+            return None, None, "layout changed: " + ("; ".join(diff) if diff else f"{name} fields")
+        frn = field_renames(ot, nt)
+        fmap = dict(sfwd)
+        for (_, x), y in (frn or {}).items():
+            if fmap.setdefault(x, y) != y:
+                frn = None
+        if frn is None or texts(old_scope, o, fmap) != nv:
+            return None, None, f"record {name} changed beyond field renames"
+        for (r, x), y in frn.items():
+            if (r, x) in used and fwd.get(("field", r, x), (None, None, x))[2] != y:
+                return None, None, f"record {name} field {x} renamed {y}, body keeps {x}"
         recs.append(name)
-    return recs, None
+    return recs, moved, None
 
 
 def carry_lines(fns, fn, nlines):
@@ -1752,9 +1800,10 @@ def params_renamed(old_closure, new_closure, old_name, new_name):
 def carry_renames(a, by_site, by_func):
     """(events, skipped, carried lines) re-stamping the newest fresh-at-REV events of every function
     that changed from REV to HEAD only by renames of declared names (`rename_equivalent` over its
-    body and the file's top level), or by renames in its body (REV's parsed with REV's headers, so
-    renamed fields of an include/ record resolve) with every declaration it reaches equal modulo
-    the renames (`header_renames`: records keeping their layout modulo field names), or only by
+    body and the file's top level), or by renames in its body or none (REV's parsed with REV's
+    headers, so renamed fields of an include/ record resolve) with every declaration it reaches
+    equal modulo the renames (`header_renames`: records, include/ or the .c's own, keeping their
+    layout modulo field names; declarations moved or respelled with the same type), or only by
     file-scope text of the .c it does not use or by declarations it uses moving unchanged between
     the .c and an include/ header (`scope_equivalent`), with HEAD's fingerprints and site keys.
     REV's text is analysed (parsed, fingerprinted and compiled for its warning sites) with REV's
@@ -1830,26 +1879,28 @@ def carry_renames(a, by_site, by_func):
                     path, obody, obody if body_renamed else nbody, ocl, ncl, oscope, nscope,
                     rev=(old["scope"], old["scope"].closure(rnames, pastes=True)))
                 if moved is None:
-                    # renamed fields of a reached include/ record only resolve in REV's text against
-                    # REV's headers: compare that parse of the body with HEAD's, and every declaration
-                    # the body reaches (the .c's own ones too, so unused file-scope text may differ)
-                    # modulo the renames
-                    fwd = rename_map([t for t in old["toks"] if fo["line"] <= t.location.line <= fo["end"]],
-                                     nbody, lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None))
+                    # renamed fields of a reached record only resolve in REV's text against REV's
+                    # headers: compare that parse of the body with HEAD's (identical, or renaming
+                    # names), and every declaration the body reaches (the .c's own ones too, so unused
+                    # file-scope text may differ) modulo the renames
+                    obt = [t for t in old["toks"] if fo["line"] <= t.location.line <= fo["end"]]
+                    fwd = rename_map(obt, nbody, lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None))
                     recs = None
-                    if fwd:
+                    if fwd is not None:
                         ocl = old["scope"].closure(rnames, pastes=True)
                         paste = old["scope"].unbounded(ocl)
-                        recs, hwhy = (None, f"token-pasting macro {paste}") if paste else header_renames(
-                            old["scope"], ocl, nscope, nscope.closure(body_names(nnames, fn), pastes=True), fwd)
+                        recs, hmoved, hwhy = (None, None, f"token-pasting macro {paste}") if paste else header_renames(
+                            path, old["scope"], ocl, nscope, nscope.closure(body_names(nnames, fn), pastes=True),
+                            fwd, obt)
                         why = why or hwhy
                     if recs is None:
                         skipped.append(f"{path}: {fn['name']}: not a pure rename; body or a declaration it uses changed"
                                        + (f" ({why})" if why else ""))
                         continue
                     # every reached declaration unchanged apart from the renames: automatic results carry too
+                    how = "; ".join((["renames"] if fwd else []) + (
+                        ["record field renames: " + ", ".join(recs)] if recs else []) + sorted(set(hmoved.values()))) or how
                     moved, body_renamed, hdr_moved = {}, False, True
-                    how = "renames" + ("; header field renames: " + ", ".join(recs) if recs else "")
                 if moved:
                     how = "; ".join(sorted({m for m in moved.values() if m}))
                     # the reached include/ declarations apart from the moved ones unchanged since REV:
