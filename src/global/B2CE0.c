@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_behaviourUpdateContactAndState // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_behaviourUpdateContactAndState // ORIG: hides the one-parameter prototype; the target passes a1 = state (move a1,a0 at 0x7b4 and 0x1d68) that the owner never reads (12E800 homes only a0 at 0x1ce0), see the declaration below
 #include "proto/global/103AB0.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -26,22 +26,22 @@
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"
 
-typedef struct B2CE0Sub178 {
+// Second component (Actor+0x178) of the actor kind run by func_806AEE84 (set once at init).
+typedef struct PatrolState {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 unk2;
-} B2CE0Sub178;
+} PatrolState;
 
-// Actor plus its component pointers (0x174 on).
-typedef struct B2CE0Actor {
-    /* 0x000 */ u8 pad0[0x178];
-    /* 0x178 */ B2CE0Sub178* unk178;
-} B2CE0Actor;
+typedef struct PatrolActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ PatrolState *patrol;
+} PatrolActor;
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 
 extern u8 D_8071FBC8[];
-void behaviourUpdateContactAndState();
+void behaviourUpdateContactAndState(); // ORIG: target loads a1 = state before the two-argument calls (lbu a0,340(s0) at 0x7b0, move a1,a0 at 0x7b4, default branch at 0x7c0 to jal at 0xd9c; lbu at 0x1d58, move a1,a0 at 0x1d68, jal at 0x2280) while the owner never reads a1 (12E800 0x1ccc homes only a0, sw a0,64(sp) at 0x1ce0): the original TU had no prototype in scope
 
 void func_806ADFE0(void) {
     f32 transMtx[4][4];
@@ -306,10 +306,10 @@ void func_806AEE08(void) {
 }
 
 void func_806AEE84(void) {
-    B2CE0Sub178 *patrolState;
+    PatrolState *patrolState;
     f32 scaleFactor;
 
-    patrolState = ((B2CE0Actor *)gCurrentActor)->unk178;
+    patrolState = ((PatrolActor *)gCurrentActor)->patrol;
     scaleFactor = gCurrentActor->sub4->scaleY / 0.15;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {

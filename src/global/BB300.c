@@ -1,7 +1,7 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
-#define PROTO_SKIP_behaviourUpdateContactAndState // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_behaviourUpdateContactAndState // ORIG: hides the one-parameter prototype; the target passes a1 = sel (move a1,a0 at 0xa28) that the owner never reads (12E800 homes only a0 at 0x1ce0), see the declaration below
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
 #include "proto/global/166A0.h"
@@ -17,28 +17,18 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-typedef struct BB300Actor {
-    /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ ActorSub4 *sub4;
-    /* 0x008 */ u8 pad8[0x9C];
-    /* 0x0A4 */ f32 unkA4;
-    /* 0x0A8 */ u8 padA8[0x10];
-    /* 0x0B8 */ f32 unkB8;
-    /* 0x0BC */ u8 padBC[8];
-    /* 0x0C4 */ f32 unkC4;
-    /* 0x0C8 */ f32 unkC8;
-    /* 0x0CC */ u8 padCC[0x1A];
-    /* 0x0E6 */ s16 unkE6;
-    /* 0x0E8 */ u8 padE8[6];
-    /* 0x0EE */ s16 unkEE;
-    /* 0x0F0 */ u8 padF0[0x64];
-    /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 pad155[0x1F];
-    /* 0x174 */ void *unk174;
-    /* 0x178 */ u8 *unk178;
-} BB300Actor;
+// Second component (Actor+0x178) of the pulsing actor kinds: actorUpdatePulseIntensity ramps the light (A6280 PulseState names),
+// func_806B6DB0 keeps a yaw sway there.
+typedef struct PulseSwayState {
+    /* 0x0 */ u8 intensity;
+    /* 0x1 */ u8 phase;
+    /* 0x2 */ s16 yawSway; // +-0x8C on a sharp turn, added to yaw and decayed by 1% per frame
+} PulseSwayState;
 
-#define BB300A ((BB300Actor *)gCurrentActor)
+typedef struct PulseSwayActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ PulseSwayState *pulse;
+} PulseSwayActor;
 
 extern Actor *gSpawnedActor;
 extern s16 D_807502E0;
@@ -46,41 +36,41 @@ extern f32 D_807502E8;
 
 
 void actorUpdatePulseIntensity(u8 active) {
-    u8 *p = BB300A->unk178;
+    PulseSwayState *p = ((PulseSwayActor *)gCurrentActor)->pulse;
     s32 pad1;
-    BoneRotation *q = BB300A->sub4->boneRotations;
+    BoneRotation *q = gCurrentActor->sub4->boneRotations;
     s32 pad2;
     f32 f;
     f32 x;
 
     if (!active) {
-        p[0] += -p[0] * 0.2;
-        p[1] = 0;
+        p->intensity += -p->intensity * 0.2;
+        p->phase = 0;
     } else {
-        switch (p[1]) {
+        switch (p->phase) {
             case 0:
-                p[1] = 1;
+                p->phase = 1;
                 break;
             case 1:
-                p[0] += 0x32;
-                if (p[0] >= 0xCE) {
-                    p[0] = 0xFF;
-                    p[1] = 2;
+                p->intensity += 0x32;
+                if (p->intensity >= 0xCE) {
+                    p->intensity = 0xFF;
+                    p->phase = 2;
                 }
                 break;
             case 2:
-                p[0] -= 0x50;
-                if (p[0] >= 0x64 && p[0] < 0xB4) {
+                p->intensity -= 0x50;
+                if (p->intensity >= 0x64 && p->intensity < 0xB4) {
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x16C, 0xFF, 0xA0, 6);
                 }
-                if (p[0] < 0x50) {
-                    p[0] = 0;
-                    p[1] = 0;
+                if (p->intensity < 0x50) {
+                    p->intensity = 0;
+                    p->phase = 0;
                 }
                 break;
         }
     }
-    x = (u32)p[0] / 255.0;
+    x = (u32)p->intensity / 255.0;
     f = 8000.0f * x;
     q->rotX = (u32)-f;
     q[1].bone = 3;
@@ -91,7 +81,7 @@ void actorUpdatePulseIntensity(u8 active) {
     q->rotZ = 0;
 }
 
-void behaviourUpdateContactAndState();
+void behaviourUpdateContactAndState(); // ORIG: target loads a1 = sel before the two-argument call (lbu a0,340(s0) at 0xa20, move a1,a0 at 0xa28, default branch at 0xa34 to jal at 0xf70 in func_806B6DB0) while the owner never reads a1 (12E800 0x1ccc homes only a0, sw a0,64(sp) at 0x1ce0): the original TU had no prototype in scope
 
 void func_806B6958(void) {
     behaviourFrameBegin();
@@ -141,27 +131,16 @@ void func_806B6C88(s16 speed, s16 angle) {
     }
 }
 
-typedef struct BB300Sub178 {
-    /* 0x0 */ s16 pad0;
-    /* 0x2 */ s16 unk2;
-} BB300Sub178;
-
-// Second view of the current actor: the component pointer at 0x178 typed as BB300Sub178 (BB300Actor types it u8 *).
-typedef struct BB300ActorAlt {
-    /* 0x000 */ u8 pad0[0x178];
-    /* 0x178 */ BB300Sub178 *unk178;
-} BB300ActorAlt;
-
 extern s32 gCurrentMap;
 
 void func_806B6DB0(s32 aggroRange) {
-    BB300Sub178 *p;
+    PulseSwayState *p;
     s16 diff;
     u8 near;
     Actor *tgt;
     s32 sel;
 
-    p = ((BB300ActorAlt *)gCurrentActor)->unk178;
+    p = ((PulseSwayActor *)gCurrentActor)->pulse;
     if (gCurrentActor->moveYaw < gCurrentActor->yaw) {
         diff = gCurrentActor->yaw - gCurrentActor->moveYaw;
     } else {
@@ -185,9 +164,9 @@ void func_806B6DB0(s32 aggroRange) {
     if (sel == 0x23 && gCurrentActor->speedXZ > 90.0f && diff >= 0x1F5 && diff < 0xE0C) {
         diff = gCurrentActor->moveYaw - gCurrentActor->yaw;
         if (diff < 0 || diff >= 0x801) {
-            p->unk2 = 0x8C;
+            p->yawSway = 0x8C;
         } else {
-            p->unk2 = -0x8C;
+            p->yawSway = -0x8C;
         }
         actorSetBehaviourState(0x14, 0xA, 0x235);
         sel = gCurrentActor->state;
@@ -201,8 +180,8 @@ void func_806B6DB0(s32 aggroRange) {
             break;
         case 1:
             if (gBehaviourWorkState->timer != 0) {
-                gCurrentActor->yaw += p->unk2;
-                p->unk2 += -p->unk2 * 0.01;
+                gCurrentActor->yaw += p->yawSway;
+                p->yawSway += -p->yawSway * 0.01;
                 gBehaviourWorkState->timer--;
                 if (!(gFrameCounter & 3)) {
                     behaviourSpawnDropParticle();
