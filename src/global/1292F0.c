@@ -5,13 +5,10 @@
 #include "proto/global/15050.h"
 #include "proto/global/69E60.h"
 
-
-
-
 void pathFollowUpdateHeading(Actor *owner, u8 continuous) {
-    s32 fresh;
-    PathFollowState *s;
-    s32 idx;
+    s32 justAllocated;
+    PathFollowState *state;
+    s32 point;
     f32 frac;
     f32 x0;
     f32 y0;
@@ -20,72 +17,72 @@ void pathFollowUpdateHeading(Actor *owner, u8 continuous) {
     f32 y1;
     f32 z1;
     s16 heading;
-    s32 cnt;
+    s32 lastPoint;
     u8 pathEnded;
 
     pathEnded = 0;
-    fresh = 0;
+    justAllocated = 0;
     if (owner->pathFollow == NULL) {
-        owner->pathFollow = heapAlloc(0x14);
-        s = owner->pathFollow;
+        owner->pathFollow = heapAlloc(sizeof(PathFollowState));
+        state = owner->pathFollow;
         if (owner->unkB0[0] != -1 && pathExists(owner->unkB0[0]) != 0) {
-            s->unk12 = owner->unkB0[0];
+            state->unk12 = owner->unkB0[0];
         } else {
-            s->unk12 = -1;
+            state->unk12 = -1;
         }
-        s->unkC = 0;
-        fresh = 1;
+        state->unkC = 0;
+        justAllocated = 1;
     } else {
-        s = owner->pathFollow;
+        state = owner->pathFollow;
     }
-    if (continuous != 0 || s->unkC == 0) {
-        if (s->unk12 == -1) {
-            s->unkC = 1;
-            s->unk10 = 0;
-            s->unkE = 0;
+    if (continuous != 0 || state->unkC == 0) {
+        if (state->unk12 == -1) {
+            state->unkC = 1;
+            state->unk10 = 0;
+            state->unkE = 0;
             return;
         }
-        if (fresh != 0) {
-            pathFindClosestPoint(s->unk12, owner->x, owner->y, owner->z, &s->unk4, &s->unk8);
+        if (justAllocated != 0) {
+            pathFindClosestPoint(state->unk12, owner->x, owner->y, owner->z, &state->unk4, &state->unk8);
         } else {
-            pathRefineClosestPoint(s->unk12, owner->x, owner->y, owner->z, &s->unk4, &s->unk8);
+            pathRefineClosestPoint(state->unk12, owner->x, owner->y, owner->z, &state->unk4, &state->unk8);
         }
-        frac = s->unk8;
-        idx = s->unk4;
-        pathSplineSample(s->unk12, idx, frac, &x0, &y0, &z0);
-        frac = frac + 0.4;
+        frac = state->unk8;
+        point = state->unk4;
+        pathSplineSample(state->unk12, point, frac, &x0, &y0, &z0);
+        frac += 0.4;
         if (frac >= 1.0) {
-            idx += 1;
-            frac = frac - 1.0;
+            point++;
+            frac -= 1.0;
         }
-        pathSplineSample(s->unk12, idx, frac, &x1, &y1, &z1);
+        pathSplineSample(state->unk12, point, frac, &x1, &y1, &z1);
         heading = (s32)(mathAngleBetweenPointsDeg((s32)x0, (s32)z0, (s32)x1, (s32)z1) * 2048.0 / 3.14159274101257324);
         heading = 0x1000 - heading;
         heading += 0x800;
-        s->unkE = heading & 0xFFF;
-        s->unk10 = 0x23;
-        cnt = pathEntryCount(s->unk12) - 1;
-        if (s->unk4 >= cnt) {
-            if (cnt == s->unk4) {
+        state->unkE = heading & 0xFFF;
+        state->unk10 = 0x23;
+        lastPoint = pathEntryCount(state->unk12) - 1;
+        if (state->unk4 >= lastPoint) {
+            if (lastPoint == state->unk4) { // ORIG: target tests lastPoint != unk4 (bne at 0x234) and keeps both identical bodies
                 pathEnded = 1;
-                s->unk10 = 0;
+                state->unk10 = 0;
             } else {
                 pathEnded = 1;
-                s->unk10 = 0;
+                state->unk10 = 0;
             }
         }
         if (pathEnded != 0 && continuous == 0) {
-            s->unkC = 1;
+            state->unkC = 1;
         }
     }
 }
 
 void animationOwnerFreeBuffer(Actor *owner) {
-    void *buffer;
+    PathFollowState *state;
 
-    buffer = owner->pathFollow;
-    if (buffer != 0) {
-        heapFree(buffer);
+    state = owner->pathFollow;
+    if (state != NULL) {
+        heapFree(state);
         owner->pathFollow = NULL;
     }
 }
