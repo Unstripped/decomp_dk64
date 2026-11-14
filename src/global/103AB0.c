@@ -1,6 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
+#define PROTO_SKIP_lensFlareDrawSource // PROTO: takes the file-local LensFlarePoint by value, which the shared header cannot name
 #include "proto/global/103AB0.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/112080.h"
@@ -249,7 +250,7 @@ void color5551CopyLerpToWhite(u16 *src, s16 **outBuf, f32 t) {
     s16 *dst;
     s16 i;
 
-    *outBuf = (s16 *)heapAlloc(0xA000);
+    *outBuf = heapAlloc(0xA000);
     heapFreeDeferred(*outBuf);
     dst = *outBuf;
     for (i = 0; i < 0x5000; i++) {
@@ -272,11 +273,13 @@ typedef struct LensFlarePoint {
     u8 r;
     u8 g;
     u8 b;
-    u8 unkF;
+    u8 padF;
 } LensFlarePoint;
 
 extern u8 D_80754BC0;
 extern LensFlarePoint D_807FD808[2];
+
+Gfx *lensFlareDrawSource(Gfx *dl, LensFlarePoint pt, u8 fade);
 
 
 void lensFlareAddSource(f32 x, f32 y, f32 z, f32 dirX, f32 dirY, f32 dirZ, f32 minDot, u8 r, u8 g, u8 b) {
@@ -325,7 +328,7 @@ void lensFlareAddSource(f32 x, f32 y, f32 z, f32 dirX, f32 dirY, f32 dirZ, f32 m
     }
 }
 
-extern u8 D_2000100[];
+extern Mtx D_2000100;
 
 Gfx *func_8070068C(Gfx *dl) {
     gSPMatrix(dl++, &D_2000100, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -335,7 +338,7 @@ Gfx *func_8070068C(Gfx *dl) {
 }
 
 extern u8 D_807FD838[2][3];
-extern u8 D_2000180;
+extern Mtx D_2000180;
 
 Gfx *lensFlareBuildDisplayList(Gfx *dl) {
     s16 i;
@@ -357,7 +360,7 @@ Gfx *lensFlareBuildDisplayList(Gfx *dl) {
         gDPSetAlphaDither(dl++, G_AD_DISABLE);
         for (i = 0; i < D_80754BC0; i++) {
             if (D_807FD838[gGfxBufferIndex ^ 1][i] != 0) {
-                dl = lensFlareDrawSource(dl, D_807FD808[i], (u32)(D_807FD838[gGfxBufferIndex ^ 1][i]--));
+                dl = lensFlareDrawSource(dl, D_807FD808[i], D_807FD838[gGfxBufferIndex ^ 1][i]--);
             }
         }
         gDPSetColorDither(dl++, G_CD_MAGICSQ);
@@ -447,7 +450,6 @@ void func_80700BF4(void) {
     s16 x;
     s16 y;
     u16 halfWidth;
-    s32 margin;
     PlayerSampleInfo *pad;
     s32 depth;
     s32 blocked;
@@ -480,7 +482,6 @@ void func_80700BF4(void) {
     }
     D_807FD800 = blocked;
     D_807FD802 = zbufferDepthToDistance(zbufferReadDepth(D_807FD804, D_807FD806));
-    margin = 40; // FAKE: constant local (a literal shrinks the frame by 8)
     for (i = 0; i < gPlayerCount; i++) {
         if (gPlayerSlots[i].active != 0) {
             state = gPlayerSlots[i].actor->customState;
@@ -488,7 +489,8 @@ void func_80700BF4(void) {
             x = state->targetPitch;
             y = state->targetRoll - 0x14;
             x += pad->stickX;
-            halfWidth = (u32)(margin + pad->stickMagnitude / 1.5);
+            halfWidth = 40;
+            halfWidth += pad->stickMagnitude / 1.5;
             state->depthCenter = zbufferDepthToDistance(zbufferReadDepth(x, y));
             state->unk116 = zbufferDepthToDistance(zbufferReadDepth(x, state->targetYawAngle));
             state->depthLeft = zbufferDepthToDistance(zbufferReadDepth(x - halfWidth, y));
@@ -510,11 +512,7 @@ typedef struct {
 
 extern LensFlareSprite D_80754AF0[];
 
-Gfx *lensFlareDrawSource(dl, pt, fade)
-Gfx *dl;
-LensFlarePoint pt;
-u8 fade;
-{
+Gfx *lensFlareDrawSource(Gfx *dl, LensFlarePoint pt, u8 fade) {
     Vec3f axisEnd;
     Vec3f axisSpan;
     Vec3f viewDir;
@@ -626,7 +624,7 @@ Gfx *func_80701CA0(Gfx *dl) {
             camActor = playerState->camActor;
             camState = camActor->customState;
             if (force != 0 || (gPlayerSlots[i].unk2E8 != 0 && gPlayerSlots[i].eyeY < gPlayerSlots[i].unk24C + 3.0f)) {
-                vtx = (Vtx *)heapAlloc(0x40);
+                vtx = heapAlloc(0x40);
                 heapFreeDeferred(vtx);
                 vtx[0].v.ob[0] = gPlayerSlots[i].rect[0];
                 vtx[0].v.ob[1] = gPlayerSlots[i].rect[1];
@@ -714,7 +712,7 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
     s16 xa;
     s32 uls;
     s32 vb;
-    s32 rowY;
+    f32 thf;
     s32 x;
     s32 lrs;
     f32 xf;
@@ -728,7 +726,7 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
     u32 ye;
     u8 flag;
     s32 colS;
-    f32 fsc;
+    f32 yf;
     u32 tw;
     f32 twf;
     u32 th;
@@ -756,7 +754,6 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
     for (y = ys, v = texScale * t0; y < ye; y += th, v += vstep) {
         u = texScale * s0;
         rowT = v; // FAKE: redundant copy of v steers register allocation
-        rowY = y; // FAKE: redundant copy of y steers register allocation
         for (x = xs; x < xe; x += tw, u += ustep) {
             colS = u; // FAKE: redundant copy of u steers register allocation
             uls = ((x >> 5) - 1) > 0 ? ((x >> 5) - 1) : 0;
@@ -774,8 +771,9 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
             } else if (bitSize == 4) {
                 gDPLoadTextureTile_4b(dl++, texture, fmt, texWidth, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             }
-            fsc = (f32)y - 16.0; // FAKE: dead store steers float register allocation
+            yf = (f32)y - 16.0;
             twf = tileW << 5;
+            thf = tileH << 5;
             vb = (s16)(v + vstep);
             if (edgeFade) {
                 if (x == xs && edgeFade == 1) {
@@ -787,7 +785,7 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
             if (vtxCallback != NULL) {
                 vtxCallback(u, v, vtx);
             }
-            vtxSetPosTex(vtx++, colS, rowT, xf, (s16)(f32)((f32)rowY - 16.0), flag);
+            vtxSetPosTex(vtx++, colS, rowT, xf, yf, flag);
             if (edgeFade) {
                 if (x + tw >= xe && edgeFade == 2) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -796,10 +794,10 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
                 }
             }
             if (vtxCallback != NULL) {
-                vtxCallback((s16)(u + ustep), v, vtx);
+                vtxCallback(ua, v, vtx);
             }
             xa = xf + twf;
-            vtxSetPosTex(vtx++, ua, rowT, xa, (s16)(f32)((f32)rowY - 16.0), flag);
+            vtxSetPosTex(vtx++, ua, rowT, xa, yf, flag);
             if (edgeFade) {
                 if (x + tw >= xe && edgeFade == 2) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -810,7 +808,7 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
             if (vtxCallback != NULL) {
                 vtxCallback(ua, vb, vtx);
             }
-            vtxSetPosTex(vtx++, ua, vb, xa, (s16)((f32)((f32)rowY - 16.0) + (f32)th), flag);
+            vtxSetPosTex(vtx++, ua, vb, xa, yf + thf, flag);
             if (edgeFade) {
                 if (x == xs && edgeFade == 1) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -821,7 +819,7 @@ void gfxDrawTexturedTileGrid(Gfx **gfx, void *texture, s32 fmt, u32 texWidth, s3
             if (vtxCallback != NULL) {
                 vtxCallback(u, vb, vtx);
             }
-            vtxSetPosTex(vtx++, colS, vb, xf, (s16)((f32)((f32)rowY - 16.0) + (f32)th), flag);
+            vtxSetPosTex(vtx++, colS, vb, xf, yf + thf, flag);
             gSPVertex(dl++, osVirtualToPhysical(vtx - 4), 4, 0);
             gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(dl++);
@@ -955,7 +953,7 @@ Gfx *screenFadeDrawSpinTexture(Gfx *dl, u8 alpha) {
     if (alpha != 0) {
         tex = assetLoad(0xE, 0x5F, 0, 0);
         assetFreeBuffer(tex, 0x540, 0x2F);
-        mtx = (Mtx *)heapAlloc(0x40);
+        mtx = heapAlloc(0x40);
         heapFreeDeferred(mtx);
         gSPDisplayList(dl++, &D_1000118);
         gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
