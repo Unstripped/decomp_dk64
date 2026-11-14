@@ -43,16 +43,35 @@ typedef struct CamSplineKeyPos {
     /* 0x7 */ s8 pitch;
 } CamSplineKeyPos; // size = 0x8
 
+// point types 1 (fixed eye) and 2 (eye at most maxDist from the target, toward x/y/z)
 typedef struct CamPathPointPos {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ s16 unk6;
-    /* 0x8 */ s16 unk8;
-    /* 0xA */ s16 unkA;
-    /* 0xC */ u8 unkC;
-    /* 0xD */ u8 unkD;
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+    /* 0x6 */ s16 maxDist;
 } CamPathPointPos;
+
+// point type 3: eye on the segment from x/y/z to x+dx/y+dy/z+dz closest to the target
+typedef struct CamPathPointSegment {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+    /* 0x6 */ s16 dx;
+    /* 0x8 */ s16 dy;
+    /* 0xA */ s16 dz;
+} CamPathPointSegment;
+
+// point types 10, 15, 16: eye at angle/dist/height from the target, each blended start -> end over the step
+typedef struct CamPathPointOrbit {
+    /* 0x0 */ s16 angleEnd;
+    /* 0x2 */ s16 angleStart;
+    /* 0x4 */ s16 distEnd;
+    /* 0x6 */ s16 distStart;
+    /* 0x8 */ s16 heightEnd;
+    /* 0xA */ s16 heightStart;
+    /* 0xC */ u8 fovEnd;
+    /* 0xD */ u8 fovStart;
+} CamPathPointOrbit;
 
 typedef struct CamPathPointSpline {
     /* 0x0 */ s16 keyCount;
@@ -66,6 +85,8 @@ typedef struct CamPathPoint {
     /* 0x02 */ s16 unk2;
     /* 0x04 */ union {
         CamPathPointPos pos;
+        CamPathPointSegment seg;
+        CamPathPointOrbit orbit;
         CamPathPointSpline spline;
         s32 args[3];
     } u;
@@ -90,15 +111,55 @@ typedef struct CamPathHead {
     /* 0x4 */ CamPathSeg *segs;
 } CamPathHead; // size = 0x8
 
+// zone type 0: up to six other zones (index + 1, 0 = none); the low nibble of weights[i] is ORed into their weight (func_8061F4B0)
+typedef struct CamZoneWeightLinks {
+    /* 0x0 */ u8 zones[6];
+    /* 0x6 */ u8 weights[6];
+} CamZoneWeightLinks;
+
+// zone type 1: fixed eye position plus the yaw clamp range copied to CamState unkC8/unkCA
+typedef struct CamZoneFixedEye {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+    /* 0x6 */ s16 yawFrom;
+    /* 0x8 */ s16 yawTo;
+} CamZoneFixedEye;
+
+// zone types 2 and 8: eye on the segment from ends[0..2] to ends[3..5] closest to the target; type 9: eye at one of the two ends
+typedef struct CamZoneRail {
+    /* 0x0 */ s16 ends[6]; // x, y, z of the first end, then of the second
+    /* 0xC */ s16 yawFrom; // type 2 only
+    /* 0xE */ s16 yawTo;
+} CamZoneRail;
+
+// zone type 3: eye pulled from the target toward x/y/z, at most maxDist away
+typedef struct CamZoneTether {
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+    /* 0x6 */ s16 maxDist;
+    /* 0x8 */ s16 yawFrom;
+    /* 0xA */ s16 yawTo;
+} CamZoneTether;
+
+// zone type 6: follow distance/height and CamState unkAC bits applied while inside
+typedef struct CamZoneFollowOverride {
+    /* 0x0 */ u8 followDist; // 0 = keep the current distance
+    /* 0x1 */ u8 followHeight;
+    /* 0x2 */ u8 stateFlags;
+} CamZoneFollowOverride;
+
 typedef struct CamZoneEntryFull {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ s16 unk6;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
+    /* 0x00 */ union {
+        CamZoneWeightLinks weightLinks; // type 0
+        CamZoneFixedEye fixedEye;       // type 1
+        CamZoneRail rail;               // types 2, 8, 9
+        CamZoneTether tether;           // type 3
+        s16 linkZone;                   // type 5: the zone whose behaviour this one uses
+        CamZoneFollowOverride follow;   // type 6
+        s16 circleRadius;               // type 7: eye on a circle of this radius around the center
+    } u;
     /* 0x10 */ s16 centerX;
     /* 0x12 */ s16 centerY;
     /* 0x14 */ s16 centerZ;
@@ -145,6 +206,16 @@ typedef struct CamCueStep {
     /* 0x6 */ u16 unk6;
 } CamCueStep; // size = 0x8
 
+typedef struct CamZoneGroup {
+    /* 0x0 */ s16 cell;
+    /* 0x2 */ s16 first; // index of the first gCamZoneSorted entry in this cell
+} CamZoneGroup;
+
+typedef struct CamZoneSortEntry {
+    /* 0x0 */ s16 zone;
+    /* 0x2 */ s16 cell;
+} CamZoneSortEntry;
+
 // .bss 0x807F5B10-0x807F5D30
 CamPathData gCamMapPaths;
 CamPathData gCamGlobalPaths;
@@ -190,7 +261,7 @@ f32 D_807476B0 = 0.0f;
 u8 D_807476B4 = 0;
 s16 gCamFreezeBelowY = 0;
 s16 gCamFreezeYAbove = 0;
-s16 *gCamZoneGroups = NULL;
+CamZoneGroup *gCamZoneGroups = NULL;
 u64 gCamPathTimeDelta = 0;
 u64 gCamPathLastTime = 0;
 u8 gCamPathLoopCount = 0;
@@ -1504,15 +1575,9 @@ void camSetZoneWeight(u8 zoneIndex, u8 weight) {
     gCamMapPaths.zones[zoneIndex].weight = weight;
 }
 
-typedef struct CamZonePair {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ s16 unk2;
-} CamZonePair;
-
 extern f32 gScreenFadeProgress;
 
-#define CAM_ZONE_GROUP ((CamZonePair *)gCamZoneGroups)
-#define CAM_ZONE_SORT ((CamZonePair *)gCamZoneSorted)
+#define CAM_ZONE_SORT ((CamZoneSortEntry *)gCamZoneSorted)
 
 s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f32 *focusY, f32 *focusZ) {
     CamZoneEntryFull *e;
@@ -1576,9 +1641,9 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
     if (gCamZoneGroupCount > 0) {
         i = 0;
         do {
-            if (camIsCellNeighbour(cell, CAM_ZONE_GROUP[i].unk0) != 0) {
-                k = CAM_ZONE_GROUP[i].unk2;
-                if (k < CAM_ZONE_GROUP[i + 1].unk2) {
+            if (camIsCellNeighbour(cell, gCamZoneGroups[i].cell) != 0) {
+                k = gCamZoneGroups[i].first;
+                if (k < gCamZoneGroups[i + 1].first) {
                     do {
                         e = &gCamActivePaths->zones[gCamZoneSorted[k * 2]];
                         spread = e->height;
@@ -1589,8 +1654,8 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                         mode = e->distMode;
                         type0 = e->type;
                         if (e->type == 5) {
-                            linkId = e->unk0;
-                            e = &gCamActivePaths->zones[e->unk0];
+                            linkId = e->u.linkZone;
+                            e = &gCamActivePaths->zones[e->u.linkZone];
                         }
                         type = e->type;
                         if (k == st->unkC4 && type == 8) {
@@ -1624,7 +1689,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                                     case 0:
                                         handled = 1;
                                         if (k != st->unkC6) {
-                                            func_8061F4B0((u8 *)e);
+                                            func_8061F4B0(e->u.weightLinks.zones);
                                         }
                                         st->unkC6 = k;
                                         break;
@@ -1677,7 +1742,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                             }
                         }
                         k++;
-                    } while (k < CAM_ZONE_GROUP[i + 1].unk2);
+                    } while (k < gCamZoneGroups[i + 1].first);
                 }
             }
             i++;
@@ -1692,7 +1757,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
         if (bestIdx != st->unkC4 || st->unkF3 != 2) {
             switch (type) {
             case 8:
-                ang0 = mathAngleBetweenPoints2D(best->unk0, best->unk4, best->unk6, best->unkA);
+                ang0 = mathAngleBetweenPoints2D(best->u.rail.ends[0], best->u.rail.ends[2], best->u.rail.ends[3], best->u.rail.ends[5]);
                 if (gCamTargetDist > 10.0f) {
                     ang1 = mathAngleBetweenPoints2D(tgt->x, tgt->z, *eyeX, *eyeZ);
                 } else {
@@ -1706,8 +1771,8 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                 }
                 break;
             case 9:
-                ang0 = mathAngleBetweenPoints2D(tgt->x, tgt->z, best->unk0, best->unk4);
-                ang1 = mathAngleBetweenPoints2D(tgt->x, tgt->z, best->unk6, best->unkA);
+                ang0 = mathAngleBetweenPoints2D(tgt->x, tgt->z, best->u.rail.ends[0], best->u.rail.ends[2]);
+                ang1 = mathAngleBetweenPoints2D(tgt->x, tgt->z, best->u.rail.ends[3], best->u.rail.ends[5]);
                 if (mathAngleDistance(ang0, st->unkB2) < mathAngleDistance(ang1, st->unkB2)) {
                     st->unkF9 = 0;
                 } else {
@@ -1720,8 +1785,8 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
             case 7:
                 if (tgt->state != 0x20) {
                     ang1 = mathAngleBetweenPoints2D(best->centerX, best->centerZ, tgt->x, tgt->z);
-                    *eyeX = best->centerX - mathSinF(ang1) * best->unk0;
-                    *eyeZ = best->centerZ - mathCosF(ang1) * best->unk0;
+                    *eyeX = best->centerX - mathSinF(ang1) * best->u.circleRadius;
+                    *eyeZ = best->centerZ - mathCosF(ang1) * best->u.circleRadius;
                     *eyeY = st->unk6C + camActor->distToFloor;
                     st->unkC8 = 0;
                     st->unkCA = 0;
@@ -1732,45 +1797,45 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                     st->unkF1 = 0xB;
                 }
                 ret = 0;
-                st->unkAC |= ((u8 *)best)[2] | 0x2000;
-                if (((u8 *)best)[0] != 0) {
-                    st->unkA4 = ((u8 *)best)[0];
-                    st->unkB8 = ((u8 *)best)[1];
+                st->unkAC |= best->u.follow.stateFlags | 0x2000;
+                if (best->u.follow.followDist != 0) {
+                    st->unkA4 = best->u.follow.followDist;
+                    st->unkB8 = best->u.follow.followHeight;
                 }
                 break;
             case 1:
-                *eyeX = best->unk0;
-                *eyeY = best->unk2;
-                *eyeZ = best->unk4;
-                st->unkC8 = best->unk6;
-                st->unkCA = best->unk8;
+                *eyeX = best->u.fixedEye.x;
+                *eyeY = best->u.fixedEye.y;
+                *eyeZ = best->u.fixedEye.z;
+                st->unkC8 = best->u.fixedEye.yawFrom;
+                st->unkCA = best->u.fixedEye.yawTo;
                 break;
             case 9:
-                *eyeX = ((CamZoneEntryFull *)((s16 *)best + st->unkF9 * 3))->unk0;
-                *eyeY = ((CamZoneEntryFull *)((s16 *)best + st->unkF9 * 3))->unk2;
-                *eyeZ = ((CamZoneEntryFull *)((s16 *)best + st->unkF9 * 3))->unk4;
+                *eyeX = best->u.rail.ends[st->unkF9 * 3];
+                *eyeY = best->u.rail.ends[st->unkF9 * 3 + 1];
+                *eyeZ = best->u.rail.ends[st->unkF9 * 3 + 2];
                 st->unkC8 = 0;
                 st->unkCA = 0;
                 break;
             case 2:
-                camClosestPointOnSegment(x, y, z, best->unk0, best->unk2, best->unk4, best->unk6, best->unk8, best->unkA, eyeX, eyeY, eyeZ);
-                st->unkC8 = best->unkC;
-                st->unkCA = best->unkE;
+                camClosestPointOnSegment(x, y, z, best->u.rail.ends[0], best->u.rail.ends[1], best->u.rail.ends[2], best->u.rail.ends[3], best->u.rail.ends[4], best->u.rail.ends[5], eyeX, eyeY, eyeZ);
+                st->unkC8 = best->u.rail.yawFrom;
+                st->unkCA = best->u.rail.yawTo;
                 break;
             case 8:
                 camComputeFollowPos(camActor, tgt, &outX, &outY, &outZ, -1.0f);
-                camClosestPointOnSegment(outX, outY, outZ, best->unk0, best->unk2, best->unk4, best->unk6, best->unk8, best->unkA, eyeX, eyeY, eyeZ);
+                camClosestPointOnSegment(outX, outY, outZ, best->u.rail.ends[0], best->u.rail.ends[1], best->u.rail.ends[2], best->u.rail.ends[3], best->u.rail.ends[4], best->u.rail.ends[5], eyeX, eyeY, eyeZ);
                 st->unkC8 = 0;
                 st->unkCA = 0;
                 break;
             case 3:
-                st->unkC8 = best->unk8;
-                st->unkCA = best->unkA;
-                factor = sqrtf((z - best->unk4) * (z - best->unk4) + ((x - best->unk0) * (x - best->unk0) + (y - best->unk2) * (y - best->unk2)));
-                factor = (best->unk6 / factor > 1.0) ? 1.0 : best->unk6 / factor;
-                *eyeX = (best->unk0 - x) * factor + x;
-                *eyeY = (best->unk2 - st->unk6C) * factor + st->unk6C;
-                *eyeZ = (best->unk4 - z) * factor + z;
+                st->unkC8 = best->u.tether.yawFrom;
+                st->unkCA = best->u.tether.yawTo;
+                factor = sqrtf((z - best->u.tether.z) * (z - best->u.tether.z) + ((x - best->u.tether.x) * (x - best->u.tether.x) + (y - best->u.tether.y) * (y - best->u.tether.y)));
+                factor = (best->u.tether.maxDist / factor > 1.0) ? 1.0 : best->u.tether.maxDist / factor;
+                *eyeX = (best->u.tether.x - x) * factor + x;
+                *eyeY = (best->u.tether.y - st->unk6C) * factor + st->unk6C;
+                *eyeZ = (best->u.tether.z - z) * factor + z;
                 break;
         }
         if (!(st->unkAC & 0x8000) && ret != 0 && (bestIdx != st->unkC4 || st->unkF3 != 2) &&
@@ -2539,7 +2604,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
     f32 savedX;
     f32 savedY;
     f32 savedZ;
-    f32 pad0;
+    CamPathPointOrbit *orbit;
     u8 idx[4];
     f32 posX;
     f32 posY;
@@ -2715,14 +2780,14 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                 case 10:
                 case 15:
                 case 16:
-                    pos = &p->u.pos;
-                    dist = CAM_LERP(pos->unk6, pos->unk4, t);
-                    height = CAM_LERP(pos->unkA, pos->unk8, t);
-                    angle = mathAngleLerp(pos->unk2, pos->unk0, t);
+                    orbit = &p->u.orbit;
+                    dist = CAM_LERP(orbit->distStart, orbit->distEnd, t);
+                    height = CAM_LERP(orbit->heightStart, orbit->heightEnd, t);
+                    angle = mathAngleLerp(orbit->angleStart, orbit->angleEnd, t);
                     posX = mathSinF(target->yaw - angle) * dist + target->x;
                     posZ = mathCosF(target->yaw - angle) * dist + target->z;
                     posY = target->y + height;
-                    gPlayerSlots[cam->unkFB].fov = CAM_LERP(pos->unkD, pos->unkC, t);
+                    gPlayerSlots[cam->unkFB].fov = CAM_LERP(orbit->fovStart, orbit->fovEnd, t);
                     if (p->type == 16) {
                         lookX = posX + D_807F5D24;
                         lookY = posY + D_807F5D28;
@@ -2732,25 +2797,25 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                     }
                     goto look_set;
                 case 1:
-                    posX = p->u.pos.unk0;
-                    posY = p->u.pos.unk2;
-                    posZ = p->u.pos.unk4;
+                    posX = p->u.pos.x;
+                    posY = p->u.pos.y;
+                    posZ = p->u.pos.z;
                     goto calc_look;
                 case 2:
                     pos = &p->u.pos;
-                    dz = target->z - pos->unk4;
-                    dx = target->x - pos->unk0;
-                    dy = target->y - pos->unk2;
-                    ratio = pos->unk6 / sqrtf(dz * dz + (dx * dx + dy * dy));
+                    dz = target->z - pos->z;
+                    dx = target->x - pos->x;
+                    dy = target->y - pos->y;
+                    ratio = pos->maxDist / sqrtf(dz * dz + (dx * dx + dy * dy));
                     scale = (ratio > 1.0) ? 1.0 : ratio;
-                    posX = (pos->unk0 - target->x) * scale + target->x;
-                    posY = (pos->unk2 - target->floorY) * scale + target->floorY;
-                    posZ = (pos->unk4 - target->z) * scale + target->z;
+                    posX = (pos->x - target->x) * scale + target->x;
+                    posY = (pos->y - target->floorY) * scale + target->floorY;
+                    posZ = (pos->z - target->z) * scale + target->z;
                     goto calc_look;
                 case 3:
-                    camClosestPointOnSegment(target->x, target->y, target->z, p->u.pos.unk0, p->u.pos.unk2, p->u.pos.unk4,
-                                  p->u.pos.unk0 + p->u.pos.unk6, p->u.pos.unk2 + p->u.pos.unk8,
-                                  p->u.pos.unk4 + p->u.pos.unkA, &posX, &posY,
+                    camClosestPointOnSegment(target->x, target->y, target->z, p->u.seg.x, p->u.seg.y, p->u.seg.z,
+                                  p->u.seg.x + p->u.seg.dx, p->u.seg.y + p->u.seg.dy,
+                                  p->u.seg.z + p->u.seg.dz, &posX, &posY,
                                   &posZ);
                     goto calc_look;
                 case 17:
@@ -3345,19 +3410,19 @@ void camInitZones(void) {
     if (gCamZoneGroups != NULL) {
         heapFree(gCamZoneGroups);
     }
-    gCamZoneGroups = heapAlloc(gCamZoneGroupCount * 4 + 4);
-    CAM_ZONE_GROUP[0].unk0 = CAM_ZONE_SORT[0].unk2;
-    CAM_ZONE_GROUP[0].unk2 = 0;
+    gCamZoneGroups = heapAlloc((gCamZoneGroupCount + 1) * sizeof(CamZoneGroup));
+    gCamZoneGroups[0].cell = CAM_ZONE_SORT[0].cell;
+    gCamZoneGroups[0].first = 0;
     k = 1;
     for (i = 1; i < gCamActivePaths->zoneCount; i++) {
         if ((val = gCamZoneSorted[i * 2 + 1]) != gCamZoneSorted[(i - 1) * 2 + 1]) {
-            CAM_ZONE_GROUP[k].unk0 = val;
-            CAM_ZONE_GROUP[k].unk2 = i;
+            gCamZoneGroups[k].cell = val;
+            gCamZoneGroups[k].first = i;
             k++;
         }
     }
-    CAM_ZONE_GROUP[k].unk0 = -1;
-    CAM_ZONE_GROUP[k].unk2 = gCamActivePaths->zoneCount;
+    gCamZoneGroups[k].cell = -1;
+    gCamZoneGroups[k].first = gCamActivePaths->zoneCount;
 }
 
 void camSetSecondTarget(Actor *cam, s16 targetX, s16 targetZ) {
