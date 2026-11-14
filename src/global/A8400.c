@@ -510,7 +510,7 @@ void textBoxUpdateRows(Actor *actor) {
     f32 acc;
     f32 dt;
     f32 lim;
-    u8 mode;
+    s16 mode;
     u8 last;
     s32 i;
 
@@ -559,14 +559,15 @@ void textBoxUpdateRows(Actor *actor) {
         i++;
     }
     mode = actor->state;
-    if (mode == 3) {
-        if (state->unk12 != 0) {
-            state->unk12--;
-            mode = actor->state;
-        } else {
-            mode = actor->state = 1;
-            if (acc && acc) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        }
+    switch (mode) {
+        case 3:
+            if (state->unk12 != 0) {
+                state->unk12--;
+                mode = actor->state;
+            } else {
+                mode = actor->state = 1;
+            }
+            break;
     }
     if ((mode == 1) && (node == NULL)) {
         resQueueProcessNext(actor, state->key);
