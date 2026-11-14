@@ -554,21 +554,21 @@ extern u8 sLanguageIndex;
 
 void textLayoutAppendCommandList(ResQueueActorState *state, ResItem *item, ResParsedList *parsed) {
     s32 i;
-    s32 offset;
+    s32 byteOffset;
     ResRecord *rec;
     ResTextSpan *span;
     u8 *text;
 
     rec = &item->variant[sLanguageIndex];
     i = 0;
-    offset = 0;
+    byteOffset = 0;
     if (rec->count > 0) {
         do {
-            span = (ResTextSpan *)(rec->data.bytes + offset);
+            span = (ResTextSpan *)(rec->data.bytes + byteOffset);
             text = span->offset + parsed->payload;
             textLayoutAppendRows(state, text, span->length);
-            i += 1;
-            offset += 8;
+            i++;
+            byteOffset += sizeof(ResTextSpan);
         } while (i < rec->count);
     }
 }
