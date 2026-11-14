@@ -643,6 +643,14 @@ def test_plain_rewrites_keep_high_part_puns():
         assert {rx.sub(rep, code) for rx, rep in q.PLAIN} == {code}
 
 
+def test_plain_rewrites_skip_float_literals():
+    # `+ 0.5` is no `+ 0`: rewriting it made `x.5` (cfe syntax error, 42630/478F0 recipe scans)
+    code = "fy = a + b * (0, (sn * 0.5 + 0.5));"
+    assert {rx.sub(rep, code) for rx, rep in q.PLAIN} - {code} == {"fy = a + b * ((sn * 0.5 + 0.5));"}
+    for code in ("q = q + 0.5f;", "x = y | 0.5;", "x = y ^ 0.25;"):
+        assert {rx.sub(rep, code) for rx, rep in q.PLAIN} == {code}
+
+
 class _NoHit:
     def result(self):
         return False

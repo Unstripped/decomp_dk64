@@ -181,7 +181,7 @@ INT_KINDS = {TypeKind.BOOL, TypeKind.CHAR_U, TypeKind.UCHAR, TypeKind.USHORT, Ty
              TypeKind.ULONGLONG, TypeKind.CHAR_S, TypeKind.SCHAR, TypeKind.SHORT, TypeKind.INT, TypeKind.LONG,
              TypeKind.LONGLONG}
 LVALUE = r"([A-Za-z_]\w*(?:(?:->|\.)\w+)*)"
-PLAIN = [(re.compile(r"\s*\^\s*0\b"), ""), (re.compile(r"\s*\|\s*0\b"), ""), (re.compile(r"\s*\+\s*0U?\b"), ""),
+PLAIN = [(re.compile(r"\s*\^\s*0\b(?!\.)"), ""), (re.compile(r"\s*\|\s*0\b(?!\.)"), ""), (re.compile(r"\s*\+\s*0U?\b(?!\.)"), ""),
          (re.compile(r"\s*&\s*0xFFFFFFFF\b"), ""), (re.compile(r"\(0,\s*"), "("),
          (re.compile(r"\*\(\w+\s*\*\)&(\w+)"), r"\1"), (re.compile(r"\(s16\)\(s32\)"), "(s16)"),
          (re.compile(r"\[([^\]]+) \* 1\]"), r"[\1]"),
