@@ -209,7 +209,7 @@ void effectShockwaveRingUpdate(struct TimedEffectActorView *, s8 *);
 void effectBallisticUpdate(struct TimedEffectActorView *, s8 *);
 #endif
 #ifndef PROTO_SKIP_effectFallStateInit
-void effectFallStateInit(struct OrbitSourceActor *, struct TimedEffectActorView *, s8 *);
+void effectFallStateInit(struct OrbitSourceActor *, struct TimedEffectActorView *, u8 *);
 #endif
 #ifndef PROTO_SKIP_effectFloorFallUpdate
 void effectFloorFallUpdate(struct TimedEffectActorView *, u8 *);

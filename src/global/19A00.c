@@ -3,7 +3,6 @@
 #include "sched.h"
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
-#define PROTO_SKIP_effectFallStateInit
 #include "proto/global/11BC10.h"
 #include "proto/global/12E800.h"
 #include "proto/global/13A7A0.h"
@@ -21,7 +20,6 @@
 #include "proto/global/D5E10.h"
 #include "proto/global/F4C0.h"
 #include "proto/global/FCCD0.h"
-void effectFallStateInit(struct OrbitSourceActor *, struct TimedEffectActorView *, u8 *);
 
 extern u8 *sScriptPc;
 extern PlayerState *gActivePlayerState;
