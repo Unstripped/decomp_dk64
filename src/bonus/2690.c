@@ -30,18 +30,18 @@
 #include "proto/global/F56F0.h"
 
 typedef struct Struct_7548 {
-    s16 unk0;
+    s16 phase;
     char pad2[2];
     struct EffectNode *ammoIcons[5];
     u8 ammoIconSlide[5];
     char pad1D;
-    s16 unk1E;
-    s16 unk20;
-    u8 unk22;
-    u8 unk23;
+    s16 crosshairX;
+    s16 crosshairY;
+    u8 aimSlot;
+    u8 ammoCount;
     u8 unk24;
     u8 unk25;
-    u8 unk26;
+    u8 showCrosshair;
 } Struct_7548;
 // Actor storage beyond the 0x178-byte Actor view (bonus actors keep a second payload pointer here).
 typedef struct BonusActorExt {
@@ -68,19 +68,19 @@ typedef struct Struct_174 {
 
 
 typedef struct Struct_71B4 {
-    Actor *unk0[6];
+    Actor *targets[6];
     char pad18[3];
     u8 unk1B;
     u8 unk1C;
     char pad1D[3];
-    s16 unk20;
-    s16 unk22;
-    u8 unk24;
-    u8 unk25;
+    s16 shownCount;
+    s16 targetsLeft;
+    u8 rollTimer;
+    u8 counterTextId;
     char pad26;
-    u8 unk27;
-    u8 unk28;
-    u8 unk29;
+    u8 spawnThreshold;
+    u8 typeThreshold;
+    u8 timeLimit;
     char pad2A[2];
     f32 unk2C;
 } Struct_71B4;
@@ -93,12 +93,7 @@ typedef struct {
     s16 unk6;
 } Struct_AAA4_174;
 
-typedef struct {
-    Actor *actor;
-    s32 pad;
-} ActorEntry_B930;
-
-extern ActorEntry_B930 gActiveActors[];
+extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 extern s16 D_8002D900;
 typedef struct {
@@ -124,8 +119,8 @@ extern Actor *gSpawnedActor;
 
 Gfx *bonusRenderCrosshair(Gfx *gdl, Actor *actor) {
     Struct_7548 *bonusExt = actor->customState;
-    s16 crosshairX = bonusExt->unk1E;
-    s16 crosshairY = bonusExt->unk20;
+    s16 crosshairX = bonusExt->crosshairX;
+    s16 crosshairY = bonusExt->crosshairY;
     s32 pad;
 
     gDPPipeSync(gdl++);
@@ -151,7 +146,7 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *actor) {
     s32 textX2;
 
     if (actor->state == 0) {
-        if (bonusExt->unk26 != 0) {
+        if (bonusExt->showCrosshair != 0) {
             gdl = bonusRenderCrosshair(gdl, actor);
         }
     }
@@ -162,7 +157,7 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *actor) {
     gDPSetRenderMode(gdl++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
     gSPMatrix(gdl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     if (actor->state != 1) {
-        gdl = hudDrawRollingCounter(textDrawAnimated(gdl, targetExt->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &targetExt->unk20, targetExt->unk22, &targetExt->unk24);
+        gdl = hudDrawRollingCounter(textDrawAnimated(gdl, targetExt->counterTextId, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &targetExt->shownCount, targetExt->targetsLeft, &targetExt->rollTimer);
     }
     if (bonusExt->unk25 != 0) {
         textX = gScreenWidth >> 1;
@@ -223,7 +218,7 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *actor) {
     BonusPopup *popupLink;
 
     if (actor->state == 0) {
-        if (bonusExt->unk26 != 0) {
+        if (bonusExt->showCrosshair != 0) {
             gdl = bonusRenderCrosshair(gdl, actor);
         }
     }
@@ -282,7 +277,7 @@ void bonusSpawnTarget(s16 x, s16 y, s16 z, u8 slotIndex, Struct_71B4 *gameCtx) {
     u8 targetType;
     Struct_174 *targetExt;
 
-    if (gameCtx->unk28 < ((randomNonNegative() >> 0xF) % 100)) {
+    if (gameCtx->typeThreshold < ((randomNonNegative() >> 0xF) % 100)) {
         targetType = 1;
     } else {
         targetType = 0;
@@ -298,12 +293,12 @@ void bonusSpawnTarget(s16 x, s16 y, s16 z, u8 slotIndex, Struct_71B4 *gameCtx) {
         targetExt->unk9 = slotIndex;
         targetExt->unk8 = targetType;
         targetExt->unk0 = gameCtx;
-        gameCtx->unk0[slotIndex] = gSpawnedActor;
+        gameCtx->targets[slotIndex] = gSpawnedActor;
     }
 }
 
 void bonusDespawnTarget(Struct_174 *targetExt, Struct_71B4 *gameCtx) {
-    gameCtx->unk0[targetExt->unk9] = 0;
+    gameCtx->targets[targetExt->unk9] = NULL;
     actorDespawn(gCurrentActor);
 }
 
@@ -322,7 +317,7 @@ void bonusResetAmmo(Struct_7548 *ammo) {
         effectSetParam(i * 3);
         effectSetCallback(effectSpriteMatrixUpdate);
         effectSetSpeed((s32)&ammo->ammoIconSlide[i]);
-        ammo->ammoIcons[i] = effectCreateAtPosition(D_8071FFD4, 1.0f, (f32) y, 210.0f, -10.0f);
+        ammo->ammoIcons[i] = effectCreateAtPosition(D_8071FFD4, 1.0f, y, 210.0f, -10.0f);
         y -= 0x1E;
     }
     sfxPlayOnFreeSlot(0x3E4, 0x7FFF, 63.0f, 1.0f, 5, 0);
@@ -346,34 +341,34 @@ u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
     u8 fireStatus;
 
     fireStatus = 0;
-    bonusExt->unk26 = 1;
+    bonusExt->showCrosshair = 1;
     camProjectToScreen(aimX, aimY, aimZ, &screenX, &screenY, 0, 4.0f, 0);
-    bonusExt->unk1E = screenX;
-    bonusExt->unk20 = screenY;
+    bonusExt->crosshairX = screenX;
+    bonusExt->crosshairY = screenY;
     gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(aimX, aimZ, gCurrentActor->x, gCurrentActor->z), 10.0f);
     distance = sqrtf((gCurrentActor->x - aimX) * (gCurrentActor->x - aimX) + (gCurrentActor->z - aimZ) * (gCurrentActor->z - aimZ));
-    gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, (s32)(mathAtan2(gCurrentActor->y - aimY, distance) * 2048.0 / 3.1415927f + 150.0), 5.0f);
+    gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, mathAtan2(gCurrentActor->y - aimY, distance) * 2048.0 / 3.1415927f + 150.0, 5.0f);
     if ((D_807FD63C & 0xE000) != 0) {
         if (gCurrentActor->state == 0) {
             fireStatus = 1;
-            if (bonusExt->unk22 != 0) {
-                if (bonusExt->unk23 != 0 && bonusExt->ammoIconSlide[0] == 0) {
+            if (bonusExt->aimSlot != 0) {
+                if (bonusExt->ammoCount != 0 && bonusExt->ammoIconSlide[0] == 0) {
                     bonusFireProjectile(aimX, aimY, aimZ);
-                    bonusExt->unk23--;
-                    effectFreeAndUnlink(bonusExt->ammoIcons[bonusExt->unk23]);
+                    bonusExt->ammoCount--;
+                    effectFreeAndUnlink(bonusExt->ammoIcons[bonusExt->ammoCount]);
                     rumbleRequest(0, 0xFF, 3);
-                    bonusExt->ammoIcons[bonusExt->unk23] = NULL;
-                    for (ammoIndex = 0; ammoIndex < bonusExt->unk23; ammoIndex++) {
+                    bonusExt->ammoIcons[bonusExt->ammoCount] = NULL;
+                    for (ammoIndex = 0; ammoIndex < bonusExt->ammoCount; ammoIndex++) {
                         bonusExt->ammoIconSlide[ammoIndex] = 10;
                     }
-                } else if (bonusExt->unk23 == 0) {
+                } else if (bonusExt->ammoCount == 0) {
                     if (gCurrentActor->unk155 == 0) {
                         fireStatus = 2;
                         gCurrentActor->unk155 = 1;
                     }
                 }
-            } else if (bonusExt->unk23 < 5) {
-                bonusExt->unk23 = 5;
+            } else if (bonusExt->ammoCount < 5) {
+                bonusExt->ammoCount = 5;
                 bonusResetAmmo(bonusExt);
                 gCurrentActor->unk155 = 0;
             }
@@ -408,60 +403,60 @@ void bonusTargetGameUpdate(void) {
 
     if (!(gCurrentActor->flags & 0x10)) {
         c = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
-        game->unk25 = c;
+        game->counterTextId = c;
         func_806FDAB8(c, 0.0f);
-        bonusExt->unk23 = 5;
-        bonusExt->unk0 = -2;
-        bonusExt->unk22 = 0;
+        bonusExt->ammoCount = 5;
+        bonusExt->phase = -2;
+        bonusExt->aimSlot = 0;
         playerStateQueueCallback(0x48, 0, 0);
         camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, -7, 0, 0x16, 0x2C, 4, 0, 0.05f);
         camStartPath(0, 0, 1);
         gCurrentActor->roll = 0x310;
         switch (gCurrentMap) {
         case 0xA:
-            game->unk27 = 0x55;
-            game->unk28 = 0x46;
+            game->spawnThreshold = 0x55;
+            game->typeThreshold = 0x46;
             game->unk2C = 0.85f;
-            game->unk20 = 0x12;
-            game->unk22 = game->unk20;
-            game->unk29 = 0x3C;
+            game->shownCount = 0x12;
+            game->targetsLeft = game->shownCount;
+            game->timeLimit = 0x3C;
             break;
         case 0x73:
-            game->unk27 = 0x5A;
-            game->unk28 = 0x46;
+            game->spawnThreshold = 0x5A;
+            game->typeThreshold = 0x46;
             game->unk2C = 1.0f;
-            game->unk20 = 0x16;
-            game->unk22 = game->unk20;
-            game->unk29 = 0x3C;
+            game->shownCount = 0x16;
+            game->targetsLeft = game->shownCount;
+            game->timeLimit = 0x3C;
             break;
         case 0x74:
-            game->unk27 = 0x57;
-            game->unk28 = 0x50;
+            game->spawnThreshold = 0x57;
+            game->typeThreshold = 0x50;
             game->unk2C = 1.2f;
-            game->unk20 = 0x19;
-            game->unk22 = game->unk20;
-            game->unk29 = 0x3C;
+            game->shownCount = 0x19;
+            game->targetsLeft = game->shownCount;
+            game->timeLimit = 0x3C;
             break;
         case 0x75:
-            game->unk27 = 0x5C;
-            game->unk28 = 0x50;
+            game->spawnThreshold = 0x5C;
+            game->typeThreshold = 0x50;
             game->unk2C = 1.3f;
-            game->unk20 = 0x1C;
-            game->unk22 = game->unk20;
-            game->unk29 = 0x3C;
+            game->shownCount = 0x1C;
+            game->targetsLeft = game->shownCount;
+            game->timeLimit = 0x3C;
             break;
         }
     }
-    if (bonusExt->unk0 > 0) {
-        bonusExt->unk22 = 0;
+    if (bonusExt->phase > 0) {
+        bonusExt->aimSlot = 0;
         if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
             ang = mathAtan2(gPlayerPadState.unk2F, gPlayerPadState.unk2E) / 6.2831855f * 8.0 + 5.5;
-            if (9.0f < ang) {
+            if (ang > 9.0f) {
                 ang -= 8.0f;
             }
-            bonusExt->unk22 = ang;
+            bonusExt->aimSlot = ang;
         }
-        p = *gMinecartTrackPoints + bonusExt->unk22;
+        p = *gMinecartTrackPoints + bonusExt->aimSlot;
         if (bonusAimAndFire(p->x, p->y, p->z) == 2) {
             bonusExt->unk25 = 0xFF;
             sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -471,14 +466,14 @@ void bonusTargetGameUpdate(void) {
             if ((gCurrentActor->parentActor)->state == 5) {
                 gCurrentActor->state = 0xFF;
             }
-            if (game->unk22 == 0) {
+            if (game->targetsLeft == 0) {
                 bonusEndWin(0, 0);
                 camStartPath(0, 1, 0x11);
                 gCurrentActor->state = 1;
-            } else if (game->unk27 < (randomNonNegative() >> 0xF) % 100) {
+            } else if (game->spawnThreshold < (randomNonNegative() >> 0xF) % 100) {
                 r = (randomNonNegative() >> 0xF) % 0xFF;
                 idx = r % 8;
-                if (game->unk0[idx] == 0) {
+                if (game->targets[idx] == 0) {
                     p = *gMinecartTrackPoints + idx + 1;
                     bonusSpawnTarget(p->x, p->y, p->z, idx, game);
                 }
@@ -499,17 +494,17 @@ void bonusTargetGameUpdate(void) {
             break;
         }
     } else {
-        switch (bonusExt->unk0) {
+        switch (bonusExt->phase) {
         case -2:
             if (gGameMode != 1) {
-                bonusExt->unk0++;
-                hudSpawnCountdownTimer(0xDC, 0x2A, game->unk29);
+                bonusExt->phase++;
+                hudSpawnCountdownTimer(0xDC, 0x2A, game->timeLimit);
                 resQueueAttachActor(gCurrentActor, 0, 1);
             }
             break;
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
-                bonusExt->unk0 = 1;
+                bonusExt->phase = 1;
                 hudCountdownTimerStart(gCurrentActor->parentActor);
                 bonusResetAmmo(bonusExt);
                 sfxAllocateChannel(8, 1.0f);
@@ -517,18 +512,18 @@ void bonusTargetGameUpdate(void) {
             break;
         }
     }
-    if (bonusExt->unk0 >= -1) {
+    if (bonusExt->phase >= -1) {
         renderCallbacksRegister(bonusRenderTargetGameHud, gCurrentActor, 3);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct BonusB_Sub178 {
-    Actor *unk0[6];
+    Actor *popups[6];
     char pad18[2];
-    u8 unk1A;
-    u8 unk1B;
-    u8 unk1C;
+    u8 timeLimit;
+    u8 popupTimeMin;
+    u8 popupTimeMax;
     char pad1D[3];
     f32 unk20;
 } BonusB_Sub178;
@@ -542,8 +537,8 @@ void bonusPopupGameUpdate(void) {
     f32 z;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        bonusExt->unk23 = 5;
-        bonusExt->unk0 = -2;
+        bonusExt->ammoCount = 5;
+        bonusExt->phase = -2;
         playerStateQueueCallback(0x48, 0, 0);
         camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
@@ -551,27 +546,27 @@ void bonusPopupGameUpdate(void) {
         switch (gCurrentMap) {
         case 0x12:
             game->unk20 = 0.5f;
-            game->unk1A = 0x2D;
-            game->unk1B = 0x1E;
-            game->unk1C = 0x46;
+            game->timeLimit = 0x2D;
+            game->popupTimeMin = 0x1E;
+            game->popupTimeMax = 0x46;
             break;
         case 0x76:
             game->unk20 = 0.8f;
-            game->unk1A = 0x2D;
-            game->unk1B = 0x14;
-            game->unk1C = 0x46;
+            game->timeLimit = 0x2D;
+            game->popupTimeMin = 0x14;
+            game->popupTimeMax = 0x46;
             break;
         case 0x77:
             game->unk20 = 1.0f;
-            game->unk1A = 0x3C;
-            game->unk1B = 0x14;
-            game->unk1C = 0x46;
+            game->timeLimit = 0x3C;
+            game->popupTimeMin = 0x14;
+            game->popupTimeMax = 0x46;
             break;
         case 0x78:
             game->unk20 = 1.5f;
-            game->unk1A = 0x3C;
-            game->unk1B = 0x14;
-            game->unk1C = 0x46;
+            game->timeLimit = 0x3C;
+            game->popupTimeMin = 0x14;
+            game->popupTimeMax = 0x46;
             break;
         }
         bonusPopupSpawnActors(game);
@@ -581,36 +576,36 @@ void bonusPopupGameUpdate(void) {
     } else {
         gCurrentActor->unk15F = 0;
     }
-    if (bonusExt->unk0 > 0) {
-        bonusExt->unk22 = 0;
+    if (bonusExt->phase > 0) {
+        bonusExt->aimSlot = 0;
         if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
             if (gPlayerPadState.unk2F > 0) {
                 if (gPlayerPadState.unk2E < -0x28) {
-                    bonusExt->unk22 = 1;
+                    bonusExt->aimSlot = 1;
                 } else if (gPlayerPadState.unk2E >= 0x29) {
-                    bonusExt->unk22 = 3;
+                    bonusExt->aimSlot = 3;
                 } else {
-                    bonusExt->unk22 = 2;
+                    bonusExt->aimSlot = 2;
                 }
             } else if (gPlayerPadState.unk2E < -0x28) {
-                bonusExt->unk22 = 4;
+                bonusExt->aimSlot = 4;
             } else if (gPlayerPadState.unk2E >= 0x29) {
-                bonusExt->unk22 = 5;
+                bonusExt->aimSlot = 5;
             } else {
-                bonusExt->unk22 = 6;
+                bonusExt->aimSlot = 6;
             }
         }
-        p = *gMinecartTrackPoints + bonusExt->unk22;
+        p = *gMinecartTrackPoints + bonusExt->aimSlot;
         y = p->y;
         z = p->z;
-        if (bonusExt->unk22 != 0) {
+        if (bonusExt->aimSlot != 0) {
             y += 27.0f;
             z -= 8.0f;
         }
         switch (bonusAimAndFire(p->x, y, z)) {
         case 1:
-            if (bonusExt->unk22) {
-                Actor *popupActor = game->unk0[bonusExt->unk22 - 1];
+            if (bonusExt->aimSlot) {
+                Actor *popupActor = game->popups[bonusExt->aimSlot - 1];
                 BonusPopup *popup = popupActor->customState;
                 if (popup->unk1C == 0) {
                     popup->unk1C = 6;
@@ -649,17 +644,17 @@ void bonusPopupGameUpdate(void) {
             break;
         }
     } else {
-        switch (bonusExt->unk0) {
+        switch (bonusExt->phase) {
         case -2:
             if (gGameMode != 1) {
-                bonusExt->unk0++;
-                hudSpawnCountdownTimer(0xDC, 0x2A, game->unk1A);
+                bonusExt->phase++;
+                hudSpawnCountdownTimer(0xDC, 0x2A, game->timeLimit);
                 resQueueAttachActor(gCurrentActor, 0, 2);
             }
             break;
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
-                bonusExt->unk0 = 1;
+                bonusExt->phase = 1;
                 hudCountdownTimerStart(gCurrentActor->parentActor);
                 bonusResetAmmo(bonusExt);
                 sfxAllocateChannel(8, 1.0f);
@@ -667,7 +662,7 @@ void bonusPopupGameUpdate(void) {
             break;
         }
     }
-    if (bonusExt->unk0 >= -1) {
+    if (bonusExt->phase >= -1) {
         renderCallbacksRegister(bonusRenderPopupGameHud, gCurrentActor, 3);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -685,13 +680,13 @@ void bonusTargetUpdate(void) {
     switch (gCurrentActor->state) {
     case 0:
         if (gActorGlobalState.unk15 != 0) {
-            if (p->unk22 - ((sub->unk8 != 0) ? 2 : 1) < 0) {
-                p->unk22 = 0;
+            if (p->targetsLeft - ((sub->unk8 != 0) ? 2 : 1) < 0) {
+                p->targetsLeft = 0;
             } else {
                 step = (sub->unk8 != 0) ? 2 : 1;
-                p->unk22 -= step;
+                p->targetsLeft -= step;
             }
-            func_806FDAB8(p->unk25, 3.1415927f);
+            func_806FDAB8(p->counterTextId, 3.1415927f);
             actorScriptStart(gCurrentActor, (sub->unk8 != 0) ? 0x212 : 0x210);
             gCurrentActor->state = 1;
             gCurrentActor->unk155 = 0;
@@ -718,7 +713,7 @@ void bonusPopupSpawnActors(BonusB_Sub178 *popupState) {
         if (actorSpawn(0x12C, 0x15) != 0) {
             popup = gSpawnedActor->customState;
             popup->unk0 = gCurrentActor;
-            popup->unk11 = (((randomNonNegative() >> 0xF) % 0x7FFF) % (popupState->unk1C - popupState->unk1B + 1)) + popupState->unk1B;
+            popup->unk11 = (((randomNonNegative() >> 0xF) % 0x7FFF) % (popupState->popupTimeMax - popupState->popupTimeMin + 1)) + popupState->popupTimeMin;
             pos = *gMinecartTrackPoints + i;
             actorScriptStart(gSpawnedActor, 0x1F5);
             gSpawnedActor->x = pos->x;
@@ -726,7 +721,7 @@ void bonusPopupSpawnActors(BonusB_Sub178 *popupState) {
             gSpawnedActor->z = pos->z;
             gSpawnedActor->flags |= 0x1000;
             gSpawnedActor->yaw = 0x800;
-            popupState->unk0[i - 1] = gSpawnedActor;
+            popupState->popups[i - 1] = gSpawnedActor;
             popupActor = gSpawnedActor;
             if (actorSpawn(0x12D, 0x16) != 0) {
                 BonusPopupMarker *marker = gSpawnedActor->customState;
@@ -930,7 +925,7 @@ void bonusTurtleTroubleTurtleUpdate(void) {
         if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
             gCurrentActor->speedY = turtle->unkC * -0.8f;
             v = -turtle->unkC * 1.5;
-            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, (u8)((255.0 < v) ? 255.0 : v), 0x7F, 0xA);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, (v > 255.0) ? 255.0 : v, 0x7F, 0xA);
         }
         gCurrentActor->speedY = gCurrentActor->speedY + gCurrentActor->accelY;
         turtle->unkC = gCurrentActor->speedY;
@@ -952,17 +947,17 @@ void bonusTurtleTroubleTurtleUpdate(void) {
 }
 
 typedef struct {
-    s16 unk0;
+    s16 flashTimer;
     char pad2[2];
-    f32 unk4;
-    s8 unk8[6];
-    s16 unkE;
+    f32 lightLevel;
+    s8 slotOrder[6];
+    s16 timeLimit;
     char pad10;
-    u8 unk11;
-    u8 unk12;
+    u8 counterTextId;
+    u8 rollTimer;
     char pad13;
-    s16 unk14;
-    s16 unk16;
+    s16 shownCount;
+    s16 targetsLeft;
 } BonusLightFlashState;
 
 extern s8 D_8002D8F4;
@@ -984,34 +979,34 @@ void bonusLightFlashGameUpdate(void) {
     s16 d;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        bonusExt->unk23 = 5;
-        bonusExt->unk0 = -2;
+        bonusExt->ammoCount = 5;
+        bonusExt->phase = -2;
         switch (gCurrentMap) {
         case 0x65:
-            game->unk16 = 0xA;
+            game->targetsLeft = 0xA;
             D_8002D8F4 = 0x30;
             break;
         case 0x8D:
-            game->unk16 = 0xF;
+            game->targetsLeft = 0xF;
             D_8002D8F4 = 0x30;
             break;
         case 0x8E:
-            game->unk16 = 5;
+            game->targetsLeft = 5;
             D_8002D8F4 = 0x1E;
             break;
         case 0x8F:
-            game->unk16 = 0xA;
+            game->targetsLeft = 0xA;
             D_8002D8F4 = 0x1E;
             break;
         }
-        game->unk14 = game->unk16;
-        game->unkE = 0x3C;
-        game->unk12 = 0;
+        game->shownCount = game->targetsLeft;
+        game->timeLimit = 0x3C;
+        game->rollTimer = 0;
         c = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
-        game->unk11 = c;
+        game->counterTextId = c;
         func_806FDAB8(c, 0.0f);
-        game->unk0 = 0x3C;
-        game->unk4 = 1.0f;
+        game->flashTimer = 0x3C;
+        game->lightLevel = 1.0f;
         playerStateQueueCallback(0x48, 0, 0);
         camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
@@ -1022,29 +1017,29 @@ void bonusLightFlashGameUpdate(void) {
         gCurrentActor->tintB = 0xFF;
         i = 0;
         do {
-            game->unk8[i] = i | 0x80;
+            game->slotOrder[i] = i | 0x80;
         } while (++i < 6);
         bonusLightFlashSpawnTargets(gCurrentActor);
     }
-    if (bonusExt->unk0 > 0) {
+    if (bonusExt->phase > 0) {
         if (gCurrentActor->state == 0) {
-            game->unk0 -= 1;
+            game->flashTimer -= 1;
         } else {
-            game->unk0 = 0x3C;
+            game->flashTimer = 0x3C;
         }
-        if (game->unk0 > 0) {
-            game->unk4 = game->unk4 + 0.2f;
+        if (game->flashTimer > 0) {
+            game->lightLevel = game->lightLevel + 0.2f;
         } else {
-            game->unk4 = game->unk4 - 0.2f;
+            game->lightLevel = game->lightLevel - 0.2f;
         }
-        if (game->unk4 > 1.0) {
-            game->unk4 = 1.0f;
+        if (game->lightLevel > 1.0) {
+            game->lightLevel = 1.0f;
         }
-        if (game->unk4 < 0.0) {
-            game->unk4 = 0.0f;
+        if (game->lightLevel < 0.0) {
+            game->lightLevel = 0.0f;
         }
-        lightSetColor(game->unk4, game->unk4, game->unk4, 0);
-        if (game->unk4 == 0.0f) {
+        lightSetColor(game->lightLevel, game->lightLevel, game->lightLevel, 0);
+        if (game->lightLevel == 0.0f) {
             j = (s16)(D_8002D8F8 - 1);
             ((s16 *)&D_8002D8F4)[2] = j; // FAKE: storing through D_8002D8F4's base keeps the D_8002D8F8 lh/sh from sharing a hoisted lui/addiu base (Q0332)
             if (j <= 0) {
@@ -1061,18 +1056,18 @@ void bonusLightFlashGameUpdate(void) {
             else { d = -100; if (d) {} D_8002D8FC = d | 0; } // FAKE/LAYOUT: dead test and |0 keep d colored in v0; preserve this line.
             j = 1; if (j) {} D_8002D8F8 = j | 0; // FAKE/LAYOUT: dead test and |0 keep j colored in v1; preserve this line.
         }
-        if (game->unk0 < -0x1E) {
-            game->unk0 = D_8002D8F4;
+        if (game->flashTimer < -0x1E) {
+            game->flashTimer = D_8002D8F4;
             i = 0;
             do {
-                game->unk8[i] = -1;
+                game->slotOrder[i] = -1;
                 i++;
             } while (i < 6);
             for (i = 0; i != 6; i++) {
                 j = i;
                 r = randomLcgNext() & 7;
                 while (r >= 0) {
-                    if (game->unk8[j] == -1) {
+                    if (game->slotOrder[j] == -1) {
                         r -= 1;
                         if (r >= 0) {
                             j += 1;
@@ -1084,31 +1079,31 @@ void bonusLightFlashGameUpdate(void) {
                         j = 0;
                     }
                 }
-                game->unk8[j] = i | 0x80;
+                game->slotOrder[j] = i | 0x80;
             }
         }
-        bonusExt->unk22 = 0;
+        bonusExt->aimSlot = 0;
         if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
             if (gPlayerPadState.unk2F > 0) {
                 if (gPlayerPadState.unk2E < -0x28) {
-                    bonusExt->unk22 = 1;
+                    bonusExt->aimSlot = 1;
                 } else if (gPlayerPadState.unk2E >= 0x29) {
-                    bonusExt->unk22 = 3;
+                    bonusExt->aimSlot = 3;
                 } else {
-                    bonusExt->unk22 = 2;
+                    bonusExt->aimSlot = 2;
                 }
             } else if (gPlayerPadState.unk2E < -0x28) {
-                bonusExt->unk22 = 4;
+                bonusExt->aimSlot = 4;
             } else if (gPlayerPadState.unk2E >= 0x29) {
-                bonusExt->unk22 = 5;
+                bonusExt->aimSlot = 5;
             } else {
-                bonusExt->unk22 = 6;
+                bonusExt->aimSlot = 6;
             }
         }
-        p = *gMinecartTrackPoints + bonusExt->unk22;
+        p = *gMinecartTrackPoints + bonusExt->aimSlot;
         y = p->y;
         z = p->z;
-        if (bonusExt->unk22 != 0) {
+        if (bonusExt->aimSlot != 0) {
             y += 27.0f;
             z -= 8.0f;
         }
@@ -1122,7 +1117,7 @@ void bonusLightFlashGameUpdate(void) {
         }
         switch (gCurrentActor->state) {
         case 0:
-            if (game->unk14 == 0) {
+            if (game->shownCount == 0) {
                 gCurrentActor->state = 2;
             }
             if ((gCurrentActor->parentActor)->state == 5) {
@@ -1141,17 +1136,17 @@ void bonusLightFlashGameUpdate(void) {
             break;
         }
     } else {
-        switch (bonusExt->unk0) {
+        switch (bonusExt->phase) {
         case -2:
             if (gGameMode != 1) {
-                bonusExt->unk0++;
-                hudSpawnCountdownTimer(0xDC, 0x2A, game->unkE);
+                bonusExt->phase++;
+                hudSpawnCountdownTimer(0xDC, 0x2A, game->timeLimit);
                 resQueueAttachActor(gCurrentActor, 0, 9);
             }
             break;
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
-                bonusExt->unk0 = 1;
+                bonusExt->phase = 1;
                 hudCountdownTimerStart(gCurrentActor->parentActor);
                 bonusResetAmmo(bonusExt);
                 sfxAllocateChannel(8, 1.0f);
@@ -1164,36 +1159,36 @@ void bonusLightFlashGameUpdate(void) {
 }
 
 typedef struct {
-    s16 unk0;
+    s16 spawnTimer;
     char pad2;
-    u8 unk3;
-    s16 unk4;
-    u8 unk6;
+    u8 counterTextId;
+    s16 timeLimit;
+    u8 rollTimer;
     char pad7;
-    s16 unk8;
-    s16 unkA;
+    s16 shownCount;
+    s16 fairiesLeft;
 } LargeB1_Sub178;
 
 typedef struct LargeB5State {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    s16 unk18;
+    f32 centerX;
+    f32 centerZ;
+    f32 offsetX;
+    f32 offsetZ;
+    f32 velX;
+    f32 velZ;
+    s16 bobAngle;
     char pad1A[2];
     f32 unk1C;
     char pad20[2];
-    s16 unk22;
+    s16 timeLimit;
     u8 unk24;
-    u8 unk25;
-    u8 unk26;
+    u8 counterTextId;
+    u8 rollTimer;
     char pad27;
-    s16 unk28;
-    s16 unk2A;
-    s8 unk2C;
-    s8 unk2D[1];
+    s16 shownCount;
+    s16 fliesLeft;
+    s8 spawnDelay;
+    s8 respawnTimers[1];
 } LargeB5State;
 
 Gfx *func_80029B9C(Gfx *gdl, Actor *actor) {
@@ -1202,7 +1197,7 @@ Gfx *func_80029B9C(Gfx *gdl, Actor *actor) {
     LargeB1_Sub178 *pathPanic = ((BonusActorExt *)actor)->unk178;
     LargeB5State *bugBash = actor->customState;
 
-    if (actor->actorType != 0x7E && actor->state == 0 && bonusExt->unk26 != 0) {
+    if (actor->actorType != 0x7E && actor->state == 0 && bonusExt->showCrosshair != 0) {
         gdl = bonusRenderCrosshair(gdl, actor);
     }
     gSPDisplayList(gdl++, D_1000118);
@@ -1214,12 +1209,12 @@ Gfx *func_80029B9C(Gfx *gdl, Actor *actor) {
     switch (actor->actorType) {
     case 0x7D:
         if (actor->state != 3) {
-            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, lightFlash->unk11, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &lightFlash->unk14, lightFlash->unk16, &lightFlash->unk12);
+            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, lightFlash->counterTextId, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &lightFlash->shownCount, lightFlash->targetsLeft, &lightFlash->rollTimer);
         }
         break;
     case 0x7C:
         if (actor->state != 3) {
-            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, pathPanic->unk3, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &pathPanic->unk8, pathPanic->unkA, &pathPanic->unk6);
+            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, pathPanic->counterTextId, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &pathPanic->shownCount, pathPanic->fairiesLeft, &pathPanic->rollTimer);
         }
         break;
     case 0x7E:
@@ -1229,7 +1224,7 @@ Gfx *func_80029B9C(Gfx *gdl, Actor *actor) {
         case 0:
         case 1:
         case 2:
-            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, bugBash->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &bugBash->unk28, bugBash->unk2A, &bugBash->unk26);
+            gdl = hudDrawRollingCounter(textDrawAnimated(gdl, bugBash->counterTextId, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &bugBash->shownCount, bugBash->fliesLeft, &bugBash->rollTimer);
             break;
         }
         break;
@@ -1252,7 +1247,7 @@ void bonusLightFlashSpawnTargets(void *ownerActor) {
             *actorProp = D_8002D8C8[i - 1];
             subExt->unk0 = a;
             subExt->unk4 = i - 1;
-            pt = *gMinecartTrackPoints + (base->unk8[subExt->unk4] & 0x7F) + 1;
+            pt = *gMinecartTrackPoints + (base->slotOrder[subExt->unk4] & 0x7F) + 1;
             gSpawnedActor->x = pt->x;
             gSpawnedActor->y = pt->y;
             gSpawnedActor->z = pt->z;
@@ -1293,7 +1288,7 @@ void bonusLightFlashTargetUpdate(void) {
         }
         gCurrentActor->unk144 = 0x24;
     }
-    p = *gMinecartTrackPoints + (base->unk8[subExt->unk4] & 0x7F) + 1;
+    p = *gMinecartTrackPoints + (base->slotOrder[subExt->unk4] & 0x7F) + 1;
     gCurrentActor->x = p->x;
     gCurrentActor->y = p->y;
     gCurrentActor->z = p->z;
@@ -1304,13 +1299,13 @@ void bonusLightFlashTargetUpdate(void) {
         gCurrentActor->unk144 = 0x24;
     }
     isHit = 0;
-    if (gActorGlobalState.unk15 == 1 && base->unk0 >= -9) {
+    if (gActorGlobalState.unk15 == 1 && base->flashTimer >= -9) {
         isHit = 1;
     }
     if (subExt->unk4 != 5) {
-        flags = base->unk8[subExt->unk4];
+        flags = base->slotOrder[subExt->unk4];
         if (flags & 0x80) {
-            base->unk8[subExt->unk4] = flags & 0x7F;
+            base->slotOrder[subExt->unk4] = flags & 0x7F;
             actorScriptStart(gCurrentActor, D_8002D8D4[subExt->unk4]);
         } else if (lightR < 0.05f && gCurrentActor->sub4->scriptStart != NULL) {
             actorScriptStart(gCurrentActor, 0);
@@ -1318,15 +1313,15 @@ void bonusLightFlashTargetUpdate(void) {
         if (isHit != 0) {
             actorScriptStart(gCurrentActor, D_8002D8E0[subExt->unk4]);
             sfxPlayOnFreeSlot(0x2A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            if (base->unk16 != 0) {
-                base->unk16 += 1;
+            if (base->targetsLeft != 0) {
+                base->targetsLeft += 1;
             }
         }
         func_806BF920();
     } else {
         gCurrentActor->flags |= 0x1000;
         gCurrentActor->yaw += 0x12C;
-        if (base->unk0 < -0x1C) {
+        if (base->flashTimer < -0x1C) {
             gCurrentActor->state = 0;
         }
         scale = gCurrentActor->sub4->scaleX;
@@ -1343,8 +1338,8 @@ void bonusLightFlashTargetUpdate(void) {
         gCurrentActor->sub4->scaleZ = scale;
         if (isHit != 0) {
             sfxPlayOnFreeSlot(0x2A1, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            base->unk0 = 0;
-            base->unk16 -= 1;
+            base->flashTimer = 0;
+            base->targetsLeft -= 1;
             gCurrentActor->state = 1;
         }
     }
@@ -1368,33 +1363,33 @@ void bonusPerilPathPanicGameUpdate(void) {
     s32 i;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        bonusExt->unk23 = 5;
-        bonusExt->unk0 = -2;
+        bonusExt->ammoCount = 5;
+        bonusExt->phase = -2;
         D_8002D904 = 0;
         switch (gCurrentMap) {
         case 0x90:
-            game->unkA = 6;
+            game->fairiesLeft = 6;
             D_8002D900 = 0x15;
             break;
         case 0x91:
-            game->unkA = 8;
+            game->fairiesLeft = 8;
             D_8002D900 = 0x12;
             break;
         case 0x92:
-            game->unkA = 0xA;
+            game->fairiesLeft = 0xA;
             D_8002D900 = 0xF;
             break;
         case 0x93:
-            game->unkA = 0xC;
+            game->fairiesLeft = 0xC;
             D_8002D900 = 0xC;
             break;
         }
-        game->unk4 = 0x3C;
-        game->unk6 = 0;
-        game->unk8 = game->unkA;
-        game->unk3 = gfxResourceCreate(1, textTableGetString(0x1A, 4, 1), 8, 0.0f, 0.0f, 0.0f);
-        func_806FDAB8(game->unk3, 0.0f);
-        game->unk0 = 0x1E;
+        game->timeLimit = 0x3C;
+        game->rollTimer = 0;
+        game->shownCount = game->fairiesLeft;
+        game->counterTextId = gfxResourceCreate(1, textTableGetString(0x1A, 4, 1), 8, 0.0f, 0.0f, 0.0f);
+        func_806FDAB8(game->counterTextId, 0.0f);
+        game->spawnTimer = 0x1E;
         playerStateQueueCallback(0x48, 0, 0);
         camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
@@ -1417,9 +1412,9 @@ void bonusPerilPathPanicGameUpdate(void) {
             }
         }
     }
-    if (bonusExt->unk0 > 0) {
-        if (game->unk0 > 0) {
-            game->unk0--;
+    if (bonusExt->phase > 0) {
+        if (game->spawnTimer > 0) {
+            game->spawnTimer--;
         } else {
             if (actorSpawn(0x149, 0x3D) != 0) {
                 BonusC_AD10_S *u = gSpawnedActor->customState;
@@ -1437,31 +1432,31 @@ void bonusPerilPathPanicGameUpdate(void) {
                 gSpawnedActor->sub4->scaleZ = 0.08f;
             }
             n = D_8002D904;
-            game->unk0 = 0x5A;
+            game->spawnTimer = 0x5A;
             ((s8 *)&D_8002D900)[4] = (u16)(1 - n); // FAKE: storing through D_8002D900's base keeps the D_8002D904 lb/sb from sharing a hoisted lui/addiu base (Q0332); the (u16) puts the subu in t7
         }
-        bonusExt->unk22 = 0;
+        bonusExt->aimSlot = 0;
         if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
             if (gPlayerPadState.unk2F > 0) {
                 if (gPlayerPadState.unk2E < -0x28) {
-                    bonusExt->unk22 = 1;
+                    bonusExt->aimSlot = 1;
                 } else if (gPlayerPadState.unk2E >= 0x29) {
-                    bonusExt->unk22 = 3;
+                    bonusExt->aimSlot = 3;
                 } else {
-                    bonusExt->unk22 = 2;
+                    bonusExt->aimSlot = 2;
                 }
             } else if (gPlayerPadState.unk2E < -0x28) {
-                bonusExt->unk22 = 4;
+                bonusExt->aimSlot = 4;
             } else if (gPlayerPadState.unk2E >= 0x29) {
-                bonusExt->unk22 = 5;
+                bonusExt->aimSlot = 5;
             } else {
-                bonusExt->unk22 = 6;
+                bonusExt->aimSlot = 6;
             }
         }
-        p = *gMinecartTrackPoints + bonusExt->unk22;
+        p = *gMinecartTrackPoints + bonusExt->aimSlot;
         y = p->y;
         z = p->z;
-        if (bonusExt->unk22 != 0) {
+        if (bonusExt->aimSlot != 0) {
             y += 27.0f;
             z -= 8.0f;
         }
@@ -1475,7 +1470,7 @@ void bonusPerilPathPanicGameUpdate(void) {
         }
         switch (gCurrentActor->state) {
         case 0:
-            if (game->unk8 == 0) {
+            if (game->shownCount == 0) {
                 gCurrentActor->state = 2;
             }
             if ((gCurrentActor->parentActor)->state == 5) {
@@ -1494,17 +1489,17 @@ void bonusPerilPathPanicGameUpdate(void) {
             break;
         }
     } else {
-        switch (bonusExt->unk0) {
+        switch (bonusExt->phase) {
         case -2:
             if (gGameMode != 1) {
-                bonusExt->unk0++;
-                hudSpawnCountdownTimer(0xDC, 0x2A, game->unk4);
+                bonusExt->phase++;
+                hudSpawnCountdownTimer(0xDC, 0x2A, game->timeLimit);
                 resQueueAttachActor(gCurrentActor, 0, 0xB);
             }
             break;
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
-                bonusExt->unk0 = 1;
+                bonusExt->phase = 1;
                 hudCountdownTimerStart(gCurrentActor->parentActor);
                 bonusResetAmmo(bonusExt);
                 sfxAllocateChannel(8, 1.0f);
@@ -1581,8 +1576,8 @@ void bonusPerilPathPanicFairyUpdate(void) {
     }
     p = *gMinecartTrackPoints + 3;
     if (gCurrentActor->x < p->x - 50.0) {
-        if (ownerExt->unkA > 0) {
-            ownerExt->unkA -= 1;
+        if (ownerExt->fairiesLeft > 0) {
+            ownerExt->fairiesLeft -= 1;
         }
         actorDespawn(gCurrentActor);
     }
@@ -1603,15 +1598,9 @@ void bonusPerilPathPanicFairyUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct {
-    char pad0[2];
-    s8 unk2;
-    s8 unk3;
-} LargeB4Ctrl;
-
 extern Actor *gPrimaryPlayerActor;
 extern PlayerStruct *gPlayerSlots;
-extern LargeB4Ctrl *D_807ECDEC;
+extern OSContPad *D_807ECDEC;
 typedef struct {
     Actor *unk0;
     f32 unk4;
@@ -1636,29 +1625,29 @@ void bonusBigBugBashGameUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gPrimaryPlayerActor->state = 0x77;
         gPrimaryPlayerActor->unk155 = 0;
-        game->unk0 = gCurrentActor->x + 10.0;
-        game->unk4 = gCurrentActor->z + 8.0;
+        game->centerX = gCurrentActor->x + 10.0;
+        game->centerZ = gCurrentActor->z + 8.0;
         gCurrentActor->y = gCurrentActor->y + 50.0;
         switch (gCurrentMap) {
         case 0x66:
-            game->unk2A = 4;
+            game->fliesLeft = 4;
             break;
         case 0x94:
-            game->unk2A = 6;
+            game->fliesLeft = 6;
             break;
         case 0x95:
-            game->unk2A = 8;
+            game->fliesLeft = 8;
             break;
         case 0x96:
-            game->unk2A = 0xA;
+            game->fliesLeft = 0xA;
             break;
         }
-        game->unk26 = 0;
-        game->unk22 = 0x3C;
-        game->unk28 = game->unk2A;
-        fx = 1 * 0.0f; // FAKE: int-derived zero is a second FP-zero class held in $f20; 0.0f shares the literal register (Q0438)
+        game->rollTimer = 0;
+        game->timeLimit = 0x3C;
+        game->shownCount = game->fliesLeft;
+        fx = 0.0;
         c = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, fx, fx, fx);
-        game->unk25 = c;
+        game->counterTextId = c;
         func_806FDAB8(c, fx);
         lightSetColor(1.0f, 1.0f, 1.0f, -1);
         gCurrentActor->roll = 0;
@@ -1670,63 +1659,63 @@ void bonusBigBugBashGameUpdate(void) {
         camStartPath(0, 0, 1);
         gCurrentActor->state = 3;
         game->unk1C = 0.0f;
-        game->unk10 = 0.0f;
-        game->unk14 = 0.0f;
-        game->unk8 = 0.0f;
-        game->unkC = 0.0f;
+        game->velX = 0.0f;
+        game->velZ = 0.0f;
+        game->offsetX = 0.0f;
+        game->offsetZ = 0.0f;
         actorSpawn(0x14C, 0x55);
         swatter = gSpawnedActor->customState;
         swatter->unk0 = gCurrentActor;
-        game->unk2C = 0x3C;
+        game->spawnDelay = 0x3C;
         i = 0;
         do {
-            game->unk2D[i] = 1;
+            game->respawnTimers[i] = 1;
             i++;
         } while (i != 1);
     }
     for (i = 0; i < 1; i++) {
-        if (game->unk2D[i] > 0) {
-            game->unk2D[i] -= 1;
-            if (game->unk2D[i] == 0 && actorSpawn(0x14A, 0x53) != 0) {
+        if (game->respawnTimers[i] > 0) {
+            game->respawnTimers[i] -= 1;
+            if (game->respawnTimers[i] == 0 && actorSpawn(0x14A, 0x53) != 0) {
                 LargeB5Proj *fly = gSpawnedActor->customState;
 
                 fly->unk0 = gCurrentActor;
                 fly->unk4 = gSpawnedActor->x;
                 fly->unk8 = gSpawnedActor->z;
                 fly->unkE = 2;
-                spawnAngle = mathAngleBetweenPoints2D(game->unk0, game->unk4, gCurrentActor->x, gCurrentActor->z) + 0x800;
-                fly->unk4 = mathSinF(spawnAngle) * 70.0 + game->unk0;
-                fly->unk8 = mathCosF(spawnAngle) * 70.0 + game->unk4;
-                if (game->unk2C == 0) {
+                spawnAngle = mathAngleBetweenPoints2D(game->centerX, game->centerZ, gCurrentActor->x, gCurrentActor->z) + 0x800;
+                fly->unk4 = mathSinF(spawnAngle) * 70.0 + game->centerX;
+                fly->unk8 = mathCosF(spawnAngle) * 70.0 + game->centerZ;
+                if (game->spawnDelay == 0) {
                     gSpawnedActor->x = fly->unk4;
                     gSpawnedActor->y = gCurrentActor->y - 30.0;
                     gSpawnedActor->z = fly->unk8;
                 } else {
-                    gSpawnedActor->x = game->unk0 - 30.0;
-                    gSpawnedActor->z = game->unk0;
+                    gSpawnedActor->x = game->centerX - 30.0;
+                    gSpawnedActor->z = game->centerX;
                     gSpawnedActor->y = gCurrentActor->y - 30.0;
                 }
             }
         }
     }
-    if (game->unk2C != 0) {
-        game->unk2C -= 1;
+    if (game->spawnDelay != 0) {
+        game->spawnDelay -= 1;
     }
-    game->unk18 += 0x19;
+    game->bobAngle += 0x19;
     if (gCurrentActor->state < 2) {
         f32 cosYaw;
         f32 stickY;
 
         fz = mathSinF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
         cosYaw = mathCosF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
-        fx = D_807ECDEC->unk2 * 0.04f;
-        stickY = D_807ECDEC->unk3 * 0.04f;
+        fx = D_807ECDEC->stick_x * 0.04f;
+        stickY = D_807ECDEC->stick_y * 0.04f;
 
-        diffDelta = (fx * cosYaw - stickY * fz) - game->unk10;
-        game->unk10 += diffDelta * 0.125f;
-        game->unk14 += ((fx * fz + stickY * cosYaw) - game->unk14) * 0.25f;
-        game->unk8 += game->unk10;
-        game->unkC -= game->unk14;
+        diffDelta = (fx * cosYaw - stickY * fz) - game->velX;
+        game->velX += diffDelta * 0.125f;
+        game->velZ += ((fx * fz + stickY * cosYaw) - game->velZ) * 0.25f;
+        game->offsetX += game->velX;
+        game->offsetZ -= game->velZ;
     }
     switch (gCurrentActor->state) {
     case 0: {
@@ -1754,7 +1743,7 @@ void bonusBigBugBashGameUpdate(void) {
                 controllerApplyMotionWindow(gCurrentActor, animData, game->unk1C);
             }
         }
-        if (game->unk28 == 0) {
+        if (game->shownCount == 0) {
             gCurrentActor->state = 5;
         }
         if (gCurrentActor->parentActor->state == 5) {
@@ -1783,7 +1772,7 @@ void bonusBigBugBashGameUpdate(void) {
     case 3:
         if (gGameMode != 1) {
             gCurrentActor->state = 4;
-            hudSpawnCountdownTimer(0xDC, 0x2A, game->unk22);
+            hudSpawnCountdownTimer(0xDC, 0x2A, game->timeLimit);
             resQueueAttachActor(gCurrentActor, 0, 0xA);
         }
         break;
@@ -1805,25 +1794,20 @@ void bonusBigBugBashGameUpdate(void) {
         gCurrentActor->state = 7;
         break;
     }
-    {
-        f32 d;
+    fx = game->offsetX * 0.85;
+    fz = game->offsetZ - 40.0;
+    diffDelta = sqrtf(fx * fx + fz * fz);
 
-        fx = game->unk8 * 0.85;
-        fz = game->unkC - 40.0;
-        d = sqrtf(fx * fx + fz * fz);
-
-        if (d > 80.0f) {
-            diffDelta = 80.0f / d;
-            d = 0.0f; // FAKE: dead store; without it diffDelta and the 80.0f literal colour $f2/$f12 instead of $f16/$f2
-            game->unk8 = (fx * diffDelta) / 0.85;
-            game->unkC = (fz * diffDelta) + 40.0;
-        }
+    if (diffDelta > 80.0f) {
+        diffDelta = 80.0f / diffDelta;
+        game->offsetX = (fx * diffDelta) / 0.85;
+        game->offsetZ = (fz * diffDelta) + 40.0;
     }
-    gCurrentActor->x = mathSinF(game->unk18) * 5.0 + (game->unk0 + game->unk8 * 0.8);
-    gCurrentActor->z = 2.0 * mathCosF((s16)(game->unk18 * 2)) + (game->unk4 + game->unkC * 0.9);
-    gPrimaryPlayerActor->x = game->unk0 + game->unk8 * 0.5f;
+    gCurrentActor->x = mathSinF(game->bobAngle) * 5.0 + (game->centerX + game->offsetX * 0.8);
+    gCurrentActor->z = 2.0 * mathCosF(game->bobAngle * 2) + (game->centerZ + game->offsetZ * 0.9);
+    gPrimaryPlayerActor->x = game->centerX + game->offsetX * 0.5f;
     gPrimaryPlayerActor->y = gCurrentActor->y;
-    gPrimaryPlayerActor->z = game->unk4 + game->unkC * 0.5f;
+    gPrimaryPlayerActor->z = game->centerZ + game->offsetZ * 0.5f;
     renderCallbacksRegister(func_80029B9C, gCurrentActor, 3);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -1844,7 +1828,7 @@ void bonusBigBugBashFlyUpdate(void) {
         sfxPlayActorSound(gCurrentActor, 0x10E, 0x3C, 1, 0, 0xFF, 1.0f, 0);
     }
     if (gCurrentActor->state == 0) {
-        if (targetExt->unk2C == 0) {
+        if (targetExt->spawnDelay == 0) {
             if (flyExt->unkC > 0) {
                 if (flyExt->unkC == 0x28) {
                     sfxPlayFromActorDirect(gCurrentActor, 0x801, 0xFF, 3.0f, 2, 0);
@@ -1866,17 +1850,17 @@ void bonusBigBugBashFlyUpdate(void) {
                 } else {
                     flyExt->unkE = (randomLcgNext() & 0x3F) + 0xF;
                 }
-                angle = mathAngleBetweenPoints2D(targetExt->unk0, targetExt->unk4, flyExt->unk4, flyExt->unk8);
+                angle = mathAngleBetweenPoints2D(targetExt->centerX, targetExt->centerZ, flyExt->unk4, flyExt->unk8);
                 angle += ((randomLcgNext() & 7) << 8) + 0x400;
                 wanderRadius = randomFloat() * 70.0;
-                flyExt->unk4 = mathSinF(angle) * wanderRadius + targetExt->unk0;
-                flyExt->unk8 = mathCosF(angle) * wanderRadius + targetExt->unk4;
+                flyExt->unk4 = mathSinF(angle) * wanderRadius + targetExt->centerX;
+                flyExt->unk8 = mathCosF(angle) * wanderRadius + targetExt->centerZ;
             }
         } else {
-            if (targetExt->unk2C == 0x28) {
+            if (targetExt->spawnDelay == 0x28) {
                 sfxPlayFromActorDirect(gCurrentActor, 0x801, 0xFF, 3.0f, 2, 0);
             }
-            gCurrentActor->y = mathSinF(targetExt->unk18) * 5.0 + (targetActor->y - 30.0);
+            gCurrentActor->y = mathSinF(targetExt->bobAngle) * 5.0 + (targetActor->y - 30.0);
         }
     } else {
         gCurrentActor->alpha -= 4;
@@ -1897,12 +1881,12 @@ void bonusBigBugBashFlyUpdate(void) {
 
                 sfxStopSlotSound(gCurrentActor, 0);
                 actorScriptStart(gCurrentActor, 0x331);
-                if (targetExt->unk2A != 0) {
-                    targetExt->unk2A--;
+                if (targetExt->fliesLeft != 0) {
+                    targetExt->fliesLeft--;
                 }
                 for (i = 0; i < 1; i++) {
-                    if (targetExt->unk2D[i] == 0) {
-                        targetExt->unk2D[i] = 0x1E;
+                    if (targetExt->respawnTimers[i] == 0) {
+                        targetExt->respawnTimers[i] = 0x1E;
                         i = 1;
                     }
                 }
@@ -1953,23 +1937,23 @@ void bonusBigBugBashSwatterShadowUpdate(void) {
 }
 
 typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    f32 unk18;
-    s16 unk1C;
-    s16 unk1E;
-    s16 unk20;
+    f32 lightLevel;
+    f32 centerX;
+    f32 centerZ;
+    f32 offsetX;
+    f32 offsetZ;
+    f32 velX;
+    f32 velZ;
+    s16 bobAngle;
+    s16 fireCooldown;
+    s16 timeLimit;
     u8 unk22;
-    u8 unk23;
-    u8 unk24;
+    u8 counterTextId;
+    u8 rollTimer;
     u8 pad25;
-    s16 unk26;
-    s16 unk28;
-    s8 unk2A[1];
+    s16 shownCount;
+    s16 targetsLeft;
+    s8 respawnTimers[1];
 } LargeB4Sub;
 
 typedef struct {
@@ -1998,53 +1982,53 @@ void bonusSearchlightSeekGameUpdate(void) {
         gPrimaryPlayerActor->state = 0x77;
         gPrimaryPlayerActor->unk155 = 0;
         gPrimaryPlayerActor->unk144 = 1;
-        subExt->unk0 = 1.0f;
-        subExt->unk4 = gCurrentActor->x;
-        subExt->unk8 = gCurrentActor->z;
+        subExt->lightLevel = 1.0f;
+        subExt->centerX = gCurrentActor->x;
+        subExt->centerZ = gCurrentActor->z;
         switch (gCurrentMap) {
             case 0x67:
-                subExt->unk28 = 4;
+                subExt->targetsLeft = 4;
                 D_8002D90C = 1.0f;
                 break;
             case 0x8A:
-                subExt->unk28 = 6;
+                subExt->targetsLeft = 6;
                 D_8002D90C = 1.3f;
                 break;
             case 0x8B:
-                subExt->unk28 = 8;
+                subExt->targetsLeft = 8;
                 D_8002D90C = 1.6f;
                 break;
             case 0x8C:
-                subExt->unk28 = 0xA;
+                subExt->targetsLeft = 0xA;
                 D_8002D90C = 1.9f;
                 break;
         }
-        subExt->unk24 = 0;
-        subExt->unk26 = subExt->unk28;
-        subExt->unk20 = 0x3C;
-        subExt->unk23 = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
-        func_806FDAB8(subExt->unk23, 0.0f);
+        subExt->rollTimer = 0;
+        subExt->shownCount = subExt->targetsLeft;
+        subExt->timeLimit = 0x3C;
+        subExt->counterTextId = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
+        func_806FDAB8(subExt->counterTextId, 0.0f);
         gCurrentActor->sub4->scaleX = 0.33f;
         gCurrentActor->sub4->scaleY = 0.33f;
         gCurrentActor->sub4->scaleZ = 0.33f;
         camSetTarget(gActivePlayerState->camActor, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
         gCurrentActor->state = 3;
-        subExt->unk14 = 0.0;
-        subExt->unk18 = 0.0;
-        subExt->unkC = 0.0;
-        subExt->unk10 = 0.0;
-        subExt->unk0 = 1.0;
+        subExt->velX = 0.0;
+        subExt->velZ = 0.0;
+        subExt->offsetX = 0.0;
+        subExt->offsetZ = 0.0;
+        subExt->lightLevel = 1.0;
         i = 0;
         do {
-            subExt->unk2A[i] = 1;
+            subExt->respawnTimers[i] = 1;
             i++;
         } while (i != 1);
     }
     for (i = 0; i < 1; i++) {
-        if (subExt->unk2A[i] > 0) {
-            subExt->unk2A[i] -= 1;
-            if (subExt->unk2A[i] == 0 && actorSpawn(0x14B, 0x21) != 0) {
+        if (subExt->respawnTimers[i] > 0) {
+            subExt->respawnTimers[i] -= 1;
+            if (subExt->respawnTimers[i] == 0 && actorSpawn(0x14B, 0x21) != 0) {
                 spawnExt = gSpawnedActor->customState;
                 spawnExt->unk0 = gCurrentActor;
                 spawnExt->unkC = 2;
@@ -2052,62 +2036,62 @@ void bonusSearchlightSeekGameUpdate(void) {
                 spawnExt->unk4 = randomLcgNext() & 0xF;
                 spawnExt->unk8 = randomFloat() * 40.0 + 15.0;
                 spawnAngle = spawnExt->unk4 * 0xC8 - 0x578;
-                gSpawnedActor->x = mathSinF(spawnAngle) * spawnExt->unk8 + subExt->unk4;
+                gSpawnedActor->x = mathSinF(spawnAngle) * spawnExt->unk8 + subExt->centerX;
                 gSpawnedActor->y = gCurrentActor->y;
-                gSpawnedActor->z = mathCosF(spawnAngle) * spawnExt->unk8 + subExt->unk8;
+                gSpawnedActor->z = mathCosF(spawnAngle) * spawnExt->unk8 + subExt->centerZ;
             }
         }
     }
-    subExt->unk1C += 0x19;
+    subExt->bobAngle += 0x19;
     if (gCurrentActor->state == 0 || gCurrentActor->state == 1) {
-        subExt->unk0 = subExt->unk0 - 0.03333333333333333;
-        if (subExt->unk0 < 0.0) {
-            subExt->unk0 = 0.0;
+        subExt->lightLevel = subExt->lightLevel - 0.03333333333333333;
+        if (subExt->lightLevel < 0.0) {
+            subExt->lightLevel = 0.0;
         }
     } else {
-        subExt->unk0 = subExt->unk0 + 0.03333333333333333;
-        if (subExt->unk0 > 1.0) {
-            subExt->unk0 = 1.0;
+        subExt->lightLevel = subExt->lightLevel + 0.03333333333333333;
+        if (subExt->lightLevel > 1.0) {
+            subExt->lightLevel = 1.0;
         }
     }
-    lightSetColor(subExt->unk0, subExt->unk0, subExt->unk0, -1);
+    lightSetColor(subExt->lightLevel, subExt->lightLevel, subExt->lightLevel, -1);
     switch (gCurrentActor->state) {
         case 0: {
             sinYaw = mathSinF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
             cosYaw = mathCosF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
-            velX = subExt->unk14;
-            targetOffsetZ = subExt->unk18;
-            targetOffsetX = D_807ECDEC->unk2 * 0.06f;
-            stickY = D_807ECDEC->unk3 * 0.06f;
+            velX = subExt->velX;
+            targetOffsetZ = subExt->velZ;
+            targetOffsetX = D_807ECDEC->stick_x * 0.06f;
+            stickY = D_807ECDEC->stick_y * 0.06f;
             velX = ((targetOffsetX * cosYaw) - (stickY * sinYaw)) - velX;
-            subExt->unk14 = subExt->unk14 + velX * 0.155f;
-            subExt->unk18 = subExt->unk18 + ((targetOffsetX * sinYaw + stickY * cosYaw) - targetOffsetZ) * 0.25f;
-            subExt->unkC = subExt->unkC + subExt->unk14;
-            subExt->unk10 = subExt->unk10 - subExt->unk18;
-            if (subExt->unk26 == 0) {
+            subExt->velX = subExt->velX + velX * 0.155f;
+            subExt->velZ = subExt->velZ + ((targetOffsetX * sinYaw + stickY * cosYaw) - targetOffsetZ) * 0.25f;
+            subExt->offsetX = subExt->offsetX + subExt->velX;
+            subExt->offsetZ = subExt->offsetZ - subExt->velZ;
+            if (subExt->shownCount == 0) {
                 gCurrentActor->state = 5;
             }
             if ((gCurrentActor->parentActor)->state == 5) {
                 gCurrentActor->state = 6;
             }
-            if (subExt->unk1E > 0) {
-                subExt->unk1E = subExt->unk1E - 1;
+            if (subExt->fireCooldown > 0) {
+                subExt->fireCooldown = subExt->fireCooldown - 1;
             }
-            if (subExt->unk1E <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr & 0xE000)) {
+            if (subExt->fireCooldown <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr & 0xE000)) {
                 sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0, 0x1E, 0);
                 targetOffsetZ = mathSinF(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->camX;
                 scale = gPlayerSlots->camY - 25.0f;
                 targetOffsetX = mathCosF(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->camZ;
                 projectileSetTargetCoords(targetOffsetZ, scale, targetOffsetX);
                 projectileAimAndSpawn(0x23, 1, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 625.0f, gCurrentActor);
-                subExt->unk1E = 0x1E;
+                subExt->fireCooldown = 0x1E;
             }
             break;
         }
         case 3:
             if (gGameMode != 1) {
                 gCurrentActor->state = 4;
-                hudSpawnCountdownTimer(0xDC, 0x2A, subExt->unk20);
+                hudSpawnCountdownTimer(0xDC, 0x2A, subExt->timeLimit);
                 resQueueAttachActor(gCurrentActor, 0, 0xC);
             }
             break;
@@ -2129,19 +2113,19 @@ void bonusSearchlightSeekGameUpdate(void) {
             gCurrentActor->state = 7;
             break;
     }
-    targetOffsetZ = subExt->unkC;
-    targetOffsetX = subExt->unk10;
+    targetOffsetZ = subExt->offsetX;
+    targetOffsetX = subExt->offsetZ;
     cosYaw = sqrtf(targetOffsetZ * targetOffsetZ + targetOffsetX * targetOffsetX);
     if (cosYaw > 110.0f) {
         scale = 110.0f / cosYaw;
-        subExt->unkC = targetOffsetZ * scale;
-        subExt->unk10 = targetOffsetX * scale;
+        subExt->offsetX = targetOffsetZ * scale;
+        subExt->offsetZ = targetOffsetX * scale;
     }
-    gCurrentActor->x = mathSinF(subExt->unk1C) * 5.0 + (subExt->unk4 + subExt->unkC);
-    gCurrentActor->z = mathCosF(subExt->unk1C * 2) * 2.0 + (subExt->unk8 + subExt->unk10);
-    gPrimaryPlayerActor->x = subExt->unk4 + subExt->unkC * 0.5f;
+    gCurrentActor->x = mathSinF(subExt->bobAngle) * 5.0 + (subExt->centerX + subExt->offsetX);
+    gCurrentActor->z = mathCosF(subExt->bobAngle * 2) * 2.0 + (subExt->centerZ + subExt->offsetZ);
+    gPrimaryPlayerActor->x = subExt->centerX + subExt->offsetX * 0.5f;
     gPrimaryPlayerActor->y = gCurrentActor->y;
-    gPrimaryPlayerActor->z = subExt->unk8 + subExt->unk10 * 0.5f;
+    gPrimaryPlayerActor->z = subExt->centerZ + subExt->offsetZ * 0.5f;
     renderCallbacksRegister(func_8002CC08, gCurrentActor, 3);
     lightAdd(gCurrentActor->x, gCurrentActor->y + 25.0, gCurrentActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 25.0f, 1, 0xFF, 0xFF, 0xFF);
 }
@@ -2171,8 +2155,8 @@ void bonusSearchlightSeekTargetUpdate(void) {
     if (gCurrentActor->state == 0) {
         speed = D_8002D90C;
         angle = spawnLink->unk4 * 0xC8 - 0x578;
-        targetX = mathSinF(angle) * spawnLink->unk8 + targetExt->unk4;
-        targetZ = mathCosF(angle) * spawnLink->unk8 + targetExt->unk8;
+        targetX = mathSinF(angle) * spawnLink->unk8 + targetExt->centerX;
+        targetZ = mathCosF(angle) * spawnLink->unk8 + targetExt->centerZ;
         gCurrentActor->yaw -= mathAngleSignedDistance(mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, targetX, targetZ) + 0x800, gCurrentActor->yaw) >> 5;
         gCurrentActor->x += mathSinF(gCurrentActor->yaw) * speed;
         gCurrentActor->z += mathCosF(gCurrentActor->yaw) * speed;
@@ -2188,12 +2172,12 @@ void bonusSearchlightSeekTargetUpdate(void) {
             actorScriptStart(gCurrentActor, 0x332);
             gCurrentActor->state = 1;
             sfxPlayOnFreeSlot(0x16, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            if (targetExt->unk28 != 0) {
-                targetExt->unk28--;
+            if (targetExt->targetsLeft != 0) {
+                targetExt->targetsLeft--;
             }
             for (i = 0; i < 1; i++) {
-                if (targetExt->unk2A[i] == 0) {
-                    targetExt->unk2A[i] = 0x1E;
+                if (targetExt->respawnTimers[i] == 0) {
+                    targetExt->respawnTimers[i] = 0x1E;
                     i = 1;
                 }
             }
@@ -2240,7 +2224,7 @@ Gfx *func_8002CC08(Gfx *gdl, Actor *actor) {
         break;
     case 0:
     case 1:
-        gdl = hudDrawRollingCounter(textDrawAnimated(gdl, subExt->unk23, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &subExt->unk26, subExt->unk28, &subExt->unk24);
+        gdl = hudDrawRollingCounter(textDrawAnimated(gdl, subExt->counterTextId, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &subExt->shownCount, subExt->targetsLeft, &subExt->rollTimer);
         break;
     }
     return gdl;
