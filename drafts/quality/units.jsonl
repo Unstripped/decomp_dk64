@@ -482,3 +482,4 @@
 {"type": "unit", "t": "2026-11-14T21:34:50Z", "unit": "2026-11-14: cleanup PolishGlobal17B90Names", "commit": "1c125e6ede51b59f65e0ef1013d6931907e76d52"}
 {"type": "unit", "t": "2026-11-14T21:37:02Z", "unit": "2026-11-14: cleanup PolishMenu3E10Names", "commit": "3db392f1d8a0cde3470419c060b46d832231bcc4"}
 {"type": "unit", "t": "2026-11-14T21:40:20Z", "unit": "2026-11-14: cleanup PolishSmallFilesNames5", "commit": "0229a502093f1906207985b9fa24af3f1fbf356c"}
+{"type": "unit", "t": "2026-11-14T21:42:54Z", "unit": "2026-11-14: cleanup HackplayerUpdateCommon", "commit": "a51b7ba4344e46d0a68182bd6ef0725bbb180cb2"}
