@@ -53,6 +53,7 @@ typedef struct EffectBufferEntry {
     /* 0x088 */ u8 bspBounds[0x1C8 - 0x88];
 } EffectBufferEntry; /* 0x1C8 */
 
+
 extern WaterSurface *gEffectNodeList;
 extern EffectTableEntry D_80748A90[];
 extern TextureCacheEntry D_80748A9C[];
@@ -81,17 +82,15 @@ void effectWaterInitNodes(MapFileHeader *mapData) {
     for (i = 0; i < 9; i++) {
         D_80748A90[i].loaded = 0;
     }
-
     pNextNode = &gEffectNodeList;
-    if (gCurrentMap == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     gEffectNodeList = NULL;
+
     count = *(u8 *)(mapData->unk4C + (u8 *)mapData + 3);
     gWaterRippleActive = 0;
 
-    if (count == (count * 0)) {  // FAKE: extra use of count steers the v0/v1 pick
+    if (count == (count * 0)) { // FAKE: extra use of count steers the v0/v1 pick
         return;
     }
-
     base = (WaterSurfaceDef *)(mapData->unk4C + (u8 *)mapData + 4);
     for (i = 0; i < count; i++) {
         WaterSurface *node = heapAlloc(sizeof(WaterSurface));
@@ -119,8 +118,13 @@ void effectWaterInitNodes(MapFileHeader *mapData) {
         node->forceVisible = 0;
         pNextNode = &node->next;
 
-        if (((gCurrentMap == 0x53) || (gCurrentMap == 0xC5)) && (i == 0)) {
-            node->forceVisible = 1;
+        switch (gCurrentMap) {
+        case 0x53:
+        case 0xC5:
+            if (i == 0) {
+                node->forceVisible = 1;
+            }
+            break;
         }
 
         gridDimX = ((s32)(base[i].maxX - base[i].minX) / base[i].gridStep) + 1;
