@@ -566,12 +566,11 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     f32 fb;
     f32 fc;
     f32 fd;
-    f32 fadeInput0;
+    f32 fadeInput0 = 0.0f;
     f32 fadeInput4;
     s32 cnt;
 
     hud = actor->customState;
-    fadeInput0 = hud->fade; // FAKE: dead store (overwritten in cases 2/3) steers the hud->unk0 load
     tab = gPlayerInventoryTable;
     hubWorld = mapGetHubWorldIndex(gCurrentWorldId, 1);
     list = heapAlloc(0x1F40);
@@ -605,8 +604,8 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
         case 0:
             ph = tab->melons * 0x34 - 0x34;
             s2 = gPlayerInventoryTable[0].health;
-            y0 = 0x140; // FAKE: value-named constant local; y0 * hud->unk0 keeps 0x140 in the y0 register
-            y0 = 0xA0 - (s16)(y0 * hud->fade);
+            y0 = 0xA0;
+            y0 -= (s16)(y0 * 2 * hud->fade);
             for (j = 0; j < tab->melons; j++) {
                 s32 off;
                 f32 fa;
@@ -632,8 +631,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 fh = -fc;
                 dl = renderRotatedSprite(dl, 0x5D, 0, 2, 0x30, 0x2A, y, y0 + (s16)fe, fa, fh, 0, 0.0f);
                 gDPPipeSync(dl++);
-                (dl++)->words.w1 = 0xFFFFFFFF; // FAKE: raw SetPrimColor words, w1 first through dl[-1], steer the store order (gDPSetPrimColor mismatches)
-                dl[-1].words.w0 = 0xFA000000;
+                gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
                 if (s2 > 0) {
                     s32 m;
                     off = s2 - 1;
@@ -691,12 +689,12 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
         case 1:
             for (i = 0; i < 2; i++) {
                 s32 angv;
-                actor = (Actor *)(hud->slideY[i] * 4); // FAKE: reuse the consumed parameter to remove off1's stack home.
+                s32 slide;
+                slide = hud->slideY[i] * 4;
                 angv = -hud->carouselAngle;
                 fa = 1.0f - hud->fade;
-                if ((s32)actor < 0x3B6 && (s32)actor >= -0x3B5) {
+                if (slide < 0x3B6 && slide >= -0x3B5) {
                     if (fa > 0.05f) {
-                        f32 fc;
                         f32 fe;
                         f32 ff;
                         s16 sa;
@@ -717,7 +715,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                             yy += 0x20;
                             off = j + t0;
                             D_807FC840[off] = yy - fd;
-                            D_807FC868[off] = (s16)((s16)(fc - y0) + (s32)actor) - fe;
+                            D_807FC868[off] = (s16)((s16)(fc - y0) + slide) - fe;
                             D_807FC890[off] = ff;
                             if (D_80750530[j] != 0) {
                                 D_807FC890[off] *= 0.75;
@@ -729,14 +727,13 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     dl = hudDrawItemLabel(dl, hud, i);
                 }
                 if (hud->worldIndex[i] != 8) {
-                    f32 fc;
                     fd = (hud->carouselProgress < hud->fade) ? hud->fade : hud->carouselProgress;
                     fc = 780.0f;
-                    if ((s32)actor == 0) {
+                    if (slide == 0) {
                         fc += fd * 400.0;
                     }
                     j = gPlayerInventoryTable[0].kong[hud->kong].unk42[D_80750560[hud->worldIndex[i]]];
-                    dl = hudDrawCountPair(0x2A8, (s32)((s32)actor + fc), j, 5, dl, 0, 0.8f);
+                    dl = hudDrawCountPair(0x2A8, (s32)(slide + fc), j, 5, dl, 0, 0.8f);
                 }
             }
             D_80750538++;
