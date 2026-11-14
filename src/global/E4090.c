@@ -455,8 +455,7 @@ f32 inputLerpByStickAbsX(f32 from, f32 to) {
     u8 stickAbs;
 
     stickAbs = gPlayerPadState[gCurrentPlayerIndex].stickAbsX;
-    if (stickAbs != 0) {
-        stickAbs = gPlayerPadState[gCurrentPlayerIndex].stickAbsX; // FAKE: re-read forces a second lbu after the branch
+    if (stickAbs) {
         if (stickAbs >= 0x47) {
             t = 70.0f;
         } else {
@@ -474,8 +473,7 @@ f32 inputLerpByStickAbsY(f32 from, f32 to) {
     u8 stickAbs;
 
     stickAbs = gPlayerPadState[gCurrentPlayerIndex].stickAbsY;
-    if (stickAbs != 0) {
-        stickAbs = gPlayerPadState[gCurrentPlayerIndex].stickAbsY; // FAKE: re-read forces a second lbu after the branch
+    if (stickAbs) {
         if (stickAbs >= 0x47) {
             t = 70.0f;
         } else {
