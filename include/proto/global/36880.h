@@ -7,13 +7,13 @@
 #include "render.h"
 struct DisplayListCmd;
 struct ModelNodeBufferOwner;
-struct ModelRenderAnimObj;
-struct ModelSegmentData;
-struct ModelSegmentNode;
-struct ModelSegmentOwner;
 struct ModelSlotAsset;
+struct ModelType1ObjAddrs;
+struct ModelType1RenderView;
+struct RenderQuadTexKeysView;
 struct SpriteDisplayNode;
 struct TexAnimNode;
+struct TexImageCmdSpan;
 #ifndef PROTO_SKIP_modelSkipListClear
 void modelSkipListClear(void);
 #endif
@@ -156,7 +156,7 @@ void modelSlotSetNodeFrame(s32, s16, s32, s32);
 void modelNodeSetFrame(struct TexAnimNode *, s16, s32, s32);
 #endif
 #ifndef PROTO_SKIP_dlFindTextureCommands
-void dlFindTextureCommands(u32 *, s32, s32, s32, u32 **, u32 **, u32 **);
+void dlFindTextureCommands(u32 *, s32, s32, s32, struct TexImageCmdSpan **, struct TexImageCmdSpan **, u32 **);
 #endif
 #ifndef PROTO_SKIP_dlLengthToEndDL
 s32 dlLengthToEndDL(u32 *);
@@ -213,7 +213,7 @@ void displayListFreeQueueAdd(s32, s32, s32, s32, ModelAssetHeader *);
 void displayListFreeQueueProcess(void);
 #endif
 #ifndef PROTO_SKIP_modelSegmentFreeUnusedTextures
-void modelSegmentFreeUnusedTextures(ModelSlot *, ModelAssetHeader *, struct ModelSegmentData *);
+void modelSegmentFreeUnusedTextures(ModelSlot *, ModelAssetHeader *, struct ModelType1ObjAddrs *);
 #endif
 #ifndef PROTO_SKIP_dlFreeUnusedTextures
 void dlFreeUnusedTextures();
@@ -240,10 +240,10 @@ void modelSlotsStepSegmentCommands(void);
 void modelSlotResolveAssetTextures(ModelSlot *, u8, u8);
 #endif
 #ifndef PROTO_SKIP_dlResolveNodeTextures
-s32 dlResolveNodeTextures(struct DisplayListCmd *, struct DisplayListCmd *, struct ModelSegmentNode *, u8);
+s32 dlResolveNodeTextures(struct DisplayListCmd *, struct DisplayListCmd *, struct TexAnimNode *, u8);
 #endif
 #ifndef PROTO_SKIP_renderModelAnimatedSlot
-Gfx *renderModelAnimatedSlot(struct ModelRenderAnimObj *, Gfx *, f32, f32, f32, u8, s16, s32);
+Gfx *renderModelAnimatedSlot(struct ModelType1RenderView *, Gfx *, f32, f32, f32, u8, s16, s32);
 #endif
 #ifndef PROTO_SKIP_renderModelQuadGfx
 Gfx *renderModelQuadGfx(RenderQuadModelObj *, Gfx *, f32, f32, f32, u8, s16, s32);
@@ -255,16 +255,16 @@ void modelKongVisibilityCheck(s16, u8 *, s16 *);
 void func_806398E4(s32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_texAnimUpdateNodes
-void texAnimUpdateNodes(struct ModelSegmentData *);
+void texAnimUpdateNodes(struct ModelType1ObjAddrs *);
 #endif
 #ifndef PROTO_SKIP_texAnimFindNodeFrame
-void texAnimFindNodeFrame(struct ModelSegmentOwner *, s32, s32 *, s32 *, u8 *, s16 *);
+void texAnimFindNodeFrame(struct RenderQuadTexKeysView *, s32, s32 *, s32 *, u8 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_texAnimNodeUpdateBuffers
-void texAnimNodeUpdateBuffers(struct ModelSegmentNode *, s32 *, s32 *, u8 *, s16 *);
+void texAnimNodeUpdateBuffers(struct TexAnimNode *, s32 *, s32 *, u8 *, s16 *);
 #endif
 #ifndef PROTO_SKIP_texAnimNodeAdvance
-s32 texAnimNodeAdvance(struct ModelSegmentNode *, s32 *, s32 *);
+s32 texAnimNodeAdvance(struct TexAnimNode *, s32 *, s32 *);
 #endif
 #ifndef PROTO_SKIP_modelCalcFacingAngles
 void modelCalcFacingAngles(f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *, u8);

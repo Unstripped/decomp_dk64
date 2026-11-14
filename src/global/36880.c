@@ -322,35 +322,54 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
     }
 }
 
+// A model's sprite draw node as modelSlotInit builds it; spriteListBuildDisplayChain reads the same 0x38 bytes as
+// SpriteDisplayNode (asset is the texture its key holds; unk34 is its chain link, cleared here).
 typedef struct ModelSlotSubNode {
     /* 0x00 */ void *asset;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ u8 unk8;
-    /* 0x09 */ u8 unk9;
-    /* 0x0A */ u8 unkA;
-    /* 0x0B */ u8 unkB;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
+    /* 0x04 */ f32 scaleXZ;
+    /* 0x08 */ u8 texWidth;
+    /* 0x09 */ u8 texHeight;
+    /* 0x0A */ u8 texFormat;
+    /* 0x0B */ u8 texSize;
+    /* 0x0C */ s16 baseHalfWidth;
+    /* 0x0E */ s16 baseHalfDepth;
     /* 0x10 */ u8 pad10[0x10];
     /* 0x20 */ s16 groundX;
     /* 0x22 */ s16 groundZ;
-    /* 0x24 */ s16 unk24;
+    /* 0x24 */ s16 animTextureId;
     /* 0x26 */ u8 pad26[2];
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ s16 unk2A;
-    /* 0x2C */ s16 unk2C;
-    /* 0x2E */ u8 unk2E;
+    /* 0x28 */ s16 yawOffset;
+    /* 0x2A */ s16 fullAlphaDist;
+    /* 0x2C */ s16 maxDist;
+    /* 0x2E */ u8 baseAlpha;
     /* 0x2F */ u8 pad2F;
-    /* 0x30 */ u8 unk30;
+    /* 0x30 */ u8 zBuffered;
     /* 0x31 */ u8 pad31[3];
     /* 0x34 */ s32 unk34;
 } ModelSlotSubNode;
 
+// Display-list span starting at a texture's G_SETTIMG command (0xFD).
+typedef struct TexImageCmdSpan {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ s32 texAddr;
+    /* 0x08 */ u8 pad8[0x28];
+    /* 0x30 */ s32 tileSizeW0;
+} TexImageCmdSpan;
+
+// Commands a TexAnimNode patches in one copy of a display list (dlFindTextureCommands).
+typedef struct TexAnimCmdSet {
+    /* 0x0 */ TexImageCmdSpan *texCmd;
+    /* 0x4 */ TexImageCmdSpan *texCmd2;
+    /* 0x8 */ u32 *primColorCmd;
+} TexAnimCmdSet;
+
+// Texture animation of one model texture; its command sets are per display list (A/B) and gfx buffer.
 typedef struct TexAnimNode {
-    /* 0x00 */ u32 *texCmds[12];
-    /* 0x30 */ s32 unk30;
-    /* 0x34 */ s16 unk34;
-    /* 0x36 */ s16 unk36;
+    /* 0x00 */ TexAnimCmdSet cmdsA[2];
+    /* 0x18 */ TexAnimCmdSet cmdsB[2];
+    /* 0x30 */ s32 lastFrame;
+    /* 0x34 */ s16 scrollS;
+    /* 0x36 */ s16 scrollT;
     /* 0x38 */ s16 scrollSpeedX;
     /* 0x3A */ s16 scrollSpeedY;
     /* 0x3C */ void *textureBuffer;
@@ -360,12 +379,11 @@ typedef struct TexAnimNode {
     /* 0x49 */ u8 frameChanged;
     /* 0x4A */ u8 findSecond;
     /* 0x4B */ u8 pad4B;
-    /* 0x4C */ s32 unk4C;
+    /* 0x4C */ s32 frameTicks;
     /* 0x50 */ s32 tick;
     /* 0x54 */ s32 frame;
     /* 0x58 */ s32 frameCount;
-    /* 0x5C */ s32 textureId;
-    /* 0x60 */ s32 frames[28];
+    /* 0x5C */ s32 frameTextures[29];
     /* 0xD0 */ u8 keepBuffers;
     /* 0xD1 */ u8 padD1[3];
     /* 0xD4 */ struct TexAnimNode *next;
@@ -594,19 +612,19 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
         node = heapAlloc(0x38);
         *link = node;
         node->unk34 = 0;
-        node->unk4 = 1.0f;
-        node->unkC = info->unk2E;
-        node->unkE = info->unk30;
-        node->unkA = info->unk34;
-        node->unkB = info->unk35;
-        node->unk8 = info->unk32;
-        node->unk9 = info->unk33;
-        node->unk24 = info->unk2A;
-        node->unk28 = info->unk2C;
-        node->unk2A = info->unk36 * 10;
-        node->unk2C = info->unk37 * 10;
-        node->unk2E = info->unk38;
-        node->unk30 = info->unk39;
+        node->scaleXZ = 1.0f;
+        node->baseHalfWidth = info->unk2E;
+        node->baseHalfDepth = info->unk30;
+        node->texFormat = info->unk34;
+        node->texSize = info->unk35;
+        node->texWidth = info->unk32;
+        node->texHeight = info->unk33;
+        node->animTextureId = info->unk2A;
+        node->yawOffset = info->unk2C;
+        node->fullAlphaDist = info->unk36 * 10;
+        node->maxDist = info->unk37 * 10;
+        node->baseAlpha = info->unk38;
+        node->zBuffered = info->unk39;
         node->asset = assetLoad(0x19, info->unk28, 1, 0);
         modelSlotUpdateGroundCoords(slot, 0);
     }
@@ -1156,7 +1174,7 @@ void modelSlotLinkTexAnimTextures(ModelAssetHeader *asset, ModelSlot *slot) {
     node = ((ModelKindObj *)slot->unk20)->type2.texAnims;
     if (node != NULL) {
         do {
-            key = node->textureId;
+            key = node->frameTextures[0];
             n = *(s32 *)(asset->unk70 + (u8 *)asset);
             p = (s16 *)(asset->unk70 + (u8 *)asset + 4);
             found = 0;
@@ -1222,13 +1240,13 @@ void modelSlotInitTexAnimNodes(ModelAssetHeader *asset, ModelSlot *slot, s32 typ
         node->animMode = 1;
         node->frameChanged = 0;
         node->findSecond = entry[1];
-        node->unk4C = entry[2];
+        node->frameTicks = entry[2];
         node->tick = 0;
         node->frame = 0;
         node->frameCount = entry[3];
-        node->textureId = entry[0];
+        node->frameTextures[0] = entry[0];
         for (j = 0; j < node->frameCount - 1; j++) {
-            node->frames[j] = entry[4 + j];
+            node->frameTextures[j + 1] = entry[4 + j];
         }
         node->keepBuffers = entry[0x20];
         if (gGlobalOverlayFlags & 0x2000000) {
@@ -1236,16 +1254,16 @@ void modelSlotInitTexAnimNodes(ModelAssetHeader *asset, ModelSlot *slot, s32 typ
         }
         node->textureBuffer = NULL;
         node->textureBuffer2 = NULL;
-        node->unk34 = 0;
-        node->unk36 = 0;
+        node->scrollS = 0;
+        node->scrollT = 0;
         node->scrollSpeedX = 0;
         node->scrollSpeedY = 0;
-        node->unk30 = -1;
+        node->lastFrame = -1;
         if (type == 1) {
-            dlFindTextureCommands(obj->type1.displayListA, len1, entry[0], entry[1], &node->texCmds[0], &node->texCmds[1], &node->texCmds[2]);
-            dlFindTextureCommands(obj->type1.displayListACopy, len1, entry[0], entry[1], &node->texCmds[3], &node->texCmds[4], &node->texCmds[5]);
-            dlFindTextureCommands(obj->type1.displayListB, len2, entry[0], entry[1], &node->texCmds[6], &node->texCmds[7], &node->texCmds[8]);
-            dlFindTextureCommands(obj->type1.displayListBCopy, len2, entry[0], entry[1], &node->texCmds[9], &node->texCmds[10], &node->texCmds[11]);
+            dlFindTextureCommands(obj->type1.displayListA, len1, entry[0], entry[1], &node->cmdsA[0].texCmd, &node->cmdsA[0].texCmd2, &node->cmdsA[0].primColorCmd);
+            dlFindTextureCommands(obj->type1.displayListACopy, len1, entry[0], entry[1], &node->cmdsA[1].texCmd, &node->cmdsA[1].texCmd2, &node->cmdsA[1].primColorCmd);
+            dlFindTextureCommands(obj->type1.displayListB, len2, entry[0], entry[1], &node->cmdsB[0].texCmd, &node->cmdsB[0].texCmd2, &node->cmdsB[0].primColorCmd);
+            dlFindTextureCommands(obj->type1.displayListBCopy, len2, entry[0], entry[1], &node->cmdsB[1].texCmd, &node->cmdsB[1].texCmd2, &node->cmdsB[1].primColorCmd);
         }
         *tail = node;
         tail = &node->next;
@@ -1372,7 +1390,7 @@ void modelNodeSetFrame(TexAnimNode *list, s16 node, s32 frame, s32 tick) {
     }
 }
 
-void dlFindTextureCommands(u32 *dl, s32 len, s32 addr, s32 findSecond, u32 **imgOut, u32 **img2Out, u32 **primOut) {
+void dlFindTextureCommands(u32 *dl, s32 len, s32 addr, s32 findSecond, TexImageCmdSpan **imgOut, TexImageCmdSpan **img2Out, u32 **primOut) {
     s32 found;
     u32 opcode;
 
@@ -1385,7 +1403,7 @@ void dlFindTextureCommands(u32 *dl, s32 len, s32 addr, s32 findSecond, u32 **img
             opcode = *dl >> 24;
             len -= 8;
             if (opcode == 0xFD && addr == dl[1]) {
-                *imgOut = dl;
+                *imgOut = (TexImageCmdSpan *)dl;
                 found = 1;
             }
             dl += 2;
@@ -1398,7 +1416,7 @@ void dlFindTextureCommands(u32 *dl, s32 len, s32 addr, s32 findSecond, u32 **img
                 opcode = *dl >> 24;
                 len -= 8;
                 if (opcode == 0xFD && addr == dl[1]) {
-                    *img2Out = dl;
+                    *img2Out = (TexImageCmdSpan *)dl;
                     found = 1;
                 }
                 dl += 2;
@@ -2000,7 +2018,7 @@ typedef struct DisplayListCmd {
 } DisplayListCmd;
 
 // ModelType1Obj (ModelSlot.unk20, kind 1) with its display-list pointers held as integer addresses.
-typedef struct ModelSegmentData {
+typedef struct ModelType1ObjAddrs {
     /* 0x00 */ u8 pad0[0xA0];
     /* 0xA0 */ u32 displayListA;
     /* 0xA4 */ u32 displayListACopy;
@@ -2013,60 +2031,19 @@ typedef struct ModelSegmentData {
     /* 0xBC */ s32 subNode;
     /* 0xC0 */ u8 padC0[3];
     /* 0xC3 */ u8 light;
-} ModelSegmentData;
-
-// Display-list span starting at a texture's G_SETTIMG command (0xFD).
-typedef struct TexImageCmdSpan {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ s32 texAddr;
-    /* 0x08 */ u8 pad8[0x28];
-    /* 0x30 */ s32 tileSizeW0;
-} TexImageCmdSpan;
-
-// Commands a TexAnimNode patches in one copy of a display list.
-typedef struct TexAnimCmdSet {
-    /* 0x0 */ TexImageCmdSpan *texCmd;
-    /* 0x4 */ TexImageCmdSpan *texCmd2;
-    /* 0x8 */ s32 *primColorCmd;
-} TexAnimCmdSet;
-
-// TexAnimNode with its command pointers grouped per display list (A/B) and gfx buffer.
-typedef struct ModelSegmentNode {
-    /* 0x00 */ TexAnimCmdSet cmdsA[2];
-    /* 0x18 */ TexAnimCmdSet cmdsB[2];
-    /* 0x30 */ s32 lastFrame;
-    /* 0x34 */ s16 scrollS;
-    /* 0x36 */ s16 scrollT;
-    /* 0x38 */ s16 scrollSpeedX;
-    /* 0x3A */ s16 scrollSpeedY;
-    /* 0x3C */ s32 textureBuffer;
-    /* 0x40 */ s32 textureBuffer2;
-    /* 0x44 */ s32 texture;
-    /* 0x48 */ u8 animMode;
-    /* 0x49 */ u8 frameChanged;
-    /* 0x4A */ u8 findSecond;
-    /* 0x4B */ u8 pad4B;
-    /* 0x4C */ s32 frameTicks;
-    /* 0x50 */ s32 tick;
-    /* 0x54 */ s32 frame;
-    /* 0x58 */ s32 frameCount;
-    /* 0x5C */ s32 frameTextures[29];
-    /* 0xD0 */ u8 keepBuffers;
-    /* 0xD1 */ u8 padD1[3];
-    /* 0xD4 */ struct ModelSegmentNode *next;
-} ModelSegmentNode;
+} ModelType1ObjAddrs;
 
 // RenderQuadModelObj (kind 2) with its texture table read as texture keys.
-typedef struct ModelSegmentOwner {
+typedef struct RenderQuadTexKeysView {
     /* 0x00 */ u8 pad0[0x24];
     /* 0x24 */ s32 textures[8];
     /* 0x44 */ u8 pad44[0xC];
-    /* 0x50 */ ModelSegmentNode *texAnims;
-} ModelSegmentOwner;
+    /* 0x50 */ TexAnimNode *texAnims;
+} RenderQuadTexKeysView;
 
 
 
-void modelSegmentFreeUnusedTextures(ModelSlot *slot, ModelAssetHeader *asset, ModelSegmentData *seg) {
+void modelSegmentFreeUnusedTextures(ModelSlot *slot, ModelAssetHeader *asset, ModelType1ObjAddrs *seg) {
     TexAnimNode *nodes;
     u32 head, tail;
     u8 flag;
@@ -2128,30 +2105,30 @@ u8 restore;
                     do {
                         switch (tail) {
                             case 0:
-                                if ((u32 *)start == node->texCmds[0]) {
+                                if ((TexImageCmdSpan *)start == node->cmdsA[0].texCmd) {
                                     found = 1;
                                 }
-                                if ((u32 *)start == node->texCmds[1]) {
+                                if ((TexImageCmdSpan *)start == node->cmdsA[0].texCmd2) {
                                     found = 1;
                                 }
-                                if ((u32 *)start == node->texCmds[3]) {
+                                if ((TexImageCmdSpan *)start == node->cmdsA[1].texCmd) {
                                     found = 1;
                                 }
-                                if ((u32 *)start == node->texCmds[4]) {
+                                if ((TexImageCmdSpan *)start == node->cmdsA[1].texCmd2) {
                                     found = 1;
                                 }
                                 break;
                             case 1:
-                                if ((u32 *)start == node->texCmds[6]) {
+                                if ((TexImageCmdSpan *)start == node->cmdsB[0].texCmd) {
                                     found = 1;
                                 }
-                                if ((u32 *)start == node->texCmds[7]) {
+                                if ((TexImageCmdSpan *)start == node->cmdsB[0].texCmd2) {
                                     found = 1;
                                 }
-                                if ((u32 *)start == node->texCmds[9]) {
+                                if ((TexImageCmdSpan *)start == node->cmdsB[1].texCmd) {
                                     found = 1;
                                 }
-                                if ((u32 *)start == node->texCmds[10]) {
+                                if ((TexImageCmdSpan *)start == node->cmdsB[1].texCmd2) {
                                     found = 1;
                                 }
                                 break;
@@ -2178,7 +2155,7 @@ extern u8 gViewportCount;
 
 void modelSlotInitFromAsset(ModelSlot *slot, s32 type) {
     ModelAssetHeader *hdr;
-    ModelSegmentData *seg;
+    ModelType1ObjAddrs *seg;
     s32 pad;
     void *objData;
     RenderQuadModelObj *obj;
@@ -2250,7 +2227,7 @@ void renderReplaceSegment6Commands();
 
 void modelSlotReplaceSegment6Commands(void *slot) {
     u32 head;
-    ModelSegmentData *seg;
+    ModelType1ObjAddrs *seg;
     u32 mid;
     u32 count;
     u32 len;
@@ -2298,7 +2275,7 @@ extern s16 D_80747D74;
 
 void modelSlotsStepSegmentCommands(void) {
     u32 mid;
-    ModelSegmentData *seg;
+    ModelType1ObjAddrs *seg;
     u32 head;
     u32 count;
     u8 flag;
@@ -2341,13 +2318,13 @@ void modelSlotsStepSegmentCommands(void) {
 
 
 void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
-    ModelSegmentData *seg;
+    ModelType1ObjAddrs *seg;
     ModelAssetHeader *obj;
     ModelSlotAsset *volatile textures; // FAKE: memory copy of seg that the else branch reads back (target reloads 0x3C(sp))
     u32 temp;
     u32 cmds;
     u32 count;
-    ModelSegmentNode *node;
+    TexAnimNode *node;
     u8 res;
     u8 flags;
     u32 size0;
@@ -2369,7 +2346,7 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
                 cmds = seg->displayListA;
                 temp = (seg->displayListB - cmds) >> 3;
                 count = count >> 3;
-                node = (ModelSegmentNode *)((ModelSegmentData *)slot->unk20)->texAnims; // FAKE: re-reads slot->unk20 instead of seg (pre-existing, now tagged; seg->unkB8 drops the sw a0,72(sp) slot home)
+                node = (TexAnimNode *)((ModelType1ObjAddrs *)slot->unk20)->texAnims; // FAKE: re-reads slot->unk20 instead of seg (pre-existing, now tagged; seg->unkB8 drops the sw a0,72(sp) slot home)
                 size0 = temp * 8;
                 temp = 0; // FAKE: dead store keeps size0 a variable instead of a propagated expression
                 res = dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size0), node, force);
@@ -2399,12 +2376,12 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
 }
 
 
-s32 dlResolveNodeTextures(DisplayListCmd *start, DisplayListCmd *end, ModelSegmentNode *nodes, u8 keep) {
+s32 dlResolveNodeTextures(DisplayListCmd *start, DisplayListCmd *end, TexAnimNode *nodes, u8 keep) {
     u32 w;
     u32 tag;
     s32 result;
     s32 found;
-    ModelSegmentNode *node;
+    TexAnimNode *node;
 
     result = 0;
     if (start != end) {
@@ -2438,7 +2415,7 @@ s32 dlResolveNodeTextures(DisplayListCmd *start, DisplayListCmd *end, ModelSegme
 }
 
 // ModelType1Obj (kind 1) as renderModelAnimatedSlot draws it: per-gfx-buffer matrices and display-list copies.
-typedef struct ModelRenderAnimObj {
+typedef struct ModelType1RenderView {
     /* 0x00 */ f32 x;
     /* 0x04 */ f32 y;
     /* 0x08 */ f32 z;
@@ -2460,11 +2437,11 @@ typedef struct ModelRenderAnimObj {
     /* 0xC3 */ u8 light;
     /* 0xC4 */ u8 unkC4;
     /* 0xC5 */ u8 mapFlags;
-} ModelRenderAnimObj;
+} ModelType1RenderView;
 
 s32 playerSlotMatchesSizeMask(s32, u8, s32);
 
-Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 camY, f32 camZ, u8 useLight, s16 lightArg, s32 unused) {
+Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 camY, f32 camZ, u8 useLight, s16 lightArg, s32 unused) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     f32 dx;
@@ -2548,7 +2525,7 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
     gSPMatrix(gfx++, osVirtualToPhysical(&obj->frameMtx[gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     if (obj->texAnims != NULL) {
         sel = gGfxBufferIndex;
-        texAnimUpdateNodes((ModelSegmentData *)obj);
+        texAnimUpdateNodes((ModelType1ObjAddrs *)obj);
     } else {
         sel = 0;
     }
@@ -2766,7 +2743,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
         red = green = blue = 0xFF;
     }
     for (i = 0; i < obj->quadCount; i++) {
-        texAnimFindNodeFrame((ModelSegmentOwner *)obj, i, &texA, &texB, &dualTex, &primLod);
+        texAnimFindNodeFrame((RenderQuadTexKeysView *)obj, i, &texA, &texB, &dualTex, &primLod);
         gDPPipeSync(gfx++);
         if (obj->flags & 2) {
             if (opaque != 0) {
@@ -2989,16 +2966,16 @@ void func_806398E4(s32 slot, u8 isId, u8 enable) {
     obj->flags &= ~2;
 }
 
-void texAnimUpdateNodes(ModelSegmentData *seg) {
+void texAnimUpdateNodes(ModelType1ObjAddrs *seg) {
     s32 pad;
     s32 texA;
     s32 texB;
     u8 dualTex;
     s16 primLod;
-    ModelSegmentNode *node;
+    TexAnimNode *node;
     s32 *dst;
 
-    node = (ModelSegmentNode *)seg->texAnims;
+    node = seg->texAnims;
     if (node != NULL) {
         do {
             texAnimNodeUpdateBuffers(node, &texA, &texB, &dualTex, &primLod);
@@ -3053,8 +3030,8 @@ void texAnimUpdateNodes(ModelSegmentData *seg) {
 }
 
 
-void texAnimFindNodeFrame(ModelSegmentOwner *owner, s32 index, s32 *texAOut, s32 *texBOut, u8 *dualOut, s16 *lodOut) {
-    ModelSegmentNode *node;
+void texAnimFindNodeFrame(RenderQuadTexKeysView *owner, s32 index, s32 *texAOut, s32 *texBOut, u8 *dualOut, s16 *lodOut) {
+    TexAnimNode *node;
     s32 key;
     s32 found;
 
@@ -3063,7 +3040,7 @@ void texAnimFindNodeFrame(ModelSegmentOwner *owner, s32 index, s32 *texAOut, s32
         key = owner->textures[index];
         found = 0;
         while (node != NULL && found == 0) {
-            if (key == node->texture) {
+            if (key == (s32)node->texture) {
                 found = 1;
             } else {
                 node = node->next;
@@ -3084,57 +3061,57 @@ void texAnimFindNodeFrame(ModelSegmentOwner *owner, s32 index, s32 *texAOut, s32
 
 
 
-void texAnimNodeUpdateBuffers(ModelSegmentNode *node, s32 *texAOut, s32 *texBOut, u8 *dualOut, s16 *lodOut) {
+void texAnimNodeUpdateBuffers(TexAnimNode *node, s32 *texAOut, s32 *texBOut, u8 *dualOut, s16 *lodOut) {
     s32 advanced;
     s32 frameB;
     s32 frameA;
-    s32 oldBufB;
-    s32 oldBufA;
+    void *oldBufB;
+    void *oldBufA;
 
     if (gFrameCounter == node->lastFrame) {
         advanced = 0;
     } else {
         advanced = (u8)texAnimNodeAdvance(node, &frameB, &frameA);
     }
-    if (advanced != 0 || node->textureBuffer == 0) {
+    if (advanced != 0 || node->textureBuffer == NULL) {
         oldBufB = node->textureBuffer;
         if (node->findSecond != 0) {
             oldBufA = node->textureBuffer2;
-            if (oldBufA == 0 || node->frameChanged != 0) {
-                if (oldBufB != 0) {
-                    assetFreeBuffer((void *)oldBufB, 0xFCB, 7);
+            if (oldBufA == NULL || node->frameChanged != 0) {
+                if (oldBufB != NULL) {
+                    assetFreeBuffer(oldBufB, 0xFCB, 7);
                 }
                 if (node->keepBuffers != 0) {
                     collisionResolveWallContact();
                 }
-                node->textureBuffer = (s32)assetLoad(7, node->frameTextures[frameB], 0, 0);
+                node->textureBuffer = assetLoad(7, node->frameTextures[frameB], 0, 0);
                 oldBufA = node->textureBuffer2;
-                if (oldBufA != 0) {
-                    assetFreeBuffer((void *)oldBufA, 0xFCE, 7);
+                if (oldBufA != NULL) {
+                    assetFreeBuffer(oldBufA, 0xFCE, 7);
                 }
                 if (node->keepBuffers != 0) {
                     collisionResolveWallContact();
                 }
-                node->textureBuffer2 = (s32)assetLoad(7, node->frameTextures[frameA], 0, 0);
+                node->textureBuffer2 = assetLoad(7, node->frameTextures[frameA], 0, 0);
             } else {
-                if (oldBufB != 0) {
-                    assetFreeBuffer((void *)oldBufB, 0xFD5, 7);
+                if (oldBufB != NULL) {
+                    assetFreeBuffer(oldBufB, 0xFD5, 7);
                 }
                 oldBufA = node->textureBuffer2;
                 node->textureBuffer = oldBufA;
                 if (node->keepBuffers != 0) {
                     collisionResolveWallContact();
                 }
-                node->textureBuffer2 = (s32)assetLoad(7, node->frameTextures[frameA], 0, 0);
+                node->textureBuffer2 = assetLoad(7, node->frameTextures[frameA], 0, 0);
             }
         } else {
-            if (oldBufB != 0) {
-                assetFreeBuffer((void *)oldBufB, 0xFDF, 7);
+            if (oldBufB != NULL) {
+                assetFreeBuffer(oldBufB, 0xFDF, 7);
             }
             if (node->keepBuffers != 0) {
                 collisionResolveWallContact();
             }
-            node->textureBuffer = (s32)assetLoad(7, node->frameTextures[frameB], 0, 0);
+            node->textureBuffer = assetLoad(7, node->frameTextures[frameB], 0, 0);
         }
     }
     node->frameChanged = 0;
@@ -3142,11 +3119,11 @@ void texAnimNodeUpdateBuffers(ModelSegmentNode *node, s32 *texAOut, s32 *texBOut
     if (node->findSecond != 0) {
         *lodOut = (s16)(((f32)node->tick / (f32)node->frameTicks) * 255.0f);
     }
-    *texAOut = node->textureBuffer;
-    *texBOut = node->textureBuffer2;
+    *texAOut = (s32)node->textureBuffer;
+    *texBOut = (s32)node->textureBuffer2;
 }
 
-s32 texAnimNodeAdvance(ModelSegmentNode *node, s32 *frameOut, s32 *nextFrameOut) {
+s32 texAnimNodeAdvance(TexAnimNode *node, s32 *frameOut, s32 *nextFrameOut) {
     s32 result;
     s32 frame;
 
@@ -3363,7 +3340,7 @@ SpriteDisplayNode *spriteListBuildDisplayChain(RenderEntry *listA, RenderEntry *
                         found = 0;
                         if (link != NULL) {
                             do {
-                                if (link->textureId == tgt->animTextureId) {
+                                if (link->frameTextures[0] == tgt->animTextureId) {
                                     found = 1;
                                 } else {
                                     link = link->next;
@@ -3371,7 +3348,7 @@ SpriteDisplayNode *spriteListBuildDisplayChain(RenderEntry *listA, RenderEntry *
                             } while (found == 0 && link != NULL);
                         }
                         tgt->yaw = angleY;
-                        tgt->yaw += link->frame * 0x168 / link->frameCount + link->tick * 360.0 / link->frameCount / link->unk4C;
+                        tgt->yaw += link->frame * 0x168 / link->frameCount + link->tick * 360.0 / link->frameCount / link->frameTicks;
                     } else {
                         tgt->yaw = angleY;
                     }
@@ -3447,7 +3424,7 @@ void func_8063A8C4(s16 slot, u8 isId, f32 value) {
         break;
     }
     if (p != NULL) {
-        p->unk4 = value;
+        p->scaleXZ = value;
     }
 }
 
@@ -3782,23 +3759,6 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     *sizeOut = size;
 }
 
-
-// ModelSlot with the asset header and cutscene state read as byte arrays.
-typedef struct ModelSlotPackView {
-    /* 0x00 */ u8 pad0[0x24];
-    /* 0x24 */ u8 *asset;
-    /* 0x28 */ u8 pad28[0x50];
-    /* 0x78 */ u8 **modelData;
-    /* 0x7C */ u8 *csState;
-    /* 0x80 */ u8 pad80[8];
-    /* 0x88 */ s16 id;
-    /* 0x8A */ s16 unk8A;
-    /* 0x8C */ u8 pad8C[4];
-} ModelSlotPackView; /* 0x90 */
-
-
-#define MODEL_SLOT_PACKED_ENTRY(i) ((ModelSlotPackView *)((u8 *)gModelSlots + (i) * 0x90))
-
 void modelSlotsPackRecords(u8 **bufOut, s32 *countOut) {
     s32 count = 0;
     s32 i;
@@ -3810,10 +3770,10 @@ void modelSlotsPackRecords(u8 **bufOut, s32 *countOut) {
     s32 j;
 
     for (i = 0; i < gModelSlotCount; i++) {
-        if (MODEL_SLOT_PACKED_ENTRY(i)->csState != NULL) {
-            if ((MODEL_SLOT_PACKED_ENTRY(i)->asset[0x3A] != 0 || (MODEL_SLOT_PACKED_ENTRY(i)->csState[0x9B] & 1)) && !(MODEL_SLOT_PACKED_ENTRY(i)->csState[0x9B] & 2)) {
+        if (gModelSlots[i].unk7C != NULL) {
+            if ((gModelSlots[i].unk24->unk3A != 0 || (gModelSlots[i].unk7C->unk9B & 1)) && !(gModelSlots[i].unk7C->unk9B & 2)) {
                 count++;
-                if (MODEL_SLOT_PACKED_ENTRY(i)->modelData != NULL) {
+                if (gModelSlots[i].unk78 != NULL) {
                     size += modelSlotDataSize(i);
                 }
             }
@@ -3823,21 +3783,21 @@ void modelSlotsPackRecords(u8 **bufOut, s32 *countOut) {
         buf = heapAlloc(count * 0x254 + size);
         cur = buf;
         for (i = 0; i < gModelSlotCount; i++) {
-            if (MODEL_SLOT_PACKED_ENTRY(i)->csState != NULL) {
-                if ((MODEL_SLOT_PACKED_ENTRY(i)->asset[0x3A] != 0 || (MODEL_SLOT_PACKED_ENTRY(i)->csState[0x9B] & 1)) && !(MODEL_SLOT_PACKED_ENTRY(i)->csState[0x9B] & 2)) {
+            if (gModelSlots[i].unk7C != NULL) {
+                if ((gModelSlots[i].unk24->unk3A != 0 || (gModelSlots[i].unk7C->unk9B & 1)) && !(gModelSlots[i].unk7C->unk9B & 2)) {
                     rec = cur;
-                    *(s16 *)rec = MODEL_SLOT_PACKED_ENTRY(i)->unk8A;
-                    memcpy(rec + 0xCC, MODEL_SLOT_PACKED_ENTRY(i)->csState, 0x9C);
-                    if (MODEL_SLOT_PACKED_ENTRY(i)->modelData != NULL) {
-                        memcpy(rec + 4, (u8 *)MODEL_SLOT_PACKED_ENTRY(i)->modelData + 8, 0xC8);
+                    *(s16 *)rec = gModelSlots[i].unk8A;
+                    memcpy(rec + 0xCC, gModelSlots[i].unk7C, 0x9C);
+                    if (gModelSlots[i].unk78 != NULL) {
+                        memcpy(rec + 4, gModelSlots[i].unk78->entries, 0xC8);
                         rec[0x250] = modelSlotDataSize(i) >> 6;
-                        memcpy(rec + 0x254, *MODEL_SLOT_PACKED_ENTRY(i)->modelData, modelSlotDataSize(i));
+                        memcpy(rec + 0x254, gModelSlots[i].unk78->frames[0], modelSlotDataSize(i));
                     } else {
                         rec[0x250] = 0;
                     }
                     for (j = 1; j != 5; j++) {
-                        modelSlotGetNodeScrollSpeed(MODEL_SLOT_PACKED_ENTRY(i)->id, j, (s16 *)(rec + 0x232 + j * 6), (s16 *)(rec + 0x234 + j * 6));
-                        modelSlotGetNodeAnimMode(MODEL_SLOT_PACKED_ENTRY(i)->id, j, rec + 0x236 + j * 6);
+                        modelSlotGetNodeScrollSpeed(gModelSlots[i].id, j, (s16 *)(rec + 0x232 + j * 6), (s16 *)(rec + 0x234 + j * 6));
+                        modelSlotGetNodeAnimMode(gModelSlots[i].id, j, rec + 0x236 + j * 6);
                     }
                     mapOffsetSlotsGetTargets((f32 *)(rec + 0x168));
                     effectNodeCopyValues((f32 *)(rec + 0x1B8));
@@ -3873,12 +3833,12 @@ void modelRecordFindAndSet(u8 *records, s32 count, s16 id, s16 value) {
 
 // The CsStateFull fields modelSlotsApplyRecords keeps across a restored record.
 typedef struct ModelSlotStateSnapshot {
-    /* 0x00 */ u32 heapBlock;
+    /* 0x00 */ void *heapBlock;
     /* 0x04 */ u8 pad4[0xC];
     /* 0x10 */ s16 unk10;
     /* 0x12 */ s16 unk12;
     /* 0x14 */ u8 pad14[0x80];
-    /* 0x94 */ u32 actor;
+    /* 0x94 */ Actor *actor;
     /* 0x98 */ u8 pad98[4];
 } ModelSlotStateSnapshot; /* 0x9C */
 
@@ -3896,22 +3856,22 @@ void modelSlotsApplyRecords(u8 *records, s32 count) {
     for (k = 0; k < count; k++) {
         id = gCsModelIds[*(s16 *)records];
         idx = hashTableLookup(id);
-        memcpy(&snap, MODEL_SLOT_PACKED_ENTRY(idx)->csState, 0x9C);
-        memcpy(MODEL_SLOT_PACKED_ENTRY(idx)->csState, records + 0xCC, 0x9C);
-        *(u32 *)MODEL_SLOT_PACKED_ENTRY(idx)->csState = snap.heapBlock;
-        *(s16 *)(MODEL_SLOT_PACKED_ENTRY(idx)->csState + 0x10) = snap.unk10;
-        *(s16 *)(MODEL_SLOT_PACKED_ENTRY(idx)->csState + 0x12) = snap.unk12;
-        *(u32 *)(MODEL_SLOT_PACKED_ENTRY(idx)->csState + 0x94) = snap.actor;
-        MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x48] = MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x4B];
-        MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x49] = MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x4C];
-        MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x4A] = MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x4D];
-        MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x9A] = 0;
-        *(s32 *)(MODEL_SLOT_PACKED_ENTRY(idx)->csState + 0x38) = -1;
-        if (MODEL_SLOT_PACKED_ENTRY(idx)->modelData != NULL) {
+        memcpy(&snap, gModelSlots[idx].unk7C, 0x9C);
+        memcpy(gModelSlots[idx].unk7C, records + 0xCC, 0x9C);
+        gModelSlots[idx].unk7C->unk0 = snap.heapBlock;
+        gModelSlots[idx].unk7C->unk10 = snap.unk10;
+        gModelSlots[idx].unk7C->unk12 = snap.unk12;
+        gModelSlots[idx].unk7C->unk94 = snap.actor;
+        gModelSlots[idx].unk7C->unk48[0] = gModelSlots[idx].unk7C->unk4B[0];
+        gModelSlots[idx].unk7C->unk48[1] = gModelSlots[idx].unk7C->unk4B[1];
+        gModelSlots[idx].unk7C->unk48[2] = gModelSlots[idx].unk7C->unk4B[2];
+        gModelSlots[idx].unk7C->unk9A = 0;
+        gModelSlots[idx].unk7C->unk38 = -1;
+        if (gModelSlots[idx].unk78 != NULL) {
             for (off = 0; off != 0xC8; off += 0x14) {
-                memcpy(tmp, (u8 *)MODEL_SLOT_PACKED_ENTRY(idx)->modelData + off + 8, 0x14);
-                memcpy((u8 *)MODEL_SLOT_PACKED_ENTRY(idx)->modelData + off + 8, records + 4 + off, 0x14);
-                *(u32 *)((u8 *)MODEL_SLOT_PACKED_ENTRY(idx)->modelData + off + 8) = *(u32 *)tmp;
+                memcpy(tmp, (u8 *)gModelSlots[idx].unk78 + off + 8, 0x14);
+                memcpy((u8 *)gModelSlots[idx].unk78 + off + 8, records + 4 + off, 0x14);
+                *(u32 *)((u8 *)gModelSlots[idx].unk78 + off + 8) = *(u32 *)tmp;
             }
             modelSlotCopyData(records + 0x254, idx);
         }
