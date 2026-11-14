@@ -1,7 +1,6 @@
 #include "common.h"
 #include "render.h"
 #include "sched.h"
-#define PROTO_SKIP_renderModelQuadGfx // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/126260.h"
 #include "proto/global/15050.h"
@@ -366,7 +365,6 @@ extern FrameMatrices *gGfxCurrentFrameBuffer;
 extern u8 D_807F6009;
 extern u8 D_2000180[];
 
-void *renderModelQuadGfx(void *, void *, f32, f32, f32, s32, s32, s32);
 
 Gfx *renderEntryListBuildDisplayList(Gfx *glist, RenderEntry *list, f32 camX, f32 camY, f32 camZ, s32 renderMask, s16 layer, u8 playerIndex) {
     u8 ok;

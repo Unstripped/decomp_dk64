@@ -2765,7 +2765,7 @@ extern void *D_807F600C;
 extern s32 D_807F5FD8;
 
 
-Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f32 camZ, u8 useLight, s16 lightArg) {
+Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f32 camZ, u8 useLight, s16 lightArg, s32 unused) {
     f32 modelMtx[4][4];
     f32 tmpMtx[4][4];
     f32 angleX;

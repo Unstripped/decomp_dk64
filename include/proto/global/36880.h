@@ -246,7 +246,7 @@ s32 dlResolveNodeTextures(struct DisplayListCmd *, struct DisplayListCmd *, stru
 Gfx *renderModelAnimatedSlot(struct ModelRenderAnimObj *, Gfx *, f32, f32, f32, u8, s16, s32);
 #endif
 #ifndef PROTO_SKIP_renderModelQuadGfx
-Gfx *renderModelQuadGfx(struct RenderQuadModelObj *, Gfx *, f32, f32, f32, u8, s16);
+Gfx *renderModelQuadGfx(RenderQuadModelObj *, Gfx *, f32, f32, f32, u8, s16, s32);
 #endif
 #ifndef PROTO_SKIP_modelKongVisibilityCheck
 void modelKongVisibilityCheck(s16, u8 *, s16 *);
