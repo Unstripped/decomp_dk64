@@ -755,7 +755,6 @@ void renderCalcChainCenterOffset(ChainRowHead *head) {
 }
 
 extern Actor *gCurrentActor;
-extern u16 D_807ECD58;
 extern u16 D_807ECD66;
 extern u8 D_807503F0;
 
@@ -781,13 +780,13 @@ void textBoxUpdate(void) {
                         sub->unk55 = flags | 1;
                         flags = sub->unk55;
                     }
-                    if (D_807ECD58 & 0x2000) {
+                    if (D_807ECD58.button & 0x2000) {
                         sub->unk55 = flags | 2;
                     } else {
                         sub->unk55 = flags & 0xFFFD;
                     }
                     flags = sub->unk55;
-                    if (!(flags & 2) && D_807ECD58 == 0x8000) {
+                    if (!(flags & 2) && D_807ECD58.button == 0x8000) {
                         sub->unk55 = flags | 4;
                     } else {
                         sub->unk55 = flags & 0xFFFB;

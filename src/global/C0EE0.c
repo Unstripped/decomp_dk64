@@ -48,8 +48,6 @@ typedef struct EnemyGridActor {
 
 extern s8 D_80750650;
 extern s8 D_807FC8C0[16];
-extern OSContPad D_807ECD58;
-extern OSContPad D_807ECD60;
 
 void enemyGridStateStep(void) {
     f32 roll;

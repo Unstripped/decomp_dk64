@@ -25,4 +25,8 @@ extern u32 gGlobalPauseFlags;
 extern u32 gFrameCounter;
 extern u32 gGameFrameCounter; // advances like gFrameCounter except while gGlobalPauseFlags & 2 (450.c)
 
+// Controller pads, defined in F600.c: current and previous frame (F600 copies 58 -> 60 each frame and derives D_807ECD66).
+extern OSContPad D_807ECD58;
+extern OSContPad D_807ECD60;
+
 #endif

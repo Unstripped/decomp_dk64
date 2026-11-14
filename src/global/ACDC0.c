@@ -102,7 +102,6 @@ extern s16 D_807505B8[10];
 extern s8 gPauseMenuMode;
 extern s8 D_80750530[5];
 extern u8 D_80750531[];
-extern u16 D_807ECD58;
 extern s32 gCurrentMap;
 extern u8 D_807505F8[];
 extern s8 D_807FC80E;
@@ -1679,7 +1678,7 @@ void hudTextScreenUpdate(void) {
     if (gCurrentActor->yawSpeed != 0) {
         gCurrentActor->yawSpeed--;
     } else if (gCurrentActor->state == 0) {
-        if (D_807ECD58 & 0x8000) {
+        if (D_807ECD58.button & 0x8000) {
             switch (gCurrentActor->unk15F) {
                 case 2:
                     camStartPath(0, 0x20, 1);
@@ -1695,7 +1694,7 @@ void hudTextScreenUpdate(void) {
                     break;
             }
             gCurrentActor->state = 1;
-        } else if (D_807ECD58 & 0x4000) {
+        } else if (D_807ECD58.button & 0x4000) {
             switch (gCurrentActor->unk15F) {
                 case 3:
                 case 4:
