@@ -306,3 +306,4 @@
 {"type": "unit", "t": "2026-11-14T18:26:43Z", "unit": "2026-11-14: cleanup PolishGlobal11BC10", "commit": "ea30a0d5d17abe45b823aca5407e8004af9a7338"}
 {"type": "unit", "t": "2026-11-14T18:28:27Z", "unit": "2026-11-14: cleanup HackslotQueueStateFadeIn", "commit": "2aea91a916ce661fc7e41f976f840bafac8b2d36"}
 {"type": "unit", "t": "2026-11-14T18:29:33Z", "unit": "2026-11-14: cleanup HackcollisionBstSortFlatItems", "commit": "bb8c4437672b8eac656f9000cdf56f3dbe7ef9ba"}
+{"type": "unit", "t": "2026-11-14T18:31:10Z", "unit": "2026-11-14: cleanup HackraceOpponentBehaviourUpdate", "commit": "e5b67ba65659fadada7aeb296aa52875ae4d4489"}
