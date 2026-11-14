@@ -153,7 +153,6 @@ void effectConfettiPhysicsUpdate(EffectNode *effect, void *unused) {
         motion->velocityY = (f32) (params->lo + rem);
     }
     motion = effect->allocation;
-    params = &effect->pair;
     if (effect->mode != 0) {
         effect->x += 4.0 * ((0.01 * (f64) params->lo) * (f64) mathSinF((s16) motion->angle));
         effect->y += 4.0 * ((0.01 * (f64) params->lo) * (f64) mathCosF((s16) motion->angle));
@@ -222,28 +221,27 @@ void func_80717930(EffectNode *effect, void *unused) {
     f32 scaleFactor;
     s32 flags;
     OrbitMotionState *state;
-    OrbitMotionState *allocatedState;
     Actor *owner;
 
     if (effect->allocation == NULL) {
         effect->allocation = heapAlloc(0xA);
-        allocatedState = effect->allocation;
-        allocatedState->angle = (randomNonNegative() >> 0xF) % 4095;
-        allocatedState->centerX = effect->x;
-        allocatedState->centerZ = effect->z;
+        state = effect->allocation;
+        state->angle = (randomNonNegative() >> 0xF) % 4095;
+        state->centerX = effect->x;
+        state->centerZ = effect->z;
         flags = effect->speed;
         if (flags & 0x8000) {
             effect->speed = flags & 0xFFFF7FFF;
-            allocatedState->angleStep = 0xC8;
-            allocatedState->riseSpeed = 0xA;
+            state->angleStep = 0xC8;
+            state->riseSpeed = 0xA;
         } else {
-            allocatedState->angleStep = 0x46;
-            allocatedState->riseSpeed = 0xF;
+            state->angleStep = 0x46;
+            state->riseSpeed = 0xF;
         }
         owner = effect->owner;
         if (owner != NULL) {
             scaleFactor = owner->sub4->scaleY / 0.15;
-            allocatedState->riseSpeed = allocatedState->riseSpeed * scaleFactor;
+            state->riseSpeed = state->riseSpeed * scaleFactor;
             effect->speed = effect->speed * scaleFactor;
         }
     }
@@ -455,7 +453,7 @@ void effectFallUpdate(EffectNode *effect, s8 *isDone) {
     }
     effect->y += (f32) *velocity;
     *velocity -= 1;
-    velocity = effect->allocation;
+    velocity = effect->allocation; // ORIG: the target reloads effect->allocation here (lw v1,0x384(s0) at 0x12d8) before the clamp
     if (*velocity < D_807502D0) {
         *velocity = D_807502D0;
     }
@@ -631,19 +629,13 @@ typedef struct {
 void effectProjectileDriftUpdate(EffectNode *effect, s8 *isDone) {
     ProjectileMotionState *proj;
     Actor *src;
-    f64 min;
     f64 temp;
 
     src = effect->target;
     if (effect->allocation == NULL) {
-        proj = heapAlloc(8); effect->allocation = proj;
+        proj = heapAlloc(8); effect->allocation = proj; // LAYOUT: both statements on one line (two lines move one instruction, as1 order)
         temp = (f64)src->speedXZ * 0.01;
-        min = 2.0;
-        if (temp < min) {
-            proj->speed = min;
-        } else {
-            proj->speed = temp;
-        }
+        proj->speed = (temp < 2.0) ? 2.0 : temp;
         proj->yaw = src->yaw;
         proj->riseSpeed = (s16)(((s32)(randomNonNegative() >> 0xF) % 1000) + 0xC8);
         effect->scaleX += ((f64)((s32)(randomNonNegative() >> 0xF) % 100) / 500.0);
@@ -763,7 +755,7 @@ void effectTumbleBounceUpdate(EffectNode *effect, s8 *isDone) {
     f32 speed;
     f32 yawDeg;
     f32 velX;
-    f32 cosYaw;
+    f32 velZ;
     f32 groundY;
     s16 sfxId;
 
@@ -773,9 +765,9 @@ void effectTumbleBounceUpdate(EffectNode *effect, s8 *isDone) {
         speed = ((f32) (u32) ((randomLcgNext() / 10000U) % 1000U) / 500.0f) + (f32) (effect->speed & 0xFF);
         yawDeg = (f32) (u32) ((randomLcgNext() / 10000U) % 360U);
         velX = sinApprox(yawDeg * 0.017453292f) * speed;
-        cosYaw = cosApprox(yawDeg * 0.017453292f);
+        velZ = cosApprox(yawDeg * 0.017453292f) * speed;
         ((TumbleBounceState *) effect->allocation)->velocityX = velX;
-        ((TumbleBounceState *) effect->allocation)->velocityZ = cosYaw * speed;
+        ((TumbleBounceState *) effect->allocation)->velocityZ = velZ;
         ((TumbleBounceState *) effect->allocation)->rotation = (f32) (u32) ((randomLcgNext() % 36000U) / 100U);
         groundY = effect->y;
         if (collisionCheckGroundAtPoint(effect->x, effect->z, &groundY) != 0) {
@@ -834,7 +826,7 @@ void effectSpiralDriftMatrixUpdate(EffectNode *effect, s8 *isDone) {
     if (effect->allocation == NULL) {
         newState = heapAlloc(8);
         effect->allocation = newState;
-        offsetZ = effect->speed * 2;
+        offsetZ = effect->speed * 2; // FAKE: the start angle is converted through the offsetZ local (a dedicated local or a direct store changes the function)
         newState->angle = (f32) offsetZ;
         ((SpiralDriftState *) effect->allocation)->rotation = 0.0f;
         effect->alpha = 0U;
@@ -845,10 +837,10 @@ void effectSpiralDriftMatrixUpdate(EffectNode *effect, s8 *isDone) {
         effect->alpha += 0x14;
     }
     offsetX = (f32) ((f64) sinApprox(((SpiralDriftState *) effect->allocation)->angle * 0.017453292f) * 2.5);
-    offsetZ = cosApprox(((SpiralDriftState *) effect->allocation)->angle * 0.017453292f);
+    offsetZ = (f32) ((f64) cosApprox(((SpiralDriftState *) effect->allocation)->angle * 0.017453292f) * 2.5);
     effect->x = (f32) (effect->x + offsetX);
     effect->y = (f32) ((f64) effect->y + 3.5);
-    effect->z = (f32) (effect->z + (f32) ((f64) offsetZ * 2.5));
+    effect->z = (f32) (effect->z + offsetZ);
     ((SpiralDriftState *) effect->allocation)->angle = (f32) ((f64) ((SpiralDriftState *) effect->allocation)->angle + 8.0);
     ((SpiralDriftState *) effect->allocation)->rotation = (f32) ((f64) ((SpiralDriftState *) effect->allocation)->rotation + 7.3);
     guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);
@@ -865,7 +857,8 @@ typedef struct {
 } WobbleScaleState;
 
 void effectWobbleScaleUpdate(EffectNode *effect, s8 *isDone) {
-    f32 mtxs[2][4][4];
+    f32 mtx[4][4];
+    f32 pad2[4][4];
     f32 wobbleX;
     f32 wave;
     f32 driftX;
@@ -898,8 +891,8 @@ void effectWobbleScaleUpdate(EffectNode *effect, s8 *isDone) {
             effect->alpha = 0;
         }
     }
-    guScaleF(mtxs[1], effect->scaleX, effect->scaleY, 0.0f);
-    guMtxF2L(mtxs[1], &effect->matrices[0][gGfxBufferIndex]);
+    guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);
+    guMtxF2L(mtx, &effect->matrices[0][gGfxBufferIndex]);
     effect->state = 2;
 }
 
@@ -918,11 +911,11 @@ void effectDecelerateDriftUpdate(EffectNode *effect, s8 *isDone) {
         state = effect->allocation;
     }
     state->speed = (f32) ((f64) state->speed - 0.2);
-    newState = state;
+    newState = state; // FAKE: round-trip copy through newState (with the line below) keeps the second pointer in v0 (move v0,v1 at 0x2bb8, spilled 0x1c(sp))
     if ((f64) state->speed < 0.8) {
         state->speed = 0.8f;
     }
-    state = newState;
+    state = newState; // FAKE: second half of the newState round-trip copy
     stepX = mathSinF((s16) (s32) state->heading);
     stepX = state->speed * stepX;
     stepZ = mathCosF((s16) (s32) state->heading);
