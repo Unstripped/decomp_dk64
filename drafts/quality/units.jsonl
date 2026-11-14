@@ -462,3 +462,4 @@
 {"type": "unit", "t": "2026-11-14T21:06:58Z", "unit": "2026-11-14: cleanup PolishBonus0Names", "commit": "41dc8695d9a95323f1ac6a1f960c0ebcc7cf3609"}
 {"type": "unit", "t": "2026-11-14T21:07:32Z", "unit": "2026-11-14: cleanup PolishGlobalCC800Names", "commit": "a29df791c02ae1c9b0a348ab72e50eb372b1fb50"}
 {"type": "unit", "t": "2026-11-14T21:08:47Z", "unit": "2026-11-14: cleanup OwnerEffectCreateAtPositionNode", "commit": "da968cacb2ba2740b7d8796328c0b414b1a5252d"}
+{"type": "unit", "t": "2026-11-14T21:09:55Z", "unit": "2026-11-14: cleanup PolishBoss6240Names", "commit": "5cb4df5972835630838b2bbb0600dfb34523e6a3"}
