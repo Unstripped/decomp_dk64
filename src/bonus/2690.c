@@ -53,7 +53,7 @@ typedef struct BonusActorExt {
 extern Actor *gCurrentActor;
 
 
-extern u16 D_807FD63C;
+extern PadInputState gPlayerPadState[];
 struct Struct_71B4;
 typedef struct Struct_174 {
     struct Struct_71B4 *unk0;
@@ -344,7 +344,7 @@ u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
     gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(aimX, aimZ, gCurrentActor->x, gCurrentActor->z), 10.0f);
     distance = sqrtf((gCurrentActor->x - aimX) * (gCurrentActor->x - aimX) + (gCurrentActor->z - aimZ) * (gCurrentActor->z - aimZ));
     gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, mathAtan2(gCurrentActor->y - aimY, distance) * 2048.0 / 3.1415927f + 150.0, 5.0f);
-    if ((D_807FD63C & 0xE000) != 0) {
+    if ((gPlayerPadState[0].pressedButtons & 0xE000) != 0) {
         if (gCurrentActor->state == 0) {
             fireStatus = 1;
             if (bonusExt->aimSlot != 0) {
@@ -373,18 +373,9 @@ u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
     return fireStatus;
 }
 
-typedef struct {
-    char pad0[0x2E];
-    s8 unk2E;
-    s8 unk2F;
-    u8 unk30;
-    u8 unk31;
-} BonusB_Ctrl;
-
 extern s32 gCurrentMap;
 extern PlayerState *gActivePlayerState;
 
-extern BonusB_Ctrl gPlayerPadState;
 extern u8 gGameMode;
 
 
@@ -445,8 +436,8 @@ void bonusTargetGameUpdate(void) {
     }
     if (bonusExt->phase > 0) {
         bonusExt->aimSlot = 0;
-        if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
-            ang = mathAtan2(gPlayerPadState.unk2F, gPlayerPadState.unk2E) / 6.2831855f * 8.0 + 5.5;
+        if (gCurrentActor->state == 0 && (gPlayerPadState[0].stickAbsX >= 0x1F || gPlayerPadState[0].stickAbsY >= 0x1F)) {
+            ang = mathAtan2(gPlayerPadState[0].stickY, gPlayerPadState[0].stickX) / 6.2831855f * 8.0 + 5.5;
             if (ang > 9.0f) {
                 ang -= 8.0f;
             }
@@ -574,18 +565,18 @@ void bonusPopupGameUpdate(void) {
     }
     if (bonusExt->phase > 0) {
         bonusExt->aimSlot = 0;
-        if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
-            if (gPlayerPadState.unk2F > 0) {
-                if (gPlayerPadState.unk2E < -0x28) {
+        if (gCurrentActor->state == 0 && (gPlayerPadState[0].stickAbsX >= 0x1F || gPlayerPadState[0].stickAbsY >= 0x1F)) {
+            if (gPlayerPadState[0].stickY > 0) {
+                if (gPlayerPadState[0].stickX < -0x28) {
                     bonusExt->aimSlot = 1;
-                } else if (gPlayerPadState.unk2E >= 0x29) {
+                } else if (gPlayerPadState[0].stickX >= 0x29) {
                     bonusExt->aimSlot = 3;
                 } else {
                     bonusExt->aimSlot = 2;
                 }
-            } else if (gPlayerPadState.unk2E < -0x28) {
+            } else if (gPlayerPadState[0].stickX < -0x28) {
                 bonusExt->aimSlot = 4;
-            } else if (gPlayerPadState.unk2E >= 0x29) {
+            } else if (gPlayerPadState[0].stickX >= 0x29) {
                 bonusExt->aimSlot = 5;
             } else {
                 bonusExt->aimSlot = 6;
@@ -1079,18 +1070,18 @@ void bonusLightFlashGameUpdate(void) {
             }
         }
         bonusExt->aimSlot = 0;
-        if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
-            if (gPlayerPadState.unk2F > 0) {
-                if (gPlayerPadState.unk2E < -0x28) {
+        if (gCurrentActor->state == 0 && (gPlayerPadState[0].stickAbsX >= 0x1F || gPlayerPadState[0].stickAbsY >= 0x1F)) {
+            if (gPlayerPadState[0].stickY > 0) {
+                if (gPlayerPadState[0].stickX < -0x28) {
                     bonusExt->aimSlot = 1;
-                } else if (gPlayerPadState.unk2E >= 0x29) {
+                } else if (gPlayerPadState[0].stickX >= 0x29) {
                     bonusExt->aimSlot = 3;
                 } else {
                     bonusExt->aimSlot = 2;
                 }
-            } else if (gPlayerPadState.unk2E < -0x28) {
+            } else if (gPlayerPadState[0].stickX < -0x28) {
                 bonusExt->aimSlot = 4;
-            } else if (gPlayerPadState.unk2E >= 0x29) {
+            } else if (gPlayerPadState[0].stickX >= 0x29) {
                 bonusExt->aimSlot = 5;
             } else {
                 bonusExt->aimSlot = 6;
@@ -1432,18 +1423,18 @@ void bonusPerilPathPanicGameUpdate(void) {
             ((s8 *)&D_8002D900)[4] = (u16)(1 - n); // FAKE: storing through D_8002D900's base keeps the D_8002D904 lb/sb from sharing a hoisted lui/addiu base (Q0332); the (u16) puts the subu in t7
         }
         bonusExt->aimSlot = 0;
-        if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
-            if (gPlayerPadState.unk2F > 0) {
-                if (gPlayerPadState.unk2E < -0x28) {
+        if (gCurrentActor->state == 0 && (gPlayerPadState[0].stickAbsX >= 0x1F || gPlayerPadState[0].stickAbsY >= 0x1F)) {
+            if (gPlayerPadState[0].stickY > 0) {
+                if (gPlayerPadState[0].stickX < -0x28) {
                     bonusExt->aimSlot = 1;
-                } else if (gPlayerPadState.unk2E >= 0x29) {
+                } else if (gPlayerPadState[0].stickX >= 0x29) {
                     bonusExt->aimSlot = 3;
                 } else {
                     bonusExt->aimSlot = 2;
                 }
-            } else if (gPlayerPadState.unk2E < -0x28) {
+            } else if (gPlayerPadState[0].stickX < -0x28) {
                 bonusExt->aimSlot = 4;
-            } else if (gPlayerPadState.unk2E >= 0x29) {
+            } else if (gPlayerPadState[0].stickX >= 0x29) {
                 bonusExt->aimSlot = 5;
             } else {
                 bonusExt->aimSlot = 6;
