@@ -12,6 +12,13 @@
 #include "proto/global/5650.h"
 #include "proto/global/6AD90.h"
 #include "proto/global/7130.h"
+struct AnimTable;
+struct MeshBlob;
+s32 meshBlobParse(struct MeshBlob *, struct MeshBlob **, struct AnimTable **, void **);
+s32 meshComputeVertexRanges(struct MeshBlob *);
+void meshDrawTextured(Gfx **, struct MeshBlob *, u16 *);
+void meshApplyAnimation(struct MeshBlob *, struct AnimTable *, s32);
+u8 transitionRender(Gfx **, void *, u16 *);
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -118,35 +125,53 @@ void fbBuildTileTable(s32 tileWidth, s32 tileHeight) {
     }
 }
 
-typedef struct MeshEntry {
-    u32 v0;
-    u8 pad[0x18];
-} MeshEntry;
+typedef struct MeshVertex {
+    f32 x;
+    f32 y;
+    f32 z;
+} MeshVertex;
 
-typedef struct MeshBlobTail {
-    u32 *counts;
-    s32 *indices;
-    MeshEntry *entries;
-} MeshBlobTail;
+typedef struct MeshCell {
+    s32 v0, v1, v2, st0, st1, st2, texture;
+} MeshCell;
 
-typedef struct MeshBlobHeader {
-    s32 vertexCount;
-    s32 cellCount;
-    u8 *vertices;
-    u8 *cells;
-    void *screenVertsA;
-    void *screenVertsB;
-    u32 *columnCounts;
-    s32 *columnEnds;
-    s32 *columnStarts;
-} MeshBlobHeader;
+/* Header of the transition mesh asset; the vertex, cell and column arrays follow it in the blob. */
+typedef struct MeshBlob {
+    /* 0x00 */ s32 vertexCount;
+    /* 0x04 */ s32 cellCount;
+    /* 0x08 */ MeshVertex *vertices;
+    /* 0x0C */ MeshCell *cells;
+    /* 0x10 */ Vtx *screenVerts[2];
+    /* 0x18 */ s32 *columnCounts;
+    /* 0x1C */ s32 *columnEnds;
+    /* 0x20 */ s32 *columnStarts;
+    /* 0x24 */ s32 tileWidth;
+    /* 0x28 */ s32 tileHeight;
+} MeshBlob;
+
+typedef struct AnimEntry {
+    s32 kind;
+    s32 group;
+    s32 start;
+    s32 end;
+    f32 scale;
+    u32 source;
+    u32 destination;
+} AnimEntry;
+
+/* Animation tail of the blob, after the mesh's column arrays. */
+typedef struct AnimTable {
+    s32 *counts;
+    u16 **indices;
+    AnimEntry *entries;
+} AnimTable;
 
 
-s32 meshBlobParse(MeshBlobHeader *blob, MeshBlobHeader **outMesh, MeshBlobTail **outAnim, s32 **outEnd) {
+s32 meshBlobParse(MeshBlob *blob, MeshBlob **outMesh, AnimTable **outAnim, void **outEnd) {
     s32 count;
     s32 k;
     s32 sum;
-    MeshBlobTail *b;
+    AnimTable *b;
 
     if (blob == NULL) {
         return 0;
@@ -155,32 +180,32 @@ s32 meshBlobParse(MeshBlobHeader *blob, MeshBlobHeader **outMesh, MeshBlobTail *
         return 0;
     }
     gFbTileTable = heapAlloc(0x708);
-    blob->screenVertsA = heapAlloc(blob->vertexCount * 0x10);
-    blob->screenVertsB = heapAlloc(blob->vertexCount * 0x10);
-    blob->vertices = (u8 *)blob + 0x2C;
-    blob->cells = blob->vertices + blob->vertexCount * 0xC;
-    blob->columnCounts = (u32 *)(blob->cells + blob->cellCount * 0x1C);
+    blob->screenVerts[0] = heapAlloc(blob->vertexCount * sizeof(Vtx));
+    blob->screenVerts[1] = heapAlloc(blob->vertexCount * sizeof(Vtx));
+    blob->vertices = (MeshVertex *)(blob + 1);
+    blob->cells = (MeshCell *)(blob->vertices + blob->vertexCount);
+    blob->columnCounts = (s32 *)(blob->cells + blob->cellCount);
     count = 0;
     while (blob->columnCounts[count++] != 0) {
     }
-    blob->columnStarts = (s32 *)blob->columnCounts + count;
+    blob->columnStarts = blob->columnCounts + count;
     blob->columnEnds = blob->columnStarts + count;
     *outMesh = blob;
     if (outAnim != NULL) {
-        b = (MeshBlobTail *)(blob->columnEnds + count);
-        b->entries = (MeshEntry *)(b + 1);
+        b = (AnimTable *)(blob->columnEnds + count);
+        b->entries = (AnimEntry *)(b + 1);
         count = 0;
-        while (b->entries[count++].v0 != 0) {
+        while (b->entries[count++].kind != 0) {
         }
-        b->counts = (u32 *)(b->entries + count);
+        b->counts = (s32 *)(b->entries + count);
         k = 0;
         while (b->counts[k++] != -1) {
         }
         count = 0;
-        b->indices = (s32 *)(b->counts + k);
+        b->indices = (u16 **)(b->counts + k);
         sum = 0;
         while (b->counts[count] != -1) {
-            b->indices[count] = (s32)(b->indices + k) + sum * 2;
+            b->indices[count] = (u16 *)(b->indices + k) + sum;
             sum += b->counts[count];
             count++;
         }
@@ -196,10 +221,8 @@ s32 meshBlobParse(MeshBlobHeader *blob, MeshBlobHeader **outMesh, MeshBlobTail *
     return 1;
 }
 
-typedef struct MeshRangeView { s32 vertexCount, cellCount, vertices; u8 *cells; s32 screenVertsA, screenVertsB; s32 *columnCounts, *columnEnds, *columnStarts; } MeshRangeView;
-typedef struct MeshTriEntry { s32 v0, v1, v2; u8 padC[0x10]; } MeshTriEntry;
-s32 meshComputeVertexRanges(MeshRangeView *mesh) {
-    MeshTriEntry *e;
+s32 meshComputeVertexRanges(MeshBlob *mesh) {
+    MeshCell *e;
     s32 v2;
     s32 min;
     s32 off;
@@ -210,10 +233,10 @@ s32 meshComputeVertexRanges(MeshRangeView *mesh) {
     min = 0; // FAKE: dead init (min is set before every use) steers regalloc
     off = 0;
     while (mesh->columnCounts[k]) {
-        e = (MeshTriEntry *)(mesh->cells + off);
+        e = (MeshCell *)((u8 *)mesh->cells + off); // FAKE: byte offset off (v1, +28 per cell at 0x638) re-derives e each column (lw t7,0xC(a0); addu a1,t7,v1 at 0x618/0x620); a cell index or one walker is fdiff 1
         v2 = e->v2; // FAKE: dead pre-loop load of the third vertex steers regalloc
         min = max = e->v0;
-        for (i = 0; i < mesh->columnCounts[k]; i++, off += 0x1C, e++) {
+        for (i = 0; i < mesh->columnCounts[k]; i++, off += sizeof(MeshCell), e++) {
             if (e->v0 > max) max = e->v0; else if (e->v0 < min) min = e->v0;
             if (e->v1 > max) max = e->v1; else if (e->v1 < min) min = e->v1;
             v2 = e->v2;
@@ -226,39 +249,29 @@ s32 meshComputeVertexRanges(MeshRangeView *mesh) {
     return 1;
 }
 
-typedef struct MeshCell {
-    s32 v0, v1, v2, st0, st1, st2, texture;
-} MeshCell;
 typedef struct MeshTexInfo {
     s32 offset, width, height;
 } MeshTexInfo;
-typedef struct MeshInfo {
-    s32 vertex_count, cellCount;
-    f32 *vertices;
-    MeshCell *cells;
-    u8 *screen_vertices[2];
-    s32 *column_counts, *column_ends, *column_starts;
-} MeshInfo;
 extern MeshTexInfo D_80754F80[];
 extern u16 D_80754FC8[];
 s16 func_8070C200(f32);
 
-void meshDrawTextured(Gfx **gdl, MeshInfo *mesh, u8 *framebuffer) {
+void meshDrawTextured(Gfx **gdl, MeshBlob *mesh, u16 *framebuffer) {
     Gfx *glist = *gdl;
     s32 j, k, row, texture, prev, base, count;
 
-    for (j = 0; j < mesh->vertex_count; j++) {
-        ((s16 *)(mesh->screen_vertices[gGfxBufferIndex] + j * 0x10))[0] = func_8070C200(mesh->vertices[j * 3]);
-        ((s16 *)(mesh->screen_vertices[gGfxBufferIndex] + j * 0x10))[1] = func_8070C200(mesh->vertices[j * 3 + 1]);
-        ((s16 *)(mesh->screen_vertices[gGfxBufferIndex] + j * 0x10))[2] = func_8070C200(mesh->vertices[j * 3 + 2]);
+    for (j = 0; j < mesh->vertexCount; j++) {
+        mesh->screenVerts[gGfxBufferIndex][j].v.ob[0] = func_8070C200(mesh->vertices[j].x);
+        mesh->screenVerts[gGfxBufferIndex][j].v.ob[1] = func_8070C200(mesh->vertices[j].y);
+        mesh->screenVerts[gGfxBufferIndex][j].v.ob[2] = func_8070C200(mesh->vertices[j].z);
     }
     k = 0;
-    for (row = 0; mesh->column_counts[row] != 0; row++) {
+    for (row = 0; mesh->columnCounts[row] != 0; row++) {
         prev = -0x63;
-        base = mesh->column_starts[row];
-        count = mesh->column_ends[row] - base + 1;
-        gSPVertex(glist++, osVirtualToPhysical(mesh->screen_vertices[gGfxBufferIndex] + base * 0x10), count, 0);
-        for (j = 0; j < mesh->column_counts[row]; j++) {
+        base = mesh->columnStarts[row];
+        count = mesh->columnEnds[row] - base + 1;
+        gSPVertex(glist++, osVirtualToPhysical(&mesh->screenVerts[gGfxBufferIndex][base]), count, 0);
+        for (j = 0; j < mesh->columnCounts[row]; j++) {
             texture = mesh->cells[k].texture;
             if (texture != prev) {
                 prev = texture;
@@ -266,7 +279,7 @@ void meshDrawTextured(Gfx **gdl, MeshInfo *mesh, u8 *framebuffer) {
                     texture = -1 - texture;
                     gDPLoadTextureBlock(glist++, D_80754FC8 + D_80754F80[texture].offset, G_IM_FMT_RGBA, G_IM_SIZ_16b, D_80754F80[texture].width, D_80754F80[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                 } else {
-                    gDPLoadTextureTile(glist++, framebuffer + gFbTileTable[texture].offset * 2, G_IM_FMT_RGBA, G_IM_SIZ_16b, 320, 0, 0, 0, gFbTileTable[texture].width, gFbTileTable[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    gDPLoadTextureTile(glist++, framebuffer + gFbTileTable[texture].offset, G_IM_FMT_RGBA, G_IM_SIZ_16b, 320, 0, 0, 0, gFbTileTable[texture].width, gFbTileTable[texture].height - 1, 0, G_TX_WRAP, G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                 }
             }
             gSPModifyVertex(glist++, mesh->cells[k].v0 - base, G_MWO_POINT_ST, mesh->cells[k].st0);
@@ -281,37 +294,7 @@ void meshDrawTextured(Gfx **gdl, MeshInfo *mesh, u8 *framebuffer) {
 
 typedef f32 AnimMatrix[4][4];
 
-typedef struct AnimVec3 {
-    f32 x;
-    f32 y;
-    f32 z;
-} AnimVec3;
-
-typedef struct AnimModel {
-    s32 vertexCount;
-    s32 cellCount;
-    AnimVec3 *vertices;
-} AnimModel;
-
-typedef struct AnimEntry {
-    s32 kind;
-    s32 group;
-    s32 start;
-    s32 end;
-    f32 scale;
-    u32 source;
-    u32 destination;
-} AnimEntry;
-
-typedef struct AnimTable {
-    s32 *counts;
-    u16 **indices;
-    AnimEntry *entries;
-} AnimTable;
-
-
-
-void meshApplyAnimation(AnimModel *model, AnimTable *table, s32 frame) {
+void meshApplyAnimation(MeshBlob *model, AnimTable *table, s32 frame) {
     u32 sidx;
     u32 didx;
     AnimMatrix lookMtx;
@@ -324,8 +307,8 @@ void meshApplyAnimation(AnimModel *model, AnimTable *table, s32 frame) {
     s32 count;
     u16 *indices;
     s32 end;
-    AnimVec3 *src;
-    AnimVec3 *dst;
+    MeshVertex *src;
+    MeshVertex *dst;
     f32 angle;
     f32 dx;
     f32 dy;
@@ -346,32 +329,32 @@ void meshApplyAnimation(AnimModel *model, AnimTable *table, s32 frame) {
         }
         switch (table->entries[idx].kind) {
         case 1:
-                sidx = table->entries[idx].source;
-                didx = table->entries[idx].destination;
-                src = &model->vertices[sidx];
-                dst = &model->vertices[didx];
-                x = src->x;
-                dx = dst->x - x;
-                dy = dst->y - src->y;
-                dz = dst->z - src->z;
-                angle = (f32)(table->entries[idx].start - end) * table->entries[idx].scale;
-                mtxLookDirPosF(lookMtx, lookInvMtx,
-                    -dx, -dy, -dz,
-                    -x, -src->y, -src->z);
-                mtxRotateZDegF(rotMtx, angle);
-                mtxMulAffineF(rotMtx, lookMtx, tmpMtx);
-                mtxMulAffineF(lookInvMtx, tmpMtx, xformMtx);
-                count = table->counts[table->entries[idx].group];
-                indices = table->indices[table->entries[idx].group];
-                for (i = 0; i < count; i++) {
-                    j = indices[i];
-                    x = model->vertices[j].x;
-                    y = model->vertices[j].y;
-                    z = model->vertices[j].z;
-                    model->vertices[j].x = x * xformMtx[0][0] + y * xformMtx[1][0] + z * xformMtx[2][0] + xformMtx[3][0];
-                    model->vertices[j].y = x * xformMtx[0][1] + y * xformMtx[1][1] + z * xformMtx[2][1] + xformMtx[3][1];
-                    model->vertices[j].z = x * xformMtx[0][2] + y * xformMtx[1][2] + z * xformMtx[2][2] + xformMtx[3][2];
-                }
+            sidx = table->entries[idx].source;
+            didx = table->entries[idx].destination;
+            src = &model->vertices[sidx];
+            dst = &model->vertices[didx];
+            x = src->x;
+            dx = dst->x - x;
+            dy = dst->y - src->y;
+            dz = dst->z - src->z;
+            angle = (f32)(table->entries[idx].start - end) * table->entries[idx].scale;
+            mtxLookDirPosF(lookMtx, lookInvMtx,
+                -dx, -dy, -dz,
+                -x, -src->y, -src->z);
+            mtxRotateZDegF(rotMtx, angle);
+            mtxMulAffineF(rotMtx, lookMtx, tmpMtx);
+            mtxMulAffineF(lookInvMtx, tmpMtx, xformMtx);
+            count = table->counts[table->entries[idx].group];
+            indices = table->indices[table->entries[idx].group];
+            for (i = 0; i < count; i++) {
+                j = indices[i];
+                x = model->vertices[j].x;
+                y = model->vertices[j].y;
+                z = model->vertices[j].z;
+                model->vertices[j].x = x * xformMtx[0][0] + y * xformMtx[1][0] + z * xformMtx[2][0] + xformMtx[3][0];
+                model->vertices[j].y = x * xformMtx[0][1] + y * xformMtx[1][1] + z * xformMtx[2][1] + xformMtx[3][1];
+                model->vertices[j].z = x * xformMtx[0][2] + y * xformMtx[1][2] + z * xformMtx[2][2] + xformMtx[3][2];
+            }
             break;
         case 2:
             sidx = table->entries[idx].source;
@@ -403,19 +386,6 @@ void fbCopySetAlpha(void *dstBuf, void *srcBuf) {
     }
 }
 
-typedef struct TransitionBuffers {
-    s32 vertexCount;
-    s32 cellCount;
-    void *vertices;
-    void *cells;
-    void *screenVertsA;
-    void *screenVertsB;
-    s32 columnCounts;
-    s32 columnEnds;
-    s32 columnStarts;
-    s32 tileWidth;
-    s32 tileHeight;
-} TransitionBuffers;
 
 extern FrameMatrices *gGfxCurrentFrameBuffer;
 extern Gfx *gGfxTaskBuffers[];
@@ -425,8 +395,8 @@ extern u8 D_8076A0A4;
 extern u8 D_8076A0B2;
 extern FrameMatrices D_80767CE8[];
 extern f32 gScreenFadeProgress;
-extern TransitionBuffers *sTransitionMesh;
-extern void *sTransitionFramebufferCopy;
+extern MeshBlob *sTransitionMesh;
+extern u16 *sTransitionFramebufferCopy;
 extern void *sTransitionMeshAsset;
 
 
@@ -466,10 +436,11 @@ void transitionRunFrame(s32 map, s32 exit) {
                 heapFreeDeferred(sTransitionFramebufferCopy);
                 heapFreeDeferred(sTransitionMesh->vertices);
                 heapFreeDeferred(gFbTileTable);
-                heapFreeDeferred(sTransitionMesh->screenVertsA);
-                heapFreeDeferred(sTransitionMesh->screenVertsB);
+                heapFreeDeferred(sTransitionMesh->screenVerts[0]);
+                heapFreeDeferred(sTransitionMesh->screenVerts[1]);
                 assetFreeBuffer(sTransitionMeshAsset, 0x24B, 0x4A);
-                if (((gGameMode = D_807444F4) == 1) && (gGlobalOverlayFlags & 1)) {
+                gGameMode = D_807444F4;
+                if ((gGameMode == 1) && (gGlobalOverlayFlags & 1)) {
                     camRestartPath();
                 }
                 gNextGameMode = 3;
@@ -526,7 +497,7 @@ void transitionBeginDisplayList(FrameMatrices *frame, Gfx **outDl) {
 
 extern s32 gTransitionProgress;
 extern s32 D_8075506C;
-extern void *D_807FD9A4;
+extern MeshVertex *D_807FD9A4;
 extern AnimTable *sTransitionAnim;
 extern s32 *gFramebuffers[];
 
@@ -544,10 +515,10 @@ void transitionInit(void) {
     sTransitionMeshAsset = assetLoad(0x13, 1, 1, 1);
     sTransitionFramebufferCopy = heapAlloc(gScreenWidth * gScreenHeight * 2);
     fbCopySetAlpha(sTransitionFramebufferCopy, gFramebuffers[gGfxBufferIndex]);
-    meshBlobParse(sTransitionMeshAsset, (void *)&sTransitionMesh, (void *)&sTransitionAnim, 0);
-    meshComputeVertexRanges((void *)sTransitionMesh);
+    meshBlobParse(sTransitionMeshAsset, &sTransitionMesh, &sTransitionAnim, NULL);
+    meshComputeVertexRanges(sTransitionMesh);
     D_807FD9A4 = sTransitionMesh->vertices;
-    sTransitionMesh->vertices = heapAlloc(sTransitionMesh->vertexCount * 0xC);
+    sTransitionMesh->vertices = heapAlloc(sTransitionMesh->vertexCount * sizeof(MeshVertex));
     fbBuildTileTable(sTransitionMesh->tileWidth, sTransitionMesh->tileHeight);
 }
 
@@ -558,19 +529,19 @@ typedef struct TransitionDitherMask {
 extern TransitionDitherMask D_80755074;
 
 void transitionMaskFramebuffer(u16 *framebuffer) {
-    TransitionDitherMask temp = D_80755074;
+    TransitionDitherMask mask = D_80755074;
     s32 i;
     u16 *pixels = framebuffer + 0x9D;
     s32 t = gTransitionProgress - 5;
     s32 count = (t * 0xF0) / 0x50;
 
     for (i = 0; i < count; i++) {
-        pixels[0] = pixels[0] & temp.data[(i & 3) * 6];
-        pixels[1] = pixels[1] & temp.data[(i & 3) * 6 + 1];
-        pixels[2] = pixels[2] & temp.data[(i & 3) * 6 + 2];
-        pixels[3] = pixels[3] & temp.data[(i & 3) * 6 + 3];
-        pixels[4] = pixels[4] & temp.data[(i & 3) * 6 + 4];
-        pixels[5] = pixels[5] & temp.data[(i & 3) * 6 + 5];
+        pixels[0] = pixels[0] & mask.data[(i & 3) * 6];
+        pixels[1] = pixels[1] & mask.data[(i & 3) * 6 + 1];
+        pixels[2] = pixels[2] & mask.data[(i & 3) * 6 + 2];
+        pixels[3] = pixels[3] & mask.data[(i & 3) * 6 + 3];
+        pixels[4] = pixels[4] & mask.data[(i & 3) * 6 + 4];
+        pixels[5] = pixels[5] & mask.data[(i & 3) * 6 + 5];
         pixels += 0x140;
     }
     for (i = count; i < 0xF0; i++) {
@@ -652,7 +623,7 @@ extern Mtx D_2000200;
 #define TRANS_MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define TRANS_MIN(a, b) (((a) < (b)) ? (a) : (b))
 
-u8 transitionRender(Gfx **gdl, void *asset, void *framebuffer) {
+u8 transitionRender(Gfx **gdl, void *asset, u16 *framebuffer) {
     Gfx *glist;
     Gfx *start;
     Gfx *out;
@@ -707,11 +678,11 @@ u8 transitionRender(Gfx **gdl, void *asset, void *framebuffer) {
     gSPDisplayList(glist++, D_1000020);
     gDPPipeSync(glist++);
     for (i = 0; i < sTransitionMesh->vertexCount; i++) {
-        ((f32 *)sTransitionMesh->vertices)[i * 3] = ((f32 *)D_807FD9A4)[i * 3];
-        ((f32 *)sTransitionMesh->vertices)[i * 3 + 1] = ((f32 *)D_807FD9A4)[i * 3 + 1];
-        ((f32 *)sTransitionMesh->vertices)[i * 3 + 2] = ((f32 *)D_807FD9A4)[i * 3 + 2];
+        sTransitionMesh->vertices[i].x = D_807FD9A4[i].x;
+        sTransitionMesh->vertices[i].y = D_807FD9A4[i].y;
+        sTransitionMesh->vertices[i].z = D_807FD9A4[i].z;
     }
-    meshApplyAnimation((AnimModel *)sTransitionMesh, sTransitionAnim, gTransitionProgress);
+    meshApplyAnimation(sTransitionMesh, sTransitionAnim, gTransitionProgress);
     if (delta < 0) {
         D_807FD9A0 = ((gTransitionProgress * 0xF0) - 0x960) / 80;
     } else {
@@ -732,7 +703,7 @@ u8 transitionRender(Gfx **gdl, void *asset, void *framebuffer) {
     gSPMatrix(glist++, matrix, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gDPSetColorDither(glist++, G_CD_DISABLE);
     gDPSetAlphaDither(glist++, G_AD_DISABLE);
-    meshDrawTextured(&glist, (MeshInfo *)sTransitionMesh, framebuffer);
+    meshDrawTextured(&glist, sTransitionMesh, framebuffer);
     gTransitionProgress += delta;
     sTransitionBarTexture = assetLoad(0xE, 0x6A - TRANS_MIN(TRANS_MAX((s16)(D_807FD9A0 / 26), 0), 9), 1, 1);
     assetFreeBuffer(sTransitionBarTexture, 0x381, 0x4A);

@@ -3,12 +3,8 @@
 #define PROTO_GLOBAL_10E1D0_H
 #include "common.h"
 #include "render.h"
-struct AnimModel;
 struct AnimTable;
-struct MeshBlobHeader;
-struct MeshBlobTail;
-struct MeshInfo;
-struct MeshRangeView;
+struct MeshBlob;
 #ifndef PROTO_SKIP_func_807094D0
 void func_807094D0();
 #endif
@@ -16,16 +12,16 @@ void func_807094D0();
 void fbBuildTileTable(s32, s32);
 #endif
 #ifndef PROTO_SKIP_meshBlobParse
-s32 meshBlobParse(struct MeshBlobHeader *, struct MeshBlobHeader **, struct MeshBlobTail **, s32 **);
+s32 meshBlobParse(struct MeshBlob *, struct MeshBlob **, struct AnimTable **, void **);
 #endif
 #ifndef PROTO_SKIP_meshComputeVertexRanges
-s32 meshComputeVertexRanges(struct MeshRangeView *);
+s32 meshComputeVertexRanges(struct MeshBlob *);
 #endif
 #ifndef PROTO_SKIP_meshDrawTextured
-void meshDrawTextured(Gfx **, struct MeshInfo *, u8 *);
+void meshDrawTextured(Gfx **, struct MeshBlob *, u16 *);
 #endif
 #ifndef PROTO_SKIP_meshApplyAnimation
-void meshApplyAnimation(struct AnimModel *, struct AnimTable *, s32);
+void meshApplyAnimation(struct MeshBlob *, struct AnimTable *, s32);
 #endif
 #ifndef PROTO_SKIP_fbCopySetAlpha
 void fbCopySetAlpha(void *, void *);
@@ -52,6 +48,6 @@ u8 transitionGetState(void);
 void transitionSetAudioVolume(f32, s32, s32 *);
 #endif
 #ifndef PROTO_SKIP_transitionRender
-u8 transitionRender(Gfx **, void *, void *);
+u8 transitionRender(Gfx **, void *, u16 *);
 #endif
 #endif
