@@ -362,7 +362,7 @@ RenderEntry *renderEntryListSortByDistance(RenderEntry *list, f32 camX, f32 camY
     return head;
 }
 
-extern s32 gGfxCurrentFrameBuffer;
+extern FrameMatrices *gGfxCurrentFrameBuffer;
 extern u8 D_807F6009;
 extern u8 D_2000180[];
 
@@ -424,7 +424,7 @@ extern u8 gCurrentPlayerIndex;
 
 
 
-Gfx *renderActorEntryBuildDisplayList(s32 context, Actor *actor, Gfx *glist, u8 playerIndex) {
+Gfx *renderActorEntryBuildDisplayList(FrameMatrices *frame, Actor *actor, Gfx *glist, u8 playerIndex) {
     PlayerState *ctl;
     f32 dz;
     f32 dy;

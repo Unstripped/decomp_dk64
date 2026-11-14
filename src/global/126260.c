@@ -1,4 +1,5 @@
 #include "common.h"
+#include "render.h"
 #include "actor.h"
 #include "sched.h"
 #include "proto/global/126260.h"
@@ -6,7 +7,7 @@
 #include "proto/global/69E60.h"
 #include "proto/global/70FD0.h"
 
-extern s32 gGfxCurrentFrameBuffer;
+extern FrameMatrices *gGfxCurrentFrameBuffer;
 extern u8 gLightCommandCount;
 extern u8 gLightSetIndex;
 extern s16 D_807FDB76;
@@ -218,14 +219,9 @@ extern f32 D_807444DC;
 extern f32 D_807444E0;
 
 
-typedef struct {
-    u8 pad0[0xD4];
-    s16 unkD4;
-} FakesLightHitState;
-
 Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIndex) {
     u8 is_player;
-    u8 *color_base;
+    FrameMatrices *frame;
     Light *secondary;
     Ambient *primary;
     u8 command;
@@ -253,9 +249,9 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
         is_player = 0;
     }
     command = 1;
-    color_base = (u8 *)gGfxCurrentFrameBuffer;
-    primary = &((Lights7 *)((u8 *)color_base + 0x270))[gLightSetIndex].a;
-    secondary = &((Lights7 *)((u8 *)color_base + 0x270))[gLightSetIndex].l[0];
+    frame = gGfxCurrentFrameBuffer;
+    primary = &frame->lightSets[gLightSetIndex].a;
+    secondary = &frame->lightSets[gLightSetIndex].l[0];
 
     if (targetActor->unkCD) {
         actorGetNodePos(targetActor, targetActor->unkCD, &x, &y, &z);
@@ -338,8 +334,8 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     }
 
     if (!(gGlobalPauseFlags & 2) && (targetActor->collisionFlags & 1)) {
-        FakesLightHitState *hit = targetActor->customState;
-        if (hit->unkD4 != 0 && (gFrameCounter & 2)) {
+        PlayerState *hit = targetActor->customState;
+        if (hit->surfaceTimer != 0 && (gFrameCounter & 2)) {
             secondary->l.col[0] = 0;
             secondary->l.col[1] = 0;
             secondary->l.col[2] = 0;
@@ -356,9 +352,9 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     }
 
     for (i = 0; i < command; i++) {
-        gSPLight(glist++, &((Lights7 *)(color_base + 0x270))[gLightSetIndex].l[i], i + 1);
+        gSPLight(glist++, &frame->lightSets[gLightSetIndex].l[i], i + 1);
     }
-    gSPLight(glist++, &((Lights7 *)(color_base + 0x270))[gLightSetIndex].a, command + 1);
+    gSPLight(glist++, &frame->lightSets[gLightSetIndex].a, command + 1);
     gSPNumLights(glist++, command);
     gDPPipeSync(glist++);
 
