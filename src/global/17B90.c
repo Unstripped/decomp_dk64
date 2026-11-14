@@ -98,7 +98,7 @@ typedef struct GfxCmdWords {
 } GfxCmdWords;
 void gfxSwapGeometryModeCullBits(GfxCmdWords *cmdStart, void *cmdEnd) {
     u32 command;
-    u32 op;
+    s32 op;
     u32 w0;
     u32 w1;
 
@@ -110,28 +110,25 @@ void gfxSwapGeometryModeCullBits(GfxCmdWords *cmdStart, void *cmdEnd) {
             if ((w0 & 0x600) && (w0 & 0x600)) {} // FAKE: preserves the cull-mask expression's live range
             w1 = cmdStart->unk4;
             if (command == 0xD9) {
-                if (cmdStart->unk4 == 0) {
+                if (w1 == 0) {
                     w0 = ~w0 & 0xFFFFFF;
                     if ((w0 & 0x600) == 0x200) {
                         op = w0 | 0x400;
                         w0 = 0; // FAKE: prevents forwarding the mask expression out of op
-                        op = (s32)op & ~0x200;
+                        op &= ~0x200;
                         cmdStart->unk0 = ~op | 0xD9000000;
                     } else if ((w0 & 0x600) == 0x400) {
                         op = w0 | 0x200;
                         w0 = 0; // FAKE: prevents forwarding the mask expression out of op
-                        op = (s32)op & ~0x400;
+                        op &= ~0x400;
                         cmdStart->unk0 = ~op | 0xD9000000;
                     }
-                } else {
-                    op = w1 & 0x600;
-                    if (op == 0x200) {
-                        cmdStart->unk4 |= 0x400;
-                        cmdStart->unk4 &= ~0x200;
-                    } else if ((op | 0) == 0x400) { // FAKE: preserves comparison operand order
-                        cmdStart->unk4 |= 0x200;
-                        cmdStart->unk4 &= ~0x400;
-                    }
+                } else if ((w1 & 0x600) == 0x200) {
+                    cmdStart->unk4 |= 0x400;
+                    cmdStart->unk4 &= ~0x200;
+                } else if ((w1 & 0x600) == 0x400) {
+                    cmdStart->unk4 |= 0x200;
+                    cmdStart->unk4 &= ~0x400;
                 }
             }
             if (command && command) {} // FAKE: retains the opcode variable rather than a forwarded shift
