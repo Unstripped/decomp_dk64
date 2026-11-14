@@ -158,21 +158,22 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 33 (2026-11-12, stopped early)** — global/70FD0 (FAKE removed), race/A960 (views retired), race/7BD0 (string/scalar types), global/6710 (partial ledger). Knowledge Q0701–Q0703.
 - [x] **Round 34 (2026-11-13)** — global/36880, 103AB0, 42630, menu/3E10 (ledger-only), global/70FD0 (views 4 → 0, m2c names 111 → 0), global/450 (3 FAKE removed, views retired); shared `MpSettings` in actor.h (5 files' views retired, fields named, `D_807552EC` folded), `PlayerState.attackerSpawnNodeId` s8; carry learned body renames and header field renames (`--func`); re-review Rev34A–C (multiplayer/0 volatile removed). Knowledge Q0704–Q0719.
 - [x] **Round 35 (2026-11-13)** — arcade/0, global/55B20 (+ 2F550 owner batches), E4090 (G29Act/G32Mid views onto Actor, 13 functions' m2c casts, 2 u8 retypes), 36880, 70FD0 (Q0705's steer removed), menu/3E10; shared `MapBspNode` in map.h (MapViewEntries, MapLeafLists, MapNodeEffects, MapRelocNode retired); name `playerAddHealthDelta`; knowledge entries carry their `unit`. Knowledge Q0720–Q0726 (+ Q0705 corrected).
-- [ ] Paused after round 35. Leftovers: 278 OPEN functions in 133 files (the Q0720–Q0726 commit re-opened 55 functions, mostly this round's own files through note similarity; not re-recorded) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md` (PadInputState batch held); resume from `uv run tools/quality.py rank`.
+- [x] **Round 36 (2026-11-13)** — global/7130 (views onto PlayerStruct/ModelSlot), 80150, 15050 (2 hidden steers removed, gHeapMainFreeList folded), 103AB0 (3 FAKE removed, lensFlareDrawSource ANSI), bonus/2690 (2 FAKE removed, views retired), D5E10 (3 views retired); shared `PadInputState` in actor.h (E4090, CEAE0, D5E10; CEAE0 reads the s8 attackerSpawnNodeId directly); name `PlayerStruct.camYaw`; carry learned file-local record field renames. Knowledge Q0727–Q0744.
+- [ ] Paused after round 36. Leftovers: 290 OPEN functions in 135 files (the Q0727–Q0744 commit re-opened 45 functions; not re-recorded) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`; resume from `uv run tools/quality.py rank`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-13, after round 35):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-13, after round 36):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 728 | 583 |
+| FAKE | 723 | 583 |
 | FAKE dead-if | 267 | 263 |
 | FAKE proto-steer | 48 | 134 |
-| FAKE other kinds | 413 | 186 |
+| FAKE other kinds | 408 | 186 |
 | LAYOUT | 69 | 47 |
 | goto | 35 | 39 |
 | proto-type (`// PROTO:`) | 6 | 0 |
 | protos mismatch | 23 | 1,202 |
-| reviewed / exhausted functions | 4,210 / 3,992 of 4,270 | 0 |
+| reviewed / exhausted functions | 4,213 / 3,980 of 4,270 | 0 |
 | cfe warnings (start column = round 9 start, when tracking began) | 26 | 1,890 |
 | uninit warnings (clint checks every function) | 251 | 122 |
 | `func_` definitions | 426 | 457 |

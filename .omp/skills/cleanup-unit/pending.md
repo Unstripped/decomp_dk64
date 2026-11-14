@@ -1,6 +1,6 @@
-# Pending after cleanup round 35 (campaign paused)
+# Pending after cleanup round 36 (campaign paused)
 
-State after the round-35 close (knowledge commit 9225185f, Q0720-Q0726, Q0705 corrected): 278 OPEN functions in 133 files. OPEN was 223 just before that commit; it re-opened 55 functions, most of them round-35 work in arcade/0, E4090, 36880, 70FD0, 3E10, 2F550 and 55B20, through top-8 note similarity to the new entries (the `unit` exemption covers only entries that name the function); they were not re-recorded. Left from round 35: 2F550 frustumOrientPolyNormals 649e56 needs a fresh diagnose (its permute is fresh). A future session starts here: `uv run tools/quality.py rank`, then SKILL.md §2.
+State after the round-36 close (knowledge commit 9ec1b6d4, Q0727-Q0744): 290 OPEN functions in 135 files. OPEN was 245 just before that commit; it re-opened 45 functions (round-35/36 files and earlier ones, mostly by top-8 note similarity); they were not re-recorded. A future session starts here: `uv run tools/quality.py rank`, then SKILL.md §2.
 
 ## Blocked owner/header changes
 - Cast sweep (round 30): 55B20 MapChunk.lastSeenFrame and 61AA0 BillboardCacheEntry.lastUsedFrame stay s32 (u32 retype fdiff 1). model.h/heap.h frame stamps landed u32 after Rev29.
@@ -35,8 +35,8 @@ State after the round-35 close (knowledge commit 9225185f, Q0720-Q0726, Q0705 co
 
 
 ## Round-34 leftovers
-- global/CEAE0 playerUpdateCommon: PlayerState.attackerSpawnNodeId is s8 since 7d320d77; reading it directly (dropping `s8 spawnNodeId`) waits for the next pass that reruns its 7 sites (9c4d8c40 restored the local to keep their rungs fresh).
-- Shared PadInputState for gPlayerPadState: planned as round-36 batch PadBatch36 (`.scratch/padbatch36.md`): typedef only in actor.h (NO header extern: CC800, 103AB0, menu/0, 80150, 7BBD0 and bonus/2690 declare `gPlayerPadState` with their own types, so a header extern is a redeclaration error there), E4090 typedef dropped, CEAE0 view dropped + fields respelled + the s8 attackerSpawnNodeId direct read, D5E10's 11 `views blocked` functions moved off the D_807FD618/63A/63C split labels. Those six other views follow file by file afterwards.
+- Done in round 36 (37ae4167): PadInputState typedef in actor.h (no header extern), E4090/CEAE0/D5E10 on it, CEAE0 reads the s8 attackerSpawnNodeId directly. Still open: CC800 G00Slot34, 103AB0 PlayerSampleInfo, menu/0 MenuControllerPad, 80150 TagBarrelInputPad, 7BBD0 CollisionPadD610 and bonus/2690 BonusB_Ctrl views of gPlayerPadState (each declares its own extern; convert file by file, then add the header extern last), plus the D_807FD63A/63C/618 split-label users in CC800, F56F0, bonus/2690, race/7BD0 (E4090's D_807FD63A is load-bearing, Q0264).
+- gMinecartTrackPoints shared declaration (CleanBonus2690 round-36 request): 8 files declare it with different types (bonus/2690, race/36B0, minecart/0, minecart/25F0, 478F0, race/1770, 2F550, race/7BD0); a TargetVec3f ** header extern needs all of them in one batch.
 - multiplayer/0 reclassification proposal (Rev34A): mpDrawHud early locals matchOver/paused (10c615, 924c0a) and the mpUpdate flag (c4ac54) may be source structure, not hacks (Q0498/Q0108); tags kept.
 - 36880 renderModelQuadGfx owner arity: 35000 passes 8 args against a 7-arg prototype; the target stores the 8th at 0x1C(sp) (Consol34).
 - 117190 D_8075E5C0/D_8075E5C2: a 4-byte `{u8 id; u8 pad; u16 maxTime}` entry type would retire the tagged pun 318113 in menuCheckMapTransitionOnLoad (file-scope view, reaches 3 more functions).
