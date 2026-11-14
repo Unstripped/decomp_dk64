@@ -728,7 +728,7 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x25:
-        if (D_807FD568->unk0[1] >= cmd->a) {
+        if (D_807FD568->slamLevel >= cmd->a) {
             ret = 1;
         } else {
             ret = 0;

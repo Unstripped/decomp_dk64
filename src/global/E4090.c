@@ -1032,7 +1032,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
     s32 hasFlag;
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) || force) {
-        flags = D_807FD568->unk0[2];
+        flags = D_807FD568->weaponFlags;
         if ((flags & 2) && slotQueueGetValue(3, gCurrentPlayerIndex)) {
             sel = 3;
         } else {
@@ -1266,7 +1266,7 @@ void playerInputHandlerCheckZAndTriggerState2C(void) {
 
 
 void playerFireWeaponIfOwned(void) {
-    if (D_807FD568->unk0[2] & 1) {
+    if (D_807FD568->weaponFlags & 1) {
         playerFireWeapon(0, 0);
     }
 }
@@ -1918,7 +1918,7 @@ void playerInputHandleZButtonFire(void) {
             }
             gActivePlayerState->gunDrawn = 0;
             func_806EAB44(gCurrentActor, 0);
-        } else if (!func_80714608(0) && !(gGlobalOverlayFlags & 0x80000200) && (D_807FD568->unk0[2] & 1) &&
+        } else if (!func_80714608(0) && !(gGlobalOverlayFlags & 0x80000200) && (D_807FD568->weaponFlags & 1) &&
                    !(gActivePlayerState->stateFlags & 0x30) &&
                    (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1)) {
             playerToggleGun(gCurrentActor, gActivePlayerState, 1);
@@ -1939,7 +1939,7 @@ void playerInputHandleZButtonShoot(void) {
             }
             gActivePlayerState->gunDrawn = 0;
             func_806EAB44(gCurrentActor, 0);
-        } else if (!func_80714608(0) && !(gGlobalOverlayFlags & 0x200) && (D_807FD568->unk0[2] & 1) &&
+        } else if (!func_80714608(0) && !(gGlobalOverlayFlags & 0x200) && (D_807FD568->weaponFlags & 1) &&
                    (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1)) {
             playerToggleGun(gCurrentActor, gActivePlayerState, 1);
             gPlayerSlots[gCurrentPlayerIndex].fov = 45.0f;
@@ -1974,7 +1974,7 @@ extern s32 gGlobalCutsceneFlags;
 void playerInputCheckInstrumentPlayback(void) {
     u8 isTarget;
 
-    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) && (gFrameCounter >= 3) && (D_807FD568->unk0[4] & 1) &&
+    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) && (gFrameCounter >= 3) && (D_807FD568->instrumentFlags & 1) &&
         !(gGlobalOverlayFlags & 0x4000) && !(gGlobalCutsceneFlags & 1) &&
         (gPlayerSlots[gCurrentPlayerIndex].unk2C0 != 2) &&
         (playerInputCheckTargetMoved(gCurrentActor) == 0) && (actorAnyActiveHasFlag2000000() == 0) &&
@@ -2198,13 +2198,13 @@ int func_806E5C74(void) {
         }
     }
     return ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000) != 0) && (gActivePlayerState->currentScale[0] * 66.0 < fv) &&
-           (gPlayerCharacterId[gCurrentPlayerIndex] != 6) && (D_807FD568->unk0[1] != 0);
+           (gPlayerCharacterId[gCurrentPlayerIndex] != 6) && (D_807FD568->slamLevel != 0);
 }
 
 
 void playerInputCheckEnterLongJump(void) {
     if (func_806E5C74() != 0) {
-        switch (D_807FD568->unk0[1]) {
+        switch (D_807FD568->slamLevel) {
             case 2:
                 actorScriptStartByIndex(gCurrentActor, 0x17);
                 controllerAnimSetStateRemap(gCurrentActor, 0x18, 0.0f, 3.0f);
@@ -2241,7 +2241,7 @@ void playerInputQueueCrouchCallbackDirect(void) {
 }
 
 void playerInputHandleBButtonMusicalInstrument(void) {
-    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (D_807FD568->unk0[2] & 1) &&
+    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (D_807FD568->weaponFlags & 1) &&
         (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) && !(gActivePlayerState->stateFlags & 0x30) &&
         (func_80714608(0) == 0)) {
         playerStateQueueCallback(0x14, 0, gCurrentPlayerIndex);
@@ -2249,7 +2249,7 @@ void playerInputHandleBButtonMusicalInstrument(void) {
 }
 
 void playerInputHandleBButtonFairyCamera(void) {
-    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (D_807FD568->unk0[2] & 1) && !(gGlobalOverlayFlags & 0x200) &&
+    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (D_807FD568->weaponFlags & 1) && !(gGlobalOverlayFlags & 0x200) &&
         (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) && !(gActivePlayerState->stateFlags & 0x30) &&
         (func_80714608(0) == 0)) {
         playerStateQueueCallback(0x15, 0, gCurrentPlayerIndex);

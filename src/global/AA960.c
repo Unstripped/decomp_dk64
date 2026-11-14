@@ -788,7 +788,7 @@ void effectActorSparkleTick(void) {
     s32 idx;
     SparkleSpriteTable table;
 
-    flag = gPlayerInventoryTable[gPlayerCharacterId].unk0[4] & 1;
+    flag = gPlayerInventoryTable[gPlayerCharacterId].instrumentFlags & 1;
     if (!(gCurrentActor->flags & 0x10)) {
         actorAppendModelSubNode(gCurrentActor, 0.0f, 10.0f, 0.0f, -1);
         actorSetCollisionRadius(gCurrentActor, 175.0f);

@@ -1005,7 +1005,7 @@ void playerStateSetLaunchVelocity(void) {
         }
     }
     if (((gPlayerSlots[gCurrentPlayerIndex].queuedActor != NULL) && (gPlayerSlots[gCurrentPlayerIndex].queuedActor->actorType == 0x31)) || (gunSound != 0)) {
-        if (D_807FD568->unk0[2] & 1) {
+        if (D_807FD568->weaponFlags & 1) {
             if (gActivePlayerState->gunDrawn != 0) {
                 gActivePlayerState->stateFlags2 |= 4;
             } else {

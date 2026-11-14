@@ -764,7 +764,7 @@ void eepromHalveRecords(void) {
     }
     for (i = 0; i != 5; i++) {
         gPlayerCharacterId = i;
-        if (gPlayerInventoryTable[0].kong[i].unk0[4] != 0) {
+        if (gPlayerInventoryTable[0].kong[i].instrumentFlags != 0) {
             u32 v = slotQueueGetMaxValue(7, 0);
             gPlayerInventoryTable[0].kong[i].unk8 = (u32)(v * 0.5);
         }

@@ -69,7 +69,7 @@ Gfx *func_806FF01C(Gfx *gfx, Actor *actor) {
 
     player = ((PlayerState *)actor->customState)->playerIndex;
     dl = playerViewGfxSetup(gfx, player);
-    if ((D_807FD568->unk0[2] & 2) && slotQueueGetValue(3, player) &&
+    if ((D_807FD568->weaponFlags & 2) && slotQueueGetValue(3, player) &&
         projectileFindHomingTarget(2, &target, actor, 1, 0, 0, &targetX, &targetY, &targetZ)) {
         gDPSetPrimColor(dl++, 0, 0, 0, 0xC8, 0, 0xFF);
     } else {

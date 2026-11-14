@@ -872,12 +872,12 @@ s32 gridCheckNodeCondition(s16 modelSlot, u8 playerIndex, u16 modelType) {
 
     switch (modelType) {
     case 0x11:
-        if ((gPlayerInventoryTable[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].unk0[2] & 3) != 3) {
+        if ((gPlayerInventoryTable[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].weaponFlags & 3) != 3) {
             return 0;
         }
         break;
     case 0x8F:
-        if ((gPlayerInventoryTable[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].unk0[2] & 1) == 0) {
+        if ((gPlayerInventoryTable[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].weaponFlags & 1) == 0) {
             return 0;
         }
         break;

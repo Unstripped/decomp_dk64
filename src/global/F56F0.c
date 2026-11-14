@@ -204,7 +204,7 @@ void playerKongPlaySoundByState(Actor *actor) {
             extra->gunDrawn = 1;
         }
         if (func_80714608(0) != 0) {
-            gPlayerInventoryTable[extra->playerIndex].kong[playerGetResolvedKongId(extra->playerIndex)].unk0[2] = 1;
+            gPlayerInventoryTable[extra->playerIndex].kong[playerGetResolvedKongId(extra->playerIndex)].weaponFlags = 1;
             func_806F5A48(extra->playerIndex, 0, actor, 0x8F);
         }
     }

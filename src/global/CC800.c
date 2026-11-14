@@ -861,11 +861,11 @@ void playerResetSpawnGlobals(void) {
         if (gActivePlayerCount >= 2) {
             if (D_807552E4.unk0 == 1) {
                 for (j = 0; j < 6; j++) {
-                    p->kong[j].unk0[2] = 7;
+                    p->kong[j].weaponFlags = 7;
                 }
             }
             for (j = 0; j < 6; j++) {
-                p->kong[j].unk0[1] = 1;
+                p->kong[j].slamLevel = 1;
             }
             p->melons = 1;
         } else {
@@ -896,9 +896,9 @@ void playerInitKongActor(s32 playerIndex, s32 unused1, s32 unused2) {
     s32 kong = playerGetResolvedKongId(playerIndex);
     KongInventory *p = &gPlayerInventoryTable[playerIndex].kong[kong];
 
-    p->unk0[2] = 7;
-    p->unk0[4] = 0xF;
-    p->unk0[1] = 3;
+    p->weaponFlags = 7;
+    p->instrumentFlags = 0xF;
+    p->slamLevel = 3;
     p->unk0[0] = 3;
     flagSet(0x179, 1, 0);
     playerSpawnMapActors(playerIndex);

@@ -616,7 +616,7 @@ extern KongInventory *D_807FD568;
 
 void playerRegisterWeaponHudRenderCallback(s16 inputId) {
     if ((gActivePlayerState->gunDrawn != 0) && (hudCanRender() != 0)) {
-        if (D_807FD568->unk0[2] == 7) {
+        if (D_807FD568->weaponFlags == 7) {
             inputId = 0xF;
             renderCallbacksRegister(&func_806FF75C, gCurrentActor, 5);
         } else {
@@ -1509,8 +1509,8 @@ void playerStateGroundPound(void) {
         playerInputUpdate(0x2E);
         if (!(gCurrentActor->contactFlags & 4)) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x96, 0xFF, 0x7F, 0x19);
-            effectSpawnMultiTierRingWithActor(gCurrentActor, D_807FD568->unk0[1]);
-            camStartShake(gActivePlayerState->camActor, 0x14, D_807FD568->unk0[1] * 5);
+            effectSpawnMultiTierRingWithActor(gCurrentActor, D_807FD568->slamLevel);
+            camStartShake(gActivePlayerState->camActor, 0x14, D_807FD568->slamLevel * 5);
         }
         scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
         gCurrentActor->unk155++;

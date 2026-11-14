@@ -911,7 +911,16 @@ typedef struct PlayerState {
 // One kong's 0x5E-byte row of gPlayerInventoryTable (EEPROM fields 1-0xB; see 104F0.c).
 // The table's declarations still differ per file; this is the row type, not a new extern.
 typedef struct KongInventory {
-    /* 0x00 */ u8 unk0[5];
+    union {
+        /* 0x00 */ u8 unk0[5]; // eeprom load/save walk all five bytes (104F0)
+        struct {
+            /* 0x00 */ u8 pad0;
+            /* 0x01 */ u8 slamLevel;       // slam ring tiers and shake strength (D5E10); E4090 slam handlers switch on 2/3
+            /* 0x02 */ u8 weaponFlags;     // bit 0 gun owned, bit 1 homing; 7 = all (CC800); the projectile spawn param (19A00)
+            /* 0x03 */ u8 pad3;
+            /* 0x04 */ u8 instrumentFlags; // bit 0 instrument owned (playback, pause-menu counter); 0xF = all (CC800)
+        };
+    };
     /* 0x05 */ u8 unk5;
     /* 0x06 */ u16 unk6;
     /* 0x08 */ u16 unk8;
