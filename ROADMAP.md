@@ -163,23 +163,24 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 38 (2026-11-13)** — global/19A00 (views onto Actor/PlayerStruct, sSavedLightColor fold) + 11BC10 owner bundle (effectFallStateInit/effectFloorFallUpdate take Actor */EffectNode */u8 *; 19A00 cfe 4 → 1), 9DD70 (3 dead-ifs → 1 proto steer, views retired), 13980 (u64 division, GBI/VI names), 61AA0 + `LightTrigger` moved into render.h (MatrixCacheSub retired), 114270 (147 casts dropped, u8 callbacks), C0EE0 (s16 col/row). Knowledge Q0754–Q0759.
 - [ ] Paused after round 38 (user stop). Leftovers: 192 OPEN functions in 117 files (the Q0754–Q0759 commit re-opened 15) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`; resume from `uv run tools/quality.py rank`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-13, after round 38):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-14, mid-session consolidation after the session's merges, names and knowledge filing; the review count fell because the 2026-11-14 renames, header carves and knowledge corrections staled reviews):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 693 | 583 |
-| FAKE dead-if | 262 | 263 |
-| FAKE proto-steer | 49 | 134 |
-| FAKE other kinds | 382 | 186 |
-| LAYOUT | 70 | 47 |
+| FAKE | 550 | 583 |
+| FAKE dead-if | 220 | 263 |
+| FAKE proto-steer | 29 | 134 |
+| FAKE other kinds | 301 | 186 |
+| ORIG (cited target offset) | 42 | 0 |
+| LAYOUT | 71 | 47 |
 | goto | 35 | 39 |
-| proto-type (`// PROTO:`) | 6 | 0 |
-| protos mismatch | 23 | 1,202 |
-| reviewed / exhausted functions | 4,216 / 4,078 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 22 | 1,890 |
-| uninit warnings (clint checks every function) | 251 | 122 |
-| `func_` definitions | 426 | 457 |
-| m2c names | 270 | 5,040 |
+| proto-type (`// PROTO:`) | 5 | 0 |
+| protos mismatch | 16 | 1,202 |
+| reviewed / exhausted functions | 3,909 / 3,783 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 15 | 1,890 |
+| uninit warnings (clint checks every function) | 252 | 122 |
+| `func_` definitions | 404 | 457 |
+| m2c names | 3 | 5,040 |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
 
