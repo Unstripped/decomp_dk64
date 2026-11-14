@@ -401,3 +401,4 @@
 {"type": "unit", "t": "2026-11-14T20:05:57Z", "unit": "2026-11-14: cleanup HackraceInitSplinePoints", "commit": "d1f62b95c22775fbd056c49dfc5da4d9ef8657e7"}
 {"type": "unit", "t": "2026-11-14T20:06:37Z", "unit": "2026-11-14: cleanup HackraceGetWaypointSegmentFraction", "commit": "21f25a2a9b865c1a9f8e2f2278c6f9c8e5db95d1"}
 {"type": "unit", "t": "2026-11-14T20:10:32Z", "unit": "2026-11-14: cleanup HackjetpacRocketItemUpdate", "commit": "abbaa84f73a5965b7d97e3f6257670e15e42de16"}
+{"type": "unit", "t": "2026-11-14T20:10:49Z", "unit": "2026-11-14: cleanup HackmodelEmitterSpawnScaledParticle", "commit": "db3047028c4e7df79e6661fa9c06cac21edc7321"}
