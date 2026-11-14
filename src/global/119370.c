@@ -438,40 +438,42 @@ void effectBuildGridVertices(EffectNode *effect) {
         if (node->width > 0) {
             vertex = effect->vertices + vertexIndex;
             do {
-                vertex[0].v.ob[0] = x;
-                vertex[0].v.ob[1] = y;
-                vertex[0].v.ob[2] = 0;
-                vertex[0].v.tc[0] = 0;
-                vertex[0].v.tc[1] = 0;
-                vertex[1].v.ob[0] = node->cellW + x;
-                vertex[1].v.ob[1] = y;
-                vertex[1].v.ob[2] = 0;
-                vertex[1].v.tc[0] = node->cellW << 5;
-                vertex[1].v.tc[1] = 0;
-                vertex[2].v.ob[0] = x;
-                vertexIndex += 2;
-                vertex += 2;
+                vertex->v.ob[0] = x;
+                vertex->v.ob[1] = y;
+                vertex->v.ob[2] = 0;
+                vertex->v.tc[0] = 0;
+                vertex->v.tc[1] = 0;
+                vertexIndex++;
+                vertex++;
+                vertex->v.ob[0] = node->cellW + x;
+                vertex->v.ob[1] = y;
+                vertex->v.ob[2] = 0;
+                vertex->v.tc[0] = node->cellW << 5;
+                vertex->v.tc[1] = 0;
+                vertexIndex++;
+                vertex++;
+                vertex->v.ob[0] = x;
                 if (effect->mode == 0) {
-                    vertex[0].v.ob[1] = node->cellH + y;
+                    vertex->v.ob[1] = node->cellH + y;
                 } else {
-                    vertex[0].v.ob[1] = y - node->cellH;
+                    vertex->v.ob[1] = y - node->cellH;
                 }
-                vertex[0].v.ob[2] = 0;
-                vertex[0].v.tc[0] = 0;
-                vertexIndex += 1;
-                vertex += 1;
-                vertex[-1].v.tc[1] = node->cellH << 5;
-                vertex[0].v.ob[0] = node->cellW + x;
+                vertex->v.ob[2] = 0;
+                vertex->v.tc[0] = 0;
+                vertex->v.tc[1] = node->cellH << 5;
+                vertexIndex++;
+                vertex++;
+                vertex->v.ob[0] = node->cellW + x;
                 if (effect->mode == 0) {
-                    vertex[0].v.ob[1] = node->cellH + y;
+                    vertex->v.ob[1] = node->cellH + y;
                 } else {
-                    vertex[0].v.ob[1] = y - node->cellH;
+                    vertex->v.ob[1] = y - node->cellH;
                 }
-                vertex[0].v.ob[2] = 0;
-                vertex[0].v.tc[0] = node->cellW << 5;
-                vertexIndex += 1;
-                vertex += 1;
-                vertex[-1].v.tc[1] = node->cellH << 5;
+                vertex->v.ob[2] = 0;
+                vertex->v.tc[0] = node->cellW << 5;
+                vertex->v.tc[1] = node->cellH << 5;
+                vertexIndex++;
+                vertex++;
                 x += node->cellW;
                 column++;
             } while (column < node->width);
