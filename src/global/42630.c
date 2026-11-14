@@ -461,13 +461,13 @@ void csStateEndUpdate(CsStateFull *cs) {
     cs->unk48[1] = cs->unk4B[1];
     cs->unk48[2] = cs->unk4B[2];
     cs->unk53 = cs->unk52;
-    actor = cs->unk94;
     cs->unk51 = 0;
     cs->unk52 = 0;
     cs->unk5C = 0;
     cs->unk9A |= 1;
-    if (actor != NULL) {
-        cs->unk94->x = gCsPosX; // FAKE: re-read through cs (not actor) steers the address register
+    if (cs->unk94 != NULL) {
+        actor = cs->unk94;
+        actor->x = gCsPosX;
         actor->y = gCsPosY;
         actor->z = gCsPosZ;
         actor->yaw = gCsRotY * 4096.0f / 360.0f;
