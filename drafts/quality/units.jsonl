@@ -237,3 +237,4 @@
 {"type": "unit", "t": "2026-11-14T00:04:52Z", "unit": "2026-11-13: cleanup round 36", "commit": "e78565f86c3609053dd09aa6680edb6b40423d76"}
 {"type": "unit", "t": "2026-11-14T01:25:26Z", "unit": "2026-11-13: cleanup round 37", "commit": "ebbced4b47eac23fc5c18686c1848d4a48818d18"}
 {"type": "unit", "t": "2026-11-14T02:57:28Z", "unit": "2026-11-13: cleanup round 38", "commit": "4ad88c3306b3921f68136b0587dd63fca6e437b7"}
+{"type": "unit", "t": "2026-11-14T05:59:47Z", "unit": "2026-11-14: recipe sweep", "commit": "1ed666b5d452580a2d5291b182897e2cea8b9f58"}
