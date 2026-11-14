@@ -31,7 +31,7 @@ extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 
 RaceRoute *raceGetRoute(u8 idx) {
-    RaceRoute *e = &D_8002FCF0->items[idx]; // FAKE: unused early address calc; removing it drops the hoisted items load and changes scheduling
+    RaceRoute *e = NULL;
 
     if (D_8002FCF0 == NULL || idx >= D_8002FCF0->count) {
         return NULL;
@@ -41,7 +41,7 @@ RaceRoute *raceGetRoute(u8 idx) {
 }
 
 RaceWaypoint *raceGetWaypoint(u8 idx) {
-    RaceWaypoint *e = &D_8002FCF0->items2[idx]; // FAKE: unused early address calc; removing it drops the hoisted items2 load and changes scheduling
+    RaceWaypoint *e = NULL;
 
     if (D_8002FCF0 == NULL || idx >= D_8002FCF0->count2) {
         return NULL;
