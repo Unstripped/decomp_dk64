@@ -604,14 +604,14 @@ typedef struct ModelMapIdPair {
     /* 0x2 */ u16 id;
 } ModelMapIdPair;
 
-extern ModelMapIdPair D_80747D50[];
+extern ModelMapIdPair D_80747D50[8];
 
 void modelFlagsApplyMapPairs(s16 id, u8 *flags) {
     s32 i;
-    s32 n;
+    s32 count;
     i = 0;
-    n = 8; // FAKE: constant bound in a variable keeps the loop test in a register
-    for (; i < n; i++) {
+    count = sizeof(D_80747D50) / sizeof(D_80747D50[0]);
+    for (; i < count; i++) {
         if (gCurrentMap == D_80747D50[i].map && id == D_80747D50[i].id) {
             *flags |= 1;
             return;
@@ -646,14 +646,14 @@ typedef struct ModelMapIdValueTriple {
     /* 0x4 */ u16 val;
 } ModelMapIdValueTriple;
 
-extern ModelMapIdValueTriple D_80747D30[];
+extern ModelMapIdValueTriple D_80747D30[5];
 
 void modelApplyMapOverrideValue(s32 id, ModelAssetHeader *info) {
     s32 i;
-    s32 n;
+    s32 count;
 
-    n = 5; // FAKE: constant bound in a variable keeps the loop test in a register
-    for (i = 0; i < n; i++) {
+    count = sizeof(D_80747D30) / sizeof(D_80747D30[0]);
+    for (i = 0; i < count; i++) {
         if (gCurrentMap == D_80747D30[i].map && id == D_80747D30[i].id) {
             info->unk1E = D_80747D30[i].val;
             return;

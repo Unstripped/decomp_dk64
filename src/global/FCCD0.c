@@ -136,12 +136,12 @@ void func_806F8278(u8 player) {
     PlayerInventory *inv;
     s32 i;
     s32 j;
-    s8 n;
+    s32 count;
 
     sum = 0;
     inv = (PlayerInventory *)gPlayerInventoryTable + player;
-    n = 14; // FAKE: variable s8 bound keeps the slt loop test (Q0257)
-    for (i = 0; i < n; i++) {
+    count = sizeof(inv->kong[0].unk42) / sizeof(inv->kong[0].unk42[0]);
+    for (i = 0; i < count; i++) {
         for (j = 0; j < 5; j++) {
             sum += inv->kong[j].unk42[i];
         }

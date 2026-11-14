@@ -1199,7 +1199,7 @@ typedef struct TransformBarrelEntry {
 
 
 
-extern TransformBarrelEntry D_8074E7BC[];
+extern TransformBarrelEntry D_8074E7BC[8];
 extern u8 gPlayerInventoryTable[][0x5E];
 
 extern s32 gGlobalCutsceneFlags;
@@ -1214,7 +1214,7 @@ void transformBarrelUpdate(void) {
     s32 ret;
     s16 i;
     s16 entry;
-    s16 entryCount = 8; // FAKE: value-named constant local steers the loop bound (literal 8: mismatch)
+    s16 entryCount = sizeof(D_8074E7BC) / sizeof(D_8074E7BC[0]);
     u8 found;
     Actor *player;
     PlayerState *activePlayerState;
