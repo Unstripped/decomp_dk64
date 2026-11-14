@@ -3,6 +3,11 @@
 State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPEN functions in 117 files. Since then the campaign runs as a rolling queue (SKILL.md §2): a future session starts with `uv run tools/quality.py rank --limit 40` (function hack queue) and `rank --polish` (file polish queue); coverage first. The "Blocked owner/header changes" below are the `TypesOwner` queue (types-stream.md).
 
 ## Blocked owner/header changes
+- Owner return-width redesigns (2026-11-14): callee returns a zero-extended byte, callers differ per file in their andi narrowing,
+  so a u8 -> s32 return needs every caller re-spelled and fdiffed. (a) 3C10 `mapGetHubWorldIndex` u8 -> s32 (retires 8F4B0
+  da5663/2c5186, likely FCCD0's steer): 6 callers fail (36880, 478F0, 9DD70, ACDC0, B5EC0, C2A90); evidence .scratch/
+  HackactorCutsceneDispatchEvents/. (b) 135D30 `flagGet` u8 -> s32 (retires jetpac/0 c1a42b/ef3c2a): 217 calls in 49 files, not
+  measured; jetpacUpdateStateAndInput narrows itself (andi t9,v0,0xff at jetpac 0x11d4); evidence .scratch/HackjetpacStateGameOver/.
 - Cast sweep (round 30): 55B20 MapChunk.lastSeenFrame and 61AA0 BillboardCacheEntry.lastUsedFrame stay s32 (u32 retype fdiff 1). model.h/heap.h frame stamps landed u32 after Rev29.
 - 90D80 renderRotatedSprite proto-steer (02809d, 0d85ab) stays: the 103AB0 owner is 32-bit by its own asm (texWidth forwarded in a3 without andi, texHeight read with lw 0x60(sp)); a u8 owner adds andi/lbu. Closed as not applicable (round 29, dbf5cc61: owner texWidth/texHeight u32 instead).
 - critter/5110 D_807FCC40/44 split labels stay (round 27, def29e0b): folding them into gPlayerInventoryTable fails because the folded form shares one table base (Q0687); the u8 pun is now `extern u16 D_807FCC40[]`, tagged.
