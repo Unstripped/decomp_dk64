@@ -1,0 +1,412 @@
+{"agent": "CleanE550", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-09: cleanup pilot"}
+{"agent": "Clean7130", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-09: cleanup pilot"}
+{"agent": "Clean478F0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round"}
+{"agent": "CleanEFDC0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round"}
+{"agent": "Clean19A00", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round"}
+{"agent": "CleanD5E10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round"}
+{"agent": "Clean201B0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round"}
+{"agent": "CleanE4090", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round"}
+{"agent": "Clean36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round"}
+{"agent": "CleanArcade0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round"}
+{"agent": "Clean7CA80", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 2"}
+{"agent": "Clean117190", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 2"}
+{"agent": "UnifyBehaviour", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 2"}
+{"agent": "Clean478F0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 2"}
+{"agent": "CleanOrch", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 2"}
+{"agent": "Clean936B0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 2"}
+{"agent": "Clean70FD0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 2"}
+{"agent": "CleanBoss", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 2"}
+{"agent": "Clean55B20", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 2"}
+{"agent": "Clean11BC10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 2"}
+{"agent": "CastFields", "model": "google-antigravity/gemini-3.8-flash:low", "src": "transcript", "unit": "2026-11-09: cleanup round 2"}
+{"agent": "ProtoBatch", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 2"}
+{"agent": "UnifyBehaviour2", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 2"}
+{"agent": "CleanOrch", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "CleanD5E10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "Clean63EC0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "CleanFCCD0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "Clean8D3E0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "Clean1295B0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "CleanF56F0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "CleanCritter0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "ActorTypes", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "Clean7BD0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "Clean89250", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "Clean478F0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "Clean42630", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "Clean103AB0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-09: cleanup round 3"}
+{"agent": "CleanD5E10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 4"}
+{"agent": "CleanEFDC0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 4"}
+{"agent": "Clean9DD70", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 4"}
+{"agent": "CleanE4090", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 4"}
+{"agent": "Clean36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 4"}
+{"agent": "QualityTools", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-10: cleanup round 4"}
+{"agent": "Clean103AB0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 4"}
+{"agent": "Clean12E800", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 4"}
+{"agent": "Clean201B0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 5"}
+{"agent": "CleanCEAE0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 5"}
+{"agent": "Clean119370", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 5"}
+{"agent": "Clean80150", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 5"}
+{"agent": "Clean104F0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 5"}
+{"agent": "CleanF9450", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 5"}
+{"agent": "Clean42630", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 4"}
+{"agent": "Clean80150", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 5 actorType"}
+{"agent": "CleanCEAE0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup rounds 4-5 names"}
+{"agent": "Clean201B0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup rounds 4-5 names"}
+{"agent": "CleanAA960", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 6"}
+{"agent": "Clean3C10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 6"}
+{"agent": "Clean112080", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 6"}
+{"agent": "CleanLead", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 6"}
+{"agent": "Clean5A50", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 6"}
+{"agent": "ReReview", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-10: cleanup round 6"}
+{"agent": "CleanLead2", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 6"}
+{"agent": "Clean1295B0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 6"}
+{"agent": "Clean4FC0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 6"}
+{"agent": "CleanCBEA0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 7"}
+{"agent": "Clean54150", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 7"}
+{"agent": "Clean7AF60", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 7"}
+{"agent": "CleanJetpac0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 7"}
+{"agent": "CleanJetpac3480", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 7"}
+{"agent": "CleanMultiplayer0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 7"}
+{"agent": "Clean15050", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 6"}
+{"agent": "ReRead", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 6"}
+{"agent": "CleanA2F10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 8"}
+{"agent": "CleanCC800", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 8"}
+{"agent": "Clean110F00", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 8"}
+{"agent": "CleanMenu1AF0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 8"}
+{"agent": "Clean7CA80", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 8"}
+{"agent": "CleanBonus2690", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 8"}
+{"agent": "CleanGlobal41090", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanGlobal41090"}
+{"agent": "CleanArcade0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanArcade0"}
+{"agent": "CleanGlobalB7490", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanGlobalB7490"}
+{"agent": "CleanArcade0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanArcade0 fix"}
+{"agent": "CleanGlobal450", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanGlobal450"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanGlobal36880"}
+{"agent": "CleanGlobalB7490", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanGlobalB7490 fixup"}
+{"agent": "CleanGlobal450", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanGlobal450 pass2"}
+{"agent": "CleanMenu3E10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanMenu3E10"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 heapFree void* batch"}
+{"agent": "CleanArcade0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanArcade0 pass2"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 projectile Actor* batch"}
+{"agent": "Orch9", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 projectile Actor* batch review"}
+{"agent": "CleanMenu3E10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanMenu3E10 pass3"}
+{"agent": "CleanGlobal61AA0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanGlobal61AA0"}
+{"agent": "CleanMenu3E10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 B7490 func_806B2D64 locals"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 text API unit"}
+{"agent": "CleanMenu3E10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 text API unit"}
+{"agent": "CleanGlobalACDC0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 text API unit"}
+{"agent": "CleanGlobal55B20", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanGlobal55B20"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 render.h batch"}
+{"agent": "CleanGlobal127B00", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanGlobal127B00"}
+{"agent": "CleanGlobalC4620", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanGlobalC4620"}
+{"agent": "CleanMenu3E10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 B7490 9203db"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 b450 callee batch"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 gScheduler carve"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 actor callee batch"}
+{"agent": "CleanGlobalACDC0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanGlobalACDC0 pass2"}
+{"agent": "CleanMenu3E10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanMenu3E10 pass5"}
+{"agent": "CleanGlobal55B20", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 CleanGlobal55B20 pass2"}
+{"agent": "CleanMenu3E10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 rereview G1"}
+{"agent": "CleanGlobal55B20", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 rereview G2"}
+{"agent": "CleanGlobalACDC0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 rereview G3"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 9 rereview G4"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 boss6240"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 sndbatch"}
+{"agent": "Orch9", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 sndbatch review"}
+{"agent": "CleanGlobal135D30", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 CleanGlobal135D30"}
+{"agent": "CleanGlobal90D80", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 CleanGlobal90D80"}
+{"agent": "CleanGlobal936B0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 CleanGlobal936B0"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 effspeed batch"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 eeprom batch"}
+{"agent": "Orch9", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 eeprom batch review"}
+{"agent": "Orch9", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 flagSet tag"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 render2 batch"}
+{"agent": "CleanGlobal13980", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 CleanGlobal13980"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 collfloor batch"}
+{"agent": "CleanGlobal100180", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 CleanGlobal100180"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 b103ab0 batch"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 textfont batch"}
+{"agent": "CleanGlobal109660", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-10: cleanup round 10 CleanGlobal109660"}
+{"agent": "Rev10A", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-10: cleanup round 10 Rev10A"}
+{"agent": "Rev10B", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 Rev10B"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 tilegrid batch"}
+{"agent": "Rev10D", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 Rev10D"}
+{"agent": "Rev10C", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-10: cleanup round 10 Rev10C"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 actorlist batch"}
+{"agent": "Rev10E", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-10: cleanup round 10 Rev10E"}
+{"agent": "Rev10F", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-10: cleanup round 10 Rev10F"}
+{"agent": "Rev10F", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-10: cleanup round 10 Rev10F permute"}
+{"agent": "Rev10F", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-10: cleanup round 10 Rev10F rekey"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 b11a"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 b11e79890"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 b11e7BBD0"}
+{"agent": "Rev10G", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 Rev10G"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 textmarker"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 efffree"}
+{"agent": "Rev10H", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 10 Rev10H"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 11 maphdr M2_55B20"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 11 maphdr M2_70FD0"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 11 maphdr M2_6AD90"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-10: cleanup round 11 maphdr M2_684C0"}
+{"agent": "CleanGlobalBDEE0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 file agents"}
+{"agent": "CleanGlobalA8400", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 file agents"}
+{"agent": "CleanGlobal8F4B0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 file agents"}
+{"agent": "CleanGlobal10E1D0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 file agents"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 resq a8400"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 resq carve"}
+{"agent": "CleanGlobal7A510", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-11: cleanup round 11 file agents"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 framemtx F2"}
+{"agent": "Rev11A", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 Rev11A"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 modelhdr H2"}
+{"agent": "CleanMinecart25F0", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-11: cleanup round 11 file agents"}
+{"agent": "CleanGlobal80150", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-11: cleanup round 11 file agents"}
+{"agent": "CleanGlobalE4090", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-11: cleanup round 11 file agents"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 b12 A63EC0"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 b12 B2"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 b12 B3"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 b12 C1"}
+{"agent": "Rev11B", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 Rev11B"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 unk204"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 modelslot2 A70FD0"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 Batch12 03"}
+{"agent": "Rev11C", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 Rev11C"}
+{"agent": "Rev11C", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 Rev11C actor.h"}
+{"agent": "Rev11D", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 11 Rev11D"}
+{"agent": "CleanGlobalF56F0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 12 file agents"}
+{"agent": "CleanGlobal136820", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 12 file agents"}
+{"agent": "CleanGlobalF600", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 12 file agents"}
+{"agent": "CleanGlobal7130", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 12 file agents"}
+{"agent": "CleanGlobal17B90", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 12 file agents"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 b13"}
+{"agent": "CleanGlobal478F0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 file agents"}
+{"agent": "CleanGlobal35000", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 file agents"}
+{"agent": "CleanGlobal126260", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 file agents"}
+{"agent": "CleanBonus2690", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 file agents"}
+{"agent": "CleanGlobal104F0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 file agents"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 b14"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 b15"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 b16"}
+{"agent": "Rev13A", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 Rev13A"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 b17"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 b18 1"}
+{"agent": "Rev13B", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 Rev13B"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 13 b18"}
+{"agent": "CleanGlobal140600", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 14 file agents"}
+{"agent": "CleanGlobal55B20b", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 14 file agents"}
+{"agent": "CleanGlobal2C910", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 14 file agents"}
+{"agent": "CleanGlobal10D2D0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 14 file agents"}
+{"agent": "CleanGlobal114270", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 14 file agents"}
+{"agent": "Rev14A", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 14 Rev14A"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 14 b19"}
+{"agent": "CleanGlobal8F050", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 file agents"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b20 1-envmixer-param"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b20 4-strcspn-set"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b20 5-synnewfx"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b20 6-bst-void-key"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b20 7-boss8520-gCurrentActor"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b20 8-boss0-gCurrentActor"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b20 9-race36B0-gCurrentActor"}
+{"agent": "CleanGlobal201B0", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-11: cleanup round 15 file agents"}
+{"agent": "CleanGlobal80150b", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-11: cleanup round 15 file agents"}
+{"agent": "CleanGlobalD5E10", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-11: cleanup round 15 file agents"}
+{"agent": "CleanArcade0b", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-11: cleanup round 15 file agents"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b21 2-B5EC0-steer-retag"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b21 3-animfreesub-protos"}
+{"agent": "Rev15B", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 Rev15B"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b21 1-race-h"}
+{"agent": "Rev15A", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-11: cleanup round 15 Rev15A"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b20 3-playerstruct-2e0"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b20 2-spritelist"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b20 3-playerstruct-2e0"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b22 1a-playerinventory"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b22 1a-playerinventory"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b22 2a-B2CE0-actor"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b22 2b-actor-views-batch"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b22 3-boss0-pieceanim"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b22 4-70FD0-views"}
+{"agent": "Batch12", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 15 b22 2c-view-decls"}
+{"agent": "CleanMenu1AF0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "CleanGlobal8CA50", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "CleanGlobal133A90", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "CleanGlobal5E2F0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "CleanRace7BD0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "CleanGlobal13A7A0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev16A", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "CleanRaceB", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev16B", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev16C", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev16D", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev16H", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev16F", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev16G", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev16E", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "CleanBonus2690", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "CleanGlobal10D2D0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "CleanGlobal55B20b", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "CleanGlobal80150b", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "CleanMultiplayer0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev10F", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev10G", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev15A", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Batch16", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev16J", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev16I", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "Rev16K", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 16"}
+{"agent": "CleanGlobal131B0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 17"}
+{"agent": "CleanGlobal69E60", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 17"}
+{"agent": "CleanGlobal13ECE0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 17"}
+{"agent": "CleanGlobal2DE90", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 17"}
+{"agent": "Batch16", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 17"}
+{"agent": "CleanArcade0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 17"}
+{"agent": "Rev17N", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 17"}
+{"agent": "Rev17L", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 17"}
+{"agent": "Rev17P", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-11: cleanup round 17"}
+{"agent": "Rev17M", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 17"}
+{"agent": "CleanGlobal137C10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 18"}
+{"agent": "CleanBoot3630", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 18"}
+{"agent": "CleanGlobal13D170", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 18"}
+{"agent": "CleanGlobalA6280", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 18"}
+{"agent": "CleanupLead", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 18"}
+{"agent": "CleanBonus12A0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 18"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 18"}
+{"agent": "Rev18A", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-11: cleanup round 18"}
+{"agent": "Rev18B", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-11: cleanup round 18"}
+{"agent": "CleanGlobal13FED0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 19"}
+{"agent": "CleanGlobal13CB50", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 19"}
+{"agent": "CleanGlobal141EF0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 19"}
+{"agent": "CleanGlobalA7710", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 19"}
+{"agent": "CleanGlobal13E160", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 19"}
+{"agent": "CleanGlobal15050", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 19"}
+{"agent": "Rev19C", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 19"}
+{"agent": "Rev19A", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 19"}
+{"agent": "Rev19B", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 19"}
+{"agent": "CleanGlobal131B0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 20"}
+{"agent": "CleanGlobal5E020", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 20"}
+{"agent": "CleanJetpac3060", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 20"}
+{"agent": "Perm19", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 19"}
+{"agent": "CleanGlobal103AB0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 20"}
+{"agent": "CleanGlobal1332B0", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 20"}
+{"agent": "CleanGlobal68EA0", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 20"}
+{"agent": "CleanBoot1CC0", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 21"}
+{"agent": "CleanCritter4840", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 21"}
+{"agent": "CleanGlobal135D30", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 21"}
+{"agent": "StrBatch", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 21"}
+{"agent": "CleanBoot1630", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 21"}
+{"agent": "Rev20B", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 20"}
+{"agent": "CleanGlobalE4090", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 21"}
+{"agent": "Rev20C", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 20"}
+{"agent": "Rev20A", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 20"}
+{"agent": "CleanGlobal17540", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 21"}
+{"agent": "Perm20B", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 20"}
+{"agent": "Rev21A", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 21"}
+{"agent": "CleanBossC920", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 22"}
+{"agent": "CleanGlobal79890", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 22"}
+{"agent": "CleanGlobal55B20", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 22"}
+{"agent": "Rev21B", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 21"}
+{"agent": "CleanMultiplayer0", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 22"}
+{"agent": "CleanJetpac3480", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 22"}
+{"agent": "CleanMenu3E10", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 22"}
+{"agent": "CleanGlobal1371D0", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 23"}
+{"agent": "CleanBootMain", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 23"}
+{"agent": "Rev22A", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 22"}
+{"agent": "ProxBatch", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 23"}
+{"agent": "Rev22B", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 22"}
+{"agent": "CleanGlobal137630", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 23"}
+{"agent": "CleanArcade0", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 23"}
+{"agent": "CleanGlobalF56F0", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 23"}
+{"agent": "CleanGlobal166A0", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 24"}
+{"agent": "CleanBossA7A0", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 24"}
+{"agent": "CleanGlobal5650", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 24"}
+{"agent": "CleanGlobalBC3B0", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 24"}
+{"agent": "Rev23B", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 23"}
+{"agent": "Rev23A", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 23"}
+{"agent": "CleanGlobal55B20", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 24"}
+{"agent": "CleanGlobal15050b", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 24"}
+{"agent": "CleanGlobal17800", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 25"}
+{"agent": "Rev24", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 24"}
+{"agent": "ArcadeBatch", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 25"}
+{"agent": "CleanGlobal478F0", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 25"}
+{"agent": "CleanGlobal67890", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 25"}
+{"agent": "CleanJetpac1460", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 25"}
+{"agent": "CleanGlobal104F0", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 25"}
+{"agent": "CleanBoss9C60", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 26"}
+{"agent": "CleanGlobalC0EE0", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 26"}
+{"agent": "CleanGlobal13980", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 26"}
+{"agent": "CleanGlobalACDC0", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 26"}
+{"agent": "CleanGlobalFCCD0", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 26"}
+{"agent": "Critter5110", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 27"}
+{"agent": "CleanGlobalB1F60", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 27"}
+{"agent": "CleanBoot3D20", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 27"}
+{"agent": "Rev26B", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 26"}
+{"agent": "CleanBoss0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 27"}
+{"agent": "CleanGlobalC1E70", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 27"}
+{"agent": "Rev26A", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 26"}
+{"agent": "CleanGlobal8D3E0", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 27"}
+{"agent": "CleanGlobal5DE10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 28"}
+{"agent": "CleanBonus9010", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 28"}
+{"agent": "CleanBoot30E0", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 28"}
+{"agent": "Rev27", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 27"}
+{"agent": "FrameCounterBatch", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 28"}
+{"agent": "CleanMenu3E10b", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 28"}
+{"agent": "CleanRace6650", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 28"}
+{"agent": "GridSimpleBatch", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 29"}
+{"agent": "CleanBonus2690", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 29"}
+{"agent": "Rev28", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 28"}
+{"agent": "CleanJetpac1A60", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 29"}
+{"agent": "CleanGlobal7A510", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 29"}
+{"agent": "CleanBossDAA0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 29"}
+{"agent": "CleanGlobal36880r29", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 29"}
+{"agent": "CleanGlobal63810", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 30"}
+{"agent": "CleanGlobal135D30", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 30"}
+{"agent": "CleanMultiplayer0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 30"}
+{"agent": "CleanJetpac3480", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 30"}
+{"agent": "CleanGlobal2C910", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 30"}
+{"agent": "CleanGlobalC4620", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-12: cleanup round 31"}
+{"agent": "ParticleRingBatch", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 31"}
+{"agent": "CleanGlobal42630", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-12: cleanup round 31"}
+{"agent": "CleanGlobal7A510", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 32"}
+{"agent": "CleanGlobal117190", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 32"}
+{"agent": "CleanGlobal14CF0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 32"}
+{"agent": "CleanGlobal119370", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 32"}
+{"agent": "CleanBossF0D0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 32"}
+{"agent": "CleanGlobal100180", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 32"}
+{"agent": "CleanGlobal70FD0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 33"}
+{"agent": "CleanGlobal6710", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 33"}
+{"agent": "CleanRaceA960", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 33"}
+{"agent": "CleanRace7BD0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-12: cleanup round 33"}
+{"agent": "CleanMenu3E10", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-13: cleanup round 34"}
+{"agent": "CleanGlobal70FD0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-13: cleanup round 34"}
+{"agent": "CleanGlobal103AB0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-13: cleanup round 34"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-13: cleanup round 34"}
+{"agent": "CleanGlobal42630", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-13: cleanup round 34"}
+{"agent": "CleanGlobal450", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-13: cleanup round 34"}
+{"agent": "Consol34", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-13: cleanup round 34"}
+{"agent": "Rev34A", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 34"}
+{"agent": "Rev34B", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 34"}
+{"agent": "Rev34C", "model": "anthropic/claude-opus-5-5:medium", "src": "transcript", "unit": "2026-11-13: cleanup round 34"}
+{"agent": "CleanGlobal55B20", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-13: cleanup round 35"}
+{"agent": "CleanArcade0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-13: cleanup round 35"}
+{"agent": "CleanGlobalE4090", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 35"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 35"}
+{"agent": "CleanGlobal70FD0", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 35"}
+{"agent": "CleanMenu3E10", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 35"}
+{"agent": "CleanGlobalD5E10", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 36"}
+{"agent": "CleanGlobal80150", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 36"}
+{"agent": "CleanBonus2690", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 36"}
+{"agent": "CleanGlobal7130", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 36"}
+{"agent": "CleanGlobal15050", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 36"}
+{"agent": "CleanGlobal103AB0", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 36"}
+{"agent": "PadBatch36", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-13: cleanup round 36"}
+{"agent": "CleanMultiplayer0", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 37"}
+{"agent": "CleanMenu3E10", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 37"}
+{"agent": "CleanGlobal36880", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 37"}
+{"agent": "CleanArcade0", "model": "anthropic/claude-opus-5-5:low", "src": "transcript", "unit": "2026-11-13: cleanup round 37"}
+{"agent": "CleanGlobalF56F0", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 37"}
+{"agent": "CleanGlobal70FD0", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 37"}
+{"agent": "CleanGlobal19A00", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 38"}
+{"agent": "CleanGlobal61AA0", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 38"}
+{"agent": "CleanGlobal9DD70", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 38"}
+{"agent": "CleanGlobal114270", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 38"}
+{"agent": "CleanGlobal13980", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 38"}
+{"agent": "Clean11BC10", "model": "anthropic/claude-opus-5-5", "src": "transcript", "unit": "2026-11-13: cleanup round 38"}
+{"agent": "CleanGlobalC0EE0", "model": "anthropic/claude-opus-5-5:xhigh", "src": "transcript", "unit": "2026-11-13: cleanup round 38"}
