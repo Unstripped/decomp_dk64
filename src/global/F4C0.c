@@ -1,26 +1,26 @@
 #include "common.h"
+#include "actor.h"
+#include "sched.h"
+#define PROTO_SKIP_mapActionLookupEntry
 #include "proto/global/F4C0.h"
 
+s16 mapActionLookupEntry(s16 actionId, Actor *actor, u8 subType);
+
 typedef struct {
-    s16 unk0;
-    u8 unk2;
-    u8 unk3;
-    s16 unk4;
+    s16 actionId;
+    u8 subType;
+    u8 pad3;
+    s16 mappedAction;
 } MapActionEntry;
 
-typedef struct { u8 unk0[0x5C]; u16 unk5C; } PlayerStateContext;
-typedef struct { u8 unk0[0x1A4]; u8 playerIndex; } GlobalContextView;
-typedef struct { u8 unk0[0x2C0]; u8 unk2C0; u8 pad2C1[0x2F]; } PlayerRaceContext;
-
 extern MapActionEntry D_80746340[];
-extern s16 D_80746344[];
-extern s16 D_80745BDE[];
+extern u8 D_80745BDC[][4];
 extern s32 gCurrentMap;
-extern PlayerStateContext *gCurrentActor;
-extern GlobalContextView *gActivePlayerState;
-extern PlayerRaceContext *gPlayerSlots;
+extern Actor *gCurrentActor;
+extern PlayerState *gActivePlayerState;
+extern PlayerStruct *gPlayerSlots;
 
-s16 mapActionLookupEntry(s16 actionId, void *actor, u8 subType) {
+s16 mapActionLookupEntry(s16 actionId, Actor *actor, u8 subType) {
     s16 lookupAction;
     s32 i;
     s32 found;
@@ -28,22 +28,22 @@ s16 mapActionLookupEntry(s16 actionId, void *actor, u8 subType) {
     i = 0;
     found = 0;
     while ((i < 14) && (found == 0)) {
-        if ((actionId == D_80746340[i].unk0) && (subType == D_80746340[i].unk2)) {
+        if ((actionId == D_80746340[i].actionId) && (subType == D_80746340[i].subType)) {
             found = 1;
         } else {
             i++;
         }
     }
     if (found != 0) {
-        if ((gCurrentActor->unk5C & 1) && (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 2)) {
+        if ((gCurrentActor->collisionFlags & 1) && (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 2)) {
             return 0x97;
         }
-        if (*((u16 *)((u8 *)actor + 0x6A)) & 4) {
+        if (actor->contactFlags & 4) {
             return 0xA;
         }
-        lookupAction = *(s16 *)((u8 *)D_80746344 + i * 6);
+        lookupAction = D_80746340[i].mappedAction;
         if (lookupAction == 0) {
-            return *(s16 *)((u8 *)D_80745BDE + gCurrentMap * 4);
+            return *(s16 *)&D_80745BDC[gCurrentMap][2]; // FAKE: punned s16 read of the map audio table (MapAudioEntry pending)
         }
         return lookupAction;
     }
