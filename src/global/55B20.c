@@ -123,13 +123,13 @@ extern f32 *gChunkLightTargetG;
 extern f32 *gChunkLightTargetB;
 
 void mapChunkAllocLists(MapFileHeader *header) {
-    s32 temp;
+    s32 chunkCount;
     s32 count;
     s32 size;
 
-    temp = gMapChunkCount = *(s32 *)(header->collOff + (u8 *)header);
-    if (temp >= 2) {
-        count = temp & 0xFF;
+    chunkCount = gMapChunkCount = *(s32 *)(header->collOff + (u8 *)header);
+    if (chunkCount >= 2) {
+        count = chunkCount & 0xFF;
     } else {
         count = 1;
     }
@@ -191,7 +191,7 @@ extern u8 D_807F7060[16];
 extern u8 D_807F7070;
 
 
-typedef struct { s32 offset; s16 minX; s16 minZ; s16 maxX; s16 maxZ; } R13o6ColEntry;
+typedef struct { s32 offset; s16 minX; s16 minZ; s16 maxX; s16 maxZ; } MapChunkCollEntry;
 
 void mapChunksInitFromMapData(MapFileHeader *data) {
     s32 i;
@@ -228,11 +228,11 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
         off = data->collOff;
         chunkOff = data->chunksOff;
         base = data->dlBase;
-        cellsOff = data->portalsOff;
+        cellsOff = data->portalsOff; // FAKE: reuses the cells-offset local for the portal table (a separate portalsOff local changes the codegen)
         gMapPortalSlotCount = *(s32 *)(p + cellsOff);
         gMapPortalSlots = (MapATpSlot *)(p + cellsOff + 4);
         gMapPortalVisible = heapAlloc(gMapPortalSlotCount);
-        boxesOff = data->relocsOff;
+        boxesOff = data->relocsOff; // FAKE: reuses the boxes-offset local for the portal list (a separate relocsOff local changes the codegen)
         gMapPortalCount = *(s32 *)(p + boxesOff);
         gMapPortals = (MapPortal *)(p + boxesOff + 4);
         for (i = 0; i < gMapPortalCount; i++) {
@@ -312,13 +312,13 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
             p += 8;
             gMapChunks[n].litVtx[0] = NULL;
             gMapChunks[n].litVtx[1] = NULL;
-            size = n * 12;
-            gMapChunks[n].collStart = (struct MapCollisionNode *)(((R13o6ColEntry *)((u8 *)((s32)data + off + 4) + size))->offset + ((s32)data + off));
-            gMapChunks[n].collEnd = (struct MapCollisionNode *)(((R13o6ColEntry *)((u8 *)((s32)data + off + 4) + size))[1].offset + ((s32)data + off));
-            gMapChunks[n].minX = ((R13o6ColEntry *)((u8 *)((s32)data + off + 4) + size))->minX;
-            gMapChunks[n].minZ = ((R13o6ColEntry *)((u8 *)((s32)data + off + 4) + size))->minZ;
-            gMapChunks[n].maxX = ((R13o6ColEntry *)((u8 *)((s32)data + off + 4) + size))->maxX;
-            gMapChunks[n].maxZ = ((R13o6ColEntry *)((u8 *)((s32)data + off + 4) + size))->maxZ;
+            size = n * 12; // FAKE: byte offset of the chunk's MapChunkCollEntry used through (u8 *) sums below (indexing ((MapChunkCollEntry *)... + n) changes the codegen)
+            gMapChunks[n].collStart = (struct MapCollisionNode *)(((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + size))->offset + ((s32)data + off));
+            gMapChunks[n].collEnd = (struct MapCollisionNode *)(((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + size))[1].offset + ((s32)data + off));
+            gMapChunks[n].minX = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + size))->minX;
+            gMapChunks[n].minZ = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + size))->minZ;
+            gMapChunks[n].maxX = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + size))->maxX;
+            gMapChunks[n].maxZ = ((MapChunkCollEntry *)((u8 *)((s32)data + off + 4) + size))->maxZ;
             gMapChunks[n].lastSeenFrame = -1;
             if (count != 0) {
                 gMapChunks[n].cells = heapAlloc(count * 0x24);
@@ -532,38 +532,38 @@ void mapObjectSetByte(s16 objIndex, u8 byteOffset, u8 val) {
 f32 sqrtf(f32);
 
 void mapGridTriangleBuildPlane(s32 tri, MapGridPoint *plane) {
-    s64 a2v;
-    s64 a1v;
-    s64 a0v;
-    s64 b2v;
-    s64 b1v;
-    s64 b0v;
-    s64 x;
-    s64 y;
-    s64 z;
+    s64 e1z;
+    s64 e1y;
+    s64 e1x;
+    s64 e2z;
+    s64 e2y;
+    s64 e2x;
+    s64 absX;
+    s64 absY;
+    s64 absZ;
 
-    a0v = (s64)(D_807F6C14[tri].x[0] - D_807F6C14[tri].x[1]);
-    a1v = (s64)(D_807F6C14[tri].y[0] - D_807F6C14[tri].y[1]);
-    a2v = (s64)(D_807F6C14[tri].z[0] - D_807F6C14[tri].z[1]);
-    b0v = (s64)(D_807F6C14[tri].x[0] - D_807F6C14[tri].x[2]);
-    b1v = (s64)(D_807F6C14[tri].y[0] - D_807F6C14[tri].y[2]);
-    b2v = (s64)(D_807F6C14[tri].z[0] - D_807F6C14[tri].z[2]);
-    plane->nx = a1v * b2v - a2v * b1v;
-    plane->ny = a2v * b0v - a0v * b2v;
-    plane->nz = a0v * b1v - a1v * b0v;
+    e1x = (s64)(D_807F6C14[tri].x[0] - D_807F6C14[tri].x[1]);
+    e1y = (s64)(D_807F6C14[tri].y[0] - D_807F6C14[tri].y[1]);
+    e1z = (s64)(D_807F6C14[tri].z[0] - D_807F6C14[tri].z[1]);
+    e2x = (s64)(D_807F6C14[tri].x[0] - D_807F6C14[tri].x[2]);
+    e2y = (s64)(D_807F6C14[tri].y[0] - D_807F6C14[tri].y[2]);
+    e2z = (s64)(D_807F6C14[tri].z[0] - D_807F6C14[tri].z[2]);
+    plane->nx = e1y * e2z - e1z * e2y;
+    plane->ny = e1z * e2x - e1x * e2z;
+    plane->nz = e1x * e2y - e1y * e2x;
     plane->d = (s64)-(((f32)plane->nx * D_807F6C14[tri].x[1] + (f32)plane->ny * D_807F6C14[tri].y[1]) + (f32)plane->nz * D_807F6C14[tri].z[1]);
     plane->lenSq = (f32)(plane->nx * plane->nx + plane->ny * plane->ny + plane->nz * plane->nz);
     plane->len = sqrtf(plane->lenSq);
-    x = plane->nx >= 0 ? plane->nx : 0 - plane->nx;
-    y = plane->ny >= 0 ? plane->ny : 0 - plane->ny;
-    z = plane->nz >= 0 ? plane->nz : 0 - plane->nz;
-    if ((z >= x) && (z >= y)) {
+    absX = plane->nx >= 0 ? plane->nx : 0 - plane->nx;
+    absY = plane->ny >= 0 ? plane->ny : 0 - plane->ny;
+    absZ = plane->nz >= 0 ? plane->nz : 0 - plane->nz;
+    if ((absZ >= absX) && (absZ >= absY)) {
         plane->axis = 0;
     }
-    if ((y >= x) && (y >= z)) {
+    if ((absY >= absX) && (absY >= absZ)) {
         plane->axis = 1;
     }
-    if ((x >= y) && (x >= z)) {
+    if ((absX >= absY) && (absX >= absZ)) {
         plane->axis = 2;
     }
 }
@@ -646,23 +646,23 @@ void mapChunkMarkRenderEntry(void *targetId, u8 forceInfiniteDist) {
 
 
 u8 mapChunkPurgeNodeList(void *targetId, s16 *outChunk, u8 all) {
-    u8 flag;
+    u8 removed;
     s32 i;
 
-    flag = 0;
-    for (i = 0; i < gMapChunkCount && (!flag || all); i++) {
-        gMapChunks[i].opaqueList = renderEntryRemove(gMapChunks[i].opaqueList, targetId, 0, &flag);
-        if (flag) {
+    removed = 0;
+    for (i = 0; i < gMapChunkCount && (!removed || all); i++) {
+        gMapChunks[i].opaqueList = renderEntryRemove(gMapChunks[i].opaqueList, targetId, 0, &removed);
+        if (removed) {
             *outChunk = i;
         }
-        if (!flag || all) {
-            gMapChunks[i].translucentList = renderEntryRemove(gMapChunks[i].translucentList, targetId, 0, &flag);
-            if (flag) {
+        if (!removed || all) {
+            gMapChunks[i].translucentList = renderEntryRemove(gMapChunks[i].translucentList, targetId, 0, &removed);
+            if (removed) {
                 *outChunk = i;
             }
         }
     }
-    return flag;
+    return removed;
 }
 
 struct MapCell;
