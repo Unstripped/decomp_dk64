@@ -3,21 +3,21 @@
 #define PROTO_MENU_0_H
 #include "common.h"
 struct MenuRenderActor;
-struct MenuStruct_80024000;
+struct MenuState;
 #ifndef PROTO_SKIP_menuPlaySoundFromTable
-void menuPlaySoundFromTable(struct MenuStruct_80024000 *);
+void menuPlaySoundFromTable(struct MenuState *);
 #endif
 #ifndef PROTO_SKIP_menuSpawnPositionalActor
-void menuSpawnPositionalActor(struct MenuStruct_80024000 *);
+void menuSpawnPositionalActor(struct MenuState *);
 #endif
 #ifndef PROTO_SKIP_menuUpdateFallingActor
-void menuUpdateFallingActor(struct MenuStruct_80024000 *);
+void menuUpdateFallingActor(struct MenuState *);
 #endif
 #ifndef PROTO_SKIP_menuResetAudioState
 void menuResetAudioState(void);
 #endif
 #ifndef PROTO_SKIP_menuMainStateStep
-void menuMainStateStep(struct MenuStruct_80024000 *, s32);
+void menuMainStateStep(struct MenuState *, s32);
 #endif
 #ifndef PROTO_SKIP_menuTransitionStep
 void menuTransitionStep();
@@ -26,10 +26,10 @@ void menuTransitionStep();
 Gfx *menuDrawOptionsOverlay(Gfx *, struct MenuRenderActor *);
 #endif
 #ifndef PROTO_SKIP_menuUpdateOptionsState
-void menuUpdateOptionsState(struct MenuStruct_80024000 *);
+void menuUpdateOptionsState(struct MenuState *);
 #endif
 #ifndef PROTO_SKIP_menuProcessOptionInput
-void menuProcessOptionInput(struct MenuStruct_80024000 *);
+void menuProcessOptionInput(struct MenuState *);
 #endif
 #ifndef PROTO_SKIP_menuDispatchAction
 void menuDispatchAction(void);

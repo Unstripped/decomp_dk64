@@ -25,75 +25,76 @@
 #include "proto/global/FCCD0.h"
 #include "proto/menu/0.h"
 
-typedef struct MenuStruct_80024000 {
-    /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 unk1;
-    /* 0x02 */ u8 unk2;
+// The menu actor's 0x180 component: the medal menu's state machine and its falling effect.
+typedef struct MenuState {
+    /* 0x00 */ u8 mode;
+    /* 0x01 */ u8 step;
+    /* 0x02 */ u8 medalCount;
     /* 0x03 */ char pad3[3];
-    /* 0x06 */ u8 unk6;
+    /* 0x06 */ u8 fallState;
     /* 0x07 */ char pad7[1];
-    /* 0x08 */ struct EffectNode *unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ s8 unk18; // stick y of the previous frame (menuUpdateOptionsState)
-    /* 0x19 */ s8 unk19;
-    /* 0x1A */ u8 unk1A;
-} MenuStruct_80024000;
+    /* 0x08 */ struct EffectNode *fallingEffect;
+    /* 0x0C */ f32 velX;
+    /* 0x10 */ f32 velY;
+    /* 0x14 */ f32 velZ;
+    /* 0x18 */ s8 prevStickY; // stick y of the previous frame (menuUpdateOptionsState)
+    /* 0x19 */ s8 allMedals;
+    /* 0x1A */ u8 pendingMedals;
+} MenuState;
 
-typedef struct {
-    s16 unk0;
+typedef struct MenuCsModelEntry {
+    s16 csModelIndex;
     s16 unk2;
-} MenuStruct_30A2;
+} MenuCsModelEntry;
 
 extern u8 gCurrentWorldId;
 extern s32 D_80032F48[][6];
-extern MenuStruct_30A2 D_800330A2[];
+extern MenuCsModelEntry D_800330A2[];
 
 
-void menuPlaySoundFromTable(MenuStruct_80024000 *menu) {
-    s32 soundId = D_80032F48[mapGetHubWorldIndex(gCurrentWorldId, 0)][menu->unk1];
+void menuPlaySoundFromTable(MenuState *menu) {
+    s32 soundId = D_80032F48[mapGetHubWorldIndex(gCurrentWorldId, 0)][menu->step];
 
     if (soundId == 0) {
-        csModelStateSetFirstByte(D_800330A2[menu->unk1A].unk0, 9);
-        menu->unk0 = 4;
-        menu->unk1 = 0;
+        csModelStateSetFirstByte(D_800330A2[menu->pendingMedals].csModelIndex, 9);
+        menu->mode = 4;
+        menu->step = 0;
         return;
     }
     if (soundId == 4) {
-        menu->unk6 = 1;
+        menu->fallState = 1;
     }
     camStartPath(0, (s16)soundId, 1);
-    menu->unk1++;
+    menu->step++;
 }
 
 
 extern u8 D_80720268;
 
-void menuSpawnPositionalActor(MenuStruct_80024000 *menu) {
-    menu->unk10 = 11.35f;
-    menu->unkC = -6.55f;
-    menu->unk14 = 6.6f;
-    menu->unk6 = 0;
+void menuSpawnPositionalActor(MenuState *menu) {
+    menu->velY = 11.35f;
+    menu->velX = -6.55f;
+    menu->velZ = 6.6f;
+    menu->fallState = 0;
     effectSetMode(0);
     effectSetDepth(1);
     effectSetDuration(-1);
     effectSetMode(0);
-    menu->unk8 = effectCreateAtPosition(&D_80720268, 0.3f, 181.0f, 3.0f, 82.0f);
+    menu->fallingEffect = effectCreateAtPosition(&D_80720268, 0.3f, 181.0f, 3.0f, 82.0f);
 }
 
 
-void menuUpdateFallingActor(MenuStruct_80024000 *menu) {
-    struct EffectNode *actor = menu->unk8;
-    actor->x += menu->unkC;
-    actor->z += menu->unk14;
-    menu->unk10 += -1.0f;
-    actor->y += menu->unk10;
-    menu->unk6++;
-    if (menu->unk6 >= 0x16) {
-        menu->unk6 = 0;
-        effectFreeAndUnlink(menu->unk8);
-        menu->unk8 = NULL;
+void menuUpdateFallingActor(MenuState *menu) {
+    struct EffectNode *effect = menu->fallingEffect;
+    effect->x += menu->velX;
+    effect->z += menu->velZ;
+    menu->velY += -1.0f;
+    effect->y += menu->velY;
+    menu->fallState++;
+    if (menu->fallState >= 0x16) {
+        menu->fallState = 0;
+        effectFreeAndUnlink(menu->fallingEffect);
+        menu->fallingEffect = NULL;
     }
 }
 
@@ -105,69 +106,62 @@ void menuResetAudioState(void) {
     camStartPath(0, 7, 1);
 }
 
-typedef struct {
-    char pad0[1];
-    u8 unk1;
-    char pad2[0x17];
-    s8 unk19;
-} MenuSubStruct_180;
-
 // Per-type view of the menu actor: components after the 0x174 customState (the s16 slide offset).
 typedef struct MenuRenderActor {
     Actor base;
     /* 0x178 */ void *unk178;
     /* 0x17C */ void *unk17C;
-    /* 0x180 */ MenuStruct_80024000 *unk180;
+    /* 0x180 */ MenuState *menuState;
 } MenuRenderActor;
 extern Actor *gCurrentActor;
 extern s16 D_80750AC8;
 
 
-void menuMainStateStep(MenuStruct_80024000 *menu, s32 playVoice) {
+void menuMainStateStep(MenuState *menu, s32 playVoice) {
     s32 mode;
 
-    switch (menu->unk1) {
+    switch (menu->step) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
             if (playVoice != 0) {
                 currentActorClearFlag();
                 resQueueAttachActor(gCurrentActor, 0xB, 0);
-                if ((mode = menu->unk1A) == 1) {
+                if ((mode = menu->pendingMedals) == 1) {
                     mode = 1;
                 } else if (mode >= 2) {
                     mode = 2;
                 } else {
                     mode = 3;
                 }
-                D_80750AC8 = menu->unk1A;
+                D_80750AC8 = menu->pendingMedals;
                 resQueueAttachActor(gCurrentActor, 0xB, mode);
             } else {
-                if (menu->unk1A == 1) {
+                if (menu->pendingMedals == 1) {
                     mode = 5;
                 } else {
                     mode = 6;
                 }
-                D_80750AC8 = menu->unk1A;
+                D_80750AC8 = menu->pendingMedals;
                 resQueueAttachActor(gCurrentActor, 0xB, mode);
             }
-            menu->unk1++;
+            menu->step++;
         }
         break;
     case 1:
         if (!(gCurrentActor->flags & 0x02000000)) {
             camResumePath();
-            menu->unk1++;
+            menu->step++;
         }
         break;
     case 2:
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            if (menu->unk1A != 0) {
+            if (menu->pendingMedals != 0) {
                 camStartPath(0, 5, 1);
-                menu->unk1++;
+                menu->step++;
             } else {
-                menu->unk0 = 4;
-                menu->unk1 = 0;
+                menu->mode = 4;
+                menu->step = 0;
             }
         }
         break;
@@ -177,11 +171,11 @@ void menuMainStateStep(MenuStruct_80024000 *menu, s32 playVoice) {
     case 6:
     case 7:
     case 8:
-        if (menu->unk6 != 0) {
-            if (menu->unk6 == 1) {
+        if (menu->fallState != 0) {
+            if (menu->fallState == 1) {
                 if (currentActorTestClearFlag() != 0) {
                     currentActorClearFlag();
-                    menu->unk6 = 2;
+                    menu->fallState = 2;
                 }
             } else {
                 menuUpdateFallingActor(menu);
@@ -196,27 +190,27 @@ void menuMainStateStep(MenuStruct_80024000 *menu, s32 playVoice) {
 }
 
 void menuTransitionStep(menu, targetState)
-MenuStruct_80024000 *menu;
+MenuState *menu;
 u8 targetState;
 {
-    switch (menu->unk1) {
+    switch (menu->step) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
             resQueueAttachActor(gCurrentActor, 0xB, targetState);
-            menu->unk1++;
+            menu->step++;
         }
         break;
     case 1:
         if (!(gCurrentActor->flags & 0x02000000)) {
             camResumePath();
-            menu->unk1++;
+            menu->step++;
         }
         break;
     case 2:
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            menu->unk0 = 4;
-            menu->unk1 = 0;
+            menu->mode = 4;
+            menu->step = 0;
         }
         break;
     }
@@ -233,19 +227,19 @@ extern u8 D_2000180[];
 
 Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
     s32 y;
-    MenuStruct_80024000 *menu = actor->unk180;
+    MenuState *menu = actor->menuState;
     u8 textBuf[0x28];
 
     WRITE_GFX(glist++, 0xDE000000, D_1000118);
     WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
-    if (menu->unk1 >= 4) {
+    if (menu->step >= 4) {
         s32 i;
         WRITE_GFX(glist++, 0xDA380003, D_2000180);
         WRITE_GFX(glist++, 0xDA380007, D_20000C0);
         WRITE_GFX(glist++, 0xE7000000, 0);
         y = 0xF0;
         for (i = 0; i < 8; i++) {
-            if (i + 4 == menu->unk1) {
+            if (i + 4 == menu->step) {
                 WRITE_GFX(glist++, 0xFA000000, -1);
             } else {
                 WRITE_GFX(glist++, 0xFA000000, -0x80);
@@ -259,7 +253,7 @@ Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
         glist = textDrawStringVtx(glist, 1, 0x15E, 0x190, textBuf, 1);
         _sprintf(textBuf, "b %s", textTableGetString(0x2A, 1, 1));
         glist = textDrawStringVtx(glist, 1, 0x15E, 0x1F4, textBuf, 1);
-        if (menu->unk19 != 0) {
+        if (menu->allMedals != 0) {
             _sprintf(textBuf, "n %s", textTableGetString(0x2A, 2, 1));
             glist = textDrawStringVtx(glist, 1, 0x15E, 0x258, textBuf, 1);
         }
@@ -267,44 +261,37 @@ Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
     return glist;
 }
 
-
-typedef struct {
-    char pad0[3];
-    s8 unk3;
-} MenuStickAxis;
-
-
 extern PadInputState gPlayerPadState[];
-extern MenuStickAxis *D_807ECDEC;
+extern OSContPad *D_807ECDEC;
 extern u8 gCurrentPlayerIndex;
-extern u8 gPlayerInventoryTable[][0x5E];
+extern KongInventory gPlayerInventoryTable[];
 extern u8 gPlayerCharacterId;
 extern u8 D_800330C0[];
 extern u8 D_80032F50;
 extern s16 D_800330D8;
 
 
-void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
+void menuUpdateOptionsState(MenuState *menu) {
     s32 i;
     s32 changed;
-    u8 *playerSaveData;
-    s32 temp;
+    KongInventory *playerSaveData;
+    s32 awardFlag;
 
     changed = 0;
     D_800330D8 = 0;
-    switch (menu->unk1) {
+    switch (menu->step) {
     case 2:
     case 0x37:
         break;
     case 0:
         if (listContainsS16(4) != 0) {
-            playerSaveData = gPlayerInventoryTable[gPlayerCharacterId];
+            playerSaveData = &gPlayerInventoryTable[gPlayerCharacterId];
             for (i = 0; i < 8; i++) {
                 if (flagGet((s16)flagGridIndex(0x1D5, i, gPlayerCharacterId), 0) != 0) {
-                    temp = flagGridIndex(0x1FD, i, gPlayerCharacterId);
-                    if (flagGet((s16)temp, 0) == 0) {
-                        flagSet((s16)temp, 1, 0);
-                        ((u16 *)(playerSaveData + i * 2))[0x21]++;
+                    awardFlag = flagGridIndex(0x1FD, i, gPlayerCharacterId);
+                    if (flagGet((s16)awardFlag, 0) == 0) {
+                        flagSet((s16)awardFlag, 1, 0);
+                        playerSaveData->unk42[i]++;
                         changed = 1;
                     }
                 }
@@ -315,84 +302,84 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
             eepromSavePlayerData();
         }
         if (camIsCutsceneActive() == 0) {
-            menu->unk1++;
+            menu->step++;
             playerStateQueueCallback(0x55, 0, 0);
         }
         break;
     case 1:
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
             gCurrentActor->unk15F = 0;
-            menu->unk1 = 3;
+            menu->step = 3;
         } else {
-            menu->unk19 = 1;
+            menu->allMedals = 1;
             i = 0x1FD;
             do {
                 if (flagGet((s16)i, 0) == 0) {
-                    menu->unk19 = 0;
+                    menu->allMedals = 0;
                     i = 0x224;
                 }
                 i++;
             } while (i < 0x225);
             {
-                u8 a3 = gCurrentActor->unk15F;
-                s32 d = 0xFF - a3;
-                s32 inc;
-                if (d >= 9) {
-                    inc = 8;
+                u8 alpha = gCurrentActor->unk15F;
+                s32 remaining = 0xFF - alpha;
+                s32 fadeStep;
+                if (remaining >= 9) {
+                    fadeStep = 8;
                 } else {
-                    inc = d;
+                    fadeStep = remaining;
                 }
-                gCurrentActor->unk15F = a3 + inc;
+                gCurrentActor->unk15F = alpha + fadeStep;
             }
             renderCallbacksRegister(menuDrawOptionsOverlay, gCurrentActor, 3);
             if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
                 menuResetAudioState();
-                menu->unk1 = 2;
-            } else if (menu->unk19 != 0 && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8)) {
-                menu->unk1 = 4;
+                menu->step = 2;
+            } else if (menu->allMedals != 0 && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8)) {
+                menu->step = 4;
             }
         }
         break;
     case 3:
         D_800330D8 = 1;
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC000) {
-            menu->unk1 = 1;
+            menu->step = 1;
         }
         break;
     default:
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
-            menu->unk1 = 1;
+            menu->step = 1;
         } else {
-            s8 v1 = D_807ECDEC->unk3;
-            if (v1 >= 0x29 && menu->unk18 < 0x29) {
-                menu->unk1--;
+            s8 stickY = D_807ECDEC->stick_y;
+            if (stickY >= 0x29 && menu->prevStickY < 0x29) {
+                menu->step--;
                 sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 64.0f, 1.0f, 0, 0);
-                v1 = D_807ECDEC->unk3;
+                stickY = D_807ECDEC->stick_y;
             }
-            if (v1 < -0x28 && menu->unk18 >= -0x28) {
-                menu->unk1++;
+            if (stickY < -0x28 && menu->prevStickY >= -0x28) {
+                menu->step++;
                 sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 64.0f, 1.0f, 0, 0);
             }
-            menu->unk1 = ((menu->unk1 - 4) & 7) + 4;
+            menu->step = ((menu->step - 4) & 7) + 4;
         }
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-            menuTransitionWithStateD(D_800330C0[menu->unk1]);
+            menuTransitionWithStateD(D_800330C0[menu->step]);
             D_80032F50 = 1;
-            menu->unk1 = 0x37;
+            menu->step = 0x37;
         }
         renderCallbacksRegister(menuDrawOptionsOverlay, gCurrentActor, 3);
         break;
     }
-    menu->unk18 = D_807ECDEC->unk3;
+    menu->prevStickY = D_807ECDEC->stick_y;
 }
 
 
-void menuProcessOptionInput(MenuStruct_80024000 *menu) {
-    switch (menu->unk1) {
+void menuProcessOptionInput(MenuState *menu) {
+    switch (menu->step) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            menu->unk1++;
+            menu->step++;
             D_80750AC8 = menuCalculateBonusDuration();
             resQueueAttachActor(gCurrentActor, 0xB, 8);
         }
@@ -400,7 +387,7 @@ void menuProcessOptionInput(MenuStruct_80024000 *menu) {
     case 1:
         if (!(gCurrentActor->flags & 0x02000000)) {
             camResumePath();
-            menu->unk1++;
+            menu->step++;
         }
         break;
     }
@@ -415,48 +402,48 @@ void menuDispatchAction(void) {
     s32 pad2;
     s32 camPathIndex;
     u8 isSessionActive;
-    MenuStruct_80024000 *menu;
+    MenuState *menu;
 
     targetState = -1;
     isSessionActive = 0;
-    menu = ((MenuRenderActor *)gCurrentActor)->unk180;
+    menu = ((MenuRenderActor *)gCurrentActor)->menuState;
     if (!(gCurrentActor->flags & 0x10)) {
         camPathIndex = 1;
-        menu->unk2 = flagCountRange(0x1FD, 0x28, 0);
-        menu->unk1A = flagGridSumRows(0x1D5, 0, 7, gPlayerCharacterId);
-        menu->unk1A -= flagGridSumRows(0x1FD, 0, 7, gPlayerCharacterId);
+        menu->medalCount = flagCountRange(0x1FD, 0x28, 0);
+        menu->pendingMedals = flagGridSumRows(0x1D5, 0, 7, gPlayerCharacterId);
+        menu->pendingMedals -= flagGridSumRows(0x1FD, 0, 7, gPlayerCharacterId);
         if (D_8076AEF2 != 0x1C) {
             if (flagGet(0x174, 0) == 0) {
-                menu->unk0 = 0;
-                menu->unk1 = 0;
+                menu->mode = 0;
+                menu->step = 0;
                 camPathIndex = 0;
                 playerWaypointPathStartPacked(gPrimaryPlayerActor, 0, 0, 0);
                 flagSet(0x174, 1, 0);
             } else {
-                if (menu->unk2 == 0x28) {
-                    menu->unk0 = 2;
-                    menu->unk1 = 0;
+                if (menu->medalCount == 0x28) {
+                    menu->mode = 2;
+                    menu->step = 0;
                 } else {
-                    if (menu->unk1A == 0) {
-                        menu->unk0 = 1;
-                        menu->unk1 = 0;
+                    if (menu->pendingMedals == 0) {
+                        menu->mode = 1;
+                        menu->step = 0;
                     } else {
-                        menu->unk0 = 3;
-                        menu->unk1 = 0;
+                        menu->mode = 3;
+                        menu->step = 0;
                     }
                 }
             }
             camStartPath(0, (s16)camPathIndex, 1);
         } else {
-            menu->unk0 = 5;
-            menu->unk1 = 0;
+            menu->mode = 5;
+            menu->step = 0;
         }
         currentActorClearFlag();
         menuSpawnPositionalActor(menu);
         isSessionActive = D_80032F50;
         D_80032F50 = 0;
     }
-    switch (menu->unk0) {
+    switch (menu->mode) {
     case 0:
         menuMainStateStep(menu, 1);
         break;
