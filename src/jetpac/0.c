@@ -1,7 +1,7 @@
 #include "common.h"
 #include "jetpac.h"
 #include "render.h"
-#define PROTO_SKIP_flagGet // FAKE: callee prototype steer
+#define PROTO_SKIP_flagGet // ORIG: this file was compiled against an int-returning flagGet (the caller narrows the result itself at 0x11d4)
 #include "proto/boot/3D20.h"
 #include "proto/global/103AB0.h"
 #include "proto/global/104F0.h"
@@ -241,7 +241,7 @@ void jetpacSaveHighScore(void) {
     func_8060DEA8();
 }
 
-s32 flagGet(s32, s32); // FAKE: callee prototype steer
+s32 flagGet(s32, s32); // ORIG: int return seen by the caller: jetpacUpdateStateAndInput 0x11d4 andi t9,v0,0xff narrows the result into the u8 local
 
 
 void jetpacStatePause(Gfx **glist) {
