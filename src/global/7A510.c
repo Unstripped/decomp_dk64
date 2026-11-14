@@ -80,7 +80,7 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
                             curPhase = gActorGlobalState.bossFightPhase;
                             if (curPhase < hitPhase) {
                                 gActorGlobalState.targetActor = attacker;
-                                gActorGlobalState.bossFightPhase = ((u8 *)interactions)[i * 12 + 8];  // FAKE: byte re-read through interactions (not entry->phase) saves an instruction and keeps the entry induction in $s1 (Q0589)
+                                gActorGlobalState.bossFightPhase = (interactions + i)->phase;  // FAKE: re-reads phase through interactions + i (base-first add) instead of entry->phase or interactions[i].phase, keeping the entry induction in $s1 (Q0589)
                             }
                             if (gActorGlobalState.unk201 < 0xF) {
                                 gActorGlobalState.unk204[gActorGlobalState.unk201] = attacker;
