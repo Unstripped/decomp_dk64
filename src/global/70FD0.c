@@ -281,11 +281,37 @@ void collisionInitStaticCache(MapFileHeader *header) {
 }
 
 
+typedef struct CollisionStaticTriIn {
+    /* 0x00 */ s16 x0;
+    /* 0x02 */ s16 y0;
+    /* 0x04 */ s16 z0;
+    /* 0x06 */ s16 x1;
+    /* 0x08 */ s16 y1;
+    /* 0x0A */ s16 z1;
+    /* 0x0C */ s16 x2;
+    /* 0x0E */ s16 y2;
+    /* 0x10 */ s16 z2;
+    /* 0x12 */ s16 normalYaw;
+    /* 0x14 */ u8 unk14;
+    /* 0x15 */ u8 unk15;
+    /* 0x16 */ u8 flags;
+} CollisionStaticTriIn;
+
+typedef struct CollisionStaticTriOut {
+    /* 0x00 */ s64 nx;
+    /* 0x08 */ s64 ny;
+    /* 0x10 */ s64 nz;
+    /* 0x18 */ s64 d;
+    /* 0x20 */ f32 len;
+    /* 0x24 */ s16 minY;
+    /* 0x26 */ s16 maxY;
+} CollisionStaticTriOut;
+
 void collisionLoadStaticCell(s32 cell) {
     s32 size;
     s32 pad;
-    void *dst;
-    void *src;
+    CollisionStaticTriOut *dst;
+    CollisionStaticTriIn *src;
     s32 cnt;
 
     if (D_807FB534[cell].tris == NULL && cell < D_807FB538) {
@@ -296,14 +322,14 @@ void collisionLoadStaticCell(s32 cell) {
                 dmaReadAssetDecompress(D_807FB534[cell].romAddr, D_807FB534[cell].rawTris, &size, 0, 0, 0, 0);
             }
             cnt = D_807FB534[cell].triCount;
-            D_807FB534[cell].tris = heapAlloc(cnt * 0x28);
+            D_807FB534[cell].tris = heapAlloc(cnt * sizeof(CollisionStaticTriOut));
             src = D_807FB534[cell].rawTris;
             dst = D_807FB534[cell].tris;
             for (; cnt != 0; cnt--) {
                 if (collisionBuildStaticTri(src, dst) != 0) {
-                    dst = (void *)((u8 *)dst + 0x28);
+                    dst++;
                 }
-                src = (void *)((u8 *)src + 0x18);
+                src++;
             }
         }
     }
@@ -583,32 +609,6 @@ u8 *outFlag;
     return yaw;
 }
 
-
-typedef struct CollisionStaticTriIn {
-    /* 0x00 */ s16 x0;
-    /* 0x02 */ s16 y0;
-    /* 0x04 */ s16 z0;
-    /* 0x06 */ s16 x1;
-    /* 0x08 */ s16 y1;
-    /* 0x0A */ s16 z1;
-    /* 0x0C */ s16 x2;
-    /* 0x0E */ s16 y2;
-    /* 0x10 */ s16 z2;
-    /* 0x12 */ s16 normalYaw;
-    /* 0x14 */ u8 unk14;
-    /* 0x15 */ u8 unk15;
-    /* 0x16 */ u8 flags;
-} CollisionStaticTriIn;
-
-typedef struct CollisionStaticTriOut {
-    /* 0x00 */ s64 nx;
-    /* 0x08 */ s64 ny;
-    /* 0x10 */ s64 nz;
-    /* 0x18 */ s64 d;
-    /* 0x20 */ f32 len;
-    /* 0x24 */ s16 minY;
-    /* 0x26 */ s16 maxY;
-} CollisionStaticTriOut;
 
 s32 collisionBuildStaticTri(void *inData, void *outData) {
     CollisionBox work;
