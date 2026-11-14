@@ -324,3 +324,4 @@
 {"type": "unit", "t": "2026-11-14T18:45:02Z", "unit": "2026-11-14: cleanup Hackfunc_806C8220", "commit": "a05aaf47215689feecc96ae760262d12a8004bc8"}
 {"type": "unit", "t": "2026-11-14T18:45:05Z", "unit": "2026-11-14: cleanup HackbehaviourFlyPatrolWithCallback", "commit": "4596febc0a5b7a07c4160a9e619f4bab4000d018"}
 {"type": "unit", "t": "2026-11-14T18:45:17Z", "unit": "2026-11-14: cleanup Hackfunc_8068EF54", "commit": "2d36c5c8f826ceb1361e71c9639ff3663703b71c"}
+{"type": "unit", "t": "2026-11-14T18:46:18Z", "unit": "2026-11-14: cleanup HackmeshComputeVertexRanges", "commit": "6086d1e7c8c9e46fba2cd4f76d5199651edcde83"}
