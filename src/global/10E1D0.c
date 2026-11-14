@@ -126,7 +126,7 @@ typedef struct MeshEntry {
 typedef struct MeshBlobTail {
     u32 *counts;
     s32 *indices;
-    u8 *entries;
+    MeshEntry *entries;
 } MeshBlobTail;
 
 typedef struct MeshBlobHeader {
@@ -147,9 +147,6 @@ s32 meshBlobParse(MeshBlobHeader *blob, MeshBlobHeader **outMesh, MeshBlobTail *
     s32 k;
     s32 sum;
     MeshBlobTail *b;
-    u32 *p;
-    u32 *r;
-    MeshEntry *q;
 
     if (blob == NULL) {
         return 0;
@@ -160,42 +157,32 @@ s32 meshBlobParse(MeshBlobHeader *blob, MeshBlobHeader **outMesh, MeshBlobTail *
     gFbTileTable = heapAlloc(0x708);
     blob->screenVertsA = heapAlloc(blob->vertexCount * 0x10);
     blob->screenVertsB = heapAlloc(blob->vertexCount * 0x10);
-    if (blob && blob) {} // FAKE: block split after the 3rd heapAlloc frees $v0 for walker p
-    count = 1;
     blob->vertices = (u8 *)blob + 0x2C;
-    blob->cells = blob->vertices + blob->vertexCount * 0xC + ((s32)blob->vertices * 0); // FAKE: no-code extra reference of the blob+0x2C value (colours it a0 before the others)
-    blob->columnCounts = (u32 *)(blob->cells + blob->cellCount * 0x1C + ((s32)blob->cells * 0)); // FAKE: no-code extra reference of the cells value (colours it a1)
-    p = blob->columnCounts;
-    while (*p++ != 0) {
-        count++;
+    blob->cells = blob->vertices + blob->vertexCount * 0xC;
+    blob->columnCounts = (u32 *)(blob->cells + blob->cellCount * 0x1C);
+    count = 0;
+    while (blob->columnCounts[count++] != 0) {
     }
     blob->columnStarts = (s32 *)blob->columnCounts + count;
     blob->columnEnds = blob->columnStarts + count;
     *outMesh = blob;
     if (outAnim != NULL) {
         b = (MeshBlobTail *)(blob->columnEnds + count);
-        b->entries = (u8 *)(b + 1);
-        q = (MeshEntry *)b->entries;
-        if (gFbTileTable && gFbTileTable) {} // FAKE: block split steering loop-2 walker regalloc
-        count = 1;
-        while ((q++)->v0 != 0) {
-            count++;
+        b->entries = (MeshEntry *)(b + 1);
+        count = 0;
+        while (b->entries[count++].v0 != 0) {
         }
-        k = 1;
-        b->counts = r = (u32 *)(b->entries + count * 0x1C);
-        while (*r++ != -1) {
-            k++;
-            if (r == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        b->counts = (u32 *)(b->entries + count);
+        k = 0;
+        while (b->counts[k++] != -1) {
         }
         count = 0;
-        b->indices = (s32 *)((u8 *)b->counts + k * 4);
+        b->indices = (s32 *)(b->counts + k);
         sum = 0;
-        if (b->counts[0] != -1) {
-            do {
-                b->indices[count] = (s32)b->indices + k * 4 + sum * 2;
-                sum += b->counts[count];
-                count++;
-            } while (b->counts[count] != -1);
+        while (b->counts[count] != -1) {
+            b->indices[count] = (s32)(b->indices + k) + sum * 2;
+            sum += b->counts[count];
+            count++;
         }
         *outAnim = b;
     }
