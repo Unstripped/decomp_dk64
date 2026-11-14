@@ -2,7 +2,7 @@
 #include "render.h"
 #include "proto/boot/6690.h"
 
-void dlInitTextureDescriptor(texDesc, texture, pal, width, rectWidth, rectHeight, format, type, s, t) // FAKE: K&R definition keeps callers passing promoted ints (callee prototype steer)
+void dlInitTextureDescriptor(texDesc, texture, pal, width, rectWidth, rectHeight, format, type, s, t)
     TextureDescriptor *texDesc;
     void *texture;
     s32 pal;
