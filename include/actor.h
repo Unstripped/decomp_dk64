@@ -532,6 +532,13 @@ typedef struct Zone {
     /* 0x21 */ u8 pad21[3];
 } Zone; // size = 0x24
 
+// The map's zone table (D_80755690): count + array of Zone (1295B0.c, C2A90.c).
+typedef struct ZoneTable {
+    /* 0x0 */ s16 count;
+    /* 0x2 */ u8 pad2[2];
+    /* 0x4 */ Zone *zones;
+} ZoneTable;
+
 // Map spawn node; a behaviour actor's gBehaviourAnimState and gBehaviourExtraState both point
 // at its node (behaviourFrameBegin: both = gBehaviourWorkState->node).
 typedef struct SpawnNode {
@@ -577,6 +584,13 @@ typedef struct SpawnNode {
     /* 0x45 */ u8 pad45;
     /* 0x46 */ u16 flags;
 } SpawnNode; // size = 0x48
+
+// The map's spawn node list (D_80755694): count + array of SpawnNode (1295B0.c).
+typedef struct SpawnNodeList {
+    /* 0x0 */ s16 count;
+    /* 0x2 */ u8 pad2[2];
+    /* 0x4 */ SpawnNode *nodes;
+} SpawnNodeList;
 
 // One 0x18-byte row of the spawn table D_8075EB80, indexed by SpawnNode.entryIndex
 // (spawnNodeInitActorFromEntry and the spawn paths in 1295B0.c; behaviourUpdateShadowAlpha in 12E800.c).
@@ -1035,6 +1049,8 @@ extern SpawnNode *gBehaviourAnimState;
 extern SpawnNode *gBehaviourExtraState;
 extern SpawnEntry D_8075EB80[];
 extern Zone *D_807FDCA0; // gBehaviourAnimState->zone, latched by behaviourFrameBegin
+extern ZoneTable *D_80755690;
+extern SpawnNodeList *D_80755694;
 extern ActorGlobalState gActorGlobalState;
 
 

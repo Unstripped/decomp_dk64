@@ -491,15 +491,6 @@ typedef struct RespawnPos {
     /* 0x10 */ f32 scale;
 } RespawnPos;
 
-// same layout as the file-local ZoneTable of 1295B0.c
-typedef struct ZoneTable {
-    /* 0x0 */ s16 count;
-    /* 0x2 */ u8 pad2[2];
-    /* 0x4 */ Zone *zones;
-} ZoneTable;
-
-extern ZoneTable *D_80755690;
-
 void *memcpy(void *, const void *, u32);
 
 void func_806BF218(void) {

@@ -70,21 +70,6 @@ s32 func_80724A20(void) {
     return found;
 }
 
-typedef struct ZoneTable {
-    /* 0x0 */ s16 count;
-    /* 0x2 */ u8 pad2[2];
-    /* 0x4 */ Zone *zones;
-} ZoneTable;
-
-typedef struct SpawnNodeList {
-    /* 0x0 */ s16 count;
-    /* 0x2 */ u8 pad2[2];
-    /* 0x4 */ SpawnNode *nodes;
-} SpawnNodeList;
-
-extern ZoneTable *D_80755690;
-extern SpawnNodeList *D_80755694;
-
 void zoneEntrySetDisabled(u8 zoneId, u8 entryIndex, u8 disabled) {
     Zone *group;
     s16 i;
