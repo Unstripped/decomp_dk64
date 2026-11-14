@@ -1081,7 +1081,7 @@ Gfx *slotQueueStateFadeIn(s32 slot, Gfx *gfx) {
             } while (node != NULL);
         }
         if (done == count) {
-            if (((slot * 0x30) == 0x180) || ((slot * 0x30) == 0x1B0)) {
+            if ((slot == 8) || (slot == 9)) {
                 gSlotQueue[slot].timer = 0x5A;
             } else {
                 gSlotQueue[slot].timer = 0x1E;
@@ -1093,7 +1093,9 @@ Gfx *slotQueueStateFadeIn(s32 slot, Gfx *gfx) {
     }
 }
 
-s32 slotQueueGetCountStep(s32 slot) {
+s32 slotQueueGetCountStep(slot)
+    s32 slot;
+{
     s32 step;
 
     step = 1;
@@ -1105,7 +1107,6 @@ s32 slotQueueGetCountStep(s32 slot) {
 
 
 Gfx *slotQueueStateMoveToTarget(s32 slot, Gfx *gfx) {
-    extern s32 slotQueueGetCountStep(); // FAKE: callee prototype steer (K&R call passes the target/current counts)
     s32 n;
     SlotQueueNode *node;
     u8 flag;

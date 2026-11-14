@@ -104,7 +104,7 @@ Gfx *slotQueueNodeUpdate(s32, struct SlotQueueNode *, s32, Gfx *);
 Gfx *slotQueueStateFadeIn(s32, Gfx *);
 #endif
 #ifndef PROTO_SKIP_slotQueueGetCountStep
-s32 slotQueueGetCountStep(s32);
+s32 slotQueueGetCountStep();
 #endif
 #ifndef PROTO_SKIP_slotQueueStateMoveToTarget
 Gfx *slotQueueStateMoveToTarget(s32, Gfx *);
