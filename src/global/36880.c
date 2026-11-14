@@ -3895,7 +3895,6 @@ extern u8 gCsVarsDirty[];
 void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     s32 count;
     s32 size;
-    u8 *p;
     s32 i;
     ModelSlotSerializedOut *out;
     u8 *dst;
@@ -3906,8 +3905,8 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     }
     size = gModelSlotCount * sizeof(ModelSlotSerializedOut) + sizeof(s32);
     size += sizeof(s32);
-    for (p = gCsVarsDirty; p < &gCsVarsDirty[0x212]; p++) {
-        if (*p) {
+    for (i = 0; i < 0x212; i++) {
+        if (gCsVarsDirty[i]) {
             size += 0x24;
             count++;
         }
@@ -3941,8 +3940,8 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     }
     *(s32 *)out = count;
     dst = (u8 *)out + 4;
-    for (i = 0, p = gCsVarsDirty; i != 0x212; i++, p++) {
-        if (*p != 0) {
+    for (i = 0; i < 0x212; i++) {
+        if (gCsVarsDirty[i] != 0) {
             *(s32 *)dst = i;
             memcpy(dst + 4, gModelSlots[hashTableLookup(gCsModelIds[i])].unk7C->unk14, 0x20);
             dst += 0x24;
@@ -3950,7 +3949,6 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     }
     actorListSerialize((s32 *)dst);
     *bufOut = D_807F6010;
-    if (!gCsVarsDirty) {} // FAKE: dead test keeps the table address live (steers colouring)
     *sizeOut = size;
 }
 
