@@ -699,7 +699,7 @@ void critterUpdateZoneProximity(CritterObj *obj) {
         }
         obj->homeZone->near = f;
         obj->homeZone->frame = gGfxBufferIndex;
-        m = &gPlayerSlots[0] + gCurrentPlayerIndex;
+        m = &gPlayerSlots[0] + gCurrentPlayerIndex; // FAKE: &array[0] + i keeps the stride-view addu order (target addu v1,t9,t4 = base,offset at 0x2144); &gPlayerSlots[i] / gPlayerSlots + i give offset,base and re-colour 28 lines (Q0606)
         dist = ((f32)obj->homeZone->z - m->camZ) * ((f32)obj->homeZone->z - m->camZ) + (((f32)obj->homeZone->x - m->camX) * ((f32)obj->homeZone->x - m->camX) + ((f32)obj->homeZone->y - m->camY) * ((f32)obj->homeZone->y - m->camY));
         obj->homeZone->distSq = dist;
         if (dist < lim) {
