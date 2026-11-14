@@ -593,7 +593,7 @@ typedef struct CsCondRow {
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 extern PlayerStruct *gPlayerSlots;
-extern u8 *D_807FD568;
+extern KongInventory *D_807FD568;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern PlayerInventory gPlayerInventoryTable[];
@@ -730,7 +730,7 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x25:
-        if (D_807FD568[1] >= cmd->a) {
+        if (D_807FD568->unk0[1] >= cmd->a) {
             ret = 1;
         } else {
             ret = 0;

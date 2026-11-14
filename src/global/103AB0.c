@@ -57,7 +57,7 @@ Gfx *func_806FEF7C(Gfx *dl, Actor *player) {
     return renderRotatedSprite(dl, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, 0.001f);
 }
 
-extern u8 *D_807FD568;
+extern KongInventory *D_807FD568;
 
 Gfx *func_806FF01C(Gfx *gfx, Actor *actor) {
     u8 player;
@@ -69,7 +69,7 @@ Gfx *func_806FF01C(Gfx *gfx, Actor *actor) {
 
     player = ((PlayerState *)actor->customState)->playerIndex;
     dl = playerViewGfxSetup(gfx, player);
-    if ((D_807FD568[2] & 2) && slotQueueGetValue(3, player) &&
+    if ((D_807FD568->unk0[2] & 2) && slotQueueGetValue(3, player) &&
         projectileFindHomingTarget(2, &target, actor, 1, 0, 0, &targetX, &targetY, &targetZ)) {
         gDPSetPrimColor(dl++, 0, 0, 0, 0xC8, 0, 0xFF);
     } else {
