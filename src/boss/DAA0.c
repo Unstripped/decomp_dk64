@@ -39,25 +39,27 @@ s16 D_80035B60[4] = { 0xDC, 0xDD, 0xDE, 0xDF };
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-typedef struct BossSpawnState {
-    Actor *unk0;
-    s8 unk4;
-    s8 unk5;
-} BossSpawnState;
+// customState of each follower actor 0xA6 spawned by bossSpawnerUpdate (8 of them: 4 sides x 2).
+typedef struct BossFollowerLink {
+    /* 0x00 */ Actor *parent; // the spawner; its customState is the BossSpawnerState
+    /* 0x04 */ s8 slot; // side index 0-3
+    /* 0x05 */ s8 mirrored; // 1 for the second follower of a pair (opposite side, dark tint)
+} BossFollowerLink;
 
+// customState of the spawner actor (bossSpawnerUpdate); bossFollowerActorUpdate reads it through link->parent.
 typedef struct BossSpawnerState {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    s16 unkC;
-    s16 unkE;
-    s16 unk10;
-    s8 unk12;
-    s8 unk13;
-    s8 unk14;
-    s8 unk15;
-    s8 unk16;
-    s8 unk17;
+    /* 0x00 */ f32 baseY; // hover centre (y = baseY + 5 sin(yaw))
+    /* 0x04 */ f32 lift; // 0..1, stepped by liftSpeed; drives the followers roll
+    /* 0x08 */ f32 liftSpeed;
+    /* 0x0C */ s16 aggroTimer; // light flash + enemyAggroEnable when it runs out
+    /* 0x0E */ s16 introTimer;
+    /* 0x10 */ s16 stepTimer; // frames/bounces in the current subState (reset on change)
+    /* 0x12 */ s8 phase; // 0-3, advanced after each 3-hit round
+    /* 0x13 */ s8 subState;
+    /* 0x14 */ s8 side; // active side 0-3 (D_80035B00/B08/B10 tables)
+    /* 0x15 */ s8 repeatCount;
+    /* 0x16 */ s8 hitCount;
+    /* 0x17 */ s8 fireFlag; // set for one frame per bounce in subState 3: side-0 follower fires
 } BossSpawnerState;
 
 extern Actor *gSpawnedActor;
@@ -70,13 +72,13 @@ void bossSpawnerUpdate(void) {
     s32 level;
     s32 k;
     s32 i;
-    BossSpawnerState *s;
+    BossSpawnerState *state;
     s8 prevSubState;
     s8 hitPlayer;
     s8 bounceDir;
     s8 spawnParticle;
     s8 topReached;
-    BossSpawnState *st;
+    BossFollowerLink *link;
     s32 cutsceneId;
     f32 x;
     f32 z;
@@ -85,7 +87,7 @@ void bossSpawnerUpdate(void) {
     static s8 D_80035B6C = 0;
     static s16 D_80035B70 = 0;
 
-    s = gCurrentActor->customState;
+    state = gCurrentActor->customState;
     topReached = 0;
     spawnParticle = 0;
     hitPlayer = 0;
@@ -93,19 +95,19 @@ void bossSpawnerUpdate(void) {
         D_80035B28 = 0xF;
         D_80035B34 = 0;
         D_80035B3C = 0.0f;
-        s->unkC = 0x1E;
-        s->unkE = 1;
-        s->unk0 = gCurrentActor->y;
-        s->unk14 = 0;
+        state->aggroTimer = 0x1E;
+        state->introTimer = 1;
+        state->baseY = gCurrentActor->y;
+        state->side = 0;
         D_80035B6C = 0;
-        s->unk12 = 0;
+        state->phase = 0;
         D_80035B70 = 5;
         for (i = 0; i != 8; i++) {
             if (actorSpawn(0xA6, D_80035B60[i >> 1]) != 0) {
-                st = gSpawnedActor->customState;
-                st->unk0 = gCurrentActor;
-                st->unk4 = i >> 1;
-                st->unk5 = i & 1;
+                link = gSpawnedActor->customState;
+                link->parent = gCurrentActor;
+                link->slot = i >> 1;
+                link->mirrored = i & 1;
                 gSpawnedActor->y = gCurrentActor->y + 50.0f;
                 gSpawnedActor->sub4->scaleX = 0.1;
                 gSpawnedActor->sub4->scaleY = 0.1;
@@ -166,12 +168,12 @@ void bossSpawnerUpdate(void) {
         }
         break;
     case 2:
-        s->unkE--;
-        if (s->unkE < 0) {
+        state->introTimer--;
+        if (state->introTimer < 0) {
             gCurrentActor->state = 0;
             playerSetKongByActorType(4);
             playerKongStopAudioChannels(gPrimaryPlayerActor, 4);
-            s->unk13 = 1;
+            state->subState = 1;
         }
         break;
     case 3:
@@ -179,49 +181,49 @@ void bossSpawnerUpdate(void) {
     }
     gCurrentActor->yaw += 0x32;
     gCurrentActor->yaw &= 0xFFF;
-    gCurrentActor->y = mathSinF(gCurrentActor->yaw) * 5.0 + s->unk0;
+    gCurrentActor->y = mathSinF(gCurrentActor->yaw) * 5.0 + state->baseY;
     if (gPrimaryPlayerActor->state == 0x45 && gPrimaryPlayerActor->unk155 >= 2 && D_80036DC4 < 10000.0) {
         hitPlayer = 1;
     }
     bounceDir = 0;
-    s->unk4 += s->unk8;
-    if (s->unk4 > 1.0f) {
-        s->unk4 = 1.0f;
+    state->lift += state->liftSpeed;
+    if (state->lift > 1.0f) {
+        state->lift = 1.0f;
         bounceDir = 1;
     }
-    if (s->unk4 < 0) {
-        s->unk4 = 0;
+    if (state->lift < 0) {
+        state->lift = 0;
         bounceDir = -1;
     }
     if (bounceDir != 0 && camIsCutsceneActive() == 0) {
-        s->unk10++;
+        state->stepTimer++;
     }
-    s->unk17 = 0;
-    prevSubState = s->unk13;
-    switch (s->unk13) {
+    state->fireFlag = 0;
+    prevSubState = state->subState;
+    switch (state->subState) {
     case 0:
         i = 5;
-        if (s->unk12 == 2) {
+        if (state->phase == 2) {
             j = 0xC;
-            s->unk8 = -0.2f;
+            state->liftSpeed = -0.2f;
         } else {
             i = 0x3C;
             j = 4;
-            s->unk8 = -0.1f;
+            state->liftSpeed = -0.1f;
         }
-        if (i < s->unk10) {
-            s->unk15++;
-            if (s->unk15 < j) {
-                s->unk13 = 1;
+        if (i < state->stepTimer) {
+            state->repeatCount++;
+            if (state->repeatCount < j) {
+                state->subState = 1;
                 sfxPlayOnFreeSlot(0x37D, 0x7D00, 63.0, 1.0, 0, 0);
-                if (s->unk12 == 2) {
+                if (state->phase == 2) {
                     sfxPlayOnFreeSlot(0x381, 0x7D00, 63.0, 1.0, 0, 0);
                 } else {
                     sfxPlayOnFreeSlot(0x37F, 0x7D00, 63.0, 1.0, 0, 0);
                 }
             } else {
-                s->unk13 = 2;
-                s->unk15 = 0;
+                state->subState = 2;
+                state->repeatCount = 0;
             }
         }
         if (bounceDir != 0 && D_80035B40 == 0) {
@@ -230,37 +232,37 @@ void bossSpawnerUpdate(void) {
         }
         break;
     case 1:
-        switch (s->unk12) {
+        switch (state->phase) {
         case 2:
             i = 0xA;
-            s->unk8 = 0.2f;
+            state->liftSpeed = 0.2f;
             break;
         case 3:
             i = 0x3C;
-            s->unk8 = 0.1f;
+            state->liftSpeed = 0.1f;
             break;
         default:
             i = 0xB4;
-            s->unk8 = 0.1f;
+            state->liftSpeed = 0.1f;
             break;
         }
         if (bounceDir == 1) {
             topReached = 1;
-            if (i < s->unk10) {
-                s->unk13 = 0;
-                s->unk15++;
+            if (i < state->stepTimer) {
+                state->subState = 0;
+                state->repeatCount++;
                 sfxPlayOnFreeSlot(0x17D, 0x3E80, 63.0, 1.0, 0, 0);
             }
             if (hitPlayer != 0) {
                 sfxPlayOnFreeSlot(0x97, 0x7D00, 63.0, 1.0, 0, 0);
-                s->unk16++;
-                s->unk15 = 0;
-                s->unk13 = 2;
-                if (s->unk16 == 3) {
+                state->hitCount++;
+                state->repeatCount = 0;
+                state->subState = 2;
+                if (state->hitCount == 3) {
                     sfxPlayOnFreeSlot(0x385, 0x7D00, 63.0, 1.0, 0, 0);
-                    s->unk16 = 0;
+                    state->hitCount = 0;
                     camPausePath();
-                    s->unk13 = 4;
+                    state->subState = 4;
                 } else {
                     sfxPlayOnFreeSlot(0x38E, 0x7D00, 63.0, 1.0, 0, 0);
                     sfxPlayOnFreeSlot(0x383, 0x7D00, 63.0, 1.0, 0, 0);
@@ -269,16 +271,16 @@ void bossSpawnerUpdate(void) {
         }
         break;
     case 2:
-        s->unk8 = -0.1f;
-        if (s->unk10 >= 0x5B) {
-            s->unk15++;
-            if (s->unk15 < 3) {
-                s->unk13 = 3;
+        state->liftSpeed = -0.1f;
+        if (state->stepTimer >= 0x5B) {
+            state->repeatCount++;
+            if (state->repeatCount < 3) {
+                state->subState = 3;
                 sfxPlayOnFreeSlot(0x37D, 0x7D00, 63.0, 1.0, 0, 0);
                 sfxPlayOnFreeSlot(0x380, 0x7D00, 63.0, 1.0, 0, 0);
             } else {
-                s->unk13 = 0;
-                s->unk15 = 0;
+                state->subState = 0;
+                state->repeatCount = 0;
             }
         }
         if (bounceDir != 0 && D_80035B40 == 0) {
@@ -286,60 +288,60 @@ void bossSpawnerUpdate(void) {
         }
         break;
     case 3:
-        s->unk8 = 0.1f;
-        if (s->unk10 >= 0x1F) {
-            s->unk13 = 2;
+        state->liftSpeed = 0.1f;
+        if (state->stepTimer >= 0x1F) {
+            state->subState = 2;
             sfxPlayOnFreeSlot(0x17D, 0x3E80, 63.0, 1.0, 0, 0);
         }
         if (bounceDir != 0) {
-            s->unk17 = 1;
+            state->fireFlag = 1;
         }
         break;
     case 4:
         D_80035B3C += 1.0;
         if (D_80035B3C > 24.0) {
             D_80035B3C = 24.0f;
-            s->unk10++;
-            D_80035B2C = mathSinF(s->unk10 << 5) * 200.0f;
-            if (s->unk10 == 0x3F) {
+            state->stepTimer++;
+            D_80035B2C = mathSinF(state->stepTimer << 5) * 200.0f;
+            if (state->stepTimer == 0x3F) {
                 D_80035B3C = 0.0f;
                 D_80035B2C = 0;
                 D_80035B28 = D_80035B30[D_80035B34];
                 D_80035B34 += 1;
-                s->unk13 = 5;
+                state->subState = 5;
             }
         }
         break;
     case 5:
-        s->unk10++;
-        if (s->unk10 >= 0x3D) {
-            s->unk8 = -0.1f;
+        state->stepTimer++;
+        if (state->stepTimer >= 0x3D) {
+            state->liftSpeed = -0.1f;
             camResumePath();
-            s->unk13 = 0;
-            s->unk12++;
-            if (s->unk12 == 1) {
+            state->subState = 0;
+            state->phase++;
+            if (state->phase == 1) {
                 func_80724994(1, 7, 0, 0, 0);
             }
-            if (s->unk12 == 3) {
-                s->unk13 = 7;
+            if (state->phase == 3) {
+                state->subState = 7;
             }
         }
         break;
     case 6:
-        s->unk8 = -0.1f;
+        state->liftSpeed = -0.1f;
         if (bounceDir == -1) {
             topReached = 1;
-            if (D_80035B70 < s->unk10) {
+            if (D_80035B70 < state->stepTimer) {
                 sfxPlayOnFreeSlot(0x17D, 0x3E80, 63.0, 1.0, 0, 0);
                 D_80035B70++;
-                s->unk10 = 0;
+                state->stepTimer = 0;
                 if (D_80035B70 >= 0x10) {
                     D_80035B70 += 1;
                 }
                 if (D_80035B70 >= 0x1A) {
                     D_80035B70 = (randomLcgNext() & 3) + 4;
-                    s->unk13 = 1;
-                    s->unk15++;
+                    state->subState = 1;
+                    state->repeatCount++;
                     sfxPlayOnFreeSlot(0x37F, 0x7D00, 63.0, 1.0, 0, 0);
                     sfxPlayOnFreeSlot(0x381, 0x7D00, 63.0, 1.0, 0, 0);
                 }
@@ -350,56 +352,56 @@ void bossSpawnerUpdate(void) {
         break;
 
     case 7:
-        s->unk10++;
-        s->unk8 = -0.1f;
-        if (s->unk10 >= 0x10) {
+        state->stepTimer++;
+        state->liftSpeed = -0.1f;
+        if (state->stepTimer >= 0x10) {
             for (j = 0; j < 4; j++) {
                 actorDespawn(actorListFindActorById(j));
             }
             gCurrentActor->flags &= ~0x8000;
             gCurrentActor->alpha = 0;
             camStartPath(0, 4, 1);
-            s->unk13 = 8;
+            state->subState = 8;
         }
         break;
     case 8:
-        s->unk8 = -0.1f;
+        state->liftSpeed = -0.1f;
         if (D_807FBDC4 != 0) {
             sfxAllocateChannel(0x35, 1.0);
             bossSpawnParticleRing(0x13D, gCurrentActor->x, gCurrentActor->y + 200.0f, gCurrentActor->z + 40.0f, 0x800, 1);
-            s->unk13 = 9;
+            state->subState = 9;
         }
         break;
     case 9:
         break;
     }
-    if (s->unk12 == 3 && s->unk13 == 0) {
-        if (s->unk15 < 2) {
-            s->unk13 = 6;
+    if (state->phase == 3 && state->subState == 0) {
+        if (state->repeatCount < 2) {
+            state->subState = 6;
         } else {
-            s->unk15 = 0x14;
+            state->repeatCount = 0x14;
         }
     }
-    if (prevSubState != s->unk13) {
-        s->unk10 = 0;
+    if (prevSubState != state->subState) {
+        state->stepTimer = 0;
     }
     if (spawnParticle != 0) {
-        if (s->unk12 == 2 || s->unk12 == 3) {
-            s->unk14++;
+        if (state->phase == 2 || state->phase == 3) {
+            state->side++;
         } else {
             r = randomFloat();
-            s->unk14 += (s32)(r * 2.99f) + 1;
+            state->side += (s32)(r * 2.99f) + 1;
         }
-        k = s->unk14;
+        k = state->side;
         if (k >= 4) {
-            s->unk14 = k - 4;
+            state->side = k - 4;
         }
     }
     D_80035B68++;
     if (topReached != 0) {
         level = (D_80035B68 & 0x1F) - 0x10;
         i = level;
-        k = s->unk14;
+        k = state->side;
         if (level < 0) {
             i = -level;
         }
@@ -411,8 +413,8 @@ void bossSpawnerUpdate(void) {
         x = D_80035B00[k] * 0.33 + gCurrentActor->x;
         z = D_80035B08[k] * 0.33 + gCurrentActor->z;
         lightAdd(x, 400.0f, z, x, 300.0f, z, 200.0f, 0, level, level, level);
-        if (s->unk12 == 1) {
-            k = s->unk14 + 2;
+        if (state->phase == 1) {
+            k = state->side + 2;
             if (k >= 4) {
                 k -= 4;
             }
@@ -421,9 +423,9 @@ void bossSpawnerUpdate(void) {
             lightAdd(x, 400.0f, z, x, 300.0f, z, 200.0f, 0, level, level, level);
         }
     }
-    s->unkC--;
-    if (s->unkC < 0) {
-        s->unkC = (randomLcgNext() & 0x7F) + 0x5A;
+    state->aggroTimer--;
+    if (state->aggroTimer < 0) {
+        state->aggroTimer = (randomLcgNext() & 0x7F) + 0x5A;
         lightSetColor(0.5f, 0.5f, 0.5f, -1);
         enemyAggroEnable();
     }
@@ -431,40 +433,23 @@ void bossSpawnerUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct BossParentState {
-    char pad0[4];
-    f32 unk4;
-    char pad8[0xA];
-    s8 unk12;
-    char pad13[1];
-    s8 unk14;
-    char pad15[2];
-    s8 unk17;
-} BossParentState;
-
-typedef struct BossFollowerLink {
-    Actor *unk0;
-    s8 unk4;
-    s8 unk5;
-} BossFollowerLink;
-
 void bossFollowerActorUpdate(void) {
     BossFollowerLink *link = gCurrentActor->customState;
-    BossParentState *parentState = link->unk0->customState;
+    BossSpawnerState *parentState = link->parent->customState;
     AnimSlot *anim = gCurrentActor->sub4->model;
     static s16 D_80035B74 = 0x78; // function-local static (only user; shadows the file-scope definition, which the .data carve moves here) keeps uopt from pointerizing D_80035B74
 
-    if (link->unk5 == 0) {
+    if (link->mirrored == 0) {
         f32 dx = gPrimaryPlayerActor->x - gCurrentActor->x;
         f32 dz = gPrimaryPlayerActor->z - gCurrentActor->z;
         D_80036DC4 = dx * dx + dz * dz;
     }
     if (!(gCurrentActor->flags & 0x10)) {
-        controllerAnimSetStateIfChanged(gCurrentActor, link->unk4 + 0x668, 0.0f, 0.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, link->slot + 0x668, 0.0f, 0.0f);
         gCurrentActor->drawDistance = 0xFA0;
     }
-    if (D_80035B28 & (1 << link->unk4)) {
-        gCurrentActor->roll = (s16)(parentState->unk4 * 1024.0) - 0x400;
+    if (D_80035B28 & (1 << link->slot)) {
+        gCurrentActor->roll = (s16)(parentState->lift * 1024.0) - 0x400;
         gCurrentActor->pitch = D_80035B2C;
         if (anim != NULL) {
             if (D_80035B3C != anim->frame) {
@@ -474,14 +459,14 @@ void bossFollowerActorUpdate(void) {
     } else {
         gCurrentActor->roll = 0;
         if (anim != NULL) {
-            s32 animId = link->unk4 + 0x66B;
+            s32 animId = link->slot + 0x66B;
             if (animId != anim->animId) {
                 controllerAnimSetStateIfChanged(gCurrentActor, animId, 0.0f, 0.0f);
                 sfxPlayOnFreeSlot(0x38D, 0x7D00, 63.0, 1.0, 0, 0);
             } else {
                 controllerApplyMotionWindow(gCurrentActor, anim, anim->frame + 0.75f);
             }
-            if (link->unk4 == 1) {
+            if (link->slot == 1) {
                 if (anim->frame > 24.0f) {
                     anim->frame = 24.0f;
                 }
@@ -503,17 +488,17 @@ void bossFollowerActorUpdate(void) {
             }
         }
     }
-    if (link->unk5 == 0) {
+    if (link->mirrored == 0) {
         gCurrentActor->unk144 = 0xC;
-        if (link->unk4 == 0) {
-            if (parentState->unk17 == 1) {
-                if (link->unk0->state == 0) {
+        if (link->slot == 0) {
+            if (parentState->fireFlag == 1) {
+                if (link->parent->state == 0) {
                     D_80035B74 = 0x28;
                 }
                 D_80035B74--;
                 if (D_80035B74 < 0) {
-                    f32 zo = D_80035B20[parentState->unk14];
-                    f32 xo = D_80035B18[parentState->unk14];
+                    f32 zo = D_80035B20[parentState->side];
+                    f32 xo = D_80035B18[parentState->side];
                     D_80035B74 = 0xA;
                     projectileSetTargetCoords(gCurrentActor->x + xo, gCurrentActor->y + 270.0f, gCurrentActor->z + zo);
                     projectileAimAndSpawn(0x2C, 1, 0.25f, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z, 2400.0f, gCurrentActor);
@@ -522,26 +507,26 @@ void bossFollowerActorUpdate(void) {
                 D_80035B74 = 0;
             }
         }
-        gCurrentActor->x = D_80035B00[parentState->unk14] + link->unk0->x;
-        gCurrentActor->z = D_80035B08[parentState->unk14] + link->unk0->z;
-        gCurrentActor->yaw = D_80035B10[parentState->unk14];
+        gCurrentActor->x = D_80035B00[parentState->side] + link->parent->x;
+        gCurrentActor->z = D_80035B08[parentState->side] + link->parent->z;
+        gCurrentActor->yaw = D_80035B10[parentState->side];
     } else {
         s32 oppSide;
         gCurrentActor->unk144 = 1;
-        oppSide = parentState->unk14 + 2;
+        oppSide = parentState->side + 2;
         if (oppSide >= 4) {
             oppSide -= 4;
         }
-        gCurrentActor->x = D_80035B00[oppSide] + link->unk0->x;
+        gCurrentActor->x = D_80035B00[oppSide] + link->parent->x;
         if (D_80035B18) {}  // FAKE: deadsweep dead statement (steers uopt)
-        gCurrentActor->z = D_80035B08[oppSide] + link->unk0->z;
+        gCurrentActor->z = D_80035B08[oppSide] + link->parent->z;
         gCurrentActor->yaw = D_80035B10[oppSide];
         gCurrentActor->flags |= 0x800000;
         gCurrentActor->tintR = 0x23;
-        if (link->unk5 && link->unk5) {} // FAKE: steers uopt colouring (const 35 -> a1)
+        if (link->mirrored && link->mirrored) {} // FAKE: steers uopt colouring (const 35 -> a1)
         gCurrentActor->tintG = 0x23;
         gCurrentActor->tintB = 0x46;
-        if (parentState->unk12 != 1) {
+        if (parentState->phase != 1) {
             gCurrentActor->flags &= ~4;
         } else {
             gCurrentActor->flags |= 4;
