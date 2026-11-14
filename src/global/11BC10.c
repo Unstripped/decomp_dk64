@@ -1261,8 +1261,8 @@ void effectTimedLightIntensityFade(TimedLightActorView *effect, s8 *isDone) {
         lightSetFlags(1);
         lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f,
                  ratio * 50.0, 0, 0xFF,
-                 (u32)((-80.0f * ratio) + 255.0f),
-                 (u32)((-205.0f * ratio) + 255.0f));
+                 (-80.0f * ratio) + 255.0f,
+                 (-205.0f * ratio) + 255.0f);
     }
 }
 
@@ -1282,8 +1282,8 @@ void timedLightOrbitUpdate(TimedLightActorView *effect, s8 *isDone) {
             lightSetFlags(1);
             lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f,
                      ratio * 50.0, 0, 0xFF,
-                     (u32)((-80.0f * ratio) + 255.0f),
-                     (u32)((-205.0f * ratio) + 255.0f));
+                     (-80.0f * ratio) + 255.0f,
+                     (-205.0f * ratio) + 255.0f);
             return;
         }
         slot++;
@@ -1309,7 +1309,7 @@ void effectLightPulseOscillate(TimedLightActorView *effect, s8 *isDone) {
         radius = params & 0xFFFF;
     }
     lightSetFlags(1);
-    lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, radius, 0, 0xFF, (u32)((-80.0f * ratio) + 255.0f), (u32)((-205.0f * ratio) + 255.0f));
+    lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, radius, 0, 0xFF, (-80.0f * ratio) + 255.0f, (-205.0f * ratio) + 255.0f);
 }
 
 void effectLightFlickerDecay(TimedLightActorView *effect, s8 *isDone) {
@@ -1866,10 +1866,10 @@ void timedLightPulse(PulseFadeActorView *effect, s8 *isDone) {
     f32 frac;
 
     if (gCurrentMap == 0xAA) {
-        color[0] = 0xFF; color[1] = 0x46;
+        color[0] = 0xFF; color[1] = 0x46; // LAYOUT: one line lets as1 store color[1] (0x46) before color[0]
         color[2] = 0;
     } else {
-        color[0] = 0xFF; color[1] = 0xFF; color[2] = 0xFF;
+        color[0] = 0xFF; color[1] = 0xFF; color[2] = 0xFF; // LAYOUT: one line keeps the as1 store order color[2], [1], [0]
     }
     phase = effect->param;
     switch (phase) {
@@ -1979,7 +1979,7 @@ void func_8071C48C(TimedLightEffectActorView *effect, s8 *isDone) {
     }
     lightSetFlags(1);
     lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, radius, 0, 0,
-             (u32)((-80.0f * ratio) + 255.0f), 0xFF);
+             (-80.0f * ratio) + 255.0f, 0xFF);
 }
 
 void func_8071C620(TimedEffectActorView *effect, s8 *isDone) {
@@ -2124,7 +2124,7 @@ void effectWispHomeUpdate(TimedEffectActorView *effect, s8 *isDone) {
     f32 tmpMtx[4][4];
     WispHomeMotionState *state;
     Actor *actor;
-    s16 currentAngle;
+    s16 pad;
     s16 targetAngle;
     f32 turnRate;
 
@@ -2141,8 +2141,7 @@ void effectWispHomeUpdate(TimedEffectActorView *effect, s8 *isDone) {
     actor = (Actor *)effect->param;
     targetAngle = mathAngleBetweenPoints2D(actor->x, actor->z, effect->x, effect->z);
     turnRate = ((randomNonNegative() >> 0xF) % 10) + 5;
-    currentAngle = state->angle;
-    state->angle = mathAngleEaseToward(currentAngle, targetAngle, turnRate);
+    state->angle = mathAngleEaseToward(state->angle, targetAngle, turnRate);
     state->y = (actor->y + actor->eyeHeight - state->y) * 0.1 + state->y;
     effect->x += state->speed * mathSinF(state->angle);
     effect->z += state->speed * mathCosF(state->angle);
@@ -2625,7 +2624,7 @@ void effectLightGrowShrinkUpdate(TimedEffectActorView *effect, s8 *isDone) {
         break;
     }
     brightness = 255.0f * intensity;
-    lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, state->unk0, 0, (u32)(brightness * red), (u32)(brightness * green), (u32)(brightness * blue));
+    lightAdd(effect->x, effect->y, effect->z, 0.0f, 0.0f, 0.0f, state->unk0, 0, brightness * red, brightness * green, brightness * blue);
 }
 
 typedef struct {
