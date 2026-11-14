@@ -399,3 +399,4 @@
 {"type": "unit", "t": "2026-11-14T20:01:49Z", "unit": "2026-11-14: cleanup OwnerRenderModelQuadGfxArity", "commit": "91358b796d2991fd00bc4dcdda3afc2ecd3c89da"}
 {"type": "unit", "t": "2026-11-14T20:03:00Z", "unit": "2026-11-14: cleanup OwnerPadInputStateViews2", "commit": "2d9d6f67f9fd5e7213f74e45e52925a1dd8fdb37"}
 {"type": "unit", "t": "2026-11-14T20:05:57Z", "unit": "2026-11-14: cleanup HackraceInitSplinePoints", "commit": "d1f62b95c22775fbd056c49dfc5da4d9ef8657e7"}
+{"type": "unit", "t": "2026-11-14T20:06:37Z", "unit": "2026-11-14: cleanup HackraceGetWaypointSegmentFraction", "commit": "21f25a2a9b865c1a9f8e2f2278c6f9c8e5db95d1"}
