@@ -1932,13 +1932,13 @@ void modelSlotFreeAssetEntry(void *asset, ModelSlotAsset *textures) {
 }
 
 typedef struct DisplayListFreeRecord {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ ModelAssetHeader *unk10;
-    /* 0x14 */ s32 unk14;
-    /* 0x18 */ struct DisplayListFreeRecord *unk18;
+    /* 0x00 */ s32 headStart;
+    /* 0x04 */ s32 headEnd;
+    /* 0x08 */ s32 tailStart;
+    /* 0x0C */ s32 tailEnd;
+    /* 0x10 */ ModelAssetHeader *asset;
+    /* 0x14 */ s32 freeFrame;
+    /* 0x18 */ struct DisplayListFreeRecord *next;
 } DisplayListFreeRecord;
 
 extern DisplayListFreeRecord *D_807F6160;
@@ -1954,13 +1954,13 @@ void displayListFreeQueueAdd(s32 headStart, s32 headEnd, s32 tailStart, s32 tail
     rec = heapAlloc(sizeof(DisplayListFreeRecord));
     old = D_807F6160;
     D_807F6160 = rec;
-    rec->unk18 = old;
-    rec->unk0 = headStart;
-    rec->unk4 = headEnd;
-    rec->unk8 = tailStart;
-    rec->unkC = tailEnd;
-    rec->unk14 = gFrameCounter + 2;
-    rec->unk10 = counter;
+    rec->next = old;
+    rec->headStart = headStart;
+    rec->headEnd = headEnd;
+    rec->tailStart = tailStart;
+    rec->tailEnd = tailEnd;
+    rec->freeFrame = gFrameCounter + 2;
+    rec->asset = counter;
 }
 
 
@@ -1974,16 +1974,16 @@ void displayListFreeQueueProcess(void) {
     prev = NULL;
     if (cur != NULL) {
         do {
-            next = cur->unk18;
-            if (gFrameCounter == cur->unk14) {
-                cur->unk10->unk3C--;
-                dlFreeUnusedTextures(cur->unk0, cur->unk4, 0, 0, cur->unk10->unk3C == 0);
-                dlFreeUnusedTextures(cur->unk8, cur->unkC, 0, 1, cur->unk10->unk3C == 0);
-                assetFreeBuffer(cur->unk10, 0xAB1, 7);
+            next = cur->next;
+            if (gFrameCounter == cur->freeFrame) {
+                cur->asset->unk3C--;
+                dlFreeUnusedTextures(cur->headStart, cur->headEnd, 0, 0, cur->asset->unk3C == 0);
+                dlFreeUnusedTextures(cur->tailStart, cur->tailEnd, 0, 1, cur->asset->unk3C == 0);
+                assetFreeBuffer(cur->asset, 0xAB1, 7);
                 if (prev == NULL) {
-                    D_807F6160 = cur->unk18;
+                    D_807F6160 = cur->next;
                 } else {
-                    prev->unk18 = cur->unk18;
+                    prev->next = cur->next;
                 }
                 heapFree(cur);
             } else {
@@ -1995,68 +1995,73 @@ void displayListFreeQueueProcess(void) {
 }
 
 typedef struct DisplayListCmd {
-    /* 0x0 */ u32 unk0;
-    /* 0x4 */ s32 unk4;
+    /* 0x0 */ u32 w0;
+    /* 0x4 */ s32 w1;
 } DisplayListCmd;
 
+// ModelType1Obj (ModelSlot.unk20, kind 1) with its display-list pointers held as integer addresses.
 typedef struct ModelSegmentData {
     /* 0x00 */ u8 pad0[0xA0];
-    /* 0xA0 */ u32 unkA0;
-    /* 0xA4 */ u32 unkA4;
-    /* 0xA8 */ u32 unkA8;
-    /* 0xAC */ u32 unkAC;
-    /* 0xB0 */ u32 unkB0;
-    /* 0xB4 */ s16 unkB4;
-    /* 0xB6 */ s16 unkB6;
-    /* 0xB8 */ TexAnimNode *unkB8;
-    /* 0xBC */ s32 unkBC;
+    /* 0xA0 */ u32 displayListA;
+    /* 0xA4 */ u32 displayListACopy;
+    /* 0xA8 */ u32 displayListB;
+    /* 0xAC */ u32 displayListBCopy;
+    /* 0xB0 */ u32 segmentData;
+    /* 0xB4 */ s16 modelType;
+    /* 0xB6 */ s16 id;
+    /* 0xB8 */ TexAnimNode *texAnims;
+    /* 0xBC */ s32 subNode;
     /* 0xC0 */ u8 padC0[3];
-    /* 0xC3 */ u8 unkC3;
+    /* 0xC3 */ u8 light;
 } ModelSegmentData;
 
-typedef struct ModelDisplayListObj {
+// Display-list span starting at a texture's G_SETTIMG command (0xFD).
+typedef struct TexImageCmdSpan {
     /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ s32 unk4;
+    /* 0x04 */ s32 texAddr;
     /* 0x08 */ u8 pad8[0x28];
-    /* 0x30 */ s32 unk30;
-} ModelDisplayListObj;
+    /* 0x30 */ s32 tileSizeW0;
+} TexImageCmdSpan;
 
-typedef struct ModelDisplayListPtrSet {
-    /* 0x0 */ ModelDisplayListObj *unk0;
-    /* 0x4 */ ModelDisplayListObj *unk4;
-    /* 0x8 */ s32 *unk8;
-} ModelDisplayListPtrSet;
+// Commands a TexAnimNode patches in one copy of a display list.
+typedef struct TexAnimCmdSet {
+    /* 0x0 */ TexImageCmdSpan *texCmd;
+    /* 0x4 */ TexImageCmdSpan *texCmd2;
+    /* 0x8 */ s32 *primColorCmd;
+} TexAnimCmdSet;
 
+// TexAnimNode with its command pointers grouped per display list (A/B) and gfx buffer.
 typedef struct ModelSegmentNode {
-    /* 0x00 */ ModelDisplayListPtrSet unk0[2];
-    /* 0x18 */ ModelDisplayListPtrSet unk18[2];
-    /* 0x30 */ s32 unk30;
-    /* 0x34 */ s16 unk34;
-    /* 0x36 */ s16 unk36;
-    /* 0x38 */ s16 unk38;
-    /* 0x3A */ s16 unk3A;
-    /* 0x3C */ s32 unk3C;
-    /* 0x40 */ s32 unk40;
-    /* 0x44 */ s32 unk44;
-    /* 0x48 */ u8 unk48;
-    /* 0x49 */ u8 unk49;
-    /* 0x4A */ u8 unk4A;
+    /* 0x00 */ TexAnimCmdSet cmdsA[2];
+    /* 0x18 */ TexAnimCmdSet cmdsB[2];
+    /* 0x30 */ s32 lastFrame;
+    /* 0x34 */ s16 scrollS;
+    /* 0x36 */ s16 scrollT;
+    /* 0x38 */ s16 scrollSpeedX;
+    /* 0x3A */ s16 scrollSpeedY;
+    /* 0x3C */ s32 textureBuffer;
+    /* 0x40 */ s32 textureBuffer2;
+    /* 0x44 */ s32 texture;
+    /* 0x48 */ u8 animMode;
+    /* 0x49 */ u8 frameChanged;
+    /* 0x4A */ u8 findSecond;
     /* 0x4B */ u8 pad4B;
-    /* 0x4C */ s32 unk4C;
-    /* 0x50 */ s32 unk50;
-    /* 0x54 */ s32 unk54;
-    /* 0x58 */ s32 unk58;
-    /* 0x5C */ s32 unk5C[29];
-    /* 0xD0 */ u8 unkD0;
+    /* 0x4C */ s32 frameTicks;
+    /* 0x50 */ s32 tick;
+    /* 0x54 */ s32 frame;
+    /* 0x58 */ s32 frameCount;
+    /* 0x5C */ s32 frameTextures[29];
+    /* 0xD0 */ u8 keepBuffers;
     /* 0xD1 */ u8 padD1[3];
-    /* 0xD4 */ struct ModelSegmentNode *unkD4;
+    /* 0xD4 */ struct ModelSegmentNode *next;
 } ModelSegmentNode;
 
+// RenderQuadModelObj (kind 2) with its texture table read as texture keys.
 typedef struct ModelSegmentOwner {
     /* 0x00 */ u8 pad0[0x24];
-    /* 0x24 */ s32 unk24[8];
+    /* 0x24 */ s32 textures[8];
     /* 0x44 */ u8 pad44[0xC];
-    /* 0x50 */ ModelSegmentNode *unk50;
+    /* 0x50 */ ModelSegmentNode *texAnims;
 } ModelSegmentOwner;
 
 
@@ -2066,9 +2071,9 @@ void modelSegmentFreeUnusedTextures(ModelSlot *slot, ModelAssetHeader *asset, Mo
     u32 head, tail;
     u8 flag;
 
-    nodes = seg->unkB8;
-    head = seg->unkA8 - seg->unkA0;
-    tail = seg->unkB0 - seg->unkA8;
+    nodes = seg->texAnims;
+    head = seg->displayListB - seg->displayListA;
+    tail = seg->segmentData - seg->displayListB;
     head >>= 3;
     tail >>= 3;
     if (nodes == NULL && (slot->unk8C & 0x20)) {
@@ -2079,19 +2084,19 @@ void modelSegmentFreeUnusedTextures(ModelSlot *slot, ModelAssetHeader *asset, Mo
     if (slot->unk8C & 0x20) {
         if (flag) {
             asset->unk3C -= 1;
-            dlFreeUnusedTextures(seg->unkA0, seg->unkA0 + head * 8, seg->unkB8, 0, 0);
-            dlFreeUnusedTextures(seg->unkA8, seg->unkA8 + tail * 8, seg->unkB8, 1, 0);
-            nodes = seg->unkB8;
+            dlFreeUnusedTextures(seg->displayListA, seg->displayListA + head * 8, seg->texAnims, 0, 0);
+            dlFreeUnusedTextures(seg->displayListB, seg->displayListB + tail * 8, seg->texAnims, 1, 0);
+            nodes = seg->texAnims;
         } else {
-            displayListFreeQueueAdd(seg->unkA0, seg->unkA0 + head * 8, seg->unkA8, seg->unkA8 + tail * 8, asset);
-            nodes = seg->unkB8;
+            displayListFreeQueueAdd(seg->displayListA, seg->displayListA + head * 8, seg->displayListB, seg->displayListB + tail * 8, asset);
+            nodes = seg->texAnims;
         }
     }
     if (nodes != NULL) {
-        dlFreeUnusedTextures(seg->unkA4, seg->unkA4 + head * 8, nodes, 0, 0);
-        dlFreeUnusedTextures(seg->unkAC, seg->unkAC + tail * 8, seg->unkB8, 1, 0);
-        heapFreeDeferred((void *)seg->unkA4);
-        heapFreeDeferred((void *)seg->unkAC);
+        dlFreeUnusedTextures(seg->displayListACopy, seg->displayListACopy + head * 8, nodes, 0, 0);
+        dlFreeUnusedTextures(seg->displayListBCopy, seg->displayListBCopy + tail * 8, seg->texAnims, 1, 0);
+        heapFreeDeferred((void *)seg->displayListACopy);
+        heapFreeDeferred((void *)seg->displayListBCopy);
     }
     if (flag != 0) {
         assetFreeBuffer(asset, 0xAF7, 7);
@@ -2115,7 +2120,7 @@ u8 restore;
     if (start != end) {
         if (restore != 0) {} // FAKE: dead test steers register colouring
         do {
-            w = start->unk0;
+            w = start->w0;
             found = 0;
             if ((w >> 24) == 0xFD) {
                 node = nodes;
@@ -2156,11 +2161,11 @@ u8 restore;
                 }
                 if (found == 0) {
                     if (restore != 0) {
-                        collisionBstLookupByHash(start->unk4, &bstValue, &bstNode);
+                        collisionBstLookupByHash(start->w1, &bstValue, &bstNode);
                     }
-                    assetFreeBuffer((void *)start->unk4, 0xB27, 7);
+                    assetFreeBuffer((void *)start->w1, 0xB27, 7);
                     if (restore != 0) {
-                        start->unk4 = bstNode;
+                        start->w1 = bstNode;
                     }
                 }
             }
@@ -2203,14 +2208,14 @@ void modelSlotInitFromAsset(ModelSlot *slot, s32 type) {
     } else {
         seg = heapAlloc(0xC8);
         objData = seg;
-        seg->unkB4 = type;
-        seg->unkB8 = 0;
-        seg->unkA0 = hdr->unk40 + (u32)hdr;
-        seg->unkA8 = hdr->unk44 + (u32)hdr;
-        seg->unkB0 = hdr->unk48 + (u32)hdr;
-        seg->unkBC = 0;
-        seg->unkB6 = -1;
-        seg->unkC3 = 0;
+        seg->modelType = type;
+        seg->texAnims = 0;
+        seg->displayListA = hdr->unk40 + (u32)hdr;
+        seg->displayListB = hdr->unk44 + (u32)hdr;
+        seg->segmentData = hdr->unk48 + (u32)hdr;
+        seg->subNode = 0;
+        seg->id = -1;
+        seg->light = 0;
     }
     slot->unk20 = objData;
 }
@@ -2241,11 +2246,6 @@ u8 func_80636A8C(s32 type) {
     return result;
 }
 
-typedef struct ModelSlotSegOwner {
-    /* 0x00 */ u8 pad0[0x20];
-    /* 0x20 */ ModelSegmentData *unk20;
-} ModelSlotSegOwner;
-
 void renderReplaceSegment6Commands();
 
 void modelSlotReplaceSegment6Commands(void *slot) {
@@ -2257,17 +2257,17 @@ void modelSlotReplaceSegment6Commands(void *slot) {
     u32 start;
     u32 size;
 
-    seg = ((ModelSlotSegOwner *)slot)->unk20;
-    mid = seg->unkA8;
-    head = seg->unkA0;
+    seg = ((ModelSlot *)slot)->unk20;
+    mid = seg->displayListB;
+    head = seg->displayListA;
     start = head;
-    len = seg->unkB0 - mid;
+    len = seg->segmentData - mid;
     head = (mid - head) >> 3;
     count = len >> 3;
     size = head * 8;
     renderReplaceSegment6Commands(start, start + size, seg, len);
     len = count;
-    renderReplaceSegment6Commands(seg->unkA8, seg->unkA8 + count * 8, seg, len);
+    renderReplaceSegment6Commands(seg->displayListB, seg->displayListB + count * 8, seg, len);
 }
 
 void dlFreeSegmentCommandTextures(DisplayListCmd *start, DisplayListCmd *end, u8 restore) {
@@ -2278,14 +2278,14 @@ void dlFreeSegmentCommandTextures(DisplayListCmd *start, DisplayListCmd *end, u8
 
     if (start != end) {
         do {
-            tag = start->unk0 >> 24;
+            tag = start->w0 >> 24;
             if (tag == 0xFD) {
                 if (restore) {
-                    collisionBstLookupByHash(start->unk4, &bstValue, &bstNode);
+                    collisionBstLookupByHash(start->w1, &bstValue, &bstNode);
                 }
-                assetFreeBuffer((void *)start->unk4, 0xBCD, 7);
+                assetFreeBuffer((void *)start->w1, 0xBCD, 7);
                 if (restore) {
-                    start->unk4 = bstNode;
+                    start->w1 = bstNode;
                 }
             }
             start++;
@@ -2323,14 +2323,14 @@ void modelSlotsStepSegmentCommands(void) {
                     flag = 1;
                 }
                 seg = ((ModelSlot *)((u8 *)gModelSlots + D_80747D74 * 0x90))->unk20; // FAKE: re-derives the slot from gModelSlots + D_80747D74 * 0x90 (pre-existing, now tagged; slot->unk20 loses li t3,144 and the t1 base for &D_80747D74)
-                mid = seg->unkA8;
-                head = seg->unkA0;
+                mid = seg->displayListB;
+                head = seg->displayListA;
                 start = head;
-                count = seg->unkB0 - mid;
+                count = seg->segmentData - mid;
                 head = (mid - head) >> 3;
                 count >>= 3;
                 dlFreeSegmentCommandTextures((DisplayListCmd *)start, (DisplayListCmd *)start + head, flag);
-                dlFreeSegmentCommandTextures((DisplayListCmd *)seg->unkA8, (DisplayListCmd *)seg->unkA8 + count, flag);
+                dlFreeSegmentCommandTextures((DisplayListCmd *)seg->displayListB, (DisplayListCmd *)seg->displayListB + count, flag);
             }
         }
     }
@@ -2365,24 +2365,24 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
             slot->unk8C = flags | 0x20;
             obj->unk3C++;
             if (obj->unk1C == 1) {
-                count = seg->unkB0 - seg->unkA8;
-                cmds = seg->unkA0;
-                temp = (seg->unkA8 - cmds) >> 3;
+                count = seg->segmentData - seg->displayListB;
+                cmds = seg->displayListA;
+                temp = (seg->displayListB - cmds) >> 3;
                 count = count >> 3;
-                node = (ModelSegmentNode *)((ModelSegmentData *)slot->unk20)->unkB8; // FAKE: re-reads slot->unk20 instead of seg (pre-existing, now tagged; seg->unkB8 drops the sw a0,72(sp) slot home)
+                node = (ModelSegmentNode *)((ModelSegmentData *)slot->unk20)->texAnims; // FAKE: re-reads slot->unk20 instead of seg (pre-existing, now tagged; seg->unkB8 drops the sw a0,72(sp) slot home)
                 size0 = temp * 8;
                 temp = 0; // FAKE: dead store keeps size0 a variable instead of a propagated expression
                 res = dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size0), node, force);
-                cmds = seg->unkA8;
+                cmds = seg->displayListB;
                 size1 = count * 8;
                 count = 0; // FAKE: dead store keeps size1 a variable instead of a propagated expression
                 res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size1), node, force);
                 if (node != NULL) {
-                    cmds = seg->unkA4;
+                    cmds = seg->displayListACopy;
                     res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size0), node, force);
-                    cmds = seg->unkAC;
+                    cmds = seg->displayListBCopy;
                     res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size1), node, force);
-                    if (seg->unkA0 == 0) {} // FAKE: dead test keeps seg live past the last call so it stays in s0
+                    if (seg->displayListA == 0) {} // FAKE: dead test keeps seg live past the last call so it stays in s0
                 }
                 if (res != 0) {
                     obj->unk0 &= ~0x10;
@@ -2409,24 +2409,24 @@ s32 dlResolveNodeTextures(DisplayListCmd *start, DisplayListCmd *end, ModelSegme
     result = 0;
     if (start != end) {
         do {
-            w = start->unk0;
+            w = start->w0;
             found = 0;
             tag = w >> 24;
             if (0xFD == tag) {
                 node = nodes;
                 if (node != NULL) {
                     do {
-                        if (start->unk4 == node->unk5C[0]) {
+                        if (start->w1 == node->frameTextures[0]) {
                             found = 1;
                         } else {
-                            node = node->unkD4;
+                            node = node->next;
                         }
                     } while (found == 0 && node != NULL);
                 }
                 if (found == 0) {
-                    start->unk4 = (s32)assetLoad(0x19, start->unk4, keep == 0, 0);
-                    if (start->unk4 & 7) {
-                        start->unk4 &= ~0xF;
+                    start->w1 = (s32)assetLoad(0x19, start->w1, keep == 0, 0);
+                    if (start->w1 & 7) {
+                        start->w1 &= ~0xF;
                         result = 1;
                     }
                 }
@@ -2437,28 +2437,29 @@ s32 dlResolveNodeTextures(DisplayListCmd *start, DisplayListCmd *end, ModelSegme
     return result;
 }
 
+// ModelType1Obj (kind 1) as renderModelAnimatedSlot draws it: per-gfx-buffer matrices and display-list copies.
 typedef struct ModelRenderAnimObj {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+    /* 0x0C */ f32 scale;
+    /* 0x10 */ f32 rotX;
+    /* 0x14 */ f32 rotY;
+    /* 0x18 */ f32 rotZ;
     /* 0x1C */ u8 pad1C[4];
-    /* 0x20 */ Mtx unk20[2];
-    /* 0xA0 */ Gfx *unkA0[2];
-    /* 0xA8 */ Gfx *unkA8[2];
-    /* 0xB0 */ void *unkB0;
-    /* 0xB4 */ s16 unkB4;
-    /* 0xB6 */ s16 unkB6;
-    /* 0xB8 */ void *unkB8;
+    /* 0x20 */ Mtx frameMtx[2];
+    /* 0xA0 */ Gfx *displayListsA[2];
+    /* 0xA8 */ Gfx *displayListsB[2];
+    /* 0xB0 */ void *segmentData;
+    /* 0xB4 */ s16 modelType;
+    /* 0xB6 */ s16 id;
+    /* 0xB8 */ void *texAnims;
     /* 0xBC */ u8 padBC[4];
-    /* 0xC0 */ s16 unkC0;
+    /* 0xC0 */ s16 maxDist;
     /* 0xC2 */ u8 unkC2;
-    /* 0xC3 */ u8 unkC3;
+    /* 0xC3 */ u8 light;
     /* 0xC4 */ u8 unkC4;
-    /* 0xC5 */ u8 unkC5;
+    /* 0xC5 */ u8 mapFlags;
 } ModelRenderAnimObj;
 
 s32 playerSlotMatchesSizeMask(s32, u8, s32);
@@ -2484,41 +2485,41 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
     f32 drawDist;
 
     if (useLight) {
-        dx = gPlayerSlots[gCurrentPlayerIndex].eyeX - obj->unk0;
-        dy = gPlayerSlots[gCurrentPlayerIndex].eyeY - obj->unk4;
-        dz = gPlayerSlots[gCurrentPlayerIndex].eyeZ - obj->unk8;
+        dx = gPlayerSlots[gCurrentPlayerIndex].eyeX - obj->x;
+        dy = gPlayerSlots[gCurrentPlayerIndex].eyeY - obj->y;
+        dz = gPlayerSlots[gCurrentPlayerIndex].eyeZ - obj->z;
         dx *= dx;
         dy *= dy;
         dz *= dz;
         dist = sqrtf(dx + dy + dz);
-        drawDist = renderScaleDistanceByFov(obj->unkC0);
-        if (obj->unkC5 & 1) {
-            drawDist = obj->unkC0;
+        drawDist = renderScaleDistanceByFov(obj->maxDist);
+        if (obj->mapFlags & 1) {
+            drawDist = obj->maxDist;
         }
         if (drawDist < dist) {
             return gfx;
         }
     }
-    if (obj->unkC3 != 0) {
-        lightQueueKeyframed(obj->unkC3, obj->unkB6, obj->unk0, obj->unk4, obj->unk8, obj->unkC0, dist / drawDist, lightArg);
+    if (obj->light != 0) {
+        lightQueueKeyframed(obj->light, obj->id, obj->x, obj->y, obj->z, obj->maxDist, dist / drawDist, lightArg);
     }
-    if (obj->unkB4 == 0 || obj->unkB4 == 0x241) {
+    if (obj->modelType == 0 || obj->modelType == 0x241) {
         return gfx;
     }
-    if (obj->unkB4 == 0x74 || obj->unkB4 == 0x288 || obj->unkB4 == 0x290) {
-        obj->unk14 += 10.0;
+    if (obj->modelType == 0x74 || obj->modelType == 0x288 || obj->modelType == 0x290) {
+        obj->rotY += 10.0;
     }
-    guScaleF(mtx, obj->unkC, obj->unkC, obj->unkC);
-    if (obj->unk10 != 0.0) {
-        guRotateF(tmpMtx, obj->unk10, 1.0f, 0.0f, 0.0f);
+    guScaleF(mtx, obj->scale, obj->scale, obj->scale);
+    if (obj->rotX != 0.0) {
+        guRotateF(tmpMtx, obj->rotX, 1.0f, 0.0f, 0.0f);
         guMtxCatF(mtx, tmpMtx, mtx);
     }
-    if (obj->unk14 != 0.0) {
-        guRotateF(tmpMtx, obj->unk14, 0.0f, 1.0f, 0.0f);
+    if (obj->rotY != 0.0) {
+        guRotateF(tmpMtx, obj->rotY, 0.0f, 1.0f, 0.0f);
         guMtxCatF(mtx, tmpMtx, mtx);
     }
-    if (obj->unk18 != 0.0) {
-        guRotateF(tmpMtx, obj->unk18, 0.0f, 0.0f, 1.0f);
+    if (obj->rotZ != 0.0) {
+        guRotateF(tmpMtx, obj->rotZ, 0.0f, 0.0f, 1.0f);
         guMtxCatF(mtx, tmpMtx, mtx);
     }
     if (obj && obj && obj) {} // FAKE: dead block pads as1's XBB window (limit 10) so the rotation compares don't hoist `addiu a0,sp,184` (6 guards needed)
@@ -2527,14 +2528,14 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
     if (obj && obj && obj) {} // FAKE: same
     if (obj && obj && obj) {} // FAKE: same
     if (obj && obj && obj) {} // FAKE: same
-    guTranslateF(tmpMtx, obj->unk0, obj->unk4, obj->unk8);
+    guTranslateF(tmpMtx, obj->x, obj->y, obj->z);
     guMtxCatF(mtx, tmpMtx, mtx);
-    guMtxF2L(mtx, &obj->unk20[gGfxBufferIndex]);
+    guMtxF2L(mtx, &obj->frameMtx[gGfxBufferIndex]);
     gDPPipeSync(gfx++);
-    gSPSegment(gfx++, 8, osVirtualToPhysical(obj->unkB0));
+    gSPSegment(gfx++, 8, osVirtualToPhysical(obj->segmentData));
     animBuffers = NULL;
-    if (obj->unkB6 != -1) {
-        slotIdx = hashTableLookup(obj->unkB6);
+    if (obj->id != -1) {
+        slotIdx = hashTableLookup(obj->id);
         modelSlotResolveAssetTextures(&gModelSlots[slotIdx], 0, 1);
         animBuffers = gModelSlots[slotIdx].unk78;
         if (playerSlotMatchesSizeMask(gModelSlots[slotIdx].unk24->unk0, gCurrentPlayerIndex, (s32)animBuffers) != 0) {
@@ -2544,14 +2545,14 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
     if (animBuffers != NULL) {
         gSPSegment(gfx++, 9, osVirtualToPhysical(animBuffers->frames[gGfxBufferIndex]));
     }
-    gSPMatrix(gfx++, osVirtualToPhysical(&obj->unk20[gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-    if (obj->unkB8 != NULL) {
+    gSPMatrix(gfx++, osVirtualToPhysical(&obj->frameMtx[gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    if (obj->texAnims != NULL) {
         sel = gGfxBufferIndex;
         texAnimUpdateNodes((ModelSegmentData *)obj);
     } else {
         sel = 0;
     }
-    gSPSegment(gfx++, 10, osVirtualToPhysical(obj->unkA0[sel]));
+    gSPSegment(gfx++, 10, osVirtualToPhysical(obj->displayListsA[sel]));
     gSPClearGeometryMode(gfx++, G_FOG | G_CULL_BOTH);
     if (useLight && obj->unkC2 == 0) {
         f32 yOffset;
@@ -2562,7 +2563,7 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
         } else {
             yOffset = 0.0f;
         }
-        lightSampleColorAtPosition(obj->unk0, obj->unk4 + yOffset, obj->unk8, 0, &red, &green, &blue, lightArg);
+        lightSampleColorAtPosition(obj->x, obj->y + yOffset, obj->z, 0, &red, &green, &blue, lightArg);
         scale = obj->unkC4 / 15.0f;
         red = red * scale;
         green = green * scale;
@@ -2574,24 +2575,24 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
     }
     gDPSetPrimColor(gfx++, 0, 0xFF, red, green, blue, 0xFF);
     if (useLight) {
-        if (obj->unkB6 != -1 && (model = gModelSlots[slotIdx].unk7C) != NULL && model->unk60 == 1) {
+        if (obj->id != -1 && (model = gModelSlots[slotIdx].unk7C) != NULL && model->unk60 == 1) {
             csUpdateStepAndInterpolation(model);
             alpha = (gModelSlots[slotIdx].unk7C)->unk64;
         } else {
-            renderCalcPlayerDistanceAlpha(obj->unk0, obj->unk4, obj->unk8, obj->unkC0, obj->unkB4, &alpha);
-            if (obj->unkB6 != -1) {
+            renderCalcPlayerDistanceAlpha(obj->x, obj->y, obj->z, obj->maxDist, obj->modelType, &alpha);
+            if (obj->id != -1) {
                 model = gModelSlots[slotIdx].unk7C;
                 if (model != NULL && gViewportCount == 1) {
                     model->unk62 = alpha;
                 }
             }
-            if (obj->unkB6 != -1) {
+            if (obj->id != -1) {
                 model = gModelSlots[slotIdx].unk7C;
                 if (model != NULL) {
                     csUpdateStepAndInterpolation(model);
                 }
             }
-            if (obj->unkB6 != -1) {
+            if (obj->id != -1) {
                 model = gModelSlots[slotIdx].unk7C;
                 if (model != NULL && gViewportCount == 1) {
                     alpha = model->unk64;
@@ -2602,7 +2603,7 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
         alpha = 0xFF;
     }
     if (alpha != 0) {
-        if (obj->unkB6 != -1) {
+        if (obj->id != -1) {
             u8 fl = gModelSlots[slotIdx].unk8C;
             if (fl != 0) {
                 if ((gModelSlots[slotIdx].unk8C & 0x8) && gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 2) {
@@ -2624,9 +2625,9 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *obj, Gfx *gfx, f32 camX, f32 ca
         }
         gfx = renderSetSegment6AndFog(gfx, alpha, 0);
         gDPPipeSync(gfx++);
-        gSPDisplayList(gfx++, osVirtualToPhysical(obj->unkA0[sel]));
+        gSPDisplayList(gfx++, osVirtualToPhysical(obj->displayListsA[sel]));
         gDPPipeSync(gfx++);
-        gSPDisplayList(gfx++, osVirtualToPhysical(obj->unkA8[sel]));
+        gSPDisplayList(gfx++, osVirtualToPhysical(obj->displayListsB[sel]));
     }
     { s32 pad6; } // FAKE: block-scoped pad keeps the gfx spill slot at 88(sp) (Q0251/Q0331); pre-existing, now tagged
     gDPPipeSync(gfx++);
@@ -2859,27 +2860,12 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
     return gfx;
 }
 
-typedef struct PlayerControllerState {
-    /* 0x000 */ u8 pad0[0x1F4];
-    /* 0x1F4 */ s32 unk1F4;
-} PlayerControllerState;
-
 extern u8 gPlayerCharacterId[];
-typedef struct PlayerKongRecord {
-    /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 pad1[0x5D];
-} PlayerKongRecord; /* 0x5E */
-
-typedef struct PlayerKongArray {
-    /* 0x000 */ PlayerKongRecord kong[8];
-    /* 0x2F0 */ u8 pad2F0[0x16];
-} PlayerKongArray; /* 0x306 */
-
-extern PlayerKongArray D_807FC952[];
+extern PlayerInventory gPlayerInventoryTable[];
 
 void modelKongVisibilityCheck(s16 type, u8 *visibleOut, s16 *alphaOut) {
     s32 hit = 0;
-    PlayerControllerState *ctl;
+    PlayerState *playerState;
 
     switch (type) {
     case 0x24:
@@ -2958,24 +2944,24 @@ void modelKongVisibilityCheck(s16 type, u8 *visibleOut, s16 *alphaOut) {
         }
         break;
     case 0x11:
-        if ((D_807FC952[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].unk0 & 3) != 3) {
+        if ((gPlayerInventoryTable[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].unk0[2] & 3) != 3) {
             hit = 1;
         }
         break;
     case 0x8F:
-        if (!(D_807FC952[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].unk0 & 1)) {
+        if (!(gPlayerInventoryTable[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].unk0[2] & 1)) {
             hit = 1;
         }
         break;
     case 0x98:
-        ctl = gPlayerSlots[gCurrentPlayerIndex].actor->customState;
-        if (!(ctl->unk1F4 & 1)) {
+        playerState = gPlayerSlots[gCurrentPlayerIndex].actor->customState;
+        if (!(playerState->stateFlags2 & 1)) {
             hit = 1;
         }
         break;
     case 0x8E:
-        ctl = gPlayerSlots[gCurrentPlayerIndex].actor->customState;
-        if (!(ctl->unk1F4 & 2)) {
+        playerState = gPlayerSlots[gCurrentPlayerIndex].actor->customState;
+        if (!(playerState->stateFlags2 & 2)) {
             hit = 1;
         }
         break;
@@ -2988,24 +2974,19 @@ void modelKongVisibilityCheck(s16 type, u8 *visibleOut, s16 *alphaOut) {
     }
 }
 
-typedef struct ModelSubObjectFlags {
-    /* 0x00 */ u8 pad0[0x4E];
-    /* 0x4E */ u8 unk4E;
-} ModelSubObjectFlags;
-
 void func_806398E4(s32 slot, u8 isId, u8 enable) {
-    ModelSubObjectFlags *obj;
+    RenderQuadModelObj *obj;
 
     if (isId == 1) {
         slot = hashTableLookup(slot);
     }
     obj = gModelSlots[slot].unk20;
     if (enable != 0) {
-        obj->unk4E |= 1;
+        obj->flags |= 1;
     } else {
-        obj->unk4E &= ~1;
+        obj->flags &= ~1;
     }
-    obj->unk4E &= ~2;
+    obj->flags &= ~2;
 }
 
 void texAnimUpdateNodes(ModelSegmentData *seg) {
@@ -3017,56 +2998,56 @@ void texAnimUpdateNodes(ModelSegmentData *seg) {
     ModelSegmentNode *node;
     s32 *dst;
 
-    node = (ModelSegmentNode *)seg->unkB8;
+    node = (ModelSegmentNode *)seg->texAnims;
     if (node != NULL) {
         do {
             texAnimNodeUpdateBuffers(node, &texA, &texB, &dualTex, &primLod);
-            if (node->unk0[gGfxBufferIndex].unk0 != NULL) {
-                node->unk0[gGfxBufferIndex].unk0->unk4 = texA;
+            if (node->cmdsA[gGfxBufferIndex].texCmd != NULL) {
+                node->cmdsA[gGfxBufferIndex].texCmd->texAddr = texA;
                 if (dualTex == 0) {
-                    dst = &node->unk0[gGfxBufferIndex].unk0->unk30; // FAKE: dst pointer temp for both 0xF2000000 stores (direct field stores fail fdiff)
-                    *dst = (node->unk34 << 12) | 0xF2000000 | node->unk36;
+                    dst = &node->cmdsA[gGfxBufferIndex].texCmd->tileSizeW0; // FAKE: dst pointer temp for both 0xF2000000 stores (direct field stores fail fdiff)
+                    *dst = (node->scrollS << 12) | 0xF2000000 | node->scrollT;
                 }
             }
-            if (node->unk18[gGfxBufferIndex].unk0 != NULL) {
-                node->unk18[gGfxBufferIndex].unk0->unk4 = texA;
+            if (node->cmdsB[gGfxBufferIndex].texCmd != NULL) {
+                node->cmdsB[gGfxBufferIndex].texCmd->texAddr = texA;
                 if (dualTex == 0) {
-                    dst = &node->unk18[gGfxBufferIndex].unk0->unk30;
-                    *dst = (node->unk34 << 12) | 0xF2000000 | node->unk36;
+                    dst = &node->cmdsB[gGfxBufferIndex].texCmd->tileSizeW0;
+                    *dst = (node->scrollS << 12) | 0xF2000000 | node->scrollT;
                 }
             }
-            if (gFrameCounter != node->unk30) {
-                node->unk34 += node->unk38;
-                if (node->unk34 >= 0x1000) {
-                    node->unk34 = 0;
+            if (gFrameCounter != node->lastFrame) {
+                node->scrollS += node->scrollSpeedX;
+                if (node->scrollS >= 0x1000) {
+                    node->scrollS = 0;
                 }
-                if (node->unk34 < 0) {
-                    node->unk34 = 0xFFF;
+                if (node->scrollS < 0) {
+                    node->scrollS = 0xFFF;
                 }
-                node->unk36 += node->unk3A;
-                if (node->unk36 >= 0x1000) {
-                    node->unk36 = 0;
+                node->scrollT += node->scrollSpeedY;
+                if (node->scrollT >= 0x1000) {
+                    node->scrollT = 0;
                 }
-                if (node->unk36 < 0) {
-                    node->unk36 = 0xFFF;
+                if (node->scrollT < 0) {
+                    node->scrollT = 0xFFF;
                 }
             }
             if (dualTex != 0) {
-                if (node->unk0[gGfxBufferIndex].unk4 != NULL) {
-                    node->unk0[gGfxBufferIndex].unk4->unk4 = texB;
+                if (node->cmdsA[gGfxBufferIndex].texCmd2 != NULL) {
+                    node->cmdsA[gGfxBufferIndex].texCmd2->texAddr = texB;
                 }
-                if (node->unk18[gGfxBufferIndex].unk4 != NULL) {
-                    node->unk18[gGfxBufferIndex].unk4->unk4 = texB;
+                if (node->cmdsB[gGfxBufferIndex].texCmd2 != NULL) {
+                    node->cmdsB[gGfxBufferIndex].texCmd2->texAddr = texB;
                 }
-                if (node->unk0[gGfxBufferIndex].unk8 != NULL) {
-                    *node->unk0[gGfxBufferIndex].unk8 = primLod + 0xFA000000;
+                if (node->cmdsA[gGfxBufferIndex].primColorCmd != NULL) {
+                    *node->cmdsA[gGfxBufferIndex].primColorCmd = primLod + 0xFA000000;
                 }
-                if (node->unk18[gGfxBufferIndex].unk8 != NULL) {
-                    *node->unk18[gGfxBufferIndex].unk8 = primLod + 0xFA000000;
+                if (node->cmdsB[gGfxBufferIndex].primColorCmd != NULL) {
+                    *node->cmdsB[gGfxBufferIndex].primColorCmd = primLod + 0xFA000000;
                 }
             }
-            node->unk30 = gFrameCounter;
-            node = node->unkD4;
+            node->lastFrame = gFrameCounter;
+            node = node->next;
         } while (node != NULL);
     }
 }
@@ -3077,20 +3058,20 @@ void texAnimFindNodeFrame(ModelSegmentOwner *owner, s32 index, s32 *texAOut, s32
     s32 key;
     s32 found;
 
-    node = owner->unk50;
+    node = owner->texAnims;
     if (node != NULL) {
-        key = owner->unk24[index];
+        key = owner->textures[index];
         found = 0;
         while (node != NULL && found == 0) {
-            if (key == node->unk44) {
+            if (key == node->texture) {
                 found = 1;
             } else {
-                node = node->unkD4;
+                node = node->next;
             }
         }
         if (found != 0) {
             texAnimNodeUpdateBuffers(node, texAOut, texBOut, dualOut, lodOut);
-            node->unk30 = gFrameCounter;
+            node->lastFrame = gFrameCounter;
             return;
         }
         *dualOut = 0;
@@ -3098,7 +3079,7 @@ void texAnimFindNodeFrame(ModelSegmentOwner *owner, s32 index, s32 *texAOut, s32
         return;
     }
     *dualOut = 0;
-    *texAOut = owner->unk24[index];
+    *texAOut = owner->textures[index];
 }
 
 
@@ -3110,59 +3091,59 @@ void texAnimNodeUpdateBuffers(ModelSegmentNode *node, s32 *texAOut, s32 *texBOut
     s32 oldBufB;
     s32 oldBufA;
 
-    if (gFrameCounter == node->unk30) {
+    if (gFrameCounter == node->lastFrame) {
         advanced = 0;
     } else {
         advanced = (u8)texAnimNodeAdvance(node, &frameB, &frameA);
     }
-    if (advanced != 0 || node->unk3C == 0) {
-        oldBufB = node->unk3C;
-        if (node->unk4A != 0) {
-            oldBufA = node->unk40;
-            if (oldBufA == 0 || node->unk49 != 0) {
+    if (advanced != 0 || node->textureBuffer == 0) {
+        oldBufB = node->textureBuffer;
+        if (node->findSecond != 0) {
+            oldBufA = node->textureBuffer2;
+            if (oldBufA == 0 || node->frameChanged != 0) {
                 if (oldBufB != 0) {
                     assetFreeBuffer((void *)oldBufB, 0xFCB, 7);
                 }
-                if (node->unkD0 != 0) {
+                if (node->keepBuffers != 0) {
                     collisionResolveWallContact();
                 }
-                node->unk3C = (s32)assetLoad(7, node->unk5C[frameB], 0, 0);
-                oldBufA = node->unk40;
+                node->textureBuffer = (s32)assetLoad(7, node->frameTextures[frameB], 0, 0);
+                oldBufA = node->textureBuffer2;
                 if (oldBufA != 0) {
                     assetFreeBuffer((void *)oldBufA, 0xFCE, 7);
                 }
-                if (node->unkD0 != 0) {
+                if (node->keepBuffers != 0) {
                     collisionResolveWallContact();
                 }
-                node->unk40 = (s32)assetLoad(7, node->unk5C[frameA], 0, 0);
+                node->textureBuffer2 = (s32)assetLoad(7, node->frameTextures[frameA], 0, 0);
             } else {
                 if (oldBufB != 0) {
                     assetFreeBuffer((void *)oldBufB, 0xFD5, 7);
                 }
-                oldBufA = node->unk40;
-                node->unk3C = oldBufA;
-                if (node->unkD0 != 0) {
+                oldBufA = node->textureBuffer2;
+                node->textureBuffer = oldBufA;
+                if (node->keepBuffers != 0) {
                     collisionResolveWallContact();
                 }
-                node->unk40 = (s32)assetLoad(7, node->unk5C[frameA], 0, 0);
+                node->textureBuffer2 = (s32)assetLoad(7, node->frameTextures[frameA], 0, 0);
             }
         } else {
             if (oldBufB != 0) {
                 assetFreeBuffer((void *)oldBufB, 0xFDF, 7);
             }
-            if (node->unkD0 != 0) {
+            if (node->keepBuffers != 0) {
                 collisionResolveWallContact();
             }
-            node->unk3C = (s32)assetLoad(7, node->unk5C[frameB], 0, 0);
+            node->textureBuffer = (s32)assetLoad(7, node->frameTextures[frameB], 0, 0);
         }
     }
-    node->unk49 = 0;
-    *dualOut = node->unk4A;
-    if (node->unk4A != 0) {
-        *lodOut = (s16)(((f32)node->unk50 / (f32)node->unk4C) * 255.0f);
+    node->frameChanged = 0;
+    *dualOut = node->findSecond;
+    if (node->findSecond != 0) {
+        *lodOut = (s16)(((f32)node->tick / (f32)node->frameTicks) * 255.0f);
     }
-    *texAOut = node->unk3C;
-    *texBOut = node->unk40;
+    *texAOut = node->textureBuffer;
+    *texBOut = node->textureBuffer2;
 }
 
 s32 texAnimNodeAdvance(ModelSegmentNode *node, s32 *frameOut, s32 *nextFrameOut) {
@@ -3170,61 +3151,62 @@ s32 texAnimNodeAdvance(ModelSegmentNode *node, s32 *frameOut, s32 *nextFrameOut)
     s32 frame;
 
     result = 0;
-    switch (node->unk48) {
+    switch (node->animMode) {
         case 1:
-            node->unk50 += 1;
-            if (node->unk50 == node->unk4C) {
-                node->unk50 = 0;
-                node->unk54 += 1;
-                if (node->unk54 == node->unk58) {
-                    node->unk54 = 0;
+            node->tick += 1;
+            if (node->tick == node->frameTicks) {
+                node->tick = 0;
+                node->frame += 1;
+                if (node->frame == node->frameCount) {
+                    node->frame = 0;
                 }
                 result = 1;
             }
             break;
         case 0:
-            if (node->unk49 != 0) {
+            if (node->frameChanged != 0) {
                 result = 1;
             }
             break;
         default:
             break;
     }
-    *frameOut = node->unk54;
-    if (node->unk54 + 1 == node->unk58) {
+    *frameOut = node->frame;
+    if (node->frame + 1 == node->frameCount) {
         *nextFrameOut = 0;
     } else {
-        frame = node->unk54;
+        frame = node->frame;
         *nextFrameOut = frame + 1;
     }
     return result;
 }
 
-// Sprite draw node: built by spriteListBuildDisplayChain (depth-sorted), drawn by spriteListRender; 0x38 bytes.
+// Sprite draw node (the ModelSlotSubNode a model owns): chained by spriteListBuildDisplayChain in ascending texture
+// key order (spriteListInsertByDepth) so spriteListRender reloads a texture only when the key changes; 0x38 bytes.
 typedef struct SpriteDisplayNode {
     /* 0x00 */ u32 key;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ u8 unk8;
-    /* 0x09 */ u8 unk9;
-    /* 0x0A */ u8 unkA;
-    /* 0x0B */ u8 unkB;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ s16 unk20;
-    /* 0x22 */ s16 unk22;
-    /* 0x24 */ s16 unk24;
-    /* 0x26 */ s16 unk26;
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ s16 unk2A;
-    /* 0x2C */ s16 unk2C;
-    /* 0x2E */ u8 unk2E;
-    /* 0x2F */ u8 unk2F;
-    /* 0x30 */ u8 unk30;
+    /* 0x04 */ f32 scaleXZ;
+    /* 0x08 */ u8 texWidth;
+    /* 0x09 */ u8 texHeight;
+    /* 0x0A */ u8 texFormat;
+    /* 0x0B */ u8 texSize;
+    /* 0x0C */ s16 baseHalfWidth;
+    /* 0x0E */ s16 baseHalfDepth;
+    /* 0x10 */ s16 halfWidth;
+    /* 0x12 */ s16 halfDepth;
+    /* 0x14 */ f32 x;
+    /* 0x18 */ f32 y;
+    /* 0x1C */ f32 z;
+    /* 0x20 */ s16 groundX;
+    /* 0x22 */ s16 groundZ;
+    /* 0x24 */ s16 animTextureId;
+    /* 0x26 */ s16 yaw;
+    /* 0x28 */ s16 yawOffset;
+    /* 0x2A */ s16 fullAlphaDist;
+    /* 0x2C */ s16 maxDist;
+    /* 0x2E */ u8 baseAlpha;
+    /* 0x2F */ u8 alpha;
+    /* 0x30 */ u8 zBuffered;
     /* 0x31 */ u8 pad31[3];
     /* 0x34 */ struct SpriteDisplayNode *next;
 } SpriteDisplayNode; // size = 0x38
@@ -3285,35 +3267,24 @@ void modelCalcFacingAngles(f32 x, f32 y, f32 z, f32 targetX, f32 targetY, f32 ta
     }
 }
 
-typedef struct ModelAnimTrackLink {
-    /* 0x00 */ u8 pad0[0x4C];
-    /* 0x4C */ s32 unk4C;
-    /* 0x50 */ s32 unk50;
-    /* 0x54 */ s32 unk54;
-    /* 0x58 */ s32 unk58;
-    /* 0x5C */ s32 unk5C;
-    /* 0x60 */ u8 pad60[0x74];
-    /* 0xD4 */ struct ModelAnimTrackLink *unkD4;
-} ModelAnimTrackLink;
-
-
+// ModelKindObj as spriteListBuildDisplayChain reads it: kind-2 fields at their RenderQuadModelObj offsets, type1* at ModelType1Obj's.
 typedef struct ModelSpriteSource {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+    /* 0x0C */ f32 scale;
+    /* 0x10 */ f32 type2YOffset;
+    /* 0x14 */ f32 type1RotY;
     /* 0x18 */ u8 pad18[4];
-    /* 0x1C */ f32 unk1C;
+    /* 0x1C */ f32 type1YOffset;
     /* 0x20 */ u8 pad20[0x2E];
-    /* 0x4E */ u8 unk4E;
+    /* 0x4E */ u8 flags;
     /* 0x4F */ u8 pad4F;
-    /* 0x50 */ ModelAnimTrackLink *unk50;
-    /* 0x54 */ SpriteDisplayNode *unk54;
+    /* 0x50 */ TexAnimNode *texAnims;
+    /* 0x54 */ SpriteDisplayNode *subNode;
     /* 0x58 */ u8 pad58[0x60];
-    /* 0xB8 */ ModelAnimTrackLink *unkB8;
-    /* 0xBC */ SpriteDisplayNode *unkBC;
+    /* 0xB8 */ TexAnimNode *type1TexAnims;
+    /* 0xBC */ SpriteDisplayNode *type1SubNode;
 } ModelSpriteSource;
 
 
@@ -3332,7 +3303,7 @@ SpriteDisplayNode *spriteListBuildDisplayChain(RenderEntry *listA, RenderEntry *
     SpriteDisplayNode *tgt;
     ModelSpriteSource *d;
     ModelSpriteSource *d1;
-    ModelAnimTrackLink *link;
+    TexAnimNode *link;
     s16 idx;
     s16 r;
     f32 angleX;
@@ -3351,66 +3322,66 @@ SpriteDisplayNode *spriteListBuildDisplayChain(RenderEntry *listA, RenderEntry *
             switch (listA->unk24) {
             case 2:
                 d = listA->unk0;
-                if (d->unk4E & 0x10) {
+                if (d->flags & 0x10) {
                     tgt = NULL;
                 } else {
-                    x = d->unk0;
-                    y = d->unk4 - d->unk10;
-                    z = d->unk8;
-                    tgt = d->unk54;
-                    link = d->unk50;
+                    x = d->x;
+                    y = d->y - d->type2YOffset;
+                    z = d->z;
+                    tgt = d->subNode;
+                    link = d->texAnims;
                     modelCalcFacingAngles(x, y, z, camX, camY, camZ, &angleX, &angleY, &angleZ, 0);
-                    scale = d->unkC;
+                    scale = d->scale;
                 }
                 break;
             case 1:
                 d1 = listA->unk0;
-                tgt = d1->unkBC;
-                link = d1->unkB8;
-                x = d1->unk0;
-                z = d1->unk8;
-                y = d1->unk4 - d1->unk1C;
-                angleY = d1->unk14;
-                scale = d1->unkC;
+                tgt = d1->type1SubNode;
+                link = d1->type1TexAnims;
+                x = d1->x;
+                z = d1->z;
+                y = d1->y - d1->type1YOffset;
+                angleY = d1->type1RotY;
+                scale = d1->scale;
                 break;
             default:
                 tgt = NULL;
                 break;
             }
             if (tgt != NULL) {
-                r = tgt->unk2C;
+                r = tgt->maxDist;
                 d2 = (camX - x) * (camX - x) + (camY - y) * (camY - y) + (camZ - z) * (camZ - z);
                 if (d2 < r * r) {
-                    r2 = tgt->unk2A;
+                    r2 = tgt->fullAlphaDist;
                     if (d2 < r2 * r2) {
-                        tgt->unk2F = tgt->unk2E;
+                        tgt->alpha = tgt->baseAlpha;
                     } else {
                         d2 = sqrtf(d2);
-                        tgt->unk2F = (u32)((f32)(u32)tgt->unk2E - ((f32)(u32)tgt->unk2E * (d2 - (f32)tgt->unk2A)) / (f32)(tgt->unk2C - tgt->unk2A));
+                        tgt->alpha = (u32)((f32)(u32)tgt->baseAlpha - ((f32)(u32)tgt->baseAlpha * (d2 - (f32)tgt->fullAlphaDist)) / (f32)(tgt->maxDist - tgt->fullAlphaDist));
                     }
-                    if (tgt->unk24 != -1) {
+                    if (tgt->animTextureId != -1) {
                         found = 0;
                         if (link != NULL) {
                             do {
-                                if (link->unk5C == tgt->unk24) {
+                                if (link->textureId == tgt->animTextureId) {
                                     found = 1;
                                 } else {
-                                    link = link->unkD4;
+                                    link = link->next;
                                 }
                             } while (found == 0 && link != NULL);
                         }
-                        tgt->unk26 = angleY;
-                        tgt->unk26 += link->unk54 * 0x168 / link->unk58 + link->unk50 * 360.0 / link->unk58 / link->unk4C;
+                        tgt->yaw = angleY;
+                        tgt->yaw += link->frame * 0x168 / link->frameCount + link->tick * 360.0 / link->frameCount / link->unk4C;
                     } else {
-                        tgt->unk26 = angleY;
+                        tgt->yaw = angleY;
                     }
-                    tgt->unk14 = x;
-                    tgt->unk26 += tgt->unk28;
-                    tgt->unk18 = y;
-                    tgt->unk1C = z;
+                    tgt->x = x;
+                    tgt->yaw += tgt->yawOffset;
+                    tgt->y = y;
+                    tgt->z = z;
                     tgt->next = NULL;
-                    tgt->unk10 = tgt->unkC * scale;
-                    tgt->unk12 = tgt->unkE * scale;
+                    tgt->halfWidth = tgt->baseHalfWidth * scale;
+                    tgt->halfDepth = tgt->baseHalfDepth * scale;
                     result = spriteListInsertByDepth(result, tgt);
                 }
             }
@@ -3523,65 +3494,65 @@ Gfx *spriteListRender(Gfx *gfx, SpriteDisplayNode *list) {
     if (list != NULL) {
         do {
             gDPPipeSync(gfx++);
-            gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, list->unk2F);
-            if (list->unk30 != 0 && flag == 0) {
+            gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, list->alpha);
+            if (list->zBuffered != 0 && flag == 0) {
                 gSPSetGeometryMode(gfx++, G_ZBUFFER);
                 gDPSetRenderMode(gfx++, G_RM_AA_ZB_XLU_DECAL, G_RM_AA_ZB_XLU_DECAL2);
                 flag = 1;
             }
-            if (list->unk30 == 0 && flag != 0) {
+            if (list->zBuffered == 0 && flag != 0) {
                 gSPClearGeometryMode(gfx++, G_ZBUFFER);
                 gDPSetRenderMode(gfx++, G_RM_AA_XLU_SURF, G_RM_AA_XLU_SURF2);
                 flag = 0;
             }
             if (list->key != lastTex) {
-                switch (list->unkB) {
+                switch (list->texSize) {
                 case 0:
-                    gDPLoadTextureBlock_4b(gfx++, list->key + 0x80000000, list->unkA, list->unk8, list->unk9, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    gDPLoadTextureBlock_4b(gfx++, list->key + 0x80000000, list->texFormat, list->texWidth, list->texHeight, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                     break;
                 case 1:
-                    gDPLoadTextureBlock(gfx++, list->key + 0x80000000, list->unkA, G_IM_SIZ_8b, list->unk8, list->unk9, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    gDPLoadTextureBlock(gfx++, list->key + 0x80000000, list->texFormat, G_IM_SIZ_8b, list->texWidth, list->texHeight, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                     break;
                 case 2:
-                    gDPLoadTextureBlock(gfx++, list->key + 0x80000000, list->unkA, G_IM_SIZ_16b, list->unk8, list->unk9, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    gDPLoadTextureBlock(gfx++, list->key + 0x80000000, list->texFormat, G_IM_SIZ_16b, list->texWidth, list->texHeight, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                     break;
                 }
                 lastTex = list->key;
             }
             vtxs[vtxIdx].v.tc[0] = 0;
             vtxs[vtxIdx].v.tc[1] = 0;
-            vtxs[vtxIdx + 1].v.tc[0] = list->unk8 << 5;
+            vtxs[vtxIdx + 1].v.tc[0] = list->texWidth << 5;
             vtxs[vtxIdx + 1].v.tc[1] = 0;
-            vtxs[vtxIdx + 2].v.tc[0] = list->unk8 << 5;
-            vtxs[vtxIdx + 2].v.tc[1] = list->unk9 << 5;
+            vtxs[vtxIdx + 2].v.tc[0] = list->texWidth << 5;
+            vtxs[vtxIdx + 2].v.tc[1] = list->texHeight << 5;
             vtxs[vtxIdx + 3].v.tc[0] = 0;
-            vtxs[vtxIdx + 3].v.tc[1] = list->unk9 << 5;
+            vtxs[vtxIdx + 3].v.tc[1] = list->texHeight << 5;
             vtxs[vtxIdx].v.ob[1] = 0;
             vtxs[vtxIdx + 1].v.ob[1] = 0;
             vtxs[vtxIdx + 2].v.ob[1] = 0;
             vtxs[vtxIdx + 3].v.ob[1] = 0;
-            vtxs[vtxIdx].v.ob[0] = -list->unk10;
-            vtxs[vtxIdx].v.ob[2] = -list->unk12;
-            vtxs[vtxIdx + 1].v.ob[0] = list->unk10;
-            vtxs[vtxIdx + 1].v.ob[2] = -list->unk12;
-            vtxs[vtxIdx + 2].v.ob[0] = list->unk10;
-            vtxs[vtxIdx + 2].v.ob[2] = list->unk12;
-            vtxs[vtxIdx + 3].v.ob[0] = -list->unk10;
-            vtxs[vtxIdx + 3].v.ob[2] = list->unk12;
-            guScaleF(accum, list->unk4, 1.0f, list->unk4);
-            guRotateF(tmp, list->unk26, 0.0f, 1.0f, 0.0f);
+            vtxs[vtxIdx].v.ob[0] = -list->halfWidth;
+            vtxs[vtxIdx].v.ob[2] = -list->halfDepth;
+            vtxs[vtxIdx + 1].v.ob[0] = list->halfWidth;
+            vtxs[vtxIdx + 1].v.ob[2] = -list->halfDepth;
+            vtxs[vtxIdx + 2].v.ob[0] = list->halfWidth;
+            vtxs[vtxIdx + 2].v.ob[2] = list->halfDepth;
+            vtxs[vtxIdx + 3].v.ob[0] = -list->halfWidth;
+            vtxs[vtxIdx + 3].v.ob[2] = list->halfDepth;
+            guScaleF(accum, list->scaleXZ, 1.0f, list->scaleXZ);
+            guRotateF(tmp, list->yaw, 0.0f, 1.0f, 0.0f);
             guMtxCatF(accum, tmp, accum);
-            if (list->unk22 < 0x3E8) {
-                guRotateF(tmp, -(list->unk20 / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
+            if (list->groundZ < 0x3E8) {
+                guRotateF(tmp, -(list->groundX / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
                 guMtxCatF(accum, tmp, accum);
             }
-            guRotateF(tmp, 90.0 - list->unk22 / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
+            guRotateF(tmp, 90.0 - list->groundZ / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
             guMtxCatF(accum, tmp, accum);
-            if (list->unk22 < 0x3E8) {
-                guRotateF(tmp, list->unk20 / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
+            if (list->groundZ < 0x3E8) {
+                guRotateF(tmp, list->groundX / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
                 guMtxCatF(accum, tmp, accum);
             }
-            guTranslateF(tmp, list->unk14, list->unk18, list->unk1C);
+            guTranslateF(tmp, list->x, list->y, list->z);
             guMtxCatF(accum, tmp, accum);
             guMtxF2L(accum, &mtxs[mtxIdx]);
             gSPMatrix(gfx++, osVirtualToPhysical(&mtxs[mtxIdx]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
@@ -3728,21 +3699,22 @@ void modelPendingEntriesProcess(void) {
     } while (any == 1);
 }
 
+// One ModelSlot as modelSlotSerializeAll saves it.
 typedef struct ModelSlotSerializedOut {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+    /* 0x0C */ f32 scale;
     /* 0x10 */ u8 pad10[8];
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ s16 unk28;
+    /* 0x18 */ f32 rotX;
+    /* 0x1C */ f32 rotY;
+    /* 0x20 */ f32 rotZ;
+    /* 0x24 */ f32 yOffset;
+    /* 0x28 */ s16 modelType;
     /* 0x2A */ s16 unk2A;
-    /* 0x2C */ s16 unk2C;
-    /* 0x2E */ u8 unk2E;
-    /* 0x2F */ u8 unk2F;
+    /* 0x2C */ s16 kind;
+    /* 0x2E */ u8 light;
+    /* 0x2F */ u8 flags;
 } ModelSlotSerializedOut; /* 0x30 */
 
 
@@ -3774,25 +3746,25 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
     *(s32 *)D_807F6010 = gModelSlotCount;
     out = (ModelSlotSerializedOut *)(D_807F6010 + 4);
     for (i = 0; i < gModelSlotCount; i++, out++) {
-        out->unk0 = gModelSlots[i].x;
-        out->unk4 = gModelSlots[i].y;
-        out->unk8 = gModelSlots[i].z;
-        out->unkC = gModelSlots[i].scale;
-        out->unk18 = gModelSlots[i].rotX;
-        out->unk1C = gModelSlots[i].rotY;
-        out->unk20 = gModelSlots[i].rotZ;
-        out->unk28 = gModelSlots[i].modelType;
-        out->unk2C = gModelSlots[i].unk86;
-        out->unk24 = gModelSlots[i].yOffset;
+        out->x = gModelSlots[i].x;
+        out->y = gModelSlots[i].y;
+        out->z = gModelSlots[i].z;
+        out->scale = gModelSlots[i].scale;
+        out->rotX = gModelSlots[i].rotX;
+        out->rotY = gModelSlots[i].rotY;
+        out->rotZ = gModelSlots[i].rotZ;
+        out->modelType = gModelSlots[i].modelType;
+        out->kind = gModelSlots[i].unk86;
+        out->yOffset = gModelSlots[i].yOffset;
         out->unk2A = gModelSlots[i].unk8A;
-        switch (out->unk2C) {
+        switch (out->kind) {
         case 2:
-            out->unk2F = ((RenderQuadModelObj *)gModelSlots[i].unk20)->flags;
-            out->unk2E = ((RenderQuadModelObj *)gModelSlots[i].unk20)->light;
+            out->flags = ((RenderQuadModelObj *)gModelSlots[i].unk20)->flags;
+            out->light = ((RenderQuadModelObj *)gModelSlots[i].unk20)->light;
             break;
         case 1:
-            out->unk2F = 0;
-            out->unk2E = ((ModelType1Obj *)gModelSlots[i].unk20)->light;
+            out->flags = 0;
+            out->light = ((ModelType1Obj *)gModelSlots[i].unk20)->light;
             break;
         }
     }
@@ -3811,14 +3783,15 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
 }
 
 
+// ModelSlot with the asset header and cutscene state read as byte arrays.
 typedef struct ModelSlotPackView {
     /* 0x00 */ u8 pad0[0x24];
-    /* 0x24 */ u8 *unk24;
+    /* 0x24 */ u8 *asset;
     /* 0x28 */ u8 pad28[0x50];
-    /* 0x78 */ u8 **unk78;
-    /* 0x7C */ u8 *unk7C;
+    /* 0x78 */ u8 **modelData;
+    /* 0x7C */ u8 *csState;
     /* 0x80 */ u8 pad80[8];
-    /* 0x88 */ s16 unk88;
+    /* 0x88 */ s16 id;
     /* 0x8A */ s16 unk8A;
     /* 0x8C */ u8 pad8C[4];
 } ModelSlotPackView; /* 0x90 */
@@ -3837,10 +3810,10 @@ void modelSlotsPackRecords(u8 **bufOut, s32 *countOut) {
     s32 j;
 
     for (i = 0; i < gModelSlotCount; i++) {
-        if (MODEL_SLOT_PACKED_ENTRY(i)->unk7C != NULL) {
-            if ((MODEL_SLOT_PACKED_ENTRY(i)->unk24[0x3A] != 0 || (MODEL_SLOT_PACKED_ENTRY(i)->unk7C[0x9B] & 1)) && !(MODEL_SLOT_PACKED_ENTRY(i)->unk7C[0x9B] & 2)) {
+        if (MODEL_SLOT_PACKED_ENTRY(i)->csState != NULL) {
+            if ((MODEL_SLOT_PACKED_ENTRY(i)->asset[0x3A] != 0 || (MODEL_SLOT_PACKED_ENTRY(i)->csState[0x9B] & 1)) && !(MODEL_SLOT_PACKED_ENTRY(i)->csState[0x9B] & 2)) {
                 count++;
-                if (MODEL_SLOT_PACKED_ENTRY(i)->unk78 != NULL) {
+                if (MODEL_SLOT_PACKED_ENTRY(i)->modelData != NULL) {
                     size += modelSlotDataSize(i);
                 }
             }
@@ -3850,21 +3823,21 @@ void modelSlotsPackRecords(u8 **bufOut, s32 *countOut) {
         buf = heapAlloc(count * 0x254 + size);
         cur = buf;
         for (i = 0; i < gModelSlotCount; i++) {
-            if (MODEL_SLOT_PACKED_ENTRY(i)->unk7C != NULL) {
-                if ((MODEL_SLOT_PACKED_ENTRY(i)->unk24[0x3A] != 0 || (MODEL_SLOT_PACKED_ENTRY(i)->unk7C[0x9B] & 1)) && !(MODEL_SLOT_PACKED_ENTRY(i)->unk7C[0x9B] & 2)) {
+            if (MODEL_SLOT_PACKED_ENTRY(i)->csState != NULL) {
+                if ((MODEL_SLOT_PACKED_ENTRY(i)->asset[0x3A] != 0 || (MODEL_SLOT_PACKED_ENTRY(i)->csState[0x9B] & 1)) && !(MODEL_SLOT_PACKED_ENTRY(i)->csState[0x9B] & 2)) {
                     rec = cur;
                     *(s16 *)rec = MODEL_SLOT_PACKED_ENTRY(i)->unk8A;
-                    memcpy(rec + 0xCC, MODEL_SLOT_PACKED_ENTRY(i)->unk7C, 0x9C);
-                    if (MODEL_SLOT_PACKED_ENTRY(i)->unk78 != NULL) {
-                        memcpy(rec + 4, (u8 *)MODEL_SLOT_PACKED_ENTRY(i)->unk78 + 8, 0xC8);
+                    memcpy(rec + 0xCC, MODEL_SLOT_PACKED_ENTRY(i)->csState, 0x9C);
+                    if (MODEL_SLOT_PACKED_ENTRY(i)->modelData != NULL) {
+                        memcpy(rec + 4, (u8 *)MODEL_SLOT_PACKED_ENTRY(i)->modelData + 8, 0xC8);
                         rec[0x250] = modelSlotDataSize(i) >> 6;
-                        memcpy(rec + 0x254, *MODEL_SLOT_PACKED_ENTRY(i)->unk78, modelSlotDataSize(i));
+                        memcpy(rec + 0x254, *MODEL_SLOT_PACKED_ENTRY(i)->modelData, modelSlotDataSize(i));
                     } else {
                         rec[0x250] = 0;
                     }
                     for (j = 1; j != 5; j++) {
-                        modelSlotGetNodeScrollSpeed(MODEL_SLOT_PACKED_ENTRY(i)->unk88, j, (s16 *)(rec + 0x232 + j * 6), (s16 *)(rec + 0x234 + j * 6));
-                        modelSlotGetNodeAnimMode(MODEL_SLOT_PACKED_ENTRY(i)->unk88, j, rec + 0x236 + j * 6);
+                        modelSlotGetNodeScrollSpeed(MODEL_SLOT_PACKED_ENTRY(i)->id, j, (s16 *)(rec + 0x232 + j * 6), (s16 *)(rec + 0x234 + j * 6));
+                        modelSlotGetNodeAnimMode(MODEL_SLOT_PACKED_ENTRY(i)->id, j, rec + 0x236 + j * 6);
                     }
                     mapOffsetSlotsGetTargets((f32 *)(rec + 0x168));
                     effectNodeCopyValues((f32 *)(rec + 0x1B8));
@@ -3898,13 +3871,14 @@ void modelRecordFindAndSet(u8 *records, s32 count, s16 id, s16 value) {
     }
 }
 
+// The CsStateFull fields modelSlotsApplyRecords keeps across a restored record.
 typedef struct ModelSlotStateSnapshot {
-    /* 0x00 */ u32 unk0;
+    /* 0x00 */ u32 heapBlock;
     /* 0x04 */ u8 pad4[0xC];
     /* 0x10 */ s16 unk10;
     /* 0x12 */ s16 unk12;
     /* 0x14 */ u8 pad14[0x80];
-    /* 0x94 */ u32 unk94;
+    /* 0x94 */ u32 actor;
     /* 0x98 */ u8 pad98[4];
 } ModelSlotStateSnapshot; /* 0x9C */
 
@@ -3922,22 +3896,22 @@ void modelSlotsApplyRecords(u8 *records, s32 count) {
     for (k = 0; k < count; k++) {
         id = gCsModelIds[*(s16 *)records];
         idx = hashTableLookup(id);
-        memcpy(&snap, MODEL_SLOT_PACKED_ENTRY(idx)->unk7C, 0x9C);
-        memcpy(MODEL_SLOT_PACKED_ENTRY(idx)->unk7C, records + 0xCC, 0x9C);
-        *(u32 *)MODEL_SLOT_PACKED_ENTRY(idx)->unk7C = snap.unk0;
-        *(s16 *)(MODEL_SLOT_PACKED_ENTRY(idx)->unk7C + 0x10) = snap.unk10;
-        *(s16 *)(MODEL_SLOT_PACKED_ENTRY(idx)->unk7C + 0x12) = snap.unk12;
-        *(u32 *)(MODEL_SLOT_PACKED_ENTRY(idx)->unk7C + 0x94) = snap.unk94;
-        MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x48] = MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x4B];
-        MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x49] = MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x4C];
-        MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x4A] = MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x4D];
-        MODEL_SLOT_PACKED_ENTRY(idx)->unk7C[0x9A] = 0;
-        *(s32 *)(MODEL_SLOT_PACKED_ENTRY(idx)->unk7C + 0x38) = -1;
-        if (MODEL_SLOT_PACKED_ENTRY(idx)->unk78 != NULL) {
+        memcpy(&snap, MODEL_SLOT_PACKED_ENTRY(idx)->csState, 0x9C);
+        memcpy(MODEL_SLOT_PACKED_ENTRY(idx)->csState, records + 0xCC, 0x9C);
+        *(u32 *)MODEL_SLOT_PACKED_ENTRY(idx)->csState = snap.heapBlock;
+        *(s16 *)(MODEL_SLOT_PACKED_ENTRY(idx)->csState + 0x10) = snap.unk10;
+        *(s16 *)(MODEL_SLOT_PACKED_ENTRY(idx)->csState + 0x12) = snap.unk12;
+        *(u32 *)(MODEL_SLOT_PACKED_ENTRY(idx)->csState + 0x94) = snap.actor;
+        MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x48] = MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x4B];
+        MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x49] = MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x4C];
+        MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x4A] = MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x4D];
+        MODEL_SLOT_PACKED_ENTRY(idx)->csState[0x9A] = 0;
+        *(s32 *)(MODEL_SLOT_PACKED_ENTRY(idx)->csState + 0x38) = -1;
+        if (MODEL_SLOT_PACKED_ENTRY(idx)->modelData != NULL) {
             for (off = 0; off != 0xC8; off += 0x14) {
-                memcpy(tmp, (u8 *)MODEL_SLOT_PACKED_ENTRY(idx)->unk78 + off + 8, 0x14);
-                memcpy((u8 *)MODEL_SLOT_PACKED_ENTRY(idx)->unk78 + off + 8, records + 4 + off, 0x14);
-                *(u32 *)((u8 *)MODEL_SLOT_PACKED_ENTRY(idx)->unk78 + off + 8) = *(u32 *)tmp;
+                memcpy(tmp, (u8 *)MODEL_SLOT_PACKED_ENTRY(idx)->modelData + off + 8, 0x14);
+                memcpy((u8 *)MODEL_SLOT_PACKED_ENTRY(idx)->modelData + off + 8, records + 4 + off, 0x14);
+                *(u32 *)((u8 *)MODEL_SLOT_PACKED_ENTRY(idx)->modelData + off + 8) = *(u32 *)tmp;
             }
             modelSlotCopyData(records + 0x254, idx);
         }
@@ -3953,15 +3927,15 @@ void modelSlotsApplyRecords(u8 *records, s32 count) {
 }
 
 void modelSlotOrFlags(s32 csId, u8 flags) {
-    ModelSubObjectFlags *obj = gModelSlots[hashTableLookup(gCsModelIds[csId])].unk20;
+    RenderQuadModelObj *obj = gModelSlots[hashTableLookup(gCsModelIds[csId])].unk20;
 
-    obj->unk4E |= flags;
+    obj->flags |= flags;
 }
 
 void modelSlotClearFlags(s32 csId, u8 flags) {
-    ModelSubObjectFlags *obj = gModelSlots[hashTableLookup(gCsModelIds[csId])].unk20;
+    RenderQuadModelObj *obj = gModelSlots[hashTableLookup(gCsModelIds[csId])].unk20;
 
-    obj->unk4E &= ~flags;
+    obj->flags &= ~flags;
 }
 
 s32 func_8063C2A8(s16 id) {
