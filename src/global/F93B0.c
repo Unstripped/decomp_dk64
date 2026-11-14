@@ -10,17 +10,21 @@ typedef struct {
     s16 value;
 } MapVoidHeight;
 
-extern MapVoidHeight D_80753EA0[];
+extern MapVoidHeight D_80753EA0[13];
 
 f32 mapGetVoidHeightForCharacter(s16 characterId) {
     s32 map;
-    s32 lim;
+    s32 count;
     s16 i;
     MapVoidHeight *e;
 
-    lim = 13; // FAKE: value-named constant local keeps 13 in a register (slt at,i,v0); a literal 13 folds to slti
-    i = 0; map = gCurrentMap; do { e = &D_80753EA0[i]; if (e->map == map && (characterId == e->character || e->character == -1)) { return e->value; } // LAYOUT: statements joined on one line steer as1 scheduling
+    count = sizeof(D_80753EA0) / sizeof(D_80753EA0[0]);
+    i = 0; map = gCurrentMap; do { // LAYOUT: statements joined on one line steer as1 scheduling
+        e = &D_80753EA0[i];
+        if (e->map == map && (characterId == e->character || e->character == -1)) {
+            return e->value;
+        }
         i++;
-    } while (i < lim);
+    } while (i < count);
     return 20000.0f;
 }
