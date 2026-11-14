@@ -327,3 +327,4 @@
 {"type": "unit", "t": "2026-11-14T18:46:18Z", "unit": "2026-11-14: cleanup HackmeshComputeVertexRanges", "commit": "6086d1e7c8c9e46fba2cd4f76d5199651edcde83"}
 {"type": "unit", "t": "2026-11-14T18:47:06Z", "unit": "2026-11-14: cleanup HackmtxIdentityF", "commit": "4ab82a68d11d146eae98809fcef62d53c3402e27"}
 {"type": "unit", "t": "2026-11-14T18:48:16Z", "unit": "2026-11-14: cleanup HackeepromSavePlayerData", "commit": "d5550ee503d34e10ac271a736fddbbe60d3431e4"}
+{"type": "unit", "t": "2026-11-14T18:51:01Z", "unit": "2026-11-14: cleanup HackactorTargetEntriesUpdateSfx", "commit": "50b06d69abfe95a049b2392cd14a18cc6b399ac3"}
