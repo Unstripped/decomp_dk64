@@ -316,12 +316,7 @@ void scriptCmdCompareMoveTier(Actor *actor) {
         playerSelectMoveTier(actor, actor->speedXZ, actor->speedXZ, gActivePlayerState->unk4C, gCurrentCharacterIndex) - temp;
 }
 
-typedef struct F5APlayerCoefficient {
-    f32 value;
-    u8 pad4[0x30];
-} F5APlayerCoefficient;
-
-extern F5APlayerCoefficient D_807FD618[];
+extern PadInputState gPlayerPadState[];
 
 void playerResumeLocomotionDecel(Actor *actor) {
     f32 value;
@@ -329,7 +324,7 @@ void playerResumeLocomotionDecel(Actor *actor) {
     playerResumeLocomotion(actor);
     value = gCurrentActor->speedXZ;
     gCurrentActor->speedXZ =
-        D_807FD618[gCurrentPlayerIndex].value * (value - (value / 2)) + (value / 2);
+        gPlayerPadState[gCurrentPlayerIndex].stickMagNorm * (value - (value / 2)) + (value / 2);
 }
 
 
@@ -365,7 +360,7 @@ void playerKongCalculateHealthScale(Actor *actor) {
         actor->sub4->scriptResult = 1;
         return;
     }
-    ratio = ((f32)(u32)amount - base) / (f32)count;
+    ratio = ((f32)(u32)amount - base) / count;
     if (ratio < 0.0f) {
         ratio = 0.01f;
     }
@@ -482,8 +477,8 @@ void playerWeaponCalculateTrajectory24(f32 force, f32 damping, F5N1Spring *sprin
     cosTilt = cosApprox(spring->angle);
     spring->velocity += force * cosApprox(*angle) * cosTilt;
     spring->velocity -= damping * sinApprox(spring->angle);
-    spring->velocity = (f32)((f64)spring->velocity * 0.93);
-    spring->angle = (f32)(spring->angle + spring->velocity);
+    spring->velocity *= 0.93;
+    spring->angle += spring->velocity;
     *angle += spring->angle + spring->offset;
 }
 
@@ -540,9 +535,10 @@ f32 mathAngleRadDeltaTurns(f32 *prevAngle, f32 angle) {
     return diff;
 }
 
-typedef struct {
-    u8 pad0[0x178];
-    F56AState *weaponState;
+// Per-type view: 0x178 is this actor type's second component pointer (see Actor).
+typedef struct F56AActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ F56AState *weaponState;
 } F56AActor;
 
 
@@ -582,8 +578,8 @@ void playerWeaponAimTarget(Actor *actor, BoneRotation *slots, s32 *count) {
         }
     } else {
         ret = mathAngleRadDeltaTurns(&state->prevAngle, angle);
-        state->weight = state->weight + ((-128.0f - state->weight) * 0.3);
-        value = (s8) (s32) state->weight;
+        state->weight += (-128.0f - state->weight) * 0.3;
+        value = (s8) state->weight;
         accel1 = 0.4f * ret;
         accel0 = playerWeaponCalculateTrajectory25(actor, state, 0.02f);
     }
@@ -656,8 +652,8 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
         } else {
             newvel = -128.0f;
         }
-        state->weight = state->weight + ((newvel - state->weight) * 0.3);
-        value = (s8) (s32) state->weight;
+        state->weight += (newvel - state->weight) * 0.3;
+        value = (s8) state->weight;
         ret = mathAngleRadDeltaTurns(&state->prevAngle, angle);
         trajectory = playerWeaponCalculateTrajectory25(actor, state, 0.02f);
     }
@@ -721,16 +717,16 @@ void playerWeaponInitCrosshair(Actor *actor, BoneRotation *slots, s32 *count) {
     f32 angle1;
     f32 jitterScale;
     f32 gain;
-    f32 fs3;
-    f32 fs2;
-    f32 fs1;
-    f32 fs0;
+    f32 forceX;
+    f32 forceY;
+    f32 damping;
+    f32 yawDelta;
     f32 z;
     f32 y;
     f32 x;
-    s8 value[4];
+    s8 value;
     f32 target;
-    f32 dz;
+    f32 accelY;
     f32 result;
     f64 pad2;
 
@@ -740,63 +736,61 @@ void playerWeaponInitCrosshair(Actor *actor, BoneRotation *slots, s32 *count) {
     pair = state->springs;
     angle1 = 0.0f;
     angle0 = 0.0f;
-    fs3 = 0.0f;
-    fs2 = 0.0f;
+    forceX = 0.0f;
+    forceY = 0.0f;
     jitterScale = 0.0003f;
     gain = 1.0f;
-    fs1 = 0.06f;
+    damping = 0.06f;
     active = playerWeaponCalculateTrajectory26(actor, state, 3);
-    value[3] = -0x80;
+    value = -0x80;
     actorGetNodePos(actor, 5, &x, &y, &z);
     if (active == 0) {
-        state->prevAngle = (f32) actor->yaw;
+        state->prevAngle = actor->yaw;
         state->prevY = y;
         D_80752F4C = 0.0f;
         if ((state->holdTimer != 0) && (actor->flags & 0x100) && (state->mode == 3)) {
             state->holdTimer -= 1;
         }
     } else {
-        fs2 = y - state->prevY;
-        dz = fs2 - state->prevVelY;
-        fs0 = state->prevAngle - (f32) actor->yaw;
+        forceY = y - state->prevY;
+        accelY = forceY - state->prevVelY;
+        yawDelta = state->prevAngle - actor->yaw;
         if (actor->sub4->model->animId >= 0) {
-            target = (f32) D_80752D4E[actor->sub4->model->animId];
+            target = D_80752D4E[actor->sub4->model->animId];
         } else {
             target = -128.0f;
         }
-        state->prevAngle = (f32) actor->yaw;
-        state->weight = (f32) ((f64) state->weight + ((f64) (target - state->weight) * 0.3));
-        value[3] = (s8) state->weight;
+        state->prevAngle = actor->yaw;
+        state->weight = state->weight + (target - state->weight) * 0.3;
+        value = state->weight;
         if (actor->state == 0x4F) {
-            fs1 = 0.01f;
+            damping = 0.01f;
             jitterScale = 0.0001f;
             gain = 0.4f;
         }
         result = playerWeaponCalculateTrajectory25(actor, state, 0.011f);
         state->prevY = y;
-        state->prevVelY = fs2;
-        fs3 = (-result - ((0.005f * dz) + (0.0008f * fs2))) * gain;
-        if ((32.0f + ((1.0f - gain) * 8.0f)) < (f32) ((randomNonNegative() >> 15) % 40)) {
-            D_80752F4C = (f32) (0x14 - ((randomNonNegative() >> 15) % 40)) * jitterScale;
+        state->prevVelY = forceY;
+        forceX = (-result - ((0.005f * accelY) + (0.0008f * forceY))) * gain;
+        if ((32.0f + ((1.0f - gain) * 8.0f)) < (randomNonNegative() >> 15) % 40) {
+            D_80752F4C = (0x14 - ((randomNonNegative() >> 15) % 40)) * jitterScale;
         }
-        if (fs0 > 2048.0f) {
-            fs0 = 4096.0f - fs0;
-        } else if (fs0 < -2048.0f) {
-            fs0 = -(4096.0f + fs0);
+        if (yawDelta > 2048.0f) {
+            yawDelta = 4096.0f - yawDelta;
+        } else if (yawDelta < -2048.0f) {
+            yawDelta = -(4096.0f + yawDelta);
         }
-        fs2 = (f32) ((f64) ((1.0f - (actor->speedXZ / 130.0f)) * D_80752F4C) + (2e-05 * (f64) fs0));
+        forceY = (1.0f - actor->speedXZ / 130.0f) * D_80752F4C + 2e-05 * yawDelta;
     }
     for (i = 0; i != 11; i++) {
         if (active != 0) {
-            playerWeaponCalculateTrajectory24(fs3, fs1, &pair->springX, &angle0);
-            playerWeaponCalculateTrajectory24(fs2, fs1, &pair->springY, &angle1);
+            playerWeaponCalculateTrajectory24(forceX, damping, &pair->springX, &angle0);
+            playerWeaponCalculateTrajectory24(forceY, damping, &pair->springY, &angle1);
         }
-        slots[index].weight = value[3];
+        slots[index].weight = value;
         slots[index].bone = kind;
-        if (kind == 0) {}  // FAKE: extra use raises the uopt priority of kind above the hoisted loop addresses (kind in s3)
-
-        slots[index].rotX = (s16) (s32) ((f64) (pair->springX.angle + pair->springX.offset) * 10430.218905280077);
-        slots[index].rotY = (s16) (s32) ((f64) (pair->springY.angle + pair->springY.offset) * 10430.218905280077);
+        slots[index].rotX = (s32) ((pair->springX.angle + pair->springX.offset) * 10430.218905280077);
+        slots[index].rotY = (s32) ((pair->springY.angle + pair->springY.offset) * 10430.218905280077);
         slots[index].rotZ = 0;
         pair++;
         index++;
@@ -826,8 +820,8 @@ void playerWeaponCrosshairUpdate(Actor *actor, BoneRotation *slots, s32 *count) 
     }
     slots[*count].weight = -128;
     slots[*count].bone = 2;
-    slots[*count].rotY = (s16)(u32)(((f64)delta / 4095.0) * 65535.0);
-    slots[*count].rotX = (s16)(u32)((f64)(planarAngle / 6.2831855f) * 65535.0);
+    slots[*count].rotY = (s16)(u32)((delta / 4095.0) * 65535.0);
+    slots[*count].rotX = (s16)(u32)((planarAngle / 6.2831855f) * 65535.0);
     slots[*count].rotZ = 0;
     *count += 1;
 }
@@ -885,14 +879,14 @@ void playerWeaponCrosshairRender(Actor *actor, BoneVector *entries, s32 *count) 
 }
 
 void playerWeaponUpdateHomingTarget(Actor *actor, BoneRotation *slots, s32 *count) {
-    s32 entry_index;
+    s32 index;
     s8 v;
     u16 angle;
     u16 yaw;
     u16 scaled;
     f32 amplitude;
-    f32 cosine;
-    entry_index = *count;
+    f32 sine;
+    index = *count;
     if (actor->contactFlags & 1) {
         gActivePlayerState->homingStrength += 2;
         if (gActivePlayerState->homingStrength >= 0x80) gActivePlayerState->homingStrength = 0x7F;
@@ -907,27 +901,27 @@ void playerWeaponUpdateHomingTarget(Actor *actor, BoneRotation *slots, s32 *coun
         scaled = scaled * 0x10;
         angle = mathAngleSignedDistance(actor->yaw, yaw);
         amplitude = mathCosF(angle) * scaled;
-        cosine = mathSinF(angle);
+        sine = mathSinF(angle);
         v = gActivePlayerState->homingStrength * 6 / 10;
         if (v != 0) {
-            slots[entry_index].bone = 1;
-            slots[entry_index].rotY = 0;
-            slots[entry_index].weight = v;
-            slots[entry_index].rotX = (s16)amplitude;
-            slots[entry_index].rotZ = (s16)((-cosine) * (f32)scaled);
-            entry_index += 1;
+            slots[index].bone = 1;
+            slots[index].rotY = 0;
+            slots[index].weight = v;
+            slots[index].rotX = (s16)amplitude;
+            slots[index].rotZ = (s16)(-sine * scaled);
+            index += 1;
         }
         v = gActivePlayerState->homingStrength * 3 / 10;
         if (v != 0) {
-            slots[entry_index].bone = 2;
-            slots[entry_index].rotY = 0;
-            slots[entry_index].weight = v;
-            slots[entry_index].rotX = (s16)amplitude;
-            slots[entry_index].rotZ = (s16)((-cosine) * (f32)scaled);
-            entry_index += 1;
+            slots[index].bone = 2;
+            slots[index].rotY = 0;
+            slots[index].weight = v;
+            slots[index].rotX = (s16)amplitude;
+            slots[index].rotZ = (s16)(-sine * scaled);
+            index += 1;
         }
     }
-    *count = entry_index;
+    *count = index;
 }
 
 
@@ -951,31 +945,26 @@ void playerWeaponReload(Actor *actor, PlayerState *ps, u16 weapon) {
     s32 selector;
     s32 shouldSpawn;
 
-    selector = weapon;
-    switch (selector) {
+    switch (weapon) {
     case 0:
         state0 = ps->unk8E;
         if (state0 != 0) {
-            if ((state0 == 0x10) && ((s32)ps->unk8F < 4)) {
+            if ((state0 == 0x10) && (ps->unk8F < 4)) {
                 ps->unk8F = 0;
                 return;
             }
-        } else {
-            if ((s32)ps->unk8F >= 4) {
-                effectSpawnBoneWhite(actor, 0xA, 0.3f, 0.0f, 0.0f, 0.0f, -10);
-                return;
-            }
-            return;
+        } else if (ps->unk8F >= 4) {
+            effectSpawnBoneWhite(actor, 0xA, 0.3f, 0.0f, 0.0f, 0.0f, -10);
         }
         break;
     case 1:
         selector = ps->unk8E;
         shouldSpawn = 0;
         if ((selector != 0) && (selector != 3)) {
-            if ((selector == 0x10) && ((s32)ps->unk8F < 6)) {
+            if ((selector == 0x10) && (ps->unk8F < 6)) {
                 ps->unk8F = 0;
             }
-        } else if ((s32)ps->unk8F >= 6) {
+        } else if (ps->unk8F >= 6) {
             shouldSpawn = 1;
         }
         if (shouldSpawn != 0) {
@@ -992,11 +981,11 @@ void playerWeaponReload(Actor *actor, PlayerState *ps, u16 weapon) {
     case 5:
         state2 = ps->unk8E;
         if (state2 != 0) {
-            if ((state2 == 0x10) && ((s32)ps->unk8F < 3)) {
+            if ((state2 == 0x10) && (ps->unk8F < 3)) {
                 ps->unk8F = 0;
                 return;
             }
-        } else if ((s32)ps->unk8F >= 3) {
+        } else if (ps->unk8F >= 3) {
             effectSpawnBoneWhite(actor, 0xA, 0.6f, 0.0f, 0.0f, 0.0f, -10);
         }
         break;
@@ -1071,8 +1060,8 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
                     } else {
                         v = t - 6.0f;
                     }
-                    charge = (f64)v / 17.0 > 1.0 ? 1.0 : (f64)v / 17.0;
-                    playerWeaponFireGun(actor, entries, &entryCount, 0xA, 0xB, charge, (f32)(gCurrentMap == 0xCD ? 17.0 : 2.5));
+                    charge = v / 17.0 > 1.0 ? 1.0 : v / 17.0;
+                    playerWeaponFireGun(actor, entries, &entryCount, 0xA, 0xB, charge, gCurrentMap == 0xCD ? 17.0 : 2.5);
                 }
                 break;
             case 0x27: {
@@ -1082,8 +1071,8 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
                 } else {
                     v = t - 6.0f;
                 }
-                charge = (f64)v / 17.0 > 1.0 ? 1.0 : (f64)v / 17.0;
-                playerWeaponFireGun(actor, entries, &entryCount, 5, 6, charge, (f32)(gCurrentMap == 0xCD ? 17.0 : 2.5));
+                charge = v / 17.0 > 1.0 ? 1.0 : v / 17.0;
+                playerWeaponFireGun(actor, entries, &entryCount, 5, 6, charge, gCurrentMap == 0xCD ? 17.0 : 2.5);
                 break;
             }
             case 0x28: {
@@ -1093,7 +1082,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
                 } else {
                     v = t - 7.0f;
                 }
-                charge = (f64)v / 14.0 > 1.0 ? 1.0 : (f64)v / 14.0;
+                charge = v / 14.0 > 1.0 ? 1.0 : v / 14.0;
                 playerWeaponFireGun(actor, entries, &entryCount, 9, 0xB, charge, 1.8f);
                 playerWeaponFireGun(actor, entries, &entryCount, 4, 6, charge, 1.8f);
                 break;
@@ -1105,7 +1094,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
                 } else {
                     v = t - 4.0f;
                 }
-                charge = (f64)v / 6.0 > 1.0 ? 1.0 : (f64)v / 6.0;
+                charge = v / 6.0 > 1.0 ? 1.0 : v / 6.0;
                 playerWeaponFireGun(actor, entries, &entryCount, 9, 0xB, charge, 1.3f);
                 playerWeaponFireGun(actor, entries, &entryCount, 4, 6, charge, 1.3f);
                 break;
@@ -1246,7 +1235,7 @@ void playerWaypointPathStartPacked(Actor *actor, void *callbackParam, s16 packed
         skipPlace = 0;
     }
     packedPath &= 0x7FFF;
-    playerWaypointPathStart((u8) packedPath, actor, callbackParam, callbackId, skipPlace);
+    playerWaypointPathStart(packedPath, actor, callbackParam, callbackId, skipPlace);
     gWaypointFlags = 0;
 }
 
@@ -1283,7 +1272,7 @@ void playerWaypointPathStartLineFromActor(Actor *actor, s16 targetX, s16 targetZ
     WaypointNode *q;
     WaypointPath *entry;
 
-    angle = mathAngleBetweenPoints2D((f32)targetX, (f32)targetZ, actor->x, actor->z);
+    angle = mathAngleBetweenPoints2D(targetX, targetZ, actor->x, actor->z);
     entry = &gWaypointPaths->paths[gWaypointPaths->count];
     if (actor->state != 0x44) {
         entry->count = 2;
