@@ -12,6 +12,7 @@
 #include "proto/global/201B0.h"
 #include "proto/global/35000.h"
 #include "proto/global/63EC0.h"
+#include "proto/global/6AD90.h"
 #include "proto/global/70FD0.h"
 #include "proto/global/FCCD0.h"
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -173,7 +174,6 @@ s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
 void csModelStateSetFirstByte(s16, s16);
 void actorApplyVelocityCustom(void *, f32, f32);
-void collisionCheckActorFloor(void *, f32, f32, f32, void *);
 f32 actorGetOrSetNodeScale(Actor *, s32, f32);
 s32 actorTableContains(void *);
 void effectSpawnChildAtNode(u8, s16, s16);

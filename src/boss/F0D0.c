@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_csModelStateSetFirstByte // FAKE: callee prototype steer
+#define PROTO_SKIP_csModelStateSetFirstByte // ORIG: hides the shared (s16, s16) prototype; the target passes the u8 stateByte unextended (lbu a1,39(sp) at 0x81c), see the declaration below
 #include "proto/boss/3840.h"
 #include "proto/boss/F0D0.h"
 #include "proto/global/119370.h"
@@ -147,7 +147,7 @@ void bossSpawnPuffDebris(void) {
     effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
 }
 
-void csModelStateSetFirstByte(s16, u8); // FAKE: callee prototype steer
+void csModelStateSetFirstByte(s16, u8); // ORIG: target sign-extends the model index (sll a0,v0,0x10 / sra t0,a0,0x10 at 0x824-0x828) but passes stateByte as a plain lbu a1,39(sp) at 0x81c (the shared (s16, s16) prototype adds sll/sra of a1 there): the original TU declared an unsigned narrow second parameter
 extern u8 D_80035BDC[];
 extern u8 D_80035BE4[];
 

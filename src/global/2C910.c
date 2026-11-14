@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_csModelStateSetFirstByte // FAKE: callee prototype steer
+#define PROTO_SKIP_csModelStateSetFirstByte // ORIG: hides the shared (s16, s16) prototype; the target passes the s32 b unconverted (lw a0,68(sp) at 0x1374), see the declaration below
 #define PROTO_SKIP_textSpawnMarkerChecked // FAKE: callee prototype steer
 #include "proto/boot/3630.h"
 #include "proto/global/100180.h"
@@ -147,7 +147,7 @@ extern PlayerStruct *gPlayerSlots;
 extern f32 gScreenFadeRate;
 
 void func_80028EE8(s32, s32, s32, s32, s32, s32, s32, s32);
-void csModelStateSetFirstByte(); // FAKE: callee prototype steer
+void csModelStateSetFirstByte(); // ORIG: target passes the s32 b unconverted (lw a0,68(sp) at 0x1374, jal at 0x1380, no sll/sra; the shared (s16, s16) prototype adds sll a0,v0,0x10 / sra t2,a0,0x10): the original TU had no prototype for csModelStateSetFirstByte in scope
 
 void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
     s16 params[4];

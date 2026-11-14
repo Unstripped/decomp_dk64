@@ -2,7 +2,7 @@
 #include "compiler/ido/memory.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_actorUpdatePrevContactFlags // FAKE: callee prototype steer (owner returns void; see the declaration below)
+#define PROTO_SKIP_actorUpdatePrevContactFlags // ORIG: hides the shared void prototype; the target keeps the actorType switch value in v1 after the call (lw v1,88(s0) at 0x2d88), see the declaration below
 #include "proto/boot/3630.h"
 #include "proto/global/100180.h"
 #include "proto/global/1025E0.h"
@@ -37,7 +37,7 @@
 #include "proto/global/EFDC0.h"
 #include "proto/global/FCCD0.h"
 
-s32 actorUpdatePrevContactFlags(Actor *);
+s32 actorUpdatePrevContactFlags(Actor *); // ORIG: target loads the actorType switch value into v1 right after jal actorUpdatePrevContactFlags (jal at 0x2d78, lw v1,88(s0) at 0x2d88, beq v1,at at 0x2d8c): the original TU declared the callee non-void (the shared void prototype puts it in v0)
 
 void mathAngleBetweenPoints3D(s16 *pitch, s16 *yaw, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
     f32 dx;
