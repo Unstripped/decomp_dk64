@@ -1,14 +1,13 @@
 #include "common.h"
+#include "audio_synth.h"
 #include "proto/global/137120.h"
 #include "proto/global/13E160.h"
 #include "audio_config.h"
-#include "audio_synth.h"
 #include "proto/global/140600.h"
 #include "proto/global/1435C0.h"
 #include "proto/global/166A0.h"
 
 
-extern N_ALSynth *n_syn;
 
 void n_alSynSetPitch(ALVoice *voice, f32 pitch) {
     SynCoreParam *param;

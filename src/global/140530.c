@@ -4,7 +4,6 @@
 #include "proto/global/140530.h"
 #include "proto/global/1435C0.h"
 
-extern N_ALSynth *n_syn;
 
 void n_alSynSetVol(ALVoice *voice, s16 volume, s32 delta) {
     SynCoreParam *param;

@@ -6,7 +6,6 @@
 #include "proto/global/144A90.h"
 
 
-extern N_ALSynth *n_syn;
 
 extern u8 D_807FF0F4[];
 extern u8 D_807FF0F6[];

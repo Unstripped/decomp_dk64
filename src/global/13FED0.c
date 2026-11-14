@@ -7,7 +7,6 @@ typedef u32 OSHWIntr;
 #include "audio_synth.h"
 #include "proto/global/13E160.h"
 
-extern N_ALSynth *n_syn;
 extern s32 osGetIntMask(s32);
 
 void alEvtqNew(ALEventQueue *evtq, ALEventListItem *items, s32 itemCount) {

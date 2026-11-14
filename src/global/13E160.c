@@ -6,7 +6,6 @@
 #include "proto/global/141E60.h"
 #include "proto/global/141EF0.h"
 
-extern N_ALSynth *n_syn;
 s32 _n_timeToSamplesNoRound(s32);
 s32 __n_nextSampleTime(ALPlayer **);
 void _n_collectPVoices(void);

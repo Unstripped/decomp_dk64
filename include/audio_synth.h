@@ -168,7 +168,8 @@ typedef struct N_ALAuxBus {
     /* 0x18 */ s32 maxSources;
     /* 0x1C */ N_PVoice **sources;
     /* 0x20 */ SynFx *fx;
-    /* 0x24 */ u8 pad24[0x20];
+    /* 0x24 */ void *newFx; // n_alSynNewFx: n_alFxNew's result, returned and stored in fx by n_alSynNew
+    /* 0x28 */ u8 pad28[0x1C];
     /* 0x44 */ SynLPFilter *filter;
 } N_ALAuxBus; // size = 0x48
 
@@ -191,5 +192,8 @@ typedef struct N_ALSynth {
     /* 0x48 */ s16 *outBuffer;
     /* 0x4C */ s32 unk4C;
 } N_ALSynth; // size = 0x50
+
+// The one synthesizer instance (n_alInit, 13D170.c: the head of n_globals).
+extern N_ALSynth *n_syn;
 
 #endif

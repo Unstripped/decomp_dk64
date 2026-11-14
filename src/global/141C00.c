@@ -4,7 +4,6 @@
 #include "proto/global/141C00.h"
 #include "proto/global/1435C0.h"
 
-extern N_ALSynth *n_syn;
 
 void n_alSynAllocVoicePriorityA(ALVoice *voice, u8 priority) {
     SynCoreParam *param;

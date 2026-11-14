@@ -3,7 +3,6 @@
 #include "proto/global/1435C0.h"
 #include "proto/global/1445A0.h"
 
-extern N_ALSynth *n_syn;
 
 Acmd *n_alAuxBusPull(s32 time, Acmd *cmdList, s32 busIndex, s32 *outCount) {
     Acmd *ptr;

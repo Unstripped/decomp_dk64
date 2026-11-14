@@ -4,6 +4,7 @@
 typedef u32 OSIntMask;
 typedef u32 OSHWIntr;
 #include "common.h"
+#include "audio_synth.h"
 #include "seqplayer.h"
 #include "proto/global/137C10.h"
 #include "proto/global/13CB50.h"
@@ -18,8 +19,6 @@ typedef u32 OSHWIntr;
 #include "proto/global/141C00.h"
 
 extern s32 osGetIntMask(s32 unused);
-
-extern ALSynth *n_syn;
 
 void n_alCSPlayerNew(N_CSPlayer *seqp, ALSeqpConfig *c) {
     s32 i;
@@ -305,11 +304,6 @@ void __n_CSPUpdateChanFxPan(N_CSPlayer *seqp, u8 chan) {
 
 typedef s32 (*GdOscInit)(void **, f32 *, u8, u8, u8, u8, u8);
 
-typedef struct {
-    u8 pad00[0x3C];
-    s32 unk3C;
-} GdBankInfo;
-
 extern s32 D_807FF040[];
 
 void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
@@ -342,7 +336,7 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
     u8 currentVal;
     u8 targetVal;
     s32 stepDelta;
-    s32 targetInst;
+    ALInstrument *targetInst;
     s32 bendVal;
     f32 bendRatio;
     s32 bendCents;
@@ -660,7 +654,7 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
                     }
                     break;
                 case 0x5C:
-                    if (byte2 < ((GdBankInfo *)n_syn)->unk3C && byte2 >= 0) {
+                    if (byte2 < n_syn->maxAuxBusses && byte2 >= 0) {
                         seqp->chanState[chan].unk0B = byte2;
                     }
                     break;
@@ -676,9 +670,9 @@ void __n_CSPHandleMIDIMsg(N_CSPlayer *seqp, ALEvent *event) {
         case 0xC0:
             oscTypeOrIndex = (seqp->chanState[chan].unk32 << 7) + key;
             if (oscTypeOrIndex < seqp->bank->instCount) {
-                targetInst = (s32)seqp->bank->instArray[oscTypeOrIndex];
-                __n_setInstChanState(seqp, (ALInstrument *)targetInst, chan);
-            } else {
+                targetInst = seqp->bank->instArray[oscTypeOrIndex];
+                __n_setInstChanState(seqp, targetInst, chan);
+            } else { // ORIG: target branches over the empty else at 0x2558 (__n_CSPHandleMIDIMsg+0x16DC, b 0x2560)
             }
             break;
         case 0xE0:

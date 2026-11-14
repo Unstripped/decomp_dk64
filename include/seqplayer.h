@@ -99,7 +99,7 @@ typedef struct N_CSPlayer {
         /* 0x00 */ ALCSPlayer al;
         struct {
             /* 0x00 */ ALPlayer node;
-            /* 0x14 */ ALSynth *drvr;
+            /* 0x14 */ struct N_ALSynth *drvr; // n_syn (n_alCSPlayerNew)
             /* 0x18 */ ALCSeq *target;
             /* 0x1C */ ALMicroTime curTime;
             /* 0x20 */ ALBank *bank;

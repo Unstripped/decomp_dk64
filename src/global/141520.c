@@ -6,7 +6,6 @@
 #include "proto/global/141EF0.h"
 #include "proto/global/1435C0.h"
 
-extern N_ALSynth *n_syn;
 
 void n_alSynSetVoiceUnkC(ALVoice *voice, u8 val) {
     SynCoreParam *param;

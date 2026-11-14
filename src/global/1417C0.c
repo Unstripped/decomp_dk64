@@ -5,7 +5,6 @@
 #include "proto/global/1417C0.h"
 #include "proto/global/1435C0.h"
 
-extern N_ALSynth *n_syn;
 
 s32 n_alSynAllocVoice(ALVoice *voice, ALVoiceConfig *config) {
     N_PVoice *pvoice = NULL;
