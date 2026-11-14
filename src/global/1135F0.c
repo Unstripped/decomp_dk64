@@ -10,12 +10,11 @@ extern u8 D_807FD9D5;
 
 void dlAppendTextureLoad(Gfx **glistp, void *texture) {
     Gfx *gfx = *glistp;
-    s32 width;
-    s32 height;
-    s32 type;
-    s32 uls;
-    s32 ult;
-    s32 lrt;
+    u32 width;
+    u32 height;
+    u8 type;
+    s32 origin;
+    s32 pad[2];
 
     D_807550D0 = texture;
     D_807FD9D0 = 0x400;
@@ -25,31 +24,29 @@ void dlAppendTextureLoad(Gfx **glistp, void *texture) {
     type = D_807550D0->type;
     height = D_807550D0->rectHeight + D_807550D0->t;
     width = D_807550D0->width;
-    if (width && width) {}  // FAKE: raises width's uopt priority (width a3, D_807550D0 address t0)
-    uls = 0;  // FAKE: value-named constant local (pre-existing, now tagged); literal 0s for uls/ult in gDPLoadTextureTile shrink the frame 0xc8 -> 0xb0 and recolour the body (Q0145)
-    ult = 0;  // FAKE: value-named constant local (pre-existing, now tagged); see uls (Q0145)
-    lrt = height;  // FAKE: redundant copy of height (pre-existing, now tagged); passing height directly shrinks the frame 0xc8 -> 0xc0 and recolours the body (Q0145)
+    if (width && width) {}  // FAKE: lifts the uopt adjsave of width from 1.92 to 2.08, tying the D_807550D0 address constant, so width takes a3 and the address t0 (Q0406)
+    origin = 0;  // FAKE: value-named constant local (pre-existing, uls/ult merged): uopt keeps width - origin and origin << 2 unfolded in the gDPLoadTextureTile expansions, so case 1 spills only its SetTileSize gfx temp (sp+0x74); literal 0s fold in cfe, spill the LoadSync and LoadTile temps instead and shrink the frame 0xc8 -> 0xb0 (Q0145, Q0599)
 
     switch (type) {
     case 1:
         if (!(width & 7)) {
-            gDPLoadTextureBlock(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_8b, (u32)width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_8b, width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
-            gDPLoadTextureTile(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_8b, (u32)width, height, uls, ult, (u32)width, lrt, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureTile(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_8b, width, height, origin, origin, width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         }
         break;
     case 2:
         if (!(width & 3)) {
-            gDPLoadTextureBlock(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_16b, (u32)width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_16b, width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
-            gDPLoadTextureTile(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_16b, (u32)width, height, uls, ult, (u32)width, lrt, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureTile(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_16b, width, height, origin, origin, width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         }
         break;
     case 3:
         if (!(width & 1)) {
-            gDPLoadTextureBlock(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_32b, (u32)width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_32b, width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
-            gDPLoadTextureTile(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_32b, (u32)width, height, uls, ult, (u32)width, lrt, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureTile(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_32b, width, height, origin, origin, width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         }
         break;
     default:
