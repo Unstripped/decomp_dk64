@@ -272,3 +272,4 @@
 {"type": "unit", "t": "2026-11-14T17:32:44Z", "unit": "2026-11-14: cleanup PolishBoss6240", "commit": "0cdfb90c1bf885d23dbb854176e9d0205a457482"}
 {"type": "unit", "t": "2026-11-14T17:32:53Z", "unit": "2026-11-14: cleanup PolishGlobal112080", "commit": "390e2c2f14145e28df887618ffe5d5419c0cd976"}
 {"type": "unit", "t": "2026-11-14T17:34:38Z", "unit": "2026-11-14: cleanup HackplayerStateSetFlagsByActorType", "commit": "58cb55fc9ca95f4fe6e38b26c2fdd34f8b34e085"}
+{"type": "unit", "t": "2026-11-14T17:35:31Z", "unit": "2026-11-14: cleanup HackdlAppendTextureLoad", "commit": "b28fe65b90929056ffd9026fe65c03dcb5054d00"}
