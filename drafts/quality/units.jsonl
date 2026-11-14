@@ -282,3 +282,4 @@
 {"type": "unit", "t": "2026-11-14T17:50:30Z", "unit": "2026-11-14: cleanup HackmeshBlobParse", "commit": "bf5af9647d1038bba1fb0a96e15b9d573cfcf48e"}
 {"type": "unit", "t": "2026-11-14T17:50:53Z", "unit": "2026-11-14: cleanup HackbonusControllerUpdate", "commit": "96487855134f85c1aab088db5c4360617ea2bcb1"}
 {"type": "unit", "t": "2026-11-14T17:53:14Z", "unit": "2026-11-14: cleanup OwnerMapAudioEntry", "commit": "a5e326be87c22ae0d92c57a4313cf4d82c152df8"}
+{"type": "unit", "t": "2026-11-14T17:54:23Z", "unit": "2026-11-14: cleanup HackgfxSwapGeometryModeCullBits", "commit": "967b88518af5a788ee4326099afd5c468e23e037"}
