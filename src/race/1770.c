@@ -425,9 +425,9 @@ void raceVehicleBehaviorUpdate(void) {
     Actor *manager;
     RaceParticipant *managerData;
     s32 i;
-    f32 bumpX;
-    f32 bumpY;
-    f32 bumpZ;
+    f32 nodeX;
+    f32 nodeY;
+    f32 nodeZ;
 
     participant = gCurrentActor->customState;
     pathState = ((RaceActor *)gCurrentActor)->unk178;
@@ -478,12 +478,11 @@ void raceVehicleBehaviorUpdate(void) {
             participant->route = 0;
         }
         if (pathState->unk39 != 0) {
-            bumpX = pathState->unk39;
-            if (bumpX > 10.0f) {
-                shakeAngle = (bumpX - 10.0f) * 204.8f;
-                bumpX = 300.0f; // FAKE: bumpX reused as the 300.0f shake amplitude; a literal or own local changes regalloc
-                pathState->unk20 = mathSinF(shakeAngle) * bumpX;
-                pathState->unk24 = mathSinF(shakeAngle * 2) * bumpX;
+            if (pathState->unk39 > 10.0f) {
+                shakeAngle = (pathState->unk39 - 10.0f) * 204.8f;
+                off = 300.0f; // FAKE: 300.0f amplitude held in off (an existing f32 home) orders colouring so shakeAngle keeps its register; a literal spills it to sp+0x72
+                pathState->unk20 = mathSinF(shakeAngle) * off;
+                pathState->unk24 = mathSinF(shakeAngle * 2) * off;
             } else {
                 pathState->unk20 = 0.0f;
                 pathState->unk24 = 0.0f;
@@ -510,15 +509,15 @@ void raceVehicleBehaviorUpdate(void) {
         } else {
             off = -200.0f;
         }
-        bumpX = gCurrentActor->x;
-        bumpZ = gCurrentActor->z;
-        bumpY = gCurrentActor->y + off;
-        gridSetNodeBounds(participant->playerIdx, bumpX, bumpY, bumpZ, 12.0f);
-        bumpX += gCurrentActor->prevX;
-        bumpX *= 0.5;
-        bumpZ += gCurrentActor->prevZ;
-        bumpZ *= 0.5;
-        gridAppendPositionNode(participant->playerIdx, bumpX, bumpY, bumpZ, 12.0f);
+        nodeX = gCurrentActor->x;
+        nodeZ = gCurrentActor->z;
+        nodeY = gCurrentActor->y + off;
+        gridSetNodeBounds(participant->playerIdx, nodeX, nodeY, nodeZ, 12.0f);
+        nodeX += gCurrentActor->prevX;
+        nodeX *= 0.5;
+        nodeZ += gCurrentActor->prevZ;
+        nodeZ *= 0.5;
+        gridAppendPositionNode(participant->playerIdx, nodeX, nodeY, nodeZ, 12.0f);
     }
     if (gCurrentActor->flags & 4) {
         actorSpawnNodeEffectFacingCamera(1, 0xC8);
