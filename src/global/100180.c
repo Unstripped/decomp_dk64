@@ -404,29 +404,28 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                             dl = textLoadFontSheetGfx(dl, font, line);
                             started = 1;
                         }
-                        vp[0].v.ob[0] = x;
-                        vp[0].v.ob[1] = yoff + y + h4 - 1;
-                        vp[1].v.ob[1] = yoff + y + h4 - 1;
-                        vp[0].v.ob[2] = -5;
-                        vp[0].v.tc[0] = gx << 6; vp[0].v.tc[1] = h << 6; // LAYOUT: one line lets as1 store tc[1] before tc[0]
-                        vp[1].v.ob[0] = x + w4 - 1;
-                        vp[1].v.ob[2] = -5;
-                        if (w4) {} // FAKE: splits the vertex block so its first and last temps share v0
-                        vp[1].v.tc[0] = (gx + w) << 6;
-                        vp[1].v.tc[1] = h << 6;
-                        vp[2].v.ob[0] = x + w4 - 1;
-                        vp[2].v.ob[1] = yoff + y;
-                        vp[2].v.ob[2] = -5;
-                        vp[2].v.tc[0] = (gx + w) << 6;
-                        vp[2].v.tc[1] = 0;
-                        vp[3].v.ob[1] = yoff + y;
-                        vp[3].v.ob[0] = x;
-                        vp[3].v.ob[2] = -5;
-                        vp[3].v.tc[0] = gx << 6;
-                        vp[3].v.tc[1] = 0;
-                        vp++; // FAKE: four single increments (not vp += 4) keep the quad's vp steps for uopt
+                        vp->v.ob[0] = x;
+                        vp->v.ob[1] = yoff + y + h4 - 1;
+                        vp->v.ob[2] = -5;
+                        vp->v.tc[0] = gx << 6; vp->v.tc[1] = h << 6; // LAYOUT: one line lets as1 store tc[1] before tc[0]
                         vp++;
+                        vp->v.ob[0] = x + w4 - 1;
+                        vp->v.ob[1] = yoff + y + h4 - 1;
+                        vp->v.ob[2] = -5;
+                        vp->v.tc[0] = (gx + w) << 6;
+                        vp->v.tc[1] = h << 6;
                         vp++;
+                        vp->v.ob[0] = x + w4 - 1;
+                        vp->v.ob[1] = yoff + y;
+                        vp->v.ob[2] = -5;
+                        vp->v.tc[0] = (gx + w) << 6;
+                        vp->v.tc[1] = 0;
+                        vp++;
+                        vp->v.ob[1] = yoff + y;
+                        vp->v.ob[0] = x;
+                        vp->v.ob[2] = -5;
+                        vp->v.tc[0] = gx << 6;
+                        vp->v.tc[1] = 0;
                         vp++;
                         if (flags & 0x32) {
                             vtxSetQuadGradientColors(vp - 4, idx, flags);
