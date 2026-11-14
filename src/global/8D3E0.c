@@ -1,6 +1,7 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
+#include "sched.h"
 #include "map.h"
 #include "proto/global/15050.h"
 #include "proto/global/17B90.h"
@@ -799,16 +800,7 @@ s32 actorListFindClosestTargetIndex(s32 *recordList, s16 *typeList, u8 typeCount
     return bestIndex;
 }
 
-typedef struct ActorListPlayerEntry {
-    u8 unk0;
-    char pad1[0x210 - 1];
-    f32 unk210;
-    f32 unk214;
-    f32 unk218;
-    char pad21C[0x2F0 - 0x21C];
-} ActorListPlayerEntry;
-
-extern ActorListPlayerEntry *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 
 f32 playerGetMinSquaredDist3D(f32 posX, f32 posY, f32 posZ) {
@@ -816,8 +808,8 @@ f32 playerGetMinSquaredDist3D(f32 posX, f32 posY, f32 posZ) {
     s32 i;
 
     for (i = 0; i < gPlayerCount; i++) {
-        if (gPlayerSlots[i].unk0 != 0) {
-            f32 dist = (posX - gPlayerSlots[i].unk210) * (posX - gPlayerSlots[i].unk210) + (posY - gPlayerSlots[i].unk214) * (posY - gPlayerSlots[i].unk214) + (posZ - gPlayerSlots[i].unk218) * (posZ - gPlayerSlots[i].unk218);
+        if (gPlayerSlots[i].active != 0) {
+            f32 dist = (posX - gPlayerSlots[i].camX) * (posX - gPlayerSlots[i].camX) + (posY - gPlayerSlots[i].camY) * (posY - gPlayerSlots[i].camY) + (posZ - gPlayerSlots[i].camZ) * (posZ - gPlayerSlots[i].camZ);
             if (dist < minDist) {
                 minDist = dist;
             }

@@ -1,6 +1,7 @@
 #include "common.h"
 #include "boss.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/boss/3840.h"
 #include "proto/boss/B100.h"
 #include "proto/global/10E1D0.h"
@@ -69,15 +70,8 @@ typedef struct BossMainActor {
     BossPhaseState *unk178;
 } BossMainActor;
 
-
-typedef struct BossGlobalC924 {
-    u8 pad0[0x2C0];
-    u8 unk2C0;
-} BossGlobalC924;
-
-
 extern u8 *D_80035A90[];
-extern BossGlobalC924 *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern void *gCamActor;
 
 void behaviourFrameBegin(void);

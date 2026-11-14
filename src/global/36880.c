@@ -2983,26 +2983,10 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
     return gfx;
 }
 
-typedef struct PlayerCtlRef {
-    /* 0x000 */ u8 pad0[0x174];
-    /* 0x174 */ struct PlayerControllerState *unk174;
-} PlayerCtlRef;
-
 typedef struct PlayerControllerState {
     /* 0x000 */ u8 pad0[0x1F4];
     /* 0x1F4 */ s32 unk1F4;
 } PlayerControllerState;
-
-typedef struct PlayerActorRef {
-    /* 0x00 */ u8 pad0[0x58];
-    /* 0x58 */ s32 unk58;
-} PlayerActorRef;
-
-typedef struct PlayerSlotEntry {
-    /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ PlayerActorRef *unk4;
-    /* 0x008 */ u8 pad8[0x2E8];
-} PlayerSlotEntry; /* 0x2F0 */
 
 extern u8 gPlayerCharacterId[];
 typedef struct PlayerKongRecord {
@@ -3017,85 +3001,83 @@ typedef struct PlayerKongArray {
 
 extern PlayerKongArray D_807FC952[];
 
-#define PLAYER_CURRENT_OBJ ((PlayerSlotEntry *)gPlayerSlots)[gCurrentPlayerIndex].unk4
-
 void modelKongVisibilityCheck(s16 type, u8 *visibleOut, s16 *alphaOut) {
     s32 hit = 0;
     PlayerControllerState *ctl;
 
     switch (type) {
     case 0x24:
-        if (PLAYER_CURRENT_OBJ->unk58 != 3) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 3) {
             hit = 1;
         }
         break;
     case 0x1D:
-        if (PLAYER_CURRENT_OBJ->unk58 != 2) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 2) {
             hit = 1;
         }
         break;
     case 0x1C:
-        if (PLAYER_CURRENT_OBJ->unk58 != 5) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 5) {
             hit = 1;
         }
         break;
     case 0x23:
-        if (PLAYER_CURRENT_OBJ->unk58 != 4) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 4) {
             hit = 1;
         }
         break;
     case 0x27:
-        if (PLAYER_CURRENT_OBJ->unk58 != 6) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 6) {
             hit = 1;
         }
         break;
     case 0xD:
-        if (PLAYER_CURRENT_OBJ->unk58 != 2) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 2) {
             hit = 1;
         }
         break;
     case 0xA:
-        if (PLAYER_CURRENT_OBJ->unk58 != 3) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 3) {
             hit = 1;
         }
         break;
     case 0x16:
-        if (PLAYER_CURRENT_OBJ->unk58 != 5) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 5) {
             hit = 1;
         }
         break;
     case 0x1E:
-        if (PLAYER_CURRENT_OBJ->unk58 != 4) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 4) {
             hit = 1;
         }
         break;
     case 0x1F:
-        if (PLAYER_CURRENT_OBJ->unk58 != 6) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 6) {
             hit = 1;
         }
         break;
     case 0x2B:
-        if (PLAYER_CURRENT_OBJ->unk58 != 2) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 2) {
             hit = 1;
         }
         break;
     case 0x208:
-        if (PLAYER_CURRENT_OBJ->unk58 != 3) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 3) {
             hit = 1;
         }
         break;
     case 0x207:
-        if (PLAYER_CURRENT_OBJ->unk58 != 5) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 5) {
             hit = 1;
         }
         break;
     case 0x205:
-        if (PLAYER_CURRENT_OBJ->unk58 != 4) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 4) {
             hit = 1;
         }
         break;
     case 0x206:
-        if (PLAYER_CURRENT_OBJ->unk58 != 6) {
+        if (gPlayerSlots[gCurrentPlayerIndex].actor->actorType != 6) {
             hit = 1;
         }
         break;
@@ -3110,13 +3092,13 @@ void modelKongVisibilityCheck(s16 type, u8 *visibleOut, s16 *alphaOut) {
         }
         break;
     case 0x98:
-        ctl = ((PlayerCtlRef *)PLAYER_CURRENT_OBJ)->unk174;
+        ctl = gPlayerSlots[gCurrentPlayerIndex].actor->customState;
         if (!(ctl->unk1F4 & 1)) {
             hit = 1;
         }
         break;
     case 0x8E:
-        ctl = ((PlayerCtlRef *)PLAYER_CURRENT_OBJ)->unk174;
+        ctl = gPlayerSlots[gCurrentPlayerIndex].actor->customState;
         if (!(ctl->unk1F4 & 2)) {
             hit = 1;
         }

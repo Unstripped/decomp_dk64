@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/global/104F0.h"
 #include "proto/global/112080.h"
 #include "proto/global/117190.h"
@@ -57,25 +58,10 @@ typedef struct R1C8aD580 {
     /* 0x1F4 */ s32 unk1F4;
 } R1C8aD580;
 
-typedef struct R1C8aPlayer {
-    /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ R1C8aActor *unk4;
-    /* 0x008 */ u8 pad8[0x208];
-    /* 0x210 */ f32 unk210;
-    /* 0x214 */ u8 pad214[4];
-    /* 0x218 */ f32 unk218;
-    /* 0x21C */ u8 pad21C[0xC];
-    /* 0x228 */ f32 unk228;
-    /* 0x22C */ u8 pad22C[4];
-    /* 0x230 */ f32 unk230;
-    /* 0x234 */ u8 pad234[0x8C];
-    /* 0x2C0 */ u8 unk2C0;
-} R1C8aPlayer;
-
 #define R1C8aA ((R1C8aActor *)gCurrentActor)
 #define R1C8aD ((R1C8aD580 *)gActivePlayerState)
 
-extern R1C8aPlayer *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern Actor *gCamActor;
 extern s32 gCurrentMap;
 
@@ -184,7 +170,7 @@ extern s16 D_80750AC8;
 
 void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 initialCutsceneId, s32 rewardCutsceneId, s32 targetCount, s32 rewardFlag) {
     s16 *heightOffsetPtr = R1C8aA->unk178;
-    R1C8aSub174 *sub = gPlayerSlots->unk4->unk174;
+    R1C8aSub174 *sub = gPlayerSlots->actor->customState;
     Actor *subActor = sub->unk88;
     s32 pathId;
 
@@ -346,7 +332,7 @@ u8 func_806C4AC4(u16 spawnCooldown, u16 maxSpawns) {
         case 0x26:
             R1C8aD->unk1F4 |= 0x40;
             ang = mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z);
-            R1C8aA->unkEC = (s16)(ang - mathAngleBetweenPointsDeg((s32)gPlayerSlots->unk228, (s32)gPlayerSlots->unk230, (s32)gPlayerSlots->unk210, (s32)gPlayerSlots->unk218));
+            R1C8aA->unkEC = (s16)(ang - mathAngleBetweenPointsDeg((s32)gPlayerSlots->focusX, (s32)gPlayerSlots->focusZ, (s32)gPlayerSlots->camX, (s32)gPlayerSlots->camZ));
             actorAirPatrolStep(gCurrentActor->state, gBehaviourAnimState->animId1, gBehaviourAnimState->animId2);
             gCurrentActor->unk15F = maxSpawns - gBehaviourWorkState->timer + 1;
             if (gActorGlobalState.unk0 != 0) {
@@ -773,19 +759,9 @@ typedef struct R1C8CBCfg {
     /* 0x1E */ s8 unk1E;
 } R1C8CBCfg;
 
-typedef struct R1C8CBPlayer {
-    /* 0x000 */ u8 pad0[0x210];
-    /* 0x210 */ f32 unk210;
-    /* 0x214 */ u8 pad214[4];
-    /* 0x218 */ f32 unk218;
-    /* 0x21C */ u8 pad21C[0x68];
-    /* 0x284 */ f32 unk284;
-} R1C8CBPlayer;
-
 
 extern s16 gCurrentLevelIndex;
 extern s32 D_8071FB08;
-#define R1C8CBP ((R1C8CBPlayer *)gPlayerSlots)
 extern s16 D_807FD802;
 extern s16 D_807FD804;
 extern s16 D_807FD806;
@@ -815,9 +791,9 @@ void func_806C5C20(void) {
         effectCreateAtPosition(&D_8071FB08, 1.6f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
     if (!(gActivePlayerState->stateFlags & 0x8000)) {
-        dist = sqrtf((R1C8CBP->unk218 - gCurrentActor->z) * (R1C8CBP->unk218 - gCurrentActor->z) +
-                     (R1C8CBP->unk210 - gCurrentActor->x) * (R1C8CBP->unk210 - gCurrentActor->x)) -
-               R1C8CBP->unk284;
+        dist = sqrtf((gPlayerSlots->camZ - gCurrentActor->z) * (gPlayerSlots->camZ - gCurrentActor->z) +
+                     (gPlayerSlots->camX - gCurrentActor->x) * (gPlayerSlots->camX - gCurrentActor->x)) -
+               gPlayerSlots->unk284;
         if (D_807FD804 >= 0x8A && D_807FD804 < 0xB1 && D_807FD806 >= 0x61 && D_807FD806 < 0x88 && dist < D_807FD802) {
             if (gActivePlayerState->unk1EC != 1) {
                 if (behaviourIsTargetWithinAngle(0x1388) != 0) {

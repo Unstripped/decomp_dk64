@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "map.h"
 #include "render.h"
 #define PROTO_SKIP_renderEntryListBuildDisplayList // FAKE: callee prototype steer
@@ -1178,40 +1179,16 @@ u8 mapNodeTriangleContainsPoint(MapCollisionNode *tri, f32 x, f32 z) {
     return flag == 0;
 }
 
-
-typedef struct {
-    /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ Actor *actor;
-    /* 0x008 */ Mtx viewMtx[2];
-    /* 0x088 */ u8 pad88[0x21C - 0x88];
-    /* 0x21C */ f32 posX;
-    /* 0x220 */ f32 posY;
-    /* 0x224 */ f32 posZ;
-    /* 0x228 */ u8 pad228[0x270 - 0x228];
-    /* 0x270 */ s16 viewLeft;
-    /* 0x272 */ s16 viewTop;
-    /* 0x274 */ s16 viewRight;
-    /* 0x276 */ s16 viewBottom;
-    /* 0x278 */ s16 viewWidth;
-    /* 0x27A */ s16 viewHeight;
-    /* 0x27C */ f32 fov;
-    /* 0x280 */ u8 pad280[0x288 - 0x280];
-    /* 0x288 */ f32 fogDist;
-    /* 0x28C */ u8 pad28C[4];
-    /* 0x290 */ s16 chunk;
-    /* 0x292 */ u8 pad292[0x2F0 - 0x292];
-} MapPlayer;
-
-extern MapPlayer *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 
 void mapChunkActivate(s16 chunkIndex) {
     gMapChunks[chunkIndex].state = 1;
     gMapChunks[chunkIndex].playerMask |= 1 << gCurrentPlayerIndex;
-    gMapChunks[chunkIndex].clipLeft = gPlayerSlots[gCurrentPlayerIndex].viewLeft;
-    gMapChunks[chunkIndex].clipTop = gPlayerSlots[gCurrentPlayerIndex].viewTop;
-    gMapChunks[chunkIndex].clipRight = gPlayerSlots[gCurrentPlayerIndex].viewRight;
-    gMapChunks[chunkIndex].clipBottom = gPlayerSlots[gCurrentPlayerIndex].viewBottom;
+    gMapChunks[chunkIndex].clipLeft = gPlayerSlots[gCurrentPlayerIndex].rect[0];
+    gMapChunks[chunkIndex].clipTop = gPlayerSlots[gCurrentPlayerIndex].rect[1];
+    gMapChunks[chunkIndex].clipRight = gPlayerSlots[gCurrentPlayerIndex].rect[2];
+    gMapChunks[chunkIndex].clipBottom = gPlayerSlots[gCurrentPlayerIndex].rect[3];
 }
 
 
@@ -1228,21 +1205,21 @@ extern f32 D_807F5FB0;
 extern u8 D_807F6C08;
 
 void mapChunkFrameUpdate(f32 x, f32 y, f32 z) {
-    gPlayerSlots[gCurrentPlayerIndex].chunk = mapChunkFindByPosition(x, y, z, gPlayerSlots[gCurrentPlayerIndex].chunk);
+    gPlayerSlots[gCurrentPlayerIndex].unk290 = mapChunkFindByPosition(x, y, z, gPlayerSlots[gCurrentPlayerIndex].unk290);
     if (D_807F70AB != 0) {
-        gPlayerSlots[gCurrentPlayerIndex].chunk = gPlayerSlots[gCurrentPlayerIndex].actor->chunkIndex;
+        gPlayerSlots[gCurrentPlayerIndex].unk290 = gPlayerSlots[gCurrentPlayerIndex].actor->chunkIndex;
     }
-    mapUpdateFogDistance(&gPlayerSlots[gCurrentPlayerIndex].fogDist, gPlayerSlots[gCurrentPlayerIndex].chunk);
-    D_807F7138 = (s16)(s32)gPlayerSlots[gCurrentPlayerIndex].fogDist;
+    mapUpdateFogDistance(&gPlayerSlots[gCurrentPlayerIndex].farClip, gPlayerSlots[gCurrentPlayerIndex].unk290);
+    D_807F7138 = (s16)(s32)gPlayerSlots[gCurrentPlayerIndex].farClip;
     frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, (f32)D_807F7138);
     frustumCornersTransformByInverse(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
     frustumOrientPolyNormals(x, y, z, gFrustumPlanes, D_807F5E20);
     mapChunkClearBounds();
-    mapChunkActivate(gPlayerSlots[gCurrentPlayerIndex].chunk);
+    mapChunkActivate(gPlayerSlots[gCurrentPlayerIndex].unk290);
     mapTriggerCollectZonesAtPoint(x, y, z);
     D_807F6C80 = 0;
     D_807F6C08 = 0;
-    mapChunkTraversePortals(gPlayerSlots[gCurrentPlayerIndex].chunk, 0, gPlayerSlots[gCurrentPlayerIndex].viewLeft, gPlayerSlots[gCurrentPlayerIndex].viewTop, gPlayerSlots[gCurrentPlayerIndex].viewRight, gPlayerSlots[gCurrentPlayerIndex].viewBottom, x, y, z);
+    mapChunkTraversePortals(gPlayerSlots[gCurrentPlayerIndex].unk290, 0, gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3], x, y, z);
     mapChunkRenderNodes(x, y, z);
     effectWaterUpdateMeshes(x, y, z, gCurrentPlayerIndex);
     actorCalculateTargetDistancesAndAngles(x, y, z);
@@ -1435,13 +1412,13 @@ void mapScreenRectBuildFrustum(s32 left, s32 top, s32 right, s32 bottom, f32 x, 
     f32 y1;
     f32 m[4][3];
 
-    q = ((f32)(left - gPlayerSlots[player].viewLeft)) / (f32)gPlayerSlots[player].viewWidth;
+    q = ((f32)(left - gPlayerSlots[player].rect[0])) / (f32)gPlayerSlots[player].unk278;
     x0 = (q * (D_807F5DF0.c1x - D_807F5DF0.c0x)) + D_807F5DF0.c0x;
-    q = ((f32)(right - gPlayerSlots[player].viewLeft)) / (f32)gPlayerSlots[player].viewWidth;
+    q = ((f32)(right - gPlayerSlots[player].rect[0])) / (f32)gPlayerSlots[player].unk278;
     x1 = (q * (D_807F5DF0.c1x - D_807F5DF0.c0x)) + D_807F5DF0.c0x;
-    q = ((f32)(top - gPlayerSlots[player].viewTop)) / (f32)gPlayerSlots[player].viewHeight;
+    q = ((f32)(top - gPlayerSlots[player].rect[1])) / (f32)gPlayerSlots[player].unk27A;
     y0 = ((D_807F5DF0.c2y - D_807F5DF0.c0y) * q) + D_807F5DF0.c0y;
-    q = ((f32)(bottom - gPlayerSlots[player].viewTop)) / (f32)gPlayerSlots[player].viewHeight;
+    q = ((f32)(bottom - gPlayerSlots[player].rect[1])) / (f32)gPlayerSlots[player].unk27A;
     y1 = ((D_807F5DF0.c2y - D_807F5DF0.c0y) * q) + D_807F5DF0.c0y;
     m[0][0] = x1; m[0][1] = y1; m[0][2] = D_807F5DF0.c0z;
     m[1][0] = x0; m[1][1] = y1; m[1][2] = D_807F5DF0.c1z;
@@ -2010,8 +1987,8 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
         gDPPipeSync(gfx++);
     }
     gDPPipeSync(gfx++);
-    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, gPlayerSlots[gCurrentPlayerIndex].viewLeft, gPlayerSlots[gCurrentPlayerIndex].viewTop, gPlayerSlots[gCurrentPlayerIndex].viewRight, gPlayerSlots[gCurrentPlayerIndex].viewBottom);
-    mapSetClipBounds(gPlayerSlots[gCurrentPlayerIndex].viewLeft, gPlayerSlots[gCurrentPlayerIndex].viewTop, gPlayerSlots[gCurrentPlayerIndex].viewRight, gPlayerSlots[gCurrentPlayerIndex].viewBottom);
+    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
+    mapSetClipBounds(gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
     D_807F600C = NULL;
     gfx = renderEntryListBuildDisplayList(gfx, D_807F5FFC, x, y, z, flags, -1, 0);
     return billboardRenderQueued(gfx, -1);
@@ -2526,24 +2503,24 @@ void mapPolyProjectToScreenRect(s32 count, s32 *outLeft, s32 *outTop, s32 *outRi
     s32 i;
     u8 flag;
 
-    *outLeft = gPlayerSlots[gCurrentPlayerIndex].viewRight;
-    *outTop = gPlayerSlots[gCurrentPlayerIndex].viewBottom;
-    *outRight = gPlayerSlots[gCurrentPlayerIndex].viewLeft;
-    *outBottom = gPlayerSlots[gCurrentPlayerIndex].viewTop;
+    *outLeft = gPlayerSlots[gCurrentPlayerIndex].rect[2];
+    *outTop = gPlayerSlots[gCurrentPlayerIndex].rect[3];
+    *outRight = gPlayerSlots[gCurrentPlayerIndex].rect[0];
+    *outBottom = gPlayerSlots[gCurrentPlayerIndex].rect[1];
     flag = 0;
     for (i = 0; i < count; i++) {
         flag |= camProjectToScreen(D_807F6D78[i].x, D_807F6D78[i].y, D_807F6D78[i].z, &sx, &sy, 0, 1.0f, gCurrentPlayerIndex); x = (s16)sx; y = (s16)sy; // LAYOUT: same-line statements steer sra scheduling
-        if (x < gPlayerSlots[gCurrentPlayerIndex].viewLeft) {
-            x = gPlayerSlots[gCurrentPlayerIndex].viewLeft;
+        if (x < gPlayerSlots[gCurrentPlayerIndex].rect[0]) {
+            x = gPlayerSlots[gCurrentPlayerIndex].rect[0];
         }
-        if (y < gPlayerSlots[gCurrentPlayerIndex].viewTop) {
-            y = gPlayerSlots[gCurrentPlayerIndex].viewTop;
+        if (y < gPlayerSlots[gCurrentPlayerIndex].rect[1]) {
+            y = gPlayerSlots[gCurrentPlayerIndex].rect[1];
         }
-        if (gPlayerSlots[gCurrentPlayerIndex].viewRight < x) {
-            x = gPlayerSlots[gCurrentPlayerIndex].viewRight;
+        if (gPlayerSlots[gCurrentPlayerIndex].rect[2] < x) {
+            x = gPlayerSlots[gCurrentPlayerIndex].rect[2];
         }
-        if (gPlayerSlots[gCurrentPlayerIndex].viewBottom < y) {
-            y = gPlayerSlots[gCurrentPlayerIndex].viewBottom;
+        if (gPlayerSlots[gCurrentPlayerIndex].rect[3] < y) {
+            y = gPlayerSlots[gCurrentPlayerIndex].rect[3];
         }
         if (x < *outLeft) {
             *outLeft = x;
@@ -2767,9 +2744,9 @@ s32 mapPointOutsideClipBounds(f32 x, f32 y, f32 z, u8 marginX, u8 marginY) {
     camProjectToScreen(x, y, z, &sx, &sy, 0, 1.0f, gCurrentPlayerIndex);
     px = (s16)sx;
     py = (s16)sy;
-    dist = sqrtf((x - gPlayerSlots[gCurrentPlayerIndex].posX) * (x - gPlayerSlots[gCurrentPlayerIndex].posX)
-                 + (y - gPlayerSlots[gCurrentPlayerIndex].posY) * (y - gPlayerSlots[gCurrentPlayerIndex].posY)
-                 + (z - gPlayerSlots[gCurrentPlayerIndex].posZ) * (z - gPlayerSlots[gCurrentPlayerIndex].posZ));
+    dist = sqrtf((x - gPlayerSlots[gCurrentPlayerIndex].eyeX) * (x - gPlayerSlots[gCurrentPlayerIndex].eyeX)
+                 + (y - gPlayerSlots[gCurrentPlayerIndex].eyeY) * (y - gPlayerSlots[gCurrentPlayerIndex].eyeY)
+                 + (z - gPlayerSlots[gCurrentPlayerIndex].eyeZ) * (z - gPlayerSlots[gCurrentPlayerIndex].eyeZ));
     if (dist < 90.0f) {
         return 0;
     }
