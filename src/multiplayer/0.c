@@ -5,6 +5,7 @@
 #include "proto/global/100180.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
 #include "proto/global/1295B0.h"
 #include "proto/global/13A7A0.h"
 #include "proto/global/15050.h"
@@ -384,8 +385,8 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
 
 
 Gfx *mpDrawHud(Gfx *glistp, Actor *controller) {
-    s32 matchOver = D_807552E4.matchPhase >= 2; // FAKE: early-load local (reads unk8 before the display-list stores, slti/xori result in t0)
-    s32 paused = gGlobalPauseFlags & 3; // FAKE: early-load local (reads gGlobalPauseFlags before the display-list stores)
+    s32 matchOver = D_807552E4.matchPhase >= 2;
+    s32 paused = gGlobalPauseFlags & 3;
 
     gDPPipeSync(glistp++);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
@@ -418,7 +419,6 @@ s32 mpRandomSpawnDelay(void) {
 }
 
 extern u8 gPlayerCharacterId[];
-extern u8 D_8071F3C0;
 extern u8 D_807207BC;
 
 s32 mpUpdateScoreEffects(void) {
@@ -428,50 +428,42 @@ s32 mpUpdateScoreEffects(void) {
     PlayerInventory *score;
     PlayerState *playerState;
     s32 boneIndex;
-    void *callback;
 
-    i = 0;
-    if (gPlayerCount > 0) {
-        do {
-            playerState = gPlayerSlots[i].actor->customState;
-            score = &gPlayerInventoryTable[i];
-            if (slotQueueGetValue(1, i) != 0) {
-                totalScore = score->healthDelta + score->health;
-                if (playerState->scoreEffect == 0) {
-                    callback = (void *)(s32)&D_8071F3C0; // FAKE: cast round-trip keeps the hoisted address register
-                    switch (gPlayerCharacterId[i]) {
-                    case 0:
-                    case 3:
-                        boneIndex = 0xF;
-                        break;
-                    case 1:
-                    case 2:
-                    case 4:
-                    case 5:
-                        boneIndex = 0xD;
-                        break;
-                    }
-                    effectSetDepth(1);
-                    effectSetDuration(-1);
-                    effectSetMode(2);
-                    effectSetColor(0xFF, 0xFF, 0xFF, 0x7F);
-                    effectSetCallback(callback);
-                    playerState->scoreEffect = effectCreateAtActorBone(&D_807207BC, 0.5f, gPlayerSlots[i].actor, boneIndex, 2);
-                    score->unk2FA = totalScore;
+    for (i = 0; i < gPlayerCount; i++) {
+        playerState = gPlayerSlots[i].actor->customState;
+        score = &gPlayerInventoryTable[i];
+        if (slotQueueGetValue(1, i) != 0) {
+            totalScore = score->healthDelta + score->health;
+            if (playerState->scoreEffect == 0) {
+                switch (gPlayerCharacterId[i]) {
+                case 0:
+                case 3:
+                    boneIndex = 0xF;
+                    break;
+                case 1:
+                case 2:
+                case 4:
+                case 5:
+                    boneIndex = 0xD;
+                    break;
                 }
-                if (score->unk2FA < totalScore) {
-                    score->unk2FA = totalScore;
-                }
-                ret = i;
-            } else {
-                if (playerState->scoreEffect != 0) {
-                    effectFreeAndUnlink(playerState->scoreEffect);
-                    playerState->scoreEffect = 0;
-                    score->unk2FA = 0;
-                }
+                effectSetDepth(1);
+                effectSetDuration(-1);
+                effectSetMode(2);
+                effectSetColor(0xFF, 0xFF, 0xFF, 0x7F);
+                effectSetCallback(func_8071F3C0);
+                playerState->scoreEffect = effectCreateAtActorBone(&D_807207BC, 0.5f, gPlayerSlots[i].actor, boneIndex, 2);
+                score->unk2FA = totalScore;
             }
-            i++;
-        } while (i < gPlayerCount);
+            if (score->unk2FA < totalScore) {
+                score->unk2FA = totalScore;
+            }
+            ret = i;
+        } else if (playerState->scoreEffect != 0) {
+            effectFreeAndUnlink(playerState->scoreEffect);
+            playerState->scoreEffect = 0;
+            score->unk2FA = 0;
+        }
     }
     return ret;
 }
@@ -543,59 +535,46 @@ void mpUpdateItemSpawns(void) {
     items = mapEntry->items;
     mpUpdateMatchTimer();
     if (menuIsTransitionType6() != 0 && !(gGlobalPauseFlags & 2)) {
-        itemIndex = 0;
-        item = items;
-        if (mapEntry->count > 0) {
-            do {
-                if (item->respawnTimer != 0) {
-                    item->respawnTimer--;
+        for (itemIndex = 0; itemIndex < mapEntry->count; itemIndex++) {
+            item = &items[itemIndex];
+            if (item->respawnTimer != 0) {
+                item->respawnTimer--;
+            } else {
+                if (item->radius == 0) {
+                    clusterCount = 1;
                 } else {
-                    j = 0;
-                    if (item->radius == 0) {
-                        clusterCount = 1;
-                    } else {
-                        clusterCount = ((randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
-                    }
-                    if (clusterCount > 0) {
-                        do {
-                            k = 0;
-                            itemCount = ((randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
-                            spawnDelay = (s16) mpRandomSpawnDelay();
-                            radius = (f32) ((((f64) randomFloat() * 0.8) + 0.2) * (f64) item->radius);
-                            angle = (randomNonNegative() >> 15) % 4096;
-                            centerX = (f32) item->x;
-                            baseY = (f32) (item->y - 23);
-                            centerZ = (f32) item->z;
-                            centerX += radius * mathSinF(angle);
-                            centerZ += radius * mathCosF(angle);
-                            if (itemCount >= 2) {
-                                angle = (randomNonNegative() >> 15) % 4096;
-                                radius = 15.0f;
-                                angleStep = 4096.0f / (f32) itemCount;
-                            } else {
-                                radius = 0.0f;
-                                angleStep = 0.0f;
-                                angle = 0;
-                            }
-                            if (itemCount > 0) {
-                                spawnY = (s16) baseY;
-                                do {
-                                    f32 x = centerX + mathSinF(angle) * radius;
-                                    f32 z = centerZ + mathCosF(angle) * radius;
-                                    func_806F5F2C(0x7A, spawnDelay, (s16) x, spawnY, (s32) z);
-                                    k++;
-                                    angle += angleStep;
-                                    angle &= 0xFFF;
-                                } while (k != itemCount);
-                            }
-                            j++;
-                        } while (j != clusterCount);
-                    }
-                    item->respawnTimer = mpRandomSpawnDelay();
+                    clusterCount = ((randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
                 }
-                item++;
-                itemIndex++;
-            } while (itemIndex < mapEntry->count);
+                for (j = 0; j < clusterCount; j++) {
+                    itemCount = ((randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
+                    spawnDelay = (s16) mpRandomSpawnDelay();
+                    radius = (f32) ((((f64) randomFloat() * 0.8) + 0.2) * (f64) item->radius);
+                    angle = (randomNonNegative() >> 15) % 4096;
+                    centerX = (f32) item->x;
+                    baseY = (f32) (item->y - 23);
+                    centerZ = (f32) item->z;
+                    centerX += radius * mathSinF(angle);
+                    centerZ += radius * mathCosF(angle);
+                    if (itemCount >= 2) {
+                        angle = (randomNonNegative() >> 15) % 4096;
+                        radius = 15.0f;
+                        angleStep = 4096.0f / (f32) itemCount;
+                    } else {
+                        radius = 0.0f;
+                        angleStep = 0.0f;
+                        angle = 0;
+                    }
+                    spawnY = (s16) baseY;
+                    for (k = 0; k < itemCount; k++) {
+                        f32 x = centerX + mathSinF(angle) * radius;
+                        f32 z = centerZ + mathCosF(angle) * radius;
+                        func_806F5F2C(0x7A, spawnDelay, (s16) x, spawnY, (s32) z);
+                        angle += angleStep;
+                        angle &= 0xFFF;
+                    }
+                }
+                item->respawnTimer = mpRandomSpawnDelay();
+            }
         }
     }
 }
@@ -654,17 +633,13 @@ void mpApplyPendingEffect(s32 playerIndex) {
         func_806F54E0(playerIndex, 0x8E, 0);
         break;
     case 1:
-        i = 0;
-        if (gPlayerCount > 0) {
-            do {
-                otherActor = gPlayerSlots[i].actor;
-                otherState = otherActor->customState;
-                if (i != playerIndex && otherState->surfaceTimer == 0 && otherActor->state != 0x84) {
-                    playerStateQueueCallback(0x27, playerActor, i);
-                    otherState->unk200 = 0x96;
-                }
-                i++;
-            } while (i < gPlayerCount);
+        for (i = 0; i < gPlayerCount; i++) {
+            otherActor = gPlayerSlots[i].actor;
+            otherState = otherActor->customState;
+            if (i != playerIndex && otherState->surfaceTimer == 0 && otherActor->state != 0x84) {
+                playerStateQueueCallback(0x27, playerActor, i);
+                otherState->unk200 = 0x96;
+            }
         }
         break;
     case 2:
@@ -737,9 +712,9 @@ extern u64 D_807445B0;
 extern u8 D_80026F70;
 
 typedef struct MpHudIconTableEntry {
-    void *unk0;
-    f32 unk4;
-    s32 unk8;
+    void *asset;
+    f32 scale;
+    s32 param;
 } MpHudIconTableEntry;
 extern MpHudIconTableEntry D_80027024[];
 
@@ -748,7 +723,7 @@ void mpUpdate(void) {
     s32 i;
     s32 j;
     s32 k;
-    s32 flag;
+    s32 spawnCrown;
     G00Entry *vp;
     f32 x;
     f32 y;
@@ -759,7 +734,7 @@ void mpUpdate(void) {
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        flag = 0;
+        spawnCrown = 0;
         playerResetSpawnGlobals();
         for (i = 0; i < gPlayerCount; i++) {
             state->viewports[i] = cameraFindViewportEntry(i);
@@ -775,11 +750,12 @@ void mpUpdate(void) {
         switch (D_807552E4.gameMode) {
         case 3:
         case 5:
-            flag = 1; // FAKE: flag + fallthrough into case 2 (steers branch shape)
+            spawnCrown = 1;
+            /* fallthrough */
         case 2:
-            if (flag != 0) {
-                MpSpawnPoint *q = mpFindCurrentMapEntry()->items;
-                func_806F5FE8(0x1D2, q->x, q->y, q->z, 10);
+            if (spawnCrown != 0) {
+                MpSpawnPoint *spawnPoint = mpFindCurrentMapEntry()->items;
+                func_806F5FE8(0x1D2, spawnPoint->x, spawnPoint->y, spawnPoint->z, 10);
             }
             break;
         case 4:
@@ -798,7 +774,7 @@ void mpUpdate(void) {
         state->hudScaleMtx = heapAlloc(0x40);
         guScale(state->hudScaleMtx, 0.5f, 0.5f, 1.0f);
         state->timeLimit = D_807552E4.limit;
-        state->timeLimit = state->timeLimit * 60; // the target stores unkC twice (raw value, then * 60)
+        state->timeLimit = state->timeLimit * 60; // the target stores timeLimit twice (raw value, then * 60)
         gCurrentActor->renderFlags |= 2;
         state->glyphFull = assetLoad(0xE, 0xB9, 0, 0);
         state->glyphHalf = assetLoad(0xE, 0xBA, 0, 0);
@@ -840,7 +816,7 @@ void mpUpdate(void) {
     } else if ((gGlobalPauseFlags & 2) || ((s16)((f32)state->blinkTimer * 0.033333335f) & 1)) {
         mpFreeHudIcons(state);
     } else if (state->hudIconsShown == 0) {
-        for (j = 0; j != 2; j++) {
+        for (j = 0; j < 2; j++) {
             for (k = 0; k < gPlayerCount; k++) {
                 if (gPlayerSlots[k].active == 0) {
                     continue;
@@ -849,14 +825,14 @@ void mpUpdate(void) {
                 effectEnableFade();
                 effectSetDuration(-1);
                 effectSetMode(0);
-                effectSetParam(D_80027024[j].unk8);
+                effectSetParam(D_80027024[j].param);
                 if (j == 0) {
                     x = (f32)(vp->left + 0xB);
                 } else {
                     x = (f32)(vp->right - 0xB);
                 }
                 y = (f32)(vp->bottom - 0xB);
-                state->hudIcons[j * gPlayerCount + k] = effectCreateAtPosition(D_80027024[j].unk0, D_80027024[j].unk4, x, y, -10.0f);
+                state->hudIcons[j * gPlayerCount + k] = effectCreateAtPosition(D_80027024[j].asset, D_80027024[j].scale, x, y, -10.0f);
             }
         }
         state->hudIconsShown = 1;
