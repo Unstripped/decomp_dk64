@@ -98,17 +98,12 @@ void frameTimingUpdate(void) {
         idx = D_80745290;
         flag = 0;
         for (i = 0; i < n; i++) {
-            if (gFrameDelta && gFrameDelta) {}  // FAKE: dead read splits the hoisted gFrameDelta address web (lui/%lo per access, less max/min interference)
             idx--;
             if (idx < 0) {
                 idx = 7;
             }
-            if (D_8076AF00[idx] >= max) {
-                max = D_8076AF00[idx];
-            }
-            if (min >= D_8076AF00[idx]) {
-                min = D_8076AF00[idx];
-            }
+            max = MAX(max, D_8076AF00[idx]);
+            min = MIN(min, D_8076AF00[idx]);
         }
         if (gFrameDelta < sample && gFrameDelta < min) {
             flag = 1;
