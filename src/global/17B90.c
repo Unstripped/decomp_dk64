@@ -172,44 +172,33 @@ void controllerBuildSubcommandList(ControllerSubCmd *cmdStart, void *cmdEnd, Con
     ControllerSubCmd *curr;
     ControllerSubCmd *search;
     ControllerSubNode *node;
-    u32 cmd0;
     u32 id;
     s32 found;
     u32 op;
     u32 sub;
-    u32 search_cmd;
-    curr = cmdStart;
-    if (cmdStart != cmdEnd) {
-        do {
-            cmd0 = curr->unk0;
-            op = cmd0 >> 24;
-            sub = (cmd0 >> 16) & 0xFF;
-            if (op) {} // FAKE: dead statement (op stays a coloured web)
-            if (sub) {} // FAKE: dead statement (sub computed before the branch)
-            if ((op == 0xDE) && (sub == 1)) {
-                id = (curr->unk4 << 4) >> 28;
-                if (op && op) {} // FAKE: dead statement (steers uopt colouring)
-                search = cmdStart;
-                found = 0;
-                if (cmdStart != cmdEnd) {
-                    do {
-                        search_cmd = search->unk0;
-                        if (((search_cmd >> 24) == 0) && (id == search->unk4)) {
-                            found = 1;
-                        } else {
-                            search++;
-                        }
-                    } while (!found && (search != cmdEnd));
+
+    for (curr = cmdStart; curr != cmdEnd; curr++) {
+        op = curr->unk0 >> 24;
+        sub = (curr->unk0 >> 16) & 0xFF;
+        if ((op == 0xDE) && (sub == 1)) {
+            id = (curr->unk4 << 4) >> 28;
+            search = cmdStart;
+            found = 0;
+            while (!found && (search != cmdEnd)) {
+                op = search->unk0 >> 24;
+                if ((op == 0) && (id == search->unk4)) {
+                    found = 1;
+                } else {
+                    search++;
                 }
-                node = heapAlloc(sizeof(ControllerSubNode));
-                *pNodeList = node;
-                pNodeList = &node->next;
-                node->unk8 = id;
-                node->unk0 = curr + 1;
-                node->unk4 = search;
             }
-            curr++;
-        } while (curr != cmdEnd);
+            node = heapAlloc(sizeof(ControllerSubNode));
+            *pNodeList = node;
+            pNodeList = &node->next;
+            node->unk8 = id;
+            node->unk0 = curr + 1;
+            node->unk4 = search;
+        }
     }
     *pNodeList = NULL;
 }
