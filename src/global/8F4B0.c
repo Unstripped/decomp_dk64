@@ -186,21 +186,21 @@ s32 cutsceneTriggerCheck(s16 cutsceneId) {
 }
 
 typedef struct {
-    /* 0x00 */ u8 unk0;
+    /* 0x00 */ u8 weatherMode;
     /* 0x01 */ u8 unk1[3];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ s16 unk8;
+    /* 0x04 */ f32 density;
+    /* 0x08 */ s16 windAngle;
     /* 0x0A */ s16 unkA;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ u8 unk18;
+    /* 0x0C */ f32 colorR;
+    /* 0x10 */ f32 colorG;
+    /* 0x14 */ f32 colorB;
+    /* 0x18 */ u8 flashTimer;
     /* 0x19 */ u8 unk19;
-    /* 0x1A */ s16 unk1A;
-    /* 0x1C */ s16 unk1C;
-    /* 0x1E */ s16 unk1E;
+    /* 0x1A */ s16 mapChunk;
+    /* 0x1C */ s16 fadeDuration;
+    /* 0x1E */ s16 fadeTimer;
     /* 0x20 */ u8 unk20;
-    /* 0x21 */ u8 unk21;
+    /* 0x21 */ u8 sfxCooldown;
 } CutsceneActorState;
 
 s32 mapGetHubWorldIndex(u8, s32); // FAKE: callee prototype steer
@@ -234,43 +234,43 @@ void actorCutsceneDispatchEvents(void) {
 
     csState = (CutsceneActorState *)gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        csState->unk0 = 0;
-        csState->unk1A = -1;
-        csState->unk21 = 0;
-        lightGetColor(&csState->unkC, &csState->unk10, &csState->unk14, 0);
+        csState->weatherMode = 0;
+        csState->mapChunk = -1;
+        csState->sfxCooldown = 0;
+        lightGetColor(&csState->colorR, &csState->colorG, &csState->colorB, 0);
     }
 
     for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
         eventData = gActorGlobalState.volumeTriggerQueueId[i];
         switch (gActorGlobalState.volumeTriggerQueueOp[i]) {
         case 0xFF:
-            csState->unk1E = 0;
-            csState->unk0 = 0xFF;
+            csState->fadeTimer = 0;
+            csState->weatherMode = 0xFF;
             break;
         case 0xF:
             lightSetOverrideColor((f64)eventData[0] / 255.0, (f64)eventData[1] / 255.0, (f64)eventData[2] / 255.0);
             break;
         case 0xE:
-            csState->unkC = (f64)eventData[0] / 255.0;
-            csState->unk10 = (f64)eventData[1] / 255.0;
-            csState->unk14 = (f64)eventData[2] / 255.0;
-            csState->unk1A = eventData[3];
+            csState->colorR = (f64)eventData[0] / 255.0;
+            csState->colorG = (f64)eventData[1] / 255.0;
+            csState->colorB = (f64)eventData[2] / 255.0;
+            csState->mapChunk = eventData[3];
             break;
         case 0x10:
-            csState->unk1C = eventData[3];
-            csState->unk1E = csState->unk1C;
+            csState->fadeDuration = eventData[3];
+            csState->fadeTimer = csState->fadeDuration;
             break;
         case 0x1:
             if ((gCurrentMap != 0x30) || !(gActivePlayerState->stateFlags & 0x200000)) {
-                csState->unk0 = eventData[0];
-                csState->unk1A = eventData[1];
-                csState->unk4 = (f64)(f32)eventData[2] / 100.0;
-                csState->unk8 = eventData[3];
+                csState->weatherMode = eventData[0];
+                csState->mapChunk = eventData[1];
+                csState->density = (f64)(f32)eventData[2] / 100.0;
+                csState->windAngle = eventData[3];
             }
             break;
         case 0x2:
             if ((gCurrentMap != 0x30) || !(gActivePlayerState->stateFlags & 0x200000)) {
-                csState->unk0 = 0xFF;
+                csState->weatherMode = 0xFF;
             }
             break;
         case 0x3:
@@ -395,30 +395,30 @@ void actorCutsceneDispatchEvents(void) {
         }
     }
 
-    if (csState->unk1E != 0) {
-        csState->unk1E--;
-        lerpT = (f32)csState->unk1E / (f32)csState->unk1C;
-        lightLerpColors(csState->unkC, csState->unk10, csState->unk14, lerpT, csState->unk1A);
-        if (csState->unk1E == 0) {
-            lightSetTargetColor(csState->unkC, csState->unk10, csState->unk14, csState->unk1A);
+    if (csState->fadeTimer != 0) {
+        csState->fadeTimer--;
+        lerpT = (f32)csState->fadeTimer / (f32)csState->fadeDuration;
+        lightLerpColors(csState->colorR, csState->colorG, csState->colorB, lerpT, csState->mapChunk);
+        if (csState->fadeTimer == 0) {
+            lightSetTargetColor(csState->colorR, csState->colorG, csState->colorB, csState->mapChunk);
         }
     }
 
-    switch (csState->unk0) {
+    switch (csState->weatherMode) {
     case 0x6:
-        func_80711BD0(csState->unk4, csState->unk8, csState->unk1A, 4);
+        func_80711BD0(csState->density, csState->windAngle, csState->mapChunk, 4);
         break;
     case 0x7:
-        func_80711BD0(csState->unk4, csState->unk8, csState->unk1A, 5);
+        func_80711BD0(csState->density, csState->windAngle, csState->mapChunk, 5);
         break;
     case 0x5:
-        func_80711BD0(csState->unk4, csState->unk8, csState->unk1A, 3);
+        func_80711BD0(csState->density, csState->windAngle, csState->mapChunk, 3);
         break;
     case 0x1:
-        func_80711950(csState->unk4, csState->unk8, csState->unk1A);
+        func_80711950(csState->density, csState->windAngle, csState->mapChunk);
         break;
     case 0x4:
-        func_80711F90(csState->unk4, csState->unk8, 1.0f, csState->unk1A, 4.0f);
+        func_80711F90(csState->density, csState->windAngle, 1.0f, csState->mapChunk, 4.0f);
         break;
     case 0x3:
         if (((randomNonNegative() >> 15) % 50) == 15) {
@@ -426,38 +426,38 @@ void actorCutsceneDispatchEvents(void) {
         }
         /* fallthrough */
     case 0x2:
-        if (csState->unk21 != 0) {
-            csState->unk21--;
+        if (csState->sfxCooldown != 0) {
+            csState->sfxCooldown--;
         }
         if (D_807FC620 != 0) {
-            csState->unk18 = 0x28;
+            csState->flashTimer = 0x28;
             D_807FC620 = 0;
         }
-        if (csState->unk18 != 0) {
-            if ((csState->unk18 == 0x28) || (((randomNonNegative() >> 15) % 10) == 5)) {
-                lightSetColor(1.0f, 1.0f, 1.0f, csState->unk1A);
-                if ((D_80750190 == 0) && (csState->unk21 == 0)) {
+        if (csState->flashTimer != 0) {
+            if ((csState->flashTimer == 0x28) || (((randomNonNegative() >> 15) % 10) == 5)) {
+                lightSetColor(1.0f, 1.0f, 1.0f, csState->mapChunk);
+                if ((D_80750190 == 0) && (csState->sfxCooldown == 0)) {
                     sfxVolume = 0x46;
                     if (gCurrentMap == 0x57) {
                         sfxVolume = 0x2D;
                     }
                     sfxPlayWithRandomPan(0x9C, (u8)sfxVolume, 0x7F, 0x1E, (randomNonNegative() >> 15) % 3);
                     if (gCurrentMap == 0x6F) {
-                        csState->unk21 = 0x50;
+                        csState->sfxCooldown = 0x50;
                     } else {
-                        csState->unk21 = 0x32;
+                        csState->sfxCooldown = 0x32;
                     }
                 }
-                csState->unk1E = (csState->unk1E >= 5) ? csState->unk1E : 4;
-                csState->unk1C = csState->unk1E;
+                csState->fadeTimer = (csState->fadeTimer >= 5) ? csState->fadeTimer : 4;
+                csState->fadeDuration = csState->fadeTimer;
             }
-            csState->unk18--;
+            csState->flashTimer--;
         }
-        func_80711410(csState->unk4, csState->unk8, 1.0f, csState->unk1A, 1.0f);
+        func_80711410(csState->density, csState->windAngle, 1.0f, csState->mapChunk, 1.0f);
         break;
     case 0xFF:
         if (effectSpritePoolFadeOut() != 0) {
-            csState->unk0 = 0;
+            csState->weatherMode = 0;
         }
         break;
     }
@@ -477,44 +477,44 @@ void enemyAggroResetUnk21(void) {
     D_807FC622 = 0;
 }
 typedef struct {
-    /* 0x00 */ u8 unk0;
+    /* 0x00 */ u8 weatherMode;
     /* 0x01 */ u8 unk1[3];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ s16 unk8;
+    /* 0x04 */ f32 density;
+    /* 0x08 */ s16 windAngle;
     /* 0x0A */ s16 unkA;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ u8 unk18;
+    /* 0x0C */ f32 colorR;
+    /* 0x10 */ f32 colorG;
+    /* 0x14 */ f32 colorB;
+    /* 0x18 */ u8 flashTimer;
     /* 0x19 */ u8 unk19[3];
-    /* 0x1C */ s16 unk1C;
-    /* 0x1E */ s16 unk1E;
-} Actor174;
+    /* 0x1C */ s16 fadeDuration;
+    /* 0x1E */ s16 fadeTimer;
+} WeatherActorState;
 
 
-void func_8068B830(s16 stateVal, s16 pct, s16 timer) {
+void func_8068B830(s16 mode, s16 densityPct, s16 windAngle) {
     Actor *actor;
-    Actor174 *actorState;
+    WeatherActorState *actorState;
 
     actorFindActiveByType(0xC, &actor);
-    actorState = (Actor174 *)actor->customState;
-    actorState->unk0 = stateVal;
-    actorState->unk4 = (f64)(f32)pct / 100.0;
-    actorState->unk8 = timer;
+    actorState = (WeatherActorState *)actor->customState;
+    actorState->weatherMode = mode;
+    actorState->density = (f64)(f32)densityPct / 100.0;
+    actorState->windAngle = windAngle;
 }
 
 void enemyAggroSetIntensityBB(f32 intensity) {
     Actor *actor;
-    Actor174 *actorState;
+    WeatherActorState *actorState;
 
     actorFindActiveByType(0xC, &actor);
-    actorState = (Actor174 *)actor->customState;
-    actorState->unkC = intensity;
-    actorState->unk10 = intensity;
-    actorState->unk14 = intensity;
-    if (actorState->unk18 == 0) {
-        actorState->unk1C = 1;
-        actorState->unk1E = actorState->unk1C;
+    actorState = (WeatherActorState *)actor->customState;
+    actorState->colorR = intensity;
+    actorState->colorG = intensity;
+    actorState->colorB = intensity;
+    if (actorState->flashTimer == 0) {
+        actorState->fadeDuration = 1;
+        actorState->fadeTimer = actorState->fadeDuration;
     }
 }
 
