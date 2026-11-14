@@ -1,4 +1,6 @@
 #include "common.h"
+#include "render.h"
+#include "sched.h"
 #include "proto/global/14CF0.h"
 
 extern u8 D_80741F40[];
@@ -19,105 +21,76 @@ void func_8060FFF0(void) {
     D_807F0588[3] = D_80760840;
 }
 
-typedef struct SchedGfxTask {
-    struct SchedGfxTask *next;
-    u32 state;
-    u32 flags;
-    void *framebuffer;
-    u32 type;
-    u32 task_flags;
-    void *ucode_boot;
-    u32 ucode_boot_size;
-    void *ucode;
-    u32 ucode_size;
-    void *ucode_data;
-    u32 ucode_data_size;
-    void *dram_stack;
-    u32 dram_stack_size;
-    void *output_buff;
-    u32 output_buff_size;
-    void *data_ptr;
-    u32 data_size;
-    void *yield_data_ptr;
-    u32 yield_data_size;
-    void *client;
-    OSMesgQueue *msgQ;
-    OSMesg msg;
-    u32 pad5C;
-} SchedGfxTask;
-
 extern s8 D_80744460;
 extern u8 gGfxBufferIndex;
 extern u32 D_807F05A4;
 extern u32 D_807F0984;
-extern SchedGfxTask D_807F05A8[][2];
+extern TaskNode D_807F05A8[][2];
 extern void *gFramebuffers[];
 extern u8 D_805FB000[];
 extern u8 D_805FB0D0[];
-extern u8 D_8076AF20[];
-extern u8 D_8076B320[];
-extern u8 D_80767CD8[];
-extern u8 D_80767CE8[];
+extern u64 D_8076AF20[];
+extern u64 D_8076B320[];
+extern SchedClient D_80767CD8;
+extern FrameMatrices D_80767CE8[];
 extern OSMesgQueue D_807659E8;
 extern u8 D_807F059C[];
-extern OSMesgQueue gScheduler;
+extern SchedStruct gScheduler;
 
 void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers, s32 taskId, u8 writebackAll) {
-    SchedGfxTask *msg;
+    TaskNode *task;
     s32 pad;
 
     if (D_80744460 != 0) {
         return;
     }
-    msg = &D_807F05A8[taskIdx][gGfxBufferIndex];
+    task = &D_807F05A8[taskIdx][gGfxBufferIndex];
     D_807F059C[taskIdx] = 1;
-    msg->type = 1;
-    msg->task_flags = 0;
-    msg->ucode_boot = D_805FB000;
-    msg->ucode_boot_size = D_805FB0D0 - D_805FB000;
-    msg->ucode = D_807F0570[taskIdx];
-    msg->ucode_data = D_807F0588[taskIdx];
-    msg->ucode_size = 0x1000;
-    msg->ucode_data_size = 0x800;
-    msg->dram_stack = D_8076AF20;
-    msg->dram_stack_size = 0x400;
-    msg->output_buff = (void *)D_807F05A4;
-    msg->output_buff_size = D_807F05A4 + D_807F0984;
-    msg->data_ptr = glist;
-    msg->data_size = numCommands * 8;
-    msg->yield_data_ptr = D_8076B320;
-    msg->yield_data_size = 0xC00;
-    msg->next = NULL;
-    msg->msgQ = &D_807659E8;
-    msg->msg = (OSMesg)((taskIdx << 16) | taskId);
-    msg->flags = 3;
+    task->task.t.type = M_GFXTASK;
+    task->task.t.flags = 0;
+    task->task.t.ucode_boot = (u64 *)D_805FB000;
+    task->task.t.ucode_boot_size = D_805FB0D0 - D_805FB000;
+    task->task.t.ucode = D_807F0570[taskIdx];
+    task->task.t.ucode_data = D_807F0588[taskIdx];
+    task->task.t.ucode_size = SP_UCODE_SIZE;
+    task->task.t.ucode_data_size = SP_UCODE_DATA_SIZE;
+    task->task.t.dram_stack = D_8076AF20;
+    task->task.t.dram_stack_size = SP_DRAM_STACK_SIZE8;
+    task->task.t.output_buff = (u64 *)D_807F05A4;
+    task->task.t.output_buff_size = (u64 *)(D_807F05A4 + D_807F0984);
+    task->task.t.data_ptr = glist;
+    task->task.t.data_size = numCommands * 8;
+    task->task.t.yield_data_ptr = D_8076B320;
+    task->task.t.yield_data_size = 0xC00;
+    task->next = NULL;
+    task->msgQ = &D_807659E8;
+    task->msg = (OSMesg)((taskIdx << 16) | taskId);
+    task->flags = 3;
     if (swapBuffers) {
-        msg->flags |= 0x40;
+        task->flags |= 0x40;
     }
-    msg->framebuffer = gFramebuffers[gGfxBufferIndex];
-    msg->client = D_80767CD8;
+    task->framebuffer = gFramebuffers[gGfxBufferIndex];
+    task->client = &D_80767CD8;
     if (writebackAll) {
         osWritebackDCacheAll();
     } else {
-        osWritebackDCache(msg, sizeof(SchedGfxTask));
+        osWritebackDCache(task, sizeof(TaskNode));
         osWritebackDCache(glist, numCommands * 8);
-        osWritebackDCache(D_80767CE8 + gGfxBufferIndex * 0x11B0, 0x11B0);
+        osWritebackDCache(&D_80767CE8[gGfxBufferIndex], sizeof(FrameMatrices));
     }
-    osSendMesg(&gScheduler, msg, 1);
+    osSendMesg(&gScheduler.interruptQ, task, OS_MESG_BLOCK);
 }
 
 extern s8 D_80746834;
 
 void func_80610268(s32 targetTaskId) {
-    void *receivedMsg;
-    s32 receivedTaskId;
+    OSMesg receivedMsg;
 
     do {
         D_80746834 = 8;
-        osRecvMesg(&D_807659E8, &receivedMsg, 1);
+        osRecvMesg(&D_807659E8, &receivedMsg, OS_MESG_BLOCK);
         D_80746834 = 0;
-        D_807F059C[(u32)receivedMsg >> 0x10] = 0;
-        receivedMsg = (void *)((u32)receivedMsg & 0xFFFF);
-        receivedTaskId = (s32)receivedMsg;
-    } while (receivedTaskId != targetTaskId);
+        D_807F059C[(u32)receivedMsg >> 16] = 0;
+        receivedMsg = (OSMesg)((u32)receivedMsg & 0xFFFF);
+    } while ((s32)receivedMsg != targetTaskId);
 }
