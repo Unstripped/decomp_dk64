@@ -377,3 +377,4 @@
 {"type": "unit", "t": "2026-11-14T19:35:30Z", "unit": "2026-11-14: cleanup HackarcadeCheckStage3Collision", "commit": "8e1b647d152310a16ef4e4b71e91051f5dd98cb6"}
 {"type": "unit", "t": "2026-11-14T19:35:51Z", "unit": "2026-11-14: cleanup HackcollisionTransformPointByActorMtx", "commit": "9af8b0eaf7ee9ad96d355cfcf803ef6e1a590963"}
 {"type": "unit", "t": "2026-11-14T19:36:36Z", "unit": "2026-11-14: cleanup HackcommandApplyToLight", "commit": "466b5be1241b665a2833db44286ccae08289d040"}
+{"type": "unit", "t": "2026-11-14T19:37:04Z", "unit": "2026-11-14: cleanup Hackvsprintf", "commit": "063a857c6c2718b19492153ff4dc017f8d12ae03"}
