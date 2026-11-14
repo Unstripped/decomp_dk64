@@ -1140,12 +1140,13 @@ f32 func_806F7378(u32 actorType) {
 }
 
 
-// customState of a collectable pickup actor.
+// customState of a collectable pickup actor (DropBounceState in AA960.c: actorDropBounceExpireUpdate sets
+// collectable on landing and flagId from the spawn data; flagTempRegister takes it as the flag id).
 typedef struct PickupState {
     u8 pad0;
-    u8 unk1;
+    u8 collectable;
     u8 pad2[8];
-    s16 unkA;
+    s16 flagId;
 } PickupState;
 
 
@@ -1182,7 +1183,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                 func_806F5F2C(actor->actorType, 0x258, actor->x, actor->y, actor->z);
                             }
                             sub = actor->customState;
-                            if (sub->unk1 != 0) {
+                            if (sub->collectable != 0) {
                                 if (gPlayerCount >= 2) {
                                     switch (actor->actorType) {
                                     case 0x7A:
@@ -1237,7 +1238,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                     }
                                     slot = modelSlotAppend(D_80753EF0[k].modelType, actor->x, func_806F7378(actor->actorType) + actor->y, actor->z, 0.0f, 0);
                                     tblIdx = csModelSlotGetTableIndex(slot);
-                                    flagTempRegister(gCurrentLevelIndex, tblIdx, sub->unkA, flagLookupValueById(sub->unkA));
+                                    flagTempRegister(gCurrentLevelIndex, tblIdx, sub->flagId, flagLookupValueById(sub->flagId));
                                     tblIdx = csModelSlotGetTableIndex(slot);
                                     modelFlagsApplyState(gCurrentLevelIndex, tblIdx, &gModelSlots[hashTableLookup(slot)].unk8C);
                                     gridAddModelNode(slot, D_80753EF0[k].modelType, 0, 1, 0, flag);

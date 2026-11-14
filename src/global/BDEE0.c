@@ -25,13 +25,15 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-// Actor view whose unk178 is a s16 array (behaviourArmadilloPatrol, behaviourArmadilloInitRollState, behaviourArmadilloAimAndShoot).
-typedef struct BDEE0ActorAlt {
+// Actor view whose second component (0x178) is an s16 block: [0] roll phase (behaviourArmadilloPatrol counts it
+// down as a timer), [1] side, [3]/[4] x/z saved on entering state 0x15 (behaviourArmadilloPatrol,
+// behaviourArmadilloAimAndShoot, behaviourArmadilloMoveTowardTarget).
+typedef struct ArmadilloActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ s16 *unk178;
-} BDEE0ActorAlt;
+    /* 0x178 */ s16 *rollState;
+} ArmadilloActor;
 
-#define BDEE0AA ((BDEE0ActorAlt *)gCurrentActor)
+#define ARMADILLO_ACTOR ((ArmadilloActor *)gCurrentActor)
 
 extern u8 D_80770629[];
 extern f32 D_80770B68[];
@@ -40,7 +42,7 @@ extern f32 D_80770BC0[];
 
 void behaviourArmadilloPatrol(void) {
     u16 animFlags = 0;
-    s16 *heightTarget = BDEE0AA->unk178;
+    s16 *heightTarget = ARMADILLO_ACTOR->rollState;
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
@@ -322,7 +324,7 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
     u8 node;
     s32 anim;
 
-    p = BDEE0AA->unk178;
+    p = ARMADILLO_ACTOR->rollState;
     tgt = D_807FDCA0->occupant;
     if (tgt != NULL && tgt->state == 0x23 && D_807FDCA0->unk20 < 10) {
         if (gCurrentActor->state != 0x15 && gCurrentActor->state != 0x17) {
@@ -421,7 +423,7 @@ void behaviourArmadilloMoveTowardTarget(f32 speedMultiplier) {
     s32 flags;
 
     sel = gCurrentActor->state;
-    p = BDEE0AA->unk178;
+    p = ARMADILLO_ACTOR->rollState;
     x = gBehaviourWorkState->targetX;
     z = gBehaviourWorkState->targetZ;
     switch (sel) {
@@ -480,26 +482,26 @@ void behaviourArmadilloStepPatrol(void) {
     }
 }
 
-typedef struct BDEE0Sub178 {
+// Second component (0x178) of the rocking idle (func_806BA93C).
+typedef struct RockTiltState {
     /* 0x0 */ s16 rollPhase;
     /* 0x2 */ s16 side;
     /* 0x4 */ u16 tilt;
-} BDEE0Sub178;
+} RockTiltState;
 
-// Actor view whose unk178 is a BDEE0Sub178 (func_806BA93C, behaviourFairyWanderUpdate).
-typedef struct BDEE0Actor {
+// Actor view whose second component is a RockTiltState (func_806BA93C).
+typedef struct RockingActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ BDEE0Sub178 *unk178;
-} BDEE0Actor;
-#define BDEE0A ((BDEE0Actor *)gCurrentActor)
-
+    /* 0x178 */ RockTiltState *rock;
+} RockingActor;
+#define ROCKING_ACTOR ((RockingActor *)gCurrentActor)
 
 void func_806BA93C(sideOffset, rollAmount, pivotZ)
 u8 sideOffset;
 u8 rollAmount;
 u8 pivotZ;
 {
-    BDEE0Sub178 *rock;
+    RockTiltState *rock;
     f32 modelMtx[4][4];
     f32 rotMtx[4][4];
     s16 sgn;
@@ -507,7 +509,7 @@ u8 pivotZ;
     f32 stepDist;
     s16 yawOffset;
 
-    rock = BDEE0A->unk178;
+    rock = ROCKING_ACTOR->rock;
     if (gBehaviourExtraState->unkA && behaviourArmadilloAimAndShoot(0x64, 0)) {
         return;
     }
@@ -670,23 +672,11 @@ void behaviourFairyInitPlayerScale(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct BDEE0Sub174 {
-    /* 0x00 */ struct BDEE0Sub174Hdr *unk0;
-    /* 0x04 */ Actor *occupant;
-    /* 0x08 */ u8 pad8[0x26];
-    /* 0x2E */ s16 spawnDelay;
-} BDEE0Sub174;
-
-typedef struct BDEE0Sub174Hdr {
-    /* 0x00 */ u8 pad0[0x46];
-    /* 0x46 */ u16 flags;
-} BDEE0Sub174Hdr;
-
 extern Actor *gSpawnedActor;
 
 
 s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, Actor *occupant) {
-    BDEE0Sub174 *v;
+    BehaviourWorkState *v;
     s32 r3;
     s32 r2;
     s32 r1;
@@ -708,10 +698,10 @@ s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, Actor *occupant
         gSpawnedActor->state = 0x17;
         gSpawnedActor->unk155 = 0;
         v = gSpawnedActor->customState;
-        v->spawnDelay = 0x1E;
+        v->unk2E = 0x1E;
         if (occupant != NULL) {
-            v->unk0->flags &= ~8;
-            v->occupant = occupant;
+            v->node->flags &= ~8;
+            v->unk4 = occupant;
         }
         gSpawnedActor->unk144 = 1;
         gSpawnedActor->drawDistance = 0x3E8;

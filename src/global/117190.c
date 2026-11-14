@@ -62,15 +62,16 @@ s32 menuCalculateBonusDuration(void) {
     return flagCountRange(0x1FD, 0x28, 0) + 0xA;
 }
 
-typedef struct R117gTimedState {
+// Bonus countdown started by menuTimerInit; remaining is in seconds, index the next D_80755358 threshold.
+typedef struct MenuBonusTimer {
     u64 time;
-    s32 unk8;
+    s32 remaining;
     s32 duration;
     u8 active;
     u8 index;
-} R117gTimedState;
+} MenuBonusTimer;
 
-extern R117gTimedState D_80755340;
+extern MenuBonusTimer D_80755340;
 extern u16 D_80755358[];
 
 void menuTimerInit(void) {
@@ -518,18 +519,17 @@ Gfx *func_80713438(Gfx *dl, u8 alpha) {
 
 
 typedef struct {
-    s32 unk0;
-    s32 unk4;
-} R117fPair;
+    s32 ids[2];
+} TextIdPair;
 
 extern u8 gHiResScale;
-extern R117fPair D_80755370;
+extern TextIdPair D_80755370;
 extern u8 D_807ECD09;
 
 Gfx *func_807135B4(Gfx *dl) {
     s32 elapsed;
     s32 textIndex;
-    R117fPair textIds;
+    TextIdPair textIds;
     f32 x;
     f32 y;
 
@@ -545,7 +545,7 @@ Gfx *func_807135B4(Gfx *dl) {
         if (&D_80755370 && &D_80755370 && &D_80755370) {}  // FAKE: dead address test, steers as1 delay-slot fill (bne+nop instead of bnel)
         x = (f32) ((f64) x * 0.5);
         gDPSetCombineMode(dl++, G_CC_DECALRGBA, G_CC_DECALRGBA);
-        dl = hudDrawScaledText(dl, (s16) (s32) (x * 4.0f), (s16) (s32) ((f32) gHiResScale * y * 4.0f), 0.7f, textTableGetString(0xC, (s32) (&textIds.unk0)[textIndex], 1));
+        dl = hudDrawScaledText(dl, (s16) (s32) (x * 4.0f), (s16) (s32) ((f32) gHiResScale * y * 4.0f), 0.7f, textTableGetString(0xC, (s32) textIds.ids[textIndex], 1));
     }
     return dl;
 }
@@ -651,12 +651,12 @@ void func_80713C8C(void) {
         D_80755340.time += D_807445B0;
         if (!(gGlobalPauseFlags & 2)) {
             elapsed = (osGetTime() - D_80755340.time) * 64;
-            D_80755340.unk8 = D_80755340.duration - (u32)(elapsed / 3000 / 1000000);
-            if (((u32)D_80755340.index < 0xA) && (D_80755340.unk8 == D_80755358[D_80755340.index])) {
+            D_80755340.remaining = D_80755340.duration - (u32)(elapsed / 3000 / 1000000);
+            if (((u32)D_80755340.index < 0xA) && (D_80755340.remaining == D_80755358[D_80755340.index])) {
                 sfxPlayOnFreeSlot(0x2D4, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 D_80755340.index++;
             }
-            if (D_80755340.unk8 <= 0) {
+            if (D_80755340.remaining <= 0) {
                 menuResetAndTransitionToCredits();
             }
         }
@@ -674,7 +674,7 @@ Gfx *hudDrawCountdownTimer(Gfx *dl) {
         dlCur = func_807132DC(dl);
         R117D_WRITE_GFX(dlCur++, 0xFC119623, 0xFF2FFFFF);
         R117D_WRITE_GFX(dlCur++, 0xFA000000, 0xFFFFFFFF);
-        dl = renderTimerMinutesSecondsHUD(dlCur, timerX, 214.0f, D_80755340.unk8);
+        dl = renderTimerMinutesSecondsHUD(dlCur, timerX, 214.0f, D_80755340.remaining);
     }
     return dl;
 }
