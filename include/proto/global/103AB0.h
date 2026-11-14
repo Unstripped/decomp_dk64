@@ -66,9 +66,6 @@ u16 zbufferReadDepth(s16, s16);
 #ifndef PROTO_SKIP_func_80700BF4
 void func_80700BF4(void);
 #endif
-#ifndef PROTO_SKIP_lensFlareDrawSource
-Gfx *lensFlareDrawSource();
-#endif
 #ifndef PROTO_SKIP_func_80701C90
 void func_80701C90(void);
 #endif
