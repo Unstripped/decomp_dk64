@@ -32,16 +32,16 @@ void actorScriptStart(void *, s32);
 void raceOpponentFollowWaypoints(void) {
     f32 speedDelta;
     f32 turnDelta;
-    f32 fs0;
-    f32 fs1;
+    f32 vx;
+    f32 vz;
     f32 curSpeed;
     f32 oscSpeed;
-    ZoneEntry *a0;
-    f32 fv0;
+    ZoneEntry *zone;
+    f32 tmp;
     u8 routeRowIdx;
     RaceC_Row *routeRows;
-    f32 q;
-    s16 v1;
+    f32 friction;
+    s16 yawDiff;
 
     routeRowIdx = gBehaviourWorkState->unk24;
     if (gCurrentMap == 0x52) {
@@ -51,16 +51,14 @@ void raceOpponentFollowWaypoints(void) {
     }
     curSpeed = gCurrentActor->speedXZ;
     oscSpeed = mathSinF((s16)(gCurrentActor->floorSlopeFactor * 11.4)) * 20.0f;
-    a0 = &D_807FDCA0->entries[gBehaviourWorkState->unk25];
-    fs0 = gCurrentActor->x - a0->x;
-    fs1 = gCurrentActor->z - a0->z;
-    if (sqrtf(fs1 * fs1 + fs0 * fs0) < (a0 = &D_807FDCA0->entries[gBehaviourWorkState->unk25])->radius) {
-        if ((a0->y < gCurrentActor->y ? gCurrentActor->y - a0->y : -(gCurrentActor->y - a0->y)) < 80.0f && gBehaviourWorkState->unk25 < D_807FDCA0->entryCount - 1) {
-            RaceC_Row *row = (RaceC_Row *)((u8 *)routeRows + routeRowIdx * 12); // FAKE: byte-offset row address; &routeRows[routeRowIdx] changes the index multiply
-            if (row->unk0 == gBehaviourWorkState->unk25) {
-                if (row) {}  // FAKE: dead test steers uopt FP callee-saved colouring (fs0/fs1)
-                gCurrentActor->accelY = row->unk4;
-                if (row->unk8 == 1) {
+    zone = &D_807FDCA0->entries[gBehaviourWorkState->unk25];
+    vx = gCurrentActor->x - zone->x;
+    vz = gCurrentActor->z - zone->z;
+    if (sqrtf(vz * vz + vx * vx) < (zone = &D_807FDCA0->entries[gBehaviourWorkState->unk25])->radius) {
+        if ((zone->y < gCurrentActor->y ? gCurrentActor->y - zone->y : -(gCurrentActor->y - zone->y)) < 80.0f && gBehaviourWorkState->unk25 < D_807FDCA0->entryCount - 1) {
+            if (routeRows[routeRowIdx].unk0 == gBehaviourWorkState->unk25) {
+                gCurrentActor->accelY = routeRows[routeRowIdx].unk4;
+                if (routeRows[routeRowIdx].unk8 == 1) {
                     actorScriptStart(gCurrentActor, 0x286);
                     gCurrentActor->speedY = 200.0f;
                     gCurrentActor->state += 1;
@@ -68,52 +66,48 @@ void raceOpponentFollowWaypoints(void) {
                 gBehaviourWorkState->unk24 += 1;
             }
             gBehaviourWorkState->unk25++;
-            a0 = &D_807FDCA0->entries[gBehaviourWorkState->unk25];
         }
-        a0 = &D_807FDCA0->entries[gBehaviourWorkState->unk25];
     }
-    speedDelta = (a0->height - gCurrentActor->speedXZ / 10.0f) * 0.8;
-    fv0 = (gCurrentActor->y - gActivePlayerActor->y) * 0.25;
-    if (fv0 > 6.0f) {
-        fv0 = 6.0f;
+    zone = &D_807FDCA0->entries[gBehaviourWorkState->unk25];
+    speedDelta = (zone->height - gCurrentActor->speedXZ / 10.0f) * 0.8;
+    tmp = (gCurrentActor->y - gActivePlayerActor->y) * 0.25;
+    if (tmp > 6.0f) {
+        tmp = 6.0f;
     }
-    if (fv0 < -6.0f) {
-        fv0 = -6.0f;
+    if (tmp < -6.0f) {
+        tmp = -6.0f;
     }
-    speedDelta = speedDelta + fv0;
-    v1 = (s32)(mathAtan2(-fs0, -fs1) * 4096.0 / 6.2831854820251465);
-    v1 = v1 - gCurrentActor->moveYaw;
-    if (v1 >= 0x800) {
-        v1 = v1 - 4096.0;
+    speedDelta = speedDelta + tmp;
+    yawDiff = (s32)(mathAtan2(-vx, -vz) * 4096.0 / 6.2831854820251465);
+    yawDiff = yawDiff - gCurrentActor->moveYaw;
+    if (yawDiff >= 0x800) {
+        yawDiff = yawDiff - 4096.0;
     }
-    if (v1 < -0x800) {
-        v1 = v1 + 4096.0;
+    if (yawDiff < -0x800) {
+        yawDiff = yawDiff + 4096.0;
     }
-    turnDelta = (gCurrentActor->speedXZ * v1) / 10000.0;
-    fs0 = mathSinF(gCurrentActor->moveYaw) * curSpeed;
-    fs1 = mathCosF(gCurrentActor->moveYaw) * curSpeed;
+    turnDelta = (gCurrentActor->speedXZ * yawDiff) / 10000.0;
+    vx = mathSinF(gCurrentActor->moveYaw) * curSpeed;
+    vz = mathCosF(gCurrentActor->moveYaw) * curSpeed;
     if (gCurrentActor->contactFlags & 1) {
-        fs0 += mathSinF(gCurrentActor->floorSlopeYaw) * oscSpeed;
-        fs1 += mathCosF(gCurrentActor->floorSlopeYaw) * oscSpeed;
+        vx += mathSinF(gCurrentActor->floorSlopeYaw) * oscSpeed;
+        vz += mathCosF(gCurrentActor->floorSlopeYaw) * oscSpeed;
     }
-    fs0 += mathSinF(gCurrentActor->moveYaw) * speedDelta;
-    fs1 += mathCosF(gCurrentActor->moveYaw) * speedDelta;
-    fs0 += mathCosF(gCurrentActor->moveYaw) * turnDelta;
-    fs1 -= mathSinF(gCurrentActor->moveYaw) * turnDelta;
-    curSpeed = sqrtf(fs0 * fs0 + fs1 * fs1);
-    fv0 = mathAtan2(fs0, fs1);
+    vx += mathSinF(gCurrentActor->moveYaw) * speedDelta;
+    vz += mathCosF(gCurrentActor->moveYaw) * speedDelta;
+    vx += mathCosF(gCurrentActor->moveYaw) * turnDelta;
+    vz -= mathSinF(gCurrentActor->moveYaw) * turnDelta;
+    curSpeed = sqrtf(vx * vx + vz * vz);
+    tmp = mathAtan2(vx, vz);
     if (gCurrentActor->accelY != -20.0f && gCurrentActor->accelY != -360.0f) {
         gCurrentActor->speedXZ = D_807FDCA0->entries[gBehaviourWorkState->unk25].height * 10.0;
     } else {
         gCurrentActor->speedXZ = curSpeed;
     }
-    gCurrentActor->moveYaw = fv0 * 4096.0 / 6.2831854820251465;
+    gCurrentActor->moveYaw = tmp * 4096.0 / 6.2831854820251465;
     if (gCurrentActor->contactFlags & 1) {
-        fv0 = gCurrentActor->speedXZ;
-        q = (f32)((fv0 * fv0) / 15000.0);
-        gCurrentActor->speedXZ = fv0 - q;
-        fv0 = q;
-        fv0 = q; // FAKE: repeated copy of q steers the q/fv0 register pair
+        friction = (gCurrentActor->speedXZ * gCurrentActor->speedXZ) / 15000.0;
+        gCurrentActor->speedXZ -= friction;
         if (gCurrentActor->speedXZ < 0.0f) {
             gCurrentActor->speedXZ = 0.0f;
         }
@@ -176,8 +170,8 @@ void raceOpponentBehaviourUpdate(void) {
     f32 dx;
     f32 dz;
     s16 ang16;
-    s32 tmp;
-    ZoneEntry *e;
+    s32 stateValue;
+    ZoneEntry *pad;
     u8 rowIdx;
     RaceParticipant *controller;
     LargeR4_Cfg *config;
@@ -185,10 +179,10 @@ void raceOpponentBehaviourUpdate(void) {
     RaceParticipant *child;
     RaceC_Row *routeRows;
     s32 flag;
-    f32 fv1;
-    s32 sel;
-    u32 x;
-    s32 y;
+    f32 value;
+    s32 phaseCopy;
+    u32 selector;
+    s32 phase;
     f32 dist;
     u16 angU; // FAKE: u16 raw copy of the angle (ring temp, no sll/sra); steers t-register allocation
 
@@ -287,11 +281,11 @@ void raceOpponentBehaviourUpdate(void) {
         dz = gCurrentActor->z - D_807FDCA0->entries[gBehaviourWorkState->unk25].z;
         dist = sqrtf(dz * dz + dx * dx);
         if (dist < D_807FDCA0->entries[gBehaviourWorkState->unk25].radius) {
-            fv1 = gCurrentActor->y;
-            if (D_807FDCA0->entries[gBehaviourWorkState->unk25].y < fv1) {
-                dist = fv1 - D_807FDCA0->entries[gBehaviourWorkState->unk25].y;
+            value = gCurrentActor->y;
+            if (D_807FDCA0->entries[gBehaviourWorkState->unk25].y < value) {
+                dist = value - D_807FDCA0->entries[gBehaviourWorkState->unk25].y;
             } else {
-                dist = -(fv1 - D_807FDCA0->entries[gBehaviourWorkState->unk25].y);
+                dist = -(value - D_807FDCA0->entries[gBehaviourWorkState->unk25].y);
             }
             if (dist < 80.0f) {
                 if (gBehaviourWorkState->unk25 < D_807FDCA0->entryCount - 1) {
@@ -339,34 +333,34 @@ void raceOpponentBehaviourUpdate(void) {
             gBehaviourWorkState->unk2E = 0x14;
         }
         if (gBehaviourWorkState->unk25 == routeRows[gBehaviourWorkState->unk24].unk0 && routeRows[gBehaviourWorkState->unk24].unk8 == 1) {
-            fv1 = (f32)(gCurrentActor->moveYaw - gCurrentActor->yaw);
-            if (fv1 > 2048.0f) {
-                fv1 -= 4096.0f;
+            value = (f32)(gCurrentActor->moveYaw - gCurrentActor->yaw);
+            if (value > 2048.0f) {
+                value -= 4096.0f;
             }
-            if (fv1 < -2048.0f) {
-                fv1 += 4096.0f;
+            if (value < -2048.0f) {
+                value += 4096.0f;
             }
-            if (fv1 > 50.0f) {
-                fv1 = 50.0f;
+            if (value > 50.0f) {
+                value = 50.0f;
             }
-            if (fv1 < -50.0f) {
-                fv1 = -50.0f;
+            if (value < -50.0f) {
+                value = -50.0f;
             }
-            gBehaviourWorkState->timer = (s32)((f32)gBehaviourWorkState->timer + fv1);
+            gBehaviourWorkState->timer = (s32)((f32)gBehaviourWorkState->timer + value);
             gBehaviourWorkState->timer = (s32)(gBehaviourWorkState->timer - gBehaviourWorkState->timer * 0.3);
         } else {
             if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
                 actorScriptStart(gCurrentActor, 0x285);
                 gCurrentActor->accelY = -20.0f;
             }
-            fv1 = (f32)(gCurrentActor->moveYaw - gCurrentActor->floorSlopeYaw);
-            if (fv1 > 2048.0f) {
-                fv1 -= 4096.0f;
+            value = (f32)(gCurrentActor->moveYaw - gCurrentActor->floorSlopeYaw);
+            if (value > 2048.0f) {
+                value -= 4096.0f;
             }
-            if (fv1 < -2048.0f) {
-                fv1 += 4096.0f;
+            if (value < -2048.0f) {
+                value += 4096.0f;
             }
-            gBehaviourWorkState->timer = (s32)(gBehaviourWorkState->timer + (fv1 * gCurrentActor->speedXZ) / 8000.0);
+            gBehaviourWorkState->timer = (s32)(gBehaviourWorkState->timer + (value * gCurrentActor->speedXZ) / 8000.0);
             if (gBehaviourWorkState->timer > 500) {
                 gBehaviourWorkState->timer = 500;
             }
@@ -397,8 +391,8 @@ void raceOpponentBehaviourUpdate(void) {
         }
         break;
     case 10:
-        x = gCurrentActor->unk155;
-        switch (x) {
+        selector = gCurrentActor->unk155;
+        switch (selector) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
             gBehaviourWorkState->unk35 = 8;
@@ -420,22 +414,21 @@ void raceOpponentBehaviourUpdate(void) {
     }
     switch (controller->unk34) {
     case 0:
-        y = controller->unk35;
-        if (y) {} // FAKE: dead test, steers y/sel copy order
-        sel = controller->unk35;
-        if (sel) {} // FAKE: dead test, steers y/sel copy order
-        switch (sel) {
+        phase = controller->unk35;
+        phaseCopy = controller->unk35;
+        selector = phaseCopy; // FAKE: copy into the u32 switch selector keeps the phase copies in target registers
+        switch (selector) {
         case 0:
             if (gCurrentActor->flags & 0x02000000) {
                 controller->unk35 = controller->unk35 + 1;
-                y = controller->unk35;
+                phase = controller->unk35;
             }
             break;
         case 1:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 camResumePath();
                 controller->unk35 = controller->unk35 + 1;
-                y = controller->unk35;
+                phase = controller->unk35;
             }
             break;
         case 2:
@@ -443,10 +436,10 @@ void raceOpponentBehaviourUpdate(void) {
                 currentActorClearFlag();
                 controller->unk35 = controller->unk35 + 1;
             }
-            y = controller->unk35;
+            phase = controller->unk35;
             break;
         }
-        if (y < 3) {
+        if (phase < 3) {
             raceSetIntroCutscenePhase(kid);
         }
         break;
@@ -472,8 +465,8 @@ void raceOpponentBehaviourUpdate(void) {
             slotQueueCancel(0xB, 0);
             controller->unkD0 = 0;
             if (flagGet(config->unk18.h.rewardFlag, 0) == 0) {
-                tmp = D_8002FB94[raceCheckLapCompletionThreshold(controller, config->unk4, config->requiredCoins)];
-                camStartPath(gCurrentActor, tmp, 1);
+                stateValue = D_8002FB94[raceCheckLapCompletionThreshold(controller, config->unk4, config->requiredCoins)];
+                camStartPath(gCurrentActor, stateValue, 1);
                 currentActorClearFlag();
             } else {
                 mapCheckAutoTransition();
@@ -482,8 +475,8 @@ void raceOpponentBehaviourUpdate(void) {
         }
         break;
     case 5:
-        tmp = controller->unk35;
-        switch (tmp) {
+        stateValue = controller->unk35;
+        switch (stateValue) {
         case 0:
             if (flagGet(config->unk18.h.rewardFlag, 0) == 0) {
                 sfxStopSlotSound(gActivePlayerActor, 0);
@@ -501,7 +494,7 @@ void raceOpponentBehaviourUpdate(void) {
             break;
         case 1:
             if (gCurrentActor->flags & 0x02000000) {
-                controller->unk35 = tmp + 1;
+                controller->unk35 = stateValue + 1;
             }
             break;
         case 2:
