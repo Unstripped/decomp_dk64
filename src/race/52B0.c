@@ -446,8 +446,9 @@ void raceOpponentRacerBehaviorUpdate(void) {
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
-                raceResult = (s32)target->participant; // FAKE: the s32 result variable first holds the chased participant pointer
-                raceResult = raceGetFinishCutsceneCam(participant, (RaceParticipant *)raceResult);
+                RaceParticipant *rival = target->participant;
+
+                raceResult = raceGetFinishCutsceneCam(participant, rival);
                 currentActorClearFlag();
                 if (raceResult == 0) {
                     csModelStateSetFirstByte(0x3B, 0xA);
