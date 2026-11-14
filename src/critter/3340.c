@@ -154,7 +154,7 @@ void critterBananaFairyUpdate(void) {
             }
             if (*timerPtr >= 0x2E) {
                 gCurrentActor->unk155 = 0;
-                if (func_806FB418() < requiredCount) { // FAKE: empty test; the original emits the call, the slt and the branch
+                if (func_806FB418() < requiredCount) { // ORIG: target calls func_806FB418 (jal 0x5ec), compares with requiredCount (slt 0x5f8) and branches over this empty body to the case merge (beqz 0x5fc / b 0x604 to 0x994)
                 }
             }
             break;
