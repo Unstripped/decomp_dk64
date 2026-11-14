@@ -1,6 +1,7 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/critter/0.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -96,16 +97,6 @@ typedef struct CritterGroups {
     /* 0x01 */ u8 pad1[3];
     /* 0x04 */ CritterGroup *groups;
 } CritterGroups;
-
-typedef struct CritterViewer {
-    /* 0x000 */ u8 pad0[0x88];
-    /* 0x088 */ Mtx projection[2];
-    /* 0x108 */ u8 pad108[0x210 - 0x108];
-    /* 0x210 */ f32 x;
-    /* 0x214 */ f32 y;
-    /* 0x218 */ f32 z;
-    /* 0x21C */ u8 pad21C[0x2F0 - 0x21C];
-} CritterViewer;
 
 void critterSetTargetSpeed(CritterObj *obj, CritterGroup *grp, f32 baseSpeed) {
     switch (grp->type) {
@@ -493,7 +484,7 @@ Gfx *func_800255C4(Gfx *gdl, CritterObj *obj) {
 
 extern Gfx D_1000118;
 extern u8 gCurrentPlayerIndex;
-extern CritterViewer *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern Mtx D_2000200;
 extern u8 gGfxBufferIndex;
 extern Mtx D_2000180;
@@ -503,7 +494,7 @@ Gfx *critterRenderSetup(Gfx *gdl) {
     gDPPipeSync(gdl++);
     gDPSetCycleType(gdl++, G_CYC_1CYCLE);
     gSPLoadGeometryMode(gdl++, 0);
-    gSPMatrix(gdl++, &gPlayerSlots[gCurrentPlayerIndex].projection[gGfxBufferIndex], G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gdl++, &gPlayerSlots[gCurrentPlayerIndex].projMtx[gGfxBufferIndex], G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(gdl++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(gdl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     return gdl;
@@ -682,7 +673,7 @@ extern Actor *gActivePlayerActor;
 extern CritterZone *critterPlayerZone;
 
 void critterUpdateZoneProximity(CritterObj *obj) {
-    CritterViewer *m;
+    PlayerStruct *m;
     f32 lim;
     f32 fv0;
     f32 dist;
@@ -709,7 +700,7 @@ void critterUpdateZoneProximity(CritterObj *obj) {
         obj->homeZone->near = f;
         obj->homeZone->frame = gGfxBufferIndex;
         m = &gPlayerSlots[0] + gCurrentPlayerIndex;
-        dist = ((f32)obj->homeZone->z - m->z) * ((f32)obj->homeZone->z - m->z) + (((f32)obj->homeZone->x - m->x) * ((f32)obj->homeZone->x - m->x) + ((f32)obj->homeZone->y - m->y) * ((f32)obj->homeZone->y - m->y));
+        dist = ((f32)obj->homeZone->z - m->camZ) * ((f32)obj->homeZone->z - m->camZ) + (((f32)obj->homeZone->x - m->camX) * ((f32)obj->homeZone->x - m->camX) + ((f32)obj->homeZone->y - m->camY) * ((f32)obj->homeZone->y - m->camY));
         obj->homeZone->distSq = dist;
         if (dist < lim) {
             fv0 = (lim - dist) * 0.000051020408f;
