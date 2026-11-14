@@ -621,19 +621,13 @@ void arcadePauseMenuLoop(Gfx **glistp) {
 }
 
 extern ArcadeEntity D_8004A5D8;
-extern f32 D_8004BCD4;
 void arcadeFinishStageIntro(void) {
-    ArcadeEntity *e;
     s32 i;
     s32 idx;
     s32 rank;
 
-    for (e = (ArcadeEntity *)((u8 *)&D_8004BCD4 - 4);;) { // FAKE: offset-symbol bases (Q0028) steer the loop pointer (natural &D_8004BCD0[80]: text=16)
-        e->type = 0;
-        e++;
-        if ((u8 *)e >= (u8 *)&D_8004C6D4 - 4) { // FAKE: offset-symbol bases (Q0028) steer the loop pointer (natural &D_8004BCD0[80]: text=16)
-            break;
-        }
+    for (i = 0; i < 80; i++) {
+        D_8004BCD0[i].type = 0;
     }
     for (i = 0; i < (D_8004C723 & 3) + 1; i++) {
         idx = arcadeFindFreeEntity();
@@ -3207,8 +3201,6 @@ void arcadeUpdateDonkeyKongStage1(s32 entIndex) {
                 D_8004BCD0[idx].vx = (((f64)D_8004BCD0[D_8004C71F].x - 92.0) / 200.0 + ((f64)arcadeRand() - 16384.0) / 30000.0) * arcadeMinFloat(3.0f, (f32)D_8004A76C);
                 if ((f32)arcadeRand() < arcadeMinFloat((f32)(u32)D_8004A76C, 3.0f) * 2000.0f + 4096.0f) {
                     D_8004BCD0[idx].unk1C = 6;
-                    if (D_80040540 == 0) {} // FAKE: empty guard steers regalloc
-                    return;
                 }
             } else if (D_8004BCD0[entIndex].unk1C == 0x14) {
                 D_8004C71E -= 1;
@@ -3234,8 +3226,6 @@ void arcadeUpdateDonkeyKongStage1(s32 entIndex) {
                 D_8004BCD0[entIndex].sprite = D_80043498;
                 D_8004BCD0[entIndex].unk1A = 0;
                 D_8004BCD0[idx].state = 1;
-                if (D_80040540 == 0) {} // FAKE: empty guard steers regalloc
-                return;
             }
             break;
         case 11:
@@ -3245,8 +3235,6 @@ void arcadeUpdateDonkeyKongStage1(s32 entIndex) {
                 D_8004BCD0[entIndex].state = 0xC;
                 D_8004BCD0[entIndex].sprite = D_800424D0;
                 D_8004BCD0[entIndex].unk1A = 0;
-                if (D_80040540 == 0) {} // FAKE: empty guard steers regalloc
-                return;
             }
             break;
         case 10:
