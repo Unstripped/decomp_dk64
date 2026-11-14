@@ -220,6 +220,7 @@ void func_8068EF54(void) {
     f32 nodeY;
     f32 nodeZ;
     BoneRotation *buf;
+    u32 frame;
 
     link = gCurrentActor->customState;
     owner = link->unk0;
@@ -269,8 +270,8 @@ void func_8068EF54(void) {
             link->unk8 = gFrameCounter;
         }
         if (gCurrentMap == 0x5C) {
-            if (gFrameCounter && gFrameCounter) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            glow = (30.0 - (f64)(s32)(gFrameCounter - link->unk8)) / 30.0 * 100.0;
+            frame = gFrameCounter;
+            glow = (30.0 - (f64)(s32)(frame - link->unk8)) / 30.0 * 100.0;
             if (glow > 0.0) {
                 lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, glow, 0, 0xFF, 0xC8, 0xC8);
             }
