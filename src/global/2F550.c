@@ -1017,12 +1017,12 @@ s32 mapBspBoxInFrustum(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
         ((arg3 * D_807F5E50[0] + arg4 * D_807F5E50[1]) + arg5 * D_807F5E50[2]) + D_807F5E50[3] < 0.0) {
         return 0;
     }
-    in1 = 0;
-    in2 = 0;
-    behind = 0;
     if ((f32)arg0 <= arg6 && arg6 <= (f32)arg3 && (f32)arg1 <= arg7 && arg7 <= (f32)arg4 && (f32)arg2 <= arg8 && arg8 <= (f32)arg5) {
         return 1;
     }
+    in1 = 0;
+    in2 = 0;
+    behind = 0;
     for (i = 0; i < 5 && behind == 0; i++) {
         d = ((arg10[i].a * arg0 + arg10[i].b * arg1) + arg10[i].c * arg2) + arg10[i].d;
         if (d < 0.00) {
@@ -1030,7 +1030,6 @@ s32 mapBspBoxInFrustum(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
         }
         d = ((arg10[i].a * arg0 + arg10[i].b * arg4) + arg10[i].c * arg2) + arg10[i].d;
         if (d < 0.00) {
-            if (arg4 && arg4) {} // FAKE: lowers arg4's cvt candidate priority (FP colouring of the head)
             in2 = 1;
         }
         if (in1 != 0 && in2 != 0) {
