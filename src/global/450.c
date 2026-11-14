@@ -75,8 +75,6 @@ extern u8 D_2000200[];
 extern s32 D_8000DDCC;
 extern s32 D_8000DDE4;
 
-extern u8 D_8074458B[][4];
-
 extern u8 D_80745BDC[][4];
 extern s8 D_807467CC;
 extern u8 D_807467E4;
@@ -164,15 +162,12 @@ s32 D_807445CC[5] = { 0, 0x4B0, 0, 0, 0 };
 
 // .bss 0x807655F0-0x8076A160
 OSMesgQueue D_807655F0;
-OSMesg D_80765608;
-u32 D_8076560C;
-u8 D_80765610[192];
+OSMesg D_80765608[0x32];
 OSMesgQueue D_807656D0;
-OSMesg D_807656E8;
-u32 D_807656EC;
-u8 D_807656F0[760];
+OSMesg D_807656E8[0xC0];
 OSMesgQueue D_807659E8;
-OSMesg D_80765A00[0x810];
+OSMesg D_80765A00[0x10];
+u64 D_80765A40[0x400];
 SchedStruct gScheduler;
 SchedClient D_80767CD8;
 FrameMatrices D_80767CE8[2];
@@ -216,8 +211,7 @@ u32 D_8076A100;
 u8 D_8076A104;
 s8 D_8076A105;
 u16 D_8076A106;
-OSMesg D_8076A108;
-u32 D_8076A10C;
+OSMesg D_8076A108[2];
 OSMesgQueue D_8076A110;
 OSMesg D_8076A128;
 u32 D_8076A12C;
@@ -367,9 +361,9 @@ void viModeSetup(u8 overlaySlot) {
 
 void mainSystemInit(void) {
     D_8076A084 = gSegmentTable[12].romEnd - gSegmentTable[12].romStart;
-    osCreateMesgQueue(&D_807655F0, &D_80765608, 0x32);
-    osCreateMesgQueue(&D_807656D0, &D_807656E8, 0xC0);
-    schedCreate(&gScheduler, &D_80765A00[0x810], 0x19, D_8074458B[osTvType + osTvType][0], 1);
+    osCreateMesgQueue(&D_807655F0, D_80765608, 0x32);
+    osCreateMesgQueue(&D_807656D0, D_807656E8, 0xC0);
+    schedCreate(&gScheduler, &D_80765A40[0x400], 0x19, D_80744588[osTvType + osTvType], 1);
     osCreateMesgQueue(&D_807659E8, D_80765A00, 0x10);
     schedAddClient(&gScheduler, &D_80767CD8, &D_807659E8, 1, 1);
     gCurrentMap = gInitialMap;
@@ -381,8 +375,8 @@ void mainSystemInit(void) {
     transitionSetState(0);
     faultThreadInit();
     osWritebackDCacheAll();
-    osCreateMesgQueue(&D_8076A110, &D_8076A108, 2);
-    osSetTimer(&D_8076A130, 0xD693A4, 0, &D_8076A110, D_8076A128);
+    osCreateMesgQueue(&D_8076A110, D_8076A108, 2);
+    osSetTimer(&D_8076A130, OS_USEC_TO_CYCLES(300000), 0, &D_8076A110, D_8076A128);
     sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
 }
 
