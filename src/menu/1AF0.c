@@ -975,7 +975,6 @@ void menuUpdateTransformedWidgets(void) {
     MenuTextIdPair textIds;
     s32 i;
     s32 lineHeight;
-    s32 fadeStep;
 
     if (widget->shopActor == NULL) {
         widget->shopActor = (MenuShopActor *)spawnNodeActivate(1, 0);
@@ -1046,12 +1045,10 @@ void menuUpdateTransformedWidgets(void) {
         }
         switch (gCurrentActor->base.state) {
         case 1:
-            fadeStep = (0xFF - widget->alpha > 0x10) ? 0x10 : 0xFF - widget->alpha;
-            widget->alpha += fadeStep;
+            widget->alpha += (0xFF - widget->alpha > 0x10) ? 0x10 : 0xFF - widget->alpha;
             break;
         case 2:
-            lineHeight = (widget->alpha > 0x10) ? 0x10 : widget->alpha; // FAKE: fade-out step reuses the lineHeight local (keeps v1/a0 at 0x2240-0x2254); fadeStep there swaps them, a separate local changes the function
-            widget->alpha -= lineHeight;
+            widget->alpha -= (widget->alpha > 0x10) ? 0x10 : widget->alpha;
             break;
         }
         if (done == 0) {
