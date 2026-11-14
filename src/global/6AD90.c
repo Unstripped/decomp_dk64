@@ -827,7 +827,7 @@ extern u8 D_807F5FC0;
 extern u8 D_807F94AB;
 
 u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
-    s32 padTop;
+    f32 offset;
     CollisionStaticTri *triEnd;
     CollisionStaticTri *hitTri;
     s32 cell;
@@ -901,8 +901,8 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                     val = 0.0 - ((((arg0 * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * arg1) + d) / (ny * 2000.0));
                     h2 = (2000.0 * val) - 1000.0;
                     if (tri->unk12 & 4) {
-                        h2 = (f64)(mapOffsetSlotGetValue(tri->unk17) * 6.0f); // FAKE: assigning M first fixes add.d operand order
-                        h2 = ((2000.0 * (0.0 - ((((arg0 * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * arg1) + d) / (ny * 2000.0)))) - 1000.0) + h2;
+                        offset = mapOffsetSlotGetValue(tri->unk17) * 6.0f;
+                        h2 = ((2000.0 * (0.0 - ((((arg0 * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * arg1) + d) / (ny * 2000.0)))) - 1000.0) + offset; // FAKE: recomputes the height formula instead of reusing val, keeping it a separate f64 web (f20) for add.d f24,f20,f6
                     }
                     if ((tri->unk12 & 0x4000) && arg3 != NULL && (arg3->collisionFlags & 1)) {
                         D_807F94B7 = 1;
@@ -2620,7 +2620,6 @@ void collisionBstSortFlatItems(CollisionBstFlatItem *arr, s32 low, s32 high) {
     s32 j;
     u32 pivot;
     CollisionBstFlatItem *pivot_ptr;
-    s32 size = 20;
     u32 temp0;
     s32 temp1;
     s32 temp2;
@@ -2628,7 +2627,7 @@ void collisionBstSortFlatItems(CollisionBstFlatItem *arr, s32 low, s32 high) {
     u8 temp4;
 
     if (low < high) {
-        pivot_ptr = (CollisionBstFlatItem *)((u8 *)arr + high * size);
+        pivot_ptr = (CollisionBstFlatItem *)((u8 *)arr + high * sizeof(CollisionBstFlatItem)); // FAKE: byte-offset pivot address keeps arr first in addu t5,s3,t6; &arr[high] swaps the operands
         pivot = pivot_ptr->unk0;
         i = low - 1;
         j = high;
