@@ -23,19 +23,10 @@ extern s16 gScreenHeight;
 extern u8 gNextGameMode;
 extern u8 gGfxBufferIndex;
 
-typedef struct HealthStats {
-    u8 pad0[0x2FB];
-    s8 health;
-    u8 melons;
-    s8 healthDelta;
-} HealthStats;
-
-
-struct HealthStats;
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 
-Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, PlayerStruct *hudState) {
+Gfx *healthHudDraw(Gfx *glist, PlayerInventory *stats, KongInventory *kong, PlayerStruct *hudState) {
     s16 i;
     s8 pips;
     u32 centerX;
@@ -113,7 +104,7 @@ void hudDrawItemWithAlpha(HealthHudInit *hudInit) {
 
 void func_80026B0C(s32);
 
-void healthApplyPendingDelta(s32 playerIndex, PlayerStruct *hudState, HealthStats *playerState, s32 newHealth) {
+void healthApplyPendingDelta(s32 playerIndex, PlayerStruct *hudState, PlayerInventory *playerState, s32 newHealth) {
     u8 state;
     s32 limit;
 
@@ -162,15 +153,15 @@ PlayerStruct *hudState;
 {
     s32 idx;
     f32 angle;
-    u8 *hud;
-    u8 *elem;
+    PlayerInventory *inv;
+    KongInventory *kong;
     u8 mode;
     u8 bits;
     s32 single;
 
-    hud = (u8 *)&gPlayerInventoryTable[playerIndex];
+    inv = &gPlayerInventoryTable[playerIndex];
     idx = playerGetResolvedKongId(playerIndex);
-    elem = (u8 *)((s32)hud + idx * 0x5E);
+    kong = &inv->kong[idx];
     mode = hudState->unk2E4;
     bits = hudState->unk2E3;
     single = gPlayerCount == 1;
@@ -178,7 +169,7 @@ PlayerStruct *hudState;
         mode = 0;
     }
     if (single == 0) {
-        healthApplyPendingDelta(playerIndex, hudState, (HealthStats *)hud, (s32)elem);
+        healthApplyPendingDelta(playerIndex, hudState, inv, (s32)kong);
         hudState->unk2E2 &= 0xFFEA;
         bits = hudState->unk2E3;
     }
@@ -223,7 +214,7 @@ PlayerStruct *hudState;
             }
             break;
         case 2:
-            healthApplyPendingDelta(playerIndex, hudState, (HealthStats *)hud, (s32)elem);
+            healthApplyPendingDelta(playerIndex, hudState, inv, (s32)kong);
             break;
         case 3:
             angle = 1.5707963705062866 - hudState->unk2E5 / 18.0 * 1.5707963705062866 + 1.5707963705062866;
@@ -236,7 +227,7 @@ PlayerStruct *hudState;
     }
     if (hudCanRender() != 0 || (bits & 0x80)) {
         if (hudState->unk2E4 != 0 || hudState->unk2E2 != 0) {
-            glist = healthHudDraw(glist, (HealthStats *)hud, elem, hudState);
+            glist = healthHudDraw(glist, inv, kong, hudState);
         }
     }
     return glist;
@@ -278,14 +269,11 @@ s32 healthGetPerMelon(void) {
 
 
 void healthRefill(u8 playerIndex) {
-    s32 perMelon;
-    s32 product_factor;
-    HealthStats *stats;
+    PlayerInventory *stats;
 
-    perMelon = healthGetPerMelon();
-    stats = (HealthStats *)((playerIndex * sizeof(PlayerInventory)) + (s32)gPlayerInventoryTable);
+    stats = &gPlayerInventoryTable[playerIndex];
+    stats->health = stats->melons * healthGetPerMelon();
     stats->healthDelta = 0;
-    stats->health = stats->melons * (product_factor = perMelon); // FAKE: assignment-in-expression (plain multiply breaks the match)
 }
 
 
