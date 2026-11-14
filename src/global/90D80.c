@@ -290,20 +290,24 @@ Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *alpha) {
     gDPSetTile(glist++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 1, 0, G_TX_WRAP, 6, 0, G_TX_WRAP, 6, 0);
 
     WRITE_GFX(glist++, 0xDA380007, (u32)&D_2000080);
-    if (gFrameDelta == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     WRITE_GFX(glist++, 0xDA380003, (u32)&D_2000180);
     WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(&D_80750230));
     WRITE_GFX(glist++, 0x06000204, 0x00000406);
     gDPPipeSync(glist++);
 
-    if (gCurrentMap == 0x26) {
+    switch (gCurrentMap) {
+    case 0x26: {
         f64 temp = scrollStep;
         D_80750228 -= 2.0 * temp;
         D_8075022C -= 14.0 * temp;
-    } else {
+        break;
+    }
+    default: {
         f64 temp = scrollStep;
         D_80750228 -= temp;
         D_8075022C -= 0.5 * temp;
+        break;
+    }
     }
 
     if (D_80750228 < 0.0) {
@@ -405,11 +409,8 @@ Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal,
     glist = gfxInit2DDisplayList(glist);
     gDPSetScissor(glist++, G_SC_NON_INTERLACE, x, y, x + 0x34, y + 0x1B);
 
-    hundreds = 0;
     val = *curVal;
-    while (val >= 100) {
-        val -= 100, hundreds++;  // FAKE: one comma statement interleaves the s16 truncations of val and hundreds (sll t2,v1 before addiu s0); two statements or a for loop move them after (score 430)
-    }
+    for (hundreds = 0; val >= 100; hundreds++) val -= 100; // LAYOUT: body on the for line: as1 schedules val's s16 truncation (sll t2,v1) before hundreds' addiu s0 (Q0396, Q0149)
     if (val == 99) {
         hundreds++;
     }
