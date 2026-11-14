@@ -412,7 +412,7 @@ void mainResetEngineState(void) {
 }
 
 extern s16 D_8074682C;
-extern u8 D_807F059C;
+extern u8 D_807F059C[];
 
 void mainThreadLoop(s32 unused) {
     u8 first;
@@ -426,7 +426,7 @@ void mainThreadLoop(s32 unused) {
     osViSetSpecialFeatures(0x42);
     mainResetEngineState();
     D_8076A070[0] = gScheduler.unk280 - 2;
-    osRecvMesg(&D_8076A110, &receivedMesg, 1);
+    osRecvMesg(&D_8076A110, &receivedMesg, OS_MESG_BLOCK);
     while (1) {
         D_8074682C = 0xC8;
         while (D_80744460 != 0) {
@@ -457,7 +457,7 @@ void mainThreadLoop(s32 unused) {
         timerQueueUpdate();
         dmaDrainQueueAndFreeBuffer();
         func_80610268(0x4D2);
-        if (D_807F059C != 0) {
+        if (D_807F059C[0] != 0) {
             func_80610268(0x929);
         }
         frameTimingUpdate();
@@ -470,7 +470,7 @@ void mainThreadLoop(s32 unused) {
             faultSetMessage(2, 0, 0, 0);
         }
         if (first != 0) {
-            osSendMesg(D_807655E0, (OSMesg)0x309, 1);
+            osSendMesg(D_807655E0, (OSMesg)0x309, OS_MESG_BLOCK);
             first = 0;
         }
         if ((gScreenRenderFlags & 1) && gScreenFadeProgress == 31.0f) {
