@@ -9,15 +9,8 @@
 #include "proto/global/B1F60.h"
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
-typedef struct BossA_Struct_807FBB44 {
-    u8 pad0[0xC8];
-    f32 unkC8;
-    u8 padCC[0x12A - 0xCC];
-    s16 unk12A;
-} BossA_Struct_807FBB44;
-
 extern Actor *gCurrentActor;
-extern BossA_Struct_807FBB44 *gSpawnedActor;
+extern Actor *gSpawnedActor;
 
 Actor *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
 
@@ -35,8 +28,8 @@ void bossKutOutSpawnGhost(s16 actorType, s16 distance, s16 angle) {
         mathCosF(angle) * fArg1 + gCurrentActor->z,
         0, 0, 0
     );
-    gSpawnedActor->unkC8 *= 2;
-    gSpawnedActor->unk12A = 0x7D0;
+    gSpawnedActor->terminalSpeedY *= 2;
+    gSpawnedActor->drawDistance = 0x7D0;
 }
 
 
@@ -54,29 +47,22 @@ void bossKutOutSpawnGhosts(void) {
     }
 }
 
-// polymorphic: behaviour work word at 0x28 read as s32
-typedef struct BossWorkState {
-    char pad0[0x28];
-    s32 unk28;
-} BossWorkState;
-#define DC90 ((BossWorkState *)gBehaviourWorkState)
-
 
 void func_8002C748(animSlot)
 u8 animSlot;
 {
-    DC90->unk28 = 2;
+    gBehaviourWorkState->unk28 = 2;
     animSetLoopLimit(gCurrentActor, animSlot, 1);
     animSetFinished(gCurrentActor, animSlot, 1);
-    animSetFrameAndSubframe(gCurrentActor, animSlot, DC90->unk28 & 0xF, 0.0f);
+    animSetFrameAndSubframe(gCurrentActor, animSlot, gBehaviourWorkState->unk28 & 0xF, 0.0f);
 }
 
 void bossAnimFrameBounceStep(void) {
     u16 directionBit = 0;
     u8 directionFlag;
     u8 val;
-    directionFlag = DC90->unk28 & 0x80;
-    val = DC90->unk28 & 0xF;
+    directionFlag = gBehaviourWorkState->unk28 & 0x80;
+    val = gBehaviourWorkState->unk28 & 0xF;
     if (directionFlag) {
         val += 1;
         if (val >= 2) {
@@ -94,7 +80,7 @@ void bossAnimFrameBounceStep(void) {
     }
     animSetFrameAndSubframe(gCurrentActor, 0, (s16)val, 0.0f);
     animSetFrameAndSubframe(gCurrentActor, 1, (s16)val, 0.0f);
-    DC90->unk28 = directionBit | val | directionFlag;
+    gBehaviourWorkState->unk28 = directionBit | val | directionFlag;
 }
 
 
@@ -117,16 +103,16 @@ void bossKutOutFireLaser(void) {
 }
 
 typedef struct BossSwayState {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
+    s16 offset;
+    s16 amplitude;
+    s16 phase;
 } BossSwayState;
 
-// Boss actor with its sway-state component (the first pointer after Actor, 0x178).
-typedef struct BossActor {
+// Kut Out actor with its sway-state component (the first pointer after Actor, 0x178).
+typedef struct BossKutOutActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ BossSwayState *unk178;
-} BossActor;
+    /* 0x178 */ BossSwayState *sway;
+} BossKutOutActor;
 
 
 
@@ -154,7 +140,7 @@ u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void bossKutOutStep(void) {
     BossSwayState *swayState;
 
-    swayState = ((BossActor *)gCurrentActor)->unk178;
+    swayState = ((BossKutOutActor *)gCurrentActor)->sway;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         func_8002C748(0);
@@ -212,7 +198,7 @@ void bossKutOutStep(void) {
         case 3:
             if (currentActorTestClearFlag() != 0) {
                 gCurrentActor->eyeHeight = 0xA;
-                DC90->unk28 |= 0x8000;
+                gBehaviourWorkState->unk28 |= 0x8000;
                 gCurrentActor->interactionType = 1;
                 gCurrentActor->state = 0x23;
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
@@ -226,7 +212,7 @@ void bossKutOutStep(void) {
         switch (gCurrentActor->unk155) {
         case 0:
             if (currentActorTestClearFlag() != 0) {
-                DC90->unk28 |= 0x8000;
+                gBehaviourWorkState->unk28 |= 0x8000;
                 gCurrentActor->unk155 = 1;
             }
             break;
@@ -234,7 +220,7 @@ void bossKutOutStep(void) {
             if ((gCurrentActor->y - gCurrentActor->floorY) > 300.0f) {
                 gCurrentActor->y -= 10.0f;
             } else {
-                DC90->unk28 |= 0x8000;
+                gBehaviourWorkState->unk28 |= 0x8000;
                 gCurrentActor->unk155 = 3;
             }
             break;
@@ -258,7 +244,7 @@ void bossKutOutStep(void) {
             if ((spawnNodeHasActor(2) == 0) && (spawnNodeHasActor(3) == 0) && (spawnNodeHasActor(4) == 0)) {
                 gCurrentActor->unk155 = 2;
                 gBehaviourWorkState->timer = 0x96;
-                DC90->unk28 |= 0x8000;
+                gBehaviourWorkState->unk28 |= 0x8000;
                 gCurrentActor->interactionType = 8;
                 actorScriptStart(gCurrentActor, 0x2FA);
             }
@@ -274,8 +260,8 @@ void bossKutOutStep(void) {
                 if (gActorGlobalState.bossFightPhase == 4) {
                     actorScriptStart(gCurrentActor, 0x2FC);
                     behaviourSpawnPuffParticle();
-                    swayState->unk2 = 0x96;
-                    swayState->unk4 = 0x800;
+                    swayState->amplitude = 0x96;
+                    swayState->phase = 0x800;
                     gCurrentActor->moveYaw = gCurrentActor->yaw;
                     if (gCurrentActor->health == 1) {
                         gCurrentActor->state = 0x28;
@@ -283,7 +269,7 @@ void bossKutOutStep(void) {
                     }
                 }
                 gCurrentActor->interactionType = 4;
-                DC90->unk28 |= 0x8000;
+                gBehaviourWorkState->unk28 |= 0x8000;
                 gCurrentActor->unk155 = 0;
             }
             break;
@@ -300,16 +286,16 @@ void bossKutOutStep(void) {
         actorPatrolFollowerUpdate(0x2F7, 1, 0);
         break;
     }
-    if (swayState->unk2 > 0) {
-        swayState->unk0 = mathSinF(swayState->unk4) * swayState->unk2;
-        swayState->unk4 += 0x32;
-        swayState->unk2 -= 1;
-        gCurrentActor->roll = -swayState->unk0;
-        gCurrentActor->x = mathSinF(gCurrentActor->moveYaw) * swayState->unk0 + gBehaviourExtraState->x;
-        gCurrentActor->z = mathCosF(gCurrentActor->moveYaw) * swayState->unk0 + gBehaviourExtraState->z;
-        gCurrentActor->y = gBehaviourExtraState->y - sqrtf(0x1C390 - swayState->unk0 * swayState->unk0);
+    if (swayState->amplitude > 0) {
+        swayState->offset = mathSinF(swayState->phase) * swayState->amplitude;
+        swayState->phase += 0x32;
+        swayState->amplitude -= 1;
+        gCurrentActor->roll = -swayState->offset;
+        gCurrentActor->x = mathSinF(gCurrentActor->moveYaw) * swayState->offset + gBehaviourExtraState->x;
+        gCurrentActor->z = mathCosF(gCurrentActor->moveYaw) * swayState->offset + gBehaviourExtraState->z;
+        gCurrentActor->y = gBehaviourExtraState->y - sqrtf(0x1C390 - swayState->offset * swayState->offset);
     }
-    if (DC90->unk28 & 0x8000) {
+    if (gBehaviourWorkState->unk28 & 0x8000) {
         bossAnimFrameBounceStep();
     }
     actorUpdateModelMatrix(gCurrentActor, 0);

@@ -13,14 +13,14 @@ typedef struct TriggerZoneData {
     s16 xMax;
     s16 yMax;
     s16 zMax;
-    s16 unkC;
-    u8 unkE;
-    u8 unkF;
+    s16 planeOffset;
+    u8 axisFlags;
+    u8 alpha;
 } TriggerZoneData;
 
 typedef struct TriggerZoneSubNode {
     Actor *actor;
-    s32 unk4;
+    s32 instanceId;
     struct Actor *spawnedActor;
     struct TriggerZoneSubNode *next;
 } TriggerZoneSubNode;
@@ -80,7 +80,7 @@ void triggerZoneCheckEntry(Actor *actor) {
                 newNode = heapAlloc(sizeof(TriggerZoneSubNode));
                 *subLink = newNode;
                 newNode->actor = actor;
-                newNode->unk4 = actor->instanceId;
+                newNode->instanceId = actor->instanceId;
                 newNode->spawnedActor = gSpawnedActor;
                 newNode->next = NULL;
             }
@@ -88,17 +88,18 @@ void triggerZoneCheckEntry(Actor *actor) {
     }
 }
 
-typedef struct TriggerSpawnSub174 {
+// customState of the spawned mirror actor 0x7B (read by actorMirrorParentModelAxis, A2F10 MirrorActorState).
+typedef struct MirrorActorState {
     u8 pad0[0xC];
-    s16 unkC;
-    u8 unkE;
-    u8 unkF;
-} TriggerSpawnSub174;
+    s16 planeOffset;
+    u8 axisFlags;
+    u8 alpha;
+} MirrorActorState;
 
 
 s32 triggerZoneContainsActor(Actor *actor, TriggerZoneSubNode *subNode) {
     while (subNode != NULL) {
-        if (actor == subNode->actor && subNode->unk4 == actor->instanceId) {
+        if (actor == subNode->actor && subNode->instanceId == actor->instanceId) {
             return 1;
         }
         subNode = subNode->next;
@@ -107,14 +108,14 @@ s32 triggerZoneContainsActor(Actor *actor, TriggerZoneSubNode *subNode) {
 }
 
 void triggerZoneSpawnTrigger(Actor *actor, TriggerZoneData *zone) {
-    TriggerSpawnSub174 *spawnState;
+    MirrorActorState *spawnState;
 
     actorSpawn(0x7B, controllerLookupStateByHash(actor));
     gSpawnedActor->parentActor = actor;
     spawnState = gSpawnedActor->customState;
-    spawnState->unkE = zone->unkE;
-    spawnState->unkC = zone->unkC;
-    spawnState->unkF = zone->unkF;
+    spawnState->axisFlags = zone->axisFlags;
+    spawnState->planeOffset = zone->planeOffset;
+    spawnState->alpha = zone->alpha;
     actor->unk156++;
 }
 

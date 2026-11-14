@@ -28,21 +28,21 @@ typedef struct MenuShopState {
     char pad0[4];
     s16 price;
     char pad6[4];
-    u8 unkA;
+    u8 submenuEntered;
     s8 itemSlot;
     u8 hubWorld;
     u8 mode;
     u8 step;
-    u8 unkF;
+    u8 nextMode;
     u8 unk10;
     u8 itemLevel;
-    u8 unk12;
+    u8 requirementUnmet;
 } MenuShopState;
 
 // Shop actors (Cranky/Funky/Candy) and the shop's overlay widget actor: one component.
 typedef struct MenuShopActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ MenuShopState *unk178;
+    /* 0x178 */ MenuShopState *shop;
 } MenuShopActor;
 
 
@@ -69,7 +69,7 @@ extern Gfx D_1000118[];
 extern Mtx D_20000C0;
 
 Gfx *menuDrawShopCostPrompt(Gfx *dl, MenuShopActor *actor) {
-    MenuShopState *st = actor->unk178;
+    MenuShopState *st = actor->shop;
     u8 buf[0x28];
 
     if (st->mode == 1) {
@@ -263,12 +263,12 @@ void menuCheckInventoryItemPurchased(MenuShopState *state, u8 *inventory, s32 is
 s32 menuGetOptionAvailability(MenuShopState *state, s32 optionIdx) {
     s32 ret = 0;
 
-    state->unkF = 3;
+    state->nextMode = 3;
     if (state->itemSlot >= 0) {
         s32 val = slotQueueGetValue(1, 0);
         ret = 2;
         if (val >= state->price) {
-            state->unkF = 1;
+            state->nextMode = 1;
         } else {
             ret = 3;
         }
@@ -276,7 +276,7 @@ s32 menuGetOptionAvailability(MenuShopState *state, s32 optionIdx) {
         ret = 1;
     }
 
-    if (state->unkA != 0) {
+    if (state->submenuEntered != 0) {
         ret += 4;
     }
 
@@ -287,7 +287,7 @@ s32 menuIsSpecialMovePurchased(MenuShopState *state) {
     s32 ret = gCurrentActor->base.actorType == 0xBD;
 
     if (ret != 0) {
-        ret = state->unkA == 0;
+        ret = state->submenuEntered == 0;
         if (ret != 0) {
             return state->itemSlot < 0;
         }
@@ -296,7 +296,7 @@ s32 menuIsSpecialMovePurchased(MenuShopState *state) {
 
 void menuResetSubmenuState(MenuShopState *state, s32 *outAvailability) {
     *outAvailability = 0;
-    state->unkF = 1;
+    state->nextMode = 1;
     state->itemSlot = -1;
 }
 
@@ -328,7 +328,7 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
         pairs = NULL;
         availability = menuGetOptionAvailability(state, hasSecondAction);
         currentActorClearFlag();
-        state->unk12 = 0;
+        state->requirementUnmet = 0;
         state->step++;
         switch (gCurrentActor->base.actorType) {
         case 0xBF:
@@ -344,7 +344,7 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
                         entry2 = 6;
                         entry6 = 0xD;
                         entry7 = 0xF;
-                        state->unk12 = 1;
+                        state->requirementUnmet = 1;
                     } else {
                         entry2 = 5;
                         entry3 = 8;
@@ -371,7 +371,7 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
             }
             textParam1 = 8;
             pairs = (MenuM1_Pair *)D_800334EC;
-            if (state->unkA == 0) {
+            if (state->submenuEntered == 0) {
                 if (flagGet(0x61, 2) != 0) {
                     flagSet(0x61, 0, 2);
                     menuResetSubmenuState(state, &availability);
@@ -437,7 +437,7 @@ void menuDispatchSubmenuAction(MenuShopState *state, u8 *inventory, s32 flag) {
     case 1:
         if (!(gCurrentActor->base.flags & 0x02000000)) {
             state->step = 0;
-            state->mode = state->unkF;
+            state->mode = state->nextMode;
             camResumePath();
         }
         break;
@@ -473,7 +473,7 @@ s32 menuExitSubmenu(MenuShopState *state, u8 *inventory, s32 flagId) {
 
 
 void menuTransitionToSubmenu(MenuShopState *state, u8 *inventory) {
-    state->unkA = 1;
+    state->submenuEntered = 1;
     camStartPath(0, 0xF, 1);
     currentActorClearFlag();
     menuCheckInventoryItemPurchased(state, inventory, 0);
@@ -536,7 +536,7 @@ void menuUpdateShopPurchaseStep(MenuShopState *state, u8 *inventory) {
         case 0xBD:
             textParam1 = 8;
             if (menuIsSpecialMovePurchased(state) != 0) {
-                state->unkA = 1;
+                state->submenuEntered = 1;
                 menuTransitionToSubmenu(state, inventory);
                 return;
             }
@@ -704,7 +704,7 @@ void menuUpdateShopExitingStep(MenuShopState *state, u8 *inventory, s32 flagId) 
     case 4:
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-    case 3:
+    case 3: // ORIG: jump-table entry 3 (.rodata 0xb4) targets 0x1514, the one jal mapTransitionToPreviousOrExit inside the case-4 body; split cases emit a second copy (+32 bytes)
             mapTransitionToPreviousOrExit();
             state->step = 0xA;
         }
@@ -746,7 +746,7 @@ void menuUpdateCrankyShopActor(void) {
 
     behaviourFrameBegin();
     if (gCurrentMap == 5) {
-        st = gCurrentActor->unk178;
+        st = gCurrentActor->shop;
         inventory = gPlayerInventoryTable[gPlayerCharacterId];
         if (!(gCurrentActor->base.flags & 0x10)) {
             if (flagGet(0x180, 0) != 0) {
@@ -879,7 +879,7 @@ void menuCheckControllerAntiPiracy(void) {
 
     behaviourFrameBegin();
     if (gCurrentMap == 0x19) {
-        st = gCurrentActor->unk178;
+        st = gCurrentActor->shop;
         inventory = gPlayerInventoryTable[gPlayerCharacterId];
 
         if (!(gCurrentActor->base.flags & 0x10)) {
@@ -912,7 +912,7 @@ void menuCheckControllerAntiPiracy(void) {
 void menuUpdateFunkyShopActor(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 1) {
-        MenuShopState *st = gCurrentActor->unk178;
+        MenuShopState *st = gCurrentActor->shop;
         u8 *inventory = gPlayerInventoryTable[gPlayerCharacterId];
 
         if (!(gCurrentActor->base.flags & 0x10)) {
@@ -929,8 +929,8 @@ void menuUpdateFunkyShopActor(void) {
 
 
 extern Mtx D_2000180;
-typedef struct { s16 unk0; s16 font; } Struct_8003353C;
-extern Struct_8003353C D_8003353C[];
+typedef struct { s16 unk0; s16 font; } MenuWidgetTextStyle;
+extern MenuWidgetTextStyle D_8003353C[];
 
 Gfx *menuDrawTransformedWidgets(Gfx *dl, MenuShopActor *widgetActor) {
     MenuWidgetState *widget = widgetActor->base.customState;
@@ -981,7 +981,7 @@ void menuUpdateTransformedWidgets(void) {
         widget->shopActor = (MenuShopActor *)spawnNodeActivate(1, 0);
     }
     if (widget->shopActor != NULL) {
-        st = widget->shopActor->unk178;
+        st = widget->shopActor->shop;
     }
     if (st != NULL) {
         if (!(gCurrentActor->base.flags & 0x10)) {
@@ -1016,7 +1016,7 @@ void menuUpdateTransformedWidgets(void) {
                 widget->timer = 0x82;
                 if (st->itemLevel == 1) {
                     textIds.a[0] = D_80033634[gPlayerCharacterId];
-                } else if (st->unk12 == 0) {
+                } else if (st->requirementUnmet == 0) {
                     textIds.a[0] = D_80033648[st->itemLevel];
                 } else {
                     textIds.a[0] = 0x32;
@@ -1050,7 +1050,7 @@ void menuUpdateTransformedWidgets(void) {
             widget->alpha += fadeStep;
             break;
         case 2:
-            lineHeight = (widget->alpha > 0x10) ? 0x10 : widget->alpha;
+            lineHeight = (widget->alpha > 0x10) ? 0x10 : widget->alpha; // FAKE: fade-out step reuses the lineHeight local (keeps v1/a0 at 0x2240-0x2254); fadeStep there swaps them, a separate local changes the function
             widget->alpha -= lineHeight;
             break;
         }
