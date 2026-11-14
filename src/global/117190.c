@@ -257,17 +257,22 @@ extern u8 gMenuBonusStageIndex;
 extern u8 gActivePlayerCount;
 extern u16 gMenuStateTimer;
 extern u16 D_807ECD66;
-extern u8 D_8075E5C0[];
+
+typedef struct BonusStageEntry {
+    /* 0x0 */ u8 characterId; // func_8060B750 / func_8060B49C character argument
+    /* 0x1 */ u8 pad1;
+    /* 0x2 */ u16 maxTime; // caps gMenuStateTimer
+} BonusStageEntry; // size = 0x4
+
+extern BonusStageEntry D_8075E5C0[];
 
 
 void menuSetupBonusCharacter(void) {
     if (gMenuTargetMode == 3) {
-        func_8060B750(D_8075E5C0[gMenuBonusStageIndex * 4]);
+        func_8060B750(D_8075E5C0[gMenuBonusStageIndex].characterId);
         gPlayerCharacterId = func_8060B7C4();
     }
 }
-
-extern u16 D_8075E5C2[];
 
 extern u8 D_807467CC;
 extern u8 gCurrentWorldId;
@@ -310,8 +315,8 @@ void menuCheckMapTransitionOnLoad(void) {
         break;
     case 3:
         gMenuTransitionCounter++;
-        gMenuStateTimer = func_8060B49C(gPlayerSlots->actor, D_8075E5C0[gMenuBonusStageIndex * 4]);
-        gMenuStateTimer = MIN(gMenuStateTimer, *(u16 *) ((u8 *) D_8075E5C2 + gMenuBonusStageIndex * 4)); // FAKE: byte-offset punned read of the u16 half of a 4-byte table entry; D_8075E5C2[i * 2] shifts the ugen temp ring (t2/t3 at gMenuTargetMode)
+        gMenuStateTimer = func_8060B49C(gPlayerSlots->actor, D_8075E5C0[gMenuBonusStageIndex].characterId);
+        gMenuStateTimer = MIN(gMenuStateTimer, D_8075E5C0[gMenuBonusStageIndex].maxTime);
         gMenuBonusStageIndex++;
         gMenuBonusStageIndex %= 5U;
         gControllerButtonMask = 0x1000;
@@ -385,7 +390,7 @@ void menuUpdateTitleOrTransition(void) {
         if (gMenuTransitionCounter >= 3) {
             menuTransitionRequest(0x28, 0, 1);
         } else {
-            func_8060B750(D_8075E5C0[gMenuBonusStageIndex * 4]);
+            func_8060B750(D_8075E5C0[gMenuBonusStageIndex].characterId);
             func_8060B7D0(&map, &exit);
             screenSetTransitionFadeType(1);
             mapRequestTransition(map, exit);
@@ -426,7 +431,7 @@ void menuStartSelectedBonusStage(void) {
     s32 exit;
 
     gMenuTransitionCounter = 0;
-    func_8060B750(D_8075E5C0[gMenuBonusStageIndex * 4]);
+    func_8060B750(D_8075E5C0[gMenuBonusStageIndex].characterId);
     func_8060B7D0(&map, &exit);
     screenSetTransitionFadeType(1);
     menuTransitionWithState(map, exit, 3);
