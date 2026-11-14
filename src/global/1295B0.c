@@ -75,7 +75,7 @@ void zoneEntrySetDisabled(u8 zoneId, u8 entryIndex, u8 disabled) {
     s16 i;
 
     group = gZoneTable->zones;
-    for (i = 0; i < gZoneTable->count;) {
+    for (i = 0; i < gZoneTable->count; i++, group++) {
         if (group->id == zoneId) {
             if (entryIndex < group->entryCount) {
                 if (disabled != 0) {
@@ -86,8 +86,6 @@ void zoneEntrySetDisabled(u8 zoneId, u8 entryIndex, u8 disabled) {
             }
             return;
         }
-        i++;
-        group++;
     }
 }
 
@@ -96,7 +94,7 @@ void zoneEntryGetPosition(u8 zoneId, u8 entryIndex, f32 *outX, f32 *outY, f32 *o
     s16 i;
 
     group = gZoneTable->zones;
-    for (i = 0; i < gZoneTable->count;) {
+    for (i = 0; i < gZoneTable->count; i++, group++) {
         if (group->id == zoneId) {
             if (entryIndex < group->entryCount) {
                 *outX = group->entries[entryIndex].x;
@@ -105,8 +103,6 @@ void zoneEntryGetPosition(u8 zoneId, u8 entryIndex, f32 *outX, f32 *outY, f32 *o
             }
             return;
         }
-        i++;
-        group++;
     }
 }
 
@@ -263,7 +259,7 @@ s32 lineSegmentIntersect2D(s16 x1, s16 z1, s16 x2, s16 z2, s16 x3, s16 z3, s16 x
     f32 det;
     f32 half;
     f32 y;
-    f32 two;
+    f32 num;
     s16 ix;
     s16 iy;
 
@@ -287,24 +283,23 @@ s32 lineSegmentIntersect2D(s16 x1, s16 z1, s16 x2, s16 z2, s16 x3, s16 z3, s16 x
     if (det == 0.0f) {
         return 2;
     }
-    two = 2.0f;
     if (det < 0.0f) {
-        half = -det / two;
+        half = -det / 2;
     } else {
-        half = det / two;
+        half = det / 2;
     }
     if (b1 * c2 < b2 * c1) {
-        two = (b1 * c2 - b2 * c1) - half;
+        num = (b1 * c2 - b2 * c1) - half;
     } else {
-        two = (b1 * c2 - b2 * c1) + half;
+        num = (b1 * c2 - b2 * c1) + half;
     }
-    *outX = two / det;
+    *outX = num / det;
     if (a2 * c1 < a1 * c2) {
-        two = (a2 * c1 - a1 * c2) - half;
+        num = (a2 * c1 - a1 * c2) - half;
     } else {
-        two = (a2 * c1 - a1 * c2) + half;
+        num = (a2 * c1 - a1 * c2) + half;
     }
-    y = two / det;
+    y = num / det;
     *outZ = y;
     ix = (s32)*outX;
     iy = (s32)y;
@@ -315,19 +310,7 @@ s32 lineSegmentIntersect2D(s16 x1, s16 z1, s16 x2, s16 z2, s16 x3, s16 z3, s16 x
 }
 
 u8 rectContainsPoint2D(s16 px, s16 pz, s16 minX, s16 minZ, s16 maxX, s16 maxZ) {
-    s32 ret;
-
-    ret = px >= minX;
-    if (ret != 0) {
-        ret = maxX >= px;
-        if (ret != 0) {
-            ret = pz >= minZ;
-            if (ret != 0) {
-                ret = maxZ >= pz;
-            }
-        }
-    }
-    return ret;
+    return px >= minX && maxX >= px && pz >= minZ && maxZ >= pz;
 }
 
 
@@ -395,7 +378,7 @@ s32 zoneFindBestReachablePoint(u8 mode, Actor *actor, Zone *zone, s16 *outX, s16
         if (!(e->flags & 0x80) && ((e->flags & 0x7F) == 3)) {
             if (segmentIntersectsCircle2D((s32)actor->x, (s32)actor->z, e->x, e->z, (s32)gBehaviourTargetActor->x, (s32)gBehaviourTargetActor->z, 0x14) == 0) {
                 if (zoneCanReachPoint(actor, e->x, e->y, e->z, zone) != 0) {
-                    if (((mode & 1) && (d = (s32)(((gBehaviourTargetActor->x - e->x) * (gBehaviourTargetActor->x - e->x)) + ((gBehaviourTargetActor->z - e->z) * (gBehaviourTargetActor->z - e->z))), best < d)) ||
+                    if (((mode & 1) && (d = (s32)(((gBehaviourTargetActor->x - e->x) * (gBehaviourTargetActor->x - e->x)) + ((gBehaviourTargetActor->z - e->z) * (gBehaviourTargetActor->z - e->z))), best < d)) || // FAKE: comma expressions compute d only inside each short-circuit arm; a separate flag/if form is 130 diff lines
                         ((mode & 2) && (d = (s32)(((actor->x - e->x) * (actor->x - e->x)) + ((actor->z - e->z) * (actor->z - e->z))), d < best))) {
                         best = d;
                         *outX = e->x;
@@ -515,11 +498,11 @@ void actorSetPositionFromPoint(Actor *actor, SpawnNode *pt) {
 }
 
 // Spawn-node actors of entry type 6 have a third component; its pointer sits at 0x17C.
-typedef struct ActorExt17C {
+typedef struct SpawnControllerActor {
     /* 0x000 */ Actor base;
     /* 0x178 */ void *unk178;
-    /* 0x17C */ s16 *unk17C;
-} ActorExt17C;
+    /* 0x17C */ s16 *controllerState; // the controller state id (D_8075570C entry or controllerLookupStateByHash)
+} SpawnControllerActor;
 
 extern f32 D_807502E8;
 extern s16 D_807502E0;
@@ -610,7 +593,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
             node->flags |= 0x80;
             break;
         case 6:
-            entry = ((ActorExt17C *)act)->unk17C;
+            entry = ((SpawnControllerActor *)act)->controllerState;
             if (act->actorType == 0xFE) {
                 *entry = D_8075570C[node->unkA];
             } else {
