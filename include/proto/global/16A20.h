@@ -6,7 +6,7 @@
 s32 mathFixedPointInterp(s32);
 #endif
 #ifndef PROTO_SKIP_acosFixed16
-s32 acosFixed16(s16);
+u32 acosFixed16(s16);
 #endif
 #ifndef PROTO_SKIP_asinFixed16
 s16 asinFixed16(s16);

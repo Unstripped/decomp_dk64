@@ -41,7 +41,7 @@ s32 mathFixedPointInterp(s32 inputVal) {
 }
 
 
-s32 acosFixed16(s16 val) {
+u32 acosFixed16(s16 val) {
     s32 absVal;
     s32 interpVal;
 

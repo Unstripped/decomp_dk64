@@ -11,9 +11,9 @@ f32 acosApprox(f32 val) {
     } else if (val <= -1.0f) {
         fixedVal = -0x7FFF;
     } else {
-        fixedVal = (s16)(s32)(val * 32767.0f);
+        fixedVal = (s16)(val * 32767.0f);
     }
-    return ((f32)(u32)acosFixed16(fixedVal) * 3.1415927f) / 65535.0f;
+    return ((f32)acosFixed16(fixedVal) * 3.1415927f) / 65535.0f;
 }
 
 
