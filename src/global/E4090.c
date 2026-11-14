@@ -155,14 +155,8 @@ void mathAngleStepForward(s16 *angle, s16 target, s16 step) {
 extern PadInputState gPlayerPadState[];
 
 
-typedef struct PadRawInput {
-    /* 0x0 */ u16 unk0;
-    /* 0x2 */ s8 unk2;
-    /* 0x3 */ s8 unk3;
-} PadRawInput;
-
 typedef struct PlayerButtonState {
-    /* 0x0 */ u16 unk0;
+    /* 0x0 */ u16 heldButtons;
     /* 0x2 */ u8 pad2[0x32];
 } PlayerButtonState;
 
@@ -179,7 +173,7 @@ typedef struct PlayerInputHandlers {
 
 
 extern PlayerStruct *gPlayerSlots;
-extern PadRawInput *D_807ECDEC;
+extern OSContPad *D_807ECDEC;
 extern u16 D_807ECDF0;
 extern u16 D_80750FF0[];
 extern PlayerInputHandlers gPlayerInputHandlers[];
@@ -195,16 +189,16 @@ s32 playerInputUpdate(s32 handlerSet) {
     s16 ang;
 
     old = gActivePlayerActor->state;
-    D_807FD63A[gCurrentPlayerIndex].unk0 = inputRemapButtons(D_807ECDEC->unk0, D_80750FF0);
+    D_807FD63A[gCurrentPlayerIndex].heldButtons = inputRemapButtons(D_807ECDEC->button, D_80750FF0);
     gPlayerPadState[gCurrentPlayerIndex].pressedButtons = inputRemapButtons(D_807ECDF0, D_80750FF0);
     if (gActivePlayerState->stateFlags2 & 0x20) {
         gPlayerPadState[gCurrentPlayerIndex].heldButtons = 0;
         gPlayerPadState[gCurrentPlayerIndex].pressedButtons = 0;
     }
-    D_807ECDEC->unk2 = INPUT_MIN(INPUT_MAX(D_807ECDEC->unk2, -80), 80);
-    D_807ECDEC->unk3 = INPUT_MIN(INPUT_MAX(D_807ECDEC->unk3, -80), 80);
-    gPlayerPadState[gCurrentPlayerIndex].stickX = D_807ECDEC->unk2;
-    gPlayerPadState[gCurrentPlayerIndex].stickY = D_807ECDEC->unk3;
+    D_807ECDEC->stick_x = INPUT_MIN(INPUT_MAX(D_807ECDEC->stick_x, -80), 80);
+    D_807ECDEC->stick_y = INPUT_MIN(INPUT_MAX(D_807ECDEC->stick_y, -80), 80);
+    gPlayerPadState[gCurrentPlayerIndex].stickX = D_807ECDEC->stick_x;
+    gPlayerPadState[gCurrentPlayerIndex].stickY = D_807ECDEC->stick_y;
     if (gActivePlayerState->stateFlags2 & 0x20) {
         gPlayerPadState[gCurrentPlayerIndex].stickX = 0;
         gPlayerPadState[gCurrentPlayerIndex].stickY = 0;
@@ -278,42 +272,42 @@ s32 playerInputUpdate(s32 handlerSet) {
     gPlayerPadState[gCurrentPlayerIndex].stickAngleHistory[0] = ang;
     gPlayerPadState[gCurrentPlayerIndex].stickMagHistory[0] = mag;
     gPlayerInputHandlers[handlerSet].fn[1]();
-    if (D_807FD63A[gCurrentPlayerIndex].unk0 & 0x1000) {
+    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 0x1000) {
         gPlayerInputHandlers[handlerSet].fn[0]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].unk0 & 0x8000) {
+    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 0x8000) {
         gPlayerInputHandlers[handlerSet].fn[2]();
     } else {
         gPlayerInputHandlers[handlerSet].fn[5]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].unk0 & 0x4000) {
+    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 0x4000) {
         gPlayerInputHandlers[handlerSet].fn[3]();
     } else {
         gPlayerInputHandlers[handlerSet].fn[6]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].unk0 & 0x2000) {
+    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 0x2000) {
         gPlayerInputHandlers[handlerSet].fn[4]();
     } else {
         gPlayerInputHandlers[handlerSet].fn[7]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].unk0 & 0x10) {
+    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 0x10) {
         gPlayerInputHandlers[handlerSet].fn[9]();
     } else {
         gPlayerInputHandlers[handlerSet].fn[11]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].unk0 & 0x20) {
+    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 0x20) {
         gPlayerInputHandlers[handlerSet].fn[8]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].unk0 & 8) {
+    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 8) {
         gPlayerInputHandlers[handlerSet].fn[12]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].unk0 & 4) {
+    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 4) {
         gPlayerInputHandlers[handlerSet].fn[15]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].unk0 & 2) {
+    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 2) {
         gPlayerInputHandlers[handlerSet].fn[13]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].unk0 & 1) {
+    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 1) {
         gPlayerInputHandlers[handlerSet].fn[14]();
     }
     if (gPlayerPadState) {} // FAKE: keeps &gPlayerPadState live to the tail (const-hoist register order)
@@ -1231,13 +1225,8 @@ u8 actorTestNodeSegmentCollision(void *actor) {
     return hit;
 }
 
-typedef struct G23State90 {
-    /* 0x00 */ u8 pad0[0x90];
-    /* 0x90 */ u8 unk90;
-} G23State90;
-
 void playerInputToggleActiveState(Actor *actor) {
-    G23State90 *state = actor->customState;
+    PlayerState *state = actor->customState;
 
     switch (actor->actorType) {
     case 2:
@@ -2584,20 +2573,20 @@ void playerInputHandleBButtonAttack(void) {
     }
 }
 
-typedef struct G28State {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
+typedef struct ClimbActorState {
+    /* 0x00 */ s16 inputLocked;
+    /* 0x02 */ s16 stickX;
     /* 0x04 */ u8 pad4[0x28];
     /* 0x2C */ f32 unk2C;
     /* 0x30 */ u8 pad30[4];
-    /* 0x34 */ u8 *unk34;
+    /* 0x34 */ u8 *flagsPtr;
     /* 0x38 */ u8 pad38[6];
-    /* 0x3E */ u8 unk3E;
-    /* 0x3F */ u8 unk3F;
-    /* 0x40 */ u8 unk40;
+    /* 0x3E */ u8 climbSpeed;
+    /* 0x3F */ u8 rung;
+    /* 0x40 */ u8 prevRung;
     /* 0x41 */ u8 pad41;
-    /* 0x42 */ u8 unk42;
-} G28State;
+    /* 0x42 */ u8 leanDir;
+} ClimbActorState;
 
 
 void playerInputHandleAButtonSuperJump(void) {
@@ -2714,7 +2703,7 @@ void func_806E78F8(void) {
 }
 
 void playerInputHandleLadderClimb(void) {
-    G28State *st;
+    ClimbActorState *st;
     PadInputState *pad;
     s8 stick;
     u8 state;
@@ -2728,18 +2717,18 @@ void playerInputHandleLadderClimb(void) {
                 actorScriptStartByIndex(gCurrentActor, 0x81);
                 gCurrentActor->state = 0xA;
                 gCurrentActor->unk155 = 0;
-                st->unk42 = 1;
+                st->leanDir = 1;
             } else if (stick >= 0x1F && gCurrentActor->sub4->model->animId != 0xFF) {
                 actorScriptStartByIndex(gCurrentActor, 0x7D);
                 gCurrentActor->state = 0xB;
                 gCurrentActor->unk155 = 0;
-                st->unk42 = 2;
+                st->leanDir = 2;
             }
         }
     }
     stick = gPlayerPadState[gCurrentPlayerIndex].stickX;
     if ((stick < 0x1E && gCurrentActor->state != 0xA) || (stick >= -0x1D && gCurrentActor->state != 0xB)) {
-        st->unk42 = 0;
+        st->leanDir = 0;
         state = gCurrentActor->state;
         if (state != 0xA) {
             if (state == 0xB) {
@@ -2764,47 +2753,47 @@ void playerInputHandleLadderClimb(void) {
 }
 
 void playerInputUpdateLadderState(void) {
-    G28State *st;
+    ClimbActorState *st;
 
     st = gActivePlayerState->actor->customState;
     if (gActivePlayerState->stateFlags & 8) {
-        st->unk3E = 4;
+        st->climbSpeed = 4;
     } else {
-        st->unk3E = (gPlayerPadState[gCurrentPlayerIndex].stickY * 0.5) + 60.0;
+        st->climbSpeed = (gPlayerPadState[gCurrentPlayerIndex].stickY * 0.5) + 60.0;
     }
     playerInputHandleLadderClimb();
 }
 
 void playerInputStepLadderClimb(void) {
-    G28State *st;
+    ClimbActorState *st;
 
     st = gActivePlayerState->actor->customState;
-    if (st->unk0 != 0) {
+    if (st->inputLocked != 0) {
         gPlayerPadState[gCurrentPlayerIndex].stickX = 0;
     }
     playerInputHandleLadderClimb();
     if (gActivePlayerState->stateFlags & 8) {
-        st->unk3E = 3;
+        st->climbSpeed = 3;
     } else {
-        st->unk3E = (gPlayerPadState[gCurrentPlayerIndex].stickY / 1.5) + 80.0;
+        st->climbSpeed = (gPlayerPadState[gCurrentPlayerIndex].stickY / 1.5) + 80.0;
     }
-    st->unk2 = gPlayerPadState[gCurrentPlayerIndex].stickX;
+    st->stickX = gPlayerPadState[gCurrentPlayerIndex].stickX;
 }
 
 extern s16 D_80750338;
 
 void playerInputCheckLadderTopOrBottom(void) {
-    G28State *st;
+    ClimbActorState *st;
     u8 flag;
     s32 rungLimit;
     u8 cnt;
 
     st = gActivePlayerState->actor->customState;
-    if (st->unk0 != 0) {
+    if (st->inputLocked != 0) {
         gPlayerPadState[gCurrentPlayerIndex].stickX = 0;
     } else {
         flag = (gActivePlayerState->actor->state == 5) ? 1 : 0;
-        rungLimit = (*st->unk34 & 0x80) ? 1 : 3;
+        rungLimit = (*st->flagsPtr & 0x80) ? 1 : 3;
         if (flag) {
             gPlayerPadState[gCurrentPlayerIndex].stickX = gPlayerPadState[gCurrentPlayerIndex].stickX * -1;
         }
@@ -2814,25 +2803,25 @@ void playerInputCheckLadderTopOrBottom(void) {
         if (gActivePlayerState->stateFlags & 0x10000002) {
             gPlayerPadState[gCurrentPlayerIndex].stickY = gPlayerPadState[gCurrentPlayerIndex].stickY * -1;
         }
-        if ((*st->unk34 & 0xC0) &&
-            ((gPlayerPadState[gCurrentPlayerIndex].stickX >= 0x1F && st->unk3F > 0) || (gPlayerPadState[gCurrentPlayerIndex].stickX < -0x1E && st->unk3F < rungLimit))) {
+        if ((*st->flagsPtr & 0xC0) &&
+            ((gPlayerPadState[gCurrentPlayerIndex].stickX >= 0x1F && st->rung > 0) || (gPlayerPadState[gCurrentPlayerIndex].stickX < -0x1E && st->rung < rungLimit))) {
             gActivePlayerState->jumpTimer = gScheduler.unk280;
             gActivePlayerState->actor->speedY = D_80750338;
             gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
-            cnt = st->unk3F;
+            cnt = st->rung;
             st->unk2C = 1.0f;
-            st->unk40 = cnt;
+            st->prevRung = cnt;
             if (gPlayerPadState[gCurrentPlayerIndex].stickX >= 0x1F) {
-                st->unk3F = cnt - 1;
-                if (st->unk3F == 1) {
-                    st->unk3F = 0;
+                st->rung = cnt - 1;
+                if (st->rung == 1) {
+                    st->rung = 0;
                 }
                 actorScriptStartByIndex(gCurrentActor, flag ? 0x81 : 0x7D);
                 actorScriptStart(gActivePlayerState->actor, flag ? 0x295 : 0x296);
             } else {
-                st->unk3F = cnt + 1;
-                if (st->unk3F == 1 && (*st->unk34 & 0x40)) {
-                    st->unk3F = 2;
+                st->rung = cnt + 1;
+                if (st->rung == 1 && (*st->flagsPtr & 0x40)) {
+                    st->rung = 2;
                 }
                 actorScriptStartByIndex(gCurrentActor, flag ? 0x7D : 0x81);
                 actorScriptStart(gActivePlayerState->actor, flag ? 0x296 : 0x295);
@@ -2840,33 +2829,33 @@ void playerInputCheckLadderTopOrBottom(void) {
         }
     }
     if (gActivePlayerState->stateFlags & 8) {
-        st->unk3E = 3;
+        st->climbSpeed = 3;
         gActivePlayerState->actor->speedXZ = 3.0f;
         return;
     }
-    st->unk3E = (gPlayerPadState[gCurrentPlayerIndex].stickY / 1.5) + 80.0;
+    st->climbSpeed = (gPlayerPadState[gCurrentPlayerIndex].stickY / 1.5) + 80.0;
 }
 
-typedef struct G29Obj178 {
-    u8 unk0;
-    u8 unk1;
+typedef struct LaneComponent {
+    u8 lane;
+    u8 targetLane;
     u8 pad2[2];
-    u8 unk4;
+    u8 action;
     u8 pad5[3];
-    f32 unk8;
+    f32 actionProgress;
     u8 padC[8];
     f32 unk14;
-} G29Obj178;
+} LaneComponent;
 
-typedef struct G29State {
+typedef struct LaneActorState {
     u8 pad0[2];
     s16 stickInput;
     f32 unk4;
     f32 unk8;
-    f32 unkC;
+    f32 steer;
     f32 unk10;
     u8 pad14[0xC];
-    s32 unk20;
+    s32 braking;
     u8 pad24[1];
     u8 unk25;
     u8 pad26[3];
@@ -2880,12 +2869,12 @@ typedef struct G29State {
     u8 stickDirection;
     u8 pad43[2];
     u8 unk45;
-} G29State;
+} LaneActorState;
 
-typedef struct G29Act {
+typedef struct LaneActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ G29Obj178 *unk178;
-} G29Act;
+    /* 0x178 */ LaneComponent *component;
+} LaneActor;
 
 
 
@@ -2895,7 +2884,7 @@ extern f32 D_80750FFC;
 extern f32 D_80751000;
 
 void playerInputRegisterAnimatedEffect(void) {
-    G29State *st;
+    LaneActorState *st;
     PadInputState *pad;
     s16 yaw;
 
@@ -2941,14 +2930,14 @@ void playerInputRegisterAnimatedEffect(void) {
 }
 
 void playerInputSetClimbTimer20(void) {
-    G29State *st;
+    LaneActorState *st;
 
     st = gActivePlayerState->actor->customState;
     st->unk3E = 0x14;
 }
 
 void playerInputSetClimbTimer100(void) {
-    G29State *st;
+    LaneActorState *st;
 
     st = gActivePlayerState->actor->customState;
     st->unk3E = 0x64;
@@ -2958,7 +2947,7 @@ void playerInputSetClimbTimer100(void) {
 }
 
 void playerInputSetClimbTimer50(void) {
-    G29State *st;
+    LaneActorState *st;
 
     if (!(gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0xE000)) {
         st = gActivePlayerState->actor->customState;
@@ -2966,7 +2955,7 @@ void playerInputSetClimbTimer50(void) {
     }
 }
 
-void func_806E854C(G29State *st, s32 idleAnim, s32 moveAnim) {
+void func_806E854C(LaneActorState *st, s32 idleAnim, s32 moveAnim) {
     AnimSlot *sub;
     s32 n;
     f32 f;
@@ -2986,7 +2975,7 @@ void func_806E854C(G29State *st, s32 idleAnim, s32 moveAnim) {
             controllerAnimSetStateIfChanged(gActivePlayerActor, moveAnim, 0.0f, 5.0f);
         }
     } else {
-        cur = st->unkC;
+        cur = st->steer;
         f = (cur > 0.0f) ? cur : -cur;
         h = f - 0.2f;
         n = st->unk10 > 1.0 ? 8 : 5;
@@ -3001,7 +2990,7 @@ void func_806E854C(G29State *st, s32 idleAnim, s32 moveAnim) {
     }
 }
 
-void func_806E8724(G29Act *actor, G29State *st) {
+void func_806E8724(LaneActor *actor, LaneActorState *st) {
     s32 sign;
     s32 t;
     f32 f;
@@ -3020,23 +3009,23 @@ void func_806E8724(G29Act *actor, G29State *st) {
         x = g;
         x *= sign;
         x *= 0.0125f;
-        st->unkC = x;
-        st->unkC = x * D_80750FFC;
-        if (st->unk20 == 0) {
-            st->unk20 = (actor->base.speedXZ < D_80750FF8) & t;
+        st->steer = x;
+        st->steer = x * D_80750FFC;
+        if (st->braking == 0) {
+            st->braking = (actor->base.speedXZ < D_80750FF8) & t;
         } else {
-            st->unk20 = t;
+            st->braking = t;
         }
     } else {
-        st->unk20 = 0;
-        st->unkC = 0.0f;
+        st->braking = 0;
+        st->steer = 0.0f;
     }
 }
 
 void playerInputUpdateHeldActorVineClimb(void) {
-    G29Act *a;
+    LaneActor *a;
 
-    a = ((G29Act *)gActivePlayerState->actor);
+    a = ((LaneActor *)gActivePlayerState->actor);
     if (a != NULL) {
         func_806E8724(a, a->base.customState);
     }
@@ -3044,7 +3033,7 @@ void playerInputUpdateHeldActorVineClimb(void) {
 
 void playerInputSetHeldActorVineSpeed(void) {
     Actor *a;
-    G29State *st;
+    LaneActorState *st;
 
     a = gActivePlayerState->actor;
     if (a != NULL) {
@@ -3055,7 +3044,7 @@ void playerInputSetHeldActorVineSpeed(void) {
 
 void playerInputClearHeldActorVineSpeed(void) {
     Actor *a;
-    G29State *st;
+    LaneActorState *st;
 
     a = gActivePlayerState->actor;
     if (a != NULL) {
@@ -3065,13 +3054,13 @@ void playerInputClearHeldActorVineSpeed(void) {
 }
 
 void playerInputPlayHeldActorClimbSfx(void) {
-    G29Act *a;
-    G29State *st;
+    LaneActor *a;
+    LaneActorState *st;
     s32 idleAnim;
     s32 leftAnim;
     s32 rightAnim;
 
-    a = ((G29Act *)gActivePlayerState->actor);
+    a = ((LaneActor *)gActivePlayerState->actor);
     if (a != NULL) {
         if (gCurrentActor->actorType == 4) {
             idleAnim = 0x1C7;
@@ -3085,7 +3074,7 @@ void playerInputPlayHeldActorClimbSfx(void) {
         st = a->base.customState;
         func_806E8724(a, st);
         if (camIsCutsceneActive() == 0 && gActivePlayerActor->sub4->animId != 0x3B5) {
-            if (st->unkC < 0.2f && st->unkC > -0.2f && idleAnim != gActivePlayerActor->sub4->model->animId) {
+            if (st->steer < 0.2f && st->steer > -0.2f && idleAnim != gActivePlayerActor->sub4->model->animId) {
                 if (gActivePlayerActor->sub4->model->speed >= 0.0f && gActivePlayerActor->sub4->model->frame > 0.0f) {
                     scriptSetRampValue(gActivePlayerActor, -1.0f, 5.0f);
                     return;
@@ -3094,11 +3083,11 @@ void playerInputPlayHeldActorClimbSfx(void) {
                     controllerAnimSetStateIfChanged(gActivePlayerActor, idleAnim, 0.0f, 5.0f);
                 }
             } else {
-                if (st->unkC < -0.2f) {
+                if (st->steer < -0.2f) {
                     func_806E854C(st, idleAnim, leftAnim);
                     return;
                 }
-                if (st->unkC > 0.2f) {
+                if (st->steer > 0.2f) {
                     func_806E854C(st, idleAnim, rightAnim);
                 }
             }
@@ -3108,7 +3097,7 @@ void playerInputPlayHeldActorClimbSfx(void) {
 
 void playerInputScaleHeldActorVineClimb(void) {
     Actor *a;
-    G29State *st;
+    LaneActorState *st;
 
     a = gActivePlayerState->actor;
     if (a != NULL) {
@@ -3125,7 +3114,7 @@ void playerInputScaleHeldActorVineClimb(void) {
 
 void func_806E8AF0(void) {
     Actor *a;
-    G29State *st;
+    LaneActorState *st;
 
     a = gActivePlayerState->actor;
     if (a != NULL) {
@@ -3137,17 +3126,17 @@ void func_806E8AF0(void) {
 }
 
 void func_806E8B28(void) {
-    G29Act *a;
-    G29State *st;
-    G29Obj178 *o;
+    LaneActor *a;
+    LaneActorState *st;
+    LaneComponent *o;
 
-    a = ((G29Act *)gActivePlayerState->actor);
+    a = ((LaneActor *)gActivePlayerState->actor);
     if (a != NULL) {
         st = a->base.customState;
         if (st->unk45 == 0 && st->unk34 == 2) {
-            o = a->unk178;
+            o = a->component;
             if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-                o->unk4 = 1;
+                o->action = 1;
             }
         }
     }
@@ -3155,7 +3144,7 @@ void func_806E8B28(void) {
 
 void func_806E8BA4(void) {
     Actor *a;
-    G29State *st;
+    LaneActorState *st;
 
     a = gActivePlayerState->actor;
     if (a != NULL) {
@@ -3170,7 +3159,7 @@ void func_806E8BA4(void) {
 
 void func_806E8BFC(void) {
     Actor *a;
-    G29State *st;
+    LaneActorState *st;
 
     a = gActivePlayerState->actor;
     if (a != NULL) {
@@ -3180,36 +3169,36 @@ void func_806E8BFC(void) {
 }
 
 void func_806E8C2C(void) {
-    G29Act *a;
-    G29State *st;
-    G29Obj178 *o;
+    LaneActor *a;
+    LaneActorState *st;
+    LaneComponent *o;
     s32 current;
     s32 target;
     s8 stickX;
 
-    a = (G29Act *)gActivePlayerState->actor;
+    a = (LaneActor *)gActivePlayerState->actor;
     if (a != NULL) {
         if (gActivePlayerActor->sub4->model->animId != 0x22A) {
             controllerAnimSetStateIfChanged(gActivePlayerActor, 0x22A, 0.0f, 0.0f);
         }
         st = a->base.customState;
         if (st->unk45 == 0 && st->unk30->state == 2) {
-            o = a->unk178;
-            target = o->unk1;
-            current = o->unk0;
+            o = a->component;
+            target = o->targetLane;
+            current = o->lane;
             stickX = gPlayerPadState[gCurrentPlayerIndex].stickX;
-            if (target == current && o->unk4 == 0) {
+            if (target == current && o->action == 0) {
                 if (stickX >= 0x1F && current < 2) {
-                    o->unk1 = current + 1;
+                    o->targetLane = current + 1;
                 } else if (stickX < -0x1E) {
                     if (current > 0) {
-                        o->unk1 = current - 1;
+                        o->targetLane = current - 1;
                     }
                 }
-                target = o->unk1;
+                target = o->targetLane;
                 if (target != current) {
-                    o->unk4 = 2;
-                    o->unk8 = 0.0f;
+                    o->action = 2;
+                    o->actionProgress = 0.0f;
                 }
             }
         }
@@ -3217,30 +3206,30 @@ void func_806E8C2C(void) {
 }
 
 void func_806E8D54(void) {
-    G29Act *a;
-    G29State *st;
-    G29Obj178 *o;
+    LaneActor *a;
+    LaneActorState *st;
+    LaneComponent *o;
 
-    a = ((G29Act *)gActivePlayerState->actor);
+    a = ((LaneActor *)gActivePlayerState->actor);
     if (a != NULL) {
         st = a->base.customState;
         if (st->unk34 != 0 && st->unk34 < 3 && st->unk45 == 0) {
-            o = a->unk178;
+            o = a->component;
             st->unk4 = o->unk14 + 1.1;
         }
     }
 }
 
 void func_806E8DB4(void) {
-    G29Act *a;
-    G29State *st;
-    G29Obj178 *o;
+    LaneActor *a;
+    LaneActorState *st;
+    LaneComponent *o;
 
-    a = ((G29Act *)gActivePlayerState->actor);
+    a = ((LaneActor *)gActivePlayerState->actor);
     if (a != NULL) {
         st = a->base.customState;
         if (st->unk34 != 0 && st->unk34 < 3 && st->unk45 == 0) {
-            o = a->unk178;
+            o = a->component;
             st->unk4 = o->unk14;
         }
     }
@@ -3248,7 +3237,7 @@ void func_806E8DB4(void) {
 
 void func_806E8E00(void) {
     Actor *a;
-    G29State *st;
+    LaneActorState *st;
 
     a = gActivePlayerState->actor;
     if (a != NULL) {
@@ -3267,9 +3256,9 @@ void func_806E8E78(void) {
     }
 }
 
-typedef struct G30State {
-    /* 0x00 */ s16 unk0;
-} G30State;
+typedef struct LockableActorState {
+    /* 0x00 */ s16 locked;
+} LockableActorState;
 
 
 
@@ -3303,13 +3292,13 @@ void func_806E8F68(void) {
 }
 
 void func_806E9070(void) {
-    G30State *st;
+    LockableActorState *st;
 
     st = gActivePlayerState->actor->customState;
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
         gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (st->unk0 == 0)) {
+    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (st->locked == 0)) {
         gActivePlayerState->actor->speedY = D_80750338;
         gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
         actorScriptStartByIndex(gCurrentActor, 0x7C);
@@ -3814,32 +3803,32 @@ void func_806EAB44(Actor *actor, u8 isFirstPerson) {
     actor->yaw = func_8062773C(state->camActor);
 }
 
-typedef struct G32Inner {
+typedef struct LinkedComponent {
     /* 0x00 */ u8 pad0[0xE];
-    /* 0x0E */ u8 unkE;
-} G32Inner;
+    /* 0x0E */ u8 mode;
+} LinkedComponent;
 
-typedef struct G32Mid {
+typedef struct LinkedComponentActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ G32Inner *unk178;
-} G32Mid;
+    /* 0x178 */ LinkedComponent *component;
+} LinkedComponentActor;
 
 
 void func_806EAC8C(void) {
-    G32Inner *inner;
+    LinkedComponent *inner;
 
-    inner = ((G32Mid *)gActivePlayerState->actor)->unk178;
-    if (inner->unkE == 5) {
-        inner->unkE = 10;
+    inner = ((LinkedComponentActor *)gActivePlayerState->actor)->component;
+    if (inner->mode == 5) {
+        inner->mode = 10;
     }
 }
 
 void func_806EACBC(void) {
-    G32Inner *inner;
+    LinkedComponent *inner;
 
-    inner = ((G32Mid *)gActivePlayerState->actor)->unk178;
-    if (inner->unkE == 5) {
-        inner->unkE = 0xF;
+    inner = ((LinkedComponentActor *)gActivePlayerState->actor)->component;
+    if (inner->mode == 5) {
+        inner->mode = 0xF;
     }
 }
 

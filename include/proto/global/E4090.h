@@ -3,8 +3,8 @@
 #define PROTO_GLOBAL_E4090_H
 #include "common.h"
 #include "actor.h"
-struct G29Act;
-struct G29State;
+struct LaneActor;
+struct LaneActorState;
 #ifndef PROTO_SKIP_playerHolsterGun
 void playerHolsterGun(Actor *, PlayerState *, u8);
 #endif
@@ -393,10 +393,10 @@ void playerInputSetClimbTimer100(void);
 void playerInputSetClimbTimer50(void);
 #endif
 #ifndef PROTO_SKIP_func_806E854C
-void func_806E854C(struct G29State *, s32, s32);
+void func_806E854C(struct LaneActorState *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_func_806E8724
-void func_806E8724(struct G29Act *, struct G29State *);
+void func_806E8724(struct LaneActor *, struct LaneActorState *);
 #endif
 #ifndef PROTO_SKIP_playerInputUpdateHeldActorVineClimb
 void playerInputUpdateHeldActorVineClimb(void);
