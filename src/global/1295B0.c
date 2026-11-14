@@ -203,64 +203,65 @@ void func_80724E48(u8 mode) {
             pitchArg = 0x3E8;
         }
     }
-    if (0 != rot) {
-        curYaw = (f64)(u32)rot->rotY / 65535.0 * 6.2831854820251465;
-        if (gGameMode == 1 && mode != 5 && mode != 7) {
-            mode = 6;
-        }
-        switch (mode) {
-            case 8:
-                pitch = mathCalculatePitchAngle(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z, pitchArg);
-                angle = mathAngleBetweenPointsRad(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z) - yaw;
-                break;
-            case 7:
-                pitch = mathCalculatePitchAngle(gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, pitchArg);
-                angle = mathAngleBetweenPointsRad(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z) - yaw;
-                break;
-            case 6:
-                pitch = mathCalculatePitchAngle(gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ, gCurrentActor->x, gCurrentActor->y + (u32)gCurrentActor->eyeHeight, gCurrentActor->z, pitchArg);
-                angle = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, gCurrentActor->x, gCurrentActor->z) - yaw;
-                break;
-            case 0:
-                pitch = mathCalculatePitchAngle(gPlayerSlots->headX, gPlayerSlots->headY, gPlayerSlots->headZ, gCurrentActor->x, gCurrentActor->y + (u32)gCurrentActor->eyeHeight, gCurrentActor->z, pitchArg);
-            case 1:
-                angle = mathAngleBetweenPointsRad(gPlayerSlots->headX, gPlayerSlots->headZ, gCurrentActor->x, gCurrentActor->z) - yaw;
-                break;
-            case 2:
-                angle = gBehaviourWorkState->unk24 * 2 * 0.017453292f;
-                break;
-            case 3:
-                pitch = mathCalculatePitchAngle(gBehaviourWorkState->targetX, gBehaviourWorkState->targetY, gBehaviourWorkState->targetZ, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, pitchArg);
-                angle = mathAngleBetweenPointsRad(gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, gCurrentActor->x, gCurrentActor->z) - yaw;
-                break;
-        }
-        if (angle < 0.0f) {
-            angle += 6.2831855f;
-        }
-        if (limit != 0.0f) {
-            if (limit < angle && angle <= 3.1415927f) {
-                angle = limit;
-                if (curYaw > 3.1415927f) {
-                    angle = limit + 6.2831855f;
-                }
-            } else if (angle < 6.2831855f - limit && angle > 3.1415927f) {
-                angle = 6.2831855f - limit;
-                if (curYaw < 3.1415927f) {
-                    angle = angle - 6.2831855f;
-                }
+    if (rot == NULL) {
+        return;
+    }
+    curYaw = (f64)rot->rotY / 65535.0 * 6.2831854820251465;
+    if (gGameMode == 1 && mode != 5 && mode != 7) {
+        mode = 6;
+    }
+    switch (mode) {
+        case 8:
+            pitch = mathCalculatePitchAngle(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z, pitchArg);
+            angle = mathAngleBetweenPointsRad(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z) - yaw;
+            break;
+        case 7:
+            pitch = mathCalculatePitchAngle(gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, pitchArg);
+            angle = mathAngleBetweenPointsRad(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z) - yaw;
+            break;
+        case 6:
+            pitch = mathCalculatePitchAngle(gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ, gCurrentActor->x, gCurrentActor->y + gCurrentActor->eyeHeight, gCurrentActor->z, pitchArg);
+            angle = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, gCurrentActor->x, gCurrentActor->z) - yaw;
+            break;
+        case 0:
+            pitch = mathCalculatePitchAngle(gPlayerSlots->headX, gPlayerSlots->headY, gPlayerSlots->headZ, gCurrentActor->x, gCurrentActor->y + gCurrentActor->eyeHeight, gCurrentActor->z, pitchArg);
+        case 1:
+            angle = mathAngleBetweenPointsRad(gPlayerSlots->headX, gPlayerSlots->headZ, gCurrentActor->x, gCurrentActor->z) - yaw;
+            break;
+        case 2:
+            angle = gBehaviourWorkState->unk24 * 2 * 0.017453292f;
+            break;
+        case 3:
+            pitch = mathCalculatePitchAngle(gBehaviourWorkState->targetX, gBehaviourWorkState->targetY, gBehaviourWorkState->targetZ, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, pitchArg);
+            angle = mathAngleBetweenPointsRad(gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, gCurrentActor->x, gCurrentActor->z) - yaw;
+            break;
+    }
+    if (angle < 0.0f) {
+        angle += 6.2831855f;
+    }
+    if (limit != 0.0f) {
+        if (limit < angle && angle <= 3.1415927f) {
+            angle = limit;
+            if (curYaw > 3.1415927f) {
+                angle = limit + 6.2831855f;
+            }
+        } else if (angle < 6.2831855f - limit && angle > 3.1415927f) {
+            angle = 6.2831855f - limit;
+            if (curYaw < 3.1415927f) {
+                angle = angle - 6.2831855f;
             }
         }
-        if (angle > 3.1415927f) {
-            angle -= 6.2831855f;
-        }
-        if (curYaw > 3.1415927f) {
-            curYaw -= 6.2831855f;
-        }
-        res = mathAngleEaseToward((s32)(curYaw * 2048.0 / 3.1415927410125732), (s32)(angle * 2048.0 / 3.1415927410125732), 5.0f);
-        rot->rotX = (u32)(pitch / 6.2831855f * 65535.0);
-        rot->rotY = (u32)(res / 4095.0 * 65535.0);
-        rot->rotZ = 0;
     }
+    if (angle > 3.1415927f) {
+        angle -= 6.2831855f;
+    }
+    if (curYaw > 3.1415927f) {
+        curYaw -= 6.2831855f;
+    }
+    res = mathAngleEaseToward((s32)(curYaw * 2048.0 / 3.1415927410125732), (s32)(angle * 2048.0 / 3.1415927410125732), 5.0f);
+    rot->rotX = (u32)(pitch / 6.2831855f * 65535.0);
+    rot->rotY = (u32)(res / 4095.0 * 65535.0);
+    rot->rotZ = 0;
 }
 
 s32 lineSegmentIntersect2D(s16 x1, s16 z1, s16 x2, s16 z2, s16 x3, s16 z3, s16 x4, s16 z4, f32 *outX, f32 *outZ) {
