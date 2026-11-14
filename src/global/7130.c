@@ -467,7 +467,6 @@ extern AmbientEmitter D_80746244[];
 extern AmbientEmitter D_8074627C[];
 
 extern AmbientAudioParam D_80745B28[];
-extern u8 D_80745BDC[][4];
 
 extern SchedStruct gScheduler;
 extern ALBank *D_8076D1F8;
@@ -675,10 +674,10 @@ void sfxUpdateLevelAmbient(void) {
         if (volume < 0.0f) {
             volume = 0.0f;
         }
-        volume = D_80745BDC[gCurrentMap][1] + (((255.0 - D_80745BDC[gCurrentMap][1]) * (D_80770DC8 / 127.0) * volume) / 255.0);
+        volume = D_80745BDC[gCurrentMap].volume + (((255.0 - D_80745BDC[gCurrentMap].volume) * (D_80770DC8 / 127.0) * volume) / 255.0);
         D_8077058E = volume;
     } else {
-        D_8077058E = D_80745BDC[gCurrentMap][1];
+        D_8077058E = D_80745BDC[gCurrentMap].volume;
     }
     if (D_80770DE8 && D_80770DE8) {}  // FAKE: dead statement steers uopt colouring
 

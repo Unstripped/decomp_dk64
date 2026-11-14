@@ -1,4 +1,5 @@
 #include "common.h"
+#include "map.h"
 #include "actor.h"
 #include "render.h"
 #include "sched.h"
@@ -75,7 +76,6 @@ extern u8 D_2000200[];
 extern s32 D_8000DDCC;
 extern s32 D_8000DDE4;
 
-extern u8 D_80745BDC[][4];
 extern s8 D_807467CC;
 extern u8 D_807467E4;
 extern s8 D_80746830;
@@ -1063,7 +1063,7 @@ void mapLoadLevel(void) {
             if ((gCurrentMap == 0x11) && (flagGet(0x302, 0) != 0)) {
                 sfxAllocateChannel(0x74, 1.0f);
             } else {
-                songId = D_80745BDC[gCurrentMap][0];
+                songId = D_80745BDC[gCurrentMap].songId;
                 audioVolume = 1.0f;
                 if ((songId == 6) || (songId == 0x1F)) {
                     audioVolume = 0.5493331552f;

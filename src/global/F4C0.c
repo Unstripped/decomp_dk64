@@ -1,4 +1,5 @@
 #include "common.h"
+#include "map.h"
 #include "actor.h"
 #include "sched.h"
 #include "proto/global/F4C0.h"
@@ -11,7 +12,6 @@ typedef struct {
 } MapActionEntry;
 
 extern MapActionEntry D_80746340[];
-extern u8 D_80745BDC[][4];
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
 extern PlayerState *gActivePlayerState;
@@ -40,7 +40,7 @@ s16 mapActionLookupEntry(s16 actionId, Actor *actor, u8 subType) {
         }
         lookupAction = D_80746340[i].mappedAction;
         if (lookupAction == 0) {
-            return *(s16 *)&D_80745BDC[gCurrentMap][2]; // FAKE: punned s16 read of the map audio table (MapAudioEntry pending)
+            return D_80745BDC[gCurrentMap].defaultAction;
         }
         return lookupAction;
     }

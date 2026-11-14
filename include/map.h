@@ -109,4 +109,14 @@ typedef struct MapBspNode {
     /* 0xC5 */ u8 unkC5; // entry count of the per-entry arrays
 } MapBspNode;
 
+// Per-map audio entry (D_80745BDC, indexed by map id): the map's song (450.c), its base volume
+// (7130.c) and mapActionLookupEntry's fallback action (F4C0.c).
+typedef struct MapAudioEntry {
+    /* 0x0 */ u8 songId;
+    /* 0x1 */ u8 volume;
+    /* 0x2 */ s16 defaultAction;
+} MapAudioEntry; // size = 0x4
+
+extern MapAudioEntry D_80745BDC[];
+
 #endif
