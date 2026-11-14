@@ -54,7 +54,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   into its owning C file; that enables a Q0498 function-local `static` retry for transitionSetAudioVolume's dead-if 86665d.
 - A8400 file-local views of the resqueue.h types -> include/resqueue.h types (fields aligned by name), and name ResQueueActorState's 15 unk fields (PolishGlobalA8400Names report §4; detail in .scratch/s2026-11-14-types-queue.md).
 - 8F4B0 CutsceneActorState / WeatherActorState merge (same layout; needs proof actorCutsceneDispatchEvents runs on actor type 0xC; PolishGlobal8F4B0Names 237b3f89).
-- CC800 KongCharacterEntry -> actor.h, 7CA80 CharacterIdRow view of D_8075C414 retired (brief OwnerKongCharacterEntryShared at e8dd632e, with the 6240/race-0 csModelStateSetFirstByte local declarations); afterwards fold the D_8075C414 split label at session close (`rename.py fold --held`). AnimCacheEntry (90dd3611) and ZoneTable/SpawnNodeList (3e92f678) are in actor.h.
+- Move the CC800 character table to C (deferred by the director, 2026-11-14): KongCharacterEntry is in actor.h and the views are retired (OwnerKongCharacterEntryShared 99c91d2a), but D_8075C414/D_8075C420/D_8075C430 are splat labels inside the table that CC800.c:929-935 pulls in via `#pragma GLOBAL_ASM` (no C references, so `rename.py fold` is a no-op). Define `KongCharacterEntry D_8075C410[]` in CC800.c (or size the parent in the symbol file and re-split) and drop the three pragmas. AnimCacheEntry (90dd3611) and ZoneTable/SpawnNodeList (3e92f678) are in actor.h.
 - BB300 `u8 *unk178` view of the Actor 0x178 component -> PulseState (A6280 file-local, intensity/phase) once the type is shared; owner item (PolishGlobalA6280Names).
 
 
@@ -65,7 +65,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - multiplayer/0 reclassification proposal (Rev34A): mpDrawHud early locals matchOver/paused (10c615, 924c0a) and the mpUpdate flag (c4ac54) may be source structure, not hacks (Q0498/Q0108); tags kept.
 - 36880 renderModelQuadGfx owner arity: 35000 passes 8 args against a 7-arg prototype; the target stores the 8th at 0x1C(sp) (Consol34).
 - 117190 D_8075E5C0/D_8075E5C2: a 4-byte `{u8 id; u8 pad; u16 maxTime}` entry type would retire the tagged pun 318113 in menuCheckMapTransitionOnLoad (file-scope view, reaches 3 more functions).
-- Names not applied: MpSettings.unk0 / func_80714608 (mode vs gameMode unclear); func_806C9974 -> playerAddHealthDelta (Rev34C proposal, round-35 names step).
+- Names not applied: MpSettings.unk0 / func_80714608 (mode vs gameMode unclear); func_806C9974 -> playerAddHealthDelta (Rev34C proposal, round-35 names step). Proposals not applied at the 2026-11-14 consolidation (director: keep the existing names for now): collisionGetFloorHeight -> collisionGetWaterHeight, collisionGetFloorTriangleNormal -> collisionCheckLedgeGrab (PolishGlobal6AD90Names; evidence .scratch/close/renames.md rows 104/105). Rejected: Actor.unk155 -> subState (one boss file's evidence for 66 files), D_807FF0F2 -> gAudioHeadphonesEnabled (inferred).
 - global/6710 (round 33): permutes on 442abf and 8e31ef#2 owed (>=600 s). race/7BD0: raceRenderSpeedBoostHud a3016e permute hit to confirm/apply; raceRenderCoinHud permute owed. race/A960: 714c8a permute owed. global/0: globalInit W709 0299c2 needs owner mainThreadLoop(s32) -> void * (450.c stand-in bundle); mainThreadHalt never reviewed. global/54150: W709 777430 retype; 02baa4 permute owed.
 
 ## OPEN functions

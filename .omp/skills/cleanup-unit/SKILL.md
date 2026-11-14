@@ -95,9 +95,11 @@ As each worker reports:
    (one `--stage` per header; `- -` gates need `.scratch/bases/` snapshots); `gen --check` exits 0.
 5. Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
    (`--reloc-ok`), one gate. Copies keyed by the same basename (`boss/52B0` vs `race/52B0`,
-   `critter/0` vs `minecart/0`) need separate dirs and gates. `cfe: ... if directive is not terminated`
-   on unchanged headers is a stale dkd file-size cache (rounds 13, 18): `(cd .scratch/gate && ../../tools/dk
-   --stop)`, rerun; swap a main-tree header via temp + `mv` (new inode). Commit explicit paths only; headers go in `--stage`, never as a
+   `critter/0` vs `minecart/0`) need separate dirs and gates. dkd refreshes host-rewritten inputs before every
+   job (58d28dba), so no `--stop` after a header swap. Generated `include/proto` output is the source of truth over
+   a worker's header.patch. Copies rebuilt as HEAD + per-file patches merge with `--base HEAD` after a ledger
+   dry-run at HEAD. A `COMMIT_FAILED` after `GATE_OK` (concurrent `.git/index.lock`): commit the gated src by hand,
+   then merge_record's steps 3-10. Commit explicit paths only; headers go in `--stage`, never as a
    gate file argument. A copy whose file changed since its base merges 3-way (`<copy-dir> <base>`); a
    copy retyping a shared global's extern: fix every other file's extern in the SAME gate (objdiff each;
    a file whose cfe would rise or that no longer compiles keeps its type and goes to pending.md).

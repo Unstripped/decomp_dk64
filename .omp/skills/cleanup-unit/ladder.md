@@ -27,7 +27,9 @@ its cfe warning code plus the line's normalized code. Kinds:
 
 `// LAYOUT:` lines are not sites (as1 line-order scheduling is ordinary source layout), nor are
 `// ORIG: <what the target does at 0x<offset>>` lines (a construct the target asm really performs);
-an `// ORIG` line without a cited offset stays a hack site.
+an `// ORIG` line without a cited offset stays a hack site. The offset must show the tagged line's OWN operations
+(a wider call-site declaration's caller-side `andi`, an extra argument register), not a computation a dead test keeps
+alive (stays FAKE, `diagnose nohit`; 627052); ORIG on a pre-switch constant store: compile without the store first.
 
 ## Methods
 
@@ -64,6 +66,12 @@ Tooling rules (were Q0626/Q0634/Q0638):
   rewrite them in the permuter base only, then translate the hint back into the copy.
 - Never write `'` in a `//` comment (FAKE notes): asm-processor/cfe read it as a char literal (compile
   error); two in one comment cancel out and hide the code between them (false matches).
+- Before keeping a file-wide callee prototype steer (PROTO_SKIP), compare every caller's asm under the shared
+  prototype: a steer can rest on one caller's redundant mask (lightAdd: 11 of 12 callers already matched).
+- sweep's `cond` flips only dead-if/dead-store sites: on `other` sites try `if (x)`↔`if (x != 0)` by hand. as1probe's
+  unconditional `bnext` does not reproduce a dead address test (`la` + conditional jump-to-next): read the ugen listing.
+- deadsweep recipe scans and `variants.py try` ignore a shadow include dir (`RECIPE-FAIL … undefined`) until the header
+  lands; a `#` comment after the key of a copy-only ledger line fails `record` (`unknown field 'prev'`).
 
 ## Required fresh methods per kind
 
