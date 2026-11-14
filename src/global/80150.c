@@ -53,12 +53,13 @@ typedef struct ActorMapFlag {
 
 
 
-typedef struct ActorAnimLookup {
+// Per-kong animation frame table (D_8074E834), indexed by kong index.
+typedef struct KongAnimFrameTable {
     struct {
         s16 unk0;
         s16 frame;
     } arr[5];
-} ActorAnimLookup;
+} KongAnimFrameTable;
 
 
 typedef struct KongActionEntry {
@@ -78,7 +79,7 @@ extern u8 gPlayerCharacterId;
 extern ActorMapFlag D_8074E7A0[];
 extern s16 D_8074E7E0[];
 extern KongActionEntry D_8074E814[];
-extern ActorAnimLookup D_8074E834;
+extern KongAnimFrameTable D_8074E834;
 extern s32 sKongNameTextIds[];
 extern u8 D_80720120;
 extern u8 D_80720340;
@@ -100,31 +101,33 @@ s32 tagBarrelIsSpecial(Actor *actor) {
 }
 
 
-typedef struct ActorB4C8Spawn {
+// spawnData of the launch barrel (tagBarrelInitPeerState); a per-kind config, not a SpawnEntry.
+typedef struct LaunchBarrelConfig {
     f32 tiltAngle;
-    f32 unk4;
+    f32 launchSpeed;
     f32 unk8;
     f32 unkC;
     f32 unk10;
     s32 camPath;
     s32 hidden;
-} ActorB4C8Spawn;
+} LaunchBarrelConfig;
 
-typedef struct ActorB4C8State {
+// customState of the launch barrel.
+typedef struct LaunchBarrelState {
     Actor *rider;
-    f32 unk4;
+    f32 launchSpeed;
     f32 unk8;
     f32 unkC;
     f32 unk10;
     u8 timer;
     u8 camPath;
-} ActorB4C8State;
+} LaunchBarrelState;
 
 
 extern u8 D_8071FBC8;
 
 void tagBarrelInitPeerState(void) {
-    ActorB4C8State *sub = gCurrentActor->customState;
+    LaunchBarrelState *sub = gCurrentActor->customState;
     PlayerState *peer;
     s32 i;
 
@@ -132,16 +135,16 @@ void tagBarrelInitPeerState(void) {
         gCurrentActor->sub4->boneRotations = heapAlloc(0x10);
         gCurrentActor->sub4->boneRotations[0].weight = 0x7F;
         gCurrentActor->sub4->boneRotations[0].bone = 2;
-        gCurrentActor->sub4->boneRotations[0].rotX = (u32)((((ActorB4C8Spawn *)gCurrentActor->spawnData)->tiltAngle * 65536.0f) / 360.0f);
+        gCurrentActor->sub4->boneRotations[0].rotX = (u32)((((LaunchBarrelConfig *)gCurrentActor->spawnData)->tiltAngle * 65536.0f) / 360.0f);
         gCurrentActor->sub4->boneRotations[0].rotY = 0;
         gCurrentActor->sub4->boneRotations[0].rotZ = 0;
         gCurrentActor->sub4->boneRotations[1].weight = 0;
-        sub->unk4 = ((ActorB4C8Spawn *)gCurrentActor->spawnData)->unk4;
-        sub->unk8 = ((ActorB4C8Spawn *)gCurrentActor->spawnData)->unk8;
-        sub->unkC = ((ActorB4C8Spawn *)gCurrentActor->spawnData)->unkC;
-        sub->unk10 = ((ActorB4C8Spawn *)gCurrentActor->spawnData)->unk10;
-        sub->camPath = ((ActorB4C8Spawn *)gCurrentActor->spawnData)->camPath;
-        if (((ActorB4C8Spawn *)gCurrentActor->spawnData)->hidden == 1) {
+        sub->launchSpeed = ((LaunchBarrelConfig *)gCurrentActor->spawnData)->launchSpeed;
+        sub->unk8 = ((LaunchBarrelConfig *)gCurrentActor->spawnData)->unk8;
+        sub->unkC = ((LaunchBarrelConfig *)gCurrentActor->spawnData)->unkC;
+        sub->unk10 = ((LaunchBarrelConfig *)gCurrentActor->spawnData)->unk10;
+        sub->camPath = ((LaunchBarrelConfig *)gCurrentActor->spawnData)->camPath;
+        if (((LaunchBarrelConfig *)gCurrentActor->spawnData)->hidden == 1) {
             if (tagBarrelIsSpecial(gCurrentActor) == 0) {
                 gCurrentActor->state = 0x14;
                 gCurrentActor->unk144 = 1;
@@ -181,7 +184,7 @@ void tagBarrelInitPeerState(void) {
             peer->unkB0 = sub->unk8;
             peer->unkB4 = sub->unkC;
             peer->unkB8 = sub->unk10;
-            actorAppendCallbackPayloadAAB8(gCurrentActor, sub->rider, gCurrentActor->yaw, 0.0f, sub->unk4);
+            actorAppendCallbackPayloadAAB8(gCurrentActor, sub->rider, gCurrentActor->yaw, 0.0f, sub->launchSpeed);
             actorQueueDelayedCallback(gCurrentActor, gCurrentActor, 0x800, 2, 0, 0, 0xA);
             effectSetMode(2);
             effectSetDepth(1);
@@ -2691,7 +2694,7 @@ void tagBarrelSpawnKongs(TagBarrelData *orbit) {
 }
 
 void tagBarrelUpdateSelectedKong(void) {
-    ActorAnimLookup anims;
+    KongAnimFrameTable anims;
     u8 *kongIndex;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -2709,23 +2712,25 @@ void tagBarrelUpdateSelectedKong(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct ActorExtra3158 {
+// customState of the tag-barrel weapon model (tagBarrelInteractiveUpdate).
+typedef struct TagBarrelWeaponState {
     u16 kind;
     u16 pad2;
     void (*callback)(Actor *, BoneRotation *, s32 *);
     u32 lastFrame;
-} ActorExtra3158;
+} TagBarrelWeaponState;
 
-typedef struct ActorView3158 {
+// Two-component accessor of the same actor: 0x178 is its second component.
+typedef struct TagBarrelWeaponActor {
     Actor base;
     void *unk178;
-} ActorView3158;
+} TagBarrelWeaponActor;
 
 
 
 void tagBarrelInteractiveUpdate(void) {
     s32 count;
-    ActorExtra3158 *extra;
+    TagBarrelWeaponState *extra;
 
     count = 0;
     extra = gCurrentActor->customState;
@@ -2733,7 +2738,7 @@ void tagBarrelInteractiveUpdate(void) {
         gCurrentActor->flags |= 0x1000;
         gCurrentActor->sub4->boneRotations = heapAlloc(0x100);
         heapClearBlock(gCurrentActor->sub4->boneRotations);
-        func_806C8220(0, ((ActorView3158 *)gCurrentActor)->unk178, extra->kind);
+        func_806C8220(0, ((TagBarrelWeaponActor *)gCurrentActor)->unk178, extra->kind);
         switch (extra->kind) {
         case 2:
             extra->callback = playerWeaponAimTarget;
