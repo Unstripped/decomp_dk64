@@ -134,9 +134,9 @@ void bonusReelGameUpdate(void) {
     LB3Player *player;
     LB3Obj *obj;
     u8 i;
-    s32 two;
+    s32 startHits;
 
-    two = 2; // FAKE: value-named constant local makes the divisor a runtime cvt.s.w
+    startHits = 3;
     player = gPrimaryPlayerActor->customState;
     obj = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -144,8 +144,8 @@ void bonusReelGameUpdate(void) {
         gCurrentActor->z = 18.0f;
         obj->hitTextId = gfxResourceCreate(1, "HIT", 8, 0.0f, 0.0f, 0.0f);
         func_806FDAB8(obj->hitTextId, 0.0f);
-        obj->hitsLeft = 3;
-        obj->counterShown = 3;
+        obj->hitsLeft = startHits;
+        obj->counterShown = startHits;
         obj->act[0] = bonusSpawnReel(0x90, -0x15, 1, 0x12);
         obj->act[1] = bonusSpawnReel(0x91, -7, 1, 0x12);
         obj->act[2] = bonusSpawnReel(0x92, 7, 1, 0x12);
@@ -231,7 +231,7 @@ void bonusReelGameUpdate(void) {
             obj->spinPhase += obj->spinStep;
             if (obj->spinPhase >= 0x800) {
                 obj->spinStep = -0x40;
-                bonusInitActors(obj, (u32)((f32)obj->firstRoundSpeed + (f32)(obj->lastRoundSpeed - obj->firstRoundSpeed) * ((f32)(obj->hitsLeft - 1) / two)));
+                bonusInitActors(obj, (u32)((f32)obj->firstRoundSpeed + (f32)(obj->lastRoundSpeed - obj->firstRoundSpeed) * ((f32)(obj->hitsLeft - 1) / (startHits - 1))));
                 gCurrentActor->soundSlots[0] = sfxPlayOnFreeSlot(0x24D, 0x7FFF, 64.0f, 1.0f, 0, 0);
                 camSetTarget(player->cam, gActivePlayerActor, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
             } else if (obj->spinPhase < 0x400) {
