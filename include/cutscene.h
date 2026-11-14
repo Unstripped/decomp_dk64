@@ -35,7 +35,14 @@ typedef struct CsState {
     /* 0x14 */ f32 unk14[9];
     /* 0x38 */ s32 unk38;
     /* 0x3C */ u8 pad3C[8];
-    /* 0x44 */ s16 unk44[3];
+    union {
+        /* 0x44 */ s16 unk44[3]; // countdown timers: set by a cutscene command, decremented while non-zero (42630)
+        struct {
+            /* 0x44 */ u8 pad44[4];
+            /* 0x48 */ u8 unk48; // unk44[2] high byte, read as u8 (478F0 csCmdBeatSyncAnimation: == 2)
+            /* 0x49 */ u8 unk49; // unk44[2] low byte, written as u8 (478F0 csCmdLightPulse: = 1 near the end)
+        };
+    };
     /* 0x4A */ u8 pad4A;
     /* 0x4B */ u8 unk4B[4];
     /* 0x4F */ s8 unk4F;

@@ -319,12 +319,6 @@ void csCmdPeriodicEffectPair(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-// Byte 0x49 of CsState (inside s16 unk44[3]; the split of unk44 was rejected).
-typedef struct {
-    u8 pad0[0x49];
-    u8 unk49;
-} CsLightView;
-
 extern u8 D_807201D4[];
 
 void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -358,7 +352,7 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
         effectCreateAtPosition(D_807201D4, 1.2f, gCsPosX, gCsPosY + 30.0, gCsPosZ);
     }
     if (t < 0.1) {
-        ((CsLightView *)cs)->unk49 = 1;
+        cs->unk49 = 1;
     }
 }
 
@@ -2606,16 +2600,10 @@ void csCmdVarIncrement(CsState *cs, s16 csId, s16 b, s16 c) {
     cs->unk14[b] = 0.0 - cs->unk14[b];
 }
 
-typedef struct CsActorPosView {
-    /* 0x000 */ u8 pad0[0x100];
-    /* 0x100 */ f32 x;
-    /* 0x104 */ f32 y;
-    /* 0x108 */ f32 z;
-} CsActorPosView;
 void csCmdDecayTargetPosDiff(CsState *cs, s16 csId, s16 b, s16 c) {
-    cs->unk14[b] = ((CsActorPosView *)gPrimaryPlayerActor)->x;
-    cs->unk14[b + 1] = ((CsActorPosView *)gPrimaryPlayerActor)->y;
-    cs->unk14[b + 2] = ((CsActorPosView *)gPrimaryPlayerActor)->z;
+    cs->unk14[b] = gPrimaryPlayerActor->unk100;
+    cs->unk14[b + 1] = gPrimaryPlayerActor->unk104;
+    cs->unk14[b + 2] = gPrimaryPlayerActor->unk108;
 }
 
 extern f32 gCsRotX;
@@ -3363,10 +3351,6 @@ typedef struct {
     s32 ambientTimer;
 } CsBeatState;
 
-typedef struct {
-    u8 pad0[0x48];
-    u8 unk48;
-} CsStateByteView;
 
 void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
     CsBeatState *p;
@@ -3434,7 +3418,7 @@ void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
             break;
         case 3:
             p->timer--;
-            if (((CsStateByteView *)cs)->unk48 == 2) {
+            if (cs->unk48 == 2) {
                 p->timer = 0;
                 cs->unk4B[0] = 1;
                 p->period = p->period - D_807482C8;
