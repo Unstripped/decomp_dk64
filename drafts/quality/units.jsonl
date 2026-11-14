@@ -491,3 +491,4 @@
 {"type": "unit", "t": "2026-11-14T21:47:28Z", "unit": "2026-11-14: cleanup OwnerFlagTableEntryShared", "commit": "18e0a4f69dc8a636701bd4436d62f874721eb12e"}
 {"type": "unit", "t": "2026-11-14T21:48:41Z", "unit": "2026-11-14: cleanup OwnerCSPlayerEventQueue", "commit": "9f529dba56e081bb3ccfa2d0bd0b0a5dbb68fa33"}
 {"type": "unit", "t": "2026-11-14T21:50:06Z", "unit": "2026-11-14: cleanup HackmapChunkEmitLayerDisplayLists", "commit": "1a683eb7461fcf60b5d451cb08534c1cd365079a"}
+{"type": "unit", "t": "2026-11-14T21:51:48Z", "unit": "2026-11-14: cleanup HackenemyAggroStateUpdate", "commit": "3ea75531798c8ce7c8ca7ba9c74a95ed2b8f0bf4"}
