@@ -3929,39 +3929,32 @@ s32 csCondCheckAllKongs(CsState *cs, s16 csId, s16 b, s16 c) {
     return res;
 }
 
+// Per-effect state of csEffectUpdateAlphaState, heapAlloc'd into EffectNode.allocation on the first frame.
 typedef struct CsEffState {
     /* 0x0 */ s16 phase;
     /* 0x2 */ s16 unk2;
-    /* 0x4 */ f32 baseScale;
+    /* 0x4 */ f32 baseY; // spawn height the effect bobs around
 } CsEffState;
-typedef struct CsEffView {
-    /* 0x000 */ u8 pad0[0x344];
-    /* 0x344 */ f32 scale;
-    /* 0x348 */ u8 pad348[0x18];
-    /* 0x360 */ f32 alpha;
-    /* 0x364 */ f32 alphaCopy;
-    /* 0x368 */ u8 pad368[0x1C];
-    /* 0x384 */ CsEffState *state;
-} CsEffView;
+
 extern s8 D_807F6950;
 extern s8 D_807F6951;
 
-void csEffectUpdateAlphaState(CsEffView *e, u8 *flag) {
+void csEffectUpdateAlphaState(EffectNode *e, u8 *flag) {
     CsEffState *s;
 
-    if (e->state == NULL) {
+    if (e->allocation == NULL) {
         s = heapAlloc(8);
-        e->state = s;
+        e->allocation = s;
         s->phase = 0;
         s->unk2 = 0;
-        s->baseScale = e->scale;
+        s->baseY = e->y;
     }
-    s = e->state;
+    s = e->allocation;
     switch (s->phase) {
         case 0:
-            e->alpha = e->alpha + 0.015;
-            if (e->alpha > 0.5) {
-                e->alpha = 0.5f;
+            e->scaleX = e->scaleX + 0.015;
+            if (e->scaleX > 0.5) {
+                e->scaleX = 0.5f;
                 s->phase = 1;
             }
             break;
@@ -3980,18 +3973,18 @@ void csEffectUpdateAlphaState(CsEffView *e, u8 *flag) {
             }
             break;
         case 3:
-            e->alpha = e->alpha - 0.015;
-            if (e->alpha < 0.0) {
+            e->scaleX = e->scaleX - 0.015;
+            if (e->scaleX < 0.0) {
                 D_807F6950 = 1;
-                e->alpha = 0.0f;
+                e->scaleX = 0.0f;
                 *flag = 1;
             }
             break;
     }
     if (s->phase != 3) {
-        e->scale = mathSinF((gFrameCounter * 0x3C) & 0xFFF) * 2.75f + s->baseScale;
+        e->y = mathSinF((gFrameCounter * 0x3C) & 0xFFF) * 2.75f + s->baseY;
     }
-    e->alphaCopy = e->alpha;
+    e->scaleY = e->scaleX;
 }
 
 extern u8 D_80721530[];

@@ -3,7 +3,7 @@
 #define PROTO_GLOBAL_478F0_H
 #include "common.h"
 #include "cutscene.h"
-struct CsEffView;
+#include "render.h"
 #ifndef PROTO_SKIP_csCmdSpawnFixedNodeEffects
 void csCmdSpawnFixedNodeEffects(CsState *, s16, s16, s16);
 #endif
@@ -410,7 +410,7 @@ u8 csCondCheckKongItems(CsState *, s16, s16, s16);
 s32 csCondCheckAllKongs(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csEffectUpdateAlphaState
-void csEffectUpdateAlphaState(struct CsEffView *, u8 *);
+void csEffectUpdateAlphaState(EffectNode *, u8 *);
 #endif
 #ifndef PROTO_SKIP_csCmdSpawnActorAtPoint
 void csCmdSpawnActorAtPoint(CsState *, s16, s16, s16);
