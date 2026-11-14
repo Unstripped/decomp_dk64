@@ -72,7 +72,7 @@ void *D_807F5DEC;
 f32 D_807F5DF0[12];
 
 
-void frustumCalculateCornerRays(f32 arg0, f32 arg1, f32 arg2) {
+void frustumCalculateCornerRays(f32 fovY, f32 aspect, f32 depth) {
     f32 scale;
     f32 halfYaw;
     f32 pitchMtx[4][4];
@@ -83,25 +83,25 @@ void frustumCalculateCornerRays(f32 arg0, f32 arg1, f32 arg2) {
     f32 halfPitch;
     s32 i;
 
-    halfPitch = arg0 * 0.5;
-    halfYaw = halfPitch * arg1;
+    halfPitch = fovY * 0.5;
+    halfYaw = halfPitch * aspect;
     guRotateF(pitchMtx, halfPitch, 1.0f, 0.0f, 0.0f);
-    guMtxXFMF(pitchMtx, 0.0f, 0.0f, (-arg2), &dirX, &dirY, &dirZ);
+    guMtxXFMF(pitchMtx, 0.0f, 0.0f, (-depth), &dirX, &dirY, &dirZ);
     guRotateF(yawMtx, halfYaw, 0.0f, 1.0f, 0.0f);
     guMtxXFMF(yawMtx, dirX, dirY, dirZ, &D_807F5DF0[0], &D_807F5DF0[1], &D_807F5DF0[2]);
     guRotateF(yawMtx, -halfYaw, 0.0f, 1.0f, 0.0f);
     guMtxXFMF(yawMtx, dirX, dirY, dirZ, &D_807F5DF0[3], &D_807F5DF0[4], &D_807F5DF0[5]);
     guRotateF(pitchMtx, -halfPitch, 1.0f, 0.0f, 0.0f);
-    guMtxXFMF(pitchMtx, 0.0f, 0.0f, (-arg2), &dirX, &dirY, &dirZ);
+    guMtxXFMF(pitchMtx, 0.0f, 0.0f, (-depth), &dirX, &dirY, &dirZ);
     guRotateF(yawMtx, halfYaw, 0.0f, 1.0f, 0.0f);
     guMtxXFMF(yawMtx, dirX, dirY, dirZ, &D_807F5DF0[6], &D_807F5DF0[7], &D_807F5DF0[8]);
     guRotateF(yawMtx, -halfYaw, 0.0f, 1.0f, 0.0f);
     guMtxXFMF(yawMtx, dirX, dirY, dirZ, &D_807F5DF0[9], &D_807F5DF0[10], &D_807F5DF0[11]);
     for (i = 0; i < 4; i++) {
-        scale = (-arg2) / D_807F5DF0[i * 3 + 2];
+        scale = (-depth) / D_807F5DF0[i * 3 + 2];
         D_807F5DF0[i * 3] *= scale;
         D_807F5DF0[i * 3 + 1] *= scale;
-        D_807F5DF0[i * 3 + 2] = (-arg2);
+        D_807F5DF0[i * 3 + 2] = (-depth);
     }
 }
 
@@ -110,12 +110,12 @@ extern f32 D_807F5E24[];
 extern f32 D_807F5E28[];
 
 
-void frustumCornersTransformByInverse(Mtx *arg0) {
+void frustumCornersTransformByInverse(Mtx *mtx) {
     f32 viewMtx[4][4];
     f32 invMtx[4][4];
     s32 i;
 
-    guMtxL2F(viewMtx, arg0);
+    guMtxL2F(viewMtx, mtx);
     matrix4Invert(invMtx, viewMtx);
     for (i = 0; i < 4; i++) {
         guMtxXFMF(invMtx, D_807F5DF0[i * 3], D_807F5DF0[i * 3 + 1], D_807F5DF0[i * 3 + 2], &D_807F5E20[i * 3], &D_807F5E24[i * 3], &D_807F5E28[i * 3]);
@@ -201,49 +201,46 @@ void frustumOrientPolyNormals(f32 eyeX, f32 eyeY, f32 eyeZ, PlanePoly *planes, f
     }
 }
 
-void polyFlipWinding(PlanePoly *arg0) {
-    s16 a0;
-    s16 a1;
-    s16 a2;
+void polyFlipWinding(PlanePoly *poly) {
+    s16 x;
+    s16 y;
+    s16 z;
 
-    switch (arg0->type) {
+    switch (poly->type) {
         case 3:
-            a0 = arg0->v[0];
-            a1 = arg0->v[1];
-            a2 = arg0->v[2];
-            arg0->v[0] = arg0->v[3];
-            arg0->v[1] = arg0->v[4];
-            arg0->v[2] = arg0->v[5];
-            arg0->v[3] = a0;
-            arg0->v[4] = a1;
-            arg0->v[5] = a2;
+            x = poly->v[0];
+            y = poly->v[1];
+            z = poly->v[2];
+            poly->v[0] = poly->v[3];
+            poly->v[1] = poly->v[4];
+            poly->v[2] = poly->v[5];
+            poly->v[3] = x;
+            poly->v[4] = y;
+            poly->v[5] = z;
             break;
         case 4:
-            a0 = arg0->v[0];
-            a1 = arg0->v[1];
-            a2 = arg0->v[2];
-            arg0->v[0] = arg0->v[6];
-            arg0->v[1] = arg0->v[7];
-            arg0->v[2] = arg0->v[8];
-            arg0->v[6] = a0;
-            arg0->v[7] = a1;
-            arg0->v[8] = a2;
+            x = poly->v[0];
+            y = poly->v[1];
+            z = poly->v[2];
+            poly->v[0] = poly->v[6];
+            poly->v[1] = poly->v[7];
+            poly->v[2] = poly->v[8];
+            poly->v[6] = x;
+            poly->v[7] = y;
+            poly->v[8] = z;
             break;
     }
 }
 
-void planePolyCalcEquation(PlanePoly *arg0) {
-    PlanePoly *p;
+void planePolyCalcEquation(PlanePoly *poly) {
+    poly->a = (poly->v[1] * (f64)(poly->v[5] - poly->v[8]) + poly->v[4] * (f64)(poly->v[8] - poly->v[2]))
+            + poly->v[7] * (f64)(poly->v[2] - poly->v[5]);
+    poly->b = (poly->v[2] * (f64)(poly->v[3] - poly->v[6]) + poly->v[5] * (f64)(poly->v[6] - poly->v[0]))
+            + poly->v[8] * (f64)(poly->v[0] - poly->v[3]);
 
-    arg0->a = (arg0->v[1] * (f64)(arg0->v[5] - arg0->v[8]) + arg0->v[4] * (f64)(arg0->v[8] - arg0->v[2]))
-            + arg0->v[7] * (f64)(arg0->v[2] - arg0->v[5]);
-    arg0->b = (arg0->v[2] * (f64)(arg0->v[3] - arg0->v[6]) + arg0->v[5] * (f64)(arg0->v[6] - arg0->v[0]))
-            + arg0->v[8] * (f64)(arg0->v[0] - arg0->v[3]);
-
-    arg0->c = (arg0->v[0] * (f64)(arg0->v[4] - arg0->v[7]) + arg0->v[3] * (f64)(arg0->v[7] - arg0->v[1]))
-            + arg0->v[6] * (f64)(arg0->v[1] - arg0->v[4]);
-    p = arg0;
-    p->d = -((p->v[0] * ((f64)p->v[4] * p->v[8] - (f64)p->v[7] * p->v[5]) + p->v[3] * ((f64)p->v[7] * p->v[2] - (f64)p->v[1] * p->v[8])) + p->v[6] * ((f64)p->v[1] * p->v[5] - p->v[4] * (f64)p->v[2]));
+    poly->c = (poly->v[0] * (f64)(poly->v[4] - poly->v[7]) + poly->v[3] * (f64)(poly->v[7] - poly->v[1]))
+            + poly->v[6] * (f64)(poly->v[1] - poly->v[4]);
+    poly->d = -((poly->v[0] * ((f64)poly->v[4] * poly->v[8] - (f64)poly->v[7] * poly->v[5]) + poly->v[3] * ((f64)poly->v[7] * poly->v[2] - (f64)poly->v[1] * poly->v[8])) + poly->v[6] * ((f64)poly->v[1] * poly->v[5] - poly->v[4] * (f64)poly->v[2]));
 }
 
 
@@ -270,10 +267,10 @@ void mapNodeTreeInitSurfaceEffects(MapBspNode *node, s32 *slotCount) {
 
 typedef struct MapOffsetSlot {
     /* 0x00 */ Mtx mtx[2];
-    /* 0x80 */ f32 unk80;
-    /* 0x84 */ f32 unk84;
-    /* 0x88 */ f32 unk88;
-    /* 0x8C */ u8 unk8C;
+    /* 0x80 */ f32 value;
+    /* 0x84 */ f32 target;
+    /* 0x88 */ f32 speed;
+    /* 0x8C */ u8 enabled;
     /* 0x8D */ u8 pad8D[3];
 } MapOffsetSlot; /* 0x90 */
 
@@ -281,27 +278,27 @@ extern MapOffsetSlot *D_807F5FB8;
 extern s32 D_807F5FBC;
 extern u8 D_807F5FC0;
 
-void mapOffsetSlotsInit(s32 arg0) {
+void mapOffsetSlotsInit(s32 count) {
     s32 i;
 
-    if (arg0 == 0) {
+    if (count == 0) {
         D_807F5FB8 = NULL;
         D_807F5FBC = 0;
         return;
     }
-    D_807F5FB8 = heapAlloc(arg0 * 0x90);
-    D_807F5FBC = arg0;
-    for (i = 0; i < arg0; i++) {
-        D_807F5FB8[i].unk80 = 0.0f;
-        D_807F5FB8[i].unk84 = 0.0f;
-        D_807F5FB8[i].unk88 = 0.0f;
-        D_807F5FB8[i].unk8C = 1;
+    D_807F5FB8 = heapAlloc(count * 0x90);
+    D_807F5FBC = count;
+    for (i = 0; i < count; i++) {
+        D_807F5FB8[i].value = 0.0f;
+        D_807F5FB8[i].target = 0.0f;
+        D_807F5FB8[i].speed = 0.0f;
+        D_807F5FB8[i].enabled = 1;
     }
     D_807F5FC0 = 0;
 }
 
-void mapOffsetSlotSetEnabled(s16 arg0, u8 arg1) {
-    D_807F5FB8[arg0].unk8C = arg1;
+void mapOffsetSlotSetEnabled(s16 slot, u8 enabled) {
+    D_807F5FB8[slot].enabled = enabled;
 }
 
 extern s32 gMapChunkCount;
@@ -311,56 +308,56 @@ void mapOffsetSlotsUpdate(void) {
 
     D_807F5FC0 = 0;
     for (i = 0; i < D_807F5FBC; i++) {
-        if (D_807F5FB8[i].unk80 != 0.0) {
-            guTranslate(&D_807F5FB8[i].mtx[gGfxBufferIndex], 0.0f, gMapChunkCount != 0 ? D_807F5FB8[i].unk80 * 3.0f : D_807F5FB8[i].unk80, 0.0f);
+        if (D_807F5FB8[i].value != 0.0) {
+            guTranslate(&D_807F5FB8[i].mtx[gGfxBufferIndex], 0.0f, gMapChunkCount != 0 ? D_807F5FB8[i].value * 3.0f : D_807F5FB8[i].value, 0.0f);
         }
-        if (D_807F5FB8[i].unk80 != D_807F5FB8[i].unk84) {
+        if (D_807F5FB8[i].value != D_807F5FB8[i].target) {
             D_807F5FC0 = 1;
-            if (D_807F5FB8[i].unk80 < D_807F5FB8[i].unk84) {
-                D_807F5FB8[i].unk80 += D_807F5FB8[i].unk88;
-                if (D_807F5FB8[i].unk84 < D_807F5FB8[i].unk80) {
-                    D_807F5FB8[i].unk80 = D_807F5FB8[i].unk84;
+            if (D_807F5FB8[i].value < D_807F5FB8[i].target) {
+                D_807F5FB8[i].value += D_807F5FB8[i].speed;
+                if (D_807F5FB8[i].target < D_807F5FB8[i].value) {
+                    D_807F5FB8[i].value = D_807F5FB8[i].target;
                 }
             } else {
-                D_807F5FB8[i].unk80 -= D_807F5FB8[i].unk88;
-                if (D_807F5FB8[i].unk80 < D_807F5FB8[i].unk84) {
-                    D_807F5FB8[i].unk80 = D_807F5FB8[i].unk84;
+                D_807F5FB8[i].value -= D_807F5FB8[i].speed;
+                if (D_807F5FB8[i].value < D_807F5FB8[i].target) {
+                    D_807F5FB8[i].value = D_807F5FB8[i].target;
                 }
             }
         }
     }
 }
 
-f32 mapOffsetSlotGetValue(s8 arg0) {
-    return D_807F5FB8[arg0].unk80;
+f32 mapOffsetSlotGetValue(s8 slot) {
+    return D_807F5FB8[slot].value;
 }
 
-void mapOffsetSlotSetTarget(s32 arg0, f32 arg1, f32 arg2) {
-    D_807F5FB8[arg0].unk84 = arg1;
-    D_807F5FB8[arg0].unk88 = arg2;
+void mapOffsetSlotSetTarget(s32 slot, f32 target, f32 speed) {
+    D_807F5FB8[slot].target = target;
+    D_807F5FB8[slot].speed = speed;
 }
 
-void mapOffsetSlotAddTarget(s32 arg0, f32 arg1, f32 arg2) {
-    D_807F5FB8[arg0].unk84 += arg1;
-    D_807F5FB8[arg0].unk88 = arg2;
+void mapOffsetSlotAddTarget(s32 slot, f32 delta, f32 speed) {
+    D_807F5FB8[slot].target += delta;
+    D_807F5FB8[slot].speed = speed;
 }
 
-void mapOffsetSlotsGetTargets(f32 *arg0) {
+void mapOffsetSlotsGetTargets(f32 *out) {
     s32 i;
     s32 n;
 
     n = D_807F5FBC;
     for (i = 0; i < n; i++) {
-        arg0[i] = D_807F5FB8[i].unk84;
+        out[i] = D_807F5FB8[i].target;
     }
 }
 
-void mapOffsetSlotsSetValues(f32 *arg0) {
+void mapOffsetSlotsSetValues(f32 *values) {
     s32 i;
 
     for (i = 0; i < D_807F5FBC; i++) {
-        D_807F5FB8[i].unk84 = arg0[i];
-        D_807F5FB8[i].unk80 = arg0[i];
+        D_807F5FB8[i].target = values[i];
+        D_807F5FB8[i].value = values[i];
     }
 }
 
@@ -626,15 +623,15 @@ Gfx *mapRenderPlayerView(Gfx *gfx, f32 eyeX, f32 eyeY, f32 eyeZ, f32 atX, f32 at
     return gfx;
 }
 
-void viewportSetFromRect(s16 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    arg0[0] = (arg3 - arg1) * 2;
-    arg0[1] = (arg4 - arg2) * 2;
-    arg0[2] = 0x1FF;
-    arg0[3] = 0;
-    arg0[4] = ((arg1 + arg3) / 2) * 4;
-    arg0[5] = ((arg2 + arg4) / 2) * 4;
-    arg0[6] = 0x1FF;
-    arg0[7] = 0;
+void viewportSetFromRect(s16 *vp, s32 left, s32 top, s32 right, s32 bottom) {
+    vp[0] = (right - left) * 2;
+    vp[1] = (bottom - top) * 2;
+    vp[2] = 0x1FF;
+    vp[3] = 0;
+    vp[4] = ((left + right) / 2) * 4;
+    vp[5] = ((top + bottom) / 2) * 4;
+    vp[6] = 0x1FF;
+    vp[7] = 0;
 }
 
 extern RenderEntry *D_807F5FF8;
@@ -736,7 +733,7 @@ Gfx *mapViewDrawPass(Gfx *gfx, MapBspNode *view, u8 pass) {
             gfx = mapSurfaceEffectDraw(gfx, view->unk70[i]);
             gSPClearGeometryMode(gfx++, G_CULL_BACK);
             idx = view->unkAC[i];
-            if (D_807F5FB8[idx].unk80 != 0.0 && D_807F5FB8[idx].unk8C != 0) {
+            if (D_807F5FB8[idx].value != 0.0 && D_807F5FB8[idx].enabled != 0) {
                 gSPMatrix(gfx++, osVirtualToPhysical(&D_807F5FB8[idx].mtx[gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
                 gSPDisplayList(gfx++, osVirtualToPhysical(view->unk1C[i]));
                 gSPPopMatrix(gfx++, G_MTX_MODELVIEW);
@@ -989,17 +986,17 @@ s32 mapNodeBoxInFrustum(MapBspNode *node, f32 camX, f32 camY, f32 camZ) {
 
 extern f32 D_807F5E50[];
 
-void planeFromTwoPoints(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
-    D_807F5E50[0] = arg3 - arg0;
-    D_807F5E50[1] = arg4 - arg1;
-    D_807F5E50[2] = arg5 - arg2;
-    D_807F5E50[3] = -(((D_807F5E50[0] * arg0) + (D_807F5E50[1] * arg1)) + (D_807F5E50[2] * arg2));
+void planeFromTwoPoints(f32 fromX, f32 fromY, f32 fromZ, f32 toX, f32 toY, f32 toZ) {
+    D_807F5E50[0] = toX - fromX;
+    D_807F5E50[1] = toY - fromY;
+    D_807F5E50[2] = toZ - fromZ;
+    D_807F5E50[3] = -(((D_807F5E50[0] * fromX) + (D_807F5E50[1] * fromY)) + (D_807F5E50[2] * fromZ));
 }
 
 
 
 
-s32 mapBspBoxInFrustum(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, PlanePoly *arg10) {
+s32 mapBspBoxInFrustum(s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ, f32 x, f32 y, f32 z, f32 range, PlanePoly *planes) {
     s32 in1;
     s32 in2;
     s32 behind;
@@ -1007,28 +1004,28 @@ s32 mapBspBoxInFrustum(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
     f64 d;
     s32 pad0;
 
-    if ((((f32)arg0 * D_807F5E50[0] + (f32)arg1 * D_807F5E50[1]) + (f32)arg2 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        (((f32)arg0 * D_807F5E50[0] + (f32)arg1 * D_807F5E50[1]) + arg5 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        (((f32)arg0 * D_807F5E50[0] + arg4 * D_807F5E50[1]) + (f32)arg2 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        (((f32)arg0 * D_807F5E50[0] + arg4 * D_807F5E50[1]) + arg5 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        ((arg3 * D_807F5E50[0] + (f32)arg1 * D_807F5E50[1]) + (f32)arg2 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        ((arg3 * D_807F5E50[0] + (f32)arg1 * D_807F5E50[1]) + arg5 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        ((arg3 * D_807F5E50[0] + arg4 * D_807F5E50[1]) + (f32)arg2 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        ((arg3 * D_807F5E50[0] + arg4 * D_807F5E50[1]) + arg5 * D_807F5E50[2]) + D_807F5E50[3] < 0.0) {
+    if ((((f32)minX * D_807F5E50[0] + (f32)minY * D_807F5E50[1]) + (f32)minZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        (((f32)minX * D_807F5E50[0] + (f32)minY * D_807F5E50[1]) + maxZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        (((f32)minX * D_807F5E50[0] + maxY * D_807F5E50[1]) + (f32)minZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        (((f32)minX * D_807F5E50[0] + maxY * D_807F5E50[1]) + maxZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        ((maxX * D_807F5E50[0] + (f32)minY * D_807F5E50[1]) + (f32)minZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        ((maxX * D_807F5E50[0] + (f32)minY * D_807F5E50[1]) + maxZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        ((maxX * D_807F5E50[0] + maxY * D_807F5E50[1]) + (f32)minZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        ((maxX * D_807F5E50[0] + maxY * D_807F5E50[1]) + maxZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0) {
         return 0;
     }
-    if ((f32)arg0 <= arg6 && arg6 <= (f32)arg3 && (f32)arg1 <= arg7 && arg7 <= (f32)arg4 && (f32)arg2 <= arg8 && arg8 <= (f32)arg5) {
+    if ((f32)minX <= x && x <= (f32)maxX && (f32)minY <= y && y <= (f32)maxY && (f32)minZ <= z && z <= (f32)maxZ) {
         return 1;
     }
     in1 = 0;
     in2 = 0;
     behind = 0;
     for (i = 0; i < 5 && behind == 0; i++) {
-        d = ((arg10[i].a * arg0 + arg10[i].b * arg1) + arg10[i].c * arg2) + arg10[i].d;
+        d = ((planes[i].a * minX + planes[i].b * minY) + planes[i].c * minZ) + planes[i].d;
         if (d < 0.00) {
             in1 = 1;
         }
-        d = ((arg10[i].a * arg0 + arg10[i].b * arg4) + arg10[i].c * arg2) + arg10[i].d;
+        d = ((planes[i].a * minX + planes[i].b * maxY) + planes[i].c * minZ) + planes[i].d;
         if (d < 0.00) {
             in2 = 1;
         }
@@ -1036,18 +1033,18 @@ s32 mapBspBoxInFrustum(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
             behind = 1;
         }
     }
-    if (behind == 0 && boxMinCornerDistance(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) < arg9) {
+    if (behind == 0 && boxMinCornerDistance(minX, minY, minZ, maxX, maxY, maxZ, x, y, z) < range) {
         return 1;
     }
     for (i = 0; i < 5; i++) {
-        if (clipPolyToBox(i, arg0, arg1, arg2, arg3, arg4, arg5, arg10) != 0) {
+        if (clipPolyToBox(i, minX, minY, minZ, maxX, maxY, maxZ, planes) != 0) {
             return 1;
         }
     }
     return 0;
 }
 
-f32 boxMinCornerDistance(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, f32 arg6, f32 arg7, f32 arg8) {
+f32 boxMinCornerDistance(s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ, f32 x, f32 y, f32 z) {
     f32 dy1Sq;
     f32 dist;
     f32 best;
@@ -1057,12 +1054,12 @@ f32 boxMinCornerDistance(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 a
     f32 dx0Sq;
     f32 dz1Sq;
 
-    best = (f32)arg0;
-    dx0Sq = (best - arg6) * (best - arg6);
-    dy0Sq = (((f32)arg1 - arg7) * ((f32)arg1 - arg7));
-    dz0Sq = (((f32)arg2 - arg8) * ((f32)arg2 - arg8));
-    dy1Sq = (((f32)arg4 - arg7) * ((f32)arg4 - arg7));
-    dz1Sq = (((f32)arg5 - arg8) * ((f32)arg5 - arg8));
+    best = (f32)minX;
+    dx0Sq = (best - x) * (best - x);
+    dy0Sq = (((f32)minY - y) * ((f32)minY - y));
+    dz0Sq = (((f32)minZ - z) * ((f32)minZ - z));
+    dy1Sq = (((f32)maxY - y) * ((f32)maxY - y));
+    dz1Sq = (((f32)maxZ - z) * ((f32)maxZ - z));
     best = (dx0Sq + dy0Sq) + dz0Sq;
     dist = (dx0Sq + dy0Sq) + dz1Sq;
     if (dist < best) {
@@ -1074,50 +1071,50 @@ f32 boxMinCornerDistance(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 a
     if ((dx0Sq + dy1Sq) + dz1Sq < best) {
         best = (dx0Sq + dy1Sq) + dz1Sq;
     }
-    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy0Sq) + dz0Sq < best) {
-        best = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy0Sq) + dz0Sq;
+    if (((((f32)maxX - x) * ((f32)maxX - x)) + dy0Sq) + dz0Sq < best) {
+        best = ((((f32)maxX - x) * ((f32)maxX - x)) + dy0Sq) + dz0Sq;
     }
-    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy0Sq) + dz1Sq < best) {
-        best = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy0Sq) + dz1Sq;
+    if (((((f32)maxX - x) * ((f32)maxX - x)) + dy0Sq) + dz1Sq < best) {
+        best = ((((f32)maxX - x) * ((f32)maxX - x)) + dy0Sq) + dz1Sq;
     }
-    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy1Sq) + dz0Sq < best) {
-        best = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy1Sq) + dz0Sq;
+    if (((((f32)maxX - x) * ((f32)maxX - x)) + dy1Sq) + dz0Sq < best) {
+        best = ((((f32)maxX - x) * ((f32)maxX - x)) + dy1Sq) + dz0Sq;
     }
-    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy1Sq) + dz1Sq < best) {
-        best = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy1Sq) + dz1Sq;
+    if (((((f32)maxX - x) * ((f32)maxX - x)) + dy1Sq) + dz1Sq < best) {
+        best = ((((f32)maxX - x) * ((f32)maxX - x)) + dy1Sq) + dz1Sq;
     }
     return sqrtf(best);
 }
 
 
 
-s32 clipPolyToBox(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, PlanePoly *arg7) {
+s32 clipPolyToBox(s32 planeIdx, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ, PlanePoly *planes) {
     s16 bufA[0x24];
     s16 bufB[0x24];
     s32 count;
     char pad;
 
-    clipPolyAgainstAxis(arg7[arg0].v, bufA, arg7[arg0].type, &count, 0, arg1, 0);
+    clipPolyAgainstAxis(planes[planeIdx].v, bufA, planes[planeIdx].type, &count, 0, minX, 0);
     if (count == 0) {
         return 0;
     }
-    clipPolyAgainstAxis(bufA, bufB, count, &count, 0, arg4, 1);
+    clipPolyAgainstAxis(bufA, bufB, count, &count, 0, maxX, 1);
     if (count == 0) {
         return 0;
     }
-    clipPolyAgainstAxis(bufB, bufA, count, &count, 1, arg2, 0);
+    clipPolyAgainstAxis(bufB, bufA, count, &count, 1, minY, 0);
     if (count == 0) {
         return 0;
     }
-    clipPolyAgainstAxis(bufA, bufB, count, &count, 1, arg5, 1);
+    clipPolyAgainstAxis(bufA, bufB, count, &count, 1, maxY, 1);
     if (count == 0) {
         return 0;
     }
-    clipPolyAgainstAxis(bufB, bufA, count, &count, 2, arg3, 0);
+    clipPolyAgainstAxis(bufB, bufA, count, &count, 2, minZ, 0);
     if (count == 0) {
         return 0;
     }
-    clipPolyAgainstAxis(bufA, bufB, count, &count, 2, arg6, 1);
+    clipPolyAgainstAxis(bufA, bufB, count, &count, 2, maxZ, 1);
     if (count != 0) {
         return 1;
     }
@@ -1125,61 +1122,61 @@ s32 clipPolyToBox(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s1
 }
 
 
-void clipPolyAgainstAxis(s16 *arg0, s16 *arg1, s32 arg2, s32 *arg3, u8 arg4, f64 arg5, u8 arg6) {
+void clipPolyAgainstAxis(s16 *src, s16 *dst, s32 srcCount, s32 *dstCount, u8 axis, f64 bound, u8 isMax) {
     s32 i;
     s16 *prev;
     s16 hit[3];
     s16 *cur;
     s16 *last;
 
-    *arg3 = 0;
-    prev = (s16 *)(arg2 * 6 + (s32)arg0 - 6);
+    *dstCount = 0;
+    prev = (s16 *)(srcCount * 6 + (s32)src - 6); // FAKE: integer address arithmetic for the last vertex (&src[(srcCount - 1) * 3] and pointer forms change the codegen)
     i = 0;
-    if (arg2 > 0) {
-        cur = arg0;
+    if (srcCount > 0) {
+        cur = src;
         do {
             last = cur;
-            if (clipVertexTestAxis(cur, arg4, arg5, arg6) != 0) {
-                if (clipVertexTestAxis(prev, arg4, arg5, arg6) != 0) {
-                    clipVertexAppend(cur, arg3, arg1);
+            if (clipVertexTestAxis(cur, axis, bound, isMax) != 0) {
+                if (clipVertexTestAxis(prev, axis, bound, isMax) != 0) {
+                    clipVertexAppend(cur, dstCount, dst);
                 } else {
-                    clipEdgeIntersectAxis(prev, cur, arg4, arg5, hit);
-                    clipVertexAppend(hit, arg3, arg1);
-                    clipVertexAppend(cur, arg3, arg1);
+                    clipEdgeIntersectAxis(prev, cur, axis, bound, hit);
+                    clipVertexAppend(hit, dstCount, dst);
+                    clipVertexAppend(cur, dstCount, dst);
                 }
-            } else if (clipVertexTestAxis(prev, arg4, arg5, arg6) != 0) {
-                clipEdgeIntersectAxis(prev, cur, arg4, arg5, hit);
-                clipVertexAppend(hit, arg3, arg1);
+            } else if (clipVertexTestAxis(prev, axis, bound, isMax) != 0) {
+                clipEdgeIntersectAxis(prev, cur, axis, bound, hit);
+                clipVertexAppend(hit, dstCount, dst);
             }
             i++;
             cur += 3;
             prev = last;
-        } while (i != arg2);
+        } while (i != srcCount);
     }
 }
 
-s32 clipVertexTestAxis(s16 *arg0, u8 arg1, f64 arg2, u8 arg3) {
+s32 clipVertexTestAxis(s16 *vtx, u8 axis, f64 bound, u8 isMax) {
     f64 coord;
 
-    switch (arg1) {
+    switch (axis) {
         case 0:
-            coord = arg0[0];
+            coord = vtx[0];
             break;
         case 1:
-            coord = arg0[1];
+            coord = vtx[1];
             break;
         case 2:
-            coord = arg0[2];
+            coord = vtx[2];
             break;
     }
-    switch (arg3) {
+    switch (isMax) {
         case 0:
-            if (arg2 <= coord) {
+            if (bound <= coord) {
                 return 1;
             }
             break;
         case 1:
-            if (coord <= arg2) {
+            if (coord <= bound) {
                 return 1;
             }
             break;
@@ -1188,35 +1185,35 @@ s32 clipVertexTestAxis(s16 *arg0, u8 arg1, f64 arg2, u8 arg3) {
 }
 
 
-void clipVertexAppend(void *arg0, s32 *arg1, void *arg2) {
-    memcpy((u8 *)arg2 + *arg1 * 6, arg0, 6);
-    *arg1 += 1;
-    if (*arg1 >= 0xD) {
+void clipVertexAppend(void *vtx, s32 *count, void *dst) {
+    memcpy((u8 *)dst + *count * 6, vtx, 6);
+    *count += 1;
+    if (*count >= 0xD) {
         faultSetMessage(1, 0, 0, 0);
     }
 }
 
-void clipEdgeIntersectAxis(s16 *arg0, s16 *arg1, u8 arg2, f64 arg3, s16 *arg4) {
+void clipEdgeIntersectAxis(s16 *from, s16 *to, u8 axis, f64 bound, s16 *out) {
     f32 t;
 
-    switch (arg2) {
+    switch (axis) {
         case 0:
-            t = (arg3 - arg0[0]) / (arg1[0] - arg0[0]);
-            arg4[1] = (arg1[1] - arg0[1]) * t + arg0[1];
-            arg4[2] = (arg1[2] - arg0[2]) * t + arg0[2];
-            arg4[0] = arg3;
+            t = (bound - from[0]) / (to[0] - from[0]);
+            out[1] = (to[1] - from[1]) * t + from[1];
+            out[2] = (to[2] - from[2]) * t + from[2];
+            out[0] = bound;
             break;
         case 1:
-            t = (arg3 - arg0[1]) / (arg1[1] - arg0[1]);
-            arg4[0] = (arg1[0] - arg0[0]) * t + arg0[0];
-            arg4[2] = (arg1[2] - arg0[2]) * t + arg0[2];
-            arg4[1] = arg3;
+            t = (bound - from[1]) / (to[1] - from[1]);
+            out[0] = (to[0] - from[0]) * t + from[0];
+            out[2] = (to[2] - from[2]) * t + from[2];
+            out[1] = bound;
             break;
         case 2:
-            t = (arg3 - arg0[2]) / (arg1[2] - arg0[2]);
-            arg4[0] = (arg1[0] - arg0[0]) * t + arg0[0];
-            arg4[1] = (arg1[1] - arg0[1]) * t + arg0[1];
-            arg4[2] = arg3;
+            t = (bound - from[2]) / (to[2] - from[2]);
+            out[0] = (to[0] - from[0]) * t + from[0];
+            out[1] = (to[1] - from[1]) * t + from[1];
+            out[2] = bound;
             break;
     }
 }
@@ -1326,14 +1323,14 @@ s32 mapBspPlaneDistanceCheck(MapBspNode *node, f32 x, f32 y, f32 z) {
 
 typedef struct MapChunkAnim {
     /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 unk1;
-    /* 0x02 */ u8 unk2;
-    /* 0x03 */ u8 unk3;
-    /* 0x04 */ u8 unk4;
-    /* 0x05 */ u8 unk5;
+    /* 0x01 */ u8 chunk;
+    /* 0x02 */ u8 frameDelay;
+    /* 0x03 */ u8 frameCount;
+    /* 0x04 */ u8 timer;
+    /* 0x05 */ u8 frame;
     /* 0x06 */ u8 pad6[2];
     /* 0x08 */ void *unk8;
-    /* 0x0C */ s32 unkC[1];
+    /* 0x0C */ s32 textureIds[1];
     /* 0x10 */ u8 pad10[0x6C];
 } MapChunkAnim; /* 0x7C */
 
@@ -1344,7 +1341,7 @@ Gfx *mapChunkEmitSegmentCommands(Gfx *gfx, u8 chunk) {
     s32 i;
 
     for (i = 0; i < sMapChunkAnimCount; i++) {
-        if (chunk == sMapChunkAnims[i].unk1) {
+        if (chunk == sMapChunkAnims[i].chunk) {
             gSPSegment(gfx++, sMapChunkAnims[i].unk0, sMapChunkAnims[i].unk8);
         }
     }
@@ -1353,30 +1350,30 @@ Gfx *mapChunkEmitSegmentCommands(Gfx *gfx, u8 chunk) {
 
 
 
-void mapChunkAnimateTextures(u8 arg0) {
+void mapChunkAnimateTextures(u8 chunk) {
     s32 i;
-    s32 flag;
+    s32 reload;
 
     for (i = 0; i < sMapChunkAnimCount; i++) {
-        if (arg0 == sMapChunkAnims[i].unk1) {
-            flag = 0;
-            sMapChunkAnims[i].unk4++;
-            if (sMapChunkAnims[i].unk4 == sMapChunkAnims[i].unk2) {
-                sMapChunkAnims[i].unk4 = 0;
-                sMapChunkAnims[i].unk5++;
-                if (sMapChunkAnims[i].unk5 == sMapChunkAnims[i].unk3) {
-                    sMapChunkAnims[i].unk5 = 0;
+        if (chunk == sMapChunkAnims[i].chunk) {
+            reload = 0;
+            sMapChunkAnims[i].timer++;
+            if (sMapChunkAnims[i].timer == sMapChunkAnims[i].frameDelay) {
+                sMapChunkAnims[i].timer = 0;
+                sMapChunkAnims[i].frame++;
+                if (sMapChunkAnims[i].frame == sMapChunkAnims[i].frameCount) {
+                    sMapChunkAnims[i].frame = 0;
                 }
-                flag = 1;
+                reload = 1;
             }
             if (sMapChunkAnims[i].unk8 == NULL) {
-                flag = 1;
+                reload = 1;
             }
-            if (flag) {
+            if (reload) {
                 if (sMapChunkAnims[i].unk8 != NULL) {
                     assetFreeBuffer(sMapChunkAnims[i].unk8, 0x7E3, 5);
                 }
-                sMapChunkAnims[i].unk8 = assetLoad(7, sMapChunkAnims[i].unkC[sMapChunkAnims[i].unk5], 0, 0);
+                sMapChunkAnims[i].unk8 = assetLoad(7, sMapChunkAnims[i].textureIds[sMapChunkAnims[i].frame], 0, 0);
             }
         }
     }
@@ -1389,7 +1386,7 @@ void mapChunkFreeHiddenBuffers(void) {
     s32 i;
 
     for (i = 0; i < sMapChunkAnimCount; i++) {
-        if (mapChunkIsVisible(sMapChunkAnims[i].unk1) == 0) {
+        if (mapChunkIsVisible(sMapChunkAnims[i].chunk) == 0) {
             if (sMapChunkAnims[i].unk8 != NULL) {
                 assetFreeBuffer(sMapChunkAnims[i].unk8, 0x7FB, 5);
                 sMapChunkAnims[i].unk8 = NULL;
@@ -1420,12 +1417,12 @@ extern s32 sMapSoundEmitterCount;
 extern LevelSoundEmitter *sMapSoundEmitters;
 
 void mapHeaderLoad(MapFileHeader *header) {
-    s32 off30;
-    s32 off34;
-    s32 off38;
-    s32 off44;
-    s32 off40;
-    s32 off48;
+    s32 bspOff;
+    s32 dlOff;
+    s32 dlEndOff;
+    s32 emitterOff;
+    s32 trackOff;
+    s32 chunkAnimOff;
     s32 pad[5];
     s32 effectSlotCount;
 
@@ -1450,27 +1447,27 @@ void mapHeaderLoad(MapFileHeader *header) {
     D_807F5FE6 = header->unk28;
     D_807F5FE8 = header->unk2A;
     D_807F5FEA = header->unk2C;
-    off40 = header->unk40;
-    off30 = header->unk30;
-    off34 = header->dlBase;
-    off38 = header->unk38;
-    off44 = header->unk44;
-    off48 = header->unk48;
-    D_807F5FD0 = *(s32 *)(D_807F5DE0 + off40) + 1;
-    gMinecartTrackPoints = (TargetVec3f **)(D_807F5DE0 + off40 + 4);
-    sMapSoundEmitterCount = *(s32 *)(D_807F5DE0 + off44);
-    sMapSoundEmitters = (LevelSoundEmitter *)(D_807F5DE0 + off44 + 4);
-    sMapChunkAnimCount = *(s32 *)(D_807F5DE0 + off48);
-    sMapChunkAnims = (MapChunkAnim *)(D_807F5DE0 + off48 + 4);
-    D_807F5DE4 = (MapBspNode *)(D_807F5DE0 + off30);
-    D_807F5DE8 = (s32)(D_807F5DE0 + off38);
-    D_807F5DEC = D_807F5DE0 + off34;
+    trackOff = header->unk40;
+    bspOff = header->unk30;
+    dlOff = header->dlBase;
+    dlEndOff = header->unk38;
+    emitterOff = header->unk44;
+    chunkAnimOff = header->unk48;
+    D_807F5FD0 = *(s32 *)(D_807F5DE0 + trackOff) + 1;
+    gMinecartTrackPoints = (TargetVec3f **)(D_807F5DE0 + trackOff + 4);
+    sMapSoundEmitterCount = *(s32 *)(D_807F5DE0 + emitterOff);
+    sMapSoundEmitters = (LevelSoundEmitter *)(D_807F5DE0 + emitterOff + 4);
+    sMapChunkAnimCount = *(s32 *)(D_807F5DE0 + chunkAnimOff);
+    sMapChunkAnims = (MapChunkAnim *)(D_807F5DE0 + chunkAnimOff + 4);
+    D_807F5DE4 = (MapBspNode *)(D_807F5DE0 + bspOff);
+    D_807F5DE8 = (s32)(D_807F5DE0 + dlEndOff);
+    D_807F5DEC = D_807F5DE0 + dlOff;
     lightSetTargetColor(1.0f, 1.0f, 1.0f, -1);
     lightCopyTargetColors(-1);
     matrixCacheInit(header->unkE << 10);
-    mapTreeRelocate((MapBspNode *)((s32)D_807F5DE0 + off30), (s32)D_807F5DE0 + off30, (s32)D_807F5DE0 + off34);
-    displayListResolveTextureImages((Gfx *)(D_807F5DE0 + off34), (Gfx *)(D_807F5DE0 + off38));
-    mapRelocateOffsetTable((s32)(D_807F5DE0 + off40));
+    mapTreeRelocate((MapBspNode *)((s32)D_807F5DE0 + bspOff), (s32)D_807F5DE0 + bspOff, (s32)D_807F5DE0 + dlOff);
+    displayListResolveTextureImages((Gfx *)(D_807F5DE0 + dlOff), (Gfx *)(D_807F5DE0 + dlEndOff));
+    mapRelocateOffsetTable((s32)(D_807F5DE0 + trackOff));
     mapSurfaceEffectsReset();
     mapNodeTreeInitSurfaceEffects(D_807F5DE4, &effectSlotCount);
     mapOffsetSlotsInit(effectSlotCount);
@@ -1490,18 +1487,14 @@ void func_8062F318(void) {
 }
 
 
-void mapRelocateOffsetTable(s32 arg0) {
+void mapRelocateOffsetTable(s32 base) {
     s32 i;
-    u8 *t;
+    u8 *point;
 
     if (D_807F5FD0 != 0) {
-        i = 0;
-        if (D_807F5FD0 >= 0) {
-            do {
-                t = (u8 *)gMinecartTrackPoints[i];
-                gMinecartTrackPoints[i] = (TargetVec3f *)(t + arg0);
-                i++;
-            } while (D_807F5FD0 >= i);
+        for (i = 0; i <= D_807F5FD0; i++) {
+            point = (u8 *)gMinecartTrackPoints[i];
+            gMinecartTrackPoints[i] = (TargetVec3f *)(point + base);
         }
     }
 }
@@ -1566,141 +1559,141 @@ void mapTreeRelocate(MapBspNode *node, s32 base, s32 dlBase) {
     }
 }
 
-void matrix3SwapRows(f32 (*arg0)[3], s32 arg1, s32 arg2, s32 arg3) {
+void matrix3SwapRows(f32 (*mtx)[3], s32 pivot0, s32 pivot1, s32 pivot2) {
     f32 t;
     s32 i;
 
-    if (arg1 != 0) {
+    if (pivot0 != 0) {
         i = 0;
-        if (arg2 == 0) {
+        if (pivot1 == 0) {
             for (i = 0; i < 3; i++) {
-                t = arg0[arg2][i];
-                arg0[arg2][i] = arg0[arg1][i];
-                arg0[arg1][i] = t;
+                t = mtx[pivot1][i];
+                mtx[pivot1][i] = mtx[pivot0][i];
+                mtx[pivot0][i] = t;
             }
-            arg2 = arg1;
+            pivot1 = pivot0;
         } else {
             for (i = 0; i < 3; i++) {
-                t = arg0[arg3][i];
-                arg0[arg3][i] = arg0[arg1][i];
-                arg0[arg1][i] = t;
+                t = mtx[pivot2][i];
+                mtx[pivot2][i] = mtx[pivot0][i];
+                mtx[pivot0][i] = t;
             }
-            arg3 = arg1;
+            pivot2 = pivot0;
         }
     }
-    if (arg2 != 1) {
+    if (pivot1 != 1) {
         for (i = 0; i < 3; i++) {
-            t = arg0[arg3][i];
-            arg0[arg3][i] = arg0[arg2][i];
-            arg0[arg2][i] = t;
+            t = mtx[pivot2][i];
+            mtx[pivot2][i] = mtx[pivot1][i];
+            mtx[pivot1][i] = t;
         }
     }
 }
 
 
-s32 func_8062F640(f32 (*arg0)[3], f32 (*arg1)[3], s32 arg2) {
-    s32 r0;
-    s32 r1;
+s32 func_8062F640(f32 (*mtx)[3], f32 (*out)[3], s32 pivot0) {
+    s32 rowA;
+    s32 rowB;
     s32 p;
     s32 q;
     s32 j;
     f32 t;
     f32 u;
 
-    if (arg2 == 0) {
-        r0 = 1;
-        r1 = 2;
-    } else if (arg2 == 1) {
-        r0 = 0;
-        r1 = 2;
+    if (pivot0 == 0) {
+        rowA = 1;
+        rowB = 2;
+    } else if (pivot0 == 1) {
+        rowA = 0;
+        rowB = 2;
     } else {
-        r0 = 0;
-        r1 = 1;
+        rowA = 0;
+        rowB = 1;
     }
-    t = arg0[r0][1];
+    t = mtx[rowA][1];
     if (t < 0.0f) {
         t = -t;
     }
-    u = arg0[r1][1];
+    u = mtx[rowB][1];
     if (u < 0.0f) {
         u = -u;
     }
     if (u < t) {
-        p = r0;
+        p = rowA;
     } else {
-        p = r1;
+        p = rowB;
     }
-    if (p == r0) {
-        q = r1;
+    if (p == rowA) {
+        q = rowB;
     } else {
-        q = r0;
+        q = rowA;
     }
-    if (arg0[p][1] < 1e-8 && arg0[p][1] > -1e-8) {
+    if (mtx[p][1] < 1e-8 && mtx[p][1] > -1e-8) {
         return 0;
     }
-    t = 1.0 / arg0[p][1];
-    arg0[p][1] = 1.0f;
-    arg0[p][2] *= t;
-    arg1[p][p] = t;
-    arg1[p][arg2] *= t;
+    t = 1.0 / mtx[p][1];
+    mtx[p][1] = 1.0f;
+    mtx[p][2] *= t;
+    out[p][p] = t;
+    out[p][pivot0] *= t;
     for (j = 0; j < 3; j++) {
         if (j != p) {
-            t = arg0[j][1];
-            arg0[j][1] = 0.0f;
+            t = mtx[j][1];
+            mtx[j][1] = 0.0f;
             t = -t;
-            arg0[j][2] += t * arg0[p][2];
-            arg1[j][p] = arg1[p][p] * t;
-            arg1[j][arg2] += t * arg1[p][arg2];
+            mtx[j][2] += t * mtx[p][2];
+            out[j][p] = out[p][p] * t;
+            out[j][pivot0] += t * out[p][pivot0];
         }
     }
-    if (arg0[q][2] < 1e-8 && arg0[q][2] > -1e-8) {
+    if (mtx[q][2] < 1e-8 && mtx[q][2] > -1e-8) {
         return 0;
     }
-    t = 1.0 / arg0[q][2];
-    arg0[q][2] = 1.0f;
-    arg1[q][q] = t;
-    arg1[q][arg2] *= t;
-    arg1[q][p] *= t;
+    t = 1.0 / mtx[q][2];
+    mtx[q][2] = 1.0f;
+    out[q][q] = t;
+    out[q][pivot0] *= t;
+    out[q][p] *= t;
     for (j = 0; j < 3; j++) {
         if (j != q) {
-            t = arg0[j][2];
-            arg0[j][2] = 0.0f;
+            t = mtx[j][2];
+            mtx[j][2] = 0.0f;
             t = -t;
-            arg1[j][arg2] += t * arg1[q][arg2];
-            arg1[j][p] += t * arg1[q][p];
-            arg1[j][q] += t * arg1[q][q];
+            out[j][pivot0] += t * out[q][pivot0];
+            out[j][p] += t * out[q][p];
+            out[j][q] += t * out[q][q];
         }
     }
-    matrix3SwapRows(arg1, arg2, p, q);
+    matrix3SwapRows(out, pivot0, p, q);
     return 1;
 }
 
 
-s32 matrix3Invert(f32 (*arg0)[3], f32 (*arg1)[3]) {
+s32 matrix3Invert(f32 (*mtx)[3], f32 (*out)[3]) {
     s32 p;
     s32 j;
     f32 t;
     f32 u;
     f32 v;
 
-    arg1[2][2] = 1.0f;
-    arg1[2][1] = 0.0f;
-    arg1[2][0] = 0.0f;
-    arg1[1][2] = 0.0f;
-    arg1[1][1] = 1.0f;
-    arg1[1][0] = 0.0f;
-    arg1[0][2] = 0.0f;
-    arg1[0][1] = 0.0f;
-    arg1[0][0] = 1.0f;
-    t = arg0[0][0];
+    out[2][2] = 1.0f;
+    out[2][1] = 0.0f;
+    out[2][0] = 0.0f;
+    out[1][2] = 0.0f;
+    out[1][1] = 1.0f;
+    out[1][0] = 0.0f;
+    out[0][2] = 0.0f;
+    out[0][1] = 0.0f;
+    out[0][0] = 1.0f;
+    t = mtx[0][0];
     if (t < 0.0f) {
         t = -t;
     }
-    u = arg0[1][0];
+    u = mtx[1][0];
     if (u < 0.0f) {
         u = -u;
     }
-    v = arg0[2][0];
+    v = mtx[2][0];
     if (v < 0.0f) {
         v = -v;
     }
@@ -1717,81 +1710,81 @@ s32 matrix3Invert(f32 (*arg0)[3], f32 (*arg1)[3]) {
             p = 2;
         }
     }
-    if (arg0[p][0] < 1e-8 && arg0[p][0] > -1e-8) {
+    if (mtx[p][0] < 1e-8 && mtx[p][0] > -1e-8) {
         return 0;
     }
-    v = 1.0 / arg0[p][0];
-    arg0[p][0] = 1.0f;
-    arg0[p][1] *= v;
-    arg0[p][2] *= v;
-    arg1[p][p] = v;
+    v = 1.0 / mtx[p][0];
+    mtx[p][0] = 1.0f;
+    mtx[p][1] *= v;
+    mtx[p][2] *= v;
+    out[p][p] = v;
     for (j = 0; j < 3; j++) {
         if (j != p) {
-            v = arg0[j][0];
-            arg0[j][0] = 0.0f;
+            v = mtx[j][0];
+            mtx[j][0] = 0.0f;
             v = -v;
-            arg0[j][1] += v * arg0[p][1];
-            arg0[j][2] += v * arg0[p][2];
-            arg1[j][p] = arg1[p][p] * v;
+            mtx[j][1] += v * mtx[p][1];
+            mtx[j][2] += v * mtx[p][2];
+            out[j][p] = out[p][p] * v;
         }
     }
-    if (func_8062F640(arg0, arg1, p) == 0) {
+    if (func_8062F640(mtx, out, p) == 0) {
         return 0;
     }
     return 1;
 }
 
 
-s32 func_8062FBC8(f32 (*arg0)[4], f32 *arg1, f32 *arg2, s32 *arg3) {
+s32 func_8062FBC8(f32 (*mtx)[4], f32 *outOffset, f32 *outScale, s32 *outSwapRow) {
     f32 max;
     f32 abs;
     s32 i;
     s32 j;
     f32 tmp;
 
-    *arg3 = -1;
-    abs = arg0[3][3] > 0.0f ? arg0[3][3] : -arg0[3][3];
+    *outSwapRow = -1;
+    abs = mtx[3][3] > 0.0f ? mtx[3][3] : -mtx[3][3];
     if (abs < 1e-8) {
         max = 0.0f;
         for (i = 0; i < 4; i++) {
-            if (max < arg0[i][3]) {
-                *arg3 = i;
-                max = arg0[i][3];
-            } else if (arg0[i][3] < -max) {
-                *arg3 = i;
-                max = -arg0[i][3];
+            if (max < mtx[i][3]) {
+                *outSwapRow = i;
+                max = mtx[i][3];
+            } else if (mtx[i][3] < -max) {
+                *outSwapRow = i;
+                max = -mtx[i][3];
             }
         }
-        if (*arg3 < 0) {
+        if (*outSwapRow < 0) {
             return 0;
         }
         for (j = 0; j < 4; j++) {
-            tmp = arg0[3][j];
-            arg0[3][j] = arg0[*arg3][j];
-            arg0[*arg3][j] = tmp;
+            tmp = mtx[3][j];
+            mtx[3][j] = mtx[*outSwapRow][j];
+            mtx[*outSwapRow][j] = tmp;
         }
     }
-    arg1[0] = -arg0[0][3];
-    arg1[1] = -arg0[1][3];
-    arg1[2] = -arg0[2][3];
-    *arg2 = 1.0 / arg0[3][3];
-    arg0[0][3] = 0.0f;
-    arg0[1][3] = 0.0f;
-    arg0[2][3] = 0.0f;
-    arg0[3][3] = 1.0f;
-    arg0[3][0] *= *arg2;
-    arg0[3][1] *= *arg2;
-    arg0[3][2] *= *arg2;
+    outOffset[0] = -mtx[0][3];
+    outOffset[1] = -mtx[1][3];
+    outOffset[2] = -mtx[2][3];
+    *outScale = 1.0 / mtx[3][3];
+    mtx[0][3] = 0.0f;
+    mtx[1][3] = 0.0f;
+    mtx[2][3] = 0.0f;
+    mtx[3][3] = 1.0f;
+    mtx[3][0] *= *outScale;
+    mtx[3][1] *= *outScale;
+    mtx[3][2] *= *outScale;
     for (i = 0; i < 3; i++) {
-        arg0[0][i] += arg1[0] * arg0[3][i];
-        arg0[1][i] += arg1[1] * arg0[3][i];
-        arg0[2][i] += arg1[2] * arg0[3][i];
+        mtx[0][i] += outOffset[0] * mtx[3][i];
+        mtx[1][i] += outOffset[1] * mtx[3][i];
+        mtx[2][i] += outOffset[2] * mtx[3][i];
     }
     return 1;
 }
 
 
-s32 matrix4Invert(f32 (*arg0)[4], f32 (*arg1)[4]) {
+s32 matrix4Invert(f32 (*out)[4], f32 (*mtx)[4]) {
     f32 m[4][4];
     f32 n[4][3];
     f32 inv[3][3];
@@ -1806,15 +1799,15 @@ s32 matrix4Invert(f32 (*arg0)[4], f32 (*arg1)[4]) {
 
     for (i = 0; i < 4; i++) {
         for (k = 0; k < 4; k++) {
-            m[i][k] = arg1[i][k];
-            arg0[i][k] = 0.0f;
+            m[i][k] = mtx[i][k];
+            out[i][k] = 0.0f;
         }
     }
-    arg0[0][0] = 1.0f;
-    arg0[1][1] = 1.0f;
-    arg0[2][2] = 1.0f;
-    arg0[3][3] = 1.0f;
-    flag = m[0][3] == 0.0; if (flag) { flag = m[1][3] == 0.0;
+    out[0][0] = 1.0f;
+    out[1][1] = 1.0f;
+    out[2][2] = 1.0f;
+    out[3][3] = 1.0f;
+    flag = m[0][3] == 0.0; if (flag) { flag = m[1][3] == 0.0; // LAYOUT: the first test and the nested if on one line (split onto separate lines, fdiff fails)
         if (flag) {
             flag = m[2][3] == 0.0;
             if (flag) {
@@ -1840,24 +1833,24 @@ s32 matrix4Invert(f32 (*arg0)[4], f32 (*arg1)[4]) {
     }
     for (i = 0; i < 3; i++) {
         for (k = 0; k < 3; k++) {
-            arg0[i][k] = inv[i][k];
+            out[i][k] = inv[i][k];
         }
     }
     for (i = 0; i < 3; i++) {
         for (k = 0; k < 3; k++) {
-            arg0[3][i] -= v[k] * inv[k][i];
+            out[3][i] -= v[k] * inv[k][i];
         }
     }
     if (!flag) {
         for (i = 0; i < 4; i++) {
-            arg0[i][3] += w[0] * arg0[i][0] + w[1] * arg0[i][1] + w[2] * arg0[i][2];
-            arg0[i][3] *= scale;
+            out[i][3] += w[0] * out[i][0] + w[1] * out[i][1] + w[2] * out[i][2];
+            out[i][3] *= scale;
         }
         if (idx >= 0) {
             for (i = 0; i < 4; i++) {
-                tmp = arg0[i][3];
-                arg0[i][3] = arg0[i][idx];
-                arg0[i][idx] = tmp;
+                tmp = out[i][3];
+                out[i][3] = out[i][idx];
+                out[i][idx] = tmp;
             }
         }
     }
