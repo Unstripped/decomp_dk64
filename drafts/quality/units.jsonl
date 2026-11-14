@@ -362,3 +362,4 @@
 {"type": "unit", "t": "2026-11-14T19:20:06Z", "unit": "2026-11-14: cleanup HackplayerTakeDamage", "commit": "32cae08606cf734ce64e05b9d05ecc5844efb207"}
 {"type": "unit", "t": "2026-11-14T19:20:08Z", "unit": "2026-11-14: cleanup HackspawnNodeActorOutOfRangeOrHidden", "commit": "32cae08606cf734ce64e05b9d05ecc5844efb207"}
 {"type": "unit", "t": "2026-11-14T19:21:33Z", "unit": "2026-11-14: cleanup HackprojectileSteerTowardTarget", "commit": "cc92a8252192a7031aefcb96dc97d3b0108d1c7c"}
+{"type": "unit", "t": "2026-11-14T19:21:41Z", "unit": "2026-11-14: cleanup HacktextBoxUpdateRows", "commit": "1dca3ea65f5cf7360d3ddb5badcd0d5b0e45acd1"}
