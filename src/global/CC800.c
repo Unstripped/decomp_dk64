@@ -32,7 +32,6 @@ extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
 extern s16 gCurrentCharacterIndex;
-extern u16 D_807FD63C;
 
 extern s16 gLevelCollectibleCounts[];
 

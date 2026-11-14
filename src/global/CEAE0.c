@@ -37,8 +37,6 @@ extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
 extern s16 gCurrentCharacterIndex;
-extern u16 D_807FD63C;
-
 
 void playerUpdateSoundEffect0(void) {
     playerUpdateCommon(0);
@@ -208,7 +206,7 @@ void playerClearCarriedItemState(void) {
 
 
 extern s32 gGlobalOverlayFlags;
-extern u16 D_807FD63A[][0x1A];
+extern PadInputState gPlayerPadState[];
 
 void playerCheckAndClearCarriedItem(void) {
     if (gActivePlayerState->unkC8 != -1 && (flagGet(0x179, 0) == 0 || gCurrentActor->floorSlopeFactor != 0.0f || (gGlobalOverlayFlags & 0x800000) || slotQueueGetValue(5, gActivePlayerState->playerIndex) == 0)) {
@@ -217,7 +215,7 @@ void playerCheckAndClearCarriedItem(void) {
         return;
     }
     if (gActivePlayerState->unkC8 != -1) {
-        if (D_807FD63A[gCurrentPlayerIndex][0] & 0x4000) {
+        if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x4000) {
             if (gActivePlayerState->unkC8 > 0) {
                 if (gActivePlayerState->unkC8 < 0x1E && !(gFrameCounter & 3)) {
                     effectSpawnBurst(0);
@@ -256,9 +254,6 @@ void playerUpdateSlopeSlidePhysics(void) {
         }
     }
 }
-
-extern PadInputState gPlayerPadState[];
-
 
 typedef struct PlayerStateFn {
     /* 0x0 */ void (*fn)(void);

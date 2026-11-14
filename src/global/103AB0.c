@@ -433,15 +433,7 @@ extern s16 D_807FD804;
 extern s16 D_807FD806;
 
 
-typedef struct {
-    u8 pad0[0x2E];
-    s8 stickX;
-    u8 pad2F;
-    u8 stickMagnitude;
-    u8 pad31[3];
-} PlayerSampleInfo;
-
-extern PlayerSampleInfo gPlayerPadState[];
+extern PadInputState gPlayerPadState[];
 
 
 void func_80700BF4(void) {
@@ -450,7 +442,7 @@ void func_80700BF4(void) {
     s16 x;
     s16 y;
     u16 halfWidth;
-    PlayerSampleInfo *pad;
+    PadInputState *pad;
     s32 depth;
     s32 blocked;
 
@@ -490,7 +482,7 @@ void func_80700BF4(void) {
             y = state->targetRoll - 0x14;
             x += pad->stickX;
             halfWidth = 40;
-            halfWidth += pad->stickMagnitude / 1.5;
+            halfWidth += pad->stickAbsX / 1.5;
             state->depthCenter = zbufferDepthToDistance(zbufferReadDepth(x, y));
             state->unk116 = zbufferDepthToDistance(zbufferReadDepth(x, state->targetYawAngle));
             state->depthLeft = zbufferDepthToDistance(zbufferReadDepth(x - halfWidth, y));
