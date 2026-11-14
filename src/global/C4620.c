@@ -193,7 +193,14 @@ extern f32 D_807502E8;
 extern u16 D_80747750[];
 extern u16 D_80747904[];
 extern u8 D_807478F4[];
-extern u8 D_80747B00[];
+// RGB particle colours, indexed by the script colour id
+typedef struct ScriptColor {
+    u8 r;
+    u8 g;
+    u8 b;
+} ScriptColor;
+
+extern ScriptColor D_80747B00[];
 extern void *sScriptEffectSprites[];
 
 
@@ -205,7 +212,7 @@ void actorScriptedCommandUpdate(void) {
     ScriptedActorState *state;
     f32 ratio;
     f32 ratio2;
-    u8 *col;
+    ScriptColor *col;
     s32 node;
     f32 particleScale;
     f32 posX;
@@ -430,23 +437,27 @@ void actorScriptedCommandUpdate(void) {
     }
     if (state->particlePath != 0xFF) {
         for (j = 0; j < state->particleCount && state->particlePath != 0xFF; j++) {
-            if (j == 0xFE) {} // FAKE: extra 254 reference gives the 254 const a higher colouring priority (s4); dropping it costs 75 lines
             particleScale = (((randomNonNegative() >> 15) % 32767) % 51 + 0x4B) * 0.01;
-            if (state->particlePath == 0xFE) {
-                actorGetNodePos(gCurrentActor, 4, &posX, &posY, &posZ);
-            } else if (pathPlaybackIsActive(state->particlePath) != 0) {
-                pathPlaybackAdvance(state->particlePath);
-                pathPlaybackGetPosition(state->particlePath, &posX, &posY, &posZ);
-                posY += 10.0f;
-            } else {
-                state->particlePath = 0xFF;
+            switch (state->particlePath) {
+                case 0xFE:
+                    actorGetNodePos(gCurrentActor, 4, &posX, &posY, &posZ);
+                    break;
+                default:
+                    if (pathPlaybackIsActive(state->particlePath) != 0) {
+                        pathPlaybackAdvance(state->particlePath);
+                        pathPlaybackGetPosition(state->particlePath, &posX, &posY, &posZ);
+                        posY += 10.0f;
+                    } else {
+                        state->particlePath = 0xFF;
+                    }
+                    break;
             }
             if (state->particlePath == 0xFE || (state->particlePath != 0xFF && pathPlaybackIsActive(state->particlePath) != 0)) {
                 effectSetMaxDistance(0x7D0);
                 effectSetDepth(1);
                 effectSetMode(2);
-                col = &D_80747B00[state->particleColor * 3u]; // FAKE: unsigned 3 frees a callee-saved register (s5 otherwise)
-                effectSetColor(col[0], col[1], col[2], 0xFF);
+                col = &D_80747B00[state->particleColor];
+                effectSetColor(col->r, col->g, col->b, 0xFF);
                 effectSetCallback(func_80717D4C);
                 effectSetSpeed(-10 - (randomNonNegative() >> 15) % 30);
                 effectCreateAtPosition(sScriptEffectSprites[state->particleSprite], (f32)state->particleScalePct * 0.01 * particleScale, posX, posY, posZ);
@@ -456,7 +467,7 @@ void actorScriptedCommandUpdate(void) {
     switch (gCurrentActor->state) {
         case 0xD:
             if (gCurrentActor->unk15F != 0) {
-                node = gCurrentActor->unk15F; // FAKE: s32 temp reproduces the original stack slot layout of posX/posY/posZ
+                node = gCurrentActor->unk15F;
                 actorGetNodePos(gBehaviourWorkState->unk4, node, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
             } else {
                 gCurrentActor->x = gBehaviourTargetActor->x;
@@ -1110,7 +1121,7 @@ void actorSpawnParticlesAlongNodeLoop(u8 startNode, u8 endNode, u8 colorIndex, v
             } else {
                 actorGetNodePos(gCurrentActor, startNode, &node2X, &node2Y, &node2Z);
             }
-            effectSpawnColoredParticleAtPoint(D_80747B00[colorIndex * 3], D_80747B00[colorIndex * 3 + 1], D_80747B00[colorIndex * 3 + 2], (node2X - node1X) * frac + node1X, (node2Y - node1Y) * frac + node1Y, (node2Z - node1Z) * frac + node1Z, particleGfx, scale);
+            effectSpawnColoredParticleAtPoint(D_80747B00[colorIndex].r, D_80747B00[colorIndex].g, D_80747B00[colorIndex].b, (node2X - node1X) * frac + node1X, (node2Y - node1Y) * frac + node1Y, (node2Z - node1Z) * frac + node1Z, particleGfx, scale);
         }
     }
 }
