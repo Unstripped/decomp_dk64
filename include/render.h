@@ -187,6 +187,7 @@ typedef struct EffectNode {
     union {
         /* 0x384 */ void *allocation; // per-kind state a callback heapAllocs on its first frame
         /* 0x384 */ struct RadialSprayMotion *sprayMotion; // effectRadialSprayUpdate (11BC10.c)
+        /* 0x384 */ struct EffectInterpolationState *interp; // effectInterpolationUpdate (11BC10.c)
     };
     /* 0x388 */ s16 chunkFilter;
     /* 0x38A */ s8 chunk;

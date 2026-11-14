@@ -1,6 +1,7 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
+#include "render.h"
 #include "sched.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -557,7 +558,8 @@ void effectGroundDecalSpinUpdate(EffectNode *effect, s8 *isDone) {
 
 
 
-typedef struct {
+// customState of the interpolation effect (EffectNode.interp, 0x384), heapAlloc'd on the first frame.
+typedef struct EffectInterpolationState {
     f32 progress;
     f32 startX;
     f32 startY;
@@ -581,38 +583,38 @@ void effectInterpolationUpdate(EffectNode *effect, s8 *isDone) {
     f32 result[3];
     s32 i;
 
-    if (effect->allocation == NULL) {
-        effect->allocation = heapAlloc(0x28);
-        ((EffectInterpolationState *)effect->allocation)->progress = 0.0f;
-        ((EffectInterpolationState *)effect->allocation)->startX = D_807FDB50;
-        ((EffectInterpolationState *)effect->allocation)->startY = D_807FDB54;
-        ((EffectInterpolationState *)effect->allocation)->startZ = D_807FDB58;
-        ((EffectInterpolationState *)effect->allocation)->endX = effect->x;
-        ((EffectInterpolationState *)effect->allocation)->endY = effect->y;
-        ((EffectInterpolationState *)effect->allocation)->endZ = effect->z;
-        ((EffectInterpolationState *)effect->allocation)->increment = 0.01f;
-        ((EffectInterpolationState *)effect->allocation)->angle = (f32)((u32)(randomLcgNext() % 36000U) / 100U);
-        ((EffectInterpolationState *)effect->allocation)->angleIncrement = (f32)((u32)(randomLcgNext() % 400U) / 100U);
+    if (effect->interp == NULL) {
+        effect->interp = heapAlloc(sizeof(EffectInterpolationState));
+        effect->interp->progress = 0.0f;
+        effect->interp->startX = D_807FDB50;
+        effect->interp->startY = D_807FDB54;
+        effect->interp->startZ = D_807FDB58;
+        effect->interp->endX = effect->x;
+        effect->interp->endY = effect->y;
+        effect->interp->endZ = effect->z;
+        effect->interp->increment = 0.01f;
+        effect->interp->angle = (f32)((u32)(randomLcgNext() % 36000U) / 100U);
+        effect->interp->angleIncrement = (f32)((u32)(randomLcgNext() % 400U) / 100U);
     }
-    start[0] = ((EffectInterpolationState *)effect->allocation)->startX;
-    start[1] = ((EffectInterpolationState *)effect->allocation)->startY;
-    start[2] = ((EffectInterpolationState *)effect->allocation)->startZ;
-    end[0] = ((EffectInterpolationState *)effect->allocation)->endX;
-    end[1] = ((EffectInterpolationState *)effect->allocation)->endY;
-    end[2] = ((EffectInterpolationState *)effect->allocation)->endZ;
+    start[0] = effect->interp->startX;
+    start[1] = effect->interp->startY;
+    start[2] = effect->interp->startZ;
+    end[0] = effect->interp->endX;
+    end[1] = effect->interp->endY;
+    end[2] = effect->interp->endZ;
     for (i = 0; i < 3; i++) {
-        result[i] = end[i] + (start[i] - end[i]) * *(f32 *)effect->allocation; // FAKE: reading progress through *(f32 *) (or (*p).progress) keeps mul.s $f14,$f12 operand order; ->progress swaps it
+        result[i] = end[i] + (start[i] - end[i]) * (*effect->interp).progress; // FAKE: (*p).progress keeps the cfe operand order mul.s $f16,$f14,$f12 (progress first); effect->interp->progress swaps it (15 rows, Q0376)
     }
     effect->x = result[0];
     effect->y = result[1];
     effect->z = result[2];
-    ((EffectInterpolationState *)effect->allocation)->progress += ((EffectInterpolationState *)effect->allocation)->increment;
-    ((EffectInterpolationState *)effect->allocation)->increment = (f32)((f64)((EffectInterpolationState *)effect->allocation)->increment + 0.001);
+    effect->interp->progress += effect->interp->increment;
+    effect->interp->increment = (f32)((f64)((EffectInterpolationState *)effect->allocation)->increment + 0.001);
     effect->scaleX = (f32)((f64)effect->scaleX * 0.975);
     effect->scaleY = (f32)((f64)effect->scaleY * 0.975);
-    ((EffectInterpolationState *)effect->allocation)->angle = ((EffectInterpolationState *)effect->allocation)->angle + ((EffectInterpolationState *)effect->allocation)->angleIncrement;
+    effect->interp->angle = effect->interp->angle + effect->interp->angleIncrement;
     guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);
-    guRotateF(rotMtx, ((EffectInterpolationState *)effect->allocation)->angle, 0.0f, 0.0f, 1.0f);
+    guRotateF(rotMtx, effect->interp->angle, 0.0f, 0.0f, 1.0f);
     guMtxCatF(mtx, rotMtx, mtx);
     guMtxF2L(mtx, &effect->matrices[0][gGfxBufferIndex]);
     effect->state = 2;
