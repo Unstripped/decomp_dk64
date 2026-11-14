@@ -395,3 +395,4 @@
 {"type": "unit", "t": "2026-11-14T19:53:00Z", "unit": "2026-11-14: cleanup HackbossRoundFrame", "commit": "270d6d98194a0e081cec000de4d452b88e07e101"}
 {"type": "unit", "t": "2026-11-14T19:53:47Z", "unit": "2026-11-14: cleanup OwnerLightCandidates", "commit": "92f80db38d84bc910f923e127cea678c345897ae"}
 {"type": "unit", "t": "2026-11-14T19:54:39Z", "unit": "2026-11-14: cleanup OwnerPadInputStateViews", "commit": "edbcff4c0942afbcf0d2d06d9ddb96776b3a22d8"}
+{"type": "unit", "t": "2026-11-14T20:00:34Z", "unit": "2026-11-14: cleanup OwnerPlayerSlotsViews", "commit": "13b5f3b8d76ae2cea5b48f3f2649e08a7bb75d68"}
