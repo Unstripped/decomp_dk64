@@ -23,12 +23,12 @@
 
 
 typedef struct BufferCacheEntry {
-    /* 0x00 */ void *unk0;
-    /* 0x04 */ void *unk4;
-    /* 0x08 */ u32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ s32 unk14;
+    /* 0x00 */ void *tris;
+    /* 0x04 */ void *rawTris;
+    /* 0x08 */ u32 lastUsedFrame;
+    /* 0x0C */ s32 romAddr;
+    /* 0x10 */ s32 size;
+    /* 0x14 */ s32 triCount;
 } BufferCacheEntry; // size = 0x18
 
 typedef struct CollisionTri {
@@ -59,18 +59,18 @@ extern ModelSlot *gModelSlots;
 
 
 typedef struct CollisionAssetTri {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ s16 unk6;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ u8 unk12;
+    /* 0x00 */ s16 x0;
+    /* 0x02 */ s16 y0;
+    /* 0x04 */ s16 z0;
+    /* 0x06 */ s16 x1;
+    /* 0x08 */ s16 y1;
+    /* 0x0A */ s16 z1;
+    /* 0x0C */ s16 x2;
+    /* 0x0E */ s16 y2;
+    /* 0x10 */ s16 z2;
+    /* 0x12 */ u8 flags;
     /* 0x13 */ u8 unk13;
-    /* 0x14 */ s8 unk14;
+    /* 0x14 */ s8 bone;
 } CollisionAssetTri;
 
 
@@ -124,15 +124,15 @@ void collisionBuildSlotBoxes(s32 slot, ModelAssetHeader *asset, f32 x, f32 y, f3
         i = 0;
         if (count > 0) {
             do {
-                if (entry->unk14 == -1) {
+                if (entry->bone == -1) {
                     if (collisionTransformTriangle(entry, out, slotMtx) != 0) {
                         out++;
                     }
                 } else {
-                    if (lastBone != entry->unk14) {
-                        modelBuildBoneChainMatrix((s32 *)((entry->unk14 << 5) + boneTable), animFrame, boneMtx);
+                    if (lastBone != entry->bone) {
+                        modelBuildBoneChainMatrix((s32 *)((entry->bone << 5) + boneTable), animFrame, boneMtx);
                         guMtxCatF(boneMtx, slotMtx, boneWorldMtx);
-                        lastBone = entry->unk14;
+                        lastBone = entry->bone;
                     }
                     if (collisionTransformTriangle(entry, out, boneWorldMtx) != 0) {
                         out++;
@@ -262,17 +262,17 @@ void collisionInitStaticCache(MapFileHeader *header) {
         cellEnd = *cellHeader;
         next = data + cellEnd;
         if (D_807FB549 != 0) {
-            D_807FB534[i].unk4 = cellStart;
+            D_807FB534[i].rawTris = cellStart;
         } else {
-            D_807FB534[i].unk4 = NULL;
+            D_807FB534[i].rawTris = NULL;
         }
-        D_807FB534[i].unk0 = NULL;
+        D_807FB534[i].tris = NULL;
         relativeOffset = cellStart - data;
-        D_807FB534[i].unkC = assetSize + relativeOffset;
-        D_807FB534[i].unk10 = (data + cellEnd) - cellStart;
+        D_807FB534[i].romAddr = assetSize + relativeOffset;
+        D_807FB534[i].size = (data + cellEnd) - cellStart;
         cellHeader = (s32 *)next;
-        D_807FB534[i].unk8 = 0;
-        D_807FB534[i].unk14 = (next - cellStart) / 24;
+        D_807FB534[i].lastUsedFrame = 0;
+        D_807FB534[i].triCount = (next - cellStart) / 24;
     }
     if (D_807FB549 == 0) {
         assetSetImmediateFree();
@@ -288,17 +288,17 @@ void collisionLoadStaticCell(s32 cell) {
     void *src;
     s32 cnt;
 
-    if (D_807FB534[cell].unk0 == NULL && cell < D_807FB538) {
-        size = D_807FB534[cell].unk10;
+    if (D_807FB534[cell].tris == NULL && cell < D_807FB538) {
+        size = D_807FB534[cell].size;
         if (size != 0) {
             if (D_807FB549 == 0) {
-                D_807FB534[cell].unk4 = heapAlloc(size);
-                dmaReadAssetDecompress(D_807FB534[cell].unkC, D_807FB534[cell].unk4, &size, 0, 0, 0, 0);
+                D_807FB534[cell].rawTris = heapAlloc(size);
+                dmaReadAssetDecompress(D_807FB534[cell].romAddr, D_807FB534[cell].rawTris, &size, 0, 0, 0, 0);
             }
-            cnt = D_807FB534[cell].unk14;
-            D_807FB534[cell].unk0 = heapAlloc(cnt * 0x28);
-            src = D_807FB534[cell].unk4;
-            dst = D_807FB534[cell].unk0;
+            cnt = D_807FB534[cell].triCount;
+            D_807FB534[cell].tris = heapAlloc(cnt * 0x28);
+            src = D_807FB534[cell].rawTris;
+            dst = D_807FB534[cell].tris;
             for (; cnt != 0; cnt--) {
                 if (collisionBuildStaticTri(src, dst) != 0) {
                     dst = (void *)((u8 *)dst + 0x28);
@@ -307,7 +307,7 @@ void collisionLoadStaticCell(s32 cell) {
             }
         }
     }
-    D_807FB534[cell].unk8 = gFrameCounter;
+    D_807FB534[cell].lastUsedFrame = gFrameCounter;
 }
 
 extern s32 gModelSlotCount;
@@ -343,13 +343,13 @@ void collisionPurgeExpiredBuffers(void) {
     s32 i;
 
     for (i = 0; i < D_807FB538; i++) {
-        if (D_807FB534[i].unk0 != NULL && (gFrameCounter - D_807FB534[i].unk8) >= 0x15) {
+        if (D_807FB534[i].tris != NULL && (gFrameCounter - D_807FB534[i].lastUsedFrame) >= 0x15) {
             if (D_807FB549 == 0) {
-                heapFree(D_807FB534[i].unk4);
-                D_807FB534[i].unk4 = NULL;
+                heapFree(D_807FB534[i].rawTris);
+                D_807FB534[i].rawTris = NULL;
             }
-            heapFree(D_807FB534[i].unk0);
-            D_807FB534[i].unk0 = NULL;
+            heapFree(D_807FB534[i].tris);
+            D_807FB534[i].tris = NULL;
         }
     }
 }
@@ -367,42 +367,42 @@ s32 collisionTransformTriangle(CollisionAssetTri *tri, CollisionBox *out, f32 (*
     f32 y2;
     f32 z2;
 
-    guMtxXFMF(mtx, (f32)tri->unk0, (f32)tri->unk2, (f32)tri->unk4, &x0, &y0, &z0);
+    guMtxXFMF(mtx, (f32)tri->x0, (f32)tri->y0, (f32)tri->z0, &x0, &y0, &z0);
     verts[0] = (s32)x0;
     verts[1] = (s32)y0;
     verts[2] = (s32)z0;
-    guMtxXFMF(mtx, (f32)tri->unk6, (f32)tri->unk8, (f32)tri->unkA, &x1, &y1, &z1);
+    guMtxXFMF(mtx, (f32)tri->x1, (f32)tri->y1, (f32)tri->z1, &x1, &y1, &z1);
     verts[3] = (s32)x1;
     verts[4] = (s32)y1;
     verts[5] = (s32)z1;
-    guMtxXFMF(mtx, (f32)tri->unkC, (f32)tri->unkE, (f32)tri->unk10, &x2, &y2, &z2);
+    guMtxXFMF(mtx, (f32)tri->x2, (f32)tri->y2, (f32)tri->z2, &x2, &y2, &z2);
     verts[6] = (s32)x2;
     verts[7] = (s32)y2;
     verts[8] = (s32)z2;
     if (collisionIsTriangleDegenerate((CollisionTri *)verts) != 0) {
         return 0;
     }
-    if (tri->unk12 & 1) {
+    if (tri->flags & 1) {
         out->unk4D = 1;
     } else {
         out->unk4D = 0;
     }
-    if (tri->unk12 & 2) {
+    if (tri->flags & 2) {
         out->unk4F = tri->unk13;
     } else {
         out->unk4F = 0;
     }
-    if (tri->unk12 & 4) {
+    if (tri->flags & 4) {
         out->unk51 = 1;
     } else {
         out->unk51 = 0;
     }
-    if (tri->unk12 & 8) {
+    if (tri->flags & 8) {
         out->unk50 = 5;
     } else {
         out->unk50 = 0xFF;
     }
-    out->unk4E = tri->unk14;
+    out->unk4E = tri->bone;
     out->x0 = (s32)(x0 * 8.0f);
     out->y0 = (s32)(y0 * 8.0f);
     out->z0 = (s32)(z0 * 8.0f);
@@ -585,19 +585,19 @@ u8 *outFlag;
 
 
 typedef struct CollisionStaticTriIn {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ s16 unk6;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
+    /* 0x00 */ s16 x0;
+    /* 0x02 */ s16 y0;
+    /* 0x04 */ s16 z0;
+    /* 0x06 */ s16 x1;
+    /* 0x08 */ s16 y1;
+    /* 0x0A */ s16 z1;
+    /* 0x0C */ s16 x2;
+    /* 0x0E */ s16 y2;
+    /* 0x10 */ s16 z2;
+    /* 0x12 */ s16 normalYaw;
     /* 0x14 */ u8 unk14;
     /* 0x15 */ u8 unk15;
-    /* 0x16 */ u8 unk16;
+    /* 0x16 */ u8 flags;
 } CollisionStaticTriIn;
 
 typedef struct CollisionStaticTriOut {
@@ -606,8 +606,8 @@ typedef struct CollisionStaticTriOut {
     /* 0x10 */ s64 nz;
     /* 0x18 */ s64 d;
     /* 0x20 */ f32 len;
-    /* 0x24 */ s16 unk24;
-    /* 0x26 */ s16 unk26;
+    /* 0x24 */ s16 minY;
+    /* 0x26 */ s16 maxY;
 } CollisionStaticTriOut;
 
 s32 collisionBuildStaticTri(void *inData, void *outData) {
@@ -618,25 +618,25 @@ s32 collisionBuildStaticTri(void *inData, void *outData) {
     s16 y;
     s16 y2;
 
-    work.x0 = in->unk0;
-    work.y0 = in->unk2;
-    work.z0 = in->unk4;
-    work.x1 = in->unk6;
-    work.y1 = in->unk8;
-    work.z1 = in->unkA;
-    work.x2 = in->unkC;
-    work.y2 = in->unkE;
-    work.z2 = in->unk10;
+    work.x0 = in->x0;
+    work.y0 = in->y0;
+    work.z0 = in->z0;
+    work.x1 = in->x1;
+    work.y1 = in->y1;
+    work.z1 = in->z1;
+    work.x2 = in->x2;
+    work.y2 = in->y2;
+    work.z2 = in->z2;
 
     work.x0 *= 8; work.y0 *= 8; work.z0 *= 8;
     work.x1 *= 8; work.y1 *= 8; work.z1 *= 8;
     work.x2 *= 8; work.y2 *= 8; work.z2 *= 8;
 
-    work.unk48 = in->unk12;
+    work.unk48 = in->normalYaw;
     work.unk4C = in->unk14;
     work.unk4D = 0;
     work.unk4F = 0;
-    if (in->unk16 & 4) {
+    if (in->flags & 4) {
         work.unk51 = 1;
     } else {
         work.unk51 = 0;
@@ -651,36 +651,36 @@ s32 collisionBuildStaticTri(void *inData, void *outData) {
     out->d = work.d;
     out->len = work.len;
 
-    y1 = in->unk8;
-    y = in->unk2;
+    y1 = in->y1;
+    y = in->y0;
     if (y < y1) {
-        out->unk24 = y;
+        out->minY = y;
     } else {
-        out->unk24 = y1;
+        out->minY = y1;
     }
-    y = out->unk24;
-    y2 = in->unkE;
+    y = out->minY;
+    y2 = in->y2;
     if (y < y2) {
-        out->unk24 = y;
+        out->minY = y;
     } else {
-        out->unk24 = y2;
+        out->minY = y2;
     }
     if (y1 == 0) {} // FAKE: extends y1 so it interferes with y2 and takes $a0
 
-    y1 = in->unk8;
-    y = in->unk2;
+    y1 = in->y1;
+    y = in->y0;
     if (y1 < y) {
-        out->unk26 = y;
+        out->maxY = y;
     } else {
-        out->unk26 = y1;
+        out->maxY = y1;
     }
-    y2 = in->unkE;
-    y = out->unk26;
+    y2 = in->y2;
+    y = out->maxY;
     if (y2 < y) {
         if (y2 == 0) {} // FAKE: extra use raises y2 priority so it takes $v0
-        out->unk26 = y;
+        out->maxY = y;
     } else {
-        out->unk26 = y2;
+        out->maxY = y2;
     }
 
     return 1;
@@ -2532,15 +2532,6 @@ s32 actorCheckPointInAngleArc(Actor *actor, f32 x, f32 z) {
     return actorAngleInArc(actor, angle) ? 1 : 0;
 }
 
-typedef struct ActorMotionSub174 {
-    u8 pad0[0x1A3];
-    u8 unk1A3;
-    u8 pad1A4[0x1C];
-    f32 unk1C0;
-    u8 pad1C4[8];
-    f32 unk1CC;
-} ActorMotionSub174;
-
 
 
 s32 actorAngleInArc(Actor *actor, s16 angle) {
@@ -2761,7 +2752,7 @@ void actorSetCameraBoundaryMode(s32 mode) {
 extern Actor *gPrimaryPlayerActor;
 
 s32 actorCheckCameraBoundaryCondition(s8 condition) {
-    ActorMotionSub174 *state;
+    PlayerState *state;
 
     switch (condition) {
     case 0:
@@ -2794,13 +2785,13 @@ s32 actorCheckCameraBoundaryCondition(s8 condition) {
         return 1;
     case 6:
         state = gPrimaryPlayerActor->customState;
-        if (D_807FB53C == 3 && state->unk1A3 != 0) {
+        if (D_807FB53C == 3 && state->isHoldingObject != 0) {
             return 1;
         }
         break;
     case 7:
         state = gPrimaryPlayerActor->customState;
-        if (D_807FB53C == 6 && (gPlayerSlots->unk2C0 != 1 || state->unk1CC != state->unk1C0)) {
+        if (D_807FB53C == 6 && (gPlayerSlots->unk2C0 != 1 || state->targetScale[0] != state->currentScale[0])) {
             return 1;
         }
         break;
