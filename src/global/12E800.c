@@ -24,14 +24,6 @@ extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerStruct *gPlayerSlots;
 
-typedef struct D1S174 {
-    /* 0x000 */ u8 pad0[0x1F0];
-    /* 0x1F0 */ u32 unk1F0;
-    /* 0x1F4 */ u8 pad1F4[4];
-    /* 0x1F8 */ u32 unk1F8;
-} D1S174;
-
-
 extern u8 gGameMode;
 extern s32 gCurrentMap;
 
@@ -103,19 +95,19 @@ void actorApplyGravity(void) {
 }
 
 void actorTurnTowardTarget(u8 mode, f32 targetX, f32 targetZ, u16 flags) {
-    s16 *cur = &gCurrentActor->yaw;
-    s16 *cur2 = &gCurrentActor->moveYaw;
-    s16 *tgt = &gBehaviourWorkState->unk8;
-    f32 spd;
-    u8 s;
-    s16 dist;
-    s32 e;
+    s16 *yawPtr = &gCurrentActor->yaw;
+    s16 *moveYawPtr = &gCurrentActor->moveYaw;
+    s16 *targetYawPtr = &gBehaviourWorkState->unk8;
+    f32 turnRate;
+    u8 wanderDegrees;
+    s16 yawDelta;
+    s32 pad;
 
     switch (mode) {
         case 1:
             if (gBehaviourWorkState->unk22-- == 0) {
-                s = gBehaviourWorkState->unk21;
-                *tgt = *cur + ((((randomNonNegative() >> 15) % (s * 2)) - s) << 15) / 0x168;
+                wanderDegrees = gBehaviourWorkState->unk21;
+                *targetYawPtr = *yawPtr + ((((randomNonNegative() >> 15) % (wanderDegrees * 2)) - wanderDegrees) << 15) / 0x168;
                 gBehaviourWorkState->unk22 = gBehaviourWorkState->unk23;
                 gBehaviourAnimState->flags &= ~0x2000;
                 if (gCurrentActor->yaw & 1) {
@@ -124,7 +116,7 @@ void actorTurnTowardTarget(u8 mode, f32 targetX, f32 targetZ, u16 flags) {
             }
             break;
         case 0x24:
-            *tgt = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, targetX, targetZ);
+            *targetYawPtr = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, targetX, targetZ);
             break;
         case 2:
         case 3:
@@ -137,76 +129,77 @@ void actorTurnTowardTarget(u8 mode, f32 targetX, f32 targetZ, u16 flags) {
         case 0x42:
         case 0x45:
         case 0x5B:
-            *tgt = mathAngleBetweenPoints2D(targetX, targetZ, gCurrentActor->x, gCurrentActor->z);
+            *targetYawPtr = mathAngleBetweenPoints2D(targetX, targetZ, gCurrentActor->x, gCurrentActor->z);
             break;
         case 0x10:
-            *tgt = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, targetX, targetZ);
+            *targetYawPtr = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, targetX, targetZ);
             break;
         case 0x35:
             if ((randomNonNegative() >> 15) % 0x1E == 0) {
                 gBehaviourWorkState->unk24 = (randomNonNegative() >> 15) % 0xB4;
             }
         case 7:
-            *tgt = mathAngleBetweenPoints2D(gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, gCurrentActor->x, gCurrentActor->z);
+            *targetYawPtr = mathAngleBetweenPoints2D(gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, gCurrentActor->x, gCurrentActor->z);
             break;
         case 0:
-            *tgt = *cur;
+            *targetYawPtr = *yawPtr;
             break;
     }
-    dist = mathAngleSignedDistance(*tgt, *cur);
+    yawDelta = mathAngleSignedDistance(*targetYawPtr, *yawPtr);
     if (!(flags & 0x100) && mode != 0x37) {
         if (flags & 4) {
-            spd = gBehaviourWorkState->unk1E;
+            turnRate = gBehaviourWorkState->unk1E;
         } else {
-            spd = (gBehaviourWorkState->flags & 0x80)
+            turnRate = (gBehaviourWorkState->flags & 0x80)
                 ? (gBehaviourWorkState->unk1E / 2)
                 : (gBehaviourWorkState->unk1E /
                    (((0.1 < gCurrentActor->speedXZ / 30.0 ? gCurrentActor->speedXZ / 30.0 : 0.1) < 2.0)
                         ? (0.1 < gCurrentActor->speedXZ / 30.0 ? gCurrentActor->speedXZ / 30.0 : 0.1)
                         : 2.0));
         }
-        *cur = mathAngleEaseToward(*cur, *tgt, spd);
+        *yawPtr = mathAngleEaseToward(*yawPtr, *targetYawPtr, turnRate);
         if ((gCurrentActor->contactFlags & 1) || (flags & 0x80) || (gCurrentActor->collisionFlags & 0x40)) {
-            *cur2 = mathAngleEaseToward(*cur2, *cur, gBehaviourWorkState->unk1F);
+            *moveYawPtr = mathAngleEaseToward(*moveYawPtr, *yawPtr, gBehaviourWorkState->unk1F);
         }
     }
     if (flags & 0x40) {
-        gCurrentActor->pitch = (((dist > -0x320 ? dist : -0x320) < 0x320 ? (dist > -0x320 ? dist : -0x320) : 0x320) - gCurrentActor->pitch) * 0.1 + gCurrentActor->pitch;
+        gCurrentActor->pitch = (((yawDelta > -0x320 ? yawDelta : -0x320) < 0x320 ? (yawDelta > -0x320 ? yawDelta : -0x320) : 0x320) - gCurrentActor->pitch) * 0.1 + gCurrentActor->pitch;
     }
     if (flags & 4) {
-        if (dist != 0) {
-            f32 t = dist * gBehaviourAnimState->unk2C;
-            f32 a = 0.0f < t ? t : -t;
+        if (yawDelta != 0) {
+            f32 rampSpeed = yawDelta * gBehaviourAnimState->unk2C;
+            f32 absRampSpeed = 0.0f < rampSpeed ? rampSpeed : -rampSpeed;
 
-            scriptSetActorRampTarget(gCurrentActor, a > 1.0 ? 1.0 : a, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, absRampSpeed > 1.0 ? 1.0 : absRampSpeed, 0.0f);
         }
     }
 }
 
-typedef struct D1Tbl8075EB80 {
+// Row of the 0x18-byte spawn table D_8075EB80 (1295B0.c SpawnEntry; only the shadow scales read here).
+typedef struct SpawnEntry {
     /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ u8 unk14;
-    /* 0x15 */ u8 unk15;
+    /* 0x14 */ u8 shadowScaleX;
+    /* 0x15 */ u8 shadowScaleZ;
     /* 0x16 */ u8 pad16[2];
-} D1Tbl8075EB80; // size = 0x18
+} SpawnEntry; // size = 0x18
 
-extern D1Tbl8075EB80 D_8075EB80[];
+extern SpawnEntry D_8075EB80[];
 
 void behaviourUpdateShadowAlpha(void) {
-    u8 a;
-    u8 b;
-    u8 c;
-    D1Tbl8075EB80 *e;
+    u8 shadowAlpha;
+    u8 shadowWidth;
+    u8 shadowDepth;
+    SpawnEntry *entry;
     ActorSub4 *sub;
 
     if (!(gCurrentActor->flags & 0x1000000) && (gCurrentActor->flags & 4)) {
         if (!(gBehaviourAnimState->flags & 0x100)) {
-            a = (gCurrentActor->alpha * 0.7);
+            shadowAlpha = (gCurrentActor->alpha * 0.7);
             sub = gCurrentActor->sub4;
-            e = &D_8075EB80[gBehaviourAnimState->entryIndex];
-            b = (sub->scaleX * e->unk14 * gBehaviourAnimState->unk30);
-            c = (sub->scaleZ * e->unk15 * gBehaviourAnimState->unk30);
-            billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, b, c, 1, 0x12C, a, gCurrentActor->yaw, 1.0f);
+            entry = &D_8075EB80[gBehaviourAnimState->entryIndex];
+            shadowWidth = (sub->scaleX * entry->shadowScaleX * gBehaviourAnimState->unk30);
+            shadowDepth = (sub->scaleZ * entry->shadowScaleZ * gBehaviourAnimState->unk30);
+            billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, shadowWidth, shadowDepth, 1, 0x12C, shadowAlpha, gCurrentActor->yaw, 1.0f);
         }
     }
 }
@@ -241,39 +234,39 @@ void actorUpdateStationaryTimer(void) {
 }
 
 
-void actorSetPitchVelocity(s16 arg0, f32 arg1, f32 arg2, f32 arg3, u16 arg4) {
-    gCurrentActor->speedY = mathSinF(gCurrentActor->movePitch) * -arg3;
-    actorMoveWithinZone(arg0, arg1, arg2, (arg4 & 0xFFFF) | 0x1080, 0.5 * gCurrentActor->eyeHeight);
+void actorSetPitchVelocity(s16 state, f32 targetX, f32 targetZ, f32 speed, u16 flags) {
+    gCurrentActor->speedY = mathSinF(gCurrentActor->movePitch) * -speed;
+    actorMoveWithinZone(state, targetX, targetZ, (flags & 0xFFFF) | 0x1080, 0.5 * gCurrentActor->eyeHeight);
 }
 
-void actorPitchEaseTowardPoint(s16 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, f32 arg6, f32 arg7, u16 arg8) {
-    gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, (mathCalculatePitchAngle(arg2, arg3, arg4, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, arg5) * 2048.0 / 3.14159274101257324), arg6);
-    gCurrentActor->movePitch = mathAngleEaseToward(gCurrentActor->movePitch, (mathCalculatePitchAngle(arg2, arg1 + arg3, arg4, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, arg5) * 2048.0 / 3.14159274101257324), arg6);
-    actorSetPitchVelocity(arg0, arg2, arg4, arg7, arg8);
+void actorPitchEaseTowardPoint(s16 state, s16 pitchYOffset, f32 targetX, f32 targetY, f32 targetZ, u8 minDist, f32 easeRate, f32 speed, u16 flags) {
+    gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, (mathCalculatePitchAngle(targetX, targetY, targetZ, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, minDist) * 2048.0 / 3.14159274101257324), easeRate);
+    gCurrentActor->movePitch = mathAngleEaseToward(gCurrentActor->movePitch, (mathCalculatePitchAngle(targetX, pitchYOffset + targetY, targetZ, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, minDist) * 2048.0 / 3.14159274101257324), easeRate);
+    actorSetPitchVelocity(state, targetX, targetZ, speed, flags);
 }
 
 void func_8072AA80(void) {
-    s16 lim;
+    s16 maxY;
     s32 rnd;
-    s32 base;
+    s32 minY;
 
     if (gBehaviourExtraState->unkAWide != 0) {
-        lim = gBehaviourExtraState->y + gCurrentActor->eyeHeight + gBehaviourExtraState->unkAWide;
+        maxY = gBehaviourExtraState->y + gCurrentActor->eyeHeight + gBehaviourExtraState->unkAWide;
     } else {
-        lim = (s16)gCurrentActor->waterY - gCurrentActor->eyeHeight;
+        maxY = (s16)gCurrentActor->waterY - gCurrentActor->eyeHeight;
     }
     rnd = (randomNonNegative() >> 15) % 0x7FFF;
-    base = gBehaviourExtraState->y + gCurrentActor->eyeHeight;
-    gBehaviourWorkState->targetY = rnd % (lim - base + 1) + base;
+    minY = gBehaviourExtraState->y + gCurrentActor->eyeHeight;
+    gBehaviourWorkState->targetY = rnd % (maxY - minY + 1) + minY;
 }
 
 // Zone.unk19 is s8; this site reads it as u8 (lbu), so the view stays.
-typedef struct E3DcA0 {
+typedef struct ZoneByteView {
     /* 0x00 */ u8 pad0[0x19];
     /* 0x19 */ u8 unk19;
-} E3DcA0;
+} ZoneByteView;
 
-#define E3CA0 ((E3DcA0 *)D_807FDCA0)
+#define E3CA0 ((ZoneByteView *)D_807FDCA0)
 
 
 u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floorYOffset) {
@@ -394,14 +387,9 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floor
     return result;
 }
 
-typedef struct D1Unk174 {
-    /* 0x00 */ u8 pad0[0x26];
-    /* 0x26 */ s16 unk26;
-} D1Unk174;
-
 void actorSetTargetSpeed(Actor *actor, s32 speed) {
-    D1Unk174 *s = actor->customState;
-    s->unk26 = speed;
+    BehaviourWorkState *workState = actor->customState;
+    workState->unk26 = speed;
 }
 
 
@@ -478,7 +466,7 @@ void behaviourSetAnimIds(s16 anim0, s16 anim1, s16 anim2) {
 
 extern u8 D_8071FC58[];
 
-void behaviourUpdateContactAndState(s32 arg0) {
+void behaviourUpdateContactAndState(s32 scriptId) {
     actorUpdatePrevContactFlags(gCurrentActor);
     switch (gCurrentActor->state) {
         case 9:
@@ -675,10 +663,10 @@ void behaviourUpdateContactAndState(s32 arg0) {
             }
             break;
         case 0x3D:
-            actorSetBehaviourState(0x3F, 0, arg0);
+            actorSetBehaviourState(0x3F, 0, scriptId);
             break;
         case 0x3E:
-            actorSetBehaviourState(1, gBehaviourExtraState->targetSpeed, arg0);
+            actorSetBehaviourState(1, gBehaviourExtraState->targetSpeed, scriptId);
             break;
         case 0x3F:
             func_80724E48(0);
@@ -686,63 +674,56 @@ void behaviourUpdateContactAndState(s32 arg0) {
     }
 }
 
-typedef struct D1S174b {
-    /* 0x000 */ u8 pad0[0xD4];
-    /* 0x0D4 */ s16 unkD4;
-    /* 0x0D6 */ u8 padD6[0x11A];
-    /* 0x1F0 */ u32 unk1F0;
-} D1S174b;
-
 extern u8 gPlayerCount;
 extern u32 gGlobalOverlayFlags;
 
 u8 behaviourCheckTargetCollisionMode(u8 checkMode, u8 *outTarget) {
-    D1S174b *st = gBehaviourTargetActor->customState;
-    u8 ret;
-    u8 t;
+    PlayerState *playerState = gBehaviourTargetActor->customState;
+    u8 nextState;
+    u8 defaultState;
 
     *outTarget = 1;
     if (gCurrentActor->collisionFlags & 2) {
         if (gCurrentActor->state != 0x15 &&
             ((gBehaviourTargetActor->actorType == 6 && gPlayerSlots->unk2C0 == 2 && gPlayerCount == 1) ||
-             ((gBehaviourTargetActor->collisionFlags & 1) && (st->unk1F0 & 0x10)))) {
-            ret = 7;
+             ((gBehaviourTargetActor->collisionFlags & 1) && (playerState->stateFlags & 0x10)))) {
+            nextState = 7;
         } else if (gBehaviourWorkState->unk37 == 7 && checkMode != 0 && !(gBehaviourWorkState->flags & 0x200) && gBehaviourWorkState->unk20 == 0) {
             gBehaviourWorkState->unk20 = 0x10;
             if (zoneFindBestReachablePoint(0x81, gCurrentActor, D_807FDCA0, &gBehaviourWorkState->targetX, &gBehaviourWorkState->targetY, &gBehaviourWorkState->targetZ) == 0) {
-                ret = 0x10;
+                nextState = 0x10;
             } else {
-                ret = 7;
+                nextState = 7;
             }
         } else {
             if (gBehaviourWorkState->unk20 != 0) {
                 gBehaviourWorkState->unk20 = gBehaviourWorkState->unk20 - 1;
             }
-            if ((gBehaviourTargetActor->collisionFlags & 1) && st->unkD4 != 0 && !(gGlobalOverlayFlags & 0x100000)) {
-                ret = 1;
+            if ((gBehaviourTargetActor->collisionFlags & 1) && playerState->surfaceTimer != 0 && !(gGlobalOverlayFlags & 0x100000)) {
+                nextState = 1;
                 *outTarget = 0;
             } else if (gBehaviourWorkState->flags & 0x400) {
-                ret = gBehaviourWorkState->unk37;
+                nextState = gBehaviourWorkState->unk37;
             } else {
-                t = gBehaviourExtraState->actorState;
-                if (t == 7) {
-                    ret = 1;
+                defaultState = gBehaviourExtraState->actorState;
+                if (defaultState == 7) {
+                    nextState = 1;
                 } else {
-                    ret = t;
+                    nextState = defaultState;
                 }
             }
         }
     } else {
-        ret = gBehaviourExtraState->actorState;
+        nextState = gBehaviourExtraState->actorState;
     }
-    if (ret == 9) {
-        ret = 1;
+    if (nextState == 9) {
+        nextState = 1;
     }
-    return ret;
+    return nextState;
 }
 
 
-void func_8072C870(u8 state, u8 subState, s32 param) {
+void func_8072C870(u8 state, u8 speed, s32 scriptId) {
     if (state == 7) {
         if (zoneFindBestReachablePoint(1, gCurrentActor, D_807FDCA0, &gBehaviourWorkState->targetX, &gBehaviourWorkState->targetY, &gBehaviourWorkState->targetZ) == 0) {
             state = 0x10;
@@ -750,18 +731,18 @@ void func_8072C870(u8 state, u8 subState, s32 param) {
         }
     }
     gBehaviourWorkState->unk36 = state;
-    actorSetBehaviourState(state, subState, param);
+    actorSetBehaviourState(state, speed, scriptId);
 }
 
-typedef struct C1Act {
+typedef struct TwoComponentActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ s16 *unk178; // second component pointer
-} C1Act;
+    /* 0x178 */ s16 *secondComponent; // second component pointer
+} TwoComponentActor;
 
-#define C1B40 ((C1Act *)gCurrentActor)
+#define C1B40 ((TwoComponentActor *)gCurrentActor)
 
-void enemyAggroStateUpdate(s32 aggroDist, s32 arg1, s32 arg2) {
-    D1S174 *st;
+void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId) {
+    PlayerState *playerState;
     s32 dist;
     u8 pad0;
     u8 type;
@@ -771,7 +752,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 arg1, s32 arg2) {
     s32 near;
     Actor *me;
 
-    st = gBehaviourTargetActor->customState;
+    playerState = gBehaviourTargetActor->customState;
     me = gCurrentActor;
 #define SQ(x) ((x) * (x))
     dist = (SQ(me->x - gBehaviourTargetActor->x) + SQ(me->y - gBehaviourTargetActor->y) + SQ(me->z - gBehaviourTargetActor->z));
@@ -784,7 +765,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 arg1, s32 arg2) {
     } else {
         ang = gBehaviourWorkState->unk8 - me->moveYaw;
     }
-    if ((zoneCanReachPoint(me, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, D_807FDCA0) != 0) && !(gBehaviourAnimState->flags & 0x2000) && !(st->unk1F0 & 0x8000)) {
+    if ((zoneCanReachPoint(me, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, D_807FDCA0) != 0) && !(gBehaviourAnimState->flags & 0x2000) && !(playerState->stateFlags & 0x8000)) {
         gBehaviourWorkState->flags |= 0x400;
     } else {
         gBehaviourWorkState->flags &= 0xFBFF;
@@ -808,31 +789,31 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 arg1, s32 arg2) {
             if ((near & 0xFF) && (gCurrentActor->flags & 0x100) && (hasTarget != 0) && (gBehaviourWorkState->flags & 0x400)) {
                 if (gBehaviourWorkState->flags & 0x800) {
                     if (behaviourIsTargetWithinAngle(0x2710) != 0) {
-                        actorSetBehaviourState(type, gBehaviourExtraState->unkD, arg2);
+                        actorSetBehaviourState(type, gBehaviourExtraState->unkD, chaseScriptId);
                         return;
                     }
                 }
                 if (!(gBehaviourWorkState->flags & 0x800)) {
-                    actorSetBehaviourState(type, gBehaviourExtraState->unkD, arg2);
+                    actorSetBehaviourState(type, gBehaviourExtraState->unkD, chaseScriptId);
                     return;
                 }
             }
             break;
         case 0x34:
-            me = (Actor *)C1B40->unk178; // FAKE: reuses me for the second component pointer
+            me = (Actor *)C1B40->secondComponent; // FAKE: reuses me for the second component pointer
             if (dist < *(s16 *)me) {
-                actorSetBehaviourState(0x24, 0, arg1);
+                actorSetBehaviourState(0x24, 0, returnScriptId);
                 return;
             }
         case 0x23:
             if ((ret ^ 0) == gBehaviourWorkState->unk36) { // FAKE: flips beq operand order (field left)
             } else if ((hasTarget == 0) || ((s32)ret >= 7)) {
-                func_8072C870(type, gBehaviourExtraState->unkD, arg2);
+                func_8072C870(type, gBehaviourExtraState->unkD, chaseScriptId);
                 return;
             }
             if (near & 0xFF) {
                 if (!(gBehaviourWorkState->flags & 0x400)) {
-                    actorSetBehaviourState(0x35, (gBehaviourExtraState->targetSpeed * 0.667), arg1);
+                    actorSetBehaviourState(0x35, (gBehaviourExtraState->targetSpeed * 0.667), returnScriptId);
                     gBehaviourWorkState->unk20 = 0x3C;
                     gBehaviourWorkState->targetX = gBehaviourTargetActor->prevX;
                     gBehaviourWorkState->targetY = gBehaviourTargetActor->prevY;
@@ -840,17 +821,17 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 arg1, s32 arg2) {
                     return;
                 }
                 if (gBehaviourWorkState->unk26 < gBehaviourExtraState->unkD) {
-                    actorSetBehaviourState(type, gBehaviourExtraState->unkD, arg2);
+                    actorSetBehaviourState(type, gBehaviourExtraState->unkD, chaseScriptId);
                     return;
                 }
             } else {
-                actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, arg1);
+                actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, returnScriptId);
                 return;
             }
             break;
         case 0x33:
             if ((!(near & 0xFF) || !(gBehaviourWorkState->flags & 0x400)) && (gCurrentActor->contactFlags & 1)) {
-                actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, arg1);
+                actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, returnScriptId);
                 return;
             }
             break;
@@ -859,31 +840,31 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 arg1, s32 arg2) {
                 if (!(gBehaviourWorkState->flags & 0x80)) {
                     actorSetDefaultState(gBehaviourAnimState->animId1);
                 } else {
-                    func_8072C870(7, gBehaviourExtraState->unkD, arg2);
+                    func_8072C870(7, gBehaviourExtraState->unkD, chaseScriptId);
                 }
             }
         case 0x10:
             if (type != gBehaviourWorkState->unk36) {
-                func_8072C870(type, gBehaviourExtraState->unkD, arg2);
+                func_8072C870(type, gBehaviourExtraState->unkD, chaseScriptId);
             }
             if (near & 0xFF) {
                 if (!(gBehaviourWorkState->flags & 0x400)) {
-                    actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, arg1);
+                    actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, returnScriptId);
                     return;
                 }
             } else {
-                actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, arg1);
+                actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, returnScriptId);
                 return;
             }
             break;
         case 0x35:
             if (gBehaviourWorkState->flags & 0x400) {
-                actorSetBehaviourState(type, gBehaviourExtraState->unkD, arg2);
+                actorSetBehaviourState(type, gBehaviourExtraState->unkD, chaseScriptId);
                 return;
             }
             near = (gBehaviourWorkState->unk20-- == 0);
             if (near) {
-                actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, arg1);
+                actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, returnScriptId);
             }
             break;
     }
@@ -1255,13 +1236,13 @@ void actorGetNodePosOrPosition(Actor *actor, f32 *outX, f32 *outY, f32 *outZ) {
 #define E2_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define E2_MIN(a, b) ((a) < (b) ? (a) : (b))
 
-void func_8072E320(f32 arg0) {
-    f32 v;
+void func_8072E320(f32 tiltScale) {
+    f32 targetPitch;
 
     gCurrentActor->moveYaw = gCurrentActor->yaw;
     gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, gCurrentActor->prevX, gCurrentActor->prevZ), 3.3f);
-    v = E2_MIN(E2_MAX(mathAngleSignedDistance(gCurrentActor->yaw, gCurrentActor->moveYaw) * arg0, -900.0f), 900.0f);
-    gCurrentActor->pitch = (v - gCurrentActor->pitch) * 0.1 + gCurrentActor->pitch;
+    targetPitch = E2_MIN(E2_MAX(mathAngleSignedDistance(gCurrentActor->yaw, gCurrentActor->moveYaw) * tiltScale, -900.0f), 900.0f);
+    gCurrentActor->pitch = (targetPitch - gCurrentActor->pitch) * 0.1 + gCurrentActor->pitch;
     gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, mathCalculatePitchAngle(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, gCurrentActor->prevX, gCurrentActor->prevY, gCurrentActor->prevZ, 0x1E) * 2048.0 / 3.1415927f, 3.3f);
 }
 
