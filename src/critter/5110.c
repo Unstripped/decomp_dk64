@@ -95,7 +95,7 @@ void critterBattleArenaUpdate(void) {
                 mapChallengeIdx = 3;
                 break;
             }
-            resQueueAttachActor(gCurrentActor, 0x19, *(u8 *)((char *)&mapChallengeIdx + 3)); // FAKE: byte read through the address of mapChallengeIdx; the plain u8 argument compiles the same but the default-less switch then leaves it uninitialised (clint)
+            resQueueAttachActor(gCurrentActor, 0x19, mapChallengeIdx);
             gCurrentActor->state = 1;
             hudSpawnCountdownTimer(0xDC, 0x2A, challengeState->timeLimit);
         }
@@ -110,10 +110,8 @@ void critterBattleArenaUpdate(void) {
         break;
     case 0x2:
         alignedBuf = dmaBuffer;
-        if ((s32)alignedBuf & 7) {
-            do {
-                alignedBuf = (s32 *)((char *)alignedBuf + 4);
-            } while ((s32)alignedBuf & 7);
+        while ((s32)alignedBuf & 7) {
+            alignedBuf++;
         }
         dcacheFunc = (void (*)(void *, s32))critterBitwiseNot(~(s32)osWritebackDCache);
         if (D_80029FA0 <= 0) {
