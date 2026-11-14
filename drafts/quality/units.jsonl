@@ -322,3 +322,4 @@
 {"type": "unit", "t": "2026-11-14T18:42:33Z", "unit": "2026-11-14: cleanup HackactorConfigLookup", "commit": "1512d293f9c508d0115effa8751699efb3e8fd0d"}
 {"type": "unit", "t": "2026-11-14T18:42:39Z", "unit": "2026-11-14: cleanup HackjetpacStateGameOver", "commit": "4f9435cacf68bd2ee83714ad2e0aba69660df292"}
 {"type": "unit", "t": "2026-11-14T18:45:02Z", "unit": "2026-11-14: cleanup Hackfunc_806C8220", "commit": "a05aaf47215689feecc96ae760262d12a8004bc8"}
+{"type": "unit", "t": "2026-11-14T18:45:05Z", "unit": "2026-11-14: cleanup HackbehaviourFlyPatrolWithCallback", "commit": "4596febc0a5b7a07c4160a9e619f4bab4000d018"}
