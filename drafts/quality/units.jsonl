@@ -465,3 +465,4 @@
 {"type": "unit", "t": "2026-11-14T21:09:55Z", "unit": "2026-11-14: cleanup PolishBoss6240Names", "commit": "5cb4df5972835630838b2bbb0600dfb34523e6a3"}
 {"type": "unit", "t": "2026-11-14T21:10:11Z", "unit": "2026-11-14: cleanup PolishGlobal80150Names", "commit": "c9351b15f3eb446b02ba53af41aa9502cb0ddc60"}
 {"type": "unit", "t": "2026-11-14T21:10:53Z", "unit": "2026-11-14: cleanup PolishCritter0Names", "commit": "da94d07c8459eeb8356c4be9c9a31a9b89ce725d"}
+{"type": "unit", "t": "2026-11-14T21:11:59Z", "unit": "2026-11-14: cleanup OwnerAnimCacheSlotShared", "commit": "90dd3611254da2cdf331f59206dbd8e8949dd22e"}
