@@ -3317,11 +3317,10 @@ s32 menuEvaluateSelectorSpline(MenuScreenState *state, s32 index, f32 *outPosX, 
 s32 menuComputeElementPosition(MenuScreenState *state, f32 baseX, f32 baseY, f32 *outPosX, f32 *outPosY, s32 count, s8 mode, f32 factor) {
     f32 dist;
     f32 f;
-    f32 t;
+    f32 t = 0.0f;
     s32 idx;
 
     baseX = baseX - 160.0f;
-    t = 0.0f; // FAKE: zero parked in t for the `t != f` scroll test below; `f != 0.0f` recolours the function
     baseY = baseY - 120.0f;
     dist = sqrtf((baseX * baseX) + (baseY * baseY));
     if (dist < 20.0f) {
