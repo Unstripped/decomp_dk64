@@ -2,7 +2,8 @@
 #ifndef PROTO_GLOBAL_F4C0_H
 #define PROTO_GLOBAL_F4C0_H
 #include "common.h"
+#include "actor.h"
 #ifndef PROTO_SKIP_mapActionLookupEntry
-s16 mapActionLookupEntry(s16, void *, u8);
+s16 mapActionLookupEntry(s16, Actor *, u8);
 #endif
 #endif

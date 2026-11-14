@@ -1,10 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_mapActionLookupEntry
 #include "proto/global/F4C0.h"
-
-s16 mapActionLookupEntry(s16 actionId, Actor *actor, u8 subType);
 
 typedef struct {
     s16 actionId;
