@@ -9,7 +9,7 @@
 #include "proto/global/6710.h"
 #include "proto/global/13D170.h"
 
-void alCSPSendMidi(); // FAKE: callee prototype steer (header u8 byte2 masks seqPlayerSendMidi arg)
+void alCSPSendMidi(); // ORIG: target passes seqPlayerSendMidi's s32 byte2 unmasked (lw t8,48(sp) at 0xc74, sw t8,16(sp) at 0xca0, no andi): the original TU had no u8 prototype for alCSPSendMidi in scope
 
 void postCSPChannelCommand(ALCSPlayer *, u8, u8, u8, s32);
 void alCSPSetChlPanVolume(ALCSPlayer *, f32, f32);
