@@ -22,6 +22,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - proxPathAdd/proxPathSetSegment -> `s32 id` (optional) would drop 36880's `(Actor *)id` casts.
 - Shared MapViewEntries (owner 2F550, 0x8 = dl) would let 55B20 drop MapChunkArg; renderEntryListBuildDisplayList last parameter s32 vs u8 (owner 35000) blocks the mapChunksRender proto-steer.
 - jetpac/4FC0 `extern JetpacPlayerActor jetpacPlayer`: JetpacState raises its cfe 1 -> 2 (3480 and 1A60 already use JetpacState).
+- jetpac/1A60 jetpacUpdatePlayerMovement volatile 1d4065 / 1d4065#2: blocked. Director REJECTED `volatile s32 flying` in jetpac.h JetpacPlayerActor: it only moves a codegen-only volatile into a shared header and hides it. Both sites stay tagged `blocked` (HackjetpacUpdatePlayerMovement, 2026-11-14; evidence .scratch/HackjetpacUpdatePlayerMovement/).
 - gActiveActors/gActiveActorCount: file-local externs in 33 files (header move candidate, actor.h).
 - 42630 csCmdExec proto-type 89a542 (hudSpawnCountdownTimer arity, owner A7710) stays blocked. W712 3ae317 fixed in round 31 (119370 effectGridFindByTargetId returns EffectGridAsset *, 8c4e5c7c). 450 2e505d actorMapModelsSetup stays (round 27: 8D3E0 kept actorMapModelsSetup(s32, u8, u8)).
 - Extern unification left: gPlayerSlots keeps void * in 1025E0, 10E1D0, 11BC10, 12E800, 1332B0, 2C910, F93B0, FCCD0, u8 * in 9BF30, s32 in 9DD70, plus 17 file-local view types (retire the views first). D_807FD568 is `KongInventory *` in every file (OwnerKongInventoryPtr 0c0021b1 + OwnerModelSlotsViews 4d0a8baf).
