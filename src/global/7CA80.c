@@ -90,12 +90,6 @@ static void actorStub7CA80_04(void);
 static void actorStub7CA80_05(void);
 static void actorStub7CA80_06(void);
 
-typedef struct AnimCacheSlot {
-    s32 id;
-    s32 refCount;
-    s32 asset;
-} AnimCacheSlot;
-
 typedef struct ActorAssetHeader {
     s32 unk0;
     s32 soundTableOffset;
@@ -103,9 +97,7 @@ typedef struct ActorAssetHeader {
     s32 indexTableOffset;
 } ActorAssetHeader;
 
-extern AnimCacheSlot D_807FB7B0[32];
 extern u16 D_807FBB30;
-extern u16 D_807FBB32;
 extern ActorAssetHeader *gActorScriptAsset;
 extern void *gActorScriptIndexTable;
 extern void *gActorScriptAnimTable;
@@ -125,7 +117,7 @@ void actorInit(void) {
     for (i = 0; i < 32; i++) {
         D_807FB7B0[i].id = 0xFFFF;
         D_807FB7B0[i].refCount = 0;
-        D_807FB7B0[i].asset = 0;
+        D_807FB7B0[i].asset = NULL;
     }
     D_807FBB32 = 0;
 

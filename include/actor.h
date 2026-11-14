@@ -881,6 +881,16 @@ typedef struct ControllerStateEntry {
 } ControllerStateEntry; // size = 0xC
 extern ControllerStateEntry D_807FB630[32];
 
+// One animation-clip cache slot (actorInit 7CA80; controllerAnimCacheGetOrLoad/controllerAnimCacheFree, 17B90);
+// D_807FB7B0[32] spans .bss 0x807FB7B0..0x807FB930, D_807FBB32 counts the used slots (packed from 0).
+typedef struct AnimCacheEntry {
+    /* 0x00 */ s32 id; // clip asset id, 0xFFFF when free
+    /* 0x04 */ s32 refCount;
+    /* 0x08 */ void *asset;
+} AnimCacheEntry; // size = 0xC
+extern AnimCacheEntry D_807FB7B0[32];
+extern u16 D_807FBB32;
+
 // camSetTarget's parameter block inside CamState (0x44).
 typedef struct CamTargetBlock {
     /* 0x00 */ struct Actor *unk0;

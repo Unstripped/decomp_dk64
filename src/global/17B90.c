@@ -10,7 +10,6 @@
 #include "proto/global/8CA50.h"
 
 extern u16 D_807FBB30;
-extern u16 D_807FBB32;
 extern PlayerState *gActivePlayerState;
 
 extern u8 D_80746B64[];
@@ -366,12 +365,6 @@ typedef struct {
 } ControllerSubB;
 
 
-struct AnimCacheEntry {
-    s32 id;
-    s32 refCount;
-    void *asset;
-};
-extern struct AnimCacheEntry D_807FB7B0[];
 void controllerAnimFreeSub(Actor *controller, u8 slotIndex) {
     ControllerSubB *sub;
     ControllerCmdB *cmd;
@@ -666,9 +659,6 @@ void controllerAnimSetDirect(Actor *actor, u16 animId, f32 animSpeed, u8 flags) 
     }
     controllerApplyMotionWindow(actor, slot, animSpeed);
 }
-
-typedef struct AnimCacheEntry AnimCacheEntry;
-extern AnimCacheEntry D_807FB7B0[];
 
 void *controllerAnimCacheGetOrLoad(s32 id) {
     AnimCacheEntry *entry;
