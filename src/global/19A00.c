@@ -1082,11 +1082,12 @@ typedef struct ScriptTarget {
     u8 flags;
 } ScriptTarget;
 
-typedef struct ActorTargetView {
+// Script-driven actor: its third component (0x17C) is the ScriptTarget func_80616DB4 flags.
+typedef struct ScriptTargetActor {
     Actor base;
-    void *unk178;
-    ScriptTarget *unk17C;
-} ActorTargetView;
+    void *secondComponent;
+    ScriptTarget *scriptTarget;
+} ScriptTargetActor;
 
 s32 scriptOpHalt(Actor *actor) {
     return 0;
@@ -1096,7 +1097,7 @@ s32 func_80616DB4(Actor *actor) {
     ScriptTarget *target;
     u8 flag;
 
-    target = ((ActorTargetView *)actor)->unk17C;
+    target = ((ScriptTargetActor *)actor)->scriptTarget;
     sScriptPc++;
     scriptReadU8(&flag);
     target->flags |= flag;
@@ -1729,10 +1730,11 @@ void scriptCmdPlayActorSound(Actor *actor) {
     scriptReadU32(&imm);
 }
 
-typedef struct ActorScriptView {
+// Actor type 0x134: func_80619520 returns its second component (0x178).
+typedef struct SecondComponentActor {
     Actor base;
-    void *unk178;
-} ActorScriptView;
+    void *secondComponent;
+} SecondComponentActor;
 
 void scriptCmdCheckGlobalToggle(Actor *actor) {
     if (gActivePlayerState->unk64 != 0) {
@@ -2077,7 +2079,7 @@ void *func_80619520(Actor *actor) {
 
     result = NULL;
     if (actor->actorType == 0x134) {
-        result = ((ActorScriptView *)actor)->unk178;
+        result = ((SecondComponentActor *)actor)->secondComponent;
     }
     return result;
 }

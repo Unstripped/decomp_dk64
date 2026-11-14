@@ -112,24 +112,25 @@ Actor *actorFromSpawnNodeOrDefault(s16 nodeId) {
 }
 
 
-// Third component (0x17C) of the actors that cutscene commands 0x33, 0x34 and 0x3C address.
-typedef struct CamPathCmdComponent {
+// Third component (0x17C) of the scripted actors that cutscene commands 0x33, 0x34 and 0x3C address:
+// a view of C4620.c's ScriptedActorState (same particle fields at 0x22 and 0x30-0x33).
+typedef struct ScriptedActorParticleView {
     /* 0x00 */ u8 pad0[0xD];
     /* 0x0D */ u8 unkD;
     /* 0x0E */ u8 padE[0x22 - 0xE];
-    /* 0x22 */ u8 unk22;
+    /* 0x22 */ u8 particleScalePct;
     /* 0x23 */ u8 pad23[0x30 - 0x23];
-    /* 0x30 */ u8 unk30;
-    /* 0x31 */ u8 unk31;
-    /* 0x32 */ u8 unk32;
-    /* 0x33 */ u8 unk33;
-} CamPathCmdComponent;
+    /* 0x30 */ u8 particlePath;
+    /* 0x31 */ u8 particleCount;
+    /* 0x32 */ u8 particleColor;
+    /* 0x33 */ u8 particleSprite;
+} ScriptedActorParticleView;
 
-typedef struct CamPathCmdActor {
+typedef struct ScriptedActor {
     /* 0x000 */ Actor base;
     /* 0x178 */ void *unk178;
-    /* 0x17C */ CamPathCmdComponent *unk17C;
-} CamPathCmdActor;
+    /* 0x17C */ ScriptedActorParticleView *scriptState;
+} ScriptedActor;
 
 extern struct GfSndState *D_807457E4[];
 extern u16 D_80747750[];
@@ -165,7 +166,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
     s16 idx;
     s16 node;
     Actor *p;
-    CamPathCmdComponent *comp;
+    ScriptedActorParticleView *comp;
 
     playerState = gPrimaryPlayerActor->customState;
     actorFindActiveByType(0xC, &camTarget);
@@ -205,16 +206,16 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             playerKongStopSoundByState(gPrimaryPlayerActor);
             return;
         case 0x33:
-            comp = ((CamPathCmdActor *)actorFromSpawnNodeOrDefault(a))->unk17C;
-            comp->unk30 = 0xFE;
-            comp->unk33 = b;
-            comp->unk22 = c;
-            comp->unk32 = d;
-            comp->unk31 = 1;
+            comp = ((ScriptedActor *)actorFromSpawnNodeOrDefault(a))->scriptState;
+            comp->particlePath = 0xFE;
+            comp->particleSprite = b;
+            comp->particleScalePct = c;
+            comp->particleColor = d;
+            comp->particleCount = 1;
             return;
         case 0x34:
-            comp = ((CamPathCmdActor *)actorFromSpawnNodeOrDefault(a))->unk17C;
-            comp->unk30 = 0xFF;
+            comp = ((ScriptedActor *)actorFromSpawnNodeOrDefault(a))->scriptState;
+            comp->particlePath = 0xFF;
             return;
         case 0x0:
             playerState->unk70 = gPrimaryPlayerActor->yaw;
@@ -452,7 +453,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             sfxSetMode(a & 0xFF);
             return;
         case 0x3C:
-            comp = ((CamPathCmdActor *)spawnNodeActivate(1, 0))->unk17C;
+            comp = ((ScriptedActor *)spawnNodeActivate(1, 0))->scriptState;
             comp->unkD |= a;
             return;
         case 0x3B:

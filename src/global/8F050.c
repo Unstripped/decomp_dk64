@@ -6,17 +6,19 @@
 #include "proto/global/8CA50.h"
 #include "proto/global/8F050.h"
 
-typedef struct ActorConfig8F050 {
-    s16 unk0;
-    s16 unk2;
-    f32 unk4;
-    u8 unk8;
+// Per-actor-type override-model rule (actorProximityUpdate): mode 0 = multiplayer anim frame,
+// 1 = load the override model beyond `range`, 2 = load it within `range`.
+typedef struct ActorOverrideModelConfig {
+    s16 actorType;
+    s16 modelAssetId;
+    f32 range;
+    u8 mode;
     u8 unk9;
     s16 unkA;
-    s32 unkC[2];
-} ActorConfig8F050;
+    s32 animSlots[2];
+} ActorOverrideModelConfig;
 
-extern ActorConfig8F050 D_80750100[];
+extern ActorOverrideModelConfig D_80750100[];
 
 
 void animStopAtFrame(Actor *actor, s32 animSlot, s32 frame) {
@@ -26,7 +28,7 @@ void animStopAtFrame(Actor *actor, s32 animSlot, s32 frame) {
 }
 
 s32 actorConfigLookup(s32 actorType, s32 *outIndex) {
-    ActorConfig8F050 *cfg;
+    ActorOverrideModelConfig *cfg;
     s32 found;
     u32 i;
     u32 next;
@@ -37,7 +39,7 @@ s32 actorConfigLookup(s32 actorType, s32 *outIndex) {
     *outIndex = 0;
     i = 0; do { // LAYOUT: i = 0 joined to the do line puts move v0,zero after the %lo addiu (as1 line-ordered schedule)
         next = i + 1;
-        if (actorType == cfg[i].unk0) {
+        if (actorType == cfg[i].actorType) {
             found = 1;
             next = i;
         } else {
@@ -53,10 +55,10 @@ void actorConfigApplyAnimFrame(Actor *actor, s32 cfgIndex, s32 frame) {
     s32 animSlot;
 
     if (actor->overrideModel == NULL) {
-        actor->overrideModel = controllerAnimStateLoadAsset(actor, D_80750100[cfgIndex].unk2, 0);
+        actor->overrideModel = controllerAnimStateLoadAsset(actor, D_80750100[cfgIndex].modelAssetId, 0);
     }
     for (i = 0; i < 2; i++) {
-        animSlot = D_80750100[cfgIndex].unkC[i];
+        animSlot = D_80750100[cfgIndex].animSlots[i];
         if (animSlot != -1) {
             animStopAtFrame(actor, animSlot, frame);
         }
@@ -94,8 +96,8 @@ void actorProximityUpdate(void) {
                       (((actor->x - gPlayerSlots->camX) * (actor->x - gPlayerSlots->camX)) +
                        ((actor->y - gPlayerSlots->camY) * (actor->y - gPlayerSlots->camY)));
             if (actorConfigLookup(actor->actorType, &cfgIndex) != 0) {
-                r = renderScaleDistanceByFov(D_80750100[cfgIndex].unk4);
-                switch (D_80750100[cfgIndex].unk8) {
+                r = renderScaleDistanceByFov(D_80750100[cfgIndex].range);
+                switch (D_80750100[cfgIndex].mode) {
                 case 0:
                     if (gPlayerCount >= 2) {
                         playerState = actor->customState;
@@ -108,7 +110,7 @@ void actorProximityUpdate(void) {
                 case 1:
                     if (r * r < dist_sq) {
                         if (actor->overrideModel == NULL) {
-                            actor->overrideModel = controllerAnimStateLoadAsset(actor, D_80750100[cfgIndex].unk2, 0);
+                            actor->overrideModel = controllerAnimStateLoadAsset(actor, D_80750100[cfgIndex].modelAssetId, 0);
                         }
                     } else if (actor->overrideModel != NULL) {
                         controllerAnimFreeSub(actor, 1);
@@ -117,7 +119,7 @@ void actorProximityUpdate(void) {
                 case 2:
                     if (dist_sq < r * r) {
                         if (actor->overrideModel == NULL) {
-                            actor->overrideModel = controllerAnimStateLoadAsset(actor, D_80750100[cfgIndex].unk2, 0);
+                            actor->overrideModel = controllerAnimStateLoadAsset(actor, D_80750100[cfgIndex].modelAssetId, 0);
                         }
                     } else if (actor->overrideModel != NULL) {
                         controllerAnimFreeSub(actor, 1);

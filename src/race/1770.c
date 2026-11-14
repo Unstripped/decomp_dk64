@@ -41,23 +41,20 @@ s32 raceGetPrevWaypointIndex(s32 pathLength, s32 curWaypoint) {
 
 
 
-// Race actor: Actor plus its component pointers from 0x174 on.
-typedef struct RaceActor {
-    /* 0x000 */ u8 pad0[0x174];
-    /* 0x174 */ RaceParticipant *unk174;
-    /* 0x178 */ RacePathState *unk178;
-    /* 0x17C */ RaceAuxState *unk17C;
-    /* 0x180 */ u8 pad180[4];
-    /* 0x184 */ void *unk184;
-} RaceActor;
+// Racer actor: its participant is the customState (0x174); path cursor and aux state follow.
+typedef struct RaceRacerActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ RacePathState *path;
+    /* 0x17C */ RaceAuxState *aux;
+} RaceRacerActor;
 
-/* Effect node actor spawned by spawnNodeSpawnById. */
-typedef struct {
-    u8 pad0[0x178];
-    RaceParticipant *unk178;
-    RacePathState *unk17C;
-    u8 pad180[4];
-    RacePair *unk184;
+/* Effect node actor spawned by spawnNodeSpawnById: participant, path cursor and the race pair it registers. */
+typedef struct RaceNodeActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ RaceParticipant *participant;
+    /* 0x17C */ RacePathState *path;
+    /* 0x180 */ u8 pad180[4];
+    /* 0x184 */ RacePair *pair;
 } RaceNodeActor;
 
 extern Actor *gCurrentActor;
@@ -125,47 +122,47 @@ extern Actor *gSpawnedActor;
 
 void raceInitOpponentEntities(Actor *parent) {
     RaceParticipant *parentPart;
-    Actor *s2;
-    RacePathState *s1;
-    RaceParticipant *s0;
-    RacePair *temp;
+    Actor *racer;
+    RacePathState *path;
+    RaceParticipant *participant;
+    RacePair *pair;
     Actor *spawnedNode;
     Actor *spawnedActor;
     u8 *pad;
 
-    parentPart = ((RaceActor *)parent)->unk174;
+    parentPart = parent->customState;
     raceInitParticipantArray(parent, 2);
     actorSpawn(0x12E, 0x95);
-    s2 = gSpawnedActor;
-    s0 = ((RaceActor *)s2)->unk174;
-    raceRegisterParticipant(parent, 1, s2, s0);
-    s0->lap = 0;
-    s0->unk27 = 0;
-    s0->actor = parent;
-    s0->unk36 = 1;
-    s0->playerIdx = 0;
-    s1 = ((RaceActor *)s2)->unk178;
+    racer = gSpawnedActor;
+    participant = racer->customState;
+    raceRegisterParticipant(parent, 1, racer, participant);
+    participant->lap = 0;
+    participant->unk27 = 0;
+    participant->actor = parent;
+    participant->unk36 = 1;
+    participant->playerIdx = 0;
+    path = ((RaceRacerActor *)racer)->path;
     spawnedNode = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
-    s1->unk30 = spawnedNode;
-    temp = ((RaceNodeActor *)spawnedNode)->unk184;
-    temp->data = s0;
-    temp->actor = s2;
+    path->unk30 = spawnedNode;
+    pair = ((RaceNodeActor *)spawnedNode)->pair;
+    pair->data = participant;
+    pair->actor = racer;
     actorSpawn(0x130, 0);
     spawnedActor = gSpawnedActor;
-    s1->unk34 = spawnedActor;
-    s0 = ((RaceNodeActor *)spawnedNode)->unk178;
-    raceRegisterParticipant(parent, 0, spawnedNode, s0);
-    s0->lap = 0;
-    s0->unk27 = 1;
-    s0->actor = parent;
-    s0->unk36 = 0;
-    s1 = ((RaceNodeActor *)spawnedNode)->unk17C;
-    s1->unk30 = s2;
-    s1->unk34 = spawnedActor;
-    s0 = ((RaceActor *)spawnedActor)->unk174;
-    s0->actor = parent;
-    s1 = ((RaceActor *)spawnedActor)->unk178;
-    s1->unk30 = s2;
+    path->unk34 = spawnedActor;
+    participant = ((RaceNodeActor *)spawnedNode)->participant;
+    raceRegisterParticipant(parent, 0, spawnedNode, participant);
+    participant->lap = 0;
+    participant->unk27 = 1;
+    participant->actor = parent;
+    participant->unk36 = 0;
+    path = ((RaceNodeActor *)spawnedNode)->path;
+    path->unk30 = racer;
+    path->unk34 = spawnedActor;
+    participant = spawnedActor->customState;
+    participant->actor = parent;
+    path = ((RaceRacerActor *)spawnedActor)->path;
+    path->unk30 = racer;
     D_80750AC4 = 0;
     parentPart->unk25 = 1;
 }
@@ -352,11 +349,11 @@ void raceSpawnProjectile(RaceParticipant *participant) {
     RaceAuxState *projAux;
 
     if (participant->unk2C == NULL && participant->unk2A != 0) {
-        actorPath = ((RaceActor *)gCurrentActor)->unk178;
+        actorPath = ((RaceRacerActor *)gCurrentActor)->path;
         participant->unk2A--;
         actorSpawn(0x131, 0x96);
-        projPath = ((RaceActor *)gSpawnedActor)->unk178;
-        projAux = ((RaceActor *)gSpawnedActor)->unk17C;
+        projPath = ((RaceRacerActor *)gSpawnedActor)->path;
+        projAux = ((RaceRacerActor *)gSpawnedActor)->aux;
         projAux->owner = gCurrentActor;
         projAux->target = raceFindNearestParticipant(gCurrentActor);
         participant->unk2C = gSpawnedActor;
@@ -407,7 +404,7 @@ void raceUpdateEngineSoundPitch(f32 moveSpeed) {
 
 
 void raceVehicleRenderCallback(void *glist, Actor *actor) {
-    raceRenderHud(glist, actor, ((RaceActor *)actor)->unk174);
+    raceRenderHud(glist, actor, actor->customState);
 }
 
 extern Actor *gPrimaryPlayerActor;
@@ -427,7 +424,7 @@ void raceVehicleBehaviorUpdate(void) {
     f32 nodeZ;
 
     participant = gCurrentActor->customState;
-    pathState = ((RaceActor *)gCurrentActor)->unk178;
+    pathState = ((RaceRacerActor *)gCurrentActor)->path;
     if (!(gCurrentActor->flags & 0x10)) {
         len = gMinecartTrackPoints[pathState->unk0 + 1] - gMinecartTrackPoints[pathState->unk0];
         participant->unk2A = 3;
@@ -535,15 +532,15 @@ void raceProjectileBehaviorUpdate(void) {
     RacePathState *pathState;
     s32 pad[3];
     u8 hasCollided;
-    RaceAuxState *s1;
-    u16 t3;
+    RaceAuxState *aux;
+    u16 pad2;
 
     hasCollided = 0;
-    participant = ((RaceActor *)gCurrentActor)->unk174;
-    pathState = ((RaceActor *)gCurrentActor)->unk178;
-    s1 = ((RaceActor *)gCurrentActor)->unk17C;
+    participant = gCurrentActor->customState;
+    pathState = ((RaceRacerActor *)gCurrentActor)->path;
+    aux = ((RaceRacerActor *)gCurrentActor)->aux;
     if (!(gCurrentActor->flags & 0x10)) {
-        s1->unk0 = 0x78;
+        aux->unk0 = 0x78;
         gCurrentActor->flags |= 0x10;
         gCurrentActor->unk144 = 0x3C;
         participant->unk4 = 5.0f;
@@ -556,15 +553,15 @@ void raceProjectileBehaviorUpdate(void) {
     }
     racePathFollowStep(pathState, participant, 0);
     gCurrentActor->y += 5.0f;
-    if (s1->unk0 != 0) {
+    if (aux->unk0 != 0) {
         effectSetDepth(1);
         effectCreateAtPosition(sEffectSparkConfig, 1.0f, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z);
-        if (--s1->unk0 == 0) {
+        if (--aux->unk0 == 0) {
             hasCollided = 1;
         }
     }
     if (hasCollided != 0) {
-        raceDespawnProjectile(gCurrentActor, s1);
+        raceDespawnProjectile(gCurrentActor, aux);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

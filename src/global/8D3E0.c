@@ -28,11 +28,12 @@ typedef struct ActorListRecord {
     /* 0x36 */ char pad36[2];
 } ActorListRecord;
 
-typedef struct ActorListEntry4 {
+// Spawn id -> flag index pair built per map (D_807FC5C4, D_807FC5C8 entries).
+typedef struct ActorListFlagEntry {
     /* 0x0 */ u8 id;
-    /* 0x1 */ u8 unk1;
+    /* 0x1 */ u8 pad1;
     /* 0x2 */ s16 flagIndex;
-} ActorListEntry4;
+} ActorListFlagEntry;
 
 typedef struct ActorListSub20 {
     s32 words[8];
@@ -40,7 +41,7 @@ typedef struct ActorListSub20 {
 
 typedef struct ActorListNode {
     /* 0x00 */ s16 actorType;
-    /* 0x02 */ s16 unk02;
+    /* 0x02 */ s16 pad02;
     /* 0x04 */ f32 spawnX;
     /* 0x08 */ f32 spawnY;
     /* 0x0C */ f32 spawnZ;
@@ -48,15 +49,15 @@ typedef struct ActorListNode {
     /* 0x14 */ f32 y;
     /* 0x18 */ f32 z;
     /* 0x1C */ s16 yaw;
-    /* 0x1E */ s16 unk1E;
+    /* 0x1E */ s16 pad1E;
     /* 0x20 */ f32 scale;
     /* 0x24 */ f32 customData[8];
     /* 0x44 */ Actor *actor;
     /* 0x48 */ u8 spawned;
-    /* 0x49 */ u8 unk49;
+    /* 0x49 */ u8 pad49;
     /* 0x4A */ s16 chunkIndex;
     /* 0x4C */ u8 spawnMode;
-    /* 0x4D */ char unk4D[3];
+    /* 0x4D */ char pad4D[3];
     /* 0x50 */ Actor *extraParam;
     /* 0x54 */ f32 radiusSq;
     /* 0x58 */ s16 animAssetId;
@@ -72,7 +73,7 @@ extern ActorListSub20 D_807500B4;
 extern ActorListSub20 D_807500D4;
 extern Actor *gCurrentActor;
 extern ActorListNode *D_807FC400;
-extern ActorListEntry4 *D_807FC5C4;
+extern ActorListFlagEntry *D_807FC5C4;
 extern u8 D_807FC5C8;
 extern s16 D_807FC5D0[16];
 extern s16 D_807FC5F0[16];
@@ -219,7 +220,7 @@ void actorListBuildLookupTable(void) {
         } while (i != count);
     }
     if (D_807FC5C8) {
-        sz = D_807FC5C8 * sizeof(ActorListEntry4);
+        sz = D_807FC5C8 * sizeof(ActorListFlagEntry);
         i = 0;
         D_807FC5C4 = heapAlloc(sz);
     } else {
@@ -423,12 +424,12 @@ void actorListSpawnNodeEntry(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 ya
 typedef struct ActorListSpawnEntry {
     /* 0x00 */ s16 actorType;
     /* 0x02 */ s16 animAssetId;
-    /* 0x04 */ s32 unk4;
+    /* 0x04 */ s32 scriptId;
     /* 0x08 */ s16 radius;
-    /* 0x0A */ char unkA[2];
+    /* 0x0A */ char padA[2];
     /* 0x0C */ s32 (*shouldSpawn)(struct ActorListNode *);
     /* 0x10 */ s32 (*shouldDespawn)(struct ActorListNode *);
-    /* 0x14 */ char unk14[0x1C];
+    /* 0x14 */ char pad14[0x1C];
 } ActorListSpawnEntry;
 extern ActorListSpawnEntry D_8074E8B0[];
 
@@ -535,7 +536,7 @@ void actorListUpdateSpawns(void) {
                 }
 
                 spawnInfo.type = target;
-                spawnInfo.scriptId = D_8074E8B0[i].unk4;
+                spawnInfo.scriptId = D_8074E8B0[i].scriptId;
                 spawnInfo.spawnArg = D_8074E8B0[i].animAssetId;
                 spawnInfo.x = node->spawnX;
                 spawnInfo.y = node->spawnY;
