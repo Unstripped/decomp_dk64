@@ -99,8 +99,8 @@ A function with 3+ non-kept sites (warning sites not counted) also needs a fresh
   of its element type, unless `sizeof` is reached or, for a scalar, the field is accessed); a
   changed prototype, macro, typedef, enum or layout keeps them stale and is listed.
 - `diagnose`, `permute`, `reconstruct`, `goto-hand`, `retype`, `review`: fresh while `fp_local` is equal
-  and no `knowledge/ido` file committed after the event names the function; for `diagnose`,
-  `permute` and `reconstruct` also none among the top 8 hits for the event's note (its free text
+  and no `knowledge/ido` file committed after the event names the function; for `diagnose` and
+  `reconstruct` also none among the top 8 hits for the event's note (its free text
   only: `key=value` tokens such as `quirks=`, and `carried from ...` prefixes, are stripped; a
   note of only such tokens gets the name check alone). So write those notes in concrete
   register/offset terms (`$s1 holds sp+0x34 across the jal`), not generic words (`comma`,
@@ -108,6 +108,9 @@ A function with 3+ non-kept sites (warning sites not counted) also needs a fresh
   An entry naming the function whose `unit` (`quirks.py add --unit`) produced the event (a carried
   event: the event it copies) stales neither way: that unit's agents had the finding (round 34:
   Q0704-Q0719 staled 52 own-run rungs so). Tag at filing: a later `unit` edit is a new commit.
+  `permute` goes stale through knowledge only by name: in rounds 35-36 note-hit-staled permutes
+  took 96 ks (68% of permute time) for one fix, while the three fixes that used the re-opening entry
+  came from diagnose or review; dropping them took OPEN at HEAD from 290 to 219.
 - A method counts through its newest event by time (carried events keep their original time) if
   that is fresh and not `blocked`. A fresh `hit` makes the site OPEN `next=apply` (the sweep found
   a match nobody merged yet).

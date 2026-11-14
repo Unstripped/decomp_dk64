@@ -137,7 +137,7 @@ LADDER = {"dead-if": ("remove", "cond", "classify", "diagnose", "permute"),
 METHODS = ("remove", "plain", "cond", "classify", "consolidate", "diagnose", "permute", "reconstruct",
            "goto-hand", "views", "names", "review", "retype")
 AUTO = {"remove", "plain", "cond", "classify", "consolidate", "views", "names"}
-NOTE_METHODS = {"diagnose", "permute", "reconstruct"}  # knowledge also stales them via their note
+NOTE_METHODS = {"diagnose", "reconstruct"}  # knowledge also stales them via their note; permute only by name
 FUNC_ONLY = {"views", "names", "review"}
 OUTCOMES = ("hit", "fixed", "nohit", "kept", "blocked")
 CHECKLIST = ("fake", "goto", "casts", "views", "protos", "temps", "names", "uninit", "warn")
@@ -703,8 +703,9 @@ def origin_unit(e, evs=()):
 
 def fresh(e, now_fp, name, evs=()):
     """NOW_FP = (fp_local, fp_hdr[, fp_hdr2]). Knowledge stales an agent method through the
-    function's name; only NOTE_METHODS also through the top-8 hits of their note: a review's or
-    goto rewrite's prose (`re-read`, `steer`) matches unrelated broad entries. An entry filed by
+    function's name; only NOTE_METHODS (diagnose, reconstruct) also through the top-8 hits of their
+    note: a review's or goto rewrite's prose (`re-read`, `steer`) matches unrelated broad entries,
+    and a permute re-run on a note hit cost 96 ks for one fix in rounds 35-36. An entry filed by
     the unit that produced the event (`origin_unit` over EVS) and naming the function stales
     neither way (`own_knowledge`)."""
     if e["fp_local"] != now_fp[0]:

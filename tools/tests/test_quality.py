@@ -356,8 +356,9 @@ def test_review_freshness_ignores_checklist_tokens(monkeypatch):
     assert calls[-1] == "regalloc swap"
 
 
-def test_note_hits_stale_only_diagnose_permute_reconstruct(monkeypatch):
-    # Q0589/Q0118: a broad entry matching a review's prose (`re-read`, `steer`) staled reviews
+def test_note_hits_stale_only_diagnose_reconstruct(monkeypatch):
+    # Q0589/Q0118: a broad entry matching a review's prose (`re-read`, `steer`) staled reviews;
+    # rounds 35-36: top-8 note hits re-ran permute for 96 ks and one fix, so permute is name-only too
     monkeypatch.setattr(q, "knowledge_after", _real_knowledge_after)
     monkeypatch.setattr(q.ledger, "related_knowledge", lambda corpus, name, note: (
         {"knowledge/ido/entries/Q9001.md"} if note else set()) | (
@@ -367,11 +368,34 @@ def test_note_hits_stale_only_diagnose_permute_reconstruct(monkeypatch):
     monkeypatch.setattr(q, "_know", {"times": times, "newest": max(times.values()),
                                      "corpus": q.quirks.Corpus(Path("."))})
     note = "re-read after the steer fix " + REVIEW
-    for m in ("review", "goto-hand"):
+    for m in ("review", "goto-hand", "permute"):
         assert q.fresh(ev(None, m, "nohit", note=note), FP, "f")  # note hit alone: still fresh
         assert not q.fresh(ev(None, m, "nohit", note=note, name="named"), FP, "named")  # name hit
-    for m in ("diagnose", "permute", "reconstruct"):
+    for m in ("diagnose", "reconstruct"):
         assert not q.fresh(ev(None, m, "nohit", note=note), FP, "f")
+        assert not q.fresh(ev(None, m, "nohit", note=note, name="named"), FP, "named")
+
+
+def test_permute_note_hit_does_not_stale_but_diagnose_does(tmp_path, monkeypatch):
+    repo, kroot = _knowledge_repo(tmp_path, monkeypatch)
+    (repo / "symbol_addrs.us.txt").write_text("fooBar = 0x80600000; // type:func\n")
+    hit = q.quirks.add_entry(kroot, "spill across the jal", "uopt", ["regalloc"], "sp+0x34 spill across the jal")
+    named = q.quirks.add_entry(kroot, "dead store kept", "uopt", ["dead-code"], "a dead store", functions=["fooBar"])
+    note, t = "spill across the jal", "2026-01-20T00:00:00Z"
+
+    def fresh(method, times):
+        monkeypatch.setattr(q, "_know", {"times": times, "newest": max(times.values()),
+                                         "corpus": q.quirks.load(kroot)})
+        return q.fresh(ev(SITE, method, "nohit", note=note, name="fooBar", t=t), FP, "fooBar")
+
+    newer_hit = {f"knowledge/ido/entries/{hit}.md": "2026-02-01T00:00:00Z",
+                 f"knowledge/ido/entries/{named}.md": "2026-01-01T00:00:00Z"}
+    assert fresh("permute", newer_hit)  # a newer top-8 hit for the note alone
+    assert not fresh("diagnose", newer_hit)
+    newer_named = {f"knowledge/ido/entries/{hit}.md": "2026-01-01T00:00:00Z",
+                   f"knowledge/ido/entries/{named}.md": "2026-02-01T00:00:00Z"}
+    assert not fresh("permute", newer_named)  # a newer entry naming the function
+    assert not fresh("diagnose", newer_named)
 
 
 R34 = "2026-11-13: cleanup round 34"
@@ -406,8 +430,9 @@ def test_own_unit_entry_naming_function_does_not_stale(tmp_path, monkeypatch):
         assert fresh("fooBar", m, R34)  # same unit, named (also a note hit): its agents had the finding
         assert not fresh("fooBar", m, "2026-11-12: cleanup round 33")  # earlier unit: staled
         assert not fresh("fooBar", m, R34, t="2026-01-10T00:00:00Z")  # another newer entry names it
-    for m in ("diagnose", "permute", "reconstruct"):
+    for m in ("diagnose", "reconstruct"):
         assert not fresh("otherFn", m, R34)  # same unit, not in `functions`: note hit still stales
+    assert fresh("otherFn", "permute", R34)
     assert fresh("otherFn", "review", R34)
     # a carried event holds an earlier agent's result under the carrying unit: the copied event's unit counts
     t = "2026-01-20T00:00:00Z"
