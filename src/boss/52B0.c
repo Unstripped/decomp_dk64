@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "boss.h"
 #include "proto/boss/3840.h"
 #include "proto/boss/52B0.h"
 #include "proto/global/119370.h"
@@ -39,28 +40,18 @@ void bossMadJackSpawnSparkles(void) {
     effectSpawnBoneDefault(gCurrentActor, (((randomNonNegative() >> 15) % 0x7FFF) % 16) + 3, 2.0f, 0.0f, 0.0f, 0.0f, -0x96);
 }
 
-typedef struct Boss3F_52B0_178 {
-    char pad0[8];
-    s16 delay;
-    char padA[0xA];
-    u8 scriptIndex;
-    u8 scriptPos;
-    char pad16[2];
-    u8 shotsLeft;
-    u8 shotCount;
-} Boss3F_52B0_178;
-
-typedef struct Boss3F_52B0_Actor {
+// Mad Jack boss actor: Actor plus its script component (0x178).
+typedef struct BossMadJackActor {
     Actor base;
-    Boss3F_52B0_178 *unk178;
-} Boss3F_52B0_Actor;
+    BossScriptState *scriptState;
+} BossMadJackActor;
 
 extern u8 *D_80035A00[];
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 
 void bossMadJackStep(void) {
-    Boss3F_52B0_178 *scriptState;
+    BossScriptState *scriptState;
     s32 turnSpeed;
     u8 *scriptOpcodes;
     s16 targetAngle;
@@ -68,8 +59,8 @@ void bossMadJackStep(void) {
     f32 targetX;
     f32 targetZ;
 
-    scriptState = ((Boss3F_52B0_Actor *) gCurrentActor)->unk178;
-    scriptOpcodes = D_80035A00[scriptState->scriptIndex];
+    scriptState = ((BossMadJackActor *) gCurrentActor)->scriptState;
+    scriptOpcodes = D_80035A00[scriptState->phase];
     targetAngle = mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z);
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
@@ -79,7 +70,7 @@ void bossMadJackStep(void) {
         gCurrentActor->renderFlags |= 4;
         gCurrentActor->unk144 = 0x24;
         lightSetColor(0.0f, 0.0f, 0.0f, -1);
-        scriptState->scriptIndex = 0;
+        scriptState->phase = 0;
         scriptState->scriptPos = 0;
         gCurrentActor->state = 0x1E;
         gCurrentActor->unk155 = 0;
@@ -167,7 +158,7 @@ void bossMadJackStep(void) {
         gCurrentActor->unk155 = 0;
         break;
     case 0x4D:
-        if (scriptState->scriptIndex == 4) {
+        if (scriptState->phase == 4) {
             gCurrentActor->state = 0x37;
             gCurrentActor->unk155 = 0;
             camStartPath(gCurrentActor, 4, 1);
@@ -203,8 +194,8 @@ void bossMadJackStep(void) {
                 csModelStateSetFirstByte(9, 0);
                 csModelStateSetFirstByte(0xB, 0);
                 scriptState->scriptPos = 0;
-                scriptState->scriptIndex++;
-                scriptOpcodes = D_80035A00[scriptState->scriptIndex];
+                scriptState->phase++;
+                scriptOpcodes = D_80035A00[scriptState->phase];
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
                 gCurrentActor->unk155 = 0;
                 break;
@@ -235,9 +226,9 @@ void bossMadJackStep(void) {
 block_28:
         switch (gCurrentActor->unk155) {
         case 0:
-            scriptState->shotsLeft = scriptOpcodes[scriptState->scriptPos++];
-            scriptState->shotCount = scriptState->shotsLeft;
-            scriptState->delay = scriptOpcodes[scriptState->scriptPos++];
+            scriptState->unk18[0] = scriptOpcodes[scriptState->scriptPos++];
+            scriptState->unk18[1] = scriptState->unk18[0];
+            scriptState->unk8[0] = scriptOpcodes[scriptState->scriptPos++];
             if (gCurrentActor->state == 0x46) {
                 gCurrentActor->unk155 = 2;
             } else {
@@ -270,7 +261,7 @@ block_28:
                 break;
             case 0x46:
                 projectileSpawnNodeEntry(0x1E, 0x63, 0.7f, gCurrentActor->yaw, 300.0f, 0.0f, gCurrentActor);
-                gBehaviourWorkState->timer = scriptState->delay;
+                gBehaviourWorkState->timer = scriptState->unk8[0];
                 gCurrentActor->unk155 = 8;
                 break;
             default:
@@ -282,7 +273,7 @@ block_28:
         case 6:
             actorScriptStart(gCurrentActor, 0x213);
             gCurrentActor->unk155++;
-            scriptState->shotsLeft = scriptState->shotCount;
+            scriptState->unk18[0] = scriptState->unk18[1];
             break;
         case 7:
             angleOffset = ((randomNonNegative() >> 15) % 1024) - 0x200;
@@ -290,7 +281,7 @@ block_28:
             targetZ = ((f64)mathCosF(gBehaviourTargetActor->yaw + angleOffset) * ((f64)gBehaviourTargetActor->speedXZ * 1.2)) + (f64)gBehaviourTargetActor->z;
             projectileSetTargetCoords(targetX, gBehaviourTargetActor->y + 500.0f, targetZ);
             projectileAimAndSpawn(0x1E, 0x1E, 1.0f, targetX, gBehaviourTargetActor->y, targetZ, 600.0f, gCurrentActor);
-            gBehaviourWorkState->timer = scriptState->delay;
+            gBehaviourWorkState->timer = scriptState->unk8[0];
             gCurrentActor->unk155 = 9;
             /* fallthrough */
         case 9:
@@ -298,8 +289,8 @@ block_28:
             if (gBehaviourWorkState->timer != 0) {
                 gBehaviourWorkState->timer--;
             } else {
-                scriptState->shotsLeft--;
-                if (scriptState->shotsLeft != 0) {
+                scriptState->unk18[0]--;
+                if (scriptState->unk18[0] != 0) {
                     if (gCurrentActor->state == 0x46) {
                         gCurrentActor->unk155 = 2;
                     } else {
@@ -325,12 +316,12 @@ block_28:
         case 0:
         case 1:
             actorScriptStart(gCurrentActor, 0x213);
-            scriptState->delay = scriptOpcodes[scriptState->scriptPos++];
+            scriptState->unk8[0] = scriptOpcodes[scriptState->scriptPos++];
             gCurrentActor->unk155 = 2;
             break;
         default:
-            if (scriptState->delay != 0) {
-                scriptState->delay--;
+            if (scriptState->unk8[0] != 0) {
+                scriptState->unk8[0]--;
             } else {
                 gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
                 gCurrentActor->unk155 = 0;

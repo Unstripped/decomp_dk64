@@ -13,7 +13,13 @@ typedef struct BossScriptState {
     /* 0x15 */ u8 scriptPos;
     /* 0x16 */ u8 loopPos;
     /* 0x17 */ u8 pad17;
-    /* 0x18 */ u8 unk18[8];
+    union {
+        /* 0x18 */ u8 unk18[8];
+        struct {
+            /* 0x18 */ u8 pad18[4];
+            /* 0x1C */ struct GfSndState *sndHandle; // Pufftoss voice handle (bossPufftossStep: n_alSndpStop/n_alSndpPlay)
+        };
+    };
 } BossScriptState;
 
 #endif
