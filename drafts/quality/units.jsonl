@@ -472,3 +472,4 @@
 {"type": "unit", "t": "2026-11-14T21:17:21Z", "unit": "2026-11-14: cleanup PolishGlobalE4090Names", "commit": "fed941b2403f31009add1d01185f6ff5704846d2"}
 {"type": "unit", "t": "2026-11-14T21:18:50Z", "unit": "2026-11-14: cleanup PolishBonus2690Names", "commit": "50adef185adf54c1481678d188ae70fdb7741dc3"}
 {"type": "unit", "t": "2026-11-14T21:19:29Z", "unit": "2026-11-14: cleanup PolishBossDAA0Names", "commit": "12e8007a672a0806dd76bc88634983d2896cc00a"}
+{"type": "unit", "t": "2026-11-14T21:20:45Z", "unit": "2026-11-14: cleanup OwnerKongCharacterEntryShared", "commit": "99c91d2a9cf4388ca5acfec98a514c5e9b4cec47"}
