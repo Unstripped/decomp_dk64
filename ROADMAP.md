@@ -160,22 +160,23 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 35 (2026-11-13)** — arcade/0, global/55B20 (+ 2F550 owner batches), E4090 (G29Act/G32Mid views onto Actor, 13 functions' m2c casts, 2 u8 retypes), 36880, 70FD0 (Q0705's steer removed), menu/3E10; shared `MapBspNode` in map.h (MapViewEntries, MapLeafLists, MapNodeEffects, MapRelocNode retired); name `playerAddHealthDelta`; knowledge entries carry their `unit`. Knowledge Q0720–Q0726 (+ Q0705 corrected).
 - [x] **Round 36 (2026-11-13)** — global/7130 (views onto PlayerStruct/ModelSlot), 80150, 15050 (2 hidden steers removed, gHeapMainFreeList folded), 103AB0 (3 FAKE removed, lensFlareDrawSource ANSI), bonus/2690 (2 FAKE removed, views retired), D5E10 (3 views retired); shared `PadInputState` in actor.h (E4090, CEAE0, D5E10; CEAE0 reads the s8 attackerSpawnNodeId directly); name `PlayerStruct.camYaw`; carry learned file-local record field renames. Knowledge Q0727–Q0744.
 - [x] **Round 37 (2026-11-13)** — multiplayer/0 (4 FAKE removed: early reads and spawnCrown are source, callback is func_8071F3C0), menu/3E10, 36880 (4 FAKE removed), arcade/0 (5 pad puns → `->button`), F56F0 (coupled steer pair, pad split label → PadInputState), 70FD0 (index loop, s32 boneOffset, 0.0 literal); knowledge staling policy: note similarity stales diagnose/reconstruct only, permute only via entries naming the function (1052fc9b; OPEN 290 → 215 with no new records). Knowledge Q0745–Q0753.
-- [ ] Paused after round 37. Leftovers: 193 OPEN functions in 118 files (the Q0745–Q0753 commit re-opened 8) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`; resume from `uv run tools/quality.py rank`.
+- [x] **Round 38 (2026-11-13)** — global/19A00 (views onto Actor/PlayerStruct, sSavedLightColor fold) + 11BC10 owner bundle (effectFallStateInit/effectFloorFallUpdate take Actor */EffectNode */u8 *; 19A00 cfe 4 → 1), 9DD70 (3 dead-ifs → 1 proto steer, views retired), 13980 (u64 division, GBI/VI names), 61AA0 + `LightTrigger` moved into render.h (MatrixCacheSub retired), 114270 (147 casts dropped, u8 callbacks), C0EE0 (s16 col/row). Knowledge Q0754–Q0759.
+- [ ] Paused after round 38 (user stop). Leftovers: 192 OPEN functions in 117 files (the Q0754–Q0759 commit re-opened 15) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`; resume from `uv run tools/quality.py rank`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-13, after round 37):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-13, after round 38):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 704 | 583 |
-| FAKE dead-if | 265 | 263 |
-| FAKE proto-steer | 48 | 134 |
-| FAKE other kinds | 391 | 186 |
-| LAYOUT | 69 | 47 |
+| FAKE | 693 | 583 |
+| FAKE dead-if | 262 | 263 |
+| FAKE proto-steer | 49 | 134 |
+| FAKE other kinds | 382 | 186 |
+| LAYOUT | 70 | 47 |
 | goto | 35 | 39 |
 | proto-type (`// PROTO:`) | 6 | 0 |
 | protos mismatch | 23 | 1,202 |
-| reviewed / exhausted functions | 4,215 / 4,077 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 26 | 1,890 |
+| reviewed / exhausted functions | 4,216 / 4,078 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 22 | 1,890 |
 | uninit warnings (clint checks every function) | 251 | 122 |
 | `func_` definitions | 426 | 457 |
 | m2c names | 270 | 5,040 |

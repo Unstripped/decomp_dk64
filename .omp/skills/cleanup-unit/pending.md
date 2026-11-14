@@ -1,6 +1,6 @@
-# Pending after cleanup round 37 (campaign paused)
+# Pending after cleanup round 38 (campaign paused by the user)
 
-State after the round-37 close (knowledge commit b06cba4f, Q0745-Q0753): 193 OPEN functions in 118 files. Since 1052fc9b note-similarity knowledge staling applies to diagnose/reconstruct only (permute only via entries naming the function), so the round-37 knowledge commit re-opened 8 functions (was 45-147 in rounds 34-36). A future session starts here: `uv run tools/quality.py rank`, then SKILL.md §2.
+State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPEN functions in 117 files; the knowledge commit re-opened 15 (diagnose/reconstruct by note similarity; permute stales only via entries naming the function since 1052fc9b). No round 39 was picked or briefed. A future session starts here: `uv run tools/quality.py rank --limit 25`, then SKILL.md §2 (skip files edited in the previous round, prefer the least recently dispatched).
 
 ## Blocked owner/header changes
 - Cast sweep (round 30): 55B20 MapChunk.lastSeenFrame and 61AA0 BillboardCacheEntry.lastUsedFrame stay s32 (u32 retype fdiff 1). model.h/heap.h frame stamps landed u32 after Rev29.
@@ -37,6 +37,7 @@ State after the round-37 close (knowledge commit b06cba4f, Q0745-Q0753): 193 OPE
 ## Round-34 leftovers
 - Done in round 36 (37ae4167): PadInputState typedef in actor.h (no header extern), E4090/CEAE0/D5E10 on it, CEAE0 reads the s8 attackerSpawnNodeId directly. Still open: CC800 G00Slot34, 103AB0 PlayerSampleInfo, menu/0 MenuControllerPad, 80150 TagBarrelInputPad, 7BBD0 CollisionPadD610 and bonus/2690 BonusB_Ctrl views of gPlayerPadState (each declares its own extern; convert file by file, then add the header extern last), plus the D_807FD63A/63C/618 split-label users in CC800, F56F0, bonus/2690, race/7BD0 (E4090's D_807FD63A is load-bearing, Q0264).
 - gMinecartTrackPoints shared declaration (CleanBonus2690 round-36 request): 8 files declare it with different types (bonus/2690, race/36B0, minecart/0, minecart/25F0, 478F0, race/1770, 2F550, race/7BD0); a TargetVec3f ** header extern needs all of them in one batch.
+- Round 38 leftovers: C0EE0 func_806BCF98 W709 x2 (string literals into textDrawStringVtx `u8 *`) and 19A00 scriptOpPlaySoundAndShake W709 (be3187) wait on the string-convention batch below; 61AA0/5E2F0 LightTrigger is in render.h (05fdbfdc) but gLightCandidates keeps per-file externs (55B20 and 63EC0 declare it `u8`); D_807ECD58/D_807ECD60 are `OSContPad` in C0EE0 but `u16` in bonus/9010, A8400, ACDC0.
 - multiplayer/0 reclassification proposal (Rev34A): mpDrawHud early locals matchOver/paused (10c615, 924c0a) and the mpUpdate flag (c4ac54) may be source structure, not hacks (Q0498/Q0108); tags kept.
 - 36880 renderModelQuadGfx owner arity: 35000 passes 8 args against a 7-arg prototype; the target stores the 8th at 0x1C(sp) (Consol34).
 - 117190 D_8075E5C0/D_8075E5C2: a 4-byte `{u8 id; u8 pad; u16 maxTime}` entry type would retire the tagged pun 318113 in menuCheckMapTransitionOnLoad (file-scope view, reaches 3 more functions).
