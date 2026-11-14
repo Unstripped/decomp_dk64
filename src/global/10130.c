@@ -87,17 +87,20 @@ void recordInitPositionBuffers(s32 src) {
         D_807ECE90 = heapAlloc(0xE10);
     }
     D_807ECE94 = D_807ECE90;
-    memcpy(&D_807463B0, (void *)src, 2);
-    src += 2;
-    byteCount = D_807463B0 * 4;
+    byteCount = sizeof(D_807463B0);
+    memcpy(&D_807463B0, (void *)src, byteCount);
+    src += byteCount;
+    byteCount = D_807463B0 * sizeof(InputRecord);
     memcpy(D_807463A8, (void *)src, byteCount);
     src += byteCount;
-    memcpy(&D_807463A0, (void *)src, 2);
-    src += 2;
-    byteCount = D_807463A0 * 2;
+    byteCount = sizeof(D_807463A0);
+    memcpy(&D_807463A0, (void *)src, byteCount);
+    src += byteCount;
+    byteCount = D_807463A0 * sizeof(u16);
     memcpy(D_807ECE90, (void *)src, byteCount);
-    byteCount = src + byteCount; // FAKE: count local reused for the end address keeps src in $s1, byteCount in $s0
-    memcpy(&D_807ECE20, (void *)byteCount, 0x70);
+    src += byteCount;
+    byteCount = sizeof(D_807ECE20);
+    memcpy(&D_807ECE20, (void *)src, byteCount);
 }
 
 
