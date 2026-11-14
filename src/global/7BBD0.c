@@ -79,13 +79,7 @@ u8 actorCheckCollisionsAgainstActiveActors(Actor *self, s16 *arcMin, s16 *arcMax
 
 typedef f32 CollisionMtxF[4][4];
 
-typedef struct CollisionPadD610 {
-    u8 pad0[4];
-    f32 unk4;
-    u8 pad8[0x20];
-    s16 unk28;
-} CollisionPadD610;
-extern CollisionPadD610 gPlayerPadState;
+extern PadInputState gPlayerPadState[];
 
 extern s32 D_807FB5C4;
 extern s32 D_807FB5C8;
@@ -182,7 +176,7 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
         break;
     case 1:
         actorAppendCallbackPayloadA864(self, other, self->yaw, (s16)(s32)self->speedXZ, &localPos[0], &localPts[0][0], D_807FB5D8->unk4E, D_807FB5D0, actorGetCollisionThreshold(self));
-        if (actorIsTargetWithinAngle(gPlayerPadState.unk28, 400) && (f64)gPlayerPadState.unk4 > 30.0) {
+        if (actorIsTargetWithinAngle(gPlayerPadState[0].stickAngle, 400) && (f64)gPlayerPadState[0].stickMag > 30.0) {
             self->yaw = selfBounds->unk66;
         }
         break;

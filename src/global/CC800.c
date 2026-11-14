@@ -363,23 +363,13 @@ typedef struct KongActorView {
     /* 0x178 */ G00Out *unk178;
 } KongActorView;
 
-typedef struct G00Slot34 {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ u8 pad8[8];
-    /* 0x10 */ f32 unk10[4];
-    /* 0x20 */ s16 unk20[4];
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ u8 pad2A[0xA];
-} G00Slot34;
-
 #define KONG_ACTOR ((KongActorView *)gActivePlayerActor)
 
 extern s32 gCurrentMap;
 extern Actor *gCamActor;
 extern f32 D_80753578[];
 extern f32 D_807535E8[];
-extern G00Slot34 gPlayerPadState[];
+extern PadInputState gPlayerPadState[];
 
 void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     G00Row *row;
@@ -462,8 +452,8 @@ void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     gActivePlayerState->queuedHeldActor = 0;
     gActivePlayerState->heldActor = 0;
     for (i = 0; i < 4; i++) {
-        gPlayerPadState[sel].unk20[i] = gPlayerPadState[sel].unk28;
-        gPlayerPadState[sel].unk10[i] = gPlayerPadState[sel].unk4;
+        gPlayerPadState[sel].stickAngleHistory[i] = gPlayerPadState[sel].stickAngle;
+        gPlayerPadState[sel].stickMagHistory[i] = gPlayerPadState[sel].stickMag;
     }
     playerResumeLocomotion(gActivePlayerActor);
     playerWarpToSpawnPoint(spawnIndex);

@@ -1647,14 +1647,7 @@ typedef struct ActorFB6CState {
 } ActorFB6CState;
 
 extern Actor *gActivePlayerActor;
-typedef struct TagBarrelInputPad {
-    u8 pad0[0x2C];
-    u16 unk2C;
-    s8 unk2E;
-    s8 unk2F;
-    u8 unk30;
-} TagBarrelInputPad;
-extern TagBarrelInputPad gPlayerPadState;
+extern PadInputState gPlayerPadState[];
 
 
 void tagBarrelParticleUpdate(void) {
@@ -1749,7 +1742,7 @@ void tagBarrelParticleUpdate(void) {
         if (sub->launchDelay) {
             sub->launchDelay--;
         }
-        if (((gPlayerPadState.unk2C & 0xE000) || sub->mode == 3) && sub->launchDelay == 0) {
+        if (((gPlayerPadState[0].pressedButtons & 0xE000) || sub->mode == 3) && sub->launchDelay == 0) {
             PlayerState *riderState;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x18, 0xFF, 0x7F, 1);
             riderState = sub->rider->customState;
@@ -2455,11 +2448,11 @@ void cannonUpdate(void) {
     }
     if (gCurrentActor->state == 2 || gCurrentActor->state == 3) {
         cam = ((PlayerState *)sub->rider->customState)->camActor;
-        sub->aimYaw = sub->aimYaw - (f64)gPlayerPadState.unk2E * 0.08 * D_8074E7F8 * 4096.0 / 360.0;
+        sub->aimYaw = sub->aimYaw - (f64)gPlayerPadState[0].stickX * 0.08 * D_8074E7F8 * 4096.0 / 360.0;
         sub->aimYaw = sub->aimYaw & 0xFFF;
         sinOff = mathSinF(sub->aimYaw) * D_8074E7F4;
         cosOff = mathCosF(sub->aimYaw) * D_8074E7F4;
-        D_8074E804 = D_8074E804 - (f64)gPlayerPadState.unk2F * 0.04 * D_8074E800;
+        D_8074E804 = D_8074E804 - (f64)gPlayerPadState[0].stickY * 0.04 * D_8074E800;
         if (D_8074E804 > 50.0) {
             D_8074E804 = 50.0f;
         }
@@ -2541,7 +2534,7 @@ void cannonUpdate(void) {
         }
         break;
     case 2:
-        if ((gPlayerPadState.unk2C & 0x2000) && actorCountOwnedByClass(gCurrentActor, 4, 0) == 0 && sub->shotsLeft != 0) {
+        if ((gPlayerPadState[0].pressedButtons & 0x2000) && actorCountOwnedByClass(gCurrentActor, 4, 0) == 0 && sub->shotsLeft != 0) {
             projectileSetTargetCoords(gCurrentActor->x, gCurrentActor->y + D_8074E7FC, gCurrentActor->z);
             x = gPlayerSlots->focusZ - gPlayerSlots->camZ; // FAKE: x/y reused for the focus-camera dz/dx (own dz/dx locals: 8 words FPR diff)
             y = gPlayerSlots->focusX - gPlayerSlots->camX;
@@ -2908,14 +2901,14 @@ void tagBarrelUpdateSelection(TagBarrelData *data) {
     if (value == 0 && hudCanRender() != 0) {
         isKong = data->kongs[data->selected]->actorType == 0x13C;
         timedOut = data->frames >= 9001;
-        if (((gPlayerPadState.unk30 >= 0x29) && !timedOut) || !isKong) {
+        if (((gPlayerPadState[0].stickAbsX >= 0x29) && !timedOut) || !isKong) {
             data->timer = 20;
             if (data->kongs[data->selected]->actorType == 0x13C) {
                 actorScriptStartByKongIndex(data->kongs[data->selected], data->kongs[data->selected]->customState, 0x8C);
             }
             data->previous = data->selected;
             if (isKong) {
-                data->direction = (gPlayerPadState.unk2E >= 0) ? 1 : -1;
+                data->direction = (gPlayerPadState[0].stickX >= 0) ? 1 : -1;
             }
             data->selected += data->direction;
             if (data->selected < 0) {
@@ -2932,7 +2925,7 @@ void tagBarrelUpdateSelection(TagBarrelData *data) {
                 sfxSetChannelParam(0x65, D_8074E848[data->selected], 2);
                 return;
             }
-            if (((timedOut && isKong) || (gPlayerPadState.unk2C & 0xE000)) && screenWipeGetState() == 0) {
+            if (((timedOut && isKong) || (gPlayerPadState[0].pressedButtons & 0xE000)) && screenWipeGetState() == 0) {
                 if (isKong) {
                     player = data->player;
                     playerState = player->customState;
