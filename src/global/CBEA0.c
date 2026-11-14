@@ -85,14 +85,14 @@ void actorStubCBEA0_24(void) {
 void actorStubCBEA0_25(void) {
 }
 
-typedef struct R1C2CB_Entry {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ s8 unk4;
-    /* 0x5 */ s8 unk5;
-} R1C2CB_Entry;
+typedef struct BannerTextStep {
+    /* 0x0 */ s16 duration;
+    /* 0x2 */ s16 gap;
+    /* 0x4 */ s8 side;
+    /* 0x5 */ s8 lineCount;
+} BannerTextStep;
 
-extern R1C2CB_Entry D_807506D0[];
+extern BannerTextStep D_807506D0[];
 
 extern Actor *gCurrentActor;
 extern s8 D_80750754;
@@ -145,14 +145,14 @@ void spriteLinearInterpolateFrame(void) {
         D_807FC8E4--;
         if (D_807FC8E4 <= 0) {
             if (D_80750754 >= 0) {
-                D_80750758 += D_807506D0[D_80750754].unk5;
+                D_80750758 += D_807506D0[D_80750754].lineCount;
             }
             if (D_80750758 >= D_807FC8E0) {
                 D_80750758 = 0;
             }
             D_80750754++;
-            D_807FC8E2 = D_807506D0[D_80750754].unk0;
-            D_807FC8E4 = D_807506D0[D_80750754].unk2;
+            D_807FC8E2 = D_807506D0[D_80750754].duration;
+            D_807FC8E4 = D_807506D0[D_80750754].gap;
         }
     }
     if (D_807FC8E2 < 0xB) {
@@ -162,7 +162,7 @@ void spriteLinearInterpolateFrame(void) {
         }
         D_807FC8EC = 1;
     } else {
-        t = D_807506D0[D_80750754].unk0 - D_807FC8E2;
+        t = D_807506D0[D_80750754].duration - D_807FC8E2;
         k = t & 1;
         t >>= 1;
         if (t < 0x16) {
@@ -180,12 +180,12 @@ void spriteLinearInterpolateFrame(void) {
 
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
-typedef union R1C2CB_Col {
-    s32 w;
-    u8 b[4];
-} R1C2CB_Col;
+typedef union ViewportMargins {
+    s32 word;
+    u8 margin[4];
+} ViewportMargins;
 
-extern R1C2CB_Col D_80750814;
+extern ViewportMargins D_80750814;
 extern f32 D_80750818[];
 extern f32 D_80750828[];
 
@@ -197,7 +197,7 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
     f32 *tbl;
     f32 x;
     f32 y;
-    R1C2CB_Col col;
+    ViewportMargins margins;
     f32 mf[4][4];
     f32 mf2[4][4];
     Mtx *mtx;
@@ -205,18 +205,18 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
     s16 i;
     s16 yoff;
 
-    col = D_80750814;
+    margins = D_80750814;
     if (D_80750754 < 0) {
         return gdl;
     }
-    i = D_807506D0[D_80750754].unk4;
+    i = D_807506D0[D_80750754].side;
     tbl = &D_80750818[i];
     v = ((f64)D_807FC8E8 - 0.5) * (f64)*tbl + (f64)(D_80750828[i] * D_807FC8EC);
     if (v < 0) {
         v = 0;
     }
-    col.b[i] = v;
-    viewportSetMargins(col.b[1], col.b[3], col.b[0], col.b[2]);
+    margins.margin[i] = v;
+    viewportSetMargins(margins.margin[1], margins.margin[3], margins.margin[0], margins.margin[2]);
     if (D_807FC8E8 == 0.0f) {
         return gdl;
     }
@@ -272,8 +272,8 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
         } while (i < D_80750758);
         i = 0;
     }
-    yoff = -D_807506D0[D_80750754].unk5 * 0x23;
-    if (D_807506D0[D_80750754].unk5 > 0) {
+    yoff = -D_807506D0[D_80750754].lineCount * 0x23;
+    if (D_807506D0[D_80750754].lineCount > 0) {
         do {
             gdl = textDrawStringVtx(gdl, 1, -(s16)(textGetStringWidth(1, p) * 2), yoff, p, 0);
             yoff += 0x60;
@@ -284,7 +284,7 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
             }
             i++;
             p++;
-        } while (i < D_807506D0[D_80750754].unk5);
+        } while (i < D_807506D0[D_80750754].lineCount);
     }
     gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
     gDPPipeSync(gdl++);
