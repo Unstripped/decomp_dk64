@@ -9,8 +9,11 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   `u8 idx` (sb v0,73(sp)): IDO omits the andi only for a declared u8 return, every wider return adds it, so the original return is
   u8; options A/B/C32 fail C2A90 + 5 others, C16 fails C2A90/478F0. The 8F4B0 da5663/2c5186 and FCCD0 da5663/06d21a steer pairs
   are per-file and stay FAKE. Evidence .scratch/OwnerHubWorldIndexWidthPlan/plan.md.
-  (b) 135D30 `flagGet` u8 -> s32 (retires jetpac/0 c1a42b/ef3c2a): 217 calls in 49 files, not
-  measured; jetpacUpdateStateAndInput narrows itself (andi t9,v0,0xff at jetpac 0x11d4); evidence .scratch/HackjetpacStateGameOver/.
+  (b) CLOSED, measured (OwnerFlagGetWidthPlan, 2026-11-14): keep `u8 flagGet(s16, u8)`. The return width is contradictory across
+  callers: jetpac/0 narrows the result itself (andi t9,v0,0xff at 0x11d4: compiled against an int return) while 135D30
+  spawnFlagConditionMet 0x80c uses v0 unnarrowed (u8 return) and E4090 0x3944 fails every s32 option; no option passes all 49
+  files. jetpac/0's two steers (lines 4/244) are now `// ORIG:` citing 0x11d4 (lead-verified); 80150's (c1a42b/b5496b) stay FAKE
+  (register-only evidence at 0x7f48). Evidence .scratch/OwnerFlagGetWidthPlan/plan.md.
 - Cast sweep (round 30): 55B20 MapChunk.lastSeenFrame and 61AA0 BillboardCacheEntry.lastUsedFrame stay s32 (u32 retype fdiff 1). model.h/heap.h frame stamps landed u32 after Rev29.
 - 90D80 renderRotatedSprite proto-steer (02809d, 0d85ab) stays: the 103AB0 owner is 32-bit by its own asm (texWidth forwarded in a3 without andi, texHeight read with lw 0x60(sp)); a u8 owner adds andi/lbu. Closed as not applicable (round 29, dbf5cc61: owner texWidth/texHeight u32 instead).
 - critter/5110 D_807FCC40/44 split labels stay (round 27, def29e0b): folding them into gPlayerInventoryTable fails because the folded form shares one table base (Q0687); the u8 pun is now `extern u16 D_807FCC40[]`, tagged.
