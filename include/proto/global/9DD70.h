@@ -85,7 +85,7 @@ void textSpawnMarker(u8, s16, s16, u8 *, u16, u16, u8, u8);
 void textSpawnMarkerChecked(u8, s16, s16, u8 *, u16, u16, u8, u8);
 #endif
 #ifndef PROTO_SKIP_renderAppendScaledMatrix
-void *renderAppendScaledMatrix(void *, Actor *, s16, f32);
+Gfx *renderAppendScaledMatrix(Gfx *, Actor *, s16, f32);
 #endif
 #ifndef PROTO_SKIP_textMarkerRenderString
 Gfx *textMarkerRenderString(Gfx *, Actor *);
@@ -100,7 +100,7 @@ void textMarkerUpdate(void);
 void textCopyGlyphBlock(s32 *, s32 *, u8);
 #endif
 #ifndef PROTO_SKIP_textBuildDigitNode
-s32 textBuildDigitNode(u8, void *, u8, u8, u8);
+void *textBuildDigitNode(u8, void *, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_textUpdateThreeDigitCounter
 void textUpdateThreeDigitCounter(void);

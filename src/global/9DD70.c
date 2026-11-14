@@ -2,8 +2,6 @@
 #include "compiler/ido/memory.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_renderAppendScaledMatrix // stand-in: definition retyped to Gfx *, header regenerated at merge
-#define PROTO_SKIP_textBuildDigitNode // stand-in: definition retyped to return void *, header regenerated at merge
 #define PROTO_SKIP_actorUpdatePrevContactFlags // FAKE: callee prototype steer (owner returns void; see the declaration below)
 #include "proto/boot/3630.h"
 #include "proto/global/100180.h"
@@ -39,8 +37,6 @@
 #include "proto/global/EFDC0.h"
 #include "proto/global/FCCD0.h"
 
-Gfx *renderAppendScaledMatrix(Gfx *, Actor *, s16, f32);
-void *textBuildDigitNode(u8, void *, u8, u8, u8);
 s32 actorUpdatePrevContactFlags(Actor *);
 
 void mathAngleBetweenPoints3D(s16 *pitch, s16 *yaw, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
