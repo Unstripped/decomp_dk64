@@ -20,17 +20,17 @@ typedef struct PositionRecord {
     u8 exit;
     u8 playerIndex;
     u8 pad11;
-    u8 inventory[];
+    KongInventory inventory;
 } PositionRecord;
 
-extern u8 gPlayerInventoryTable[];
+extern KongInventory gPlayerInventoryTable[];
 
 void func_8060B430(Actor *target, PositionRecord *record) {
     target->x = record->x;
     target->y = record->y;
     target->z = record->z;
     target->yaw = record->yaw;
-    memcpy(&gPlayerInventoryTable[record->playerIndex * 0x5E], record->inventory, 0x5E);
+    memcpy(&gPlayerInventoryTable[record->playerIndex], &record->inventory, sizeof(KongInventory));
 }
 
 extern s16 D_807463B0;
