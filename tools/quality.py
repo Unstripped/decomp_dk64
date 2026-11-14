@@ -6,9 +6,19 @@
 method ladder that exhausts them, and the per-function `review` coverage.
 
   uv run tools/quality.py sweep <src.c>... [-j N] [--copy-of <src.c>] [--record --unit U]
-  uv run tools/quality.py record --unit U --agent A [--base REV] --batch FILE|-
+  uv run tools/quality.py record --unit U --agent A [--base REV] [--model SEL] [--skip-missing] --batch FILE|-
   uv run tools/quality.py status [--file src/..c] [--func NAME]
-  uv run tools/quality.py rank [--seg S] [--limit N]
+  uv run tools/quality.py rank [--seg S] [--limit N] [--polish]
+                                         hack queue: functions with hack sites, weakest earlier
+                                         attempts first (best model strength, then most hacks);
+                                         --polish: per file, functions without hack sites left open
+  uv run tools/quality.py history FUNC [--file src/..c] [--all]
+                                         the function's agent events (sweep/carry with --all)
+  uv run tools/quality.py backfill-models SESSIONS_DIR [--dry-run]
+                                         fill drafts/quality/models.jsonl (unit, agent) -> model
+                                         from worker session transcripts
+  uv run tools/quality.py permute-candidates --max-base N --out DIR [--limit N]
+                                         copies + list.tsv for `tools/permute.py batch`
   uv run tools/quality.py report [--baseline REV] [--markdown]
   uv run tools/quality.py carry --rev REV --unit U [--header-carve] [--dry-run] [--func NAME]... [src.c...]
                                          re-stamp results of functions that
@@ -60,24 +70,25 @@ starts with `u`; a warning site hashes `<warning code>\\0` + its line's code; #n
 identical sites within the function.
 
 Ladder (required fresh methods per kind; first missing = next):
-  dead-if                        remove cond classify, then diagnose permute unless classify kept
-  volatile do-while0 dead-store  remove cond diagnose permute
-  noop-arith comma punned-cast other  plain diagnose permute
+  dead-if                        remove cond classify, then recipe diagnose unless classify kept
+  volatile do-while0 dead-store  remove cond recipe diagnose
+  noop-arith comma punned-cast other  plain recipe diagnose
   proto-steer implicit-steer     consolidate diagnose
-  goto                           goto-hand kept, or goto-hand permute
+  goto                           goto-hand
   proto-type                     never exhausted (its function ignores it after a fresh `views` blocked)
   warning                        retype (`fixed`; `kept` with note `fdiff=<1|3>` of the attempted fix;
                                  `blocked` with a note naming the missing header/owner change)
+permute is optional (in no ladder); an offline batch (`permute-candidates`, `permute.py batch`) runs it.
 Satisfied by the method's newest event (by time) when fresh and not `blocked`; a fresh `hit` means
 next=apply.
-Fresh: remove/plain/cond/classify/consolidate/views/names need equal fp_local and fp_hdr2 (hash of
-the include/ declarations, types and macros the function reaches, or the whole header fp_hdr when
+Fresh: remove/plain/cond/classify/recipe/consolidate/views/names need equal fp_local and fp_hdr2 (hash
+of the include/ declarations, types and macros the function reaches, or the whole header fp_hdr when
 it reaches a `##` macro; events without it: the whole
 header fp_hdr); diagnose/permute/reconstruct/goto-hand/retype/review need equal fp_local and no
-knowledge/ido file committed after the event that names the function or, for diagnose/permute/
-reconstruct only, is a top-8 hit for the free text of the event's note (key=value tokens and carry
-prefixes stripped), except an entry naming the function whose frontmatter `unit` produced the event
-(a carried event: the event it copies).
+knowledge/ido file committed after the event that names the function (never through note text),
+except an entry naming the function whose frontmatter `unit` produced the event (a carried event:
+the event it copies).
+`// ORIG: ... 0x<offset>` lines (a construct the target asm really performs) are not sites.
 Review checklist tokens: fake goto casts views protos temps names uninit warn.
 A function is EXHAUSTED with a fresh `review`, every site exhausted, and (3+ non-kept non-warning sites) a
 fresh function-level `reconstruct`; without a fresh review it is OPEN next=review.
@@ -85,17 +96,23 @@ fresh function-level `reconstruct`; without a fresh review it is OPEN next=revie
 sweep: remove (dead ifs, (void)x, dead stores, do{}while(0) wrappers, volatile; all together,
   singles, pairs if >2, triples if 3..6), plain (one rewrite per site line), cond (condition flips
   with all / each removal, pre-scored by deadsweep score --body), classify (dead if -> `if (<int
-  local>) {}`: kept = class 1). A hit needs tools/fdiff.sh --reloc-ok exit 0 (OK or RELOC-EQUIV OK) and no new clint uninit pair; it
+  local>) {}`: kept = class 1), recipe (tools/variants.py natural respellings, swapped comparison
+  operands, float literal suffixes, local widths, declaration order, scanned on the all-removal,
+  each single removal when there are several, and each plain rewrite). A hit needs tools/fdiff.sh --reloc-ok exit 0 (OK or RELOC-EQUIV OK) and no new clint uninit pair; it
   is written to .scratch/quality/hits/<seg>_<file>_<n>.c (`HIT <keys> <method> <path>`), never
   applied. --record appends one event per site and method (agent `sweep`), every sweep method of
   the site's ladder included: a site the sweep has no edit for (a dead test or `do {` sharing its
-  line with other statements, an if with a body) records remove/cond `nohit` (`no removal`) and
+  line with other statements, an if with a body) records remove/cond/recipe `nohit` (`no removal`) and
   classify `nohit` (`no guard`), so the next sweep refreshes them after a header change. Warning sites are not
   swept; each prints `WARN <key> line <n> [W<code> <msg>]` (a copy's warning-site keys).
 record line: <site-key|func:<seg>:<name>> <method> <outcome> [quirks=Q1,Q2] [seconds=N] [base=N]
-  [best=N] [commit=H] [note="..."]; all lines validated (keys at HEAD, fixed sites at --base REV:
+  [best=N] [commit=H] [note="..."] [new="..."]; all lines validated (keys at HEAD, fixed sites at --base REV:
   REV's text analysed and compiled against REV's headers) before anything is written. A failed
-  compile exits 1 naming the file, the rev and the first `cfe: Error` line.
+  compile exits 1 naming the file, the rev and the first `cfe: Error` line. A diagnose/permute/
+  reconstruct/goto-hand line on a site (reconstruct: function) another unit or agent already tried
+  with that method needs new="<what this attempt tried that earlier ones did not>". --model
+  stores the worker selector on every event; --skip-missing drops lines whose key no longer
+  resolves (`record: skipped line N`).
 """
 import argparse
 import collections
@@ -129,15 +146,15 @@ SCRATCH = os.path.join(ROOT, ".scratch", "quality")
 
 KINDS = ("dead-if", "volatile", "do-while0", "dead-store", "noop-arith", "comma", "punned-cast",
          "proto-steer", "implicit-steer", "proto-type", "goto", "other", "warning")
-LADDER = {"dead-if": ("remove", "cond", "classify", "diagnose", "permute"),
-          **dict.fromkeys(("volatile", "do-while0", "dead-store"), ("remove", "cond", "diagnose", "permute")),
-          **dict.fromkeys(("noop-arith", "comma", "punned-cast", "other"), ("plain", "diagnose", "permute")),
+LADDER = {"dead-if": ("remove", "cond", "classify", "recipe", "diagnose"),
+          **dict.fromkeys(("volatile", "do-while0", "dead-store"), ("remove", "cond", "recipe", "diagnose")),
+          **dict.fromkeys(("noop-arith", "comma", "punned-cast", "other"), ("plain", "recipe", "diagnose")),
           **dict.fromkeys(("proto-steer", "implicit-steer"), ("consolidate", "diagnose")),
-          "goto": ("goto-hand", "permute"), "proto-type": (), "warning": ("retype",)}
-METHODS = ("remove", "plain", "cond", "classify", "consolidate", "diagnose", "permute", "reconstruct",
+          "goto": ("goto-hand",), "proto-type": (), "warning": ("retype",)}
+METHODS = ("remove", "plain", "cond", "classify", "recipe", "consolidate", "diagnose", "permute", "reconstruct",
            "goto-hand", "views", "names", "review", "retype")
-AUTO = {"remove", "plain", "cond", "classify", "consolidate", "views", "names"}
-NOTE_METHODS = {"diagnose", "reconstruct"}  # knowledge also stales them via their note; permute only by name
+AUTO = {"remove", "plain", "cond", "classify", "recipe", "consolidate", "views", "names"}
+HARD = ("diagnose", "permute", "reconstruct", "goto-hand")  # agent methods a retry must name something new for
 FUNC_ONLY = {"views", "names", "review"}
 OUTCOMES = ("hit", "fixed", "nohit", "kept", "blocked")
 CHECKLIST = ("fake", "goto", "casts", "views", "protos", "temps", "names", "uninit", "warn")
@@ -621,34 +638,24 @@ def unit_events(unit, events):
 
 
 def event(unit, agent, fn, site, method, outcome, quirks=(), seconds=None, base=None, best=None, commit=None,
-          note=None):
+          note=None, model=None, new=None):
     return {"type": "quality", "t": ledger.now(), "unit": unit, "agent": agent, "seg": fn["seg"],
             "vram": f"{fn['vram']:08X}", "name": fn["name"], "file": fn["file"],
             "site": site["key"] if site else None, "kind": site["kind"] if site else None, "method": method,
             "outcome": outcome, "fp_local": fn["fp_local"], "fp_hdr": fn["fp_hdr"],
             "fp_hdr2": fn.get("fp_hdr2"), "quirks": list(quirks),
-            "seconds": seconds, "base": base, "best": best, "commit": commit, "note": note}
+            "seconds": seconds, "base": base, "best": best, "commit": commit, "note": note,
+            "model": model, "new": new}
 
 
 _know = {}
 
 
-KV_TOKEN = re.compile(r"\b\w+=\S*")
-CARRIED = re.compile(r"carried from \S+ \([^)]*\):?")
-
-
-def note_text(note):
-    """NOTE without its structured `key=value` tokens (review checklist `fake=0/0 ... uninit=0`,
-    `quirks=`/`seconds=`/`base=`/`best=`) and `carry` prefixes, or None when nothing else is left."""
-    rest = KV_TOKEN.sub(" ", CARRIED.sub(" ", note or ""))
-    return rest.strip() if re.search(r"\w", rest) else None
-
-
-def knowledge_after(name, note, t, unit=None):
-    """Whether a knowledge/ido file committed after T names NAME or is a top-8 hit for NOTE's free
-    text (checklist tokens stripped: they match every broad entry; NOTE None: the name check alone),
-    entries filed by UNIT (frontmatter `unit`) that name NAME aside: the event's own unit derived
-    them from runs like it, so it already had the finding."""
+def knowledge_after(name, t, unit=None):
+    """Whether a knowledge/ido file committed after T names NAME (its current or func_ADDR name),
+    entries filed by UNIT (frontmatter `unit`) aside: the event's own unit derived them from runs
+    like it, so it already had the finding. Note text never stales: its top-8 hits matched
+    unrelated broad entries and re-ran the same attempts."""
     if "times" not in _know:
         _know["times"] = ledger.knowledge_times()
         _know["newest"] = max((v for v in _know["times"].values() if v), default="")
@@ -656,9 +663,9 @@ def knowledge_after(name, note, t, unit=None):
         return False
     if "corpus" not in _know:
         _know["corpus"] = quirks.load()
-    key = (name, note_text(note))
+    key = ("name", name)
     if key not in _know:
-        _know[key] = ledger.related_knowledge(_know["corpus"], name, key[1])
+        _know[key] = ledger.related_knowledge(_know["corpus"], name, None)
     new = {p for p in _know[key] if (_know["times"].get(p) or "") > t}
     return bool(new) and not new <= own_knowledge(name, unit)
 
@@ -702,18 +709,15 @@ def origin_unit(e, evs=()):
 
 
 def fresh(e, now_fp, name, evs=()):
-    """NOW_FP = (fp_local, fp_hdr[, fp_hdr2]). Knowledge stales an agent method through the
-    function's name; only NOTE_METHODS (diagnose, reconstruct) also through the top-8 hits of their
-    note: a review's or goto rewrite's prose (`re-read`, `steer`) matches unrelated broad entries,
-    and a permute re-run on a note hit cost 96 ks for one fix in rounds 35-36. An entry filed by
-    the unit that produced the event (`origin_unit` over EVS) and naming the function stales
-    neither way (`own_knowledge`)."""
+    """NOW_FP = (fp_local, fp_hdr[, fp_hdr2]). Knowledge stales an agent method only through the
+    function's name, never through its note (a retry must name what is new instead: `record`'s
+    `new=` gate). An entry filed by the unit that produced the event (`origin_unit` over EVS) and
+    naming the function does not stale it (`own_knowledge`)."""
     if e["fp_local"] != now_fp[0]:
         return False
     if e["method"] in AUTO:
         return hdr_fresh(e, now_fp)
-    note = e["note"] if e["method"] in NOTE_METHODS else None
-    return not knowledge_after(name or e["name"], note, e["t"], origin_unit(e, evs))
+    return not knowledge_after(name or e["name"], e["t"], origin_unit(e, evs))
 
 
 def mark(evs, method, now_fp, name):
@@ -1021,7 +1025,7 @@ def parse_line(line):
     toks = shlex.split(line)
     if len(toks) < 3:
         raise ValueError("need <key> <method> <outcome> [field=value...]")
-    opts = dict(quirks=[], seconds=None, base=None, best=None, commit=None, note=None)
+    opts = dict(quirks=[], seconds=None, base=None, best=None, commit=None, note=None, new=None)
     for t in toks[3:]:
         k, eq, v = t.partition("=")
         if not eq or k not in opts:
@@ -1072,7 +1076,7 @@ def validate(key, method, outcome, o):
         return "diagnose needs quirks=Q1,Q2"
     if method == "permute" and (o["base"] is None or o["best"] is None
                                 or ((o["seconds"] or 0) < 600 and o["best"] != 0)):
-        return "permute needs base= and best=, and seconds>=600 unless best=0 (the run stops on a zero score)"
+        return "permute needs base= and best=, and seconds>=600 unless best=0 (a zero score settles it)"
     if method == "review":
         if outcome not in ("fixed", "nohit", "blocked"):
             return "review outcome is fixed, nohit or blocked"
@@ -1133,9 +1137,28 @@ class Resolver:
 AGENT_ID = re.compile(r"[A-Za-z0-9_]{1,48}(\.[A-Za-z0-9_]{1,48}){0,3}")  # subagents: `Clean12E800.SnXxx`
 
 
+MODEL_SEL = re.compile(r"[\w.-]+/[\w.-]+(:\w+)?")  # provider/model[:thinking level]
+
+
+def retry_error(ev, by_site, by_func, unit, agent):
+    """Error text when EV is a HARD-method attempt without `new=` on a site (function, for
+    reconstruct) that another unit or agent already tried with that method, else None. A re-record
+    of UNIT/AGENT's own attempt (merge_record.py at the merge commit) is exempt."""
+    if ev["method"] not in HARD or ev.get("new"):
+        return None
+    prior = by_func[(ev["seg"], ev["vram"])] if ev["method"] == "reconstruct" else by_site[ev["site"]]
+    prior = [e for e in prior if e["method"] == ev["method"] and e.get("agent") != "sweep"]
+    if not prior or any((e.get("unit"), e.get("agent")) == (unit, agent) for e in prior):
+        return None
+    return (f"tried before ({len(prior)} earlier events): "
+            f'add new="<what this attempt tried that earlier ones did not>"')
+
+
 def cmd_record(a):
     if not AGENT_ID.fullmatch(a.agent):
         sys.exit(f"quality: bad agent name {a.agent!r}")
+    if a.model is not None and not MODEL_SEL.fullmatch(a.model):
+        sys.exit("quality: bad model selector")
     src = sys.stdin if a.batch == "-" else open(a.batch)
     rows, errors = [], []
     for n, line in enumerate(src.read().split("\n"), 1):
@@ -1151,14 +1174,24 @@ def cmd_record(a):
             errors.append(f"line {n}: {key} {method}: {err}")
         else:
             rows.append((n, key, method, outcome, o))
-    res, events = Resolver(a.base), []
+    res, events, numbered = Resolver(a.base), [], []
     for n, key, method, outcome, o in rows if not errors else ():
         found = res.find(key)
         if isinstance(found, str):
+            if a.skip_missing and (found.startswith("no site") or found.startswith("no C function")):
+                print(f"record: skipped line {n}: {key} (no site)", file=sys.stderr)
+                continue
             errors.append(f"line {n}: {found}")
             continue
         fn, site = found
-        events.append(event(a.unit, a.agent, fn, site, method, outcome, **o))
+        events.append(event(a.unit, a.agent, fn, site, method, outcome, model=a.model, **o))
+        numbered.append((n, key))
+    old = load_events()
+    by_site, by_func = index_events(old)
+    for (n, key), ev in zip(numbered, events):
+        err = retry_error(ev, by_site, by_func, a.unit, a.agent)
+        if err:
+            errors.append(f"line {n}: {key} {ev['method']}: {err}")
     if errors:
         for e in errors:
             print(f"record: {e}", file=sys.stderr)
@@ -1167,7 +1200,7 @@ def cmd_record(a):
     if a.dry_run:
         print(f"would record {len(events)} events (unit {a.unit}) to {rel(LEDGER)}")
         return
-    append_events(unit_events(a.unit, load_events()) + events)
+    append_events(unit_events(a.unit, old) + events)
     print(f"recorded {len(events)} events (unit {a.unit}) to {rel(LEDGER)}")
 
 
@@ -2189,6 +2222,9 @@ def main(argv=None):
     c.add_argument("--agent", required=True)
     c.add_argument("--base")
     c.add_argument("--batch", required=True)
+    c.add_argument("--model", help="worker selector provider/model[:level], stored on every event")
+    c.add_argument("--skip-missing", action="store_true",
+                   help="drop lines whose site or function no longer exists instead of failing")
     c.add_argument("--dry-run", action="store_true")
     c.set_defaults(fn=cmd_record)
     c = s.add_parser("status")

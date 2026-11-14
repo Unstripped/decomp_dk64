@@ -25,14 +25,15 @@ def ev(site, method, outcome, fp=FP, note=None, **kw):
     e = dict(type="quality", t="2026-01-01T00:00:00Z", unit="u", agent="a", seg="global", vram="80600000",
              name="f", file="src/global/x.c", site=site["key"] if site else None,
              kind=site["kind"] if site else None, method=method, outcome=outcome, fp_local=fp[0], fp_hdr=fp[1],
-             fp_hdr2=None, quirks=[], seconds=None, base=None, best=None, commit=None, note=note)
+             fp_hdr2=None, quirks=[], seconds=None, base=None, best=None, commit=None, note=note, model=None,
+             new=None)
     e.update(kw)
     return e
 
 
 @pytest.fixture(autouse=True)
 def no_new_knowledge(monkeypatch):
-    monkeypatch.setattr(q, "knowledge_after", lambda name, note, t, unit=None: False)
+    monkeypatch.setattr(q, "knowledge_after", lambda name, t, unit=None: False)
 
 
 @pytest.fixture(autouse=True)
@@ -57,10 +58,11 @@ def test_changed_header_fingerprint_is_stale():
     assert marks["remove"] == "stale"
 
 
-def test_class2_site_needs_permute():
-    evs = [ev(SITE, "remove", "nohit"), ev(SITE, "cond", "nohit"), ev(SITE, "classify", "nohit", note="class 2"),
-           ev(SITE, "diagnose", "nohit", quirks=["Q0001"])]
-    assert q.exhausted(SITE, evs, FP)[:2] == (False, "permute")
+def test_class2_site_needs_recipe_then_diagnose():
+    evs = [ev(SITE, "remove", "nohit"), ev(SITE, "cond", "nohit"), ev(SITE, "classify", "nohit", note="class 2")]
+    assert q.exhausted(SITE, evs, FP)[:2] == (False, "recipe")
+    evs += [ev(SITE, "recipe", "nohit"), ev(SITE, "diagnose", "nohit", quirks=["Q0001"])]
+    assert q.exhausted(SITE, evs, FP)[:2] == (True, None)
 
 
 def test_function_without_sites_needs_review():
@@ -333,32 +335,25 @@ def test_carry_renames_with_unrelated_file_scope_changes(tmp_path, monkeypatch, 
 _real_knowledge_after = q.knowledge_after
 
 
-def test_review_freshness_ignores_checklist_tokens(monkeypatch):
+def test_knowledge_search_is_name_only(monkeypatch):
     calls = []
 
     def related(corpus, name, note):
         calls.append(note)
-        paths = {"knowledge/ido/entries/Q9001.md"} if note else set()  # broad entry: top-8 for any note
-        if name == "named":
-            paths.add("knowledge/ido/entries/Q9002.md")
-        return paths
+        return {"knowledge/ido/entries/Q9002.md"} if name == "named" else set()
 
-    times = {"knowledge/ido/entries/Q9001.md": "2026-02-01T00:00:00Z",
-             "knowledge/ido/entries/Q9002.md": "2026-02-01T00:00:00Z"}
+    times = {"knowledge/ido/entries/Q9002.md": "2026-02-01T00:00:00Z"}
     monkeypatch.setattr(q, "_know", {"times": times, "newest": max(times.values()), "corpus": []})
     monkeypatch.setattr(q.ledger, "related_knowledge", related)
     t = "2026-01-01T00:00:00Z"
-    assert q.note_text(REVIEW) is None
-    assert not _real_knowledge_after("f", REVIEW, t)  # checklist only: name-based check only
-    assert calls[-1] is None
-    assert _real_knowledge_after("named", REVIEW, t)  # a file naming the function still stales it
-    assert _real_knowledge_after("f", "regalloc swap " + REVIEW, t)  # free text still searched
-    assert calls[-1] == "regalloc swap"
+    assert not _real_knowledge_after("f", t)
+    assert _real_knowledge_after("named", t)  # a file naming the function stales it
+    assert calls == [None, None]  # never searched by note text
 
 
-def test_note_hits_stale_only_diagnose_reconstruct(monkeypatch):
-    # Q0589/Q0118: a broad entry matching a review's prose (`re-read`, `steer`) staled reviews;
-    # rounds 35-36: top-8 note hits re-ran permute for 96 ks and one fix, so permute is name-only too
+def test_note_hits_never_stale(monkeypatch):
+    # rounds 18-36: top-8 note hits re-ran the same diagnose/permute attempts; a retry must name
+    # what is new (record's new= gate) instead
     monkeypatch.setattr(q, "knowledge_after", _real_knowledge_after)
     monkeypatch.setattr(q.ledger, "related_knowledge", lambda corpus, name, note: (
         {"knowledge/ido/entries/Q9001.md"} if note else set()) | (
@@ -368,15 +363,12 @@ def test_note_hits_stale_only_diagnose_reconstruct(monkeypatch):
     monkeypatch.setattr(q, "_know", {"times": times, "newest": max(times.values()),
                                      "corpus": q.quirks.Corpus(Path("."))})
     note = "re-read after the steer fix " + REVIEW
-    for m in ("review", "goto-hand", "permute"):
+    for m in ("review", "goto-hand", "permute", "diagnose", "reconstruct", "retype"):
         assert q.fresh(ev(None, m, "nohit", note=note), FP, "f")  # note hit alone: still fresh
         assert not q.fresh(ev(None, m, "nohit", note=note, name="named"), FP, "named")  # name hit
-    for m in ("diagnose", "reconstruct"):
-        assert not q.fresh(ev(None, m, "nohit", note=note), FP, "f")
-        assert not q.fresh(ev(None, m, "nohit", note=note, name="named"), FP, "named")
 
 
-def test_permute_note_hit_does_not_stale_but_diagnose_does(tmp_path, monkeypatch):
+def test_entry_naming_function_stales_every_method(tmp_path, monkeypatch):
     repo, kroot = _knowledge_repo(tmp_path, monkeypatch)
     (repo / "symbol_addrs.us.txt").write_text("fooBar = 0x80600000; // type:func\n")
     hit = q.quirks.add_entry(kroot, "spill across the jal", "uopt", ["regalloc"], "sp+0x34 spill across the jal")
@@ -390,12 +382,11 @@ def test_permute_note_hit_does_not_stale_but_diagnose_does(tmp_path, monkeypatch
 
     newer_hit = {f"knowledge/ido/entries/{hit}.md": "2026-02-01T00:00:00Z",
                  f"knowledge/ido/entries/{named}.md": "2026-01-01T00:00:00Z"}
-    assert fresh("permute", newer_hit)  # a newer top-8 hit for the note alone
-    assert not fresh("diagnose", newer_hit)
     newer_named = {f"knowledge/ido/entries/{hit}.md": "2026-01-01T00:00:00Z",
                    f"knowledge/ido/entries/{named}.md": "2026-02-01T00:00:00Z"}
-    assert not fresh("permute", newer_named)  # a newer entry naming the function
-    assert not fresh("diagnose", newer_named)
+    for m in ("permute", "diagnose", "reconstruct"):
+        assert fresh(m, newer_hit)  # a newer top-8 hit for the note alone
+        assert not fresh(m, newer_named)  # a newer entry naming the function
 
 
 R34 = "2026-11-13: cleanup round 34"
@@ -423,17 +414,15 @@ def test_own_unit_entry_naming_function_does_not_stale(tmp_path, monkeypatch):
     monkeypatch.setattr(q, "_know", {"times": times, "newest": max(times.values()), "corpus": q.quirks.load(kroot)})
 
     def fresh(name, method, unit, t="2026-01-20T00:00:00Z"):
-        note = "spill across the jal" if method in q.NOTE_METHODS else REVIEW
+        note = "spill across the jal" if method in ("diagnose", "reconstruct") else REVIEW
         return q.fresh(ev(None, method, "nohit", note=note, name=name, unit=unit, t=t), FP, name)
 
     for m in ("review", "goto-hand", "retype", "diagnose", "permute", "reconstruct"):
         assert fresh("fooBar", m, R34)  # same unit, named (also a note hit): its agents had the finding
         assert not fresh("fooBar", m, "2026-11-12: cleanup round 33")  # earlier unit: staled
         assert not fresh("fooBar", m, R34, t="2026-01-10T00:00:00Z")  # another newer entry names it
-    for m in ("diagnose", "reconstruct"):
-        assert not fresh("otherFn", m, R34)  # same unit, not in `functions`: note hit still stales
-    assert fresh("otherFn", "permute", R34)
-    assert fresh("otherFn", "review", R34)
+    for m in ("diagnose", "permute", "reconstruct", "review"):
+        assert fresh("otherFn", m, R34)  # not in `functions`: a note hit alone never stales
     # a carried event holds an earlier agent's result under the carrying unit: the copied event's unit counts
     t = "2026-01-20T00:00:00Z"
     for orig_unit, ok in ((R34, True), ("2026-11-12: cleanup round 22", False)):
@@ -591,10 +580,40 @@ def test_carry_across_retagged_file_scope_site(tmp_path, monkeypatch, capsys, ol
     assert all(e["site"] in (None, dead["key"]) for e in carried)
 
 
-def test_note_text_strips_carry_prefixes():
-    assert q.note_text("carried from abc^ (unrelated file-scope changes only): carried from def (identifier "
-                       "renames only): " + REVIEW) is None
-    assert q.note_text("carried from abc^ (identifier renames only): regalloc swap") == "regalloc swap"
+def test_record_requires_new_for_retry(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
+    monkeypatch.setattr(q.Resolver, "find", lambda self, key: (dict(FN, file="src/global/x.c"), SITE))
+    batch = tmp_path / "batch.txt"
+    line = f'{SITE["key"]} diagnose nohit quirks=Q0001 note="regalloc"'
+    batch.write_text(line + "\n")
+    q.main(["record", "--unit", "u0", "--agent", "Old", "--batch", str(batch)])
+    with pytest.raises(SystemExit) as ex:
+        q.main(["record", "--unit", "u1", "--agent", "New", "--batch", str(batch)])
+    assert ex.value.code == 1 and "tried before (1 earlier events)" in capsys.readouterr().err
+    batch.write_text(line + ' new="swap"\n')
+    q.main(["record", "--unit", "u1", "--agent", "New", "--batch", str(batch)])
+    assert q.load_events()[-1]["new"] == "swap"
+    batch.write_text(line + "\n")
+    q.main(["record", "--unit", "u0", "--agent", "Old", "--batch", str(batch)])  # its own re-record
+    assert [e["agent"] for e in q.load_events() if e["type"] == "quality"] == ["Old", "New", "Old"]
+
+
+def test_record_model_and_skip_missing(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
+    gone = "global:80600000:dead-if:ffffff"
+    monkeypatch.setattr(q.Resolver, "find", lambda self, key: (
+        f"no site {key} at HEAD" if key == gone else (dict(FN, file="src/global/x.c"), SITE)))
+    batch = tmp_path / "batch.txt"
+    batch.write_text(f"{gone} remove nohit\n{SITE['key']} remove nohit\n")
+    with pytest.raises(SystemExit):
+        q.main(["record", "--unit", "u", "--agent", "a", "--batch", str(batch)])
+    with pytest.raises(SystemExit):
+        q.main(["record", "--unit", "u", "--agent", "a", "--model", "opus", "--batch", str(batch)])
+    q.main(["record", "--unit", "u", "--agent", "a", "--model", "anthropic/claude-opus-5-5:xhigh",
+            "--skip-missing", "--batch", str(batch)])
+    assert "skipped line 1" in capsys.readouterr().err
+    e, = [e for e in q.load_events() if e["type"] == "quality"]
+    assert (e["site"], e["model"]) == (SITE["key"], "anthropic/claude-opus-5-5:xhigh")
 
 
 @pytest.mark.parametrize("code, plain", [
