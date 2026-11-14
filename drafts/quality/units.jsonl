@@ -355,3 +355,4 @@
 {"type": "unit", "t": "2026-11-14T19:15:16Z", "unit": "2026-11-14: cleanup HackraceVehicleBehaviorUpdate", "commit": "3c7a0d641c090c933b40732b6495e45602bddadd"}
 {"type": "unit", "t": "2026-11-14T19:15:27Z", "unit": "2026-11-14: cleanup HackarcadeSpawnStage3Entities", "commit": "c820039eeb4ca56bbb8aaefd78137e6a4db75985"}
 {"type": "unit", "t": "2026-11-14T19:15:54Z", "unit": "2026-11-14: cleanup HackeffectWaterInitNodes", "commit": "86af9595b5019a5361a6e7227244a484d0ad7930"}
+{"type": "unit", "t": "2026-11-14T19:17:25Z", "unit": "2026-11-14: cleanup HackplayerInputStepTurnFacingAngle", "commit": "6e0afcdf88ed4139826606beca0ecfba672774b6"}
