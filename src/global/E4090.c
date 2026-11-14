@@ -984,10 +984,9 @@ void playerInputHandleAButtonState41(void) {
 }
 
 extern s32 gCurrentMap;
-extern u8 D_807FCA6A[];
 
 void playerInputCheckBButtonChargeCallback(void) {
-    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) && (D_807FCA6A[gCurrentPlayerIndex * 0x306] >= 2) && (gCurrentMap != 0xE)) {
+    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) && (gPlayerInventoryTable[gCurrentPlayerIndex].kong[3].unk0[0] >= 2) && (gCurrentMap != 0xE)) {
         playerStateQueueCallback(9, 0, gCurrentPlayerIndex);
         gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
@@ -1686,9 +1685,6 @@ extern s16 D_8075381C[];
 extern s16 D_8075382C[];
 extern s16 D_8075385C[];
 extern f32 D_80750FF4;
-extern u8 D_807FC9AE[];
-extern u8 D_807FCA0C[];
-extern u8 D_807FCAC8[];
 
 void playerInputHandleBButtonGun(void) {
     PadInputState *pad;
@@ -1793,17 +1789,17 @@ void playerInputHandleBButtonSpecial(void) {
         } else {
             switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
                 case 2:
-                    if (D_807FCA0C[gCurrentPlayerIndex * 0x306] > 0) {
+                    if (gPlayerInventoryTable[gCurrentPlayerIndex].kong[2].unk0[0] > 0) {
                         playerStateQueueCallback(0x25, 0, gCurrentPlayerIndex);
                     }
                     break;
                 case 4:
-                    if (D_807FCAC8[gCurrentPlayerIndex * 0x306] >= 2) {
+                    if (gPlayerInventoryTable[gCurrentPlayerIndex].kong[4].unk0[0] >= 2) {
                         playerStateQueueCallback(0x26, 0, gCurrentPlayerIndex);
                     }
                     break;
                 case 1:
-                    if (D_807FC9AE[gCurrentPlayerIndex * 0x306] > 0) {
+                    if (gPlayerInventoryTable[gCurrentPlayerIndex].kong[1].unk0[0] > 0) {
                         gActivePlayerState->turnRate = 0x64;
                         gCurrentActor->state = 0x2E;
                         gCurrentActor->unk155 = 0;

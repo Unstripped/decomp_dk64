@@ -31,7 +31,6 @@ extern s32 gCurrentMap;
 extern u8 D_807ECE00[];
 extern Actor *gCurrentActor;
 extern u16 D_807FCC44;
-extern u16 D_807FCC40[];
 
 
 void critterBattleArenaUpdate(void) {
@@ -53,9 +52,9 @@ void critterBattleArenaUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         D_80029FA8 = 0;
         camStartPath(0, 0, 1);
-        tmp = D_807FCC40[2]; // FAKE: reads gPlayerInventoryTable[0].unk2F4 through a second label so IDO keeps two lui pairs instead of one table base (gPlayerInventoryTable spelling tried, base CSE)
+        tmp = gPlayerInventoryTable[0].unk2F4;
         D_80029FA4 = tmp;
-        D_807FCC44 = 0;
+        D_807FCC44 = 0; // FAKE: clears gPlayerInventoryTable[0].unk2F4 through its split label so IDO keeps a second lui pair (the table spelling here CSEs the base: fdiff 1)
         slotQueueSetShownValue(4, 0, 0);
         switch (gCurrentMap) {
         case 0xB1:
@@ -164,7 +163,7 @@ void critterBattleArenaUpdate(void) {
                     flagSet(rewardFlag, 1, 0);
                 }
                 tmp = D_80029FA4;
-                D_807FCC44 = tmp;
+                gPlayerInventoryTable[0].unk2F4 = tmp;
                 slotQueueSetShownValue(4, 0, tmp);
                 mapFindPreviousSavedMap(&returnMap, &returnExit);
                 mapTransitionExitCurrent(returnMap, 0);
