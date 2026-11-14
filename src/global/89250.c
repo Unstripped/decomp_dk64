@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_sfxPlayAtPositionPooled // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/166A0.h"
@@ -773,7 +772,6 @@ void effectSpawnBoneSparkAttached(u8 bone) {
     effectCreateAtActorBone(&D_8072006C, 1.0f, gCurrentActor, bone, 0);
 }
 
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32); // FAKE: callee prototype steer
 extern s32 D_80720B24;
 
 void effectSpawnJointBeam(u8 minBoneA, u8 maxBoneA, u8 minBoneB, u8 maxBoneB) {
@@ -789,6 +787,7 @@ void effectSpawnJointBeam(u8 minBoneA, u8 maxBoneA, u8 minBoneB, u8 maxBoneB) {
     f32 screenBX;
     f32 screenBY;
     f32 screenDist;
+    s16 sfxId;
     u8 bones[2];
 
     bones[1] = ((randomNonNegative() >> 15) % 0x7FFF) % ((maxBoneA - minBoneA) + 1) + minBoneA;
@@ -816,7 +815,8 @@ void effectSpawnJointBeam(u8 minBoneA, u8 maxBoneA, u8 minBoneB, u8 maxBoneB) {
     }
     if ((gCurrentActor->actorType == 0xB9) && (((randomNonNegative() >> 15) % 1000) >= 0x385)) {
         effectSpawnBoneSparkAttached((((randomNonNegative() >> 15) % 0x7FFF) % 10) + 13);
-        sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, (((randomNonNegative() >> 15) % 1000) >= 501) ? 0x8A : 0xA1, 0xFF, 0x7F, 0x28, 0, 0.3f, 0);
+        sfxId = (((randomNonNegative() >> 15) % 1000) >= 501) ? 0x8A : 0xA1;
+        sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, sfxId, 0xFF, 0x7F, 0x28, 0, 0.3f, 0);
     }
 }
 
