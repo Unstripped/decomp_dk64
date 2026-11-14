@@ -68,24 +68,11 @@ void jetpacInitRocketParts(JetpacPlayer *player) {
 
 
 
-extern s32 D_8002F064;
 extern JetpacState jetpacPlayer;
-extern f32 D_8002F054;
-extern f32 D_8002F058;
-extern f32 D_8002F05C;
-extern s32 D_8002F06C;
-extern s32 D_8002F070;
-extern s32 D_8002F074;
-extern s32 D_8002F078;
-
-typedef struct JetW2FpABox {
-    /* 0x0 */ s32 boxX1;
-} JetW2FpABox;
 
 void jetpacRocketItemUpdate(JetpacItem *item) {
     JetpacPlayer *inner = &jetpacGame.players[jetpacGame.activePlayer];
     JetpacPlayerActor *player;
-    JetW2FpABox *playerBox;
 
     if (item->unk1C == 0) {
         return;
@@ -100,10 +87,9 @@ void jetpacRocketItemUpdate(JetpacItem *item) {
     if (item->unk1C == 1) {
         item->unk1C = 2;
     }
-    player = &jetpacPlayer.player; // FAKE: pointer to the jetman keeps player->x/y uncoloured ilods loaded late for the box args (direct reads colour early)
-    playerBox = (JetW2FpABox *)&D_8002F06C; // FAKE: pointer view of global steers its load
+    player = &jetpacPlayer.player;
     if (item->unk38 == 0) {
-        if (item->unk14 > 0.0f && D_8002F064 != 4) {
+        if (item->unk14 > 0.0f && player->state != 4) {
             s32 hit = jetpacCheckLedgeCollision(item->unk24 + item->unk8 + item->unk10, item->unk28 + item->unkC + item->unk14,
                                                 item->unk2C + item->unk8 + item->unk10, item->unk30 + item->unkC + item->unk14, 0);
             if (hit >= 0) {
@@ -113,10 +99,10 @@ void jetpacRocketItemUpdate(JetpacItem *item) {
                 item->unkC += item->unk14;
             }
         }
-        if (D_8002F064 == 3) {
+        if (player->state == 3) {
             if (jetpacCheckAabbOverlapWrapped(item->unk8 + item->unk24, item->unkC + item->unk28, item->unk8 + item->unk2C, item->unkC + item->unk30,
-                              player->x + D_8002F06C, player->y + D_8002F070, player->x + D_8002F074,
-                              player->y + D_8002F078)) {
+                              player->x + player->boxX1, player->y + player->boxY1, player->x + player->boxX2,
+                              player->y + player->boxY2)) {
                 item->unk38 = 1;
                 inner->score += item->unk3C;
                 jetpacPlaySound(4);
@@ -124,12 +110,12 @@ void jetpacRocketItemUpdate(JetpacItem *item) {
         }
     }
     if (item->unk38 == 1) {
-        if (D_8002F064 == 4) {
+        if (player->state == 4) {
             item->unk38 = 0;
             item->unk14 = 0.8f;
         } else {
-            item->unk8 = (jetpacPlayer.player.x - 2 * D_8002F058 + playerBox->boxX1) + (D_8002F074 - D_8002F06C - item->unk2C + item->unk24) * 0.5;
-            item->unkC = D_8002F054 - D_8002F05C + D_8002F078 - item->unk30;
+            item->unk8 = (player->x - 2 * player->vx + player->boxX1) + (player->boxX2 - player->boxX1 - item->unk2C + item->unk24) * 0.5;
+            item->unkC = player->y - player->vy + player->boxY2 - item->unk30;
             if (jetpacIsOverRocket(item->unk8)) {
                 item->unk8 = 168.0f;
                 item->unk14 = 0.8f;
@@ -245,7 +231,7 @@ void jetpacBonusItemUpdate(JetpacItem *item) {
     if (item->unk1C == 1) {
         item->unk1C = 2;
     }
-    player = &jetpacPlayer.player; // FAKE: pointer to the jetman keeps player->x/y uncoloured ilods loaded late for the box args (direct reads colour early)
+    player = &jetpacPlayer.player;
     if (item->unk38 == 0) {
         if (item->unk14 > 0.0f) {
             s32 hit = jetpacCheckLedgeCollision(item->unk24 + item->unk8 + item->unk10, item->unk28 + item->unkC + item->unk14,
@@ -257,10 +243,10 @@ void jetpacBonusItemUpdate(JetpacItem *item) {
                 item->unkC += item->unk14;
             }
         }
-        if (jetpacGame.gameState == 2 && D_8002F064 == 3) {
+        if (jetpacGame.gameState == 2 && player->state == 3) {
             if (jetpacCheckAabbOverlapWrapped(item->unk8 + item->unk24, item->unkC + item->unk28, item->unk8 + item->unk2C, item->unkC + item->unk30,
-                              player->x + D_8002F06C, player->y + D_8002F070, player->x + D_8002F074,
-                              player->y + D_8002F078)) {
+                              player->x + player->boxX1, player->y + player->boxY1, player->x + player->boxX2,
+                              player->y + player->boxY2)) {
                 if (item->unk40 == 6) {
                     flagSet(0x62, 1, 2);
                 }
