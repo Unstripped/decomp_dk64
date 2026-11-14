@@ -225,8 +225,14 @@ u8 func_80676BCC(Actor *actor, Actor *target, ActorCollisionList *list) {
 
 u8 func_80676C10(Actor *actor, Actor *target, ActorCollisionList *list) {
     PlayerState *ps = target->customState;
+    s32 onSurface;
 
-    return (ps->surfaceTimer ? 1 : 0) || func_806769A8(actor, target, list); // FAKE: redundant ?1:0 normalisation steers codegen
+    if (ps->surfaceTimer) {
+        onSurface = 1;
+    } else {
+        onSurface = 0;
+    }
+    return onSurface || func_806769A8(actor, target, list);
 }
 
 s32 func_80676C64(Actor *actor, Actor *target, ActorCollisionList *list) {
