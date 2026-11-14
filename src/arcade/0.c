@@ -2338,7 +2338,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                 E.x = (f32)D_8004C6F4;
             }
             if ((f32)D_8004C6EC < E.y &&
-                (((D_807ECDE8->stick_y >= 0x15) | (*(u16 *)D_807ECDE8 & 0x800)) != 0) && // FAKE: u16 cast read of the pad steers codegen (->button mismatches in this | chain)
+                ((D_807ECDE8->button & 0x800) | (D_807ECDE8->stick_y >= 0x15)) &&
                 D_807ECDE8->stick_x < 0x29 && D_807ECDE8->stick_x >= -0x28 &&
                 !(D_807ECDE8->button & 0x300) && D_8004C710 == 0) {
                 E.state = 5;
@@ -2349,7 +2349,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             } else if (E.y < (f32)D_8004C6E8 && (f32)D_8004C6EC <= E.y &&
                        !(D_807ECDE8->button & 0x300) &&
                        D_807ECDE8->stick_x < 0x29 && D_807ECDE8->stick_x >= -0x28 &&
-                       (((D_807ECDE8->stick_y < -0x14) | (*(u16 *)D_807ECDE8 & 0x400)) != 0) && // FAKE: u16 cast read of the pad steers codegen (->button mismatches in this | chain)
+                       ((D_807ECDE8->button & 0x400) | (D_807ECDE8->stick_y < -0x14)) &&
                        D_8004C710 == 0) {
                 E.state = 5;
                 E.vx = 0.0f;
@@ -2369,7 +2369,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             break;
         case 5:
             if ((f32)coll == E.y &&
-                ((((D_807ECDE8->stick_x >= 0x15) | (D_807ECDE8->stick_x < -0x14)) | (*(u16 *)D_807ECDE8 & 0x300)) || // FAKE: u16 cast read of the pad steers codegen (->button mismatches in this | chain)
+                ((D_807ECDE8->button & 0x300) | (D_807ECDE8->stick_x >= 0x15) | (D_807ECDE8->stick_x < -0x14) ||
                  (D_8004C6F8 == 2 && D_8004A308[2] != 0) ||
                  (D_8004C6F8 == 1 && D_8004A308[1] != 0) ||
                  (D_8004C6F8 == 3 && D_8004A308[3] != 0))) {
@@ -2392,11 +2392,11 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                     }
                 } else {
                     if ((f32)D_8004C6EC < E.y &&
-                        (((D_807ECDE8->stick_y >= 0x15) | (*(u16 *)D_807ECDE8 & 0x800)) != 0)) { // FAKE: u16 cast read of the pad steers codegen (->button mismatches in this | chain)
+                        ((D_807ECDE8->button & 0x800) | (D_807ECDE8->stick_y >= 0x15))) {
                         E.vy = -0.5f;
                         D_8004BC80 += 2;
                     } else if (E.y < (f32)D_8004C6E8 &&
-                               (((D_807ECDE8->stick_y < -0x14) | (*(u16 *)D_807ECDE8 & 0x400)) != 0)) { // FAKE: u16 cast read of the pad steers codegen (->button mismatches in this | chain)
+                               ((D_807ECDE8->button & 0x400) | (D_807ECDE8->stick_y < -0x14))) {
                         E.vy = 0.5f;
                         D_8004BC80 += 2;
                     } else {
