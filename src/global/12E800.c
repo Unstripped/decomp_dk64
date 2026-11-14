@@ -777,7 +777,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
         case 4:
         case 0x11:
         case 0x19:
-            if ((near & 0xFF) && (gCurrentActor->flags & 0x100) && (hasTarget != 0) && (gBehaviourWorkState->flags & 0x400)) {
+            if ((near & 0xFF) && (gCurrentActor->flags & 0x100) && (hasTarget != 0) && (gBehaviourWorkState->flags & 0x400)) { // FAKE: no-op & 0xFF on the 0/1 near flag (all four tests) steers its colouring; plain near is 157 diff lines, a u8 near 222
                 if (gBehaviourWorkState->flags & 0x800) {
                     if (behaviourIsTargetWithinAngle(0x2710) != 0) {
                         actorSetBehaviourState(type, gBehaviourExtraState->unkD, chaseScriptId);
@@ -802,7 +802,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
                 behaviourSetChaseState(type, gBehaviourExtraState->unkD, chaseScriptId);
                 return;
             }
-            if (near & 0xFF) {
+            if (near & 0xFF) { // FAKE: no-op & 0xFF on near (see the first test)
                 if (!(gBehaviourWorkState->flags & 0x400)) {
                     actorSetBehaviourState(0x35, (gBehaviourExtraState->targetSpeed * 0.667), returnScriptId);
                     gBehaviourWorkState->unk20 = 0x3C;
@@ -821,7 +821,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
             }
             break;
         case 0x33:
-            if ((!(near & 0xFF) || !(gBehaviourWorkState->flags & 0x400)) && (gCurrentActor->contactFlags & 1)) {
+            if ((!(near & 0xFF) || !(gBehaviourWorkState->flags & 0x400)) && (gCurrentActor->contactFlags & 1)) { // FAKE: no-op & 0xFF on near (see the first test)
                 actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, returnScriptId);
                 return;
             }
@@ -838,7 +838,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
             if (type != gBehaviourWorkState->unk36) {
                 behaviourSetChaseState(type, gBehaviourExtraState->unkD, chaseScriptId);
             }
-            if (near & 0xFF) {
+            if (near & 0xFF) { // FAKE: no-op & 0xFF on near (see the first test)
                 if (!(gBehaviourWorkState->flags & 0x400)) {
                     actorSetBehaviourState(gBehaviourExtraState->actorState, gBehaviourExtraState->targetSpeed, returnScriptId);
                     return;

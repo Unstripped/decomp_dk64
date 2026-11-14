@@ -1130,7 +1130,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                     projectileSetSpawnFlag();
                 }
                 if (isFirstPerson) {
-                    ang2 = gPlayerSlots[gCurrentPlayerIndex].camZ;
+                    ang2 = gPlayerSlots[gCurrentPlayerIndex].camZ; // FAKE: camZ routed through the angle temp ang2; passing camZ directly is 3 diff lines, a separate local 69
                     projectileSetTargetCoords(gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camY, ang2);
                     dz = gPlayerSlots[gCurrentPlayerIndex].focusZ - gPlayerSlots[gCurrentPlayerIndex].camZ;
                     dx = gPlayerSlots[gCurrentPlayerIndex].focusX - gPlayerSlots[gCurrentPlayerIndex].camX;

@@ -1130,7 +1130,7 @@ typedef struct BugBashGameState {
     f32 velZ;
     s16 bobAngle;
     char pad1A[2];
-    f32 unk1C;
+    f32 lean;
     char pad20[2];
     s16 timeLimit;
     u8 unk24;
@@ -1613,7 +1613,7 @@ void bonusBigBugBashGameUpdate(void) {
         gCurrentActor->sub4->scaleZ = 0.2f;
         camStartPath(0, 0, 1);
         gCurrentActor->state = 3;
-        game->unk1C = 0.0f;
+        game->lean = 0.0f;
         game->velX = 0.0f;
         game->velZ = 0.0f;
         game->offsetX = 0.0f;
@@ -1674,28 +1674,28 @@ void bonusBigBugBashGameUpdate(void) {
     }
     switch (gCurrentActor->state) {
     case 0: {
-        f32 prev = game->unk1C;
+        f32 prev = game->lean;
 
-        game->unk1C += (-diffDelta * 4.0f - game->unk1C) * 0.125f;
-        if (game->unk1C < 0.0f) {
-            if (game->unk1C < -8.0f) {
-                game->unk1C = -8.0f;
+        game->lean += (-diffDelta * 4.0f - game->lean) * 0.125f;
+        if (game->lean < 0.0f) {
+            if (game->lean < -8.0f) {
+                game->lean = -8.0f;
             }
             if (prev >= 0.0f) {
                 controllerAnimSetStateIfChanged(gCurrentActor, 0x5FC, 0.0f, 0.0f);
             }
             if (animData != NULL) {
-                controllerApplyMotionWindow(gCurrentActor, animData, -game->unk1C);
+                controllerApplyMotionWindow(gCurrentActor, animData, -game->lean);
             }
         } else {
-            if (game->unk1C > 8.0f) {
-                game->unk1C = 8.0f;
+            if (game->lean > 8.0f) {
+                game->lean = 8.0f;
             }
             if (prev < 0.0f) {
                 controllerAnimSetStateIfChanged(gCurrentActor, 0x5FB, 0.0f, 0.0f);
             }
             if (animData != NULL) {
-                controllerApplyMotionWindow(gCurrentActor, animData, game->unk1C);
+                controllerApplyMotionWindow(gCurrentActor, animData, game->lean);
             }
         }
         if (game->shownCount == 0) {
@@ -1721,7 +1721,7 @@ void bonusBigBugBashGameUpdate(void) {
         if (animData->speed == 0.0f) {
             controllerAnimSetStateIfChanged(gCurrentActor, 0x5FC, 0.0f, 1.0f);
             gCurrentActor->state = 0;
-            game->unk1C = 0.0f;
+            game->lean = 0.0f;
         }
         break;
     case 3:
@@ -1986,7 +1986,7 @@ void bonusSearchlightSeekGameUpdate(void) {
             if (subExt->respawnTimers[i] == 0 && actorSpawn(0x14B, 0x21) != 0) {
                 spawnExt = gSpawnedActor->customState;
                 spawnExt->game = gCurrentActor;
-                spawnExt->retargetTimer = 2;
+                spawnExt->retargetTimer = 2; // ORIG: the target stores 2 (sh t8,12(s0) at 0x5bc0) before the random retarget value
                 spawnExt->retargetTimer = (randomLcgNext() & 0x3F) + 0xF;
                 spawnExt->heading = randomLcgNext() & 0xF;
                 spawnExt->radius = randomFloat() * 40.0 + 15.0;
@@ -2034,7 +2034,7 @@ void bonusSearchlightSeekGameUpdate(void) {
             }
             if (subExt->fireCooldown <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr & 0xE000)) {
                 sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0, 0x1E, 0);
-                targetOffsetZ = mathSinF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camX;
+                targetOffsetZ = mathSinF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camX; // FAKE: targetOffsetZ/scale/targetOffsetX reused for the aim point; separate aimX/aimY/aimZ locals 77 diff lines
                 scale = gPlayerSlots->camY - 25.0f;
                 targetOffsetX = mathCosF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camZ;
                 projectileSetTargetCoords(targetOffsetZ, scale, targetOffsetX);
@@ -2068,7 +2068,7 @@ void bonusSearchlightSeekGameUpdate(void) {
             gCurrentActor->state = 7;
             break;
     }
-    targetOffsetZ = subExt->offsetX;
+    targetOffsetZ = subExt->offsetX; // FAKE: targetOffsetZ/targetOffsetX/cosYaw reused for the offset clamp; separate ox/oz/dist locals 85 diff lines
     targetOffsetX = subExt->offsetZ;
     cosYaw = sqrtf(targetOffsetZ * targetOffsetZ + targetOffsetX * targetOffsetX);
     if (cosYaw > 110.0f) {

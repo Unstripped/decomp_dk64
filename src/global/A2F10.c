@@ -566,41 +566,30 @@ void actorUpdateBannerFade(void) {
     s16 sfx;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->moveYaw =
-            (s16)gCurrentActor->splineT;
+        gCurrentActor->moveYaw = gCurrentActor->splineT;
     }
-    if ((f64)(u32)gFrameDelta * 0.5 < gCurrentActor->splineT) {
-        gCurrentActor->splineT -=
-            (f64)(u32)gFrameDelta * 0.5;
-        ratio = (f32)(gCurrentActor->splineT /
-                      (f64)(f32)gCurrentActor->moveYaw);
-        gCurrentActor->floorSlopeFactor =
-            (f32)((f64)ratio * -8.0 + 12.0);
-        gCurrentActor->yaw = (s16)(255.0f * ratio);
-        if (gCurrentActor->unk15F >= 0x14 &&
-            gCurrentActor->unk15F < 0x1E) {
+    if (gFrameDelta * 0.5 < gCurrentActor->splineT) {
+        gCurrentActor->splineT -= gFrameDelta * 0.5;
+        ratio = gCurrentActor->splineT / (f32)gCurrentActor->moveYaw;
+        gCurrentActor->floorSlopeFactor = ratio * -8.0 + 12.0;
+        gCurrentActor->yaw = 255.0f * ratio;
+        if (gCurrentActor->unk15F >= 0x14 && gCurrentActor->unk15F < 0x1E) {
             renderCallbacksRegister(renderScaledSprite, gCurrentActor, 3);
         } else {
             renderCallbacksRegister(actorBannerTextRender, gCurrentActor, 3);
         }
-        if (gCurrentActor->unk15F == 0 &&
-            (s16)gCurrentActor->splineT == 3) {
+        if (gCurrentActor->unk15F == 0 && (s16)gCurrentActor->splineT == 3) {
             actorSpawn(0x104, 0);
-            gSpawnedActor->splineT =
-                (f64)gCurrentActor->moveYaw;
+            gSpawnedActor->splineT = gCurrentActor->moveYaw;
             gSpawnedActor->unk15F = D_80750AD4;
             gSpawnedActor->y = 80.0f;
             gSpawnedActor->x = 640.0f;
-            sfxPlayOnFreeSlot((s16)(D_80750AD4 + 0x3F3), 0x7FFF, 63.0f, 1.0f, 0,
-                          0);
+            sfxPlayOnFreeSlot(D_80750AD4 + 0x3F3, 0x7FFF, 63.0f, 1.0f, 0, 0);
             return;
         }
-        if (gCurrentActor->unk15F >= 0x1E &&
-            gCurrentActor->unk15F < 0x25 &&
-            (s16)gCurrentActor->splineT == 5) {
+        if (gCurrentActor->unk15F >= 0x1E && gCurrentActor->unk15F < 0x25 && (s16)gCurrentActor->splineT == 5) {
             actorSpawn(0x104, 0);
-            gSpawnedActor->splineT =
-                (f64)gCurrentActor->moveYaw;
+            gSpawnedActor->splineT = gCurrentActor->moveYaw;
             if (gCurrentActor->unk15F == 0x23) {
                 gSpawnedActor->unk15F = 0x24;
             } else if (gCurrentActor->unk15F == 0x24) {
@@ -612,15 +601,11 @@ void actorUpdateBannerFade(void) {
             gSpawnedActor->x = 500.0f;
         }
     } else {
-        if ((gCurrentActor->unk15F & 0xC0) != 0 &&
-            (gCurrentActor->unk15F & 0x3F) != 0) {
+        if ((gCurrentActor->unk15F & 0xC0) != 0 && (gCurrentActor->unk15F & 0x3F) != 0) {
             sfx = 0x3FC - (gCurrentActor->unk15F & 0x3F);
             actorSpawn(0x104, 0);
-            gSpawnedActor->splineT =
-                (f64)gCurrentActor->moveYaw;
-            gSpawnedActor->unk15F =
-                (gCurrentActor->unk15F & 0xC0) +
-                (gCurrentActor->unk15F & 0x3F) - 1;
+            gSpawnedActor->splineT = gCurrentActor->moveYaw;
+            gSpawnedActor->unk15F = (gCurrentActor->unk15F & 0xC0) + (gCurrentActor->unk15F & 0x3F) - 1;
             if (gCurrentActor->unk15F & 0x80) {
                 sfx += 2;
             }
