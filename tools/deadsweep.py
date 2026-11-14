@@ -38,7 +38,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-if not os.path.exists("/opt/ido5.3"):
+if __name__ == "__main__" and not os.path.exists("/opt/ido5.3"):  # importable on the host (tools/variants.py)
     sys.exit(subprocess.call([str(ROOT / "tools" / "dk"), "python3", "tools/deadsweep.py"] + sys.argv[1:]))
 
 MARK = "/*@@DEADSWEEP_FUNC@@*/"

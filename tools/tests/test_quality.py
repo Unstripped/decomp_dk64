@@ -680,13 +680,15 @@ def test_sweep_records_every_sweep_rung(tmp_path, monkeypatch):
     site = {s["line"]: s for s in fn["sites"]}
     by_key = {s["key"]: s for s in fn["sites"]}
     assert {ln: s["kind"] for ln, s in site.items()} == {4: "do-while0", 5: "dead-if", 6: "dead-if", 7: "do-while0"}
-    sweep = ("remove", "plain", "cond", "classify")
+    sweep = ("remove", "plain", "cond", "classify", "recipe")
     assert {(s["key"], m) for s in fn["sites"] for m in q.LADDER[s["kind"]] if m in sweep} <= set(out)
     alone = [text for method, keys, _, text in plan["jobs"] if method == "remove" and keys == [site[4]["key"]]]
     assert len(alone) == 1 and "do {} while (0);" not in alone[0]  # a one-line wrapper is deleted, like a pair
     assert out[(site[5]["key"], "remove")] == out[(site[5]["key"], "cond")] == ["nohit", "no removal"]
     assert out[(site[5]["key"], "classify")] == ["nohit", "no guard"]
     assert out[(site[7]["key"], "remove")] == out[(site[7]["key"], "cond")] == ["nohit", "no removal"]
+    assert out[(site[5]["key"], "recipe")] == out[(site[7]["key"], "recipe")] == ["nohit", "no removal"]
+    assert out[(site[6]["key"], "recipe")] == ["nohit", None]  # scanned around its removal, no zero
     # hand-recorded rungs at older fingerprints (a header changed since) are refreshed by the sweep
     old = ("0" * 16, "0" * 16)
     hand = [ev(s, m, "nohit", fp=old) for s in fn["sites"] for m in q.LADDER[s["kind"]] if m in sweep]
@@ -695,6 +697,38 @@ def test_sweep_records_every_sweep_rung(tmp_path, monkeypatch):
     by_site, by_func = q.index_events(hand + swept)
     st = q.function_state(fn, by_site, by_func)
     assert {v for _, r in st["sites"] for m, v in r["marks"].items() if m in sweep} == {"✓"}
+
+
+class _Done:
+    def __init__(self, r):
+        self.r = r
+
+    def result(self):
+        return self.r
+
+
+def test_sweep_recipe_hit_is_the_variant(tmp_path, monkeypatch):
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    calls = []
+
+    def recipe(text, path, src, func):
+        calls.append((text, func))
+        return "VARIANT" if "if (g) {}" not in text else None
+
+    monkeypatch.setattr(q, "recipe_check", recipe)
+
+    class Pool:
+        def submit(self, fn, *args):
+            return _Done(fn(*args) if fn is recipe else False)
+
+    c = tmp_path / "x.c"
+    c.write_text("typedef int s32;\ns32 g;\nvoid f(s32 x) {\n    if (g) {} // FAKE: steers\n    g = x;\n}\n")
+    path = q.rel(str(c))
+    an = q.analyze(path, "global")
+    out, hits, _ = q.finish(q.plan_file(an, path, path, Pool()))
+    key = an["functions"][0]["sites"][0]["key"]
+    assert [f for _, f in calls] == ["f"]
+    assert hits == [([key], "recipe", "VARIANT")] and out[(key, "recipe")] == ["hit", None]
 
 
 def test_carry_takes_newest_event_by_time(tmp_path, monkeypatch):

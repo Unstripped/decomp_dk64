@@ -839,6 +839,28 @@ def cond_check(text, body, path, src, func):
     return bool(m) and m.group(1) == "0" and check(text, path, src)
 
 
+def recipe_check(text, path, src, func):
+    """Text of the first tools/variants.py recipe variant of FUNC in TEXT (a copy of PATH) that passes
+    check(), or None."""
+    d = job_dir()
+    copy = rel(os.path.join(d, os.path.basename(path)))
+    open(os.path.join(ROOT, copy), "w").write(text)
+    js = os.path.join(d, "v.json")
+    try:
+        subprocess.run(["tools/dk", "python3", "tools/variants.py", "scan", copy, src, func, "--max", "120", "-j", "2",
+                        "--out", rel(os.path.join(d, "zeros")), "--json", rel(js)],
+                       cwd=ROOT, capture_output=True, text=True)
+        rows = json.load(open(js)) if os.path.exists(js) else []
+        for row in rows:
+            if row.get("path"):
+                t = open(os.path.join(ROOT, row["path"]), encoding="utf-8", errors="replace").read()
+                if check(t, path, src):
+                    return t
+        return None
+    finally:
+        cleanup(d, copy)
+
+
 def apply(lines, edits, lo=0, hi=None):
     """Lines LO..HI joined, with EDITS {index: replacement or None (delete)}."""
     return "\n".join(edits.get(i, l) for i, l in enumerate(lines[:hi]) if i >= lo and edits.get(i, l) is not None)
@@ -927,6 +949,7 @@ def plan_file(an, path, src, pool):
                 tried[(s["key"], "remove")] = tried[(s["key"], "cond")] = "no removal"
             if s["kind"] == "dead-if" and not GUARD.match(lines[s["lines"][0]]):
                 tried[(s["key"], "classify")] = "no guard"
+        first_plain = {}  # site key -> (site, its first plain rewrite): a recipe base
         for s in sites:
             i = s["lines"][0]
             if s["kind"] in PLAIN_KINDS:
@@ -936,7 +959,9 @@ def plan_file(an, path, src, pool):
                 for rx, rep in PLAIN:
                     new = rx.sub(rep, code)
                     if new != code:
-                        submit("plain", [(s, None)], check, apply(lines, {i: new.rstrip() + tail}), path, src)
+                        text = apply(lines, {i: new.rstrip() + tail})
+                        submit("plain", [(s, None)], check, text, path, src)
+                        first_plain.setdefault(s["key"], (s, text))
                         n += 1
                 tried[(s["key"], "plain")] = None if n else "no rewrite"
             m = GUARD.match(lines[i])
@@ -948,6 +973,19 @@ def plan_file(an, path, src, pool):
                     futs = [pool.submit(check, apply(lines, {i: f"{m.group(1)}if ({v}) {{}}"}), path, src, False)
                             for v in cands]
                     jobs.append(("classify", [s["key"]], futs, None))
+        # recipe: natural respellings of the function around each removal / plain rewrite
+        bases = []
+        if rem:
+            bases.append(([s for s, _ in rem], apply(lines, merged(rem))))
+            if len(rem) > 1:
+                bases += [([x[0]], apply(lines, merged([x]))) for x in rem]
+        bases += [([s], text) for s, text in first_plain.values()]
+        for group, text in bases:
+            submit("recipe", [(s, None) for s in group], recipe_check, text, path, src, fn["name"])
+        based = {s["key"] for group, _ in bases for s in group}
+        for s in sites:
+            if "recipe" in LADDER[s["kind"]]:
+                tried[(s["key"], "recipe")] = None if s["key"] in based else "no removal"
     return dict(an=an, path=path, src=src, jobs=jobs, tried=tried)
 
 
@@ -973,8 +1011,9 @@ def finish(plan):
             out[(keys[0], method)] = ["kept", "class 1"] if any(rs) else ["nohit", "class 2"]
             continue
         checks += 1
-        if fut.result():
-            hits.append((keys, method, text))
+        r = fut.result()
+        if r:
+            hits.append((keys, method, r if method == "recipe" else text))  # recipe: the matching variant
             for k in keys:
                 out[(k, method)] = ["hit", None]
     return out, hits, checks
