@@ -982,8 +982,8 @@ void effectSpiralRiseUpdate(EffectNode *effect, s8 *isDone) {
     } else {
         clampedAlpha = 15.0f;
     }
-    newState->alphaLevel = alpha - clampedAlpha; clampedAlpha = 255.0f; alpha = newState->alphaLevel; if (alpha > clampedAlpha) { effect->alpha = (u8) ((u32) clampedAlpha); } else { effect->alpha = (u8) ((u32) alpha); } // LAYOUT: one source line keeps the as1 schedule
-    state = newState;
+    newState->alphaLevel = alpha - clampedAlpha; clampedAlpha = 255.0f; alpha = newState->alphaLevel; if (alpha > clampedAlpha) { effect->alpha = (u8) ((u32) clampedAlpha); } else { effect->alpha = (u8) ((u32) alpha); } // FAKE: clampedAlpha reused to hold the 255.0f cap (a literal changes the function); one source line keeps the as1 schedule
+    state = newState; // FAKE: second pointer to the state (reads mix state/newState; one pointer changes the function)
     newState->radius = (f32)((f64)newState->radius + 1.5);
     state->angle += state->angleStep;
     effect->x = (mathSinF((s16)(s32)state->angle) * newState->radius) + newState->centerX;
@@ -1010,9 +1010,9 @@ void effectSpriteMotionUpdate(EffectNode *effect, s8 *isDone) {
     stepX = stepX * ((DriftHeadingState *)effect->allocation)->speed;
     stepZ = cosApprox(((DriftHeadingState *)effect->allocation)->heading * 0.017453292f);
     stepZ = stepZ * ((DriftHeadingState *)effect->allocation)->speed;
-    effect->x = effect->x + stepX;
-    effect->z = effect->z + stepZ;
-    effect->y = effect->y + 1.0f;
+    effect->x += stepX;
+    effect->z += stepZ;
+    effect->y += 1.0f;
 }
 
 void effectSpriteMatrixUpdate(EffectNode *effect, s8 *isDone) {
@@ -1218,7 +1218,7 @@ void effectRadialSprayUpdate(EffectNode *effect, s8 *isDone) {
         }
         angleDeg = (f32) ((effect->speed & 0xFFFF) * 30);
         angleRad = angleDeg * 0.017453292f;
-        angleDeg = (f32) ((f64) sinApprox(angleRad) * 2.5);
+        angleDeg = (f32) ((f64) sinApprox(angleRad) * 2.5); // FAKE: angleDeg reused for the X velocity (a separate local changes the function)
         offsetZ = (f32) ((f64) cosApprox(angleRad) * 2.5);
         effect->sprayMotion->velocityX = angleDeg;
         effect->sprayMotion->velocityZ = offsetZ;
@@ -1421,7 +1421,7 @@ void effectPuffExpandFadeUpdate(EffectNode *effect, s8 *isDone) {
     f32 divisor;
     s16 timer;
 
-    divisor = 4.0f;
+    divisor = 4.0f; // FAKE: value-named constant local (the literal 4.0f changes the function)
     timer = effect->param;
     if (timer >= 5) {
         timer = 4;
@@ -1822,7 +1822,6 @@ void effectWispHomeUpdate(EffectNode *effect, s8 *isDone) {
     Actor *actor;
     s16 pad;
     s16 targetAngle;
-    f32 turnRate;
 
     if (effect->allocation == NULL) {
         randomNonNegative();
@@ -1836,8 +1835,7 @@ void effectWispHomeUpdate(EffectNode *effect, s8 *isDone) {
     state = effect->allocation;
     actor = effect->target;
     targetAngle = mathAngleBetweenPoints2D(actor->x, actor->z, effect->x, effect->z);
-    turnRate = ((randomNonNegative() >> 0xF) % 10) + 5;
-    state->angle = mathAngleEaseToward(state->angle, targetAngle, turnRate);
+    state->angle = mathAngleEaseToward(state->angle, targetAngle, ((randomNonNegative() >> 0xF) % 10) + 5);
     state->y = (actor->y + actor->eyeHeight - state->y) * 0.1 + state->y;
     effect->x += state->speed * mathSinF(state->angle);
     effect->z += state->speed * mathCosF(state->angle);
