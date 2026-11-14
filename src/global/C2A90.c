@@ -476,42 +476,34 @@ void func_806BE8BC(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct LgBF218Sub124 {
+// the parent actor's spawn data (Actor.spawnData)
+typedef struct FlagGatedSpawnData {
     /* 0x00 */ u8 pad0[8];
-    /* 0x08 */ s32 unk8;
-} LgBF218Sub124;
+    /* 0x08 */ s32 shownWhenFlagSet; // 1: shown only while flag 0xFD is set, 0: only while it is clear
+} FlagGatedSpawnData;
 
-typedef struct LgBF218Node {
+// the parent actor's customState: where it is respawned (actorListSpawnNodeEntry)
+typedef struct RespawnPos {
     /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-} LgBF218Node;
+    /* 0x04 */ f32 x;
+    /* 0x08 */ f32 y;
+    /* 0x0C */ f32 z;
+    /* 0x10 */ f32 scale;
+} RespawnPos;
 
-typedef struct LgBF218Sub14 {
-    /* 0x00 */ u8 pad0[0x28];
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ s16 unk2A;
-    /* 0x2C */ s16 unk2C;
-} LgBF218Sub14;
+// same layout as the file-local ZoneTable of 1295B0.c
+typedef struct ZoneTable {
+    /* 0x0 */ s16 count;
+    /* 0x2 */ u8 pad2[2];
+    /* 0x4 */ Zone *zones;
+} ZoneTable;
 
-typedef struct LgBF218Sub4 {
-    /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ LgBF218Sub14 *unk14;
-} LgBF218Sub4;
-
-typedef struct LgBF218Global {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ LgBF218Sub4 *unk4;
-} LgBF218Global;
-
-extern LgBF218Global *D_80755690;
+extern ZoneTable *D_80755690;
 
 void *memcpy(void *, const void *, u32);
 
 void func_806BF218(void) {
-    LgBF218Node *node;
+    RespawnPos *node;
     Actor *other;
     s32 kind;
     f32 dx;
@@ -535,7 +527,7 @@ void func_806BF218(void) {
                 case 0:
                     if (flagGet(0xFD, 0)) {
                         other = gCurrentActor->parentActor;
-                        if (((LgBF218Sub124 *)other->spawnData)->unk8 == 0) {
+                        if (((FlagGatedSpawnData *)other->spawnData)->shownWhenFlagSet == 0) {
                             func_8068A2FC(other);
                         } else {
                             actorScriptStart(gCurrentActor, 0x3A8);
@@ -545,7 +537,7 @@ void func_806BF218(void) {
                         }
                     } else {
                         other = gCurrentActor->parentActor;
-                        if (((LgBF218Sub124 *)other->spawnData)->unk8 == 1) {
+                        if (((FlagGatedSpawnData *)other->spawnData)->shownWhenFlagSet == 1) {
                             func_8068A2FC(other);
                         } else if (other->state == 1) {
                             actorScriptStart(gCurrentActor, 0x3A9);
@@ -610,9 +602,9 @@ void func_806BF218(void) {
                 case 2:
                     switch (gCurrentActor->unk155) {
                         case 0:
-                            ez = gCurrentActor->z - D_80755690->unk4->unk14->unk2C;
-                            ex = gCurrentActor->x - D_80755690->unk4->unk14->unk28;
-                            ey = gCurrentActor->y - D_80755690->unk4->unk14->unk2A;
+                            ez = gCurrentActor->z - D_80755690->zones->entries[4].z;
+                            ex = gCurrentActor->x - D_80755690->zones->entries[4].x;
+                            ey = gCurrentActor->y - D_80755690->zones->entries[4].y;
                             if ((ez * ez + (ex * ex + ey * ey)) < 22500.0f) {
                                 camStartPath(gCurrentActor, 0x17, 1);
                                 resQueueAttachActor(gCurrentActor, 0x16, 4);
@@ -659,7 +651,7 @@ void func_806BF218(void) {
                                 spawn[0] = 1;
                                 spawn[1] = 1;
                                 spawn[2] = 0;
-                                actorListSpawnNodeEntry((s16)gCurrentActor->parentActor->actorType, node->unk4, node->unk8, node->unkC, 0, node->unk10, 0, spawn);
+                                actorListSpawnNodeEntry((s16)gCurrentActor->parentActor->actorType, node->x, node->y, node->z, 0, node->scale, 0, spawn);
                                 break;
                         }
                     }

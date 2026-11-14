@@ -324,17 +324,17 @@ void critterBananaFairyRewardUpdate(void) {
 
 
 typedef struct FlutterState {
-    f32 unk0;
+    f32 timer;
     f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    f32 unk18;
-    f32 unk1C;
-    f32 unk20;
-    f32 unk24;
-    f32 unk28;
+    f32 startX;
+    f32 startY;
+    f32 startZ;
+    f32 targetX;
+    f32 targetY;
+    f32 targetZ;
+    f32 homeX;
+    f32 homeY;
+    f32 homeZ;
 } FlutterState;
 
 
@@ -346,12 +346,12 @@ void critterFlutterFlyUpdate(void) {
     f32 t;
     f32 pad2;
     s32 near;
-    s32 angleTmp;
-    FlutterState *d;
-    AnimSlot *sub;
+    s32 angle;
+    FlutterState *flutter;
+    AnimSlot *model;
 
-    d = gCurrentActor->customState;
-    sub = gCurrentActor->sub4->model;
+    flutter = gCurrentActor->customState;
+    model = gCurrentActor->sub4->model;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->state = 0x78;
         if (flagGet(0x189, 0) != 0) {
@@ -368,13 +368,13 @@ void critterFlutterFlyUpdate(void) {
         } else {
             gCurrentActor->state = 0;
         }
-        d->unk20 = gCurrentActor->x;
-        d->unk24 = gCurrentActor->y;
-        d->unk28 = gCurrentActor->z;
-        d->unk4 = 0.028571429f;
-        d->unk0 = 2.0f;
-        d->unk14 = d->unk20;
-        d->unk1C = d->unk28;
+        flutter->homeX = gCurrentActor->x;
+        flutter->homeY = gCurrentActor->y;
+        flutter->homeZ = gCurrentActor->z;
+        flutter->unk4 = 0.028571429f;
+        flutter->timer = 2.0f;
+        flutter->targetX = flutter->homeX;
+        flutter->targetZ = flutter->homeZ;
     }
     dx = gCurrentActor->x - gPrimaryPlayerActor->x;
     dz = gCurrentActor->z - gPrimaryPlayerActor->z;
@@ -406,18 +406,18 @@ void critterFlutterFlyUpdate(void) {
         }
         break;
     case 1: {
-        t = sub->frame / 19.0;
-        if (t < d->unk0) {
-            d->unk8 = gCurrentActor->x;
-            d->unkC = d->unk24;
-            d->unk10 = gCurrentActor->z;
-            angleTmp = randomFloat() * 4096.0;
+        t = model->frame / 19.0;
+        if (t < flutter->timer) {
+            flutter->startX = gCurrentActor->x;
+            flutter->startY = flutter->homeY;
+            flutter->startZ = gCurrentActor->z;
+            angle = randomFloat() * 4096.0;
             k = randomFloat() * 65.0;
-            d->unk14 = (mathCosF((s16)angleTmp) * k) + d->unk20;
-            d->unk18 = d->unk24;
-            d->unk1C = (mathSinF((s16)angleTmp) * k) + d->unk28;
+            flutter->targetX = (mathCosF((s16)angle) * k) + flutter->homeX;
+            flutter->targetY = flutter->homeY;
+            flutter->targetZ = (mathSinF((s16)angle) * k) + flutter->homeZ;
         }
-        d->unk0 = t;
+        flutter->timer = t;
         t = (t - 0.5) * 2.5;
         if (t > 1.0) {
             t = 1.0f;
@@ -425,23 +425,23 @@ void critterFlutterFlyUpdate(void) {
         if (t < 0.0) {
             t = 0.0f;
         }
-        gCurrentActor->x = d->unk8 + (t * (d->unk14 - d->unk8));
-        gCurrentActor->z = d->unk10 + (t * (d->unk1C - d->unk10));
+        gCurrentActor->x = flutter->startX + (t * (flutter->targetX - flutter->startX));
+        gCurrentActor->z = flutter->startZ + (t * (flutter->targetZ - flutter->startZ));
         if (gActorGlobalState.bossFightPhase == 4) {
             actorScriptStart(gCurrentActor, 0x43C);
             gCurrentActor->state = 2;
-            d->unk0 = 0.0f;
+            flutter->timer = 0.0f;
         }
         break;
     }
     case 2:
-        d->unk0 = d->unk0 + 1.0;
-        if (d->unk0 > 49.0) {
+        flutter->timer = flutter->timer + 1.0;
+        if (flutter->timer > 49.0) {
             camStartPath(gCurrentActor, 2, 1);
             currentActorClearFlag();
-            d->unk0 = 0.0f;
+            flutter->timer = 0.0f;
             gCurrentActor->state = 0x64;
-        } else if (d->unk0 < 20.0) {
+        } else if (flutter->timer < 20.0) {
             k = sqrtf((dx * dx) + (dz * dz));
             if (k > 1.0) {
                 k = 3.0 / k;
