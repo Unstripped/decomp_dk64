@@ -3,7 +3,7 @@
 
 s32 alCSPGetTempo(ALCSPlayer *seqp) {
     if (seqp->target == NULL) {
-        return NULL;
+        return 0;
     }
-    return (s32)((f32)seqp->uspt / seqp->target->qnpt);
+    return (s32)(seqp->uspt / seqp->target->qnpt);
 }
