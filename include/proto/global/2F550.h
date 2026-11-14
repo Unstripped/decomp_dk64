@@ -136,7 +136,7 @@ f32 boxMinCornerDistance(s16, s16, s16, s16, s16, s16, f32, f32, f32);
 s32 clipPolyToBox(s32, s16, s16, s16, s16, s16, s16, struct PlanePoly *);
 #endif
 #ifndef PROTO_SKIP_clipPolyAgainstAxis
-void clipPolyAgainstAxis(s16 *, s16 *, s32, s32 *, u8, f64, u8);
+void clipPolyAgainstAxis(s16 (*)[3], s16 (*)[3], s32, s32 *, u8, f64, u8);
 #endif
 #ifndef PROTO_SKIP_clipVertexTestAxis
 s32 clipVertexTestAxis(s16 *, u8, f64, u8);

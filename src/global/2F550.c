@@ -133,60 +133,60 @@ void frustumOrientPolyNormals(f32 eyeX, f32 eyeY, f32 eyeZ, PlanePoly *planes, f
     poly = planes;
     for (i = 0; i < 4; i++) {
         poly++;
-        poly[-1].v[0] = eyeX;
-        poly[-1].v[1] = eyeY;
-        poly[-1].v[2] = eyeZ;
+        poly[-1].v[0][0] = eyeX;
+        poly[-1].v[0][1] = eyeY;
+        poly[-1].v[0][2] = eyeZ;
         poly[-1].type = 3;
     }
-    planes[0].v[3] = corners[0];
-    planes[0].v[4] = corners[1];
-    planes[0].v[5] = corners[2];
-    planes[0].v[6] = corners[3];
-    planes[0].v[7] = corners[4];
-    planes[0].v[8] = corners[5];
+    planes[0].v[1][0] = corners[0];
+    planes[0].v[1][1] = corners[1];
+    planes[0].v[1][2] = corners[2];
+    planes[0].v[2][0] = corners[3];
+    planes[0].v[2][1] = corners[4];
+    planes[0].v[2][2] = corners[5];
     xs[0] = corners[6];
     ys[0] = corners[7];
     zs[0] = corners[8];
-    planes[1].v[3] = corners[6];
-    planes[1].v[4] = corners[7];
-    planes[1].v[5] = corners[8];
-    planes[1].v[6] = corners[0];
-    planes[1].v[7] = corners[1];
-    planes[1].v[8] = corners[2];
+    planes[1].v[1][0] = corners[6];
+    planes[1].v[1][1] = corners[7];
+    planes[1].v[1][2] = corners[8];
+    planes[1].v[2][0] = corners[0];
+    planes[1].v[2][1] = corners[1];
+    planes[1].v[2][2] = corners[2];
     xs[1] = corners[9];
     ys[1] = corners[10];
     zs[1] = corners[11];
-    planes[2].v[3] = corners[9];
-    planes[2].v[4] = corners[10];
-    planes[2].v[5] = corners[11];
-    planes[2].v[6] = corners[6];
-    planes[2].v[7] = corners[7];
-    planes[2].v[8] = corners[8];
+    planes[2].v[1][0] = corners[9];
+    planes[2].v[1][1] = corners[10];
+    planes[2].v[1][2] = corners[11];
+    planes[2].v[2][0] = corners[6];
+    planes[2].v[2][1] = corners[7];
+    planes[2].v[2][2] = corners[8];
     xs[2] = corners[0];
     ys[2] = corners[1];
     zs[2] = corners[2];
-    planes[3].v[3] = corners[3];
-    planes[3].v[4] = corners[4];
-    planes[3].v[5] = corners[5];
-    planes[3].v[6] = corners[9];
-    planes[3].v[7] = corners[10];
-    planes[3].v[8] = corners[11];
+    planes[3].v[1][0] = corners[3];
+    planes[3].v[1][1] = corners[4];
+    planes[3].v[1][2] = corners[5];
+    planes[3].v[2][0] = corners[9];
+    planes[3].v[2][1] = corners[10];
+    planes[3].v[2][2] = corners[11];
     xs[3] = corners[0];
     ys[3] = corners[1];
     zs[3] = corners[2];
     planes[4].type = 4;
-    planes[4].v[0] = corners[6];
-    planes[4].v[1] = corners[7];
-    planes[4].v[2] = corners[8];
-    planes[4].v[3] = corners[9];
-    planes[4].v[4] = corners[10];
-    planes[4].v[5] = corners[11];
-    planes[4].v[6] = corners[0];
-    planes[4].v[7] = corners[1];
-    planes[4].v[8] = corners[2];
-    planes[4].v[9] = corners[3];
-    planes[4].v[10] = corners[4];
-    planes[4].v[11] = corners[5];
+    planes[4].v[0][0] = corners[6];
+    planes[4].v[0][1] = corners[7];
+    planes[4].v[0][2] = corners[8];
+    planes[4].v[1][0] = corners[9];
+    planes[4].v[1][1] = corners[10];
+    planes[4].v[1][2] = corners[11];
+    planes[4].v[2][0] = corners[0];
+    planes[4].v[2][1] = corners[1];
+    planes[4].v[2][2] = corners[2];
+    planes[4].v[3][0] = corners[3];
+    planes[4].v[3][1] = corners[4];
+    planes[4].v[3][2] = corners[5];
     zs[4] = eyeZ;
     ys[4] = eyeY;
     xs[4] = eyeX;
@@ -208,39 +208,39 @@ void polyFlipWinding(PlanePoly *poly) {
 
     switch (poly->type) {
         case 3:
-            x = poly->v[0];
-            y = poly->v[1];
-            z = poly->v[2];
-            poly->v[0] = poly->v[3];
-            poly->v[1] = poly->v[4];
-            poly->v[2] = poly->v[5];
-            poly->v[3] = x;
-            poly->v[4] = y;
-            poly->v[5] = z;
+            x = poly->v[0][0];
+            y = poly->v[0][1];
+            z = poly->v[0][2];
+            poly->v[0][0] = poly->v[1][0];
+            poly->v[0][1] = poly->v[1][1];
+            poly->v[0][2] = poly->v[1][2];
+            poly->v[1][0] = x;
+            poly->v[1][1] = y;
+            poly->v[1][2] = z;
             break;
         case 4:
-            x = poly->v[0];
-            y = poly->v[1];
-            z = poly->v[2];
-            poly->v[0] = poly->v[6];
-            poly->v[1] = poly->v[7];
-            poly->v[2] = poly->v[8];
-            poly->v[6] = x;
-            poly->v[7] = y;
-            poly->v[8] = z;
+            x = poly->v[0][0];
+            y = poly->v[0][1];
+            z = poly->v[0][2];
+            poly->v[0][0] = poly->v[2][0];
+            poly->v[0][1] = poly->v[2][1];
+            poly->v[0][2] = poly->v[2][2];
+            poly->v[2][0] = x;
+            poly->v[2][1] = y;
+            poly->v[2][2] = z;
             break;
     }
 }
 
 void planePolyCalcEquation(PlanePoly *poly) {
-    poly->a = (poly->v[1] * (f64)(poly->v[5] - poly->v[8]) + poly->v[4] * (f64)(poly->v[8] - poly->v[2]))
-            + poly->v[7] * (f64)(poly->v[2] - poly->v[5]);
-    poly->b = (poly->v[2] * (f64)(poly->v[3] - poly->v[6]) + poly->v[5] * (f64)(poly->v[6] - poly->v[0]))
-            + poly->v[8] * (f64)(poly->v[0] - poly->v[3]);
+    poly->a = (poly->v[0][1] * (f64)(poly->v[1][2] - poly->v[2][2]) + poly->v[1][1] * (f64)(poly->v[2][2] - poly->v[0][2]))
+            + poly->v[2][1] * (f64)(poly->v[0][2] - poly->v[1][2]);
+    poly->b = (poly->v[0][2] * (f64)(poly->v[1][0] - poly->v[2][0]) + poly->v[1][2] * (f64)(poly->v[2][0] - poly->v[0][0]))
+            + poly->v[2][2] * (f64)(poly->v[0][0] - poly->v[1][0]);
 
-    poly->c = (poly->v[0] * (f64)(poly->v[4] - poly->v[7]) + poly->v[3] * (f64)(poly->v[7] - poly->v[1]))
-            + poly->v[6] * (f64)(poly->v[1] - poly->v[4]);
-    poly->d = -((poly->v[0] * ((f64)poly->v[4] * poly->v[8] - (f64)poly->v[7] * poly->v[5]) + poly->v[3] * ((f64)poly->v[7] * poly->v[2] - (f64)poly->v[1] * poly->v[8])) + poly->v[6] * ((f64)poly->v[1] * poly->v[5] - poly->v[4] * (f64)poly->v[2]));
+    poly->c = (poly->v[0][0] * (f64)(poly->v[1][1] - poly->v[2][1]) + poly->v[1][0] * (f64)(poly->v[2][1] - poly->v[0][1]))
+            + poly->v[2][0] * (f64)(poly->v[0][1] - poly->v[1][1]);
+    poly->d = -((poly->v[0][0] * ((f64)poly->v[1][1] * poly->v[2][2] - (f64)poly->v[2][1] * poly->v[1][2]) + poly->v[1][0] * ((f64)poly->v[2][1] * poly->v[0][2] - (f64)poly->v[0][1] * poly->v[2][2])) + poly->v[2][0] * ((f64)poly->v[0][1] * poly->v[1][2] - poly->v[1][1] * (f64)poly->v[0][2]));
 }
 
 
@@ -1089,8 +1089,8 @@ f32 boxMinCornerDistance(s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 m
 
 
 s32 clipPolyToBox(s32 planeIdx, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ, PlanePoly *planes) {
-    s16 bufA[0x24];
-    s16 bufB[0x24];
+    s16 bufA[12][3];
+    s16 bufB[12][3];
     s32 count;
     char pad;
 
@@ -1122,34 +1122,34 @@ s32 clipPolyToBox(s32 planeIdx, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY
 }
 
 
-void clipPolyAgainstAxis(s16 *src, s16 *dst, s32 srcCount, s32 *dstCount, u8 axis, f64 bound, u8 isMax) {
+void clipPolyAgainstAxis(s16 (*src)[3], s16 (*dst)[3], s32 srcCount, s32 *dstCount, u8 axis, f64 bound, u8 isMax) {
     s32 i;
-    s16 *prev;
+    s16 (*prev)[3];
     s16 hit[3];
-    s16 *cur;
-    s16 *last;
+    s16 (*cur)[3];
+    s16 (*last)[3];
 
     *dstCount = 0;
-    prev = (s16 *)(srcCount * 6 + (s32)src - 6); // FAKE: integer address arithmetic for the last vertex (&src[(srcCount - 1) * 3] and pointer forms change the codegen)
+    prev = &src[srcCount - 1];
     i = 0;
     if (srcCount > 0) {
         cur = src;
         do {
             last = cur;
-            if (clipVertexTestAxis(cur, axis, bound, isMax) != 0) {
-                if (clipVertexTestAxis(prev, axis, bound, isMax) != 0) {
+            if (clipVertexTestAxis(*cur, axis, bound, isMax) != 0) {
+                if (clipVertexTestAxis(*prev, axis, bound, isMax) != 0) {
                     clipVertexAppend(cur, dstCount, dst);
                 } else {
-                    clipEdgeIntersectAxis(prev, cur, axis, bound, hit);
+                    clipEdgeIntersectAxis(*prev, *cur, axis, bound, hit);
                     clipVertexAppend(hit, dstCount, dst);
                     clipVertexAppend(cur, dstCount, dst);
                 }
-            } else if (clipVertexTestAxis(prev, axis, bound, isMax) != 0) {
-                clipEdgeIntersectAxis(prev, cur, axis, bound, hit);
+            } else if (clipVertexTestAxis(*prev, axis, bound, isMax) != 0) {
+                clipEdgeIntersectAxis(*prev, *cur, axis, bound, hit);
                 clipVertexAppend(hit, dstCount, dst);
             }
             i++;
-            cur += 3;
+            cur++;
             prev = last;
         } while (i != srcCount);
     }

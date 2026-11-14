@@ -23,7 +23,7 @@ typedef struct RenderEntry {
 
 // A clip/frustum plane polygon: four s16 vertices and its plane equation.
 typedef struct PlanePoly {
-    /* 0x00 */ s16 v[12];
+    /* 0x00 */ s16 v[4][3];
     /* 0x18 */ u8 type;
     /* 0x19 */ u8 pad19[7];
     /* 0x20 */ f64 a;
