@@ -38,7 +38,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - EffectNode follow-ups: boss/0, F0D0, 89250 (136214b3), 11BC10 turn 2 (21ebc4ba), 478F0 CsEffView (3d851936) done; 119370 `effectCreateAtPosition` -> `EffectNode *` in OwnerEffectCreateAtPositionNode (AS).
 - 133A90 ProxPath.owner key type (42630 warnings 0eead6, 2e5ca6); 42630 csCmdExec views (proto-type 89a542).
 - 8D3E0 `actorMapModelsSetup(void *, u8, u8)` (450 warning 2e505d).
-- 12E800 behaviourUpdateContactAndState second parameter (B2CE0/BB300 proto-type 3544eb views).
+- DONE: 12E800 behaviourUpdateContactAndState second parameter: B2CE0/BB300 keep the one-parameter owner prototype hidden by PROTO_SKIP + an unprototyped declaration, tagged ORIG (lead-verified move a1,a0 0x7b4/0x1d68 B2CE0, 0xa28 BB300; owner homes only a0 at 12E800 0x1ce0), OwnerBehaviourContactArity ca511d88.
 - 1025E0 `func_806FDAB8` first param: owner retype to u8, u16 and s32 all fdiff 1 (round 29, CleanBonus2690 retype/owner_*.fdiff), so bonus/2690's local u8 declaration steer (689f58, e3027b) stays. Not actionable.
 - gCamActor extern stays `void *` in boss/8520, B100, C920 (retyping raises cfe); gFrameCounter/gGlobalPauseFlags single shared type.
 - PlayerStruct 0x270 s16 bounds carve (A8400 ScreenBounds/MapBounds views); round-16 list in run-log (TargetVec3f header, KongInventory, playerStateQueueCallback arity, n_alSndpPostEvent).
