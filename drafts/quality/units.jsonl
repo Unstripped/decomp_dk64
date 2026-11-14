@@ -293,3 +293,4 @@
 {"type": "unit", "t": "2026-11-14T18:06:46Z", "unit": "2026-11-14: cleanup HackpathPlaybackAdvance", "commit": "f2396a73b4ff999d66a52ac334227c3de9aa9d14"}
 {"type": "unit", "t": "2026-11-14T18:11:57Z", "unit": "2026-11-14: cleanup HackactorCutsceneDispatchEvents", "commit": "22f343b0a9053576c7684d2de46e158e0bbae9d0"}
 {"type": "unit", "t": "2026-11-14T18:12:38Z", "unit": "2026-11-14: cleanup HackeffectBuildGridVertices", "commit": "7c761f2bb02306d632e94b14053d5100b7c9263d"}
+{"type": "unit", "t": "2026-11-14T18:14:49Z", "unit": "2026-11-14: cleanup HackmenuEvaluateSelectorSpline", "commit": "d17bdd9cc08908fbab5005c3e2071bc79feffefc"}
