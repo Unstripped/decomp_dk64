@@ -1,6 +1,6 @@
 # Pending after cleanup round 38 (campaign paused by the user)
 
-State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPEN functions in 117 files; the knowledge commit re-opened 15 (diagnose/reconstruct by note similarity; permute stales only via entries naming the function since 1052fc9b). No round 39 was picked or briefed. A future session starts here: `uv run tools/quality.py rank --limit 25`, then SKILL.md §2 (skip files edited in the previous round, prefer the least recently dispatched).
+State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPEN functions in 117 files. Since then the campaign runs as a rolling queue (SKILL.md §2): a future session starts with `uv run tools/quality.py rank --limit 40` (function hack queue) and `rank --polish` (file polish queue); coverage first. The "Blocked owner/header changes" below are the `TypesOwner` queue (types-stream.md).
 
 ## Blocked owner/header changes
 - Cast sweep (round 30): 55B20 MapChunk.lastSeenFrame and 61AA0 BillboardCacheEntry.lastUsedFrame stay s32 (u32 retype fdiff 1). model.h/heap.h frame stamps landed u32 after Rev29.
