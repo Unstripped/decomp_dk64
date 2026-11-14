@@ -31,17 +31,23 @@
 extern Gfx D_1000118;
 extern Gfx D_2000180;
 
-typedef struct LB3bState {
-    u16 unk0;
-    s16 unk2;
-    s16 unk4;
-    u8 pad6[2];
-    u8 unk8;
-    u8 unk9;
-} LB3bState;
+// Bonus challenge controller component (Actor+0x178): setup step and the remaining-count HUD.
+typedef struct BonusCounterState {
+    /* 0x00 */ u16 setupStep;
+    /* 0x02 */ s16 counterShown;
+    /* 0x04 */ s16 countLeft;
+    /* 0x06 */ u8 pad6[2];
+    /* 0x08 */ u8 counterState;
+    /* 0x09 */ u8 labelTextId;
+} BonusCounterState;
+
+typedef struct BonusCounterActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ BonusCounterState *counter;
+} BonusCounterActor;
 
 Gfx *bonusRenderCounterHud(Gfx *gdl, Actor *actor) {
-    LB3bState *s = *(LB3bState **)((u8 *)actor + 0x178);
+    BonusCounterState *counter = ((BonusCounterActor *)actor)->counter;
 
     if (hudCanRender()) {
         gSPDisplayList(gdl++, &D_1000118);
@@ -50,8 +56,8 @@ Gfx *bonusRenderCounterHud(Gfx *gdl, Actor *actor) {
         gDPSetPrimColor(gdl++, 0, 0, 255, 255, 255, 255);
         gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gdl = hudDrawRollingCounter(
-            textDrawAnimated(gdl, s->unk9, 8, 30.0f, 36.0f, 0.0f, 1.5f),
-            0x26, 0x32, &s->unk2, s->unk4, &s->unk8);
+            textDrawAnimated(gdl, counter->labelTextId, 8, 30.0f, 36.0f, 0.0f, 1.5f),
+            0x26, 0x32, &counter->counterShown, counter->countLeft, &counter->counterState);
     }
     return gdl;
 }
@@ -64,15 +70,21 @@ void bonusInitSounds(void) {
     spawnNodeActivateAndSetState(5, 0x40, 0);
 }
 
-typedef struct LB3bSnd {
-    u16 unk0;
-    u8 pad2[2];
-    struct GfSndState *unk4;
-    s16 unk8;
-    s16 unkA;
-    u8 padC[0xC];
-    u16 unk18;
-} LB3bSnd;
+// Maze challenge component (Actor+0x178): looping sound (0x1E6) pitch, beep timer and camera path delay.
+typedef struct BonusMazeState {
+    /* 0x00 */ u16 beepTimer;
+    /* 0x02 */ u8 pad2[2];
+    /* 0x04 */ struct GfSndState *sndState;
+    /* 0x08 */ s16 targetPitch;
+    /* 0x0A */ s16 pitch;
+    /* 0x0C */ u8 padC[0xC];
+    /* 0x18 */ u16 pathDelay;
+} BonusMazeState;
+
+typedef struct BonusMazeActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ BonusMazeState *maze;
+} BonusMazeActor;
 
 extern Actor *gCurrentActor;
 extern Actor *gActivePlayerActor;
@@ -87,7 +99,7 @@ extern u8 D_8002D863[];
 
 void bonusControllerUpdate(void) {
     s16 i;
-    LB3bState *s;
+    BonusCounterState *counter;
     u8 challengeType;
     u8 targetCount;
     u8 *messageText;
@@ -103,7 +115,7 @@ void bonusControllerUpdate(void) {
     s32 sfxId;
     u8 *pv;
 
-    s = *(LB3bState **)((u8 *)gCurrentActor + 0x178);
+    counter = ((BonusCounterActor *)gCurrentActor)->counter;
     behaviourFrameBegin();
     challengeType = gBehaviourExtraState->respawnDelay;
     targetCount = gBehaviourExtraState->unkA;
@@ -139,7 +151,7 @@ tail:
         case 10:
         case 12:
         case 16:
-            s->unk2 = 0;
+            counter->counterShown = 0;
             break;
         case 3:
             bonusInitSounds();
@@ -160,10 +172,10 @@ tail:
             break;
         }
         if (hasMessage != 0) {
-            s->unk9 = gfxResourceCreate(1, messageText, 8, 0.0f, 0.0f, 0.0f);
-            func_806FDAB8(s->unk9, 0.0f);
-            s->unk4 = targetCount;
-            s->unk2 = targetCount;
+            counter->labelTextId = gfxResourceCreate(1, messageText, 8, 0.0f, 0.0f, 0.0f);
+            func_806FDAB8(counter->labelTextId, 0.0f);
+            counter->countLeft = targetCount;
+            counter->counterShown = targetCount;
         }
     }
     if (gCurrentActor->state == 0) {
@@ -175,12 +187,12 @@ tail:
                     triggerKind = ((u8 *)gActorGlobalState.volumeTriggerQueueId[i])[3]; // unk278[] points at script data read as s16 (1295B0, 80150) and as bytes here
                     switch (challengeType) {
                     case 0:
-                        if (s->unk4 != 0) {
-                            if (s->unk4 >= 2) {
+                        if (counter->countLeft != 0) {
+                            if (counter->countLeft >= 2) {
                                 messageText = textTableGetString(0x1A, 0xF, 1);
                                 msgBuf = heapAlloc(strlen(messageText) + 5);
                                 heapFreeDeferred(msgBuf);
-                                _sprintf(msgBuf, "%d %s", s->unk4, messageText);
+                                _sprintf(msgBuf, "%d %s", counter->countLeft, messageText);
                             } else {
                                 msgBuf = textTableGetString(0x1A, 0x10, 1);
                             }
@@ -189,7 +201,7 @@ tail:
                         }
                         break;
                     case 16:
-                        if (s->unk2 == 0 && triggerKind != 0x28) {
+                        if (counter->counterShown == 0 && triggerKind != 0x28) {
                             textSpawnMarkerChecked(0, 0, 0x8C, textTableGetString(0x1A, 0x17, 1), 0, 0x28, 8, 8);
                             endOnTrigger = 0;
                         }
@@ -200,7 +212,7 @@ tail:
                     case 2:
                         endOnTrigger = 1;
                         if (slotQueueGetValue(0xB, 0) < targetCount) {
-                            if (s->unk4 >= 2) {
+                            if (counter->countLeft >= 2) {
                                 messageText = textTableGetString(0x1A, 0x11, 1);
                                 msgBufCount = heapAlloc(strlen(messageText) + 5);
                                 _sprintf(msgBufCount, "%d %s", targetCount - slotQueueGetValue(0xB, 0), messageText);
@@ -249,13 +261,13 @@ tail:
         case 11:
         case 13:
         case 14:
-            if (s->unk4 == 0) {
+            if (counter->countLeft == 0) {
                 bonusEndWin(1, 0xE);
             }
         case 0:
-            if ((((targetCount - D_80744508) < 0) ? 0 : (targetCount - D_80744508)) != s->unk4) {
-                func_806FDAB8(s->unk9, 3.1415927f);
-                s->unk4 = ((targetCount - D_80744508) < 0) ? 0 : (targetCount - D_80744508);
+            if ((((targetCount - D_80744508) < 0) ? 0 : (targetCount - D_80744508)) != counter->countLeft) {
+                func_806FDAB8(counter->labelTextId, 3.1415927f);
+                counter->countLeft = ((targetCount - D_80744508) < 0) ? 0 : (targetCount - D_80744508);
             }
             goto render;
         case 7:
@@ -263,7 +275,7 @@ tail:
             func_80724A20();
             goto render;
         case 5:
-            if (gCurrentMap == 0x85 && s->unk4 == 1) {
+            if (gCurrentMap == 0x85 && counter->countLeft == 1) {
                 if (gCurrentActor->unk155 == 0) {
                     gCurrentActor->unk155 += 1;
                     csSendActorMessagePayload(0, 0);
@@ -272,16 +284,16 @@ tail:
                 }
             }
         case 6:
-            if (s->unk4 == 0) {
+            if (counter->countLeft == 0) {
                 bonusEndWin(1, 0xE);
             }
         case 2:
-            if ((((targetCount - slotQueueGetValue(0xB, 0)) < 0) ? 0 : (targetCount - slotQueueGetValue(0xB, 0))) != s->unk4) {
-                func_806FDAB8(s->unk9, 3.1415927f);
-                s->unk4 = ((targetCount - slotQueueGetValue(0xB, 0)) < 0) ? 0 : (targetCount - slotQueueGetValue(0xB, 0));
+            if ((((targetCount - slotQueueGetValue(0xB, 0)) < 0) ? 0 : (targetCount - slotQueueGetValue(0xB, 0))) != counter->countLeft) {
+                func_806FDAB8(counter->labelTextId, 3.1415927f);
+                counter->countLeft = ((targetCount - slotQueueGetValue(0xB, 0)) < 0) ? 0 : (targetCount - slotQueueGetValue(0xB, 0));
             }
 render:
-            if (s->unk0 >= 2) {
+            if (counter->setupStep >= 2) {
                 renderCallbacksRegister(bonusRenderCounterHud, gCurrentActor, 3);
             }
             break;
@@ -293,7 +305,7 @@ render:
             break;
         }
     }
-    switch (s->unk0) {
+    switch (counter->setupStep) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
@@ -301,7 +313,7 @@ render:
                 resQueueSetValue(2);
             }
             resQueueAttachActor(gCurrentActor, 0, D_8002D863[challengeType << 2]);
-            s->unk0 += 1;
+            counter->setupStep += 1;
         }
         break;
     case 1:
@@ -336,7 +348,7 @@ render:
                 break;
             }
             sfxAllocateChannel(sfxId, 1.0f);
-            s->unk0 += 1;
+            counter->setupStep += 1;
         }
         break;
     }
@@ -379,16 +391,16 @@ render:
         gCurrentActor->state += 1;
         break;
     case 0x27:
-        func_806FDAB8(s->unk9, 3.1415927f);
-        s->unk4 -= 1;
-        if (s->unk4 == 0) {
+        func_806FDAB8(counter->labelTextId, 3.1415927f);
+        counter->countLeft -= 1;
+        if (counter->countLeft == 0) {
             bonusEndWin(1, 0xE);
             return;
         }
         gCurrentActor->state = 0;
         break;
     case 0x28:
-        s->unk2 = 1;
+        counter->counterShown = 1;
         gCurrentActor->state = 0;
         break;
     case 0x37:
@@ -439,15 +451,15 @@ extern ALBank *D_8076D1F8;
 extern PlayerState *gActivePlayerState;
 
 void bonusMazeChallengeUpdate(void) {
-    LB3bSnd *snd;
+    BonusMazeState *maze;
 
-    snd = *(LB3bSnd **)((u8 *)gCurrentActor + 0x178);
+    maze = ((BonusMazeActor *)gCurrentActor)->maze;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        snd->unk0 = 0x12C;
-        snd->unkA = 0;
-        snd->unk8 = 0;
-        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &snd->unk4);
+        maze->beepTimer = 0x12C;
+        maze->pitch = 0;
+        maze->targetPitch = 0;
+        n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &maze->sndState);
         hudSpawnCountdownTimer(0xDC, 0x2A, gBehaviourExtraState->unkB);
         spawnNodeActivateAndSetState(1, 0x40, 0x10);
         spawnNodeActivateAndSetState(2, 0x40, 0x10);
@@ -456,12 +468,12 @@ void bonusMazeChallengeUpdate(void) {
         gCurrentActor->state = 0;
         gCurrentActor->unk155 = 0;
         camRequestPathLength();
-        snd->unk18 = camStartPath(0, 0, 1);
+        maze->pathDelay = camStartPath(0, 0, 1);
     }
     switch (gCurrentActor->state) {
     case 0:
-        if (snd->unk18 != 0) {
-            snd->unk18--;
+        if (maze->pathDelay != 0) {
+            maze->pathDelay--;
         } else {
             hudCountdownTimerStart(gCurrentActor->parentActor);
             gCurrentActor->state = 1;
@@ -483,26 +495,26 @@ void bonusMazeChallengeUpdate(void) {
         break;
     }
     {
-        s32 decayedPitch = snd->unk8 - 0x96;
-        snd->unk0--;
+        s32 decayedPitch = maze->targetPitch - 0x96;
+        maze->beepTimer--;
         if (decayedPitch < 0x1F40) {
-            snd->unk8 = 0x1F40;
+            maze->targetPitch = 0x1F40;
         } else {
-            snd->unk8 = decayedPitch;
+            maze->targetPitch = decayedPitch;
         }
     }
     {
-        s32 steppedPitch = snd->unkA + 0x3E8;
-        if (snd->unk8 < steppedPitch) {
-            snd->unkA = snd->unk8;
+        s32 steppedPitch = maze->pitch + 0x3E8;
+        if (maze->targetPitch < steppedPitch) {
+            maze->pitch = maze->targetPitch;
         } else {
-            snd->unkA = steppedPitch;
+            maze->pitch = steppedPitch;
         }
     }
-    n_alSndpPostEvent(snd->unk4, 8, snd->unkA);
+    n_alSndpPostEvent(maze->sndState, 8, maze->pitch);
     if (gActivePlayerState->stateFlags & 0xC0000) {
-        if (snd->unk0 < 0x129) {
-            snd->unk0 = 0x12C;
+        if (maze->beepTimer < 0x129) {
+            maze->beepTimer = 0x12C;
             if (gActivePlayerState->stateFlags & 0x40000) {
                 if (((randomNonNegative() >> 15) % 1000) & 1) {
                     sfxPlayOnFreeSlot(0x1E7, 0x7FFF, 64.0f, 1.0f, 0x14, 0x80);
@@ -514,24 +526,24 @@ void bonusMazeChallengeUpdate(void) {
             }
         }
         {
-            s32 boostedPitch = snd->unk8 + 0x4650;
+            s32 boostedPitch = maze->targetPitch + 0x4650;
             if (boostedPitch >= 0x8000) {
-                snd->unk8 = 0x7FFF;
+                maze->targetPitch = 0x7FFF;
             } else {
-                snd->unk8 = boostedPitch;
+                maze->targetPitch = boostedPitch;
             }
         }
         gActivePlayerState->stateFlags &= ~0xC0000;
     }
-    switch (snd->unk0) {
+    switch (maze->beepTimer) {
     case 0x0:
     case 0x14:
     case 0x28:
     case 0x3C:
     case 0x50:
-        sfxPlayOnFreeSlot(0x1E9, 0x7FFF - snd->unk0 * 0x96, 64.0f, 1.0f, 0xA, 0x80);
-        if (snd->unk0 == 0) {
-            snd->unk0 = 0xC8;
+        sfxPlayOnFreeSlot(0x1E9, 0x7FFF - maze->beepTimer * 0x96, 64.0f, 1.0f, 0xA, 0x80);
+        if (maze->beepTimer == 0) {
+            maze->beepTimer = 0xC8;
         }
         break;
     }
