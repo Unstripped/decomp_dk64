@@ -13,24 +13,16 @@ extern u16 D_807FBB30;
 extern u16 D_807FBB32;
 extern PlayerState *gActivePlayerState;
 
-typedef struct ControllerStateEntryView {
-    u16 unk0;
-    u16 unk2;
-    void *unk4;
-    u8 unk8;
-} ControllerStateEntryView;
-
+// One loaded animation-asset cache slot (0xC bytes; .bss D_807FB630..D_807FB7B0 holds 32).
 typedef struct ControllerStateEntry {
-    u16 unk0;
-    u16 unk2;
-    u32 unk4;
-    u32 unk8;
+    u16 assetId;
+    u16 refCount;
+    void *asset;
+    u8 cullSwap;
+    u8 pad9[3];
 } ControllerStateEntry;
 
-extern ControllerStateEntry D_807FB630[];
-// Users needing a u8 unk8 go through CONTROLLER_STATE_ENTRY.
-#define CONTROLLER_STATE_ENTRY(i) (((ControllerStateEntryView *)D_807FB630)[i])
-extern void *D_807FB634;
+extern ControllerStateEntry D_807FB630[32];
 extern u8 D_80746B64[];
 
 
@@ -44,23 +36,23 @@ unsigned char cullSwap;
     s32 delta;
 
     for (i = 0; i < D_807FBB30; i++) {
-        if (assetId == CONTROLLER_STATE_ENTRY(i).unk0 && CONTROLLER_STATE_ENTRY(i).unk8 == cullSwap) {
-            CONTROLLER_STATE_ENTRY(i).unk2++;
-            animListInit(controller, CONTROLLER_STATE_ENTRY(i).unk4);
-            return CONTROLLER_STATE_ENTRY(i).unk4;
+        if (assetId == D_807FB630[i].assetId && D_807FB630[i].cullSwap == cullSwap) {
+            D_807FB630[i].refCount++;
+            animListInit(controller, D_807FB630[i].asset);
+            return D_807FB630[i].asset;
         }
     }
 
     if (D_807FBB32 >= 0x20) {
-        return D_807FB634;
+        return D_807FB630[0].asset;
     }
 
     asset = assetLoad(5, assetId - 1, 1, 1);
-    CONTROLLER_STATE_ENTRY(i).unk0 = assetId;
+    D_807FB630[i].assetId = assetId;
     D_807FBB30++;
-    CONTROLLER_STATE_ENTRY(i).unk8 = cullSwap;
-    CONTROLLER_STATE_ENTRY(i).unk2 = 1;
-    CONTROLLER_STATE_ENTRY(i).unk4 = asset;
+    D_807FB630[i].cullSwap = cullSwap;
+    D_807FB630[i].refCount = 1;
+    D_807FB630[i].asset = asset;
 
     delta = ((u8 *)asset - (u8 *)asset->unk0) + 0x28;
     asset->unk0 = (u8 *)asset->unk0 + delta;
@@ -254,15 +246,15 @@ void controllerCommandRelocateAssets(ControllerCommand *cmdStart, void *cmdEnd) 
 }
 
 s32 controllerLookupStateByHash(Actor *actor) {
-    u32 val = (u32)actor->animState;
+    void *state = actor->animState;
     s32 i;
     for (i = D_807FBB30; i >= 0; i--) {
-        if (val == D_807FB630[i].unk4) {
+        if (state == D_807FB630[i].asset) {
             break;
         }
     }
     if (i >= 0) {
-        return D_807FB630[i].unk0;
+        return D_807FB630[i].assetId;
     }
     return 0;
 }
@@ -390,14 +382,6 @@ struct AnimCacheEntry {
     void *asset;
 };
 extern struct AnimCacheEntry D_807FB7B0[];
-typedef struct {
-    u16 unk0;
-    u16 unk2;
-    u32 unk4;
-    u8 unk8;
-} AnimStateSlot;
-
-#define FREESUB_SLOT(i) (((AnimStateSlot *)D_807FB630)[i])
 void controllerAnimFreeSub(Actor *controller, u8 slotIndex) {
     ControllerSubB *sub;
     ControllerCmdB *cmd;
@@ -421,14 +405,14 @@ void controllerAnimFreeSub(Actor *controller, u8 slotIndex) {
 
     if (sub != NULL) {
         for (i = 0; i < 32; i++) {
-            if (D_807FB630[i].unk4 == (u32)sub) {
+            if (D_807FB630[i].asset == sub) {
                 break;
             }
         }
         if (i == 32) {
             return;
         }
-        if (--FREESUB_SLOT(i).unk2 == 0) {
+        if (--D_807FB630[i].refCount == 0) {
             cmd = sub->commands->start;
             cmdList = sub->commands;
             if (cmd != (ControllerCmdB *)cmdList) {
@@ -443,15 +427,15 @@ void controllerAnimFreeSub(Actor *controller, u8 slotIndex) {
             }
 
             D_807FBB30--;
-            FREESUB_SLOT(i).unk0 = FREESUB_SLOT(D_807FBB30).unk0;
-            FREESUB_SLOT(i).unk4 = FREESUB_SLOT(D_807FBB30).unk4;
-            FREESUB_SLOT(i).unk8 = FREESUB_SLOT(D_807FBB30).unk8;
-            FREESUB_SLOT(i).unk2 = FREESUB_SLOT(D_807FBB30).unk2;
+            D_807FB630[i].assetId = D_807FB630[D_807FBB30].assetId;
+            D_807FB630[i].asset = D_807FB630[D_807FBB30].asset;
+            D_807FB630[i].cullSwap = D_807FB630[D_807FBB30].cullSwap;
+            D_807FB630[i].refCount = D_807FB630[D_807FBB30].refCount;
 
-            FREESUB_SLOT(D_807FBB30).unk0 = 0;
-            FREESUB_SLOT(D_807FBB30).unk4 = 0;
-            FREESUB_SLOT(D_807FBB30).unk8 = 0;
-            FREESUB_SLOT(D_807FBB30).unk2 = 0;
+            D_807FB630[D_807FBB30].assetId = 0;
+            D_807FB630[D_807FBB30].asset = NULL;
+            D_807FB630[D_807FBB30].cullSwap = 0;
+            D_807FB630[D_807FBB30].refCount = 0;
 
             assetFreeBuffer((void *)sub, 0x281, 0x15);
         }
