@@ -731,6 +731,48 @@ def test_sweep_recipe_hit_is_the_variant(tmp_path, monkeypatch):
     assert hits == [([key], "recipe", "VARIANT")] and out[(key, "recipe")] == ["hit", None]
 
 
+@pytest.mark.parametrize("rc,msg", [(125, "exit 125: dk: server unreachable"),  # dkd error
+                                    (0, "no readable JSON")])  # exit 0 but no v.json
+def test_recipe_scan_failure_is_not_a_nohit(tmp_path, monkeypatch, rc, msg):
+    import subprocess
+    monkeypatch.setattr(q, "SCRATCH", str(tmp_path / "scratch"))
+
+    def run(cmd, **kw):
+        return subprocess.CompletedProcess(cmd, rc, stdout="", stderr="dk: server unreachable\n")
+
+    monkeypatch.setattr(q.subprocess, "run", run)
+    with pytest.raises(q.ScanError, match=msg):
+        q.recipe_check("int x;\n", "src/global/x.c", "src/global/x.c", "f")
+
+
+def test_failed_recipe_scan_records_nothing(tmp_path, monkeypatch):
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+
+    def recipe(text, path, src, func):
+        raise q.ScanError("f: variants scan exit 125: dk: no server")
+
+    monkeypatch.setattr(q, "recipe_check", recipe)
+
+    class Pool:
+        def submit(self, fn, *args):
+            if fn is recipe:
+                class Failed:
+                    def result(self):
+                        return fn(*args)
+                return Failed()
+            return _Done(False)
+
+    c = tmp_path / "x.c"
+    c.write_text("typedef int s32;\ns32 g;\nvoid f(s32 x) {\n    if (g) {} // FAKE: steers\n    g = x;\n}\n")
+    path = q.rel(str(c))
+    an = q.analyze(path, "global")
+    plan = q.plan_file(an, path, path, Pool())
+    out, hits, _ = q.finish(plan)
+    key = an["functions"][0]["sites"][0]["key"]
+    assert not hits and (key, "recipe") not in out and out[(key, "remove")] == ["nohit", None]
+    assert plan["failed"] == [([key], "f: variants scan exit 125: dk: no server")]
+
+
 def test_carry_takes_newest_event_by_time(tmp_path, monkeypatch):
     repo = tmp_path.resolve() / "repo"
     (repo / "src" / "global").mkdir(parents=True)

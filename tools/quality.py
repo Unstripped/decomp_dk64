@@ -839,18 +839,29 @@ def cond_check(text, body, path, src, func):
     return bool(m) and m.group(1) == "0" and check(text, path, src)
 
 
+class ScanError(Exception):
+    """A variants.py scan that did not complete (dkd error, crash, no JSON): not a negative search."""
+
+
 def recipe_check(text, path, src, func):
     """Text of the first tools/variants.py recipe variant of FUNC in TEXT (a copy of PATH) that passes
-    check(), or None."""
+    check(), or None when the scan completed without one. Raises ScanError when the scan itself
+    failed (non-zero exit, missing or unreadable JSON), with the command's last output lines."""
     d = job_dir()
     copy = rel(os.path.join(d, os.path.basename(path)))
     open(os.path.join(ROOT, copy), "w").write(text)
     js = os.path.join(d, "v.json")
     try:
-        subprocess.run(["tools/dk", "python3", "tools/variants.py", "scan", copy, src, func, "--max", "120", "-j", "2",
-                        "--out", rel(os.path.join(d, "zeros")), "--json", rel(js)],
-                       cwd=ROOT, capture_output=True, text=True)
-        rows = json.load(open(js)) if os.path.exists(js) else []
+        r = subprocess.run(["tools/dk", "python3", "tools/variants.py", "scan", copy, src, func, "--max", "120",
+                            "-j", "2", "--out", rel(os.path.join(d, "zeros")), "--json", rel(js)],
+                           cwd=ROOT, capture_output=True, text=True)
+        tail = " | ".join(((r.stdout or "") + (r.stderr or "")).strip().splitlines()[-3:])
+        if r.returncode != 0:
+            raise ScanError(f"{func}: variants scan exit {r.returncode}: {tail}")
+        try:
+            rows = json.load(open(js))
+        except (OSError, ValueError) as ex:
+            raise ScanError(f"{func}: variants scan wrote no readable JSON ({ex}): {tail}") from None
         for row in rows:
             if row.get("path"):
                 t = open(os.path.join(ROOT, row["path"]), encoding="utf-8", errors="replace").read()
@@ -1005,9 +1016,11 @@ def write_hit(seg, src, text):
 
 
 def finish(plan):
-    """({(key, method): [outcome, note]}, [(keys, method, hit text)], checks run) once PLAN's futures are done."""
+    """({(key, method): [outcome, note]}, [(keys, method, hit text)], checks run) once PLAN's futures are done.
+    A recipe scan that failed (ScanError) records nothing for its keys unless another scan hit them;
+    the failures go to PLAN["failed"] as (keys, message)."""
     out = {k: ["nohit", note] for k, note in plan["tried"].items()}
-    hits, checks = [], 0
+    hits, checks, failed = [], 0, []
     for method, keys, fut, text in plan["jobs"]:
         if method == "classify":
             rs = [f.result() for f in fut]
@@ -1015,11 +1028,20 @@ def finish(plan):
             out[(keys[0], method)] = ["kept", "class 1"] if any(rs) else ["nohit", "class 2"]
             continue
         checks += 1
-        r = fut.result()
+        try:
+            r = fut.result()
+        except ScanError as ex:
+            failed.append((keys, str(ex)))
+            continue
         if r:
             hits.append((keys, method, r if method == "recipe" else text))  # recipe: the matching variant
             for k in keys:
                 out[(k, method)] = ["hit", None]
+    for keys, _ in failed:
+        for k in keys:
+            if out.get((k, "recipe"), ["hit"])[0] != "hit":
+                del out[(k, "recipe")]
+    plan["failed"] = failed
     return out, hits, checks
 
 
@@ -1029,7 +1051,7 @@ def cmd_sweep(a):
     if a.record and not a.unit:
         sys.exit("quality: --record needs --unit")
     t0, plans, events = time.time(), [], []
-    nchecks = nhits = 0
+    nchecks = nhits = nfail = 0
     with ThreadPoolExecutor(a.j) as pool:
         for f in a.files:
             path = rel(f)
@@ -1051,6 +1073,9 @@ def cmd_sweep(a):
             an = p["an"]
             sites = {s["key"]: (fn, s) for fn in an["functions"] for s in fn["sites"] if s["kind"] != "warning"}
             print(f"{p['path']}: {len(sites)} sites, {checks} checks, {len(hits)} hits")
+            for keys, msg in p["failed"]:
+                print(f"RECIPE-FAIL {','.join(keys)} {msg}")
+            nfail += len(p["failed"])
             for keys, method, text in hits:
                 hp = write_hit(an["seg"], p["src"], text)
                 print(f"HIT {','.join(keys)} {method} {hp}")
@@ -1060,11 +1085,14 @@ def cmd_sweep(a):
                 events.append(event(a.unit, "sweep", dict(fn, file=p["path"]), s, method, outcome, note=note))
             nchecks += checks
             nhits += len(hits)
-    print(f"sweep: {len(plans)} files, {nchecks} checks, {nhits} hits in {time.time() - t0:.0f}s")
+    print(f"sweep: {len(plans)} files, {nchecks} checks, {nhits} hits in {time.time() - t0:.0f}s"
+          + (f", {nfail} recipe scans FAILED (their sites' recipe rung not recorded)" if nfail else ""))
     if a.record:
         ev = unit_events(a.unit, load_events()) + events
         append_events(ev)
         print(f"recorded {len(events)} events to {rel(LEDGER)}")
+    if nfail:
+        sys.exit(1)
 
 
 # ---------------------------------------------------------------- record
