@@ -73,11 +73,7 @@ unsigned char cullSwap;
     return asset;
 }
 
-typedef struct GfxCmdWords {
-    u32 unk0;
-    u32 unk4;
-} GfxCmdWords;
-void gfxSwapGeometryModeCullBits(GfxCmdWords *cmdStart, void *cmdEnd) {
+void gfxSwapGeometryModeCullBits(Gfx *cmdStart, void *cmdEnd) {
     u32 command;
     s32 op;
     u32 w0;
@@ -86,10 +82,10 @@ void gfxSwapGeometryModeCullBits(GfxCmdWords *cmdStart, void *cmdEnd) {
     op = 0; // FAKE: orders the mask candidate before the command-word candidate
     if (cmdStart != cmdEnd) {
         do {
-            w0 = cmdStart->unk0;
+            w0 = cmdStart->words.w0;
             command = w0 >> 24;
             if ((w0 & 0x600) && (w0 & 0x600)) {} // FAKE: preserves the cull-mask expression's live range
-            w1 = cmdStart->unk4;
+            w1 = cmdStart->words.w1;
             if (command == 0xD9) {
                 if (w1 == 0) {
                     w0 = ~w0 & 0xFFFFFF;
@@ -97,19 +93,19 @@ void gfxSwapGeometryModeCullBits(GfxCmdWords *cmdStart, void *cmdEnd) {
                         op = w0 | 0x400;
                         w0 = 0; // FAKE: prevents forwarding the mask expression out of op
                         op &= ~0x200;
-                        cmdStart->unk0 = ~op | 0xD9000000;
+                        cmdStart->words.w0 = ~op | 0xD9000000;
                     } else if ((w0 & 0x600) == 0x400) {
                         op = w0 | 0x200;
                         w0 = 0; // FAKE: prevents forwarding the mask expression out of op
                         op &= ~0x400;
-                        cmdStart->unk0 = ~op | 0xD9000000;
+                        cmdStart->words.w0 = ~op | 0xD9000000;
                     }
                 } else if ((w1 & 0x600) == 0x200) {
-                    cmdStart->unk4 |= 0x400;
-                    cmdStart->unk4 &= ~0x200;
+                    cmdStart->words.w1 |= 0x400;
+                    cmdStart->words.w1 &= ~0x200;
                 } else if ((w1 & 0x600) == 0x400) {
-                    cmdStart->unk4 |= 0x200;
-                    cmdStart->unk4 &= ~0x400;
+                    cmdStart->words.w1 |= 0x200;
+                    cmdStart->words.w1 &= ~0x400;
                 }
             }
             if (command && command) {} // FAKE: retains the opcode variable rather than a forwarded shift
@@ -136,22 +132,18 @@ void controllerAnimFreeStateAsset(Actor *actor) {
     }
 }
 
-typedef struct ControllerSubCmd {
-    u32 unk0;
-    u32 unk4;
-} ControllerSubCmd;
 
 typedef struct ControllerSubNode {
-    ControllerSubCmd *unk0;
-    ControllerSubCmd *unk4;
-    u8 unk8;
+    Gfx *partDl;
+    Gfx *skipDl;
+    u8 segment;
     struct ControllerSubNode *next;
 } ControllerSubNode;
 
 
-void controllerBuildSubcommandList(ControllerSubCmd *cmdStart, void *cmdEnd, ControllerSubNode **pNodeList) {
-    ControllerSubCmd *curr;
-    ControllerSubCmd *search;
+void controllerBuildSubcommandList(Gfx *cmdStart, void *cmdEnd, ControllerSubNode **pNodeList) {
+    Gfx *curr;
+    Gfx *search;
     ControllerSubNode *node;
     u32 id;
     s32 found;
@@ -159,15 +151,15 @@ void controllerBuildSubcommandList(ControllerSubCmd *cmdStart, void *cmdEnd, Con
     u32 sub;
 
     for (curr = cmdStart; curr != cmdEnd; curr++) {
-        op = curr->unk0 >> 24;
-        sub = (curr->unk0 >> 16) & 0xFF;
+        op = curr->words.w0 >> 24;
+        sub = (curr->words.w0 >> 16) & 0xFF;
         if ((op == 0xDE) && (sub == 1)) {
-            id = (curr->unk4 << 4) >> 28;
+            id = (curr->words.w1 << 4) >> 28;
             search = cmdStart;
             found = 0;
             while (!found && (search != cmdEnd)) {
-                op = search->unk0 >> 24;
-                if ((op == 0) && (id == search->unk4)) {
+                op = search->words.w0 >> 24;
+                if ((op == 0) && (id == search->words.w1)) {
                     found = 1;
                 } else {
                     search++;
@@ -176,57 +168,38 @@ void controllerBuildSubcommandList(ControllerSubCmd *cmdStart, void *cmdEnd, Con
             node = heapAlloc(sizeof(ControllerSubNode));
             *pNodeList = node;
             pNodeList = &node->next;
-            node->unk8 = id;
-            node->unk0 = curr + 1;
-            node->unk4 = search;
+            node->segment = id;
+            node->partDl = curr + 1;
+            node->skipDl = search;
         }
     }
     *pNodeList = NULL;
 }
 
-typedef struct ControllerCommand {
-    u32 unk0;
-    u32 unk4;
-} ControllerCommand;
 
-typedef struct {
-    ControllerCommand *unk0;
-} ControllerCommandArray;
+void controllerSetCommand(Actor *actor, s32 commandIndex, Gfx *command) {
+    Gfx *commands;
+    Gfx *destination;
 
-typedef struct {
-    u8 pad0[4];
-    ControllerCommandArray *unk4;
-} ControllerCommandStorage;
-
-typedef struct ControllerCommandOwner {
-    ControllerCommandStorage *unk0;
-    u8 pad4[0x5C];
-    u32 unk60;
-} ControllerCommandOwner;
-
-void controllerSetCommand(ControllerCommandOwner *owner, s32 commandIndex, ControllerCommand *command) {
-    ControllerCommand *commands;
-    ControllerCommand *destination;
-
-    if (owner->unk60 & 0x10) {
+    if (actor->flags & 0x10) {
         return;
     }
-    commands = owner->unk0->unk4->unk0;
+    commands = ((AnimInitData *)actor->animState)->unk4[0];
     destination = commands + commandIndex;
-    if ((command->unk0 != destination->unk0) || (command->unk4 != destination->unk4)) {
+    if ((command->words.w0 != destination->words.w0) || (command->words.w1 != destination->words.w1)) {
         memcpy(destination, command, 8);
     }
 }
 
-void controllerCommandRelocateAssets(ControllerCommand *cmdStart, void *cmdEnd) {
+void controllerCommandRelocateAssets(Gfx *cmdStart, void *cmdEnd) {
     u32 op;
 
     if (cmdStart != cmdEnd) {
         do {
-            op = cmdStart->unk0 >> 0x18;
+            op = cmdStart->words.w0 >> 0x18;
             if (op == 0xFD) {
-                if (((cmdStart->unk4 * 0x10) >> 0x1C) == 0) {
-                    cmdStart->unk4 = (u32)assetLoad(0x19, cmdStart->unk4, 0, 0);
+                if (((cmdStart->words.w1 * 0x10) >> 0x1C) == 0) {
+                    cmdStart->words.w1 = (u32)assetLoad(0x19, cmdStart->words.w1, 0, 0);
                 }
             }
             cmdStart++;
@@ -248,13 +221,8 @@ s32 controllerLookupStateByHash(Actor *actor) {
     return 0;
 }
 
-typedef struct {
-    u8 pad[0x20];
-    u8 unk20;
-} AnimAssetEntry;
-
 s32 controllerAnimInit(Actor *actor, u16 assetId) {
-    AnimAssetEntry *resource;
+    AnimInitData *resource;
     s32 i;
     void *alloc;
     ActorSub4 *anim;
@@ -350,25 +318,12 @@ void controllerAnimFree(Actor *actor) {
     heapFreeDeferred(actor->sub4);
 }
 
-typedef struct {
-    u32 unk0;
-    u32 unk4;
-} ControllerCmdB;
-
-typedef struct {
-    ControllerCmdB *start;
-} ControllerCmdListB;
-
-typedef struct {
-    u8 pad0[4];
-    ControllerCmdListB *commands;
-} ControllerSubB;
 
 
 void controllerAnimFreeSub(Actor *controller, u8 slotIndex) {
-    ControllerSubB *sub;
-    ControllerCmdB *cmd;
-    ControllerCmdListB *cmdList;
+    AnimInitData *sub;
+    Gfx *cmd;
+    void **cmdList;
     u32 val;
     s32 i;
     switch (slotIndex) {
@@ -396,17 +351,17 @@ void controllerAnimFreeSub(Actor *controller, u8 slotIndex) {
             return;
         }
         if (--D_807FB630[i].refCount == 0) {
-            cmd = sub->commands->start;
-            cmdList = sub->commands;
-            if (cmd != (ControllerCmdB *)cmdList) {
+            cmd = sub->unk4[0];
+            cmdList = sub->unk4;
+            if (cmd != (Gfx *)cmdList) {
                 do {
-                    val = cmd->unk0 >> 24;
+                    val = cmd->words.w0 >> 24;
                     if (val == 0xFD) {
-                        if (cmd->unk4 >= 0x80000000 && cmd->unk4 < 0xA0000000) {
-                            assetFreeBuffer((void *)cmd->unk4, 0x270, 0x15);
+                        if (cmd->words.w1 >= 0x80000000 && cmd->words.w1 < 0xA0000000) {
+                            assetFreeBuffer((void *)cmd->words.w1, 0x270, 0x15);
                         }
                     }
-                } while (++cmd != (ControllerCmdB *)cmdList);
+                } while (++cmd != (Gfx *)cmdList);
             }
 
             D_807FBB30--;
@@ -947,24 +902,8 @@ void actorCheckWorldBounds(Actor *actor) {
     }
 }
 
-typedef struct SegmentNode {
-    void *unk0;
-    void *unk4;
-    u8 unk8;
-    struct SegmentNode *unkC;
-} SegmentNode;
-
-typedef struct DisplayListGroup {
-    void *unk0;
-    Gfx **unk4;
-    u8 pad8[0xC];
-    SegmentNode *unk14;
-    u8 pad18[9];
-    u8 unk21;
-} DisplayListGroup;
-
 Gfx *renderActorDisplayList(Gfx *gdl, Actor *actor) {
-    DisplayListGroup *display = actor->animState;
+    AnimInitData *display = actor->animState;
     s32 i;
 
     if (actor->overrideModel != NULL) {
@@ -983,20 +922,20 @@ Gfx *renderActorDisplayList(Gfx *gdl, Actor *actor) {
     return gdl;
 }
 
-Gfx *renderEmitSegmentNodes(Gfx *gdl, Actor *actor, DisplayListGroup *group) {
+Gfx *renderEmitSegmentNodes(Gfx *gdl, Actor *actor, AnimInitData *group) {
     u16 flags = actor->unk146;
-    SegmentNode *node = group->unk14;
+    ControllerSubNode *node = group->unk14;
     s32 shift;
 
     if (node != NULL) {
         do {
-            shift = (node->unk8 - 7) & 0xFF;
+            shift = (node->segment - 7) & 0xFF;
             if ((flags >> shift) & 1) {
-                gSPSegment(gdl++, node->unk8, osVirtualToPhysical(node->unk0));
+                gSPSegment(gdl++, node->segment, osVirtualToPhysical(node->partDl));
             } else {
-                gSPSegment(gdl++, node->unk8, osVirtualToPhysical(node->unk4));
+                gSPSegment(gdl++, node->segment, osVirtualToPhysical(node->skipDl));
             }
-            node = node->unkC;
+            node = node->next;
         } while (node != NULL);
     }
     return gdl;

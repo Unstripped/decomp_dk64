@@ -3,17 +3,12 @@
 #define PROTO_GLOBAL_17B90_H
 #include "common.h"
 #include "actor.h"
-struct ControllerCommand;
-struct ControllerCommandOwner;
-struct ControllerSubCmd;
 struct ControllerSubNode;
-struct DisplayListGroup;
-struct GfxCmdWords;
 #ifndef PROTO_SKIP_controllerAnimStateLoadAsset
 void *controllerAnimStateLoadAsset();
 #endif
 #ifndef PROTO_SKIP_gfxSwapGeometryModeCullBits
-void gfxSwapGeometryModeCullBits(struct GfxCmdWords *, void *);
+void gfxSwapGeometryModeCullBits(Gfx *, void *);
 #endif
 #ifndef PROTO_SKIP_controllerAnimLoadStateAsset
 void controllerAnimLoadStateAsset(Actor *, s16);
@@ -25,13 +20,13 @@ void controllerAnimLoadStateAsset1(Actor *, s16);
 void controllerAnimFreeStateAsset(Actor *);
 #endif
 #ifndef PROTO_SKIP_controllerBuildSubcommandList
-void controllerBuildSubcommandList(struct ControllerSubCmd *, void *, struct ControllerSubNode **);
+void controllerBuildSubcommandList(Gfx *, void *, struct ControllerSubNode **);
 #endif
 #ifndef PROTO_SKIP_controllerSetCommand
-void controllerSetCommand(struct ControllerCommandOwner *, s32, struct ControllerCommand *);
+void controllerSetCommand(Actor *, s32, Gfx *);
 #endif
 #ifndef PROTO_SKIP_controllerCommandRelocateAssets
-void controllerCommandRelocateAssets(struct ControllerCommand *, void *);
+void controllerCommandRelocateAssets(Gfx *, void *);
 #endif
 #ifndef PROTO_SKIP_controllerLookupStateByHash
 s32 controllerLookupStateByHash(Actor *);
@@ -88,6 +83,6 @@ void actorCheckWorldBounds(Actor *);
 Gfx *renderActorDisplayList(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_renderEmitSegmentNodes
-Gfx *renderEmitSegmentNodes(Gfx *, Actor *, struct DisplayListGroup *);
+Gfx *renderEmitSegmentNodes(Gfx *, Actor *, AnimInitData *);
 #endif
 #endif
