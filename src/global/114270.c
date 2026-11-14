@@ -115,7 +115,7 @@ void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s32
     entry->scale = scale;
     entry->mapChunk = mapChunk;
     entry->alpha = initialAlpha;
-    entry->camYaw = gPlayerSlots->unk2C4;
+    entry->camYaw = gPlayerSlots->camYaw;
     entry->camX = gPlayerSlots->camX;
     entry->camZ = gPlayerSlots->camZ;
     entry->unk20 = (randomNonNegative() >> 15) % 32767 % 0xFFF;
@@ -157,7 +157,7 @@ void effectSpriteParticleTrackCamera(EffectSpriteParticle *particle) {
     dist1 = sqrtf(dz * dz + dx * dx);
     particle->camX = gPlayerSlots->camX;
     particle->camZ = gPlayerSlots->camZ;
-    diff = gPlayerSlots->unk2C4 - particle->camYaw;
+    diff = gPlayerSlots->camYaw - particle->camYaw;
     if (diff > 3.1415927f) {
         diff = 6.2831855f - diff;
     }
@@ -171,7 +171,7 @@ void effectSpriteParticleTrackCamera(EffectSpriteParticle *particle) {
     dx = gPlayerSlots->camX - gPlayerSlots->eyeX;
     dist2 = sqrtf(dz * dz + dx * dx);
     particle->x -= 2.0 * dist2 * mathSinF(mathAngleSignedDistance(gPlayerSlots->unk2C8, ang));
-    particle->camYaw = gPlayerSlots->unk2C4;
+    particle->camYaw = gPlayerSlots->camYaw;
 }
 
 
@@ -224,7 +224,7 @@ s32 func_8070FCCC(EffectSpriteParticle *particle) {
     if (particle->alpha < 0x50) {
         if ((randomNonNegative() >> 15) % 0x80 >= 0x56) {
             if (ANGA_DIST(bound) < 50.0f) {
-                angle = ((randomNonNegative() >> 15) % 60 - 30) * 0.017453292f + gPlayerSlots->unk2C4;
+                angle = ((randomNonNegative() >> 15) % 60 - 30) * 0.017453292f + gPlayerSlots->camYaw;
                 jitter = (randomNonNegative() >> 15) % 0x82;
                 if ((gGlobalCutsceneFlags & 8) == 0) {
                     effectSetDepth(1);
@@ -514,7 +514,7 @@ void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scal
     if (gGlobalPauseFlags & 0x10) {
         densityVal = (f64)density;
         alphaVal = (f64)alpha;
-        D_807FDA1E = (s16)(s32)(cosApprox(gPlayerSlots->unk2C4) * (f32)windAngle);
+        D_807FDA1E = (s16)(s32)(cosApprox(gPlayerSlots->camYaw) * (f32)windAngle);
         calcAlpha = (densityVal * 255) / 3.9;
         if (calcAlpha > 255.0) {
             clampedAlpha = 255.0;
@@ -551,7 +551,7 @@ void func_80711950(f32 density, s16 windAngle, s16 mapChunk) {
     f32 value;
 
     if (gGlobalPauseFlags & 0x10) {
-        D_807FDA1E = (s16)(cosApprox(gPlayerSlots->unk2C4) * windAngle);
+        D_807FDA1E = (s16)(cosApprox(gPlayerSlots->camYaw) * windAngle);
         if (density < 1.0) {
             density *= 100.0f;
             random = randomLcgNext() / 10000;
@@ -597,7 +597,7 @@ void func_80711BD0(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
             randSeed = randomNonNegative();
             effectCreateAtPosition(&D_807212E0, (f32)(((f64)((s32)(randSeed >> 0xF) % 100) * 0.01) + 0.4), (f32)((s32)(randomNonNegative() >> 0xF) % 320), 0.0f, -5.0f);
         }
-        D_807FDA1E = (s16)(s32)(cosApprox(gPlayerSlots->unk2C4) * (f32)windAngle);
+        D_807FDA1E = (s16)(s32)(cosApprox(gPlayerSlots->camYaw) * (f32)windAngle);
         if ((f64)density < 1.0) {
             density *= 100.0f;
             if ((f32)(s32)((u32)(randomLcgNext() / 10000U) % 100U) < density) {
@@ -634,7 +634,7 @@ void func_80711F90(f32 density, s16 windAngle, f32 unused, s16 mapChunk, f32 sca
     s32 idx;
     s32 count;
 
-    D_807FDA1E = (s16)(s32)(cosApprox(gPlayerSlots->unk2C4) * (f32)windAngle);
+    D_807FDA1E = (s16)(s32)(cosApprox(gPlayerSlots->camYaw) * (f32)windAngle);
     if ((f64)density < 1.0) {
         density *= 100.0f;
         if ((f32)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 100) < density) {

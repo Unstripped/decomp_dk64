@@ -366,7 +366,7 @@ f32 sfxCalcDistanceVolumePan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 direc
         }
     }
 
-    D_80770DDC = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, x, z) - gPlayerSlots->unk2C4;
+    D_80770DDC = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, x, z) - gPlayerSlots->camYaw;
     if (D_80770DDC < 0.0f) {
         D_80770DDC += 6.2831855f;
     }
@@ -839,7 +839,7 @@ void sfxUpdateLevelAmbient(void) {
             n_alSndpPostEvent(D_807457DC, 8, (s32)((D_8077058C[0] * 10767.0) / 255.0));
             pitch = 1.0 - ((D_8077058E * 0.5) / 255);
             if (D_80770DC9 & (D_80770DD4 < 1000.0f)) {
-                angle = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, emitters[nearest].x, emitters[nearest].z) - gPlayerSlots->unk2C4;
+                angle = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, emitters[nearest].x, emitters[nearest].z) - gPlayerSlots->camYaw;
                 if (angle < 0.0f) {
                     angle += 6.2831855f;
                 }
@@ -1852,7 +1852,7 @@ s16 sfxPlayAtPositionPooled(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, s16 pitch
     pos[0] = gPlayerSlots[closest].camX;
     pos[1] = gPlayerSlots[closest].camY;
     pos[2] = gPlayerSlots[closest].camZ;
-    pos[3] = (gPlayerSlots[closest].unk2C4 * 4096.0) / 6.2831854820251465;
+    pos[3] = (gPlayerSlots[closest].camYaw * 4096.0) / 6.2831854820251465;
     camGetPathStartPose(&pos[0], &pos[1], &pos[2], &pos[3]);
 
     if (D_80770DE4 < 500.0f) {
@@ -2024,7 +2024,7 @@ void sfxPlayAtPosition(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, f32 pitch, u8 
         vol = (s32)((1.0 - (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 155.0))) * vol);
         pitch = (pitch - ((u32)spread / 255.0)) + (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 100.0));
     }
-    pan = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, x, z) - gPlayerSlots->unk2C4;
+    pan = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, x, z) - gPlayerSlots->camYaw;
     if (pan < 0.0f) {
         pan += 6.2831855f;
     }
@@ -2069,7 +2069,7 @@ void sfxPlayAtPositionForPlayer(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, u8 pi
         n_alSndpStop(gActivePlayerState->sfxHandle);
     }
 
-    angle = mathAngleBetweenPointsRad(gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ, x, z) - gPlayerSlots[gCurrentPlayerIndex].unk2C4;
+    angle = mathAngleBetweenPointsRad(gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ, x, z) - gPlayerSlots[gCurrentPlayerIndex].camYaw;
     if (angle < 0.0f) {
         angle += 6.2831855f;
     }

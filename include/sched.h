@@ -131,7 +131,7 @@ typedef struct {
     u8 unk2C0;
     /* 0x2C1 */ u8 sizeModeDirty;
     /* 0x2C2 */ u8 pad2C2[2];
-    /* 0x2C4 */ f32 unk2C4;
+    /* 0x2C4 */ f32 camYaw;
     /* 0x2C8 */ s16 unk2C8;
     /* 0x2CA */ s16 camYInt;
     /* 0x2CC */ s16 skyRoll;

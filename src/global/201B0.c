@@ -238,7 +238,7 @@ void camCueTimerTick(void) {
 }
 
 void camResetPlayerViewports(s16 playerIndex) {
-    gPlayerSlots[playerIndex].unk2D0 = gPlayerSlots[playerIndex].unk2C4;
+    gPlayerSlots[playerIndex].unk2D0 = gPlayerSlots[playerIndex].camYaw;
     gPlayerSlots[playerIndex].unk2E9 = 0x18;
 }
 
@@ -435,8 +435,8 @@ u8 camFloorSnap(Actor *camActor, CamState *camState, f32 targetDist, f32 *outHei
 }
 
 void camUpdatePlayerYaw(CamState *st) {
-    gPlayerSlots[st->unkFB].unk2C4 = mathAngleBetweenPointsRad(gPlayerSlots[st->unkFB].camX, gPlayerSlots[st->unkFB].camZ, gPlayerSlots[st->unkFB].focusX, gPlayerSlots[st->unkFB].focusZ);
-    st->unkA8 = gPlayerSlots[st->unkFB].unk2C4;
+    gPlayerSlots[st->unkFB].camYaw = mathAngleBetweenPointsRad(gPlayerSlots[st->unkFB].camX, gPlayerSlots[st->unkFB].camZ, gPlayerSlots[st->unkFB].focusX, gPlayerSlots[st->unkFB].focusZ);
+    st->unkA8 = gPlayerSlots[st->unkFB].camYaw;
     switch (D_807463B8) {
         case 0:
             gPlayerSlots[st->unkFB].unk2C8 = st->unkA8 * 4096.0 / 6.2831855f;
