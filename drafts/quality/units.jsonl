@@ -374,3 +374,4 @@
 {"type": "unit", "t": "2026-11-14T19:34:47Z", "unit": "2026-11-14: cleanup Hackfunc_80601678", "commit": "977be2623b98a7245fc00f7d7e4bb44ad7e451a6"}
 {"type": "unit", "t": "2026-11-14T19:35:03Z", "unit": "2026-11-14: cleanup HackplayerViewsBuildMatrices", "commit": "63b6aab496255cedde07cfcfcfda15309321fac8"}
 {"type": "unit", "t": "2026-11-14T19:35:10Z", "unit": "2026-11-14: cleanup HackraceApplyPositionOffset", "commit": "07c82901128e6428a8fc7b0f9dde046770f071ac"}
+{"type": "unit", "t": "2026-11-14T19:35:30Z", "unit": "2026-11-14: cleanup HackarcadeCheckStage3Collision", "commit": "8e1b647d152310a16ef4e4b71e91051f5dd98cb6"}
