@@ -4,11 +4,11 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 
 ## Blocked owner/header changes
 - Owner return-width redesigns (2026-11-14): callee returns a zero-extended byte, callers differ per file in their andi narrowing,
-  so a u8 -> s32 return needs every caller re-spelled and fdiffed. (a) 3C10 `mapGetHubWorldIndex` u8 -> s32 (retires 8F4B0
-  da5663/2c5186, likely FCCD0's steer): 6 callers fail (36880, 478F0, 9DD70, ACDC0, B5EC0, C2A90); evidence .scratch/
-  HackactorCutsceneDispatchEvents/. FCCD0 da5663/06d21a (HackslotQueueInit, merge 21900581): ORIG refuted; with the shared
-  u8 prototype only bitfieldSet/Clear/HasMappedFlag (pass `map`, not `map & 0xFF`: 0x1428/0x1468/0x14ac) and slotQueueAddValue
-  (addu v1 vs a0 at 0x1368, its value-reuse FAKE) differ, so FCCD0 consolidates once slotQueueAddValue is fixed.
+  so a u8 -> s32 return needs every caller re-spelled and fdiffed. (a) CLOSED, measured (OwnerHubWorldIndexWidthPlan, no merge
+  by design): keep `u8 mapGetHubWorldIndex(u8, u8)`. C2A90 func_806BE09C uses v0 unmasked as index (sll) and as the byte stored to
+  `u8 idx` (sb v0,73(sp)): IDO omits the andi only for a declared u8 return, every wider return adds it, so the original return is
+  u8; options A/B/C32 fail C2A90 + 5 others, C16 fails C2A90/478F0. The 8F4B0 da5663/2c5186 and FCCD0 da5663/06d21a steer pairs
+  are per-file and stay FAKE. Evidence .scratch/OwnerHubWorldIndexWidthPlan/plan.md.
   (b) 135D30 `flagGet` u8 -> s32 (retires jetpac/0 c1a42b/ef3c2a): 217 calls in 49 files, not
   measured; jetpacUpdateStateAndInput narrows itself (andi t9,v0,0xff at jetpac 0x11d4); evidence .scratch/HackjetpacStateGameOver/.
 - Cast sweep (round 30): 55B20 MapChunk.lastSeenFrame and 61AA0 BillboardCacheEntry.lastUsedFrame stay s32 (u32 retype fdiff 1). model.h/heap.h frame stamps landed u32 after Rev29.
