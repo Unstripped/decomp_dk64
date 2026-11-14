@@ -21,11 +21,11 @@ typedef struct FlagTableEntry4 {
 
 FlagTableEntry gFlagTempEntries[0x18];
 u8 gFlagBank2[14];
-extern FlagTableEntry D_80755A20[];
-extern FlagTableEntry D_80755DA8[];
-extern FlagTableEntry D_80755EA0[];
+extern FlagTableEntry D_80755A20[0x71];
+extern FlagTableEntry D_80755DA8[0x1F];
+extern FlagTableEntry D_80755EA0[0x16];
 extern FlagTableEntry4 D_80755F4C[];
-extern FlagTableEntry4 D_80755F50[];
+extern FlagTableEntry4 D_80755F50[0x35];
 
 
 void flagsClearAllBank2(void) {
@@ -154,7 +154,7 @@ void flagTempRegister(s16 map, s16 id, s16 flag, u8 val) {
 
 void flagSetForMapObject(s16 map, s16 id) {
     s32 i;
-    s32 n = 0x71; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
+    s32 n = sizeof(D_80755A20) / sizeof(D_80755A20[0]);
 
     for (i = 0; i < n; i++) {
         if (map == D_80755A20[i].map && id == D_80755A20[i].id) {
@@ -173,7 +173,7 @@ void flagSetForMapObject(s16 map, s16 id) {
 
 s32 flagGetForMapObject(s16 map, s16 id) {
     s32 i;
-    s32 n = 0x71; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
+    s32 n = sizeof(D_80755A20) / sizeof(D_80755A20[0]);
 
     for (i = 0; i < n; i++) {
         if (map == D_80755A20[i].map && id == D_80755A20[i].id) {
@@ -185,7 +185,7 @@ s32 flagGetForMapObject(s16 map, s16 id) {
 
 u8 flagValueForMapObject(s16 map, s16 id) {
     s32 i;
-    s32 n = 0x71; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
+    s32 n = sizeof(D_80755A20) / sizeof(D_80755A20[0]);
 
     for (i = 0; i < n; i++) {
         if (map == D_80755A20[i].map && id == D_80755A20[i].id) {
@@ -202,7 +202,7 @@ u8 flagValueForMapObject(s16 map, s16 id) {
 
 
 s32 spawnFlagLookup(s16 map, s16 id, s32 *outIdx) {
-    s32 n = 0x1F; // FAKE: bound local keeps 0x1F in v0 for slt (a literal bound gives slti and moves the table base from t0 to a3, Q0263)
+    s32 n = sizeof(D_80755DA8) / sizeof(D_80755DA8[0]);
 
     for (*outIdx = 0; *outIdx < n; (*outIdx)++) {
         if (map == D_80755DA8[*outIdx].map && id == D_80755DA8[*outIdx].id) {
@@ -232,7 +232,7 @@ s32 spawnFlagConditionMet(s16 map, s16 id) {
 }
 
 s32 flagTryTriggerOnce(s16 map, s16 id) {
-    s32 n = 0x16; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
+    s32 n = sizeof(D_80755EA0) / sizeof(D_80755EA0[0]);
     s32 i;
     FlagTableEntry *e;
 
@@ -260,7 +260,7 @@ s32 func_8073195C(s16 index) {
 
 u8 flagLookupValueById(s16 id) {
     s32 i;
-    s32 n = 0x35; // FAKE: bound local blocks LFTR (a literal bound compares an end pointer instead of the counter, Q0582)
+    s32 n = sizeof(D_80755F50) / sizeof(D_80755F50[0]);
 
     for (i = 0; i < n; i++) {
         if (id == D_80755F50[i].id) {

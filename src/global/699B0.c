@@ -23,7 +23,7 @@ typedef struct ParticlePath {
     /* 0x1C */ f32 sparkScale;
 } ParticlePath;
 
-extern ParticlePath D_80748BA0[];
+extern ParticlePath D_80748BA0[13];
 extern u8 D_807F9440[];
 extern s32 D_807F9448;
 
@@ -32,7 +32,7 @@ void particleFindPathIndices(s16 levelIndex) {
     ParticlePath *ptr;
     s32 i;
 
-    limit = 13; // FAKE: bound local blocks unrolling (a literal 13 peels iteration 0 and unrolls the scan, Q0228, Q0410)
+    limit = sizeof(D_80748BA0) / sizeof(D_80748BA0[0]);
     D_807F9448 = 0;
     for (i = 0, ptr = D_80748BA0; i < limit; i++, ptr++) {
         if (levelIndex == ptr->level && D_807F9448 != 8) {
