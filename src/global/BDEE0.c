@@ -503,7 +503,7 @@ u8 pivotZ;
     f32 modelMtx[4][4];
     f32 rotMtx[4][4];
     s16 sgn;
-    s32 dir;
+    s32 dir = 0;
     f32 stepDist;
     s16 yawOffset;
 
@@ -532,7 +532,6 @@ u8 pivotZ;
             rock->tilt--;
             if (rock->tilt < 2) {
                 gCurrentActor->unk155++;
-                dir = rock->tilt; // FAKE: dead store (dir is reassigned before use) steers regalloc
                 rock->tilt = 0;
                 gBehaviourWorkState->scale = 0.0f;
             }
