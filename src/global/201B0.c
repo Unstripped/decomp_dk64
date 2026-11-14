@@ -1945,7 +1945,7 @@ u8 camResolveWallCollision(Actor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, f32
     camActor->hasArcBounds = 0;
     st->unkFC = 0;
     radius = 0.0f;
-    radius += 0.2 * ((180.0f < st->unkA0) ? 180.0f : st->unkA0);
+    radius += 0.2 * CAM_MIN(180.0f, st->unkA0);
     if (st->unkF5 != 0) {
         radius -= 0.1 * st->unkF5;
     } else {
