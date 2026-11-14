@@ -421,7 +421,7 @@ extern ALBank *D_8076D1F8;
 extern SchedStruct gScheduler;
 extern s32 gCurrentMap;
 
-void func_80724A20(void);  // FAKE: callee prototype steer
+void func_80724A20(void);  // ORIG: target keeps the BOSS_ACTOR state switch value in v0 right after jal func_80724A20 (lbu v0,0x154(a2) at 0x1268, beql v0 at 0x127c): the original TU declared the callee void (an s32 return in scope moves it to v1)
 
 
 void bossRoundFrame(u8 *script) {
