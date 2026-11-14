@@ -22,7 +22,7 @@ typedef struct CollisionInteractionEntry {
 
 typedef struct CollisionTableEntry {
     s16 pattern;
-    s32 entries;
+    CollisionInteractionEntry *entries;
 } CollisionTableEntry;
 
 typedef struct CollisionTableSlot {
@@ -38,7 +38,7 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
     CollisionInteractionEntry *entry;
     s32 done;
     Actor *attacker;
-    s32 interactions;
+    CollisionInteractionEntry *interactions;
     CollisionTableEntry *table;
     u8 entryAllowed;
     s32 i;
@@ -62,13 +62,13 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
                     return;
                 }
             }
-            if (interactions == 0) {
+            if (interactions == NULL) {
                 if (attacker->flags & 0x20000) {
                     func_80675D70(attacker);
                 }
             } else {
                 while (!done) {
-                    entry = &((CollisionInteractionEntry *)interactions)[i];
+                    entry = &interactions[0] + i;  // FAKE: &p[0] + i keeps the base-first addu s1,a0,t1 at 0x110; &interactions[i] / interactions + i give t1,a0 (Q0606)
                     if ((entry->targetMask & targetActor->interactionType) && (entry->attackerMask & attacker->interactionType)) {
                         if (entry->filter != NULL) {
                             entryAllowed = entry->filter(targetActor, attacker, node);
@@ -251,9 +251,9 @@ void actorApplyDamage(Actor *target, Actor *attacker) {
     }
 }
 
-s32 actorCollisionFindTableEntry(CollisionTableEntry *table, s16 actorType, s16 actorFlags) {
+CollisionInteractionEntry *actorCollisionFindTableEntry(CollisionTableEntry *table, s16 actorType, s16 actorFlags) {
     s32 pattern;
-    s32 entries;
+    CollisionInteractionEntry *entries;
     s32 match;
 
     do {

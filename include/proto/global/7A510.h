@@ -3,6 +3,7 @@
 #define PROTO_GLOBAL_7A510_H
 #include "common.h"
 #include "actor.h"
+struct CollisionInteractionEntry;
 struct CollisionTableEntry;
 #ifndef PROTO_SKIP_actorCollisionProcessHit
 void actorCollisionProcessHit(Actor *, ActorCallbackNode *);
@@ -20,7 +21,7 @@ void func_80675D70(Actor *);
 void actorApplyDamage(Actor *, Actor *);
 #endif
 #ifndef PROTO_SKIP_actorCollisionFindTableEntry
-s32 actorCollisionFindTableEntry(struct CollisionTableEntry *, s16, s16);
+struct CollisionInteractionEntry *actorCollisionFindTableEntry(struct CollisionTableEntry *, s16, s16);
 #endif
 #ifndef PROTO_SKIP_actorCollisionCheckBoundingBoxes
 void actorCollisionCheckBoundingBoxes(Actor *);
