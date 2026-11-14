@@ -19,14 +19,14 @@
 extern void **D_807FC7C0;
 
 typedef struct ProjectileState {
-    /* 0x00 */ s16 unk0;
+    /* 0x00 */ s16 spriteCount;
     /* 0x02 */ u8 pad2;
     /* 0x03 */ u8 pad3;
     /* 0x04 */ Mtx *unk4; // two matrices per sprite (double-buffered by gGfxBufferIndex)
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ u8 unk10;
-    /* 0x11 */ u8 unk11;
+    /* 0x08 */ f32 radius;
+    /* 0x0C */ f32 speed;
+    /* 0x10 */ u8 frame;
+    /* 0x11 */ u8 ringType;
 } ProjectileState;
 
 extern Gfx D_1000118;
@@ -59,8 +59,8 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     Gfx *_g;
 
     sub = actor->customState;
-    stepAngle = 0x1000 / sub->unk0;
-    idx = (((sub->unk10++) % 16) + actor->yawSpeed) & 0xFF;
+    stepAngle = 0x1000 / sub->spriteCount;
+    idx = (((sub->frame++) % 16) + actor->yawSpeed) & 0xFF;
 
     gSPDisplayList(glist++, &D_1000118);
     gSPMatrix(glist++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -75,24 +75,24 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     actorFreeModelNodeList(actor);
 
     if (actor->unk15F != 0) {
-        switch (sub->unk11) {
+        switch (sub->ringType) {
         case 0:
-            collisionRadius = (f32)(((f64)sub->unk8) * 10.0);
+            collisionRadius = (f32)(((f64)sub->radius) * 10.0);
             break;
         case 1:
-            collisionRadius = (f32)((((f64)sub->unk8) * 0.15) * 2048.0);
+            collisionRadius = (f32)((((f64)sub->radius) * 0.15) * 2048.0);
             break;
         }
         actorSetCollisionRadius(actor, collisionRadius);
     }
 
     i = 0;
-    if (sub->unk0 > 0) {
+    if (sub->spriteCount > 0) {
         do {
-            switch (sub->unk11) {
+            switch (sub->ringType) {
             case 0:
-                vx = mathSinF(i * stepAngle) * sub->unk8;
-                vy = mathCosF(i * stepAngle) * sub->unk8;
+                vx = mathSinF(i * stepAngle) * sub->radius;
+                vy = mathCosF(i * stepAngle) * sub->radius;
                 vscale = 1.0f;
                 vz = 0.0f;
                 break;
@@ -102,8 +102,8 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
                 f = (f32)((q1 * 0.028999999999999998) + 0.001);
                 vscale = 130.0f * f;
                 vz = 1500.0f * f;
-                vx = mathSinF(actor->yaw + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
-                vy = mathCosF(actor->yaw + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
+                vx = mathSinF(actor->yaw + 0x400) * ((f * sub->radius) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
+                vy = mathCosF(actor->yaw + 0x400) * ((f * sub->radius) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
                 break;
             }
             if (actor->unk15F != 0) {
@@ -123,7 +123,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
             gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(glist++);
             i++;
-        } while (i < sub->unk0);
+        } while (i < sub->spriteCount);
     }
     return glist;
 }
@@ -155,23 +155,23 @@ void projectileSpriteRingUpdate(void) {
         if (gCurrentActor->unk15F != 0) {
             gCurrentActor->unk144 = 0x24;
         }
-        if (sub->unk11 == 1) {
+        if (sub->ringType == 1) {
             sfxPlayActorSound(gCurrentActor, 0x128, 1, 1, 0, 0xFF, 0.2f, 0);
             sfxPlayActorSound(gCurrentActor, 0x139, 0x3C, 1, 1, 0xFF, 1.0f, 0);
         }
     }
-    kind = sub->unk11;  // FAKE: copy of the dispatch byte; steers uopt register choice (a0 instead of v0)
-    if (sub->unk11 != 0) {
+    kind = sub->ringType;  // FAKE: copy of the dispatch byte; steers uopt register choice (a0 instead of v0)
+    if (sub->ringType != 0) {
         switch (kind) {
         case 1:
-            gCurrentActor->x += sub->unkC * mathSinF(gCurrentActor->yaw);
-            gCurrentActor->z += sub->unkC * mathCosF(gCurrentActor->yaw);
+            gCurrentActor->x += sub->speed * mathSinF(gCurrentActor->yaw);
+            gCurrentActor->z += sub->speed * mathCosF(gCurrentActor->yaw);
             if (gCurrentActor->unk15F != 0) {
                 gCurrentActor->unk15F -= 1;
             } else if (gCurrentActor->yawSpeed == 0x20) {
                 gCurrentActor->yawSpeed = 0x10;
-                sub->unk10 = 0;
-            } else if (sub->unk10 >= 0x10) {
+                sub->frame = 0;
+            } else if (sub->frame >= 0x10) {
                 heapFree(sub->unk4);
                 actorDespawn(gCurrentActor);
             }
@@ -179,24 +179,24 @@ void projectileSpriteRingUpdate(void) {
         }
     } else {
         if (gCurrentActor->unk15F != 0) {
-            sub->unk8 += sub->unkC;
-            temp = (f64)sub->unk8 * 0.3;
-            sub->unk0 = (temp > 32.0) ? 32.0 : temp;
+            sub->radius += sub->speed;
+            temp = (f64)sub->radius * 0.3;
+            sub->spriteCount = (temp > 32.0) ? 32.0 : temp;
         } else {
-            sub->unk8 = sub->unk8 + (f32)((gCurrentActor->yawSpeed - sub->unk10) + 0x10)
-                * (sub->unkC * 0.0625);
+            sub->radius = sub->radius + (f32)((gCurrentActor->yawSpeed - sub->frame) + 0x10)
+                * (sub->speed * 0.0625);
         }
-        if ((sub->unk10 - gCurrentActor->yawSpeed) >= 0x10) {
+        if ((sub->frame - gCurrentActor->yawSpeed) >= 0x10) {
             u8 count;
 
             count = gCurrentActor->unk15F;
             gCurrentActor->unk15F = count - 1;
             if (count) {
-                projectileSpawnActor107(0, sub->unk0, sub->unk8, sub->unkC, 0, 0x10);
+                projectileSpawnActor107(0, sub->spriteCount, sub->radius, sub->speed, 0, 0x10);
                 if (gCurrentActor->unk15F == 0) {
                     gCurrentActor->yawSpeed = 0x10;
                 } else {
-                    sub->unk10 = 0;
+                    sub->frame = 0;
                 }
             } else {
                 heapFree(sub->unk4);
@@ -208,11 +208,11 @@ void projectileSpriteRingUpdate(void) {
 }
 
 typedef struct ProjectileConfig {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
+    f32 yawRadians;
+    f32 speedXZ;
+    f32 speedY;
+    f32 spriteScale;
+    f32 type;
 } ProjectileConfig;
 
 typedef struct ProjectileTriple {
@@ -220,10 +220,10 @@ typedef struct ProjectileTriple {
 } ProjectileTriple;
 
 typedef struct ProjectileSubState {
-    s32 unk0;
+    s32 spawnFrame;
     u8 pad4[0xE];
     u8 unk12;
-    u8 unk13;
+    u8 type;
 } ProjectileSubState;
 
 extern void *D_807502C0[];
@@ -238,38 +238,38 @@ void projectileActorUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         spriteTriple = *(ProjectileTriple *)D_807502C0;
         gCurrentActor->contactFlags &= (gCurrentActor->soundSlots[0] = -2);
-        gCurrentActor->moveYaw = (s16)((((ProjectileConfig *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
-        gCurrentActor->speedXZ = ((ProjectileConfig *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((ProjectileConfig *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->moveYaw = (s16)((((ProjectileConfig *)gCurrentActor->spawnData)->yawRadians / 6.2831855f) * 4095.0f);
+        gCurrentActor->speedXZ = ((ProjectileConfig *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->speedY = ((ProjectileConfig *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 40.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 30.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        sub->unk13 = (u8)((ProjectileConfig *)gCurrentActor->spawnData)->unk10;
+        sub->type = (u8)((ProjectileConfig *)gCurrentActor->spawnData)->type;
         effectSetDuration(-1);
         effectSetMode(2);
         effectSetDepth(1);
         effectSetMaxDistance(0x7D0);
-        if (sub->unk13 == 1) {
+        if (sub->type == 1) {
             effectSetColor(0, 0xFF, 0, 0xC8);
         } else {
             effectSetColor(0xFF, 0xFF, 0xFF, 0xFF);
         }
-        if (sub->unk13 == 3) {
+        if (sub->type == 3) {
             effectSetCallback(effectPulseSpinUpdate);
         }
-        effectCreateAtActorBone(spriteTriple.sprite[sub->unk13 - 1], ((ProjectileConfig *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
-        sub->unk0 = gGameFrameCounter;
+        effectCreateAtActorBone(spriteTriple.sprite[sub->type - 1], ((ProjectileConfig *)gCurrentActor->spawnData)->spriteScale, gCurrentActor, 1, 2);
+        sub->spawnFrame = gGameFrameCounter;
         sub->unk12 = 0;
         gCurrentActor->flags |= 0x80000;
-        gCurrentActor->unk155 = sub->unk13;
+        gCurrentActor->unk155 = sub->type;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x96, 0x78, 0, 1.0f);
     if ((gCurrentActor->contactFlags & 1) || (gCurrentActor->hasArcBounds != 0) || (gActorGlobalState.unk15 != 0)) {
-        if (sub->unk13 == 3) {
+        if (sub->type == 3) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x16, 0xFF, 0x7F, 0x14);
         }
         if (gActorGlobalState.unk15 == 0) {

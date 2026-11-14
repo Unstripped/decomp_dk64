@@ -13,20 +13,20 @@
 
 
 typedef struct BoneChainData {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ u8 unk14;
+    /* 0x00 */ f32 swingAmplitude;
+    /* 0x04 */ f32 phaseStep;
+    /* 0x08 */ f32 damping;
+    /* 0x0C */ f32 phase;
+    /* 0x10 */ f32 nodeAngle;
+    /* 0x14 */ u8 playerHolding;
     /* 0x15 */ u8 unk15;
-    /* 0x16 */ u8 unk16;
+    /* 0x16 */ u8 sinkTimer;
     /* 0x17 */ u8 unk17;
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ u8 unk28;
+    /* 0x18 */ f32 spinAngle;
+    /* 0x1C */ f32 baseY;
+    /* 0x20 */ f32 bobPhase;
+    /* 0x24 */ f32 bobSpeed;
+    /* 0x28 */ u8 enabled;
 } BoneChainData;
 
 extern Actor *gCurrentActor;
@@ -54,15 +54,15 @@ u8 nodeCount;
     data = gCurrentActor->customState;
     player = gPlayerSlots->actor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        data->unk0 = 0.0f;
-        data->unk4 = 0.10471976f;
-        data->unk8 = 0.75f;
-        data->unk10 = 0.00f;
-        data->unkC = 0.f;
-        data->unk1C = gCurrentActor->y;
-        data->unk20 = 0.000f;
-        data->unk24 = (f32)((f64)(s32)((randomNonNegative() >> 15) % 100) / 1000.0 + 0.1);
-        data->unk18 = 0.0f;
+        data->swingAmplitude = 0.0f;
+        data->phaseStep = 0.10471976f;
+        data->damping = 0.75f;
+        data->nodeAngle = 0.00f;
+        data->phase = 0.f;
+        data->baseY = gCurrentActor->y;
+        data->bobPhase = 0.000f;
+        data->bobSpeed = (f32)((f64)(s32)((randomNonNegative() >> 15) % 100) / 1000.0 + 0.1);
+        data->spinAngle = 0.0f;
         gCurrentActor->sub4->boneRotations = heapAlloc(0x80);
         proxPathAdd(gCurrentActor, 0, 0, 0, nodeCount, 0.0f, (f32)((f64)nodeCount * 0.333333), 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
         if (gFrameDelta == 0x50) {}  // FAKE: deadsweep; keeps the 0x50 store constant out of a register (a0 stays unk254, p takes v0)
@@ -71,11 +71,11 @@ u8 nodeCount;
         }
         gCurrentActor->cullMarginX = 0x3C;
         gCurrentActor->cullMarginY = 0xC8;
-        data->unk14 = 0;
+        data->playerHolding = 0;
         data->unk15 = 0;
-        data->unk28 = flagGet(0x183, 0) != 0 || (gGlobalOverlayFlags & 0x10000000) != 0 || func_807142D8() != 0;
+        data->enabled = flagGet(0x183, 0) != 0 || (gGlobalOverlayFlags & 0x10000000) != 0 || func_807142D8() != 0;
     }
-    if (gPrimaryPlayerActor->state == 0x63 || data->unk28 == 0 ||
+    if (gPrimaryPlayerActor->state == 0x63 || data->enabled == 0 ||
         (*(s32 *)gCurrentActor->spawnData == 1 && !(player->stateFlags & 0x40))) {
         gCurrentActor->flags &= 0xFBFFFFFB;
     } else {
@@ -85,36 +85,36 @@ u8 nodeCount;
     for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
         p = gActorGlobalState.volumeTriggerQueueId[i];
         if (!*p) {
-            data->unk16 = 0x50;
+            data->sinkTimer = 0x50;
         }
     }
-    if (data->unk16 != 0) {
+    if (data->sinkTimer != 0) {
         gCurrentActor->y -= 1.0;
-        data->unk16--;
-        data->unk1C -= 1.0;
+        data->sinkTimer--;
+        data->baseY -= 1.0;
     }
     node = gCurrentActor->sub4->boneRotations;
-    if (data->unk0 > 2.0f) {
-        if (data->unkC < 3.926991f && data->unkC + data->unk4 >= 3.926991f) {
+    if (data->swingAmplitude > 2.0f) {
+        if (data->phase < 3.926991f && data->phase + data->phaseStep >= 3.926991f) {
             if (gCurrentActor->actorType == 0x74) {
-                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x257, (f64)data->unk0 * 100.0 / limit, 0x7F, 5);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x257, (f64)data->swingAmplitude * 100.0 / limit, 0x7F, 5);
             } else {
-                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C, (f64)data->unk0 * 100.0 / limit, 0x7F, 5);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C, (f64)data->swingAmplitude * 100.0 / limit, 0x7F, 5);
             }
         }
-        if (data->unkC < 0.7853982f && data->unkC + data->unk4 >= 0.7853982f) {
+        if (data->phase < 0.7853982f && data->phase + data->phaseStep >= 0.7853982f) {
             if (gCurrentActor->actorType == 0x74) {
-                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x258, (f64)data->unk0 * 25.0 / limit, 0x7F, 0x14);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x258, (f64)data->swingAmplitude * 25.0 / limit, 0x7F, 0x14);
             } else {
-                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1D, (f64)data->unk0 * 25.0 / limit, 0x7F, 0x14);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1D, (f64)data->swingAmplitude * 25.0 / limit, 0x7F, 0x14);
             }
         }
     }
-    if (gCurrentActor->actorType != 0x74 && data->unk0 > 10.0f) {
-        if (data->unkC < 2.3561945f && data->unkC + data->unk4 >= 2.3561945f) {
+    if (gCurrentActor->actorType != 0x74 && data->swingAmplitude > 10.0f) {
+        if (data->phase < 2.3561945f && data->phase + data->phaseStep >= 2.3561945f) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1E, 0xFF, 0x7F, 0x14);
         }
-        if (data->unkC < 5.497787f && data->unkC + data->unk4 >= 5.497787f) {
+        if (data->phase < 5.497787f && data->phase + data->phaseStep >= 5.497787f) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1E, 0xFF, 0x7F, 0x14);
         }
     }
@@ -128,26 +128,26 @@ u8 nodeCount;
         dir = 2;
         break;
     }
-    data->unkC = data->unkC + data->unk4 * gFrameDelta * 0.5;
-    data->unk10 = sinApprox(data->unkC) * data->unk0;
+    data->phase = data->phase + data->phaseStep * gFrameDelta * 0.5;
+    data->nodeAngle = sinApprox(data->phase) * data->swingAmplitude;
     for (i = 0; i < 0xE; i++) {
         node[i].weight = -0x80;
         node[i].bone = i + dir;
         node[i].rotY = 0;
-        node[i].rotX = (s16)(s32)((f64)data->unk10 / 360.0 * 65535.0);
+        node[i].rotX = (s16)(s32)((f64)data->nodeAngle / 360.0 * 65535.0);
         node[i].rotZ = 0;
-        data->unk10 = data->unk10 * data->unk8;
+        data->nodeAngle = data->nodeAngle * data->damping;
     }
     if (gCurrentActor->actorType == 0x45 || gCurrentActor->actorType == 0x21) {
         node[i].weight = -0x80;
         node[i].bone = 1;
-        node[i].rotY = (s16)(s32)((f64)data->unk18 / 360.0 * 65535.0);
+        node[i].rotY = (s16)(s32)((f64)data->spinAngle / 360.0 * 65535.0);
         node[i].rotX = 0;
         node[i].rotZ = 0;
         i++;
-        data->unk18 += 20.0f;
-        if (data->unk18 > 360.0f) {
-            data->unk18 -= 360.0f;
+        data->spinAngle += 20.0f;
+        if (data->spinAngle > 360.0f) {
+            data->spinAngle -= 360.0f;
         }
     }
     node[i].weight = 0;
@@ -156,52 +156,52 @@ u8 nodeCount;
     } else if (data->unk15 != 0) {
         data->unk15--;
     }
-    if ((gPrimaryPlayerActor->contactFlags & 0x40) && data->unk14 == 0 && gCurrentActor == player->pathOwner) {
-        data->unk0 = 15.0f;
+    if ((gPrimaryPlayerActor->contactFlags & 0x40) && data->playerHolding == 0 && gCurrentActor == player->pathOwner) {
+        data->swingAmplitude = 15.0f;
         if (mathAngleDistance(gPrimaryPlayerActor->yaw, gCurrentActor->yaw) < 0x400) {
-            data->unkC = 3.1415927f;
+            data->phase = 3.1415927f;
         } else {
-            data->unkC = 0.0f;
+            data->phase = 0.0f;
         }
     }
-    if (data->unkC >= 6.2831855f) {
-        data->unkC -= 6.2831855f;
+    if (data->phase >= 6.2831855f) {
+        data->phase -= 6.2831855f;
     }
-    if (data->unkC < 0.0f) {
-        data->unkC += 6.2831855f;
+    if (data->phase < 0.0f) {
+        data->phase += 6.2831855f;
     }
     if ((gPrimaryPlayerActor->contactFlags & 0x40) && gCurrentActor == player->pathOwner) {
-        data->unk14 = 1;
-        data->unk0 += 0.2;
-        if (data->unk0 > 15.0f) {
-            data->unk0 = 15.0f;
+        data->playerHolding = 1;
+        data->swingAmplitude += 0.2;
+        if (data->swingAmplitude > 15.0f) {
+            data->swingAmplitude = 15.0f;
         }
     } else {
-        data->unk14 = 0;
-        data->unk0 = data->unk0 + (0.0 - data->unk0) * 0.03;
-        if (data->unk0 < 2.0) {
-            data->unk0 = 0.0f;
+        data->playerHolding = 0;
+        data->swingAmplitude = data->swingAmplitude + (0.0 - data->swingAmplitude) * 0.03;
+        if (data->swingAmplitude < 2.0) {
+            data->swingAmplitude = 0.0f;
         }
     }
     if ((gPrimaryPlayerActor->contactFlags & 0x40) && gCurrentActor == player->pathOwner) {
-        if (player->pathDist < 1.5 && (((f64)data->unkC > 4.0 && (f64)data->unkC < 4.712389f) ||
-                                     ((f64)data->unkC < 1.5707964f && (f64)data->unkC > 0.9))) {
-            player->unk14C = (f32)D_8075037C * (data->unk0 / 15.0f);
-            player->unk150 = (f32)D_80750380 * (data->unk0 / 15.0f);
+        if (player->pathDist < 1.5 && (((f64)data->phase > 4.0 && (f64)data->phase < 4.712389f) ||
+                                     ((f64)data->phase < 1.5707964f && (f64)data->phase > 0.9))) {
+            player->unk14C = (f32)D_8075037C * (data->swingAmplitude / 15.0f);
+            player->unk150 = (f32)D_80750380 * (data->swingAmplitude / 15.0f);
         } else {
             player->unk14C = 200.0f;
             player->unk150 = 200.0f;
         }
         player->unk154 = gCurrentActor->yaw & 0xFFF;
-        if ((f64)data->unkC < 1.5707964f || data->unkC > 4.71238911151886) {
+        if ((f64)data->phase < 1.5707964f || data->phase > 4.71238911151886) {
             player->unk154 = (player->unk154 + 0x800) & 0xFFF;
         }
     }
     switch (gCurrentActor->actorType) {
     case 0x21:
     case 0x45:
-        gCurrentActor->y = sinApprox(data->unk20) * 5.0 + data->unk1C;
-        data->unk20 += data->unk24;
+        gCurrentActor->y = sinApprox(data->bobPhase) * 5.0 + data->baseY;
+        data->bobPhase += data->bobSpeed;
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
