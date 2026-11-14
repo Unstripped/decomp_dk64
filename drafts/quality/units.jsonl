@@ -423,3 +423,4 @@
 {"type": "unit", "t": "2026-11-14T20:28:51Z", "unit": "2026-11-14: cleanup PolishCritter0Tag", "commit": "e9c75262ffafeb1782ab1530e3b1557fa605cb63"}
 {"type": "unit", "t": "2026-11-14T20:29:16Z", "unit": "2026-11-14: cleanup OwnerRace36B0PlayerSlots", "commit": "1abd9af69d256b2e7e748cf35b1a7ce7857e4dca"}
 {"type": "unit", "t": "2026-11-14T20:31:50Z", "unit": "2026-11-14: cleanup OwnerKongInventoryPtr", "commit": "0c0021b16da8051f64d48db174598acad2b9095c"}
+{"type": "unit", "t": "2026-11-14T20:33:03Z", "unit": "2026-11-14: cleanup Owner7A510FindTableEntry", "commit": "c828f7daa10dafdb5a8941f963fcc98073a92e3e"}
