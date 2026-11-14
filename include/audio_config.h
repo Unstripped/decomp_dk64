@@ -30,7 +30,7 @@ typedef struct AudioTaskConfig {
 typedef struct GeSndpConfig {
     /* 0x00 */ s32 maxSounds;
     /* 0x04 */ s32 maxEvents;
-    /* 0x08 */ s32 unk8;          // copied to the sound player's maxVoices (voices it may hold at once)
+    /* 0x08 */ s32 maxVoices;          // copied to the sound player's maxVoices (voices it may hold at once)
     /* 0x0C */ ALHeap *heap;
     /* 0x10 */ u16 maxStates;
 } GeSndpConfig; // size = 0x14

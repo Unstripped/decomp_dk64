@@ -6,9 +6,9 @@ void alCSPSetFXParam(ALCSPlayer *seqp, u8 busIndex, u8 paramId, u8 delayIndex, s
     N_Event evt;
 
     evt.type = AL_VIB_OSC_EVT + 2;
-    evt.msg.cmd.b0 = busIndex;
-    evt.msg.cmd.b1 = paramId;
-    evt.msg.cmd.b2 = delayIndex;
-    evt.msg.cmd.w4 = paramValue;
+    evt.msg.cmd.busIndex = busIndex;
+    evt.msg.cmd.paramId = paramId;
+    evt.msg.cmd.delayIndex = delayIndex;
+    evt.msg.cmd.value = paramValue;
     alEvtqPostEvent(&seqp->evtq, (ALEvent *)&evt, 0);
 }

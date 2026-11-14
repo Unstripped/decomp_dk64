@@ -795,9 +795,9 @@ void actorTransformCameraUpdate(void) {
         gCurrentActor->speedXZ = 35.0f;
         gCurrentActor->flags2 |= 1;
         pathFollowUpdateHeading(gCurrentActor, 0);
-        if (gCurrentActor->pathFollow->unkC == 0) {
-            gCurrentActor->moveYaw = gCurrentActor->pathFollow->unkE;
-            gCurrentActor->speedXZ = gCurrentActor->pathFollow->unk10;
+        if (gCurrentActor->pathFollow->done == 0) {
+            gCurrentActor->moveYaw = gCurrentActor->pathFollow->yaw;
+            gCurrentActor->speedXZ = gCurrentActor->pathFollow->speed;
         } else {
             gCurrentActor->speedXZ = 0.0f;
         }

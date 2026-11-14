@@ -434,11 +434,11 @@ void minecartAdjustTargetSpeed(void) {
 
     targetAngle = gCurrentActor->sub4->boneRotations->rotY;
     if (targetAngle >= 0x47D1 && targetAngle < 0xB830) {
-        gBehaviourWorkState->unk26 = MAX(9, gBehaviourWorkState->unk26 - 5);
+        gBehaviourWorkState->targetSpeed = MAX(9, gBehaviourWorkState->targetSpeed - 5);
     } else if (targetAngle < 0x3830 || targetAngle >= 0xC7D1) {
-        gBehaviourWorkState->unk26 = MIN(gBehaviourExtraState->unkD, gBehaviourWorkState->unk26 + 5);
+        gBehaviourWorkState->targetSpeed = MIN(gBehaviourExtraState->unkD, gBehaviourWorkState->targetSpeed + 5);
     } else {
-        gBehaviourWorkState->unk26 = targetPlayerState->actor->speedXZ;
+        gBehaviourWorkState->targetSpeed = targetPlayerState->actor->speedXZ;
     }
 }
 
@@ -488,7 +488,7 @@ void minecartUpdateObstacleType1(void) {
             alloc[1] = 0xFF;
             cart->routeCursor = alloc;
             cart->pointIndex = routeInfo[2];
-            gBehaviourWorkState->unk26 = 0x46;
+            gBehaviourWorkState->targetSpeed = 0x46;
             gCurrentActor->speedXZ = 0.0f;
             gCurrentActor->state++;
         } else {
@@ -556,7 +556,7 @@ void minecartUpdateObstacleType2(void) {
             cart->route = alloc;
             cart->routeCursor = alloc;
             cart->pointIndex = 1;
-            gBehaviourWorkState->unk26 = routeInfo[2];
+            gBehaviourWorkState->targetSpeed = routeInfo[2];
             gCurrentActor->speedXZ = 0.0f;
             gCurrentActor->state++;
         } else {
@@ -643,10 +643,10 @@ case_1:
     case 1:
         if (mathAngleDistance(mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z), gCurrentActor->yaw) >= 0x201 &&
             (gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z) < 22500.0f) {
-            gBehaviourWorkState->unk26 = 0;
+            gBehaviourWorkState->targetSpeed = 0;
         } else {
             targetSpeed = playerState->actor->speedXZ * 1.4;
-            gBehaviourWorkState->unk26 = MIN(MAX(targetSpeed, 45.0), 90.0);
+            gBehaviourWorkState->targetSpeed = MIN(MAX(targetSpeed, 45.0), 90.0);
         }
         actorApproachTargetSpeed(0x200);
         actorSpawnNodeEffectFacingCamera(6, 0xFF);

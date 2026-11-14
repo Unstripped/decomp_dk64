@@ -111,7 +111,7 @@ typedef struct {
     s16 unk27A;
     /* 0x27C */ f32 fov;
     /* 0x280 */ f32 unk280;
-    /* 0x284 */ f32 unk284;
+    /* 0x284 */ f32 nearClip;
     /* 0x288 */ f32 farClip;
     /* 0x28C */ f32 prevFov;
     /* 0x290 */ s16 unk290;

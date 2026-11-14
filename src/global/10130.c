@@ -18,7 +18,7 @@ typedef struct PositionRecord {
     s16 yaw;
     u8 map;
     u8 exit;
-    u8 playerIndex;
+    u8 kongIndex;
     u8 pad11;
     KongInventory inventory;
 } PositionRecord;
@@ -29,7 +29,7 @@ void func_8060B430(Actor *target, PositionRecord *record) {
     target->y = record->y;
     target->z = record->z;
     target->yaw = record->yaw;
-    memcpy(&gPlayerInventoryTable[0].kong[record->playerIndex], &record->inventory, sizeof(KongInventory));
+    memcpy(&gPlayerInventoryTable[0].kong[record->kongIndex], &record->inventory, sizeof(KongInventory));
 }
 
 extern s16 D_807463B0;
@@ -138,7 +138,7 @@ void func_8060B750(s32 assetIndex) {
 
 
 u8 func_8060B7C4(void) {
-    return D_807ECE20.playerIndex;
+    return D_807ECE20.kongIndex;
 }
 
 

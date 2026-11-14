@@ -570,7 +570,7 @@ void func_806AFB58(void) {
         }
         gCurrentActor->segmentFlags = gCurrentActor->segmentFlags * 2;
         behaviourSpawnExplosionAndSound(0x2DC, 0x31, gActorGlobalState.targetActor);
-        gBehaviourWorkState->unk26 = 0;
+        gBehaviourWorkState->targetSpeed = 0;
         gCurrentActor->speedXZ = 0.0f;
     }
     state = gCurrentActor->state;

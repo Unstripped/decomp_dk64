@@ -50,7 +50,7 @@ void modelSlotAllocAnimBuffers(ModelData **outModel, ModelAssetHeader *animAsset
                 v->unkE = 0;
                 v->unkF = 0;
                 v->unk10 = 0;
-                v->unk11 = 0;
+                v->keyIndex = 0;
                 v->unkC = 1;
                 v->unk12 = 0;
                 v->unk13 = 0;
@@ -169,7 +169,7 @@ void modelAnimEntryBuildNodeMatrices(ModelAnimEntry *entry) {
     i = 0;
     p = (u8 *)(node + 1);
     while (i < node->matrixCount) {
-        modelAnimEntryBuildKeyMatrix(entry->unk11, entry->unk4, (ModelBTrack *)p, p + 8, entry->unk13);
+        modelAnimEntryBuildKeyMatrix(entry->keyIndex, entry->unk4, (ModelBTrack *)p, p + 8, entry->unk13);
         dst = *(u32 *)p + dstBase;
         if (entry->unkE == 0) {
             src = *(u32 *)p + srcBase;
@@ -334,7 +334,7 @@ void modelAnimEntryAdvance(ModelAnimEntry *entry) {
     s32 loops;
 
     node = entry->unk0;
-    rate = (f32)((f64)((f32)(node->times[entry->unk11 + 1] - node->times[entry->unk11]) * entry->unk4 + (f32)(u32)node->times[entry->unk11]) / 300.0);
+    rate = (f32)((f64)((f32)(node->times[entry->keyIndex + 1] - node->times[entry->keyIndex]) * entry->unk4 + (f32)(u32)node->times[entry->keyIndex]) / 300.0);
     step = (f32)entry->unkC * rate;
     if (gFrameDelta < 4) {
         limit = gFrameDelta;
@@ -348,15 +348,15 @@ void modelAnimEntryAdvance(ModelAnimEntry *entry) {
     case 0:
         entry->unk4 += step;
         whole = entry->unk4;
-        entry->unk11 += whole;
+        entry->keyIndex += whole;
         entry->unk4 -= (f32)whole;
-        if (entry->unk11 < node->keyCount - 1) {
+        if (entry->keyIndex < node->keyCount - 1) {
             return;
         }
-        entry->unk8 += entry->unk11 / (node->keyCount - 1);
+        entry->unk8 += entry->keyIndex / (node->keyCount - 1);
         if (entry->unk8 >= entry->unkA && entry->unkA != -1) {
             entry->unk4 = 1.0f;
-            entry->unk11 = node->keyCount - 2;
+            entry->keyIndex = node->keyCount - 2;
             entry->unkE = 0;
             if (entry->unk10 == 1) {
                 entry->unkF = 1;
@@ -364,13 +364,13 @@ void modelAnimEntryAdvance(ModelAnimEntry *entry) {
         } else {
             switch (entry->unk10) {
             case 0:
-                entry->unk11 = entry->unk11 % (node->keyCount - 1);
+                entry->keyIndex = entry->keyIndex % (node->keyCount - 1);
                 break;
             case 1:
-                loops = entry->unk11 / (node->keyCount - 1);
+                loops = entry->keyIndex / (node->keyCount - 1);
                 if (loops != 0) {
                     entry->unkF = 1;
-                    entry->unk11 = node->keyCount - 2;
+                    entry->keyIndex = node->keyCount - 2;
                     entry->unk4 = 1.0f;
                 }
                 break;
@@ -381,31 +381,31 @@ void modelAnimEntryAdvance(ModelAnimEntry *entry) {
         entry->unk4 -= step;
         if (entry->unk4 < 0.0) {
             whole = (s32)entry->unk4 - 1;
-            entry->unk11 += whole;
+            entry->keyIndex += whole;
             entry->unk4 -= (f32)whole;
         }
-        if (entry->unk11 < 0) {
-            entry->unk8 += (-entry->unk11) / node->keyCount + 1;
+        if (entry->keyIndex < 0) {
+            entry->unk8 += (-entry->keyIndex) / node->keyCount + 1;
             if (entry->unk8 >= entry->unkA && entry->unkA != -1) {
                 if (entry->unk10 == 1) {
                     entry->unkF = 0;
                 }
                 entry->unk4 = 0.0f;
-                entry->unk11 = 0;
+                entry->keyIndex = 0;
                 entry->unkE = 0;
             } else {
                 switch (entry->unk10) {
                 case 0:
-                    entry->unk11 = (-entry->unk11) % (node->keyCount - 1);
-                    if (entry->unk11 != 0) {
-                        entry->unk11 = node->keyCount - entry->unk11 - 1;
+                    entry->keyIndex = (-entry->keyIndex) % (node->keyCount - 1);
+                    if (entry->keyIndex != 0) {
+                        entry->keyIndex = node->keyCount - entry->keyIndex - 1;
                     }
                     break;
                 case 1:
-                    loops = (-entry->unk11) / node->keyCount + 1;
+                    loops = (-entry->keyIndex) / node->keyCount + 1;
                     if (loops) {
                         entry->unkF = 0;
-                        entry->unk11 = 0;
+                        entry->keyIndex = 0;
                         entry->unk4 = 0.0f;
                     }
                     break;
@@ -542,7 +542,7 @@ void modelAnimEntryClearTime(s16 modelId, s16 index) {
     group = gModelSlots[hashTableLookup(modelId)].unk78;
     if (group != NULL) {
         entry = &group->entries[index];
-        entry->unk11 = 0;
+        entry->keyIndex = 0;
         entry->unk4 = 0.0f;
     }
 }
@@ -576,7 +576,7 @@ void modelAnimEntrySetTime(s16 modelId, s16 index, s16 key, f32 time) {
     if (group != NULL) {
         entry = &group->entries[index];
         entry->unk4 = time;
-        entry->unk11 = key;
+        entry->keyIndex = key;
     }
 }
 
@@ -653,7 +653,7 @@ void modelAnimEntryGetState(s16 modelId, s16 index, s16 *outKey, f32 *outTime, u
     if (group != NULL) {
         entry = &group->entries[index];
         *outTime = entry->unk4;
-        *outKey = entry->unk11;
+        *outKey = entry->keyIndex;
         *outState = entry->unkF;
     }
 }

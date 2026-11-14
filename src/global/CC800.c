@@ -177,7 +177,7 @@ void playerAllocSlots(s32 spawnIndex) {
         blk->unk278 = blk->rect[2] - blk->rect[0];
         blk->unk27A = blk->rect[3] - blk->rect[1];
         blk->fov = 45.0f;
-        blk->unk284 = 10.0f;
+        blk->nearClip = 10.0f;
         blk->unk280 = (f32)blk->unk278 / (f32)blk->unk27A;
         blk->farClip = gGfxFarClip;
         blk->unk290 = 0;

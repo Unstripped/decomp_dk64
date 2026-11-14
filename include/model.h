@@ -67,7 +67,7 @@ typedef struct ModelAnimEntry {
     /* 0x0E */ u8 unkE;
     /* 0x0F */ u8 unkF;
     /* 0x10 */ u8 unk10;
-    /* 0x11 */ s8 unk11;
+    /* 0x11 */ s8 keyIndex;
     /* 0x12 */ u8 unk12;
     /* 0x13 */ u8 unk13;
 } ModelAnimEntry; // size = 0x14
@@ -118,7 +118,7 @@ typedef struct ModelSlot {
     /* 0x84 */ s16 modelType;
     /* 0x86 */ s16 unk86;
     /* 0x88 */ s16 id;
-    /* 0x8A */ s16 unk8A;
+    /* 0x8A */ s16 csModelId;
     /* 0x8C */ u8 unk8C;
     /* 0x8D */ u8 pad8D[3];
 } ModelSlot; // size = 0x90

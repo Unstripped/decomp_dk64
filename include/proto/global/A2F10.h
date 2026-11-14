@@ -3,7 +3,7 @@
 #define PROTO_GLOBAL_A2F10_H
 #include "common.h"
 #include "actor.h"
-struct MatrixArray;
+struct BoneFrameState;
 #ifndef PROTO_SKIP_actorTriggerRampWithSfx
 void actorTriggerRampWithSfx(void);
 #endif
@@ -74,7 +74,7 @@ void animSetChannelFrames(void *, u8, u8);
 void actorSetGroupState(u8, u8);
 #endif
 #ifndef PROTO_SKIP_actorSetNodeValuesForFrame
-void actorSetNodeValuesForFrame(struct MatrixArray *);
+void actorSetNodeValuesForFrame(struct BoneFrameState *);
 #endif
 #ifndef PROTO_SKIP_func_806A112C
 void func_806A112C(void);

@@ -61,7 +61,7 @@ void csCmdSpawnSparksAtNodes(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 z;
 
     slot = hashTableLookup(csId);
-    type = gModelSlots[slot].unk78->entries[1].unk11;
+    type = gModelSlots[slot].unk78->entries[1].keyIndex;
     if (type == 0xD || type == 0x15 || type == 0x19) {
         for (node = 1; node < 15; node++) {
             modelSlotGetNodePos(csId, 1, node, &x, &y, &z);
@@ -2134,7 +2134,7 @@ void csCmdLookupSlotKey(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 found;
     s16 (*p)[2];
 
-    key = gModelSlots[hashTableLookup(csId)].unk8A;
+    key = gModelSlots[hashTableLookup(csId)].csModelId;
     found = 0;
     p = D_807481C0;
     do {
@@ -2196,7 +2196,7 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdSetModelSlotByte5F(CsState *cs, s16 csId, s16 b, s16 c) {
-    csModelStateTrySetByte(0x5F, gModelSlots[hashTableLookup(csId)].unk8A, 1);
+    csModelStateTrySetByte(0x5F, gModelSlots[hashTableLookup(csId)].csModelId, 1);
 }
 
 typedef struct CsCountdown {
@@ -2249,7 +2249,7 @@ void csCmdFindSlotIdMatch(CsState *cs, s16 csId, s16 b, s16 c) {
 
     found = 0;
     i = 0;
-    id = gModelSlots[hashTableLookup(csId)].unk8A;
+    id = gModelSlots[hashTableLookup(csId)].csModelId;
     while (!found) {
         if (id == D_80748214[i]) {
             found = 1;
@@ -2453,7 +2453,7 @@ void csCmdResolveNodePair(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdUpdateSlotIdView8A(CsState *cs, s16 csId, s16 b, s16 c) {
-    func_806BD094(gModelSlots[hashTableLookup(csId)].unk8A, b);
+    func_806BD094(gModelSlots[hashTableLookup(csId)].csModelId, b);
 }
 
 s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -3605,7 +3605,7 @@ void csCmdPatternBufferMatch(CsState *cs, s16 csId, s16 b, s16 c) {
         p->tail = 0;
         return;
     }
-    switch (gModelSlots[hashTableLookup(csId)].unk8A) {
+    switch (gModelSlots[hashTableLookup(csId)].csModelId) {
         case 0x41:
             pat[0] = 2; pat[1] = 4; pat[2] = 3; pat[3] = 1;
             break;
@@ -3916,17 +3916,17 @@ s32 csCondCheckAllKongs(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 // Per-effect state of csEffectBobAndPulseUpdate, heapAlloc'd into EffectNode.allocation on the first frame.
-typedef struct CsEffState {
+typedef struct CsBobPulseState {
     /* 0x0 */ s16 phase;
     /* 0x2 */ s16 unk2;
     /* 0x4 */ f32 baseY; // spawn height the effect bobs around
-} CsEffState;
+} CsBobPulseState;
 
 extern s8 D_807F6950;
 extern s8 D_807F6951;
 
 void csEffectBobAndPulseUpdate(EffectNode *e, u8 *flag) {
-    CsEffState *s;
+    CsBobPulseState *s;
 
     if (e->allocation == NULL) {
         s = heapAlloc(8);

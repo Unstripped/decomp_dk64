@@ -117,7 +117,7 @@ void csModelIdTableReset(void) {
 extern ModelSlot *gModelSlots;
 
 s16 csModelSlotGetTableIndex(s16 modelId) {
-    return gModelSlots[hashTableLookup(modelId)].unk8A;
+    return gModelSlots[hashTableLookup(modelId)].csModelId;
 }
 
 s16 csModelIdTableAlloc(s16 modelId, u8 isLowTable) {
@@ -1294,7 +1294,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
                 gCsTrackedModels[gCsTrackedModelCount] = cmd->a;
                 gCsTrackedModelCount++;
             } else {
-                gCsTrackedModels[gCsTrackedModelCount] = gModelSlots[hashTableLookup(csId)].unk8A;
+                gCsTrackedModels[gCsTrackedModelCount] = gModelSlots[hashTableLookup(csId)].csModelId;
                 gCsTrackedModelCount++;
             }
         }

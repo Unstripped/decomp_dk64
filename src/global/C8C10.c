@@ -706,7 +706,7 @@ void func_806C5C20(void) {
     if (!(gActivePlayerState->stateFlags & 0x8000)) {
         dist = sqrtf((gPlayerSlots->camZ - gCurrentActor->z) * (gPlayerSlots->camZ - gCurrentActor->z) +
                      (gPlayerSlots->camX - gCurrentActor->x) * (gPlayerSlots->camX - gCurrentActor->x)) -
-               gPlayerSlots->unk284;
+               gPlayerSlots->nearClip;
         if (D_807FD804 >= 0x8A && D_807FD804 < 0xB1 && D_807FD806 >= 0x61 && D_807FD806 < 0x88 && dist < D_807FD802) {
             if (gActivePlayerState->unk1EC != 1) {
                 if (behaviourIsTargetWithinAngle(0x1388) != 0) {

@@ -74,7 +74,7 @@ void n_alSndpNew(GeSndpConfig *c) {
     void *ptr;
     ALEvent evt;
 
-    D_807563CC->maxVoices = c->unk8;
+    D_807563CC->maxVoices = c->maxVoices;
     D_807563CC->target = 0;
     D_807563CC->frameTime = 16000;
     ptr = alHeapDBAlloc(0, 0, c->heap, 1, c->maxSounds * 72);

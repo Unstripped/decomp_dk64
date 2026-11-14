@@ -336,13 +336,13 @@ typedef struct ActorGlobalState {
 // Path-follow state (Actor.floorContact; pathFollowUpdateHeading allocates it, actor teardown frees it); 0x14 bytes.
 typedef struct PathFollowState {
     /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ u8 unkC;
+    /* 0x04 */ s32 point;
+    /* 0x08 */ f32 pointFrac;
+    /* 0x0C */ u8 done;
     /* 0x0D */ u8 padD;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
+    /* 0x0E */ s16 yaw;
+    /* 0x10 */ s16 speed;
+    /* 0x12 */ s16 pathId;
 } PathFollowState; // size = 0x14
 
 // One entry of an actor's segment-animation list (Actor.animList; 8CA50 animListInit builds it from
@@ -647,22 +647,22 @@ typedef struct SpawnNodeList {
 // (spawnNodeInitActorFromEntry and the spawn paths in 1295B0.c; behaviourUpdateShadowAlpha in 12E800.c).
 typedef struct SpawnEntry {
     /* 0x00 */ u16 actorType;
-    /* 0x02 */ u16 unk2;
+    /* 0x02 */ u16 spawnArg;
     /* 0x04 */ s16 scriptId;
     /* 0x06 */ u8 pad6[2];
     /* 0x08 */ u32 actorFlags;
-    /* 0x0C */ u8 unkC;
-    /* 0x0D */ u8 unkD;
+    /* 0x0C */ u8 headYawLimit;
+    /* 0x0D */ u8 headPitchMinDist;
     /* 0x0E */ u8 spawnRange;
-    /* 0x0F */ u8 unkF;
-    /* 0x10 */ u8 unk10;
-    /* 0x11 */ u8 unk11;
-    /* 0x12 */ u8 unk12;
-    /* 0x13 */ u8 unk13;
+    /* 0x0F */ u8 wanderInterval;
+    /* 0x10 */ u8 turnRate;
+    /* 0x11 */ u8 moveYawRate;
+    /* 0x12 */ u8 wanderDegrees;
+    /* 0x13 */ u8 acceleration;
     /* 0x14 */ u8 shadowScaleX; // shadow billboard width scale (behaviourUpdateShadowAlpha); copied to Actor.unk16E[0]
     /* 0x15 */ u8 shadowScaleZ; // shadow billboard depth scale; copied to Actor.unk16E[1]
-    /* 0x16 */ u8 unk16;
-    /* 0x17 */ u8 unk17;
+    /* 0x16 */ u8 engageState;
+    /* 0x17 */ u8 animSpeedDivisor;
 } SpawnEntry; // size = 0x18
 
 // gBehaviourWorkState: actor component 31 (D_8074DA58[31] = 0x40), the first component of every
@@ -689,7 +689,7 @@ typedef struct BehaviourWorkState {
     /* 0x23 */ u8 unk23;
     /* 0x24 */ u8 unk24;
     /* 0x25 */ u8 unk25;
-    /* 0x26 */ s16 unk26;
+    /* 0x26 */ s16 targetSpeed;
     /* 0x28 */ u32 unk28;
     /* 0x2C */ s16 timer;
     /* 0x2E */ s16 unk2E;
@@ -1099,7 +1099,7 @@ typedef struct CamState {
     /* 0xF9 */ u8 unkF9;
     /* 0xFA */ u8 unkFA;
     /* 0xFB */ u8 unkFB;
-    /* 0xFC */ u8 unkFC;
+    /* 0xFC */ u8 wallCollisionMode;
     /* 0xFD */ u8 unkFD;
     /* 0xFE */ u8 padFE[0x1];
     /* 0xFF */ u8 unkFF;

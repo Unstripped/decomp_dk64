@@ -3581,7 +3581,7 @@ void playerInputCycleCameraZoom(void) {
         max = 3;
     }
     cur = state->unkEF;
-    if ((cur != 0) && ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC) == 4) && ((state->unkEE == max) || (state->unkFC == 0))) {
+    if ((cur != 0) && ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC) == 4) && ((state->unkEE == max) || (state->wallCollisionMode == 0))) {
         state->unkF0 = cur;
         if (cur < max) {
             state->unkEF = cur + 1;

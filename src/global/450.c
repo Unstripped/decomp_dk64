@@ -671,7 +671,7 @@ void playerViewsBuildMatrices(void *outMtx) {
             } else if (camState->unkFA != 0 && gPlayerSlots[i].eyeY < camState->unk90 + 3.0f) {
                 fov += 0.04 * sinApprox(cc[0] * 0.1);
             }
-            guPerspective(&gPlayerSlots[i].projMtx[gGfxBufferIndex], &gPlayerSlots[i].perspNorm, gPlayerSlots[i].fov, fov * aspect, gPlayerSlots[i].unk284, gPlayerSlots[i].farClip, 1.0f);
+            guPerspective(&gPlayerSlots[i].projMtx[gGfxBufferIndex], &gPlayerSlots[i].perspNorm, gPlayerSlots[i].fov, fov * aspect, gPlayerSlots[i].nearClip, gPlayerSlots[i].farClip, 1.0f);
         }
     }
     if (ABS_DIFF(gPlayerSlots->camX, gPlayerSlots->focusX) < 0.5 && ABS_DIFF(gPlayerSlots->camZ, gPlayerSlots->focusZ) < 0.5) {
@@ -679,7 +679,7 @@ void playerViewsBuildMatrices(void *outMtx) {
     } else {
         offs = 0.0f;
     }
-    guPerspective((Mtx *)outMtx, &D_8076A09C, gPlayerSlots->fov, fov * aspect, gPlayerSlots->unk284, gPlayerSlots->farClip, 1.0f);
+    guPerspective((Mtx *)outMtx, &D_8076A09C, gPlayerSlots->fov, fov * aspect, gPlayerSlots->nearClip, gPlayerSlots->farClip, 1.0f);
     guLookAt((Mtx *)((u8 *)outMtx + 0x200), gPlayerSlots->camX + offs, gPlayerSlots->camY, gPlayerSlots->camZ + offs,
              gPlayerSlots->focusX, gPlayerSlots->focusY, gPlayerSlots->focusZ,
              gPlayerSlots->upX, gPlayerSlots->upY, gPlayerSlots->upZ);

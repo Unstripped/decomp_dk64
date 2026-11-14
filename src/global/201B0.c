@@ -2008,7 +2008,7 @@ u8 camResolveWallCollision(Actor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, f32
     arcMin = 0;
     arcMax = 0xFFF;
     camActor->hasArcBounds = 0;
-    st->unkFC = 0;
+    st->wallCollisionMode = 0;
     radius = 0.0f;
     radius += 0.2 * CAM_MIN(180.0f, st->unkA0);
     if (st->unkF5 != 0) {
@@ -2018,7 +2018,7 @@ u8 camResolveWallCollision(Actor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, f32
     }
     if (collisionTestSphere(*eyeX, eyeY, *eyeZ, radius, &arcMin, &arcMax, 1, 0xBC)) {
         if (D_807FB606 != 0) {
-            st->unkFC = 2;
+            st->wallCollisionMode = 2;
             pushYaw = (camActor->moveYaw + 0x800) & 0xFFF;
             pushDist = 0;
         } else {
@@ -2028,7 +2028,7 @@ u8 camResolveWallCollision(Actor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, f32
             arcMid = mathAngleArcMidpoint(arcMin, arcMax);
             prevX += 0.5 * mathSinF(arcMid);
             prevZ += 0.5 * mathCosF(arcMid);
-            st->unkFC = 1;
+            st->wallCollisionMode = 1;
             mathAngleClampToArc(camActor->moveYaw, camActor->moveYaw, arcMin, arcMax, &pushYaw);
             proximity = mathAngleArcProximityScale(arcMin, arcMax, camActor->yaw, 100);
             if (proximity < maxPush) {
@@ -2071,7 +2071,7 @@ s32 func_80620F00(Actor *camActor, u8 allowNudge, u8 requireSide) {
     u8 pastRetry;
     PlayerState *targetState;
 
-    diff = gCamTargetDist - gPlayerSlots[st->unkFB].unk284;
+    diff = gCamTargetDist - gPlayerSlots[st->unkFB].nearClip;
     targetState = st->unk0->customState;
     pastLimit = 40.0f < gCamTargetDist && targetState->depthCenter < diff;
     pastLeft = targetState->depthLeft < diff;
@@ -2120,7 +2120,7 @@ u8 camShouldAutoRotate(Actor *camActor, CamState *st, Actor *target) {
         || st->unkF3 == 0xD
         || st->unkF3 == 5
         || st->unkF3 == 0xC
-        || (st->unkFC != 0 && target->speedXZ != 0.0f)
+        || (st->wallCollisionMode != 0 && target->speedXZ != 0.0f)
         || target->state == 0x6E
         || target->actorType == 8;
 }
@@ -2230,14 +2230,14 @@ u8 camComputeFollowPos(Actor *camActor, Actor *target, f32 *outX, f32 *outY, f32
             cam->unkF3 != 5 && !(gGlobalCutsceneFlags & 2) && !(gGlobalOverlayFlags & 0x2001)) {
             camFindClearYaw(camActor, -1.0f, cam->unkB2, 0);
         } else {
-            if (cam->unkFC != 0 && cam->unkA0 * 1.2 < D_807476AC) {
+            if (cam->wallCollisionMode != 0 && cam->unkA0 * 1.2 < D_807476AC) {
                 if (*outY - (cam->unk90 < cam->unk6C ? cam->unk6C : cam->unk90) > 50.0f && cam->unkEF >= 2) {
                     camSetZoomLevel(camActor, 1);
                     camActor->distToFloor -= 120.0f;
                 } else {
                     camActor->distToFloor += 5.0;
                 }
-            } else if (cam->unkFC == 2) {
+            } else if (cam->wallCollisionMode == 2) {
                 camActor->distToFloor += 20.0f;
             }
         }
@@ -3000,7 +3000,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                         }
                         break;
                 }
-                if (cam->unkFC != 0) {
+                if (cam->wallCollisionMode != 0) {
                     zoom = 0.0f;
                 }
                 cam->unk94 += (zoom - cam->unk94) * 0.1;

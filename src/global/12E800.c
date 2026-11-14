@@ -379,7 +379,7 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floor
 
 void actorSetTargetSpeed(Actor *actor, s32 speed) {
     BehaviourWorkState *workState = actor->customState;
-    workState->unk26 = speed;
+    workState->targetSpeed = speed;
 }
 
 
@@ -405,7 +405,7 @@ void actorApproachTargetSpeed(u16 flags) {
     s32 spd;
     f32 tgt;
 
-    spd = gBehaviourWorkState->unk26;
+    spd = gBehaviourWorkState->targetSpeed;
     if (gCurrentActor->speedXZ < -60.0f) {
         if ((gCurrentActor->contactFlags & 1) && (gFrameCounter % 5) == 0) {
             behaviourSpawnDropParticle();
@@ -570,7 +570,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
         case 0x17:
             if ((gCurrentActor->contactFlags & 1) || (gCurrentActor->hasArcBounds != 0)) {
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
-                gCurrentActor->speedXZ = gBehaviourWorkState->unk26;
+                gCurrentActor->speedXZ = gBehaviourWorkState->targetSpeed;
                 gBehaviourWorkState->flags &= 0xFFFD;
                 gCurrentActor->state = 0x23;
                 gCurrentActor->unk155 = 0;
@@ -771,7 +771,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
             if (gCurrentActor->sub4->animId == gBehaviourAnimState->animId0) {
                 actorScriptStart(gCurrentActor, gBehaviourAnimState->animId1);
             }
-            if (gBehaviourWorkState->unk26 != gBehaviourExtraState->targetSpeed) {
+            if (gBehaviourWorkState->targetSpeed != gBehaviourExtraState->targetSpeed) {
                 actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->targetSpeed);
             }
         case 4:
@@ -811,7 +811,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
                     gBehaviourWorkState->targetZ = gBehaviourTargetActor->prevZ;
                     return;
                 }
-                if (gBehaviourWorkState->unk26 < gBehaviourExtraState->unkD) {
+                if (gBehaviourWorkState->targetSpeed < gBehaviourExtraState->unkD) {
                     actorSetBehaviourState(type, gBehaviourExtraState->unkD, chaseScriptId);
                     return;
                 }

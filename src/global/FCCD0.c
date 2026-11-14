@@ -92,7 +92,7 @@ void func_806F8004(f32 pitch, f32 yaw, f32 *outX, f32 *outY, f32 *outZ) {
     f32 scale;
     f32 dist;
 
-    dist = gPlayerSlots[gCurrentPlayerIndex].unk284;
+    dist = gPlayerSlots[gCurrentPlayerIndex].nearClip;
     guRotateF(pitchMtx, pitch, 1.0f, 0.0f, 0.0f);
     guMtxXFMF(pitchMtx, 0.0f, 0.0f, -dist, &tx, &ty, &tz);
     guRotateF(yawMtx, yaw, 0.0f, 1.0f, 0.0f);

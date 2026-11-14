@@ -26,53 +26,53 @@ void pathFollowUpdateHeading(Actor *owner, u8 continuous) {
         owner->pathFollow = heapAlloc(sizeof(PathFollowState));
         state = owner->pathFollow;
         if (owner->unkB0[0] != -1 && pathExists(owner->unkB0[0]) != 0) {
-            state->unk12 = owner->unkB0[0];
+            state->pathId = owner->unkB0[0];
         } else {
-            state->unk12 = -1;
+            state->pathId = -1;
         }
-        state->unkC = 0;
+        state->done = 0;
         justAllocated = 1;
     } else {
         state = owner->pathFollow;
     }
-    if (continuous != 0 || state->unkC == 0) {
-        if (state->unk12 == -1) {
-            state->unkC = 1;
-            state->unk10 = 0;
-            state->unkE = 0;
+    if (continuous != 0 || state->done == 0) {
+        if (state->pathId == -1) {
+            state->done = 1;
+            state->speed = 0;
+            state->yaw = 0;
             return;
         }
         if (justAllocated != 0) {
-            pathFindClosestPoint(state->unk12, owner->x, owner->y, owner->z, &state->unk4, &state->unk8);
+            pathFindClosestPoint(state->pathId, owner->x, owner->y, owner->z, &state->point, &state->pointFrac);
         } else {
-            pathRefineClosestPoint(state->unk12, owner->x, owner->y, owner->z, &state->unk4, &state->unk8);
+            pathRefineClosestPoint(state->pathId, owner->x, owner->y, owner->z, &state->point, &state->pointFrac);
         }
-        frac = state->unk8;
-        point = state->unk4;
-        pathSplineSample(state->unk12, point, frac, &x0, &y0, &z0);
+        frac = state->pointFrac;
+        point = state->point;
+        pathSplineSample(state->pathId, point, frac, &x0, &y0, &z0);
         frac += 0.4;
         if (frac >= 1.0) {
             point++;
             frac -= 1.0;
         }
-        pathSplineSample(state->unk12, point, frac, &x1, &y1, &z1);
+        pathSplineSample(state->pathId, point, frac, &x1, &y1, &z1);
         heading = (s32)(mathAngleBetweenPointsDeg((s32)x0, (s32)z0, (s32)x1, (s32)z1) * 2048.0 / 3.14159274101257324);
         heading = 0x1000 - heading;
         heading += 0x800;
-        state->unkE = heading & 0xFFF;
-        state->unk10 = 0x23;
-        lastPoint = pathEntryCount(state->unk12) - 1;
-        if (state->unk4 >= lastPoint) {
-            if (lastPoint == state->unk4) { // ORIG: target tests lastPoint != unk4 (bne at 0x234) and keeps both identical bodies
+        state->yaw = heading & 0xFFF;
+        state->speed = 0x23;
+        lastPoint = pathEntryCount(state->pathId) - 1;
+        if (state->point >= lastPoint) {
+            if (lastPoint == state->point) { // ORIG: target tests lastPoint != unk4 (bne at 0x234) and keeps both identical bodies
                 pathEnded = 1;
-                state->unk10 = 0;
+                state->speed = 0;
             } else {
                 pathEnded = 1;
-                state->unk10 = 0;
+                state->speed = 0;
             }
         }
         if (pathEnded != 0 && continuous == 0) {
-            state->unkC = 1;
+            state->done = 1;
         }
     }
 }

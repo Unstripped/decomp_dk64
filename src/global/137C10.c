@@ -160,15 +160,15 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                 }
                 break;
             case 25:
-                if (seqp->nextEvent.msg.cmd.b1 < 8) {
-                    cmdA = n_alSynGetFXDelay(seqp->nextEvent.msg.cmd.b0);
+                if (seqp->nextEvent.msg.cmd.paramId < 8) {
+                    cmdA = n_alSynGetFXDelay(seqp->nextEvent.msg.cmd.busIndex);
                     if (cmdA != NULL) {
-                        n_alSynSetFXParam(cmdA, (seqp->nextEvent.msg.cmd.b2 << 3) | (seqp->nextEvent.msg.cmd.b1 & 7), &seqp->nextEvent.msg.cmd.w4);
+                        n_alSynSetFXParam(cmdA, (seqp->nextEvent.msg.cmd.delayIndex << 3) | (seqp->nextEvent.msg.cmd.paramId & 7), &seqp->nextEvent.msg.cmd.value);
                     }
                 } else {
-                    cmdB = n_alSynGetFXFeedback(seqp->nextEvent.msg.cmd.b0);
+                    cmdB = n_alSynGetFXFeedback(seqp->nextEvent.msg.cmd.busIndex);
                     if (cmdB != NULL) {
-                        n_alSynSetFXFilterParam(cmdB, seqp->nextEvent.msg.cmd.b1, &seqp->nextEvent.msg.cmd.w4);
+                        n_alSynSetFXFilterParam(cmdB, seqp->nextEvent.msg.cmd.paramId, &seqp->nextEvent.msg.cmd.value);
                     }
                 }
                 break;

@@ -182,8 +182,8 @@ void actorTrackBoneTowardTarget(u8 mode) {
     } else {
         yaw = gCurrentActor->yaw * 3.1415927f * (1.0 / 2048.0);
         rot = gCurrentActor->sub4->boneRotations;
-        pitchArg = gSpawnEntryTable[gBehaviourAnimState->entryIndex].unkD;
-        limit = gSpawnEntryTable[gBehaviourAnimState->entryIndex].unkC * 4 * 3.1415927f * (1.0 / 2048.0);
+        pitchArg = gSpawnEntryTable[gBehaviourAnimState->entryIndex].headPitchMinDist;
+        limit = gSpawnEntryTable[gBehaviourAnimState->entryIndex].headYawLimit * 4 * 3.1415927f * (1.0 / 2048.0);
         if (pitchArg == 0xFF) {
             pitchArg = 0x3E8;
         }
@@ -547,8 +547,8 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     node->actor = act;
     node->unk30 = 1.0f;
     node->unk2C = 0.01f;
-    if (gSpawnEntryTable[idx].unk17 != 0) {
-        node->unk38 = 1.0 / gSpawnEntryTable[idx].unk17;
+    if (gSpawnEntryTable[idx].animSpeedDivisor != 0) {
+        node->unk38 = 1.0 / gSpawnEntryTable[idx].animSpeedDivisor;
     } else {
         node->unk38 = 0.0f;
     }
@@ -588,14 +588,14 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     }
     act->unk16E[0] = gSpawnEntryTable[idx].shadowScaleX;
     act->unk16E[1] = gSpawnEntryTable[idx].shadowScaleZ;
-    v = gSpawnEntryTable[idx].unkF;
+    v = gSpawnEntryTable[idx].wanderInterval;
     st->unk22 = v;
     st->unk23 = v;
-    st->unk1E = gSpawnEntryTable[idx].unk10;
-    st->unk1F = gSpawnEntryTable[idx].unk11;
-    st->unk21 = gSpawnEntryTable[idx].unk12;
-    st->unk35 = gSpawnEntryTable[idx].unk13;
-    st->unk37 = gSpawnEntryTable[idx].unk16;
+    st->unk1E = gSpawnEntryTable[idx].turnRate;
+    st->unk1F = gSpawnEntryTable[idx].moveYawRate;
+    st->unk21 = gSpawnEntryTable[idx].wanderDegrees;
+    st->unk35 = gSpawnEntryTable[idx].acceleration;
+    st->unk37 = gSpawnEntryTable[idx].engageState;
     act->state = node->actorState;
     act->unk155 = 0;
     switch (type) {
@@ -831,7 +831,7 @@ Actor *spawnNodeSpawnById(s16 id, s16 x, s16 y, s16 z, s16 yaw, s16 speed, s16 s
     for (i = 0; i < gSpawnNodeList->count; i++, node++) {
         if ((id == node->id) && (node->state != 5)) {
             entry = &gSpawnEntryTable[node->entryIndex];
-            if (actorSpawn(entry->actorType, entry->unk2) != 0) {
+            if (actorSpawn(entry->actorType, entry->spawnArg) != 0) {
                 node->flags |= 4;
                 spawnNodeInitActorFromEntry(gSpawnedActor, node);
                 if (x != 0) {
@@ -898,10 +898,10 @@ void func_80727678(void) {
             if (node->id == *ptr) {
                 switch (gActorGlobalState.volumeTriggerQueueOp[j]) {
                     case 1:
-                        if ((node->state == 0) && (spawnFlagConditionMet(gCurrentMap, node->id) != 0) && (actorSpawn(gSpawnEntryTable[node->entryIndex].actorType, gSpawnEntryTable[node->entryIndex].unk2) != 0)) {
+                        if ((node->state == 0) && (spawnFlagConditionMet(gCurrentMap, node->id) != 0) && (actorSpawn(gSpawnEntryTable[node->entryIndex].actorType, gSpawnEntryTable[node->entryIndex].spawnArg) != 0)) {
                             spawnNodeInitActorFromEntry(gSpawnedActor, node);
                         } else if ((node->state == 3) && (spawnFlagConditionMet(gCurrentMap, node->id) != 0)) {
-                            if (actorSpawn(gSpawnEntryTable[node->entryIndex].actorType, gSpawnEntryTable[node->entryIndex].unk2) != 0) {
+                            if (actorSpawn(gSpawnEntryTable[node->entryIndex].actorType, gSpawnEntryTable[node->entryIndex].spawnArg) != 0) {
                                 spawnNodeInitActorFromEntry(gSpawnedActor, node);
                                 gSpawnedActor->state = 0x36;
                             }
@@ -993,7 +993,7 @@ void spawnNodesUpdate(void) {
                     node->chunkIndex = mapChunkFindByPosition((f32)node->x, (f32)node->y, (f32)node->z, 0);
                     spawnNodeSelectEntry(node);
                     entry = &gSpawnEntryTable[node->entryIndex];
-                    if (actorSpawn(entry->actorType, entry->unk2) != 0) {
+                    if (actorSpawn(entry->actorType, entry->spawnArg) != 0) {
                         spawnNodeInitActorFromEntry(gSpawnedActor, node);
                         gSpawnedActor->state = 0x36;
                         node->flags |= 1;
@@ -1004,7 +1004,7 @@ void spawnNodesUpdate(void) {
             if ((spawnNodeInRangeAndVisible(node, dist) != 0) && (spawnFlagConditionMet(gCurrentLevelIndex, node->id) != 0)) {
                 spawnNodeSelectEntry(node);
                 entry = &gSpawnEntryTable[node->entryIndex];
-                if (actorSpawn(entry->actorType, entry->unk2) != 0) {
+                if (actorSpawn(entry->actorType, entry->spawnArg) != 0) {
                     spawnNodeInitActorFromEntry(gSpawnedActor, node);
                 }
             }

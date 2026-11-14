@@ -292,11 +292,11 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
                     gModelSlots[outCount].rotY = entry->rotY;
                     gModelSlots[outCount].rotZ = entry->rotZ;
                     gModelSlots[outCount].yOffset = entry->yOffset;
-                    gModelSlots[outCount].unk8A = entry->mapObjectId;
+                    gModelSlots[outCount].csModelId = entry->mapObjectId;
                     result = modelSlotInit(outCount, entry->modelType, entry->x, entry->y, entry->z,
                                            entry->rotX, entry->rotY, entry->rotZ, entry->scale, entry->yOffset,
                                            entry->flags, entry->light, &renderList);
-                    modelFlagsApplyState(gCurrentMap, gModelSlots[outCount].unk8A, &gModelSlots[outCount].unk8C);
+                    modelFlagsApplyState(gCurrentMap, gModelSlots[outCount].csModelId, &gModelSlots[outCount].unk8C);
                     gCsModelIds[entry->mapObjectId] = result;
                     gModelSlotCount++;
                     outCount++;
@@ -480,7 +480,7 @@ s32 modelSlotFindByType(s32 type, s32 *cursor, f32 *xOut, f32 *yOut, f32 *zOut, 
         if (gModelSlots[i].modelType == type) {
             found = 1;
             *idOut = gModelSlots[i].id;
-            *csIdOut = gModelSlots[i].unk8A;
+            *csIdOut = gModelSlots[i].csModelId;
             *xOut = gModelSlots[i].x;
             *yOut = gModelSlots[i].y;
             *zOut = gModelSlots[i].z;
@@ -518,7 +518,7 @@ s16 modelSlotAppend(s32 type, f32 x, f32 y, f32 z, f32 yOffset, u8 force) {
     slotId = modelSlotInit(gModelSlotCount, type, x, y, z, 0.0f, 0.0f, 0.0f, scale, y - yOffset, 1, 0, &renderList);
     mapDistributeEntries(renderList);
     renderEntryListFree(renderList);
-    gModelSlots[gModelSlotCount].unk8A = csModelIdTableAlloc(slotId, force);
+    gModelSlots[gModelSlotCount].csModelId = csModelIdTableAlloc(slotId, force);
     gModelSlotCount++;
     return slotId;
 }
@@ -1587,7 +1587,7 @@ u8 isId;
     if (gModelSlots[slot].unk7C != NULL) {
         csStateFree(gModelSlots[slot].unk7C);
     }
-    gCsModelIds[gModelSlots[slot].unk8A] = -1;
+    gCsModelIds[gModelSlots[slot].csModelId] = -1;
     modelEmitterDisable(gModelSlots[slot].id);
     entryId = gModelSlots[slot].id;
     hashTableRemove(entryId);
@@ -3632,7 +3632,7 @@ void modelPendingQueueInsert(RenderEntry *entry, u8 allowDefault) {
             if (allow != 0) {
                 D_807F7140++;
                 if (D_807F60A8 != 0x46) {
-                    D_807F60B0[D_807F60A8] = slots[idx].unk8A;
+                    D_807F60B0[D_807F60A8] = slots[idx].csModelId;
                     D_807F60A8++;
                     csStateTickTimers(obj);
                     csStateUpdate(obj, entry->unk1E);
@@ -3665,7 +3665,7 @@ void modelPendingEntriesProcess(void) {
                         if (D_807F60A8 == 0x46) {
                             return;
                         }
-                        D_807F60B0[D_807F60A8] = gModelSlots[slot].unk8A;
+                        D_807F60B0[D_807F60A8] = gModelSlots[slot].csModelId;
                         D_807F60A8++;
                         csStateTickTimers(obj);
                         csStateUpdate(obj, D_807F6030[i].id);
@@ -3733,7 +3733,7 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
         out->modelType = gModelSlots[i].modelType;
         out->kind = gModelSlots[i].unk86;
         out->yOffset = gModelSlots[i].yOffset;
-        out->unk2A = gModelSlots[i].unk8A;
+        out->unk2A = gModelSlots[i].csModelId;
         switch (out->kind) {
         case 2:
             out->flags = ((RenderQuadModelObj *)gModelSlots[i].unk20)->flags;
@@ -3786,7 +3786,7 @@ void modelSlotsPackRecords(u8 **bufOut, s32 *countOut) {
             if (gModelSlots[i].unk7C != NULL) {
                 if ((gModelSlots[i].unk24->unk3A != 0 || (gModelSlots[i].unk7C->unk9B & 1)) && !(gModelSlots[i].unk7C->unk9B & 2)) {
                     rec = cur;
-                    *(s16 *)rec = gModelSlots[i].unk8A;
+                    *(s16 *)rec = gModelSlots[i].csModelId;
                     memcpy(rec + 0xCC, gModelSlots[i].unk7C, 0x9C);
                     if (gModelSlots[i].unk78 != NULL) {
                         memcpy(rec + 4, gModelSlots[i].unk78->entries, 0xC8);

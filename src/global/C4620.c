@@ -565,7 +565,7 @@ void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 an
         actorUpdatePrevContactFlags(gCurrentActor);
         gCurrentActor->floorNodeId = 1;
     }
-    val = ret = playerSelectMoveTier(gCurrentActor, gCurrentActor->speedXZ, gBehaviourWorkState->unk26, gBehaviourWorkState->unk34, threshold);
+    val = ret = playerSelectMoveTier(gCurrentActor, gCurrentActor->speedXZ, gBehaviourWorkState->targetSpeed, gBehaviourWorkState->unk34, threshold);
     if (ret != gBehaviourWorkState->unk34) {
         switch (ret) {
             case 0:

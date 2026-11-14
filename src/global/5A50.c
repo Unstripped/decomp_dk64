@@ -101,7 +101,7 @@ void audioInit(void) {
     func_806010A0();
     sndp.maxEvents = 0x40;
     sndp.maxSounds = 0x40;
-    sndp.unk8 = 0x14;
+    sndp.maxVoices = 0x14;
     sndp.maxStates = 8;
     sndp.heap = &D_8076D1E8;
     n_alSndpNew(&sndp);

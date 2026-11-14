@@ -83,10 +83,10 @@ typedef struct N_Event {
             f32 f1;
         } fpair;
         struct {
-            u8 b0;
-            u8 b1;
-            u8 b2;
-            u32 w4;
+            u8 busIndex;
+            u8 paramId;
+            u8 delayIndex;
+            u32 value;
         } cmd;
     } msg;
 } N_Event;

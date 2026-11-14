@@ -1322,14 +1322,14 @@ s32 mapBspPlaneDistanceCheck(MapBspNode *node, f32 x, f32 y, f32 z) {
 
 
 typedef struct MapChunkAnim {
-    /* 0x00 */ u8 unk0;
+    /* 0x00 */ u8 segment;
     /* 0x01 */ u8 chunk;
     /* 0x02 */ u8 frameDelay;
     /* 0x03 */ u8 frameCount;
     /* 0x04 */ u8 timer;
     /* 0x05 */ u8 frame;
     /* 0x06 */ u8 pad6[2];
-    /* 0x08 */ void *unk8;
+    /* 0x08 */ void *texture;
     /* 0x0C */ s32 textureIds[1];
     /* 0x10 */ u8 pad10[0x6C];
 } MapChunkAnim; /* 0x7C */
@@ -1342,7 +1342,7 @@ Gfx *mapChunkEmitSegmentCommands(Gfx *gfx, u8 chunk) {
 
     for (i = 0; i < sMapChunkAnimCount; i++) {
         if (chunk == sMapChunkAnims[i].chunk) {
-            gSPSegment(gfx++, sMapChunkAnims[i].unk0, sMapChunkAnims[i].unk8);
+            gSPSegment(gfx++, sMapChunkAnims[i].segment, sMapChunkAnims[i].texture);
         }
     }
     return gfx;
@@ -1366,14 +1366,14 @@ void mapChunkAnimateTextures(u8 chunk) {
                 }
                 reload = 1;
             }
-            if (sMapChunkAnims[i].unk8 == NULL) {
+            if (sMapChunkAnims[i].texture == NULL) {
                 reload = 1;
             }
             if (reload) {
-                if (sMapChunkAnims[i].unk8 != NULL) {
-                    assetFreeBuffer(sMapChunkAnims[i].unk8, 0x7E3, 5);
+                if (sMapChunkAnims[i].texture != NULL) {
+                    assetFreeBuffer(sMapChunkAnims[i].texture, 0x7E3, 5);
                 }
-                sMapChunkAnims[i].unk8 = assetLoad(7, sMapChunkAnims[i].textureIds[sMapChunkAnims[i].frame], 0, 0);
+                sMapChunkAnims[i].texture = assetLoad(7, sMapChunkAnims[i].textureIds[sMapChunkAnims[i].frame], 0, 0);
             }
         }
     }
@@ -1387,9 +1387,9 @@ void mapChunkFreeHiddenBuffers(void) {
 
     for (i = 0; i < sMapChunkAnimCount; i++) {
         if (mapChunkIsVisible(sMapChunkAnims[i].chunk) == 0) {
-            if (sMapChunkAnims[i].unk8 != NULL) {
-                assetFreeBuffer(sMapChunkAnims[i].unk8, 0x7FB, 5);
-                sMapChunkAnims[i].unk8 = NULL;
+            if (sMapChunkAnims[i].texture != NULL) {
+                assetFreeBuffer(sMapChunkAnims[i].texture, 0x7FB, 5);
+                sMapChunkAnims[i].texture = NULL;
             }
         }
     }

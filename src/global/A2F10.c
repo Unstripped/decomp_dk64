@@ -933,11 +933,11 @@ void actorSetGroupState(u8 group, u8 state) {
     }
 }
 
-typedef struct MatrixArray {
+typedef struct BoneFrameState {
     f32 *frames;
-} MatrixArray;
+} BoneFrameState;
 
-void actorSetNodeValuesForFrame(MatrixArray *state) {
+void actorSetNodeValuesForFrame(BoneFrameState *state) {
     BoneVector *dst;
     s16 i;
 
@@ -953,12 +953,12 @@ extern u8 D_807503E0[];
 
 
 void func_806A112C(void) {
-    MatrixArray *sub;
+    BoneFrameState *sub;
     s16 i;
     u8 n;
     f32 d;
     f32 val;
-    MatrixArray *sub2;
+    BoneFrameState *sub2;
 
     sub = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
