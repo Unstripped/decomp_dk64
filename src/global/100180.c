@@ -229,7 +229,7 @@ void textFontAgeSheets(void) {
     }
 }
 
-s32 textGetStringWidth(s16 font, u8 *str) {
+s32 textGetStringWidth(s16 font, const u8 *str) {
     s32 len;
     u8 ch;
     s32 step;
@@ -255,7 +255,7 @@ s32 textGetStringWidth(s16 font, u8 *str) {
     return len;
 }
 
-s16 textCountNonSpace(u8 *str) {
+s16 textCountNonSpace(const u8 *str) {
     s16 count = 0;
 
     while (*str++) {
@@ -309,12 +309,12 @@ extern Mtx D_2000180;
 #define TEXT_GFX_VTX(g, v, n, v0) \
     TEXT_GFX_CMD(g, _SHIFTL(G_VTX, 24, 8) | _SHIFTL((n), 12, 8) | _SHIFTL((v0) + (n), 1, 7), (unsigned int)(v))
 
-Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
+Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, const u8 *str, u8 flags) {
     u8 line;
     u8 idx;
     u8 ch;
     s16 startX;
-    u8 *strStart;
+    const u8 *strStart;
     Gfx *g1;
     Gfx *g12;
     Gfx *g6;
@@ -645,7 +645,7 @@ Gfx *textObjectDrawRotated(Gfx *dl, TextObject *textObj) {
     return dl;
 }
 
-Gfx *textDrawString(Gfx *dl, u8 font, s16 x, s16 y, u8 *str) {
+Gfx *textDrawString(Gfx *dl, u8 font, s16 x, s16 y, const u8 *str) {
     u8 ch;
     s32 flag;
 

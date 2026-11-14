@@ -31,16 +31,16 @@ void *textFontLoadSheet(s16);
 void textFontAgeSheets(void);
 #endif
 #ifndef PROTO_SKIP_textGetStringWidth
-s32 textGetStringWidth(s16, u8 *);
+s32 textGetStringWidth(s16, const u8 *);
 #endif
 #ifndef PROTO_SKIP_textCountNonSpace
-s16 textCountNonSpace(u8 *);
+s16 textCountNonSpace(const u8 *);
 #endif
 #ifndef PROTO_SKIP_textLoadFontSheetGfx
 Gfx *textLoadFontSheetGfx(Gfx *, u8, s16);
 #endif
 #ifndef PROTO_SKIP_textDrawStringVtx
-Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
+Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, const u8 *, u8);
 #endif
 #ifndef PROTO_SKIP_textObjectDrawFlat
 Gfx *textObjectDrawFlat(Gfx *, struct TextObject *);
@@ -49,7 +49,7 @@ Gfx *textObjectDrawFlat(Gfx *, struct TextObject *);
 Gfx *textObjectDrawRotated(Gfx *, struct TextObject *);
 #endif
 #ifndef PROTO_SKIP_textDrawString
-Gfx *textDrawString(Gfx *, u8, s16, s16, u8 *);
+Gfx *textDrawString(Gfx *, u8, s16, s16, const u8 *);
 #endif
 #ifndef PROTO_SKIP_textGetCharAdvance
 s16 textGetCharAdvance(s16, u8);

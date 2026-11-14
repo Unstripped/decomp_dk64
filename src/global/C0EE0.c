@@ -364,13 +364,15 @@ extern Gfx D_1000118[];
 extern Mtx D_2000180;
 
 Gfx *func_806BCF98(Gfx *dl, Actor *actor) {
+    static const u8 sYesLabel[] = "q YES";
+    static const u8 sNoLabel[] = "b NO";
     gSPDisplayList(dl++, D_1000118);
     gDPSetRenderMode(dl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
     gDPSetCombineMode(dl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gSPMatrix(dl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    dl = textDrawStringVtx(dl, 1, 0x208, 0xC8, "q YES", 1);
-    return textDrawStringVtx(dl, 1, 0x208, 0x12C, "b NO", 1);
+    dl = textDrawStringVtx(dl, 1, 0x208, 0xC8, sYesLabel, 1);
+    return textDrawStringVtx(dl, 1, 0x208, 0x12C, sNoLabel, 1);
 }
 
 void func_806BD094(s16 idx, s8 val) {
