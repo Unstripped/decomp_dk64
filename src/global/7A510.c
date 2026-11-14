@@ -257,15 +257,11 @@ s32 actorCollisionFindTableEntry(CollisionTableEntry *table, s16 actorType, s16 
     s32 match;
 
     do {
-        entries = table->pattern;  // FAKE: dead def raises the result uopt priority so it colours $s2 before the parameter copies (Q0385)
-        pattern = entries;
+        pattern = table->pattern;
         entries = table->entries;
         match = actorCollisionPatternMatches(actorType, actorFlags, pattern);
         table++;
-        if (match) {
-            break;
-        }
-    } while (pattern != 0);
+    } while (!match && pattern != 0);
     return entries;
 }
 
