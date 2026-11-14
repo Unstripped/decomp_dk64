@@ -2141,6 +2141,7 @@ extern u8 D_80770598[];
 
 void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
     u32 tries;
+    void *buf;
     tries = 0;
     alSeqpStop((ALSeqPlayer *)gSeqPlayers[seqIndex]);
     if (alCSPGetState(&gSeqPlayers[seqIndex]->al) != 0) {
@@ -2165,17 +2166,16 @@ void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
     D_80770598[seqIndex] = 0;
     D_80770568[seqIndex] = volume;
     D_80770560[seqIndex] = seqId;
-    tries = (s32)heapAlloc(0x8000);  // FAKE: reusing the retry counter as the buffer pointer keeps its stack home at sp+0x44
+    buf = heapAlloc(0x8000);
     {
-        s32 base = D_8076D200[seqId];
-        s32 addr = base + D_8000DDCC;
-        s32 len = D_8076D200[seqId + 1] - base;
+        s32 addr = D_8076D200[seqId] + D_8000DDCC;
+        s32 len = D_8076D200[seqId + 1] - D_8076D200[seqId];
         if (len & 1) {
             len++;
         }
-        dmaReadAssetDecompress(addr, D_8076BF38[seqIndex], &len, 0x80, 0, 1, (void *)tries);
+        dmaReadAssetDecompress(addr, D_8076BF38[seqIndex], &len, 0x80, 0, 1, buf);
     }
-    heapFree((void *)tries);
+    heapFree(buf);
     n_alCSeqNew(&D_8076BF48[seqIndex], D_8076BF38[seqIndex]);
     alSeqpSetSeq((ALSeqPlayer *)gSeqPlayers[seqIndex], (ALSeq *)&D_8076BF48[seqIndex]);
     resetCSPChannelStates(gSeqPlayers[seqIndex]);
