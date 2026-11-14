@@ -319,3 +319,4 @@
 {"type": "unit", "t": "2026-11-14T18:42:03Z", "unit": "2026-11-14: cleanup HackactorBoneChainSwingUpdate", "commit": "ff2a80e81a19d1d9480111bfbd95dcc9dc456e4f"}
 {"type": "unit", "t": "2026-11-14T18:42:06Z", "unit": "2026-11-14: cleanup HackactorCollisionResolveSurfaceHit", "commit": "06b5763f6974ceb744107fc781b04dd7fdae89c9"}
 {"type": "unit", "t": "2026-11-14T18:42:19Z", "unit": "2026-11-14: cleanup HackactorNodeRingUpdate", "commit": "9c5f348ba4e419b5bb6725e2600207550fc33469"}
+{"type": "unit", "t": "2026-11-14T18:42:33Z", "unit": "2026-11-14: cleanup HackactorConfigLookup", "commit": "1512d293f9c508d0115effa8751699efb3e8fd0d"}
