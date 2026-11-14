@@ -13,19 +13,18 @@ typedef u32 OSHWIntr;
 #include "proto/global/F600.h"
 
 extern s32 osGetIntMask(s32 arg0);
-extern unsigned long long __ull_div(unsigned long long, unsigned long long);
 
 // 13980's .data (0x80746820-0x80746A30), declaration order = address order
 s32 D_80746820 = 2;
 s32 D_80746824 = 1;
 u8 D_80746828 = 1;
-s16 D_8074682C = 0x3E8;
+s16 D_8074682C = 1000;
 s8 D_80746830 = 1;
 s8 D_80746834 = 0;
 SchedConfig D_80746838 = { 0xF, 0, 0x1C };
 s8 D_80746844 = 1;
 s8 D_80746848 = 0;
-u32 D_8074684C[3] = { 0xF, 2, 0x1E };
+u32 D_8074684C[3] = { OS_VI_PAL_LPF1, OS_VI_NTSC_LAN1, OS_VI_MPAL_LAN1 };
 s16 D_80746858 = 0;
 
 extern u8 gGameMode;
@@ -125,12 +124,11 @@ void schedMain(void *arg) {
                 D_8074682C--;
             }
             if (D_8074682C <= 0) {
-                D_807F0518[0]++;
-                fbIdx = D_807F0518[0];
+                fbIdx = ++D_807F0518[0];
                 osViSwapBuffer((void *)gFramebuffers[(fbIdx >> 5) & 1]);
                 osViBlack(0);
                 D_807F0518[0]++;
-                if (D_8074682C < -0x9F && D_8074682C >= -0x100) {
+                if (D_8074682C < -159 && D_8074682C >= -256) {
                     for (i = 0; i < 2; i++) {
                         faultFontInit(gFramebuffers[i & 1], 2, 2);
                         faultPrintf("CURRENT=%x\n", IO_READ(DPC_CURRENT_REG));
@@ -141,20 +139,18 @@ void schedMain(void *arg) {
                         faultPrintf("MAIN-PC=%x\n", D_8076154C);
                     }
                 }
-                if (D_8074682C < -0x12B) {
+                if (D_8074682C < -299) {
                     flag = 0;
                     if ((D_807F0518[0] & 0x1F) == 0) {
                         flag = 1;
                     }
-                    if (flag) {
-                        if (D_80746848 == 0) {
-                            flag = 0;
-                            D_80746848 = 1;
-                        }
+                    if (flag && D_80746848 == 0) {
+                        flag = 0;
+                        D_80746848 = 1;
                     }
                     schedDlDebugDump(D_80746844, flag);
                     D_80746844 = 0;
-                    D_8074682C = -0x12C;
+                    D_8074682C = -300;
                 }
                 osWritebackDCacheAll();
             }
@@ -164,7 +160,7 @@ void schedMain(void *arg) {
         case 0x29A:
             cnt = D_807F0560 + 1;
             D_807F0560 = cnt;
-            if (cnt % 0x1E0 == 0) {
+            if (cnt % 480 == 0) {
                 D_807F04C8 = D_807F04D0;
                 D_807F04D8 = D_807F04DC;
             }
@@ -229,9 +225,9 @@ void schedHandleRetrace(SchedStruct *sc) {
                 osViBlack(1);
                 if (D_80744510 && D_80744510) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
-            if (D_80746858 == 0x3C) {
+            if (D_80746858 == 60) {
                 osViSetMode(&osViModeTable[D_8074684C[osTvType]]);
-                osViSetSpecialFeatures(0x42);
+                osViSetSpecialFeatures(OS_VI_GAMMA_OFF | OS_VI_DITHER_FILTER_ON);
                 osViBlack(0);
                 D_80744510 = 2;
                 if (gFramebuffers && gFramebuffers) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -248,28 +244,28 @@ void schedHandleRetrace(SchedStruct *sc) {
         osViSwapBuffer(D_807F04E0->framebuffer);
         D_80746824 = D_80746820;
         D_80746820 = sc->unk284 + 1;
-        osDpSetStatus(8);
+        osDpSetStatus(DPC_SET_FREEZE);
         if (D_807F04E0->msgQ != NULL) {
-            schedSendMesgTimed(D_807F04E0->msgQ, D_807F04E0->msg, 0);
+            schedSendMesgTimed(D_807F04E0->msgQ, D_807F04E0->msg, OS_MESG_NOBLOCK);
         }
         D_807F04E0 = NULL;
     } else {
         fb = osViGetCurrentFramebuffer();
         if (osViGetNextFramebuffer() == fb) {
-            if (osDpGetStatus() & 2) {
+            if (osDpGetStatus() & DPC_STATUS_FREEZE) {
                 sc->unk288 = osGetTime();
-                osDpSetStatus(4);
+                osDpSetStatus(DPC_CLR_FREEZE);
             }
         }
     }
     n = sc->cmdQ.validCount;
     for (i = 0; i < n; i++) {
-        osRecvMesg(&sc->cmdQ, &msg, 0);
+        osRecvMesg(&sc->cmdQ, &msg, OS_MESG_NOBLOCK);
         if (msg == (OSMesg)-1) {}  // FAKE: steers uopt (hoists -1 into s2)
         if ((u32)sc->unk284 % ((TaskNode *)msg)->client->id == 0) {
             schedAppendTask(sc, msg);
         } else {
-            osSendMesg(&sc->cmdQ, msg, 0);
+            osSendMesg(&sc->cmdQ, msg, OS_MESG_NOBLOCK);
             if (D_80746858 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
         if (msg == (OSMesg)-1) {}  // FAKE: steers uopt (hoists -1 into s2)
@@ -281,7 +277,7 @@ void schedHandleRetrace(SchedStruct *sc) {
     }
     for (client = sc->clientList; client != NULL; client = client->next) {
         if (client->kind == 3) {
-            osSendMesg(client->msgQ, (OSMesg)0x29A, 0);
+            osSendMesg(client->msgQ, (OSMesg)0x29A, OS_MESG_NOBLOCK);
         }
     }
 }
@@ -303,9 +299,9 @@ void schedHandleRSP(SchedStruct *sc) {
         schedStartTask(sc, 0);
     } else {
         if (task->flags & 0x40) {
-            D_807F04E8 = __ull_div(osGetTime() - sc->unk290, 0x1E91);
+            D_807F04E8 = (osGetTime() - sc->unk290) / 0x1E91;
             D_80746828 = 1;
-        } else if (task->task.t.type == 2) {
+        } else if (task->task.t.type == M_AUDTASK) {
             D_807F0510 = osGetTime();
             D_807F0500 = D_807F0508;
         }
@@ -339,12 +335,12 @@ void schedHandleRDP(SchedStruct *sc) {
         osViSwapBuffer(task->framebuffer);
         D_80746824 = D_80746820;
         D_80746820 = sc->unk284 + 1;
-        osDpSetStatus(8);
+        osDpSetStatus(DPC_SET_FREEZE);
     } else {
         D_807F04E0 = task;
     }
 
-    D_807F04E4 = __ull_div(osGetTime() - sc->unk288, 0x1E91);
+    D_807F04E4 = (osGetTime() - sc->unk288) / 0x1E91;
     schedTaskDone(sc, task);
 }
 
@@ -360,18 +356,18 @@ s32 schedTaskDone(SchedStruct *sc, TaskNode *task) {
     }
 
     if (state == done) {
-        if (type == 1) {
+        if (type == M_GFXTASK) {
             sc->gfxListHead = sc->gfxListHead->next;
             if (sc->gfxListHead == NULL) {
                 sc->gfxListTail = (TaskNode *)&sc->gfxListHead;
             }
         }
         if (task->msgQ != NULL) {
-            if (D_807F04E0 == NULL || type != 1) {
+            if (D_807F04E0 == NULL || type != M_GFXTASK) {
                 if (task->flags & 0x40) {
-                    schedSendMesgTimed(task->msgQ, task->msg, 0);
+                    schedSendMesgTimed(task->msgQ, task->msg, OS_MESG_NOBLOCK);
                 } else {
-                    osSendMesg(task->msgQ, task->msg, 0);
+                    osSendMesg(task->msgQ, task->msg, OS_MESG_NOBLOCK);
                 }
             }
         }
@@ -387,7 +383,7 @@ s32 schedTaskDone(SchedStruct *sc, TaskNode *task) {
 void schedAppendTask(SchedStruct *sc, TaskNode *task) {
     s32 type = task->task.t.type;
 
-    if (type == 2) {
+    if (type == M_AUDTASK) {
         sc->audioListTail->next = task;
         sc->audioListTail = task;
     } else {
@@ -415,7 +411,7 @@ void schedStartTask(SchedStruct *sc, s32 isGfx) {
         task = sc->gfxListHead;
         if (D_80746828 != 0) {
             sc->unk290 = osGetTime();
-            D_807F04F0 = __ull_div(osGetTime() - D_807F04F8, 0x1E91);
+            D_807F04F0 = (osGetTime() - D_807F04F8) / 0x1E91;
             D_80746828 = 0;
         }
     }
@@ -431,7 +427,7 @@ void schedStartTask(SchedStruct *sc, s32 isGfx) {
 void schedYield(SchedStruct *sc) {
     TaskNode *task = sc->curRSPTask;
 
-    if (task->task.t.type == 1) {
+    if (task->task.t.type == M_GFXTASK) {
         task->state = 3;
         D_807F04C0 = osGetTime();
         osSpTaskYield();
@@ -493,9 +489,9 @@ extern u32 D_807F0984;
 
 s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
     static s32 sDumpBase = 0;
-    static u32 sNextPageAddr = 0;
+    static u32 *sNextPageAddr = NULL;
     static s16 sPrevButtons = 0;
-    static u32 sPageAddr = 0;
+    static u32 *sPageAddr = NULL;
     static s32 sPageMode = 0;
     static s32 sNextPageMode = 0;
     static s8 sAutoPageCount = 4;
@@ -509,13 +505,13 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
     u32 n;
     s16 found;
     s32 line;
-    s32 cur;
+    u32 *cur;
     s32 mode;
     u32 done;
     char buf[36];
     s32 i;
     s32 raw;
-    u32 ret;
+    s32 ret;
 
     done = 0;
     ret = 0;
@@ -524,104 +520,92 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
         raw = D_807F0568.button;  // FAKE: int copy keeps the lhu value in v0 for ori 0x400 (direct s16 read gives lh v1)
         buttons = raw;
         if (autoAdvance != 0 && sAutoPageCount != 0) {
-            buttons |= 0x400;
+            buttons |= D_JPAD;
         }
-        if (buttons & 0x1000) {
-            if (!(sPrevButtons & 0x1000)) {
-                if (sAutoPageCount > 0) {
-                    sAutoPageCount -= 1;
-                }
-            }
+        if ((buttons & START_BUTTON) && !(sPrevButtons & START_BUTTON) && sAutoPageCount > 0) {
+            sAutoPageCount--;
         }
-        if (buttons & 0x400) {
-            if (!(sPrevButtons & 0x400)) {
-                if (sNextPageAddr != 0) {
-                    sPageMode = sNextPageMode;
-                    sPageAddr = sNextPageAddr;
-                }
-            }
+        if ((buttons & D_JPAD) && !(sPrevButtons & D_JPAD) && sNextPageAddr != NULL) {
+            sPageMode = sNextPageMode;
+            sPageAddr = sNextPageAddr;
         }
-        if (buttons & 0x800) {
-            if (!(sPrevButtons & 0x800)) {
-                if (D_807F05A4 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                sPageMode = 0;
-                sPageAddr = D_807F05A4;
-            }
+        if ((buttons & U_JPAD) && !(sPrevButtons & U_JPAD)) {
+            if (D_807F05A4 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            sPageMode = 0;
+            sPageAddr = (u32 *)D_807F05A4;
         }
-        if (buttons & 0x10) {
-            if (!(sPrevButtons & 0x10)) {
-                ret = 1;
-            }
+        if ((buttons & R_TRIG) && !(sPrevButtons & R_TRIG)) {
+            ret = 1;
         }
         sPrevButtons = buttons;
     } else {
         sPageMode = 0;
         sDumpBase = D_807F05A4;
-        sPageAddr = D_807F05A4;
+        sPageAddr = (u32 *)D_807F05A4;
         sPrevButtons = 0;
-        sNextPageAddr = 0;
+        sNextPageAddr = NULL;
     }
     for (p = 0; p < 2; p++) {
         faultFontInit(gFramebuffers[p], 0, 1);
         line = 0;
         mode = sPageMode;
-        cur = *(u32 *)&sPageAddr;
+        cur = (u32 *)*(u32 *)&sPageAddr;  // FAKE: u32 ilod through &sPageAddr, first of the two loads the dead read below pairs with (Q0545)
         if (*(u32 *)&sPageAddr) {}  // FAKE: second ilod of sPageAddr makes uopt keep the load in a CSE temp ($v0), so as1 expands it via lui $v0 and moves it to s5
-        while (done == 0 && line < 0xF) {
-            off = cur - D_807F05A4;
-            if (line < 0xE) {
+        while (done == 0 && line < 15) {
+            off = (u32)cur - D_807F05A4;
+            if (line < 14) {
                 sNextPageMode = mode;
                 sNextPageAddr = cur;
             }
-            op = (*(u32 *)cur >> 24) & 0xFFFF;  // FAKE: burns one ugen ring slot before opcode/extent temporaries
-            if (D_807F05A4 + D_807F0984 < cur) {
+            op = (*cur >> 24) & 0xFF;
+            if (D_807F05A4 + D_807F0984 < (u32)cur) {
                 done = 1;
             }
             if ((op & 0xF0) == 0xC0) {
                 n = 0;
-                size = 0x20;
+                size = 32;
                 mode = 2;
                 if (op & 4) {
                     buf[0] = 'S';
-                    size = 0x60;
+                    size = 96;
                     n = 1;
                 }
                 if (op & 2) {
                     buf[n] = 'T';
                     n++;
-                    size += 0x40;
+                    size += 64;
                 }
                 if (op & 1) {
                     buf[n] = 'Z';
-                    size += 0x10;
+                    size += 16;
                     n++;
                 }
-                buf[n] = 0;
+                buf[n] = '\0';
                 size >>= 2;
                 faultPrintf("  %05x.:Triangle:.(%s)....\n", off, buf);
                 line++;
                 if (line == 1) {
                     for (i = 0; i < size; i += 4) {
-                        faultPrintf("  %08x.%08x.%08x.%08x\n", ((u32 *)cur)[i], ((u32 *)cur)[i + 1], ((u32 *)cur)[i + 2], ((u32 *)cur)[i + 3]);
+                        faultPrintf("  %08x.%08x.%08x.%08x\n", cur[i], cur[i + 1], cur[i + 2], cur[i + 3]);
                         line++;
                     }
-                    sNextPageAddr = cur + size * 4;
+                    sNextPageAddr = cur + size;
                 } else {
                     sNextPageAddr = cur;
                 }
-                while (line < 0xF) {
+                while (line < 15) {
                     faultPrintf("  ----------------------------------\n");
                     line++;
                 }
-                line = 0x1E;
+                line = 30;
             } else {
                 if (sPageAddr && sPageAddr) {}  // FAKE: dead read at the opcode branch start steers uopt candidate order (i = 0 is scheduled first)
                 colorIdx = 0;
                 found = 0;
-                if (op == 0xE7) {
+                if (op == G_RDPPIPESYNC) {
                     mode = 0;
                 }
-                if (op == 0xF6) {
+                if (op == G_FILLRECT) {
                     mode = 0;
                 }
                 if (mode != 0) {
@@ -629,11 +613,11 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
                     colorIdx = 1;
                     mode = 0;
                 }
-                for (i = 0; i < 0x1B; i++) {
+                for (i = 0; i < 27; i++) {
                     if (op == D_8074685C[i].op) {
                         op = i;
                         found = 1;
-                        i = 0x1B;
+                        i = 27;
                     }
                 }
                 if (D_8074685C[op].warn != 0) {
@@ -644,10 +628,10 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
                     faultPrintf("  %05x.:.%s...%s.\n", off, D_8074685C[op].name, D_80746A0C[colorIdx]);
                     line++;
                     if (size <= 2) {
-                        faultPrintf("  %08x..%08x............\n", ((u32 *)cur)[0], ((u32 *)cur)[1]);
+                        faultPrintf("  %08x..%08x............\n", cur[0], cur[1]);
                         line++;
                     } else {
-                        faultPrintf("  %08x.%08x.%08x.%08x...\n", ((u32 *)cur)[0], ((u32 *)cur)[1], ((u32 *)cur)[2], ((u32 *)cur)[3]);
+                        faultPrintf("  %08x.%08x.%08x.%08x...\n", cur[0], cur[1], cur[2], cur[3]);
                         line += 2;
                     }
                 } else {
@@ -661,7 +645,7 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
                 }
             }
             faultFontSetColorMode(0);
-            cur += size * 4U;
+            cur += size;
         }
     }
     controllerStartRead();
