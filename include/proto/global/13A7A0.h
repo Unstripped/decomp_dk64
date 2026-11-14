@@ -21,7 +21,7 @@ void __n_sndpDestroyState(struct GfSndState *);
 void __n_sndpPostPitch(struct GfSndState *);
 #endif
 #ifndef PROTO_SKIP___n_removeEvents
-void __n_removeEvents();
+void __n_removeEvents(ALEventQueue *, struct GfSndState *, u16);
 #endif
 #ifndef PROTO_SKIP_n_alSndpCountStates
 u16 n_alSndpCountStates(u16 *, u16 *);

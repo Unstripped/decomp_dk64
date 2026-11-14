@@ -343,9 +343,9 @@ void __n_handleEvent(GeSndEvt *event) {
                 break;
             case 0x200:
                 if (state->flags & 0x10) {
-                    s32 id;
+                    GfSndState *chained;
 
-                    id = (s32)n_alSndpPlay(event->arg12, event->arg8.i, state->vol, state->pan, state->pitch, state->fxMix, state->handle);
+                    chained = n_alSndpPlay(event->arg12, event->arg8.i, state->vol, state->pan, state->pitch, state->fxMix, state->handle);
                 }
                 break;
             default:
@@ -380,11 +380,7 @@ void __n_sndpPostPitch(GfSndState *state) {
     alEvtqPostEvent(&D_807563CC->evtq, (ALEvent *)&ev, 33333);
 }
 
-void __n_removeEvents(evtq, state, mask)
-ALEventQueue *evtq;
-GfSndState *state;
-u16 mask;
-{
+void __n_removeEvents(ALEventQueue *evtq, GfSndState *state, u16 mask) {
     ALLink *thisNode;
     ALLink *nextNode;
     ALEventListItem *thisItem;
@@ -394,7 +390,7 @@ u16 mask;
 
     intMask = osGetIntMask(1);
     thisNode = evtq->allocList.next;
-    while (thisNode != 0) {
+    while (thisNode != NULL) {
         nextNode = thisNode->next;
         thisItem = (ALEventListItem *)thisNode;
         nextItem = (ALEventListItem *)nextNode;
@@ -415,15 +411,15 @@ u16 n_alSndpCountStates(u16 *outFree, u16 *outUsed) {
     u16 usedCount;
     u16 freeCount;
     u16 tailCount;
-    GfSndState *p0 = D_807563C0;
-    GfSndState *p8 = D_807563C8;
-    GfSndState *p4 = D_807563C4;
+    GfSndState *usedNode = D_807563C0;
+    GfSndState *freeNode = D_807563C8;
+    GfSndState *tailNode = D_807563C4;
 
-    for (usedCount = 0; p0; usedCount++, p0 = p0->next) {
+    for (usedCount = 0; usedNode; usedCount++, usedNode = usedNode->next) {
     }
-    for (freeCount = 0; p8; freeCount++, p8 = p8->next) {
+    for (freeCount = 0; freeNode; freeCount++, freeNode = freeNode->next) {
     }
-    for (tailCount = 0; p4; tailCount++, p4 = p4->prev) {
+    for (tailCount = 0; tailNode; tailCount++, tailNode = tailNode->prev) {
     }
     *outFree = freeCount;
     *outUsed = usedCount;
@@ -488,12 +484,11 @@ void __n_freeState(GfSndState *state) {
     alUnlink((ALLink *)state);
     if (D_807563C8) {
         state->next = D_807563C8;
-        state->prev = 0;
+        state->prev = NULL;
         D_807563C8->prev = state;
         D_807563C8 = state;
     } else {
-        state->prev = 0;
-        state->next = state->prev;
+        state->next = state->prev = NULL;
         D_807563C8 = state;
     }
     if (state->flags & 4) {
@@ -502,15 +497,15 @@ void __n_freeState(GfSndState *state) {
     state->state = 0;
     if (state->handle) {
         if (*state->handle == state) {
-            *state->handle = 0;
+            *state->handle = NULL;
         }
-        state->handle = 0;
+        state->handle = NULL;
     }
 }
 
 void n_alSndpSetPriority(GfSndState *state, u8 priority) {
     if (state) {
-        state->priority = (s16)priority;
+        state->priority = (s16)priority; // ORIG: the target narrows priority through s16 (sll/sra at 0x1B4C-0x1B50) before the sb
     }
 }
 
@@ -597,7 +592,7 @@ void n_alSndpStop(GfSndState *state) {
     ev.type = 0x400;
     ev.state = state;
     if (state) {
-        ev.state->flags &= ~0x10;
+        ev.state->flags &= ~0x10; // ORIG: the target reloads ev.state from 28(sp) for the flag update (lw at 0x1EAC)
         alEvtqPostEvent(&D_807563CC->evtq, (ALEvent *)&ev, 0);
     }
 }
@@ -613,7 +608,7 @@ void __n_sndpStopByFlags(u8 mask) {
         ev.type = 0x400;
         ev.state = state;
         if ((state->flags & mask) == mask) {
-            ev.state->flags &= ~0x10;
+            ev.state->flags &= ~0x10; // ORIG: the target reloads ev.state from 32(sp) for the flag update (lw at 0x1F48)
             alEvtqPostEvent(&D_807563CC->evtq, (ALEvent *)&ev, 0);
         }
         state = state->next;

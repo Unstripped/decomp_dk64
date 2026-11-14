@@ -76,19 +76,19 @@ void modelSlotCopyData(u8 *src, s16 slot) {
     f32 x;
     f32 y;
     f32 z;
-    f32 a;
-    f32 b;
-    f32 c;
-    f32 d;
-    f32 e;
+    f32 rotX;
+    f32 rotY;
+    f32 rotZ;
+    f32 scale;
+    f32 yOffset;
 
     obj = gModelSlots[slot].unk24;
     dst = gModelSlots[slot].unk78;
     n = *(s32 *)(obj->unk68 + (u8 *)obj);
     memcpy(dst->frames[0], src, n);
     memcpy(dst->frames[1], src, n);
-    modelSlotGetTransformVectors(slot, &x, &y, &z, &a, &b, &c, &d, &e, 0);
-    modelSlotTransformBoundsAndNodes(slot, x, y, z, a, b, c, d, e, 0, 0, 0, 0, 1);
+    modelSlotGetTransformVectors(slot, &x, &y, &z, &rotX, &rotY, &rotZ, &scale, &yOffset, 0);
+    modelSlotTransformBoundsAndNodes(slot, x, y, z, rotX, rotY, rotZ, scale, yOffset, 0, 0, 0, 0, 1);
 }
 
 
@@ -417,15 +417,16 @@ void modelAnimEntryAdvance(ModelAnimEntry *entry) {
 }
 
 
+// One deferred 4x4 matrix copy (mtxCopyQueueFlush runs it when its gfx buffer comes round).
 typedef struct MtxCopyRequest {
-    ModelData *group;
-    s32 src;
-    s32 dst;
-    u8 bufferIndex;
-    u8 padD[3];
+    /* 0x00 */ ModelData *group;
+    /* 0x04 */ s32 src;
+    /* 0x08 */ s32 dst;
+    /* 0x0C */ u8 bufferIndex;
+    /* 0x0D */ u8 padD[3];
 } MtxCopyRequest;
 
-extern MtxCopyRequest D_807F6960[];
+extern MtxCopyRequest D_807F6960[0x28];
 
 void mtxCopyQueueReset(void) {
     s32 i;

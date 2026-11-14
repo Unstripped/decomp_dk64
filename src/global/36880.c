@@ -1479,13 +1479,13 @@ void modelQuadBuildOutput(ModelSlot *owner, f32 x, f32 y, f32 z, f32 rotX, f32 r
 
     data = owner->unk24;
     out = owner->unk20;
-    q = (ModelQuadData *)(data->unk70 + (s32)data + 4);
+    q = (ModelQuadData *)(data->unk70 + (u8 *)data + 4);
     out->x = x;
     out->y = y;
     out->z = z;
     out->scale = scale;
     out->yOffset = yOffset;
-    out->quadCount = *(s32 *)(data->unk70 + (s32)data);
+    out->quadCount = *(s32 *)(data->unk70 + (u8 *)data);
     sum = 0;
     out->verts = heapAlloc(out->quadCount << 6);
     for (i = 0; i < out->quadCount; i++) {
@@ -1508,15 +1508,17 @@ void modelQuadBuildOutput(ModelSlot *owner, f32 x, f32 y, f32 z, f32 rotX, f32 r
 
 
 
+// RenderQuadModelObj (kind 2) as the texture loaders see it; same offsets and names. Kept as a view because
+// modelSlotResolveAssetTextures declares its volatile textures local with this type on a FAKE line.
 typedef struct ModelSlotAsset {
     /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ void *unk14;
-    /* 0x18 */ void *unk18;
-    /* 0x1C */ void *verts;
+    /* 0x14 */ Mtx *frameMtx0;
+    /* 0x18 */ Mtx *frameMtx1;
+    /* 0x1C */ Vtx *verts;
     /* 0x20 */ u8 quadCount;
     /* 0x21 */ u8 pad21[3];
-    /* 0x24 */ void *images[4];
-    /* 0x34 */ void *images2[4];
+    /* 0x24 */ void *textures[4];
+    /* 0x34 */ void *palettes[4];
     /* 0x44 */ u8 pad44[0xC];
     /* 0x50 */ TexAnimNode *texAnims;
 } ModelSlotAsset;
@@ -1533,11 +1535,11 @@ void modelSlotLoadAssetTextures(ModelAssetHeader *asset, ModelSlotAsset *texture
         type = 0x19;
     }
     for (i = 0; i < textures->quadCount; i++) {
-        textures->images[i] = assetLoad(type, src[0], 1, 0);
+        textures->textures[i] = assetLoad(type, src[0], 1, 0);
         if (src[1] != -1) {
-            textures->images2[i] = assetLoad(type, src[1], 1, 0);
+            textures->palettes[i] = assetLoad(type, src[1], 1, 0);
         } else {
-            textures->images2[i] = NULL;
+            textures->palettes[i] = NULL;
         }
         src += 0x18;
     }
@@ -1547,8 +1549,8 @@ void modelSlotClearAssetTextures(ModelAssetHeader *asset, ModelSlotAsset *textur
     s32 i;
 
     for (i = 0; i < textures->quadCount; i++) {
-        textures->images[i] = NULL;
-        textures->images2[i] = NULL;
+        textures->textures[i] = NULL;
+        textures->palettes[i] = NULL;
     }
 }
 
@@ -1633,7 +1635,7 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
     s16 purgeOut;
     u8 flag;
     u8 sel;
-    s32 i;
+    u8 i;
     s32 off;
 
     flag = 0;
@@ -1726,7 +1728,7 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
                             if (gPlayerSlots[i].active != 0) {
                                 flag |= collisionCheckBoundingBoxY((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), gPlayerSlots[i].actor->y) != 0 && collisionCheckBoundingBoxXZ((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), gPlayerSlots[i].actor->x, gPlayerSlots[i].actor->z) != 0; // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
                             }
-                            i = (u8)(i + 1);
+                            i++;
                         } while (i < gPlayerCount);
                         xform = MODEL_TRANSFORM_SLOT;
                     }
@@ -1740,7 +1742,7 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
                             if (gPlayerSlots[i].active != 0) {
                                 flag |= collisionCheckBoundingBoxXZ((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), gPlayerSlots[i].actor->x, gPlayerSlots[i].actor->z); // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
                             }
-                            i = (u8)(i + 1);
+                            i++;
                         } while (i < gPlayerCount);
                         xform = MODEL_TRANSFORM_SLOT;
                     }
@@ -1935,18 +1937,18 @@ void modelSlotFreeAssetEntry(void *asset, ModelSlotAsset *textures) {
     s32 i;
 
     for (i = 0; i < textures->quadCount; i++) {
-        if (textures->images[i] != NULL) {
-            assetFreeBuffer(textures->images[i], 0xA69, 7);
+        if (textures->textures[i] != NULL) {
+            assetFreeBuffer(textures->textures[i], 0xA69, 7);
         }
-        if (textures->images2[i] != NULL) {
-            assetFreeBuffer(textures->images2[i], 0xA6A, 7);
+        if (textures->palettes[i] != NULL) {
+            assetFreeBuffer(textures->palettes[i], 0xA6A, 7);
         }
     }
     assetFreeBuffer(asset, 0xA6E, 7);
     heapFreeDeferred(textures->verts);
     heapFreeDeferred(textures);
-    heapFreeDeferred(textures->unk14);
-    heapFreeDeferred(textures->unk18);
+    heapFreeDeferred(textures->frameMtx0);
+    heapFreeDeferred(textures->frameMtx1);
 }
 
 typedef struct DisplayListFreeRecord {
@@ -2365,7 +2367,7 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
                     obj->unk0 &= ~0x10;
                 }
             } else {
-                if (textures->texAnims != 0 || forceLoad != 0) {
+                if (textures->texAnims != NULL || forceLoad != 0) {
                     modelSlotLoadAssetTextures(obj, textures);
                 } else {
                     modelSlotClearAssetTextures(obj, textures);
@@ -3688,7 +3690,7 @@ typedef struct ModelSlotSerializedOut {
     /* 0x20 */ f32 rotZ;
     /* 0x24 */ f32 yOffset;
     /* 0x28 */ s16 modelType;
-    /* 0x2A */ s16 unk2A;
+    /* 0x2A */ s16 csModelId;
     /* 0x2C */ s16 kind;
     /* 0x2E */ u8 light;
     /* 0x2F */ u8 flags;
@@ -3733,7 +3735,7 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
         out->modelType = gModelSlots[i].modelType;
         out->kind = gModelSlots[i].unk86;
         out->yOffset = gModelSlots[i].yOffset;
-        out->unk2A = gModelSlots[i].csModelId;
+        out->csModelId = gModelSlots[i].csModelId;
         switch (out->kind) {
         case 2:
             out->flags = ((RenderQuadModelObj *)gModelSlots[i].unk20)->flags;
