@@ -435,3 +435,4 @@
 {"type": "unit", "t": "2026-11-14T20:44:44Z", "unit": "2026-11-14: cleanup PolishGlobal12E800Names", "commit": "fc237550a7cc0a915cae06efa7d231be42215155"}
 {"type": "unit", "t": "2026-11-14T20:45:34Z", "unit": "2026-11-14: cleanup OwnerControllerStateEntryShared", "commit": "a9ea63220e123c60bfbb362f2a2c61947a1d234a"}
 {"type": "unit", "t": "2026-11-14T20:46:50Z", "unit": "2026-11-14: cleanup OwnerActiveActorsExternLeftovers", "commit": "76cdb7ad7266b9d476cbecb245aff80d26991d45"}
+{"type": "unit", "t": "2026-11-14T20:47:46Z", "unit": "2026-11-14: cleanup Polish36880BoxOverlapTag", "commit": "1df917a568743639daa6fb979b7a7c87bcc79b08"}
