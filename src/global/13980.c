@@ -216,7 +216,7 @@ void schedHandleRetrace(SchedStruct *sc) {
     SchedClient *client;
     void *fb;
 
-    sc->unk284++;
+    sc->retraceCount++;
     sc->unk280++;
     D_807F04F8 = osGetTime();
     if (D_80744510 != 0) {
@@ -243,7 +243,7 @@ void schedHandleRetrace(SchedStruct *sc) {
         }
         osViSwapBuffer(D_807F04E0->framebuffer);
         D_80746824 = D_80746820;
-        D_80746820 = sc->unk284 + 1;
+        D_80746820 = sc->retraceCount + 1;
         osDpSetStatus(DPC_SET_FREEZE);
         if (D_807F04E0->msgQ != NULL) {
             schedSendMesgTimed(D_807F04E0->msgQ, D_807F04E0->msg, OS_MESG_NOBLOCK);
@@ -262,7 +262,7 @@ void schedHandleRetrace(SchedStruct *sc) {
     for (i = 0; i < n; i++) {
         osRecvMesg(&sc->cmdQ, &msg, OS_MESG_NOBLOCK);
         if (msg == (OSMesg)-1) {}  // FAKE: steers uopt (hoists -1 into s2)
-        if ((u32)sc->unk284 % ((TaskNode *)msg)->client->id == 0) {
+        if ((u32)sc->retraceCount % ((TaskNode *)msg)->client->id == 0) {
             schedAppendTask(sc, msg);
         } else {
             osSendMesg(&sc->cmdQ, msg, OS_MESG_NOBLOCK);
@@ -271,7 +271,7 @@ void schedHandleRetrace(SchedStruct *sc) {
         if (msg == (OSMesg)-1) {}  // FAKE: steers uopt (hoists -1 into s2)
     }
     if (sc->audioListHead != NULL) {
-        if ((sc->unk284 & 1) == 0) {
+        if ((sc->retraceCount & 1) == 0) {
             osSetTimer(&D_807F0540, 0x445C0, 0, sc->audioListHead->client->msgQ, (OSMesg)5);
         }
     }
@@ -326,7 +326,7 @@ void schedHandleRDP(SchedStruct *sc) {
         cond = 1;
     }
 
-    if (cond || D_80746820 != sc->unk284) {
+    if (cond || D_80746820 != sc->retraceCount) {
         D_807F04E0 = NULL;
         if (gScreenRenderFlags & 2) {
             gScreenRenderFlags ^= 2;
@@ -334,7 +334,7 @@ void schedHandleRDP(SchedStruct *sc) {
         }
         osViSwapBuffer(task->framebuffer);
         D_80746824 = D_80746820;
-        D_80746820 = sc->unk284 + 1;
+        D_80746820 = sc->retraceCount + 1;
         osDpSetStatus(DPC_SET_FREEZE);
     } else {
         D_807F04E0 = task;

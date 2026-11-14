@@ -40,7 +40,7 @@ void frameTimingReset(s32 mapId) {
         D_8076AF00[i] = 2;
     }
 
-    D_8076AF10 = gScheduler.unk284;
+    D_8076AF10 = gScheduler.retraceCount;
     switch (mapId) {
     case 0x6:
     case 0x1B:
@@ -63,7 +63,8 @@ void frameTimingReset(s32 mapId) {
 
 extern u32 gFrameDelta;
 extern u8 D_80745290;
-#define SCHED284 (*(volatile s32 *)&gScheduler.unk284)
+// The scheduler thread increments retraceCount; frame timing polls it, so these reads must not be cached.
+#define SCHED_RETRACE_COUNT (*(volatile s32 *)&gScheduler.retraceCount)
 
 void frameTimingUpdate(void) {
     s32 max;
@@ -79,7 +80,7 @@ void frameTimingUpdate(void) {
     max = 1;
     min = 20;
     if (D_8076AF14 != 0) {
-        sample = SCHED284 - D_8076AF10;
+        sample = SCHED_RETRACE_COUNT - D_8076AF10;
         if (sample <= 0) {
             sample = 1;
         }
@@ -114,14 +115,14 @@ void frameTimingUpdate(void) {
             gFrameDelta = sample;
         }
         if (gFrameCounter >= 0xB) {
-            p = &gScheduler.unk284;
+            p = &gScheduler.retraceCount;
             limit = D_8076AF10 + gFrameDelta;
             while (*p < limit) {
             }
         }
-        D_8076AF10 = SCHED284;
+        D_8076AF10 = SCHED_RETRACE_COUNT;
     } else {
-        gFrameDelta = SCHED284 - D_8076AF10;
-        D_8076AF10 = SCHED284;
+        gFrameDelta = SCHED_RETRACE_COUNT - D_8076AF10;
+        D_8076AF10 = SCHED_RETRACE_COUNT;
     }
 }
