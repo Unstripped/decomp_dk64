@@ -443,3 +443,4 @@
 {"type": "unit", "t": "2026-11-14T20:53:11Z", "unit": "2026-11-14: cleanup PolishGlobalA8400Names", "commit": "f2346933d14a8f56e635523ec813480819d34362"}
 {"type": "unit", "t": "2026-11-14T20:53:52Z", "unit": "2026-11-14: cleanup PolishGlobalC8C10Names", "commit": "209c63f40942c04175a9a1f1d81e45dc464e4865"}
 {"type": "unit", "t": "2026-11-14T20:54:21Z", "unit": "2026-11-14: cleanup OwnerSpawnEntryShared", "commit": "ed9e376f95ed8d437e7b1984a444cbfcaea87c3c"}
+{"type": "unit", "t": "2026-11-14T20:56:14Z", "unit": "2026-11-14: cleanup PolishGlobal11BC10Views2", "commit": "21ebc4baf603ff3399733f3dda21259382a074ae"}
