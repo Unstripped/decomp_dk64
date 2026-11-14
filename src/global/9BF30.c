@@ -18,16 +18,16 @@
 
 extern void **D_807FC7C0;
 
-typedef struct ActorTrailState {
+typedef struct ProjectileState {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 pad2;
     /* 0x03 */ u8 pad3;
-    /* 0x04 */ u8 *unk4;
+    /* 0x04 */ Mtx *unk4; // two matrices per sprite (double-buffered by gGfxBufferIndex)
     /* 0x08 */ f32 unk8;
     /* 0x0C */ f32 unkC;
     /* 0x10 */ u8 unk10;
     /* 0x11 */ u8 unk11;
-} ActorTrailState;
+} ProjectileState;
 
 extern Gfx D_1000118;
 extern Mtx D_2000000;
@@ -40,7 +40,7 @@ extern PlayerStruct *gPlayerSlots;
 #define gSPMatrixShared(pkt, m, p) { _g = (Gfx *)(pkt); _g->words.w0 = (_SHIFTL(G_MTX, 24, 8) | _SHIFTL(((sizeof(Mtx) - 1) / 8), 19, 5) | _SHIFTL(((p) ^ G_MTX_PUSH), 0, 8)); _g->words.w1 = (u32)(m); }
 
 Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
-    ActorTrailState *sub;
+    ProjectileState *sub;
     f32 mtx2[4][4];
     f32 mtx1[4][4];
     s16 i;
@@ -117,8 +117,8 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
             guMtxCatF(mtx2, mtx1, mtx2);
             guTranslateF(mtx1, actor->x + vx, actor->y, actor->z + vy);
             guMtxCatF(mtx2, mtx1, mtx2);
-            guMtxF2L(mtx2, (Mtx *)(sub->unk4 + (((i * 2) + gGfxBufferIndex) << 6)));
-            gSPMatrixShared(glist++, sub->unk4 + (((i * 2) + gGfxBufferIndex) << 6), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH); // FAKE: gSPMatrix through the function-scope _g (shared Gfx pointer)
+            guMtxF2L(mtx2, &sub->unk4[i * 2 + gGfxBufferIndex]);
+            gSPMatrixShared(glist++, &sub->unk4[i * 2 + gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH); // FAKE: gSPMatrix through the function-scope _g (shared Gfx pointer)
             gSPVertex(glist++, osVirtualToPhysical(&D_80750280), 4, 0);
             gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(glist++);
@@ -143,18 +143,6 @@ void loadModelAssetTable(void) {
 
 extern Actor *gCurrentActor;
 
-typedef struct ProjectileState {
-    s16 unk0;
-    u8 pad2;
-    u8 pad3;
-    u8 *unk4;
-    f32 unk8;
-    f32 unkC;
-    u8 unk10;
-    u8 unk11;
-} ProjectileState;
-
-
 void projectileSpriteRingUpdate(void) {
     ProjectileState *sub;
     u8 kind;
@@ -174,8 +162,8 @@ void projectileSpriteRingUpdate(void) {
     }
     kind = sub->unk11;  // FAKE: copy of the dispatch byte; steers uopt register choice (a0 instead of v0)
     if (sub->unk11 != 0) {
-        if (kind == 1) {
-            if (gCurrentActor) {}  // FAKE: steers uopt: hoists &gCurrentActor into a1 for this block
+        switch (kind) {
+        case 1:
             gCurrentActor->x += sub->unkC * mathSinF(gCurrentActor->yaw);
             gCurrentActor->z += sub->unkC * mathCosF(gCurrentActor->yaw);
             if (gCurrentActor->unk15F != 0) {
@@ -187,6 +175,7 @@ void projectileSpriteRingUpdate(void) {
                 heapFree(sub->unk4);
                 actorDespawn(gCurrentActor);
             }
+            break;
         }
     } else {
         if (gCurrentActor->unk15F != 0) {
