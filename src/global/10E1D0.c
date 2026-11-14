@@ -222,29 +222,27 @@ s32 meshBlobParse(MeshBlob *blob, MeshBlob **outMesh, AnimTable **outAnim, void 
 }
 
 s32 meshComputeVertexRanges(MeshBlob *mesh) {
-    MeshCell *e;
-    s32 v2;
     s32 min;
-    s32 off;
+    s32 cell;
+    s32 v;
     s32 max;
     s32 i;
-    s32 k;
-    k = 0;
-    min = 0; // FAKE: dead init (min is set before every use) steers regalloc
-    off = 0;
-    while (mesh->columnCounts[k]) {
-        e = (MeshCell *)((u8 *)mesh->cells + off); // FAKE: byte offset off (v1, +28 per cell at 0x638) re-derives e each column (lw t7,0xC(a0); addu a1,t7,v1 at 0x618/0x620); a cell index or one walker is fdiff 1
-        v2 = e->v2; // FAKE: dead pre-loop load of the third vertex steers regalloc
-        min = max = e->v0;
-        for (i = 0; i < mesh->columnCounts[k]; i++, off += sizeof(MeshCell), e++) {
-            if (e->v0 > max) max = e->v0; else if (e->v0 < min) min = e->v0;
-            if (e->v1 > max) max = e->v1; else if (e->v1 < min) min = e->v1;
-            v2 = e->v2;
-            if (v2 > max) max = v2; else if (v2 < min) min = v2;
+    s32 column;
+
+    cell = 0;
+    for (column = 0; mesh->columnCounts[column] != 0; column++) {
+        min = mesh->cells[cell].v0;
+        max = mesh->cells[cell].v0;
+        for (i = 0; i < mesh->columnCounts[column]; i++, cell++) {
+            v = mesh->cells[cell].v0;
+            if (v > max) max = v; else if (v < min) min = v;
+            v = mesh->cells[cell].v1;
+            if (v > max) max = v; else if (v < min) min = v;
+            v = mesh->cells[cell].v2;
+            if (v > max) max = v; else if (v < min) min = v;
         }
-        mesh->columnStarts[k] = min;
-        mesh->columnEnds[k] = max;
-        k++;
+        mesh->columnStarts[column] = min;
+        mesh->columnEnds[column] = max;
     }
     return 1;
 }
