@@ -36,50 +36,7 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-typedef struct ScriptedActorState {
-    /* 0x00 */ u16 unk0;
-    /* 0x02 */ s16 yawFrom;
-    /* 0x04 */ s16 yawTo;
-    /* 0x06 */ s16 pitchFrom;
-    /* 0x08 */ s16 pitchTo;
-    /* 0x0A */ s16 rollFrom;
-    /* 0x0C */ s16 rollTo;
-    /* 0x0E */ s16 zoneTo;
-    /* 0x10 */ s16 zoneFrom;
-    /* 0x12 */ u8 pad12[2];
-    /* 0x14 */ f32 scaleFrom;
-    /* 0x18 */ s16 unk18;
-    /* 0x1A */ s16 unk1A;
-    /* 0x1C */ u16 lerpSteps;
-    /* 0x1E */ u16 lerpTimer;
-    /* 0x20 */ u8 pad20[2];
-    /* 0x22 */ u8 particleScalePct;
-    /* 0x23 */ u8 yawSteps;
-    /* 0x24 */ u8 yawTimer;
-    /* 0x25 */ u8 pitchSteps;
-    /* 0x26 */ u8 pitchTimer;
-    /* 0x27 */ u8 rollSteps;
-    /* 0x28 */ u8 rollTimer;
-    /* 0x29 */ u8 scaleSteps;
-    /* 0x2A */ u8 scaleTimer;
-    /* 0x2B */ u8 pad2B;
-    /* 0x2C */ u8 unk2C;
-    /* 0x2D */ u8 pathId;
-    /* 0x2E */ u8 pathSpeed;
-    /* 0x2F */ u8 pathPlayback;
-    /* 0x30 */ u8 particlePath;
-    /* 0x31 */ u8 particleCount;
-    /* 0x32 */ u8 particleColor;
-    /* 0x33 */ u8 particleSprite;
-} ScriptedActorState;
-
-typedef struct C4620Actor {
-    /* 0x000 */ Actor base;
-    /* 0x178 */ void *unk178;
-    /* 0x17C */ ScriptedActorState *unk17C;
-} C4620Actor;
-
-#define C46V ((C4620Actor *)gCurrentActor)
+#define C46V ((ScriptedActor *)gCurrentActor)
 
 
 
@@ -88,11 +45,11 @@ void func_806BF920(void) {
     s32 outCount;
     s32 bufferSize;
 
-    state = C46V->unk17C;
+    state = C46V->scriptState;
     outCount = 0;
     if (!(gCurrentActor->flags & 0x10)) {
         bufferSize = 0;
-        switch (state->unk0) {
+        switch (state->animAssetId) {
             case 1:
             case 2:
             case 3:
@@ -113,7 +70,7 @@ void func_806BF920(void) {
             func_806C8220(0, C46V->unk178, bufferSize);
         }
     }
-    switch (state->unk0) {
+    switch (state->animAssetId) {
         case 1:
         case 2:
         case 3:
@@ -219,7 +176,7 @@ void actorScriptedCommandUpdate(void) {
     f32 posY;
     f32 posZ;
 
-    state = C46V->unk17C;
+    state = C46V->scriptState;
     if (!(gCurrentActor->flags & 0x10)) {
         state->unk1A = 0;
         state->unk18 = 0;
@@ -525,7 +482,7 @@ void actorScriptedCommandUpdate(void) {
             break;
     }
     behaviourUpdateShadowAlpha();
-    if ((gBehaviourAnimState->flags & 0x1000) && func_8072881C(0, &gBehaviourWorkState->unk28) != 0 && (state->unk0 == 1 || state->unk0 == 9 || state->unk0 == 0x68)) {
+    if ((gBehaviourAnimState->flags & 0x1000) && func_8072881C(0, &gBehaviourWorkState->unk28) != 0 && (state->animAssetId == 1 || state->animAssetId == 9 || state->animAssetId == 0x68)) {
         func_8072881C(0x81, &gBehaviourWorkState->unk28);
     }
 }
@@ -1146,19 +1103,19 @@ void func_806C2DF4(void) {
     f32 nodePosZ;
     f32 scale;
 
-    state = C46V->unk17C;
+    state = C46V->scriptState;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         scale = gCurrentActor->sub4->scaleY;
         controllerAnimFree(gCurrentActor);
-        controllerAnimInit(gCurrentActor, state->unk0);
+        controllerAnimInit(gCurrentActor, state->animAssetId);
         gCurrentActor->collision = actorSub140CreateFromModel(gCurrentActor);
         gCurrentActor->unk146 = 0;
         gCurrentActor->drawDistance = 0xFA0;
         gBehaviourAnimState->flags |= 0x20;
         gCurrentActor->flags &= ~0x01000000;
         gCurrentActor->unk144 = 1;
-        switch (state->unk0) {
+        switch (state->animAssetId) {
             case 0x21:
                 if (gCurrentMap == 0x98 || gCurrentMap == 0x1C) {
                     gCurrentActor->flags |= 0x400;
@@ -1313,7 +1270,7 @@ void func_806C2DF4(void) {
             if (gBehaviourAnimState->flags & 0x1000) {
                 gBehaviourAnimState->flags &= ~0x1000;
                 func_80728950(0);
-                if (state->unk0 == 0x68) {
+                if (state->animAssetId == 0x68) {
                     func_80728950(1);
                 }
             }

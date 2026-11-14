@@ -497,6 +497,57 @@ typedef struct Actor {
     /* 0x174 */ void *customState;
 } Actor; // size = 0x178, the block actorAllocate gives a type with no components
 
+// Third component (Actor 0x17C) of the scripted actors (C4620.c behaviours; cutscene commands 0x33, 0x34
+// and 0x3C address it in camPathCommandDispatch, 2C910.c).
+typedef struct ScriptedActorState {
+    /* 0x00 */ u16 animAssetId; // controllerAnimInit asset; also selects the kind's behaviour
+    /* 0x02 */ s16 yawFrom;
+    /* 0x04 */ s16 yawTo;
+    /* 0x06 */ s16 pitchFrom;
+    /* 0x08 */ s16 pitchTo;
+    /* 0x0A */ s16 rollFrom;
+    union {
+        /* 0x0C */ s16 rollTo;
+        struct {
+            /* 0x0C */ u8 rollToHi;
+            /* 0x0D */ u8 rollToLo; // cutscene command 0x3C ORs into this byte (lbu/sb 13, 2C910)
+        };
+    };
+    /* 0x0E */ s16 zoneTo;
+    /* 0x10 */ s16 zoneFrom;
+    /* 0x12 */ u8 pad12[2];
+    /* 0x14 */ f32 scaleFrom;
+    /* 0x18 */ s16 unk18;
+    /* 0x1A */ s16 unk1A;
+    /* 0x1C */ u16 lerpSteps;
+    /* 0x1E */ u16 lerpTimer;
+    /* 0x20 */ u8 pad20[2];
+    /* 0x22 */ u8 particleScalePct;
+    /* 0x23 */ u8 yawSteps;
+    /* 0x24 */ u8 yawTimer;
+    /* 0x25 */ u8 pitchSteps;
+    /* 0x26 */ u8 pitchTimer;
+    /* 0x27 */ u8 rollSteps;
+    /* 0x28 */ u8 rollTimer;
+    /* 0x29 */ u8 scaleSteps;
+    /* 0x2A */ u8 scaleTimer;
+    /* 0x2B */ u8 pad2B;
+    /* 0x2C */ u8 unk2C;
+    /* 0x2D */ u8 pathId;
+    /* 0x2E */ u8 pathSpeed;
+    /* 0x2F */ u8 pathPlayback;
+    /* 0x30 */ u8 particlePath;
+    /* 0x31 */ u8 particleCount;
+    /* 0x32 */ u8 particleColor;
+    /* 0x33 */ u8 particleSprite;
+} ScriptedActorState; // size = 0x34
+
+typedef struct ScriptedActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ void *unk178;
+    /* 0x17C */ ScriptedActorState *scriptState;
+} ScriptedActor;
+
 typedef struct ZoneVertex {
     /* 0x0 */ s16 x;
     /* 0x2 */ s16 y;

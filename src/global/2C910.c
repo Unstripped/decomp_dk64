@@ -112,26 +112,6 @@ Actor *actorFromSpawnNodeOrDefault(s16 nodeId) {
 }
 
 
-// Third component (0x17C) of the scripted actors that cutscene commands 0x33, 0x34 and 0x3C address:
-// a view of C4620.c's ScriptedActorState (same particle fields at 0x22 and 0x30-0x33).
-typedef struct ScriptedActorParticleView {
-    /* 0x00 */ u8 pad0[0xD];
-    /* 0x0D */ u8 unkD;
-    /* 0x0E */ u8 padE[0x22 - 0xE];
-    /* 0x22 */ u8 particleScalePct;
-    /* 0x23 */ u8 pad23[0x30 - 0x23];
-    /* 0x30 */ u8 particlePath;
-    /* 0x31 */ u8 particleCount;
-    /* 0x32 */ u8 particleColor;
-    /* 0x33 */ u8 particleSprite;
-} ScriptedActorParticleView;
-
-typedef struct ScriptedActor {
-    /* 0x000 */ Actor base;
-    /* 0x178 */ void *unk178;
-    /* 0x17C */ ScriptedActorParticleView *scriptState;
-} ScriptedActor;
-
 extern struct GfSndState *D_807457E4[];
 extern u16 D_80747750[];
 extern s8 D_8075536C;
@@ -166,7 +146,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
     s16 idx;
     s16 node;
     Actor *p;
-    ScriptedActorParticleView *comp;
+    ScriptedActorState *comp;
 
     playerState = gPrimaryPlayerActor->customState;
     actorFindActiveByType(0xC, &camTarget);
@@ -454,7 +434,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             return;
         case 0x3C:
             comp = ((ScriptedActor *)spawnNodeActivate(1, 0))->scriptState;
-            comp->unkD |= a;
+            comp->rollToLo |= a;
             return;
         case 0x3B:
             actorFromSpawnNodeOrDefault(a)->unk146 = b;
