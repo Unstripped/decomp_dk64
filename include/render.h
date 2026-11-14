@@ -79,6 +79,58 @@ typedef struct RenderQuadModelObj {
     /* 0x5C */ u8 unk5C;
 } RenderQuadModelObj; // size = 0x60
 
+// An effect sprite sheet (effectGridRegister, 119370.c) and its loaded frame cache.
+typedef struct EffectGridAsset {
+    /* 0x00 */ s32 id;
+    /* 0x04 */ u8 width;
+    /* 0x05 */ u8 height;
+    /* 0x06 */ u8 format;
+    /* 0x07 */ u8 size;
+    /* 0x08 */ u8 red;
+    /* 0x09 */ u8 green;
+    /* 0x0A */ u8 blue;
+    /* 0x0B */ u8 alpha;
+    /* 0x0C */ u8 unlit;
+    /* 0x0D */ u8 altCategory;
+    /* 0x0E */ s16 cellW;
+    /* 0x10 */ s16 cellH;
+    /* 0x12 */ s16 frameCount;
+    /* 0x14 */ u8 data[1];
+} EffectGridAsset;
+
+typedef struct EffectGridSlot {
+    void *buffer;
+    s32 frame;
+} EffectGridSlot;
+
+typedef struct EffectGridNode {
+    /* 0x00 */ EffectGridAsset *asset;
+    /* 0x04 */ s32 id;
+    /* 0x08 */ u8 width;
+    /* 0x09 */ u8 height;
+    /* 0x0A */ u8 format;
+    /* 0x0B */ u8 size;
+    /* 0x0C */ s16 cellW;
+    /* 0x0E */ s16 cellH;
+    /* 0x10 */ u8 red;
+    /* 0x11 */ u8 green;
+    /* 0x12 */ u8 blue;
+    /* 0x13 */ u8 alpha;
+    /* 0x14 */ u8 unlit;
+    /* 0x15 */ u8 altCategory;
+    /* 0x16 */ s16 frameCount;
+    /* 0x18 */ s32 lastUsedFrame;
+    /* 0x1C */ EffectGridSlot *slots;
+    /* 0x20 */ u8 *data;
+    /* 0x24 */ struct EffectGridNode *next;
+} EffectGridNode;
+
+// EffectNode.speed read as two halves by the confetti and drift effects (11BC10.c).
+typedef struct EffectParamPair {
+    /* 0x0 */ s16 hi; // confetti: base angle
+    /* 0x2 */ s16 lo; // confetti: drift radius; drift effects: heading
+} EffectParamPair;
+
 // One live 2D/3D effect (effectCreate, 119370.c); 0x3A0 bytes.
 struct EffectNode;
 typedef void (*EffectCallback)(struct EffectNode *effect, u8 *chunkFound);
@@ -111,7 +163,12 @@ typedef struct EffectNode {
     /* 0x352 */ u8 pad352[2];
     /* 0x354 */ s32 duration;
     /* 0x358 */ s32 durationTimer;
-    /* 0x35C */ s32 speed;
+    union {
+        /* 0x35C */ s32 speed; // effectSetSpeed: the per-kind creation parameter
+        /* 0x35C */ struct Actor *target; // effectSetSpeed((s32)actor): the actor a light or follow effect tracks
+        /* 0x35C */ void *data; // effectSetSpeed((s32)state): per-kind state (effectWaveMotionUpdate)
+        /* 0x35C */ EffectParamPair pair; // effectSetSpeed((hi << 16) | lo)
+    };
     /* 0x360 */ f32 scaleX;
     /* 0x364 */ f32 scaleY;
     /* 0x368 */ s16 startDelay;
@@ -123,7 +180,10 @@ typedef struct EffectNode {
     /* 0x36F */ u8 mode;
     /* 0x370 */ void *frames[4];
     /* 0x380 */ s32 frameCount;
-    /* 0x384 */ void *allocation;
+    union {
+        /* 0x384 */ void *allocation; // per-kind state a callback heapAllocs on its first frame
+        /* 0x384 */ struct RadialSprayMotion *sprayMotion; // effectRadialSprayUpdate (11BC10.c)
+    };
     /* 0x388 */ s16 chunkFilter;
     /* 0x38A */ s8 chunk;
     /* 0x38B */ u8 pad38B;

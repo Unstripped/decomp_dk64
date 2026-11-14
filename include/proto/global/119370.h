@@ -4,8 +4,6 @@
 #include "common.h"
 #include "actor.h"
 #include "render.h"
-struct EffectGridAsset;
-struct EffectGridSlot;
 #ifndef PROTO_SKIP_effectResetLists
 void effectResetLists(void);
 #endif

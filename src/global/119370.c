@@ -21,54 +21,6 @@ extern u8 gViewportCount;
 extern s16 sEffectPendingZOffset;
 
 
-
-typedef struct EffectGridAsset {
-    /* 0x00 */ s32 id;
-    /* 0x04 */ u8 width;
-    /* 0x05 */ u8 height;
-    /* 0x06 */ u8 format;
-    /* 0x07 */ u8 size;
-    /* 0x08 */ u8 red;
-    /* 0x09 */ u8 green;
-    /* 0x0A */ u8 blue;
-    /* 0x0B */ u8 alpha;
-    /* 0x0C */ u8 unlit;
-    /* 0x0D */ u8 altCategory;
-    /* 0x0E */ s16 cellW;
-    /* 0x10 */ s16 cellH;
-    /* 0x12 */ s16 frameCount;
-    /* 0x14 */ u8 data[1];
-} EffectGridAsset;
-
-typedef struct EffectGridSlot {
-    void *buffer;
-    s32 frame;
-} EffectGridSlot;
-
-typedef struct EffectGridNode {
-    /* 0x00 */ EffectGridAsset *asset;
-    /* 0x04 */ s32 id;
-    /* 0x08 */ u8 width;
-    /* 0x09 */ u8 height;
-    /* 0x0A */ u8 format;
-    /* 0x0B */ u8 size;
-    /* 0x0C */ s16 cellW;
-    /* 0x0E */ s16 cellH;
-    /* 0x10 */ u8 red;
-    /* 0x11 */ u8 green;
-    /* 0x12 */ u8 blue;
-    /* 0x13 */ u8 alpha;
-    /* 0x14 */ u8 unlit;
-    /* 0x15 */ u8 altCategory;
-    /* 0x16 */ s16 frameCount;
-    /* 0x18 */ s32 lastUsedFrame;
-    /* 0x1C */ EffectGridSlot *slots;
-    /* 0x20 */ u8 *data;
-    /* 0x24 */ struct EffectGridNode *next;
-} EffectGridNode;
-
-
-
 extern EffectGridNode *sEffectGridHead;
 extern EffectNode *sEffectListHead;
 extern EffectNode *sEffectListTail;
