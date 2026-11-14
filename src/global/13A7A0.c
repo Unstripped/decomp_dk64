@@ -16,35 +16,17 @@ typedef u32 OSHWIntr;
 
 extern s32 osGetIntMask(s32 unused);
 
-typedef struct {
-    s32 attackTime;
-    s32 decayTime;
-    s32 releaseTime;
-    u8 attackVolume;
-    u8 decayVolume;
-} GeSndEnvelope;
-
-typedef struct {
-    u8 nextIdLo;
-    u8 chainDelay;
-    u8 volIndex;
-    u8 panFx;
-    u8 pitchCoarse;
-    s8 pitchFine;
-} GeSndKeyMap;
-
-typedef struct {
-    GeSndEnvelope *envelope;
-    GeSndKeyMap *keyMap;
-    ALWaveTable *wave;
-    u8 samplePan;
-    u8 sampleVolume;
-} GeSndSound;
+// Sounds are libaudio ALSound/ALEnvelope/ALKeyMap. The game reuses the key map's MIDI range fields:
+//   velocityMin  low byte of the next chained sound id
+//   velocityMax  delay before the sound starts, in 33333 us steps
+//   keyMin       bits 0-4: group volume index (D_807FF0E4); bits 6-7 and 5: next id bits 8-9 and 10
+//   keyMax       bits 0-3: fx mix boost (<< 3); bits 4-7: initial state flags
+//   keyBase/detune: pitch, as in libaudio
 
 typedef struct GfSndState {
     struct GfSndState *next;
     struct GfSndState *prev;
-    GeSndSound *sound;
+    ALSound *sound;
     ALVoice voice;
     f32 pitchRatio;
     f32 pitch;
@@ -75,9 +57,9 @@ typedef struct {
     ALEventQueue evtq;
     ALEvent nextEvent;
     s32 nextEventPad;
-    struct GfSndState *unk3C;
+    struct GfSndState *target; // the state n_alSndpPlay last started
     GfSndState *sndState;
-    s32 unk44;
+    s32 maxVoices; // voices the player may hold at once (D_807563D0 counts them)
     ALMicroTime frameTime;
     ALMicroTime nextDelta;
     ALMicroTime curTime;
@@ -92,8 +74,8 @@ void n_alSndpNew(GeSndpConfig *c) {
     void *ptr;
     ALEvent evt;
 
-    D_807563CC->unk44 = c->unk8;
-    D_807563CC->unk3C = 0;
+    D_807563CC->maxVoices = c->unk8;
+    D_807563CC->target = 0;
     D_807563CC->frameTime = 16000;
     ptr = alHeapDBAlloc(0, 0, c->heap, 1, c->maxSounds * 72);
     D_807563CC->sndState = ptr;
@@ -141,7 +123,7 @@ extern s16 D_807563D0;
 extern GfSndState *D_807563C4;
 
 #define GE_STATE_VOL(st, km, snd) \
-    (D_807FF0E4[(km)->volIndex & 0x1F] * (((st)->envVol * (st)->vol * (snd)->sampleVolume) / 0x3F01) / 0x7FFF)
+    (D_807FF0E4[(km)->keyMin & 0x1F] * (((st)->envVol * (st)->vol * (snd)->sampleVolume) / 0x3F01) / 0x7FFF)
 #define GE_CALC_VOL(dst, st, km, snd) \
     if (GE_STATE_VOL(st, km, snd) <= 0) { \
         dst = 0; \
@@ -155,8 +137,8 @@ extern GfSndState *D_807563C4;
 
 void __n_handleEvent(GeSndEvt *event) {
     ALVoiceConfig config;
-    GeSndSound *sound;
-    GeSndKeyMap *keyMap;
+    ALSound *sound;
+    ALKeyMap *keyMap;
     u8 pan;
     GeSndEvt evt2;
     GeSndEvt evt;
@@ -200,7 +182,7 @@ void __n_handleEvent(GeSndEvt *event) {
                 config.fxBus = 0;
                 config.priority = state->priority;
                 config.unityPitch = 0;
-                full = D_807563D0 >= D_807563CC->unk44;
+                full = D_807563D0 >= D_807563CC->maxVoices;
                 if (!full || (state->flags & 0x10)) {
                     voice = n_alSynAllocVoice(&state->voice, &config);
                 }
@@ -243,10 +225,10 @@ void __n_handleEvent(GeSndEvt *event) {
                 GE_CALC_VOL(vol, state, keyMap, sound)
                 panTmp = state->pan + sound->samplePan - 0x40;
                 GE_CLAMP_PAN(pan, panTmp);
-                fx = (state->fxMix & 0x7F) + ((keyMap->panFx & 0xF) << 3);
+                fx = (state->fxMix & 0x7F) + ((keyMap->keyMax & 0xF) << 3);
                 GE_CLAMP_FX(fx);
                 fx |= state->fxMix & 0x80;
-                n_alSynStartVoiceParams(&state->voice, sound->wave, state->pitch * state->pitchRatio, vol, pan, fx, 0, 0.0f, 0, delta);
+                n_alSynStartVoiceParams(&state->voice, sound->wavetable, state->pitch * state->pitchRatio, vol, pan, fx, 0, 0.0f, 0, delta);
                 state->state = 1;
                 D_807563D0++;
                 if (!(state->flags & 2)) {
@@ -320,7 +302,7 @@ void __n_handleEvent(GeSndEvt *event) {
             case 0x100:
                 state->fxMix = event->arg8.i;
                 if (state->state == 1) {
-                    fx = (state->fxMix & 0x7F) + ((keyMap->panFx & 0xF) << 3);
+                    fx = (state->fxMix & 0x7F) + ((keyMap->keyMax & 0xF) << 3);
                     GE_CLAMP_FX(fx);
                     fx |= state->fxMix & 0x80;
                     n_alSynSetVoiceUnkC(&state->voice, fx);
@@ -391,7 +373,7 @@ void __n_sndpPostPitch(GfSndState *state) {
     GeSndEvt ev;
     f32 pitch;
 
-    pitch = alCents2Ratio(state->sound->keyMap->pitchFine) * state->pitch;
+    pitch = alCents2Ratio(state->sound->keyMap->detune) * state->pitch;
     ev.type = 0x10;
     ev.state = state;
     ev.arg8.i = *(s32 *)&pitch; // FAKE: float bits copied through an int register (swc1 otherwise)
@@ -448,10 +430,10 @@ u16 n_alSndpCountStates(u16 *outFree, u16 *outUsed) {
     return tailCount;
 }
 
-GfSndState *__n_allocState(void *sndp, GeSndSound *sound) {
+GfSndState *__n_allocState(void *sndp, ALSound *sound) {
     GfSndState *state;
-    GeSndKeyMap *km = sound->keyMap;
-    s32 stolen;
+    ALKeyMap *km = sound->keyMap;
+    s32 sustained;
     s32 intMask;
 
     intMask = osGetIntMask(1);
@@ -471,20 +453,20 @@ GfSndState *__n_allocState(void *sndp, GeSndSound *sound) {
             D_807563C4 = state;
         }
         osGetIntMask(intMask);
-        stolen = sound->envelope->decayTime == -1;
+        sustained = sound->envelope->decayTime == -1;
         state->sound = sound;
-        state->priority = stolen + 0x40;
+        state->priority = sustained + 0x40;
         state->state = 5;
         state->pitch = 1.0f;
         state->retries = 2;
-        state->flags = km->panFx & 0xF0;
+        state->flags = km->keyMax & 0xF0;
         state->handle = 0;
         if (state->flags & 0x20) {
-            state->pitchRatio = alCents2Ratio(km->pitchCoarse * 100 - 6000);
+            state->pitchRatio = alCents2Ratio(km->keyBase * 100 - 6000);
         } else {
-            state->pitchRatio = alCents2Ratio(km->pitchCoarse * 100 + km->pitchFine - 6000);
+            state->pitchRatio = alCents2Ratio(km->keyBase * 100 + km->detune - 6000);
         }
-        if (stolen) {
+        if (sustained) {
             state->flags |= 2;
         }
         state->fxMix = 0;
@@ -543,8 +525,8 @@ u8 n_alSndpGetState(GfSndState *state) {
 GfSndState *n_alSndpPlay(void *bank, s16 sndId, u16 vol, u8 pan, f32 pitch, u8 fxMix, GfSndState **handle) {
     GfSndState *state;
     GfSndState *ret;
-    GeSndKeyMap *km;
-    GeSndSound *sound;
+    ALKeyMap *km;
+    ALSound *sound;
     s16 lastId;
     s32 delay48;
     s32 delta;
@@ -558,10 +540,10 @@ GfSndState *n_alSndpPlay(void *bank, s16 sndId, u16 vol, u8 pan, f32 pitch, u8 f
     total = 0;
     if (sndId) {
         do {
-            sound = ((GeSndSound **)((u8 *)((void **)bank)[3] + sndId * 4))[3];
+            sound = ((ALBank *)bank)->instArray[0]->soundArray[sndId - 1];
             state = __n_allocState(bank, sound);
             if (state) {
-                D_807563CC->unk3C = state;
+                D_807563CC->target = state;
                 ev1.type = 1;
                 ev1.state = state;
                 val = pan + state->pan - 0x40;
@@ -574,7 +556,7 @@ GfSndState *n_alSndpPlay(void *bank, s16 sndId, u16 vol, u8 pan, f32 pitch, u8 f
                 state->vol = ((u32)vol * state->vol) >> 15;
                 state->pitch = state->pitch * pitch;
                 state->fxMix = fxMix;
-                delta = sound->keyMap->chainDelay * 33333;
+                delta = sound->keyMap->velocityMax * 33333;
                 if (state->flags & 0x10) {
                     state->flags &= ~0x10;
                     alEvtqPostEvent(&D_807563CC->evtq, (ALEvent *)&ev1, total + 1);
@@ -587,8 +569,8 @@ GfSndState *n_alSndpPlay(void *bank, s16 sndId, u16 vol, u8 pan, f32 pitch, u8 f
             }
             total += delta;
             km = sound->keyMap;
-            sndId = km->nextIdLo + ((km->volIndex & 0xC0) << 2);
-            sndId = sndId + ((km->volIndex & 0x20) << 5);
+            sndId = km->velocityMin + ((km->keyMin & 0xC0) << 2);
+            sndId = sndId + ((km->keyMin & 0x20) << 5);
         } while (sndId && state);
         if (ret) {
             ret->flags |= 1;
@@ -673,7 +655,7 @@ void n_alSndpSetGroupVol(u8 idx, u16 val) {
 
     ((u16 *)D_807FF0E4)[idx] = val;
     for (i = 0; state; i++, state = state->next) {
-        if ((state->sound->keyMap->volIndex & 0x1F) == idx) {
+        if ((state->sound->keyMap->keyMin & 0x1F) == idx) {
             ev.type = 0x800;
             ev.state = state;
             alEvtqPostEvent(&D_807563CC->evtq, (ALEvent *)&ev, 0);
