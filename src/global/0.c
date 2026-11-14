@@ -78,7 +78,6 @@ u64 D_80761680;
 u8 D_80761688[16216];
 OSMesgQueue *D_807655E0;
 u32 D_807655E4;
-u64 D_807655E8;
 
 // as1 schedules by source line: each segment entry stays on one line (matches the target store order)
 void globalInit(OSMesgQueue *queue, s32 haltReason) {
@@ -106,11 +105,12 @@ void globalInit(OSMesgQueue *queue, s32 haltReason) {
 
 
 void mainThreadHalt(OSMesgQueue *queue, s32 haltCode) {
-    u64 *p;
-    u64 *q;
+    static u64 D_807655E8; // .bss 0x807655E8: halt start time
+    s32 pad[2];
     Struct80744464 timeConfig;
-    s32 pad[4];
+    s32 pad2[4];
     void *receivedMsg;
+    s32 pad3[2];
 
     timeConfig = D_80744464;
     if (haltCode == 2) {
@@ -124,10 +124,9 @@ void mainThreadHalt(OSMesgQueue *queue, s32 haltCode) {
     D_80744460 = 1;
     audioThreadStop(1);
     osStopThread(&D_80761430);
-    p = &D_807655E8;
     osSetThreadPri(NULL, 0xB);
     D_807655E8 = osGetTime();
-    while (osGetTime() < *(q = p) + 0x22ADD7) { // FAKE: second pointer copy, see above
+    while (osGetTime() < D_807655E8 + 0x22ADD7) {
     }
     osViBlack(1);
     __osSpSetStatus(0xAAAA82);
