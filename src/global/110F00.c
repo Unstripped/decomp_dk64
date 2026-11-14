@@ -230,28 +230,22 @@ void mtxRotateZDegL(Mtx *m, f32 angle) {
 }
 
 void mtxIdentityF(f32 mf[4][4]) {
-    f32 one;
-    f32 zero;
-
-    one = 1.0f;
-    zero = 0.0f;
-    if (one) {} // FAKE: dead test on one makes it the first FP web, so 1.0f takes $f0 and 0.0f $f2
-    mf[1][0] = zero;
-    mf[2][0] = zero;
-    mf[3][0] = zero;
-    mf[0][1] = zero;
-    mf[2][1] = zero;
-    mf[3][1] = zero;
-    mf[0][2] = zero;
-    mf[1][2] = zero;
-    mf[3][2] = zero;
-    mf[0][3] = zero;
-    mf[1][3] = zero;
-    mf[2][3] = zero;
-    mf[0][0] = one;
-    mf[1][1] = one;
-    mf[2][2] = one;
-    mf[3][3] = one;
+    mf[0][0] = 1.0f;
+    mf[1][0] = 0.0f;
+    mf[2][0] = 0.0f;
+    mf[3][0] = 0.0f;
+    mf[0][1] = 0.0f;
+    mf[1][1] = 1.0f;
+    mf[2][1] = 0.0f;
+    mf[3][1] = 0.0f;
+    mf[0][2] = 0.0f;
+    mf[1][2] = 0.0f;
+    mf[2][2] = 1.0f;
+    mf[3][2] = 0.0f;
+    mf[0][3] = 0.0f;
+    mf[1][3] = 0.0f;
+    mf[2][3] = 0.0f;
+    mf[3][3] = 1.0f;
 }
 
 void mtxIdentityL(Mtx *m) {
