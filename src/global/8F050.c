@@ -35,7 +35,7 @@ s32 actorConfigLookup(s32 actorType, s32 *outIndex) {
     cfg = D_80750100;
     found = 0;
     *outIndex = 0;
-    i = 0; do { // FAKE: same line puts move v0,zero after the %lo addiu (as1 line-ordered schedule)
+    i = 0; do { // LAYOUT: i = 0 joined to the do line puts move v0,zero after the %lo addiu (as1 line-ordered schedule)
         next = i + 1;
         if (actorType == cfg[i].unk0) {
             found = 1;
