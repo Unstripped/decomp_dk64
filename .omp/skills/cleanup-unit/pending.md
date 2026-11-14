@@ -50,10 +50,8 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   into its owning C file; that enables a Q0498 function-local `static` retry for transitionSetAudioVolume's dead-if 86665d.
 - A8400 file-local views of the resqueue.h types -> include/resqueue.h types (fields aligned by name), and name ResQueueActorState's 15 unk fields (PolishGlobalA8400Names report §4; detail in .scratch/s2026-11-14-types-queue.md).
 - 8F4B0 CutsceneActorState / WeatherActorState merge (same layout; needs proof actorCutsceneDispatchEvents runs on actor type 0xC; PolishGlobal8F4B0Names 237b3f89).
-- AnimCacheSlot (7CA80) / AnimCacheEntry (17B90) over D_807FB7B0[32] -> one shared type in actor.h (brief OwnerAnimCacheSlotShared at 0add9174).
-- CC800 KongCharacterEntry (G00Row) -> header, then `rename.py fold global D_8075C414` -> `D_8075C410[c].characterIndex` (retires the split label and the view; after CC800 names AI lands) (PolishGlobal7CA80Names).
+- CC800 KongCharacterEntry -> actor.h, 7CA80 CharacterIdRow view of D_8075C414 retired (brief OwnerKongCharacterEntryShared at e8dd632e, with the 6240/race-0 csModelStateSetFirstByte local declarations); afterwards fold the D_8075C414 split label at session close (`rename.py fold --held`). AnimCacheEntry (90dd3611) and ZoneTable/SpawnNodeList (3e92f678) are in actor.h.
 - BB300 `u8 *unk178` view of the Actor 0x178 component -> PulseState (A6280 file-local, intensity/phase) once the type is shared; owner item (PolishGlobalA6280Names).
-- ZoneTable / SpawnNodeList (1295B0 file-local) -> include/actor.h, drops C2A90's identical local ZoneTable (brief OwnerZoneTableShared at 1b70fcd9).
 
 
 ## Round-34 leftovers
