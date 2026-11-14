@@ -348,3 +348,4 @@
 {"type": "unit", "t": "2026-11-14T19:09:18Z", "unit": "2026-11-14: cleanup HackplayerStateTakeDamagePrep", "commit": "9037ac4a6e1317eef3dbf728cd7b1520aac1e227"}
 {"type": "unit", "t": "2026-11-14T19:10:01Z", "unit": "2026-11-14: cleanup HackinputLerpByStickAbsX", "commit": "be83ace3fb18d67870b53508221406e01b8ce1e5"}
 {"type": "unit", "t": "2026-11-14T19:11:08Z", "unit": "2026-11-14: cleanup HackbehaviourFairyInitPlayerScale", "commit": "832798472ea594a0360b2c47b8ac2eb91276451c"}
+{"type": "unit", "t": "2026-11-14T19:11:15Z", "unit": "2026-11-14: cleanup HackactorAirPatrolStep", "commit": "377146b50c58d23a9fe726e04e102698ed68e93e"}
