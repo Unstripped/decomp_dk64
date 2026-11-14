@@ -34,6 +34,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - 1332B0 volumeTriggerUpdate PlayerSlot stride view of gPlayerSlots kept (Q0606, views blocked).
 - 11BC10 `effectFallStateInit(Actor *, EffectNode *, u8 *)` (19A00 warnings 5bc221 ×3).
 - 119370 `effectCreateAtModelNode(s32 asset, f32, s32, s32, u8)` (42630 warning 3ae317); Rev17P: effectGridFindByTargetId/effectCreate return `EffectGridAsset *`, TimedLightActorView → EffectNode, sEffectPending* names.
+- Owner prototypes to check (HackbossSetRandomObjectPair d376b6df, 3 ORIG call-site declarations): 42630 csModelStateSetFirstByte 2nd param likely u8 (F0D0 passes a plain lbu; 2C910 unprototyped), 7CA80 actorUpdatePrevContactFlags may return s32 (9DD70 textMarkerUpdateMatrix needs a non-void declaration, 0x2d88). Read the owner bodies; a corrected owner signature may retire those ORIG declarations. Detail: .scratch/s2026-11-14-types-queue.md.
 - 133A90 ProxPath.owner key type (42630 warnings 0eead6, 2e5ca6); 42630 csCmdExec views (proto-type 89a542).
 - 8D3E0 `actorMapModelsSetup(void *, u8, u8)` (450 warning 2e505d).
 - 12E800 behaviourUpdateContactAndState second parameter (B2CE0/BB300 proto-type 3544eb views).
