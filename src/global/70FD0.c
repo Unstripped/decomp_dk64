@@ -2253,13 +2253,15 @@ void actorUpdateCollisionSpheres(Actor *actor, u8 force) {
         }
         node = sub->nodes;
         base = sub->nodeMtx[idx];
-        if (base) {} // FAKE: raises base coloring priority (swaps s5/s6)
         while (node != NULL) {
-            if (node->mtxOffset == -1) {
+            switch (node->mtxOffset) {
+            case -1:
                 memcpy(mtx, sub->modelMtxF, sizeof(mtx));
                 guMtxXFMF(mtx, node->x, node->y, node->z, &outX, &outY, &outZ);
-            } else {
+                break;
+            default:
                 guMtxXFML(&base[(u32)node->mtxOffset >> 6], node->x, node->y, node->z, &outX, &outY, &outZ);
+                break;
             }
             node->scaledX = outX * 8.0f;
             node->scaledY = outY * 8.0f;
