@@ -848,6 +848,17 @@ typedef struct PlayerInventory {
     /* 0x2FE */ u16 kills[4]; // multiplayer: kills of each player
 } PlayerInventory; // size = 0x306
 
+// One loaded animation-asset cache slot (controllerAnimStateLoadAsset/controllerAnimFreeSub, 17B90);
+// D_807FB630[32] spans .bss 0x807FB630..0x807FB7B0 (D_807FB634 is the [0].asset split label).
+typedef struct ControllerStateEntry {
+    /* 0x00 */ u16 assetId;
+    /* 0x02 */ u16 refCount;
+    /* 0x04 */ void *asset;
+    /* 0x08 */ u8 cullSwap;
+    /* 0x09 */ u8 pad9[3];
+} ControllerStateEntry; // size = 0xC
+extern ControllerStateEntry D_807FB630[32];
+
 // camSetTarget's parameter block inside CamState (0x44).
 typedef struct CamTargetBlock {
     /* 0x00 */ struct Actor *unk0;

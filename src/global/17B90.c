@@ -13,16 +13,6 @@ extern u16 D_807FBB30;
 extern u16 D_807FBB32;
 extern PlayerState *gActivePlayerState;
 
-// One loaded animation-asset cache slot (0xC bytes; .bss D_807FB630..D_807FB7B0 holds 32).
-typedef struct ControllerStateEntry {
-    u16 assetId;
-    u16 refCount;
-    void *asset;
-    u8 cullSwap;
-    u8 pad9[3];
-} ControllerStateEntry;
-
-extern ControllerStateEntry D_807FB630[32];
 extern u8 D_80746B64[];
 
 

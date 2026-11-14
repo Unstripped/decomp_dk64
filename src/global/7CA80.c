@@ -90,13 +90,6 @@ static void actorStub7CA80_04(void);
 static void actorStub7CA80_05(void);
 static void actorStub7CA80_06(void);
 
-typedef struct Struct807FB630 {
-    s16 unk0;
-    s16 unk2;
-    s32 unk4;
-    s32 unk8;
-} Struct807FB630;
-
 typedef struct Struct807FB7B0 {
     s32 unk0;
     s32 unk4;
@@ -110,7 +103,6 @@ typedef struct ActorAssetHeader {
     s32 indexTableOffset;
 } ActorAssetHeader;
 
-extern Struct807FB630 D_807FB630[32];
 extern Struct807FB7B0 D_807FB7B0[32];
 extern u16 D_807FBB30;
 extern u16 D_807FBB32;
@@ -124,9 +116,9 @@ void actorInit(void) {
     u16 i;
 
     for (i = 0; i < 32; i++) {
-        D_807FB630[i].unk0 = 0;
-        D_807FB630[i].unk2 = 0;
-        D_807FB630[i].unk4 = 0;
+        D_807FB630[i].assetId = 0;
+        D_807FB630[i].refCount = 0;
+        D_807FB630[i].asset = NULL;
     }
     D_807FBB30 = 0;
 
