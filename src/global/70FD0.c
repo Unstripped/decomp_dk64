@@ -180,7 +180,7 @@ void modelSlotBuildTransformMatrix(s16 slot, s8 bone, f32 (*outMtx)[4]) {
     guMtxCatF(mtx, tmpMtx, mtx);
     guRotateF(tmpMtx, rotY, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx, tmpMtx, mtx);
-    guRotateF(tmpMtx, rotZ, 0.0f, 0, 1.0f); // FAKE: int 0 makes this call load a2/a3 with li 0; with 0.0f both copy the zero CSE'd in $f0, which then moves to callee-saved $f20 (extra sdc1/ldc1)
+    guRotateF(tmpMtx, rotZ, 0.0f, 0.0, 1.0f);
     guMtxCatF(mtx, tmpMtx, mtx);
     guTranslateF(tmpMtx, posX, posY, posZ);
     if (bone != -1) {
@@ -774,27 +774,27 @@ typedef struct ActorSub140Tri {
     /* 0x00 */ f32 x[9];
     /* 0x24 */ f32 out[9];
     /* 0x48 */ u32 boneOffset[3];
-    /* 0x54 */ s16 unk54;
-    /* 0x56 */ u8 unk56;
+    /* 0x54 */ s16 id;
+    /* 0x56 */ u8 enabled;
     /* 0x57 */ u8 pad57;
 } ActorSub140Tri; // size = 0x58
 
 typedef struct ActorSub140SrcTri {
     /* 0x00 */ f32 x[9];
-    /* 0x24 */ u32 boneOffset;
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ u8 unk2A;
+    /* 0x24 */ s32 boneOffset;
+    /* 0x28 */ s16 id;
+    /* 0x2A */ u8 enabled;
     /* 0x2B */ u8 pad2B;
 } ActorSub140SrcTri; // size = 0x2C
 
 ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radius, f32 height, void *boxBounds, Mtx *mtx0, Mtx *mtx1, u8 *data) {
     ActorSub140 *sub140;
-    void *link;
+    ModelNode **link;
+    ModelSubNode **subLink;
     s32 n;
     s32 i;
     s32 pad1;
     s32 pad[10];
-    void *tris;
     void *triBase;
     s32 pad50;
     ActorSub140SrcTri *srcTri;
@@ -822,7 +822,7 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
                 node->unk24 = 0;
                 node->unk27 = 0;
                 data += 0x14;
-                *(void **)link = node;
+                *link = node;
                 link = &node->next;
                 i++;
             } while (i != n);
@@ -832,7 +832,7 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
         n = *(s32 *)data;
         data += 4;
         if (n > 0) {
-            link = &sub140->subNodes;
+            subLink = &sub140->subNodes;
             do {
                 subnode = heapAlloc(sizeof(ModelSubNode));
                 subnode->next = NULL;
@@ -841,8 +841,8 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
                 subnode->z = *((f32 *)data + 2);
                 subnode->unk18 = *((s32 *)data + 3);
                 data += 0x10;
-                *(void **)link = subnode;
-                link = &subnode->next;
+                *subLink = subnode;
+                subLink = &subnode->next;
                 i++;
             } while (i != n);
             i = 0;
@@ -852,7 +852,8 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
         data += 4;
         sub140->boxCount = count;
         if (count != 0) {
-            sub140->boxes = (srcTri = heapAlloc(count * sizeof(ActorSub140SrcTri)));
+            srcTri = heapAlloc(count * sizeof(ActorSub140SrcTri));
+            sub140->boxes = srcTri;
             sub140->unkA4 = heapAlloc(count * sizeof(ActorSub140Tri));
             sub140->unkA8 = sub140->unkA4;
         }
@@ -875,9 +876,9 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
                     dst[2] = src[-2];
                     dst[5] = src[-1];
                 } while (j != 3);
-                srcTri->unk28 = *(s32 *)(rec + k);
+                srcTri->id = *(s32 *)(rec + k);
                 srcTri->boneOffset = *(s32 *)(rec + (k + 1));
-                srcTri->unk2A = 1;
+                srcTri->enabled = 1;
                 data += 0x2C;
                 srcTri++;
             } while (++i != count);
@@ -888,9 +889,8 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
         data += 4;
         sub140->triangleCount = count;
         if (count != 0) {
-            tris = heapAlloc(count * sizeof(ActorSub140Tri));
-            sub140->triangles = tris;
-            triBase = tris;
+            sub140->triangles = heapAlloc(count * sizeof(ActorSub140Tri));
+            triBase = sub140->triangles;
         }
         if (count > 0) {
             tri = triBase;
@@ -912,11 +912,11 @@ ActorSub140 *actorSub140CreateFromData(f32 x, f32 y, f32 z, f32 scale, f32 radiu
                     dst[2] = src[-2];
                     dst[5] = src[-1];
                 } while (j != 3);
-                tri->unk54 = *(s32 *)(rec + k);
+                tri->id = *(s32 *)(rec + k);
                 tri->boneOffset[0] = *(s32 *)(rec + (k + 1));
                 tri->boneOffset[1] = *(s32 *)(rec + (k + 2));
                 tri->boneOffset[2] = *(s32 *)(rec + (k + 3));
-                tri->unk56 = 1;
+                tri->enabled = 1;
                 data += 0x34;
                 tri++;
             } while (++i != count);
@@ -961,8 +961,8 @@ void actorSetBoxEnableById(Actor *actor, s32 id, u8 value) {
     if (actor->collision != NULL) { // FAKE: second read of unk140 keeps the sub copy in $v0
         ent = sub->boxes;
         for (i = 0; i < sub->boxCount; i++) {
-            if (id == ent[i].unk28) {
-                ent[i].unk2A = value;
+            if (id == ent[i].id) {
+                ent[i].enabled = value;
             }
         }
     }
@@ -977,8 +977,8 @@ void func_8066E6C8(Actor *actor, s32 id, u8 enabled) {
     if (actor->collision != NULL) { // FAKE: second read of unk140 keeps the sub copy in $v0
         ent = sub->triangles;
         for (i = 0; i < sub->triangleCount; i++) {
-            if (id == ent[i].unk54) {
-                ent[i].unk56 = enabled;
+            if (id == ent[i].id) {
+                ent[i].enabled = enabled;
             }
         }
     }
@@ -1203,25 +1203,17 @@ void actorUpdateModelMatrices(Actor *actor) {
 }
 
 void actorSub140BuildBoxes(ActorSub140 *sub) {
-    s32 none;
+    s32 pad[1];
     s32 i;
     ActorSub140SrcTri *ent;
     Mtx *mtx;
     u8 bufIdx;
     f32 boundsMtx[4][4];
-    f32 *src;
-    f32 *outZ;
-    f32 *outX;
-    f32 *outY;
-    u32 boneOffset;
-    s32 padB[10];
+    s32 k;
+    s32 pad2[14];
     CollisionBox *box;
-    f32 boxZ[3];
-    f32 boxY[3];
-    f32 boxX[3];
-    s32 padE[5];
+    f32 tri[9];
 
-    none = -1; // FAKE: value-named -1 local keeps the constant in $s6 for both bone compares
     if (sub->boxes != NULL) {
         if (gFrameCounter == sub->unk88) {
             bufIdx = gGfxBufferIndex;
@@ -1231,41 +1223,27 @@ void actorSub140BuildBoxes(ActorSub140 *sub) {
         mtx = sub->nodeMtx[bufIdx];
         ent = sub->boxes;
         box = sub->unkA4;
-        i = 0;
-        if (sub->boxCount > 0) {
-            do {
-                if (sub == 0) {} // FAKE
-                src = ent->x;
-                outX = boxX;
-                outY = boxY;
-                outZ = boxZ;
-                do {
-                    boneOffset = ent->boneOffset;
-                    if (none == boneOffset) {
-                        memcpy(boundsMtx, sub->modelMtxF, sizeof(boundsMtx));
-                        guMtxXFMF(boundsMtx, src[0], src[3], src[6], outX, outY, outZ);
-                    } else {
-                        guMtxXFML(&mtx[boneOffset >> 6], src[0], src[3], src[6], outX, outY, outZ);
-                    }
-                    outZ++;
-                    src++;
-                    outX++;
-                    outY++;
-                } while (outZ != (f32 *)&box); // FAKE: sentinel = addiu fp,sp,0x8C (the frame slot after boxZ at sp+0x80), steers a lone hoisted constant
-                if (collisionBuildBoxFromMatrix(boxX, box) != 0) {
-                    if (ent->unk2A == 0) {
-                        box->unk4B = 0;
-                    }
-                    if (ent->boneOffset == none) {
-                        box->unk4E = none;
-                    } else {
-                        box->unk4E = (s8)(ent->boneOffset >> 6);
-                    }
-                    box++;
+        for (i = 0; i < sub->boxCount; i++) {
+            for (k = 0; k < 3; k++) {
+                if (ent->boneOffset == -1) {
+                    memcpy(boundsMtx, sub->modelMtxF, sizeof(boundsMtx));
+                    guMtxXFMF(boundsMtx, ent->x[k], ent->x[k + 3], ent->x[k + 6], &tri[k], &tri[k + 3], &tri[k + 6]);
+                } else {
+                    guMtxXFML(&mtx[(u32)ent->boneOffset >> 6], ent->x[k], ent->x[k + 3], ent->x[k + 6], &tri[k], &tri[k + 3], &tri[k + 6]);
                 }
-                ent++;
-                i++;
-            } while (i < sub->boxCount);
+            }
+            if (collisionBuildBoxFromMatrix(tri, box) != 0) {
+                if (ent->enabled == 0) {
+                    box->unk4B = 0;
+                }
+                if (ent->boneOffset == -1) {
+                    box->unk4E = -1;
+                } else {
+                    box->unk4E = (u32)ent->boneOffset >> 6;
+                }
+                box++;
+            }
+            ent++;
         }
         sub->unkA8 = box;
     }
@@ -2311,7 +2289,7 @@ void actorUpdateNodePositions(ActorSub140 *sub, u8 force) {
         node = sub->subNodes;
         mtxBase = sub->nodeMtx[bufIdx];
         if (node != NULL) {
-            if (mtxBase) {} // FAKE: raises mtx_base register priority so -1 gets s5, mtx_base s6
+            if (mtxBase) {} // FAKE: extra block lowers mtxBase adjsave (3.67 to 3.0) below the -1 constant (3.33), so -1 takes $s5 and mtxBase $s6
             do {
                 if (node->unk18 == -1) {
                     memcpy(mtx, sub->modelMtxF, sizeof(mtx));
