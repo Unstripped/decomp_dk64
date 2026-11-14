@@ -757,8 +757,6 @@ s32 collisionTestGridMeshHeight(f32 posX, f32 posZ, f32 *height, Actor *actor) {
                 case 0:
                 case 2:
                 case 3:
-                    if (floorY && floorY) {}  // FAKE: deadsweep dead statement (keeps hit out of a register)
-                    hit = 1;
                     if (node->sub->unk60 == 2 || node->sub->unk60 == 3) {
                         if ((floorY < *height ? *height - floorY : -(*height - floorY)) < 6.0f) {
                             switch (node->sub->unk60) {
@@ -771,6 +769,7 @@ s32 collisionTestGridMeshHeight(f32 posX, f32 posZ, f32 *height, Actor *actor) {
                             }
                         }
                     }
+                    hit = 1;
                     if (mathCheckCloserFloatThreshold(bestY, floorY, threshold, 0) != 0) {
                         bestY = floorY;
                     }
