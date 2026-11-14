@@ -3298,14 +3298,13 @@ s32 menuEvaluateSelectorSpline(MenuScreenState *view, s32 index, f32 *outPosX, f
         index -= 5;
     }
     ret = index;
-    if (index << 2) {} // FAKE: orders the byte-offset spill before the spline-pointer spill.
-    index *= 4;
-    (&D_8003378C[index])[2] = D_8003373C[index];
+    index <<= 2;
+    D_8003378C[index + 2] = D_8003373C[index];
     D_8003373C[index + 2] = -D_8003378C[index];
-    D_8003378C[index + 3] = D_8003373C[1 + index];
-    (&D_8003373C[index])[3] = -D_8003378C[1 + index];
-    *outPosX = menuEvaluateSpline((f32 *)((u8 *)D_8003373C + (index << 2)), view->unk4, NULL); // FAKE: byte-offset spline pointer pairs with the index << 2 spill
-    *outPosY = menuEvaluateSpline((f32 *)((u8 *)D_8003378C + (index << 2)), view->unk4, NULL); // FAKE: byte-offset spline pointer pairs with the index << 2 spill
+    D_8003378C[index + 3] = D_8003373C[index + 1];
+    D_8003373C[index + 3] = -D_8003378C[index + 1];
+    *outPosX = menuEvaluateSpline(D_8003373C + index, view->unk4, NULL);
+    *outPosY = menuEvaluateSpline(D_8003378C + index, view->unk4, NULL);
     if (*outPosY < -40.0f) {
         v = -*outPosY - 40.0f;
         if (v > 20.0f) {
@@ -3318,7 +3317,7 @@ s32 menuEvaluateSelectorSpline(MenuScreenState *view, s32 index, f32 *outPosX, f
         *outColor = 0x80;
     }
     *outAlpha = 0xFF;
-    if (D_8003373C == &D_8003373C[index]) {
+    if (index == 0) {
         *outPosY *= 1.0f - D_80033F3C;
         *outScale += D_80033F3C * 3.5f;
         if (D_80033F3C != 0.0f) {
