@@ -3,11 +3,12 @@
 #define PROTO_JETPAC_0_H
 #include "common.h"
 #include "jetpac.h"
+#include "render.h"
 #ifndef PROTO_SKIP_jetpacRunFrame
 void jetpacRunFrame(void);
 #endif
 #ifndef PROTO_SKIP_jetpacBuildDisplayList
-void jetpacBuildDisplayList(u8 *, Gfx **);
+void jetpacBuildDisplayList(FrameMatrices *, Gfx **);
 #endif
 #ifndef PROTO_SKIP_jetpacResetPlayers
 void jetpacResetPlayers(void);

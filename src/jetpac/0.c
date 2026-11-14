@@ -1,5 +1,6 @@
 #include "common.h"
 #include "jetpac.h"
+#include "render.h"
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/103AB0.h"
@@ -34,8 +35,8 @@ extern u8 gGameMode;
 extern Gfx *gGfxTaskBuffers[];
 extern s32 D_8076A088;
 extern s32 D_8076A08C;
-extern u8 *gGfxCurrentFrameBuffer;
-extern u8 D_80767CE8;
+extern FrameMatrices *gGfxCurrentFrameBuffer;
+extern FrameMatrices D_80767CE8[];
 extern u8 gScreenRenderFlags;
 extern f32 gScreenFadeProgress;
 extern void *D_8076A080;
@@ -51,7 +52,7 @@ void jetpacRunFrame(void) {
     schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, 1, 0x4D2, 1);
     gGfxBufferIndex ^= 1;
     gFrameCounter++;
-    gGfxCurrentFrameBuffer = (u8 *)&D_80767CE8 + gGfxBufferIndex * 0x11B0;
+    gGfxCurrentFrameBuffer = &D_80767CE8[gGfxBufferIndex];
     controllerUpdate();
     if ((gScreenRenderFlags & 1) && gScreenFadeProgress == 31.0f) {
         glist = gGfxTaskBuffers[gGfxBufferIndex];
@@ -60,7 +61,7 @@ void jetpacRunFrame(void) {
     }
     glist = screenFadeUpdate(glist, 0);
     if (gGameMode != 4) {
-        gfxEnd = (Gfx *)(gGfxCurrentFrameBuffer + 0xDB0);
+        gfxEnd = gGfxCurrentFrameBuffer->subDisplayList;
         gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 0);
         gfxEndSubDisplayList(gfxEnd, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
     } else {
@@ -68,18 +69,18 @@ void jetpacRunFrame(void) {
     }
 }
 
-void jetpacBuildDisplayList(u8 *basePtr, Gfx **outGlist) {
+void jetpacBuildDisplayList(FrameMatrices *frame, Gfx **outGlist) {
     Gfx *cmdGlist;
     Gfx *cmdBuffer;
     Gfx *glist;
 
     glist = gGfxTaskBuffers[gGfxBufferIndex];
     gSPSegment(glist++, 0, 0);
-    gSPSegment(glist++, 2, osVirtualToPhysical(basePtr));
+    gSPSegment(glist++, 2, osVirtualToPhysical(frame));
     gSPSegment(glist++, 1, osVirtualToPhysical(D_8076A080));
     gSPDisplayList(glist++, &D_1000090);
     gSPDisplayList(glist++, &D_1000040);
-    guOrtho((Mtx *)(basePtr + 0x80), 0.0f, 320.0f, 0.0f, 240.0f, 1.0f, 10.0f, 1.0f);
+    guOrtho(&frame->ortho, 0.0f, 320.0f, 0.0f, 240.0f, 1.0f, 10.0f, 1.0f);
     gDPPipeSync(glist++);
     glist = gfxSetFrameBufferColorImage(glist);
     gDPSetColorDither(glist++, G_CD_MAGICSQ);
