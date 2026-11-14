@@ -1280,25 +1280,100 @@ def cmd_status(a):
                 print(f"  {s['key']} line {s['line']} {s['kind']} {marks} {state} | {code}")
 
 
+HACK_KINDS = set(KINDS) - {"warning", "proto-type"}
+LEVEL_RANK = {"minimal": 0, "low": 0, "medium": 1, "high": 2, "xhigh": 3, "max": 3}
+WEAK_MODELS = ("flash", "haiku")
+
+
+def strength(sel):
+    """Strength of one attempt by model selector provider/model[:level]: 0 for flash/haiku models,
+    else its thinking level's LEVEL_RANK; 1 when the selector or its level is unknown."""
+    if not sel:
+        return 1
+    model, _, level = sel.partition(":")
+    if any(w in model.lower() for w in WEAK_MODELS):
+        return 0
+    return LEVEL_RANK.get(level, 1)
+
+
+def attempts(fn, by_site, by_func, models):
+    """dict(best, units, strong) over the HARD-method agent events on FN's hack sites plus its
+    reconstruct events: per attempting unit (a carried event counts for the unit and agent of the
+    event it copies) the strongest model, `best` the strongest unit (-1: none), `units` their
+    count, `strong` the units at strength 3. MODELS: load_models()."""
+    evs = [e for s in fn["sites"] if s["kind"] in HACK_KINDS for e in by_site.get(s["key"], [])]
+    evs += [e for e in by_func.get((fn["seg"], f"{fn['vram']:08X}"), []) if e["method"] == "reconstruct"]
+    per_unit = {}
+    for e in evs:
+        if e["method"] not in HARD or e.get("agent") == "sweep":
+            continue
+        src = e
+        if e.get("agent") == "carry":
+            src = next((x for x in evs if x.get("agent") != "carry" and x["method"] == e["method"]
+                        and x["t"] == e["t"]), e)
+        unit = (origin_unit(e, evs) or e["unit"]) if e.get("agent") == "carry" else e["unit"]
+        sel = e.get("model") or src.get("model") or models.get((src["unit"], src["agent"]))
+        per_unit[unit] = max(per_unit.get(unit, 0), strength(sel))
+    return dict(best=max(per_unit.values(), default=-1), units=len(per_unit),
+                strong=sum(v >= 3 for v in per_unit.values()))
+
+
 def cmd_rank(a):
     files = seg_files(a.seg) if a.seg else clint.src_files()
     ans = analyze_many(files)
     require_resolved(ans)
     by_site, by_func = index_events(load_events())
-    rows = []
+    if a.polish:  # file-level work: functions with no hack site left that are not done
+        rows = []
+        for an in ans:
+            left = [st for fn in an["functions"] if not any(s["kind"] in HACK_KINDS for s in fn["sites"])
+                    for st in [function_state(fn, by_site, by_func)] if not st["done"]]
+            if left:
+                rows.append((len(left), sum(st["review"] != "✓" for st in left), an["path"],
+                             collections.Counter(st["next"] for st in left)))
+        rows.sort(key=lambda r: (-r[1], -r[0], r[2]))
+        print(f"{'count':>5} {'unrev':>5}  file  next")
+        for n, unrev, path, nxt in rows[:a.limit]:
+            print(f"{n:>5} {unrev:>5}  {path}  " + " ".join(f"{k}={v}" for k, v in sorted(nxt.items())))
+        print(f"{len(rows)} files, {sum(r[0] for r in rows)} functions")
+        return
+    models, rows = load_models(), []
     for an in ans:
-        states = [function_state(fn, by_site, by_func) for fn in an["functions"]]
-        opened = [st for st in states if not st["done"]]
-        kinds = collections.Counter(s["kind"] for st in states for s, _ in st["open"])
-        if opened:
-            rows.append((len(opened), sum(kinds.values()), an["path"], len(states),
-                         sum(st["review"] != "✓" for st in states), kinds, opened[0]["next"]))
-    rows.sort(key=lambda r: (-r[0], -r[1], r[2]))
-    print(f"{'open':>9} {'unrev':>5} {'sites':>5}  file  next  open sites by kind")
-    for o, ns, path, n, unrev, kinds, nxt in rows[:a.limit]:
-        ks = " ".join(f"{k}={v}" for k, v in sorted(kinds.items()))
-        print(f"{o:>4}/{n:<4} {unrev:>5} {ns:>5}  {path}  next={nxt}  {ks}")
-    print(f"{len(rows)} files with OPEN functions, {sum(r[0] for r in rows)} OPEN functions")
+        for fn in an["functions"]:
+            hacks = [s for s in fn["sites"] if s["kind"] in HACK_KINDS]
+            if not hacks:
+                continue
+            st, at = function_state(fn, by_site, by_func), attempts(fn, by_site, by_func, models)
+            kinds = " ".join(f"{k}={v}" for k, v in sorted(collections.Counter(s["kind"] for s in hacks).items()))
+            rows.append((at["best"], len(hacks), at["units"], at["strong"], an["path"], fn["name"],
+                         "EXHAUSTED" if st["done"] else f"next={st['next']}", kinds))
+    rows.sort(key=lambda r: (r[0], -r[1], r[2], r[4], r[5]))
+    print(f"{'str':>3} {'att':>3} {'strong':>6} {'hacks':>5}  state  file  function  kinds")
+    for best, hacks, units, strong, path, name, state, kinds in rows[:a.limit]:
+        print(f"{'-' if best < 0 else best:>3} {units:>3} {strong:>6} {hacks:>5}  {state}  {path}  {name}  {kinds}")
+    print(f"{len(rows)} functions with hacks ({sum(r[1] for r in rows)} sites), "
+          f"{sum(r[3] >= 3 for r in rows)} with 3+ strong attempts")
+
+
+def cmd_history(a):
+    files = [rel(a.file)] if a.file else grep_files(a.func)
+    fns = [dict(fn, file=an["path"]) for an in analyze_many(files) for fn in an["functions"]
+           if fn["name"] == a.func]
+    if not fns:
+        sys.exit(f"history: no C function {a.func}")
+    events, models = load_events(), load_models()
+    for fn in fns:
+        if fn["vram"] is None:
+            sys.exit(f"history: cannot resolve {fn['name']} ({fn['file']})")
+        here = (fn["seg"], f"{fn['vram']:08X}")  # every event of the function, removed sites' too
+        evs = [e for e in events if e.get("type") == "quality" and (e["seg"], e["vram"]) == here
+               and (a.all or e.get("agent") not in ("sweep", "carry"))]
+        print(f"{fn['name']} ({fn['seg']}:{here[1]}, {fn['file']}): {len(evs)} events")
+        for e in sorted(evs, key=lambda e: e["t"]):
+            model = e.get("model") or models.get((e["unit"], e["agent"])) or "-"
+            new = f' new="{e["new"]}"' if e.get("new") else ""
+            print(f"{e['t'][:16]} {e['unit']} {e['agent']} {model} {e['method']} {e['outcome']} "
+                  f"{e['site'] or 'func'} {(e.get('note') or '')[:160]}{new}")
 
 
 # ---------------------------------------------------------------- carry (renames keep results)
@@ -2279,7 +2354,13 @@ def main(argv=None):
     c = s.add_parser("rank")
     c.add_argument("--seg")
     c.add_argument("--limit", type=int)
+    c.add_argument("--polish", action="store_true", help="file-level queue: functions without hack sites")
     c.set_defaults(fn=cmd_rank)
+    c = s.add_parser("history")
+    c.add_argument("func")
+    c.add_argument("--file", type=cli_path)
+    c.add_argument("--all", action="store_true", help="include sweep and carry events")
+    c.set_defaults(fn=cmd_history)
     c = s.add_parser("report")
     c.add_argument("--baseline")
     c.add_argument("--markdown", action="store_true")

@@ -1328,3 +1328,21 @@ def test_backfill_models_from_transcripts(tmp_path, monkeypatch, capsys):
     assert q.load_models() == {("u", "CleanX"): "anthropic/claude-opus-5-5:xhigh"}
     q.main(["backfill-models", str(tmp_path / "S")])  # already filled: nothing appended
     assert len((tmp_path / "quality" / "models.jsonl").read_text().splitlines()) == 1
+
+
+def test_attempt_strength():
+    assert q.strength("anthropic/claude-opus-5-5:xhigh") == 3
+    assert q.strength("google-antigravity/gemini-3.8-flash:high") == 0
+    assert q.strength("anthropic/claude-opus-5-5:medium") == 1
+    assert q.strength("anthropic/claude-opus-5-5") == 1
+    assert q.strength(None) == 1
+
+
+def test_attempts_take_strongest_model_per_unit():
+    fn = dict(FN, sites=[SITE])
+    by_site = {SITE["key"]: [ev(SITE, "diagnose", "nohit", unit="u1", agent="A", model="anthropic/x:low"),
+                             ev(SITE, "diagnose", "nohit", unit="u2", agent="B"),
+                             ev(SITE, "remove", "nohit", unit="u3", agent="sweep")]}
+    at = q.attempts(fn, by_site, {}, {("u2", "B"): "anthropic/x:xhigh"})
+    assert at == dict(best=3, units=2, strong=1)
+    assert q.attempts(fn, {}, {}, {}) == dict(best=-1, units=0, strong=0)
