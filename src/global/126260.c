@@ -122,9 +122,9 @@ s32 commandApplyToLight(u8 lightIndex, Command *cmd, f32 actorX, f32 actorY, f32
     u8 c;
     f32 base;
 
-    lights = (Light *)((u8 *)gGfxCurrentFrameBuffer + (gLightSetIndex * 0x78) + 0x278);
-    ambient = (Ambient *)((u8 *)gGfxCurrentFrameBuffer + (gLightSetIndex * 0x78) + 0x270);
-    slot_light = &((Light *)((u8 *)gGfxCurrentFrameBuffer + (gLightSetIndex * 0x78) + 0x278))[lightIndex]; // FAKE: rebuilt from the frame buffer instead of &lights[lightIndex]; the shorter form drops the v1 frame-buffer candidate
+    lights = gGfxCurrentFrameBuffer->lightSets[gLightSetIndex].l;
+    ambient = &gGfxCurrentFrameBuffer->lightSets[gLightSetIndex].a;
+    slot_light = &gGfxCurrentFrameBuffer->lightSets[gLightSetIndex].l[lightIndex];
 
     if (gGfxCurrentFrameBuffer == 0) {} // FAKE: makes the base load a uopt candidate (v1)
     if (lightIndex >= 7) {
