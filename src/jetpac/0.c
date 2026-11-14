@@ -18,6 +18,7 @@
 #include "proto/jetpac/3480.h"
 #include "proto/jetpac/4FC0.h"
 
+extern JetpacState jetpacPlayer;
 extern struct GfSndState *D_80770DF8[];
 extern ALBank *D_8076D1F8;
 typedef struct {
@@ -27,7 +28,6 @@ typedef struct {
 extern JetpacSoundEntry D_8002BA52[];
 
 
-extern s32 D_8002F064;
 
 
 extern u8 gGfxBufferIndex;
@@ -370,7 +370,7 @@ void jetpacSetState(s32 state) {
         jetpacSetRocketSpriteFrames(player);
         break;
     case 4:
-        D_8002F064 = 1;
+        jetpacPlayer.player.state = 1;
         jetpacPlaceRocketOnPad();
         jetpacGame.unk794 = 3;
         player->lives++;
