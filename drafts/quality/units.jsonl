@@ -335,3 +335,4 @@
 {"type": "unit", "t": "2026-11-14T19:03:24Z", "unit": "2026-11-14: cleanup HackfaultDrawRegs", "commit": "abf2417513c9d11cf3a1e90083b593fd86cf06a1"}
 {"type": "unit", "t": "2026-11-14T19:03:31Z", "unit": "2026-11-14: cleanup Hackfunc_80676C10", "commit": "0c4f5f4c3447466cf61199f554d2c62924ceacaf"}
 {"type": "unit", "t": "2026-11-14T19:03:39Z", "unit": "2026-11-14: cleanup HackcritterBananaFairyUpdate", "commit": "27ecc2680f8a5307091a9df642de09943f97fba4"}
+{"type": "unit", "t": "2026-11-14T19:03:46Z", "unit": "2026-11-14: cleanup HackdlInitTextureDescriptor", "commit": "f2a6dcabaa8e3a9b973e964c10fa40689472e032"}
