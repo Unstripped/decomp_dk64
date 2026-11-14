@@ -29,11 +29,7 @@
 
 extern PlayerStruct *gPlayerSlots;
 
-typedef struct Struct_807FD63A {
-    u16 unk0;
-    char pad2[0x32];
-} Struct_807FD63A;
-extern Struct_807FD63A D_807FD63A[];
+extern PadInputState gPlayerPadState[];
 
 
 
@@ -536,7 +532,7 @@ void raceSetAllParticipantsStatus(u8 newStatus) {
 f32 raceGetHandicapSpeedBonus(RaceParticipant *participant) {
     f32 temp;
 
-    if (participant->route >= 11 && participant->route < 15 && (D_807FD63A[participant->playerIdx].unk0 & 0x2000)) {
+    if (participant->route >= 11 && participant->route < 15 && (gPlayerPadState[participant->playerIdx].heldButtons & 0x2000)) {
         temp = participant->route - 10;
         return temp * 0.2f;
     }
