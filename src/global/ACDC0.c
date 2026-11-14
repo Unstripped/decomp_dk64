@@ -1355,7 +1355,6 @@ s32 hudPauseMenuSlidePage(HudEntry *hud, s32 sliding, s32 buttons) {
 void hudPauseMenuRefreshTotals(void) {
     s16 *p;
     s16 *p0;
-    KongInventory *e;
     s32 n;
     s32 i;
     s32 k;
@@ -1365,13 +1364,11 @@ void hudPauseMenuRefreshTotals(void) {
         *p0++ = 0;
     } while (p0 < &D_807FC82A + 6);
     n = 0;
-    k = 0; e = gPlayerInventoryTable[0].kong; do { n += gPlayerInventoryTable[0].kong[k].unk42[0]; n += gPlayerInventoryTable[0].kong[k].unk42[1]; // LAYOUT: one-line loop setup (Q0149)
-        for (i = 2; i < 14; i++) { // FAKE: first two terms re-read through gPlayerInventoryTable[0].kong[k] instead of e, loop from 2
-            n += e->unk42[i];
+    for (k = 0; k < 5; k++) {
+        for (i = 0; i < 14; i++) {
+            n += gPlayerInventoryTable[0].kong[k].unk42[i];
         }
-        e++;
-        k++;
-    } while (&gPlayerInventoryTable[0].kong[k] < &gPlayerInventoryTable[0].kong[5]);
+    }
     D_807FC828 = n;
     n = 0;
     p = D_80744710; do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
@@ -1458,7 +1455,7 @@ void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *done) {
     s32 bounceStep;
     s32 ang;
     s32 i;
-    s16 five;
+    s16 kongCount;
 
     src = iconObj->unk35C;
     if (iconObj->unk384 != NULL) {
@@ -1598,9 +1595,9 @@ void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *done) {
             iconObj->unk364 = D_807FC890[i];
             D_807FC840[i] = -200.0f;
             D_807FC868[i] = -200.0f;
-            five = 5; // FAKE: value-named constant local steers the compare/subtract operands
-            if (i >= five) {
-                i -= five;
+            kongCount = 5;
+            if (i >= kongCount) {
+                i -= kongCount;
             }
             if (D_80750530[i] == 0) {
                 iconObj->unk36A = D_8075054C[i][0];
