@@ -292,7 +292,7 @@ void bossMainStep(void) {
             gCurrentActor->unk155 = 0xB;
             gCurrentActor->attachMode = 0;
         } else {
-            gCurrentActor->unk146 = 0;
+            gCurrentActor->segmentFlags = 0;
             gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
             actorSetUniformScale(gCurrentActor, gBehaviourWorkState->scale * 0.333);
             gCurrentActor->state = 0x1E;

@@ -1661,8 +1661,8 @@ void bonusBigBugBashGameUpdate(void) {
         f32 cosYaw;
         f32 stickY;
 
-        fz = mathSinF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
-        cosYaw = mathCosF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+        fz = mathSinF(gPlayerSlots[gCurrentPlayerIndex].camYawInt);
+        cosYaw = mathCosF(gPlayerSlots[gCurrentPlayerIndex].camYawInt);
         fx = D_807ECDEC->stick_x * 0.04f;
         stickY = D_807ECDEC->stick_y * 0.04f;
 
@@ -2012,8 +2012,8 @@ void bonusSearchlightSeekGameUpdate(void) {
     lightSetColor(subExt->lightLevel, subExt->lightLevel, subExt->lightLevel, -1);
     switch (gCurrentActor->state) {
         case 0: {
-            sinYaw = mathSinF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
-            cosYaw = mathCosF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+            sinYaw = mathSinF(gPlayerSlots[gCurrentPlayerIndex].camYawInt);
+            cosYaw = mathCosF(gPlayerSlots[gCurrentPlayerIndex].camYawInt);
             velX = subExt->velX;
             targetOffsetZ = subExt->velZ;
             targetOffsetX = D_807ECDEC->stick_x * 0.06f;
@@ -2034,9 +2034,9 @@ void bonusSearchlightSeekGameUpdate(void) {
             }
             if (subExt->fireCooldown <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr & 0xE000)) {
                 sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0, 0x1E, 0);
-                targetOffsetZ = mathSinF(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->camX;
+                targetOffsetZ = mathSinF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camX;
                 scale = gPlayerSlots->camY - 25.0f;
-                targetOffsetX = mathCosF(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->camZ;
+                targetOffsetX = mathCosF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camZ;
                 projectileSetTargetCoords(targetOffsetZ, scale, targetOffsetX);
                 projectileAimAndSpawn(0x23, 1, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 625.0f, gCurrentActor);
                 subExt->fireCooldown = 0x1E;

@@ -110,7 +110,7 @@ void bossKRoolChunkyStep(void) {
     bossRoundFrame(scriptOpcodes);
     if (!(gCurrentActor->flags & 0x10)) {
         camSetSecondTarget(gCamActor, 0, 0);
-        gCurrentActor->unk146 = 5;
+        gCurrentActor->segmentFlags = 5;
         gCurrentActor->state = 0x1E;
         gCurrentActor->unk155 = 0;
         gCurrentActor->floorNodeId = 0;

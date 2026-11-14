@@ -611,7 +611,7 @@ void func_806C151C(u16 actionId, u8 actionParam, s16 flagId) {
 
 void func_806C15E8(void) {
     gBehaviourAnimState->flags |= 0x1000;
-    gCurrentActor->unk146 = 0;
+    gCurrentActor->segmentFlags = 0;
     actorSetTargetSpeed(gCurrentActor, 0);
     gCurrentActor->floorNodeId = 1;
 }
@@ -1110,7 +1110,7 @@ void func_806C2DF4(void) {
         controllerAnimFree(gCurrentActor);
         controllerAnimInit(gCurrentActor, state->animAssetId);
         gCurrentActor->collision = actorSub140CreateFromModel(gCurrentActor);
-        gCurrentActor->unk146 = 0;
+        gCurrentActor->segmentFlags = 0;
         gCurrentActor->drawDistance = 0xFA0;
         gBehaviourAnimState->flags |= 0x20;
         gCurrentActor->flags &= ~0x01000000;
@@ -1173,7 +1173,7 @@ void func_806C2DF4(void) {
             case 0x12:
                 gCurrentActor->floorNodeId = 1;
                 if (!(gGlobalCutsceneFlags & 2)) {
-                    gCurrentActor->unk146 = 1;
+                    gCurrentActor->segmentFlags = 1;
                 }
                 break;
             case 0x80:
@@ -1201,14 +1201,14 @@ void func_806C2DF4(void) {
             case 0x25:
                 gCurrentActor->terminalSpeedY = -2000.0f;
                 gCurrentActor->flags |= 0x400;
-                gCurrentActor->unk146 = -1;
+                gCurrentActor->segmentFlags = -1;
                 break;
             case 0x11:
                 gBehaviourAnimState->flags |= 0x1000;
                 if (gCurrentMap == 0x4C) {
-                    gCurrentActor->unk146 = 0;
+                    gCurrentActor->segmentFlags = 0;
                 } else {
-                    gCurrentActor->unk146 = 2;
+                    gCurrentActor->segmentFlags = 2;
                 }
                 /* fallthrough */
             case 0x13:
@@ -1228,9 +1228,9 @@ void func_806C2DF4(void) {
                 break;
             case 0x68:
                 if (gCurrentMap == 0xCD) {
-                    gCurrentActor->unk146 = 1;
+                    gCurrentActor->segmentFlags = 1;
                 } else {
-                    gCurrentActor->unk146 = 5;
+                    gCurrentActor->segmentFlags = 5;
                 }
                 /* fallthrough */
             case 0x70:
@@ -1258,7 +1258,7 @@ void func_806C2DF4(void) {
     }
     switch (gCurrentActor->sub4->model->animId) {
         case 0x3EA:
-            gCurrentActor->unk146 = 0;
+            gCurrentActor->segmentFlags = 0;
             break;
         case 0x8E:
         case 0x320:

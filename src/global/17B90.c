@@ -45,29 +45,29 @@ unsigned char cullSwap;
 
     delta = ((u8 *)asset - (u8 *)asset->unk0) + 0x28;
     asset->unk0 = (u8 *)asset->unk0 + delta;
-    asset->unk4 = (void **)((u8 *)asset->unk4 + delta);
+    asset->displayLists = (void **)((u8 *)asset->displayLists + delta);
 
-    for (i = 0; i < asset->unk21; i++) {
-        asset->unk4[i] = (u8 *)asset->unk4[i] + delta;
+    for (i = 0; i < asset->displayListCount; i++) {
+        asset->displayLists[i] = (u8 *)asset->displayLists[i] + delta;
     }
 
     if (asset->unk8 != NULL) {
         asset->unk8 = (u8 *)asset->unk8 + delta;
     } else {
         asset->unk8 = D_80746B64;
-        asset->unk20 = 1;
+        asset->boneCount = 1;
     }
 
     asset->unkC = (u8 *)asset->unkC + delta;
     asset->unk10 = (u8 *)asset->unk10 + delta;
 
-    controllerBuildSubcommandList(*asset->unk4, asset->unk4, &asset->unk14);
-    renderReplaceSegment6Commands(*asset->unk4, asset->unk4);
-    controllerCommandRelocateAssets(*asset->unk4, asset->unk4);
+    controllerBuildSubcommandList(*asset->displayLists, asset->displayLists, &asset->segmentNodes);
+    renderReplaceSegment6Commands(*asset->displayLists, asset->displayLists);
+    controllerCommandRelocateAssets(*asset->displayLists, asset->displayLists);
     animListInit(controller, asset);
 
     if (cullSwap & 1) {
-        gfxSwapGeometryModeCullBits(*asset->unk4, asset->unk4);
+        gfxSwapGeometryModeCullBits(*asset->displayLists, asset->displayLists);
     }
 
     return asset;
@@ -184,7 +184,7 @@ void controllerSetCommand(Actor *actor, s32 commandIndex, Gfx *command) {
     if (actor->flags & 0x10) {
         return;
     }
-    commands = ((AnimInitData *)actor->animState)->unk4[0];
+    commands = ((AnimInitData *)actor->animState)->displayLists[0];
     destination = commands + commandIndex;
     if ((command->words.w0 != destination->words.w0) || (command->words.w1 != destination->words.w1)) {
         memcpy(destination, command, 8);
@@ -232,16 +232,16 @@ s32 controllerAnimInit(Actor *actor, u16 assetId) {
         actor->overrideModel = NULL;
         actor->stateModel = NULL;
 
-        alloc = heapAlloc((resource->unk20 << 7) + 0x170);
+        alloc = heapAlloc((resource->boneCount << 7) + 0x170);
         actor->sub4 = (ActorSub4 *)alloc;
         actor->sub4->model = (AnimSlot *)((u8 *)alloc + 0x90);
         actor->sub4->layer = (AnimSlot *)((u8 *)alloc + 0xC8);
         actor->sub4->blendFrom = (AnimSlot *)((u8 *)alloc + 0x100);
         actor->sub4->blendFromLayer = (AnimSlot *)((u8 *)alloc + 0x138);
         actor->sub4->boneMtx[0] = (Mtx *)((u8 *)alloc + 0x170);
-        actor->sub4->boneMtx[1] = (Mtx *)((u8 *)actor->sub4->boneMtx[0] + (resource->unk20 << 6));
+        actor->sub4->boneMtx[1] = (Mtx *)((u8 *)actor->sub4->boneMtx[0] + (resource->boneCount << 6));
 
-        for (i = 0; i < resource->unk20; i++) {
+        for (i = 0; i < resource->boneCount; i++) {
             guMtxIdent((Mtx *)((u8 *)actor->sub4->boneMtx[0] + (i << 6)));
             guMtxIdent((Mtx *)((u8 *)actor->sub4->boneMtx[1] + (i << 6)));
         }
@@ -351,8 +351,8 @@ void controllerAnimFreeSub(Actor *controller, u8 slotIndex) {
             return;
         }
         if (--D_807FB630[i].refCount == 0) {
-            cmd = sub->unk4[0];
-            cmdList = sub->unk4;
+            cmd = sub->displayLists[0];
+            cmdList = sub->displayLists;
             if (cmd != (Gfx *)cmdList) {
                 do {
                     val = cmd->words.w0 >> 24;
@@ -916,15 +916,15 @@ Gfx *renderActorDisplayList(Gfx *gdl, Actor *actor) {
     gdl = renderEmitSegmentNodes(gdl, actor, display);
     gSPSegment(gdl++, 4, osVirtualToPhysical(actor->boneMtx));
     gSPSegment(gdl++, 3, osVirtualToPhysical(display->unk0));
-    for (i = 0; i < display->unk21; i++) {
-        gSPDisplayList(gdl++, display->unk4[i]);
+    for (i = 0; i < display->displayListCount; i++) {
+        gSPDisplayList(gdl++, display->displayLists[i]);
     }
     return gdl;
 }
 
 Gfx *renderEmitSegmentNodes(Gfx *gdl, Actor *actor, AnimInitData *group) {
-    u16 flags = actor->unk146;
-    ControllerSubNode *node = group->unk14;
+    u16 flags = actor->segmentFlags;
+    ControllerSubNode *node = group->segmentNodes;
     s32 shift;
 
     if (node != NULL) {

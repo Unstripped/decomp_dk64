@@ -424,7 +424,7 @@ void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
         gActivePlayerState->stateFlags |= 0x100000;
     }
     func_806C8220(1, KONG_ACTOR->chains, gActivePlayerActor->actorType);
-    gActivePlayerActor->unk146 = 0;
+    gActivePlayerActor->segmentFlags = 0;
     playerKongStopAudioChannels(gActivePlayerActor, gActivePlayerActor->actorType);
     gActivePlayerActor->floorSlopePitch = 0x400;
     gActivePlayerState->queuedHeldActor = NULL;
@@ -711,7 +711,7 @@ void playerSyncInventoryOnSpawn(s32 spawnIndex) {
     healthRefill(ps->playerIndex);
     gActivePlayerActor->speedXZ = 0.0f;
     ps->stateFlags &= 0xF7FFFF5F;
-    ps->unk200 = 0;
+    ps->statusEffectTimer = 0;
     ps->maxSpeed = 0.0f;
     if (gPlayerCount >= 2) {
         func_800268DC(gActivePlayerActor, ps, inventory); /* mpResetPlayerOnRespawn */

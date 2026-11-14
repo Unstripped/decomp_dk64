@@ -181,9 +181,9 @@ void tagBarrelInitPeerState(void) {
         case 2:
             actorAppendCallback(sub->rider, gCurrentActor, 0x40, 1, 0, 0);
             peer = sub->rider->customState;
-            peer->unkB0 = sub->unk8;
-            peer->unkB4 = sub->unkC;
-            peer->unkB8 = sub->unk10;
+            peer->launchTargetX = sub->unk8;
+            peer->launchTargetY = sub->unkC;
+            peer->launchTargetZ = sub->unk10;
             actorAppendCallbackPayloadAAB8(gCurrentActor, sub->rider, gCurrentActor->yaw, 0.0f, sub->launchSpeed);
             actorQueueDelayedCallback(gCurrentActor, gCurrentActor, 0x800, 2, 0, 0, 0xA);
             effectSetMode(2);
@@ -1477,7 +1477,7 @@ void transformBarrelUpdate(void) {
         {
             s16 angle;
             if (gCurrentActor->actorType == 0x12) {
-                angle = gPlayerSlots->unk2C8 & 0xFFF;
+                angle = gPlayerSlots->camYawInt & 0xFFF;
             } else {
                 angle = state->player->yaw;
             }
@@ -3104,7 +3104,7 @@ void tagBarrelUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         sub->baseYaw = gCurrentActor->yaw;
         sub->baseY = gCurrentActor->y;
-        gCurrentActor->unk146 = 0;
+        gCurrentActor->segmentFlags = 0;
         gCurrentActor->eyeHeight = 0;
         effectSetMode(2);
         effectSetDuration(-1);

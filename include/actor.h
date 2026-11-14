@@ -193,14 +193,14 @@ typedef struct ActorSub140 {
 // Animated-model asset header (controllerAnimStateLoadAsset relocates it, animListInit reads unk10).
 typedef struct AnimInitData {
     /* 0x00 */ void *unk0;
-    /* 0x04 */ void **unk4; // pointer table; the first entry is the display list
+    /* 0x04 */ void **displayLists; // pointer table; the first entry is the display list
     /* 0x08 */ void *unk8;
     /* 0x0C */ void *unkC;
     /* 0x10 */ void *unk10; // s16 animation node list (animListInit)
-    /* 0x14 */ struct ControllerSubNode *unk14;
+    /* 0x14 */ struct ControllerSubNode *segmentNodes;
     /* 0x18 */ u8 pad18[8];
-    /* 0x20 */ u8 unk20;
-    /* 0x21 */ u8 unk21;
+    /* 0x20 */ u8 boneCount;
+    /* 0x21 */ u8 displayListCount;
 } AnimInitData; // size = 0x24
 
 typedef struct ActorList {
@@ -468,7 +468,7 @@ typedef struct Actor {
     /* 0x140 */ ActorSub140 *collision;
     /* 0x144 */ u8 unk144;
     /* 0x145 */ u8 unk145;
-    /* 0x146 */ s16 unk146;
+    /* 0x146 */ s16 segmentFlags;
     /* 0x148 */ void *unk148[2]; // per gfx buffer (renderActorEntryBuildDisplayList indexes gGfxBufferIndex)
     /* 0x150 */ struct CollisionStaticTri *floorTriangle;
     /* 0x154 */ u8 state;
@@ -760,7 +760,7 @@ typedef struct PlayerState {
     /* 0x08D */ u8 hitStatus;
     /* 0x08E */ u8 unk8E;
     /* 0x08F */ u8 unk8F;
-    /* 0x090 */ u8 unk90;
+    /* 0x090 */ u8 gunHand;
     /* 0x091 */ u8 unk91;
     /* 0x092 */ u8 pad92[2];
     /* 0x094 */ f32 unk94;
@@ -770,9 +770,9 @@ typedef struct PlayerState {
     /* 0x0A4 */ f32 unkA4;
     /* 0x0A8 */ f32 unkA8;
     /* 0x0AC */ f32 unkAC;
-    /* 0x0B0 */ f32 unkB0;
-    /* 0x0B4 */ f32 unkB4;
-    /* 0x0B8 */ f32 unkB8;
+    /* 0x0B0 */ f32 launchTargetX;
+    /* 0x0B4 */ f32 launchTargetY;
+    /* 0x0B8 */ f32 launchTargetZ;
     /* 0x0BC */ s16 hitActorType;
     /* 0x0BE */ s16 hitActorId;
     /* 0x0C0 */ s16 unkC0;
@@ -865,7 +865,7 @@ typedef struct PlayerState {
     /* 0x1FC */ u8 cartDamage;
     /* 0x1FD */ u8 unk1FD;
     /* 0x1FE */ u16 unk1FE;
-    /* 0x200 */ s16 unk200;
+    /* 0x200 */ s16 statusEffectTimer;
     /* 0x202 */ u8 pad202[2];
     /* 0x204 */ f32 unk204;
     /* 0x208 */ f32 unk208;

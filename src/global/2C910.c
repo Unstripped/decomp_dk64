@@ -437,10 +437,10 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             comp->rollToLo |= a;
             return;
         case 0x3B:
-            actorFromSpawnNodeOrDefault(a)->unk146 = b;
+            actorFromSpawnNodeOrDefault(a)->segmentFlags = b;
             return;
         case 0x1C:
-            actorFromSpawnNodeOrDefault(a)->yaw = gPlayerSlots->unk2C8 & 0xFFF;
+            actorFromSpawnNodeOrDefault(a)->yaw = gPlayerSlots->camYawInt & 0xFFF;
             return;
         case 0x30:
             p = actorFromSpawnNodeOrDefault(a);

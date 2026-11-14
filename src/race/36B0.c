@@ -272,7 +272,7 @@ void raceAiUpdateSpeedAndLane(void) {
         }
         break;
     }
-    state->unk4 = targetSpeed;
+    state->throttle = targetSpeed;
     if ((distToTarget < 0.0f) && (aux->distSq > 0.0f)) {
         if (gCurrentActor->soundSlots[1] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x130, 0, 1, 1, 0xFF, 1.0f, 0);
@@ -398,7 +398,7 @@ void raceOpponentCarBehaviorUpdate(void) {
         cursor->unk2 = raceGetPrevWaypointIndex(count, 0);
         aux->unk10 = 1;
         raceSetPiecewiseCurveMode(aux, 5, D_8002FBD0, D_8002FC00);
-        state->unk34 = 0;
+        state->raceStatus = 0;
         if ((flagGet(0x12, 2) == 0) && (flagGet(0x8B, 0) == 0) && (func_807142D8() == 0)) {
             camStartPath(gCurrentActor, 0, 1);
             flagSet(0x12, 1, 2);
@@ -426,20 +426,20 @@ void raceOpponentCarBehaviorUpdate(void) {
         } else {
             cursor->unk20 = 0.0f;
         }
-    } else if ((state->unk34 >= 2) && (state->unk34 < 4)) {
+    } else if ((state->raceStatus >= 2) && (state->raceStatus < 4)) {
         raceAiUpdateSpeedAndLane();
     }
-    if (state->unk34 == 1) {
+    if (state->raceStatus == 1) {
         racePlayTireScreechSfx();
     }
-    if (state->unk34 < 5) {
+    if (state->raceStatus < 5) {
         racePathFollowStep(cursor, state, 1);
         gCurrentActor->y += 50.0f * mathSinF((s16)(cursor->unk20 * 0.5f));
     } else {
         gCurrentActor->speedXZ = 0.0f;
     }
     raceUpdateOpponentEnginePitch(gCurrentActor->speedXZ);
-    if (state->unk34 == 0) {
+    if (state->raceStatus == 0) {
         phase = state->unk35;
         statePhase = state->unk35;
         cursorVal = statePhase; // FAKE: phase/statePhase/cursorVal copies of unk35; switching on phase reallocates the switch selector
@@ -475,7 +475,7 @@ void raceOpponentCarBehaviorUpdate(void) {
                 idx += 1;
             } while (idx < 7);
         }
-    } else if (state->unk34 == 4) {
+    } else if (state->raceStatus == 4) {
         if (state->unk35 == 0) {
             if (flagGet(0x8B, 0) == 0) {
                 cam = D_8002FC0C[raceCheckLapCompletionThreshold(state, aux->participant, 0xA)];
@@ -486,7 +486,7 @@ void raceOpponentCarBehaviorUpdate(void) {
             }
             state->unk35++;
         }
-    } else if (state->unk34 == 5) {
+    } else if (state->raceStatus == 5) {
         endPhase = state->unk35;
         switch (endPhase) {
         case 0:
@@ -514,7 +514,7 @@ void raceOpponentCarBehaviorUpdate(void) {
         case 2:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 camResumePath();
-                if ((state->unk36 == 0) || (slotQueueGetValue(0xB, 0) < 0xA)) {
+                if ((state->place == 0) || (slotQueueGetValue(0xB, 0) < 0xA)) {
                     state->unk35 = 3;
                 }
                 state->unk35++;
@@ -582,9 +582,9 @@ void raceCameraBehaviorUpdate(void) {
         cursor->unk0 = cursor->unk1 = 1;
         racePathFollowStep(cursor, state, 0);
     }
-    tgtStateMode = targetState->unk34;
-    if (state->unk34 != tgtStateMode) {
-        state->unk34 = tgtStateMode;
+    tgtStateMode = targetState->raceStatus;
+    if (state->raceStatus != tgtStateMode) {
+        state->raceStatus = tgtStateMode;
         state->unk35 = 0;
     }
     dist = raceGetPathDistanceBetweenRacers(gCurrentActor, cursor, targetActor, targetCursor);
@@ -594,7 +594,7 @@ void raceCameraBehaviorUpdate(void) {
         cursor->unk1 = tgtCursorSub;
         cursor->unk8 = 0.0f;
     }
-    if ((state->unk34 >= 2) && (state->unk34 < 4)) {
+    if ((state->raceStatus >= 2) && (state->raceStatus < 4)) {
         if ((u32)targetCursor->unk10 > 24.0) {
             offsetSign = -2.5f;
         } else if (targetCursor->unk14 > 0.5f) {
@@ -602,7 +602,7 @@ void raceCameraBehaviorUpdate(void) {
         }
         cursor->unk39 = targetCursor->unk39;
         cursor->unk10 = targetCursor->unk10;
-        state->unk4 = targetState->unk4 + ((dist - (90.0f * offsetSign)) * 0.006f);
+        state->throttle = targetState->throttle + ((dist - (90.0f * offsetSign)) * 0.006f);
         if (dist < 30.0f) {
             if (targetActor->speedXZ < gCurrentActor->speedXZ) {
                 gCurrentActor->speedXZ = targetActor->speedXZ;
@@ -610,7 +610,7 @@ void raceCameraBehaviorUpdate(void) {
         }
         racePathFollowStep(cursor, state, 0);
     }
-    if ((state->unk34 < 4) && (state->unk34 > 0)) {
+    if ((state->raceStatus < 4) && (state->raceStatus > 0)) {
         distNorm = distToTarget / 90.0f;
         if (distNorm < 0.0f) {
             camYOffset = 0.0f;
@@ -675,7 +675,7 @@ void raceObstacleCarBehaviorUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         raceFindNearestWaypoint(cursor);
         gCurrentActor->unk144 = 0x3C;
-        state->unk4 = 0.5f;
+        state->throttle = 0.5f;
         actorClearNodeFlag(gCurrentActor, 1);
         cursor->unk30 = spawnNodeActivate(1, 0);
         gCurrentActor->flags &= ~1;
@@ -691,10 +691,10 @@ void raceObstacleCarBehaviorUpdate(void) {
     actorGetNodePos(gCurrentActor, 0xB, &nodeX, &nodeY, &nodeZ);
     commandQueuePush(gCurrentActor, (s16)nodeX, (s16)nodeY, (s16)nodeZ, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     racePathFollowStep(cursor, state, 1);
-    if ((state->unk34 == 0) && (targetState->unk34 == 5)) {
+    if ((state->raceStatus == 0) && (targetState->raceStatus == 5)) {
         gBehaviourExtraState->respawnDelay = 0;
         gCurrentActor->state = 0x40;
-        state->unk34++;
+        state->raceStatus++;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

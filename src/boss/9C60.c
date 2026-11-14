@@ -73,7 +73,7 @@ void bossKRoolDiddyStep(void) {
     bossRoundFrame(scriptOpcodes);
     if (!(gCurrentActor->flags & 0x10)) {
         camSetSecondTarget(gCamActor, 0, 0);
-        gCurrentActor->unk146 = 5;
+        gCurrentActor->segmentFlags = 5;
         gCurrentActor->state = 0x1E;
         gCurrentActor->unk155 = 0;
         gCurrentActor->floorNodeId = 1;
@@ -145,7 +145,7 @@ void bossKRoolDiddyStep(void) {
             }
             break;
         case 3:
-            gCurrentActor->unk146 = 6;
+            gCurrentActor->segmentFlags = 6;
             projectileGetTargetCoords(gCurrentActor, 4);
             projectileSpawnNodeEntry(0xAA, 1, gCurrentActor->sub4->scaleY, 0, (f32)scriptState->unk18[1] * projectileScale, 0.0f, gCurrentActor);
             gCurrentActor->unk155++;
@@ -155,7 +155,7 @@ void bossKRoolDiddyStep(void) {
             gCurrentActor->unk155++;
             break;
         case 7:
-            gCurrentActor->unk146 = 5;
+            gCurrentActor->segmentFlags = 5;
             gCurrentActor->unk155++;
             /* fallthrough */
         case 8:
@@ -179,7 +179,7 @@ void bossKRoolDiddyStep(void) {
     case 0x29:
         switch (gCurrentActor->unk155) {
         case 0:
-            gCurrentActor->unk146 = 5;
+            gCurrentActor->segmentFlags = 5;
             actorScriptStart(gCurrentActor, scriptState->phase ? 0x409 : 0x408);
             actorScriptExecute(gCurrentActor);
             controllerAnimSetStateIfChanged(scriptState->linkedActor, 0x675, 0.0f, 0.0f);
@@ -194,7 +194,7 @@ void bossKRoolDiddyStep(void) {
     case 0x31:
         switch (gCurrentActor->unk155) {
         case 0:
-            gCurrentActor->unk146 = 5;
+            gCurrentActor->segmentFlags = 5;
             actorScriptStart(gCurrentActor, 0);
             bossDespawnEntities();
             camStartPath(gCurrentActor, 1, 1);
@@ -214,7 +214,7 @@ void bossKRoolDiddyStep(void) {
                     gCurrentActor->unk155 = 0;
                 } else {
                     bossAttachActor();
-                    gCurrentActor->unk146 = 1;
+                    gCurrentActor->segmentFlags = 1;
                     actorScriptStart(gCurrentActor, 0x404);
                     actorScriptExecute(gCurrentActor);
                     controllerAnimSetStateIfChanged(scriptState->linkedActor, 0x673, 0.0f, 0.0f);

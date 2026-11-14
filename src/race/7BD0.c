@@ -59,7 +59,7 @@ void raceRegisterParticipant(Actor *manager, s32 slot, Actor *participant, RaceP
     participantData->unk45 = 0;
     participantData->unk3A = 0;
     participantData->lap = 1;
-    if (participantData->unk27 == 0) {
+    if (participantData->isCpu == 0) {
         route = raceGetRoute(managerData->route);
         if (route != NULL) {
             participantData->unk3C = route->count - 1;
@@ -111,10 +111,10 @@ void raceCalculatePathBoundingBox(Actor *actor) {
             maxZ = z;
         }
     }
-    managerData->unkC = ((maxX - minX) * 0.5f + minX) - 10.0f;
-    managerData->unk10 = ((maxZ - minZ) * 0.5f + minZ) - 20.0f;
-    managerData->unk4 = 116.48f / (maxX - minX);
-    managerData->unk8 = 121.6f / (maxZ - minZ);
+    managerData->minimapCenterX = ((maxX - minX) * 0.5f + minX) - 10.0f;
+    managerData->minimapCenterZ = ((maxZ - minZ) * 0.5f + minZ) - 20.0f;
+    managerData->minimapScaleX = 116.48f / (maxX - minX);
+    managerData->minimapScaleZ = 121.6f / (maxZ - minZ);
 }
 
 
@@ -122,10 +122,10 @@ Gfx *raceRenderMinimapIcon(Gfx *dl, Actor *actor, f32 posX, f32 posZ, u8 red, u8
     RaceParticipant *managerData;
 
     managerData = actor->customState;
-    posX = managerData->unkC - posX;
-    posZ = managerData->unk10 - posZ;
-    posX *= managerData->unk4;
-    posZ *= managerData->unk8;
+    posX = managerData->minimapCenterX - posX;
+    posZ = managerData->minimapCenterZ - posZ;
+    posX *= managerData->minimapScaleX;
+    posZ *= managerData->minimapScaleZ;
     gDPSetPrimColor(dl++, 0, 0, red, green, blue, 0xC8);
     return renderRotatedSprite(dl, 0x4A, 3, 1, 0x10, 0x10,
         (s32)(((0.5f * posX) + 50.0f) * 4.0f),
@@ -329,7 +329,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
         hudFlags = managerData->hudFlags;
     }
     if (hudFlags & 2) {
-        placeIdx = tracker->unk36;
+        placeIdx = tracker->place;
         if ((placeIdx + 1) == managerData->unk1E) {
             placeIdx = 3;
         }
@@ -338,7 +338,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
         }
         dl = textDrawStringVtx(dl, 1, (s16)(s32)((f32)(textX * 4) + (f32)(textX * 4)), (s16)(s32)(2.0f * (f32)(textY * 4)), textTableGetString(0x26, D_8002FCC0[placeIdx], 1), 4);
     }
-    if (tracker->unk34 >= 3 && tracker->unk34 < 5) {
+    if (tracker->raceStatus >= 3 && tracker->raceStatus < 5) {
         dl = textDrawAnimated(dl, tracker->unk46, 2, 160.0f, 100.0f, 0.0f, 1.5f);
     }
     return dl;
@@ -419,10 +419,10 @@ Gfx *raceRenderMinimapAndCountdown(Gfx *dl, Actor *actor) {
                 continue;
             }
             participantData = pairs[i].data;
-            if (participantData->unk27 == 0) {
+            if (participantData->isCpu == 0) {
                 red = 0x80;
                 blue = 0x80;
-            } else if (participantData->unk27 == 1) {
+            } else if (participantData->isCpu == 1) {
                 red = 0xFF;
                 blue = 0;
             } else {
@@ -497,16 +497,16 @@ void raceSetParticipantRaceStatus(RacePair *pair, u8 newStatus) {
     RaceParticipant *managerData;
     u32 slot;
 
-    if (pair->data->unk34 != newStatus) {
-        pair->data->unk34 = newStatus;
+    if (pair->data->raceStatus != newStatus) {
+        pair->data->raceStatus = newStatus;
         pair->data->unk35 = 0;
         if (newStatus == 3) {
             managerData = gCurrentActor->customState;
-            slot = pair->data->unk36;
+            slot = pair->data->place;
             if (slot + 1 == managerData->unk1E || pair->data->unk45 != 0) {
                 slot = 3;
             }
-            if (pair->data->unk27 == 0) {
+            if (pair->data->isCpu == 0) {
                 pair->data->unk46 = gfxResourceCreate(1, textTableGetString(0x26, D_8002FCD4[slot], 1), 2, 160.0f, 100.0f, 0.0f);
             }
         }
@@ -594,8 +594,8 @@ void racePlayResultSfx(void) {
     if (i >= 0) {
         do {
             participantData = pairs[i].data;
-            if (participantData->unk27 == 1) {
-                if (participantData->unk36 != 0) {
+            if (participantData->isCpu == 1) {
+                if (participantData->place != 0) {
                     sfxId = 0x56;
                 } else {
                     sfxId = 0x57;
@@ -677,8 +677,8 @@ void raceUpdateStandings(void) {
     }
     q = base;
     for (i = 0; i < managerData->unk1E; i++, q++) {
-        q->data->unk36 = i;
-        if (q->data->unk45 != 0 || (q->data->unk34 == 2 && managerData->unk24 < q->data->lap)) {
+        q->data->place = i;
+        if (q->data->unk45 != 0 || (q->data->raceStatus == 2 && managerData->unk24 < q->data->lap)) {
             raceSetParticipantRaceStatus(q, 3);
             cnt++;
         }
@@ -775,7 +775,7 @@ void raceManagerBehaviorUpdate(void) {
             pairs = managerData->pairs;
             for (i = 0; i < managerData->unk1E; i++) {
                 participantData = pairs[i].data;
-                if (participantData->unk27 == 0) {
+                if (participantData->isCpu == 0) {
                     playerActor = gPlayerSlots[participantData->playerIdx].actor;
                     scale = 1.0f;
                     playerActor->alpha = 0xFF;
@@ -995,7 +995,7 @@ f32 raceEvaluateCurveWithRubberband(RaceTarget *target, f32 t, RaceCurvePoint *p
     case 4:
         if (target->curveMode == 3 || target->curveMode == 4 || target->unk10 != 0) {
             chased = target->participant;
-            lim = chased->unk4;
+            lim = chased->throttle;
             points[0].y = lim < values->x ? lim : values->x;
             points[1].y = lim < values->y ? lim : values->y;
             if (target->curveMode == 4) {
@@ -1080,7 +1080,7 @@ void raceInitBeetleRaceParticipants(Actor *raceManager) {
     if (gPlayerCount == 1) {
         participantActor = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         participantData = ((RaceComponentActor *)participantActor)->participant;
-        participantData->unk27 = 1;
+        participantData->isCpu = 1;
         raceRegisterParticipant(raceManager, 0, participantActor, participantData);
         slotIndex = 1;
         raceGetParticipantPair(raceManager, 0, &((RaceComponentActor *)participantActor)->target->actor, &((RaceComponentActor *)participantActor)->target->participant);
@@ -1092,7 +1092,7 @@ void raceInitBeetleRaceParticipants(Actor *raceManager) {
         actorSpawn(0x13B, 0);
         participantActor = gSpawnedActor;
         participantData = participantActor->customState;
-        participantData->unk27 = 0;
+        participantData->isCpu = 0;
         raceRegisterParticipant(raceManager, slotIndex, participantActor, participantData);
         slotIndex++;
         participantData->playerIdx = playerIdx;
@@ -1101,7 +1101,7 @@ void raceInitBeetleRaceParticipants(Actor *raceManager) {
     if (participantCount > 0) {
         do {
             raceGetParticipantPair(raceManager, playerIdx, &participantActor, &participantData);
-            participantData->unk36 = playerIdx;
+            participantData->place = playerIdx;
             playerIdx++;
             participantData->actor = raceManager;
         } while (playerIdx != participantCount);
@@ -1128,17 +1128,17 @@ void racePlayerTrackerBehaviorUpdate(void) {
         gCurrentActor->state = 0;
         gCurrentActor->unk155 = 0;
     }
-    if ((raceData->unk34 == 2) && (gCurrentActor->state == 0)) {
+    if ((raceData->raceStatus == 2) && (gCurrentActor->state == 0)) {
         playerStateQueueCallback(0x57, NULL, raceData->playerIdx);
         gCurrentActor->state++;
     }
     gCurrentActor->x = playerActor->x;
     gCurrentActor->y = playerActor->y;
     gCurrentActor->z = playerActor->z;
-    if (raceData->unk34 == 2) {
+    if (raceData->raceStatus == 2) {
         raceUpdateLapAndWaypointTracker(raceData);
     }
-    if ((raceData->unk34 > 0) && (raceData->unk34 < 5)) {
+    if ((raceData->raceStatus > 0) && (raceData->raceStatus < 5)) {
         renderCallbacksRegister((void *)racePlayerHudRenderCallback, gCurrentActor, 3);
     }
     raceData->unk1Cf = (raceData->unk40 < raceData->unk1Cf) ? raceData->unk1Cf : raceData->unk40;
@@ -1205,7 +1205,7 @@ s32 raceCheckLapCompletionThreshold(RaceParticipant *participant, RaceParticipan
 
     if (other->unk45 != 0) {
         ret = 0;
-    } else if (participant->unk36 != 0) {
+    } else if (participant->place != 0) {
         if (slotQueueGetValue(11, 0) >= threshold) {
             ret = 1;
         } else {

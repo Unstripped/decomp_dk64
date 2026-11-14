@@ -1714,14 +1714,14 @@ void scriptCmdSetActorFlag146(Actor *actor) {
     s16 imm;
 
     scriptReadU16(&imm);
-    actor->unk146 |= imm;
+    actor->segmentFlags |= imm;
 }
 
 void scriptCmdClearActorFlag146(Actor *actor) {
     s16 imm;
 
     scriptReadU16(&imm);
-    actor->unk146 &= ~imm;
+    actor->segmentFlags &= ~imm;
 }
 
 void scriptCmdPlayActorSound(Actor *actor) {

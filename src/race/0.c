@@ -132,7 +132,7 @@ typedef struct RaceCoinConfig { // component at Actor 0x17C of the coin-race opp
 extern u16 D_80750AC4;
 
 int raceCheckCoinRequirement(RaceParticipant *controller, RaceCoinConfig *config) {
-    return controller->unk36 != 0 && flagGet(config->reward.h.rewardFlag, 0) == 0 && D_80750AC4 >= config->requiredCoins;
+    return controller->place != 0 && flagGet(config->reward.h.rewardFlag, 0) == 0 && D_80750AC4 >= config->requiredCoins;
 }
 
 
@@ -232,10 +232,10 @@ void raceOpponentBehaviourUpdate(void) {
         }
     }
     rowIdx = gBehaviourWorkState->unk24;
-    if (child != NULL && controller->unk34 < 3 && gActorGlobalState.bossFightPhase == 4) {
+    if (child != NULL && controller->raceStatus < 3 && gActorGlobalState.bossFightPhase == 4) {
         playerStateQueueCallback(0x33, gCurrentActor, 0);
     }
-    if (controller->unk34 < 3 && gCurrentActor->state == 2 && gActorGlobalState.bossFightPhase == 5) {
+    if (controller->raceStatus < 3 && gCurrentActor->state == 2 && gActorGlobalState.bossFightPhase == 5) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CA, 0xFF, 0x7F, 0xA);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x209, 0xFF, 0x7F, 0xA);
         gCurrentActor->speedXZ = 0.0f;
@@ -264,7 +264,7 @@ void raceOpponentBehaviourUpdate(void) {
         }
         break;
     case 1:
-        if (controller->unk34 == 2) {
+        if (controller->raceStatus == 2) {
             if (gCurrentMap == 0x52) {
                 actorSetTargetSpeed(gCurrentActor, 0x10E);
             } else {
@@ -304,8 +304,8 @@ void raceOpponentBehaviourUpdate(void) {
         ang16 = angU = (s32)(mathAtan2(-dx, -dz) * 4096.0 / 6.2831854820251465);
         mathAngleStepToward(&gCurrentActor->yaw, (angU + angU - gCurrentActor->moveYaw) & 0xFFF, 0x32);
         mathAngleStepToward(&gCurrentActor->moveYaw, ang16, 0xF);
-        if (gBehaviourWorkState->unk25 == routeRows[gBehaviourWorkState->unk24].waypoint && routeRows[gBehaviourWorkState->unk24].action == 2 && controller->unk34 == 3) {
-            if (controller->unk36 == 1) {
+        if (gBehaviourWorkState->unk25 == routeRows[gBehaviourWorkState->unk24].waypoint && routeRows[gBehaviourWorkState->unk24].action == 2 && controller->raceStatus == 3) {
+            if (controller->place == 1) {
                 gCurrentActor->state = 0xA;
             } else {
                 gCurrentActor->state = 9;
@@ -412,7 +412,7 @@ void raceOpponentBehaviourUpdate(void) {
         actorApproachTargetSpeed(0x200);
         break;
     }
-    switch (controller->unk34) {
+    switch (controller->raceStatus) {
     case 0:
         phase = controller->unk35;
         phaseCopy = controller->unk35;
@@ -542,7 +542,7 @@ void raceOpponentBehaviourUpdate(void) {
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x96, 0x78, 0, 1.0f);
-    if (controller->unk34 == 2) {
+    if (controller->raceStatus == 2) {
         raceUpdateLapAndWaypointTracker(controller);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);

@@ -510,13 +510,13 @@ void camUpdatePlayerYaw(CamState *st) {
     st->unkA8 = gPlayerSlots[st->unkFB].camYaw;
     switch (D_807463B8) {
         case 0:
-            gPlayerSlots[st->unkFB].unk2C8 = st->unkA8 * 4096.0 / 6.2831855f;
+            gPlayerSlots[st->unkFB].camYawInt = st->unkA8 * 4096.0 / 6.2831855f;
             break;
         case 2:
-            func_8060B55C(&gPlayerSlots[st->unkFB].unk2C8);
+            func_8060B55C(&gPlayerSlots[st->unkFB].camYawInt);
             break;
         case 3:
-            gPlayerSlots[st->unkFB].unk2C8 = st->unkA8 * 4096.0 / 6.2831855f;
+            gPlayerSlots[st->unkFB].camYawInt = st->unkA8 * 4096.0 / 6.2831855f;
             break;
     }
     if (gPlayerSlots[st->unkFB].unk2E9 != 0) {

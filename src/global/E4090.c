@@ -261,7 +261,7 @@ s32 playerInputUpdate(s32 handlerSet) {
     }
     if (mag != 0.0f) {
         ang = mathAtan2(gPlayerPadState[gCurrentPlayerIndex].stickX, -gPlayerPadState[gCurrentPlayerIndex].stickY) * 4096.0f / 6.2831855f;
-        gPlayerPadState[gCurrentPlayerIndex].stickAngle = (gPlayerSlots[gCurrentPlayerIndex].unk2C8 + ang) & 0xFFF;
+        gPlayerPadState[gCurrentPlayerIndex].stickAngle = (gPlayerSlots[gCurrentPlayerIndex].camYawInt + ang) & 0xFFF;
     } else {
         ang = gPlayerPadState[gCurrentPlayerIndex].stickAngleHistory[0];
     }
@@ -1116,7 +1116,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1EE, 0xFF, 0x7F, 0xA);
                     }
                 }
-                gActivePlayerState->unk91 = gActivePlayerState->unk90;
+                gActivePlayerState->unk91 = gActivePlayerState->gunHand;
                 if (isFirstPerson) {
                     ang = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ);
                 } else {
@@ -1144,7 +1144,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                         effectSetDepth(1);
                         effectSetSpeed(0x50);
                         effectSetCallback(effectLightPulseOscillate);
-                        effectCreateAtActorBone(&D_807200D4, 0.5f, gActivePlayerActor, gActivePlayerState->unk90 + 9, 2);
+                        effectCreateAtActorBone(&D_807200D4, 0.5f, gActivePlayerActor, gActivePlayerState->gunHand + 9, 2);
                         if (gCurrentActor->actorType == 6 || gCurrentActor->actorType == 7) {
                             effectSetDepth(1);
                             effectSetSpeed(0x50);
@@ -1152,7 +1152,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                             effectCreateAtActorBone(&D_8071FBC8, 0.5f, gActivePlayerActor, 9, 2);
                         }
                     }
-                    projectileGetTargetCoords(gActivePlayerActor, gActivePlayerState->unk90 + 9);
+                    projectileGetTargetCoords(gActivePlayerActor, gActivePlayerState->gunHand + 9);
                     projectileSpawnNodeEntry(spawnId, flags, scale, gActivePlayerActor->yaw, D_80753E2C[gCurrentCharacterIndex], 0.0f, gActivePlayerActor);
                 }
                 if ((func_80714608(0) != 0) && (slotQueueGetValue(sel, gCurrentPlayerIndex) == 0)) {
@@ -1233,10 +1233,10 @@ void playerInputToggleActiveState(Actor *actor) {
     case 5:
     case 6:
     case 7:
-        state->unk90 = 1;
+        state->gunHand = 1;
         return;
     default:
-        state->unk90 = 1 - state->unk90;
+        state->gunHand = 1 - state->gunHand;
         return;
     }
 }
@@ -3863,11 +3863,11 @@ void func_806EAE60(void) {
     if ((pad->stickX >= 0x29) || (pad->stickY >= 0x29)) {
         if (gActivePlayerState->unk108 != 0.0f) {
             gActivePlayerState->unk108 = 0.0f;
-            v = gActivePlayerState->unk200 - 5;
+            v = gActivePlayerState->statusEffectTimer - 5;
             if (v <= 0) {
-                gActivePlayerState->unk200 = 1;
+                gActivePlayerState->statusEffectTimer = 1;
             } else {
-                gActivePlayerState->unk200 = v;
+                gActivePlayerState->statusEffectTimer = v;
             }
             return;
         }
@@ -3875,11 +3875,11 @@ void func_806EAE60(void) {
     if ((pad->stickX < -0x28) || (pad->stickY < -0x28)) {
         if (gActivePlayerState->unk108 == 0.0f) {
             gActivePlayerState->unk108 = 1.0f;
-            v = gActivePlayerState->unk200 - 5;
+            v = gActivePlayerState->statusEffectTimer - 5;
             if (v <= 0) {
-                gActivePlayerState->unk200 = 1;
+                gActivePlayerState->statusEffectTimer = 1;
             } else {
-                gActivePlayerState->unk200 = v;
+                gActivePlayerState->statusEffectTimer = v;
             }
         }
     }

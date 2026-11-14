@@ -968,7 +968,7 @@ void playerWeaponReload(Actor *actor, PlayerState *ps, u16 weapon) {
         }
         if (shouldSpawn != 0) {
             if (ps->unk8E != 0) {
-                bone = ps->unk90 + 9;
+                bone = ps->gunHand + 9;
             } else {
                 bone = ps->unk91 + 9;
             }

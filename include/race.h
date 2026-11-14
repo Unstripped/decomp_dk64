@@ -44,11 +44,21 @@ typedef struct RaceParticipant {
         /* 0x00 */ u8 hudFlags; // manager: 2 place, 4 lap counter, 8 coin HUD, 0x10 speed-boost HUD
         /* 0x00 */ s16 heading; // 52B0 opponent racers: steering yaw (raceRacerSteerTowardWaypoint)
     };
-    /* 0x02 */ s16 unk2; // 52B0 opponent racers: eased yaw offset
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8; // manager 0x04..0x10: minimap scale X, scale Z, centre X, centre Z (raceCalculatePathBoundingBox)
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
+    /* 0x02 */ s16 yawOffset; // 52B0 opponent racers: eased yaw offset
+    union {
+        struct {
+            /* 0x04 */ f32 throttle;
+            /* 0x08 */ f32 brake;
+            /* 0x0C */ f32 steer;
+            /* 0x10 */ f32 steerGain;
+        };
+        struct { // manager: minimap transform (raceCalculatePathBoundingBox, raceRenderMinimapIcon)
+            /* 0x04 */ f32 minimapScaleX;
+            /* 0x08 */ f32 minimapScaleZ;
+            /* 0x0C */ f32 minimapCenterX;
+            /* 0x10 */ f32 minimapCenterZ;
+        };
+    };
     union {
         struct {
             /* 0x14 */ u8 pad14[8];
@@ -72,16 +82,16 @@ typedef struct RaceParticipant {
     /* 0x24 */ u8 unk24;
     /* 0x25 */ u8 unk25;
     /* 0x26 */ u8 route; // route index (raceGetRoute)
-    /* 0x27 */ u8 unk27;
+    /* 0x27 */ u8 isCpu;
     /* 0x28 */ u8 playerIdx;
     /* 0x29 */ u8 unk29;
     /* 0x2A */ u8 unk2A;
     /* 0x2B */ u8 pad2B;
     /* 0x2C */ struct Actor *unk2C;
     /* 0x30 */ struct Actor *actor; // the race manager this participant is registered with
-    /* 0x34 */ u8 unk34;
+    /* 0x34 */ u8 raceStatus;
     /* 0x35 */ u8 unk35;
-    /* 0x36 */ u8 unk36;
+    /* 0x36 */ u8 place;
     union {
         /* 0x37 */ s8 lap;
         /* 0x37 */ u8 unk37;

@@ -69,7 +69,7 @@ void func_806BD170(void) {
             gSpawnedActor->z = mathCosF(pos) * 270.0f + gCurrentActor->z;
             gSpawnedActor->y = 100.0f;
             gSpawnedActor->yaw = pos;
-            gSpawnedActor->unk146 = 0;
+            gSpawnedActor->segmentFlags = 0;
             gSpawnedActor->state = 0;
             sub = gSpawnedActor->customState;
             sub->timer = 0;
@@ -88,7 +88,7 @@ void func_806BD170(void) {
         activeRingIdx = -1;
     }
     if (D_80750660 == 0 && activeRingIdx != -1) {
-        activeRingActor->unk146 = 1;
+        activeRingActor->segmentFlags = 1;
         activeRingActor->state = 1;
         D_80750660 = 1;
         D_807FC8D0 = activeRingIdx;
@@ -237,7 +237,7 @@ void func_806BD7B0(void) {
                 camStartPath(gCurrentActor, 0, 1);
                 actorScriptStart(gCurrentActor, 0x291);
                 gCurrentActor->unk155 = 0;
-                gCurrentActor->unk146 = 1;
+                gCurrentActor->segmentFlags = 1;
             }
             break;
         case 3:

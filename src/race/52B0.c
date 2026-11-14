@@ -74,7 +74,7 @@ void raceSpawnCompetitors(Actor *actor) {
         actorSpawn(0x133, 0x9F);
         spawnedActor = gSpawnedActor;
         racerState = spawnedActor->customState;
-        racerState->unk27 = 0;
+        racerState->isCpu = 0;
         raceRegisterParticipant(actor, slotIndex, spawnedActor, racerState);
         slotIndex++;
         racerState->playerIdx = i;
@@ -83,7 +83,7 @@ void raceSpawnCompetitors(Actor *actor) {
     if (gPlayerCount == 1) {
         spawnedActor = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         racerState = ((RaceOpponentActor *)spawnedActor)->participant;
-        racerState->unk27 = 1;
+        racerState->isCpu = 1;
         raceRegisterParticipant(actor, slotIndex, spawnedActor, racerState);
         raceGetParticipantPair(actor, 0, &((RaceOpponentActor *)spawnedActor)->target->actor, &((RaceOpponentActor *)spawnedActor)->target->participant);
         managerData->unk25 = 1;
@@ -93,9 +93,9 @@ void raceSpawnCompetitors(Actor *actor) {
     if (numCompetitors > 0) {
         do {
             raceGetParticipantPair(actor, i, &spawnedActor, &racerState);
-            racerState->unk36 = i;
+            racerState->place = i;
             racerState->actor = actor;
-            if (racerState->unk27 == 0) {
+            if (racerState->isCpu == 0) {
                 actorInitFromSpawnPoint(spawnedActor, racerState);
             }
             i++;
@@ -136,7 +136,7 @@ void raceCompetitorMotionUpdate(void) {
         actorOrNodeFlags(gCurrentActor, 2, 0xC);
     }
     func_80690190(participant, motion);
-    status = participant->unk34;
+    status = participant->raceStatus;
     if (status < 5) {
         if (status == 1) {
             manager = participant->actor;
@@ -149,10 +149,10 @@ void raceCompetitorMotionUpdate(void) {
                 camSetTargetScaled(playerState->camActor, gCurrentActor, 4, 0x800, 0x32, 0, 0x28, 0x1E, 0x14, 0, 0.4f);
             }
         }
-        if (participant->unk34 == 2) {
+        if (participant->raceStatus == 2) {
             if (participant->route != 0) {
-                participant->unk4 = raceGetHandicapSpeedBonus(participant) * 2;
-                if (participant->unk4 > 1.0) {
+                participant->throttle = raceGetHandicapSpeedBonus(participant) * 2;
+                if (participant->throttle > 1.0) {
                     participant->unk25 = 0x14;
                 }
                 participant->route = 0;
@@ -247,10 +247,10 @@ f32 raceRacerSteerTowardWaypoint(void) {
         lo = distToWaypoint - (f32)D_807FDCA0->entries[idx].radius;
         span = thr - (f32)D_807FDCA0->entries[idx].radius;
         fr = lo / span;
-        ang = ang * (1.0 + (1.0f - fr) * 1.5 * (2.0f * participant->unk4));
+        ang = ang * (1.0 + (1.0f - fr) * 1.5 * (2.0f * participant->throttle));
     }
-    participant->unkC += (ang * 0.0033333334f - participant->unkC) * 0.5f;
-    if (participant->unk34 < 2 || participant->unk34 >= 5) {
+    participant->steer += (ang * 0.0033333334f - participant->steer) * 0.5f;
+    if (participant->raceStatus < 2 || participant->raceStatus >= 5) {
         return leadDistance;
     }
     if (target->curveMode != 0 && raceGetProgressPercent(route, participant, managerData) > 0.75) {
@@ -301,10 +301,10 @@ f32 raceRacerSteerTowardWaypoint(void) {
                     break;
                 case 4:
                     raceSetPiecewiseCurveMode(target, 5, D_8002FC20, &D_8002FC50);
-                    participant->unk2 = 0;
+                    participant->yawOffset = 0;
                     break;
             }
-            participant->unk2 = mathAngleEaseToward(participant->unk2, ang, 5.0f);
+            participant->yawOffset = mathAngleEaseToward(participant->yawOffset, ang, 5.0f);
             break;
     }
     if (targetSpeed == 0.0f) {
@@ -319,12 +319,12 @@ f32 raceRacerSteerTowardWaypoint(void) {
     }
     if (subFlag != 0) {
         targetSpeed *= 0.9;
-        participant->unk8 = 0.1f;
+        participant->brake = 0.1f;
         gCurrentActor->speedXZ = (gCurrentActor->speedXZ < 350.0f) ? gCurrentActor->speedXZ : 350.0f;
     } else {
-        participant->unk8 = 0.0f;
+        participant->brake = 0.0f;
     }
-    participant->unk4 = targetSpeed;
+    participant->throttle = targetSpeed;
     return leadDistance;
 }
 
@@ -385,16 +385,16 @@ void raceOpponentRacerBehaviorUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         manager = participant->actor;
         managerData = manager->customState;
-        participant->unk10 = 1.0f;
+        participant->steerGain = 1.0f;
         gCurrentActor->flags &= 0xFFFDFFFE;
         gCurrentActor->drawDistance = 0x5DC;
         raceSetPiecewiseCurveMode(target, 5, D_8002FC20, &D_8002FC50);
-        participant->unk34 = 0;
+        participant->raceStatus = 0;
         camRequestPathLength();
         pathFrames = camStartPath(gCurrentActor, 1, 1) - 0x3C;
         managerData->unk1C = pathFrames;
         target->startCountdown = pathFrames;
-        participant->unk4 = 1.0f;
+        participant->throttle = 1.0f;
         gBehaviourWorkState->unk25 = gBehaviourExtraState->pathCount - 5;
         idx = gBehaviourAnimState->path[gBehaviourWorkState->unk25][0];
         gCurrentActor->x = D_807FDCA0->entries[idx].x;
@@ -405,11 +405,11 @@ void raceOpponentRacerBehaviorUpdate(void) {
     if (target->startCountdown != 0) {
         target->startCountdown--;
     }
-    if (participant->unk34 < 5) {
+    if (participant->raceStatus < 5) {
         leadDistance = raceRacerSteerTowardWaypoint();
-        if (participant->unk34 == 2) {
+        if (participant->raceStatus == 2) {
             raceHandleRacerCollision(target);
-        } else if (participant->unk34 == 4 && target->finishCamStarted == 0) {
+        } else if (participant->raceStatus == 4 && target->finishCamStarted == 0) {
             target->finishCamStarted = 1;
             if (flagGet(0xA5, 0) == 0) {
                 camStartPath(target->actor, 0, 1);
@@ -419,7 +419,7 @@ void raceOpponentRacerBehaviorUpdate(void) {
             }
         }
         func_8068F72C(participant, motion, 0, 0);
-    } else if (participant->unk34 == 5) {
+    } else if (participant->raceStatus == 5) {
         switch (participant->unk35) {
         case 0:
             if (flagGet(0xA5, 0) == 0) {

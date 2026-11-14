@@ -66,7 +66,7 @@ void actorSyncTransformFromParent(Actor **actorRef) {
     parent = playerState->actor;
     if (parent != NULL) {
         vehicleState = parent->customState;
-        if (vehicleState->unk34 < 5) {
+        if (vehicleState->raceStatus < 5) {
             self->x = parent->x;
             (*actorRef)->y = playerState->actor->y;
             (*actorRef)->z = playerState->actor->z;
@@ -346,9 +346,9 @@ u8 tilt;
         gCurrentActor->state = 0;
         gCurrentActor->unk155 = 0;
         gCurrentActor->speedXZ = 0.0f;
-        vehicle->unk34 = 0;
+        vehicle->raceStatus = 0;
         vehicle->unk35 = 0;
-        if (vehicle->unk27 == 0) {
+        if (vehicle->isCpu == 0) {
             gCurrentActor->unk144 = 0x3C;
             gCurrentActor->accelY = -20.0f;
         } else {
@@ -361,14 +361,14 @@ u8 tilt;
     velX = mathSinF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ;
     velZ = mathCosF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ;
     if (fl[3] != 0) {
-        thrust = vehicle->unk4 * 50.0f;
+        thrust = vehicle->throttle * 50.0f;
         if (kongState == 2) {
             tmpA = 5000.0f;
         } else {
             tmpA = 10000.0f;
         }
-        drag = 1.0f / tmpA * (gCurrentActor->speedXZ * gCurrentActor->speedXZ) + vehicle->unk8;
-        if (vehicle->unk4 != 0.0f) {
+        drag = 1.0f / tmpA * (gCurrentActor->speedXZ * gCurrentActor->speedXZ) + vehicle->brake;
+        if (vehicle->throttle != 0.0f) {
             drag = drag + 30.0f;
         } else {
             drag = drag + 3.0f;
@@ -376,11 +376,11 @@ u8 tilt;
     } else {
         tmpB = 2.0f;
         if (fl[2] != 0) {
-            thrust = vehicle->unk4 * 4.0f;
-            drag = vehicle->unk8 + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + tmpB;
+            thrust = vehicle->throttle * 4.0f;
+            drag = vehicle->brake + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + tmpB;
         } else {
-            thrust = vehicle->unk4 * tmpB;
-            drag = vehicle->unk8 + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + tmpB;
+            thrust = vehicle->throttle * tmpB;
+            drag = vehicle->brake + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + tmpB;
         }
     }
     velX += mathSinF(vehicle->heading) * thrust;
@@ -397,12 +397,12 @@ u8 tilt;
         gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, 0, 4.0f);
         gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, 0, 5.0f);
     }
-    turnRate = vehicle->unk10 * vehicle->unkC;
+    turnRate = vehicle->steerGain * vehicle->steer;
     if (tilt) {
         tiltRoll = tiltRoll + turnRate * 200.0f;
         tiltRoll &= 0xFFF;
         if (fl[3] != 0 || fl[2] != 0) {
-            tiltPitch = tiltPitch + (vehicle->unk4 * -50.0f + gCurrentActor->speedXZ * -0.5);
+            tiltPitch = tiltPitch + (vehicle->throttle * -50.0f + gCurrentActor->speedXZ * -0.5);
             tiltPitch &= 0xFFF;
         } else {
             tiltPitch = gCurrentActor->roll;
@@ -478,7 +478,7 @@ u8 tilt;
     if (fl[2] != 0 && !(gCurrentActor->prevContactFlags & 1)) {
         gCurrentActor->speedY = -10.0f;
     }
-    gCurrentActor->yaw = (vehicle->heading + vehicle->unk2) & 0xFFF;
+    gCurrentActor->yaw = (vehicle->heading + vehicle->yawOffset) & 0xFFF;
 }
 
 
@@ -493,7 +493,7 @@ void actorInterpolateAngles(u8 resetting, RaceParticipant *vehicle, VehicleMotio
         yawGoal = 0.0f;
     } else {
         pitchGoal = 0.0f;
-        yawGoal = (f32)((f64)vehicle->unkC * (400.0 - (0.7 * (f64)gCurrentActor->speedXZ)));
+        yawGoal = (f32)((f64)vehicle->steer * (400.0 - (0.7 * (f64)gCurrentActor->speedXZ)));
     }
     motion->bonePitch = mathAngleEaseToward(motion->bonePitch, (s16)(s32)pitchGoal, 5.0f);
     motion->boneYaw = mathAngleEaseToward(motion->boneYaw, (s16)((s32)yawGoal & 0xFFF), 3.0f);
@@ -545,7 +545,7 @@ s16 unused;
         D_80770B68[idx] = ((f64)gCurrentActor->speedXZ / 300.0) + 1.0;
         D_80770BC0[idx] = 1.0f;
     } else {
-        D_80770B68[idx] = (f64)vehicle->unk4 + 1.2;
+        D_80770B68[idx] = (f64)vehicle->throttle + 1.2;
         D_80770BC0[idx] = 5.0f;
     }
 
@@ -556,7 +556,7 @@ s16 unused;
             D_80770BC0[idx] = 1.0f;
         }
     } else {
-        D_80770B68[idx] = ((f64)vehicle->unk4 * 1.5) + 0.2;
+        D_80770B68[idx] = ((f64)vehicle->throttle * 1.5) + 0.2;
         D_80770BC0[idx] = 8.0f;
     }
 }
@@ -566,7 +566,7 @@ void actorInitFromSpawnPoint(Actor *actor, RaceParticipant *vehicle) {
     G01Pos *spawn;
     s16 yaw;
 
-    spawn = func_806C96C4(vehicle->unk36);
+    spawn = func_806C96C4(vehicle->place);
     actor->x = spawn->unk0;
     actor->y = spawn->unk2;
     actor->z = spawn->unk4;
@@ -590,7 +590,7 @@ void actorSpawnChildActor(Actor *parent) {
     vehicle->playerIdx = parentState->playerIndex;
     actorInitAnimations(child, parent);
     vehicle->unk35 = 0;
-    vehicle->unk27 = 0;
+    vehicle->isCpu = 0;
     vehicle->heading = parent->yaw;
     parentState->actor = child;
     child->flags &= ~0x20000;
@@ -624,7 +624,7 @@ void actorUpdatePlayerInteraction(void) {
     playerState = playerActor->customState;
     camState = playerState->camActor->customState;
     resetting = gCurrentActor->contactFlags & 1;
-    vehicle->unk34 = 2;
+    vehicle->raceStatus = 2;
     func_80690190(vehicle, motion, playerState);
     if (gGameMode == 0 && camState->unkF3 != 4) {
         camSetTargetScaled(playerState->camActor, gCurrentActor, 4, 0x800, 0xA0, 0, 6, 0x12C, 0x8F, 0, 0.2f);

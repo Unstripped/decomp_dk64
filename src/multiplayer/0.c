@@ -633,7 +633,7 @@ void mpApplyPendingEffect(s32 playerIndex) {
             otherState = otherActor->customState;
             if (i != playerIndex && otherState->surfaceTimer == 0 && otherActor->state != 0x84) {
                 playerStateQueueCallback(0x27, playerActor, i);
-                otherState->unk200 = 0x96;
+                otherState->statusEffectTimer = 0x96;
             }
         }
         break;
@@ -652,13 +652,13 @@ void mpApplyPendingEffect(s32 playerIndex) {
             func_806F54E0(playerIndex, 0x8E, 0);
             break;
         case 1:
-            playerState->unk200 = 0x96;
+            playerState->statusEffectTimer = 0x96;
             playerState->stateFlags |= 0x80;
             break;
         case 2:
             playerState->stateFlags |= 0x08000000;
             playerState->stateFlags &= ~0x20;
-            playerState->unk200 = 0x96;
+            playerState->statusEffectTimer = 0x96;
             break;
         case 3:
             playerAddHealthDelta(playerIndex, 0x40);

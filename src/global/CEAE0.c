@@ -677,20 +677,20 @@ void playerUpdateScaleAndPhysics(void) {
             }
         }
     }
-    if (gActivePlayerState->unk200 != 0) {
+    if (gActivePlayerState->statusEffectTimer != 0) {
         if (gActivePlayerState->stateFlags & 0x8000000) {
             scale = 1.0f;
-            if (gActivePlayerState->unk200 >= 2) {
+            if (gActivePlayerState->statusEffectTimer >= 2) {
                 scale = 0.5f;
             }
             gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex] * scale;
             gActivePlayerState->airAccel = D_80753234[gCurrentCharacterIndex] * scale;
             gActivePlayerState->turnRate = (s32)(D_8075326C[gCurrentCharacterIndex] * scale);
         }
-        if (gCurrentActor->state != 0x7C || (gCurrentActor->state == 0x7C && gActivePlayerState->unk200 == 1)) {
-            gActivePlayerState->unk200--;
+        if (gCurrentActor->state != 0x7C || (gCurrentActor->state == 0x7C && gActivePlayerState->statusEffectTimer == 1)) {
+            gActivePlayerState->statusEffectTimer--;
         }
-        if (gActivePlayerState->unk200 == 0) {
+        if (gActivePlayerState->statusEffectTimer == 0) {
             gActivePlayerState->stateFlags &= ~0x08000080;
             if (gCurrentActor->state == 0x7C) {
                 playerResumeLocomotion(gCurrentActor);

@@ -327,7 +327,7 @@ void raceUpdateLapAndWaypointTracker(RaceParticipant *tracker) {
             if (tracker->unk38 != 0) {
                 tracker->unk38 = raceIsFacingWaypoint(node);
             } else if (raceIsFacingWaypoint(node) != 0) {
-                if (tracker->unk27 == 0) {
+                if (tracker->isCpu == 0) {
                     if (node->kind != 0) {
                         if (raceCheckGateCrossed(node) == 0) {
                             sfxPlayAtPositionPooled(node->x, node->y, node->z, 0x98, 0xFF, 0x7F, 0, 0, 0.3f, 0);

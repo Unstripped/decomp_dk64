@@ -548,7 +548,7 @@ void func_806AFB58(void) {
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk146 = -1;
+        gCurrentActor->segmentFlags = -1;
         behaviourSetAnimIds(0x2D9, 0x2D7, 0x2D8);
         func_80724CA4(2, 1);
         gCurrentActor->unkEC = 0x1770;
@@ -558,17 +558,17 @@ void func_806AFB58(void) {
         gBehaviourWorkState->unk35 = 2;
         gCurrentActor->callbackMask &= 0xFFFF7FFF;
     } else if ((gActorGlobalState.bossFightPhase == 4) || (gActorGlobalState.bossFightPhase == 5)) {
-        if (gCurrentActor->unk146 & 1) {
+        if (gCurrentActor->segmentFlags & 1) {
             gBehaviourWorkState->unk1E = 0xF;
             gBehaviourWorkState->unk1F = 0xF;
             gCurrentActor->unkEC = -1;
             actorSpawnChildAtNode(0xC2, 0x800, 1, 0x190);
             gSpawnedActor->unk15F = 1;
             effectSpawnActorParticleBurst(1);
-        } else if (gCurrentActor->unk146 & 2) {
+        } else if (gCurrentActor->segmentFlags & 2) {
             effectSpawnActorParticleBurst(2);
         }
-        gCurrentActor->unk146 = gCurrentActor->unk146 * 2;
+        gCurrentActor->segmentFlags = gCurrentActor->segmentFlags * 2;
         behaviourSpawnExplosionAndSound(0x2DC, 0x31, gActorGlobalState.targetActor);
         gBehaviourWorkState->unk26 = 0;
         gCurrentActor->speedXZ = 0.0f;

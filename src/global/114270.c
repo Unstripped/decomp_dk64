@@ -172,7 +172,7 @@ void effectSpriteParticleTrackCamera(EffectSpriteParticle *particle) {
     dz = gPlayerSlots->camZ - gPlayerSlots->eyeZ;
     dx = gPlayerSlots->camX - gPlayerSlots->eyeX;
     dist2 = sqrtf(dz * dz + dx * dx);
-    particle->x -= 2.0 * dist2 * mathSinF(mathAngleSignedDistance(gPlayerSlots->unk2C8, ang));
+    particle->x -= 2.0 * dist2 * mathSinF(mathAngleSignedDistance(gPlayerSlots->camYawInt, ang));
     particle->camYaw = gPlayerSlots->camYaw;
 }
 

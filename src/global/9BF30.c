@@ -113,7 +113,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
             gDPSetTile(glist++, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0, 0, G_TX_LOADTILE, 0, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD); gDPLoadSync(glist++); gDPLoadBlock(glist++, G_TX_LOADTILE, 0, 0, 0x3FF, 0x80); gDPPipeSync(glist++); _g = (Gfx *)(glist++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; gDPSetTileSize(glist++, G_TX_RENDERTILE, 0, 0, 0x7C, 0x7C); // LAYOUT: same-line texture block statements steer as1 scheduling
 
             guScaleF(mtx2, vscale, vscale, vscale);
-            matrixMakeRotationY(mtx1, (f32)((gPlayerSlots->unk2C8 * 0x168) / 4096));
+            matrixMakeRotationY(mtx1, (f32)((gPlayerSlots->camYawInt * 0x168) / 4096));
             guMtxCatF(mtx2, mtx1, mtx2);
             guTranslateF(mtx1, actor->x + vx, actor->y, actor->z + vy);
             guMtxCatF(mtx2, mtx1, mtx2);

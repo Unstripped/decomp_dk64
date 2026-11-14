@@ -137,9 +137,9 @@ void raceInitOpponentEntities(Actor *parent) {
     participant = racer->customState;
     raceRegisterParticipant(parent, 1, racer, participant);
     participant->lap = 0;
-    participant->unk27 = 0;
+    participant->isCpu = 0;
     participant->actor = parent;
-    participant->unk36 = 1;
+    participant->place = 1;
     participant->playerIdx = 0;
     path = ((RaceRacerActor *)racer)->path;
     spawnedNode = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
@@ -153,9 +153,9 @@ void raceInitOpponentEntities(Actor *parent) {
     participant = ((RaceNodeActor *)spawnedNode)->participant;
     raceRegisterParticipant(parent, 0, spawnedNode, participant);
     participant->lap = 0;
-    participant->unk27 = 1;
+    participant->isCpu = 1;
     participant->actor = parent;
-    participant->unk36 = 0;
+    participant->place = 0;
     path = ((RaceNodeActor *)spawnedNode)->path;
     path->unk30 = racer;
     path->unk34 = spawnedActor;
@@ -285,7 +285,7 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
         pathState->unk14 = 0.0f;
         pathState->unk10 = 0;
     } else {
-        thrust = participant->unk4;
+        thrust = participant->throttle;
     }
     if (pathState->unk10 != 0) {
         pathState->unk10--;
@@ -440,28 +440,28 @@ void raceVehicleBehaviorUpdate(void) {
         racePlayEngineSfx();
     }
     if (gActorGlobalState.bossFightPhase == 5 && pathState->unk39 == 0) {
-        if (participant->unk34 == 2) {
+        if (participant->raceStatus == 2) {
             behaviourAddSlotQueueValueB(3);
         }
         pathState->unk39 = 0x1E;
     }
     if (participant->unk35 == 0) {
-        if (participant->unk34 == 1) {
+        if (participant->raceStatus == 1) {
             slotQueueUpdate(0xB, 1, 0);
             participant->unk35++;
-        } else if (participant->unk34 == 5) {
+        } else if (participant->raceStatus == 5) {
             slotQueueCancel(0xB, 0);
             participant->unk35++;
         }
     }
-    if (participant->unk34 == 1) {
+    if (participant->raceStatus == 1) {
         manager = participant->actor;
         managerData = manager->customState;
         if (managerData->unk1C == 8 || managerData->unk1C == 0x13) {
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x187, 0xFF, 0x7F, 0, 0, 0.3f, 0);
         }
         raceUpdateEngineSoundPitch(participant->route * 1.5);
-    } else if (participant->unk34 < 5) {
+    } else if (participant->raceStatus < 5) {
         shakeAngle = 0;
         if (participant->route != 0) {
             bonus = raceGetHandicapSpeedBonus(participant);
@@ -485,7 +485,7 @@ void raceVehicleBehaviorUpdate(void) {
         racePathFollowStep(pathState, participant, 1);
         gCurrentActor->y += 20.0f * mathSinF(shakeAngle * 0.5f);
         raceUpdateEngineSoundPitch(gCurrentActor->speedXZ);
-    } else if (participant->unk34 == 5) {
+    } else if (participant->raceStatus == 5) {
         gCurrentActor->flags &= ~4;
         gCurrentActor->speedXZ = 0.0f;
         for (i = 0; i != 2; i++) {
@@ -497,8 +497,8 @@ void raceVehicleBehaviorUpdate(void) {
     if (participant->unk29 != 0) {
         raceSpawnProjectile(participant);
     }
-    if (participant->unk34 < 5) {
-        if (participant->unk34 == 2) {
+    if (participant->raceStatus < 5) {
+        if (participant->raceStatus == 2) {
             off = 10.0;
         } else {
             off = -200.0f;
@@ -518,7 +518,7 @@ void raceVehicleBehaviorUpdate(void) {
         actorSpawnNodeEffectFacingCamera(2, 0xC8);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
-    if (participant->unk34 > 0 && participant->unk34 < 5) {
+    if (participant->raceStatus > 0 && participant->raceStatus < 5) {
         renderCallbacksRegister(raceVehicleRenderCallback, gCurrentActor, 3);
     }
 }
@@ -543,7 +543,7 @@ void raceProjectileBehaviorUpdate(void) {
         aux->unk0 = 0x78;
         gCurrentActor->flags |= 0x10;
         gCurrentActor->unk144 = 0x3C;
-        participant->unk4 = 5.0f;
+        participant->throttle = 5.0f;
     }
     if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0) || (gActorGlobalState.bossFightPhase == 5)) {
         effectSetDepth(1);

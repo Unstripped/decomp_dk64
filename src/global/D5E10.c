@@ -2859,12 +2859,12 @@ void playerStateDamageFallTumble(void) {
                 gCurrentActor->speedXZ = gCurrentActor->speedXZ - (f32)n;
             }
             gCurrentActor->roll = mathAtan2(gCurrentActor->speedXZ, gCurrentActor->speedY) * 4096.0f / 6.2831855f;
-            gCurrentActor->yaw = (mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, gActivePlayerState->unkB0, gActivePlayerState->unkB8) + 0x800) % 4095;
+            gCurrentActor->yaw = (mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, gActivePlayerState->launchTargetX, gActivePlayerState->launchTargetZ) + 0x800) % 4095;
             gCurrentActor->moveYaw = gCurrentActor->yaw;
-            dy = gActivePlayerState->unkB4 - gPrimaryPlayerActor->y;
+            dy = gActivePlayerState->launchTargetY - gPrimaryPlayerActor->y;
             dy = dy / (gPrimaryPlayerActor->sub4->scaleY * 0.16666666675);
-            dx = gActivePlayerState->unkB8 - gPrimaryPlayerActor->z;
-            dz = gActivePlayerState->unkB0 - gPrimaryPlayerActor->x;
+            dx = gActivePlayerState->launchTargetZ - gPrimaryPlayerActor->z;
+            dz = gActivePlayerState->launchTargetX - gPrimaryPlayerActor->x;
             dist = sqrtf(dx * dx + dz * dz) / (gPrimaryPlayerActor->sub4->scaleY * 0.16666666675);
             fa0 = gPrimaryPlayerActor->speedXZ;
             if (fa0 == 0.0) {

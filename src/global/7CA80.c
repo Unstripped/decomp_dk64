@@ -254,7 +254,7 @@ u16 type;
         actor->unk148[0] = NULL;
         actor->unk148[1] = NULL;
         actor->unkD4 = &D_80748D4A;
-        actor->unk146 = -1;
+        actor->segmentFlags = -1;
         actor->collisionFlags = D_8074D624[type];
         actor->floorTiltPitch = 0x400;
         actor->floorNodeId = 0;
@@ -1132,7 +1132,7 @@ void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
                     gActivePlayerState->stateFlags |= 0x08000000;
                     break;
                 }
-                gActivePlayerState->unk200 = 0xF0;
+                gActivePlayerState->statusEffectTimer = 0xF0;
             } else if (attacker != NULL && ((attacker->collisionFlags & 1) || (attacker->collisionFlags & 4) || (attacker->collisionFlags & 2))) {
                 if (func_80714608(0) != 0) {
                     if (playerIsSmallerThanAttacker(actor, attacker) != 0) {

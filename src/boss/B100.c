@@ -76,7 +76,7 @@ void bossDogadonStep(void) {
         gCurrentActor->interactionType = 8;
         transitionSetState(0);
         camSetSecondTarget(gCamActor, 0, 0);
-        gCurrentActor->unk146 = 5;
+        gCurrentActor->segmentFlags = 5;
         gCurrentActor->floorNodeId = 1;
         func_80724CA4(2, 1);
         gCurrentActor->state = 0x1E;

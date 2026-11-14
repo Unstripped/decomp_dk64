@@ -132,9 +132,9 @@ void actorProximityUpdate(void) {
 }
 
 void func_8068A764(Actor *actor, u8 bit) {
-    actor->unk146 |= (1 << bit);
+    actor->segmentFlags |= (1 << bit);
 }
 
 void func_8068A784(Actor *actor, u8 bit) {
-    actor->unk146 &= ~(1 << bit);
+    actor->segmentFlags &= ~(1 << bit);
 }

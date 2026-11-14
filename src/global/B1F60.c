@@ -157,7 +157,7 @@ void actorFollowLinkedNodeFadeUpdate(void) {
             }
             break;
     }
-    gCurrentActor->yaw = gPlayerSlots->unk2C8 & 0xFFF;
+    gCurrentActor->yaw = gPlayerSlots->camYawInt & 0xFFF;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

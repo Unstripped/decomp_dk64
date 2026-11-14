@@ -138,7 +138,7 @@ void bossSpawnerUpdate(void) {
         gPrimaryPlayerActor->unk144 = 1;
         if (D_807FBDC4 != 0) {
             cutsceneId = D_80035B44[D_80036DC0];
-            gCurrentActor->unk146 = 0;
+            gCurrentActor->segmentFlags = 0;
             for (i = 4; D_80036DC0 < i; i--) {
                 func_8068A764(gCurrentActor, D_80035B58[D_80035B44[i]]);
             }

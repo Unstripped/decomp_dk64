@@ -60,7 +60,7 @@ void raceInitParticipants(Actor *manager) {
         actorSpawn(0x142, 0x95);
         racerActor = gSpawnedActor;
         racerState = racerActor->customState;
-        racerState->unk27 = 0;
+        racerState->isCpu = 0;
         raceRegisterParticipant(manager, participantIndex, racerActor, racerState);
         participantIndex++;
         racerState->playerIdx = i;
@@ -69,7 +69,7 @@ void raceInitParticipants(Actor *manager) {
     if (gPlayerCount == 1) {
         racerActor = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         racerState = ((RaceComponentActor *)racerActor)->participant;
-        racerState->unk27 = 1;
+        racerState->isCpu = 1;
         raceRegisterParticipant(manager, participantIndex, racerActor, racerState);
         raceGetParticipantPair(manager, 0, &((RaceComponentActor *)racerActor)->target->actor, &((RaceComponentActor *)racerActor)->target->participant);
         managerData->unk25 = 1;
@@ -79,7 +79,7 @@ void raceInitParticipants(Actor *manager) {
     if (numParticipants > 0) {
         do {
             raceGetParticipantPair(manager, i, &racerActor, &racerState);
-            racerState->unk36 = i;
+            racerState->place = i;
             racerState->actor = manager;
             actorInitFromSpawnPoint(racerActor, racerState);
             i++;
@@ -125,17 +125,17 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
     if (racerState->reverseThrust != 0) {
         thrustYaw += 0x800;
         thrustYaw &= 0xFFF;
-        racerState->unk4 *= 0.85;
+        racerState->throttle *= 0.85;
     }
     if (onGround != 0) {
-        factor = racerState->unk8 * gCurrentActor->speedXZ * 0.2;
+        factor = racerState->brake * gCurrentActor->speedXZ * 0.2;
         if (!(factor > 1.0f)) {
             factor = 1.0f;
         }
-        forwardAccel = (racerState->unk4 * 35.0f) + (gCurrentActor->speedXZ * 0.13);
+        forwardAccel = (racerState->throttle * 35.0f) + (gCurrentActor->speedXZ * 0.13);
         friction = (gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00025f) + (27.0 + factor);
     } else {
-        forwardAccel = racerState->unk4 * 2;
+        forwardAccel = racerState->throttle * 2;
         friction = (gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f) + 2;
     }
     velX += mathSinF(thrustYaw) * forwardAccel;
@@ -165,8 +165,8 @@ void raceUpdateRacerMotion(RaceParticipant *racerState) {
         targetRoll &= 0xFFF;
         targetPitch &= 0xFFF;
     }
-    value = racerState->unk8;
-    steerAmount = racerState->unk10 * racerState->unkC;
+    value = racerState->brake;
+    steerAmount = racerState->steerGain * racerState->steer;
     if (value > 0) {
         if (steerAmount > 0.0f) {
             factor = steerAmount;
@@ -235,7 +235,7 @@ void raceParticipantMotionUpdate(void) {
         actorOrNodeFlags(gCurrentActor, 2, 8);
         racePlayEngineSfx();
     }
-    switch (racerState->unk34) {
+    switch (racerState->raceStatus) {
         case 1:
             if (racerState->unk35 == 0) {
                 racerState->unk35++;
@@ -263,14 +263,14 @@ void raceParticipantMotionUpdate(void) {
             break;
     }
     flags = gCurrentActor->flags;
-    if (racerState->unk4 <= 0 || racerState->unk8 > 0) {
+    if (racerState->throttle <= 0 || racerState->brake > 0) {
         colorMode = 0xF0;
     }
     if (flags & 4) {
         actorSpawnNodeEffectFacingCamera(1, colorMode);
         actorSpawnNodeEffectFacingCamera(2, colorMode);
     }
-    if (racerState->unk34 > 0 && racerState->unk34 < 5) {
+    if (racerState->raceStatus > 0 && racerState->raceStatus < 5) {
         gridSetNodeBounds(racerState->playerIdx, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, gCurrentActor->sub4->scaleY / 0.15 * 40.0);
         renderCallbacksRegister(raceParticleRenderCallback, gCurrentActor, 3);
     }
@@ -323,16 +323,16 @@ void raceSteerTowardTargetWaypoint(RaceParticipant *racerState, RaceTarget *targ
     if (work < waypointThreshold[0]) {
         work = work - waypointRadius;
         dz = waypointThreshold[0] - waypointRadius;
-        steerAngle = angleDelta * (1.0 + ((1.0f - (work / dz)) * 1.5 * (2.0f * racerState->unk4)));
+        steerAngle = angleDelta * (1.0 + ((1.0f - (work / dz)) * 1.5 * (2.0f * racerState->throttle)));
     }
-    racerState->unkC += ((steerAngle * 0.0033333334f) - racerState->unkC) * 0.5f;
-    if (racerState->unk34 >= 2 && racerState->unk34 < 5) {
+    racerState->steer += ((steerAngle * 0.0033333334f) - racerState->steer) * 0.5f;
+    if (racerState->raceStatus >= 2 && racerState->raceStatus < 5) {
         if (target->curveMode != 0 && raceGetProgressPercent(route, racerState, managerData) > 0.75) {
             raceSetPiecewiseCurveMode(target, 0, D_8002FC70, &D_8002FCA0);
         }
         targetVel = raceEvaluateCurveTargetSpeed(target, targetSpeed, D_8002FC70, &D_8002FCA0);
         gCurrentActor->speedXZ = (gCurrentActor->speedXZ < 650.0f) ? gCurrentActor->speedXZ : 650.0f;
-        racerState->unk4 = targetVel;
+        racerState->throttle = targetVel;
     }
 }
 
@@ -463,7 +463,7 @@ void raceOpponentRacerMotionUpdate(void) {
         raceSetPiecewiseCurveMode(target, 5, D_8002FC70, &D_8002FCA0);
         gCurrentActor->unk144 = 0x3C;
         gCurrentActor->flags &= 0xFFFDFFFE;
-        racerState->unk10 = 1.0f;
+        racerState->steerGain = 1.0f;
         for (i = 0; i < 3; i++) {
             gCurrentActor->sub4->scale[i] *= 0.3;
         }
@@ -477,7 +477,7 @@ void raceOpponentRacerMotionUpdate(void) {
         D_80750AC8 = 0xA;
         actorOrNodeFlags(gCurrentActor, 4, 8);
     }
-    switch (racerState->unk34) {
+    switch (racerState->raceStatus) {
         case 0:
             raceUpdateCountdownState(racerState);
             break;
@@ -491,7 +491,7 @@ void raceOpponentRacerMotionUpdate(void) {
             raceHandlePostRaceFinished(racerState, target->participant);
             break;
     }
-    if (racerState->unk34 < 5) {
+    if (racerState->raceStatus < 5) {
         raceHandleRacerCollision(target);
         raceSteerTowardTargetWaypoint(racerState, target);
         raceUpdateRacerMotion(racerState);

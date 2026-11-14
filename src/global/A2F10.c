@@ -765,7 +765,7 @@ void actorShadowFollowUpdate(void) {
         gCurrentActor->sub4->scaleX = (gCurrentActor->splineT * 1.2 - gCurrentActor->sub4->scaleX) * 0.3 + gCurrentActor->sub4->scaleX;
     }
     gCurrentActor->sub4->scaleZ = gCurrentActor->sub4->scaleX;
-    gCurrentActor->alpha = MIN(MAX(parentState->unk200, 0), 0xFF);
+    gCurrentActor->alpha = MIN(MAX(parentState->statusEffectTimer, 0), 0xFF);
     if (gCurrentActor->alpha == 0 || gCurrentActor->parentActor->state != 0x7C) {
         actorDespawn(gCurrentActor);
     } else {
@@ -811,7 +811,7 @@ void actorMirrorParentModelY(void) {
         return;
     }
     gCurrentActor->alpha = 0xFF;
-    gCurrentActor->unk146 = sub->parent->unk146;
+    gCurrentActor->segmentFlags = sub->parent->segmentFlags;
     gCurrentActor->x = sub->parent->x;
     gCurrentActor->y = sub->parent->y;
     gCurrentActor->unkA8 = sub->parent->unkA8;
@@ -868,7 +868,7 @@ void actorMirrorParentModelAxis(void) {
         return;
     }
     gCurrentActor->alpha = sub->alpha;
-    gCurrentActor->unk146 = gCurrentActor->parentActor->unk146;
+    gCurrentActor->segmentFlags = gCurrentActor->parentActor->segmentFlags;
     gCurrentActor->x = gCurrentActor->parentActor->x;
     gCurrentActor->y = gCurrentActor->parentActor->y;
     gCurrentActor->unkA8 = gCurrentActor->parentActor->unkA8;

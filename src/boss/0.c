@@ -82,7 +82,7 @@ void bossArmydilloInitArena(void) {
     if (mode == 0) {
         if (flagGet(0x68, 2) != 0) {
             mode = 1;
-            gCurrentActor->unk146 = 3;
+            gCurrentActor->segmentFlags = 3;
         }
     }
     func_80724D28(1, 0xD);
@@ -563,7 +563,7 @@ void bossArmydilloStep(void) {
         gCurrentActor->drawDistance = 0x3E8;
         animSetSpeed(gCurrentActor, 1, 0.2f);
         animSetLoopMode(gCurrentActor, 1, 1);
-        gCurrentActor->unk146 = 0;
+        gCurrentActor->segmentFlags = 0;
         bossArmydilloInitArena();
         gCurrentActor->speedXZ = 0.0f;
         scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
@@ -609,7 +609,7 @@ void bossArmydilloStep(void) {
     case 0x1F:
         controllerAnimSetStateIfChanged(gCurrentActor, 0x39A, 0.0f, 0.0f);
         scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
-        gCurrentActor->unk146 = 3;
+        gCurrentActor->segmentFlags = 3;
         gCurrentActor->state = scriptData[state->scriptPos++];
         gCurrentActor->unk155 = 0;
         break;

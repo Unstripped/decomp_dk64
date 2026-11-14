@@ -101,7 +101,7 @@ void bossKRoolLankyStep(void) {
     behaviourFrameBegin();
     bossRoundFrame(scriptOpcodes);
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk146 = 1;
+        gCurrentActor->segmentFlags = 1;
         gCurrentActor->state = 0x1E;
         gCurrentActor->unk155 = 0;
         gCurrentActor->floorNodeId = 1;
