@@ -338,7 +338,7 @@ void jetpacPlaySound(s32 soundId) {
 
 void jetpacSetSoundPitch(s32 soundId, f32 pitch) {
     if (D_80770DF8[soundId] != 0) {
-        n_alSndpPostEvent(D_80770DF8[soundId], 0x10, *(s32 *)&pitch);
+        n_alSndpPostEvent(D_80770DF8[soundId], 0x10, *(s32 *)&pitch); // ORIG: target spills pitch to its home (sw a1,0x1c(sp) at 0xf40) and passes its bits (lw a2,0x1c(sp) at 0xf50)
     }
 }
 
