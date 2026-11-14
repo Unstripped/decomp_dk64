@@ -45,55 +45,55 @@ void collectibleCountsClear(void) {
 
 extern u8 gPlayerCharacterId[];
 
-typedef struct G00Row {
-    /* 0x0 */ s32 unk0;
+typedef struct KongCharacterEntry {
+    /* 0x0 */ s32 actorType;
     /* 0x4 */ union {
-        s32 unk4;
+        s32 characterIndex;
         struct {
             u8 pad[3];
             u8 characterId;
         } b;
     };
     /* 0x8 */ union {
-        s32 unk8;
+        s32 model;
         struct {
             u8 pad[2];
             u16 modelId;
         } m;
     };
-    /* 0xC */ s32 unkC;
-} G00Row;
-extern G00Row D_8075C410[];
+    /* 0xC */ s32 actorFlags;
+} KongCharacterEntry;
+extern KongCharacterEntry D_8075C410[];
 
 s32 playerGetModelAssetId(void) {
-    return D_8075C410[gPlayerCharacterId[0]].unk0;
+    return D_8075C410[gPlayerCharacterId[0]].actorType;
 }
 
-typedef struct G00SpawnSub {
-    /* 0x0 */ Actor *unk0;
-    /* 0x4 */ Actor *unk4;
+typedef struct LinkedActorState {
+    /* 0x0 */ Actor *rider;
+    /* 0x4 */ Actor *target;
     /* 0x8 */ u8 unk8;
-} G00SpawnSub;
+} LinkedActorState;
 
 
 void func_806C7B50(s32 actorType, u8 param, Actor *parent) {
-    G00SpawnSub *sub;
+    LinkedActorState *linked;
 
     actorSpawn(actorType, 0x82);
     actorCopyPoseAndScale(gSpawnedActor, parent, 0.15f);
-    sub = gSpawnedActor->customState;
-    sub->unk4 = parent;
-    sub->unk8 = param;
+    linked = gSpawnedActor->customState;
+    linked->target = parent;
+    linked->unk8 = param;
 }
 
 void playerMountBarrel(Actor *rider, Actor *target) {
-    G00SpawnSub *sub;
+    LinkedActorState *linked;
 
     actorSpawn(0x25, 0x8C);
     actorCopyPoseAndScale(gSpawnedActor, gActivePlayerActor, 0.15f);
-    sub = gSpawnedActor->customState;
-    sub->unk0 = rider;
-    sub->unk4 = target;
+    linked = gSpawnedActor->customState;
+    linked->rider = rider;
+    linked->target = target;
 }
 
 extern u8 gViewportCount;
@@ -256,28 +256,28 @@ void cameraSetViewportYRange(s16 top, s16 bottom) {
     p->unk280 = (f32)p->unk278 / (f32)p->unk27A;
 }
 
-typedef struct G00Tbl8 {
-    /* 0x00 */ f32 f[8];
-} G00Tbl8;
+typedef struct ChainOffsets8 {
+    /* 0x00 */ f32 offsetX[8];
+} ChainOffsets8;
 
-typedef struct G00Tbl11 {
-    /* 0x00 */ f32 f[11];
-} G00Tbl11;
+typedef struct ChainOffsets11 {
+    /* 0x00 */ f32 offsetX[11];
+} ChainOffsets11;
 
-typedef struct G00Tbl4 {
-    /* 0x00 */ f32 f[4];
-} G00Tbl4;
+typedef struct ChainOffsets4 {
+    /* 0x00 */ f32 offsetX[4];
+} ChainOffsets4;
 
-typedef struct G00Vtx {
-    /* 0x00 */ f32 unk0;
+typedef struct KongChainNode {
+    /* 0x00 */ f32 offsetX;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ f32 unkC;
     /* 0x10 */ f32 unk10;
     /* 0x14 */ f32 unk14;
-} G00Vtx;
+} KongChainNode;
 
-typedef struct G00Out {
+typedef struct KongChain {
     /* 0x000 */ f32 unk0;
     /* 0x004 */ f32 unk4;
     /* 0x008 */ f32 unk8;
@@ -285,81 +285,81 @@ typedef struct G00Out {
     /* 0x010 */ f32 unk10;
     /* 0x014 */ u8 unk14;
     /* 0x015 */ u8 pad15[3];
-    /* 0x018 */ s32 unk18;
-    /* 0x01C */ G00Vtx unk1C[12];
-} G00Out; // size = 0x13C
+    /* 0x018 */ s32 kind;
+    /* 0x01C */ KongChainNode nodes[12];
+} KongChain; // size = 0x13C
 
-extern G00Tbl8 D_80750AD8;
-extern G00Tbl11 D_80750AF8;
-extern G00Tbl4 D_80750B24;
+extern ChainOffsets8 D_80750AD8;
+extern ChainOffsets11 D_80750AF8;
+extern ChainOffsets4 D_80750B24;
 
-void func_806C8220(s32 mode, void *buffer, u32 kind) {
+void func_806C8220(s32 mode, void *chainBuffer, u32 kind) {
     f32 pad;
-    G00Tbl8 tbl8;
-    G00Tbl11 tbl11;
-    G00Tbl4 tbl4;
-    f32 *tbl;
+    ChainOffsets8 tbl8;
+    ChainOffsets11 tbl11;
+    ChainOffsets4 tbl4;
+    f32 *offsets;
     f32 sign;
     s32 count;
     s32 n;
     s32 i;
     s32 j;
-    G00Vtx *v;
+    KongChainNode *node;
     s32 pad2[2];
-    G00Out *out;
+    KongChain *chain;
 
     tbl8 = D_80750AD8;
     count = 1; // FAKE: dead store (every case sets count/n), keeps the frame/stack order
     n = 4; // FAKE: dead store (every case sets n), keeps n in v1 and the buffer copy in a0 (pre-existing, now tagged)
     tbl11 = D_80750AF8;
-    out = buffer;
+    chain = chainBuffer;
     tbl4 = D_80750B24;
     sign = 1.0f;
     switch (kind) {
     case 3:
         count = 1;
         n = 11;
-        tbl = tbl11.f;
+        offsets = tbl11.offsetX;
         break;
     case 5:
         count = 2;
         n = 8;
-        tbl = tbl8.f;
+        offsets = tbl8.offsetX;
         break;
     case 2:
         count = 1;
         n = 4;
-        tbl = tbl4.f;
+        offsets = tbl4.offsetX;
         break;
     default:
         return;
     }
     for (i = 0; i < count; i++) {
-        v = out->unk1C;
-        out->unk14 = 2;
-        out->unk18 = kind;
-        out->unkC = 0.0f;
-        out->unk8 = 0.0f;
-        out->unk4 = 0.0f;
-        out->unk0 = 0.0f;
-        out->unk10 = -128.0f;
-        for (j = 0; j < n; j++, v++) {
-            v->unk4 = 0.0;
-            v->unk0 = tbl[j] * sign;
-            v->unk8 = 0.0;
+        node = chain->nodes;
+        chain->unk14 = 2;
+        chain->kind = kind;
+        chain->unkC = 0.0f;
+        chain->unk8 = 0.0f;
+        chain->unk4 = 0.0f;
+        chain->unk0 = 0.0f;
+        chain->unk10 = -128.0f;
+        for (j = 0; j < n; j++, node++) {
+            node->unk4 = 0.0;
+            node->offsetX = offsets[j] * sign;
+            node->unk8 = 0.0;
             // LAYOUT: one source line; splitting it reorders the three stores
-            v->unk14 = 0.0f; v->unkC = 0.0f; v->unk10 = 0.0f;
+            node->unk14 = 0.0f; node->unkC = 0.0f; node->unk10 = 0.0f;
         }
-        out++;
+        chain++;
         sign = -sign;
     }
 }
 
 
-// Kong actor: second component pointer (0x178) is the G00Out block func_806C8220 fills.
+// Kong actor: second component pointer (0x178) is the KongChain array func_806C8220 fills.
 typedef struct KongActorView {
     /* 0x000 */ Actor base;
-    /* 0x178 */ G00Out *unk178;
+    /* 0x178 */ KongChain *chains;
 } KongActorView;
 
 #define KONG_ACTOR ((KongActorView *)gActivePlayerActor)
@@ -371,21 +371,21 @@ extern f32 D_807535E8[];
 extern PadInputState gPlayerPadState[];
 
 void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
-    G00Row *row;
-    u32 sel;
+    KongCharacterEntry *row;
+    u32 slot;
     s32 i;
 
-    sel = playerIndex;
+    slot = playerIndex;
     if (gPlayerCount >= 2) {
-        gPlayerCharacterId[sel] = gPlayerCharacterId[controllerGetPort(sel)];
+        gPlayerCharacterId[slot] = gPlayerCharacterId[controllerGetPort(slot)];
     }
-    if (sel == 0 && gCurrentMap == 0x50) {
+    if (slot == 0 && gCurrentMap == 0x50) {
         gPlayerCharacterId[0] = 0;
     }
-    row = &D_8075C410[gPlayerCharacterId[sel]];
-    actorSpawn(row->unk0, row->unk8);
+    row = &D_8075C410[gPlayerCharacterId[slot]];
+    actorSpawn(row->actorType, row->model);
     gSpawnedActor->flags &= ~0x1000;
-    gSpawnedActor->flags |= row->unkC;
+    gSpawnedActor->flags |= row->actorFlags;
     gSpawnedActor->unk16E[0] = 0x42;
     gSpawnedActor->unk16E[1] = 0x42;
     gSpawnedActor->flags |= 0x01000000;
@@ -402,16 +402,16 @@ void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     gActivePlayerActor = gSpawnedActor;
     gActivePlayerState = gActivePlayerActor->customState;
     gActivePlayerState->hitSourcePlayerIndex = -1;
-    gActivePlayerState->playerIndex = sel;
+    gActivePlayerState->playerIndex = slot;
     gActivePlayerState->unk11E = -1;
     gActivePlayerState->idleTimeoutFlag = 0;
     gActivePlayerState->lastFrame = -0x64;
-    gCurrentCharacterIndex = row->unk4;
+    gCurrentCharacterIndex = row->characterIndex;
     gActivePlayerState->savedActorType = gSpawnedActor->actorType;
     playerInputToggleActiveState(gActivePlayerActor);
     actorSpawn(0xBC, 0);
     gActivePlayerState->camActor = gSpawnedActor;
-    if (sel == 0) {
+    if (slot == 0) {
         gCamActor = gSpawnedActor;
     }
     gSpawnedActor->flags |= 0x100000;
@@ -437,22 +437,22 @@ void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     gActivePlayerState->unk21E = 0x1E;
     gActivePlayerState->unkC8 = -1;
     gActivePlayerState->unkCA = 0;
-    gActivePlayerState->unkC8 = -1;
+    gActivePlayerState->unkC8 = -1; // ORIG: target stores -1 twice (sh at 0xd5c and 0xd6c)
     gActivePlayerState->unk264 = -1;
     gActivePlayerState->unk258 = 1.0f;
     gActivePlayerState->unk25C = 1.0f;
     if (flagGet(0xCE, 0) != 0) {
         gActivePlayerState->stateFlags |= 0x100000;
     }
-    func_806C8220(1, KONG_ACTOR->unk178, gActivePlayerActor->actorType);
+    func_806C8220(1, KONG_ACTOR->chains, gActivePlayerActor->actorType);
     gActivePlayerActor->unk146 = 0;
     playerKongStopAudioChannels(gActivePlayerActor, gActivePlayerActor->actorType);
     gActivePlayerActor->floorSlopePitch = 0x400;
-    gActivePlayerState->queuedHeldActor = 0;
-    gActivePlayerState->heldActor = 0;
+    gActivePlayerState->queuedHeldActor = NULL;
+    gActivePlayerState->heldActor = NULL;
     for (i = 0; i < 4; i++) {
-        gPlayerPadState[sel].stickAngleHistory[i] = gPlayerPadState[sel].stickAngle;
-        gPlayerPadState[sel].stickMagHistory[i] = gPlayerPadState[sel].stickMag;
+        gPlayerPadState[slot].stickAngleHistory[i] = gPlayerPadState[slot].stickAngle;
+        gPlayerPadState[slot].stickMagHistory[i] = gPlayerPadState[slot].stickMag;
     }
     playerResumeLocomotion(gActivePlayerActor);
     playerWarpToSpawnPoint(spawnIndex);
@@ -572,7 +572,7 @@ u8 playerLookupKongByActorType(s16 actorType) {
     s32 i;
 
     for (i = 0; i < 10; i++) {
-        if (actorType == D_8075C410[i].unk0) {
+        if (actorType == D_8075C410[i].actorType) {
             return D_8075C410[i].b.characterId;
         }
     }
@@ -601,7 +601,7 @@ void playerSetKongByActorType(s16 actorType) {
     found = 0;
     i = gPlayerCharacterId[gCurrentPlayerIndex] = 0;
     do {
-        if (actorType == D_8075C410[i].unk0) {
+        if (actorType == D_8075C410[i].actorType) {
             found = 1;
         } else {
             gPlayerCharacterId[gCurrentPlayerIndex] = i + 1; i = gPlayerCharacterId[gCurrentPlayerIndex];
@@ -620,24 +620,24 @@ void playerCycleKongDebug(void) {
 }
 
 
-void playerApplyCharacterModel(void *arg) {
-    G00Row *row = arg;
+void playerApplyCharacterModel(void *entry) {
+    KongCharacterEntry *row = entry;
 
-    gActivePlayerActor->actorType = row->unk0;
-    gCurrentCharacterIndex = row->unk4;
+    gActivePlayerActor->actorType = row->actorType;
+    gCurrentCharacterIndex = row->characterIndex;
     controllerAnimFree(gActivePlayerActor);
     actorSub140Free(gActivePlayerActor->collision);
     controllerAnimInit(gActivePlayerActor, row->m.modelId);
     gActivePlayerActor->collision = actorSub140CreateFromModel(gActivePlayerActor);
     gActivePlayerActor->flags &= ~0x1000;
-    gActivePlayerActor->flags |= row->unkC;
+    gActivePlayerActor->flags |= row->actorFlags;
     gActivePlayerActor->sub4->boneRotations = heapAlloc(0x100);
     gActivePlayerActor->sub4->boneRotations->weight = 0;
     gActivePlayerActor->sub4->boneScales = heapAlloc(0x100);
     gActivePlayerActor->sub4->boneScales->bone = 0xFF;
     gActivePlayerActor->sub4->boneOffsets = heapAlloc(0x100);
     gActivePlayerActor->sub4->boneOffsets->bone = 0xFF;
-    func_806C8220(1, KONG_ACTOR->unk178, gActivePlayerActor->actorType);
+    func_806C8220(1, KONG_ACTOR->chains, gActivePlayerActor->actorType);
     slotQueueInit(0);
 }
 
@@ -686,11 +686,6 @@ void playerRespawnResetPhysics(s32 spawnIndex) {
     gActivePlayerActor->peakY = gActivePlayerActor->y;
 }
 
-typedef struct G01Sub4f {
-    /* 0x00 */ u8 pad0[0x34];
-    /* 0x34 */ f32 unk34[3];
-} G01Sub4f;
-
 
 void playerRevertAnimalTransformation(Actor *actor, PlayerState *ps) {
     s32 i;
@@ -698,10 +693,10 @@ void playerRevertAnimalTransformation(Actor *actor, PlayerState *ps) {
     if (gPlayerSlots[ps->playerIndex].unk2C0 != 1) {
         playerSetSizeMode(gActivePlayerActor, 1);
     }
-    if (((G01Sub4f *)actor->sub4)->unk34[0] != ps->targetScale[0]) {
+    if (actor->sub4->scale[0] != ps->targetScale[0]) {
         for (i = 0; i < 3; i++) {
             ps->currentScale[i] = ps->targetScale[i];
-            ((G01Sub4f *)actor->sub4)->unk34[i] = ps->targetScale[i];
+            actor->sub4->scale[i] = ps->targetScale[i];
         }
     }
 }
@@ -719,7 +714,7 @@ void func_800268DC(Actor *, void *, void *); /* mpResetPlayerOnRespawn (multipla
 void playerSyncInventoryOnSpawn(s32 spawnIndex) {
     PlayerState *ps = gActivePlayerActor->customState;
     s32 pad[1];
-    void *vtxBuffer = KONG_ACTOR->unk178;
+    void *vtxBuffer = KONG_ACTOR->chains;
     s32 pad2[1];
     PlayerInventory *inventory;
     u8 i;
