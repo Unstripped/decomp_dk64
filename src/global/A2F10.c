@@ -99,14 +99,14 @@ void actorTriggerRampWithSfx(void) {
     actorUpdateModelMatrix(actor, 0);
 }
 
-void actorSpawnNodeEntryAtActor(s32 arg0, s16 arg1) {
+void actorSpawnNodeEntryAtActor(s32 actorType, s16 roll) {
     Actor *actor;
 
     actor = gCurrentActor;
-    actorSpawnNodeEntryScaled(arg0, actor->x, actor->y, actor->z, 0, 0, arg1, actor);
+    actorSpawnNodeEntryScaled(actorType, actor->x, actor->y, actor->z, 0, 0, roll, actor);
 }
 
-void actorPlaceAttachedChildren(s16 arg0) {
+void actorPlaceAttachedChildren(s16 yOffset) {
     Actor *actor;
     s16 i;
 
@@ -114,7 +114,7 @@ void actorPlaceAttachedChildren(s16 arg0) {
         actor = gActiveActors[i].actor;
         if (actor->parentActor == gCurrentActor) {
             actorAppendMoveTarget3D(gCurrentActor, actor, gCurrentActor->x,
-                                           gCurrentActor->y + (f32)arg0, gCurrentActor->z, 2, 1);
+                                           gCurrentActor->y + (f32)yOffset, gCurrentActor->z, 2, 1);
         }
     }
 }
@@ -131,18 +131,18 @@ void actorAttachChildCallbacks(void) {
     }
 }
 
-int actorIsTargetInRange(Actor *arg0, f32 arg1, f32 arg2) {
-    return arg0->y - 8.0f <= gCurrentActor->y &&
-           gCurrentActor->y < arg0->y + arg1 &&
-           arg2 > (arg0->x - gCurrentActor->x) *
-                      (arg0->x - gCurrentActor->x) +
-                  (arg0->z - gCurrentActor->z) *
-                      (arg0->z - gCurrentActor->z) &&
-           arg0->unk144 != 1;
+int actorIsTargetInRange(Actor *target, f32 height, f32 rangeSq) {
+    return target->y - 8.0f <= gCurrentActor->y &&
+           gCurrentActor->y < target->y + height &&
+           rangeSq > (target->x - gCurrentActor->x) *
+                      (target->x - gCurrentActor->x) +
+                  (target->z - gCurrentActor->z) *
+                      (target->z - gCurrentActor->z) &&
+           target->unk144 != 1;
 }
 
-s32 actorTypeToNodeIndex(s32 arg0) {
-    switch (arg0) {
+s32 actorTypeToNodeIndex(s32 actorType) {
+    switch (actorType) {
     case 2:
         return 0xB;
     case 3:
@@ -158,13 +158,13 @@ s32 actorTypeToNodeIndex(s32 arg0) {
 }
 
 typedef struct LightPulseState {
-    /* 0x000 */ f32 unk0;
+    /* 0x000 */ f32 radiusScale;
     /* 0x004 */ u8 pad4[8];
-    /* 0x00C */ u16 unkC;
+    /* 0x00C */ u16 hostRadius;
     /* 0x00E */ u8 padE[2];
-    /* 0x010 */ u8 unk10;
-    /* 0x011 */ u8 unk11;
-    /* 0x012 */ u8 unk12;
+    /* 0x010 */ u8 red;
+    /* 0x011 */ u8 green;
+    /* 0x012 */ u8 blue;
 } LightPulseState;
 
 extern u8 gSplitScreenMode;
@@ -208,7 +208,7 @@ void actorLightPulseUpdate(void) {
         hostFlags = &hostState->stateFlags;
     }
     if (!(gCurrentActor->flags & 0x10)) {
-        light->unkC = (u16)host->collision->radius;
+        light->hostRadius = (u16)host->collision->radius;
         gCurrentActor->drawDistance = 0x3E8;
         gCurrentActor->flags |= 0x400;
         animSetLoopLimit(gCurrentActor, 0, 1);
@@ -221,35 +221,35 @@ void actorLightPulseUpdate(void) {
         gCurrentActor->tintB = 0xFF;
         switch (controllerLookupStateByHash(gCurrentActor)) {
         case 0xAD:
-            light->unk10 = 0xFF;
-            light->unk11 = 0xFF;
-            light->unk12 = 0x32;
+            light->red = 0xFF;
+            light->green = 0xFF;
+            light->blue = 0x32;
             break;
         case 0xAE:
-            light->unk10 = 0xFF;
-            light->unk11 = 0x32;
-            light->unk12 = 0x32;
+            light->red = 0xFF;
+            light->green = 0x32;
+            light->blue = 0x32;
             break;
         case 0xD1:
-            light->unk10 = 0xCA;
-            light->unk11 = 0x5B;
-            light->unk12 = 0xFF;
+            light->red = 0xCA;
+            light->green = 0x5B;
+            light->blue = 0xFF;
             break;
         case 0xD0:
-            light->unk10 = 0;
-            light->unk11 = 0x96;
-            light->unk12 = 0xFF;
+            light->red = 0;
+            light->green = 0x96;
+            light->blue = 0xFF;
             break;
         case 0xCF:
-            light->unk10 = 0x32;
-            light->unk11 = 0xFF;
-            light->unk12 = 0x32;
+            light->red = 0x32;
+            light->green = 0xFF;
+            light->blue = 0x32;
             break;
         }
         if (isAttached[3] != 0) {
-            light->unk0 = 2.0f;
+            light->radiusScale = 2.0f;
         } else {
-            light->unk0 = 1.5f;
+            light->radiusScale = 1.5f;
         }
         if (gCurrentActor->unk15F != 0) {
             actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 1.0f, 0);
@@ -274,15 +274,15 @@ void actorLightPulseUpdate(void) {
         if (animIsPlaying(gCurrentActor, 0) == 0) {
             despawned = 1;
             *hostFlags &= 0xFDFFFFFF;
-            actorSetCollisionRadius(host, light->unkC);
+            actorSetCollisionRadius(host, light->hostRadius);
             actorGetOrSetNodeScale(host, actorTypeToNodeIndex(host->actorType), 0.0f);
             actorDespawn(gCurrentActor);
         }
     }
     lightSetFlags(1);
     lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f,
-             0.0f, 0.0f, gCurrentActor->sub4->scaleX * (f32)lightRadius * light->unk0, 0,
-             light->unk10, light->unk11, light->unk12);
+             0.0f, 0.0f, gCurrentActor->sub4->scaleX * (f32)lightRadius * light->radiusScale, 0,
+             light->red, light->green, light->blue);
     if (gCurrentMap != 0x4C) {
         if (isAttached[3] == 0 || gCurrentActor->unk15F != 0) {
             callbackId = 0x2E;
@@ -326,16 +326,16 @@ void actorLightPulseUpdate(void) {
 }
 
 
-s32 actorIsTargetInCylinder(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4) {
+s32 actorIsTargetInCylinder(s16 x, s16 y, s16 z, s16 height, f32 radius) {
     Actor *actor;
     f32 dx;
     f32 dz;
 
     actor = gPrimaryPlayerActor;
-    dx = actor->x - arg0;
-    dz = actor->z - arg2;
-    if (dx * dx + dz * dz < arg4 * arg4 && arg1 <= actor->y &&
-        actor->y < arg1 + arg3) {
+    dx = actor->x - x;
+    dz = actor->z - z;
+    if (dx * dx + dz * dz < radius * radius && y <= actor->y &&
+        actor->y < y + height) {
         return 1;
     }
     return 0;
@@ -456,18 +456,18 @@ void actorShockwaveUpdate(void) {
 }
 
 
-void renderScaledSprite(Gfx *arg0, Actor *arg1) {
+void renderScaledSprite(Gfx *dl, Actor *actor) {
     f32 scale;
 
-    scale = arg1->floorSlopeFactor;
-    WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
-    WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
-    WRITE_GFX(arg0++, 0xE200001C, 0x00504340);
-    WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
-    WRITE_GFX(arg0++, 0xE7000000, 0);
-    WRITE_GFX(arg0++, 0xFA000000, (arg1->yaw & 0xFF) | 0xFFFFFF00);
-    renderRotatedSprite(arg0, (u16)(arg1->unk15F + 0x61), 0, 2, 0x28, 0x33,
-                  (s32)arg1->x, (s32)arg1->y, scale, scale, 0, 0.0f);
+    scale = actor->floorSlopeFactor;
+    WRITE_GFX(dl++, 0xDE000000, (u32)&D_1000118);
+    WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
+    WRITE_GFX(dl++, 0xE200001C, 0x00504340);
+    WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
+    WRITE_GFX(dl++, 0xE7000000, 0);
+    WRITE_GFX(dl++, 0xFA000000, (actor->yaw & 0xFF) | 0xFFFFFF00);
+    renderRotatedSprite(dl, (u16)(actor->unk15F + 0x61), 0, 2, 0x28, 0x33,
+                  (s32)actor->x, (s32)actor->y, scale, scale, 0, 0.0f);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A410.s")
@@ -633,49 +633,43 @@ void actorUpdateBannerFade(void) {
 }
 
 typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-} Position3f;
+    f32 speedXZ;
+    f32 moveYaw;
+    f32 speedY;
+} LaunchParams;
 
 typedef struct {
-    s32 unk0;
-    s32 unk4;
-    s32 unk8;
-    /* 0x00C */ s16 unkC;
-    /* 0x00E */ u8 unkE;
-    /* 0x00F */ u8 unkF;
-    u8 pad10[0x1F0];
-    s16 unk200;
-} SubStateView;
+    s32 pitchSpeed;
+    s32 rollSpeed;
+} SpinState;
 
 typedef struct ActorModel {
     /* 0x000 */ u8 pad0[0x20];
-    /* 0x020 */ u8 unk20;
+    /* 0x020 */ u8 boneCount;
 } ActorModel;
 
 extern f32 D_80750394;
 
 
 void actorUpdateSpinAndVelocity(void) {
-    SubStateView *sub;
+    SpinState *spin;
     s32 pad;
 
-    sub = gCurrentActor->customState;
+    spin = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->speedXZ = ((Position3f *)gCurrentActor->spawnData)->unk0;
-        gCurrentActor->moveYaw = ((Position3f *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((Position3f *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->speedXZ = ((LaunchParams *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->moveYaw = ((LaunchParams *)gCurrentActor->spawnData)->moveYaw;
+        gCurrentActor->speedY = ((LaunchParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 1;
-        sub->unk0 = (randomNonNegative() >> 15) % 0x46;
-        sub->unk4 = (randomNonNegative() >> 15) % 0xC8;
+        spin->pitchSpeed = (randomNonNegative() >> 15) % 0x46;
+        spin->rollSpeed = (randomNonNegative() >> 15) % 0xC8;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     gCurrentActor->speedY += D_80750394;
-    gCurrentActor->roll += sub->unk4;
-    gCurrentActor->pitch += sub->unk0;
+    gCurrentActor->roll += spin->rollSpeed;
+    gCurrentActor->pitch += spin->pitchSpeed;
     if (gCurrentActor->hasArcBounds != 0 || ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1))) {
         actorDespawn(gCurrentActor);
     }
@@ -750,9 +744,9 @@ void actorUpdateModelMatrixCurrent(void) {
 }
 
 void actorShadowFollowUpdate(void) {
-    SubStateView *sub;
+    PlayerState *parentState;
 
-    sub = gCurrentActor->parentActor->customState;
+    parentState = gCurrentActor->parentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags &= 0xFFFF7FFF;
         gCurrentActor->alpha = 0xFF;
@@ -771,7 +765,7 @@ void actorShadowFollowUpdate(void) {
         gCurrentActor->sub4->scaleX = (gCurrentActor->splineT * 1.2 - gCurrentActor->sub4->scaleX) * 0.3 + gCurrentActor->sub4->scaleX;
     }
     gCurrentActor->sub4->scaleZ = gCurrentActor->sub4->scaleX;
-    gCurrentActor->alpha = MIN(MAX(sub->unk200, 0), 0xFF);
+    gCurrentActor->alpha = MIN(MAX(parentState->unk200, 0), 0xFF);
     if (gCurrentActor->alpha == 0 || gCurrentActor->parentActor->state != 0x7C) {
         actorDespawn(gCurrentActor);
     } else {
@@ -780,10 +774,10 @@ void actorShadowFollowUpdate(void) {
 }
 
 
-void actorSpawnAttachedTo(Actor *arg0) {
-    actorSpawn(0x6A, controllerLookupStateByHash(arg0));
-    gSpawnedActor->parentActor = arg0;
-    arg0->contactFlags |= 0x800;
+void actorSpawnAttachedTo(Actor *parent) {
+    actorSpawn(0x6A, controllerLookupStateByHash(parent));
+    gSpawnedActor->parentActor = parent;
+    parent->contactFlags |= 0x800;
 }
 
 extern u8 gGfxBufferIndex;
@@ -833,7 +827,7 @@ void actorMirrorParentModelY(void) {
     gCurrentActor->z = sub->parent->z;
     gCurrentActor->flags |= 0x200;
     gCurrentActor->boneMtx = gCurrentActor->sub4->boneMtx[gGfxBufferIndex];
-    memcpy(gCurrentActor->boneMtx, gCurrentActor->parentActor->boneMtx, ((ActorModel *)gCurrentActor->animState)->unk20 << 6);
+    memcpy(gCurrentActor->boneMtx, gCurrentActor->parentActor->boneMtx, ((ActorModel *)gCurrentActor->animState)->boneCount << 6);
     guMtxIdentF(mtx1);
     mtx1[1][1] = -1.0f;
     guTranslateF(mtx2, -gCurrentActor->x, -gCurrentActor->unkA8, -gCurrentActor->z);
@@ -841,7 +835,7 @@ void actorMirrorParentModelY(void) {
     guMtxF2L(mtx1, &mtxL);
     guTranslateF(mtx2, gCurrentActor->x, gCurrentActor->unkA8, gCurrentActor->z);
     dst = gCurrentActor->boneMtx;
-    for (i = 0; i < ((ActorModel *)gCurrentActor->animState)->unk20; i++) {
+    for (i = 0; i < ((ActorModel *)gCurrentActor->animState)->boneCount; i++) {
         guMtxL2F(mtx3, dst);
         guMtxCatF(mtx3, mtx1, mtx3);
         guMtxCatF(mtx3, mtx2, mtx3);
@@ -890,7 +884,7 @@ void actorMirrorParentModelAxis(void) {
     gCurrentActor->z = gCurrentActor->parentActor->z;
     gCurrentActor->flags |= 0x200;
     gCurrentActor->boneMtx = gCurrentActor->sub4->boneMtx[gGfxBufferIndex];
-    memcpy(gCurrentActor->boneMtx, gCurrentActor->parentActor->boneMtx, ((ActorModel *)gCurrentActor->animState)->unk20 << 6);
+    memcpy(gCurrentActor->boneMtx, gCurrentActor->parentActor->boneMtx, ((ActorModel *)gCurrentActor->animState)->boneCount << 6);
     guMtxIdentF(mtx1);
     if (sub->axisFlags & 1) {
         mtx1[0][0] = -1.0f;
@@ -906,7 +900,7 @@ void actorMirrorParentModelAxis(void) {
         guTranslateF(mtx2, 0.0f, 0.0f, sub->planeOffset);
     }
     dst = gCurrentActor->boneMtx;
-    for (i = 0; i < ((ActorModel *)gCurrentActor->animState)->unk20; i++) {
+    for (i = 0; i < ((ActorModel *)gCurrentActor->animState)->boneCount; i++) {
         guMtxL2F(mtx3, dst);
         guMtxCatF(mtx3, mtx1, mtx3);
         guMtxCatF(mtx3, mtx2, mtx3);
@@ -925,40 +919,40 @@ void actorMirrorParentModelAxis(void) {
 
 
 
-void animSetChannelFrames(void *arg0, u8 arg1, u8 arg2) {
-    animSetLoopLimit(arg0, 0, 1);
-    animSetFinished(arg0, 0, 1);
-    animSetFrameAndSubframe(arg0, 0, arg1, 0.0f);
-    animSetLoopLimit(arg0, 1, 1);
-    animSetFinished(arg0, 1, 1);
-    animSetFrameAndSubframe(arg0, 1, arg2, 0.0f);
+void animSetChannelFrames(void *actor, u8 frame0, u8 frame1) {
+    animSetLoopLimit(actor, 0, 1);
+    animSetFinished(actor, 0, 1);
+    animSetFrameAndSubframe(actor, 0, frame0, 0.0f);
+    animSetLoopLimit(actor, 1, 1);
+    animSetFinished(actor, 1, 1);
+    animSetFrameAndSubframe(actor, 1, frame1, 0.0f);
 }
 
 
-void actorSetGroupState(u8 arg0, u8 arg1) {
+void actorSetGroupState(u8 group, u8 state) {
     Actor *actor;
     s16 i;
 
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (actor->actorType == 0x94 && actor->unk15F / 3 == arg0) {
-            actor->state = arg1;
+        if (actor->actorType == 0x94 && actor->unk15F / 3 == group) {
+            actor->state = state;
             actor->unk155 = 0;
         }
     }
 }
 
 typedef struct MatrixArray {
-    f32 *unk0;
+    f32 *frames;
 } MatrixArray;
 
-void actorSetNodeValuesForFrame(MatrixArray *arg0) {
+void actorSetNodeValuesForFrame(MatrixArray *state) {
     BoneVector *dst;
     s16 i;
 
     dst = gCurrentActor->sub4->boneOffsets;
     for (i = 0; i < 7; i++) {
-        dst->z = (f64) arg0->unk0[i * 0x34 + gCurrentActor->yawSpeed];
+        dst->z = (f64) state->frames[i * 0x34 + gCurrentActor->yawSpeed];
         dst++;
     }
 }
@@ -985,14 +979,14 @@ void func_806A112C(void) {
         }
         if (gCurrentActor->unk15F == 0) {
             val = gCurrentActor->sub4->scaleY / 0.15;
-            sub->unk0 = assetLoad(0x13, 6, 1, 1);
+            sub->frames = assetLoad(0x13, 6, 1, 1);
             n = 0;
             animSetChannelFrames(gCurrentActor, D_807503D4[n], D_807503E0[n++]);
             d = 75.0f * val;
             for (i = 1; i < 12; i++) {
                 actorSpawn(0x94, 0xE1);
                 sub2 = gSpawnedActor->customState;
-                sub2->unk0 = sub->unk0;
+                sub2->frames = sub->frames;
                 gSpawnedActor->unk15F = i;
                 gSpawnedActor->yaw = gCurrentActor->yaw + ((u16)(i / 3) << 10);
                 gSpawnedActor->x = gCurrentActor->x -
