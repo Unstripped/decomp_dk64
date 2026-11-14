@@ -34,7 +34,7 @@ Use the model the user named for every worker spawn (`task` `model`; none named:
 
 ## 2. Pick
 
-1. `uv run tools/quality.py rank --limit 6`: the top files, at most 6, one agent each (never two per file).
+1. `uv run tools/quality.py rank --limit 25`: at most 6 files, one agent each (never two per file); skip files edited in the previous round and prefer the least recently dispatched (whole-file second looks produced most r35-36 fixes).
 2. `uv run tools/quality.py status --file <f>` for each: a site showing `stale` gets a fresh
    `uv run tools/quality.py sweep <f> -j 4 --record --unit "<YYYY-MM-DD>: <unit>"` first.
 3. Base commit = `git rev-parse HEAD` after those records are committed;

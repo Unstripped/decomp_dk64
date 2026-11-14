@@ -1,6 +1,6 @@
-# Pending after cleanup round 36 (campaign paused)
+# Pending after cleanup round 37 (campaign paused)
 
-State after the round-36 close (knowledge commit 9ec1b6d4, Q0727-Q0744): 290 OPEN functions in 135 files. OPEN was 245 just before that commit; it re-opened 45 functions (round-35/36 files and earlier ones, mostly by top-8 note similarity); they were not re-recorded. A future session starts here: `uv run tools/quality.py rank`, then SKILL.md §2.
+State after the round-37 close (knowledge commit b06cba4f, Q0745-Q0753): 193 OPEN functions in 118 files. Since 1052fc9b note-similarity knowledge staling applies to diagnose/reconstruct only (permute only via entries naming the function), so the round-37 knowledge commit re-opened 8 functions (was 45-147 in rounds 34-36). A future session starts here: `uv run tools/quality.py rank`, then SKILL.md §2.
 
 ## Blocked owner/header changes
 - Cast sweep (round 30): 55B20 MapChunk.lastSeenFrame and 61AA0 BillboardCacheEntry.lastUsedFrame stay s32 (u32 retype fdiff 1). model.h/heap.h frame stamps landed u32 after Rev29.
