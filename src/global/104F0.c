@@ -395,17 +395,15 @@ void eepromClearSlotData(slot, save)
 unsigned char slot;
 int save;
 {
-    u8 *dst;
+    u8 *dst = D_807ECEA8;
     s32 slotId;
     s32 size;
     s32 sector;
 
-    do {
-        slotId = slot;
-        sector = eepromGetSectorForSlot(slotId);
-        size = ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
-        dst = D_807ECEA8 + (sector * size);
-    } while (0); // FAKE: keeps dst a coloured uopt candidate, so addiu t0 %lo(D_807ECEA8) schedules before lui at %hi(D_807467C8)
+    slotId = slot;
+    sector = eepromGetSectorForSlot(slotId);
+    size = ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
+    dst += sector * size;
     D_807467C8 = slotId;
     bzero(dst, size);
     eepromSetField(0xC, 0, 0, slotId, 1);
@@ -793,7 +791,7 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
     D_807467C8 = slot;
     gPlayerCharacterId = 0;
     if (eepromGetField(0xD, 0, 0, slot) == 0) {
-        eepromClearSlotData(slot & 0xFF, 0);  // FAKE: redundant mask on the u8 slot argument (dropping it recolours)
+        eepromClearSlotData(slot & 0xFF, 0);  // ORIG: the target re-masks the u8 slot for this unprototyped (K&R) call, andi a0,s5,0xff at 0x24e0
     }
     if (fromCopy != 0) {
         eepromCopySlot();
