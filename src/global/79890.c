@@ -119,10 +119,7 @@ void actorCollisionCheckNodeSpheres(Actor *self) {
     ActorEntry *entry;
 
     selfCollision = self->collision;
-    selfX = 0;
-    if (selfX) {} // FAKE: raises the colouring priority of selfX so it gets s7 while scaledY is loaded first
-    selfY = selfCollision->scaledY;
-    selfX = selfCollision->scaledX;
+    selfX = selfCollision->scaledX; selfY = selfCollision->scaledY; // LAYOUT: one line lets as1 load scaledY before scaledX
     selfZ = selfCollision->scaledZ;
     selfRadius = selfCollision->scaledRadius;
     i = 0;
