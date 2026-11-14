@@ -10,9 +10,11 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from tools.permute import (
+    HACK_PASSES,
     function_asm_from_object,
     read_setup_record,
     run_record_problem,
+    settings_toml,
     setup_conflict,
     strip_other_fns,
     wrap_multi_statement_lines,
@@ -248,3 +250,15 @@ def test_setup_replaces_only_its_own_directory():
         previous, {"func": "f", "source": "src/boss/F0D0.c"}
     )
     assert setup_conflict(previous, {"func": "g", "source": ".scratch/A/F0D0.c"}) is not None
+
+
+def test_settings_turn_hack_passes_off():
+    import tomllib
+    s = tomllib.loads(settings_toml("f"))
+    assert (s["func_name"], s["compiler_type"]) == ("f", "ido")
+    assert s["weight_overrides"] == {p: 0.0 for p in HACK_PASSES}
+    assert all(isinstance(v, float) for v in s["weight_overrides"].values())  # permuter json_dict(..., float)
+
+
+def test_run_never_stops_on_zero():
+    assert "--stop-on-zero" not in (REPO_ROOT / "tools" / "permute.py").read_text()

@@ -14,11 +14,20 @@ src unreviewed.
 Subcommands:
   setup  Build permuter input directory (.scratch/permuter/<seg>_<FUNC>/, or --out DIR)
          and record its source, scores and file digests in setup.json; refuses a
-         directory set up for another function or source file unless --force
-  run    Run permuter with --stack-diffs and optional wall-clock limit; refuses a
-         directory whose base.c/target.o/compile.sh changed since its setup, or
-         whose setup baseline is already 0
+         directory set up for another function or source file unless --force.
+         settings.toml zeroes the weights of HACK_PASSES (the passes that insert
+         `if (1) {}`, `do {} while (0)`, `^ 0`, masks, `* 0`, dummy commas, self/duplicate
+         assignments, deleted ifs and array aliases), so outputs never need a new hack
+  run    Run permuter with --stack-diffs and optional wall-clock limit (it never stops
+         early on a zero score: later outputs may be cleaner); refuses a directory whose
+         base.c/target.o/compile.sh changed since its setup, or whose setup baseline is already 0
   best   List best outputs and print diff against base.c
+  batch  Host-side: LIST.tsv rows `dir seg func copy src key base` (quality.py
+         permute-candidates), P rows at a time, each `setup` + `run` through tools/dk (`run`
+         holds no dkd lock, so make expected is never blocked for hours). Per row
+         <dir>/result.json {key, base, best, seconds, zeros} (or {key, error}); a run of
+         600 s+ without a zero appends a `permute nohit` record line to <LIST dir>/ledger.txt,
+         zero outputs go to zeros.txt for an agent review (never recorded as fixed unreviewed)
 """
 
 import argparse
@@ -33,6 +42,8 @@ import signal
 import struct
 import subprocess
 import sys
+import threading
+import time
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -42,7 +53,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # Container re-exec when running on host without /opt/decomp-permuter
 # (tools/dk honours DK64_IMAGE)
 # ---------------------------------------------------------------------------
-if __name__ == "__main__" and not os.path.exists("/opt/decomp-permuter"):
+if __name__ == "__main__" and not os.path.exists("/opt/decomp-permuter") and sys.argv[1:2] != ["batch"]:
     sys.exit(subprocess.call([str(ROOT / "tools" / "dk"), "python3", "tools/permute.py"] + sys.argv[1:]))
 
 
@@ -668,6 +679,42 @@ def preprocess_whole_source(source_text: str, extra_flags: List[str]) -> str:
 # Setup record: what setup built a directory from, checked by setup and run
 # ---------------------------------------------------------------------------
 SETUP_RECORD = "setup.json"
+HACK_PASSES = ("perm_empty_stmt", "perm_ins_block", "perm_xor_zero", "perm_add_mask", "perm_mult_zero",
+               "perm_dummy_comma_expr", "perm_add_self_assignment", "perm_duplicate_assignment",
+               "perm_remove_ast", "perm_alias_array")
+
+
+def settings_toml(func: str) -> str:
+    """settings.toml of FUNC: IDO weights with every HACK_PASSES pass off (upstream enables them for
+    IDO; their outputs are `if (1) {}`, `do {} while (0)`, `^ 0`, masks, `* 0`, dummy commas,
+    self/duplicate assignments, deleted ifs and array aliases, i.e. new hacks). 0.0, not 0: the
+    permuter type-checks the overrides as floats."""
+    return (f'func_name = "{func}"\ncompiler_type = "ido"\n\n[weight_overrides]\n'
+            + "".join(f"{p} = 0.0\n" for p in HACK_PASSES))
+
+
+def output_scores(target_dir: Path) -> List[Tuple[int, Path]]:
+    """[(score, output dir)] of TARGET_DIR's outputs, best first: score.txt, else the score in the
+    directory name (output-<score>-<n>), else 999999."""
+    out = []
+    for d in target_dir.iterdir():
+        if d.is_dir() and d.name.startswith("output-"):
+            score = None
+            score_file = d / "score.txt"
+            if score_file.exists():
+                try:
+                    score = int(score_file.read_text().strip())
+                except ValueError:
+                    pass
+            if score is None:
+                try:
+                    score = int(d.name.split("-")[1])
+                except (IndexError, ValueError):
+                    score = 999999
+            out.append((score, d))
+    return sorted(out, key=lambda x: (x[0], x[1].name))
+
+
 _RECORDED_FILES = ("base.c", "target.o", "compile.sh")
 
 
@@ -846,11 +893,7 @@ def cmd_setup(args: argparse.Namespace) -> None:
     compile_sh.chmod(0o755)
 
     # 4. Build settings.toml
-    settings_toml = out_dir / "settings.toml"
-    settings_content = f"""func_name = "{func}"
-compiler_type = "ido"
-"""
-    settings_toml.write_text(settings_content, encoding="utf-8")
+    (out_dir / "settings.toml").write_text(settings_toml(func), encoding="utf-8")
 
     # Determine if NON_MATCHING should be enabled
     use_non_matching = bool(args.non_matching)
@@ -1038,12 +1081,11 @@ def cmd_run(args: argparse.Namespace, extra_args: List[str]) -> None:
         str(permuter_py),
         str(target_dir),
         "--stack-diffs",
-        "--stop-on-zero",
         "-j",
         str(threads),
     ] + extra_args
 
-    print(f"Running permuter on {target_dir} ({threads} threads, --stack-diffs, stop-on-zero)...", flush=True)
+    print(f"Running permuter on {target_dir} ({threads} threads, --stack-diffs)...", flush=True)
     if args.seconds is not None and args.seconds > 0:
         proc = subprocess.Popen(cmd)
         try:
@@ -1073,30 +1115,10 @@ def cmd_best(args: argparse.Namespace) -> None:
     if not target_dir.exists():
         sys.exit(f"error: directory '{target_dir}' does not exist")
 
-    output_dirs = []
-    for d in target_dir.iterdir():
-        if d.is_dir() and d.name.startswith("output-"):
-            score = None
-            score_file = d / "score.txt"
-            if score_file.exists():
-                try:
-                    score = int(score_file.read_text().strip())
-                except ValueError:
-                    pass
-            if score is None:
-                parts = d.name.split("-")
-                if len(parts) >= 2:
-                    try:
-                        score = int(parts[1])
-                    except ValueError:
-                        score = 999999
-            output_dirs.append((score, d))
-
+    output_dirs = output_scores(target_dir)
     if not output_dirs:
         print(f"No output directories found in {target_dir}")
         return
-
-    output_dirs.sort(key=lambda x: (x[0] if x[0] is not None else 999999, x[1].name))
 
     print(f"Outputs in {target_dir} ({len(output_dirs)} total, sorted by score):")
     for score, d in output_dirs:
@@ -1119,6 +1141,71 @@ def cmd_best(args: argparse.Namespace) -> None:
             source_lines = source_c.read_text(encoding="utf-8", errors="ignore").splitlines()
             udiff = list(difflib.unified_diff(base_lines, source_lines, fromfile="base.c", tofile="source.c", lineterm=""))
             print("\n".join(udiff))
+
+
+# ---------------------------------------------------------------------------
+# Subcommand: batch (host)
+# ---------------------------------------------------------------------------
+BATCH_NOTE = 'note="permute batch, hack-free weights" new="hack-free weights, no stop-on-zero"'
+
+
+def batch_row(row: List[str], list_dir: Path, args: argparse.Namespace, lock: threading.Lock) -> None:
+    d, seg, func, copy, src, key, _base = row
+    d = Path(d) if Path(d).is_absolute() else ROOT / d
+    perm = d / "perm"
+    dk = str(ROOT / "tools" / "dk")
+    r = subprocess.run([dk, "python3", "tools/permute.py", "setup", seg, func, "--from", copy, "--src", src,
+                        "--out", _rel_to_root(perm), "--force"], cwd=ROOT, capture_output=True, text=True)
+    if r.returncode:
+        err = (r.stderr.strip().splitlines() or r.stdout.strip().splitlines() or ["setup failed"])[-1]
+        (d / "result.json").write_text(json.dumps({"key": key, "error": err}) + "\n")
+        with lock:
+            print(f"FAIL {key} setup: {err}", flush=True)
+        return
+    t0 = time.monotonic()
+    with open(d / "run.log", "w") as log:
+        subprocess.run([dk, "python3", "tools/permute.py", "run", _rel_to_root(perm), "-j", str(args.j),
+                        "--seconds", str(args.seconds)], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+    seconds = int(time.monotonic() - t0)
+    base = (read_setup_record(perm) or {}).get("baseline_score")
+    scores = output_scores(perm)
+    best = min((s for s, _ in scores), default=base)
+    zeros = [_rel_to_root(x) for s, x in scores if s == 0]
+    (d / "result.json").write_text(json.dumps(dict(key=key, base=base, best=best, seconds=seconds, zeros=zeros)) + "\n")
+    with lock:
+        if not zeros and seconds >= 600 and base is not None and best is not None:
+            with open(list_dir / "ledger.txt", "a") as f:
+                f.write(f"{key} permute nohit seconds={seconds} base={base} best={best} {BATCH_NOTE}\n")
+        if zeros:
+            with open(list_dir / "zeros.txt", "a") as f:
+                f.write(f"{key} {_rel_to_root(perm)} {len(zeros)} zero outputs\n")
+        print(f"DONE {key} base={base} best={best} zeros={len(zeros)}", flush=True)
+
+
+def cmd_batch(args: argparse.Namespace) -> None:
+    list_path = Path(args.list).resolve()
+    rows = [line.split("\t") for line in list_path.read_text().splitlines() if line.strip() and not line.startswith("#")]
+    bad = [i for i, r in enumerate(rows, 1) if len(r) != 7]
+    if bad:
+        sys.exit(f"error: {list_path}: rows {bad} do not have 7 tab-separated fields (dir seg func copy src key base)")
+    lock, todo = threading.Lock(), iter(rows)
+
+    def worker() -> None:
+        while True:
+            with lock:
+                row = next(todo, None)
+            if row is None:
+                return
+            batch_row(row, list_path.parent, args, lock)
+
+    threads = [threading.Thread(target=worker) for _ in range(max(1, args.parallel))]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    print(f"batch: {len(rows)} rows; record {list_path.parent / 'ledger.txt'} with --agent permbatch; "
+          f"review {list_path.parent / 'zeros.txt'}")
+
 
 
 # ---------------------------------------------------------------------------
@@ -1151,6 +1238,13 @@ def main() -> None:
     p_best = sub.add_parser("best", help="List best outputs and show diff")
     p_best.add_argument("dir", help="Permuter input directory")
 
+    # batch
+    p_batch = sub.add_parser("batch", help="Host: set up and run every row of a permute-candidates list")
+    p_batch.add_argument("list", help="list.tsv from quality.py permute-candidates")
+    p_batch.add_argument("--parallel", type=int, default=4, help="rows at a time")
+    p_batch.add_argument("-j", type=int, default=2, help="permuter threads per row")
+    p_batch.add_argument("--seconds", type=int, default=900, help="wall-clock limit per row")
+
     # Parse known args so trailing permuter args can be forwarded to run
     args, extra = parser.parse_known_args()
 
@@ -1164,6 +1258,10 @@ def main() -> None:
         if extra:
             sys.exit(f"error: unrecognized arguments: {' '.join(extra)}")
         cmd_best(args)
+    elif args.subcommand == "batch":
+        if extra:
+            sys.exit(f"error: unrecognized arguments: {' '.join(extra)}")
+        cmd_batch(args)
 
 
 if __name__ == "__main__":

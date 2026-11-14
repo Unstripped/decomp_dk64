@@ -905,6 +905,15 @@ def combos(items):
             yield c
 
 
+def plain_rewrites(site, lines):
+    """Whole-file texts with SITE's line rewritten by each PLAIN rule that changes it (its `// FAKE`
+    comment dropped, any other comment kept)."""
+    i = site["lines"][0]
+    code, cm = split_comment(lines[i])
+    tail = "" if "FAKE" in cm or not cm else " " + cm
+    return [apply(lines, {i: new.rstrip() + tail}) for rx, rep in PLAIN for new in [rx.sub(rep, code)] if new != code]
+
+
 def merged(group):
     out = {}
     for _, e in group:
@@ -953,17 +962,12 @@ def plan_file(an, path, src, pool):
         for s in sites:
             i = s["lines"][0]
             if s["kind"] in PLAIN_KINDS:
-                code, cm = split_comment(lines[i])
-                tail = "" if "FAKE" in cm or not cm else " " + cm
-                n = 0
-                for rx, rep in PLAIN:
-                    new = rx.sub(rep, code)
-                    if new != code:
-                        text = apply(lines, {i: new.rstrip() + tail})
-                        submit("plain", [(s, None)], check, text, path, src)
-                        first_plain.setdefault(s["key"], (s, text))
-                        n += 1
-                tried[(s["key"], "plain")] = None if n else "no rewrite"
+                texts = plain_rewrites(s, lines)
+                for text in texts:
+                    submit("plain", [(s, None)], check, text, path, src)
+                if texts:
+                    first_plain[s["key"]] = (s, texts[0])
+                tried[(s["key"], "plain")] = None if texts else "no rewrite"
             m = GUARD.match(lines[i])
             if s["kind"] == "dead-if" and m:
                 cands = [v for v, ln in fn["int_locals"] if ln < s["line"] and not re.search(rf"\b{re.escape(v)}\b", m.group(2))]
@@ -1413,6 +1417,45 @@ def cmd_history(a):
             new = f' new="{e["new"]}"' if e.get("new") else ""
             print(f"{e['t'][:16]} {e['unit']} {e['agent']} {model} {e['method']} {e['outcome']} "
                   f"{e['site'] or 'func'} {(e.get('note') or '')[:160]}{new}")
+
+
+def cmd_permute_candidates(a):
+    """Copies with one hack site removed (or plainly rewritten) for `tools/permute.py batch`: sites
+    whose agent permute runs reached a base score <= --max-base, whose edit does not already match."""
+    out = cli_path(a.out)
+    if os.path.isdir(os.path.join(ROOT, out)) and os.listdir(os.path.join(ROOT, out)):
+        sys.exit(f"permute-candidates: {out} is not empty")
+    ans = analyze_many(clint.src_files())
+    require_resolved(ans)
+    by_site, _ = index_events(load_events())
+    cands = []
+    for an in ans:
+        lines = open(os.path.join(ROOT, an["path"]), encoding="utf-8", errors="replace").read().split("\n")
+        for fn in an["functions"]:
+            for s in fn["sites"]:
+                bases = [e["base"] for e in by_site.get(s["key"], []) if e["method"] == "permute"
+                         and e.get("agent") != "sweep" and e.get("base") is not None]
+                if s["kind"] not in HACK_KINDS or not bases or min(bases) > a.max_base:
+                    continue
+                ed = remove_edit(s, lines, fn)
+                texts = ([apply(lines, merged([(s, ed)]))] if ed is not None
+                         else plain_rewrites(s, lines)[:1] if s["kind"] in PLAIN_KINDS else [])
+                if texts:
+                    cands.append((an, fn, s, min(bases), texts[0]))
+    rows = []
+    for an, fn, s, base, text in cands:
+        if a.limit and len(rows) >= a.limit:
+            break
+        if check(text, an["path"], an["path"], uninit=False):
+            continue  # already matches: a sweep matter
+        d = os.path.join(out, f"{len(rows) + 1:03d}_{an['seg']}_{fn['name']}")
+        os.makedirs(os.path.join(ROOT, d))
+        copy = os.path.join(d, os.path.basename(an["path"]))
+        open(os.path.join(ROOT, copy), "w").write(text)
+        rows.append("\t".join((d, an["seg"], fn["name"], copy, an["path"], s["key"], str(base))))
+    os.makedirs(os.path.join(ROOT, out), exist_ok=True)
+    open(os.path.join(ROOT, out, "list.tsv"), "w").write("".join(r + "\n" for r in rows))
+    print(f"{len(rows)} candidates ({len(cands)} sites with permute base <= {a.max_base}) in {out}/list.tsv")
 
 
 # ---------------------------------------------------------------- carry (renames keep results)
@@ -2418,6 +2461,11 @@ def main(argv=None):
     c.add_argument("sessions", help="omp sessions directory of this checkout")
     c.add_argument("--dry-run", action="store_true")
     c.set_defaults(fn=cmd_backfill_models)
+    c = s.add_parser("permute-candidates")
+    c.add_argument("--max-base", type=int, required=True, help="sites whose best permute base score is <= N")
+    c.add_argument("--out", required=True, help="new or empty directory")
+    c.add_argument("--limit", type=int)
+    c.set_defaults(fn=cmd_permute_candidates)
     a = p.parse_args(argv)
     try:
         a.fn(a)
