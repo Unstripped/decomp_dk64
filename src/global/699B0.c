@@ -4,9 +4,7 @@
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/166A0.h"
-#define PROTO_SKIP_particleFindPathIndices
 #include "proto/global/699B0.h"
-void particleFindPathIndices(s16 pathType);
 
 typedef struct ParticlePath {
     /* 0x00 */ u8 level;

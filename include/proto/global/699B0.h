@@ -3,7 +3,7 @@
 #define PROTO_GLOBAL_699B0_H
 #include "common.h"
 #ifndef PROTO_SKIP_particleFindPathIndices
-void particleFindPathIndices();
+void particleFindPathIndices(s16);
 #endif
 #ifndef PROTO_SKIP_particleSpawnPathTrail
 void particleSpawnPathTrail(void);
