@@ -312,7 +312,6 @@ void minecartUpdatePhysics(void) {
 
 
 extern s32 D_807F5FD0;
-extern MinecartTrackPoint **gMinecartTrackPoints;
 extern u8 D_80028C48[];
 extern u8 D_80028C50[];
 

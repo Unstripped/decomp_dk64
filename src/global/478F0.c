@@ -42,10 +42,6 @@ extern f32 gCsPosZ;
 extern PlayerStruct *gPlayerSlots;
 extern u8 D_8071FF18[];
 extern u8 sEffectSparkConfig[];
-typedef struct CsPoint3f {
-    f32 x, y, z;
-} CsPoint3f;
-extern CsPoint3f **gMinecartTrackPoints;
 
 
 void csCmdSpawnFixedNodeEffects(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -178,7 +174,7 @@ void csCmdPeriodicNodeEffect(CsState *cs, s16 csId, s16 b, s16 c) {
 
 void csPeriodicPointEffect(s32 a, s32 b, u32 c) {
     s32 idx;
-    CsPoint3f *p;
+    TargetVec3f *p;
 
     if (gFrameCounter % c == 0) {
         idx = (u32)randomLcgNext() / 10000 % b;
@@ -194,7 +190,7 @@ void csPeriodicPointEffect(s32 a, s32 b, u32 c) {
 
 void csCmdBobbingLights(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 *ang;
-    CsPoint3f *p;
+    TargetVec3f *p;
     f32 fy;
     f32 sn;
 
@@ -1145,7 +1141,7 @@ void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 cnt;
     s32 start;
     s32 hit;
-    CsPoint3f *v;
+    TargetVec3f *v;
     PlayerStruct *pl;
     f32 dx;
     f32 dy;
@@ -1377,7 +1373,7 @@ void csCmdPointListEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 x;
     s32 y;
     s32 z;
-    CsPoint3f *p;
+    TargetVec3f *p;
 
     q = cs->data;
     if (q == NULL) {

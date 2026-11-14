@@ -96,10 +96,6 @@ typedef struct {
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 extern s16 D_8002D900;
-typedef struct {
-    f32 x, y, z;
-} Point3f;
-extern Point3f **gMinecartTrackPoints;
 
 void func_806FDAB8(u8, f32);  // FAKE: callee prototype steer
 
@@ -395,7 +391,7 @@ extern u8 gGameMode;
 void bonusTargetGameUpdate(void) {
     Struct_7548 *bonusExt = gCurrentActor->customState;
     Struct_71B4 *game = ((BonusActorExt *)gCurrentActor)->unk178;
-    Point3f *p;
+    TargetVec3f *p;
     f32 ang;
     u8 c;
     s32 r;
@@ -532,7 +528,7 @@ typedef struct BonusB_Sub178 {
 void bonusPopupGameUpdate(void) {
     Struct_7548 *bonusExt = gCurrentActor->customState;
     BonusB_Sub178 *game = ((BonusActorExt *)gCurrentActor)->unk178;
-    Point3f *p;
+    TargetVec3f *p;
     f32 y;
     f32 z;
 
@@ -707,7 +703,7 @@ void bonusPopupSpawnActors(BonusB_Sub178 *popupState) {
     s32 i;
     BonusPopup *popup;
     Actor *popupActor;
-    Point3f *pos;
+    TargetVec3f *pos;
 
     for (i = 1; i != 7; i++) {
         if (actorSpawn(0x12C, 0x15) != 0) {
@@ -968,7 +964,7 @@ extern s16 D_8002D8EC[];
 void bonusLightFlashGameUpdate(void) {
     Struct_7548 *bonusExt = gCurrentActor->customState;
     BonusLightFlashState *game = ((BonusActorExt *)gCurrentActor)->unk178;
-    Point3f *p;
+    TargetVec3f *p;
     f32 y;
     f32 z;
     s32 pad;
@@ -1241,7 +1237,7 @@ void bonusLightFlashSpawnTargets(void *ownerActor) {
         if (actorSpawn(0x147, D_8002D8C8[i - 1]) != 0) {
             Struct_Sp50 *subExt = gSpawnedActor->customState;
             s16 *actorProp = ((BonusActorExt *)gSpawnedActor)->unk17C;
-            Point3f *pt;
+            TargetVec3f *pt;
             f32 scale;
 
             *actorProp = D_8002D8C8[i - 1];
@@ -1274,7 +1270,7 @@ void bonusLightFlashTargetUpdate(void) {
     f32 lightR;
     f32 lightG;
     f32 lightB;
-    Point3f *p;
+    TargetVec3f *p;
     s8 isHit;
     s8 flags;
 
@@ -1356,7 +1352,7 @@ extern s8 D_8002D904;
 void bonusPerilPathPanicGameUpdate(void) {
     Struct_7548 *bonusExt = gCurrentActor->customState;
     LargeB1_Sub178 *game = ((BonusActorExt *)gCurrentActor)->unk178;
-    Point3f *p;
+    TargetVec3f *p;
     f32 y;
     f32 z;
     s32 n;
@@ -1563,7 +1559,7 @@ void bonusPerilPathPanicFairyUpdate(void) {
     BonusC_AD10_S *subExt;
     Actor *owner;
     LargeB1_Sub178 *ownerExt;
-    Point3f *p;
+    TargetVec3f *p;
 
     subExt = gCurrentActor->customState;
     owner = subExt->unk0;

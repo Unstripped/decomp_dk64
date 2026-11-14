@@ -48,17 +48,10 @@ typedef struct MinecartObstacleActor {
     /* 0x178 */ MinecartCart *cart;
 } MinecartObstacleActor;
 
-typedef struct MinecartTrackPoint {
-    f32 x;
-    f32 y;
-    f32 z;
-} MinecartTrackPoint;
-
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
-extern MinecartTrackPoint **gMinecartTrackPoints;
 extern PlayerStruct *gPlayerSlots;
 extern s32 gCurrentMap;
 extern s32 D_80717D4C;

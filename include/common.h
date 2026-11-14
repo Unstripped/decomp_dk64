@@ -16,6 +16,10 @@ typedef struct TargetVec3f {
     f32 x, y, z;
 } TargetVec3f;
 
+// Per-track point arrays from the map header (mapHeaderLoad): entry i is the first point of track i and
+// entry i + 1 ends it, so gMinecartTrackPoints[i + 1] - gMinecartTrackPoints[i] counts the points.
+extern TargetVec3f **gMinecartTrackPoints;
+
 // A 3D float vector passed and returned by value (vec3f* helpers, 17540.c).
 typedef struct Vec3f {
     f32 x, y, z;

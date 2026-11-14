@@ -83,16 +83,10 @@ void raceGetParticipantPair(Actor *manager, s32 slot, Actor **outActor, RacePart
     *outData = pairs[slot].data;
 }
 
-typedef struct RaceEBounds {
-    f32 *start;
-    char pad4[8];
-    f32 *end;
-} RaceEBounds;
-extern RaceEBounds *gMinecartTrackPoints;
 
 void raceCalculatePathBoundingBox(Actor *actor) {
     RaceParticipant *managerData;
-    f32 *p;
+    TargetVec3f *p;
     f32 minX;
     f32 minZ;
     f32 maxX;
@@ -105,12 +99,12 @@ void raceCalculatePathBoundingBox(Actor *actor) {
     maxX = -1.0f;
     maxZ = -1.0f;
     managerData = actor->customState;
-    for (p = gMinecartTrackPoints->start; p < gMinecartTrackPoints->end; p += 3) {
-        x = p[0];
+    for (p = gMinecartTrackPoints[0]; p < gMinecartTrackPoints[3]; p++) {
+        x = p->x;
         if (x < minX) {
             minX = x;
         }
-        z = p[2];
+        z = p->z;
         if (z < minZ) {
             minZ = z;
         }

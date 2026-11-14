@@ -25,7 +25,6 @@
 #include "proto/race/36B0.h"
 #include "proto/race/7BD0.h"
 
-typedef TargetVec3f Point3f;
 
 typedef struct RaceActor RaceActor;
 
@@ -51,7 +50,6 @@ struct RaceActor {
     } view;
 };
 
-extern Point3f **gMinecartTrackPoints;
 extern Actor *gCurrentActor;
 
 
@@ -73,11 +71,11 @@ s32 raceGetWaypointDiff(s32 pathLength, RacePathState *curA, RacePathState *curB
 f32 raceGetWaypointSegmentFraction(s32 pathLength, Actor *actor, RacePathState *cursor) {
     s32 idx1;
     s32 idx2;
-    Point3f *base;
-    Point3f *cur;
-    Point3f *p1;
-    Point3f *p2;
-    Point3f out;
+    TargetVec3f *base;
+    TargetVec3f *cur;
+    TargetVec3f *p1;
+    TargetVec3f *p2;
+    TargetVec3f out;
     f32 d2;
     f32 e2;
 
@@ -94,9 +92,9 @@ f32 raceGetWaypointSegmentFraction(s32 pathLength, Actor *actor, RacePathState *
 
 f32 raceGetPathDistance(s32 pathLength, u16 laneIndex, u16 waypointIndex) {
     s32 index;
-    Point3f *points;
-    Point3f *p1;
-    Point3f *p2;
+    TargetVec3f *points;
+    TargetVec3f *p1;
+    TargetVec3f *p2;
     f32 dx;
     f32 dy;
     f32 dz;
@@ -642,7 +640,7 @@ void raceCameraBehaviorUpdate(void) {
 
 
 void raceFindNearestWaypoint(RacePathState *cursor) {
-    Point3f *p;
+    TargetVec3f *p;
     s32 count;
     s32 i;
     s32 j;

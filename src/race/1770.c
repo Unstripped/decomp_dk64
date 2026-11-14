@@ -39,7 +39,6 @@ s32 raceGetPrevWaypointIndex(s32 pathLength, s32 curWaypoint) {
     return curWaypoint - 1;
 }
 
-typedef TargetVec3f RaceAPoint3f;
 
 
 // Race actor: Actor plus its component pointers from 0x174 on.
@@ -61,18 +60,17 @@ typedef struct {
     RacePair *unk184;
 } RaceNodeActor;
 
-extern RaceAPoint3f **gMinecartTrackPoints;
 extern Actor *gCurrentActor;
 
 void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPos, s32 nextWaypoint, s32 nextNextWaypoint) {
     s32 padA;
     s32 padB;
-    RaceAPoint3f *points;
+    TargetVec3f *points;
     s32 i;
     f32 closerTarget[3];
     s32 padM;
     s8 laneDiff;
-    RaceAPoint3f *curPoint;
+    TargetVec3f *curPoint;
 
     points = gMinecartTrackPoints[pathState->unk1];
     curPoint = &points[pathState->unk2];
@@ -92,9 +90,9 @@ void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPo
 extern s32 D_807F5FD0;
 
 void raceInitSplinePoints(void) {
-    RaceAPoint3f *buf;
+    TargetVec3f *buf;
     u8 *src;
-    RaceAPoint3f **tbl;
+    TargetVec3f **tbl;
     u32 lo; // FAKE: one slot holds the byte length, then the tbl[2] pointer; a separate pointer local reallocates the loop
     s32 i;
     s32 count;
@@ -115,9 +113,9 @@ void raceInitSplinePoints(void) {
     src = (u8 *)tbl[0];
     lo = (u32)tbl[2];
     for (i = 0; i < count; i++) {
-        buf[i].x = (((RaceAPoint3f *)lo)[i].x + ((RaceAPoint3f *)src)[i].x) * 0.5;
-        buf[i].y = (((RaceAPoint3f *)lo)[i].y + ((RaceAPoint3f *)src)[i].y) * 0.5;
-        buf[i].z = (((RaceAPoint3f *)lo)[i].z + ((RaceAPoint3f *)src)[i].z) * 0.5;
+        buf[i].x = (((TargetVec3f *)lo)[i].x + ((TargetVec3f *)src)[i].x) * 0.5;
+        buf[i].y = (((TargetVec3f *)lo)[i].y + ((TargetVec3f *)src)[i].y) * 0.5;
+        buf[i].z = (((TargetVec3f *)lo)[i].z + ((TargetVec3f *)src)[i].z) * 0.5;
     }
     D_807F5FD0 = 3;
     gMinecartTrackPoints = tbl;
@@ -249,10 +247,10 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     s32 count;
     s32 next;
     s32 next2;
-    RaceAPoint3f *points;
-    RaceAPoint3f *cur;
-    RaceAPoint3f *nxt;
-    RaceAPoint3f *nxt2;
+    TargetVec3f *points;
+    TargetVec3f *cur;
+    TargetVec3f *nxt;
+    TargetVec3f *nxt2;
     f32 pos[3];
     f32 tgt[3];
     f32 ang;
