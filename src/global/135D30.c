@@ -4,15 +4,6 @@
 #include "proto/global/135D30.h"
 #include "proto/global/3C10.h"
 
-typedef struct FlagTableEntry {
-    /* 0x0 */ u8 map;
-    /* 0x1 */ u8 pad1;
-    /* 0x2 */ s16 id;
-    /* 0x4 */ s16 flag;
-    /* 0x6 */ u8 value;
-    /* 0x7 */ u8 active;
-} FlagTableEntry;
-
 typedef struct FlagTableEntry4 {
     /* 0x0 */ s16 id;
     /* 0x2 */ u8 value;
@@ -22,7 +13,6 @@ typedef struct FlagTableEntry4 {
 FlagTableEntry gFlagTempEntries[0x18];
 u8 gFlagBank2[14];
 extern FlagTableEntry D_80755A20[0x71];
-extern FlagTableEntry D_80755DA8[0x1F];
 extern FlagTableEntry D_80755EA0[0x16];
 extern FlagTableEntry4 D_80755F4C[];
 extern FlagTableEntry4 D_80755F50[0x35];

@@ -935,6 +935,18 @@ typedef struct PlayerInventory {
     /* 0x2FE */ u16 kills[4]; // multiplayer: kills of each player
 } PlayerInventory; // size = 0x306
 
+// One entry of the per-map flag tables (135D30.c: D_80755A20, D_80755DA8, D_80755EA0, gFlagTempEntries).
+typedef struct FlagTableEntry {
+    /* 0x0 */ u8 map;
+    /* 0x1 */ u8 pad1;
+    /* 0x2 */ s16 id;
+    /* 0x4 */ s16 flag;
+    /* 0x6 */ u8 value;
+    /* 0x7 */ u8 active;
+} FlagTableEntry; // size = 0x8
+// 0x1F entries, ended by map 0xFF (hudPauseMenu's scan in ACDC0.c).
+extern FlagTableEntry D_80755DA8[0x1F];
+
 // One row of the per-character table D_8075C410 (CC800 data, 0x10 per character id): the kong actor type, the
 // character index the row selects (gCurrentCharacterIndex), its model, and the actor flags.
 typedef struct KongCharacterEntry {

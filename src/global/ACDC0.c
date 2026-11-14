@@ -830,15 +830,7 @@ Gfx *hudDrawCountPair(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale)
     return renderRotatedSprite(dl, 0x9F, 0, 2, 0x20, 0x20, x + (w - 0x10) * scale, y + 45.0f * scale, scale * 3.125, scale * 3.125, 0, 0.0f);
 }
 
-typedef struct {
-    /* 0x00 */ u8 map;
-    /* 0x01 */ u8 pad1[3];
-    /* 0x04 */ s16 flag;
-    /* 0x06 */ u8 pad6[2];
-} HudPauseFlagEntry;
-
 extern u8 gPlayerCharacterId;
-extern HudPauseFlagEntry D_80755DA8[];
 extern s8 D_807FC800;
 extern f32 D_807FC804;
 extern s8 D_807FC80D;
