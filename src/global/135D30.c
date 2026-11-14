@@ -79,14 +79,14 @@ typedef struct FlagRange {
     s16 rewardFlag;
 } FlagRange;
 
-extern FlagRange D_80756024[];
+extern FlagRange D_80756024[0x21];
 
 void flagUpdateRangeCompletion(s16 flag) {
     s32 i;
     s32 res = -1;
     FlagRange *e;
 
-    for (i = 0; i < 0x21U && res == -1; i++) { // FAKE: unsigned bound on the s32 counter keeps i in s1 with sltiu (a literal bound LFTRs to an end pointer, Q0582)
+    for (i = 0; i < sizeof(D_80756024) / sizeof(D_80756024[0]) && res == -1; i++) {
         e = &D_80756024[i];
         if (flag >= e->first && flag <= e->last) {
             if (flagCountRange(e->first, e->last - e->first + 1, 0) == e->required) {
