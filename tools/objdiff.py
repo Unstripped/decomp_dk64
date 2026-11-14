@@ -380,11 +380,33 @@ def reloc_address(name, addend, syms):
                 base = None
     return None if base is None else (base + addend) & 0xFFFFFFFF
 
+def data_symbol_offsets(obj_path):
+    """{name: (section, offset)} for the object's data sections (as `.bss` + 0) and every symbol
+    defined in them, so a relocation against a section symbol (`.bss+0x4598`, a function-local
+    static) and one against a named symbol (`D_807655E8`) compare as object-local locations."""
+    out = subprocess.check_output(["mips-linux-gnu-readelf", "-sW", obj_path],
+                                  stderr=subprocess.DEVNULL).decode(errors="replace")
+    sec_ndx = section_name_map(obj_path)
+    offsets = {sec: (sec, 0) for sec in sec_ndx.values() if sec in DATA_SECTIONS}
+    for line in out.splitlines():
+        p = line.split()
+        if len(p) == 8 and p[0].endswith(":") and p[6].isdigit() and sec_ndx.get(int(p[6])) in DATA_SECTIONS:
+            offsets.setdefault(p[7], (sec_ndx[int(p[6])], int(p[1], 16)))
+    return offsets
+
+def data_location(offsets, name, addend):
+    """(section, offset) of `name + addend` inside the object's own data sections, else None."""
+    if name not in offsets:
+        return None
+    sec, base = offsets[name]
+    return sec, (base + addend) & 0xFFFFFFFF
+
 def reloc_equivalent(built_o, expected_o):
     """True when the objects differ only in how relocations name their targets: equal .data/.rodata
     bytes and .bss size, the same relocation offsets and types, every HI16/LO16 pair resolving to the
-    same final address (symbol + paired addend: `D_807506D0 + 5` vs `D_807506D5`), every R_MIPS_26 to
-    the same function address, and the same instruction words outside the relocated fields."""
+    same final address (symbol + paired addend: `D_807506D0 + 5` vs `D_807506D5`; a data-section
+    target `.bss + 0x4598` vs a symbol the other object defines at that section offset), every R_MIPS_26
+    to the same function address, and the same instruction words outside the relocated fields."""
     for sec in (".data", ".rodata"):
         if get_section_bytes(built_o, sec) != get_section_bytes(expected_o, sec):
             return False
@@ -398,6 +420,7 @@ def reloc_equivalent(built_o, expected_o):
         return False
     syms = symbol_addresses(expected_o)
     b_add, e_add = pair_addends(b_text, b_relocs), pair_addends(e_text, e_relocs)
+    b_data = e_data = None
     for (off, rtype, b_tgt), (_, _, e_tgt) in zip(b_relocs, e_relocs):
         if rtype == "R_MIPS_26":
             b_field, e_field = word_at(b_text, off) & 0x03FFFFFF, word_at(e_text, off) & 0x03FFFFFF
@@ -407,8 +430,17 @@ def reloc_equivalent(built_o, expected_o):
         elif rtype in ("R_MIPS_HI16", "R_MIPS_LO16"):
             if b_tgt == e_tgt and b_add.get(off) == e_add.get(off):
                 continue
-            if b_tgt in DATA_SECTIONS or e_tgt in DATA_SECTIONS or b_tgt == ".text" or e_tgt == ".text":
+            if b_tgt == ".text" or e_tgt == ".text":
                 return False
+            if b_tgt in DATA_SECTIONS or e_tgt in DATA_SECTIONS:
+                # Section sizes and .data/.rodata bytes are equal (checked above), so equal
+                # object-local (section, offset) locations link to the same final address.
+                if b_data is None:
+                    b_data, e_data = data_symbol_offsets(built_o), data_symbol_offsets(expected_o)
+                b_loc = data_location(b_data, b_tgt, b_add.get(off, 0))
+                if b_loc is None or b_loc != data_location(e_data, e_tgt, e_add.get(off, 0)):
+                    return False
+                continue
             b_a, e_a = reloc_address(b_tgt, b_add.get(off, 0), syms), reloc_address(e_tgt, e_add.get(off, 0), syms)
         else:
             if b_tgt != e_tgt or word_at(b_text, off) != word_at(e_text, off):

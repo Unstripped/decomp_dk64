@@ -345,3 +345,47 @@ def test_reloc_equivalent_pairs_hi16_by_register(monkeypatch):
                           {"jetpacGame": 0x8002EC30})
     assert objdiff.pair_addends(built, sym("jetpacGame"))[4] == 0x1C
     assert objdiff.reloc_equivalent(b, e)
+
+
+def _data_offsets(monkeypatch, built, expected):
+    tables = {"built.o": built, "expected/build/src/global/x.o": expected}
+    monkeypatch.setattr(objdiff, "data_symbol_offsets", lambda p: tables[p])
+
+
+def _sw_pair(lo):
+    # lui $at, 0; sw $v0, lo($at)
+    return (0x3C010000).to_bytes(4, "big") + (0xAC220000 | (lo & 0xFFFF)).to_bytes(4, "big")
+
+
+def test_reloc_equivalent_function_local_static_bss(monkeypatch):
+    """global/0 mainThreadHalt: a function-local `static u64 D_807655E8` relocates against
+    `.bss + 0x4598`; expected names the file-scope symbol it defines at that .bss offset."""
+    b, e = _reloc_objects(monkeypatch,
+                          (_sw_pair(0x4598), [(0, "R_MIPS_HI16", ".bss"), (4, "R_MIPS_LO16", ".bss")]),
+                          (_sw_pair(0), [(0, "R_MIPS_HI16", "D_807655E8"), (4, "R_MIPS_LO16", "D_807655E8")]))
+    _data_offsets(monkeypatch, {".bss": (".bss", 0)},
+                  {".bss": (".bss", 0), "D_807655E8": (".bss", 0x4598)})
+    assert objdiff.reloc_equivalent(b, e)
+
+
+def test_reloc_equivalent_bss_offset_past_0x8000(monkeypatch):
+    """A HI16/LO16 pair whose LO16 is negative (`lui 1; sw -0x7FF8`) still resolves to .bss + 0x8008."""
+    text_b = (0x3C010001).to_bytes(4, "big") + (0xAC228008).to_bytes(4, "big")
+    b, e = _reloc_objects(monkeypatch,
+                          (text_b, [(0, "R_MIPS_HI16", ".bss"), (4, "R_MIPS_LO16", ".bss")]),
+                          (_sw_pair(8), [(0, "R_MIPS_HI16", "D_x"), (4, "R_MIPS_LO16", "D_x")]))
+    _data_offsets(monkeypatch, {".bss": (".bss", 0)}, {".bss": (".bss", 0), "D_x": (".bss", 0x8000)})
+    assert objdiff.reloc_equivalent(b, e)
+
+
+@pytest.mark.parametrize("built_lo, exp_offsets", [
+    (0x4590, {".bss": (".bss", 0), "D_807655E8": (".bss", 0x4598)}),   # other .bss offset
+    (0x4598, {".bss": (".bss", 0), "D_807655E8": (".data", 0x4598)}),  # same offset, other section
+    (0x4598, {".bss": (".bss", 0)}),                                   # expected symbol is an extern
+])
+def test_reloc_equivalent_rejects_other_data_location(monkeypatch, built_lo, exp_offsets):
+    b, e = _reloc_objects(monkeypatch,
+                          (_sw_pair(built_lo), [(0, "R_MIPS_HI16", ".bss"), (4, "R_MIPS_LO16", ".bss")]),
+                          (_sw_pair(0), [(0, "R_MIPS_HI16", "D_807655E8"), (4, "R_MIPS_LO16", "D_807655E8")]))
+    _data_offsets(monkeypatch, {".bss": (".bss", 0)}, exp_offsets)
+    assert not objdiff.reloc_equivalent(b, e)
