@@ -201,7 +201,6 @@ void actorGetMatrix(ActorSub140 *owner, CollisionMtxF dst, s8 mtxIndex) {
     }
 }
 
-extern u8 D_807FD614[];
 extern u8 D_807FB603;
 extern u8 D_807FB547;
 extern PlayerStruct *gPlayerSlots;
@@ -259,7 +258,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
             hit = func_80673708(otherBounds->scaledX, otherBounds->scaledY, otherBounds->scaledZ, hitRadius, selfBounds->unkA4, selfBounds->unkA8, &other->arcYawMin, &other->arcYawMax);
         }
     }
-    if ((*(u8 *)&flag != 0) && ((f64)*(f32 *)(D_807FD614 + playerFindIndexByActor(other) * 0x34) > 30.0)) { // FAKE: punned *(u8 *)&flag re-reads the u8 param from its stack home (lbu 343(sp) into t8, not a callee-saved copy)
+    if ((*(u8 *)&flag != 0) && (gPlayerPadState[playerFindIndexByActor(other)].stickMag > 30.0)) { // FAKE: punned *(u8 *)&flag re-reads the u8 param from its stack home (lbu 343(sp) into t8, not a callee-saved copy)
         hit = 1;
     }
     if (hit != 0) {
