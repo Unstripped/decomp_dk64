@@ -4,6 +4,7 @@
 #include "proto/global/166A0.h"
 #include "proto/global/35000.h"
 #include "proto/global/3C10.h"
+#include "proto/global/42630.h"
 #include "proto/global/FCCD0.h"
 #include "proto/race/0.h"
 #include "proto/race/7BD0.h"
@@ -156,7 +157,6 @@ void camResumePath(void);
 u16 camStartPath(void *, s16, u8);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
-void csModelStateSetFirstByte(s16, s16);
 f32 sqrtf(f32);
 void actorUpdateFloorContactAndTilt(void *, f32);
 void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);

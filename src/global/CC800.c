@@ -45,26 +45,6 @@ void collectibleCountsClear(void) {
 
 extern u8 gPlayerCharacterId[];
 
-typedef struct KongCharacterEntry {
-    /* 0x0 */ s32 actorType;
-    /* 0x4 */ union {
-        s32 characterIndex;
-        struct {
-            u8 pad[3];
-            u8 characterId;
-        } b;
-    };
-    /* 0x8 */ union {
-        s32 model;
-        struct {
-            u8 pad[2];
-            u16 modelId;
-        } m;
-    };
-    /* 0xC */ s32 actorFlags;
-} KongCharacterEntry;
-extern KongCharacterEntry D_8075C410[];
-
 s32 playerGetModelAssetId(void) {
     return D_8075C410[gPlayerCharacterId[0]].actorType;
 }

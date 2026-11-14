@@ -11,6 +11,7 @@
 #include "proto/global/17B90.h"
 #include "proto/global/201B0.h"
 #include "proto/global/35000.h"
+#include "proto/global/42630.h"
 #include "proto/global/63EC0.h"
 #include "proto/global/6AD90.h"
 #include "proto/global/70FD0.h"
@@ -172,7 +173,6 @@ void scriptSetActorRampTarget(void *, f32, f32);
 void actorScriptStart(void *, s32);
 s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
-void csModelStateSetFirstByte(s16, s16);
 void actorApplyVelocityCustom(void *, f32, f32);
 f32 actorGetOrSetNodeScale(Actor *, s32, f32);
 s32 actorTableContains(void *);

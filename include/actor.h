@@ -884,6 +884,29 @@ typedef struct PlayerInventory {
     /* 0x2FE */ u16 kills[4]; // multiplayer: kills of each player
 } PlayerInventory; // size = 0x306
 
+// One row of the per-character table D_8075C410 (CC800 data, 0x10 per character id): the kong actor type, the
+// character index the row selects (gCurrentCharacterIndex), its model, and the actor flags.
+typedef struct KongCharacterEntry {
+    /* 0x0 */ s32 actorType;
+    /* 0x4 */ union {
+        s32 characterIndex;
+        struct {
+            u8 pad[3];
+            u8 characterId;
+        } b;
+    };
+    /* 0x8 */ union {
+        s32 model;
+        struct {
+            u8 pad[2];
+            u16 modelId;
+        } m;
+    };
+    /* 0xC */ s32 actorFlags;
+} KongCharacterEntry; // size = 0x10
+
+extern KongCharacterEntry D_8075C410[];
+
 // One loaded animation-asset cache slot (controllerAnimStateLoadAsset/controllerAnimFreeSub, 17B90);
 // D_807FB630[32] spans .bss 0x807FB630..0x807FB7B0 (D_807FB634 is the [0].asset split label).
 typedef struct ControllerStateEntry {

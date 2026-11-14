@@ -1570,18 +1570,11 @@ void actorTableSort(void) {
     } while (!done);
 }
 
-// the CC800 character table D_8075C410 (G00Row, 0x10 per character) seen from its second word
-typedef struct CharacterIdRow {
-    s32 characterId;
-    u8 pad4[12];
-} CharacterIdRow;
-
 extern u8 gPlayerCharacterId[];
 extern PlayerInventory gPlayerInventoryTable[];
 extern KongInventory *D_807FD568;
 extern OSContPad *D_807ECDEC;
 extern u16 D_807ECDF0;
-extern CharacterIdRow D_8075C414[];
 extern s16 gCurrentCharacterIndex;
 
 void playerSetActiveGlobals(Actor *actor) {
@@ -1594,7 +1587,7 @@ void playerSetActiveGlobals(Actor *actor) {
     D_807FD568 = &gPlayerInventoryTable[gCurrentPlayerIndex].kong[character];
     D_807ECDEC = gPlayerSlots[gCurrentPlayerIndex].contPad;
     D_807ECDF0 = *gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr;
-    gCurrentCharacterIndex = D_8075C414[character].characterId;
+    gCurrentCharacterIndex = D_8075C410[character].characterIndex;
     gPlayerSlots[gCurrentPlayerIndex].sizeModeDirty = 0;
 }
 
