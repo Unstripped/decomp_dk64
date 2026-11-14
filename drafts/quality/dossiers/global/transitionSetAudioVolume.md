@@ -1,0 +1,10 @@
+# transitionSetAudioVolume (global, src/global/10E1D0.c)
+## Sites
+global:8070B324:dead-if:86665d `if (D_807550A4 && D_807550A4) {}` after the channel loop. uopt_trace: the dead read reuses the F-arm load of D_807550A4 (uilod{1047} = {907}), making it a candidate live to the end of the function (bit 41, adjsave 1.5, coloured v0). The address constant &D_807550A4 ({1047}, bit 74, live in bb 4 / 12 / 13: the T-arm store, the F-arm test and the F-arm store) then has adjsave 0 and stays uncoloured, so every access is lui at/t2 + %lo (0x2000/0x2004, 0x2114/0x2118, 0x2130/0x2138). Without the read the address candidate has adjsave 0.5 and is coloured v0 (lui v0; addiu v0 in both arms), and li t3,1 moves after it (16 lines).
+## Attempts
+2026-11-11 round 11 CleanGlobal10E1D0: remove/cond/classify, diagnose, permute (best=0 via reused i / x * 0). Round 17: permute (same), sweep.
+2026-11-14 HacktransitionSetAudioVolume opus:high (variants.py try, all without the dead read): `if (x)` for isGroupActive and/or D_807550A4 (16); !sTransitionState (16); flags test with == 0 (16); u8/s32 snapshot local of D_807550A4 in the F arm, bare or != 0 (52); == 1 (18); one-case switch on D_807550A4 (default 16, case 1 18); arms negated (99) or as a switch on isGroupActive (99); T-arm store after the call (21); F-arm store after the calls (9: address no longer CSEd, but store order wrong); shared scaledVol for the F-arm calls (92); channel loop as if + for (102) or while (16); isGroupActive retyped u8/s8/s16/u16 with PROTO_SKIP stand-in (227); permuter perm_rm: stopped at 482 s by the lead's dkd restart; baseline 815; all nine zeros (incl. output-0-9: a dead if (!D_807550A4) {} plus scaledVol = 1 reused as a group index) re-add a steer.
+## Untried ideas
+Q0498 function-local static: D_807550A4 is used only by this function, but it lives in the shared global .data blob (asm/global/data/14C9E0.data.s, between D_80755074 and D_807550A8), so it cannot move without a .data carve of that region.
+## Evidence
+0x1fec lw t2,60(sp) (isGroupActive); 0x1ff0 li t3,1; 0x2000 lui at / 0x2004 sw t3,%lo(D_807550A4)(at); 0x2114 lui t2 / 0x2118 lw t2; 0x2130 lui at / 0x2138 sw zero.
