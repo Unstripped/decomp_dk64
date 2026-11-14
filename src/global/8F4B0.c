@@ -598,37 +598,35 @@ extern u8 gGameMode;
 extern s16 D_807FC624;
 
 void playerCameraUpdateFromTarget(void) {
-    void *targetState;
+    CamState *camState;
     s16 angleA;
-    s16 pad50[1];
+    s16 angleB;
     s16 angleDiff;
     f32 angleRad;
-    f32 pad44[1];
+    f32 pitchRad;
     f32 stepFactor;
     f32 scaleFactor;
     s16 maxDiff;
     PlayerStruct *player;
-    s32 pad30[1];
-    f32 pitchRad;
     f32 dx;
-    f32 curAngle;
     f32 dz;
     f32 clampedPitch;
-    s16 angleB;
-    s32 minLimit;
-    s16 angleDiffRaw;
+    f32 curAngle;
     s32 stateVal;
     s32 rawDiff;
+    s16 angleDiffRaw;
+    s32 minLimit;
+    s32 clampedDiff;
     s16 fadeTimer;
-    targetState = gCurrentActor->customState;
+    camState = gCurrentActor->customState;
     angleDiff = 0;
     maxDiff = 0x1E;
     stepFactor = 0.08f;
     scaleFactor = 8.0f;
-    player = &gPlayerSlots[*(u8 *)((u8 *)targetState + 0xFB)];
+    player = &gPlayerSlots[camState->unkFB];
     player->skyRoll = gCurrentActor->unkEC;
     gCurrentActor->unkEC = gCurrentActor->pitch;
-    player->camYInt = (s16)(s32)player->camY;
+    player->camYInt = player->camY;
     angleRad = mathAngleBetweenPointsRad(player->camZ, player->camX, player->focusZ, player->focusX);
     dz = player->focusZ - player->camZ;
     dx = player->focusX - player->camX;
@@ -642,16 +640,16 @@ void playerCameraUpdateFromTarget(void) {
     }
     player->bgRotX = 6.2831855f - angleRad;
     player->bgRotY = 6.2831855f - clampedPitch;
-    playerGetCharacterIndex(*(u8 *)((u8 *)targetState + 0xFB));
+    playerGetCharacterIndex(camState->unkFB);
     angleA = mathAngleBetweenPoints2D(player->camX, player->camZ, player->focusX, player->focusZ);
     camUpdate(gCurrentActor, &player->camX, &player->camY, &player->camZ, &player->focusX, &player->focusY, &player->focusZ, &player->upX, &player->upY, &player->upZ);
     angleB = mathAngleBetweenPoints2D(player->camX, player->camZ, player->focusX, player->focusZ);
-    if (gPrimaryPlayerActor != *(Actor **)targetState) {
+    if (gPrimaryPlayerActor != camState->unk0) {
         return;
     }
     if ((gCurrentMap == 0x1F) || (gCurrentMap == 0x33)) {
-        if (D_807FC624 && D_807FC624) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        gCurrentActor->pitch = (s16)(s32)(mathSinF(D_807FC624) * 100.0f);
+        if (D_807FC624 && D_807FC624) {}  // FAKE: merges the D_807FC624 loads into one uopt candidate whose range holds the mathSinF argument block, so it takes a0 (v1 at 0x167c-0x170c without)
+        gCurrentActor->pitch = mathSinF(D_807FC624) * 100.0f;
         if (gCurrentMap == 0x1F) {
             if (D_807FC624 < 0x1E) {
                 sfxPlayOnFreeSlot(0x15, 0x7FFF, 64.0f, 1.0f, 10, 128);
@@ -660,55 +658,55 @@ void playerCameraUpdateFromTarget(void) {
                 sfxPlayOnFreeSlot(0x14, 0x7FFF, 64.0f, 1.0f, 10, 128);
             }
         }
-        if (gGameMode && gGameMode) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (gGameMode && gGameMode) {}  // FAKE: extends that D_807FC624 candidate into the fade block (reload at 0x1708 in a0, v0 without); coupled with the test above (removing both costs no more than removing that one)
         fadeTimer = D_807FC624 + 0x1E;
         fadeTimer &= 0xFFF;
         D_807FC624 = fadeTimer;
         return;
     }
     if (gGameMode != 1) {
-            rawDiff = 0;  // FAKE: lengthens rawDiff's live range so its priority drops below the B variable (angleB gets a1)
-            stateVal = (*(Actor **)targetState)->state;
-            switch (stateVal) {
-            case 0x63:
-                stepFactor = 0.02f;
-                scaleFactor = 15.0f;
-                goto calc_angle;
-            case 0x7:
-            case 0x8:
-            case 0x9:
-            case 0xA:
-            case 0xB:
-            case 0xF:
-            case 0x10:
-            case 0x11:
-            case 0x12:
-            case 0x13:
-            case 0x14:
-                maxDiff = 0x64;
-                stepFactor = 0.1f;
-            case 0x4F:
-            case 0x69:
-            case 0x6D:
-calc_angle:
-                rawDiff = angleA - angleB;
-                angleB = rawDiff;
-                angleDiffRaw = rawDiff;
-                if (angleDiffRaw >= 0x801) {
-                    angleDiff = angleDiffRaw - 0x1000;
-                } else {
-                    angleDiff = angleB;
-                    if (angleDiffRaw < -0x800) {
-                        angleDiff = (u16)angleDiffRaw + 0x1000; // FAKE: redundant (u16) burns one ugen ring temp
-                    }
+        rawDiff = 0;  // FAKE: dead store; with the dead read after the switch it spreads rawDiff over the switch blocks (adjsave 2.0 -> 0.8), so angleB is coloured first and gets a1 (a2 at 0x17f4 without)
+        stateVal = camState->unk0->state;
+        switch (stateVal) {
+        case 0x63:
+            stepFactor = 0.02f;
+            scaleFactor = 15.0f;
+            goto calc_angle;
+        case 0x7:
+        case 0x8:
+        case 0x9:
+        case 0xA:
+        case 0xB:
+        case 0xF:
+        case 0x10:
+        case 0x11:
+        case 0x12:
+        case 0x13:
+        case 0x14:
+            maxDiff = 0x64;
+            stepFactor = 0.1f;
+        case 0x4F:
+        case 0x69:
+        case 0x6D:
+        calc_angle:
+            rawDiff = angleA - angleB;
+            angleB = rawDiff;
+            angleDiffRaw = rawDiff;
+            if (angleDiffRaw >= 0x801) {
+                angleDiff = angleDiffRaw - 0x1000;
+            } else {
+                angleDiff = angleB;
+                if (angleDiffRaw < -0x800) {
+                    angleDiff = (u16)angleDiffRaw + 0x1000; // FAKE: redundant (u16) burns ugen ring temp t4 (target addiu t5,a0,0x1000 at 0x1828; t4 without)
                 }
-                break;
             }
-            if (rawDiff) {}  // FAKE: dead read of rawDiff after the switch (priority steer)
-            minLimit = -maxDiff;
-            stateVal = (minLimit < angleDiff) ? angleDiff : minLimit;
-            stateVal = (stateVal < maxDiff) ? ((minLimit < angleDiff) ? angleDiff : minLimit) : maxDiff;
-            curAngle = (f32)gCurrentActor->pitch;
-            gCurrentActor->pitch = (s16)(s32)(((((f32)stateVal * scaleFactor) - curAngle) * stepFactor) + curAngle);
+            break;
+        }
+        if (rawDiff) {}  // FAKE: dead read of rawDiff, pairs with the dead store before the switch (removing both leaves angleB in a2)
+        minLimit = -maxDiff;
+        clampedDiff = (minLimit < angleDiff) ? angleDiff : minLimit;
+        clampedDiff = (clampedDiff < maxDiff) ? ((minLimit < angleDiff) ? angleDiff : minLimit) : maxDiff;
+        curAngle = gCurrentActor->pitch;
+        gCurrentActor->pitch = (((clampedDiff * scaleFactor) - curAngle) * stepFactor) + curAngle;
     }
 }
