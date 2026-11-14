@@ -25,9 +25,11 @@ Subcommands:
   batch  Host-side: LIST.tsv rows `dir seg func copy src key base` (quality.py
          permute-candidates), P rows at a time, each `setup` + `run` through tools/dk (`run`
          holds no dkd lock, so make expected is never blocked for hours). Per row
-         <dir>/result.json {key, base, best, seconds, zeros} (or {key, error}); a run of
-         600 s+ without a zero appends a `permute nohit` record line to <LIST dir>/ledger.txt,
-         zero outputs go to zeros.txt for an agent review (never recorded as fixed unreviewed)
+         <dir>/result.json {key, base, best, seconds, zeros}; a completed run (exit 0, a
+         --seconds timeout included) of 600 s+ without a zero appends a `permute nohit` record
+         line to <LIST dir>/ledger.txt, zero outputs go to zeros.txt for an agent review (never
+         recorded as fixed unreviewed). A failed setup or run, or a crashed row, writes
+         {key, error} (`FAIL <key> ...`), gets no ledger line, and makes batch exit 1
 """
 
 import argparse
@@ -1149,7 +1151,21 @@ def cmd_best(args: argparse.Namespace) -> None:
 BATCH_NOTE = 'note="permute batch, hack-free weights" new="hack-free weights, no stop-on-zero"'
 
 
-def batch_row(row: List[str], list_dir: Path, args: argparse.Namespace, lock: threading.Lock) -> None:
+def _batch_fail(d: Path, key: str, step: str, err: str, lock: threading.Lock) -> bool:
+    """Write an error result for one row (never ledger credit) and report it; returns False."""
+    (d / "result.json").write_text(json.dumps({"key": key, "error": f"{step}: {err}"}) + "\n")
+    with lock:
+        print(f"FAIL {key} {step}: {err}", flush=True)
+    return False
+
+
+def _last_line(text: str, default: str) -> str:
+    return (text.strip().splitlines() or [default])[-1]
+
+
+def batch_row(row: List[str], list_dir: Path, args: argparse.Namespace, lock: threading.Lock) -> bool:
+    """Set up and run one list row; True when the run completed (a timeout at --seconds is completion).
+    A failed setup or run writes {key, error} and gets no ledger line."""
     d, seg, func, copy, src, key, _base = row
     d = Path(d) if Path(d).is_absolute() else ROOT / d
     perm = d / "perm"
@@ -1157,29 +1173,31 @@ def batch_row(row: List[str], list_dir: Path, args: argparse.Namespace, lock: th
     r = subprocess.run([dk, "python3", "tools/permute.py", "setup", seg, func, "--from", copy, "--src", src,
                         "--out", _rel_to_root(perm), "--force"], cwd=ROOT, capture_output=True, text=True)
     if r.returncode:
-        err = (r.stderr.strip().splitlines() or r.stdout.strip().splitlines() or ["setup failed"])[-1]
-        (d / "result.json").write_text(json.dumps({"key": key, "error": err}) + "\n")
-        with lock:
-            print(f"FAIL {key} setup: {err}", flush=True)
-        return
+        return _batch_fail(d, key, "setup", _last_line(r.stderr or r.stdout or "", f"exit {r.returncode}"), lock)
     t0 = time.monotonic()
     with open(d / "run.log", "w") as log:
-        subprocess.run([dk, "python3", "tools/permute.py", "run", _rel_to_root(perm), "-j", str(args.j),
-                        "--seconds", str(args.seconds)], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+        r = subprocess.run([dk, "python3", "tools/permute.py", "run", _rel_to_root(perm), "-j", str(args.j),
+                            "--seconds", str(args.seconds)], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
     seconds = int(time.monotonic() - t0)
+    if r.returncode:
+        tail = _last_line((d / "run.log").read_text(errors="replace")[-4000:], "no output")
+        return _batch_fail(d, key, "run", f"exit {r.returncode} after {seconds}s: {tail}", lock)
     base = (read_setup_record(perm) or {}).get("baseline_score")
+    if base is None:
+        return _batch_fail(d, key, "run", "setup.json has no baseline_score", lock)
     scores = output_scores(perm)
     best = min((s for s, _ in scores), default=base)
     zeros = [_rel_to_root(x) for s, x in scores if s == 0]
     (d / "result.json").write_text(json.dumps(dict(key=key, base=base, best=best, seconds=seconds, zeros=zeros)) + "\n")
     with lock:
-        if not zeros and seconds >= 600 and base is not None and best is not None:
+        if not zeros and seconds >= 600:
             with open(list_dir / "ledger.txt", "a") as f:
                 f.write(f"{key} permute nohit seconds={seconds} base={base} best={best} {BATCH_NOTE}\n")
         if zeros:
             with open(list_dir / "zeros.txt", "a") as f:
                 f.write(f"{key} {_rel_to_root(perm)} {len(zeros)} zero outputs\n")
         print(f"DONE {key} base={base} best={best} zeros={len(zeros)}", flush=True)
+    return True
 
 
 def cmd_batch(args: argparse.Namespace) -> None:
@@ -1188,7 +1206,7 @@ def cmd_batch(args: argparse.Namespace) -> None:
     bad = [i for i, r in enumerate(rows, 1) if len(r) != 7]
     if bad:
         sys.exit(f"error: {list_path}: rows {bad} do not have 7 tab-separated fields (dir seg func copy src key base)")
-    lock, todo = threading.Lock(), iter(rows)
+    lock, todo, failed = threading.Lock(), iter(rows), []
 
     def worker() -> None:
         while True:
@@ -1196,15 +1214,25 @@ def cmd_batch(args: argparse.Namespace) -> None:
                 row = next(todo, None)
             if row is None:
                 return
-            batch_row(row, list_path.parent, args, lock)
+            try:
+                ok = batch_row(row, list_path.parent, args, lock)
+            except Exception as ex:  # a crashed row must not vanish with its thread
+                ok = False
+                with lock:
+                    print(f"FAIL {row[5]} exception: {type(ex).__name__}: {ex}", flush=True)
+            if not ok:
+                with lock:
+                    failed.append(row[5])
 
     threads = [threading.Thread(target=worker) for _ in range(max(1, args.parallel))]
     for t in threads:
         t.start()
     for t in threads:
         t.join()
-    print(f"batch: {len(rows)} rows; record {list_path.parent / 'ledger.txt'} with --agent permbatch; "
-          f"review {list_path.parent / 'zeros.txt'}")
+    print(f"batch: {len(rows)} rows, {len(failed)} failed; record {list_path.parent / 'ledger.txt'} with --agent "
+          f"permbatch; review {list_path.parent / 'zeros.txt'}")
+    if failed:
+        sys.exit(1)
 
 
 

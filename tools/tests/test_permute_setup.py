@@ -262,3 +262,60 @@ def test_settings_turn_hack_passes_off():
 
 def test_run_never_stops_on_zero():
     assert "--stop-on-zero" not in (REPO_ROOT / "tools" / "permute.py").read_text()
+
+
+def _batch_env(tmp_path, monkeypatch, run_rc, seconds=700):
+    """A one-row list in TMP_PATH whose `setup` succeeds (baseline 50) and whose `run` exits RUN_RC
+    after SECONDS of wall time; no permuter outputs."""
+    import argparse
+    import subprocess
+    from tools import permute
+    d = tmp_path / "001_global_f"
+    (d / "perm").mkdir(parents=True)
+
+    def run(cmd, **kw):
+        if "setup" in cmd:
+            write_setup_record(d / "perm", {"func": "f", "baseline_score": 50})
+            return subprocess.CompletedProcess(cmd, 0, "", "")
+        kw["stdout"].write("permuter: crashed\n" if run_rc else "Wall-clock limit reached\n")
+        return subprocess.CompletedProcess(cmd, run_rc)
+
+    clock = iter([0.0, float(seconds)])
+    monkeypatch.setattr(permute.subprocess, "run", run)
+    monkeypatch.setattr(permute.time, "monotonic", lambda: next(clock))
+    row = [str(d), "global", "f", str(d / "x.c"), "src/global/x.c", "global:80600000:dead-if:abc123", "40"]
+    (tmp_path / "list.tsv").write_text("\t".join(row) + "\n")
+    return permute, d, row, argparse.Namespace(list=str(tmp_path / "list.tsv"), parallel=1, j=2, seconds=900)
+
+
+def test_batch_row_failed_run_gets_no_ledger_credit(tmp_path, monkeypatch):
+    import json
+    import threading
+    permute, d, row, args = _batch_env(tmp_path, monkeypatch, run_rc=1)
+    assert permute.batch_row(row, tmp_path, args, threading.Lock()) is False
+    res = json.loads((d / "result.json").read_text())
+    assert res["key"] == row[5] and res["error"].startswith("run: exit 1 after 700s: permuter: crashed")
+    assert not (tmp_path / "ledger.txt").exists()
+
+
+def test_batch_row_completed_run_records_nohit(tmp_path, monkeypatch):
+    import threading
+    permute, d, row, args = _batch_env(tmp_path, monkeypatch, run_rc=0)
+    assert permute.batch_row(row, tmp_path, args, threading.Lock()) is True
+    line = (tmp_path / "ledger.txt").read_text()
+    assert line.startswith(f"{row[5]} permute nohit seconds=700 base=50 best=50 ")
+
+
+def test_batch_exits_nonzero_when_a_row_fails(tmp_path, monkeypatch, capsys):
+    import pytest
+    permute, d, row, args = _batch_env(tmp_path, monkeypatch, run_rc=0)
+
+    def boom(*a):
+        raise RuntimeError("disk full")
+
+    monkeypatch.setattr(permute, "batch_row", boom)
+    with pytest.raises(SystemExit) as ex:
+        permute.cmd_batch(args)
+    assert ex.value.code == 1
+    out = capsys.readouterr().out
+    assert f"FAIL {row[5]} exception: RuntimeError: disk full" in out and "1 failed" in out
