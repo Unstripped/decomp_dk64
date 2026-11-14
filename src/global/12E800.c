@@ -175,16 +175,6 @@ void actorTurnTowardTarget(u8 mode, f32 targetX, f32 targetZ, u16 flags) {
     }
 }
 
-// Row of the 0x18-byte spawn table D_8075EB80 (1295B0.c SpawnEntry; only the shadow scales read here).
-typedef struct SpawnEntry {
-    /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ u8 shadowScaleX;
-    /* 0x15 */ u8 shadowScaleZ;
-    /* 0x16 */ u8 pad16[2];
-} SpawnEntry; // size = 0x18
-
-extern SpawnEntry D_8075EB80[];
-
 void behaviourUpdateShadowAlpha(void) {
     u8 shadowAlpha;
     u8 shadowWidth;

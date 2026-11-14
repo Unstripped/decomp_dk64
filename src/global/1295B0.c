@@ -76,26 +76,6 @@ typedef struct ZoneTable {
     /* 0x4 */ Zone *zones;
 } ZoneTable;
 
-typedef struct SpawnEntry {
-    /* 0x00 */ u16 actorType;
-    /* 0x02 */ u16 unk2;
-    /* 0x04 */ s16 scriptId;
-    /* 0x06 */ u8 pad6[2];
-    /* 0x08 */ u32 actorFlags;
-    /* 0x0C */ u8 unkC;
-    /* 0x0D */ u8 unkD;
-    /* 0x0E */ u8 spawnRange;
-    /* 0x0F */ u8 unkF;
-    /* 0x10 */ u8 unk10;
-    /* 0x11 */ u8 unk11;
-    /* 0x12 */ u8 unk12;
-    /* 0x13 */ u8 unk13;
-    /* 0x14 */ u8 unk14;
-    /* 0x15 */ u8 unk15;
-    /* 0x16 */ u8 unk16;
-    /* 0x17 */ u8 unk17;
-} SpawnEntry; // size = 0x18
-
 typedef struct SpawnNodeList {
     /* 0x0 */ s16 count;
     /* 0x2 */ u8 pad2[2];
@@ -104,7 +84,6 @@ typedef struct SpawnNodeList {
 
 extern ZoneTable *D_80755690;
 extern SpawnNodeList *D_80755694;
-extern SpawnEntry D_8075EB80[];
 
 void zoneEntrySetDisabled(u8 zoneId, u8 entryIndex, u8 disabled) {
     Zone *group;
@@ -621,8 +600,8 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     if (act->sub4 != NULL) {
         act->flags2 |= 0xC0;
     }
-    act->unk16E[0] = D_8075EB80[idx].unk14;
-    act->unk16E[1] = D_8075EB80[idx].unk15;
+    act->unk16E[0] = D_8075EB80[idx].shadowScaleX;
+    act->unk16E[1] = D_8075EB80[idx].shadowScaleZ;
     v = D_8075EB80[idx].unkF;
     st->unk22 = v;
     st->unk23 = v;

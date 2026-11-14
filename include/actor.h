@@ -578,6 +578,28 @@ typedef struct SpawnNode {
     /* 0x46 */ u16 flags;
 } SpawnNode; // size = 0x48
 
+// One 0x18-byte row of the spawn table D_8075EB80, indexed by SpawnNode.entryIndex
+// (spawnNodeInitActorFromEntry and the spawn paths in 1295B0.c; behaviourUpdateShadowAlpha in 12E800.c).
+typedef struct SpawnEntry {
+    /* 0x00 */ u16 actorType;
+    /* 0x02 */ u16 unk2;
+    /* 0x04 */ s16 scriptId;
+    /* 0x06 */ u8 pad6[2];
+    /* 0x08 */ u32 actorFlags;
+    /* 0x0C */ u8 unkC;
+    /* 0x0D */ u8 unkD;
+    /* 0x0E */ u8 spawnRange;
+    /* 0x0F */ u8 unkF;
+    /* 0x10 */ u8 unk10;
+    /* 0x11 */ u8 unk11;
+    /* 0x12 */ u8 unk12;
+    /* 0x13 */ u8 unk13;
+    /* 0x14 */ u8 shadowScaleX; // shadow billboard width scale (behaviourUpdateShadowAlpha); copied to Actor.unk16E[0]
+    /* 0x15 */ u8 shadowScaleZ; // shadow billboard depth scale; copied to Actor.unk16E[1]
+    /* 0x16 */ u8 unk16;
+    /* 0x17 */ u8 unk17;
+} SpawnEntry; // size = 0x18
+
 // gBehaviourWorkState: actor component 31 (D_8074DA58[31] = 0x40), the first component of every
 // actor type whose update calls behaviourFrameBegin.
 typedef struct BehaviourWorkState {
@@ -1001,6 +1023,7 @@ extern BehaviourWorkState *gBehaviourWorkState;
 extern Actor *gBehaviourTargetActor;
 extern SpawnNode *gBehaviourAnimState;
 extern SpawnNode *gBehaviourExtraState;
+extern SpawnEntry D_8075EB80[];
 extern Zone *D_807FDCA0; // gBehaviourAnimState->zone, latched by behaviourFrameBegin
 extern ActorGlobalState gActorGlobalState;
 
