@@ -314,3 +314,4 @@
 {"type": "unit", "t": "2026-11-14T18:36:18Z", "unit": "2026-11-14: cleanup HackBoundLocalSizeof", "commit": "9956756be1810138b073bb88937b924328bde66e"}
 {"type": "unit", "t": "2026-11-14T18:36:49Z", "unit": "2026-11-14: cleanup OwnerSchedRetraceCount", "commit": "0a4c816a5ebfab2309615590db6ba47dd4324991"}
 {"type": "unit", "t": "2026-11-14T18:37:26Z", "unit": "2026-11-14: cleanup HackprojectileSpriteRingUpdate", "commit": "cae6707440a78fa864576d16ce75ea6812afe399"}
+{"type": "unit", "t": "2026-11-14T18:38:58Z", "unit": "2026-11-14: cleanup HackeffectSpawnJointBeam", "commit": "59db9bdb8908d2f7a4ca57cc663536e557145e57"}
