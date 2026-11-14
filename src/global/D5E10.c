@@ -57,25 +57,16 @@ typedef struct ActorExt {
 
 #define ACTOR_EXT ((ActorExt *)gCurrentActor)
 
-// One per-player 0x34-byte slot of gPlayerPadState, anchored at a field offset (the
-// original references the fields through these labels, not through gPlayerPadState).
-typedef struct PadU16Slot {
-    /* 0x00 */ u16 value;
-    /* 0x02 */ u8 pad2[0x32];
-} PadU16Slot;
-
-extern PadU16Slot D_807FD63C[];
-
-extern PadU16Slot D_807FD63A[];
+extern PadInputState gPlayerPadState[];
 
 void playerStateCarried(void) {
-    playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
+    playerStateQueueCallback(0x3C, NULL, gCurrentPlayerIndex);
     playerInputUpdate(0xB);
     gActivePlayerActor->speedXZ = gActivePlayerState->maxSpeed;
     gActivePlayerActor->moveYaw = gActivePlayerState->targetYaw;
     gActivePlayerActor->yaw = gActivePlayerState->targetYaw;
     playerApplyMotionWithHorizontalVelocity();
-    if (!(D_807FD63A[gCurrentPlayerIndex].value & 0x200C)) {
+    if (!(gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x200C)) {
         playerResumeLocomotion(gCurrentActor);
         actorSetInteractionTimer(gCurrentActor);
     } else {
@@ -1013,13 +1004,6 @@ typedef struct PlayerCustomState {
     /* 0x45 */ u8 unk45;
 } PlayerCustomState;
 
-typedef struct PadF32Slot {
-    /* 0x00 */ f32 value;
-    /* 0x04 */ u8 pad4[0x30];
-} PadF32Slot;
-
-extern PadF32Slot D_807FD618[];
-
 void playerStateSlideSteep(void) {
     playerApplyImpactRumble(0x3D);
 }
@@ -1128,7 +1112,7 @@ void playerStateSkidTurn(void) {
 }
 
 void playerUpdateTargetYawFromStick(void) {
-    if (D_807FD618[gCurrentPlayerIndex].value != 0.0f) {
+    if (gPlayerPadState[gCurrentPlayerIndex].stickMagNorm != 0.0f) {
         gCurrentActor->unkEA = gActivePlayerState->targetYaw;
     } else {
         gCurrentActor->unkEA = gCurrentActor->yaw;
@@ -1164,7 +1148,7 @@ void playerStateDoubleJump(void) {
             playerSetBaseGravityIfFalling();
             break;
         case 3:
-            if (D_807FD63C[gCurrentPlayerIndex].value & 0x8000) {
+            if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
                 gActivePlayerState->jumpTimer = gScheduler.unk280;
             }
             if (gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xA && gPlayerCharacterId[gCurrentPlayerIndex] == 1 && gCurrentActor->floorSlopeFactor == 0.0f) {
@@ -1236,7 +1220,7 @@ void playerStateLongJump(void) {
             break;
         case 3:
             gActivePlayerState->airTimer = 0;
-            if (D_807FD63C[gCurrentPlayerIndex].value & 0x8000) {
+            if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
                 gActivePlayerState->jumpTimer = gScheduler.unk280;
             }
             if (gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xA && gPlayerCharacterId[gCurrentPlayerIndex] == 1 && gCurrentActor->floorSlopeFactor == 0.0f) {
@@ -1351,7 +1335,7 @@ void playerStateCrouchJump(void) {
             playerUpdateFallAndStepSounds();
             break;
         case 3:
-            if (D_807FD63C[gCurrentPlayerIndex].value & 0x8000) {
+            if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
                 gActivePlayerState->jumpTimer = gScheduler.unk280;
             }
             playerInputUpdate(0x34);
@@ -2451,7 +2435,7 @@ extern f32 D_80753738[];
 void playerStateUnderwaterRamp(void) {
     switch (gCurrentActor->unk155) {
         case 0:
-            scriptSetActorRampTarget(gCurrentActor, 1.0f, 0);
+            scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
             playerInputUpdate(0x47);
             playerApplyGravityAndMotion();
             playerApplyDeceleration();
@@ -2479,7 +2463,7 @@ void playerStateUnderwaterRamp(void) {
             break;
         case 3:
             playerInputUpdate(0x35);
-            if (D_807FD618[gCurrentPlayerIndex].value != 0.0f) {
+            if (gPlayerPadState[gCurrentPlayerIndex].stickMagNorm != 0.0f) {
                 scriptSetActorRampTarget(gCurrentActor, 3.0f, 0.0f);
             }
             gActivePlayerState->maxSpeed = 0.0f;
@@ -3120,7 +3104,7 @@ void playerStatePonytailTwirl(void) {
             gCurrentActor->yawSpeed = 0;
             gCurrentActor->unk155++;
         }
-        if (D_807FD63C[gCurrentPlayerIndex].value & 0x2000) {
+        if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000) {
             gCurrentActor->unk155 = 3;
             gCurrentActor->accelY = -1.0f;
         }
@@ -3134,7 +3118,7 @@ void playerStatePonytailTwirl(void) {
         playerApplyMotionWithHorizontalVelocity();
         sfxSetChannelTempo(0x6B, 0.995f);
         gActivePlayerState->unkC0--;
-        if (gActivePlayerState->unkC0 < 0 || (D_807FD63C[gCurrentPlayerIndex].value & 0x2000)) {
+        if (gActivePlayerState->unkC0 < 0 || (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000)) {
             gCurrentActor->unk155++;
         }
         break;
@@ -3252,7 +3236,7 @@ void playerStateHoldPickup(void) {
 
 void playerStateCrouch(void) {
     playerInputUpdate(6);
-    if (D_807FD618[gCurrentPlayerIndex].value != 0.0f) {
+    if (gPlayerPadState[gCurrentPlayerIndex].stickMagNorm != 0.0f) {
         scriptSetActorRampTarget(gCurrentActor, 3.0f, 0.0f);
     }
     mathAngleStepToward(&gCurrentActor->yaw, gActivePlayerState->targetYaw, gActivePlayerState->turnRate);
@@ -3263,7 +3247,7 @@ void playerStateCrouch(void) {
 
 void playerStateCrawl(void) {
     playerInputUpdate(7);
-    if (D_807FD618[gCurrentPlayerIndex].value != 0.0f) {
+    if (gPlayerPadState[gCurrentPlayerIndex].stickMagNorm != 0.0f) {
         scriptSetActorRampTarget(gCurrentActor, 2.0f, 0.0f);
     }
     mathAngleStepToward(&gCurrentActor->yaw, gActivePlayerState->targetYaw, gActivePlayerState->turnRate);
@@ -4204,7 +4188,7 @@ void playerStateKnockbackBounce(void) {
         gActivePlayerState->airAccel = 30.0f;
         gActivePlayerState->turnRate = 0x64;
         playerSetBaseGravityIfFalling();
-        gActivePlayerState->decelRate = gActivePlayerState->decelRate / 2;
+        gActivePlayerState->decelRate /= 2;
         playerApplyGravityAndMotion();
         break;
     case 2:
@@ -4216,7 +4200,7 @@ void playerStateKnockbackBounce(void) {
         gActivePlayerState->targetSpeed = 150.0f;
         playerUpdateFallAndStepSounds();
         playerSetBaseGravityIfFalling();
-        if (D_807FD618[gCurrentPlayerIndex].value != 0.0f) {
+        if (gPlayerPadState[gCurrentPlayerIndex].stickMagNorm != 0.0f) {
             mathAngleStepToward(&gCurrentActor->yaw, gActivePlayerState->targetYaw, gActivePlayerState->turnRate);
         }
         if (gActivePlayerState->airTimer != 0) {
@@ -4235,21 +4219,6 @@ void playerStateKnockbackBounce(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct LD5Pad {
-    /* 0x00 */ u8 pad0[0x2C];
-    /* 0x2C */ u16 buttons;
-    /* 0x2E */ u8 pad2E;
-    /* 0x2F */ s8 stickY;
-    /* 0x30 */ u8 pad30[4];
-} LD5Pad;
-
-extern LD5Pad gPlayerPadState[];
-typedef struct PadS8Slot {
-    /* 0x00 */ s8 value;
-    /* 0x01 */ u8 pad1[0x33];
-} PadS8Slot;
-
-extern PadS8Slot D_807FD63F[];
 extern f32 D_80753D70[];
 extern f32 D_80753D8C[];
 extern s16 D_80753DA8[];
@@ -4289,7 +4258,7 @@ void playerStateBounceRecover(void) {
     case 2:
     case 3:
         if (gActivePlayerState->unkF8 != 0) {
-            gActivePlayerState->unkF8 -= 1;
+            gActivePlayerState->unkF8--;
         }
         if (playerInputUpdate(0x5A) == 0) {
             switch (gActivePlayerState->unk8) {
@@ -4355,12 +4324,11 @@ void playerStateBounceRecover(void) {
         }
         break;
     }
-    flag = gPlayerPadState[gCurrentPlayerIndex].stickY < -0x32 && (gPlayerPadState[gCurrentPlayerIndex].buttons & 0x2000);
+    flag = gPlayerPadState[gCurrentPlayerIndex].stickY < -0x32 && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000);
+    a = flag;
     if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
-        a = flag;
         a |= gCurrentActor->y - gCurrentActor->floorY < D_80753DA8[gCurrentCharacterIndex];
     } else {
-        a = flag;
         a |= gCurrentActor->y - gCurrentActor->floorY < D_80753DB8[gCurrentCharacterIndex];
     }
     if (gActivePlayerState->unkF8 == 0) {
@@ -4377,7 +4345,7 @@ void playerStateBounceRecover(void) {
         playerResumeLocomotion(gCurrentActor);
         gCurrentActor->flags &= ~0x800;
     }
-    if (D_807FD63F[gCurrentPlayerIndex].value >= 0x33 && gActivePlayerState->unkF8 == 0 && v == 0) {
+    if (gPlayerPadState[gCurrentPlayerIndex].stickY >= 0x33 && gActivePlayerState->unkF8 == 0 && v == 0) {
         actorScriptStartByIndex(gActivePlayerActor, 0x79);
         gCurrentActor->state = 0x5C;
         gCurrentActor->unk155 = 0;

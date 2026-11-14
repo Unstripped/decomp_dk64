@@ -1015,4 +1015,23 @@ typedef struct MpSettings {
 
 extern MpSettings D_807552E4;
 
+// Per-player pad record (gPlayerPadState at 0x807FD610). The extern stays in each user file:
+// several files still declare gPlayerPadState with their own view type.
+typedef struct PadInputState {
+    /* 0x00 */ s32 stickHeldFrames;
+    /* 0x04 */ f32 stickMag;
+    /* 0x08 */ f32 stickMagNorm;
+    /* 0x0C */ f32 stickMagDelta;
+    /* 0x10 */ f32 stickMagHistory[4];
+    /* 0x20 */ s16 stickAngleHistory[4];
+    /* 0x28 */ s16 stickAngle;
+    /* 0x2A */ u16 heldButtons;
+    /* 0x2C */ u16 pressedButtons;
+    /* 0x2E */ s8 stickX;
+    /* 0x2F */ s8 stickY;
+    /* 0x30 */ u8 stickAbsX;
+    /* 0x31 */ u8 stickAbsY;
+    /* 0x32 */ u8 pad32[2];
+} PadInputState; // size = 0x34
+
 #endif

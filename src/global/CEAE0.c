@@ -257,15 +257,6 @@ void playerUpdateSlopeSlidePhysics(void) {
     }
 }
 
-typedef struct PadInputState {
-    /* 0x00 */ u8 pad0[0x2A];
-    /* 0x2A */ u16 unk2A;
-    /* 0x2C */ u16 unk2C;
-    /* 0x2E */ s8 unk2E;
-    /* 0x2F */ s8 unk2F;
-    /* 0x30 */ u8 pad30[4];
-} PadInputState;
-
 extern PadInputState gPlayerPadState[];
 
 
@@ -414,11 +405,8 @@ void playerUpdateCommon(s32 mode) {
             s8 attackerIndex = gActivePlayerState->attackerPlayerIndex;
             if (attackerIndex >= 0 && (u32)attackerIndex != gActivePlayerState->playerIndex) { // FAKE: (u32) cast on a != compare steers codegen
                 attacker = gPlayerSlots[attackerIndex].actor;
-            } else {
-                s8 spawnNodeId = gActivePlayerState->attackerSpawnNodeId;
-                if (spawnNodeId > 0) {
-                    attacker = spawnNodeActivate(spawnNodeId, 0);
-                }
+            } else if (gActivePlayerState->attackerSpawnNodeId > 0) {
+                attacker = spawnNodeActivate(gActivePlayerState->attackerSpawnNodeId, 0);
             }
         }
         if (D_807552E4.unk0 == 0) {
@@ -547,7 +535,7 @@ done:
                     mapExecuteVoidTransition();
                     gActivePlayerState->idleTimeoutFlag = 1;
                 }
-                if ((gCurrentActor->x != gCurrentActor->prevX || gCurrentActor->y != gCurrentActor->prevY || gCurrentActor->z != gCurrentActor->prevZ || gPlayerPadState[gCurrentPlayerIndex].unk2A != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2E != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2F != 0) && !(gGlobalPauseFlags & 2)) {
+                if ((gCurrentActor->x != gCurrentActor->prevX || gCurrentActor->y != gCurrentActor->prevY || gCurrentActor->z != gCurrentActor->prevZ || gPlayerPadState[gCurrentPlayerIndex].heldButtons != 0 || gPlayerPadState[gCurrentPlayerIndex].stickX != 0 || gPlayerPadState[gCurrentPlayerIndex].stickY != 0) && !(gGlobalPauseFlags & 2)) {
                     if (++D_8076A090 == 0x69780) {
                         mapExecuteVoidTransition();
                         gActivePlayerState->idleTimeoutFlag = 1;
@@ -580,7 +568,7 @@ void playerUpdateScaleAndPhysics(void) {
             func_80687400();
         }
         sparkTimer = gActivePlayerState->sparkTimer;
-        if ((gPlayerPadState[gCurrentPlayerIndex].unk2C & 2) && (gPlayerPadState[gCurrentPlayerIndex].unk2A & 0x2000) && sparkTimer == 0) {
+        if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000) && sparkTimer == 0) {
             gActivePlayerState->sparkTimer = 0x1E;
             sparkTimer = gActivePlayerState->sparkTimer;
         }
@@ -591,7 +579,7 @@ void playerUpdateScaleAndPhysics(void) {
             effectSetDepth(1);
             effectSetFlags(6);
             effectCreateAtActorBone(&sEffectSparkConfig, ((randomNonNegative() >> 15) % 50) / 80.0 + 0.5, gCurrentActor, 2, 0);
-            gActivePlayerState->sparkTimer = gActivePlayerState->sparkTimer - 1;
+            gActivePlayerState->sparkTimer--;
             sparkTimer = gActivePlayerState->sparkTimer;
         }
         if (sparkTimer == 1) {
@@ -613,8 +601,8 @@ void playerUpdateScaleAndPhysics(void) {
             padHintTimer = gActivePlayerState->padHintTimer;
         }
         if (padHintTimer == 1) {
-            gPlayerPadState[gCurrentPlayerIndex].unk2C |= 2;
-            gPlayerPadState[gCurrentPlayerIndex].unk2A |= 0x2000;
+            gPlayerPadState[gCurrentPlayerIndex].pressedButtons |= 2;
+            gPlayerPadState[gCurrentPlayerIndex].heldButtons |= 0x2000;
         }
         if (!(gPlayerStateFlags[gCurrentActor->state][0] & 0x300) && !(gActivePlayerState->stateFlags & 0x14000) && camIsCutsceneActive() == 0 && !(gActivePlayerState->stateFlags2 & 0x10)) {
             slotQueueAddValue(5, gActivePlayerState->playerIndex, -1);
@@ -622,8 +610,8 @@ void playerUpdateScaleAndPhysics(void) {
     } else {
         gActivePlayerState->padHintTimer = 0;
     }
-    gActivePlayerState->stateFlags &= 0x7FFFFFFF;
-    if (((gPlayerPadState[gCurrentPlayerIndex].unk2C & 2) && (gPlayerPadState[gCurrentPlayerIndex].unk2A & 0x2000) && gPlayerCount == 1) || slotQueueGetValue(5, gActivePlayerState->playerIndex) == 0) {
+    gActivePlayerState->stateFlags &= ~0x80000000;
+    if (((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000) && gPlayerCount == 1) || slotQueueGetValue(5, gActivePlayerState->playerIndex) == 0) {
         if (!(gActivePlayerState->stateFlags & 0x2000) && gCurrentMap != 0xCF) {
             flag = 0;
             if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 != 1) {
@@ -673,7 +661,7 @@ void playerUpdateScaleAndPhysics(void) {
     }
     if (gActivePlayerState->stateFlags & 0x40) {
         if (gCurrentActor->actorType != 6) {
-            gCurrentActor->flags &= 0xFFFF7FFF;
+            gCurrentActor->flags &= ~0x8000;
             gCurrentActor->alpha -= 4;
             if (gCurrentActor->alpha < 0x64) {
                 gCurrentActor->alpha = 0x64;
@@ -705,10 +693,10 @@ void playerUpdateScaleAndPhysics(void) {
             gActivePlayerState->turnRate = (s32)(D_8075326C[gCurrentCharacterIndex] * scale);
         }
         if (gCurrentActor->state != 0x7C || (gCurrentActor->state == 0x7C && gActivePlayerState->unk200 == 1)) {
-            gActivePlayerState->unk200 = gActivePlayerState->unk200 - 1;
+            gActivePlayerState->unk200--;
         }
         if (gActivePlayerState->unk200 == 0) {
-            gActivePlayerState->stateFlags &= 0xF7FFFF7F;
+            gActivePlayerState->stateFlags &= ~0x08000080;
             if (gCurrentActor->state == 0x7C) {
                 playerResumeLocomotion(gCurrentActor);
             }
@@ -1060,22 +1048,22 @@ void playerUpdateHorizontalVelocity(apply) u8 apply; {
             gActivePlayerState->prevHasArcBounds = gCurrentActor->hasArcBounds;
             D_807FD586 = 0;
             slope = mathSinF((s16)(s32)(gCurrentActor->floorSlopeFactor * 11.4)) * 10.0;
-            forward = gPlayerPadState[gCurrentPlayerIndex].unk2F;
+            forward = gPlayerPadState[gCurrentPlayerIndex].stickY;
             if (forward < 0.0f) {
-                forward = forward * (gCurrentActor->speedXZ / 1600.0);
+                forward *= gCurrentActor->speedXZ / 1600.0;
                 if (gCurrentActor->speedXZ < 210.0f) {
                     forward = 0.0f;
                 }
             } else {
-                forward = forward / 10.0;
+                forward /= 10.0;
             }
             m = (ang - gCurrentActor->floorSlopeYaw > 0 ? ang - gCurrentActor->floorSlopeYaw : -(ang - gCurrentActor->floorSlopeYaw)) % 4096;
             if ((m >= 0x401 && m < 0xC00) || !(gCurrentActor->contactFlags & 0x200)) {
                 forward = 0.0f;
             }
-            lateral = -gPlayerPadState[gCurrentPlayerIndex].unk2E / 5.5;
+            lateral = -gPlayerPadState[gCurrentPlayerIndex].stickX / 5.5;
             if (gCurrentActor->speedXZ < 50.0f) {
-                lateral = lateral * 0.21739130434782608;
+                lateral *= 0.21739130434782608;
             } else if (gCurrentActor->speedXZ < 230.0f) {
                 lateral = (gCurrentActor->speedXZ * lateral) / 230.0;
             }
