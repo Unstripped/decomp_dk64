@@ -914,16 +914,7 @@ u8 straight;
     }
 }
 
-typedef struct ModelSlotPosTypeView {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    u8 padC[0x84 - 0xC];
-    s16 unk84;
-    u8 pad86[0x90 - 0x86];
-} ModelSlotPosTypeView;
-
-extern ModelSlotPosTypeView *gModelSlots;
+extern ModelSlot *gModelSlots;
 extern s32 gModelSlotCount;
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
@@ -1055,15 +1046,15 @@ f32 *outZ;
     if (includeModels != 0) {
         if (gModelSlotCount > 0) {
             j = 0; do { // LAYOUT: init and do on one line (one as1 line) steers the loop-limit candidate priority
-                switch (((ModelSlotPosTypeView *)((u8 *)gModelSlots + j))->unk84) {
+                switch (gModelSlots[j].modelType) {
                     case 0x125:
                     case 0x126:
                     case 0x127:
                     case 0x128:
                     case 0x129:
-                        px = ((ModelSlotPosTypeView *)((u8 *)gModelSlots + j))->unk0;
-                        py = ((ModelSlotPosTypeView *)((u8 *)gModelSlots + j))->unk4 + 10.0;
-                        pz = ((ModelSlotPosTypeView *)((u8 *)gModelSlots + j))->unk8;
+                        px = gModelSlots[j].x;
+                        py = gModelSlots[j].y + 10.0;
+                        pz = gModelSlots[j].z;
                         dx = px - ox;
                         dy = py - oy;
                         dz = pz - oz;
@@ -1093,8 +1084,8 @@ f32 *outZ;
                     default:
                         break;
                 }
-                j += 0x90;
-            } while (j < gModelSlotCount * 0x90);
+                j++;
+            } while (j < gModelSlotCount);
         }
     }
     return ret;

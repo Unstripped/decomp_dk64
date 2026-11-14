@@ -384,14 +384,7 @@ void playerStateDropAndResume(void) {
     playerResumeLocomotion(gCurrentActor);
 }
 
-typedef struct EfModelSlot {
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 padC[0x84];
-} EfModelSlot;
-
-extern EfModelSlot *gModelSlots;
+extern ModelSlot *gModelSlots;
 extern s16 D_807539DC[];
 extern s16 D_807539EC[];
 
@@ -881,7 +874,7 @@ void playerStateApplyAttackerDamage(Actor *attacker) {
     }
 }
 
-extern u8 *D_807FD568;
+extern KongInventory *D_807FD568;
 
 void playerStateSetLaunchVelocity(void) {
     u8 gunSound;
@@ -1012,7 +1005,7 @@ void playerStateSetLaunchVelocity(void) {
         }
     }
     if (((gPlayerSlots[gCurrentPlayerIndex].queuedActor != NULL) && (gPlayerSlots[gCurrentPlayerIndex].queuedActor->actorType == 0x31)) || (gunSound != 0)) {
-        if (D_807FD568[2] & 1) {
+        if (D_807FD568->unk0[2] & 1) {
             if (gActivePlayerState->gunDrawn != 0) {
                 gActivePlayerState->stateFlags2 |= 4;
             } else {

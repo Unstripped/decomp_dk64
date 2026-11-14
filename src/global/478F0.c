@@ -50,23 +50,7 @@ void csCmdSpawnFixedNodeEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     effectCreateAtModelNode(D_8071FF18, 0.3f, csId, 3, 0);
 }
 
-typedef struct CsSlotAnim {
-    /* 0x00 */ u8 pad0[0x2D];
-    /* 0x2D */ u8 type;
-} CsSlotAnim;
-typedef struct CsSlot {
-    /* 0x00 */ f32 x;
-    /* 0x04 */ f32 y;
-    /* 0x08 */ f32 z;
-    /* 0x0C */ f32 w;
-    /* 0x10 */ u8 pad10[0x68];
-    /* 0x78 */ CsSlotAnim *anim;
-    /* 0x7C */ void *trackObj;
-    /* 0x80 */ u8 pad80[0xA];
-    /* 0x8A */ s16 modelId;
-    /* 0x8C */ u8 pad8C[4];
-} CsSlot; /* 0x90 */
-extern CsSlot *gModelSlots;
+extern ModelSlot *gModelSlots;
 
 void csCmdSpawnSparksAtNodes(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 node;
@@ -77,7 +61,7 @@ void csCmdSpawnSparksAtNodes(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 z;
 
     slot = hashTableLookup(csId);
-    type = gModelSlots[slot].anim->type;
+    type = gModelSlots[slot].unk78->entries[1].unk11;
     if (type == 0xD || type == 0x15 || type == 0x19) {
         for (node = 1; node < 15; node++) {
             modelSlotGetNodePos(csId, 1, node, &x, &y, &z);
@@ -267,8 +251,8 @@ void csCmdPointCycleEffect(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 void csCmdTagBarrelSpawnSmokeAndPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
-    CsSlot *slot = &gModelSlots[hashTableLookup(csId)];
-    tagBarrelSpawnSmokeAndPuffs(slot->x, slot->y, slot->z, slot->w, 0, 1);
+    ModelSlot *slot = &gModelSlots[hashTableLookup(csId)];
+    tagBarrelSpawnSmokeAndPuffs(slot->x, slot->y, slot->z, slot->scale, 0, 1);
 }
 
 extern u8 D_8071FE08[];
@@ -2153,7 +2137,7 @@ void csCmdLookupSlotKey(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 found;
     s16 (*p)[2];
 
-    key = gModelSlots[hashTableLookup(csId)].modelId;
+    key = gModelSlots[hashTableLookup(csId)].unk8A;
     found = 0;
     p = D_807481C0;
     do {
@@ -2205,7 +2189,7 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
         } while (found == 0);
         if (&D_807481F4[i] < (s16 *)D_80748212) {
             csModelStateTrySetByte(D_807481F4[i + 1], 0xA, 0);
-            csSetObjectTrackParam(gModelSlots[hashTableLookup(gCsModelIds[D_807481F4[i + 1]])].trackObj, 0, 0);
+            csSetObjectTrackParam(gModelSlots[hashTableLookup(gCsModelIds[D_807481F4[i + 1]])].unk7C, 0, 0);
         }
         if (&D_807481F4[i] >= D_807481F6) {
             csModelStateTrySetByte(D_807481F4[i - 1], 0x14, 0);
@@ -2215,7 +2199,7 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdSetModelSlotByte5F(CsState *cs, s16 csId, s16 b, s16 c) {
-    csModelStateTrySetByte(0x5F, gModelSlots[hashTableLookup(csId)].modelId, 1);
+    csModelStateTrySetByte(0x5F, gModelSlots[hashTableLookup(csId)].unk8A, 1);
 }
 
 typedef struct CsCountdown {
@@ -2268,7 +2252,7 @@ void csCmdFindSlotIdMatch(CsState *cs, s16 csId, s16 b, s16 c) {
 
     found = 0;
     i = 0;
-    id = gModelSlots[hashTableLookup(csId)].modelId;
+    id = gModelSlots[hashTableLookup(csId)].unk8A;
     while (!found) {
         if (id == D_80748214[i]) {
             found = 1;
@@ -2472,7 +2456,7 @@ void csCmdResolveNodePair(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdUpdateSlotIdView8A(CsState *cs, s16 csId, s16 b, s16 c) {
-    func_806BD094(gModelSlots[hashTableLookup(csId)].modelId, b);
+    func_806BD094(gModelSlots[hashTableLookup(csId)].unk8A, b);
 }
 
 extern ActorEntry gActiveActors[];
@@ -3637,7 +3621,7 @@ void csCmdPatternBufferMatch(CsState *cs, s16 csId, s16 b, s16 c) {
         p->tail = 0;
         return;
     }
-    switch (gModelSlots[hashTableLookup(csId)].modelId) {
+    switch (gModelSlots[hashTableLookup(csId)].unk8A) {
         case 0x41:
             pat[0] = 2; pat[1] = 4; pat[2] = 3; pat[3] = 1;
             break;
