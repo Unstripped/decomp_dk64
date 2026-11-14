@@ -1367,6 +1367,7 @@ void arcadeSpawnStage3Entities(void) {
     ArcadeEntity *p;
     f32 t;
 
+    i = 0x25;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4D8;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4B8;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A518;
@@ -1374,14 +1375,13 @@ void arcadeSpawnStage3Entities(void) {
     if (D_8004A76C == 2 && D_8004A740 != 0) {
         D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4F8;
     }
-    i = 0;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A438;
     D_8004C71F = arcadeFindFreeEntity();
     D_8004BCD0[D_8004C71F] = D_8004A398;
     D_8004BCD0[D_8004C71F].x = 56.0f;
     D_8004BCD0[D_8004C71F].y = 231.0f;
-    D_8004C170 = D_8004A478;
-    i = i + 0x24; // FAKE: adding onto the early i = 0 steers regalloc (plain i = 0x24 grows .text by 16 bytes)
+    D_8004BCD0[i] = D_8004A478;
+    i--;
     p = &D_8004BCD0[i];
     *p = D_8004A478;
     p->x = 144.0f;
