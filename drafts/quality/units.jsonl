@@ -359,3 +359,5 @@
 {"type": "unit", "t": "2026-11-14T19:17:30Z", "unit": "2026-11-14: cleanup Hackfunc_807135B4", "commit": "4edd11f1d7a849d41027a1601c5d9c1c0da71ca7"}
 {"type": "unit", "t": "2026-11-14T19:17:57Z", "unit": "2026-11-14: cleanup HackhealthRefill", "commit": "8acb620a15d3a2f8946885a43f9faa4ede58898f"}
 {"type": "unit", "t": "2026-11-14T19:18:43Z", "unit": "2026-11-14: cleanup HackjetpacAllocActor", "commit": "bf45d51c980638bfa45ae6e65b5855471a0df748"}
+{"type": "unit", "t": "2026-11-14T19:20:06Z", "unit": "2026-11-14: cleanup HackplayerTakeDamage", "commit": "32cae08606cf734ce64e05b9d05ecc5844efb207"}
+{"type": "unit", "t": "2026-11-14T19:20:08Z", "unit": "2026-11-14: cleanup HackspawnNodeActorOutOfRangeOrHidden", "commit": "32cae08606cf734ce64e05b9d05ecc5844efb207"}
