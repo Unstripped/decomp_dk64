@@ -312,3 +312,4 @@
 {"type": "unit", "t": "2026-11-14T18:34:12Z", "unit": "2026-11-14: cleanup HackmapGetVoidHeightForCharacter", "commit": "88a3e47a50c0936429ab1c5f32f5a0ba1fa4412f"}
 {"type": "unit", "t": "2026-11-14T18:34:54Z", "unit": "2026-11-14: cleanup PolishGlobal10E1D0Views", "commit": "1ab6e27c179006293babcd9e622909e35b4a7ddf"}
 {"type": "unit", "t": "2026-11-14T18:36:18Z", "unit": "2026-11-14: cleanup HackBoundLocalSizeof", "commit": "9956756be1810138b073bb88937b924328bde66e"}
+{"type": "unit", "t": "2026-11-14T18:36:49Z", "unit": "2026-11-14: cleanup OwnerSchedRetraceCount", "commit": "0a4c816a5ebfab2309615590db6ba47dd4324991"}
