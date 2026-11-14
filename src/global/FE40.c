@@ -13,11 +13,11 @@ void func_80002790(void *, void *, void *, s32);
 void dmaReadAssetDecompress(u32 romAddr, void *dst, s32 *sizePtr, u8 decompressFlag1, u8 decompressFlag2, u8 compressType, void *scratchBuf) {
     s32 count;
     s32 size;
-    void *dmaBuf;
-    void *dstStart;
+    u8 *dmaBuf;
+    u8 *dstStart;
     s32 rem;
     void *allocBuf;
-    void *ptr;
+    u8 *ptr;
 
     dstStart = dst;
     if (decompressFlag1 || decompressFlag2) {
@@ -25,7 +25,7 @@ void dmaReadAssetDecompress(u32 romAddr, void *dst, s32 *sizePtr, u8 decompressF
             dmaBuf = scratchBuf;
             scratchBuf = (u8 *)scratchBuf + 0x3800;
         } else if (scratchBuf != NULL) {
-            dmaBuf = (void *)0x80024000;
+            dmaBuf = (u8 *)0x80024000;
         } else {
             allocBuf = heapAlloc(*sizePtr);
             dmaBuf = allocBuf;
@@ -43,7 +43,7 @@ void dmaReadAssetDecompress(u32 romAddr, void *dst, s32 *sizePtr, u8 decompressF
         count++;
         size = *sizePtr;
         romAddr += 0x4000;
-        ptr = (u8 *)ptr + 0x4000;
+        ptr += 0x4000;
     }
     rem = size - (((u32)size >> 14) << 14);
     if (rem != 0) {
@@ -78,7 +78,7 @@ void dmaReadAssetDecompress(u32 romAddr, void *dst, s32 *sizePtr, u8 decompressF
         heapFree(D_807ECE18);
     }
     if (decompressFlag1 || decompressFlag2) {
-        *sizePtr = (u8 *)dst - (u8 *)dstStart;
+        *sizePtr = (u8 *)dst - dstStart;
         if (scratchBuf == NULL) {
             heapFree(allocBuf);
         }
