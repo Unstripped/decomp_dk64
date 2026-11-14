@@ -1320,24 +1320,24 @@ void effectDownwardDriftUpdate(EffectNode *effect, s8 *isDone) {
     f32 trig;
     f32 speed;
 
-    speed = 0.35f; // FAKE: holding 0.35f in a local keeps its cvt.d.s and mul.d by 0.5 at run time; a literal folds
-    effect->y = (f32)((f64)effect->y - ((f64)speed * 0.5));
+    speed = 0.35f;
+    effect->y -= speed * 0.5;
     trig = mathSinF(effect->pair.lo);
-    effect->x = (f32)(effect->x + (0.35f * trig));
+    effect->x += speed * trig;
     trig = mathCosF(effect->pair.lo);
-    effect->z = (f32)(effect->z + (0.35f * trig));
+    effect->z += speed * trig;
 }
 
 void effectUpwardDriftUpdate(EffectNode *effect, s8 *isDone) {
     f32 trig;
     f32 speed;
 
-    speed = 0.35f; // FAKE: holding 0.35f in a local keeps its cvt.d.s and mul.d by 0.5 at run time; a literal folds
-    effect->y = (f32)((f64)effect->y + ((f64)speed * 0.5));
+    speed = 0.35f;
+    effect->y += speed * 0.5;
     trig = mathSinF(effect->pair.lo);
-    effect->x = (f32)(effect->x + (0.35f * trig));
+    effect->x += speed * trig;
     trig = mathCosF(effect->pair.lo);
-    effect->z = (f32)(effect->z + (0.35f * trig));
+    effect->z += speed * trig;
 }
 
 void effectSineHorizontalDriftUpdate(EffectNode *effect, s8 *isDone) {
@@ -1346,16 +1346,16 @@ void effectSineHorizontalDriftUpdate(EffectNode *effect, s8 *isDone) {
 
     if (effect->allocation == NULL) {
         effect->allocation = heapAlloc(8);
-        ((MotionState *)effect->allocation)->heading = (f32)effect->owner->moveYaw;
+        ((MotionState *)effect->allocation)->heading = effect->owner->moveYaw;
         ((MotionState *)effect->allocation)->speed = effect->owner->speedXZ + 30.0f;
     }
     speed = 0.35f; // FAKE: holding 0.35f in a local keeps its cvt.d.s and mul.d by 0.5 at run time; a literal folds
-    effect->y = (f32)((f64)effect->y + ((f64)speed * 0.5));
-    speed = (f32)((f64)((MotionState *)effect->allocation)->speed * 0.02);
-    trig = mathSinF((s16)(s32)((MotionState *)effect->allocation)->heading);
-    effect->x = (f32)(effect->x + (speed * trig));
-    trig = mathCosF((s16)(s32)((MotionState *)effect->allocation)->heading);
-    effect->z = (f32)(effect->z + (speed * trig));
+    effect->y += speed * 0.5;
+    speed = ((MotionState *)effect->allocation)->speed * 0.02;
+    trig = mathSinF((s16)((MotionState *)effect->allocation)->heading);
+    effect->x += speed * trig;
+    trig = mathCosF((s16)((MotionState *)effect->allocation)->heading);
+    effect->z += speed * trig;
     ((MotionState *)effect->allocation)->speed -= 15.0f;
     if (((MotionState *)effect->allocation)->speed < 0.0f) {
         ((MotionState *)effect->allocation)->speed = 0.0f;
@@ -1371,12 +1371,12 @@ void effectSineDriftUpdate(EffectNode *effect, s8 *isDone) {
         ((SineDriftState *)effect->allocation)->speed = effect->owner->speedXZ;
     }
     speed = 0.35f; // FAKE: holding 0.35f in a local keeps its cvt.d.s and mul.d by 0.5 at run time; a literal folds
-    effect->y = (f32)((f64)effect->y + ((f64)speed * 0.5));
-    speed = (f32)((f64)((SineDriftState *)effect->allocation)->speed * 0.02);
+    effect->y += speed * 0.5;
+    speed = ((SineDriftState *)effect->allocation)->speed * 0.02;
     trig = mathSinF(effect->pair.lo);
-    effect->x = (f32)(effect->x + (speed * trig));
+    effect->x += speed * trig;
     trig = mathCosF(effect->pair.lo);
-    effect->z = (f32)(effect->z + (speed * trig));
+    effect->z += speed * trig;
 }
 
 
