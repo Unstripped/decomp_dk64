@@ -2,11 +2,12 @@
 #ifndef PROTO_ARCADE_0_H
 #define PROTO_ARCADE_0_H
 #include "common.h"
+#include "render.h"
 #ifndef PROTO_SKIP_arcadeRunFrame
 void arcadeRunFrame(void);
 #endif
 #ifndef PROTO_SKIP_arcadeBuildDisplayList
-void arcadeBuildDisplayList(u8 *, Gfx **);
+void arcadeBuildDisplayList(FrameMatrices *, Gfx **);
 #endif
 #ifndef PROTO_SKIP_arcadeSaveHighScores
 void arcadeSaveHighScores(void);
