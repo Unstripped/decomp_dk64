@@ -67,3 +67,4 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 ## OPEN functions
 
 The per-file list is `uv run tools/quality.py rank` (full) or `status --file <f>`; the round-34 close snapshot is `.scratch/r34_post_knowledge.txt`.
+- MirrorActorState shared-type candidate: 684C0 (ex TriggerSpawnSub174, customState of mirror actor 0x7B, triggerZoneSpawnTrigger) and A2F10 (actorMirrorParentModelAxis) declare the same layout (0xC planeOffset, 0xE axisFlags, 0xF alpha) -> one type in actor.h (PolishSmallFilesNames4 cb61dfb6).
