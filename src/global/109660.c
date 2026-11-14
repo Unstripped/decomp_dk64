@@ -215,12 +215,11 @@ extern Mtx D_2000100;
 
 Gfx *gfxDrawSkySprite(Gfx *dl, s16 azimuthAngle, s16 elevationAngle, u8 mode) {
     s16 x;
-    Gfx *g;
+    s16 y;
+    s16 z;
     f32 screenX, screenY;
     u8 alpha;
     f32 lightR, lightG, lightB;
-    s16 y;
-    s16 z;
 
     alpha = 0xFF;
     if (mode == 1) {
@@ -244,9 +243,10 @@ Gfx *gfxDrawSkySprite(Gfx *dl, s16 azimuthAngle, s16 elevationAngle, u8 mode) {
     y = elevationAngle - 8.0 * gPlayerSlots->camYInt;
     camProjectToScreen(x, y, z, &screenX, &screenY, 0, 4.0f, 0);
     if ((screenX > -320.0f) && (screenX < 1600.0f) && (screenY > -240.0f) && (screenY < 1200.0f)) {
-        g = playerViewGfxSetup(dl, 0);
-        gSPSetOtherMode(g++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
-        g->words.w0 = 0xDA380007; g->words.w1 = (u32)&D_2000100; dl = renderRotatedSprite(g + 1, 0x35, 3, 1, 0x40, 0x40, (s32)screenX, (s32)screenY, 4.0f, 4.0f, 0, 0.0f); // FAKE: hand-expanded gSPMatrix(g, &D_2000100, PROJECTION|LOAD|NOPUSH) on one line: the macro's block _g home grows the frame 0x78 -> 0x80 (Q0353)
+        dl = playerViewGfxSetup(dl, 0);
+        gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
+        gSPMatrix(dl++, &D_2000100, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+        dl = renderRotatedSprite(dl, 0x35, 3, 1, 0x40, 0x40, (s32)screenX, (s32)screenY, 4.0f, 4.0f, 0, 0.0f);
     }
     return dl;
 }
@@ -683,11 +683,13 @@ Gfx *gfxDrawPlayerViewBackground(Gfx *glist, s16 player) {
             clearView = !(gGlobalPauseFlags & 2);
             if (gPlayerCount >= 2) {
                 s32 forceClear;
-                if (gGfxBufferIndex == 0) {} // FAKE: dead read of gGfxBufferIndex ends a block before the 0xBE test: the !(flags & 2) value stays in a1 and draw_black in a2 (they swap without it)
-                if (gCurrentMap == 0xBE) {
+                switch (gCurrentMap) {
+                case 0xBE:
                     forceClear = 0;
-                } else {
+                    break;
+                default:
                     forceClear = 1;
+                    break;
                 }
                 forceClear |= (D_807552E4.matchPhase >= 2);
                 clearView |= forceClear;
