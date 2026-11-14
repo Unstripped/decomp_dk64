@@ -831,13 +831,14 @@ def _when(t):
 
 
 def transcripts(sessions):
-    """name -> [(start, model)] for every subagent transcript under SESSIONS."""
+    """name -> [(start, selector)] for every subagent transcript under SESSIONS: selector is the
+    most used provider/model, qualified `:<level>` by the transcript's first thinking level."""
     out = {}
     for path in glob.glob(os.path.join(sessions, "*", "**", "*.jsonl"), recursive=True):
-        start, models = None, Counter()
+        start, models, level = None, Counter(), None
         with open(path, errors="replace") as fh:
             for i, line in enumerate(fh):
-                if i >= 5 and '"model"' not in line:
+                if i >= 5 and '"model"' not in line and "thinking_level_change" not in line:
                     continue
                 try:
                     d = json.loads(line)
@@ -847,13 +848,16 @@ def transcripts(sessions):
                     continue
                 if start is None and d.get("timestamp") is not None:
                     start = _when(d["timestamp"])
+                if level is None and d.get("type") == "thinking_level_change":
+                    level = d.get("thinkingLevel")
                 m = d.get("message")
                 if isinstance(m, dict) and m.get("role") == "assistant" and m.get("model"):
                     models[f"{m.get('provider')}/{m['model']}"] += 1
         if start is None or not models:
             continue
         name = os.path.basename(path)[: -len(".jsonl")]
-        out.setdefault(name, []).append((start, models.most_common(1)[0][0]))
+        model = models.most_common(1)[0][0]
+        out.setdefault(name, []).append((start, f"{model}:{level}" if level else model))
     return out
 
 

@@ -116,6 +116,7 @@ record line: <site-key|func:<seg>:<name>> <method> <outcome> [quirks=Q1,Q2] [sec
 """
 import argparse
 import collections
+import datetime
 import hashlib
 import itertools
 import json
@@ -1204,6 +1205,46 @@ def cmd_record(a):
     print(f"recorded {len(events)} events (unit {a.unit}) to {rel(LEDGER)}")
 
 
+# ---------------------------------------------------------------- worker models
+
+def models_path():
+    """drafts/quality/models.jsonl: {unit, agent, model, src} rows, the worker model of one agent in
+    one unit for events recorded without `model` (load_events reads only the shards, not this file)."""
+    return os.path.join(LEDGER, "models.jsonl")
+
+
+def load_models():
+    """{(unit, agent): model selector}, {} when there is no sidecar."""
+    if not os.path.exists(models_path()):
+        return {}
+    with open(models_path()) as fh:
+        rows = [json.loads(line) for line in fh if line.strip()]
+    return {(r["unit"], r["agent"]): r["model"] for r in rows}
+
+
+def cmd_backfill_models(a):
+    index, have, first = ledger.transcripts(a.sessions), load_models(), {}
+    for e in load_events():
+        if e.get("type") != "quality" or e.get("agent") in ("sweep", "carry"):
+            continue
+        k = (e["unit"], e["agent"])
+        if k not in have and (k not in first or e["t"] < first[k]):
+            first[k] = e["t"]
+    rows, window = [], datetime.timedelta(hours=36)
+    for (unit, agent), t in sorted(first.items(), key=lambda kv: kv[1]):
+        ts, leaf = ledger._when(t), agent.rsplit(".", 1)[-1]
+        cands = [(s, m) for name, runs in index.items() if re.fullmatch(re.escape(leaf) + r"(-\d+)?", name)
+                 for s, m in runs if s <= ts and ts - s <= window]
+        if cands:
+            rows.append({"unit": unit, "agent": agent, "model": max(cands)[1], "src": "transcript"})
+    if rows and not a.dry_run:
+        os.makedirs(LEDGER, exist_ok=True)
+        with open(models_path(), "a") as f:
+            f.writelines(json.dumps(r, sort_keys=True) + "\n" for r in rows)
+    print(f"filled {len(rows)} of {len(first)} agent units ({len(first) - len(rows)} without a transcript)"
+          + (" (dry run)" if a.dry_run else ""))
+
+
 # ---------------------------------------------------------------- status / rank / report
 
 def grep_files(name):
@@ -2249,6 +2290,10 @@ def main(argv=None):
                    help="only this function (REV's or HEAD's name; repeatable)")
     c.add_argument("files", nargs="*", type=cli_path)
     c.set_defaults(fn=cmd_carry)
+    c = s.add_parser("backfill-models")
+    c.add_argument("sessions", help="omp sessions directory of this checkout")
+    c.add_argument("--dry-run", action="store_true")
+    c.set_defaults(fn=cmd_backfill_models)
     a = p.parse_args(argv)
     try:
         a.fn(a)

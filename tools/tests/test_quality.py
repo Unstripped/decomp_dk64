@@ -1297,3 +1297,22 @@ def test_record_base_compiles_rev_text_against_rev_headers(tmp_path, monkeypatch
     msg = str(ex.value.code)
     assert msg.startswith(f"record: cannot compile src/global/x.c at {revs['broken']}: cfe: Error: ")
     assert msg.endswith("line 3: unknown field z")
+
+
+def test_backfill_models_from_transcripts(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality"))
+    sess = tmp_path / "S" / "2026-01-01T00-00-00-000Z_x"
+    sess.mkdir(parents=True)
+    rows = [{"type": "session", "timestamp": "2026-01-01T10:00:00.000Z"},
+            {"type": "thinking_level_change", "timestamp": "2026-01-01T10:00:00.100Z", "thinkingLevel": "xhigh"},
+            {"type": "message", "timestamp": "2026-01-01T10:00:01.000Z",
+             "message": {"role": "assistant", "provider": "anthropic", "model": "claude-opus-5-5"}}]
+    (sess / "CleanX.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+    q.append_events([ev(SITE, "diagnose", "nohit", unit="u", agent="CleanX", t="2026-01-01T11:00:00Z"),
+                     ev(SITE, "remove", "nohit", unit="u", agent="sweep", t="2026-01-01T11:00:00Z"),
+                     ev(SITE, "diagnose", "nohit", unit="u2", agent="Other", t="2026-01-01T11:00:00Z")])
+    q.main(["backfill-models", str(tmp_path / "S")])
+    assert "filled 1 of 2 agent units (1 without a transcript)" in capsys.readouterr().out
+    assert q.load_models() == {("u", "CleanX"): "anthropic/claude-opus-5-5:xhigh"}
+    q.main(["backfill-models", str(tmp_path / "S")])  # already filled: nothing appended
+    assert len((tmp_path / "quality" / "models.jsonl").read_text().splitlines()) == 1
