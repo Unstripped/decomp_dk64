@@ -180,8 +180,8 @@ void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
         heapMoveWords((u32)first, (u32)dst, total);
         heapRebaseHandles((u32)first, (u32)dst, total);
         q = *gHeapSurvivorList[0] - 0x10;
-        saved[0] = ((u64 *)q)[0]; // FAKE: punned u64 copy of the 16-byte block header (Q0405 pairwise lw/sw)
-        saved[1] = ((u64 *)q)[1]; // FAKE: punned u64 copy of the 16-byte block header (Q0405 pairwise lw/sw)
+        saved[0] = ((u64 *)q)[0]; // ORIG: target copies the header as 64-bit pairs (lw t7,-12/lw t6,-16 at 0x384/0x388, sw 0x84/0x80(sp) at 0x390/0x394)
+        saved[1] = ((u64 *)q)[1]; // ORIG: target copies the header as 64-bit pairs (lw t9,12/lw t8,8 at 0x398/0x39c, sw 0x8c/0x88(sp) at 0x3a0/0x3a8)
     } else {
         gHeapSurvivorCount = 0;
         gHeapSurvivorList[0] = NULL;
@@ -199,8 +199,8 @@ void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
             blk->physPrev = (HeapBlock *)q;
             q = (u8 *)blk;
         }
-        ((u64 *)gHeapPools[0].start)[0] = saved[0]; // FAKE: punned u64 copy of the 16-byte block header (Q0405 pairwise lw/sw)
-        ((u64 *)gHeapPools[0].start)[1] = saved[1]; // FAKE: punned u64 copy of the 16-byte block header (Q0405 pairwise lw/sw)
+        ((u64 *)gHeapPools[0].start)[0] = saved[0]; // ORIG: target restores the 64-bit pair (lw 0x80/0x84(sp) at 0x4a8/0x4ac, sw 0/4(t8) at 0x4b4/0x4b8)
+        ((u64 *)gHeapPools[0].start)[1] = saved[1]; // ORIG: target restores the 64-bit pair (lw 0x8c/0x88(sp) at 0x4c0/0x4c4, sw 12/8(t9) at 0x4c8/0x4cc)
         ((HeapBlock *)gHeapPools[0].start)->physPrev = NULL;
         sz = gHeapPools[0].size - 0x20;
         gHeapPools[0].freeList = (HeapBlock *)((u32)blk + blk->size + 0x10);
@@ -295,13 +295,13 @@ s32 heapInitGeneralPool(s32 *owner, u8 *start, s32 size) {
     gHeapPools[gHeapPoolCount].size = size;
     gHeapPools[gHeapPoolCount].blockSize = 0;
     blk = (HeapBlock *)start;
-    *(u64 *)blk = 0; // FAKE: punned u64 store zeroes physPrev+size as one 64-bit store pair (Q0137)
-    *(u64 *)&blk->next = 0; // FAKE: punned u64 store zeroes next+prev as one 64-bit store pair (Q0137)
+    *(u64 *)blk = 0; // ORIG: target stores a 64-bit zero pair (li t5,0 at 0x8c0, li t4,0 at 0x8cc; sw t5,4 at 0x8c4, sw t4,0 at 0x8e0)
+    *(u64 *)&blk->next = 0; // ORIG: target stores a 64-bit zero pair (li t7/t6,0 at 0x8d0/0x8d4; sw t6,8 at 0x8e4, sw t7,12 at 0x8e8)
     blk->size = size - 0x20;
     end = (HeapBlock *)(start + size);
     end -= 1;
-    *(u64 *)end = 0; // FAKE: punned u64 store zeroes physPrev+size as one 64-bit store pair (Q0137)
-    *(u64 *)&end->next = 0; // FAKE: punned u64 store zeroes next+prev as one 64-bit store pair (Q0137)
+    *(u64 *)end = 0; // ORIG: target stores a 64-bit zero pair (li t8,0 at 0x8ec, li t9,0 at 0x8f4; sw -16/-12(t0) at 0x8f0/0x900)
+    *(u64 *)&end->next = 0; // ORIG: target reuses the t4/t5 64-bit zero pair (sw t4,-8(t0) at 0x8f8, sw t5,-4(t0) at 0x904)
     end->physPrev = blk;
     ((u8 *)end)[0xB] = 2;
     return gHeapPoolCount++;
@@ -343,8 +343,8 @@ s32 heapInitBlockPool(s32 *owner, u8 *start, u32 size, u16 blockSize) {
         cur = next;
     } while (cur < end);
     prev->next = NULL;
-    *(u64 *)end = 0; // FAKE: punned u64 store zeroes physPrev+size as one 64-bit store pair (Q0137)
-    *(u64 *)&end->next = 0; // FAKE: punned u64 store zeroes next+prev as one 64-bit store pair (Q0137)
+    *(u64 *)end = 0; // ORIG: target stores a 64-bit zero pair (li t4/t5,0 at 0xa04/0xa08; sw t5,4 at 0xa10, sw t4,0 at 0xa14)
+    *(u64 *)&end->next = 0; // ORIG: target stores a 64-bit zero pair (li t6,0 at 0xa0c, li t7,0 at 0xa1c; sw t6,8 at 0xa18, sw t7,12 at 0xa2c)
     end->size = rem - 0x10;
     ((u8 *)end)[0xB] = 2;
     end->physPrev = prev;
@@ -535,8 +535,8 @@ HeapBlock *heapBestFitAlloc(s32 pool, u32 size) {
         rem = best->size - size;
         if (rem >= 0x10) {
             newBlk = (HeapBlock *)((u8 *)best + rem);
-            *(u64 *)newBlk = 0; // FAKE: punned u64 store zeroes physPrev+size as one 64-bit store pair (Q0137)
-            *(u64 *)&newBlk->next = 0; // FAKE: punned u64 store zeroes next+prev as one 64-bit store pair (Q0137)
+            *(u64 *)newBlk = 0; // ORIG: target stores a 64-bit zero pair (li t0/t1,0 at 0xf44/0xf48; sw t1,4 at 0xf4c, sw t0,0 at 0xf50)
+            *(u64 *)&newBlk->next = 0; // ORIG: target stores a 64-bit zero pair (li t2/t3,0 at 0xf54/0xf58; sw t3,12 at 0xf5c, sw t2,8 at 0xf60)
             newBlk->size = size;
             newBlk->physPrev = best;
             best->size = rem - 0x10;
@@ -545,7 +545,7 @@ HeapBlock *heapBestFitAlloc(s32 pool, u32 size) {
         }
         prev = best->prev;
         next = best->next;
-        *(u64 *)&best->next = 0; // FAKE: punned u64 store zeroes next+prev as one 64-bit store pair (Q0137)
+        *(u64 *)&best->next = 0; // ORIG: target stores a 64-bit zero pair (li t6/t7,0 hoisted to 0xf2c/0xf30; sw t6,8 at 0xf88, sw t7,12 at 0xf90)
         if (prev != NULL) {
             prev->next = next;
         } else {
