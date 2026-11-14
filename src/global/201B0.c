@@ -1057,7 +1057,7 @@ void camCalculateTargetDistanceAndAngles(CamState *cam) {
 
 void camLoadPathPoint(void) {
     gCamPathActor->yawSpeed = 0;
-    gCamPathActor->splineT = 0.0;
+    gCamPathActor->splineT = 0.0f;
     gCamPathNode = gCamActivePaths->pathLists[gCamPathIndex].nodes[gCamPathStep];
     gCamPathFramesLeft = gCamActivePaths->pathLists[gCamPathIndex].frames[gCamPathStep];
     playerWaypointSnapInput();
@@ -1438,8 +1438,7 @@ void camResetPlayer(Actor *player, u8 playerIndex) {
     st->unkEE = st->unkEF;
     st->unkA0 = st->unkA4;
     cam->distToFloor = st->unkB8;
-    st->unkE8 = 0;
-    st->unkEA = st->unkE8;
+    st->unkEA = st->unkE8 = 0;
     st->unkAC |= 0x100;
     st->unkB0 = 0;
     st->unk6C = 123456.0f;

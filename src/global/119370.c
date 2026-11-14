@@ -242,7 +242,7 @@ void effectCreateAtModelNode(void *asset, f32 scale, s32 modelSlot, s32 nodeInde
 }
 
 
-void *effectCreateAtActorBone(void *asset, f32 scale, Actor *actor, s32 boneIndex, u8 flags) {
+EffectNode *effectCreateAtActorBone(void *asset, f32 scale, Actor *actor, s32 boneIndex, u8 flags) {
     f32 boneX;
     f32 boneY;
     f32 boneZ;
@@ -672,7 +672,7 @@ void effectComputeTransformMatrix(Mtx *dst, u8 state, f32 scaleX, f32 scaleY, f3
     if (mode == 0) {
         distance = distance3D(camX, camY, camZ, x, y, z);
         value = distance;
-        if ((f64)distance < 0.1) {
+        if (distance < 0.1) {
             value = 1.0f;
         }
         distance = (camY - y) / value;
@@ -681,7 +681,7 @@ void effectComputeTransformMatrix(Mtx *dst, u8 state, f32 scaleX, f32 scaleY, f3
         } else {
             absValue = -distance;
         }
-        asinAngle = mathAsinFixed((s32)((f64)absValue * 65536.0)) >> 4;
+        asinAngle = mathAsinFixed(absValue * 65536.0) >> 4;
         angle = asinAngle;
         if (distance >= 0.0f) {
             angle = 0xFFF - asinAngle;
@@ -691,7 +691,7 @@ void effectComputeTransformMatrix(Mtx *dst, u8 state, f32 scaleX, f32 scaleY, f3
         } else {
             guScaleF(scale, 1.0f, 1.0f, 1.0f);
         }
-        guRotateF(transform, (f32)(((f64)angle / 4095.0) * 360.0), 1.0f, 0.0f, 0.0f);
+        guRotateF(transform, angle / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
         guMtxCatF(scale, transform, scale);
         value = mathAngleBetweenPointsRad(camX, camZ, x, z);
         guRotateF(transform, value * 57.295776f, 0.0f, 1.0f, 0.0f);
@@ -704,7 +704,7 @@ void effectComputeTransformMatrix(Mtx *dst, u8 state, f32 scaleX, f32 scaleY, f3
         } else {
             guScaleF(scale, 1.0f, 1.0f, 1.0f);
         }
-        matrixMakeRotationZ(transform, (f32)sEffectPendingZOffset);
+        matrixMakeRotationZ(transform, sEffectPendingZOffset);
         guMtxCatF(scale, transform, scale);
         guTranslateF(transform, x, y, z);
         guMtxCatF(scale, transform, scale);

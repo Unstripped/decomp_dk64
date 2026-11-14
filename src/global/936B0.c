@@ -56,38 +56,32 @@ void actorSnapToBone(Actor **actorRef) {
 }
 
 void actorSyncTransformFromParent(Actor **actorRef) {
-    Actor *self;
     PlayerState *playerState;
     Actor *parent;
     RaceParticipant *vehicleState;
 
-    self = *actorRef;
-    playerState = self->customState;
+    playerState = (*actorRef)->customState;
     parent = playerState->actor;
     if (parent != NULL) {
         vehicleState = parent->customState;
         if (vehicleState->raceStatus < 5) {
-            self->x = parent->x;
+            (*actorRef)->x = playerState->actor->x;
             (*actorRef)->y = playerState->actor->y;
             (*actorRef)->z = playerState->actor->z;
             (*actorRef)->yaw = playerState->actor->yaw;
             (*actorRef)->roll = playerState->actor->roll;
             (*actorRef)->pitch = playerState->actor->pitch;
             (*actorRef)->waterY = playerState->actor->waterY;
-            parent = playerState->actor;
-            if (parent->actorType == 0x12E) {
-                (*actorRef)->speedXZ = parent->speedXZ * 10.0f;
+            if (playerState->actor->actorType == 0x12E) {
+                (*actorRef)->speedXZ = playerState->actor->speedXZ * 10.0f;
             } else {
-                (*actorRef)->speedXZ = parent->speedXZ;
+                (*actorRef)->speedXZ = playerState->actor->speedXZ;
             }
-            self = *actorRef;
         } else {
-            self = *actorRef;
-            self->speedXZ = 0.0f;
-            self = *actorRef;
+            (*actorRef)->speedXZ = 0.0f;
         }
     }
-    actorUpdateModelMatrix(self, 0);
+    actorUpdateModelMatrix(*actorRef, 0);
 }
 
 s32 mathPickCloserTargetPoint3D(f32 x, f32 y, f32 z, TargetVec3f *segAStart, TargetVec3f *segAEnd, TargetVec3f *segBStart, TargetVec3f *segBEnd, f32 *outX, f32 *outY, f32 *outZ) {
@@ -185,7 +179,7 @@ void func_8068EF54(void) {
     f32 rotX[4][4];
     f32 pitch;
     f64 ratio;
-    f32 var;
+    f32 sparkScale;
     f32 glow;
     OwnerLinkState *link;
     PlayerState *playerState;
@@ -246,7 +240,7 @@ void func_8068EF54(void) {
         }
         if (gCurrentMap == 0x5C) {
             frame = gFrameCounter;
-            glow = (30.0 - (f64)(s32)(frame - link->glowStartFrame)) / 30.0 * 100.0;
+            glow = (30.0 - (s32)(frame - link->glowStartFrame)) / 30.0 * 100.0;
             if (glow > 0.0) {
                 lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, glow, 0, 0xFF, 0xC8, 0xC8);
             }
@@ -257,34 +251,34 @@ void func_8068EF54(void) {
         switch (model->animId) {
         case 0x113:
             if (model->frame < 70.0f) {
-                var = PICK_MIN(PICK_MAX(0.1, (model->frame - 39.0f) / 30.0), 0.49);
+                sparkScale = PICK_MIN(PICK_MAX(0.1, (model->frame - 39.0f) / 30.0), 0.49);
             } else {
-                var = 0.5f;
+                sparkScale = 0.5f;
             }
             break;
         case 0x12C:
-            var = PICK_MAX(0.5 - model->frame / 50.0f, 0.01);
+            sparkScale = PICK_MAX(0.5 - model->frame / 50.0f, 0.01);
             break;
         case 0x12F:
         case 0x130:
-            var = 0.25f;
+            sparkScale = 0.25f;
             break;
         case 0x12D:
         case 0x12E:
-            var = 0.0f;
+            sparkScale = 0.0f;
             break;
         default:
-            var = 0.5f;
+            sparkScale = 0.5f;
             break;
         }
         buf->rotX = 0;
         if (!(owner->flags & 4) || owner->state == 0x3C) {
             actorDespawn(gCurrentActor);
-        } else if (var > 0.05) {
+        } else if (sparkScale > 0.05) {
             if (gFrameCounter & 1) {
-                effectSpawnActorBone(owner, 1, var);
+                effectSpawnActorBone(owner, 1, sparkScale);
             } else {
-                effectSpawnActorBone(owner, 2, var);
+                effectSpawnActorBone(owner, 2, sparkScale);
             }
         }
         break;
@@ -493,10 +487,10 @@ void actorInterpolateAngles(u8 resetting, RaceParticipant *vehicle, VehicleMotio
         yawGoal = 0.0f;
     } else {
         pitchGoal = 0.0f;
-        yawGoal = (f32)((f64)vehicle->steer * (400.0 - (0.7 * (f64)gCurrentActor->speedXZ)));
+        yawGoal = vehicle->steer * (400.0 - 0.7 * gCurrentActor->speedXZ);
     }
-    motion->bonePitch = mathAngleEaseToward(motion->bonePitch, (s16)(s32)pitchGoal, 5.0f);
-    motion->boneYaw = mathAngleEaseToward(motion->boneYaw, (s16)((s32)yawGoal & 0xFFF), 3.0f);
+    motion->bonePitch = mathAngleEaseToward(motion->bonePitch, (s16)pitchGoal, 5.0f);
+    motion->boneYaw = mathAngleEaseToward(motion->boneYaw, (s32)yawGoal & 0xFFF, 3.0f);
     angles->weight = -0x80;
     angles->bone = 1;
     angles->rotX = (u16)motion->bonePitch * 16;
@@ -534,29 +528,29 @@ extern s16 D_80770628[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
 
-void vehicleUpdateEngineSound(vehicle, unused)
+void vehicleUpdateEngineSound(vehicle, motion)
 RaceParticipant *vehicle;
-s16 unused;
+VehicleMotion *motion;
 {
     s16 idx;
 
     idx = D_80770628[gCurrentActor->soundSlots[0]];
     if (gCurrentActor->y < gCurrentActor->waterY + 4.0f) {
-        D_80770B68[idx] = ((f64)gCurrentActor->speedXZ / 300.0) + 1.0;
+        D_80770B68[idx] = gCurrentActor->speedXZ / 300.0 + 1.0;
         D_80770BC0[idx] = 1.0f;
     } else {
-        D_80770B68[idx] = (f64)vehicle->throttle + 1.2;
+        D_80770B68[idx] = vehicle->throttle + 1.2;
         D_80770BC0[idx] = 5.0f;
     }
 
     idx = D_80770628[gCurrentActor->soundSlots[1]];
     if (gCurrentActor->y < gCurrentActor->waterY + 4.0f) {
         if (D_80770BC0[idx] == 0.0f) {
-            D_80770B68[idx] = (((f64)(u32)randomLcgNext() / 4294967295.0) * 0.05 + 0.975) * (0.2 + ((f64)gCurrentActor->speedXZ / 300.0));
+            D_80770B68[idx] = ((u32)randomLcgNext() / 4294967295.0 * 0.05 + 0.975) * (0.2 + gCurrentActor->speedXZ / 300.0);
             D_80770BC0[idx] = 1.0f;
         }
     } else {
-        D_80770B68[idx] = ((f64)vehicle->throttle * 1.5) + 0.2;
+        D_80770B68[idx] = vehicle->throttle * 1.5 + 0.2;
         D_80770BC0[idx] = 8.0f;
     }
 }
@@ -625,7 +619,7 @@ void actorUpdatePlayerInteraction(void) {
     camState = playerState->camActor->customState;
     resetting = gCurrentActor->contactFlags & 1;
     vehicle->raceStatus = 2;
-    vehicleUpdateEngineSound(vehicle, motion, playerState);
+    vehicleUpdateEngineSound(vehicle, motion);
     if (gGameMode == 0 && camState->unkF3 != 4) {
         camSetTargetScaled(playerState->camActor, gCurrentActor, 4, 0x800, 0xA0, 0, 6, 0x12C, 0x8F, 0, 0.2f);
     }

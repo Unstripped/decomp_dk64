@@ -2827,11 +2827,11 @@ void playerStateDamageFallTumble(void) {
     f32 pad;
     f32 dy;
     f32 dist;
-    f32 dz;
     f32 dx;
-    f32 fa0;
-    f32 fv0;
-    s32 n;
+    f32 dz;
+    f32 launchSpeed;
+    f32 flightFrames;
+    s32 decel;
     u16 b;
     s32 z;
 
@@ -2848,42 +2848,42 @@ void playerStateDamageFallTumble(void) {
             }
             b = gCurrentActor->prevContactFlags;
             z = (b == 0);
-            n = (gCurrentActor->contactFlags & b & 1) ? 2 : 1;
+            decel = (gCurrentActor->contactFlags & b & 1) ? 2 : 1;
             if (z) {} // FAKE: dead guard is a real uopt use (Q0561)
             if ((b == 0) & gCurrentActor->contactFlags & 1) {
                 gCurrentActor->speedXZ = gCurrentActor->speedXZ * 0.25;
             }
-            if (gCurrentActor->speedXZ < (f32)n) {
+            if (gCurrentActor->speedXZ < decel) {
                 gCurrentActor->speedXZ = 0.0f;
             } else {
-                gCurrentActor->speedXZ = gCurrentActor->speedXZ - (f32)n;
+                gCurrentActor->speedXZ = gCurrentActor->speedXZ - decel;
             }
             gCurrentActor->roll = mathAtan2(gCurrentActor->speedXZ, gCurrentActor->speedY) * 4096.0f / 6.2831855f;
             gCurrentActor->yaw = (mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, gActivePlayerState->launchTargetX, gActivePlayerState->launchTargetZ) + 0x800) % 4095;
             gCurrentActor->moveYaw = gCurrentActor->yaw;
             dy = gActivePlayerState->launchTargetY - gPrimaryPlayerActor->y;
             dy = dy / (gPrimaryPlayerActor->sub4->scaleY * 0.16666666675);
-            dx = gActivePlayerState->launchTargetZ - gPrimaryPlayerActor->z;
-            dz = gActivePlayerState->launchTargetX - gPrimaryPlayerActor->x;
-            dist = sqrtf(dx * dx + dz * dz) / (gPrimaryPlayerActor->sub4->scaleY * 0.16666666675);
-            fa0 = gPrimaryPlayerActor->speedXZ;
-            if (fa0 == 0.0) {
-                fa0 = 1.0f;
+            dz = gActivePlayerState->launchTargetZ - gPrimaryPlayerActor->z;
+            dx = gActivePlayerState->launchTargetX - gPrimaryPlayerActor->x;
+            dist = sqrtf(dz * dz + dx * dx) / (gPrimaryPlayerActor->sub4->scaleY * 0.16666666675);
+            launchSpeed = gPrimaryPlayerActor->speedXZ;
+            if (launchSpeed == 0.0) {
+                launchSpeed = 1.0f;
             }
-            fv0 = dist / fa0 - 1.0f;
-            if (fv0 < 1.0f) {
-                fv0 = 1.0f;
+            flightFrames = dist / launchSpeed - 1.0f;
+            if (flightFrames < 1.0f) {
+                flightFrames = 1.0f;
             }
-            gPrimaryPlayerActor->speedY = (0.0 - (D_80753CD0[gCurrentCharacterIndex] * 0.5 * (fv0 * fv0) - dy)) / fv0;
+            gPrimaryPlayerActor->speedY = (0.0 - (D_80753CD0[gCurrentCharacterIndex] * 0.5 * (flightFrames * flightFrames) - dy)) / flightFrames;
             gPrimaryPlayerActor->accelY = -0.001f;
-            if (fv0 < 2.0f || fa0 < 2.0) {
+            if (flightFrames < 2.0f || launchSpeed < 2.0) {
                 playerSetBaseGravity();
-                gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+                gCurrentActor->unk155++;
             }
             if (gCurrentActor->hasArcBounds) {
                 gCurrentActor->speedXZ = 0.0f;
                 playerSetBaseGravity();
-                gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+                gCurrentActor->unk155++;
             }
             playerInputUpdate(1);
             break;
@@ -2892,7 +2892,7 @@ void playerStateDamageFallTumble(void) {
             actorScriptStartByIndex(gCurrentActor, 0x23);
             gCurrentActor->roll = 0;
             playerSetBaseGravity();
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+            gCurrentActor->unk155++;
             break;
         case 2:
             playerInputUpdate(0x20);
@@ -2900,7 +2900,8 @@ void playerStateDamageFallTumble(void) {
         case 3:
             sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x10, 0);
             gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+            gCurrentActor->unk155++;
+            /* fallthrough */
         case 4:
             playerApplyDeceleration();
             playerInputUpdate(0x30);
@@ -3692,8 +3693,8 @@ void playerStateKnockbackTumble(void) {
 }
 
 void playerStateStationaryInteraction(void) {
-    s16 t;
-    f32 f;
+    s16 yaw;
+    f32 scale;
     s32 i;
 
     playerInputUpdate(1);
@@ -3718,9 +3719,9 @@ void playerStateStationaryInteraction(void) {
         gCurrentActor->y = gActivePlayerState->unk208;
         gCurrentActor->prevY = gCurrentActor->y;
         gCurrentActor->z = gActivePlayerState->unk20C;
-        t = gActivePlayerState->unk21C;
-        gCurrentActor->moveYaw = t;
-        gCurrentActor->yaw = t;
+        yaw = gActivePlayerState->unk21C;
+        gCurrentActor->moveYaw = yaw;
+        gCurrentActor->yaw = yaw;
         camResetPlayer(gCurrentActor, gActivePlayerState->playerIndex);
         kongChainInit(0, ACTOR_EXT->unk178, gCurrentActor->actorType);
         gCurrentActor->unk155++;
@@ -3737,9 +3738,9 @@ void playerStateStationaryInteraction(void) {
         playerResumeLocomotion(gCurrentActor);
         break;
     }
-    f = (f32)gActivePlayerState->unk23C * 0.015;
+    scale = (f32)gActivePlayerState->unk23C * 0.015;
     for (i = 0; i < 3; i++) {
-        (&gCurrentActor->sub4->scaleX)[i] = f;
+        gCurrentActor->sub4->scale[i] = scale;
     }
     playerApplyMotion();
     actorUpdateModelMatrix(gCurrentActor, 0);
