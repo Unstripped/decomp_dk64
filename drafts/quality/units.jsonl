@@ -287,3 +287,4 @@
 {"type": "unit", "t": "2026-11-14T17:57:53Z", "unit": "2026-11-14: cleanup HackcritterBattleArenaUpdate", "commit": "88bb6f734ff6a3072bffe3ae0d25b601b8a4cd39"}
 {"type": "unit", "t": "2026-11-14T17:58:15Z", "unit": "2026-11-14: cleanup HackrecordInitPositionBuffers", "commit": "4132f0773ca7de26188819e8d6c72c4bae286030"}
 {"type": "unit", "t": "2026-11-14T18:00:55Z", "unit": "2026-11-14: cleanup OwnerNSyn", "commit": "1b17375388a06cca9a6dd69c2f7d35cd9843580e"}
+{"type": "unit", "t": "2026-11-14T18:01:59Z", "unit": "2026-11-14: cleanup OwnerGfxCurrentFrameBuffer", "commit": "0c3d64fba9338520dc609beece4d97bbacfe5584"}
