@@ -264,7 +264,6 @@ Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
 extern PadInputState gPlayerPadState[];
 extern OSContPad *D_807ECDEC;
 extern u8 gCurrentPlayerIndex;
-extern KongInventory gPlayerInventoryTable[];
 extern u8 gPlayerCharacterId;
 extern u8 D_800330C0[];
 extern u8 D_80032F50;
@@ -285,7 +284,7 @@ void menuUpdateOptionsState(MenuState *menu) {
         break;
     case 0:
         if (listContainsS16(4) != 0) {
-            playerSaveData = &gPlayerInventoryTable[gPlayerCharacterId];
+            playerSaveData = &gPlayerInventoryTable[0].kong[gPlayerCharacterId];
             for (i = 0; i < 8; i++) {
                 if (flagGet((s16)flagGridIndex(0x1D5, i, gPlayerCharacterId), 0) != 0) {
                     awardFlag = flagGridIndex(0x1FD, i, gPlayerCharacterId);

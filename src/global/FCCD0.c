@@ -24,7 +24,6 @@ extern Actor *gPrimaryPlayerActor;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern KongInventory gPlayerInventoryTable[];
 extern s32 gCurrentMap;
 extern u8 gCurrentWorldId;
 extern u8 gScreenRenderFlags;
@@ -134,7 +133,7 @@ void func_806F8278(u8 player) {
     s32 count;
 
     sum = 0;
-    inv = (PlayerInventory *)gPlayerInventoryTable + player;
+    inv = &gPlayerInventoryTable[player];
     count = sizeof(inv->kong[0].unk42) / sizeof(inv->kong[0].unk42[0]);
     for (i = 0; i < count; i++) {
         for (j = 0; j < 5; j++) {
@@ -177,7 +176,7 @@ void slotQueueInit(s32 reset) {
         gSlotQueueMaskList = NULL;
     }
     if (gPlayerCount > 0) {
-        inv = (PlayerInventory *)gPlayerInventoryTable;
+        inv = gPlayerInventoryTable;
         i = 0;
         do {
             kongInv = (KongInventory *)(playerGetResolvedKongId(i) * sizeof(KongInventory)); // FAKE: byte offset parked in kongInv makes the addu take inv first (addu t9,s8,t8)
@@ -444,7 +443,7 @@ void func_806F8DC4(u8 *alpha, s32 count, s32 slot) {
         } else if (flagGridSumRows(0x225, world, world, kong) != 0) {
             *alpha = 0xFF;
         }
-    } else if (count < gPlayerInventoryTable[kong].unk42[world]) {
+    } else if (count < gPlayerInventoryTable[0].kong[kong].unk42[world]) {
         *alpha = 0xFF;
     }
 }
@@ -454,8 +453,6 @@ s32 func_806F8EB4(void) {
     return flagCountRange(0x24D, 0x14, 0);
 }
 
-extern u8 D_807FC953[];
-extern u8 D_807FC954[];
 
 s32 slotQueueGetMaxValue(s32 slot, s32 player) {
     s32 kong;
@@ -471,17 +468,17 @@ s32 slotQueueGetMaxValue(s32 slot, s32 player) {
         max = 0x3E7;
         break;
     case 2:
-        max = ((1 << D_807FC953[(player * 0x306) + (kong * 0x5E)]) * 0x32) & 0xFFFF;
+        max = ((1 << gPlayerInventoryTable[player].kong[kong].unk0[3]) * 0x32) & 0xFFFF;
         break;
     case 3:
         if (gPlayerCount >= 2) {
             max = 0xA;
         } else {
-            max = ((1 << D_807FC953[(player * 0x306) + (kong * 0x5E)]) * 0x32) & 0xFFFF;
+            max = ((1 << gPlayerInventoryTable[player].kong[kong].unk0[3]) * 0x32) & 0xFFFF;
         }
         break;
     case 4:
-        max = ((D_807FC953[(player * 0x306) + (kong * 0x5E)] * 5) + 0x14) & 0xFFFF;
+        max = ((gPlayerInventoryTable[player].kong[kong].unk0[3] * 5) + 0x14) & 0xFFFF;
         break;
     case 5:
         if (gPlayerCount >= 2) {
@@ -496,7 +493,7 @@ s32 slotQueueGetMaxValue(s32 slot, s32 player) {
         if (gPlayerCount >= 2) {
             max = 0x14;
         } else {
-            bits = D_807FC954[(player * 0x306) + (kong * 0x5E)];
+            bits = gPlayerInventoryTable[player].kong[kong].instrumentFlags;
             level = 1;
             if (bits & 1) {
                 rest = bits;
@@ -544,7 +541,7 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
     pa = &player;  // FAKE: keeps player memory-resident (plain lbu per use)
     playerIdx = player; // FAKE: s32 copy of player (home sp+0x28) feeds slotQueueGetMaxValue as lw a1,40(sp)
     value = playerGetResolvedKongId(player);
-    kongInv = &((PlayerInventory *)gPlayerInventoryTable)[player].kong[value];
+    kongInv = &gPlayerInventoryTable[player].kong[value];
     slots = slotQueueGetAddress(player);
     entry = (SlotQueueSlot *)slots + slot;
     if (((entry->locked == 0) || (delta >= 0)) && (entry->displayMode == 0)) {
@@ -950,7 +947,6 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
 }
 
 extern s16 D_807505AE[];
-extern u16 D_807FC992[][0x2F];
 extern Gfx D_2000180;
 
 Gfx *slotQueueDrawPlayerLabels(s32 slot, SlotQueueNode *node, Gfx *gfx) {
@@ -986,7 +982,7 @@ Gfx *slotQueueDrawPlayerLabels(s32 slot, SlotQueueNode *node, Gfx *gfx) {
                 gSlotQueue[slot].shown = savedU16;
                 scale = 2.0f;
             } else {
-                gSlotQueue[slot].shown = D_807FC992[i][world];
+                gSlotQueue[slot].shown = gPlayerInventoryTable[0].kong[i].unk42[world];
                 scale = 1.5f;
             }
             gfx = slotQueueDrawLabel(slot, node, gfx);
@@ -1250,7 +1246,7 @@ void slotQueueSelectPlayerResource(u8 player) {
     s32 resource;
 
     resource = mapGetHubWorldIndex(gCurrentWorldId, 0);
-    gSlotQueue[13].value = &gPlayerInventoryTable[player].unk26[resource];
+    gSlotQueue[13].value = &gPlayerInventoryTable[0].kong[player].unk26[resource];
     gSlotQueue[13].shown = *gSlotQueue[13].value;
     D_80754288 = player;
 }
@@ -1498,7 +1494,7 @@ s32 func_806FB418(void) {
     sum = 0;
     for (j = 0; j < 5; j++) {
         for (i = 0; i < 8; i++) {
-            sum += gPlayerInventoryTable[j].unk42[i];
+            sum += gPlayerInventoryTable[0].kong[j].unk42[i];
         }
     }
     return sum;

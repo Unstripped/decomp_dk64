@@ -120,7 +120,6 @@ G00Entry *cameraFindViewportEntry(u8 playerIndex) {
     return &D_80750948[i];
 }
 
-extern PlayerInventory gPlayerInventoryTable[];
 extern OSContPad D_807ECD10[];
 extern u16 D_807ECD48[];
 extern u32 D_8074458C[];

@@ -117,19 +117,18 @@ void menuSetTransitionTypeBFlag(void) {
     }
 }
 
-extern u8 gPlayerInventoryTable[][0x5E];
 extern s8 gPlayerCharacterId;
 
 void menuSetupPlayerInventory(s32 map, s32 exit, s32 characterId, s8 inventory0, s8 inventory1, s8 inventory4, s8 shared) {
     s32 i;
 
     gPlayerCharacterId = characterId;
-    gPlayerInventoryTable[8][0xC] = shared;
-    gPlayerInventoryTable[8][0xB] = shared * 4;
+    gPlayerInventoryTable[0].melons = shared;
+    gPlayerInventoryTable[0].health = shared * 4;
     for (i = 0; i < 5; i++) {
-        gPlayerInventoryTable[i][0] = inventory0;
-        gPlayerInventoryTable[i][1] = inventory1;
-        gPlayerInventoryTable[i][4] = inventory4;
+        gPlayerInventoryTable[0].kong[i].unk0[0] = inventory0;
+        gPlayerInventoryTable[0].kong[i].slamLevel = inventory1;
+        gPlayerInventoryTable[0].kong[i].instrumentFlags = inventory4;
     }
     menuTransitionWithState(map, exit, 12);
 }

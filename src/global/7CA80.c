@@ -1571,7 +1571,6 @@ void actorTableSort(void) {
 }
 
 extern u8 gPlayerCharacterId[];
-extern PlayerInventory gPlayerInventoryTable[];
 extern KongInventory *D_807FD568;
 extern OSContPad *D_807ECDEC;
 extern u16 D_807ECDF0;

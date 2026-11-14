@@ -79,7 +79,6 @@ extern s16 D_807FC832;
 extern s16 D_807FC834;
 extern s16 D_807FC836;
 extern s16 D_807FC838;
-extern PlayerInventory gPlayerInventoryTable[];
 extern s16 D_80744710[];
 extern s16 D_80744720[];
 extern s16 D_807505B2[];

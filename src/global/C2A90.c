@@ -108,7 +108,6 @@ extern u8 gCurrentWorldId;
 extern u8 gPlayerCharacterId;
 extern u16 D_807446C0[];
 extern u16 gLevelCollectibleCounts[];
-extern KongInventory gPlayerInventoryTable[];
 
 
 void func_806BE09C(void) {
@@ -158,12 +157,12 @@ void func_806BE09C(void) {
             }
             if (gBehaviourWorkState->timer != 0) {
                 if (!(gFrameCounter & 3)) {
-                    row = &gPlayerInventoryTable[gPlayerCharacterId];
+                    row = &gPlayerInventoryTable[0].kong[gPlayerCharacterId];
                     gBehaviourWorkState->timer--;
                     slotQueueAddValue(0, 0, -1);
                     row->unk26[idx] += 1;
                     sum = 0;
-                    for (i = 0; i < 5; i++) sum += gPlayerInventoryTable[i].unk26[idx]; // LAYOUT: body on the for line keeps as1 emitting the unrolled i=1 address add (v0) before the i=0 one (t3)
+                    for (i = 0; i < 5; i++) sum += gPlayerInventoryTable[0].kong[i].unk26[idx]; // LAYOUT: body on the for line keeps as1 emitting the unrolled i=1 address add (v0) before the i=0 one (t3)
                     if (sum >= D_807446C0[idx]) {
                         gBehaviourWorkState->timer = 0;
                         slotQueueCancel(0, 0);

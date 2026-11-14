@@ -779,7 +779,6 @@ typedef struct SparkleSpriteTable {
 } SparkleSpriteTable;
 
 extern u8 gPlayerCharacterId;
-extern KongInventory gPlayerInventoryTable[];
 extern u8 D_80721170;
 extern SparkleSpriteTable D_807504A4;
 
@@ -788,7 +787,7 @@ void effectActorSparkleTick(void) {
     s32 idx;
     SparkleSpriteTable table;
 
-    flag = gPlayerInventoryTable[gPlayerCharacterId].instrumentFlags & 1;
+    flag = gPlayerInventoryTable[0].kong[gPlayerCharacterId].instrumentFlags & 1;
     if (!(gCurrentActor->flags & 0x10)) {
         actorAppendModelSubNode(gCurrentActor, 0.0f, 10.0f, 0.0f, -1);
         actorSetCollisionRadius(gCurrentActor, 175.0f);

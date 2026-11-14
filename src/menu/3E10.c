@@ -617,7 +617,6 @@ extern u8 D_80720C34;
 extern void *D_80750518[];
 extern s16 D_807505B2;
 extern u32 D_80750AB0;
-extern KongInventory gPlayerInventoryTable[];
 extern s8 D_80033804;
 extern s8 D_80033805;
 extern s32 D_8003380C;
@@ -628,7 +627,7 @@ extern s8 D_80033F51;
 extern s8 D_80033809;
 void menuInitFileSummary(Actor *actor, s32 unused) {
     MenuScreenState *state = actor->customState;
-    KongInventory *row = gPlayerInventoryTable;
+    KongInventory *row = gPlayerInventoryTable[0].kong;
     s8 *p;
     s16 *q;
     u32 expected;

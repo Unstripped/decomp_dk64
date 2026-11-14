@@ -108,7 +108,6 @@ typedef struct DelayedSpawn {
     s32 timer;
 } DelayedSpawn; // size = 0x14
 
-extern PlayerInventory gPlayerInventoryTable[];
 
 void gridRebuildNodeLists(void) {
     gridFreeAllNodeLists();

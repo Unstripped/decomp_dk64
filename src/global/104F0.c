@@ -739,7 +739,6 @@ void eepromSaveRecordsOffset(void) {
     eepromSaveRecords(1);
 }
 
-extern PlayerInventory gPlayerInventoryTable[];
 extern u8 D_807FC952;
 extern u8 gPlayerCharacterId;
 

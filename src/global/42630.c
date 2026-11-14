@@ -594,7 +594,6 @@ extern PlayerStruct *gPlayerSlots;
 extern KongInventory *D_807FD568;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern PlayerInventory gPlayerInventoryTable[];
 extern u8 gGameMode;
 extern u8 gPlayerCharacterId;
 extern s16 D_8076AEF2;

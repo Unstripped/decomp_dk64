@@ -1203,7 +1203,6 @@ typedef struct TransformBarrelEntry {
 
 
 extern TransformBarrelEntry D_8074E7BC[8];
-extern u8 gPlayerInventoryTable[][0x5E];
 
 extern s32 gGlobalCutsceneFlags;
 
@@ -1329,7 +1328,7 @@ void transformBarrelUpdate(void) {
         s32 allowed = 0;
 
         if (gPlayerCharacterId < 5) {
-            itemCount = gPlayerInventoryTable[gPlayerCharacterId][0];
+            itemCount = gPlayerInventoryTable[0].kong[gPlayerCharacterId].unk0[0];
         }
         player = gPrimaryPlayerActor;
         if (player->actorType == 5 && gCurrentActor->actorType == 0x28 && itemCount > 0) {
@@ -2331,7 +2330,7 @@ void rocketbarrelUpdate(void) {
     case 0: {
         s32 itemCount;
         if (gPlayerCharacterId < 5) {
-            itemCount = gPlayerInventoryTable[gPlayerCharacterId][0];
+            itemCount = gPlayerInventoryTable[0].kong[gPlayerCharacterId].unk0[0];
         }
         if (gPrimaryPlayerActor->actorType == 3 && itemCount >= 2) {
             gCurrentActor->flags |= 0x8000;

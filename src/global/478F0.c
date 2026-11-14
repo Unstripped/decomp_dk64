@@ -3857,14 +3857,13 @@ u8 csCondCheckFrameTimingMap(CsState *cs, s16 csId, s16 b, s16 c) {
     return (s16)func_806FB418() >= D_807446D0[idx];
 }
 
-extern u8 gPlayerInventoryTable[][0x5E];
 
 u8 csCondCheckKongItems(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 padA, padB;
     s32 idx;
     u8 res = 0;
     s32 cur;
-    u8 *row;
+    KongInventory *row;
     s32 lim;
 
     switch (b) {
@@ -3885,18 +3884,18 @@ u8 csCondCheckKongItems(CsState *cs, s16 csId, s16 b, s16 c) {
             break;
     }
     cur = frameTimingGetMapIndex();
-    row = gPlayerInventoryTable[idx];
-    lim = row[5] & 0x7F;
+    row = &gPlayerInventoryTable[0].kong[idx];
+    lim = row->unk5 & 0x7F;
     if (lim == cur) {
         res = 1;
-        if (c == 0 && (row[5] & 0x80)) {
+        if (c == 0 && (row->unk5 & 0x80)) {
             res = 0;
         }
     } else if (cur < lim) {
         res = 1;
     }
     if (res == 1 && c == 2) {
-        row[5] &= 0x7F;
+        row->unk5 &= 0x7F;
     }
     return res;
 }
@@ -4040,21 +4039,11 @@ void csCmdSetFlag1C1Or1C2(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern u8 gCurrentPlayerIndex;
 
-typedef struct {
-    u8 pad0[0xA];
-    u16 v[0x2A];
-} CsFlagRow;
-
-typedef struct {
-    CsFlagRow e[8];
-    u8 pad[0x16];
-} CsFlagTable;
-
 u8 csCondKongHasHubItems(CsState *cs, s16 csId, s16 b, s16 c) {
-    CsFlagTable *p = (CsFlagTable *)gPlayerInventoryTable + gCurrentPlayerIndex;
+    PlayerInventory *p = &gPlayerInventoryTable[gCurrentPlayerIndex];
     s32 idx = mapGetHubWorldIndex(gCurrentWorldId, 0);
 
-    return p->e[(&gPlayerCharacterId)[gCurrentPlayerIndex]].v[idx] > 0;
+    return p->kong[(&gPlayerCharacterId)[gCurrentPlayerIndex]].unkA[idx] > 0;
 }
 
 

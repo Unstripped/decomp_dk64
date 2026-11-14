@@ -944,6 +944,9 @@ typedef struct PlayerInventory {
     /* 0x2FE */ u16 kills[4]; // multiplayer: kills of each player
 } PlayerInventory; // size = 0x306
 
+// Per-player inventory (4 players at 0x807FC950); D_807FD568 points at the current kong's row.
+extern PlayerInventory gPlayerInventoryTable[];
+
 // One entry of the per-map flag tables (135D30.c: D_80755A20, D_80755DA8, D_80755EA0, gFlagTempEntries).
 typedef struct FlagTableEntry {
     /* 0x0 */ u8 map;

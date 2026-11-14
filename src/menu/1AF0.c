@@ -46,7 +46,6 @@ typedef struct MenuShopActor {
 } MenuShopActor;
 
 
-extern u8 gPlayerInventoryTable[][0x5E];
 extern u8 gPlayerCharacterId;
 
 s32 menuCheckBitgridOtherSlots(MenuShopState *state, s32 bitOffset) {
@@ -55,7 +54,7 @@ s32 menuCheckBitgridOtherSlots(MenuShopState *state, s32 bitOffset) {
 
     for (i = 0; found == 0 && i != 5; i++) {
         if (i != gPlayerCharacterId) {
-            found |= gPlayerInventoryTable[i][state->itemSlot] & (1 << (bitOffset + 0x1F));
+            found |= gPlayerInventoryTable[0].kong[i].unk0[state->itemSlot] & (1 << (bitOffset + 0x1F));
         }
     }
     return found;
@@ -110,11 +109,11 @@ typedef struct {
 extern MenuShopActor *gCurrentActor;
 
 void menuSetBitgridValue(MenuShopState *state, s32 slot) {
-    gPlayerInventoryTable[slot][state->itemSlot] = state->itemLevel;
+    gPlayerInventoryTable[0].kong[slot].unk0[state->itemSlot] = state->itemLevel;
 }
 
 void menuSetBitgridBit(MenuShopState *state, s32 slot) {
-    u8 *ptr = &gPlayerInventoryTable[slot][state->itemSlot];
+    u8 *ptr = &gPlayerInventoryTable[0].kong[slot].unk0[state->itemSlot];
     *ptr |= 1 << (state->itemLevel - 1);
 }
 
@@ -157,8 +156,8 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
     }
     if (state->itemSlot == 4) {
         u8 v = D_800334DC[state->itemLevel];
-        if (gPlayerInventoryTable[8][0xC] < v) {
-            gPlayerInventoryTable[8][0xC] = v;
+        if (gPlayerInventoryTable[0].melons < v) {
+            gPlayerInventoryTable[0].melons = v;
             healthRefill(0);
             gPlayerSlots->unk2E2 |= 0x11;
         }
@@ -747,7 +746,7 @@ void menuUpdateCrankyShopActor(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 5) {
         st = gCurrentActor->shop;
-        inventory = gPlayerInventoryTable[gPlayerCharacterId];
+        inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId].unk0;
         if (!(gCurrentActor->base.flags & 0x10)) {
             if (flagGet(0x180, 0) != 0) {
                 gCurrentActor->base.unk155 = 0;
@@ -880,7 +879,7 @@ void menuCheckControllerAntiPiracy(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 0x19) {
         st = gCurrentActor->shop;
-        inventory = gPlayerInventoryTable[gPlayerCharacterId];
+        inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId].unk0;
 
         if (!(gCurrentActor->base.flags & 0x10)) {
 
@@ -913,7 +912,7 @@ void menuUpdateFunkyShopActor(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 1) {
         MenuShopState *st = gCurrentActor->shop;
-        u8 *inventory = gPlayerInventoryTable[gPlayerCharacterId];
+        u8 *inventory = gPlayerInventoryTable[0].kong[gPlayerCharacterId].unk0;
 
         if (!(gCurrentActor->base.flags & 0x10)) {
             menuExitSubmenu(st, inventory, 0x176);

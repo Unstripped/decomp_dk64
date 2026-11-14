@@ -140,7 +140,6 @@ void playerKongStopSoundByState(Actor *actor) {
     }
 }
 
-extern PlayerInventory gPlayerInventoryTable[];
 
 void playerKongPlaySoundByState(Actor *actor) {
     s32 pad;

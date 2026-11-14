@@ -15,7 +15,6 @@ extern Actor *gPrimaryPlayerActor;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern KongInventory gPlayerInventoryTable[];
 extern s32 gCurrentMap;
 extern u8 gCurrentWorldId;
 extern u8 gScreenRenderFlags;
@@ -169,7 +168,7 @@ PlayerStruct *hudState;
     u8 bits;
     s32 single;
 
-    hud = (u8 *)(playerIndex * 0x306 + (s32)gPlayerInventoryTable);
+    hud = (u8 *)&gPlayerInventoryTable[playerIndex];
     idx = playerGetResolvedKongId(playerIndex);
     elem = (u8 *)((s32)hud + idx * 0x5E);
     mode = hudState->unk2E4;
@@ -284,7 +283,7 @@ void healthRefill(u8 playerIndex) {
     HealthStats *stats;
 
     perMelon = healthGetPerMelon();
-    stats = (HealthStats *)((playerIndex * 0x306) + (s32)gPlayerInventoryTable);
+    stats = (HealthStats *)((playerIndex * sizeof(PlayerInventory)) + (s32)gPlayerInventoryTable);
     stats->healthDelta = 0;
     stats->health = stats->melons * (product_factor = perMelon); // FAKE: assignment-in-expression (plain multiply breaks the match)
 }
