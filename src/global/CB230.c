@@ -19,26 +19,26 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-typedef struct R1C8CBSub178 {
+typedef struct SpotlightActorState { // Actor 0x178 component of the spotlight actors (types 0xF0, 0xF9)
     union {
-        /* 0x0 */ s16 unk0;
+        /* 0x0 */ s16 brightness;
         struct {
-            /* 0x0 */ u8 unk0Hi;
-            /* 0x1 */ u8 unk0Lo;
+            /* 0x0 */ u8 brightnessHi;
+            /* 0x1 */ u8 brightnessLo;
         };
     };
     /* 0x2 */ u8 unk2;
-} R1C8CBSub178;
+} SpotlightActorState;
 
-typedef struct R1C8CBActor {
+typedef struct SpotlightActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ R1C8CBSub178 *unk178;
-} R1C8CBActor;
+    /* 0x178 */ SpotlightActorState *light;
+} SpotlightActor;
 
 f32 sqrtf(f32);
 
 void actorUpdateNearestSpotlight(void) {
-    R1C8CBSub178 *p;
+    SpotlightActorState *p;
     s32 best;
     Actor *found;
     s16 i;
@@ -50,7 +50,7 @@ void actorUpdateNearestSpotlight(void) {
     f32 dz;
     s32 d;
 
-    p = ((R1C8CBActor *)gCurrentActor)->unk178;
+    p = ((SpotlightActor *)gCurrentActor)->light;
     found = NULL;
     best = 999999;
     for (i = 0; i < gActiveActorCount; i++) {
@@ -101,8 +101,8 @@ void actorUpdateNearestSpotlight(void) {
             lightSetFovAngles(20.0f, 40.0f);
             break;
     }
-    p->unk0 = mathSinF(gFrameCounter * 130) * 35.0 + 220.0;
-    lightAdd(A[0], A[1], A[2], B[0], B[1], B[2], 0.0f, 1, p->unk0Lo, p->unk0Lo, p->unk0Lo);
+    p->brightness = mathSinF(gFrameCounter * 130) * 35.0 + 220.0;
+    lightAdd(A[0], A[1], A[2], B[0], B[1], B[2], 0.0f, 1, p->brightnessLo, p->brightnessLo, p->brightnessLo);
 }
 
 void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
@@ -115,14 +115,14 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
     dz = gCurrentActor->z - gBehaviourTargetActor->z;
     dist = (u16)sqrtf(dx * dx + dz * dz);
     if (!(gCurrentActor->flags & 0x10)) {
-        R1C8CBSub178 *p = ((R1C8CBActor *)gCurrentActor)->unk178;
+        SpotlightActorState *p = ((SpotlightActor *)gCurrentActor)->light;
         gCurrentActor->renderFlags |= 4;
         gCurrentActor->flags |= 0x800000;
         gCurrentActor->tintR = 0xFF;
         gCurrentActor->tintG = 0xFF;
         gCurrentActor->tintB = 0xFF;
         p->unk2 = 0;
-        p->unk0 = 0xFF;
+        p->brightness = 0xFF;
         gBehaviourAnimState->unk3C = 1.0f;
         if (gCurrentActor->actorType == 0xF0) {
             sfxPlayActorSound(gCurrentActor, 0x132, 0, 0, 0, 0xA0, 1.0f, 0);

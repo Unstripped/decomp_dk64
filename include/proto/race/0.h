@@ -3,12 +3,12 @@
 #define PROTO_RACE_0_H
 #include "common.h"
 #include "race.h"
-struct RaceC_Config;
+struct RaceCoinConfig;
 #ifndef PROTO_SKIP_raceOpponentFollowWaypoints
 void raceOpponentFollowWaypoints(void);
 #endif
 #ifndef PROTO_SKIP_raceCheckCoinRequirement
-int raceCheckCoinRequirement(RaceParticipant *, struct RaceC_Config *);
+int raceCheckCoinRequirement(RaceParticipant *, struct RaceCoinConfig *);
 #endif
 #ifndef PROTO_SKIP_raceOpponentBehaviourUpdate
 void raceOpponentBehaviourUpdate(void);

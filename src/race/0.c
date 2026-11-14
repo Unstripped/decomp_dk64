@@ -9,25 +9,25 @@
 #include "proto/race/0.h"
 #include "proto/race/7BD0.h"
 #include "proto/race/A960.h"
-struct RaceC_Config;
+struct RaceCoinConfig;
 struct RaceParticipant;
 s16 sfxPlayFromActorWithAltitudeCheck(struct Actor *, s16, u8, s16, u8);
 
 
-typedef struct {
-    s16 unk0;
+typedef struct RaceRouteEvent { // per-route event row: applied when the racer reaches its waypoint (zone entry)
+    s16 waypoint;
     u8 pad2[2];
-    f32 unk4;
-    u8 unk8;
+    f32 gravity;
+    u8 action;
     u8 pad9[3];
-} RaceC_Row;
+} RaceRouteEvent;
 
 
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
 extern Actor *gActivePlayerActor;
-extern RaceC_Row D_8002FB10[];
-extern RaceC_Row D_8002FB70[];
+extern RaceRouteEvent D_8002FB10[];
+extern RaceRouteEvent D_8002FB70[];
 void actorScriptStart(void *, s32);
 
 void raceOpponentFollowWaypoints(void) {
@@ -40,7 +40,7 @@ void raceOpponentFollowWaypoints(void) {
     ZoneEntry *zone;
     f32 tmp;
     u8 routeRowIdx;
-    RaceC_Row *routeRows;
+    RaceRouteEvent *routeRows;
     f32 friction;
     s16 yawDiff;
 
@@ -57,9 +57,9 @@ void raceOpponentFollowWaypoints(void) {
     vz = gCurrentActor->z - zone->z;
     if (sqrtf(vz * vz + vx * vx) < (zone = &D_807FDCA0->entries[gBehaviourWorkState->unk25])->radius) {
         if ((zone->y < gCurrentActor->y ? gCurrentActor->y - zone->y : -(gCurrentActor->y - zone->y)) < 80.0f && gBehaviourWorkState->unk25 < D_807FDCA0->entryCount - 1) {
-            if (routeRows[routeRowIdx].unk0 == gBehaviourWorkState->unk25) {
-                gCurrentActor->accelY = routeRows[routeRowIdx].unk4;
-                if (routeRows[routeRowIdx].unk8 == 1) {
+            if (routeRows[routeRowIdx].waypoint == gBehaviourWorkState->unk25) {
+                gCurrentActor->accelY = routeRows[routeRowIdx].gravity;
+                if (routeRows[routeRowIdx].action == 1) {
                     actorScriptStart(gCurrentActor, 0x286);
                     gCurrentActor->speedY = 200.0f;
                     gCurrentActor->state += 1;
@@ -115,9 +115,9 @@ void raceOpponentFollowWaypoints(void) {
     }
 }
 
-typedef struct RaceC_Config {
+typedef struct RaceCoinConfig { // component at Actor 0x17C of the coin-race opponent
     u8 pad0[4];
-    RaceParticipant *unk4;
+    RaceParticipant *rival;
     u8 pad8[0x18 - 0x8];
     union {
         s32 w;
@@ -125,22 +125,22 @@ typedef struct RaceC_Config {
             s16 hi;
             s16 rewardFlag;
         } h;
-    } unk18;
+    } reward;
     s32 requiredCoins;
-} LargeR4_Cfg;
+} RaceCoinConfig;
 
 extern u16 D_80750AC4;
 
-int raceCheckCoinRequirement(RaceParticipant *controller, LargeR4_Cfg *config) {
-    return controller->unk36 != 0 && flagGet(config->unk18.h.rewardFlag, 0) == 0 && D_80750AC4 >= config->requiredCoins;
+int raceCheckCoinRequirement(RaceParticipant *controller, RaceCoinConfig *config) {
+    return controller->unk36 != 0 && flagGet(config->reward.h.rewardFlag, 0) == 0 && D_80750AC4 >= config->requiredCoins;
 }
 
 
-typedef struct RaceOpponentActor {
+typedef struct RaceCoinRacerActor {
     Actor base;
-    RaceParticipant *unk178;
-    LargeR4_Cfg *unk17C;
-} RaceOpponentActor;
+    RaceParticipant *participant;
+    RaceCoinConfig *config;
+} RaceCoinRacerActor;
 
 
 extern Actor *gPrimaryPlayerActor;
@@ -174,10 +174,10 @@ void raceOpponentBehaviourUpdate(void) {
     ZoneEntry *pad;
     u8 rowIdx;
     RaceParticipant *controller;
-    LargeR4_Cfg *config;
+    RaceCoinConfig *config;
     Actor *kid;
     RaceParticipant *child;
-    RaceC_Row *routeRows;
+    RaceRouteEvent *routeRows;
     s32 flag;
     f32 value;
     s32 phaseCopy;
@@ -186,8 +186,8 @@ void raceOpponentBehaviourUpdate(void) {
     f32 dist;
     u16 angU; // FAKE: u16 raw copy of the angle (ring temp, no sll/sra); steers t-register allocation
 
-    controller = ((RaceOpponentActor *)gCurrentActor)->unk178;
-    config = ((RaceOpponentActor *)gCurrentActor)->unk17C;
+    controller = ((RaceCoinRacerActor *)gCurrentActor)->participant;
+    config = ((RaceCoinRacerActor *)gCurrentActor)->config;
     kid = controller->actor;
     child = NULL;
     if (gCurrentMap == 0x52) {
@@ -216,14 +216,14 @@ void raceOpponentBehaviourUpdate(void) {
         gCurrentActor->flags2 &= 0xFFBF;
         if (gCurrentMap == 0x52) {
             config->requiredCoins = D_80750AC8 = 0x32;
-            config->unk18.w = 0x103;
+            config->reward.w = 0x103;
             flag = 0x65;
         } else {
             config->requiredCoins = D_80750AC8 = 0x32;
-            config->unk18.w = 0x4B;
+            config->reward.w = 0x4B;
             flag = 0x66;
         }
-        if (flagGet(flag, 2) == 0 && flagGet(config->unk18.h.rewardFlag, 0) == 0) {
+        if (flagGet(flag, 2) == 0 && flagGet(config->reward.h.rewardFlag, 0) == 0) {
             camStartPath(gCurrentActor, 0, 1);
             currentActorClearFlag();
             flagSet(flag, 1, 2);
@@ -293,8 +293,8 @@ void raceOpponentBehaviourUpdate(void) {
                         actorScriptStart(gCurrentActor, 0x283);
                         gCurrentActor->state = gCurrentActor->state + 1;
                     }
-                    if (gBehaviourWorkState->unk25 == routeRows[rowIdx].unk0) {
-                        gCurrentActor->accelY = routeRows[rowIdx].unk4;
+                    if (gBehaviourWorkState->unk25 == routeRows[rowIdx].waypoint) {
+                        gCurrentActor->accelY = routeRows[rowIdx].gravity;
                         gBehaviourWorkState->unk24 = gBehaviourWorkState->unk24 + 1;
                     }
                     gBehaviourWorkState->unk25++;
@@ -304,7 +304,7 @@ void raceOpponentBehaviourUpdate(void) {
         ang16 = angU = (s32)(mathAtan2(-dx, -dz) * 4096.0 / 6.2831854820251465);
         mathAngleStepToward(&gCurrentActor->yaw, (angU + angU - gCurrentActor->moveYaw) & 0xFFF, 0x32);
         mathAngleStepToward(&gCurrentActor->moveYaw, ang16, 0xF);
-        if (gBehaviourWorkState->unk25 == routeRows[gBehaviourWorkState->unk24].unk0 && routeRows[gBehaviourWorkState->unk24].unk8 == 2 && controller->unk34 == 3) {
+        if (gBehaviourWorkState->unk25 == routeRows[gBehaviourWorkState->unk24].waypoint && routeRows[gBehaviourWorkState->unk24].action == 2 && controller->unk34 == 3) {
             if (controller->unk36 == 1) {
                 gCurrentActor->state = 0xA;
             } else {
@@ -332,7 +332,7 @@ void raceOpponentBehaviourUpdate(void) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, 0x46, 0x7F, 2);
             gBehaviourWorkState->unk2E = 0x14;
         }
-        if (gBehaviourWorkState->unk25 == routeRows[gBehaviourWorkState->unk24].unk0 && routeRows[gBehaviourWorkState->unk24].unk8 == 1) {
+        if (gBehaviourWorkState->unk25 == routeRows[gBehaviourWorkState->unk24].waypoint && routeRows[gBehaviourWorkState->unk24].action == 1) {
             value = (f32)(gCurrentActor->moveYaw - gCurrentActor->yaw);
             if (value > 2048.0f) {
                 value -= 4096.0f;
@@ -464,8 +464,8 @@ void raceOpponentBehaviourUpdate(void) {
         if (controller->unk35 == 0) {
             slotQueueCancel(0xB, 0);
             controller->unkD0 = 0;
-            if (flagGet(config->unk18.h.rewardFlag, 0) == 0) {
-                stateValue = D_8002FB94[raceCheckLapCompletionThreshold(controller, config->unk4, config->requiredCoins)];
+            if (flagGet(config->reward.h.rewardFlag, 0) == 0) {
+                stateValue = D_8002FB94[raceCheckLapCompletionThreshold(controller, config->rival, config->requiredCoins)];
                 camStartPath(gCurrentActor, stateValue, 1);
                 currentActorClearFlag();
             } else {
@@ -478,7 +478,7 @@ void raceOpponentBehaviourUpdate(void) {
         stateValue = controller->unk35;
         switch (stateValue) {
         case 0:
-            if (flagGet(config->unk18.h.rewardFlag, 0) == 0) {
+            if (flagGet(config->reward.h.rewardFlag, 0) == 0) {
                 sfxStopSlotSound(gActivePlayerActor, 0);
                 playerStateQueueCallback(0x55, NULL, 0);
                 gCurrentActor->speedXZ = 0.0f;
@@ -519,14 +519,14 @@ void raceOpponentBehaviourUpdate(void) {
             }
             break;
         case 4:
-            if (flagGet(config->unk18.h.rewardFlag, 0) != 0) {
+            if (flagGet(config->reward.h.rewardFlag, 0) != 0) {
                 controller->unk35 = controller->unk35 + 1;
             }
             break;
         case 5:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
-                if (flagGet(config->unk18.h.rewardFlag, 0) != 0) {
+                if (flagGet(config->reward.h.rewardFlag, 0) != 0) {
                     mapCheckAutoTransition();
                 } else {
                     hudSpawnTextScreen(1);

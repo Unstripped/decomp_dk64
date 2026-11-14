@@ -9,16 +9,16 @@
 
 
 typedef struct ActorTargetEntry {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    u8 unk6;
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 type;
     union {
         struct {
-            s8 unk7;
-            s8 ids[4];
+            s8 chunk;
+            s8 linkedChunks[4];
         } s;
-        s8 unk7_arr[5];
+        s8 chunks[5];
     } u;
 } ActorTargetEntry;
 
@@ -47,14 +47,14 @@ void actorInitTargetEntries(void) {
             u8 res = cond;
             if (cond) {
                 s32 temp;
-                D_807F9420[k].unk0 = gModelSlots[i].x;
-                D_807F9420[k].unk2 = gModelSlots[i].y;
-                D_807F9420[k].unk4 = gModelSlots[i].z;
-                D_807F9420[k].unk6 = res;
-                D_807F9420[k].u.s.unk7 = mapChunkFindByPosition(gModelSlots[i].x, gModelSlots[i].y, gModelSlots[i].z, 0);
-                temp = mapObjectCollectIdsByType(D_807F9420[k].u.s.unk7, &D_807F9420[k].u.s.ids[0], 4);
+                D_807F9420[k].x = gModelSlots[i].x;
+                D_807F9420[k].y = gModelSlots[i].y;
+                D_807F9420[k].z = gModelSlots[i].z;
+                D_807F9420[k].type = res;
+                D_807F9420[k].u.s.chunk = mapChunkFindByPosition(gModelSlots[i].x, gModelSlots[i].y, gModelSlots[i].z, 0);
+                temp = mapObjectCollectIdsByType(D_807F9420[k].u.s.chunk, &D_807F9420[k].u.s.linkedChunks[0], 4);
                 if (temp != 4) {
-                    D_807F9420[k].u.s.ids[temp] = -1;
+                    D_807F9420[k].u.s.linkedChunks[temp] = -1;
                 }
                 k++;
             }
@@ -82,21 +82,21 @@ void actorTargetEntriesUpdateSfx(u8 targetType, u8 volume, u8 sfxId, f32 factor)
     for (i = 0; i < D_807F9424; i++) {
         j = 0;
         found = 0;
-        if (D_807F9420[i].unk6 != targetType) {
+        if (D_807F9420[i].type != targetType) {
             continue;
         }
         do {
-            if (D_807F9420[i].u.unk7_arr[j] == gPlayerSlots[0].unk290) {
+            if (D_807F9420[i].u.chunks[j] == gPlayerSlots[0].unk290) {
                 found = 1;
             }
             j++;
             if (j >= 5 || found) {
                 break;
             }
-        } while (D_807F9420[i].u.unk7_arr[j] != -1);
+        } while (D_807F9420[i].u.chunks[j] != -1);
 
         if (found) {
-            sfxUpdateDistanceVolumeAndPan(D_807F9420[i].unk0, D_807F9420[i].unk2, D_807F9420[i].unk4, volume, sfxId, factor);
+            sfxUpdateDistanceVolumeAndPan(D_807F9420[i].x, D_807F9420[i].y, D_807F9420[i].z, volume, sfxId, factor);
         }
     }
 }

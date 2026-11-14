@@ -18,21 +18,21 @@ extern s8 D_8002DEF0[];
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
 
-typedef struct BonusEHud {
-    s16 unk0;
+typedef struct BonusScoreHud { // customState of the bonus-game score HUD actor
+    s16 exitTimer;
     u8 pad2;
-    u8 unk3;
-    s16 unk4;
-    u8 unk6;
+    u8 scoreLabel;
+    s16 timeLimit;
+    u8 rollTimer;
     u8 unk7;
-    s16 unk8;
-    s16 unkA;
-    u8 unkC;
-    u8 unkD;
-} BonusEHud;
+    s16 shownScore;
+    s16 score;
+    u8 lapBonusTimer;
+    u8 lapBonusLabel;
+} BonusScoreHud;
 
 Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *actor) {
-    BonusEHud *hud = actor->customState;
+    BonusScoreHud *hud = actor->customState;
     s16 i;
     s16 y;
     u8 buf[24];
@@ -43,10 +43,10 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *actor) {
     gDPSetCombineMode(gdl++, G_CC_MODULATEIDECALA_PRIM, G_CC_MODULATEIDECALA_PRIM);
     gDPSetRenderMode(gdl++, G_RM_OPA_SURF, G_RM_TEX_EDGE2);
     gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    gdl = textDrawAnimated(gdl, hud->unk3, 8, 30.0f, 36.0f, 0.0f, 1.0f);
-    gdl = hudDrawRollingCounter(gdl, 0x26, 0x2D, &hud->unk8, hud->unkA, &hud->unk6);
-    if (hud->unk6 > 0) {
-        hud->unk6 -= 2;
+    gdl = textDrawAnimated(gdl, hud->scoreLabel, 8, 30.0f, 36.0f, 0.0f, 1.0f);
+    gdl = hudDrawRollingCounter(gdl, 0x26, 0x2D, &hud->shownScore, hud->score, &hud->rollTimer);
+    if (hud->rollTimer > 0) {
+        hud->rollTimer -= 2;
     }
     switch (gCurrentMap) {
     case 0xBF:
@@ -66,10 +66,10 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *actor) {
         }
         break;
     case 0xB8:
-        if (hud->unkC != 0) {
-            hud->unkC -= 1;
-            if ((hud->unkC & 0x1F) < 0x14) {
-                gdl = textDrawAnimated(gdl, hud->unkD, 8, 100.0f, 100.0f, 0.0f, 1.0f);
+        if (hud->lapBonusTimer != 0) {
+            hud->lapBonusTimer -= 1;
+            if ((hud->lapBonusTimer & 0x1F) < 0x14) {
+                gdl = textDrawAnimated(gdl, hud->lapBonusLabel, 8, 100.0f, 100.0f, 0.0f, 1.0f);
             }
         }
         break;
@@ -86,18 +86,18 @@ extern s8 D_8002D928;
 extern s8 D_8002D930;
 
 void bonusScoreHudUpdate(void) {
-    BonusEHud *hud = gCurrentActor->customState;
+    BonusScoreHud *hud = gCurrentActor->customState;
     s32 actionParam;
 
     if (!(gCurrentActor->flags & 0x10)) {
         camStartPath(0, 0, 1);
         gCurrentActor->state = 0;
-        hud->unk4 = 0x3C;
+        hud->timeLimit = 0x3C;
         D_8002D92C = 0;
         D_8002D930 = 0;
         D_80744518 = 0;
-        hud->unk3 = gfxResourceCreate(1, "SCORE", 8, 0.0f, 0.0f, 0.0f);
-        hud->unkD = gfxResourceCreate(1, "LAP BONUS", 8, 0.0f, 0.0f, 0.0f);
+        hud->scoreLabel = gfxResourceCreate(1, "SCORE", 8, 0.0f, 0.0f, 0.0f);
+        hud->lapBonusLabel = gfxResourceCreate(1, "LAP BONUS", 8, 0.0f, 0.0f, 0.0f);
         D_8002D920 = 0;
         D_8002D924 = 0;
         D_8002D928 = 0;
@@ -116,11 +116,11 @@ void bonusScoreHudUpdate(void) {
                 }
                 resQueueAttachActor(gCurrentActor, 0, actionParam);
                 gCurrentActor->state = 1;
-                hudSpawnCountdownTimer(0xDC, 0x2A, hud->unk4);
+                hudSpawnCountdownTimer(0xDC, 0x2A, hud->timeLimit);
             } else if ((D_807ECD58.button & 0x8000) && !(D_807ECD60.button & 0x8000)) {
                 camStartPath(gPrimaryPlayerActor, 1, 1);
                 gCurrentActor->state = 2;
-                hudSpawnCountdownTimer(0xDC, 0x2A, hud->unk4);
+                hudSpawnCountdownTimer(0xDC, 0x2A, hud->timeLimit);
                 hudCountdownTimerStart(gCurrentActor->parentActor);
             }
         }
@@ -136,7 +136,7 @@ void bonusScoreHudUpdate(void) {
         if (gCurrentActor->parentActor->state == 5) {
             D_8002D930 = 0;
             gCurrentActor->state = 3;
-            hud->unk0 = 0x78;
+            hud->exitTimer = 0x78;
         }
         switch (gCurrentMap) {
         case 0xBF:
@@ -150,16 +150,16 @@ void bonusScoreHudUpdate(void) {
                     }
                     while (D_8002D92C > 0) {
                         D_8002D92C -= 1;
-                        hud->unkA += D_8002DEF0[D_8002D92C] << shift;
+                        hud->score += D_8002DEF0[D_8002D92C] << shift;
                     }
                 }
             }
             break;
         case 0xB8:
             if (D_8002D928 != 0) {
-                hud->unkA += D_8002D928;
+                hud->score += D_8002D928;
                 if (D_8002D928 >= 0x33) {
-                    hud->unkC = 0x3C;
+                    hud->lapBonusTimer = 0x3C;
                 }
                 D_8002D928 = 0;
             }
@@ -168,14 +168,14 @@ void bonusScoreHudUpdate(void) {
         break;
     case 3:
         gCurrentActor->parentActor->state = 1;
-        hud->unk0 -= 1;
-        if (hud->unk0 == 0) {
+        hud->exitTimer -= 1;
+        if (hud->exitTimer == 0) {
             mapRequestTransition(0x50, 0);
             gCurrentActor->state = 4;
         }
         break;
     }
-    D_80744518 = hud->unkA;
+    D_80744518 = hud->score;
     renderCallbacksRegister(bonusRenderScoreHud, gCurrentActor, 3);
 }
 
