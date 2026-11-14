@@ -885,7 +885,7 @@ void camUpdateFollowTargetDistance(Actor *camActor) {
         } else if (cam->unkA != 0 && cam->unkA < 0x9B) {
             if (cam->unkEF != 0) {
                 if (cam->unkF0 != 0) {
-                    sel = cam->unkF0; // FAKE: s32 copy of unkF0 (codegen)
+                    sel = cam->unkF0;
                     if (cam->unkEF != sel) {
                         camSetZoomLevel(camActor, sel);
                     }
@@ -966,7 +966,7 @@ void camCalculateTargetDistanceAndAngles(CamState *cam) {
         (cam->unk8C - (actor->z + cam->unk94 * mathCosF(actor->yaw))) *
             (cam->unk8C - (actor->z + cam->unk94 * mathCosF(actor->yaw))));
     D_807476B0 = mathAtan2(actor->y - cam->unk88,
-                               sqrtf((cam->unk0->z - cam->unk8C) * (cam->unk0->z - cam->unk8C) + // FAKE: re-reads cam->unk0 instead of actor (codegen)
+                               sqrtf((cam->unk0->z - cam->unk8C) * (cam->unk0->z - cam->unk8C) + // ORIG: target reloads cam->unk0 after the sqrtf call (lw t6,0(s1) at 0x22e4) and reads z through it (lwc1 $f10,0x84(t6) at 0x22f0); x comes from actor in s0 (0x22f4)
                                      (actor->x - cam->unk84) * (actor->x - cam->unk84)));
     yaw = mathAtan2(cam->unk6C - cam->unk88,
                         sqrtf((actor->z - cam->unk8C) * (actor->z - cam->unk8C) +
