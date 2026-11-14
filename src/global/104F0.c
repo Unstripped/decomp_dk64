@@ -530,7 +530,7 @@ void eepromValidateSaveSlots(void) {
         hit = eepromCalculateCrc32(data, len);
         if (stored != hit) {
             ok = 0;
-            eepromClearSlotData((u8)i & 0xFF, 0);  // FAKE: redundant (u8) cast plus mask on the K&R u8 argument; i & 0xFF or (u8)i alone recolours
+            eepromClearSlotData((u8)i & 0xFF, 0);  // ORIG: andi s3,s4,0xff at 0x14ec ((u8)i) then andi a0,s3,0xff at 0x14f4 (& 0xFF) for this unprototyped K&R call
             eepromSetField(0xF, 0, 0, i, 0xFF);
         }
         failed |= (ok == 0);
@@ -547,7 +547,7 @@ void eepromValidateSaveSlots(void) {
                         slot2 = j;
                         if (eepromGetField(0xD, 0, 0, slot2) != 0 && eepromGetField(0xF, 0, 0, slot2) == version && (u32)eepromGetField(0x10, 0, 0, i) <= (u32)eepromGetField(0x10, 0, 0, slot2)) {
                             found = 0xFF;
-                            eepromClearSlotData((u8)i & 0xFF, 0);  // FAKE: redundant (u8) cast plus mask on the K&R u8 argument (as above)
+                            eepromClearSlotData((u8)i & 0xFF, 0);  // ORIG: andi a0,s3,0xff at 0x1630 re-masks the (u8)i value (andi s3,s4,0xff at 0x156c) for this unprototyped K&R call
                             eepromSetField(0xF, 0, 0, i, 0xFF);
                             failed |= 1;
                         }
