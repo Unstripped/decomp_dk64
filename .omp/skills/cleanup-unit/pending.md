@@ -1,6 +1,6 @@
-# Pending after cleanup round 34 (campaign paused)
+# Pending after cleanup round 35 (campaign paused)
 
-State after the round-34 close (knowledge commit d4d37b47, Q0704-Q0719): 275 OPEN functions in 132 files (next rung: permute 115, diagnose 84, review 63, views 4, reconstruct 3, retype 3, consolidate 2, apply 1). The knowledge commit staled 147 functions' codegen rungs (notes and names matching the new entries); they were not re-recorded. A future session starts here: `uv run tools/quality.py rank`, then SKILL.md §2.
+State after the round-35 close (knowledge commit 9225185f, Q0720-Q0726, Q0705 corrected): 278 OPEN functions in 133 files. OPEN was 223 just before that commit; it re-opened 55 functions, most of them round-35 work in arcade/0, E4090, 36880, 70FD0, 3E10, 2F550 and 55B20, through top-8 note similarity to the new entries (the `unit` exemption covers only entries that name the function); they were not re-recorded. Left from round 35: 2F550 frustumOrientPolyNormals 649e56 needs a fresh diagnose (its permute is fresh). A future session starts here: `uv run tools/quality.py rank`, then SKILL.md §2.
 
 ## Blocked owner/header changes
 - Cast sweep (round 30): 55B20 MapChunk.lastSeenFrame and 61AA0 BillboardCacheEntry.lastUsedFrame stay s32 (u32 retype fdiff 1). model.h/heap.h frame stamps landed u32 after Rev29.
