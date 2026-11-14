@@ -2,6 +2,8 @@
 #include "compiler/ido/memory.h"
 #include "actor.h"
 #define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
+#define PROTO_SKIP_effectFallStateInit
+#define PROTO_SKIP_effectFloorFallUpdate
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/15050.h"
@@ -17,6 +19,8 @@
 #include "proto/global/7CA80.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"
+void effectFallStateInit(Actor *source, EffectNode *effect, u8 *isDone);
+void effectFloorFallUpdate(EffectNode *effect, u8 *isDone);
 
 
 extern u8 gGfxBufferIndex;
@@ -1903,30 +1907,28 @@ void timedLightPulse(PulseFadeActorView *effect, s8 *isDone) {
 extern u8 D_8071FB54;
 
 void effectFallingSparkUpdate(TimedEffectActorView *effect, u8 *isDone) {
-    f32 *state;
+    s32 pad;
     f32 groundY;
     s16 color[3];
     f32 *newState;
 
-    if (effect->motion == 0) {
+    if (effect->motion == NULL) {
         newState = heapAlloc(0xC);
         effect->motion = newState;
         *newState = 6.0f;
     }
     if (gCurrentMap == 0xAA) {
-        color[0] = 0xFF; color[1] = 0x46;
-        color[2] = 0;
+        color[0] = 0xFF; color[1] = 0x46; color[2] = 0; // LAYOUT: one line lets as1 store color[1] before color[0]
     } else {
-        color[0] = 0xFF; color[1] = 0xFF; color[2] = 0xFF;
+        color[0] = 0xFF; color[1] = 0xFF; color[2] = 0xFF; // LAYOUT: one line keeps as1's color[2], [0], [1] store order
     }
-    state = effect->motion;
-    effect->x = effect->x + 1.0f;
-    effect->y += *state;
-    *state = (f64)*state - 0.15;
+    effect->x += 1.0f;
+    effect->y += *(f32 *)effect->motion;
+    *(f32 *)effect->motion -= 0.15;
     groundY = effect->y;
     if (collisionCheckGroundAtPoint(effect->x, effect->z, &groundY) == 0) {
         *isDone = 1;
-    } else if ((effect->y < groundY) && ((f64)*(f32 *)effect->motion < 0.0)) { // FAKE: re-read through effect->motion instead of state reloads the motion pointer before the compare
+    } else if ((effect->y < groundY) && (*(f32 *)effect->motion < 0.0)) {
         *isDone = 1;
     }
     if (*isDone != 0) {
@@ -2220,28 +2222,15 @@ void effectLifetimeCountdownUpdate(TimedEffectActorView *effect, s8 *isDone) {
 }
 
 
-typedef struct OrbitSourceActor {
-    u8 pad0[0x7C];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0x24];
-    f32 unkAC;
-    u8 padB0[0x8];
-    f32 unkB8;
-    u8 padBC[0x2A];
-    s16 unkE6;
-} OrbitSourceActor;
-
 typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    f32 unk18;
-    f32 unk1C;
+    f32 radius;
+    f32 targetRadius;
+    f32 bobAngle;
+    f32 bobSpeed;
+    f32 orbitAngle;
+    f32 orbitSpeed;
+    f32 age;
+    f32 direction;
 } OrbitSourceState;
 
 typedef struct {
@@ -2251,10 +2240,10 @@ typedef struct {
 } BallisticVelocityState;
 
 typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
+    f32 velX;
+    f32 velZ;
+    f32 velY;
+    f32 floorY;
 } FallInitState;
 
 
@@ -2262,31 +2251,31 @@ typedef struct {
 void effectOrbitSourceUpdate(TimedEffectActorView *effect, s8 *isDone) {
     OrbitSourceState *state;
     OrbitSourceState *newState;
-    OrbitSourceActor *source;
+    Actor *source;
 
     source = effect->parent;
     if (effect->motion == NULL) {
         newState = heapAlloc(0x20);
         effect->motion = newState;
-        newState->unk0 = sqrtf(((source->unk7C - effect->x) * (source->unk7C - effect->x)) + ((source->unk84 - effect->z) * (source->unk84 - effect->z)));
-        newState->unk4 = (randomFloat() * 20.0f) + 10.0f;
-        newState->unk8 = randomFloat() * 4095.0f;
-        newState->unkC = (randomFloat() * 90.0f) + 10.0f;
-        newState->unk10 = (f32) source->unkE6;
-        newState->unk14 = randomFloat() * 30.0f;
-        newState->unk18 = 0.0f;
-        newState->unk1C = (f32) (((randomNonNegative() >> 0xF) % 0xFF) % 2) * 2 - 1.0f;
+        newState->radius = sqrtf(((source->x - effect->x) * (source->x - effect->x)) + ((source->z - effect->z) * (source->z - effect->z)));
+        newState->targetRadius = (randomFloat() * 20.0f) + 10.0f;
+        newState->bobAngle = randomFloat() * 4095.0f;
+        newState->bobSpeed = (randomFloat() * 90.0f) + 10.0f;
+        newState->orbitAngle = source->yaw;
+        newState->orbitSpeed = randomFloat() * 30.0f;
+        newState->age = 0.0f;
+        newState->direction = (f32) (((randomNonNegative() >> 0xF) % 0xFF) % 2) * 2 - 1.0f;
     }
     state = effect->motion;
-    state->unk0 = (f32) (((f64) (state->unk4 - state->unk0) * 0.15) + (f64) state->unk0);
-    state->unk14 = (f32) (((f64) (120.0f - state->unk14) * 0.01) + (f64) state->unk14);
-    state->unk10 = state->unk10 + (state->unk1C * state->unk14);
-    state->unk8 = state->unk8 + state->unkC;
-    effect->x = (mathSinF((s16) state->unk10) * state->unk0) + source->unk7C;
-    effect->z = (mathCosF((s16) state->unk10) * state->unk0) + source->unk84;
-    effect->y += 0.6 * mathSinF((s16) state->unk8);
-    state->unk18 = state->unk18 + 1.0f;
-    if (45.0f < state->unk18) {
+    state->radius = (state->targetRadius - state->radius) * 0.15 + state->radius;
+    state->orbitSpeed = (120.0f - state->orbitSpeed) * 0.01 + state->orbitSpeed;
+    state->orbitAngle += state->direction * state->orbitSpeed;
+    state->bobAngle += state->bobSpeed;
+    effect->x = (mathSinF((s16) state->orbitAngle) * state->radius) + source->x;
+    effect->z = (mathCosF((s16) state->orbitAngle) * state->radius) + source->z;
+    effect->y += 0.6 * mathSinF((s16) state->bobAngle);
+    state->age += 1.0f;
+    if (state->age > 45.0f) {
         *isDone = 1;
     }
     if ((gFrameCounter % effect->param) == 0) {
@@ -2367,75 +2356,66 @@ void effectBallisticUpdate(TimedEffectActorView *effect, s8 *isDone) {
     }
 }
 
-void effectFallStateInit(OrbitSourceActor *effect, TimedEffectActorView *target, u8 *isDone) {
-    s16 unusedAngle;
+void effectFallStateInit(Actor *source, EffectNode *effect, u8 *isDone) {
+    s16 pad;
     s16 angle;
     f32 speedXZ;
     f32 sourceSpeed;
     f32 speedY;
     FallInitState *fallState;
-    FallInitState *newState;
-    f32 jitter;
     s16 angleOffset;
 
-    newState = heapAlloc(0x10);
-    target->motion = newState;
-    fallState = newState;
-    jitter = randomFloat();
-    target->x = target->x + ((jitter - 0.5f) * 2.0f);
-    jitter = randomFloat();
-    target->y = target->y + ((jitter - 0.5f) * 2.0f);
-    jitter = randomFloat();
-    target->z = target->z + ((jitter - 0.5f) * 2.0f);
-    if (effect != NULL) {
+    fallState = effect->allocation = heapAlloc(0x10);
+    effect->x += (randomFloat() - 0.5f) * 2.0f;
+    effect->y += (randomFloat() - 0.5f) * 2.0f;
+    effect->z += (randomFloat() - 0.5f) * 2.0f;
+    if (source != NULL) {
         angleOffset = randomLcgNext() & 0x1FF;
-        angle = (effect->unkE6 + angleOffset + 0x700) & 0xFFF;
-        sourceSpeed = effect->unkB8 * 0.016666668f;
-        if (!(sourceSpeed < 1.0f)) {
-            sourceSpeed = 1.0f;
-        }
+        angle = (source->yaw + angleOffset + 0x700) & 0xFFF;
+        sourceSpeed = source->speedXZ * 0.016666668f;
+        sourceSpeed = MIN(sourceSpeed, 1.0f);
         if (sourceSpeed < 0.3) {
             *isDone = 1;
         }
         speedY = sourceSpeed * 1.5f * 1.8f;
-        target->parent = effect;
+        effect->owner = source;
     } else {
         sourceSpeed = 0.8f;
-        angle = (s16) (randomLcgNext() % 4095U);
+        angle = randomLcgNext() % 4095U;
         speedY = (randomFloat() + 1.0f) * 3.0f;
     }
-    target->scaleX *= 0.5 * (1 + randomFloat());
-    target->alpha = 0x82;
-    target->scaleY = target->scaleX;
+    effect->scaleX *= 0.5 * (1 + randomFloat());
+    effect->alpha = 0x82;
+    effect->scaleY = effect->scaleX;
     speedXZ = randomFloat() * sourceSpeed;
-    fallState->unk0 = mathSinF(angle) * speedXZ;
-    fallState->unk4 = mathCosF(angle) * speedXZ;
-    fallState->unk8 = speedY;
-    collisionGetFloorHeight(&fallState->unkC);
+    fallState->velX = mathSinF(angle) * speedXZ;
+    fallState->velZ = mathCosF(angle) * speedXZ;
+    fallState->velY = speedY;
+    collisionGetFloorHeight(&fallState->floorY);
 }
 
-void effectFloorFallUpdate(TimedEffectActorView *effect, u8 *isDone) {
+void effectFloorFallUpdate(EffectNode *effect, u8 *isDone) {
     FallInitState *state;
-    OrbitSourceActor *floor;
+    Actor *owner;
     s32 landed;
 
-    if (effect->motion == NULL) {
-        effectFallStateInit(0, effect, isDone);
+    if (effect->allocation == NULL) {
+        effectFallStateInit(NULL, effect, isDone);
     }
-    state = effect->motion;
-    state->unk8 = state->unk8 + -0.5f;
-    effect->x = effect->x + state->unk0;
-    effect->y = effect->y + state->unk8;
-    effect->z = effect->z + state->unk4;
+    state = effect->allocation;
+    state->velY += -0.5f;
+    effect->x += state->velX;
+    effect->y += state->velY;
+    effect->z += state->velZ;
     landed = *isDone;
     if (landed == 0) {
-        floor = effect->parent;
-        if (floor != NULL) {
-            if (effect->y <= floor->unkAC) {
+        owner = effect->owner;
+        if (owner != NULL) {
+            if (effect->y <= owner->waterY) {
                 landed = *isDone = 1;
             }
         } else {
-            if (effect->y <= state->unkC) {
+            if (effect->y <= state->floorY) {
                 landed = *isDone = 1;
             }
         }

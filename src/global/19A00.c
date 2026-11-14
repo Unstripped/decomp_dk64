@@ -3,6 +3,8 @@
 #include "sched.h"
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
+#define PROTO_SKIP_effectFallStateInit
+#define PROTO_SKIP_effectFloorFallUpdate
 #include "proto/global/11BC10.h"
 #include "proto/global/12E800.h"
 #include "proto/global/13A7A0.h"
@@ -20,6 +22,8 @@
 #include "proto/global/D5E10.h"
 #include "proto/global/F4C0.h"
 #include "proto/global/FCCD0.h"
+void effectFallStateInit(Actor *source, EffectNode *effect, u8 *isDone);
+void effectFloorFallUpdate(EffectNode *effect, u8 *isDone);
 
 extern u8 *sScriptPc;
 extern PlayerState *gActivePlayerState;
