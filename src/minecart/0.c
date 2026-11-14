@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -36,12 +37,6 @@ typedef struct Struct_807FC924_4_174 {
 } Struct_807FC924_4_174;
 
 
-typedef struct Struct_807FC924 {
-    char pad0[0x4];
-    Actor *unk4;
-    char pad8[0x214 - 0x8];
-    f32 unk214;
-} Struct_807FC924;
 // A track point is a TargetVec3f (mathPickCloserTargetPoint3D's point type).
 typedef TargetVec3f MinecartTrackPoint;
 
@@ -73,7 +68,7 @@ typedef struct MinecartCart {
     u8 unk42;
 } MinecartCart;
 
-extern Struct_807FC924 *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern s16 D_80750AC4;
 extern s32 gCurrentMap;
 
@@ -157,7 +152,7 @@ void minecartPlayerCartUpdate(u8 initTrackSegment, u8 *trackTable, s16 maxAngleD
     f32 nodePos[3];
 
     cart = gCurrentActor->customState;
-    playerState = gPlayerSlots->unk4->customState;
+    playerState = gPlayerSlots->actor->customState;
     flags = gCurrentActor->flags;
     if (!(flags & 0x10)) {
         gCurrentActor->flags = flags | 0x1400;
@@ -167,7 +162,7 @@ void minecartPlayerCartUpdate(u8 initTrackSegment, u8 *trackTable, s16 maxAngleD
         }
     }
     if (cart->unk4 == NULL) {
-        cart->unk4 = gPlayerSlots->unk4;
+        cart->unk4 = gPlayerSlots->actor;
         cart->unk8 = 0;
     }
     switch (gCurrentActor->state) {
@@ -426,7 +421,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
         actorScriptStart(gCurrentActor, 0);
     }
     if (gCurrentActor->state != 5 && gCurrentActor->state != 6) {
-        diff = (gPlayerSlots->unk214 - gCurrentActor->y) - 100.0f;
+        diff = (gPlayerSlots->camY - gCurrentActor->y) - 100.0f;
         scale = (f32)(((f64)diff / 650.0 * 0.15) + .15);
         actorSetUniformScale(gCurrentActor, scale);
         actorSetUniformScale(gPrimaryPlayerActor, scale);
