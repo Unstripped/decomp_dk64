@@ -17,41 +17,41 @@ void func_806A3700(s32 unused0, s32 unused1) {
 }
 
 typedef struct SpriteModel {
-    /* 0x00 */ u16 unk0;
-    /* 0x02 */ u8 unk2;
+    /* 0x00 */ u16 attr;
+    /* 0x02 */ u8 code;
     /* 0x03 */ u8 pad3;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
     /* 0x0C */ u8 padC[0x7C];
-    /* 0x88 */ f32 unk88;
+    /* 0x88 */ f32 animPhase;
 } SpriteModel;
 
 typedef struct SpriteDrawNode {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ u8 unk2;
-    /* 0x03 */ u8 unk3;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
+    /* 0x00 */ s16 width;
+    /* 0x02 */ u8 fade;
+    /* 0x03 */ u8 alpha;
+    /* 0x04 */ f32 x;
+    /* 0x08 */ f32 y;
     /* 0x0C */ u8 padC[0x4];
-    /* 0x10 */ SpriteModel unk10;
+    /* 0x10 */ SpriteModel model;
     /* 0x9C */ u8 pad9C[0x4];
-    /* 0xA0 */ struct SpriteDrawNode *unkA0;
+    /* 0xA0 */ struct SpriteDrawNode *next;
 } SpriteDrawNode;
 
 typedef struct DrawListHead {
-    /* 0x00 */ u8 unk0;
+    /* 0x00 */ u8 kind;
     /* 0x01 */ u8 pad1[0xB];
-    /* 0x0C */ SpriteDrawNode *unkC;
+    /* 0x0C */ SpriteDrawNode *glyphs;
     /* 0x10 */ u8 pad10[0x8];
-    /* 0x18 */ f32 unk18;
+    /* 0x18 */ f32 height;
 } DrawListHead;
 
 typedef struct DrawActor {
     /* 0x00 */ u8 pad0[0x11];
-    /* 0x11 */ u8 unk11;
+    /* 0x11 */ u8 glyphCursor;
     /* 0x12 */ u8 pad12[0x32];
-    /* 0x44 */ f32 unk44;
-    /* 0x48 */ f32 unk48;
+    /* 0x44 */ f32 boxLeft;
+    /* 0x48 */ f32 boxTop;
 } DrawActor;
 
 extern u8 gGfxBufferIndex;
@@ -71,23 +71,23 @@ void textBoxRenderNode(Gfx **gdl, DrawActor *pos, DrawListHead *source, SpriteDr
 
     dl = *gdl;
     str.h = D_8075A740;
-    mdl = &drawNode->unk10;
+    mdl = &drawNode->model;
     guMtxIdentF(mtx);
-    if ((mdl->unk0 != 0) && (drawNode->unk2 != 0)) {
-        halfW = (f32) drawNode->unk0 * 0.5f * 4.0f;
-        halfH = source->unk18 * 0.5f * 4.0f;
+    if ((mdl->attr != 0) && (drawNode->fade != 0)) {
+        halfW = (f32) drawNode->width * 0.5f * 4.0f;
+        halfH = source->height * 0.5f * 4.0f;
         guTranslateF(tmp, -halfW, -halfH, 0.0f);
         guMtxCatF(mtx, tmp, mtx);
-        mdl->unk88 = (f32) ((f64) mdl->unk88 + 0.418879032135009766);
-        if ((mdl->unk0 & 8) != 0) {
-            angle = (f32) ((f64) mdl->unk88 * 0.5);
+        mdl->animPhase = (f32) ((f64) mdl->animPhase + 0.418879032135009766);
+        if ((mdl->attr & 8) != 0) {
+            angle = (f32) ((f64) mdl->animPhase * 0.5);
             if (angle <= 6.2831855f) {
                 guRotateF(tmp, angle * 57.295776f, 0.0f, 0.0f, 1.0f);
                 guMtxCatF(mtx, tmp, mtx);
             }
         }
-        if ((mdl->unk0 & 4) != 0) {
-            angle = mdl->unk88;
+        if ((mdl->attr & 4) != 0) {
+            angle = mdl->animPhase;
             if (angle <= 6.2831855f) {
                 scale = sinApprox(angle - 1.5707964f) + 1.0f;
                 scale = 0.25f * scale + 1.0f;
@@ -97,11 +97,11 @@ void textBoxRenderNode(Gfx **gdl, DrawActor *pos, DrawListHead *source, SpriteDr
             guScaleF(tmp, scale, scale, 1.0f);
             guMtxCatF(mtx, tmp, mtx);
         }
-        if ((mdl->unk0 & 2) != 0) {
+        if ((mdl->attr & 2) != 0) {
             f32 jitterX;
             f32 jitterY;
-            jitterX = (4.0f * sinApprox(mdl->unk88)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f);
-            jitterY = (4.0f * sinApprox(mdl->unk88)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f);
+            jitterX = (4.0f * sinApprox(mdl->animPhase)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f);
+            jitterY = (4.0f * sinApprox(mdl->animPhase)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f);
             guTranslateF(tmp, jitterX, jitterY, 0.0f);
             guMtxCatF(mtx, tmp, mtx);
         }
@@ -110,13 +110,13 @@ void textBoxRenderNode(Gfx **gdl, DrawActor *pos, DrawListHead *source, SpriteDr
     }
     guScaleF(tmp, 1.0, 1.0, 1.0);
     guMtxCatF(mtx, tmp, mtx);
-    guTranslateF(tmp, (f32) (((f64) pos->unk44 + (f64) drawNode->unk4) * 4.0), (f32) (((f64) pos->unk48 + (f64) drawNode->unk8) * 4.0), 0.0f);
+    guTranslateF(tmp, (f32) (((f64) pos->boxLeft + (f64) drawNode->x) * 4.0), (f32) (((f64) pos->boxTop + (f64) drawNode->y) * 4.0), 0.0f);
     guMtxCatF(mtx, tmp, mtx);
     guMtxF2L(mtx, (Mtx *) ((u8 *) mdl + (gGfxBufferIndex << 6) + 8));
     gSPMatrix(dl++, (u8 *) mdl + (gGfxBufferIndex << 6) + 8, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPPipeSync(dl++);
-    gDPSetPrimColor(dl++, 0, 0, 0x28, 0x28, 0xFF, drawNode->unk3);
-    str.b = mdl->unk2;
+    gDPSetPrimColor(dl++, 0, 0, 0x28, 0x28, 0xFF, drawNode->alpha);
+    str.b = mdl->code;
     *gdl = textDrawStringVtx(dl, 6, 0, 0, str.text, 0);
 }
 
@@ -127,16 +127,16 @@ void renderAppendNodeChain(Gfx **gdl, DrawActor *drawActor, DrawListHead *head, 
     SpriteDrawNode *node;
 
     dl = *gdl;
-    node = head->unkC;
+    node = head->glyphs;
     i = 0;
     while (node != NULL && *stop == 0) {
-        if (checkLast && (i == drawActor->unk11)) {
+        if (checkLast && (i == drawActor->glyphCursor)) {
             *stop = 1;
         }
-        if (head->unk0 & 1) {
+        if (head->kind & 1) {
             textBoxRenderNode(&dl, drawActor, head, node);
         }
-        node = node->unkA0;
+        node = node->next;
         i++;
     }
     *gdl = dl;
@@ -161,25 +161,25 @@ Gfx *renderTextureSprite(Gfx *dl, s32 mtx, u8 alpha, s32 frame) {
 
 typedef struct MotionAngles {
     /* 0x00 */ u8 pad0[0x38];
-    /* 0x38 */ s16 unk38;
-    /* 0x3A */ s16 unk3A;
+    /* 0x38 */ s16 waveAngleX;
+    /* 0x3A */ s16 waveAngleY;
 } MotionAngles;
 
 void mathAddWaveOffset(f32 *x, f32 *y, f32 t, f32 amp, MotionAngles *angles) {
-    *x += (t * amp) * 24.0f * mathSinF((s16) ((s16) ((s32) ((f32) angles->unk38 + (t * 3000.0f))) & 0xFFF));
-    *y += (t * amp) * 16.0f * mathCosF((s16) ((s16) ((s32) ((f32) angles->unk3A + (t * 3000.0f))) & 0xFFF));
+    *x += (t * amp) * 24.0f * mathSinF((s16) ((s16) ((s32) ((f32) angles->waveAngleX + (t * 3000.0f))) & 0xFFF));
+    *y += (t * amp) * 16.0f * mathCosF((s16) ((s16) ((s32) ((f32) angles->waveAngleY + (t * 3000.0f))) & 0xFFF));
 }
 
 extern u8 gGfxBufferIndex;
 
 typedef struct SpriteAnim {
     /* 0x00 */ u8 pad0[0x20];
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ f32 unk28;
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ f32 unk30;
-    /* 0x34 */ u8 *unk34;
+    /* 0x20 */ f32 openProgress;
+    /* 0x24 */ f32 anchorX;
+    /* 0x28 */ f32 anchorY;
+    /* 0x2C */ f32 targetX;
+    /* 0x30 */ f32 targetY;
+    /* 0x34 */ u8 *mtxBuf;
 } SpriteAnim;
 
 
@@ -191,28 +191,28 @@ Gfx *textBoxRenderTail(Gfx *dl, SpriteAnim *anim, s32 frame) {
     u8 cnt;
     u8 i;
 
-    cnt = ((anim->unk20 < 0.32) ? anim->unk20 : 0.32) * 12.5;
+    cnt = ((anim->openProgress < 0.32) ? anim->openProgress : 0.32) * 12.5;
     for (i = 1; i <= cnt; i++) {
-        x = (anim->unk2C - anim->unk24) * (i * 0.08) + anim->unk24;
-        y = (anim->unk30 - anim->unk28) * (i * 0.08) + anim->unk28;
+        x = (anim->targetX - anim->anchorX) * (i * 0.08) + anim->anchorX;
+        y = (anim->targetY - anim->anchorY) * (i * 0.08) + anim->anchorY;
         guTranslateF(mtx, -48.0f, -32.0f, 0);
         guScaleF(step, i * 0.08 * 1.9f * 4.0 * 0.5, i * 0.08 * 1.9f * 4.0 * 0.5, 1.0f);
         guMtxCatF(mtx, step, mtx);
         mathAddWaveOffset(&x, &y, i * 0.08, 1.0f, (MotionAngles *) anim);
         guTranslateF(step, x * 4.0f, y * 4.0f, 0.0f);
         guMtxCatF(mtx, step, mtx);
-        guMtxF2L(mtx, (Mtx *) (anim->unk34 + ((i * 2 + gGfxBufferIndex) << 6)));
-        dl = renderTextureSprite(dl, (s32) (anim->unk34 + ((i * 2 + gGfxBufferIndex) << 6)), ((i * 300 * 0.08) > 150.0) ? 150.0 : (i * 300 * 0.08), frame);
+        guMtxF2L(mtx, (Mtx *) (anim->mtxBuf + ((i * 2 + gGfxBufferIndex) << 6)));
+        dl = renderTextureSprite(dl, (s32) (anim->mtxBuf + ((i * 2 + gGfxBufferIndex) << 6)), ((i * 300 * 0.08) > 150.0) ? 150.0 : (i * 300 * 0.08), frame);
     }
     return dl;
 }
 
 typedef struct ScreenBounds {
     /* 0x000 */ u8 pad0[0x270];
-    /* 0x270 */ s16 unk270;
-    /* 0x272 */ s16 unk272;
-    /* 0x274 */ s16 unk274;
-    /* 0x276 */ s16 unk276;
+    /* 0x270 */ s16 scissorUlx;
+    /* 0x272 */ s16 scissorUly;
+    /* 0x274 */ s16 scissorLrx;
+    /* 0x276 */ s16 scissorLry;
     /* 0x278 */ u8 pad278[0x2F0 - 0x278];
 } ScreenBounds;
 
@@ -228,28 +228,28 @@ typedef struct UINode UINode;
 struct UINode {
     /* 0x00 */ u8 pad0[0x18];
     /* 0x18 */ f32 unk18;
-    /* 0x1C */ UINode *unk1C;
+    /* 0x1C */ UINode *next;
 };
 
 typedef struct UIState {
     /* 0x000 */ u8 pad0[0x4];
     /* 0x004 */ void *unk4;
     /* 0x008 */ u8 pad8[0x4];
-    /* 0x00C */ UINode *unkC;
-    /* 0x010 */ u8 unk10;
+    /* 0x00C */ UINode *rows;
+    /* 0x010 */ u8 rowState;
     /* 0x011 */ u8 pad11[0xB];
-    /* 0x01C */ u8 unk1C;
-    /* 0x01D */ u8 unk1D;
+    /* 0x01C */ u8 animFrame;
+    /* 0x01D */ u8 textAlpha;
     /* 0x01E */ u8 pad1E[0x2];
-    /* 0x020 */ f32 unk20;
+    /* 0x020 */ f32 openProgress;
     /* 0x024 */ u8 pad24[0x10];
-    /* 0x034 */ u8 *unk34;
+    /* 0x034 */ u8 *mtxBuf;
     /* 0x038 */ u8 pad38[0x8];
-    /* 0x040 */ f32 unk40;
-    /* 0x044 */ f32 unk44;
-    /* 0x048 */ f32 unk48;
-    /* 0x04C */ f32 unk4C;
-    /* 0x050 */ f32 unk50;
+    /* 0x040 */ f32 waveAmp;
+    /* 0x044 */ f32 boxLeft;
+    /* 0x048 */ f32 boxTop;
+    /* 0x04C */ f32 boxRight;
+    /* 0x050 */ f32 boxBottom;
 } UIState;
 
 Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
@@ -277,7 +277,7 @@ Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
     s32 i;
 
     state = actor->customState;
-    node = state->unkC;
+    node = state->rows;
     stop = 0;
     dl = heapAlloc(0x4000);
     heapFreeDeferred(dl);
@@ -290,42 +290,42 @@ Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
     WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
     WRITE_GFX(dl++, 0xD9000000, 0);
     WRITE_GFX(dl++, 0xD9FFFFFF, 0x200004);
-    half = state->unk1C / 2;
-    scale = (f32) ((1.0 - (f64) state->unk40 * 0.5) * (f64) state->unk20 * 1.9f * 4.0);
+    half = state->animFrame / 2;
+    scale = (f32) ((1.0 - (f64) state->waveAmp * 0.5) * (f64) state->openProgress * 1.9f * 4.0);
     guTranslateF(mtx, -48.0f, -32.0f, 0.0f);
     guScaleF(tmp, scale, scale, 1.0f);
     guMtxCatF(mtx, tmp, mtx);
     guTranslateF(tmp, actor->x * 4.0f, actor->y * 4.0f, 0.0f);
     guMtxCatF(mtx, tmp, mtx);
-    guMtxF2L(mtx, (Mtx *) (state->unk34 + (gGfxBufferIndex << 6)));
+    guMtxF2L(mtx, (Mtx *) (state->mtxBuf + (gGfxBufferIndex << 6)));
     WRITE_GFX(dl++, 0xE7000000, 0);
-    WRITE_GFX(dl++, ((s32) ((f32) gPlayerSlots->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32) ((f32) gPlayerSlots->unk270 * 4.0f) & 0xFFF) << 12),
-              ((s32) ((f32) gPlayerSlots->unk276 * 4.0f) & 0xFFF) | (((s32) ((f32) gPlayerSlots->unk274 * 4.0f) & 0xFFF) << 12));
+    WRITE_GFX(dl++, ((s32) ((f32) gPlayerSlots->scissorUly * 4.0f) & 0xFFF) | 0xED000000 | (((s32) ((f32) gPlayerSlots->scissorUlx * 4.0f) & 0xFFF) << 12),
+              ((s32) ((f32) gPlayerSlots->scissorLry * 4.0f) & 0xFFF) | (((s32) ((f32) gPlayerSlots->scissorLrx * 4.0f) & 0xFFF) << 12));
     dl = textBoxRenderTail(dl, (SpriteAnim *) state, half);
-    alpha = (state->unk20 * 150.0f * 2 > 150.0f) ? 150.0f : state->unk20 * 150.0f * 2;
-    dl = renderTextureSprite(dl, (s32) (state->unk34 + (gGfxBufferIndex << 6)), (u8) alpha, half);
-    if (state->unk1D != 0) {
+    alpha = (state->openProgress * 150.0f * 2 > 150.0f) ? 150.0f : state->openProgress * 150.0f * 2;
+    dl = renderTextureSprite(dl, (s32) (state->mtxBuf + (gGfxBufferIndex << 6)), (u8) alpha, half);
+    if (state->textAlpha != 0) {
         WRITE_GFX(dl++, 0xE7000000, 0);
-        WRITE_GFX(dl++, ((s32) (state->unk48 * 4.0f) & 0xFFF) | 0xED000000 | (((s32) (state->unk44 * 4.0f) & 0xFFF) << 12),
-                  ((s32) (state->unk50 * 4.0f) & 0xFFF) | (((s32) (state->unk4C * 4.0f) & 0xFFF) << 12));
+        WRITE_GFX(dl++, ((s32) (state->boxTop * 4.0f) & 0xFFF) | 0xED000000 | (((s32) (state->boxLeft * 4.0f) & 0xFFF) << 12),
+                  ((s32) (state->boxBottom * 4.0f) & 0xFFF) | (((s32) (state->boxRight * 4.0f) & 0xFFF) << 12));
     }
     i = 0;
-    while (((s32) state->unk10 >= i) && (node != NULL) && (stop == 0)) {
-        isLast = (i == state->unk10);
+    while (((s32) state->rowState >= i) && (node != NULL) && (stop == 0)) {
+        isLast = (i == state->rowState);
         WRITE_GFX(dl++, 0xE7000000, 0);
         renderAppendNodeChain(&dl, (DrawActor *) state, (DrawListHead *) node, isLast, &stop);
         if (!stop) {
-            node = node->unk1C;
+            node = node->next;
         }
         i++;
     }
     WRITE_GFX(dl++, 0xE7000000, 0);
-    if (state->unk1D != 0) {
-        WRITE_GFX(dl++, 0xED000000 | (((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].unk270 * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].unk272 * 4.0f) & 0xFFF),
-                  (((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].unk274 * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].unk276 * 4.0f) & 0xFFF));
+    if (state->textAlpha != 0) {
+        WRITE_GFX(dl++, 0xED000000 | (((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].scissorUlx * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].scissorUly * 4.0f) & 0xFFF),
+                  (((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].scissorLrx * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].scissorLry * 4.0f) & 0xFFF));
     }
-    state->unk1C = state->unk1C + 1;
-    state->unk1C = state->unk1C % 16;
+    state->animFrame = state->animFrame + 1;
+    state->animFrame = state->animFrame % 16;
     WRITE_GFX(dl++, 0xDF000000, 0);
     WRITE_GFX(gdl++, 0xDE000000, (u32) start);
     return gdl;
@@ -335,105 +335,105 @@ extern void *D_80755390[];
 
 typedef struct SpriteObject {
     /* 0x000 */ u8 pad0[0x340];
-    /* 0x340 */ f32 unk340;
-    /* 0x344 */ f32 unk344;
+    /* 0x340 */ f32 screenX;
+    /* 0x344 */ f32 screenY;
     /* 0x348 */ u8 pad348[0x18];
     /* 0x360 */ f32 unk360;
     /* 0x364 */ u8 pad364[9];
-    /* 0x36D */ u8 unk36D;
+    /* 0x36D */ u8 alpha;
     /* 0x36E */ u8 pad36E[0x20];
-    /* 0x38E */ s16 unk38E;
-    /* 0x390 */ s16 unk390;
-    /* 0x392 */ s16 unk392;
-    /* 0x394 */ s16 unk394;
+    /* 0x38E */ s16 clipLeft;
+    /* 0x390 */ s16 clipTop;
+    /* 0x392 */ s16 clipRight;
+    /* 0x394 */ s16 clipBottom;
 } SpriteObject;
 
 typedef struct SpriteObjectSlot {
-    /* 0x00 */ u16 unk0;
-    /* 0x02 */ u8 unk2;
+    /* 0x00 */ u16 effectId;
+    /* 0x02 */ u8 flip;
     /* 0x03 */ u8 pad3;
-    /* 0x04 */ SpriteObject *unk4;
+    /* 0x04 */ SpriteObject *effect;
 } SpriteObjectSlot;
 
 typedef struct SpriteRow {
-    /* 0x00 */ s16 unk0;
+    /* 0x00 */ s16 width;
     /* 0x02 */ u8 pad2[1];
-    /* 0x03 */ u8 unk3;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
+    /* 0x03 */ u8 alpha;
+    /* 0x04 */ f32 x;
+    /* 0x08 */ f32 y;
     /* 0x0C */ u8 padC[4];
-    /* 0x10 */ SpriteObjectSlot unk10;
+    /* 0x10 */ SpriteObjectSlot icon;
 } SpriteRow;
 
 typedef struct SpriteVector {
     /* 0x00 */ u8 pad0[0x18];
-    /* 0x18 */ f32 unk18;
+    /* 0x18 */ f32 height;
     /* 0x1C */ u8 pad1C[0x28];
-    /* 0x44 */ f32 unk44;
-    /* 0x48 */ f32 unk48;
-    /* 0x4C */ f32 unk4C;
-    /* 0x50 */ f32 unk50;
+    /* 0x44 */ f32 boxLeft;
+    /* 0x48 */ f32 boxTop;
+    /* 0x4C */ f32 boxRight;
+    /* 0x50 */ f32 boxBottom;
 } SpriteVector;
 
 void textBoxRowUpdateIcon(SpriteRow *row, SpriteVector *holder, SpriteVector *chain) {
-    SpriteObjectSlot *slot = &row->unk10;
-    f32 halfW = (f32) row->unk0 * 0.5f;
-    f32 x = row->unk4;
-    f32 y = row->unk8;
+    SpriteObjectSlot *slot = &row->icon;
+    f32 halfW = (f32) row->width * 0.5f;
+    f32 x = row->x;
+    f32 y = row->y;
 
-    if (slot->unk4 == NULL) {
+    if (slot->effect == NULL) {
         effectSetDuration(-1);
         effectSetDepth(0);
         effectEnableFade();
         effectSetMode(2);
-        effectSetBounds((s16) (s32) chain->unk44, (s16) (s32) chain->unk48, (s16) (s32) chain->unk4C,
-                      (s16) (s32) chain->unk50);
-        slot->unk4 = effectCreateAtPosition(D_80755390[slot->unk0], 1.0f, chain->unk44, chain->unk48, 1);
-        if (slot->unk2 != 0) {
-            slot->unk4->unk360 *= -1.0f;
+        effectSetBounds((s16) (s32) chain->boxLeft, (s16) (s32) chain->boxTop, (s16) (s32) chain->boxRight,
+                      (s16) (s32) chain->boxBottom);
+        slot->effect = effectCreateAtPosition(D_80755390[slot->effectId], 1.0f, chain->boxLeft, chain->boxTop, 1);
+        if (slot->flip != 0) {
+            slot->effect->unk360 *= -1.0f;
         }
     }
     x += halfW;
-    slot->unk4->unk340 = (f32) (((f64) chain->unk44 + x) * 4.0);
-    slot->unk4->unk344 = (f32) (((f64) chain->unk48 + (y + (holder->unk18 * 0.5f))) * 4.0);
-    slot->unk4->unk36D = row->unk3;
-    slot->unk4->unk38E = (s16) (s32) chain->unk44;
-    slot->unk4->unk390 = (s16) (s32) chain->unk48;
-    slot->unk4->unk392 = (s16) (s32) chain->unk4C;
-    slot->unk4->unk394 = (s16) (s32) chain->unk50;
+    slot->effect->screenX = (f32) (((f64) chain->boxLeft + x) * 4.0);
+    slot->effect->screenY = (f32) (((f64) chain->boxTop + (y + (holder->height * 0.5f))) * 4.0);
+    slot->effect->alpha = row->alpha;
+    slot->effect->clipLeft = (s16) (s32) chain->boxLeft;
+    slot->effect->clipTop = (s16) (s32) chain->boxTop;
+    slot->effect->clipRight = (s16) (s32) chain->boxRight;
+    slot->effect->clipBottom = (s16) (s32) chain->boxBottom;
 }
 
 typedef struct SpriteNode {
-    /* 0x00 */ s16 unk0;
-    /* 0x02 */ u8 unk2;
-    /* 0x03 */ u8 unk3;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
+    /* 0x00 */ s16 width;
+    /* 0x02 */ u8 fade;
+    /* 0x03 */ u8 alpha;
+    /* 0x04 */ f32 x;
+    /* 0x08 */ f32 y;
     /* 0x0C */ u8 padC[0x94];
-    /* 0xA0 */ struct SpriteNode *unkA0;
+    /* 0xA0 */ struct SpriteNode *next;
 } SpriteNode;
 
 typedef struct SpriteChainState {
     /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ s32 unk4;
+    /* 0x04 */ s32 key;
     /* 0x08 */ u8 pad8[8];
-    /* 0x10 */ u8 unk10;
-    /* 0x11 */ u8 unk11;
-    /* 0x12 */ u8 unk12;
+    /* 0x10 */ u8 rowState;
+    /* 0x11 */ u8 glyphCursor;
+    /* 0x12 */ u8 holdTimer;
     /* 0x13 */ u8 pad13[0xA];
-    /* 0x1D */ u8 unk1D;
+    /* 0x1D */ u8 textAlpha;
     /* 0x1E */ u8 pad1E[0x37];
-    /* 0x55 */ u8 unk55;
+    /* 0x55 */ u8 inputFlags;
 } SpriteChainState;
 
 typedef struct SpriteHolder {
-    /* 0x00 */ u8 unk0;
+    /* 0x00 */ u8 kind;
     /* 0x01 */ u8 pad1[7];
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ SpriteNode *unkC;
-    /* 0x10 */ u16 unk10;
+    /* 0x08 */ s32 data;
+    /* 0x0C */ SpriteNode *glyphs;
+    /* 0x10 */ u16 timer;
     /* 0x12 */ u8 pad12[2];
-    /* 0x14 */ f32 unk14;
+    /* 0x14 */ f32 width;
 } SpriteHolder;
 
 void textBoxRowUpdateNodes(f32 y, Actor *actor, SpriteChainState *chain, SpriteHolder *holder, u8 isLast, u8 *stop) {
@@ -444,56 +444,56 @@ void textBoxRowUpdateNodes(f32 y, Actor *actor, SpriteChainState *chain, SpriteH
     u8 prevAlpha;
     SpriteNode *node;
 
-    node = holder->unkC;
+    node = holder->glyphs;
     i = 0;
-    x = ((f64) 136.8f - holder->unk14) / 2.0;
+    x = ((f64) 136.8f - holder->width) / 2.0;
     while (node != NULL && *stop == 0) {
-        if (isLast && i == chain->unk11) {
-            if (!(chain->unk55 & 4)) {
+        if (isLast && i == chain->glyphCursor) {
+            if (!(chain->inputFlags & 4)) {
                 *stop = 1;
             }
             if (actor->state == 1) {
-                if (i == 0 && node->unk2 == 0) {
-                    func_806A3700(chain->unk4, holder->unk8);
+                if (i == 0 && node->fade == 0) {
+                    func_806A3700(chain->key, holder->data);
                 }
-                prevAlpha = node->unk2;
+                prevAlpha = node->fade;
                 if (prevAlpha != 0xFF) {
                     step = 0x96;
-                    if (chain->unk55 & 2) {
+                    if (chain->inputFlags & 2) {
                         step = (s32) (step * 0.5);
                     }
-                    if (!(chain->unk55 & 4) && (step < (0xFF - node->unk2))) {
-                        node->unk2 = node->unk2 + step;
+                    if (!(chain->inputFlags & 4) && (step < (0xFF - node->fade))) {
+                        node->fade = node->fade + step;
                     } else {
-                        node->unk2 = 0xFF;
-                        if (node->unkA0 != NULL) {
-                            chain->unk11++;
+                        node->fade = 0xFF;
+                        if (node->next != NULL) {
+                            chain->glyphCursor++;
                         } else {
-                            chain->unk11 = 0;
-                            chain->unk10++;
+                            chain->glyphCursor = 0;
+                            chain->rowState++;
                             *stop = 1;
-                            if (holder->unk10 != 0) {
+                            if (holder->timer != 0) {
                                 actor->state = 3;
-                                chain->unk12 = holder->unk10;
+                                chain->holdTimer = holder->timer;
                             }
                         }
                     }
                 }
             }
         }
-        if (chain->unk1D < node->unk2) {
-            alpha = chain->unk1D;
+        if (chain->textAlpha < node->fade) {
+            alpha = chain->textAlpha;
         } else {
-            alpha = node->unk2;
+            alpha = node->fade;
         }
-        node->unk4 = x;
-        node->unk8 = y;
-        node->unk3 = alpha;
-        if (holder->unk0 & 2) {
+        node->x = x;
+        node->y = y;
+        node->alpha = alpha;
+        if (holder->kind & 2) {
             textBoxRowUpdateIcon((SpriteRow *) node, (SpriteVector *) holder, (SpriteVector *) chain);
         }
-        x += (f32) node->unk0;
-        node = node->unkA0;
+        x += (f32) node->width;
+        node = node->next;
         i++;
     }
 }
@@ -527,10 +527,10 @@ void textBoxUpdateRows(Actor *actor) {
     state->unk48 = actor->y - (state->unk20 * 79.799995f) * 0.5;
     state->unk4C = actor->x + (state->unk20 * 136.8f) * 0.5;
     state->unk50 = actor->y + (state->unk20 * 79.799995f) * 0.5;
-    state->unk44 = (gPlayerSlots->unk270 < state->unk44) ? state->unk44 : gPlayerSlots->unk270;
-    state->unk48 = (gPlayerSlots->unk272 < state->unk48) ? state->unk48 : gPlayerSlots->unk272;
-    state->unk4C = (state->unk4C < gPlayerSlots->unk274) ? state->unk4C : gPlayerSlots->unk274;
-    state->unk50 = (state->unk50 < gPlayerSlots->unk276) ? state->unk50 : gPlayerSlots->unk276;
+    state->unk44 = (gPlayerSlots->scissorUlx < state->unk44) ? state->unk44 : gPlayerSlots->scissorUlx;
+    state->unk48 = (gPlayerSlots->scissorUly < state->unk48) ? state->unk48 : gPlayerSlots->scissorUly;
+    state->unk4C = (state->unk4C < gPlayerSlots->scissorLrx) ? state->unk4C : gPlayerSlots->scissorLrx;
+    state->unk50 = (state->unk50 < gPlayerSlots->scissorLry) ? state->unk50 : gPlayerSlots->scissorLry;
     acc = state->unk14;
     i = 0;
     while ((state->rowState >= i) && (node != NULL) && (stop == 0)) {
@@ -576,21 +576,21 @@ void textBoxUpdateRows(Actor *actor) {
 
 typedef struct SpriteFrameNode {
     /* 0x00 */ u8 pad0[0x2C];
-    /* 0x2C */ u8 unk2C;
+    /* 0x2C */ u8 nodeIndex;
 } SpriteFrameNode;
 
 typedef struct SpriteActorData {
     /* 0x000 */ Actor base;
     /* 0x178 */ void *unk178;
-    /* 0x17C */ SpriteFrameNode *unk17C;
+    /* 0x17C */ SpriteFrameNode *frameNode;
 } SpriteActorData;
 
 typedef struct MapBounds {
     /* 0x000 */ u8 pad0[0x270];
-    /* 0x270 */ s16 unk270;
-    /* 0x272 */ s16 unk272;
-    /* 0x274 */ s16 unk274;
-    /* 0x276 */ s16 unk276;
+    /* 0x270 */ s16 scissorUlx;
+    /* 0x272 */ s16 scissorUly;
+    /* 0x274 */ s16 scissorLrx;
+    /* 0x276 */ s16 scissorLry;
 } MapBounds;
 
 extern struct ScreenBounds *gPlayerSlots;
@@ -619,12 +619,12 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
     case 0xDA:
     case 0x100:
         sub->unk3C = 1;
-        sub->unk24 = (f32) gPlayerSlots[gCurrentPlayerIndex].unk274;
-        sub->unk28 = (f32) gPlayerSlots[gCurrentPlayerIndex].unk276;
+        sub->unk24 = (f32) gPlayerSlots[gCurrentPlayerIndex].scissorLrx;
+        sub->unk28 = (f32) gPlayerSlots[gCurrentPlayerIndex].scissorLry;
         break;
     case 0xFE:
-        node = ((SpriteActorData *)sub->key)->unk17C;
-        nodeIndex = node->unk2C;
+        node = ((SpriteActorData *)sub->key)->frameNode;
+        nodeIndex = node->nodeIndex;
         break;
     default:
         if (sub->key->animState != NULL) {
@@ -676,8 +676,8 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
     }
     if ((sub->key->animState == NULL) && (sub->unk3C == 0)) {
         sub->unk3C = 1;
-        sub->unk24 = (f32) gPlayerSlots[gCurrentPlayerIndex].unk270;
-        sub->unk28 = (f32) gPlayerSlots[gCurrentPlayerIndex].unk272;
+        sub->unk24 = (f32) gPlayerSlots[gCurrentPlayerIndex].scissorUlx;
+        sub->unk28 = (f32) gPlayerSlots[gCurrentPlayerIndex].scissorUly;
     }
     if (sub->unk3C == 0) {
         if (nodeIndex == 0) {
@@ -691,8 +691,8 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
             screenX = sub->unk24;
             screenY = sub->unk28;
         }
-        screenX = CLAMP_TO_BOUNDS(screenX, (f32) (gPlayerSlots[gCurrentPlayerIndex].unk270 - 0x64), (f32) (gPlayerSlots[gCurrentPlayerIndex].unk274 + 0x64));
-        screenY = CLAMP_TO_BOUNDS(screenY, (f32) (gPlayerSlots[gCurrentPlayerIndex].unk272 - 0x64), (f32) (gPlayerSlots[gCurrentPlayerIndex].unk276 + 0x64));
+        screenX = CLAMP_TO_BOUNDS(screenX, (f32) (gPlayerSlots[gCurrentPlayerIndex].scissorUlx - 0x64), (f32) (gPlayerSlots[gCurrentPlayerIndex].scissorLrx + 0x64));
+        screenY = CLAMP_TO_BOUNDS(screenY, (f32) (gPlayerSlots[gCurrentPlayerIndex].scissorUly - 0x64), (f32) (gPlayerSlots[gCurrentPlayerIndex].scissorLry + 0x64));
         sub->unk24 = screenX;
         sub->unk28 = screenY;
     }
@@ -706,10 +706,10 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
     if (screenY > 60.7999992370605469) {
         screenY = screenY - 60.7999992370605469;
     }
-    screenX = (f32) CLAMP_TO_BOUNDS((f64) screenX, (f64) gPlayerSlots[gCurrentPlayerIndex].unk270 + 91.1999969482421875 + 5.0,
-                           (f64) gPlayerSlots[gCurrentPlayerIndex].unk274 - 96.1999969482421875);
-    screenY = (f32) CLAMP_TO_BOUNDS((f64) screenY, (f64) gPlayerSlots[gCurrentPlayerIndex].unk272 + 60.7999992370605469 + 5.0,
-                           (f64) gPlayerSlots[gCurrentPlayerIndex].unk276 - 65.7999992370605469);
+    screenX = (f32) CLAMP_TO_BOUNDS((f64) screenX, (f64) gPlayerSlots[gCurrentPlayerIndex].scissorUlx + 91.1999969482421875 + 5.0,
+                           (f64) gPlayerSlots[gCurrentPlayerIndex].scissorLrx - 96.1999969482421875);
+    screenY = (f32) CLAMP_TO_BOUNDS((f64) screenY, (f64) gPlayerSlots[gCurrentPlayerIndex].scissorUly + 60.7999992370605469 + 5.0,
+                           (f64) gPlayerSlots[gCurrentPlayerIndex].scissorLry - 65.7999992370605469);
     sub->unk2C = ((screenX - sub->unk2C) * step) + sub->unk2C;
     sub->unk30 = ((screenY - sub->unk30) * step) + sub->unk30;
     actor->x = (((sub->unk2C - sub->unk24) * sub->unk20) + sub->unk24);
@@ -718,17 +718,17 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
 
 typedef struct ChainRowNode {
     /* 0x00 */ u8 pad0[0xC];
-    /* 0x0C */ u8 *unkC;
+    /* 0x0C */ u8 *glyphs;
     /* 0x10 */ u8 pad10[8];
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ struct ChainRowNode *unk1C;
+    /* 0x18 */ f32 height;
+    /* 0x1C */ struct ChainRowNode *next;
 } ChainRowNode;
 
 typedef struct ChainRowHead {
     /* 0x00 */ u8 pad0[0xC];
-    /* 0x0C */ ChainRowNode *unkC;
+    /* 0x0C */ ChainRowNode *rows;
     /* 0x10 */ u8 pad10[4];
-    /* 0x14 */ f32 unk14;
+    /* 0x14 */ f32 scrollY;
 } ChainRowHead;
 
 void renderCalcChainCenterOffset(ChainRowHead *head) {
@@ -736,21 +736,21 @@ void renderCalcChainCenterOffset(ChainRowHead *head) {
     s32 sum;
 
     sum = 0;
-    node = head->unkC;
+    node = head->rows;
     if (node == NULL) {
         return;
     }
-    if (node->unkC[2] != 0) {
+    if (node->glyphs[2] != 0) {
         return;
     }
     while (node != NULL) {
-        sum = (s32)((f32)sum + node->unk18);
-        node = node->unk1C;
+        sum = (s32)((f32)sum + node->height);
+        node = node->next;
     }
     if ((f64)sum < 79.7999954223632812) {
-        head->unk14 = (79.7999954223632812 - (f64)sum) * 0.5;
+        head->scrollY = (79.7999954223632812 - (f64)sum) * 0.5;
     } else {
-        head->unk14 = 6.0f;
+        head->scrollY = 6.0f;
     }
 }
 
