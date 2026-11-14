@@ -201,8 +201,8 @@ def restore_locals(lines, base_lines):
             rf"|\}}[\s\*]*{re.escape(name)}\s*(?:\[[^\]]*\]\s*)*(?:=|;|,)")
         if re.search(use, header) or any(redecl.search(l) for l in body):
             continue  # a parameter, or declared again elsewhere in the body
-        if not any(re.search(use, re.sub(r"//.*|/\*.*?\*/", "", l)) for l in body):
-            continue
+        if not any(re.search(use, re.sub(r'//.*|/\*.*?\*/|"(?:\\.|[^"\\])*"', "", l)) for l in body):
+            continue  # a format string's `%s` is not a use of a local `s`
         at = start + 1
         prev = base_lines[i - 1].strip() if i - 1 > k else None
         if prev is not None:
