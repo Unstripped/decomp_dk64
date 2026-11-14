@@ -640,10 +640,9 @@ void playerViewsBuildMatrices(void *outMtx) {
     f32 fov;
     f32 aspect;
     f32 offs;
-    s32 *cc;
+    s32 *cc = D_807445CC;
 
     aspect = cameraStepAspectScale();
-    if (D_807445CC && D_807445CC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (gPlayerCount >= 2 && gSplitScreenMode == 1) {
         func_8062754C(func_806276AC());
     }
@@ -662,7 +661,6 @@ void playerViewsBuildMatrices(void *outMtx) {
                            D_807444D8, D_807444DC, D_807444E0,
                            0x20, 0x20);
             fov = gPlayerSlots[i].unk280;
-            cc = D_807445CC;
             pl = gPlayerSlots[i].actor->customState;
             pa = pl->camActor;
             camState = pa->customState;
@@ -685,7 +683,7 @@ void playerViewsBuildMatrices(void *outMtx) {
     guLookAt((Mtx *)((u8 *)outMtx + 0x200), gPlayerSlots->camX + offs, gPlayerSlots->camY, gPlayerSlots->camZ + offs,
              gPlayerSlots->focusX, gPlayerSlots->focusY, gPlayerSlots->focusZ,
              gPlayerSlots->upX, gPlayerSlots->upY, gPlayerSlots->upZ);
-    D_807445CC[0]++;
+    cc[0]++;
 }
 
 Gfx *gfxSetViewportDisplayList(Gfx *glistp) {
