@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "model.h"
 #include "cutscene.h"
 #include "map.h"
 #include "collision.h"
@@ -1332,7 +1333,7 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
     if (!(buf->flags & 1)) {
         modelSlotBuildTriangleBufferThunk(slotIdx, gModelSlots[slotIdx].unk24,
             gModelSlots[slotIdx].x, gModelSlots[slotIdx].y, gModelSlots[slotIdx].z,
-            gModelSlots[slotIdx].rotY, gModelSlots[slotIdx].unk14, gModelSlots[slotIdx].unk18,
+            gModelSlots[slotIdx].rotX, gModelSlots[slotIdx].rotY, gModelSlots[slotIdx].rotZ,
             gModelSlots[slotIdx].scale);
     } else {
         buf->timestamp = gFrameCounter;

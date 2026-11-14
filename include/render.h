@@ -48,35 +48,39 @@ typedef struct FrameMatrices {
     /* 0xDB0 */ Gfx subDisplayList[(0x11B0 - 0xDB0) / sizeof(Gfx)];
 } FrameMatrices; // size = 0x11B0
 
-// Type-2 render entry: a textured quad model (renderModelQuadGfx; renderEntryIsTranslucent reads unk4E bits 1/2); 0x60 bytes.
+struct TexAnimNode;
+struct ModelSlotSubNode;
+
+// Type-2 model object: ModelSlot.unk20 of a textured-quad model (heapAlloc(0x60) in modelSlotInitFromAsset,
+// filled by modelQuadBuildOutput/modelSlotInit, drawn by renderModelQuadGfx; renderEntryIsTranslucent reads flags bits 1/2).
 typedef struct RenderQuadModelObj {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ u8 pad10[4];
-    /* 0x14 */ Mtx *unk14;
-    /* 0x18 */ Mtx *unk18;
-    /* 0x1C */ Vtx *unk1C;
-    /* 0x20 */ u8 unk20;
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+    /* 0x0C */ f32 scale;
+    /* 0x10 */ f32 yOffset;
+    /* 0x14 */ Mtx *frameMtx0; // per-viewport model matrix, gfx buffer 0 (heapAlloc(gViewportCount << 6))
+    /* 0x18 */ Mtx *frameMtx1; // the same for gfx buffer 1
+    /* 0x1C */ Vtx *verts; // 4 per quad (heapAlloc(quadCount << 6))
+    /* 0x20 */ u8 quadCount;
     /* 0x21 */ u8 pad21[3];
-    /* 0x24 */ s32 unk24;
-    /* 0x28 */ u8 pad28[0xC];
-    /* 0x34 */ s32 unk34[4];
-    /* 0x44 */ u8 unk44;
-    /* 0x45 */ u8 unk45;
-    /* 0x46 */ u8 unk46;
-    /* 0x47 */ u8 unk47;
-    /* 0x48 */ s16 unk48;
-    /* 0x4A */ s16 unk4A;
-    /* 0x4C */ s16 unk4C;
-    /* 0x4E */ u8 unk4E;
+    /* 0x24 */ void *textures[4]; // per quad (modelSlotLoadAssetTextures)
+    /* 0x34 */ void *palettes[4]; // per quad or NULL; the TLUT renderModelQuadGfx loads when texFormat is G_IM_FMT_CI
+    /* 0x44 */ u8 texWidth;
+    /* 0x45 */ u8 texHeight;
+    /* 0x46 */ u8 texSize; // G_IM_SIZ_*
+    /* 0x47 */ u8 texFormat; // G_IM_FMT_*
+    /* 0x48 */ s16 averageY; // mean quad vertex y (modelQuadBuildOutput)
+    /* 0x4A */ s16 modelType;
+    /* 0x4C */ s16 id;
+    /* 0x4E */ u8 flags; // 0x10 hidden by flag (modelNodeListSyncFlags), 8 projected, 4 facing, 2/1 translucent
     /* 0x4F */ u8 pad4F;
-    /* 0x50 */ u8 pad50[8];
-    /* 0x58 */ s16 unk58;
+    /* 0x50 */ struct TexAnimNode *texAnims;
+    /* 0x54 */ struct ModelSlotSubNode *subNode;
+    /* 0x58 */ s16 maxDist;
     /* 0x5A */ u8 unk5A;
-    /* 0x5B */ u8 unk5B;
-    /* 0x5C */ u8 unk5C;
+    /* 0x5B */ u8 light;
+    /* 0x5C */ u8 surfaceType; // groundSurfaceTypeAt
 } RenderQuadModelObj; // size = 0x60
 
 // An effect sprite sheet (effectGridRegister, 119370.c) and its loaded frame cache.

@@ -1,6 +1,7 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
+#include "model.h"
 #include "cutscene.h"
 #include "map.h"
 #include "collision.h"
@@ -1436,7 +1437,7 @@ u8 actorCollideModelSlots(Actor *actor, s16 *arcMin, s16 *arcMax) {
         if (buf->unk15 & 2) {
             if (collisionSpheresOverlap(sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius, buf->unk0, buf->unk4, buf->unk8, buf->unkC) != 0) {
                 if (!(buf->unk15 & 1)) {
-                    collisionTransformNode(i, gModelSlots[i].unk24, gModelSlots[i].x, gModelSlots[i].y, gModelSlots[i].z, gModelSlots[i].rotY, gModelSlots[i].unk14, gModelSlots[i].unk18, gModelSlots[i].scale);
+                    collisionTransformNode(i, gModelSlots[i].unk24, gModelSlots[i].x, gModelSlots[i].y, gModelSlots[i].z, gModelSlots[i].rotX, gModelSlots[i].rotY, gModelSlots[i].rotZ, gModelSlots[i].scale);
                 } else {
                     buf->unk10 = gFrameCounter;
                 }

@@ -288,10 +288,10 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
                     gModelSlots[outCount].y = entry->y;
                     gModelSlots[outCount].z = entry->z;
                     gModelSlots[outCount].scale = entry->scale;
-                    gModelSlots[outCount].rotY = entry->rotX;
-                    gModelSlots[outCount].unk14 = entry->rotY;
-                    gModelSlots[outCount].unk18 = entry->rotZ;
-                    gModelSlots[outCount].unk1C = entry->yOffset;
+                    gModelSlots[outCount].rotX = entry->rotX;
+                    gModelSlots[outCount].rotY = entry->rotY;
+                    gModelSlots[outCount].rotZ = entry->rotZ;
+                    gModelSlots[outCount].yOffset = entry->yOffset;
                     gModelSlots[outCount].unk8A = entry->mapObjectId;
                     result = modelSlotInit(outCount, entry->modelType, entry->x, entry->y, entry->z,
                                            entry->rotX, entry->rotY, entry->rotZ, entry->scale, entry->yOffset,
@@ -371,21 +371,6 @@ typedef struct TexAnimNode {
     /* 0xD4 */ struct TexAnimNode *next;
 } TexAnimNode;
 
-typedef struct ModelSlotObj {
-    /* 0x00 */ u8 pad0[0x24];
-    /* 0x24 */ void *textures[11];
-    /* 0x50 */ TexAnimNode *type2TexAnims;
-    /* 0x54 */ ModelSlotSubNode *type2SubNode;
-    /* 0x58 */ u8 pad58[0x48];
-    /* 0xA0 */ u32 *displayListA;
-    /* 0xA4 */ u32 *displayListACopy;
-    /* 0xA8 */ u32 *displayListB;
-    /* 0xAC */ u32 *displayListBCopy;
-    /* 0xB0 */ u8 padB0[8];
-    /* 0xB8 */ TexAnimNode *type1TexAnims;
-    /* 0xBC */ ModelSlotSubNode *type1SubNode;
-} ModelSlotObj;
-
 typedef struct ModelType1Obj {
     /* 0x00 */ f32 x;
     /* 0x04 */ f32 y;
@@ -395,9 +380,14 @@ typedef struct ModelType1Obj {
     /* 0x14 */ f32 rotY;
     /* 0x18 */ f32 rotZ;
     /* 0x1C */ f32 yOffset;
-    /* 0x20 */ u8 pad20[0x96];
+    /* 0x20 */ u8 pad20[0x80];
+    /* 0xA0 */ u32 *displayListA;
+    /* 0xA4 */ u32 *displayListACopy;
+    /* 0xA8 */ u32 *displayListB;
+    /* 0xAC */ u32 *displayListBCopy;
+    /* 0xB0 */ u8 padB0[6];
     /* 0xB6 */ s16 id;
-    /* 0xB8 */ u8 padB8[4];
+    /* 0xB8 */ TexAnimNode *texAnims;
     /* 0xBC */ ModelSlotSubNode *subNode;
     /* 0xC0 */ s16 maxDist;
     /* 0xC2 */ u8 unkC2;
@@ -406,28 +396,21 @@ typedef struct ModelType1Obj {
     /* 0xC5 */ u8 mapFlags;
 } ModelType1Obj;
 
-typedef struct ModelType2ObjView {
-    /* 0x00 */ u8 pad0[0x4A];
-    /* 0x4A */ s16 unk4A;
-    /* 0x4C */ s16 id;
-    /* 0x4E */ u8 flags;
-    /* 0x4F */ u8 pad4F[5];
-    /* 0x54 */ ModelSlotSubNode *subNode;
-    /* 0x58 */ s16 maxDist;
-    /* 0x5A */ u8 unk5A;
-    /* 0x5B */ u8 light;
-    /* 0x5C */ u8 surfaceType;
-} ModelType2ObjView;
+// ModelSlot.unk20 seen as either kind (ModelSlot.unk86 / ModelAssetHeader.unk1C: 1 or 2).
+typedef union ModelKindObj {
+    ModelType1Obj type1;
+    RenderQuadModelObj type2;
+} ModelKindObj;
 
 void modelNodeListSyncFlags(RenderEntry *node) {
-    ModelType2ObjView *obj;
+    RenderQuadModelObj *obj;
     s16 flag;
 
     if (node != NULL) {
         do {
             if (node->unk24 == 2) {
                 obj = node->unk0;
-                switch (obj->unk4A) {
+                switch (obj->modelType) {
                     case 0xA:
                     case 0x24:
                     case 0x208:
@@ -509,10 +492,10 @@ s16 modelSlotAppend(s32 type, f32 x, f32 y, f32 z, f32 yOffset, u8 force) {
     gModelSlots[gModelSlotCount].y = y;
     gModelSlots[gModelSlotCount].z = z;
     gModelSlots[gModelSlotCount].scale = scale;
+    gModelSlots[gModelSlotCount].rotX = 0.0f;
     gModelSlots[gModelSlotCount].rotY = 0.0f;
-    gModelSlots[gModelSlotCount].unk14 = 0.0f;
-    gModelSlots[gModelSlotCount].unk18 = 0.0f;
-    gModelSlots[gModelSlotCount].unk1C = y - yOffset;
+    gModelSlots[gModelSlotCount].rotZ = 0.0f;
+    gModelSlots[gModelSlotCount].yOffset = y - yOffset;
     gModelSlots[gModelSlotCount].unk8C = 0;
     slotId = modelSlotInit(gModelSlotCount, type, x, y, z, 0.0f, 0.0f, 0.0f, scale, y - yOffset, 1, 0, &renderList);
     mapDistributeEntries(renderList);
@@ -531,7 +514,7 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
     struct RenderEntry *renderList;
     s32 padB[1];
     ModelType1Obj *obj1;
-    ModelType2ObjView *obj2;
+    RenderQuadModelObj *obj2;
     ModelAssetHeader *info;
     s32 type;
     ModelSlotSubNode *node;
@@ -725,10 +708,10 @@ void modelSlotUpdateGroundCoords(s16 slot, u8 isId) {
         info = gModelSlots[slot].unk24;
         switch (info->unk1C) {
             case 1:
-                dst = ((ModelSlotObj *)gModelSlots[slot].unk20)->type1SubNode;
+                dst = ((ModelKindObj *)gModelSlots[slot].unk20)->type1.subNode;
                 break;
             case 2:
-                dst = ((ModelSlotObj *)gModelSlots[slot].unk20)->type2SubNode;
+                dst = ((ModelKindObj *)gModelSlots[slot].unk20)->type2.subNode;
                 break;
         }
         if (gModelSlots[slot].unk20) {} // FAKE: dead test extends the slot pointer web (steers colouring)
@@ -1170,7 +1153,7 @@ void modelSlotLinkTexAnimTextures(ModelAssetHeader *asset, ModelSlot *slot) {
     s32 found;
     s32 key;
 
-    node = ((ModelSlotObj *)slot->unk20)->type2TexAnims;
+    node = ((ModelKindObj *)slot->unk20)->type2.texAnims;
     if (node != NULL) {
         do {
             key = node->textureId;
@@ -1190,7 +1173,7 @@ void modelSlotLinkTexAnimTextures(ModelAssetHeader *asset, ModelSlot *slot) {
                 } while (n != 0 && found == 0);
             }
             if (found != 0) {
-                node->texture = ((ModelSlotObj *)slot->unk20)->textures[idx];
+                node->texture = ((ModelKindObj *)slot->unk20)->type2.textures[idx];
             } else {
                 node->texture = NULL;
             }
@@ -1209,7 +1192,7 @@ void modelSlotInitTexAnimNodes(ModelAssetHeader *asset, ModelSlot *slot, s32 typ
     TexAnimNode *node;
     s32 j;
     TexAnimNode **tail;
-    ModelSlotObj *obj;
+    ModelKindObj *obj;
     s32 len1;
     s32 len2;
     s32 *tbl;
@@ -1219,19 +1202,19 @@ void modelSlotInitTexAnimNodes(ModelAssetHeader *asset, ModelSlot *slot, s32 typ
     entry = tbl + 1;
     switch (type) {
         case 1:
-            tail = &((ModelSlotObj *)slot->unk20)->type1TexAnims;
+            tail = &((ModelKindObj *)slot->unk20)->type1.texAnims;
             if (count != 0) {
                 obj = slot->unk20;
-                len1 = dlLengthToEndDL(obj->displayListA);
-                obj->displayListACopy = heapAlloc(len1);
-                memcpy(obj->displayListACopy, obj->displayListA, len1);
-                len2 = dlLengthToEndDL(obj->displayListB);
-                obj->displayListBCopy = heapAlloc(len2);
-                memcpy(obj->displayListBCopy, obj->displayListB, len2);
+                len1 = dlLengthToEndDL(obj->type1.displayListA);
+                obj->type1.displayListACopy = heapAlloc(len1);
+                memcpy(obj->type1.displayListACopy, obj->type1.displayListA, len1);
+                len2 = dlLengthToEndDL(obj->type1.displayListB);
+                obj->type1.displayListBCopy = heapAlloc(len2);
+                memcpy(obj->type1.displayListBCopy, obj->type1.displayListB, len2);
             }
             break;
         case 2:
-            tail = &((ModelSlotObj *)slot->unk20)->type2TexAnims;
+            tail = &((ModelKindObj *)slot->unk20)->type2.texAnims;
             break;
     }
     for (i = 0; i < count; i++) {
@@ -1259,10 +1242,10 @@ void modelSlotInitTexAnimNodes(ModelAssetHeader *asset, ModelSlot *slot, s32 typ
         node->scrollSpeedY = 0;
         node->unk30 = -1;
         if (type == 1) {
-            dlFindTextureCommands(obj->displayListA, len1, entry[0], entry[1], &node->texCmds[0], &node->texCmds[1], &node->texCmds[2]);
-            dlFindTextureCommands(obj->displayListACopy, len1, entry[0], entry[1], &node->texCmds[3], &node->texCmds[4], &node->texCmds[5]);
-            dlFindTextureCommands(obj->displayListB, len2, entry[0], entry[1], &node->texCmds[6], &node->texCmds[7], &node->texCmds[8]);
-            dlFindTextureCommands(obj->displayListBCopy, len2, entry[0], entry[1], &node->texCmds[9], &node->texCmds[10], &node->texCmds[11]);
+            dlFindTextureCommands(obj->type1.displayListA, len1, entry[0], entry[1], &node->texCmds[0], &node->texCmds[1], &node->texCmds[2]);
+            dlFindTextureCommands(obj->type1.displayListACopy, len1, entry[0], entry[1], &node->texCmds[3], &node->texCmds[4], &node->texCmds[5]);
+            dlFindTextureCommands(obj->type1.displayListB, len2, entry[0], entry[1], &node->texCmds[6], &node->texCmds[7], &node->texCmds[8]);
+            dlFindTextureCommands(obj->type1.displayListBCopy, len2, entry[0], entry[1], &node->texCmds[9], &node->texCmds[10], &node->texCmds[11]);
         }
         *tail = node;
         tail = &node->next;
@@ -1287,16 +1270,16 @@ void modelSlotGetNodeScrollSpeed(s32 id, s16 node, s16 *speedXOut, s16 *speedYOu
 
 void modelSlotAccessNodeScrollSpeed(s32 id, s16 node, s16 speedX, s16 speedY, s16 *speedXOut, s16 *speedYOut, u8 get) {
     s32 idx;
-    ModelSlotObj *obj;
+    ModelKindObj *obj;
 
     idx = hashTableLookup(id);
     obj = gModelSlots[idx].unk20;
     if (gModelSlots[idx].unk86 != 1) {
         if (gModelSlots[idx].unk86 == 2) {
-            modelNodeAccessScrollSpeed(obj->type2TexAnims, node, speedX, speedY, speedXOut, speedYOut, get);
+            modelNodeAccessScrollSpeed(obj->type2.texAnims, node, speedX, speedY, speedXOut, speedYOut, get);
         }
     } else {
-        modelNodeAccessScrollSpeed(obj->type1TexAnims, node, speedX, speedY, speedXOut, speedYOut, get);
+        modelNodeAccessScrollSpeed(obj->type1.texAnims, node, speedX, speedY, speedXOut, speedYOut, get);
     }
 }
 
@@ -1330,16 +1313,16 @@ void modelSlotGetNodeAnimMode(s32 id, s16 node, u8 *modeOut) {
 
 void modelSlotAccessNodeAnimMode(s32 id, s16 node, u8 mode, u8 *modeOut, u8 get) {
     s32 idx;
-    ModelSlotObj *obj;
+    ModelKindObj *obj;
 
     idx = hashTableLookup(id);
     obj = gModelSlots[idx].unk20;
     if (gModelSlots[idx].unk86 != 1) {
         if (gModelSlots[idx].unk86 == 2) {
-            modelNodeAccessAnimMode(obj->type2TexAnims, node, mode, modeOut, get);
+            modelNodeAccessAnimMode(obj->type2.texAnims, node, mode, modeOut, get);
         }
     } else {
-        modelNodeAccessAnimMode(obj->type1TexAnims, node, mode, modeOut, get);
+        modelNodeAccessAnimMode(obj->type1.texAnims, node, mode, modeOut, get);
     }
 }
 
@@ -1361,16 +1344,16 @@ void modelNodeAccessAnimMode(TexAnimNode *list, s16 node, u8 mode, u8 *modeOut, 
 
 void modelSlotSetNodeFrame(s32 id, s16 node, s32 frame, s32 tick) {
     s32 idx;
-    ModelSlotObj *obj;
+    ModelKindObj *obj;
 
     idx = hashTableLookup(id);
     obj = gModelSlots[idx].unk20;
     if (gModelSlots[idx].unk86 != 1) {
         if (gModelSlots[idx].unk86 == 2) {
-            modelNodeSetFrame(obj->type2TexAnims, node, frame, tick);
+            modelNodeSetFrame(obj->type2.texAnims, node, frame, tick);
         }
     } else {
-        modelNodeSetFrame(obj->type1TexAnims, node, frame, tick);
+        modelNodeSetFrame(obj->type1.texAnims, node, frame, tick);
     }
 }
 
@@ -1456,41 +1439,20 @@ s32 dlLengthToEndDL(u32 *dl) {
 }
 
 
-typedef struct ModelQuadVertex {
-    /* 0x00 */ s16 x;
-    /* 0x02 */ s16 y;
-    /* 0x04 */ s16 z;
-    /* 0x06 */ s16 pad6;
-    /* 0x08 */ s16 s;
-    /* 0x0A */ s16 t;
-    /* 0x0C */ u8 pad[4];
-} ModelQuadVertex;
-
 typedef struct ModelQuadData {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ s16 x[4];
     /* 0x0C */ s16 y[4];
     /* 0x14 */ s16 z[4];
     /* 0x1C */ s16 uv[4][2];
-    /* 0x2C */ u8 rgba[4];
+    /* 0x2C */ u8 texWidth; // RenderQuadModelObj.texWidth..texFormat
+    /* 0x2D */ u8 texHeight;
+    /* 0x2E */ u8 texSize;
+    /* 0x2F */ u8 texFormat;
 } ModelQuadData;
 
-typedef struct ModelQuadOutput {
-    /* 0x00 */ f32 x;
-    /* 0x04 */ f32 y;
-    /* 0x08 */ f32 z;
-    /* 0x0C */ f32 scale;
-    /* 0x10 */ f32 yOffset;
-    /* 0x14 */ u8 pad14[8];
-    /* 0x1C */ ModelQuadVertex *verts;
-    /* 0x20 */ u8 quadCount;
-    /* 0x21 */ u8 pad21[0x23];
-    /* 0x44 */ u8 rgba[4];
-    /* 0x48 */ s16 averageY;
-} ModelQuadOutput;
-
 void modelQuadBuildOutput(ModelSlot *owner, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, f32 yOffset) {
-    ModelQuadOutput *out;
+    RenderQuadModelObj *out;
     ModelQuadData *q;
     ModelAssetHeader *data;
     s32 i;
@@ -1509,16 +1471,16 @@ void modelQuadBuildOutput(ModelSlot *owner, f32 x, f32 y, f32 z, f32 rotX, f32 r
     sum = 0;
     out->verts = heapAlloc(out->quadCount << 6);
     for (i = 0; i < out->quadCount; i++) {
-        out->rgba[0] = q->rgba[0];
-        out->rgba[1] = q->rgba[1];
-        out->rgba[2] = q->rgba[2];
-        out->rgba[3] = q->rgba[3];
+        out->texWidth = q->texWidth;
+        out->texHeight = q->texHeight;
+        out->texSize = q->texSize;
+        out->texFormat = q->texFormat;
         for (j = 0; j < 4; j++) {
-            out->verts[(i << 2) + j].x = q->x[j];
-            out->verts[(i << 2) + j].y = q->y[j];
-            out->verts[(i << 2) + j].z = q->z[j];
-            out->verts[(i << 2) + j].s = q->uv[j][0];
-            out->verts[(i << 2) + j].t = q->uv[j][1];
+            out->verts[(i << 2) + j].v.ob[0] = q->x[j];
+            out->verts[(i << 2) + j].v.ob[1] = q->y[j];
+            out->verts[(i << 2) + j].v.ob[2] = q->z[j];
+            out->verts[(i << 2) + j].v.tc[0] = q->uv[j][0];
+            out->verts[(i << 2) + j].v.tc[1] = q->uv[j][1];
             sum += q->y[j];
         }
         q++;
@@ -1627,12 +1589,6 @@ u8 isId;
     gModelSlotCount -= 1;
 }
 
-// ModelSlot.unk20 seen as either kind (modelSlotTransformBoundsAndNodes switches on ModelSlot.unk86).
-typedef union ModelKindObj {
-    ModelType1Obj type1;
-    ModelQuadOutput type2;
-} ModelKindObj;
-
 
 void modelSlotGetTransformVectors(s32 slot, f32 *xOut, f32 *yOut, f32 *zOut, f32 *rotXOut, f32 *rotYOut, f32 *rotZOut, f32 *scaleOut, f32 *yOffsetOut, u8 isId) {
     if (isId == 1) {
@@ -1641,11 +1597,11 @@ void modelSlotGetTransformVectors(s32 slot, f32 *xOut, f32 *yOut, f32 *zOut, f32
     *xOut = gModelSlots[slot].x;
     *yOut = gModelSlots[slot].y;
     *zOut = gModelSlots[slot].z;
-    *rotXOut = gModelSlots[slot].rotY;
-    *rotYOut = gModelSlots[slot].unk14;
-    *rotZOut = gModelSlots[slot].unk18;
+    *rotXOut = gModelSlots[slot].rotX;
+    *rotYOut = gModelSlots[slot].rotY;
+    *rotZOut = gModelSlots[slot].rotZ;
     *scaleOut = gModelSlots[slot].scale;
-    *yOffsetOut = gModelSlots[slot].unk1C;
+    *yOffsetOut = gModelSlots[slot].yOffset;
 }
 
 extern u8 gPlayerCount;
@@ -1668,7 +1624,7 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
         slot = hashTableLookup(slot);
     }
     if (setYOffset) {
-        MODEL_TRANSFORM_SLOT0->unk1C = yOffset;
+        MODEL_TRANSFORM_SLOT0->yOffset = yOffset;
         xform = MODEL_TRANSFORM_SLOT0;
         switch (xform->unk86) {
             case 2:
@@ -1704,9 +1660,9 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
         }
     }
     if (setRot) {
-        MODEL_TRANSFORM_SLOT->rotY = rotX;
-        MODEL_TRANSFORM_SLOT->unk14 = rotY;
-        MODEL_TRANSFORM_SLOT->unk18 = rotZ;
+        MODEL_TRANSFORM_SLOT->rotX = rotX;
+        MODEL_TRANSFORM_SLOT->rotY = rotY;
+        MODEL_TRANSFORM_SLOT->rotZ = rotZ;
         xform = MODEL_TRANSFORM_SLOT;
         if (xform->unk86 == 1) {
             kindObj = xform->unk20;
@@ -1735,7 +1691,7 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
     }
     xform = MODEL_TRANSFORM_SLOT;
     if (setPos || setYOffset || setRot) {
-        modelEmitterSetPosition(xform->id, xform->x, xform->y, xform->z, xform->scale, xform->unk14);
+        modelEmitterSetPosition(xform->id, xform->x, xform->y, xform->z, xform->scale, xform->rotY);
         xform = MODEL_TRANSFORM_SLOT;
     }
     if (xform->unk7C != NULL) {
@@ -1782,14 +1738,14 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
         }
     }
     if (flag != 0) {
-        collisionTransformNode(slot, xform->unk24, xform->x, xform->y, xform->z, xform->rotY, xform->unk14, xform->unk18, xform->scale);
+        collisionTransformNode(slot, xform->unk24, xform->x, xform->y, xform->z, xform->rotX, xform->rotY, xform->rotZ, xform->scale);
         xform = MODEL_TRANSFORM_SLOT;
-        modelSlotBuildTriangleBufferThunk(slot, xform->unk24, xform->x, xform->y, xform->z, xform->rotY, xform->unk14, xform->unk18, xform->scale);
+        modelSlotBuildTriangleBufferThunk(slot, xform->unk24, xform->x, xform->y, xform->z, xform->rotX, xform->rotY, xform->rotZ, xform->scale);
         xform = MODEL_TRANSFORM_SLOT;
     }
-    modelSlotBuildVertPosList(slot, xform->unk24, xform->x, xform->y, xform->z, xform->rotY, xform->unk14, xform->unk18, xform->scale, 1);
+    modelSlotBuildVertPosList(slot, xform->unk24, xform->x, xform->y, xform->z, xform->rotX, xform->rotY, xform->rotZ, xform->scale, 1);
     xform = MODEL_TRANSFORM_SLOT;
-    modelSlotBuildNodePosList(slot, xform->unk24, xform->x, xform->y, xform->z, xform->rotY, xform->unk14, xform->unk18, xform->scale, 1);
+    modelSlotBuildNodePosList(slot, xform->unk24, xform->x, xform->y, xform->z, xform->rotX, xform->rotY, xform->rotZ, xform->scale, 1);
 }
 
 s32 activeActorBoxOverlapTest(f32 x, f32 y, f32 z, s16 radiusX, s16 radiusY, s16 radiusZ, u16 mask) {
@@ -1827,21 +1783,21 @@ void func_80636014(s32 slot, u8 isId, u8 value) {
 
 void modelSlotFreeTexAnimNodes(ModelSlot *slot) {
     TexAnimNode *node;
-    ModelSlotObj *owner;
+    ModelKindObj *owner;
     ModelSlotSubNode *nodeList;
     TexAnimNode *cur;
 
     switch (slot->unk86) {
         case 2:
             owner = slot->unk20;
-            node = owner->type2TexAnims;
-            nodeList = owner->type2SubNode;
+            node = owner->type2.texAnims;
+            nodeList = owner->type2.subNode;
             modelSlotFreeAssetEntry(slot->unk24, slot->unk20);
             break;
         case 1:
             owner = slot->unk20;
-            node = owner->type1TexAnims;
-            nodeList = owner->type1SubNode;
+            node = owner->type1.texAnims;
+            nodeList = owner->type1.subNode;
             modelSegmentFreeUnusedTextures(slot, slot->unk24, slot->unk20);
             break;
     }
@@ -1940,10 +1896,10 @@ void modelSlotFreeNestedBuffer(s32 slotIndex, u8 isId) {
     slot = &gModelSlots[slotIndex];
     switch (slot->unk86) {
         case 2:
-            listPtr = &((ModelSlotObj *)slot->unk20)->type2SubNode;
+            listPtr = &((ModelKindObj *)slot->unk20)->type2.subNode;
             break;
         case 1:
-            listPtr = &((ModelSlotObj *)slot->unk20)->type1SubNode;
+            listPtr = &((ModelKindObj *)slot->unk20)->type1.subNode;
             break;
     }
     if (listPtr != NULL) {
@@ -2213,21 +2169,6 @@ u8 restore;
     }
 }
 
-typedef struct ModelType2Obj {
-    /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ void *unk14;
-    /* 0x18 */ void *unk18;
-    /* 0x1C */ u8 pad1C[0x2E];
-    /* 0x4A */ s16 unk4A;
-    /* 0x4C */ s16 unk4C;
-    /* 0x4E */ u8 unk4E;
-    /* 0x4F */ u8 pad4F;
-    /* 0x50 */ s32 unk50;
-    /* 0x54 */ s32 unk54;
-    /* 0x58 */ u8 pad58[3];
-    /* 0x5B */ u8 unk5B;
-} ModelType2Obj;
-
 extern u8 gViewportCount;
 
 void modelSlotInitFromAsset(ModelSlot *slot, s32 type) {
@@ -2235,7 +2176,7 @@ void modelSlotInitFromAsset(ModelSlot *slot, s32 type) {
     ModelSegmentData *seg;
     s32 pad;
     void *objData;
-    ModelType2Obj *obj;
+    RenderQuadModelObj *obj;
 
     if (func_80636A8C(type) != 0) {
         slot->unk24 = assetLoad(4, type, 1, 1);
@@ -2250,14 +2191,14 @@ void modelSlotInitFromAsset(ModelSlot *slot, s32 type) {
         if (hdr->unk1C == 2) {
             obj = heapAlloc(0x60);
             objData = obj;
-            obj->unk4A = type;
-            obj->unk50 = 0;
-            obj->unk54 = 0;
-            obj->unk4C = -1;
-            obj->unk4E = 0;
-            obj->unk5B = 0;
-            obj->unk14 = heapAlloc(gViewportCount << 6);
-            obj->unk18 = heapAlloc(gViewportCount << 6);
+            obj->modelType = type;
+            obj->texAnims = NULL;
+            obj->subNode = NULL;
+            obj->id = -1;
+            obj->flags = 0;
+            obj->light = 0;
+            obj->frameMtx0 = heapAlloc(gViewportCount << 6);
+            obj->frameMtx1 = heapAlloc(gViewportCount << 6);
         }
     } else {
         seg = heapAlloc(0xC8);
@@ -2737,45 +2678,45 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
     vtxOffset = 0;
     usedTlut = 0;
     if (useLight != 0) {
-        dx = camX - obj->unk0;
-        dy = camY - obj->unk4;
-        dz = camZ - obj->unk8;
+        dx = camX - obj->x;
+        dy = camY - obj->y;
+        dz = camZ - obj->z;
         dx *= dx;
         dy *= dy;
         dz *= dz;
         dist = sqrtf(dx + dy + dz);
-        limit = renderScaleDistanceByFov(obj->unk58);
+        limit = renderScaleDistanceByFov(obj->maxDist);
         if ((f32)limit < dist) {
             return gfx;
         }
     }
-    if (obj->unk5B != 0) {
-        lightQueueKeyframed(obj->unk5B, obj->unk4C, obj->unk0, obj->unk4, obj->unk8, obj->unk58, dist / (f32)limit, lightArg);
+    if (obj->light != 0) {
+        lightQueueKeyframed(obj->light, obj->id, obj->x, obj->y, obj->z, obj->maxDist, dist / (f32)limit, lightArg);
     }
     if (useLight != 0) {
-        if (mapPointOutsideClipBounds(obj->unk0, obj->unk4, obj->unk8, 0, 0) != 0) {
+        if (mapPointOutsideClipBounds(obj->x, obj->y, obj->z, 0, 0) != 0) {
             return gfx;
         }
     } else {
         limit = -0x8000;
         dist = 1.0f;
     }
-    if (obj->unk4E & 0x10) {
+    if (obj->flags & 0x10) {
         return gfx;
     }
-    if (obj->unk4E & 8) {
-        camProjectToScreen(obj->unk0, obj->unk4, obj->unk8, &screenX, &screenY, 0, 1.0f, gCurrentPlayerIndex);
+    if (obj->flags & 8) {
+        camProjectToScreen(obj->x, obj->y, obj->z, &screenX, &screenY, 0, 1.0f, gCurrentPlayerIndex);
         mapSearchTableAddProbe(obj, screenX, screenY, dist);
         if (mapSearchTableGetValue(obj) != 0) {
             return gfx;
         }
     }
     D_807F5FD8 += 1;
-    if (obj->unk24 == 0) {
-        modelSlotLoadAssetTextures(gModelSlots[(s16)hashTableLookup(obj->unk4C)].unk24, (ModelSlotAsset *)obj);
+    if (obj->textures[0] == NULL) {
+        modelSlotLoadAssetTextures(gModelSlots[(s16)hashTableLookup(obj->id)].unk24, (ModelSlotAsset *)obj);
     }
-    modelCalcFacingAngles(obj->unk0, obj->unk4, obj->unk8, camX, camY, camZ, &angleX, &angleY, &angleZ, obj->unk4E & 4);
-    guTranslateF(modelMtx, 0.0f, -obj->unk48, 0.0f);
+    modelCalcFacingAngles(obj->x, obj->y, obj->z, camX, camY, camZ, &angleX, &angleY, &angleZ, obj->flags & 4);
+    guTranslateF(modelMtx, 0.0f, -obj->averageY, 0.0f);
     if (angleX != 0.0) {
         guRotateF(tmpMtx, angleX, 1.0f, 0.0f, 0.0f);
         guMtxCatF(modelMtx, tmpMtx, modelMtx);
@@ -2784,18 +2725,18 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
         guRotateF(tmpMtx, angleY, 0.0f, 1.0f, 0.0f);
         guMtxCatF(modelMtx, tmpMtx, modelMtx);
     }
-    if (obj->unkC != 1.0) {
-        guScaleF(tmpMtx, obj->unkC, obj->unkC, obj->unkC);
+    if (obj->scale != 1.0) {
+        guScaleF(tmpMtx, obj->scale, obj->scale, obj->scale);
         guMtxCatF(modelMtx, tmpMtx, modelMtx);
     }
-    guTranslateF(tmpMtx, obj->unk0, obj->unk4 + obj->unk48 * obj->unkC, obj->unk8);
+    guTranslateF(tmpMtx, obj->x, obj->y + obj->averageY * obj->scale, obj->z);
     guMtxCatF(modelMtx, tmpMtx, modelMtx);
     switch (gGfxBufferIndex) {
     case 0:
-        mtx = obj->unk14 + gCurrentPlayerIndex;
+        mtx = obj->frameMtx0 + gCurrentPlayerIndex;
         break;
     case 1:
-        mtx = obj->unk18 + gCurrentPlayerIndex;
+        mtx = obj->frameMtx1 + gCurrentPlayerIndex;
         break;
     }
     guMtxF2L(modelMtx, mtx);
@@ -2813,32 +2754,32 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
         }
         alpha = 0xFF - alpha;
     }
-    modelKongVisibilityCheck(obj->unk4A, &opaque, &alpha);
+    modelKongVisibilityCheck(obj->modelType, &opaque, &alpha);
     if (useLight != 0 && obj->unk5A == 0) {
-        lightSampleColorAtPosition(obj->unk0, obj->unk4, obj->unk8, 0, &red, &green, &blue, lightArg);
-        scale = (f32)(u32)obj->unk5C / 15.0f;
+        lightSampleColorAtPosition(obj->x, obj->y, obj->z, 0, &red, &green, &blue, lightArg);
+        scale = (f32)(u32)obj->surfaceType / 15.0f;
         red = (f32)(u32)red * scale;
         green = (f32)(u32)green * scale;
         blue = (f32)(u32)blue * scale;
     } else {
         red = green = blue = 0xFF;
     }
-    for (i = 0; i < obj->unk20; i++) {
+    for (i = 0; i < obj->quadCount; i++) {
         texAnimFindNodeFrame((ModelSegmentOwner *)obj, i, &texA, &texB, &dualTex, &primLod);
         gDPPipeSync(gfx++);
-        if (obj->unk4E & 2) {
+        if (obj->flags & 2) {
             if (opaque != 0) {
                 gSPSetOtherMode(gfx++, G_SETOTHERMODE_L, 3, 29, 0x0C193078);
             } else {
                 gSPSetOtherMode(gfx++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
             }
-        } else if (obj->unk4E & 1) {
+        } else if (obj->flags & 1) {
             gSPSetOtherMode(gfx++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
         } else {
             gSPSetOtherMode(gfx++, G_SETOTHERMODE_L, 3, 29, 0x0C184240);
         }
         gSPSetOtherMode(gfx++, G_SETOTHERMODE_H, 20, 2, 0x100000);
-        if ((obj->unk4E & 1) || (obj->unk4E & 2)) {
+        if ((obj->flags & 1) || (obj->flags & 2)) {
             WRITE_GFX_PAIR(0xD9FFFFFF, 0x210005);
         } else {
             WRITE_GFX_PAIR(0xD9FFFFFF, 0x210004);
@@ -2849,11 +2790,11 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
             WRITE_GFX_PAIR(0xFC1197FF, 0xFFFFFE38);
             gSPTexture(gfx++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
             if (D_807F6009 != 2 || texA != (s32)D_807F600C) {
-                switch (obj->unk46) {
+                switch (obj->texSize) {
                 case 0:
-                    gDPLoadTextureBlock_4b(gfx++, texA + 0x80000000, obj->unk47, obj->unk44, obj->unk45, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
-                    if (obj->unk47 == 2) {
-                        gDPSetTextureImage(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, obj->unk34[i]);
+                    gDPLoadTextureBlock_4b(gfx++, texA + 0x80000000, obj->texFormat, obj->texWidth, obj->texHeight, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    if (obj->texFormat == 2) {
+                        gDPSetTextureImage(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, obj->palettes[i]);
                         gDPTileSync(gfx++); gDPSetTile(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_4b, 0, 0x100, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
                         gDPLoadSync(gfx++);
                         gDPLoadTLUTCmd(gfx++, G_TX_LOADTILE, 15); gDPPipeSync(gfx++);
@@ -2862,9 +2803,9 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
                     }
                     break;
                 case 1:
-                    gDPLoadTextureBlock(gfx++, texA + 0x80000000, obj->unk47, G_IM_SIZ_8b, obj->unk44, obj->unk45, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
-                    if (obj->unk47 == 2) {
-                        gDPSetTextureImage(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, obj->unk34[i]);
+                    gDPLoadTextureBlock(gfx++, texA + 0x80000000, obj->texFormat, G_IM_SIZ_8b, obj->texWidth, obj->texHeight, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    if (obj->texFormat == 2) {
+                        gDPSetTextureImage(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, obj->palettes[i]);
                         gDPTileSync(gfx++); gDPSetTile(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_4b, 0, 0x100, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
                         gDPLoadSync(gfx++);
                         gDPLoadTLUTCmd(gfx++, G_TX_LOADTILE, 255); gDPPipeSync(gfx++);
@@ -2873,10 +2814,10 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
                     }
                     break;
                 case 2:
-                    gDPLoadTextureBlock(gfx++, texA + 0x80000000, obj->unk47, G_IM_SIZ_16b, obj->unk44, obj->unk45, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock(gfx++, texA + 0x80000000, obj->texFormat, G_IM_SIZ_16b, obj->texWidth, obj->texHeight, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
                 case 3:
-                    gDPLoadTextureBlock(gfx++, texA + 0x80000000, obj->unk47, G_IM_SIZ_32b, obj->unk44, obj->unk45, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock(gfx++, texA + 0x80000000, obj->texFormat, G_IM_SIZ_32b, obj->texWidth, obj->texHeight, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
                 }
             }
@@ -2889,20 +2830,20 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
             gDPSetTextureImage(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, texA);
             gDPSetTile(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
             gDPLoadSync(gfx++);
-            gDPLoadBlock(gfx++, G_TX_LOADTILE, 0, 0, ((obj->unk44 * obj->unk45 * 2) >> 1) - 1, CALC_DXT(obj->unk44, 2));
+            gDPLoadBlock(gfx++, G_TX_LOADTILE, 0, 0, ((obj->texWidth * obj->texHeight * 2) >> 1) - 1, CALC_DXT(obj->texWidth, 2));
             gDPSetTextureImage(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, texB);
             gDPTileSync(gfx++);
             gDPSetTile(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0x100, G_TX_LOADTILE, 0, 0, 0, 0, 0, 0, 0);
             gDPLoadSync(gfx++);
-            gDPLoadBlock(gfx++, G_TX_LOADTILE, 0, 0, ((obj->unk44 * obj->unk45 * 2) >> 1) - 1, CALC_DXT(obj->unk44, 2));
-            gDPSetTile(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, obj->unk44 / 4, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0);
-            gDPSetTileSize(gfx++, G_TX_RENDERTILE, 2, 2, ((obj->unk44 - 1) << 2) + 2, ((obj->unk45 - 1) << 2) + 2);
-            gDPSetTile(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, obj->unk44 / 4, 0x100, 1, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0);
-            gDPSetTileSize(gfx++, 1, 2, 2, ((obj->unk44 - 1) << 2) + 2, ((obj->unk45 - 1) << 2) + 2);
+            gDPLoadBlock(gfx++, G_TX_LOADTILE, 0, 0, ((obj->texWidth * obj->texHeight * 2) >> 1) - 1, CALC_DXT(obj->texWidth, 2));
+            gDPSetTile(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, obj->texWidth / 4, 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0);
+            gDPSetTileSize(gfx++, G_TX_RENDERTILE, 2, 2, ((obj->texWidth - 1) << 2) + 2, ((obj->texHeight - 1) << 2) + 2);
+            gDPSetTile(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, obj->texWidth / 4, 0x100, 1, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0);
+            gDPSetTileSize(gfx++, 1, 2, 2, ((obj->texWidth - 1) << 2) + 2, ((obj->texHeight - 1) << 2) + 2);
             D_807F600C = NULL;
             break;
         }
-        gSPVertex(gfx++, osVirtualToPhysical(obj->unk1C + vtxOffset), 4, 0);
+        gSPVertex(gfx++, osVirtualToPhysical(obj->verts + vtxOffset), 4, 0);
         gSP2Triangles(gfx++, 0, 1, 2, 0, 0, 2, 3, 0);
         vtxOffset += 4;
         D_807F6009 = 2;
@@ -3519,7 +3460,7 @@ SpriteDisplayNode *spriteListInsertByDepth(SpriteDisplayNode *head, SpriteDispla
 }
 
 void func_8063A8C4(s16 slot, u8 isId, f32 value) {
-    ModelSlotObj *obj;
+    ModelKindObj *obj;
     ModelSlotSubNode *p;
 
     if (isId == 1) {
@@ -3528,10 +3469,10 @@ void func_8063A8C4(s16 slot, u8 isId, f32 value) {
     obj = gModelSlots[slot].unk20;
     switch (gModelSlots[slot].unk86) {
     case 2:
-        p = obj->type2SubNode;
+        p = obj->type2.subNode;
         break;
     case 1:
-        p = obj->type1SubNode;
+        p = obj->type1.subNode;
         break;
     }
     if (p != NULL) {
@@ -3837,17 +3778,17 @@ void modelSlotSerializeAll(u8 **bufOut, s32 *sizeOut) {
         out->unk4 = gModelSlots[i].y;
         out->unk8 = gModelSlots[i].z;
         out->unkC = gModelSlots[i].scale;
-        out->unk18 = gModelSlots[i].rotY;
-        out->unk1C = gModelSlots[i].unk14;
-        out->unk20 = gModelSlots[i].unk18;
+        out->unk18 = gModelSlots[i].rotX;
+        out->unk1C = gModelSlots[i].rotY;
+        out->unk20 = gModelSlots[i].rotZ;
         out->unk28 = gModelSlots[i].modelType;
         out->unk2C = gModelSlots[i].unk86;
-        out->unk24 = gModelSlots[i].unk1C;
+        out->unk24 = gModelSlots[i].yOffset;
         out->unk2A = gModelSlots[i].unk8A;
         switch (out->unk2C) {
         case 2:
-            out->unk2F = ((ModelType2ObjView *)gModelSlots[i].unk20)->flags;
-            out->unk2E = ((ModelType2ObjView *)gModelSlots[i].unk20)->light;
+            out->unk2F = ((RenderQuadModelObj *)gModelSlots[i].unk20)->flags;
+            out->unk2E = ((RenderQuadModelObj *)gModelSlots[i].unk20)->light;
             break;
         case 1:
             out->unk2F = 0;

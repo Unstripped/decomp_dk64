@@ -373,7 +373,7 @@ s32 proxPathSegmentAngleCheck(ProxPath *path, s32 segmentIndex, s16 angle) {
     if (!(gModelSlots[slot].modelType == 0xC9 || gModelSlots[slot].modelType == 0xCA || gModelSlots[slot].modelType == 0x1CB || gModelSlots[slot].modelType == 0x1F7 || gModelSlots[slot].modelType == 0x1F8)) {
         return 1;
     }
-    delta = gModelSlots[slot].unk14 * 4096.0f / 360.0f;
+    delta = gModelSlots[slot].rotY * 4096.0f / 360.0f;
     if (mathAngleInArcWithMargin((path->segments[segmentIndex].minAngle + delta) & 0xFFF, (path->segments[segmentIndex].angleB + delta) & 0xFFF, angle, 0)) {
         return 1;
     }
@@ -685,8 +685,8 @@ void proxPathActorFollowSpline(Actor *actor, PlayerState *state, ProxPath *path,
     case 1:
     case 2:
         slot = hashTableLookup(path->owner.id);
-        state->pathYawMin = ((s32)(gModelSlots[slot].unk14 * 4096.0f / 360.0f) + state->pathYawMin) & 0xFFF;
-        state->pathYawMax = ((s32)(gModelSlots[slot].unk14 * 4096.0f / 360.0f) + state->pathYawMax) & 0xFFF;
+        state->pathYawMin = ((s32)(gModelSlots[slot].rotY * 4096.0f / 360.0f) + state->pathYawMin) & 0xFFF;
+        state->pathYawMax = ((s32)(gModelSlots[slot].rotY * 4096.0f / 360.0f) + state->pathYawMax) & 0xFFF;
         break;
     case 0:
         state->pathYawMin = (state->pathYawMin + path->owner.actor->yaw) & 0xFFF;

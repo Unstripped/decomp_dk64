@@ -48,7 +48,7 @@ void modelEmittersInit(void) {
                 gModelEmitters[count].x = gModelSlots[i].x;
                 gModelEmitters[count].y = gModelSlots[i].y;
                 gModelEmitters[count].z = gModelSlots[i].z;
-                modelEmitterApplyOffset(count, gModelSlots[i].modelType, gModelSlots[i].unk14);
+                modelEmitterApplyOffset(count, gModelSlots[i].modelType, gModelSlots[i].rotY);
                 gModelEmitters[count].scale = gModelSlots[i].scale * 100.0;
                 gModelEmitters[count].modelId = gModelSlots[i].id;
                 count++;

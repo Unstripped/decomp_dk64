@@ -102,10 +102,10 @@ typedef struct ModelSlot {
     /* 0x04 */ f32 y;
     /* 0x08 */ f32 z;
     /* 0x0C */ f32 scale;
-    /* 0x10 */ f32 rotY;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ f32 unk1C;
+    /* 0x10 */ f32 rotX;
+    /* 0x14 */ f32 rotY;
+    /* 0x18 */ f32 rotZ;
+    /* 0x1C */ f32 yOffset;
     /* 0x20 */ void *unk20;
     /* 0x24 */ ModelAssetHeader *unk24;
     /* 0x28 */ DynamicBuffer unk28;
