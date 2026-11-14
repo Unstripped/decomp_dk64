@@ -25,22 +25,22 @@
 #include "proto/global/F56F0.h"
 
 typedef struct CamSplineKeyPosLook {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ s16 unk6;
-    /* 0x8 */ s16 unk8;
-    /* 0xA */ s16 unkA;
-    /* 0xC */ u8 unkC;
-    /* 0xD */ s8 unkD;
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+    /* 0x6 */ s16 lookX;
+    /* 0x8 */ s16 lookY;
+    /* 0xA */ s16 lookZ;
+    /* 0xC */ u8 fov;
+    /* 0xD */ s8 pitch;
 } CamSplineKeyPosLook; // size = 0xE
 
 typedef struct CamSplineKeyPos {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ u8 unk6;
-    /* 0x7 */ s8 unk7;
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+    /* 0x6 */ u8 fov;
+    /* 0x7 */ s8 pitch;
 } CamSplineKeyPos; // size = 0x8
 
 typedef struct CamPathPointPos {
@@ -55,14 +55,14 @@ typedef struct CamPathPointPos {
 } CamPathPointPos;
 
 typedef struct CamPathPointSpline {
-    /* 0x0 */ s16 unk0;
+    /* 0x0 */ s16 keyCount;
     /* 0x2 */ s16 unk2;
-    /* 0x4 */ void *unk4;
+    /* 0x4 */ void *keys;
 } CamPathPointSpline;
 
 typedef struct CamPathPoint {
     /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 unk1;
+    /* 0x01 */ u8 type;
     /* 0x02 */ s16 unk2;
     /* 0x04 */ union {
         CamPathPointPos pos;
@@ -72,10 +72,10 @@ typedef struct CamPathPoint {
 } CamPathPoint; // size = 0x14
 
 typedef struct CamPathList {
-    /* 0x0 */ s16 unk0;
+    /* 0x0 */ s16 stepCount;
     /* 0x2 */ u8 pad2[2];
-    /* 0x4 */ s16 *unk4;
-    /* 0x8 */ s16 *unk8;
+    /* 0x4 */ s16 *nodes;
+    /* 0x8 */ s16 *frames;
 } CamPathList; // size = 0xC
 
 typedef struct CamPathSeg {
@@ -85,9 +85,9 @@ typedef struct CamPathSeg {
 } CamPathSeg; // size = 0x12
 
 typedef struct CamPathHead {
-    /* 0x0 */ s16 unk0;
+    /* 0x0 */ s16 count;
     /* 0x2 */ u8 pad2[2];
-    /* 0x4 */ CamPathSeg *unk4;
+    /* 0x4 */ CamPathSeg *segs;
 } CamPathHead; // size = 0x8
 
 typedef struct CamZoneEntryFull {
@@ -99,29 +99,29 @@ typedef struct CamZoneEntryFull {
     /* 0x0A */ s16 unkA;
     /* 0x0C */ s16 unkC;
     /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ s16 unk14;
-    /* 0x16 */ u8 unk16;
-    /* 0x17 */ u8 unk17;
-    /* 0x18 */ u8 unk18;
-    /* 0x19 */ u8 unk19;
-    /* 0x1A */ u8 unk1A;
-    /* 0x1B */ u8 unk1B;
+    /* 0x10 */ s16 centerX;
+    /* 0x12 */ s16 centerY;
+    /* 0x14 */ s16 centerZ;
+    /* 0x16 */ u8 type;
+    /* 0x17 */ u8 flags;
+    /* 0x18 */ u8 weight;
+    /* 0x19 */ u8 radius;
+    /* 0x1A */ u8 height;
+    /* 0x1B */ u8 distMode;
 } CamZoneEntryFull; // size = 0x1C
 
 typedef struct CamPathData {
-    /* 0x00 */ CamPathHead unk0[24];
-    /* 0xC0 */ s16 unkC0;
+    /* 0x00 */ CamPathHead segLists[24];
+    /* 0xC0 */ s16 zoneCount;
     /* 0xC2 */ u8 padC2[2];
-    /* 0xC4 */ CamZoneEntryFull *unkC4;
-    /* 0xC8 */ s8 *unkC8;
-    /* 0xCC */ s16 unkCC;
+    /* 0xC4 */ CamZoneEntryFull *zones;
+    /* 0xC8 */ s8 *zoneChunks;
+    /* 0xCC */ s16 pathCount;
     /* 0xCE */ u8 padCE[2];
-    /* 0xD0 */ CamPathList *unkD0;
-    /* 0xD4 */ s16 unkD4;
+    /* 0xD0 */ CamPathList *pathLists;
+    /* 0xD4 */ s16 nodeCount;
     /* 0xD6 */ u8 padD6[2];
-    /* 0xD8 */ CamPathPoint *unkD8;
+    /* 0xD8 */ CamPathPoint *nodes;
 } CamPathData;
 
 extern u8 gGameMode;
@@ -139,9 +139,9 @@ extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 
 typedef struct CamCueStep {
-    /* 0x0 */ u32 unk0;
-    /* 0x4 */ u8 unk4;
-    /* 0x5 */ u8 unk5;
+    /* 0x0 */ u32 time;
+    /* 0x4 */ u8 map;
+    /* 0x5 */ u8 exit;
     /* 0x6 */ u16 unk6;
 } CamCueStep; // size = 0x8
 
@@ -229,8 +229,8 @@ u8 camCueTimerIsRunning(void) {
 void camCueTimerTick(void) {
     u64 t = OS_CYCLES_TO_USEC(osGetTime() - gCamCueStartTime) / 10000;
 
-    if ((u32)t >= gCamCueTable[gCamCueIndex].unk0) {
-        menuTransitionToMap(gCamCueTable[gCamCueIndex].unk4, gCamCueTable[gCamCueIndex].unk5);
+    if ((u32)t >= gCamCueTable[gCamCueIndex].time) {
+        menuTransitionToMap(gCamCueTable[gCamCueIndex].map, gCamCueTable[gCamCueIndex].exit);
         if (++gCamCueIndex >= 6) {
             gCamCueStartTime = 0;
         }
@@ -596,15 +596,15 @@ s16 camPathGetLength(s16 startPath) {
     path = startPath;
     do {
         found = 0;
-        count = gCamActivePaths->unkD0[path].unk0;
+        count = gCamActivePaths->pathLists[path].stepCount;
         for (i = 0; i < count; i++) {
-            idx = gCamActivePaths->unkD0[path].unk4[i];
-            switch (gCamActivePaths->unkD8[idx].unk1) {
+            idx = gCamActivePaths->pathLists[path].nodes[i];
+            switch (gCamActivePaths->nodes[idx].type) {
                 case 6:
                     break;
                 case 0xD:
-                    if ((gCamActivePaths->unkD8[idx].u.args[0] & 0xFF) == 8) {
-                        path = (u32)gCamActivePaths->unkD8[idx].u.args[1] >> 16;
+                    if ((gCamActivePaths->nodes[idx].u.args[0] & 0xFF) == 8) {
+                        path = (u32)gCamActivePaths->nodes[idx].u.args[1] >> 16;
                         found = 1;
                     }
                     break;
@@ -636,7 +636,7 @@ s16 camPathGetLength(s16 startPath) {
                         gCamPathFramesLeft = 0;
                         gCamPathLookActor->yawSpeed = saved;
                     }
-                    total += gCamActivePaths->unkD0[path].unk8[i];
+                    total += gCamActivePaths->pathLists[path].frames[i];
                     break;
             }
         }
@@ -987,8 +987,8 @@ void camCalculateTargetDistanceAndAngles(CamState *cam) {
 void camLoadPathPoint(void) {
     gCamPathActor->yawSpeed = 0;
     gCamPathActor->splineT = 0.0;
-    gCamPathNode = gCamActivePaths->unkD0[gCamPathIndex].unk4[gCamPathStep];
-    gCamPathFramesLeft = gCamActivePaths->unkD0[gCamPathIndex].unk8[gCamPathStep];
+    gCamPathNode = gCamActivePaths->pathLists[gCamPathIndex].nodes[gCamPathStep];
+    gCamPathFramesLeft = gCamActivePaths->pathLists[gCamPathIndex].frames[gCamPathStep];
     playerWaypointSnapInput();
 }
 
@@ -1052,8 +1052,8 @@ void camSnapBehindTarget(Actor *camActor) {
 extern u32 gFrameDelta;
 
 
-#define CAM_PATH_NODE (gCamActivePaths->unkD8[gCamPathNode])
-#define CAM_PATH_STEP_LIST (gCamActivePaths->unkD0[gCamPathIndex])
+#define CAM_PATH_NODE (gCamActivePaths->nodes[gCamPathNode])
+#define CAM_PATH_STEP_LIST (gCamActivePaths->pathLists[gCamPathIndex])
 
 void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f32 *focusY, f32 *focusZ, f32 *upX,
                    f32 *upY, f32 *upZ) {
@@ -1175,7 +1175,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                 if (gCamPathFramesLeft == 0) {
                     camLoadPathPoint();
                     gCamPathStep++;
-                    if (CAM_PATH_STEP_LIST.unk0 < gCamPathStep) {
+                    if (CAM_PATH_STEP_LIST.stepCount < gCamPathStep) {
                         if (gCamPathFlags & 0x10) {
                             if (!(gPrimaryPlayerActor->contactFlags & 0x100)) {
                                 gPrimaryPlayerActor->contactFlags |= 0x100;
@@ -1184,9 +1184,9 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                             camEndPath(camActor);
                         }
                     } else {
-                        stepArg = CAM_PATH_STEP_LIST.unk8[gCamPathStep - 1];
+                        stepArg = CAM_PATH_STEP_LIST.frames[gCamPathStep - 1];
                         args = &CAM_PATH_NODE.u.args[0];
-                        switch (CAM_PATH_NODE.unk1) {
+                        switch (CAM_PATH_NODE.type) {
                             case 10:
                             case 15:
                             case 16:
@@ -1262,7 +1262,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                 }
             } while (done != 0);
             if (gGameMode != 0) {
-                D_807F5CFC = CAM_PATH_STEP_LIST.unk8[gCamPathStep - 1];
+                D_807F5CFC = CAM_PATH_STEP_LIST.frames[gCamPathStep - 1];
                 if (D_807F5CFC != 1.0f) {
                     D_807F5D00 = (f32)(gCamPathFramesLeft - 1) / (D_807F5CFC - 1.0f);
                 } else {
@@ -1271,7 +1271,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                 if (gCamPathFramesLeft > 0) {
                     gCamPathFramesLeft--;
                 }
-                switch (CAM_PATH_NODE.unk1) {
+                switch (CAM_PATH_NODE.type) {
                     case 4:
                     case 5:
                         gCamPathActor->x = gCamPathLookActor->x;
@@ -1296,11 +1296,11 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                         gCamFocusBlendRate = 0.3f;
                         camComputeEyeFocus(camActor, eyeX, eyeY, eyeZ, &st->unk78, &st->unk7C, &st->unk80,
                                       gCamPathLookActor);
-                        if (CAM_PATH_NODE.unk1 != 7 && CAM_PATH_NODE.unk1 != 0xF && CAM_PATH_NODE.unk1 != 0x11) {
+                        if (CAM_PATH_NODE.type != 7 && CAM_PATH_NODE.type != 0xF && CAM_PATH_NODE.type != 0x11) {
                             camUpdateFocusPos(camActor, (0.0f != gCamPathLookActor->distToFloor) ? 0.3 : 0.1, focusX, focusY, focusZ);
                         }
-                        if ((gGlobalPauseFlags & 0x2000) || CAM_PATH_NODE.unk1 == 7 || CAM_PATH_NODE.unk1 == 0xF ||
-                            CAM_PATH_NODE.unk1 == 0x11) {
+                        if ((gGlobalPauseFlags & 0x2000) || CAM_PATH_NODE.type == 7 || CAM_PATH_NODE.type == 0xF ||
+                            CAM_PATH_NODE.type == 0x11) {
                             gGlobalPauseFlags &= ~0x2000;
                             *focusX = st->unk78;
                             *focusY = st->unk7C;
@@ -1495,13 +1495,13 @@ void func_8061F4B0(u8 *zoneFlags) {
         v = (0, zoneFlags)[i]; // FAKE: comma keeps addu a1,a0,v0 operand order
         p = zoneFlags + i;
         if (v != 0) {
-            gCamActivePaths->unkC4[v - 1].unk18 |= p[6] & 0xF;
+            gCamActivePaths->zones[v - 1].weight |= p[6] & 0xF;
         }
     }
 }
 
 void camSetZoneWeight(u8 zoneIndex, u8 weight) {
-    gCamMapPaths.unkC4[zoneIndex].unk18 = weight;
+    gCamMapPaths.zones[zoneIndex].weight = weight;
 }
 
 typedef struct CamZonePair {
@@ -1580,22 +1580,22 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                 k = CAM_ZONE_GROUP[i].unk2;
                 if (k < CAM_ZONE_GROUP[i + 1].unk2) {
                     do {
-                        e = &gCamActivePaths->unkC4[gCamZoneSorted[k * 2]];
-                        spread = e->unk1A;
-                        pos[0] = e->unk10;
-                        pos[1] = e->unk12;
-                        pos[2] = e->unk14;
-                        rad = e->unk19 * 4;
-                        mode = e->unk1B;
-                        type0 = e->unk16;
-                        if (e->unk16 == 5) {
+                        e = &gCamActivePaths->zones[gCamZoneSorted[k * 2]];
+                        spread = e->height;
+                        pos[0] = e->centerX;
+                        pos[1] = e->centerY;
+                        pos[2] = e->centerZ;
+                        rad = e->radius * 4;
+                        mode = e->distMode;
+                        type0 = e->type;
+                        if (e->type == 5) {
                             linkId = e->unk0;
-                            e = &gCamActivePaths->unkC4[e->unk0];
+                            e = &gCamActivePaths->zones[e->unk0];
                         }
-                        type = e->unk16;
+                        type = e->type;
                         if (k == st->unkC4 && type == 8) {
-                            if (e->unk18 >= 0xF) {
-                                rad *= e->unk18 - 0xD;
+                            if (e->weight >= 0xF) {
+                                rad *= e->weight - 0xD;
                             }
                         }
                         switch (mode) {
@@ -1607,11 +1607,11 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                                 distSq = (x - pos[0]) * (x - pos[0]) + (y - pos[1]) * (y - pos[1]) + (z - pos[2]) * (z - pos[2]);
                                 break;
                         }
-                        if (tgt->chunkIndex == gCamActivePaths->unkC8[gCamZoneSorted[k * 2]] || type == 8 ||
-                            gCamActivePaths->unkC8[gCamZoneSorted[k * 2]] == -1) {
-                            if ((mode == 2 && distSq < (f32)(rad * rad) && weight < e->unk18 && !((s16)y < pos[1]) &&
+                        if (tgt->chunkIndex == gCamActivePaths->zoneChunks[gCamZoneSorted[k * 2]] || type == 8 ||
+                            gCamActivePaths->zoneChunks[gCamZoneSorted[k * 2]] == -1) {
+                            if ((mode == 2 && distSq < (f32)(rad * rad) && weight < e->weight && !((s16)y < pos[1]) &&
                                  pos[1] + spread * 2 >= (s16)y) ||
-                                (mode != 2 && distSq < (f32)(rad * rad) && weight < e->unk18)) {
+                                (mode != 2 && distSq < (f32)(rad * rad) && weight < e->weight)) {
                                 switch (type) {
                                     case 4:
                                         handled = 1;
@@ -1634,43 +1634,43 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                                     case 7:
                                     case 8:
                                     case 9:
-                                        if (e->unk17 & 0x20) {
+                                        if (e->flags & 0x20) {
                                             if (!(st->unkAC & 0x40000)) {
                                                 break;
                                             }
                                         }
-                                        if (e->unk17 & 0x10) {
+                                        if (e->flags & 0x10) {
                                             if (!((tgt->state == 0x54 && tgt->unk155 >= 3) ||
                                                   (tgt->state == 0x52 && tgt->unk155 >= 8) ||
                                                   (tgt->state == 0x53 && tgt->unk155 >= 3))) {
                                                 break;
                                             }
                                         }
-                                        if ((e->unk17 & 2) && (e->unk17 & 4)) {
+                                        if ((e->flags & 2) && (e->flags & 4)) {
                                             break;
                                         }
-                                        if (e->unk17 & 8) {
-                                            if (e->unk17 & 4) {
+                                        if (e->flags & 8) {
+                                            if (e->flags & 4) {
                                                 break;
                                             }
                                             if (gScreenFadeProgress == 0.0f) {
                                                 break;
                                             }
                                         }
-                                        if (!(st->unkAC & 2) && !(e->unk17 & 1)) {
+                                        if (!(st->unkAC & 2) && !(e->flags & 1)) {
                                             if (!(gFrameCounter & 8) && gPlayerCount == 1) {
                                                 renderCallbacksRegister(renderBonusTargetMarker, camActor, 3);
                                             }
                                             break;
                                         }
-                                        if (!(e->unk17 & 0x38) && gPlayerCount == 1) {
+                                        if (!(e->flags & 0x38) && gPlayerCount == 1) {
                                             renderCallbacksRegister(renderBonusTargetMarker, camActor, 3);
                                         }
                                     default:
                                         best = e;
                                         bestIdx = k;
-                                        weight = (s16)e->unk18;
-                                        st->unkEC = e->unk17;
+                                        weight = (s16)e->weight;
+                                        st->unkEC = e->flags;
                                         bestType0 = type0;
                                         break;
                                 }
@@ -1688,7 +1688,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
         if (bestType0 != 5) {
             linkId = 0xFF;
         }
-        type = best->unk16;
+        type = best->type;
         if (bestIdx != st->unkC4 || st->unkF3 != 2) {
             switch (type) {
             case 8:
@@ -1719,9 +1719,9 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
         switch (type) {
             case 7:
                 if (tgt->state != 0x20) {
-                    ang1 = mathAngleBetweenPoints2D(best->unk10, best->unk14, tgt->x, tgt->z);
-                    *eyeX = best->unk10 - mathSinF(ang1) * best->unk0;
-                    *eyeZ = best->unk14 - mathCosF(ang1) * best->unk0;
+                    ang1 = mathAngleBetweenPoints2D(best->centerX, best->centerZ, tgt->x, tgt->z);
+                    *eyeX = best->centerX - mathSinF(ang1) * best->unk0;
+                    *eyeZ = best->centerZ - mathCosF(ang1) * best->unk0;
                     *eyeY = st->unk6C + camActor->distToFloor;
                     st->unkC8 = 0;
                     st->unkCA = 0;
@@ -1781,7 +1781,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                 func_8061F18C(camActor, *eyeX, *eyeY, *eyeZ);
             }
         }
-        if ((st->unkAC & 0x8000) || gScreenFadeProgress > 27.0f || (best->unk17 & 0x38)) {
+        if ((st->unkAC & 0x8000) || gScreenFadeProgress > 27.0f || (best->flags & 0x38)) {
             gGlobalPauseFlags |= 0x2000;
             st->unkAC &= ~0x8000;
         }
@@ -1801,7 +1801,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
     }
     if (st->unkF3 == 2) {
         if (st->unkEC & 0xA) {
-            gCamActivePaths->unkC4[gCamZoneSorted[st->unkC4 * 2]].unk17 |= 4;
+            gCamActivePaths->zones[gCamZoneSorted[st->unkC4 * 2]].flags |= 4;
         }
         if (st->unkED != 8 || mathAngleDistance(st->unkB2, tgt->yaw) >= 0x400) {
             st->unkB2 = mathAngleBetweenPoints2D(tgt->x, tgt->z, *eyeX, *eyeZ);
@@ -2578,17 +2578,17 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
     f32 yOffset;
 
     cam = camActor->customState;
-    p = &gCamActivePaths->unkD8[gCamPathNode];
+    p = &gCamActivePaths->nodes[gCamPathNode];
     savedX = *eyeX;
     savedY = *eyeY;
     savedZ = *eyeZ;
-    if (gGameMode == 1 && (p->unk1 == 4 || p->unk1 == 5)) {
-        count = (p->u.spline.unk0 - 1 < 0) ? 0 : p->u.spline.unk0 - 1;
+    if (gGameMode == 1 && (p->type == 4 || p->type == 5)) {
+        count = (p->u.spline.keyCount - 1 < 0) ? 0 : p->u.spline.keyCount - 1;
         target->splineT = CAM_LERP(count, 0, D_807F5D00);
         target->yawSpeed = target->splineT;
         target->splineT -= target->yawSpeed;
     } else {
-        count = (gCamActivePaths->unk0[target->unk15F].unk0 - 1 < 0) ? 0 : gCamActivePaths->unk0[target->unk15F].unk0 - 1;
+        count = (gCamActivePaths->segLists[target->unk15F].count - 1 < 0) ? 0 : gCamActivePaths->segLists[target->unk15F].count - 1;
     }
     idx[0] = (target->yawSpeed - 1 < 0) ? 0 : target->yawSpeed - 1;
     idx[1] = target->yawSpeed;
@@ -2680,12 +2680,12 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
     }
     if (gGameMode != 0) {
         if (gGameMode == 1) {
-            type = p->unk1;
+            type = p->type;
             if (type == 7) {
-                list = gCamActivePaths->unkD0[gCamPathIndex].unk4;
-                p = &gCamActivePaths->unkD8[list[gCamPathStep]];
-                if (p->unk1 == 8 || p->unk1 == 0xC) {
-                    p = &gCamActivePaths->unkD8[list[gCamPathStep + 1]];
+                list = gCamActivePaths->pathLists[gCamPathIndex].nodes;
+                p = &gCamActivePaths->nodes[list[gCamPathStep]];
+                if (p->type == 8 || p->type == 0xC) {
+                    p = &gCamActivePaths->nodes[list[gCamPathStep + 1]];
                 }
                 if (D_807F5CFC == gCamPathFramesLeft + 1) {
                     D_807F5D18 = *eyeX;
@@ -2711,7 +2711,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
             } else {
                 t = D_807F5D00;
             }
-            switch (p->unk1) {
+            switch (p->type) {
                 case 10:
                 case 15:
                 case 16:
@@ -2723,7 +2723,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                     posZ = mathCosF(target->yaw - angle) * dist + target->z;
                     posY = target->y + height;
                     gPlayerSlots[cam->unkFB].fov = CAM_LERP(pos->unkD, pos->unkC, t);
-                    if (p->unk1 == 16) {
+                    if (p->type == 16) {
                         lookX = posX + D_807F5D24;
                         lookY = posY + D_807F5D28;
                         lookZ = posZ + D_807F5D2C;
@@ -2759,36 +2759,36 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                     posZ = *eyeZ;
                     goto calc_look;
                 case 4:
-                    e0 = &((CamSplineKeyPosLook *) p->u.spline.unk4)[idx[0]];
-                    e1 = &((CamSplineKeyPosLook *) p->u.spline.unk4)[idx[1]];
-                    e2 = &((CamSplineKeyPosLook *) p->u.spline.unk4)[idx[2]];
-                    e3 = &((CamSplineKeyPosLook *) p->u.spline.unk4)[idx[3]];
-                    posX = splineEvalCubic(target->splineT, e0->unk0, e1->unk0, e2->unk0, e3->unk0);
-                    posY = splineEvalCubic(target->splineT, e0->unk2, e1->unk2, e2->unk2, e3->unk2);
-                    posZ = splineEvalCubic(target->splineT, e0->unk4, e1->unk4, e2->unk4, e3->unk4);
-                    lookX = splineEvalCubic(target->splineT, e0->unk6, e1->unk6, e2->unk6, e3->unk6);
-                    lookY = splineEvalCubic(target->splineT, e0->unk8, e1->unk8, e2->unk8, e3->unk8);
-                    lookZ = splineEvalCubic(target->splineT, e0->unkA, e1->unkA, e2->unkA, e3->unkA);
+                    e0 = &((CamSplineKeyPosLook *) p->u.spline.keys)[idx[0]];
+                    e1 = &((CamSplineKeyPosLook *) p->u.spline.keys)[idx[1]];
+                    e2 = &((CamSplineKeyPosLook *) p->u.spline.keys)[idx[2]];
+                    e3 = &((CamSplineKeyPosLook *) p->u.spline.keys)[idx[3]];
+                    posX = splineEvalCubic(target->splineT, e0->x, e1->x, e2->x, e3->x);
+                    posY = splineEvalCubic(target->splineT, e0->y, e1->y, e2->y, e3->y);
+                    posZ = splineEvalCubic(target->splineT, e0->z, e1->z, e2->z, e3->z);
+                    lookX = splineEvalCubic(target->splineT, e0->lookX, e1->lookX, e2->lookX, e3->lookX);
+                    lookY = splineEvalCubic(target->splineT, e0->lookY, e1->lookY, e2->lookY, e3->lookY);
+                    lookZ = splineEvalCubic(target->splineT, e0->lookZ, e1->lookZ, e2->lookZ, e3->lookZ);
                     gPlayerSlots[cam->unkFB].fov =
-                        splineEvalCubic(target->splineT, e0->unkC, e1->unkC, e2->unkC, e3->unkC);
+                        splineEvalCubic(target->splineT, e0->fov, e1->fov, e2->fov, e3->fov);
                     if (gCamRollFramesLeft == 0) {
                         camActor->pitch =
-                            splineEvalCubic(target->splineT, e0->unkD, e1->unkD, e2->unkD, e3->unkD) / 127.0 * 2048.0;
+                            splineEvalCubic(target->splineT, e0->pitch, e1->pitch, e2->pitch, e3->pitch) / 127.0 * 2048.0;
                     }
                     break;
                 case 5:
-                    k0 = &((CamSplineKeyPos *) p->u.spline.unk4)[idx[0]];
-                    k1 = &((CamSplineKeyPos *) p->u.spline.unk4)[idx[1]];
-                    k2 = &((CamSplineKeyPos *) p->u.spline.unk4)[idx[2]];
-                    k3 = &((CamSplineKeyPos *) p->u.spline.unk4)[idx[3]];
-                    posX = splineEvalCubic(target->splineT, k0->unk0, k1->unk0, k2->unk0, k3->unk0);
-                    posY = splineEvalCubic(target->splineT, k0->unk2, k1->unk2, k2->unk2, k3->unk2);
-                    posZ = splineEvalCubic(target->splineT, k0->unk4, k1->unk4, k2->unk4, k3->unk4);
+                    k0 = &((CamSplineKeyPos *) p->u.spline.keys)[idx[0]];
+                    k1 = &((CamSplineKeyPos *) p->u.spline.keys)[idx[1]];
+                    k2 = &((CamSplineKeyPos *) p->u.spline.keys)[idx[2]];
+                    k3 = &((CamSplineKeyPos *) p->u.spline.keys)[idx[3]];
+                    posX = splineEvalCubic(target->splineT, k0->x, k1->x, k2->x, k3->x);
+                    posY = splineEvalCubic(target->splineT, k0->y, k1->y, k2->y, k3->y);
+                    posZ = splineEvalCubic(target->splineT, k0->z, k1->z, k2->z, k3->z);
                     gPlayerSlots[cam->unkFB].fov =
-                        splineEvalCubic(target->splineT, k0->unk6, k1->unk6, k2->unk6, k3->unk6);
+                        splineEvalCubic(target->splineT, k0->fov, k1->fov, k2->fov, k3->fov);
                     if (gCamRollFramesLeft == 0) {
                         camActor->pitch =
-                            splineEvalCubic(target->splineT, k0->unk7, k1->unk7, k2->unk7, k3->unk7) / 127.0 * 2048.0;
+                            splineEvalCubic(target->splineT, k0->pitch, k1->pitch, k2->pitch, k3->pitch) / 127.0 * 2048.0;
                     }
                 calc_look:
                     if (!gCamPathLookNode) {
@@ -3270,9 +3270,9 @@ s32 camIsCellNeighbour(s16 cell, s16 center) {
 }
 
 s16 camGetZoneCell(s32 zone) {
-    CamZoneEntryFull *e = &gCamActivePaths->unkC4[zone];
+    CamZoneEntryFull *e = &gCamActivePaths->zones[zone];
 
-    return (e->unk10 - gCamZoneMinX) / 400 + (e->unk14 - gCamZoneMinZ) / 400 * gCamZoneGridWidth;
+    return (e->centerX - gCamZoneMinX) / 400 + (e->centerZ - gCamZoneMinZ) / 400 * gCamZoneGridWidth;
 }
 
 void camGetZoneBounds(s16 *outMinX, s16 *outMaxX, s16 *outMinZ) {
@@ -3281,15 +3281,15 @@ void camGetZoneBounds(s16 *outMinX, s16 *outMaxX, s16 *outMinZ) {
     *outMinX = 0x7FFF;
     *outMinZ = 0x7FFF;
     *outMaxX = -0x8000;
-    for (i = 0; i < gCamActivePaths->unkC0; i++) {
-        if (gCamActivePaths->unkC4[i].unk10 < *outMinX) {
-            *outMinX = gCamActivePaths->unkC4[i].unk10;
+    for (i = 0; i < gCamActivePaths->zoneCount; i++) {
+        if (gCamActivePaths->zones[i].centerX < *outMinX) {
+            *outMinX = gCamActivePaths->zones[i].centerX;
         }
-        if (*outMaxX < gCamActivePaths->unkC4[i].unk10) {
-            *outMaxX = gCamActivePaths->unkC4[i].unk10;
+        if (*outMaxX < gCamActivePaths->zones[i].centerX) {
+            *outMaxX = gCamActivePaths->zones[i].centerX;
         }
-        if (gCamActivePaths->unkC4[i].unk14 < *outMinZ) {
-            *outMinZ = gCamActivePaths->unkC4[i].unk14;
+        if (gCamActivePaths->zones[i].centerZ < *outMinZ) {
+            *outMinZ = gCamActivePaths->zones[i].centerZ;
         }
     }
     *outMinX -= 0xC8;
@@ -3313,12 +3313,12 @@ void camInitZones(void) {
     if (gCamZoneSorted != NULL) {
         heapFree(gCamZoneSorted);
     }
-    gCamZoneSorted = heapAlloc((gCamActivePaths->unkC0 * 2 + 2) * sizeof(s16));
-    for (i = 0; i < gCamActivePaths->unkC0; i++) {
+    gCamZoneSorted = heapAlloc((gCamActivePaths->zoneCount * 2 + 2) * sizeof(s16));
+    for (i = 0; i < gCamActivePaths->zoneCount; i++) {
         gCamZoneSorted[i * 2] = i;
         gCamZoneSorted[i * 2 + 1] = camGetZoneCell(i);
     }
-    for (i = 1; i < gCamActivePaths->unkC0; i++) {
+    for (i = 1; i < gCamActivePaths->zoneCount; i++) {
         key = gCamZoneSorted[i * 2 + 1];
         idx = gCamZoneSorted[i * 2];
         val = gCamZoneSorted[i * 2 + 1];
@@ -3326,7 +3326,7 @@ void camInitZones(void) {
         while (j > 0 &&
                (key < gCamZoneSorted[(j - 1) * 2 + 1] ||
                 (key == gCamZoneSorted[(j - 1) * 2 + 1] &&
-                 gCamActivePaths->unkC4[gCamZoneSorted[(j - 1) * 2]].unk18 < gCamActivePaths->unkC4[gCamZoneSorted[j * 2]].unk18))) {
+                 gCamActivePaths->zones[gCamZoneSorted[(j - 1) * 2]].weight < gCamActivePaths->zones[gCamZoneSorted[j * 2]].weight))) {
             gCamZoneSorted[j * 2] = gCamZoneSorted[(j - 1) * 2];
             gCamZoneSorted[j * 2 + 1] = gCamZoneSorted[(j - 1) * 2 + 1];
             j--;
@@ -3337,7 +3337,7 @@ void camInitZones(void) {
         }
     }
     gCamZoneGroupCount = 1;
-    for (i = gCamActivePaths->unkC0 - 1; i > 0; i--) {
+    for (i = gCamActivePaths->zoneCount - 1; i > 0; i--) {
         if (gCamZoneSorted[i * 2 + 1] != gCamZoneSorted[(i - 1) * 2 + 1]) {
             gCamZoneGroupCount++;
         }
@@ -3349,7 +3349,7 @@ void camInitZones(void) {
     CAM_ZONE_GROUP[0].unk0 = CAM_ZONE_SORT[0].unk2;
     CAM_ZONE_GROUP[0].unk2 = 0;
     k = 1;
-    for (i = 1; i < gCamActivePaths->unkC0; i++) {
+    for (i = 1; i < gCamActivePaths->zoneCount; i++) {
         if ((val = gCamZoneSorted[i * 2 + 1]) != gCamZoneSorted[(i - 1) * 2 + 1]) {
             CAM_ZONE_GROUP[k].unk0 = val;
             CAM_ZONE_GROUP[k].unk2 = i;
@@ -3357,7 +3357,7 @@ void camInitZones(void) {
         }
     }
     CAM_ZONE_GROUP[k].unk0 = -1;
-    CAM_ZONE_GROUP[k].unk2 = gCamActivePaths->unkC0;
+    CAM_ZONE_GROUP[k].unk2 = gCamActivePaths->zoneCount;
 }
 
 void camSetSecondTarget(Actor *cam, s16 targetX, s16 targetZ) {
@@ -3386,12 +3386,12 @@ void camClearSecondTarget(Actor *cam) {
 
 void camLoadPathTable(void *src, CamPathData *paths, u8 allocate) {
     camLoadPathData(src, paths, allocate);
-    paths->unkD8[48].unk1 = 0xE;
-    paths->unkD8[49].unk1 = 0xB;
-    paths->unkD8[50].unk1 = 6;
-    paths->unkD8[51].unk1 = 0x11;
-    paths->unkD8[52].unk1 = 7;
-    paths->unkD8[53].unk1 = 8;
+    paths->nodes[48].type = 0xE;
+    paths->nodes[49].type = 0xB;
+    paths->nodes[50].type = 6;
+    paths->nodes[51].type = 0x11;
+    paths->nodes[52].type = 7;
+    paths->nodes[53].type = 8;
 }
 
 void camInit(void *mapPathSrc) {
@@ -3487,12 +3487,12 @@ void camLoadPathData(void *src, CamPathData *paths, u8 allocate) {
     hdr = src;
     data = src != NULL ? (u8 *)src + 0x30 : NULL;
     for (i = 0; i < 0x18; i++) {
-        h = &paths->unk0[i];
-        cnt = h->unk0 = hdr != NULL ? *hdr++ : 0;
+        h = &paths->segLists[i];
+        cnt = h->count = hdr != NULL ? *hdr++ : 0;
         if (allocate) {
-            h->unk4 = heapAlloc(cnt * sizeof(CamPathSeg));
+            h->segs = heapAlloc(cnt * sizeof(CamPathSeg));
             for (j = 0; j < cnt; j++) {
-                dst = &h->unk4[j];
+                dst = &h->segs[j];
                 buf = *(CamPathSeg *)data;
                 data += sizeof(CamPathSeg);
                 camCopyVec3s(dst->a, buf.a);
@@ -3502,43 +3502,43 @@ void camLoadPathData(void *src, CamPathData *paths, u8 allocate) {
         }
     }
     hdr = (s16 *)data;
-    cnt = paths->unkC0 = hdr != NULL ? *hdr++ : 0;
+    cnt = paths->zoneCount = hdr != NULL ? *hdr++ : 0;
     if (allocate) {
-        paths->unkC8 = heapAlloc(cnt);
-        paths->unkC4 = heapAlloc(cnt * sizeof(CamZoneEntryFull));
+        paths->zoneChunks = heapAlloc(cnt);
+        paths->zones = heapAlloc(cnt * sizeof(CamZoneEntryFull));
         zp = hdr;
         for (i = 0; i < cnt; i++) {
-            paths->unkC8[i] = mapChunkFindByPosition(zp[8], zp[9], zp[10], 0);
-            paths->unkC4[i] = *(CamZoneEntryFull *)zp;
+            paths->zoneChunks[i] = mapChunkFindByPosition(zp[8], zp[9], zp[10], 0);
+            paths->zones[i] = *(CamZoneEntryFull *)zp;
             zp += 0xE;
         }
         hdr = zp;
     }
-    cnt = paths->unkCC = hdr != NULL ? *hdr++ : 0;
-    paths->unkD0 = heapAlloc(cnt * sizeof(CamPathList));
+    cnt = paths->pathCount = hdr != NULL ? *hdr++ : 0;
+    paths->pathLists = heapAlloc(cnt * sizeof(CamPathList));
     for (i = 0; i < cnt; i++) {
-        paths->unkD0[i].unk0 = m = *hdr;
+        paths->pathLists[i].stepCount = m = *hdr;
         k = m;
         hdr++; // LAYOUT: increment after the field stores puts addiu s2 after move s3 (as1 order)
-        paths->unkD0[i].unk4 = heapAlloc(m * 2);
-        paths->unkD0[i].unk8 = heapAlloc(m * 2);
+        paths->pathLists[i].nodes = heapAlloc(m * 2);
+        paths->pathLists[i].frames = heapAlloc(m * 2);
         for (j = 0; j < k; j++) {
-            paths->unkD0[i].unk4[j] = *hdr++;
-            paths->unkD0[i].unk8[j] = *hdr++;
+            paths->pathLists[i].nodes[j] = *hdr++;
+            paths->pathLists[i].frames[j] = *hdr++;
         }
     }
     i = 0;
-    cnt = paths->unkD4 = hdr != NULL ? *hdr++ : 0;
-    paths->unkD8 = heapAlloc(0x6400);
-    heapClearBlock(paths->unkD8);
+    cnt = paths->nodeCount = hdr != NULL ? *hdr++ : 0;
+    paths->nodes = heapAlloc(0x6400);
+    heapClearBlock(paths->nodes);
     rd = (u8 *)hdr;
     if (cnt != 0) {
         do {
             skip = 0;
-            u = &paths->unkD8[i].u.spline;
-            paths->unkD8[i].unk1 = rd[1];
-            paths->unkD8[i].unk0 = rd[0];
-            switch (paths->unkD8[i].unk1) {
+            u = &paths->nodes[i].u.spline;
+            paths->nodes[i].type = rd[1];
+            paths->nodes[i].unk0 = rd[0];
+            switch (paths->nodes[i].type) {
                 case 13:
                     rd = camCopyPathPayload(rd, u, 0xC);
                     break;
@@ -3562,10 +3562,10 @@ void camLoadPathData(void *src, CamPathData *paths, u8 allocate) {
                 case 4:
                     s = (s16 *)(rd + 0x20);
                     j = 0;
-                    u->unk0 = *(s16 *)(rd + 4);
-                    u->unk4 = heapAlloc(u->unk0 * sizeof(CamSplineKeyPosLook));
-                    for (; j < u->unk0; j++) {
-                        ((CamSplineKeyPosLook *)u->unk4)[j] = *(CamSplineKeyPosLook *)s;
+                    u->keyCount = *(s16 *)(rd + 4);
+                    u->keys = heapAlloc(u->keyCount * sizeof(CamSplineKeyPosLook));
+                    for (; j < u->keyCount; j++) {
+                        ((CamSplineKeyPosLook *)u->keys)[j] = *(CamSplineKeyPosLook *)s;
                         s += 7;
                     }
                     rd = (u8 *)s;
@@ -3573,10 +3573,10 @@ void camLoadPathData(void *src, CamPathData *paths, u8 allocate) {
                 case 5:
                     s = (s16 *)(rd + 0x14);
                     j = 0;
-                    u->unk0 = *(s16 *)(rd + 4);
-                    u->unk4 = heapAlloc(u->unk0 * sizeof(CamSplineKeyPos));
-                    for (; j < u->unk0; j++) {
-                        ((CamSplineKeyPos *)u->unk4)[j] = *(CamSplineKeyPos *)s;
+                    u->keyCount = *(s16 *)(rd + 4);
+                    u->keys = heapAlloc(u->keyCount * sizeof(CamSplineKeyPos));
+                    for (; j < u->keyCount; j++) {
+                        ((CamSplineKeyPos *)u->keys)[j] = *(CamSplineKeyPos *)s;
                         s += 4;
                     }
                     rd = (u8 *)s;
