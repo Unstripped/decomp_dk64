@@ -27,11 +27,6 @@ typedef struct ScaleGrowthState {
     u8 tierIndex;
 } ScaleGrowthState;
 
-typedef struct EffectOwnerView {
-    u8 pad[0x338];
-    void *ownerActor;
-} EffectOwnerView;
-
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern ScaleTierTable D_8074E88C;
@@ -365,7 +360,7 @@ void effectSpawnBoneDefault(Actor *actor, s16 bone, f32 scale, f32 posX, f32 pos
 }
 
 void effectSpawnBone(Actor *actor, s16 bone, f32 scale, f32 posX, f32 posY, f32 posZ, s32 moveSpeed) {
-    EffectOwnerView *effect;
+    EffectNode *effect;
 
     if (actor != NULL && bone != 0) {
         actorGetNodePos(actor, bone, &posX, &posY, &posZ);
@@ -373,7 +368,7 @@ void effectSpawnBone(Actor *actor, s16 bone, f32 scale, f32 posX, f32 posY, f32 
     effectSetCallback(effectShrinkAndVelocityUpdate);
     effectSetSpeed(moveSpeed);
     effect = effectCreateAtPosition(&sEffectSparkConfig, scale, posX, posY + 5.0f, posZ);
-    effect->ownerActor = actor;
+    effect->owner = actor;
 }
 
 void effectSpawnScatter(f32 scale, f32 posX, f32 posY, f32 posZ) {
@@ -437,7 +432,7 @@ void effectSpawnActorScale(Actor *actor) {
     effectSetCallback(effectGroundDecalSpinUpdate);
     effectSetFlags(4);
     effectSetColor(0xC8, 0xFF, 0xFF, 0xC8);
-    ((EffectOwnerView *)effectCreateAtPosition(&D_8071FED0, (f64) scale * 0.6, actor->x, actor->waterY, actor->z))->ownerActor = actor;
+    ((EffectNode *)effectCreateAtPosition(&D_8071FED0, (f64) scale * 0.6, actor->x, actor->waterY, actor->z))->owner = actor;
 }
 
 extern PlayerStruct *gPlayerSlots;

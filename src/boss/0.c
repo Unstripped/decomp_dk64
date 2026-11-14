@@ -3,6 +3,7 @@
 #include "proto/boss/0.h"
 #include "proto/boss/3840.h"
 #include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
 #include "proto/global/135D30.h"
 #include "proto/global/166A0.h"
 #include "proto/global/17B90.h"
@@ -21,7 +22,6 @@ typedef struct BossByteTable6 {
 
 extern Actor *gCurrentActor;
 extern BossByteTable6 D_8003598C;
-extern u8 effectDecelDriftFadeUpdate;
 extern u8 sEffectSparkConfig;
 
 
@@ -35,7 +35,7 @@ void bossArmydilloSpawnSmoke(void) {
     }
 
     for (i = 0; i < 12; i++) {
-        effectSetCallback((void *)(s32)&effectDecelDriftFadeUpdate);
+        effectSetCallback(effectDecelDriftFadeUpdate);
         effectSetSpeed(i);
         effectSetDepth(1);
         effectSetColor(0x8C, 0x8C, 0x8C, 0xFF);
@@ -467,7 +467,6 @@ void bossArmydilloShowCannons(void) {
     actorSetNodeFlag(gCurrentActor, 5);
 }
 
-void effectFollowParentUpdate(struct FollowParentActorView *, s8 *);
 extern u8 D_80720120[];
 
 void bossArmydilloSpawnExhaustSmoke(void) {

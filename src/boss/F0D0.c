@@ -4,6 +4,7 @@
 #include "proto/boss/3840.h"
 #include "proto/boss/F0D0.h"
 #include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
 #include "proto/global/1332B0.h"
@@ -35,7 +36,6 @@ typedef struct BossE_F0D0_Sub14 {
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern Actor *gCamActor;
-extern void *effectPuffRiseUpdate;
 extern void *D_8074E880[];
 typedef struct {
     u8 b[4];
@@ -141,7 +141,7 @@ void bossSpawnPuffDebris(void) {
 
     scale = gCurrentActor->sub4->scaleY / 0.15;
     effectSetMode(2);
-    effectSetCallback(&effectPuffRiseUpdate);
+    effectSetCallback(effectPuffRiseUpdate);
     effectSetDepth(1);
     effectSetSpeed(1);
     effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
