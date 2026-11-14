@@ -1,6 +1,7 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
+#include "render.h"
 #include "sched.h"
 #include "proto/global/15050.h"
 #include "proto/global/61AA0.h"
@@ -10,8 +11,8 @@
 
 extern u8 gSegment6Override;
 
-void renderSetSegment6Override(u8 segment) {
-    gSegment6Override = segment;
+void renderSetSegment6Override(u8 enabled) {
+    gSegment6Override = enabled;
 }
 
 extern Gfx D_80748310[6][2];
@@ -61,7 +62,7 @@ void renderCalcPlayerDistanceAlpha(f32 x, f32 y, f32 z, f32 maxDist, s16 actorTy
         *outAlpha = 0xFF;
         return;
     }
-    *outAlpha = (s32)(((dist - fadeStart) / (fadeEnd - fadeStart)) * 255.0f);
+    *outAlpha = ((dist - fadeStart) / (fadeEnd - fadeStart)) * 255.0f;
     if (*outAlpha >= 0x100) {
         *outAlpha = 0xFF;
     }
@@ -72,7 +73,7 @@ extern f32 D_807F6940;
 
 f32 renderAdjustActorDistance(s16 actorType, f32 dist) {
     if ((actorType == 0xB2) || (actorType == 0x253)) {
-        dist = (f64)dist + (600.0 - (f64)dist) * (f64)D_807F6940;
+        dist += (600.0 - dist) * D_807F6940;
     }
     return dist;
 }
@@ -98,7 +99,7 @@ extern f32 D_807F5FDC;
 extern f32 D_807F5FE0;
 
 f32 renderScaleDistanceByFov(f32 dist) {
-    if ((f64)gPlayerSlots[gCurrentPlayerIndex].fov == 45.0) {
+    if (gPlayerSlots[gCurrentPlayerIndex].fov == 45.0) {
         return dist;
     }
     return (dist / D_807F5FDC) * D_807F5FE0;
@@ -107,7 +108,7 @@ f32 renderScaleDistanceByFov(f32 dist) {
 typedef struct {
     s32 lastUsedFrame;
     s16 assetId;
-    s16 unk6;
+    s16 pad6;
     void *texture;
 } BillboardCacheEntry;
 extern BillboardCacheEntry gBillboardCache[4];
@@ -154,7 +155,7 @@ extern BillboardData gBillboardQueue[16];
 extern u8 gGfxBufferIndex;
 
 
-void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16 halfWidth, s16 halfHeight, u8 texFormat, s16 fadeDistance, u8 flags, s16 rotY, f32 xRatio) {
+void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16 halfWidth, s16 halfHeight, u8 texFormat, s16 fadeDistance, u8 alpha, s16 rotY, f32 xRatio) {
     s32 found;
     s32 i;
     f32 scale;
@@ -186,7 +187,7 @@ void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16
 
     if (!found) {
         i = 0;
-        found = FALSE; // FAKE: redundant reset (found is already FALSE) steers loop-2 codegen
+        found = FALSE;
         if ((u32)gBillboardCache[i].lastUsedFrame == 0xFFFFFFFF) {} // FAKE: dead read of the typed -1 pushes its constant load ahead of the loop-2 induction setup
         while ((i < 4) && !found) {
             if ((u32)gBillboardCache[i].lastUsedFrame == 0xFFFFFFFF) { // FAKE: unsigned spelling of the -1 sentinel steers the compare
@@ -204,16 +205,16 @@ void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16
     }
     gBillboardCache[i * 1].lastUsedFrame = gFrameCounter; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
     gBillboardQueue[gBillboardQueueCount].cacheIndex = i;
-    gBillboardQueue[gBillboardQueueCount].alpha = flags;
+    gBillboardQueue[gBillboardQueueCount].alpha = alpha;
     if (actor->renderFlags & 0x40) {
         gBillboardFlags |= 1;
     }
     gBillboardQueue[gBillboardQueueCount].renderFlags = gBillboardFlags;
     gBillboardQueue[gBillboardQueueCount].layer = actor->chunkIndex;
 
-    billboardSetVertex(&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][0], (s16)-((f32)halfWidth * xRatio), -halfHeight, 0, 0);
+    billboardSetVertex(&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][0], -(halfWidth * xRatio), -halfHeight, 0, 0);
     billboardSetVertex(&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][1], halfWidth, -halfHeight, texWidth - 1, 0);
-    billboardSetVertex(&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][2], (s16)-((f32)halfWidth * xRatio), halfHeight, 0, texHeight - 1);
+    billboardSetVertex(&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][2], -(halfWidth * xRatio), halfHeight, 0, texHeight - 1);
     billboardSetVertex(&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][3], halfWidth, halfHeight, texWidth - 1, texHeight - 1);
 
     groundY = actor->floorY;
@@ -224,23 +225,23 @@ void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16
             groundY = actor->waterY;
         }
     }
-    scale = 1.0 - (f64)((actor->y - groundY) / (f32)fadeDistance);
+    scale = 1.0 - (actor->y - groundY) / fadeDistance;
     if (scale < 0.0) {
         scale = 0.0f;
     }
     guScaleF(mtx1, scale, scale, scale);
 
-    guRotateF(mtx2, (f32)((rotY * 360) / 4095), 0.0f, 1.0f, 0.0f);
+    guRotateF(mtx2, (rotY * 360) / 4095, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx1, mtx2, mtx1);
     if (actor->flags & 2) {
         if (actor->floorTiltPitch < 1000) {
-            guRotateF(mtx2, -((f64)actor->floorTiltYaw / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
+            guRotateF(mtx2, -(actor->floorTiltYaw / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
             guMtxCatF(mtx1, mtx2, mtx1);
         }
-        guRotateF(mtx2, 90.0 - (f64)actor->floorTiltPitch / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
+        guRotateF(mtx2, 90.0 - actor->floorTiltPitch / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
         guMtxCatF(mtx1, mtx2, mtx1);
         if (actor->floorTiltPitch < 1000) {
-            guRotateF(mtx2, (f64)actor->floorTiltYaw / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
+            guRotateF(mtx2, actor->floorTiltYaw / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
             guMtxCatF(mtx1, mtx2, mtx1);
         }
     }
@@ -299,117 +300,87 @@ Gfx *billboardRenderQueued(Gfx *gdl, s16 layer) {
     gSPTexture(gdl++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
     gDPSetCombine(gdl++, 0x119623, 0xFF2FFFFF);
 
-    i = 0;
-    if (gBillboardQueueCount > 0) {
-        do {
-            if (layer == gBillboardQueue[i].layer) {
-                BillboardData *bb;
+    for (i = 0; i < gBillboardQueueCount; i++) {
+        if (layer == gBillboardQueue[i].layer) {
+            BillboardData *bb;
 
-                gDPPipeSync(gdl++);
-                bb = &gBillboardQueue[i * 1]; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
-                if (blendMode != 0) {
-                    if (gBillboardQueue[i].renderFlags & 1) {
-                        gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
-                        blendMode = 0;
-                    }
-                }
-                if (blendMode == 0) {
-                    if (!(gBillboardQueue[i].renderFlags & 1)) {
-                        gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504DD8);
-                        blendMode = 1;
-                    }
-                }
-                gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, gBillboardQueue[i].alpha);
-                curTex = gBillboardCache[gBillboardQueue[i].cacheIndex].texture;
-                if (curTex != prevTex) {
-                    prevTex = curTex;
-                    switch (gBillboardQueue[i].texFormat) {
-                    case 0:
-                        gDPLoadTextureBlock_4b(
-                            gdl++,
-                            curTex + 0x80000000,
-                            G_IM_FMT_IA,
-                            gBillboardQueue[i].texWidth,
-                            gBillboardQueue[i].texHeight,
-                            0,
-                            G_TX_CLAMP,
-                            G_TX_CLAMP,
-                            0,
-                            0,
-                            0,
-                            0
-                        );
-                        break;
-                    case 1:
-                        gDPLoadTextureBlock(
-                            gdl++,
-                            (u8 *)gBillboardCache[gBillboardQueue[i].cacheIndex].texture + 0x80000000,
-                            G_IM_FMT_IA,
-                            G_IM_SIZ_8b,
-                            gBillboardQueue[i].texWidth,
-                            gBillboardQueue[i].texHeight,
-                            0,
-                            G_TX_CLAMP,
-                            G_TX_CLAMP,
-                            0,
-                            0,
-                            0,
-                            0
-                        );
-                        break;
-                    }
-                }
-                gSPMatrix(gdl++, osVirtualToPhysical(&bb->matrices[gGfxBufferIndex]), G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
-                gSPVertex(gdl++, osVirtualToPhysical(&bb->verts[gGfxBufferIndex][0]), 4, 0);
-                gSP2Triangles(gdl++, 0, 3, 1, 0, 0, 2, 3, 0);
-                gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
+            gDPPipeSync(gdl++);
+            bb = &gBillboardQueue[i * 1]; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
+            if (blendMode != 0 && (gBillboardQueue[i].renderFlags & 1)) {
+                gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
+                blendMode = 0;
             }
-            i++;
-        } while (i < gBillboardQueueCount);
+            if (blendMode == 0 && !(gBillboardQueue[i].renderFlags & 1)) {
+                gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504DD8);
+                blendMode = 1;
+            }
+            gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, gBillboardQueue[i].alpha);
+            curTex = gBillboardCache[gBillboardQueue[i].cacheIndex].texture;
+            if (curTex != prevTex) {
+                prevTex = curTex;
+                switch (gBillboardQueue[i].texFormat) {
+                case 0:
+                    gDPLoadTextureBlock_4b(
+                        gdl++,
+                        curTex + 0x80000000,
+                        G_IM_FMT_IA,
+                        gBillboardQueue[i].texWidth,
+                        gBillboardQueue[i].texHeight,
+                        0,
+                        G_TX_CLAMP,
+                        G_TX_CLAMP,
+                        0,
+                        0,
+                        0,
+                        0
+                    );
+                    break;
+                case 1:
+                    gDPLoadTextureBlock(
+                        gdl++,
+                        (u8 *)gBillboardCache[gBillboardQueue[i].cacheIndex].texture + 0x80000000,
+                        G_IM_FMT_IA,
+                        G_IM_SIZ_8b,
+                        gBillboardQueue[i].texWidth,
+                        gBillboardQueue[i].texHeight,
+                        0,
+                        G_TX_CLAMP,
+                        G_TX_CLAMP,
+                        0,
+                        0,
+                        0,
+                        0
+                    );
+                    break;
+                }
+            }
+            gSPMatrix(gdl++, osVirtualToPhysical(&bb->matrices[gGfxBufferIndex]), G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+            gSPVertex(gdl++, osVirtualToPhysical(&bb->verts[gGfxBufferIndex][0]), 4, 0);
+            gSP2Triangles(gdl++, 0, 3, 1, 0, 0, 2, 3, 0);
+            gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
+        }
     }
     gDPPipeSync(gdl++);
     return gdl;
 }
 
 
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    f32 unk18;
-    f32 unk1C;
-    f32 unk20;
-    f32 unk24;
-    f32 unk28;
-    f32 unk2C;
-    f32 unk30;
-    f32 unk34;
-    s16 unk38;
-    s16 unk3A;
-    s16 unk3C;
-    u8 unk3E;
-    u8 pad3F;
-} MatrixCacheSub;
-
 typedef struct MatrixCacheNode {
-    f32 camX;
-    f32 camY;
-    f32 camZ;
+    f32 lightR;
+    f32 lightG;
+    f32 lightB;
     u32 lastUsedFrame;
     s32 allocSize;
-    struct MatrixCacheNode *hash_next;
-    struct MatrixCacheNode *hash_prev;
-    struct MatrixCacheNode *list_next;
-    struct MatrixCacheNode *list_prev;
-    s16 modelId;
-    s16 matrixCount;
+    struct MatrixCacheNode *hashNext;
+    struct MatrixCacheNode *hashPrev;
+    struct MatrixCacheNode *listNext;
+    struct MatrixCacheNode *listPrev;
+    s16 cellId;
+    s16 vtxCount;
     u8 subType;
-    u8 count;
+    u8 lightCount;
     u8 pad2A[6];
-    MatrixCacheSub sub[1];
+    LightTrigger lights[1];
 } MatrixCacheNode;
 
 extern MatrixCacheNode *gMatrixCacheBuckets[100];
@@ -454,194 +425,184 @@ void matrixCacheResetStats(void) {
 extern f32 *gChunkLightR;
 extern f32 *gChunkLightG;
 extern f32 *gChunkLightB;
-extern MatrixCacheSub gLightCandidates[];
+extern LightTrigger gLightCandidates[];
 
 #define DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 
-void *matrixCacheLookup(s32 count, s32 camIndex, s16 modelId, u8 subType) {
+void *matrixCacheLookup(s32 lightCount, s32 chunkIndex, s16 cellId, u8 subType) {
     MatrixCacheNode *node;
     s32 i;
     s32 j;
     u8 mismatch;
-    MatrixCacheSub *a;
-    MatrixCacheSub *b;
+    LightTrigger *cached;
+    LightTrigger *cand;
 
     D_807F9058++;
-    node = gMatrixCacheBuckets[matrixCacheHash(count, modelId, subType)];
+    node = gMatrixCacheBuckets[matrixCacheHash(lightCount, cellId, subType)];
     while (node != NULL) {
-        if (count == node->count && modelId == node->modelId && node->subType == subType) {
-            if (node->camX == gChunkLightR[camIndex] && node->camY == gChunkLightG[camIndex]) {
-                if (node->camZ == gChunkLightB[camIndex]) {
-                    i = 0;
-                    mismatch = 0;
-                    for (; !mismatch && i < count; i++) {
-                        mismatch = 1;
-                        for (j = 0; mismatch && j < count; j++) {
-                            b = &gLightCandidates[j];
-                            a = &node->sub[i];
-                            if (b->unk3E == 1) {
-                                if (a->unk38 == b->unk38 && a->unk3A == b->unk3A && a->unk3C == b->unk3C &&
-                                    (double)DIFF(b->unkC, a->unkC) < 0.05 &&
-                                    (double)DIFF(b->unk10, a->unk10) < 0.05 &&
-                                    (double)DIFF(b->unk14, a->unk14) < 0.05 &&
-                                    (double)DIFF(b->unk2C, a->unk2C) < 0.05 &&
-                                    (double)DIFF(b->unk30, a->unk30) < 0.05 &&
-                                    (double)DIFF(b->unk34, a->unk34) < 0.05 &&
-                                    a->unk0 == b->unk0 && a->unk4 == b->unk4) {
-                                    mismatch = 0;
-                                }
-                            } else if (a->unk38 == b->unk38 && a->unk3A == b->unk3A && a->unk3C == b->unk3C &&
-                                       (double)DIFF(b->unk2C, a->unk2C) < 0.05 &&
-                                       (double)DIFF(b->unk30, a->unk30) < 0.05 &&
-                                       (double)DIFF(b->unk34, a->unk34) < 0.05 &&
-                                       a->unk1C == b->unk1C) {
+        if (lightCount == node->lightCount && cellId == node->cellId && node->subType == subType) {
+            if (node->lightR == gChunkLightR[chunkIndex] && node->lightG == gChunkLightG[chunkIndex] && node->lightB == gChunkLightB[chunkIndex]) {
+                i = 0;
+                mismatch = 0;
+                for (; !mismatch && i < lightCount; i++) {
+                    mismatch = 1;
+                    for (j = 0; mismatch && j < lightCount; j++) {
+                        cand = &gLightCandidates[j];
+                        cached = &node->lights[i];
+                        if (cand->type == 1) {
+                            if (cached->x == cand->x && cached->y == cand->y && cached->z == cand->z &&
+                                DIFF(cand->dirX, cached->dirX) < 0.05 &&
+                                DIFF(cand->dirY, cached->dirY) < 0.05 &&
+                                DIFF(cand->dirZ, cached->dirZ) < 0.05 &&
+                                DIFF(cand->r, cached->r) < 0.05 &&
+                                DIFF(cand->g, cached->g) < 0.05 &&
+                                DIFF(cand->b, cached->b) < 0.05 &&
+                                cached->cosOuter == cand->cosOuter && cached->cosInner == cand->cosInner) {
                                 mismatch = 0;
                             }
+                        } else if (cached->x == cand->x && cached->y == cand->y && cached->z == cand->z &&
+                                   DIFF(cand->r, cached->r) < 0.05 &&
+                                   DIFF(cand->g, cached->g) < 0.05 &&
+                                   DIFF(cand->b, cached->b) < 0.05 &&
+                                   cached->invFalloffLength == cand->invFalloffLength) {
+                            mismatch = 0;
                         }
                     }
-                    if (!mismatch) {
-                        MatrixCacheSub *sub = node->sub;
-                        node->lastUsedFrame = gFrameCounter;
-                        D_807F905A++;
-                        if (node->list_prev != NULL) {
-                            if (node->list_next == NULL) {
-                                gMatrixCacheTail = node->list_prev;
-                            }
-                            node->list_prev->list_next = node->list_next;
-                            if (node->list_next != NULL) {
-                                node->list_next->list_prev = node->list_prev;
-                            }
-                            gMatrixCacheHead->list_prev = node;
-                            node->list_prev = NULL;
-                            node->list_next = gMatrixCacheHead;
-                            gMatrixCacheHead = node;
+                }
+                if (!mismatch) {
+                    LightTrigger *lights = node->lights;
+                    node->lastUsedFrame = gFrameCounter;
+                    D_807F905A++;
+                    if (node->listPrev != NULL) {
+                        if (node->listNext == NULL) {
+                            gMatrixCacheTail = node->listPrev;
                         }
-                        node = NULL; // FAKE: redefining node stops uopt forwarding node->sub into the return, keeping it in a0
-                        return &sub[count];
+                        node->listPrev->listNext = node->listNext;
+                        if (node->listNext != NULL) {
+                            node->listNext->listPrev = node->listPrev;
+                        }
+                        gMatrixCacheHead->listPrev = node;
+                        node->listPrev = NULL;
+                        node->listNext = gMatrixCacheHead;
+                        gMatrixCacheHead = node;
                     }
+                    node = NULL; // FAKE: redefining node stops uopt forwarding node->lights into the return, keeping it in a0
+                    return &lights[lightCount];
                 }
             }
         }
-        node = node->hash_next;
+        node = node->hashNext;
     }
     return NULL;
 }
 
-void *matrixCacheInsert(s32 count, s32 camIndex, s16 modelId, u8 subType, s32 matrixCount, u8 insertAtTail) {
-    MatrixCacheSub *dest;
+void *matrixCacheInsert(s32 lightCount, s32 chunkIndex, s16 cellId, u8 subType, s32 vtxCount, u8 insertAtTail) {
+    LightTrigger *lights;
     s32 allocSize;
     s32 pad;
     MatrixCacheNode *node;
     MatrixCacheNode **bucket;
     MatrixCacheNode *head;
 
-    allocSize = count * sizeof(MatrixCacheSub) + (matrixCount * 0x10) + 0x30;
+    allocSize = lightCount * sizeof(LightTrigger) + vtxCount * sizeof(Vtx) + 0x30;
     node = heapAlloc(allocSize);
 
-    bucket = &gMatrixCacheBuckets[matrixCacheHash(count, modelId, subType)];
+    bucket = &gMatrixCacheBuckets[matrixCacheHash(lightCount, cellId, subType)];
     head = *bucket;
     *bucket = node;
-    node->hash_next = head;
+    node->hashNext = head;
     if (head != NULL) {
-        head->hash_prev = node;
+        head->hashPrev = node;
     }
-    node->hash_prev = NULL;
+    node->hashPrev = NULL;
 
-    dest = node->sub;
-    node->camX = gChunkLightR[camIndex];
-    node->camY = gChunkLightG[camIndex];
-    node->camZ = gChunkLightB[camIndex];
-    node->modelId = modelId;
-    node->count = count;
+    lights = node->lights;
+    node->lightR = gChunkLightR[chunkIndex];
+    node->lightG = gChunkLightG[chunkIndex];
+    node->lightB = gChunkLightB[chunkIndex];
+    node->cellId = cellId;
+    node->lightCount = lightCount;
     node->subType = subType;
-    memcpy(dest, gLightCandidates, count * sizeof(MatrixCacheSub));
+    memcpy(lights, gLightCandidates, lightCount * sizeof(LightTrigger));
     node->lastUsedFrame = gFrameCounter;
-    node->matrixCount = matrixCount;
+    node->vtxCount = vtxCount;
     gMatrixCacheBytes += allocSize;
     gMatrixCacheCount++;
     node->allocSize = allocSize;
 
     if (insertAtTail == 0) {
-        node->list_next = gMatrixCacheHead;
+        node->listNext = gMatrixCacheHead;
         if (gMatrixCacheHead != NULL) {
-            gMatrixCacheHead->list_prev = node;
+            gMatrixCacheHead->listPrev = node;
         }
-        node->list_prev = NULL;
+        node->listPrev = NULL;
         gMatrixCacheHead = node;
         if (gMatrixCacheTail == NULL) {
             gMatrixCacheTail = node;
         }
     } else {
-        node->list_prev = gMatrixCacheTail;
+        node->listPrev = gMatrixCacheTail;
         if (gMatrixCacheTail != NULL) {
-            gMatrixCacheTail->list_next = node;
+            gMatrixCacheTail->listNext = node;
         }
-        node->list_next = NULL;
+        node->listNext = NULL;
         gMatrixCacheTail = node;
         if (gMatrixCacheHead == NULL) {
             gMatrixCacheHead = node;
         }
     }
 
-    return &dest[count];
+    return &lights[lightCount];
 }
 
 s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
-    s32 pad0;
-    s32 pad1;
-    s32 pad2;
-    s32 pad3;
-    s32 pad4;
+    s32 pad[5];
     u8 evictedAny;
     MatrixCacheNode *node;
     MatrixCacheNode *next;
     MatrixCacheNode **bucket;
-    u32 cond;
 
-    cond = checkLimit; // FAKE: u32 copy of the u8 parameter steers the compares' register
     node = gMatrixCacheTail;
     evictedAny = 0;
-    if (cond != 0) {
+    if (checkLimit) {
         minAge = 1;
     }
 
     while (1) {
-        if (cond != 0) {
-            if (!(gMatrixCacheLimit < gMatrixCacheBytes)) {
-                break;
-            }
+        if (checkLimit && gMatrixCacheBytes <= gMatrixCacheLimit) {
+            break;
         }
         if (node == NULL) {
             break;
         }
-        next = node->list_prev;
-        if ((cond == 0 && gMatrixCacheLimit < gMatrixCacheBytes) || minAge < (gFrameCounter - node->lastUsedFrame)) {
+        next = node->listPrev;
+        if ((!checkLimit && gMatrixCacheBytes > gMatrixCacheLimit) || minAge < (gFrameCounter - node->lastUsedFrame)) {
             if (node == gMatrixCacheTail) {
-                gMatrixCacheTail = node->list_prev;
+                gMatrixCacheTail = node->listPrev;
             }
             if (node == gMatrixCacheHead) {
-                gMatrixCacheHead = node->list_next;
+                gMatrixCacheHead = node->listNext;
             }
-            if (node->list_next != NULL) {
-                node->list_next->list_prev = node->list_prev;
+            if (node->listNext != NULL) {
+                node->listNext->listPrev = node->listPrev;
             }
-            if (node->list_prev != NULL) {
-                node->list_prev->list_next = node->list_next;
+            if (node->listPrev != NULL) {
+                node->listPrev->listNext = node->listNext;
             }
             gMatrixCacheBytes -= node->allocSize;
             gMatrixCacheCount--;
-            bucket = &gMatrixCacheBuckets[matrixCacheHash(node->count, node->modelId, node->subType)];
+            bucket = &gMatrixCacheBuckets[matrixCacheHash(node->lightCount, node->cellId, node->subType)];
             if (node == *bucket) {
-                *bucket = node->hash_next;
-                if (node->hash_next != NULL) {
-                    node->hash_next->hash_prev = NULL;
+                *bucket = node->hashNext;
+                if (node->hashNext != NULL) {
+                    node->hashNext->hashPrev = NULL;
                 }
             } else {
-                if (node->hash_next != NULL) {
-                    node->hash_next->hash_prev = node->hash_prev;
+                if (node->hashNext != NULL) {
+                    node->hashNext->hashPrev = node->hashPrev;
                 }
-                if (node->hash_prev != NULL) {
-                    node->hash_prev->hash_next = node->hash_next;
+                if (node->hashPrev != NULL) {
+                    node->hashPrev->hashNext = node->hashNext;
                 }
             }
             if ((gFrameCounter - node->lastUsedFrame) >= 2) {
@@ -665,8 +626,8 @@ s32 matrixCacheDecayLimit(void) {
     return matrixCacheEvict(1, 0);
 }
 
-s32 matrixCacheHash(s32 count, s16 modelId, u8 subType) {
-    return (modelId * 16 + count * 4 + subType) % 100;
+s32 matrixCacheHash(s32 lightCount, s16 cellId, u8 subType) {
+    return (cellId * 16 + lightCount * 4 + subType) % 100;
 }
 
 extern u32 D_807F9068;

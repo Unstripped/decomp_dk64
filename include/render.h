@@ -151,4 +151,28 @@ typedef struct TextureDescriptor {
     /* 0x14 */ u8 pad14[4];
 } TextureDescriptor; // size = 0x18
 
+// One light volume collected for lighting (lightCollectVolumesInBounds, 5E2F0.c): the
+// gLightCandidates/gActiveLights entries, also copied into matrix cache nodes (61AA0.c).
+typedef struct LightTrigger {
+    /* 0x00 */ f32 cosOuter;
+    /* 0x04 */ f32 cosInner;
+    /* 0x08 */ f32 coneScale;
+    /* 0x0C */ f32 dirX;
+    /* 0x10 */ f32 dirY;
+    /* 0x14 */ f32 dirZ;
+    /* 0x18 */ s32 rangeSq;
+    /* 0x1C */ f32 invFalloffLength;
+    /* 0x20 */ f32 falloffStart;
+    /* 0x24 */ f32 invFadeLength;
+    /* 0x28 */ f32 fadeStart;
+    /* 0x2C */ f32 r;
+    /* 0x30 */ f32 g;
+    /* 0x34 */ f32 b;
+    /* 0x38 */ s16 x;
+    /* 0x3A */ s16 y;
+    /* 0x3C */ s16 z;
+    /* 0x3E */ u8 type;
+    /* 0x3F */ u8 volumeIndex;
+} LightTrigger; // size = 0x40
+
 #endif
