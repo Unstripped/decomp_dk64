@@ -782,15 +782,6 @@ void actorSpawnAttachedTo(Actor *parent) {
 
 extern u8 gGfxBufferIndex;
 
-typedef struct MirrorActorState {
-    /* 0x00 */ Actor *parent;
-    /* 0x04 */ s32 parentInstanceId;
-    /* 0x08 */ u32 parentType;
-    /* 0x0C */ s16 planeOffset;
-    /* 0x0E */ u8 axisFlags;
-    /* 0x0F */ u8 alpha;
-} MirrorActorState;
-
 void actorMirrorParentModelY(void) {
     Mtx mtxL;
     float mtx1[4][4];

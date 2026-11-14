@@ -88,14 +88,6 @@ void triggerZoneCheckEntry(Actor *actor) {
     }
 }
 
-// customState of the spawned mirror actor 0x7B (read by actorMirrorParentModelAxis, A2F10 MirrorActorState).
-typedef struct MirrorActorState {
-    u8 pad0[0xC];
-    s16 planeOffset;
-    u8 axisFlags;
-    u8 alpha;
-} MirrorActorState;
-
 
 s32 triggerZoneContainsActor(Actor *actor, TriggerZoneSubNode *subNode) {
     while (subNode != NULL) {

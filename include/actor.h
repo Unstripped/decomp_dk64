@@ -1030,6 +1030,17 @@ typedef struct CamState {
     /* 0xFF */ u8 unkFF;
 } CamState; // size = 0x100
 
+// customState of the mirror actor 0x7B: triggerZoneSpawnTrigger (684C0) fills the plane fields from its
+// TriggerZoneData; actorMirrorParentModelY/actorMirrorParentModelAxis (A2F10) reflect the parent's model.
+typedef struct MirrorActorState {
+    /* 0x00 */ struct Actor *parent;
+    /* 0x04 */ s32 parentInstanceId;
+    /* 0x08 */ u32 parentType;
+    /* 0x0C */ s16 planeOffset;
+    /* 0x0E */ u8 axisFlags;
+    /* 0x0F */ u8 alpha;
+} MirrorActorState; // size = 0x10
+
 // Viewport layout entry (D_80750948[], cameraFindViewportEntry).
 typedef struct G00Entry {
     /* 0x0 */ u8 unk0;
