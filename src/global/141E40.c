@@ -1,8 +1,9 @@
 #include "common.h"
 #include "proto/global/141E40.h"
+#include "audio_synth.h"
 
-extern s32 *n_syn;
+extern N_ALSynth *n_syn;
 
 void n_alSynDelete(void) {
-    *n_syn = 0;
+    n_syn->head = NULL;
 }
