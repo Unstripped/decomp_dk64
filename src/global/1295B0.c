@@ -836,12 +836,12 @@ Actor *spawnNodeSpawnById(s16 id, s16 x, s16 y, s16 z, s16 yaw, s16 speed, s16 s
 
 
 void spawnNodeSpawnAtTablePoint(s16 id, u8 slot) {
-    u8 tbl;
+    u8 point;
     s16 yaw;
 
-    tbl = gBehaviourAnimState->path[slot][0];
-    yaw = (s16)(s32)((mathAngleBetweenPointsDeg((s32)gBehaviourTargetActor->x, (s32)gBehaviourTargetActor->z, D_807FDCA0->entries[tbl].x, D_807FDCA0->entries[tbl].z) * 4096.0f) / 360.0f);
-    if (spawnNodeSpawnById(id, D_807FDCA0->entries[tbl].x, D_807FDCA0->entries[tbl].y, D_807FDCA0->entries[tbl].z, yaw, ((randomNonNegative() >> 0xF) % 100) + 0x64, ((randomNonNegative() >> 0xF) % 100) + 0xC8) != 0) {
+    point = gBehaviourAnimState->path[slot][0];
+    yaw = (s32)((mathAngleBetweenPointsDeg((s32)gBehaviourTargetActor->x, (s32)gBehaviourTargetActor->z, D_807FDCA0->entries[point].x, D_807FDCA0->entries[point].z) * 4096.0f) / 360.0f);
+    if (spawnNodeSpawnById(id, D_807FDCA0->entries[point].x, D_807FDCA0->entries[point].y, D_807FDCA0->entries[point].z, yaw, ((randomNonNegative() >> 0xF) % 100) + 0x64, ((randomNonNegative() >> 0xF) % 100) + 0xC8) != 0) {
         gSpawnedActor->state = 0x17;
         gSpawnedActor->unk155 = 0;
     }
@@ -860,7 +860,7 @@ void spawnNodeSpawnFacingPoint(s16 id, s16 x, s16 y, s16 z, s16 targetX, s16 tar
     dz = targetZ - z;
     yaw = mathAngleBetweenPoints2D((f32)targetX, (f32)targetZ, (f32)x, (f32)z);
     dist = sqrtf((f32)((dx * dx) + (dy * dy) + (dz * dz)));
-    dy = (s32)(sqrtf((f32)((dx * dx) + (dz * dz))) / (dist / (f32)duration));
+    dy = (s32)(sqrtf((f32)((dx * dx) + (dz * dz))) / (dist / (f32)duration)); // FAKE: dy reused for the speed argument keeps the a2/a3 homes at 48/44(sp) (a separate speed local, in any declaration position or inline, moves them to 44/40)
     if (spawnNodeSpawnById(id, x, y, z, yaw, dy, speedY) != 0) {
         gSpawnedActor->state = 0x17;
         gSpawnedActor->unk155 = 0;
@@ -934,15 +934,15 @@ extern s32 gGlobalOverlayFlags;
 void spawnNodesUpdate(void) {
     s16 i;
     SpawnNode *node;
-    s32 dist;
+    s32 rangeSq;
     u8 active;
-    s32 best;
+    s32 bestDistSq;
     s16 p;
     SpawnEntry *entry;
     f32 dz;
     f32 dx;
-    s32 d;
-    PlayerState *sub;
+    s32 distSq;
+    PlayerState *primaryState;
 
     node = gSpawnNodeList->nodes;
     for (i = 0; i < gSpawnNodeList->count; i++, node++) {
@@ -950,13 +950,13 @@ void spawnNodesUpdate(void) {
         if (active) {
             gBehaviourWorkState = node->actor->customState;
         }
-        dist = gSpawnEntryTable[node->entryIndex].spawnRange * 0x64;
-        dist = dist * dist;
+        rangeSq = gSpawnEntryTable[node->entryIndex].spawnRange * 0x64;
+        rangeSq = rangeSq * rangeSq;
         if (active) {
             node->chunkIndex = node->actor->chunkIndex;
         }
-        if ((dist == 0) || (node->flags & 4) || (gGlobalOverlayFlags & 0x100)) {
-            dist = 0x7FFFFFFF;
+        if ((rangeSq == 0) || (node->flags & 4) || (gGlobalOverlayFlags & 0x100)) {
+            rangeSq = 0x7FFFFFFF;
         }
         if (active && (node->actor->state == 0x3B)) {
             camClearActorRefs(node->actor);
@@ -984,7 +984,7 @@ void spawnNodesUpdate(void) {
                 }
             }
         } else if (node->state == 2) {
-            if ((spawnNodeInRangeAndVisible(node, dist) != 0) && (spawnFlagConditionMet(gCurrentLevelIndex, node->id) != 0)) {
+            if ((spawnNodeInRangeAndVisible(node, rangeSq) != 0) && (spawnFlagConditionMet(gCurrentLevelIndex, node->id) != 0)) {
                 spawnNodeSelectEntry(node);
                 entry = &gSpawnEntryTable[node->entryIndex];
                 if (actorSpawn(entry->actorType, entry->spawnArg) != 0) {
@@ -995,12 +995,12 @@ void spawnNodesUpdate(void) {
             node->state = 7;
             node->respawnTimer = node->respawnDelay * 0x1E;
             if (node->zone->occupant == node->actor) {
-                node->zone->occupant = 0;
+                node->zone->occupant = NULL;
             }
             camClearActorRefs(node->actor);
             actorDespawn(node->actor);
         } else if (active) {
-            best = 0xF423F;
+            bestDistSq = 0xF423F;
             if ((gBehaviourWorkState->unk4->collisionFlags & 1) && (gBehaviourWorkState->unk4->state == 0x67)) {
                 if ((node->actor->collisionFlags & 2) && (node->state == 5)) {
                     if ((node->actor->state != 0x16) && (node->actor->state != 0x37) && !(node->flags & 0x40)) {
@@ -1011,26 +1011,26 @@ void spawnNodesUpdate(void) {
             }
             if (gPlayerCount >= 2) {
                 for (p = 0; p < gPlayerCount; p++) {
-                    sub = gPlayerSlots[0].actor->customState;
+                    primaryState = gPlayerSlots[0].actor->customState;
                     dz = gCurrentActor->z - gPlayerSlots[p].actor->z;
                     dx = gCurrentActor->x - gPlayerSlots[p].actor->x;
-                    d = (s32)((dz * dz) + (dx * dx));
-                    if ((d < best) || (sub->surfaceTimer != 0)) {
-                        best = d;
+                    distSq = (s32)((dz * dz) + (dx * dx));
+                    if ((distSq < bestDistSq) || (primaryState->surfaceTimer != 0)) {
+                        bestDistSq = distSq;
                         gBehaviourWorkState->unk4 = gPlayerSlots[p].actor;
                     }
                 }
             }
             if (node->state == 6) {
-                if (spawnNodeActorOutOfRangeScaled(node, dist) != 0) {
+                if (spawnNodeActorOutOfRangeScaled(node, rangeSq) != 0) {
                     actorDespawn(node->actor);
                     node->state = node->initialState;
-                } else if (spawnNodeActorInRangeAndVisible(node, dist) != 0) {
+                } else if (spawnNodeActorInRangeAndVisible(node, rangeSq) != 0) {
                     actorRegisterActive(node->actor);
                     node->state = 5;
                     node->flags |= 0x8000;
                 }
-            } else if ((node->state == 5) && (spawnNodeActorOutOfRangeOrHidden(node, dist) != 0)) {
+            } else if ((node->state == 5) && (spawnNodeActorOutOfRangeOrHidden(node, rangeSq) != 0)) {
                 if ((node->actor->state != 0x16) && (node->actor->state != 0x37)) {
                     if (node->actor->actorType == 0xF8) {
                         sfxStopChannel(0x42, 0);
@@ -1124,7 +1124,7 @@ u8 spawnNodeActorOutOfRangeScaled(SpawnNode *node, s32 rangeSq) {
     f32 dz;
     f32 dx;
     f32 r;
-    s32 t;
+    s32 scaledRange;
     s32 ret;
 
     r = sqrtf(rangeSq);
@@ -1134,11 +1134,11 @@ u8 spawnNodeActorOutOfRangeScaled(SpawnNode *node, s32 rangeSq) {
         if (ret) {
             ret = node->initialState == 2;
             if (ret) {
-                t = (s32)(r * 1.5);
+                scaledRange = (s32)(r * 1.5);
                 dz = gPlayerSlots[0].camZ - node->actor->z;
                 dx = gPlayerSlots[0].camX - node->actor->x;
-                r = gPlayerSlots[0].camY - node->actor->y;
-                ret = (f32)(t * t) < ((dz * dz) + ((dx * dx) + (r * r)));
+                r = gPlayerSlots[0].camY - node->actor->y; // FAKE: r reused for dy (a separate f32 dy local changes the FP colouring and the 1.5 constant load)
+                ret = (f32)(scaledRange * scaledRange) < ((dz * dz) + ((dx * dx) + (r * r)));
             }
         }
     }
@@ -1187,10 +1187,10 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
     s16 *q;
     s16 j;
     void *mem;
-    s32 same;
+    s32 sameY;
     SpawnNode *node;
     s16 i;
-    s16 prev;
+    s16 prevY;
     Zone *rec;
     s16 *r;
 
@@ -1200,28 +1200,24 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
         cnt = t;
         zones->count = t;
     } else {
-        zones->count = 0;
-        cnt = zones->count;
+        cnt = zones->count = 0;
     }
     rec = heapAlloc(cnt * sizeof(Zone));
     zones->zones = rec;
     for (i = 0; i < zones->count; i++) {
-        same = 1;
+        sameY = 1;
         j = 0;
         if (i != 0) {
             rec++;
         }
-        rec->minX = 0x7FFF;
-        rec->minZ = rec->minX;
-        rec->maxX = -0x8000;
-        rec->maxZ = rec->maxX;
+        rec->minZ = rec->minX = 0x7FFF;
+        rec->maxZ = rec->maxX = -0x8000;
         if (src != NULL) {
             t = *src++;
             cnt = t;
             rec->vertexCount = t;
         } else {
-            rec->vertexCount = 0;
-            cnt = rec->vertexCount;
+            cnt = rec->vertexCount = 0;
         }
         p = src;
         if (cnt != 0) {
@@ -1236,12 +1232,12 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
                 rec->maxX = (rec->vertices[j].x < rec->maxX) ? rec->maxX : rec->vertices[j].x;
                 rec->maxZ = (rec->vertices[j].z < rec->maxZ) ? rec->maxZ : rec->vertices[j].z;
                 if (j == 0) {
-                    prev = rec->vertices[j].y;
+                    prevY = rec->vertices[j].y;
                 } else {
-                    if (prev != rec->vertices[j].y) {
-                        same = 0;
+                    if (prevY != rec->vertices[j].y) {
+                        sameY = 0;
                     }
-                    prev = rec->vertices[j].y;
+                    prevY = rec->vertices[j].y;
                 }
                 j++;
             } while (j < cnt);
@@ -1253,8 +1249,7 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
             cnt = t;
             rec->entryCount = t;
         } else {
-            rec->entryCount = 0;
-            cnt = rec->entryCount;
+            cnt = rec->entryCount = 0;
         }
         q = src;
         if (cnt != 0) {
@@ -1271,7 +1266,7 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
         if (src != NULL) {
             rec->id = *src++;
             rec->unk19 = *src++;
-            if (same != 0) {
+            if (sameY != 0) {
                 rec->unk19 = 1;
             }
         }
@@ -1305,7 +1300,7 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
         node->spawnCount = 0;
         node->unk3C = 0.0f;
         node->chunkIndex = mapChunkFindByPosition((f32)node->x, (f32)node->y, (f32)node->z, 0);
-        node->path = heapAlloc(node->pathCount * 2);
+        node->path = heapAlloc(node->pathCount * sizeof(*node->path));
         q = r;
         if (node->pathCount > 0) {
             do {
@@ -1377,46 +1372,30 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
     s16 y;
     s16 z;
     s16 i;
-    f32 ox0;
-    f32 oy0;
-    f32 oz0;
-    A2PtrPair fx6;
-    A2BytePair idx6;
-    u8 sel6;
-    s16 ex6;
-    s16 ez6;
-    s16 ang6;
-    f32 scale8;
-    f32 kx8;
-    f32 kz8;
-    s32 rnd10;
-    f32 ox10;
-    f32 oy10;
-    s8 jx;
-    s8 jy;
-    s8 jz;
-    f32 kx14;
-    f32 ky14;
-    f32 kz14;
 
     group = gZoneTable->zones;
     x = group->entries[entryIndex].x;
     y = group->entries[entryIndex].y;
     z = group->entries[entryIndex].z;
     switch (effect) {
-        case 0:
+        case 0: {
+            f32 offX;
+            f32 offY;
+            f32 offZ;
+
             for (i = 0; i < count; i++) {
-                ox0 = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0);
-                oy0 = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 20);
-                oz0 = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0);
+                offX = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0);
+                offY = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 20);
+                offZ = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0);
                 effectSetColor(0xE6, 0xE6, 0xE6, 0xC8);
                 effectSetCallback(func_80717D4C);
                 effectSetSpeed(-(i * 20));
                 effectSetDepth(1);
                 effectSetMode(param);
-                effectCreateAtPosition(sEffectSparkConfig, 1.5f, (f32)x + ox0, (f32)y + oy0, (f32)z + oz0);
+                effectCreateAtPosition(sEffectSparkConfig, 1.5f, (f32)x + offX, (f32)y + offY, (f32)z + offZ);
             }
             return;
+        }
         case 7:
             break;
         case 1:
@@ -1491,38 +1470,51 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
             actorSpawn(0x92, 0x73);
             actorScriptStart(gSpawnedActor, 0x42A);
             return;
-        case 6:
+        case 6: {
+            A2PtrPair configs;
+            A2BytePair durations;
+            u8 pick;
+            s16 targetX;
+            s16 targetZ;
+            s16 angle;
+
             for (i = 0; i < count; i++) {
-                fx6 = D_80755794;
-                idx6 = D_8075579C;
-                sel6 = (randomNonNegative() >> 0xF) % 2;
-                ex6 = group->entries[param].x;
-                ez6 = group->entries[param].z;
-                ang6 = mathAngleBetweenPoints2D((f32)ex6, (f32)ez6, (f32)x, (f32)z);
+                configs = D_80755794;
+                durations = D_8075579C;
+                pick = (randomNonNegative() >> 0xF) % 2;
+                targetX = group->entries[param].x;
+                targetZ = group->entries[param].z;
+                angle = mathAngleBetweenPoints2D((f32)targetX, (f32)targetZ, (f32)x, (f32)z);
                 effectSetDepth(1);
-                effectSetDuration(idx6.b[sel6]);
+                effectSetDuration(durations.b[pick]);
                 effectSetCallback(effectConfettiPhysicsUpdate);
-                effectSetSpeed((ang6 << 16) + 3);
-                effectCreateAtPosition(fx6.p[sel6], (f32)((randomNonNegative() >> 0xF) % 1000 * 0.0005 + 0.2), (f32)x, (f32)(y + 10), (f32)z);
+                effectSetSpeed((angle << 16) + 3);
+                effectCreateAtPosition(configs.p[pick], (f32)((randomNonNegative() >> 0xF) % 1000 * 0.0005 + 0.2), (f32)x, (f32)(y + 10), (f32)z);
             }
             return;
+        }
         case 12:
             effectSetMaxDistance(0x7D0);
             effectSetMode(1);
             effectCreateAtPosition(D_8071FC0C, param * 0.01, (f32)x, (f32)y, (f32)z);
             return;
-        case 8:
-            scale8 = param * 0.01;
+        case 8: {
+            f32 scale;
+            f32 offX;
+            f32 offZ;
+
+            scale = param * 0.01;
             for (i = 0; i < count; i++) {
-                kx8 = ((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0) * scale8;
-                kz8 = ((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0) * scale8;
+                offX = ((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0) * scale;
+                offZ = ((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0) * scale;
                 effectSetMaxDistance(0x7D0);
                 effectSetDepth(1);
-                effectCreateAtPosition(D_8071FB54, scale8 * 1.3, (f32)x + kx8, (f32)y, (f32)z + kz8);
+                effectCreateAtPosition(D_8071FB54, scale * 1.3, (f32)x + offX, (f32)y, (f32)z + offZ);
                 effectSetColor(0xD2, 0xD2, 0xD2, 0xC8);
-                effectSpawnBoneDefault(NULL, 0, scale8 * 1.2, (f32)x + kx8, (f32)y, (f32)z + kz8, -0xB4);
+                effectSpawnBoneDefault(NULL, 0, scale * 1.2, (f32)x + offX, (f32)y, (f32)z + offZ, -0xB4);
             }
             return;
+        }
         case 9:
             for (i = 0; i < param; i++) {
                 effectSetMode(2);
@@ -1533,44 +1525,59 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 effectCreateAtPosition(D_8074E880[(randomNonNegative() >> 0xF) % 1000 % 3], count * 0.01, (f32)x, (f32)y, (f32)z);
             }
             return;
-        case 10:
+        case 10: {
+            s32 rnd;
+            f32 posX;
+            f32 posY;
+
             for (i = 0; i < param; i++) {
-                rnd10 = randomNonNegative() >> 0xF;
-                ox10 = (f32)(rnd10 % 300);
-                oy10 = (f32)((randomNonNegative() >> 0xF) % 200);
+                rnd = randomNonNegative() >> 0xF;
+                posX = (f32)(rnd % 300);
+                posY = (f32)((randomNonNegative() >> 0xF) % 200);
                 effectEnableFade();
-                effectCreateAtPosition(D_8071FB34, count * 0.01, ox10, oy10, -10.0f);
+                effectCreateAtPosition(D_8071FB34, count * 0.01, posX, posY, -10.0f);
             }
             return;
-        case 11:
+        }
+        case 11: {
+            s8 jitterX;
+            s8 jitterY;
+            s8 jitterZ;
+
             for (i = 0; i < param; i++) {
-                jx = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
-                jy = (randomLcgNext() / 10000 % 200) / 10.0 - 7.0;
-                jz = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
+                jitterX = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
+                jitterY = (randomLcgNext() / 10000 % 200) / 10.0 - 7.0;
+                jitterZ = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
                 effectSetDepth(1);
                 effectSetDuration(2);
                 effectSetSpeed(0x64);
                 effectSetCallback(func_80717D4C);
                 effectSetAngle(i / 7);
-                effectCreateAtPosition(D_8071FC58, count * 0.01, (f32)(x + jx), (f32)(y + jy), (f32)(z + jz));
+                effectCreateAtPosition(D_8071FC58, count * 0.01, (f32)(x + jitterX), (f32)(y + jitterY), (f32)(z + jitterZ));
             }
             return;
+        }
         case 13:
             effectSpawnDebrisParticles(NULL, param * 0.01, (f32)x, (f32)y, (f32)z);
             return;
-        case 14:
+        case 14: {
+            f32 offX;
+            f32 offY;
+            f32 offZ;
+
             for (i = 0; i < param; i++) {
-                kx14 = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
-                ky14 = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
-                kz14 = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
+                offX = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
+                offY = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
+                offZ = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
                 effectSetDepth(1);
                 effectSetSpeed(2);
                 effectSetDuration(-1);
                 effectSetCallback(effectWobbleRiseUpdate);
                 effectSetFlags(4);
-                effectCreateAtPosition(D_8071FC40, 0.0f, (f32)x + kx14, (f32)y + ky14, (f32)z + kz14);
+                effectCreateAtPosition(D_8071FC40, 0.0f, (f32)x + offX, (f32)y + offY, (f32)z + offZ);
             }
             break;
+        }
     }
 }
 
