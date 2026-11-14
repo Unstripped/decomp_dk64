@@ -254,7 +254,7 @@ void *effectCreateAtActorBone(void *asset, f32 scale, Actor *actor, s32 boneInde
     return effectCreate((s32)asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, flags);
 }
 
-void *effectCreateAtPosition(void *asset, f32 scale, f32 x, f32 y, f32 z) {
+EffectNode *effectCreateAtPosition(void *asset, f32 scale, f32 x, f32 y, f32 z) {
     return effectCreate((s32)asset, scale, x, y, z, NULL, 0, 0, 0);
 }
 

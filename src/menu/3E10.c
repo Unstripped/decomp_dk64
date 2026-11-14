@@ -2957,7 +2957,7 @@ Gfx *menuUpdateStateDispatch(Actor *actor, s32 opMode, Gfx *dl, s32 subArg) {
 f32 sqrtf(f32);
 
 void menuSpawnUiElementEffect(MenuScreenState *state, void *assetPtr, s32 posX, s32 posY, f32 elemScale, s32 flags, s32 fxType) {
-    MenuEffect *fx;
+    EffectNode *fx;
     MenuEffectTarget *burst;
     f32 dx;
     f32 dy;
@@ -2972,11 +2972,11 @@ void menuSpawnUiElementEffect(MenuScreenState *state, void *assetPtr, s32 posX, 
     effectSetFlags(1);
     fx = effectCreateAtPosition(assetPtr, elemScale, posX, posY, -10.0f);
     burst = heapAlloc(0x28);
-    fx->data = burst;
+    fx->allocation = burst;
     burst->unk0 = fxType;
     burst->unk4 = state->unk15;
-    burst->unk8 = fx->posX;
-    burst->unkC = fx->posY;
+    burst->unk8 = fx->x;
+    burst->unkC = fx->y;
     switch (fxType) {
     case 14:
         fx->scaleX = -fx->scaleX;
@@ -3012,9 +3012,9 @@ void menuSpawnUiElementEffect(MenuScreenState *state, void *assetPtr, s32 posX, 
         break;
     }
     if (D_80033F38 == 0) {
-        fx->colorR = 0x80;
-        fx->colorG = 0x80;
-        fx->colorB = 0x80;
+        fx->red = 0x80;
+        fx->green = 0x80;
+        fx->blue = 0x80;
     }
     D_80033F38 = 1;
 }

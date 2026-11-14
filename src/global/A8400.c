@@ -333,26 +333,11 @@ Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
 
 extern void *D_80755390[];
 
-typedef struct SpriteObject {
-    /* 0x000 */ u8 pad0[0x340];
-    /* 0x340 */ f32 screenX;
-    /* 0x344 */ f32 screenY;
-    /* 0x348 */ u8 pad348[0x18];
-    /* 0x360 */ f32 unk360;
-    /* 0x364 */ u8 pad364[9];
-    /* 0x36D */ u8 alpha;
-    /* 0x36E */ u8 pad36E[0x20];
-    /* 0x38E */ s16 clipLeft;
-    /* 0x390 */ s16 clipTop;
-    /* 0x392 */ s16 clipRight;
-    /* 0x394 */ s16 clipBottom;
-} SpriteObject;
-
 typedef struct SpriteObjectSlot {
     /* 0x00 */ u16 effectId;
     /* 0x02 */ u8 flip;
     /* 0x03 */ u8 pad3;
-    /* 0x04 */ SpriteObject *effect;
+    /* 0x04 */ EffectNode *effect;
 } SpriteObjectSlot;
 
 typedef struct SpriteRow {
@@ -390,17 +375,17 @@ void textBoxRowUpdateIcon(SpriteRow *row, SpriteVector *holder, SpriteVector *ch
                       (s16) (s32) chain->boxBottom);
         slot->effect = effectCreateAtPosition(D_80755390[slot->effectId], 1.0f, chain->boxLeft, chain->boxTop, 1);
         if (slot->flip != 0) {
-            slot->effect->unk360 *= -1.0f;
+            slot->effect->scaleX *= -1.0f;
         }
     }
     x += halfW;
-    slot->effect->screenX = (f32) (((f64) chain->boxLeft + x) * 4.0);
-    slot->effect->screenY = (f32) (((f64) chain->boxTop + (y + (holder->height * 0.5f))) * 4.0);
+    slot->effect->x = (f32) (((f64) chain->boxLeft + x) * 4.0);
+    slot->effect->y = (f32) (((f64) chain->boxTop + (y + (holder->height * 0.5f))) * 4.0);
     slot->effect->alpha = row->alpha;
-    slot->effect->clipLeft = (s16) (s32) chain->boxLeft;
-    slot->effect->clipTop = (s16) (s32) chain->boxTop;
-    slot->effect->clipRight = (s16) (s32) chain->boxRight;
-    slot->effect->clipBottom = (s16) (s32) chain->boxBottom;
+    slot->effect->minX = (s16) (s32) chain->boxLeft;
+    slot->effect->minY = (s16) (s32) chain->boxTop;
+    slot->effect->maxX = (s16) (s32) chain->boxRight;
+    slot->effect->maxY = (s16) (s32) chain->boxBottom;
 }
 
 typedef struct SpriteNode {

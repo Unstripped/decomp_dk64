@@ -432,7 +432,7 @@ void effectSpawnActorScale(Actor *actor) {
     effectSetCallback(effectGroundDecalSpinUpdate);
     effectSetFlags(4);
     effectSetColor(0xC8, 0xFF, 0xFF, 0xC8);
-    ((EffectNode *)effectCreateAtPosition(&D_8071FED0, (f64) scale * 0.6, actor->x, actor->waterY, actor->z))->owner = actor;
+    effectCreateAtPosition(&D_8071FED0, (f64) scale * 0.6, actor->x, actor->waterY, actor->z)->owner = actor;
 }
 
 extern PlayerStruct *gPlayerSlots;
