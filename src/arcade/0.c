@@ -1687,12 +1687,9 @@ s32 arcadeCheckStage2Collision(s32 posX, s32 posY) {
     return ret;
 }
 
-extern ArcadeLift D_8004BCAC[];
-
 s32 arcadeCheckStage3Collision(s32 posX, s32 posY) {
     s32 ret;
-    ArcadeLift *bar;
-    ArcadeLift *end;
+    s32 i;
 
     if (posY < 0x5D) {
         D_8004C6F0 = 0x88;
@@ -1766,28 +1763,18 @@ s32 arcadeCheckStage3Collision(s32 posX, s32 posY) {
         }
     }
     if (posX >= 0x4D && posX < 0x64) {
-        end = (ArcadeLift *)(s32)&D_8004BCAC; // FAKE: (s32) cast end pointer steers codegen (D_8004BCAC: text=18)
-        for (bar = D_8004BC88; ; ) {
-            f32 y = bar->y;
-            bar++;
+        for (i = 0; i < 3; i++) {
+            f32 y = D_8004BC88[i].y;
             if (y < (f32)(posY + 4) && (f32)(posY - 0x10) < y) {
                 ret = (s32)y;
-            }
-            if (bar == end) {
-                break;
             }
         }
     }
     if (posX >= 0x8D && posX < 0xA4) {
-        end = &D_8004BC88[6];
-        for (bar = D_8004BCAC; ; ) {
-            f32 y = bar->y;
-            bar++;
+        for (i = 3; i < 6; i++) {
+            f32 y = D_8004BC88[i].y;
             if (y < (f32)(posY + 4) && (f32)(posY - 0x10) < y) {
                 ret = (s32)y;
-            }
-            if (bar == end) {
-                break;
             }
         }
     }
