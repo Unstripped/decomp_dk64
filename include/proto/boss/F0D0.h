@@ -2,9 +2,9 @@
 #ifndef PROTO_BOSS_F0D0_H
 #define PROTO_BOSS_F0D0_H
 #include "common.h"
-struct BossE_F0D0_Sub14;
+#include "boss.h"
 #ifndef PROTO_SKIP_bossPickWaypointStep
-u8 bossPickWaypointStep(struct BossE_F0D0_Sub14 *, u8 *);
+u8 bossPickWaypointStep(BossScriptState *, u8 *);
 #endif
 #ifndef PROTO_SKIP_bossSetAnimationByWaypoint
 void bossSetAnimationByWaypoint(u8 *);
@@ -22,7 +22,7 @@ void bossSetRandomObjectPair();
 void bossSpawnObjectAtWaypoint(u8 *);
 #endif
 #ifndef PROTO_SKIP_bossCheckPlayerBelow
-s32 bossCheckPlayerBelow(struct BossE_F0D0_Sub14 *, u8 *);
+s32 bossCheckPlayerBelow(BossScriptState *, u8 *);
 #endif
 #ifndef PROTO_SKIP_bossAdjustHealth
 void bossAdjustHealth(s8);
