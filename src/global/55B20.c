@@ -1259,13 +1259,14 @@ u8 *mapChunkLoadAssetRefs(u8 *cmd, u8 *end, s16 limit) {
     if ((cmd != end) && (limit > 0)) {
         do {
             kind = *(u32 *)cmd >> 0x18;
-            if (kind == 0xFD) {
+            switch (kind) {
+            case 0xFD:
                 if (((u32)(*(s32 *)(cmd + 4) * 0x10) >> 0x1C) == 0) {
                     addr = *(s32 *)(cmd + 4);
                     *(void **)(cmd + 4) = assetLoad(0x19, addr, 0, 0);
                     count++;
                 }
-                if (cmd && cmd) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                break;
             }
             cmd += 8;
         } while ((cmd != end) && (count < limit));
@@ -1284,14 +1285,16 @@ void mapChunkReleaseAssets(u8 *cmd, u8 *end) {
 
     if (cmd != end) {
         do {
-            if ((op = (*(u32 *)cmd >> 0x18)) == 0xFD) {
-                if (orig) {} // FAKE: dead read of the lookup result keeps the web of the BST out-params out of $a0
+            op = *(u32 *)cmd >> 0x18;
+            switch (op) {
+            case 0xFD:
                 addr = *(u32 *)(cmd + 4);
                 if ((addr >= 0x80000000U) && (addr < 0xA0000000U)) {
                     collisionBstLookupByHash(addr, &node, &orig);
                     assetFreeBuffer((void *)*(u32 *)(cmd + 4), 0x542, 0x22);
                     *(u32 *)(cmd + 4) = orig;
                 }
+                break;
             }
             cmd += 8;
         } while (cmd != end);
