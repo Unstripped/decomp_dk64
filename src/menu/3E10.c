@@ -32,43 +32,20 @@
 
 
 typedef struct MenuScreenState {
-    f32 unk0;
-    f32 unk4;
+    f32 fade;
+    f32 scroll;
     char pad8[4];
-    s16 unkC;
-    s16 unkE;
+    s16 scrollY;
+    s16 scrollTargetY;
     s16 unk10;
-    s8 unk12;
+    s8 screen;
     s8 nextScreen;
     char pad14;
     s8 unk15;
-    s8 unk16;
+    s8 transitionPhase;
     s8 selection;
 } MenuScreenState;
 
-
-typedef struct MenuEffect { // effect objects created by effectCreateAtPosition for the menu
-    /* 0x000 */ char pad0[0x128];
-    /* 0x128 */ Mtx mtx[8];
-    /* 0x328 */ char pad328[0x18];
-    /* 0x340 */ f32 posX;
-    /* 0x344 */ f32 posY;
-    /* 0x348 */ char pad348[0x14];
-    /* 0x35C */ MenuScreenState *cfg;
-    /* 0x360 */ f32 scaleX;
-    /* 0x364 */ f32 scaleY;
-    /* 0x368 */ char pad368[2];
-    /* 0x36A */ u8 colorR;
-    /* 0x36B */ u8 colorG;
-    /* 0x36C */ u8 colorB;
-    /* 0x36D */ u8 colorA;
-    /* 0x36E */ char pad36E[0x16];
-    /* 0x384 */ void *data;
-    /* 0x388 */ char pad388[6];
-    /* 0x38E */ s16 unk38E;
-    /* 0x390 */ char pad390[2];
-    /* 0x392 */ s16 unk392;
-} MenuEffect;
 
 typedef struct MenuEffectTarget {
     f32 unk0;
@@ -109,10 +86,10 @@ void menuTitleScreenHandleInput(Actor *actor, s32 buttons) {
             trigger = 1;
         }
     }
-    if (state->unk0 == 0.0 && (trigger != 0 || (buttons & 1))) {
-        state->unk12 = 1;
-        state->unk16 = -1;
-        state->unk0 = 1.0f;
+    if (state->fade == 0.0 && (trigger != 0 || (buttons & 1))) {
+        state->screen = 1;
+        state->transitionPhase = -1;
+        state->fade = 1.0f;
         menuUpdateStateDispatch(actor, 0, 0, 0);
         camEndPath(gCamActor);
         sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
@@ -127,7 +104,7 @@ Gfx *menuTitleScreenDraw(void *actor, Gfx *dl) {
 typedef struct MenuActorExt { // menu actors carry an extra pointer past Actor
     /* 0x000 */ Actor base;
     /* 0x178 */ s32 pad178;
-    /* 0x17C */ s16 *unk17C;
+    /* 0x17C */ s16 *model;
 } MenuActorExt;
 
 extern Actor *gCurrentActor;
@@ -140,7 +117,7 @@ void menuResetCameraAndFlags(Actor *actor, s32 unused) {
     gPrimaryPlayerActor->x = 109.0f;
     gPrimaryPlayerActor->y = 6.0f;
     gPrimaryPlayerActor->z = 55.0f;
-    state->unk0 = 0.0f;
+    state->fade = 0.0f;
     D_80033734 = 0;
     gGlobalPauseFlags |= 0x10000;
 }
@@ -189,8 +166,8 @@ void menuUpdateMainScreen(Actor *actor, s32 buttons) {
         D_800337F4 = 0;
     }
     D_800337F0 = 0;
-    if (state->unk0 == 0.0f && D_80033F3C == 0.0f && D_800337F4 == 0) {
-        if (state->unk4 == 0.0f) {
+    if (state->fade == 0.0f && D_80033F3C == 0.0f && D_800337F4 == 0) {
+        if (state->scroll == 0.0f) {
             D_800337F0 = 1;
             switch (state->selection) {
             case 2:
@@ -213,7 +190,7 @@ void menuUpdateMainScreen(Actor *actor, s32 buttons) {
         D_80033F3C += D_80033F40;
         if (D_80033F3C > 1.0f) {
             D_80033F3C = 1.0f;
-            state->unk16 = 0;
+            state->transitionPhase = 0;
             switch (state->selection) {
             default:
                 state->nextScreen = 2;
@@ -434,10 +411,10 @@ extern s8 D_80033F48;
 void menuHandleSelectionInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
 
-    if (state->unk0 == 0.0f) {
-        if (state->unk4 == 0.0f) {
+    if (state->fade == 0.0f) {
+        if (state->scroll == 0.0f) {
             if (buttons & 1) {
-                state->unk16 = 0;
+                state->transitionPhase = 0;
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 switch (state->selection) {
                 case 2:
@@ -453,7 +430,7 @@ void menuHandleSelectionInput(Actor *actor, s32 buttons) {
                 }
             } else if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                state->unk16 = 0;
+                state->transitionPhase = 0;
                 state->nextScreen = 1;
             } else {
                 menuHandleScrollInput(state, 4, buttons);
@@ -542,13 +519,13 @@ extern s8 D_80033F48;
 void menuHandleConfirmationInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
 
-    if (state->unk0 == 0.0f && state->unk4 == 0.0f) {
+    if (state->fade == 0.0f && state->scroll == 0.0f) {
         if (buttons & 1) {
             controllerSetActiveMask(1);
             func_807144B8(D_80033F48);
         } else if (buttons & 2) {
             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            state->unk16 = 0;
+            state->transitionPhase = 0;
             state->nextScreen = 2;
         }
     }
@@ -699,11 +676,11 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
 void menuHandleFileSelectInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
 
-    if (state->unk0 == 0.0f) {
-        if (state->unk4 == 0.0f) {
+    if (state->fade == 0.0f) {
+        if (state->scroll == 0.0f) {
             if (buttons & 1) {
                 if (menuCheckSaveFile(state->selection) == 0) {
-                    state->unk16 = 0;
+                    state->transitionPhase = 0;
                     state->nextScreen = 5;
                     D_80033F48 = state->selection;
                 } else {
@@ -711,7 +688,7 @@ void menuHandleFileSelectInput(Actor *actor, s32 buttons) {
                 }
             } else if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                state->unk16 = 0;
+                state->transitionPhase = 0;
                 state->nextScreen = 2;
             } else {
                 menuHandleScrollInput(state, 3, buttons);
@@ -785,7 +762,7 @@ extern s8 D_80033FAC;
 void menuMysteryHandleInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
 
-    if (state->unk0 == 0.0f && state->unk4 == 0.0f) {
+    if (state->fade == 0.0f && state->scroll == 0.0f) {
         if (buttons & 1) {
             if ((buttons & 8) && (D_80033FAC != 0)) {
                 effectEnableFade();
@@ -794,16 +771,16 @@ void menuMysteryHandleInput(Actor *actor, s32 buttons) {
                 effectCreateAtPosition(&D_8071FE08, 10.3f, 240.0f, 120.0f, -10.0f);
                 sfxPlayOnFreeSlot(0xF6, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 eepromSetCurrentSlot(D_80033F48, 1);
-                state->unk16 = 0;
+                state->transitionPhase = 0;
                 state->nextScreen = 2;
             } else if ((buttons & 4) && (D_80033FAC != 0)) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                state->unk16 = 0;
+                state->transitionPhase = 0;
                 state->nextScreen = 2;
             }
         } else if (buttons & 2) {
             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            state->unk16 = 0;
+            state->transitionPhase = 0;
             state->nextScreen = 2;
         }
     }
@@ -865,15 +842,15 @@ extern s8 D_8076A104;
 void menuBossReplayHandleInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
 
-    if (state->unk0 == 0.0f) {
-        if (state->unk4 == 0.0f) {
+    if (state->fade == 0.0f) {
+        if (state->scroll == 0.0f) {
             if (buttons & 1) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                state->unk16 = 0;
+                state->transitionPhase = 0;
                 state->nextScreen = 7;
             } else if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                state->unk16 = 0;
+                state->transitionPhase = 0;
                 state->nextScreen = 1;
                 D_80033698 = 3;
             } else {
@@ -925,7 +902,7 @@ Gfx *menuDrawSubmenuRing(Actor *actor, Gfx *dl) {
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
     for (i = 0; i != 0x1000; i += 0x800) {
         ang = i - (state->selection << 11);
-        ang -= (s32)(state->unk4 * 2048.0);
+        ang -= (s32)(state->scroll * 2048.0);
         posX = 160.0 - mathSinF((s16)ang) * 50.0;
         posY = 120.0 - mathCosF((s16)ang) * 50.0;
         menuComputeElementPosition(state, posX, posY, &posX, &posY, 2, 0, 1.5f);
@@ -1092,15 +1069,15 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
     u8 mask;
     s32 pressed;
 
-    step = state->unkE - state->unkC;
+    step = state->scrollTargetY - state->scrollY;
     if (step >= 0x15) {
         step = 0x14;
     }
     if (step < -0x14) {
         step = -0x14;
     }
-    state->unkC += step;
-    rest = state->unkE - state->unkC;
+    state->scrollY += step;
+    rest = state->scrollTargetY - state->scrollY;
     if (step != 0 && rest == 0) {
         sfxPlayOnFreeSlot(0x3C, 0x4E20, 63.0f, 1.0f, 0, 0);
         D_80033F50 = 3;
@@ -1108,12 +1085,12 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
     if (D_80033FAE != 0) {
         buttons = 0;
     }
-    if (state->unk0 == 0.0f && rest == 0) {
+    if (state->fade == 0.0f && rest == 0) {
         itemCount = 5;
         if (D_8076A104 == 0) {
             itemCount = 6;
         }
-        if (state->unk4 == 0.0f) {
+        if (state->scroll == 0.0f) {
             if ((buttons & 1) && D_80033FAD >= 2) {
                 mask = 0;
                 gActivePlayerCount = 0;
@@ -1137,30 +1114,30 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                 mpStartMatch();
             } else if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
-                state->unk16 = 0;
+                state->transitionPhase = 0;
                 state->nextScreen = 6;
             } else if (buttons & 0x40) {
-                state->unkE -= 0xF0;
+                state->scrollTargetY -= 0xF0;
                 if ((D_80033FAD == 2 || D_80033FAD == 3) && D_8076A104 != 1) {
                     lim = -0x1E0;
                 } else {
                     lim = -0xF0;
                 }
-                if (state->unkE < lim) {
-                    state->unkE = lim;
+                if (state->scrollTargetY < lim) {
+                    state->scrollTargetY = lim;
                 } else {
                     sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
                 }
             } else if (buttons & 0x80) {
-                state->unkE += 0xF0;
-                if (state->unkE > 0) {
-                    state->unkE = 0;
+                state->scrollTargetY += 0xF0;
+                if (state->scrollTargetY > 0) {
+                    state->scrollTargetY = 0;
                 } else {
                     sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
                 }
             }
             pressed = (buttons ^ D_80033858) & buttons;
-            if (state->unkC == 0 && D_80033FAE == 0) {
+            if (state->scrollY == 0 && D_80033FAE == 0) {
                 for (i = 0; i != 4; i++) {
                     bits = 0;
                     if (D_807ECD09 & (1 << i)) {
@@ -1225,7 +1202,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                         }
                     }
                 }
-            } else if (state->unkC == -0xF0) {
+            } else if (state->scrollY == -0xF0) {
                 if (((buttons ^ D_80033858) & buttons) & 0x10) { // FAKE: recomputes pressed so the test reads the v0 CSE value, not s0 pressed
                     cap = 5;
                     if (D_80033834[D_8074451C] == 5) {
@@ -1240,7 +1217,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
                 menuHandleScrollInput(state, itemCount, pressed);
-            } else if (state->unkC == -0x1E0) {
+            } else if (state->scrollY == -0x1E0) {
                 if (((buttons ^ D_80033858) & buttons) & 0x10) { // FAKE: recomputes pressed so the test reads the v0 CSE value, not s0 pressed
                     D_80744534++;
                     if (D_80744534 >= 3) {
@@ -1300,7 +1277,7 @@ Gfx *menuDrawCharacterSelect(Actor *actor, Gfx *dl) {
     u8 strBuf[0xC8];
     f32 v;
 
-    if (state->unkC > -239.0) {
+    if (state->scrollY > -239.0) {
         if (D_8076A0E5 & 0x80) {
             menuComputeElementPosition(state, 210.0f, 120.0f, &posX, &posY, 2, 0, 1.8f);
             dl = menuSetElementCoordinates(dl, 0x81, posX + 8.0, posY + 32.0f, 3.0f);
@@ -1317,21 +1294,21 @@ Gfx *menuDrawCharacterSelect(Actor *actor, Gfx *dl) {
         menuComputeElementPosition(state, 160.0f, 25.0f, &posX, &posY, 2, 0, 0.6f);
         dl = textDrawStringVtx(dl, 1, posX * 4.0f, posY * 4.0f, D_80033F28[D_8076A104 + 12], 0x81);
     }
-    if (state->unkC < -1.0f && state->unkC > -479.0f) {
+    if (state->scrollY < -1.0f && state->scrollY > -479.0f) {
         gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
         menuComputeElementPosition(state, 160.0f, 30.0f, &posX, &posY, 2, 0, 1.5f);
         posY = posY + 240.0f;
         dl = textDrawStringVtx(dl, 1, 0x280, posY * 4.0f, D_80033F28[15], 0x81);
         idx = state->selection;
-        if (state->unk4 != 0.0f) {
-            if (state->unk4 > 0.5f) {
+        if (state->scroll != 0.0f) {
+            if (state->scroll > 0.5f) {
                 idx++;
             }
             if (idx >= 4) {
                 idx = 0;
             }
         }
-        v = state->unk4 - 0.5f;
+        v = state->scroll - 0.5f;
         if (v < 0.0f) {
             v = -v;
         }
@@ -1375,7 +1352,7 @@ Gfx *menuDrawCharacterSelect(Actor *actor, Gfx *dl) {
         }
         dl = textDrawStringVtx(dl, 1, posX * 4.0f, textY, strBuf, 0x81);
     }
-    if (state->unkC < -241.0f) {
+    if (state->scrollY < -241.0f) {
         gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
         menuComputeElementPosition(state, 160.0f, 40.0f, &posX, &posY, 2, 0, 1.5f);
         posY = posY + 480.0f;
@@ -1394,9 +1371,9 @@ Gfx *menuDrawCharacterSelect(Actor *actor, Gfx *dl) {
 }
 
 typedef struct Menu6_Sub174 { // customState of the character-select kong actors
-    Actor *unk0; // parent menu actor
-    s32 unk4;
-    s8 unk8;
+    Actor *parent; // parent menu actor
+    s32 animFrame;
+    s8 animSet;
 } Menu6_Sub174;
 extern s16 D_8003386C[];
 extern s8 D_80033FAE;
@@ -1434,14 +1411,14 @@ void menuInitCharacterSelect(Actor *actor, s32 unused) {
     for (i = 0; i != 4; i++) {
         actorSpawn(0x151, D_8003386C[D_8076A0E4[i] & 0x7F]);
         {
-            s16 *q = ((MenuActorExt *)gSpawnedActor)->unk17C;
+            s16 *q = ((MenuActorExt *)gSpawnedActor)->model;
             *q = D_8003386C[D_8076A0E4[i] & 0x7F];
         }
         gSpawnedActor->state = i;
         gSpawnedActor->unk155 = D_8076A0E4[i] & 0x7F;
         sub = gSpawnedActor->customState;
-        sub->unk0 = actor;
-        sub->unk8 = 0;
+        sub->parent = actor;
+        sub->animSet = 0;
     }
     menuSpawnUiElementEffect(state, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
     menuSpawnUiElementEffect(state, &D_80720D14, 0x23, 0xD2, 0.75f, 2, 0);
@@ -1466,9 +1443,9 @@ void menuInitCharacterSelect(Actor *actor, s32 unused) {
 void menuMultiplayerResultsHandleInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
 
-    if (state->unk0 == 0.0 && (buttons & 1)) {
+    if (state->fade == 0.0 && (buttons & 1)) {
         sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-        state->unk16 = 0;
+        state->transitionPhase = 0;
         state->nextScreen = 7;
     }
     menuUpdateItemTransition(actor, state, 0);
@@ -1552,14 +1529,14 @@ void menuInitMultiplayerResults(Actor *actor, s32 unused) {
     for (i = 0; i < D_80033878; i++) {
         actorSpawn(0x151, D_8003386C[D_8003387C[i]]);
         {
-            s16 *q = ((MenuActorExt *)gSpawnedActor)->unk17C;
+            s16 *q = ((MenuActorExt *)gSpawnedActor)->model;
             *q = D_8003386C[D_8003387C[i]];
         }
         gSpawnedActor->state = D_80033F20[i] | 0x80;
         gSpawnedActor->unk155 = D_8003387C[i];
         sub = gSpawnedActor->customState;
-        sub->unk0 = actor;
-        sub->unk8 = (i == D_8076A105) + 1;
+        sub->parent = actor;
+        sub->animSet = (i == D_8076A105) + 1;
     }
     menuSpawnUiElementEffect(state, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
 }
@@ -1587,43 +1564,43 @@ void menuCharacterSelectUpdateActor(void) {
     Menu6_Sub174 *sub174;
 
     sub174 = gCurrentActor->customState;
-    parentState = sub174->unk0->customState;
+    parentState = sub174->parent->customState;
     shouldDespawn = 0;
     func_806BF920();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->sub4->scaleX = 2.0f * gCurrentActor->sub4->scaleX;
         gCurrentActor->sub4->scaleY = 2.0f * gCurrentActor->sub4->scaleY;
         gCurrentActor->sub4->scaleZ = 2.0f * gCurrentActor->sub4->scaleZ;
-        kong = sub174->unk8;
+        kong = sub174->animSet;
         actorScriptStart(gCurrentActor, D_800338B4[(s16)(kong * 6) + (gCurrentActor->unk155 & 0xF)]);
         playerKongStopSoundByState(gCurrentActor);
         gCurrentActor->flags |= 0x1000;
-        sub174->unk4 = D_8076A100[gCurrentActor->state & 0xF];
+        sub174->animFrame = D_8076A100[gCurrentActor->state & 0xF];
         actorConfigApplyAnimFrameByType(gCurrentActor, gCurrentActor->unk155 + 2, D_8076A100[gCurrentActor->state & 0xF]);
     }
     sel = gCurrentActor->state;
     if (!(gCurrentActor->state & 0x80)) {
-        if (sub174->unk4 != D_8076A100[gCurrentActor->state]) {
+        if (sub174->animFrame != D_8076A100[gCurrentActor->state]) {
             actorConfigApplyAnimFrameByType(gCurrentActor, gCurrentActor->unk155 + 2, D_8076A100[gCurrentActor->state]);
-            sub174->unk4 = D_8076A100[gCurrentActor->state];
+            sub174->animFrame = D_8076A100[gCurrentActor->state];
         }
         idx = D_8076A0E4[gCurrentActor->state] & 0x7F;
         if (idx != gCurrentActor->unk155) {
             actorTypePtr = &D_8003386C[idx];
             actorSpawn(0x151, *actorTypePtr);
             {
-                s16 *q = ((MenuActorExt *)gSpawnedActor)->unk17C;
+                s16 *q = ((MenuActorExt *)gSpawnedActor)->model;
                 *q = *actorTypePtr;
             }
             gSpawnedActor->state = gCurrentActor->state;
             gSpawnedActor->unk155 = idx;
             {
                 Menu6_Sub174 *sub = gSpawnedActor->customState;
-                sub->unk0 = sub174->unk0;
+                sub->parent = sub174->parent;
             }
             shouldDespawn = 1;
             if (gCurrentActor->state != 0) {} // FAKE: extra reference of the unk154 value; recolours the shared A->unk154 candidate (t0) and the PRE reload position
-            if (sub174->unk0->flags && sub174->unk0->flags) {} // FAKE: repeated dead load steers uopt lifetimes and the ugen temporary ring
+            if (sub174->parent->flags && sub174->parent->flags) {} // FAKE: repeated dead load steers uopt lifetimes and the ugen temporary ring
         }
         row = &D_80033894[gCurrentActor->state];
         menuComputeElementPosition(parentState, row->a, row->b, &posX, &posY, 2, 0, 1.8f);
@@ -1645,7 +1622,7 @@ void menuCharacterSelectUpdateActor(void) {
         gCurrentActor->y = (gPrimaryPlayerActor->y - (posY - 120.0f)) + 16.0f;
         gCurrentActor->z = gPrimaryPlayerActor->z - 300.0f;
     }
-    if (parentState->unk0 > 1.0f) {
+    if (parentState->fade > 1.0f) {
         shouldDespawn = 1;
     }
     if (shouldDespawn != 0) {
@@ -1662,8 +1639,8 @@ void menuHandleSoundOptionsInput(Actor *actor, s32 buttons) {
     s8 flag = 0;
 
     menuCheckCheatCodeSequence();
-    if (state->unk0 == 0.0f) {
-        if (state->unk4 == 0.0f) {
+    if (state->fade == 0.0f) {
+        if (state->scroll == 0.0f) {
             switch (state->selection) {
             case 0:
                 if (!(D_80033670 & 0x10) && (buttons & 0x10)) {
@@ -1739,7 +1716,7 @@ void menuHandleSoundOptionsInput(Actor *actor, s32 buttons) {
                     func_8060DEA8();
                 }
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                state->unk16 = 0;
+                state->transitionPhase = 0;
                 state->nextScreen = 1;
             } else {
                 menuHandleScrollInput(state, 4, buttons);
@@ -1827,8 +1804,8 @@ void menuHandleGameOptionsInput(Actor *actor, s32 buttons) {
     s8 flag = 0;
     s32 i;
 
-    if (state->unk0 == 0.0f) {
-        if (state->unk4 == 0.0f) {
+    if (state->fade == 0.0f) {
+        if (state->scroll == 0.0f) {
             switch (state->selection) {
             case 0:
                 if ((buttons & 0x30) && !(D_80033670 & 0x30)) {
@@ -1878,7 +1855,7 @@ void menuHandleGameOptionsInput(Actor *actor, s32 buttons) {
                 eepromSetField(0x20, 0, 0, 0, D_80744530);
                 func_8060DEA8();
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                state->unk16 = 0;
+                state->transitionPhase = 0;
                 state->nextScreen = 1;
             } else {
                 menuHandleScrollInput(state, D_800338FC, buttons);
@@ -1988,8 +1965,8 @@ void menuHandleCheatsInput(Actor *actor, s32 buttons) {
     s8 idx;
     s8 *p;
 
-    if (state->unk0 == 0.0f) {
-        if (state->unk4 == 0.0f) {
+    if (state->fade == 0.0f) {
+        if (state->scroll == 0.0f) {
             idx = state->selection;
             cnt = D_80033988[idx];
             if (cnt > 0) {
@@ -2026,13 +2003,13 @@ void menuHandleCheatsInput(Actor *actor, s32 buttons) {
                         switch (D_80033978[sel][0]) {
                         case 0xBF:
                             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                            state->unk16 = 0;
+                            state->transitionPhase = 0;
                             state->nextScreen = 0xC;
                             D_800339A8 = 0;
                             break;
                         case 0xB8:
                             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                            state->unk16 = 0;
+                            state->transitionPhase = 0;
                             state->nextScreen = 0xC;
                             D_800339A8 = 1;
                             break;
@@ -2067,7 +2044,7 @@ void menuHandleCheatsInput(Actor *actor, s32 buttons) {
             }
             if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                state->unk16 = 0;
+                state->transitionPhase = 0;
                 state->nextScreen = 1;
                 D_80033698 = 3;
             } else {
@@ -2325,7 +2302,7 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
     } else {
         table = D_80744568;
     }
-    if (state->unk0 == 0.0f) {
+    if (state->fade == 0.0f) {
         if (D_80033F60 < 0) {
             if (buttons & 1) {
                 menuSetupPlayerInventory(D_800339B8[D_800339A8].unk0, 0, D_800339B8[D_800339A8].unk2, 3, 3, 1, 3);
@@ -2333,7 +2310,7 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
             }
             if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                state->unk16 = 0;
+                state->transitionPhase = 0;
                 state->nextScreen = 0xA;
             }
         } else {
@@ -2538,15 +2515,15 @@ Gfx *menuDrawScrollSelector(Gfx *dl, MenuScreenState *state, u8 **strTable, s32 
     f32 posYLocal;
     s16 y;
 
-    if (state->unk4 != 0.0f) {
-        if (state->unk4 > 0.5f) {
+    if (state->scroll != 0.0f) {
+        if (state->scroll > 0.5f) {
             idx++;
         }
         if (idx >= itemCount) {
             idx = 0;
         }
     }
-    v = state->unk4 - 0.5f;
+    v = state->scroll - 0.5f;
     if (v < 0.0f) {
         v = -v;
     }
@@ -2584,20 +2561,20 @@ Gfx *menuSetElementCoordinates(Gfx *dl, s32 elemIdx, f32 posX, f32 posY, f32 sca
 extern s8 D_80033F50;
 
 void menuUpdateItemTransition(void *actor, MenuScreenState *state, s32 hasSfx) {
-    if (!state->unk16) {
-        state->unk0 += 0.13f;
-        if (state->unk0 > 1.3f) {
-            state->unk0 = 1.0f;
-            state->unk12 = state->nextScreen;
-            state->unk16 = -1;
+    if (!state->transitionPhase) {
+        state->fade += 0.13f;
+        if (state->fade > 1.3f) {
+            state->fade = 1.0f;
+            state->screen = state->nextScreen;
+            state->transitionPhase = -1;
             menuUpdateStateDispatch(actor, 0, 0, 0);
             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
         }
     } else {
-        if (state->unk0 > 0.0f) {
-            state->unk0 -= 0.2f;
-            if (state->unk0 < 0.0f) {
-                state->unk0 = 0.0f;
+        if (state->fade > 0.0f) {
+            state->fade -= 0.2f;
+            if (state->fade < 0.0f) {
+                state->fade = 0.0f;
                 if (hasSfx != 0) {
                     sfxPlayOnFreeSlot(0x3C, 0x61A8, 63.0f, 1.0f, 0, 0);
                     D_80033F50 = 3;
@@ -2614,7 +2591,7 @@ void menuHandleScrollInput(MenuScreenState *state, s32 itemCount, s32 buttons) {
         sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
         D_80033F44 = -0.1f;
         state->selection--;
-        state->unk4 = 1.0f;
+        state->scroll = 1.0f;
         if (state->selection < 0) {
             state->selection += itemCount;
         }
@@ -2629,9 +2606,9 @@ void menuHandleScrollInput(MenuScreenState *state, s32 itemCount, s32 buttons) {
 
 void menuUpdateScrollAnimation(MenuScreenState *state, s32 itemCount) {
     if (D_80033F44 > 0.0f) {
-        state->unk4 += D_80033F44;
-        if (state->unk4 >= 1.0f) {
-            state->unk4 = 0.0f;
+        state->scroll += D_80033F44;
+        if (state->scroll >= 1.0f) {
+            state->scroll = 0.0f;
             state->selection++;
             if (state->selection >= itemCount) {
                 state->selection -= itemCount;
@@ -2639,10 +2616,10 @@ void menuUpdateScrollAnimation(MenuScreenState *state, s32 itemCount) {
             D_80033F44 = 0.0f;
         }
     } else if (D_80033F44 < 0.0f) {
-        state->unk4 += D_80033F44;
-        if (state->unk4 <= 0.0f) {
+        state->scroll += D_80033F44;
+        if (state->scroll <= 0.0f) {
             D_80033F44 = 0.0f;
-            state->unk4 = 0.0f;
+            state->scroll = 0.0f;
         }
     }
 }
@@ -2703,19 +2680,19 @@ void menuInit(void) {
         }
         switch (D_80744514) {
         case 1:
-            sub->unk12 = 1;
+            sub->screen = 1;
             break;
         case 2:
-            sub->unk12 = 0xB;
+            sub->screen = 0xB;
             break;
         case 3:
         case 4:
         case 5:
-            sub->unk12 = 0xA;
+            sub->screen = 0xA;
             break;
         case 6:
         case 7:
-            sub->unk12 = 0xC;
+            sub->screen = 0xC;
             D_800339A8 = D_80744514 - 6;
             menuInsertHighScore();
             break;
@@ -2723,19 +2700,19 @@ void menuInit(void) {
             actorScriptStart(gSpawnedActor, 0x349);
             gPrimaryPlayerActor->state = 0x86;
             gPrimaryPlayerActor->unk155 = 0;
-            sub->unk12 = 0;
+            sub->screen = 0;
             break;
         }
         gPrimaryPlayerActor->sub4->scaleX = gPrimaryPlayerActor->sub4->scaleX * 0.8;
         gPrimaryPlayerActor->sub4->scaleY = gPrimaryPlayerActor->sub4->scaleY * 0.8;
         gPrimaryPlayerActor->sub4->scaleZ = gPrimaryPlayerActor->sub4->scaleZ * 0.8;
         sub->selection = 0;
-        sub->unkC = 0;
-        sub->unkE = 0;
-        sub->unk16 = 1;
+        sub->scrollY = 0;
+        sub->scrollTargetY = 0;
+        sub->transitionPhase = 1;
         sub->unk10 = 0;
-        sub->unk0 = 1.0f;
-        sub->unk4 = 0.0f;
+        sub->fade = 1.0f;
+        sub->scroll = 0.0f;
         D_80033F34 = heapAlloc(0x80);
         D_80033F30 = 0;
         menuUpdateStateDispatch(gCurrentActor, 0, 0, 0);
@@ -2804,18 +2781,18 @@ Gfx *menuUpdateStateDispatch(Actor *actor, s32 opMode, Gfx *dl, s32 subArg) {
         D_80033F40 = 0.0f;
         D_80033F3C = 0.0f;
         gGlobalPauseFlags &= 0xFFFEFFFF;
-        state->unkC = 0;
-        state->unkE = 0;
+        state->scrollY = 0;
+        state->scrollTargetY = 0;
         D_800337F8 = 1;
         break;
     case 1:
         break;
     case 2:
-        D_8076A0D0[state->unk12] = state->selection;
+        D_8076A0D0[state->screen] = state->selection;
         lightSetColor(1.0f, 1.0f, 1.0f, 0);
         break;
     }
-    switch (state->unk12) {
+    switch (state->screen) {
     case 0:
         if (opMode == 1) {
             return menuTitleScreenDraw(actor, dl);
@@ -3028,30 +3005,30 @@ typedef struct Menu10_Spin {
 
 extern u8 gGfxBufferIndex;
 
-void menuSparkleParticleUpdate(MenuEffect *spinner, s32 unused) {
+void menuSparkleParticleUpdate(EffectNode *spinner, s32 unused) {
     Menu10_Spin *p;
     s16 randAngle;
     f32 rotMatrix[4][4];
-    if (spinner->data == NULL) {
-        p = spinner->data = heapAlloc(0x10);
+    if (spinner->allocation == NULL) {
+        p = spinner->allocation = heapAlloc(0x10);
         randAngle = randomLcgNext() * 0x10;
         p->vx = mathSinF(randAngle) * 60.0f;
         p->vy = mathCosF(randAngle) * 60.0f;
         p->ang = randomFloat() * 3.141f;
-        spinner->posX = spinner->posX + p->vx * 3.0f;
-        spinner->posY = spinner->posY + p->vy * 3.0f;
+        spinner->x = spinner->x + p->vx * 3.0f;
+        spinner->y = spinner->y + p->vy * 3.0f;
         if (p->vx > 0) {
             p->dir = 0.3f;
         } else {
             p->dir = -0.3f;
         }
     }
-    p = spinner->data;
-    spinner->posX = spinner->posX + p->vx;
-    spinner->posY = spinner->posY + p->vy;
+    p = spinner->allocation;
+    spinner->x = spinner->x + p->vx;
+    spinner->y = spinner->y + p->vy;
     p->ang = p->ang + p->dir;
     guRotateF(rotMatrix, p->ang, 0.0f, 0.0f, 1.0f);
-    guMtxF2L(rotMatrix, &spinner->mtx[gGfxBufferIndex]);
+    guMtxF2L(rotMatrix, &spinner->matrices[0][gGfxBufferIndex]);
 }
 
 typedef struct MenuUiRgba {
@@ -3063,8 +3040,8 @@ typedef struct MenuUiRgba {
 
 extern MenuUiRgba D_800337DC[];
 
-void menuUpdateElementTargetAndColor(MenuEffect *elemActor, u8 *outFlag) {
-    MenuScreenState *p = elemActor->cfg;
+void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
+    MenuScreenState *p = elemActor->data;
     MenuEffectTarget *c;
     f32 f;
     f32 radius;
@@ -3078,39 +3055,39 @@ void menuUpdateElementTargetAndColor(MenuEffect *elemActor, u8 *outFlag) {
     s16 colorComponent;
     s16 alphaVal;
 
-    if (elemActor->data != NULL) {
-        c = elemActor->data;
-        f = p->unk0;
-        off = (s32)((f64)(&p->unkC)[(s32)c->unk4] * 4.0);
+    if (elemActor->allocation != NULL) {
+        c = elemActor->allocation;
+        f = p->fade;
+        off = (s32)((f64)(&p->scrollY)[(s32)c->unk4] * 4.0);
         type = (s32)c->unk0;
 
         switch (type) {
         case 6:
         case 7:
         case 18: {
-            r = menuEvaluateSelectorSpline(p, (s32)c->unk8 >> 2, &elemActor->posX, &elemActor->posY, &stepOrScale, &colorComponent, &alphaVal);
+            r = menuEvaluateSelectorSpline(p, (s32)c->unk8 >> 2, &elemActor->x, &elemActor->y, &stepOrScale, &colorComponent, &alphaVal);
             elemActor->scaleX = c->unk10 * stepOrScale * 4.0f;
             elemActor->scaleY = elemActor->scaleX;
             if (type == 7) {
                 t = (gFrameCounter * 0x78) & 0xFFF;
-                elemActor->posY += mathSinF(t) * 10.0f;
+                elemActor->y += mathSinF(t) * 10.0f;
             }
             if (type == 0x12) {
-                elemActor->colorR = colorComponent;
-                elemActor->colorG = colorComponent;
-                elemActor->colorB = colorComponent;
-                elemActor->colorA = alphaVal;
-                elemActor->unk38E = gPlayerSlots->rect[0];
-                elemActor->unk392 = gPlayerSlots->rect[2];
-                if (elemActor->posY < 360.0) {
-                    if ((f64)elemActor->posX < 640) {
-                        elemActor->unk392 = 0x78;
+                elemActor->red = colorComponent;
+                elemActor->green = colorComponent;
+                elemActor->blue = colorComponent;
+                elemActor->alpha = alphaVal;
+                elemActor->minX = gPlayerSlots->rect[0];
+                elemActor->maxX = gPlayerSlots->rect[2];
+                if (elemActor->y < 360.0) {
+                    if ((f64)elemActor->x < 640) {
+                        elemActor->maxX = 0x78;
                     } else {
-                        elemActor->unk38E = 0xC8;
+                        elemActor->minX = 0xC8;
                     }
                 }
                 if (D_80033F3C != 0.0 && r == 0) {
-                    elemActor->unk392 = 0;
+                    elemActor->maxX = 0;
                 }
             }
             break;
@@ -3118,40 +3095,40 @@ void menuUpdateElementTargetAndColor(MenuEffect *elemActor, u8 *outFlag) {
         case 4:
         case 5:
         case 8:
-            f = 1.0 - p->unk0;
+            f = 1.0 - p->fade;
             if (f < 0.0f) {
                 f = 0.0f;
             }
             if (f > 1.0f) {
                 f = 1.0f;
             }
-            elemActor->colorA = (s32)(f * 255.0f);
+            elemActor->alpha = (s32)(f * 255.0f);
             if (type == 4) {
                 elemActor->scaleX = (f64)(c->unk10 * f) * 4.0;
                 elemActor->scaleY = elemActor->scaleX;
             }
             f = 0;
-            elemActor->posY = c->unkC + (f32)off;
+            elemActor->y = c->unkC + (f32)off;
             if (type == 8) {
                 D_80033FAC = 0;
                 t = D_807ECDEC->stick_x;
                 if (t >= 0xB) {
-                    elemActor->posX += (f32)t;
-                    if (elemActor->posX > 960.0f) {
-                        elemActor->posX = 960.0f;
+                    elemActor->x += (f32)t;
+                    if (elemActor->x > 960.0f) {
+                        elemActor->x = 960.0f;
                         D_80033FAC = 1;
                     }
                 } else if (t < -0xA) {
-                    elemActor->posX += (f32)t;
-                    if (elemActor->posX < 320.0f) {
-                        elemActor->posX = 320.0f;
+                    elemActor->x += (f32)t;
+                    if (elemActor->x < 320.0f) {
+                        elemActor->x = 320.0f;
                         D_80033FAC = 1;
                     }
                 } else {
-                    elemActor->posX = (elemActor->posX - 640.0) * 0.9 + 640.0;
+                    elemActor->x = (elemActor->x - 640.0) * 0.9 + 640.0;
                 }
             } else {
-                elemActor->posX = c->unk8;
+                elemActor->x = c->unk8;
             }
             break;
         case 0:
@@ -3166,7 +3143,7 @@ void menuUpdateElementTargetAndColor(MenuEffect *elemActor, u8 *outFlag) {
         case 19:
             if (type != 0 && type != 0xB && type != 0x13 && type != 0xD && type != 0xE) {
                 f *= 0.5f;
-                f += p->unk4;
+                f += p->scroll;
                 f = 2.0f * f - 1.0f;
                 if (f < 0.0f) {
                     f = -f;
@@ -3176,13 +3153,13 @@ void menuUpdateElementTargetAndColor(MenuEffect *elemActor, u8 *outFlag) {
                     f = 0.0f;
                 }
             }
-            elemActor->posX = c->unk10 * f + c->unk8;
-            elemActor->posY = c->unk14 * f + c->unkC + (f32)off;
+            elemActor->x = c->unk10 * f + c->unk8;
+            elemActor->y = c->unk14 * f + c->unkC + (f32)off;
             if (type == 9) {
-                elemActor->posY = D_80033F4C - 140.0f;
+                elemActor->y = D_80033F4C - 140.0f;
             }
             if (type == 0xC) {
-                elemActor->posY += (f32)D_80033674;
+                elemActor->y += (f32)D_80033674;
             }
             if (type == 0) {
                 if (off < -0x3BC) {
@@ -3192,7 +3169,7 @@ void menuUpdateElementTargetAndColor(MenuEffect *elemActor, u8 *outFlag) {
                 }
             }
             if (type == 0xB || type == 0x13) {
-                elemActor->posY += 960;
+                elemActor->y += 960;
                 if (off >= -3 || off < -0x77C) {
                     elemActor->scaleY = 0.0f;
                 } else {
@@ -3200,7 +3177,7 @@ void menuUpdateElementTargetAndColor(MenuEffect *elemActor, u8 *outFlag) {
                 }
             }
             if (type == 0xD) {
-                elemActor->posY += 1920.0f;
+                elemActor->y += 1920.0f;
                 if (off >= -0x3C3) {
                     elemActor->scaleY = 0.0f;
                 } else {
@@ -3209,16 +3186,16 @@ void menuUpdateElementTargetAndColor(MenuEffect *elemActor, u8 *outFlag) {
             }
             if (type == 0xE) {
                 t = (gFrameCounter * 0x78) & 0xFFF;
-                elemActor->posY += mathSinF(t) * 10.0f;
+                elemActor->y += mathSinF(t) * 10.0f;
             }
             if (type == 0x13 && (D_80033FAD == 4 || D_80033FAD == 1 || D_8076A104 == 1)) {
-                elemActor->posX = -400.0f;
+                elemActor->x = -400.0f;
             }
             if (type == 0x10 && p->selection >= 3) {
-                elemActor->posX = -400.0f;
+                elemActor->x = -400.0f;
             }
             if (type == 0x11 && p->selection < 3) {
-                elemActor->posX = -400.0f;
+                elemActor->x = -400.0f;
             }
             break;
         case 2:
@@ -3246,41 +3223,41 @@ void menuUpdateElementTargetAndColor(MenuEffect *elemActor, u8 *outFlag) {
             }
             idx *= (s32)stepOrScale;
             idx -= p->selection * (s32)stepOrScale;
-            idx -= (s32)(p->unk4 * stepOrScale);
+            idx -= (s32)(p->scroll * stepOrScale);
             t = (s16)idx;
             if (D_80033804 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            elemActor->posX = 160.0f - mathSinF(t) * radius;
-            elemActor->posY = 120.0f - mathCosF(t) * radius;
-            if (menuComputeElementPosition(p, elemActor->posX, elemActor->posY, &elemActor->posX, &elemActor->posY, splineStep, 0, 1.0f) == (s32)c->unk8) {
+            elemActor->x = 160.0f - mathSinF(t) * radius;
+            elemActor->y = 120.0f - mathCosF(t) * radius;
+            if (menuComputeElementPosition(p, elemActor->x, elemActor->y, &elemActor->x, &elemActor->y, splineStep, 0, 1.0f) == (s32)c->unk8) {
                 stepOrScale = 1.1f;
             } else {
                 stepOrScale = 0.825f;
             }
             f = 0.0f;
-            elemActor->posX *= 4.0f;
-            elemActor->posY *= 4.0f;
+            elemActor->x *= 4.0f;
+            elemActor->y *= 4.0f;
             elemActor->scaleX = c->unk10 * 4.0f * stepOrScale;
             elemActor->scaleY = elemActor->scaleX;
             break;
         }
         case 15: {
             idx = (s32)c->unk8;
-            elemActor->posX = D_80033F68[idx];
-            elemActor->posY = D_80033F80[idx];
+            elemActor->x = D_80033F68[idx];
+            elemActor->y = D_80033F80[idx];
             elemActor->scaleX = D_80033F98[idx];
             if (outFlag != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             elemActor->scaleY = D_80033F98[idx];
             D_80033F68[idx] = -200.0f;
             D_80033F80[idx] = -200.0f;
             if (*(&D_80033804 + idx) == 0) {
-                elemActor->colorR = *((u8 *)D_800337DC + (idx << 2)); // FAKE: byte-offset rgba read keeps the shared idx << 2 (array form recolours)
-                elemActor->colorG = *((u8 *)D_800337DC + (idx << 2) + 1); // FAKE: byte-offset rgba read keeps the shared idx << 2 (array form recolours)
-                elemActor->colorB = *((u8 *)D_800337DC + (idx << 2) + 2); // FAKE: byte-offset rgba read keeps the shared idx << 2 (array form recolours)
+                elemActor->red = *((u8 *)D_800337DC + (idx << 2)); // FAKE: byte-offset rgba read keeps the shared idx << 2 (array form recolours)
+                elemActor->green = *((u8 *)D_800337DC + (idx << 2) + 1); // FAKE: byte-offset rgba read keeps the shared idx << 2 (array form recolours)
+                elemActor->blue = *((u8 *)D_800337DC + (idx << 2) + 2); // FAKE: byte-offset rgba read keeps the shared idx << 2 (array form recolours)
             }
             break;
         }
         }
-        if (f > 1.0f || p->unk0 > 1.0f) {
+        if (f > 1.0f || p->fade > 1.0f) {
             *outFlag = 1;
         }
     }
@@ -3303,8 +3280,8 @@ s32 menuEvaluateSelectorSpline(MenuScreenState *view, s32 index, f32 *outPosX, f
     D_8003373C[index + 2] = -D_8003378C[index];
     D_8003378C[index + 3] = D_8003373C[index + 1];
     D_8003373C[index + 3] = -D_8003378C[index + 1];
-    *outPosX = menuEvaluateSpline(D_8003373C + index, view->unk4, NULL);
-    *outPosY = menuEvaluateSpline(D_8003378C + index, view->unk4, NULL);
+    *outPosX = menuEvaluateSpline(D_8003373C + index, view->scroll, NULL);
+    *outPosY = menuEvaluateSpline(D_8003378C + index, view->scroll, NULL);
     if (*outPosY < -40.0f) {
         v = -*outPosY - 40.0f;
         if (v > 20.0f) {
@@ -3321,14 +3298,14 @@ s32 menuEvaluateSelectorSpline(MenuScreenState *view, s32 index, f32 *outPosX, f
         *outPosY *= 1.0f - D_80033F3C;
         *outScale += D_80033F3C * 3.5f;
         if (D_80033F3C != 0.0f) {
-            *outAlpha = 0xFF - (s32)(view->unk0 * 255.0f);
+            *outAlpha = 0xFF - (s32)(view->fade * 255.0f);
             if (*outAlpha < 0) {
                 *outAlpha = 0;
             }
         }
     }
-    *outPosX *= 4.0f + (view->unk0 * 4.0f);
-    *outPosY *= 4.0f + (view->unk0 * 4.0f);
+    *outPosX *= 4.0f + (view->fade * 4.0f);
+    *outPosY *= 4.0f + (view->fade * 4.0f);
     *outPosX += 640.0f;
     *outPosY += 480.0f;
     return ret;
@@ -3347,7 +3324,7 @@ s32 menuComputeElementPosition(MenuScreenState *state, f32 baseX, f32 baseY, f32
     if (dist < 20.0f) {
         dist = 20.0f;
     }
-    f = state->unk4;
+    f = state->scroll;
     idx = state->selection;
     if (t != f) {
         if (f > 0.5f) {
@@ -3357,7 +3334,7 @@ s32 menuComputeElementPosition(MenuScreenState *state, f32 baseX, f32 baseY, f32
             idx -= count;
         }
     }
-    t = state->unk0 * 0.5f;
+    t = state->fade * 0.5f;
     if (mode == 1) {
         t += f;
     }
@@ -3372,7 +3349,7 @@ s32 menuComputeElementPosition(MenuScreenState *state, f32 baseX, f32 baseY, f32
     t = ((100.0f / dist) * t * factor) + 1.0f;
     *outPosX = (baseX * t) + 160.0f;
     *outPosY = (baseY * t) + 120.0f;
-    *outPosY = *outPosY + state->unkC;
+    *outPosY = *outPosY + state->scrollY;
     return idx;
 }
 

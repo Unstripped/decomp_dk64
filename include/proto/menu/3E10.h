@@ -3,7 +3,7 @@
 #define PROTO_MENU_3E10_H
 #include "common.h"
 #include "actor.h"
-struct MenuEffect;
+#include "render.h"
 struct MenuScreenState;
 #ifndef PROTO_SKIP_menuSetAudioMode
 void menuSetAudioMode(void);
@@ -189,10 +189,10 @@ Gfx *menuUpdateStateDispatch(Actor *, s32, Gfx *, s32);
 void menuSpawnUiElementEffect(struct MenuScreenState *, void *, s32, s32, f32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_menuSparkleParticleUpdate
-void menuSparkleParticleUpdate(struct MenuEffect *, s32);
+void menuSparkleParticleUpdate(EffectNode *, s32);
 #endif
 #ifndef PROTO_SKIP_menuUpdateElementTargetAndColor
-void menuUpdateElementTargetAndColor(struct MenuEffect *, u8 *);
+void menuUpdateElementTargetAndColor(EffectNode *, u8 *);
 #endif
 #ifndef PROTO_SKIP_menuEvaluateSelectorSpline
 s32 menuEvaluateSelectorSpline(struct MenuScreenState *, s32, f32 *, f32 *, f32 *, s16 *, s16 *);
