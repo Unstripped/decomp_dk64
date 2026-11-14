@@ -26,15 +26,16 @@
 extern Actor *gCurrentActor;
 
 
-typedef struct ActorSub178 {
-    u8 unk0;
-    u8 unk1;
-} ActorSub178;
+// Second component (Actor 0x178) of the pulsing actor types: actorUpdatePulseIntensity (BB300) ramps it.
+typedef struct PulseState {
+    u8 intensity;
+    u8 phase;
+} PulseState;
 
 // Actor types with two components: 0x178 is the second component pointer.
 typedef struct ActorView {
     Actor base;
-    ActorSub178 *unk178;
+    PulseState *pulse;
 } ActorView;
 
 
@@ -102,10 +103,10 @@ void actorSeekTargetUpdate(void) {
 
 
 void actorUpdateRampTarget(void) {
-    ActorSub178 *rampState;
+    PulseState *pulse;
     Actor *parent;
 
-    rampState = ((ActorView *)gCurrentActor)->unk178;
+    pulse = ((ActorView *)gCurrentActor)->pulse;
     parent = gCurrentActor->parentActor;
     if (!(gCurrentActor->flags & 0x10)) {
         func_80724CA4(2, 2);
@@ -113,7 +114,7 @@ void actorUpdateRampTarget(void) {
     actorCopyPoseAndScale(gCurrentActor, parent, 0.15f);
     if (gCurrentActor->state != 0) {
         actorUpdatePulseIntensity(1);
-        if (rampState->unk1 == 0) {
+        if (pulse->phase == 0) {
             gCurrentActor->state = 0;
         }
     }
@@ -240,10 +241,10 @@ static void stub_806A1FD0(void) {
 }
 
 typedef struct ActorSinkState {
-    s16 unk0;
+    s16 sinkTimer;
     u8 pad2[2];
-    f32 unk4;
-    f32 unk8;
+    f32 sinkDepth;
+    f32 baseY;
 } ActorSinkState;
 
 extern s32 D_8071FF18;
@@ -264,9 +265,9 @@ void actorSinkAndDespawn(void) {
     sub = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->renderFlags |= 8;
-        sub->unk0 = 0;
-        sub->unk4 = 0.0f;
-        sub->unk8 = gCurrentActor->y;
+        sub->sinkTimer = 0;
+        sub->sinkDepth = 0.0f;
+        sub->baseY = gCurrentActor->y;
         gCurrentActor->cullMarginX = 0x46;
         gCurrentActor->cullMarginY = 0x14;
         node = actorListFindIdByActor(gCurrentActor);
@@ -279,21 +280,16 @@ void actorSinkAndDespawn(void) {
         found = 0;
         if (gCurrentActor->riderList != NULL) {
             count = gCurrentActor->riderList->count;
-            do { i = 0; } while (0);
-            if (count != 0) {
-                do {
-                    act = gCurrentActor->riderList->items[i];
-                    if (actorTableContains(act) != 0 && act == gPrimaryPlayerActor) {
-                        found = 1;
-                    }
-                    count--;
-                    i++;
-                } while (count != 0 && found == 0);
+            for (i = 0; count != 0 && found == 0; i++, count--) {
+                act = gCurrentActor->riderList->items[i];
+                if (actorTableContains(act) != 0 && act == gPrimaryPlayerActor) {
+                    found = 1;
+                }
             }
         }
         if (found != 0) {
             node = 1;
-            if (sub->unk0 == 0) {
+            if (sub->sinkTimer == 0) {
                 do {
                     effectSetMode(2);
                     effectSetDepth(1);
@@ -304,45 +300,45 @@ void actorSinkAndDespawn(void) {
                     effectCreateAtPosition(&D_8071FF18, 2.0f, nodeX, nodeY + 10.0, nodeZ);
                     node++;
                 } while (node != 9);
-                sub->unk0 = 0xF;
+                sub->sinkTimer = 0xF;
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C1, 0xFF, 0x7F, 1);
             }
         }
     }
-    if (sub->unk0 >= 2) {
-        sub->unk0--;
+    if (sub->sinkTimer >= 2) {
+        sub->sinkTimer--;
     }
-    if (sub->unk0 == 2) {
+    if (sub->sinkTimer == 2) {
         node = actorListFindIdByActor(gCurrentActor);
         i = actorListLookupEntry(node);
         actorSpawnNodeEntryScaled(0x8C, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z, 0, 1, i, 0);
     }
-    if (sub->unk0 < 0xA && sub->unk0 != 0) {
-        sub->unk4 = sub->unk4 + 1.0;
-        if (sub->unk4 > 20.0) {
+    if (sub->sinkTimer < 0xA && sub->sinkTimer != 0) {
+        sub->sinkDepth = sub->sinkDepth + 1.0;
+        if (sub->sinkDepth > 20.0) {
             sfxAllocateChannel(0x90, 1.0f);
             actorDespawn(gCurrentActor);
         }
     }
-    gCurrentActor->y -= sub->unk4;
+    gCurrentActor->y -= sub->sinkDepth;
     actorUpdateModelMatrix(gCurrentActor, 0);
-    gCurrentActor->y = sub->unk8;
+    gCurrentActor->y = sub->baseY;
 }
 
 
 typedef struct MidpointOrbitConfig {
     u8 pad0[4];
-    f32 unk4;
+    f32 orbitFrames;
     u8 pad8[4];
-    f32 unkC;
+    f32 scale;
 } MidpointOrbitConfig;
 
 typedef struct MidpointOrbitState {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
+    s16 centerX;
+    s16 centerY;
+    s16 centerZ;
+    s16 angle;
+    s16 framesLeft;
 } MidpointOrbitState;
 
 
@@ -354,36 +350,36 @@ void actorMidpointOrbitUpdate(void) {
     sub = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x1000;
-        actorSetUniformScale(gCurrentActor, ((MidpointOrbitConfig *)gCurrentActor->spawnData)->unkC);
+        actorSetUniformScale(gCurrentActor, ((MidpointOrbitConfig *)gCurrentActor->spawnData)->scale);
         gCurrentActor->yawSpeed = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z);
         gCurrentActor->movePitch = (gPrimaryPlayerActor->y + (f32)gPrimaryPlayerActor->eyeHeight - gCurrentActor->y) * 0.5;
         gCurrentActor->unkEC = sqrtf((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z)) * 0.5;
-        sub->unk0 = gCurrentActor->x + (gPrimaryPlayerActor->x - gCurrentActor->x) * 0.5;
-        sub->unk2 = gCurrentActor->y + (gPrimaryPlayerActor->y - gCurrentActor->y) * 0.5;
-        sub->unk4 = gCurrentActor->z + (gPrimaryPlayerActor->z - gCurrentActor->z) * 0.5;
+        sub->centerX = gCurrentActor->x + (gPrimaryPlayerActor->x - gCurrentActor->x) * 0.5;
+        sub->centerY = gCurrentActor->y + (gPrimaryPlayerActor->y - gCurrentActor->y) * 0.5;
+        sub->centerZ = gCurrentActor->z + (gPrimaryPlayerActor->z - gCurrentActor->z) * 0.5;
         gCurrentActor->unk144 = 0x24;
         gCurrentActor->unkFA = 0x2328;
-        gCurrentActor->splineT = ((MidpointOrbitConfig *)gCurrentActor->spawnData)->unk4;
+        gCurrentActor->splineT = ((MidpointOrbitConfig *)gCurrentActor->spawnData)->orbitFrames;
         {
             f64 v = gCurrentActor->splineT * (gCurrentActor->unkEC * 0.01);
             gCurrentActor->splineT = (v > 15.0 ? v : 15.0) < 150.0 ? (v > 15.0 ? v : 15.0) : 150.0;
         }
-        sub->unk8 = gCurrentActor->splineT;
+        sub->framesLeft = gCurrentActor->splineT;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
-    ratio = (sub->unk8 / gCurrentActor->splineT) * -4096.0 + 4096.0;
-    sub->unk6 = gCurrentActor->yawSpeed + ratio;
-    gCurrentActor->x = mathSinF(sub->unk6) * gCurrentActor->unkEC + sub->unk0;
-    gCurrentActor->z = mathCosF(sub->unk6) * gCurrentActor->unkEC + sub->unk4;
-    gCurrentActor->y = mathCosF(2048.0f + ratio) * gCurrentActor->movePitch + sub->unk2;
+    ratio = (sub->framesLeft / gCurrentActor->splineT) * -4096.0 + 4096.0;
+    sub->angle = gCurrentActor->yawSpeed + ratio;
+    gCurrentActor->x = mathSinF(sub->angle) * gCurrentActor->unkEC + sub->centerX;
+    gCurrentActor->z = mathCosF(sub->angle) * gCurrentActor->unkEC + sub->centerZ;
+    gCurrentActor->y = mathCosF(2048.0f + ratio) * gCurrentActor->movePitch + sub->centerY;
     actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     gCurrentActor->yaw += 0x12C;
     if ((gCurrentActor->yaw & 0x7FF) < 0x12C) {
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x1DF, 0xFF, 0x7F, 0x14, 0x3C, 0.7f, 0);
     }
-    if (sub->unk8 != 0) {
-        sub->unk8 = sub->unk8 - 1;
-        if (sub->unk8 == 0xB) {
+    if (sub->framesLeft != 0) {
+        sub->framesLeft = sub->framesLeft - 1;
+        if (sub->framesLeft == 0xB) {
             p = gCurrentActor->parentActor;
             if (p != NULL) {
                 p->unk155++;
