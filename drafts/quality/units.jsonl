@@ -308,3 +308,4 @@
 {"type": "unit", "t": "2026-11-14T18:29:33Z", "unit": "2026-11-14: cleanup HackcollisionBstSortFlatItems", "commit": "bb8c4437672b8eac656f9000cdf56f3dbe7ef9ba"}
 {"type": "unit", "t": "2026-11-14T18:31:10Z", "unit": "2026-11-14: cleanup HackraceOpponentBehaviourUpdate", "commit": "e5b67ba65659fadada7aeb296aa52875ae4d4489"}
 {"type": "unit", "t": "2026-11-14T18:33:52Z", "unit": "2026-11-14: cleanup HackactorCollisionCheckNodeSpheres", "commit": "ef7c685e48200a4d557d1f88568749ca7bf6a9e2"}
+{"type": "unit", "t": "2026-11-14T18:34:02Z", "unit": "2026-11-14: cleanup HackmapUpdateFogDistance", "commit": "bd41252b8c62a2795333014ad6d245a2e059f552"}
