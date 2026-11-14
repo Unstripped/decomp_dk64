@@ -298,3 +298,4 @@
 {"type": "unit", "t": "2026-11-14T18:17:51Z", "unit": "2026-11-14: cleanup PolishGlobal10E1D0", "commit": "793c68e4dbd297133e396599d0b218453e96493b"}
 {"type": "unit", "t": "2026-11-14T18:18:02Z", "unit": "2026-11-14: cleanup HacktextObjectDrawFlat", "commit": "44862c402f130379ed005360922f9d6eaa1150cc"}
 {"type": "unit", "t": "2026-11-14T18:19:34Z", "unit": "2026-11-14: cleanup HackbossFollowerActorUpdate", "commit": "ae6749806b5ae187adb7697b8c3b041ae944071b"}
+{"type": "unit", "t": "2026-11-14T18:19:40Z", "unit": "2026-11-14: cleanup HackframeTimingUpdate", "commit": "341dd2ed5a7ffa11ae6ce74da1a3e4fceae381e8"}
