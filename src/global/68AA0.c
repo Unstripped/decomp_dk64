@@ -80,23 +80,23 @@ void actorTargetEntriesUpdateSfx(u8 targetType, u8 volume, u8 sfxId, f32 factor)
     s32 found;
 
     for (i = 0; i < D_807F9424; i++) {
-        if (D_807F9420 == 0) {}  // FAKE: dead statement, steers P into a3 / s4-s6 order
         j = 0;
         found = 0;
-        if (D_807F9420[i].unk6 == targetType) {
-            do {
-                if (D_807F9420[i].u.unk7_arr[j] == gPlayerSlots[0].unk290) {
-                    found = 1;
-                }
-                j++;
-                if (j >= 5 || found) {
-                    break;
-                }
-            } while (D_807F9420[i].u.unk7_arr[j] != -1);
-
-            if (found) {
-                sfxUpdateDistanceVolumeAndPan(D_807F9420[i].unk0, D_807F9420[i].unk2, D_807F9420[i].unk4, volume, sfxId, factor);
+        if (D_807F9420[i].unk6 != targetType) {
+            continue;
+        }
+        do {
+            if (D_807F9420[i].u.unk7_arr[j] == gPlayerSlots[0].unk290) {
+                found = 1;
             }
+            j++;
+            if (j >= 5 || found) {
+                break;
+            }
+        } while (D_807F9420[i].u.unk7_arr[j] != -1);
+
+        if (found) {
+            sfxUpdateDistanceVolumeAndPan(D_807F9420[i].unk0, D_807F9420[i].unk2, D_807F9420[i].unk4, volume, sfxId, factor);
         }
     }
 }
