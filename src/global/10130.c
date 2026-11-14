@@ -75,7 +75,7 @@ extern u16 *D_807ECE90;
 
 
 
-void recordInitPositionBuffers(s32 src) {
+void recordInitPositionBuffers(u8 *src) {
     s32 byteCount;
 
     if (D_807463A8 == NULL) {
@@ -87,19 +87,19 @@ void recordInitPositionBuffers(s32 src) {
     }
     D_807ECE94 = D_807ECE90;
     byteCount = sizeof(D_807463B0);
-    memcpy(&D_807463B0, (void *)src, byteCount);
+    memcpy(&D_807463B0, src, byteCount);
     src += byteCount;
     byteCount = D_807463B0 * sizeof(InputRecord);
-    memcpy(D_807463A8, (void *)src, byteCount);
+    memcpy(D_807463A8, src, byteCount);
     src += byteCount;
     byteCount = sizeof(D_807463A0);
-    memcpy(&D_807463A0, (void *)src, byteCount);
+    memcpy(&D_807463A0, src, byteCount);
     src += byteCount;
     byteCount = D_807463A0 * sizeof(u16);
-    memcpy(D_807ECE90, (void *)src, byteCount);
+    memcpy(D_807ECE90, src, byteCount);
     src += byteCount;
     byteCount = sizeof(D_807ECE20);
-    memcpy(&D_807ECE20, (void *)src, byteCount);
+    memcpy(&D_807ECE20, src, byteCount);
 }
 
 
@@ -125,7 +125,7 @@ void func_8060B700(void) {
 
 
 void func_8060B750(s32 assetIndex) {
-    s32 assetData;
+    void *assetData;
 
     assetData = assetLoad(0x11, assetIndex, 1, 1);
     recordInitPositionBuffers(assetData);

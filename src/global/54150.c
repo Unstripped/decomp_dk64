@@ -169,7 +169,7 @@ void modelAnimEntryBuildNodeMatrices(ModelAnimEntry *entry) {
     i = 0;
     p = (u8 *)(node + 1);
     while (i < node->matrixCount) {
-        modelAnimEntryBuildKeyMatrix(entry->unk11, entry->unk4, p, p + 8, entry->unk13);
+        modelAnimEntryBuildKeyMatrix(entry->unk11, entry->unk4, (ModelBTrack *)p, p + 8, entry->unk13);
         dst = *(u32 *)p + dstBase;
         if (entry->unkE == 0) {
             src = *(u32 *)p + srcBase;

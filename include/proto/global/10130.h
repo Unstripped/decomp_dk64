@@ -17,7 +17,7 @@ void func_8060B4D4(OSContPad *);
 void func_8060B55C(s16 *);
 #endif
 #ifndef PROTO_SKIP_recordInitPositionBuffers
-void recordInitPositionBuffers(s32);
+void recordInitPositionBuffers(u8 *);
 #endif
 #ifndef PROTO_SKIP_func_8060B6CC
 void func_8060B6CC(void);
