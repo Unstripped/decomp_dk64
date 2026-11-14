@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/104F0.h"
@@ -266,11 +267,6 @@ Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
     return glist;
 }
 
-typedef struct {
-    char pad0[0x2C];
-    u16 unk2C;
-    char pad2E[6];
-} MenuControllerPad;
 
 typedef struct {
     char pad0[3];
@@ -278,7 +274,7 @@ typedef struct {
 } MenuStickAxis;
 
 
-extern MenuControllerPad gPlayerPadState[];
+extern PadInputState gPlayerPadState[];
 extern MenuStickAxis *D_807ECDEC;
 extern u8 gCurrentPlayerIndex;
 extern u8 gPlayerInventoryTable[][0x5E];
@@ -324,7 +320,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
         }
         break;
     case 1:
-        if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
+        if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
             gCurrentActor->unk15F = 0;
             menu->unk1 = 3;
         } else {
@@ -349,22 +345,22 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
                 gCurrentActor->unk15F = a3 + inc;
             }
             renderCallbacksRegister(menuDrawOptionsOverlay, gCurrentActor, 3);
-            if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x4000) {
+            if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
                 menuResetAudioState();
                 menu->unk1 = 2;
-            } else if (menu->unk19 != 0 && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 8)) {
+            } else if (menu->unk19 != 0 && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8)) {
                 menu->unk1 = 4;
             }
         }
         break;
     case 3:
         D_800330D8 = 1;
-        if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0xC000) {
+        if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC000) {
             menu->unk1 = 1;
         }
         break;
     default:
-        if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x4000) {
+        if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
             menu->unk1 = 1;
         } else {
             s8 v1 = D_807ECDEC->unk3;
@@ -379,7 +375,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
             }
             menu->unk1 = ((menu->unk1 - 4) & 7) + 4;
         }
-        if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
+        if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
             menuTransitionWithStateD(D_800330C0[menu->unk1]);
             D_80032F50 = 1;
             menu->unk1 = 0x37;
