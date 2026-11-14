@@ -3,8 +3,8 @@
 #define PROTO_GLOBAL_ACDC0_H
 #include "common.h"
 #include "actor.h"
+#include "render.h"
 struct HudEntry;
-struct HudIconObj;
 #ifndef PROTO_SKIP_hudFindItemIndex
 s32 hudFindItemIndex(s8);
 #endif
@@ -48,7 +48,7 @@ void hudPauseMenuRefreshTotals(void);
 Gfx *hudDrawDimOverlay(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_hudPauseMenuIconUpdate
-void hudPauseMenuIconUpdate(struct HudIconObj *, s8 *);
+void hudPauseMenuIconUpdate(EffectNode *, s8 *);
 #endif
 #ifndef PROTO_SKIP_hudDrawTextScreen
 Gfx *hudDrawTextScreen(Gfx *, Actor *);
