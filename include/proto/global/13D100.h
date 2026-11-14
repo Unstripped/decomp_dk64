@@ -2,7 +2,7 @@
 #ifndef PROTO_GLOBAL_13D100_H
 #define PROTO_GLOBAL_13D100_H
 #include "common.h"
-#ifndef PROTO_SKIP_postCSPChannelCommand
-void postCSPChannelCommand(ALCSPlayer *, u8, u8, u8, s32);
+#ifndef PROTO_SKIP_alCSPSetFXParam
+void alCSPSetFXParam(ALCSPlayer *, u8, u8, u8, s32);
 #endif
 #endif

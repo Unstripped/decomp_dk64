@@ -30,8 +30,8 @@ void func_806C80E4(void);
 #ifndef PROTO_SKIP_cameraSetViewportYRange
 void cameraSetViewportYRange(s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_806C8220
-void func_806C8220(s32, void *, u32);
+#ifndef PROTO_SKIP_kongChainInit
+void kongChainInit(s32, void *, u32);
 #endif
 #ifndef PROTO_SKIP_playerSetupCharacterForSlot
 void playerSetupCharacterForSlot(s32, u8);

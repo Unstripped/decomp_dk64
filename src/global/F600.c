@@ -20,10 +20,10 @@ OSContPad D_807ECD28[4];
 u16 D_807ECD40[4];
 u16 D_807ECD48[4];
 u16 D_807ECD50[4];
-OSContPad D_807ECD58;
+OSContPad gContPadCur;
 u8 D_807ECD5E[2];
-OSContPad D_807ECD60;
-u16 D_807ECD66;
+OSContPad gContPadPrev;
+u16 gButtonsPressed;
 s16 D_807ECD68[4][16];
 OSContPad *D_807ECDE8;
 OSContPad *D_807ECDEC;
@@ -144,12 +144,12 @@ void controllerUpdate(void) {
     s32 curButtons;
 
     compact = menuIsTransitionType6();
-    D_807ECD60.button = D_807ECD58.button;
-    D_807ECD60.stick_x = D_807ECD58.stick_x;
-    D_807ECD60.stick_y = D_807ECD58.stick_y;
-    D_807ECD58.button = 0;
-    D_807ECD58.stick_x = 0;
-    D_807ECD58.stick_y = 0;
+    gContPadPrev.button = gContPadCur.button;
+    gContPadPrev.stick_x = gContPadCur.stick_x;
+    gContPadPrev.stick_y = gContPadCur.stick_y;
+    gContPadCur.button = 0;
+    gContPadCur.stick_x = 0;
+    gContPadCur.stick_y = 0;
     if (D_807ECD08 != 0 || D_807467C4 != 0) {
         if (D_807467C4 == 0 && D_807ECD08 != 0) {
             D_80746834 = 3;
@@ -183,7 +183,7 @@ void controllerUpdate(void) {
         controllerCompactPads(D_807ECDE8);
     }
     sum = 0;
-    D_807ECD66 = (D_807ECD58.button ^ D_807ECD60.button) & D_807ECD58.button;
+    gButtonsPressed = (gContPadCur.button ^ gContPadPrev.button) & gContPadCur.button;
     p = (u32 *)heapTickDeferredFrees;
     end = (u32 *)heapCodeEnd;
     while (p < end) {
@@ -246,7 +246,7 @@ void controllerUpdate(void) {
 }
 
 void controllerLatchPad(OSContPad *pad) {
-    D_807ECD58.button = pad->button;
-    D_807ECD58.stick_x = pad->stick_x;
-    D_807ECD58.stick_y = pad->stick_y;
+    gContPadCur.button = pad->button;
+    gContPadCur.stick_x = pad->stick_x;
+    gContPadCur.stick_y = pad->stick_y;
 }

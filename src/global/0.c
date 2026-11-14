@@ -66,13 +66,13 @@ extern u8 menu_VRAM[];
 extern u8 menu_VRAM_END[];
 
 // .data 0x80744460-0x80744470
-s8 D_80744460 = 0;
+s8 gMainThreadHalted = 0;
 Struct80744464 D_80744464 = { 0xF, 2, 0x1E };
 
 // .bss 0x80761050-0x807655F0
 OSMesgQueue D_80761050;
 OSMesg D_80761068[0xF2];
-OSThread D_80761430;
+OSThread gMainThread;
 u8 D_807615E0[160];
 u64 D_80761680;
 u8 D_80761688[16216];
@@ -99,13 +99,13 @@ void globalInit(OSMesgQueue *queue, s32 haltReason) {
     osDpSetStatus(4);
     osCreatePiManager(0x96, &D_80761050, D_80761068, 0xF2);
     D_80761680 = 0x12345678;
-    osCreateThread(&D_80761430, 3, mainThreadLoop, NULL, &D_807655E0, 0xA);
-    osStartThread(&D_80761430);
+    osCreateThread(&gMainThread, 3, mainThreadLoop, NULL, &D_807655E0, 0xA);
+    osStartThread(&gMainThread);
 }
 
 
 void mainThreadHalt(OSMesgQueue *queue, s32 haltCode) {
-    static u64 D_807655E8; // .bss 0x807655E8: halt start time
+    static u64 sHaltStartTime; // .bss 0x807655E8: halt start time
     s32 pad[2];
     Struct80744464 timeConfig;
     s32 pad2[4];
@@ -116,17 +116,17 @@ void mainThreadHalt(OSMesgQueue *queue, s32 haltCode) {
     if (haltCode == 2) {
         osViBlack(1);
         audioThreadStop(1);
-        D_80744460 = 1;
+        gMainThreadHalted = 1;
         while (1) {
         }
     }
     osRecvMesg(queue, &receivedMsg, 1);
-    D_80744460 = 1;
+    gMainThreadHalted = 1;
     audioThreadStop(1);
-    osStopThread(&D_80761430);
+    osStopThread(&gMainThread);
     osSetThreadPri(NULL, 0xB);
-    D_807655E8 = osGetTime();
-    while (osGetTime() < D_807655E8 + 0x22ADD7) {
+    sHaltStartTime = osGetTime();
+    while (osGetTime() < sHaltStartTime + 0x22ADD7) {
     }
     osViBlack(1);
     __osSpSetStatus(0xAAAA82);

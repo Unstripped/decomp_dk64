@@ -780,7 +780,7 @@ typedef struct SparkleSpriteTable {
 
 extern u8 gPlayerCharacterId;
 extern u8 D_80721170;
-extern SparkleSpriteTable D_807504A4;
+extern SparkleSpriteTable sSparkleSprites;
 
 void effectActorSparkleTick(void) {
     s32 flag;
@@ -798,7 +798,7 @@ void effectActorSparkleTick(void) {
     actorUpdatePrevContactFlags(gCurrentActor);
     if (flag != 0 && gActorGlobalState.bossFightPhase == 4 && gFrameCounter % 5 == 0) {
         idx = (randomNonNegative() >> 15) % 0xFF % 7;
-        table = D_807504A4;
+        table = sSparkleSprites;
         effectSetCallback(&effectOrbitSourceUpdate);
         effectSetDuration(-1);
         effectSetDepth(1);
@@ -827,11 +827,11 @@ typedef struct ShrinkState {
     s16 frames;
 } ShrinkState;
 
-extern u8 D_807504C8;
-extern u8 D_807504CC;
-extern u8 D_807504D0;
-extern f32 D_807504C0;
-extern f32 D_807504C4;
+extern u8 sShrinkBone;
+extern u8 sShrinkStartAlpha;
+extern u8 sShrinkAlphaStep;
+extern f32 sShrinkRate;
+extern f32 sShrinkFrames;
 
 void effectActorShrinkTick(void) {
     ShrinkState *state;
@@ -845,18 +845,18 @@ void effectActorShrinkTick(void) {
         state->scale = 1.0f;
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->flags |= 0x40000000;
-        gCurrentActor->alpha = D_807504CC;
+        gCurrentActor->alpha = sShrinkStartAlpha;
     }
-    if (D_807504D0 < gCurrentActor->alpha) {
-        gCurrentActor->alpha -= D_807504D0;
+    if (sShrinkAlphaStep < gCurrentActor->alpha) {
+        gCurrentActor->alpha -= sShrinkAlphaStep;
     }
     state->frames += 1;
-    if (D_807504C4 < state->frames) {
+    if (sShrinkFrames < state->frames) {
         actorDespawn(gCurrentActor);
     } else {
-        state->scale *= D_807504C0;
+        state->scale *= sShrinkRate;
         scales = gCurrentActor->sub4->boneScales;
-        scales->bone = D_807504C8;
+        scales->bone = sShrinkBone;
         scales->lastBone = 0xFF;
         scales->x = state->scale;
         scales->y = state->scale;

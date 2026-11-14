@@ -10,8 +10,8 @@
 extern s16 D_80756490[];
 extern s16 D_8075658E[];
 
-extern u8 D_807FF0F0;
-extern u8 D_807FF0F1;
+extern u8 gAudioSurroundEnabled;
+extern u8 gAudioMonoEnabled;
 extern u8 D_807FF0F2;
 
 Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
@@ -61,13 +61,13 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
             f->em_volume = startVolume;
             f->em_pan = paramNode->pan;
             f->em_dryamt = (D_80756490[paramNode->fxmix & 0x7F] & 0xFFFE) | ((s32)paramNode->fxmix >> 7);
-            if (D_807FF0F0 == 0) {
+            if (gAudioSurroundEnabled == 0) {
                 f->em_dryamt &= 0xFFFE;
             }
             f->em_wetamt = D_8075658E[-(paramNode->fxmix & 0x7F)] & 0xFFFE;
             if (D_807FF0F2 != 0) {
                 f->em_pan = (f->em_pan >> 1) + 0x20;
-            } else if (D_807FF0F1 != 0) {
+            } else if (gAudioMonoEnabled != 0) {
                 f->em_pan = 0x40;
             }
             if (paramNode->samples != 0) {
@@ -106,7 +106,7 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
             if (f->em_ctrlList->type == 0xC) {
                 if (D_807FF0F2 != 0) {
                     f->em_pan = (f->em_ctrlList->data.s.s1 >> 1) + 0x20;
-                } else if (D_807FF0F1 != 0) {
+                } else if (gAudioMonoEnabled != 0) {
                     f->em_pan = 0x40;
                 } else {
                     f->em_pan = f->em_ctrlList->data.i;
@@ -120,7 +120,7 @@ Acmd *n_alEnvmixerPull(void *filter, s32 time, Acmd *cmdList) {
                 f->em_segEnd = ((f->em_ctrlList->moredata.i + 0xB7) / 184) * 0xB8;
             }
             if (f->em_ctrlList->type == 0x10) {
-                if (((((f->em_dryamt ^ f->em_wetamt) & 1) ^ ((f->em_ctrlList->data.i + 1) >> 7)) != 0) && (D_807FF0F0 != 0)) {
+                if (((((f->em_dryamt ^ f->em_wetamt) & 1) ^ ((f->em_ctrlList->data.i + 1) >> 7)) != 0) && (gAudioSurroundEnabled != 0)) {
                     if (f->em_pan >= 0x41) {
                         f->em_dryamt ^= 1;
                     } else {

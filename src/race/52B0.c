@@ -109,8 +109,8 @@ void raceInitCompetitorsAndManager(void) {
 }
 
 void actorInitAnimations(Actor *, Actor *);
-void func_80690190(void *, void *);
-void func_8068F72C(void *, void *, s32, s32);
+void vehicleUpdateEngineSound(void *, void *);
+void vehicleUpdateMotion(void *, void *, s32, s32);
 void actorInterpolateAngles(u8, void *, void *);
 
 void raceCompetitorMotionUpdate(void) {
@@ -135,7 +135,7 @@ void raceCompetitorMotionUpdate(void) {
         participant->unk44 = 5;
         actorOrNodeFlags(gCurrentActor, 2, 0xC);
     }
-    func_80690190(participant, motion);
+    vehicleUpdateEngineSound(participant, motion);
     status = participant->raceStatus;
     if (status < 5) {
         if (status == 1) {
@@ -161,7 +161,7 @@ void raceCompetitorMotionUpdate(void) {
                 participant->unk25--;
             }
         }
-        func_8068F72C(participant, motion, 1, 1);
+        vehicleUpdateMotion(participant, motion, 1, 1);
         if (func_807142D8() == 0) {
             renderCallbacksRegister(raceRacerRenderCallback, gCurrentActor, 3);
         }
@@ -418,7 +418,7 @@ void raceOpponentRacerBehaviorUpdate(void) {
                 mapCheckAutoTransition();
             }
         }
-        func_8068F72C(participant, motion, 0, 0);
+        vehicleUpdateMotion(participant, motion, 0, 0);
     } else if (participant->raceStatus == 5) {
         switch (participant->unk35) {
         case 0:

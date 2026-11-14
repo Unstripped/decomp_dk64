@@ -612,11 +612,11 @@ void playerInputUpdateWaitC9(void) {
     }
 }
 
-extern KongInventory *D_807FD568;
+extern KongInventory *gCurrentKongInventory;
 
 void playerRegisterWeaponHudRenderCallback(s16 inputId) {
     if ((gActivePlayerState->gunDrawn != 0) && (hudCanRender() != 0)) {
-        if (D_807FD568->weaponFlags == 7) {
+        if (gCurrentKongInventory->weaponFlags == 7) {
             inputId = 0xF;
             renderCallbacksRegister(&func_806FF75C, gCurrentActor, 5);
         } else {
@@ -1509,8 +1509,8 @@ void playerStateGroundPound(void) {
         playerInputUpdate(0x2E);
         if (!(gCurrentActor->contactFlags & 4)) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x96, 0xFF, 0x7F, 0x19);
-            effectSpawnMultiTierRingWithActor(gCurrentActor, D_807FD568->slamLevel);
-            camStartShake(gActivePlayerState->camActor, 0x14, D_807FD568->slamLevel * 5);
+            effectSpawnMultiTierRingWithActor(gCurrentActor, gCurrentKongInventory->slamLevel);
+            camStartShake(gActivePlayerState->camActor, 0x14, gCurrentKongInventory->slamLevel * 5);
         }
         scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
         gCurrentActor->unk155++;
@@ -3215,7 +3215,7 @@ void playerStateHoldPickup(void) {
         break;
     case 4:
         playerInputUpdate(5);
-        actorAppendCallback4000(gCurrentActor, gActivePlayerState->heldActor, gActivePlayerActor->yaw, gCurrentActor->sub4->scaleX * (gKongHoldPutDownAngles[gCurrentCharacterIndex] * 3.0) / (baseScale = 0.15), 0); // FAKE: mul.d operand order
+        actorAppendLaunch(gCurrentActor, gActivePlayerState->heldActor, gActivePlayerActor->yaw, gCurrentActor->sub4->scaleX * (gKongHoldPutDownAngles[gCurrentCharacterIndex] * 3.0) / (baseScale = 0.15), 0); // FAKE: mul.d operand order
         gCurrentActor->unk155++;
         break;
     case 5:
@@ -3321,7 +3321,7 @@ void playerStateHoldPutDown(void) {
             gCurrentActor->speedXZ = 0.0f;
             break;
         case 1:
-            actorAppendCallback4000(gCurrentActor, gActivePlayerState->heldActor, gActivePlayerActor->yaw, gKongHoldPutDownAngles[gCurrentCharacterIndex], gKongHoldPutDownOffsets[gCurrentCharacterIndex]);
+            actorAppendLaunch(gCurrentActor, gActivePlayerState->heldActor, gActivePlayerActor->yaw, gKongHoldPutDownAngles[gCurrentCharacterIndex], gKongHoldPutDownOffsets[gCurrentCharacterIndex]);
             gActivePlayerState->heldActor = NULL;
             gActivePlayerState->queuedHeldActor = NULL;
             gCurrentActor->unk155++;
@@ -3354,7 +3354,7 @@ void playerStateHoldThrow(void) {
             gCurrentActor->speedXZ = 0.0f;
             break;
         case 1:
-            actorAppendCallback4000(gCurrentActor, gActivePlayerState->heldActor, gActivePlayerActor->yaw, gKongHoldThrowAngles[gCurrentCharacterIndex], gKongHoldThrowOffsets[gCurrentCharacterIndex]);
+            actorAppendLaunch(gCurrentActor, gActivePlayerState->heldActor, gActivePlayerActor->yaw, gKongHoldThrowAngles[gCurrentCharacterIndex], gKongHoldThrowOffsets[gCurrentCharacterIndex]);
             gActivePlayerState->heldActor = NULL;
             gActivePlayerState->queuedHeldActor = NULL;
             gCurrentActor->unk155++;
@@ -3474,7 +3474,7 @@ void playerStateTagBarrelFade(void) {
             gCurrentActor->y = gActivePlayerState->unk208 + 10.0;
             gCurrentActor->prevY = gCurrentActor->y;
             gCurrentActor->z = gActivePlayerState->unk20C;
-            func_806C8220(0, ACTOR_EXT->unk178, gCurrentActor->actorType);
+            kongChainInit(0, ACTOR_EXT->unk178, gCurrentActor->actorType);
             camResetPlayer(gCurrentActor, gActivePlayerState->playerIndex);
             screenWipeStart(6);
             gActivePlayerState->unk23C = 0x14;
@@ -3553,7 +3553,7 @@ void playerStateTagBarrelPadEnter(void) {
             gCurrentActor->y = gActivePlayerState->unk208;
             gCurrentActor->prevY = gCurrentActor->y;
             gCurrentActor->z = gActivePlayerState->unk20C;
-            func_806C8220(0, ACTOR_EXT->unk178, gCurrentActor->actorType);
+            kongChainInit(0, ACTOR_EXT->unk178, gCurrentActor->actorType);
             camResetPlayer(gCurrentActor, gActivePlayerState->playerIndex);
             gActivePlayerState->unk23C = 0x14;
             screenWipeStart(2);
@@ -3722,7 +3722,7 @@ void playerStateStationaryInteraction(void) {
         gCurrentActor->moveYaw = t;
         gCurrentActor->yaw = t;
         camResetPlayer(gCurrentActor, gActivePlayerState->playerIndex);
-        func_806C8220(0, ACTOR_EXT->unk178, gCurrentActor->actorType);
+        kongChainInit(0, ACTOR_EXT->unk178, gCurrentActor->actorType);
         gCurrentActor->unk155++;
         break;
     case 3:

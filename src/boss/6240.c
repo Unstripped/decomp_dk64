@@ -142,9 +142,9 @@ void bossClampPosition(Zone *zone) {
 }
 
 
-extern u8 *D_80035A20[][5];
-extern u8 *D_80035A34[];
-extern u8 D_800362F0[];
+extern u8 *sPufftossStateScripts[][5];
+extern u8 *sPufftossPhaseScripts[];
+extern u8 sPufftossScriptData[];
 extern u8 D_8071FB34[];
 extern f32 D_807502E8;
 extern f32 D_807502FC;
@@ -202,7 +202,7 @@ void bossPufftossStep(void) {
 
     state = ((BossPufftossActor *)gCurrentActor)->scriptState;
     swing = ((BossPufftossActor *)gCurrentActor)->swing;
-    scriptData = D_80035A20[(gCurrentMap == 0xC5) ? 0 : 1][state->phase];
+    scriptData = sPufftossStateScripts[(gCurrentMap == 0xC5) ? 0 : 1][state->phase];
     prevY = gCurrentActor->y;
     updateY = checkFloor = 1;
     behaviourFrameBegin();
@@ -213,7 +213,7 @@ void bossPufftossStep(void) {
         playerSetLargeModeScale(1.2f);
         loadModelAssetTable();
         gCurrentActor->floorNodeId = 2;
-        bossInitScriptData(D_800362F0);
+        bossInitScriptData(sPufftossScriptData);
         gBehaviourAnimState->unk30 = 3.0f;
         gCurrentActor->speedXZ = 0.0f;
         gCurrentActor->flags |= 0x800000;
@@ -250,7 +250,7 @@ void bossPufftossStep(void) {
             gBehaviourWorkState->targetY = -0x2BC;
             state->scriptPos = 0;
             state->phase++;
-            scriptData = D_80035A34[state->phase];
+            scriptData = sPufftossPhaseScripts[state->phase];
             if ((state->phase == 3) && (gCurrentMap == 0xC5)) {
                 camStartPath(gCurrentActor, 8, 1);
             } else {
@@ -297,7 +297,7 @@ void bossPufftossStep(void) {
         state->unk12 |= 1;
         state->phase = 4;
         state->scriptPos = 0;
-        scriptData = D_80035A20[(gCurrentMap == 0xC5) ? 0 : 1][state->phase];
+        scriptData = sPufftossStateScripts[(gCurrentMap == 0xC5) ? 0 : 1][state->phase];
         gCurrentActor->state = scriptData[state->scriptPos++];
         gCurrentActor->unk155 = 0;
     }
@@ -663,7 +663,7 @@ void bossPufftossStep(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/6240/D_800362F0.s")
+#pragma GLOBAL_ASM("asm/boss/nonmatchings/6240/sPufftossScriptData.s")
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/6240/D_800362FC.s")
 

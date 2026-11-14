@@ -96,8 +96,8 @@ void func_806BD170(void) {
 }
 
 extern s16 D_8076A0A6;
-extern s8 D_807506B4;
-extern s8 D_807506A8[];
+extern s8 sRingSequencePos;
+extern s8 sRingSequence[];
 extern f32 D_807FC8D4;
 extern Actor *gCamActor;
 
@@ -109,7 +109,7 @@ void actorNodeRingUpdate(void) {
     u16 shakeDuration;
     s16 v3 = D_8076A0A6;
     s16 idx;
-    s8 *seqPos = &D_807506B4; // FAKE: pointer local for the ring-check accesses of D_807506B4; spelled as the global, &D_807506B4 becomes a coloured address (t1, every t-reg from 0x2b4 shifts) and the global is no longer promoted into v0 (lb v0 at 0x584, li v0,-1 at 0x604)
+    s8 *seqPos = &sRingSequencePos; // FAKE: pointer local for the ring-check accesses of sRingSequencePos; spelled as the global, &sRingSequencePos becomes a coloured address (t1, every t-reg from 0x2b4 shifts) and the global is no longer promoted into v0 (lb v0 at 0x584, li v0,-1 at 0x604)
 
     if (!(gCurrentActor->flags & 0x10)) {
         if (func_806BDD2C() != 0) {
@@ -119,7 +119,7 @@ void actorNodeRingUpdate(void) {
         gCurrentActor->drawDistance = 0x7D0;
         gCurrentActor->flags |= 0x400;
         v3 = 0;
-        D_807506B4 = 0; actorSpawn(0x73, 0xC4, &gCurrentActor); // LAYOUT: one line keeps as1 order of the sb zero to D_807506B4 in the jal delay slot
+        sRingSequencePos = 0; actorSpawn(0x73, 0xC4, &gCurrentActor); // LAYOUT: one line keeps as1 order of the sb zero to sRingSequencePos in the jal delay slot
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
         gSpawnedActor->renderFlags |= 0x20;
         gSpawnedActor->flags |= 0x400;
@@ -177,9 +177,9 @@ void actorNodeRingUpdate(void) {
         camStartShake(gCamActor, shakeMagnitude, shakeDuration);
     }
     if (idx >= 0) {
-        if (idx == D_807506A8[*seqPos]) {
+        if (idx == sRingSequence[*seqPos]) {
             (*seqPos)++;
-            if (D_807506A8[*seqPos] == -1) {
+            if (sRingSequence[*seqPos] == -1) {
                 sfxPlayOnFreeSlot(0x1DA, 0x7FFF, 63.0f, 1.0f, 5, 0);
                 flagSet(0x28, 1, 1);
                 flagSet(0x26, 1, 1);

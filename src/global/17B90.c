@@ -32,7 +32,7 @@ unsigned char cullSwap;
         }
     }
 
-    if (D_807FBB32 >= 0x20) {
+    if (gAnimClipCacheCount >= 0x20) {
         return D_807FB630[0].asset;
     }
 
@@ -387,18 +387,18 @@ int controllerAnimCacheFree(Actor *actor, AnimSlot *slot) {
 
     asset = slot->clip;
     if (asset != NULL) {
-        count = D_807FBB32;
+        count = gAnimClipCacheCount;
         for (i = 0; i + 1 <= count; i++) { // LAYOUT: plain `i < count` is rewritten to a bne latch by uopt's LFTR
-            if (asset == D_807FB7B0[i].asset) {
-                if (--D_807FB7B0[i].refCount == 0) {
-                    assetFreeBuffer(D_807FB7B0[i].asset, 0x298, 0x15);
-                    D_807FBB32--;
-                    D_807FB7B0[i].id = D_807FB7B0[D_807FBB32].id;
-                    D_807FB7B0[i].asset = D_807FB7B0[D_807FBB32].asset;
-                    D_807FB7B0[i].refCount = D_807FB7B0[D_807FBB32].refCount;
-                    D_807FB7B0[D_807FBB32].id = 0xFFFF;
-                    D_807FB7B0[D_807FBB32].asset = NULL;
-                    D_807FB7B0[D_807FBB32].refCount = 0;
+            if (asset == gAnimClipCache[i].asset) {
+                if (--gAnimClipCache[i].refCount == 0) {
+                    assetFreeBuffer(gAnimClipCache[i].asset, 0x298, 0x15);
+                    gAnimClipCacheCount--;
+                    gAnimClipCache[i].id = gAnimClipCache[gAnimClipCacheCount].id;
+                    gAnimClipCache[i].asset = gAnimClipCache[gAnimClipCacheCount].asset;
+                    gAnimClipCache[i].refCount = gAnimClipCache[gAnimClipCacheCount].refCount;
+                    gAnimClipCache[gAnimClipCacheCount].id = 0xFFFF;
+                    gAnimClipCache[gAnimClipCacheCount].asset = NULL;
+                    gAnimClipCache[gAnimClipCacheCount].refCount = 0;
                 }
                 break;
             }
@@ -626,10 +626,10 @@ void *controllerAnimCacheGetOrLoad(s32 id) {
         return NULL;
     }
 
-    count = D_807FBB32;
+    count = gAnimClipCacheCount;
     i = 0;
     if (count != 0) {
-        entry = D_807FB7B0;
+        entry = gAnimClipCache;
         do {
             if (id == entry->id) {
                 entry->refCount++;
@@ -639,17 +639,17 @@ void *controllerAnimCacheGetOrLoad(s32 id) {
         } while (++i < count);
     }
 
-    if (D_807FBB32 >= 0x20) {
+    if (gAnimClipCacheCount >= 0x20) {
         return NULL;
     }
 
     asset = assetLoad(0xB, id, 1, 1);
     asset->unk6 += 6;
-    bound = D_807FBB32;
-    entry = &D_807FB7B0[bound];
+    bound = gAnimClipCacheCount;
+    entry = &gAnimClipCache[bound];
     entry->asset = asset;
     entry->refCount++;
-    D_807FBB32 = bound + 1;
+    gAnimClipCacheCount = bound + 1;
     entry->id = id;
     return asset;
 }

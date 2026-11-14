@@ -1,28 +1,28 @@
 #include "common.h"
 #include "proto/global/13C920.h"
 
-extern u8 D_807FF0F0;
-extern u8 D_807FF0F1;
+extern u8 gAudioSurroundEnabled;
+extern u8 gAudioMonoEnabled;
 extern u8 D_807FF0F2;
-extern u8 D_807FF0F4[];
-extern u8 D_807FF0F6[];
-extern u8 D_807FF0F8[];
+extern u8 gAuxBusStereo[];
+extern u8 gAuxBusInvertCoefs[];
+extern u8 gAuxBusOutputMode[];
 
 void configureCSPOutputMode(u8 mode) {
     s32 i;
 
-    D_807FF0F0 = 0;
-    D_807FF0F1 = 0;
+    gAudioSurroundEnabled = 0;
+    gAudioMonoEnabled = 0;
     D_807FF0F2 = 0;
     switch (mode) {
         case 1:
-            D_807FF0F1 = 1;
+            gAudioMonoEnabled = 1;
             break;
         case 3:
             D_807FF0F2 = 1;
             break;
         case 4:
-            D_807FF0F0 = 1;
+            gAudioSurroundEnabled = 1;
             break;
     }
     for (i = 0; i < 2; i++) {
@@ -32,32 +32,32 @@ void configureCSPOutputMode(u8 mode) {
 
 void updateCSPOutputChannelMode(s32 chan, s32 outputMode) {
     if (outputMode == 0) {
-        outputMode = D_807FF0F8[chan];
+        outputMode = gAuxBusOutputMode[chan];
     }
-    D_807FF0F4[chan] = 0;
-    D_807FF0F6[chan] = 0;
+    gAuxBusStereo[chan] = 0;
+    gAuxBusInvertCoefs[chan] = 0;
     switch (outputMode) {
         case 2:
-            if (D_807FF0F0 != 0) {
-                D_807FF0F6[chan] = 1;
+            if (gAudioSurroundEnabled != 0) {
+                gAuxBusInvertCoefs[chan] = 1;
             }
             break;
         case 3:
-            if (D_807FF0F0 != 0) {
-                D_807FF0F4[chan] = 1;
+            if (gAudioSurroundEnabled != 0) {
+                gAuxBusStereo[chan] = 1;
             }
             break;
         case 4:
-            if (D_807FF0F1 == 0) {
-                D_807FF0F4[chan] = 1;
+            if (gAudioMonoEnabled == 0) {
+                gAuxBusStereo[chan] = 1;
             }
             break;
         case 5:
-            if (D_807FF0F1 == 0) {
-                D_807FF0F4[chan] = 1;
-                D_807FF0F6[chan] = 1;
+            if (gAudioMonoEnabled == 0) {
+                gAuxBusStereo[chan] = 1;
+                gAuxBusInvertCoefs[chan] = 1;
             }
             break;
     }
-    D_807FF0F8[chan] = outputMode;
+    gAuxBusOutputMode[chan] = outputMode;
 }

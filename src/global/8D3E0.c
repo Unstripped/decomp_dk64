@@ -28,7 +28,7 @@ typedef struct ActorListRecord {
     /* 0x36 */ char pad36[2];
 } ActorListRecord;
 
-// Spawn id -> flag index pair built per map (D_807FC5C4, D_807FC5C8 entries).
+// Spawn id -> flag index pair built per map (sActorListFlagEntries, D_807FC5C8 entries).
 typedef struct ActorListFlagEntry {
     /* 0x0 */ u8 id;
     /* 0x1 */ u8 pad1;
@@ -73,7 +73,7 @@ extern ActorListSub20 D_807500B4;
 extern ActorListSub20 D_807500D4;
 extern Actor *gCurrentActor;
 extern ActorListNode *D_807FC400;
-extern ActorListFlagEntry *D_807FC5C4;
+extern ActorListFlagEntry *sActorListFlagEntries;
 extern u8 D_807FC5C8;
 extern s16 D_807FC5D0[16];
 extern s16 D_807FC5F0[16];
@@ -222,9 +222,9 @@ void actorListBuildLookupTable(void) {
     if (D_807FC5C8) {
         sz = D_807FC5C8 * sizeof(ActorListFlagEntry);
         i = 0;
-        D_807FC5C4 = heapAlloc(sz);
+        sActorListFlagEntries = heapAlloc(sz);
     } else {
-        D_807FC5C4 = NULL;
+        sActorListFlagEntries = NULL;
         return;
     }
     D_807FC5C8 = 0;
@@ -234,8 +234,8 @@ void actorListBuildLookupTable(void) {
         do {
             ret = actorListGetTypeIdCount(item->actorType + 0x10);
             if (ret != 0) {
-                D_807FC5C4[D_807FC5C8].id = item->id;
-                D_807FC5C4[D_807FC5C8].flagIndex = ((u16 *)D_807FC408)[gCurrentMap] + offset + 0x26B;
+                sActorListFlagEntries[D_807FC5C8].id = item->id;
+                sActorListFlagEntries[D_807FC5C8].flagIndex = ((u16 *)D_807FC408)[gCurrentMap] + offset + 0x26B;
                 offset += ret;
                 D_807FC5C8++;
             }
@@ -251,8 +251,8 @@ s32 actorListLookupEntry(u16 targetId) {
     s32 i;
 
     for (i = 0; i < D_807FC5C8; i++) {
-        if (targetId == D_807FC5C4[i].id) {
-            return D_807FC5C4[i].flagIndex;
+        if (targetId == sActorListFlagEntries[i].id) {
+            return sActorListFlagEntries[i].flagIndex;
         }
     }
     return -1;

@@ -69,7 +69,7 @@ u8 *D_807F5DE0;
 struct MapBspNode *D_807F5DE4;
 s32 D_807F5DE8;
 void *D_807F5DEC;
-f32 D_807F5DF0[12];
+f32 sFrustumCornerRays[12];
 
 
 void frustumCalculateCornerRays(f32 fovY, f32 aspect, f32 depth) {
@@ -88,20 +88,20 @@ void frustumCalculateCornerRays(f32 fovY, f32 aspect, f32 depth) {
     guRotateF(pitchMtx, halfPitch, 1.0f, 0.0f, 0.0f);
     guMtxXFMF(pitchMtx, 0.0f, 0.0f, (-depth), &dirX, &dirY, &dirZ);
     guRotateF(yawMtx, halfYaw, 0.0f, 1.0f, 0.0f);
-    guMtxXFMF(yawMtx, dirX, dirY, dirZ, &D_807F5DF0[0], &D_807F5DF0[1], &D_807F5DF0[2]);
+    guMtxXFMF(yawMtx, dirX, dirY, dirZ, &sFrustumCornerRays[0], &sFrustumCornerRays[1], &sFrustumCornerRays[2]);
     guRotateF(yawMtx, -halfYaw, 0.0f, 1.0f, 0.0f);
-    guMtxXFMF(yawMtx, dirX, dirY, dirZ, &D_807F5DF0[3], &D_807F5DF0[4], &D_807F5DF0[5]);
+    guMtxXFMF(yawMtx, dirX, dirY, dirZ, &sFrustumCornerRays[3], &sFrustumCornerRays[4], &sFrustumCornerRays[5]);
     guRotateF(pitchMtx, -halfPitch, 1.0f, 0.0f, 0.0f);
     guMtxXFMF(pitchMtx, 0.0f, 0.0f, (-depth), &dirX, &dirY, &dirZ);
     guRotateF(yawMtx, halfYaw, 0.0f, 1.0f, 0.0f);
-    guMtxXFMF(yawMtx, dirX, dirY, dirZ, &D_807F5DF0[6], &D_807F5DF0[7], &D_807F5DF0[8]);
+    guMtxXFMF(yawMtx, dirX, dirY, dirZ, &sFrustumCornerRays[6], &sFrustumCornerRays[7], &sFrustumCornerRays[8]);
     guRotateF(yawMtx, -halfYaw, 0.0f, 1.0f, 0.0f);
-    guMtxXFMF(yawMtx, dirX, dirY, dirZ, &D_807F5DF0[9], &D_807F5DF0[10], &D_807F5DF0[11]);
+    guMtxXFMF(yawMtx, dirX, dirY, dirZ, &sFrustumCornerRays[9], &sFrustumCornerRays[10], &sFrustumCornerRays[11]);
     for (i = 0; i < 4; i++) {
-        scale = (-depth) / D_807F5DF0[i * 3 + 2];
-        D_807F5DF0[i * 3] *= scale;
-        D_807F5DF0[i * 3 + 1] *= scale;
-        D_807F5DF0[i * 3 + 2] = (-depth);
+        scale = (-depth) / sFrustumCornerRays[i * 3 + 2];
+        sFrustumCornerRays[i * 3] *= scale;
+        sFrustumCornerRays[i * 3 + 1] *= scale;
+        sFrustumCornerRays[i * 3 + 2] = (-depth);
     }
 }
 
@@ -118,7 +118,7 @@ void frustumCornersTransformByInverse(Mtx *mtx) {
     guMtxL2F(viewMtx, mtx);
     matrix4Invert(invMtx, viewMtx);
     for (i = 0; i < 4; i++) {
-        guMtxXFMF(invMtx, D_807F5DF0[i * 3], D_807F5DF0[i * 3 + 1], D_807F5DF0[i * 3 + 2], &D_807F5E20[i * 3], &D_807F5E24[i * 3], &D_807F5E28[i * 3]);
+        guMtxXFMF(invMtx, sFrustumCornerRays[i * 3], sFrustumCornerRays[i * 3 + 1], sFrustumCornerRays[i * 3 + 2], &D_807F5E20[i * 3], &D_807F5E24[i * 3], &D_807F5E28[i * 3]);
     }
 }
 
@@ -274,31 +274,31 @@ typedef struct MapOffsetSlot {
     /* 0x8D */ u8 pad8D[3];
 } MapOffsetSlot; /* 0x90 */
 
-extern MapOffsetSlot *D_807F5FB8;
-extern s32 D_807F5FBC;
-extern u8 D_807F5FC0;
+extern MapOffsetSlot *sMapOffsetSlots;
+extern s32 sMapOffsetSlotCount;
+extern u8 sMapOffsetSlotsMoving;
 
 void mapOffsetSlotsInit(s32 count) {
     s32 i;
 
     if (count == 0) {
-        D_807F5FB8 = NULL;
-        D_807F5FBC = 0;
+        sMapOffsetSlots = NULL;
+        sMapOffsetSlotCount = 0;
         return;
     }
-    D_807F5FB8 = heapAlloc(count * 0x90);
-    D_807F5FBC = count;
+    sMapOffsetSlots = heapAlloc(count * 0x90);
+    sMapOffsetSlotCount = count;
     for (i = 0; i < count; i++) {
-        D_807F5FB8[i].value = 0.0f;
-        D_807F5FB8[i].target = 0.0f;
-        D_807F5FB8[i].speed = 0.0f;
-        D_807F5FB8[i].enabled = 1;
+        sMapOffsetSlots[i].value = 0.0f;
+        sMapOffsetSlots[i].target = 0.0f;
+        sMapOffsetSlots[i].speed = 0.0f;
+        sMapOffsetSlots[i].enabled = 1;
     }
-    D_807F5FC0 = 0;
+    sMapOffsetSlotsMoving = 0;
 }
 
 void mapOffsetSlotSetEnabled(s16 slot, u8 enabled) {
-    D_807F5FB8[slot].enabled = enabled;
+    sMapOffsetSlots[slot].enabled = enabled;
 }
 
 extern s32 gMapChunkCount;
@@ -306,22 +306,22 @@ extern s32 gMapChunkCount;
 void mapOffsetSlotsUpdate(void) {
     s32 i;
 
-    D_807F5FC0 = 0;
-    for (i = 0; i < D_807F5FBC; i++) {
-        if (D_807F5FB8[i].value != 0.0) {
-            guTranslate(&D_807F5FB8[i].mtx[gGfxBufferIndex], 0.0f, gMapChunkCount != 0 ? D_807F5FB8[i].value * 3.0f : D_807F5FB8[i].value, 0.0f);
+    sMapOffsetSlotsMoving = 0;
+    for (i = 0; i < sMapOffsetSlotCount; i++) {
+        if (sMapOffsetSlots[i].value != 0.0) {
+            guTranslate(&sMapOffsetSlots[i].mtx[gGfxBufferIndex], 0.0f, gMapChunkCount != 0 ? sMapOffsetSlots[i].value * 3.0f : sMapOffsetSlots[i].value, 0.0f);
         }
-        if (D_807F5FB8[i].value != D_807F5FB8[i].target) {
-            D_807F5FC0 = 1;
-            if (D_807F5FB8[i].value < D_807F5FB8[i].target) {
-                D_807F5FB8[i].value += D_807F5FB8[i].speed;
-                if (D_807F5FB8[i].target < D_807F5FB8[i].value) {
-                    D_807F5FB8[i].value = D_807F5FB8[i].target;
+        if (sMapOffsetSlots[i].value != sMapOffsetSlots[i].target) {
+            sMapOffsetSlotsMoving = 1;
+            if (sMapOffsetSlots[i].value < sMapOffsetSlots[i].target) {
+                sMapOffsetSlots[i].value += sMapOffsetSlots[i].speed;
+                if (sMapOffsetSlots[i].target < sMapOffsetSlots[i].value) {
+                    sMapOffsetSlots[i].value = sMapOffsetSlots[i].target;
                 }
             } else {
-                D_807F5FB8[i].value -= D_807F5FB8[i].speed;
-                if (D_807F5FB8[i].value < D_807F5FB8[i].target) {
-                    D_807F5FB8[i].value = D_807F5FB8[i].target;
+                sMapOffsetSlots[i].value -= sMapOffsetSlots[i].speed;
+                if (sMapOffsetSlots[i].value < sMapOffsetSlots[i].target) {
+                    sMapOffsetSlots[i].value = sMapOffsetSlots[i].target;
                 }
             }
         }
@@ -329,35 +329,35 @@ void mapOffsetSlotsUpdate(void) {
 }
 
 f32 mapOffsetSlotGetValue(s8 slot) {
-    return D_807F5FB8[slot].value;
+    return sMapOffsetSlots[slot].value;
 }
 
 void mapOffsetSlotSetTarget(s32 slot, f32 target, f32 speed) {
-    D_807F5FB8[slot].target = target;
-    D_807F5FB8[slot].speed = speed;
+    sMapOffsetSlots[slot].target = target;
+    sMapOffsetSlots[slot].speed = speed;
 }
 
 void mapOffsetSlotAddTarget(s32 slot, f32 delta, f32 speed) {
-    D_807F5FB8[slot].target += delta;
-    D_807F5FB8[slot].speed = speed;
+    sMapOffsetSlots[slot].target += delta;
+    sMapOffsetSlots[slot].speed = speed;
 }
 
 void mapOffsetSlotsGetTargets(f32 *out) {
     s32 i;
     s32 n;
 
-    n = D_807F5FBC;
+    n = sMapOffsetSlotCount;
     for (i = 0; i < n; i++) {
-        out[i] = D_807F5FB8[i].target;
+        out[i] = sMapOffsetSlots[i].target;
     }
 }
 
 void mapOffsetSlotsSetValues(f32 *values) {
     s32 i;
 
-    for (i = 0; i < D_807F5FBC; i++) {
-        D_807F5FB8[i].target = values[i];
-        D_807F5FB8[i].value = values[i];
+    for (i = 0; i < sMapOffsetSlotCount; i++) {
+        sMapOffsetSlots[i].target = values[i];
+        sMapOffsetSlots[i].value = values[i];
     }
 }
 
@@ -733,8 +733,8 @@ Gfx *mapViewDrawPass(Gfx *gfx, MapBspNode *view, u8 pass) {
             gfx = mapSurfaceEffectDraw(gfx, view->unk70[i]);
             gSPClearGeometryMode(gfx++, G_CULL_BACK);
             idx = view->unkAC[i];
-            if (D_807F5FB8[idx].value != 0.0 && D_807F5FB8[idx].enabled != 0) {
-                gSPMatrix(gfx++, osVirtualToPhysical(&D_807F5FB8[idx].mtx[gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+            if (sMapOffsetSlots[idx].value != 0.0 && sMapOffsetSlots[idx].enabled != 0) {
+                gSPMatrix(gfx++, osVirtualToPhysical(&sMapOffsetSlots[idx].mtx[gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
                 gSPDisplayList(gfx++, osVirtualToPhysical(view->unk1C[i]));
                 gSPPopMatrix(gfx++, G_MTX_MODELVIEW);
             } else {
@@ -984,13 +984,13 @@ s32 mapNodeBoxInFrustum(MapBspNode *node, f32 camX, f32 camY, f32 camZ) {
     return mapBspBoxInFrustum(node->unkA0, node->unkA2, node->unkA4, node->unkA6, node->unkA8, node->unkAA, camX, camY, camZ, D_807F5FA8, gFrustumPlanes);
 }
 
-extern f32 D_807F5E50[];
+extern f32 sViewPlane[];
 
 void planeFromTwoPoints(f32 fromX, f32 fromY, f32 fromZ, f32 toX, f32 toY, f32 toZ) {
-    D_807F5E50[0] = toX - fromX;
-    D_807F5E50[1] = toY - fromY;
-    D_807F5E50[2] = toZ - fromZ;
-    D_807F5E50[3] = -(((D_807F5E50[0] * fromX) + (D_807F5E50[1] * fromY)) + (D_807F5E50[2] * fromZ));
+    sViewPlane[0] = toX - fromX;
+    sViewPlane[1] = toY - fromY;
+    sViewPlane[2] = toZ - fromZ;
+    sViewPlane[3] = -(((sViewPlane[0] * fromX) + (sViewPlane[1] * fromY)) + (sViewPlane[2] * fromZ));
 }
 
 
@@ -1004,14 +1004,14 @@ s32 mapBspBoxInFrustum(s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 max
     f64 d;
     s32 pad0;
 
-    if ((((f32)minX * D_807F5E50[0] + (f32)minY * D_807F5E50[1]) + (f32)minZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        (((f32)minX * D_807F5E50[0] + (f32)minY * D_807F5E50[1]) + maxZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        (((f32)minX * D_807F5E50[0] + maxY * D_807F5E50[1]) + (f32)minZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        (((f32)minX * D_807F5E50[0] + maxY * D_807F5E50[1]) + maxZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        ((maxX * D_807F5E50[0] + (f32)minY * D_807F5E50[1]) + (f32)minZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        ((maxX * D_807F5E50[0] + (f32)minY * D_807F5E50[1]) + maxZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        ((maxX * D_807F5E50[0] + maxY * D_807F5E50[1]) + (f32)minZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
-        ((maxX * D_807F5E50[0] + maxY * D_807F5E50[1]) + maxZ * D_807F5E50[2]) + D_807F5E50[3] < 0.0) {
+    if ((((f32)minX * sViewPlane[0] + (f32)minY * sViewPlane[1]) + (f32)minZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+        (((f32)minX * sViewPlane[0] + (f32)minY * sViewPlane[1]) + maxZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+        (((f32)minX * sViewPlane[0] + maxY * sViewPlane[1]) + (f32)minZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+        (((f32)minX * sViewPlane[0] + maxY * sViewPlane[1]) + maxZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+        ((maxX * sViewPlane[0] + (f32)minY * sViewPlane[1]) + (f32)minZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+        ((maxX * sViewPlane[0] + (f32)minY * sViewPlane[1]) + maxZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+        ((maxX * sViewPlane[0] + maxY * sViewPlane[1]) + (f32)minZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+        ((maxX * sViewPlane[0] + maxY * sViewPlane[1]) + maxZ * sViewPlane[2]) + sViewPlane[3] < 0.0) {
         return 0;
     }
     if ((f32)minX <= x && x <= (f32)maxX && (f32)minY <= y && y <= (f32)maxY && (f32)minZ <= z && z <= (f32)maxZ) {
@@ -1316,7 +1316,7 @@ s32 mapBspPlaneDistanceCheck(MapBspNode *node, f32 x, f32 y, f32 z) {
             }
         }
         i++;
-    } while ((f32 *)((u8 *)D_807F5E20 + i * 12) < D_807F5E50);
+    } while ((f32 *)((u8 *)D_807F5E20 + i * 12) < sViewPlane);
     return 1;
 }
 
@@ -1591,7 +1591,7 @@ void matrix3SwapRows(f32 (*mtx)[3], s32 pivot0, s32 pivot1, s32 pivot2) {
 }
 
 
-s32 func_8062F640(f32 (*mtx)[3], f32 (*out)[3], s32 pivot0) {
+s32 matrix3InvertEliminateRest(f32 (*mtx)[3], f32 (*out)[3], s32 pivot0) {
     s32 rowA;
     s32 rowB;
     s32 p;
@@ -1728,14 +1728,14 @@ s32 matrix3Invert(f32 (*mtx)[3], f32 (*out)[3]) {
             out[j][p] = out[p][p] * v;
         }
     }
-    if (func_8062F640(mtx, out, p) == 0) {
+    if (matrix3InvertEliminateRest(mtx, out, p) == 0) {
         return 0;
     }
     return 1;
 }
 
 
-s32 func_8062FBC8(f32 (*mtx)[4], f32 *outOffset, f32 *outScale, s32 *outSwapRow) {
+s32 matrix4NormalizeProjective(f32 (*mtx)[4], f32 *outOffset, f32 *outScale, s32 *outSwapRow) {
     f32 max;
     f32 abs;
     s32 i;
@@ -1816,7 +1816,7 @@ s32 matrix4Invert(f32 (*out)[4], f32 (*mtx)[4]) {
         }
     }
     if (!flag) {
-        if (!func_8062FBC8(m, w, &scale, &idx)) {
+        if (!matrix4NormalizeProjective(m, w, &scale, &idx)) {
             return 0;
         }
     }

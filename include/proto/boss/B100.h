@@ -17,8 +17,8 @@ void bossActorGroupCommand();
 #ifndef PROTO_SKIP_func_8002FDF8
 void func_8002FDF8(void *, u8);
 #endif
-#ifndef PROTO_SKIP_func_8002FEC0
-void func_8002FEC0();
+#ifndef PROTO_SKIP_bossKRoolTinySpawnMinion
+void bossKRoolTinySpawnMinion();
 #endif
 #ifndef PROTO_SKIP_bossKRoolTinyStep
 void bossKRoolTinyStep(void);

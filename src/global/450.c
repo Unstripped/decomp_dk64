@@ -100,7 +100,7 @@ extern f32 gScreenFadeProgress;
 extern f32 gScreenFadeRate;
 extern s32 D_807FF100;
 
-extern s8 D_80744460;
+extern s8 gMainThreadHalted;
 extern u64 D_80761680;
 extern OSMesgQueue *D_807655E0;
 
@@ -150,26 +150,26 @@ u32 D_80744530[5] = { 0 };
 u32 D_80744544 = 0;
 u32 D_80744548[8] = { 0x644141, 0x4100005A, 0x41414100, 0x504141, 0x41000046, 0x41414100, 0x3C4141, 0x41000000 };
 u32 D_80744568[8] = { 0x644141, 0x4100005A, 0x41414100, 0x504141, 0x41000046, 0x41414100, 0x464141, 0x41000000 };
-u32 D_80744588[6] = { 0xF, 0x19, 2, 0xA, 0x1E, 0x26 };
+u32 gViModeIndexByTvType[6] = { 0xF, 0x19, 2, 0xA, 0x1E, 0x26 };
 s8 D_807445A0 = 0;
-s8 D_807445A4 = 1;
+s8 sViModeFirstSetup = 1;
 u32 D_807445A8[2] = { 0 };
 u64 D_807445B0 = 0;
 u64 D_807445B8 = 0;
 u64 D_807445C0 = 0;
 s8 D_807445C8 = 0;
-s32 D_807445CC[5] = { 0, 0x4B0, 0, 0, 0 };
+s32 sViewFrameCounter[5] = { 0, 0x4B0, 0, 0, 0 };
 
 // .bss 0x807655F0-0x8076A160
 OSMesgQueue D_807655F0;
 OSMesg D_80765608[0x32];
 OSMesgQueue D_807656D0;
 OSMesg D_807656E8[0xC0];
-OSMesgQueue D_807659E8;
+OSMesgQueue gGfxDoneQueue;
 OSMesg D_80765A00[0x10];
-u64 D_80765A40[0x400];
+u64 gSchedThreadStack[0x400];
 SchedStruct gScheduler;
-SchedClient D_80767CD8;
+SchedClient gGfxSchedClient;
 FrameMatrices D_80767CE8[2];
 FrameMatrices *gGfxCurrentFrameBuffer;
 u32 D_8076A04C;
@@ -212,10 +212,10 @@ u8 D_8076A104;
 s8 D_8076A105;
 u16 D_8076A106;
 OSMesg D_8076A108[2];
-OSMesgQueue D_8076A110;
+OSMesgQueue gBootDelayMesgQueue;
 OSMesg D_8076A128;
 u32 D_8076A12C;
-OSTimer D_8076A130;
+OSTimer gBootDelayTimer;
 void *D_8076A150;
 u32 D_8076A154;
 
@@ -295,7 +295,7 @@ void viModeSetup(u8 overlaySlot) {
     overlayId = 1;
     overlayParam = 0;
     func_806003EC(gCurrentLevelIndex);
-    if (D_807445A4 && D_807445A4) {}  // FAKE: deadsweep dead statement (steers uopt; keeps the D_807445A4 address out of a register)
+    if (sViModeFirstSetup && sViModeFirstSetup) {}  // FAKE: deadsweep dead statement (steers uopt; keeps the sViModeFirstSetup address out of a register)
     if (gCurrentMap == 0x28) {
         gHiResScale = 2;
     } else {
@@ -337,8 +337,8 @@ void viModeSetup(u8 overlaySlot) {
         break;
     }
     loadOverlay(overlaySlot, overlayId, overlayParam);
-    if (D_807445A4 == 0) {
-        osViSetMode(&osViModeTable[D_80744588[osTvType + osTvType + gHiResScale - 1]]);
+    if (sViModeFirstSetup == 0) {
+        osViSetMode(&osViModeTable[gViModeIndexByTvType[osTvType + osTvType + gHiResScale - 1]]);
         if (D_807445A0 == 0) {
             osViBlack(1);
         }
@@ -347,7 +347,7 @@ void viModeSetup(u8 overlaySlot) {
     } else {
         D_80744510[0] = 1;
         D_807445A0 = 1;
-        D_807445A4 = 0;
+        sViModeFirstSetup = 0;
         viModeApplyHighRes();
     }
     osViSetSpecialFeatures(0x42);
@@ -363,9 +363,9 @@ void mainSystemInit(void) {
     D_8076A084 = gSegmentTable[12].romEnd - gSegmentTable[12].romStart;
     osCreateMesgQueue(&D_807655F0, D_80765608, 0x32);
     osCreateMesgQueue(&D_807656D0, D_807656E8, 0xC0);
-    schedCreate(&gScheduler, &D_80765A40[0x400], 0x19, D_80744588[osTvType + osTvType], 1);
-    osCreateMesgQueue(&D_807659E8, D_80765A00, 0x10);
-    schedAddClient(&gScheduler, &D_80767CD8, &D_807659E8, 1, 1);
+    schedCreate(&gScheduler, &gSchedThreadStack[0x400], 0x19, gViModeIndexByTvType[osTvType + osTvType], 1);
+    osCreateMesgQueue(&gGfxDoneQueue, D_80765A00, 0x10);
+    schedAddClient(&gScheduler, &gGfxSchedClient, &gGfxDoneQueue, 1, 1);
     gCurrentMap = gInitialMap;
     viModeSetup(0);
     D_8076A07C = 5;
@@ -375,8 +375,8 @@ void mainSystemInit(void) {
     transitionSetState(0);
     faultThreadInit();
     osWritebackDCacheAll();
-    osCreateMesgQueue(&D_8076A110, D_8076A108, 2);
-    osSetTimer(&D_8076A130, OS_USEC_TO_CYCLES(300000), 0, &D_8076A110, D_8076A128);
+    osCreateMesgQueue(&gBootDelayMesgQueue, D_8076A108, 2);
+    osSetTimer(&gBootDelayTimer, OS_USEC_TO_CYCLES(300000), 0, &gBootDelayMesgQueue, D_8076A128);
     sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
 }
 
@@ -412,7 +412,7 @@ void mainResetEngineState(void) {
 }
 
 extern s16 D_8074682C;
-extern u8 D_807F059C[];
+extern u8 gGfxTaskPending[];
 
 void mainThreadLoop(s32 unused) {
     u8 first;
@@ -426,10 +426,10 @@ void mainThreadLoop(s32 unused) {
     osViSetSpecialFeatures(0x42);
     mainResetEngineState();
     D_8076A070[0] = gScheduler.unk280 - 2;
-    osRecvMesg(&D_8076A110, &receivedMesg, OS_MESG_BLOCK);
+    osRecvMesg(&gBootDelayMesgQueue, &receivedMesg, OS_MESG_BLOCK);
     while (1) {
         D_8074682C = 0xC8;
-        while (D_80744460 != 0) {
+        while (gMainThreadHalted != 0) {
         }
         if ((gScreenRenderFlags & 1) && D_8076A0B2 == 0) {
             mapLoadLevel();
@@ -456,9 +456,9 @@ void mainThreadLoop(s32 unused) {
         }
         timerQueueUpdate();
         dmaDrainQueueAndFreeBuffer();
-        func_80610268(0x4D2);
-        if (D_807F059C[0] != 0) {
-            func_80610268(0x929);
+        schedWaitGfxTask(0x4D2);
+        if (gGfxTaskPending[0] != 0) {
+            schedWaitGfxTask(0x929);
         }
         frameTimingUpdate();
         if (gGameMode == 0 || gGameMode == 1 || gGameMode == 7) {
@@ -640,7 +640,7 @@ void playerViewsBuildMatrices(void *outMtx) {
     f32 fov;
     f32 aspect;
     f32 offs;
-    s32 *cc = D_807445CC;
+    s32 *cc = sViewFrameCounter;
 
     aspect = cameraStepAspectScale();
     if (gPlayerCount >= 2 && gSplitScreenMode == 1) {
@@ -1061,7 +1061,7 @@ void mapLoadLevel(void) {
             if ((gCurrentMap == 0x11) && (flagGet(0x302, 0) != 0)) {
                 sfxAllocateChannel(0x74, 1.0f);
             } else {
-                songId = D_80745BDC[gCurrentMap].songId;
+                songId = gMapAudioTable[gCurrentMap].songId;
                 audioVolume = 1.0f;
                 if ((songId == 6) || (songId == 0x1F)) {
                     audioVolume = 0.5493331552f;

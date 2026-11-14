@@ -77,7 +77,7 @@ void pathFollowUpdateHeading(Actor *owner, u8 continuous) {
     }
 }
 
-void animationOwnerFreeBuffer(Actor *owner) {
+void pathFollowFree(Actor *owner) {
     PathFollowState *state;
 
     state = owner->pathFollow;

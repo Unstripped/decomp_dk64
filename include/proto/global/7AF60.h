@@ -78,8 +78,8 @@ u8 func_80676B70(Actor *, Actor *, ActorCollisionList *);
 #ifndef PROTO_SKIP_func_80676BCC
 u8 func_80676BCC(Actor *, Actor *, ActorCollisionList *);
 #endif
-#ifndef PROTO_SKIP_func_80676C10
-u8 func_80676C10(Actor *, Actor *, ActorCollisionList *);
+#ifndef PROTO_SKIP_actorCheckTargetOnSurfaceOrSmaller
+u8 actorCheckTargetOnSurfaceOrSmaller(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676C64
 s32 func_80676C64(Actor *, Actor *, ActorCollisionList *);

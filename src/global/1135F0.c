@@ -2,11 +2,11 @@
 #include "render.h"
 #include "proto/global/1135F0.h"
 
-extern TextureDescriptor *D_807550D0;
-extern s16 D_807FD9D0;
-extern s16 D_807FD9D2;
-extern u8 D_807FD9D4;
-extern u8 D_807FD9D5;
+extern TextureDescriptor *gCurrentTexture;
+extern s16 gTextureScaleS;
+extern s16 gTextureScaleT;
+extern u8 gTextureFlipS;
+extern u8 gTextureFlipT;
 
 void dlAppendTextureLoad(Gfx **glistp, void *texture) {
     Gfx *gfx = *glistp;
@@ -16,37 +16,37 @@ void dlAppendTextureLoad(Gfx **glistp, void *texture) {
     s32 origin;
     s32 pad[2];
 
-    D_807550D0 = texture;
-    D_807FD9D0 = 0x400;
-    D_807FD9D2 = 0x400;
-    D_807FD9D4 = 0;
-    D_807FD9D5 = 0;
-    type = D_807550D0->type;
-    height = D_807550D0->rectHeight + D_807550D0->t;
-    width = D_807550D0->width;
-    if (width && width) {}  // FAKE: lifts the uopt adjsave of width from 1.92 to 2.08, tying the D_807550D0 address constant, so width takes a3 and the address t0 (Q0406)
+    gCurrentTexture = texture;
+    gTextureScaleS = 0x400;
+    gTextureScaleT = 0x400;
+    gTextureFlipS = 0;
+    gTextureFlipT = 0;
+    type = gCurrentTexture->type;
+    height = gCurrentTexture->rectHeight + gCurrentTexture->t;
+    width = gCurrentTexture->width;
+    if (width && width) {}  // FAKE: lifts the uopt adjsave of width from 1.92 to 2.08, tying the gCurrentTexture address constant, so width takes a3 and the address t0 (Q0406)
     origin = 0;  // FAKE: value-named constant local (pre-existing, uls/ult merged): uopt keeps width - origin and origin << 2 unfolded in the gDPLoadTextureTile expansions, so case 1 spills only its SetTileSize gfx temp (sp+0x74); literal 0s fold in cfe, spill the LoadSync and LoadTile temps instead and shrink the frame 0xc8 -> 0xb0 (Q0145, Q0599)
 
     switch (type) {
     case 1:
         if (!(width & 7)) {
-            gDPLoadTextureBlock(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_8b, width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock(gfx++, gCurrentTexture->image, gCurrentTexture->format, G_IM_SIZ_8b, width, height, gCurrentTexture->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
-            gDPLoadTextureTile(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_8b, width, height, origin, origin, width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureTile(gfx++, gCurrentTexture->image, gCurrentTexture->format, G_IM_SIZ_8b, width, height, origin, origin, width, height, gCurrentTexture->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         }
         break;
     case 2:
         if (!(width & 3)) {
-            gDPLoadTextureBlock(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_16b, width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock(gfx++, gCurrentTexture->image, gCurrentTexture->format, G_IM_SIZ_16b, width, height, gCurrentTexture->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
-            gDPLoadTextureTile(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_16b, width, height, origin, origin, width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureTile(gfx++, gCurrentTexture->image, gCurrentTexture->format, G_IM_SIZ_16b, width, height, origin, origin, width, height, gCurrentTexture->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         }
         break;
     case 3:
         if (!(width & 1)) {
-            gDPLoadTextureBlock(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_32b, width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock(gfx++, gCurrentTexture->image, gCurrentTexture->format, G_IM_SIZ_32b, width, height, gCurrentTexture->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
-            gDPLoadTextureTile(gfx++, D_807550D0->image, D_807550D0->format, G_IM_SIZ_32b, width, height, origin, origin, width, height, D_807550D0->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureTile(gfx++, gCurrentTexture->image, gCurrentTexture->format, G_IM_SIZ_32b, width, height, origin, origin, width, height, gCurrentTexture->pal, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         }
         break;
     default:
@@ -56,10 +56,10 @@ void dlAppendTextureLoad(Gfx **glistp, void *texture) {
 }
 
 void dlSetTextureScaleAndFlip(s16 scaleS, s16 scaleT, u8 flipS, u8 flipT) {
-    D_807FD9D0 = scaleS;
-    D_807FD9D2 = scaleT;
-    D_807FD9D4 = flipS;
-    D_807FD9D5 = flipT;
+    gTextureScaleS = scaleS;
+    gTextureScaleT = scaleT;
+    gTextureFlipS = flipS;
+    gTextureFlipT = flipT;
 }
 
 void dlAppendTextureRectangle(Gfx **glistp, s16 screenX, s16 screenY) {
@@ -78,28 +78,28 @@ void dlAppendTextureRectangle(Gfx **glistp, s16 screenX, s16 screenY) {
     s16 dtdy;
 
     dl = *glistp;
-    if (D_807550D0 != NULL) {
+    if (gCurrentTexture != NULL) {
         fx = screenX * 0.25f;
         fy = screenY * 0.25f;
         ix = fx;
-        s = (D_807550D0->s - (fx - ix)) * 32.0f;
+        s = (gCurrentTexture->s - (fx - ix)) * 32.0f;
         iy = fy;
-        t = (D_807550D0->t - (fy - iy)) * 32.0f;
-        sx = 1024.0f / D_807FD9D0;
-        sy = 1024.0f / D_807FD9D2;
-        x1 = (ix + D_807550D0->rectWidth * sx) * 4.0f;
-        y1 = (iy + D_807550D0->rectHeight * sy) * 4.0f;
-        if (D_807FD9D4 != 0) {
-            s += (D_807550D0->rectWidth << 5) - 0x20;
-            dsdx = -D_807FD9D0;
+        t = (gCurrentTexture->t - (fy - iy)) * 32.0f;
+        sx = 1024.0f / gTextureScaleS;
+        sy = 1024.0f / gTextureScaleT;
+        x1 = (ix + gCurrentTexture->rectWidth * sx) * 4.0f;
+        y1 = (iy + gCurrentTexture->rectHeight * sy) * 4.0f;
+        if (gTextureFlipS != 0) {
+            s += (gCurrentTexture->rectWidth << 5) - 0x20;
+            dsdx = -gTextureScaleS;
         } else {
-            dsdx = D_807FD9D0;
+            dsdx = gTextureScaleS;
         }
-        if (D_807FD9D5 != 0) {
-            t += (D_807550D0->rectHeight << 5) - 0x20;
-            dtdy = -D_807FD9D2;
+        if (gTextureFlipT != 0) {
+            t += (gCurrentTexture->rectHeight << 5) - 0x20;
+            dtdy = -gTextureScaleT;
         } else {
-            dtdy = D_807FD9D2;
+            dtdy = gTextureScaleT;
         }
         gSPTextureRectangle(dl++, ix * 4, iy * 4, x1, y1, G_TX_RENDERTILE, s, t, dsdx, dtdy);
         *glistp = dl;

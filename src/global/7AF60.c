@@ -223,7 +223,7 @@ u8 func_80676BCC(Actor *actor, Actor *target, ActorCollisionList *list) {
     return gPlayerSlots[index].unk2C0 == 2;
 }
 
-u8 func_80676C10(Actor *actor, Actor *target, ActorCollisionList *list) {
+u8 actorCheckTargetOnSurfaceOrSmaller(Actor *actor, Actor *target, ActorCollisionList *list) {
     PlayerState *ps = target->customState;
     s32 onSurface;
 

@@ -186,7 +186,7 @@ void behaviourUpdateShadowAlpha(void) {
         if (!(gBehaviourAnimState->flags & 0x100)) {
             shadowAlpha = (gCurrentActor->alpha * 0.7);
             sub = gCurrentActor->sub4;
-            entry = &D_8075EB80[gBehaviourAnimState->entryIndex];
+            entry = &gSpawnEntryTable[gBehaviourAnimState->entryIndex];
             shadowWidth = (sub->scaleX * entry->shadowScaleX * gBehaviourAnimState->unk30);
             shadowDepth = (sub->scaleZ * entry->shadowScaleZ * gBehaviourAnimState->unk30);
             billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, shadowWidth, shadowDepth, 1, 0x12C, shadowAlpha, gCurrentActor->yaw, 1.0f);
@@ -235,7 +235,7 @@ void actorPitchEaseTowardPoint(s16 state, s16 pitchYOffset, f32 targetX, f32 tar
     actorSetPitchVelocity(state, targetX, targetZ, speed, flags);
 }
 
-void func_8072AA80(void) {
+void behaviourPickRandomTargetY(void) {
     s16 maxY;
     s32 rnd;
     s32 minY;
@@ -482,9 +482,9 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     if (gBehaviourAnimState->unk38 != 0.0f) {
                         gCurrentActor->speedXZ = sqrtf(((gCurrentActor->x - gCurrentActor->prevX) * (gCurrentActor->x - gCurrentActor->prevX)) + ((gCurrentActor->y - gCurrentActor->prevY) * (gCurrentActor->y - gCurrentActor->prevY)) + ((gCurrentActor->z - gCurrentActor->prevZ) * (gCurrentActor->z - gCurrentActor->prevZ))) * 40.0f;
                         actorUpdateAnimSpeedFromSpeed(0);
-                        func_8072E320(6.0f);
+                        actorAlignToMotion(6.0f);
                     } else {
-                        func_8072E320(0.0f);
+                        actorAlignToMotion(0.0f);
                     }
                     break;
             }
@@ -544,14 +544,14 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                 actorScriptStart(gCurrentActor, gBehaviourAnimState->animId0);
                 gCurrentActor->unk155 = 1;
             }
-            func_80724E48(0);
+            actorTrackBoneTowardTarget(0);
             break;
         case 0x19:
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x202, 0.0f);
             if ((gBehaviourWorkState->timer % 15) == 0) {
                 gBehaviourWorkState->unk24 = (randomNonNegative() >> 0xF) % 180;
             }
-            func_80724E48(2);
+            actorTrackBoneTowardTarget(2);
             switch (gCurrentActor->unk155) {
                 case 0:
                     actorSetTargetSpeed(gCurrentActor, 0);
@@ -659,7 +659,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
             actorSetBehaviourState(1, gBehaviourExtraState->targetSpeed, scriptId);
             break;
         case 0x3F:
-            func_80724E48(0);
+            actorTrackBoneTowardTarget(0);
             break;
     }
 }
@@ -713,7 +713,7 @@ u8 behaviourCheckTargetCollisionMode(u8 checkMode, u8 *outTarget) {
 }
 
 
-void func_8072C870(u8 state, u8 speed, s32 scriptId) {
+void behaviourSetChaseState(u8 state, u8 speed, s32 scriptId) {
     if (state == 7) {
         if (zoneFindBestReachablePoint(1, gCurrentActor, D_807FDCA0, &gBehaviourWorkState->targetX, &gBehaviourWorkState->targetY, &gBehaviourWorkState->targetZ) == 0) {
             state = 0x10;
@@ -799,7 +799,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
         case 0x23:
             if ((ret ^ 0) == gBehaviourWorkState->unk36) { // FAKE: flips beq operand order (field left)
             } else if ((hasTarget == 0) || ((s32)ret >= 7)) {
-                func_8072C870(type, gBehaviourExtraState->unkD, chaseScriptId);
+                behaviourSetChaseState(type, gBehaviourExtraState->unkD, chaseScriptId);
                 return;
             }
             if (near & 0xFF) {
@@ -831,12 +831,12 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
                 if (!(gBehaviourWorkState->flags & 0x80)) {
                     actorSetDefaultState(gBehaviourAnimState->animId1);
                 } else {
-                    func_8072C870(7, gBehaviourExtraState->unkD, chaseScriptId);
+                    behaviourSetChaseState(7, gBehaviourExtraState->unkD, chaseScriptId);
                 }
             }
         case 0x10:
             if (type != gBehaviourWorkState->unk36) {
-                func_8072C870(type, gBehaviourExtraState->unkD, chaseScriptId);
+                behaviourSetChaseState(type, gBehaviourExtraState->unkD, chaseScriptId);
             }
             if (near & 0xFF) {
                 if (!(gBehaviourWorkState->flags & 0x400)) {
@@ -1227,7 +1227,7 @@ void actorGetNodePosOrPosition(Actor *actor, f32 *outX, f32 *outY, f32 *outZ) {
 #define E2_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define E2_MIN(a, b) ((a) < (b) ? (a) : (b))
 
-void func_8072E320(f32 tiltScale) {
+void actorAlignToMotion(f32 tiltScale) {
     f32 targetPitch;
 
     gCurrentActor->moveYaw = gCurrentActor->yaw;

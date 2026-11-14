@@ -36,7 +36,7 @@ extern s8 D_8075536C;
 extern s32 D_80755338;
 extern s32 D_8075533C;
 extern s8 gMenuTransitionFlag;
-extern s8 D_80750754;
+extern s8 gBannerTextStepIndex;
 
 void menuTransitionWithState(s32 map, s32 exit, u8 mode) {
     mapRequestTransition(map, exit);
@@ -158,7 +158,7 @@ void menuTransitionToCreditsOrMap28(s32 toCredits) {
         temp = 0xE;
     }
     menuTransitionRequest(0x99, 0xB, temp);
-    D_80750754 = -2;
+    gBannerTextStepIndex = -2;
 }
 
 extern s32 gGlobalOverlayFlags;
@@ -256,7 +256,7 @@ void menuSeedRandom(void) {
 extern u8 gMenuBonusStageIndex;
 extern u8 gActivePlayerCount;
 extern u16 gMenuStateTimer;
-extern u16 D_807ECD66;
+extern u16 gButtonsPressed;
 
 typedef struct BonusStageEntry {
     /* 0x0 */ u8 characterId; // func_8060B750 / func_8060B49C character argument
@@ -401,7 +401,7 @@ void menuUpdateTitleOrTransition(void) {
 
 void menuHandleTitleScreenTransition(void) {
     gMenuStateTimer = 0x1E;
-    if (D_807ECD66 & 0x8000) {
+    if (gButtonsPressed & 0x8000) {
         transitionSetState(0);
         menuTransitionWithState(0x50, 0, 5);
     }
@@ -412,7 +412,7 @@ void menuHandleCutsceneScreenTransition(void) {
     if (camIsCutsceneActive()) {
         gMenuStateTimer = 0x1E;
     }
-    if ((gMenuTransitionFlag == 1) || (gMenuStateTimer == 0) || (D_807ECD66 & 0x8000)) {
+    if ((gMenuTransitionFlag == 1) || (gMenuStateTimer == 0) || (gButtonsPressed & 0x8000)) {
         transitionSetState(0);
         gMenuTransitionFlag = 0;
         menuTransitionWithState(0x50, 0, 5);
@@ -420,7 +420,7 @@ void menuHandleCutsceneScreenTransition(void) {
     }
 }
 void menuHandleIntroScreenTransition(void) {
-    if ((D_80755334 >= 0x1E && (D_807ECD66 & 0x9000)) || gMenuStateTimer == 0) {
+    if ((D_80755334 >= 0x1E && (gButtonsPressed & 0x9000)) || gMenuStateTimer == 0) {
         menuTransitionRequest(0x28, 0, 1);
     }
 }
@@ -875,7 +875,7 @@ s32 menuIsTransitionTypeAOrE(void) {
 }
 
 extern s8 D_8074452C;
-extern u8 D_807467C8;
+extern u8 gEepromCurrentSlot;
 
 void func_807144B8(s8 saveSlot) {
     s32 map;
@@ -887,7 +887,7 @@ void func_807144B8(s8 saveSlot) {
     flagsClearAllBank2();
     eepromLoadPlayerData(saveSlot, 1);
     gPlayerCharacterId = 0;
-    if ((eepromGetField(0xD, 0, 0, D_807467C8) != 0) || (D_8074452C != 0)) {
+    if ((eepromGetField(0xD, 0, 0, gEepromCurrentSlot) != 0) || (D_8074452C != 0)) {
         if (flagGet(0x186, 0) != 0) {
             map = 0x22;
             exit = 0;

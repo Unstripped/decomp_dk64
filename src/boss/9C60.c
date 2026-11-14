@@ -81,7 +81,7 @@ void bossKRoolDiddyStep(void) {
         func_80724CA4(2, 1);
     }
     if (gCurrentActor->state != 0x28) {
-        func_80724E48(5);
+        actorTrackBoneTowardTarget(5);
     }
     switch (gCurrentActor->state) {
     case 0x1E:
@@ -159,7 +159,7 @@ void bossKRoolDiddyStep(void) {
             gCurrentActor->unk155++;
             /* fallthrough */
         case 8:
-            func_80724E48(0);
+            actorTrackBoneTowardTarget(0);
             if (gCurrentActor->sub4->boneRotations->rotX < 0x7FFF) {
                 gCurrentActor->sub4->boneRotations->rotX = 0xFFFF;
             }

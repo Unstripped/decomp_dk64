@@ -32,8 +32,8 @@ void func_806C4E8C(void);
 #ifndef PROTO_SKIP_func_806C4EB4
 void func_806C4EB4(void);
 #endif
-#ifndef PROTO_SKIP_func_806C4EE0
-void func_806C4EE0(u8, u8);
+#ifndef PROTO_SKIP_actorStartRewardCutscene
+void actorStartRewardCutscene(u8, u8);
 #endif
 #ifndef PROTO_SKIP_func_806C4F5C
 void func_806C4F5C(void);
@@ -47,8 +47,8 @@ void func_806C55E0(void);
 #ifndef PROTO_SKIP_func_806C5C20
 void func_806C5C20(void);
 #endif
-#ifndef PROTO_SKIP_func_806C5FEC
-void func_806C5FEC(void);
+#ifndef PROTO_SKIP_cutsceneRestoreUpdate
+void cutsceneRestoreUpdate(void);
 #endif
 #ifndef PROTO_SKIP_func_806C61C8
 void func_806C61C8(void);

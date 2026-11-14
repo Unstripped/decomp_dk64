@@ -1,8 +1,8 @@
 // Overlay menu (ovl10, segment table entry 10)
-menuPlaySoundFromTable = 0x80024000; // type:func
-menuSpawnPositionalActor = 0x800240BC; // type:func
+menuStartNextCamPath = 0x80024000; // type:func
+menuSpawnFallingEffect = 0x800240BC; // type:func
 menuUpdateFallingActor = 0x80024154; // type:func
-menuResetAudioState = 0x800241E8; // type:func
+menuExit = 0x800241E8; // type:func
 menuMainStateStep = 0x80024224; // type:func
 menuTransitionStep = 0x80024418; // type:func
 menuDrawOptionsOverlay = 0x800244EC; // type:func
@@ -112,6 +112,12 @@ menuLoadTextTable = 0x800324CC; // type:func
 menuLightSpotlightActorUpdate = 0x80032550; // type:func
 menuUpdateLightFadeActor = 0x8003264C; // type:func
 menuRenderOptionDescription = 0x8003292C; // type:func
+gMenuKongSlotPositions = 0x80033894;
+gMenuCheatWarps = 0x80033900;
+gMenuCheatLoadouts = 0x80033938;
+gMenuCheatMapCharacters = 0x80033978;
+gMenuHighScoreGame = 0x800339A8;
+gMenuHighScoreGames = 0x800339B8;
 menuOptionDescFade = 0x800339D0;
 menuSpotlightR = 0x80033FB0;
 menuSpotlightG = 0x80033FB1;

@@ -272,8 +272,8 @@ void modelCalcFacingAngles(f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *, u8
 #ifndef PROTO_SKIP_spriteListBuildDisplayChain
 struct SpriteDisplayNode *spriteListBuildDisplayChain(RenderEntry *, RenderEntry *, f32, f32, f32);
 #endif
-#ifndef PROTO_SKIP_spriteListInsertByDepth
-struct SpriteDisplayNode *spriteListInsertByDepth(struct SpriteDisplayNode *, struct SpriteDisplayNode *);
+#ifndef PROTO_SKIP_spriteListInsertByTexture
+struct SpriteDisplayNode *spriteListInsertByTexture(struct SpriteDisplayNode *, struct SpriteDisplayNode *);
 #endif
 #ifndef PROTO_SKIP_func_8063A8C4
 void func_8063A8C4(s16, u8, f32);

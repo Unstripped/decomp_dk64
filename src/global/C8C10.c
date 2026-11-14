@@ -197,7 +197,7 @@ void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 
         sfxAllocateChannel(0x14, 1.0f);
     }
     actorPlaceAttachedChildren(-0x1E);
-    func_80724E48(0);
+    actorTrackBoneTowardTarget(0);
     gCurrentActor->yaw = (gBehaviourTargetActor->yaw + 0x800) & 0xFFF;
     gCurrentActor->x = mathSinF(gCurrentActor->moveYaw) * 12.0f + gBehaviourTargetActor->x;
     gCurrentActor->z = mathCosF(gCurrentActor->moveYaw) * 15.0f + gBehaviourTargetActor->z;
@@ -364,7 +364,7 @@ void func_806C4EB4(void) {
 }
 
 
-void func_806C4EE0(u8 subAction, u8 stateValue) {
+void actorStartRewardCutscene(u8 subAction, u8 stateValue) {
     gBehaviourWorkState->unk2E = 0;
     resQueueSetValue(1);
     resQueueAttachActor(gCurrentActor, 0xF, subAction);
@@ -497,10 +497,10 @@ void func_806C4F5C(void) {
     }
     switch (func_806C4AC4(0x78, 0xA)) {
         case 1:
-            func_806C4EE0(2, 0);
+            actorStartRewardCutscene(2, 0);
             break;
         case 2:
-            func_806C4EE0(3, 1);
+            actorStartRewardCutscene(3, 1);
             break;
     }
     func_8072881C(0, &gBehaviourWorkState->unk28);
@@ -657,7 +657,7 @@ void func_806C55E0(void) {
     }
 }
 
-// customState of the cutscene actor run by func_806C5FEC: what it restores when the scene ends.
+// customState of the cutscene actor run by cutsceneRestoreUpdate: what it restores when the scene ends.
 typedef struct CutsceneRestoreState {
     /* 0x00 */ f32 savedLightR;
     /* 0x04 */ f32 savedLightG;
@@ -696,7 +696,7 @@ void func_806C5C20(void) {
     if ((randomNonNegative() >> 15) % 1000 >= 0x3CB) {
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed << 2;
     }
-    func_80724E48(6);
+    actorTrackBoneTowardTarget(6);
     actorMoveWithinZone(1, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x2C9, 0.0f);
     if (!(gFrameCounter & 3)) {
         effectSetDepth(1);
@@ -740,7 +740,7 @@ void func_806C5C20(void) {
 }
 
 
-void func_806C5FEC(void) {
+void cutsceneRestoreUpdate(void) {
     CutsceneRestoreState *restore;
 
     restore = gCurrentActor->customState;

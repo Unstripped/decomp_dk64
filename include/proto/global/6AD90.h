@@ -65,8 +65,8 @@ void collisionCheckSlopeAngle(f32, f32, u8, Actor *, u8);
 #ifndef PROTO_SKIP_collisionGetFloorTriangleNormal
 s32 collisionGetFloorTriangleNormal(f32, f32, u8, u8);
 #endif
-#ifndef PROTO_SKIP_mathCheckCloserFloatThreshold
-s32 mathCheckCloserFloatThreshold(f32, f32, f32, u8);
+#ifndef PROTO_SKIP_collisionPickCloserFloor
+s32 collisionPickCloserFloor(f32, f32, f32, u8);
 #endif
 #ifndef PROTO_SKIP_collisionCheckGroundAtPoint
 u8 collisionCheckGroundAtPoint(f32, f32, f32 *);

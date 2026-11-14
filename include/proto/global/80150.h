@@ -7,8 +7,8 @@ struct TagBarrelData;
 #ifndef PROTO_SKIP_tagBarrelIsSpecial
 s32 tagBarrelIsSpecial(Actor *);
 #endif
-#ifndef PROTO_SKIP_tagBarrelInitPeerState
-void tagBarrelInitPeerState(void);
+#ifndef PROTO_SKIP_launchBarrelUpdate
+void launchBarrelUpdate(void);
 #endif
 #ifndef PROTO_SKIP_tagBarrelPeerUpdate
 void tagBarrelPeerUpdate(void);

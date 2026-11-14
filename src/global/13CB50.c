@@ -11,7 +11,7 @@ void alCSPPlay(ALCSPlayer *seqp) {
     alEvtqPostEvent(&seqp->evtq, &evt, 0);
 }
 
-void alCSPSetUnk84(N_CSPlayer *seqp, OSMesgQueue *queue) {
+void alCSPSetEventQueue(N_CSPlayer *seqp, OSMesgQueue *queue) {
     seqp->eventQueue = queue;
 }
 

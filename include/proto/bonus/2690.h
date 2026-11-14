@@ -13,8 +13,8 @@ Gfx *bonusRenderCrosshair(Gfx *, Actor *);
 #ifndef PROTO_SKIP_bonusRenderTargetGameHud
 Gfx *bonusRenderTargetGameHud(Gfx *, Actor *);
 #endif
-#ifndef PROTO_SKIP_bonusRenderPopupGameHud
-Gfx *bonusRenderPopupGameHud(Gfx *, Actor *);
+#ifndef PROTO_SKIP_bonusRenderTurtleTroubleHud
+Gfx *bonusRenderTurtleTroubleHud(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_bonusSpawnTarget
 void bonusSpawnTarget(s16, s16, s16, u8, struct BonusTargetGameState *);
@@ -34,17 +34,17 @@ u8 bonusAimAndFire(f32, f32, f32);
 #ifndef PROTO_SKIP_bonusTargetGameUpdate
 void bonusTargetGameUpdate(void);
 #endif
-#ifndef PROTO_SKIP_bonusPopupGameUpdate
-void bonusPopupGameUpdate(void);
+#ifndef PROTO_SKIP_bonusTurtleTroubleGameUpdate
+void bonusTurtleTroubleGameUpdate(void);
 #endif
 #ifndef PROTO_SKIP_bonusTargetUpdate
 void bonusTargetUpdate(void);
 #endif
-#ifndef PROTO_SKIP_bonusPopupSpawnActors
-void bonusPopupSpawnActors(struct TurtleTroubleGameState *);
+#ifndef PROTO_SKIP_bonusTurtleTroubleSpawnSnakes
+void bonusTurtleTroubleSpawnSnakes(struct TurtleTroubleGameState *);
 #endif
-#ifndef PROTO_SKIP_bonusActorUpdateVertexPositions
-void bonusActorUpdateVertexPositions(void);
+#ifndef PROTO_SKIP_bonusTurtleTroubleSnakeUpdate
+void bonusTurtleTroubleSnakeUpdate(void);
 #endif
 #ifndef PROTO_SKIP_bonusTurtleTroubleTurtleUpdate
 void bonusTurtleTroubleTurtleUpdate(void);
@@ -52,8 +52,8 @@ void bonusTurtleTroubleTurtleUpdate(void);
 #ifndef PROTO_SKIP_bonusLightFlashGameUpdate
 void bonusLightFlashGameUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_80029B9C
-Gfx *func_80029B9C(Gfx *, Actor *);
+#ifndef PROTO_SKIP_bonusRenderMiniGameHud
+Gfx *bonusRenderMiniGameHud(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_bonusLightFlashSpawnTargets
 void bonusLightFlashSpawnTargets(void *);
@@ -85,7 +85,7 @@ void bonusSearchlightSeekGameUpdate(void);
 #ifndef PROTO_SKIP_bonusSearchlightSeekTargetUpdate
 void bonusSearchlightSeekTargetUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_8002CC08
-Gfx *func_8002CC08(Gfx *, Actor *);
+#ifndef PROTO_SKIP_bonusSearchlightSeekRenderHud
+Gfx *bonusSearchlightSeekRenderHud(Gfx *, Actor *);
 #endif
 #endif

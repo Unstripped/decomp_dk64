@@ -102,7 +102,7 @@ void actorSeekTargetUpdate(void) {
 }
 
 
-void actorUpdateRampTarget(void) {
+void actorFollowParentPulseUpdate(void) {
     PulseState *pulse;
     Actor *parent;
 
@@ -342,7 +342,7 @@ typedef struct MidpointOrbitState {
 } MidpointOrbitState;
 
 
-void actorMidpointOrbitUpdate(void) {
+void actorOrbitPlayerMidpointUpdate(void) {
     MidpointOrbitState *sub;
     f32 ratio;
     Actor *p;

@@ -112,3 +112,4 @@ raceActivateNextGate = 0x8002F36C; // type:func
 raceAdvanceActiveGate = 0x8002F420; // type:func
 raceUpdateLapAndWaypointTracker = 0x8002F490; // type:func
 raceGetPathDistanceBetweenTrackers = 0x8002F784; // type:func
+sRaceRouteTable = 0x8002FCF0;

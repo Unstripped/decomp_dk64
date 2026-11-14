@@ -114,7 +114,7 @@ OSIoMesg D_807701A8[32];
 OSMesgQueue D_807704A8;
 OSMesg D_807704C0[32];
 u8 D_80770540[0x18];
-s32 D_80770558[2];
+s32 sAudioFrameHoldCount[2];
 
 #include "common.h"
 #include "actor.h"
@@ -233,7 +233,7 @@ s32 audioBuildTask(AudioTask *task, AudioTask *prevTask) {
     if (prevTask != NULL) {
         osAiSetNextBuffer(prevTask->sampleBuffer, prevTask->sampleCount * 4);
     }
-    holdFrames = &D_80770558[0];
+    holdFrames = &sAudioFrameHoldCount[0];
     if ((aiLen < 0x5C) && ((count = *holdFrames) == 0)) {
         task->sampleCount = D_8077019C;
         count = (count & 0) + 2; // FAKE: folds to 2 after const-prop; keeps li in count's register ($v0) instead of a scratch li

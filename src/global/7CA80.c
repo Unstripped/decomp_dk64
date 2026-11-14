@@ -115,11 +115,11 @@ void actorInit(void) {
     D_807FBB30 = 0;
 
     for (i = 0; i < 32; i++) {
-        D_807FB7B0[i].id = 0xFFFF;
-        D_807FB7B0[i].refCount = 0;
-        D_807FB7B0[i].asset = NULL;
+        gAnimClipCache[i].id = 0xFFFF;
+        gAnimClipCache[i].refCount = 0;
+        gAnimClipCache[i].asset = NULL;
     }
-    D_807FBB32 = 0;
+    gAnimClipCacheCount = 0;
 
     gActorScriptAsset = assetLoad(0xD, 0, 1, 1);
     gActorScriptIndexTable = (void *)(gActorScriptAsset->indexTableOffset + (s32)gActorScriptAsset);
@@ -1318,7 +1318,7 @@ void actorAppendMoveTarget3D(Actor *source, Actor *target, f32 x, f32 y, f32 z, 
     actorAppendCallback(target, source, 0x20, 0, 1, payload);
 }
 
-void actorAppendCallback4000(Actor *source, Actor *target, s16 yaw, f32 speedY, s16 speedXZ) {
+void actorAppendLaunch(Actor *source, Actor *target, s16 yaw, f32 speedY, s16 speedXZ) {
     ActorStatePayload *payload = heapAlloc(sizeof(ActorStatePayload));
     payload->yaw = yaw;
     payload->speedY = speedY;
@@ -1326,7 +1326,7 @@ void actorAppendCallback4000(Actor *source, Actor *target, s16 yaw, f32 speedY, 
     actorAppendCallback(target, source, 0x4000, 0, 1, payload);
 }
 
-void actorAppendCallback10(Actor *source, Actor *target, f32 x, f32 y, f32 z, s32 pointIndex, u8 spansNodes) {
+void actorAppendRiderPoint(Actor *source, Actor *target, f32 x, f32 y, f32 z, s32 pointIndex, u8 spansNodes) {
     ActorRiderPayload *payload = heapAlloc(sizeof(ActorRiderPayload));
     payload->x = x;
     payload->y = y;
@@ -1336,7 +1336,7 @@ void actorAppendCallback10(Actor *source, Actor *target, f32 x, f32 y, f32 z, s3
     actorAppendCallback(target, source, 0x1, 0, 1, payload);
 }
 
-void actorAppendCallbackPayloadA864(Actor *source, Actor *target, s16 yaw, s16 speed, void *pos, void *verts, s32 mtxIndex, s32 hitRadius, s32 maxClamp) {
+void actorAppendSurfaceHit(Actor *source, Actor *target, s16 yaw, s16 speed, void *pos, void *verts, s32 mtxIndex, s32 hitRadius, s32 maxClamp) {
     ActorSurfacePayload *payload = heapAlloc(sizeof(ActorSurfacePayload));
     payload->yaw = yaw;
     payload->speed = speed;
@@ -1348,7 +1348,7 @@ void actorAppendCallbackPayloadA864(Actor *source, Actor *target, s16 yaw, s16 s
     actorAppendCallback(target, source, 0x10000, 0, 1, payload);
 }
 
-void actorAppendCallbackPayloadA908(Actor *source, Actor *target, void *pos, void *verts, s32 mtxIndex, s32 hitRadius, s32 maxClamp) {
+void actorAppendCollisionHit(Actor *source, Actor *target, void *pos, void *verts, s32 mtxIndex, s32 hitRadius, s32 maxClamp) {
     ActorHitPayload *payload = heapAlloc(sizeof(ActorHitPayload));
     memcpy(payload->pos, pos, 0xC);
     memcpy(payload->verts, verts, 0x24);
@@ -1379,7 +1379,7 @@ void actorAppendCallbackVec2f(Actor *source, Actor *target, f32 x, f32 z) {
     actorAppendCallback(target, source, 0x200000, 0, 1, payload);
 }
 
-void actorAppendCallbackPayloadAAB8(Actor *source, Actor *target, s16 yaw, f32 speedY, s16 speedXZ) {
+void actorAppendPlayerLaunch(Actor *source, Actor *target, s16 yaw, f32 speedY, s16 speedXZ) {
     ActorStatePayload *payload = heapAlloc(sizeof(ActorStatePayload));
     payload->speedY = speedY;
     payload->speedXZ = speedXZ;
@@ -1397,7 +1397,7 @@ void actorAppendCallbackMemcpy8(Actor *source, Actor *target, s32 type, u8 subty
     }
 }
 
-void actorAppendCallbackPayloadABC0(Actor *source, Actor *target, u8 subtype, s16 value0, s16 value1, f32 x, f32 y, f32 z) {
+void actorAppendEvent(Actor *source, Actor *target, u8 subtype, s16 value0, s16 value1, f32 x, f32 y, f32 z) {
     ActorEventPayload *payload = heapAlloc(sizeof(ActorEventPayload));
     payload->x = x;
     payload->y = y;
@@ -1571,7 +1571,7 @@ void actorTableSort(void) {
 }
 
 extern u8 gPlayerCharacterId[];
-extern KongInventory *D_807FD568;
+extern KongInventory *gCurrentKongInventory;
 extern OSContPad *D_807ECDEC;
 extern u16 D_807ECDF0;
 extern s16 gCurrentCharacterIndex;
@@ -1583,10 +1583,10 @@ void playerSetActiveGlobals(Actor *actor) {
     gCurrentPlayerIndex = gActivePlayerState->playerIndex;
     character = gPlayerCharacterId[gCurrentPlayerIndex];
     gActivePlayerActor = gPlayerSlots[gCurrentPlayerIndex].actor;
-    D_807FD568 = &gPlayerInventoryTable[gCurrentPlayerIndex].kong[character];
+    gCurrentKongInventory = &gPlayerInventoryTable[gCurrentPlayerIndex].kong[character];
     D_807ECDEC = gPlayerSlots[gCurrentPlayerIndex].contPad;
     D_807ECDF0 = *gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr;
-    gCurrentCharacterIndex = D_8075C410[character].characterIndex;
+    gCurrentCharacterIndex = gKongCharacterTable[character].characterIndex;
     gPlayerSlots[gCurrentPlayerIndex].sizeModeDirty = 0;
 }
 

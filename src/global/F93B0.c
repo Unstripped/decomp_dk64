@@ -10,7 +10,7 @@ typedef struct {
     s16 value;
 } MapVoidHeight;
 
-extern MapVoidHeight D_80753EA0[13];
+extern MapVoidHeight gMapVoidHeights[13];
 
 f32 mapGetVoidHeightForCharacter(s16 characterId) {
     s32 map;
@@ -18,9 +18,9 @@ f32 mapGetVoidHeightForCharacter(s16 characterId) {
     s16 i;
     MapVoidHeight *e;
 
-    count = sizeof(D_80753EA0) / sizeof(D_80753EA0[0]);
+    count = sizeof(gMapVoidHeights) / sizeof(gMapVoidHeights[0]);
     i = 0; map = gCurrentMap; do { // LAYOUT: statements joined on one line steer as1 scheduling
-        e = &D_80753EA0[i];
+        e = &gMapVoidHeights[i];
         if (e->map == map && (characterId == e->character || e->character == -1)) {
             return e->value;
         }

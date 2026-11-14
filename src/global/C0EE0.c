@@ -104,14 +104,14 @@ void enemyGridStateStep(void) {
         switch (st->subState) {
         case 0:
             renderCallbacksRegister(func_806BCF98, gCurrentActor, 5);
-            if ((D_807ECD58.button & 0x8000) && !(D_807ECD60.button & 0x8000)) {
+            if ((gContPadCur.button & 0x8000) && !(gContPadPrev.button & 0x8000)) {
                 camResumePath();
                 st->subState = 1;
                 gPrimaryPlayerActor->state = 0xC;
                 gPrimaryPlayerActor->unk155 = 0;
                 playerResumeLocomotion(gPrimaryPlayerActor);
             }
-            if ((D_807ECD58.button & 0x4000) && !(D_807ECD60.button & 0x4000)) {
+            if ((gContPadCur.button & 0x4000) && !(gContPadPrev.button & 0x4000)) {
                 camResumePath();
                 st->subState = 2;
                 gPrimaryPlayerActor->state = 0xC;

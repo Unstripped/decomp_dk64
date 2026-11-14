@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_func_80724E48 // FAKE: callee prototype steer (owner 1295B0 takes one u8 and never reads a1; the extra `sel` argument keeps sel in a1 across the call, see func_806B13B4)
+#define PROTO_SKIP_actorTrackBoneTowardTarget // FAKE: callee prototype steer (owner 1295B0 takes one u8 and never reads a1; the extra `sel` argument keeps sel in a1 across the call, see func_806B13B4)
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
 #include "proto/global/135D30.h"
@@ -48,7 +48,7 @@ void func_806B1348(void) {
 
 extern s32 gCurrentMap;
 
-void func_80724E48();
+void actorTrackBoneTowardTarget();
 
 void func_806B13B4(u8 spawnSfxNodes) {
     s32 sel;
@@ -131,7 +131,7 @@ void func_806B13B4(u8 spawnSfxNodes) {
         }
         break;
     case 0x11:
-        func_80724E48(5);
+        actorTrackBoneTowardTarget(5);
         switch (gCurrentActor->unk155) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
@@ -205,14 +205,14 @@ void func_806B13B4(u8 spawnSfxNodes) {
             func_806B1290();
             func_806B1348();
         }
-        func_80724E48((u8)(gCurrentActor->state == 1 ? 2 : 0));
+        actorTrackBoneTowardTarget((u8)(gCurrentActor->state == 1 ? 2 : 0));
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
         break;
     case 2:
     case 3:
     case 7:
     case 0x35:
-        func_80724E48((u8)(sel == 0x35 ? 2 : 3), sel);
+        actorTrackBoneTowardTarget((u8)(sel == 0x35 ? 2 : 3), sel);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:

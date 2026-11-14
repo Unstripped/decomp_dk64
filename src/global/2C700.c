@@ -1,10 +1,10 @@
 #include "common.h"
 #include "proto/global/2C700.h"
 
-extern f32 D_807F5D30[16];
+extern f32 gCardinalSplineBasis[16];
 
 f32 splineEvalCubic(f64 t, f32 p0, f32 p1, f32 p2, f32 p3) {
-    f32 *m = D_807F5D30;
+    f32 *m = gCardinalSplineBasis;
     f32 a, b, d, c, t2;
 
     a = m[0] * p0 + m[4] * p1 + m[8] * p2 + m[12] * p3;
@@ -16,20 +16,20 @@ f32 splineEvalCubic(f64 t, f32 p0, f32 p1, f32 p2, f32 p3) {
 }
 
 void splineSetBasisTension(f32 t) {
-    D_807F5D30[0] = -t;
-    D_807F5D30[1] = 2.0 * t;
-    D_807F5D30[2] = -t;
-    D_807F5D30[3] = 0.0f;
-    D_807F5D30[4] = 2.0 - t;
-    D_807F5D30[5] = t - 3.0;
-    D_807F5D30[6] = 0.0f;
-    D_807F5D30[7] = 1.0f;
-    D_807F5D30[8] = t - 2.0;
-    D_807F5D30[9] = 3.0 - 2.0 * t;
-    D_807F5D30[10] = t;
-    D_807F5D30[11] = 0.0f;
-    D_807F5D30[12] = t;
-    D_807F5D30[13] = -t;
-    D_807F5D30[14] = 0.0f;
-    D_807F5D30[15] = 0.0f;
+    gCardinalSplineBasis[0] = -t;
+    gCardinalSplineBasis[1] = 2.0 * t;
+    gCardinalSplineBasis[2] = -t;
+    gCardinalSplineBasis[3] = 0.0f;
+    gCardinalSplineBasis[4] = 2.0 - t;
+    gCardinalSplineBasis[5] = t - 3.0;
+    gCardinalSplineBasis[6] = 0.0f;
+    gCardinalSplineBasis[7] = 1.0f;
+    gCardinalSplineBasis[8] = t - 2.0;
+    gCardinalSplineBasis[9] = 3.0 - 2.0 * t;
+    gCardinalSplineBasis[10] = t;
+    gCardinalSplineBasis[11] = 0.0f;
+    gCardinalSplineBasis[12] = t;
+    gCardinalSplineBasis[13] = -t;
+    gCardinalSplineBasis[14] = 0.0f;
+    gCardinalSplineBasis[15] = 0.0f;
 }

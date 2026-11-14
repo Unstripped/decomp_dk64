@@ -674,10 +674,10 @@ void sfxUpdateLevelAmbient(void) {
         if (volume < 0.0f) {
             volume = 0.0f;
         }
-        volume = D_80745BDC[gCurrentMap].volume + (((255.0 - D_80745BDC[gCurrentMap].volume) * (D_80770DC8 / 127.0) * volume) / 255.0);
+        volume = gMapAudioTable[gCurrentMap].volume + (((255.0 - gMapAudioTable[gCurrentMap].volume) * (D_80770DC8 / 127.0) * volume) / 255.0);
         D_8077058E = volume;
     } else {
-        D_8077058E = D_80745BDC[gCurrentMap].volume;
+        D_8077058E = gMapAudioTable[gCurrentMap].volume;
     }
     if (D_80770DE8 && D_80770DE8) {}  // FAKE: dead statement steers uopt colouring
 
@@ -2133,7 +2133,7 @@ void sfxPlayAtPositionForPlayer(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, u8 pi
 }
 
 extern s32 D_8000DDCC;
-extern s32 D_8076D200[];
+extern s32 sSeqRomOffsets[];
 extern void *D_8076BF38[];
 extern ALCSeq D_8076BF48[];
 extern u8 D_80770598[];
@@ -2168,8 +2168,8 @@ void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
     D_80770560[seqIndex] = seqId;
     buf = heapAlloc(0x8000);
     {
-        s32 addr = D_8076D200[seqId] + D_8000DDCC;
-        s32 len = D_8076D200[seqId + 1] - D_8076D200[seqId];
+        s32 addr = sSeqRomOffsets[seqId] + D_8000DDCC;
+        s32 len = sSeqRomOffsets[seqId + 1] - sSeqRomOffsets[seqId];
         if (len & 1) {
             len++;
         }

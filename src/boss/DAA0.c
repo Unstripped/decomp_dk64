@@ -19,12 +19,12 @@
 #include "proto/global/F56F0.h"
 
 // DAA0: hidden translation-unit boundary at 0x80031AA0 (C920's .data/.rodata end 16-/8-aligned before it)
-s16 D_80035B00[4] = { 0, 0x26C, 0, -0x26C };
-s16 D_80035B08[4] = { 0x26C, 0, -0x26C, 0 };
-s16 D_80035B10[4] = { 0x800, 0xC00, 0, 0x400 };
-s16 D_80035B18[4] = { 0, -0x4B, 0, 0x4B };
-s16 D_80035B20[4] = { -0x4B, 0, 0x4B, 0 };
-s8 D_80035B28 = -1;
+s16 gBossSideOffsetX[4] = { 0, 0x26C, 0, -0x26C };
+s16 gBossSideOffsetZ[4] = { 0x26C, 0, -0x26C, 0 };
+s16 gBossSideYaw[4] = { 0x800, 0xC00, 0, 0x400 };
+s16 gBossSideAimOffsetX[4] = { 0, -0x4B, 0, 0x4B };
+s16 gBossSideAimOffsetZ[4] = { -0x4B, 0, 0x4B, 0 };
+s8 gBossFollowerRaisedMask = -1;
 s16 D_80035B2C = 0;
 s8 D_80035B30[4] = { 7, 3, 1, 0 };
 s8 D_80035B34 = 0;
@@ -56,7 +56,7 @@ typedef struct BossSpawnerState {
     /* 0x10 */ s16 stepTimer; // frames/bounces in the current subState (reset on change)
     /* 0x12 */ s8 phase; // 0-3, advanced after each 3-hit round
     /* 0x13 */ s8 subState;
-    /* 0x14 */ s8 side; // active side 0-3 (D_80035B00/B08/B10 tables)
+    /* 0x14 */ s8 side; // active side 0-3 (gBossSideOffsetX/B08/B10 tables)
     /* 0x15 */ s8 repeatCount;
     /* 0x16 */ s8 hitCount;
     /* 0x17 */ s8 fireFlag; // set for one frame per bounce in subState 3: side-0 follower fires
@@ -65,7 +65,7 @@ typedef struct BossSpawnerState {
 extern Actor *gSpawnedActor;
 extern u8 D_807FBDC4;
 extern s8 D_80036DC0;
-extern f32 D_80036DC4;
+extern f32 gBossFollowerPlayerDistSq;
 
 void bossSpawnerUpdate(void) {
     f32 r;
@@ -92,7 +92,7 @@ void bossSpawnerUpdate(void) {
     spawnParticle = 0;
     hitPlayer = 0;
     if (!(gCurrentActor->flags & 0x10)) {
-        D_80035B28 = 0xF;
+        gBossFollowerRaisedMask = 0xF;
         D_80035B34 = 0;
         D_80035B3C = 0.0f;
         state->aggroTimer = 0x1E;
@@ -115,7 +115,7 @@ void bossSpawnerUpdate(void) {
                 gSpawnedActor->flags |= 0x400;
             }
         }
-        D_80036DC4 = 160000.0f;
+        gBossFollowerPlayerDistSq = 160000.0f;
         D_80036DC0 = 0;
         if (gPrimaryPlayerActor != NULL) {
             gPrimaryPlayerActor->state = 0x77;
@@ -148,7 +148,7 @@ void bossSpawnerUpdate(void) {
             playerKongStopAudioChannels(gPrimaryPlayerActor, cutsceneId);
             gPrimaryPlayerActor->state = 0xC;
             gPrimaryPlayerActor->unk155 = 0;
-            actorAppendCallbackPayloadAAB8(gCurrentActor, gPrimaryPlayerActor, 0, 180.0f, 0x46);
+            actorAppendPlayerLaunch(gCurrentActor, gPrimaryPlayerActor, 0, 180.0f, 0x46);
             gCurrentActor->state = 1;
             gPrimaryPlayerActor->unk144 = D_80035B38;
         }
@@ -182,7 +182,7 @@ void bossSpawnerUpdate(void) {
     gCurrentActor->yaw += 0x32;
     gCurrentActor->yaw &= 0xFFF;
     gCurrentActor->y = mathSinF(gCurrentActor->yaw) * 5.0 + state->baseY;
-    if (gPrimaryPlayerActor->state == 0x45 && gPrimaryPlayerActor->unk155 >= 2 && D_80036DC4 < 10000.0) {
+    if (gPrimaryPlayerActor->state == 0x45 && gPrimaryPlayerActor->unk155 >= 2 && gBossFollowerPlayerDistSq < 10000.0) {
         hitPlayer = 1;
     }
     bounceDir = 0;
@@ -306,7 +306,7 @@ void bossSpawnerUpdate(void) {
             if (state->stepTimer == 0x3F) {
                 D_80035B3C = 0.0f;
                 D_80035B2C = 0;
-                D_80035B28 = D_80035B30[D_80035B34];
+                gBossFollowerRaisedMask = D_80035B30[D_80035B34];
                 D_80035B34 += 1;
                 state->subState = 5;
             }
@@ -410,16 +410,16 @@ void bossSpawnerUpdate(void) {
         }
         level = (i << 4) & 0xFF;
         if (level && level) {} // FAKE: pins the level def before the x/z loads
-        x = D_80035B00[k] * 0.33 + gCurrentActor->x;
-        z = D_80035B08[k] * 0.33 + gCurrentActor->z;
+        x = gBossSideOffsetX[k] * 0.33 + gCurrentActor->x;
+        z = gBossSideOffsetZ[k] * 0.33 + gCurrentActor->z;
         lightAdd(x, 400.0f, z, x, 300.0f, z, 200.0f, 0, level, level, level);
         if (state->phase == 1) {
             k = state->side + 2;
             if (k >= 4) {
                 k -= 4;
             }
-            x = D_80035B00[k] * 0.33 + gCurrentActor->x;
-            z = D_80035B08[k] * 0.33 + gCurrentActor->z;
+            x = gBossSideOffsetX[k] * 0.33 + gCurrentActor->x;
+            z = gBossSideOffsetZ[k] * 0.33 + gCurrentActor->z;
             lightAdd(x, 400.0f, z, x, 300.0f, z, 200.0f, 0, level, level, level);
         }
     }
@@ -442,13 +442,13 @@ void bossFollowerActorUpdate(void) {
     if (link->mirrored == 0) {
         f32 dx = gPrimaryPlayerActor->x - gCurrentActor->x;
         f32 dz = gPrimaryPlayerActor->z - gCurrentActor->z;
-        D_80036DC4 = dx * dx + dz * dz;
+        gBossFollowerPlayerDistSq = dx * dx + dz * dz;
     }
     if (!(gCurrentActor->flags & 0x10)) {
         controllerAnimSetStateIfChanged(gCurrentActor, link->slot + 0x668, 0.0f, 0.0f);
         gCurrentActor->drawDistance = 0xFA0;
     }
-    if (D_80035B28 & (1 << link->slot)) {
+    if (gBossFollowerRaisedMask & (1 << link->slot)) {
         gCurrentActor->roll = (s16)(parentState->lift * 1024.0) - 0x400;
         gCurrentActor->pitch = D_80035B2C;
         if (anim != NULL) {
@@ -497,8 +497,8 @@ void bossFollowerActorUpdate(void) {
                 }
                 D_80035B74--;
                 if (D_80035B74 < 0) {
-                    f32 zo = D_80035B20[parentState->side];
-                    f32 xo = D_80035B18[parentState->side];
+                    f32 zo = gBossSideAimOffsetZ[parentState->side];
+                    f32 xo = gBossSideAimOffsetX[parentState->side];
                     D_80035B74 = 0xA;
                     projectileSetTargetCoords(gCurrentActor->x + xo, gCurrentActor->y + 270.0f, gCurrentActor->z + zo);
                     projectileAimAndSpawn(0x2C, 1, 0.25f, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z, 2400.0f, gCurrentActor);
@@ -507,9 +507,9 @@ void bossFollowerActorUpdate(void) {
                 D_80035B74 = 0;
             }
         }
-        gCurrentActor->x = D_80035B00[parentState->side] + link->parent->x;
-        gCurrentActor->z = D_80035B08[parentState->side] + link->parent->z;
-        gCurrentActor->yaw = D_80035B10[parentState->side];
+        gCurrentActor->x = gBossSideOffsetX[parentState->side] + link->parent->x;
+        gCurrentActor->z = gBossSideOffsetZ[parentState->side] + link->parent->z;
+        gCurrentActor->yaw = gBossSideYaw[parentState->side];
     } else {
         s32 oppSide;
         gCurrentActor->unk144 = 1;
@@ -517,10 +517,10 @@ void bossFollowerActorUpdate(void) {
         if (oppSide >= 4) {
             oppSide -= 4;
         }
-        gCurrentActor->x = D_80035B00[oppSide] + link->parent->x;
-        if (D_80035B18) {}  // FAKE: deadsweep dead statement (steers uopt)
-        gCurrentActor->z = D_80035B08[oppSide] + link->parent->z;
-        gCurrentActor->yaw = D_80035B10[oppSide];
+        gCurrentActor->x = gBossSideOffsetX[oppSide] + link->parent->x;
+        if (gBossSideAimOffsetX) {}  // FAKE: deadsweep dead statement (steers uopt)
+        gCurrentActor->z = gBossSideOffsetZ[oppSide] + link->parent->z;
+        gCurrentActor->yaw = gBossSideYaw[oppSide];
         gCurrentActor->flags |= 0x800000;
         gCurrentActor->tintR = 0x23;
         if (link->mirrored && link->mirrored) {} // FAKE: steers uopt colouring (const 35 -> a1)

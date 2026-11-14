@@ -44,12 +44,12 @@ typedef struct CollisionTri {
     /* 0x10 */ s16 z2;
 } CollisionTri; // size = 0x12
 
-extern BufferCacheEntry *D_807FB534;
-extern s32 D_807FB538;
+extern BufferCacheEntry *sStaticCollisionCells;
+extern s32 sStaticCollisionCellCount;
 extern Actor *D_807FB540;
 extern s16 D_807FB544;
 extern u8 D_807FB546;
-extern u8 D_807FB549;
+extern u8 sStaticCollisionResident;
 extern u8 D_807FB604;
 
 
@@ -240,7 +240,7 @@ void collisionInitStaticCache(MapFileHeader *header) {
 
     cellEnd = 4;
     data = assetLoad(2, gCurrentMap, 1, 0);
-    D_807FB549 = 0;
+    sStaticCollisionResident = 0;
     if (header->unk9 & 1) {
         compressed = data;
         data = heapAlloc(header->unk0);
@@ -251,31 +251,31 @@ void collisionInitStaticCache(MapFileHeader *header) {
         heapFree(gzWork);
         assetSetImmediateFree();
         assetFreeBuffer(compressed, 0x14C, 0xA);
-        D_807FB549 = 1;
+        sStaticCollisionResident = 1;
     }
     assetSize = assetGetSize(2, gCurrentMap);
     D_807FB530 = *(s32 *)data;
-    D_807FB534 = heapAlloc(0x1518);
+    sStaticCollisionCells = heapAlloc(0x1518);
     cellHeader = (s32 *)(data + 4);
-    D_807FB538 = header->unk10 * header->unk12;
-    for (i = 0; i < D_807FB538; i++) {
+    sStaticCollisionCellCount = header->unk10 * header->unk12;
+    for (i = 0; i < sStaticCollisionCellCount; i++) {
         cellStart = data + cellEnd + 4;
         cellEnd = *cellHeader;
         next = data + cellEnd;
-        if (D_807FB549 != 0) {
-            D_807FB534[i].rawTris = cellStart;
+        if (sStaticCollisionResident != 0) {
+            sStaticCollisionCells[i].rawTris = cellStart;
         } else {
-            D_807FB534[i].rawTris = NULL;
+            sStaticCollisionCells[i].rawTris = NULL;
         }
-        D_807FB534[i].tris = NULL;
+        sStaticCollisionCells[i].tris = NULL;
         relativeOffset = cellStart - data;
-        D_807FB534[i].romAddr = assetSize + relativeOffset;
-        D_807FB534[i].size = (data + cellEnd) - cellStart;
+        sStaticCollisionCells[i].romAddr = assetSize + relativeOffset;
+        sStaticCollisionCells[i].size = (data + cellEnd) - cellStart;
         cellHeader = (s32 *)next;
-        D_807FB534[i].lastUsedFrame = 0;
-        D_807FB534[i].triCount = (next - cellStart) / 24;
+        sStaticCollisionCells[i].lastUsedFrame = 0;
+        sStaticCollisionCells[i].triCount = (next - cellStart) / 24;
     }
-    if (D_807FB549 == 0) {
+    if (sStaticCollisionResident == 0) {
         assetSetImmediateFree();
         assetFreeBuffer(data, 0x17C, 0xA);
     }
@@ -315,17 +315,17 @@ void collisionLoadStaticCell(s32 cell) {
     CollisionStaticTriIn *src;
     s32 cnt;
 
-    if (D_807FB534[cell].tris == NULL && cell < D_807FB538) {
-        size = D_807FB534[cell].size;
+    if (sStaticCollisionCells[cell].tris == NULL && cell < sStaticCollisionCellCount) {
+        size = sStaticCollisionCells[cell].size;
         if (size != 0) {
-            if (D_807FB549 == 0) {
-                D_807FB534[cell].rawTris = heapAlloc(size);
-                dmaReadAssetDecompress(D_807FB534[cell].romAddr, D_807FB534[cell].rawTris, &size, 0, 0, 0, 0);
+            if (sStaticCollisionResident == 0) {
+                sStaticCollisionCells[cell].rawTris = heapAlloc(size);
+                dmaReadAssetDecompress(sStaticCollisionCells[cell].romAddr, sStaticCollisionCells[cell].rawTris, &size, 0, 0, 0, 0);
             }
-            cnt = D_807FB534[cell].triCount;
-            D_807FB534[cell].tris = heapAlloc(cnt * sizeof(CollisionStaticTriOut));
-            src = D_807FB534[cell].rawTris;
-            dst = D_807FB534[cell].tris;
+            cnt = sStaticCollisionCells[cell].triCount;
+            sStaticCollisionCells[cell].tris = heapAlloc(cnt * sizeof(CollisionStaticTriOut));
+            src = sStaticCollisionCells[cell].rawTris;
+            dst = sStaticCollisionCells[cell].tris;
             for (; cnt != 0; cnt--) {
                 if (collisionBuildStaticTri(src, dst) != 0) {
                     dst++;
@@ -334,7 +334,7 @@ void collisionLoadStaticCell(s32 cell) {
             }
         }
     }
-    D_807FB534[cell].lastUsedFrame = gFrameCounter;
+    sStaticCollisionCells[cell].lastUsedFrame = gFrameCounter;
 }
 
 extern s32 gModelSlotCount;
@@ -369,14 +369,14 @@ void collisionBufferCacheUpdate(void) {
 void collisionPurgeExpiredBuffers(void) {
     s32 i;
 
-    for (i = 0; i < D_807FB538; i++) {
-        if (D_807FB534[i].tris != NULL && (gFrameCounter - D_807FB534[i].lastUsedFrame) >= 0x15) {
-            if (D_807FB549 == 0) {
-                heapFree(D_807FB534[i].rawTris);
-                D_807FB534[i].rawTris = NULL;
+    for (i = 0; i < sStaticCollisionCellCount; i++) {
+        if (sStaticCollisionCells[i].tris != NULL && (gFrameCounter - sStaticCollisionCells[i].lastUsedFrame) >= 0x15) {
+            if (sStaticCollisionResident == 0) {
+                heapFree(sStaticCollisionCells[i].rawTris);
+                sStaticCollisionCells[i].rawTris = NULL;
             }
-            heapFree(D_807FB534[i].tris);
-            D_807FB534[i].tris = NULL;
+            heapFree(sStaticCollisionCells[i].tris);
+            sStaticCollisionCells[i].tris = NULL;
         }
     }
 }
@@ -1516,7 +1516,7 @@ void actorBuildCollisionHit(s32 slot, Actor *actor, CollisionBox *boxes) {
     sub = actor->collision;
     useActorPos = 0;
     ok = func_806744A8(D_807FB5D8, sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius);
-    func_8066FE08(slot);
+    modelSlotUpdateFacingTrigger(slot);
     if (ok != 0) {
         sub->unk5A = D_807FB5D8->unk4E;
         sub->unk58 = D_807FB5D8 - boxes;
@@ -1612,7 +1612,7 @@ s32 actorGetCollisionThreshold(Actor *actor) {
 
 extern Actor *gCurrentActor;
 
-void func_8066FE08(s32 slot) {
+void modelSlotUpdateFacingTrigger(s32 slot) {
     s16 yaw;
     s16 actorYaw;
     s32 inArc;

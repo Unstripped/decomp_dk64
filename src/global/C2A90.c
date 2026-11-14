@@ -136,7 +136,7 @@ void func_806BE09C(void) {
             gPrimaryPlayerActor->moveYaw = gPrimaryPlayerActor->yaw;
         }
     }
-    func_80724E48(0);
+    actorTrackBoneTowardTarget(0);
     if (ratio > 1.0f) {
         ratio = 1.0f;
     }
@@ -469,7 +469,7 @@ void func_806BE8BC(void) {
             break;
     }
     if (gCurrentActor->sub4->animId == 0x301 || gCurrentActor->sub4->animId == 0x302) {
-        func_80724E48(0);
+        actorTrackBoneTowardTarget(0);
     }
     behaviourUpdateShadowAlpha();
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -592,9 +592,9 @@ void func_806BF218(void) {
                 case 2:
                     switch (gCurrentActor->unk155) {
                         case 0:
-                            ez = gCurrentActor->z - D_80755690->zones->entries[4].z;
-                            ex = gCurrentActor->x - D_80755690->zones->entries[4].x;
-                            ey = gCurrentActor->y - D_80755690->zones->entries[4].y;
+                            ez = gCurrentActor->z - gZoneTable->zones->entries[4].z;
+                            ex = gCurrentActor->x - gZoneTable->zones->entries[4].x;
+                            ey = gCurrentActor->y - gZoneTable->zones->entries[4].y;
                             if ((ez * ez + (ex * ex + ey * ey)) < 22500.0f) {
                                 camStartPath(gCurrentActor, 0x17, 1);
                                 resQueueAttachActor(gCurrentActor, 0x16, 4);

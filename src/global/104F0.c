@@ -14,11 +14,11 @@
 #include "proto/global/FCCD0.h"
 
 s16 D_807ECEA0[4];
-u8 D_807ECEA8[0x800];
+u8 sEepromSlotBuffer[0x800];
 u8 D_807ED6A8[0x800];
 u8 D_807EDEA8[4];
 s32 D_807EDEAC;
-extern u8 D_807467C8;
+extern u8 gEepromCurrentSlot;
 
 
 void eepromInitModelCount(void) {
@@ -48,7 +48,7 @@ void sleepMilliseconds(f32 ms) {
     D_80746834 = 0;
 }
 
-extern s8 D_80744460;
+extern s8 gMainThreadHalted;
 extern void (*D_807467D0[])(void);
 extern OSMesgQueue D_807F02B8;
 
@@ -57,7 +57,7 @@ void eepromDispatchCommand(s32 cmd) {
         D_807467D0[cmd]();
         return;
     }
-    if (D_80744460 == 0) {
+    if (gMainThreadHalted == 0) {
         osSendMesg(&D_807F02B8, (void *)cmd, 0);
     }
 }
@@ -98,7 +98,7 @@ void eepromCopySlot(void) {
     s32 size;
     s32 stride;
 
-    original = eepromGetSectorForSlot(D_807467C8);
+    original = eepromGetSectorForSlot(gEepromCurrentSlot);
     replacement = eepromGetSectorForSlot(3);
     if (((menuIsTransitionType6() != 0) || (menuIsTransitionType7Or9() != 0)) && (original != replacement)) {
         stride = D_807ECEA0[0];
@@ -107,8 +107,8 @@ void eepromCopySlot(void) {
         stride = stride & ~7;
         stride = stride / 8;
         size = stride;
-        src = D_807ECEA8 + (size * original);
-        dst = D_807ECEA8 + (size * replacement);
+        src = sEepromSlotBuffer + (size * original);
+        dst = sEepromSlotBuffer + (size * replacement);
         stride = stride | 0; // FAKE: no-code def extends the live range of stride past dst (keeps the quotient in v0, original in a3)
         memcpy(dst, src, size);
         D_807EDEA8[replacement] ^= D_807EDEA8[original];
@@ -130,7 +130,7 @@ unsigned char bitCount;
     mask = -1;
     val = 0;
     bit = bitOffset & 0x1F;
-    ptr = (u32 *)D_807ECEA8 + (bitOffset >> 5);
+    ptr = (u32 *)sEepromSlotBuffer + (bitOffset >> 5);
     if (bitCount) {
         do {
             mask ^= 1 << bit;
@@ -167,7 +167,7 @@ unsigned char bitCount;
     bit = bitOffset & 0x1F;
     data = 0;
     orig = bitCount;
-    ptr = (u32 *)D_807ECEA8 + (bitOffset >> 5);
+    ptr = (u32 *)sEepromSlotBuffer + (bitOffset >> 5);
     if (bitCount) {
         do {
             data |= 1 << bit;
@@ -395,7 +395,7 @@ void eepromClearSlotData(slot, save)
 unsigned char slot;
 int save;
 {
-    u8 *dst = D_807ECEA8;
+    u8 *dst = sEepromSlotBuffer;
     s32 slotId;
     s32 size;
     s32 sector;
@@ -404,7 +404,7 @@ int save;
     sector = eepromGetSectorForSlot(slotId);
     size = ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
     dst += sector * size;
-    D_807467C8 = slotId;
+    gEepromCurrentSlot = slotId;
     bzero(dst, size);
     eepromSetField(0xC, 0, 0, slotId, 1);
     eepromSetField(0xF, 0, 0, slotId ^ 0, slotId); // FAKE: a second u8 cvt web; one CSE cvt of slotId is spilled across the first eepromSetField (sw a3 / lw a3)
@@ -416,7 +416,7 @@ int save;
 void eepromSetCurrentSlot(u8 slotId, s32 save) {
     u32 slot = slotId;
 
-    D_807467C8 = slot;
+    gEepromCurrentSlot = slot;
     eepromClearSlotData(slot, 0);
     if (eepromGetField(0xF, 0, 0, 3) == slotId) {
         eepromClearSlotData(3, 0);
@@ -515,7 +515,7 @@ void eepromValidateSaveSlots(void) {
     u8 failed;
     u8 version;
     failed = 0;
-    memcpy(D_807ECEA8, D_807ED6A8, 0x800);
+    memcpy(sEepromSlotBuffer, D_807ED6A8, 0x800);
     for (i = 0; i < 4; i++) {
         D_807EDEA8[i] = i;
         sectorOrder[i] = 0xFF;
@@ -596,16 +596,16 @@ void eepromResetAllSlots(void) {
     s32 i;
 
     p = D_807EDEA8;
-    slot = D_807467C8;
+    slot = gEepromCurrentSlot;
     for (i = 0; i < 4; i++) {
         *p++ = i;
     }
-    bzero(D_807ECEA8, 0x800);
+    bzero(sEepromSlotBuffer, 0x800);
     eepromResetGlobalData();
     for (i = 0; i != 4; i++) {
         eepromClearSlotData((u8)i, i == 3);
     }
-    D_807467C8 = slot;
+    gEepromCurrentSlot = slot;
 }
 
 extern OSMesgQueue D_807ECCF0;
@@ -629,7 +629,7 @@ void eepromReadAllSectors(void) {
     for (sector = 0; (sector < 0x100) && (failed == 0); sector++, dst += 8) {
         failed |= osEepromRead(&D_807ECCF0, (u8)sector, dst);
         sleepMilliseconds(15.0f);
-        if (D_80744460 != 0) {
+        if (gMainThreadHalted != 0) {
             D_807467C4 = 0;
             return;
         }
@@ -668,8 +668,8 @@ void eepromSaveRecords(s32 recordsOnly) {
     u8 *q;
     p = D_807ECD08;
     if (D_807EDEAC == 2) {
-        _sprintf(D_807ECEA8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
-        memcpy(workingData, D_807ECEA8, 0x800);
+        _sprintf(sEepromSlotBuffer + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
+        memcpy(workingData, sEepromSlotBuffer, 0x800);
         memcpy(savedData, D_807ED6A8, 0x800);
         if (recordsOnly == 0) {
             eepromCopySlot();
@@ -706,7 +706,7 @@ void eepromSaveRecords(s32 recordsOnly) {
         q = (u8 *)((u32)D_807ECD08);  // FAKE: a second, u32-laundered pointer to D_807ECD08 for the first poll test (p reads it in the loop)
         if (*q != 0) do sleepMilliseconds(1.0f); while (*p != 0);
         if ((u32)sector) {}  // FAKE: direct read of sector raises the priority of the variable above its widening (var s1, widening s4)
-        if (D_80744460 != 0) {
+        if (gMainThreadHalted != 0) {
             D_807467C4 = 0;
         } else {
             D_807467C4 = 1;
@@ -716,7 +716,7 @@ void eepromSaveRecords(s32 recordsOnly) {
                 if (((u64 *)savedData)[idx] != ((u64 *)workingData)[idx] ||
                     ((u64 *)savedData)[idx + 1] != ((u64 *)workingData)[idx + 1]) {
                     for (j = 0; j < 2; j++) {
-                        if (D_80744460 != 0) {
+                        if (gMainThreadHalted != 0) {
                             D_807467C4 = 0;
                             return;
                         }
@@ -786,8 +786,8 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
     entry = gPlayerInventoryTable[0].kong;
     gActivePlayerCount = 1;
     playerResetSpawnGlobals();
-    memcpy(D_807ECEA8, D_807ED6A8, 0x800);
-    D_807467C8 = slot;
+    memcpy(sEepromSlotBuffer, D_807ED6A8, 0x800);
+    gEepromCurrentSlot = slot;
     gPlayerCharacterId = 0;
     if (eepromGetField(0xD, 0, 0, slot) == 0) {
         eepromClearSlotData(slot & 0xFF, 0);  // ORIG: the target re-masks the u8 slot for this unprototyped (K&R) call, andi a0,s5,0xff at 0x24e0
@@ -840,26 +840,26 @@ void eepromSavePlayerData(void) {
         if (menuIsTransitionType7Or9() != 0 || menuIsTransitionType6() != 0) {
             entry = gPlayerInventoryTable[0].kong;
             total = gfxSetupFrameViewports();
-            value = func_8060C724(D_807467C8);
+            value = func_8060C724(gEepromCurrentSlot);
             if (total >= 0x400000U) {
                 total = -1;
             }
-            eepromSetField(0xD, 0, 0, D_807467C8, 1);
-            eepromSetField(0xE, 0, 0, D_807467C8, total);
-            eepromSetField(0xC, 0, 0, D_807467C8, gPlayerInventoryTable[0].melons);
-            eepromSetField(0xF, 0, 0, D_807467C8, D_807467C8);
-            eepromSetField(0x10, 0, 0, D_807467C8, value);
+            eepromSetField(0xD, 0, 0, gEepromCurrentSlot, 1);
+            eepromSetField(0xE, 0, 0, gEepromCurrentSlot, total);
+            eepromSetField(0xC, 0, 0, gEepromCurrentSlot, gPlayerInventoryTable[0].melons);
+            eepromSetField(0xF, 0, 0, gEepromCurrentSlot, gEepromCurrentSlot);
+            eepromSetField(0x10, 0, 0, gEepromCurrentSlot, value);
             for (i = 0; i < 5; i++, entry++) {
                 for (j = 0; j < 5; j++) {
-                    eepromSetField(j + 4, i, 0, D_807467C8, entry->unk0[j]);
+                    eepromSetField(j + 4, i, 0, gEepromCurrentSlot, entry->unk0[j]);
                 }
-                eepromSetField(9, i, 0, D_807467C8, entry->unk6);
-                eepromSetField(0xA, i, 0, D_807467C8, entry->unk5 & 0x7F);
-                eepromSetField(0xB, i, 0, D_807467C8, (entry->unk5 >> 7) & 1);
+                eepromSetField(9, i, 0, gEepromCurrentSlot, entry->unk6);
+                eepromSetField(0xA, i, 0, gEepromCurrentSlot, entry->unk5 & 0x7F);
+                eepromSetField(0xB, i, 0, gEepromCurrentSlot, (entry->unk5 >> 7) & 1);
                 for (k = 0; k < 8; k++) {
-                    eepromSetField(1, i, k, D_807467C8, entry->unkA[k]);
-                    eepromSetField(2, i, k, D_807467C8, entry->unk26[k]);
-                    eepromSetField(3, i, k, D_807467C8, entry->unk42[k]);
+                    eepromSetField(1, i, k, gEepromCurrentSlot, entry->unkA[k]);
+                    eepromSetField(2, i, k, gEepromCurrentSlot, entry->unk26[k]);
+                    eepromSetField(3, i, k, gEepromCurrentSlot, entry->unk42[k]);
                 }
             }
             eepromDispatchCommand(1);
@@ -905,11 +905,11 @@ u8 *eepromGetSectionBuffer(u8 section) {
             bzero(D_807EDEB0, ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
             result = D_807EDEB0;
         } else {
-            result = D_807ECEA8 + ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * eepromGetSectorForSlot(D_807467C8));
+            result = sEepromSlotBuffer + ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * eepromGetSectorForSlot(gEepromCurrentSlot));
         }
         break;
     case 1:
-        result = ((s32) (((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8) + D_807ECEA8;
+        result = ((s32) (((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8) + sEepromSlotBuffer;
         break;
     }
     return result;
@@ -922,7 +922,7 @@ u8 eepromReadChecksumBit(u16 bit, u8 index) {
 
     result = 0;
     if (menuIsTransitionType6() != 0) {
-        eepromGetSectorOffset(&offset, &width, 0, 0, index, eepromGetSectorForSlot(D_807467C8));
+        eepromGetSectorOffset(&offset, &width, 0, 0, index, eepromGetSectorForSlot(gEepromCurrentSlot));
         result = eepromReadBitfield((offset + bit) & 0xFFFF, 1);
     }
     return result;
@@ -934,7 +934,7 @@ void func_8060E430(u16 bit, u8 value, u8 index) {
     u8 width;
 
     if (menuIsTransitionType6() != 0) {
-        eepromGetSectorOffset(&offset, &width, 0, 0, index, eepromGetSectorForSlot(D_807467C8));
+        eepromGetSectorOffset(&offset, &width, 0, 0, index, eepromGetSectorForSlot(gEepromCurrentSlot));
         eepromWriteBitfield(value, (offset + bit) & 0xFFFF, 1);
     }
 }

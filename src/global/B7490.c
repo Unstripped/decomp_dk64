@@ -79,7 +79,7 @@ void func_806B2790(void) {
         case 1:
             gCurrentActor->pitch += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 10);
             if (((randomNonNegative() >> 15) % 1000) >= 0x3D5) {
-                func_8072AA80();
+                behaviourPickRandomTargetY();
             }
             actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, gBehaviourWorkState->targetY, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
             break;
@@ -191,7 +191,7 @@ void func_806B2D64(void) {
             actorEmptyStub();
             gCurrentActor->pitch += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 10);
             if (((randomNonNegative() >> 15) % 1000) >= 0x3D5) {
-                func_8072AA80();
+                behaviourPickRandomTargetY();
             }
             actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, gBehaviourWorkState->targetY, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
             break;

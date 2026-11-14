@@ -33,8 +33,8 @@ void func_80724D28(s16, s16);
 #ifndef PROTO_SKIP_func_80724DB0
 void func_80724DB0(s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_80724E48
-void func_80724E48(u8);
+#ifndef PROTO_SKIP_actorTrackBoneTowardTarget
+void actorTrackBoneTowardTarget(u8);
 #endif
 #ifndef PROTO_SKIP_lineSegmentIntersect2D
 s32 lineSegmentIntersect2D(s16, s16, s16, s16, s16, s16, s16, s16, f32 *, f32 *);

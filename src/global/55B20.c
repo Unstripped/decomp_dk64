@@ -109,7 +109,7 @@ u8 D_807F7048[16];
 u8 D_807F7058;
 u8 D_807F7060[16];
 u8 D_807F7070;
-Mtx *D_807F7074;
+Mtx *sMapChunkScaleMtx;
 u8 gMapChunkEnabled[0x32];
 u8 D_807F70AA;
 u8 D_807F70AB;
@@ -157,7 +157,7 @@ extern u8 D_807F70AB;
 extern s16 D_807F7138;
 extern u8 D_807F713A;
 extern u8 D_807F70AA;
-extern Mtx *D_807F7074;
+extern Mtx *sMapChunkScaleMtx;
 extern MapPortal *gMapPortals;
 extern s32 gMapPortalCount;
 typedef struct MapGridPoint {
@@ -177,7 +177,7 @@ typedef struct {
     /* 0x20 */ f32 z[4];
 } MapGridVectors;
 
-extern MapGridVectors *D_807F6C14;
+extern MapGridVectors *gMapGridTriangleVerts;
 extern MapGridPoint *gMapGridTrianglePlanes;
 extern struct MapCell *gMapCells;
 extern struct MapBox *gMapCellBoxes;
@@ -215,15 +215,15 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
     if (gMapChunkCount != 0) {
         p = (u8 *)data;
         D_807F7138 = data->fogDist;
-        D_807F7074 = heapAlloc(0x40);
-        guScale(D_807F7074, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
+        sMapChunkScaleMtx = heapAlloc(0x40);
+        guScale(sMapChunkScaleMtx, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
         cellsOff = data->cellsOff;
         gMapCellCount = *(s32 *)(p + cellsOff);
         gMapCells = (struct MapCell *)(p + cellsOff + 4);
         boxesOff = data->boxesOff;
         gMapCellBoxes = (struct MapBox *)(p + boxesOff + 4);
         vecsOff = data->vecsOff;
-        D_807F6C14 = (MapGridVectors *)(p + vecsOff);
+        gMapGridTriangleVerts = (MapGridVectors *)(p + vecsOff);
         if (data) {}  // FAKE: uopt block boundary (boxes holder gets a0, no call in its block)
         off = data->collOff;
         chunkOff = data->chunksOff;
@@ -542,16 +542,16 @@ void mapGridTriangleBuildPlane(s32 tri, MapGridPoint *plane) {
     s64 absY;
     s64 absZ;
 
-    e1x = (s64)(D_807F6C14[tri].x[0] - D_807F6C14[tri].x[1]);
-    e1y = (s64)(D_807F6C14[tri].y[0] - D_807F6C14[tri].y[1]);
-    e1z = (s64)(D_807F6C14[tri].z[0] - D_807F6C14[tri].z[1]);
-    e2x = (s64)(D_807F6C14[tri].x[0] - D_807F6C14[tri].x[2]);
-    e2y = (s64)(D_807F6C14[tri].y[0] - D_807F6C14[tri].y[2]);
-    e2z = (s64)(D_807F6C14[tri].z[0] - D_807F6C14[tri].z[2]);
+    e1x = (s64)(gMapGridTriangleVerts[tri].x[0] - gMapGridTriangleVerts[tri].x[1]);
+    e1y = (s64)(gMapGridTriangleVerts[tri].y[0] - gMapGridTriangleVerts[tri].y[1]);
+    e1z = (s64)(gMapGridTriangleVerts[tri].z[0] - gMapGridTriangleVerts[tri].z[1]);
+    e2x = (s64)(gMapGridTriangleVerts[tri].x[0] - gMapGridTriangleVerts[tri].x[2]);
+    e2y = (s64)(gMapGridTriangleVerts[tri].y[0] - gMapGridTriangleVerts[tri].y[2]);
+    e2z = (s64)(gMapGridTriangleVerts[tri].z[0] - gMapGridTriangleVerts[tri].z[2]);
     plane->nx = e1y * e2z - e1z * e2y;
     plane->ny = e1z * e2x - e1x * e2z;
     plane->nz = e1x * e2y - e1y * e2x;
-    plane->d = (s64)-(((f32)plane->nx * D_807F6C14[tri].x[1] + (f32)plane->ny * D_807F6C14[tri].y[1]) + (f32)plane->nz * D_807F6C14[tri].z[1]);
+    plane->d = (s64)-(((f32)plane->nx * gMapGridTriangleVerts[tri].x[1] + (f32)plane->ny * gMapGridTriangleVerts[tri].y[1]) + (f32)plane->nz * gMapGridTriangleVerts[tri].z[1]);
     plane->lenSq = (f32)(plane->nx * plane->nx + plane->ny * plane->ny + plane->nz * plane->nz);
     plane->len = sqrtf(plane->lenSq);
     absX = plane->nx >= 0 ? plane->nx : 0 - plane->nx;
@@ -1402,7 +1402,7 @@ typedef struct FrustumCorners {
     /* 0x2C */ f32 c3z;
 } FrustumCorners;
 
-extern FrustumCorners D_807F5DF0;
+extern FrustumCorners sFrustumCornerRays;
 void mapScreenRectBuildFrustum(s32 left, s32 top, s32 right, s32 bottom, f32 x, f32 y, f32 z, u8 player, f32 (*mtx)[4], void *planes, f32 (*out)[3]) {
     s32 i;
     f32 q;
@@ -1413,17 +1413,17 @@ void mapScreenRectBuildFrustum(s32 left, s32 top, s32 right, s32 bottom, f32 x, 
     f32 m[4][3];
 
     q = ((f32)(left - gPlayerSlots[player].rect[0])) / (f32)gPlayerSlots[player].unk278;
-    x0 = (q * (D_807F5DF0.c1x - D_807F5DF0.c0x)) + D_807F5DF0.c0x;
+    x0 = (q * (sFrustumCornerRays.c1x - sFrustumCornerRays.c0x)) + sFrustumCornerRays.c0x;
     q = ((f32)(right - gPlayerSlots[player].rect[0])) / (f32)gPlayerSlots[player].unk278;
-    x1 = (q * (D_807F5DF0.c1x - D_807F5DF0.c0x)) + D_807F5DF0.c0x;
+    x1 = (q * (sFrustumCornerRays.c1x - sFrustumCornerRays.c0x)) + sFrustumCornerRays.c0x;
     q = ((f32)(top - gPlayerSlots[player].rect[1])) / (f32)gPlayerSlots[player].unk27A;
-    y0 = ((D_807F5DF0.c2y - D_807F5DF0.c0y) * q) + D_807F5DF0.c0y;
+    y0 = ((sFrustumCornerRays.c2y - sFrustumCornerRays.c0y) * q) + sFrustumCornerRays.c0y;
     q = ((f32)(bottom - gPlayerSlots[player].rect[1])) / (f32)gPlayerSlots[player].unk27A;
-    y1 = ((D_807F5DF0.c2y - D_807F5DF0.c0y) * q) + D_807F5DF0.c0y;
-    m[0][0] = x1; m[0][1] = y1; m[0][2] = D_807F5DF0.c0z;
-    m[1][0] = x0; m[1][1] = y1; m[1][2] = D_807F5DF0.c1z;
-    m[2][0] = x1; m[2][1] = y0; m[2][2] = D_807F5DF0.c2z;
-    m[3][0] = x0; m[3][1] = y0; m[3][2] = D_807F5DF0.c3z;
+    y1 = ((sFrustumCornerRays.c2y - sFrustumCornerRays.c0y) * q) + sFrustumCornerRays.c0y;
+    m[0][0] = x1; m[0][1] = y1; m[0][2] = sFrustumCornerRays.c0z;
+    m[1][0] = x0; m[1][1] = y1; m[1][2] = sFrustumCornerRays.c1z;
+    m[2][0] = x1; m[2][1] = y0; m[2][2] = sFrustumCornerRays.c2z;
+    m[3][0] = x0; m[3][1] = y0; m[3][2] = sFrustumCornerRays.c3z;
     for (i = 0; i < 4; i++) {
         guMtxXFMF(mtx, m[i][0], m[i][1], m[i][2], &out[i][0], &out[i][1], &out[i][2]);
     }
@@ -1859,7 +1859,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
     flag = (D_807F5FEC != 0) && (gPlayerSlots[gCurrentPlayerIndex].fov == 45.0);
     gDPPipeSync(gfx++);
     if (flags & 0x10) {
-        gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPMatrix(gfx++, osVirtualToPhysical(sMapChunkScaleMtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
         gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
         gfx = mapViewDrawPass(gfx, view, 1);
@@ -1894,7 +1894,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
             if (flags & 0x10) {
                 gfx = mapChunkEmitSegmentCommands(gfx, idx);
                 if (gMapChunks[idx].layerDl0 != -1) {
-                    gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                    gSPMatrix(gfx++, osVirtualToPhysical(sMapChunkScaleMtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPSegment(gfx++, 6, osVirtualToPhysical(gMapChunks[idx].curVtx));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
                     gfx = mapChunkEmitLayerDisplayLists(gfx, idx, 0);
@@ -1902,7 +1902,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
                     gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 }
                 if (gMapChunks[idx].layerDl2 != -1) {
-                    gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                    gSPMatrix(gfx++, osVirtualToPhysical(sMapChunkScaleMtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPSegment(gfx++, 6, osVirtualToPhysical(gMapChunks[idx].curVtx));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
                     gfx = mapChunkEmitLayerDisplayLists(gfx, idx, 2);
@@ -1927,7 +1927,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
                 gfx = fogRender(gfx);
                 gfx = mapChunkEmitSegmentCommands(gfx, idx);
                 if (gMapChunks[idx].layerDl1 != -1) {
-                    gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                    gSPMatrix(gfx++, osVirtualToPhysical(sMapChunkScaleMtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPSegment(gfx++, 6, osVirtualToPhysical(gMapChunks[idx].curVtx));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
                     gfx = mapChunkEmitLayerDisplayLists(gfx, idx, 1);
@@ -1935,7 +1935,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
                     gDPPipeSync(gfx++);
                 }
                 if (gMapChunks[idx].layerDl3 != -1) {
-                    gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                    gSPMatrix(gfx++, osVirtualToPhysical(sMapChunkScaleMtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPSegment(gfx++, 6, osVirtualToPhysical(gMapChunks[idx].curVtx));
                     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
                     gfx = mapChunkEmitLayerDisplayLists(gfx, idx, 3);
@@ -1946,14 +1946,14 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
         }
     }
     if (flags & 0x10) {
-        gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPMatrix(gfx++, osVirtualToPhysical(sMapChunkScaleMtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
         gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
         gfx = mapViewDrawPass(gfx, view, 2);
         if (gGlobalOverlayFlags & 0x1000) {
             gDPPipeSync(gfx++);
             gfx = func_80027034(gfx);
-            gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+            gSPMatrix(gfx++, osVirtualToPhysical(sMapChunkScaleMtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         }
         gfx = effectWaterRenderSurfaces(gfx, idx, 1);
         gSPMatrix(gfx++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -1979,7 +1979,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
         }
     }
     if (flags & 0x10) {
-        gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPMatrix(gfx++, osVirtualToPhysical(sMapChunkScaleMtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
         gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
         gfx = mapViewDrawPass(gfx, view, 3);
@@ -2315,24 +2315,24 @@ void mapGridPointBuildVectors(s32 tri, f32 x, f32 y, f32 z, MapGridQuad *quad) {
         quad->px = x;
         quad->py = y;
         for (k = 0; k < 4; k++) {
-            quad->x[k] = D_807F6C14[tri].x[k];
-            quad->y[k] = D_807F6C14[tri].y[k];
+            quad->x[k] = gMapGridTriangleVerts[tri].x[k];
+            quad->y[k] = gMapGridTriangleVerts[tri].y[k];
         }
         break;
     case 1:
         quad->px = x;
         quad->py = z;
         for (k = 0; k < 4; k++) {
-            quad->x[k] = D_807F6C14[tri].x[k];
-            quad->y[k] = D_807F6C14[tri].z[k];
+            quad->x[k] = gMapGridTriangleVerts[tri].x[k];
+            quad->y[k] = gMapGridTriangleVerts[tri].z[k];
         }
         break;
     case 2:
         quad->px = y;
         quad->py = z;
         for (k = 0; k < 4; k++) {
-            quad->x[k] = D_807F6C14[tri].y[k];
-            quad->y[k] = D_807F6C14[tri].z[k];
+            quad->x[k] = gMapGridTriangleVerts[tri].y[k];
+            quad->y[k] = gMapGridTriangleVerts[tri].z[k];
         }
         break;
     }
@@ -2416,9 +2416,9 @@ s32 mapGridQuadClipToFrustum(s32 tri, f32 x, f32 y, f32 z)
     n1 = 0;
     n2 = 0;
     for (k = 0; k < 4; k++) {
-        D_807F6C88[k].x = D_807F6C14[tri].x[k];
-        D_807F6C88[k].y = D_807F6C14[tri].y[k];
-        D_807F6C88[k].z = D_807F6C14[tri].z[k];
+        D_807F6C88[k].x = gMapGridTriangleVerts[tri].x[k];
+        D_807F6C88[k].y = gMapGridTriangleVerts[tri].y[k];
+        D_807F6C88[k].z = gMapGridTriangleVerts[tri].z[k];
     }
     mapPolyClipToFrustumPlane(D_807F6C88, D_807F6E68, 4, &n2, 0);
     if (n2 == 0) {

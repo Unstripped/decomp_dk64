@@ -35,7 +35,7 @@
 #include "proto/global/FCCD0.h"
 
 // Second component (0x178) of the ridden vehicle actors (race/52B0 passes it as `motion`): the model
-// lean angles actorInterpolateAngles eases and the hop func_8068F72C consumes.
+// lean angles actorInterpolateAngles eases and the hop vehicleUpdateMotion consumes.
 typedef struct VehicleMotion {
     s16 boneYaw;
     s16 bonePitch;
@@ -314,7 +314,7 @@ extern u32 gGlobalOverlayFlags;
 void func_8002F490(void *);
 
 
-void func_8068F72C(vehicle, motion, applyBuoyancy, tilt)
+void vehicleUpdateMotion(vehicle, motion, applyBuoyancy, tilt)
 RaceParticipant *vehicle;
 VehicleMotion *motion;
 u8 applyBuoyancy;
@@ -534,7 +534,7 @@ extern s16 D_80770628[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
 
-void func_80690190(vehicle, unused)
+void vehicleUpdateEngineSound(vehicle, unused)
 RaceParticipant *vehicle;
 s16 unused;
 {
@@ -625,11 +625,11 @@ void actorUpdatePlayerInteraction(void) {
     camState = playerState->camActor->customState;
     resetting = gCurrentActor->contactFlags & 1;
     vehicle->raceStatus = 2;
-    func_80690190(vehicle, motion, playerState);
+    vehicleUpdateEngineSound(vehicle, motion, playerState);
     if (gGameMode == 0 && camState->unkF3 != 4) {
         camSetTargetScaled(playerState->camActor, gCurrentActor, 4, 0x800, 0xA0, 0, 6, 0x12C, 0x8F, 0, 0.2f);
     }
-    func_8068F72C(vehicle, motion, 1, 1);
+    vehicleUpdateMotion(vehicle, motion, 1, 1);
     actorInterpolateAngles(resetting, vehicle, motion);
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->accelY = D_80750300;
@@ -656,9 +656,9 @@ void actorClearSubState(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 D_80750270;
+extern u8 sProjectileShortLivedFlag;
 void projectileSetSpawnFlag(void) {
-    D_80750270 = 1;
+    sProjectileShortLivedFlag = 1;
 }
 
 extern f32 D_807FC7B0;
@@ -682,7 +682,7 @@ typedef struct ProjectileSpawnParams {
     f32 pad18[2];
 } ProjectileSpawnParams;
 
-// customState of actor 0x107, filled by projectileSpawnActor107 from its parameters.
+// customState of actor 0x107, filled by projectileSpawnSpriteRing from its parameters.
 typedef struct ProjectileTrackerState {
     s16 value;
     char pad2[6];
@@ -706,9 +706,9 @@ void projectileSpawnNodeEntry(s16 type, s16 param, f32 speed, s16 yaw, f32 horiz
     params.scale = speed;
     params.speedY = vertSpeed;
     params.param = (f32)param;
-    params.shortLived = (f32)(u32)D_80750270;
+    params.shortLived = (f32)(u32)sProjectileShortLivedFlag;
     actorListSpawnNodeEntry(type, D_807FC7B0, D_807FC7B4, D_807FC7B8, 0, speed, owner, &params);
-    D_80750270 = 0;
+    sProjectileShortLivedFlag = 0;
 }
 
 void projectileCalculateTrajectoryAndSpawn(s16 yaw, s16 type, s16 param, f32 speed, f32 targetX, f32 targetY, f32 targetZ, f32 flightTime, Actor *owner) {
@@ -1063,7 +1063,7 @@ void projectileSpawnWithShockwave(s16 pitch, f32 scale, u8 red, u8 green, u8 blu
     camStartShake(gCamActor, 0x50, 0x14);
 }
 
-void projectileSpawnActor107(u8 mode, u8 value, f32 rate, f32 limit, u8 alpha, u8 spin) {
+void projectileSpawnSpriteRing(u8 mode, u8 value, f32 rate, f32 limit, u8 alpha, u8 spin) {
     ProjectileTrackerState *tracker;
 
     actorSpawn(0x107, 0);
@@ -1147,10 +1147,10 @@ void projectileBounceParticleUpdate(void *effectCfg) {
             if (state->cooldown == 0) {
                 switch (state->param) {
                 case 11:
-                    projectileSpawnActor107(0, 0, 5.0f, 2.0f, 1, 0);
+                    projectileSpawnSpriteRing(0, 0, 5.0f, 2.0f, 1, 0);
                     break;
                 case 20:
-                    projectileSpawnActor107(1, 7, 5.0f, 3.0f, 0xC8, 0x20);
+                    projectileSpawnSpriteRing(1, 7, 5.0f, 3.0f, 0xC8, 0x20);
                     break;
                 }
                 camStartShake(gCamActor, 0xA, 0x14);

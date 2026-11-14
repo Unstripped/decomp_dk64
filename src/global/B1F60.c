@@ -114,7 +114,7 @@ void func_806AD54C(void) {
         }
     }
     actorPatrolFollowerUpdate(0x1FA, 0, 0);
-    func_80724E48((gCurrentActor->state == 0x23) ? 0 : 2);
+    actorTrackBoneTowardTarget((gCurrentActor->state == 0x23) ? 0 : 2);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -125,7 +125,7 @@ void func_806AD7AC(void) {
         behaviourSetAnimIds(0x1F8, 0x1F8, 0x1F9);
     }
     actorPatrolFollowerUpdate(0x1FA, 0, 0);
-    func_80724E48((gCurrentActor->state == 0x23) ? 0 : 2);
+    actorTrackBoneTowardTarget((gCurrentActor->state == 0x23) ? 0 : 2);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

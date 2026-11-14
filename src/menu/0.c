@@ -52,7 +52,7 @@ extern s32 D_80032F48[][6];
 extern MenuCsModelEntry D_800330A2[];
 
 
-void menuPlaySoundFromTable(MenuState *menu) {
+void menuStartNextCamPath(MenuState *menu) {
     s32 soundId = D_80032F48[mapGetHubWorldIndex(gCurrentWorldId, 0)][menu->step];
 
     if (soundId == 0) {
@@ -71,7 +71,7 @@ void menuPlaySoundFromTable(MenuState *menu) {
 
 extern u8 D_80720268;
 
-void menuSpawnPositionalActor(MenuState *menu) {
+void menuSpawnFallingEffect(MenuState *menu) {
     menu->velY = 11.35f;
     menu->velX = -6.55f;
     menu->velZ = 6.6f;
@@ -100,7 +100,7 @@ void menuUpdateFallingActor(MenuState *menu) {
 
 extern Actor *gPrimaryPlayerActor;
 
-void menuResetAudioState(void) {
+void menuExit(void) {
     playerResumeLocomotion(gPrimaryPlayerActor);
     mapTransitionToPreviousOrExit();
     camStartPath(0, 7, 1);
@@ -183,7 +183,7 @@ void menuMainStateStep(MenuState *menu, s32 playVoice) {
         }
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            menuPlaySoundFromTable(menu);
+            menuStartNextCamPath(menu);
         }
         break;
     }
@@ -332,7 +332,7 @@ void menuUpdateOptionsState(MenuState *menu) {
             }
             renderCallbacksRegister(menuDrawOptionsOverlay, gCurrentActor, 3);
             if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
-                menuResetAudioState();
+                menuExit();
                 menu->step = 2;
             } else if (menu->allMedals != 0 && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8)) {
                 menu->step = 4;
@@ -438,7 +438,7 @@ void menuDispatchAction(void) {
             menu->step = 0;
         }
         currentActorClearFlag();
-        menuSpawnPositionalActor(menu);
+        menuSpawnFallingEffect(menu);
         isSessionActive = D_80032F50;
         D_80032F50 = 0;
     }

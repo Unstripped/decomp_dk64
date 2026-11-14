@@ -573,7 +573,7 @@ void textLayoutAppendCommandList(ResQueueActorState *state, ResItem *item, ResPa
     }
 }
 
-extern struct EffectGridAsset *D_80755390[];
+extern struct EffectGridAsset *gEffectGridAssets[];
 
 void resGridBuildGroups(ResQueueActorState *state, ResItem *item, ResParsedList *unused) {
     ResRow **link;
@@ -600,7 +600,7 @@ void resGridBuildGroups(ResQueueActorState *state, ResItem *item, ResParsedList 
     if (source->count > 0) {
         do {
             cell = &source->data.cells[i];
-            effectGridGetScaledDimensions(D_80755390[cell->effectId], &width, &height);
+            effectGridGetScaledDimensions(gEffectGridAssets[cell->effectId], &width, &height);
             if ((f64)((*link)->width + (f32)width) >= 124.8f) {
                 link = &(*link)->next;
                 *link = heapAlloc(0x20);

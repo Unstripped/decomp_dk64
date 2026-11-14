@@ -21,31 +21,31 @@ void func_8060FFF0(void) {
     D_807F0588[3] = D_80760840;
 }
 
-extern s8 D_80744460;
+extern s8 gMainThreadHalted;
 extern u8 gGfxBufferIndex;
 extern u32 D_807F05A4;
 extern u32 D_807F0984;
-extern TaskNode D_807F05A8[][2];
+extern TaskNode gGfxTaskNodes[][2];
 extern void *gFramebuffers[];
 extern u8 D_805FB000[];
 extern u8 D_805FB0D0[];
 extern u64 D_8076AF20[];
 extern u64 D_8076B320[];
-extern SchedClient D_80767CD8;
+extern SchedClient gGfxSchedClient;
 extern FrameMatrices D_80767CE8[];
-extern OSMesgQueue D_807659E8;
-extern u8 D_807F059C[];
+extern OSMesgQueue gGfxDoneQueue;
+extern u8 gGfxTaskPending[];
 extern SchedStruct gScheduler;
 
 void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers, s32 taskId, u8 writebackAll) {
     TaskNode *task;
     s32 pad;
 
-    if (D_80744460 != 0) {
+    if (gMainThreadHalted != 0) {
         return;
     }
-    task = &D_807F05A8[taskIdx][gGfxBufferIndex];
-    D_807F059C[taskIdx] = 1;
+    task = &gGfxTaskNodes[taskIdx][gGfxBufferIndex];
+    gGfxTaskPending[taskIdx] = 1;
     task->task.t.type = M_GFXTASK;
     task->task.t.flags = 0;
     task->task.t.ucode_boot = (u64 *)D_805FB000;
@@ -63,14 +63,14 @@ void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers
     task->task.t.yield_data_ptr = D_8076B320;
     task->task.t.yield_data_size = 0xC00;
     task->next = NULL;
-    task->msgQ = &D_807659E8;
+    task->msgQ = &gGfxDoneQueue;
     task->msg = (OSMesg)((taskIdx << 16) | taskId);
     task->flags = 3;
     if (swapBuffers) {
         task->flags |= 0x40;
     }
     task->framebuffer = gFramebuffers[gGfxBufferIndex];
-    task->client = &D_80767CD8;
+    task->client = &gGfxSchedClient;
     if (writebackAll) {
         osWritebackDCacheAll();
     } else {
@@ -83,14 +83,14 @@ void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers
 
 extern s8 D_80746834;
 
-void func_80610268(s32 targetTaskId) {
+void schedWaitGfxTask(s32 targetTaskId) {
     OSMesg receivedMsg;
 
     do {
         D_80746834 = 8;
-        osRecvMesg(&D_807659E8, &receivedMsg, OS_MESG_BLOCK);
+        osRecvMesg(&gGfxDoneQueue, &receivedMsg, OS_MESG_BLOCK);
         D_80746834 = 0;
-        D_807F059C[(u32)receivedMsg >> 16] = 0;
+        gGfxTaskPending[(u32)receivedMsg >> 16] = 0;
         receivedMsg = (OSMesg)((u32)receivedMsg & 0xFFFF);
     } while ((s32)receivedMsg != targetTaskId);
 }

@@ -3159,7 +3159,7 @@ s32 texAnimNodeAdvance(TexAnimNode *node, s32 *frameOut, s32 *nextFrameOut) {
 }
 
 // Sprite draw node (the ModelSlotSubNode a model owns): chained by spriteListBuildDisplayChain in ascending texture
-// key order (spriteListInsertByDepth) so spriteListRender reloads a texture only when the key changes; 0x38 bytes.
+// key order (spriteListInsertByTexture) so spriteListRender reloads a texture only when the key changes; 0x38 bytes.
 typedef struct SpriteDisplayNode {
     /* 0x00 */ u32 key;
     /* 0x04 */ f32 scaleXZ;
@@ -3359,7 +3359,7 @@ SpriteDisplayNode *spriteListBuildDisplayChain(RenderEntry *listA, RenderEntry *
                     tgt->next = NULL;
                     tgt->halfWidth = tgt->baseHalfWidth * scale;
                     tgt->halfDepth = tgt->baseHalfDepth * scale;
-                    result = spriteListInsertByDepth(result, tgt);
+                    result = spriteListInsertByTexture(result, tgt);
                 }
             }
             listA = listA->unk14;
@@ -3372,7 +3372,7 @@ SpriteDisplayNode *spriteListBuildDisplayChain(RenderEntry *listA, RenderEntry *
     return result;
 }
 
-SpriteDisplayNode *spriteListInsertByDepth(SpriteDisplayNode *head, SpriteDisplayNode *node) {
+SpriteDisplayNode *spriteListInsertByTexture(SpriteDisplayNode *head, SpriteDisplayNode *node) {
     SpriteDisplayNode *prev;
     SpriteDisplayNode *ret;
     s32 inserted;

@@ -1546,7 +1546,7 @@ typedef struct MenuScreenPos { // screen position of one character-select kong s
     f32 y;
 } MenuScreenPos;
 extern s32 D_800338B4[];
-extern MenuScreenPos D_80033894[];
+extern MenuScreenPos gMenuKongSlotPositions[];
 
 
 void menuCharacterSelectUpdateActor(void) {
@@ -1601,7 +1601,7 @@ void menuCharacterSelectUpdateActor(void) {
             if (gCurrentActor->state != 0) {} // FAKE: extra reference of the unk154 value; recolours the shared A->unk154 candidate (t0) and the PRE reload position
             if (sub174->parent->flags && sub174->parent->flags) {} // FAKE: repeated dead load steers uopt lifetimes and the ugen temporary ring
         }
-        row = &D_80033894[gCurrentActor->state];
+        row = &gMenuKongSlotPositions[gCurrentActor->state];
         menuComputeElementPosition(parentState, row->x, row->y, &posX, &posY, 2, 0, 1.8f);
         gCurrentActor->x = gPrimaryPlayerActor->x + (posX - 160.0f);
         gCurrentActor->y = (gPrimaryPlayerActor->y - (posY - 120.0f)) - 20.0f;
@@ -1796,7 +1796,7 @@ extern s8 D_807444C0;
 extern s8 D_8074452C;
 extern u8 D_80744530;
 extern u8 sLanguageIndex;
-extern u16 D_807ECD66;
+extern u16 gButtonsPressed;
 
 void menuHandleGameOptionsInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
@@ -1863,7 +1863,7 @@ void menuHandleGameOptionsInput(Actor *actor, s32 buttons) {
         menuUpdateScrollAnimation(state, D_800338FC);
     }
     menuUpdateItemTransition(actor, state, 1);
-    if (D_807ECD66 & 0xC) {
+    if (gButtonsPressed & 0xC) {
         D_80744544 ^= 0x100;
     }
     if (changed != 0) {
@@ -1955,11 +1955,11 @@ typedef struct MenuMapLoadout { // full menuSetupPlayerInventory argument row
     s8 shared;
 } MenuMapLoadout;
 
-extern s8 D_800339A8;
+extern s8 gMenuHighScoreGame;
 extern u8 D_80744514;
-extern MenuMapExit D_80033900[];
-extern MenuMapLoadout D_80033938[];
-extern MenuMapCharacter D_80033978[];
+extern MenuMapExit gMenuCheatWarps[];
+extern MenuMapLoadout gMenuCheatLoadouts[];
+extern MenuMapCharacter gMenuCheatMapCharacters[];
 extern s8 D_80033988[];
 extern s16 D_80033998[];
 extern s8 D_8074453C[];
@@ -2002,34 +2002,34 @@ void menuHandleCheatsInput(Actor *actor, s32 buttons) {
                     switch (row) {
                     case 0:
                         if (choice != 0xD) {
-                            menuTransitionRequestTypeB(D_80033900[choice].map, D_80033900[choice].exit);
+                            menuTransitionRequestTypeB(gMenuCheatWarps[choice].map, gMenuCheatWarps[choice].exit);
                         } else {
                             menuTransitionToCreditsOrMap28(1);
                         }
                         D_80744514 = 3;
                         break;
                     case 1:
-                        switch (D_80033978[choice].map) {
+                        switch (gMenuCheatMapCharacters[choice].map) {
                         case 0xBF:
                             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                             state->transitionPhase = 0;
                             state->nextScreen = 0xC;
-                            D_800339A8 = 0;
+                            gMenuHighScoreGame = 0;
                             break;
                         case 0xB8:
                             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                             state->transitionPhase = 0;
                             state->nextScreen = 0xC;
-                            D_800339A8 = 1;
+                            gMenuHighScoreGame = 1;
                             break;
                         default:
-                            menuSetupPlayerInventory(D_80033978[choice].map, 0, D_80033978[choice].characterId, 3, 3, 1, 3);
+                            menuSetupPlayerInventory(gMenuCheatMapCharacters[choice].map, 0, gMenuCheatMapCharacters[choice].characterId, 3, 3, 1, 3);
                             D_80744514 = 5;
                             break;
                         }
                         break;
                     case 2:
-                        menuSetupPlayerInventory(D_80033938[choice].map, 0, D_80033938[choice].characterId, D_80033938[choice].inventory0, D_80033938[choice].inventory1, D_80033938[choice].inventory4, D_80033938[choice].shared);
+                        menuSetupPlayerInventory(gMenuCheatLoadouts[choice].map, 0, gMenuCheatLoadouts[choice].characterId, gMenuCheatLoadouts[choice].inventory0, gMenuCheatLoadouts[choice].inventory1, gMenuCheatLoadouts[choice].inventory4, gMenuCheatLoadouts[choice].shared);
                         D_80744514 = 4;
                         break;
                     }
@@ -2289,10 +2289,10 @@ void menuSaveHighScores(void) {
 }
 
 extern s8 D_80033F60;
-extern s8 D_800339A8;
+extern s8 gMenuHighScoreGame;
 extern s8 D_80033F61;
 extern s8 D_800339C0;
-extern MenuMapCharacter D_800339B8[];
+extern MenuMapCharacter gMenuHighScoreGames[];
 
 void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
@@ -2301,7 +2301,7 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
     u32 pressed;
     s32 pad;
     u8 *p;
-    if (D_800339A8 == 0) {
+    if (gMenuHighScoreGame == 0) {
         table = D_80744548;
     } else {
         table = D_80744568;
@@ -2309,8 +2309,8 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
     if (state->fade == 0.0f) {
         if (D_80033F60 < 0) {
             if (buttons & 1) {
-                menuSetupPlayerInventory(D_800339B8[D_800339A8].map, 0, D_800339B8[D_800339A8].characterId, 3, 3, 1, 3);
-                D_80744514 = D_800339A8 + 6;
+                menuSetupPlayerInventory(gMenuHighScoreGames[gMenuHighScoreGame].map, 0, gMenuHighScoreGames[gMenuHighScoreGame].characterId, 3, 3, 1, 3);
+                D_80744514 = gMenuHighScoreGame + 6;
             }
             if (buttons & 2) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -2411,7 +2411,7 @@ Gfx *menuDrawHighScoreTable(Actor *actor, Gfx *dl) {
     state = actor->customState;
     gGlobalPauseFlags &= ~0x10;
     menuComputeElementPosition(state, 160.0f, 20.0f, &posX, &posY, 2, 0, 1.0f);
-    dl = textDrawStringVtx(dl, 1, 0x280, (s16)(posY * 4.0), D_80033F28[D_800339A8 + 0x5F], 0x81);
+    dl = textDrawStringVtx(dl, 1, 0x280, (s16)(posY * 4.0), D_80033F28[gMenuHighScoreGame + 0x5F], 0x81);
     menuComputeElementPosition(state, 160.0f, 205.0f, &posX, &posY, 2, 0, 1.0f);
     i = 0; // FAKE: loop counter i doubles as the message-drawn flag; a separate flag local recolours
     yPos = (s16)(posY * 4.0);
@@ -2428,7 +2428,7 @@ Gfx *menuDrawHighScoreTable(Actor *actor, Gfx *dl) {
     menuComputeElementPosition(state, 20.0f, 120.0f, &posX, &posY, 2, 0, 2.0f);
     yPos = 0xC8;
     xBase = (s16)(posX * 4.0f);
-    if (D_800339A8 == 0) {
+    if (gMenuHighScoreGame == 0) {
         scoreTable = D_80744548;
     } else {
         scoreTable = D_80744568;
@@ -2467,7 +2467,7 @@ void menuInsertHighScore(void) {
     s32 i;
     s32 j;
 
-    if (D_800339A8 == 0) {
+    if (gMenuHighScoreGame == 0) {
         table = D_80744548;
     } else {
         table = D_80744568;
@@ -2696,7 +2696,7 @@ void menuInit(void) {
         case 6:
         case 7:
             state->screen = 0xC;
-            D_800339A8 = D_80744514 - 6;
+            gMenuHighScoreGame = D_80744514 - 6;
             menuInsertHighScore();
             break;
         default:

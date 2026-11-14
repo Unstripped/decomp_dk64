@@ -2,7 +2,7 @@
 #include "proto/global/13D100.h"
 #include "seqplayer.h"
 
-void postCSPChannelCommand(ALCSPlayer *seqp, u8 busIndex, u8 paramId, u8 delayIndex, s32 paramValue) {
+void alCSPSetFXParam(ALCSPlayer *seqp, u8 busIndex, u8 paramId, u8 delayIndex, s32 paramValue) {
     N_Event evt;
 
     evt.type = AL_VIB_OSC_EVT + 2;

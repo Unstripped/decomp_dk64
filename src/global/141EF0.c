@@ -7,8 +7,8 @@
 
 
 
-extern u8 D_807FF0F4[];
-extern u8 D_807FF0F6[];
+extern u8 gAuxBusStereo[];
+extern u8 gAuxBusInvertCoefs[];
 
 #define SWAP(in, out) { s16 t = out; out = in; in = t; }
 
@@ -38,21 +38,21 @@ Acmd *n_alFxPull(s32 time, Acmd *cmdList, s32 busIndex) {
     outDmem = 0x930;
     dmemIn = 0;
     dmemOut = 0x170;
-    if (D_807FF0F4[busIndex] == 0) {
+    if (gAuxBusStereo[busIndex] == 0) {
         aMix(ptr++, 0, 0xC000, 0x7C0, inDmem);
         aMix(ptr++, 0, 0x4000, 0x930, inDmem);
     }
     ptr = _n_saveBuffer(ring, 0, ring->input[0], inDmem, ptr);
-    if (D_807FF0F4[busIndex] != 0) {
+    if (gAuxBusStereo[busIndex] != 0) {
         ptr = _n_saveBuffer(ring, 1, ring->input[1], 0x930, ptr);
     }
-    for (busChan = 0; busChan <= D_807FF0F4[busIndex]; busChan++) {
+    for (busChan = 0; busChan <= gAuxBusStereo[busIndex]; busChan++) {
         aClearBuffer(ptr++, outDmem, 0x170);
         for (sectionIdx = 0; sectionIdx < ring->section_count; sectionIdx++) {
             section = ring->delay + sectionIdx;
             inPtr = &ring->input[busChan][-section->input];
             outPtr = &ring->input[busChan][-section->output];
-            if ((D_807FF0F6[busIndex] != 0) && (D_807FF0F4[busIndex] != 0)) {
+            if ((gAuxBusInvertCoefs[busIndex] != 0) && (gAuxBusStereo[busIndex] != 0)) {
                 section->ffcoef = -section->ffcoef;
                 section->fbcoef = -section->fbcoef;
             }
@@ -79,7 +79,7 @@ Acmd *n_alFxPull(s32 time, Acmd *cmdList, s32 busIndex) {
                 ptr = _n_saveBuffer(ring, busChan, outPtr, dmemOut, ptr);
             }
             if (section->gain != 0) {
-                if (D_807FF0F4[busIndex] != 0) {
+                if (gAuxBusStereo[busIndex] != 0) {
                     aMix(ptr++, 0, (u16)section->gain, dmemOut, outDmem);
                 } else {
                     u32 scaledGain = (u32)((f32)section->gain * 1.4142f);
@@ -92,9 +92,9 @@ Acmd *n_alFxPull(s32 time, Acmd *cmdList, s32 busIndex) {
             }
             lastInPtr = &ring->input[busChan][section->output];
         }
-        if ((D_807FF0F4[busIndex] != 0) && (busChan == 0)) {
+        if ((gAuxBusStereo[busIndex] != 0) && (busChan == 0)) {
             ptr = _n_loadBuffer(ring, 1, ring->input[1], inDmem, 0xB8, ptr);
-            if (D_807FF0F6[busIndex] != 0) {
+            if (gAuxBusInvertCoefs[busIndex] != 0) {
                 aMix(ptr++, 0, 0x5A82, outDmem, 0x650);
             } else {
                 aMix(ptr++, 0, 0x5A82, outDmem, 0x4E0);

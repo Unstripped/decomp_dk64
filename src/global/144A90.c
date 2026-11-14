@@ -2,8 +2,8 @@
 #include "audio_synth.h"
 #include "proto/global/140600.h"
 
-extern u8 D_807FF0F4[];
-extern u8 D_807FF0F6[];
+extern u8 gAuxBusStereo[];
+extern u8 gAuxBusInvertCoefs[];
 
 Acmd *n_alMainBusPull(s32 sampleCount, Acmd *ptr) {
     Acmd *result;
@@ -19,8 +19,8 @@ Acmd *n_alMainBusPull(s32 sampleCount, Acmd *ptr) {
     }
     for (i = 0; i < n_syn->maxAuxBusses; i++) {
         result = n_syn->mainBus->handler(sampleCount, result, i);
-        if (D_807FF0F4[i] != 0) {
-            if (D_807FF0F6[i] != 0) {
+        if (gAuxBusStereo[i] != 0) {
+            if (gAuxBusInvertCoefs[i] != 0) {
                 Acmd *cmd;
 
                 cmd = result++;
@@ -34,7 +34,7 @@ Acmd *n_alMainBusPull(s32 sampleCount, Acmd *ptr) {
                 cmd->words.w1 = 0x07C00650;
             }
         } else {
-            if (D_807FF0F6[i] != 0) {
+            if (gAuxBusInvertCoefs[i] != 0) {
                 Acmd *cmd;
 
                 cmd = result++;

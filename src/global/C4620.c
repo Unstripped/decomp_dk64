@@ -67,7 +67,7 @@ void func_806BF920(void) {
         }
         if (bufferSize != 0) {
             gCurrentActor->sub4->boneRotations = heapAlloc(0x100);
-            func_806C8220(0, C46V->unk178, bufferSize);
+            kongChainInit(0, C46V->unk178, bufferSize);
         }
     }
     switch (state->animAssetId) {
@@ -148,7 +148,7 @@ extern u8 gGameMode;
 extern s32 gCurrentMap;
 extern f32 D_807502E8;
 extern u16 D_80747750[];
-extern u16 D_80747904[];
+extern u16 sScriptAnimBase[];
 extern u8 D_807478F4[];
 // RGB particle colours, indexed by the script colour id
 typedef struct ScriptColor {
@@ -157,7 +157,7 @@ typedef struct ScriptColor {
     u8 b;
 } ScriptColor;
 
-extern ScriptColor D_80747B00[];
+extern ScriptColor sScriptParticleColors[];
 extern void *sScriptEffectSprites[];
 
 
@@ -243,17 +243,17 @@ void actorScriptedCommandUpdate(void) {
                     if (gCurrentActor->sub4->animId != 0) {
                         actorScriptStart(gCurrentActor, 0);
                     }
-                    controllerAnimSetState(gCurrentActor, cmd->param2 - (0 - D_80747904[cmd->param1]), 0.0f, 0.0f); // FAKE: param2 evaluated before the table lookup (ring order)
+                    controllerAnimSetState(gCurrentActor, cmd->param2 - (0 - sScriptAnimBase[cmd->param1]), 0.0f, 0.0f); // FAKE: param2 evaluated before the table lookup (ring order)
                     scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
-                    func_806BFA8C(cmd->param2 - (0 - D_80747904[cmd->param1])); // FAKE: param2 evaluated before the table lookup (ring order)
+                    func_806BFA8C(cmd->param2 - (0 - sScriptAnimBase[cmd->param1])); // FAKE: param2 evaluated before the table lookup (ring order)
                     break;
                 case 13:
                     if (gCurrentActor->sub4->animId != 0) {
                         actorScriptStart(gCurrentActor, 0);
                     }
-                    controllerAnimSetState(gCurrentActor, cmd->param2 - (0 - D_80747904[cmd->param1]), 0.0f, 8.0f); // FAKE: param2 evaluated before the table lookup (ring order)
+                    controllerAnimSetState(gCurrentActor, cmd->param2 - (0 - sScriptAnimBase[cmd->param1]), 0.0f, 8.0f); // FAKE: param2 evaluated before the table lookup (ring order)
                     scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
-                    func_806BFA8C(cmd->param2 - (0 - D_80747904[cmd->param1])); // FAKE: param2 evaluated before the table lookup (ring order)
+                    func_806BFA8C(cmd->param2 - (0 - sScriptAnimBase[cmd->param1])); // FAKE: param2 evaluated before the table lookup (ring order)
                     break;
                 case 4:
                     scriptSetActorRampTarget(gCurrentActor, cmd->param1 / 100.0, cmd->param2);
@@ -413,7 +413,7 @@ void actorScriptedCommandUpdate(void) {
                 effectSetMaxDistance(0x7D0);
                 effectSetDepth(1);
                 effectSetMode(2);
-                col = &D_80747B00[state->particleColor];
+                col = &sScriptParticleColors[state->particleColor];
                 effectSetColor(col->r, col->g, col->b, 0xFF);
                 effectSetCallback(func_80717D4C);
                 effectSetSpeed(-10 - (randomNonNegative() >> 15) % 30);
@@ -436,7 +436,7 @@ void actorScriptedCommandUpdate(void) {
         case 0xC:
             pathPlaybackAdvance(state->pathPlayback);
             pathPlaybackGetPosition(state->pathPlayback, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
-            func_8072E320(8.0f);
+            actorAlignToMotion(8.0f);
             break;
         case 0xE:
         case 0xF:
@@ -714,10 +714,10 @@ void func_806C19F4(void) {
             effectSetColor(0x96, 0xFF, 0xFF, 0xFF);
             effectCreateAtActorBone(&D_8071FBA0, 0.7f, gCurrentActor, 5, 0);
         }
-        func_80724E48(gBehaviourTargetActor == gPrimaryPlayerActor ? 5 : 7);
+        actorTrackBoneTowardTarget(gBehaviourTargetActor == gPrimaryPlayerActor ? 5 : 7);
     } else {
         func_806C10A0(2, 6, 0x3D9);
-        func_80724E48(0);
+        actorTrackBoneTowardTarget(0);
         func_806C151C(6, 1, 6);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -787,10 +787,10 @@ void func_806C1CCC(void) {
                 renderCallbacksRegister(gfxBuildScanlineNoise, 0, 3);
             }
         }
-        func_80724E48(gBehaviourTargetActor == gPrimaryPlayerActor ? 5 : 7);
+        actorTrackBoneTowardTarget(gBehaviourTargetActor == gPrimaryPlayerActor ? 5 : 7);
     } else {
         func_806C10A0(2, 5, 0x3DA);
-        func_80724E48(0);
+        actorTrackBoneTowardTarget(0);
         func_806C151C(5, 1, 0xF);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -1078,7 +1078,7 @@ void actorSpawnParticlesAlongNodeLoop(u8 startNode, u8 endNode, u8 colorIndex, v
             } else {
                 actorGetNodePos(gCurrentActor, startNode, &node2X, &node2Y, &node2Z);
             }
-            effectSpawnColoredParticleAtPoint(D_80747B00[colorIndex].r, D_80747B00[colorIndex].g, D_80747B00[colorIndex].b, (node2X - node1X) * frac + node1X, (node2Y - node1Y) * frac + node1Y, (node2Z - node1Z) * frac + node1Z, particleGfx, scale);
+            effectSpawnColoredParticleAtPoint(sScriptParticleColors[colorIndex].r, sScriptParticleColors[colorIndex].g, sScriptParticleColors[colorIndex].b, (node2X - node1X) * frac + node1X, (node2Y - node1Y) * frac + node1Y, (node2Z - node1Z) * frac + node1Z, particleGfx, scale);
         }
     }
 }
@@ -1254,7 +1254,7 @@ void func_806C2DF4(void) {
     gCurrentActor->contactFlags = 0;
     gCurrentActor->prevContactFlags = 0;
     if (gBehaviourTargetActor != gPrimaryPlayerActor) {
-        func_80724E48(7);
+        actorTrackBoneTowardTarget(7);
     }
     switch (gCurrentActor->sub4->model->animId) {
         case 0x3EA:

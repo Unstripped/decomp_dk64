@@ -11,7 +11,7 @@ typedef struct {
     s16 mappedAction;
 } MapActionEntry;
 
-extern MapActionEntry D_80746340[];
+extern MapActionEntry gMapActionRemapTable[];
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
 extern PlayerState *gActivePlayerState;
@@ -25,7 +25,7 @@ s16 mapActionLookupEntry(s16 actionId, Actor *actor, u8 subType) {
     i = 0;
     found = 0;
     while ((i < 14) && (found == 0)) {
-        if ((actionId == D_80746340[i].actionId) && (subType == D_80746340[i].subType)) {
+        if ((actionId == gMapActionRemapTable[i].actionId) && (subType == gMapActionRemapTable[i].subType)) {
             found = 1;
         } else {
             i++;
@@ -38,9 +38,9 @@ s16 mapActionLookupEntry(s16 actionId, Actor *actor, u8 subType) {
         if (actor->contactFlags & 4) {
             return 0xA;
         }
-        lookupAction = D_80746340[i].mappedAction;
+        lookupAction = gMapActionRemapTable[i].mappedAction;
         if (lookupAction == 0) {
-            return D_80745BDC[gCurrentMap].defaultAction;
+            return gMapAudioTable[gCurrentMap].defaultAction;
         }
         return lookupAction;
     }

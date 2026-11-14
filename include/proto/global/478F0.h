@@ -409,8 +409,8 @@ u8 csCondCheckKongItems(CsState *, s16, s16, s16);
 #ifndef PROTO_SKIP_csCondCheckAllKongs
 s32 csCondCheckAllKongs(CsState *, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_csEffectUpdateAlphaState
-void csEffectUpdateAlphaState(EffectNode *, u8 *);
+#ifndef PROTO_SKIP_csEffectBobAndPulseUpdate
+void csEffectBobAndPulseUpdate(EffectNode *, u8 *);
 #endif
 #ifndef PROTO_SKIP_csCmdSpawnActorAtPoint
 void csCmdSpawnActorAtPoint(CsState *, s16, s16, s16);

@@ -6,7 +6,7 @@
 #ifndef PROTO_SKIP_pathFollowUpdateHeading
 void pathFollowUpdateHeading(Actor *, u8);
 #endif
-#ifndef PROTO_SKIP_animationOwnerFreeBuffer
-void animationOwnerFreeBuffer(Actor *);
+#ifndef PROTO_SKIP_pathFollowFree
+void pathFollowFree(Actor *);
 #endif
 #endif

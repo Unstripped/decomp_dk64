@@ -23,27 +23,27 @@ typedef struct ParticlePath {
     /* 0x1C */ f32 sparkScale;
 } ParticlePath;
 
-extern ParticlePath D_80748BA0[13];
-extern u8 D_807F9440[];
-extern s32 D_807F9448;
+extern ParticlePath particlePathTable[13];
+extern u8 particlePathActiveIndices[];
+extern s32 particlePathActiveCount;
 
 void particleFindPathIndices(s16 levelIndex) {
     s32 limit;
     ParticlePath *ptr;
     s32 i;
 
-    limit = sizeof(D_80748BA0) / sizeof(D_80748BA0[0]);
-    D_807F9448 = 0;
-    for (i = 0, ptr = D_80748BA0; i < limit; i++, ptr++) {
-        if (levelIndex == ptr->level && D_807F9448 != 8) {
-            D_807F9440[D_807F9448++] = i;
+    limit = sizeof(particlePathTable) / sizeof(particlePathTable[0]);
+    particlePathActiveCount = 0;
+    for (i = 0, ptr = particlePathTable; i < limit; i++, ptr++) {
+        if (levelIndex == ptr->level && particlePathActiveCount != 8) {
+            particlePathActiveIndices[particlePathActiveCount++] = i;
         }
     }
 }
 
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
-extern s32 D_8072140C;
+extern s32 effectAssetPathTrail;
 extern s32 D_8071FF18;
 
 void particleSpawnPathTrail(void) {
@@ -58,10 +58,10 @@ void particleSpawnPathTrail(void) {
     f32 factor;
 
     if (gPlayerCount < 2) {
-        for (i = 0; i < D_807F9448; i++) {
-            idx = D_807F9440[i];
+        for (i = 0; i < particlePathActiveCount; i++) {
+            idx = particlePathActiveIndices[i];
             player = gPlayerSlots;
-            node = &D_80748BA0[idx];
+            node = &particlePathTable[idx];
             dz = player->eyeZ - node->startZ;
             dx = player->eyeX - node->startX;
             dy = player->eyeY - node->startY;
@@ -76,7 +76,7 @@ void particleSpawnPathTrail(void) {
                         effectSetDuration(2);
                         effectSetParam((randomNonNegative() % 10000) % 6);
                         effectSetMaxDistance(node->radius);
-                        effectCreateAtPosition(&D_8072140C, node->trailScale,
+                        effectCreateAtPosition(&effectAssetPathTrail, node->trailScale,
                                                (node->endX - node->startX) * t + node->startX,
                                                (node->endY - node->startY) * t + node->startY,
                                                (node->endZ - node->startZ) * t + node->startZ);

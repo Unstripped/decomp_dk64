@@ -58,8 +58,8 @@ extern Mtx D_2000180;
 extern Mtx D_20000C0;
 
 extern s8 D_80750560[9];
-extern HudTextEntry *D_807FC7F0[2];
-extern s8 D_807FC7F8[2];
+extern HudTextEntry *sPauseTextLists[2];
+extern s8 sPauseTextCounts[2];
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
@@ -114,13 +114,13 @@ extern s32 D_8076A098;
 extern u8 gCurrentWorldId;
 extern s32 gGlobalOverlayFlags;
 extern f32 D_807FC7FC;
-extern s8 D_807505D4;
+extern s8 sPauseSaveCooldown;
 extern s8 D_80750580;
 extern s16 D_807505A4[];
 extern f32 D_80750584[];
-extern s8 D_807FC800;
+extern s8 sPauseCarouselKong;
 extern s16 D_807FC802;
-extern f32 D_807FC804;
+extern f32 sPauseCarouselTimer;
 extern s8 D_807FC80C;
 extern s8 D_807FC80D;
 extern s16 D_807FC83A;
@@ -138,7 +138,7 @@ void hudPauseMenuUpdate(void) {
     s32 x;
     s32 a2;
     s32 lim;
-    if (D_807505D4) {} // FAKE: dead read, splits the D_807505D4 address web
+    if (sPauseSaveCooldown) {} // FAKE: dead read, splits the sPauseSaveCooldown address web
 
     hud = gCurrentActor->customState;
     i = gCurrentMap;
@@ -172,7 +172,7 @@ void hudPauseMenuUpdate(void) {
         }
         D_8076A098++;
         D_807FC7FC = gPlayerSlots->camY;
-        D_807505D4 = 0;
+        sPauseSaveCooldown = 0;
         D_807FC8B8 = 0;
         D_80750580 = 1;
         D_807505D0 = 7;
@@ -195,16 +195,16 @@ void hudPauseMenuUpdate(void) {
         hud->slideY[1] = 0xF0;
         hud->buffer = 0;
         hud->carouselAngle = D_807505A4[hud->kong];
-        D_807FC800 = hud->kong;
+        sPauseCarouselKong = hud->kong;
         D_807FC802 = 0;
-        D_807FC804 = 0.0f;
+        sPauseCarouselTimer = 0.0f;
         D_807FC808 = 0.0f;
         D_807FC80C = 0;
         D_807FC80D = D_807FC80C;
-        D_807FC7F0[0] = heapAlloc(0x1E0);
-        D_807FC7F0[1] = D_807FC7F0[0] + 10;
-        D_807FC7F8[0] = 0;
-        D_807FC7F8[1] = 0;
+        sPauseTextLists[0] = heapAlloc(0x1E0);
+        sPauseTextLists[1] = sPauseTextLists[0] + 10;
+        sPauseTextCounts[0] = 0;
+        sPauseTextCounts[1] = 0;
         D_8075052C = 0;
         D_807FC80E = 1;
         hudPauseMenuRefreshTotals();
@@ -286,9 +286,9 @@ void hudPauseMenuUpdate(void) {
                             } else if (hud->saved == 0) {
                                 eepromSavePlayerData();
                                 hud->saved = 1;
-                            } else if (D_807505D4 == 0) {
+                            } else if (sPauseSaveCooldown == 0) {
                                 sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                                D_807505D4 = 0x2D;
+                                sPauseSaveCooldown = 0x2D;
                             }
                         } else {
                             hud->fadeDir = 1;
@@ -327,51 +327,51 @@ void hudPauseMenuUpdate(void) {
                 }
                 break;
             case 1:
-                hud->carouselAngle = D_807505A4[D_807FC800] + (s16)(D_807FC804 * 0.5f * D_807FC802);
+                hud->carouselAngle = D_807505A4[sPauseCarouselKong] + (s16)(sPauseCarouselTimer * 0.5f * D_807FC802);
                 hud->carouselAngle = hud->carouselAngle & 0xFFF;
-                if (D_807FC804 == 0.0f) {
+                if (sPauseCarouselTimer == 0.0f) {
                     D_807FC802 = 0;
                     if (moved == 0) {
                         x = D_807ECDEC->stick_x;
                         if (x < -0x28) {
                             do {
                                 D_807FC802 -= 0x333;
-                                D_807FC800 += 1;
-                                if (D_807FC800 >= 5) {
-                                    D_807FC800 = 0;
+                                sPauseCarouselKong += 1;
+                                if (sPauseCarouselKong >= 5) {
+                                    sPauseCarouselKong = 0;
                                 }
-                            } while (D_80750530[D_807FC800] == 0);
+                            } while (D_80750530[sPauseCarouselKong] == 0);
                         } else if (x >= 0x29) {
                             do {
                                 D_807FC802 += 0x333;
-                                D_807FC800 -= 1;
-                                if (D_807FC800 < 0) {
-                                    D_807FC800 = 4;
+                                sPauseCarouselKong -= 1;
+                                if (sPauseCarouselKong < 0) {
+                                    sPauseCarouselKong = 4;
                                 }
-                            } while (D_80750530[D_807FC800] == 0);
+                            } while (D_80750530[sPauseCarouselKong] == 0);
                         }
-                        if (D_807FC800 != hud->kong) {
-                            D_807FC804 = 2.0f;
+                        if (sPauseCarouselKong != hud->kong) {
+                            sPauseCarouselTimer = 2.0f;
                             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                         }
                     }
                 } else {
-                    D_807FC804 -= 0.125f;
-                    if (D_807FC804 < 0.0f) {
-                        D_807FC804 = 0.0f;
+                    sPauseCarouselTimer -= 0.125f;
+                    if (sPauseCarouselTimer < 0.0f) {
+                        sPauseCarouselTimer = 0.0f;
                     }
-                    hud->carouselProgress = D_807FC804 - 1.0f;
+                    hud->carouselProgress = sPauseCarouselTimer - 1.0f;
                     if (hud->carouselProgress < 0.0f) {
                         hud->carouselProgress = -hud->carouselProgress;
                     }
                     hud->carouselProgress = 1.0f - hud->carouselProgress;
                     hud->carouselProgress = hud->carouselProgress * 1.3f;
-                    if (hud->carouselProgress > 1.2f && D_807FC800 != hud->kong) {
-                        hud->kong = D_807FC800;
+                    if (hud->carouselProgress > 1.2f && sPauseCarouselKong != hud->kong) {
+                        hud->kong = sPauseCarouselKong;
                         sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
                         hudPauseMenuBuildPage(hud, 1);
                     }
-                    if (D_807FC800 == hud->kong && hud->carouselProgress > 1.0f) {
+                    if (sPauseCarouselKong == hud->kong && hud->carouselProgress > 1.0f) {
                         hud->carouselProgress = 1.0f;
                     }
                 }
@@ -456,9 +456,9 @@ void hudPauseMenuUpdate(void) {
             sfxPlayOnFreeSlot(0x3C, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
     }
-    D_807505D4--;
-    if (D_807505D4 < 0) {
-        D_807505D4 = 0;
+    sPauseSaveCooldown--;
+    if (sPauseSaveCooldown < 0) {
+        sPauseSaveCooldown = 0;
     }
     if (D_807467E4 == 0x1C) {
         sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -482,11 +482,11 @@ void hudFreeBuffers(void) {
     if (!(ps->stateFlags & 0x20000000)) {
         gGlobalPauseFlags |= 0x10030;
     }
-    heapFree(D_807FC7F0[0]);
-    D_807FC7F0[0] = NULL;
-    D_807FC7F0[1] = NULL;
-    D_807FC7F8[0] = 0;
-    D_807FC7F8[1] = 0;
+    heapFree(sPauseTextLists[0]);
+    sPauseTextLists[0] = NULL;
+    sPauseTextLists[1] = NULL;
+    sPauseTextCounts[0] = 0;
+    sPauseTextCounts[1] = 0;
     for (i = 0; i < 0x1B; i++) {
         heapFreeDeferred(D_807FC7E0[i]);
     }
@@ -579,9 +579,9 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     ret = dl;
     dl = hudSetupTextState(list);
     for (i = 0; i < 2; i++) {
-        it = D_807FC7F0[i];
+        it = sPauseTextLists[i];
         if (it != NULL) {
-            for (j = 0; j < D_807FC7F8[i]; j++) {
+            for (j = 0; j < sPauseTextCounts[i]; j++) {
                 fa = hud->fade;
                 if (((HudTextEntry *)((u8 *)it + j * 0x18))->style == 2) {
                     fa += hud->carouselProgress;
@@ -827,8 +827,8 @@ Gfx *hudDrawCountPair(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale)
 }
 
 extern u8 gPlayerCharacterId;
-extern s8 D_807FC800;
-extern f32 D_807FC804;
+extern s8 sPauseCarouselKong;
+extern f32 sPauseCarouselTimer;
 extern s8 D_807FC80D;
 extern s8 D_807FC818[];
 extern s16 D_807FC83A;
@@ -875,14 +875,14 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
     gPlayerCharacterId = iconObj->kong;
     ent = &gPlayerInventoryTable[0].kong[iconObj->kong];
     idx = iconObj->worldIndex[iconObj->buffer];
-    D_807FC7F8[iconObj->buffer] = 0;
+    sPauseTextCounts[iconObj->buffer] = 0;
     idx = D_80750560[idx];
     if (refresh == 0) {
-        D_807FC800 = iconObj->kong;
+        sPauseCarouselKong = iconObj->kong;
         D_807FC80D = D_807FC80C;
         iconObj->carouselAngle = 0;
         iconObj->carouselProgress = 0.0f;
-        D_807FC804 = 0.0f;
+        sPauseCarouselTimer = 0.0f;
     }
     D_807FC80F = 1;
     switch (iconObj->page) {
@@ -1215,8 +1215,8 @@ void hudPauseMenuAddCounter(HudEntry *hud, s16 x, s16 y, s16 dx, s16 dy, s32 val
         dx -= textGetStringWidth(1, buf);
     }
     D_807FC810 = textGetStringWidth(1, buf);
-    idx = D_807FC7F8[hud->buffer];
-    list = D_807FC7F0[hud->buffer];
+    idx = sPauseTextCounts[hud->buffer];
+    list = sPauseTextLists[hud->buffer];
     len = sqrtf((640.0f - (f32)(x * 4)) * (640.0f - (f32)(x * 4)) + (480.0f - (f32)(y * 4)) * (480.0f - (f32)(y * 4)));
     list[idx].flyX = -((640.0f - (f32)(x * 4)) / len) * (1040.0f - len);
     list[idx].flyY = -((480.0f - (f32)(y * 4)) / len) * (1040.0f - len);
@@ -1229,7 +1229,7 @@ void hudPauseMenuAddCounter(HudEntry *hud, s16 x, s16 y, s16 dx, s16 dy, s32 val
         list[idx].text[i] = buf[i];
     }
     list[idx].text[i] = 0;
-    D_807FC7F8[hud->buffer]++;
+    sPauseTextCounts[hud->buffer]++;
 }
 
 Gfx *hudDrawItemLabel(Gfx *dl, HudEntry *entry, s32 itemIndex) {
@@ -1315,7 +1315,7 @@ s32 hudPauseMenuSlidePage(HudEntry *hud, s32 sliding, s32 buttons) {
         hud->slideY[1] -= d;
         if (hud->slideY[hud->buffer] == 0) {
             hud->worldIndex[1 - hud->buffer] = hud->worldIndex[hud->buffer];
-            D_807FC7F8[1 - hud->buffer] = 0;
+            sPauseTextCounts[1 - hud->buffer] = 0;
             sliding = 0;
             sfxPlayOnFreeSlot(0x97, 0x4650, 63.0f, 1.0f, 0, 0);
             D_8075052C = 3;
@@ -1623,7 +1623,7 @@ void hudTextScreenUpdate(void) {
     if (gCurrentActor->yawSpeed != 0) {
         gCurrentActor->yawSpeed--;
     } else if (gCurrentActor->state == 0) {
-        if (D_807ECD58.button & 0x8000) {
+        if (gContPadCur.button & 0x8000) {
             switch (gCurrentActor->unk15F) {
                 case 2:
                     camStartPath(0, 0x20, 1);
@@ -1639,7 +1639,7 @@ void hudTextScreenUpdate(void) {
                     break;
             }
             gCurrentActor->state = 1;
-        } else if (D_807ECD58.button & 0x4000) {
+        } else if (gContPadCur.button & 0x4000) {
             switch (gCurrentActor->unk15F) {
                 case 3:
                 case 4:

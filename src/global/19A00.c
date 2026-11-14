@@ -1571,7 +1571,7 @@ extern f32 D_80753E48[];
 extern s16 D_80753E64[];
 extern Actor *gActivePlayerActor;
 extern u8 gCurrentPlayerIndex;
-extern KongInventory *D_807FD568;
+extern KongInventory *gCurrentKongInventory;
 extern s16 gCurrentCharacterIndex;
 
 void projectileTrySpawnFromSlot(Actor *actor) {
@@ -1611,11 +1611,11 @@ void projectileTrySpawnFromSlot(Actor *actor) {
             dz = gPlayerSlots[gCurrentPlayerIndex].focusZ - gPlayerSlots[gCurrentPlayerIndex].camZ;
             dx = gPlayerSlots[gCurrentPlayerIndex].focusX - gPlayerSlots[gCurrentPlayerIndex].camX;
             sqrtf((dz * dz) + (dx * dx));
-            projectileSpawnNodeEntry(0x29, D_807FD568->weaponFlags, speed, mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ), D_80753E48[gCurrentCharacterIndex], 0.0f, actor);
+            projectileSpawnNodeEntry(0x29, gCurrentKongInventory->weaponFlags, speed, mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ), D_80753E48[gCurrentCharacterIndex], 0.0f, actor);
             return;
         }
         projectileGetTargetCoords(actor, 7);
-        projectileSpawnNodeEntry(0x29, D_807FD568->weaponFlags, speed, actor->yaw, D_80753E48[gCurrentCharacterIndex], 0.0f, actor);
+        projectileSpawnNodeEntry(0x29, gCurrentKongInventory->weaponFlags, speed, actor->yaw, D_80753E48[gCurrentCharacterIndex], 0.0f, actor);
     }
 }
 

@@ -147,8 +147,8 @@ void actorReflectCollisionAngle(Actor *, CollisionBox *, ActorSub140 *);
 #ifndef PROTO_SKIP_actorGetCollisionThreshold
 s32 actorGetCollisionThreshold(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_8066FE08
-void func_8066FE08(s32);
+#ifndef PROTO_SKIP_modelSlotUpdateFacingTrigger
+void modelSlotUpdateFacingTrigger(s32);
 #endif
 #ifndef PROTO_SKIP_actorResolveModelSlotCollision
 s32 actorResolveModelSlotCollision(Actor *);

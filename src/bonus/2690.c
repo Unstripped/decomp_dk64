@@ -208,7 +208,7 @@ typedef struct TurtleTroubleGameState {
     f32 spinDecay;
 } TurtleTroubleGameState;
 
-Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *actor) {
+Gfx *bonusRenderTurtleTroubleHud(Gfx *gdl, Actor *actor) {
     BonusShooterState *bonusExt = actor->customState;
     TurtleTroubleGameState *game = ((BonusActorExt *)actor)->gameState;
     s32 hasSetupGfx = 0;
@@ -514,7 +514,7 @@ void bonusTargetGameUpdate(void) {
 
 
 
-void bonusPopupGameUpdate(void) {
+void bonusTurtleTroubleGameUpdate(void) {
     BonusShooterState *bonusExt = gCurrentActor->customState;
     TurtleTroubleGameState *game = ((BonusActorExt *)gCurrentActor)->gameState;
     TargetVec3f *p;
@@ -554,7 +554,7 @@ void bonusPopupGameUpdate(void) {
             game->slowDelayMax = 0x46;
             break;
         }
-        bonusPopupSpawnActors(game);
+        bonusTurtleTroubleSpawnSnakes(game);
     }
     if (gCurrentActor->state == 0) {
         gCurrentActor->unk15F = 1;
@@ -648,7 +648,7 @@ void bonusPopupGameUpdate(void) {
         }
     }
     if (bonusExt->phase >= -1) {
-        renderCallbacksRegister(bonusRenderPopupGameHud, gCurrentActor, 3);
+        renderCallbacksRegister(bonusRenderTurtleTroubleHud, gCurrentActor, 3);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -688,7 +688,7 @@ void bonusTargetUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void bonusPopupSpawnActors(TurtleTroubleGameState *game) {
+void bonusTurtleTroubleSpawnSnakes(TurtleTroubleGameState *game) {
     s32 i;
     TurtleTroubleSnake *snake;
     Actor *snakeActor;
@@ -720,7 +720,7 @@ void bonusPopupSpawnActors(TurtleTroubleGameState *game) {
 }
 
 
-void bonusActorUpdateVertexPositions(void) {
+void bonusTurtleTroubleSnakeUpdate(void) {
     TurtleTroubleSnake *snake = gCurrentActor->customState;
     BonusShooterState *shooter = snake->game->customState;
     TurtleTroubleGameState *game = ((BonusActorExt *)snake->game)->gameState;
@@ -1106,7 +1106,7 @@ void bonusLightFlashGameUpdate(void) {
             break;
         }
     }
-    renderCallbacksRegister(func_80029B9C, gCurrentActor, 3);
+    renderCallbacksRegister(bonusRenderMiniGameHud, gCurrentActor, 3);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -1143,7 +1143,7 @@ typedef struct BugBashGameState {
     s8 respawnTimers[1];
 } BugBashGameState;
 
-Gfx *func_80029B9C(Gfx *gdl, Actor *actor) {
+Gfx *bonusRenderMiniGameHud(Gfx *gdl, Actor *actor) {
     BonusShooterState *bonusExt = actor->customState;
     BonusLightFlashState *lightFlash = ((BonusActorExt *)actor)->gameState;
     PathPanicGameState *pathPanic = ((BonusActorExt *)actor)->gameState;
@@ -1462,7 +1462,7 @@ void bonusPerilPathPanicGameUpdate(void) {
             break;
         }
     }
-    renderCallbacksRegister(func_80029B9C, gCurrentActor, 3);
+    renderCallbacksRegister(bonusRenderMiniGameHud, gCurrentActor, 3);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -1763,7 +1763,7 @@ void bonusBigBugBashGameUpdate(void) {
     gPrimaryPlayerActor->x = game->centerX + game->offsetX * 0.5f;
     gPrimaryPlayerActor->y = gCurrentActor->y;
     gPrimaryPlayerActor->z = game->centerZ + game->offsetZ * 0.5f;
-    renderCallbacksRegister(func_80029B9C, gCurrentActor, 3);
+    renderCallbacksRegister(bonusRenderMiniGameHud, gCurrentActor, 3);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -2081,7 +2081,7 @@ void bonusSearchlightSeekGameUpdate(void) {
     gPrimaryPlayerActor->x = subExt->centerX + subExt->offsetX * 0.5f;
     gPrimaryPlayerActor->y = gCurrentActor->y;
     gPrimaryPlayerActor->z = subExt->centerZ + subExt->offsetZ * 0.5f;
-    renderCallbacksRegister(func_8002CC08, gCurrentActor, 3);
+    renderCallbacksRegister(bonusSearchlightSeekRenderHud, gCurrentActor, 3);
     lightAdd(gCurrentActor->x, gCurrentActor->y + 25.0, gCurrentActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 25.0f, 1, 0xFF, 0xFF, 0xFF);
 }
 
@@ -2147,7 +2147,7 @@ void bonusSearchlightSeekTargetUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-Gfx *func_8002CC08(Gfx *gdl, Actor *actor) {
+Gfx *bonusSearchlightSeekRenderHud(Gfx *gdl, Actor *actor) {
     SearchlightGameState *subExt;
     f32 projX;
     f32 projY;

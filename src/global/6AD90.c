@@ -42,8 +42,8 @@ typedef struct CollisionBufferEntry {
     /* 0x10 */ u32 size;
 } CollisionBufferEntry; // size = 0x14
 
-extern CollisionBufferEntry *D_807F9514;
-extern s32 D_807F9518;
+extern CollisionBufferEntry *sCollisionCells;
+extern s32 sCollisionCellCount;
 extern u8 D_807F951C;
 extern s32 gCurrentMap;
 extern u8 D_807F94B4;
@@ -61,8 +61,8 @@ void collisionBuildCellTable(MapFileHeader *header) {
     s32 i;
     void *window;
 
-    D_807F9514 = heapAlloc(0x11A8);
-    D_807F9518 = header->unk18 * header->unk1A;
+    sCollisionCells = heapAlloc(0x11A8);
+    sCollisionCellCount = header->unk18 * header->unk1A;
     data = assetLoad(3, gCurrentMap, 1, 0);
     D_807F951C = 0;
     if (header->unk9 & 2) {
@@ -79,22 +79,22 @@ void collisionBuildCellTable(MapFileHeader *header) {
     }
     base = assetGetSize(3, gCurrentMap);
     cursor = data + 4;
-    for (i = 0; i < D_807F9518; i++) {
-        D_807F9514[i].lastUsedFrame = 0;
+    for (i = 0; i < sCollisionCellCount; i++) {
+        sCollisionCells[i].lastUsedFrame = 0;
         cellStart = cursor + 4;
         off = cursor - data;
-        D_807F9514[i].romAddr = base + off + 4;
+        sCollisionCells[i].romAddr = base + off + 4;
         off = *(u32 *)cursor;
         cellEnd = data + off;
         cursor = cellEnd;
         if (D_807F951C) {
-            D_807F9514[i].tris = (CollisionStaticTri *)cellStart;
-            D_807F9514[i].trisEnd = (CollisionStaticTri *)cellEnd;
+            sCollisionCells[i].tris = (CollisionStaticTri *)cellStart;
+            sCollisionCells[i].trisEnd = (CollisionStaticTri *)cellEnd;
         } else {
-            D_807F9514[i].tris = NULL;
-            D_807F9514[i].trisEnd = NULL;
+            sCollisionCells[i].tris = NULL;
+            sCollisionCells[i].trisEnd = NULL;
         }
-        D_807F9514[i].size = cellEnd - cellStart;
+        sCollisionCells[i].size = cellEnd - cellStart;
     }
     if (!D_807F951C) {
         assetSetImmediateFree();
@@ -272,7 +272,7 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor
         source = 2;
         break;
     case 3:
-        if (mathCheckCloserFloatThreshold(dynY, meshY, threshold, 0) != 0) {
+        if (collisionPickCloserFloor(dynY, meshY, threshold, 0) != 0) {
             source = 1;
         } else {
             source = 2;
@@ -282,27 +282,27 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor
         source = 3;
         break;
     case 5:
-        if (mathCheckCloserFloatThreshold(boxY, meshY, threshold, 0) != 0) {
+        if (collisionPickCloserFloor(boxY, meshY, threshold, 0) != 0) {
             source = 1;
         } else {
             source = 3;
         }
         break;
     case 6:
-        if (mathCheckCloserFloatThreshold(boxY, dynY, threshold, 0) != 0) {
+        if (collisionPickCloserFloor(boxY, dynY, threshold, 0) != 0) {
             source = 2;
         } else {
             source = 3;
         }
         break;
     case 7:
-        if (mathCheckCloserFloatThreshold(dynY, meshY, threshold, 0) != 0) {
-            if (mathCheckCloserFloatThreshold(boxY, meshY, threshold, 0) != 0) {
+        if (collisionPickCloserFloor(dynY, meshY, threshold, 0) != 0) {
+            if (collisionPickCloserFloor(boxY, meshY, threshold, 0) != 0) {
                 source = 1;
             } else {
                 source = 3;
             }
-        } else if (mathCheckCloserFloatThreshold(dynY, boxY, threshold, 0) != 0) {
+        } else if (collisionPickCloserFloor(dynY, boxY, threshold, 0) != 0) {
             source = 3;
         } else {
             source = 2;
@@ -351,7 +351,7 @@ s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor
             actor->floorTiltYaw = D_807F9494;
             actor->floorY = boxY;
             if (actor->prevContactFlags & 1) {
-                actorAppendCallback10(actor, D_807F9470, D_807F9474, D_807F9478, D_807F947C, D_807F9480, D_807F94B2);
+                actorAppendRiderPoint(actor, D_807F9470, D_807F9474, D_807F9478, D_807F947C, D_807F9480, D_807F94B2);
                 actor->contactFlags |= 8;
             }
         }
@@ -565,7 +565,7 @@ s32 collisionGetFloorTriangleNormal(f32 refY, f32 floorY, u8 scaled, u8 slopeTyp
     return hit;
 }
 
-s32 mathCheckCloserFloatThreshold(f32 firstY, f32 secondY, f32 threshold, u8 wide) {
+s32 collisionPickCloserFloor(f32 firstY, f32 secondY, f32 threshold, u8 wide) {
     f32 limit;
     f32 diff0;
     f32 diff1;
@@ -671,7 +671,7 @@ u8 collisionTestSubmeshBoundary(f32 x, f32 z, f32 *yInOut, Actor *actor) {
         break;
     case 3:
         temp = (f64)*yInOut + 4.0;
-        if (mathCheckCloserFloatThreshold(staticY, gridY, temp, 0) != 0) {
+        if (collisionPickCloserFloor(staticY, gridY, temp, 0) != 0) {
             *yInOut = gridY;
             D_807F94B6 = 1;
         } else {
@@ -771,7 +771,7 @@ s32 collisionTestGridMeshHeight(f32 posX, f32 posZ, f32 *height, Actor *actor) {
                         }
                     }
                     hit = 1;
-                    if (mathCheckCloserFloatThreshold(bestY, floorY, threshold, 0) != 0) {
+                    if (collisionPickCloserFloor(bestY, floorY, threshold, 0) != 0) {
                         bestY = floorY;
                     }
                     break;
@@ -817,13 +817,13 @@ f32 collisionTriangleHeightAtXZ(CollisionStaticTri *tri, f32 x, f32 z) {
     return (2000.0 * val) - 1000.0;
 }
 
-extern s32 D_807F9518;
+extern s32 sCollisionCellCount;
 extern s32 gCurrentMap;
 extern u16 D_807F9450;
 extern u16 D_807F9452;
 extern u16 D_807F9454;
 extern u16 D_807F9456;
-extern u8 D_807F5FC0;
+extern u8 sMapOffsetSlotsMoving;
 extern u8 D_807F94AB;
 
 u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
@@ -857,7 +857,7 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
     cur = *yInOut;
     threshold = (f32)((f64)*yInOut + 4.0);
     threshold = threshold * 6.0f;
-    if (cell >= D_807F9518) {
+    if (cell >= sCollisionCellCount) {
         return 0;
     }
     if (D_807F9454 <= x / D_807F9450 || x < 0.0) {
@@ -876,12 +876,12 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
     x = x * 6.0f;
     z = z * 6.0f;
     if (actor != NULL && actor->floorTriangle != NULL && collisionCheckTriangleXZBoundsS16(actor->floorTriangle, (s32)x, (s32)z) != 0 &&
-        collisionPointInTriangleXZS16(actor->floorTriangle, x, z) != 0 && D_807F5FC0 == 0) {
+        collisionPointInTriangleXZS16(actor->floorTriangle, x, z) != 0 && sMapOffsetSlotsMoving == 0) {
         tri = actor->floorTriangle;
         triEnd = tri + 1;
     } else {
-        tri = D_807F9514[cell].tris;
-        triEnd = D_807F9514[cell].trisEnd;
+        tri = sCollisionCells[cell].tris;
+        triEnd = sCollisionCells[cell].trisEnd;
     }
     if (tri != triEnd) {
         iz = (s32)z;
@@ -941,7 +941,7 @@ u8 collisionTestStaticMeshFloor(f32 x, f32 z, f32 *yInOut, Actor *actor) {
                         if (!(tri->flags & 1)) {
                             collisionCheckSlopeAngle(*yInOut * 6.0f, (f32)h2, 1, actor, 0);
                             collisionGetFloorTriangleNormal(*yInOut * 6.0f, (f32)h2, 1, tri->slopeType);
-                            closer = mathCheckCloserFloatThreshold(spS.cc, (f32)h2, threshold, 1);
+                            closer = collisionPickCloserFloor(spS.cc, (f32)h2, threshold, 1);
                             if (collisionCheckTriangleWindingS16(tri) != 0 && closer != 0) {
                                 spS.cb = 1;
                                 spS.cc = (f32)h2;
@@ -1042,7 +1042,7 @@ u8 collisionTestHardcodedFloorPlane(f32 *bestY, f32 threshold, f32 refY, f32 *yI
     if (diff < 40.0f) {
         D_807F94AE = 1;
     }
-    if (mathCheckCloserFloatThreshold(*bestY, 684.0f, threshold, 1)) {
+    if (collisionPickCloserFloor(*bestY, 684.0f, threshold, 1)) {
         *yInOut = 114.0f;
         return 1;
     }
@@ -1082,27 +1082,27 @@ extern u8 D_807F951C;
 void dynamicBufferAllocateEntry(s32 index) {
     s32 size;
 
-    if (D_807F9514[index].tris == NULL) {
-        size = D_807F9514[index].size;
+    if (sCollisionCells[index].tris == NULL) {
+        size = sCollisionCells[index].size;
         if (size != 0) {
-            D_807F9514[index].tris = heapAlloc(size);
-            D_807F9514[index].trisEnd = D_807F9514[index].tris + size / sizeof(CollisionStaticTri);
-            dmaReadAssetDecompress(D_807F9514[index].romAddr, D_807F9514[index].tris, &size, 0, 0, 0, 0);
+            sCollisionCells[index].tris = heapAlloc(size);
+            sCollisionCells[index].trisEnd = sCollisionCells[index].tris + size / sizeof(CollisionStaticTri);
+            dmaReadAssetDecompress(sCollisionCells[index].romAddr, sCollisionCells[index].tris, &size, 0, 0, 0, 0);
         }
     }
-    D_807F9514[index].lastUsedFrame = gFrameCounter;
+    sCollisionCells[index].lastUsedFrame = gFrameCounter;
 }
 
 void dynamicBufferPurgeExpired(void) {
     s32 i;
 
     if (!D_807F951C) {
-        for (i = 0; i < D_807F9518; i++) {
-            if (D_807F9514[i].tris != NULL && (gFrameCounter - D_807F9514[i].lastUsedFrame) >= 21) {
+        for (i = 0; i < sCollisionCellCount; i++) {
+            if (sCollisionCells[i].tris != NULL && (gFrameCounter - sCollisionCells[i].lastUsedFrame) >= 21) {
                 actorClearBufferReferences(i);
-                heapFree(D_807F9514[i].tris);
-                D_807F9514[i].tris = NULL;
-                D_807F9514[i].trisEnd = NULL;
+                heapFree(sCollisionCells[i].tris);
+                sCollisionCells[i].tris = NULL;
+                sCollisionCells[i].trisEnd = NULL;
             }
         }
     }
@@ -1110,8 +1110,8 @@ void dynamicBufferPurgeExpired(void) {
 
 void actorClearBufferReferences(s32 cell) {
     s32 i;
-    CollisionStaticTri *min = D_807F9514[cell].tris;
-    CollisionStaticTri *max = D_807F9514[cell].trisEnd;
+    CollisionStaticTri *min = sCollisionCells[cell].tris;
+    CollisionStaticTri *max = sCollisionCells[cell].trisEnd;
 
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
@@ -1373,7 +1373,7 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
                     if (collisionCheckTriangleWindingF32(tri) != 0) {
                         val = 0.0 - (((x * nx) + (ny * -1000.0) + ((nzPart - (dy01 * dx02)) * z) + d) / (ny * 2000.0));
                         y = (2000.0 * val) - 1000.0;
-                        if (mathCheckCloserFloatThreshold(hitY, y, refY + 4.0, 0) != 0) {
+                        if (collisionPickCloserFloor(hitY, y, refY + 4.0, 0) != 0) {
                             hitTri = tri;
                             hit = 1;
                             hitY = y;
@@ -1385,7 +1385,7 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
         } while (tri != triEnd);
     }
 
-    if (hit != 0 && mathCheckCloserFloatThreshold(*floorYOut, hitY, refY + 4.0, 0) != 0) {
+    if (hit != 0 && collisionPickCloserFloor(*floorYOut, hitY, refY + 4.0, 0) != 0) {
         *floorYOut = hitY;
         collisionStoreTriangleNormalAnglesF32(actor, hitTri, 1);
         sub7C = gModelSlots[slotIdx].unk7C;
@@ -1774,7 +1774,7 @@ s32 collisionTestActorBoxFloor(Actor *self, f32 x, f32 z, f32 refY, f32 *outFloo
                                     if (collisionCheckBoxTriangleWinding(tri) != 0) {
                                         val = (0.0 - ((((f64)x * nx) + (ny * -1000.0) + (nz * (f64)z) + d) / (ny * 2000.0)));
                                         y = (f32)((2000.0 * val) - 1000.0);
-                                        if (mathCheckCloserFloatThreshold(hit_y, y, (f32)((f64)refY + 4.0), 0) != 0) {
+                                        if (collisionPickCloserFloor(hit_y, y, (f32)((f64)refY + 4.0), 0) != 0) {
                                             hit_tri = tri;
                                             hit_actor = actor;
                                             hit = 1;
@@ -1793,7 +1793,7 @@ s32 collisionTestActorBoxFloor(Actor *self, f32 x, f32 z, f32 refY, f32 *outFloo
         } while (i < (s32)gActiveActorCount);
     }
 
-    if (hit != 0 && mathCheckCloserFloatThreshold(*outFloorY, hit_y, (f32)((f64)refY + 4.0), 0) != 0) {
+    if (hit != 0 && collisionPickCloserFloor(*outFloorY, hit_y, (f32)((f64)refY + 4.0), 0) != 0) {
         *outFloorY = hit_y;
         collisionStoreBoxTriangleNormalAngles(self, hit_tri, 1);
         if (hit_actor->flags2 & 8) {
@@ -2013,8 +2013,8 @@ void collisionStoreBoxTriangleNormalAngles(Actor *actor, CollisionBoxTri *tri, u
 extern s32 D_8000DDCC;
 extern u32 *D_807F9520;
 extern s32 *D_807F9528[];
-extern void *D_807F9628[];
-extern s32 D_807F9680;
+extern void *sAssetRefBuckets[];
+extern s32 sDmaQueueCount;
 extern u8 D_807FB220;
 extern u8 D_807FB221;
 
@@ -2032,10 +2032,10 @@ void collisionInitTables(void) {
     }
 
     for (i = 0; i < 0x14; i++) {
-        D_807F9628[i] = 0;
+        sAssetRefBuckets[i] = 0;
     }
 
-    D_807F9680 = 0;
+    sDmaQueueCount = 0;
     D_807F967C = 0;
     D_807F9678 = 0;
     D_807F967D = 0;
@@ -2065,7 +2065,7 @@ void assetInflateAndFree(void *compressed, void *out) {
     heapFree(compressed);
 }
 
-extern DmaQueueEntry D_807FA8A0[];
+extern DmaQueueEntry sDmaQueue[];
 extern s8 D_80746834;
 extern OSMesgQueue D_807656D0;
 
@@ -2073,21 +2073,21 @@ void dmaDrainQueueAndFreeBuffer(void) {
     s32 i;
 
     i = 0;
-    if (D_807F9680 > 0) {
+    if (sDmaQueueCount > 0) {
         do {
             D_80746834 = 7;
             osRecvMesg(&D_807656D0, NULL, 1);
             D_80746834 = 0;
-            if (D_807FA8A0[i].compressed != 0) {
-                assetInflateAndFree(D_807FA8A0[i].dmaDst, D_807FA8A0[i].buffer);
+            if (sDmaQueue[i].compressed != 0) {
+                assetInflateAndFree(sDmaQueue[i].dmaDst, sDmaQueue[i].buffer);
             }
-        } while (++i < D_807F9680);
+        } while (++i < sDmaQueueCount);
     }
     if (D_80748E14 != NULL) {
         heapFree(D_80748E14);
         D_80748E14 = NULL;
     }
-    D_807F9680 = 0;
+    sDmaQueueCount = 0;
 }
 
 s32 assetGetSize(s32 table, s32 index) {
@@ -2173,20 +2173,20 @@ void *assetLoad(s32 table, s32 index, u8 sync, u8 noCache) { // index: asset ind
             dmaReadAssetDecompress(romAddr, buffer, &size, 0, 0, 0, 0);
         }
     } else {
-        if (D_807F9680 == 0xC0) {
+        if (sDmaQueueCount == 0xC0) {
             faultSetMessage(6, 0, 0, 0);
         }
-        D_807FA8A0[D_807F9680].compressed = D_80748E18[table];
+        sDmaQueue[sDmaQueueCount].compressed = D_80748E18[table];
         if (D_80748E18[table] != 0) {
-            D_807FA8A0[D_807F9680].dmaDst = heapAlloc(size);
-            D_807FA8A0[D_807F9680].buffer = buffer;
+            sDmaQueue[sDmaQueueCount].dmaDst = heapAlloc(size);
+            sDmaQueue[sDmaQueueCount].buffer = buffer;
         } else {
-            D_807FA8A0[D_807F9680].buffer = buffer;
-            D_807FA8A0[D_807F9680].dmaDst = buffer;
+            sDmaQueue[sDmaQueueCount].buffer = buffer;
+            sDmaQueue[sDmaQueueCount].dmaDst = buffer;
         }
-        osInvalDCache(D_807FA8A0[D_807F9680].dmaDst, size);
-        osPiStartDma(&D_807F9688[D_807F9680], 0, 0, romAddr, D_807FA8A0[D_807F9680].dmaDst, (u32)size, &D_807656D0);
-        D_807F9680 += 1;
+        osInvalDCache(sDmaQueue[sDmaQueueCount].dmaDst, size);
+        osPiStartDma(&D_807F9688[sDmaQueueCount], 0, 0, romAddr, sDmaQueue[sDmaQueueCount].dmaDst, (u32)size, &D_807656D0);
+        sDmaQueueCount += 1;
     }
     assetSetTableEntry(table, index, (s32)buffer);
     collisionBstInsertByHash(buffer, table, index);
@@ -2320,7 +2320,7 @@ s32 collisionBstCountNodes(CollisionBstNodeBase *node) {
 
 
 void collisionBstLookupByHash(s32 key, s32 *outTable, s32 *outIndex) {
-    collisionBstLookupOrAssert(D_807F9628[collisionGetBucketIndex(key)], key, outTable, outIndex);
+    collisionBstLookupOrAssert(sAssetRefBuckets[collisionGetBucketIndex(key)], key, outTable, outIndex);
 }
 
 typedef struct CollisionBstNode {
@@ -2359,7 +2359,7 @@ void collisionBstLookupOrAssert(CollisionBstNode *node, u32 key, s32 *outTable, 
 void collisionBstInsertByHash(void *buffer, s32 table, s32 index) { // keyed by the loaded asset's address
     u32 bucket = collisionGetBucketIndex((u32)buffer);
 
-    D_807F9628[bucket] = collisionBstInsert(D_807F9628[bucket], (u32)buffer, table, index);
+    sAssetRefBuckets[bucket] = collisionBstInsert(sAssetRefBuckets[bucket], (u32)buffer, table, index);
 }
 
 CollisionBstNode *collisionBstInsert(CollisionBstNode *node, u32 key, s32 table, s32 index) {
@@ -2387,7 +2387,7 @@ CollisionBstNode *collisionBstInsert(CollisionBstNode *node, u32 key, s32 table,
 
 
 s32 collisionBstLookupAndDecrementByHash(void *buffer) {
-    return collisionBstLookupAndDecrement(D_807F9628[collisionGetBucketIndex((u32)buffer)], (u32)buffer);
+    return collisionBstLookupAndDecrement(sAssetRefBuckets[collisionGetBucketIndex((u32)buffer)], (u32)buffer);
 }
 
 typedef struct CollisionQueueEntry {
@@ -2470,7 +2470,7 @@ s32 collisionBstLookupAndDecrement(CollisionBstNodeBase *node, u32 key) {
 void collisionBstDeleteByHash(void *buffer, s32 *table, s32 *index) {
     u32 bucket = collisionGetBucketIndex((u32)buffer);
 
-    D_807F9628[bucket] = collisionBstDelete(D_807F9628[bucket], (u32)buffer, table, index);
+    sAssetRefBuckets[bucket] = collisionBstDelete(sAssetRefBuckets[bucket], (u32)buffer, table, index);
 }
 
 
@@ -2550,14 +2550,14 @@ void collisionBstRebalanceBucket(s32 bucket) {
     s32 index;
 
     index = 0;
-    count = collisionBstCountNodes(D_807F9628[bucket]);
+    count = collisionBstCountNodes(sAssetRefBuckets[bucket]);
     if (count != 0) {
         buffer = heapAlloc(count * 20);
-        collisionBstFlatten(D_807F9628[bucket], buffer, &index);
+        collisionBstFlatten(sAssetRefBuckets[bucket], buffer, &index);
         collisionBstSortFlatItems(buffer, 0, count - 1);
         new_root = collisionBstBuildBalanced(buffer, 0, count - 1);
-        collisionBstFreeTree(D_807F9628[bucket]);
-        D_807F9628[bucket] = new_root;
+        collisionBstFreeTree(sAssetRefBuckets[bucket]);
+        sAssetRefBuckets[bucket] = new_root;
         heapFree(buffer);
     }
 }

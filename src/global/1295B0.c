@@ -74,8 +74,8 @@ void zoneEntrySetDisabled(u8 zoneId, u8 entryIndex, u8 disabled) {
     Zone *group;
     s16 i;
 
-    group = D_80755690->zones;
-    for (i = 0; i < D_80755690->count;) {
+    group = gZoneTable->zones;
+    for (i = 0; i < gZoneTable->count;) {
         if (group->id == zoneId) {
             if (entryIndex < group->entryCount) {
                 if (disabled != 0) {
@@ -95,8 +95,8 @@ void zoneEntryGetPosition(u8 zoneId, u8 entryIndex, f32 *outX, f32 *outY, f32 *o
     Zone *group;
     s16 i;
 
-    group = D_80755690->zones;
-    for (i = 0; i < D_80755690->count;) {
+    group = gZoneTable->zones;
+    for (i = 0; i < gZoneTable->count;) {
         if (group->id == zoneId) {
             if (entryIndex < group->entryCount) {
                 *outX = group->entries[entryIndex].x;
@@ -121,7 +121,7 @@ void func_80724C2C(s16 speed) {
 }
 
 void func_80724C78(void *mapData) {
-    spawnNodeListInitFromMap(mapData, D_80755690, D_80755694);
+    spawnNodeListInitFromMap(mapData, gZoneTable, gSpawnNodeList);
 }
 
 void func_80724CA4(s16 first, s16 count) {
@@ -162,7 +162,7 @@ void func_80724DB0(s16 first, s16 count) {
 
 extern u8 gGameMode;
 
-void func_80724E48(u8 mode) {
+void actorTrackBoneTowardTarget(u8 mode) {
     f32 angle;
     f32 pitch;
     f32 yaw;
@@ -182,8 +182,8 @@ void func_80724E48(u8 mode) {
     } else {
         yaw = gCurrentActor->yaw * 3.1415927f * (1.0 / 2048.0);
         rot = gCurrentActor->sub4->boneRotations;
-        pitchArg = D_8075EB80[gBehaviourAnimState->entryIndex].unkD;
-        limit = D_8075EB80[gBehaviourAnimState->entryIndex].unkC * 4 * 3.1415927f * (1.0 / 2048.0);
+        pitchArg = gSpawnEntryTable[gBehaviourAnimState->entryIndex].unkD;
+        limit = gSpawnEntryTable[gBehaviourAnimState->entryIndex].unkC * 4 * 3.1415927f * (1.0 / 2048.0);
         if (pitchArg == 0xFF) {
             pitchArg = 0x3E8;
         }
@@ -547,12 +547,12 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     node->actor = act;
     node->unk30 = 1.0f;
     node->unk2C = 0.01f;
-    if (D_8075EB80[idx].unk17 != 0) {
-        node->unk38 = 1.0 / D_8075EB80[idx].unk17;
+    if (gSpawnEntryTable[idx].unk17 != 0) {
+        node->unk38 = 1.0 / gSpawnEntryTable[idx].unk17;
     } else {
         node->unk38 = 0.0f;
     }
-    scriptId = D_8075EB80[idx].scriptId;
+    scriptId = gSpawnEntryTable[idx].scriptId;
     if (scriptId != 0) {
         actorScriptStart(act, scriptId);
     }
@@ -566,7 +566,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     act->accelY = D_807502E8;
     act->terminalSpeedY = D_807502E0;
     act->chunkIndex = node->chunkIndex;
-    if (D_8075EB80[idx].spawnRange == 0) {
+    if (gSpawnEntryTable[idx].spawnRange == 0) {
         act->drawDistance = 0x7D0;
     }
     actorSetTargetSpeed(act, node->targetSpeed);
@@ -582,20 +582,20 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     act->unk144 = 0x24;
     act->flags &= ~0x10000;
     act->flags |= 0x20000;
-    act->flags |= D_8075EB80[idx].actorFlags;
+    act->flags |= gSpawnEntryTable[idx].actorFlags;
     if (act->sub4 != NULL) {
         act->flags2 |= 0xC0;
     }
-    act->unk16E[0] = D_8075EB80[idx].shadowScaleX;
-    act->unk16E[1] = D_8075EB80[idx].shadowScaleZ;
-    v = D_8075EB80[idx].unkF;
+    act->unk16E[0] = gSpawnEntryTable[idx].shadowScaleX;
+    act->unk16E[1] = gSpawnEntryTable[idx].shadowScaleZ;
+    v = gSpawnEntryTable[idx].unkF;
     st->unk22 = v;
     st->unk23 = v;
-    st->unk1E = D_8075EB80[idx].unk10;
-    st->unk1F = D_8075EB80[idx].unk11;
-    st->unk21 = D_8075EB80[idx].unk12;
-    st->unk35 = D_8075EB80[idx].unk13;
-    st->unk37 = D_8075EB80[idx].unk16;
+    st->unk1E = gSpawnEntryTable[idx].unk10;
+    st->unk1F = gSpawnEntryTable[idx].unk11;
+    st->unk21 = gSpawnEntryTable[idx].unk12;
+    st->unk35 = gSpawnEntryTable[idx].unk13;
+    st->unk37 = gSpawnEntryTable[idx].unk16;
     act->state = node->actorState;
     act->unk155 = 0;
     switch (type) {
@@ -723,8 +723,8 @@ u8 spawnNodeHasState(u8 id, u8 state) {
     s16 i;
     SpawnNode *node;
 
-    node = D_80755694->nodes;
-    for (i = 0; i < D_80755694->count; i++, node++) {
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
         if (node->id == id) {
             return node->state == state;
         }
@@ -736,8 +736,8 @@ void spawnNodesSetActorStateByFlag(u16 mask, u8 state) {
     s16 i;
     SpawnNode *node;
 
-    node = D_80755694->nodes;
-    for (i = 0; i < D_80755694->count; i++, node++) {
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
         if (node->state == 5) {
             if (node->actor->collisionFlags & mask) {
                 node->actor->state = state;
@@ -751,8 +751,8 @@ void func_80726EE0(u8 command) {
     s16 i;
     SpawnNode *node;
 
-    node = D_80755694->nodes;
-    for (i = 0; i < D_80755694->count; i++, node++) {
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
         if (node->flags & 0x80) {
             continue;
         }
@@ -793,8 +793,8 @@ Actor *spawnNodeActivate(s16 id, u16 flags) {
     s16 i;
     SpawnNode *node;
 
-    node = D_80755694->nodes;
-    for (i = 0; i < D_80755694->count; i++, node++) {
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
         if (id == node->id) {
             if (node->state == 5) {
                 node->flags |= flags;
@@ -813,8 +813,8 @@ u8 spawnNodeIdForActor(Actor *actor) {
     s16 i;
     SpawnNode *node;
 
-    node = D_80755694->nodes;
-    for (i = 0; i < D_80755694->count; i++, node++) {
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
         if ((actor == node->actor) && (node->state == 5)) {
             return node->id;
         }
@@ -827,10 +827,10 @@ Actor *spawnNodeSpawnById(s16 id, s16 x, s16 y, s16 z, s16 yaw, s16 speed, s16 s
     SpawnNode *node;
     SpawnEntry *entry;
 
-    node = D_80755694->nodes;
-    for (i = 0; i < D_80755694->count; i++, node++) {
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
         if ((id == node->id) && (node->state != 5)) {
-            entry = &D_8075EB80[node->entryIndex];
+            entry = &gSpawnEntryTable[node->entryIndex];
             if (actorSpawn(entry->actorType, entry->unk2) != 0) {
                 node->flags |= 4;
                 spawnNodeInitActorFromEntry(gSpawnedActor, node);
@@ -891,17 +891,17 @@ void func_80727678(void) {
     s16 j;
     s16 *ptr;
 
-    node = D_80755694->nodes;
-    for (i = 0; i < D_80755694->count; i++, node++) {
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
         for (j = 0; j < gActorGlobalState.volumeTriggerQueueCount; j++) {
             ptr = gActorGlobalState.volumeTriggerQueueId[j];
             if (node->id == *ptr) {
                 switch (gActorGlobalState.volumeTriggerQueueOp[j]) {
                     case 1:
-                        if ((node->state == 0) && (spawnFlagConditionMet(gCurrentMap, node->id) != 0) && (actorSpawn(D_8075EB80[node->entryIndex].actorType, D_8075EB80[node->entryIndex].unk2) != 0)) {
+                        if ((node->state == 0) && (spawnFlagConditionMet(gCurrentMap, node->id) != 0) && (actorSpawn(gSpawnEntryTable[node->entryIndex].actorType, gSpawnEntryTable[node->entryIndex].unk2) != 0)) {
                             spawnNodeInitActorFromEntry(gSpawnedActor, node);
                         } else if ((node->state == 3) && (spawnFlagConditionMet(gCurrentMap, node->id) != 0)) {
-                            if (actorSpawn(D_8075EB80[node->entryIndex].actorType, D_8075EB80[node->entryIndex].unk2) != 0) {
+                            if (actorSpawn(gSpawnEntryTable[node->entryIndex].actorType, gSpawnEntryTable[node->entryIndex].unk2) != 0) {
                                 spawnNodeInitActorFromEntry(gSpawnedActor, node);
                                 gSpawnedActor->state = 0x36;
                             }
@@ -961,13 +961,13 @@ void spawnNodesUpdate(void) {
     s32 d;
     PlayerState *sub;
 
-    node = D_80755694->nodes;
-    for (i = 0; i < D_80755694->count; i++, node++) {
+    node = gSpawnNodeList->nodes;
+    for (i = 0; i < gSpawnNodeList->count; i++, node++) {
         active = (node->state >= 5) && (node->state < 7);
         if (active) {
             gBehaviourWorkState = node->actor->customState;
         }
-        dist = D_8075EB80[node->entryIndex].spawnRange * 0x64;
+        dist = gSpawnEntryTable[node->entryIndex].spawnRange * 0x64;
         dist = dist * dist;
         if (active) {
             node->chunkIndex = node->actor->chunkIndex;
@@ -992,7 +992,7 @@ void spawnNodesUpdate(void) {
                     node->state = node->initialState;
                     node->chunkIndex = mapChunkFindByPosition((f32)node->x, (f32)node->y, (f32)node->z, 0);
                     spawnNodeSelectEntry(node);
-                    entry = &D_8075EB80[node->entryIndex];
+                    entry = &gSpawnEntryTable[node->entryIndex];
                     if (actorSpawn(entry->actorType, entry->unk2) != 0) {
                         spawnNodeInitActorFromEntry(gSpawnedActor, node);
                         gSpawnedActor->state = 0x36;
@@ -1003,7 +1003,7 @@ void spawnNodesUpdate(void) {
         } else if (node->state == 2) {
             if ((spawnNodeInRangeAndVisible(node, dist) != 0) && (spawnFlagConditionMet(gCurrentLevelIndex, node->id) != 0)) {
                 spawnNodeSelectEntry(node);
-                entry = &D_8075EB80[node->entryIndex];
+                entry = &gSpawnEntryTable[node->entryIndex];
                 if (actorSpawn(entry->actorType, entry->unk2) != 0) {
                     spawnNodeInitActorFromEntry(gSpawnedActor, node);
                 }
@@ -1166,9 +1166,9 @@ void zoneAssignToBehaviour(SpawnNode *node) {
     s16 i;
     Zone *entry;
 
-    entry = D_80755690->zones;
+    entry = gZoneTable->zones;
     i = 0;
-    if (D_80755690->count > 0) {
+    if (gZoneTable->count > 0) {
         do {
             entry->occupant = NULL;
             entry->unk20 = 0;
@@ -1178,10 +1178,10 @@ void zoneAssignToBehaviour(SpawnNode *node) {
             }
             i++;
             entry++;
-        } while (i < D_80755690->count);
+        } while (i < gZoneTable->count);
     }
     if (node->zone == NULL) {
-        node->zone = D_80755690->zones;
+        node->zone = gZoneTable->zones;
     }
 }
 
@@ -1416,7 +1416,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
     f32 ky14;
     f32 kz14;
 
-    group = D_80755690->zones;
+    group = gZoneTable->zones;
     x = group->entries[entryIndex].x;
     y = group->entries[entryIndex].y;
     z = group->entries[entryIndex].z;
@@ -1603,4 +1603,4 @@ void func_80729AA4(u8 id) {
     a->contactFlags |= 0x100;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/D_8075EB80.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/gSpawnEntryTable.s")

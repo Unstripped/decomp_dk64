@@ -1952,7 +1952,7 @@ void playerThrowHeldActor(Actor *thrower) {
     if (thrower->collisionFlags & 1) {
         p = thrower->customState;
         if (p->heldActor != NULL) {
-            actorAppendCallback4000(gCurrentActor, p->heldActor, gActivePlayerActor->yaw, D_80753428[gCurrentCharacterIndex], (s32)D_8075340C[gCurrentCharacterIndex]);
+            actorAppendLaunch(gCurrentActor, p->heldActor, gActivePlayerActor->yaw, D_80753428[gCurrentCharacterIndex], (s32)D_8075340C[gCurrentCharacterIndex]);
             p->heldActor = NULL;
             p->queuedHeldActor = NULL;
         }

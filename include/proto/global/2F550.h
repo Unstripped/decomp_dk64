@@ -183,14 +183,14 @@ void mapTreeRelocate(struct MapBspNode *, s32, s32);
 #ifndef PROTO_SKIP_matrix3SwapRows
 void matrix3SwapRows(f32 (*)[3], s32, s32, s32);
 #endif
-#ifndef PROTO_SKIP_func_8062F640
-s32 func_8062F640(f32 (*)[3], f32 (*)[3], s32);
+#ifndef PROTO_SKIP_matrix3InvertEliminateRest
+s32 matrix3InvertEliminateRest(f32 (*)[3], f32 (*)[3], s32);
 #endif
 #ifndef PROTO_SKIP_matrix3Invert
 s32 matrix3Invert(f32 (*)[3], f32 (*)[3]);
 #endif
-#ifndef PROTO_SKIP_func_8062FBC8
-s32 func_8062FBC8(f32 (*)[4], f32 *, f32 *, s32 *);
+#ifndef PROTO_SKIP_matrix4NormalizeProjective
+s32 matrix4NormalizeProjective(f32 (*)[4], f32 *, f32 *, s32 *);
 #endif
 #ifndef PROTO_SKIP_matrix4Invert
 s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);

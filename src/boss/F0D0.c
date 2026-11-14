@@ -232,11 +232,11 @@ typedef struct BossWaypointActor {
     /* 0x17C */ BossWaypointState *waypoints;
 } BossWaypointActor;
 
-extern u8 *D_80035B84[];
+extern u8 *gBossWaypointPhaseScripts[];
 extern u8 D_80035B98[];
-extern u8 D_80035BD8[];
-extern u8 D_80035BEC[];
-extern u8 D_80036DD0[];
+extern u8 gBossIntroWaypointPath[];
+extern u8 gBossWaypointIsSpecial[];
+extern u8 gBossWaypointLightFade[];
 extern f32 D_80036C40[];
 extern u8 D_807FBDC4;
 extern s16 D_807502DC;
@@ -270,7 +270,7 @@ void bossMainStep(void) {
 
     scriptState = ((BossWaypointActor *)gCurrentActor)->scriptState;
     waypoints = ((BossWaypointActor *)gCurrentActor)->waypoints;
-    tbl = D_80035B84[scriptState->phase];
+    tbl = gBossWaypointPhaseScripts[scriptState->phase];
     if (gPrimaryPlayerActor->y < gCurrentActor->y - 10.0f) {
         playerAbove = 1;
     } else {
@@ -309,12 +309,12 @@ void bossMainStep(void) {
         if (waypoints->objectA != 0) {
             idx = waypoints->objectA - 0x10;
             nextIdx = waypoints->objectB - 0x10;
-            if (D_80035BEC[idx] != 0) {
+            if (gBossWaypointIsSpecial[idx] != 0) {
                 red = 0x46;
             } else {
                 red = 0xFF;
             }
-            if (D_80035BEC[idx] != 0) {
+            if (gBossWaypointIsSpecial[idx] != 0) {
                 green = 0xA0;
             } else {
                 green = 0xFF;
@@ -347,14 +347,14 @@ void bossMainStep(void) {
     case 0x1E:
         for (i = 0; i < 0x10; i++) {
             if (((u16 *)D_80035B98)[gBehaviourWorkState->timer & 0x1F] & (1 << i)) {
-                D_80036DD0[i] = 0xFA;
+                gBossWaypointLightFade[i] = 0xFA;
             }
-            if (D_80036DD0[i] != 0) {
-                sx = D_80035BEC[i] != 0 ? 0.27 : 1.0;
-                sy = D_80035BEC[i] != 0 ? 0.62 : 1.0;
+            if (gBossWaypointLightFade[i] != 0) {
+                sx = gBossWaypointIsSpecial[i] != 0 ? 0.27 : 1.0;
+                sy = gBossWaypointIsSpecial[i] != 0 ? 0.62 : 1.0;
                 lightSetRadius(0x1388);
-                lightAdd(D_807FDCA0->entries[i].x, D_807FDCA0->entries[i].y - 0x28A, D_807FDCA0->entries[i].z, 0, 0.0f, 0.0f, 240.0f, 0, (u32)(D_80036DD0[i] * sx), (u32)(D_80036DD0[i] * sy), D_80036DD0[i]);
-                D_80036DD0[i] -= 0x19;
+                lightAdd(D_807FDCA0->entries[i].x, D_807FDCA0->entries[i].y - 0x28A, D_807FDCA0->entries[i].z, 0, 0.0f, 0.0f, 240.0f, 0, (u32)(gBossWaypointLightFade[i] * sx), (u32)(gBossWaypointLightFade[i] * sy), gBossWaypointLightFade[i]);
+                gBossWaypointLightFade[i] -= 0x19;
             }
         }
         if (!(gFrameCounter & 7)) {
@@ -397,7 +397,7 @@ void bossMainStep(void) {
             actorScriptStart(gCurrentActor, 0x225);
             actorScriptExecute(gCurrentActor);
             scriptState->unk18[0] = 2;
-            waypoints->next = D_80035BD8[scriptState->unk18[0]];
+            waypoints->next = gBossIntroWaypointPath[scriptState->unk18[0]];
             waypoints->previous = 0xFF;
             gCurrentActor->unk155++;
             gCurrentActor->contactFlags |= 1;
@@ -424,7 +424,7 @@ void bossMainStep(void) {
                 left--;
                 if (v) {} // FAKE: keeps v live past the decrement so the raw temp does not share its register
                 scriptState->unk18[0] = left;
-                waypoints->next = D_80035BD8[left];
+                waypoints->next = gBossIntroWaypointPath[left];
                 gCurrentActor->unk155 = 3;
             } else {
                 actorScriptStart(gCurrentActor, 0x224);
@@ -665,7 +665,7 @@ void bossMainStep(void) {
             currentActorClearFlag();
             scriptState->scriptPos = 0;
             scriptState->phase++;
-            tbl = D_80035B84[scriptState->phase];
+            tbl = gBossWaypointPhaseScripts[scriptState->phase];
             gCurrentActor->state = tbl[scriptState->scriptPos];
             scriptState->scriptPos++;
             gCurrentActor->unk155 = 0;

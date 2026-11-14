@@ -7,14 +7,14 @@
 #include "proto/global/450.h"
 #include "proto/global/69E60.h"
 
-extern s8 D_807F5D84;
+extern s8 sScreenWipeActive;
 
 void screenWipeReset(void) {
-    D_807F5D84 = 0;
+    sScreenWipeActive = 0;
 }
 
 u8 screenWipeGetState(void) {
-    return (u8)D_807F5D84;
+    return (u8)sScreenWipeActive;
 }
 
 extern u8 D_80747B20;
@@ -27,7 +27,7 @@ extern u16 *gFramebuffers[];
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
 extern u8 gGfxBufferIndex;
-extern u8 D_807F5D85;
+extern u8 sScreenWipeType;
 extern s16 D_807F5D86;
 extern s16 D_807F5D88;
 extern f32 D_807F5D8C;
@@ -39,12 +39,12 @@ u8 type;
 {
     s32 sel = type; // FAKE: s32 copy of the K&R u8 param steers the switch dispatch registers (Q0140)
 
-    if ((D_807F5D84 == 0) || (type == 7)) {
-        if (D_807F5D84 == 0) {
+    if ((sScreenWipeActive == 0) || (type == 7)) {
+        if (sScreenWipeActive == 0) {
             D_807F5D80 = heapAlloc(gScreenWidth * gScreenHeight * 2);
         }
         fbCopySetAlpha(D_807F5D80, gFramebuffers[gGfxBufferIndex]);
-        D_807F5D84 = 1;
+        sScreenWipeActive = 1;
         D_80747B20 = 5;
         switch (sel) {
             case 1:
@@ -71,7 +71,7 @@ u8 type;
                 blurBuildDivTable();
                 break;
         }
-        D_807F5D85 = sel;
+        sScreenWipeType = sel;
     }
 }
 
@@ -94,15 +94,15 @@ Gfx *screenWipeDraw(Gfx *glist) {
         guScale(&D_807F5D98, 2.0f, 2.0f, 1.0f);
         D_80747B24 = 1;
     }
-    if ((D_807F5D84 == 0) && (D_80747B20 != 0)) {
+    if ((sScreenWipeActive == 0) && (D_80747B20 != 0)) {
         D_80747B20--;
     }
-    if (D_807F5D84 < 0) {
-        D_807F5D84++;
-        if (D_807F5D84 == 0) {
+    if (sScreenWipeActive < 0) {
+        sScreenWipeActive++;
+        if (sScreenWipeActive == 0) {
             heapFreeDeferred(D_807F5D80);
         }
-    } else if (D_807F5D84 > 0) {
+    } else if (sScreenWipeActive > 0) {
         gSPDisplayList(glist++, &D_1000118);
         glist = gfxInit2DDisplayList(glist);
         gSPMatrix(glist++, &D_2000140, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -112,14 +112,14 @@ Gfx *screenWipeDraw(Gfx *glist) {
         gDPSetColorDither(glist++, G_CD_DISABLE);
         gDPSetScissor(glist++, G_SC_NON_INTERLACE, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight, gGfxScreenBottom);
         gDPSetRenderMode(glist++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-        switch (D_807F5D85) {
+        switch (sScreenWipeType) {
             case 7:
                 screenBlurApply();
                 gDPSetCombineMode(glist++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
                 gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
                 gfxDrawTexturedTileGridDefault(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
                 if (gGlobalPauseFlags & 0x40) {
-                    D_807F5D84 = -2;
+                    sScreenWipeActive = -2;
                 }
                 break;
             case 1:
@@ -128,7 +128,7 @@ Gfx *screenWipeDraw(Gfx *glist) {
                 gfxDrawTexturedTileGridDefault(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
                 D_807F5D86 -= stepScale * 5;
                 if (D_807F5D86 < 0) {
-                    D_807F5D84 = -2;
+                    sScreenWipeActive = -2;
                 }
                 break;
             case 2:
@@ -142,7 +142,7 @@ Gfx *screenWipeDraw(Gfx *glist) {
                 }
                 D_807F5D86 = D_807F5D86 + stepScale * 10;
                 if (D_807F5D86 >= 0x137) {
-                    D_807F5D84 = -2;
+                    sScreenWipeActive = -2;
                 }
                 break;
             case 0:
@@ -155,7 +155,7 @@ Gfx *screenWipeDraw(Gfx *glist) {
                 }
                 D_807F5D86 = D_807F5D86 - stepScale * 10;
                 if (D_807F5D86 < 0xB) {
-                    D_807F5D84 = -2;
+                    sScreenWipeActive = -2;
                 }
                 break;
             case 3:
@@ -173,7 +173,7 @@ Gfx *screenWipeDraw(Gfx *glist) {
                 D_807F5D86 += stepScale * 10;
                 D_807F5D88 = D_807F5D88 - stepScale * 10;
                 if (D_807F5D86 >= 0x137) {
-                    D_807F5D84 = -2;
+                    sScreenWipeActive = -2;
                 }
                 break;
             case 4:
@@ -182,7 +182,7 @@ Gfx *screenWipeDraw(Gfx *glist) {
                 D_807F5D90 = D_807F5D8C + 40.0f;
                 gfxDrawTexturedTileGrid(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, screenWipeAlphaFromCentre);
                 if (D_807F5D8C > 170.0f) {
-                    D_807F5D84 = -2;
+                    sScreenWipeActive = -2;
                 }
                 break;
             case 5:
@@ -191,7 +191,7 @@ Gfx *screenWipeDraw(Gfx *glist) {
                 D_807F5D90 = D_807F5D8C + 40.0f;
                 gfxDrawTexturedTileGrid(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, screenWipeAlphaFromCorner);
                 if (D_807F5D8C > 350.0f) {
-                    D_807F5D84 = -2;
+                    sScreenWipeActive = -2;
                 }
                 break;
             case 6:
@@ -199,7 +199,7 @@ Gfx *screenWipeDraw(Gfx *glist) {
                 D_807F5D94 = D_807F5D94 + 15.0 * stepScale;
                 gfxDrawTexturedTileGrid(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 320.0f, 239.0f, 0.0f, 0.0f, 1, 0x10, 1, screenWipeAlphaRadialSweep);
                 if (D_807F5D94 > 350.0f) {
-                    D_807F5D84 = -2;
+                    sScreenWipeActive = -2;
                 }
                 break;
         }

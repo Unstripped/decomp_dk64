@@ -583,7 +583,7 @@ typedef struct Zone {
     /* 0x21 */ u8 pad21[3];
 } Zone; // size = 0x24
 
-// The map's zone table (D_80755690): count + array of Zone (1295B0.c, C2A90.c).
+// The map's zone table (gZoneTable): count + array of Zone (1295B0.c, C2A90.c).
 typedef struct ZoneTable {
     /* 0x0 */ s16 count;
     /* 0x2 */ u8 pad2[2];
@@ -600,7 +600,7 @@ typedef struct SpawnNode {
     /* 0x06 */ s16 y;
     /* 0x08 */ s16 z;
     /* 0x0A */ union {
-        s16 unkAWide; // lh users (armadillo patrol, func_806B640C, actorUpdateLockOnCursor, func_8072AA80)
+        s16 unkAWide; // lh users (armadillo patrol, func_806B640C, actorUpdateLockOnCursor, behaviourPickRandomTargetY)
         struct {
             u8 unkA;
             u8 unkB;
@@ -636,14 +636,14 @@ typedef struct SpawnNode {
     /* 0x46 */ u16 flags;
 } SpawnNode; // size = 0x48
 
-// The map's spawn node list (D_80755694): count + array of SpawnNode (1295B0.c).
+// The map's spawn node list (gSpawnNodeList): count + array of SpawnNode (1295B0.c).
 typedef struct SpawnNodeList {
     /* 0x0 */ s16 count;
     /* 0x2 */ u8 pad2[2];
     /* 0x4 */ SpawnNode *nodes;
 } SpawnNodeList;
 
-// One 0x18-byte row of the spawn table D_8075EB80, indexed by SpawnNode.entryIndex
+// One 0x18-byte row of the spawn table gSpawnEntryTable, indexed by SpawnNode.entryIndex
 // (spawnNodeInitActorFromEntry and the spawn paths in 1295B0.c; behaviourUpdateShadowAlpha in 12E800.c).
 typedef struct SpawnEntry {
     /* 0x00 */ u16 actorType;
@@ -944,7 +944,7 @@ typedef struct PlayerInventory {
     /* 0x2FE */ u16 kills[4]; // multiplayer: kills of each player
 } PlayerInventory; // size = 0x306
 
-// Per-player inventory (4 players at 0x807FC950); D_807FD568 points at the current kong's row.
+// Per-player inventory (4 players at 0x807FC950); gCurrentKongInventory points at the current kong's row.
 extern PlayerInventory gPlayerInventoryTable[];
 
 // One entry of the per-map flag tables (135D30.c: D_80755A20, D_80755DA8, D_80755EA0, gFlagTempEntries).
@@ -959,7 +959,7 @@ typedef struct FlagTableEntry {
 // 0x1F entries, ended by map 0xFF (hudPauseMenu's scan in ACDC0.c).
 extern FlagTableEntry D_80755DA8[0x1F];
 
-// One row of the per-character table D_8075C410 (CC800 data, 0x10 per character id): the kong actor type, the
+// One row of the per-character table gKongCharacterTable (CC800 data, 0x10 per character id): the kong actor type, the
 // character index the row selects (gCurrentCharacterIndex), its model, and the actor flags.
 typedef struct KongCharacterEntry {
     /* 0x0 */ s32 actorType;
@@ -980,7 +980,7 @@ typedef struct KongCharacterEntry {
     /* 0xC */ s32 actorFlags;
 } KongCharacterEntry; // size = 0x10
 
-extern KongCharacterEntry D_8075C410[];
+extern KongCharacterEntry gKongCharacterTable[];
 
 // One loaded animation-asset cache slot (controllerAnimStateLoadAsset/controllerAnimFreeSub, 17B90);
 // D_807FB630[32] spans .bss 0x807FB630..0x807FB7B0 (D_807FB634 is the [0].asset split label).
@@ -994,14 +994,14 @@ typedef struct ControllerStateEntry {
 extern ControllerStateEntry D_807FB630[32];
 
 // One animation-clip cache slot (actorInit 7CA80; controllerAnimCacheGetOrLoad/controllerAnimCacheFree, 17B90);
-// D_807FB7B0[32] spans .bss 0x807FB7B0..0x807FB930, D_807FBB32 counts the used slots (packed from 0).
+// gAnimClipCache[32] spans .bss 0x807FB7B0..0x807FB930, gAnimClipCacheCount counts the used slots (packed from 0).
 typedef struct AnimCacheEntry {
     /* 0x00 */ s32 id; // clip asset id, 0xFFFF when free
     /* 0x04 */ s32 refCount;
     /* 0x08 */ void *asset;
 } AnimCacheEntry; // size = 0xC
-extern AnimCacheEntry D_807FB7B0[32];
-extern u16 D_807FBB32;
+extern AnimCacheEntry gAnimClipCache[32];
+extern u16 gAnimClipCacheCount;
 
 // camSetTarget's parameter block inside CamState (0x44).
 typedef struct CamTargetBlock {
@@ -1156,10 +1156,10 @@ extern BehaviourWorkState *gBehaviourWorkState;
 extern Actor *gBehaviourTargetActor;
 extern SpawnNode *gBehaviourAnimState;
 extern SpawnNode *gBehaviourExtraState;
-extern SpawnEntry D_8075EB80[];
+extern SpawnEntry gSpawnEntryTable[];
 extern Zone *D_807FDCA0; // gBehaviourAnimState->zone, latched by behaviourFrameBegin
-extern ZoneTable *D_80755690;
-extern SpawnNodeList *D_80755694;
+extern ZoneTable *gZoneTable;
+extern SpawnNodeList *gSpawnNodeList;
 extern ActorGlobalState gActorGlobalState;
 
 

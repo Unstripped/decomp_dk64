@@ -95,7 +95,7 @@ void minecartTriggerWin(u8 useCutsceneCam, u8 textIndex) {
     }
 }
 
-extern void *D_80028C30;
+extern void *sMinecartWheelEffect;
 extern u8 D_8072006C[];
 
 
@@ -105,7 +105,7 @@ void minecartSpawnWheelEffect(MinecartCart *cart, u8 side, u8 probabilityThresho
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8A, 0x96, 0x7F, 0x32);
             effectSetSpeed((s32)gCurrentActor);
             effectSetCallback(effectTimedLightIntensityFade);
-            D_80028C30 = effectCreateAtActorBone(D_8072006C, 0.4f, gCurrentActor, side + 7, 2);
+            sMinecartWheelEffect = effectCreateAtActorBone(D_8072006C, 0.4f, gCurrentActor, side + 7, 2);
         }
     }
 }
@@ -386,7 +386,7 @@ void minecartApplyJunction(MinecartCart *cart, MinecartElem **junctionTable, u8 
     }
 }
 
-extern MinecartElem *D_80028C20[];
+extern MinecartElem *sMinecartJunctionTable[];
 
 void minecartPlayerCartJunctionBehaviour(void) {
     MinecartCart *cart;
@@ -435,7 +435,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
             gCurrentActor->state = 5;
             break;
         }
-        minecartApplyJunction(cart, D_80028C20, 0x10, 0x13);
+        minecartApplyJunction(cart, sMinecartJunctionTable, 0x10, 0x13);
         actorGetNodePos(gCurrentActor, 9, &cart->rider->x, &cart->rider->y, &cart->rider->z);
         return;
     case 4:

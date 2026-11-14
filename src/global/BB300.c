@@ -196,7 +196,7 @@ void func_806B6DB0(s32 aggroRange) {
             gCurrentActor->moveYaw = gCurrentActor->yaw;
             break;
         }
-        func_80724E48(5);
+        actorTrackBoneTowardTarget(5);
         actorUpdatePulseIntensity(0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x300, 0.0f);
         break;
@@ -208,7 +208,7 @@ void func_806B6DB0(s32 aggroRange) {
     case 0x10:
     case 0x23:
         func_8072881C(0, &gBehaviourWorkState->unk28);
-        func_80724E48((u8)(gCurrentActor->state == 1 ? 2 : 0));
+        actorTrackBoneTowardTarget((u8)(gCurrentActor->state == 1 ? 2 : 0));
         actorUpdatePulseIntensity(near);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x400, 0.0f);
         break;
@@ -217,7 +217,7 @@ void func_806B6DB0(s32 aggroRange) {
     case 7:
     case 0x35:
         func_8072881C(0, &gBehaviourWorkState->unk28);
-        func_80724E48((u8)(gCurrentActor->state == 0x35 ? 2 : 3));
+        actorTrackBoneTowardTarget((u8)(gCurrentActor->state == 0x35 ? 2 : 3));
         actorUpdatePulseIntensity(0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x400, 0.0f);
         break;

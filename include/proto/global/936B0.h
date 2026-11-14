@@ -20,8 +20,8 @@ void actorSpawnNodeEffectFacingCamera(s32, u8);
 #ifndef PROTO_SKIP_func_8068EF54
 void func_8068EF54(void);
 #endif
-#ifndef PROTO_SKIP_func_8068F72C
-void func_8068F72C();
+#ifndef PROTO_SKIP_vehicleUpdateMotion
+void vehicleUpdateMotion();
 #endif
 #ifndef PROTO_SKIP_actorInterpolateAngles
 void actorInterpolateAngles(u8, RaceParticipant *, struct VehicleMotion *);
@@ -32,8 +32,8 @@ void actorAllocSubBuffer(Actor *, s32);
 #ifndef PROTO_SKIP_actorInitAnimations
 void actorInitAnimations(Actor *, Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80690190
-void func_80690190();
+#ifndef PROTO_SKIP_vehicleUpdateEngineSound
+void vehicleUpdateEngineSound();
 #endif
 #ifndef PROTO_SKIP_actorInitFromSpawnPoint
 void actorInitFromSpawnPoint(Actor *, RaceParticipant *);
@@ -83,8 +83,8 @@ void actorSpawnSparkleBurst(void);
 #ifndef PROTO_SKIP_projectileSpawnWithShockwave
 void projectileSpawnWithShockwave(s16, f32, u8, u8, u8, u8, f32, f32, f32, f32);
 #endif
-#ifndef PROTO_SKIP_projectileSpawnActor107
-void projectileSpawnActor107(u8, u8, f32, f32, u8, u8);
+#ifndef PROTO_SKIP_projectileSpawnSpriteRing
+void projectileSpawnSpriteRing(u8, u8, f32, f32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_projectileBounceParticleUpdate
 void projectileBounceParticleUpdate(void *);

@@ -8,7 +8,7 @@ void func_8060FFF0(void);
 #ifndef PROTO_SKIP_schedSubmitGfxTask
 void schedSubmitGfxTask(void *, s32, u8, u8, s32, u8);
 #endif
-#ifndef PROTO_SKIP_func_80610268
-void func_80610268(s32);
+#ifndef PROTO_SKIP_schedWaitGfxTask
+void schedWaitGfxTask(s32);
 #endif
 #endif

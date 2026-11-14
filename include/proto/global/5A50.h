@@ -14,8 +14,8 @@ void seqPlayerPlay(u8);
 #ifndef PROTO_SKIP_seqPlayerGetState
 s32 seqPlayerGetState(u8);
 #endif
-#ifndef PROTO_SKIP_func_806011A0
-void func_806011A0(u8, OSMesgQueue *);
+#ifndef PROTO_SKIP_seqPlayerSetEventQueue
+void seqPlayerSetEventQueue(u8, OSMesgQueue *);
 #endif
 #ifndef PROTO_SKIP_seqPlayerSetChannelState
 void seqPlayerSetChannelState(u8, s32, u8);
@@ -65,8 +65,8 @@ void seqPlayerSetTempo(u8, s32);
 #ifndef PROTO_SKIP_seqPlayerGetTempo
 s32 seqPlayerGetTempo(u8);
 #endif
-#ifndef PROTO_SKIP_func_806017E8
-void func_806017E8(u8, u8, u8, u8, s32);
+#ifndef PROTO_SKIP_seqPlayerSetFXParam
+void seqPlayerSetFXParam(u8, u8, u8, u8, s32);
 #endif
 #ifndef PROTO_SKIP_seqPlayerSetChannelPanVolume
 void seqPlayerSetChannelPanVolume(u8, f32, f32);

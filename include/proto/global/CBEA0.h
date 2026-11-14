@@ -81,8 +81,8 @@ void actorStubCBEA0_24(void);
 #ifndef PROTO_SKIP_actorStubCBEA0_25
 void actorStubCBEA0_25(void);
 #endif
-#ifndef PROTO_SKIP_spriteLinearInterpolateFrame
-void spriteLinearInterpolateFrame(void);
+#ifndef PROTO_SKIP_bannerTextUpdate
+void bannerTextUpdate(void);
 #endif
 #ifndef PROTO_SKIP_renderBannerText
 Gfx *renderBannerText(Gfx *, Actor *);

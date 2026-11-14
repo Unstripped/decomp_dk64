@@ -27,8 +27,8 @@ void actorSetPitchVelocity(s16, f32, f32, f32, u16);
 #ifndef PROTO_SKIP_actorPitchEaseTowardPoint
 void actorPitchEaseTowardPoint(s16, s16, f32, f32, f32, u8, f32, f32, u16);
 #endif
-#ifndef PROTO_SKIP_func_8072AA80
-void func_8072AA80(void);
+#ifndef PROTO_SKIP_behaviourPickRandomTargetY
+void behaviourPickRandomTargetY(void);
 #endif
 #ifndef PROTO_SKIP_actorMoveWithinZone
 u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
@@ -57,8 +57,8 @@ void behaviourUpdateContactAndState(s32);
 #ifndef PROTO_SKIP_behaviourCheckTargetCollisionMode
 u8 behaviourCheckTargetCollisionMode(u8, u8 *);
 #endif
-#ifndef PROTO_SKIP_func_8072C870
-void func_8072C870(u8, u8, s32);
+#ifndef PROTO_SKIP_behaviourSetChaseState
+void behaviourSetChaseState(u8, u8, s32);
 #endif
 #ifndef PROTO_SKIP_enemyAggroStateUpdate
 void enemyAggroStateUpdate(s32, s32, s32);
@@ -120,8 +120,8 @@ u8 actorIsTargetWithinDistance(u16);
 #ifndef PROTO_SKIP_actorGetNodePosOrPosition
 void actorGetNodePosOrPosition(Actor *, f32 *, f32 *, f32 *);
 #endif
-#ifndef PROTO_SKIP_func_8072E320
-void func_8072E320(f32);
+#ifndef PROTO_SKIP_actorAlignToMotion
+void actorAlignToMotion(f32);
 #endif
 #ifndef PROTO_SKIP_behaviourCheckRandomAnimTrigger
 u8 behaviourCheckRandomAnimTrigger(void);

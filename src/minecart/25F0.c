@@ -492,13 +492,13 @@ void minecartUpdateObstacleType1(void) {
             gCurrentActor->speedXZ = 0.0f;
             gCurrentActor->state++;
         } else {
-            func_80724E48(1);
+            actorTrackBoneTowardTarget(1);
             minecartStartScriptNearPlayer();
             actorUpdateModelMatrix(gCurrentActor, 0);
             return;
         }
     case 1:
-        func_80724E48(1);
+        actorTrackBoneTowardTarget(1);
         minecartStartScriptNearPlayer();
         minecartAdjustTargetSpeed();
         actorSpawnNodeEffectFacingCamera(6, 0xFF);

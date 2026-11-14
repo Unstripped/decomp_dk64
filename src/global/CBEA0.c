@@ -92,21 +92,21 @@ typedef struct BannerTextStep {
     /* 0x5 */ s8 lineCount;
 } BannerTextStep;
 
-extern BannerTextStep D_807506D0[];
+extern BannerTextStep gBannerTextSteps[];
 
 extern Actor *gCurrentActor;
-extern s8 D_80750754;
-extern s16 D_80750758;
+extern s8 gBannerTextStepIndex;
+extern s16 gBannerTextLine;
 extern f32 D_8075075C[];
 extern s16 D_807FC8E0;
-extern s16 D_807FC8E2;
-extern s16 D_807FC8E4;
+extern s16 gBannerShowTimer;
+extern s16 gBannerGapTimer;
 extern f32 D_807FC8E8;
 extern f32 D_807FC8EC;
 extern u8 *D_807FC8F0;
 
 
-void spriteLinearInterpolateFrame(void) {
+void bannerTextUpdate(void) {
     f32 frac;
     f32 pad0;
     f32 pad1;
@@ -125,44 +125,44 @@ void spriteLinearInterpolateFrame(void) {
                 D_807FC8E0++;
             }
         }
-        if (D_80750754 == -2) {
-            D_807FC8E4 = 0x320;
-            D_80750754 = -1;
-            D_807FC8E2 = 0;
+        if (gBannerTextStepIndex == -2) {
+            gBannerGapTimer = 0x320;
+            gBannerTextStepIndex = -1;
+            gBannerShowTimer = 0;
             D_807FC8E8 = 0;
-        } else if (D_80750754 == -1) {
-            D_807FC8E4 = 0x3C;
-            D_807FC8E2 = 0;
+        } else if (gBannerTextStepIndex == -1) {
+            gBannerGapTimer = 0x3C;
+            gBannerShowTimer = 0;
             D_807FC8E8 = 0;
         }
     }
     actor = gCurrentActor;
-    if (D_807FC8E2 > 0) {
-        D_807FC8E2--;
+    if (gBannerShowTimer > 0) {
+        gBannerShowTimer--;
     }
-    if (D_807FC8E2 == 0) {
-        D_807FC8E2 = 0;
-        D_807FC8E4--;
-        if (D_807FC8E4 <= 0) {
-            if (D_80750754 >= 0) {
-                D_80750758 += D_807506D0[D_80750754].lineCount;
+    if (gBannerShowTimer == 0) {
+        gBannerShowTimer = 0;
+        gBannerGapTimer--;
+        if (gBannerGapTimer <= 0) {
+            if (gBannerTextStepIndex >= 0) {
+                gBannerTextLine += gBannerTextSteps[gBannerTextStepIndex].lineCount;
             }
-            if (D_80750758 >= D_807FC8E0) {
-                D_80750758 = 0;
+            if (gBannerTextLine >= D_807FC8E0) {
+                gBannerTextLine = 0;
             }
-            D_80750754++;
-            D_807FC8E2 = D_807506D0[D_80750754].duration;
-            D_807FC8E4 = D_807506D0[D_80750754].gap;
+            gBannerTextStepIndex++;
+            gBannerShowTimer = gBannerTextSteps[gBannerTextStepIndex].duration;
+            gBannerGapTimer = gBannerTextSteps[gBannerTextStepIndex].gap;
         }
     }
-    if (D_807FC8E2 < 0xB) {
+    if (gBannerShowTimer < 0xB) {
         D_807FC8E8 -= 0.1f;
         if (D_807FC8E8 < 0.0f) {
             D_807FC8E8 = 0.0f;
         }
         D_807FC8EC = 1;
     } else {
-        t = D_807506D0[D_80750754].duration - D_807FC8E2;
+        t = gBannerTextSteps[gBannerTextStepIndex].duration - gBannerShowTimer;
         k = t & 1;
         t >>= 1;
         if (t < 0x16) {
@@ -185,7 +185,7 @@ typedef union ViewportMargins {
     u8 margin[4];
 } ViewportMargins;
 
-extern ViewportMargins D_80750814;
+extern ViewportMargins gBannerViewportMargins;
 extern f32 D_80750818[];
 extern f32 D_80750828[];
 
@@ -205,11 +205,11 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
     s16 i;
     s16 yoff;
 
-    margins = D_80750814;
-    if (D_80750754 < 0) {
+    margins = gBannerViewportMargins;
+    if (gBannerTextStepIndex < 0) {
         return gdl;
     }
-    i = D_807506D0[D_80750754].side;
+    i = gBannerTextSteps[gBannerTextStepIndex].side;
     tbl = &D_80750818[i];
     v = ((f64)D_807FC8E8 - 0.5) * (f64)*tbl + (f64)(D_80750828[i] * D_807FC8EC);
     if (v < 0) {
@@ -263,17 +263,17 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
     guMtxF2L(mf, mtx);
     p = D_807FC8F0;
     i = 0;
-    if (D_80750758 > 0) {
+    if (gBannerTextLine > 0) {
         do {
             if (*p == 0) {
                 i++;
             }
             p++;
-        } while (i < D_80750758);
+        } while (i < gBannerTextLine);
         i = 0;
     }
-    yoff = -D_807506D0[D_80750754].lineCount * 0x23;
-    if (D_807506D0[D_80750754].lineCount > 0) {
+    yoff = -gBannerTextSteps[gBannerTextStepIndex].lineCount * 0x23;
+    if (gBannerTextSteps[gBannerTextStepIndex].lineCount > 0) {
         do {
             gdl = textDrawStringVtx(gdl, 1, -(s16)(textGetStringWidth(1, p) * 2), yoff, p, 0);
             yoff += 0x60;
@@ -284,7 +284,7 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
             }
             i++;
             p++;
-        } while (i < D_807506D0[D_80750754].lineCount);
+        } while (i < gBannerTextSteps[gBannerTextStepIndex].lineCount);
     }
     gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
     gDPPipeSync(gdl++);

@@ -194,7 +194,7 @@ void func_806AE588(void) {
         }
         break;
     case 0x11:
-        func_80724E48(5);
+        actorTrackBoneTowardTarget(5);
         switch (gCurrentActor->unk155) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
@@ -245,14 +245,14 @@ void func_806AE588(void) {
         }
         state = gCurrentActor->state;
     case 0x10:
-        func_80724E48((state == 1) ? 2 : 0);
+        actorTrackBoneTowardTarget((state == 1) ? 2 : 0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
         break;
     case 2:
     case 3:
     case 7:
     case 0x35:
-        func_80724E48((entryState == 0x35) ? 2 : 3);
+        actorTrackBoneTowardTarget((entryState == 0x35) ? 2 : 3);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:
@@ -338,7 +338,7 @@ void func_806AEE84(void) {
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x4200, 0.0f);
             break;
         case 0x11:
-            func_80724E48(5);
+            actorTrackBoneTowardTarget(5);
             switch (gCurrentActor->unk155) {
                 case 0:
                     actorSetTargetSpeed(gCurrentActor, 0);
@@ -379,7 +379,7 @@ void func_806AEE84(void) {
             actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
             break;
         case 0x25:
-            func_80724E48(0);
+            actorTrackBoneTowardTarget(0);
             switch (gCurrentActor->unk155) {
                 case 0:
                     actorScriptStart(gCurrentActor, 0x2B3);
@@ -407,14 +407,14 @@ void func_806AEE84(void) {
             }
         case 0x10:
             func_806AEE08();
-            func_80724E48(gCurrentActor->state == 1 ? 2 : 0);
+            actorTrackBoneTowardTarget(gCurrentActor->state == 1 ? 2 : 0);
             actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
             break;
         case 2:
         case 3:
         case 7:
         case 0x35:
-            func_80724E48(gCurrentActor->state == 0x35 ? 2 : 3);
+            actorTrackBoneTowardTarget(gCurrentActor->state == 0x35 ? 2 : 3);
             actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
             break;
         case 0x37:
@@ -471,7 +471,7 @@ void func_806AF688(void) {
     }
     switch (gCurrentActor->state) {
         case 0x11:
-            func_80724E48(2);
+            actorTrackBoneTowardTarget(2);
             switch (gCurrentActor->unk155) {
                 case 0:
                     actorSetTargetSpeed(gCurrentActor, 0);
@@ -496,14 +496,14 @@ void func_806AF688(void) {
                 gCurrentActor->state = 0x11;
                 gCurrentActor->unk155 = 0;
             }
-            func_80724E48(gCurrentActor->state == 1 ? 2 : 0);
+            actorTrackBoneTowardTarget(gCurrentActor->state == 1 ? 2 : 0);
             actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
             break;
         case 2:
         case 3:
         case 7:
         case 0x35:
-            func_80724E48(gCurrentActor->state == 0x35 ? 2 : 3);
+            actorTrackBoneTowardTarget(gCurrentActor->state == 0x35 ? 2 : 3);
             actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
             break;
         case 0x37:
@@ -582,7 +582,7 @@ void func_806AFB58(void) {
         actorMoveWithinZone(0, 0.0f, 0.0f, 0x4200, 0.0f);
         break;
     case 0x11:
-        func_80724E48(5);
+        actorTrackBoneTowardTarget(5);
         switch (gCurrentActor->unk155) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
@@ -640,14 +640,14 @@ void func_806AFB58(void) {
         }
         state = gCurrentActor->state;
     case 0x10:
-        func_80724E48((state == 1) ? 2 : 0);
+        actorTrackBoneTowardTarget((state == 1) ? 2 : 0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
         break;
     case 2:
     case 3:
     case 7:
     case 0x35:
-        func_80724E48((state == 0x35) ? 2 : 3);
+        actorTrackBoneTowardTarget((state == 0x35) ? 2 : 3);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:

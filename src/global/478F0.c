@@ -2865,7 +2865,7 @@ s32 csCondFindPlayerSlotByModel(CsState *cs, s16 csId, s16 b, s16 c) {
         return 0;
     }
     modelSlotGetTransformVectors(id, &x, &y, &z, &rotX, &rotY, &rotZ, &extra0, &extra1, 1);
-    actorAppendCallbackPayloadABC0(0, gPlayerSlots[idx].actor, 9, rotY * 11.377778f, 0, x, y, z);
+    actorAppendEvent(0, gPlayerSlots[idx].actor, 9, rotY * 11.377778f, 0, x, y, z);
     return 0;
 }
 
@@ -3915,7 +3915,7 @@ s32 csCondCheckAllKongs(CsState *cs, s16 csId, s16 b, s16 c) {
     return res;
 }
 
-// Per-effect state of csEffectUpdateAlphaState, heapAlloc'd into EffectNode.allocation on the first frame.
+// Per-effect state of csEffectBobAndPulseUpdate, heapAlloc'd into EffectNode.allocation on the first frame.
 typedef struct CsEffState {
     /* 0x0 */ s16 phase;
     /* 0x2 */ s16 unk2;
@@ -3925,7 +3925,7 @@ typedef struct CsEffState {
 extern s8 D_807F6950;
 extern s8 D_807F6951;
 
-void csEffectUpdateAlphaState(EffectNode *e, u8 *flag) {
+void csEffectBobAndPulseUpdate(EffectNode *e, u8 *flag) {
     CsEffState *s;
 
     if (e->allocation == NULL) {
@@ -3977,7 +3977,7 @@ extern u8 D_80721530[];
 
 void csCmdSpawnActorAtPoint(CsState *cs, s16 csId, s16 b, s16 c) {
     effectSetColor(0xFF, 0xFF, 0xFF, 0x80);
-    effectSetCallback(csEffectUpdateAlphaState);
+    effectSetCallback(csEffectBobAndPulseUpdate);
     effectSetDuration(-1);
     effectSetDepth(1);
     effectSetMode(2);

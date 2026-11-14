@@ -11,7 +11,7 @@
 
 void alCSPSendMidi(); // ORIG: target passes seqPlayerSendMidi's s32 byte2 unmasked (lw t8,48(sp) at 0xc74, sw t8,16(sp) at 0xca0, no andi): the original TU had no u8 prototype for alCSPSendMidi in scope
 
-void postCSPChannelCommand(ALCSPlayer *, u8, u8, u8, s32);
+void alCSPSetFXParam(ALCSPlayer *, u8, u8, u8, s32);
 void alCSPSetChlPanVolume(ALCSPlayer *, f32, f32);
 void alCSPSetChlFX2Mix(ALCSPlayer *, u8, u8);
 
@@ -22,7 +22,7 @@ extern ALCSeqMarker D_8076C328[][4];
 extern N_CSPlayer *gSeqPlayers[];
 void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
 extern s32 D_8000DDCC;
-extern s32 D_8076D200;
+extern s32 sSeqRomOffsets;
 
 extern ALHeap D_8076D1E8;
 extern u8 D_80770F50[];
@@ -117,10 +117,10 @@ void func_806010A0(void) {
     s32 offset;
 
     size1 = 0x80;
-    dmaReadAssetDecompress(D_8000DDCC, &D_8076D200, &size1, 0, 0, 0, 0);
-    offset = D_8076D200;
+    dmaReadAssetDecompress(D_8000DDCC, &sSeqRomOffsets, &size1, 0, 0, 0, 0);
+    offset = sSeqRomOffsets;
     size2 = 0x2C0;
-    dmaReadAssetDecompress(D_8000DDCC + offset, &D_8076D200, &size2, 0, 0, 0, 0);
+    dmaReadAssetDecompress(D_8000DDCC + offset, &sSeqRomOffsets, &size2, 0, 0, 0, 0);
 }
 
 void seqPlayerPlay(u8 playerIndex) {
@@ -133,8 +133,8 @@ s32 seqPlayerGetState(u8 playerIndex) {
     return alCSPGetState(&gSeqPlayers[playerIndex]->al);
 }
 
-void func_806011A0(u8 playerIndex, OSMesgQueue *queue) {
-    alCSPSetUnk84(gSeqPlayers[playerIndex], queue);
+void seqPlayerSetEventQueue(u8 playerIndex, OSMesgQueue *queue) {
+    alCSPSetEventQueue(gSeqPlayers[playerIndex], queue);
 }
 
 typedef struct Struct806011D4 {
@@ -242,8 +242,8 @@ void seqPlayerSetTempo(u8 playerIndex, s32 tempo) {
 s32 seqPlayerGetTempo(u8 playerIndex) {
     return alCSPGetTempo(&gSeqPlayers[playerIndex]->al);
 }
-void func_806017E8(u8 playerIndex, u8 b0, u8 b1, u8 b2, s32 w3) {
-    postCSPChannelCommand(&gSeqPlayers[playerIndex]->al, b0, b1, b2, w3);
+void seqPlayerSetFXParam(u8 playerIndex, u8 b0, u8 b1, u8 b2, s32 w3) {
+    alCSPSetFXParam(&gSeqPlayers[playerIndex]->al, b0, b1, b2, w3);
 }
 
 void seqPlayerSetChannelPanVolume(u8 playerIndex, f32 pan, f32 volume) {

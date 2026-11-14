@@ -15,7 +15,7 @@
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 // K. Rool (Tiny phase) actor: component 2 (0x178) is the script state, component 3 (0x17C) the
-// array of the three actors spawned by func_8002FEC0 (group members 1-3; the leader is member 0).
+// array of the three actors spawned by bossKRoolTinySpawnMinion (group members 1-3; the leader is member 0).
 typedef struct BossKRoolTinyActor {
     /* 0x000 */ Actor base;
     /* 0x178 */ BossScriptState *scriptState;
@@ -41,7 +41,7 @@ typedef struct BossDogadonActor {
     /* 0x178 */ BossScriptState *scriptState;
 } BossDogadonActor;
 
-extern u8 *D_80035A90[];
+extern u8 *gDogadonPhaseScripts[];
 extern PlayerStruct *gPlayerSlots;
 extern void *gCamActor;
 
@@ -98,7 +98,7 @@ void bossDogadonStep(void) {
             zoneEntryGetPosition(1, 0, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
         }
     }
-    scriptOpcodes = D_80035A90[scriptState->phase];
+    scriptOpcodes = gDogadonPhaseScripts[scriptState->phase];
     bossRoundFrame(scriptOpcodes);
     switch (gCurrentActor->state) {
     case 0x28:
@@ -340,7 +340,7 @@ void func_8002FDF8(void *actorObj, u8 scaleVal) {
     }
 }
 
-void func_8002FEC0(minions, slotIndex, modelId)
+void bossKRoolTinySpawnMinion(minions, slotIndex, modelId)
 Actor **minions;
 u8 slotIndex;
 s32 modelId;
@@ -358,7 +358,7 @@ s32 modelId;
 #define KROOL_TINY_ACTOR ((BossKRoolTinyActor *)gCurrentActor)
 
 extern PlayerState *gActivePlayerState;
-extern u8 *D_80035AA4[];
+extern u8 *gKRoolTinyPhaseScripts[];
 
 void actorScriptStartByIndex(void *, s32);
 void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
@@ -382,9 +382,9 @@ void bossKRoolTinyStep(void) {
         gCurrentActor->state = 0;
         gCurrentActor->unk155 = 0;
         func_80724DB0(2, 1);
-        func_8002FEC0(minions, 0, 0x6D);
-        func_8002FEC0(minions, 1, 0x6E);
-        func_8002FEC0(minions, 2, 0x6F);
+        bossKRoolTinySpawnMinion(minions, 0, 0x6D);
+        bossKRoolTinySpawnMinion(minions, 1, 0x6E);
+        bossKRoolTinySpawnMinion(minions, 2, 0x6F);
         scriptState->unk12 = 0;
         if (flagGet(0x51, 2)) {
             func_8002FC48(gCurrentActor, 4);
@@ -407,7 +407,7 @@ void bossKRoolTinyStep(void) {
         scriptState->phase = 0;
         bossActorGroupCommand(gCurrentActor, 0xF, 0x40E, 0);
     }
-    scriptOpcodes = D_80035AA4[scriptState->phase];
+    scriptOpcodes = gKRoolTinyPhaseScripts[scriptState->phase];
     if (gCurrentActor->state) {
         ZoneEntry *p = D_807FDCA0->entries;
         camClosestPointOnSegment(gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z, p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, &gPrimaryPlayerActor->x, &dummyY, &gPrimaryPlayerActor->z);
@@ -516,7 +516,7 @@ void bossKRoolTinyStep(void) {
             if (gCurrentActor->callbackMask == 0) {
                 scriptState->phase++;
                 scriptState->scriptPos = 0;
-                scriptOpcodes = D_80035AA4[scriptState->phase];
+                scriptOpcodes = gKRoolTinyPhaseScripts[scriptState->phase];
             }
             gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
             gCurrentActor->unk155 = 0;

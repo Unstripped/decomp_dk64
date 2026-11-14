@@ -874,7 +874,7 @@ void playerStateApplyAttackerDamage(Actor *attacker) {
     }
 }
 
-extern KongInventory *D_807FD568;
+extern KongInventory *gCurrentKongInventory;
 
 void playerStateSetLaunchVelocity(void) {
     u8 gunSound;
@@ -1005,7 +1005,7 @@ void playerStateSetLaunchVelocity(void) {
         }
     }
     if (((gPlayerSlots[gCurrentPlayerIndex].queuedActor != NULL) && (gPlayerSlots[gCurrentPlayerIndex].queuedActor->actorType == 0x31)) || (gunSound != 0)) {
-        if (D_807FD568->weaponFlags & 1) {
+        if (gCurrentKongInventory->weaponFlags & 1) {
             if (gActivePlayerState->gunDrawn != 0) {
                 gActivePlayerState->stateFlags2 |= 4;
             } else {
@@ -1078,7 +1078,7 @@ void playerStateAttachHeldActorToPlayer(void) {
     Actor *held = gActivePlayerState->heldActor;
 
     if (held != NULL) {
-        actorAppendCallback4000(gCurrentActor, held, gActivePlayerActor->yaw, gCurrentActor->speedY,
+        actorAppendLaunch(gCurrentActor, held, gActivePlayerActor->yaw, gCurrentActor->speedY,
                                 gCurrentActor->speedXZ);
         gActivePlayerState->heldActor = NULL;
         gActivePlayerState->queuedHeldActor = NULL;

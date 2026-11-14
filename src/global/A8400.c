@@ -258,7 +258,7 @@ Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
     return gdl;
 }
 
-extern void *D_80755390[];
+extern void *gEffectGridAssets[];
 
 typedef struct SpriteObjectSlot {
     /* 0x00 */ u16 effectId;
@@ -280,7 +280,7 @@ void textBoxRowUpdateIcon(ResGlyph *row, ResRow *holder, ResQueueActorState *cha
         effectSetMode(2);
         effectSetBounds((s16) (s32) chain->boxLeft, (s16) (s32) chain->boxTop, (s16) (s32) chain->boxRight,
                       (s16) (s32) chain->boxBottom);
-        slot->effect = effectCreateAtPosition(D_80755390[slot->effectId], 1.0f, chain->boxLeft, chain->boxTop, 1);
+        slot->effect = effectCreateAtPosition(gEffectGridAssets[slot->effectId], 1.0f, chain->boxLeft, chain->boxTop, 1);
         if (slot->flip != 0) {
             slot->effect->scaleX *= -1.0f;
         }
@@ -599,7 +599,7 @@ void renderCalcChainCenterOffset(ResQueueActorState *head) {
 }
 
 extern Actor *gCurrentActor;
-extern u16 D_807ECD66;
+extern u16 gButtonsPressed;
 extern u8 D_807503F0;
 
 
@@ -620,17 +620,17 @@ void textBoxUpdate(void) {
         if (!(flags & 1)) {
             if (gCurrentActor->state != 4 && gCurrentActor->state != 5) {
                 if (sub->openTimer > 15.0) {
-                    if (D_807ECD66 & 0x4000) {
+                    if (gButtonsPressed & 0x4000) {
                         sub->inputFlags = flags | 1;
                         flags = sub->inputFlags;
                     }
-                    if (D_807ECD58.button & 0x2000) {
+                    if (gContPadCur.button & 0x2000) {
                         sub->inputFlags = flags | 2;
                     } else {
                         sub->inputFlags = flags & 0xFFFD;
                     }
                     flags = sub->inputFlags;
-                    if (!(flags & 2) && D_807ECD58.button == 0x8000) {
+                    if (!(flags & 2) && gContPadCur.button == 0x8000) {
                         sub->inputFlags = flags | 4;
                     } else {
                         sub->inputFlags = flags & 0xFFFB;

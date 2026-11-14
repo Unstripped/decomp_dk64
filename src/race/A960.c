@@ -24,7 +24,7 @@ typedef struct RaceRouteTable {
     /* 0x0C */ RaceWaypoint *items2;
 } RaceRouteTable;
 
-extern RaceRouteTable *D_8002FCF0;
+extern RaceRouteTable *sRaceRouteTable;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern PlayerStruct *gPlayerSlots;
@@ -33,20 +33,20 @@ extern u8 gPlayerCount;
 RaceRoute *raceGetRoute(u8 idx) {
     RaceRoute *e = NULL;
 
-    if (D_8002FCF0 == NULL || idx >= D_8002FCF0->count) {
+    if (sRaceRouteTable == NULL || idx >= sRaceRouteTable->count) {
         return NULL;
     }
-    e = &D_8002FCF0->items[idx];
+    e = &sRaceRouteTable->items[idx];
     return e;
 }
 
 RaceWaypoint *raceGetWaypoint(u8 idx) {
     RaceWaypoint *e = NULL;
 
-    if (D_8002FCF0 == NULL || idx >= D_8002FCF0->count2) {
+    if (sRaceRouteTable == NULL || idx >= sRaceRouteTable->count2) {
         return NULL;
     }
-    e = &D_8002FCF0->items2[idx];
+    e = &sRaceRouteTable->items2[idx];
     return e;
 }
 
@@ -62,14 +62,14 @@ void raceLoadRouteData(u8 *data) {
 
     if (data != NULL) {
         src = data;
-        memcpy(D_8002FCF0, src, 1);
+        memcpy(sRaceRouteTable, src, 1);
         src += 1;
-        memcpy(&D_8002FCF0->count2, src, 2);
+        memcpy(&sRaceRouteTable->count2, src, 2);
         src += 2;
-        D_8002FCF0->items = heapAlloc(D_8002FCF0->count * sizeof(RaceRoute));
-        heapClearBlock(D_8002FCF0->items);
-        ent = D_8002FCF0->items;
-        for (i = 0; i < D_8002FCF0->count; i++) {
+        sRaceRouteTable->items = heapAlloc(sRaceRouteTable->count * sizeof(RaceRoute));
+        heapClearBlock(sRaceRouteTable->items);
+        ent = sRaceRouteTable->items;
+        for (i = 0; i < sRaceRouteTable->count; i++) {
             memcpy(ent, src, 2);
             src += 2;
             ent->items = heapAlloc(ent->count * 2);
@@ -78,17 +78,17 @@ void raceLoadRouteData(u8 *data) {
             src += sz;
             ent++;
         }
-        D_8002FCF0->items2 = heapAlloc(D_8002FCF0->count2 * sizeof(RaceWaypoint));
-        heapClearBlock(D_8002FCF0->items2);
-        node = D_8002FCF0->items2;
-        for (m = 0; m < D_8002FCF0->count2; m++) {
+        sRaceRouteTable->items2 = heapAlloc(sRaceRouteTable->count2 * sizeof(RaceWaypoint));
+        heapClearBlock(sRaceRouteTable->items2);
+        node = sRaceRouteTable->items2;
+        for (m = 0; m < sRaceRouteTable->count2; m++) {
             memcpy(node, src, 0x1C);
             src += 0x1C;
             raceInitGateActors(node);
             node++;
         }
-        ent = D_8002FCF0->items;
-        for (i = 0; i < D_8002FCF0->count; i++) {
+        ent = sRaceRouteTable->items;
+        for (i = 0; i < sRaceRouteTable->count; i++) {
             ent->active = 0;
             for (j = 0; j < ent->count; j++) {
                 if (raceGetWaypoint(ent->items[j])->kind != 0) {
@@ -106,8 +106,8 @@ void raceInitRoute(s32 routeAssetId) {
     u8 *assetData;
 
     assetData = assetLoad(0x18, routeAssetId, 1, 1);
-    D_8002FCF0 = heapAlloc(0x10);
-    heapClearBlock(D_8002FCF0);
+    sRaceRouteTable = heapAlloc(0x10);
+    heapClearBlock(sRaceRouteTable);
     raceLoadRouteData(assetData);
     switch (routeAssetId) {
         case 0x1B:

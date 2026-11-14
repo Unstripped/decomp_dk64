@@ -170,10 +170,10 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
             actorReflectCollisionAngle(self, D_807FB5D8, selfBounds);
         }
     case 0:
-        actorAppendCallbackPayloadA908(self, other, &localPos[0], &localPts[0][0], D_807FB5D8->unk4E, D_807FB5D0, actorGetCollisionThreshold(self));
+        actorAppendCollisionHit(self, other, &localPos[0], &localPts[0][0], D_807FB5D8->unk4E, D_807FB5D0, actorGetCollisionThreshold(self));
         break;
     case 1:
-        actorAppendCallbackPayloadA864(self, other, self->yaw, (s16)(s32)self->speedXZ, &localPos[0], &localPts[0][0], D_807FB5D8->unk4E, D_807FB5D0, actorGetCollisionThreshold(self));
+        actorAppendSurfaceHit(self, other, self->yaw, (s16)(s32)self->speedXZ, &localPos[0], &localPts[0][0], D_807FB5D8->unk4E, D_807FB5D0, actorGetCollisionThreshold(self));
         if (actorIsTargetWithinAngle(gPlayerPadState[0].stickAngle, 400) && (f64)gPlayerPadState[0].stickMag > 30.0) {
             self->yaw = selfBounds->unk66;
         }

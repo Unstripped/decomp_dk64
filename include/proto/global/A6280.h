@@ -5,8 +5,8 @@
 #ifndef PROTO_SKIP_actorSeekTargetUpdate
 void actorSeekTargetUpdate(void);
 #endif
-#ifndef PROTO_SKIP_actorUpdateRampTarget
-void actorUpdateRampTarget(void);
+#ifndef PROTO_SKIP_actorFollowParentPulseUpdate
+void actorFollowParentPulseUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorNoopA6280
 void actorNoopA6280(void);
@@ -23,8 +23,8 @@ void actorPlaySoundVariantAndFinish(void);
 #ifndef PROTO_SKIP_actorSinkAndDespawn
 void actorSinkAndDespawn(void);
 #endif
-#ifndef PROTO_SKIP_actorMidpointOrbitUpdate
-void actorMidpointOrbitUpdate(void);
+#ifndef PROTO_SKIP_actorOrbitPlayerMidpointUpdate
+void actorOrbitPlayerMidpointUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorPlaceModelAtCamera
 void actorPlaceModelAtCamera(void);

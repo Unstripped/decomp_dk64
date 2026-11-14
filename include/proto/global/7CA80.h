@@ -130,17 +130,17 @@ void actorAppendMoveTarget2D(Actor *, Actor *, f32, f32, u8, u8);
 #ifndef PROTO_SKIP_actorAppendMoveTarget3D
 void actorAppendMoveTarget3D(Actor *, Actor *, f32, f32, f32, u8, u8);
 #endif
-#ifndef PROTO_SKIP_actorAppendCallback4000
-void actorAppendCallback4000(Actor *, Actor *, s16, f32, s16);
+#ifndef PROTO_SKIP_actorAppendLaunch
+void actorAppendLaunch(Actor *, Actor *, s16, f32, s16);
 #endif
-#ifndef PROTO_SKIP_actorAppendCallback10
-void actorAppendCallback10(Actor *, Actor *, f32, f32, f32, s32, u8);
+#ifndef PROTO_SKIP_actorAppendRiderPoint
+void actorAppendRiderPoint(Actor *, Actor *, f32, f32, f32, s32, u8);
 #endif
-#ifndef PROTO_SKIP_actorAppendCallbackPayloadA864
-void actorAppendCallbackPayloadA864(Actor *, Actor *, s16, s16, void *, void *, s32, s32, s32);
+#ifndef PROTO_SKIP_actorAppendSurfaceHit
+void actorAppendSurfaceHit(Actor *, Actor *, s16, s16, void *, void *, s32, s32, s32);
 #endif
-#ifndef PROTO_SKIP_actorAppendCallbackPayloadA908
-void actorAppendCallbackPayloadA908(Actor *, Actor *, void *, void *, s32, s32, s32);
+#ifndef PROTO_SKIP_actorAppendCollisionHit
+void actorAppendCollisionHit(Actor *, Actor *, void *, void *, s32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallbackS32
 void actorAppendCallbackS32(Actor *, Actor *, s32);
@@ -151,14 +151,14 @@ void actorAppendCallbackVec3f(Actor *, Actor *, f32, f32, f32);
 #ifndef PROTO_SKIP_actorAppendCallbackVec2f
 void actorAppendCallbackVec2f(Actor *, Actor *, f32, f32);
 #endif
-#ifndef PROTO_SKIP_actorAppendCallbackPayloadAAB8
-void actorAppendCallbackPayloadAAB8(Actor *, Actor *, s16, f32, s16);
+#ifndef PROTO_SKIP_actorAppendPlayerLaunch
+void actorAppendPlayerLaunch(Actor *, Actor *, s16, f32, s16);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallbackMemcpy8
 void actorAppendCallbackMemcpy8(Actor *, Actor *, s32, u8, void *, u8);
 #endif
-#ifndef PROTO_SKIP_actorAppendCallbackPayloadABC0
-void actorAppendCallbackPayloadABC0(Actor *, Actor *, u8, s16, s16, f32, f32, f32);
+#ifndef PROTO_SKIP_actorAppendEvent
+void actorAppendEvent(Actor *, Actor *, u8, s16, s16, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_actorGlobalStateClearEvents
 void actorGlobalStateClearEvents(void);

@@ -117,7 +117,7 @@ void bonusScoreHudUpdate(void) {
                 resQueueAttachActor(gCurrentActor, 0, actionParam);
                 gCurrentActor->state = 1;
                 hudSpawnCountdownTimer(0xDC, 0x2A, hud->timeLimit);
-            } else if ((D_807ECD58.button & 0x8000) && !(D_807ECD60.button & 0x8000)) {
+            } else if ((gContPadCur.button & 0x8000) && !(gContPadPrev.button & 0x8000)) {
                 camStartPath(gPrimaryPlayerActor, 1, 1);
                 gCurrentActor->state = 2;
                 hudSpawnCountdownTimer(0xDC, 0x2A, hud->timeLimit);
@@ -126,7 +126,7 @@ void bonusScoreHudUpdate(void) {
         }
         break;
     case 1:
-        if (!(gCurrentActor->flags & 0x02000000) || ((D_807ECD58.button & 0x8000) && !(D_807ECD60.button & 0x8000))) {
+        if (!(gCurrentActor->flags & 0x02000000) || ((gContPadCur.button & 0x8000) && !(gContPadPrev.button & 0x8000))) {
             camResumePath();
             gCurrentActor->state = 2;
             hudCountdownTimerStart(gCurrentActor->parentActor);

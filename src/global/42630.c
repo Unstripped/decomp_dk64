@@ -591,7 +591,7 @@ typedef struct CsCondRow {
 } CsCondRow; /* 0x306 */
 
 extern PlayerStruct *gPlayerSlots;
-extern KongInventory *D_807FD568;
+extern KongInventory *gCurrentKongInventory;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern u8 gGameMode;
@@ -727,7 +727,7 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x25:
-        if (D_807FD568->slamLevel >= cmd->a) {
+        if (gCurrentKongInventory->slamLevel >= cmd->a) {
             ret = 1;
         } else {
             ret = 0;
@@ -1742,7 +1742,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x49:
-        actorAppendCallbackPayloadABC0(0, gPlayerSlots->actor, CMDB(cmd)->a, cmd->b, cmd->c, gCsPosX, gCsPosY, gCsPosZ);
+        actorAppendEvent(0, gPlayerSlots->actor, CMDB(cmd)->a, cmd->b, cmd->c, gCsPosX, gCsPosY, gCsPosZ);
         break;
     case 0x4D:
         idx = modelSlotAppend(cmd->a, D_807F690C, D_807F6910, D_807F6914, D_807F6910 - D_807F6218, 0);

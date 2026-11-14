@@ -4,17 +4,17 @@
 #include "common.h"
 struct MenuRenderActor;
 struct MenuState;
-#ifndef PROTO_SKIP_menuPlaySoundFromTable
-void menuPlaySoundFromTable(struct MenuState *);
+#ifndef PROTO_SKIP_menuStartNextCamPath
+void menuStartNextCamPath(struct MenuState *);
 #endif
-#ifndef PROTO_SKIP_menuSpawnPositionalActor
-void menuSpawnPositionalActor(struct MenuState *);
+#ifndef PROTO_SKIP_menuSpawnFallingEffect
+void menuSpawnFallingEffect(struct MenuState *);
 #endif
 #ifndef PROTO_SKIP_menuUpdateFallingActor
 void menuUpdateFallingActor(struct MenuState *);
 #endif
-#ifndef PROTO_SKIP_menuResetAudioState
-void menuResetAudioState(void);
+#ifndef PROTO_SKIP_menuExit
+void menuExit(void);
 #endif
 #ifndef PROTO_SKIP_menuMainStateStep
 void menuMainStateStep(struct MenuState *, s32);

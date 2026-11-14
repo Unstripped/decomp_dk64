@@ -1011,7 +1011,7 @@ void playerInputHandleAButtonState61(void) {
 extern u8 D_8071FBC8;
 extern u8 D_807200D4;
 extern f32 D_80753E2C[];
-extern KongInventory *D_807FD568;
+extern KongInventory *gCurrentKongInventory;
 extern s16 D_80753E64[];
 
 
@@ -1031,7 +1031,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
     s32 hasFlag;
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) || force) {
-        flags = D_807FD568->weaponFlags;
+        flags = gCurrentKongInventory->weaponFlags;
         if ((flags & 2) && slotQueueGetValue(3, gCurrentPlayerIndex)) {
             sel = 3;
         } else {
@@ -1265,7 +1265,7 @@ void playerInputHandlerCheckZAndTriggerState2C(void) {
 
 
 void playerFireWeaponIfOwned(void) {
-    if (D_807FD568->weaponFlags & 1) {
+    if (gCurrentKongInventory->weaponFlags & 1) {
         playerFireWeapon(0, 0);
     }
 }
@@ -1914,7 +1914,7 @@ void playerInputHandleZButtonFire(void) {
             }
             gActivePlayerState->gunDrawn = 0;
             func_806EAB44(gCurrentActor, 0);
-        } else if (!func_80714608(0) && !(gGlobalOverlayFlags & 0x80000200) && (D_807FD568->weaponFlags & 1) &&
+        } else if (!func_80714608(0) && !(gGlobalOverlayFlags & 0x80000200) && (gCurrentKongInventory->weaponFlags & 1) &&
                    !(gActivePlayerState->stateFlags & 0x30) &&
                    (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1)) {
             playerToggleGun(gCurrentActor, gActivePlayerState, 1);
@@ -1935,7 +1935,7 @@ void playerInputHandleZButtonShoot(void) {
             }
             gActivePlayerState->gunDrawn = 0;
             func_806EAB44(gCurrentActor, 0);
-        } else if (!func_80714608(0) && !(gGlobalOverlayFlags & 0x200) && (D_807FD568->weaponFlags & 1) &&
+        } else if (!func_80714608(0) && !(gGlobalOverlayFlags & 0x200) && (gCurrentKongInventory->weaponFlags & 1) &&
                    (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1)) {
             playerToggleGun(gCurrentActor, gActivePlayerState, 1);
             gPlayerSlots[gCurrentPlayerIndex].fov = 45.0f;
@@ -1970,7 +1970,7 @@ extern s32 gGlobalCutsceneFlags;
 void playerInputCheckInstrumentPlayback(void) {
     u8 isTarget;
 
-    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) && (gFrameCounter >= 3) && (D_807FD568->instrumentFlags & 1) &&
+    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) && (gFrameCounter >= 3) && (gCurrentKongInventory->instrumentFlags & 1) &&
         !(gGlobalOverlayFlags & 0x4000) && !(gGlobalCutsceneFlags & 1) &&
         (gPlayerSlots[gCurrentPlayerIndex].unk2C0 != 2) &&
         (playerInputCheckTargetMoved(gCurrentActor) == 0) && (actorAnyActiveHasFlag2000000() == 0) &&
@@ -2194,13 +2194,13 @@ int func_806E5C74(void) {
         }
     }
     return ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000) != 0) && (gActivePlayerState->currentScale[0] * 66.0 < fv) &&
-           (gPlayerCharacterId[gCurrentPlayerIndex] != 6) && (D_807FD568->slamLevel != 0);
+           (gPlayerCharacterId[gCurrentPlayerIndex] != 6) && (gCurrentKongInventory->slamLevel != 0);
 }
 
 
 void playerInputCheckEnterLongJump(void) {
     if (func_806E5C74() != 0) {
-        switch (D_807FD568->slamLevel) {
+        switch (gCurrentKongInventory->slamLevel) {
             case 2:
                 actorScriptStartByIndex(gCurrentActor, 0x17);
                 controllerAnimSetStateRemap(gCurrentActor, 0x18, 0.0f, 3.0f);
@@ -2237,7 +2237,7 @@ void playerInputQueueCrouchCallbackDirect(void) {
 }
 
 void playerInputHandleBButtonMusicalInstrument(void) {
-    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (D_807FD568->weaponFlags & 1) &&
+    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gCurrentKongInventory->weaponFlags & 1) &&
         (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) && !(gActivePlayerState->stateFlags & 0x30) &&
         (func_80714608(0) == 0)) {
         playerStateQueueCallback(0x14, 0, gCurrentPlayerIndex);
@@ -2245,7 +2245,7 @@ void playerInputHandleBButtonMusicalInstrument(void) {
 }
 
 void playerInputHandleBButtonFairyCamera(void) {
-    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (D_807FD568->weaponFlags & 1) && !(gGlobalOverlayFlags & 0x200) &&
+    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gCurrentKongInventory->weaponFlags & 1) && !(gGlobalOverlayFlags & 0x200) &&
         (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) && !(gActivePlayerState->stateFlags & 0x30) &&
         (func_80714608(0) == 0)) {
         playerStateQueueCallback(0x15, 0, gCurrentPlayerIndex);
@@ -2951,7 +2951,7 @@ void playerInputSetClimbTimer50(void) {
     }
 }
 
-void func_806E854C(LaneActorState *st, s32 idleAnim, s32 moveAnim) {
+void playerInputUpdateSteerAnim(LaneActorState *st, s32 idleAnim, s32 moveAnim) {
     AnimSlot *sub;
     s32 n;
     f32 f;
@@ -2986,7 +2986,7 @@ void func_806E854C(LaneActorState *st, s32 idleAnim, s32 moveAnim) {
     }
 }
 
-void func_806E8724(LaneActor *actor, LaneActorState *st) {
+void playerInputReadLaneSteer(LaneActor *actor, LaneActorState *st) {
     s32 sign;
     s32 t;
     f32 f;
@@ -3023,7 +3023,7 @@ void playerInputUpdateHeldActorVineClimb(void) {
 
     a = ((LaneActor *)gActivePlayerState->actor);
     if (a != NULL) {
-        func_806E8724(a, a->base.customState);
+        playerInputReadLaneSteer(a, a->base.customState);
     }
 }
 
@@ -3068,7 +3068,7 @@ void playerInputPlayHeldActorClimbSfx(void) {
             rightAnim = 0x55;
         }
         st = a->base.customState;
-        func_806E8724(a, st);
+        playerInputReadLaneSteer(a, st);
         if (camIsCutsceneActive() == 0 && gActivePlayerActor->sub4->animId != 0x3B5) {
             if (st->steer < 0.2f && st->steer > -0.2f && idleAnim != gActivePlayerActor->sub4->model->animId) {
                 if (gActivePlayerActor->sub4->model->speed >= 0.0f && gActivePlayerActor->sub4->model->frame > 0.0f) {
@@ -3080,11 +3080,11 @@ void playerInputPlayHeldActorClimbSfx(void) {
                 }
             } else {
                 if (st->steer < -0.2f) {
-                    func_806E854C(st, idleAnim, leftAnim);
+                    playerInputUpdateSteerAnim(st, idleAnim, leftAnim);
                     return;
                 }
                 if (st->steer > 0.2f) {
-                    func_806E854C(st, idleAnim, rightAnim);
+                    playerInputUpdateSteerAnim(st, idleAnim, rightAnim);
                 }
             }
         }
@@ -3164,7 +3164,7 @@ void func_806E8BFC(void) {
     }
 }
 
-void func_806E8C2C(void) {
+void playerInputStepLane(void) {
     LaneActor *a;
     LaneActorState *st;
     LaneComponent *o;

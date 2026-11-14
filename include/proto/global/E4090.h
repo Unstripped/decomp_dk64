@@ -392,11 +392,11 @@ void playerInputSetClimbTimer100(void);
 #ifndef PROTO_SKIP_playerInputSetClimbTimer50
 void playerInputSetClimbTimer50(void);
 #endif
-#ifndef PROTO_SKIP_func_806E854C
-void func_806E854C(struct LaneActorState *, s32, s32);
+#ifndef PROTO_SKIP_playerInputUpdateSteerAnim
+void playerInputUpdateSteerAnim(struct LaneActorState *, s32, s32);
 #endif
-#ifndef PROTO_SKIP_func_806E8724
-void func_806E8724(struct LaneActor *, struct LaneActorState *);
+#ifndef PROTO_SKIP_playerInputReadLaneSteer
+void playerInputReadLaneSteer(struct LaneActor *, struct LaneActorState *);
 #endif
 #ifndef PROTO_SKIP_playerInputUpdateHeldActorVineClimb
 void playerInputUpdateHeldActorVineClimb(void);
@@ -425,8 +425,8 @@ void func_806E8BA4(void);
 #ifndef PROTO_SKIP_func_806E8BFC
 void func_806E8BFC(void);
 #endif
-#ifndef PROTO_SKIP_func_806E8C2C
-void func_806E8C2C(void);
+#ifndef PROTO_SKIP_playerInputStepLane
+void playerInputStepLane(void);
 #endif
 #ifndef PROTO_SKIP_func_806E8D54
 void func_806E8D54(void);

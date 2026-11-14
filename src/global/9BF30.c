@@ -192,7 +192,7 @@ void projectileSpriteRingUpdate(void) {
             count = gCurrentActor->unk15F;
             gCurrentActor->unk15F = count - 1;
             if (count) {
-                projectileSpawnActor107(0, sub->spriteCount, sub->radius, sub->speed, 0, 0x10);
+                projectileSpawnSpriteRing(0, sub->spriteCount, sub->radius, sub->speed, 0, 0x10);
                 if (gCurrentActor->unk15F == 0) {
                     gCurrentActor->yawSpeed = 0x10;
                 } else {
