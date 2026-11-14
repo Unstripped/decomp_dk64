@@ -655,7 +655,7 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
     s8 *p;
     s16 *q;
     u32 expected;
-    void *asset;
+    u8 flag;
     u32 ioVal;
     s32 i;
     s32 k;
@@ -669,17 +669,12 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
     D_80033804 = 1;
     q = &D_807505B2; p = &D_80033805; i = (s32)&D_80033809; // FAKE: loop counter i holds the end address (s32); an s8 *end local swaps s1/s2 between q and the end (as1 group kept on one line)
     do {
-        k = flagGet(q[-1], 0); // FAKE: k (the later row counter) doubles as the flag temp; *p++ = flagGet() puts the sb in the bnez delay slot and a separate flag local also differs
+        flag = flagGet(q[-1], 0);
         q++;
-        *p++ = k;
+        *p++ = flag;
     } while (p < (s8 *)i);
     for (p = &D_80033805 - 1, i = 0; i != 5; i++) {
-        if (*p != 0) {
-            asset = D_80750518[i];
-        } else {
-            asset = &D_807211D0;
-        }
-        menuSpawnUiElementEffect(state, asset, i, i, 0.8f, 2, 0xF);
+        menuSpawnUiElementEffect(state, *p != 0 ? D_80750518[i] : &D_807211D0, i, i, 0.8f, 2, 0xF);
         p++;
     }
     osPiReadIo(menuDecodePiAddressConstant(0xAFFE1464), &ioVal);
