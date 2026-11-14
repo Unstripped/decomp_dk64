@@ -357,3 +357,4 @@
 {"type": "unit", "t": "2026-11-14T19:15:54Z", "unit": "2026-11-14: cleanup HackeffectWaterInitNodes", "commit": "86af9595b5019a5361a6e7227244a484d0ad7930"}
 {"type": "unit", "t": "2026-11-14T19:17:25Z", "unit": "2026-11-14: cleanup HackplayerInputStepTurnFacingAngle", "commit": "6e0afcdf88ed4139826606beca0ecfba672774b6"}
 {"type": "unit", "t": "2026-11-14T19:17:30Z", "unit": "2026-11-14: cleanup Hackfunc_807135B4", "commit": "4edd11f1d7a849d41027a1601c5d9c1c0da71ca7"}
+{"type": "unit", "t": "2026-11-14T19:17:57Z", "unit": "2026-11-14: cleanup HackhealthRefill", "commit": "8acb620a15d3a2f8946885a43f9faa4ede58898f"}
