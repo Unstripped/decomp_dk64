@@ -102,17 +102,18 @@ void actorSpawnNodeEntryScaled(s16 actorType, f32 x, f32 y, f32 z, s32 yaw, s32 
     actorListSpawnNodeEntry(actorType, x, y, z, 0, scale, extraParam, vec);
 }
 
-typedef struct BehaviourState {
-    /* 0x0 */ u8 unk0;
+// customState of the drop-and-bounce pickups (actorDropBounceExpireUpdate).
+typedef struct DropBounceState {
+    /* 0x0 */ u8 bounceCount;
     /* 0x1 */ u8 unk1;
     /* 0x2 */ u8 pad2[2];
-    /* 0x4 */ u8 *unk4;
-    /* 0x8 */ u16 unk8;
+    /* 0x4 */ EffectNode *sprite;
+    /* 0x8 */ u16 expireTimer;
     /* 0xA */ s16 unkA;
-} BehaviourState;
+} DropBounceState;
 
 void effectSpawnAttachedSprite(void *targetState, void *spriteAsset, f32 scale) {
-    BehaviourState *state = targetState;
+    DropBounceState *state = targetState;
 
     if (gGlobalCutsceneFlags & 0x10) {
         scale *= 2.0f;
@@ -120,7 +121,7 @@ void effectSpawnAttachedSprite(void *targetState, void *spriteAsset, f32 scale) 
     effectSetDuration(-1);
     effectSetDepth(1);
     effectSetMode(2);
-    state->unk4 = effectCreateAtActorBone(spriteAsset, scale * 0.35, gCurrentActor, 1, 2);
+    state->sprite = effectCreateAtActorBone(spriteAsset, scale * 0.35, gCurrentActor, 1, 2);
 }
 
 void func_806A5F44(void) {
@@ -317,29 +318,30 @@ void func_806A6574(void) {
     }
 }
 
-typedef struct BehaviourConfig {
-    /* 0x0 */ f32 unk0;
-    /* 0x4 */ f32 unk4;
+// spawnData of the bouncing pickups (actorDropBounceExpireUpdate, actorBounceFadeInSpinUpdate).
+typedef struct BounceSpawnConfig {
+    /* 0x0 */ f32 initialState;
+    /* 0x4 */ f32 yaw;
     /* 0x8 */ f32 unk8;
-} BehaviourConfig;
+} BounceSpawnConfig;
 
 extern s16 D_8075038C;
 
 void actorDropBounceExpireUpdate(f32 floorOffset) {
-    BehaviourState *state;
+    DropBounceState *state;
 
     state = gCurrentActor->customState;
     if (gGlobalCutsceneFlags & 0x10) {
         floorOffset *= 2.0f;
     }
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->state = (s32)((BehaviourConfig *)gCurrentActor->spawnData)->unk0;
-        gCurrentActor->moveYaw = ((BehaviourConfig *)gCurrentActor->spawnData)->unk4;
+        gCurrentActor->state = (s32)((BounceSpawnConfig *)gCurrentActor->spawnData)->initialState;
+        gCurrentActor->moveYaw = ((BounceSpawnConfig *)gCurrentActor->spawnData)->yaw;
         gCurrentActor->yaw = gCurrentActor->moveYaw;
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        state->unk0 = 0;
+        state->bounceCount = 0;
         state->unk1 = 0;
-        state->unkA = ((BehaviourConfig *)gCurrentActor->spawnData)->unk8;
+        state->unkA = ((BounceSpawnConfig *)gCurrentActor->spawnData)->unk8;
         gCurrentActor->unkFA = 0x270F;
     }
     if (gActorGlobalState.unk0 != 0) {
@@ -379,7 +381,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
             gCurrentActor->speedY = D_8075038C;
         }
         if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
-            switch (state->unk0) {
+            switch (state->bounceCount) {
             case 0:
                 if (gCurrentActor->unk15F != 1) {
                     state->unk1 = 1;
@@ -399,7 +401,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
                     state->unk1 = 1;
                 }
                 if (gCurrentActor->actorType != 0x6E && gCurrentActor->actorType != 0x8C && !(gGlobalOverlayFlags & 0x4000) && gCurrentActor->unk15F != 2) {
-                    state->unk8 = 0x64;
+                    state->expireTimer = 0x64;
                     gCurrentActor->state = 3;
                 } else {
                     gCurrentActor->state = 0x64;
@@ -411,7 +413,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF5, gCurrentActor->speedY + 105.0f, 0x7F, 0x1E);
                 break;
             case 0x36:
-                if (state->unk0 == 0) {
+                if (state->bounceCount == 0) {
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1D1, 0xFF, 0x7F, 0xA);
                 }
                 break;
@@ -419,20 +421,20 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 1, gCurrentActor->speedY + 105.0f, 0x7F, 0x14);
                 break;
             }
-            state->unk0++;
+            state->bounceCount++;
         }
         break;
     case 3:
         if (camIsCutsceneActive() == 0) {
-            state->unk8--;
+            state->expireTimer--;
         }
-        if (state->unk8 == 0) {
+        if (state->expireTimer == 0) {
             gCurrentActor->state = 4;
         }
         break;
     case 4:
-        state->unk4[0x36D] -= 5;
-        if (state->unk4[0x36D] < 0xA) {
+        state->sprite->alpha -= 5;
+        if (state->sprite->alpha < 0xA) {
             if ((gGlobalOverlayFlags & 0x10000) && actorTypeIsRespawnPickup(gCurrentActor->actorType) != 0) {
                 func_806F5F2C(gCurrentActor->actorType, 0x258, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
@@ -440,30 +442,38 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         }
         break;
     case 25:
-        state->unk8 = 0x64;
+        state->expireTimer = 0x64;
         gCurrentActor->state = 3;
         state->unk1 = 1;
         break;
     }
 }
 
-typedef struct EffectState {
-    u8 unk0;
-    u8 unk1;
-    s8 unk2;
-    u8 pad3[1];
-    u16 unk4;
-    s16 unk6;
-    u16 unk8;
-    s16 unkA;
-} EffectState;
+// customState of the fade-in spinning bouncers (actorBounceFadeInSpinUpdate, actorUpdateSfxAndGround).
+typedef struct BounceFadeState {
+    /* 0x0 */ u8 bounceCount;
+    /* 0x1 */ u8 unk1;
+    /* 0x2 */ u8 pad2[6];
+    /* 0x8 */ u16 fadeInFrames;
+    /* 0xA */ s16 unkA;
+} BounceFadeState;
+
+// customState of the path-following collectibles (actorPathCollectibleUpdate).
+typedef struct PathCollectibleState {
+    /* 0x0 */ u8 pathId;
+    /* 0x1 */ u8 pathSpeed;
+    /* 0x2 */ s8 pathHandle;
+    /* 0x3 */ u8 pad3[1];
+    /* 0x4 */ u16 bobAngle;
+    /* 0x6 */ s16 collectedFlag;
+} PathCollectibleState;
 
 extern s16 D_80750384;
 extern f32 D_80750388;
 
 
 void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
-    EffectState *state;
+    BounceFadeState *state;
     s16 volume;
 
     state = gCurrentActor->customState;
@@ -473,19 +483,19 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
         gCurrentActor->tintG = 0xFF;
         gCurrentActor->tintB = 0xFF;
         gCurrentActor->flags &= ~0x8000;
-        gCurrentActor->state = (s32)((BehaviourConfig *)gCurrentActor->spawnData)->unk0;
-        gCurrentActor->moveYaw = ((BehaviourConfig *)gCurrentActor->spawnData)->unk4;
+        gCurrentActor->state = (s32)((BounceSpawnConfig *)gCurrentActor->spawnData)->initialState;
+        gCurrentActor->moveYaw = ((BounceSpawnConfig *)gCurrentActor->spawnData)->yaw;
         gCurrentActor->yaw = gCurrentActor->moveYaw;
-        state->unk0 = 0;
+        state->bounceCount = 0;
         state->unk1 = 1;
-        state->unkA = ((BehaviourConfig *)gCurrentActor->spawnData)->unk8;
+        state->unkA = ((BounceSpawnConfig *)gCurrentActor->spawnData)->unk8;
         gCurrentActor->unkFA = 0x270F;
         playerAddHealthDelta(0, 0x40);
     }
-    if ((f32)state->unk8 < 30.0f) {
-        state->unk8++;
+    if ((f32)state->fadeInFrames < 30.0f) {
+        state->fadeInFrames++;
     }
-    gCurrentActor->alpha = state->unk8 * 0.033333335f * 255.0f;
+    gCurrentActor->alpha = state->fadeInFrames * 0.033333335f * 255.0f;
     if (gActorGlobalState.unk0 != 0) {
         gCurrentActor->state = gActorGlobalState.unk1[0];
     }
@@ -538,7 +548,7 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
         }
         if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
             volume = 0xC8;
-            switch (state->unk0) {
+            switch (state->bounceCount) {
             case 0:
                 gCurrentActor->speedY = 1600.0f;
                 gCurrentActor->speedXZ = gCurrentActor->speedXZ / 2;
@@ -565,7 +575,7 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
             if (gCurrentActor->actorType == 0x48) {
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x2A1, volume, 0x7F, 0, 0, 0.0f, 0);
             }
-            state->unk0++;
+            state->bounceCount++;
         }
         break;
     case 0x64:
@@ -581,7 +591,7 @@ void actorBounceFadeInSpinUpdateType1(void) {
 
 
 void actorUpdateSfxAndGround(void) {
-    EffectState *state;
+    BounceFadeState *state;
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -589,10 +599,10 @@ void actorUpdateSfxAndGround(void) {
         gCurrentActor->flags |= 0x400;
         effectSpawnBurstParticleCluster(gCurrentActor);
     }
-    if (state->unk8 == 1) {
+    if (state->fadeInFrames == 1) {
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x73, 0xFF, 0x7F, 1, 0, 0.0f, 0);
         sfxAllocateChannel(0x3B, 0.7f);
-    } else if (state->unk8 == 0xA) {
+    } else if (state->fadeInFrames == 0xA) {
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x19C, 0xB4, 0x7F, 1, 0, 0.0f, 0);
     }
     actorBounceFadeInSpinUpdate(0);
@@ -620,84 +630,85 @@ void actorSpawnRingBurstAndUpdate(void) {
 
 
 
-typedef struct AA960ConfigInt {
-    s32 unk0;
-    s32 unk4;
-} AA960ConfigInt;
+// spawnData of the path-following collectibles.
+typedef struct PathCollectibleConfig {
+    s32 pathId;
+    s32 pathSpeed;
+} PathCollectibleConfig;
 
 void actorPathCollectibleUpdate(void *spriteAsset) {
-    EffectState *state;
-    s16 flagId;
-    s32 cond;
-    s32 flag;
+    PathCollectibleState *state;
+    s16 unlockFlag;
+    s32 otherKong;
+    s32 unlocked;
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         if (gCurrentActor->actorType == 0x93) {
-            state->unk6 = -1;
+            state->collectedFlag = -1;
         } else {
-            state->unk6 = actorListLookupEntry(actorListFindIdByActor(gCurrentActor));
+            state->collectedFlag = actorListLookupEntry(actorListFindIdByActor(gCurrentActor));
         }
-        if (state->unk6 != -1 && flagGet(state->unk6, 0) != 0) {
+        if (state->collectedFlag != -1 && flagGet(state->collectedFlag, 0) != 0) {
             actorDespawn(gCurrentActor);
             return;
         }
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         actorSetCollisionRadius(gCurrentActor, 175.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 12.0f, 0.0f, 80.0f, -1);
-        state->unk0 = ((AA960ConfigInt *)gCurrentActor->spawnData)->unk0;
-        state->unk1 = ((AA960ConfigInt *)gCurrentActor->spawnData)->unk4;
-        state->unk2 = pathPlaybackStart(gCurrentActor, state->unk0, 0, 0.0f, 0.0f, 0.0f, 0);
-        if (state->unk2 != -1) {
-            pathPlaybackSetLooping(state->unk2, 1);
-            pathPlaybackSetSpeed(state->unk2, state->unk1);
-            pathPlaybackSetLoopLimit(state->unk2, -1);
-            pathPlaybackSetActive(state->unk2, 1);
+        state->pathId = ((PathCollectibleConfig *)gCurrentActor->spawnData)->pathId;
+        state->pathSpeed = ((PathCollectibleConfig *)gCurrentActor->spawnData)->pathSpeed;
+        state->pathHandle = pathPlaybackStart(gCurrentActor, state->pathId, 0, 0.0f, 0.0f, 0.0f, 0);
+        if (state->pathHandle != -1) {
+            pathPlaybackSetLooping(state->pathHandle, 1);
+            pathPlaybackSetSpeed(state->pathHandle, state->pathSpeed);
+            pathPlaybackSetLoopLimit(state->pathHandle, -1);
+            pathPlaybackSetActive(state->pathHandle, 1);
         }
-        state->unk4 = 0;
+        state->bobAngle = 0;
     } else {
-        if (state->unk2 != -1) {
-            pathPlaybackAdvance(state->unk2);
-            pathPlaybackGetPosition(state->unk2, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
+        if (state->pathHandle != -1) {
+            pathPlaybackAdvance(state->pathHandle);
+            pathPlaybackGetPosition(state->pathHandle, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
         }
-        gCurrentActor->y += 5.0 * mathSinF(state->unk4);
-        state->unk4 = (state->unk4 + 0x50) & 0xFFF;
+        gCurrentActor->y += 5.0 * mathSinF(state->bobAngle);
+        state->bobAngle = (state->bobAngle + 0x50) & 0xFFF;
         if (gGameFrameCounter % 0x18 == 0) {
             switch (gCurrentActor->actorType) {
             case 0x5B:
-                flagId = 6;
+                unlockFlag = 6;
                 break;
             case 0x6F:
-                flagId = 0x75;
+                unlockFlag = 0x75;
                 break;
             case 0x70:
-                flagId = 0x42;
+                unlockFlag = 0x42;
                 break;
             case 0x71:
-                flagId = 0x46;
+                unlockFlag = 0x46;
                 break;
             default:
-                flagId = -1;
+                unlockFlag = -1;
                 break;
             }
-            flag = (flagId == -1 || flagGet(flagId, 0) != 0) ? 1 : 0;
-            if (flag != 0) {
+            unlocked = (unlockFlag == -1 || flagGet(unlockFlag, 0) != 0) ? 1 : 0;
+            if (unlocked != 0) {
                 effectSetDepth(1);
-                cond = 1;
+                otherKong = 1;
                 if (gCurrentActor->actorType == 0x93) {
-                    cond = 0;
+                    otherKong = 0;
                 } else if (gPrimaryPlayerActor->actorType == 3 && gCurrentActor->actorType == 0x5B) {
-                    cond = 0;
+                    otherKong = 0;
                 } else if (gPrimaryPlayerActor->actorType == 6 && gCurrentActor->actorType == 0x6F) {
-                    cond = 0;
+                    otherKong = 0;
                 } else if (gPrimaryPlayerActor->actorType == 5 && gCurrentActor->actorType == 0x70) {
-                    cond = 0;
+                    otherKong = 0;
                 } else if (gPrimaryPlayerActor->actorType == 4 && gCurrentActor->actorType == 0x71) {
-                    cond = 0;
+                    otherKong = 0;
                 } else if (gPrimaryPlayerActor->actorType == 2 && gCurrentActor->actorType == 0x72) {
-                    cond = 0;
+                    otherKong = 0;
                 }
-                if (cond != 0) {
+                if (otherKong != 0) {
                     effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
                 } else {
                     effectSetCallback(&effectProximityFadeUpdate);
@@ -718,8 +729,8 @@ void actorPathCollectibleUpdate(void *spriteAsset) {
             if (gCurrentActor->actorType == 0x93) {
                 func_80724994(3, 1, 0x27, 0, 0);
             } else {
-                if (state->unk6 != -1) {
-                    flagSet(state->unk6, 1, 0);
+                if (state->collectedFlag != -1) {
+                    flagSet(state->collectedFlag, 1, 0);
                 }
                 slotQueueUpdate(0, 0, 0);
                 slotQueueAddValue(0, 0, 0xA);
@@ -762,19 +773,20 @@ void actorPathCollectibleUpdate1004B(void) {
 }
 
 
-typedef struct SfxTable {
-    void *unk0[7];
-} SfxTable;
+// Seven sprite assets the sparkle actor picks from at random.
+typedef struct SparkleSpriteTable {
+    void *sprites[7];
+} SparkleSpriteTable;
 
 extern u8 gPlayerCharacterId;
 extern KongInventory gPlayerInventoryTable[];
 extern u8 D_80721170;
-extern SfxTable D_807504A4;
+extern SparkleSpriteTable D_807504A4;
 
 void effectActorSparkleTick(void) {
     s32 flag;
     s32 idx;
-    SfxTable table;
+    SparkleSpriteTable table;
 
     flag = gPlayerInventoryTable[gPlayerCharacterId].unk0[4] & 1;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -792,7 +804,7 @@ void effectActorSparkleTick(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetSpeed(100);
-        effectCreateAtActorBone(table.unk0[idx], 0.2f, gCurrentActor, 1, 0);
+        effectCreateAtActorBone(table.sprites[idx], 0.2f, gCurrentActor, 1, 0);
         sfxAllocateChannel(0x7F, 1.0f);
         slotQueueUpdate(7, 0, 0);
         slotQueueAddValue(7, 0, slotQueueGetMaxValue(7, 0));
@@ -810,10 +822,11 @@ void effectActorSparkleTick(void) {
     }
 }
 
-typedef struct SparkleState {
-    f32 unk0;
-    s16 unk4;
-} SparkleState;
+// customState of the shrinking actor (effectActorShrinkTick).
+typedef struct ShrinkState {
+    f32 scale;
+    s16 frames;
+} ShrinkState;
 
 extern u8 D_807504C8;
 extern u8 D_807504CC;
@@ -822,15 +835,15 @@ extern f32 D_807504C0;
 extern f32 D_807504C4;
 
 void effectActorShrinkTick(void) {
-    SparkleState *state;
+    ShrinkState *state;
     BoneVector *scales;
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->sub4->boneScales = heapAlloc(0x20);
         heapClearBlock(gCurrentActor->sub4->boneScales);
-        state->unk4 = 0;
-        state->unk0 = 1.0f;
+        state->frames = 0;
+        state->scale = 1.0f;
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->flags |= 0x40000000;
         gCurrentActor->alpha = D_807504CC;
@@ -838,17 +851,17 @@ void effectActorShrinkTick(void) {
     if (D_807504D0 < gCurrentActor->alpha) {
         gCurrentActor->alpha -= D_807504D0;
     }
-    state->unk4 += 1;
-    if (D_807504C4 < state->unk4) {
+    state->frames += 1;
+    if (D_807504C4 < state->frames) {
         actorDespawn(gCurrentActor);
     } else {
-        state->unk0 *= D_807504C0;
+        state->scale *= D_807504C0;
         scales = gCurrentActor->sub4->boneScales;
         scales->bone = D_807504C8;
         scales->lastBone = 0xFF;
-        scales->x = state->unk0;
-        scales->y = state->unk0;
-        scales->z = state->unk0;
+        scales->x = state->scale;
+        scales->y = state->scale;
+        scales->z = state->scale;
         scales[1].bone = 0xFF;
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
