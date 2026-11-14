@@ -330,7 +330,7 @@ void resQueueRemove(Actor *targetActor) {
             } while (entry != NULL);
         }
         heapFreeDeferred(found);
-        heapFreeDeferred(state->unk34);
+        heapFreeDeferred(state->mtxBuf);
         actorDespawn(actor);
         targetActor->flags &= 0xFDFFFFFF;
     }

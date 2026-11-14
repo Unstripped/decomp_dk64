@@ -4,42 +4,32 @@
 #include "common.h"
 #include "actor.h"
 #include "resqueue.h"
-struct ChainRowHead;
-struct DrawActor;
-struct DrawListHead;
-struct MotionAngles;
-struct SpriteAnim;
-struct SpriteChainState;
-struct SpriteDrawNode;
-struct SpriteHolder;
-struct SpriteRow;
-struct SpriteVector;
 #ifndef PROTO_SKIP_func_806A3700
-void func_806A3700(s32, s32);
+void func_806A3700(Actor *, void *);
 #endif
 #ifndef PROTO_SKIP_textBoxRenderNode
-void textBoxRenderNode(Gfx **, struct DrawActor *, struct DrawListHead *, struct SpriteDrawNode *);
+void textBoxRenderNode(Gfx **, ResQueueActorState *, ResRow *, ResGlyph *);
 #endif
 #ifndef PROTO_SKIP_renderAppendNodeChain
-void renderAppendNodeChain(Gfx **, struct DrawActor *, struct DrawListHead *, u8, u8 *);
+void renderAppendNodeChain(Gfx **, ResQueueActorState *, ResRow *, u8, u8 *);
 #endif
 #ifndef PROTO_SKIP_renderTextureSprite
 Gfx *renderTextureSprite(Gfx *, s32, u8, s32);
 #endif
 #ifndef PROTO_SKIP_mathAddWaveOffset
-void mathAddWaveOffset(f32 *, f32 *, f32, f32, struct MotionAngles *);
+void mathAddWaveOffset(f32 *, f32 *, f32, f32, ResQueueActorState *);
 #endif
 #ifndef PROTO_SKIP_textBoxRenderTail
-Gfx *textBoxRenderTail(Gfx *, struct SpriteAnim *, s32);
+Gfx *textBoxRenderTail(Gfx *, ResQueueActorState *, s32);
 #endif
 #ifndef PROTO_SKIP_textBoxRender
 Gfx *textBoxRender(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_textBoxRowUpdateIcon
-void textBoxRowUpdateIcon(struct SpriteRow *, struct SpriteVector *, struct SpriteVector *);
+void textBoxRowUpdateIcon(ResGlyph *, ResRow *, ResQueueActorState *);
 #endif
 #ifndef PROTO_SKIP_textBoxRowUpdateNodes
-void textBoxRowUpdateNodes(f32, Actor *, struct SpriteChainState *, struct SpriteHolder *, u8, u8 *);
+void textBoxRowUpdateNodes(f32, Actor *, ResQueueActorState *, ResRow *, u8, u8 *);
 #endif
 #ifndef PROTO_SKIP_textBoxUpdateRows
 void textBoxUpdateRows(Actor *);
@@ -48,7 +38,7 @@ void textBoxUpdateRows(Actor *);
 void textBoxUpdatePosition(Actor *, ResQueueActorState *, f32);
 #endif
 #ifndef PROTO_SKIP_renderCalcChainCenterOffset
-void renderCalcChainCenterOffset(struct ChainRowHead *);
+void renderCalcChainCenterOffset(ResQueueActorState *);
 #endif
 #ifndef PROTO_SKIP_textBoxUpdate
 void textBoxUpdate(void);
