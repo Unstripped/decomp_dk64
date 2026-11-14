@@ -1767,13 +1767,8 @@ void func_8066FE08(s32 slot) {
     }
 }
 
-typedef struct ActorHitRecord {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ u8 pad4[0x30];
-} ActorHitRecord; // size = 0x34
-
 extern u8 D_807FB603;
-extern ActorHitRecord D_807FD614[];
+extern PadInputState gPlayerPadState[];
 s32 func_806738D0(s32, s32, s32, s32, CollisionBox *, CollisionBox *);
 
 s32 actorResolveModelSlotCollision(Actor *actor) {
@@ -1860,7 +1855,7 @@ s32 actorResolveModelSlotCollision(Actor *actor) {
             if (gModelSlots[slot].unk7C != NULL && gModelSlots[slot].unk7C->unk6E != 0) {
                 actorQueueCollisionCallbacks(actor);
             }
-            if (hit != NULL && hit->unk53 != 0 && D_807FD614[playerFindIndexByActor(actor)].unk0 > 30.0) {
+            if (hit != NULL && hit->unk53 != 0 && gPlayerPadState[playerFindIndexByActor(actor)].stickMag > 30.0) {
                 ret = 1;
             }
             if (actor->collisionFlags & 1) {
