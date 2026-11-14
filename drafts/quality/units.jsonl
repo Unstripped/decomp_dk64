@@ -285,3 +285,4 @@
 {"type": "unit", "t": "2026-11-14T17:54:23Z", "unit": "2026-11-14: cleanup HackgfxSwapGeometryModeCullBits", "commit": "967b88518af5a788ee4326099afd5c468e23e037"}
 {"type": "unit", "t": "2026-11-14T17:55:08Z", "unit": "2026-11-14: cleanup HackbossSpawnerUpdate", "commit": "16dfb6ec8be1a1b09a52c89c9c7aaa516b56359c"}
 {"type": "unit", "t": "2026-11-14T17:57:53Z", "unit": "2026-11-14: cleanup HackcritterBattleArenaUpdate", "commit": "88bb6f734ff6a3072bffe3ae0d25b601b8a4cd39"}
+{"type": "unit", "t": "2026-11-14T17:58:15Z", "unit": "2026-11-14: cleanup HackrecordInitPositionBuffers", "commit": "4132f0773ca7de26188819e8d6c72c4bae286030"}
