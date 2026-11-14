@@ -402,3 +402,4 @@
 {"type": "unit", "t": "2026-11-14T20:06:37Z", "unit": "2026-11-14: cleanup HackraceGetWaypointSegmentFraction", "commit": "21f25a2a9b865c1a9f8e2f2278c6f9c8e5db95d1"}
 {"type": "unit", "t": "2026-11-14T20:10:32Z", "unit": "2026-11-14: cleanup HackjetpacRocketItemUpdate", "commit": "abbaa84f73a5965b7d97e3f6257670e15e42de16"}
 {"type": "unit", "t": "2026-11-14T20:10:49Z", "unit": "2026-11-14: cleanup HackmodelEmitterSpawnScaledParticle", "commit": "db3047028c4e7df79e6661fa9c06cac21edc7321"}
+{"type": "unit", "t": "2026-11-14T20:11:20Z", "unit": "2026-11-14: cleanup HackeepromClearSlotData", "commit": "8d45e1683f8a3a320ce2bcafbc5756805bccc0ea"}
