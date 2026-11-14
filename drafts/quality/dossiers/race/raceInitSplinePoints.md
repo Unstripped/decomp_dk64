@@ -1,10 +1,15 @@
 # raceInitSplinePoints (race, src/race/1770.c)
 ## Sites
-race:8002597C:other:45977d: kept; see Evidence.
+- race:8002597C:other:45977d: FIXED.
+  - The memcpy length is now written inline as `count * sizeof(TargetVec3f)`. uopt CSEs it into a spill temp at 44(sp), which is where the target keeps the length.
+  - `src` is now a `TargetVec3f *`, the second memcpy source is `src + count`, and `next` holds tbl[2].
+  - 0 casts left.
 ## Attempts
-2026-11-11/12 rounds 16, 17, 22, 23 (opus:low): plain, diagnose, as1probe, permute (see history).
-2026-11-14 HackraceApplyPositionOffset opus:high: all 30 declaration positions of separate size/next locals (best 2: home 40), block-scoped next pointer (2), an s32 pad in every declaration position (5: frame grows), size as s32 (6), loop pointer assignment orders (6), tbl[2][i] indexing without next (193)
-## Untried ideas
-none recorded.
+- rounds 16, 17, 22, 23 (opus:low) and HackraceApplyPositionOffset (opus:high): separate size/next locals (2, length home at 40), permutes.
+- 2026-11-14 U, scored with variants.py try (full=):
+  - named size local in a block scope or disjoint scopes: 2
+  - inline `count * 12`: 9
+  - inline `sizeof` with `next` declared after tbl: 0 (applied)
+  - `TargetVec3f *src` with `src + count`: 0 (applied)
 ## Evidence
-separate u32 size and RaceAPoint3f *next locals give identical code except the byte-length spill across the memcpy jal: sw/lw a2,40(sp) instead of 44(sp) at 0x2c4/0x2d4; the shared u32 slot puts the length home at 44. No declaration order of the two separate locals reaches 44
+- copy.diff
