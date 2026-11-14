@@ -470,6 +470,8 @@ def text_metrics(text):
             c["FAKE " + kind_of(line)] += 1
         if "// LAYOUT" in line:
             c["LAYOUT"] += 1
+        if clint.ORIG_OK.search(line):
+            c["ORIG"] += 1
         if "// PROTO:" in line:
             c["proto-type"] += 1
     c["goto"] = len(GOTO.findall(ledger.COMMENT.sub("", text)))
@@ -524,7 +526,8 @@ def analyze(path, seg, text=None, uninit=False, src=None, hdrs=None, keep=False,
     scope, by_line = Scope(tu), idents_by_line(toks)
     raw, park, paired = collections.defaultdict(list), parked_lines(lines), set()
     for i, l in enumerate(lines):
-        if ("// FAKE" not in l and "// PROTO:" not in l) or i in park or i in paired:
+        hack_tag = "// FAKE" in l or "// PROTO:" in l or ("// ORIG" in l and not clint.ORIG_OK.search(l))
+        if not hack_tag or i in park or i in paired:
             continue
         code = split_comment(l)[0]
         if GOTO.search(code):
@@ -548,7 +551,8 @@ def analyze(path, seg, text=None, uninit=False, src=None, hdrs=None, keep=False,
         if k is not None:
             raw[k].append(((i,), "warning", False, f"{w['code']} {w['msg']}"))
     for k, d in enumerate(defs):
-        raw[k] += [((line - 1,), kind, False, None) for line, kind, _ in d.pop("untagged")]
+        on_tagged = {j for idx, _, t, _ in raw[k] if t for j in idx}  # an ORIG line without an offset
+        raw[k] += [((line - 1,), kind, False, None) for line, kind, _ in d.pop("untagged") if line - 1 not in on_tagged]
     unresolved = []
     for k, d in enumerate(defs):
         v = d["vram"] = resolve_vram(seg, d["name"], src or path)
@@ -2183,8 +2187,8 @@ def cmd_carry(a):
     print(f"carried {len(out)} events from {a.rev} to {rel(LEDGER)}")
 
 
-TEXT_ROWS = ["FAKE", *(f"FAKE {k}" for k in KINDS if k not in ("goto", "proto-type", "warning")), "LAYOUT", "goto",
-             "proto-type"]
+TEXT_ROWS = ["FAKE", *(f"FAKE {k}" for k in KINDS if k not in ("goto", "proto-type", "warning")), "LAYOUT", "ORIG",
+             "goto", "proto-type"]
 ROWS = TEXT_ROWS + ["protos mismatch", "sites open", "sites exhausted", "functions", "reviewed",
                     "exhausted functions", "uninit warnings", "cfe warnings", "func_ defs", "m2c names", "unk fields",
                     "D_ refs"]

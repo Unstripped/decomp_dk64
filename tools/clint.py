@@ -52,6 +52,9 @@ M2C_NAME = re.compile(r"^(sp[0-9A-F]+|var_\w+|temp_\w+|phi_\w+|arg[0-9]+)$")
 UNK_FIELD = re.compile(r"^unk[0-9A-F]+$")
 D_REF = re.compile(r"^D_[0-9A-F]{8}$")
 NOOP_OPS = {"^", "|", "+", "&", "*"}
+# `// ORIG:` citing an offset in the function's target asm: a construct the original object really
+# performs, not a hack (without an offset it stays a hack site)
+ORIG_OK = re.compile(r"// ORIG: .*\b0x[0-9A-Fa-f]{2,}\b")
 
 _index = None
 
@@ -213,7 +216,7 @@ def function_metrics(fn, lines):
 
     def hit(line, kind):
         code = lines[line - 1] if 0 < line <= len(lines) else ""
-        if kind == "goto" or "// FAKE" not in code:
+        if kind == "goto" or ("// FAKE" not in code and not ORIG_OK.search(code)):
             hits.append((line, kind, code.strip()))
 
     for c in walk(fn):

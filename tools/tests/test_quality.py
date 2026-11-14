@@ -86,6 +86,18 @@ def test_untagged_dead_if_site(tmp_path, monkeypatch):
     assert not tagged[0]["key"].split(":")[3].startswith("u")
 
 
+@pytest.mark.parametrize("comment,sites,orig", [("// ORIG: target lw at 0x1C", [], 1),
+                                                ("// ORIG: looks original", [("dead-if", 4, True)], 0)])
+def test_orig_tag_needs_offset(tmp_path, monkeypatch, comment, sites, orig):
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    c = tmp_path / "x.c"
+    c.write_text(f"typedef int s32;\ns32 g;\nvoid f(s32 x) {{\n    if (x) {{}}  {comment}\n    g = x;\n}}\n")
+    an = q.analyze(str(c), "global")
+    fn, = an["functions"]
+    assert [(s["kind"], s["line"], s["tagged"]) for s in fn["sites"]] == sites
+    assert an["text"].get("ORIG", 0) == orig
+
+
 def test_record_rejects_short_permute_and_kept_remove(tmp_path, monkeypatch, capsys):
     ledger_path = tmp_path / "quality"
     monkeypatch.setattr(q, "LEDGER", str(ledger_path))
