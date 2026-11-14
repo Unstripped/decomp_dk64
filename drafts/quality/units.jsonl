@@ -485,3 +485,4 @@
 {"type": "unit", "t": "2026-11-14T21:42:54Z", "unit": "2026-11-14: cleanup HackplayerUpdateCommon", "commit": "a51b7ba4344e46d0a68182bd6ef0725bbb180cb2"}
 {"type": "unit", "t": "2026-11-14T21:43:13Z", "unit": "2026-11-14: cleanup HackmodelAnimEntryQueueMatrixCopies2", "commit": "2875b585c29997b7f4a5861410d3fd77cd59180e"}
 {"type": "unit", "t": "2026-11-14T21:43:28Z", "unit": "2026-11-14: cleanup HackactorCollisionProcessHit", "commit": "97acf3bf2b85fda4643cc7eacce7b2449b9affd8"}
+{"type": "unit", "t": "2026-11-14T21:43:45Z", "unit": "2026-11-14: cleanup HackactorCollisionResolveSurfaceHit2", "commit": "d4aeed3b9c4bff328b5b3098e314d1daa9425453"}
