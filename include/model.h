@@ -48,9 +48,18 @@ typedef struct ModelAssetHeader {
     /* 0x70 */ s32 unk70; // offset of the texture / quad table (modelSlotLinkTexAnimTextures, modelQuadBuildOutput)
 } ModelAssetHeader;
 
+// Animation node header of a ModelAnimEntry (54150): keyCount key times, then matrixCount
+// matrix records of keyCount * 0x24 + 8 bytes each.
+typedef struct ModelAnimNodeHeader {
+    /* 0x00 */ u8 keyCount;
+    /* 0x01 */ u8 times[0x38];
+    /* 0x39 */ u8 matrixCount;
+    /* 0x3A */ u8 pad3A[2];
+} ModelAnimNodeHeader; // size = 0x3C
+
 // One animation channel of a model slot (ModelData.entries, 54150).
 typedef struct ModelAnimEntry {
-    /* 0x00 */ u8 *unk0;
+    /* 0x00 */ ModelAnimNodeHeader *unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ s16 unk8;
     /* 0x0A */ s16 unkA;

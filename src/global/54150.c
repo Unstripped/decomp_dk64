@@ -1,4 +1,5 @@
 #include "common.h"
+#include "model.h"
 #include "compiler/ido/memory.h"
 #include "actor.h"
 #include "proto/global/136820.h"
@@ -7,14 +8,6 @@
 #include "proto/global/36880.h"
 #include "proto/global/54150.h"
 #include "proto/global/5E020.h"
-
-typedef struct ModelAnimNodeHeader {
-    u8 keyCount;
-    u8 times[0x38];
-    u8 matrixCount;
-    u8 pad3A[2];
-} ModelAnimNodeHeader;
-
 
 void modelSlotAllocAnimBuffers(ModelData **outModel, ModelAssetHeader *animAsset) {
     u8 *p2;
@@ -50,7 +43,7 @@ void modelSlotAllocAnimBuffers(ModelData **outModel, ModelAssetHeader *animAsset
 
             for (j = 0; j < 10; j++) {
                 ModelAnimEntry *v = &m->entries[j];
-                v->unk0 = q + *(u32 *)(q + j * 4);
+                v->unk0 = (ModelAnimNodeHeader *)(q + *(u32 *)(q + j * 4));
                 v->unk4 = 0.0f;
                 v->unk8 = 0;
                 v->unkA = 0;
@@ -67,17 +60,6 @@ void modelSlotAllocAnimBuffers(ModelData **outModel, ModelAssetHeader *animAsset
         *outModel = NULL;
     }
 }
-
-typedef struct ModelAnimEntryRaw {
-    ModelAnimNodeHeader *unk0;
-    f32 unk4;
-    u8 pad8[6];
-    u8 unkE;
-    u8 padF[2];
-    u8 unk11;
-    u8 pad12;
-    u8 unk13;
-} ModelAnimEntryRaw;
 
 extern ModelSlot *gModelSlots;
 
@@ -147,7 +129,7 @@ u8 modelSlotStepAnimations(s16 modelId) {
 }
 
 
-void modelAnimEntryStep(void *entry) {
+void modelAnimEntryStep(ModelAnimEntry *entry) {
     modelAnimEntryAdvance(entry);
     modelAnimEntryBuildNodeMatrices(entry);
 }
@@ -170,7 +152,7 @@ typedef struct ModelBKey {
 } ModelBKey; /* 0x24 */
 
 
-void modelAnimEntryBuildNodeMatrices(ModelAnimEntryRaw *entry) {
+void modelAnimEntryBuildNodeMatrices(ModelAnimEntry *entry) {
     ModelAnimNodeHeader *node;
     s16 stride;
     s32 i;
@@ -209,7 +191,7 @@ void modelAnimEntryQueueMatrixCopies(ModelData *group, ModelAnimEntry *entry) {
     u32 dstBase;
     u32 dst;
 
-    node = (ModelAnimNodeHeader *)entry->unk0;
+    node = entry->unk0;
     p = (u8 *)(node + 1);
     stride = node->keyCount * 0x24 + 8;
     srcBase = D_807F6BE0 = (u32)group->frames[gGfxBufferIndex ^ 1];
@@ -341,23 +323,9 @@ void modelAnimEntryBuildKeyMatrix(u8 key, f32 t, ModelBTrack *track, u8 *keys, u
     guMtxF2L(work, (Mtx *)(off + track->unk0));
 }
 
-typedef struct ModelAnimEntryView {
-    ModelAnimNodeHeader *unk0;
-    f32 unk4;
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-    u8 unkE;
-    u8 unkF;
-    u8 unk10;
-    s8 unk11;
-    u8 unk12;
-    u8 unk13;
-} ModelAnimEntryView;
-
 extern u32 gFrameDelta;
 
-void modelAnimEntryAdvance(ModelAnimEntryView *entry) {
+void modelAnimEntryAdvance(ModelAnimEntry *entry) {
     ModelAnimNodeHeader *node;
     u32 limit;
     f32 rate;
