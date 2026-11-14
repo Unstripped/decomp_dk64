@@ -1496,7 +1496,7 @@ void playerTakeDamage(s16 damage) {
                 case 0x37:
                     gActivePlayerState->surfaceTimer = D_807530B0[gCurrentCharacterIndex];
                     break;
-                case 0x2B: // FAKE: extends the jump table down to 0x2B
+                case 0x2B: // ORIG: target's jump table starts at 0x2B (addiu t6,v0,-43; sltiu at,t6,13 at 0x4360), its .rodata+0x210 entry is the switch exit 0x46bc
                     break;
                 }
                 if ((gPlayerCount >= 2) && (isDead == 0)) {
