@@ -34,10 +34,8 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - 1332B0 volumeTriggerUpdate PlayerSlot stride view of gPlayerSlots kept (Q0606, views blocked).
 - 11BC10 `effectFallStateInit(Actor *, EffectNode *, u8 *)` (19A00 warnings 5bc221 ×3).
 - 119370 `effectCreateAtModelNode(s32 asset, f32, s32, s32, u8)` (42630 warning 3ae317); Rev17P: effectGridFindByTargetId/effectCreate return `EffectGridAsset *`, TimedLightActorView → EffectNode, sEffectPending* names.
-- Owner prototypes to check (HackbossSetRandomObjectPair d376b6df, 3 ORIG call-site declarations): 42630 csModelStateSetFirstByte 2nd param likely u8 (F0D0 passes a plain lbu; 2C910 unprototyped), 7CA80 actorUpdatePrevContactFlags may return s32 (9DD70 textMarkerUpdateMatrix needs a non-void declaration, 0x2d88). Read the owner bodies; a corrected owner signature may retire those ORIG declarations. Detail: .scratch/s2026-11-14-types-queue.md.
-- EffectNode follow-ups (PolishGlobal11BC10Views turn 1, eed17d85: render.h has the EffectGrid types and the per-kind 0x35C/0x384 unions; 32 11BC10 callbacks take EffectNode *): boss/0, boss/F0D0 stale declarations and 89250 EffectOwnerView done (OwnerEffectNodeCallers 136214b3). Open: 11BC10 turn 2 (menu session, base ba91d5d1: TimedEffectActorView, 51 functions, 5 stale reviews, diagnose lines for the 4 tagged `speed = 0.35f` sites); 478F0 CsEffView (brief Owner478F0CsEffView at 2312fbfe); 119370 `effectCreateAtPosition` should return `EffectNode *` instead of `void *` (119370.h:85 + callers; 89250 effectSpawnActorScale then drops its `(EffectNode *)` cast).
-- SpawnEntry (1295B0.c:79-97) -> include/actor.h with shadowScaleX/Z at 0x14/0x15, retires 12E800's file-local view (PolishGlobal12E800Names fc237550 header-request; brief OwnerSpawnEntryShared at 2312fbfe).
-- 201B0 types (PolishGlobal201B0Names dd61e7f3): CamPathPointPos per-type union (blend for types 10/15/16, point for 1-3), CamZoneEntryFull first 16 bytes per zone type, own (index, cell) record for CAM_ZONE_SORT (WorkerB1F60).
+- Owner prototypes (HackbossSetRandomObjectPair d376b6df): 42630 csModelStateSetFirstByte measured CLOSED (OwnerCsModelStateSetFirstByte 3681acd9): the owner sign-extends val (s16), per-TU prototypes differ and the F0D0/2C910 ORIG declarations are genuine; optional cosmetic: boss/6240:175 and race/0:159 local `(s16, s16)` declarations -> `#include "proto/global/42630.h"` (fdiff OK). Still open: 7CA80 actorUpdatePrevContactFlags may return s32 (9DD70 textMarkerUpdateMatrix needs a non-void declaration, 0x2d88). Detail: .scratch/s2026-11-14-types-queue.md.
+- EffectNode follow-ups: boss/0, F0D0, 89250 (136214b3), 11BC10 turn 2 (21ebc4ba), 478F0 CsEffView (3d851936) done; 119370 `effectCreateAtPosition` -> `EffectNode *` in OwnerEffectCreateAtPositionNode (AS).
 - 133A90 ProxPath.owner key type (42630 warnings 0eead6, 2e5ca6); 42630 csCmdExec views (proto-type 89a542).
 - 8D3E0 `actorMapModelsSetup(void *, u8, u8)` (450 warning 2e505d).
 - 12E800 behaviourUpdateContactAndState second parameter (B2CE0/BB300 proto-type 3544eb views).
@@ -50,6 +48,12 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - boss/0 and ACDC0: proto-steer `consolidate` rungs staled by the round-18 Actor 0xEC union (4 + 6 functions' sites) need fresh agent runs.
 - Data ownership (HacktransitionSetAudioVolume, 2026-11-14, ledger a001e1ac): carve the .data region of 14C9E0 around D_807550A4
   into its owning C file; that enables a Q0498 function-local `static` retry for transitionSetAudioVolume's dead-if 86665d.
+- A8400 file-local views of the resqueue.h types -> include/resqueue.h types (fields aligned by name), and name ResQueueActorState's 15 unk fields (PolishGlobalA8400Names report §4; detail in .scratch/s2026-11-14-types-queue.md).
+- 8F4B0 CutsceneActorState / WeatherActorState merge (same layout; needs proof actorCutsceneDispatchEvents runs on actor type 0xC; PolishGlobal8F4B0Names 237b3f89).
+- AnimCacheSlot (7CA80) / AnimCacheEntry (17B90) over D_807FB7B0[32] -> one shared type in actor.h (brief OwnerAnimCacheSlotShared at 0add9174).
+- CC800 KongCharacterEntry (G00Row) -> header, then `rename.py fold global D_8075C414` -> `D_8075C410[c].characterIndex` (retires the split label and the view; after CC800 names AI lands) (PolishGlobal7CA80Names).
+- BB300 `u8 *unk178` view of the Actor 0x178 component -> PulseState (A6280 file-local, intensity/phase) once the type is shared; owner item (PolishGlobalA6280Names).
+- ZoneTable / SpawnNodeList (1295B0 file-local) -> include/actor.h, drops C2A90's identical local ZoneTable (brief OwnerZoneTableShared at 1b70fcd9).
 
 
 ## Round-34 leftovers
