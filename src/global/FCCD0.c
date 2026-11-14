@@ -153,8 +153,8 @@ extern u16 D_80750AC8;
 extern s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
 
 /* Initialises the per-player slot queue (15 slots of 0x30 bytes per player): sets each slot's text pointer, size and
- * screen position (func_806F8004). Formatting is load-bearing: the unk8/unkC stores share one line and the dead
- * `if (player && player)` fixes the register choice for the u8 argument. */
+ * screen position (func_806F8004). Formatting is load-bearing: the unk8/unkC stores share one line. The player index is
+ * a word-sized local holding (u8)i (target: lbu a0,155(sp) from i's home, sw a0,120(sp)). */
 void slotQueueInit(s32 reset) {
     u32 j;
     s32 i;
@@ -164,7 +164,7 @@ void slotQueueInit(s32 reset) {
     SlotQueueSlot *base;
     KongInventory *kongInv;
     s32 flag;
-    u8 player;
+    s32 player;
 
     shownMask = D_80744544;
     world = mapGetHubWorldIndex(gCurrentWorldId, 1);
@@ -182,9 +182,7 @@ void slotQueueInit(s32 reset) {
         do {
             kongInv = (KongInventory *)(playerGetResolvedKongId(i) * sizeof(KongInventory)); // FAKE: byte offset parked in kongInv makes the addu take inv first (addu t9,s8,t8)
             kongInv = (KongInventory *)((u8 *)inv + (s32)kongInv);
-            player = i;
-            if (player && player) { // FAKE: dead reference fixes the register for the u8 argument
-            }
+            player = (u8)i;
             base = (SlotQueueSlot *)slotQueueGetAddress(player);
             j = 0;
             do {
