@@ -93,8 +93,6 @@ typedef struct {
     s16 unk6;
 } Struct_AAA4_174;
 
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
 extern s16 D_8002D900;
 
 void func_806FDAB8(u8, f32);  // FAKE: callee prototype steer

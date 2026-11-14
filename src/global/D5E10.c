@@ -3995,9 +3995,6 @@ void func_806DCA7C(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
-
 void playerFindClosestTargetActor(void) {
     f32 best = 100.0f;
     Actor *cur = gActivePlayerState->unk158;

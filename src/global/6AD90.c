@@ -1106,8 +1106,6 @@ void dynamicBufferPurgeExpired(void) {
         }
     }
 }
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
 
 void actorClearBufferReferences(s32 arg0) {
     s32 i;

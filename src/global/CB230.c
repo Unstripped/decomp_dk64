@@ -37,9 +37,6 @@ typedef struct R1C8CBActor {
 
 f32 sqrtf(f32);
 
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
-
 void actorUpdateNearestSpotlight(void) {
     R1C8CBSub178 *p;
     s32 best;

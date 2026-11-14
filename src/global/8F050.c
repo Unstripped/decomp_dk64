@@ -72,13 +72,6 @@ void actorConfigApplyAnimFrameByType(Actor *actor, s32 actorType, s32 frame) {
     }
 }
 
-typedef struct ProximityActorEntry {
-    Actor *actor;
-    u32 unk4;
-} ProximityActorEntry;
-
-extern u16 gActiveActorCount;
-extern ProximityActorEntry gActiveActors[];
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 extern s32 D_807552F4[];
@@ -94,7 +87,7 @@ void actorProximityUpdate(void) {
     f32 r;
     s32 frame;
 
-    for (i = 0; i < (s32)gActiveActorCount; i++) {
+    for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
         if (!(actor->flags & 0x2000) && (actor->flags & 0x100)) {
             dist_sq = ((actor->z - gPlayerSlots->camZ) * (actor->z - gPlayerSlots->camZ)) +

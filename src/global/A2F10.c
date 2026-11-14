@@ -33,8 +33,6 @@
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
-extern u16 gActiveActorCount;
-extern ActorEntry gActiveActors[];
 
 extern Gfx D_1000118;
 extern Mtx D_20000C0;

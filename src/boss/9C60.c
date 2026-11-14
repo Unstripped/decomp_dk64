@@ -26,8 +26,6 @@ extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gCamActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
 extern u8 *D_80035A60[];
 
 void bossAttachActor(void) {

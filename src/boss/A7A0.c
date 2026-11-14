@@ -24,8 +24,6 @@ typedef struct BossKRoolLankyActor {
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
 extern u8 *bossKRoolLankyPhaseScripts[];
 
 void bossResetMinions(Actor *excludeActor) {

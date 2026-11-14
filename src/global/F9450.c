@@ -1149,9 +1149,6 @@ typedef struct PickupState {
     s16 unkA;
 } PickupState;
 
-extern u16 gActiveActorCount;
-extern ActorEntry gActiveActors[];
-
 
 void gridCollectActorsInRange(u8 playerIndex) {
     Actor *player;

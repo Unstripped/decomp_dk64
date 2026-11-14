@@ -67,8 +67,6 @@ typedef struct ActorEventPayload {
 
 extern u16 D_8074D624[];
 extern u8 D_807F94B4;
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;

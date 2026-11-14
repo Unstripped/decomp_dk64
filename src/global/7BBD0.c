@@ -11,8 +11,6 @@
 extern u8 D_807FB600;
 extern u8 D_807FB5FF;
 extern u8 D_807FB5FD;
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
 
 s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 u8 func_80673708(s32, s32, s32, s32, CollisionBox *, CollisionBox *, s16 *, s16 *);

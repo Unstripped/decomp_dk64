@@ -249,6 +249,9 @@ typedef struct ActorEntry {
     /* 0x04 */ s32 unk4;
 } ActorEntry; // size = 0x8
 
+extern ActorEntry gActiveActors[];
+extern u16 gActiveActorCount;
+
 typedef struct ActorCollisionHit {
     f32 unk0[3];
     f32 unkC[9];

@@ -42,8 +42,6 @@ extern Actor *gSpawnedActor;
 
 extern u8 D_8071FBC8[];
 void behaviourUpdateContactAndState();
-extern u16 gActiveActorCount;
-extern ActorEntry gActiveActors[];
 
 void func_806ADFE0(void) {
     f32 transMtx[4][4];

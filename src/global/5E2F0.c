@@ -275,8 +275,6 @@ void lightAdd(f32 x, f32 y, f32 z, f32 targetX, f32 targetY, f32 targetZ, f32 ra
 extern s32 D_80748304;
 extern s32 D_80748308;
 extern u8 gPlayerCount;
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
 
 
 void lightApplyToActors(void) {

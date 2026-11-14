@@ -106,9 +106,6 @@ void volumeTriggerTableInit(s32 mapId) {
     }
 }
 
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
-
 s32 actorFindActiveByType(s16 actorType, Actor **outActor) {
     s32 found = 0;
     s32 i = 0;

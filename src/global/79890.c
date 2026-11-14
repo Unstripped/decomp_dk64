@@ -1,5 +1,6 @@
 #include "common.h"
 #include "compiler/ido/memory.h"
+#include "actor.h"
 #include "proto/global/15050.h"
 #include "proto/global/2F550.h"
 #include "proto/global/70FD0.h"
@@ -29,8 +30,6 @@ typedef struct CollisionHitRecordNode {
 
 
 extern u8 D_807FB606;
-extern u16 gActiveActorCount;
-extern ActorEntry gActiveActors[];
 extern CollisionHitRecordNode *gCollisionHitListHead;
 extern CollisionHitRecordNode *gCollisionHitListTail;
 extern s32 gCollisionHitCount;

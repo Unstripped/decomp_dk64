@@ -1814,27 +1814,10 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
     modelSlotBuildNodePosList(slot, xform->unk24, xform->x, xform->y, xform->z, xform->rotY, xform->unk14, xform->unk18, xform->scale, 1);
 }
 
-typedef struct ActorBoundsView {
-    /* 0x00 */ u8 pad0[0x5C];
-    /* 0x5C */ u16 unk5C;
-    /* 0x5E */ u8 pad5E[0x1E];
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ f32 unk80;
-    /* 0x84 */ f32 unk84;
-} ActorBoundsView;
-
-typedef struct ActorBoundsRef {
-    /* 0x0 */ ActorBoundsView *actor;
-    /* 0x4 */ s32 unk4;
-} ActorBoundsRef;
-
-extern ActorBoundsRef gActiveActors[];
-extern u16 gActiveActorCount;
-
 s32 activeActorBoxOverlapTest(f32 x, f32 y, f32 z, s16 radiusX, s16 radiusY, s16 radiusZ, u16 mask) {
     s32 i;
-    ActorBoundsView *b;
-    ActorBoundsView *a;
+    Actor *b;
+    Actor *a;
     s16 rx;
     s16 ry;
     s16 rz;
@@ -1845,9 +1828,9 @@ s32 activeActorBoxOverlapTest(f32 x, f32 y, f32 z, s16 radiusX, s16 radiusY, s16
     for (i = 0; i < gActiveActorCount; i++) {
         a = gActiveActors[i].actor;
         b = a;
-        if (b->unk5C & mask) {
-            if (x - radiusX <= b->unk7C && y - radiusY <= b->unk80 && z - radiusZ <= b->unk84 &&
-                a->unk7C <= radiusX + x && a->unk80 <= radiusY + y && a->unk84 <= radiusZ + z) {
+        if (b->collisionFlags & mask) {
+            if (x - radiusX <= b->x && y - radiusY <= b->y && z - radiusZ <= b->z &&
+                a->x <= radiusX + x && a->y <= radiusY + y && a->z <= radiusZ + z) {
                 return 1;
             }
         }
