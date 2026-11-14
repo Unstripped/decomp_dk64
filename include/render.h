@@ -176,4 +176,6 @@ typedef struct LightTrigger {
     /* 0x3F */ u8 volumeIndex;
 } LightTrigger; // size = 0x40
 
+extern LightTrigger gLightCandidates[];
+
 #endif

@@ -425,7 +425,6 @@ void matrixCacheResetStats(void) {
 extern f32 *gChunkLightR;
 extern f32 *gChunkLightG;
 extern f32 *gChunkLightB;
-extern LightTrigger gLightCandidates[];
 
 #define DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 

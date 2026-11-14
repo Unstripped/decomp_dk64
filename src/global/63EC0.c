@@ -1,6 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #include "map.h"
+#include "render.h"
 #include "sched.h"
 #include "water.h"
 #include "proto/global/15050.h"
@@ -312,7 +313,6 @@ s32 effectCheckTargetActive(WaterSurfaceDef *subNode) {
 extern f32 *gChunkLightR;
 extern f32 *gChunkLightG;
 extern f32 *gChunkLightB;
-extern u8 gLightCandidates[];
 extern f32 D_807F7EEC;
 extern f32 D_807F7EF0;
 extern f32 D_807F7EF4;
@@ -343,7 +343,7 @@ void effectWaterApplyLights(f32 camX, f32 camY, f32 camZ) {
                 D_807F7EF4 = gChunkLightB[chunkIdx];
                 if (gGlobalPauseFlags & 0x10) {
                     vtxBuffer = node->meshVtx[gGfxBufferIndex];
-                    func_8065C990(vtxBuffer, vtxBuffer + node->vtxCount, 1, &gLightCandidates, lights, gMapChunks[chunkIdx].lightMode == 1);
+                    func_8065C990(vtxBuffer, vtxBuffer + node->vtxCount, 1, gLightCandidates, lights, gMapChunks[chunkIdx].lightMode == 1);
                 }
                 node->flags |= 2;
             }

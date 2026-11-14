@@ -1720,7 +1720,6 @@ void func_8065C990(void *, void *, s32, void *, s32, s32);
 extern f32 D_807F7EEC;
 extern f32 D_807F7EF0;
 extern f32 D_807F7EF4;
-extern u8 gLightCandidates;
 
 void mapChunksApplyLights(f32 x, f32 y, f32 z) {
     s32 i;
@@ -1774,7 +1773,7 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
                                         D_807F7EEC = gChunkLightR[i];
                                         D_807F7EF0 = gChunkLightG[i];
                                         D_807F7EF4 = gChunkLightB[i];
-                                        func_8065C990(matrix, (u8 *)matrix + gMapCells[k].vtxCount[j] * 0x10, 1, &gLightCandidates, obj, gMapChunks[i].lightMode == 1);
+                                        func_8065C990(matrix, (u8 *)matrix + gMapCells[k].vtxCount[j] * 0x10, 1, gLightCandidates, obj, gMapChunks[i].lightMode == 1);
                                     }
                                 }
                             }

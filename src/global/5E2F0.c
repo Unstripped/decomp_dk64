@@ -474,7 +474,6 @@ void lightApplyToActors(void) {
     }
 }
 
-extern LightTrigger gLightCandidates[];
 extern LightTrigger gActiveLights[];
 extern s16 gLightCandidateCount;
 s16 lightCollectVolumesInBounds(f32 x, f32 y, f32 z, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ, s32 targetId, s8 *outFlag) {
