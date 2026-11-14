@@ -426,3 +426,4 @@
 {"type": "unit", "t": "2026-11-14T20:33:03Z", "unit": "2026-11-14: cleanup Owner7A510FindTableEntry", "commit": "c828f7daa10dafdb5a8941f963fcc98073a92e3e"}
 {"type": "unit", "t": "2026-11-14T20:33:45Z", "unit": "2026-11-14: cleanup OwnerModelSlotsViews", "commit": "4d0a8bafd44c04efaab56940470256bcaef066ff"}
 {"type": "unit", "t": "2026-11-14T20:35:25Z", "unit": "2026-11-14: cleanup OwnerControllerStateEntry", "commit": "e59429a2ebf45aad3a248a410508b543d29f6fc1"}
+{"type": "unit", "t": "2026-11-14T20:36:00Z", "unit": "2026-11-14: cleanup OwnerActiveActorsExtern", "commit": "0ea640b96d1594f35909d533d984d8f3f1d08ca4"}
