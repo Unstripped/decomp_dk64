@@ -59,7 +59,6 @@ extern s16 gScreenHeight;
 extern u8 D_1000118[];
 extern u8 D_20000C0[];
 
-extern PlayerInventory gPlayerInventoryTable[];
 extern u8 gPlayerCount;
 extern s8 D_8076A105;
 typedef struct MpSpawnPoint {
