@@ -91,9 +91,9 @@ extern s32 D_807F5FD0;
 
 void raceInitSplinePoints(void) {
     TargetVec3f *buf;
-    u8 *src;
+    TargetVec3f *src;
     TargetVec3f **tbl;
-    u32 lo; // FAKE: one slot holds the byte length, then the tbl[2] pointer; a separate pointer local reallocates the loop
+    TargetVec3f *next;
     s32 i;
     s32 count;
 
@@ -103,19 +103,18 @@ void raceInitSplinePoints(void) {
     for (i = 0; i < 4; i++) {
         tbl[i] = buf + i * count;
     }
-    src = (u8 *)gMinecartTrackPoints[0];
-    lo = count * 12;
+    src = gMinecartTrackPoints[0];
     buf = tbl[0];
-    memcpy(buf, src, lo);
+    memcpy(buf, src, count * sizeof(TargetVec3f));
     buf = tbl[2];
-    memcpy(buf, lo + src, lo);
+    memcpy(buf, src + count, count * sizeof(TargetVec3f));
     buf = tbl[1];
-    src = (u8 *)tbl[0];
-    lo = (u32)tbl[2];
+    src = tbl[0];
+    next = tbl[2];
     for (i = 0; i < count; i++) {
-        buf[i].x = (((TargetVec3f *)lo)[i].x + ((TargetVec3f *)src)[i].x) * 0.5;
-        buf[i].y = (((TargetVec3f *)lo)[i].y + ((TargetVec3f *)src)[i].y) * 0.5;
-        buf[i].z = (((TargetVec3f *)lo)[i].z + ((TargetVec3f *)src)[i].z) * 0.5;
+        buf[i].x = (next[i].x + src[i].x) * 0.5;
+        buf[i].y = (next[i].y + src[i].y) * 0.5;
+        buf[i].z = (next[i].z + src[i].z) * 0.5;
     }
     D_807F5FD0 = 3;
     gMinecartTrackPoints = tbl;
