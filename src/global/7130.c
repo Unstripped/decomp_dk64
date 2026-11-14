@@ -2,6 +2,9 @@
 #include "seqplayer.h"
 #include "map.h"
 #include "actor.h"
+#include "sched.h"
+#include "model.h"
+#include "cutscene.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/135D30.h"
 #include "proto/global/136820.h"
@@ -57,30 +60,13 @@ typedef struct {
     s16 sfxId;
     s16 altSfx;
     u8 unk8;
-    u8 unk9;
+    u8 pad9;
 } AmbientSfxEntry;
-
-typedef struct AudioPlayer {
-    u8 active;
-    char pad1[3];
-    Actor *actor;
-    char pad8[0x208];
-    f32 x;
-    f32 y;
-    f32 z;
-    char pad21C[0xC];
-    f32 lookX;
-    f32 lookY;
-    f32 lookZ;
-    char pad234[0x90];
-    f32 yaw;
-    char pad2C8[0x28];
-} AudioPlayer;
 
 extern u8 sSfxAreaAmbientActive;
 extern u8 D_80770DC9;
 extern u8 D_80770DD8[];
-extern AudioPlayer *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern s32 gCurrentMap;
 extern AmbientSfxEntry sAmbientSfxTable[];
 
@@ -98,7 +84,7 @@ void sfxStartAreaAmbient(void) {
     }
 
     count = 29;
-    chunk = mapChunkFindByPosition(gPlayerSlots->x, gPlayerSlots->y, gPlayerSlots->z, 0);
+    chunk = mapChunkFindByPosition(gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ, 0);
 
     i = 0; do { // LAYOUT: loop init on the do line keeps as1's order
         if (gCurrentMap == sAmbientSfxTable[i].map && chunk == sAmbientSfxTable[i].chunk) {
@@ -330,7 +316,7 @@ s32 sfxId;
 void sfxSetChannelTempo(s32 sfxId, f32 scale) {
     u8 bank = sfxGetBankIndex((s16)sfxId);
     if ((sfxId == sSfxChannelSounds[sfxGetChannelIndex((s16)sfxId)]) && (sfxId == D_80770560[bank])) {
-        alCSPSetTempo(&gSeqPlayers[bank]->al, (s32)((s32)alCSPGetTempo(&gSeqPlayers[bank]->al) * scale));
+        alCSPSetTempo(&gSeqPlayers[bank]->al, (s32)(alCSPGetTempo(&gSeqPlayers[bank]->al) * scale));
     }
 }
 
@@ -350,9 +336,9 @@ f32 sfxCalcDistanceVolumePan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 direc
     f64 diff;
 
     viewPitch = 0.0f;
-    dx = gPlayerSlots->x - x;
-    dy = gPlayerSlots->y - y;
-    dz = gPlayerSlots->z - z;
+    dx = gPlayerSlots->camX - x;
+    dy = gPlayerSlots->camY - y;
+    dz = gPlayerSlots->camZ - z;
 
     diff = ((f64)directionality > 0.8) ? ((f64)directionality - 0.8) : -((f64)directionality - 0.8);
 
@@ -363,13 +349,13 @@ f32 sfxCalcDistanceVolumePan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 direc
     D_80770DE4 = sqrtf((dx * dx) + (dy * dy) + (dz * dz));
 
     if ((f64)directionality >= 0.8) {
-        f32 l_dz = gPlayerSlots->lookZ - gPlayerSlots->z;
-        f32 l_dx = gPlayerSlots->lookX - gPlayerSlots->x;
-        viewPitch = mathAngleBetweenPointsRad(gPlayerSlots->y, 0.0f, gPlayerSlots->lookY, sqrtf((l_dz * l_dz) + (l_dx * l_dx)));
+        f32 l_dz = gPlayerSlots->focusZ - gPlayerSlots->camZ;
+        f32 l_dx = gPlayerSlots->focusX - gPlayerSlots->camX;
+        viewPitch = mathAngleBetweenPointsRad(gPlayerSlots->camY, 0.0f, gPlayerSlots->focusY, sqrtf((l_dz * l_dz) + (l_dx * l_dx)));
 
-        l_dz = z - gPlayerSlots->z;
-        l_dx = x - gPlayerSlots->x;
-        D_80770DDC = mathAngleBetweenPointsRad(gPlayerSlots->y, 0.0f, y, sqrtf((l_dz * l_dz) + (l_dx * l_dx))) - viewPitch;
+        l_dz = z - gPlayerSlots->camZ;
+        l_dx = x - gPlayerSlots->camX;
+        D_80770DDC = mathAngleBetweenPointsRad(gPlayerSlots->camY, 0.0f, y, sqrtf((l_dz * l_dz) + (l_dx * l_dx))) - viewPitch;
 
         if (D_80770DDC < 0.0f) {
             D_80770DDC += 6.2831855f;
@@ -380,7 +366,7 @@ f32 sfxCalcDistanceVolumePan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 direc
         }
     }
 
-    D_80770DDC = mathAngleBetweenPointsRad(gPlayerSlots->x, gPlayerSlots->z, x, z) - gPlayerSlots->yaw;
+    D_80770DDC = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, x, z) - gPlayerSlots->unk2C4;
     if (D_80770DDC < 0.0f) {
         D_80770DDC += 6.2831855f;
     }
@@ -407,7 +393,7 @@ f32 sfxCalcDistanceVolumePan(f32 x, f32 y, f32 z, u8 volume, u8 range, f32 direc
     D_80770DE0 = cosApprox(D_80770DDC);
     D_80770DDC = (f32)((f64)(1.0f - sinApprox(D_80770DDC)) * 63.5);
 
-    if (level < 10.0f) {  // FAKE: repeated early-out (the first already returned) keeps the cosApprox/sinApprox stores ahead of the clamp
+    if (level < 10.0f) {
         return 0.0f;
     }
 
@@ -483,7 +469,6 @@ extern AmbientEmitter D_8074627C[];
 extern AmbientAudioParam D_80745B28[];
 extern u8 D_80745BDC[][4];
 
-#include "sched.h"
 extern SchedStruct gScheduler;
 extern ALBank *D_8076D1F8;
 extern ALBank *D_8076D1FC;
@@ -594,8 +579,8 @@ void sfxUpdateLevelAmbient(void) {
         volume = 0.0f;
         for (k = 0, n = emitterCount; k < n; k++) {  // FAKE: n caches emitterCount as the loop bound; k < emitterCount moves emitterCount from s1 to s3 (pre-existing copy, now tagged)
             AmbientEmitter *entry = (AmbientEmitter *)((s32)emitters + k * 14);  // FAKE: byte-address sum keeps emitters in t4 and the k*14 index in t5 (addu operand order)
-            f32 dx = gPlayerSlots->x - entry->x;
-            f32 dz = gPlayerSlots->z - entry->z;
+            f32 dx = gPlayerSlots->camX - entry->x;
+            f32 dz = gPlayerSlots->camZ - entry->z;
             if (entry->facing == -1) {
                 D_80770DE4 = sqrtf(dx * dx + dz * dz);
                 if (D_80770DE4 < entry->radius - 20) {
@@ -604,7 +589,7 @@ void sfxUpdateLevelAmbient(void) {
                     sfxStopChannel(entry->sfxId, 0);
                 }
             } else {
-                f32 dy = gPlayerSlots->y - entry->y;
+                f32 dy = gPlayerSlots->camY - entry->y;
                 D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
                 if (k == 0 || D_80770DE4 < D_80770DD4) {
                     nearest = k;
@@ -854,7 +839,7 @@ void sfxUpdateLevelAmbient(void) {
             n_alSndpPostEvent(D_807457DC, 8, (s32)((D_8077058C[0] * 10767.0) / 255.0));
             pitch = 1.0 - ((D_8077058E * 0.5) / 255);
             if (D_80770DC9 & (D_80770DD4 < 1000.0f)) {
-                angle = mathAngleBetweenPointsRad(gPlayerSlots->x, gPlayerSlots->z, emitters[nearest].x, emitters[nearest].z) - gPlayerSlots->yaw;
+                angle = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, emitters[nearest].x, emitters[nearest].z) - gPlayerSlots->unk2C4;
                 if (angle < 0.0f) {
                     angle += 6.2831855f;
                 }
@@ -1188,21 +1173,7 @@ void audioResetAll(void) {
     }
 }
 
-typedef struct SoundTargetSlotNode {
-    char pad0[0x10];
-    s16 unk10;
-    s16 unk12;
-} SoundTargetSlotNode;
-
-typedef struct SoundTargetSlot {
-    f32 x;
-    f32 y;
-    f32 z;
-    char padC[0x70];
-    SoundTargetSlotNode *node;
-    char pad80[0x10];
-} SoundTargetSlot;
-extern SoundTargetSlot *gModelSlots;
+extern ModelSlot *gModelSlots;
 
 extern f32 D_80770590;
 extern f32 D_80770594;
@@ -1229,7 +1200,7 @@ void sfxUpdateSourceGroups(void) {
     CamState *camState;
     s16 j;
     s16 pan;
-    Actor *ctx104;
+    Actor *camActor;
     s32 slot;
     s16 animFrame;
     f32 animSpeed;
@@ -1250,7 +1221,7 @@ void sfxUpdateSourceGroups(void) {
                 sfxUpdateDistanceVolumeAndPan(gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, 0xFF, 0x50, 0.5f);
                 dist[j] = D_80770DE4;
                 sfxSlotFreeSource(D_807707A0[i][j]);
-                gModelSlots[slot].node->unk12 = -1;
+                gModelSlots[slot].unk7C->unk12 = -1;
             }
             if (D_80770DE8 > 32767.0f) {
                 D_80770DE8 = 32767.0f;
@@ -1418,7 +1389,7 @@ void sfxUpdateSourceGroups(void) {
                             }
                             if (D_80770BC0[i] == 40.0f) {
                                 sfxSlotFreeSource(D_807707A0[i][0]);
-                                gModelSlots[slot].node->unk10 = -1;
+                                gModelSlots[slot].unk7C->unk10 = -1;
                             }
                             break;
                         case 0x11F:
@@ -1446,7 +1417,7 @@ void sfxUpdateSourceGroups(void) {
                                 if (D_80770BC0[i] == 110.0f) {
                                     if (D_807705F8[D_807707A0[i][0]] != -1) {
                                         sfxSlotFreeSource(D_807707A0[i][0]);
-                                        gModelSlots[slot].node->unk10 = -1;
+                                        gModelSlots[slot].unk7C->unk10 = -1;
                                     } else {
                                         sfxStopSlotSound(actor, 0);
                                         sfxStopChannel(0x3B, 0);
@@ -1495,6 +1466,7 @@ void sfxUpdateSourceGroups(void) {
                                 volume *= 0.9;
                                 break;
                             }
+                            /* fallthrough */
                         case 0x108:
                         case 0x10F:
                             if (D_80770BC0[i]-- <= 0.0f) {
@@ -1708,6 +1680,7 @@ void sfxUpdateSourceGroups(void) {
                             break;
                         }
                         D_80770688[i] = D_80770DE4;
+                        /* fallthrough */
                     default:
                         D_80770F38 = D_80770C18[i];
                         break;
@@ -1806,14 +1779,14 @@ void sfxUpdateSourceGroups(void) {
     }
 
     gActivePlayerState = gPlayerSlots->actor->customState;
-    ctx104 = gActivePlayerState->camActor;
-    camState = ctx104->customState;
-    if (camState->unkFA != 0 && gPlayerSlots->y < (camState->unk90 + 3.0f) && D_80745838 == 0 && gPlayerCount < 2) {
+    camActor = gActivePlayerState->camActor;
+    camState = camActor->customState;
+    if (camState->unkFA != 0 && gPlayerSlots->camY < (camState->unk90 + 3.0f) && D_80745838 == 0 && gPlayerCount < 2) {
         D_80745838 = 1;
         seqUpdateUnderwaterAudio(0);
         seqUpdateUnderwaterAudio(1);
     }
-    if ((camState->unkFA == 0 || (camState->unk90 + 3.0f) < gPlayerSlots->y) && D_80745838 == 1) {
+    if ((camState->unkFA == 0 || (camState->unk90 + 3.0f) < gPlayerSlots->camY) && D_80745838 == 1) {
         D_80745838 = 0;
         seqUpdateUnderwaterAudio(0);
         seqUpdateUnderwaterAudio(1);
@@ -1846,13 +1819,13 @@ extern u8 gPlayerCount;
 
 s16 sfxPlayAtPositionPooled(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, s16 pitch, u8 spread, u8 range, f32 directionality, u8 fx) {
     f32 diff;
-    f32 angle2;
+    f32 lookPitch;
     s32 dist;
     s32 level;
     f32 angle;
     u8 closest;
     u8 i;
-    s32 pad0;
+    f32 srcPitch;
     s32 pad1;
     s32 pad2;
     s16 pos[4];
@@ -1861,9 +1834,9 @@ s16 sfxPlayAtPositionPooled(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, s16 pitch
     closest = 0;
     for (i = 0; i < gPlayerCount; i++) {
         if (gPlayerSlots[i].active != 0) {
-            s32 dx = gPlayerSlots[i].x - x;
-            s32 dy = gPlayerSlots[i].y - y;
-            s32 dz = gPlayerSlots[i].z - z;
+            s32 dx = gPlayerSlots[i].camX - x;
+            s32 dy = gPlayerSlots[i].camY - y;
+            s32 dz = gPlayerSlots[i].camZ - z;
             dist = dx * dx + dy * dy + dz * dz;
             if (D_80770DE4 == -1.0f || (f32)dist < D_80770DE4) {
                 closest = i;
@@ -1876,10 +1849,10 @@ s16 sfxPlayAtPositionPooled(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, s16 pitch
         return -1;
     }
 
-    pos[0] = gPlayerSlots[closest].x;
-    pos[1] = gPlayerSlots[closest].y;
-    pos[2] = gPlayerSlots[closest].z;
-    pos[3] = (gPlayerSlots[closest].yaw * 4096.0) / 6.2831854820251465;
+    pos[0] = gPlayerSlots[closest].camX;
+    pos[1] = gPlayerSlots[closest].camY;
+    pos[2] = gPlayerSlots[closest].camZ;
+    pos[3] = (gPlayerSlots[closest].unk2C4 * 4096.0) / 6.2831854820251465;
     camGetPathStartPose(&pos[0], &pos[1], &pos[2], &pos[3]);
 
     if (D_80770DE4 < 500.0f) {
@@ -1899,10 +1872,10 @@ s16 sfxPlayAtPositionPooled(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, s16 pitch
     } else {
         D_80770DE4 = sqrtf(D_80770DE4);
         if (gPlayerCount == 1 && (f64)directionality >= 0.8) {
-            x = mathAngleBetweenPointsRad(pos[1], 0.0f, y, sqrtf(((x - pos[0]) * (x - pos[0])) + ((z - pos[2]) * (z - pos[2]))));
-            angle2 = mathAngleBetweenPointsRad(pos[1], 0.0f, gPlayerSlots->lookY, sqrtf(((gPlayerSlots->lookX - pos[0]) * (gPlayerSlots->lookX - pos[0])) + ((gPlayerSlots->lookZ - pos[2]) * (gPlayerSlots->lookZ - pos[2]))));
-            diff = x - angle2;
-            if (x < angle2) {
+            srcPitch = mathAngleBetweenPointsRad(pos[1], 0.0f, y, sqrtf(((x - pos[0]) * (x - pos[0])) + ((z - pos[2]) * (z - pos[2]))));
+            lookPitch = mathAngleBetweenPointsRad(pos[1], 0.0f, gPlayerSlots->focusY, sqrtf(((gPlayerSlots->focusX - pos[0]) * (gPlayerSlots->focusX - pos[0])) + ((gPlayerSlots->focusZ - pos[2]) * (gPlayerSlots->focusZ - pos[2]))));
+            diff = srcPitch - lookPitch;
+            if (srcPitch < lookPitch) {
                 diff += 6.2831855f;
             }
             if (diff > 3.1415927f) {
@@ -2028,9 +2001,9 @@ void sfxPlayAtPosition(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, f32 pitch, u8 
     f64 pad;
 
     reverb = 0;
-    dx = gPlayerSlots->x - x;
-    dy = gPlayerSlots->y - y;
-    dz = gPlayerSlots->z - z;
+    dx = gPlayerSlots->camX - x;
+    dy = gPlayerSlots->camY - y;
+    dz = gPlayerSlots->camZ - z;
     D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
     if (D_80770DE4 < 1.0f) {
         D_80770DE4 = 1.0f;
@@ -2051,7 +2024,7 @@ void sfxPlayAtPosition(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, f32 pitch, u8 
         vol = (s32)((1.0 - (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 155.0))) * vol);
         pitch = (pitch - ((u32)spread / 255.0)) + (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 100.0));
     }
-    pan = mathAngleBetweenPointsRad(gPlayerSlots->x, gPlayerSlots->z, x, z) - gPlayerSlots->yaw;
+    pan = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, x, z) - gPlayerSlots->unk2C4;
     if (pan < 0.0f) {
         pan += 6.2831855f;
     }
@@ -2096,7 +2069,7 @@ void sfxPlayAtPositionForPlayer(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, u8 pi
         n_alSndpStop(gActivePlayerState->sfxHandle);
     }
 
-    angle = mathAngleBetweenPointsRad(gPlayerSlots[gCurrentPlayerIndex].x, gPlayerSlots[gCurrentPlayerIndex].z, x, z) - gPlayerSlots[gCurrentPlayerIndex].yaw;
+    angle = mathAngleBetweenPointsRad(gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ, x, z) - gPlayerSlots[gCurrentPlayerIndex].unk2C4;
     if (angle < 0.0f) {
         angle += 6.2831855f;
     }
@@ -2111,9 +2084,9 @@ void sfxPlayAtPositionForPlayer(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, u8 pi
             angle = 0.0f;
         }
     } else {
-        dx = gPlayerSlots[gCurrentPlayerIndex].x - x;
-        dy = gPlayerSlots[gCurrentPlayerIndex].y - y;
-        dz = gPlayerSlots[gCurrentPlayerIndex].z - z;
+        dx = gPlayerSlots[gCurrentPlayerIndex].camX - x;
+        dy = gPlayerSlots[gCurrentPlayerIndex].camY - y;
+        dz = gPlayerSlots[gCurrentPlayerIndex].camZ - z;
         D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
 
         if (D_80770DE4 < 23.0f) {
