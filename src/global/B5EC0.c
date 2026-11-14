@@ -20,46 +20,6 @@
 extern Actor *gCurrentActor;
 extern s32 sEffectSparkConfig;
 
-typedef struct B5EC0Sub4 {
-    /* 0x00 */ u8 pad0[0x24];
-    /* 0x24 */ f32 unk24;
-} B5EC0Sub4;
-
-// File-local view of the current actor (gCurrentActor) for fields Actor lacks or types differently.
-typedef struct B5EC0Actor {
-    /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ B5EC0Sub4 **unk4;
-    /* 0x008 */ u8 pad8[0x50];
-    /* 0x058 */ s32 unk58;
-    /* 0x05C */ u8 pad5C[4];
-    /* 0x060 */ u32 unk60;
-    /* 0x064 */ u8 pad64[0x54];
-    /* 0x0B8 */ f32 unkB8;
-    /* 0x0BC */ u8 padBC[4];
-    /* 0x0C0 */ f32 unkC0;
-    /* 0x0C4 */ u8 padC4[0x22];
-    /* 0x0E6 */ s16 unkE6;
-    /* 0x0E8 */ u8 padE8[6];
-    /* 0x0EE */ s16 unkEE;
-    /* 0x0F0 */ u8 padF0[0x42];
-    /* 0x132 */ s16 unk132;
-    /* 0x134 */ s16 unk134;
-    /* 0x136 */ u8 pad136[2];
-    /* 0x138 */ u32 unk138;
-    /* 0x13C */ u8 pad13C[0x18];
-    /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 unk155;
-    /* 0x156 */ u8 pad156[9];
-    /* 0x15F */ u8 unk15F;
-} B5EC0Actor;
-
-typedef struct B5EC0View94 {
-    /* 0x00 */ u8 pad0[0x7C];
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ u8 pad80[4];
-    /* 0x84 */ f32 unk84;
-} B5EC0View94;
-
 void actorSpawnGroundEffectAtNode(u8 nodeIndex) {
     f32 x;
     f32 y;
@@ -74,8 +34,8 @@ void func_806B1290(void) {
     if (gBehaviourWorkState->stepCount >= 0x65
         && (((gBehaviourWorkState->flags & 0x80) && (randomNonNegative() >> 15) % 1000 >= 0x3D5)
             || ((randomNonNegative() >> 15) % 1000 >= 0x3DF && (gCurrentActor->flags & 0x100)))) {
-        ((B5EC0Actor *)gCurrentActor)->unk154 = 0x28;
-        ((B5EC0Actor *)gCurrentActor)->unk155 = 0;
+        gCurrentActor->state = 0x28;
+        gCurrentActor->unk155 = 0;
     }
 }
 

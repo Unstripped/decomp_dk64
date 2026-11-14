@@ -20,38 +20,11 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-// View of the current actor (gCurrentActor) with the fields func_806B5A90 and func_806B640C need typed.
-typedef struct BA790Actor {
-    /* 0x000 */ u8 pad0[0x58];
-    /* 0x058 */ s32 unk58;
-    /* 0x05C */ u8 pad5C[4];
-    /* 0x060 */ u32 unk60;
-    /* 0x064 */ u8 pad64[0xA];
-    /* 0x06E */ s16 unk6E;
-    /* 0x070 */ u8 pad70[0xC];
-    /* 0x07C */ f32 unk7C;
-    /* 0x080 */ f32 unk80;
-    /* 0x084 */ f32 unk84;
-    /* 0x088 */ u8 pad88[0x1C];
-    /* 0x0A4 */ f32 unkA4;
-    /* 0x0A8 */ u8 padA8[0x10];
-    /* 0x0B8 */ f32 unkB8;
-    /* 0x0BC */ u8 padBC[4];
-    /* 0x0C0 */ f32 unkC0;
-    /* 0x0C4 */ u8 padC4[0x22];
-    /* 0x0E6 */ s16 unkE6;
-    /* 0x0E8 */ u8 padE8[6];
-    /* 0x0EE */ s16 unkEE;
-    /* 0x0F0 */ u8 padF0[0x48];
-    /* 0x138 */ s32 unk138;
-    /* 0x13C */ u8 pad13C[0x18];
-    /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 unk155;
-    /* 0x156 */ u8 pad156[0x22];
-    /* 0x178 */ s16 *unk178;
-} BA790Actor;
-
-#define BA790A ((BA790Actor *)gCurrentActor)
+// Actor whose second component (0x178) points to an s16 countdown (func_806B640C).
+typedef struct CountdownActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ s16 *countdown;
+} CountdownActor;
 
 extern u8 gGameMode;
 extern s16 D_80770628[];
@@ -62,19 +35,19 @@ extern u8 D_80720630;
 
 s32 func_806B5A90(s32 aggroRange, s32 unused) {
     u8 ret;
-    s16 diff;
-    s32 sel;
-    f32 fv;
+    s16 yawDiff;
+    s32 step;
+    f32 lightRadius;
     s32 x;
-    u32 t;
+    u32 alpha;
     s16 q;
-    s32 r;
+    s32 size;
 
     ret = 0;
     if (gCurrentActor->moveYaw < gCurrentActor->yaw) {
-        diff = gCurrentActor->yaw - gCurrentActor->moveYaw;
+        yawDiff = gCurrentActor->yaw - gCurrentActor->moveYaw;
     } else {
-        diff = gCurrentActor->moveYaw - gCurrentActor->yaw;
+        yawDiff = gCurrentActor->moveYaw - gCurrentActor->yaw;
     }
     if (gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) {
         if (gCurrentActor->state != 0x37 && gCurrentActor->state != 0x38) {
@@ -100,7 +73,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             }
         }
     }
-    if (diff >= 0x1F5 && diff < 0xE0C) {
+    if (yawDiff >= 0x1F5 && yawDiff < 0xE0C) {
         func_80685210(0.5f, 0x32, (gFrameCounter & 1) + 2);
         gCurrentActor->speedXZ /= 2;
         if (gCurrentActor->soundSlots[0] == -1) {
@@ -165,43 +138,43 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         }
         break;
     case 0x37:
-        sel = gCurrentActor->unk155;
-        if (sel >= 2) {
-            if (sel - 0x82 < 0) {
+        step = gCurrentActor->unk155;
+        if (step >= 2) {
+            if (step - 0x82 < 0) {
                 x = 0;
             } else {
-                x = sel - 0x82;
+                x = step - 0x82;
             }
-            if (sel * 6 >= 0x23) {
-                r = 0x22;
+            if (step * 6 >= 0x23) {
+                size = 0x22;
             } else {
-                r = (sel * 6) & 0xFF;
+                size = (step * 6) & 0xFF;
             }
-            q = r;
-            t = (u32)((1.0 - (f64)x * 0.03125) * 230.0) & 0xFF;
-            if (t != 0) {
-                billboardSubmit(gCurrentActor, 0x3C3, 0x40, 0x40, q, q, 1, 0x96, t, 0, 1.0f);
+            q = size;
+            alpha = (u32)((1.0 - (f64)x * 0.03125) * 230.0) & 0xFF;
+            if (alpha != 0) {
+                billboardSubmit(gCurrentActor, 0x3C3, 0x40, 0x40, q, q, 1, 0x96, alpha, 0, 1.0f);
             } else {
                 behaviourSetFloorAndState40();
             }
-            sel = gCurrentActor->unk155;
-            if (sel >= 0x17) {
+            step = gCurrentActor->unk155;
+            if (step >= 0x17) {
                 x = 0x16;
             } else {
-                x = sel;
+                x = step;
             }
-            fv = ((22.0 - (f64)x) / 20.0) * 200.0;
-            if (fv > 130.0) {
-                fv = 200.0f;
+            lightRadius = ((22.0 - (f64)x) / 20.0) * 200.0;
+            if (lightRadius > 130.0) {
+                lightRadius = 200.0f;
             }
-            lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, fv, 0, 0xFF, 0xFF, 0xFF);
-            sel = gCurrentActor->unk155;
+            lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, lightRadius, 0, 0xFF, 0xFF, 0xFF);
+            step = gCurrentActor->unk155;
         }
-        if (sel < 4) {
+        if (step < 4) {
             actorMoveWithinZone(0x33, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x20, 6.0f);
-            sel = gCurrentActor->unk155;
+            step = gCurrentActor->unk155;
         }
-        switch (sel) {
+        switch (step) {
         case 0:
             actorScriptStart(gCurrentActor, 0x24B);
             gCurrentActor->unk155++;
@@ -258,15 +231,15 @@ extern s32 gCurrentMap;
 
 
 void func_806B640C(void) {
-    s16 *p = BA790A->unk178;
+    s16 *countdown = ((CountdownActor *)gCurrentActor)->countdown;
     s16 i;
-    s32 sel;
-    s32 a;
+    s32 state;
+    s32 aggroRange;
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         actorClearNodeFlag(gCurrentActor, 3);
-        *p = -gBehaviourExtraState->unkAWide;
+        *countdown = -gBehaviourExtraState->unkAWide;
     }
     if (gGameMode == 1) {
         for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
@@ -277,24 +250,24 @@ void func_806B640C(void) {
         }
         lightUpdateFromActorLighting(&gCurrentActor->tintR, &gCurrentActor->tintG, &gCurrentActor->tintB);
     }
-    sel = gCurrentActor->state;
-    if (sel != 0x37 && sel != 0x38) {
-        if (*p > 0) {
-            (*p)--;
-            if (*p == 0xA) {
+    state = gCurrentActor->state;
+    if (state != 0x37 && state != 0x38) {
+        if (*countdown > 0) {
+            (*countdown)--;
+            if (*countdown == 0xA) {
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x150, 0xFF, 0x7F, 0x1E, 0x32, 0.3f, 0);
             }
-            if (*p == 0) {
+            if (*countdown == 0) {
                 gActorGlobalState.bossFightPhase = 9;
             }
         }
     }
     if (gCurrentMap == 6) {
-        a = 0x9C40;
+        aggroRange = 0x9C40;
     } else {
-        a = 0x2710;
+        aggroRange = 0x2710;
     }
-    if (func_806B5A90(a, *p) != 0) {
-        *p = -*p;
+    if (func_806B5A90(aggroRange, *countdown) != 0) {
+        *countdown = -*countdown;
     }
 }
