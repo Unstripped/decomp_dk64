@@ -1303,13 +1303,13 @@ void modelSlotGetNodeScrollSpeed(s32 id, s16 node, s16 *speedXOut, s16 *speedYOu
 
 
 void modelSlotAccessNodeScrollSpeed(s32 id, s16 node, s16 speedX, s16 speedY, s16 *speedXOut, s16 *speedYOut, u8 get) {
-    ModelSlot *slot;
+    s32 idx;
     ModelSlotObj *obj;
 
-    slot = hashTableLookup(id) + ((0, gModelSlots)); // FAKE: comma swaps the index and global load temps (Q0304)
-    obj = slot->unk20;
-    if (slot->unk86 != 1) {
-        if (slot->unk86 == 2) {
+    idx = hashTableLookup(id);
+    obj = gModelSlots[idx].unk20;
+    if (gModelSlots[idx].unk86 != 1) {
+        if (gModelSlots[idx].unk86 == 2) {
             modelNodeAccessScrollSpeed(obj->unk50, node, speedX, speedY, speedXOut, speedYOut, get);
         }
     } else {
@@ -1346,13 +1346,13 @@ void modelSlotGetNodeAnimMode(s32 id, s16 node, u8 *modeOut) {
 
 
 void modelSlotAccessNodeAnimMode(s32 id, s16 node, u8 mode, u8 *modeOut, u8 get) {
-    ModelSlot *slot;
+    s32 idx;
     ModelSlotObj *obj;
 
-    slot = hashTableLookup(id) + ((0, gModelSlots)); // FAKE: comma swaps the index and global load temps (Q0304)
-    obj = slot->unk20;
-    if (slot->unk86 != 1) {
-        if (slot->unk86 == 2) {
+    idx = hashTableLookup(id);
+    obj = gModelSlots[idx].unk20;
+    if (gModelSlots[idx].unk86 != 1) {
+        if (gModelSlots[idx].unk86 == 2) {
             modelNodeAccessAnimMode(obj->unk50, node, mode, modeOut, get);
         }
     } else {
@@ -1377,13 +1377,13 @@ void modelNodeAccessAnimMode(TexAnimNode *list, s16 node, u8 mode, u8 *modeOut, 
 
 
 void modelSlotSetNodeFrame(s32 id, s16 node, s32 frame, s32 tick) {
-    ModelSlot *slot;
+    s32 idx;
     ModelSlotObj *obj;
 
-    slot = hashTableLookup(id) + ((0, gModelSlots)); // FAKE: comma swaps the index and global load temps (Q0304)
-    obj = slot->unk20;
-    if (slot->unk86 != 1) {
-        if (slot->unk86 == 2) {
+    idx = hashTableLookup(id);
+    obj = gModelSlots[idx].unk20;
+    if (gModelSlots[idx].unk86 != 1) {
+        if (gModelSlots[idx].unk86 == 2) {
             modelNodeSetFrame(obj->unk50, node, frame, tick);
         }
     } else {
@@ -1998,26 +1998,25 @@ void modelSlotFreeNestedBuffer(s32 slotIndex, u8 isId) {
     ModelSlotSubNode *buffer;
     ModelSlotSubNode **listPtr;
     ModelSlot *slot;
-    ModelSlotSubNode ***pp;
 
     if (isId == 1) {
         slotIndex = hashTableLookup(slotIndex);
     }
     slot = &gModelSlots[slotIndex];
-    if (slot->unk86 != 1) {
-        if (slot->unk86 == 2) {
+    switch (slot->unk86) {
+        case 2:
             listPtr = &((ModelChainOwner *)slot->unk20)->unk54;
-        }
-    } else {
-        listPtr = &((ModelChainOwner *)slot->unk20)->unkBC;
+            break;
+        case 1:
+            listPtr = &((ModelChainOwner *)slot->unk20)->unkBC;
+            break;
     }
-    pp = &listPtr; // FAKE: re-read through pp keeps listPtr in memory (direct use costs 1064)
-    if (*pp != NULL) {
-        buffer = **pp;
+    if (listPtr != NULL) {
+        buffer = *listPtr;
         if (buffer != NULL) {
             assetFreeBuffer(buffer->unk0, 0xA56, 7);
             heapFree(buffer);
-            **pp = NULL;
+            *listPtr = NULL;
         }
     }
 }
