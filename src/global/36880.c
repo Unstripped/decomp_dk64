@@ -1822,12 +1822,12 @@ s32 activeActorBoxOverlapTest(f32 x, f32 y, f32 z, s16 radiusX, s16 radiusY, s16
     s16 ry;
     s16 rz;
 
-    rx = radiusX;
+    rx = radiusX;  // FAKE: dead s16 copies of the radii (rx/ry/rz never read) renumber the int webs: count a1, i a0, gActiveActors t0, mask t1 at 0x4370-0x43c4 (without them v1/v0/a1/a2)
     ry = radiusY;
     rz = radiusZ;
     for (i = 0; i < gActiveActorCount; i++) {
         a = gActiveActors[i].actor;
-        b = a;
+        b = a;  // FAKE: alias read by the first three compares keeps y/z in f14/f20 and the coordinate loads in f18/f22/f24 (0x43d4-0x4414); one pointer moves y to f20, z to f22 and grows .text by 16 bytes
         if (b->collisionFlags & mask) {
             if (x - radiusX <= b->x && y - radiusY <= b->y && z - radiusZ <= b->z &&
                 a->x <= radiusX + x && a->y <= radiusY + y && a->z <= radiusZ + z) {
