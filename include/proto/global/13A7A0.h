@@ -26,6 +26,9 @@ void __n_removeEvents();
 #ifndef PROTO_SKIP_n_alSndpCountStates
 u16 n_alSndpCountStates(u16 *, u16 *);
 #endif
+#ifndef PROTO_SKIP___n_allocState
+struct GfSndState *__n_allocState(void *, ALSound *);
+#endif
 #ifndef PROTO_SKIP___n_freeState
 void __n_freeState(struct GfSndState *);
 #endif
