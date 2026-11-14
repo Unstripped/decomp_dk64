@@ -2,13 +2,14 @@
 #ifndef PROTO_GLOBAL_11BC10_H
 #define PROTO_GLOBAL_11BC10_H
 #include "common.h"
+#include "actor.h"
+#include "render.h"
 struct ConfettiActorView;
 struct FallingEffectActorView;
 struct FollowParentActorView;
 struct GroundBounceActorView;
 struct MotionEffectActorView;
 struct OrbitEffectActorView;
-struct OrbitSourceActor;
 struct PulseFadeActorView;
 struct RadialSprayActorView;
 struct RotatingEffectActorView;
@@ -209,10 +210,10 @@ void effectShockwaveRingUpdate(struct TimedEffectActorView *, s8 *);
 void effectBallisticUpdate(struct TimedEffectActorView *, s8 *);
 #endif
 #ifndef PROTO_SKIP_effectFallStateInit
-void effectFallStateInit(struct OrbitSourceActor *, struct TimedEffectActorView *, u8 *);
+void effectFallStateInit(Actor *, EffectNode *, u8 *);
 #endif
 #ifndef PROTO_SKIP_effectFloorFallUpdate
-void effectFloorFallUpdate(struct TimedEffectActorView *, u8 *);
+void effectFloorFallUpdate(EffectNode *, u8 *);
 #endif
 #ifndef PROTO_SKIP_effectActorOrbitFollowUpdate
 void effectActorOrbitFollowUpdate(struct TimedEffectActorView *, s8 *);

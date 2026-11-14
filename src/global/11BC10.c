@@ -2,8 +2,6 @@
 #include "compiler/ido/memory.h"
 #include "actor.h"
 #define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
-#define PROTO_SKIP_effectFallStateInit
-#define PROTO_SKIP_effectFloorFallUpdate
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/15050.h"
@@ -19,8 +17,6 @@
 #include "proto/global/7CA80.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"
-void effectFallStateInit(Actor *source, EffectNode *effect, u8 *isDone);
-void effectFloorFallUpdate(EffectNode *effect, u8 *isDone);
 
 
 extern u8 gGfxBufferIndex;

@@ -3,8 +3,6 @@
 #include "sched.h"
 #define PROTO_SKIP_sfxPlayAtPositionPooled // FAKE: callee prototype steer
 #include "proto/global/119370.h"
-#define PROTO_SKIP_effectFallStateInit
-#define PROTO_SKIP_effectFloorFallUpdate
 #include "proto/global/11BC10.h"
 #include "proto/global/166A0.h"
 #include "proto/global/19A00.h"
@@ -19,7 +17,6 @@
 #include "proto/global/89250.h"
 #include "proto/global/8CA50.h"
 #include "proto/global/A2F10.h"
-void effectFloorFallUpdate(EffectNode *effect, u8 *isDone);
 
 typedef struct ScaleTierTable {
     f32 arr[3];
