@@ -1225,7 +1225,6 @@ extern ArcadeEntity D_8004A518;
 extern ArcadeEntity D_8004A558;
 extern ArcadeEntity D_8004A638;
 extern ArcadeEntity D_8004A718;
-extern ArcadeEntity D_8004C170;
 void arcadeSpawnStage1Entities(void) {
     float oilDrumY;
     s32 i;
@@ -1242,7 +1241,7 @@ void arcadeSpawnStage1Entities(void) {
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A438;
     D_8004C71F = arcadeFindFreeEntity();
     D_8004BCD0[D_8004C71F] = D_8004A398;
-    D_8004C170 = D_8004A458;
+    D_8004BCD0[0x25] = D_8004A458;
     i = i + 0x24; // FAKE: adding onto the early i = 0 steers regalloc (Q0252 placement; i = 0x24 swaps a0/a2)
     D_8004BCD0[i--] = D_8004A638;
     D_8004BCD0[i] = D_8004A638;
@@ -1306,7 +1305,7 @@ void arcadeSpawnStage2Entities(void) {
     D_8004BCD0[idx].sprite = D_800335D8;
     D_8004C71F = arcadeFindFreeEntity();
     D_8004BCD0[D_8004C71F] = D_8004A398;
-    D_8004C170 = D_8004A618;
+    D_8004BCD0[0x25] = D_8004A618;
     D_8004BCD0[0x25].sprite = D_80038FE8;
     D_8004C150 = D_8004A618;
     D_8004BCD0[0x24].x = 252.0f;
@@ -1475,7 +1474,7 @@ void arcadeSpawnStage4Entities(void) {
     D_8004BCD0[idx].sprite = D_80033C48;
     D_8004C71F = arcadeFindFreeEntity();
     D_8004BCD0[D_8004C71F] = D_8004A398;
-    D_8004C170 = D_8004A458;
+    D_8004BCD0[0x25] = D_8004A458;
     D_8004BCD0[0x25].x = 152.0f;
     D_8004BCD0[0x25].y = 127.0f;
     D_8004C150 = D_8004A3F8;
