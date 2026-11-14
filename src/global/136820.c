@@ -162,7 +162,7 @@ void faultDrawRegs(OSThread *a0) {
         D_807FEF70 = D_807FEF7C = x;
         D_807FEF74 = y;
         faultPrintf("DK 64\n");
-        faultPrintf("%X\n", (s32)ctx->pc);
+        faultPrintf("%X\n", ctx->pc);
         faultPrintf("%X\n", ((s32 *)&ctx->ra)[1]); // FAKE: low-word read of the u64 ra avoids the ucvt temps that shift D_807563B8 from t0 to t2
         if (D_807563B8 >= 4) {
             for (j = 0; j < D_807FF018; j++) {
