@@ -2005,7 +2005,7 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 py;
     f32 xo;
     f32 pz;
-    void (*cb)(struct TimedEffectActorView *, u8 *);
+    void (*cb)(EffectNode *, u8 *);
 
     if (&xs == 0 || &px == 0 || &zo == 0 || &py == 0 || &xo == 0 || &pz == 0) {} // FAKE: address-taken: keeps the six floats in their declaration-order stack homes
     ang = gCsRotY * 4096.0f / 360.0f;
