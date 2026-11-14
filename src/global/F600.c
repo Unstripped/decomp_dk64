@@ -129,7 +129,6 @@ extern u8 gScreenRenderFlags;
 #define CtrlARepeat D_807ECD50
 
 void controllerUpdate(void) {
-    s16 timer;
     OSContPad *pad;
     s32 sum;
     s32 buttons;
@@ -167,15 +166,11 @@ void controllerUpdate(void) {
             controllerFilterInput(D_807ECDF4);
             controllerLatchPad(D_807ECDF4);
             func_8060B4D4(D_807ECDE8);
-            if (D_807ECD09) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            i = 0;
-            do {
+            for (i = 0; i < 4; i++) {
                 if (D_807ECD09 & (1 << i)) {
-                    if (D_807ECD48) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     D_807ECDE8[i].button |= D_807ECDF4[i].button & 0x1000;
                 }
-                i++;
-            } while (i < 4);
+            }
             break;
         case 3:
             controllerFilterInput(D_807ECDF4);
@@ -195,10 +190,10 @@ void controllerUpdate(void) {
         sum += *p;
         p++;
     }
-    padIdx = 0;
     if (sum != 0x624C9A6C) {
         gFrameCounter = 0;
     }
+    padIdx = 0;
     for (i = 0; i < 4; i++) {
         if (compact != 0) {
             mask = D_807ECDF8 & (1 << i);
@@ -207,8 +202,7 @@ void controllerUpdate(void) {
             padIdx = i;
         }
         if (i == 0 && D_807463B8 == 2) {
-            if (D_807463B8 == D_807463B8) {} // FAKE: retain CFG without a mode value live across blocks
-            mask = mask | 1;
+            mask |= 1;
         }
         sum = padIdx * 2; // FAKE: byte offset in the checksum local orders the held-address candidate before the pad load
         if (mask != 0) {
@@ -228,11 +222,11 @@ void controllerUpdate(void) {
             for (k = 0; k < 16; k++) {
                 bit = 1 << k;
                 if (buttons & bit) {
-                    timer = --D_807ECD68[padIdx][k];
-                    if (timer <= 0) {
+                    D_807ECD68[padIdx][k]--;
+                    if (D_807ECD68[padIdx][k] <= 0) {
                         CtrlARepeat[padIdx] |= bit;
                         D_807ECD68[padIdx][k] = 2;
-                    } else if (timer == 11U) { // FAKE: unsigned compare of the s16 timer selects the target branch form
+                    } else if (D_807ECD68[padIdx][k] == 11) {
                         CtrlARepeat[padIdx] |= bit;
                     } else {
                         CtrlARepeat[padIdx] &= ~bit;
