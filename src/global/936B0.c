@@ -1,6 +1,7 @@
 #include "common.h"
 
 #include "actor.h"
+#include "race.h"
 #include "sched.h"
 #include "proto/global/103AB0.h"
 #include "proto/global/119370.h"
@@ -33,86 +34,60 @@
 #include "proto/global/F56F0.h"
 #include "proto/global/FCCD0.h"
 
-typedef struct ProjectileActorSub174 {
-    s16 unk0;
-    u8 pad2[0x25];
-    u8 unk27;
-    u8 unk28;
-    u8 pad29[0xB];
-    u8 unk34;
-    u8 unk35;
-    u8 unk36;
-    u8 pad37[0x88 - 0x37];
-    Actor *unk88;
-    u8 pad8C[0x1A4 - 0x8C];
-    u8 unk1A4;
-} ProjectileActorSub174;
-
-typedef struct ProjectileActorSync {
-    u8 pad0[0x58];
-    s32 unk58;
-    u8 pad5C[0x7C - 0x5C];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0xAC - 0x88];
-    f32 unkAC;
-    u8 padB0[0xB8 - 0xB0];
-    f32 unkB8;
-    u8 padBC[0xE4 - 0xBC];
-    s16 unkE4;
-    s16 unkE6;
-    s16 unkE8;
-    u8 padEA[0x174 - 0xEA];
-    void *unk174;
-} ProjectileActorSync;
+// Second component (0x178) of the ridden vehicle actors (race/52B0 passes it as `motion`): the model
+// lean angles actorInterpolateAngles eases and the hop func_8068F72C consumes.
+typedef struct VehicleMotion {
+    s16 boneYaw;
+    s16 bonePitch;
+    u8 jumpQueued;
+} VehicleMotion;
 
 void actorSnapToBone(Actor **actorRef) {
     f32 boneY;
-    ProjectileActorSub174 *sub;
+    PlayerState *playerState;
 
-    sub = (*actorRef)->customState;
-    actorGetNodePos(sub->unk88, 9, &(*actorRef)->x, &boneY, &(*actorRef)->z);
+    playerState = (*actorRef)->customState;
+    actorGetNodePos(playerState->actor, 9, &(*actorRef)->x, &boneY, &(*actorRef)->z);
     if ((*actorRef)->y < boneY) {
         (*actorRef)->y = boneY;
     }
-    (*actorRef)->yaw = sub->unk88->yaw;
+    (*actorRef)->yaw = playerState->actor->yaw;
     actorUpdateModelMatrix(*actorRef, 0);
 }
 
-void actorSyncTransformFromParent(ProjectileActorSync **actorRef) {
-    ProjectileActorSync *self;
-    ProjectileActorSub174 *sub;
-    ProjectileActorSync *parent;
-    ProjectileActorSub174 *parentSub;
+void actorSyncTransformFromParent(Actor **actorRef) {
+    Actor *self;
+    PlayerState *playerState;
+    Actor *parent;
+    RaceParticipant *vehicleState;
 
     self = *actorRef;
-    sub = self->unk174;
-    parent = (ProjectileActorSync *)sub->unk88;
+    playerState = self->customState;
+    parent = playerState->actor;
     if (parent != NULL) {
-        parentSub = parent->unk174;
-        if (parentSub->unk34 < 5) {
-            self->unk7C = parent->unk7C;
-            (*actorRef)->unk80 = ((ProjectileActorSync *)sub->unk88)->unk80;
-            (*actorRef)->unk84 = ((ProjectileActorSync *)sub->unk88)->unk84;
-            (*actorRef)->unkE6 = ((ProjectileActorSync *)sub->unk88)->unkE6;
-            (*actorRef)->unkE8 = ((ProjectileActorSync *)sub->unk88)->unkE8;
-            (*actorRef)->unkE4 = ((ProjectileActorSync *)sub->unk88)->unkE4;
-            (*actorRef)->unkAC = ((ProjectileActorSync *)sub->unk88)->unkAC;
-            parent = (ProjectileActorSync *)sub->unk88;
-            if (parent->unk58 == 0x12E) {
-                (*actorRef)->unkB8 = parent->unkB8 * 10.0f;
+        vehicleState = parent->customState;
+        if (vehicleState->unk34 < 5) {
+            self->x = parent->x;
+            (*actorRef)->y = playerState->actor->y;
+            (*actorRef)->z = playerState->actor->z;
+            (*actorRef)->yaw = playerState->actor->yaw;
+            (*actorRef)->roll = playerState->actor->roll;
+            (*actorRef)->pitch = playerState->actor->pitch;
+            (*actorRef)->waterY = playerState->actor->waterY;
+            parent = playerState->actor;
+            if (parent->actorType == 0x12E) {
+                (*actorRef)->speedXZ = parent->speedXZ * 10.0f;
             } else {
-                (*actorRef)->unkB8 = parent->unkB8;
+                (*actorRef)->speedXZ = parent->speedXZ;
             }
             self = *actorRef;
         } else {
             self = *actorRef;
-            self->unkB8 = 0.0f;
+            self->speedXZ = 0.0f;
             self = *actorRef;
         }
     }
-    actorUpdateModelMatrix((Actor *)self, 0);
+    actorUpdateModelMatrix(self, 0);
 }
 
 s32 mathPickCloserTargetPoint3D(f32 x, f32 y, f32 z, TargetVec3f *segAStart, TargetVec3f *segAEnd, TargetVec3f *segBStart, TargetVec3f *segBEnd, f32 *outX, f32 *outY, f32 *outZ) {
@@ -191,9 +166,9 @@ extern Actor *gCurrentActor;
 
 
 typedef struct OwnerLinkState {
-    Actor *unk0;
-    Actor *unk4;
-    s32 unk8;
+    Actor *owner;
+    Actor *notifyActor;
+    s32 glowStartFrame;
 } OwnerLinkState;
 
 extern s32 gCurrentMap;
@@ -223,7 +198,7 @@ void func_8068EF54(void) {
     u32 frame;
 
     link = gCurrentActor->customState;
-    owner = link->unk0;
+    owner = link->owner;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->sub4->boneRotations = heapAlloc(0x10);
         buf = gCurrentActor->sub4->boneRotations;
@@ -240,7 +215,7 @@ void func_8068EF54(void) {
             gCurrentActor->tintB = 0xFF;
             gCurrentActor->flags |= 0x800000;
         }
-        link->unk8 = 0;
+        link->glowStartFrame = 0;
     }
     buf = gCurrentActor->sub4->boneRotations;
     switch (owner->collisionFlags) {
@@ -248,7 +223,7 @@ void func_8068EF54(void) {
         playerState = owner->customState;
         buf->rotX = playerState->unk1A0;
         if ((owner->contactFlags & 5) || playerState->unk240 == 1 || (owner->state == 0x42 && playerState->hitActorType != 0x31) || owner->state == 0x87) {
-            actorAppendCallback(link->unk4, gCurrentActor, 0x2000000, 0, 0, 0);
+            actorAppendCallback(link->notifyActor, gCurrentActor, 0x2000000, 0, 0, 0);
             playerState->isHoldingObject = 0;
             actorDespawn(gCurrentActor);
             sfxStopChannel(0x48, 0);
@@ -267,11 +242,11 @@ void func_8068EF54(void) {
                 effectSpawnActorBone(owner, 2, (f32)(ratio / 150.0 * 0.12) + 0.3);
             }
             playerState->unk1A2 = 0;
-            link->unk8 = gFrameCounter;
+            link->glowStartFrame = gFrameCounter;
         }
         if (gCurrentMap == 0x5C) {
             frame = gFrameCounter;
-            glow = (30.0 - (f64)(s32)(frame - link->unk8)) / 30.0 * 100.0;
+            glow = (30.0 - (f64)(s32)(frame - link->glowStartFrame)) / 30.0 * 100.0;
             if (glow > 0.0) {
                 lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, glow, 0, 0xFF, 0xC8, 0xC8);
             }
@@ -333,36 +308,15 @@ void func_8068EF54(void) {
 }
 
 
-typedef struct ActorMoveState {
-    s16 unk0;
-    s16 unk2;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    u8 pad14[0x27 - 0x14];
-    u8 unk27;
-    u8 unk28;
-    u8 pad29[0x34 - 0x29];
-    u8 unk34;
-    u8 unk35;
-} ActorMoveState;
-
-typedef struct ActorMoveStepFlag {
-    u8 pad0[4];
-    u8 unk4;
-} ActorMoveStepFlag;
-
-
 
 extern s16 D_8075033C;
 extern u32 gGlobalOverlayFlags;
 void func_8002F490(void *);
 
 
-void func_8068F72C(state, stepFlag, applyBuoyancy, tilt)
-ActorMoveState *state;
-ActorMoveStepFlag *stepFlag;
+void func_8068F72C(vehicle, motion, applyBuoyancy, tilt)
+RaceParticipant *vehicle;
+VehicleMotion *motion;
 u8 applyBuoyancy;
 u8 tilt;
 {
@@ -381,7 +335,7 @@ u8 tilt;
     s16 slopeRange;
     Actor *pl;
 
-    pl = gPlayerSlots[state->unk28].actor;
+    pl = gPlayerSlots[vehicle->playerIdx].actor;
     kongState = pl->actorType;
     tiltPitch = 0;
     tiltRoll = 0;
@@ -392,9 +346,9 @@ u8 tilt;
         gCurrentActor->state = 0;
         gCurrentActor->unk155 = 0;
         gCurrentActor->speedXZ = 0.0f;
-        state->unk34 = 0;
-        state->unk35 = 0;
-        if (state->unk27 == 0) {
+        vehicle->unk34 = 0;
+        vehicle->unk35 = 0;
+        if (vehicle->unk27 == 0) {
             gCurrentActor->unk144 = 0x3C;
             gCurrentActor->accelY = -20.0f;
         } else {
@@ -407,14 +361,14 @@ u8 tilt;
     velX = mathSinF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ;
     velZ = mathCosF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ;
     if (fl[3] != 0) {
-        thrust = state->unk4 * 50.0f;
+        thrust = vehicle->unk4 * 50.0f;
         if (kongState == 2) {
             tmpA = 5000.0f;
         } else {
             tmpA = 10000.0f;
         }
-        drag = 1.0f / tmpA * (gCurrentActor->speedXZ * gCurrentActor->speedXZ) + state->unk8;
-        if (state->unk4 != 0.0f) {
+        drag = 1.0f / tmpA * (gCurrentActor->speedXZ * gCurrentActor->speedXZ) + vehicle->unk8;
+        if (vehicle->unk4 != 0.0f) {
             drag = drag + 30.0f;
         } else {
             drag = drag + 3.0f;
@@ -422,20 +376,20 @@ u8 tilt;
     } else {
         tmpB = 2.0f;
         if (fl[2] != 0) {
-            thrust = state->unk4 * 4.0f;
-            drag = state->unk8 + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + tmpB;
+            thrust = vehicle->unk4 * 4.0f;
+            drag = vehicle->unk8 + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + tmpB;
         } else {
-            thrust = state->unk4 * tmpB;
-            drag = state->unk8 + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + tmpB;
+            thrust = vehicle->unk4 * tmpB;
+            drag = vehicle->unk8 + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + tmpB;
         }
     }
-    velX += mathSinF(state->unk0) * thrust;
-    velZ += mathCosF(state->unk0) * thrust;
+    velX += mathSinF(vehicle->heading) * thrust;
+    velZ += mathCosF(vehicle->heading) * thrust;
     gCurrentActor->speedXZ = sqrtf(velX * velX + velZ * velZ);
     gCurrentActor->moveYaw = (mathAtan2(velX, velZ) * 4096.0 / 6.2831854820251465);
     if (fl[2] != 0) {
         slopeRange = 0x400 - gCurrentActor->floorSlopePitch;
-        slopeAngle = mathAngleSignedDistance(gCurrentActor->floorSlopeYaw, state->unk0);
+        slopeAngle = mathAngleSignedDistance(gCurrentActor->floorSlopeYaw, vehicle->heading);
         tmpB = slopeRange;
         tiltPitch = (mathCosF(slopeAngle) * tmpB);
         tiltRoll = (mathSinF(slopeAngle) * tmpB);
@@ -443,12 +397,12 @@ u8 tilt;
         gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, 0, 4.0f);
         gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, 0, 5.0f);
     }
-    turnRate = state->unk10 * state->unkC;
+    turnRate = vehicle->unk10 * vehicle->unkC;
     if (tilt) {
         tiltRoll = tiltRoll + turnRate * 200.0f;
         tiltRoll &= 0xFFF;
         if (fl[3] != 0 || fl[2] != 0) {
-            tiltPitch = tiltPitch + (state->unk4 * -50.0f + gCurrentActor->speedXZ * -0.5);
+            tiltPitch = tiltPitch + (vehicle->unk4 * -50.0f + gCurrentActor->speedXZ * -0.5);
             tiltPitch &= 0xFFF;
         } else {
             tiltPitch = gCurrentActor->roll;
@@ -472,8 +426,8 @@ u8 tilt;
         if (tiltRoll && tiltRoll) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         tiltRoll = -0x28;
     }
-    state->unk0 = state->unk0 + turnRate * tiltRoll * (1.0 + tmpB * 0.05);
-    state->unk0 = state->unk0 & 0xFFF;
+    vehicle->heading = vehicle->heading + turnRate * tiltRoll * (1.0 + tmpB * 0.05);
+    vehicle->heading = vehicle->heading & 0xFFF;
     if (applyBuoyancy) {
         tmpA = gCurrentActor->y;
         drag = gCurrentActor->waterY;
@@ -492,8 +446,8 @@ u8 tilt;
         }
     }
     gCurrentActor->speedY = gCurrentActor->speedY + gCurrentActor->accelY;
-    if (stepFlag->unk4 != 0) {
-        stepFlag->unk4 = 0;
+    if (motion->jumpQueued != 0) {
+        motion->jumpQueued = 0;
         if (fl[3] != 0) {
             if (kongState == 2) {
                 gCurrentActor->speedY = 200.0f;
@@ -509,7 +463,7 @@ u8 tilt;
         gCurrentActor->speedY = tmpB;
     }
     if (kongState == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    actorStepPhysics(gCurrentActor, gCurrentActor->yaw, state->unk0);
+    actorStepPhysics(gCurrentActor, gCurrentActor->yaw, vehicle->heading);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     if (!applyBuoyancy) {
@@ -519,27 +473,16 @@ u8 tilt;
         }
     }
     if (gGlobalOverlayFlags & 0x2000) {
-        func_8002F490(state);
+        func_8002F490(vehicle);
     }
     if (fl[2] != 0 && !(gCurrentActor->prevContactFlags & 1)) {
         gCurrentActor->speedY = -10.0f;
     }
-    gCurrentActor->yaw = (state->unk0 + state->unk2) & 0xFFF;
+    gCurrentActor->yaw = (vehicle->heading + vehicle->unk2) & 0xFFF;
 }
 
-typedef struct ProjectileAngleTarget {
-    u8 pad0[0xC];
-    f32 unkC;
-} ProjectileAngleTarget;
 
-typedef struct ProjectileAngleStep {
-    s16 unk0;
-    s16 unk2;
-} ProjectileAngleStep;
-
-
-
-void actorInterpolateAngles(u8 resetting, ProjectileAngleTarget *target, ProjectileAngleStep *step) {
+void actorInterpolateAngles(u8 resetting, RaceParticipant *vehicle, VehicleMotion *motion) {
     f32 pitchGoal;
     f32 yawGoal;
     BoneRotation *angles;
@@ -550,14 +493,14 @@ void actorInterpolateAngles(u8 resetting, ProjectileAngleTarget *target, Project
         yawGoal = 0.0f;
     } else {
         pitchGoal = 0.0f;
-        yawGoal = (f32)((f64)target->unkC * (400.0 - (0.7 * (f64)gCurrentActor->speedXZ)));
+        yawGoal = (f32)((f64)vehicle->unkC * (400.0 - (0.7 * (f64)gCurrentActor->speedXZ)));
     }
-    step->unk2 = mathAngleEaseToward(step->unk2, (s16)(s32)pitchGoal, 5.0f);
-    step->unk0 = mathAngleEaseToward(step->unk0, (s16)((s32)yawGoal & 0xFFF), 3.0f);
+    motion->bonePitch = mathAngleEaseToward(motion->bonePitch, (s16)(s32)pitchGoal, 5.0f);
+    motion->boneYaw = mathAngleEaseToward(motion->boneYaw, (s16)((s32)yawGoal & 0xFFF), 3.0f);
     angles->weight = -0x80;
     angles->bone = 1;
-    angles->rotX = (u16)step->unk2 * 16;
-    angles->rotY = (u16)step->unk0 * 16;
+    angles->rotX = (u16)motion->bonePitch * 16;
+    angles->rotY = (u16)motion->boneYaw * 16;
     angles->rotZ = 0;
     angles[1].weight = 0;
 }
@@ -571,11 +514,11 @@ void actorAllocSubBuffer(Actor *actor, s32 count) {
 
 void actorInitAnimations(Actor *actor, Actor *owner) {
     u8 volume;
-    ProjectileActorSub174 *ownerState;
+    PlayerState *ownerState;
 
     volume = 0;
     ownerState = owner->customState;
-    playerStateQueueCallback(0x4C, actor, ownerState->unk1A4);
+    playerStateQueueCallback(0x4C, actor, ownerState->playerIndex);
     if (gCurrentMap == 0x6F) {
         volume = 0x3C;
     }
@@ -587,16 +530,12 @@ void actorInitAnimations(Actor *actor, Actor *owner) {
     actorCopyPoseAndScale(actor, owner, 0.15f);
 }
 
-typedef struct FloatAt4View {
-    u8 pad0[4];
-    f32 unk4;
-} FloatAt4View;
 extern s16 D_80770628[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
 
-void func_80690190(state, unused)
-FloatAt4View *state;
+void func_80690190(vehicle, unused)
+RaceParticipant *vehicle;
 s16 unused;
 {
     s16 idx;
@@ -606,7 +545,7 @@ s16 unused;
         D_80770B68[idx] = ((f64)gCurrentActor->speedXZ / 300.0) + 1.0;
         D_80770BC0[idx] = 1.0f;
     } else {
-        D_80770B68[idx] = (f64)state->unk4 + 1.2;
+        D_80770B68[idx] = (f64)vehicle->unk4 + 1.2;
         D_80770BC0[idx] = 5.0f;
     }
 
@@ -617,104 +556,84 @@ s16 unused;
             D_80770BC0[idx] = 1.0f;
         }
     } else {
-        D_80770B68[idx] = ((f64)state->unk4 * 1.5) + 0.2;
+        D_80770B68[idx] = ((f64)vehicle->unk4 * 1.5) + 0.2;
         D_80770BC0[idx] = 8.0f;
     }
 }
 
-typedef struct SpawnPointActor {
-    u8 pad0[0x7C];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0xE6 - 0x88];
-    s16 unkE6;
-    u8 padE8[0xEE - 0xE8];
-    s16 unkEE;
-} SpawnPointActor;
 
-
-void actorInitFromSpawnPoint(SpawnPointActor *actor, ProjectileActorSub174 *state) {
+void actorInitFromSpawnPoint(Actor *actor, RaceParticipant *vehicle) {
     G01Pos *spawn;
     s16 yaw;
 
-    spawn = func_806C96C4(state->unk36);
-    actor->unk7C = spawn->unk0;
-    actor->unk80 = spawn->unk2;
-    actor->unk84 = spawn->unk4;
+    spawn = func_806C96C4(vehicle->unk36);
+    actor->x = spawn->unk0;
+    actor->y = spawn->unk2;
+    actor->z = spawn->unk4;
     yaw = (u32)spawn->unk6 * 16.062746f;
-    actor->unkE6 = yaw;
-    actor->unkEE = yaw;
-    state->unk0 = yaw;
+    actor->yaw = yaw;
+    actor->moveYaw = yaw;
+    vehicle->heading = yaw;
 }
 
 extern Actor *gSpawnedActor;
 
 void actorSpawnChildActor(Actor *parent) {
-    ProjectileActorSub174 *parentState = parent->customState;
-    ProjectileActorSub174 *childState;
+    PlayerState *parentState = parent->customState;
+    RaceParticipant *vehicle;
     s32 pad;
     Actor *child;
 
     actorSpawn(0x13F, 0xDA);
     child = gSpawnedActor;
-    childState = child->customState;
-    childState->unk28 = parentState->unk1A4;
+    vehicle = child->customState;
+    vehicle->playerIdx = parentState->playerIndex;
     actorInitAnimations(child, parent);
-    childState->unk35 = 0;
-    childState->unk27 = 0;
-    childState->unk0 = parent->yaw;
-    parentState->unk88 = child;
+    vehicle->unk35 = 0;
+    vehicle->unk27 = 0;
+    vehicle->heading = parent->yaw;
+    parentState->actor = child;
     child->flags &= ~0x20000;
 }
 
 
-typedef struct ActorPlayerInteraction {
-    u8 pad0[0x60];
-    u32 unk60;
-    u8 pad64[0x6A - 0x64];
-    u16 unk6A;
-    u8 pad6C[0xC4 - 0x6C];
-    f32 unkC4;
-    u8 padC8[0x144 - 0xC8];
-    u8 unk144;
-    u8 pad145[0x174 - 0x145];
-    ProjectileActorSub174 *unk174;
-    void *unk178;
-} ActorPlayerInteraction;
-#define G_PLAYER_INTERACT_ACTOR ((ActorPlayerInteraction *)gCurrentActor)
+typedef struct VehicleActor {
+    /* 0x000 */ Actor base;
+    /* 0x178 */ VehicleMotion *motion;
+} VehicleActor;
+#define VEHICLE_ACTOR ((VehicleActor *)gCurrentActor)
 
 extern u8 gGameMode;
 extern f32 D_80750300;
 extern Actor *gPrimaryPlayerActor;
 
 void actorUpdatePlayerInteraction(void) {
-    ProjectileActorSub174 *state;
+    RaceParticipant *vehicle;
     Actor *playerActor;
     PlayerState *playerState;
-    s32 angleStep;
+    VehicleMotion *motion;
     CamState *camState;
     u8 resetting;
     f32 nodeX;
     f32 nodeY;
     f32 nodeZ;
 
-    state = G_PLAYER_INTERACT_ACTOR->unk174;
-    angleStep = (s32)G_PLAYER_INTERACT_ACTOR->unk178;
-    playerActor = gPlayerSlots[state->unk28].actor;
+    vehicle = gCurrentActor->customState;
+    motion = VEHICLE_ACTOR->motion;
+    playerActor = gPlayerSlots[vehicle->playerIdx].actor;
     playerState = playerActor->customState;
     camState = playerState->camActor->customState;
-    resetting = G_PLAYER_INTERACT_ACTOR->unk6A & 1;
-    state->unk34 = 2;
-    func_80690190(state, angleStep, playerState);
+    resetting = gCurrentActor->contactFlags & 1;
+    vehicle->unk34 = 2;
+    func_80690190(vehicle, motion, playerState);
     if (gGameMode == 0 && camState->unkF3 != 4) {
         camSetTargetScaled(playerState->camActor, gCurrentActor, 4, 0x800, 0xA0, 0, 6, 0x12C, 0x8F, 0, 0.2f);
     }
-    func_8068F72C(state, angleStep, 1, 1);
-    actorInterpolateAngles(resetting, (ProjectileAngleTarget *)state, (ProjectileAngleStep *)angleStep);
-    if (!(G_PLAYER_INTERACT_ACTOR->unk60 & 0x10)) {
-        G_PLAYER_INTERACT_ACTOR->unkC4 = D_80750300;
-        G_PLAYER_INTERACT_ACTOR->unk144 = 0x3C;
+    func_8068F72C(vehicle, motion, 1, 1);
+    actorInterpolateAngles(resetting, vehicle, motion);
+    if (!(gCurrentActor->flags & 0x10)) {
+        gCurrentActor->accelY = D_80750300;
+        gCurrentActor->unk144 = 0x3C;
         playerStateQueueCallback(0x4C, gCurrentActor, playerState->playerIndex);
     }
     if (camIsCutsceneActive() == 0 || (camIsCutsceneActive() != 0 && (gPrimaryPlayerActor->contactFlags & 0x100))) {
@@ -752,24 +671,26 @@ void projectileSetTargetCoords(f32 x, f32 y, f32 z) {
 }
 
 
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    f32 unk18;
-    f32 unk1C;
+// Actor.spawnData of the projectile actors (projectileSpawnNodeEntry fills it; actorListSpawnNodeEntry copies it).
+typedef struct ProjectileSpawnParams {
+    f32 angle;
+    f32 speedXZ;
+    f32 speedY;
+    f32 scale;
+    f32 param;
+    f32 shortLived;
+    f32 pad18[2];
 } ProjectileSpawnParams;
-typedef struct {
-    s16 unk0;
+
+// customState of actor 0x107, filled by projectileSpawnActor107 from its parameters.
+typedef struct ProjectileTrackerState {
+    s16 value;
     char pad2[6];
-    f32 unk8;
-    f32 unkC;
+    f32 rate;
+    f32 limit;
     u8 pad10;
-    u8 unk11;
-} ProjectileTrackerSub174;
+    u8 mode;
+} ProjectileTrackerState;
 extern Actor *gCamActor;
 extern u8 D_80750AD0;
 
@@ -780,12 +701,12 @@ void projectileGetTargetCoords(Actor *actor, s32 node) {
 void projectileSpawnNodeEntry(s16 type, s16 param, f32 speed, s16 yaw, f32 horizSpeed, f32 vertSpeed, Actor *owner) {
     ProjectileSpawnParams params;
 
-    params.unk0 = (f32)(((f64)yaw / 4095.0) * 6.28318548202514648);
-    params.unk4 = horizSpeed;
-    params.unkC = speed;
-    params.unk8 = vertSpeed;
-    params.unk10 = (f32)param;
-    params.unk14 = (f32)(u32)D_80750270;
+    params.angle = (f32)(((f64)yaw / 4095.0) * 6.28318548202514648);
+    params.speedXZ = horizSpeed;
+    params.scale = speed;
+    params.speedY = vertSpeed;
+    params.param = (f32)param;
+    params.shortLived = (f32)(u32)D_80750270;
     actorListSpawnNodeEntry(type, D_807FC7B0, D_807FC7B4, D_807FC7B8, 0, speed, owner, &params);
     D_80750270 = 0;
 }
@@ -830,12 +751,23 @@ void projectileAimFromActorAndSpawn(s16 type, s16 param, f32 speed, Actor *targe
     projectileAimAndSpawn(type, param, speed, nodeX, nodeY, nodeZ, flightTime, owner);
 }
 
-typedef struct ProjectileHomingState {
-    u8 pad0[0x14];
-    f32 unk14;
-    u8 pad18[4];
-    Actor *unk1C;
-} ProjectileHomingState;
+// customState of the projectile actors. Each per-kind update below uses part of it.
+typedef struct ProjectileState {
+    /* 0x00 */ u32 spawnFrame; // gGameFrameCounter at spawn: lifetime checks
+    /* 0x04 */ u8 bounceCount;
+    /* 0x05 */ u8 pad5[3];
+    /* 0x08 */ f32 pitchDeg; // model pitch from the velocity (degrees)
+    /* 0x0C */ f32 rollDeg; // random model roll (degrees)
+    /* 0x10 */ u8 counter;
+    /* 0x11 */ u8 tick;
+    /* 0x12 */ u8 cooldown;
+    /* 0x13 */ u8 param; // ProjectileSpawnParams.param
+    /* 0x14 */ f32 scale; // ProjectileSpawnParams.scale
+    /* 0x18 */ s16 baseSpeed;
+    /* 0x1A */ u8 pad1A[2];
+    /* 0x1C */ Actor *target; // homing target
+    /* 0x20 */ u8 groundFrames; // consecutive frames on the floor
+} ProjectileState;
 extern u32 gGlobalOverlayFlags;
 void func_800268C0(s32);
 
@@ -858,7 +790,7 @@ u8 straight;
     f32 dist;
     f64 pad58;
     CamState *camState;
-    ProjectileHomingState *homing;
+    ProjectileState *homing;
     f32 targetX;
     f32 targetY;
     f32 targetZ;
@@ -873,7 +805,7 @@ u8 straight;
             if (camState->unkF3 == 3) {
                 effectSetCallback(effectLifetimeCountdownUpdate);
                 effectSetSpeed(0x32);
-                effectCreateAtPosition(trailEffect, homing->unk14, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectCreateAtPosition(trailEffect, homing->scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
         if (projectileFindHomingTarget(collisionMask, (void **)&target, proj, 0, *(u8 *)&straight, straight == 0, &targetX, &targetY, &targetZ) != 0) { // FAKE: address-taken byte read keeps the arg3 lbu in a ring temp (candidate left uncoloured)
@@ -892,7 +824,7 @@ u8 straight;
                 dz = targetZ - proj->z;
                 dist = sqrtf((dx * dx) + (dz * dz));
                 if (dist < 100.0f) {
-                    homing->unk1C = target;
+                    homing->target = target;
                     if ((target != NULL) && (gGlobalOverlayFlags & 0x04000000)) {
                         func_800268C0(0x80);
                     }
@@ -905,11 +837,11 @@ u8 straight;
                 }
                 proj->speedY = (((targetY + heightOffset) - proj->y) / steps) / 0.025f;
             }
-        } else if (homing->unk1C != NULL) {
+        } else if (homing->target != NULL) {
             if (gGlobalOverlayFlags & 0x04000000) {
                 func_800268C0(4);
             }
-            homing->unk1C = NULL;
+            homing->target = NULL;
         }
     }
 }
@@ -936,9 +868,9 @@ f32 *outZ;
     s32 j;
     s32 pad;
     u8 idx;
-    ProjectileActorSub174 *sub;
-    f32 d[3];
-    f32 n[3];
+    PlayerState *playerState;
+    f32 delta[3];
+    f32 toTarget[3];
     f32 padA4[1];
     f32 dirX;
     f32 dirY;
@@ -958,13 +890,13 @@ f32 *outZ;
     f32 scale;
     f32 len;
     f32 dot;
-    f32 t;
+    f32 targetDy;
     f32 dx;
     f32 dy;
     f32 dz;
     f32 d2x;
     f32 d2z;
-    f32 tmp;
+    f32 targetY;
 
     ret = 0;
     best = 0.7f;
@@ -973,7 +905,7 @@ f32 *outZ;
     }
     *outTarget = NULL;
     if (useAim) {
-        idx = ((ProjectileActorSub174 *)proj->customState)->unk1A4;
+        idx = ((PlayerState *)proj->customState)->playerIndex;
         aimX = gPlayerSlots[idx].focusX;
         aimY = gPlayerSlots[idx].focusY;
         aimZ = gPlayerSlots[idx].focusZ;
@@ -989,46 +921,46 @@ f32 *outZ;
         oy = proj->y;
         oz = proj->z;
     }
-    d[0] = aimX - ox;
-    d[1] = aimY - oy;
-    d[2] = aimZ - oz;
-    len = sqrtf((d[0] * d[0] + d[1] * d[1]) + d[2] * d[2]);
+    delta[0] = aimX - ox;
+    delta[1] = aimY - oy;
+    delta[2] = aimZ - oz;
+    len = sqrtf((delta[0] * delta[0] + delta[1] * delta[1]) + delta[2] * delta[2]);
     if (len == 0.0) {
         len = 0.1f;
     }
-    dirX = d[0] / len;
-    dirY = d[1] / len;
-    dirZ = d[2] / len;
+    dirX = delta[0] / len;
+    dirY = delta[1] / len;
+    dirZ = delta[2] / len;
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
         if (proj != actor && (!(actor->collisionFlags & 2) || actor->state != 0x37) && (actor->collisionFlags & collisionMask)) {
             if (levelOnly == 0 || ((oy < actor->y) ? (actor->y - oy) : -(actor->y - oy)) < 30.0f) {
                 active = 1;
                 if (actor->collisionFlags & 1) {
-                    sub = actor->customState;
-                    active = gPlayerSlots[sub->unk1A4].active;
+                    playerState = actor->customState;
+                    active = gPlayerSlots[playerState->playerIndex].active;
                 }
                 if (active != 0) {
-                    tmp = (f32)((f64)actor->y + (f64)actor->eyeHeight * 0.5);
-                    d[0] = actor->x - ox;
-                    t = tmp - oy;
-                    d[1] = t;
-                    d[2] = actor->z - oz;
-                    len = sqrtf((d[0] * d[0] + d[1] * d[1]) + d[2] * d[2]);
+                    targetY = (f32)((f64)actor->y + (f64)actor->eyeHeight * 0.5);
+                    delta[0] = actor->x - ox;
+                    targetDy = targetY - oy;
+                    delta[1] = targetDy;
+                    delta[2] = actor->z - oz;
+                    len = sqrtf((delta[0] * delta[0] + delta[1] * delta[1]) + delta[2] * delta[2]);
                     if (len == 0.0) {
                         len = 0.1f;
                     }
-                    n[0] = d[0] / len;
-                    n[1] = d[1] / len;
-                    n[2] = d[2] / len;
-                    dot = (n[0] * dirX + n[1] * dirY) + n[2] * dirZ;
+                    toTarget[0] = delta[0] / len;
+                    toTarget[1] = delta[1] / len;
+                    toTarget[2] = delta[2] / len;
+                    dot = (toTarget[0] * dirX + toTarget[1] * dirY) + toTarget[2] * dirZ;
                     if (dot < 0.0) {
                         dot = 0.0f;
                     }
                     if (best < dot) {
                         d2x = actor->x - ox;
                         d2z = actor->z - oz;
-                        if (sqrtf(d2x * d2x + t * t + d2z * d2z) < 1000.0f) {
+                        if (sqrtf(d2x * d2x + targetDy * targetDy + d2z * d2z) < 1000.0f) {
                             best = dot;
                             *outTarget = actor;
                             ret = 1;
@@ -1056,17 +988,17 @@ f32 *outZ;
                         dx = px - ox;
                         dy = py - oy;
                         dz = pz - oz;
-                        d[0] = dx;
-                        d[1] = dy;
-                        d[2] = dz;
-                        len = sqrtf((d[0] * d[0] + d[1] * d[1]) + d[2] * d[2]);
+                        delta[0] = dx;
+                        delta[1] = dy;
+                        delta[2] = dz;
+                        len = sqrtf((delta[0] * delta[0] + delta[1] * delta[1]) + delta[2] * delta[2]);
                         if (len == 0.0) {
                             len = 0.1f;
                         }
-                        n[0] = d[0] / len;
-                        n[1] = d[1] / len;
-                        n[2] = d[2] / len;
-                        dot = (n[0] * dirX + n[1] * dirY) + n[2] * dirZ;
+                        toTarget[0] = delta[0] / len;
+                        toTarget[1] = delta[1] / len;
+                        toTarget[2] = delta[2] / len;
+                        dot = (toTarget[0] * dirX + toTarget[1] * dirY) + toTarget[2] * dirZ;
                         if (dot < 0.0) {
                             dot = 0.0f;
                         }
@@ -1132,34 +1064,19 @@ void projectileSpawnWithShockwave(s16 pitch, f32 scale, u8 red, u8 green, u8 blu
 }
 
 void projectileSpawnActor107(u8 mode, u8 value, f32 rate, f32 limit, u8 alpha, u8 spin) {
-    ProjectileTrackerSub174 *sub;
+    ProjectileTrackerState *tracker;
 
     actorSpawn(0x107, 0);
     actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.15f);
-    sub = gSpawnedActor->customState;
-    sub->unk11 = mode;
-    sub->unk8 = rate;
-    sub->unkC = limit;
-    sub->unk0 = value;
+    tracker = gSpawnedActor->customState;
+    tracker->mode = mode;
+    tracker->rate = rate;
+    tracker->limit = limit;
+    tracker->value = value;
     gSpawnedActor->y = gCurrentActor->unkA8;
     gSpawnedActor->unk15F = alpha;
     gSpawnedActor->yawSpeed = spin;
 }
-
-typedef struct ProjectileSpawnCfg {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-} ProjectileSpawnCfg;
-
-typedef struct ProjectileBounceState {
-    u32 unk0;
-    u8 pad4[0xE];
-    u8 unk12;
-    u8 unk13;
-} ProjectileBounceState;
 
 
 
@@ -1169,28 +1086,28 @@ extern s16 D_80750344;
 
 void projectileBounceParticleUpdate(void *effectCfg) {
     f32 radius;
-    ProjectileBounceState *state;
+    ProjectileState *state;
     s32 yawOffset;
     u32 radiusPick;
-    f32 cfg;
+    f32 scale;
 
-    state = ((ProjectileBounceState *)gCurrentActor->customState);
-    cfg = ((ProjectileSpawnCfg *)gCurrentActor->spawnData)->unkC;
+    state = gCurrentActor->customState;
+    scale = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->prevPeakY = gCurrentActor->peakY = gCurrentActor->y;
         gCurrentActor->soundSlots[0] = -2;
         gCurrentActor->contactFlags = gCurrentActor->contactFlags & ~1;
-        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnCfg *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
         gCurrentActor->yaw = gCurrentActor->moveYaw;
-        gCurrentActor->speedXZ = ((ProjectileSpawnCfg *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((ProjectileSpawnCfg *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         if (gCurrentActor->parentActor != NULL && gCurrentActor->parentActor->actorType == 0xD2) {
             gCurrentActor->unk144 = 0x24;
         } else {
             gCurrentActor->unk144 = 0x3C;
         }
-        state->unk13 = (u8)(u32)((ProjectileSpawnCfg *)gCurrentActor->spawnData)->unk10;
-        if (state->unk13 != 0) {
+        state->param = (u8)(u32)((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
+        if (state->param != 0) {
             radiusPick = 0xC8;
         } else {
             radiusPick = 0x3C;
@@ -1204,31 +1121,31 @@ void projectileBounceParticleUpdate(void *effectCfg) {
         effectSetDepth(1);
         effectSetMaxDistance(1000);
         effectSetFlags(4);
-        effectCreateAtActorBone(effectCfg, cfg, gCurrentActor, 1, 2);
-        if (state->unk13 >= 0xB) {
+        effectCreateAtActorBone(effectCfg, scale, gCurrentActor, 1, 2);
+        if (state->param >= 0xB) {
             gCurrentActor->interactionType = 2;
         }
-        state->unk0 = gGameFrameCounter;
-        if (state->unk13 == 5) {
-            state->unk0 = state->unk0 - D_80750344 + 0x1E;
+        state->spawnFrame = gGameFrameCounter;
+        if (state->param == 5) {
+            state->spawnFrame = state->spawnFrame - D_80750344 + 0x1E;
         }
-        state->unk12 = 0;
+        state->cooldown = 0;
         gCurrentActor->flags |= 0x80000;
         gCurrentActor->unkEC = 0;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     if (gCurrentActor->unk144 & 8) {
-        actorUpdateFloorContactAndTilt(gCurrentActor, state->unk13 != 0 ? cfg * 6.0 * 4.0 : 0.0);
+        actorUpdateFloorContactAndTilt(gCurrentActor, state->param != 0 ? scale * 6.0 * 4.0 : 0.0);
     }
-    if (state->unk13 >= 0xA) {
-        if (state->unk13 == 0x1E) {
+    if (state->param >= 0xA) {
+        if (state->param == 0x1E) {
             billboardSetFlags(3);
         }
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x320, 0x78, 0, 1.0f);
         if (gCurrentActor->contactFlags & 1) {
-            if (state->unk12 == 0) {
-                switch (state->unk13) {
+            if (state->cooldown == 0) {
+                switch (state->param) {
                 case 11:
                     projectileSpawnActor107(0, 0, 5.0f, 2.0f, 1, 0);
                     break;
@@ -1237,28 +1154,28 @@ void projectileBounceParticleUpdate(void *effectCfg) {
                     break;
                 }
                 camStartShake(gCamActor, 0xA, 0x14);
-                state->unk12 = 2;
+                state->cooldown = 2;
             } else {
-                state->unk12 = state->unk12 - 1;
+                state->cooldown = state->cooldown - 1;
             }
         }
     } else {
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x78, 0x78, 0, 1.0f);
-        if ((gCurrentActor->contactFlags & 1) && state->unk12 == 0 && (gCurrentActor->unk144 & 8)) {
-            state->unk12 = 0xA;
+        if ((gCurrentActor->contactFlags & 1) && state->cooldown == 0 && (gCurrentActor->unk144 & 8)) {
+            state->cooldown = 0xA;
         }
-        if (state->unk12 != 0) {
+        if (state->cooldown != 0) {
             effectSetDepth(1);
             effectSetDuration(1);
             effectSetCallback(effectSpinBillboardingUpdate);
-            effectCreateAtPosition(&D_80720340, ((ProjectileSpawnCfg *)gCurrentActor->spawnData)->unkC, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
-            state->unk12 = state->unk12 - 1;
+            effectCreateAtPosition(&D_80720340, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            state->cooldown = state->cooldown - 1;
         }
     }
     if (gCurrentActor->unkEC == 0) {
         f32 dx = gCurrentActor->x - gPlayerSlots->camX;
         f32 dy = gCurrentActor->y - gPlayerSlots->camY;
-        dx = dx * dx;
+        dx = dx * dx; // FAKE: dx/dy reused as the running sum; a separate dz local adds 8 bytes to the frame and reorders the sum (35 rows)
         dx = dy * dy + dx;
         dy = gCurrentActor->z - gPlayerSlots->camZ;
         dx = dy * dy + dx;
@@ -1267,45 +1184,30 @@ void projectileBounceParticleUpdate(void *effectCfg) {
             gCurrentActor->unkEC = gCurrentActor->unkEC + 1;
         }
     }
-    if (gCurrentActor->hasArcBounds != 0 || state->unk12 == 1 || gActorGlobalState.unk15 != 0) {
+    if (gCurrentActor->hasArcBounds != 0 || state->cooldown == 1 || gActorGlobalState.unk15 != 0) {
         effectSetDepth(1);
         effectSetDuration(1);
-        if (gCurrentActor->actorType != 0x3B && state->unk13 != 0x63) {
+        if (gCurrentActor->actorType != 0x3B && state->param != 0x63) {
             effectSetSpeed(0x100FA);
             effectSetCallback(effectLightPulseOscillate);
         }
-        effectCreateAtPosition(&D_80720340, 2.0 * ((ProjectileSpawnCfg *)gCurrentActor->spawnData)->unkC, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
-        if (state->unk13 < 0xA) {
+        effectCreateAtPosition(&D_80720340, 2.0 * ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        if (state->param < 0xA) {
             for (yawOffset = -0x12C; yawOffset != 0x12C; yawOffset += 0x32) {
                 effectSetDepth(1);
                 effectSetDuration(2);
                 effectSetSpeed((gCurrentActor->moveYaw + yawOffset) % 4095);
                 effectSetCallback(func_8071BC80);
-                effectCreateAtPosition(&D_8072038C, ((ProjectileSpawnCfg *)gCurrentActor->spawnData)->unkC * 0.5, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectCreateAtPosition(&D_8072038C, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale * 0.5, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xF6, 0xFF, 0x7F, 0x1E, 0x1E, 0.7f, 0);
         actorDespawn(gCurrentActor);
     }
-    if (state->unk0 + D_80750344 < gGameFrameCounter) {
+    if (state->spawnFrame + D_80750344 < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
-
-typedef struct SparkleParticleState {
-    u32 unk0;
-    char pad4[0xE];
-    u8 unk12;
-    u8 unk13;
-} SparkleParticleState;
-
-typedef struct SparkleConfig124 {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-} SparkleConfig124;
 
 
 
@@ -1313,14 +1215,14 @@ extern u8 D_80720120;
 extern u8 D_80720BE8;
 
 void projectileSparkleUpdate(s32 silver) {
-    SparkleParticleState *state;
+    ProjectileState *state;
 
-    state = (SparkleParticleState *)gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->contactFlags &= (gCurrentActor->soundSlots[0] = -2);
-        gCurrentActor->moveYaw = (s16)((((SparkleConfig124 *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
-        gCurrentActor->speedXZ = ((SparkleConfig124 *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((SparkleConfig124 *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 40.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 30.0f, -1);
@@ -1334,22 +1236,22 @@ void projectileSparkleUpdate(s32 silver) {
         switch ((u8)silver) {
         case 0:
             effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
-            effectCreateAtActorBone(&D_80720120, ((SparkleConfig124 *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
+            effectCreateAtActorBone(&D_80720120, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
             break;
         case 1:
             effectSetColor(0xC8, 0xC8, 0xFA, 0x9B);
-            effectCreateAtActorBone(&D_80720BE8, ((SparkleConfig124 *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
+            effectCreateAtActorBone(&D_80720BE8, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
             break;
         }
-        state->unk13 = (u8)(u32)((SparkleConfig124 *)gCurrentActor->spawnData)->unk10;
-        state->unk0 = gGameFrameCounter;
-        state->unk12 = 0;
+        state->param = (u8)(u32)((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
+        state->spawnFrame = gGameFrameCounter;
+        state->cooldown = 0;
         gCurrentActor->flags |= 0x80000;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
-    if ((gCurrentActor->contactFlags & 1) || (gCurrentActor->hasArcBounds != 0) || (gActorGlobalState.unk15 != 0) || ((u32)(state->unk0 + 24) < gGameFrameCounter)) {
+    if ((gCurrentActor->contactFlags & 1) || (gCurrentActor->hasArcBounds != 0) || (gActorGlobalState.unk15 != 0) || ((u32)(state->spawnFrame + 24) < gGameFrameCounter)) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -1367,26 +1269,6 @@ void projectileSparkleUpdateSilver(void) {
 void projectileSpawnParticleEffect(void) {
     projectileBounceParticleUpdate(&D_807201D4);
 }
-
-
-typedef struct ProjectileConfig124 {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-} ProjectileConfig124;
-
-
-typedef struct ProjectileActorExtra {
-    u32 unk0;
-    u8 pad4[0x13 - 4];
-    u8 unk13;
-    f32 unk14;
-    u8 pad18[4];
-    s32 unk1C;
-} ProjectileActorExtra;
 
 
 extern u8 D_80720020;
@@ -1410,49 +1292,49 @@ void projectileSpawnParticleEffect3(void) {
 }
 
 void projectileSpawnParticleEffectWithScale(void) {
-    ProjectileActorExtra *extra;
-    f32 temp;
+    ProjectileState *state;
+    f32 minSpeedY;
 
-    extra = (ProjectileActorExtra *)gCurrentActor->customState;
+    state = gCurrentActor->customState;
     projectileBounceParticleUpdate(&D_807201D4);
-    if (extra->unk13 == 1) {
+    if (state->param == 1) {
         gCurrentActor->speedY += D_807502E4;
-        temp = (f32)D_807502D0;
-        if (gCurrentActor->speedY < temp) {
-            gCurrentActor->speedY = temp;
+        minSpeedY = (f32)D_807502D0;
+        if (gCurrentActor->speedY < minSpeedY) {
+            gCurrentActor->speedY = minSpeedY;
         }
     }
 }
 
 
 void projectileDespawnOrExplode(void) {
-    u32 *spawnFrame;
-    u8 unkFC;
+    ProjectileState *state;
+    u8 arcBounds;
     Actor *other;
 
-    spawnFrame = (u32 *)gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->contactFlags &= 0xFFFE;
-        gCurrentActor->moveYaw = (s16)((((ProjectileConfig124 *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
-        gCurrentActor->speedXZ = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 50.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 40.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         effectSetDuration(-1);
         effectSetDepth(1);
-        effectCreateAtActorBone(&D_80720020, ((ProjectileConfig124 *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
-        *spawnFrame = gGameFrameCounter;
+        effectCreateAtActorBone(&D_80720020, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        state->spawnFrame = gGameFrameCounter;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 10, 10, 1, 0x96, 0x78, 0, 1.0f);
-    unkFC = gCurrentActor->hasArcBounds;
-    if (unkFC != 0 || (gCurrentActor->contactFlags & 1) || gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9) {
+    arcBounds = gCurrentActor->hasArcBounds;
+    if (arcBounds != 0 || (gCurrentActor->contactFlags & 1) || gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9) {
         other = gCurrentActor->parentActor;
-        if (other == NULL || other->actorType != 0x2E || (other->actorType == 0x2E && (unkFC != 0 || (gCurrentActor->contactFlags & 1)))) {
+        if (other == NULL || other->actorType != 0x2E || (other->actorType == 0x2E && (arcBounds != 0 || (gCurrentActor->contactFlags & 1)))) {
             effectSetDepth(0);
             effectSetDuration(1);
             effectSetCallback(effectLifetimeCountdownUpdate);
@@ -1462,7 +1344,7 @@ void projectileDespawnOrExplode(void) {
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x61, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
         actorDespawn(gCurrentActor);
     }
-    if ((u32)(*spawnFrame + D_80750344) < gGameFrameCounter) {
+    if ((u32)(state->spawnFrame + D_80750344) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -1473,18 +1355,18 @@ extern s16 D_80750350;
 extern s16 D_80750364;
 
 void projectileHomingUpdate(void) {
-    ProjectileActorExtra *extra;
+    ProjectileState *state;
     s16 collisionMask;
-    u8 flag;
+    u8 hit;
     s32 lifetime;
     s32 i;
 
-    extra = (ProjectileActorExtra *)gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->contactFlags &= 0xFFFE;
-        gCurrentActor->moveYaw = (s16)((((ProjectileConfig124 *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
-        gCurrentActor->speedXZ = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 50.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 40.0f, -1);
@@ -1492,24 +1374,24 @@ void projectileHomingUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetFlags(4);
-        effectCreateAtActorBone(&D_807200A0, ((ProjectileConfig124 *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
-        extra->unk14 = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unkC;
-        extra->unk0 = gGameFrameCounter;
+        effectCreateAtActorBone(&D_807200A0, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        state->scale = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale;
+        state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x01080000;
         gCurrentActor->unk16E[0] = 0x3C;
         gCurrentActor->unk16E[1] = 0x3C;
-        extra->unk13 = (u8)(u32)((ProjectileConfig124 *)gCurrentActor->spawnData)->unk10;
-        extra->unk1C = 0;
+        state->param = (u8)(u32)((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
+        state->target = NULL;
     }
     lifetime = D_80750350;
-    if (extra->unk13 & 2) {
+    if (state->param & 2) {
         collisionMask = 2;
         if (gPlayerCount >= 2) {
             collisionMask = 3;
         }
         projectileSteerTowardTarget(collisionMask, gCurrentActor, &D_807200A0, 0);
     }
-    if (extra->unk13 & 4) {
+    if (state->param & 4) {
         lifetime = D_80750364;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
@@ -1517,15 +1399,15 @@ void projectileHomingUpdate(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     if (gCurrentMap == 0xCC) {
         gCurrentActor->unkFA = 0x2328;
-        flag = (u8)(gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->moveYaw) == 0);
+        hit = (u8)(gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->moveYaw) == 0);
     } else {
-        flag = gCurrentActor->collisionHit;
+        hit = gCurrentActor->collisionHit;
     }
-    if (flag ||
+    if (hit ||
         actorGetFloorSnapped() != 0 ||
         ((gCurrentActor->contactFlags & 1) && collisionGetStateByte() == 1) ||
         gActorGlobalState.unk15 != 0 ||
-        (((ProjectileConfig124 *)gCurrentActor->spawnData)->unk14 != 0.0f && (u32)(extra->unk0 + 1) < gGameFrameCounter)) {
+        (((ProjectileSpawnParams *)gCurrentActor->spawnData)->shortLived != 0.0f && (u32)(state->spawnFrame + 1) < gGameFrameCounter)) {
         effectSetDepth(1);
         effectSetSpeed(0x1006E);
         effectSetCallback(effectLightPulseOscillate);
@@ -1547,22 +1429,22 @@ void projectileHomingUpdate(void) {
     if (gCurrentMap == 0x10) {
         lifetime = (s32)((f64)lifetime * 1.2);
     }
-    if ((u32)(extra->unk0 + lifetime) < gGameFrameCounter) {
+    if ((u32)(state->spawnFrame + lifetime) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
 
 void projectileMultiplayerUpdate(void) {
-    ProjectileActorExtra *extra;
+    ProjectileState *state;
     s32 collisionMask;
     s32 lifetime;
     s32 i;
-    extra = (ProjectileActorExtra *)gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->contactFlags &= 0xFFFE;
-        gCurrentActor->moveYaw = (s16)((((ProjectileConfig124 *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
-        gCurrentActor->speedXZ = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
@@ -1570,24 +1452,24 @@ void projectileMultiplayerUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetFlags(4);
-        effectCreateAtActorBone(&D_8072029C, ((ProjectileConfig124 *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
-        extra->unk14 = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unkC;
-        extra->unk0 = gGameFrameCounter;
+        effectCreateAtActorBone(&D_8072029C, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        state->scale = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale;
+        state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x01080000;
         gCurrentActor->unk16E[0] = 0x3C;
         gCurrentActor->unk16E[1] = 0x3C;
-        extra->unk13 = (u8)(u32)((ProjectileConfig124 *)gCurrentActor->spawnData)->unk10;
-        extra->unk1C = 0;
+        state->param = (u8)(u32)((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
+        state->target = NULL;
     }
     lifetime = D_8075035C;
-    if (extra->unk13 & 2) {
+    if (state->param & 2) {
         collisionMask = 2;
         if (gPlayerCount >= 2) {
             collisionMask = 3;
         }
         projectileSteerTowardTarget(collisionMask, gCurrentActor, &D_8072029C, 0);
     }
-    if (extra->unk13 & 4) {
+    if (state->param & 4) {
         lifetime = D_80750370;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
@@ -1597,7 +1479,7 @@ void projectileMultiplayerUpdate(void) {
         actorGetFloorSnapped() != 0 ||
         ((gCurrentActor->contactFlags & 1) && collisionGetStateByte() == 1) ||
         gActorGlobalState.unk15 != 0 ||
-        (((ProjectileConfig124 *)gCurrentActor->spawnData)->unk14 != 0.0f && (u32)(extra->unk0 + 1) < gGameFrameCounter)) {
+        (((ProjectileSpawnParams *)gCurrentActor->spawnData)->shortLived != 0.0f && (u32)(state->spawnFrame + 1) < gGameFrameCounter)) {
         if (D_80750AD0 == 0) {
             for (i = 0; i != 0xC; i += 2) {
                 effectSetDepth(1);
@@ -1613,7 +1495,7 @@ void projectileMultiplayerUpdate(void) {
     if (gPlayerCount >= 2) {
         lifetime = (s32)((f32)lifetime * 1.4f);
     }
-    if ((u32)(extra->unk0 + lifetime) < gGameFrameCounter) {
+    if ((u32)(state->spawnFrame + lifetime) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -1644,25 +1526,6 @@ void projectileSpawnExplosion(void) {
     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x7F, 0x1E);
 }
 
-typedef struct ProjectileBounceExplodeState {
-    /* 0x00 */ u32 unk0;
-    /* 0x04 */ u8 unk4;
-    /* 0x05 */ u8 pad5[0x13 - 0x05];
-    /* 0x13 */ u8 unk13;
-    /* 0x14 */ u8 pad14[0x1C - 0x14];
-    /* 0x1C */ s32 unk1C;
-    /* 0x20 */ u8 unk20;
-} ProjectileBounceExplodeState;
-
-typedef struct ProjectileSpawnCfgEx {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-} ProjectileSpawnCfgEx;
-
 
 
 extern u8 D_80720268;
@@ -1671,7 +1534,7 @@ extern s16 D_8075034C;
 extern s8 D_80029FA0;
 
 void projectileBounceExplodeScaledUpdate(void) {
-    ProjectileBounceExplodeState *state;
+    ProjectileState *state;
     s16 yaw;
     u8 outOfArc;
     f32 scale;
@@ -1679,45 +1542,45 @@ void projectileBounceExplodeScaledUpdate(void) {
     f32 radius;
     s32 value;
 
-    state = ((ProjectileBounceExplodeState *)gCurrentActor->customState);
+    state = gCurrentActor->customState;
     outOfArc = 0;
-    scale = ((ProjectileSpawnCfgEx *)gCurrentActor->spawnData)->unkC * 2.5f;
+    scale = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale * 2.5f;
     if (!(gCurrentActor->flags & 0x10)) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF4, 0xFF, 0x7F, 5);
         gCurrentActor->contactFlags &= 0xFFFE;
-        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnCfgEx *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
-        gCurrentActor->speedXZ = (f32)(((f64)(((ProjectileSpawnCfgEx *)gCurrentActor->spawnData)->unk4 / (f32)4)) * 2.6);
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->speedXZ = (f32)(((f64)(((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ / (f32)4)) * 2.6);
         gCurrentActor->speedXZ *= scale;
-        gCurrentActor->speedY = ((ProjectileSpawnCfgEx *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, scale * 60.0);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, scale * 50.0, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        state->unk13 = (u8)(u32)((ProjectileSpawnCfgEx *)gCurrentActor->spawnData)->unk10;
+        state->param = (u8)(u32)((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
         effectSetDuration(-1);
         effectSetDepth(1);
-        state->unk0 = gGameFrameCounter;
-        if (state->unk13 >= 0xCA) {
+        state->spawnFrame = gGameFrameCounter;
+        if (state->param >= 0xCA) {
             effectSetSpeed(0xA);
             effectSetCallback(effectLightPulseOscillate);
         }
-        if (state->unk13 >= 0xCB) {
+        if (state->param >= 0xCB) {
             gCurrentActor->speedY = 250.0f * scale;
-            state->unk0 -= D_80750348 - D_8075034C;
+            state->spawnFrame -= D_80750348 - D_8075034C;
         } else {
             gCurrentActor->speedY = 200.0f * scale;
         }
-        effectCreateAtActorBone(&D_80720268, ((ProjectileSpawnCfgEx *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
-        state->unk4 = 0;
+        effectCreateAtActorBone(&D_80720268, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        state->bounceCount = 0;
         gCurrentActor->flags |= 0x01080000;
         gCurrentActor->unkFA = 0x2328;
         value = (u32)(60.0f * scale);
         gCurrentActor->unk16E[0] = value;
         gCurrentActor->unk16E[1] = value;
-        state->unk1C = 0;
-        state->unk20 = 0;
+        state->target = NULL;
+        state->groundFrames = 0;
     }
-    if ((u32)(state->unk0 + 5) < gGameFrameCounter) {
+    if ((u32)(state->spawnFrame + 5) < gGameFrameCounter) {
         gCurrentActor->flags &= ~0x00080000;
     }
     value = 2;
@@ -1750,7 +1613,7 @@ void projectileBounceExplodeScaledUpdate(void) {
         gCurrentActor->speedY = (f32)D_807502D0;
     }
     if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
-        switch (state->unk4) {
+        switch (state->bounceCount) {
         case 0:
             gCurrentActor->speedY = 200.0f * scale;
             break;
@@ -1771,26 +1634,26 @@ void projectileBounceExplodeScaledUpdate(void) {
             break;
         }
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF5, 0xFF, 0x7F, 0x1E);
-        state->unk4++;
+        state->bounceCount++;
         gCurrentActor->speedXZ = ((f64)gCurrentActor->speedXZ / 3.0) * 2.5;
     }
     if ((gCurrentActor->contactFlags & 1) && (gCurrentActor->prevContactFlags & 1)) {
-        state->unk20++;
+        state->groundFrames++;
     } else {
-        state->unk20 = 0;
+        state->groundFrames = 0;
     }
-    if (state->unk20 == 4) {
+    if (state->groundFrames == 4) {
         gActorGlobalState.unk15 = 1;
     }
-    if (((ProjectileSpawnCfgEx *)gCurrentActor->spawnData)->unk14 != 0.0f && (u32)(state->unk0 + 1) < gGameFrameCounter) {
+    if (((ProjectileSpawnParams *)gCurrentActor->spawnData)->shortLived != 0.0f && (u32)(state->spawnFrame + 1) < gGameFrameCounter) {
         gActorGlobalState.unk15 = 1;
     }
     if ((gCurrentActor->renderFlags & 0x100) || outOfArc != 0) {
         gActorGlobalState.unk15 = 1;
     }
-    if ((((gCurrentActor->contactFlags & 1) && state->unk4 == 4) || gActorGlobalState.unk15 != 0) && gCurrentActor->state == 0) {
+    if ((((gCurrentActor->contactFlags & 1) && state->bounceCount == 4) || gActorGlobalState.unk15 != 0) && gCurrentActor->state == 0) {
         radius = 250.0f * scale;
-        if (state->unk13 != 0xCA) {
+        if (state->param != 0xCA) {
             effectSetDepth(1);
             effectSetSpeed(0x100D2);
             effectSetCallback(effectLightPulseOscillate);
@@ -1817,40 +1680,18 @@ void projectileBounceExplodeScaledUpdate(void) {
         gCurrentActor->state = 1;
     } else if (gCurrentActor->state != 0) {
         if (gCurrentActor->state++ == 2) {
-            if (state->unk13 != 0xCA) {
+            if (state->param != 0xCA) {
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x7F, 0x1E);
             }
             actorDespawn(gCurrentActor);
             D_80029FA0--;
         }
     }
-    if ((u32)(state->unk0 + D_80750348) < gGameFrameCounter) {
+    if ((u32)(state->spawnFrame + D_80750348) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
         D_80029FA0--;
     }
 }
-
-
-
-typedef struct ProjectileBeamConfig124 {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-} ProjectileBeamConfig124;
-
-typedef struct ProjectileBeamActorExtra {
-    /* 0x00 */ u32 unk0;
-    /* 0x04 */ u8 unk4;
-    /* 0x05 */ u8 pad5[0x13 - 0x05];
-    /* 0x13 */ u8 unk13;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ u8 pad18[4];
-    /* 0x1C */ s32 unk1C;
-} ProjectileBeamActorExtra;
-
 
 
 extern s16 D_80750358;
@@ -1861,21 +1702,21 @@ extern u8 D_807201A0;
 extern u8 D_80720268;
 
 void projectileBounceExplodeGreenUpdate(void) {
-    ProjectileBeamActorExtra *state;
+    ProjectileState *state;
     s32 pad48;
     u8 outOfArc;
     s32 pad40;
     s16 midYaw;
     f32 minSpeed;
 
-    state = (ProjectileBeamActorExtra *)gCurrentActor->customState;
+    state = gCurrentActor->customState;
     outOfArc = 0;
     if (!(gCurrentActor->flags & 0x10)) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF4, 0xFF, 0x7F, 5);
         gCurrentActor->contactFlags &= 0xFFFE;
-        gCurrentActor->moveYaw = (s16)((((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
-        gCurrentActor->speedXZ = (f32)((f64)(((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk4 / (f32)4) * 2.6);
-        gCurrentActor->speedY = ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->speedXZ = (f32)((f64)(((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ / (f32)4) * 2.6);
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
@@ -1883,18 +1724,18 @@ void projectileBounceExplodeGreenUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetColor(0, 0xFF, 0, 0xFF);
-        effectCreateAtActorBone(&D_80720268, ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
-        state->unk0 = gGameFrameCounter;
-        state->unk4 = 0;
+        effectCreateAtActorBone(&D_80720268, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        state->spawnFrame = gGameFrameCounter;
+        state->bounceCount = 0;
         gCurrentActor->flags |= 0x80000;
         gCurrentActor->unkFA = 0x2328;
-        state->unk13 = (u8)(u32)((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk10;
-        if (state->unk13 == 0x63) {
-            state->unk4 = 2;
+        state->param = (u8)(u32)((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
+        if (state->param == 0x63) {
+            state->bounceCount = 2;
         }
-        state->unk1C = 0;
+        state->target = NULL;
     }
-    if ((u32)(state->unk0 + 10) < gGameFrameCounter) {
+    if ((u32)(state->spawnFrame + 10) < gGameFrameCounter) {
         gCurrentActor->flags &= 0xFFF7FFFF;
     }
     projectileSteerTowardTarget(1, gCurrentActor, 0, 1);
@@ -1927,7 +1768,7 @@ void projectileBounceExplodeGreenUpdate(void) {
         gCurrentActor->speedY = minSpeed;
     }
     if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
-        switch (state->unk4) {
+        switch (state->bounceCount) {
             case 0:
                 gCurrentActor->speedY = 200.0f;
                 break;
@@ -1944,32 +1785,32 @@ void projectileBounceExplodeGreenUpdate(void) {
                 break;
         }
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF5, 0xFF, 0x7F, 0x1E);
-        state->unk4++;
+        state->bounceCount++;
         gCurrentActor->speedXZ = (f32)(((f64)gCurrentActor->speedXZ / 3.0) * 2.5);
     }
     if ((gCurrentActor->renderFlags & 0x100) || outOfArc != 0) {
         gActorGlobalState.unk15 = 1;
     }
-    if (((gCurrentActor->contactFlags & 1) && state->unk4 == 4) || gActorGlobalState.unk15 != 0) {
+    if (((gCurrentActor->contactFlags & 1) && state->bounceCount == 4) || gActorGlobalState.unk15 != 0) {
         projectileSpawnExplosion();
         actorDespawn(gCurrentActor);
     }
-    if ((u32)(state->unk0 + D_80750344) < gGameFrameCounter) {
+    if ((u32)(state->spawnFrame + D_80750344) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
 
 void projectileBeamUpdate(void) {
-    ProjectileBeamActorExtra *extra;
+    ProjectileState *state;
     s32 collisionMask;
     s32 lifetime;
     s32 i;
-    extra = (ProjectileBeamActorExtra *)gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->contactFlags &= 0xFFFE;
-        gCurrentActor->moveYaw = (s16)((((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
-        gCurrentActor->speedXZ = ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
@@ -1977,24 +1818,24 @@ void projectileBeamUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetFlags(4);
-        effectCreateAtActorBone(&D_807201A0, ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
-        extra->unk14 = ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unkC;
-        extra->unk0 = gGameFrameCounter;
+        effectCreateAtActorBone(&D_807201A0, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        state->scale = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale;
+        state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x01080000;
         gCurrentActor->unk16E[0] = 0x3C;
         gCurrentActor->unk16E[1] = 0x3C;
-        extra->unk13 = (u8)(u32)((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk10;
-        extra->unk1C = 0;
+        state->param = (u8)(u32)((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
+        state->target = NULL;
     }
     lifetime = D_80750358;
-    if (extra->unk13 & 2) {
+    if (state->param & 2) {
         collisionMask = 2;
         if (gPlayerCount >= 2) {
             collisionMask = 3;
         }
         projectileSteerTowardTarget(collisionMask, gCurrentActor, &D_807201A0, 0);
     }
-    if (extra->unk13 & 4) {
+    if (state->param & 4) {
         lifetime = D_8075036C;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
@@ -2004,7 +1845,7 @@ void projectileBeamUpdate(void) {
         gCurrentActor->collisionHit != 0 ||
         ((gCurrentActor->contactFlags & 1) && collisionGetStateByte() == 1) ||
         gActorGlobalState.unk15 != 0 ||
-        (((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk14 != 0.0f && (u32)(extra->unk0 + 1) < gGameFrameCounter)) {
+        (((ProjectileSpawnParams *)gCurrentActor->spawnData)->shortLived != 0.0f && (u32)(state->spawnFrame + 1) < gGameFrameCounter)) {
         effectSetDepth(1);
         effectSetSpeed(0x1006E);
         effectSetCallback(effectLightPulseOscillate);
@@ -2023,25 +1864,25 @@ void projectileBeamUpdate(void) {
     if (gPlayerCount >= 2) {
         lifetime = (s32)((f32)lifetime * 1.4f);
     }
-    if ((u32)(extra->unk0 + lifetime) < gGameFrameCounter) {
+    if ((u32)(state->spawnFrame + lifetime) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
 
 
 void projectileImpactExplosionUpdate(void) {
-    ProjectileActorExtra *extra;
+    ProjectileState *state;
     s32 collisionMask;
     s32 lifetime;
     u8 exploding;
 
-    extra = (ProjectileActorExtra *)gCurrentActor->customState;
+    state = gCurrentActor->customState;
     exploding = 0;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->contactFlags &= 0xFFFE;
-        gCurrentActor->moveYaw = (s16)((((ProjectileConfig124 *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
-        gCurrentActor->speedXZ = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
@@ -2049,24 +1890,24 @@ void projectileImpactExplosionUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetFlags(4);
-        effectCreateAtActorBone(&D_80720268, ((ProjectileConfig124 *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
-        extra->unk14 = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unkC;
-        extra->unk0 = gGameFrameCounter;
+        effectCreateAtActorBone(&D_80720268, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        state->scale = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale;
+        state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x01080000;
         gCurrentActor->unk16E[0] = 0x3C;
         gCurrentActor->unk16E[1] = 0x3C;
-        extra->unk13 = (u8)(u32)((ProjectileConfig124 *)gCurrentActor->spawnData)->unk10;
-        extra->unk1C = 0;
+        state->param = (u8)(u32)((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
+        state->target = NULL;
     }
     lifetime = D_80750358;
-    if (extra->unk13 & 2) {
+    if (state->param & 2) {
         collisionMask = 2;
         if (gPlayerCount >= 2) {
             collisionMask = 3;
         }
         projectileSteerTowardTarget(collisionMask, gCurrentActor, &D_80720268, 0);
     }
-    if (extra->unk13 & 4) {
+    if (state->param & 4) {
         lifetime = D_8075036C;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
@@ -2082,7 +1923,7 @@ void projectileImpactExplosionUpdate(void) {
     if (gPlayerCount >= 2) {
         lifetime = (s32)((f32)lifetime * 1.4f);
     }
-    if ((u32)(extra->unk0 + lifetime) < gGameFrameCounter) {
+    if ((u32)(state->spawnFrame + lifetime) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
     if (exploding != 0) {
@@ -2101,40 +1942,17 @@ extern s16 D_80750354;
 extern s16 D_80750368;
 
 
-
-typedef struct ProjectileRotSub174 {
-    u8 pad0[8];
-    f32 unk8;
-} ProjectileRotSub174;
-
-typedef struct ProjectileRotActorExtra {
-    u32 unk0;
-    u8 pad4[4];
-    f32 unk8;
-    f32 unkC;
-    u8 unk10;
-    u8 pad11;
-    u8 unk12;
-    u8 unk13;
-    f32 unk14;
-    u8 pad18[4];
-    s32 unk1C;
-} ProjectileRotActorExtra;
-
-
-
-
 void projectileRotatingUpdate(void) {
-    ProjectileActorExtra *extra;
+    ProjectileState *state;
     s32 collisionMask;
     s32 lifetime;
 
-    extra = (ProjectileActorExtra *)gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->contactFlags &= 0xFFFE;
-        gCurrentActor->moveYaw = (s16)((((ProjectileConfig124 *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
-        gCurrentActor->speedXZ = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 50.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 40.0f, -1);
@@ -2142,24 +1960,24 @@ void projectileRotatingUpdate(void) {
         effectSetDuration(-1);
         effectSetDepth(1);
         effectSetFlags(4);
-        effectCreateAtActorBone(&D_807206A8, ((ProjectileConfig124 *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
-        extra->unk14 = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unkC;
-        extra->unk0 = gGameFrameCounter;
+        effectCreateAtActorBone(&D_807206A8, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        state->scale = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale;
+        state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x01080000;
         gCurrentActor->unk16E[0] = 0x3C;
         gCurrentActor->unk16E[1] = 0x3C;
-        extra->unk13 = (u8)(u32)((ProjectileConfig124 *)gCurrentActor->spawnData)->unk10;
-        extra->unk1C = 0;
+        state->param = (u8)(u32)((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
+        state->target = NULL;
     }
     lifetime = D_80750360;
-    if (extra->unk13 & 2) {
+    if (state->param & 2) {
         collisionMask = 2;
         if (gPlayerCount >= 2) {
             collisionMask = 3;
         }
         projectileSteerTowardTarget(collisionMask, gCurrentActor, &D_807206A8, 0);
     }
-    if (extra->unk13 & 4) {
+    if (state->param & 4) {
         lifetime = D_80750374;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
@@ -2169,7 +1987,7 @@ void projectileRotatingUpdate(void) {
         actorGetFloorSnapped() != 0 ||
         ((gCurrentActor->contactFlags & 1) && collisionGetStateByte() == 1) ||
         gActorGlobalState.unk15 != 0 ||
-        (((ProjectileConfig124 *)gCurrentActor->spawnData)->unk14 != 0.0f && (u32)(extra->unk0 + 1) < gGameFrameCounter)) {
+        (((ProjectileSpawnParams *)gCurrentActor->spawnData)->shortLived != 0.0f && (u32)(state->spawnFrame + 1) < gGameFrameCounter)) {
         effectSetDepth(1);
         effectSetSpeed(0x1006E);
         effectSetCallback(effectLightPulseOscillate);
@@ -2189,7 +2007,7 @@ void projectileRotatingUpdate(void) {
     if (gPlayerCount >= 2) {
         lifetime = (s32)((f32)lifetime * 1.4f);
     }
-    if ((u32)(extra->unk0 + lifetime) < gGameFrameCounter) {
+    if ((u32)(state->spawnFrame + lifetime) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -2205,38 +2023,38 @@ s32 actorIsActiveType2B(Actor *actor) {
 }
 
 void projectileMatrixRotationUpdate(void) {
-    ProjectileRotActorExtra *extra;
+    ProjectileState *state;
     s32 collisionMask;
     s32 lifetime;
     f32 pitchMtx[4][4];
-    extra = gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->contactFlags &= 0xFFFE;
-        gCurrentActor->moveYaw = (s16)((((ProjectileConfig124 *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
         gCurrentActor->yaw = (s16)gCurrentActor->moveYaw;
-        gCurrentActor->speedXZ = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x3C;
-        extra->unk0 = gGameFrameCounter;
+        state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x01080000;
         gCurrentActor->unk16E[0] = 0x3C;
         gCurrentActor->unk16E[1] = 0x3C;
         controllerAnimSetStateIfChanged(gCurrentActor, 0x404, 0.0f, 1.0f);
-        extra->unk8 = -(mathAtan2(gCurrentActor->speedY, gCurrentActor->speedXZ) * 57.295776f);
-        extra->unk10 = 0;
-        extra->unkC = (f32)((u32)(randomLcgNext() % 3600U) / 10U);
-        extra->unk13 = (u8)(u32)((ProjectileConfig124 *)gCurrentActor->spawnData)->unk10;
-        extra->unk1C = 0;
+        state->pitchDeg = -(mathAtan2(gCurrentActor->speedY, gCurrentActor->speedXZ) * 57.295776f);
+        state->counter = 0;
+        state->rollDeg = (f32)((u32)(randomLcgNext() % 3600U) / 10U);
+        state->param = (u8)(u32)((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
+        state->target = NULL;
     }
     lifetime = D_80750354;
-    if (extra->unk13 & 2) {
+    if (state->param & 2) {
         collisionMask = 2;
         if (gPlayerCount >= 2) {
             collisionMask = 3;
         }
         projectileSteerTowardTarget(collisionMask, gCurrentActor, 0, 0);
     }
-    if (extra->unk13 & 4) {
+    if (state->param & 4) {
         lifetime = D_80750368;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
@@ -2244,13 +2062,13 @@ void projectileMatrixRotationUpdate(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     switch (gCurrentActor->state) {
     case 0:
-        if (gCurrentActor->collisionHit != 0 || (((ProjectileConfig124 *)gCurrentActor->spawnData)->unk14 != 0.0f && (u32)(extra->unk0 + 1) < gGameFrameCounter)) {
+        if (gCurrentActor->collisionHit != 0 || (((ProjectileSpawnParams *)gCurrentActor->spawnData)->shortLived != 0.0f && (u32)(state->spawnFrame + 1) < gGameFrameCounter)) {
             scriptSetActorRampTarget(gCurrentActor, 0.5f, 0);
             controllerAnimSetStateIfChanged(gCurrentActor, 0x406, 0, 0.0f);
             gCurrentActor->speedXZ = 0.0f;
             gCurrentActor->speedY = 0.0f;
             gCurrentActor->state = 1;
-            extra->unk10 = 0x3C;
+            state->counter = 0x3C;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x308, 0xFF, 0x7F, 5);
             if (D_80750AD0 != 0) {
                 actorDespawn(gCurrentActor);
@@ -2261,8 +2079,8 @@ void projectileMatrixRotationUpdate(void) {
     case 1:
         gCurrentActor->callbackMask = 0;
         gCurrentActor->unk144 = 1;
-        extra->unk0 = gGameFrameCounter;
-        if (!--extra->unk10) {
+        state->spawnFrame = gGameFrameCounter;
+        if (!--state->counter) {
             scriptSetActorRampTarget(gCurrentActor, 0.5f, 0);
             controllerAnimSetStateIfChanged(gCurrentActor, 0x405, 0, 10.0f);
             gCurrentActor->state++;
@@ -2281,11 +2099,11 @@ void projectileMatrixRotationUpdate(void) {
     if (gPlayerCount >= 2) {
         lifetime = (s32)((f32)lifetime * 1.4f);
     }
-    if ((u32)(extra->unk0 + lifetime) < gGameFrameCounter) {
+    if ((u32)(state->spawnFrame + lifetime) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
-    guRotateF(gCurrentActor->modelMtx, extra->unkC, 0.0f, 0.0f, 1.0f);
-    guRotateF(pitchMtx, extra->unk8, 1.0f, 0.0f, 0.0f);
+    guRotateF(gCurrentActor->modelMtx, state->rollDeg, 0.0f, 0.0f, 1.0f);
+    guRotateF(pitchMtx, state->pitchDeg, 1.0f, 0.0f, 0.0f);
     guMtxCatF(gCurrentActor->modelMtx, pitchMtx, gCurrentActor->modelMtx);
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
@@ -2293,7 +2111,7 @@ void projectileMatrixRotationUpdate(void) {
 extern u8 D_8072006C;
 
 void projectileRotatingLightUpdate(f32 floorOffset, u8 variant) {
-    ProjectileRotActorExtra *extra;
+    ProjectileState *state;
     s32 pad;
     u8 red;
     u8 green;
@@ -2301,26 +2119,26 @@ void projectileRotatingLightUpdate(f32 floorOffset, u8 variant) {
     f32 pad4C[4][4];
     s32 mode;
 
-    extra = gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         if (variant == 1) {
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x306, 0xFF, 0x7F, 0, 0, 0.3f, 0);
         }
         gCurrentActor->contactFlags &= 0xFFFE;
-        gCurrentActor->moveYaw = (s16)((((ProjectileConfig124 *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
         gCurrentActor->yaw = gCurrentActor->moveYaw;
-        gCurrentActor->speedXZ = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((ProjectileConfig124 *)gCurrentActor->spawnData)->unk8;
-        gCurrentActor->interactionType = (u8)(u32)((ProjectileConfig124 *)gCurrentActor->spawnData)->unk10;
+        gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
+        gCurrentActor->interactionType = (u8)(u32)((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
         gCurrentActor->sub4->scaleX = 2.0 * gCurrentActor->sub4->scaleX;
         gCurrentActor->sub4->scaleY = 2.0 * gCurrentActor->sub4->scaleY;
         gCurrentActor->sub4->scaleZ = 2.0 * gCurrentActor->sub4->scaleZ;
-        extra->unk8 = -(mathAtan2(gCurrentActor->speedY, gCurrentActor->speedXZ) * 57.295776f);
+        state->pitchDeg = -(mathAtan2(gCurrentActor->speedY, gCurrentActor->speedXZ) * 57.295776f);
         gCurrentActor->unk144 = 0x3C;
-        extra->unk0 = gGameFrameCounter;
-        extra->unk12 = 0;
+        state->spawnFrame = gGameFrameCounter;
+        state->cooldown = 0;
         gCurrentActor->flags |= 0x80000;
-        extra->unk10 = 0;
+        state->counter = 0;
     }
     mode = variant;
     actorUpdatePrevContactFlags(gCurrentActor);
@@ -2340,30 +2158,30 @@ void projectileRotatingLightUpdate(f32 floorOffset, u8 variant) {
     lightSetFlags(1);
     lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 80.0f, 0, red, green, blue);
     if (mode == 1) {
-        if (!extra->unk12 && ((gCurrentActor->contactFlags & 1) || gCurrentActor->collisionHit != 0 || gActorGlobalState.unk15 != 0)) {
+        if (!state->cooldown && ((gCurrentActor->contactFlags & 1) || gCurrentActor->collisionHit != 0 || gActorGlobalState.unk15 != 0)) {
             effectSetSpeed(0x1006E);
             effectSetCallback(effectLightPulseOscillate);
             effectCreateAtPosition(&D_8072006C, 1.2f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             effectSpawnBoneWhite(0, 0, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, -0x50);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x3F, 0x14);
-            extra->unk12 = 2;
-        } else if (extra->unk12) {
-            if (--extra->unk12 == 0) {
+            state->cooldown = 2;
+        } else if (state->cooldown) {
+            if (--state->cooldown == 0) {
                 actorDespawn(gCurrentActor);
             }
         }
-        if ((u32)(extra->unk0 + D_80750344) < gGameFrameCounter) {
+        if ((u32)(state->spawnFrame + D_80750344) < gGameFrameCounter) {
             actorDespawn(gCurrentActor);
         }
     }
 }
 
 void actorApplyTransformAndRender(void) {
-    ProjectileRotSub174 *state;
+    ProjectileState *state;
 
     state = gCurrentActor->customState;
     projectileRotatingLightUpdate(0.0f, 1);
-    matrixMakeRotationX(gCurrentActor->modelMtx, state->unk8);
+    matrixMakeRotationX(gCurrentActor->modelMtx, state->pitchDeg);
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
 
@@ -2374,27 +2192,27 @@ extern u8 D_80720804;
 
 
 void projectileParticleSpawnerTick(void) {
-    ProjectileBeamActorExtra *extra;
+    ProjectileState *state;
     s32 i;
-    extra = gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unkFA = 0x270F;
         gCurrentActor->soundSlots[0] = -2;
         gCurrentActor->contactFlags &= -2;
-        gCurrentActor->moveYaw = (s16)((((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
-        gCurrentActor->speedXZ = ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk8;
-        extra->unk13 = ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk10;
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
+        state->param = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->param;
         gCurrentActor->unk144 = 0x3C;
         actorSetCollisionRadius(gCurrentActor, 110.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 100.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         effectSetDuration(-1);
         effectSetDepth(1);
-        effectCreateAtActorBone(&D_80720804, ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
-        extra->unk0 = gGameFrameCounter;
+        effectCreateAtActorBone(&D_80720804, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x80000;
-        if (extra->unk13 != 0xA) {
+        if (state->param != 0xA) {
             effectSetMode(2);
             effectSetDepth(1);
             effectCreateAtPosition(&D_8071FBC8, 1.5f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
@@ -2411,8 +2229,8 @@ void projectileParticleSpawnerTick(void) {
         effectSetSpeed((s32)gCurrentActor);
         effectCreateAtPosition(&D_8071FC40, 0.3f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
-    if (((gCurrentActor->hasArcBounds != 0) && ((gGameFrameCounter - extra->unk0) >= 6)) || gActorGlobalState.unk15 != 0) {
-        if ((gActorGlobalState.unk15 != 0) && (extra->unk13 != 0xA)) {
+    if (((gCurrentActor->hasArcBounds != 0) && ((gGameFrameCounter - state->spawnFrame) >= 6)) || gActorGlobalState.unk15 != 0) {
+        if ((gActorGlobalState.unk15 != 0) && (state->param != 0xA)) {
             effectSetDepth(1);
             effectSetSpeed(0x100D2);
             effectSetCallback(effectLightPulseOscillate);
@@ -2426,12 +2244,12 @@ void projectileParticleSpawnerTick(void) {
                 effectCreateAtPosition(&D_807206DC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
-        if (extra->unk13 != 0xA) {
+        if (state->param != 0xA) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3C, 0xFF, 0x7F, 0x1E);
         }
         actorDespawn(gCurrentActor);
     }
-    if (extra->unk0 + D_80750344 < gGameFrameCounter) {
+    if (state->spawnFrame + D_80750344 < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -2441,29 +2259,29 @@ extern f32 D_80750274;
 
 
 void projectileHomingParticleUpdate(void) {
-    u32 *spawnFrame;
+    ProjectileState *state;
     f32 jitterX;
     f32 jitterY;
     f32 jitterZ;
     f32 minSpeed;
     s32 i;
 
-    spawnFrame = gCurrentActor->customState;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unkFA = 0x270F;
         gCurrentActor->soundSlots[0] = -2;
         gCurrentActor->contactFlags &= -2;
-        gCurrentActor->moveYaw = (s16)((((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk0 / 6.2831855f) * 4095.0f);
-        gCurrentActor->speedXZ = ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk4;
-        gCurrentActor->speedY = ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unk8;
+        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
+        gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x1C;
         actorSetCollisionRadius(gCurrentActor, 110.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 100.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         effectSetDuration(-1);
         effectSetDepth(1);
-        effectCreateAtActorBone(&D_80720804, ((ProjectileBeamConfig124 *)gCurrentActor->spawnData)->unkC, gCurrentActor, 1, 2);
-        *spawnFrame = gGameFrameCounter;
+        effectCreateAtActorBone(&D_80720804, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor, 1, 2);
+        state->spawnFrame = gGameFrameCounter;
         gCurrentActor->flags |= 0x80000;
     }
     actorUpdatePrevContactFlags(gCurrentActor);
@@ -2476,7 +2294,7 @@ void projectileHomingParticleUpdate(void) {
     }
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 14, 14, 1, 150, 120, 0, 1.0f);
     i = 0;
-    if ((gCurrentActor->contactFlags & 1) || ((gCurrentActor->hasArcBounds != 0) && ((gGameFrameCounter - *spawnFrame) >= 6)) || gActorGlobalState.unk15 != 0) {
+    if ((gCurrentActor->contactFlags & 1) || ((gCurrentActor->hasArcBounds != 0) && ((gGameFrameCounter - state->spawnFrame) >= 6)) || gActorGlobalState.unk15 != 0) {
         do {
             jitterX = ((randomNonNegative() >> 15) % 8191 / 200.0) - 20.0;
             jitterY = ((randomNonNegative() >> 15) % 8191 / 200.0) - 20.0;
@@ -2497,7 +2315,7 @@ void projectileHomingParticleUpdate(void) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3C, 0xFF, 0x7F, 0x1E);
         actorDespawn(gCurrentActor);
     }
-    if (*spawnFrame + D_80750344 < gGameFrameCounter) {
+    if (state->spawnFrame + D_80750344 < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -2589,27 +2407,11 @@ void projectileFallBounceUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct ProjectileSpawnScaleView {
-    u8 pad0[0xC];
-    f32 unkC;
-} ProjectileSpawnScaleView;
-
-typedef struct ProjectileChaseState {
-    /* 0x00 */ u32 unk0;
-    /* 0x04 */ u8 pad4[4];
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ u8 padC[4];
-    /* 0x10 */ u8 unk10;
-    /* 0x11 */ u8 unk11;
-    /* 0x12 */ u8 pad12[6];
-    /* 0x18 */ s16 unk18;
-} ProjectileChaseState;
-
 
 
 
 void projectileChaseTargetUpdate(void) {
-    ProjectileChaseState *state;
+    ProjectileState *state;
     s16 targetYaw;
     s16 yawDiff;
     Actor *other;
@@ -2624,31 +2426,31 @@ void projectileChaseTargetUpdate(void) {
     }
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 100, 100, 1, 0x4B, 0x78, 0, 1.0f);
     if (!(gCurrentActor->flags & 0x10)) {
-        state->unk18 = (s32)gCurrentActor->speedXZ;
+        state->baseSpeed = (s32)gCurrentActor->speedXZ;
         gCurrentActor->drawDistance = 1000;
         gCurrentActor->flags |= 0x400;
-        state->unk0 += 0x78;
+        state->spawnFrame += 0x78;
         if (gCurrentActor->soundSlots[0] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x114, 0x1E, 1, 0, 0xFF, 1.0f, 0);
             D_80770B68[D_80770628[gCurrentActor->soundSlots[0]]] = 0.75f;
             D_80770BC0[D_80770628[gCurrentActor->soundSlots[0]]] = 1.0f;
         }
-        state->unk10 = 0xF;
-        state->unk11 = 0;
-        actorSetUniformScale(gCurrentActor, (f64)((ProjectileSpawnScaleView *)gCurrentActor->spawnData)->unkC * 0.15);
+        state->counter = 0xF;
+        state->tick = 0;
+        actorSetUniformScale(gCurrentActor, (f64)((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale * 0.15);
     }
-    state->unk11++;
-    if (state->unk10 < state->unk11) {
+    state->tick++;
+    if (state->counter < state->tick) {
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x15B, 0xFF, 0x6E, 0, 0x1E, 0.3f, 0);
-        state->unk11 = 0;
-        if (state->unk10 >= 3) {
-            state->unk10--;
+        state->tick = 0;
+        if (state->counter >= 3) {
+            state->counter--;
         }
     }
-    if ((u32)(state->unk0 - 100) < gGameFrameCounter) {
+    if ((u32)(state->spawnFrame - 100) < gGameFrameCounter) {
         gCurrentActor->flags &= ~0x80000;
     }
-    if (((u32)(state->unk0 + D_80750344) < gGameFrameCounter) || ((gCurrentActor->collisionHit != 0) && (gCurrentActor->actorType != 0xA9)) || (gActorGlobalState.unk15 != 0)) {
+    if (((u32)(state->spawnFrame + D_80750344) < gGameFrameCounter) || ((gCurrentActor->collisionHit != 0) && (gCurrentActor->actorType != 0xA9)) || (gActorGlobalState.unk15 != 0)) {
         tagBarrelSpawnActorSmokePuffs(0, 1);
         sfxStopSlotSound(gCurrentActor, 0);
         actorDespawn(gCurrentActor);
@@ -2677,15 +2479,15 @@ void projectileChaseTargetUpdate(void) {
                 gCurrentActor->state = 0;
             }
         }
-        if (gCurrentActor->speedXZ + 20.0f < state->unk18) {
+        if (gCurrentActor->speedXZ + 20.0f < state->baseSpeed) {
             gCurrentActor->speedXZ += 20.0f;
         } else {
-            gCurrentActor->speedXZ = state->unk18;
+            gCurrentActor->speedXZ = state->baseSpeed;
         }
         gCurrentActor->moveYaw = mathAngleEaseToward(gCurrentActor->moveYaw, gCurrentActor->yaw, 1.0f);
         gCurrentActor->movePitch = mathAngleEaseToward(gCurrentActor->movePitch, (s16)(s32)(((f64)mathCalculatePitchAngle(gPrimaryPlayerActor->x, gPrimaryPlayerActor->y + (f32)(u32)gPrimaryPlayerActor->eyeHeight, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 20) * 2048.0) / 3.1415927410125732), 30.0f);
         gCurrentActor->speedY = mathSinF(gCurrentActor->movePitch) * -gCurrentActor->speedXZ;
-        state->unk8 = -(mathAtan2(gCurrentActor->speedY, gCurrentActor->speedXZ) * 57.295776f);
+        state->pitchDeg = -(mathAtan2(gCurrentActor->speedY, gCurrentActor->speedXZ) * 57.295776f);
         break;
     case 1:
         if (gCurrentActor->speedXZ - 10.0f > 5.0f) {

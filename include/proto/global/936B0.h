@@ -3,16 +3,13 @@
 #define PROTO_GLOBAL_936B0_H
 #include "common.h"
 #include "actor.h"
-struct ProjectileActorSub174;
-struct ProjectileActorSync;
-struct ProjectileAngleStep;
-struct ProjectileAngleTarget;
-struct SpawnPointActor;
+#include "race.h"
+struct VehicleMotion;
 #ifndef PROTO_SKIP_actorSnapToBone
 void actorSnapToBone(Actor **);
 #endif
 #ifndef PROTO_SKIP_actorSyncTransformFromParent
-void actorSyncTransformFromParent(struct ProjectileActorSync **);
+void actorSyncTransformFromParent(Actor **);
 #endif
 #ifndef PROTO_SKIP_mathPickCloserTargetPoint3D
 s32 mathPickCloserTargetPoint3D(f32, f32, f32, struct TargetVec3f *, struct TargetVec3f *, struct TargetVec3f *, struct TargetVec3f *, f32 *, f32 *, f32 *);
@@ -27,7 +24,7 @@ void func_8068EF54(void);
 void func_8068F72C();
 #endif
 #ifndef PROTO_SKIP_actorInterpolateAngles
-void actorInterpolateAngles(u8, struct ProjectileAngleTarget *, struct ProjectileAngleStep *);
+void actorInterpolateAngles(u8, RaceParticipant *, struct VehicleMotion *);
 #endif
 #ifndef PROTO_SKIP_actorAllocSubBuffer
 void actorAllocSubBuffer(Actor *, s32);
@@ -39,7 +36,7 @@ void actorInitAnimations(Actor *, Actor *);
 void func_80690190();
 #endif
 #ifndef PROTO_SKIP_actorInitFromSpawnPoint
-void actorInitFromSpawnPoint(struct SpawnPointActor *, struct ProjectileActorSub174 *);
+void actorInitFromSpawnPoint(Actor *, RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_actorSpawnChildActor
 void actorSpawnChildActor(Actor *);
