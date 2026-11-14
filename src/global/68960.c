@@ -9,11 +9,11 @@ typedef struct MapFogEntry {
     s16 fogDistance;
 } MapFogEntry;
 
-extern MapFogEntry D_80748B70[];
+extern MapFogEntry D_80748B70[6];
 extern s32 gCurrentMap;
 
 void mapUpdateFogDistance(f32 *pDist, s16 characterId) {
-    s16 limit = 6; // FAKE: value-named constant local keeps 6 in a register (slt at,i,t1); a literal 6 folds to slti and reshapes the frame
+    s16 count = sizeof(D_80748B70) / sizeof(D_80748B70[0]);
     f32 target;
     f32 val;
     s16 i;
@@ -28,7 +28,7 @@ void mapUpdateFogDistance(f32 *pDist, s16 characterId) {
         *pDist = (target - val) * 0.03 + val;
     }
 
-    for (i = 0; i < limit; i++) {
+    for (i = 0; i < count; i++) {
         if (gCurrentMap == D_80748B70[i].map && (characterId == D_80748B70[i].character || D_80748B70[i].character == -1)) {
             val = *pDist;
             *pDist = (D_80748B70[i].fogDistance - val) * 0.03 + val;
