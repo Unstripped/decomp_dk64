@@ -328,10 +328,9 @@ extern f32 D_807535E8[];
 
 void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     const KongCharacterEntry *row;
-    u32 slot;
+    u32 slot = playerIndex;
     s32 i;
 
-    slot = playerIndex;
     if (gPlayerCount >= 2) {
         gPlayerCharacterId[slot] = gPlayerCharacterId[controllerGetPort(slot)];
     }
@@ -419,9 +418,8 @@ extern s16 D_80753354[];
 void func_80028840(void);
 
 void playerSpawnMapHelpers(void) {
-    f32 scale;
+    f32 scale = -1.0f; // unset: the first case reached picks the factor, then falls through to apply it
 
-    scale = -1.0f;
     switch (gCurrentMap) {
     case 0x50:
         actorSpawn(0x146, 0);
@@ -443,10 +441,12 @@ void playerSpawnMapHelpers(void) {
         if (scale < 0.0f) {
             scale = 0.8f;
         }
+        /* fallthrough */
     case 0x5:
         if (scale < 0.0f) {
             scale = 1.8f;
         }
+        /* fallthrough */
     case 0x1:
         if (scale < 0.0f) {
             scale = 1.6f;
@@ -463,7 +463,7 @@ void playerSpawnMapHelpers(void) {
         controllerAnimSetStateIfChanged(gActivePlayerActor, 0, 0.0f, 0.0f);
         gActivePlayerActor->state = 0x7D;
         gActivePlayerActor->unk155 = 0;
-        gActivePlayerActor->flags &= 0xFFFF7FFF;
+        gActivePlayerActor->flags &= ~0x8000;
         gActivePlayerActor->alpha = 0;
         actorSpawn(0x11A, 0x21);
         actorScriptStart(gSpawnedActor, 0x232);
@@ -485,6 +485,7 @@ void playerSpawnMapHelpers(void) {
         commandSetColor(0x6B, 0x30, 0x50);
         commandSetParameters(0x320, 0x82, 0, 0xFF, 0xFF, 0xFF);
         func_80028840();
+        /* fallthrough */
     case 0x28:
     case 0x51:
         gActivePlayerActor->state = 0x77;
@@ -576,7 +577,6 @@ void playerCycleKongDebug(void) {
 
 
 void playerApplyCharacterModel(const KongCharacterEntry *row) {
-
     gActivePlayerActor->actorType = row->actorType;
     gCurrentCharacterIndex = row->characterIndex;
     controllerAnimFree(gActivePlayerActor);
@@ -663,7 +663,7 @@ void playerRestoreKongState(Actor *actor, PlayerState *ps) {
     actor->alpha = 0xFF;
 }
 
-void func_800268DC(Actor *, void *, void *); /* mpResetPlayerOnRespawn (multiplayer) */
+void func_800268DC(Actor *, PlayerState *, PlayerInventory *); /* mpResetPlayerOnRespawn (multiplayer) */
 
 void playerSyncInventoryOnSpawn(s32 spawnIndex) {
     PlayerState *ps = gActivePlayerActor->customState;
@@ -676,16 +676,14 @@ void playerSyncInventoryOnSpawn(s32 spawnIndex) {
     playerGetResolvedKongId(ps->playerIndex);
     inventory = &gPlayerInventoryTable[ps->playerIndex];
     ps->effectTimer = 0x78;
-    i = 0;
-    do {
+    for (i = 0; i < 2; i++) {
         sfxStopSlotSound(gActivePlayerActor, i);
-        i++;
-    } while (i < 2);
+    }
     playerWarpToSpawnPoint(spawnIndex);
     kongChainInit(0, chains, gActivePlayerActor->actorType);
     healthRefill(ps->playerIndex);
     gActivePlayerActor->speedXZ = 0.0f;
-    ps->stateFlags &= 0xF7FFFF5F;
+    ps->stateFlags &= ~0x080000A0;
     ps->statusEffectTimer = 0;
     ps->maxSpeed = 0.0f;
     if (gPlayerCount >= 2) {
