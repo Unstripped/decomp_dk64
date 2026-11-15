@@ -436,6 +436,7 @@ void bossFollowerActorUpdate(void) {
     BossFollowerLink *link = gCurrentActor->customState;
     BossSpawnerState *parentState = link->parent->customState;
     AnimSlot *anim = gCurrentActor->sub4->model;
+    s32 id; // FAKE: one local for the anim id and the opposite side merges their uopt ranges (opposite side $v0 ahead of its *2 index $v1)
     static s16 sFireCooldown = 0x78; // function-local static (only user; shadows the file-scope definition, which the .data carve moves here) keeps uopt from pointerizing D_80035B74
 
     if (link->mirrored == 0) {
@@ -458,9 +459,9 @@ void bossFollowerActorUpdate(void) {
     } else {
         gCurrentActor->roll = 0;
         if (anim != NULL) {
-            s32 animId = link->slot + 0x66B;
-            if (animId != anim->animId) {
-                controllerAnimSetStateIfChanged(gCurrentActor, animId, 0.0f, 0.0f);
+            id = link->slot + 0x66B;
+            if (id != anim->animId) {
+                controllerAnimSetStateIfChanged(gCurrentActor, id, 0.0f, 0.0f);
                 sfxPlayOnFreeSlot(0x38D, 0x7D00, 63.0, 1.0, 0, 0);
             } else {
                 controllerApplyMotionWindow(gCurrentActor, anim, anim->frame + 0.75f);
@@ -478,7 +479,6 @@ void bossFollowerActorUpdate(void) {
                 }
                 if (anim->frame > 26.0f) {
                     gCurrentActor->y -= 10.0f;
-                    if (anim->animId == 1) {} // FAKE: steers uopt colouring (const 35 -> a1)
                 }
             }
             if (gCurrentActor->y < 0.0) {
@@ -510,19 +510,16 @@ void bossFollowerActorUpdate(void) {
         gCurrentActor->z = gBossSideOffsetZ[parentState->side] + link->parent->z;
         gCurrentActor->yaw = gBossSideYaw[parentState->side];
     } else {
-        s32 oppSide;
         gCurrentActor->unk144 = 1;
-        oppSide = parentState->side + 2;
-        if (oppSide >= 4) {
-            oppSide -= 4;
+        id = parentState->side + 2;
+        if (id >= 4) {
+            id -= 4;
         }
-        gCurrentActor->x = gBossSideOffsetX[oppSide] + link->parent->x;
-        if (gBossSideAimOffsetX) {}  // FAKE: deadsweep dead statement (steers uopt)
-        gCurrentActor->z = gBossSideOffsetZ[oppSide] + link->parent->z;
-        gCurrentActor->yaw = gBossSideYaw[oppSide];
+        gCurrentActor->x = gBossSideOffsetX[id] + link->parent->x;
+        gCurrentActor->z = gBossSideOffsetZ[id] + link->parent->z;
+        gCurrentActor->yaw = gBossSideYaw[id];
         gCurrentActor->flags |= 0x800000;
         gCurrentActor->tintR = 0x23;
-        if (link->mirrored && link->mirrored) {} // FAKE: steers uopt colouring (const 35 -> a1)
         gCurrentActor->tintG = 0x23;
         gCurrentActor->tintB = 0x46;
         if (parentState->phase != 1) {
