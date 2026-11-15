@@ -37,6 +37,10 @@ typedef struct HudTextEntry {
     /* 0x11 */ u8 text[7];
 } HudTextEntry; // size = 0x18
 
+typedef struct HudTextList {
+    /* 0x00 */ HudTextEntry entries[10];
+} HudTextList; // size = 0xF0
+
 typedef struct HudEntry {
     /* 0x00 */ f32 fade;
     /* 0x04 */ f32 carouselProgress;
@@ -57,7 +61,7 @@ extern Gfx D_1000118;
 extern Mtx D_2000180;
 extern Mtx D_20000C0;
 
-extern HudTextEntry *sPauseTextLists[2];
+extern HudTextList *sPauseTextLists[2];
 extern s8 sPauseTextCounts[2];
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -228,7 +232,7 @@ void hudPauseMenuUpdate(void) {
         D_807FC80C = 0;
         D_807FC80D = D_807FC80C;
         sPauseTextLists[0] = heapAlloc(0x1E0);
-        sPauseTextLists[1] = sPauseTextLists[0] + 10;
+        sPauseTextLists[1] = sPauseTextLists[0] + 1;
         sPauseTextCounts[0] = 0;
         sPauseTextCounts[1] = 0;
         D_8075052C = 0;
@@ -577,7 +581,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     s16 y;
     s32 off;
     s32 slotBase;
-    HudTextEntry *it;
+    HudTextList *it;
     PlayerInventory *tab;
     Gfx *ret;
     Gfx *list;
@@ -608,18 +612,18 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
         if (it != NULL) {
             for (j = 0; j < sPauseTextCounts[i]; j++) {
                 fa = hud->fade;
-                if (((HudTextEntry *)((u8 *)it + j * 0x18))->style == 2) {
+                if ((it->entries + j)->style == 2) {
                     fa += hud->carouselProgress;
                 }
-                off = ((HudTextEntry *)((u8 *)it + j * 0x18))->x; // FAKE: byte-offset entry spelling (all 8 reads in this loop) instead of it[j] steers the ugen scratch ring
-                y = ((HudTextEntry *)((u8 *)it + j * 0x18))->y;
-                off = (u16)(off * 4) + (s16)(s64)(s32)(fa * ((HudTextEntry *)((u8 *)it + j * 0x18))->flyX); // FAKE: narrow through a 64-bit pair to preserve the ugen scratch-register order.
+                off = (it->entries + j)->x; // FAKE: (it->entries + j)->f member-access spelling (all 8 reads in this loop) gives base-first addu v0,s2,t7 at 0x12f8; it->entries[j] gives offset-first (272) (Q0816)
+                y = (it->entries + j)->y;
+                off = (u16)(off * 4) + (s16)(s64)(s32)(fa * (it->entries + j)->flyX); // FAKE: narrow through a 64-bit pair to preserve the ugen scratch-register order.
                 y *= 4;
-                y += (u16)(s32)(fa * ((HudTextEntry *)((u8 *)it + j * 0x18))->flyY); // FAKE: no-op (u16) (y is s16) keeps mfc1 t4 / addu t9,t7,t4 at 0x1350/0x1358 in the ugen scratch ring
-                off = (s16)((u32)off + ((HudTextEntry *)((u8 *)it + j * 0x18))->offsetX * 4); // FAKE: no-op (u32)off orders addu t8,s0,t7 at 0x1364; the (s16) store gives its move s0,t8 (Q0374)
-                y += ((HudTextEntry *)((u8 *)it + j * 0x18))->offsetY * 4;
+                y += (u16)(s32)(fa * (it->entries + j)->flyY); // FAKE: no-op (u16) (y is s16) keeps mfc1 t4 / addu t9,t7,t4 at 0x1350/0x1358 in the ugen scratch ring
+                off = (s16)((u32)off + (it->entries + j)->offsetX * 4); // FAKE: no-op (u32)off orders addu t8,s0,t7 at 0x1364; the (s16) store gives its move s0,t8 (Q0374)
+                y += (it->entries + j)->offsetY * 4;
                 y += hud->slideY[i] * 4;
-                dl = textDrawStringVtx(dl, 1, off, y, ((HudTextEntry *)((u8 *)it + j * 0x18))->text, 1);
+                dl = textDrawStringVtx(dl, 1, off, y, (it->entries + j)->text, 1);
             }
         }
     }
@@ -1242,7 +1246,7 @@ void hudPauseMenuAddCounter(HudEntry *hud, s16 x, s16 y, s16 dx, s16 dy, s32 val
     }
     D_807FC810 = textGetStringWidth(1, buf);
     idx = sPauseTextCounts[hud->buffer];
-    list = sPauseTextLists[hud->buffer];
+    list = sPauseTextLists[hud->buffer]->entries;
     len = sqrtf((640.0f - (f32)(x * 4)) * (640.0f - (f32)(x * 4)) + (480.0f - (f32)(y * 4)) * (480.0f - (f32)(y * 4)));
     list[idx].flyX = -((640.0f - (f32)(x * 4)) / len) * (1040.0f - len);
     list[idx].flyY = -((480.0f - (f32)(y * 4)) / len) * (1040.0f - len);
