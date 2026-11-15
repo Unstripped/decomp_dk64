@@ -1770,21 +1770,25 @@ void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f
 
 s32 activeActorBoxOverlapTest(f32 x, f32 y, f32 z, s16 radiusX, s16 radiusY, s16 radiusZ, u16 mask) {
     s32 i;
-    Actor *b;
     Actor *a;
-    s16 rx;
-    s16 ry;
-    s16 rz;
+    f32 minX;
+    f32 minY;
+    f32 minZ;
+    f32 maxX;
+    f32 maxY;
+    f32 maxZ;
 
-    rx = radiusX;  // FAKE: dead s16 copies of the radii (rx/ry/rz never read) renumber the int webs: count a1, i a0, gActiveActors t0, mask t1 at 0x4370-0x43c4 (without them v1/v0/a1/a2)
-    ry = radiusY;
-    rz = radiusZ;
+    minX = x - radiusX;
+    maxX = x + radiusX;
+    minY = y - radiusY;
+    maxY = y + radiusY;
+    minZ = z - radiusZ;
+    maxZ = z + radiusZ;
     for (i = 0; i < gActiveActorCount; i++) {
         a = gActiveActors[i].actor;
-        b = a;  // FAKE: alias read by the first three compares keeps y/z in f14/f20 and the coordinate loads in f18/f22/f24 (0x43d4-0x4414); one pointer moves y to f20, z to f22 and grows .text by 16 bytes
-        if (b->collisionFlags & mask) {
-            if (x - radiusX <= b->x && y - radiusY <= b->y && z - radiusZ <= b->z &&
-                a->x <= radiusX + x && a->y <= radiusY + y && a->z <= radiusZ + z) {
+        if (a->collisionFlags & mask) {
+            if (minX <= a->x && minY <= a->y && minZ <= a->z &&
+                a->x <= maxX && a->y <= maxY && a->z <= maxZ) {
                 return 1;
             }
         }
@@ -2983,7 +2987,7 @@ void texAnimUpdateNodes(ModelType1ObjAddrs *seg) {
             if (node->cmdsA[gGfxBufferIndex].texCmd != NULL) {
                 node->cmdsA[gGfxBufferIndex].texCmd->texAddr = texA;
                 if (dualTex == 0) {
-                    dst = &node->cmdsA[gGfxBufferIndex].texCmd->tileSizeW0; // FAKE: dst pointer temp for both 0xF2000000 stores (direct field stores fail fdiff)
+                    dst = &node->cmdsA[gGfxBufferIndex].texCmd->tileSizeW0; // ORIG: the target materialises the tile-size word address in v0 (addiu v0,v0,0x30 at 0x7eb8 and 0x7f18) and stores through it (sw 0(v0)); a field store folds 0x30 into the sw
                     *dst = (node->scrollS << 12) | 0xF2000000 | node->scrollT;
                 }
             }
