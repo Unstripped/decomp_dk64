@@ -563,3 +563,4 @@
 {"type": "unit", "t": "2026-11-15T02:05:32Z", "unit": "2026-11-14: cleanup RereviewW2Global", "commit": "c848fa0e4197255213ccea8747e8b2e437d5243e"}
 {"type": "unit", "t": "2026-11-15T02:08:23Z", "unit": "2026-11-14: cleanup OwnerCollectibleCountsView", "commit": "0c2a5e64c18200bcd4fcbea79fbdf0845013511e"}
 {"type": "unit", "t": "2026-11-15T02:13:59Z", "unit": "2026-11-14: cleanup Hack80150CharIdView", "commit": "940b686438ff760c440eb9a481a0526df6222d4a"}
+{"type": "unit", "t": "2026-11-15T02:19:50Z", "unit": "2026-11-14: cleanup OwnerAsmLightProjProto", "commit": "49d3960259eaf21095e0c08fc55e541f1e85fea2"}
