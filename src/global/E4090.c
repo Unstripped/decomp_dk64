@@ -1174,9 +1174,9 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
             }
             if (isFirstPerson) {
                 sfxPlayOnFreeSlot(sfx, 0x7FFF, 63.0f, 1.0f, vol, 0);
-                return;
+            } else {
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, sfx, 0xFF, 0x7F, vol);
             }
-            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, sfx, 0xFF, 0x7F, vol);
         }
     }
 }
