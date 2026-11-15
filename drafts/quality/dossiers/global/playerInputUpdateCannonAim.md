@@ -48,3 +48,5 @@
 - Target: &gActivePlayerState is rematerialised in a2 inside the pad branch (0x4364) and again after it (0x437c), and after both calls (0x4438, 0x4450).
 - &gCurrentActor sits in a3 from the entry.
 - The sibling playerInputHandleAButtonSub5A, which has the same shape, hoists &gActivePlayerState to v1 instead.
+
+2026-11-15 Lead2 (merge b15f1d44): E4090 .data carve applied; e9a088/9bdc6b/bdc230/acd1db FIXED, c17942 tagged guard remains (net 4 -> 1).
