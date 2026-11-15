@@ -34,8 +34,8 @@ void func_806B1F50(void) {
         actorSpawn(0x73, 0x7D);
         gBehaviourWorkState->targetActor = gSpawnedActor;
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.3f);
-        gSpawnedActor->x = mathSinF(gCurrentActor->yaw) * 14.0f + gCurrentActor->x;
-        gSpawnedActor->z = mathCosF(gCurrentActor->yaw) * 14.0f + gCurrentActor->z;
+        gSpawnedActor->x = gCurrentActor->x + mathSinF(gCurrentActor->yaw) * 14.0f;
+        gSpawnedActor->z = gCurrentActor->z + mathCosF(gCurrentActor->yaw) * 14.0f;
         actorClearNodeFlag(gSpawnedActor, 3);
         actorClearNodeFlag(gSpawnedActor, 1);
         actorUpdateFloorContactAndTilt(gSpawnedActor, 14.0f);
@@ -58,8 +58,6 @@ void func_806B1F50(void) {
         gCurrentActor->unk155++;
     }
     switch (gCurrentActor->state) {
-        case 0x27:
-            break;
         case 0:
             if (currentActorTestClearFlag() != 0) {
                 hudSpawnCountdownTimer(0xDC, 0x2A, 0x1E);
@@ -67,6 +65,8 @@ void func_806B1F50(void) {
                 gCurrentActor->state = 7;
                 gCurrentActor->unk155 = 0;
             }
+            break;
+        case 0x27:
             break;
         case 0x37:
             switch (gCurrentActor->unk155) {
@@ -82,6 +82,7 @@ void func_806B1F50(void) {
                     actorDespawn(gCurrentActor->parentActor);
                     gCurrentActor->state = 0x40;
                     sfxAllocateChannel(0x2A, 1.0f);
+                    // fall through
                 default:
                     gCurrentActor->unk155++;
                     break;
@@ -102,7 +103,7 @@ void func_806B1F50(void) {
                 gCurrentActor->z += 5.0f;
             }
             if (gCurrentActor->unk155 != 0 && actorTableContains(gBehaviourTargetActor) != 0 && gFrameCounter % 7 == 0) {
-                tint = -gCurrentActor->unk155 * 0x1E + 0xB4;
+                tint = (6 - gCurrentActor->unk155) * 30;
                 effectSetMode(3);
                 effectSetColor(tint, tint, tint, gCurrentActor->alpha);
                 effectSpawnBoneDefault(gBehaviourTargetActor, 1, 1.0f, 0.0f, 0.0f, 0.0f, -0x96);
