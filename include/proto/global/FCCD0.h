@@ -4,8 +4,9 @@
 #include "common.h"
 #include "render.h"
 struct SlotQueueNode;
+struct SlotQueueSlot;
 #ifndef PROTO_SKIP_slotQueueGetAddress
-s32 slotQueueGetAddress();
+struct SlotQueueSlot *slotQueueGetAddress(u8);
 #endif
 #ifndef PROTO_SKIP_func_806F8004
 void func_806F8004(f32, f32, f32 *, f32 *, f32 *);

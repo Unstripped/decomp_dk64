@@ -17,6 +17,7 @@
 #include "proto/global/F9450.h"
 #include "proto/global/FCCD0.h"
 
+
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
@@ -94,10 +95,8 @@ typedef struct SlotQueueMaskNode {
 
 extern SlotQueueMaskNode *gSlotQueueMaskList;
 
-s32 slotQueueGetAddress(player)
-u8 player;
-{
-    return (player * 0x2D0) + (s32)gSlotQueue;
+SlotQueueSlot *slotQueueGetAddress(u8 player) {
+    return &gSlotQueue[player * 15];
 }
 
 void func_806F8004(f32 pitch, f32 yaw, f32 *outX, f32 *outY, f32 *outZ) {
@@ -169,8 +168,7 @@ extern u16 gTextNumberArg;
 extern s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
 
 /* Initialises the per-player slot queue (15 slots of 0x30 bytes per player): sets each slot's text pointer, size and
- * screen position (func_806F8004). The player index is a word-sized local holding (u8)i (target: lbu a0,155(sp)
- * from i's home, sw a0,120(sp)). */
+ * screen position (func_806F8004). */
 void slotQueueInit(s32 reset) {
     u32 j;
     s32 i;
@@ -180,7 +178,7 @@ void slotQueueInit(s32 reset) {
     SlotQueueSlot *base;
     KongInventory *kongInv;
     s32 flag;
-    s32 player;
+    u8 player;
 
     shownMask = D_80744544;
     world = mapGetHubWorldIndex(gCurrentWorldId, 1);
@@ -198,8 +196,8 @@ void slotQueueInit(s32 reset) {
         do {
             kongInv = (KongInventory *)(playerGetResolvedKongId(i) * sizeof(KongInventory)); // FAKE: byte offset parked in kongInv makes the addu take inv first (addu t9,s8,t8)
             kongInv = (KongInventory *)((u8 *)inv + (s32)kongInv);
-            player = (u8)i;
-            base = (SlotQueueSlot *)slotQueueGetAddress(player);
+            player = i;
+            base = slotQueueGetAddress(player);
             for (j = 0; j < 15; j++) {
                 flag = 0;
                 if (reset != 0) {
@@ -333,7 +331,7 @@ void slotQueueInit(s32 reset) {
 
 
 void slotQueueSetShownValue(u8 slot, u8 player, s32 value) {
-    ((SlotQueueSlot *)slotQueueGetAddress(player & 0xFF))[slot].shown = value;
+    slotQueueGetAddress(player)[slot].shown = value;
 }
 
 
@@ -341,19 +339,18 @@ s32 slotQueueGetValue(u8 index, u8 player) {
     u16 value;
     s32 world;
     s32 kong;
-    u8 *pa;
+    u16 *counter;
     SlotQueueSlot *slot;
 
-    pa = &player; // FAKE: keeps player memory-resident (plain lbu per use)
     value = 0;
-    slot = (SlotQueueSlot *)slotQueueGetAddress(player) + index;
+    slot = slotQueueGetAddress(player) + index;
     switch (slot->displayMode) {
     case 2:
         break;
     case 0:
         if (slot->value != NULL) {
-            if (gCurrentWorldId && gCurrentWorldId) {} // FAKE: dead reference, steers uopt candidate priority
-            value = *slot->value;
+            counter = slot->value;
+            value = *counter;
         } else {
             kong = playerGetResolvedKongId(player);
             world = mapGetHubWorldIndex(gCurrentWorldId, 1);
@@ -551,7 +548,7 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
 
     kong = playerGetResolvedKongId(player);
     kongInv = &gPlayerInventoryTable[player].kong[kong];
-    slots = (SlotQueueSlot *)slotQueueGetAddress((u32)player); // FAKE: unsigned arg to the K&R callee skips the (s32) ucvt shared with the kong/max args, so the post-call lbu a0,87(sp) feeds both the 0x306 index and this call
+    slots = slotQueueGetAddress(player);
     if (((slots[slot].locked == 0) || (delta >= 0)) && (slots[slot].displayMode == 0)) {
         switch (slot) {
         case 0xA:
