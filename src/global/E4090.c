@@ -166,8 +166,762 @@ typedef struct PlayerInputHandlers {
 extern PlayerStruct *gPlayerSlots;
 extern OSContPad *D_807ECDEC;
 extern u16 D_807ECDF0;
-extern u16 gButtonRemapTable[];
-extern PlayerInputHandlers gPlayerInputHandlers[];
+u16 gButtonRemapTable[2] = { 0, 0 };
+f32 D_80750FF4 = 30.0f;
+f32 D_80750FF8 = 10.0f;
+f32 D_80750FFC = 1.7f;
+f32 D_80751000 = 0.5f;
+PlayerInputHandlers gPlayerInputHandlers[107] = {
+    { {
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputUpdateStickSwimming, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerClearMoveTarget, playerInputRecordAPress, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputRecordAPress, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputRecordAPress, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandleCUpMode7, playerInputHandleCLeftEnterFirstPerson, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputRecordAPress, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickFacingYawSlow, playerInputCheckBButton, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickFacingYawSlow, playerInputCheckBButton, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputNoop, playerInputNoop,
+        playerInputHandleCDownRotateMinus120, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandleCUpRotate120, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, aimUpdateFromStick, playerInputHandleAButtonAimRight, playerInputHandleBButtonAimLeft,
+        playerInputHandleZButtonFire, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandleCUpLeaveFirstPerson, playerInputNoop, playerInputNoop, playerInputHandleCDownLeaveFirstPerson,
+        playerInputPostUpdateFirstPerson,
+    } },
+    { {
+        playerInputRequestPause, aimUpdateFromStick, playerInputHandleAButtonAimUp, playerInputHandleBButtonAimDown,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandleCUpLeaveFirstPersonInWater, playerInputNoop, playerInputNoop, playerInputHandleCDownLeaveFirstPersonInWater,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, aimUpdateFromStick, playerInputNoop, playerFireWeaponFirstPerson,
+        playerInputHandleZButtonShoot, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandleCUpLeaveFirstPerson, playerInputNoop, playerInputNoop, playerInputHandleCDownLeaveFirstPerson,
+        playerInputPostUpdateFirstPerson,
+    } },
+    { {
+        playerInputRequestPause, aimUpdateFromStick, playerInputNoop, playerFireWeaponFirstPerson,
+        playerInputHandleZButtonShoot, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandleCUpLeaveFirstPerson, cameraZoomOut, cameraZoomIn, playerInputHandleCDownLeaveFirstPerson,
+        playerInputUpdateStickFirstPersonAim,
+    } },
+    { {
+        playerInputRequestPause, aimUpdateFromStick, playerInputNoop, playerInputHandleBButtonFairyPhoto,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandleCUpLeaveFairyCamera, playerInputNoop, playerInputNoop, playerInputHandleCDownLeaveFairyCamera,
+        playerInputPostUpdateFirstPerson,
+    } },
+    { {
+        playerInputRequestPause, aimUpdateFromStick, playerInputNoop, playerInputHandleBButtonFairyPhotoInWater,
+        playerInputHandleZButtonLeaveFairyCamera, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandleCUpLeaveFairyCamera, playerInputNoop, playerInputNoop, playerInputHandleCDownLeaveFairyCamera,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputNoop, func_806EAC8C, func_806EACBC,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputCheckBButton, playerInputHandleBButtonGun,
+        playerInputHandleAButtonFire, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpCameraZoomIn, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputCheckBButton, playerInputHandleBButtonGun,
+        playerInputHandleAButtonFire, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputNoop, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickFacingYaw, playerInputCheckBButton, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickFacingYaw, playerInputHandleAButtonState0, playerInputRecordBPress,
+        playerInputNoop, playerInputHandleAButtonState0, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickFacingYaw, playerInputHandleAButtonState17, playerInputRecordBPress,
+        playerInputNoop, playerInputHandleAButtonState0, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawTowardAngle, playerInputHandleAButtonJump, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonJump, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawTowardAngle, playerInputHandleAButtonJump, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerTurnByStickX, playerInputHandleCannonBButton, playerFireWeaponIfOwned,
+        playerInputHandleStickAction, playerInputStopSoundOnZRelease, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpCameraZoomIn, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonState61, playerFireWeaponIfOwned,
+        playerInputHandleZButtonCrouch, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpCameraZoomIn, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonState61, playerInputHandlerCheckBAndFireWeapon,
+        playerInputHandleZButtonCrouch, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpCameraZoomIn, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateMoveTargetWithDeadzone2, playerInputHandleAButtonState61, playerFireWeaponIfOwned,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputCheckZButtonResume,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpCameraZoomIn, playerInputQueueGunState5F, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateMoveTargetWithDeadzone2, playerInputNoop, playerFireWeaponIfOwned,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputRecordAPress, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawTowardTarget, playerInputRecordAPress, playerInputHandleBButtonPunch,
+        playerInputCheckEnterLongJump, playerInputClearVelocity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawTowardTarget, playerInputCheckBButtonChargeCallback, playerInputHandleBButtonPunch,
+        playerInputCheckEnterLongJump, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawTowardTarget, playerInputRecordAPress, playerInputHandleBButtonGun,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawTowardTarget, playerInputNoop, playerInputHandleBButtonGun,
+        playerInputCheckEnterLongJump, playerInputHandlerResumeDecel, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawTowardTarget, playerInputRecordAPress, playerFireWeaponIfOwned,
+        playerInputNoop, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputRecordAPress, playerFireWeaponIfOwned,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputNoop, playerInputRecordAPress, playerInputHandleBButtonGun,
+        playerInputCheckEnterLongJump, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputNoop, playerInputCheckBButtonChargeCallback, playerInputHandleBButtonGun,
+        playerInputCheckEnterLongJump, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputRecordAPress, playerInputHandleBButtonPunch,
+        playerInputCheckEnterLongJump, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputNoop, playerInputCheckBButtonChargeCallback, playerInputHandleBButtonPunch,
+        playerInputCheckEnterLongJump, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawTowardTarget, playerInputRecordAPress, playerInputHandleBButtonGun,
+        playerInputCheckEnterLongJump, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputRecordAPress, playerInputHandleBButtonGun,
+        playerInputCheckEnterLongJump, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawTowardAngle, playerInputRecordAPress, playerInputHandleBButtonGun,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputNoop, playerInputRecordAPress, playerInputHandleBButtonGun,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputRecordAPress, playerInputHandleBButtonGun,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonSub17, playerInputHandleBButtonGun,
+        playerInputHandleAButtonFire, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputCheckBButton, playerInputHandleBButtonGun,
+        playerInputHandleAButtonFire, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputRecordAPress, playerFireWeaponIfOwned,
+        playerInputNoop, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonSub17, playerInputHandleBButtonGun,
+        playerInputNoop, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonSub61, playerFireWeaponIfOwned,
+        playerInputHandleZButtonCrouch, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputCheckBButton, playerInputHandleBButtonGun,
+        playerInputHandleAButtonFire, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawTowardAngle, playerInputNoop, playerInputHandleBButtonGun,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputHandlerStartScript15,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputUpdateCannonAim, playerInputHandleZButtonState4B,
+        playerInputHandleZButtonInteract, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpCameraZoomIn, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputUpdateCannonAim, playerInputHandleZButtonState4B,
+        playerInputHandleZButtonInteract, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawTowardTarget, playerInputRecordAPress, playerInputThrowHeldActor,
+        playerInputNoop, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawTowardAngle, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateFacingYawNormal, playerInputCheckBButton, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateFacingYawOffset, playerInputCheckBButton, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateMoveTargetClamped, playerInputHandleAButtonGravity, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateMoveTargetClamped, playerInputRecordAPress, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputCheckBButton, playerInputHandleBButtonGun,
+        playerInputHandlerNoop1, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputCheckBButton, playerInputHandleBButtonGun,
+        playerInputHandlerNoop1, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputCheckBButton, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputCheckBButton, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputRecordAPress, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandleCUpCameraZoomIn, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateMoveTargetWithDeadzone2, playerInputHandleAButtonKong, playerInputHandleBButtonSpecial,
+        playerInputCheckInstrumentPlayback, playerInputNoop, playerInputNoop, playerInputQueueCrouchCallback,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputQueueGunAimState60, playerInputHandlerCheckZAndTriggerState2C, playerInputHandleCDownFairyCamera,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateMoveTargetWithDeadzone, playerInputHandleAButtonKong, playerInputHandleBButtonSpecial,
+        playerInputCheckInstrumentPlayback, playerInputNoop, playerInputNoop, playerInputQueueCrouchCallbackDirect,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputQueueGunAimState60, playerInputHandlerCheckZAndTriggerState2C, playerInputHandleCDownFairyCamera,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonState41, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputQueueCrouchCallback,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputNoop,
+        playerInputHandleCUpCameraZoomIn, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerUpdateMoveTargetFromStick, playerInputRecordAPress, playerInputNoop,
+        playerInputCheckEnterLongJump, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawTowardTarget, playerInputRecordAPress, playerInputNoop,
+        playerInputCheckEnterLongJump, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerStepYawAndProjectSpeed, playerInputRecordAPress, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        (void (*)(void))playerInputPostUpdate,
+    } },
+    { {
+        playerInputRequestPause, playerInputCalculateStickForwardSpeed, playerInputCheckBButton, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputNoop, playerInputNoop, playerInputInitDashParams,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickTurnYaw, playerInputHandleAButtonJumpQueue, func_806E78F8,
+        playerInputHandleCDownCameraSnap, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpEnterFirstPersonInWater, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickTurnYaw, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpEnterFirstPersonInWater, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputCalculateStickTurnRate, playerInputCheckAButtonScriptTrigger, playerInputHandleBButtonComboPunch,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputCalculateTurnStep, playerInputCheckAButtonScriptTrigger, playerInputHandleBButtonComboPunch,
+        playerInputHandleCDownFairyCheck, playerInputNoop, playerInputNoop, playerInputSetCharacterDecelRate,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpEnterFirstPersonInWater, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputCalculateTurnStep, playerInputNoop, playerInputHandleBButtonDashAttack,
+        playerInputHandleCDownFairyCheck, playerInputNoop, playerInputNoop, playerInputSetCharacterDecelRate,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpEnterFirstPersonInWater, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputCalculateTurnStep, playerInputHandleBButtonRollingAttack, playerInputHandleBButtonDashAttack,
+        playerInputHandleCDownFairyCheck, playerInputNoop, playerInputNoop, playerInputSetCharacterDecelRate,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpEnterFirstPersonInWater, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputCalculateTurnStep, playerInputHandleBButtonSlideAttack, playerInputHandleBButtonDashAttack,
+        playerInputHandleCDownFairyCheck, playerInputSetSubstate6, playerInputNoop, playerInputSetCharacterDecelRate,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpEnterFirstPersonInWater, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputStepTurnFacingAngle, playerInputHandleBButtonDiveAttack, playerInputHandleBButtonAttack,
+        playerInputHandleCDownFairyCheck, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpEnterFirstPersonInWater, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputStepTurnFacingAngle, playerInputHandleAButtonSuperJump, func_806E93F8,
+        playerInputHandleCDownFairyCheck, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpEnterFirstPersonInWater, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputCalculateTurnStep, playerInputHandleAButtonSuperJump, func_806E93F8,
+        playerInputHandleCDownFairyCheck, playerInputNoop, playerInputNoop, playerInputResetDecelRate,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpEnterFirstPersonInWater, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputCalculateStickTurnRate, playerInputHandleAButtonSuperJump2, func_806E93F8,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputHandlerNoop3, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerPathMoveByStickY, playerInputHandleAButtonSub58, playerInputNoop,
+        playerInputInitCannonLaunch, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerFlipHeading180, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerPathMoveByStickYAndTurn, playerInputHandleAButtonSub5A, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputNoop,
+        playerInputHandleCUpCameraZoomIn, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerSetMoveSpeedFromStickX, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputRegisterAnimatedEffect, playerInputSetClimbTimer20, playerInputSetClimbTimer20,
+        playerInputSetClimbTimer100, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputSetClimbTimer50,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateLadderState, playerInputHandleAButtonJumpOff, playerInputNoop,
+        func_806E8E78, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonFixedLook, playerInputNoop, playerInputHandleRButtonFixedLook,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateLadderState, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, func_806E8F04,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateLadderState, playerInputRecordAPress, playerInputNoop,
+        playerInputNoop, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputStepLadderClimb, func_806E9070, playerInputNoop,
+        func_806E8E78, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonFixedLook, playerInputNoop, playerInputHandleRButtonFixedLook,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputCheckLadderTopOrBottom, func_806E9070, playerInputNoop,
+        func_806E8E78, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonFixedLook, playerInputNoop, playerInputHandleRButtonFixedLook,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputStepLane, func_806E8E00, playerInputNoop,
+        func_806E8D54, playerInputNoop, playerInputNoop, func_806E8DB4,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputNoop, func_806EAF6C, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputPlayHeldActorClimbSfx, func_806E8B28, playerInputNoop,
+        playerInputScaleHeldActorVineClimb, playerInputNoop, playerInputNoop, func_806E8AF0,
+        playerInputNoop, func_806E8BA4, playerInputNoop, func_806E8BFC,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateHeldActorVineClimb, playerInputNoop, playerInputSetHeldActorVineSpeed,
+        playerInputScaleHeldActorVineClimb, playerInputNoop, playerInputClearHeldActorVineSpeed, func_806E8AF0,
+        playerInputNoop, func_806E8BA4, playerInputNoop, func_806E8BFC,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputWiggleOffStatusEffect, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickMoveTarget, playerInputHandleAButtonGroundJump, func_806EAE04,
+        playerInputNoop, playerInputSetBaseGravity, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickTurnYawFast, func_806E9468, func_806E9388,
+        func_806E9468, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputHandleRButtonCameraLock, playerInputNoop, playerInputHandleRButtonReleaseCameraLock,
+        playerInputHandleCUpEnterFirstPersonInWater, playerInputCamRotateLeft, playerInputCamRotateRight, playerInputCycleCameraZoom,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickFacingYawSlow, playerInputRecordAPress, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputCalculateTurnStep, playerInputRecordAPress, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+    { {
+        playerInputRequestPause, playerInputUpdateStickFacingYawSlow, playerInputRecordAPress, playerInputRecordBPress,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
+        playerInputNoop,
+    } },
+};
 
 s32 playerInputUpdate(s32 handlerSet) {
     f32 a;
@@ -1406,22 +2160,17 @@ void playerInputHandleAButtonSub5A(void) {
 
 void playerInputUpdateCannonAim(void) {
     u32 sel;
-    Actor *p;
 
-    do { // FAKE: do/while(0) block around the dead test steers uopt candidate order
-        if (!gCurrentActor && !gCurrentActor) {} // FAKE: dead test, steers uopt candidate priority
-    } while (0);
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
         gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
     if ((gScheduler.unk280 - gActivePlayerState->jumpTimer) < 0xF) {
-        p = gCurrentActor; // FAKE: one-use pointer web (cand 119, adjsave 2.0) takes $v1, keeping &gActivePlayerState in $a2 and &gCurrentActor in $a3
-        p->state = 0x4C;
+        if (gCurrentActor) {} // FAKE: dead read of gCurrentActor at the jump-block head makes its load a coloured uopt web ($v1 for the state store, lw v1,0(a3) at 0x43a4) and leaves sel in $v0; replaces the one-use p and sel ^= 0
+        gCurrentActor->state = 0x4C;
         gCurrentActor->unk155 = 0;
         gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
         gActivePlayerState->unk50 = 0;
         sel = gActivePlayerState->heldActor->actorType;
-        sel ^= 0; // FAKE: no-op xor keeps sel a separate web (switch register)
         switch (sel) {
             case 0x3D:
             case 0x3F:
@@ -1670,7 +2419,6 @@ extern s16 D_8075380C[];
 extern s16 D_8075381C[];
 extern s16 D_8075382C[];
 extern s16 D_8075385C[];
-extern f32 D_80750FF4;
 
 void playerInputHandleBButtonGun(void) {
     PadInputState *pad;
@@ -2861,9 +3609,6 @@ typedef struct LaneActor {
 
 
 
-extern f32 D_80750FF8;
-extern f32 D_80750FFC;
-extern f32 D_80751000;
 
 void playerInputRegisterAnimatedEffect(void) {
     LaneActorState *st;
