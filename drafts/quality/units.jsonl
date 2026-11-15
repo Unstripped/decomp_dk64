@@ -605,3 +605,4 @@
 {"type": "unit", "t": "2026-11-15T06:07:50Z", "unit": "2026-11-14: cleanup HackplayerUpdateHorizontalVelocity", "commit": "baee40ac0cbd766681d5fa9b411d7e93bdb6ef39"}
 {"type": "unit", "t": "2026-11-15T06:15:11Z", "unit": "2026-11-14: cleanup HackarcadeUpdateDonkeyKongStage2", "commit": "4ce4d8d89b6c37e0c79f16893c5fec2c198e2e12"}
 {"type": "unit", "t": "2026-11-15T06:16:15Z", "unit": "2026-11-14: cleanup HackplayerStateHoldPickup", "commit": "473e333a8f750ca44a185da01acca49987aea60f"}
+{"type": "unit", "t": "2026-11-15T06:18:02Z", "unit": "2026-11-14: cleanup HacktexAnimUpdateNodes", "commit": "f03d69545e1902b4d63daaa92ae3405709b98a6a"}
