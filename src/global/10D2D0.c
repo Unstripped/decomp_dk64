@@ -31,9 +31,10 @@ Gfx *healthHudDraw(Gfx *glist, PlayerInventory *stats, KongInventory *kong, Play
     s8 pips;
     u32 centerX;
     s16 phase;
+    s16 baseY;
     s32 raw;
     f32 fade;
-    f32 animParams[22]; // FAKE: only [0] [3] [4] [21] are used; the array home keeps them memory-resident (lwc1 0xA4(sp) reload of [4] each iteration)
+    f32 scaleX;
     f32 scaleY;
     f32 bobX;
     f32 waveY;
@@ -41,7 +42,7 @@ Gfx *healthHudDraw(Gfx *glist, PlayerInventory *stats, KongInventory *kong, Play
     s16 y;
 
     pips = stats->health;
-    fade = (f32)((f64)(u32)hudState->unk2E0 / 65535.0);
+    fade = hudState->unk2E0 / 65535.0;
     centerX = ((stats->melons * 0x46) - 0x46) & 0xFF;
     if ((gGlobalPauseFlags & 3) || (menuIsTransitionTypeAOrE() != 0)) {
         return glist;
@@ -50,33 +51,29 @@ Gfx *healthHudDraw(Gfx *glist, PlayerInventory *stats, KongInventory *kong, Play
     gDPSetCombineMode(glist++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
     gSPMatrix(glist++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    i = 0;
-    if (stats->melons > 0) {
-        animParams[4] = fade * 511.0f;
-        animParams[3] = (f32)centerX;
-        animParams[0] = (f32)(s16)(s32)((f64)fade * 200.0);
-        do {
-            raw = (i << 10) + (gFrameCounter * 0xC8);
-            phase = raw;
-            animParams[21] = (f32)(((f64)mathSinF(phase) * 0.3) + 3.0);
-            scaleY = (f32)(((f64)mathSinF((s16)(raw + 0x800)) * 0.3) + 3.0);
-            bobX = (f32)((f64)mathSinF((s16)((raw >> 1) + 0x200)) * 10.0);
-            waveY = (f32)(((f64)mathSinF(phase) * 0.5 + 0.5) * 30.0);
-            gDPPipeSync(glist++);
-            gDPSetPrimColor(glist++, 0, 0, 255, 255, 255, (u32)((animParams[4] > 80.0f) ? 80 : animParams[4]));
-            glist = renderRotatedSprite(glist, 0x5D, 0, 2, 0x30, 0x2A, x = (s32)(((f32)((i * 0x8C) + 0x280) + bobX) - animParams[3]), y = (s32)(animParams[0] + waveY), animParams[21], -scaleY, 0, 0.0f); // FAKE: x/y assigned inside the argument list (separate statements break the match)
-            gDPPipeSync(glist++);
-            gDPSetPrimColor(glist++, 0, 0, 255, 255, 255, (u32)((animParams[4] > 255.0f) ? 255.0f : animParams[4]));
-            if (pips > 0) {
-                glist = renderRotatedSprite(glist, (pips - 1 < 3 ? pips - 1 : 3) + 0x5A, 0, 2, 0x30, 0x2A, x, y, animParams[21], -scaleY, 0, 0.0f);
-            }
-            if (pips - 4 < 0) {
-                pips = 0;
-            } else {
-                pips = pips - 4;
-            }
-            i += 1;
-        } while (i < stats->melons);
+    baseY = fade * 200.0;
+    for (i = 0; i < stats->melons; i++) {
+        raw = (i << 10) + (gFrameCounter * 0xC8);
+        phase = raw;
+        scaleX = mathSinF(phase) * 0.3 + 3.0;
+        scaleY = mathSinF(raw + 0x800) * 0.3 + 3.0;
+        bobX = mathSinF((raw >> 1) + 0x200) * 10.0;
+        waveY = (mathSinF(phase) * 0.5 + 0.5) * 30.0;
+        gDPPipeSync(glist++);
+        gDPSetPrimColor(glist++, 0, 0, 255, 255, 255, (u32)((fade * 511.0f > 80.0f) ? 80.0f : fade * 511.0f));
+        x = (i * 0x8C) + 0x280 + bobX - centerX;
+        y = baseY + waveY;
+        glist = renderRotatedSprite(glist, 0x5D, 0, 2, 0x30, 0x2A, x, y, scaleX, -scaleY, 0, 0.0f);
+        gDPPipeSync(glist++);
+        gDPSetPrimColor(glist++, 0, 0, 255, 255, 255, (u32)((fade * 511.0f > 255.0f) ? 255.0f : fade * 511.0f));
+        if (pips > 0) {
+            glist = renderRotatedSprite(glist, (pips - 1 < 3 ? pips - 1 : 3) + 0x5A, 0, 2, 0x30, 0x2A, x, y, scaleX, -scaleY, 0, 0.0f);
+        }
+        if (pips - 4 < 0) {
+            pips = 0;
+        } else {
+            pips = pips - 4;
+        }
     }
     gDPPipeSync(glist++);
     return glist;
