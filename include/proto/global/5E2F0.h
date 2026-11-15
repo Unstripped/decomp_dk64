@@ -49,7 +49,7 @@ void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 void lightApplyToActors(void);
 #endif
 #ifndef PROTO_SKIP_lightCollectVolumesInBounds
-s16 lightCollectVolumesInBounds(f32, f32, f32, s16, s16, s16, s16, s16, s16, s32, s8 *);
+s16 lightCollectVolumesInBounds(f32, f32, f32, s16, s16, s16, s16, s16, s16, s32, u8 *);
 #endif
 #ifndef PROTO_SKIP_lightAddDedupEntry
 void lightAddDedupEntry(s16);

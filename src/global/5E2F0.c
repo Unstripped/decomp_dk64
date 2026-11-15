@@ -474,7 +474,7 @@ void lightApplyToActors(void) {
 
 extern LightTrigger gActiveLights[];
 extern s16 gLightCandidateCount;
-s16 lightCollectVolumesInBounds(f32 x, f32 y, f32 z, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ, s32 targetId, s8 *outFlag) {
+s16 lightCollectVolumesInBounds(f32 x, f32 y, f32 z, s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 maxZ, s32 targetId, u8 *outFlag) {
     f32 pad[3];
     f32 diff[3];
     f32 dist;
@@ -497,7 +497,7 @@ s16 lightCollectVolumesInBounds(f32 x, f32 y, f32 z, s16 minX, s16 minY, s16 min
                 gLightCandidates[gLightCandidateCount].g = gLightVolumes[i].g / 255.0;
                 gLightCandidates[gLightCandidateCount].b = gLightVolumes[i].b / 255.0;
                 gLightCandidates[gLightCandidateCount].type = gLightVolumes[i].type;
-                switch ((u32)gLightVolumes[i].type) {  // FAKE: u32 switch operand on the u8 type keeps the original jump-table compare
+                switch (gLightVolumes[i].type) {
                 case 1:
                     diff[0] = gLightVolumes[i].targetX - gLightVolumes[i].x;
                     diff[1] = gLightVolumes[i].targetY - gLightVolumes[i].y;
