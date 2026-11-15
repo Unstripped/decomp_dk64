@@ -298,46 +298,20 @@ Gfx *textLoadFontSheetGfx(Gfx *dl, u8 font, s16 line) {
 extern Mtx D_20000C0;
 extern Mtx D_2000180;
 
-#define TEXT_GFX_CMD(g, a, b) \
-    { (g) = dl++; (g)->words.w0 = (a); (g)->words.w1 = (b); } // FAKE: function-scope Gfx temps (g8 shared by three commands) instead of gbi's block-scoped _g steer regalloc
-#define TEXT_GFX_QUAD(g, v0, v1, v2, v3) \
-    TEXT_GFX_CMD(g, (_SHIFTL(G_QUAD, 24, 8) | __gsSP1Quadrangle_w1f(v0, v1, v2, v3, 0)), __gsSP1Quadrangle_w2f(v0, v1, v2, v3, 0))
-#define TEXT_GFX_VTX(g, v, n, v0) \
-    TEXT_GFX_CMD(g, _SHIFTL(G_VTX, 24, 8) | _SHIFTL((n), 12, 8) | _SHIFTL((v0) + (n), 1, 7), (unsigned int)(v))
-
 Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, const u8 *str, u8 flags) {
     u8 line;
     u8 idx;
     u8 ch;
     s16 startX;
     const u8 *strStart;
-    Gfx *g1;
-    Gfx *g12;
-    Gfx *g6;
+    s32 i;
+    Vtx *vp;
+    s32 len;
     Vtx *batch;
     s8 leftPad;
     u8 center;
     u8 started;
-    Gfx *g10;
-    s32 i;
-    Vtx *vp;
-    Gfx *g8;
-    s32 len;
-    s32 tmp;
-    Gfx *g7;
-    Gfx *g3;
-    Gfx *g2;
-    s8 yoff;
-    s16 w4;
-    s16 h4;
-    s16 gx;
-    s16 w;
-    s16 h;
-    TextGlyph *glyph;
-    s32 pad2;
     s32 count;
-    Gfx *g11;
-    s32 pad3;
 
     idx = 0;
     startX = x;
@@ -360,39 +334,44 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, const u8 *str, u8 flags)
         font ^= 0x80;
         center = 1;
     }
-    TEXT_GFX_CMD(g8, 0xE3001201, 0x2000);
+    gDPSetTextureFilter(dl++, G_TF_BILERP);
     if (!(flags & 4)) {
-        TEXT_GFX_CMD(g8, 0xDA380007, (u32)&D_20000C0);
+        gSPMatrix(dl++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     }
     if (flags & 0x12) {
-        TEXT_GFX_CMD(g3, 0xE7000000, 0);
-        TEXT_GFX_CMD(g12, 0xFC121824, 0xFF33FFFF);
+        gDPPipeSync(dl++);
+        gDPSetCombineMode(dl++, G_CC_MODULATERGBA, G_CC_MODULATERGBA);
     }
     if (flags & 0x20) {
-        TEXT_GFX_CMD(g2, 0xE7000000, 0);
-        TEXT_GFX_CMD(g6, 0xFC121803, 0xFF0FFFFF);
+        gDPPipeSync(dl++);
+        gDPSetCombineMode(dl++, G_CC_MODULATEIA, G_CC_MODULATEIA_PRIM2);
     }
     if (flags & 1) {
-        TEXT_GFX_CMD(g3, 0xDA380003, (u32)&D_2000180);
+        gSPMatrix(dl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     }
     dl = gfxInit2DDisplayList(dl);
     for (line = 1; line < gTextFonts[font].lineCount + 1; line++) {
-        TEXT_GFX_CMD(g8, 0xE7000000, 0);
+        gDPPipeSync(dl++);
         started = 0;
         ch = *str++;
         if (ch) {
             do {
                 if (ch != 0x20) {
+                    s8 yoff;
+                    s16 w4;
+                    s16 h4;
+                    s16 gx;
+                    s16 w;
+                    s16 h;
+
                     yoff = textMapCharToGlyph(font, &ch) * 4;
-                    glyph = &gTextGlyphTables[font][ch];
-                    w4 = glyph->width * 4;
+                    w4 = gTextGlyphTables[font][ch].width * 4;
                     h4 = gTextFonts[font].height * 4;
-                    gx = glyph->texX;
-                    w = glyph->width;
+                    gx = gTextGlyphTables[font][ch].texX;
+                    w = gTextGlyphTables[font][ch].width;
                     h = gTextFonts[font].height;
                     if (center) {
-                        tmp = (gTextFonts[font].fixedWidth * 4 - w4) / 2;
-                        leftPad = (tmp < 0) ? 0 : tmp;
+                        leftPad = ((gTextFonts[font].fixedWidth * 4 - w4) / 2 < 0) ? 0 : (gTextFonts[font].fixedWidth * 4 - w4) / 2;
                         x += leftPad;
                     }
                     if (ch >= gTextFontLineStarts[font][line - 1] && ch < gTextFontLineStarts[font][line]) {
@@ -428,20 +407,19 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, const u8 *str, u8 flags)
                         }
                         count += 4;
                         if (count >= 0x20) {
-                            TEXT_GFX_VTX(g7, osVirtualToPhysical(batch), 0x20, 0);
+                            gSPVertex(dl++, osVirtualToPhysical(batch), 0x20, 0);
                             i = count /= 4; // FAKE: dead store to count (reset to 0 below) keeps the quad counter's divide in the target registers
                             while (i-- > 0) {
-                                TEXT_GFX_QUAD(g10, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
+                                gSP1Quadrangle(dl++, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3, 0);
                             }
                             count = 0;
                             batch = vp;
                         }
                     }
                     if (center) {
-                        tmp = gTextFonts[font].fixedWidth * 4;
-                        x += (w4 < tmp) ? w4 : tmp;
-                        if (w4 < tmp) {
-                            x = x + tmp - leftPad - w4;
+                        x += (w4 < gTextFonts[font].fixedWidth * 4) ? w4 : gTextFonts[font].fixedWidth * 4;
+                        if (w4 < gTextFonts[font].fixedWidth * 4) {
+                            x += gTextFonts[font].fixedWidth * 4 - leftPad - w4;
                         }
                     } else {
                         x += (gTextGlyphTables[font][ch].width + gTextFonts[font].spacing) * 4;
@@ -458,17 +436,17 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, const u8 *str, u8 flags)
         }
         x = startX;
         if (count != 0) {
-            TEXT_GFX_VTX(g11, osVirtualToPhysical(batch), count, 0);
+            gSPVertex(dl++, osVirtualToPhysical(batch), count, 0);
             batch = vp;
             i = count /= 4; // FAKE: dead store to count (reset to 0 below) keeps the quad counter's divide in the target registers
             while (i-- > 0) {
-                TEXT_GFX_QUAD(g8, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
+                gSP1Quadrangle(dl++, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3, 0);
             }
             count = 0;
         }
         str = strStart;
     }
-    TEXT_GFX_CMD(g1, 0xE7000000, 0);
+    gDPPipeSync(dl++);
     return dl;
 }
 
