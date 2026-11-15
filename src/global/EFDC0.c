@@ -69,7 +69,101 @@ void playerStateSetCallbackParameters(s32 unused, s32 param0, s32 param1, s32 pa
     gPlayerStateCallbackParams.param2 = param2;
 }
 
-extern void (*gPlayerStateCallbacks[])(void);
+void (*gPlayerStateCallbacks[])(void) = {
+    playerStateEnterDamageTake,
+    playerStateEnterKnockbackRecovery,
+    playerStateEnterDamageKnockback,
+    playerStateEnterAirDamageReaction,
+    playerStateEnterGroundImpact,
+    playerStateEnterKnockbackState2,
+    playerStateEnterKnockbackState4,
+    playerStateEnterKnockbackState3,
+    playerStateEnterKnockbackState5,
+    playerStateInitApproachVelocity,
+    playerStateEnterHoldThrow,
+    playerStateEnterState59,
+    playerStateEnterState57,
+    playerStateEnterState17,
+    playerStateTakeHitAndDamage,
+    playerStateInitLaunchParams,
+    playerStateEnterState10,
+    playerStateEnterState11,
+    playerStateEnterState12,
+    playerStateEnterState29,
+    playerStateInitState5F,
+    playerStateInitState60,
+    playerStateEnterState15ThrowHeldActor,
+    playerStateSetLaunchVelocity,
+    playerStateEnterState4F,
+    func_806F014C,
+    playerStateThrowHeldActorAndResume,
+    playerStateThrowHeldActorWithScript,
+    playerStateSwimTreadWithScript,
+    func_806EE6B0,
+    playerResumeLocomotionAndThrow,
+    playerStateInitKongAction78,
+    playerStateEnterDoubleJumpWithSfx,
+    func_806F0878,
+    func_806F0930,
+    playerStateDropAndResume,
+    playerStateEnterState3D,
+    playerStateInitTumble,
+    playerStateEnterAction24,
+    playerStateEnterKnockbackState,
+    playerStateEnterBarrelBlast,
+    playerStateStopChannelAndClearCarried,
+    func_806F0344,
+    playerStateTakeDamageAndDrop,
+    playerStateAttachHeldActorToPlayer,
+    playerStateEnterSlideRecover,
+    playerStateCutsceneDamageCheck,
+    playerTakeQueuedDamage,
+    playerStateDamageCheck,
+    playerStateDamageCheck2,
+    playerStateDamageCheck3,
+    playerStateDamageCheck4,
+    playerStateDamageTargetCheck,
+    playerTakeFallDamage,
+    playerStateDamageSelector,
+    playerStateDamageCheck5,
+    playerStateStopSfxAndClearCarried,
+    playerStateEnterFallAndSetGravity,
+    playerStateInitAnimalTransformation,
+    playerRevertToSavedKong,
+    playerStateNoop1,
+    playerStateCheckLandingAir,
+    playerStateEnterState3C,
+    playerStateEnterDamageReaction,
+    playerStateEnterDamageReaction2,
+    playerStateDropHeldActor,
+    playerStateDropHeldActorAndScript,
+    playerStateDropHeldActorSetKong,
+    playerStateDropHeldActorSetKong2,
+    playerStateEnterSquish,
+    playerStateSetFlag8,
+    playerStateEnterFlattened,
+    playerStateEnterKnockbackState6,
+    playerStateEnterElectrocute,
+    playerStateEnterStunState1,
+    playerStateInitKongAction69,
+    playerStateEnterSlideSlope,
+    playerStateEnterFrozen,
+    playerStateClearCarriedAndCallF00BC,
+    playerStateAdjustUpwardVelocity,
+    playerStateAdjustUpwardVelocity200,
+    playerStateAdjustUpwardVelocity300,
+    playerStateSpawnParticles,
+    playerStateSetFlagsByActorType,
+    playerStateInitState23,
+    playerStateClearCarriedSetFlags,
+    func_806F0184,
+    playerStateEnterClimbTree,
+    func_806F0624,
+    func_806F06A4,
+    func_806F0700,
+    func_806F007C,
+    playerStateNoop2,
+};
 
 void playerStateDispatchQueuedCallback(void) {
     if (gPlayerSlots[gCurrentPlayerIndex].queuedState >= 0) {
@@ -1783,14 +1877,6 @@ void playerStateSetFlagsByActorType(void) {
     default:
         break;
     }
-    if (gActivePlayerActor && gActivePlayerActor && gActivePlayerActor) {}  // FAKE: pads as1 XBB source window
-    if (gActivePlayerActor && gActivePlayerActor && gActivePlayerActor) {}  // FAKE: pads as1 XBB source window
-    if (gActivePlayerActor && gActivePlayerActor && gActivePlayerActor) {}  // FAKE: pads as1 XBB source window
-    if (gActivePlayerActor && gActivePlayerActor && gActivePlayerActor) {}  // FAKE: pads as1 XBB source window
-    if (gActivePlayerActor && gActivePlayerActor && gActivePlayerActor) {}  // FAKE: pads as1 XBB source window
-    if (gActivePlayerActor && gActivePlayerActor && gActivePlayerActor) {}  // FAKE: pads as1 XBB source window
-    if (gActivePlayerActor && gActivePlayerActor && gActivePlayerActor) {}  // FAKE: pads as1 XBB source window
-    if (gActivePlayerActor && gActivePlayerActor && gActivePlayerActor) {}  // FAKE: pads as1 XBB source window
     gActivePlayerActor->yaw = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ,
                                                   gActivePlayerActor->x, gActivePlayerActor->z);
     if (gGlobalCutsceneFlags & 2) {
