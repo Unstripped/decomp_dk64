@@ -16,10 +16,20 @@ global:806130A4:dead-if:0d68f0 `if (command && command) {}` at loop end: keeps t
 - Full 31-subset ablation of the five remaining steers on the new base: op0 15, dif600 5, w0a 25, w0b 17, cmd 52; no pair or triple cheaper than its parts.
 - Natural families scored with variants.py try (all steers removed): s32/u32 clear and mode locals, shared vs split op, rmw vs one-expression arms, while vs guarded do-while (72 bodies, best 53/62); single reused op for shift+clear+mask (72 bodies, best 53); outer/inner `switch` on the opcode and both masks (126 bodies, best 53); `_SHIFTR` shapes (andi 0xff stays, rejected); mask local in the clear arm (5); w1 load order (15/20); `0xD9 == command` (4); op copy/rmw/store-through-w0 forms for the w0 kills (26).
 - Permuter perm_all5 from the five-steer-free body: 900 s, baseline 971, best 165 (output-165-1: a new_var copy temp holding both the loaded word and w1, a copy-temp steer); no zero.
+2026-11-15 HackgfxSwapGeometryModeCullBits2 opus:high:
+- Level-5/6 traces: every candidate is coloured unconstrained, in candidate-bit order (lowest free register). Target order: op(bit 0)->$v0, a0, a1, w0(10)->$v1, command(14)->$a2, ushr(16)->$v0, mask w0&0x600(18)->$a3, w1(19)->$a3, w1 load(21)->$t0, w1 mask(49)->$v0. Natural body (59): w0(7)->$v0, w1->$v1, load->$a2, w0 mask->$v1, w1 mask->$v0; command, ushr and op are no candidates.
+- Re-ablation on the current base: op0 15, dif 5, kill pair 26, cmd 52, all 59 (matches dossier).
+- cmd-test substitutes: combined `command == 0xD9 && w1 == 0` / `else if (command == 0xD9)` (42; while form 42), early `continue` (52). Command forwarded at input, ushr computed at the compare, mask loses its $v0 conflict.
+- op0 substitutes: Gfx *gfx copy of cmdStart (25 without op0, 19 with), K&R definition (no change: 0/15/5/26/52/59).
+- kill-free clear arms: w0 = op & ~0x200 (33), op = ~op | 0xD9000000; store op (26), w0 = ~op | 0xD9000000 write-back (47), w0 rmw (41), op as clear-mask local (41), u32 op (36). Set arm through w1 rmw + two stores (59 without kill, 140 with).
+- Reconstruct: per-arm direct word reads (61), early-continue for/do (59, not unrolled), gfx pointer-walk for (55), per-arm mask local (143).
+- variants.py scan on the copy: zeros only for neutral respellings (operand swaps, command s32, decl swaps).
 ## Untried ideas
+A natural reason for op to be live/defined before the loop (an original that used op before the loop, e.g. a flag) - no evidence in the target (no store at 0x214-0x254).
 A clear-arm mask candidate that starts before the D9 test without a dead test (the target needs `w0 & 0x600` live across the shift web).
 A third variable that holds $a2 the way the dead command test does (target leaves $a2 unused while $a3/$t0 are taken).
 ## Evidence
+Colouring is bit-order (all "assigned (unconstrained)"): the register a candidate gets depends only on which earlier-bit candidates it interferes with. op = 0 is the only construct that can precede the cmdStart != cmdEnd test; command must stay a stored variable to the loop end for the ushr web to overlap the mask web (mask forbidden $v0 -> $a3).
 Target (expected/build/src/global/17B90.o, 0x214-0x300): constants t2=0xFFFFFF, s3=-1025, s2=-513, s1=-1025, s0=1024, t5=0xD9000000, t4=-513, t3=512, t1=217; loop vars v1=w0/clear, t0=field w1, a3=w1 copy + clear mask, v0=shift/op/set mask, $a2 unused.
 `bne v0,t1` at 0x260 (shift first), every mask compare constant-first: bne t3,a3 (0x27c), bne s0,a3 (0x298), bne t3,v0 (0x2b4), bne s0,v0 (0x2cc).
 Set arm stores twice (sw t7,4(a0) then sw t9,4(a0) at 0x2bc/0x2c8): the `|=` then `&=` pair is behaviour.
