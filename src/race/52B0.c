@@ -19,6 +19,7 @@
 #include "proto/global/7130.h"
 #include "proto/global/7CA80.h"
 #include "proto/global/90D80.h"
+#include "proto/global/936B0.h"
 #include "proto/global/ACDC0.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"
@@ -33,7 +34,7 @@ extern s32 D_8002FC5C[];
 // the shared 936B0 racer helpers step at 0x178.
 typedef struct RaceCompetitorActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ void *motion;
+    /* 0x178 */ struct VehicleMotion *motion;
 } RaceCompetitorActor;
 
 // Opponent racers (raceOpponentRacerBehaviorUpdate, spawnNodeSpawnById(1, ...) in competitor races): the
@@ -41,7 +42,7 @@ typedef struct RaceCompetitorActor {
 typedef struct RaceOpponentActor {
     /* 0x000 */ Actor base;
     /* 0x178 */ RaceParticipant *participant;
-    /* 0x17C */ void *motion;
+    /* 0x17C */ struct VehicleMotion *motion;
     /* 0x180 */ RaceTarget *target;
 } RaceOpponentActor;
 
@@ -49,7 +50,6 @@ extern u8 gPlayerCount;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern PlayerStruct *gPlayerSlots;
-void actorInitFromSpawnPoint(void *, void *);
 
 void raceRacerRenderCallback(Gfx *gfx, Actor *actor) {
     raceRenderHud(gfx, actor, actor->customState);
@@ -104,26 +104,21 @@ void raceInitCompetitorsAndManager(void) {
     raceInitCompetitorRaceManager();
 }
 
-void actorInitAnimations(Actor *, Actor *);
-void vehicleUpdateEngineSound(void *, void *);
-void vehicleUpdateMotion(void *, void *, s32, s32);
-void actorInterpolateAngles(u8, void *, void *);
-
 void raceCompetitorMotionUpdate(void) {
     s32 status;
-    void *motion;
+    struct VehicleMotion *motion;
     RaceParticipant *participant;
     PlayerState *playerState;
     RaceParticipant *managerData;
     s32 i;
     Actor *manager;
     u8 pad;
-    u8 subFlag;
+    u8 onGround;
 
     participant = gCurrentActor->customState;
     motion = ((RaceCompetitorActor *)gCurrentActor)->motion;
     playerState = gPlayerSlots[participant->playerIdx].actor->customState;
-    subFlag = gCurrentActor->contactFlags & 1;
+    onGround = gCurrentActor->contactFlags & 1;
     if (!(gCurrentActor->flags & 0x10)) {
         actorInitAnimations(gCurrentActor, gPlayerSlots[participant->playerIdx].actor);
         gCurrentActor->unk144 |= 0x10;
@@ -172,15 +167,13 @@ void raceCompetitorMotionUpdate(void) {
             }
         }
     }
-    actorInterpolateAngles(subFlag, participant, motion);
+    actorInterpolateAngles(onGround, participant, motion);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
+
 extern s16 D_80750AC8;
 extern RaceCurvePoint D_8002FC20[];
 extern RaceVec3f D_8002FC50;
-
-
-extern f32 sqrtf(f32);
 
 f32 raceRacerSteerTowardWaypoint(void) {
     s32 idx;
@@ -195,13 +188,13 @@ f32 raceRacerSteerTowardWaypoint(void) {
     f32 dx;
     f32 dz;
     f32 distToWaypoint;
-    f32 span;
-    u8 subFlag;
-    u8 prevTargetState;
+    f32 approachWidth;
+    u8 onGround;
+    u8 prevCurveMode;
     u8 prevSubPhase;
-    f32 lo;
-    f32 thr;
-    f32 fr;
+    f32 pastRadius;
+    f32 approachRadius;
+    f32 approachFrac;
     s16 ang;
 
     participant = ((RaceOpponentActor *)gCurrentActor)->participant;
@@ -211,15 +204,15 @@ f32 raceRacerSteerTowardWaypoint(void) {
     route = raceGetRoute(managerData->route);
     leadDistance = raceGetPathDistanceBetweenTrackers(route, participant, target->participant);
     targetSpeed = 0.0f;
-    subFlag = gCurrentActor->contactFlags & 1;
+    onGround = gCurrentActor->contactFlags & 1;
     prevSubPhase = participant->unk35;
     idx = gBehaviourAnimState->path[gBehaviourWorkState->waypointIndex][0];
-    dx = (f32)D_807FDCA0->entries[idx].x - gCurrentActor->x;
-    dz = (f32)D_807FDCA0->entries[idx].z - gCurrentActor->z;
+    dx = D_807FDCA0->entries[idx].x - gCurrentActor->x;
+    dz = D_807FDCA0->entries[idx].z - gCurrentActor->z;
     distToWaypoint = sqrtf(dx * dx + dz * dz);
-    if (distToWaypoint < (f32)D_807FDCA0->entries[idx].radius) {
+    if (distToWaypoint < D_807FDCA0->entries[idx].radius) {
         gBehaviourWorkState->waypointIndex++;
-        gBehaviourWorkState->waypointIndex = gBehaviourWorkState->waypointIndex % gBehaviourExtraState->pathCount;
+        gBehaviourWorkState->waypointIndex %= gBehaviourExtraState->pathCount;
         target->unk10 = (D_807FDCA0->entries[idx].height == 0) && (target->curveMode != 0);
         switch (D_807FDCA0->entries[idx].height) {
             case 2:
@@ -236,14 +229,14 @@ f32 raceRacerSteerTowardWaypoint(void) {
                 break;
         }
     }
-    ang = mathAngleDiscrete((f32)D_807FDCA0->entries[idx].x, (f32)D_807FDCA0->entries[idx].z, gCurrentActor->x, gCurrentActor->z, distToWaypoint);
+    ang = mathAngleDiscrete(D_807FDCA0->entries[idx].x, D_807FDCA0->entries[idx].z, gCurrentActor->x, gCurrentActor->z, distToWaypoint);
     ang = mathAngleSignedDistance(ang, participant->heading);
-    thr = D_807FDCA0->entries[idx].radius * 1.2;
-    if (distToWaypoint < thr) {
-        lo = distToWaypoint - (f32)D_807FDCA0->entries[idx].radius;
-        span = thr - (f32)D_807FDCA0->entries[idx].radius;
-        fr = lo / span;
-        ang = ang * (1.0 + (1.0f - fr) * 1.5 * (2.0f * participant->throttle));
+    approachRadius = D_807FDCA0->entries[idx].radius * 1.2;
+    if (distToWaypoint < approachRadius) {
+        pastRadius = distToWaypoint - D_807FDCA0->entries[idx].radius;
+        approachWidth = approachRadius - D_807FDCA0->entries[idx].radius;
+        approachFrac = pastRadius / approachWidth;
+        ang = ang * (1.0 + (1.0f - approachFrac) * 1.5 * (2.0f * participant->throttle));
     }
     participant->steer += (ang * 0.0033333334f - participant->steer) * 0.5f;
     if (participant->raceStatus < 2 || participant->raceStatus >= 5) {
@@ -257,7 +250,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
         case 1:
             switch (participant->unk35) {
                 case 0:
-                    if (gCurrentActor->sub4->animId == 0x29E && target->unk10 != 0 && D_8002FC20[1].x < leadDistance && leadDistance < D_8002FC20[2].x && (randomLcgNext() & 0xFF) < 0xFU) {
+                    if (gCurrentActor->sub4->animId == 0x29E && target->unk10 != 0 && D_8002FC20[1].x < leadDistance && leadDistance < D_8002FC20[2].x && (randomLcgNext() & 0xFF) < 0xF) {
                         actorScriptStart(gCurrentActor, 0x29F);
                     }
                     break;
@@ -270,7 +263,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
                     participant->unk35++;
                     break;
                 case 4:
-                    if (subFlag) {
+                    if (onGround) {
                         actorScriptStart(gCurrentActor, 0x2A2);
                         participant->unk35++;
                         gCurrentActor->accelY = -30.0f;
@@ -304,16 +297,16 @@ f32 raceRacerSteerTowardWaypoint(void) {
             break;
     }
     if (targetSpeed == 0.0f) {
-        prevTargetState = target->curveMode;
+        prevCurveMode = target->curveMode;
         targetSpeed = raceEvaluateCurveWithRubberband(target, leadDistance, D_8002FC20, &D_8002FC50);
-        if (prevTargetState == 2 && target->curveMode == 3) {
+        if (prevCurveMode == 2 && target->curveMode == 3) {
             actorScriptStart(gCurrentActor, 0x2A0);
         }
-        if (prevTargetState == 3 && target->curveMode == 4) {
+        if (prevCurveMode == 3 && target->curveMode == 4) {
             participant->unk35 = prevSubPhase;
         }
     }
-    if (subFlag != 0) {
+    if (onGround != 0) {
         targetSpeed *= 0.9;
         participant->brake = 0.1f;
         gCurrentActor->speedXZ = (gCurrentActor->speedXZ < 350.0f) ? gCurrentActor->speedXZ : 350.0f;
@@ -361,7 +354,7 @@ s32 raceGetFinishCutsceneCam(RaceParticipant *racerState, RaceParticipant *chase
 
 void raceOpponentRacerBehaviorUpdate(void) {
     RaceParticipant *participant;
-    void *motion;
+    struct VehicleMotion *motion;
     RaceTarget *target;
     f32 leadDistance;
     f64 pad;
