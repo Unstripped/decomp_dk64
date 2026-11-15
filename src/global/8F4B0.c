@@ -611,7 +611,6 @@ void playerCameraUpdateFromTarget(void) {
     f32 clampedPitch;
     f32 curAngle;
     s32 stateVal;
-    s32 rawDiff;
     s16 angleDiffRaw;
     s32 minLimit;
     s32 clampedDiff;
@@ -646,7 +645,7 @@ void playerCameraUpdateFromTarget(void) {
         return;
     }
     if ((gCurrentMap == 0x1F) || (gCurrentMap == 0x33)) {
-        if (D_807FC624 && D_807FC624) {}  // FAKE: merges the D_807FC624 loads into one uopt candidate whose range holds the mathSinF argument block, so it takes a0 (v1 at 0x167c-0x170c without)
+        if (D_807FC624 && D_807FC624) {}  // FAKE: stands in for D_807FC624 being a function-local static (with static s16 and no dead tests the text matches: a0 at 0x167c-0x170c); needs this TU to own bss 0x807FC620
         gCurrentActor->pitch = mathSinF(D_807FC624) * 100.0f;
         if (gCurrentMap == 0x1F) {
             if (D_807FC624 < 0x1E) {
@@ -656,14 +655,13 @@ void playerCameraUpdateFromTarget(void) {
                 sfxPlayOnFreeSlot(0x14, 0x7FFF, 64.0f, 1.0f, 10, 128);
             }
         }
-        if (gGameMode && gGameMode) {}  // FAKE: extends that D_807FC624 candidate into the fade block (reload at 0x1708 in a0, v0 without); coupled with the test above (removing both costs no more than removing that one)
+        if (gGameMode && gGameMode) {}  // FAKE: coupled with the test above (reload at 0x1708 in a0, v0 without); the function-local static removes both
         fadeTimer = D_807FC624 + 0x1E;
         fadeTimer &= 0xFFF;
         D_807FC624 = fadeTimer;
         return;
     }
     if (gGameMode != 1) {
-        rawDiff = 0;  // FAKE: dead store; with the dead read after the switch it spreads rawDiff over the switch blocks (adjsave 2.0 -> 0.8), so angleB is coloured first and gets a1 (a2 at 0x17f4 without)
         stateVal = camState->unk0->state;
         switch (stateVal) {
         case 0x63:
@@ -687,20 +685,13 @@ void playerCameraUpdateFromTarget(void) {
         case 0x69:
         case 0x6D:
         calc_angle:
-            rawDiff = angleA - angleB;
-            angleB = rawDiff;
-            angleDiffRaw = rawDiff;
-            if (angleDiffRaw >= 0x801) {
+            angleDiff = angleDiffRaw = angleA - angleB;
+            if (angleDiffRaw > 0x800) {
                 angleDiff = angleDiffRaw - 0x1000;
-            } else {
-                angleDiff = angleB;
-                if (angleDiffRaw < -0x800) {
-                    angleDiff = (u16)angleDiffRaw + 0x1000; // FAKE: redundant (u16) burns ugen ring temp t4 (target addiu t5,a0,0x1000 at 0x1828; t4 without)
-                }
+            } else if (angleDiffRaw < -0x800) {
+                angleDiff = angleDiffRaw + 0x1000;
             }
-            break;
         }
-        if (rawDiff) {}  // FAKE: dead read of rawDiff, pairs with the dead store before the switch (removing both leaves angleB in a2)
         minLimit = -maxDiff;
         clampedDiff = (minLimit < angleDiff) ? angleDiff : minLimit;
         clampedDiff = (clampedDiff < maxDiff) ? ((minLimit < angleDiff) ? angleDiff : minLimit) : maxDiff;
