@@ -65,7 +65,6 @@ u8 nodeCount;
         data->spinAngle = 0.0f;
         gCurrentActor->sub4->boneRotations = heapAlloc(0x80);
         proxPathAdd(gCurrentActor, 0, 0, 0, nodeCount, 0.0f, (f32)((f64)nodeCount * 0.333333), 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
-        if (gFrameDelta == 0x50) {}  // FAKE: deadsweep; keeps the 0x50 store constant out of a register (a0 stays unk254, p takes v0)
         for (i = 1; i <= nodeCount; i++) {
             proxPathSetSegment(gCurrentActor, 0, i - 1, i, i + 1, 0.333333f, 0.0f, 0.0f, 0, 0, 0, 0, 0);
         }
@@ -81,11 +80,14 @@ u8 nodeCount;
     } else {
         gCurrentActor->flags |= 0x04000004;
     }
-    if (gActorGlobalState.volumeTriggerQueueCount == 0) {} // FAKE: dead test of the queue count keeps gCurrentActor in t2 (removing it shifts the t2..t4 ring from the prologue on)
     for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
         p = gActorGlobalState.volumeTriggerQueueId[i];
-        if (!*p) {
+        switch (*p) { // FAKE: one-case switch; its empty default adds one uopt block on the store path (the effect the two dead tests had on the 0x50 constant and count webs); without the default 261, if/else forms 149
+        case 0:
             data->sinkTimer = 0x50;
+            break;
+        default:
+            break;
         }
     }
     if (data->sinkTimer != 0) {
