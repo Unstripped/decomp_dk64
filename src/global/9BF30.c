@@ -36,9 +36,6 @@ extern Gfx D_80750280;
 extern u8 gGfxBufferIndex;
 extern PlayerStruct *gPlayerSlots;
 
-// Writes G_MTX through the function-scope _g pointer to avoid gbi.h's block-local phantom stack slot
-#define gSPMatrixShared(pkt, m, p) { _g = (Gfx *)(pkt); _g->words.w0 = (_SHIFTL(G_MTX, 24, 8) | _SHIFTL(((sizeof(Mtx) - 1) / 8), 19, 5) | _SHIFTL(((p) ^ G_MTX_PUSH), 0, 8)); _g->words.w1 = (u32)(m); }
-
 Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     ProjectileState *sub;
     f32 mtx2[4][4];
@@ -47,7 +44,8 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     s16 stepAngle;
     f64 q0;
     f64 q1;
-    f64 pad[2];
+    Gfx *_g;
+    f64 pad;
     f32 f;
     s32 idx;
     f32 collisionRadius;
@@ -55,7 +53,6 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     f32 vz;
     f32 vy;
     f32 vscale;
-    Gfx *_g;
 
     sub = actor->customState;
     stepAngle = 0x1000 / sub->spriteCount;
@@ -117,7 +114,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
             guTranslateF(mtx1, actor->x + vx, actor->y, actor->z + vy);
             guMtxCatF(mtx2, mtx1, mtx2);
             guMtxF2L(mtx2, &sub->unk4[i * 2 + gGfxBufferIndex]);
-            gSPMatrixShared(glist++, &sub->unk4[i * 2 + gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH); // FAKE: gSPMatrix through the function-scope _g (shared Gfx pointer)
+            gSPMatrix(glist++, &sub->unk4[i * 2 + gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
             gSPVertex(glist++, osVirtualToPhysical(&D_80750280), 4, 0);
             gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(glist++);
