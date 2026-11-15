@@ -21,6 +21,11 @@
   - Kept as the macro `TRACK_PAIR_LERP_Y(pt, t)`, called with p, p + 2, p + 4: fdiff OK, 3 FAKE -> 1.
   - `variants.py scan` on the best arrow-free body (t * (p[b].y - p[a].y) + p[a].y): 22 variants, no zero.
   - sweep: 0 hits.
+- 2026-11-15, HackcsCondDepositItem (opus high):
+  - Two-point macro `LERP_Y(a, b, t) ((t) * ((b)->y - (a)->y) + (a)->y)` called with `&p[0], &p[1]` (and 2/3, 4/5): 18 lines, so cfe weighs `(&p[k])->y` like `p[k].y`.
+  - The same macro called with `p, p + 1` / `p + 2, p + 3` / `p + 4, p + 5`: 0. It is the same `(p + k)->` pointer steer in another spelling, so it was not kept.
+  - Struct-value macro on `p[k]`, float `LERP(p[k].y, p[k + 1].y, t)`: 18 each.
+  - sweep: 0 hits.
 ## Untried ideas
 - A hack-free spelling that keeps `p[k].y`. The cfe weight function that ranks the subscript form above the `->` form is still unexplained (a cfe source/ucode dump would settle it).
 - A file-local pair struct view (`{TargetVec3f lo, hi;}`). It was avoided because a view is itself a cleanup cost.
