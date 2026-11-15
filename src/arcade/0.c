@@ -2563,7 +2563,7 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
         switch (D_8004BCD0[entIndex].state) {
         case 2:
             D_8004BCD0[entIndex].animTimer += 0.2;
-            D_8004BCD0[entIndex].vx = (1 - D_8004BCD0[entIndex].facing * 2);
+            D_8004BCD0[entIndex].vx = 1 - D_8004BCD0[entIndex].facing * 2;
             if (D_8004BCD0[entIndex].y < D_8004C6E8 &&
                 (D_8004C6F8 + 1 < D_8004C6FC ||
                  (D_8004C6FC == D_8004C6F8 + 1 && (D_8004C704 >= 0x12 || D_8004BCD0[D_8004C71F].state != 5)))) {
@@ -2607,10 +2607,10 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
         case 5:
             D_8004BCD0[entIndex].animTimer += 0.3;
             D_8004BCD0[entIndex].y += D_8004BCD0[entIndex].vy;
-            if (D_8004BCD0[entIndex].y > (D_8004C6E8 - 1)) {
+            if (D_8004BCD0[entIndex].y > D_8004C6E8 - 1) {
                 D_8004BCD0[entIndex].y = floorY;
                 D_8004BCD0[entIndex].facing = 1 - D_8004BCD0[entIndex].facing;
-                D_8004BCD0[entIndex].vx = (1 - D_8004BCD0[entIndex].facing * 2);
+                D_8004BCD0[entIndex].vx = 1 - D_8004BCD0[entIndex].facing * 2;
                 D_8004BCD0[entIndex].state = 2;
             }
             break;
@@ -2638,10 +2638,10 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
         if (D_8004BCD0[D_8004C71F].param >= D_8004C6F8 || D_8004BCD0[entIndex].param2 != 0) {
             if (D_8004BCD0[entIndex].x > 270.0f) {
                 D_8004BCD0[entIndex].facing = 1;
-                D_8004BCD0[entIndex].vx = (1 - D_8004BCD0[entIndex].facing * 2);
+                D_8004BCD0[entIndex].vx = 1 - D_8004BCD0[entIndex].facing * 2;
             } else if (D_8004BCD0[entIndex].x < 50.0f) {
                 D_8004BCD0[entIndex].facing = 0;
-                D_8004BCD0[entIndex].vx = (1 - D_8004BCD0[entIndex].facing * 2);
+                D_8004BCD0[entIndex].vx = 1 - D_8004BCD0[entIndex].facing * 2;
             }
         }
         if (D_8004BCD0[entIndex].x > 278.0f || D_8004BCD0[entIndex].x < 2.0f) {
