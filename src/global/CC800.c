@@ -253,26 +253,18 @@ extern ChainOffsets4 sChainOffsets4;
 
 void kongChainInit(s32 mode, KongChain *chains, u32 kind) {
     f32 pad;
-    ChainOffsets8 tbl8;
-    ChainOffsets11 tbl11;
-    ChainOffsets4 tbl4;
+    ChainOffsets8 tbl8 = sChainOffsets8;
+    ChainOffsets11 tbl11 = sChainOffsets11;
+    ChainOffsets4 tbl4 = sChainOffsets4;
+    s32 count = 1; s32 n = 4; // FAKE: dead defaults (every case overwrites count/n, default returns) steer the pre-switch li v1,4 and frame order (Q0784)
+    KongChain *chain = chains;
+    f32 sign = 1.0f;
     f32 *offsets;
-    f32 sign;
-    s32 count;
-    s32 n;
     s32 i;
     s32 j;
     KongChainNode *node;
     s32 pad2[2];
-    KongChain *chain;
 
-    tbl8 = sChainOffsets8;
-    count = 1; // FAKE: dead store (every case sets count/n), keeps the frame/stack order
-    n = 4; // FAKE: dead store (every case sets n), keeps n in v1 and the buffer copy in a0 (pre-existing, now tagged)
-    tbl11 = sChainOffsets11;
-    chain = chains;
-    tbl4 = sChainOffsets4;
-    sign = 1.0f;
     switch (kind) {
     case 3:
         count = 1;
