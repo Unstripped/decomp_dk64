@@ -355,7 +355,7 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
         effectCreateAtPosition(D_807201D4, 1.2f, gCsPosX, gCsPosY + 30.0, gCsPosZ);
     }
     if (t < 0.1) {
-        cs->unk49 = 1;
+        cs->unk48[1] = 1;
     }
 }
 
@@ -2063,13 +2063,9 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern s16 D_80748180[][2];
 
-typedef struct CsStepState {
-    /* 0x0 */ s32 cnt;
-    /* 0x4 */ s32 prev;
-} CsStepState;
-
+// cs->data: s32[2] heap block: [0] steps counted in sequence, [1] the previous cs->unk48[0] (-1: none yet).
 void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
-    CsStepState *st;
+    s32 *st;
     u8 found;
     s32 eq;
     s32 ok;
@@ -2078,33 +2074,33 @@ void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
     if (cs->data == NULL) {
         st = heapAlloc(8);
         cs->data = st;
-        st->cnt = 0;
-        st->prev = -1;
+        st[0] = 0;
+        st[1] = -1;
     }
     st = cs->data;
-    if (st->prev == -1) {
-        st->prev = cs->unk48;
+    if (st[1] == -1) {
+        st[1] = cs->unk48[0];
     } else {
         ok = 0;
-        if (st->prev & 1) {
-            if (st->prev == cs->unk48 + 1) {
+        if (st[1] & 1) {
+            if (cs->unk48[0] + 1 == st[1]) {
                 ok = 1;
             }
         } else {
-            eq = st->prev + 1 == cs->unk48; // FAKE: eq temp keeps the compare's register order (inline in the if: fdiff 1) (pre-existing, now tagged)
+            eq = cs->unk48[0] == st[1] + 1; // FAKE: eq temp (an extra candidate uopt colours v0) puts ok in v1 (inline in the if: ok in v0, fdiff 1) (pre-existing, now tagged)
             if (eq) {
                 ok = 1;
             }
         }
         if (ok) {
-            if (++st->cnt == 8) {
+            if (++st[0] == 8) {
                 cs->unk4B[0] = 100;
             }
         } else {
             found = 0;
             i = 0;
             while (!found) {
-                if (D_80748180[i][0] == (*st).prev) { // FAKE: (*st).prev spelling orders the bnel operands t4,a0 (st->prev, either operand order: a0,t4; Q0488) (pre-existing, now tagged)
+                if (D_80748180[i][0] == st[1]) {
                     found = 1;
                 } else {
                     i++;
@@ -2114,7 +2110,7 @@ void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
             i = 0;
             found = 0;
             while (!found) {
-                if (D_80748180[i][0] == *((u8 *)cs + 0x48)) { // FAKE: punned byte read orders the bnel operands t5,a0 (cs->unk48, either operand order: a0,t5; Q0488) (pre-existing, now tagged)
+                if (D_80748180[i][0] == cs->unk48[0]) {
                     found = 1;
                 } else {
                     i++;
@@ -2122,7 +2118,7 @@ void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
             }
             csModelStateTrySetByte(D_80748180[i][1], 0x28, 0);
         }
-        st->prev = -1;
+        st[1] = -1;
     }
 }
 
@@ -3415,7 +3411,7 @@ void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
             break;
         case 3:
             p->timer--;
-            if (cs->unk48 == 2) {
+            if (cs->unk48[0] == 2) {
                 p->timer = 0;
                 cs->unk4B[0] = 1;
                 p->period = p->period - D_807482C8;
