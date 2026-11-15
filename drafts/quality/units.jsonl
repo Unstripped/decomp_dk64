@@ -630,3 +630,4 @@
 {"type": "unit", "t": "2026-11-15T14:43:28Z", "unit": "2026-11-15: cleanup HackcsCondDepositItem", "commit": "6ed49b9de564444271bc10f8bfe9d6e9833f80bf"}
 {"type": "unit", "t": "2026-11-15T14:46:18Z", "unit": "2026-11-15: cleanup Hackvsprintf2", "commit": "60fcb232d481d08076069b78c5c77cbbe19879df"}
 {"type": "unit", "t": "2026-11-15T14:48:03Z", "unit": "2026-11-15: cleanup HackplayerStateSetFlagsByActorType2", "commit": "7d7d5cfe4681aafe085dc0fb44e94cbe4ef8ff2b"}
+{"type": "unit", "t": "2026-11-15T15:06:29Z", "unit": "2026-11-15: cleanup HackmenuRenderOptionDescription2", "commit": "333200cc36061bc9add03712619350c8389cc338"}
