@@ -201,7 +201,7 @@ void actorCountGoalRewardUpdate(s32 defaultPathId, s32 lowCountPathId, s32 rewar
     gCurrentActor->yaw = (gBehaviourTargetActor->yaw + 0x800) & 0xFFF;
     gCurrentActor->x = mathSinF(gCurrentActor->moveYaw) * 12.0f + gBehaviourTargetActor->x;
     gCurrentActor->z = mathCosF(gCurrentActor->moveYaw) * 15.0f + gBehaviourTargetActor->z;
-    gCurrentActor->y = gBehaviourTargetActor->y + (f32)*heightOffsetPtr + mathSinF(gFrameCounter * 100) * 5.0f;
+    gCurrentActor->y = gBehaviourTargetActor->y + *heightOffsetPtr + mathSinF(gFrameCounter * 100) * 5.0f;
     gCurrentActor->moveYaw += 0x3C;
     switch (gCurrentActor->unk15F & 0x7F) {
         case 0:
@@ -216,10 +216,8 @@ void actorCountGoalRewardUpdate(s32 defaultPathId, s32 lowCountPathId, s32 rewar
                 gBehaviourWorkState->timer = 0x1E;
             } else {
                 gCurrentActor->unk15F++;
-                if (rewardCutsceneId == gBehaviourExtraState->id) {
-                    if (slotQueueGetValue(0xB, 0) >= targetCount) {
-                        gBehaviourWorkState->timer = 0x78;
-                    }
+                if (rewardCutsceneId == gBehaviourExtraState->id && slotQueueGetValue(0xB, 0) >= targetCount) {
+                    gBehaviourWorkState->timer = 0x78;
                 }
             }
             break;
