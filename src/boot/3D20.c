@@ -379,11 +379,9 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         if (d) {} // FAKE
                     }
                     d = '0';
-                    if (scale <= value.d) {
-                        do {
-                            d++;
-                            value.d -= scale;
-                        } while (scale <= value.d);
+                    while (scale <= value.d) {
+                        d++;
+                        value.d -= scale;
                     }
                     count++;
                     *buf++ = d;
@@ -392,20 +390,16 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         count++;
                         *buf++ = '.';
                     }
-                    if (prec > 0) {
-                        do {
-                            d = '0';
-                            count++;
-                            prec--;
-                            if (scale <= value.d) {
-                                do {
-                                    d++;
-                                    value.d -= scale;
-                                } while (scale <= value.d);
-                            }
-                            *buf++ = d;
-                            scale /= 10.0;
-                        } while (prec > 0);
+                    while (prec > 0) {
+                        d = '0';
+                        count++;
+                        prec--;
+                        while (scale <= value.d) {
+                            d++;
+                            value.d -= scale;
+                        }
+                        *buf++ = d;
+                        scale /= 10.0;
                     }
                     count++;
                     *buf++ = conv;
@@ -484,11 +478,9 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     }
                     do {
                         d = '0';
-                        if (fscale <= fv) {
-                            do {
-                                d++;
-                                fv -= fscale;
-                            } while (fscale <= fv);
+                        while (fscale <= fv) {
+                            d++;
+                            fv -= fscale;
                         }
                         count++;
                         *buf++ = d;
@@ -498,20 +490,16 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         count++;
                         *buf++ = '.';
                     }
-                    if (prec > 0) {
-                        do {
-                            d = '0';
-                            count++;
-                            prec--;
-                            if (fscale <= fv) {
-                                do {
-                                    d++;
-                                    fv -= fscale;
-                                } while (fscale <= fv);
-                            }
-                            *buf++ = d;
-                            fscale /= 10.0;
-                        } while (prec > 0);
+                    while (prec > 0) {
+                        d = '0';
+                        count++;
+                        prec--;
+                        while (fscale <= fv) {
+                            d++;
+                            fv -= fscale;
+                        }
+                        *buf++ = d;
+                        fscale /= 10.0;
                     }
                     if (minus) {
                         for (; elen < width--;) {

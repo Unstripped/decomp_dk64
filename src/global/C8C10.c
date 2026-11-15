@@ -186,7 +186,7 @@ void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 
         }
         *heightOffsetPtr = 0xF;
         if (pathId >= 0) {
-            camStartPath(0, (s16)pathId, 1);
+            camStartPath(NULL, pathId, 1);
         }
         if (attachedActor != NULL) {
             attachedActor->yawSpeed = 0;

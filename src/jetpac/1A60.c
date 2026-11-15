@@ -278,7 +278,7 @@ void jetpacUpdatePlayerMovement(JetpacPlayerActor *player) {
             player->flip = 1;
             jetpacSetFlying(player, player->flying);
         }
-        flying = player->flying;
+        flying = player->flying; // FAKE: re-reads of player->flying after the vx updates (also the 3 arms below); dropping them costs 12 words
     } else if (btnRight != 0) {
         player->vx += 0.33333334f;
         if (player->flip != 0 && player->vx >= 0.0f) {

@@ -422,7 +422,7 @@ void textBoxUpdateRows(Actor *actor) {
         case 3:
             if (state->holdTimer != 0) {
                 state->holdTimer--;
-                mode = actor->state;
+                mode = actor->state; // FAKE: re-read of actor->state after the holdTimer store; dropping it costs 11 words, a mode-free switch 6
             } else {
                 mode = actor->state = 1;
             }

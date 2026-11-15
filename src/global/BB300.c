@@ -205,10 +205,11 @@ void func_806B6DB0(s32 aggroRange) {
             gCurrentActor->state = 0x11;
             gCurrentActor->unk155 = 0;
         }
+    /* fallthrough */
     case 0x10:
     case 0x23:
         func_8072881C(0, &gBehaviourWorkState->unk28);
-        actorTrackBoneTowardTarget((u8)(gCurrentActor->state == 1 ? 2 : 0));
+        actorTrackBoneTowardTarget(gCurrentActor->state == 1 ? 2 : 0);
         actorUpdatePulseIntensity(near);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x400, 0.0f);
         break;
@@ -217,7 +218,7 @@ void func_806B6DB0(s32 aggroRange) {
     case 7:
     case 0x35:
         func_8072881C(0, &gBehaviourWorkState->unk28);
-        actorTrackBoneTowardTarget((u8)(gCurrentActor->state == 0x35 ? 2 : 3));
+        actorTrackBoneTowardTarget(gCurrentActor->state == 0x35 ? 2 : 3);
         actorUpdatePulseIntensity(0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x400, 0.0f);
         break;
