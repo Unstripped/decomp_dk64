@@ -570,19 +570,19 @@ void camSetTargetFocusActor(Actor *cam, Actor *target) {
     s->unk44.unk4 = target;
 }
 
-void camSetTarget(Actor *camActor, Actor *targetActor, u8 mode, s16 angleY, s16 dist, s16 angleX, s16 offsetX, s16 offsetY, s16 offsetZ, s16 duration, f32 stepRatio) {
+void camSetTarget(Actor *camActor, Actor *targetActor, u8 mode, s16 eyeYaw, s16 eyeDist, s16 focusYaw, s16 focusDist, s16 eyeHeight, s16 focusHeight, s16 duration, f32 stepRatio) {
     CamState *s = camActor->customState;
     CamTargetBlock *p = &s->unk44;
 
     if (targetActor != NULL) {
         p->unk0 = targetActor;
         p->unk4 = targetActor;
-        p->unk8 = angleY;
-        p->unkA = dist;
-        p->unkC = angleX;
-        p->unkE = offsetX;
-        p->unk10 = offsetY;
-        p->unk12 = offsetZ;
+        p->unk8 = eyeYaw;
+        p->unkA = eyeDist;
+        p->unkC = focusYaw;
+        p->unkE = focusDist;
+        p->unk10 = eyeHeight;
+        p->unk12 = focusHeight;
         p->unk14 = duration;
         p->unk18 = stepRatio;
         if (s->unkF3 == 3) {
@@ -594,7 +594,7 @@ void camSetTarget(Actor *camActor, Actor *targetActor, u8 mode, s16 angleY, s16 
     }
 }
 
-void camSetTargetCutsceneUnscaled(Actor *camActor, Actor *targetActor, u8 mode, s16 angleY, s16 dist, s16 angleX, s16 offsetX, s16 offsetY, s16 offsetZ, s16 duration, f32 stepRatio) {
+void camSetTargetCutsceneUnscaled(Actor *camActor, Actor *targetActor, u8 mode, s16 eyeYaw, s16 eyeDist, s16 focusYaw, s16 focusDist, s16 eyeHeight, s16 focusHeight, s16 duration, f32 stepRatio) {
     f32 saved = targetActor->sub4->scaleY;
 
     if (gGameMode == 1) {
@@ -603,21 +603,21 @@ void camSetTargetCutsceneUnscaled(Actor *camActor, Actor *targetActor, u8 mode, 
     sHudDisabled = 0;
     gScreenRenderFlags |= 0x10;
     targetActor->sub4->scaleY = 0.15f;
-    camSetTargetScaled(camActor, targetActor, mode, angleY, dist, angleX, offsetX, offsetY, offsetZ, duration, stepRatio);
+    camSetTargetScaled(camActor, targetActor, mode, eyeYaw, eyeDist, focusYaw, focusDist, eyeHeight, focusHeight, duration, stepRatio);
     targetActor->sub4->scaleY = saved;
     gGlobalPauseFlags &= ~1;
 }
 
-void camSetTargetCutscene(Actor *camActor, Actor *targetActor, u8 mode, s16 angleY, s16 dist, s16 angleX, s16 offsetX, s16 offsetY, s16 offsetZ, s16 duration, f32 stepRatio) {
+void camSetTargetCutscene(Actor *camActor, Actor *targetActor, u8 mode, s16 eyeYaw, s16 eyeDist, s16 focusYaw, s16 focusDist, s16 eyeHeight, s16 focusHeight, s16 duration, f32 stepRatio) {
     if (gGameMode == 1) {
         camEndPath(camActor);
     }
     sHudDisabled = 0;
     gScreenRenderFlags |= 0x10;
-    camSetTarget(camActor, targetActor, mode, angleY, dist, angleX, offsetX, offsetY, offsetZ, duration, stepRatio);
+    camSetTarget(camActor, targetActor, mode, eyeYaw, eyeDist, focusYaw, focusDist, eyeHeight, focusHeight, duration, stepRatio);
 }
 
-void camSetTargetScaled(Actor *camActor, Actor *targetActor, u8 mode, s16 angleY, s16 dist, s16 angleX, s16 offsetX, s16 offsetY, s16 offsetZ, s16 duration, f32 stepRatio) {
+void camSetTargetScaled(Actor *camActor, Actor *targetActor, u8 mode, s16 eyeYaw, s16 eyeDist, s16 focusYaw, s16 focusDist, s16 eyeHeight, s16 focusHeight, s16 duration, f32 stepRatio) {
     CamState *s = camActor->customState;
     CamTargetBlock *p = &s->unk44;
     f32 scale;
@@ -626,12 +626,12 @@ void camSetTargetScaled(Actor *camActor, Actor *targetActor, u8 mode, s16 angleY
         scale = targetActor->sub4->scaleY / 0.15;
         p->unk0 = targetActor;
         p->unk4 = targetActor;
-        p->unk8 = angleY;
-        p->unkA = dist * scale;
-        p->unkC = angleX;
-        p->unkE = offsetX * scale;
-        p->unk10 = offsetY * scale;
-        p->unk12 = offsetZ * scale;
+        p->unk8 = eyeYaw;
+        p->unkA = eyeDist * scale;
+        p->unkC = focusYaw;
+        p->unkE = focusDist * scale;
+        p->unk10 = eyeHeight * scale;
+        p->unk12 = focusHeight * scale;
         p->unk14 = duration;
         p->unk18 = stepRatio;
         if (s->unkF3 == 3) {
@@ -1127,7 +1127,7 @@ extern u32 gFrameDelta;
 #define CAM_PATH_STEP_LIST (gCamActivePaths->pathLists[gCamPathIndex])
 
 void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f32 *focusY, f32 *focusZ, f32 *upX,
-                   f32 *upY, f32 *upZ) {
+               f32 *upY, f32 *upZ) {
     CamState *st = camActor->customState;
     s32 done;
     s32 *args;
@@ -1170,7 +1170,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
     switch (gGameMode) {
     case 0:
         if (!(st->unkAC & 0x100)) {
-            if (0.0f < gScreenFadeRate) {
+            if (gScreenFadeRate > 0.0f) {
                 if (menuIsTransitionType3Or4() == 0) {
                     return;
                 }
@@ -1202,7 +1202,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
             camApplyFixedView(camActor);
         } else {
             camComputeEyeFocus(camActor, &camActor->x, &camActor->y, &camActor->z, &st->unk78, &st->unk7C,
-                          &st->unk80, target);
+                               &st->unk80, target);
             if ((gGlobalPauseFlags & 0x2000) || (st->unkAC & 0x100000)) {
                 if (st->unkAC & 0x100000) {
                     st->unkAC &= ~0x100000;
@@ -1355,7 +1355,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                         }
                         gCamPathActor->yaw = gCamPathLookActor->yaw;
                         camComputeEyeFocus(camActor, eyeX, eyeY, eyeZ, &st->unk78, &st->unk7C, &st->unk80,
-                                      gCamPathActor);
+                                           gCamPathActor);
                         *focusX = st->unk78;
                         *focusY = st->unk7C;
                         *focusZ = st->unk80;
@@ -1366,9 +1366,9 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                     default:
                         gCamFocusBlendRate = 0.3f;
                         camComputeEyeFocus(camActor, eyeX, eyeY, eyeZ, &st->unk78, &st->unk7C, &st->unk80,
-                                      gCamPathLookActor);
+                                           gCamPathLookActor);
                         if (CAM_PATH_NODE.type != 7 && CAM_PATH_NODE.type != 0xF && CAM_PATH_NODE.type != 0x11) {
-                            camUpdateFocusPos(camActor, (0.0f != gCamPathLookActor->distToFloor) ? 0.3 : 0.1, focusX, focusY, focusZ);
+                            camUpdateFocusPos(camActor, (gCamPathLookActor->distToFloor != 0.0f) ? 0.3 : 0.1, focusX, focusY, focusZ);
                         }
                         if ((gGlobalPauseFlags & 0x2000) || CAM_PATH_NODE.type == 7 || CAM_PATH_NODE.type == 0xF ||
                             CAM_PATH_NODE.type == 0x11) {
@@ -1584,7 +1584,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
     u8 type0;
     u8 spread;
     u16 rad;
-    s16 padR;
+    s16 pad;
     s16 weight;
     s16 i;
     f32 distSq;
@@ -1597,16 +1597,16 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
     s16 k;
     CamZoneEntryFull *best;
     s16 bestIdx;
-    s16 padA;
+    s16 pad2;
     u8 type;
     u8 hadFlag;
     u8 mode;
     u8 bestType0;
     u8 handled;
     s16 pos[3];
-    u8 padB1;
-    u8 padB2;
-    u8 padB3;
+    u8 pad3;
+    u8 pad4;
+    u8 pad5;
     u8 linkId;
     s16 ang0;
     s16 ang1;
@@ -1673,7 +1673,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                         }
                         if (tgt->chunkIndex == gCamActivePaths->zoneChunks[gCamZoneSorted[k * 2]] || type == 8 ||
                             gCamActivePaths->zoneChunks[gCamZoneSorted[k * 2]] == -1) {
-                            if ((mode == 2 && distSq < (f32)(rad * rad) && weight < e->weight && !((s16)y < pos[1]) &&
+                            if ((mode == 2 && distSq < (f32)(rad * rad) && weight < e->weight && (s16)y >= pos[1] &&
                                  pos[1] + spread * 2 >= (s16)y) ||
                                 (mode != 2 && distSq < (f32)(rad * rad) && weight < e->weight)) {
                                 switch (type) {
@@ -1733,7 +1733,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                                     default:
                                         best = e;
                                         bestIdx = k;
-                                        weight = (s16)e->weight;
+                                        weight = e->weight;
                                         st->unkEC = e->flags;
                                         bestType0 = type0;
                                         break;
