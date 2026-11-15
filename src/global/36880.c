@@ -2840,7 +2840,6 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
 }
 
 extern u8 gPlayerCharacterId[];
-extern PlayerInventory gPlayerInventoryTable[];
 
 void modelKongVisibilityCheck(s16 type, u8 *visibleOut, s16 *alphaOut) {
     s32 hit = 0;
@@ -2947,8 +2946,8 @@ void modelKongVisibilityCheck(s16 type, u8 *visibleOut, s16 *alphaOut) {
     }
     if (hit != 0) {
         *visibleOut = 0;
-        if (*alphaOut > 0x64) {
-            *alphaOut = 0x64;
+        if (*alphaOut > 100) {
+            *alphaOut = 100;
         }
     }
 }
