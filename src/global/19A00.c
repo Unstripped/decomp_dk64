@@ -746,7 +746,7 @@ s32 scriptOpApplyMotionWindowStep(Actor *actor) {
     if (sMotionWindowProgress != 0) {
         sMotionWindowProgress += imm;
     } else {
-        sMotionWindowProgress = 0;
+        sMotionWindowProgress = 0; // ORIG: the target stores zero on this path too (sb zero,0(v1) at 0x108c)
     }
     return 1;
 }
@@ -1174,6 +1174,7 @@ s32 scriptOpRunCommand(Actor *actor) {
 s32 scriptOpSetCommandHandler(Actor *actor) {
     s16 imm;
     ActorSub4 *state;
+
     state = actor->sub4;
     sScriptPc++;
     scriptReadU16(&imm);
@@ -1627,15 +1628,15 @@ s32 scriptOpNoopReturn1(Actor *actor) {
 
 s32 scriptOpBranchOnFrame(Actor *actor) {
     ActorSub4 *state;
-    AnimSlot *value;
+    AnimSlot *slot;
 
     state = actor->sub4;
     if (state->waitOnLayer != 0) {
-        value = state->layer;
+        slot = state->layer;
     } else {
-        value = state->model;
+        slot = state->model;
     }
-    return scriptOpBranchOnCondition(actor, (s16)value->frame);
+    return scriptOpBranchOnCondition(actor, (s16)slot->frame);
 }
 
 s32 scriptOpBranchByTimer8A(Actor *actor) {
@@ -2080,14 +2081,14 @@ void scriptCmdToggleActorVisibility(Actor *actor) {
 }
 
 void scriptCmdSpawnCharacterCompanion(Actor *actor) {
-    u8 *script;
+    u8 *companionState;
 
     actorSpawn(0x135, sCharacterBehaviorMap[actor->actorType - 2]);
     actorCopyPoseAndScale(gSpawnedActor, actor, actor->sub4->scaleX);
     gSpawnedActor->roll = actor->roll;
     gSpawnedActor->pitch = actor->pitch;
-    script = gSpawnedActor->customState;
-    scriptReadU8(script + 6);
+    companionState = gSpawnedActor->customState;
+    scriptReadU8(companionState + 6);
 }
 
 void scriptCmdSpawnSmokeRing(Actor *actor) {
