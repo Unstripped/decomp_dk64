@@ -10,8 +10,9 @@ global:806F03C4:dead-if:3a645f .. 3a645f#8 dead-if: eight `if (gActivePlayerActo
 2026-11-14 same: reconstruct: Actor* local 52, PlayerState* local 182, PlayerStruct* slot local 116/140 (after/before switch), per-case yaw call 275, ternary case5 4, no default 179, default first 132, default before case6 22, case6 falls through to default 161. variants scan of natural body: best 4 (swap x2, ev u32).
 2026-11-15 HackplayerStateSetFlagsByActorType2 anthropic/claude-opus-5-5:high: sweep of copy -> 0 hits (remove/cond/classify/recipe nohit). New route (Q0552): the original TU defined gPlayerStateCallbacks (0x80752C70, 93 words; word 0x80752DBC = this function). Defining it in EFDC0.c in place of the line-72 extern, with all eight guards deleted, gives a whole-object .text (relocs included) identical to expected; .data = 93 R_MIPS_32 in ROM order + 12-byte zero pad (0x180). A minimal one-entry table `{ playerStateSetFlagsByActorType }` at file end also gives TEXT OK. Mechanism: the `.word` marks the entry label address-taken, so as1 links the switch jr to it and stops hoisting default's `lui t9`. Blocked only on the yaml .data carve [0x157970, .data, EFDC0] / [0x157AF0, data]: stand-in `.scratch/HackplayerStateSetFlagsByActorType2/carve_EFDC0.c`, request `header-request.md`.
 
+2026-11-15 Lead2 (merge f9740f45): carve_EFDC0.c applied with yaml [0x157970, .data, EFDC0] + [0x157AF0, data]: ROM gate OK; all 8 guards FIXED, FAKE 9 -> 1.
 ## Untried ideas
-- None for C: the remaining work is the .data carve (header-request) and a full ROM build after re-split.
+- None: no hack sites left (carve merged f9740f45).
 
 ## Evidence
 - Target 0x5304-0x5554 (expected/build/src/global/EFDC0.o): entry `lw t6,88(a0)` at 0x5314, `addiu t7,t6,-2` at 0x5318 (stall unfilled); default arm 0x5470 `lui t9 / lbu t9 gCurrentPlayerIndex / lui t6 / lw t6 gPlayerSlots ... addu v1` falls into join 0x5498.
