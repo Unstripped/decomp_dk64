@@ -475,7 +475,7 @@ u16 slotQueueGetMaxValue(s32 slot, s32 player) {
     s32 kong;
     u16 max;
     s32 level;
-    u8 bits;
+    s32 bits;
     s32 rest;
 
     kong = playerGetResolvedKongId(player);
@@ -514,11 +514,9 @@ u16 slotQueueGetMaxValue(s32 slot, s32 player) {
             level = 1;
             if (bits & 1) {
                 rest = bits;
-                if (bits) { // FAKE: redundant guard (bits & 1 implies it) keeps player in a1; a plain while (rest != 0) loop moves it to a2
-                    do {
-                        level += 1;
-                        rest >>= 1;
-                    } while (rest != 0);
+                while (rest != 0) {
+                    level += 1;
+                    rest >>= 1;
                 }
                 max = level * 5;
             } else {
@@ -1063,7 +1061,6 @@ Gfx *slotQueueStateMoveToTarget(s32 slot, Gfx *gfx) {
     u16 *value;
     s32 target;
     s32 step;
-    s32 absd;
     s32 shown;
     s32 dist;
 
@@ -1088,25 +1085,11 @@ Gfx *slotQueueStateMoveToTarget(s32 slot, Gfx *gfx) {
             target = *gSlotQueue[slot].value;
             shown = gSlotQueue[slot].shown;
             step = slotQueueGetCountStep(slot, *gSlotQueue[slot].value, gSlotQueue[slot].shown);
-            if ((target - shown) > 0) {
-                absd = (target - shown);
-            } else {
-                absd = -(target - shown);
-            }
-            if (absd < step) {
-                if ((target - shown) > 0) { // FAKE: |target - shown| recomputed into dist, not reused from absd (step = absd changes codegen)
-                    dist = (target - shown);
-                } else {
-                    dist = -(target - shown);
-                }
+            if ((((target - shown) > 0) ? (target - shown) : -(target - shown)) < step) {
+                dist = (((target - shown) > 0) ? (target - shown) : -(target - shown)); // FAKE: copy temp; step = |target - shown| directly lands the ternary in a3, target computes it in v0 then move a3,v0 (0x2908)
                 step = dist;
             }
-            if ((target - shown) >= 0) { // FAKE: absd reused for the step sign (a separate sign local or a ternary changes codegen)
-                absd = 1;
-            } else {
-                absd = -1;
-            }
-            gSlotQueue[slot].shown += absd * step;
+            gSlotQueue[slot].shown += (((target - shown) >= 0) ? 1 : -1) * step;
         }
         reached = *gSlotQueue[slot].value == gSlotQueue[slot].shown;
     }
