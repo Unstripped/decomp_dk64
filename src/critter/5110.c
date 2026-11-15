@@ -126,7 +126,8 @@ void critterBattleArenaUpdate(void) {
         ((void (*)(void *, s32))critterBitwiseNot(~(s32)osInvalDCache))(alignedBuf, 0x10);
         alignedBuf[0] += alignedBuf[1];
         if (alignedBuf[0] != 0x0A78F00E) {
-            flagSet((gCurrentMap == 0xB6) ? 0x184 : 0x183, 0, 0);
+            rewardFlag = (gCurrentMap == 0xB6) ? 0x184 : 0x183;
+            flagSet(rewardFlag, 0, 0);
         }
         break;
     case 0x3:
@@ -159,7 +160,6 @@ void critterBattleArenaUpdate(void) {
                         rewardFlag = 0x185;
                         break;
                     }
-                    if (rewardFlag && rewardFlag) {} // FAKE: promotes rewardFlag to a register; adds no new uninitialised read (flagSet below reads rewardFlag on every path here, incl. the original default-less switch)
                     flagSet(rewardFlag, 1, 0);
                 }
                 tmp = D_80029FA4;
