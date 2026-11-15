@@ -2152,34 +2152,28 @@ extern s16 D_807481F4[];
 extern s16 D_807481F6[];
 extern u8 D_80748212[];
 
-typedef struct CsPairState {
-    /* 0x0 */ s32 reserved;
-    /* 0x4 */ s32 lastValue;
-} CsPairState;
-
 void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
-    CsPairState *st;
+    s32 *st;
     s32 found;
     s32 i;
 
     if (cs->data == NULL) {
         st = heapAlloc(8);
         cs->data = st;
-        st->reserved = 0;
-        st->lastValue = 0;
+        st[0] = 0;
+        st[1] = 0;
     }
     st = cs->data;
-    found = 0;
-    if ((u8)cs->unk44[2] != (*st).lastValue) { // FAKE: (*st).lastValue spelling orders the beq operands a0,t1 (st->lastValue, either operand order: t1,a0; Q0488) (pre-existing, now tagged)
-        if (D_807481F4) {} // FAKE: early read of the table address (raises its candidate priority)
+    if (cs->unk48[1] != st[1]) {
+        found = 0;
         i = 0;
-        do {
-            if (D_807481F4[i] == (u8)cs->unk44[2]) {
+        while (found == 0) {
+            if (D_807481F4[i] == cs->unk48[1]) {
                 found = 1;
             } else {
                 i++;
             }
-        } while (found == 0);
+        }
         if (&D_807481F4[i] < (s16 *)D_80748212) {
             csModelStateTrySetByte(D_807481F4[i + 1], 0xA, 0);
             csSetObjectTrackParam(gModelSlots[hashTableLookup(gCsModelIds[D_807481F4[i + 1]])].unk7C, 0, 0);
@@ -2187,7 +2181,7 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
         if (&D_807481F4[i] >= D_807481F6) {
             csModelStateTrySetByte(D_807481F4[i - 1], 0x14, 0);
         }
-        st->lastValue = (u8)cs->unk44[2];
+        st[1] = cs->unk48[1];
     }
 }
 
