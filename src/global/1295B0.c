@@ -735,27 +735,24 @@ void spawnNodesSetRespawnHold(u8 command) {
 
     node = gSpawnNodeList->nodes;
     for (i = 0; i < gSpawnNodeList->count; i++, node++) {
-        if (node->flags & 0x80) {
-            continue;
-        }
-        if ((node->state == 5) && (node->actor->collisionFlags & 2)) {
-            actorQueueDelayedCallback(node->actor, 0, 8, 0, 0, 0, 1);
-            do {
-            } while (0); // FAKE: extra block steers spawnNodesSetRespawnHold saved-register colouring (Q0268)
-        } else if ((node->state == 6) && (node->actor->collisionFlags & 2)) {
-            node->state = 7;
-            node->respawnTimer = node->respawnDelay * 0x1E;
-            camClearActorRefs(node->actor);
-            actorDespawn(node->actor);
-        }
-        switch (command) {
-            case 0:
-            case 1:
-                node->flags |= 2;
-                break;
-            case 2:
-                node->flags &= ~2;
-                break;
+        if (!(node->flags & 0x80)) {
+            if ((node->state == 5) && (node->actor->collisionFlags & 2)) {
+                actorQueueDelayedCallback(node->actor, 0, 8, 0, 0, 0, 1);
+            } else if ((node->state == 6) && (node->actor->collisionFlags & 2)) {
+                node->state = 7;
+                node->respawnTimer = node->respawnDelay * 0x1E;
+                camClearActorRefs(node->actor);
+                actorDespawn(node->actor);
+            }
+            switch (command) {
+                case 0:
+                case 1:
+                    node->flags |= 2;
+                    break;
+                case 2:
+                    node->flags &= ~2;
+                    break;
+            }
         }
     }
 }
@@ -849,6 +846,7 @@ void spawnNodeSpawnAtTablePoint(s16 id, u8 slot) {
 
 void spawnNodeSpawnFacingPoint(s16 id, s16 x, s16 y, s16 z, s16 targetX, s16 targetY, s16 targetZ, s16 duration, s16 speedY) {
     s16 yaw;
+    s16 speed;
     f32 dist;
     s32 dx;
     s32 dy;
@@ -857,10 +855,10 @@ void spawnNodeSpawnFacingPoint(s16 id, s16 x, s16 y, s16 z, s16 targetX, s16 tar
     dx = targetX - x;
     dy = targetY - y;
     dz = targetZ - z;
-    yaw = mathAngleBetweenPoints2D((f32)targetX, (f32)targetZ, (f32)x, (f32)z);
-    dist = sqrtf((f32)((dx * dx) + (dy * dy) + (dz * dz)));
-    dy = (s32)(sqrtf((f32)((dx * dx) + (dz * dz))) / (dist / (f32)duration)); // FAKE: dy reused for the speed argument keeps the a2/a3 homes at 48/44(sp) (a separate speed local, in any declaration position or inline, moves them to 44/40)
-    if (spawnNodeSpawnById(id, x, y, z, yaw, dy, speedY) != 0) {
+    yaw = mathAngleBetweenPoints2D(targetX, targetZ, x, z);
+    dist = sqrtf((dx * dx) + (dy * dy) + (dz * dz));
+    speed = sqrtf((dx * dx) + (dz * dz)) / (dist / duration);
+    if (spawnNodeSpawnById(id, x, y, z, yaw, speed, speedY) != 0) {
         gSpawnedActor->state = 0x17;
         gSpawnedActor->unk155 = 0;
     }
@@ -1133,11 +1131,11 @@ u8 spawnNodeActorOutOfRangeScaled(SpawnNode *node, s32 rangeSq) {
         if (ret) {
             ret = node->initialState == 2;
             if (ret) {
-                scaledRange = (s32)(r * 1.5);
+                scaledRange = r * 1.5;
                 dz = gPlayerSlots[0].camZ - node->actor->z;
                 dx = gPlayerSlots[0].camX - node->actor->x;
-                r = gPlayerSlots[0].camY - node->actor->y; // FAKE: r reused for dy (a separate f32 dy local changes the FP colouring and the 1.5 constant load)
-                ret = (f32)(scaledRange * scaledRange) < ((dz * dz) + ((dx * dx) + (r * r)));
+                r = gPlayerSlots[0].camY - node->actor->y; // FAKE: r reused for dy pins r * 1.5 before the loads (a separate dy lets uopt sink it past them and drops the early 1.5 constant load)
+                ret = (scaledRange * scaledRange) < ((dz * dz) + ((dx * dx) + (r * r)));
             }
         }
     }
