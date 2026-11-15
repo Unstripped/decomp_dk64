@@ -205,7 +205,7 @@ void bossMadJackStep(void) {
     case 0x28:
     case 0x2A:
         actorTurnTowardActorYaw(0x14, gBehaviourTargetActor);
-        goto block_28;
+        goto attackSequence;
     case 0x46:
         gCurrentActor->yaw += gBehaviourWorkState->unk2E;
         if (mathAngleSignedDistance(gCurrentActor->yaw, targetAngle) > 0) {
@@ -223,7 +223,7 @@ void bossMadJackStep(void) {
                 gBehaviourWorkState->unk2E = -0x32;
             }
         }
-block_28:
+attackSequence:
         switch (gCurrentActor->unk155) {
         case 0:
             scriptState->unk18[0] = scriptOpcodes[scriptState->scriptPos++];
@@ -277,8 +277,8 @@ block_28:
             break;
         case 7:
             angleOffset = ((randomNonNegative() >> 15) % 1024) - 0x200;
-            targetX = ((f64)mathSinF(gBehaviourTargetActor->yaw + angleOffset) * ((f64)gBehaviourTargetActor->speedXZ * 1.2)) + (f64)gBehaviourTargetActor->x;
-            targetZ = ((f64)mathCosF(gBehaviourTargetActor->yaw + angleOffset) * ((f64)gBehaviourTargetActor->speedXZ * 1.2)) + (f64)gBehaviourTargetActor->z;
+            targetX = mathSinF(gBehaviourTargetActor->yaw + angleOffset) * (gBehaviourTargetActor->speedXZ * 1.2) + gBehaviourTargetActor->x;
+            targetZ = mathCosF(gBehaviourTargetActor->yaw + angleOffset) * (gBehaviourTargetActor->speedXZ * 1.2) + gBehaviourTargetActor->z;
             projectileSetTargetCoords(targetX, gBehaviourTargetActor->y + 500.0f, targetZ);
             projectileAimAndSpawn(0x1E, 0x1E, 1.0f, targetX, gBehaviourTargetActor->y, targetZ, 600.0f, gCurrentActor);
             gBehaviourWorkState->timer = scriptState->unk8[0];
