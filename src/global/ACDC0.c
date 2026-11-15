@@ -57,7 +57,6 @@ extern Gfx D_1000118;
 extern Mtx D_2000180;
 extern Mtx D_20000C0;
 
-extern s8 D_80750560[9];
 extern HudTextEntry *sPauseTextLists[2];
 extern s8 sPauseTextCounts[2];
 extern Actor *gCurrentActor;
@@ -81,7 +80,6 @@ extern s16 D_807FC838;
 extern s16 D_80744710[];
 extern s16 D_80744720[];
 extern s16 D_807505B2[];
-extern s16 D_807505B8[10];
 extern s8 gPauseMenuMode;
 extern s8 D_80750530[5];
 extern u8 D_80750531[];
@@ -105,26 +103,31 @@ char *D_807504E0[14] = {
 void *D_80750518[5] = { &D_807214A0, &D_807214B8, &D_807214D0, &D_807214E8, &D_80721500 };
 s8 D_8075052C = 0;
 s8 D_80750530[5] = { 1, 1, 0, 0, 0 };
-s8 D_80750538 = 0;
+// counts 0..13 while the kong carousel page renders (never read in C; its period is the length of D_8075053C)
+s8 sPauseCarouselFrame = 0;
 u8 D_8075053C[14] = { 0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1 };
-u8 D_8075054C[5][4] = {
+// rgb(a) tint of the locked kong icons on the carousel, per kong
+u8 sPauseKongColors[5][4] = {
     { 0xFF, 0x00, 0x00, 0xFF }, { 0xFF, 0x00, 0x00, 0xFF }, { 0x16, 0x99, 0xFF, 0xFF },
     { 0xB0, 0x45, 0xFF, 0xFF }, { 0x41, 0xFF, 0x25, 0xFF },
 };
-s8 D_80750560[9] = { 7, 0, 1, 2, 3, 4, 5, 6, 8 };
-s16 D_8075056C[10] = { 0xC8, 0xA, 8, 0x28, 1, 0x14, 1, 0x28, 1, 0 };
+// level index shown at each pause page slot: Isles (7), the seven worlds (0..6), Helm (8)
+s8 sPauseLevelOrder[9] = { 7, 0, 1, 2, 3, 4, 5, 6, 8 };
+// totals page: the maximum shown beside each gPauseCollectibleCounts[] entry
+s16 sPauseCollectibleTotals[10] = { 0xC8, 0xA, 8, 0x28, 1, 0x14, 1, 0x28, 1, 0 };
 s8 D_80750580 = 0;
 f32 D_80750584[8] = { 0.0f, -0.02f, 0.04f, -0.04f, 0.06f, 0.06f, -0.06f, -0.06f };
 s16 D_807505A4[10] = { 0, 0x333, 0x666, 0x999, 0xCCC, 0, 6, 0x46, 0x42, 0x75 };
-s16 D_807505B8[10] = { 0x261, 0x262, 0x263, 0x264, 0x265, 0x268, 0x269, 0x266, 0x26A, 0x267 };
+// battle crown flag per level index (0..8); [9] is the Isles' second crown
+s16 sPauseCrownFlags[10] = { 0x261, 0x262, 0x263, 0x264, 0x265, 0x268, 0x269, 0x266, 0x26A, 0x267 };
 s8 gPauseMenuMode = 0;
 s8 D_807505D0 = 0;
 
-s32 hudFindItemIndex(s8 itemId) {
+s32 hudFindItemIndex(s8 levelId) {
     s32 i;
 
     for (i = 0; i < 9; i++) {
-        if (itemId == D_80750560[i]) {
+        if (levelId == sPauseLevelOrder[i]) {
             return i;
         }
     }
@@ -560,8 +563,6 @@ Gfx *hudSetupTextState(Gfx *dl) {
 
 
 extern u8 gCurrentWorldId;
-extern s8 D_80750538;
-extern s16 D_8075056C[];
 extern s8 D_807FC80C;
 extern s8 D_807FC818[];
 extern f32 D_807FC840[];
@@ -756,13 +757,13 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     if (slide == 0) {
                         fc += fd * 400.0;
                     }
-                    j = tab->kong[hud->kong].goldenBananas[D_80750560[hud->worldIndex[i]]];
+                    j = tab->kong[hud->kong].goldenBananas[sPauseLevelOrder[hud->worldIndex[i]]];
                     dl = hudDrawCountPair(0x2A8, (s32)(slide + fc), j, 5, dl, 0, 0.8f);
                 }
             }
-            D_80750538++;
-            if (D_80750538 >= 0xE) {
-                D_80750538 = 0;
+            sPauseCarouselFrame++;
+            if (sPauseCarouselFrame >= 0xE) {
+                sPauseCarouselFrame = 0;
             }
             break;
         case 2:
@@ -773,7 +774,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 }
                 cnt = 0;
                 for (j = 0; j < 5; j++) {
-                    cnt += tab->kong[j].goldenBananas[D_80750560[hud->worldIndex[i]]];
+                    cnt += tab->kong[j].goldenBananas[sPauseLevelOrder[hud->worldIndex[i]]];
                 }
                 if (hud->worldIndex[i] != 8) {
                     fadeInput4 = hud->carouselProgress;
@@ -806,7 +807,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 if (fb < 0.01f) {
                     fb = 0.01f;
                 }
-                dl = hudDrawCountPair(0x280, 0x33C, gPauseCollectibleCounts[D_807FC818[D_807FC80C]], D_8075056C[D_807FC818[D_807FC80C]], dl, 1, fb);
+                dl = hudDrawCountPair(0x280, 0x33C, gPauseCollectibleCounts[D_807FC818[D_807FC80C]], sPauseCollectibleTotals[D_807FC818[D_807FC80C]], dl, 1, fb);
             }
             break;
     }
@@ -873,21 +874,23 @@ extern s32 D_80721518;
 
 
 void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
-    static void *D_807505D8[8] = { (void *)9, &D_807210EC, (void *)0x807210B8, (void *)0xA, (void *)0x80721110, &D_80721094, (void *)0x80721134, (void *)0xC };
+    // per collectible: a slotQueue sprite index (small ints) or a sprite descriptor in 124780.s; 0x807210B8,
+    // 0x80721110 and 0x80721134 are the unlabelled descriptors of sprites 0x98, 0x9A and 0x9B
+    static void *sTotalsPageIcons[8] = { (void *)9, &D_807210EC, (void *)0x807210B8, (void *)0xA, (void *)0x80721110, &D_80721094, (void *)0x80721134, (void *)0xC };
     s32 saved;
-    KongInventory *e2;
-    KongInventory *ent;
+    KongInventory *playerKong;
+    KongInventory *pageKong;
     s32 i;
     s32 idx;
     s32 pad1;
     s32 sum;
     f32 f;
-    s32 sum3;
-    s8 cnt8;
-    s16 xs;
+    s32 goldenSum;
+    s8 foundCount;
+    s16 flagId;
     s8 found[4];
-    s32 flag;
-    void *s;
+    s32 kind;
+    void *kongIcon;
     s32 j;
     s32 pad2;
     s32 x;
@@ -895,12 +898,12 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
     KongInventory *inv;
 
     saved = gPlayerCharacterId;
-    e2 = &gPlayerInventoryTable[0].kong[playerGetResolvedKongId(0)];
+    playerKong = &gPlayerInventoryTable[0].kong[playerGetResolvedKongId(0)];
     gPlayerCharacterId = iconObj->kong;
-    ent = &gPlayerInventoryTable[0].kong[iconObj->kong];
+    pageKong = &gPlayerInventoryTable[0].kong[iconObj->kong];
     idx = iconObj->worldIndex[iconObj->buffer];
     sPauseTextCounts[iconObj->buffer] = 0;
-    idx = D_80750560[idx];
+    idx = sPauseLevelOrder[idx];
     if (refresh == 0) {
         sPauseCarouselKong = iconObj->kong;
         D_807FC80D = D_807FC80C;
@@ -917,14 +920,14 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             idx = 7;
         }
         if (idx != 7 && flagGet(0x18B, 0)) {
-            hudPauseMenuAddCounter(iconObj, 0x1E, 0x1E, 0xC, -0xA, e2->coloredBananas[idx], 1, 0);
+            hudPauseMenuAddCounter(iconObj, 0x1E, 0x1E, 0xC, -0xA, playerKong->coloredBananas[idx], 1, 0);
             hudPauseMenuSpawnIcon(iconObj, 0, 0x1E, 0x1E, 0.75f, 2, 1);
         }
         if (flagGet(0x184, 0)) {
             hudPauseMenuAddCounter(iconObj, 0x1E, 0x5A, 0xC, -0xA, gPlayerInventoryTable[0].throwAmmo, 1, 1);
             hudPauseMenuSpawnIcon(iconObj, 4, 0x1E, 0x5A, 0.75f, 2, 1);
         }
-        if (e2->weaponFlags != 0) {
+        if (playerKong->weaponFlags != 0) {
             hudPauseMenuAddCounter(iconObj, 0x1E, 0x7D, 0xC, -0xA, gPlayerInventoryTable[0].ammo, 1, 1);
             hudPauseMenuSpawnIcon(iconObj, 2, 0x1E, 0x7D, 0.65f, 2, 1);
         }
@@ -934,11 +937,11 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             hudPauseMenuSpawnIcon(iconObj, 5, 0x1E, 0xA0, 0.65f, 2, 1);
         }
         if (flagGet(0x18C, 0)) {
-            hudPauseMenuAddCounter(iconObj, 0x122, 0x5A, -0xF, -0xA, e2->coins, 1, 0x80);
+            hudPauseMenuAddCounter(iconObj, 0x122, 0x5A, -0xF, -0xA, playerKong->coins, 1, 0x80);
             hudPauseMenuSpawnIcon(iconObj, 1, 0x122, 0x5A, 0.75f, 2, 1);
         }
-        if (ent->instrumentFlags & 1) {
-            hudPauseMenuAddCounter(iconObj, 0x122, 0x7D, -0xC, -0xA, ent->instrumentEnergy, 2, 0x81);
+        if (pageKong->instrumentFlags & 1) {
+            hudPauseMenuAddCounter(iconObj, 0x122, 0x7D, -0xC, -0xA, pageKong->instrumentEnergy, 2, 0x81);
             hudPauseMenuSpawnIcon(iconObj, 7, 0x122, 0x7D, 0.75f, 2, 7);
         }
         if (flagGet(0x179, 0)) {
@@ -955,7 +958,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         if (idx != 7) {
             i = idx;
             if (idx != 8) {
-                hudPauseMenuAddCounter(iconObj, 0x1E, 0x2A, 0xC, -0xA, ent->coloredBananas[idx] + ent->bananasDelivered[idx], 2, 0);
+                hudPauseMenuAddCounter(iconObj, 0x1E, 0x2A, 0xC, -0xA, pageKong->coloredBananas[idx] + pageKong->bananasDelivered[idx], 2, 0);
                 hudPauseMenuSpawnIcon(iconObj, 0, 0x1E, 0x2A, 0.75f, 2, 2);
             } else {
                 i = 7;
@@ -975,12 +978,12 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         if (refresh == 0) {
             for (i = 0; i < 5; i++) {
                 if (D_80750530[i]) {
-                    s = D_80750518[i];
+                    kongIcon = D_80750518[i];
                 } else {
-                    s = &D_807211D0;
+                    kongIcon = &D_807211D0;
                 }
-                hudPauseMenuSpawnIcon(iconObj, (s32)s, i, i, 0.75f, 2, 0xA);
-                hudPauseMenuSpawnIcon(iconObj, (s32)s, i + 5, i + 5, 0.75f, 2, 0xA);
+                hudPauseMenuSpawnIcon(iconObj, (s32)kongIcon, i, i, 0.75f, 2, 0xA);
+                hudPauseMenuSpawnIcon(iconObj, (s32)kongIcon, i + 5, i + 5, 0.75f, 2, 0xA);
             }
         }
         if (idx != 8) {
@@ -1011,21 +1014,21 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         break;
     case 2:
         sum = 0;
-        sum3 = 0;
+        goldenSum = 0;
         for (i = 0; i < 5; i++) {
             sum += gPlayerInventoryTable[0].kong[i].coloredBananas[idx] + gPlayerInventoryTable[0].kong[i].bananasDelivered[idx];
-            sum3 += gPlayerInventoryTable[0].kong[i].goldenBananas[idx];
+            goldenSum += gPlayerInventoryTable[0].kong[i].goldenBananas[idx];
         }
-        cnt8 = 0;
+        foundCount = 0;
         for (i = 0; i < 4; i++) {
             found[i] = 0;
         }
         for (i = 0; D_80755DA8[i].map != 0xFF; i++) {
             j = mapGetHubWorldIndex(D_80755DA8[i].map, 1);
             if (idx == j) {
-                xs = D_80755DA8[i].flag;
-                if (xs >= 0x24D && xs < 0x261 && cnt8 < 4) {
-                    found[cnt8++] = flagGet(xs, 0);
+                flagId = D_80755DA8[i].flag;
+                if (flagId >= 0x24D && flagId < 0x261 && foundCount < 4) {
+                    found[foundCount++] = flagGet(flagId, 0);
                 }
             }
         }
@@ -1050,7 +1053,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
                 }
             }
             if (D_807FC82A > 0) {
-                D_807FC80F = flagGet(D_807505B8[idx], 0);
+                D_807FC80F = flagGet(sPauseCrownFlags[idx], 0);
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_807210EC, 0xA0, 0x78, 1.0f, 2, 4);
             }
             if (flagGet(0x179, 0)) {
@@ -1061,9 +1064,9 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             }
         } else {
             if (D_807FC82A > 0) {
-                D_807FC80F = flagGet(D_807505B8[idx], 0);
+                D_807FC80F = flagGet(sPauseCrownFlags[idx], 0);
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_807210EC, 0xA0, 0x55, 1.0f, 2, 4);
-                D_807FC80F = flagGet(D_807505B8[9], 0);
+                D_807FC80F = flagGet(sPauseCrownFlags[9], 0);
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_807210EC, 0xA0, 0x91, 1.0f, 2, 4);
             }
             if (flagGet(0x179, 0)) {
@@ -1099,12 +1102,12 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             if (gPauseCollectibleCounts[i] > 0) {
                 if (i != 5) {
                     f = 0.75f;
-                    flag = 5;
+                    kind = 5;
                 } else {
                     f = 1.0f;
-                    flag = 8;
+                    kind = 8;
                 }
-                hudPauseMenuSpawnIcon(iconObj, (s32)D_807505D8[i], x, 0, f, 2, flag);
+                hudPauseMenuSpawnIcon(iconObj, (s32)sTotalsPageIcons[i], x, 0, f, 2, kind);
                 x += D_807FC83A;
                 D_807FC818[cnt] = i;
                 cnt++;
@@ -1257,22 +1260,22 @@ void hudPauseMenuAddCounter(HudEntry *hud, s16 x, s16 y, s16 dx, s16 dy, s32 val
 
 Gfx *hudDrawItemLabel(Gfx *dl, HudEntry *entry, s32 itemIndex) {
     u8 padHi[0xC];
-    s32 col;
+    s32 kong;
     void *tex;
     u8 pad[0x1C];
     s32 y2;
     s32 y;
 
     y = entry->slideY[itemIndex] * 4;
-    tex = D_807FC7E8[D_80750560[entry->worldIndex[itemIndex]]];
+    tex = D_807FC7E8[sPauseLevelOrder[entry->worldIndex[itemIndex]]];
     if (entry->page == 1) {
-        col = entry->kong;
+        kong = entry->kong;
     } else {
-        col = 5;
+        kong = 5;
     }
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     y2 = y + 0x40;
-    dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, y2, 0.7f, tex), 0x280, y2 + 0x38, 0.5f, D_807FC7E0[col + 9]);
+    dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, y2, 0.7f, tex), 0x280, y2 + 0x38, 0.5f, D_807FC7E0[kong + 9]);
     D_807FC808 = (f32)textGetStringWidth(1, tex) * 1.4;
     return dl;
 }
@@ -1297,7 +1300,7 @@ Gfx *hudDrawScaledText(Gfx *dl, s16 x, s16 y, f32 scale, void *text) {
 
 s32 hudPauseMenuSlidePage(HudEntry *hud, s32 sliding, s32 buttons) {
     s32 idx;
-    s32 v;
+    s32 slot;
     s32 d;
 
     if (sliding == 0) {
@@ -1309,17 +1312,17 @@ s32 hudPauseMenuSlidePage(HudEntry *hud, s32 sliding, s32 buttons) {
         }
         if (d != 0) {
             idx = hud->buffer;
-            v = hud->worldIndex[idx];
-            v += d;
-            if (v < 0) {
-                v = D_807505D0;
+            slot = hud->worldIndex[idx];
+            slot += d;
+            if (slot < 0) {
+                slot = D_807505D0;
             }
-            if (D_807505D0 < v) {
-                v = 0;
+            if (D_807505D0 < slot) {
+                slot = 0;
             }
-            if (v != hud->worldIndex[idx]) {
+            if (slot != hud->worldIndex[idx]) {
                 hud->buffer = 1 - idx;
-                hud->worldIndex[hud->buffer] = v;
+                hud->worldIndex[hud->buffer] = slot;
                 hud->slideY[hud->buffer] = d * 0xFA;
                 hudPauseMenuBuildPage(hud, 0);
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -1377,12 +1380,12 @@ void hudPauseMenuRefreshTotals(void) {
     D_807FC832 = flagCountRange(0x24D, 0x14, 0);
     D_807FC82E = flagCountRange(0x225, 0x28, 0);
     m = 0;
-    p = D_807505B8; do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
+    p = sPauseCrownFlags; do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
         if (*p >= 0 && flagGet(*p, 0) != 0) {
             m++;
         }
         p++;
-    } while (p < D_807505B8 + 10);
+    } while (p < sPauseCrownFlags + 10);
     D_807FC82A = m;
     D_807FC834 = flagGet(0x84, 0);
     D_807FC830 = flagGet(0x17B, 0);
@@ -1415,7 +1418,6 @@ typedef struct {
 extern f32 D_807FC840[];
 extern f32 D_807FC868[];
 extern f32 D_807FC890[];
-extern u8 D_8075054C[][4];
 
 void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
     HudEntry *src;
@@ -1432,7 +1434,7 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
     if (effect->allocation != NULL) {
         t = src->fade;
         item = effect->allocation;
-        bounceStep = (f64)src->slideY[(s32)item->buffer] * 4.0;
+        bounceStep = src->slideY[(s32)item->buffer] * 4.0;
         type = (s32)item->kind;
         switch (type) {
         case 0:
@@ -1448,11 +1450,11 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             }
             effect->alpha = (s32)(t * 255.0f);
             if (type == 4) {
-                effect->scaleX = (f64)(item->unk10 * t) * 4.0;
+                effect->scaleX = item->unk10 * t * 4.0;
                 effect->scaleY = effect->scaleX;
             }
             effect->x = item->startX;
-            effect->y = item->startY + (f32)bounceStep;
+            effect->y = item->startY + bounceStep;
             if (type == 0xB) {
                 effect->x = 600.0 - D_807FC808;
             }
@@ -1469,10 +1471,10 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             }
             if (type == 7) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
-                effect->scaleY = (f64)mathSinF(ang) * 0.35 + item->unk18;
+                effect->scaleY = mathSinF(ang) * 0.35 + item->unk18;
             }
             effect->x = item->unk10 * t + item->startX;
-            effect->y = item->unk14 * t + item->startY + (f32)bounceStep;
+            effect->y = item->unk14 * t + item->startY + bounceStep;
             break;
         case 3:
         case 5:
@@ -1485,17 +1487,17 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             if (t > 1.0f) {
                 t = 1.0f;
             }
-            ang = (s32)((f64)item->startX * 0.25) - src->carouselAngle;
+            ang = (s32)(item->startX * 0.25) - src->carouselAngle;
             sc = 180.0f;
             if (type != 3) {
                 sc = 240.0f;
             }
             sc *= t;
-            effect->scaleX = (f64)(item->unk10 * t) * 4.0;
+            effect->scaleX = item->unk10 * t * 4.0;
             effect->scaleY = effect->scaleX;
             t = 0.0;
-            effect->x = (f64)(mathSinF(ang) * sc) + 640.0;
-            effect->y = (480.0 - (f64)(mathCosF(ang) * sc)) + (f64)bounceStep;
+            effect->x = mathSinF(ang) * sc + 640.0;
+            effect->y = (480.0 - mathCosF(ang) * sc) + bounceStep;
             if (type == 8) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
                 sc = mathSinF(ang);
@@ -1504,10 +1506,10 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             if (type == 0xF) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
                 sc = mathSinF(ang);
-                effect->scaleY = effect->scaleY * (1.0 + (f64)sc * 0.2);
+                effect->scaleY = effect->scaleY * (1.0 + sc * 0.2);
             }
             if (type == 5 || type == 8 || type == 0xF) {
-                i = 0xFF - (s32)(((f64)effect->y - 240.0) * 1.5);
+                i = 0xFF - (s32)((effect->y - 240.0) * 1.5);
                 if (i < 0x5F) {
                     i = 0x5F;
                 }
@@ -1522,29 +1524,29 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
         case 6:
             sc = (item->unk14 - item->wanderTargetY) * (item->unk14 - item->wanderTargetY) + (item->unk10 - item->unk18) * (item->unk10 - item->unk18);
             if (sc < 400.0f) {
-                item->wanderPause = (f64)item->wanderPause - 1.0;
-                if ((f64)item->wanderPause < 0.0) {
+                item->wanderPause = item->wanderPause - 1.0;
+                if (item->wanderPause < 0.0) {
                     sc = randomFloat();
-                    item->wanderAngle = (f64)item->wanderAngle + (1000.0 + (f64)sc * 2000.0);
+                    item->wanderAngle = item->wanderAngle + (1000.0 + sc * 2000.0);
                     ang = (s32)item->wanderAngle & 0xFFF;
                     item->wanderAngle = ang;
-                    sc = ((f64)randomFloat() * 40.0 + 20.0) * 4.0;
-                    item->unk18 = (f64)mathSinF(ang) * ((f64)sc * 0.8);
+                    sc = (randomFloat() * 40.0 + 20.0) * 4.0;
+                    item->unk18 = mathSinF(ang) * (sc * 0.8);
                     item->wanderTargetY = mathCosF(ang) * sc;
-                    if ((f64)randomFloat() < 0.25) {
-                        item->wanderPause = (f64)randomFloat() * 40.0 + 15.0;
+                    if (randomFloat() < 0.25) {
+                        item->wanderPause = randomFloat() * 40.0 + 15.0;
                     } else {
                         item->wanderPause = 0;
                     }
                 }
             }
-            sc = (f64)(item->unk18 - item->unk10) * 0.1;
+            sc = (item->unk18 - item->unk10) * 0.1;
             if (sc < -8.0) sc = -8.0f; // LAYOUT: one-line if steers as1 scheduling of the hoisted item->unk14 load
             if (sc > 8.0) {
                 sc = 8.0f;
             }
             item->unk10 += sc;
-            sc = (f64)(item->wanderTargetY - item->unk14) * 0.1;
+            sc = (item->wanderTargetY - item->unk14) * 0.1;
             if (sc < -8.0) {
                 sc = -8.0f;
             }
@@ -1555,7 +1557,7 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             ang = (gFrameCounter * 0x78) & 0xFFF;
             effect->x = item->unk10 + item->startX;
             sc = mathSinF(ang);
-            effect->y = sc * 10.0f + (item->startY + item->unk14 + (f32)bounceStep + 960.0f * t);
+            effect->y = sc * 10.0f + (item->startY + item->unk14 + bounceStep + 960.0f * t);
             t = 0.0f;
             break;
         case 10:
@@ -1566,14 +1568,14 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             effect->scaleY = D_807FC890[i];
             D_807FC840[i] = -200.0f;
             D_807FC868[i] = -200.0f;
-            kongCount = 5;
+            kongCount = 5; // FAKE: value-named constant local; literal 5 adds addiu v1,v1,-0x14 (i - 5 scaled for sPauseKongColors) and renumbers the temps (t0 -> t7 at 0x4174)
             if (i >= kongCount) {
                 i -= kongCount;
             }
             if (D_80750530[i] == 0) {
-                effect->red = D_8075054C[i][0];
-                effect->green = D_8075054C[i][1];
-                effect->blue = D_8075054C[i][2];
+                effect->red = sPauseKongColors[i][0];
+                effect->green = sPauseKongColors[i][1];
+                effect->blue = sPauseKongColors[i][2];
             }
             break;
         }
@@ -1684,16 +1686,16 @@ void hudTextScreenUpdate(void) {
 }
 
 Gfx *hudDrawTwoOptionMenu(Gfx *dl, Actor *actor) {
-    static u8 D_807505F8[2] = { 0x80, 0xFF };
+    static u8 sOptionShades[2] = { 0x80, 0xFF };
     u8 sel;
     u8 c;
 
     dl = hudSetupTextState(dl);
     sel = actor->unk155 == 0;
-    c = D_807505F8[sel];
+    c = sOptionShades[sel];
     gDPSetPrimColor(dl++, 0, 0, c, c, c, 255);
     dl = hudDrawScaledText(dl, 0x280, 0x1B8, 0.7f, D_807FC7E0[0]);
-    c = D_807505F8[1 - sel];
+    c = sOptionShades[1 - sel];
     gDPSetPrimColor(dl++, 0, 0, c, c, c, 255);
     return hudDrawScaledText(dl, 0x280, 0x208, 0.7f, D_807FC7E0[3]);
 }

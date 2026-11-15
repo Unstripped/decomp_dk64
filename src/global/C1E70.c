@@ -21,9 +21,14 @@ extern Actor *gPrimaryPlayerActor;
 extern Actor *gSpawnedActor;
 extern s16 D_80744710[];
 s8 D_80750660 = 0;
-s16 D_80750664[] = { 0x22, 8, 0x22, 7, -1, -1, 0x22, 5, 0x22, 4, 0x22, 0x12, 0x22, 0x12, 0x99, 9 };
-s16 D_80750684[] = { 0x2F2, 0x2F1, 0x2F3, 0x2F2, 0x2F1, 0x2F2, 0x2F2, 0x2F1, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4 };
-s8 D_807506A4 = 0;
+// per ring: the (map, exit) pair menuTransitionToMap loads when that ring's cutscene ends; pair 7
+// is the destination once every ring is cleared (rings 2 and 7 never transition, so pair 2 is -1, -1).
+// A flat s16 array, not a { map, exit } struct array: the struct indexing shifts the ugen temps (Q0167).
+s16 sRingExits[] = { 0x22, 8, 0x22, 7, -1, -1, 0x22, 5, 0x22, 4, 0x22, 0x12, 0x22, 0x12, 0x99, 9 };
+// actorScriptStart id the ring node plays when ring [i] is cleared (only [0..7] are read)
+s16 sRingNodeScripts[] = { 0x2F2, 0x2F1, 0x2F3, 0x2F2, 0x2F1, 0x2F2, 0x2F2, 0x2F1, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4 };
+// set when ring 2 or 7 finishes without leaving the map: the waiting (state 5) active ring may start
+s8 sRingNextReady = 0;
 extern u8 D_807FC8D0;
 
 s32 actorSpawn();
@@ -56,7 +61,7 @@ void func_806BD170(void) {
     activeRingIdx = -1;
     i = 0;
     activeRingCount = 0;
-    for (; i < 8; i++) {
+    for (; i < 8; i++) { // FAKE: i = 0 written before activeRingCount = 0 (empty for-init) keeps move s1,zero ahead of move s5,zero at 0x5c
         if (flagGet(i + 0x1BC, 0) == 0) {
             actorSpawn(0x14E, 0xCD);
             gSpawnedActor->drawDistance = 0x7D0;
@@ -85,7 +90,7 @@ void func_806BD170(void) {
             }
         }
     }
-    D_807506A4 = 0;
+    sRingNextReady = 0;
     if (flagGet(0x1BB, 0) == 0) {
         activeRingIdx = -1;
     }
@@ -200,7 +205,7 @@ typedef struct RingModelIds {
     /* 0x00 */ s8 b[8];
 } RingModelIds;
 
-RingModelIds D_807506B8 = { { 0x0E, 0x0F, 0x10, 0x11, 0x0A, 0x0B, 0x0C, 0x0D } };
+RingModelIds sRingCutsceneModelIds = { { 0x0E, 0x0F, 0x10, 0x11, 0x0A, 0x0B, 0x0C, 0x0D } };
 extern u8 D_80720A7C;
 
 void func_806BD7B0(void) {
@@ -208,16 +213,16 @@ void func_806BD7B0(void) {
     f32 sparkX;
     f32 sparkY;
     f32 sparkZ;
-    RingNodeModel *p;
+    RingNodeModel *nodeModel;
     s32 limit;
     RingModelIds cutsceneModelIds;
 
     switch (gCurrentActor->state) {
         case 5:
-            if (D_807506A4 != 0 && camIsCutsceneActive() == 0) {
+            if (sRingNextReady != 0 && camIsCutsceneActive() == 0) {
                 st->timer++;
                 if (st->timer >= 0x29) {
-                    D_807506A4 = 0;
+                    sRingNextReady = 0;
                     gCurrentActor->state = 1;
                 }
             } else {
@@ -253,10 +258,10 @@ void func_806BD7B0(void) {
                         sfxPlayOnFreeSlot(0x1F6, 0x7FFF, 63.0f, 1.0f, 5, 0);
                     }
                     if (st->timer >= 0xB) {
-                        cutsceneModelIds = D_807506B8;
+                        cutsceneModelIds = sRingCutsceneModelIds;
                         gCurrentActor->state = 4;
                         sfxAllocateChannel(0x7D, 1.0f);
-                        actorScriptStart(st->node, D_80750684[st->ringIdx]);
+                        actorScriptStart(st->node, sRingNodeScripts[st->ringIdx]);
                         st->timer = 0;
                         st->node->state = 3;
                         st->node->unk155 = 0;
@@ -279,11 +284,11 @@ void func_806BD7B0(void) {
             break;
         case 4:
             if (func_806BDD2C() != 0) {
-                p = ((RingNodeActor *)st->node)->unk178;
-                p->unk0->y += 5.0;
+                nodeModel = ((RingNodeActor *)st->node)->unk178;
+                nodeModel->unk0->y += 5.0;
                 if (st->timer == 0x10E) {
                     flagSet(0x315, 1, 0);
-                    menuTransitionToMap(D_80750664[14], D_80750664[15]);
+                    menuTransitionToMap(sRingExits[7 * 2], sRingExits[7 * 2 + 1]);
                 }
             }
             limit = 0xB4;
@@ -293,16 +298,16 @@ void func_806BD7B0(void) {
                 }
             }
             st->timer++;
-            if (limit == st->timer) {
+            if (st->timer == limit) {
                 if (st->ringIdx == 2 || st->ringIdx == 7) {
                     flagSet(st->ringIdx + 0x1BC, 1, 0);
                     if (func_806BDD2C() == 0) {
                         camResumePath();
                         sfxStopChannel(0x7D, 1);
-                        D_807506A4 = 1;
+                        sRingNextReady = 1;
                     }
                 } else {
-                    menuTransitionToMap(D_80750664[st->ringIdx * 2], D_80750664[st->ringIdx * 2 + 1]);
+                    menuTransitionToMap(sRingExits[st->ringIdx * 2], sRingExits[st->ringIdx * 2 + 1]);
                 }
             }
             break;
