@@ -680,7 +680,6 @@ void critterUpdateZoneProximity(CritterObj *obj) {
     s16 half;
     s32 f;
 
-    fv0 = 0.0f;
     lim = (f32)(obj->homeZone->shape.nearDistSq + 0x1DE84);
     if (obj->homeZone->frame != gGfxBufferIndex) {
         half = (obj->homeZone->shape.height + obj->homeZone->shape.extraHeight) >> 1;
@@ -690,7 +689,7 @@ void critterUpdateZoneProximity(CritterObj *obj) {
         if (f) {
             f = obj->homeZone->y - half < critterPlayerZone->y;
         }
-        f = (u8)f != 0;
+        f = (u8)f != 0; // ORIG: the target narrows the in-height flag and re-tests it (andi t5,a3,0xff; sltu a3,zero,t5 at 0x20cc)
         if (f) {
             f = 0;
             if (dist < (f32)obj->homeZone->shape.nearDistSq) {
