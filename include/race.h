@@ -107,8 +107,7 @@ typedef struct RaceParticipant {
     /* 0x4C */ u8 pad4C[4];
     /* 0x50 */ Mtx_t hudScale[2]; // per gfx buffer: the HUD text scale matrix (raceInitHudDisplayList guScale)
     /* 0xD0 */ s16 unkD0;
-    /* 0xD2 */ u8 padD2[0x104 - 0xD2];
-    /* 0x104 */ void *unk104;
+    /* 0xD2 */ u8 padD2[0x108 - 0xD2];
 } RaceParticipant; // size = 0x108
 
 // One race route (raceGetRoute): the ordered waypoint indices a participant passes.
