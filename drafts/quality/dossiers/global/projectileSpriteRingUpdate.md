@@ -1,21 +1,13 @@
-# projectileSpriteRingUpdate (global, src/global/9BF30.c)
+# projectileSpriteRingUpdate
+
 ## Sites
-- global:80697988:dead-if:c17942 `if (gCurrentActor) {}`: REMOVED (this unit).
-  - Without it, &gCurrentActor stays in s1 for the whole function: 18 r + 9 |, with the prologue shifted.
-  - The target re-materialises lui/addiu v0/a1 inside the kind == 1 block (0x86c, 0x89c).
-  - A one-case `switch (kind) { case 1: ... }` supplies the same blocks.
-- global:80697988:other:692110 `kind = sub->unk11;`: puts the dispatch byte in a0 (lbu 0x77c/0x844) instead of v0.
+- global:80697988:other:d61aae
+
 ## Attempts
-- round 28 (opus:low): 692110 diagnose (v0/a0), permute best=0 by a steer swap.
-- 2026-11-14 U HackprojectileSpriteRingUpdate, scored with variants.py try (full=):
-  - shape grid (18 bodies): one-case switch = 0 with or without the dead test; if/else without the test 61-65; full switch over unk11 178
-  - kind spellings on the switch form:
-    - no kind, assign-in-test, kind in both tests, s32: 4 each
-    - s16: 38
-    - early read: 22-59
+- 2026-11-14 HackSentinelSwitchChains opus:high: sentinel switch: switch (ringType) with case 1 then case 0 (old else arm) = 4 diff lines (v0 vs a0 only); case 0 first = 178; with a default = 4; switch (kind) with kind kept as the selector (u8/s32/u32/s16/u16, declared first) = 4-13; (s32)/(u8) selector casts = 4; if/else-if chains on ringType or kind = 65-223; if (ringType == 0) ... else switch = 180
+
 ## Untried ideas
-- 692110: a natural second use of the byte that raises its priority (the permuter only found steers).
+- none from the switch lever: the target's compares rule it out (see Evidence)
+
 ## Evidence
-- frame 0x38
-- sub spilled at 0x34(sp)
-- gCurrentActor reloaded through s0 after every call
+- the target tests one lbu of ringType (lbu a0,17(v1) at 0x77c/0x844) with beqzl a0 at 0x84c (to the ringType == 0 block at 0x938) then bne a0,1 at 0x854; a two-case switch reproduces that block shape exactly but loads the byte into v0 (lbu v0 / beqzl v0 / bne v0), the same register miss as dropping the copy
