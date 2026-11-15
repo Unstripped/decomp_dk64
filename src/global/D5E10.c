@@ -2297,10 +2297,11 @@ void playerStateSwimStroke(void) {
                 camStartPathNearWall(gPrimaryPlayerActor, 0xC, 0x25, 0x85);
             }
             gCurrentActor->unk155++;
+            /* fallthrough */
         case 1:
             gActivePlayerState->maxSpeed = D_80753094[gCurrentCharacterIndex];
             gActivePlayerState->targetYaw = gCurrentActor->moveYaw;
-            mathAngleStepToward(&gCurrentActor->yaw, (s16)((gCurrentActor->moveYaw + 0x800) & 0xFFF), (s16)(gActivePlayerState->turnRate * 2));
+            mathAngleStepToward(&gCurrentActor->yaw, (gCurrentActor->moveYaw + 0x800) & 0xFFF, gActivePlayerState->turnRate * 2);
             playerApplyFullPhysics();
             gActivePlayerState->unk11C = 0xF;
             gActivePlayerState->unk11D = 0;
@@ -2318,13 +2319,13 @@ void playerStateSwimStroke(void) {
                 }
                 gActivePlayerState->unk11D = 1;
             } else {
-                gActivePlayerState->unk11C = gActivePlayerState->unk11C - 1;
+                gActivePlayerState->unk11C--;
             }
             if (gActivePlayerState->unk11D != 0) {
                 timer = gActivePlayerState->unk11C;
                 if (timer >= 0xBF) {
                     if (!flag && timer % 3 == 0) {
-                        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, (s16)(((timer & 2) / 2) + 0x57), 0xFF, 0x7F, 0x1E);
+                        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, ((timer & 2) / 2) + 0x57, 0xFF, 0x7F, 0x1E);
                     }
                 } else if (flag) {
                     playerRefillHealth(gCurrentActor, gCurrentPlayerIndex);
@@ -2333,7 +2334,7 @@ void playerStateSwimStroke(void) {
             if ((gActivePlayerState->stateFlags & 0x1000) && !(gFrameCounter & 3)) {
                 effectSetColor(0x64, 0x64, 0x64, 0xC8);
                 effectSetMode(2);
-                effectSpawnBoneDefault(gCurrentActor, (s16)(((randomNonNegative() >> 15) % 32767) % 8 + 1), 0.4f, 0.0f, 0.0f, 0.0f, -0x50);
+                effectSpawnBoneDefault(gCurrentActor, ((randomNonNegative() >> 15) % 32767) % 8 + 1, 0.4f, 0.0f, 0.0f, 0.0f, -0x50);
             }
             gCurrentActor->speedXZ = 0.0f;
             playerApplyMotion();
