@@ -1,0 +1,20 @@
+# csCmdStepSequenceProgress (global, src/global/478F0.c)
+
+## Sites
+global:80649BF0:other:a8d972 (was 060cc5) other: `eq = cs->unk48[0] == st[1] + 1;` temp: the eq var candidate is coloured reg 1 ($v0) by uopt and interferes with `ok`, so `ok` takes $v1 (target `move v1,zero` 0x706c, `li v1,1` 0x7088/0x70a0, `beqz v1` 0x70a4); inline, ok gets $v0 (fdiff 1, 4 diff lines). KEPT (FAKE).
+global:80649BF0:other:68b5d7 other (removed): `(*st).prev` ordered the loop-1 compare `bnel t4,a0` at 0x70e0 (table load first). Fixed by `s32 *st` with `st[1]`.
+global:80649BF0:other:fb80a0 other (removed): punned `*((u8 *)cs + 0x48)` ordered the loop-2 compare `bnel t5,a0` at 0x7138. Fixed by `cs->unk48[0]` (header request: CsState 0x48 as `u8 unk48[2]`).
+
+## Attempts
+2026-11-14 HackcsCmdStepSequenceProgress anthropic/claude-opus-5-5:high: cfe ucode (as1probe ucode --cfe) shows the `==` operand evaluation order is decided by cfe, not uopt hashes: `D[i][0] == st->prev` and `st->prev == D[i][0]` both emit the table load first (-> `bnel a0,t4`); `(*st).prev`, `st[0].prev`, `st[1]` (s32 *st), `cs->unk48[0]`, `(&cs->unk48)[0]` all emit the right operand first (-> `bnel t4,a0`); with both sides subscripted the source order counts (`st[1] == D[i][0]`: fdiff 1). Same for the odd/even compares once cs->unk48 is subscripted: target needs `cs->unk48[0] + 1 == st[1]` and `cs->unk48[0] == st[1] + 1` (other orders 9-10 diff lines). Struct table `{s16 key, val}[]`, `*D[i]`, `(*(D + i))[0]`, local `tbl` pointer, `((CsStepState *)cs->data)->prev`: no change / worse. -> sites 68b5d7, fb80a0 fixed; whole object OK with shadow header.
+2026-11-14 same: eq site (ok in v0 vs v1): variants.py scan (widths ok/i/found, declswaps, swaps) all >= 4; else-if, `ok = 0` in both arms, ok/else ok=0, found reused as ok (6), ternary condition / ternary into ok (68), `&&`/`||` forms (27/70), switch on `st[1] & 1` (6/30), `i = 0` hoisted (15), prev local through the function (15), `next = st[1] + 1` temp (17), `expected` temp in odd arm (22), `odd = st[1] & 1` temp (25). Uopt -l5: ok (cand 20) interferes only with 64, 14 (prev, a0), 5 (st, t0), 0 (cs); reg 1 free -> $v0. Only a candidate coloured reg 1 that overlaps bb 5-11 pushes ok to $v1; the eq var does that and then vanishes (forward-substituted into the fjp). nohit.
+2026-11-14 same: permuter 900 s -j 2 on the eq-free body (stand-in `((CsStateFull *)cs)->unk48[0]`), baseline 20 -> 52 zeros, every one a steer: eq temp in either arm (also `if (x = ...)`), `i` reused as the compare temp or as a copy of st[1] for the `& 1` test, `new_var = st[1]` copy temp, `- -1`, dead `!unk48` conditions. All confirm the mechanism: any candidate coloured $v0 over the odd/even block pushes ok to $v1. A `prev = st[1]` local over the block (12) or the whole else (16) does not. nohit.
+
+## Untried ideas
+- A natural variable live across the odd/even block that uopt colours $v0 and later eliminates (the eq var's effect) - none found among the forms above.
+- csCmdModelStepAnimation 2177 `(*st).lastValue` vs `(u8)cs->unk44[2]` (not this worker's function): with this header, `cs->unk48[1]` (same lbu 0x49) may give the target order with `st->lastValue` (untested).
+
+## Evidence
+- 0x7018-0x7044: st in v1/t0, prev `lw a0,4(v1)`; 0x7054 `andi t1,a0,1`; odd 0x7074-0x707c `lbu t3,72(t2); addiu t4,t3,1; bne t4,a0`; even 0x708c-0x7098 `lbu t6,72(t5); addiu t7,a0,1; bne t6,t7`; ok = $v1 (0x706c, 0x7088, 0x70a0, 0x70a4).
+- loop 1: `lh t4,0(v1); bnel t4,a0` 0x70dc-0x70e0, i in $v0 (`addiu v0,v0,1`); loop 2: `lbu a0,72(a1)` hoisted 0x7130, `lh t5,0(v1); bnel t5,a0` 0x7134-0x7138.
+- found (u8) spilled to sp+0x1b across the jal, st to sp+0x1c.
