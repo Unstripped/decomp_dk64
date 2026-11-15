@@ -307,13 +307,15 @@ void arcadeDispatchState(Gfx **glistp) {
 }
 
 
-extern u8 D_8004A794;
+typedef struct ArcadeBlankInitial {
+    u8 letter;
+} ArcadeBlankInitial;
+extern ArcadeBlankInitial D_8004A794;
 void arcadeInsertHighScore(s32 rank) {
     s32 i;
     s32 j;
-    u16 initial[2];  // FAKE: address-taken storage preserves the byte at sp+0xC
+    ArcadeBlankInitial blank = D_8004A794;
 
-    *(u8 *)initial = D_8004A794;
     for (i = 4; i > rank; i--) {
         D_8004A74C[i] = D_8004A74C[i - 1];
         for (j = 0; j < 3; j++) {
@@ -321,14 +323,7 @@ void arcadeInsertHighScore(s32 rank) {
         }
     }
     D_8004A74C[rank] = D_8004A748;
-    if (((u8 *)initial)[i % 1]) {}  // FAKE: read only the initialized byte, retaining its memory slot
-    if ((u32)i < 0 && initial[0]) {}  // FAKE: unsigned < 0 is always false; the halfword is never read
-    if (D_8004A778[rank] && D_8004A778[rank]) {}  // FAKE: finish the row address before reusing a0
-    if (((u8 *)initial)[i % 1]) {}  // FAKE: split the reload live range from the row index
-    i = 0; do {  // LAYOUT: init joined on the do line
-        D_8004A778[rank][i] = *(u8 *)initial;
-        i++;
-    } while (i < 3);
+    for (i = 0; i < 3; i++) D_8004A778[rank][i] = blank.letter;  // LAYOUT: body on the for line
 }
 
 extern ArcadeEntity D_8004A698;
