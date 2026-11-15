@@ -616,3 +616,4 @@
 {"type": "unit", "t": "2026-11-15T06:30:53Z", "unit": "2026-11-14: cleanup HackcamFloorSnap", "commit": "ecd5f154e7a47f40d4aed25bc0843d19512b5b54"}
 {"type": "unit", "t": "2026-11-15T06:36:32Z", "unit": "2026-11-14: cleanup HackslotQueueGetMaxValue", "commit": "1e21e017d19a8b13ff27958dc8c49dca17da5201"}
 {"type": "unit", "t": "2026-11-15T06:36:59Z", "unit": "2026-11-14: cleanup HackarcadeDrawStage4Background", "commit": "876bfaf33d2e7785c524a387f17e7c391e48bcb3"}
+{"type": "unit", "t": "2026-11-15T07:01:30Z", "unit": "2026-11-14: cleanup CleanupLead2 close", "commit": "2dfbe9c8f6d2409d4c0f98614e0263c6278f5173"}
