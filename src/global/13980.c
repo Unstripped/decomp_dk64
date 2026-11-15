@@ -48,9 +48,11 @@ u64 D_807F0508;
 u64 D_807F0510;
 u16 D_807F0518[20];
 OSTimer D_807F0540;
-u32 D_807F0560;
-s32 D_807F0564;
-OSContPad D_807F0568;
+struct {
+    u32 retraceCount;
+    s32 taskDone;
+    OSContPad pad;
+} D_807F0560;
 
 void schedCreate(SchedStruct *sc, void *stack, s32 priority, u8 unused, u8 retraceCount) {
     SchedConfig config;
@@ -154,12 +156,12 @@ void schedMain(void *arg) {
                 }
                 osWritebackDCacheAll();
             }
-            if (D_807F0560 == 0) {}  // FAKE: keeps D_807F0560 un-pointerized (separate lui per access)
+            if (D_807F0560.retraceCount == 0) {}  // FAKE: keeps D_807F0560 un-pointerized (separate lui per access)
         }
         switch ((u32)msg) {
         case 0x29A:
-            cnt = D_807F0560 + 1;
-            D_807F0560 = cnt;
+            cnt = D_807F0560.retraceCount + 1;
+            D_807F0560.retraceCount = cnt;
             if (cnt % 480 == 0) {
                 D_807F04C8 = D_807F04D0;
                 D_807F04D8 = D_807F04DC;
@@ -376,7 +378,7 @@ s32 schedTaskDone(SchedStruct *sc, TaskNode *task) {
         ret = 0;
     }
 
-    D_807F0564 = ret;
+    D_807F0560.taskDone = ret;
     return ret;
 }
 
@@ -510,15 +512,15 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
     u32 done;
     char buf[36];
     s32 i;
-    s32 raw;
+    s32 held;
     s32 ret;
 
     done = 0;
     ret = 0;
     if (reset == 0) {
-        osContGetReadData((OSContPad *)((u8 *)&D_807F0564 + 4));  // FAKE: arg spelled off D_807F0564 so uopt does not CSE lda D_807F0568 with the .button read
-        raw = D_807F0568.button;  // FAKE: int copy keeps the lhu value in v0 for ori 0x400 (direct s16 read gives lh v1)
-        buttons = raw;
+        osContGetReadData(&D_807F0560.pad);
+        held = D_807F0560.pad.button; // FAKE: s32 copy temp keeps the lhu value in v0 for ori t8,v0,0x400 at 0xed0 and fills the 4-byte slot between i and ret (a direct s16 read gives lh v1)
+        buttons = held;
         if (autoAdvance != 0 && sAutoPageCount != 0) {
             buttons |= D_JPAD;
         }
@@ -599,20 +601,19 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
                 }
                 line = 30;
             } else {
-                if (sPageAddr && sPageAddr) {}  // FAKE: dead read at the opcode branch start steers uopt candidate order (i = 0 is scheduled first)
-                colorIdx = 0;
-                found = 0;
                 if (op == G_RDPPIPESYNC) {
                     mode = 0;
                 }
                 if (op == G_FILLRECT) {
                     mode = 0;
                 }
+                colorIdx = 0;
                 if (mode != 0) {
                     faultFontSetColorMode(1);
                     colorIdx = 1;
                     mode = 0;
                 }
+                found = 0;
                 for (i = 0; i < 27; i++) {
                     if (op == D_8074685C[i].op) {
                         op = i;
