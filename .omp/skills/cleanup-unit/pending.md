@@ -50,6 +50,14 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   1606fa, f3276d, ff3fab, 93489e) + 9bc6c1 (vsprintf: permute.py cannot parse va_arg / `__builtin_classof`); b1114b 8 rows not
   attempted + 2 failed setup (row copies predate the D_807FC828 move to actor.h: re-snapshot them at HEAD); list.tsv rows 45-97
   never batched.
+- Open tooling fixes (from the session tooling notes):
+  - merge_drafts.py lost-symbol guard: add an override (e.g. `--allow-lost SYM` through merge_gate.sh/merge_record.py) or accept a
+    dropped data label inside a symbol the draft defines, so data-to-C moves go through merge_record (DT, EA used the `- -` fallback).
+  - Shadow headers (sfdiff/fdiff.sh/cwarn `--as`): automatically shadow every `include/*.h` that quote-includes a shadowed header (cpp
+    searches the includer's directory first; EG race.h, EI boss.h).
+  - `permute.py batch` setup compiles row copies against the current include/: build each row at its base (or re-snapshot copies
+    whose file or reached headers changed) so a header merge does not fail older rows (b1114b, D_807FC828).
+  - permute.py cannot parse `va_arg` (`__builtin_classof`): add a preprocessor stub so vsprintf 9bc6c1 can be permuted.
 
 ## OPEN functions
 
