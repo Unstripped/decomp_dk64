@@ -666,9 +666,8 @@ void eepromSaveRecords(s32 recordsOnly) {
     u8 i;
     u8 workingData[0x800];
     u8 savedData[0x800];
-    u8 *p;
-    u8 *q;
-    p = D_807ECD08;
+    volatile u8 *contReadPending; // controller-read-pending flag; this runs on eepromThreadMain while the main thread (controllerUpdate) clears it
+    contReadPending = D_807ECD08;
     if (D_807EDEAC == 2) {
         _sprintf(sEepromSlotBuffer + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
         memcpy(workingData, sEepromSlotBuffer, 0x800);
@@ -705,8 +704,9 @@ void eepromSaveRecords(s32 recordsOnly) {
         osWritebackDCacheAll();
         if ((u32)D_807EDEAC & ~0x3FU) {}  // FAKE: an unsigned -64 use after the calls keeps the unsigned mask constants of the arm above uncoloured (li at,-64)
         memcpy(&((u64 *)D_807ED6A8)[sector], &((u64 *)workingData)[sector], 0x800 - (sector << 3));
-        q = (u8 *)((u32)D_807ECD08);  // FAKE: a second, u32-laundered pointer to D_807ECD08 for the first poll test (p reads it in the loop)
-        if (*q != 0) do sleepMilliseconds(1.0f); while (*p != 0);
+        while (*contReadPending != 0) {
+            sleepMilliseconds(1.0f);
+        }
         if ((u32)sector) {}  // FAKE: direct read of sector raises the priority of the variable above its widening (var s1, widening s4)
         if (gMainThreadHalted != 0) {
             D_807467C4 = 0;
