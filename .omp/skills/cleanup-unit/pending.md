@@ -1,73 +1,46 @@
 # Pending after cleanup round 38 (campaign paused by the user)
 
-State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPEN functions in 117 files. Since then the campaign runs as a rolling queue (SKILL.md §2): a future session starts with `uv run tools/quality.py rank --limit 40` (function hack queue) and `rank --polish` (file polish queue); coverage first. The "Blocked owner/header changes" below are the `TypesOwner` queue (types-stream.md).
+State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPEN functions in 117 files. Since then the campaign runs as a rolling queue (SKILL.md §2): a future session starts with `uv run tools/quality.py rank --limit 40` (function hack queue) and `rank --polish` (file polish queue); coverage first. The "Blocked owner/header changes" below are the `TypesOwner` queue (types-stream.md). Audited 2026-11-14 at 7a453f41 (PlanPendingAudit: DONE entries removed; evidence and verdicts in .scratch/PlanPendingAudit/audit.md), re-checked at 74533125: DY ca506697 fixed global/0 f71305 and 450 2e505d (M2, M3), DZ 2e019041 closed every 42630 proto site as ORIG (89a542, M10).
 
 ## Blocked owner/header changes
-- Owner return-width redesigns (2026-11-14): callee returns a zero-extended byte, callers differ per file in their andi narrowing,
-  so a u8 -> s32 return needs every caller re-spelled and fdiffed. (a) CLOSED, measured (OwnerHubWorldIndexWidthPlan, no merge
-  by design): keep `u8 mapGetHubWorldIndex(u8, u8)`. C2A90 func_806BE09C uses v0 unmasked as index (sll) and as the byte stored to
-  `u8 idx` (sb v0,73(sp)): IDO omits the andi only for a declared u8 return, every wider return adds it, so the original return is
-  u8; options A/B/C32 fail C2A90 + 5 others, C16 fails C2A90/478F0. The 8F4B0 da5663/2c5186 and FCCD0 da5663/06d21a steer pairs
-  are per-file and stay FAKE. Evidence .scratch/OwnerHubWorldIndexWidthPlan/plan.md.
-  (b) CLOSED, measured (OwnerFlagGetWidthPlan, 2026-11-14): keep `u8 flagGet(s16, u8)`. The return width is contradictory across
-  callers: jetpac/0 narrows the result itself (andi t9,v0,0xff at 0x11d4: compiled against an int return) while 135D30
-  spawnFlagConditionMet 0x80c uses v0 unnarrowed (u8 return) and E4090 0x3944 fails every s32 option; no option passes all 49
-  files. jetpac/0's two steers (lines 4/244) are now `// ORIG:` citing 0x11d4 (lead-verified); 80150's (c1a42b/b5496b) stay FAKE
-  (register-only evidence at 0x7f48). Evidence .scratch/OwnerFlagGetWidthPlan/plan.md.
-- Cast sweep (round 30): 55B20 MapChunk.lastSeenFrame and 61AA0 BillboardCacheEntry.lastUsedFrame stay s32 (u32 retype fdiff 1). model.h/heap.h frame stamps landed u32 after Rev29.
-- 90D80 renderRotatedSprite proto-steer (02809d, 0d85ab) stays: the 103AB0 owner is 32-bit by its own asm (texWidth forwarded in a3 without andi, texHeight read with lw 0x60(sp)); a u8 owner adds andi/lbu. Closed as not applicable (round 29, dbf5cc61: owner texWidth/texHeight u32 instead).
-- critter/5110 D_807FCC40/44 split labels stay (round 27, def29e0b): folding them into gPlayerInventoryTable fails because the folded form shares one table base (Q0687); the u8 pun is now `extern u16 D_807FCC40[]`, tagged.
-- ACDC0: D_807FC828..D_807FC838 are one s16[9] collectible-count table; declaring the array changes codegen (text 16 bytes smaller), kept as separate symbols.
-- 2F550 MapViewEntries proposal (.scratch/Rev24/header-request.md), held.
-- Actor.soundSlots[0] (0x6E) is a frame counter in BC3B0 (beep timing): the shared field name may be too narrow (header owner).
-- 55B20 MapZone.tris as MapTriangle * would remove 23 casts (a natural rewrite does not match yet); mapChunksRender never reviewed (blocked on 2F550 MapViewEntries + 35000 renderEntryListBuildDisplayList u8).
-- arcade/0: tag the same `i += 0x24` hack in arcadeSpawnStage3Entities.
-- proxPathAdd/proxPathSetSegment -> `s32 id` (optional) would drop 36880's `(Actor *)id` casts.
-- Shared MapViewEntries (owner 2F550, 0x8 = dl) would let 55B20 drop MapChunkArg; renderEntryListBuildDisplayList last parameter s32 vs u8 (owner 35000) blocks the mapChunksRender proto-steer.
-- jetpac/4FC0 `extern JetpacPlayerActor jetpacPlayer`: JetpacState raises its cfe 1 -> 2 (3480 and 1A60 already use JetpacState).
+- Owner return-width redesigns (closed, kept as the reason the steer pairs stay): (a) keep `u8 mapGetHubWorldIndex(u8, u8)`
+  (OwnerHubWorldIndexWidthPlan: C2A90 func_806BE09C uses v0 unmasked, so the original return is u8); 8F4B0 da5663/2c5186 and
+  FCCD0 da5663/06d21a stay FAKE. (b) keep `u8 flagGet(s16, u8)` (OwnerFlagGetWidthPlan: no option passes all 49 files); 80150
+  c1a42b/b5496b stay FAKE, jetpac/0's pair is ORIG (0x11d4).
+- critter/5110 D_807FCC44 split label stays tagged (5110.c:57, Q0687 table-base CSE); D_807FCC40 retired (5adcdc9b).
+- ACDC0: D_807FC828..D_807FC838 are one s16[9] collectible-count table; declaring the array changes codegen (text 16 bytes smaller), kept as separate symbols (ACDC0.c:73-78).
+- 2F550 MapViewEntries proposal (.scratch/Rev24/header-request.md), held. With it, 55B20 could drop MapChunkArg; renderEntryListBuildDisplayList last parameter s32 vs u8 (owner 35000) blocks the 55B20 mapChunksRender proto-steer (a1232a/19cc66).
+- Actor.soundSlots[0] (0x6E) is a frame counter in BC3B0 (beep timing, BC3B0.c:173-176): the shared field name may be too narrow (header owner).
+- 55B20 MapZone.tris as MapTriangle * would remove 23 casts (a natural rewrite does not match yet; 55B20.c:352/1468).
+- proxPathAdd/proxPathSetSegment -> `s32 id` (optional, ACTIONABLE; like 89ad9a91's proxPathSetEnabled/SetEndBehavior/RemoveActor) would drop 36880's `(Actor *)id` casts (36880.c:792/796); owner 133A90 + caller bundle.
+- jetpac/4FC0 `extern JetpacPlayerActor jetpacPlayer` (4FC0.c:44): JetpacState raises its cfe 1 -> 2 (round-34 measurement; 3480 and 1A60 already use JetpacState).
 - jetpac/1A60 jetpacUpdatePlayerMovement volatile 1d4065 / 1d4065#2: blocked. Director REJECTED `volatile s32 flying` in jetpac.h JetpacPlayerActor: it only moves a codegen-only volatile into a shared header and hides it. Both sites stay tagged `blocked` (HackjetpacUpdatePlayerMovement, 2026-11-14; evidence .scratch/HackjetpacUpdatePlayerMovement/).
-- gActiveActors/gActiveActorCount: file-local externs in 33 files (header move candidate, actor.h).
-- 42630 csCmdExec proto-type 89a542 (hudSpawnCountdownTimer arity, owner A7710) stays blocked. W712 3ae317 fixed in round 31 (119370 effectGridFindByTargetId returns EffectGridAsset *, 8c4e5c7c). 450 2e505d actorMapModelsSetup stays (round 27: 8D3E0 kept actorMapModelsSetup(s32, u8, u8)).
-- Extern unification left: gPlayerSlots keeps void * in 1025E0, 10E1D0, 11BC10, 12E800, 1332B0, 2C910, F93B0, FCCD0, u8 * in 9BF30, s32 in 9DD70, plus 17 file-local view types (retire the views first). D_807FD568 is `KongInventory *` in every file (OwnerKongInventoryPtr 0c0021b1 + OwnerModelSlotsViews 4d0a8baf).
-- KongInventory field carve (actor.h), unblocked: unk0[1] slamLevel, unk0[2] weaponFlags, unk0[4] instrumentFlags; fdiff all 7 users (19A00, 7CA80, D5E10, 103AB0, 42630, E4090, EFDC0). Evidence and the B-button handler caveat (unk0[2] & 1 gates the instrument/fairy-camera handlers): .scratch/s2026-11-14-types-queue.md, OwnerKongInventoryPtr report.
-- File-scope views: PLAYER_VIEWS (450), MODEL_TRANSFORM_SLOT (36880), TagBarrelInputPad (80150, needs a shared pad type); actorBoneChainSwingUpdate near-miss hint in the Rev20A report. ModelSlotPosTypeView (936B0) retired by OwnerModelSlotsViews.
-- Optional (types queue): HeapBlock u64 view (heap.h) so 15050's 13 `*(u64 *)blk = 0` / `((u64 *)q)[i]` puns, now `// ORIG:`
+- File-scope view MODEL_TRANSFORM_SLOT0/SLOT (36880.c:1629-1630) and the 36880 views on `ModelSlot.unk20` (model.h:109 `void *`) are blocked on the model.h H1/H2 regeneration (clashes with file-local ModelSlot typedefs). actorBoneChainSwingUpdate near-miss hint in the Rev20A report.
+- Optional (types queue, ACTIONABLE): HeapBlock u64 view (heap.h) so 15050's 14 `*(u64 *)blk = 0` / `((u64 *)q)[i]` puns, now `// ORIG:`
   (HackloadOverlay, merge b4eccb1b: target 64-bit pair stores/copies), become typed 64-bit accesses; fdiff each, keep the ORIG
   comments' offsets.
-- DONE: String convention (W709): Option C (director-approved, OwnerTextStringConventionPlan 90ce8276): 100180 text API takes `const u8 *` (textGetStringWidth, textCountNonSpace, textDrawStringVtx, textDrawString; proto regenerated), C0EE0 func_806BCF98 uses `static const u8` labels (W709 x2 gone, cfe 17 -> 15). 90D80 renderHitCounterHUD/hudDrawRollingCounter (f2ca09, 8c076a) and jetpac/4FC0 (6c4893) are `retype kept` with measurements: a static const u8 label moves it after the other literals in .rodata (IDO emits literals in order of appearance), fdiff 1; jetpacDrawString(const u8 *) raises 18 W709 in jetpac/0 callers; a `(const u8 *)` cast is silencing, rejected. Ledgers b06408f8 / 53b46930.
-- 1332B0 volumeTriggerUpdate PlayerSlot stride view of gPlayerSlots kept (Q0606, views blocked).
-- 11BC10 `effectFallStateInit(Actor *, EffectNode *, u8 *)` (19A00 warnings 5bc221 ×3).
-- 119370 `effectCreateAtModelNode(s32 asset, f32, s32, s32, u8)` (42630 warning 3ae317); Rev17P: effectGridFindByTargetId/effectCreate return `EffectGridAsset *`, TimedLightActorView → EffectNode, sEffectPending* names.
-- Owner prototypes (HackbossSetRandomObjectPair d376b6df): 42630 csModelStateSetFirstByte measured CLOSED (OwnerCsModelStateSetFirstByte 3681acd9): the owner sign-extends val (s16), per-TU prototypes differ and the F0D0/2C910 ORIG declarations are genuine; optional cosmetic: boss/6240:175 and race/0:159 local `(s16, s16)` declarations -> `#include "proto/global/42630.h"` (fdiff OK). Still open: 7CA80 actorUpdatePrevContactFlags may return s32 (9DD70 textMarkerUpdateMatrix needs a non-void declaration, 0x2d88). Detail: .scratch/s2026-11-14-types-queue.md.
-- EffectNode follow-ups: boss/0, F0D0, 89250 (136214b3), 11BC10 turn 2 (21ebc4ba), 478F0 CsEffView (3d851936) done; 119370 `effectCreateAtPosition` -> `EffectNode *` in OwnerEffectCreateAtPositionNode (AS).
-- 133A90 ProxPath.owner key type (42630 warnings 0eead6, 2e5ca6); 42630 csCmdExec views (proto-type 89a542).
-- 8D3E0 `actorMapModelsSetup(void *, u8, u8)` (450 warning 2e505d).
-- DONE: 12E800 behaviourUpdateContactAndState second parameter: B2CE0/BB300 keep the one-parameter owner prototype hidden by PROTO_SKIP + an unprototyped declaration, tagged ORIG (lead-verified move a1,a0 0x7b4/0x1d68 B2CE0, 0xa28 BB300; owner homes only a0 at 12E800 0x1ce0), OwnerBehaviourContactArity ca511d88.
+- 1332B0 volumeTriggerUpdate PlayerSlot stride view of gPlayerSlots kept (Q0606, views blocked; 1332B0.c:11 `extern void *gPlayerSlots`, 172-185). Every other file declares `PlayerStruct *gPlayerSlots` (13b5f3b8) except A8400 (ScreenBounds view, next entry).
+- PlayerStruct 0x270 s16 bounds carve (ACTIONABLE): actor.h has no scissorUlx..Lry fields; A8400's ScreenBounds (A8400.c:165-174) and MapBounds (447-455, SPRITE_BOUNDS) views read them. Round-16 list still open: playerStateQueueCallback arity (F56F0 14204c, race/6650 8cc620), n_alSndpPostEvent.
 - 1025E0 `func_806FDAB8` first param: owner retype to u8, u16 and s32 all fdiff 1 (round 29, CleanBonus2690 retype/owner_*.fdiff), so bonus/2690's local u8 declaration steer (689f58, e3027b) stays. Not actionable.
-- gCamActor extern stays `void *` in boss/8520, B100, C920 (retyping raises cfe); gFrameCounter/gGlobalPauseFlags single shared type.
-- PlayerStruct 0x270 s16 bounds carve (A8400 ScreenBounds/MapBounds views); round-16 list in run-log (TargetVec3f header, KongInventory, playerStateQueueCallback arity, n_alSndpPostEvent).
-- 1445A0 still has its own AuxPVoice/AuxPVoiceEnv/AuxResample views of N_PVoice/ALVoice (follow-up to the audio_synth.h bundles).
-- `Actor.unk15F -> hudMode` (A7710 proposal: 6 or 0xB passed as gfxResourceCreate mode): include/ field, other actors' use unchecked.
-- 36880 views on `ModelSlot.unk20` (void *) blocked on the model.h H1/H2 regeneration (clashes with file-local ModelSlot typedefs).
-- boss/0 and ACDC0: proto-steer `consolidate` rungs staled by the round-18 Actor 0xEC union (4 + 6 functions' sites) need fresh agent runs.
+- gCamActor extern stays `void *` in boss/8520 (8520.c:122) and B100 (B100.c:46) (retyping raises cfe); C920 is `Actor *` (e1dbb7d5). gFrameCounter/gGlobalPauseFlags single shared type.
+- boss/0 and ACDC0 (ACTIONABLE): proto-steer `consolidate` rungs staled by the round-18 Actor 0xEC union need fresh agent runs: boss/0 ea31b7 (actorMoveWithinZone, boss/0.c:369), ACDC0 6bd641/01af71 (renderRotatedSprite, now defined in 90D80.c:157).
 - Data ownership (HacktransitionSetAudioVolume, 2026-11-14, ledger a001e1ac): carve the .data region of 14C9E0 around D_807550A4
-  into its owning C file; that enables a Q0498 function-local `static` retry for transitionSetAudioVolume's dead-if 86665d.
-- A8400 file-local views of the resqueue.h types -> include/resqueue.h types (fields aligned by name), and name ResQueueActorState's 15 unk fields (PolishGlobalA8400Names report §4; detail in .scratch/s2026-11-14-types-queue.md).
-- 8F4B0 CutsceneActorState / WeatherActorState merge (same layout; needs proof actorCutsceneDispatchEvents runs on actor type 0xC; PolishGlobal8F4B0Names 237b3f89).
-- BB300 `u8 *unk178` view of the Actor 0x178 component -> PulseState (A6280 file-local, intensity/phase) once the type is shared; owner item (PolishGlobalA6280Names).
+  (today an extern in 10E1D0.c:566; no 14C9E0.c exists) into its owning C file; that enables a Q0498 function-local `static` retry for transitionSetAudioVolume's dead-if 86665d.
+- A8400 file-local views of the resqueue.h types (ACTIONABLE): SpriteModel (A8400.c:19), SpriteObjectSlot (263), SpriteFrameNode (436), SpriteActorData (441) -> include/resqueue.h ResGlyph fields. ResQueueActorState's fields are all named (resqueue.h:40-74).
+- 8F4B0 CutsceneActorState / WeatherActorState merge (same layout, 8F4B0.c:204/490; needs proof actorCutsceneDispatchEvents runs on actor type 0xC; PolishGlobal8F4B0Names 237b3f89).
+- Shared PulseState (ACTIONABLE): BB300's file-local PulseSwayState/PulseSwayActor (BB300.c:20-28) and A6280's file-local PulseState (A6280.c:30) describe the same Actor 0x178 component; one shared type (owner item, check the layouts agree).
+- gPlayerPadState header extern (ACTIONABLE): every view and split label is retired (edbcff4c, 2d9d6f67, d873dee6, 7a453f41); add `extern PadInputState gPlayerPadState[];` to actor.h and delete the 12 file-local externs (bonus/2690, 103AB0, 70FD0, 7BBD0, 80150, CC800, CEAE0, D5E10, E4090, F56F0, menu/0, race/7BD0).
+- Warning/proto-steer sites with no owner decision yet (audit 2026-11-14, missing blockers M1-M11):
+  - 90D80 hudDrawRollingCounter 8c076a: same `retype kept` as f2ca09 (ledger 53b46930) but the record is stale; re-record.
+  - 55B20 mapChunksApplyLights W709 5cddbb/b2bbaf (`u8 hit` passed to lightCollectVolumesInBounds' `s8 *`, owner 5E2F0) and W712 18cdf5/#2 (local s32 declaration of func_8065C990).
+  - Proto-steers never consolidated or stale: 1025E0 2ed6ea/69fe0c (textGetCharAdvance), 2C910 30698d/41f288/145e04 (textSpawnMarkerChecked + K&R textSpawnSubtitle), 36880 81fdd2/1045f7 (renderReplaceSegment6Commands, playerSlotMatchesSizeMask), B5EC0 72fa9a (actorTrackBoneTowardTarget, consolidate never tried), race/6650 8cc620/3db41f (playerStateQueueCallback, sfxStopSlotSound).
+  - Proto-type views: 103AB0 e73d86 (lensFlareDrawSource takes a file-local type), F56F0 14204c (playerStateQueueCallback arity).
 
 
 ## Round-34 leftovers
-- Done in round 36 (37ae4167): PadInputState typedef in actor.h (no header extern), E4090/CEAE0/D5E10 on it, CEAE0 reads the s8 attackerSpawnNodeId directly. Still open: CC800 G00Slot34, 103AB0 PlayerSampleInfo, menu/0 MenuControllerPad, 80150 TagBarrelInputPad, 7BBD0 CollisionPadD610 and bonus/2690 BonusB_Ctrl views of gPlayerPadState (each declares its own extern; convert file by file, then add the header extern last), plus the D_807FD63A/63C/618 split-label users in CC800, F56F0, bonus/2690, race/7BD0 (E4090's D_807FD63A is load-bearing, Q0264).
-- gMinecartTrackPoints shared declaration (CleanBonus2690 round-36 request): 8 files declare it with different types (bonus/2690, race/36B0, minecart/0, minecart/25F0, 478F0, race/1770, 2F550, race/7BD0); a TargetVec3f ** header extern needs all of them in one batch.
-- Round 38 leftovers: C0EE0 func_806BCF98 W709 x2 done (string-convention Option C, 90ce8276); 19A00 scriptOpPlaySoundAndShake W709 (be3187) was not in that batch, recheck; 61AA0/5E2F0 LightTrigger is in render.h (05fdbfdc) but gLightCandidates keeps per-file externs (55B20 and 63EC0 declare it `u8`); D_807ECD58/D_807ECD60 are `OSContPad` in C0EE0 but `u16` in bonus/9010, A8400, ACDC0.
-- multiplayer/0 reclassification proposal (Rev34A): mpDrawHud early locals matchOver/paused (10c615, 924c0a) and the mpUpdate flag (c4ac54) may be source structure, not hacks (Q0498/Q0108); tags kept.
-- 36880 renderModelQuadGfx owner arity: 35000 passes 8 args against a 7-arg prototype; the target stores the 8th at 0x1C(sp) (Consol34).
-- 117190 D_8075E5C0/D_8075E5C2: a 4-byte `{u8 id; u8 pad; u16 maxTime}` entry type would retire the tagged pun 318113 in menuCheckMapTransitionOnLoad (file-scope view, reaches 3 more functions).
-- Names not applied: MpSettings.unk0 / func_80714608 (mode vs gameMode unclear); func_806C9974 -> playerAddHealthDelta (Rev34C proposal, round-35 names step). Proposals not applied at the 2026-11-14 consolidation (director: keep the existing names for now): collisionGetFloorHeight -> collisionGetWaterHeight, collisionGetFloorTriangleNormal -> collisionCheckLedgeGrab (PolishGlobal6AD90Names; evidence .scratch/close/renames.md rows 104/105). Rejected: Actor.unk155 -> subState (one boss file's evidence for 66 files), D_807FF0F2 -> gAudioHeadphonesEnabled (inferred).
-- global/6710 (round 33): permutes on 442abf and 8e31ef#2 owed (>=600 s). race/7BD0: raceRenderSpeedBoostHud a3016e permute hit to confirm/apply; raceRenderCoinHud permute owed. race/A960: 714c8a permute owed. global/0: globalInit W709 0299c2 needs owner mainThreadLoop(s32) -> void * (450.c stand-in bundle); mainThreadHalt never reviewed. global/54150: W709 777430 retype; 02baa4 permute owed.
+- Names not applied: MpSettings.unk0 / func_80714608 (mode vs gameMode unclear); func_806C9974 -> playerAddHealthDelta (Rev34C proposal, round-35 names step). Proposals not applied at the 2026-11-14 consolidation (director: keep the existing names for now): collisionGetFloorHeight -> collisionGetWaterHeight, collisionGetFloorTriangleNormal -> collisionCheckLedgeGrab (PolishGlobal6AD90Names; evidence .scratch/close/renames.md rows 104/105). Rejected: Actor.unk155 -> subState (one boss file's evidence for 66 files), D_807FF0F2 -> gAudioHeadphonesEnabled (inferred), Actor.unk15F -> hudMode (C8C10 uses unk15F as a 0x80 flag plus a 0x7F phase counter).
+- global/6710 func_80601EE4: noop-arith 8e31ef/8e31ef#2 OPEN next=plain (diagnose nohit HackSmallLeftovers 437b28d1; plain/recipe rungs stale, sweep).
 
 ## OPEN functions
 
 The per-file list is `uv run tools/quality.py rank` (full) or `status --file <f>`; the round-34 close snapshot is `.scratch/r34_post_knowledge.txt`.
-- MirrorActorState shared-type candidate: 684C0 (ex TriggerSpawnSub174, customState of mirror actor 0x7B, triggerZoneSpawnTrigger) and A2F10 (actorMirrorParentModelAxis) declare the same layout (0xC planeOffset, 0xE axisFlags, 0xF alpha) -> one type in actor.h (PolishSmallFilesNames4 cb61dfb6).
