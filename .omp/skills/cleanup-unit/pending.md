@@ -54,7 +54,6 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   into its owning C file; that enables a Q0498 function-local `static` retry for transitionSetAudioVolume's dead-if 86665d.
 - A8400 file-local views of the resqueue.h types -> include/resqueue.h types (fields aligned by name), and name ResQueueActorState's 15 unk fields (PolishGlobalA8400Names report §4; detail in .scratch/s2026-11-14-types-queue.md).
 - 8F4B0 CutsceneActorState / WeatherActorState merge (same layout; needs proof actorCutsceneDispatchEvents runs on actor type 0xC; PolishGlobal8F4B0Names 237b3f89).
-- Move the CC800 character table to C (deferred by the director, 2026-11-14): KongCharacterEntry is in actor.h and the views are retired (OwnerKongCharacterEntryShared 99c91d2a), but D_8075C414/D_8075C420/D_8075C430 are splat labels inside the table that CC800.c:929-935 pulls in via `#pragma GLOBAL_ASM` (no C references, so `rename.py fold` is a no-op). Define `KongCharacterEntry D_8075C410[]` in CC800.c (or size the parent in the symbol file and re-split) and drop the three pragmas. AnimCacheEntry (90dd3611) and ZoneTable/SpawnNodeList (3e92f678) are in actor.h.
 - BB300 `u8 *unk178` view of the Actor 0x178 component -> PulseState (A6280 file-local, intensity/phase) once the type is shared; owner item (PolishGlobalA6280Names).
 
 
