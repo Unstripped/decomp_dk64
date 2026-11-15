@@ -1,0 +1,11 @@
+# playerStateHoldPickup (global, src/global/D5E10.c)
+## Sites
+global:806DA4D8:other:885314 other: `/ (baseScale = 0.15)` in case 4's actorAppendLaunch argument. The side-effecting divisor makes cfe emit it first (ldc 0.15, str/lod -8vreg, swp before div) and then emit the dividend in source order: scaleX (lw 4(s0), lwc1 52, cvt) before the subscript product angle*3.0. uopt keeps that operand order (umpy{1225}{416}), giving mul.d $f4,$f18,$f10 at 0x960c. Without it cfe emits the ixa product first (umpy{911}{1225}), giving mul.d $f4,$f10,$f18. The dead store to baseScale is deleted by uopt.
+## Attempts
+2026-11-09..11-14 (history, 63 events): consolidate protos (done), 12 orderings, f32/f64 literals, (0, 0.15) comma, cast spellings, baseScale removed, dist local, f32 scale local, unsigned-char actorTableContains, 5 permuter runs (best=0 only via an assignment in the divisor), uopt_trace (constants renumbered), as1probe.
+2026-11-14 HackplayerStateHoldPickup opus-5-5:high: sweep plain/recipe: no rewrite. variants scan: only 0.4f->0.4 zeros (unrelated). Statement-form baseScale = 0.15 (case start, before call, function top, initialiser): full=1. f32 angle local: full=21 (same instruction order, cfe emits scaleX first, but angle in $f0 and index in t3/t4). f64 angle*3.0 local: 23. s16/s32 kong index local: 18. scale[0] view, *(arr+i), (arr+i)[0], (&scaleX)[0], deeper A chain, (f64) casts: full=1 (cfe still emits the product first).
+## Untried ideas
+none natural left: the order needs a side effect in the expression (assignment/call) or a non-subscript angle operand (local => extra var register). A tie-breaking test of cfe's weight model (which A forms count as heavy as a variable-index subscript) could find a view, but every A form tried (constant-index ixa via scale[0]) stays lighter.
+## Evidence
+target 0x95bc-0x9634: lh t5 gCurrentCharacterIndex; lwc1 $f4 angle; cvt.d.s $f6; 3.0 -> $f8; mul.d $f10,$f6,$f8; lwc1 $f16,52(t7) scaleX; ldc1 $f6 .rodata+0x1f8 (0x3FC3333333333333 = 0.15); cvt.d.s $f18; mul.d $f4,$f18,$f10 (0x960c); div.d $f8,$f4,$f6; cvt.s.d; mfc1 a3. No store of 0.15 to the stack.
+cfe t.B FAKE: par a2 | ldc 0.15 | str | lod | lod gCurrentActor ..ilod 52 | cvt | lda | lod | ixa | ilod | cvt | ldc 3.0 | mpy | mpy | swp | div. Plain: lda..mpy (product) | scaleX chain | mpy | ldc 0.15 | div.
