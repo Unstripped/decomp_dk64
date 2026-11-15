@@ -541,3 +541,4 @@
 {"type": "unit", "t": "2026-11-15T00:19:18Z", "unit": "2026-11-14: cleanup Hack55B20TypedMembers", "commit": "4a8d6f0e2f1e5655f0fb9ce50b379f3ae6d2fd36"}
 {"type": "unit", "t": "2026-11-15T00:23:17Z", "unit": "2026-11-14: cleanup OwnerCC800KongTablePlan", "commit": "03d1388835d064cbbffb72bbba3328f49a48dc82"}
 {"type": "unit", "t": "2026-11-15T00:28:01Z", "unit": "2026-11-14: cleanup HackE4090InputA", "commit": "7a453f41b32108a9f330d7ac81731abda2a29496"}
+{"type": "unit", "t": "2026-11-15T00:30:08Z", "unit": "2026-11-14: cleanup Hack109660BgScroll", "commit": "c78fccd193fcf36ea074ffb72f79b6dd7ef94d75"}
