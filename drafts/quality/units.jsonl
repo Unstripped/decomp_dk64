@@ -647,3 +647,4 @@
 {"type": "unit", "t": "2026-11-15T15:49:50Z", "unit": "2026-11-15: cleanup HacklensFlareDrawSource2", "commit": "82113476eadaf04fc22d33fd8da326bb70e7ca67"}
 {"type": "unit", "t": "2026-11-15T15:50:23Z", "unit": "2026-11-15: cleanup HackvehicleUpdateMotion2", "commit": "294e64b2f4871ae7cde4317a1eb5dbd253ff6848"}
 {"type": "unit", "t": "2026-11-15T15:53:14Z", "unit": "2026-11-15: cleanup HackhealthHudDraw2", "commit": "eec7ef5e44633aeba34f33fa08fad92b38377df0"}
+{"type": "unit", "t": "2026-11-15T15:53:41Z", "unit": "2026-11-15: cleanup PolishglobalScriptData", "commit": "2f06362e70d6f6d9f77ad5413b66c14146a6543b"}
