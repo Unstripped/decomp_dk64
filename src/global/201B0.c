@@ -2657,7 +2657,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
     idx[1] = target->yawSpeed;
     idx[2] = (target->yawSpeed + 1 >= count) ? count : target->yawSpeed + 1;
     idx[3] = (target->yawSpeed + 2 >= count) ? count : target->yawSpeed + 2;
-    if (gGameMode != 1U) { // FAKE: unsigned 1 keeps this constant out of the gGameMode == 1 tests' web (codegen)
+    if (gGameMode != 1) {
         if (cam->unkF3 == 3 || cam->unkF3 == 0xB) {
             if (target->state != 2 && target->state != 3 && target->state != 4 && target->state != 5 &&
                 target->state != 0x64 && target->state != 0x65) {
@@ -2667,7 +2667,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
         } else {
             switch (target->state) {
                 case 0x36:
-                    if (gPlayerCount >= 2 && gSplitScreenMode != 0) { // FAKE: empty guard keeps real global loads/compares (Q0561)
+                    if (gPlayerCount >= 2 && gSplitScreenMode != 0) { // ORIG: the target loads gPlayerCount and gSplitScreenMode and tests both into an empty body (lbu/slti/bnezl/lbu/beqzl at 0x7904-0x7928)
                     }
                     break;
                 case 0x57:
@@ -2741,8 +2741,8 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
         }
         cam->unkAC &= ~0x40000;
     }
-    if (gGameMode != 0) {
-        if (gGameMode == 1) {
+    switch (gGameMode) {
+        case 1:
             type = p->type;
             if (type == 7) {
                 list = gCamActivePaths->pathLists[gCamPathIndex].nodes;
@@ -2904,119 +2904,120 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                 *focusY = lookY;
                 *focusZ = lookZ;
             }
-        }
-    } else {
-        switch (cam->unkF3) {
-            case 4:
-            case 6:
-                camComputeTargetFocusPos(cam, focusX, focusY, focusZ);
-                camComputeTargetEyePos(camActor, eyeX, eyeY, eyeZ);
-                camSampleFloorHeight(camActor, cam, *eyeX, *eyeZ);
-                break;
-            case 8:
-                camComputeFocusPos(cam, focusX, focusY, focusZ);
-                camComputeTargetEyePos(camActor, eyeX, eyeY, eyeZ);
-                break;
-            case 7:
-                camComputeFocusPos(cam, focusX, focusY, focusZ);
-                break;
-            case 2:
-                camComputeFocusPosOffset(cam, focusX, focusY, focusZ, D_807476B4);
-                if (gCurrentMap == 0xD6) {
-                    *focusY += 50.0f;
-                }
-                if (cam->unkC8 != 0 || cam->unkCA != 0) {
-                    camClampEyeAngle(cam, focusX, focusZ, *eyeX, *eyeZ,
-                                  (s32) sqrtf((*eyeX - *focusX) * (*eyeX - *focusX) + (*eyeZ - *focusZ) * (*eyeZ - *focusZ)));
-                }
-                if (cam->unkF2 != 0) {
-                    camApplyShake(cam, eyeX, eyeY, eyeZ, cam->unkC0, 0);
-                }
-                camSampleFloorHeight(camActor, cam, *eyeX, *eyeZ);
-                break;
-            case 3:
-            case 11:
-                func_806228BC(camActor, eyeX, eyeY, eyeZ, focusX, focusY, focusZ);
-                if (cam->unkF2 != 0) {
-                    camApplyShake(cam, eyeX, eyeY, eyeZ, cam->unkC0, 0);
-                }
-                camSampleFloorHeight(camActor, cam, *eyeX, *eyeZ);
-                break;
-            case 5:
-            case 10:
-            case 12:
-                *focusX = target->x;
-                *focusZ = target->z;
-                if ((target->state == 0x37 || target->state == 0x43 || target->state == 0x4F || target->state == 0x7F ||
-                     target->state == 0x81) &&
-                    (gGlobalOverlayFlags & 0x20) && gCamTargetWaterDepth >= 0xC9) {
-                    *focusY = mathSinF(camActor->roll) * -20.0f + target->y;
-                } else {
-                    *focusY = target->y;
-                }
-                camComputeFollowPos(camActor, target, eyeX, eyeY, eyeZ, 0.0f);
-                break;
-            case 13:
-                *focusX = target->x;
-                *focusY = ((target->eyeHeight >= 21) ? 20 : target->eyeHeight) + target->y;
-                *focusZ = target->z;
-                camComputeFollowPos(camActor, target, eyeX, eyeY, eyeZ, 30.0f);
-                break;
-            case 1:
-                zoom = 0.0f;
-                yOffset = 0.0f;
-                switch (target->state) {
-                    case 0x3E:
-                        break;
-                    case 0x6E:
-                    case 0x6F:
-                        yOffset = gCurrentActor->eyeHeight;
-                        break;
-                    case 0x52:
-                    case 0x54:
-                        yOffset = gCurrentActor->eyeHeight;
-                        break;
-                    case 0x59:
-                        if (gGlobalCutsceneFlags & 2) {
-                            goto check_target;
-                        }
-                        if ((cam->unkAC & 0x2000) && !(target->contactFlags & 0x80)) {
-                            yOffset = cam->unk98 + -10.0f;
-                        }
-                        break;
-                    default:
-                        zoom = cam->unkA0 / 3.0;
-                    check_target:
-                        if (gGlobalOverlayFlags & 1) {
-                            if (cam->unkEF >= 2) {
-                                yOffset = 30.0f;
-                            }
-                            if (cam->unkAC & 0x10000) {
-                                renderCallbacksRegister(renderBonusTargetMarker, camActor, 3);
-                                zoom = cam->unkA0 / 10.0;
-                            }
-                        }
-                        break;
-                }
-                if (cam->wallCollisionMode != 0) {
+            break;
+        case 0:
+            switch (cam->unkF3) {
+                case 4:
+                case 6:
+                    camComputeTargetFocusPos(cam, focusX, focusY, focusZ);
+                    camComputeTargetEyePos(camActor, eyeX, eyeY, eyeZ);
+                    camSampleFloorHeight(camActor, cam, *eyeX, *eyeZ);
+                    break;
+                case 8:
+                    camComputeFocusPos(cam, focusX, focusY, focusZ);
+                    camComputeTargetEyePos(camActor, eyeX, eyeY, eyeZ);
+                    break;
+                case 7:
+                    camComputeFocusPos(cam, focusX, focusY, focusZ);
+                    break;
+                case 2:
+                    camComputeFocusPosOffset(cam, focusX, focusY, focusZ, D_807476B4);
+                    if (gCurrentMap == 0xD6) {
+                        *focusY += 50.0f;
+                    }
+                    if (cam->unkC8 != 0 || cam->unkCA != 0) {
+                        camClampEyeAngle(cam, focusX, focusZ, *eyeX, *eyeZ,
+                                      (s32) sqrtf((*eyeX - *focusX) * (*eyeX - *focusX) + (*eyeZ - *focusZ) * (*eyeZ - *focusZ)));
+                    }
+                    if (cam->unkF2 != 0) {
+                        camApplyShake(cam, eyeX, eyeY, eyeZ, cam->unkC0, 0);
+                    }
+                    camSampleFloorHeight(camActor, cam, *eyeX, *eyeZ);
+                    break;
+                case 3:
+                case 11:
+                    func_806228BC(camActor, eyeX, eyeY, eyeZ, focusX, focusY, focusZ);
+                    if (cam->unkF2 != 0) {
+                        camApplyShake(cam, eyeX, eyeY, eyeZ, cam->unkC0, 0);
+                    }
+                    camSampleFloorHeight(camActor, cam, *eyeX, *eyeZ);
+                    break;
+                case 5:
+                case 10:
+                case 12:
+                    *focusX = target->x;
+                    *focusZ = target->z;
+                    if ((target->state == 0x37 || target->state == 0x43 || target->state == 0x4F || target->state == 0x7F ||
+                         target->state == 0x81) &&
+                        (gGlobalOverlayFlags & 0x20) && gCamTargetWaterDepth >= 0xC9) {
+                        *focusY = mathSinF(camActor->roll) * -20.0f + target->y;
+                    } else {
+                        *focusY = target->y;
+                    }
+                    camComputeFollowPos(camActor, target, eyeX, eyeY, eyeZ, 0.0f);
+                    break;
+                case 13:
+                    *focusX = target->x;
+                    *focusY = ((target->eyeHeight >= 21) ? 20 : target->eyeHeight) + target->y;
+                    *focusZ = target->z;
+                    camComputeFollowPos(camActor, target, eyeX, eyeY, eyeZ, 30.0f);
+                    break;
+                case 1:
                     zoom = 0.0f;
-                }
-                cam->unk94 += (zoom - cam->unk94) * 0.1;
-                camComputeFocusPosOffset(cam, focusX, focusY, focusZ, cam->unk94);
-                camComputeFollowPos(camActor, target, eyeX, eyeY, eyeZ, cam->unk94);
-                if (gCurrentMap == 0x57) {
-                    camApplySway(cam, eyeX, eyeY, eyeZ, 3.0f, 5.0f, 40.0f, 60.0f);
-                }
-                *focusY += yOffset;
-                break;
-        }
-        if (gCamFreezeBelowY != 0 && target->y < gCamFreezeBelowY) {
-            *eyeX = savedX;
-            *eyeY = savedY;
-            *eyeZ = savedZ;
-        } else if (gCamFreezeYAbove != 0 && gCamFreezeYAbove < target->y) {
-            *eyeY = savedY;
-        }
+                    yOffset = 0.0f;
+                    switch (target->state) {
+                        case 0x3E:
+                            break;
+                        case 0x6E:
+                        case 0x6F:
+                            yOffset = gCurrentActor->eyeHeight;
+                            break;
+                        case 0x52:
+                        case 0x54:
+                            yOffset = gCurrentActor->eyeHeight;
+                            break;
+                        case 0x59:
+                            if (gGlobalCutsceneFlags & 2) {
+                                goto check_target;
+                            }
+                            if ((cam->unkAC & 0x2000) && !(target->contactFlags & 0x80)) {
+                                yOffset = cam->unk98 + -10.0f;
+                            }
+                            break;
+                        default:
+                            zoom = cam->unkA0 / 3.0;
+                        check_target:
+                            if (gGlobalOverlayFlags & 1) {
+                                if (cam->unkEF >= 2) {
+                                    yOffset = 30.0f;
+                                }
+                                if (cam->unkAC & 0x10000) {
+                                    renderCallbacksRegister(renderBonusTargetMarker, camActor, 3);
+                                    zoom = cam->unkA0 / 10.0;
+                                }
+                            }
+                            break;
+                    }
+                    if (cam->wallCollisionMode != 0) {
+                        zoom = 0.0f;
+                    }
+                    cam->unk94 += (zoom - cam->unk94) * 0.1;
+                    camComputeFocusPosOffset(cam, focusX, focusY, focusZ, cam->unk94);
+                    camComputeFollowPos(camActor, target, eyeX, eyeY, eyeZ, cam->unk94);
+                    if (gCurrentMap == 0x57) {
+                        camApplySway(cam, eyeX, eyeY, eyeZ, 3.0f, 5.0f, 40.0f, 60.0f);
+                    }
+                    *focusY += yOffset;
+                    break;
+            }
+            if (gCamFreezeBelowY != 0 && target->y < gCamFreezeBelowY) {
+                *eyeX = savedX;
+                *eyeY = savedY;
+                *eyeZ = savedZ;
+            } else if (gCamFreezeYAbove != 0 && gCamFreezeYAbove < target->y) {
+                *eyeY = savedY;
+            }
+            break;
     }
 }
 
