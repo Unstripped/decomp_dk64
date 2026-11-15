@@ -669,3 +669,4 @@
 {"type": "unit", "t": "2026-11-15T16:57:12Z", "unit": "2026-11-15: cleanup HackcritterBattleArenaUpdate2", "commit": "e2ef2623adacbfe5e816e434fd14cf7ed71e867e"}
 {"type": "unit", "t": "2026-11-15T16:57:25Z", "unit": "2026-11-15: cleanup HackprojectileRenderSpriteRing2", "commit": "171f13f5b6594c4e6b377e2a240303f9930ad500"}
 {"type": "unit", "t": "2026-11-15T16:57:43Z", "unit": "2026-11-15: cleanup HacktextDrawStringVtx2", "commit": "dcce278fc59a495b108f13609787789a356da817"}
+{"type": "unit", "t": "2026-11-15T17:08:25Z", "unit": "2026-11-15: cleanup HackprojectileBounceParticleUpdate2", "commit": "108db654ad904df7b2255ba9b13701f12286277d"}
