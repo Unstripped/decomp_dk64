@@ -537,47 +537,44 @@ u16 slotQueueGetMaxValue(s32 slot, s32 player) {
 }
 
 
-extern u8 gPlayerCharacterId;
+extern u8 gPlayerCharacterId[];
 
 void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
-    u8 *pa;
-    KongInventory *kongInv;
     s32 max;
-    s32 slots;
+    KongInventory *kongInv;
+    SlotQueueSlot *slots;
+    s32 kong;
     s32 flag;
     s32 total;
-    s32 value;
+    s32 world;
     u16 *counter;
-    SlotQueueSlot *entry;
-    s32 playerIdx;
 
-    pa = &player;  // FAKE: keeps player memory-resident (plain lbu per use)
-    playerIdx = player; // FAKE: s32 copy of player (home sp+0x28) feeds slotQueueGetMaxValue as lw a1,40(sp)
-    value = playerGetResolvedKongId(player);
-    kongInv = &gPlayerInventoryTable[player].kong[value];
-    slots = slotQueueGetAddress(player);
-    entry = (SlotQueueSlot *)slots + slot;
-    if (((entry->locked == 0) || (delta >= 0)) && (entry->displayMode == 0)) {
-        if ((slot != 0xA) && (slot != 0xC)) {
-            counter = entry->value;
-            if (slots > 0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
+    kong = playerGetResolvedKongId(player);
+    kongInv = &gPlayerInventoryTable[player].kong[kong];
+    slots = (SlotQueueSlot *)slotQueueGetAddress((u32)player); // FAKE: unsigned arg to the K&R callee skips the (s32) ucvt shared with the kong/max args, so the post-call lbu a0,87(sp) feeds both the 0x306 index and this call
+    if (((slots[slot].locked == 0) || (delta >= 0)) && (slots[slot].displayMode == 0)) {
+        switch (slot) {
+        case 0xA:
+        case 0xC:
+            break;
+        default:
+            counter = slots[slot].value;
             if ((*counter + delta) < 0) {
                 *counter = 0;
             } else {
-                *((SlotQueueSlot *)slots)[slot].value += delta; // FAKE: slots + slot * 0x30 spelling, not entry: keeps a2 (sw a2,32(sp)) across the call
-                max = slotQueueGetMaxValue(slot, playerIdx);
-                if (max < *((SlotQueueSlot *)slots)[slot].value) { // FAKE: re-read through slots after the call (lw a2,32(sp); lw v1,0(a2))
-                    *((SlotQueueSlot *)slots)[slot].value = max;
+                *slots[slot].value += delta;
+                max = slotQueueGetMaxValue(slot, player);
+                if (max < *slots[slot].value) {
+                    *slots[slot].value = max;
                 }
                 if ((slot == 8) && (func_805FEF10(&flag) != 0)) {
                     flagSet(flag, 1, 0);
                 }
                 if ((delta > 0) && (slot == 0)) {
-                    value = mapGetHubWorldIndex(gCurrentWorldId, 1); // FAKE: value reused for the world index (a separate world local costs 9 words)
-                    total = kongInv->coloredBananas[value] + kongInv->bananasDelivered[value];
+                    world = mapGetHubWorldIndex(gCurrentWorldId, 1);
+                    total = kongInv->coloredBananas[world] + kongInv->bananasDelivered[world];
                     if ((total >= 0x4B) && ((total - delta) < 0x4B)) {
-                        slots = flagGridIndex(0x225, value, (&gPlayerCharacterId)[player]); // FAKE: slots reused for the flag index (direct argument costs 9 words)
-                        flagSet(slots, 1, 0);
+                        flagSet(flagGridIndex(0x225, world, gPlayerCharacterId[player]), 1, 0);
                         func_80687C48();
                     }
                     if ((total == 0x64) && ((total - delta) < 0x64)) {
@@ -585,7 +582,7 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
                     }
                 }
             }
-            if (playerIdx) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
+            break;
         }
         if (slot == 8) {
             func_806F8278(player);
@@ -770,7 +767,7 @@ void slotQueueSpawnNodes(s32 slot) {
         if ((icon == -1) && (slot == 0xE)) {
             icon = 0x12;
         } else if (slot == 1) {
-            icon = gPlayerCharacterId + 0x14;
+            icon = gPlayerCharacterId[0] + 0x14;
         }
         break;
     }
