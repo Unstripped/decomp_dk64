@@ -4,6 +4,7 @@
 #include "common.h"
 #include "actor.h"
 struct CamPathData;
+struct CamZoneWeightLinks;
 #ifndef PROTO_SKIP_camCueTimerIsRunning
 u8 camCueTimerIsRunning(void);
 #endif
@@ -176,7 +177,7 @@ void func_8061F18C(Actor *, f32, f32, f32);
 void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_func_8061F4B0
-void func_8061F4B0(u8 *);
+void func_8061F4B0(struct CamZoneWeightLinks *);
 #endif
 #ifndef PROTO_SKIP_camSetZoneWeight
 void camSetZoneWeight(u8, u8);

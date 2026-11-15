@@ -1555,16 +1555,14 @@ void camClosestPointOnSegment(f32 px, f32 py, f32 pz, f32 ax, f32 ay, f32 az, f3
     }
 }
 
-void func_8061F4B0(u8 *zoneFlags) {
+void func_8061F4B0(CamZoneWeightLinks *links) {
     u8 i;
-    u8 *p;
-    s32 v;
+    s32 zone;
 
     for (i = 0; i < 6; i++) {
-        v = (0, zoneFlags)[i]; // FAKE: comma keeps addu a1,a0,v0 operand order
-        p = zoneFlags + i;
-        if (v != 0) {
-            gCamActivePaths->zones[v - 1].weight |= p[6] & 0xF;
+        zone = links->zones[i];
+        if (zone != 0) {
+            gCamActivePaths->zones[zone - 1].weight |= links->weights[i] & 0xF;
         }
     }
 }
@@ -1687,7 +1685,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                                     case 0:
                                         handled = 1;
                                         if (k != st->unkC6) {
-                                            func_8061F4B0(e->u.weightLinks.zones);
+                                            func_8061F4B0(&e->u.weightLinks);
                                         }
                                         st->unkC6 = k;
                                         break;
