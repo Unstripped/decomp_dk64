@@ -243,4 +243,8 @@ typedef struct LightTrigger {
 
 extern LightTrigger gLightCandidates[];
 
+// Lights the vertices [start, end) (step `stride` vertices) with lights[0..lightCount); useVertexColor scales by the
+// vertex colour bytes. The owner (asm/global/61690.s, 0x8065C990) is handwritten asm and has no C or generated proto.
+void func_8065C990(Vtx *start, Vtx *end, s32 stride, LightTrigger *lights, s32 lightCount, s32 useVertexColor);
+
 #endif

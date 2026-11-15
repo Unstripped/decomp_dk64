@@ -1693,7 +1693,6 @@ void mapCellUpdateVisibility(f32 x, f32 y, f32 z, s32 parent) {
 }
 
 
-void func_8065C990(void *, void *, s32, void *, s32, s32);
 extern f32 D_807F7EEC;
 extern f32 D_807F7EF0;
 extern f32 D_807F7EF4;
@@ -1701,7 +1700,7 @@ extern f32 D_807F7EF4;
 void mapChunksApplyLights(f32 x, f32 y, f32 z) {
     s32 i;
     s32 obj;
-    void *matrix;
+    Vtx *cellVtx;
     u8 *src;
     s16 key;
     s32 pad0;
@@ -1746,11 +1745,11 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
                                         gMapChunks[i].cells[nodeIdx].vtx[j] = matrixCacheInsert(obj, i, boxIdx, j, gMapCells[k].vtxCount[j], hit);
                                         src = gMapChunks[i].baseVtx + gMapCells[k].vtxOffset[j] * 0x10;
                                         memcpy(gMapChunks[i].cells[nodeIdx].vtx[j], src, gMapCells[k].vtxCount[j] * 0x10);
-                                        matrix = gMapChunks[i].cells[nodeIdx].vtx[j];
+                                        cellVtx = gMapChunks[i].cells[nodeIdx].vtx[j];
                                         D_807F7EEC = gChunkLightR[i];
                                         D_807F7EF0 = gChunkLightG[i];
                                         D_807F7EF4 = gChunkLightB[i];
-                                        func_8065C990(matrix, (u8 *)matrix + gMapCells[k].vtxCount[j] * 0x10, 1, gLightCandidates, obj, gMapChunks[i].lightMode == 1);
+                                        func_8065C990(cellVtx, cellVtx + gMapCells[k].vtxCount[j], 1, gLightCandidates, obj, gMapChunks[i].lightMode == 1);
                                     }
                                 }
                             }
@@ -1770,7 +1769,7 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
                 D_807F7EF0 = gChunkLightG[i];
                 D_807F7EF4 = gChunkLightB[i];
                 if (gGlobalPauseFlags & 0x10) {
-                    func_8065C990((s32)gMapChunks[i].litVtx[gGfxBufferIndex], (s32)gMapChunks[i].litVtx[gGfxBufferIndex] + gMapChunks[i].vtxSize, 1, &gLightCandidates, obj, gMapChunks[i].lightMode == 1);  // FAKE: s32 args steer the a0 register (callee takes void * here)
+                    func_8065C990((Vtx *)(s32)gMapChunks[i].litVtx[gGfxBufferIndex], (Vtx *)((u8 *)gMapChunks[i].litVtx[gGfxBufferIndex] + gMapChunks[i].vtxSize), 1, gLightCandidates, obj, gMapChunks[i].lightMode == 1);  // FAKE: integer round trip on the first argument loads litVtx into v0 and copies it to a0 (move a0,v0 at 0x4c0c); a plain pointer loads a0 directly
                 }
             }
             gMapChunks[i].curVtx = gMapChunks[i].litVtx[gGfxBufferIndex];

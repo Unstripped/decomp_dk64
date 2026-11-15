@@ -317,8 +317,6 @@ extern f32 D_807F7EEC;
 extern f32 D_807F7EF0;
 extern f32 D_807F7EF4;
 
-void func_8065C990(void *, void *, s32, void *, s32, s32);
-
 void effectWaterApplyLights(f32 camX, f32 camY, f32 camZ) {
     WaterSurface *node;
     WaterSurfaceDef *target;
