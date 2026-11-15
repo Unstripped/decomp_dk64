@@ -1,15 +1,20 @@
 # collisionTestStaticMeshFloor (global, src/global/6AD90.c)
 ## Sites
 global:806679BC:other:3172c6 `h2 = (f64)(M * 6.0f);` before `h2 = <formula> + h2;`: REMOVED (2026-11-14). It only made the offset a named leaf so the add keeps the formula first (add.d f24,f20,f6 at 0x1e34).
-global:806679BC:other:af4d3a (copy-only, pre-existing, now tagged) `h2 = <full height formula> + offset;`: recomputes the formula instead of reusing val; `(2000.0 * val) - 1000.0 + offset` or `h2 += offset` changes 86-337 lines.
-global:806679BC:other:356775 `struct { u8 pad[3]; u8 cb; f32 cc; } spS;`: makes the address-taken &spS.cc alias cb, so the final `cb |= collisionTestHardcodedFloorPlane(&spS.cc, ...)` reloads lbu t5,203(sp) after the call.
+global:806679BC:other:4d0a2d (was af4d3a; pre-existing, now tagged) `h2 = <full height formula> + offset;`: recomputes the formula instead of reusing val, so the formula is a CSE expression candidate (f20) separate from h2 (f24) and add.d f24,f20,f6 at 0x1e34 keeps it first; `(2000.0 * val) - 1000.0 + offset` or `h2 += offset` changes 86-337 lines.
+global:806679BC:other:356775 `struct { u8 pad[3]; u8 cb; f32 cc; } spS;`: makes the address-taken &spS.cc alias cb (uopt drops cb's vreg flag), so the call kills it and the final `cb |= collisionTestHardcodedFloorPlane(&spS.cc, ...)` reloads lbu t5,203(sp) after the call.
 ## Attempts
 2026-11-09 CleanD5E10 opus:low: separate locals (frame 0x158 vs 0x150), h2 += M*6, f32/f64 offset locals, reversed operands, permute.
 2026-11-10 QualityTools: review. 2026-11-11 Rev16G / Rev17L: sweep, diagnose (single expression swaps add.d), permute.
 2026-11-14 HackcollisionBstSortFlatItems opus:high:
 - 3172c6: `f32 offset` declared in the padTop slot (first local, padTop removed) + `offset = M * 6.0f; h2 = <formula> + offset;` -> fdiff 0. Other placements: block-scoped f32 5 lines (spill homes of ix/iz 148/152 vs 152/156), with a pad word removed 0 for padTop/padH/padB/padC variants at several positions; f64 offset 27-56; h2 += offset 86; val-based formula 337; if/else forms 272-378.
 - 356775: `f32 floorY; u8 hit;` (reverse order) puts the homes at 203/204(sp) exactly; 24 lines left: hit kept in s0 across the final call instead of reloaded. hit = call | hit / hit = hit | call: 74.
+2026-11-15 HackcollisionTestStaticMeshFloor2 opus:high:
+- 356775: uopt -zdbug:6 trace of `f32 floorY; u8 hit;` (24 lines): hit (M -141) is a vreg variable that is never coloured, but the expression ucvt(hit) (candidate 364) is coloured s0 across the final jal: lbu s0,203(sp) at 0x23a8 serves both the post-loop test and the final `|`. In the FAKE copy -141 has no vreg (aggregate address taken), so the jal kills it. No callee takes a byte pointer (only addiu a0,sp,204 in the target). A scan of include/ and src/ for a struct with u8 at 3 and f32 at 4 finds only ActorGlobalState, AmbientAudioParam, GridTypeEntry, BossA_Struct_8002413C_Template (unrelated).
+- 356775 width scan of the separate-locals body: `u32 hit` 6 lines, and only the access width differs (sw/lw 0xc8(sp) vs sb/lbu 0xcb(sp) at 0x19ac/0x1c58/0x20c0/0x23a8/0x2440/0x2448; it reloads after the jal like the target, and the u8 return reads lbu 0xcb). u16 26, s8 100, s32/s16 101. So the target is a byte local that uopt treats like the uncoloured 32-bit one (same shape as Q0742's tagBarrelCheckProximityAndFall).
+- 4d0a2d: val reused as the height (`val = (2000.0 * val) - 1000.0; h2 = val; if (..) h2 = val + offset;`, also single-statement and three-statement val forms) 317 (frame 0x160, x spilled to 0x164(sp)); a separate `f64 floorH` at each of the 23 declaration positions and block-scoped: 317 each; `h2 += M * 6.0f` read in place 86 (h2 alone in f20, frame 0x150); if/else on val 83; the formula written twice with no val local 1 line (mul.d f10,f6,f28 vs f28,f6 at 0x1e10, every operand order), and is the same recompute anyway.
 ## Untried ideas
-A real reason for cb to be aliased by the call (no callee writes it; collisionTestHardcodedFloorPlane only reads *arg0).
+A real reason for cb to be aliased by the call (no callee writes it; collisionTestHardcodedFloorPlane only reads *arg0). A natural reason for the height formula to be computed twice (a shared plane-height macro would still need val as a variable for the first use: written twice without val is 1 line off).
 ## Evidence
 Target: sb zero,203(sp) / swc1 f4,204(sp) at 0x19ac/0x19b0; addiu a0,sp,204 at 0x1acc/0x1b70/0x242c; final lbu t5,203(sp) at 0x2440 after jal at 0x2438; add.d f24,f20,f6 at 0x1e34.
+Target: post-loop test lbu t5,203(sp) at 0x23a8 (and 0x1c58 in the beql delay slot); sub.d f20 (formula) at 0x1e14 then mov.d f24,f20 (h2) in the beqz delay slot at 0x1e1c, both live across jal mapOffsetSlotGetValue at 0x1e20.
