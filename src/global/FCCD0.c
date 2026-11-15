@@ -169,8 +169,8 @@ extern u16 gTextNumberArg;
 extern s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
 
 /* Initialises the per-player slot queue (15 slots of 0x30 bytes per player): sets each slot's text pointer, size and
- * screen position (func_806F8004). Formatting is load-bearing: the unk8/unkC stores share one line. The player index is
- * a word-sized local holding (u8)i (target: lbu a0,155(sp) from i's home, sw a0,120(sp)). */
+ * screen position (func_806F8004). The player index is a word-sized local holding (u8)i (target: lbu a0,155(sp)
+ * from i's home, sw a0,120(sp)). */
 void slotQueueInit(s32 reset) {
     u32 j;
     s32 i;
@@ -200,8 +200,7 @@ void slotQueueInit(s32 reset) {
             kongInv = (KongInventory *)((u8 *)inv + (s32)kongInv);
             player = (u8)i;
             base = (SlotQueueSlot *)slotQueueGetAddress(player);
-            j = 0;
-            do {
+            for (j = 0; j < 15; j++) {
                 flag = 0;
                 if (reset != 0) {
                     base[j].state = 0;
@@ -217,32 +216,32 @@ void slotQueueInit(s32 reset) {
                 switch (j) {
                 case 0:
                     base[j].value = &kongInv->coloredBananas[world];
-                    base[j].x = 0x1E; base[j].y = 0x26;
+                    base[j].x = 0x1E; base[j].y = 0x26; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(15.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 13:
                     base[j].value = NULL;
-                    base[j].x = 0x122; base[j].y = 0x26;
+                    base[j].x = 0x122; base[j].y = 0x26; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(-5.5f, -26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 8:
                     base[j].value = &kongInv->goldenBananas[world];
-                    base[j].x = 0x1E; base[j].y = 0x48;
+                    base[j].x = 0x1E; base[j].y = 0x48; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(1.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 12:
                     base[j].value = NULL;
-                    base[j].x = 0xC2; base[j].y = 0xD0;
+                    base[j].x = 0xC2; base[j].y = 0xD0; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(-26.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 10:
                     base[j].value = NULL;
-                    base[j].x = 0x52; base[j].y = 0xD0;
+                    base[j].x = 0x52; base[j].y = 0xD0; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(-26.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 9:
                     base[j].value = NULL;
-                    base[j].x = 0x7A; base[j].y = 0xD0;
+                    base[j].x = 0x7A; base[j].y = 0xD0; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     break;
                 case 5:
                     if (shownMask & 0x20) {
@@ -250,12 +249,12 @@ void slotQueueInit(s32 reset) {
                         flag = 1;
                     }
                     base[j].value = &inv->abilityEnergy;
-                    base[j].x = 0x122; base[j].y = 0x8C;
+                    base[j].x = 0x122; base[j].y = 0x8C; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(-5.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 2:
                     base[j].value = &inv->ammo;
-                    base[j].x = 0x122; base[j].y = 0x48;
+                    base[j].x = 0x122; base[j].y = 0x48; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(8.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 3:
@@ -264,7 +263,7 @@ void slotQueueInit(s32 reset) {
                         flag = 1;
                     }
                     base[j].value = &inv->homingAmmo;
-                    base[j].x = 0x122; base[j].y = 0x48;
+                    base[j].x = 0x122; base[j].y = 0x48; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(8.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 4:
@@ -273,7 +272,7 @@ void slotQueueInit(s32 reset) {
                         flag = 1;
                     }
                     base[j].value = &inv->throwAmmo;
-                    base[j].x = 0x122; base[j].y = 0x6A;
+                    base[j].x = 0x122; base[j].y = 0x6A; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(1.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 6:
@@ -282,12 +281,12 @@ void slotQueueInit(s32 reset) {
                         flag = 1;
                     }
                     base[j].value = &inv->cameraFilm;
-                    base[j].x = 0x122; base[j].y = 0xD0;
+                    base[j].x = 0x122; base[j].y = 0xD0; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(-19.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 11:
                     base[j].value = &D_80750AC4;
-                    base[j].x = 0x122; base[j].y = 0x26;
+                    base[j].x = 0x122; base[j].y = 0x26; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(16.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 1:
@@ -296,7 +295,7 @@ void slotQueueInit(s32 reset) {
                         flag = 1;
                     }
                     base[j].value = &kongInv->coins;
-                    base[j].x = 0x122; base[j].y = 0x26;
+                    base[j].x = 0x122; base[j].y = 0x26; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(16.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 7:
@@ -305,24 +304,23 @@ void slotQueueInit(s32 reset) {
                         flag = 1;
                     }
                     base[j].value = &kongInv->instrumentEnergy;
-                    base[j].x = 0x122; base[j].y = 0xAE;
+                    base[j].x = 0x122; base[j].y = 0xAE; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(-12.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 14:
                     base[j].value = &gTextNumberArg;
-                    base[j].x = 0x1E; base[j].y = 0x26;
+                    base[j].x = 0x1E; base[j].y = 0x26; // LAYOUT: one line lets as1 store y (sw +12) before x (sw +8)
                     func_806F8004(15.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 }
                 base[j].locked = flag;
-                if (flag & 0xFF) {
+                if (base[j].locked) {
                     base[j].displayMode = 1;
                 }
                 if (base[j].value != NULL) {
                     base[j].shown = *base[j].value;
                 }
-                j++;
-            } while (j != 0xF);
+            }
             func_806F8278(player);
             i++;
             inv++;
