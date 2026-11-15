@@ -1020,6 +1020,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
     s32 flags;
     s32 sel;
     s16 ang;
+    f32 z;
     s32 hasFlag;
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) || force) {
@@ -1039,12 +1040,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                 hasFlag = flags & 2;
                 slotQueueAddValue(sel, gCurrentPlayerIndex, -1);
                 if (!isFirstPerson) {
-                    s32 v = gActivePlayerState->unk8F + 1;
-                    if (v >= 0x15) {
-                        gActivePlayerState->unk8F = 0x14;
-                    } else {
-                        gActivePlayerState->unk8F = v;
-                    }
+                    gActivePlayerState->unk8F = (gActivePlayerState->unk8F + 1 >= 0x15) ? 0x14 : gActivePlayerState->unk8F + 1;
                 }
                 rumbleRequest(gActivePlayerState->playerIndex, 0xFF, 3);
                 switch (gCurrentActor->actorType) {
@@ -1122,8 +1118,8 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                     projectileSetSpawnFlag();
                 }
                 if (isFirstPerson) {
-                    ang2 = gPlayerSlots[gCurrentPlayerIndex].camZ; // FAKE: camZ routed through the angle temp ang2; passing camZ directly is 3 diff lines, a separate local 69
-                    projectileSetTargetCoords(gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camY, ang2);
+                    z = gPlayerSlots[gCurrentPlayerIndex].camZ; // ORIG: the target loads camZ into $f0 (lwc1 at 0x33b8) and passes it with mfc1 a2 (0x33c4); a direct argument is lw a2
+                    projectileSetTargetCoords(gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camY, z);
                     dz = gPlayerSlots[gCurrentPlayerIndex].focusZ - gPlayerSlots[gCurrentPlayerIndex].camZ;
                     dx = gPlayerSlots[gCurrentPlayerIndex].focusX - gPlayerSlots[gCurrentPlayerIndex].camX;
                     ang2 = mathAtan2(gPlayerSlots[gCurrentPlayerIndex].focusY - gPlayerSlots[gCurrentPlayerIndex].camY, sqrtf(dz * dz + dx * dx));
