@@ -93,7 +93,7 @@ void actorMapModelsSetup(u8 *modelData, u8 loadMode, u8 skipExtra) {
     u8 *subtables;
     u8 *records;
     s32 mapIndex;
-    s32 modelAsset; // FAKE: modelAsset reused as the colour walker; a separate walker local grows the frame
+    s32 modelAsset;
     u16 preMapModelCount;
     s32 flag;
 
@@ -129,13 +129,12 @@ void actorMapModelsSetup(u8 *modelData, u8 loadMode, u8 skipExtra) {
             modelSlotsApplyRecords(D_8076A160[mapIndex].records, D_8076A160[mapIndex].recordSize);
         }
         if (gMapChunkCount > 0) {
-            flag = 0; modelAsset = (s32)&D_8076A160[mapIndex]; do { lightSetColor( // LAYOUT: init + call on one line steers as1 order of the hoisted ldc1 vs addu
-                (u32)((u8 *)modelAsset)[0x24] / 255.0,
-                (u32)((u8 *)modelAsset)[0x25] / 255.0,
-                (u32)((u8 *)modelAsset)[0x26] / 255.0,
+            flag = 0; do { lightSetColor( // LAYOUT: init + call on one line steers as1 order of the hoisted ldc1 vs addu
+                (u32)D_8076A160[mapIndex].rgb[flag][0] / 255.0,
+                (u32)D_8076A160[mapIndex].rgb[flag][1] / 255.0,
+                (u32)D_8076A160[mapIndex].rgb[flag][2] / 255.0,
                 flag);
                 flag++;
-                modelAsset += 3;
             } while (flag < gMapChunkCount);
         }
     }
