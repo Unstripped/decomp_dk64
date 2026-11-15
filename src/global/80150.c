@@ -55,10 +55,7 @@ typedef struct ActorMapFlag {
 
 // Per-kong animation frame table (D_8074E834), indexed by kong index.
 typedef struct KongAnimFrameTable {
-    struct {
-        s16 unk0;
-        s16 frame;
-    } arr[5];
+    s32 frame[5];
 } KongAnimFrameTable;
 
 
@@ -105,9 +102,9 @@ s32 tagBarrelIsSpecial(Actor *actor) {
 typedef struct LaunchBarrelConfig {
     f32 tiltAngle;
     f32 launchSpeed;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
+    f32 targetX;
+    f32 targetY;
+    f32 targetZ;
     s32 camPath;
     s32 hidden;
 } LaunchBarrelConfig;
@@ -116,9 +113,9 @@ typedef struct LaunchBarrelConfig {
 typedef struct LaunchBarrelState {
     Actor *rider;
     f32 launchSpeed;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
+    f32 targetX;
+    f32 targetY;
+    f32 targetZ;
     u8 timer;
     u8 camPath;
 } LaunchBarrelState;
@@ -128,7 +125,7 @@ extern u8 D_8071FBC8;
 
 void launchBarrelUpdate(void) {
     LaunchBarrelState *sub = gCurrentActor->customState;
-    PlayerState *peer;
+    PlayerState *riderState;
     s32 i;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -140,9 +137,9 @@ void launchBarrelUpdate(void) {
         gCurrentActor->sub4->boneRotations[0].rotZ = 0;
         gCurrentActor->sub4->boneRotations[1].weight = 0;
         sub->launchSpeed = ((LaunchBarrelConfig *)gCurrentActor->spawnData)->launchSpeed;
-        sub->unk8 = ((LaunchBarrelConfig *)gCurrentActor->spawnData)->unk8;
-        sub->unkC = ((LaunchBarrelConfig *)gCurrentActor->spawnData)->unkC;
-        sub->unk10 = ((LaunchBarrelConfig *)gCurrentActor->spawnData)->unk10;
+        sub->targetX = ((LaunchBarrelConfig *)gCurrentActor->spawnData)->targetX;
+        sub->targetY = ((LaunchBarrelConfig *)gCurrentActor->spawnData)->targetY;
+        sub->targetZ = ((LaunchBarrelConfig *)gCurrentActor->spawnData)->targetZ;
         sub->camPath = ((LaunchBarrelConfig *)gCurrentActor->spawnData)->camPath;
         if (((LaunchBarrelConfig *)gCurrentActor->spawnData)->hidden == 1) {
             if (tagBarrelIsSpecial(gCurrentActor) == 0) {
@@ -180,10 +177,10 @@ void launchBarrelUpdate(void) {
             break;
         case 2:
             actorAppendCallback(sub->rider, gCurrentActor, 0x40, 1, 0, 0);
-            peer = sub->rider->customState;
-            peer->launchTargetX = sub->unk8;
-            peer->launchTargetY = sub->unkC;
-            peer->launchTargetZ = sub->unk10;
+            riderState = sub->rider->customState;
+            riderState->launchTargetX = sub->targetX;
+            riderState->launchTargetY = sub->targetY;
+            riderState->launchTargetZ = sub->targetZ;
             actorAppendPlayerLaunch(gCurrentActor, sub->rider, gCurrentActor->yaw, 0.0f, sub->launchSpeed);
             actorQueueDelayedCallback(gCurrentActor, gCurrentActor, 0x800, 2, 0, 0, 0xA);
             effectSetMode(2);
@@ -199,22 +196,7 @@ void launchBarrelUpdate(void) {
             }
             break;
         case 0:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-        case 17:
-        case 18:
-        case 19:
+        default:
             break;
         case 20:
             for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
@@ -238,7 +220,6 @@ void launchBarrelUpdate(void) {
             break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
-    if (sub) {} // FAKE: extends sub across the final call so it takes a saved register
 }
 
 void tagBarrelPeerUpdate(void) {
@@ -1670,7 +1651,7 @@ void movingLaunchBarrelUpdate(void) {
     s32 pad2;
     s16 viewYaw;
     MovingLaunchBarrelState *sub;
-    s32 param;
+    u8 forceView;
     f32 camY;
     s16 i;
 
@@ -1683,6 +1664,7 @@ void movingLaunchBarrelUpdate(void) {
         sub->baseY = gCurrentActor->y;
         sub->frequency = ((MovingLaunchBarrelSpawnData *)gCurrentActor->spawnData)->frequency / 200.0;
         sub->amplitude = ((MovingLaunchBarrelSpawnData *)gCurrentActor->spawnData)->amplitude;
+        // Start the sine at 3*pi/2 (its low point).
         sub->phase = (sub->frequency != 0.0) ? 4.71238899230957031 / sub->frequency : 0;
         sub->mode = ((MovingLaunchBarrelSpawnData *)gCurrentActor->spawnData)->mode;
         sub->baseYaw = gCurrentActor->yaw;
@@ -1722,9 +1704,9 @@ void movingLaunchBarrelUpdate(void) {
         case 0:
         case 4:
             if (sub->mode == 0) {
-                gCurrentActor->y = sinApprox((f32)sub->phase * sub->frequency) * sub->amplitude + (sub->baseY + sub->amplitude);
+                gCurrentActor->y = sinApprox(sub->phase * sub->frequency) * sub->amplitude + (sub->baseY + sub->amplitude);
             } else {
-                gCurrentActor->y = sinApprox((f32)sub->phase * sub->frequency) * sub->amplitude + sub->baseY;
+                gCurrentActor->y = sinApprox(sub->phase * sub->frequency) * sub->amplitude + sub->baseY;
             }
             actorAppendMoveTarget3D(gCurrentActor, sub->rider, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
             viewYaw = gCurrentActor->yaw;
@@ -1735,9 +1717,9 @@ void movingLaunchBarrelUpdate(void) {
             viewYaw = (gCurrentActor->yaw + (s32)(sub->frequency * 200.0f)) & 0xFFF;
             break;
         case 1:
-            gCurrentActor->yaw = ((s16)(sinApprox((f32)sub->phase * sub->frequency) * ((sub->amplitude * 4096.0f) / 360.0f)) + sub->baseYaw) & 0xFFF;
+            gCurrentActor->yaw = ((s16)(sinApprox(sub->phase * sub->frequency) * ((sub->amplitude * 4096.0f) / 360.0f)) + sub->baseYaw) & 0xFFF;
             sub->phase++;
-            viewYaw = ((s16)(sinApprox((f32)sub->phase * sub->frequency) * ((sub->amplitude * 4096.0f) / 360.0f)) + sub->baseYaw) & 0xFFF;
+            viewYaw = ((s16)(sinApprox(sub->phase * sub->frequency) * ((sub->amplitude * 4096.0f) / 360.0f)) + sub->baseYaw) & 0xFFF;
             break;
         case 3:
             viewYaw = gCurrentActor->yaw;
@@ -1760,22 +1742,12 @@ void movingLaunchBarrelUpdate(void) {
             riderState = sub->rider->customState;
             controllerAnimFreeStateAsset(gCurrentActor);
             if (!(gGlobalCutsceneFlags & 2)) {
-                if (sub->mode == 3) {
-                    param = 0x64;
-                } else {
-                    param = 0x32;
-                }
-                camSetTargetScaled(riderState->camActor, sub->rider, 4, 0x800, param, 0, 0, 0x1E, 0x14, 0x50, 0.3f);
+                camSetTargetScaled(riderState->camActor, sub->rider, 4, 0x800, (sub->mode == 3) ? 0x64 : 0x32, 0, 0, 0x1E, 0x14, 0x50, 0.3f);
             }
             gActivePlayerActor->yaw = gCurrentActor->yaw;
             gActivePlayerActor->moveYaw = gCurrentActor->yaw;
             actorAppendCallback(sub->rider, gCurrentActor, 0x40, 1, 0, 0);
-            if (gGlobalCutsceneFlags & 2) {
-                param = 0x1F4;
-            } else {
-                param = 0x2BC;
-            }
-            actorAppendPlayerLaunch(gCurrentActor, sub->rider, gCurrentActor->yaw, 0.0f, param);
+            actorAppendPlayerLaunch(gCurrentActor, sub->rider, gCurrentActor->yaw, 0.0f, (gGlobalCutsceneFlags & 2) ? 0x1F4 : 0x2BC);
             actorQueueDelayedCallback(gCurrentActor, gCurrentActor, 0x800, 2, 0, 0, 0xA);
             effectSetMode(2);
             effectCreateAtActorBone(&D_8071FBC8, 1.6f, gCurrentActor, 1, 2);
@@ -1786,19 +1758,19 @@ void movingLaunchBarrelUpdate(void) {
             cam = ((PlayerState *)sub->rider->customState)->camActor;
             switch (sub->mode) {
             case 0:
-                camY = sinApprox((f32)sub->phase * sub->frequency) * sub->amplitude + (sub->baseY + sub->amplitude);
+                camY = sinApprox(sub->phase * sub->frequency) * sub->amplitude + (sub->baseY + sub->amplitude);
                 break;
             case 4:
-                camY = sinApprox((f32)sub->phase * sub->frequency) * sub->amplitude + sub->baseY;
+                camY = sinApprox(sub->phase * sub->frequency) * sub->amplitude + sub->baseY;
                 break;
             default:
                 camY = gCurrentActor->y;
                 break;
             }
             if (gGlobalCutsceneFlags & 2) {
-                param = 0;
+                forceView = 0;
             } else {
-                param = 1;
+                forceView = 1;
             }
             camSetFixedView(
                 cam,
@@ -1808,7 +1780,7 @@ void movingLaunchBarrelUpdate(void) {
                 gCurrentActor->x + dirX,
                 camY,
                 gCurrentActor->z + dirZ,
-                param
+                forceView
             );
             if (camIsCutsceneActive() == 0) {
                 renderCallbacksRegister(playerViewDrawCrosshair, gPrimaryPlayerActor, 3);
@@ -1844,7 +1816,7 @@ void movingLaunchBarrelUpdate(void) {
     if (gCurrentMap == 0xCB) {
         gCurrentActor->flags |= 0x400;
     }
-    guRotateF(gCurrentActor->modelMtx, sub->pitch, 1.0f, 0, 0.0f);
+    guRotateF(gCurrentActor->modelMtx, sub->pitch, 1.0f, 0.0f, 0.0f);
     actorUpdateModelMatrix(gCurrentActor, 1);
 }
 
@@ -2712,7 +2684,7 @@ void tagBarrelUpdateSelectedKong(void) {
         gCurrentActor->flags |= 0x1000;
         animSetLoopLimit(gCurrentActor, 0, 1);
         animSetFinished(gCurrentActor, 0, 1);
-        animSetFrameAndSubframe(gCurrentActor, 0, anims.arr[*kongIndex].frame, 0.0f);
+        animSetFrameAndSubframe(gCurrentActor, 0, anims.frame[*kongIndex], 0.0f);
         actorScriptStart(gCurrentActor, 0x329);
     }
     gCurrentActor->tintA = gCurrentActor->unk15F;
@@ -2732,7 +2704,7 @@ typedef struct TagBarrelWeaponState {
 // Two-component accessor of the same actor: 0x178 is its second component.
 typedef struct TagBarrelWeaponActor {
     Actor base;
-    void *unk178;
+    void *chains;
 } TagBarrelWeaponActor;
 
 
@@ -2747,7 +2719,7 @@ void tagBarrelInteractiveUpdate(void) {
         gCurrentActor->flags |= 0x1000;
         gCurrentActor->sub4->boneRotations = heapAlloc(0x100);
         heapClearBlock(gCurrentActor->sub4->boneRotations);
-        kongChainInit(0, ((TagBarrelWeaponActor *)gCurrentActor)->unk178, extra->kind);
+        kongChainInit(0, ((TagBarrelWeaponActor *)gCurrentActor)->chains, extra->kind);
         switch (extra->kind) {
         case 2:
             extra->callback = playerWeaponAimTarget;
