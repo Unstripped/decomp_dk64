@@ -422,13 +422,10 @@ void raceUpdateWaypointActivation(RaceParticipant *actorState) {
                 farAway = 0;
                 for (j = 0; j < gPlayerCount; j++) {
                     f32 *p = &gPlayerSlots[j].camX;
-                    f32 dz = p[2] - node->z;
-                    f32 dx = p[0] - node->x;
-                    f32 dy = p[1] - node->y;
 
-                    dist = dz * dz + (dx * dx + dy * dy);
-                    dz = 302500.0f; // FAKE: constant reloaded through dz; a literal compare shrinks the frame 0x50 -> 0x48
-                    farAway |= dist > dz;
+                    dist = (p[0] - node->x) * (p[0] - node->x) + (p[1] - node->y) * (p[1] - node->y) +
+                           (p[2] - node->z) * (p[2] - node->z);
+                    farAway |= dist > 302500.0f;
                 }
                 if (farAway != node->state) {
                     for (k = 0; k < 2; k++) {
