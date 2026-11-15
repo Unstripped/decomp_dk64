@@ -426,20 +426,20 @@ void eepromSetCurrentSlot(u8 slotId, s32 save) {
     }
 }
 
-typedef struct EepromConfig {
-    s16 value;
-    u8 byte2;
-    u8 byte3;
-    u8 byte4;
-    u8 byte5;
-} EepromConfig;
+typedef struct MenuHighScoreEntry {
+    s16 score;
+    u8 initial0;
+    u8 initial1;
+    u8 initial2;
+    u8 initial3;
+} MenuHighScoreEntry;
 
 extern s32 D_807467EC[];
-extern EepromConfig D_80744548[];
-extern EepromConfig D_80744568[];
+extern MenuHighScoreEntry D_80744548[];
+extern MenuHighScoreEntry D_80744568[];
 
-extern const EepromConfig D_80757044[];
-extern const EepromConfig D_80757064[];
+extern const MenuHighScoreEntry D_80757044[];
+extern const MenuHighScoreEntry D_80757064[];
 
 void eepromInitConfigs(u8 mask) {
     s32 i;
@@ -450,26 +450,26 @@ void eepromInitConfigs(u8 mask) {
     if (mask & 2) {
         for (i = 0; i != 5; i++) {
             eepromSetField(0x15, 0, i, 0, D_807467EC[i]);
-            eepromSetField(0x12, 0, i, 0, 0x20);
-            eepromSetField(0x13, 0, i, 0, 0x20);
-            eepromSetField(0x14, 0, i, 0, 0x20);
+            eepromSetField(0x12, 0, i, 0, ' ');
+            eepromSetField(0x13, 0, i, 0, ' ');
+            eepromSetField(0x14, 0, i, 0, ' ');
         }
     }
     if (mask & 4) {
         for (i = 0; i != 5; i++) {
-            eepromSetField(0x19, 0, i, 0, D_80757044[i].value);
-            eepromSetField(0x16, 0, i, 0, D_80757044[i].byte2);
-            eepromSetField(0x17, 0, i, 0, D_80757044[i].byte3);
-            eepromSetField(0x18, 0, i, 0, D_80757044[i].byte4);
+            eepromSetField(0x19, 0, i, 0, D_80757044[i].score);
+            eepromSetField(0x16, 0, i, 0, D_80757044[i].initial0);
+            eepromSetField(0x17, 0, i, 0, D_80757044[i].initial1);
+            eepromSetField(0x18, 0, i, 0, D_80757044[i].initial2);
             D_80744548[i] = D_80757044[i];
         }
     }
     if (mask & 8) {
         for (i = 0; i != 5; i++) {
-            eepromSetField(0x1D, 0, i, 0, D_80757064[i].value);
-            eepromSetField(0x1A, 0, i, 0, D_80757064[i].byte2);
-            eepromSetField(0x1B, 0, i, 0, D_80757064[i].byte3);
-            eepromSetField(0x1C, 0, i, 0, D_80757064[i].byte4);
+            eepromSetField(0x1D, 0, i, 0, D_80757064[i].score);
+            eepromSetField(0x1A, 0, i, 0, D_80757064[i].initial0);
+            eepromSetField(0x1B, 0, i, 0, D_80757064[i].initial1);
+            eepromSetField(0x1C, 0, i, 0, D_80757064[i].initial2);
             D_80744568[i] = D_80757064[i];
         }
     }
@@ -749,33 +749,28 @@ void eepromSaveRecordsOffset(void) {
     eepromSaveRecords(1);
 }
 
-extern u8 D_807FC952;
+extern u8 D_807FC952; // gPlayerInventoryTable[0].kong[0].weaponFlags; that spelling CSEs into the table base (lbu 2(s0)), the target loads this label
 extern u8 gPlayerCharacterId;
 
 void eepromHalveRecords(void) {
     s32 i;
 
     if (anyKongUsesAbilityEnergy() != 0) {
-        u32 v = slotQueueGetMaxValue(5, 0);
-        gPlayerInventoryTable[0].abilityEnergy = v * 0.5;
+        gPlayerInventoryTable[0].abilityEnergy = (u32)slotQueueGetMaxValue(5, 0) * 0.5;
     }
     if (flagGet(0x184, 0) != 0) {
-        u32 v = slotQueueGetMaxValue(4, 0);
-        gPlayerInventoryTable[0].throwAmmo = v * 0.5;
+        gPlayerInventoryTable[0].throwAmmo = (u32)slotQueueGetMaxValue(4, 0) * 0.5;
     }
     if (flagGet(0x179, 0) != 0) {
-        u32 v = slotQueueGetMaxValue(6, 0);
-        gPlayerInventoryTable[0].cameraFilm = v * 0.5;
+        gPlayerInventoryTable[0].cameraFilm = (u32)slotQueueGetMaxValue(6, 0) * 0.5;
     }
     if (D_807FC952 != 0) {
-        u32 v = slotQueueGetMaxValue(2, 0);
-        gPlayerInventoryTable[0].ammo = v * 0.5;
+        gPlayerInventoryTable[0].ammo = (u32)slotQueueGetMaxValue(2, 0) * 0.5;
     }
     for (i = 0; i != 5; i++) {
         gPlayerCharacterId = i;
         if (gPlayerInventoryTable[0].kong[i].instrumentFlags != 0) {
-            u32 v = slotQueueGetMaxValue(7, 0);
-            gPlayerInventoryTable[0].kong[i].instrumentEnergy = v * 0.5;
+            gPlayerInventoryTable[0].kong[i].instrumentEnergy = (u32)slotQueueGetMaxValue(7, 0) * 0.5;
         }
     }
     gPlayerCharacterId = 0;
