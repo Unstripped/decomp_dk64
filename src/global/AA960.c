@@ -22,10 +22,10 @@
 #include "proto/global/FCCD0.h"
 
 typedef struct SfxTableEntry {
-    /* 0x0 */ u16 unk0;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ u8 unk4;
-    /* 0x5 */ u8 unk5;
+    /* 0x0 */ u16 actorType;
+    /* 0x2 */ s16 spawnType;
+    /* 0x4 */ u8 sfxId;
+    /* 0x5 */ u8 spawnCount;
 } SfxTableEntry; /* size = 6 */
 
 extern Actor *gCurrentActor;
@@ -67,8 +67,8 @@ void sfxSpawnTableNodes(Actor *actor) {
     if (gGlobalOverlayFlags & 0x4000) {
         return;
     }
-    while (found == 0 && D_80750400[i].unk0 != 0) {
-        if (D_80750400[i].unk0 == actor->actorType) {
+    while (found == 0 && D_80750400[i].actorType != 0) {
+        if (D_80750400[i].actorType == actor->actorType) {
             found = 1;
         } else {
             i++;
@@ -77,13 +77,13 @@ void sfxSpawnTableNodes(Actor *actor) {
     if (found == 0) {
         return;
     }
-    if (D_80750400[i].unk4 != 0) {
-        sfxAllocateChannel(D_80750400[i].unk4, 1.0f);
+    if (D_80750400[i].sfxId != 0) {
+        sfxAllocateChannel(D_80750400[i].sfxId, 1.0f);
     }
-    step = 0xFFF / D_80750400[i].unk5;
-    for (j = 0; j < D_80750400[i].unk5; j++) {
-        actorSpawnNodeEntryScaled(D_80750400[i].unk2, actor->x, actor->y, actor->z, offset, 1, -1, 0);
-        offset = offset + step;
+    step = 0xFFF / D_80750400[i].spawnCount;
+    for (j = 0; j < D_80750400[i].spawnCount; j++) {
+        actorSpawnNodeEntryScaled(D_80750400[i].spawnType, actor->x, actor->y, actor->z, offset, 1, -1, 0);
+        offset += step;
     }
 }
 
@@ -105,11 +105,11 @@ void actorSpawnNodeEntryScaled(s16 actorType, f32 x, f32 y, f32 z, s32 yaw, s32 
 // customState of the drop-and-bounce pickups (actorDropBounceExpireUpdate).
 typedef struct DropBounceState {
     /* 0x0 */ u8 bounceCount;
-    /* 0x1 */ u8 unk1;
+    /* 0x1 */ u8 collectable;
     /* 0x2 */ u8 pad2[2];
     /* 0x4 */ EffectNode *sprite;
     /* 0x8 */ u16 expireTimer;
-    /* 0xA */ s16 unkA;
+    /* 0xA */ s16 flagId;
 } DropBounceState;
 
 void effectSpawnAttachedSprite(void *targetState, void *spriteAsset, f32 scale) {
@@ -322,7 +322,7 @@ void func_806A6574(void) {
 typedef struct BounceSpawnConfig {
     /* 0x0 */ f32 initialState;
     /* 0x4 */ f32 yaw;
-    /* 0x8 */ f32 unk8;
+    /* 0x8 */ f32 flagId;
 } BounceSpawnConfig;
 
 extern s16 D_8075038C;
@@ -340,8 +340,8 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         gCurrentActor->yaw = gCurrentActor->moveYaw;
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         state->bounceCount = 0;
-        state->unk1 = 0;
-        state->unkA = ((BounceSpawnConfig *)gCurrentActor->spawnData)->unk8;
+        state->collectable = 0;
+        state->flagId = ((BounceSpawnConfig *)gCurrentActor->spawnData)->flagId;
         gCurrentActor->unkFA = 0x270F;
     }
     if (gActorGlobalState.unk0 != 0) {
@@ -384,7 +384,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
             switch (state->bounceCount) {
             case 0:
                 if (gCurrentActor->unk15F != 1) {
-                    state->unk1 = 1;
+                    state->collectable = 1;
                 }
                 gCurrentActor->speedY = 150.0f;
                 break;
@@ -398,7 +398,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
                 gCurrentActor->speedXZ = 0.0f;
                 gCurrentActor->speedY = 0.0f;
                 if (gCurrentActor->actorType == 0x8C) {
-                    state->unk1 = 1;
+                    state->collectable = 1;
                 }
                 if (gCurrentActor->actorType != 0x6E && gCurrentActor->actorType != 0x8C && !(gGlobalOverlayFlags & 0x4000) && gCurrentActor->unk15F != 2) {
                     state->expireTimer = 0x64;
@@ -444,7 +444,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
     case 25:
         state->expireTimer = 0x64;
         gCurrentActor->state = 3;
-        state->unk1 = 1;
+        state->collectable = 1;
         break;
     }
 }
@@ -452,10 +452,10 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
 // customState of the fade-in spinning bouncers (actorBounceFadeInSpinUpdate, actorUpdateSfxAndGround).
 typedef struct BounceFadeState {
     /* 0x0 */ u8 bounceCount;
-    /* 0x1 */ u8 unk1;
+    /* 0x1 */ u8 collectable;
     /* 0x2 */ u8 pad2[6];
     /* 0x8 */ u16 fadeInFrames;
-    /* 0xA */ s16 unkA;
+    /* 0xA */ s16 flagId;
 } BounceFadeState;
 
 // customState of the path-following collectibles (actorPathCollectibleUpdate).
@@ -487,12 +487,12 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
         gCurrentActor->moveYaw = ((BounceSpawnConfig *)gCurrentActor->spawnData)->yaw;
         gCurrentActor->yaw = gCurrentActor->moveYaw;
         state->bounceCount = 0;
-        state->unk1 = 1;
-        state->unkA = ((BounceSpawnConfig *)gCurrentActor->spawnData)->unk8;
+        state->collectable = 1;
+        state->flagId = ((BounceSpawnConfig *)gCurrentActor->spawnData)->flagId;
         gCurrentActor->unkFA = 0x270F;
         playerAddHealthDelta(0, 0x40);
     }
-    if ((f32)state->fadeInFrames < 30.0f) {
+    if (state->fadeInFrames < 30.0f) {
         state->fadeInFrames++;
     }
     gCurrentActor->alpha = state->fadeInFrames * 0.033333335f * 255.0f;
@@ -551,16 +551,16 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
             switch (state->bounceCount) {
             case 0:
                 gCurrentActor->speedY = 1600.0f;
-                gCurrentActor->speedXZ = gCurrentActor->speedXZ / 2;
+                gCurrentActor->speedXZ /= 2;
                 break;
             case 1:
                 gCurrentActor->speedY = 1200.0f;
-                gCurrentActor->speedXZ = gCurrentActor->speedXZ / 2;
+                gCurrentActor->speedXZ /= 2;
                 volume = 0x64;
                 break;
             case 2:
                 gCurrentActor->speedY = 800.0f;
-                gCurrentActor->speedXZ = gCurrentActor->speedXZ / 2;
+                gCurrentActor->speedXZ /= 2;
                 volume = 0x46;
                 break;
             case 3:
