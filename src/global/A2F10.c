@@ -178,7 +178,7 @@ void actorLightPulseUpdate(void) {
     f32 rangeSq;
     u8 despawned;
     PlayerState *hostState;
-    u8 isAttached[4]; // FAKE: flag kept in memory (array) so its loads are not CSE'd into the loop; element 3 = byte 0x7F
+    u8 isAttached;
     Actor *host;
     s32 *hostFlags;
     LightPulseState *light;
@@ -191,12 +191,12 @@ void actorLightPulseUpdate(void) {
 
     lightRadius = 0x12C;
     despawned = 0;
-    isAttached[3] = 0;
+    isAttached = 0;
     attachedTo = gCurrentActor->parentActor;
     light = gCurrentActor->customState;
     if (attachedTo != NULL && (attachedTo->collisionFlags & 1)) {
         host = attachedTo;
-        isAttached[3] = 1;
+        isAttached = 1;
     } else {
         host = gPrimaryPlayerActor;
     }
@@ -208,7 +208,7 @@ void actorLightPulseUpdate(void) {
         hostFlags = &hostState->stateFlags;
     }
     if (!(gCurrentActor->flags & 0x10)) {
-        light->hostRadius = (u16)host->collision->radius;
+        light->hostRadius = host->collision->radius;
         gCurrentActor->drawDistance = 0x3E8;
         gCurrentActor->flags |= 0x400;
         animSetLoopLimit(gCurrentActor, 0, 1);
@@ -246,7 +246,7 @@ void actorLightPulseUpdate(void) {
             light->blue = 0x32;
             break;
         }
-        if (isAttached[3] != 0) {
+        if (isAttached) {
             light->radiusScale = 2.0f;
         } else {
             light->radiusScale = 1.5f;
@@ -284,7 +284,7 @@ void actorLightPulseUpdate(void) {
              0.0f, 0.0f, gCurrentActor->sub4->scaleX * (f32)lightRadius * light->radiusScale, 0,
              light->red, light->green, light->blue);
     if (gCurrentMap != 0x4C) {
-        if (isAttached[3] == 0 || gCurrentActor->unk15F != 0) {
+        if (!isAttached || gCurrentActor->unk15F != 0) {
             callbackId = 0x2E;
             if (mpIsMatchType(0) != 0) {
                 callbackId = 0xE;
@@ -293,32 +293,29 @@ void actorLightPulseUpdate(void) {
             rangeSq = rangeSq * rangeSq;
             for (i = 0; i < gPlayerCount; i++) {
                 target = gPlayerSlots[i].actor;
-                if (isAttached[3] == 0 ||
-                    (i != hostState->playerIndex && target->state != 0x84)) {
-                    if (actorIsTargetInRange(target, target->eyeHeight, rangeSq) !=
-                        0) {
-                        playerStateQueueCallback(callbackId, gCurrentActor, i);
-                    }
-                    if (gPlayerCount && gPlayerCount) {}  // FAKE: steers uopt to PRE-reload the loop count
+                if (isAttached &&
+                    (i == hostState->playerIndex || target->state == 0x84)) {
+                    continue;
+                }
+                if (actorIsTargetInRange(target, target->eyeHeight, rangeSq) != 0) {
+                    playerStateQueueCallback(callbackId, gCurrentActor, i);
                 }
             }
             if (gCurrentActor->unk15F != 0) {
                 actorSetCollisionRadius(
                     gCurrentActor,
-                    (f32)(2.0 * ((gCurrentActor->sub4->scaleX * (f32)lightRadius) *
-                                 6.66666667)));
+                    2.0 * ((gCurrentActor->sub4->scaleX * (f32)lightRadius) * 6.66666667));
                 actorGetOrSetNodeScale(
                     gCurrentActor, 1,
-                    (f32)((gCurrentActor->sub4->scaleX * (f32)lightRadius) *
-                          6.66666667));
+                    (gCurrentActor->sub4->scaleX * (f32)lightRadius) * 6.66666667);
             }
         } else if (despawned == 0) {
-            actorSetCollisionRadius(gCurrentActor->parentActor,
-                          (f32)(2.0 * ((gCurrentActor->sub4->scaleX * (f32)lightRadius) *
-                                       6.66666667)));
+            actorSetCollisionRadius(
+                gCurrentActor->parentActor,
+                2.0 * ((gCurrentActor->sub4->scaleX * (f32)lightRadius) * 6.66666667));
             actorGetOrSetNodeScale(
                 gCurrentActor->parentActor, actorTypeToNodeIndex(host->actorType),
-                (f32)((gCurrentActor->sub4->scaleX * (f32)lightRadius) * 6.66666667));
+                (gCurrentActor->sub4->scaleX * (f32)lightRadius) * 6.66666667);
             actorOrNodeFlags(host, actorTypeToNodeIndex(host->actorType), 3);
         }
     }
