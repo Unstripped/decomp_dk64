@@ -1541,17 +1541,13 @@ void menuInitMultiplayerResults(Actor *actor, s32 unused) {
 }
 
 
-typedef struct MenuScreenPos { // screen position of one character-select kong slot
-    f32 x;
-    f32 y;
-} MenuScreenPos;
 extern s32 D_800338B4[];
-extern MenuScreenPos gMenuKongSlotPositions[];
+extern f32 gMenuKongSlotPositions[]; // (x, y) screen position of each character-select kong slot
 
 
 void menuCharacterSelectUpdateActor(void) {
     s32 step;
-    MenuScreenPos *row;
+    f32 *row;
     MenuScreenState *parentState;
     s32 sel;
     f32 posX;
@@ -1598,11 +1594,9 @@ void menuCharacterSelectUpdateActor(void) {
                 sub->parent = sub174->parent;
             }
             shouldDespawn = 1;
-            if (gCurrentActor->state != 0) {} // FAKE: extra reference of the unk154 value; recolours the shared A->unk154 candidate (t0) and the PRE reload position
-            if (sub174->parent->flags && sub174->parent->flags) {} // FAKE: repeated dead load steers uopt lifetimes and the ugen temporary ring
         }
-        row = &gMenuKongSlotPositions[gCurrentActor->state];
-        menuComputeElementPosition(parentState, row->x, row->y, &posX, &posY, 2, 0, 1.8f);
+        row = &gMenuKongSlotPositions[gCurrentActor->state * 2];
+        menuComputeElementPosition(parentState, row[0], row[1], &posX, &posY, 2, 0, 1.8f);
         gCurrentActor->x = gPrimaryPlayerActor->x + (posX - 160.0f);
         gCurrentActor->y = (gPrimaryPlayerActor->y - (posY - 120.0f)) - 20.0f;
         gCurrentActor->z = gPrimaryPlayerActor->z - 300.0f;
