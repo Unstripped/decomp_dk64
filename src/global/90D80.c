@@ -369,6 +369,7 @@ Gfx *renderCountdownTimerHUD(Gfx *glist, CsCountdown *countdown) {
 
 
 Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal, u8 *timer) {
+    static const u8 sOneDigit[] = "1";
     f32 rollOffset;
     u8 currTensStr[2];
     u8 currOnesStr[2];
@@ -446,7 +447,7 @@ Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal,
         } else if (*curVal == 0x63 || *curVal == 0xC7) {
             glist = textDrawStringVtx(glist, 3, (x * 4) - 0x50, y * 4 - 0x60 + rollOffset, hundredsStr, 1);
             if (*curVal == 0xC7) {
-                glist = textDrawStringVtx(glist, 3, (x * 4) - 0x50, (s16)((f32)(y * 4 + 4) + rollOffset), "1", 1);
+                glist = textDrawStringVtx(glist, 3, (x * 4) - 0x50, (s16)((f32)(y * 4 + 4) + rollOffset), sOneDigit, 1);
             }
         }
     }
