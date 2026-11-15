@@ -17,6 +17,8 @@ is open, and a batch that reaches a file a worker holds waits until that worker'
 
 A function defined in the agent's own file needing a new prototype type is no header request: it
 retypes the definition with a stand-in (`#define PROTO_SKIP_<f>` + declaration), merged via SKILL §5.4.
+A handwritten-asm function (no C owner, so no generated `include/proto/` header) gets ONE prototype in the topical game
+header next to its types (render.h `func_8065C990`, OwnerAsmLightProjProto 49d39602); callers drop their local declarations.
 Applying a request: carve only padding, keep landed names, list users with `uv run tools/rename.py
 field --dry-run include/<h>.h <Struct> <field> zzProbe` (+ text-grep casts), skip checked-out files'
 fields; snapshot and edit users, objdiff each, `clint.py layout --base HEAD include/<h>.h` → `LAYOUT

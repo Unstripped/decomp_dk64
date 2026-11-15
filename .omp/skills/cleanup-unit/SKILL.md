@@ -117,7 +117,9 @@ replacing `// FAKE` needs the cited target-asm offset (check it). Accept a pre-e
 
 ## 6. Session close (once per session)
 
-Once every worker is idle:
+Wrap-up (user asks to stop): no new dispatch; merge reports as they land; while the last (permuter) rows finish, file
+the knowledge queue and fold lessons into the skill (no src/include); then steps 1-6 once every worker is idle. Within a
+session, a consolidation in a quiet window runs steps 1-4 only. Once every worker is idle:
 1. Apply proposed `func_`/`D_`/shared-field names ([naming.md](naming.md)) with `rename.py
    func|global|field` (dry-run first). It refuses references inside macros and address-shaped targets
    (`func_807444E0` data → `D_`): apply the `--dry-run` positions incl. the macro-argument lines by hand,

@@ -30,6 +30,9 @@ its cfe warning code plus the line's normalized code. Kinds:
 an `// ORIG` line without a cited offset stays a hack site. The offset must show the tagged line's OWN operations
 (a wider call-site declaration's caller-side `andi`, an extra argument register), not a computation a dead test keeps
 alive (stays FAKE, `diagnose nohit`; 627052); ORIG on a pre-switch constant store: compile without the store first.
+A rewrite into a sentinel `switch` (empty case group, call in `default:`) is natural C only when every case value is
+compared in the target and the switch changes what short-circuit code gives (Q0844); a chain the target compares in
+source order with a reload per compare is the original (Q0845). The lead checks the compares in the expected asm.
 
 ## Methods
 
@@ -113,19 +116,16 @@ A function with 3+ non-kept sites (warning sites not counted) also needs a fresh
   and no `knowledge/ido` file committed after the event names the function (its current or
   `func_ADDR` name). Note similarity never stales: top-8 note hits re-ran the same attempts for
   rounds (r35-36 permute: 96 ks for one fix); a retry must instead name what is new (`new=`).
-  An entry naming the function whose `unit` (`quirks.py add --unit`) produced the event (a carried
-  event: the event it copies) does not stale it: that unit's agents had the finding (round 34:
-  Q0704-Q0719 staled 52 own-run rungs so). Tag at filing: a later `unit` edit is a new commit.
-  Still write notes in concrete register/offset terms (`$s1 holds sp+0x34 across the jal`):
-  the next worker reads them in `history` and the dossier.
-- A method counts through its newest event by time (carried events keep their original time) if
-  that is fresh and not `blocked`. A fresh `hit` makes the site OPEN `next=apply` (the sweep found
-  a match nobody merged yet).
-- `carry` re-stamps a body that differs only by local/param renames even beside unrelated
-  file-scope edits (abee1d87, `(renames; unrelated file-scope changes only)`), and renamed fields of
-  an `include/` record that keep its layout (8220de44); `--func NAME` limits it to named
-  functions so a second pass never duplicates events. A fold (`D_x` → `base.field`), a renamed
-  site line (new key) and a reached type change are never carried: those go to re-review.
+  An entry naming the function whose `unit` (`quirks.py add --unit`) produced the event (a carried event: the event
+  it copies) does not stale it (round 34: Q0704-Q0719 staled 52 own-run rungs so); a later edit of an entry (a
+  correction) stales every rung of its functions: they go to the next re-review wave (8ceee687, 145e8a82).
+  Write notes in concrete register/offset terms (`$s1 holds sp+0x34 across the jal`): `history` and dossiers.
+- A method counts through its newest event by time (carried events keep their original time) if that is fresh and
+  not `blocked`. A fresh `hit` makes the site OPEN `next=apply` (the sweep found a match nobody merged yet).
+- `carry` re-stamps a body that differs only by local/param/global renames even beside unrelated file-scope edits
+  (abee1d87), renamed fields of an `include/` record that keep its layout (8220de44), and a site line whose key a
+  rename changed (consolidation 2: 797f1c -> 3a2970); `--func NAME` limits it so a second pass never duplicates
+  events. A fold (`D_x` → `base.field`) and a reached type change are never carried: those go to re-review.
 
 ## Function state
 
