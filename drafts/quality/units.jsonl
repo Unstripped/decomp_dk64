@@ -676,3 +676,4 @@
 {"type": "unit", "t": "2026-11-15T17:16:48Z", "unit": "2026-11-15: cleanup HackmodelSlotsStepSegmentCommands", "commit": "c655ef3827a928f284c0a031f7df06098c3e4b60"}
 {"type": "unit", "t": "2026-11-15T17:20:04Z", "unit": "2026-11-15: cleanup HackhudPauseMenuUpdate2", "commit": "4defc7852114dafefa02faa4c6db5f3bd2136928"}
 {"type": "unit", "t": "2026-11-15T17:20:05Z", "unit": "2026-11-15: cleanup HackactorNodeRingUpdate2", "commit": "4defc7852114dafefa02faa4c6db5f3bd2136928"}
+{"type": "unit", "t": "2026-11-15T17:36:11Z", "unit": "2026-11-15: cleanup HackspawnNodeActorOutOfRangeScaled", "commit": "79fc2dd0613ab2b2533afcc55c429bd9e6909cda"}
