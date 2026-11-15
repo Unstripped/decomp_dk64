@@ -634,3 +634,4 @@
 {"type": "unit", "t": "2026-11-15T15:06:43Z", "unit": "2026-11-15: cleanup HackgfxSwapGeometryModeCullBits2", "commit": "fc8faef246990108dc33727d45df78a4a46d2901"}
 {"type": "unit", "t": "2026-11-15T15:07:48Z", "unit": "2026-11-15: cleanup HackarcadeUpdateDonkeyKongStage3", "commit": "847de629782dd12c6f7f896db28fc641c1fff2c5"}
 {"type": "unit", "t": "2026-11-15T15:10:16Z", "unit": "2026-11-15: cleanup HackeepromSaveRecords2", "commit": "870d6f216ab9a9a0dbf744ab0d7b1d3bb6eeab08"}
+{"type": "unit", "t": "2026-11-15T15:11:09Z", "unit": "2026-11-15: cleanup PolishglobalEFDC0", "commit": "c5d9ef701a2f5887b42fd5353f0582f2ae81d5bb"}
