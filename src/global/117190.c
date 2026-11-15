@@ -543,9 +543,9 @@ Gfx *menuDrawBlinkingPromptText(Gfx *dl) {
             return dl;
         }
         if (&D_80755370 && &D_80755370 && &D_80755370) {}  // FAKE: dead address test, steers as1 delay-slot fill (bne+nop instead of bnel)
-        x = (f32) ((f64) x * 0.5);
+        x = x * 0.5;
         gDPSetCombineMode(dl++, G_CC_DECALRGBA, G_CC_DECALRGBA);
-        dl = hudDrawScaledText(dl, (s16) (s32) (x * 4.0f), (s16) (s32) ((f32) gHiResScale * y * 4.0f), 0.7f, textTableGetString(0xC, (s32) textIds.ids[textIndex], 1));
+        dl = hudDrawScaledText(dl, (s16) (x * 4.0f), (s16) ((f32) gHiResScale * y * 4.0f), 0.7f, textTableGetString(0xC, textIds.ids[textIndex], 1));
     }
     return dl;
 }
