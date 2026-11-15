@@ -233,7 +233,7 @@ s32 controllerAnimInit(Actor *actor, u16 assetId) {
         actor->stateModel = NULL;
 
         alloc = heapAlloc((resource->boneCount << 7) + 0x170);
-        actor->sub4 = (ActorSub4 *)alloc;
+        actor->sub4 = alloc;
         actor->sub4->model = (AnimSlot *)((u8 *)alloc + 0x90);
         actor->sub4->layer = (AnimSlot *)((u8 *)alloc + 0xC8);
         actor->sub4->blendFrom = (AnimSlot *)((u8 *)alloc + 0x100);
@@ -423,13 +423,13 @@ extern u16 *gActorScriptAnimTable;
 
 void controllerAnimSetStateRemap(Actor *actor, s16 animIndex, f32 animSpeed, f32 blend) {
     s16 flag;
-    s32 sum;
+    s32 tableIndex;
     if (animIndex >= 0) {
         flag = animIndex & 0x4000;
         animIndex -= flag;
         gActivePlayerState->unk4E = animIndex;
-        sum = (animIndex * 7 + actor->actorType - 2) & 0xFFFF;
-        animIndex = gActorScriptAnimTable[sum] + flag;
+        tableIndex = (animIndex * 7 + actor->actorType - 2) & 0xFFFF;
+        animIndex = gActorScriptAnimTable[tableIndex] + flag;
     } else {
         gActivePlayerState->unk4E = animIndex;
     }
@@ -439,13 +439,13 @@ void controllerAnimSetStateRemap(Actor *actor, s16 animIndex, f32 animSpeed, f32
 
 void controllerAnimSetStateRemapDirect(Actor *actor, s16 animIndex, f32 animSpeed, f32 blend) {
     s16 flag;
-    s32 sum;
+    s32 tableIndex;
     if (animIndex >= 0) {
         flag = animIndex & 0x4000;
         animIndex -= flag;
         gActivePlayerState->unk4E = animIndex;
-        sum = (animIndex * 7 + actor->actorType - 2) & 0xFFFF;
-        animIndex = gActorScriptAnimTable[sum] + flag;
+        tableIndex = (animIndex * 7 + actor->actorType - 2) & 0xFFFF;
+        animIndex = gActorScriptAnimTable[tableIndex] + flag;
     } else {
         gActivePlayerState->unk4E = animIndex;
     }

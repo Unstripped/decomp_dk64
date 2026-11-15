@@ -6,18 +6,28 @@
 #include "proto/boss/6240.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
 #include "proto/global/135D30.h"
 #include "proto/global/13A7A0.h"
 #include "proto/global/166A0.h"
 #include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
 #include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
 #include "proto/global/35000.h"
 #include "proto/global/42630.h"
 #include "proto/global/63EC0.h"
+#include "proto/global/69E60.h"
 #include "proto/global/6AD90.h"
 #include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/936B0.h"
+#include "proto/global/9BF30.h"
+#include "proto/global/CEAE0.h"
 #include "proto/global/FCCD0.h"
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 typedef struct PufftossSwingState {
     char pad[4];
@@ -58,11 +68,9 @@ void bossPufftossBobStep(void) {
     }
     gCurrentActor->y += 8.0 * (f64)mathSinF((s16)((f64)gFrameCounter * 200.0));
 }
-Actor *actorFindByType(u16);
-void actorAppendCallbackMemcpy8(Actor *, Actor *, s32, u8, void *, u8);
 
 void bossPufftossNotifyLaser(u8 targetIndex) {
-    void *target;
+    Actor *target;
     f32 targetPos[2];
 
     switch (targetIndex) {
@@ -132,8 +140,6 @@ void bossSpawnSparkles(void) {
 
 extern Actor *gPrimaryPlayerActor;
 
-u8 polygonContainsPoint2D(s16, s16, Zone *);
-
 void bossClampPosition(Zone *zone) {
     if (!polygonContainsPoint2D((s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z, zone)) {
         gPrimaryPlayerActor->x = gPrimaryPlayerActor->prevX;
@@ -151,37 +157,9 @@ extern f32 D_807502FC;
 extern s32 gCurrentMap;
 extern ALBank *D_8076D1F8;
 extern Actor *gCamActor;
-extern void *gSpawnedActor;
+extern Actor *gSpawnedActor;
 extern PlayerStruct *gPlayerSlots;
 extern PlayerState *gActivePlayerState;
-
-void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void scriptSetActorRampTarget(void *, f32, f32);
-void actorScriptStart(void *, s32);
-s32 currentActorTestClearFlag(void);
-void currentActorClearFlag(void);
-void actorApplyVelocityCustom(void *, f32, f32);
-f32 actorGetOrSetNodeScale(Actor *, s32, f32);
-s32 actorTableContains(void *);
-void effectSpawnChildAtNode(u8, s16, s16);
-void effectSpawnActorBoneEffects(u8);
-void projectileGetTargetCoords(void *, s32);
-void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, Actor *);
-void projectileClampAngleAndSpawn(s16, s16, s16, s16, f32, f32, f32, f32, f32, Actor *);
-void projectileSpawnWithShockwave(s16, f32, u8, u8, u8, u8, f32, f32, f32, f32);
-void loadModelAssetTable(void);
-void playerSetLargeModeScale(f32);
-void playerSetSizeMode(Actor *, u8);
-u8 func_8072881C(u8, u32 *);
-void behaviourFrameBegin(void);
-void actorApplyGravity(void);
-void actorTurnTowardTarget(u8, f32, f32, u16);
-void behaviourUpdateShadowAlpha(void);
-u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
-void actorSetTargetSpeed(Actor *, s32);
-u8 patrolPathStep(u8, u8);
 
 
 void bossPufftossStep(void) {

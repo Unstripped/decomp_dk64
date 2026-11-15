@@ -588,7 +588,8 @@ void actorTransformCameraUpdateD(void) {
 }
 
 extern Actor *gSpawnedActor;
-typedef struct ActorC71CState {
+// customState of a carryable barrel (actorTransformCameraUpdate): held, thrown, floats on water, sinks, despawns.
+typedef struct ThrowableBarrelState {
     /* 0x00 */ struct Actor *holder;
     /* 0x04 */ s32 throwFrame;
     /* 0x08 */ f32 pitch;
@@ -609,7 +610,7 @@ typedef struct ActorC71CState {
     /* 0x38 */ u8 prevState;
     /* 0x39 */ u8 released;
     /* 0x3A */ u8 fadeTimer;
-} ActorC71CState;
+} ThrowableBarrelState;
 
 
 extern s32 gGlobalOverlayFlags;
@@ -623,7 +624,7 @@ extern s16 D_80753444[];
 
 
 void actorTransformCameraUpdate(void) {
-    ActorC71CState *state;
+    ThrowableBarrelState *state;
     f32 mtx[4][4];
     f32 rot[4][4];
     f32 bob;
@@ -1627,15 +1628,16 @@ void tagBarrelDespawnOnKongDeselect(void) {
     }
 }
 
-typedef struct ActorFB6CSpawnData {
+// Spawn data and customState of the moving launch barrel (tagBarrelParticleUpdate): bobs, spins or sways by mode, fires the rider.
+typedef struct MovingLaunchBarrelSpawnData {
     s32 frequency;
     s32 amplitude;
     s32 mode;
     s32 hidden;
-} ActorFB6CSpawnData;
+} MovingLaunchBarrelSpawnData;
 
 
-typedef struct ActorFB6CState {
+typedef struct MovingLaunchBarrelState {
     Actor *rider;
     u32 phase;
     f32 baseY;
@@ -1646,7 +1648,7 @@ typedef struct ActorFB6CState {
     u8 launchDelay;
     u8 animDelay;
     u8 mode;
-} ActorFB6CState;
+} MovingLaunchBarrelState;
 
 extern Actor *gActivePlayerActor;
 extern PadInputState gPlayerPadState[];
@@ -1659,7 +1661,7 @@ void tagBarrelParticleUpdate(void) {
     Actor *cam;
     s32 pad2;
     s16 viewYaw;
-    ActorFB6CState *sub;
+    MovingLaunchBarrelState *sub;
     s32 param;
     f32 camY;
     s16 i;
@@ -1671,10 +1673,10 @@ void tagBarrelParticleUpdate(void) {
         gCurrentActor->cullMarginY = 0x14;
         sub->pitch = 90.0f;
         sub->baseY = gCurrentActor->y;
-        sub->frequency = ((ActorFB6CSpawnData *)gCurrentActor->spawnData)->frequency / 200.0;
-        sub->amplitude = ((ActorFB6CSpawnData *)gCurrentActor->spawnData)->amplitude;
+        sub->frequency = ((MovingLaunchBarrelSpawnData *)gCurrentActor->spawnData)->frequency / 200.0;
+        sub->amplitude = ((MovingLaunchBarrelSpawnData *)gCurrentActor->spawnData)->amplitude;
         sub->phase = (sub->frequency != 0.0) ? 4.71238899230957031 / sub->frequency : 0;
-        sub->mode = ((ActorFB6CSpawnData *)gCurrentActor->spawnData)->mode;
+        sub->mode = ((MovingLaunchBarrelSpawnData *)gCurrentActor->spawnData)->mode;
         sub->baseYaw = gCurrentActor->yaw;
         gCurrentActor->floorY = 99999.0f;
         collisionCheckGroundAtPoint(gCurrentActor->x, gCurrentActor->z, &gCurrentActor->floorY);
@@ -1683,7 +1685,7 @@ void tagBarrelParticleUpdate(void) {
         } else {
             gCurrentActor->interactionType = 1;
         }
-        if (((ActorFB6CSpawnData *)gCurrentActor->spawnData)->hidden == 1) {
+        if (((MovingLaunchBarrelSpawnData *)gCurrentActor->spawnData)->hidden == 1) {
             gCurrentActor->state = 0x14;
             gCurrentActor->unk144 = 1;
             gCurrentActor->flags &= ~0x8000;

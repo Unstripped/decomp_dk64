@@ -2083,15 +2083,15 @@ void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     st = cs->data;
     if (st->prev == -1) {
-        st->prev = *((u8 *)cs + 0x48);
+        st->prev = cs->unk48;
     } else {
         ok = 0;
         if (st->prev & 1) {
-            if (*((u8 *)cs + 0x48) + 1 == (*st).prev) {
+            if (st->prev == cs->unk48 + 1) {
                 ok = 1;
             }
         } else {
-            eq = *((u8 *)cs + 0x48) == (*st).prev + 1;
+            eq = st->prev + 1 == cs->unk48; // FAKE: eq temp keeps the compare's register order (inline in the if: fdiff 1) (pre-existing, now tagged)
             if (eq) {
                 ok = 1;
             }
@@ -2104,7 +2104,7 @@ void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
             found = 0;
             i = 0;
             while (!found) {
-                if (D_80748180[i][0] == (*st).prev) {
+                if (D_80748180[i][0] == (*st).prev) { // FAKE: (*st).prev spelling orders the bnel operands t4,a0 (st->prev, either operand order: a0,t4; Q0488) (pre-existing, now tagged)
                     found = 1;
                 } else {
                     i++;
@@ -2114,7 +2114,7 @@ void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
             i = 0;
             found = 0;
             while (!found) {
-                if (D_80748180[i][0] == *((u8 *)cs + 0x48)) {
+                if (D_80748180[i][0] == *((u8 *)cs + 0x48)) { // FAKE: punned byte read orders the bnel operands t5,a0 (cs->unk48, either operand order: a0,t5; Q0488) (pre-existing, now tagged)
                     found = 1;
                 } else {
                     i++;
@@ -2174,7 +2174,7 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     st = cs->data;
     found = 0;
-    if ((u8)cs->unk44[2] != (*st).lastValue) {
+    if ((u8)cs->unk44[2] != (*st).lastValue) { // FAKE: (*st).lastValue spelling orders the beq operands a0,t1 (st->lastValue, either operand order: t1,a0; Q0488) (pre-existing, now tagged)
         if (D_807481F4) {} // FAKE: early read of the table address (raises its candidate priority)
         i = 0;
         do {
