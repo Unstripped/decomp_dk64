@@ -37,6 +37,12 @@ every agent of the round is idle (a rename touches other agents' files).
 - Local names: describe the role (`count`, `slot`, `player`), not the register or stack slot
   (`sp34`, `var_s1`, `temp_v0`, `arg0` are what phase 4 removes). A local kept only for frame
   size is `pad` / `padN`.
+- Session close: a shared `include/` field is renamed only when every file the dry-run touches was read
+  by the proposer(s) (two agreeing reviews count); otherwise it stays proposed. A reference inside a
+  macro makes `func`/`global` refuse everything: rename every dry-run position by hand and add the
+  symbol-file line (`gX = 0xADDR;`, address order). Naming a `func_` adds it to the generated proto
+  header: a file-local data-style extern of it (`extern u8 func_X[];`) then clashes; drop that line.
+  A FAKE/ORIG line whose code text a rename changes gets a new site key; `carry` maps it.
 
 ## Round-end check
 

@@ -90,9 +90,11 @@ As each worker reports:
 3. Append the report's IDO findings (file, function, merge commit, rule, see-also IDs) to
    `.scratch/s<YYYY-MM-DD>-knowledge-queue.md`; §6 files them once.
 4. A copy that changed a non-static signature carries stand-in `#define PROTO_SKIP_<f>` + declarations:
-   after the merge put the src without both into `.scratch/<x>/<f>.c`, `protos.py gen` (prints the new
-   signature already), gate `--stage include/proto/<seg>/<f>.h .scratch/<x> <merge> src/<seg>/<f>.c`
-   (one `--stage` per header; `- -` gates need `.scratch/bases/` snapshots); `gen --check` exits 0.
+   strip both into clean copies (`.scratch/<A>/clean/`), copy EVERY clean file of the bundle over src
+   together, one `protos.py gen`, restore src, compare with header.patch, then merge the clean dir with one
+   `--stage include/proto/<seg>/<f>.h` per regenerated header (a gen over part of a bundle misses headers:
+   DS/90D80.h); `gen --check` exits 0. Shadow headers (worker fdiff) must also shadow, unchanged, every
+   `include/*.h` that quote-includes a shadowed header (cpp searches the includer's directory first).
 5. Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
    (`--reloc-ok`), one gate. Copies keyed by the same basename (`boss/52B0` vs `race/52B0`,
    `critter/0` vs `minecart/0`) need separate dirs and gates. dkd refreshes host-rewritten inputs before every
@@ -103,6 +105,10 @@ As each worker reports:
    gate file argument. A copy whose file changed since its base merges 3-way (`<copy-dir> <base>`); a
    copy retyping a shared global's extern: fix every other file's extern in the SAME gate (objdiff each;
    a file whose cfe would rise or that no longer compiles keeps its type and goes to pending.md).
+   Data to C: merge_drafts refuses dropped `#pragma GLOBAL_ASM` data labels (lost-symbol guard): cp the copy
+   over src, `merge_gate.sh --commit - -` (snapshot), steps 3-10 by hand. A yaml carve (`--stage dk64.*.yaml`)
+   re-splits only the gate tree: merge_record then fails at `make expected`; once `tools/dk --status` shows
+   jobs 0 (never `make split` under a running job), `make split`, touch src, `make`, `make expected`, steps 5-10.
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
 gate; a merged file's net HACKS (tagged `// FAKE` + untagged AST sites) and cfe warnings never rise.
 Tag pre-existing untagged hacks ("pre-existing, now tagged", one copy-only line each): compare `status --file` site totals base vs
