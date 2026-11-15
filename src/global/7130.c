@@ -59,7 +59,7 @@ typedef struct {
     s16 chunk;
     s16 sfxId;
     s16 altSfx;
-    u8 unk8;
+    u8 indoors;
     u8 pad9;
 } AmbientSfxEntry;
 
@@ -88,7 +88,7 @@ void sfxStartAreaAmbient(void) {
 
     i = 0; do { // LAYOUT: loop init on the do line keeps as1's order
         if (gCurrentMap == sAmbientSfxTable[i].map && chunk == sAmbientSfxTable[i].chunk) {
-            D_80770DC9 = sAmbientSfxTable[i].unk8;
+            D_80770DC9 = sAmbientSfxTable[i].indoors;
             sfxAllocateChannel(sAmbientSfxTable[i].sfxId, 1.0f);
             if (sAmbientSfxTable[i].altSfx != 0) {
                 count = (u8)sAmbientSfxTable[i].altSfx;  // FAKE: reusing the loop bound for the alternate sfx keeps its register (a separate temp recolours the loop)
