@@ -155,13 +155,6 @@ void mathAngleStepForward(s16 *angle, s16 target, s16 step) {
 extern PadInputState gPlayerPadState[];
 
 
-typedef struct PlayerButtonState {
-    /* 0x0 */ u16 heldButtons;
-    /* 0x2 */ u8 pad2[0x32];
-} PlayerButtonState;
-
-extern PlayerButtonState D_807FD63A[]; // gPlayerPadState[].heldButtons
-
 
 
 typedef struct PlayerInputHandlers {
@@ -189,7 +182,7 @@ s32 playerInputUpdate(s32 handlerSet) {
     s16 ang;
 
     old = gActivePlayerActor->state;
-    D_807FD63A[gCurrentPlayerIndex].heldButtons = inputRemapButtons(D_807ECDEC->button, D_80750FF0);
+    gPlayerPadState[gCurrentPlayerIndex].heldButtons = inputRemapButtons(D_807ECDEC->button, D_80750FF0);
     gPlayerPadState[gCurrentPlayerIndex].pressedButtons = inputRemapButtons(D_807ECDF0, D_80750FF0);
     if (gActivePlayerState->stateFlags2 & 0x20) {
         gPlayerPadState[gCurrentPlayerIndex].heldButtons = 0;
@@ -272,45 +265,44 @@ s32 playerInputUpdate(s32 handlerSet) {
     gPlayerPadState[gCurrentPlayerIndex].stickAngleHistory[0] = ang;
     gPlayerPadState[gCurrentPlayerIndex].stickMagHistory[0] = mag;
     gPlayerInputHandlers[handlerSet].fn[1]();
-    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 0x1000) {
+    if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x1000) {
         gPlayerInputHandlers[handlerSet].fn[0]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 0x8000) {
+    if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x8000) {
         gPlayerInputHandlers[handlerSet].fn[2]();
     } else {
         gPlayerInputHandlers[handlerSet].fn[5]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 0x4000) {
+    if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x4000) {
         gPlayerInputHandlers[handlerSet].fn[3]();
     } else {
         gPlayerInputHandlers[handlerSet].fn[6]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 0x2000) {
+    if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000) {
         gPlayerInputHandlers[handlerSet].fn[4]();
     } else {
         gPlayerInputHandlers[handlerSet].fn[7]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 0x10) {
+    if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x10) {
         gPlayerInputHandlers[handlerSet].fn[9]();
     } else {
         gPlayerInputHandlers[handlerSet].fn[11]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 0x20) {
+    if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x20) {
         gPlayerInputHandlers[handlerSet].fn[8]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 8) {
+    if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 8) {
         gPlayerInputHandlers[handlerSet].fn[12]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 4) {
+    if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 4) {
         gPlayerInputHandlers[handlerSet].fn[15]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 2) {
+    if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 2) {
         gPlayerInputHandlers[handlerSet].fn[13]();
     }
-    if (D_807FD63A[gCurrentPlayerIndex].heldButtons & 1) {
+    if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 1) {
         gPlayerInputHandlers[handlerSet].fn[14]();
     }
-    if (gPlayerPadState) {} // FAKE: keeps &gPlayerPadState live to the tail (const-hoist register order)
     gPlayerInputHandlers[handlerSet].fn[16]();
     return gActivePlayerActor->state - old;
 }
