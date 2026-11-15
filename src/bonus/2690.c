@@ -1916,15 +1916,15 @@ typedef struct {
 void bonusSearchlightSeekGameUpdate(void) {
     f32 sinYaw;
     f32 cosYaw;
-    f32 targetOffsetZ;
-    f32 scale;
-    f32 targetOffsetX;
+    f32 x;
+    f32 y;
+    f32 z;
     f32 velX;
     f32 stickY;
     SearchlightGameState *subExt = gCurrentActor->customState;
     SearchlightTargetState *spawnExt;
     s32 i;
-    s32 pad;
+    f32 dist;
     s16 spawnAngle;
     if (!(gCurrentActor->flags & 0x10)) {
         gPrimaryPlayerActor->state = 0x77;
@@ -2008,12 +2008,12 @@ void bonusSearchlightSeekGameUpdate(void) {
             sinYaw = mathSinF(gPlayerSlots[gCurrentPlayerIndex].camYawInt);
             cosYaw = mathCosF(gPlayerSlots[gCurrentPlayerIndex].camYawInt);
             velX = subExt->velX;
-            targetOffsetZ = subExt->velZ;
-            targetOffsetX = D_807ECDEC->stick_x * 0.06f;
+            x = subExt->velZ; // FAKE: x (the aim/clamp x home) also holds the velZ pre-read in a register; a separate local or the pad word moves the colouring (pre-existing, now tagged)
+            z = D_807ECDEC->stick_x * 0.06f; // FAKE: z (the aim/clamp z home) also holds the scaled stick_x; any other variable or the pad word costs 10-13 lines (Q0739; pre-existing, now tagged)
             stickY = D_807ECDEC->stick_y * 0.06f;
-            velX = ((targetOffsetX * cosYaw) - (stickY * sinYaw)) - velX;
+            velX = ((z * cosYaw) - (stickY * sinYaw)) - velX;
             subExt->velX = subExt->velX + velX * 0.155f;
-            subExt->velZ = subExt->velZ + ((targetOffsetX * sinYaw + stickY * cosYaw) - targetOffsetZ) * 0.25f;
+            subExt->velZ = subExt->velZ + ((z * sinYaw + stickY * cosYaw) - x) * 0.25f;
             subExt->offsetX = subExt->offsetX + subExt->velX;
             subExt->offsetZ = subExt->offsetZ - subExt->velZ;
             if (subExt->shownCount == 0) {
@@ -2027,10 +2027,10 @@ void bonusSearchlightSeekGameUpdate(void) {
             }
             if (subExt->fireCooldown <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr & 0xE000)) {
                 sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
-                targetOffsetZ = mathSinF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camX; // FAKE: targetOffsetZ/scale/targetOffsetX reused for the aim point; separate aimX/aimY/aimZ locals 77 diff lines
-                scale = gPlayerSlots->camY - 25.0f;
-                targetOffsetX = mathCosF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camZ;
-                projectileSetTargetCoords(targetOffsetZ, scale, targetOffsetX);
+                x = mathSinF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camX; // ORIG: the target stores the aim point into the clamp's x/y homes (swc1 $f6,124(sp) at 0x5f5c, swc1 $f10,120(sp) at 0x5f68); separate aim locals grow the frame
+                y = gPlayerSlots->camY - 25.0f;
+                z = mathCosF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camZ;
+                projectileSetTargetCoords(x, y, z);
                 projectileAimAndSpawn(0x23, 1, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 625.0f, gCurrentActor);
                 subExt->fireCooldown = 0x1E;
             }
@@ -2061,13 +2061,13 @@ void bonusSearchlightSeekGameUpdate(void) {
             gCurrentActor->state = 7;
             break;
     }
-    targetOffsetZ = subExt->offsetX; // FAKE: targetOffsetZ/targetOffsetX/cosYaw reused for the offset clamp; separate ox/oz/dist locals 85 diff lines
-    targetOffsetX = subExt->offsetZ;
-    cosYaw = sqrtf(targetOffsetZ * targetOffsetZ + targetOffsetX * targetOffsetX);
-    if (cosYaw > 110.0f) {
-        scale = 110.0f / cosYaw;
-        subExt->offsetX = targetOffsetZ * scale;
-        subExt->offsetZ = targetOffsetX * scale;
+    x = subExt->offsetX; // ORIG: the target spills offsetX/offsetZ across sqrtf into the aim point's x/z homes (swc1 $f0,124(sp) at 0x60a8, swc1 $f2,116(sp) at 0x60ac); separate locals grow the frame
+    z = subExt->offsetZ;
+    dist = sqrtf(x * x + z * z);
+    if (dist > 110.0f) {
+        y = 110.0f / dist; // FAKE: y (the aim y home) reused as the clamp scale; inline 110.0f / dist swaps the mul.s operands at 0x60e0/0x60e8 (pre-existing, now tagged)
+        subExt->offsetX = x * y;
+        subExt->offsetZ = z * y;
     }
     gCurrentActor->x = mathSinF(subExt->bobAngle) * 5.0 + (subExt->centerX + subExt->offsetX);
     gCurrentActor->z = mathCosF(subExt->bobAngle * 2) * 2.0 + (subExt->centerZ + subExt->offsetZ);
