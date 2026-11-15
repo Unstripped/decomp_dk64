@@ -2640,9 +2640,8 @@ extern f32 D_80753AE0[];
 
 void playerStateSurfaceTreadWater(void) {
     f32 t;
-    f32 waterLevel;
 
-    gActivePlayerState->unk24 = gActivePlayerState->unk24 + 1;
+    gActivePlayerState->unk24++;
     gActivePlayerState->airAccel = D_80753AFC[gCurrentCharacterIndex];
     switch (gCurrentActor->unk155) {
         case 0:
@@ -2673,9 +2672,8 @@ void playerStateSurfaceTreadWater(void) {
                 scriptSetActorRampTarget(gCurrentActor, t, 15.0f);
             }
             effectSpawnAuraBurst(2);
-            waterLevel = gCurrentActor->waterY;
-            if (waterLevel < (f32)D_807538C8[gCurrentCharacterIndex] + gCurrentActor->y) {
-                gCurrentActor->y = waterLevel - (f32)D_807538C8[gCurrentCharacterIndex];
+            if (gCurrentActor->waterY < D_807538C8[gCurrentCharacterIndex] + gCurrentActor->y) {
+                gCurrentActor->y = gCurrentActor->waterY - D_807538C8[gCurrentCharacterIndex];
             }
             goto end;
         default:
@@ -2686,7 +2684,7 @@ void playerStateSurfaceTreadWater(void) {
                 gCurrentActor->unk155 = 3;
             } else {
                 if (gActivePlayerState->unk50 != 0) {
-                    gActivePlayerState->unk50 = gActivePlayerState->unk50 - 1;
+                    gActivePlayerState->unk50--;
                     if (gActivePlayerState->unk50 == 0) {
                         actorScriptStartByIndex(gCurrentActor, 0x34);
                     }
@@ -2705,7 +2703,7 @@ void playerStateSurfaceTreadWater(void) {
             gActivePlayerState->targetSpeed = D_80753AE0[gCurrentCharacterIndex];
             gActivePlayerState->actionTimer = D_80753A88[gCurrentCharacterIndex];
             playerApplyDecelVelocityVector(0.0f);
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+            gCurrentActor->unk155++;
             break;
         case 5:
             playerInputUpdate(0x51);
@@ -2726,7 +2724,7 @@ void playerStateSurfaceTreadWater(void) {
     }
     if (gCurrentActor->speedXZ == 0.0f || gActivePlayerState->unk18 != 0) {
         gActivePlayerState->unk50 = D_80753A78[gCurrentCharacterIndex];
-        scriptSetActorRampTarget(gCurrentActor, 0.5f, (f32)gActivePlayerState->unk50);
+        scriptSetActorRampTarget(gCurrentActor, 0.5f, gActivePlayerState->unk50);
         gCurrentActor->unk155 = 2;
     }
     playerClampWaterSurfaceHeight(gCurrentActor);
