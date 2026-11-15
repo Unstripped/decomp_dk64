@@ -552,7 +552,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     s16 i;
     s16 y;
     s32 off;
-    s32 t0;
+    s32 slotBase;
     HudTextEntry *it;
     PlayerInventory *tab;
     Gfx *ret;
@@ -560,8 +560,8 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     s32 hubWorld;
     s16 ang;
     s16 y0;
-    s8 s2;
-    u8 ph;
+    s8 pips;
+    u8 centerX;
     f32 fa;
     f32 fb;
     f32 fc;
@@ -602,8 +602,8 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     if (list == NULL) {} // FAKE: keeps list in memory
     switch (hud->page) {
         case 0:
-            ph = tab->melons * 0x34 - 0x34;
-            s2 = gPlayerInventoryTable[0].health;
+            centerX = tab->melons * 0x34 - 0x34;
+            pips = gPlayerInventoryTable[0].health;
             y0 = 0xA0;
             y0 -= (s16)(y0 * 2 * hud->fade);
             for (j = 0; j < tab->melons; j++) {
@@ -614,7 +614,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 f32 fe;
                 f32 fh;
                 s16 y;
-                fb = ph;
+                fb = centerX;
                 off = (j << 10) + gFrameCounter * 200;
                 ang = off;
                 fa = mathSinF(ang) * 0.3f + 3.0f;
@@ -632,9 +632,9 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 dl = renderRotatedSprite(dl, 0x5D, 0, 2, 0x30, 0x2A, y, y0 + (s16)fe, fa, fh, 0, 0.0f);
                 gDPPipeSync(dl++);
                 gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
-                if (s2 > 0) {
+                if (pips > 0) {
                     s32 m;
-                    off = s2 - 1;
+                    off = pips - 1;
                     if (off < 3) {
                         m = off;
                     } else {
@@ -642,10 +642,10 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     }
                     dl = renderRotatedSprite(dl, m + 0x5A, 0, 2, 0x30, 0x2A, y, y0 + fe, fa, fh, 0, 0.0f);
                 }
-                if (s2 - 4 < 0) {
-                    s2 = 0;
+                if (pips - 4 < 0) {
+                    pips = 0;
                 } else {
-                    s2 -= 4;
+                    pips -= 4;
                 }
             }
             gDPPipeSync(dl++);
@@ -699,7 +699,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                         f32 ff;
                         s16 sa;
                         s16 yy;
-                        t0 = i * 5;
+                        slotBase = i * 5;
                         fb = 180.0f * fa;
                         fa *= 3.0f;
                         fc = 32.0f * fa;
@@ -713,7 +713,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                             yy += 0x280;
                             y0 = (s32)(mathCosF(sa) * fb);
                             yy += 0x20;
-                            off = j + t0;
+                            off = j + slotBase;
                             D_807FC840[off] = yy - fd;
                             D_807FC868[off] = (s16)((s16)(fc - y0) + slide) - fe;
                             D_807FC890[off] = ff;

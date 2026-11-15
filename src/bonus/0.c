@@ -93,7 +93,6 @@ extern s32 gCurrentMap;
 extern s16 D_8076AEF2;
 extern u16 D_80744508;
 extern s16 D_80750AC4;
-extern u8 D_807FBDC4;
 extern u8 D_8002D863[];
 
 
@@ -180,7 +179,7 @@ tail:
     }
     if (gCurrentActor->state == 0) {
         i = 0;
-        if (D_807FBDC4 > 0) {
+        if (gActorGlobalState.volumeTriggerQueueCount > 0) {
             do {
                 if (gActorGlobalState.volumeTriggerQueueOp[i] == 3) {
                     endOnTrigger = 1;
@@ -250,7 +249,7 @@ tail:
                         func_80726EE0(0);
                     }
                 }
-            } while (++i < D_807FBDC4);
+            } while (++i < gActorGlobalState.volumeTriggerQueueCount);
         }
     }
     if (gCurrentActor->state == 0) {

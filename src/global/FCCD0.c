@@ -171,7 +171,7 @@ void slotQueueInit(s32 reset) {
         shownMask = 0;
     }
     if (reset != 0) {
-        gSlotQueue = heapAlloc(gPlayerCount * 0x2D0);
+        gSlotQueue = heapAlloc(gPlayerCount * (15 * sizeof(SlotQueueSlot)));
         heapClearBlock(gSlotQueue);
         gSlotQueueMaskList = NULL;
     }

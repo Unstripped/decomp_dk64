@@ -238,7 +238,6 @@ extern u8 gBossIntroWaypointPath[];
 extern u8 gBossWaypointIsSpecial[];
 extern u8 gBossWaypointLightFade[];
 extern f32 D_80036C40[];
-extern u8 D_807FBDC4;
 extern s16 D_807502DC;
 extern f32 D_807502F0;
 extern u8 D_8071EDEC[];
@@ -360,7 +359,7 @@ void bossMainStep(void) {
         if (!(gFrameCounter & 7)) {
             gBehaviourWorkState->timer++;
         }
-        if (D_807FBDC4 != 0) {
+        if (gActorGlobalState.volumeTriggerQueueCount != 0) {
             gCurrentActor->state = 0x1F;
             gCurrentActor->unk155 = 0;
         }

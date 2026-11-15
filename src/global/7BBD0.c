@@ -232,7 +232,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
     s32 clamp;
     PlayerState *playerState;
     f32 scaledNormal[3];
-    f32 *ptr3;
+    f32 *pTriZ;
     f32 pushX;
     f32 pushZ;
     f32 *pTriX;
@@ -268,17 +268,17 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
         pVerts = verts;
         pTriX = triX;
         pTriY = triY;
-        ptr3 = triZ;
+        pTriZ = triZ;
         if (self->renderFlags & 0x10) {
             pushZ = worldZ;
         } else {
             do {
-                guMtxXFMF(selfMtx, pVerts[0], pVerts[1], pVerts[2], pTriX, pTriY, ptr3);
-                ptr3 += 1;
+                guMtxXFMF(selfMtx, pVerts[0], pVerts[1], pVerts[2], pTriX, pTriY, pTriZ);
+                pTriZ += 1;
                 pVerts += 3;
                 pTriX += 1;
                 pTriY += 1;
-            } while (ptr3 != &triY[0]);
+            } while (pTriZ != &triY[0]); // FAKE: ends the triZ walk at &triY[0] (the next array in the frame); &triZ[3] or an index loop changes the function
             edge1[0] = triX[2] - triX[0];
             edge1[1] = triY[2] - triY[0];
             edge1[2] = triZ[2] - triZ[0];

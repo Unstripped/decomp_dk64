@@ -229,10 +229,9 @@ void actorCutsceneDispatchEvents(void) {
     s16 *eventData;
     s32 sfxVolume;
     s32 pathFlag;
-    s16 paramA;
     s16 mode;
 
-    csState = (CutsceneActorState *)gCurrentActor->customState;
+    csState = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         csState->weatherMode = 0;
         csState->mapChunk = -1;
@@ -279,13 +278,12 @@ void actorCutsceneDispatchEvents(void) {
                     transitionSetState(2);
                     screenSetTransitionFadeType(0);
                 }
-                paramA = eventData[0];
-                if (paramA == 0x11) {
-                    if (cutsceneTriggerCheck(paramA) == 0) {
+                if (eventData[0] == 0x11) {
+                    if (cutsceneTriggerCheck(eventData[0]) == 0) {
                         mapRequestTransition(eventData[0], eventData[1]);
                     }
                 } else {
-                    mapRequestTransition(paramA, eventData[1]);
+                    mapRequestTransition(eventData[0], eventData[1]);
                 }
                 playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, gVolumeTriggerFiredX, gVolumeTriggerFiredZ, 0x46);
             }
