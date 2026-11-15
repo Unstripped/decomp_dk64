@@ -57,8 +57,9 @@ typedef struct {
 } LightPosEntry;
 
 extern Actor *gCurrentActor;
-extern u8 D_807FC621;
-extern u8 D_807FC622;
+u8 D_807FC620;
+u8 D_807FC621;
+u8 D_807FC622;
 extern u8 D_807501C0[][3];
 extern LightPosEntry D_80750194[];
 
@@ -215,12 +216,9 @@ extern u16 D_80744700[];
 extern u8 gCurrentWorldId;
 extern s32 D_8076A0AC;
 extern Actor *gActivePlayerActor;
-extern u8 D_807FC621;
-extern u8 D_807FC622;
 extern u16 D_807ECD48;
 extern u16 D_8076A0A6;
 extern u8 D_80750190;
-extern u8 D_807FC620;
 
 void actorCutsceneDispatchEvents(void) {
     CutsceneActorState *csState;
@@ -593,9 +591,9 @@ void func_8068BA2C(void) {
 
 
 extern u8 gGameMode;
-extern s16 D_807FC624;
 
 void playerCameraUpdateFromTarget(void) {
+    static s16 D_807FC624;
     CamState *camState;
     s16 angleA;
     s16 angleB;
@@ -645,7 +643,6 @@ void playerCameraUpdateFromTarget(void) {
         return;
     }
     if ((gCurrentMap == 0x1F) || (gCurrentMap == 0x33)) {
-        if (D_807FC624 && D_807FC624) {}  // FAKE: stands in for D_807FC624 being a function-local static (with static s16 and no dead tests the text matches: a0 at 0x167c-0x170c); needs this TU to own bss 0x807FC620
         gCurrentActor->pitch = mathSinF(D_807FC624) * 100.0f;
         if (gCurrentMap == 0x1F) {
             if (D_807FC624 < 0x1E) {
@@ -655,7 +652,6 @@ void playerCameraUpdateFromTarget(void) {
                 sfxPlayOnFreeSlot(0x14, 0x7FFF, 64.0f, 1.0f, 10, 128);
             }
         }
-        if (gGameMode && gGameMode) {}  // FAKE: coupled with the test above (reload at 0x1708 in a0, v0 without); the function-local static removes both
         fadeTimer = D_807FC624 + 0x1E;
         fadeTimer &= 0xFFF;
         D_807FC624 = fadeTimer;
