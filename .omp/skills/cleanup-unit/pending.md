@@ -22,16 +22,14 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - 1332B0 volumeTriggerUpdate PlayerSlot stride view of gPlayerSlots kept (Q0606, views blocked; 1332B0.c:11 `extern void *gPlayerSlots`, 172-185). Every other file declares `PlayerStruct *gPlayerSlots` (13b5f3b8) except A8400 (ScreenBounds view, next entry).
 - PlayerStruct 0x270 s16 bounds carve (ACTIONABLE): actor.h has no scissorUlx..Lry fields; A8400's ScreenBounds (A8400.c:165-174) and MapBounds (447-455, SPRITE_BOUNDS) views read them. Round-16 list still open: playerStateQueueCallback arity (F56F0 14204c, race/6650 8cc620), n_alSndpPostEvent.
 - 1025E0 `func_806FDAB8` first param: owner retype to u8, u16 and s32 all fdiff 1 (round 29, CleanBonus2690 retype/owner_*.fdiff), so bonus/2690's local u8 declaration steer (689f58, e3027b) stays. Not actionable.
-- gCamActor extern stays `void *` in boss/8520 (8520.c:122) and B100 (B100.c:46) (retyping raises cfe); C920 is `Actor *` (e1dbb7d5). gFrameCounter/gGlobalPauseFlags single shared type.
+- gCamActor: one `extern struct Actor *gCamActor` in actor.h (OwnerCamActorExtern e13ffda6; boss/8520 and B100 retyped from `void *` with cfe unchanged; the last file-local copies dropped in 7748c62b). gFrameCounter/gGlobalPauseFlags single shared type.
 - ACDC0 renderRotatedSprite proto-steer 6bd641/01af71 kept (HackConsolidateBoss0ACDC0, ledger 9ca52aed): the owner's s32 siz only changes CSE of the literal 2 (li a3,2 -> move a3,s8 at 0x1638/0x16B8). That is register-only evidence, not ORIG. boss/0 ea31b7 is ORIG (70242923).
 - Data ownership (HacktransitionSetAudioVolume, 2026-11-14, ledger a001e1ac): carve the .data region of 14C9E0 around D_807550A4
   (today an extern in 10E1D0.c:566; no 14C9E0.c exists) into its owning C file; that enables a Q0498 function-local `static` retry for transitionSetAudioVolume's dead-if 86665d.
 - 8F4B0 CutsceneActorState / WeatherActorState merge (same layout, 8F4B0.c:204/490; needs proof actorCutsceneDispatchEvents runs on actor type 0xC; PolishGlobal8F4B0Names 237b3f89).
-- Shared PulseState (ACTIONABLE): BB300's file-local PulseSwayState/PulseSwayActor (BB300.c:20-28) and A6280's file-local PulseState (A6280.c:30) describe the same Actor 0x178 component; one shared type (owner item, check the layouts agree).
-- gPlayerPadState header extern (ACTIONABLE): every view and split label is retired (edbcff4c, 2d9d6f67, d873dee6, 7a453f41); add `extern PadInputState gPlayerPadState[];` to actor.h and delete the 12 file-local externs (bonus/2690, 103AB0, 70FD0, 7BBD0, 80150, CC800, CEAE0, D5E10, E4090, F56F0, menu/0, race/7BD0).
 - Warning/proto-steer sites with no owner decision yet (audit 2026-11-14, missing blockers M1-M11):
   - 90D80 hudDrawRollingCounter 8c076a: same `retype kept` as f2ca09 (ledger 53b46930) but the record is stale; re-record.
-  - 55B20 mapChunksApplyLights W709 5cddbb/b2bbaf (`u8 hit` passed to lightCollectVolumesInBounds' `s8 *`, owner 5E2F0) and W712 18cdf5/#2 (local s32 declaration of func_8065C990).
+  - 55B20 mapChunksApplyLights W712 18cdf5/#2 (local s32 declaration of func_8065C990); its W709 5cddbb/b2bbaf are fixed (lightCollectVolumesInBounds `u8 *outFlag`, OwnerLightCollectOutFlag 09fd75a7).
   - Proto-steers never consolidated or stale: 1025E0 2ed6ea/69fe0c (textGetCharAdvance), 2C910 30698d/41f288/145e04 (textSpawnMarkerChecked + K&R textSpawnSubtitle), 36880 81fdd2/1045f7 (renderReplaceSegment6Commands, playerSlotMatchesSizeMask), B5EC0 72fa9a (actorTrackBoneTowardTarget, consolidate never tried), race/6650 8cc620/3db41f (playerStateQueueCallback, sfxStopSlotSound).
   - Proto-type views: 103AB0 e73d86 (lensFlareDrawSource takes a file-local type), F56F0 14204c (playerStateQueueCallback arity).
 
