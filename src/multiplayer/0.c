@@ -446,7 +446,7 @@ s32 mpUpdateScoreEffects(void) {
                 effectSetDuration(-1);
                 effectSetMode(2);
                 effectSetColor(0xFF, 0xFF, 0xFF, 0x7F);
-                effectSetCallback(func_8071F3C0);
+                effectSetCallback(effectScaleWithOwnerUpdate);
                 playerState->scoreEffect = effectCreateAtActorBone(&D_807207BC, 0.5f, gPlayerSlots[i].actor, boneIndex, 2);
                 score->crownBestHealth = totalScore;
             }
@@ -986,9 +986,9 @@ s32 mpFindFurthestSpawn(s32 playerIndex) {
         for (j = 0; j < gPlayerCount; j++) {
             playerActor = gPlayerSlots[j].actor;
             if (gPlayerSlots[j].active != 0 && playerActor->state != 0x84) {
-                dx = spawn->unk0 - playerActor->x;
-                dy = spawn->unk2 - playerActor->y;
-                dz = spawn->unk4 - playerActor->z;
+                dx = spawn->x - playerActor->x;
+                dy = spawn->y - playerActor->y;
+                dz = spawn->z - playerActor->z;
                 dist = (dx * dx + dy * dy) + dz * dz;
                 if (dist < nearestDist) {
                     nearestDist = dist;

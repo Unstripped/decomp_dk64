@@ -715,7 +715,7 @@ void func_8069B3FC(void) {
         if (gCurrentActor->unk155 < 4) {
             for (j = 2; j < 3; j++) {
                 for (i = 0; i < 2; i++) {
-                    effectSetCallback(func_80717D4C);
+                    effectSetCallback(effectSinkBySpeedUpdate);
                     effectSetDepth(1);
                     effectSetSpeed((randomNonNegative() >> 15) % 10000 % 120 + 0x50);
                     switch ((randomNonNegative() >> 15) % 10000 % 3) {
@@ -831,7 +831,7 @@ extern u8 D_80720340;
 extern SpritePair D_807503A4;
 
 
-void textMarkerUpdateMatrix(void) {
+void carryObjectUpdate(void) {
     ActorSub174View *state;
     f32 mtxA[4][4];
     f32 mtxB[4][4];
@@ -1059,7 +1059,7 @@ void textMarkerUpdateMatrix(void) {
                     callback = effectLightPulseOscillate; effectSetSpeed(0x100FA);  // LAYOUT: keep the callback store in the call's delay slot
                     effectSetCallback(callback);
                 } else {
-                    effectSetCallback(func_80717D4C);
+                    effectSetCallback(effectSinkBySpeedUpdate);
                     effectSetSpeed(-0x96 - ((randomNonNegative() >> 15) % 50));
                 }
                 effectCreateAtPosition(&D_80720340, 1.6f, gCurrentActor->x + offsetX,
@@ -1220,7 +1220,7 @@ void actorUpdateTimerBarAndRange(void) {
     } else {
         gCurrentActor->flags &= ~0x400;
     }
-    textMarkerUpdateMatrix();
+    carryObjectUpdate();
 }
 
 void actorSpawnEffectAndTick(void) {
@@ -1230,7 +1230,7 @@ void actorSpawnEffectAndTick(void) {
         actorListSpawnNodeEntryDefault(0x83, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z,
                       0, 1.0f, gCurrentActor);
     }
-    textMarkerUpdateMatrix();
+    carryObjectUpdate();
     if (!(gCurrentActor->flags & 0x10)) {
         if (((s32 *)gCurrentActor->spawnData)[2] == 1) {
             if (flagGet(0xFD, 0) != 0) {
@@ -1246,7 +1246,7 @@ void func_8069D018(void) {
     if (!(actor->flags & 0x10)) {
         actor->drawDistance = 0x2BC;
     }
-    textMarkerUpdateMatrix();
+    carryObjectUpdate();
 }
 
 void func_8069D058(void) {
@@ -1266,7 +1266,7 @@ void func_8069D0B8(void) {
 }
 
 void func_8069D0D8(void) {
-    textMarkerUpdateMatrix();
+    carryObjectUpdate();
 }
 
 typedef struct TextMarkerState {

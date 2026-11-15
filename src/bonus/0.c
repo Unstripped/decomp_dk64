@@ -246,7 +246,7 @@ tail:
                     }
                     if (endOnTrigger != 0) {
                         bonusEndWin(1, 0xE);
-                        func_80726EE0(0);
+                        spawnNodesSetRespawnHold(0);
                     }
                 }
             } while (++i < gActorGlobalState.volumeTriggerQueueCount);
@@ -481,7 +481,7 @@ void bonusMazeChallengeUpdate(void) {
     case 1:
         if (gCurrentActor->parentActor->state == 5) {
             textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, 0x15, 1), 0, 0x28, 8, 8);
-            func_80726EE0(0);
+            spawnNodesSetRespawnHold(0);
             sfxAllocateChannel(0x28, 1.0f);
             actorSpawnNodeEntryScaled(0x56, 588.0f, 240.0f, 582.0f, 0, 0, bonusGetSoundForMap(), 0);
             gCurrentActor->state = 2;

@@ -69,7 +69,7 @@ void csCmdSpawnSparksAtNodes(CsState *cs, s16 csId, s16 b, s16 c) {
             effectSetMode(2);
             effectSetSpeed(-((s32)((u32)randomLcgNext() / 10000 % 50) + 0x14));
             effectSetColor(0xE1, 0x87, 0x38, 0xFF);
-            effectSetCallback(func_80717D4C);
+            effectSetCallback(effectSinkBySpeedUpdate);
             effectCreateAtPosition(D_8071FF18, 0.5f, x, y + 2.0f, z);
         }
     }
@@ -149,7 +149,7 @@ void csCmdPeriodicNodeEffect(CsState *cs, s16 csId, s16 b, s16 c) {
         idx = (u32)randomLcgNext() / 10000 % b + 1;
         effectSetColor(0xFF, 0xFF, 0xFF, 0x64);
         effectSetSpeed(-0x78);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectSetDepth(1);
         effectSetMode(3);
         effectCreateAtModelNode(sEffectSparkConfig, 1.5f, csId, idx, 0);
@@ -164,7 +164,7 @@ void csPeriodicPointEffect(s32 a, s32 b, u32 c) {
         idx = (u32)randomLcgNext() / 10000 % b;
         effectSetColor(0xFF, 0xFF, 0xFF, 0x64);
         effectSetSpeed(-0x78);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectSetDepth(1);
         effectSetMode(3);
         p = *gMinecartTrackPoints + idx;
@@ -308,13 +308,13 @@ void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
 void csCmdPeriodicEffectPair(CsState *cs, s16 csId, s16 b, s16 c) {
     if ((gFrameCounter % 5) == 0) {
         effectSetSpeed(-0x78);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectSetDepth(1);
         effectSetMode(3);
         effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
         effectCreateAtModelNode(sEffectSparkConfig, 1.0f, csId, 1, 0);
         effectSetSpeed(-0x78);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectSetDepth(1);
         effectSetMode(3);
         effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
@@ -351,7 +351,7 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetDepth(1);
         effectSetSpeed(-0x190);
         effectSetColor(0xFF, 0xFF, 0xFF, 1);
-        effectSetCallback(func_80717CE8);
+        effectSetCallback(effectFadeInSinkUpdate);
         effectCreateAtPosition(D_807201D4, 1.2f, gCsPosX, gCsPosY + 30.0, gCsPosZ);
     }
     if (t < 0.1) {
@@ -739,7 +739,7 @@ void csCmdSpawnMultiRingParticles(CsState *cs, s16 csId, s16 b, s16 c) {
             effectSetCallback(effectLightPulseOscillate);
         } else {
             effectSetSpeed(-0xAA);
-            effectSetCallback(func_80717D4C);
+            effectSetCallback(effectSinkBySpeedUpdate);
         }
         effectSetDepth(1);
         effectSetMode(3);
@@ -820,7 +820,7 @@ void csCmdPeriodicIntervalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
         r2 = randomNonNegative() >> 15;
         dist = r2 % 32767 % 6 + 15;
         effectSetSpeed(-0x32 - (randomNonNegative() >> 15) % 80);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectSetDepth(1);
         effectSetMode(2);
         s = mathSinF(angle);
@@ -834,7 +834,7 @@ void csCmdSpawnEffectsAtNodeRange(CsState *cs, s16 csId, s16 b, s16 c) {
 
     for (i = 0; i < b; i++) {
         effectSetSpeed(-0x96 - ((randomNonNegative() >> 15) % 80));
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectSetDepth(1);
         effectSetMode(2);
         effectCreateAtModelNode(sEffectSparkConfig, 1.0f, csId, i + 1, 0);
@@ -1281,7 +1281,7 @@ void csCmdSpawnScaledSphereEffects(CsState *cs, s16 csId, s16 b, s16 c) {
 
 void csCmdSpawnModelNodeEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     effectSetSpeed(-0x78);
-    effectSetCallback(func_80717D4C);
+    effectSetCallback(effectSinkBySpeedUpdate);
     effectSetDepth(1);
     effectSetMode(3);
     effectCreateAtModelNode(sEffectSparkConfig, 1.5f, csId, 1, 0);
@@ -1320,7 +1320,7 @@ void csCmdSpawnRandomJitterEffects(CsState *cs, s16 csId, s16 b, s16 c) {
         sc = (u32)randomLcgNext() / 1000 % 50 - 25.0;
         sc = sc / 50.0;
         effectSetSpeed(-0xAA);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectSetDepth(1);
         effectSetMode(3);
         effectSetAngle(i << 1);
@@ -1337,7 +1337,7 @@ void csCmdSpawnEffectAtRandomNode(CsState *cs, s16 csId, s16 b, s16 c) {
 
     node = (u32)randomLcgNext() / 1000 % 10 + 1;
     effectSetSpeed(-0x28A - (u32)randomLcgNext() / 1000 % 200);
-    effectSetCallback(func_80717D4C);
+    effectSetCallback(effectSinkBySpeedUpdate);
     effectSetDepth(1);
     effectSetMode(9);
     effectSetColor(0xFF, 0xFF, 0xFF, 0x64);
@@ -1386,7 +1386,7 @@ void csCmdSpawnFallingSparkles(CsState *cs, s16 csId, s16 b, s16 c) {
 
     for (i = 1; i != 0xF; i++) {
         effectSetSpeed(-0x78);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectSetDepth(1);
         effectSetMode(3);
         effectSetColor(0xFF, 0xFF, 0xFF, D_80748168[3]);
@@ -1411,7 +1411,7 @@ void csCmdSpawnTumbleBounceRing(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     for (i = 1; i != 6; i++) {
         effectSetSpeed(-0x78);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectSetDepth(1);
         effectSetMode(3);
         effectSetColor(0xFF, 0xFF, 0xFF, 0x78);
@@ -1748,7 +1748,7 @@ void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
                 effectSetCallback(effectLightPulseOscillate);
             } else {
                 effectSetSpeed(-0xAA);
-                effectSetCallback(func_80717D4C);
+                effectSetCallback(effectSinkBySpeedUpdate);
             }
             effectSetMode(3);
             effectSetColor(0xFF, 0xFF, 0xFF, 0x64);
@@ -1866,7 +1866,7 @@ void csCmdSpawnFallingWhiteSparks(CsState *cs, s16 csId, s16 b, s16 c) {
 
     for (i = 1; i != 8; i++) {
         effectSetSpeed(-0x78);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectSetDepth(1);
         effectSetMode(3);
         effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
@@ -1940,7 +1940,7 @@ void csCmdSpawnRandomNodeParticles(CsState *cs, s16 csId, s16 b, s16 c) {
         idx = (randomNonNegative() >> 15) % 32767 % (c + 1);
         effectSetDepth(1);
         effectSetMaxDistance(0x7D0);
-        effectSetCallback(func_8071F660);
+        effectSetCallback(effectSinePulseSpinUpdate);
         effectSetDuration(8);
         effectCreateAtPosition(D_80721298, 1.0f, (*gMinecartTrackPoints)[idx].x, (*gMinecartTrackPoints)[idx].y, (*gMinecartTrackPoints)[idx].z);
     }
@@ -2676,7 +2676,7 @@ void csCmdSlotQueueSelectPlayer(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdSetAudioUnk3(CsState *cs, s16 csId, s16 b, s16 c) {
-    func_80726EE0(3);
+    spawnNodesSetRespawnHold(3);
 }
 
 extern f32 D_80748280[];

@@ -91,7 +91,7 @@ void func_806B1F50(void) {
             if (gCurrentActor->parentActor != NULL && gCurrentActor->parentActor->state == 5) {
                 gCurrentActor->callbackMask &= ~0x8000;
                 sfxStopSlotSound(gCurrentActor, 0);
-                func_80726EE0(0);
+                spawnNodesSetRespawnHold(0);
                 effectFreeByResource(gBehaviourTargetActor);
                 actorDespawn(gCurrentActor->parentActor);
                 gCurrentActor->state = 0x27;

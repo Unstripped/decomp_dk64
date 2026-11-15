@@ -527,7 +527,7 @@ void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, Actor *);
 void projectileClampAngleAndSpawn(s16, s16, s16, s16, f32, f32, f32, f32, f32, Actor *);
 void projectileSpawnWithShockwave(s16, f32, u8, u8, u8, u8, f32, f32, f32, f32);
 void actorSetUniformScale(void *, f32);
-u8 func_8072881C(u8, u32 *);
+u8 currentActorAnimTryIdleVariant(u8, u32 *);
 void behaviourFrameBegin();
 void behaviourUpdateShadowAlpha();
 u8 patrolPathStep(u8, u8);
@@ -581,7 +581,7 @@ void bossArmydilloStep(void) {
             }
         }
     }
-    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
+    currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
     if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) {
         tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 0xC, 2.0f);
         gCurrentActor->callbackMask = 0;

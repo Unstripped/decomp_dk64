@@ -568,27 +568,27 @@ void tagBarrelRotateUpdate(void) {
 }
 
 void actorTransformCameraUpdateA(void) {
-    actorTransformCameraUpdate();
+    throwableBarrelUpdate();
 }
 
 void actorTransformCameraUpdateB(void) {
-    actorTransformCameraUpdate();
+    throwableBarrelUpdate();
 }
 
 void actorTransformCameraUpdateC(void) {
-    actorTransformCameraUpdate();
+    throwableBarrelUpdate();
 }
 
 void textMarkerUpdateMatrixWrapper(void) {
-    textMarkerUpdateMatrix();
+    carryObjectUpdate();
 }
 
 void actorTransformCameraUpdateD(void) {
-    actorTransformCameraUpdate();
+    throwableBarrelUpdate();
 }
 
 extern Actor *gSpawnedActor;
-// customState of a carryable barrel (actorTransformCameraUpdate): held, thrown, floats on water, sinks, despawns.
+// customState of a carryable barrel (throwableBarrelUpdate): held, thrown, floats on water, sinks, despawns.
 typedef struct ThrowableBarrelState {
     /* 0x00 */ struct Actor *holder;
     /* 0x04 */ s32 throwFrame;
@@ -623,7 +623,7 @@ extern f32 D_807502E4;
 extern s16 D_80753444[];
 
 
-void actorTransformCameraUpdate(void) {
+void throwableBarrelUpdate(void) {
     ThrowableBarrelState *state;
     f32 mtx[4][4];
     f32 rot[4][4];
@@ -1628,7 +1628,7 @@ void tagBarrelDespawnOnKongDeselect(void) {
     }
 }
 
-// Spawn data and customState of the moving launch barrel (tagBarrelParticleUpdate): bobs, spins or sways by mode, fires the rider.
+// Spawn data and customState of the moving launch barrel (movingLaunchBarrelUpdate): bobs, spins or sways by mode, fires the rider.
 typedef struct MovingLaunchBarrelSpawnData {
     s32 frequency;
     s32 amplitude;
@@ -1653,7 +1653,7 @@ typedef struct MovingLaunchBarrelState {
 extern Actor *gActivePlayerActor;
 
 
-void tagBarrelParticleUpdate(void) {
+void movingLaunchBarrelUpdate(void) {
     f64 pad;
     f32 dirX;
     f32 dirZ;
@@ -2758,9 +2758,9 @@ void tagBarrelInteractiveUpdate(void) {
     gCurrentActor->sub4->boneRotations[count].weight = 0;
     gCurrentActor->tintA = gCurrentActor->unk15F;
     gCurrentActor->yaw = mathAngleBetweenPoints2D(gPlayerSlots->camX, gPlayerSlots->camZ, gCurrentActor->x, gCurrentActor->z);
-    if (func_8072881C(0, &extra->lastFrame) != 0) {
+    if (currentActorAnimTryIdleVariant(0, &extra->lastFrame) != 0) {
         if (extra->kind == 3 || extra->kind == 5) {
-            func_8072881C(0x81, &extra->lastFrame);
+            currentActorAnimTryIdleVariant(0x81, &extra->lastFrame);
         }
     }
     actorUpdateModelMatrix(gCurrentActor, 0);

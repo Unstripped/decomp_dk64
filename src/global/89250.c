@@ -139,7 +139,7 @@ void effectSpawnBurst(u8 useAltRange) {
         effectSetSpeed(((randomNonNegative() >> 15) % 8) + 6);
     }
     effectSetDuration(2);
-    effectSetCallback(func_80717930);
+    effectSetCallback(effectOrbitRiseUpdate);
     effectSetDepth(1);
     effectSetFlags(4);
     effectCreateAtActorBone(&D_8072139C, (f32)(((f64)((randomNonNegative() >> 15) % 50) / 80.0) + 0.1), gCurrentActor, 8, 0);
@@ -154,7 +154,7 @@ void effectSpawnBoneDebris(s16 bone, s8 direction) {
     scale = (f32)(gCurrentActor->sub4->scaleY / 0.15);
     actorGetNodePos(gCurrentActor, bone, &nodeX, &nodeY, &nodeZ);
     effectSetSpeed((((randomNonNegative() >> 15) % 100) + 0x190) * direction);
-    effectSetCallback(func_80717D4C);
+    effectSetCallback(effectSinkBySpeedUpdate);
     effectSetDepth(1);
     effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3],
                    (f32)((f64)scale * 0.8),
@@ -174,7 +174,7 @@ void effectSpawnBoneDebrisScaled(s16 bone, s16 baseSpeed, s16 lifetime) {
     scale = (f32)((f64)gCurrentActor->sub4->scaleY / 0.15);
     actorGetNodePos(gCurrentActor, bone, &nodeX, &nodeY, &nodeZ);
     effectSetSpeed(baseSpeed + (lifetime << 16));
-    effectSetCallback(func_8071F2F8);
+    effectSetCallback(effectRiseWithGravityUpdate);
     effectSetDepth(1);
     if (((f64)lifetime * 0.02) < 2.0) {
         duration = 2.0;
@@ -248,7 +248,7 @@ void func_80685210(f32 scale, s16 speedThreshold, s16 bone) {
     if (((gFrameCounter % 3) == 0) && ((f32)speedThreshold < gCurrentActor->speedXZ)) {
         effectSetMode(2);
         effectSetDepth(1);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectSetSpeed(-0x32);
         effectSetFlags(4);
         effectCreateAtActorBone(&D_8071FF18, scale, gCurrentActor, bone, 0);
@@ -394,7 +394,7 @@ void effectSpawnScatterRandom(void *texture, u8 colorMode, f32 scale, u8 count, 
         dx = ((randomNonNegative() >> 15) % 32767 % (spread * 2)) + (-spread);
         dz = ((randomNonNegative() >> 15) % 32767 % (spread * 2)) + (-spread);
         effectSetSpeed(-baseSpeed - ((randomNonNegative() >> 15) % 80));
-        effectSetCallback(func_807180F4);
+        effectSetCallback(effectSinkZSpinUpdate);
         effectSetDepth(1);
         effectSetMode(2);
         if (colorMode) {
@@ -583,14 +583,14 @@ void effectSpawnRingBursts(Actor *actor, f32 radius, f32 arcHeight, s32 moveSpee
         effectSetDuration(-1);
         effectSetSpeed((s32)actor);
         effectSetCallback(effectArcAroundActorUpdate);
-        func_8071E110(effectCreateAtPosition(D_8074E880[i], 0.7f, actor->x, actor->y, actor->z), 1, (u16)(i * 1365.3334f), radius, arcHeight, moveSpeed);
+        effectArcMotionInit(effectCreateAtPosition(D_8074E880[i], 0.7f, actor->x, actor->y, actor->z), 1, (u16)(i * 1365.3334f), radius, arcHeight, moveSpeed);
     }
     for (i = 0; i < 3; i++) {
         effectSetDepth(1);
         effectSetDuration(-1);
         effectSetSpeed((s32)actor);
         effectSetCallback(effectArcAroundActorUpdate);
-        func_8071E110(effectCreateAtPosition(D_8074E880[i], 0.7f, actor->x, actor->y, actor->z), 0, (u16)(i * 1365.3334f), radius, arcHeight, moveSpeed);
+        effectArcMotionInit(effectCreateAtPosition(D_8074E880[i], 0.7f, actor->x, actor->y, actor->z), 0, (u16)(i * 1365.3334f), radius, arcHeight, moveSpeed);
     }
 }
 
@@ -617,7 +617,7 @@ void effectSpawnParticleRingAtPosition(f32 posX, f32 posY, f32 posZ, s32 speed) 
     for (i = 0; i < count; i++) {
         effectSetDepth(1);
         effectSetDuration(1);
-        effectSetCallback(func_80717930);
+        effectSetCallback(effectOrbitRiseUpdate);
         effectSetAngle(i >> shift);
         effectSetSpeed(speed);
         effectCreateAtPosition(D_8074E880[i % 3], 0.5f, posX, posY, posZ);
@@ -695,7 +695,7 @@ void effectSpawnActorBoneEffects(u8 effectType) {
             /* fallthrough */
         case 0:
             effectSetDepth(1);
-            effectSetCallback(func_80717D4C);
+            effectSetCallback(effectSinkBySpeedUpdate);
             effectSetSpeed(-0x3E8);
             effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
             effectCreateAtActorBone(&D_80720120, (f32)(((f64)((randomNonNegative() >> 15) % 100) / 30.0) + 1.0), gCurrentActor, bone, 0);
@@ -709,7 +709,7 @@ void func_80687400(void) {
     sfxPlayOnFreeSlot(0x2D4, 0x7FFF, 63.0f, 1.0f, 0, 0);
     effectSetDuration(0xC8);
     effectEnableFade();
-    effectSetCallback(func_8071EFDC);
+    effectSetCallback(effectGrowFadeUpdate);
     effectCreateAtPosition(&D_80721158, 1.0f, 160.0f, 120.0f, -10.0f);
 }
 
@@ -753,7 +753,7 @@ void effectSpawnKongRing(void) {
         angle &= 0xFFF;
         effectSetMode(2);
         effectSetDepth(1);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectSetSpeed((s32)((f32)((((randomNonNegative() >> 15) % 0x7FFF) % 51) + 100) * baseScale));
         effectSetAngle((s16)((f32)i * (1.0f / 3.0f)));
         effectSetFlags(0x20);
@@ -820,7 +820,7 @@ void func_80687C48(void) {
     sfxAllocateChannel(0x97, 1.0f);
     effectSetDuration(0xC8);
     effectEnableFade();
-    effectSetCallback(func_8071EFDC);
+    effectSetCallback(effectGrowFadeUpdate);
     effectCreateAtPosition(&D_80720558, 1.0f, 160.0f, 120.0f, -10.0f);
 }
 
@@ -829,6 +829,6 @@ void func_80687CC8(void) {
     sfxAllocateChannel(0x97, 1.0f);
     effectSetDuration(0xC8);
     effectEnableFade();
-    effectSetCallback(func_8071EFDC);
+    effectSetCallback(effectGrowFadeUpdate);
     effectCreateAtPosition(&D_807210EC, 1.0f, 160.0f, 120.0f, -10.0f);
 }

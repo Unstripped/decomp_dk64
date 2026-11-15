@@ -142,7 +142,7 @@ void actorSparkCutsceneUpdate(void) {
 
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags &= ~0x8000;
-        func_80728950(0);
+        currentActorAnimFinish(0);
         actorSetUniformScale(gCurrentActor, 1.2f);
         gCurrentActor->flags |= 0x400;
         gCurrentActor->drawDistance = 0x3E8;
@@ -210,7 +210,7 @@ void actorSparkCutsceneUpdate(void) {
         }
         break;
     case 3:
-        func_8072881C(0, &gCurrentActor->animLastFrame);
+        currentActorAnimTryIdleVariant(0, &gCurrentActor->animLastFrame);
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -287,7 +287,7 @@ void actorSinkAndDespawn(void) {
                 do {
                     effectSetMode(2);
                     effectSetDepth(1);
-                    effectSetCallback(&func_80717D4C);
+                    effectSetCallback(&effectSinkBySpeedUpdate);
                     effectSetSpeed(-0x64);
                     effectSetColor(0x64, 0x46, 0x1E, 0xFF);
                     actorGetNodePos(gCurrentActor, node, &nodeX, &nodeY, &nodeZ);

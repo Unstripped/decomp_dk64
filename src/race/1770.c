@@ -69,18 +69,18 @@ void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPo
     s8 laneDiff;
     TargetVec3f *curPoint;
 
-    points = gMinecartTrackPoints[pathState->unk1];
-    curPoint = &points[pathState->unk2];
-    laneDiff = pathState->unk0 - pathState->unk1;
+    points = gMinecartTrackPoints[pathState->targetLane];
+    curPoint = &points[pathState->waypoint];
+    laneDiff = pathState->lane - pathState->targetLane;
     mathPickCloserTargetPoint3D(inPos[0], inPos[1], inPos[2], curPoint, &points[nextWaypoint], &points[nextWaypoint], &points[nextNextWaypoint], &closerTarget[0], &closerTarget[1], &closerTarget[2]);
-    pathState->unk8 += 0.01 * gCurrentActor->speedXZ;
-    if (pathState->unk8 >= 1.0f) {
-        pathState->unk8 = 1.0f;
-        pathState->unk0 = pathState->unk1;
+    pathState->laneBlend += 0.01 * gCurrentActor->speedXZ;
+    if (pathState->laneBlend >= 1.0f) {
+        pathState->laneBlend = 1.0f;
+        pathState->lane = pathState->targetLane;
     }
-    pathState->unkC = mathSinF(pathState->unk8 * 2048.0f) * (laneDiff * 300);
+    pathState->laneOffset = mathSinF(pathState->laneBlend * 2048.0f) * (laneDiff * 300);
     for (i = 0; i < 3; i++) {
-        outPos[i] = outPos[i] + pathState->unk8 * (closerTarget[i] - outPos[i]);
+        outPos[i] = outPos[i] + pathState->laneBlend * (closerTarget[i] - outPos[i]);
     }
 }
 
@@ -143,13 +143,13 @@ void raceInitOpponentEntities(Actor *parent) {
     participant->playerIdx = 0;
     path = ((RaceRacerActor *)racer)->path;
     spawnedNode = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
-    path->unk30 = spawnedNode;
+    path->targetActor = spawnedNode;
     pair = ((RaceNodeActor *)spawnedNode)->pair;
     pair->data = participant;
     pair->actor = racer;
     actorSpawn(0x130, 0);
     spawnedActor = gSpawnedActor;
-    path->unk34 = spawnedActor;
+    path->cameraActor = spawnedActor;
     participant = ((RaceNodeActor *)spawnedNode)->participant;
     raceRegisterParticipant(parent, 0, spawnedNode, participant);
     participant->lap = 0;
@@ -157,14 +157,14 @@ void raceInitOpponentEntities(Actor *parent) {
     participant->actor = parent;
     participant->place = 0;
     path = ((RaceNodeActor *)spawnedNode)->path;
-    path->unk30 = racer;
-    path->unk34 = spawnedActor;
+    path->targetActor = racer;
+    path->cameraActor = spawnedActor;
     participant = spawnedActor->customState;
     participant->actor = parent;
     path = ((RaceRacerActor *)spawnedActor)->path;
-    path->unk30 = racer;
+    path->targetActor = racer;
     D_80750AC4 = 0;
-    parentPart->unk25 = 1;
+    parentPart->hasCpuRival = 1;
 }
 
 
@@ -181,22 +181,22 @@ void racePlayCheckpointSfx(RacePathState *pathState, u8 timer, f32 volume) {
 }
 
 void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participant, s32 pathLength) {
-    if (pathState->unk2 + 1 != pathLength) {
-        pathState->unk2++;
+    if (pathState->waypoint + 1 != pathLength) {
+        pathState->waypoint++;
     } else {
-        pathState->unk2 = 0;
+        pathState->waypoint = 0;
         if (participant != NULL) {
             participant->lap++;
         }
     }
     if (participant != NULL) {
-        participant->unk3A = pathState->unk2 + 1;
+        participant->unk3A = pathState->waypoint + 1;
     }
 }
 
 extern u8 D_8072006C[];
 extern void *D_8002FBB0[4];
-extern u8 gLightSlotsEnd;
+extern u8 gLightSlotNext;
 void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
     s16 angle;
     s32 pad;
@@ -222,7 +222,7 @@ void raceUpdateOrientation(RacePathState *pathState) {
     f32 rollScaled;
     f32 sinYaw;
 
-    yawOffset = pathState->unk18 + pathState->unkC;
+    yawOffset = pathState->unk18 + pathState->laneOffset;
     rollOffset = mathAngleSignedDistance(0, (s16)pathState->unk1C);
     yawOffset &= 0xFFF;
     cosYaw = mathCosF(yawOffset);
@@ -260,15 +260,15 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     f32 hy;
     f32 hz;
 
-    count = gMinecartTrackPoints[pathState->unk0 + 1] - gMinecartTrackPoints[pathState->unk0];
-    next = raceGetNextWaypointIndex(count, pathState->unk2);
+    count = gMinecartTrackPoints[pathState->lane + 1] - gMinecartTrackPoints[pathState->lane];
+    next = raceGetNextWaypointIndex(count, pathState->waypoint);
     next2 = raceGetNextWaypointIndex(count, next);
-    points = gMinecartTrackPoints[pathState->unk0];
-    cur = &points[pathState->unk2];
+    points = gMinecartTrackPoints[pathState->lane];
+    cur = &points[pathState->waypoint];
     nxt2 = &points[next2];
     nxt = &points[next];
     oldAng = gCurrentActor->moveYaw;
-    flag = pathState->unk39;
+    flag = pathState->stunTimer;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->x = cur->x;
         gCurrentActor->y = cur->y;
@@ -280,7 +280,7 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     }
     if (flag != 0) {
         thrust = 0.0f;
-        pathState->unk39--;
+        pathState->stunTimer--;
         gCurrentActor->speedXZ = 0.0f;
         pathState->unk14 = 0.0f;
         pathState->unk10 = 0;
@@ -308,12 +308,12 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     }
     if (mathPickCloserTargetPoint3D(pos[0], pos[1], pos[2], cur, nxt, nxt, nxt2, &tgt[0], &tgt[1], &tgt[2]) != 0) {
         raceAdvanceCheckpoint(pathState, participant, count);
-        next = raceGetNextWaypointIndex(count, pathState->unk2);
+        next = raceGetNextWaypointIndex(count, pathState->waypoint);
         next2 = raceGetNextWaypointIndex(count, next);
-        cur = &points[pathState->unk2];
+        cur = &points[pathState->waypoint];
         nxt2 = &points[next2];
     }
-    if (pathState->unk0 != pathState->unk1) {
+    if (pathState->lane != pathState->targetLane) {
         raceInterpolateWaypointPos(pathState, tgt, pos, next, next2);
     } else if (pathState->unk4 != 0) {
         pathState->unk4--;
@@ -326,13 +326,13 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     pathState->unk18 = pathState->unk18 + pathState->unk28;
     raceUpdateOrientation(pathState);
     if (spawnSparks != 0) {
-        if ((randomLcgNext() & 0xFF) < gCurrentActor->speedXZ * 0.3 && pathState->unk0 == pathState->unk1) {
+        if ((randomLcgNext() & 0xFF) < gCurrentActor->speedXZ * 0.3 && pathState->lane == pathState->targetLane) {
             mathPickCloserTargetPoint3D(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, cur, &points[next], &points[next], nxt2, &hx, &hy, &hz);
             effectSetSpeed((s32)gCurrentActor);
             effectSetCallback(timedLightOrbitUpdate);
-            D_8002FBB0[gLightSlotsEnd] = effectCreateAtPosition(D_8072006C, 0.4f, hx, hy, hz);
-            gLightSlotsEnd++;
-            gLightSlotsEnd = gLightSlotsEnd % 4;
+            D_8002FBB0[gLightSlotNext] = effectCreateAtPosition(D_8072006C, 0.4f, hx, hy, hz);
+            gLightSlotNext++;
+            gLightSlotNext = gLightSlotNext % 4;
             sfxPlayAtPositionPooled(hx, hy, hz, 0x8A, 0x96, 0x7F, 0x14, 0x50, 0.3f, 0);
         }
     }
@@ -348,15 +348,15 @@ void raceSpawnProjectile(RaceParticipant *participant) {
     RacePathState *actorPath;
     RaceAuxState *projAux;
 
-    if (participant->unk2C == NULL && participant->unk2A != 0) {
+    if (participant->projectile == NULL && participant->projectileAmmo != 0) {
         actorPath = ((RaceRacerActor *)gCurrentActor)->path;
-        participant->unk2A--;
+        participant->projectileAmmo--;
         actorSpawn(0x131, 0x96);
         projPath = ((RaceRacerActor *)gSpawnedActor)->path;
         projAux = ((RaceRacerActor *)gSpawnedActor)->aux;
         projAux->owner = gCurrentActor;
         projAux->target = raceFindNearestParticipant(gCurrentActor);
-        participant->unk2C = gSpawnedActor;
+        participant->projectile = gSpawnedActor;
         gSpawnedActor->x = gCurrentActor->x;
         gSpawnedActor->y = gCurrentActor->y;
         gSpawnedActor->z = gCurrentActor->z;
@@ -368,7 +368,7 @@ void raceSpawnProjectile(RaceParticipant *participant) {
     } else {
         sfxPlayOnFreeSlot(0xE2, 0x7FFF, 64.0f, 1.0f, 0, 0);
     }
-    participant->unk29 = 0;
+    participant->fireRequested = 0;
 }
 
 
@@ -426,10 +426,10 @@ void raceVehicleBehaviorUpdate(void) {
     participant = gCurrentActor->customState;
     pathState = ((RaceRacerActor *)gCurrentActor)->path;
     if (!(gCurrentActor->flags & 0x10)) {
-        len = gMinecartTrackPoints[pathState->unk0 + 1] - gMinecartTrackPoints[pathState->unk0];
-        participant->unk2A = 3;
+        len = gMinecartTrackPoints[pathState->lane + 1] - gMinecartTrackPoints[pathState->lane];
+        participant->projectileAmmo = 3;
         gCurrentActor->unk144 = 0x3C;
-        pathState->unk2 = raceGetPrevWaypointIndex(len, 0);
+        pathState->waypoint = raceGetPrevWaypointIndex(len, 0);
         racePathFollowStep(pathState, participant, 1);
         if (func_807142D8() != 0 || flagGet(0x12, 2) != 0) {
             playerStateQueueCallback(0x4B, gCurrentActor, participant->playerIdx);
@@ -439,11 +439,11 @@ void raceVehicleBehaviorUpdate(void) {
         actorClearNodeFlag(gCurrentActor, 2);
         racePlayEngineSfx();
     }
-    if (gActorGlobalState.bossFightPhase == 5 && pathState->unk39 == 0) {
+    if (gActorGlobalState.bossFightPhase == 5 && pathState->stunTimer == 0) {
         if (participant->raceStatus == 2) {
             behaviourAddSlotQueueValueB(3);
         }
-        pathState->unk39 = 0x1E;
+        pathState->stunTimer = 0x1E;
     }
     if (participant->unk35 == 0) {
         if (participant->raceStatus == 1) {
@@ -471,9 +471,9 @@ void raceVehicleBehaviorUpdate(void) {
             }
             participant->route = 0;
         }
-        if (pathState->unk39 != 0) {
-            if (pathState->unk39 > 10.0f) {
-                shakeAngle = (pathState->unk39 - 10.0f) * 204.8f;
+        if (pathState->stunTimer != 0) {
+            if (pathState->stunTimer > 10.0f) {
+                shakeAngle = (pathState->stunTimer - 10.0f) * 204.8f;
                 off = 300.0f; // FAKE: 300.0f amplitude held in off (an existing f32 home) orders colouring so shakeAngle keeps its register; a literal spills it to sp+0x72
                 pathState->unk20 = mathSinF(shakeAngle) * off;
                 pathState->unk24 = mathSinF(shakeAngle * 2) * off;
@@ -494,7 +494,7 @@ void raceVehicleBehaviorUpdate(void) {
             }
         }
     }
-    if (participant->unk29 != 0) {
+    if (participant->fireRequested != 0) {
         raceSpawnProjectile(participant);
     }
     if (participant->raceStatus < 5) {
@@ -540,7 +540,7 @@ void raceProjectileBehaviorUpdate(void) {
     pathState = ((RaceRacerActor *)gCurrentActor)->path;
     aux = ((RaceRacerActor *)gCurrentActor)->aux;
     if (!(gCurrentActor->flags & 0x10)) {
-        aux->unk0 = 0x78;
+        aux->lifetime = 0x78;
         gCurrentActor->flags |= 0x10;
         gCurrentActor->unk144 = 0x3C;
         participant->throttle = 5.0f;
@@ -553,10 +553,10 @@ void raceProjectileBehaviorUpdate(void) {
     }
     racePathFollowStep(pathState, participant, 0);
     gCurrentActor->y += 5.0f;
-    if (aux->unk0 != 0) {
+    if (aux->lifetime != 0) {
         effectSetDepth(1);
         effectCreateAtPosition(sEffectSparkConfig, 1.0f, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z);
-        if (--aux->unk0 == 0) {
+        if (--aux->lifetime == 0) {
             hasCollided = 1;
         }
     }

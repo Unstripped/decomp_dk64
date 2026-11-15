@@ -430,7 +430,7 @@ typedef struct Actor {
             /* 0x0EC */ s16 unkEC;
             /* 0x0EE */ s16 moveYaw;
         };
-        /* 0x0EC */ u32 animLastFrame; // func_8072881C frame cursor (actorSparkCutsceneUpdate, A6280.c)
+        /* 0x0EC */ u32 animLastFrame; // currentActorAnimTryIdleVariant frame cursor (actorSparkCutsceneUpdate, A6280.c)
     };
     /* 0x0F0 */ s16 movePitch;
     /* 0x0F2 */ s16 unkF2;
@@ -482,7 +482,7 @@ typedef struct Actor {
     /* 0x15F */ u8 unk15F;
     union {
         /* 0x160 */ f64 splineT;
-        /* 0x160 */ u32 frameCursor; // func_8072881C frame cursor (critterFlutterFlyUpdate, 3340.c)
+        /* 0x160 */ u32 frameCursor; // currentActorAnimTryIdleVariant frame cursor (critterFlutterFlyUpdate, 3340.c)
     };
     /* 0x168 */ s16 yawSpeed;
     /* 0x16A */ u8 tintR;
@@ -542,7 +542,7 @@ typedef struct ScriptedActorState {
     /* 0x29 */ u8 scaleSteps;
     /* 0x2A */ u8 scaleTimer;
     /* 0x2B */ u8 pad2B;
-    /* 0x2C */ u8 unk2C;
+    /* 0x2C */ u8 anchorNode;
     /* 0x2D */ u8 pathId;
     /* 0x2E */ u8 pathSpeed;
     /* 0x2F */ u8 pathPlayback;
@@ -704,7 +704,7 @@ typedef struct BehaviourWorkState {
     /* 0x25 */ u8 waypointIndex; // current zone entry / path step (bit 7: direction in 12E800)
     /* 0x26 */ s16 targetSpeed;
     union {
-        /* 0x28 */ u32 idleAnimFrame; // gFrameCounter when the idle variant last played (func_8072881C)
+        /* 0x28 */ u32 idleAnimFrame; // gFrameCounter when the idle variant last played (currentActorAnimTryIdleVariant)
         /* 0x28 */ u32 unk28; // boss/8520.c: packed anim frame (& 0xF), direction bit 0x80, flag 0x8000
     };
     /* 0x2C */ s16 timer;
@@ -1146,10 +1146,10 @@ typedef struct G00Entry {
 
 // Spawn position (func_806C96C4).
 typedef struct G01Pos {
-    /* 0x0 */ s16 unk0;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ u8 unk6;
+    /* 0x0 */ s16 x;
+    /* 0x2 */ s16 y;
+    /* 0x4 */ s16 z;
+    /* 0x6 */ u8 yaw;
     /* 0x7 */ u8 unk7;
     /* 0x8 */ u8 unk8;
     /* 0x9 */ u8 unk9;

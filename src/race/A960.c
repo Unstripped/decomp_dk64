@@ -324,8 +324,8 @@ void raceUpdateLapAndWaypointTracker(RaceParticipant *tracker) {
                     (s32)(&gPlayerSlots[tracker->playerIdx].camX)[tracker->playerIdx], // ORIG: the target reads camX + playerIdx * 4 of the slot (sll t8,t0,2; addu t9,v0,t8; lwc1 528(t9) at 0xc34)
                     (s32)gPlayerSlots->camZ));
             }
-            if (tracker->unk38 != 0) {
-                tracker->unk38 = raceIsFacingWaypoint(node);
+            if (tracker->facingWaypoint != 0) {
+                tracker->facingWaypoint = raceIsFacingWaypoint(node);
             } else if (raceIsFacingWaypoint(node) != 0) {
                 if (tracker->isCpu == 0) {
                     if (node->kind != 0) {
@@ -349,7 +349,7 @@ void raceUpdateLapAndWaypointTracker(RaceParticipant *tracker) {
                 }
                 val = list->items[tracker->unk3A];
                 node = raceGetWaypoint(val);
-                tracker->unk38 = raceIsFacingWaypoint(node);
+                tracker->facingWaypoint = raceIsFacingWaypoint(node);
             }
             tracker->unk40 = raceGetNormalDistanceToWaypoint(node, gCurrentActor->x, gCurrentActor->z);
         }

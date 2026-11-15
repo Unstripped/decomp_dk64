@@ -104,7 +104,7 @@ void modelSlotFree(ModelData *anim) {
 extern u32 D_807F6BE0;
 extern u32 D_807F6BE4;
 extern ModelData *D_807F6BE8;
-extern u8 D_807F6BEC;
+extern u8 gModelAnimChanged;
 extern u8 gGfxBufferIndex;
 
 u8 modelSlotStepAnimations(s16 modelId) {
@@ -112,7 +112,7 @@ u8 modelSlotStepAnimations(s16 modelId) {
     s32 i;
 
     group = gModelSlots[hashTableLookup(modelId)].unk78;
-    D_807F6BEC = 0;
+    gModelAnimChanged = 0;
     if (group != NULL) {
         D_807F6BE0 = (u32)group->frames[gGfxBufferIndex];
         D_807F6BE4 = (u32)group->frames[gGfxBufferIndex ^ 1];
@@ -120,12 +120,12 @@ u8 modelSlotStepAnimations(s16 modelId) {
         for (i = 0; i != 10; i++) {
             if (group->entries[i].unkE == 1) {
                 modelAnimEntryStep(&group->entries[i]);
-                D_807F6BEC = 1;
+                gModelAnimChanged = 1;
             }
         }
         mtxCopyQueueFlush(group);
     }
-    return D_807F6BEC;
+    return gModelAnimChanged;
 }
 
 
@@ -426,13 +426,13 @@ typedef struct MtxCopyRequest {
     /* 0x0D */ u8 padD[3];
 } MtxCopyRequest;
 
-extern MtxCopyRequest D_807F6960[0x28];
+extern MtxCopyRequest gMtxCopyQueue[0x28];
 
 void mtxCopyQueueReset(void) {
     s32 i;
 
     for (i = 0; i < 0x28; i++) {
-        D_807F6960[i].group = NULL;
+        gMtxCopyQueue[i].group = NULL;
     }
 }
 
@@ -443,7 +443,7 @@ void mtxCopyQueuePush(ModelData *group, s32 src, s32 dst) {
     found = 0;
     i = 0;
     while (found == 0 && i < 0x28) {
-        if (D_807F6960[i].group == NULL) {
+        if (gMtxCopyQueue[i].group == NULL) {
             found = 1;
         } else {
             i++;
@@ -451,10 +451,10 @@ void mtxCopyQueuePush(ModelData *group, s32 src, s32 dst) {
     }
 
     if (found != 0) {
-        D_807F6960[i].group = group;
-        D_807F6960[i].src = src;
-        D_807F6960[i].dst = dst;
-        D_807F6960[i].bufferIndex = gGfxBufferIndex ^ 1;
+        gMtxCopyQueue[i].group = group;
+        gMtxCopyQueue[i].src = src;
+        gMtxCopyQueue[i].dst = dst;
+        gMtxCopyQueue[i].bufferIndex = gGfxBufferIndex ^ 1;
         return;
     }
     faultSetMessage(0xB, 0, 0, 0);
@@ -464,8 +464,8 @@ void mtxCopyQueuePush(ModelData *group, s32 src, s32 dst) {
 void mtxCopyQueueCancelDest(s32 dst) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
-        if (D_807F6960[i].group != NULL && D_807F6960[i].dst == dst) {
-            D_807F6960[i].group = NULL;
+        if (gMtxCopyQueue[i].group != NULL && gMtxCopyQueue[i].dst == dst) {
+            gMtxCopyQueue[i].group = NULL;
         }
     }
 }
@@ -474,8 +474,8 @@ void mtxCopyQueueCancelDest(s32 dst) {
 void mtxCopyQueueCancelGroup(ModelData *group) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
-        if (D_807F6960[i].group == group) {
-            D_807F6960[i].group = NULL;
+        if (gMtxCopyQueue[i].group == group) {
+            gMtxCopyQueue[i].group = NULL;
         }
     }
 }
@@ -485,10 +485,10 @@ void mtxCopyQueueCancelGroup(ModelData *group) {
 void mtxCopyQueueFlush(ModelData *group) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
-        if (D_807F6960[i].group == group && D_807F6960[i].bufferIndex == gGfxBufferIndex) {
-            memcpy((void *)D_807F6960[i].dst, (void *)D_807F6960[i].src, 0x40);
-            D_807F6960[i].group = NULL;
-            D_807F6BEC = 1;
+        if (gMtxCopyQueue[i].group == group && gMtxCopyQueue[i].bufferIndex == gGfxBufferIndex) {
+            memcpy((void *)gMtxCopyQueue[i].dst, (void *)gMtxCopyQueue[i].src, 0x40);
+            gMtxCopyQueue[i].group = NULL;
+            gModelAnimChanged = 1;
         }
     }
 }

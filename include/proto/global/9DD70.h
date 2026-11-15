@@ -51,8 +51,8 @@ void func_8069B3FC(void);
 #ifndef PROTO_SKIP_actorHasCallbackTargetThisFrame
 s32 actorHasCallbackTargetThisFrame(void);
 #endif
-#ifndef PROTO_SKIP_textMarkerUpdateMatrix
-void textMarkerUpdateMatrix(void);
+#ifndef PROTO_SKIP_carryObjectUpdate
+void carryObjectUpdate(void);
 #endif
 #ifndef PROTO_SKIP_actorUpdateTimerBarAndRange
 void actorUpdateTimerBarAndRange(void);

@@ -25,11 +25,11 @@ s16 gBossSideYaw[4] = { 0x800, 0xC00, 0, 0x400 };
 s16 gBossSideAimOffsetX[4] = { 0, -0x4B, 0, 0x4B };
 s16 gBossSideAimOffsetZ[4] = { -0x4B, 0, 0x4B, 0 };
 s8 gBossFollowerRaisedMask = -1;
-s16 D_80035B2C = 0;
+s16 gBossFollowerPitch = 0;
 s8 D_80035B30[4] = { 7, 3, 1, 0 };
 s8 D_80035B34 = 0;
 u8 D_80035B38 = 0xFF;
-f32 D_80035B3C = 0.0f;
+f32 gBossSpawnerSpinFrame = 0.0f;
 s8 D_80035B40 = 0;
 s8 D_80035B44[5] = { 2, 3, 4, 0, 1 };
 s16 D_80035B4C[5] = { 2, 3, 4, 5, 6 };
@@ -93,7 +93,7 @@ void bossSpawnerUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gBossFollowerRaisedMask = 0xF;
         D_80035B34 = 0;
-        D_80035B3C = 0.0f;
+        gBossSpawnerSpinFrame = 0.0f;
         state->aggroTimer = 0x1E;
         state->introTimer = 1;
         state->baseY = gCurrentActor->y;
@@ -227,7 +227,7 @@ void bossSpawnerUpdate(void) {
         }
         if (bounceDir != 0 && D_80035B40 == 0) {
             spawnParticle = 1;
-            D_80035B2C = 0;
+            gBossFollowerPitch = 0;
         }
         break;
     case 1:
@@ -297,14 +297,14 @@ void bossSpawnerUpdate(void) {
         }
         break;
     case 4:
-        D_80035B3C += 1.0;
-        if (D_80035B3C > 24.0) {
-            D_80035B3C = 24.0f;
+        gBossSpawnerSpinFrame += 1.0;
+        if (gBossSpawnerSpinFrame > 24.0) {
+            gBossSpawnerSpinFrame = 24.0f;
             state->stepTimer++;
-            D_80035B2C = mathSinF(state->stepTimer << 5) * 200.0f;
+            gBossFollowerPitch = mathSinF(state->stepTimer << 5) * 200.0f;
             if (state->stepTimer == 0x3F) {
-                D_80035B3C = 0.0f;
-                D_80035B2C = 0;
+                gBossSpawnerSpinFrame = 0.0f;
+                gBossFollowerPitch = 0;
                 gBossFollowerRaisedMask = D_80035B30[D_80035B34];
                 D_80035B34 += 1;
                 state->subState = 5;
@@ -449,10 +449,10 @@ void bossFollowerActorUpdate(void) {
     }
     if (gBossFollowerRaisedMask & (1 << link->slot)) {
         gCurrentActor->roll = (s16)(parentState->lift * 1024.0) - 0x400;
-        gCurrentActor->pitch = D_80035B2C;
+        gCurrentActor->pitch = gBossFollowerPitch;
         if (anim != NULL) {
-            if (D_80035B3C != anim->frame) {
-                controllerApplyMotionWindow(gCurrentActor, anim, D_80035B3C);
+            if (gBossSpawnerSpinFrame != anim->frame) {
+                controllerApplyMotionWindow(gCurrentActor, anim, gBossSpawnerSpinFrame);
             }
         }
     } else {

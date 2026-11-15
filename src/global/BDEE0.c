@@ -252,7 +252,7 @@ void actorSpawnRandomParticleNearActor(u8 particleType, s8 yOffset) {
             break;
         case 1:
             effectSetSpeed(-0x258);
-            effectSetCallback(func_80717D4C);
+            effectSetCallback(effectSinkBySpeedUpdate);
             break;
     }
     effectSetDepth(1);
@@ -848,7 +848,7 @@ void behaviourFairyWanderUpdate(void) {
         if (spawnNodeHasActor(0x2D) == 0) {
             csSendActorMessagePayload(0x11, 0xFF);
             camReturnToFollow(gCamActor, gPrimaryPlayerActor);
-            func_80726EE0(0);
+            spawnNodesSetRespawnHold(0);
             gGlobalCutsceneFlags &= ~1;
             if (gPlayerSlots->unk2C0 != 1) {
                 playerSetSizeMode(gPrimaryPlayerActor, 1);

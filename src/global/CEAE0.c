@@ -569,7 +569,7 @@ void playerUpdateScaleAndPhysics(void) {
         if (sparkTimer != 0) {
             effectSetSpeed((randomNonNegative() >> 15) % 10 + 0x8008);
             effectSetDuration(2);
-            effectSetCallback(func_80717930);
+            effectSetCallback(effectOrbitRiseUpdate);
             effectSetDepth(1);
             effectSetFlags(6);
             effectCreateAtActorBone(&sEffectSparkConfig, ((randomNonNegative() >> 15) % 50) / 80.0 + 0.5, gCurrentActor, 2, 0);
@@ -2023,9 +2023,9 @@ void func_806CF580(void) {
             }
         }
     }
-    if (gCurrentActor->state != 0x36 && func_8072881C(0, &gActivePlayerState->unk84) != 0 &&
+    if (gCurrentActor->state != 0x36 && currentActorAnimTryIdleVariant(0, &gActivePlayerState->unk84) != 0 &&
         (gPlayerCharacterId[gCurrentPlayerIndex] == 1 || (gPlayerCount == 1 && gPlayerCharacterId[gCurrentPlayerIndex] == 3))) {
-        func_8072881C(0x81, &gActivePlayerState->unk84);
+        currentActorAnimTryIdleVariant(0x81, &gActivePlayerState->unk84);
     }
     if ((gCurrentActor->state == 0x4F || gCurrentActor->state == 0x7F) && D_80750AD0 == 0 &&
         gActivePlayerState->unkD0 + 9 < gFrameCounter && randomLcgNext() % 2500 / 200 == 0) {

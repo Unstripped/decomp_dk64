@@ -144,7 +144,7 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
 void func_806C6B50(void) {
     gCurrentActor->waterY = 99999.0f;
     func_806C6884(0, 0xA, 0x44);
-    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
+    currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
 }
 
 void func_806C6BA0(void) {
@@ -178,7 +178,7 @@ void func_806C6BC8(void) {
     } else {
         gCurrentActor->flags &= ~0x400;
     }
-    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
+    currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
     switch (gCurrentActor->state) {
         case 0:
             if (gBehaviourWorkState->timer != 0) {

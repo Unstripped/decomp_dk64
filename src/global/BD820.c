@@ -31,7 +31,7 @@ void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 lifetime) {
 
 void func_806B8BDC(s16 x, s16 y, s16 z) {
     effectSetMode(2);
-    effectSetCallback(func_80717D4C);
+    effectSetCallback(effectSinkBySpeedUpdate);
     effectSetSpeed(-0x28);
     effectSetDepth(1);
     effectSetColor(0xFF, 0xFF, 0xFF, 0xC8);

@@ -637,10 +637,10 @@ void playerWarpToSpawnPoint(s32 spawnIndex) {
         /* fallthrough */
     case 0:
         gActivePlayerActor->waterY = -10000.0f;
-        gActivePlayerActor->x = spawn->unk0;
-        gActivePlayerActor->y = gActivePlayerActor->prevPeakY = spawn->unk2;
-        gActivePlayerActor->z = spawn->unk4;
-        gActivePlayerActor->yaw = (spawn->unk6 / 255.0) * 4095.0;
+        gActivePlayerActor->x = spawn->x;
+        gActivePlayerActor->y = gActivePlayerActor->prevPeakY = spawn->y;
+        gActivePlayerActor->z = spawn->z;
+        gActivePlayerActor->yaw = (spawn->yaw / 255.0) * 4095.0;
         gActivePlayerActor->moveYaw = gActivePlayerActor->yaw;
         break;
     case 1:
@@ -735,21 +735,21 @@ void playerLoadSpawnerAsset(s32 mapId) {
     D_807FC900 = assetLoad(0x17, mapId, 1, 1);
     D_807FC904 = assetGetCachedSizeOrResolve(0x17, mapId) / 10U;
     playerCheckSpawnerFlagFixup(mapId);
-    D_807FC908.unk6 = 0;
-    D_807FC908.unk0 = D_807FD574.unk0;
-    D_807FC908.unk2 = D_807FD574.unk2;
-    D_807FC908.unk4 = D_807FD574.unk4;
+    D_807FC908.yaw = 0;
+    D_807FC908.x = D_807FD574.x;
+    D_807FC908.y = D_807FD574.y;
+    D_807FC908.z = D_807FD574.z;
 }
 
 
 void playerCheckSpawnerFlagFixup(s32 mapId) {
     if (mapId == 0x1E) {
         if (flagGet(0xA0, 0) != 0) {
-            D_807FC900[18].unk2 = 0x65D;
-            D_807FC900[23].unk2 = 0x65D;
+            D_807FC900[18].y = 0x65D;
+            D_807FC900[23].y = 0x65D;
         } else {
-            D_807FC900[18].unk2 = 0x626;
-            D_807FC900[23].unk2 = 0x626;
+            D_807FC900[18].y = 0x626;
+            D_807FC900[23].y = 0x626;
         }
     }
 }
@@ -762,10 +762,10 @@ extern G01Pos D_807FC918;
 
 G01Pos *func_806C96C4(s32 spawnIndex) {
     if (D_8076AEE2 & 1) {
-        D_807FC918.unk0 = D_8076AEE4;
-        D_807FC918.unk2 = D_8076AEE8;
-        D_807FC918.unk4 = D_8076AEEC;
-        D_807FC918.unk6 = (D_8076AEF0 / 4095.0) * 360.0;
+        D_807FC918.x = D_8076AEE4;
+        D_807FC918.y = D_8076AEE8;
+        D_807FC918.z = D_8076AEEC;
+        D_807FC918.yaw = (D_8076AEF0 / 4095.0) * 360.0;
         return &D_807FC918;
     }
     if (D_807FC904 == 0) {
@@ -899,7 +899,7 @@ void playerInitKongActor(s32 playerIndex, s32 unused1, s32 unused2) {
     playerSpawnMapActors(playerIndex);
 }
 
-void playerGetCharacterIndex(u8 playerIndex) {
+void playerCopyCameraToEye(u8 playerIndex) {
     PlayerStruct *p = &gPlayerSlots[playerIndex];
 
     p->eyeX = p->camX;

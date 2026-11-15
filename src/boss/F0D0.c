@@ -240,7 +240,6 @@ extern u8 gBossWaypointLightFade[];
 extern f32 D_80036C40[];
 extern s16 D_807502DC;
 extern f32 D_807502F0;
-extern u8 D_8071EDEC[];
 extern u8 D_8071FC58[];
 extern u8 D_80720054[];
 extern u8 D_80720BE8[];
@@ -578,7 +577,7 @@ void bossMainStep(void) {
                     boneY += (f32)((randomNonNegative() >> 15) % 100 + 0x32);
                     boneZ += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
                     effectSetDepth(1);
-                    effectSetCallback(D_8071EDEC);
+                    effectSetCallback(effectEaseToTargetNodeUpdate);
                     effectSetSpeed((s32)gCurrentActor);
                     effectCreateAtPosition(D_8071FC58, 1.5f, boneX, boneY, boneZ);
                     effectCreateAtActorBone(D_80720054, 3.0f, gCurrentActor, 1, 2);

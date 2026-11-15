@@ -54,7 +54,7 @@ extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
 extern PlayerStruct *gPlayerSlots;
 extern s32 gCurrentMap;
-extern s32 D_80717D4C;
+extern s32 effectSinkBySpeedUpdate;
 extern void *D_8074E880[];
 extern u8 D_80720120[];
 extern s32 D_8072030C;
@@ -144,7 +144,7 @@ s32 minecartSetTargetAheadOfPlayer(BehaviourWorkState *targetState, f32 distance
 
 void minecartSpawnRandomParticle(void) {
     effectSetSpeed(((randomNonNegative() >> 15) % 100) + 300);
-    effectSetCallback(&D_80717D4C);
+    effectSetCallback(&effectSinkBySpeedUpdate);
     effectSetDepth(1);
     effectSetFlags(4);
     effectCreateAtPosition(

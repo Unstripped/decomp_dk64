@@ -87,7 +87,7 @@ void particleSpawnPathTrail(void) {
                     effectSetMode(3);
                     effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
                     effectSetFlags(4);
-                    effectSetCallback(func_80717D4C);
+                    effectSetCallback(effectSinkBySpeedUpdate);
                     effectSetSpeed(-0xAA);
                     effectSetMaxDistance(node->radius);
                     factor = ((randomNonNegative() % 10000) % 1000) / 1000.0;

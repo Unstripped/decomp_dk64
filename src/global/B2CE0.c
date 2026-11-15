@@ -146,7 +146,7 @@ void func_806AE588(void) {
             gCurrentActor->interactionType = 1;
         }
     }
-    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
+    currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
     state = gCurrentActor->state;
     if ((state != 0x32) || (gActorGlobalState.unk15 != 0)) {
         if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (state != 0x37)) {
@@ -767,7 +767,7 @@ void func_806B0354(void) {
             behaviourUpdateContactAndState(0x378);
             break;
     }
-    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
+    currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

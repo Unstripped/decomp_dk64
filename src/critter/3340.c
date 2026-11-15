@@ -460,7 +460,7 @@ void critterFlutterFlyUpdate(void) {
     case 0xB:
         break;
     }
-    func_8072881C(0, &gCurrentActor->frameCursor);
+    currentActorAnimTryIdleVariant(0, &gCurrentActor->frameCursor);
     if (gCurrentActor->state == 0) {
         gCurrentActor->flags = gCurrentActor->flags & ~4;
     } else {

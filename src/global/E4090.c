@@ -166,7 +166,7 @@ typedef struct PlayerInputHandlers {
 extern PlayerStruct *gPlayerSlots;
 extern OSContPad *D_807ECDEC;
 extern u16 D_807ECDF0;
-extern u16 D_80750FF0[];
+extern u16 gButtonRemapTable[];
 extern PlayerInputHandlers gPlayerInputHandlers[];
 
 s32 playerInputUpdate(s32 handlerSet) {
@@ -180,8 +180,8 @@ s32 playerInputUpdate(s32 handlerSet) {
     s16 ang;
 
     old = gActivePlayerActor->state;
-    gPlayerPadState[gCurrentPlayerIndex].heldButtons = inputRemapButtons(D_807ECDEC->button, D_80750FF0);
-    gPlayerPadState[gCurrentPlayerIndex].pressedButtons = inputRemapButtons(D_807ECDF0, D_80750FF0);
+    gPlayerPadState[gCurrentPlayerIndex].heldButtons = inputRemapButtons(D_807ECDEC->button, gButtonRemapTable);
+    gPlayerPadState[gCurrentPlayerIndex].pressedButtons = inputRemapButtons(D_807ECDF0, gButtonRemapTable);
     if (gActivePlayerState->stateFlags2 & 0x20) {
         gPlayerPadState[gCurrentPlayerIndex].heldButtons = 0;
         gPlayerPadState[gCurrentPlayerIndex].pressedButtons = 0;

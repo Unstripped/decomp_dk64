@@ -9,13 +9,13 @@
 
 // Checkpoint path cursor (vehicle/car racer component; racePathFollowStep, raceAdvanceCheckpoint); 0x3C bytes.
 typedef struct RacePathState {
-    /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 unk1;
-    /* 0x02 */ u16 unk2;
+    /* 0x00 */ u8 lane;
+    /* 0x01 */ u8 targetLane;
+    /* 0x02 */ u16 waypoint;
     /* 0x04 */ u8 unk4;
     /* 0x05 */ u8 pad5[3];
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
+    /* 0x08 */ f32 laneBlend;
+    /* 0x0C */ f32 laneOffset;
     /* 0x10 */ u8 unk10;
     /* 0x11 */ u8 pad11[3];
     /* 0x14 */ f32 unk14;
@@ -25,10 +25,10 @@ typedef struct RacePathState {
     /* 0x24 */ f32 unk24;
     /* 0x28 */ f32 unk28;
     /* 0x2C */ u8 pad2C[4];
-    /* 0x30 */ struct Actor *unk30;
-    /* 0x34 */ void *unk34;
+    /* 0x30 */ struct Actor *targetActor;
+    /* 0x34 */ void *cameraActor;
     /* 0x38 */ u8 pad38;
-    /* 0x39 */ u8 unk39;
+    /* 0x39 */ u8 stunTimer;
     /* 0x3A */ u8 pad3A[2];
 } RacePathState; // size = 0x3C
 
@@ -63,13 +63,13 @@ typedef struct RaceParticipant {
         struct {
             /* 0x14 */ u8 pad14[8];
             /* 0x1C */ u16 unk1C; // racers; manager: frame timer
-            /* 0x1E */ u8 unk1E; // manager: registered participant count
+            /* 0x1E */ u8 participantCount; // manager: registered participant count
             /* 0x1F */ u8 pad1F;
         };
         struct {
-            /* 0x14 */ f32 unk14; // player tracker (racePlayerTrackerBehaviorUpdate)
-            /* 0x18 */ f32 unk18;
-            /* 0x1C */ f32 unk1Cf;
+            /* 0x14 */ f32 progressScore; // player tracker (racePlayerTrackerBehaviorUpdate)
+            /* 0x18 */ f32 maxProgressScore;
+            /* 0x1C */ f32 maxNextPointDistSq;
         };
         struct {
             /* 0x14 */ s16 minimapSprites[4]; // manager: radar background sprite ids
@@ -80,14 +80,14 @@ typedef struct RaceParticipant {
         /* 0x20 */ s32 reverseThrust; // 6650 racers: nonzero turns the thrust around and caps speed (raceUpdateRacerMotion)
     };
     /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 unk25;
+    /* 0x25 */ u8 hasCpuRival;
     /* 0x26 */ u8 route; // route index (raceGetRoute)
     /* 0x27 */ u8 isCpu;
     /* 0x28 */ u8 playerIdx;
-    /* 0x29 */ u8 unk29;
-    /* 0x2A */ u8 unk2A;
+    /* 0x29 */ u8 fireRequested;
+    /* 0x2A */ u8 projectileAmmo;
     /* 0x2B */ u8 pad2B;
-    /* 0x2C */ struct Actor *unk2C;
+    /* 0x2C */ struct Actor *projectile;
     /* 0x30 */ struct Actor *actor; // the race manager this participant is registered with
     /* 0x34 */ u8 raceStatus;
     /* 0x35 */ u8 unk35;
@@ -96,7 +96,7 @@ typedef struct RaceParticipant {
         /* 0x37 */ s8 lap;
         /* 0x37 */ u8 unk37;
     };
-    /* 0x38 */ u8 unk38;
+    /* 0x38 */ u8 facingWaypoint;
     /* 0x39 */ u8 pad39;
     /* 0x3A */ u16 unk3A;
     /* 0x3C */ u16 unk3C;
@@ -104,9 +104,9 @@ typedef struct RaceParticipant {
     /* 0x40 */ f32 unk40;
     /* 0x44 */ u8 unk44;
     /* 0x45 */ u8 unk45;
-    /* 0x46 */ u8 unk46;
+    /* 0x46 */ u8 resultTextId;
     /* 0x47 */ u8 pad47;
-    /* 0x48 */ struct G00Entry *unk48; // camera viewport entry (cameraFindViewportEntry)
+    /* 0x48 */ struct G00Entry *viewport; // camera viewport entry (cameraFindViewportEntry)
     /* 0x4C */ u8 pad4C[4];
     /* 0x50 */ Mtx_t hudScale[2]; // per gfx buffer: the HUD text scale matrix (raceInitHudDisplayList guScale)
     /* 0xD0 */ s16 unkD0;
@@ -187,7 +187,7 @@ typedef struct RaceVec3f {
 // Race projectile component (1770 racer projectiles, the 0x17C component): the racer that fired it and
 // its homing target (raceFindNearestParticipant); raceDespawnProjectile clears the owner's unk2C.
 typedef struct RaceAuxState {
-    /* 0x00 */ u16 unk0;
+    /* 0x00 */ u16 lifetime;
     /* 0x02 */ u8 pad2[6];
     /* 0x08 */ struct Actor *target;
     /* 0x0C */ struct Actor *owner;

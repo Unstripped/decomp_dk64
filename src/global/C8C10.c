@@ -503,7 +503,7 @@ void func_806C4F5C(void) {
             actorStartRewardCutscene(3, 1);
             break;
     }
-    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
+    currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
 }
 
 void func_806C55D8(void) {
@@ -524,7 +524,7 @@ void func_806C55E0(void) {
         gBehaviourAnimState->flags |= 0x20;
         gCurrentActor->state = 0x1E;
         gCurrentActor->drawDistance = 0x3E8;
-        func_80728950(0);
+        currentActorAnimFinish(0);
     }
     switch (gCurrentActor->state) {
         case 0x1E:
@@ -653,7 +653,7 @@ void func_806C55E0(void) {
             break;
     }
     if (gCurrentActor->state != 0x1E) {
-        func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
+        currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
     }
 }
 

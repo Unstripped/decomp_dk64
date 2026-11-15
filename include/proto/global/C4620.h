@@ -65,8 +65,8 @@ void actorSpawnParticlesAlongNodeLoop(u8, u8, u8, void *);
 #ifndef PROTO_SKIP_actorSpawnParticlesAlongNodeRanges
 void actorSpawnParticlesAlongNodeRanges(void);
 #endif
-#ifndef PROTO_SKIP_func_806C2DF4
-void func_806C2DF4(void);
+#ifndef PROTO_SKIP_actorScriptedUpdate
+void actorScriptedUpdate(void);
 #endif
 #ifndef PROTO_SKIP_func_806C3A8C
 void func_806C3A8C(void);

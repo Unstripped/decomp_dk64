@@ -75,8 +75,8 @@ u8 spawnNodeHasState(u8, u8);
 #ifndef PROTO_SKIP_spawnNodesSetActorStateByFlag
 void spawnNodesSetActorStateByFlag(u16, u8);
 #endif
-#ifndef PROTO_SKIP_func_80726EE0
-void func_80726EE0(u8);
+#ifndef PROTO_SKIP_spawnNodesSetRespawnHold
+void spawnNodesSetRespawnHold(u8);
 #endif
 #ifndef PROTO_SKIP_spawnNodeActivateAndSetState
 void spawnNodeActivateAndSetState(s16, u8, u16);
@@ -96,8 +96,8 @@ void spawnNodeSpawnAtTablePoint(s16, u8);
 #ifndef PROTO_SKIP_spawnNodeSpawnFacingPoint
 void spawnNodeSpawnFacingPoint(s16, s16, s16, s16, s16, s16, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_80727678
-void func_80727678(void);
+#ifndef PROTO_SKIP_spawnNodesProcessVolumeTriggers
+void spawnNodesProcessVolumeTriggers(void);
 #endif
 #ifndef PROTO_SKIP_spawnNodeSelectEntry
 void spawnNodeSelectEntry(struct SpawnNode *);
@@ -117,17 +117,17 @@ u8 spawnNodeActorOutOfRangeOrHidden(struct SpawnNode *, s32);
 #ifndef PROTO_SKIP_spawnNodeActorOutOfRangeScaled
 u8 spawnNodeActorOutOfRangeScaled(struct SpawnNode *, s32);
 #endif
-#ifndef PROTO_SKIP_zoneAssignToBehaviour
-void zoneAssignToBehaviour(struct SpawnNode *);
+#ifndef PROTO_SKIP_spawnNodeAssignZone
+void spawnNodeAssignZone(SpawnNode *);
 #endif
 #ifndef PROTO_SKIP_spawnNodeListInitFromMap
 void spawnNodeListInitFromMap(s16 *, struct ZoneTable *, struct SpawnNodeList *);
 #endif
-#ifndef PROTO_SKIP_func_8072881C
-u8 func_8072881C(u8, u32 *);
+#ifndef PROTO_SKIP_currentActorAnimTryIdleVariant
+u8 currentActorAnimTryIdleVariant(u8, u32 *);
 #endif
-#ifndef PROTO_SKIP_func_80728950
-void func_80728950(u8);
+#ifndef PROTO_SKIP_currentActorAnimFinish
+void currentActorAnimFinish(u8);
 #endif
 #ifndef PROTO_SKIP_currentActorAnimSetFrame
 void currentActorAnimSetFrame(u8, u8);

@@ -30,9 +30,9 @@ typedef struct {
 // This TU's .data (0x80754CE0-0x80754F80), in address order: IDO emits .data in definition order
 // and starts every object on a 4-byte boundary.
 s16 D_80754CE0 = 0; // added to gBgScrollY by gfxBuildScrollingBackground; written by menu/3E10.c
-f32 D_80754CE4 = 1.0f; // gfxDrawRotatedTiledBackground scale divisor
+f32 gBgRotatedScale = 1.0f; // gfxDrawRotatedTiledBackground scale divisor
 f32 gBackgroundBlend = 0.0f;
-s16 D_80754CEC[] = { 0x4C3, 0x4C4, 0x4C0, 0x4BF, 0x4C6, 0x4C5, 0x4C1, 0x4C2 }; // scrolling background tile assets
+s16 gBgScrollTileAssets[] = { 0x4C3, 0x4C4, 0x4C0, 0x4BF, 0x4C6, 0x4C5, 0x4C1, 0x4C2 }; // scrolling background tile assets
 
 // Background render-state display list; nothing references it.
 Gfx D_80754D00[] = {
@@ -88,7 +88,7 @@ Vtx *gSkyQuadVtx[] = {
 };
 
 // Per sky type, four RGB bands (gfxDrawBackgroundQuad's BG_BLEND colours).
-u8 D_80754EF8[][12] = {
+u8 gSkyQuadColors[][12] = {
     { 0x00, 0x40, 0xFF, 0xFF, 0x8F, 0x11, 0xFF, 0x8F, 0x11, 0x00, 0x2C, 0x00 },
     { 0x46, 0x82, 0xFA, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x2C, 0x00 },
     { 0x46, 0x82, 0xFA, 0x96, 0x96, 0xFA, 0x96, 0x96, 0xFA, 0x00, 0x2C, 0x00 },
@@ -160,7 +160,7 @@ extern Mtx D_2000180;
 
 // Channel `off` of the sky colour table, blended from skyTypeA to skyTypeB by alpha and scaled by mul.
 #define BG_BLEND(off, mul) \
-    ((u32)((mul) * ((f32)D_80754EF8[skyTypeA][off] + (alpha * (f32)(D_80754EF8[skyTypeB][off] - D_80754EF8[skyTypeA][off])))))
+    ((u32)((mul) * ((f32)gSkyQuadColors[skyTypeA][off] + (alpha * (f32)(gSkyQuadColors[skyTypeB][off] - gSkyQuadColors[skyTypeA][off])))))
 
 Gfx *gfxDrawBackgroundQuad(Gfx *gdl, f32 rotX, f32 angle, Mtx *mtx, u8 skyTypeA, u8 skyTypeB, u8 colorMode, s8 lightIndex, f32 alpha) {
     f32 y;
@@ -439,7 +439,7 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     u8 b;
     f32 scale;
 
-    scale = 5.6f / D_80754CE4;
+    scale = 5.6f / gBgRotatedScale;
     playerActor = gPlayerSlots->actor;
     playerState = playerActor->customState;
     guScaleF(mtxA, scale, scale, scale);
@@ -467,8 +467,8 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     gDPSetPrimColor(glist++, 0, 0, r, g, b, 0xFF);
     gSPClearGeometryMode(glist++, 0xFFFFFF);
     gSPSetGeometryMode(glist++, 0x200004);
-    scrollU = rotX * 0.15915494f * D_80754CE4;
-    scrollV = rotY * 0.15915494f * D_80754CE4;
+    scrollU = rotX * 0.15915494f * gBgRotatedScale;
+    scrollV = rotY * 0.15915494f * gBgRotatedScale;
     inv = 1.0f / scale;
     while (scrollU > 1.0f) {
         scrollU -= 1.0f;
@@ -522,7 +522,7 @@ Gfx *gfxBuildScrollingBackground(Gfx *dl) {
     }
     if (D_807FD978[0] == NULL) {
         for (n = 0; n < 8; n++) {
-            D_807FD978[n] = assetLoad(0x19, D_80754CEC[n], 0, 0);
+            D_807FD978[n] = assetLoad(0x19, gBgScrollTileAssets[n], 0, 0);
         }
     }
     k = 0;
@@ -551,7 +551,7 @@ Gfx *gfxBuildScrollingBackground(Gfx *dl) {
     gBgScrollY += 4;
     *(s16 *)((u8 *)gTintKeyframes + 0x18) = scroll; // FAKE: gBgScrollX stored via gTintKeyframes+0x18 keeps a separate lui at/sh (no lda web in v1, Q0255)
     if (scroll >= 0x200) {
-        *(s16 *)((u8 *)D_80754EF8 + 0x78) = 0; // FAKE: gBgScrollX stored via D_80754EF8+0x78 keeps a separate lui at/sh (Q0255)
+        *(s16 *)((u8 *)gSkyQuadColors + 0x78) = 0; // FAKE: gBgScrollX stored via gSkyQuadColors+0x78 keeps a separate lui at/sh (Q0255)
     }
     if (gBgScrollY >= 0x200) {
         gBgScrollY = 0;

@@ -509,7 +509,7 @@ extern s16 D_807502E0;
 extern s16 D_8075570C[];
 extern s32 gGlobalCutsceneFlags;
 extern u8 gPlayerCount;
-extern u8 D_80755698[];
+extern u8 gSpawnEntryKind[];
 extern s32 gCurrentMap;
 
 void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
@@ -525,7 +525,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
 
     st = act->customState;
     idx = node->entryIndex;
-    type = D_80755698[idx];
+    type = gSpawnEntryKind[idx];
     node->state = 5;
     node->actor = act;
     node->unk30 = 1.0f;
@@ -730,7 +730,7 @@ void spawnNodesSetActorStateByFlag(u16 mask, u8 state) {
 }
 
 
-void func_80726EE0(u8 command) {
+void spawnNodesSetRespawnHold(u8 command) {
     s16 i;
     SpawnNode *node;
 
@@ -742,7 +742,7 @@ void func_80726EE0(u8 command) {
         if ((node->state == 5) && (node->actor->collisionFlags & 2)) {
             actorQueueDelayedCallback(node->actor, 0, 8, 0, 0, 0, 1);
             do {
-            } while (0); // FAKE: extra block steers func_80726EE0 saved-register colouring (Q0268)
+            } while (0); // FAKE: extra block steers spawnNodesSetRespawnHold saved-register colouring (Q0268)
         } else if ((node->state == 6) && (node->actor->collisionFlags & 2)) {
             node->state = 7;
             node->respawnTimer = node->respawnDelay * 0x1E;
@@ -867,7 +867,7 @@ void spawnNodeSpawnFacingPoint(s16 id, s16 x, s16 y, s16 z, s16 targetX, s16 tar
     }
 }
 
-void func_80727678(void) {
+void spawnNodesProcessVolumeTriggers(void) {
     s32 pad;
     s16 i;
     SpawnNode *node;
@@ -910,7 +910,7 @@ void func_80727678(void) {
 extern PlayerState *gActivePlayerState;
 
 void spawnNodeSelectEntry(SpawnNode *node) {
-    if ((gCurrentMap == 0x30) && (gActivePlayerState->stateFlags & 0x100000) && (D_80755698[node->baseEntryIndex] != 0xA)) {
+    if ((gCurrentMap == 0x30) && (gActivePlayerState->stateFlags & 0x100000) && (gSpawnEntryKind[node->baseEntryIndex] != 0xA)) {
         switch (node->baseEntryIndex) {
             case 28:
                 node->entryIndex = 0x63;
@@ -1061,7 +1061,7 @@ u8 spawnNodeInRangeAndVisible(SpawnNode *node, s32 rangeSq) {
         ret = 1;
     }
     if (ret) {
-        ret = D_80755698[node->entryIndex] == 6;
+        ret = gSpawnEntryKind[node->entryIndex] == 6;
         if (!ret) {
             ret = (node->flags & 0x20) != 0;
             if (!ret) {
@@ -1145,7 +1145,7 @@ u8 spawnNodeActorOutOfRangeScaled(SpawnNode *node, s32 rangeSq) {
     return ret;
 }
 
-void zoneAssignToBehaviour(SpawnNode *node) {
+void spawnNodeAssignZone(SpawnNode *node) {
     s16 i;
     Zone *entry;
 
@@ -1310,13 +1310,13 @@ void spawnNodeListInitFromMap(s16 *data, ZoneTable *zones, SpawnNodeList *nodes)
             } while (j < node->pathCount);
         }
         r = q;
-        zoneAssignToBehaviour(node);
+        spawnNodeAssignZone(node);
     }
 }
 
 
 
-u8 func_8072881C(u8 anim, u32 *lastFrame) {
+u8 currentActorAnimTryIdleVariant(u8 anim, u32 *lastFrame) {
     u8 ret;
 
     ret = 0;
@@ -1336,7 +1336,7 @@ u8 func_8072881C(u8 anim, u32 *lastFrame) {
 }
 
 
-void func_80728950(u8 anim) {
+void currentActorAnimFinish(u8 anim) {
     animSetLoopLimit(gCurrentActor, anim, 1);
     animSetFinished(gCurrentActor, anim, 1);
     animSetFrameAndSubframe(gCurrentActor, anim, 2, 0.0f);
@@ -1388,7 +1388,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 offY = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 20);
                 offZ = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0);
                 effectSetColor(0xE6, 0xE6, 0xE6, 0xC8);
-                effectSetCallback(func_80717D4C);
+                effectSetCallback(effectSinkBySpeedUpdate);
                 effectSetSpeed(-(i * 20));
                 effectSetDepth(1);
                 effectSetMode(param);
@@ -1551,7 +1551,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
                 effectSetDepth(1);
                 effectSetDuration(2);
                 effectSetSpeed(0x64);
-                effectSetCallback(func_80717D4C);
+                effectSetCallback(effectSinkBySpeedUpdate);
                 effectSetAngle(i / 7);
                 effectCreateAtPosition(D_8071FC58, count * 0.01, (f32)(x + jitterX), (f32)(y + jitterY), (f32)(z + jitterZ));
             }

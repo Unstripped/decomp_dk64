@@ -430,7 +430,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
             minecartTriggerWin(1, 0x14);
             gCurrentActor->state = 5;
         } else if (gCurrentActor->parentActor != NULL && gCurrentActor->parentActor->state == 5) {
-            func_80726EE0(0);
+            spawnNodesSetRespawnHold(0);
             minecartTriggerLoss(1, 0xE);
             gCurrentActor->state = 5;
             break;

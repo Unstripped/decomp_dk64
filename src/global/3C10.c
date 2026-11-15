@@ -40,7 +40,7 @@ extern u8 gGameMode;
 extern u8 gNextGameMode;
 extern s32 gInitialMap;
 extern s32 gInitialExit;
-extern u8 D_807445E0[];
+extern u8 gMapHubWorldIndex[];
 extern u16 D_807446C0[];
 extern s32 D_80744720[];
 extern u16 D_80744734[];
@@ -135,7 +135,7 @@ s32 func_805FEF74(s32 map) {
 }
 
 u8 mapGetWorldIndex(u8 map) {
-    return D_807445E0[map];
+    return gMapHubWorldIndex[map];
 }
 
 s32 mapGetConfigValue(s32 unused, s32 index) {
@@ -150,10 +150,10 @@ u8 mapGetHubWorldIndex(u8 map, u8 checkBossMap) {
     s32 pad;
 
     targetMap = map;
-    val = D_807445E0[targetMap];
+    val = gMapHubWorldIndex[targetMap];
     if (val == 0xD || val == 9) {
         if (mapFindPreviousSavedMap(&targetMap, &exitIndex)) {
-            val = D_807445E0[targetMap];
+            val = gMapHubWorldIndex[targetMap];
         }
     }
     if (checkBossMap != 0) {

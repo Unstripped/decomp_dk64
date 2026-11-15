@@ -85,9 +85,9 @@ void raceSpawnCompetitors(Actor *actor) {
         racerState->isCpu = 1;
         raceRegisterParticipant(actor, slotIndex, spawnedActor, racerState);
         raceGetParticipantPair(actor, 0, &((RaceOpponentActor *)spawnedActor)->target->actor, &((RaceOpponentActor *)spawnedActor)->target->participant);
-        managerData->unk25 = 1;
+        managerData->hasCpuRival = 1;
     } else {
-        managerData->unk25 = 0;
+        managerData->hasCpuRival = 0;
     }
     for (i = 0; i < numCompetitors; i++) {
         raceGetParticipantPair(actor, i, &spawnedActor, &racerState);
@@ -149,12 +149,12 @@ void raceCompetitorMotionUpdate(void) {
             if (participant->route != 0) {
                 participant->throttle = raceGetHandicapSpeedBonus(participant) * 2;
                 if (participant->throttle > 1.0) {
-                    participant->unk25 = 0x14;
+                    participant->hasCpuRival = 0x14;
                 }
                 participant->route = 0;
             }
-            if (participant->unk25 != 0) {
-                participant->unk25--;
+            if (participant->hasCpuRival != 0) {
+                participant->hasCpuRival--;
             }
         }
         vehicleUpdateMotion(participant, motion, 1, 1);
@@ -484,5 +484,5 @@ void raceOpponentRacerBehaviorUpdate(void) {
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
-    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
+    currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
 }

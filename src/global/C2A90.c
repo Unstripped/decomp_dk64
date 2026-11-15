@@ -99,7 +99,7 @@ void func_806BDEC8(void) {
             break;
         }
     }
-    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
+    currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -207,7 +207,7 @@ void func_806BE09C(void) {
 
         break;
     }
-    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
+    currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -288,7 +288,7 @@ void func_806BE8BC(void) {
         func_80724CA4(2, 1);
         gBehaviourAnimState->flags |= 0x20;
         actorScriptStart(gCurrentActor, 0x306);
-        func_80728950(0);
+        currentActorAnimFinish(0);
         gCurrentActor->state = 0x1E;
         gCurrentActor->unk155 = 0;
         gCurrentActor->unk15F = 0;
@@ -307,7 +307,7 @@ void func_806BE8BC(void) {
             if (currentActorTestClearFlag() != 0) {
                 csModelStateSetFirstByte(0x1F, 3);
                 actorClearMovementFlags(gPrimaryPlayerActor);
-                func_80726EE0(1);
+                spawnNodesSetRespawnHold(1);
                 gBehaviourAnimState->flags |= 4;
                 func_806BE674(1);
                 currentActorAnimSetFrame(0, 0);
@@ -413,7 +413,7 @@ void func_806BE8BC(void) {
                     camSetZoneWeight(1, 0);
                     gActivePlayerState->stateFlags2 &= ~0x40;
                     volumeTriggerSetEnabled(0x16, 0);
-                    func_80726EE0(2);
+                    spawnNodesSetRespawnHold(2);
                     if (gBehaviourWorkState->flags & 0x8000) {
                         gCurrentActor->state = 0x40;
                     } else {
@@ -463,7 +463,7 @@ void func_806BE8BC(void) {
                     gCurrentActor->unk155 = 0;
                 }
             }
-            func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
+            currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
             actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x10, 0.0f);
             patrolPathStep(gCurrentActor->state, 0);
             break;

@@ -261,8 +261,8 @@ void bossKRoolDiddyStep(void) {
         break;
     }
     behaviourUpdateShadowAlpha();
-    if (func_8072881C(0, &gBehaviourWorkState->idleAnimFrame) != 0) {
-        func_8072881C(0x81, &gBehaviourWorkState->idleAnimFrame);
+    if (currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame) != 0) {
+        currentActorAnimTryIdleVariant(0x81, &gBehaviourWorkState->idleAnimFrame);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

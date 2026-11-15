@@ -2253,7 +2253,7 @@ void csCmdSpawnSparkAndLight(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetDepth(1);
         effectSetDuration(2);
         effectSetSpeed(0x64);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectCreateAtPosition(D_8071FC58, 0.5f, gCsPosX + x, gCsPosY + y, gCsPosZ + z);
     }
     lightAdd(gCsPosX, gCsPosY, gCsPosZ, 0.0f, 0.0f, 0.0f, 300.0f, 0, 0xA6, 0x30, 0xFF);

@@ -71,9 +71,9 @@ void raceInitParticipants(Actor *manager) {
         racerState->isCpu = 1;
         raceRegisterParticipant(manager, participantIndex, racerActor, racerState);
         raceGetParticipantPair(manager, 0, &((RaceComponentActor *)racerActor)->target->actor, &((RaceComponentActor *)racerActor)->target->participant);
-        managerData->unk25 = 1;
+        managerData->hasCpuRival = 1;
     } else {
-        managerData->unk25 = 0;
+        managerData->hasCpuRival = 0;
     }
     for (i = 0; i < numParticipants; i++) {
         raceGetParticipantPair(manager, i, &racerActor, &racerState);

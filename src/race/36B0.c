@@ -52,7 +52,7 @@ s32 raceGetWaypointDiff(s32 pathLength, RacePathState *curA, RacePathState *curB
     s32 abs_diff;
     s32 sign;
 
-    diff = curB->unk2 - curA->unk2;
+    diff = curB->waypoint - curA->waypoint;
     abs_diff = (diff > 0) ? diff : -diff;
     if ((pathLength / 2) < abs_diff) {
         sign = (diff >= 0) ? 1 : -1;
@@ -73,12 +73,12 @@ f32 raceGetWaypointSegmentFraction(s32 pathLength, Actor *actor, RacePathState *
     f32 d2;
     f32 e2;
 
-    idx1 = raceGetNextWaypointIndex(pathLength, cursor->unk2);
+    idx1 = raceGetNextWaypointIndex(pathLength, cursor->waypoint);
     idx2 = raceGetNextWaypointIndex(pathLength, idx1);
-    base = gMinecartTrackPoints[cursor->unk0];
+    base = gMinecartTrackPoints[cursor->lane];
     p1 = &base[idx1];
     p2 = &base[idx2];
-    cur = &base[cursor->unk2];
+    cur = &base[cursor->waypoint];
     mathPickCloserTargetPoint3D(actor->x, actor->y, actor->z, cur, p1, p1, p2, &out.x, &out.y, &out.z);
     d2 = RB_SQ(cur->x - p1->x) + RB_SQ(cur->y - p1->y) + RB_SQ(cur->z - p1->z);
     return sqrtf((e2 = RB_SQ(cur->z - out.z) + (RB_SQ(cur->x - out.x) + RB_SQ(cur->y - out.y))) / d2); // FAKE: dead store to e2; dropping it changes the sqrt operand codegen
@@ -115,26 +115,26 @@ f32 raceGetPathDistanceBetweenRacers(Actor *actorA, RacePathState *curA, Actor *
     s32 sign;
     s32 end;
 
-    count = gMinecartTrackPoints[curB->unk0 + 1] - gMinecartTrackPoints[curB->unk0];
+    count = gMinecartTrackPoints[curB->lane + 1] - gMinecartTrackPoints[curB->lane];
     dir = raceGetWaypointDiff(count, curA, curB);
     fracA = raceGetWaypointSegmentFraction(count, actorA, curA);
     fracB = raceGetWaypointSegmentFraction(count, actorB, curB);
-    distA = raceGetPathDistance(count, curB->unk0, curA->unk2);
-    distB = raceGetPathDistance(count, curB->unk0, curB->unk2);
+    distA = raceGetPathDistance(count, curB->lane, curA->waypoint);
+    distB = raceGetPathDistance(count, curB->lane, curB->waypoint);
     if (dir == 0) {
         total = fracB * distB - fracA * distA;
     } else {
         if (dir > 0) {
             total = fracB * distB + (1.0f - fracA) * distA;
-            cur = raceGetNextWaypointIndex(count, curA->unk2);
-            end = curB->unk2;
+            cur = raceGetNextWaypointIndex(count, curA->waypoint);
+            end = curB->waypoint;
         } else {
             total = fracA * distA + (1.0f - fracB) * distB;
-            cur = raceGetNextWaypointIndex(count, curB->unk2);
-            end = curA->unk2;
+            cur = raceGetNextWaypointIndex(count, curB->waypoint);
+            end = curA->waypoint;
         }
         while (cur != end) {
-            total += raceGetPathDistance(count, curB->unk0, cur);
+            total += raceGetPathDistance(count, curB->lane, cur);
             cur = raceGetNextWaypointIndex(count, cur);
         }
         sign = (dir >= 0) ? 1 : -1;
@@ -146,30 +146,30 @@ f32 raceGetPathDistanceBetweenRacers(Actor *actorA, RacePathState *curA, Actor *
 
 void raceChangeLaneRelative(RacePathState *cursor, s8 dir) {
     if (dir > 0) {
-        cursor->unk1++;
+        cursor->targetLane++;
     } else {
-        cursor->unk1--;
+        cursor->targetLane--;
     }
-    cursor->unk8 = 0.0f;
+    cursor->laneBlend = 0.0f;
 }
 
 void raceChangeLaneRandom(RacePathState *cursor) {
-    switch (cursor->unk0) {
+    switch (cursor->lane) {
     case 0:
-        cursor->unk1++;
+        cursor->targetLane++;
         break;
     case 1:
         if ((randomLcgNext() & 0xFF) >= 0x80) {
-            cursor->unk1++;
+            cursor->targetLane++;
         } else {
-            cursor->unk1--;
+            cursor->targetLane--;
         }
         break;
     case 2:
-        cursor->unk1--;
+        cursor->targetLane--;
         break;
     }
-    cursor->unk8 = 0.0f;
+    cursor->laneBlend = 0.0f;
 }
 
 f32 raceGetCompletionFraction(RacePathState *cursor, RaceParticipant *state, RaceParticipant *leaderState) {
@@ -182,7 +182,7 @@ f32 raceGetCompletionFraction(RacePathState *cursor, RaceParticipant *state, Rac
     lap = state->lap;
     result = 0.0f;
     if (lap > 0) {
-        count = gMinecartTrackPoints[cursor->unk0 + 1] - gMinecartTrackPoints[cursor->unk0];
+        count = gMinecartTrackPoints[cursor->lane + 1] - gMinecartTrackPoints[cursor->lane];
         num = (lap - 1) * count + state->unk3A;
         den = leaderState->unk24 * count;
         result = num / den;
@@ -224,12 +224,12 @@ void raceAiUpdateSpeedAndLane(void) {
 
     state = ((RaceCarActor *)gCurrentActor)->participant;
     cursor = ((RaceCarActor *)gCurrentActor)->path;
-    targetActor = cursor->unk30;
+    targetActor = cursor->targetActor;
     targetCursor = ((RacePathActor *)targetActor)->path;
     aux = ((RaceCarActor *)gCurrentActor)->raceTarget;
     distToTarget = raceGetPathDistanceBetweenRacers(gCurrentActor, cursor, targetActor, targetCursor);
     targetSpeed = raceEvaluateCurveTargetSpeed(aux, distToTarget, D_8002FBD0, D_8002FC00);
-    flag = (cursor->unk0 == cursor->unk1) && (cursor->unk4 == 0);
+    flag = (cursor->lane == cursor->targetLane) && (cursor->unk4 == 0);
     if (aux->curveMode != 0) {
         leaderActor = state->actor;
         if (raceGetCompletionFraction(cursor, state, leaderActor->customState) > 0.8) {
@@ -243,12 +243,12 @@ void raceAiUpdateSpeedAndLane(void) {
     case 1:
         if (flag) {
             laneRoll = (randomLcgNext() & 0xFF) < 0x14;
-            if ((D_8002FBD0[1].x < distToTarget) && (distToTarget < D_8002FBD0[2].x) && (cursor->unk0 != targetCursor->unk0) && laneRoll) {
-                raceChangeLaneRelative(cursor, targetCursor->unk0 - cursor->unk0);
-            } else if ((D_8002FBD0[3].x < distToTarget) && (distToTarget < D_8002FBD0[4].x) && (cursor->unk0 == targetCursor->unk0) && laneRoll) {
+            if ((D_8002FBD0[1].x < distToTarget) && (distToTarget < D_8002FBD0[2].x) && (cursor->lane != targetCursor->lane) && laneRoll) {
+                raceChangeLaneRelative(cursor, targetCursor->lane - cursor->lane);
+            } else if ((D_8002FBD0[3].x < distToTarget) && (distToTarget < D_8002FBD0[4].x) && (cursor->lane == targetCursor->lane) && laneRoll) {
                 raceChangeLaneRandom(cursor);
             }
-            flag = (cursor->unk0 == cursor->unk1) && (cursor->unk4 == 0);
+            flag = (cursor->lane == cursor->targetLane) && (cursor->unk4 == 0);
             if (flag) {
                 if ((distToTarget < D_8002FBD0[1].x) || (D_8002FBD0[2].x < distToTarget)) {
                     foundCompetitor = 0;
@@ -256,7 +256,7 @@ void raceAiUpdateSpeedAndLane(void) {
                         if (spawnNodeHasActor(nodeIndex) != 0) {
                             competitorActor = spawnNodeActivate(nodeIndex, 0);
                             competitorCursor = ((RacePathActor *)competitorActor)->path;
-                            if (competitorCursor->unk0 == cursor->unk0) {
+                            if (competitorCursor->lane == cursor->lane) {
                                 competitorDist = raceGetPathDistanceBetweenRacers(gCurrentActor, cursor, competitorActor, competitorCursor);
                                 if ((competitorDist > 20.0f) && (competitorDist < 300.0f)) {
                                     foundCompetitor = 1;
@@ -296,7 +296,7 @@ void raceHandleCollisionRumble(RacePathState *cursor) {
     f32 y;
     u8 *flag;
 
-    v1 = cursor->unk30;
+    v1 = cursor->targetActor;
     flag = ((RaceCarActor *)gCurrentActor)->bumpCooldown;
     aux = ((RaceCarActor *)gCurrentActor)->raceTarget;
     if (gCurrentActor->speedXZ > v1->speedXZ) {
@@ -388,12 +388,12 @@ void raceOpponentCarBehaviorUpdate(void) {
     targetActor = state->actor;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        count = gMinecartTrackPoints[cursor->unk0 + 1] - gMinecartTrackPoints[cursor->unk0];
+        count = gMinecartTrackPoints[cursor->lane + 1] - gMinecartTrackPoints[cursor->lane];
         gCurrentActor->unk144 = 0x3C;
         gCurrentActor->flags &= ~1;
-        cursor->unk0 = cursor->unk1 = 2;
+        cursor->lane = cursor->targetLane = 2;
         aux->distSq = 0.0f;
-        cursor->unk2 = raceGetPrevWaypointIndex(count, 0);
+        cursor->waypoint = raceGetPrevWaypointIndex(count, 0);
         aux->unk10 = 1;
         raceSetPiecewiseCurveMode(aux, 5, D_8002FBD0, D_8002FC00);
         state->raceStatus = 0;
@@ -410,13 +410,13 @@ void raceOpponentCarBehaviorUpdate(void) {
     if (gActorGlobalState.bossFightPhase == 4) {
         raceHandleCollisionRumble(cursor);
     } else if (gActorGlobalState.bossFightPhase == 5) {
-        cursor->unk39 = 0x1E;
+        cursor->stunTimer = 0x1E;
         cursor->unk20 = 0.0f;
     }
     if (*flagPtr != 0) {
         (*flagPtr)--;
     }
-    cursorVal = cursor->unk39;
+    cursorVal = cursor->stunTimer;
     if (cursorVal != 0) {
         unclampedVal = (f32)cursorVal;
         if (unclampedVal > 10.0f) {
@@ -563,17 +563,17 @@ void raceCameraBehaviorUpdate(void) {
 
     cursor = ((RacePathActor *)gCurrentActor)->path;
     state = gCurrentActor->customState;
-    targetActor = cursor->unk30;
+    targetActor = cursor->targetActor;
     targetState = targetActor->customState;
     targetCursor = ((RacePathActor *)targetActor)->path;
     playerActor = gPlayerSlots[targetState->playerIdx].actor;
     playerState = playerActor->customState;
-    pathLength = gMinecartTrackPoints[cursor->unk0 + 1] - gMinecartTrackPoints[cursor->unk0];
+    pathLength = gMinecartTrackPoints[cursor->lane + 1] - gMinecartTrackPoints[cursor->lane];
     offsetSign = 1.0f;
     if (!(gCurrentActor->flags & 0x10)) {
-        cursor->unk2 = raceGetPrevWaypointIndex(pathLength, targetCursor->unk2);
-        cursor->unk2 = raceGetPrevWaypointIndex(pathLength, cursor->unk2);
-        cursor->unk0 = cursor->unk1 = 1;
+        cursor->waypoint = raceGetPrevWaypointIndex(pathLength, targetCursor->waypoint);
+        cursor->waypoint = raceGetPrevWaypointIndex(pathLength, cursor->waypoint);
+        cursor->lane = cursor->targetLane = 1;
         racePathFollowStep(cursor, state, 0);
     }
     tgtStateMode = targetState->raceStatus;
@@ -583,10 +583,10 @@ void raceCameraBehaviorUpdate(void) {
     }
     dist = raceGetPathDistanceBetweenRacers(gCurrentActor, cursor, targetActor, targetCursor);
     distToTarget = dist;
-    tgtCursorSub = targetCursor->unk1;
-    if (cursor->unk1 != tgtCursorSub) {
-        cursor->unk1 = tgtCursorSub;
-        cursor->unk8 = 0.0f;
+    tgtCursorSub = targetCursor->targetLane;
+    if (cursor->targetLane != tgtCursorSub) {
+        cursor->targetLane = tgtCursorSub;
+        cursor->laneBlend = 0.0f;
     }
     if ((state->raceStatus >= 2) && (state->raceStatus < 4)) {
         if ((u32)targetCursor->unk10 > 24.0) {
@@ -594,7 +594,7 @@ void raceCameraBehaviorUpdate(void) {
         } else if (targetCursor->unk14 > 0.5f) {
             offsetSign = 2.5f;
         }
-        cursor->unk39 = targetCursor->unk39;
+        cursor->stunTimer = targetCursor->stunTimer;
         cursor->unk10 = targetCursor->unk10;
         state->throttle = targetState->throttle + ((dist - (90.0f * offsetSign)) * 0.006f);
         if (dist < 30.0f) {
@@ -643,9 +643,9 @@ void raceFindNearestWaypoint(RacePathState *cursor) {
         for (j = 0; j < count; j++) {
             d = RB_SQ(px - p->x) + RB_SQ(py - p->y) + RB_SQ(pz - p->z);
             if (d < best) {
-                cursor->unk2 = j;
-                cursor->unk0 = i;
-                cursor->unk1 = i;
+                cursor->waypoint = j;
+                cursor->lane = i;
+                cursor->targetLane = i;
                 best = d;
             }
             p++;
@@ -671,10 +671,10 @@ void raceObstacleCarBehaviorUpdate(void) {
         gCurrentActor->unk144 = 0x3C;
         state->throttle = 0.5f;
         actorClearNodeFlag(gCurrentActor, 1);
-        cursor->unk30 = spawnNodeActivate(1, 0);
+        cursor->targetActor = spawnNodeActivate(1, 0);
         gCurrentActor->flags &= ~1;
     }
-    targetActor = cursor->unk30;
+    targetActor = cursor->targetActor;
     targetState = ((RaceCarActor *)targetActor)->participant;
     if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) {
         tagBarrelSpawnActorSmokePuffs(0, 1);

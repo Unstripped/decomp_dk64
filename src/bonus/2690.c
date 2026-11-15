@@ -660,7 +660,7 @@ void bonusTargetUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unk144 = 0x24;
     }
-    func_8072881C(0, &sub->lastFrame);
+    currentActorAnimTryIdleVariant(0, &sub->lastFrame);
     switch (gCurrentActor->state) {
     case 0:
         if (gActorGlobalState.unk15 != 0) {

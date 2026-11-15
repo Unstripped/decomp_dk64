@@ -42,7 +42,7 @@ void actorVolumeTriggersUpdate(void) {
 }
 
 void actorSpawnNodesUpdate(void) {
-    func_80727678();
+    spawnNodesProcessVolumeTriggers();
     spawnNodesUpdate();
 }
 typedef struct {
@@ -638,7 +638,7 @@ void playerCameraUpdateFromTarget(void) {
     }
     player->bgRotX = 6.2831855f - angleRad;
     player->bgRotY = 6.2831855f - clampedPitch;
-    playerGetCharacterIndex(camState->unkFB);
+    playerCopyCameraToEye(camState->unkFB);
     angleA = mathAngleBetweenPoints2D(player->camX, player->camZ, player->focusX, player->focusZ);
     camUpdate(gCurrentActor, &player->camX, &player->camY, &player->camZ, &player->focusX, &player->focusY, &player->focusZ, &player->upX, &player->upY, &player->upZ);
     angleB = mathAngleBetweenPoints2D(player->camX, player->camZ, player->focusX, player->focusZ);

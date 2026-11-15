@@ -1116,7 +1116,7 @@ void effectSpawnRandomSpread(f32 x, f32 y, f32 z, f32 scale, f32 spread, s32 cou
     s32 i;
 
     effectSetSpeed(0x1006E);
-    effectSetCallback(func_8071C48C);
+    effectSetCallback(effectLightPulseTealUpdate);
     effectSetDepth(1);
     effectCreateAtPosition(&D_8071FC58, scale, x, y, z);
     half = 1000.0 / ((f64)spread + (f64)spread);
@@ -1124,7 +1124,7 @@ void effectSpawnRandomSpread(f32 x, f32 y, f32 z, f32 scale, f32 spread, s32 cou
         dx = (f32)((f64)((f32)(randomLcgNext() / 10000U % 1000U) / spread) - half);
         dy = (f32)((f64)((f32)(randomLcgNext() / 10000U % 1000U) / spread) - half);
         dz = (f32)((f64)((f32)(randomLcgNext() / 10000U % 1000U) / spread) - half);
-        effectSetCallback(func_8071C620);
+        effectSetCallback(effectRandomDirectionDriftUpdate);
         effectSetAngle(i + 1);
         effectSetDepth(1);
         effectCreateAtPosition(&D_8071FC58, scale, x + dx, y + dy, z + dz);

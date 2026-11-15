@@ -70,8 +70,8 @@ void textMarkerUpdateMatrixWrapper(void);
 #ifndef PROTO_SKIP_actorTransformCameraUpdateD
 void actorTransformCameraUpdateD(void);
 #endif
-#ifndef PROTO_SKIP_actorTransformCameraUpdate
-void actorTransformCameraUpdate(void);
+#ifndef PROTO_SKIP_throwableBarrelUpdate
+void throwableBarrelUpdate(void);
 #endif
 #ifndef PROTO_SKIP_tagBarrelDespawnEffects
 void tagBarrelDespawnEffects(void);
@@ -124,8 +124,8 @@ void transformBarrelUpdate(void);
 #ifndef PROTO_SKIP_tagBarrelDespawnOnKongDeselect
 void tagBarrelDespawnOnKongDeselect(void);
 #endif
-#ifndef PROTO_SKIP_tagBarrelParticleUpdate
-void tagBarrelParticleUpdate(void);
+#ifndef PROTO_SKIP_movingLaunchBarrelUpdate
+void movingLaunchBarrelUpdate(void);
 #endif
 #ifndef PROTO_SKIP_tagBarrelUpdateInteractable
 void tagBarrelUpdateInteractable(void);

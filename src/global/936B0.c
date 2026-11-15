@@ -561,10 +561,10 @@ void actorInitFromSpawnPoint(Actor *actor, RaceParticipant *vehicle) {
     s16 yaw;
 
     spawn = func_806C96C4(vehicle->place);
-    actor->x = spawn->unk0;
-    actor->y = spawn->unk2;
-    actor->z = spawn->unk4;
-    yaw = (u32)spawn->unk6 * 16.062746f;
+    actor->x = spawn->x;
+    actor->y = spawn->y;
+    actor->z = spawn->z;
+    yaw = (u32)spawn->yaw * 16.062746f;
     actor->yaw = yaw;
     actor->moveYaw = yaw;
     vehicle->heading = yaw;
@@ -1036,7 +1036,7 @@ void actorSpawnSparkleBurst(void) {
         effectSetColor(0x8C, 0x8C, 0x8C, 0x64);
         effectSetSpeed(i * -0x14);
         effectSetMode(3);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectCreateAtPosition(&sEffectSparkConfig, 2.0f, gCurrentActor->x + dx, gCurrentActor->y + 42.0f + dy, gCurrentActor->z + dz);
     }
 }
@@ -1191,7 +1191,7 @@ void projectileBounceParticleUpdate(void *effectCfg) {
                 effectSetDepth(1);
                 effectSetDuration(2);
                 effectSetSpeed((gCurrentActor->moveYaw + yawOffset) % 4095);
-                effectSetCallback(func_8071BC80);
+                effectSetCallback(effectRandomPitchDriftUpdate);
                 effectCreateAtPosition(&D_8072038C, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale * 0.5, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
@@ -2299,7 +2299,7 @@ void projectileHomingParticleUpdate(void) {
                 effectSetSpeed(0x1006E);
                 effectSetCallback(effectLightPulseOscillate);
             } else {
-                effectSetCallback(func_80717D4C);
+                effectSetCallback(effectSinkBySpeedUpdate);
                 effectSetSpeed(-150 - ((randomNonNegative() >> 15) % 50));
             }
             effectCreateAtPosition(&D_80720340, 1.6f, gCurrentActor->x + jitterX, gCurrentActor->y + jitterY, gCurrentActor->z + jitterZ);

@@ -217,7 +217,7 @@ typedef struct {
     s16 riseSpeed;
 } OrbitMotionState;
 
-void func_80717930(EffectNode *effect, void *unused) {
+void effectOrbitRiseUpdate(EffectNode *effect, void *unused) {
     f32 scaleFactor;
     s32 flags;
     OrbitMotionState *state;
@@ -311,7 +311,7 @@ s8 *isDone;
     effect->alpha = state->baseAlpha - value;
 }
 
-void func_80717CE8(effect, isDone)
+void effectFadeInSinkUpdate(effect, isDone)
 EffectNode *effect;
 s8 *isDone;
 {
@@ -324,7 +324,7 @@ s8 *isDone;
     effect->y = (f32) ((f64) effect->y - ((f64) effect->speed / 100.0));
 }
 
-void func_80717D4C(effect, isDone)
+void effectSinkBySpeedUpdate(effect, isDone)
 EffectNode *effect;
 s8 *isDone;
 {
@@ -426,8 +426,8 @@ void effectShrinkAndVelocityUpdate(EffectNode *effect, s8 *isDone) {
     }
 }
 
-void func_807180F4(EffectNode *effect, void *unused) {
-    func_80717D4C(effect, unused);
+void effectSinkZSpinUpdate(EffectNode *effect, void *unused) {
+    effectSinkBySpeedUpdate(effect, unused);
     effectZSpinMatrixUpdate(effect, unused);
 }
 
@@ -1122,7 +1122,7 @@ void effectTimedLightIntensityFade(EffectNode *effect, s8 *isDone) {
 }
 
 extern void *D_8002FBB0[];
-extern void *gLightSlotsEnd;
+extern void *gLightSlotNext;
 void timedLightOrbitUpdate(EffectNode *effect, s8 *isDone) {
     f32 ratio;
     void **slot;
@@ -1142,7 +1142,7 @@ void timedLightOrbitUpdate(EffectNode *effect, s8 *isDone) {
             return;
         }
         slot++;
-    } while (slot != &gLightSlotsEnd);
+    } while (slot != &gLightSlotNext);
 }
 
 
@@ -1457,7 +1457,7 @@ void effectSparkSpawnUpdate(EffectNode *effect, s8 *isDone) {
     }
     if (((randomNonNegative() >> 15) % 100) >= 91) {
         effectSetMode(3);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectSetSpeed(-0xA);
         effectSetDepth(1);
         effectSetColor(0x9B, 0x9B, 0x9B, 0x96);
@@ -1503,7 +1503,7 @@ typedef struct {
     f32 chunk;
 } LightGrowShrinkState;
 
-void func_8071BC80(EffectNode *effect, s8 *isDone) {
+void effectRandomPitchDriftUpdate(EffectNode *effect, s8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     f32 pad;
@@ -1656,7 +1656,7 @@ void effectFallingSparkUpdate(EffectNode *effect, u8 *isDone) {
 }
 
 
-void func_8071C48C(EffectNode *effect, s8 *isDone) {
+void effectLightPulseTealUpdate(EffectNode *effect, s8 *isDone) {
     f32 ratio;
     f32 radius;
     s16 duration;
@@ -1678,7 +1678,7 @@ void func_8071C48C(EffectNode *effect, s8 *isDone) {
              (-80.0f * ratio) + 255.0f, 0xFF);
 }
 
-void func_8071C620(EffectNode *effect, s8 *isDone) {
+void effectRandomDirectionDriftUpdate(EffectNode *effect, s8 *isDone) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     f32 dirX;
@@ -1998,8 +1998,8 @@ void effectShockwaveRingUpdate(EffectNode *effect, s8 *isDone) {
     effect->state = 3;
 }
 
-f32 D_80755674 = -0.1f;
-f32 D_80755678 = 2.0f;
+f32 gEffectBallisticGravity = -0.1f;
+f32 gEffectBallisticLaunchSpeed = 2.0f;
 
 void effectBallisticUpdate(EffectNode *effect, s8 *isDone) {
     f32 mtx[4][4];
@@ -2014,14 +2014,14 @@ void effectBallisticUpdate(EffectNode *effect, s8 *isDone) {
         guRotateF(mtx, -(f32) ((randomLcgNext() % 36000U) / 1000U), 1.0f, 0.0f, 0.0f);
         guRotateF(tmpMtx, (f32) ((effect->speed * 360) / 4096), 0.0f, 1.0f, 0.0f);
         guMtxCatF(mtx, tmpMtx, mtx);
-        guMtxXFMF(mtx, 0.0f, 0.0f, D_80755678, &dirX, &dirY, &dirZ);
+        guMtxXFMF(mtx, 0.0f, 0.0f, gEffectBallisticLaunchSpeed, &dirX, &dirY, &dirZ);
         ((BallisticVelocityState *) effect->allocation)->velocityX = dirX;
         ((BallisticVelocityState *) effect->allocation)->velocityY = dirY;
         ((BallisticVelocityState *) effect->allocation)->velocityZ = dirZ;
     }
     effect->x = effect->x + ((BallisticVelocityState *) effect->allocation)->velocityX;
     effect->y = effect->y + ((BallisticVelocityState *) effect->allocation)->velocityY;
-    ((BallisticVelocityState *) effect->allocation)->velocityY = ((BallisticVelocityState *) effect->allocation)->velocityY + D_80755674;
+    ((BallisticVelocityState *) effect->allocation)->velocityY = ((BallisticVelocityState *) effect->allocation)->velocityY + gEffectBallisticGravity;
     effect->z = effect->z + ((BallisticVelocityState *) effect->allocation)->velocityZ;
     if (effect->y <= gPrimaryPlayerActor->y) {
         *isDone = 1;
@@ -2201,7 +2201,7 @@ typedef struct {
     f32 speed;
 } BurstParticleState;
 
-void func_8071E110(EffectNode *effect, u8 reverse, u16 startAngle, f32 radius, f32 height, s32 steps) {
+void effectArcMotionInit(EffectNode *effect, u8 reverse, u16 startAngle, f32 radius, f32 height, s32 steps) {
     ArcMotionState *motion;
 
     motion = heapAlloc(sizeof(ArcMotionState));
@@ -2428,7 +2428,7 @@ void effectProximityFadeUpdate(EffectNode *effect, s8 *isDone) {
 }
 
 
-void func_8071EDEC(EffectNode *effect, s32 unused) {
+void effectEaseToTargetNodeUpdate(EffectNode *effect, s32 unused) {
     f64 pad;
     f32 nodeX;
     f32 nodeY;
@@ -2468,7 +2468,7 @@ void effectScaleSpinUpdate(EffectNode *effect, s8 *isDone) {
 }
 
 
-void func_8071EFDC(EffectNode *effect, s8 *isDone) {
+void effectGrowFadeUpdate(EffectNode *effect, s8 *isDone) {
     effect->scaleX = effect->scaleX * 1.05;
     effect->scaleY = effect->scaleY * 1.05;
     effect->alpha -= 5;
@@ -2541,7 +2541,7 @@ typedef struct {
     f32 scale;
 } ScaleFollowState;
 
-void func_8071F2F8(EffectNode *effect, s32 unused) {
+void effectRiseWithGravityUpdate(EffectNode *effect, s32 unused) {
     f32 height;
     FallingMotionState *newState;
     FallingMotionState *state;
@@ -2561,7 +2561,7 @@ void func_8071F2F8(EffectNode *effect, s32 unused) {
     }
 }
 
-void func_8071F3C0(EffectNode *effect, s32 unused) {
+void effectScaleWithOwnerUpdate(EffectNode *effect, s32 unused) {
     ScaleFollowState *newState;
     ScaleFollowState *state;
 
@@ -2608,7 +2608,7 @@ void effectSwayRiseUpdate(EffectNode *effect, s8 *isDone) {
 
 
 
-void func_8071F660(EffectNode *effect, void *unused) {
+void effectSinePulseSpinUpdate(EffectNode *effect, void *unused) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
     f32 progress;

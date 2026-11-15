@@ -235,7 +235,7 @@ void actorUpdatePeriodicParticleEmitter(void) {
         effectSetDuration(3);
         effectSetDepth(1);
         effectSetSpeed(-0x1C2);
-        effectSetCallback(func_80717D4C);
+        effectSetCallback(effectSinkBySpeedUpdate);
         effectCreateAtPosition(D_807201D4, 1.2f, gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z);
     }
     if (gBehaviourWorkState->timer != 0) {

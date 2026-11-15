@@ -40,7 +40,7 @@ void raceInitParticipantArray(Actor *actor, s32 count) {
     allocated = heapAlloc(count * sizeof(RacePair));
     managerData->pairs = allocated;
     heapClearBlock(allocated);
-    managerData->unk1E = count;
+    managerData->participantCount = count;
     managerData->unk1C = 0xFFFF;
     actor->state = 0;
 }
@@ -63,7 +63,7 @@ void raceRegisterParticipant(Actor *manager, s32 slot, Actor *participant, RaceP
             participantData->unk3C = route->count - 1;
             raceActivateNextGate(participantData, route);
         }
-        participantData->unk48 = cameraFindViewportEntry(participantData->playerIdx);
+        participantData->viewport = cameraFindViewportEntry(participantData->playerIdx);
     }
 }
 
@@ -187,12 +187,12 @@ Gfx *raceRenderSpeedBoostHud(Gfx *dl, RaceParticipant *tracker) {
     s16 scaledY;
     f32 f_offset;
 
-    hudPos = tracker->unk48;
+    hudPos = tracker->viewport;
     screenX = (s32)((f64)(hudPos->left + 8) + 4.0);
     screenY = hudPos->bottom - 0x22;
     WRITE_GFX(dl++, 0xFA000000, 0xFFC800B4);
     i = 0;
-    if (tracker->unk2A > 0) {
+    if (tracker->projectileAmmo > 0) {
         offset = 0;
         doubleX = (f32)screenX + (f32)screenX;
         scaledY = (s16)(s32)(((f32)screenY + (f32)screenY) * 4.0f);
@@ -205,9 +205,9 @@ Gfx *raceRenderSpeedBoostHud(Gfx *dl, RaceParticipant *tracker) {
             i++;
             offset += 0x10;
             dl = next; // FAKE: delayed dl update steers the loop schedule
-        } while (i < tracker->unk2A);
+        } while (i < tracker->projectileAmmo);
     }
-    if (tracker->unk2A != 0) {
+    if (tracker->projectileAmmo != 0) {
         WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
     }
     return dl;
@@ -228,7 +228,7 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceParticipant *tracker) {
     u8 *labelStr;
     Gfx *next;
 
-    hudPos = tracker->unk48;
+    hudPos = tracker->viewport;
     halfFontHeight = (f32)textGetFontHeight(1) * 0.5f;
     posX = (f32)(hudPos->left + 8);
     posY = (f32)(hudPos->bottom - 0x10);
@@ -297,7 +297,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
     s32 hudFlags;
     Gfx *g0;
 
-    hudPos = tracker->unk48;
+    hudPos = tracker->viewport;
     lap = tracker->unk37;
     managerData = tracker->actor->customState;
     textX = hudPos->left + 8;
@@ -328,7 +328,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
     }
     if (hudFlags & 2) {
         placeIdx = tracker->place;
-        if ((placeIdx + 1) == managerData->unk1E) {
+        if ((placeIdx + 1) == managerData->participantCount) {
             placeIdx = 3;
         }
         if (tracker->unk45 != 0) {
@@ -337,7 +337,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
         dl = textDrawStringVtx(dl, 1, (s16)(s32)((f32)(textX * 4) + (f32)(textX * 4)), (s16)(s32)(2.0f * (f32)(textY * 4)), textTableGetString(0x26, D_8002FCC0[placeIdx], 1), 4);
     }
     if (tracker->raceStatus >= 3 && tracker->raceStatus < 5) {
-        dl = textDrawAnimated(dl, tracker->unk46, 2, 160.0f, 100.0f, 0.0f, 1.5f);
+        dl = textDrawAnimated(dl, tracker->resultTextId, 2, 160.0f, 100.0f, 0.0f, 1.5f);
     }
     return dl;
 }
@@ -411,7 +411,7 @@ Gfx *raceRenderMinimapAndCountdown(Gfx *dl, Actor *actor) {
         dl = renderRotatedSprite(dl, managerData->minimapSprites[1], 3, 1, 0x40, 0x40, 0x108, 0x130, 2.0f, 2.0f, 0, 0.0f);
         dl = renderRotatedSprite(dl, managerData->minimapSprites[2], 3, 1, 0x40, 0x40, 0x88, 0xB0, 2.0f, 2.0f, 0, 0.0f);
         dl = renderRotatedSprite(dl, managerData->minimapSprites[3], 3, 1, 0x40, 0x40, 0x108, 0xB0, 2.0f, 2.0f, 0, 0.0f);
-        for (i = 0; i < managerData->unk1E; i++) {
+        for (i = 0; i < managerData->participantCount; i++) {
             participantActor = pairs[i].actor;
             if (participantActor == NULL) {
                 continue;
@@ -427,7 +427,7 @@ Gfx *raceRenderMinimapAndCountdown(Gfx *dl, Actor *actor) {
                 continue;
             }
             dl = raceRenderMinimapIcon(dl, actor, participantActor->x, participantActor->z, red, 0, blue);
-            targetActor = participantData->unk2C;
+            targetActor = participantData->projectile;
             if (targetActor != NULL) {
                 dl = raceRenderMinimapIcon(dl, actor, targetActor->x, targetActor->z, 0xFF, 0xC8, 0);
             }
@@ -501,11 +501,11 @@ void raceSetParticipantRaceStatus(RacePair *pair, u8 newStatus) {
         if (newStatus == 3) {
             managerData = gCurrentActor->customState;
             slot = pair->data->place;
-            if (slot + 1 == managerData->unk1E || pair->data->unk45 != 0) {
+            if (slot + 1 == managerData->participantCount || pair->data->unk45 != 0) {
                 slot = 3;
             }
             if (pair->data->isCpu == 0) {
-                pair->data->unk46 = gfxResourceCreate(1, textTableGetString(0x26, D_8002FCD4[slot], 1), 2, 160.0f, 100.0f, 0.0f);
+                pair->data->resultTextId = gfxResourceCreate(1, textTableGetString(0x26, D_8002FCD4[slot], 1), 2, 160.0f, 100.0f, 0.0f);
             }
         }
     }
@@ -520,7 +520,7 @@ void raceSetAllParticipantsStatus(u8 newStatus) {
     managerData = gCurrentActor->customState;
     pairs = managerData->pairs;
     gCurrentActor->state = newStatus;
-    for (i = 0; i < managerData->unk1E; i++) {
+    for (i = 0; i < managerData->participantCount; i++) {
         if (pairs[i].actor != NULL) {
             raceSetParticipantRaceStatus(&pairs[i], newStatus);
         }
@@ -543,7 +543,7 @@ void raceDespawnProjectile(Actor *projectile, RaceAuxState *projectileData) {
 
     owner = projectileData->owner;
     ownerData = owner->customState;
-    ownerData->unk2C = NULL;
+    ownerData->projectile = NULL;
     actorDespawn(projectile);
 }
 
@@ -564,7 +564,7 @@ Actor *raceFindNearestParticipant(Actor *self) {
     managerData = manager->customState;
     nearest = NULL;
     pairs = managerData->pairs;
-    for (i = 0; i < managerData->unk1E; i++) {
+    for (i = 0; i < managerData->participantCount; i++) {
         other = pairs[i].actor;
         if (other != NULL && other != self) {
             distSq = (self->x - other->x) * (self->x - other->x) + (self->y - other->y) * (self->y - other->y) + (self->z - other->z) * (self->z - other->z);
@@ -588,7 +588,7 @@ void racePlayResultSfx(void) {
     managerData = gCurrentActor->customState;
     sfxId = 0;
     pairs = managerData->pairs;
-    for (i = managerData->unk1E - 1; sfxId == 0 && i >= 0; i--) {
+    for (i = managerData->participantCount - 1; sfxId == 0 && i >= 0; i--) {
         participantData = pairs[i].data;
         if (participantData->isCpu == 1) {
             if (participantData->place != 0) {
@@ -644,7 +644,7 @@ void raceUpdateStandings(void) {
     managerData = gCurrentActor->customState;
     cnt = 0;
     base = managerData->pairs;
-    for (i = managerData->unk1E - 1; i >= 0; i--) {
+    for (i = managerData->participantCount - 1; i >= 0; i--) {
         for (j = 1; j <= i; j++) {
             p = &base[j - 1];
             q = &base[j];
@@ -670,14 +670,14 @@ void raceUpdateStandings(void) {
         }
     }
     q = base;
-    for (i = 0; i < managerData->unk1E; i++, q++) {
+    for (i = 0; i < managerData->participantCount; i++, q++) {
         q->data->place = i;
         if (q->data->unk45 != 0 || (q->data->raceStatus == 2 && managerData->unk24 < q->data->lap)) {
             raceSetParticipantRaceStatus(q, 3);
             cnt++;
         }
     }
-    if (cnt >= managerData->unk1E - 1) {
+    if (cnt >= managerData->participantCount - 1) {
         raceSetAllParticipantsStatus(3);
         racePlayResultSfx();
         managerData->unk1C = 0;
@@ -753,7 +753,7 @@ void raceManagerBehaviorUpdate(void) {
         } else {
             managerData->unk1C++;
             if (managerData->unk1C >= 0x78) {
-                if (managerData->unk25 == 1) {
+                if (managerData->hasCpuRival == 1) {
                     raceSetAllParticipantsStatus(4);
                     managerData->unk1C = 0x32;
                 } else {
@@ -767,7 +767,7 @@ void raceManagerBehaviorUpdate(void) {
             managerData->unk1C--;
         } else {
             pairs = managerData->pairs;
-            for (i = 0; i < managerData->unk1E; i++) {
+            for (i = 0; i < managerData->participantCount; i++) {
                 participantData = pairs[i].data;
                 if (participantData->isCpu == 0) {
                     playerActor = gPlayerSlots[participantData->playerIdx].actor;
@@ -1078,9 +1078,9 @@ void raceInitBeetleRaceParticipants(Actor *raceManager) {
         raceRegisterParticipant(raceManager, 0, participantActor, participantData);
         slotIndex = 1;
         raceGetParticipantPair(raceManager, 0, &((RaceComponentActor *)participantActor)->target->actor, &((RaceComponentActor *)participantActor)->target->participant);
-        managerData->unk25 = 1;
+        managerData->hasCpuRival = 1;
     } else {
-        managerData->unk25 = 0;
+        managerData->hasCpuRival = 0;
     }
     for (playerIdx = 0; playerIdx < gPlayerCount; playerIdx++) {
         actorSpawn(0x13B, 0);
@@ -1131,11 +1131,11 @@ void racePlayerTrackerBehaviorUpdate(void) {
     if ((raceData->raceStatus > 0) && (raceData->raceStatus < 5)) {
         renderCallbacksRegister((void *)racePlayerHudRenderCallback, gCurrentActor, 3);
     }
-    raceData->unk1Cf = (raceData->unk40 < raceData->unk1Cf) ? raceData->unk1Cf : raceData->unk40;
-    curMax = raceData->unk18;
+    raceData->maxNextPointDistSq = (raceData->unk40 < raceData->maxNextPointDistSq) ? raceData->maxNextPointDistSq : raceData->unk40;
+    curMax = raceData->maxProgressScore;
     diff = (f32)(raceData->unk3A * 3000) - raceData->unk40;
-    raceData->unk14 = diff;
-    raceData->unk18 = (diff < curMax) ? curMax : raceData->unk14;
+    raceData->progressScore = diff;
+    raceData->maxProgressScore = (diff < curMax) ? curMax : raceData->progressScore;
 }
 
 

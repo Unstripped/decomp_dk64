@@ -623,7 +623,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     gCurrentActor->unk155++;
                     break;
                 case 1:
-                    effectSetCallback(func_80717D4C);
+                    effectSetCallback(effectSinkBySpeedUpdate);
                     effectSetDepth(1);
                     effectSetSpeed(-0x28 - (((randomNonNegative() >> 0xF) % 10000) % 120));
                     effectCreateAtPosition(D_8071FC58, 0.5f, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->x) - 0xA), gBehaviourExtraState->y, ((((randomNonNegative() >> 0xF) % 20) + gBehaviourExtraState->z) - 0xA));
@@ -1092,7 +1092,7 @@ extern u8 D_8071FF18;
 void behaviourSpawnDropParticle(void) {
     effectSetMode(2);
     effectSetDepth(1);
-    effectSetCallback(func_80717D4C);
+    effectSetCallback(effectSinkBySpeedUpdate);
     effectSetSpeed(-0x28 - ((randomNonNegative() >> 15) % 15));
     effectCreateAtPosition(&D_8071FF18, (((randomNonNegative() >> 15) % 1000) / 2000.0 + 0.5), gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
 }

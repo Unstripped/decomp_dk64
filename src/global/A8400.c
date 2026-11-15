@@ -455,7 +455,7 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
         break;
     case 0xFE:
         node = ((ScriptedActor *)sub->key)->scriptState;
-        nodeIndex = node->unk2C;
+        nodeIndex = node->anchorNode;
         break;
     default:
         if (sub->key->animState != NULL) {

@@ -157,7 +157,7 @@ typedef struct ScriptColor {
 } ScriptColor;
 
 extern ScriptColor sScriptParticleColors[];
-extern ScriptColor D_807478F4[];
+extern ScriptColor sScriptTintColors[];
 extern void *sScriptEffectSprites[];
 
 
@@ -350,9 +350,9 @@ void actorScriptedCommandUpdate(void) {
                     state->unk1A = cmd->param2;
                     break;
                 case 15:
-                    gCurrentActor->tintR = D_807478F4[cmd->param1].r;
-                    gCurrentActor->tintG = D_807478F4[cmd->param1].g;
-                    gCurrentActor->tintB = D_807478F4[cmd->param1].b;
+                    gCurrentActor->tintR = sScriptTintColors[cmd->param1].r;
+                    gCurrentActor->tintG = sScriptTintColors[cmd->param1].g;
+                    gCurrentActor->tintB = sScriptTintColors[cmd->param1].b;
                     break;
                 case 17:
                     gCurrentActor->flags &= 0xFFFF7FFF;
@@ -415,7 +415,7 @@ void actorScriptedCommandUpdate(void) {
                 effectSetMode(2);
                 col = &sScriptParticleColors[state->particleColor];
                 effectSetColor(col->r, col->g, col->b, 0xFF);
-                effectSetCallback(func_80717D4C);
+                effectSetCallback(effectSinkBySpeedUpdate);
                 effectSetSpeed(-10 - (randomNonNegative() >> 15) % 30);
                 effectCreateAtPosition(sScriptEffectSprites[state->particleSprite], (f32)state->particleScalePct * 0.01 * particleScale, posX, posY, posZ);
             }
@@ -482,8 +482,8 @@ void actorScriptedCommandUpdate(void) {
             break;
     }
     behaviourUpdateShadowAlpha();
-    if ((gBehaviourAnimState->flags & 0x1000) && func_8072881C(0, &gBehaviourWorkState->idleAnimFrame) != 0 && (state->animAssetId == 1 || state->animAssetId == 9 || state->animAssetId == 0x68)) {
-        func_8072881C(0x81, &gBehaviourWorkState->idleAnimFrame);
+    if ((gBehaviourAnimState->flags & 0x1000) && currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame) != 0 && (state->animAssetId == 1 || state->animAssetId == 9 || state->animAssetId == 0x68)) {
+        currentActorAnimTryIdleVariant(0x81, &gBehaviourWorkState->idleAnimFrame);
     }
 }
 
@@ -998,7 +998,7 @@ void func_806C226C(void) {
             actorTurnTowardActorYaw(0xA, gBehaviourTargetActor);
             break;
     }
-    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
+    currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -1096,7 +1096,7 @@ void actorSpawnParticlesAlongNodeRanges(void) {
 
 extern s32 gGlobalCutsceneFlags;
 
-void func_806C2DF4(void) {
+void actorScriptedUpdate(void) {
     ScriptedActorState *state;
     f32 nodePosX;
     f32 nodePosY;
@@ -1143,7 +1143,7 @@ void func_806C2DF4(void) {
                 /* fallthrough */
             case 0x18:
             case 0x49:
-                state->unk2C = 9;
+                state->anchorNode = 9;
                 /* fallthrough */
             case 0x6B:
             case 0x88:
@@ -1269,9 +1269,9 @@ void func_806C2DF4(void) {
         case 0x63A:
             if (gBehaviourAnimState->flags & 0x1000) {
                 gBehaviourAnimState->flags &= ~0x1000;
-                func_80728950(0);
+                currentActorAnimFinish(0);
                 if (state->animAssetId == 0x68) {
-                    func_80728950(1);
+                    currentActorAnimFinish(1);
                 }
             }
             break;

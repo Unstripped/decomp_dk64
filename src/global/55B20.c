@@ -154,7 +154,7 @@ typedef struct MapPortal {
 extern s32 D_807F5DE8;
 extern s32 gMapCellCount;
 extern u8 D_807F70AB;
-extern s16 D_807F7138;
+extern s16 gMapFogDist;
 extern u8 D_807F713A;
 extern u8 D_807F70AA;
 extern Mtx *sMapChunkScaleMtx;
@@ -214,7 +214,7 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
     D_807F70AB = 0;
     if (gMapChunkCount != 0) {
         p = (u8 *)data;
-        D_807F7138 = data->fogDist;
+        gMapFogDist = data->fogDist;
         sMapChunkScaleMtx = heapAlloc(0x40);
         guScale(sMapChunkScaleMtx, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
         cellsOff = data->cellsOff;
@@ -1210,8 +1210,8 @@ void mapChunkFrameUpdate(f32 x, f32 y, f32 z) {
         gPlayerSlots[gCurrentPlayerIndex].unk290 = gPlayerSlots[gCurrentPlayerIndex].actor->chunkIndex;
     }
     mapUpdateFogDistance(&gPlayerSlots[gCurrentPlayerIndex].farClip, gPlayerSlots[gCurrentPlayerIndex].unk290);
-    D_807F7138 = (s16)(s32)gPlayerSlots[gCurrentPlayerIndex].farClip;
-    frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, (f32)D_807F7138);
+    gMapFogDist = (s16)(s32)gPlayerSlots[gCurrentPlayerIndex].farClip;
+    frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, (f32)gMapFogDist);
     frustumCornersTransformByInverse(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
     frustumOrientPolyNormals(x, y, z, gFrustumPlanes, D_807F5E20);
     mapChunkClearBounds();

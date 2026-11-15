@@ -126,7 +126,7 @@ void bossSpawnSparkles(void) {
     sparkY += (f32)(((randomNonNegative() >> 15) % 100) + 50);
     sparkZ += (f32)(((randomNonNegative() >> 15) % 80) - 40);
     effectSetDepth(1);
-    effectSetCallback(func_8071EDEC);
+    effectSetCallback(effectEaseToTargetNodeUpdate);
     effectSetSpeed((s32)gCurrentActor);
     effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
     effectCreateAtPosition(D_80720120, 1.5f, sparkX, sparkY, sparkZ);
@@ -629,7 +629,7 @@ void bossPufftossStep(void) {
             }
         }
     }
-    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
+    currentActorAnimTryIdleVariant(0, &gBehaviourWorkState->idleAnimFrame);
     if (checkFloor != 0) {
         actorGetNodePos(gCurrentActor, gCurrentActor->floorNodeId, &floorCheckX, &floorCheckY, &floorCheckZ);
         collisionCheckActorFloor(gCurrentActor, floorCheckX, floorCheckY, floorCheckZ, &gCurrentActor->floorY);

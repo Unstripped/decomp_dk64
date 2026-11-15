@@ -62,7 +62,7 @@ s32 menuCalculateBonusDuration(void) {
     return flagCountRange(0x1FD, 0x28, 0) + 0xA;
 }
 
-// Bonus countdown started by menuTimerInit; remaining is in seconds, index the next D_80755358 threshold.
+// Bonus countdown started by menuTimerInit; remaining is in seconds, index the next gMenuBonusTimerThresholds threshold.
 typedef struct MenuBonusTimer {
     u64 time;
     s32 remaining;
@@ -71,31 +71,31 @@ typedef struct MenuBonusTimer {
     u8 index;
 } MenuBonusTimer;
 
-extern MenuBonusTimer D_80755340;
-extern u16 D_80755358[];
+extern MenuBonusTimer gMenuBonusTimer;
+extern u16 gMenuBonusTimerThresholds[];
 
 void menuTimerInit(void) {
     u32 i;
     s32 found = 0;
 
-    D_80755340.active = 1;
-    D_80755340.index = 0;
-    D_80755340.time = osGetTime();
-    D_80755340.duration = menuCalculateBonusDuration() * 60;
+    gMenuBonusTimer.active = 1;
+    gMenuBonusTimer.index = 0;
+    gMenuBonusTimer.time = osGetTime();
+    gMenuBonusTimer.duration = menuCalculateBonusDuration() * 60;
     for (i = 0; (i < 10) && (found == 0); i++) {
-        if (D_80755358[i] < D_80755340.duration) {
-            D_80755340.index = i;
+        if (gMenuBonusTimerThresholds[i] < gMenuBonusTimer.duration) {
+            gMenuBonusTimer.index = i;
             found = 1;
         }
     }
 }
 
 void menuClearTimerFlag(void) {
-    D_80755340.active = 0;
+    gMenuBonusTimer.active = 0;
 }
 
 s32 menuGetTimerFlag(void) {
-    return D_80755340.active;
+    return gMenuBonusTimer.active;
 }
 
 void menuTransitionRequestTypeB(s32 map, s32 exit) {
@@ -247,8 +247,8 @@ void menuSeedRandom(void) {
     if (gGlobalPauseFlags & 2) {
         elapsed = osGetTime() - D_807445C0;
         D_807445B8 += elapsed;
-        if (D_80755340.active != 0) {
-            D_80755340.time += elapsed;
+        if (gMenuBonusTimer.active != 0) {
+            gMenuBonusTimer.time += elapsed;
         }
     }
 }
@@ -642,21 +642,21 @@ void func_80713C8C(void) {
     u64 elapsed;
 
     gMenuStateTimer = 1;
-    if (D_80755340.active != 0) {
+    if (gMenuBonusTimer.active != 0) {
         if (flagGet(0x302, 0) != 0) {
             menuClearTimerFlag();
             sfxAllocateChannel(0x74, 1.0f);
             return;
         }
-        D_80755340.time += D_807445B0;
+        gMenuBonusTimer.time += D_807445B0;
         if (!(gGlobalPauseFlags & 2)) {
-            elapsed = (osGetTime() - D_80755340.time) * 64;
-            D_80755340.remaining = D_80755340.duration - (u32)(elapsed / 3000 / 1000000);
-            if (((u32)D_80755340.index < 0xA) && (D_80755340.remaining == D_80755358[D_80755340.index])) {
+            elapsed = (osGetTime() - gMenuBonusTimer.time) * 64;
+            gMenuBonusTimer.remaining = gMenuBonusTimer.duration - (u32)(elapsed / 3000 / 1000000);
+            if (((u32)gMenuBonusTimer.index < 0xA) && (gMenuBonusTimer.remaining == gMenuBonusTimerThresholds[gMenuBonusTimer.index])) {
                 sfxPlayOnFreeSlot(0x2D4, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                D_80755340.index++;
+                gMenuBonusTimer.index++;
             }
-            if (D_80755340.remaining <= 0) {
+            if (gMenuBonusTimer.remaining <= 0) {
                 menuResetAndTransitionToCredits();
             }
         }
@@ -674,7 +674,7 @@ Gfx *hudDrawCountdownTimer(Gfx *dl) {
         dlCur = func_807132DC(dl);
         R117D_WRITE_GFX(dlCur++, 0xFC119623, 0xFF2FFFFF);
         R117D_WRITE_GFX(dlCur++, 0xFA000000, 0xFFFFFFFF);
-        dl = renderTimerMinutesSecondsHUD(dlCur, timerX, 214.0f, D_80755340.remaining);
+        dl = renderTimerMinutesSecondsHUD(dlCur, timerX, 214.0f, gMenuBonusTimer.remaining);
     }
     return dl;
 }
@@ -882,7 +882,7 @@ void func_807144B8(s8 saveSlot) {
     s32 exit;
 
     D_807445B8 = osGetTime();
-    D_80755340.active = 0;
+    gMenuBonusTimer.active = 0;
     playerResetSpawnGlobals();
     flagsClearAllBank2();
     eepromLoadPlayerData(saveSlot, 1);

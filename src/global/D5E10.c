@@ -1574,7 +1574,7 @@ void playerStateSlopeSlide(void) {
             y = (randomNonNegative() >> 15) % 10000 % D_80750FCC - D_80750FCC / 2;
             z = (randomNonNegative() >> 15) % 10000 % D_80750FD0 - D_80750FD0 / 2;
             effectSetSpeed(D_80750FC4);
-            effectSetCallback(&func_80717D4C);
+            effectSetCallback(&effectSinkBySpeedUpdate);
             effectSetDepth(1);
             effectCreateAtPosition(D_8074E880[randomNonNegative() % 10000 % 3], D_80750FC0 * scale, x * scale + nodeX, y * scale + nodeY, z * scale + nodeZ);
         }
