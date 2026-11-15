@@ -1893,18 +1893,12 @@ void effectConvergeOnNodeUpdate(EffectNode *effect, s8 *isDone) {
 
 
 void effectLifetimeCountdownUpdate(EffectNode *effect, s8 *isDone) {
-    u16 difference;
     s32 amount;
-    u8 remaining;
-    s32 completed;
 
     amount = effect->speed;
-    difference = effect->alpha - amount;
-    completed = 1;
-    remaining = difference;
-    effect->alpha = remaining;
-    if (amount >= remaining) {
-        *isDone = completed;
+    effect->alpha -= amount;
+    if (amount >= effect->alpha) {
+        *isDone = 1;
     }
 }
 
@@ -1942,7 +1936,7 @@ void effectOrbitSourceUpdate(EffectNode *effect, s8 *isDone) {
 
     source = effect->owner;
     if (effect->allocation == NULL) {
-        newState = heapAlloc(0x20);
+        newState = heapAlloc(sizeof(OrbitSourceState));
         effect->allocation = newState;
         newState->radius = sqrtf(((source->x - effect->x) * (source->x - effect->x)) + ((source->z - effect->z) * (source->z - effect->z)));
         newState->targetRadius = (randomFloat() * 20.0f) + 10.0f;
@@ -1993,12 +1987,12 @@ void effectShockwaveRingUpdate(EffectNode *effect, s8 *isDone) {
     guMtxCatF(mtx, tmpMtx, mtx);
     guTranslateF(tmpMtx, effect->x, effect->y, effect->z);
     guMtxCatF(mtx, tmpMtx, mtx);
-    if ((s32) effect->alpha >= 9) {
+    if (effect->alpha >= 9) {
         effect->alpha -= 9;
     } else {
         *isDone = 1;
     }
-    effect->scaleX = (f32) ((f64) effect->scaleX * 1.08);
+    effect->scaleX = effect->scaleX * 1.08;
     effect->scaleY = effect->scaleX;
     guMtxF2L(mtx, &effect->matrices[0][gGfxBufferIndex]);
     effect->state = 3;
@@ -2016,7 +2010,7 @@ void effectBallisticUpdate(EffectNode *effect, s8 *isDone) {
     f32 dirZ;
 
     if (effect->allocation == NULL) {
-        effect->allocation = heapAlloc(0xC);
+        effect->allocation = heapAlloc(sizeof(BallisticVelocityState));
         guRotateF(mtx, -(f32) ((randomLcgNext() % 36000U) / 1000U), 1.0f, 0.0f, 0.0f);
         guRotateF(tmpMtx, (f32) ((effect->speed * 360) / 4096), 0.0f, 1.0f, 0.0f);
         guMtxCatF(mtx, tmpMtx, mtx);
@@ -2043,7 +2037,7 @@ void effectFallStateInit(Actor *source, EffectNode *effect, u8 *isDone) {
     FallInitState *fallState;
     s16 angleOffset;
 
-    fallState = effect->allocation = heapAlloc(0x10);
+    fallState = effect->allocation = heapAlloc(sizeof(FallInitState));
     effect->x += (randomFloat() - 0.5f) * 2.0f;
     effect->y += (randomFloat() - 0.5f) * 2.0f;
     effect->z += (randomFloat() - 0.5f) * 2.0f;
@@ -2121,33 +2115,33 @@ void effectActorOrbitFollowUpdate(EffectNode *effect, s8 *isDone) {
     blend = 0.3f;
     target = effect->target;
     if (effect->allocation == NULL) {
-        state = heapAlloc(0x18);
+        state = heapAlloc(sizeof(ActorOrbitState));
         effect->allocation = state;
         state->growth = 0.0f;
-        state->yawAngle = (f32)(randomFloat() * 4095.0f);
-        state->yawSpeed = (f32)((randomFloat() > 0.5 ? (f64)randomFloat() : 0.5) * 300.0);
-        if ((f64)randomFloat() > 0.5) {
-            state->yawSpeed = (f32)-state->yawSpeed;
+        state->yawAngle = randomFloat() * 4095.0f;
+        state->yawSpeed = (randomFloat() > 0.5 ? randomFloat() : 0.5) * 300.0;
+        if (randomFloat() > 0.5) {
+            state->yawSpeed = -state->yawSpeed;
         }
-        state->bobAngle = (f32)(randomFloat() * 4095.0f);
-        state->bobSpeed = (f32)((randomFloat() > 0.5 ? (f64)randomFloat() : 0.5) * 300.0);
-        if ((f64)randomFloat() > 0.5) {
-            state->bobSpeed = (f32)-state->bobSpeed;
+        state->bobAngle = randomFloat() * 4095.0f;
+        state->bobSpeed = (randomFloat() > 0.5 ? randomFloat() : 0.5) * 300.0;
+        if (randomFloat() > 0.5) {
+            state->bobSpeed = -state->bobSpeed;
         }
-        state->bobHeight = (f32)(randomFloat() > 0.3 ? (f64)randomFloat() : 0.3);
+        state->bobHeight = randomFloat() > 0.3 ? randomFloat() : 0.3;
         blend = 1.0f;
     }
     state = effect->allocation;
     if (state->growth < 1.0f) {
         state->growth = state->growth + 0.033333335f;
     }
-    state->yawAngle = (f32)(state->yawAngle + state->yawSpeed);
-    state->yawAngle = (f32)((s16)(s32)state->yawAngle & 0xFFF);
-    state->bobAngle = (f32)(state->bobAngle + state->bobSpeed);
-    state->bobAngle = (f32)((s16)(s32)state->bobAngle & 0xFFF);
-    effect->x = (f32) (((((mathSinF((s16) (s32) state->yawAngle) * (15.0f * state->growth)) + target->x) - effect->x) * blend) + effect->x);
-    effect->z = (f32) (((((mathCosF((s16) (s32) state->yawAngle) * (15.0f * state->growth)) + target->z) - effect->z) * blend) + effect->z);
-    effect->y = (f32) (((((((mathSinF((s16) (s32) state->bobAngle) * (state->bobHeight * state->growth)) + 1.0f) * 15.0f) + target->y) - effect->y) * blend) + effect->y);
+    state->yawAngle += state->yawSpeed;
+    state->yawAngle = (s16)state->yawAngle & 0xFFF;
+    state->bobAngle += state->bobSpeed;
+    state->bobAngle = (s16)state->bobAngle & 0xFFF;
+    effect->x = (((mathSinF((s16)state->yawAngle) * (15.0f * state->growth)) + target->x) - effect->x) * blend + effect->x;
+    effect->z = (((mathCosF((s16)state->yawAngle) * (15.0f * state->growth)) + target->z) - effect->z) * blend + effect->z;
+    effect->y = (((((mathSinF((s16)state->bobAngle) * (state->bobHeight * state->growth)) + 1.0f) * 15.0f) + target->y) - effect->y) * blend + effect->y;
     targetState = target->customState;
     if (!(targetState->stateFlags & 0x10)) {
         *isDone = 1;
@@ -2176,55 +2170,41 @@ typedef struct {
     f32 angle;
 } ArcMotionState;
 
+// effectSwayRiseUpdate allocates only 8 bytes for these 0x10 (riseRate/risePhase overrun the block).
 typedef struct {
     f32 riseRate;
     f32 risePhase;
     f32 swayAmplitude;
     f32 swayPhase;
-    f32 unk10;
-    f32 unk14;
 } SwayRiseState;
 
 typedef struct {
     f32 centerX;
     f32 centerZ;
     f32 spinDirection;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
 } CircleRiseState;
 
 typedef struct {
     f32 speed;
     f32 velocityY;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
 } ScatterFallState;
 
 typedef struct {
     f32 scale;
     f32 targetScale;
     f32 rotation;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
 } ScaleSpinState;
 
 typedef struct {
     f32 heading;
     f32 velocityY;
     f32 speed;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
 } BurstParticleState;
 
 void func_8071E110(EffectNode *effect, u8 reverse, u16 startAngle, f32 radius, f32 height, s32 steps) {
     ArcMotionState *motion;
 
-    motion = heapAlloc(0x18);
+    motion = heapAlloc(sizeof(ArcMotionState));
     effect->allocation = motion;
     motion->reverse = (f32)(u32)reverse;
     motion->height = height;
@@ -2259,21 +2239,21 @@ void effectArcAroundActorUpdate(EffectNode *effect, s8 *isDone) {
         return;
     }
     arcAngle = state->progress * ((1.0f - (state->reverse * 2)) * 2048.0f);
-    arcAngle = (f32)((s16)(s32)arcAngle & 0xFFF);
-    radius = mathSinF((s16)(s32)arcAngle) * state->radius;
-    state->angle = (f32)((f64)state->angle + (2.0 * (f64)((1.0f - (state->reverse * 2)) * 4096.0f) * (f64)state->step));
-    state->angle = (f32)((s16)(s32)state->angle & 0xFFF);
-    offsetX = mathSinF((s16)(s32)state->angle) * radius;
-    cosYaw = mathCosF((s16)(s32)state->angle);
+    arcAngle = (s16)arcAngle & 0xFFF;
+    radius = mathSinF((s16)arcAngle) * state->radius;
+    state->angle = state->angle + 2.0 * ((1.0f - (state->reverse * 2)) * 4096.0f) * state->step;
+    state->angle = (s16)state->angle & 0xFFF;
+    offsetX = mathSinF((s16)state->angle) * radius;
+    cosYaw = mathCosF((s16)state->angle);
     height = state->height;
     offsetY = state->progress * height;
     if (state->reverse == 0.0f) {
         offsetY = height - offsetY;
     }
-    effect->x = (f32)(target->x + offsetX);
-    effect->z = (f32)(target->z + (cosYaw * radius));
-    effect->y = (f32)(target->y + offsetY);
-    state->progress = (f32)(state->progress + state->step);
+    effect->x = target->x + offsetX;
+    effect->z = target->z + (cosYaw * radius);
+    effect->y = target->y + offsetY;
+    state->progress += state->step;
     if (state->progress >= 1.0f) {
         *isDone = 1;
     }
@@ -2292,7 +2272,7 @@ void effectLightGrowShrinkUpdate(EffectNode *effect, s8 *isDone) {
     LightGrowShrinkState *state;
 
     if (effect->allocation == NULL) {
-        newState = heapAlloc(0xC);
+        newState = heapAlloc(sizeof(LightGrowShrinkState));
         effect->allocation = newState;
         newState->size = 0.0f;
         newState->shrinking = 0.0f;
@@ -2369,45 +2349,45 @@ void effectDecelDriftFadeUpdate(EffectNode *effect, s8 *isDone) {
     f32 stepZ;
 
     if (effect->allocation == NULL) {
-        newState = heapAlloc(8);
+        newState = heapAlloc(sizeof(DecelDriftState));
         effect->allocation = newState;
         newState->speed = 10.0f;
-        newState->heading = (f32)(effect->speed * 0x154);
+        newState->heading = effect->speed * 0x154;
     }
     state = effect->allocation;
-    state->speed = (f32)((f64)state->speed - 0.2);
-    if ((f64)state->speed < 0.8) {
+    state->speed = state->speed - 0.2;
+    if (state->speed < 0.8) {
         state->speed = 0.8f;
     }
-    stepX = mathSinF((s16)(s32)state->heading);
+    stepX = mathSinF((s16)state->heading);
     stepX = state->speed * stepX;
-    stepZ = mathCosF((s16)(s32)state->heading);
+    stepZ = mathCosF((s16)state->heading);
     stepZ = state->speed * stepZ;
-    effect->scaleX = (f32)((f64)effect->scaleX * 1.08);
-    effect->scaleY = (f32)((f64)effect->scaleY * 1.08);
-    if ((f64)effect->scaleX > 8.0) {
+    effect->scaleX = effect->scaleX * 1.08;
+    effect->scaleY = effect->scaleY * 1.08;
+    if (effect->scaleX > 8.0) {
         effect->alpha = effect->alpha - 0x32;
         if (effect->alpha < 0x33) {
             *isDone = 1;
         }
     }
-    effect->x = (f32)(effect->x + stepX);
-    effect->z = (f32)(effect->z + stepZ);
+    effect->x += stepX;
+    effect->z += stepZ;
 }
 
 void effectBurstParticleUpdate(EffectNode *effect, s8 *isDone) {
     BurstParticleState *state;
 
     if (effect->allocation == NULL) {
-        effect->allocation = heapAlloc(0xC);
+        effect->allocation = heapAlloc(sizeof(BurstParticleState));
         state = effect->allocation;
         state->heading = randomFloat() * 4095.0f;
-        state->velocityY = (f32)(((f64)randomFloat() * 0.5 + 1.0) * 5.0);
+        state->velocityY = (randomFloat() * 0.5 + 1.0) * 5.0;
         state->speed = 15.0f;
     }
     state = effect->allocation;
     state->velocityY = state->velocityY - 1.0f;
-    state->speed = (f32)((f64)state->speed * 0.95);
+    state->speed = state->speed * 0.95;
     effect->x += state->speed * mathSinF((s16)state->heading);
     effect->z += state->speed * mathCosF((s16)state->heading);
     effect->y = effect->y + state->velocityY;
@@ -2422,12 +2402,12 @@ void effectProximityFadeUpdate(EffectNode *effect, s8 *isDone) {
     f32 dist;
     f32 dx;
     f32 dy;
-    s32 iv;
+    s32 fade;
     f32 dz;
 
     limit = (f32)((effect->speed * 3) / 4);
     if (effect->allocation == NULL) {
-        effect->allocation = heapAlloc(4);
+        effect->allocation = heapAlloc(sizeof(f32));
         *(f32 *)effect->allocation = (f32)effect->alpha;
     }
     state = effect->allocation;
@@ -2440,11 +2420,11 @@ void effectProximityFadeUpdate(EffectNode *effect, s8 *isDone) {
         effect->alpha = (u32)*state;
         return;
     }
-    iv = *state * ((dist - limit) / ((f32)effect->speed - limit));
-    if (*state < (f32)iv) {
-        iv = *state;
+    fade = *state * ((dist - limit) / ((f32)effect->speed - limit));
+    if (*state < (f32)fade) {
+        fade = *state;
     }
-    effect->alpha = (u32)(*state - (f32)iv);
+    effect->alpha = (u32)(*state - (f32)fade);
 }
 
 
@@ -2455,13 +2435,13 @@ void func_8071EDEC(EffectNode *effect, s32 unused) {
     f32 nodeZ;
 
     actorGetNodePos(effect->target, 1, &nodeX, &nodeY, &nodeZ);
-    effect->x = (f32)((f64)effect->x + ((f64)(nodeX - effect->x) * 0.1));
-    effect->y = (f32)((f64)effect->y + ((f64)(nodeY - effect->y) * 0.1));
-    effect->z = (f32)((f64)effect->z + ((f64)(nodeZ - effect->z) * 0.1));
+    effect->x = effect->x + (nodeX - effect->x) * 0.1;
+    effect->y = effect->y + (nodeY - effect->y) * 0.1;
+    effect->z = effect->z + (nodeZ - effect->z) * 0.1;
 }
 
 void func_8071EEA4(EffectNode *effect, s32 unused) {
-    effect->scaleY = (f32) (((f64) effect->speed / 100.0) + 1.0);
+    effect->scaleY = effect->speed / 100.0 + 1.0;
 }
 
 
@@ -2471,14 +2451,14 @@ void effectScaleSpinUpdate(EffectNode *effect, s8 *isDone) {
     f32 tmpMtx[4][4];
 
     if (effect->allocation == NULL) {
-        effect->allocation = heapAlloc(0xC);
+        effect->allocation = heapAlloc(sizeof(ScaleSpinState));
         state = effect->allocation;
         state->scale = 0.01f;
         state->targetScale = effect->scaleX;
         state->rotation = 0.0f;
     }
     state = effect->allocation;
-    state->scale = (f32)(((f64)(state->targetScale - state->scale) * 0.1) + (f64)state->scale);
+    state->scale = (state->targetScale - state->scale) * 0.1 + state->scale;
     state->rotation += 5.0f;
     guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);
     matrixMakeRotationZ(tmpMtx, state->rotation);
@@ -2489,12 +2469,10 @@ void effectScaleSpinUpdate(EffectNode *effect, s8 *isDone) {
 
 
 void func_8071EFDC(EffectNode *effect, s8 *isDone) {
-    s32 alpha;
-
-    effect->scaleX = (f32)((f64)effect->scaleX * 1.05);
-    effect->scaleY = (f32)(((f64)effect->scaleY * 1.05) * 1.0);
-    alpha = (effect->alpha = (effect->alpha & 0xFFu) - 5);
-    if ((alpha & 0xFF) < 6) {
+    effect->scaleX = effect->scaleX * 1.05;
+    effect->scaleY = effect->scaleY * 1.05;
+    effect->alpha -= 5;
+    if (effect->alpha < 6) {
         *isDone = 1;
     }
 }
@@ -2511,10 +2489,10 @@ void effectScatterFallUpdate(EffectNode *effect, s8 *isDone) {
     ScatterFallState *state;
 
     if (effect->allocation == NULL) {
-        effect->allocation = heapAlloc(8);
+        effect->allocation = heapAlloc(sizeof(ScatterFallState));
         state = effect->allocation;
-        state->speed = (f32)(((f64)((randomNonNegative() >> 0xF) % 100) / 10.0) + 2.0);
-        state->velocityY = (f32)(-8.0 - ((f64)((randomNonNegative() >> 0xF) % 100) / 70.0));
+        state->speed = (f64)((randomNonNegative() >> 0xF) % 100) / 10.0 + 2.0;
+        state->velocityY = -8.0 - (f64)((randomNonNegative() >> 0xF) % 100) / 70.0;
         effect->speed += (s16)((randomNonNegative() >> 0xF) % 800) - 0x190;
         effect->speed = effect->speed % 4095;
     }
@@ -2530,14 +2508,14 @@ void effectScatterFallUpdate(EffectNode *effect, s8 *isDone) {
 void effectCircleRiseFadeUpdate(EffectNode *effect, s8 *isDone) {
     static s8 sd = 1; // D_8075567C: a function-local static so uopt treats it as non-aliased
     CircleRiseState *state;
-    CircleRiseState *temp;
+    CircleRiseState *newState;
 
     if (effect->allocation == NULL) {
-        temp = heapAlloc(0xC);
-        effect->allocation = temp;
-        temp->centerX = effect->x;
-        temp->centerZ = effect->z;
-        temp->spinDirection = (f32)sd;
+        newState = heapAlloc(sizeof(CircleRiseState));
+        effect->allocation = newState;
+        newState->centerX = effect->x;
+        newState->centerZ = effect->z;
+        newState->spinDirection = sd;
         sd = -sd;
     }
     state = effect->allocation;
@@ -2549,7 +2527,7 @@ void effectCircleRiseFadeUpdate(EffectNode *effect, s8 *isDone) {
     } else {
         *isDone = 1;
     }
-    effect->speed = effect->speed + (s32)((f64)state->spinDirection * 200.0);
+    effect->speed = effect->speed + (s32)(state->spinDirection * 200.0);
 }
 
 
@@ -2570,16 +2548,16 @@ void func_8071F2F8(EffectNode *effect, s32 unused) {
 
     state = effect->allocation;
     if (state == NULL) {
-        newState = heapAlloc(8);
+        newState = heapAlloc(sizeof(FallingMotionState));
         effect->allocation = newState;
-        newState->velocityY = (f32) (effect->speed & 0xFFFF);
-        newState->gravity = (f32) ((s32) effect->speed >> 0x10);
+        newState->velocityY = effect->speed & 0xFFFF;
+        newState->gravity = (s32)effect->speed >> 0x10;
         state = effect->allocation;
     }
     effect->y = effect->y + state->velocityY;
     height = state->velocityY;
     if (height > -20.0f) {
-        state->velocityY = (f32) ((f64) height - ((f64) state->gravity * 0.01));
+        state->velocityY = height - state->gravity * 0.01;
     }
 }
 
@@ -2589,9 +2567,9 @@ void func_8071F3C0(EffectNode *effect, s32 unused) {
 
     state = effect->allocation;
     if (state == NULL) {
-        newState = heapAlloc(4);
+        newState = heapAlloc(sizeof(ScaleFollowState));
         effect->allocation = newState;
-        newState->scale = (f32) ((f64) effect->scaleY * 6.666666666666667);
+        newState->scale = effect->scaleY * 6.666666666666667;
         state = effect->allocation;
     }
     effect->scaleX = effect->owner->sub4->scaleY * state->scale;
@@ -2607,19 +2585,19 @@ void effectSwayRiseUpdate(EffectNode *effect, s8 *isDone) {
         }
         effect->allocation = heapAlloc(8);
         state = effect->allocation;
-        state->riseRate = (f32)(((randomNonNegative() >> 0xF) % 20) + 5);
+        state->riseRate = ((randomNonNegative() >> 0xF) % 20) + 5;
         state->risePhase = 0.0f;
-        state->swayAmplitude = (f32)(((randomNonNegative() >> 0xF) % 100) + 0xA);
+        state->swayAmplitude = ((randomNonNegative() >> 0xF) % 100) + 0xA;
         state->swayPhase = 0.0f;
     }
     state = effect->allocation;
     {
         f32 t = mathSinF((s16)state->risePhase);
-        effect->y = (f32)((f64)effect->y + ((1.0 + (f64)t) * (f64)(f32)(1.0 + ((f64)state->riseRate * 0.4))));
+        effect->y = effect->y + (1.0 + t) * (f32)(1.0 + state->riseRate * 0.4);
     }
-    effect->x += mathSinF((s16)state->swayPhase) * (f32)((f64)state->swayAmplitude * 0.5);
+    effect->x += mathSinF((s16)state->swayPhase) * (f32)(state->swayAmplitude * 0.5);
     if (effect->frameDelay == 0) {
-        effect->param = (s16)(s32)(((f64)mathSinF((s16)state->swayPhase) * 2.5) + 2.5);
+        effect->param = mathSinF((s16)state->swayPhase) * 2.5 + 2.5;
     }
     state->risePhase = state->risePhase + 100.0f;
     state->swayPhase = state->swayPhase + 50.0f;
@@ -2636,7 +2614,7 @@ void func_8071F660(EffectNode *effect, void *unused) {
     f32 progress;
 
     progress = (f32) effect->durationTimer / (f32) (effect->duration - 1);
-    effect->scaleX = (f32) ((f64) mathSinF((s16) (s32) (progress * 2048.0f)) * 3.0);
+    effect->scaleX = mathSinF((s16)(progress * 2048.0f)) * 3.0;
     effect->scaleY = effect->scaleX;
     guScaleF(mtx, effect->scaleX, effect->scaleX, 0.0f);
     matrixMakeRotationZ(tmpMtx, progress * 180.0f);
@@ -2651,17 +2629,17 @@ void effectPulseSpinUpdate(EffectNode *effect, s8 *isDone) {
     f32 tmpMtx[4][4];
 
     if (effect->allocation == NULL) {
-        effect->allocation = heapAlloc(0xC);
+        effect->allocation = heapAlloc(sizeof(ScaleSpinState));
         state = effect->allocation;
         state->scale = 0.01f;
         state->targetScale = effect->scaleX;
         state->rotation = 0.0f;
     }
     state = effect->allocation;
-    state->scale = (f32)(((f64)(state->targetScale - state->scale) * 0.1) + (f64)state->scale);
+    state->scale = (state->targetScale - state->scale) * 0.1 + state->scale;
     state->rotation += 5.0f;
-    effect->scaleX = (f32)(((f64)mathSinF((s16)(gFrameCounter * 50)) * 0.1) + (f64)state->scale);
-    effect->scaleY = (f32)(((f64)mathCosF((s16)(gFrameCounter * 25)) * 0.1) + (f64)state->scale);
+    effect->scaleX = mathSinF((s16)(gFrameCounter * 50)) * 0.1 + state->scale;
+    effect->scaleY = mathCosF((s16)(gFrameCounter * 25)) * 0.1 + state->scale;
     guScaleF(mtx, effect->scaleX, effect->scaleY, 0.0f);
     matrixMakeRotationZ(tmpMtx, state->rotation);
     guMtxCatF(mtx, tmpMtx, mtx);
@@ -2693,7 +2671,7 @@ void effectLerpPathUpdate(EffectNode *effect, u8 *isDone) {
     if (effect->allocation != NULL) {
         state = effect->allocation;
         state->progress = state->progress + state->progressStep;
-        if ((f64)state->progress >= 1.0) {
+        if (state->progress >= 1.0) {
             *isDone = 0xFF;
             state->progress = 1.0f;
         }
