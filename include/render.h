@@ -247,4 +247,15 @@ extern LightTrigger gLightCandidates[];
 // vertex colour bytes. The owner (asm/global/61690.s, 0x8065C990) is handwritten asm and has no C or generated proto.
 void lightApplyToVertices(Vtx *start, Vtx *end, s32 stride, LightTrigger *lights, s32 lightCount, s32 useVertexColor);
 
+// One lens-flare source queued by lensFlareAddSource (D_807FD808): world position and RGB colour.
+typedef struct LensFlarePoint {
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+    /* 0x0C */ u8 r;
+    /* 0x0D */ u8 g;
+    /* 0x0E */ u8 b;
+    /* 0x0F */ u8 padF;
+} LensFlarePoint; // size = 0x10
+
 #endif

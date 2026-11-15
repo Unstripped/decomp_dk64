@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
+#include "render.h"
 #include "sched.h"
-#define PROTO_SKIP_lensFlareDrawSource // PROTO: takes the file-local LensFlarePoint by value, which the shared header cannot name
 #include "proto/global/103AB0.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/112080.h"
@@ -266,21 +266,8 @@ typedef struct {
 
 extern ScreenPoint D_807FD840[2][3];
 
-typedef struct LensFlarePoint {
-    f32 x;
-    f32 y;
-    f32 z;
-    u8 r;
-    u8 g;
-    u8 b;
-    u8 padF;
-} LensFlarePoint;
-
 extern u8 D_80754BC0;
 extern LensFlarePoint D_807FD808[2];
-
-Gfx *lensFlareDrawSource(Gfx *dl, LensFlarePoint pt, u8 fade);
-
 
 void lensFlareAddSource(f32 x, f32 y, f32 z, f32 dirX, f32 dirY, f32 dirZ, f32 minDot, u8 r, u8 g, u8 b) {
     f32 screenX;

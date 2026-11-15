@@ -3,6 +3,7 @@
 #define PROTO_GLOBAL_103AB0_H
 #include "common.h"
 #include "actor.h"
+#include "render.h"
 #ifndef PROTO_SKIP_playerViewGfxSetup
 Gfx *playerViewGfxSetup(Gfx *, u8);
 #endif
@@ -65,6 +66,9 @@ u16 zbufferReadDepth(s16, s16);
 #endif
 #ifndef PROTO_SKIP_func_80700BF4
 void func_80700BF4(void);
+#endif
+#ifndef PROTO_SKIP_lensFlareDrawSource
+Gfx *lensFlareDrawSource(Gfx *, LensFlarePoint, u8);
 #endif
 #ifndef PROTO_SKIP_func_80701C90
 void func_80701C90(void);
