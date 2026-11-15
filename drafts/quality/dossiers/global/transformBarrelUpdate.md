@@ -1,12 +1,34 @@
-# transformBarrelUpdate (global, src/global/80150.c)
+# transformBarrelUpdate
+
 ## Sites
-- global:8067E784:other:da1976 other: REMOVED. `s16 entryCount = 8` kept the bound in a3 (`li a3,8` at 0x334c, `slt at,a1,a3` at 0x33f4).
-- Other sites (516e63, a9a41f, 0f5fc9, 4925be, 2ba6be): not in this item, untouched.
+
+| key | status | what it was / is |
+|---|---|---|
+| 2ba6be | removed | `if (gPlayerCharacterId) {}` in the sound block. It made the sfxAllocateChannel block reload `sound` from its stack home (`lh a0,98(sp)` at 0x3f84). Without it the copy reuses t9 from the `sound != 0` test. |
+| 4925be | removed | dead `gPrimaryPlayerActor->actorType == 9` compare. |
+| 516e63 | removed | `if (gPrimaryPlayerActor) {}` in the init block. |
+| a9a41f | removed | customState snapshot assigned inside the test. |
+| 0f5fc9 | kept | `*(u16 *)&interactionType = 1`, which keeps the constant 1 web separate (Q0449). |
+
 ## Attempts
-- 2026-11-14 U HackBoundLocalSizeofB opus:high (variants.py try full=):
-  - `s16 entryCount = sizeof(D_8074E7BC) / sizeof(D_8074E7BC[0])` with the extern sized [8]: 0 (applied; also with sizeof(TransformBarrelEntry))
-  - inline sizeof: 11
+**2026-11-14 Hack80150CharIdView (claude-opus-5-5):**
+
+| attempt | result |
+|---|---|
+| array view with 2ba6be kept | OK |
+| array view with 2ba6be removed | fdiff 1 (the 0x3f84 reload) |
+| `if (sound)`, nested ifs, `(s16)` argument | text 85 |
+| s32 sound | 94 |
+| u16 sound | 205 |
+| **sentinel `switch (gCurrentMap)`** | **0** |
+| then 4925be removed | 0 |
+| then 516e63 removed | 0 |
+| a9a41f nested if | 0 (pre-if assignment 3, block local 10) |
+| 0f5fc9 plain store | 360 (scan best 155) |
+
 ## Untried ideas
-- (other sites) see their own history.
+- 0f5fc9: interactionType is s16 in actor.h; check whether the field is really u16 across all users (a header change; 24 files touch it).
+
 ## Evidence
-- D_8074E7BC: 8 three-byte {map, listId, count} entries, 0x8074E7BC-0x8074E7D3; next label D_8074E7D4.
+- 0x3f84 `lh a0,98(sp)` (sound reload in the beq delay slot before `jal sfxAllocateChannel`).
+- a9a41f: `lw v0,372(a3)` follows the actorType tests.
