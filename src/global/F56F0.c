@@ -290,11 +290,11 @@ void playerTransformAnimalEndSfx(Actor *actor) {
 }
 
 
-void playerFireWeaponPrimary(s32 unused) {
+void playerFireWeaponPrimary(Actor *actor) {
     playerFireWeapon(0, 1);
 }
 
-void f56f0Noop1378(s32 unused) {}
+void f56f0Noop1378(Actor *actor) {}
 
 void scriptCmdCompareSpeedXZ(Actor *actor) {
     f32 temp;

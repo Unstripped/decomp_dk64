@@ -298,10 +298,10 @@ s32 scriptOpSetActorTextState(Actor *);
 s32 scriptOpNoopReturn1(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpBranchOnFrame
-void scriptOpBranchOnFrame(Actor *);
+s32 scriptOpBranchOnFrame(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpBranchByTimer8A
-void scriptOpBranchByTimer8A(Actor *);
+s32 scriptOpBranchByTimer8A(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptSkipBranchCases
 void scriptSkipBranchCases(Actor *);

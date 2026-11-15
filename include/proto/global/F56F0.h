@@ -30,10 +30,10 @@ void playerTransformAnimalStartSfx(Actor *);
 void playerTransformAnimalEndSfx(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerFireWeaponPrimary
-void playerFireWeaponPrimary(s32);
+void playerFireWeaponPrimary(Actor *);
 #endif
 #ifndef PROTO_SKIP_f56f0Noop1378
-void f56f0Noop1378(s32);
+void f56f0Noop1378(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptCmdCompareSpeedXZ
 void scriptCmdCompareSpeedXZ(Actor *);

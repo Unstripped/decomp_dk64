@@ -19,6 +19,7 @@
 #include "proto/global/936B0.h"
 #include "proto/global/D5E10.h"
 #include "proto/global/F4C0.h"
+#include "proto/global/F56F0.h"
 #include "proto/global/FCCD0.h"
 
 extern u8 *sScriptPc;
@@ -57,7 +58,203 @@ void scriptSetRampValue(Actor *actor, f32 target, f32 rampTime) {
 
 extern s32 sScriptContinueRunning;
 typedef s32 (*ActorScriptCommand)(Actor *);
-extern ActorScriptCommand sScriptOpcodeTable[];
+typedef void (*ScriptCommandFn)(Actor *);
+
+extern u8 D_8071FBC8[];
+extern u8 D_8071FC0C[];
+extern u8 D_8071FC40[];
+extern u8 D_8071FC58[];
+extern u8 D_8071FC8C[];
+extern u8 D_8071FCC0[];
+extern u8 D_8071FF18[];
+extern u8 D_80720268[];
+extern u8 D_807208D8[];
+extern u8 D_80720A7C[];
+extern u8 D_80720BE8[];
+extern u8 sEffectImpactPuffConfig[];
+extern u8 sEffectSparkConfig[];
+extern u8 D_80720B58;
+
+void *sScriptEffectSprites[] = {
+    &D_807208D8[0x18],
+    &D_807208D8[0x3C],
+    &D_807208D8[0x60],
+    &D_807208D8[0x84],
+    &D_807208D8[0xA8],
+    &D_807208D8[0xCC],
+    &D_807208D8[0xF0],
+    D_8071FC0C,
+    &D_80720A7C[0x54],
+    D_80720268,
+    D_8071FF18,
+    &D_80720B58,
+    D_8071FC40,
+    sEffectImpactPuffConfig,
+    D_8071FC58,
+    D_8071FC8C,
+    D_8071FCC0,
+    D_8071FF18,
+    D_80720BE8,
+    sEffectSparkConfig,
+    D_8071FBC8,
+};
+
+void (*sScriptEffectCallbacks[])() = {
+    NULL,
+    effectFloorFallUpdate,
+    effectWobbleRiseUpdate,
+    effectRandomYRotDecalUpdate,
+    effectSinkBySpeedUpdate,
+    effectShrinkAndVelocityUpdate,
+};
+
+ActorScriptCommand sScriptOpcodeTable[] = {
+    scriptOpYield,
+    scriptOpSetRegister,
+    scriptOpDecrementRegister,
+    scriptOpWaitRegisterCountdown,
+    scriptOpCheckSelectorActive,
+    scriptOpSetCountdownFromByte,
+    scriptOpSetRandomByteInRange,
+    scriptOpEnableFlag4,
+    scriptOpOrFlags,
+    scriptOpSetRampTarget,
+    scriptOpApproachRampTarget,
+    scriptOpEnableValueState10,
+    scriptOpStepRampValue,
+    scriptOpWaitRegisterNonZero,
+    scriptOpWaitRegisterZero,
+    scriptOpWaitValueZero,
+    scriptOpWaitValueEqual,
+    scriptOpSetActionVelocity,
+    scriptOpAccelerateAction,
+    scriptOpApproachActionTarget,
+    scriptOpAnimSetRemapDefault,
+    scriptOpAnimSetRemapBlend,
+    scriptOpAnimScaleInterpolate,
+    scriptOpAnimSetDirect,
+    scriptOpAnimSetStateRemap,
+    scriptOpAnimSetStateRemapBlend,
+    scriptOpAnimSetFromTable,
+    scriptOpReadRampInterpolation,
+    scriptOpUpdateMotionDelta,
+    scriptOpApplyMotionFriction,
+    scriptOpSetMotionAngleFlags,
+    scriptOpClearMotionAngleFlags,
+    scriptOpScaleMotionVelocity,
+    scriptOpAccelerateMotionVelocity,
+    scriptOpCapMotionVelocityMax,
+    scriptOpCapMotionVelocityMin,
+    scriptOpSetActorRampTarget,
+    scriptOpGotoScript,
+    scriptOpCallScriptByIndex,
+    scriptOpEnableFlag8000,
+    scriptOpCallSaveReturn,
+    scriptOpReturn,
+    scriptOpResetRampVelocity,
+    scriptOpCompareStateToU16,
+    scriptOpCompareSubStateToU16,
+    scriptOpCompareAnimIdToU16,
+    scriptOpCompareGlobalCountdown,
+    scriptOpJump,
+    scriptOpJumpIfRegisterNonZero,
+    scriptOpJumpIfRegisterZero,
+    scriptOpJumpIfRegisterPositive,
+    scriptOpJumpIfRegisterNegative,
+    scriptOpRestart,
+    scriptOpJumpTable,
+    scriptOpRunCommand,
+    scriptOpSetCommandHandler,
+    scriptOpPlaySoundOnFreeSlot,
+    scriptOpPlayPositionalSoundPlayerStateVolume,
+    scriptOpPlayPositionalSound,
+    scriptOpPlayPositionalSoundAtNode,
+    scriptOpPlayActorSoundForPlayer,
+    scriptOpPlaySoundAndShake,
+    scriptOpPlayMapActionSound,
+    scriptOpRestartSlotSound,
+    scriptOpStopSlotSound,
+    func_80617B38,
+    scriptOpSetSoundVolumeAndPan,
+    scriptOpAllocateSoundChannel,
+    scriptOpStopSoundChannel,
+    scriptOpSetActorTextState,
+    scriptOpPlayDistanceVolumeSound,
+    scriptOpNoopReturn1,
+    scriptOpSetActorState,
+    scriptOpIncrementActorState,
+    scriptOpSetActorSubState,
+    scriptOpIncrementActorSubState,
+    scriptOpSetRegisterRandom,
+    scriptOpBranchOnFrame,
+    scriptOpBranchByTimer8A,
+    scriptOpAnimSetStateDefault,
+    scriptOpAnimSetRemapDirectDefault,
+    scriptOpEnableFlag84,
+    scriptOpDisableFlag84,
+    scriptOpAnimResetFrameRange,
+    scriptOpHalt,
+    scriptOpIncrementChildActorSubState,
+    scriptOpSetTimer,
+    scriptOpWaitTimer,
+    scriptOpCall,
+    scriptOpOrComponentFlags,
+    scriptOpApplyMotionWindowStep,
+    scriptOpNop,
+};
+
+u8 sMotionWindowProgress = 0;
+
+u8 sScriptChannelIndexTable[] = { 0x72, 0x6B, 0x73, 0x3B };
+
+ScriptCommandFn sScriptCommandTable[] = {
+    scriptCmdNop,
+    scriptCmdPlayActorSound,
+    scriptCmdCheckGlobalToggle,
+    scriptCmdCheckFalling,
+    scriptCmdResetActorScale,
+    playerResumeLocomotionDecel,
+    playerKongCalculateHealthScale,
+    scriptCmdCompareMoveTier,
+    scriptCmdCompareSpeedXZ,
+    f56f0Noop1378,
+    playerKongStopSoundByState,
+    playerKongDrawGun,
+    playerD0150Wrapper,
+    scriptCmdSetActorSpeedY,
+    scriptCmdActorCamShake,
+    scriptCmdSpawnAttachedActor,
+    scriptCmdSetActorNodeFlag,
+    scriptCmdClearActorNodeFlag,
+    scriptCmdSpawnActorParticleBurst,
+    scriptCmdSpawnBoneEffects,
+    scriptCmdSetActorFlag146,
+    scriptCmdClearActorFlag146,
+    scriptCmdSetActorShadowScale,
+    scriptCmdSetActorAlpha,
+    playerFireWeaponPrimary,
+    scriptCmdSpawnDownwardDriftEffect,
+    scriptCmdSpawnUpwardDriftEffect,
+    scriptCmdSpawnSineDriftEffect,
+    projectileTrySpawnFromSlot,
+    playerKongSpawnTransformationSmoke,
+    playerKongClearFlagsByActorType,
+    scriptCmdEnablePlayerFlag40000,
+    scriptCmdSetActorAccelY,
+    scriptCmdSpawnOrbitEffects,
+    scriptCmdToggleActorVisibility,
+    scriptCmdSpawnCharacterCompanion,
+    scriptCmdSpawnSmokeRing,
+    scriptCmdSpawnSplashPuff,
+    scriptCmdSpawnFallingEffect,
+    scriptCmdSpawnEffectChildAndNode,
+    scriptCmdDespawnActor,
+    scriptCmdSetActorResultByte35,
+    scriptCmdIncrementActorResultByte35,
+    scriptCmdCheckSlopePitch,
+};
+
+s16 sCharacterBehaviorMap[] = { 0xD4, 0xA7, 0xD4, 0xD3, 0xD4 };
 
 void actorScriptExecute(Actor *actor) {
     ActorSub4 *state;
@@ -532,8 +729,6 @@ s32 scriptOpReadRampInterpolation(Actor *actor) {
     return 1;
 }
 
-extern u8 sMotionWindowProgress;
-
 s32 scriptOpApplyMotionWindowStep(Actor *actor) {
     u8 imm;
     AnimSlot *selected;
@@ -967,10 +1162,6 @@ s32 scriptOpReturn(Actor *actor) {
     return 1;
 }
 
-typedef void (*ScriptCommandFn)(Actor *);
-
-extern ScriptCommandFn sScriptCommandTable[];
-
 s32 scriptOpRunCommand(Actor *actor) {
     s16 imm;
 
@@ -1110,7 +1301,7 @@ extern PlayerStruct *gPlayerSlots;
 
 s32 scriptOpPlaySoundAndShake(Actor *actor) {
     s16 imm;
-    volatile u8 imm2; // FAKE: volatile loads are not hoistable, keeps the lbu of the 0xFF arm out of the bnez delay slot
+    u8 imm2;
     s16 imm3;
     u8 imm4;
     u8 priority;
@@ -1124,12 +1315,12 @@ s32 scriptOpPlaySoundAndShake(Actor *actor) {
     if (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 2) {
         priority = 0xA;
         if (imm == 1) {
-            imm2 = (u32)imm2 * 0.5;
+            imm2 *= 0.5;
         }
         camStartShakeFromPoint(gActivePlayerState->camActor, 0xA, 8, actor->x, actor->y, actor->z, 100.0f, 800.0f);
     } else if (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 0) {
         priority = 0xFF;
-        imm2 = (u32)imm2 * 0.5;
+        imm2 *= 0.5;
     } else {
         switch (actor->actorType) {
         case 6:
@@ -1148,12 +1339,6 @@ s32 scriptOpPlaySoundAndShake(Actor *actor) {
             break;
         }
     }
-    if (actor && actor && actor) {} // FAKE: empty guard adds a block to the as1 XBB window (limit 10), pushing the lh/li hoists of the then-arm out
-    if (actor && actor && actor) {} // FAKE: same (6 guards needed)
-    if (actor && actor && actor) {} // FAKE: same
-    if (actor && actor && actor) {} // FAKE: same
-    if (actor && actor && actor) {} // FAKE: same
-    if (actor && actor && actor) {} // FAKE: same
     imm = mapActionLookupEntry(imm, actor, actor->unk78[0]);
     if ((imm == 2) || (imm == 8)) {
         imm4 = 0xA;
@@ -1338,8 +1523,6 @@ void sfxPlayScriptActorSoundForPlayer(Actor *actor, s16 sound, u8 slot) {
     sfxPlayAtPositionForPlayer(actor->x, actor->y, actor->z, sound, volume, pitch, slot, priority, 0.3f);
 }
 
-extern u8 sScriptChannelIndexTable[];
-
 s32 scriptOpPlayActorSoundForPlayer(Actor *actor) {
     s16 imm;
     u8 imm2;
@@ -1442,7 +1625,7 @@ s32 scriptOpNoopReturn1(Actor *actor) {
     return 1;
 }
 
-void scriptOpBranchOnFrame(Actor *actor) {
+s32 scriptOpBranchOnFrame(Actor *actor) {
     ActorSub4 *state;
     AnimSlot *value;
 
@@ -1452,11 +1635,11 @@ void scriptOpBranchOnFrame(Actor *actor) {
     } else {
         value = state->model;
     }
-    scriptOpBranchOnCondition(actor, (s16)value->frame);
+    return scriptOpBranchOnCondition(actor, (s16)value->frame);
 }
 
-void scriptOpBranchByTimer8A(Actor *actor) {
-    scriptOpBranchOnCondition(actor, actor->sub4->scriptResult);
+s32 scriptOpBranchByTimer8A(Actor *actor) {
+    return scriptOpBranchOnCondition(actor, actor->sub4->scriptResult);
 }
 
 void scriptSkipBranchCases(Actor *actor) {
@@ -1620,7 +1803,6 @@ void projectileTrySpawnFromSlot(Actor *actor) {
 }
 
 extern u8 D_8071FE08[];
-extern u8 D_8071FF18[];
 extern f32 sSavedLightColorR[3];
 
 
@@ -1670,7 +1852,6 @@ void scriptCmdSpawnSineDriftEffect(Actor *actor) {
 
 extern s32 gGlobalCutsceneFlags;
 extern u8 D_8072006C;
-extern u8 D_80720B58;
 
 void scriptCmdSpawnAttachedActor(Actor *actor) {
     u8 imm;
@@ -1866,8 +2047,6 @@ void scriptCmdClearActorNodeFlag(Actor *actor) {
     actorClearNodeFlag(actor, imm);
 }
 
-extern void *sScriptEffectSprites[];
-
 void scriptCmdSpawnOrbitEffects(Actor *actor) {
     s32 i;
     u8 imm;
@@ -1900,12 +2079,10 @@ void scriptCmdToggleActorVisibility(Actor *actor) {
     }
 }
 
-extern s16 sCharacterBehaviorMap[];
-
 void scriptCmdSpawnCharacterCompanion(Actor *actor) {
     u8 *script;
 
-    actorSpawn(0x135, sCharacterBehaviorMap[actor->actorType]);
+    actorSpawn(0x135, sCharacterBehaviorMap[actor->actorType - 2]);
     actorCopyPoseAndScale(gSpawnedActor, actor, actor->sub4->scaleX);
     gSpawnedActor->roll = actor->roll;
     gSpawnedActor->pitch = actor->pitch;
@@ -1946,7 +2123,6 @@ void scriptCmdSpawnSplashPuff(Actor *actor) {
 }
 
 extern u8 D_80750AD0;
-extern void (*sScriptEffectCallbacks[])(void);
 
 void scriptCmdSpawnFallingEffect(Actor *actor) {
     u16 imm;

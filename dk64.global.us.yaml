@@ -225,6 +225,8 @@ segments:
       - [0x14B520, .data, 13980] # D_80746820..D_80746A2C (0x80746820-0x80746A30); 131B0's own data is gRumblePaused/gRumbleResetPending (0x80746810-0x80746820)
       - [0x14B730, data, 15050]
       - [0x14B740, data]
+      - [0x14B880, .data, 19A00] # sScriptEffectSprites..sCharacterBehaviorMap (0x80746B80-0x80746E1E) + 2-byte TU pad; 16-aligned after 17B90's D_80746B64; sScriptOpcodeTable's .word scriptOpPlaySoundAndShake makes its entry label address-taken (Q0552)
+      - [0x14BB20, data]
       - [0x14C3A0, .data, 201B0]
       - [0x14C450, data]
       - [0x14C9D0, .data, 2F550] # D_80747CD0 (cameraStepAspectScale's static f32, 0x80747CD0-0x80747CE0 incl. 12-byte TU pad); 16-aligned, no other 2F550 data
