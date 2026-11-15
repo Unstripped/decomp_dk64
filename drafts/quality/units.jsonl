@@ -650,3 +650,4 @@
 {"type": "unit", "t": "2026-11-15T15:53:41Z", "unit": "2026-11-15: cleanup PolishglobalScriptData", "commit": "2f06362e70d6f6d9f77ad5413b66c14146a6543b"}
 {"type": "unit", "t": "2026-11-15T16:02:12Z", "unit": "2026-11-15: cleanup HackbonusLightFlashGameUpdate2", "commit": "1d00db9af996653eb9b7348fa7dd489efd0e220f"}
 {"type": "unit", "t": "2026-11-15T16:12:46Z", "unit": "2026-11-15: cleanup HacktextMarkerRenderString2", "commit": "8419297ada1e07028899e7cf05a997f5542c4c7f"}
+{"type": "unit", "t": "2026-11-15T16:12:58Z", "unit": "2026-11-15: cleanup HackbossFollowerActorUpdate2", "commit": "f66ce9ff7abe5138fed14e2c29e2e6bdf6445a67"}
