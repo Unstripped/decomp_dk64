@@ -34,8 +34,22 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 
 
 ## Round-34 leftovers
-- Names not applied: MpSettings.unk0 / func_80714608 (mode vs gameMode unclear); func_806C9974 -> playerAddHealthDelta (Rev34C proposal, round-35 names step). Proposals not applied at the 2026-11-14 consolidation (director: keep the existing names for now): collisionGetFloorHeight -> collisionGetWaterHeight, collisionGetFloorTriangleNormal -> collisionCheckLedgeGrab (PolishGlobal6AD90Names; evidence .scratch/close/renames.md rows 104/105). Rejected: Actor.unk155 -> subState (one boss file's evidence for 66 files), D_807FF0F2 -> gAudioHeadphonesEnabled (inferred), Actor.unk15F -> hudMode (C8C10 uses unk15F as a 0x80 flag plus a 0x7F phase counter).
-- global/6710 func_80601EE4: noop-arith 8e31ef/8e31ef#2 OPEN next=plain (diagnose nohit HackSmallLeftovers 437b28d1; plain/recipe rungs stale, sweep).
+- Names not applied: MpSettings.unk0 (mode vs gameMode unclear; its reader func_80714608 is now mpIsMatchType); func_806C9974 -> playerAddHealthDelta (Rev34C proposal, round-35 names step). Proposals not applied at the 2026-11-14 consolidation (director: keep the existing names for now): collisionGetFloorHeight -> collisionGetWaterHeight, collisionGetFloorTriangleNormal -> collisionCheckLedgeGrab (PolishGlobal6AD90Names; evidence .scratch/close/renames.md rows 104/105). Rejected: Actor.unk155 -> subState (one boss file's evidence for 66 files), D_807FF0F2 -> gAudioHeadphonesEnabled (inferred), Actor.unk15F -> hudMode (C8C10 uses unk15F as a 0x80 flag plus a 0x7F phase counter).
+
+## Session 2026-11-14 close leftovers (Lead12)
+- Re-review: 35 functions in 25 files show `next=review` in `rank --polish` (staled by the final renames ec5eb9d0 and the Q0641
+  correction 145e8a82: B6C50 func_806B1F50; E4090 7, race/7BD0 4, 201B0 3, ...): one polish wave.
+- Names held (readers agree on the role, names differ, or the proposer did not read every user): RaceParticipant unk3A (route
+  position that wraps and bumps the lap: waypointIndex / routePos / checkpoint), unk40 (holds both a normal and a squared distance:
+  nextPointDist / waypointDistance, not "Sq"), unk45 (outOfRace / eliminated / disqualified), unk35 (subPhase / phase), unk44
+  (missesLeft / gateMisses, counts down); SpawnNode.unk38 -> animSpeedScale (reaches boss/0 and 12E800, unread by the proposer);
+  G01Pos unk7/8/9 -> camMode/spawnKind/flags (one file, CC800); D_807FDCA0 (declared `Zone *`, 30+ users); playerSpawnAllPlayers
+  (returns whether any goldenBananas[0..7] of player 0's kong is > 0: needs a name); effectSetSpeed's s32 parameter receives
+  actor pointers (race/1770, boss/0): owner type review.
+- Permuter rows never run (`.scratch/permbatch/`): b1114 9 rows stopped at the wrap-up (25d017, 208f26, d53555, b16157, 716d92,
+  1606fa, f3276d, ff3fab, 93489e) + 9bc6c1 (vsprintf: permute.py cannot parse va_arg / `__builtin_classof`); b1114b 8 rows not
+  attempted + 2 failed setup (row copies predate the D_807FC828 move to actor.h: re-snapshot them at HEAD); list.tsv rows 45-97
+  never batched.
 
 ## OPEN functions
 

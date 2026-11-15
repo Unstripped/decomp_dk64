@@ -161,25 +161,26 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 36 (2026-11-13)** — global/7130 (views onto PlayerStruct/ModelSlot), 80150, 15050 (2 hidden steers removed, gHeapMainFreeList folded), 103AB0 (3 FAKE removed, lensFlareDrawSource ANSI), bonus/2690 (2 FAKE removed, views retired), D5E10 (3 views retired); shared `PadInputState` in actor.h (E4090, CEAE0, D5E10; CEAE0 reads the s8 attackerSpawnNodeId directly); name `PlayerStruct.camYaw`; carry learned file-local record field renames. Knowledge Q0727–Q0744.
 - [x] **Round 37 (2026-11-13)** — multiplayer/0 (4 FAKE removed: early reads and spawnCrown are source, callback is func_8071F3C0), menu/3E10, 36880 (4 FAKE removed), arcade/0 (5 pad puns → `->button`), F56F0 (coupled steer pair, pad split label → PadInputState), 70FD0 (index loop, s32 boneOffset, 0.0 literal); knowledge staling policy: note similarity stales diagnose/reconstruct only, permute only via entries naming the function (1052fc9b; OPEN 290 → 215 with no new records). Knowledge Q0745–Q0753.
 - [x] **Round 38 (2026-11-13)** — global/19A00 (views onto Actor/PlayerStruct, sSavedLightColor fold) + 11BC10 owner bundle (effectFallStateInit/effectFloorFallUpdate take Actor */EffectNode */u8 *; 19A00 cfe 4 → 1), 9DD70 (3 dead-ifs → 1 proto steer, views retired), 13980 (u64 division, GBI/VI names), 61AA0 + `LightTrigger` moved into render.h (MatrixCacheSub retired), 114270 (147 casts dropped, u8 callbacks), C0EE0 (s16 col/row). Knowledge Q0754–Q0759.
-- [ ] Paused after round 38 (user stop). Leftovers: 192 OPEN functions in 117 files (the Q0754–Q0759 commit re-opened 15) and the blocked owner/header changes in `.omp/skills/cleanup-unit/pending.md`; resume from `uv run tools/quality.py rank`.
+- [x] **Session 2026-11-14 (rolling queue, Lead10–Lead12)** — re-review waves 1 and 2 over every staled function; owner/header items: CC800 `gKongCharacterTable` and 109660 `.data` moved to C, shared `gPlayerPadState`/`gCamActor`/`D_807FC828[9]`/`PulseState` declarations in actor.h, `ResGlyph` text/cell union, render.h prototype for the handwritten-asm light routine, `lightCollectVolumesInBounds(u8 *)`, warning chains fixed (cfe 15 → 8); 42630 callee declarations proven ORIG; sentinel-switch and integer-round-trip steer rules; three name passes (consolidation 1: 162 functions/globals + 29 fields + the header field plan; consolidation 2: 47 + 56 fields; final close: 87 + 8 fields). Knowledge Q0760–Q0846 (Q0264/Q0400/Q0641/Q0651 corrected).
+- [ ] Paused after session 2026-11-14 (user stop). Leftovers: 43 functions without a fresh review and 143 not exhausted (`uv run tools/quality.py rank --polish` / `rank`); the blocked owner/header changes, held names and unrun permuter rows are in `.omp/skills/cleanup-unit/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-14, mid-session consolidation after the session's merges, names and knowledge filing; the review count fell because the 2026-11-14 renames, header carves and knowledge corrections staled reviews):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, 2026-11-14 final close; the final renames and the Q0641 correction staled the reviews still missing):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 550 | 583 |
-| FAKE dead-if | 220 | 263 |
-| FAKE proto-steer | 29 | 134 |
-| FAKE other kinds | 301 | 186 |
-| ORIG (cited target offset) | 42 | 0 |
-| LAYOUT | 71 | 47 |
+| FAKE | 565 | 583 |
+| FAKE dead-if | 214 | 263 |
+| FAKE proto-steer | 22 | 134 |
+| FAKE other kinds | 329 | 186 |
+| ORIG (cited target offset) | 60 | 0 |
+| LAYOUT | 73 | 47 |
 | goto | 35 | 39 |
-| proto-type (`// PROTO:`) | 5 | 0 |
-| protos mismatch | 16 | 1,202 |
-| reviewed / exhausted functions | 3,909 / 3,783 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 15 | 1,890 |
+| proto-type (`// PROTO:`) | 4 | 0 |
+| protos mismatch | 17 | 1,202 |
+| reviewed / exhausted functions | 4,227 / 4,127 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 8 | 1,890 |
 | uninit warnings (clint checks every function) | 252 | 122 |
-| `func_` definitions | 404 | 457 |
+| `func_` definitions | 301 | 457 |
 | m2c names | 3 | 5,040 |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.
