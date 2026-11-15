@@ -2557,8 +2557,7 @@ void mapLoadNodeAsset(s32 id) {
 
 #define MAP_ZONE_SLOT (*(MapZone **)slot)
 void mapNodeAssetParse(u8 *data) {
-    s32 *word;
-    s32 *end;
+    s32 pad[2];
     s16 n;
     s32 i;
     s16 idx;
@@ -2566,10 +2565,9 @@ void mapNodeAssetParse(u8 *data) {
     s32 slot; // FAKE: integer-typed slot address (a MapZone ** local recolours the parse loop)
     void *zone;
 
-    word = (s32 *)(&gMapCellBoxes + 1); end = (s32 *)&D_807F7138; // FAKE: same-line statements steer lui/addiu scheduling; the neighbour-symbol spelling keeps this address a separate web from the loop table base
-    do {
-        *word++ = 0;
-    } while (word < end);
+    for (i = 0; i < 32; i++) {
+        gMapZones[i] = NULL;
+    }
     if (data == NULL) {
         return;
     }

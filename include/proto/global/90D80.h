@@ -3,7 +3,7 @@
 #define PROTO_GLOBAL_90D80_H
 #include "common.h"
 #include "actor.h"
-struct CsCountdown;
+#include "cutscene.h"
 #ifndef PROTO_SKIP_texCacheReset
 void texCacheReset(void);
 #endif
