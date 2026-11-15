@@ -1,8 +1,8 @@
 # critterBattleArenaUpdate (critter, src/critter/5110.c)
 ## Sites
-- critter:80029118:other:649ae8 other: D_807FCC40[2] read vs D_807FCC44 clear. Both are gPlayerInventoryTable+0x2F4 (0x807FCC44). Two symbols give two lui pairs (0x48 `lhu v1,%lo+4(v1)`, 0x5c `sh zero,%lo(at)`); one symbol shares a base in a3.
-- critter:80029118:other:1fa591 other: REMOVED (this unit). The plain argument is fdiff 0. The target reads the unset sp+0x77 on the default path (0x1c0 -> 0x1ec), so clint's NEW UNINIT is the original flow (Q0752).
-- critter:80029118:dead-if:68dc48 dead-if: the dead read raises rewardFlag's priority so it is coloured into v0. The target loads the unset home with `lw v0,0x70(sp)` on the default path (0x4dc).
+- critter:80029118:other:28c4ff other (was 649ae8): REMOVED (HackcritterBattleArenaUpdate2). The `D_807FCC44 = 0` split-label clear is replaced by `u16 *throwAmmo = &gPlayerInventoryTable[0].throwAmmo;`. The pointer is initialised at its declaration and takes pad88's slot. It is used for the read, the clear and the 0xFE restore. Result: text=0, RELOC-EQUIV OK.
+- critter:80029118:other:1fa591 other: REMOVED. The plain argument is fdiff 0. The target reads the unset sp+0x77 on the default path (0x1c0 -> 0x1ec), so clint's NEW UNINIT is the original flow (Q0752).
+- critter:80029118:dead-if:68dc48 dead-if: REMOVED (PermBatch1114c). The fix was a named rewardFlag store in the tamper branch (Q0846).
 ## Attempts
 - round 27 (opus:low): u8 pun -> u16 array (tagged); plain mapChallengeIdx (fdiff 0, clint NEW UNINIT); uopt_trace on the dead read; permute x3; table spelling (base CSE).
 - 2026-11-14 U HackcritterBattleArenaUpdate (opus:high):
@@ -16,13 +16,24 @@
   - reconstruct, all plain: 11 r + 7 | + 3 extra
   - compare chains confirmed (no jump tables)
   - review: alignment loop -> `while ((s32)alignedBuf & 7) alignedBuf++;` (fdiff 0)
+- 2026-11-14 OwnerInventorySplitLabels: read and restore moved to the table spelling (RELOC-EQUIV OK). The steer now sits on the clear only (649ae8 -> 28c4ff).
+- 2026-11-15 HackcritterBattleArenaUpdate2 (opus:high), 28c4ff:
+  - uopt_trace -l5 with the table spelling on the clear: the gPlayerInventoryTable lda (const 12) gets live range 155 in bb2 with 2 uses, adjsave 1.0. It is coloured into a3.
+  - Split label at base: the clear's lda is its own const (14), and its single use is not coloured.
+  - variants try (full/text):
+    - Clear spelled as `[0].`, `->`, `(&[0])->`, `*&` (with the read as `[0]` or `->`): 7/5 (base CSE).
+    - Read without tmp: 120/114.
+    - A field pointer or `PlayerInventory *` added as a new local: 28-33 (frame -0x98 only).
+    - A field pointer in pad88's or pad2's slot, initialised at its declaration: 2/0. This holds for the clear only, read+clear, read only, and all three accesses.
+    - The same pointer assigned inside the block: 7/5 (the web re-forms).
+  - Kept: the pointer is used for all three accesses. fdiff --reloc-ok exit 0. clint uninit exit 0 (pre-existing mapChallengeIdx/rewardFlag only). Raw words are equal except the sh at 0x60 (LO16 addend 0x2f4 vs 0, both 0x807FCC44).
 ## Untried ideas
-- 649ae8: a header carve that gives 0x807FCC40-0x807FCC48 (unk2F0..unk2F8) a natural name that is read through one object and written through another. No natural candidate: the read and the clear hit the same field.
-- 68dc48: a real second use of rewardFlag that emits no code (none found). A uopt -l 6 trace of the removed copy to compare rewardFlag's priority against the colouring threshold.
+- none open.
 ## Evidence
 - frame `addiu sp,sp,-144`
 - challengeState in s0 (lw s0,0x174(t6) at 0x34)
 - gCurrentActor CSE temp spilled at sp+0x30
+- throwAmmo read `lui v1; lhu v1,%lo+0x2f4(v1)` at 0x48/0x4c; clear `lui at; sh zero,%lo(at)` at 0x5c/0x60; restore `lui at` 0x510 / `sh a2,%lo+0x2f4(at)` 0x520
 - mapChallengeIdx home sp+0x74 (sw at 0x1cc-0x1e0, lbu 0x77 at 0x1ec)
 - rewardFlag home sp+0x70 (v0, lw on the default path at 0x4dc)
 - returnMap/returnExit at sp+0x3c/0x38
