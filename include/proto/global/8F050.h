@@ -18,10 +18,10 @@ void actorConfigApplyAnimFrameByType(Actor *, s32, s32);
 #ifndef PROTO_SKIP_actorProximityUpdate
 void actorProximityUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_8068A764
-void func_8068A764(Actor *, u8);
+#ifndef PROTO_SKIP_actorSetSegmentFlag
+void actorSetSegmentFlag(Actor *, u8);
 #endif
-#ifndef PROTO_SKIP_func_8068A784
-void func_8068A784(Actor *, u8);
+#ifndef PROTO_SKIP_actorClearSegmentFlag
+void actorClearSegmentFlag(Actor *, u8);
 #endif
 #endif

@@ -209,7 +209,7 @@ u32 D_8076A0CC;
 u8 D_8076A0D0[48];
 u32 D_8076A100;
 u8 D_8076A104;
-s8 D_8076A105;
+s8 gMpWinnerIndex;
 u16 D_8076A106;
 OSMesg D_8076A108[2];
 OSMesgQueue gBootDelayMesgQueue;

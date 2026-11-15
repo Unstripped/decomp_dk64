@@ -13,7 +13,7 @@ extern s8 D_80746834;
 OSContStatus D_807ECCD0[4];
 OSMesg D_807ECCE0[4];
 OSMesgQueue D_807ECCF0;
-u8 D_807ECD08;
+u8 gContReadPending;
 u8 D_807ECD09;
 OSContPad D_807ECD10[4];
 OSContPad D_807ECD28[4];
@@ -44,7 +44,7 @@ u8 controllerInit(void) {
     if (!(D_807ECD09 & 1)) {
         D_807ECD09 = 0;
     }
-    D_807ECD08 = 0;
+    gContReadPending = 0;
     D_807ECDE8 = D_807ECD10;
     D_807ECDF4 = D_807ECD28;
     controllerSetActiveMask(0xFF);
@@ -55,17 +55,17 @@ u8 controllerInit(void) {
 void controllerStartRead(void) {
     controllerWaitRead();
     if (D_807467C4 == 0) {
-        D_807ECD08 = 1;
+        gContReadPending = 1;
         osContStartReadData(&D_807ECCF0);
     }
 }
 
 void controllerWaitRead(void) {
-    if (D_807ECD08 != 0) {
+    if (gContReadPending != 0) {
         D_80746834 = 2;
         osRecvMesg(&D_807ECCF0, NULL, OS_MESG_BLOCK);
         D_80746834 = 0;
-        D_807ECD08 = 0;
+        gContReadPending = 0;
     }
 }
 
@@ -115,10 +115,10 @@ u8 controllerGetActiveMask(void) {
 }
 
 void controllerGetReadData(OSContPad *pad) {
-    if (D_807467C4 == 0 && D_807ECD08 != 0) {
+    if (D_807467C4 == 0 && gContReadPending != 0) {
         osContGetReadData(pad);
     }
-    D_807ECD08 = 0;
+    gContReadPending = 0;
 }
 
 extern u8 D_807463B8;
@@ -150,8 +150,8 @@ void controllerUpdate(void) {
     gContPadCur.button = 0;
     gContPadCur.stick_x = 0;
     gContPadCur.stick_y = 0;
-    if (D_807ECD08 != 0 || D_807467C4 != 0) {
-        if (D_807467C4 == 0 && D_807ECD08 != 0) {
+    if (gContReadPending != 0 || D_807467C4 != 0) {
+        if (D_807467C4 == 0 && gContReadPending != 0) {
             D_80746834 = 3;
             osRecvMesg(&D_807ECCF0, NULL, OS_MESG_BLOCK);
             D_80746834 = 0;

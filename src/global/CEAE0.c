@@ -543,8 +543,8 @@ done:
 
 
 extern f32 gKongTurnDecelRates[];
-extern f32 D_80753234[];
-extern s16 D_8075326C[];
+extern f32 gKongAirAccel[];
+extern s16 gKongTurnRate[];
 extern f32 D_80753218[];
 extern s32 gCurrentMap;
 extern u8 D_807463B8;
@@ -684,8 +684,8 @@ void playerUpdateScaleAndPhysics(void) {
                 scale = 0.5f;
             }
             gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex] * scale;
-            gActivePlayerState->airAccel = D_80753234[gCurrentCharacterIndex] * scale;
-            gActivePlayerState->turnRate = (s32)(D_8075326C[gCurrentCharacterIndex] * scale);
+            gActivePlayerState->airAccel = gKongAirAccel[gCurrentCharacterIndex] * scale;
+            gActivePlayerState->turnRate = (s32)(gKongTurnRate[gCurrentCharacterIndex] * scale);
         }
         if (gCurrentActor->state != 0x7C || (gCurrentActor->state == 0x7C && gActivePlayerState->statusEffectTimer == 1)) {
             gActivePlayerState->statusEffectTimer--;
@@ -713,7 +713,7 @@ void playerCheckQueueDropCallback(void) {
     }
 }
 
-extern f32 gKongCannonInitialPitch[];
+extern f32 gKongDecelRate[];
 
 void playerCheckLandingSfx(void) {
     if ((gCurrentActor->contactFlags & 0x21) == 1) {
@@ -724,9 +724,9 @@ void playerCheckLandingSfx(void) {
             gCurrentActor->state = 0xF;
             gCurrentActor->unk155 = 0;
             gCurrentActor->terminalSpeedY = -900.0f;
-            gActivePlayerState->turnRate = D_8075326C[gCurrentCharacterIndex];
-            gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
-            gActivePlayerState->airAccel = D_80753234[gCurrentCharacterIndex];
+            gActivePlayerState->turnRate = gKongTurnRate[gCurrentCharacterIndex];
+            gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
+            gActivePlayerState->airAccel = gKongAirAccel[gCurrentCharacterIndex];
             actorScriptStartByIndex(gCurrentActor, 0x5E);
             gCurrentActor->contactFlags |= 0x20;
             actorScriptExecute(gCurrentActor);
@@ -2257,9 +2257,9 @@ void playerSetCarryMoveParams(void) {
 extern f32 D_80753338[];
 
 void playerSetNormalMoveParams(void) {
-    gActivePlayerState->turnRate = D_8075326C[gCurrentCharacterIndex];
-    gActivePlayerState->airAccel = D_80753234[gCurrentCharacterIndex];
-    gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
+    gActivePlayerState->turnRate = gKongTurnRate[gCurrentCharacterIndex];
+    gActivePlayerState->airAccel = gKongAirAccel[gCurrentCharacterIndex];
+    gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
     gActivePlayerState->unk34 = D_80753170[gCurrentCharacterIndex];
     if (gActivePlayerState->gunDrawn != 0) {
         gActivePlayerState->targetSpeed = D_80753338[gCurrentCharacterIndex];
@@ -2572,7 +2572,7 @@ void playerClampWaterSurfaceHeight(Actor *unused) {
         gCurrentActor->y = gCurrentActor->waterY - height;
         gCurrentActor->speedY = 0.0f;
         actorScriptStartByIndex(gCurrentActor, 0x3D);
-        gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
+        gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
         gCurrentActor->state = 0x4E;
         gCurrentActor->unk155 = 0;
     }

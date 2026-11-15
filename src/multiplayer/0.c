@@ -60,7 +60,7 @@ extern u8 D_1000118[];
 extern u8 D_20000C0[];
 
 extern u8 gPlayerCount;
-extern s8 D_8076A105;
+extern s8 gMpWinnerIndex;
 typedef struct MpSpawnPoint {
     s16 x;
     s16 y;
@@ -76,7 +76,7 @@ typedef struct MpMapEntry {
     s32 modelIds[4];
     char pad1C[4];
 } MpMapEntry;
-extern MpMapEntry D_80026FA4[];
+extern MpMapEntry mpMapSpawnTable[];
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
 extern PlayerStruct *gPlayerSlots;
@@ -162,7 +162,7 @@ void mpDetermineWinner(MpControllerState *controllerState) {
     }
     gGlobalPauseFlags |= 0x40001;
     menuReturnToTitleWithMode3();
-    D_8076A105 = winnerIndex;
+    gMpWinnerIndex = winnerIndex;
 }
 
 void mpUpdateMatchTimer(void) {
@@ -402,8 +402,8 @@ MpMapEntry *mpFindCurrentMapEntry(void) {
     MpMapEntry *ret = NULL;
 
     for (i = 0; (i < 4U) && (ret == NULL); i++) {
-        if (gCurrentMap == D_80026FA4[i].mapId) {
-            ret = &D_80026FA4[i];
+        if (gCurrentMap == mpMapSpawnTable[i].mapId) {
+            ret = &mpMapSpawnTable[i];
         }
     }
     return ret;
@@ -704,14 +704,14 @@ void mpFreeHudIcons(MpControllerState *controllerState) {
 extern ALBank *D_8076D1F8;
 extern SchedStruct gScheduler;
 extern u64 D_807445B0;
-extern u8 D_80026F70;
+extern u8 mpSfxFlags;
 
 typedef struct MpHudIconTableEntry {
     void *asset;
     f32 scale;
     s32 param;
 } MpHudIconTableEntry;
-extern MpHudIconTableEntry D_80027024[];
+extern MpHudIconTableEntry mpHudIconTable[];
 
 void mpUpdate(void) {
     MpControllerState *state;
@@ -741,7 +741,7 @@ void mpUpdate(void) {
         state->volume = 0;
         state->volumeTarget = 0;
         n_alSndpPlay(D_8076D1F8, 0x1E6, 0, 0x40, 1.0f, 0x80, &state->ambientSound);
-        D_80026F70 = 0;
+        mpSfxFlags = 0;
         switch (D_807552E4.gameMode) {
         case 3:
         case 5:
@@ -820,14 +820,14 @@ void mpUpdate(void) {
                 effectEnableFade();
                 effectSetDuration(-1);
                 effectSetMode(0);
-                effectSetParam(D_80027024[j].param);
+                effectSetParam(mpHudIconTable[j].param);
                 if (j == 0) {
                     x = (f32)(vp->left + 0xB);
                 } else {
                     x = (f32)(vp->right - 0xB);
                 }
                 y = (f32)(vp->bottom - 0xB);
-                state->hudIcons[j * gPlayerCount + k] = effectCreateAtPosition(D_80027024[j].asset, D_80027024[j].scale, x, y, -10.0f);
+                state->hudIcons[j * gPlayerCount + k] = effectCreateAtPosition(mpHudIconTable[j].asset, mpHudIconTable[j].scale, x, y, -10.0f);
             }
         }
         state->hudIconsShown = 1;
@@ -847,19 +847,19 @@ void mpUpdate(void) {
         state->volume = volumeRamp;
     }
     n_alSndpPostEvent(state->ambientSound, 8, state->volume);
-    if (D_80026F70 & 0x80) {
+    if (mpSfxFlags & 0x80) {
         state->volumeTarget = 0x7FFF;
-        D_80026F70 &= ~0x80;
+        mpSfxFlags &= ~0x80;
     }
-    if (D_80026F70 & 7) {
+    if (mpSfxFlags & 7) {
         if (gScheduler.unk280 - state->sfxLastTick >= 6) {
             state->sfxLastTick = gScheduler.unk280;
             state->sfxStep = 0;
             sfxId = 0x1E8;
-            if (D_80026F70 & 4) {
+            if (mpSfxFlags & 4) {
                 sfxId = 0x1EA;
-            } else if (D_80026F70 & 3) {
-                if ((D_80026F70 & 2) * 300 + 500 < (randomNonNegative() >> 15) % 1000) {
+            } else if (mpSfxFlags & 3) {
+                if ((mpSfxFlags & 2) * 300 + 500 < (randomNonNegative() >> 15) % 1000) {
                     if (((randomNonNegative() >> 15) % 1000) & 1) {
                         sfxId = 0x1E7;
                     } else {
@@ -875,7 +875,7 @@ void mpUpdate(void) {
         } else {
             state->volumeTarget = volumeBoost;
         }
-        D_80026F70 &= ~7;
+        mpSfxFlags &= ~7;
     }
     if (state->sfxStep * 35 + 0x384 < gScheduler.unk280 - state->sfxLastTick) {
         sfxPlayOnFreeSlot(0x1E9, state->sfxStep * 3000 + 0x511F, 64.0f, 1.0f, 0xA, 0x80);
@@ -890,7 +890,7 @@ void mpUpdate(void) {
 
 
 void mpSetFlags(u8 flags) {
-    D_80026F70 |= flags;
+    mpSfxFlags |= flags;
 }
 
 extern PlayerState *gActivePlayerState;

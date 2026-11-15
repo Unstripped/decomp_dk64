@@ -86,8 +86,8 @@ void eepromSaveRecordsAll(void);
 #ifndef PROTO_SKIP_eepromSaveRecordsOffset
 void eepromSaveRecordsOffset(void);
 #endif
-#ifndef PROTO_SKIP_eepromHalveRecords
-void eepromHalveRecords(void);
+#ifndef PROTO_SKIP_eepromRefillHalfConsumables
+void eepromRefillHalfConsumables(void);
 #endif
 #ifndef PROTO_SKIP_eepromLoadPlayerData
 void eepromLoadPlayerData(u8, s32);

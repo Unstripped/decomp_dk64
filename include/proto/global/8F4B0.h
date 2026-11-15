@@ -20,11 +20,11 @@ s32 cutsceneTriggerCheck(s16);
 #ifndef PROTO_SKIP_actorCutsceneDispatchEvents
 void actorCutsceneDispatchEvents(void);
 #endif
-#ifndef PROTO_SKIP_enemyAggroEnable
-void enemyAggroEnable(void);
+#ifndef PROTO_SKIP_weatherTriggerLightningFlash
+void weatherTriggerLightningFlash(void);
 #endif
-#ifndef PROTO_SKIP_enemyAggroResetUnk21
-void enemyAggroResetUnk21(void);
+#ifndef PROTO_SKIP_cutsceneLightReset
+void cutsceneLightReset(void);
 #endif
 #ifndef PROTO_SKIP_func_8068B830
 void func_8068B830(s16, s16, s16);

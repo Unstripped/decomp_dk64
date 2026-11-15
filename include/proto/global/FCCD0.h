@@ -40,8 +40,8 @@ void slotQueueCancel();
 #ifndef PROTO_SKIP_func_806F8DC4
 void func_806F8DC4(u8 *, s32, s32);
 #endif
-#ifndef PROTO_SKIP_func_806F8EB4
-s32 func_806F8EB4(void);
+#ifndef PROTO_SKIP_countBananaFairies
+s32 countBananaFairies(void);
 #endif
 #ifndef PROTO_SKIP_slotQueueGetMaxValue
 u16 slotQueueGetMaxValue(s32, s32);

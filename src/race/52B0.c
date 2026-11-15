@@ -171,7 +171,7 @@ void raceCompetitorMotionUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern s16 D_80750AC8;
+extern s16 gTextNumberArg;
 extern RaceCurvePoint D_8002FC20[];
 extern RaceVec3f D_8002FC50;
 
@@ -389,7 +389,7 @@ void raceOpponentRacerBehaviorUpdate(void) {
         gCurrentActor->x = D_807FDCA0->entries[idx].x;
         gCurrentActor->y = D_807FDCA0->entries[idx].y;
         gCurrentActor->z = D_807FDCA0->entries[idx].z;
-        D_80750AC8 = 0xA;
+        gTextNumberArg = 0xA;
     }
     if (target->startCountdown != 0) {
         target->startCountdown--;

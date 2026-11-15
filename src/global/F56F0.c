@@ -37,33 +37,33 @@ void playerKongStopAudioChannels(Actor *actor, u16 actorType) {
     switch (actorType) {
     case 0xC5:
     case 3:
-        func_8068A784(actor, 0);
-        func_8068A784(actor, 1);
-        func_8068A784(actor, 2);
+        actorClearSegmentFlag(actor, 0);
+        actorClearSegmentFlag(actor, 1);
+        actorClearSegmentFlag(actor, 2);
         break;
     case 0xC8:
     case 6:
-        func_8068A764(actor, 0);
-        func_8068A784(actor, 1);
+        actorSetSegmentFlag(actor, 0);
+        actorClearSegmentFlag(actor, 1);
         break;
     case 0xC6:
     case 4:
-        func_8068A764(actor, 0);
-        func_8068A784(actor, 1);
+        actorSetSegmentFlag(actor, 0);
+        actorClearSegmentFlag(actor, 1);
         break;
     case 0xC7:
     case 5:
-        func_8068A764(actor, 0);
-        func_8068A784(actor, 1);
+        actorSetSegmentFlag(actor, 0);
+        actorClearSegmentFlag(actor, 1);
         break;
     case 0xC4:
     case 2:
-        func_8068A764(actor, 0);
-        func_8068A784(actor, 1);
+        actorSetSegmentFlag(actor, 0);
+        actorClearSegmentFlag(actor, 1);
         break;
     case 7:
-        func_8068A764(actor, 1);
-        func_8068A784(actor, 0);
+        actorSetSegmentFlag(actor, 1);
+        actorClearSegmentFlag(actor, 0);
         break;
     }
 }
@@ -97,37 +97,37 @@ void playerKongStopSoundByState(Actor *actor) {
     case 1:
     case 2:
     case 3:
-        func_8068A784(actor, 0);
-        func_8068A784(actor, 1);
+        actorClearSegmentFlag(actor, 0);
+        actorClearSegmentFlag(actor, 1);
         break;
     case 0xC:
     case 0xD:
     case 0xE:
     case 0xF:
     case 0x10:
-        func_8068A764(actor, 0);
-        func_8068A784(actor, 1);
+        actorSetSegmentFlag(actor, 0);
+        actorClearSegmentFlag(actor, 1);
         break;
     case 0xDB:
-        func_8068A764(actor, 1);
-        func_8068A784(actor, 0);
+        actorSetSegmentFlag(actor, 1);
+        actorClearSegmentFlag(actor, 0);
         break;
     case 6:
     case 7:
     case 8:
-        func_8068A764(actor, 0);
-        func_8068A784(actor, 1);
+        actorSetSegmentFlag(actor, 0);
+        actorClearSegmentFlag(actor, 1);
         break;
     case 9:
     case 0xA:
     case 0xB:
-        func_8068A764(actor, 0);
-        func_8068A784(actor, 1);
+        actorSetSegmentFlag(actor, 0);
+        actorClearSegmentFlag(actor, 1);
         break;
     case 4:
     case 5:
-        func_8068A764(actor, 0);
-        func_8068A784(actor, 1);
+        actorSetSegmentFlag(actor, 0);
+        actorClearSegmentFlag(actor, 1);
         break;
     }
     if (actor->collisionFlags & 1) {
@@ -140,41 +140,41 @@ void playerKongStopSoundByState(Actor *actor) {
 }
 
 
-void playerKongPlaySoundByState(Actor *actor) {
+void playerKongDrawGun(Actor *actor) {
     s32 pad;
     PlayerState *extra;
 
     switch (controllerLookupStateByHash(actor)) {
     case 1:
     case 2:
-        func_8068A764(actor, 0);
-        func_8068A764(actor, 1);
+        actorSetSegmentFlag(actor, 0);
+        actorSetSegmentFlag(actor, 1);
         break;
     case 0xC:
     case 0xD:
     case 0xE:
     case 0xF:
     case 0x10:
-        func_8068A784(actor, 0);
-        func_8068A764(actor, 1);
+        actorClearSegmentFlag(actor, 0);
+        actorSetSegmentFlag(actor, 1);
         break;
     case 0xDB:
-        func_8068A784(actor, 1);
-        func_8068A764(actor, 0);
+        actorClearSegmentFlag(actor, 1);
+        actorSetSegmentFlag(actor, 0);
         break;
     case 6:
     case 7:
-        func_8068A784(actor, 0);
-        func_8068A764(actor, 1);
+        actorClearSegmentFlag(actor, 0);
+        actorSetSegmentFlag(actor, 1);
         break;
     case 9:
     case 0xA:
-        func_8068A784(actor, 0);
-        func_8068A764(actor, 1);
+        actorClearSegmentFlag(actor, 0);
+        actorSetSegmentFlag(actor, 1);
         break;
     case 4:
-        func_8068A784(actor, 0);
-        func_8068A764(actor, 1);
+        actorClearSegmentFlag(actor, 0);
+        actorSetSegmentFlag(actor, 1);
         break;
     }
     if (actor->collisionFlags & 1) {
@@ -395,13 +395,13 @@ void playerWeaponCalculateTrajectory7(Actor *actor, BoneRotation *slots, s32 *co
     s32 index;
     u16 angle;
     angle = 7U;  // FAKE: the bound shares angle with the table value (one register)
-    index = gActivePlayerState->unk8E - 0x14;
+    index = gActivePlayerState->recoilTimer - 0x14;
     if ((index >= 0) && ((u32) index < angle)) {
         angle = D_80752F20[index];
         slots[*count].weight = 0x7F;
-        slots[*count].bone = gActivePlayerState->unk91 != 0 ? 9 : 8;
+        slots[*count].bone = gActivePlayerState->lastFireHand != 0 ? 9 : 8;
         slots[*count].rotX = 0;
-        slots[*count].rotY = gActivePlayerState->unk91 != 0 ? angle : -angle;
+        slots[*count].rotY = gActivePlayerState->lastFireHand != 0 ? angle : -angle;
         slots[*count].rotZ = 0;
         *count += 1;
     }
@@ -413,7 +413,7 @@ void playerWeaponCalculateTrajectory4(Actor *actor, BoneRotation *slots, s32 *co
     s32 index;
     u16 angle;
     angle = 4U;  // FAKE: the bound shares angle with the table value (one register)
-    index = gActivePlayerState->unk8E - 0x14;
+    index = gActivePlayerState->recoilTimer - 0x14;
     if ((index >= 0) && ((u32) index < angle)) {
         angle = D_80752F30[index];
         slots[*count].weight = 0x7F;
@@ -435,7 +435,7 @@ void playerWeaponCalculateTrajectory22(Actor *actor, BoneRotation *slots, s32 *c
     u16 angle;
 
     angle = 0x16;  // FAKE: the base shares the angle register with the table value (Q0214)
-    tableIndex = gActivePlayerState->unk8E - angle;
+    tableIndex = gActivePlayerState->recoilTimer - angle;
     if ((tableIndex >= 0) && ((u32)tableIndex < 4U)) {
         angle = D_80752F38[tableIndex];
         slots[*count].weight = 0x7F;
@@ -450,7 +450,7 @@ void playerWeaponCalculateTrajectory22(Actor *actor, BoneRotation *slots, s32 *c
 void playerWeaponCalculateTrajectory23(Actor *actor, BoneRotation *slots, s32 *count) {
     u16 angle;
 
-    angle = D_80752F40[gActivePlayerState->unk8E];
+    angle = D_80752F40[gActivePlayerState->recoilTimer];
     slots[*count].weight = 0x7F;
     slots[*count].bone = 1;
     slots[*count].rotX = angle;
@@ -918,31 +918,31 @@ void playerWeaponReload(Actor *actor, PlayerState *ps, u16 weapon) {
 
     switch (weapon) {
     case 0:
-        state0 = ps->unk8E;
+        state0 = ps->recoilTimer;
         if (state0 != 0) {
-            if ((state0 == 0x10) && (ps->unk8F < 4)) {
-                ps->unk8F = 0;
+            if ((state0 == 0x10) && (ps->recentShotCount < 4)) {
+                ps->recentShotCount = 0;
                 return;
             }
-        } else if (ps->unk8F >= 4) {
+        } else if (ps->recentShotCount >= 4) {
             effectSpawnBoneWhite(actor, 0xA, 0.3f, 0.0f, 0.0f, 0.0f, -10);
         }
         break;
     case 1:
-        selector = ps->unk8E;
+        selector = ps->recoilTimer;
         shouldSpawn = 0;
         if ((selector != 0) && (selector != 3)) {
-            if ((selector == 0x10) && (ps->unk8F < 6)) {
-                ps->unk8F = 0;
+            if ((selector == 0x10) && (ps->recentShotCount < 6)) {
+                ps->recentShotCount = 0;
             }
-        } else if (ps->unk8F >= 6) {
+        } else if (ps->recentShotCount >= 6) {
             shouldSpawn = 1;
         }
         if (shouldSpawn != 0) {
-            if (ps->unk8E != 0) {
+            if (ps->recoilTimer != 0) {
                 bone = ps->gunHand + 9;
             } else {
-                bone = ps->unk91 + 9;
+                bone = ps->lastFireHand + 9;
             }
             effectSpawnBoneWhite(actor, bone, 0.2f, 0.0f, 0.0f, 0.0f, -10);
             return;
@@ -950,13 +950,13 @@ void playerWeaponReload(Actor *actor, PlayerState *ps, u16 weapon) {
         break;
     case 4:
     case 5:
-        state2 = ps->unk8E;
+        state2 = ps->recoilTimer;
         if (state2 != 0) {
-            if ((state2 == 0x10) && (ps->unk8F < 3)) {
-                ps->unk8F = 0;
+            if ((state2 == 0x10) && (ps->recentShotCount < 3)) {
+                ps->recentShotCount = 0;
                 return;
             }
-        } else if (ps->unk8F >= 3) {
+        } else if (ps->recentShotCount >= 3) {
             effectSpawnBoneWhite(actor, 0xA, 0.6f, 0.0f, 0.0f, 0.0f, -10);
         }
         break;
@@ -993,7 +993,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
         case 0:
             playerWeaponUpdateHomingTarget(actor, slots, &slotCount);
             playerWeaponAimTarget(actor, slots, &slotCount);
-            if (ps->unk8E != 0) {
+            if (ps->recoilTimer != 0) {
                 playerWeaponCalculateTrajectory4(actor, slots, &slotCount);
             }
             break;
@@ -1017,7 +1017,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
                 break;
             }
             playerWeaponInitCrosshair(actor, slots, &slotCount);
-            if (ps->unk8E != 0) {
+            if (ps->recoilTimer != 0) {
                 playerWeaponCalculateTrajectory7(actor, slots, &slotCount);
             }
             break;
@@ -1074,13 +1074,13 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
             break;
         case 3:
             playerWeaponSpawnProjectile(actor, slots, &slotCount);
-            if (ps->unk8E != 0) {
+            if (ps->recoilTimer != 0) {
                 playerWeaponCalculateTrajectory23(actor, slots, &slotCount);
             }
             break;
         case 4:
         case 5:
-            if (ps->unk8E != 0) {
+            if (ps->recoilTimer != 0) {
                 playerWeaponCalculateTrajectory22(actor, slots, &slotCount);
             }
             break;
@@ -1090,14 +1090,14 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
         slots[slotCount].weight = 0;
         entries[entryCount].bone = 0xFF;
         offsets->bone = 0xFF;
-        if (ps->unk8E != 0) {
-            ps->unk8E -= 1;
+        if (ps->recoilTimer != 0) {
+            ps->recoilTimer -= 1;
             if (ps->gunDrawn != 0) {
                 playerWeaponReload(actor, ps, weapon);
             }
         }
-        if (ps->unk8E == 0) {
-            ps->unk8F = 0;
+        if (ps->recoilTimer == 0) {
+            ps->recentShotCount = 0;
         }
     }
 }

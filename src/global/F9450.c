@@ -1211,7 +1211,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                         if (mpIsMatchType(0) != 0) {
                                             ps = player->customState;
                                             if (ps->gunDrawn == 0) {
-                                                playerKongPlaySoundByState(player);
+                                                playerKongDrawGun(player);
                                                 playerResumeLocomotion(player);
                                             }
                                         }

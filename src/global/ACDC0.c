@@ -90,7 +90,7 @@ extern u8 D_807505F8[];
 extern s8 D_807FC80E;
 extern s8 gPausingPlayer;
 extern PlayerStruct *gPlayerSlots;
-extern s8 D_8076A105;
+extern s8 gMpWinnerIndex;
 
 Gfx *renderRotatedSprite(Gfx *, u16, s32, u8, u8, u8, s16, s16, f32, f32, s32, f32); // FAKE: callee prototype steer
 f32 sqrtf(f32);
@@ -1708,7 +1708,7 @@ void hudTwoOptionMenuUpdate(void) {
             }
             heapFreeDeferred(D_807FC7E0);
         } else if (gCurrentActor->unk155 == 1) {
-            D_8076A105 = -1;
+            gMpWinnerIndex = -1;
             menuReturnToTitleWithMode3();
             gCurrentActor->unk155 = 2;
         }

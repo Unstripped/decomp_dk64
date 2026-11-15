@@ -14,8 +14,8 @@ void playerPlayKongSpecificSfx(Actor *);
 #ifndef PROTO_SKIP_playerKongStopSoundByState
 void playerKongStopSoundByState(Actor *);
 #endif
-#ifndef PROTO_SKIP_playerKongPlaySoundByState
-void playerKongPlaySoundByState(Actor *);
+#ifndef PROTO_SKIP_playerKongDrawGun
+void playerKongDrawGun(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerKongClearFlagsByActorType
 void playerKongClearFlagsByActorType(Actor *);

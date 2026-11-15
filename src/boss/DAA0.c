@@ -51,7 +51,7 @@ typedef struct BossSpawnerState {
     /* 0x00 */ f32 baseY; // hover centre (y = baseY + 5 sin(yaw))
     /* 0x04 */ f32 lift; // 0..1, stepped by liftSpeed; drives the followers roll
     /* 0x08 */ f32 liftSpeed;
-    /* 0x0C */ s16 aggroTimer; // light flash + enemyAggroEnable when it runs out
+    /* 0x0C */ s16 aggroTimer; // light flash + weatherTriggerLightningFlash when it runs out
     /* 0x0E */ s16 introTimer;
     /* 0x10 */ s16 stepTimer; // frames/bounces in the current subState (reset on change)
     /* 0x12 */ s8 phase; // 0-3, advanced after each 3-hit round
@@ -139,7 +139,7 @@ void bossSpawnerUpdate(void) {
             cutsceneId = D_80035B44[D_80036DC0];
             gCurrentActor->segmentFlags = 0;
             for (i = 4; D_80036DC0 < i; i--) {
-                func_8068A764(gCurrentActor, D_80035B58[D_80035B44[i]]);
+                actorSetSegmentFlag(gCurrentActor, D_80035B58[D_80035B44[i]]);
             }
             D_80036DC0++;
             cutsceneId = D_80035B4C[cutsceneId];
@@ -426,7 +426,7 @@ void bossSpawnerUpdate(void) {
     if (state->aggroTimer < 0) {
         state->aggroTimer = (randomLcgNext() & 0x7F) + 0x5A;
         lightSetColor(0.5f, 0.5f, 0.5f, -1);
-        enemyAggroEnable();
+        weatherTriggerLightningFlash();
     }
     D_80035B40 = bounceDir;
     actorUpdateModelMatrix(gCurrentActor, 0);

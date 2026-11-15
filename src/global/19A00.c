@@ -1568,7 +1568,7 @@ void scriptCmdNop(Actor *actor) {
 }
 
 extern f32 D_80753E48[];
-extern s16 D_80753E64[];
+extern s16 gKongMaxActiveProjectiles[];
 extern Actor *gActivePlayerActor;
 extern u8 gCurrentPlayerIndex;
 extern KongInventory *gCurrentKongInventory;
@@ -1587,7 +1587,7 @@ void projectileTrySpawnFromSlot(Actor *actor) {
 
     playerState = actor->customState;
     slotQueueUpdate(4, 0, 0);
-    if ((slotQueueGetValue(4, playerState->playerIndex) != 0) && (actorCountOwnedByClass(actor, 4, 0) < D_80753E64[gCurrentCharacterIndex])) {
+    if ((slotQueueGetValue(4, playerState->playerIndex) != 0) && (actorCountOwnedByClass(actor, 4, 0) < gKongMaxActiveProjectiles[gCurrentCharacterIndex])) {
         slotQueueAddValue(4, playerState->playerIndex, -1);
         speed = actor->sub4->scaleY * 2.6666667064030967;
         switch (actor->actorType) {

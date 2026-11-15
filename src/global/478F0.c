@@ -474,7 +474,7 @@ typedef struct CsFlicker {
 extern u8 gGameMode;
 extern f32 D_807480DC;
 extern u8 D_8077058C;
-extern u8 D_80770DC9;
+extern u8 gAmbientIndoors;
 extern f32 D_80770DCC;
 extern f32 D_80770DD0;
 extern f32 D_80770DD4;
@@ -538,7 +538,7 @@ void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
             f->timer--;
             if ((randomNonNegative() >> 15) % 10 == 5) {
                 if (dist < 2200.0f) {
-                    if (D_80770DC9 != 0) {
+                    if (gAmbientIndoors != 0) {
                         if (D_80770DD4 < 600.0f) {
                             sfxPlayOnFreeSlot(0x9C, (s32)(((fade * 32767.0f * 60.0f / 255.0f) * (600.0 - D_80770DD4)) / 1000.0), D_80770DCC, 0.8f, 0x1E, (u32)D_80770DD0);
                         }
@@ -2989,7 +2989,7 @@ void csCmdCamShakeOnAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-extern s16 D_80770628[];
+extern s16 gSfxSourceVoice[];
 extern f32 D_80770B68[];
 
 void csCmdPlayAnimSlotB(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -3000,7 +3000,7 @@ void csCmdPlayAnimSlotB(CsState *cs, s16 csId, s16 b, s16 c) {
 
     if (cs->unk10[0] >= 0) {
         modelAnimEntryGetState(csId, b, &anim, &animT, &animFlag);
-        slot = D_80770628[cs->unk10[0]];
+        slot = gSfxSourceVoice[cs->unk10[0]];
         D_80770B68[slot] = mathSinF((s16)(((f32)anim + animT) * 2048.0 - 1024.0)) * 0.3 + 1.3;
         D_80770BC0[slot] = 1.0f;
     }
@@ -3014,7 +3014,7 @@ void csCmdPlayAnimSlot1(CsState *cs, s16 csId, s16 b, s16 c) {
 
     if (cs->unk10[0] >= 0) {
         modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
-        slot = D_80770628[cs->unk10[0]];
+        slot = gSfxSourceVoice[cs->unk10[0]];
         D_80770B68[slot] = mathSinF((s16)((anim << 11) / 27)) + 0.3;
         D_80770BC0[slot] = 2.0f;
     }

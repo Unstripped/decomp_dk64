@@ -1170,7 +1170,7 @@ void playerInputUpdate5(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 D_80753234[];
+extern f32 gKongAirAccel[];
 
 void playerStateLongJump(void) {
     switch (gCurrentActor->unk155) {
@@ -1205,7 +1205,7 @@ void playerStateLongJump(void) {
                 playerApplyFullPhysics();
                 gActivePlayerState->airTimer--;
             } else {
-                gActivePlayerState->airAccel = D_80753234[gCurrentCharacterIndex];
+                gActivePlayerState->airAccel = gKongAirAccel[gCurrentCharacterIndex];
                 playerApplyFullPhysics();
             }
             if (gCurrentActor->actorType == 5) {
@@ -2279,7 +2279,7 @@ void playerStateSwimDrift(void) {
 }
 
 extern f32 gKongSwimStrokeSpeeds[];
-extern f32 D_80753094[];
+extern f32 gKongSwimStrokeMaxSpeeds[];
 
 void playerStateSwimStroke(void) {
     u8 flag;
@@ -2299,12 +2299,12 @@ void playerStateSwimStroke(void) {
             gCurrentActor->unk155++;
             /* fallthrough */
         case 1:
-            gActivePlayerState->maxSpeed = D_80753094[gCurrentCharacterIndex];
+            gActivePlayerState->maxSpeed = gKongSwimStrokeMaxSpeeds[gCurrentCharacterIndex];
             gActivePlayerState->targetYaw = gCurrentActor->moveYaw;
             mathAngleStepToward(&gCurrentActor->yaw, (gCurrentActor->moveYaw + 0x800) & 0xFFF, gActivePlayerState->turnRate * 2);
             playerApplyFullPhysics();
             gActivePlayerState->unk11C = 0xF;
-            gActivePlayerState->unk11D = 0;
+            gActivePlayerState->swimStrokeTriggered = 0;
             break;
         case 2:
             gCurrentActor->unk155++;
@@ -2313,15 +2313,15 @@ void playerStateSwimStroke(void) {
             break;
         case 3:
             flag = mpIsMatchType(0);
-            if (gActivePlayerState->unk11C == 0 && gActivePlayerState->unk11D == 0) {
+            if (gActivePlayerState->unk11C == 0 && gActivePlayerState->swimStrokeTriggered == 0) {
                 if (!flag) {
                     playerSpawnSpiralDriftEffects();
                 }
-                gActivePlayerState->unk11D = 1;
+                gActivePlayerState->swimStrokeTriggered = 1;
             } else {
                 gActivePlayerState->unk11C--;
             }
-            if (gActivePlayerState->unk11D != 0) {
+            if (gActivePlayerState->swimStrokeTriggered != 0) {
                 timer = gActivePlayerState->unk11C;
                 if (timer >= 0xBF) {
                     if (!flag && timer % 3 == 0) {
@@ -2818,7 +2818,7 @@ void playerStateEnterFallOnCheck(void) {
 }
 
 extern f32 D_80753CD0[];
-extern f32 gKongCannonInitialPitch[];
+extern f32 gKongDecelRate[];
 
 void playerStateDamageFallTumble(void) {
     f32 pad;
@@ -2896,7 +2896,7 @@ void playerStateDamageFallTumble(void) {
             break;
         case 3:
             sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x10, 0);
-            gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
+            gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
             gCurrentActor->unk155++;
             /* fallthrough */
         case 4:
@@ -3410,7 +3410,7 @@ void playerInputUpdate12(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern s16 D_8075326C[];
+extern s16 gKongTurnRate[];
 
 void playerStateTransformHold(void) {
     f32 dx;
@@ -3444,7 +3444,7 @@ void playerStateTransformHold(void) {
     gCurrentActor->z = gActivePlayerState->unkA0 + (gActivePlayerState->unkA8 - gActivePlayerState->unkA0) * gActivePlayerState->unkAC;
     playerApplyMotion();
     playerSelectWalkRunState(gCurrentActor, gActivePlayerState->unk94, gActivePlayerState->unk94, 0);
-    mathAngleStepToward(&gCurrentActor->yaw, (s16)gActivePlayerState->unk98, (s16)(D_8075326C[gCurrentCharacterIndex] / 2));
+    mathAngleStepToward(&gCurrentActor->yaw, (s16)gActivePlayerState->unk98, (s16)(gKongTurnRate[gCurrentCharacterIndex] / 2));
     gCurrentActor->moveYaw = gCurrentActor->yaw;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -4505,7 +4505,7 @@ void playerStateCutsceneTransition(void) {
         playerSelectWalkRunState(gCurrentActor, gCurrentActor->speedXZ, 0, 1);
     }
     if (gCurrentMap == 0x52) {
-        gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex] * 5.0;
+        gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex] * 5.0;
     }
     playerApplyFullPhysics();
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -4583,7 +4583,7 @@ void playerStateDialogueWait(void) {
     playerClearPitchRollFlags(gCurrentActor);
     switch (gCurrentActor->unk155) {
     case 0:
-        if (func_806F8EB4() == 0x14) {
+        if (countBananaFairies() == 0x14) {
             pathIndex = 0x1A;
         } else {
             pathIndex = 0x11;
@@ -4616,7 +4616,7 @@ void playerStateDialogueWait(void) {
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleX);
         gSpawnedActor->flags |= 0x40000000;
         light->effectActor = gSpawnedActor;
-        light->unk1E = func_806F8EB4() == 0x14;
+        light->unk1E = countBananaFairies() == 0x14;
         gCurrentActor->unk155 = 2;
         break;
     case 2:

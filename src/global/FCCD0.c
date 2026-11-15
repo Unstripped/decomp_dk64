@@ -163,7 +163,7 @@ void func_806F8278(u8 player) {
 
 extern s16 D_80744544;
 extern u16 D_80750AC4;
-extern u16 D_80750AC8;
+extern u16 gTextNumberArg;
 #ifndef NON_MATCHING
 #endif
 extern s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
@@ -309,7 +309,7 @@ void slotQueueInit(s32 reset) {
                     func_806F8004(-12.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 14:
-                    base[j].value = &D_80750AC8;
+                    base[j].value = &gTextNumberArg;
                     base[j].x = 0x1E; base[j].y = 0x26;
                     func_806F8004(15.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
@@ -466,7 +466,7 @@ void func_806F8DC4(u8 *alpha, s32 count, s32 slot) {
 }
 
 
-s32 func_806F8EB4(void) {
+s32 countBananaFairies(void) {
     return flagCountRange(0x24D, 0x14, 0);
 }
 
@@ -501,7 +501,7 @@ u16 slotQueueGetMaxValue(s32 slot, s32 player) {
         if (gPlayerCount >= 2) {
             max = 0xBB8;
         } else if (anyKongUsesAbilityEnergy() != 0) {
-            max = (func_806F8EB4() * 0x96) + 0xBB8;
+            max = (countBananaFairies() * 0x96) + 0xBB8;
         } else {
             max = 0;
         }
@@ -526,7 +526,7 @@ u16 slotQueueGetMaxValue(s32 slot, s32 player) {
         break;
     case 6:
         if (flagGet(0x179, 0) != 0) {
-            max = func_806F8EB4() + 0xA;
+            max = countBananaFairies() + 0xA;
         } else {
             max = 0;
         }
@@ -795,9 +795,9 @@ void slotQueueSpawnNodes(s32 slot) {
 }
 
 
-extern f32 D_807FD7A0[];
-extern f32 D_807FD7B8[];
-extern f32 D_807FD7D0[];
+extern f32 gSlotQueueKongIconX[];
+extern f32 gSlotQueueKongIconY[];
+extern f32 gSlotQueueKongIconScale[];
 
 void effectSpriteUpdatePosition(EffectNode *effect, u8 *done) {
     f32 *x;
@@ -805,14 +805,14 @@ void effectSpriteUpdatePosition(EffectNode *effect, u8 *done) {
     s32 i;
 
     i = effect->pair.lo;
-    x = &D_807FD7A0[i];
+    x = &gSlotQueueKongIconX[i];
     if (*x == -200.0f) {
         *done = 1;
         return;
     }
     effect->x = *x;
-    scale = &D_807FD7D0[i];
-    effect->y = D_807FD7B8[i];
+    scale = &gSlotQueueKongIconScale[i];
+    effect->y = gSlotQueueKongIconY[i];
     effect->scaleX = *scale;
     effect->scaleY = *scale;
     *x = -200.0f;
@@ -838,7 +838,7 @@ void slotQueueInitEffectSprites(s32 slot) {
         effectSetDuration(-1);
         effectSetCallback(effectSpriteUpdatePosition);
         effectSetSpeed(i);
-        D_807FD7A0[i] = -100.0f;
+        gSlotQueueKongIconX[i] = -100.0f;
         effectCreateAtPosition(D_80750518[i], 1.0f, -200.0f, 0.0f, -10.0f);
     }
 }
@@ -859,7 +859,7 @@ void slotQueueSpawnSingleNode(s32 slot) {
 
 extern Gfx D_1000118;
 extern Mtx D_2000080;
-extern u8 D_807FD7E4;
+extern u8 gSlotQueueLabelAlpha;
 
 Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     SlotQueueLabel *label;
@@ -891,7 +891,7 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     gSPMatrix(gfx++, &label->mtx[gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gDPPipeSync(gfx++);
     gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, alpha);
-    D_807FD7E4 = alpha;
+    gSlotQueueLabelAlpha = alpha;
     gSPDisplayList(gfx++, &D_1000118);
     gDPSetCombineLERP(gfx++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
     viewport = cameraFindViewportEntry(0);
@@ -946,11 +946,11 @@ Gfx *slotQueueDrawPlayerLabels(s32 slot, SlotQueueNode *node, Gfx *gfx) {
             }
             gfx = slotQueueDrawLabel(slot, node, gfx);
             if (i != active) {
-                gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, D_807FD7E4 >> 1);
+                gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, gSlotQueueLabelAlpha >> 1);
             }
-            D_807FD7A0[i] = x - 10.0 * scale;
-            D_807FD7B8[i] = y - 30.0 * scale;
-            D_807FD7D0[i] = scale * 1.15;
+            gSlotQueueKongIconX[i] = x - 10.0 * scale;
+            gSlotQueueKongIconY[i] = y - 30.0 * scale;
+            gSlotQueueKongIconScale[i] = scale * 1.15;
             y = y + 136.0;
             label->y += 0x22;
         }

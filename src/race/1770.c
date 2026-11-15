@@ -375,7 +375,7 @@ void racePlayEngineSfx(void) {
     sfxPlayActorSound(gCurrentActor, 0x12E, 0, 1, 1, 0xFF, 1.0f, 0);
 }
 
-extern s16 D_80770628[];
+extern s16 gSfxSourceVoice[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
 
@@ -383,10 +383,10 @@ void raceUpdateEngineSoundPitch(f32 moveSpeed) {
     s32 pad;
     s16 idx;
 
-    idx = D_80770628[gCurrentActor->soundSlots[0]];
+    idx = gSfxSourceVoice[gCurrentActor->soundSlots[0]];
     D_80770B68[idx] = moveSpeed / 20.0 + 1.0;
     D_80770BC0[idx] = 1.0f;
-    idx = D_80770628[gCurrentActor->soundSlots[1]];
+    idx = gSfxSourceVoice[gCurrentActor->soundSlots[1]];
     gCurrentActor->unk74 = moveSpeed / 20.0;
     if (gCurrentActor->unk74 > 1.0) {
         gCurrentActor->unk74 = 1.0f;

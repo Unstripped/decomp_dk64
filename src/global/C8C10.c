@@ -149,7 +149,7 @@ void actorRestoreMapMusic(void) {
     }
 }
 
-extern s16 D_80750AC8;
+extern s16 gTextNumberArg;
 
 
 void actorCountGoalRewardUpdate(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 initialCutsceneId, s32 rewardCutsceneId, s32 targetCount, s32 rewardFlag) {
@@ -158,7 +158,7 @@ void actorCountGoalRewardUpdate(s32 defaultPathId, s32 lowCountPathId, s32 rewar
     Actor *attachedActor = playerState->actor;
     s32 pathId;
 
-    D_80750AC8 = targetCount;
+    gTextNumberArg = targetCount;
     lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 80.0f, 0, 0xFF, 0xFF, 0xFF);
     if (!(gCurrentActor->flags & 0x10)) {
         pathId = -1;

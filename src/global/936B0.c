@@ -524,7 +524,7 @@ void actorInitAnimations(Actor *actor, Actor *owner) {
     actorCopyPoseAndScale(actor, owner, 0.15f);
 }
 
-extern s16 D_80770628[];
+extern s16 gSfxSourceVoice[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
 
@@ -534,7 +534,7 @@ VehicleMotion *motion;
 {
     s16 idx;
 
-    idx = D_80770628[gCurrentActor->soundSlots[0]];
+    idx = gSfxSourceVoice[gCurrentActor->soundSlots[0]];
     if (gCurrentActor->y < gCurrentActor->waterY + 4.0f) {
         D_80770B68[idx] = gCurrentActor->speedXZ / 300.0 + 1.0;
         D_80770BC0[idx] = 1.0f;
@@ -543,7 +543,7 @@ VehicleMotion *motion;
         D_80770BC0[idx] = 5.0f;
     }
 
-    idx = D_80770628[gCurrentActor->soundSlots[1]];
+    idx = gSfxSourceVoice[gCurrentActor->soundSlots[1]];
     if (gCurrentActor->y < gCurrentActor->waterY + 4.0f) {
         if (D_80770BC0[idx] == 0.0f) {
             D_80770B68[idx] = ((u32)randomLcgNext() / 4294967295.0 * 0.05 + 0.975) * (0.2 + gCurrentActor->speedXZ / 300.0);
@@ -2424,8 +2424,8 @@ void projectileChaseTargetUpdate(void) {
         state->spawnFrame += 0x78;
         if (gCurrentActor->soundSlots[0] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x114, 0x1E, 1, 0, 0xFF, 1.0f, 0);
-            D_80770B68[D_80770628[gCurrentActor->soundSlots[0]]] = 0.75f;
-            D_80770BC0[D_80770628[gCurrentActor->soundSlots[0]]] = 1.0f;
+            D_80770B68[gSfxSourceVoice[gCurrentActor->soundSlots[0]]] = 0.75f;
+            D_80770BC0[gSfxSourceVoice[gCurrentActor->soundSlots[0]]] = 1.0f;
         }
         state->counter = 0xF;
         state->tick = 0;

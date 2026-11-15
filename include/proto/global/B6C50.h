@@ -2,10 +2,10 @@
 #ifndef PROTO_GLOBAL_B6C50_H
 #define PROTO_GLOBAL_B6C50_H
 #include "common.h"
-#ifndef PROTO_SKIP_func_806B1F50
-void func_806B1F50(void);
+#ifndef PROTO_SKIP_timedSmokeTargetHostUpdate
+void timedSmokeTargetHostUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806B24B8
-void func_806B24B8(void);
+#ifndef PROTO_SKIP_smokeTargetChaserUpdate
+void smokeTargetChaserUpdate(void);
 #endif
 #endif

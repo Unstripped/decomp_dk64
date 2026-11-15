@@ -426,7 +426,7 @@ void eepromSetCurrentSlot(u8 slotId, s32 save) {
     }
 }
 
-extern s32 D_807467EC[];
+extern s32 gEepromDefaultScores[];
 extern MenuHighScoreEntry D_80744548[];
 extern MenuHighScoreEntry D_80744568[];
 
@@ -441,7 +441,7 @@ void eepromInitConfigs(u8 mask) {
     }
     if (mask & 2) {
         for (i = 0; i != 5; i++) {
-            eepromSetField(0x15, 0, i, 0, D_807467EC[i]);
+            eepromSetField(0x15, 0, i, 0, gEepromDefaultScores[i]);
             eepromSetField(0x12, 0, i, 0, ' ');
             eepromSetField(0x13, 0, i, 0, ' ');
             eepromSetField(0x14, 0, i, 0, ' ');
@@ -651,7 +651,7 @@ extern u8 *D_807467C0; // save-signature string
 extern s8 D_807467C4;
 extern s8 D_807467E4;
 extern f32 D_807467E8;
-extern u8 D_807ECD08[];
+extern u8 gContReadPending[];
 extern OSMesgQueue D_807ECCF0;
 
 
@@ -667,7 +667,7 @@ void eepromSaveRecords(s32 recordsOnly) {
     u8 workingData[0x800];
     u8 savedData[0x800];
     volatile u8 *contReadPending; // controller-read-pending flag; this runs on eepromThreadMain while the main thread (controllerUpdate) clears it
-    contReadPending = D_807ECD08;
+    contReadPending = gContReadPending;
     if (D_807EDEAC == 2) {
         _sprintf(sEepromSlotBuffer + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
         memcpy(workingData, sEepromSlotBuffer, 0x800);
@@ -744,7 +744,7 @@ void eepromSaveRecordsOffset(void) {
 extern u8 D_807FC952; // gPlayerInventoryTable[0].kong[0].weaponFlags; that spelling CSEs into the table base (lbu 2(s0)), the target loads this label
 extern u8 gPlayerCharacterId;
 
-void eepromHalveRecords(void) {
+void eepromRefillHalfConsumables(void) {
     s32 i;
 
     if (anyKongUsesAbilityEnergy() != 0) {
@@ -815,7 +815,7 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
         entry++;
     } while (i != 5);
     if (fromCopy != 0) {
-        eepromHalveRecords();
+        eepromRefillHalfConsumables();
     }
     gPlayerCharacterId = 0;
 }

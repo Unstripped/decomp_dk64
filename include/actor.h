@@ -800,10 +800,10 @@ typedef struct PlayerState {
     /* 0x088 */ Actor *actor;
     /* 0x08C */ u8 gunDrawn;
     /* 0x08D */ u8 hitStatus;
-    /* 0x08E */ u8 unk8E;
-    /* 0x08F */ u8 unk8F;
+    /* 0x08E */ u8 recoilTimer;
+    /* 0x08F */ u8 recentShotCount;
     /* 0x090 */ u8 gunHand;
-    /* 0x091 */ u8 unk91;
+    /* 0x091 */ u8 lastFireHand;
     /* 0x092 */ u8 pad92[2];
     /* 0x094 */ f32 unk94;
     /* 0x098 */ f32 unk98;
@@ -856,7 +856,7 @@ typedef struct PlayerState {
     /* 0x118 */ s16 depthLeft;
     /* 0x11A */ s16 depthRight;
     /* 0x11C */ u8 unk11C;
-    /* 0x11D */ u8 unk11D;
+    /* 0x11D */ u8 swimStrokeTriggered;
     /* 0x11E */ s16 unk11E;
     /* 0x120 */ s32 lastFrame;
     /* 0x124 */ f32 unk124;
@@ -1063,17 +1063,17 @@ extern u16 gAnimClipCacheCount;
 
 // camSetTarget's parameter block inside CamState (0x44).
 typedef struct CamTargetBlock {
-    /* 0x00 */ struct Actor *unk0;
-    /* 0x04 */ struct Actor *unk4;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ s16 unk14;
+    /* 0x00 */ struct Actor *eyeActor;
+    /* 0x04 */ struct Actor *focusActor;
+    /* 0x08 */ s16 eyeYaw;
+    /* 0x0A */ s16 eyeDist;
+    /* 0x0C */ s16 focusYaw;
+    /* 0x0E */ s16 focusDist;
+    /* 0x10 */ s16 eyeHeight;
+    /* 0x12 */ s16 focusHeight;
+    /* 0x14 */ s16 framesLeft;
     /* 0x16 */ u8 pad16[2];
-    /* 0x18 */ f32 unk18;
+    /* 0x18 */ f32 stepRatio;
 } CamTargetBlock;
 
 // customState of the camera actor (type 0xBC, component 4: 0x100 bytes, D_8074DA58[4]);

@@ -114,7 +114,7 @@ typedef struct MenuRenderActor {
     /* 0x180 */ MenuState *menuState;
 } MenuRenderActor;
 extern Actor *gCurrentActor;
-extern s16 D_80750AC8;
+extern s16 gTextNumberArg;
 
 
 void menuMainStateStep(MenuState *menu, s32 playVoice) {
@@ -133,7 +133,7 @@ void menuMainStateStep(MenuState *menu, s32 playVoice) {
                 } else {
                     mode = 3;
                 }
-                D_80750AC8 = menu->pendingMedals;
+                gTextNumberArg = menu->pendingMedals;
                 resQueueAttachActor(gCurrentActor, 0xB, mode);
             } else {
                 if (menu->pendingMedals == 1) {
@@ -141,7 +141,7 @@ void menuMainStateStep(MenuState *menu, s32 playVoice) {
                 } else {
                     mode = 6;
                 }
-                D_80750AC8 = menu->pendingMedals;
+                gTextNumberArg = menu->pendingMedals;
                 resQueueAttachActor(gCurrentActor, 0xB, mode);
             }
             menu->step++;
@@ -378,7 +378,7 @@ void menuProcessOptionInput(MenuState *menu) {
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
             menu->step++;
-            D_80750AC8 = menuCalculateBonusDuration();
+            gTextNumberArg = menuCalculateBonusDuration();
             resQueueAttachActor(gCurrentActor, 0xB, 8);
         }
         break;

@@ -469,7 +469,7 @@ void minecartRampTiltRate(MinecartCart *cart) {
 
 
 extern struct GfSndState *D_807457E4[];
-extern s16 D_80770628[];
+extern s16 gSfxSourceVoice[];
 extern f32 D_80770B68[];
 void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimit) {
     u8 i;
@@ -544,9 +544,9 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     }
     waypointAngle = mathAngleBetweenPoints2D(targetPt->x, targetPt->z, targetPt[-1].x, targetPt[-1].z);
     if (cart->jumpHeight == 0) {
-        D_80770B68[D_80770628[gCurrentActor->soundSlots[0]]] = ((f64)stepDist / 15.0) + 0.7;
+        D_80770B68[gSfxSourceVoice[gCurrentActor->soundSlots[0]]] = ((f64)stepDist / 15.0) + 0.7;
     } else {
-        D_80770B68[D_80770628[gCurrentActor->soundSlots[0]]] = 0.0f;
+        D_80770B68[gSfxSourceVoice[gCurrentActor->soundSlots[0]]] = 0.0f;
     }
     if (gCurrentActor->movePitch != 0) {
         gCurrentActor->movePitch--;

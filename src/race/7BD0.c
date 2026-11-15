@@ -279,7 +279,7 @@ Gfx *raceInitHudDisplayList(Gfx *dl, RaceParticipant *tracker) {
     return dl;
 }
 
-extern s32 D_8002FCC0[];
+extern s32 sRacePlaceTextIds[];
 
 Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
     RaceParticipant *managerData;
@@ -332,7 +332,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
         if (tracker->unk45 != 0) {
             placeIdx = 4;
         }
-        dl = textDrawStringVtx(dl, 1, (s16)((f32)(textX * 4) + (f32)(textX * 4)), (s16)(2.0f * (textY * 4)), textTableGetString(0x26, D_8002FCC0[placeIdx], 1), 4);
+        dl = textDrawStringVtx(dl, 1, (s16)((f32)(textX * 4) + (f32)(textX * 4)), (s16)(2.0f * (textY * 4)), textTableGetString(0x26, sRacePlaceTextIds[placeIdx], 1), 4);
     }
     if (tracker->raceStatus >= 3 && tracker->raceStatus < 5) {
         dl = textDrawAnimated(dl, tracker->resultTextId, 2, 160.0f, 100.0f, 0.0f, 1.5f);

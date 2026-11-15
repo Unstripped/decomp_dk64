@@ -246,7 +246,7 @@ void critterUpdateAudio(CritterObj *obj) {
     }
 }
 
-extern u8 D_80770DC9;
+extern u8 gAmbientIndoors;
 
 void critterUpdateObjType1(CritterObj *obj) {
     s16 r;
@@ -266,12 +266,12 @@ void critterUpdateObjType1(CritterObj *obj) {
         if (obj->prevAnim > 0x800) {
             if (obj->anim < 0x800) {
                 sfxPlayAtPosition(obj->x, obj->y, obj->z, 0x5E,
-                                  D_80770DC9 * 100 + 0x73, 2.0f, 0x1E, 0x4B);
+                                  gAmbientIndoors * 100 + 0x73, 2.0f, 0x1E, 0x4B);
             }
         } else {
             if (obj->anim > 0x800) {
                 sfxPlayAtPosition(obj->x, obj->y, obj->z, 0x5F,
-                                  D_80770DC9 * 100 + 0x73, 2.0f, 0x1E, 0x4B);
+                                  gAmbientIndoors * 100 + 0x73, 2.0f, 0x1E, 0x4B);
             }
         }
         temp = 1.0f - mathCosF(obj->anim);

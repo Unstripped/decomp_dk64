@@ -1456,7 +1456,7 @@ void menuMultiplayerResultsHandleInput(Actor *actor, s32 buttons) {
 extern u8 D_80033878;
 extern u8 D_80033F20[];
 extern s16 D_80744524[];
-extern s8 D_8076A105;
+extern s8 gMpWinnerIndex;
 
 Gfx *menuDrawMultiplayerResults(Actor *actor, Gfx *dl) {
     MenuScreenState *state;
@@ -1487,7 +1487,7 @@ Gfx *menuDrawMultiplayerResults(Actor *actor, Gfx *dl) {
         do {
             _sprintf(strBuf, "P %d", *q + 1);
             dl = hudDrawScaledText(dl, x, y, 0.6f, strBuf);
-            sel = i == D_8076A105;
+            sel = i == gMpWinnerIndex;
             dl = hudDrawScaledText(dl, x, (s16)(y + 0x30), 0.6f, D_80033F28[0x1D + sel]);
             _sprintf(strBuf, "%d", D_80744524[*q]);
             dl = hudDrawScaledText(dl, x, scaledY2, 0.6f, strBuf);
@@ -1517,7 +1517,7 @@ void menuInitMultiplayerResults(Actor *actor, s32 unused) {
             D_8003387C[D_80033878] = t & 0x7F;
             D_80033F20[D_80033878] = i;
             D_80033F24[i] = D_80033878;
-            if (D_80033878 == D_8076A105) {
+            if (D_80033878 == gMpWinnerIndex) {
                 D_80744524[i] += 1;
             }
             D_80033878++;
@@ -1535,7 +1535,7 @@ void menuInitMultiplayerResults(Actor *actor, s32 unused) {
         gSpawnedActor->unk155 = D_8003387C[i];
         sub = gSpawnedActor->customState;
         sub->parent = actor;
-        sub->animSet = (i == D_8076A105) + 1;
+        sub->animSet = (i == gMpWinnerIndex) + 1;
     }
     menuSpawnUiElementEffect(state, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
 }

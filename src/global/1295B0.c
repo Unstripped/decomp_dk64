@@ -1403,7 +1403,7 @@ void zoneEntrySpawnEffect(s16 effect, s16 entryIndex, s16 param, s16 count) {
             camStartShake(gCamActor, 0x14, 0xF);
             return;
         case 2:
-            enemyAggroEnable();
+            weatherTriggerLightningFlash();
             return;
         case 3:
             actorSpawnEffectChild((f32)x, (f32)y, (f32)z, param * 0.01, count * 0.01, NULL, 0);

@@ -860,7 +860,7 @@ void playerInputNoop(void) {
 
 extern SchedStruct gScheduler;
 extern f32 gKongTurnDecelRates[];
-extern f32 gKongCannonInitialPitch[];
+extern f32 gKongDecelRate[];
 extern f32 D_807535CC[];
 
 void playerInputCheckBButton(void) {
@@ -881,7 +881,7 @@ void playerInputCheckBButton(void) {
             gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
         }
         gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex];
-        gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
+        gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
         gCurrentActor->state = 0x17;
         gCurrentActor->unk155 = 0;
         gActivePlayerState->unk50 = 0;
@@ -896,7 +896,7 @@ void playerInputHandleAButtonState0(void) {
     }
     if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
         gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex];
-        gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
+        gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
         gCurrentActor->state = 0x17;
         gCurrentActor->unk155 = 0;
         gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex];
@@ -913,7 +913,7 @@ void playerInputHandleAButtonJump(void) {
     if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (!(gCurrentActor->contactFlags & 1) || (gCurrentActor->floorSlopeFactor == 0.0f))) {
         gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex];
         gCurrentActor->speedXZ = INPUT_MIN(gCurrentActor->speedXZ, gActivePlayerState->targetSpeed);
-        gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
+        gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
         gActivePlayerState->airAccel = 20.0f;
         gCurrentActor->state = 0x17;
         gCurrentActor->unk155 = 0;
@@ -1000,9 +1000,9 @@ void playerInputHandleAButtonState61(void) {
 
 extern u8 D_8071FBC8;
 extern u8 D_807200D4;
-extern f32 D_80753E2C[];
+extern f32 gKongProjectileSpeed[];
 extern KongInventory *gCurrentKongInventory;
-extern s16 D_80753E64[];
+extern s16 gKongMaxActiveProjectiles[];
 
 
 void playerFireWeapon(u8 isFirstPerson, u8 force) {
@@ -1034,18 +1034,18 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
         }
         slotQueueUpdate(ammoSlot, 0, 0);
         if (slotQueueGetValue(ammoSlot, gCurrentPlayerIndex)) {
-            if (actorCountOwnedByClass(gCurrentActor, 4, actorIsActiveType2B) < D_80753E64[gCurrentCharacterIndex]) {
+            if (actorCountOwnedByClass(gCurrentActor, 4, actorIsActiveType2B) < gKongMaxActiveProjectiles[gCurrentCharacterIndex]) {
                 isHoming = weaponFlags & 2;
                 slotQueueAddValue(ammoSlot, gCurrentPlayerIndex, -1);
                 if (!isFirstPerson) {
-                    gActivePlayerState->unk8F = (gActivePlayerState->unk8F + 1 >= 0x15) ? 0x14 : gActivePlayerState->unk8F + 1;
+                    gActivePlayerState->recentShotCount = (gActivePlayerState->recentShotCount + 1 >= 0x15) ? 0x14 : gActivePlayerState->recentShotCount + 1;
                 }
                 rumbleRequest(gActivePlayerState->playerIndex, 0xFF, 3);
                 switch (gCurrentActor->actorType) {
                     case 7:
                         spawnId = 0xAB;
                         scale = 0.5f;
-                        gActivePlayerState->unk8E = 0x1A;
+                        gActivePlayerState->recoilTimer = 0x1A;
                         sfx = 0x2A5;
                         vol = 5;
                         if (!isFirstPerson) {
@@ -1055,7 +1055,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                     case 6:
                         spawnId = 0x26;
                         scale = 0.5f;
-                        gActivePlayerState->unk8E = 0x1A;
+                        gActivePlayerState->recoilTimer = 0x1A;
                         sfx = 0x2A5;
                         vol = 5;
                         if (!isFirstPerson) {
@@ -1073,21 +1073,21 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                         scale = 0.36f;
                         sfx = 0xEF;
                         vol = 0;
-                        gActivePlayerState->unk8E = 4;
+                        gActivePlayerState->recoilTimer = 4;
                         break;
                     case 2:
                         spawnId = 0x30;
                         scale = 0.3f;
                         sfx = 0x7B;
                         vol = 5;
-                        gActivePlayerState->unk8E = 0x1A;
+                        gActivePlayerState->recoilTimer = 0x1A;
                         break;
                     default:
                         spawnId = 0x24;
                         scale = 0.3f;
                         sfx = 0x7A;
                         vol = 5;
-                        gActivePlayerState->unk8E = 0x1A;
+                        gActivePlayerState->recoilTimer = 0x1A;
                         break;
                 }
                 if (isFirstPerson) {
@@ -1102,7 +1102,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1EE, 0xFF, 0x7F, 0xA);
                     }
                 }
-                gActivePlayerState->unk91 = gActivePlayerState->gunHand;
+                gActivePlayerState->lastFireHand = gActivePlayerState->gunHand;
                 if (isFirstPerson) {
                     yaw = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ);
                 } else {
@@ -1121,8 +1121,8 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                     dz = gPlayerSlots[gCurrentPlayerIndex].focusZ - gPlayerSlots[gCurrentPlayerIndex].camZ;
                     dx = gPlayerSlots[gCurrentPlayerIndex].focusX - gPlayerSlots[gCurrentPlayerIndex].camX;
                     pitch = mathAtan2(gPlayerSlots[gCurrentPlayerIndex].focusY - gPlayerSlots[gCurrentPlayerIndex].camY, sqrtf(dz * dz + dx * dx));
-                    speedY = D_80753E2C[gCurrentCharacterIndex] * sinApprox(pitch);
-                    speedXZ = D_80753E2C[gCurrentCharacterIndex] * cosApprox(pitch);
+                    speedY = gKongProjectileSpeed[gCurrentCharacterIndex] * sinApprox(pitch);
+                    speedXZ = gKongProjectileSpeed[gCurrentCharacterIndex] * cosApprox(pitch);
                     yaw = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ);
                     projectileSpawnNodeEntry(spawnId, weaponFlags, scale, yaw, speedXZ, speedY, gActivePlayerActor);
                 } else {
@@ -1139,7 +1139,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                         }
                     }
                     projectileGetTargetCoords(gActivePlayerActor, gActivePlayerState->gunHand + 9);
-                    projectileSpawnNodeEntry(spawnId, weaponFlags, scale, gActivePlayerActor->yaw, D_80753E2C[gCurrentCharacterIndex], 0.0f, gActivePlayerActor);
+                    projectileSpawnNodeEntry(spawnId, weaponFlags, scale, gActivePlayerActor->yaw, gKongProjectileSpeed[gCurrentCharacterIndex], 0.0f, gActivePlayerActor);
                 }
                 if ((mpIsMatchType(0) != 0) && (slotQueueGetValue(ammoSlot, gCurrentPlayerIndex) == 0)) {
                     playerKongStopSoundByState(gCurrentActor);
@@ -1165,7 +1165,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                 case 2:
                     sfx = 0xB0;
                     vol = 0xA;
-                    gActivePlayerState->unk8E = 0x1A;
+                    gActivePlayerState->recoilTimer = 0x1A;
                     break;
                 default:
                     sfx = 0x83;
@@ -1234,7 +1234,7 @@ u8 playerInputCanFireWeapon(void) {
 
     ok = !mpIsMatchType(0) && !(gGlobalOverlayFlags & 0x200) && slotQueueGetValue(4, gCurrentPlayerIndex) &&
            gPlayerCharacterId[gCurrentPlayerIndex] < 6 &&
-           actorCountOwnedByClass(gCurrentActor, 4, 0) < D_80753E64[gCurrentCharacterIndex] &&
+           actorCountOwnedByClass(gCurrentActor, 4, 0) < gKongMaxActiveProjectiles[gCurrentCharacterIndex] &&
            (flagGet(0x184, 0) || (gGlobalOverlayFlags & 0x10000000) || gPlayerCount >= 2 || menuIsTransitionType3Or4() ||
             menuIsTransitionTypeC());
     return ok;
@@ -1477,7 +1477,7 @@ void playerInputStepCannonPitch(void) {
         gCurrentActor->accelY = gCurrentActor->accelY - gCurrentActor->speedY / 100.0;
     }
     if (gCurrentActor->contactFlags & 1) {
-        gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
+        gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
     } else {
         c = mathSinF(t) * 8.0f;
         if (c >= 0.0f) {
@@ -1541,7 +1541,7 @@ void playerInputStopSoundOnZRelease(void) {
 
 
 void playerInputResetCannonPitch(void) {
-    gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
+    gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
 }
 
 
@@ -2222,7 +2222,7 @@ void playerInputQueueCrouchCallbackDirect(void) {
     playerStateQueueCallback(0x24, 0, gCurrentPlayerIndex);
 }
 
-void playerInputHandleBButtonMusicalInstrument(void) {
+void playerInputQueueGunState5F(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gCurrentKongInventory->weaponFlags & 1) &&
         (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) && !(gActivePlayerState->stateFlags & 0x30) &&
         (mpIsMatchType(0) == 0)) {
@@ -2230,7 +2230,7 @@ void playerInputHandleBButtonMusicalInstrument(void) {
     }
 }
 
-void playerInputHandleBButtonFairyCamera(void) {
+void playerInputQueueGunAimState60(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gCurrentKongInventory->weaponFlags & 1) && !(gGlobalOverlayFlags & 0x200) &&
         (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) && !(gActivePlayerState->stateFlags & 0x30) &&
         (mpIsMatchType(0) == 0)) {
@@ -3777,7 +3777,7 @@ void playerLeaveViewMode(Actor *actor, u8 isFirstPerson) {
         }
     }
     if (state->gunDrawn) {
-        playerKongPlaySoundByState(actor);
+        playerKongDrawGun(actor);
     } else {
         playerKongStopSoundByState(actor);
     }

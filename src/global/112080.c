@@ -455,7 +455,7 @@ ResParsedList *resNodeGetOrLoad(u16 id, s32 kind) {
 }
 
 extern void *D_8074E778[];
-extern u16 D_80750AC8;
+extern u16 gTextNumberArg;
 
 void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) {
     s32 pad;
@@ -530,7 +530,7 @@ void textLayoutAppendRows(ResQueueActorState *state, u8 *textBytes, u16 length) 
                 _sprintf(textBuffer, "%s", D_8074E778[gActivePlayerActor->actorType]);
                 break;
             case '@':
-                _sprintf(textBuffer, "%d", D_80750AC8);
+                _sprintf(textBuffer, "%d", gTextNumberArg);
                 break;
             default:
                 _sprintf(textBuffer, "%c", textBytes[i]);

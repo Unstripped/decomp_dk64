@@ -32,7 +32,7 @@ extern Actor *gCurrentActor;
 extern PlayerStruct *gPlayerSlots;
 extern RaceCurvePoint D_8002FC70[];
 extern RaceVec3f D_8002FCA0;
-extern s16 D_80750AC8;
+extern s16 gTextNumberArg;
 
 extern s32 gGlobalOverlayFlags;
 
@@ -468,7 +468,7 @@ void raceOpponentRacerMotionUpdate(void) {
         } else {
             racerState->unk35 = 3;
         }
-        D_80750AC8 = 0xA;
+        gTextNumberArg = 0xA;
         actorOrNodeFlags(gCurrentActor, 4, 8);
     }
     switch (racerState->raceStatus) {

@@ -33,7 +33,7 @@ extern Actor *gPrimaryPlayerActor;
 extern s32 gGlobalOverlayFlags;
 extern u32 gGlobalCutsceneFlags;
 extern u8 gPlayerCount;
-extern SfxTableEntry D_80750400[];
+extern SfxTableEntry gActorSpawnSfxTable[];
 
 extern u8 D_807204BC[];
 extern u8 D_80720508[];
@@ -67,8 +67,8 @@ void sfxSpawnTableNodes(Actor *actor) {
     if (gGlobalOverlayFlags & 0x4000) {
         return;
     }
-    while (found == 0 && D_80750400[i].actorType != 0) {
-        if (D_80750400[i].actorType == actor->actorType) {
+    while (found == 0 && gActorSpawnSfxTable[i].actorType != 0) {
+        if (gActorSpawnSfxTable[i].actorType == actor->actorType) {
             found = 1;
         } else {
             i++;
@@ -77,12 +77,12 @@ void sfxSpawnTableNodes(Actor *actor) {
     if (found == 0) {
         return;
     }
-    if (D_80750400[i].sfxId != 0) {
-        sfxAllocateChannel(D_80750400[i].sfxId, 1.0f);
+    if (gActorSpawnSfxTable[i].sfxId != 0) {
+        sfxAllocateChannel(gActorSpawnSfxTable[i].sfxId, 1.0f);
     }
-    step = 0xFFF / D_80750400[i].spawnCount;
-    for (j = 0; j < D_80750400[i].spawnCount; j++) {
-        actorSpawnNodeEntryScaled(D_80750400[i].spawnType, actor->x, actor->y, actor->z, offset, 1, -1, 0);
+    step = 0xFFF / gActorSpawnSfxTable[i].spawnCount;
+    for (j = 0; j < gActorSpawnSfxTable[i].spawnCount; j++) {
+        actorSpawnNodeEntryScaled(gActorSpawnSfxTable[i].spawnType, actor->x, actor->y, actor->z, offset, 1, -1, 0);
         offset += step;
     }
 }

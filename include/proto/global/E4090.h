@@ -275,11 +275,11 @@ void playerInputQueueCrouchCallback(void);
 #ifndef PROTO_SKIP_playerInputQueueCrouchCallbackDirect
 void playerInputQueueCrouchCallbackDirect(void);
 #endif
-#ifndef PROTO_SKIP_playerInputHandleBButtonMusicalInstrument
-void playerInputHandleBButtonMusicalInstrument(void);
+#ifndef PROTO_SKIP_playerInputQueueGunState5F
+void playerInputQueueGunState5F(void);
 #endif
-#ifndef PROTO_SKIP_playerInputHandleBButtonFairyCamera
-void playerInputHandleBButtonFairyCamera(void);
+#ifndef PROTO_SKIP_playerInputQueueGunAimState60
+void playerInputQueueGunAimState60(void);
 #endif
 #ifndef PROTO_SKIP_playerInputHandleRButtonCameraLock
 void playerInputHandleRButtonCameraLock(void);

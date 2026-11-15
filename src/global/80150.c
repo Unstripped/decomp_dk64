@@ -53,7 +53,7 @@ typedef struct ActorMapFlag {
 
 
 
-// Per-kong animation frame table (D_8074E834), indexed by kong index.
+// Per-kong animation frame table (gTagBarrelKongAnimFrames), indexed by kong index.
 typedef struct KongAnimFrameTable {
     s32 frame[5];
 } KongAnimFrameTable;
@@ -76,7 +76,7 @@ extern u8 gPlayerCharacterId[];
 extern ActorMapFlag D_8074E7A0[];
 extern s16 D_8074E7E0[];
 extern KongActionEntry D_8074E814[];
-extern KongAnimFrameTable D_8074E834;
+extern KongAnimFrameTable gTagBarrelKongAnimFrames;
 extern s32 sKongNameTextIds[];
 extern u8 D_80720120;
 extern u8 D_80720340;
@@ -2679,7 +2679,7 @@ void tagBarrelUpdateSelectedKong(void) {
     u8 *kongIndex;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        anims = D_8074E834;
+        anims = gTagBarrelKongAnimFrames;
         kongIndex = gCurrentActor->customState;
         gCurrentActor->flags |= 0x1000;
         animSetLoopLimit(gCurrentActor, 0, 1);
@@ -3072,7 +3072,7 @@ void tagBarrelInitUnlockedKongs(Actor *actor) {
 
     for (i = 0; i < 5; i++) {
         if (flagGet(mapGetConfigValue(actor->actorType, i), 0)) {
-            func_8068A764(actor, D_8074E814[i].action);
+            actorSetSegmentFlag(actor, D_8074E814[i].action);
         }
     }
 }

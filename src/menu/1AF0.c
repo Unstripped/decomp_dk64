@@ -184,7 +184,7 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
 }
 
 
-extern u16 D_80750AC8;
+extern u16 gTextNumberArg;
 extern u8 D_807FCC4C;
 
 typedef struct {
@@ -242,7 +242,7 @@ void menuCheckInventoryItemPurchased(MenuShopState *state, u8 *inventory, s32 is
             }
             if (found != 0) {
                 state->itemSlot = tbl[i].slot;
-                D_80750AC8 = (state->price = tbl[i].price);
+                gTextNumberArg = (state->price = tbl[i].price);
                 state->itemLevel = tbl[i].level;
             }
         }
@@ -250,7 +250,7 @@ void menuCheckInventoryItemPurchased(MenuShopState *state, u8 *inventory, s32 is
     if (found == 0) {
         state->price = 0;
         state->itemSlot = -1;
-        D_80750AC8 = state->price;
+        gTextNumberArg = state->price;
         if (count >= 7) {
             state->itemSlot = -2;
         }
@@ -362,7 +362,7 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
         case 0xBD:
             introTextId = 0;
             hasSecondAction = 0;
-            priceOrCount = D_80750AC8;
+            priceOrCount = gTextNumberArg;
             availability = menuGetOptionAvailability(state, hasSecondAction);
             if (availability == 0 || availability == 1) {
                 availability = 0;
@@ -395,7 +395,7 @@ void menuFormatShopPurchaseText(MenuShopState *state, void *inventory, s32 hasSe
                     }
                 }
             }
-            D_80750AC8 = priceOrCount;
+            gTextNumberArg = priceOrCount;
             D_800334EC[0] = introTextId;
             break;
         case 0xBE:
@@ -604,7 +604,7 @@ void menuUpdateShopDialogueStep(MenuShopState *state, void *inventory, s32 flagI
                 textParam2 = D_800334E4[state->itemLevel];
             case 3:
                 if (textParam2 == -1) {
-                    D_80750AC8 = slotQueueGetMaxValue(2, 0);
+                    gTextNumberArg = slotQueueGetMaxValue(2, 0);
                     textParam2 = 0x15;
                 }
                 textParam1 = 7;
@@ -847,7 +847,7 @@ void menuUpdateCrankyShopActor(void) {
             case 7:
                 if (currentActorTestClearFlag() != 0) {
                     gGlobalPauseFlags |= 0x10030;
-                    D_80750AC8 = 0xF;
+                    gTextNumberArg = 0xF;
                     resQueueAttachActor(&gCurrentActor->base, 8, 0x1F);
                     gCurrentActor->base.state = 1;
                 }

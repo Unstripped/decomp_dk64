@@ -22,7 +22,7 @@ extern Actor *gSpawnedActor;
 extern s32 D_8072030C;
 
 
-void func_806B1F50(void) {
+void timedSmokeTargetHostUpdate(void) {
     u8 tint;
 
     behaviourFrameBegin();
@@ -117,7 +117,7 @@ extern s32 D_80720340;
 
 f32 sqrtf(f32);
 
-void func_806B24B8(void) {
+void smokeTargetChaserUpdate(void) {
     Actor *found;
     f32 dx;
     f32 dz;

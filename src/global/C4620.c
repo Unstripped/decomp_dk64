@@ -102,7 +102,7 @@ void actorScriptedAnimSideEffects(u16 animId) {
             gCurrentActor->unk155 = 1;
             break;
         case 0x112:
-            playerKongPlaySoundByState(gCurrentActor);
+            playerKongDrawGun(gCurrentActor);
             /* fallthrough */
         case 0x113:
         case 0x128:
@@ -1388,7 +1388,7 @@ void actorScriptedUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern s16 D_80750AC8;
+extern s16 gTextNumberArg;
 
 void func_806C3A8C(void) {
     s32 dist;
@@ -1452,7 +1452,7 @@ void func_806C3A8C(void) {
                 flag3 = flagGet(0xBC, 0);
                 flag2 = flagGet(0xBB, 0);
                 flag1 = flagGet(0xBA, 0);
-                D_80750AC8 = flagGet(0xBE, 0) + flag1 + flag2 + flag3 + flag4;
+                gTextNumberArg = flagGet(0xBE, 0) + flag1 + flag2 + flag3 + flag4;
                 resQueueAttachActor(gCurrentActor, 0x17, 2);
                 gCurrentActor->unk155++;
             }

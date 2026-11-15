@@ -92,9 +92,9 @@ extern u8 D_1000118[];
 extern u8 D_2000180[];
 extern u8 D_20000C0[];
 extern u8 gCurrentPlayerIndex;
-extern s16 D_8002D8C8[]; // bonusLightFlashSpawnTargets spawn ids (6)
-extern s16 D_8002D8D4[]; // light-flash target script per slot, started at spawn and on re-arm (slot 5: none)
-extern s16 D_8002D8E0[]; // light-flash target script per slot when shot (slot 5: none)
+extern s16 sLightFlashTargetModels[]; // bonusLightFlashSpawnTargets spawn ids (6)
+extern s16 sLightFlashTargetScripts[]; // light-flash target script per slot, started at spawn and on re-arm (slot 5: none)
+extern s16 sLightFlashTargetHitScripts[]; // light-flash target script per slot when shot (slot 5: none)
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
 extern f32 D_8002D90C;
@@ -1185,13 +1185,13 @@ void bonusLightFlashSpawnTargets(void *ownerActor) {
     BonusLightFlashState *base = ((BonusActorExt *)a)->gameState;
 
     for (i = 1; i != 7; i++) {
-        if (actorSpawn(0x147, D_8002D8C8[i - 1]) != 0) {
+        if (actorSpawn(0x147, sLightFlashTargetModels[i - 1]) != 0) {
             LightFlashTargetState *subExt = gSpawnedActor->customState;
             s16 *actorProp = ((BonusActorExt *)gSpawnedActor)->unk17C;
             TargetVec3f *pt;
             f32 scale;
 
-            *actorProp = D_8002D8C8[i - 1];
+            *actorProp = sLightFlashTargetModels[i - 1];
             subExt->game = a;
             subExt->slot = i - 1;
             pt = *gMinecartTrackPoints + (base->slotOrder[subExt->slot] & 0x7F) + 1;
@@ -1203,7 +1203,7 @@ void bonusLightFlashSpawnTargets(void *ownerActor) {
             gSpawnedActor->yaw = 0x800;
             if (i != 6) {
                 playerKongStopSoundByState(gSpawnedActor);
-                actorScriptStart(gSpawnedActor, D_8002D8D4[i - 1]);
+                actorScriptStart(gSpawnedActor, sLightFlashTargetScripts[i - 1]);
             }
             scale = (i != 6) ? 0.25f : 0.04f;
             gSpawnedActor->sub4->scaleX = scale;
@@ -1253,12 +1253,12 @@ void bonusLightFlashTargetUpdate(void) {
         slotEntry = base->slotOrder[subExt->slot];
         if (slotEntry & 0x80) {
             base->slotOrder[subExt->slot] = slotEntry & 0x7F;
-            actorScriptStart(gCurrentActor, D_8002D8D4[subExt->slot]);
+            actorScriptStart(gCurrentActor, sLightFlashTargetScripts[subExt->slot]);
         } else if (lightR < 0.05f && gCurrentActor->sub4->scriptStart != NULL) {
             actorScriptStart(gCurrentActor, 0);
         }
         if (isHit != 0) {
-            actorScriptStart(gCurrentActor, D_8002D8E0[subExt->slot]);
+            actorScriptStart(gCurrentActor, sLightFlashTargetHitScripts[subExt->slot]);
             sfxPlayOnFreeSlot(0x2A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
             if (base->targetsLeft != 0) {
                 base->targetsLeft += 1;

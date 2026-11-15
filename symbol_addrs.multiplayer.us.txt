@@ -30,3 +30,6 @@ mpApplyDeathPenalty = 0x80026B0C; // type:func
 mpFindFurthestSpawn = 0x80026BD8; // type:func
 mpRespawnPlayer = 0x80026D40; // type:func
 mpCreditKill = 0x80026E20; // type:func
+mpSfxFlags = 0x80026F70;
+mpMapSpawnTable = 0x80026FA4;
+mpHudIconTable = 0x80027024;

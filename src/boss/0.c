@@ -265,7 +265,7 @@ u8 bossPieceStep(BossPieceAnim *animData, u8 pieceIdx, f32 maxTimer, f32 scriptT
             p1->y = -300.0f;
             if (-50.0f < animData->f2[pieceIdx]) {
                 tagBarrelSpawnNodeSmokePuffs(gCurrentActor, (u8)(pieceIdx + 1), 1.5f);
-                func_8068A784(gCurrentActor, pieceIdx);
+                actorClearSegmentFlag(gCurrentActor, pieceIdx);
                 animData->state[pieceIdx] = 0;
                 ret = 1;
                 break;
@@ -288,7 +288,7 @@ u8 bossPieceStep(BossPieceAnim *animData, u8 pieceIdx, f32 maxTimer, f32 scriptT
             sfxPlayActorSound(gCurrentActor, 0x127, 0, 1, 1, 0xFF, 1.3f, 0);
             break;
         }
-        func_8068A764(gCurrentActor, pieceIdx);
+        actorSetSegmentFlag(gCurrentActor, pieceIdx);
         animData->state[pieceIdx] = 2;
         animData->cnt[pieceIdx] = 0;
     case 2:
@@ -348,7 +348,7 @@ u8 bossPieceStep(BossPieceAnim *animData, u8 pieceIdx, f32 maxTimer, f32 scriptT
             p1->y = D_800358E0[0][pieceIdx].y + (-D_800358E0[0][pieceIdx].y) * t;
             p1->z = D_800358E0[0][pieceIdx].z + (-D_800358E0[0][pieceIdx].z) * t;
         } else {
-            func_8068A784(gCurrentActor, pieceIdx);
+            actorClearSegmentFlag(gCurrentActor, pieceIdx);
             animData->state[pieceIdx] = 0;
             if (pieceIdx == 0 || pieceIdx == 2) {
                 sfxStopSlotSound(gCurrentActor, 1);
@@ -508,7 +508,7 @@ extern u8 gGameMode;
 extern s8 D_80750190;
 extern s16 D_807502D8;
 extern f32 D_807502F4;
-extern s16 D_80770628[];
+extern s16 gSfxSourceVoice[];
 extern s16 D_80770710[];
 
 u8 camIsCutsceneActive(void);
@@ -1135,14 +1135,14 @@ void bossArmydilloStep(void) {
         break;
     }
     if (playSfx != 0) {
-        if ((gCurrentActor->soundSlots[1] != -1) && (D_80770710[D_80770628[gCurrentActor->soundSlots[1]]] != 0x114)) {
+        if ((gCurrentActor->soundSlots[1] != -1) && (D_80770710[gSfxSourceVoice[gCurrentActor->soundSlots[1]]] != 0x114)) {
             sfxStopSlotSound(gCurrentActor, 1);
         }
         if (gCurrentActor->soundSlots[1] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x114, 1, 1, 1, 0xFF, 0.5f, 0);
         }
     } else {
-        if ((gCurrentActor->soundSlots[1] != -1) && (D_80770710[D_80770628[gCurrentActor->soundSlots[1]]] == 0x114)) {
+        if ((gCurrentActor->soundSlots[1] != -1) && (D_80770710[gSfxSourceVoice[gCurrentActor->soundSlots[1]]] == 0x114)) {
             sfxStopSlotSound(gCurrentActor, 1);
         }
     }

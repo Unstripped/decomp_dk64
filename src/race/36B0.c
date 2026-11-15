@@ -346,20 +346,20 @@ void racePlayTireScreechSfx(void) {
     }
 }
 
-extern s16 D_80770628[];
+extern s16 gSfxSourceVoice[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
 
 void raceUpdateOpponentEnginePitch(f32 moveSpeed) {
     s16 idx;
 
-    idx = D_80770628[gCurrentActor->soundSlots[0]];
+    idx = gSfxSourceVoice[gCurrentActor->soundSlots[0]];
     gCurrentActor->unk74 = 1.0f;
     D_80770B68[idx] = (f64)(moveSpeed * 0.05f) + 1.0;
     D_80770BC0[idx] = 1.0f;
 }
 
-extern s16 D_80750AC8;
+extern s16 gTextNumberArg;
 extern s32 D_8002FC0C[];
 
 void raceOpponentCarBehaviorUpdate(void) {
@@ -404,7 +404,7 @@ void raceOpponentCarBehaviorUpdate(void) {
             state->unk35 = 3;
         }
         currentActorClearFlag();
-        D_80750AC8 = 0xA;
+        gTextNumberArg = 0xA;
         actorClearNodeFlag(gCurrentActor, 4);
     }
     if (gActorGlobalState.bossFightPhase == 4) {

@@ -144,7 +144,7 @@ typedef struct RaceCoinRacerActor {
 
 
 extern Actor *gPrimaryPlayerActor;
-extern u16 D_80750AC8;
+extern u16 gTextNumberArg;
 extern s32 D_8002FB94[];
 
 
@@ -216,11 +216,11 @@ void raceOpponentBehaviourUpdate(void) {
         gBehaviourWorkState->routeRow = 0;
         gCurrentActor->flags2 &= 0xFFBF;
         if (gCurrentMap == 0x52) {
-            config->requiredCoins = D_80750AC8 = 0x32;
+            config->requiredCoins = gTextNumberArg = 0x32;
             config->reward.w = 0x103;
             flag = 0x65;
         } else {
-            config->requiredCoins = D_80750AC8 = 0x32;
+            config->requiredCoins = gTextNumberArg = 0x32;
             config->reward.w = 0x4B;
             flag = 0x66;
         }

@@ -220,7 +220,7 @@ void playerStateTakeDamagePrep(void) {
         sfxStopSlotSound(gActivePlayerActor, 0);
         sfxPlayOnFreeSlot(0x26, 0x7FFF, 63.0f, 1.0f, 0, 0);
         if (gPlayerSlots[gCurrentPlayerIndex].queuedParam1 != 0) {
-            playerKongPlaySoundByState(gActivePlayerActor);
+            playerKongDrawGun(gActivePlayerActor);
         }
     }
     camState->unkBC = 0x80;
@@ -468,7 +468,7 @@ extern f32 D_80753940[];
 extern f32 D_80753D70[];
 extern f32 D_80753D8C[];
 extern SchedStruct gScheduler;
-extern f32 gKongCannonInitialPitch[];
+extern f32 gKongDecelRate[];
 extern s16 D_8075388C[];
 extern s16 D_807538D8[];
 extern s16 D_807538E8[];
@@ -521,7 +521,7 @@ void playerStateCheckLandingAir(void) {
     gActivePlayerActor->speedY = speedY;
     gActivePlayerState->slideSpeed = decel;
     gActivePlayerState->actionTimer = 0;
-    gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
+    gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
     speed = gCurrentActor->speedXZ;
     maxSpeed = D_80753988[gCurrentCharacterIndex];
     if (speed < maxSpeed) {
@@ -1012,7 +1012,7 @@ void playerStateSetLaunchVelocity(void) {
                 gActivePlayerState->stateFlags2 &= ~4;
             }
             gActivePlayerState->gunDrawn = 1;
-            playerKongPlaySoundByState(gActivePlayerActor);
+            playerKongDrawGun(gActivePlayerActor);
         }
     } else {
         playerKongStopSoundByState(gCurrentActor);
@@ -1701,7 +1701,7 @@ void playerStateClearCarriedSetFlags(void) {
     gActivePlayerState->stateFlags &= ~0x20;
     gActivePlayerActor->interactionType = 2;
     gActivePlayerState->unk4C = -1;
-    gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
+    gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
     gActivePlayerActor->state = 0x7A;
     gActivePlayerActor->unk155 = 0;
 }
@@ -1732,7 +1732,7 @@ void playerStateEnterClimbTree(void) {
 
 void playerStateEnterKnockbackState(void) {
     gActivePlayerState->unk4C = -1;
-    gActivePlayerState->decelRate = gKongCannonInitialPitch[gCurrentCharacterIndex];
+    gActivePlayerState->decelRate = gKongDecelRate[gCurrentCharacterIndex];
     playerSetBaseGravity();
     if (gActivePlayerActor->state != 0x7C) {
         playerClearCarriedItemState();

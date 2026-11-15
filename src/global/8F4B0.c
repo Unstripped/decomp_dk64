@@ -57,11 +57,11 @@ typedef struct {
 } LightPosEntry;
 
 extern Actor *gCurrentActor;
-u8 D_807FC620;
-u8 D_807FC621;
-u8 D_807FC622;
-extern u8 D_807501C0[][3];
-extern LightPosEntry D_80750194[];
+u8 gWeatherLightningRequest;
+u8 gCutsceneLightIndex;
+u8 gCutsceneLightFlickerMode;
+extern u8 gLightFlickerColors[][3];
+extern LightPosEntry gCutsceneSpotLights[];
 
 
 void lightUpdateFromActorLighting(u8 *outR, u8 *outG, u8 *outB) {
@@ -72,7 +72,7 @@ void lightUpdateFromActorLighting(u8 *outR, u8 *outG, u8 *outB) {
     u8 idx;
 
     if (gCurrentActor->flags & 4) {
-        switch (D_807FC622) {
+        switch (gCutsceneLightFlickerMode) {
         case 0:
             *outR = 0xFF;
             *outG = 0xFF;
@@ -87,24 +87,24 @@ void lightUpdateFromActorLighting(u8 *outR, u8 *outG, u8 *outB) {
             if (!(gFrameCounter & 3)) {
 set_color:
                 idx = mathCosF(gFrameCounter * 200) * 4.0f + 4.0f;
-                *outR = D_807501C0[idx][0];
-                *outG = D_807501C0[idx][1];
-                *outB = D_807501C0[idx][2];
+                *outR = gLightFlickerColors[idx][0];
+                *outG = gLightFlickerColors[idx][1];
+                *outB = gLightFlickerColors[idx][2];
             }
             break;
         }
 
-        if ((D_807FC621 & 0x80) && (D_807FC621 & 0x7F)) {
-            D_807FC621 &= 0x7F;
-            targetX = D_80750194[D_807FC621 - 1].targetX;
-            targetY = D_80750194[D_807FC621 - 1].targetY;
-            targetZ = D_80750194[D_807FC621 - 1].targetZ;
-            if (D_807FC622 != 0) {
+        if ((gCutsceneLightIndex & 0x80) && (gCutsceneLightIndex & 0x7F)) {
+            gCutsceneLightIndex &= 0x7F;
+            targetX = gCutsceneSpotLights[gCutsceneLightIndex - 1].targetX;
+            targetY = gCutsceneSpotLights[gCutsceneLightIndex - 1].targetY;
+            targetZ = gCutsceneSpotLights[gCutsceneLightIndex - 1].targetZ;
+            if (gCutsceneLightFlickerMode != 0) {
                 targetX += 80.0f * mathSinF(gFrameCounter * 400);
                 targetZ += 80.0f * mathCosF(gFrameCounter * 200);
             }
-            lightSetFovAngles(D_80750194[D_807FC621 - 1].innerAngle, D_80750194[D_807FC621 - 1].outerAngle);
-            lightAdd(D_80750194[D_807FC621 - 1].posX, D_80750194[D_807FC621 - 1].posY, D_80750194[D_807FC621 - 1].posZ, targetX, targetY, targetZ, 0.0f, 1, *outR, *outG, *outB);
+            lightSetFovAngles(gCutsceneSpotLights[gCutsceneLightIndex - 1].innerAngle, gCutsceneSpotLights[gCutsceneLightIndex - 1].outerAngle);
+            lightAdd(gCutsceneSpotLights[gCutsceneLightIndex - 1].posX, gCutsceneSpotLights[gCutsceneLightIndex - 1].posY, gCutsceneSpotLights[gCutsceneLightIndex - 1].posZ, targetX, targetY, targetZ, 0.0f, 1, *outR, *outG, *outB);
         }
     }
 }
@@ -367,9 +367,9 @@ void actorCutsceneDispatchEvents(void) {
             gActivePlayerActor->contactFlags &= ~0x200;
             break;
         case 0x14:
-            D_807FC621 = eventData[0];
-            D_807FC622 = eventData[1];
-            if (D_807FC622 != 0) {
+            gCutsceneLightIndex = eventData[0];
+            gCutsceneLightFlickerMode = eventData[1];
+            if (gCutsceneLightFlickerMode != 0) {
                 commandSetColor(0x35, 0x18, 0x28);
                 commandSetParameters(0x320, 0x82, 0, 0x64, 0x64, 0x64);
             }
@@ -417,16 +417,16 @@ void actorCutsceneDispatchEvents(void) {
         break;
     case 0x3:
         if (((randomNonNegative() >> 15) % 50) == 15) {
-            D_807FC620 = 1;
+            gWeatherLightningRequest = 1;
         }
         /* fallthrough */
     case 0x2:
         if (csState->sfxCooldown != 0) {
             csState->sfxCooldown--;
         }
-        if (D_807FC620 != 0) {
+        if (gWeatherLightningRequest != 0) {
             csState->flashTimer = 0x28;
-            D_807FC620 = 0;
+            gWeatherLightningRequest = 0;
         }
         if (csState->flashTimer != 0) {
             if ((csState->flashTimer == 0x28) || (((randomNonNegative() >> 15) % 10) == 5)) {
@@ -459,17 +459,17 @@ void actorCutsceneDispatchEvents(void) {
 
     modelEmittersUpdate();
     particleSpawnPathTrail();
-    D_807FC621 |= 0x80;
+    gCutsceneLightIndex |= 0x80;
 }
 
 
-void enemyAggroEnable(void) {
-    D_807FC620 = 1;
+void weatherTriggerLightningFlash(void) {
+    gWeatherLightningRequest = 1;
 }
 
-void enemyAggroResetUnk21(void) {
-    D_807FC621 = 0;
-    D_807FC622 = 0;
+void cutsceneLightReset(void) {
+    gCutsceneLightIndex = 0;
+    gCutsceneLightFlickerMode = 0;
 }
 typedef struct {
     /* 0x00 */ u8 weatherMode;

@@ -493,7 +493,7 @@ void playerSpawnMapHelpers(void) {
     case 0x4E:
     case 0x4F:
     case 0x83:
-        playerKongPlaySoundByState(gActivePlayerActor);
+        playerKongDrawGun(gActivePlayerActor);
         gActivePlayerState->turnRate = D_80753354[gCurrentCharacterIndex];
         gActivePlayerActor->state = 0x62;
         gActivePlayerActor->unk155 = 0;
@@ -596,7 +596,7 @@ void playerApplyCharacterModel(const KongCharacterEntry *row) {
 }
 
 extern s16 D_8076AEE2;
-extern s8 D_80770DC9;
+extern s8 gAmbientIndoors;
 
 void playerWarpToSpawnPoint(s32 spawnIndex) {
     PlayerState *ps = gActivePlayerActor->customState;
@@ -629,7 +629,7 @@ void playerWarpToSpawnPoint(s32 spawnIndex) {
     gActivePlayerActor->contactFlags &= ~0x200;
     ps->camActor->unk15F = (spawn->unk7 <= 0) ? 1 : spawn->unk7;
     if (spawn->unk9 & 1) {
-        D_80770DC9 = 1;
+        gAmbientIndoors = 1;
     }
 }
 
