@@ -2574,8 +2574,8 @@ typedef struct TagBarrelData {
 
 
 
-void tagBarrelOrbitKongs(void *data) {
-    TagBarrelData *arg = data;
+void tagBarrelOrbitKongs(TagBarrelData *arg) {
+    s32 pad;
     f32 centerX = gCurrentActor->x;
     f32 centerY = gCurrentActor->y - 10.0f;
     f32 centerZ = gCurrentActor->z;
@@ -2586,7 +2586,6 @@ void tagBarrelOrbitKongs(void *data) {
     s16 baseYaw;
     s16 yaw;
     u8 u;
-    u8 *cursor;
     Actor *kong;
 
     blend = (f32)(u32)arg->timer / 20.0f;
@@ -2597,14 +2596,11 @@ void tagBarrelOrbitKongs(void *data) {
     u = ((u8)((s16)(u & 0xFFF) & 0xFFFF) & 0x7FFF); // FAKE: ring temps
     u = (s32)(((u8)(u & 0xFFFF) & 0xFF) & 0x7FFF); // FAKE: ring temps
     u = (u32)u; // FAKE: ring temps
-    i = 0;
-    cursor = (u8 *)data;
-    do {
-        kong = *(Actor **)(cursor + 8); // FAKE: byte-pointer walk over the kong array steers the loop induction variable
+    for (i = 0; i < 5; i++) {
+        kong = arg->kongs[i];
         yaw = (s16)((s32)(4096.0 - (i * 819.2)) + baseYaw) & 0xFFF;
         kong->x = (mathSinF(yaw) * 45.0f) + centerX;
         kong->z = (mathCosF(yaw) * 45.0f) + centerZ;
-        cursor += 4;
         kong->y = centerY;
         if (i == arg->selected) {
             glow = 1.0f - blend;
@@ -2614,7 +2610,6 @@ void tagBarrelOrbitKongs(void *data) {
             glow = 0;
         }
         glow = (f64)glow - 0.6;
-        i++;
         glow = (f64)glow * 2.5;
         if (glow < 0) {
             glow = 0.0f;
@@ -2627,7 +2622,7 @@ void tagBarrelOrbitKongs(void *data) {
             glow = clamped;
         }
         kong->unk15F = (u32)((12.0f * glow) + 3.0f);
-    } while (i != 5);
+    }
 }
 
 void actorScriptStartByKongIndex(void *actor, u16 *kongIndex, s32 index) {

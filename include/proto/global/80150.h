@@ -152,7 +152,7 @@ void rocketbarrelUpdate(void);
 void cannonUpdate(void);
 #endif
 #ifndef PROTO_SKIP_tagBarrelOrbitKongs
-void tagBarrelOrbitKongs(void *);
+void tagBarrelOrbitKongs(struct TagBarrelData *);
 #endif
 #ifndef PROTO_SKIP_actorScriptStartByKongIndex
 void actorScriptStartByKongIndex(void *, u16 *, s32);
