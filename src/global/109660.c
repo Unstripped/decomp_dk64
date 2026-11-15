@@ -28,8 +28,9 @@ typedef struct {
 } TintKeyframe;
 
 // This TU's .data (0x80754CE0-0x80754F80), in address order: IDO emits .data in definition order
-// and starts every object on a 4-byte boundary.
-s16 D_80754CE0 = 0; // added to gBgScrollY by gfxBuildScrollingBackground; written by menu/3E10.c
+// and starts every object on a 4-byte boundary; function-local statics follow the file-scope data
+// (gfxBuildScrollingBackground's sBgScrollX/sBgScrollY at 0x80754F70/0x80754F74).
+s16 D_80754CE0 = 0; // added to sBgScrollY by gfxBuildScrollingBackground; written by menu/3E10.c
 f32 gBgRotatedScale = 1.0f; // gfxDrawRotatedTiledBackground scale divisor
 f32 gBackgroundBlend = 0.0f;
 s16 gBgScrollTileAssets[] = { 0x4C3, 0x4C4, 0x4C0, 0x4BF, 0x4C6, 0x4C5, 0x4C1, 0x4C2 }; // scrolling background tile assets
@@ -105,9 +106,6 @@ TintKeyframe gTintKeyframes[] = {
     { 0x076C, 0x00, 0x00, 0xFF },
     { 0x0000, 0xFF, 0x00, 0x00 },
 };
-
-s16 gBgScrollX = 0;
-s16 gBgScrollY = 0;
 
 // Split-screen divider rectangle (D_80750840, terminated by players == -1); coordinates in low-res pixels.
 typedef struct {
@@ -493,6 +491,8 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
 }
 
 Gfx *gfxBuildScrollingBackground(Gfx *dl) {
+    static s16 sBgScrollX = 0;
+    static s16 sBgScrollY = 0;
     s32 x;
     s32 i;
     s32 j;
@@ -513,7 +513,7 @@ Gfx *gfxBuildScrollingBackground(Gfx *dl) {
     gSPTexture(dl++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     gDPPipeSync(dl++);
-    scroll = gBgScrollY + D_80754CE0;
+    scroll = sBgScrollY + D_80754CE0;
     if (scroll < 0) {
         scroll += 0x200;
     }
@@ -533,7 +533,7 @@ Gfx *gfxBuildScrollingBackground(Gfx *dl) {
             gDPPipeSync(dl++);
             tex = D_807FD978[k];
             gDPLoadTextureBlock(dl++, (u32)tex + 0x80000000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 64, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, G_TX_NOLOD, G_TX_NOLOD);
-            x = (i << 2) - gBgScrollX;
+            x = (i << 2) - sBgScrollX;
             for (n = 0; n < 4; n++) {
                 y2 = y;
                 gSPScisTextureRectangle(dl++, x, y2, x + 0x80, y2 + 0x100, 0, 0, 0x7FF, 0x400, -0x400);
@@ -547,14 +547,13 @@ Gfx *gfxBuildScrollingBackground(Gfx *dl) {
             i += 0x20;
         } while (i != 0x80);
     }
-    scroll = gBgScrollX + 4;
-    gBgScrollY += 4;
-    *(s16 *)((u8 *)gTintKeyframes + 0x18) = scroll; // FAKE: gBgScrollX stored via gTintKeyframes+0x18 keeps a separate lui at/sh (no lda web in v1, Q0255)
-    if (scroll >= 0x200) {
-        *(s16 *)((u8 *)gSkyQuadColors + 0x78) = 0; // FAKE: gBgScrollX stored via gSkyQuadColors+0x78 keeps a separate lui at/sh (Q0255)
+    sBgScrollX += 4;
+    sBgScrollY += 4;
+    if (sBgScrollX >= 0x200) {
+        sBgScrollX = 0;
     }
-    if (gBgScrollY >= 0x200) {
-        gBgScrollY = 0;
+    if (sBgScrollY >= 0x200) {
+        sBgScrollY = 0;
     }
     gDPPipeSync(dl++);
     gDPSetTexturePersp(dl++, G_TP_PERSP);
