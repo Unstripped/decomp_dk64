@@ -2237,14 +2237,6 @@ void menuInitCheats(Actor *actor, s32 unused) {
     }
 }
 
-typedef struct MenuHighScoreEntry {
-    s16 score;
-    u8 initial0;
-    u8 initial1;
-    u8 initial2;
-    u8 initial3;
-} MenuHighScoreEntry;
-
 extern MenuHighScoreEntry D_80744548[];
 extern MenuHighScoreEntry D_80744568[];
 

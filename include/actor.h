@@ -963,6 +963,16 @@ typedef struct PlayerInventory {
 // Per-player inventory (4 players at 0x807FC950); gCurrentKongInventory points at the current kong's row.
 extern PlayerInventory gPlayerInventoryTable[];
 
+// One row of the two five-entry high-score tables D_80744548 / D_80744568 (EEPROM fields 0x16-0x19 and
+// 0x1A-0x1D, see 104F0.c eepromInitConfigs; defaults D_80757044 / D_80757064).
+typedef struct MenuHighScoreEntry {
+    /* 0x0 */ s16 score;
+    /* 0x2 */ u8 initial0; // initials as characters; stored on EEPROM as indices into D_80746800
+    /* 0x3 */ u8 initial1;
+    /* 0x4 */ u8 initial2;
+    /* 0x5 */ u8 initial3; // string terminator (menuLoadHighScores writes 0)
+} MenuHighScoreEntry; /* sizeof 0x6 */
+
 // Collectible totals (0x807FC828), recomputed by hudPauseMenuRefreshTotals (ACDC0): [0] golden bananas over all
 // kongs, [1] set flags of D_807505B8, [2] set flags of the D_80744710 list, [3] flags 0x225-0x24C, [4] flag 0x17B,
 // [5] flags 0x24D-0x260, [6] flag 0x84, [7] flags 0x1FD-0x224, [8] always 1. The first seven weigh into

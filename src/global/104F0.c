@@ -426,14 +426,6 @@ void eepromSetCurrentSlot(u8 slotId, s32 save) {
     }
 }
 
-typedef struct MenuHighScoreEntry {
-    s16 score;
-    u8 initial0;
-    u8 initial1;
-    u8 initial2;
-    u8 initial3;
-} MenuHighScoreEntry;
-
 extern s32 D_807467EC[];
 extern MenuHighScoreEntry D_80744548[];
 extern MenuHighScoreEntry D_80744568[];
