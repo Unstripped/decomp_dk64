@@ -13,9 +13,10 @@ menu:8003292C:other:cd8c4b other: reusing the consumed font-height local orders 
 2026-11-10 Rev10B anthropic/claude-opus-5-5:low: traced x/xo candidate colouring, macro frame growth, off's memory home, and final-call ugen order; a natural reconstruction scored 1519 and the five-site permutation only reproduced dead guards.
 2026-11-11 Rev17L anthropic/claude-opus-5-5:low: isolated register and frame deltas; all five distinct constructs removed together scored 450 and retained no natural match.
 2026-11-14 HackmenuRenderOptionDescription openai-codex/gpt-5.6-sol: tested decoded `gDPSetCombineLERP`, a two-iteration tile-index loop, MIN clamp replacement, function- and block-scoped `y2`, block-scoped first-assignment `off`, fixed-coordinate reuse across both text calls, and combined six-site reconstructions; best new individual candidates were Combine score 19 and final-y score 25, while the complete natural rewrite scored 235 -> nohit, original retained.
+2026-11-14 HackmenuRenderOptionDescription anthropic/claude-opus-5-5:high: frame-home accounting for a macro Combine; final y into address-taken `off` (4: only an extra `sw t0,212(sp)`) and into dead fontHeight/yo/y/alpha (7); `off` carrier/inlined final y without `&off` (28/35); guard removals with xo in the for header (84), `*32`/`*4` rect spellings (205-215), implicit header-xo conversion and outer `for` (18); six-site rewrites 120/114 -> nohit, original retained.
 
 ## Untried ideas
-No remaining local ordinary-C rewrite is identified. Replacing the dead ranges with another no-op, array/struct home carrier, volatile qualifier, or cancelled arithmetic would only exchange one hack for another.
+No remaining local ordinary-C rewrite is identified. Replacing the dead ranges with another no-op, array/struct home carrier, volatile qualifier, or cancelled arithmetic would only exchange one hack for another. The only frame-neutral macro Combine needs one fewer function-level local, and every current local carries a distinct live value.
 
 ## Evidence
 The matched target frame is 0xE8. `gDPSetCombineLERP` grows it to 0xF0 and moves the saved actor argument from sp+0xEC to sp+0xF4; its reduced score is 19.
@@ -23,3 +24,5 @@ The tile-index rewrite grows the frame to 0xF8 (and the all-natural rewrite to 0
 A block-scoped real `off` keeps the frame at 0xE8, but moves the four string/font homes from target sp+0xCC/0xC8/0xC4/0xC0 to sp+0xD0/0xCC/0xC8/0xC4 and scores 34.
 A dedicated final-y local grows the frame to 0xF0 and scores 25; the retained consumed-local dependency is what produces the target's final t6/t7 argument-order ring.
 The retained baseline has 417 normalized as1 rows; exhaustive record scan found no improving edit, confirming that the two existing `LAYOUT:` joins already express the target schedule.
+`uopt_trace -l 5` homes from the 0xE8 frame top: tex -4, alpha -8, y -12, xo -16, off -20 (memory), x -24, headerStr -28, descStr1 -32, descStr2 -36, fontHeight -40, yo -44, then 22 GBI `_g` homes -48..-132; spill temps sit at sp+0x48/0x50/0x60. The four locals before `off` may be reordered freely (declswap scores 0).
+Final y stored into the escaped `off` (with `x * 4` inline) already gives the target t6/t7/a2/t8 ring; the only remaining difference is the store the escape forces (`move a2,t0`; `sw t0,212(sp)` in the delay slot).
