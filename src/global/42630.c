@@ -4,10 +4,10 @@
 #include "cutscene.h"
 #include "sched.h"
 #include "model.h"
-#define PROTO_SKIP_hudSpawnCountdownTimer // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_modelAnimEntrySetUnkC // FAKE: callee prototype steer
-#define PROTO_SKIP_sfxSlotAllocateSource // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetDepth // FAKE: callee prototype steer
+#define PROTO_SKIP_hudSpawnCountdownTimer // ORIG: hides the 3-parameter prototype; the target passes a fourth argument (a3 = &D_807F61F0 at 0x2600/0x2604 into jal 0x261c), see the declaration in front of csCmdExec
+#define PROTO_SKIP_modelAnimEntrySetUnkC // ORIG: hides the (s16, s16, s16) prototype; the target passes h without call-site narrowing into jal 0x29e0, see the declaration in front of csCmdExec
+#define PROTO_SKIP_sfxSlotAllocateSource // ORIG: hides the u8 range/exclusive prototype; the target passes a2/a3 unmasked into jal 0x306c and 0x3144, see the declaration in front of csCmdExec
+#define PROTO_SKIP_effectSetDepth // ORIG: hides the u8 prototype; the target loads li a0,1 at 0x51cc, see the s8 declaration below
 #include "proto/global/10130.h"
 #include "proto/global/104F0.h"
 #include "proto/global/10E1D0.h"
@@ -44,7 +44,7 @@
 #include "proto/global/EFDC0.h"
 #include "proto/global/F9450.h"
 #include "proto/global/FCCD0.h"
-void effectSetDepth(s8); // FAKE: callee prototype steer (shared header has u8)
+void effectSetDepth(s8); // ORIG: csCmdSpawnSparkAndLight loads the argument with li a0,1 at 0x51cc; the shared u8 prototype gives andi a0,s4,0xff there; owner 119370 stores a0 with sb at 0x354 (type-blind) and an s8 or s32 owner breaks 478F0/80150/89250/9DD70
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -1062,9 +1062,9 @@ extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
 extern u32 gGlobalCutsceneFlags;
 
-void hudSpawnCountdownTimer(s32, s32, u8, void *);
-void modelAnimEntrySetUnkC(); // FAKE: callee prototype steer
-u8 sfxSlotAllocateSource(s16, s16, s32, s32, u8, f32, s8);  // FAKE: callee prototype steer
+void hudSpawnCountdownTimer(s32, s32, u8, void *); // ORIG: a3 = &D_807F61F0 loaded at 0x2600/0x2604 and live into jal 0x261c (a 3-argument call puts the address in t0 instead); owner A7710 homes only a0-a2 (0x8-0x10) and never reads a3
+void modelAnimEntrySetUnkC(); // ORIG: case 0x4C passes h in a2 as computed (sll/sra at 0x29cc/0x29d0) into jal 0x29e0; the shared (s16, s16, s16) prototype re-narrows a2 before the call; owner 54150 narrows a0 itself (sll/sra at 0x15c0) and an s32 owner does not fdiff
+u8 sfxSlotAllocateSource(s16, s16, s32, s32, u8, f32, s8); // ORIG: a2/a3 passed unmasked (move a2,t5 at 0x2ffc and move a3,t9 at 0x3028 into jal 0x306c; 0x30cc/0x30f8 into jal 0x3144); the shared u8 prototype adds andi a2,..,0xff before each jal; owner 7130 masks exclusive itself (andi t7,a3,0xff at 0x2c28) and an s32 owner does not fdiff
 
 void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     void *dm = &csId; // FAKE: address-taken csId keeps sel at sp+0xB3 (Q0174)
