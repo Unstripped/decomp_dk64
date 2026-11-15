@@ -3,9 +3,7 @@
 #define PROTO_GLOBAL_F56F0_H
 #include "common.h"
 #include "actor.h"
-struct F56AState;
 struct F5DDeferredEntry;
-struct F5N1Spring;
 struct WaypointNode;
 #ifndef PROTO_SKIP_playerKongStopAudioChannels
 void playerKongStopAudioChannels(Actor *, u16);
@@ -68,13 +66,13 @@ void playerWeaponCalculateTrajectory22(Actor *, BoneRotation *, s32 *);
 void playerWeaponCalculateTrajectory23(Actor *, BoneRotation *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory24
-void playerWeaponCalculateTrajectory24(f32, f32, struct F5N1Spring *, f32 *);
+void playerWeaponCalculateTrajectory24(f32, f32, KongSpring *, f32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory25
-f32 playerWeaponCalculateTrajectory25(Actor *, struct F56AState *, f32);
+f32 playerWeaponCalculateTrajectory25(Actor *, KongChain *, f32);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory26
-s32 playerWeaponCalculateTrajectory26(Actor *, struct F56AState *, s32);
+s32 playerWeaponCalculateTrajectory26(Actor *, KongChain *, s32);
 #endif
 #ifndef PROTO_SKIP_mathAngleRadDeltaTurns
 f32 mathAngleRadDeltaTurns(f32 *, f32);

@@ -31,7 +31,7 @@ void func_806C80E4(void);
 void cameraSetViewportYRange(s16, s16);
 #endif
 #ifndef PROTO_SKIP_kongChainInit
-void kongChainInit(s32, void *, u32);
+void kongChainInit(s32, KongChain *, u32);
 #endif
 #ifndef PROTO_SKIP_playerSetupCharacterForSlot
 void playerSetupCharacterForSlot(s32, u8);

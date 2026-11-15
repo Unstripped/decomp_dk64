@@ -22,7 +22,6 @@
 #include "proto/global/F9450.h"
 
 struct WaypointNode;
-struct F56AState;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
@@ -460,14 +459,7 @@ void playerWeaponCalculateTrajectory23(Actor *actor, BoneRotation *slots, s32 *c
     *count += 1;
 }
 
-typedef struct F5N1Spring {
-    f32 offset;
-    f32 angle;
-    f32 velocity;
-} F5N1Spring;
-
-
-void playerWeaponCalculateTrajectory24(f32 force, f32 damping, F5N1Spring *spring, f32 *angle) {
+void playerWeaponCalculateTrajectory24(f32 force, f32 damping, KongSpring *spring, f32 *angle) {
     s32 pad[1];
     f32 cosTilt;
 
@@ -479,25 +471,7 @@ void playerWeaponCalculateTrajectory24(f32 force, f32 damping, F5N1Spring *sprin
     *angle += spring->angle + spring->offset;
 }
 
-typedef struct F56APair {
-    F5N1Spring springX;
-    F5N1Spring springY;
-} F56APair;
-
-typedef struct F56AState {
-    f32 prevAngle;
-    f32 prevY;
-    f32 prevVelY;
-    f32 sway;
-    f32 weight;
-    u8 holdTimer;
-    u8 pad15[3];
-    s32 mode;
-    F56APair springs[8];
-    u8 padDC[0x60];
-} F56AState;
-
-f32 playerWeaponCalculateTrajectory25(Actor *actor, F56AState *state, f32 scale) {
+f32 playerWeaponCalculateTrajectory25(Actor *actor, KongChain *state, f32 scale) {
     f32 delta;
     f32 sway;
 
@@ -507,13 +481,13 @@ f32 playerWeaponCalculateTrajectory25(Actor *actor, F56AState *state, f32 scale)
     return (delta + sway) * scale;
 }
 
-s32 playerWeaponCalculateTrajectory26(Actor *actor, F56AState *state, s32 mode) {
+s32 playerWeaponCalculateTrajectory26(Actor *actor, KongChain *state, s32 mode) {
     s32 ret = (actor->flags & 0x100) != 0;
 
     if (ret != 0) {
         ret = state->holdTimer == 0;
         if (ret != 0) {
-            return mode == state->mode;
+            return mode == state->kind;
         }
     } // FAKE: no final return keeps ret in $v0 (same idiom as func_80026250)
 }
@@ -535,13 +509,13 @@ f32 mathAngleRadDeltaTurns(f32 *prevAngle, f32 angle) {
 // Per-type view: 0x178 is this actor type's second component pointer (see Actor).
 typedef struct F56AActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ F56AState *weaponState;
+    /* 0x178 */ KongChain *weaponState;
 } F56AActor;
 
 
 void playerWeaponAimTarget(Actor *actor, BoneRotation *slots, s32 *count) {
-    F56AState *state = ((F56AActor *) actor)->weaponState;
-    F56APair *pair;
+    KongChain *state = ((F56AActor *) actor)->weaponState;
+    KongChainNode *node;
     s32 pad5[1];
     f32 posB[3];
     f32 posA[3];
@@ -558,7 +532,7 @@ void playerWeaponAimTarget(Actor *actor, BoneRotation *slots, s32 *count) {
     s32 kind;
     s32 pad4[2];
 
-    pair = state->springs;
+    node = state->nodes;
     active = playerWeaponCalculateTrajectory26(actor, state, 2);
     angle0 = 0.0f;
     angle1 = 0.0f;
@@ -570,7 +544,7 @@ void playerWeaponAimTarget(Actor *actor, BoneRotation *slots, s32 *count) {
     if (active == 0) {
         state->prevAngle = angle;
         state->prevY = posA[1];
-        if ((state->holdTimer != 0) && (actor->flags & 0x100) && (state->mode == 2)) {
+        if ((state->holdTimer != 0) && (actor->flags & 0x100) && (state->kind == 2)) {
             state->holdTimer -= 1;
         }
     } else {
@@ -582,15 +556,15 @@ void playerWeaponAimTarget(Actor *actor, BoneRotation *slots, s32 *count) {
     }
     for (i = 0; i != 4; i++) {
         if (active != 0) {
-            playerWeaponCalculateTrajectory24(accel0, 0.06f, &pair->springX, &angle0);
-            playerWeaponCalculateTrajectory24(accel1, 0.06f, &pair->springY, &angle1);
+            playerWeaponCalculateTrajectory24(accel0, 0.06f, &node->springX, &angle0);
+            playerWeaponCalculateTrajectory24(accel1, 0.06f, &node->springY, &angle1);
         }
         slots[index].weight = value;
         slots[index].bone = kind;
-        slots[index].rotX = (s32) ((pair->springX.angle + pair->springX.offset) * 10430.218905280077);
+        slots[index].rotX = (s32) ((node->springX.angle + node->springX.offset) * 10430.218905280077);
         slots[index].rotY = 0;
-        slots[index].rotZ = (s32) ((pair->springY.angle + pair->springY.offset) * 10430.218905280077);
-        pair++;
+        slots[index].rotZ = (s32) ((node->springY.angle + node->springY.offset) * 10430.218905280077);
+        node++;
         index++;
         kind++;
     }
@@ -600,8 +574,8 @@ void playerWeaponAimTarget(Actor *actor, BoneRotation *slots, s32 *count) {
 extern s8 D_80752CBF[];
 
 void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) {
-    F56AState *state = ((F56AActor *) actor)->weaponState;
-    F56APair *pair;
+    KongChain *state = ((F56AActor *) actor)->weaponState;
+    KongChainNode *node;
     BoneRotation *slot;
     f32 trajectory;
     s32 index;
@@ -617,7 +591,7 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
     f32 y;
     f32 newvel;
     f32 delta;
-    F56AState *cur;
+    KongChain *cur;
     s32 active;
     f32 boost;
     f32 accel0;
@@ -638,7 +612,7 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
             cur[k].prevY = pos[k][1];
         }
         if (k == 0) {}  // FAKE: dead use of k after loop 1 (index in s7, slots in s2)
-        if ((state->holdTimer != 0) && (actor->flags & 0x100) && (state->mode == 5)) {
+        if ((state->holdTimer != 0) && (actor->flags & 0x100) && (state->kind == 5)) {
             state->holdTimer -= 1;
         }
     } else {
@@ -659,7 +633,7 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
         accel0 = 0.0f;
         angle0 = 0.0f;
         angle1 = 0.0f;
-        pair = cur->springs;
+        node = cur->nodes;
         if (active != 0) {
             y = pos[k][1];
             newvel = y - cur->prevY;
@@ -680,16 +654,16 @@ void playerWeaponSpawnProjectile(Actor *actor, BoneRotation *slots, s32 *count) 
         i = 0;
         do {
             if (active != 0) {
-                playerWeaponCalculateTrajectory24(accel1, 0.06f, &pair->springX, &angle0);
-                playerWeaponCalculateTrajectory24(accel0, 0.06f, &pair->springY, &angle1);
+                playerWeaponCalculateTrajectory24(accel1, 0.06f, &node->springX, &angle0);
+                playerWeaponCalculateTrajectory24(accel0, 0.06f, &node->springY, &angle1);
             }
             slot->weight = value;
             slot->bone = kind;
             slot->rotX = 0;
-            slot->rotY = (s32) ((pair->springY.angle + pair->springY.offset) * 10430.218905280077);
-            slot->rotZ = (s32) ((pair->springX.angle + pair->springX.offset) * 10430.218905280077);
+            slot->rotY = (s32) ((node->springY.angle + node->springY.offset) * 10430.218905280077);
+            slot->rotZ = (s32) ((node->springX.angle + node->springX.offset) * 10430.218905280077);
             i++;
-            pair++;
+            node++;
             index++;
             slot++;
             kind++;
@@ -703,8 +677,8 @@ extern s8 D_80752D4E[];
 extern f32 D_80752F4C;
 
 void playerWeaponInitCrosshair(Actor *actor, BoneRotation *slots, s32 *count) {
-    F56AState *state;
-    F56APair *pair;
+    KongChain *state;
+    KongChainNode *node;
     s32 index;
     s32 kind;
     s32 active;
@@ -730,7 +704,7 @@ void playerWeaponInitCrosshair(Actor *actor, BoneRotation *slots, s32 *count) {
     state = ((F56AActor *) actor)->weaponState;
     index = *count;
     kind = 0x1A;
-    pair = state->springs;
+    node = state->nodes;
     angle1 = 0.0f;
     angle0 = 0.0f;
     forceX = 0.0f;
@@ -745,7 +719,7 @@ void playerWeaponInitCrosshair(Actor *actor, BoneRotation *slots, s32 *count) {
         state->prevAngle = actor->yaw;
         state->prevY = y;
         D_80752F4C = 0.0f;
-        if ((state->holdTimer != 0) && (actor->flags & 0x100) && (state->mode == 3)) {
+        if ((state->holdTimer != 0) && (actor->flags & 0x100) && (state->kind == 3)) {
             state->holdTimer -= 1;
         }
     } else {
@@ -781,15 +755,15 @@ void playerWeaponInitCrosshair(Actor *actor, BoneRotation *slots, s32 *count) {
     }
     for (i = 0; i != 11; i++) {
         if (active != 0) {
-            playerWeaponCalculateTrajectory24(forceX, damping, &pair->springX, &angle0);
-            playerWeaponCalculateTrajectory24(forceY, damping, &pair->springY, &angle1);
+            playerWeaponCalculateTrajectory24(forceX, damping, &node->springX, &angle0);
+            playerWeaponCalculateTrajectory24(forceY, damping, &node->springY, &angle1);
         }
         slots[index].weight = value;
         slots[index].bone = kind;
-        slots[index].rotX = (s32) ((pair->springX.angle + pair->springX.offset) * 10430.218905280077);
-        slots[index].rotY = (s32) ((pair->springY.angle + pair->springY.offset) * 10430.218905280077);
+        slots[index].rotX = (s32) ((node->springX.angle + node->springX.offset) * 10430.218905280077);
+        slots[index].rotY = (s32) ((node->springY.angle + node->springY.offset) * 10430.218905280077);
         slots[index].rotZ = 0;
-        pair++;
+        node++;
         index++;
         kind++;
     }

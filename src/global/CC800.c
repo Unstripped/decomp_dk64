@@ -247,37 +247,11 @@ typedef struct ChainOffsets4 {
     /* 0x00 */ f32 offsetX[4];
 } ChainOffsets4;
 
-// One damped spring of a kong chain node (F56F0 steps it: playerWeaponCalculateTrajectory24).
-typedef struct KongSpring {
-    /* 0x0 */ f32 offset; // rest angle: the per-kind table value, mirrored for the second chain
-    /* 0x4 */ f32 angle;
-    /* 0x8 */ f32 velocity;
-} KongSpring;
-
-typedef struct KongChainNode {
-    /* 0x00 */ KongSpring springX;
-    /* 0x0C */ KongSpring springY;
-} KongChainNode;
-
-// Kong actor second component (Actor 0x178), filled by kongChainInit per kind: DK (2) one chain of 4 nodes,
-// Diddy (3) one of 11, Tiny (5) two mirrored chains of 8. F56F0 reads the same block as F56AState.
-typedef struct KongChain {
-    /* 0x000 */ f32 prevAngle;
-    /* 0x004 */ f32 prevY;
-    /* 0x008 */ f32 prevVelY;
-    /* 0x00C */ f32 sway;
-    /* 0x010 */ f32 weight;
-    /* 0x014 */ u8 holdTimer;
-    /* 0x015 */ u8 pad15[3];
-    /* 0x018 */ s32 kind; // the kong's actor type
-    /* 0x01C */ KongChainNode nodes[12];
-} KongChain; // size = 0x13C
-
 extern ChainOffsets8 sChainOffsets8;
 extern ChainOffsets11 sChainOffsets11;
 extern ChainOffsets4 sChainOffsets4;
 
-void kongChainInit(s32 mode, void *chainBuffer, u32 kind) {
+void kongChainInit(s32 mode, KongChain *chains, u32 kind) {
     f32 pad;
     ChainOffsets8 tbl8;
     ChainOffsets11 tbl11;
@@ -296,7 +270,7 @@ void kongChainInit(s32 mode, void *chainBuffer, u32 kind) {
     count = 1; // FAKE: dead store (every case sets count/n), keeps the frame/stack order
     n = 4; // FAKE: dead store (every case sets n), keeps n in v1 and the buffer copy in a0 (pre-existing, now tagged)
     tbl11 = sChainOffsets11;
-    chain = chainBuffer;
+    chain = chains;
     tbl4 = sChainOffsets4;
     sign = 1.0f;
     switch (kind) {

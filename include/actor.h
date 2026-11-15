@@ -558,6 +558,32 @@ typedef struct ScriptedActor {
     /* 0x17C */ ScriptedActorState *scriptState;
 } ScriptedActor;
 
+// One damped spring of a kong chain node (F56F0 steps it: playerWeaponCalculateTrajectory24).
+typedef struct KongSpring {
+    /* 0x0 */ f32 offset; // rest angle: the per-kind table value, mirrored for the second chain
+    /* 0x4 */ f32 angle;
+    /* 0x8 */ f32 velocity;
+} KongSpring;
+
+typedef struct KongChainNode {
+    /* 0x00 */ KongSpring springX;
+    /* 0x0C */ KongSpring springY;
+} KongChainNode;
+
+// Kong actor second component (Actor 0x178), filled by kongChainInit (CC800) per kind: DK (2) one chain of
+// 4 nodes, Diddy (3) one of 11, Tiny (5) two mirrored chains of 8; F56F0 steps it.
+typedef struct KongChain {
+    /* 0x000 */ f32 prevAngle;
+    /* 0x004 */ f32 prevY;
+    /* 0x008 */ f32 prevVelY;
+    /* 0x00C */ f32 sway;
+    /* 0x010 */ f32 weight;
+    /* 0x014 */ u8 holdTimer;
+    /* 0x015 */ u8 pad15[3];
+    /* 0x018 */ s32 kind; // the kong's actor type
+    /* 0x01C */ KongChainNode nodes[12];
+} KongChain; // size = 0x13C
+
 typedef struct ZoneVertex {
     /* 0x0 */ s16 x;
     /* 0x2 */ s16 y;
