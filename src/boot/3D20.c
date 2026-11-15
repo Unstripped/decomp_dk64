@@ -88,18 +88,15 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     count = 0;
     f = fmt;
     while (*f != 0) {
-        c = *f;
         if (*f != '%') {
             while (*f != '%' && *f != 0) {
                 count++;
-                *buf++ = *f;
-                f++;
-                c = *f;
+                *buf++ = *f++;
             }
         } else {
             c = *++f;
             if ((c ^ 0) == '%') { // FAKE: operand order of the compare
-                c = *++f; // LAYOUT: as1 increment order of f/count/buf
+                f++;
                 count++;
                 *buf++ = '%';
             } else {
@@ -191,8 +188,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     }
                     c = *f;
                 }
-                conv = *f;
-                f++;
+                conv = *f++;
                 switch (conv) {
                 case 'd':
                 case 'i':
@@ -305,7 +301,6 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             *buf++ = ' ';
                         }
                     }
-                    c = *f;
                     break;
                 case 'e':
                 case 'E':
@@ -420,11 +415,9 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             *buf++ = ' ';
                         }
                     }
-                    c = *f;
                     break;
                 case 'g':
                 case 'G':
-                    c = *f;
                     break;
                 case 'f':
                     rnd = 1.0;
@@ -507,7 +500,6 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             *buf++ = ' ';
                         }
                     }
-                    c = *f;
                     break;
                 case 'c':
                     uv = va_arg(ap, int);
@@ -525,7 +517,6 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             *buf++ = ' ';
                         }
                     }
-                    c = *f;
                     break;
                 case 's':
                     p = va_arg(ap, unsigned char *);
@@ -560,7 +551,6 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             *buf++ = ' ';
                         }
                     }
-                    c = *f;
                     break;
                 case 'p':
                     q1 = va_arg(ap, int *);
@@ -593,7 +583,6 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             }
                         }
                     }
-                    c = *f;
                     break;
                 case 'n':
                     if (ll) {
@@ -609,10 +598,8 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         q1 = va_arg(ap, int *);
                         *(short *)q1 = count;
                     }
-                    c = *f;
                     break;
                 default:
-                    c = *f;
                     break;
                 }
             }
