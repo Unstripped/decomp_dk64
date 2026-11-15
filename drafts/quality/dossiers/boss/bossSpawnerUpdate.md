@@ -6,7 +6,7 @@
 - other a0a7fe (dx reused for randomFloat): FIXED. `f32 r` own local; frame room comes from the old `s32 pad` slot (0x78) plus sharing one x/z float pair between case 1 (player offset) and the light block.
 - other 82a569 (cutsceneId as light level): FIXED. `s32 level` in the old pad slot, used for raw level and the `(i << 4) & 0xFF` intensity.
 - dead-if f9b7c2 (`if (D_80035B68 == 0) {}` case 1): FIXED via Q0498: D_80035B68/D_80035B6C become function-local statics (only user). Object differs only in relocations (.data+0x68/+0x6c instead of the two global symbols); `fdiff --reloc-ok` RELOC-EQUIV OK, raw words equal except LO16 addends, .data/.rodata bytes identical.
-- dead-if 3e88fe (was 0e256f, `if (level && level) {}`): KEPT tagged. See ledger diagnose.
+- dead-if 3e88fe (was 0e256f, `if (level && level) {}`): KEPT tagged. The guard splits the block after `level = (i << 4) & 0xFF`, so the first lightAdd's `(u8)level` args are a global copy-propagation product with a late candidate bit (base trace: `ucvtl{and}` bit 443 after `ucvtl{level}` bit 427). spilltemps then gives the call-crossing intensity temp the second slot 0x44 (`sw v0,68(sp)` at 0xeec, `lw v0,68(sp)` at 0xf3c); 0x48 is held by the lower bit. Without the guard same-block forwarding (Q0499) substitutes the expression into the args (double `andi`, v0 home 0x48).
 
 ## Attempts (2026-11-14, HackbossSpawnerUpdate, anthropic/claude-opus-5-5:high)
 - int / double literal args for prototyped f32 params -> fdiff 0 (all four proto sites)
@@ -18,9 +18,18 @@
 - 3e88fe removal: level types u8..u32, spellings i<<4 / i*16 / (u8), statement moves, u8 intensity local in the 3-byte hole -> nonzero (+1..+3 insns)
 - permuter on the 3e88fe-removed base: see ledger
 
+## Attempts (2026-11-15, HackbossSpawnerUpdate2, anthropic/claude-opus-5-5:high)
+- review: case 0 `i = 5;` default moved into the `phase == 2` branch (both forms fdiff 0; kept the plain if/else form).
+- 3e88fe, deadsweep scores vs target (full): plain removal 23; intensity inline per call (`i << 4`, `i * 16`, `(u8)(i << 4)`) 22, `(i << 4) & 0xFF` inline 39; `u8 c = i << 4` local at three declaration positions 22/80/57; `(u8)level` args 23; ternary abs 26; clamp folded into the intensity ternary 52; `level = 0xF0` / `(i << 4) & 0xFF` if/else 9 (extra `b` + `li 240`); `level = i << 4; level &= 0xFF` 23; `i <<= 4; level = i & 0xFF` 5; `i = (i << 4) & 0xFF` passed as i 33; `level = (level << 4) & 0xFF` with roles of i/level swapped 56.
+- local `PROTO_SKIP_lightAdd` + s32 colour params (diagnostic only): 22, same as inline; the caller-side u8 narrowing is not the cause.
+- `i <<= 4` (or `i *= 16`, `i = i << 4`, `(u8)i` args, `k = state->side` after the shift) with `i` passed to both calls: full 2. Only difference: the call-crossing intensity temp spills to 0x48 (`sw v0,72(sp)` / `lw v0,72(sp)`) instead of 0x44. `level = i << 4; i = level` and `i <<= 4; level = i` also 2. variants.py scan (120 + width/declswap 67) around it: no zero.
+- permuter 900 s from the `i <<= 4` copy (perm_t3, base 8, 35838 iterations): the only 0 re-inserts `if (gCurrentActor) {}` right after `i <<= 4` (another dead guard: confirms a block boundary after the intensity def is what the target needs); no natural output below 8.
+
 ## Untried ideas
-- intensity as an inline expression per lightAdd call with a different u8 conversion path (6 uses; would need repeated expression)
+- a natural construct that ends the basic block between the intensity def and the first x/z + lightAdd without emitting code (none found: the abs and clamp branches precede the def, the phase test follows the call)
+- emulate spilltemps (ido-uopt-temp-slots guide) for the `i <<= 4` body: find the lower-bit item in the light region that holds 0x48 in the target and a natural C shape giving it an earlier bit than the intensity temp (source: this session's trace, bits 427/443)
 
 ## Evidence
 - frame 0x80: s0/s1/ra 0x34/0x38/0x3c, spills v1 0x48 / v0 0x44, j 0x52, cutsceneId 0x5c (lh 0x5e), s8 locals 0x67-0x6b, i 0x70; unaddressed 4-byte locals fill 0x7c,0x78,0x74,0x6c,0x60,0x58,0x54
 - light block: `addiu v0,t9,-16; move t0,v0; bgez v0` (level separate from i), `sll t2,t0,4; andi v0,t2,0xff; sw v0,0x44(sp)` and v0 passed straight to the u8 args
+- 0xec8 `sll t2,t0,0x4` (t2 is a uopt-coloured temp, the x/z table loads take ring t3/t4 at 0xe80/0xe8c), 0xecc `andi v0,t2,0xff`, 0xeec `sw v0,68(sp)`, 0xf3c `lw v0,68(sp)`; slot 0x44 is also the &D_80035B44[i] induction temp's spill (0x2e4/0x300), 0x48 holds v1/a3 spills (0x54, 0xac, 0x1d8, ...)
