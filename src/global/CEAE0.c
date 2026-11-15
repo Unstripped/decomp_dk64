@@ -2,6 +2,7 @@
 #include "actor.h"
 #include "sched.h"
 #include "render.h"
+#include "race.h"
 #include "proto/global/10D2D0.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -1011,14 +1012,7 @@ s32 playerIsDamageOrKnockbackState(void) {
     return 0;
 }
 
-typedef struct LinkedActorState {
-    /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
-} LinkedActorState;
-
-
-void playerUpdateHorizontalVelocity(apply) u8 apply; {
+void playerUpdateHorizontalVelocity(u8 apply) {
     f32 forward;
     f32 lateral;
     f32 vx;
@@ -1027,7 +1021,7 @@ void playerUpdateHorizontalVelocity(apply) u8 apply; {
     f32 slope;
     s16 ang;
     s16 m;
-    LinkedActorState *sub;
+    RaceParticipant *tracker;
 
     switch (gCurrentActor->state) {
         case 15:
@@ -1038,7 +1032,7 @@ void playerUpdateHorizontalVelocity(apply) u8 apply; {
         case 20:
             speed = gCurrentActor->speedXZ;
             ang = gCurrentActor->moveYaw;
-            sub = gActivePlayerState->actor->customState;
+            tracker = gActivePlayerState->actor->customState;
             gActivePlayerState->prevHasArcBounds = gCurrentActor->hasArcBounds;
             D_807FD586 = 0;
             slope = mathSinF((s16)(s32)(gCurrentActor->floorSlopeFactor * 11.4)) * 10.0;
@@ -1061,7 +1055,7 @@ void playerUpdateHorizontalVelocity(apply) u8 apply; {
             } else if (gCurrentActor->speedXZ < 230.0f) {
                 lateral = (gCurrentActor->speedXZ * lateral) / 230.0;
             }
-            if (sub->unk14 < sub->unk18) {
+            if (tracker->progressScore < tracker->maxProgressScore) {
                 forward = 0.0f;
             }
             vx = mathSinF(ang) * speed;
@@ -1074,15 +1068,15 @@ void playerUpdateHorizontalVelocity(apply) u8 apply; {
                 vx += mathCosF(gCurrentActor->moveYaw) * lateral;
                 vz -= mathSinF(gCurrentActor->moveYaw) * lateral;
             } else if ((gCurrentActor->distToFloor > 30.0f || slope == 0.0f || m < 0x400 || m >= 0xC01) &&
-                       sub->unk18 == sub->unk14) {
+                       tracker->maxProgressScore == tracker->progressScore) {
                 vx += (mathSinF(gActivePlayerState->targetYaw) * gActivePlayerState->maxSpeed) / 40.0;
                 vz += (mathCosF(gActivePlayerState->targetYaw) * gActivePlayerState->maxSpeed) / 40.0;
             }
             speed = sqrtf(vx * vx + vz * vz);
-            if (!(gCurrentActor->contactFlags & 0x1000) && 700.0f < speed) {
+            if (!(gCurrentActor->contactFlags & 0x1000) && speed > 700.0f) {
                 speed = 700.0f;
             }
-            lateral = mathAtan2(vx, vz);
+            lateral = mathAtan2(vx, vz); // FAKE: reusing lateral for the heading keeps the 0x50 frame (a heading local spills, 0x58)
             if (apply != 0) {
                 gCurrentActor->speedXZ = speed;
                 gCurrentActor->moveYaw = (s32)((lateral * 4096.0) / 6.2831855f);
@@ -1115,7 +1109,7 @@ void playerUpdateHorizontalVelocity(apply) u8 apply; {
             }
             gActivePlayerState->prevHasArcBounds = gCurrentActor->hasArcBounds;
             D_807FD586 = 0;
-            forward = mathSinF(ang) * speed;
+            forward = mathSinF(ang) * speed; // FAKE: forward reused as the sin/cos temp steers FP regalloc (vx = a + b fails)
             vx = mathSinF(gCurrentActor->floorSlopeYaw) * slope;
             vx = forward + vx;
             forward = mathCosF(ang) * speed;

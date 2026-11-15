@@ -115,7 +115,7 @@ void playerApproachOrApplyMotion(void);
 s32 playerIsDamageOrKnockbackState(void);
 #endif
 #ifndef PROTO_SKIP_playerUpdateHorizontalVelocity
-void playerUpdateHorizontalVelocity();
+void playerUpdateHorizontalVelocity(u8);
 #endif
 #ifndef PROTO_SKIP_playerApproachVelocity
 void playerApproachVelocity(s16, f32, f32);
