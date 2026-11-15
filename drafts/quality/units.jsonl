@@ -639,3 +639,4 @@
 {"type": "unit", "t": "2026-11-15T15:19:04Z", "unit": "2026-11-15: cleanup HackarcadeInsertHighScore2", "commit": "d5a8536ac8e0f9de28c051651c417e4ca2197f45"}
 {"type": "unit", "t": "2026-11-15T15:20:29Z", "unit": "2026-11-15: cleanup HackbonusControllerUpdate2", "commit": "7cc88e3637c7b83a03706cfffe1f975e7635223a"}
 {"type": "unit", "t": "2026-11-15T15:22:37Z", "unit": "2026-11-15: cleanup HackactorScriptedCommandUpdate2", "commit": "9367a051ab3efd4691a15ef3160ba62e719d6747"}
+{"type": "unit", "t": "2026-11-15T15:24:36Z", "unit": "2026-11-15: cleanup HackraceSteerTowardTargetWaypoint2", "commit": "985cee766d8abb96710a4651192dbc34a868ac13"}
