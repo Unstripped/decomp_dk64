@@ -210,7 +210,7 @@ void raceOpponentBehaviourUpdate(void) {
         gCurrentActor->terminalSpeedY = -900.0f;
         gCurrentActor->drawDistance = 0x7D0;
         gBehaviourWorkState->unk35 = 0;
-        gBehaviourWorkState->timer = 0x64;
+        gBehaviourWorkState->timer = 0x64; // ORIG: the target stores 100 (sh t5,44(t6) at 0x7d0) before the 0 store at 0x7e0
         gBehaviourWorkState->timer = 0;
         gBehaviourWorkState->unk24 = 0;
         gCurrentActor->flags2 &= 0xFFBF;

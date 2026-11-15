@@ -321,7 +321,7 @@ void raceUpdateLapAndWaypointTracker(RaceParticipant *tracker) {
                 gCurrentActor->unkEC = (s32)(headingAngle - mathAngleBetweenPointsDeg(
                     (s32)gPlayerSlots[tracker->playerIdx].focusX,
                     (s32)gPlayerSlots[tracker->playerIdx].focusZ,
-                    (s32)(&gPlayerSlots[tracker->playerIdx].camX)[tracker->playerIdx],
+                    (s32)(&gPlayerSlots[tracker->playerIdx].camX)[tracker->playerIdx], // ORIG: the target reads camX + playerIdx * 4 of the slot (sll t8,t0,2; addu t9,v0,t8; lwc1 528(t9) at 0xc34)
                     (s32)gPlayerSlots->camZ));
             }
             if (tracker->unk38 != 0) {
