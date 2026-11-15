@@ -835,21 +835,15 @@ void carryObjectUpdate(void) {
     ActorSub174View *state;
     f32 mtxA[4][4];
     f32 mtxB[4][4];
-    f32 dx;
-    f32 dy;
-    f32 dz;
+    s32 i;
+    s32 timedOut;
+    s32 particleIdx;
     f32 offsetX;
     f32 offsetY;
     f32 offsetZ;
     SpritePair spritePair;
-    s32 i;
-    s32 timedOut;
-    s32 pad[4];
+    s32 pad[6];
     s32 spawnArgs[2];
-    s32 randVal;
-    f32 scale;
-    s32 particleLoopIdx;
-    void *volatile callback;  // FAKE: retain the callback's original stack home
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -1049,15 +1043,15 @@ void carryObjectUpdate(void) {
         }
         if (gActorGlobalState.unk0 == 0) {
             spritePair = D_807503A4;
-            for (particleLoopIdx = 0; particleLoopIdx != 0x10; particleLoopIdx += 2) {
+            for (particleIdx = 0; particleIdx < 8; particleIdx++) {
                 offsetX = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
                 offsetY = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
                 offsetZ = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
-                effectSetAngle(particleLoopIdx);
+                effectSetAngle(particleIdx * 2);
                 effectSetDepth(1);
-                if (particleLoopIdx == 0) {
-                    callback = effectLightPulseOscillate; effectSetSpeed(0x100FA);  // LAYOUT: keep the callback store in the call's delay slot
-                    effectSetCallback(callback);
+                if (particleIdx == 0) {
+                    effectSetSpeed(0x100FA);
+                    effectSetCallback(effectLightPulseOscillate);
                 } else {
                     effectSetCallback(effectSinkBySpeedUpdate);
                     effectSetSpeed(-0x96 - ((randomNonNegative() >> 15) % 50));
@@ -1077,11 +1071,8 @@ void carryObjectUpdate(void) {
                     effectSetCallback(effectTumbleBounceUpdate);
                     effectSetMode(2);
                     effectSetSpeed(2);
-                    randVal = randomNonNegative();
-                    if (randVal) {}  // FAKE: block split between the randVal def and the call (steers ugen ring / uopt colouring)
-                    scale = randomFloat();
-                    effectCreateAtPosition(spritePair.sprites[(randVal >> 15) % 2],
-                                  (f32)(((f64)scale * 0.5) + 0.2),
+                    effectCreateAtPosition(spritePair.sprites[(randomNonNegative() >> 15) % 2],
+                                  (f32)(((f64)randomFloat() * 0.5) + 0.2),
                                   gCurrentActor->x + offsetX, gCurrentActor->y + offsetY,
                                   gCurrentActor->z + offsetZ);
                 }
@@ -1115,10 +1106,9 @@ void carryObjectUpdate(void) {
         gCurrentActor->y = gCurrentActor->floorY;
         break;
     case 10:
-        dz = gPrimaryPlayerActor->z - state->homeZ;
-        dx = gPrimaryPlayerActor->x - state->homeX;
-        dy = gPrimaryPlayerActor->y - state->homeY;
-        if ((dz * dz) + ((dx * dx) + (dy * dy)) > 2500.0f) {
+        if (((gPrimaryPlayerActor->z - state->homeZ) * (gPrimaryPlayerActor->z - state->homeZ)) +
+            (((gPrimaryPlayerActor->x - state->homeX) * (gPrimaryPlayerActor->x - state->homeX)) +
+             ((gPrimaryPlayerActor->y - state->homeY) * (gPrimaryPlayerActor->y - state->homeY))) > 2500.0f) {
             spawnArgs[0] = state->respawns;
             if (gCurrentActor->interactionType == 2) {
                 spawnArgs[1] = 1;
