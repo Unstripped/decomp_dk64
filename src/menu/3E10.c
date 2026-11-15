@@ -2284,6 +2284,7 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
     s8 holdFrames;
     MenuHighScoreEntry *table;
+    MenuHighScoreEntry *entry;
     u32 pressed;
     s32 pad;
     u8 *p;
@@ -2293,7 +2294,8 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
         table = D_80744568;
     }
     if (state->fade == 0.0f) {
-        if (D_80033F60 < 0) {
+        s8 row = D_80033F60;
+        if (row < 0) {
             if (buttons & 1) {
                 menuSetupPlayerInventory(gMenuHighScoreGames[gMenuHighScoreGame].map, 0, gMenuHighScoreGames[gMenuHighScoreGame].characterId, 3, 3, 1, 3);
                 D_80744514 = gMenuHighScoreGame + 6;
@@ -2316,15 +2318,17 @@ void menuHandleHighScoreNameEntryInput(Actor *actor, s32 buttons) {
                 pressed = buttons;
                 if (holdFrames >= 0x10) {
                     holdFrames = 0xF;
-                    if (D_80033F60 == 0xF) {} // FAKE: constant 15 becomes a coloured web (v1), leaving gFrameCounter a ring temp
+                    if (row == 0xF) {} // FAKE: constant 15 becomes a coloured web (v1), leaving gFrameCounter a ring temp
                     D_800339C0 = holdFrames;
-                    if (D_80033F60 == 0xF) {} // FAKE: second reference to the 15 web
+                    if (row == 0xF) {} // FAKE: second reference to the 15 web
                     if (!(gFrameCounter & 1)) {
                         pressed = 0;
                     }
                 }
             }
-            p = (u8 *)table + D_80033F60 * 6 + D_80033F61 + 2; // FAKE: byte-offset name pointer keeps the multu-free address chain (Q0303)
+            entry = table;
+            entry += row; // FAKE: split respelling of entry = &table[row] keeps the base-first addu; &table[row], table + row and &table[row].initial0 each fail (10 rows) (Q0816)
+            p = &entry->initial0 + D_80033F61;
             if (pressed & 4) {
                 switch (*p) {
                 case 0x20:
