@@ -597,3 +597,4 @@
 {"type": "unit", "t": "2026-11-15T05:48:48Z", "unit": "2026-11-14: cleanup Polishmultiplayer0", "commit": "745baf97013e72a5db28d9deee8a4ca505818b00"}
 {"type": "unit", "t": "2026-11-15T05:51:34Z", "unit": "2026-11-14: cleanup Polishglobal8F4B0", "commit": "be3474be42ad96e01561eedcd5622ccf4a7e1343"}
 {"type": "unit", "t": "2026-11-15T05:54:12Z", "unit": "2026-11-14: cleanup HackzoneFindBestReachablePoint", "commit": "8f832586b0ba27e4f6bf636bb1a850864cdc9bf7"}
+{"type": "unit", "t": "2026-11-15T05:56:07Z", "unit": "2026-11-14: cleanup Polishrace36B0", "commit": "09c8fcd227c8e2b56308b7ff85d942603480b681"}
