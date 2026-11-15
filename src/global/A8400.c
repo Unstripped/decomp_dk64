@@ -16,16 +16,6 @@
 void func_806A3700(Actor *unused0, void *unused1) {
 }
 
-typedef struct SpriteModel {
-    /* 0x00 */ u16 attr;
-    /* 0x02 */ u8 code;
-    /* 0x03 */ u8 pad3;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ u8 padC[0x7C];
-    /* 0x88 */ f32 animPhase;
-} SpriteModel; // ResGlyph from attr (0x10) on: text glyph matrices at +0x08, animPhase at +0x88
-
 extern u8 gGfxBufferIndex;
 extern u16 D_8075A740;
 
@@ -38,12 +28,12 @@ void textBoxRenderNode(Gfx **gdl, ResQueueActorState *pos, ResRow *source, ResGl
     f32 halfW;
     f32 halfH;
     Gfx *dl;
-    SpriteModel *mdl;
+    ResGlyphText *mdl;
     f32 scale;
 
     dl = *gdl;
     str.h = D_8075A740;
-    mdl = (SpriteModel *) &drawNode->attr;
+    mdl = &drawNode->text;
     guMtxIdentF(mtx);
     if ((mdl->attr != 0) && (drawNode->fade != 0)) {
         halfW = (f32) drawNode->width * 0.5f * 4.0f;
@@ -84,8 +74,8 @@ void textBoxRenderNode(Gfx **gdl, ResQueueActorState *pos, ResRow *source, ResGl
     guMtxCatF(mtx, tmp, mtx);
     guTranslateF(tmp, (f32) (((f64) pos->boxLeft + (f64) drawNode->x) * 4.0), (f32) (((f64) pos->boxTop + (f64) drawNode->y) * 4.0), 0.0f);
     guMtxCatF(mtx, tmp, mtx);
-    guMtxF2L(mtx, (Mtx *) ((u8 *) mdl + (gGfxBufferIndex << 6) + 8));
-    gSPMatrix(dl++, (u8 *) mdl + (gGfxBufferIndex << 6) + 8, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    guMtxF2L(mtx, (Mtx *) mdl->mtx[gGfxBufferIndex]);
+    gSPMatrix(dl++, mdl->mtx[gGfxBufferIndex], G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPPipeSync(dl++);
     gDPSetPrimColor(dl++, 0, 0, 0x28, 0x28, 0xFF, drawNode->alpha);
     str.b = mdl->code;
@@ -260,15 +250,8 @@ Gfx *textBoxRender(Gfx *gdl, Actor *actor) {
 
 extern void *gEffectGridAssets[];
 
-typedef struct SpriteObjectSlot {
-    /* 0x00 */ u16 effectId;
-    /* 0x02 */ u8 flip;
-    /* 0x03 */ u8 pad3;
-    /* 0x04 */ EffectNode *effect;
-} SpriteObjectSlot; // ResGlyph from attr (0x10) on, for grid glyphs: effect id, flip (code), effect
-
 void textBoxRowUpdateIcon(ResGlyph *row, ResRow *holder, ResQueueActorState *chain) {
-    SpriteObjectSlot *slot = (SpriteObjectSlot *) &row->attr;
+    ResGlyphCell *slot = &row->cell;
     f32 halfW = (f32) row->width * 0.5f;
     f32 x = row->x;
     f32 y = row->y;
@@ -433,17 +416,6 @@ void textBoxUpdateRows(Actor *actor) {
     }
 }
 
-typedef struct SpriteFrameNode {
-    /* 0x00 */ u8 pad0[0x2C];
-    /* 0x2C */ u8 nodeIndex;
-} SpriteFrameNode;
-
-typedef struct SpriteActorData {
-    /* 0x000 */ Actor base;
-    /* 0x178 */ void *unk178;
-    /* 0x17C */ SpriteFrameNode *frameNode;
-} SpriteActorData;
-
 typedef struct MapBounds {
     /* 0x000 */ u8 pad0[0x270];
     /* 0x270 */ s16 scissorUlx;
@@ -463,7 +435,7 @@ extern s16 gScreenWidth;
 void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
     f32 screenX, screenY;
     s32 nodeIndex;
-    SpriteFrameNode *node;
+    ScriptedActorState *node;
     s32 pad;
     f32 posX, posY, posZ;
 
@@ -482,8 +454,8 @@ void textBoxUpdatePosition(Actor *actor, ResQueueActorState *sub, f32 step) {
         sub->anchorY = (f32) gPlayerSlots[gCurrentPlayerIndex].scissorLry;
         break;
     case 0xFE:
-        node = ((SpriteActorData *)sub->key)->frameNode;
-        nodeIndex = node->nodeIndex;
+        node = ((ScriptedActor *)sub->key)->scriptState;
+        nodeIndex = node->unk2C;
         break;
     default:
         if (sub->key->animState != NULL) {

@@ -6,6 +6,24 @@
 
 struct EffectNode;
 
+// Body of a text glyph (ResGlyph 0x10 on): style flags, character, per-gfx-buffer matrices, animation angle.
+typedef struct ResGlyphText {
+    /* 0x00 */ u16 attr; // style flags
+    /* 0x02 */ u8 code; // character
+    /* 0x03 */ u8 pad3;
+    /* 0x04 */ struct EffectNode *effect;
+    /* 0x08 */ u8 mtx[2][0x40]; // per-gfx-buffer Mtx (guMtxF2L target)
+    /* 0x88 */ f32 animPhase; // animation angle for the attr effects
+} ResGlyphText; // size = 0x8C
+
+// Body of a grid cell (ResGlyph 0x10 on): the effect it shows.
+typedef struct ResGlyphCell {
+    /* 0x00 */ u16 effectId;
+    /* 0x02 */ u8 flip; // nonzero flips the effect
+    /* 0x03 */ u8 pad3;
+    /* 0x04 */ struct EffectNode *effect;
+} ResGlyphCell; // size = 0x8
+
 // A laid-out glyph (text rows) or effect cell (grid rows).
 typedef struct ResGlyph {
     /* 0x00 */ s16 width;
@@ -14,12 +32,18 @@ typedef struct ResGlyph {
     /* 0x04 */ f32 x; // position inside the text box
     /* 0x08 */ f32 y;
     /* 0x0C */ u8 padC[4];
-    /* 0x10 */ u16 attr; // text: style flags; grid: effect id
-    /* 0x12 */ u8 code; // text: character; grid: sub index (nonzero flips the effect)
-    /* 0x13 */ u8 pad13;
-    /* 0x14 */ struct EffectNode *effect;
-    /* 0x18 */ u8 mtx[2][0x40]; // text: per-gfx-buffer Mtx (guMtxF2L target)
-    /* 0x98 */ f32 animPhase; // text: animation angle for the attr effects
+    union {
+        struct {
+            /* 0x10 */ u16 attr; // text: style flags; grid: effect id
+            /* 0x12 */ u8 code; // text: character; grid: sub index (nonzero flips the effect)
+            /* 0x13 */ u8 pad13;
+            /* 0x14 */ struct EffectNode *effect;
+            /* 0x18 */ u8 mtx[2][0x40]; // text: per-gfx-buffer Mtx (guMtxF2L target)
+            /* 0x98 */ f32 animPhase; // text: animation angle for the attr effects
+        };
+        /* 0x10 */ ResGlyphText text;
+        /* 0x10 */ ResGlyphCell cell;
+    };
     /* 0x9C */ u8 pad9C[4];
     /* 0xA0 */ struct ResGlyph *next;
 } ResGlyph; // size = 0xA4
