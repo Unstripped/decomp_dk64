@@ -89,12 +89,11 @@ void bossKRoolDkStep(void) {
             actorScriptStart(gCurrentActor, 0);
             gCurrentActor->state = 0;
             gCurrentActor->unk155 = 0;
-        } else
-            if (gPrimaryPlayerActor->state != 0x42 && gPrimaryPlayerActor->state != 0x44 && gCurrentActor->unk155 > 0) {
-                actorScriptStart(gCurrentActor, 0);
-                gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
-                gCurrentActor->unk155 = 0;
-            } else {
+        } else if (gPrimaryPlayerActor->state != 0x42 && gPrimaryPlayerActor->state != 0x44 && gCurrentActor->unk155 > 0) {
+            actorScriptStart(gCurrentActor, 0);
+            gCurrentActor->state = scriptOpcodes[scriptState->scriptPos++];
+            gCurrentActor->unk155 = 0;
+        } else {
             switch (gCurrentActor->unk155) {
             case 0:
                 scriptState->unk18[0] = scriptOpcodes[scriptState->scriptPos++];
@@ -157,7 +156,7 @@ void bossKRoolDkStep(void) {
                 break;
             case 3:
                 if (gCurrentActor->state == 0x28 || (gCurrentActor->state == 0x2C && (gBehaviourWorkState->unk2E % 3) == 0)) {
-                    projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 0x96, 3, (f32)(((f64)scriptState->phase * 0.01) + 1.04), 0.0f, 0.0f, 0.0f);
+                    projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 0x96, 3, scriptState->phase * 0.01 + 1.04, 0.0f, 0.0f, 0.0f);
                     sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
                     controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
                     scriptSetActorRampTarget(gSpawnedActor, 0.5f, 0.0f);

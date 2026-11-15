@@ -75,10 +75,10 @@ void bossPickFarthestWaypoint(BossScriptState *state, u8 *waypointRanges) {
         u8 idx = gBehaviourAnimState->path[i][0];
         Actor *actor = gCurrentActor;
         ZoneEntry *pt = &D_807FDCA0->entries[idx];
-        f32 dz = actor->z - (f32)pt->z;
-        f32 dx = actor->x - (f32)pt->x;
-        f32 dy = actor->y - (f32)pt->y;
-        s32 dist = (s32)sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
+        f32 dz = actor->z - pt->z;
+        f32 dx = actor->x - pt->x;
+        f32 dy = actor->y - pt->y;
+        s32 dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
 
         if (dist > maxDist) {
             maxDist = dist;

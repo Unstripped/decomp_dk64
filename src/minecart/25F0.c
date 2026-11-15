@@ -497,6 +497,7 @@ void minecartUpdateObstacleType1(void) {
             actorUpdateModelMatrix(gCurrentActor, 0);
             return;
         }
+        /* fallthrough */
     case 1:
         actorTrackBoneTowardTarget(1);
         minecartStartScriptNearPlayer();

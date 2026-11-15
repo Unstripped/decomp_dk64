@@ -969,7 +969,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             }
             if (sum) {
                 D_807FC80F = flagGet(flagGridIndex(0x1D5, idx, gPlayerCharacterId), 0);
-                i = 0;
+                i = 0; // FAKE: dead store of i (the loop below re-initialises it); removing it costs 2 lines
                 hudPauseMenuSpawnIcon(iconObj, 0xC, 0x26, 0x7D, 0.75f, 2, 2);
                 if (flagGet(flagGridIndex(0x1FD, idx, gPlayerCharacterId), 0)) {
                     hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721518, 0x26, 0x7D, 0.35f, 2, 0xD);
@@ -989,8 +989,8 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         sum = 0;
         sum3 = 0;
         for (i = 0; i < 5; i++) {
-            sum += (gPlayerInventoryTable[0].kong + i)->coloredBananas[idx] + (gPlayerInventoryTable[0].kong + i)->bananasDelivered[idx];
-            sum3 += (gPlayerInventoryTable[0].kong + i)->goldenBananas[idx];
+            sum += gPlayerInventoryTable[0].kong[i].coloredBananas[idx] + gPlayerInventoryTable[0].kong[i].bananasDelivered[idx];
+            sum3 += gPlayerInventoryTable[0].kong[i].goldenBananas[idx];
         }
         cnt8 = 0;
         for (i = 0; i < 4; i++) {
@@ -1016,7 +1016,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             i = 0;
             do {
                 if (idx != 8) {
-                    D_807FC80F = ((gPlayerInventoryTable[0].kong + i)->coloredBananas[idx] + (gPlayerInventoryTable[0].kong + i)->bananasDelivered[idx]) >= 0x4B;
+                    D_807FC80F = ((gPlayerInventoryTable[0].kong + i)->coloredBananas[idx] + (gPlayerInventoryTable[0].kong + i)->bananasDelivered[idx]) >= 0x4B; // FAKE: (kong + i)-> spelling instead of kong[i]. keeps the addu operand order (Q0488); kong[i]. costs 39 lines
                 } else {
                     D_807FC80F = flagGridSumRows(0x225, j, j, i);
                 }

@@ -114,7 +114,7 @@ void bossDogadonStep(void) {
             gPrimaryPlayerActor->x = mathSinF(gCurrentActor->yaw + 0x320) * 30.0 + gCurrentActor->x;
             gPrimaryPlayerActor->z = mathCosF(gCurrentActor->yaw + 0x320) * 30.0 + gCurrentActor->z;
             offsetSin = mathSinF(gCurrentActor->yaw + 0x384);
-            playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, (s32)(offsetSin * 15.0f + gCurrentActor->x), (s32)(mathCosF(gCurrentActor->yaw + 0x384) * 15.0f + gCurrentActor->z), 0x50);
+            playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, offsetSin * 15.0f + gCurrentActor->x, mathCosF(gCurrentActor->yaw + 0x384) * 15.0f + gCurrentActor->z, 0x50);
         } else {
             switch (gCurrentActor->unk155) {
             case 0:
@@ -162,11 +162,11 @@ void bossDogadonStep(void) {
             gCurrentActor->unk155++;
             break;
         case 2:
-            gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D((f32)D_807FDCA0->entries->x, (f32)D_807FDCA0->entries->z, gCurrentActor->x, gCurrentActor->z), 10.0f);
+            gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(D_807FDCA0->entries->x, D_807FDCA0->entries->z, gCurrentActor->x, gCurrentActor->z), 10.0f);
             break;
         case 3:
             if (gBehaviourWorkState->timer != 0 && gFrameCounter % 5 == 0) {
-                projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 150, 3, (f32)((f64)scriptState->phase * 0.01 + 1.04), 0.0f, 0.0f, 0.0f);
+                projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 150, 3, scriptState->phase * 0.01 + 1.04, 0.0f, 0.0f, 0.0f);
                 if (gBehaviourWorkState->timer-- < 4) {
                     gSpawnedActor->yawSpeed = 0;
                 } else {
@@ -198,7 +198,7 @@ void bossDogadonStep(void) {
         gCurrentActor->state = scriptOpcodes[scriptState->scriptPos];
         scriptState->scriptPos++;
         gCurrentActor->unk155 = 0;
-        gCurrentActor->speedXZ = (f32)gBehaviourExtraState->targetSpeed;
+        gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
         break;
     case 0:
         switch (gCurrentActor->unk155) {

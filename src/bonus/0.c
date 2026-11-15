@@ -131,6 +131,7 @@ void bonusControllerUpdate(void) {
         switch (challengeType) {
         case 14:
             csModelStateSetByte((randomNonNegative() >> 15) % 32767 % 4, 1, 1);
+            /* fallthrough */
         case 0:
         case 4:
         case 13:
@@ -157,6 +158,7 @@ tail:
             break;
         case 5:
             bonusInitSounds();
+            /* fallthrough */
         case 2:
         case 6:
         case 7:
@@ -256,6 +258,7 @@ tail:
         switch (challengeType) {
         case 15:
             func_80724A20();
+            /* fallthrough */
         case 4:
         case 11:
         case 13:
@@ -263,6 +266,7 @@ tail:
             if (counter->countLeft == 0) {
                 bonusEndWin(1, 0xE);
             }
+            /* fallthrough */
         case 0:
             if ((((targetCount - D_80744508) < 0) ? 0 : (targetCount - D_80744508)) != counter->countLeft) {
                 func_806FDAB8(counter->labelTextId, 3.1415927f);
@@ -282,10 +286,12 @@ tail:
                     csSendActorMessagePayload(2, 0);
                 }
             }
+            /* fallthrough */
         case 6:
             if (counter->countLeft == 0) {
                 bonusEndWin(1, 0xE);
             }
+            /* fallthrough */
         case 2:
             if ((((targetCount - slotQueueGetValue(0xB, 0)) < 0) ? 0 : (targetCount - slotQueueGetValue(0xB, 0))) != counter->countLeft) {
                 func_806FDAB8(counter->labelTextId, 3.1415927f);

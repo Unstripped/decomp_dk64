@@ -146,7 +146,7 @@ void bossKRoolDiddyStep(void) {
         case 3:
             gCurrentActor->segmentFlags = 6;
             projectileGetTargetCoords(gCurrentActor, 4);
-            projectileSpawnNodeEntry(0xAA, 1, gCurrentActor->sub4->scaleY, 0, (f32)scriptState->unk18[1] * projectileScale, 0.0f, gCurrentActor);
+            projectileSpawnNodeEntry(0xAA, 1, gCurrentActor->sub4->scaleY, 0, scriptState->unk18[1] * projectileScale, 0.0f, gCurrentActor);
             gCurrentActor->unk155++;
             break;
         case 5:

@@ -157,8 +157,8 @@ void __n_handleEvent(GeSndEvt *event) {
 
     done = 1;
     voice = 0;
-    state = 0;
-    nextState = 0;
+    state = NULL;
+    nextState = NULL;
     do {
         if (nextState) {
             evt.state = state;
@@ -168,7 +168,7 @@ void __n_handleEvent(GeSndEvt *event) {
         }
         state = event->state;
         sound = state->sound;
-        if (sound == 0) {
+        if (sound == NULL) {
             n_alSndpCountStates(&freeCount, &usedCount);
             return;
         }

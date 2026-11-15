@@ -757,25 +757,25 @@ void eepromHalveRecords(void) {
 
     if (func_806F6EDC() != 0) {
         u32 v = slotQueueGetMaxValue(5, 0);
-        gPlayerInventoryTable[0].abilityEnergy = (u32)(v * 0.5);
+        gPlayerInventoryTable[0].abilityEnergy = v * 0.5;
     }
     if (flagGet(0x184, 0) != 0) {
         u32 v = slotQueueGetMaxValue(4, 0);
-        gPlayerInventoryTable[0].throwAmmo = (u32)(v * 0.5);
+        gPlayerInventoryTable[0].throwAmmo = v * 0.5;
     }
     if (flagGet(0x179, 0) != 0) {
         u32 v = slotQueueGetMaxValue(6, 0);
-        gPlayerInventoryTable[0].cameraFilm = (u32)(v * 0.5);
+        gPlayerInventoryTable[0].cameraFilm = v * 0.5;
     }
     if (D_807FC952 != 0) {
         u32 v = slotQueueGetMaxValue(2, 0);
-        gPlayerInventoryTable[0].ammo = (u32)(v * 0.5);
+        gPlayerInventoryTable[0].ammo = v * 0.5;
     }
     for (i = 0; i != 5; i++) {
         gPlayerCharacterId = i;
         if (gPlayerInventoryTable[0].kong[i].instrumentFlags != 0) {
             u32 v = slotQueueGetMaxValue(7, 0);
-            gPlayerInventoryTable[0].kong[i].instrumentEnergy = (u32)(v * 0.5);
+            gPlayerInventoryTable[0].kong[i].instrumentEnergy = v * 0.5;
         }
     }
     gPlayerCharacterId = 0;

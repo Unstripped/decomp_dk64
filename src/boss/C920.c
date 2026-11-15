@@ -162,7 +162,7 @@ void bossKRoolChunkyStep(void) {
             gCurrentActor->unk155++;
             break;
         case 3:
-            gCurrentActor->splineT = 0.0;
+            gCurrentActor->splineT = 0.0f;
             gCurrentActor->unk155++;
             /* fallthrough */
         case 4:

@@ -226,10 +226,10 @@ Gfx *gfxDrawBackgroundQuad(Gfx *gdl, f32 rotX, f32 angle, Mtx *mtx, u8 skyTypeA,
 
     offset = gSkyQuadVtx[skyTypeA][2].v.ob[1];
     vtxList = &gSkyQuadVtx[skyTypeA];
-    guTranslateF(mtxA, 0.0f, (f32)-offset, 0.0f);
+    guTranslateF(mtxA, 0.0f, -offset, 0.0f);
     matrixMakeRotationZ(mtxB, (((0x1000 - gPlayerSlots->skyRoll) & 0xFFF) * 360) / 4096);
     guMtxCatF(mtxA, mtxB, mtxA);
-    guTranslateF(mtxB, 160.0f, (f32)offset + y, 0.0f);
+    guTranslateF(mtxB, 160.0f, offset + y, 0.0f);
     guMtxCatF(mtxA, mtxB, mtxA);
     guMtxF2L(mtxA, mtx);
 
