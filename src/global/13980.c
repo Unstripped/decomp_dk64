@@ -114,13 +114,13 @@ void schedMain(void *arg) {
     OSMesg msg;
     s32 i;
     s32 flag;
-    s32 pad;
+    SchedStruct *sc = arg;
     s32 fbIdx;
     u32 cnt;
     s32 pad2;
 
     for (;;) {
-        osRecvMesg(arg, &msg, OS_MESG_BLOCK);
+        osRecvMesg(&sc->interruptQ, &msg, OS_MESG_BLOCK);
         if (D_807563B4 != 0) {
             if (D_80746830 == 0) {
                 D_8074682C--;
@@ -160,22 +160,22 @@ void schedMain(void *arg) {
         }
         switch ((u32)msg) {
         case 0x29A:
-            cnt = D_807F0560.retraceCount + 1;
+            cnt = D_807F0560.retraceCount + 1;  // FAKE: split increment through cnt keeps the new count in v0 (cnt = ++x gives t0/t1; ++x % 480 pointerizes D_807F0560)
             D_807F0560.retraceCount = cnt;
             if (cnt % 480 == 0) {
                 D_807F04C8 = D_807F04D0;
                 D_807F04D8 = D_807F04DC;
             }
-            schedHandleRetrace(arg);
+            schedHandleRetrace(sc);
             break;
         case 0x29E:
-            schedStartAudioOrYield(arg);
+            schedStartAudioOrYield(sc);
             break;
         case 0x29B:
-            schedHandleRSP(arg);
+            schedHandleRSP(sc);
             break;
         case 0x29C:
-            schedHandleRDP(arg);
+            schedHandleRDP(sc);
             break;
         case 0x29F:
             if (osSendMesg(D_807F0540.mq, D_807F0540.msg, OS_MESG_BLOCK) == -1) {  // FAKE: empty body; target compares v0 against -1 (li at,-1; bnel v0,at)
@@ -185,7 +185,7 @@ void schedMain(void *arg) {
         case 0x3F2:
             break;
         default:
-            schedHandleNewTask(arg, msg);
+            schedHandleNewTask(sc, msg);
             break;
         }
     }
