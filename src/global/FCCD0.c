@@ -34,7 +34,7 @@ extern u8 gGfxBufferIndex;
 
 
 
-/* A sprite/label node hanging off a slot's unk28 list. */
+/* A sprite (type 1) or label (type 0) node hanging off a slot's nodes list. */
 typedef struct SlotQueueNode {
     s32 type;
     f32 dirX;
@@ -45,6 +45,23 @@ typedef struct SlotQueueNode {
     void *data;
     struct SlotQueueNode *next;
 } SlotQueueNode;
+
+/* A sprite node's data (0xC bytes). */
+typedef struct SlotQueueEffectNode {
+    u8 alpha;
+    u8 pad1;
+    s16 phase;
+    u8 wave;
+    u8 pad5[3];
+    EffectNode *effect;
+} SlotQueueEffectNode;
+
+/* A label node's data (0x88 bytes): screen position plus one translate matrix per gfx buffer. */
+typedef struct SlotQueueLabel {
+    s32 x;
+    s32 y;
+    Mtx mtx[2];
+} SlotQueueLabel;
 
 
 /* One queue entry; gSlotQueue holds 15 per player (0x2D0 bytes). */
@@ -454,9 +471,9 @@ s32 func_806F8EB4(void) {
 }
 
 
-s32 slotQueueGetMaxValue(s32 slot, s32 player) {
+u16 slotQueueGetMaxValue(s32 slot, s32 player) {
     s32 kong;
-    s32 max;
+    u16 max;
     s32 level;
     u8 bits;
     s32 rest;
@@ -468,23 +485,23 @@ s32 slotQueueGetMaxValue(s32 slot, s32 player) {
         max = 0x3E7;
         break;
     case 2:
-        max = ((1 << gPlayerInventoryTable[player].kong[kong].ammoBeltLevel) * 0x32) & 0xFFFF;
+        max = (1 << gPlayerInventoryTable[player].kong[kong].ammoBeltLevel) * 0x32;
         break;
     case 3:
         if (gPlayerCount >= 2) {
             max = 0xA;
         } else {
-            max = ((1 << gPlayerInventoryTable[player].kong[kong].ammoBeltLevel) * 0x32) & 0xFFFF;
+            max = (1 << gPlayerInventoryTable[player].kong[kong].ammoBeltLevel) * 0x32;
         }
         break;
     case 4:
-        max = ((gPlayerInventoryTable[player].kong[kong].ammoBeltLevel * 5) + 0x14) & 0xFFFF;
+        max = (gPlayerInventoryTable[player].kong[kong].ammoBeltLevel * 5) + 0x14;
         break;
     case 5:
         if (gPlayerCount >= 2) {
             max = 0xBB8;
         } else if (anyKongUsesAbilityEnergy() != 0) {
-            max = ((func_806F8EB4() * 0x96) + 0xBB8) & 0xFFFF;
+            max = (func_806F8EB4() * 0x96) + 0xBB8;
         } else {
             max = 0;
         }
@@ -497,13 +514,13 @@ s32 slotQueueGetMaxValue(s32 slot, s32 player) {
             level = 1;
             if (bits & 1) {
                 rest = bits;
-                if (bits) {
+                if (bits) { // FAKE: redundant guard (bits & 1 implies it) keeps player in a1; a plain while (rest != 0) loop moves it to a2
                     do {
                         level += 1;
                         rest >>= 1;
                     } while (rest != 0);
                 }
-                max = (level * 5) & 0xFFFF;
+                max = level * 5;
             } else {
                 max = 0;
             }
@@ -511,7 +528,7 @@ s32 slotQueueGetMaxValue(s32 slot, s32 player) {
         break;
     case 6:
         if (flagGet(0x179, 0) != 0) {
-            max = (func_806F8EB4() + 0xA) & 0xFFFF;
+            max = func_806F8EB4() + 0xA;
         } else {
             max = 0;
         }
@@ -595,64 +612,39 @@ s32 bitfieldHasMappedFlag(u16 bits, s32 map) {
     return (1 << mapGetHubWorldIndex(map & 0xFF, 1)) & bits & 0xFF;
 }
 
-typedef struct SpriteScaleInfo {
-    u8 pad0[9];
-    u8 scale;
-    u8 padA[4];
-    s16 size;
-} SpriteScaleInfo;
 
-typedef struct SlotQueueSprite {
-    u8 pad0[0x330];
-    SpriteScaleInfo *info;
-    u8 pad334[0xC];
-    f32 x;
-    f32 y;
-    u8 pad348[0x16];
-    s16 index;
-    f32 scaleX;
-    f32 scaleY;
-} SlotQueueSprite;
-
-
-
-void slotQueueNormalizeSpriteScale(SlotQueueSprite *sprite, s32 slot) {
+void slotQueueNormalizeSpriteScale(EffectNode *effect, s32 slot) {
     f32 size;
     f32 scale;
 
-    size = sprite->info->scale * sprite->info->size;
+    size = effect->grid->height * effect->grid->cellH;
     scale = 32.0f / size;
     if (slot == 9) {
         scale *= 1.2;
     }
-    sprite->scaleX *= scale;
-    sprite->scaleY *= scale;
+    effect->scaleX *= scale;
+    effect->scaleY *= scale;
 }
 
 
 
 void slotQueueReleaseSlot(s32 slot) {
     SlotQueueNode **link;
-    SlotQueueNode *node;
     SlotQueueNode **next;
-    void **effect;
+    SlotQueueEffectNode *effectNode;
 
     link = &gSlotQueue[slot].nodes;
     gSlotQueue[slot].state = 0;
-    if (*link != NULL) {
-        do {
-            node = *link;
-            next = &node->next;
-            if (node->type == 1) {
-                effect = node->data;
-                effectFreeAndUnlink(effect[2]);
-                node = *link;
-            }
-            heapFree(node->data);
-            heapFree(*link);
-            *link = NULL;
-            link = next;
-        } while (*next != NULL);
+    while (*link != NULL) {
+        next = &(*link)->next;
+        if ((*link)->type == 1) {
+            effectNode = (*link)->data;
+            effectFreeAndUnlink(effectNode->effect);
+        }
+        heapFree((*link)->data);
+        heapFree(*link);
+        *link = NULL;
+        link = next;
     }
 }
 
@@ -670,24 +662,18 @@ void slotQueueReleaseAll(void) {
 
 
 void slotQueueAllocSpriteNode(SlotQueueNode **link) {
-    SlotQueueNode *temp;
-
-    temp = heapAlloc(0x1C);
-    *link = temp;
-    heapClearBlock(temp);
+    *link = heapAlloc(sizeof(SlotQueueNode));
+    heapClearBlock(*link);
     (*link)->type = 1;
-    (*link)->data = heapAlloc(0xC);
+    (*link)->data = heapAlloc(sizeof(SlotQueueEffectNode));
     heapClearBlock((*link)->data);
 }
 
 void slotQueueAllocLabelNode(SlotQueueNode **link) {
-    SlotQueueNode *temp;
-
-    temp = heapAlloc(0x1C);
-    *link = temp;
-    heapClearBlock(temp);
+    *link = heapAlloc(sizeof(SlotQueueNode));
+    heapClearBlock(*link);
     (*link)->type = 0;
-    (*link)->data = heapAlloc(0x88);
+    (*link)->data = heapAlloc(sizeof(SlotQueueLabel));
     heapClearBlock((*link)->data);
 }
 
@@ -717,14 +703,6 @@ void effectSetDirection(SlotQueueNode *node, u32 slot) {
     node->dirX = (f32)(dx * 0x30);
     node->dirY = (f32)(dy * 0x30);
 }
-
-typedef struct SlotQueueEffectNode {
-    u8 pad0[2];
-    s16 phase;
-    u8 wave;
-    u8 pad5[3];
-    void *effect;
-} SlotQueueEffectNode;
 
 
 void effectSpawnSprite(SlotQueueNode *node, s32 slot, f32 x, f32 y, s32 param) {
@@ -757,13 +735,11 @@ void effectSpawnSprite(SlotQueueNode *node, s32 slot, f32 x, f32 y, s32 param) {
     slotQueueNormalizeSpriteScale(effectNode->effect, slot);
 }
 
-extern u8 gPlayerCharacterId;
-
 
 void slotQueueSpawnNodes(s32 slot) {
-    s32 side;
     s32 pad;
-    u8 *sprite;
+    SlotQueueLabel *label;
+    SlotQueueEffectNode *effectNode;
     s32 icon;
     s32 dir;
     SlotQueueNode **link;
@@ -774,12 +750,11 @@ void slotQueueSpawnNodes(s32 slot) {
     if (gScreenWidth * 0.5 < gSlotQueue[slot].x) {
         dir = -1;
     }
-    side = dir;
     slotQueueAllocSpriteNode(link);
-    sprite = (*link)->data;
+    effectNode = (*link)->data;
     effectSetDirection(*link, slot);
     effectSpawnSprite(*link, slot, gSlotQueue[slot].x, gSlotQueue[slot].y, 0);
-    *sprite = 0xFF;
+    effectNode->alpha = 0xFF;
     (*link)->fade = 0;
     switch (gCurrentMap) {
     case 0x2A:
@@ -806,19 +781,19 @@ void slotQueueSpawnNodes(s32 slot) {
     if (icon >= 0) {
         link = &(*link)->next;
         slotQueueAllocSpriteNode(link);
-        sprite = (*link)->data;
+        effectNode = (*link)->data;
         effectSetDirection(*link, slot);
         effectSpawnSprite(*link, icon, gSlotQueue[slot].x, gSlotQueue[slot].y + 0x20, 0);
-        *sprite = 0xFF;
+        effectNode->alpha = 0xFF;
         (*link)->fade = 0;
     }
     link = &(*link)->next;
     slotQueueAllocLabelNode(link);
     effectSetDirection(*link, slot);
     (*link)->fade = 0;
-    sprite = (*link)->data;
-    *(s32 *)(*link)->data = gSlotQueue[slot].x + side * 0x14;
-    *(s32 *)(sprite + 4) = gSlotQueue[slot].y - 0xA;
+    label = (*link)->data;
+    label->x = gSlotQueue[slot].x + dir * 0x14;
+    label->y = gSlotQueue[slot].y - 0xA;
 }
 
 
@@ -826,45 +801,40 @@ extern f32 D_807FD7A0[];
 extern f32 D_807FD7B8[];
 extern f32 D_807FD7D0[];
 
-void effectSpriteUpdatePosition(SlotQueueSprite *sprite, s8 *done) {
+void effectSpriteUpdatePosition(EffectNode *effect, u8 *done) {
     f32 *x;
     f32 *scale;
     s32 i;
 
-    i = sprite->index;
+    i = effect->pair.lo;
     x = &D_807FD7A0[i];
     if (*x == -200.0f) {
         *done = 1;
         return;
     }
-    sprite->x = *x;
+    effect->x = *x;
     scale = &D_807FD7D0[i];
-    sprite->y = D_807FD7B8[i];
-    sprite->scaleX = *scale;
-    sprite->scaleY = *scale;
+    effect->y = D_807FD7B8[i];
+    effect->scaleX = *scale;
+    effect->scaleY = *scale;
     *x = -200.0f;
 }
-
-typedef struct SlotQueueLabelPos {
-    s32 x;
-    s32 y;
-} SlotQueueLabelPos;
 
 extern void *D_80750518[];
 
 void slotQueueInitEffectSprites(s32 slot) {
     s32 pad;
     SlotQueueNode **link;
-    SlotQueueLabelPos *pos;
+    SlotQueueLabel *label;
     s32 i;
 
     link = &gSlotQueue[slot].nodes;
     slotQueueAllocLabelNode(link);
     effectSetDirection(*link, 0);
     (*link)->fade = 0;
-    pos = (*link)->data;
-    pos->x = gSlotQueue[slot].x + 0x14;
-    pos->y = gSlotQueue[slot].y - 0x14;
+    label = (*link)->data;
+    label->x = gSlotQueue[slot].x + 0x14;
+    label->y = gSlotQueue[slot].y - 0x14;
     for (i = 0; i < 5; i++) {
         effectEnableFade();
         effectSetDuration(-1);
@@ -889,33 +859,24 @@ void slotQueueSpawnSingleNode(s32 slot) {
 }
 
 
-
-typedef struct ViewportRect {
-    u8 pad0[4];
-    s16 left;
-    s16 top;
-    s16 right;
-    s16 bottom;
-} ViewportRect;
-
 extern Gfx D_1000118;
 extern Mtx D_2000080;
 extern u8 D_807FD7E4;
 
 Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
-    s32 *matrix;
+    SlotQueueLabel *label;
     u8 text[8];
     u8 alpha;
     G00Entry *viewport;
     f32 scale;
     s32 width;
 
-    matrix = node->data;
+    label = node->data;
     scale = mathSinF(node->fade);
-    alpha = (u8)(u32)((f64)scale * 255.0);
+    alpha = scale * 255.0;
     width = 0;
     gSPMatrix(gfx++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    guTranslate((Mtx *)((u8 *)matrix + (gGfxBufferIndex << 6) + 8), node->dirX * (1.0f - scale), node->dirY * (1.0f - scale), 0.0f);
+    guTranslate(&label->mtx[gGfxBufferIndex], node->dirX * (1.0f - scale), node->dirY * (1.0f - scale), 0.0f);
     switch (gSlotQueue[slot].displayMode) {
     case 1:
         _sprintf(text, "o");
@@ -926,10 +887,10 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
         _sprintf(text, "NA");
         break;
     default:
-        _sprintf(text, "%d", (slot == 5) ? (s32)floatCeil((f32)(u32)gSlotQueue[slot].shown * 0.006666667f) : gSlotQueue[slot].shown);
+        _sprintf(text, "%d", (slot == 5) ? (s32)floatCeil(gSlotQueue[slot].shown * 0.006666667f) : gSlotQueue[slot].shown);
         break;
     }
-    gSPMatrix(gfx++, (u8 *)matrix + (gGfxBufferIndex << 6) + 8, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    gSPMatrix(gfx++, &label->mtx[gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gDPPipeSync(gfx++);
     gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, alpha);
     D_807FD7E4 = alpha;
@@ -937,10 +898,10 @@ Gfx *slotQueueDrawLabel(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     gDPSetCombineLERP(gfx++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
     viewport = cameraFindViewportEntry(0);
     gDPSetScissor(gfx++, G_SC_NON_INTERLACE, viewport->left, viewport->top, viewport->right, viewport->bottom);
-    if ((f64)gScreenWidth * 0.5 < (f64)gSlotQueue[slot].x) {
+    if (gScreenWidth * 0.5 < gSlotQueue[slot].x) {
         width = textGetStringWidth(0x81, text);
     }
-    gfx = textDrawStringVtx(gfx, 0x81, (s16)((matrix[0] - width) * 4), (s16)(matrix[1] * 4), text, 0);
+    gfx = textDrawStringVtx(gfx, 0x81, (label->x - width) * 4, label->y * 4, text, 0);
     gSPPopMatrix(gfx++, G_MTX_MODELVIEW);
     gDPPipeSync(gfx++);
     return gfx;
@@ -951,7 +912,7 @@ extern Gfx D_2000180;
 
 Gfx *slotQueueDrawPlayerLabels(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     s32 active;
-    s32 savedU16;
+    s32 savedShown;
     s32 savedY;
     f32 x;
     f32 y;
@@ -959,18 +920,18 @@ Gfx *slotQueueDrawPlayerLabels(s32 slot, SlotQueueNode *node, Gfx *gfx) {
     s8 valid;
     s32 world;
     s32 i;
-    s32 *cursor;
-    f64 u;
+    SlotQueueLabel *label;
+    f64 slide;
 
-    cursor = node->data;
+    label = node->data;
     world = mapGetHubWorldIndex(gCurrentWorldId, 1);
     active = playerGetResolvedKongId(0);
-    savedU16 = gSlotQueue[slot].shown;
-    savedY = cursor[1];
-    x = cursor[0] * 4.0;
-    y = cursor[1] * 4.0;
-    u = 1.0 - mathSinF(node->fade);
-    x = x - 4.0 * (6.0 - u * node->dirX);
+    savedShown = gSlotQueue[slot].shown;
+    savedY = label->y;
+    x = label->x * 4.0;
+    y = label->y * 4.0;
+    slide = 1.0 - mathSinF(node->fade);
+    x = x - 4.0 * (6.0 - slide * node->dirX);
     y = y + 92.0;
     for (i = 0; i != 5; i++) {
         valid = 1;
@@ -979,7 +940,7 @@ Gfx *slotQueueDrawPlayerLabels(s32 slot, SlotQueueNode *node, Gfx *gfx) {
         }
         if (valid != 0) {
             if (i == active) {
-                gSlotQueue[slot].shown = savedU16;
+                gSlotQueue[slot].shown = savedShown;
                 scale = 2.0f;
             } else {
                 gSlotQueue[slot].shown = gPlayerInventoryTable[0].kong[i].goldenBananas[world];
@@ -993,11 +954,11 @@ Gfx *slotQueueDrawPlayerLabels(s32 slot, SlotQueueNode *node, Gfx *gfx) {
             D_807FD7B8[i] = y - 30.0 * scale;
             D_807FD7D0[i] = scale * 1.15;
             y = y + 136.0;
-            cursor[1] += 0x22;
+            label->y += 0x22;
         }
     }
-    gSlotQueue[slot].shown = savedU16;
-    cursor[1] = savedY;
+    gSlotQueue[slot].shown = savedShown;
+    label->y = savedY;
     gSPMatrix(gfx++, &D_2000180, G_MTX_MODELVIEW | G_MTX_NOPUSH | G_MTX_LOAD);
     return gfx;
 }
@@ -1096,62 +1057,60 @@ s32 slotQueueGetCountStep(slot)
 
 
 Gfx *slotQueueStateMoveToTarget(s32 slot, Gfx *gfx) {
-    s32 n;
+    s32 index;
     SlotQueueNode *node;
-    u8 flag;
-    u16 *p;
-    s32 x;
+    u8 reached;
+    u16 *value;
+    s32 target;
     s32 step;
     s32 absd;
-    s32 pad;
-    s32 tmp;
+    s32 shown;
+    s32 dist;
 
     node = gSlotQueue[slot].nodes;
-    n = 0;
-    p = gSlotQueue[slot].value;
-    if (p != NULL) {
-        flag = *p == gSlotQueue[slot].shown;
+    index = 0;
+    value = gSlotQueue[slot].value;
+    if (value != NULL) {
+        reached = *value == gSlotQueue[slot].shown;
     } else {
-        flag = 1;
+        reached = 1;
     }
-    if (node != NULL) {
-        do {
-            gfx = slotQueueNodeUpdate(slot, node, n, gfx);
-            if (node->type == 1) {
-                n += 1;
-            }
-            node = node->next;
-        } while (node != NULL);
+    while (node != NULL) {
+        gfx = slotQueueNodeUpdate(slot, node, index, gfx);
+        if (node->type == 1) {
+            index++;
+        }
+        node = node->next;
     }
-    if (flag == 0) {
+    if (reached == 0) {
         if (*gSlotQueue[slot].value == 0) {} // FAKE: hoists the *value load above the null test
         if (gSlotQueue[slot].value != NULL) {
-            x = *gSlotQueue[slot].value;
-            n = gSlotQueue[slot].shown;
+            target = *gSlotQueue[slot].value;
+            shown = gSlotQueue[slot].shown;
             step = slotQueueGetCountStep(slot, *gSlotQueue[slot].value, gSlotQueue[slot].shown);
-            if ((x - n) > 0) {
-                absd = (x - n);
+            if ((target - shown) > 0) {
+                absd = (target - shown);
             } else {
-                absd = -(x - n);
+                absd = -(target - shown);
             }
             if (absd < step) {
-                if ((x - n) > 0) {
-                    tmp = (x - n);
+                if ((target - shown) > 0) { // FAKE: |target - shown| recomputed into dist, not reused from absd (step = absd changes codegen)
+                    dist = (target - shown);
                 } else {
-                    tmp = -(x - n);
+                    dist = -(target - shown);
                 }
-                step = tmp;
+                step = dist;
             }
-            if ((x - n) >= 0) {
+            if ((target - shown) >= 0) { // FAKE: absd reused for the step sign (a separate sign local or a ternary changes codegen)
                 absd = 1;
             } else {
                 absd = -1;
             }
             gSlotQueue[slot].shown += absd * step;
         }
-        flag = *gSlotQueue[slot].value == gSlotQueue[slot].shown;
+        reached = *gSlotQueue[slot].value == gSlotQueue[slot].shown;
     }
-    if ((gSlotQueue[slot].timer == 0) && (flag != 0)) {
+    if ((gSlotQueue[slot].timer == 0) && (reached != 0)) {
         gSlotQueue[slot].state = 3;
         slotQueueStaggerNodeDelays(slot);
         if (slot == 8) {

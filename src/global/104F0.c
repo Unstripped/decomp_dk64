@@ -748,21 +748,21 @@ void eepromHalveRecords(void) {
     s32 i;
 
     if (anyKongUsesAbilityEnergy() != 0) {
-        gPlayerInventoryTable[0].abilityEnergy = (u32)slotQueueGetMaxValue(5, 0) * 0.5;
+        gPlayerInventoryTable[0].abilityEnergy = slotQueueGetMaxValue(5, 0) * 0.5;
     }
     if (flagGet(0x184, 0) != 0) {
-        gPlayerInventoryTable[0].throwAmmo = (u32)slotQueueGetMaxValue(4, 0) * 0.5;
+        gPlayerInventoryTable[0].throwAmmo = slotQueueGetMaxValue(4, 0) * 0.5;
     }
     if (flagGet(0x179, 0) != 0) {
-        gPlayerInventoryTable[0].cameraFilm = (u32)slotQueueGetMaxValue(6, 0) * 0.5;
+        gPlayerInventoryTable[0].cameraFilm = slotQueueGetMaxValue(6, 0) * 0.5;
     }
     if (D_807FC952 != 0) {
-        gPlayerInventoryTable[0].ammo = (u32)slotQueueGetMaxValue(2, 0) * 0.5;
+        gPlayerInventoryTable[0].ammo = slotQueueGetMaxValue(2, 0) * 0.5;
     }
     for (i = 0; i != 5; i++) {
         gPlayerCharacterId = i;
         if (gPlayerInventoryTable[0].kong[i].instrumentFlags != 0) {
-            gPlayerInventoryTable[0].kong[i].instrumentEnergy = (u32)slotQueueGetMaxValue(7, 0) * 0.5;
+            gPlayerInventoryTable[0].kong[i].instrumentEnergy = slotQueueGetMaxValue(7, 0) * 0.5;
         }
     }
     gPlayerCharacterId = 0;

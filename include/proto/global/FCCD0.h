@@ -2,8 +2,8 @@
 #ifndef PROTO_GLOBAL_FCCD0_H
 #define PROTO_GLOBAL_FCCD0_H
 #include "common.h"
+#include "render.h"
 struct SlotQueueNode;
-struct SlotQueueSprite;
 #ifndef PROTO_SKIP_slotQueueGetAddress
 s32 slotQueueGetAddress();
 #endif
@@ -44,7 +44,7 @@ void func_806F8DC4(u8 *, s32, s32);
 s32 func_806F8EB4(void);
 #endif
 #ifndef PROTO_SKIP_slotQueueGetMaxValue
-s32 slotQueueGetMaxValue(s32, s32);
+u16 slotQueueGetMaxValue(s32, s32);
 #endif
 #ifndef PROTO_SKIP_slotQueueAddValue
 void slotQueueAddValue(s32, u8, s16);
@@ -59,7 +59,7 @@ void bitfieldClearMappedFlag(u16 *, s32);
 s32 bitfieldHasMappedFlag(u16, s32);
 #endif
 #ifndef PROTO_SKIP_slotQueueNormalizeSpriteScale
-void slotQueueNormalizeSpriteScale(struct SlotQueueSprite *, s32);
+void slotQueueNormalizeSpriteScale(EffectNode *, s32);
 #endif
 #ifndef PROTO_SKIP_slotQueueReleaseSlot
 void slotQueueReleaseSlot(s32);
@@ -83,7 +83,7 @@ void effectSpawnSprite(struct SlotQueueNode *, s32, f32, f32, s32);
 void slotQueueSpawnNodes(s32);
 #endif
 #ifndef PROTO_SKIP_effectSpriteUpdatePosition
-void effectSpriteUpdatePosition(struct SlotQueueSprite *, s8 *);
+void effectSpriteUpdatePosition(EffectNode *, u8 *);
 #endif
 #ifndef PROTO_SKIP_slotQueueInitEffectSprites
 void slotQueueInitEffectSprites(s32);
