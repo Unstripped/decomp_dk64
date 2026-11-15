@@ -26,7 +26,7 @@ OK`, `tools/merge_gate.sh --commit "include: <what>" --stage include/<h>.h - - <
 one includer). A header commit stales the automatic rungs of every function reaching the changed
 declarations (`fp_hdr2`). Gate a field TYPE change apart from carves/moves: `carry --header-carve`
 then plain `carry --rev <commit before> <files>` re-stamp carves, moved types, respelled declarations
-and pure typedef renames, never a type change. Before committing a widely reached change, measure the stale cost with the header AND its user copies temp-swapped (header alone: users stop compiling) — full `status` before/after, then `carry --dry-run` in a temp worktree holding the commit (copy `asm/`): functions losing fresh
+and pure typedef renames, never a type change. Before committing a widely reached change, measure the stale cost with the header AND its user copies temp-swapped (header alone: users stop compiling) — full `status` before/after, then `carry --dry-run` in a temp worktree holding the commit (`cp -r asm/`: a symlink fails under dk; worktree `status` without a build ELF fails, use per-file status): functions losing fresh
 non-sweep rungs AND EXHAUSTED→OPEN (r18 0xEC union: 112 re-opened, one sweep; r34 MpSettings: 357 raw, 18 after carry). Hold above ~100 non-sweep losses; sweep the rest. A header change bundled with ANY body edit stales that body's agent rungs: measure even "automatic-only" changes (r34 s8: restored the local).
 
 ## Callee-prototype batches

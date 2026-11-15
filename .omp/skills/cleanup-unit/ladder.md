@@ -30,9 +30,14 @@ its cfe warning code plus the line's normalized code. Kinds:
 an `// ORIG` line without a cited offset stays a hack site. The offset must show the tagged line's OWN operations
 (a wider call-site declaration's caller-side `andi`, an extra argument register), not a computation a dead test keeps
 alive (stays FAKE, `diagnose nohit`; 627052); ORIG on a pre-switch constant store: compile without the store first.
-A rewrite into a sentinel `switch` (empty case group, call in `default:`) is natural C only when every case value is
-compared in the target and the switch changes what short-circuit code gives (Q0844); a chain the target compares in
-source order with a reload per compare is the original (Q0845). The lead checks the compares in the expected asm.
+A reused local/parameter is ORIG when the value is stored to that variable's own home slot (not the temp area below
+the named homes) and a separate local grows the frame (CEAE0 f73438, arcade ff5952). An assignment inside a
+short-circuit test whose value the target then uses (`(d = X) > best`) is ordinary C; a comma expression is not. A
+`volatile` pointee of a genuinely cross-thread busy-wait poll (another thread clears the flag; a plain poll is hoisted:
+104F0 77df56) is ordinary C; volatile locals or reads elsewhere stay FAKE.
+A sentinel `switch` (empty case group, call in `default:`) is natural C only when every case value is compared in the
+target and it changes what short-circuit code gives (Q0844); a source-order chain with a reload per compare is the
+original (Q0845). The lead checks the compares in the expected asm.
 
 ## Methods
 
@@ -65,16 +70,11 @@ Tooling rules (were Q0626/Q0634/Q0638):
   commutative `beq` operand swap as 0: confirm every `best=0` output with fdiff before applying it.
 - A `best=0` or review rewrite that only swaps one steer for another (`if (1) {}`, empty do-while, goto,
   `(0, x)`, `& 0xFFFFFFFFu`, a copy temp, a selector local of another width in place of a dead read) is `nohit`; keep the tagged site.
-- The permuter's pycparser rejects `x * sizeof(T) + sizeof(s32)` and a one-line `p = x; do {`:
-  rewrite them in the permuter base only, then translate the hint back into the copy.
-- Never write `'` in a `//` comment (FAKE notes): asm-processor/cfe read it as a char literal (compile
-  error); two in one comment cancel out and hide the code between them (false matches).
-- Before keeping a file-wide callee prototype steer (PROTO_SKIP), compare every caller's asm under the shared
-  prototype: a steer can rest on one caller's redundant mask (lightAdd: 11 of 12 callers already matched).
-- sweep's `cond` flips only dead-if/dead-store sites: on `other` sites try `if (x)`↔`if (x != 0)` by hand. as1probe's
-  unconditional `bnext` does not reproduce a dead address test (`la` + conditional jump-to-next): read the ugen listing.
-- deadsweep recipe scans and `variants.py try` ignore a shadow include dir (`RECIPE-FAIL … undefined`) until the header
-  lands; a `#` comment after the key of a copy-only ledger line fails `record` (`unknown field 'prev'`).
+- The permuter's pycparser rejects `x * sizeof(T) + sizeof(s32)`, a one-line `p = x; do {` and `va_arg`: rewrite them in the permuter base only, then translate the hint back.
+- Never write `'` in a `//` comment (FAKE notes): cfe reads it as a char literal; two in one comment hide the code between them.
+- Before keeping a file-wide callee prototype steer (PROTO_SKIP), compare every caller's asm under the shared prototype: a steer can rest on one caller's redundant mask (lightAdd: 11 of 12 matched).
+- sweep's `cond` flips only dead-if/dead-store sites: on `other` sites try `if (x)`↔`if (x != 0)` by hand. as1probe's unconditional `bnext` does not reproduce a dead address test: read the ugen listing.
+- deadsweep recipe scans and `variants.py try` ignore a shadow include dir (`RECIPE-FAIL … undefined`) until the header lands; a `#` comment after the key of a copy-only ledger line fails `record`.
 
 ## Required fresh methods per kind
 

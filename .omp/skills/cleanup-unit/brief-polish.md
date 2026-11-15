@@ -17,6 +17,9 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
 <status output>
 
 # Rules
+- Never fetch, read or search the community DK64 decomp (gitlab/github dk64_decomp, web copies) or any other
+  external source of this game's C; derive C from the local asm only (AGENTS.md). A result found after looking
+  at external C is discarded. Read no other agent's `.scratch/` directory beyond the files this brief names.
 - PRIVATE COPY: `git show <base>:<src> > .scratch/<You>/<file>.c` ONCE; never re-copy, never
   `cp` over `src`. Check: `tools/fdiff.sh .scratch/<You>/<file>.c <src>` (exit 0 = whole-object
   match; required for every kept change). Scratch only under `.scratch/<You>/`. A copy that differs
@@ -100,7 +103,7 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
    change. Every reviewed function: `func:<seg>:<name> review <fixed|nohit|blocked> note="fake=<kept>/<removed>
    goto=<n> casts=<n kept> views=<ok|n left> protos=<ok|n steer> temps=<ok|n> names=<n m2c left>
    uninit=<0|n> warn=<n left>"`. Validate with `uv run tools/quality.py record --dry-run --unit U
-   --agent <you> --base <base> --batch <file>` (never writes `drafts/quality/`).
+   --agent <you> --base <base> --batch .scratch/<You>/ledger_<file>.txt` (never writes `drafts/quality/`).
 4. Proposed cross-file names: `old -> new` + one-line evidence each.
 5. New IDO findings (rule + evidence); header requests made; hacks tagged (keys).
 ````

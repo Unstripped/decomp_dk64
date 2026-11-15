@@ -90,11 +90,11 @@ As each worker reports:
 3. Append the report's IDO findings (file, function, merge commit, rule, see-also IDs) to
    `.scratch/s<YYYY-MM-DD>-knowledge-queue.md`; §6 files them once.
 4. A copy that changed a non-static signature carries stand-in `#define PROTO_SKIP_<f>` + declarations:
-   strip both into clean copies (`.scratch/<A>/clean/`), copy EVERY clean file of the bundle over src
-   together, one `protos.py gen`, restore src, compare with header.patch, then merge the clean dir with one
-   `--stage include/proto/<seg>/<f>.h` per regenerated header (a gen over part of a bundle misses headers:
-   DS/90D80.h); `gen --check` exits 0. Shadow headers (worker fdiff) must also shadow, unchanged, every
-   `include/*.h` that quote-includes a shadowed header (cpp searches the includer's directory first).
+   run `clint uninit --base` on the stand-in copies (after gen the base no longer parses: exit 3), strip both
+   into clean copies (`.scratch/<A>/clean/`), copy EVERY clean file of the bundle over src together, one
+   `protos.py gen`, restore src, compare with header.patch, then merge the clean dir with one `--stage
+   include/proto/<seg>/<f>.h` per regenerated header (a partial gen misses headers: DS/90D80.h); `gen --check`
+   exits 0. Shadow headers must also shadow, unchanged, every `include/*.h` that quote-includes a shadowed one.
 5. Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
    (`--reloc-ok`), one gate. Copies keyed by the same basename (`boss/52B0` vs `race/52B0`,
    `critter/0` vs `minecart/0`) need separate dirs and gates. dkd refreshes host-rewritten inputs before every

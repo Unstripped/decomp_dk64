@@ -40,8 +40,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - Names not applied: MpSettings.unk0 (mode vs gameMode unclear; its reader func_80714608 is now mpIsMatchType); func_806C9974 -> playerAddHealthDelta (Rev34C proposal, round-35 names step). Proposals not applied at the 2026-11-14 consolidation (director: keep the existing names for now): collisionGetFloorHeight -> collisionGetWaterHeight, collisionGetFloorTriangleNormal -> collisionCheckLedgeGrab (PolishGlobal6AD90Names; evidence .scratch/close/renames.md rows 104/105). Rejected: Actor.unk155 -> subState (one boss file's evidence for 66 files), D_807FF0F2 -> gAudioHeadphonesEnabled (inferred), Actor.unk15F -> hudMode (C8C10 uses unk15F as a 0x80 flag plus a 0x7F phase counter).
 
 ## Session 2026-11-14 close leftovers (Lead12)
-- Re-review: 35 functions in 25 files show `next=review` in `rank --polish` (staled by the final renames ec5eb9d0 and the Q0641
-  correction 145e8a82: B6C50 func_806B1F50; E4090 7, race/7BD0 4, 201B0 3, ...): one polish wave.
+- Re-review wave: done in session 2026-11-14b (reviewed 4259/4270 before its last merges; see run-log).
 - Names held (readers agree on the role, names differ, or the proposer did not read every user): RaceParticipant unk3A (route
   position that wraps and bumps the lap: waypointIndex / routePos / checkpoint), unk40 (holds both a normal and a squared distance:
   nextPointDist / waypointDistance, not "Sq"), unk45 (outOfRace / eliminated / disqualified), unk35 (subPhase / phase), unk44
@@ -61,6 +60,26 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   - `permute.py batch` setup compiles row copies against the current include/: build each row at its base (or re-snapshot copies
     whose file or reached headers changed) so a header merge does not fail older rows (b1114b, D_807FC828).
   - permute.py cannot parse `va_arg` (`__builtin_classof`): add a preprocessor stub so vsprintf 9bc6c1 can be permuted.
+
+## Session 2026-11-14b close leftovers (CleanupLead2)
+- Community-source rule: HackplayerCameraUpdateFromTarget was REJECTED (curl-fetched the community decomp; scratch kept as
+  `.scratch/HackplayerCameraUpdateFromTarget.rejected-community-source`, nothing recorded). The rule is now the first Rules bullet
+  of brief-hack.md and brief-polish.md; every brief must carry it and the director audits provenance before each merge.
+- Types batches not run (TypesOwner idle): one shared `D_80750AC8` -> now `gTextNumberArg` (u16 in 112080/FCCD0/menu-1AF0/race-0,
+  s16 in C4620/C8C10/menu-0/race-36B0/52B0/6650: pick one type, one header extern, objdiff all 10); one shared `extern u8
+  gPlayerCharacterId[]` (~31 files with u8[]/u8/s8 locals); `gContReadPending` (was D_807ECD08) is `extern u8[]` in 104F0 but
+  `u8` in F600; RaceParticipant 0x25/0x26 racer-side aliases (boostTimer/boostPending); one shared VehicleActor (936B0) /
+  RaceCompetitorActor (52B0) type in race.h; 36880 TexImageCmdSpan as a Gfx[] view (G_SETTIMG/G_SETTILESIZE, file-scope).
+- Names held: PlayerState.unk11C (swimStrokeTimer vs stateTimer; EFDC0 unread), PlayerState.unkC2 -> slopeFrames (D5E10/EFDC0
+  unread by the CEAE0 proposer), ActorGlobalState.unk15 -> hitType (boss files unread), RaceParticipant unk35 (statusStep /
+  finishStep / subPhase), unk1C -> frameTimer, D_80757044/D_80757064 (default high-score tables), D_807FC952 (= gPlayerInventoryTable
+  [0].kong[0].weaponFlags; cannot fold), KongInventory.unk5, Actor.unk155 -> stateTimer (low confidence, rejected before).
+- Open hack leads: camPathCommandDispatch C13 body is full=1 (only `lw` vs `lh a1,58(sp)` at 0x1370; Q0553 note);
+  csCmdModelStepAnimation `(*st).lastValue` FAKE may go with `cs->unk48[1]` (CsState 0x48 is u8[2] since 86994bb9);
+  arcadeSpawnStage1Entities untried ideas in its dossier; hudPauseMenuRender stays next=consolidate (pending KEPT steers).
+- Tooling: quality.py `token_meaning` (rename_map) spells an anonymous member's record type with clang's canonical spelling,
+  which embeds the header path (temp tree vs checkout), so carry never treats a body touching an anonymous-union field as a pure
+  rename (fix: clint.type_sig or strip the location as clint.UNNAMED does; TypesOwner batch_2 lost 6 review rungs to it).
 
 ## OPEN functions
 

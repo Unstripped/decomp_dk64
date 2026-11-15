@@ -18,6 +18,9 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
 <status output>
 
 # Rules
+- Never fetch, read or search the community DK64 decomp (gitlab/github dk64_decomp, web copies) or any other
+  external source of this game's C; derive C from the local asm only (AGENTS.md). A result found after looking
+  at external C is discarded. Read no other agent's `.scratch/` directory beyond the files this brief names.
 - PRIVATE COPY: `git show <base>:<src> > .scratch/<You>/<file>.c` ONCE; never re-copy, never
   `cp` over `src`. Check: `tools/fdiff.sh .scratch/<You>/<file>.c <src>` (exit 0 = whole-object
   match; required for every kept change). Scratch only under `.scratch/<You>/`. A copy that differs
@@ -32,7 +35,8 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
   changing codegen is not a blocker: `review nohit` with `uninit=<n> pre-existing (original control
   flow)`. `review blocked` only when another workstream must deliver something (header, owner type).
 - Never swap a hack for another hack. A new `// FAKE` only when the file's net tag count
-  strictly drops.
+  strictly drops. After removing or respelling one steer, re-run the plain form of every other kept
+  steer in the function: an old measurement can belong to the steer you just changed (race/1770 c924a2).
 - Drop a tag only from a construct that is ordinary C (a named temp, normal statement order).
   Dead ifs, no-op arithmetic, `volatile`, comma expressions, `do {} while (0)`, punned casts
   and value-named constant locals keep their tag while they stay.
@@ -142,7 +146,7 @@ Update the dossier `.scratch/<You>/dossier_<seg>_<FUNC>.md` (seeded from drafts/
    `func:<seg>:<name> review <fixed|nohit|blocked> note="fake=<kept>/<removed> goto=<n> casts=<n kept>
    views=<ok|n left> protos=<ok|n steer> temps=<ok|n> names=<n m2c left> uninit=<0|n> warn=<n left>"`.
    Validate with `uv run tools/quality.py record --dry-run --unit U --agent <you> --base <base>
-   --batch <file>` (never writes `drafts/quality/`; never copy or restore that file yourself).
+   --batch .scratch/<You>/ledger_<file>.txt` (never writes `drafts/quality/`; never copy or restore it yourself).
 4. The dossier path(s); proposed cross-file names (`old -> new` + evidence).
 5. New IDO findings (rule + evidence) for the orchestrator to file; header requests made.
 ````
