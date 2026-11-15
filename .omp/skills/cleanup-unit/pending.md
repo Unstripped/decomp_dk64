@@ -8,7 +8,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   FCCD0 da5663/06d21a stay FAKE. (b) keep `u8 flagGet(s16, u8)` (OwnerFlagGetWidthPlan: no option passes all 49 files); 80150
   c1a42b/b5496b stay FAKE, jetpac/0's pair is ORIG (0x11d4).
 - critter/5110 D_807FCC44 split label stays tagged (5110.c:57, Q0687 table-base CSE); D_807FCC40 retired (5adcdc9b).
-- ACDC0: D_807FC828..D_807FC838 are one s16[9] collectible-count table; declaring the array changes codegen (text 16 bytes smaller), kept as separate symbols (ACDC0.c:73-78).
+- ACDC0 split labels D_807FC82A..D_807FC838 KEPT (OwnerCollectibleCountsView, 0c2a5e64): the table is now one shared `extern s16 D_807FC828[9]` in actor.h (ACDC0, 3E10 and 117190 read it, [0] included), but folding ACDC0's [1]-[8] labels into it makes hudPauseMenuRefreshTotals 16 bytes shorter (.text 20880 vs 20896), so ACDC0 keeps them (ACDC0.c:73-80).
 - 2F550 MapViewEntries proposal (.scratch/Rev24/header-request.md), held. With it, 55B20 could drop MapChunkArg; renderEntryListBuildDisplayList last parameter s32 vs u8 (owner 35000) blocks the 55B20 mapChunksRender proto-steer (a1232a/19cc66).
 - Actor.soundSlots[0] (0x6E) is a frame counter in BC3B0 (beep timing, BC3B0.c:173-176): the shared field name may be too narrow (header owner).
 - 55B20 MapZone.tris as MapTriangle * would remove 23 casts (a natural rewrite does not match yet; 55B20.c:352/1468).
