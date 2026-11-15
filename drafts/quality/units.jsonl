@@ -613,3 +613,4 @@
 {"type": "unit", "t": "2026-11-15T06:22:46Z", "unit": "2026-11-14: cleanup HackcsCmdStepSequenceProgress", "commit": "86994bb9977613cbf89d2cbdd6a5ce3605749758"}
 {"type": "unit", "t": "2026-11-15T06:28:37Z", "unit": "2026-11-14: cleanup HackplayerStateSurfaceTreadWater", "commit": "de42bc8eef46d4b0ce2f5cc0390d8af0692e6a8b"}
 {"type": "unit", "t": "2026-11-15T06:28:54Z", "unit": "2026-11-14: cleanup HackvolumeTriggerUpdateAll", "commit": "95f97cdd1c014cfb69a31f9fc7f426d6db9e35d1"}
+{"type": "unit", "t": "2026-11-15T06:30:53Z", "unit": "2026-11-14: cleanup HackcamFloorSnap", "commit": "ecd5f154e7a47f40d4aed25bc0843d19512b5b54"}
