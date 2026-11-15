@@ -406,7 +406,7 @@ f32 raceGetProgressPercent(RaceRoute *route, RaceParticipant *tracker, RaceParti
 
 
 void raceUpdateWaypointActivation(RaceParticipant *actorState) {
-    RaceRoute *list;
+    RaceRoute *route;
     RaceWaypoint *node;
     s32 i;
     s32 j;
@@ -414,17 +414,18 @@ void raceUpdateWaypointActivation(RaceParticipant *actorState) {
     s32 farAway;
     f32 dist;
 
-    list = raceGetRoute(actorState->route);
-    if (list != NULL) {
-        for (i = 0; i < list->count; i++) {
-            node = raceGetWaypoint(list->items[i]);
+    route = raceGetRoute(actorState->route);
+    if (route != NULL) {
+        for (i = 0; i < route->count; i++) {
+            node = raceGetWaypoint(route->items[i]);
             if (node->kind != 0) {
                 farAway = 0;
                 for (j = 0; j < gPlayerCount; j++) {
-                    f32 *p = &gPlayerSlots[j].camX;
+                    f32 *camPos = &gPlayerSlots[j].camX;
 
-                    dist = (p[0] - node->x) * (p[0] - node->x) + (p[1] - node->y) * (p[1] - node->y) +
-                           (p[2] - node->z) * (p[2] - node->z);
+                    dist = (camPos[0] - node->x) * (camPos[0] - node->x) +
+                           (camPos[1] - node->y) * (camPos[1] - node->y) +
+                           (camPos[2] - node->z) * (camPos[2] - node->z);
                     farAway |= dist > 302500.0f;
                 }
                 if (farAway != node->state) {
