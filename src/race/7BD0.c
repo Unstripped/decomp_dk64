@@ -294,19 +294,18 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
     u8 *lapStr;
     u8 *ofStr;
     s32 len;
-    s32 hudFlags;
+    s32 pad2;
     Gfx *g0;
 
     hudPos = tracker->viewport;
-    lap = tracker->unk37;
+    lap = tracker->lap;
     managerData = tracker->actor->customState;
     textX = hudPos->left + 8;
     textY = hudPos->bottom - 0x10;
     g0 = dl++;
     g0->words.w0 = 0xE7000000; g0->words.w1 = 0; // LAYOUT: same-line stores keep the w1 store first
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
-    hudFlags = managerData->hudFlags;
-    if (hudFlags & 4) {
+    if (managerData->hudFlags & 4) {
         lap = (lap < managerData->lapCount) ? lap : managerData->lapCount;
         lap = (lap >= 2) ? lap : 1;
         lapStr = textTableGetString(0x26, 0xB, 1);
@@ -316,17 +315,16 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
         textBuf = heapAlloc(len + 8);
         heapFreeDeferred(textBuf);
         _sprintf(textBuf, "%s %d %s %d", lapStr, lap, ofStr, managerData->lapCount);
-        dl = textDrawStringVtx(dl, 1, (s16)(s32)(2.0f * (f32)(textX * 4)), (s16)(s32)(2.0f * (f32)(textY * 4)), textBuf, 4);
+        dl = textDrawStringVtx(dl, 1, (s16)(2.0f * (textX * 4)), (s16)(2.0f * (textY * 4)), textBuf, 4);
         g0 = dl++;
         g0->words.w0 = 0xDA380007; g0->words.w1 = (u32)&D_20000C0; // LAYOUT: same-line stores steer the ori/addiu schedule
         g0 = dl++;
         g0->words.w0 = 0xDA380005;
         g0->words.w1 = (u32)tracker->hudScale[gGfxBufferIndex];
         fontHeight = textGetFontHeight(1);
-        textY = (s32)((f32)textY - (0.5f * (f32)fontHeight));
-        hudFlags = managerData->hudFlags;
+        textY -= 0.5f * fontHeight;
     }
-    if (hudFlags & 2) {
+    if (managerData->hudFlags & 2) {
         placeIdx = tracker->place;
         if ((placeIdx + 1) == managerData->participantCount) {
             placeIdx = 3;
@@ -334,7 +332,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
         if (tracker->unk45 != 0) {
             placeIdx = 4;
         }
-        dl = textDrawStringVtx(dl, 1, (s16)(s32)((f32)(textX * 4) + (f32)(textX * 4)), (s16)(s32)(2.0f * (f32)(textY * 4)), textTableGetString(0x26, D_8002FCC0[placeIdx], 1), 4);
+        dl = textDrawStringVtx(dl, 1, (s16)((f32)(textX * 4) + (f32)(textX * 4)), (s16)(2.0f * (textY * 4)), textTableGetString(0x26, D_8002FCC0[placeIdx], 1), 4);
     }
     if (tracker->raceStatus >= 3 && tracker->raceStatus < 5) {
         dl = textDrawAnimated(dl, tracker->resultTextId, 2, 160.0f, 100.0f, 0.0f, 1.5f);
@@ -632,34 +630,32 @@ void racePlayStartRaceMusic(void) {
 
 void raceUpdateStandings(void) {
     RaceParticipant *managerData;
-    RacePair *base;
+    RacePair *pairs;
     RacePair *p;
     RacePair *q;
     s32 i;
     s32 j;
     RacePair tmp;
-    u8 cnt;
+    u8 finishedCount;
     u8 swap;
 
     managerData = gCurrentActor->customState;
-    cnt = 0;
-    base = managerData->pairs;
+    finishedCount = 0;
+    pairs = managerData->pairs;
     for (i = managerData->participantCount - 1; i >= 0; i--) {
         for (j = 1; j <= i; j++) {
-            p = &base[j - 1];
-            q = &base[j];
+            p = &pairs[j - 1];
+            q = &pairs[j];
             swap = 0;
             if (p->data->unk45 != 0 && q->data->unk45 == 0) {
                 swap = 1;
-            } else {
-                if (p->data->lap < q->data->lap) {
+            } else if (p->data->lap < q->data->lap) {
+                swap = 1;
+            } else if (p->data->lap == q->data->lap) {
+                if (p->data->unk3A < q->data->unk3A) {
                     swap = 1;
-                } else if (p->data->lap == q->data->lap) {
-                    if (p->data->unk3A < q->data->unk3A) {
-                        swap = 1;
-                    } else if (p->data->unk3A == q->data->unk3A && q->data->unk40 < p->data->unk40) {
-                        swap = 1;
-                    }
+                } else if (p->data->unk3A == q->data->unk3A && q->data->unk40 < p->data->unk40) {
+                    swap = 1;
                 }
             }
             if (swap != 0) {
@@ -669,15 +665,15 @@ void raceUpdateStandings(void) {
             }
         }
     }
-    q = base;
+    q = pairs;
     for (i = 0; i < managerData->participantCount; i++, q++) {
         q->data->place = i;
         if (q->data->unk45 != 0 || (q->data->raceStatus == 2 && managerData->lapCount < q->data->lap)) {
             raceSetParticipantRaceStatus(q, 3);
-            cnt++;
+            finishedCount++;
         }
     }
-    if (cnt >= managerData->participantCount - 1) {
+    if (finishedCount >= managerData->participantCount - 1) {
         raceSetAllParticipantsStatus(3);
         racePlayResultSfx();
         managerData->unk1C = 0;
