@@ -135,7 +135,6 @@ void volumeTriggerUpdateAll(void) {
     s32 j;
     s32 delayed;
     s32 k;
-    VolumeTriggerAction *action;
 
     for (k = 0; k < gActorGlobalState.volumeTriggerQueueCount; k++) {
         idPtr = gActorGlobalState.volumeTriggerQueueId[k];
@@ -152,14 +151,14 @@ void volumeTriggerUpdateAll(void) {
     for (i = 0; i < gVolumeTriggerTable->count; i++, e++) {
         if (volumeTriggerUpdate(e)) {
             for (j = 0; j < e->def.actionCount; j++) {
-                action = &e->def.actions[j];
-                if (gVolumeTriggerHooks[e->def.actions[j].hookIndex].condition == NULL || gVolumeTriggerHooks[e->def.actions[j].hookIndex].condition()) { // FAKE: condition reads hookIndex via e->def.actions[j], the body via action: keeps the hook address recomputed after the call (no CSE)
-                    delayed = gVolumeTriggerHooks[action->hookIndex].actorType == 0xA ? 1 : 0;
-                    actorAppendCallbackMemcpy8(gCurrentActor, gVolumeTriggerHooks[action->hookIndex].actor, 0x01000000, gVolumeTriggerHooks[action->hookIndex].subtype, e->def.actions[j].payload, delayed);
-                    gVolumeTriggerFiredX = e->def.x;
-                    gVolumeTriggerFiredY = e->def.y;
-                    gVolumeTriggerFiredZ = e->def.z;
+                if (gVolumeTriggerHooks[e->def.actions[j].hookIndex].condition != NULL && !gVolumeTriggerHooks[e->def.actions[j].hookIndex].condition()) {
+                    continue;
                 }
+                delayed = gVolumeTriggerHooks[e->def.actions[j].hookIndex].actorType == 0xA ? 1 : 0;
+                actorAppendCallbackMemcpy8(gCurrentActor, gVolumeTriggerHooks[e->def.actions[j].hookIndex].actor, 0x01000000, gVolumeTriggerHooks[e->def.actions[j].hookIndex].subtype, e->def.actions[j].payload, delayed);
+                gVolumeTriggerFiredX = e->def.x;
+                gVolumeTriggerFiredY = e->def.y;
+                gVolumeTriggerFiredZ = e->def.z;
             }
         }
     }
