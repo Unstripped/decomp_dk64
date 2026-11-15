@@ -251,6 +251,7 @@ typedef struct ActorEntry {
 
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
+extern struct Actor *gCamActor; // camera actor (camera state in customState), defined in 201B0.c
 
 typedef struct ActorCollisionHit {
     f32 unk0[3];

@@ -99,7 +99,7 @@ extern s16 D_8076A0A6;
 extern s8 sRingSequencePos;
 extern s8 sRingSequence[];
 extern f32 D_807FC8D4;
-extern Actor *gCamActor;
+
 
 void actorNodeRingUpdate(void) {
     RingNodeModel *nodePtr = ((RingNodeActor *)gCurrentActor)->unk178;

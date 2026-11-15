@@ -119,7 +119,7 @@ typedef struct BossKutOutActor {
 
 
 extern s32 D_807FBD6C;
-extern void *gCamActor;
+
 
 void behaviourFrameBegin(void);
 void tagBarrelSpawnActorSmokePuffs(u8, u8);
@@ -129,7 +129,7 @@ void actorScriptStart(void *, s32);
 s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 s32 currentActorTestClearFlag(void);
 void actorSetTargetSpeed(void *, s32);
-void camSetSecondTarget(struct CamActor *, s16, s16);
+void camSetSecondTarget(Actor *, s16, s16);
 s16 mathAngleEaseToward(s16, s16, f32);
 u8 spawnNodeHasActor(u8);
 u8 camIsCutsceneActive(void);

@@ -43,10 +43,10 @@ typedef struct BossDogadonActor {
 
 extern u8 *gDogadonPhaseScripts[];
 extern PlayerStruct *gPlayerSlots;
-extern void *gCamActor;
+
 
 void behaviourFrameBegin(void);
-void camSetSecondTarget(struct CamActor *, s16, s16);
+void camSetSecondTarget(Actor *, s16, s16);
 void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
 u16 camStartPath(void *, s16, u8);
 void hudCountdownTimerSaveElapsed(void *);

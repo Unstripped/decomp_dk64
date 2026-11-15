@@ -154,7 +154,7 @@ void lightSetOverrideColor(f32 r, f32 g, f32 b) {
     gLightOverrideB = b;
 }
 
-extern Actor *gCamActor;
+
 extern Mtx D_2000080;
 extern Mtx D_2000180;
 

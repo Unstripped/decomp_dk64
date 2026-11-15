@@ -538,7 +538,7 @@ void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
     }
 }
 
-extern Actor *gCamActor;
+
 
 void func_806C1300(void) {
     switch (gCurrentActor->unk155) {

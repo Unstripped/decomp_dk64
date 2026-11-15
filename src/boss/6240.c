@@ -156,7 +156,7 @@ extern f32 D_807502E8;
 extern f32 D_807502FC;
 extern s32 gCurrentMap;
 extern ALBank *D_8076D1F8;
-extern Actor *gCamActor;
+
 extern Actor *gSpawnedActor;
 extern PlayerStruct *gPlayerSlots;
 extern PlayerState *gActivePlayerState;

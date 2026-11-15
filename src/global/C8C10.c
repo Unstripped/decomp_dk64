@@ -46,7 +46,7 @@ typedef struct ComponentActor {
 #define COMPONENT_ACTOR ((ComponentActor *)gCurrentActor)
 
 extern PlayerStruct *gPlayerSlots;
-extern Actor *gCamActor;
+
 extern s32 gCurrentMap;
 
 

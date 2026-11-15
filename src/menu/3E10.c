@@ -74,7 +74,7 @@ void menuSetAudioMode(void) {
 }
 
 extern s8 D_80033734;
-extern Actor *gCamActor;
+
 
 void menuTitleScreenHandleInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;

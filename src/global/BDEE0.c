@@ -722,7 +722,7 @@ typedef struct BDEE0Tbl {
 
 extern PlayerState *gActivePlayerState;
 extern s32 gGlobalCutsceneFlags;
-extern Actor *gCamActor;
+
 extern BDEE0Tbl D_80750638;
 
 void behaviourFairyWanderUpdate(void) {

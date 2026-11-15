@@ -30,7 +30,7 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
-extern Actor *gCamActor;
+
 extern void *D_8074E880[];
 typedef struct {
     u8 b[4];

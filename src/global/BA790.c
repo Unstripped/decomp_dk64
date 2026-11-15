@@ -29,7 +29,7 @@ typedef struct CountdownActor {
 extern u8 gGameMode;
 extern s16 D_80770628[];
 extern s16 D_80770710[];
-extern Actor *gCamActor;
+
 extern u8 D_80720630;
 
 

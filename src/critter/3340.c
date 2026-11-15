@@ -56,7 +56,7 @@ extern s8 D_80029F84;
 extern f32 D_8002A1B0;
 extern u8 D_8071FE08[];
 extern u8 D_80720A7C[];
-extern Actor *gCamActor;
+
 
 f32 sqrtf(f32);
 

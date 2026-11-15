@@ -267,7 +267,7 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *actor) {
 }
 
 
-extern Actor *gCamActor;
+
 extern s32 gGlobalOverlayFlags;
 
 

@@ -22,7 +22,7 @@ typedef struct BossKRoolDkActor {
 } BossKRoolDkActor;
 
 extern u8 *D_80035A50[];
-extern Actor *gCamActor;
+
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;

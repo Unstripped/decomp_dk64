@@ -685,7 +685,7 @@ typedef struct ProjectileTrackerState {
     u8 pad10;
     u8 mode;
 } ProjectileTrackerState;
-extern Actor *gCamActor;
+
 extern u8 D_80750AD0;
 
 void projectileGetTargetCoords(Actor *actor, s32 node) {

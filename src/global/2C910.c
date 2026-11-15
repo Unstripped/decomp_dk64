@@ -119,7 +119,7 @@ extern s8 D_8076AEE0;
 extern s16 D_8076AEF2;
 extern ALBank *D_8076D1F8;
 extern ALBank *D_8076D1FC;
-extern Actor *gCamActor;
+
 extern struct GfSndState *D_807F5D70[];
 extern s16 D_807F5D7C;
 extern Actor *gActivePlayerActor;

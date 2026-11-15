@@ -29,7 +29,7 @@ typedef struct BossKRoolChunkyActor {
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern PlayerState *gActivePlayerState;
-extern Actor *gCamActor;
+
 extern PlayerStruct *gPlayerSlots;
 
 void bossKRoolChunkySetupFight(BossScriptState *unused) {

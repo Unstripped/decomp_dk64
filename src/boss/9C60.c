@@ -24,7 +24,7 @@ typedef struct BossKRoolDiddyActor {
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *gCamActor;
+
 extern Actor *gPrimaryPlayerActor;
 extern u8 *D_80035A60[];
 

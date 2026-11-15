@@ -58,7 +58,7 @@ extern s32 D_80717D4C;
 extern void *D_8074E880[];
 extern u8 D_80720120[];
 extern s32 D_8072030C;
-extern Actor *gCamActor;
+
 extern struct MinecartElem *gMinecartJunctionTable[];
 extern u8 D_80028C34[];
 extern u8 D_80028C40[];

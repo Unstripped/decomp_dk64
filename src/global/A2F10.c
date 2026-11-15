@@ -676,7 +676,7 @@ typedef struct {
     u8 padC[0x24];
 } NodePosition;
 
-extern Actor *gCamActor;
+
 extern f32 D_80750398;
 extern u8 D_80720BE8;
 

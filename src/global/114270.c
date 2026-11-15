@@ -187,7 +187,7 @@ void effectSpriteParticleWrapX(EffectSpriteParticle *particle) {
     particle->x = (s32)particle->x % 320;
 }
 
-extern Actor *gCamActor;
+
 extern Actor *gPrimaryPlayerActor;
 extern u32 gGlobalCutsceneFlags;
 extern f32 D_807FD9EC;
