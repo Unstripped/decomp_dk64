@@ -791,7 +791,7 @@ void raceManagerBehaviorUpdate(void) {
     raceUpdateWaypointActivation(managerData);
     if (func_807142D8() == 0) {
         if (gCurrentActor->state > 0 && gCurrentActor->state < 5) {
-            renderCallbacksRegister((void *)raceRenderMinimapAndCountdown, gCurrentActor, 3);
+            renderCallbacksRegister(raceRenderMinimapAndCountdown, gCurrentActor, 3);
         }
     }
 }
@@ -1129,7 +1129,7 @@ void racePlayerTrackerBehaviorUpdate(void) {
         raceUpdateLapAndWaypointTracker(raceData);
     }
     if ((raceData->raceStatus > 0) && (raceData->raceStatus < 5)) {
-        renderCallbacksRegister((void *)racePlayerHudRenderCallback, gCurrentActor, 3);
+        renderCallbacksRegister(racePlayerHudRenderCallback, gCurrentActor, 3);
     }
     raceData->maxNextPointDistSq = (raceData->unk40 < raceData->maxNextPointDistSq) ? raceData->maxNextPointDistSq : raceData->unk40;
     curMax = raceData->maxProgressScore;

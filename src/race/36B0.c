@@ -212,7 +212,7 @@ void raceAiUpdateSpeedAndLane(void) {
     RaceTarget *aux;
     f32 distToTarget;
     f32 targetSpeed;
-    u8 flag;
+    u8 laneSettled;
     u8 laneRoll;
     s32 nodeIndex;
     s32 foundCompetitor;
@@ -229,7 +229,7 @@ void raceAiUpdateSpeedAndLane(void) {
     aux = ((RaceCarActor *)gCurrentActor)->raceTarget;
     distToTarget = raceGetPathDistanceBetweenRacers(gCurrentActor, cursor, targetActor, targetCursor);
     targetSpeed = raceEvaluateCurveTargetSpeed(aux, distToTarget, D_8002FBD0, D_8002FC00);
-    flag = (cursor->lane == cursor->targetLane) && (cursor->unk4 == 0);
+    laneSettled = (cursor->lane == cursor->targetLane) && (cursor->unk4 == 0);
     if (aux->curveMode != 0) {
         leaderActor = state->actor;
         if (raceGetCompletionFraction(cursor, state, leaderActor->customState) > 0.8) {
@@ -241,15 +241,15 @@ void raceAiUpdateSpeedAndLane(void) {
         raceTriggerBoostParticles();
     case 0:
     case 1:
-        if (flag) {
+        if (laneSettled) {
             laneRoll = (randomLcgNext() & 0xFF) < 0x14;
             if ((D_8002FBD0[1].x < distToTarget) && (distToTarget < D_8002FBD0[2].x) && (cursor->lane != targetCursor->lane) && laneRoll) {
                 raceChangeLaneRelative(cursor, targetCursor->lane - cursor->lane);
             } else if ((D_8002FBD0[3].x < distToTarget) && (distToTarget < D_8002FBD0[4].x) && (cursor->lane == targetCursor->lane) && laneRoll) {
                 raceChangeLaneRandom(cursor);
             }
-            flag = (cursor->lane == cursor->targetLane) && (cursor->unk4 == 0);
-            if (flag) {
+            laneSettled = (cursor->lane == cursor->targetLane) && (cursor->unk4 == 0);
+            if (laneSettled) {
                 if ((distToTarget < D_8002FBD0[1].x) || (D_8002FBD0[2].x < distToTarget)) {
                     foundCompetitor = 0;
                     for (nodeIndex = 2; nodeIndex < 7 && foundCompetitor == 0; nodeIndex++) {
@@ -555,8 +555,8 @@ void raceCameraBehaviorUpdate(void) {
     f32 dist;
     f32 camYOffset;
     f32 distNorm;
-    u8 tgtStateMode;
-    u8 tgtCursorSub;
+    u8 targetStatus;
+    u8 targetLane;
     RacePathState *cursor;
     RaceParticipant *state;
     Actor *playerActor;
@@ -576,20 +576,20 @@ void raceCameraBehaviorUpdate(void) {
         cursor->lane = cursor->targetLane = 1;
         racePathFollowStep(cursor, state, 0);
     }
-    tgtStateMode = targetState->raceStatus;
-    if (state->raceStatus != tgtStateMode) {
-        state->raceStatus = tgtStateMode;
+    targetStatus = targetState->raceStatus;
+    if (state->raceStatus != targetStatus) {
+        state->raceStatus = targetStatus;
         state->unk35 = 0;
     }
     dist = raceGetPathDistanceBetweenRacers(gCurrentActor, cursor, targetActor, targetCursor);
     distToTarget = dist;
-    tgtCursorSub = targetCursor->targetLane;
-    if (cursor->targetLane != tgtCursorSub) {
-        cursor->targetLane = tgtCursorSub;
+    targetLane = targetCursor->targetLane;
+    if (cursor->targetLane != targetLane) {
+        cursor->targetLane = targetLane;
         cursor->laneBlend = 0.0f;
     }
     if ((state->raceStatus >= 2) && (state->raceStatus < 4)) {
-        if ((u32)targetCursor->unk10 > 24.0) {
+        if (targetCursor->unk10 > 24.0) {
             offsetSign = -2.5f;
         } else if (targetCursor->unk14 > 0.5f) {
             offsetSign = 2.5f;
@@ -681,9 +681,9 @@ void raceObstacleCarBehaviorUpdate(void) {
         gCurrentActor->state = 0x40;
     }
     actorGetNodePos(gCurrentActor, 6, &nodeX, &nodeY, &nodeZ);
-    commandQueuePush(gCurrentActor, (s16)nodeX, (s16)nodeY, (s16)nodeZ, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+    commandQueuePush(gCurrentActor, nodeX, nodeY, nodeZ, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     actorGetNodePos(gCurrentActor, 0xB, &nodeX, &nodeY, &nodeZ);
-    commandQueuePush(gCurrentActor, (s16)nodeX, (s16)nodeY, (s16)nodeZ, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+    commandQueuePush(gCurrentActor, nodeX, nodeY, nodeZ, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     racePathFollowStep(cursor, state, 1);
     if ((state->raceStatus == 0) && (targetState->raceStatus == 5)) {
         gBehaviourExtraState->respawnDelay = 0;

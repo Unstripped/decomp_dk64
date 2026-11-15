@@ -55,7 +55,7 @@ void raceOpponentFollowWaypoints(void) {
     zone = &D_807FDCA0->entries[gBehaviourWorkState->waypointIndex];
     vx = gCurrentActor->x - zone->x;
     vz = gCurrentActor->z - zone->z;
-    if (sqrtf(vz * vz + vx * vx) < (zone = &D_807FDCA0->entries[gBehaviourWorkState->waypointIndex])->radius) {
+    if (sqrtf(vz * vz + vx * vx) < (zone = &D_807FDCA0->entries[gBehaviourWorkState->waypointIndex])->radius) { // FAKE: zone re-taken inside the radius test (same entry); reusing zone, a refresh before the if, or direct entries[] accesses all change the code
         if ((zone->y < gCurrentActor->y ? gCurrentActor->y - zone->y : -(gCurrentActor->y - zone->y)) < 80.0f && gBehaviourWorkState->waypointIndex < D_807FDCA0->entryCount - 1) {
             if (routeRows[routeRowIdx].waypoint == gBehaviourWorkState->waypointIndex) {
                 gCurrentActor->accelY = routeRows[routeRowIdx].gravity;
@@ -179,6 +179,7 @@ void raceOpponentBehaviourUpdate(void) {
     RaceParticipant *child;
     RaceRouteEvent *routeRows;
     s32 flag;
+    s32 callbackId;
     f32 value;
     s32 phaseCopy;
     u32 selector;
@@ -281,7 +282,7 @@ void raceOpponentBehaviourUpdate(void) {
         dz = gCurrentActor->z - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].z;
         dist = sqrtf(dz * dz + dx * dx);
         if (dist < D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].radius) {
-            value = gCurrentActor->y;
+            value = gCurrentActor->y; // FAKE: value reused as the actor height; a separate local changes the code
             if (D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y < value) {
                 dist = value - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y;
             } else {
@@ -452,11 +453,11 @@ void raceOpponentBehaviourUpdate(void) {
         break;
     case 3:
         if (controller->unk35 == 0) {
-            flag = 0x55;
+            callbackId = 0x55;
             if (gPrimaryPlayerActor->contactFlags & 0x200) {
-                flag = 0x56;
+                callbackId = 0x56;
             }
-            playerStateQueueCallback(flag, NULL, 0);
+            playerStateQueueCallback(callbackId, NULL, 0);
             controller->unk35 = controller->unk35 + 1;
         }
         break;
@@ -465,7 +466,7 @@ void raceOpponentBehaviourUpdate(void) {
             slotQueueCancel(0xB, 0);
             controller->unkD0 = 0;
             if (flagGet(config->reward.h.rewardFlag, 0) == 0) {
-                stateValue = D_8002FB94[raceCheckLapCompletionThreshold(controller, config->rival, config->requiredCoins)];
+                stateValue = D_8002FB94[raceCheckLapCompletionThreshold(controller, config->rival, config->requiredCoins)]; // FAKE: stateValue reused for the cutscene path id; a separate local changes the code
                 camStartPath(gCurrentActor, stateValue, 1);
                 currentActorClearFlag();
             } else {

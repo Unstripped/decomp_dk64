@@ -254,7 +254,7 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     f32 oldAng;
     f32 spd;
     f32 dist;
-    u8 flag;
+    u8 stunned;
     s16 yawDelta;
     f32 hx;
     f32 hy;
@@ -268,7 +268,7 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     nxt2 = &points[next2];
     nxt = &points[next];
     oldAng = gCurrentActor->moveYaw;
-    flag = pathState->stunTimer;
+    stunned = pathState->stunTimer;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->x = cur->x;
         gCurrentActor->y = cur->y;
@@ -278,7 +278,7 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
         gCurrentActor->moveYaw = gCurrentActor->yaw;
         pathState->unk18 = 0.0f;
     }
-    if (flag != 0) {
+    if (stunned != 0) {
         thrust = 0.0f;
         pathState->stunTimer--;
         gCurrentActor->speedXZ = 0.0f;

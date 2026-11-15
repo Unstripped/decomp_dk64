@@ -310,13 +310,13 @@ void raceSteerTowardTargetWaypoint(RaceParticipant *racerState, RaceTarget *targ
 
     work = distToWaypoint; // FAKE: the angle temp reused for a distance copy steers float regalloc
     steerAngle = angleDelta;
-    waypointRadius = (u32)D_807FDCA0->entries[idx].radius;
+    waypointRadius = D_807FDCA0->entries[idx].radius;
     waypointThreshold[0] = waypointRadius * 1.2f;
     if (waypointRadius) { // FAKE: empty guard steers float regalloc
     }
     if (work < waypointThreshold[0]) {
         work = work - waypointRadius;
-        dz = waypointThreshold[0] - waypointRadius;
+        dz = waypointThreshold[0] - waypointRadius; // FAKE: dz reused for the threshold span; a separate local changes the code
         steerAngle = angleDelta * (1.0 + ((1.0f - (work / dz)) * 1.5 * (2.0f * racerState->throttle)));
     }
     racerState->steer += ((steerAngle * 0.0033333334f) - racerState->steer) * 0.5f;
