@@ -92,10 +92,7 @@ typedef struct RaceParticipant {
     /* 0x34 */ u8 raceStatus;
     /* 0x35 */ u8 unk35;
     /* 0x36 */ u8 place;
-    union {
-        /* 0x37 */ s8 lap;
-        /* 0x37 */ u8 unk37;
-    };
+    /* 0x37 */ s8 lap;
     /* 0x38 */ u8 facingWaypoint;
     /* 0x39 */ u8 pad39;
     /* 0x3A */ u16 unk3A;
