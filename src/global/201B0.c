@@ -398,7 +398,6 @@ u8 camFloorSnap(Actor *camActor, CamState *camState, f32 targetDist, f32 *outHei
     s16 slopeAngle;
     f32 lim;
     s32 pad2;
-    s32 pad3;
     f64 ramp;
 
     ret = 0;
