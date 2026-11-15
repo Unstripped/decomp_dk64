@@ -129,13 +129,12 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     s32 alpha;
     s32 y;
     s32 xo;
-    s32 off;
+    s32 yo;
     s32 x;
     u8 *headerStr;
     u8 *descStr1;
     u8 *descStr2;
     s32 fontHeight;
-    s32 yo;
 
     headerStr = textTableGetString(0xD, 0, 1);
     descStr1 = textTableGetString(0xD, 1, 1);
@@ -154,9 +153,9 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     gDPSetTextureFilter(dl++, G_TF_POINT);
     gDPSetTexturePersp(dl++, G_TP_NONE);
     tex = texCacheFindOrLoad(0xB0);
-    yo = (s32)(((f32)gScreenHeight - 82.0f) * 0.5f);
+    yo = (gScreenHeight - 82.0f) * 0.5f;
     y = 0; do {  // LAYOUT: one source line removes a scheduling barrier before the loop.
-        xo = (s32)(((f32)gScreenWidth - 204.0f) * 0.5f);
+        xo = (gScreenWidth - 204.0f) * 0.5f;
         for (x = 0; x != 0xCC; x += 0x66) { // LAYOUT: keep the induction update on the loop-header line.
             if (x) {} // FAKE: shorten the full-width induction range and raise its colouring priority.
             gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 0, x, y, x + 0x66, y + 0x29, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
@@ -170,17 +169,15 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     if ((s8)menuOptionDescFade && xo) {}  // FAKE: preserve xo's range length and the Combine packet's v0/v1 interference.
     gDPSetTextureFilter(dl++, G_TF_BILERP);
     gDPSetTexturePersp(dl++, G_TP_PERSP);
-    xo = (s32)((f32)(gScreenWidth - textGetStringWidth(1, headerStr)) * 0.5f);
-    yo = (s32)((((f32)gScreenHeight - 82.0f) * 0.5f) - (f32)fontHeight);
+    xo = (gScreenWidth - textGetStringWidth(1, headerStr)) * 0.5f;
+    yo = (gScreenHeight - 82.0f) * 0.5f - fontHeight;
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
-    actor = dl++; ((Gfx *)actor)->words.w0 = 0xFCFF97FF; ((Gfx *)actor)->words.w1 = 0xFF2CFE7F; // FAKE: the consumed parameter carries this Combine packet so it takes no block-local _g home (frame 0xE8).
-    dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), headerStr, 0);
-    x = (s32)((f32)gScreenWidth * 0.5f);
-    actor = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
-    off = gHiResScale * 0xC8;
-    dl = hudDrawScaledText(dl, x * 4, (s16)(off * 4), 0.5, descStr1);
-    xo = (s32)((f64)off + (f64)fontHeight * 0.5);
-    fontHeight = x * 4; // FAKE: reuse the consumed font-height local to evaluate final y before the call arguments.
-    return hudDrawScaledText(dl, (s16)fontHeight, (s16)(xo * 4), 0.5, descStr2);
+    gDPSetCombine(dl++, 0xFF97FF, 0xFF2CFE7F);
+    dl = textDrawStringVtx(dl, 1, xo * 4, yo * 4, headerStr, 0);
+    x = gScreenWidth * 0.5f;
+    yo = gHiResScale * 0xC8;
+    dl = hudDrawScaledText(dl, x * 4, yo * 4, 0.5, descStr1);
+    yo += fontHeight * 0.5;
+    return hudDrawScaledText(dl, x * 4, yo * 4, 0.5, descStr2);
 }
