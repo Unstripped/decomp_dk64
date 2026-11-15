@@ -712,7 +712,7 @@ void modelSlotUpdateGroundCoords(s16 slot, u8 isId) {
     s32 padA[4];
     ModelAssetHeader *info;
     ModelSlotSubNode *dst;
-    s32 pad;
+    ModelKindObj *obj;
     f32 groundY;
     s16 groundX;
     s16 groundZ;
@@ -726,13 +726,14 @@ void modelSlotUpdateGroundCoords(s16 slot, u8 isId) {
         info = gModelSlots[slot].unk24;
         switch (info->unk1C) {
             case 1:
-                dst = ((ModelKindObj *)gModelSlots[slot].unk20)->type1.subNode;
+                obj = gModelSlots[slot].unk20;
+                dst = obj->type1.subNode;
                 break;
             case 2:
-                dst = ((ModelKindObj *)gModelSlots[slot].unk20)->type2.subNode;
+                obj = gModelSlots[slot].unk20;
+                dst = obj->type2.subNode;
                 break;
         }
-        if (gModelSlots[slot].unk20) {} // FAKE: dead test extends the slot pointer web (steers colouring)
         if (dst != NULL) {
             dst->groundX = groundX;
             dst->groundZ = groundZ;
@@ -2100,60 +2101,52 @@ u8 restore;
     s32 bstValue;
     s32 bstNode;
 
-    if (start != end) {
-        if (restore != 0) {} // FAKE: dead test steers register colouring
-        do {
-            w = start->w0;
-            found = 0;
-            if ((w >> 24) == 0xFD) {
-                node = nodes;
-                if (node != NULL) {
-                    do {
-                        switch (tail) {
-                            case 0:
-                                if ((TexImageCmdSpan *)start == node->cmdsA[0].texCmd) {
-                                    found = 1;
-                                }
-                                if ((TexImageCmdSpan *)start == node->cmdsA[0].texCmd2) {
-                                    found = 1;
-                                }
-                                if ((TexImageCmdSpan *)start == node->cmdsA[1].texCmd) {
-                                    found = 1;
-                                }
-                                if ((TexImageCmdSpan *)start == node->cmdsA[1].texCmd2) {
-                                    found = 1;
-                                }
-                                break;
-                            case 1:
-                                if ((TexImageCmdSpan *)start == node->cmdsB[0].texCmd) {
-                                    found = 1;
-                                }
-                                if ((TexImageCmdSpan *)start == node->cmdsB[0].texCmd2) {
-                                    found = 1;
-                                }
-                                if ((TexImageCmdSpan *)start == node->cmdsB[1].texCmd) {
-                                    found = 1;
-                                }
-                                if ((TexImageCmdSpan *)start == node->cmdsB[1].texCmd2) {
-                                    found = 1;
-                                }
-                                break;
+    for (; start != end; start++) {
+        w = start->w0;
+        found = 0;
+        if ((w >> 24) == 0xFD) {
+            for (node = nodes; found == 0 && node != NULL; node = node->next) {
+                switch (tail) {
+                    case 0:
+                        if ((TexImageCmdSpan *)start == node->cmdsA[0].texCmd) {
+                            found = 1;
                         }
-                        node = node->next;
-                    } while (found == 0 && node != NULL);
-                }
-                if (found == 0) {
-                    if (restore != 0) {
-                        collisionBstLookupByHash(start->w1, &bstValue, &bstNode);
-                    }
-                    assetFreeBuffer((void *)start->w1, 0xB27, 7);
-                    if (restore != 0) {
-                        start->w1 = bstNode;
-                    }
+                        if ((TexImageCmdSpan *)start == node->cmdsA[0].texCmd2) {
+                            found = 1;
+                        }
+                        if ((TexImageCmdSpan *)start == node->cmdsA[1].texCmd) {
+                            found = 1;
+                        }
+                        if ((TexImageCmdSpan *)start == node->cmdsA[1].texCmd2) {
+                            found = 1;
+                        }
+                        break;
+                    case 1:
+                        if ((TexImageCmdSpan *)start == node->cmdsB[0].texCmd) {
+                            found = 1;
+                        }
+                        if ((TexImageCmdSpan *)start == node->cmdsB[0].texCmd2) {
+                            found = 1;
+                        }
+                        if ((TexImageCmdSpan *)start == node->cmdsB[1].texCmd) {
+                            found = 1;
+                        }
+                        if ((TexImageCmdSpan *)start == node->cmdsB[1].texCmd2) {
+                            found = 1;
+                        }
+                        break;
                 }
             }
-            start++;
-        } while (start != end);
+            if (found == 0) {
+                if (restore) {
+                    collisionBstLookupByHash(start->w1, &bstValue, &bstNode);
+                }
+                assetFreeBuffer((void *)start->w1, 0xB27, 7);
+                if (restore) {
+                    start->w1 = bstNode;
+                }
+            }
+        }
     }
 }
 
@@ -2286,7 +2279,6 @@ void modelSlotsStepSegmentCommands(void) {
     u32 count;
     u8 flag;
     ModelAssetHeader *obj;
-    ModelSlot *slot;
     u32 start;
 
     if (gModelSlotCount != 0) {
@@ -2294,18 +2286,17 @@ void modelSlotsStepSegmentCommands(void) {
         if (D_80747D74 >= gModelSlotCount) {
             D_80747D74 = 0;
         }
-        slot = (ModelSlot *)((u8 *)gModelSlots + D_80747D74 * 0x90); // FAKE: byte-offset slot address keeps li t3,0x90 with the gModelSlots base in t2 (&gModelSlots[D_80747D74] swaps t2/t3)
-        obj = slot->unk24;
+        obj = gModelSlots[D_80747D74].unk24;
         if (obj->unk0 & 0x10) {
-            if ((slot->unk8C & 0x20) && gFrameCounter != obj->unk8) {
-                slot->unk8C &= ~0x20;
+            if ((gModelSlots[D_80747D74].unk8C & 0x20) && gFrameCounter != obj->unk8) {
+                gModelSlots[D_80747D74].unk8C &= ~0x20;
                 obj->unk3C--;
                 if (obj->unk3C != 0) {
                     flag = 0;
                 } else {
                     flag = 1;
                 }
-                seg = ((ModelSlot *)((u8 *)gModelSlots + D_80747D74 * 0x90))->unk20; // FAKE: re-derives the slot from gModelSlots + D_80747D74 * 0x90 (pre-existing, now tagged; slot->unk20 loses li t3,144 and the t1 base for &D_80747D74)
+                seg = gModelSlots[D_80747D74].unk20;
                 mid = seg->displayListB;
                 head = seg->displayListA;
                 start = head;
@@ -2656,12 +2647,9 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
     Mtx *mtx;
     s32 pad[1];
 
-    if (0) { // FAKE: dead call takes &useLight so it gets a stack home
-        modelKongVisibilityCheck(0, &useLight, 0);
-    }
     vtxOffset = 0;
     usedTlut = 0;
-    if (useLight != 0) {
+    if (useLight) {
         dx = camX - obj->x;
         dy = camY - obj->y;
         dz = camZ - obj->z;
@@ -2677,7 +2665,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
     if (obj->light != 0) {
         lightQueueKeyframed(obj->light, obj->id, obj->x, obj->y, obj->z, obj->maxDist, dist / (f32)limit, lightArg);
     }
-    if (useLight != 0) {
+    if (useLight) {
         if (mapPointOutsideClipBounds(obj->x, obj->y, obj->z, 0, 0) != 0) {
             return gfx;
         }
@@ -2739,7 +2727,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
         alpha = 0xFF - alpha;
     }
     modelKongVisibilityCheck(obj->modelType, &opaque, &alpha);
-    if (useLight != 0 && obj->unk5A == 0) {
+    if (useLight && obj->unk5A == 0) {
         lightSampleColorAtPosition(obj->x, obj->y, obj->z, 0, &red, &green, &blue, lightArg);
         scale = (f32)(u32)obj->surfaceType / 15.0f;
         red = (f32)(u32)red * scale;
