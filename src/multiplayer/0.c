@@ -989,7 +989,7 @@ s32 mpFindFurthestSpawn(s32 playerIndex) {
                 dx = spawn->x - playerActor->x;
                 dy = spawn->y - playerActor->y;
                 dz = spawn->z - playerActor->z;
-                dist = (dx * dx + dy * dy) + dz * dz;
+                dist = dx * dx + dy * dy + dz * dz;
                 if (dist < nearestDist) {
                     nearestDist = dist;
                 }
