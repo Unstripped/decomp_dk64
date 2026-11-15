@@ -139,7 +139,8 @@ Update the dossier `.scratch/<You>/dossier_<seg>_<FUNC>.md` (seeded from drafts/
    [best=] [note="..."] [new="..."]`). A site still present uses its key in the FINAL copy (`sweep
    <copy> --copy-of <src>`), a removed site its base key; copy-only sites go to
    `.scratch/<You>/ledger-copy-only.txt`, changed keys to `keymap.txt`. `reconstruct` and `review`
-   are function-level (`func:<seg>:<name>`). Rules: `diagnose` needs `quirks=`; `permute` needs
+   are function-level (`func:<seg>:<name>`). Never write sweep methods (`plain`/`recipe`/`classify`/`cond`/
+   `remove`): the lead's sweep records them; put hand removals in `diagnose` notes. Rules: `diagnose` needs `quirks=`; `permute` needs
    `base= best=` and `seconds>=600` (shorter only at `best=0`); `kept` only for `classify` (`note="class
    1"`), `goto-hand` (note cites Q0591) or `retype`; a diagnosis that keeps the site is `diagnose
    nohit` (never `hit`); a site you fixed: `fixed` on the method that fixed it. Every function:

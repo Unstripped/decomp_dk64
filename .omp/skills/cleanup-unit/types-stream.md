@@ -52,3 +52,31 @@ header; sweep + carry. A batch stales the review of every caller whose BODY it e
    commit `drafts/quality`.
 4. Remove the batch's `files.txt` (its files return to the queue); move a closed pending.md item to
    its outcome line.
+
+## Special merges (SKILL §5)
+
+- A copy that changed a non-static signature carries stand-in `#define PROTO_SKIP_<f>` + declarations:
+  run `clint uninit --base` on the stand-in copies (after gen the base no longer parses: exit 3), strip both
+  into clean copies (`.scratch/<A>/clean/`), copy EVERY clean file of the bundle over src together, one
+  `protos.py gen`, restore src, compare with header.patch, then merge the clean dir with one `--stage
+  include/proto/<seg>/<f>.h` per regenerated header (a partial gen misses headers: DS/90D80.h); `gen --check`
+  exits 0. Shadow headers must also shadow, unchanged, every `include/*.h` that quote-includes a shadowed one.
+- Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
+  (`--reloc-ok`), one gate. Copies keyed by the same basename (`boss/52B0` vs `race/52B0`,
+  `critter/0` vs `minecart/0`) need separate dirs and gates. dkd refreshes host-rewritten inputs before every
+  job (58d28dba), so no `--stop` after a header swap. Generated `include/proto` output is the source of truth over
+  a worker's header.patch. Copies rebuilt as HEAD + per-file patches merge with `--base HEAD` after a ledger
+  dry-run at HEAD.
+- A `COMMIT_FAILED` after `GATE_OK` (concurrent `.git/index.lock`): commit the gated src by hand, then
+  merge_record's steps 3-10. Commit explicit paths only; headers go in `--stage`, never as a gate file argument.
+- A copy whose file changed since its base merges 3-way (`<copy-dir> <base>`); a copy retyping a shared global's
+  extern: fix every other file's extern in the SAME gate (objdiff each; a file whose cfe would rise or that no
+  longer compiles keeps its type and goes to pending.md).
+- Data to C: merge_drafts refuses dropped `#pragma GLOBAL_ASM` data labels (lost-symbol guard): cp the copy
+  over src, `merge_gate.sh --commit - -` (snapshot), steps 3-10 by hand. A yaml carve (`--stage dk64.*.yaml`)
+  re-splits only the gate tree: merge_record then fails at `make expected`; once `tools/dk --status` shows
+  jobs 0 (never `make split` under a running job), `make split`, touch src, `make`, `make expected`, steps 5-10.
+  A renamed carved data object passes `fdiff --reloc-ok` only with its name in symbol_addrs (19A00 convention:
+  non-static s-name + symbol_addrs line, staged in the gate).
+- merge_drafts' "restore deleted local declaration" misses a local in a declarator list with an initialiser
+  (`s32 count = 1, n = 4;` → re-inserted `s32 n;`, redeclaration): split such declarations in the copy.

@@ -81,6 +81,20 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   which embeds the header path (temp tree vs checkout), so carry never treats a body touching an anonymous-union field as a pure
   rename (fix: clint.type_sig or strip the location as clint.UNNAMED does; TypesOwner batch_2 lost 6 review rungs to it).
 
+## Session 2026-11-15 close leftovers (Lead6)
+- 7130 .bss carve (DEFERRED; HacksfxUpdateLevelAmbient2 record 235be6c2, `.scratch/HacksfxUpdateLevelAmbient2/carve-request.md`):
+  7130 owns 0x80770560-0x80770DF0 (drop chunk `165D50_80770560`), D_8077058D/D_80770DC8 become sfxUpdateLevelAmbient statics,
+  retiring dead tests 019582/70c91e (Q0857); check Q0184/Q0439 lui sharing of the `D_8077058C[0..2]` reset (D_8077058C shared
+  with 114270.c, 478F0.c).
+- 13980 `extern u32 gFramebuffers[]` → `u16 *gFramebuffers[]` (Polishglobal13980Rereview record 3c2f89d7): blocked on the 136820
+  faultFontInit prototype.
+- hudPauseMenuUpdate (ACDC0): 7 pre-existing register-reuse steers tagged at aab279f2 (65898b 38b069 df709b ceaa13 af58f9 205ad7
+  98a7ae); a dedicated local fails each alone: hack item needing a reconstruct.
+- Names held: D_80753354 (s16 per-kong turn rate used by CC800/E4090; `gKongTurnRate` is CEAE0's other table: pick a use-based
+  name), PlayerState.unkC2, ActorGlobalState 9DD70-only fields (one file read), arcade/0 D_8004BC80/84 (file-local),
+  D_8004A794 (fold-away option), 124780 effect sprite symbol_addrs (needs split), D_807505A4 split into two s16[5]
+  (touches undefined_syms, 478F0/FCCD0). `.scratch/lead_s1115/names.md` keeps the evidence.
+
 ## OPEN functions
 
 The per-file list is `uv run tools/quality.py rank` (full) or `status --file <f>`; the round-34 close snapshot is `.scratch/r34_post_knowledge.txt`.

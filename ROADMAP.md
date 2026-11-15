@@ -163,25 +163,26 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Round 38 (2026-11-13)** — global/19A00 (views onto Actor/PlayerStruct, sSavedLightColor fold) + 11BC10 owner bundle (effectFallStateInit/effectFloorFallUpdate take Actor */EffectNode */u8 *; 19A00 cfe 4 → 1), 9DD70 (3 dead-ifs → 1 proto steer, views retired), 13980 (u64 division, GBI/VI names), 61AA0 + `LightTrigger` moved into render.h (MatrixCacheSub retired), 114270 (147 casts dropped, u8 callbacks), C0EE0 (s16 col/row). Knowledge Q0754–Q0759.
 - [x] **Session 2026-11-14 (rolling queue, Lead10–Lead12)** — re-review waves 1 and 2 over every staled function; owner/header items: CC800 `gKongCharacterTable` and 109660 `.data` moved to C, shared `gPlayerPadState`/`gCamActor`/`D_807FC828[9]`/`PulseState` declarations in actor.h, `ResGlyph` text/cell union, render.h prototype for the handwritten-asm light routine, `lightCollectVolumesInBounds(u8 *)`, warning chains fixed (cfe 15 → 8); 42630 callee declarations proven ORIG; sentinel-switch and integer-round-trip steer rules; three name passes (consolidation 1: 162 functions/globals + 29 fields + the header field plan; consolidation 2: 47 + 56 fields; final close: 87 + 8 fields). Knowledge Q0760–Q0846 (Q0264/Q0400/Q0641/Q0651 corrected).
 - [x] **Session 2026-11-14b (rolling queue, CleanupLead/CleanupLead2, director-audited provenance)** — coverage wave plus after-coverage hack items (~40 worker reports merged); header/owner work: race.h `lap`/`unk104` folds, `MenuHighScoreEntry` and the shared `KongSpring`/`KongChainNode`/`KongChain` in actor.h, `ActorGlobalState` notifyReceived/notifyValue, CsState `unk48[2]`, 8F4B0 owns its `.bss` (yaml carve, function-local static), slotQueueGetMaxValue returns u16; FAKE 565 → 533 with offset-cited ORIGs 60 → 66; names: 49 functions/globals + 14 fields. Knowledge Q0847–Q0882 (Q0581/Q0623/Q0737 corrected). One worker report rejected for reading the community decomp (rule now in every brief).
-- [ ] Paused after session 2026-11-14b. Leftovers: 20 functions without a fresh review (8 staled by the close renames, carry skipped them) and 127 not exhausted (`uv run tools/quality.py rank --polish` / `rank`); blocked owner/header changes, held names and type batches (D_80750AC8/gTextNumberArg, gPlayerCharacterId) are in `.omp/skills/cleanup-unit/pending.md`.
+- [x] **Session 2026-11-15 (rolling hack/polish queue, Lead → Lead6 hand-offs via dispatch.md)** — hack queue over the top remaining FAKE functions plus re-review items; same-TU data carves retire XBB/as1 steers (EFDC0 `gPlayerStateCallbacks`, 19A00 `.data` to C, C1E70/ACDC0 carves #5/#6, 13980 `.bss` struct), owner retypes (`CamZoneWeightLinks`, `HudTextList`, pause `u8 **` tables), offset-cited ORIGs (f32 raw-bits `*(s32 *)&` in 7130, ORIG 66 → 77); FAKE 533 → 446; names at close: 45 functions/globals + 14 fields. Knowledge Q0883–Q0986 (Q0499/Q0519/Q0548/Q0552/Q0737/Q0761/Q0820/Q0835 corrected).
+- [ ] Paused after session 2026-11-15. Leftovers: 62 functions without a fresh review (staled by the close renames and knowledge filing) and 92 not exhausted (`uv run tools/quality.py rank --polish` / `rank`); hudPauseMenuUpdate's 7 register-reuse sites, the 7130 `.bss` carve, held names and blocked retypes are in `.omp/skills/cleanup-unit/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, session 2026-11-14b close):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, session 2026-11-15 close):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 533 | 583 |
-| FAKE dead-if | 204 | 263 |
+| FAKE | 446 | 583 |
+| FAKE dead-if | 163 | 263 |
 | FAKE proto-steer | 22 | 134 |
-| FAKE other kinds | 307 | 186 |
-| ORIG (cited target offset) | 66 | 0 |
-| LAYOUT | 72 | 47 |
+| FAKE other kinds | 261 | 186 |
+| ORIG (cited target offset) | 77 | 0 |
+| LAYOUT | 85 | 47 |
 | goto | 35 | 39 |
-| proto-type (`// PROTO:`) | 4 | 0 |
+| proto-type (`// PROTO:`) | 3 | 0 |
 | protos mismatch | 17 | 1,202 |
-| reviewed / exhausted functions | 4,250 / 4,143 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 8 | 1,890 |
+| reviewed / exhausted functions | 4,208 / 4,178 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 6 | 1,890 |
 | uninit warnings (clint checks every function) | 252 | 122 |
-| `func_` definitions | 296 | 457 |
+| `func_` definitions | 293 | 457 |
 | m2c names | 3 | 5,040 |
 
 - **Done when:** `quality.py report` shows `reviewed 4270/4270` and `rank` lists no OPEN function.

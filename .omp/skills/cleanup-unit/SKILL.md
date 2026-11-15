@@ -15,7 +15,7 @@ recorded the moment it reports; close once per session. AGENTS.md rules always a
 |---|---|
 |[brief-hack.md](brief-hack.md)|dispatching a hack worker|
 |[brief-polish.md](brief-polish.md)|dispatching a polish worker|
-|[types-stream.md](types-stream.md)|running `TypesOwner`; any header request or callee-prototype batch|
+|[types-stream.md](types-stream.md)|running `TypesOwner`; any header request or callee-prototype batch; special merges (§5.4)|
 |[ladder.md](ladder.md)|checking a report's LEDGER block; what `status`/`rank` print|
 |[naming.md](naming.md)|polish phase 2 and session-close renames|
 |[pending.md](pending.md)|blocked owner/header changes (the `TypesOwner` queue)|
@@ -28,11 +28,14 @@ Use the model the user named for every worker spawn (`task` `model`; none named:
 (`history://<agent>`), else tell the user. Never run `ledger.py plan`/`route`, never write
 `.scratch/routes/`, never use workpools routed by `.omp/extensions/decomp-router.ts`. Pass the
 spawned workers' selector (`provider/model:level`, e.g. `anthropic/claude-opus-5-5:xhigh`) to
-`merge_record.py --model`: `rank` orders functions by the strongest model that already tried them.
+`merge_record.py --model`, read per worker from its `history://<agent>` (a worker on another model records its
+own selector, in dossiers too): `rank` orders functions by the strongest model that already tried them.
 
 ## 1. Ingest
 
 1. `git status` + `git log -3` (unexpected changes are the user's: never stage them; a lead whose handle died may still run: new commits or a dirty `drafts/quality/` → message it, wait until quiet).
+   Lead context runs out: read line ranges, pipe output through `tail`/`head`, keep rulings, merges and the queue in
+   `.scratch/<lead>/dispatch.md` and the close plan in `close.md`, so a successor resumes from files alone.
 2. `find src -name '*.c' -exec touch {} +`; `tools/dk make` must end `build/dk64.us.z64: OK`;
    `tools/dk make expected`.
 3. `uv run tools/protos.py gen --check` exits 0 (else regenerate and commit `include/proto` first);
@@ -78,7 +81,8 @@ See [types-stream.md](types-stream.md). Workers never edit `include/`: they writ
 As each worker reports:
 1. Check the report: every site of the assigned functions (polish: every reviewed function) in the
    LEDGER block, one `review` per function from a full read at the base, evidence present
-   ([ladder.md](ladder.md)), a `new=` on every retry; missing lines go back.
+   ([ladder.md](ladder.md)), a `new=` on every retry; missing lines go back; hand-recorded sweep methods
+   (`plain`/`recipe`/`classify`/`cond`/`remove`) are stripped (the sweep records them).
    `uv run tools/clint.py uninit .scratch/<A>/<f>.c --base src/<seg>/<f>.c` must exit 0.
 2. `python3 tools/merge_record.py --agent <A> --unit "<YYYY-MM-DD>: cleanup <A>" --base <base>
    --model <selector> --ledger .scratch/<A>/ledger_<f>.txt [--copy-only .scratch/<A>/ledger-copy-only.txt]
@@ -89,26 +93,13 @@ As each worker reports:
    run the remaining steps (its docstring lists them); never pipe it.
 3. Append the report's IDO findings (file, function, merge commit, rule, see-also IDs) to
    `.scratch/s<YYYY-MM-DD>-knowledge-queue.md`; §6 files them once.
-4. A copy that changed a non-static signature carries stand-in `#define PROTO_SKIP_<f>` + declarations:
-   run `clint uninit --base` on the stand-in copies (after gen the base no longer parses: exit 3), strip both
-   into clean copies (`.scratch/<A>/clean/`), copy EVERY clean file of the bundle over src together, one
-   `protos.py gen`, restore src, compare with header.patch, then merge the clean dir with one `--stage
-   include/proto/<seg>/<f>.h` per regenerated header (a partial gen misses headers: DS/90D80.h); `gen --check`
-   exits 0. Shadow headers must also shadow, unchanged, every `include/*.h` that quote-includes a shadowed one.
-5. Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
-   (`--reloc-ok`), one gate. Copies keyed by the same basename (`boss/52B0` vs `race/52B0`,
-   `critter/0` vs `minecart/0`) need separate dirs and gates. dkd refreshes host-rewritten inputs before every
-   job (58d28dba), so no `--stop` after a header swap. Generated `include/proto` output is the source of truth over
-   a worker's header.patch. Copies rebuilt as HEAD + per-file patches merge with `--base HEAD` after a ledger
-   dry-run at HEAD. A `COMMIT_FAILED` after `GATE_OK` (concurrent `.git/index.lock`): commit the gated src by hand,
-   then merge_record's steps 3-10. Commit explicit paths only; headers go in `--stage`, never as a
-   gate file argument. A copy whose file changed since its base merges 3-way (`<copy-dir> <base>`); a
-   copy retyping a shared global's extern: fix every other file's extern in the SAME gate (objdiff each;
-   a file whose cfe would rise or that no longer compiles keeps its type and goes to pending.md).
-   Data to C: merge_drafts refuses dropped `#pragma GLOBAL_ASM` data labels (lost-symbol guard): cp the copy
-   over src, `merge_gate.sh --commit - -` (snapshot), steps 3-10 by hand. A yaml carve (`--stage dk64.*.yaml`)
-   re-splits only the gate tree: merge_record then fails at `make expected`; once `tools/dk --status` shows
-   jobs 0 (never `make split` under a running job), `make split`, touch src, `make`, `make expected`, steps 5-10.
+4. Signature bundles (stand-in `PROTO_SKIP_`), same-basename copies, 3-way merges, shared-extern retypes, data to
+   C, yaml carves and `COMMIT_FAILED`: [types-stream.md](types-stream.md) "Special merges".
+5. Data carves: a function needing XBB guards or an as1-hoist blocker may only miss its TU's own `.word`/table
+   data (Q0552): carve before steering. Carve window: `rm -f .scratch/<lead>/RESUME` (briefs: no new `tools/dk`
+   call while it is absent), wait for jobs 0, gate, split/make/expected/vanished, re-record, carry, commit, `touch` it.
+6. A respelling that replaces a pun but was chosen for codegen keeps its tag (Q0816): the lead retags it in a lead
+   copy dir (`--copy-dir`) with a keymap line and re-records the site `nohit` with its own fdiff evidence.
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
 gate; a merged file's net HACKS (tagged `// FAKE` + untagged AST sites) and cfe warnings never rise.
 Tag pre-existing untagged hacks ("pre-existing, now tagged", one copy-only line each): compare `status --file` site totals base vs
