@@ -139,8 +139,7 @@ void actorStepMotionAndBounds(void) {
 typedef struct ScriptCommand {
     /* 0x00 */ u8 pad0[2];
     /* 0x02 */ u16 opcode;
-    /* 0x04 */ s16 param1;
-    /* 0x06 */ s16 param2;
+    /* 0x04 */ s16 args[2];
 } ScriptCommand;
 
 
@@ -204,20 +203,20 @@ void actorScriptedCommandUpdate(void) {
             cmd = (ScriptCommand *)gActorGlobalState.volumeTriggerQueueId[i];
             switch (cmd->opcode) {
                 case 25:
-                    state->particleSprite = cmd->param1;
-                    state->particleScalePct = cmd->param2;
+                    state->particleSprite = cmd->args[0];
+                    state->particleScalePct = cmd->args[1];
                     break;
                 case 24:
                     state->particlePath = pathPlaybackStart(gCurrentActor, state->pathId, 0, 0.0f, 0.0f, 0.0f, 0);
-                    state->particleCount = cmd->param1;
-                    state->particleColor = cmd->param2;
-                    pathPlaybackSetSpeed(state->particlePath, state->pathSpeed / cmd->param1);
+                    state->particleCount = cmd->args[0];
+                    state->particleColor = cmd->args[1];
+                    pathPlaybackSetSpeed(state->particlePath, state->pathSpeed / cmd->args[0]);
                     pathPlaybackSetLoopLimit(state->particlePath, 1);
                     pathPlaybackSetActive(state->particlePath, 1);
                     break;
                 case 23:
-                    state->pathId = cmd->param1;
-                    state->pathSpeed = cmd->param2;
+                    state->pathId = cmd->args[0];
+                    state->pathSpeed = cmd->args[1];
                     state->pathPlayback = pathPlaybackStart(gCurrentActor, state->pathId, 0, 0.0f, 0.0f, 0.0f, 0);
                     pathPlaybackSetSpeed(state->pathPlayback, state->pathSpeed);
                     pathPlaybackSetLoopLimit(state->pathPlayback, 1);
@@ -226,37 +225,37 @@ void actorScriptedCommandUpdate(void) {
                     gCurrentActor->unk155 = 0;
                     break;
                 case 0:
-                    gCurrentActor->speedY = cmd->param1;
+                    gCurrentActor->speedY = cmd->args[0];
                     break;
                 case 7:
-                    gCurrentActor->speedXZ = cmd->param1;
-                    gCurrentActor->moveYaw = (cmd->param2 << 12) / 360;
+                    gCurrentActor->speedXZ = cmd->args[0];
+                    gCurrentActor->moveYaw = (cmd->args[1] << 12) / 360;
                     break;
                 case 2:
                     gCurrentActor->sub4->model->animId = -1;
-                    actorScriptStart(gCurrentActor, D_80747750[cmd->param1]);
-                    if (cmd->param2 != 0) {
-                        scriptSetActorRampTarget(gCurrentActor, cmd->param2 / 100.0, 0.0f);
+                    actorScriptStart(gCurrentActor, D_80747750[cmd->args[0]]);
+                    if (cmd->args[1] != 0) {
+                        scriptSetActorRampTarget(gCurrentActor, cmd->args[1] / 100.0, 0.0f);
                     }
                     break;
                 case 3:
                     if (gCurrentActor->sub4->animId != 0) {
                         actorScriptStart(gCurrentActor, 0);
                     }
-                    controllerAnimSetState(gCurrentActor, cmd->param2 - (0 - sScriptAnimBase[cmd->param1]), 0.0f, 0.0f); // FAKE: param2 evaluated before the table lookup (ring order)
+                    controllerAnimSetState(gCurrentActor, sScriptAnimBase[cmd->args[0]] + cmd->args[1], 0.0f, 0.0f);
                     scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
-                    actorScriptedAnimSideEffects(cmd->param2 - (0 - sScriptAnimBase[cmd->param1])); // FAKE: param2 evaluated before the table lookup (ring order)
+                    actorScriptedAnimSideEffects(sScriptAnimBase[cmd->args[0]] + cmd->args[1]);
                     break;
                 case 13:
                     if (gCurrentActor->sub4->animId != 0) {
                         actorScriptStart(gCurrentActor, 0);
                     }
-                    controllerAnimSetState(gCurrentActor, cmd->param2 - (0 - sScriptAnimBase[cmd->param1]), 0.0f, 8.0f); // FAKE: param2 evaluated before the table lookup (ring order)
+                    controllerAnimSetState(gCurrentActor, sScriptAnimBase[cmd->args[0]] + cmd->args[1], 0.0f, 8.0f);
                     scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
-                    actorScriptedAnimSideEffects(cmd->param2 - (0 - sScriptAnimBase[cmd->param1])); // FAKE: param2 evaluated before the table lookup (ring order)
+                    actorScriptedAnimSideEffects(sScriptAnimBase[cmd->args[0]] + cmd->args[1]);
                     break;
                 case 4:
-                    scriptSetActorRampTarget(gCurrentActor, cmd->param1 / 100.0, cmd->param2);
+                    scriptSetActorRampTarget(gCurrentActor, cmd->args[0] / 100.0, cmd->args[1]);
                     break;
                 case 5:
                     gCurrentActor->state = 2;
@@ -267,92 +266,92 @@ void actorScriptedCommandUpdate(void) {
                     gBehaviourExtraState->pathCount = 1;
                     gBehaviourAnimState->path = heapAlloc(2);
                     gBehaviourAnimState->path[0][1] = 0;
-                    gBehaviourAnimState->path[0][0] = cmd->param1;
+                    gBehaviourAnimState->path[0][0] = cmd->args[0];
                     gBehaviourWorkState->waypointIndex = 0;
-                    actorSetTargetSpeed(gCurrentActor, cmd->param2);
+                    actorSetTargetSpeed(gCurrentActor, cmd->args[1]);
                     break;
                 case 6:
                     gCurrentActor->speedXZ = 0.0f;
                     gCurrentActor->speedY = 0.0f;
-                    gCurrentActor->x = D_807FDCA0->entries[cmd->param1].x;
-                    gCurrentActor->y = D_807FDCA0->entries[cmd->param1].y;
-                    gCurrentActor->z = D_807FDCA0->entries[cmd->param1].z;
-                    gCurrentActor->yaw = (cmd->param2 << 12) / 360;
+                    gCurrentActor->x = D_807FDCA0->entries[cmd->args[0]].x;
+                    gCurrentActor->y = D_807FDCA0->entries[cmd->args[0]].y;
+                    gCurrentActor->z = D_807FDCA0->entries[cmd->args[0]].z;
+                    gCurrentActor->yaw = (cmd->args[1] << 12) / 360;
                     gCurrentActor->moveYaw = gCurrentActor->yaw;
                     break;
                 case 8:
-                    if (cmd->param2 != 0) {
+                    if (cmd->args[1] != 0) {
                         state->yawFrom = gCurrentActor->yaw;
-                        state->yawTo = (cmd->param1 << 12) / 360;
-                        state->yawSteps = cmd->param2;
-                        state->yawTimer = cmd->param2;
+                        state->yawTo = (cmd->args[0] << 12) / 360;
+                        state->yawSteps = cmd->args[1];
+                        state->yawTimer = cmd->args[1];
                     } else {
-                        gCurrentActor->yaw = (cmd->param1 << 12) / 360;
+                        gCurrentActor->yaw = (cmd->args[0] << 12) / 360;
                     }
                     break;
                 case 19:
-                    if (cmd->param2 != 0) {
+                    if (cmd->args[1] != 0) {
                         state->pitchFrom = gCurrentActor->pitch;
-                        state->pitchTo = (cmd->param1 << 12) / 360;
-                        state->pitchSteps = cmd->param2;
-                        state->pitchTimer = cmd->param2;
+                        state->pitchTo = (cmd->args[0] << 12) / 360;
+                        state->pitchSteps = cmd->args[1];
+                        state->pitchTimer = cmd->args[1];
                     } else {
-                        gCurrentActor->pitch = (cmd->param1 << 12) / 360;
+                        gCurrentActor->pitch = (cmd->args[0] << 12) / 360;
                     }
                     break;
                 case 20:
-                    if (cmd->param2 != 0) {
+                    if (cmd->args[1] != 0) {
                         state->rollFrom = gCurrentActor->roll;
-                        state->rollTo = (cmd->param1 << 12) / 360;
-                        state->rollSteps = cmd->param2;
-                        state->rollTimer = cmd->param2;
+                        state->rollTo = (cmd->args[0] << 12) / 360;
+                        state->rollSteps = cmd->args[1];
+                        state->rollTimer = cmd->args[1];
                     } else {
-                        gCurrentActor->roll = (cmd->param1 << 12) / 360;
+                        gCurrentActor->roll = (cmd->args[0] << 12) / 360;
                     }
                     break;
                 case 21:
-                    gCurrentActor->accelY = cmd->param1;
+                    gCurrentActor->accelY = cmd->args[0];
                     gCurrentActor->speedY = 0.0f;
                     gCurrentActor->state = 0x1D;
                     break;
                 case 16:
-                    if (cmd->param2 != 0) {
+                    if (cmd->args[1] != 0) {
                         state->scaleFrom = gCurrentActor->sub4->scaleY;
-                        gBehaviourWorkState->scale = cmd->param1 * 0.01;
-                        state->scaleSteps = cmd->param2;
-                        state->scaleTimer = cmd->param2;
+                        gBehaviourWorkState->scale = cmd->args[0] * 0.01;
+                        state->scaleSteps = cmd->args[1];
+                        state->scaleTimer = cmd->args[1];
                     } else {
-                        actorSetUniformScale(gCurrentActor, cmd->param1 * 0.01);
+                        actorSetUniformScale(gCurrentActor, cmd->args[0] * 0.01);
                     }
                     break;
                 case 9:
-                    gBehaviourWorkState->targetActor = spawnNodeActivate(cmd->param1, 0);
+                    gBehaviourWorkState->targetActor = spawnNodeActivate(cmd->args[0], 0);
                     break;
                 case 11:
-                    state->lerpSteps = cmd->param1;
+                    state->lerpSteps = cmd->args[0];
                     break;
                 case 12:
-                    state->zoneTo = cmd->param1;
-                    state->zoneFrom = cmd->param2;
+                    state->zoneTo = cmd->args[0];
+                    state->zoneFrom = cmd->args[1];
                     state->lerpTimer = state->lerpSteps;
                     gCurrentActor->state = 0xE;
                     gCurrentActor->unk155 = 0;
                     break;
                 case 14:
-                    state->zoneTo = cmd->param1;
-                    state->zoneFrom = cmd->param2;
+                    state->zoneTo = cmd->args[0];
+                    state->zoneFrom = cmd->args[1];
                     state->lerpTimer = state->lerpSteps;
                     gCurrentActor->state = 0xF;
                     gCurrentActor->unk155 = 0;
                     break;
                 case 10:
-                    state->unk18 = (cmd->param1 << 12) / 360;
-                    state->unk1A = cmd->param2;
+                    state->unk18 = (cmd->args[0] << 12) / 360;
+                    state->unk1A = cmd->args[1];
                     break;
                 case 15:
-                    gCurrentActor->tintR = sScriptTintColors[cmd->param1].r;
-                    gCurrentActor->tintG = sScriptTintColors[cmd->param1].g;
-                    gCurrentActor->tintB = sScriptTintColors[cmd->param1].b;
+                    gCurrentActor->tintR = sScriptTintColors[cmd->args[0]].r;
+                    gCurrentActor->tintG = sScriptTintColors[cmd->args[0]].g;
+                    gCurrentActor->tintB = sScriptTintColors[cmd->args[0]].b;
                     break;
                 case 17:
                     gCurrentActor->flags &= ~0x8000;
@@ -363,8 +362,8 @@ void actorScriptedCommandUpdate(void) {
                     gCurrentActor->flags &= ~0x800000;
                     break;
                 case 26:
-                    gBehaviourWorkState->targetActor = spawnNodeActivate(cmd->param1, 0);
-                    gCurrentActor->unk15F = cmd->param2;
+                    gBehaviourWorkState->targetActor = spawnNodeActivate(cmd->args[0], 0);
+                    gCurrentActor->unk15F = cmd->args[1];
                     gCurrentActor->state = 0xD;
                     gCurrentActor->unk155 = 0;
                     break;
