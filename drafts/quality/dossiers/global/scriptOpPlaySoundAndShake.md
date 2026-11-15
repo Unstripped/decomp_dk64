@@ -13,3 +13,5 @@ After the lead's carve lands: apply carve_19A00.c's body (u8 imm2, no guards) an
 0x80746CE0 (sScriptOpcodeTable[61]) = `.word scriptOpPlaySoundAndShake`. With that word in the same TU, as1 marks the entry label address-taken, and the `switch (actor->actorType)` `jr` gets a CFG edge to it (Q0552, Q0544 "live switch jump"). Without the data (extern table) the stock as1 hoists the then-arm's `lh t2,78(sp)` / `li a1,10` and the 0xFF-arm `lbu t6,77(sp)`, which the guards and the volatile had to block.
 sCharacterBehaviorMap: the code indexes `[actorType - 2]`, so the reloc names 0x80746E10 (the last sScriptCommandTable word, scriptCmdCheckSlopePitch). The real table starts at 0x80746E14: {0xD4, 0xA7, 0xD4, 0xD3, 0xD4} + pad.
 scriptOpApplyMotionFriction's `(u32)current == imm` FAKE (no switch) is still needed in the carve: full=1 without it.
+
+2026-11-15 Lead2 (merge 80dececd): 19A00 .data carve applied (yaml [0x14B880, .data, 19A00] + [0x14BB20, data], sCharacterBehaviorMap -> 0x80746E14, F56F0 bundle); all 8 sites FIXED, FAKE 8 -> 1 in 19A00, cfe warnings 7 -> 6.
