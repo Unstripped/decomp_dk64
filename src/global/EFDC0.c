@@ -1342,7 +1342,7 @@ void playerTakeDamage(s16 damage) {
                 }
                 if (((gPlayerCount != 1) || (gPlayerSlots[gCurrentPlayerIndex].queuedState != 0x2B)) &&
                     (menuIsTransitionType3Or4() == 0)) {
-                    healthDelta = func_806C9830((s8)-damage, gActivePlayerActor);
+                    healthDelta = func_806C9830(-damage, gActivePlayerActor);
                     if (healthDelta < 0) {
                         isDead = playerAddHealthDelta(gCurrentPlayerIndex, healthDelta);
                     }
