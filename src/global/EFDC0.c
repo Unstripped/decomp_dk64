@@ -940,7 +940,7 @@ void playerStateSetLaunchVelocity(void) {
             }
             playerSetSizeMode(gActivePlayerActor, sizeMode);
             if (gActivePlayerActor->actorType == 6) {
-                gActivePlayerActor->flags &= 0xFFFF7FFF;
+                gActivePlayerActor->flags &= ~0x8000;
             } else {
                 gActivePlayerActor->flags |= 0x8000;
             }
@@ -948,7 +948,7 @@ void playerStateSetLaunchVelocity(void) {
             break;
         case 0x39:
             gActivePlayerState->stateFlags |= 0x10;
-            gActivePlayerActor->flags &= 0xFFFF7FFF;
+            gActivePlayerActor->flags &= ~0x8000;
             gActivePlayerActor->alpha = 0x7F;
             effectSpawnActorOrbitParticles(gActivePlayerActor);
             playerEnterFall(gCurrentActor);
