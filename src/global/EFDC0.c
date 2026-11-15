@@ -1329,7 +1329,7 @@ void playerTakeDamage(s16 damage) {
                     }
                     playerRecordHitSource(gActivePlayerActor, gPlayerSlots[gCurrentPlayerIndex].queuedActor,
                                   gPlayerSlots[gCurrentPlayerIndex].queuedState);
-                    if ((func_80714608(0) != 0) && (gActivePlayerActor->state == 0x3C) &&
+                    if ((mpIsMatchType(0) != 0) && (gActivePlayerActor->state == 0x3C) &&
                         (gPlayerSlots[gCurrentPlayerIndex].queuedState != 0xE)) {
                         gActivePlayerState->effectTimer -= damage * 0xA;
                         if (gActivePlayerState->effectTimer < 0) {
@@ -1341,7 +1341,7 @@ void playerTakeDamage(s16 damage) {
                     }
                 }
                 if (((gPlayerCount != 1) || (gPlayerSlots[gCurrentPlayerIndex].queuedState != 0x2B)) &&
-                    (func_807142D8() == 0)) {
+                    (menuIsTransitionType3Or4() == 0)) {
                     healthDelta = func_806C9830((s8)-damage, gActivePlayerActor);
                     if (healthDelta < 0) {
                         isDead = playerAddHealthDelta(gCurrentPlayerIndex, healthDelta);
@@ -1355,7 +1355,7 @@ void playerTakeDamage(s16 damage) {
                     }
                     gActivePlayerActor->state = 0x36;
                     gActivePlayerActor->unk155 = 0;
-                    if (func_80714608(0) != 0) {
+                    if (mpIsMatchType(0) != 0) {
                         gActivePlayerActor->speedY = D_80753128[gCurrentCharacterIndex] * 5.0f;
                         gActivePlayerActor->speedXZ = gKongSwimSpeeds[gCurrentCharacterIndex] * 5.0f;
                         gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex] * 5.0f;
@@ -1471,7 +1471,7 @@ void playerTakeDamage(s16 damage) {
                         playerSetRecentAttacker(actorResolveKillCreditOwner(gPlayerSlots[gCurrentPlayerIndex].queuedActor),
                                       gActivePlayerState);
                     }
-                    if (func_80714608(0) != 0) {
+                    if (mpIsMatchType(0) != 0) {
                         gActivePlayerActor->speedY = D_80753128[gCurrentCharacterIndex] * 10.0f;
                         gActivePlayerActor->speedXZ = gKongSwimSpeeds[gCurrentCharacterIndex] * 10.0f;
                         gActivePlayerState->targetSpeed = gKongTurnDecelRates[gCurrentCharacterIndex] * 10.0f;
@@ -1808,7 +1808,7 @@ void playerStateSetFlagsByActorType(void) {
 
 void func_806F0624(void) {
     gActivePlayerState->stateFlags2 |= 0x10;
-    func_806E9964(gActivePlayerState);
+    playerLeaveFairyCamera(gActivePlayerState);
     gActivePlayerActor->state = 0x83;
     gActivePlayerActor->unk155 = 0;
     gActivePlayerActor->flags |= 0x40000004;

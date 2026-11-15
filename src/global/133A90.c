@@ -195,7 +195,7 @@ void proxPathUpdateAllPlayers(void) {
 
     for (i = 0; i < gPlayerCount; i++) {
         if (gPlayerSlots[i].active != 0) {
-            proxPathAttachNearestToPlayer(gPlayerSlots[i].actor, i, flagGet(0x183, 0) || (gGlobalOverlayFlags & 0x10000000) || gPlayerCount >= 2 || func_807142D8());
+            proxPathAttachNearestToPlayer(gPlayerSlots[i].actor, i, flagGet(0x183, 0) || (gGlobalOverlayFlags & 0x10000000) || gPlayerCount >= 2 || menuIsTransitionType3Or4());
         }
     }
 }

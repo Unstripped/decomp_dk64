@@ -616,10 +616,10 @@ void playerRegisterWeaponHudRenderCallback(s16 inputId) {
     if ((gActivePlayerState->gunDrawn != 0) && (hudCanRender() != 0)) {
         if (gCurrentKongInventory->weaponFlags == 7) {
             inputId = 0xF;
-            renderCallbacksRegister(&func_806FF75C, gCurrentActor, 5);
+            renderCallbacksRegister(&playerViewDrawScopeCrosshair, gCurrentActor, 5);
         } else {
             inputId = 0xE;
-            renderCallbacksRegister(&func_806FF01C, gCurrentActor, 5);
+            renderCallbacksRegister(&playerViewDrawCrosshair, gCurrentActor, 5);
         }
     }
     if (gCurrentActor->unk155 != 0) {
@@ -636,16 +636,16 @@ void playerRegisterInstrumentHudRenderCallback(s16 inputId) {
     }
     if (hudCanRender() != 0) {
         if (playerInputUpdate(inputId) == 0) {
-            renderCallbacksRegister(&func_806FF358, gCurrentActor, 3);
+            renderCallbacksRegister(&playerViewDrawCameraViewfinder, gCurrentActor, 3);
         }
-        renderCallbacksRegister(&func_806FF32C, gCurrentActor, 3);
+        renderCallbacksRegister(&playerViewCornerMasksCallback, gCurrentActor, 3);
     }
 }
 
 void playerRegisterCameraHudRenderCallback(s16 nextState) {
     playerInputUpdate(1);
     if (gCurrentActor->unk155 < 6) {
-        renderCallbacksRegister(&func_806FFB2C, gCurrentActor, 3);
+        renderCallbacksRegister(&playerViewDrawCameraShutter, gCurrentActor, 3);
         gCurrentActor->unk155++;
     } else {
         gCurrentActor->state = nextState;
@@ -698,7 +698,7 @@ void playerInputUpdateCaseD(void) {
     playerRegisterWeaponHudRenderCallback(0xD);
     playerApplyDecelVelocityVector(D_80753A5C[gCurrentCharacterIndex]);
     if (playerCanPerformActionCheck() != 0) {
-        func_806EAB44(gCurrentActor, 1);
+        playerLeaveViewMode(gCurrentActor, 1);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -708,7 +708,7 @@ void playerInputUpdateCase11(void) {
     playerRegisterInstrumentHudRenderCallback(0x11);
     playerApplyDecelVelocityVector(D_80753A5C[gCurrentCharacterIndex]);
     if (playerCanPerformActionCheck() != 0) {
-        func_806EAB44(gCurrentActor, 1);
+        playerLeaveViewMode(gCurrentActor, 1);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -2311,7 +2311,7 @@ void playerStateSwimStroke(void) {
             playerApplyMotion();
             break;
         case 3:
-            flag = func_80714608(0);
+            flag = mpIsMatchType(0);
             if (gActivePlayerState->unk11C == 0 && gActivePlayerState->unk11D == 0) {
                 if (!flag) {
                     playerSpawnSpiralDriftEffects();

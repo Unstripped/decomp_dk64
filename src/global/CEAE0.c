@@ -87,9 +87,9 @@ void playerCheckAndResetCarriedActor(Actor *actor) {
     s16 flags = gPlayerStateFlags[state][0];
 
     if (flags & 0x200) {
-        func_806EAB44(actor, (u8)(state != 2));
+        playerLeaveViewMode(actor, (u8)(state != 2));
     } else if (flags & 0x100) {
-        func_806E9964(gActivePlayerState);
+        playerLeaveFairyCamera(gActivePlayerState);
     }
 }
 
@@ -734,14 +734,14 @@ void playerCheckLandingSfx(void) {
         if (gCurrentActor->floorSlopeFactor != 0.0f && gActivePlayerState->unkC2 >= 0x15 && gCurrentActor->state != 0x17) {
             if (mathAngleDistance(gCurrentActor->floorTiltYaw, gCurrentActor->yaw) < 0x200) {
                 if (gPlayerStateFlags[gActivePlayerActor->state][0] & 0x200) {
-                    func_806EAB44(gCurrentActor, 0);
+                    playerLeaveViewMode(gCurrentActor, 0);
                 }
                 playerStateQueueCallback(0x21, NULL, gCurrentPlayerIndex);
                 return;
             }
             if (mathAngleDistance(gCurrentActor->floorTiltYaw, gCurrentActor->moveYaw) < 0x400 || gCurrentActor->speedXZ < 15.0f) {
                 if (gPlayerStateFlags[gActivePlayerActor->state][0] & 0x200) {
-                    func_806EAB44(gCurrentActor, 0);
+                    playerLeaveViewMode(gCurrentActor, 0);
                 }
                 playerStateQueueCallback(0x22, NULL, gCurrentPlayerIndex);
             }

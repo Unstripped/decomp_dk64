@@ -57,26 +57,26 @@ s32 func_806767E0(Actor *, Actor *, ActorCollisionList *);
 #ifndef PROTO_SKIP_actorCheckPlayerProximityVertical
 s32 actorCheckPlayerProximityVertical(Actor *, Actor *, ActorCollisionList *);
 #endif
-#ifndef PROTO_SKIP_func_806769A8
-u8 func_806769A8(Actor *, Actor *, ActorCollisionList *);
+#ifndef PROTO_SKIP_actorTargetIsGiantKong
+u8 actorTargetIsGiantKong(Actor *, Actor *, ActorCollisionList *);
 #endif
-#ifndef PROTO_SKIP_func_80676A0C
-u8 func_80676A0C(Actor *, Actor *, ActorCollisionList *);
+#ifndef PROTO_SKIP_actorTargetIsMiniKong
+u8 actorTargetIsMiniKong(Actor *, Actor *, ActorCollisionList *);
 #endif
-#ifndef PROTO_SKIP_func_80676A70
-u8 func_80676A70(Actor *, Actor *, ActorCollisionList *);
+#ifndef PROTO_SKIP_actorGiantKongInReach
+u8 actorGiantKongInReach(Actor *, Actor *, ActorCollisionList *);
 #endif
-#ifndef PROTO_SKIP_func_80676AB8
-u8 func_80676AB8(Actor *, Actor *, ActorCollisionList *);
+#ifndef PROTO_SKIP_playerIsGiantAgainstEnemy
+u8 playerIsGiantAgainstEnemy(Actor *, Actor *, ActorCollisionList *);
 #endif
-#ifndef PROTO_SKIP_func_80676B38
-u8 func_80676B38(Actor *, Actor *, ActorCollisionList *);
+#ifndef PROTO_SKIP_playerIsGiantGroundedAgainstEnemy
+u8 playerIsGiantGroundedAgainstEnemy(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_func_80676B70
 u8 func_80676B70(Actor *, Actor *, ActorCollisionList *);
 #endif
-#ifndef PROTO_SKIP_func_80676BCC
-u8 func_80676BCC(Actor *, Actor *, ActorCollisionList *);
+#ifndef PROTO_SKIP_actorTargetIsLargeMode
+u8 actorTargetIsLargeMode(Actor *, Actor *, ActorCollisionList *);
 #endif
 #ifndef PROTO_SKIP_actorCheckTargetOnSurfaceOrSmaller
 u8 actorCheckTargetOnSurfaceOrSmaller(Actor *, Actor *, ActorCollisionList *);

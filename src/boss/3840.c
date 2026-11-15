@@ -387,7 +387,7 @@ Gfx *bossDrawRoundText(Gfx *glist, Actor *actor) {
     gDPPipeSync(glist++);
     gDPSetCombineMode(glist++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
-    glist = func_8070068C(glist);
+    glist = playerViewSetPrimaryViewport(glist);
     return textDrawStringVtx(glist, 1, 0, 0, textBuf, 0);
 }
 

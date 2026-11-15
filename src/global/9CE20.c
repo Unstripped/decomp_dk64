@@ -73,7 +73,7 @@ u8 nodeCount;
         gCurrentActor->cullMarginY = 0xC8;
         data->playerHolding = 0;
         data->unk15 = 0;
-        data->enabled = flagGet(0x183, 0) != 0 || (gGlobalOverlayFlags & 0x10000000) != 0 || func_807142D8() != 0;
+        data->enabled = flagGet(0x183, 0) != 0 || (gGlobalOverlayFlags & 0x10000000) != 0 || menuIsTransitionType3Or4() != 0;
     }
     if (gPrimaryPlayerActor->state == 0x63 || data->enabled == 0 ||
         (*(s32 *)gCurrentActor->spawnData == 1 && !(player->stateFlags & 0x40))) {

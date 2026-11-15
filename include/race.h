@@ -16,14 +16,14 @@ typedef struct RacePathState {
     /* 0x05 */ u8 pad5[3];
     /* 0x08 */ f32 laneBlend;
     /* 0x0C */ f32 laneOffset;
-    /* 0x10 */ u8 unk10;
+    /* 0x10 */ u8 boostTimer;
     /* 0x11 */ u8 pad11[3];
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ f32 unk28;
+    /* 0x14 */ f32 boostAmount;
+    /* 0x18 */ f32 bankAngle;
+    /* 0x1C */ f32 pitchAngle;
+    /* 0x20 */ f32 shakeRoll;
+    /* 0x24 */ f32 shakePitch;
+    /* 0x28 */ f32 bankVelocity;
     /* 0x2C */ u8 pad2C[4];
     /* 0x30 */ struct Actor *targetActor;
     /* 0x34 */ void *cameraActor;
@@ -79,7 +79,7 @@ typedef struct RaceParticipant {
         /* 0x20 */ struct RacePair *pairs; // manager: the registered participants (raceInitParticipantArray)
         /* 0x20 */ s32 reverseThrust; // 6650 racers: nonzero turns the thrust around and caps speed (raceUpdateRacerMotion)
     };
-    /* 0x24 */ u8 unk24;
+    /* 0x24 */ u8 lapCount;
     /* 0x25 */ u8 hasCpuRival;
     /* 0x26 */ u8 route; // route index (raceGetRoute)
     /* 0x27 */ u8 isCpu;

@@ -522,7 +522,7 @@ void menuHandleConfirmationInput(Actor *actor, s32 buttons) {
     if (state->fade == 0.0f && state->scroll == 0.0f) {
         if (buttons & 1) {
             controllerSetActiveMask(1);
-            func_807144B8(D_80033F48);
+            menuStartGameFromSave(D_80033F48);
         } else if (buttons & 2) {
             sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
             state->transitionPhase = 0;
@@ -1565,7 +1565,7 @@ void menuCharacterSelectUpdateActor(void) {
     sub174 = gCurrentActor->customState;
     parentState = sub174->parent->customState;
     shouldDespawn = 0;
-    func_806BF920();
+    actorKongChainUpdate();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->sub4->scaleX = 2.0f * gCurrentActor->sub4->scaleX;
         gCurrentActor->sub4->scaleY = 2.0f * gCurrentActor->sub4->scaleY;
@@ -3566,15 +3566,15 @@ s32 menuCalculateGamePercentage(void) {
 
     hudPauseMenuRefreshTotals();
     pct = 0.0f;
-    pct += (f32)D_807FC828[0] * 0.4;
-    pct += (f32)D_807FC828[2] * 0.25;
-    pct += (f32)D_807FC828[5] * 0.2;
-    pct += (f32)D_807FC828[3] * 0.2;
-    pct += (f32)D_807FC828[1] * 0.5;
-    pct += (f32)D_807FC828[4] * 0.5;
-    pct += (f32)D_807FC828[6] * 0.5;
+    pct += (f32)gPauseCollectibleCounts[0] * 0.4;
+    pct += (f32)gPauseCollectibleCounts[2] * 0.25;
+    pct += (f32)gPauseCollectibleCounts[5] * 0.2;
+    pct += (f32)gPauseCollectibleCounts[3] * 0.2;
+    pct += (f32)gPauseCollectibleCounts[1] * 0.5;
+    pct += (f32)gPauseCollectibleCounts[4] * 0.5;
+    pct += (f32)gPauseCollectibleCounts[6] * 0.5;
 
-    if (D_807FC828[0] == 0xC9) {
+    if (gPauseCollectibleCounts[0] == 0xC9) {
         pct -= 0.4;
     }
 

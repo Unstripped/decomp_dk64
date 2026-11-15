@@ -9,8 +9,8 @@ u8 func_806BDD90(void);
 #ifndef PROTO_SKIP_func_806BDEC8
 void func_806BDEC8(void);
 #endif
-#ifndef PROTO_SKIP_func_806BE09C
-void func_806BE09C(void);
+#ifndef PROTO_SKIP_bananaDeliveryNpcUpdate
+void bananaDeliveryNpcUpdate(void);
 #endif
 #ifndef PROTO_SKIP_func_806BE674
 void func_806BE674(u8);

@@ -777,7 +777,7 @@ u8 func_8062D0CC(MapBspNode *node, MapVisNode *vis, void *targetId, u8 forceInfi
 
 
 void func_8062D1A8(void) {
-    if (func_807142D8() == 0) {
+    if (menuIsTransitionType3Or4() == 0) {
         mapTreeResolveNodeAssets(D_807F5DE4, D_807F5E60);
     }
 }

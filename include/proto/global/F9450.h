@@ -36,8 +36,8 @@ void gridFreeAllNodeLists(void);
 #ifndef PROTO_SKIP_gridFreeAllActiveNodes
 void gridFreeAllActiveNodes(void);
 #endif
-#ifndef PROTO_SKIP_func_806F53EC
-struct GridActiveNode *func_806F53EC(struct GridNode *);
+#ifndef PROTO_SKIP_gridActiveNodeCreate
+struct GridActiveNode *gridActiveNodeCreate(struct GridNode *);
 #endif
 #ifndef PROTO_SKIP_gridAdjustActorCollisionType
 s32 gridAdjustActorCollisionType(s32, s32, u8);
@@ -45,8 +45,8 @@ s32 gridAdjustActorCollisionType(s32, s32, u8);
 #ifndef PROTO_SKIP_cutsceneStartFlag16CPath
 void cutsceneStartFlag16CPath(void);
 #endif
-#ifndef PROTO_SKIP_func_806F54E0
-void func_806F54E0(u8, s32, u8);
+#ifndef PROTO_SKIP_gridCollectItem
+void gridCollectItem(u8, s32, u8);
 #endif
 #ifndef PROTO_SKIP_func_806F58A0
 void func_806F58A0(u8, s16, Actor *);
@@ -57,11 +57,11 @@ void func_806F5A48(u8, s16, Actor *, u16);
 #ifndef PROTO_SKIP_actorTypeIsRespawnPickup
 s32 actorTypeIsRespawnPickup(s32);
 #endif
-#ifndef PROTO_SKIP_func_806F5CE4
-s32 func_806F5CE4(s32);
+#ifndef PROTO_SKIP_modelTypeIsRespawnPickup
+s32 modelTypeIsRespawnPickup(s32);
 #endif
-#ifndef PROTO_SKIP_func_806F5D80
-void func_806F5D80(s32 *, s32 *);
+#ifndef PROTO_SKIP_respawnPickRandomPickup
+void respawnPickRandomPickup(s32 *, s32 *);
 #endif
 #ifndef PROTO_SKIP_delayedSpawnQueueAdd
 void delayedSpawnQueueAdd(s32, s32, s16, s16, s16, s32);
@@ -69,20 +69,20 @@ void delayedSpawnQueueAdd(s32, s32, s16, s16, s16, s32);
 #ifndef PROTO_SKIP_delayedSpawnQueueContains
 s32 delayedSpawnQueueContains(s32, s32, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_806F5F2C
-void func_806F5F2C(s32, s32, s16, s16, s16);
+#ifndef PROTO_SKIP_delayedSpawnQueueAddActor
+void delayedSpawnQueueAddActor(s32, s32, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_func_806F5FA0
 void func_806F5FA0(s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_806F5FE8
-void func_806F5FE8(s32, s16, s16, s16, s32);
+#ifndef PROTO_SKIP_delayedSpawnQueueAddModel
+void delayedSpawnQueueAddModel(s32, s16, s16, s16, s32);
 #endif
 #ifndef PROTO_SKIP_delayedSpawnQueueTick
 void delayedSpawnQueueTick(void);
 #endif
-#ifndef PROTO_SKIP_func_806F6204
-void func_806F6204(struct GridNode *, u8, struct GridBounds *);
+#ifndef PROTO_SKIP_gridCollectNodesInBounds
+void gridCollectNodesInBounds(struct GridNode *, u8, struct GridBounds *);
 #endif
 #ifndef PROTO_SKIP_gridDispatchRect
 void gridDispatchRect(u8, struct GridBounds *);
@@ -93,11 +93,11 @@ s32 gridCheckNodeCondition(s16, u8, u16);
 #ifndef PROTO_SKIP_gridUpdatePlayerNodes
 void gridUpdatePlayerNodes(u8);
 #endif
-#ifndef PROTO_SKIP_func_806F6E58
-s32 func_806F6E58(s16);
+#ifndef PROTO_SKIP_kongUsesAbilityEnergy
+s32 kongUsesAbilityEnergy(s16);
 #endif
-#ifndef PROTO_SKIP_func_806F6EDC
-s32 func_806F6EDC(void);
+#ifndef PROTO_SKIP_anyKongUsesAbilityEnergy
+s32 anyKongUsesAbilityEnergy(void);
 #endif
 #ifndef PROTO_SKIP_gridTickPlayers
 void gridTickPlayers(void);

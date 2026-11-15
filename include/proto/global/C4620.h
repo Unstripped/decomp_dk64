@@ -2,14 +2,14 @@
 #ifndef PROTO_GLOBAL_C4620_H
 #define PROTO_GLOBAL_C4620_H
 #include "common.h"
-#ifndef PROTO_SKIP_func_806BF920
-void func_806BF920(void);
+#ifndef PROTO_SKIP_actorKongChainUpdate
+void actorKongChainUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806BFA8C
-void func_806BFA8C(u16);
+#ifndef PROTO_SKIP_actorScriptedAnimSideEffects
+void actorScriptedAnimSideEffects(u16);
 #endif
-#ifndef PROTO_SKIP_func_806BFBB4
-void func_806BFBB4(void);
+#ifndef PROTO_SKIP_actorStepMotionAndBounds
+void actorStepMotionAndBounds(void);
 #endif
 #ifndef PROTO_SKIP_actorScriptedCommandUpdate
 void actorScriptedCommandUpdate(void);
@@ -20,11 +20,11 @@ void func_806C10A0(u8, u16, s16);
 #ifndef PROTO_SKIP_func_806C1300
 void func_806C1300(void);
 #endif
-#ifndef PROTO_SKIP_func_806C13AC
-void func_806C13AC(s16, s16, s16, s16, s16);
+#ifndef PROTO_SKIP_actorSetAnimForMoveTier
+void actorSetAnimForMoveTier(s16, s16, s16, s16, s16);
 #endif
-#ifndef PROTO_SKIP_func_806C151C
-void func_806C151C(u16, u8, s16);
+#ifndef PROTO_SKIP_actorShowTextOnceWhenNear
+void actorShowTextOnceWhenNear(u16, u8, s16);
 #endif
 #ifndef PROTO_SKIP_func_806C15E8
 void func_806C15E8(void);

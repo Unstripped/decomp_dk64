@@ -967,7 +967,7 @@ extern PlayerInventory gPlayerInventoryTable[];
 // kongs, [1] set flags of D_807505B8, [2] set flags of the D_80744710 list, [3] flags 0x225-0x24C, [4] flag 0x17B,
 // [5] flags 0x24D-0x260, [6] flag 0x84, [7] flags 0x1FD-0x224, [8] always 1. The first seven weigh into
 // menuCalculateGamePercentage (3E10) and the 117190 gate totals; the pause menu's page 3 shows the first eight.
-extern s16 D_807FC828[9];
+extern s16 gPauseCollectibleCounts[9];
 
 // One entry of the per-map flag tables (135D30.c: D_80755A20, D_80755DA8, D_80755EA0, gFlagTempEntries).
 typedef struct FlagTableEntry {
@@ -1150,7 +1150,7 @@ typedef struct G00Entry {
     /* 0xA */ s16 bottom;
 } G00Entry;
 
-// Spawn position (func_806C96C4).
+// Spawn position (raceGridSpawnPoint).
 typedef struct G01Pos {
     /* 0x0 */ s16 x;
     /* 0x2 */ s16 y;

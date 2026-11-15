@@ -92,7 +92,7 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
         gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         animMode = actor->unk15F;
         if (animMode == 0xB) {
-            gfx = func_8070068C(gfx);
+            gfx = playerViewSetPrimaryViewport(gfx);
             gfx = textDrawStringVtx(gfx, 0x86, actor->x * 4.0f, gPlayerSlots->rect[3] * 4 - 0x3C,
                                     gfxResourceFindById(timer->textId)->text, 1);
         } else {
@@ -103,7 +103,7 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
             }
             gfx = textDrawAnimated(gfx, timer->textId, animMode, actor->x + offset, actor->y + 5.0f, 0.0f, 1.0f);
             if (actor->state == 2) {
-                gfx = func_8070068C(gfx);
+                gfx = playerViewSetPrimaryViewport(gfx);
                 effectEnableFade();
                 sinAngle = sinApprox(angle);
                 effectCreateAtPosition(&D_8071FC58, 0.5f, sinAngle * 40.0 + (40.0f + actor->x),

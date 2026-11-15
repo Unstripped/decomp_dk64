@@ -90,8 +90,8 @@ void menuHandleBonusStageTransition(void);
 #ifndef PROTO_SKIP_menuHandleDemoModeTransition
 void menuHandleDemoModeTransition(void);
 #endif
-#ifndef PROTO_SKIP_func_807132DC
-Gfx *func_807132DC(Gfx *);
+#ifndef PROTO_SKIP_menuOverlayGfxInit
+Gfx *menuOverlayGfxInit(Gfx *);
 #endif
 #ifndef PROTO_SKIP_func_8071338C
 Gfx *func_8071338C(Gfx *);
@@ -99,8 +99,8 @@ Gfx *func_8071338C(Gfx *);
 #ifndef PROTO_SKIP_func_80713438
 Gfx *func_80713438(Gfx *, u8);
 #endif
-#ifndef PROTO_SKIP_func_807135B4
-Gfx *func_807135B4(Gfx *);
+#ifndef PROTO_SKIP_menuDrawBlinkingPromptText
+Gfx *menuDrawBlinkingPromptText(Gfx *);
 #endif
 #ifndef PROTO_SKIP_mathIdentityS32
 s32 mathIdentityS32(s32);
@@ -120,8 +120,8 @@ Gfx *func_80713AA8(Gfx *);
 #ifndef PROTO_SKIP_func_80713B40
 Gfx *func_80713B40(Gfx *);
 #endif
-#ifndef PROTO_SKIP_func_80713C8C
-void func_80713C8C(void);
+#ifndef PROTO_SKIP_menuTimerUpdateCountdown
+void menuTimerUpdateCountdown(void);
 #endif
 #ifndef PROTO_SKIP_hudDrawCountdownTimer
 Gfx *hudDrawCountdownTimer(Gfx *);
@@ -129,14 +129,14 @@ Gfx *hudDrawCountdownTimer(Gfx *);
 #ifndef PROTO_SKIP_mathIdentityS32B
 s32 mathIdentityS32B(s32);
 #endif
-#ifndef PROTO_SKIP_func_80713EB0
-void func_80713EB0(s32, s32, s32);
+#ifndef PROTO_SKIP_menuTransitionToMapIfUnlocked
+void menuTransitionToMapIfUnlocked(s32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_screenStateTickAndDraw
 Gfx *screenStateTickAndDraw(Gfx *);
 #endif
-#ifndef PROTO_SKIP_func_807142D8
-s32 func_807142D8(void);
+#ifndef PROTO_SKIP_menuIsTransitionType3Or4
+s32 menuIsTransitionType3Or4(void);
 #endif
 #ifndef PROTO_SKIP_menuIsTransitionType6
 s32 menuIsTransitionType6(void);
@@ -159,8 +159,8 @@ s32 menuIsTransitionType5(void);
 #ifndef PROTO_SKIP_menuIsTransitionTypeAOrE
 s32 menuIsTransitionTypeAOrE(void);
 #endif
-#ifndef PROTO_SKIP_func_807144B8
-void func_807144B8(s8);
+#ifndef PROTO_SKIP_menuStartGameFromSave
+void menuStartGameFromSave(s8);
 #endif
 #ifndef PROTO_SKIP_mpStartMatch
 void mpStartMatch(void);
@@ -168,8 +168,8 @@ void mpStartMatch(void);
 #ifndef PROTO_SKIP_menuSetFlag5324
 void menuSetFlag5324(void);
 #endif
-#ifndef PROTO_SKIP_func_80714608
-s32 func_80714608(s32);
+#ifndef PROTO_SKIP_mpIsMatchType
+s32 mpIsMatchType(s32);
 #endif
 #ifndef PROTO_SKIP_menuReturnToTitleWithMode3
 void menuReturnToTitleWithMode3(void);

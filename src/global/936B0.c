@@ -560,7 +560,7 @@ void actorInitFromSpawnPoint(Actor *actor, RaceParticipant *vehicle) {
     G01Pos *spawn;
     s16 yaw;
 
-    spawn = func_806C96C4(vehicle->place);
+    spawn = raceGridSpawnPoint(vehicle->place);
     actor->x = spawn->x;
     actor->y = spawn->y;
     actor->z = spawn->z;

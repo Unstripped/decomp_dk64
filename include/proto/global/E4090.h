@@ -248,8 +248,8 @@ void playerInputCheckInstrumentPlayback(void);
 #ifndef PROTO_SKIP_playerInputCheckTargetMoved
 u8 playerInputCheckTargetMoved(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806E560C
-int func_806E560C(Actor *);
+#ifndef PROTO_SKIP_playerIsOnOwnInstrumentPad
+int playerIsOnOwnInstrumentPad(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerInputCheckMultiplayerPlayerTarget
 s32 playerInputCheckMultiplayerPlayerTarget(void);
@@ -257,8 +257,8 @@ s32 playerInputCheckMultiplayerPlayerTarget(void);
 #ifndef PROTO_SKIP_playerInputStartTransitionToMap
 void playerInputStartTransitionToMap(s32, s32, s32);
 #endif
-#ifndef PROTO_SKIP_func_806E5C74
-int func_806E5C74(void);
+#ifndef PROTO_SKIP_playerInputCanSlam
+int playerInputCanSlam(void);
 #endif
 #ifndef PROTO_SKIP_playerInputCheckEnterLongJump
 void playerInputCheckEnterLongJump(void);
@@ -443,14 +443,14 @@ void func_806E8E78(void);
 #ifndef PROTO_SKIP_func_806E8F04
 void func_806E8F04(void);
 #endif
-#ifndef PROTO_SKIP_func_806E8F68
-void func_806E8F68(void);
+#ifndef PROTO_SKIP_playerInputHandleAButtonJumpOff
+void playerInputHandleAButtonJumpOff(void);
 #endif
 #ifndef PROTO_SKIP_func_806E9070
 void func_806E9070(void);
 #endif
-#ifndef PROTO_SKIP_func_806E918C
-void func_806E918C(void);
+#ifndef PROTO_SKIP_playerInputHandleRButtonFixedLook
+void playerInputHandleRButtonFixedLook(void);
 #endif
 #ifndef PROTO_SKIP_func_806E9388
 void func_806E9388(void);
@@ -464,50 +464,50 @@ void func_806E9468(void);
 #ifndef PROTO_SKIP_playerInputPostUpdate
 s32 playerInputPostUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806E9804
-void func_806E9804(s16);
+#ifndef PROTO_SKIP_playerInputTryEnterFairyCamera
+void playerInputTryEnterFairyCamera(s16);
 #endif
-#ifndef PROTO_SKIP_func_806E9874
-void func_806E9874(void);
+#ifndef PROTO_SKIP_playerInputTryEnterFairyCameraOnLand
+void playerInputTryEnterFairyCameraOnLand(void);
 #endif
-#ifndef PROTO_SKIP_func_806E98F8
-void func_806E98F8(void);
+#ifndef PROTO_SKIP_playerInputHandleCDownFairyCamera
+void playerInputHandleCDownFairyCamera(void);
 #endif
-#ifndef PROTO_SKIP_func_806E9964
-void func_806E9964(PlayerState *);
+#ifndef PROTO_SKIP_playerLeaveFairyCamera
+void playerLeaveFairyCamera(PlayerState *);
 #endif
-#ifndef PROTO_SKIP_func_806E9A5C
-void func_806E9A5C(void);
+#ifndef PROTO_SKIP_playerInputHandleCUpLeaveFairyCamera
+void playerInputHandleCUpLeaveFairyCamera(void);
 #endif
-#ifndef PROTO_SKIP_func_806E9ACC
-void func_806E9ACC(void);
+#ifndef PROTO_SKIP_playerInputHandleCDownLeaveFairyCamera
+void playerInputHandleCDownLeaveFairyCamera(void);
 #endif
-#ifndef PROTO_SKIP_func_806E9B3C
-void func_806E9B3C(void);
+#ifndef PROTO_SKIP_playerInputHandleZButtonLeaveFairyCamera
+void playerInputHandleZButtonLeaveFairyCamera(void);
 #endif
-#ifndef PROTO_SKIP_func_806E9BA8
-void func_806E9BA8(s32);
+#ifndef PROTO_SKIP_playerInputTakeFairyPhoto
+void playerInputTakeFairyPhoto(s32);
 #endif
-#ifndef PROTO_SKIP_func_806E9CDC
-void func_806E9CDC(void);
+#ifndef PROTO_SKIP_playerInputHandleBButtonFairyPhoto
+void playerInputHandleBButtonFairyPhoto(void);
 #endif
-#ifndef PROTO_SKIP_func_806E9CFC
-void func_806E9CFC(void);
+#ifndef PROTO_SKIP_playerInputHandleBButtonFairyPhotoInWater
+void playerInputHandleBButtonFairyPhotoInWater(void);
 #endif
-#ifndef PROTO_SKIP_func_806E9D1C
-s32 func_806E9D1C(s16, u8, u8);
+#ifndef PROTO_SKIP_playerTryEnterViewMode
+s32 playerTryEnterViewMode(s16, u8, u8);
 #endif
 #ifndef PROTO_SKIP_playerInputHandleCUpCameraZoomIn
 void playerInputHandleCUpCameraZoomIn(void);
 #endif
-#ifndef PROTO_SKIP_func_806E9ECC
-void func_806E9ECC(void);
+#ifndef PROTO_SKIP_playerInputHandleCLeftEnterFirstPerson
+void playerInputHandleCLeftEnterFirstPerson(void);
 #endif
 #ifndef PROTO_SKIP_playerInputHandleCUpMode7
 void playerInputHandleCUpMode7(void);
 #endif
-#ifndef PROTO_SKIP_func_806EA04C
-void func_806EA04C(void);
+#ifndef PROTO_SKIP_playerInputHandleCUpEnterFirstPersonInWater
+void playerInputHandleCUpEnterFirstPersonInWater(void);
 #endif
 #ifndef PROTO_SKIP_playerInputCycleCameraZoom
 void playerInputCycleCameraZoom(void);
@@ -551,20 +551,20 @@ void playerInputHandleAButtonAimUp(void);
 #ifndef PROTO_SKIP_playerInputHandleBButtonAimDown
 void playerInputHandleBButtonAimDown(void);
 #endif
-#ifndef PROTO_SKIP_func_806EA958
-void func_806EA958(void);
+#ifndef PROTO_SKIP_playerInputHandleCUpLeaveFirstPerson
+void playerInputHandleCUpLeaveFirstPerson(void);
 #endif
-#ifndef PROTO_SKIP_func_806EA9B4
-void func_806EA9B4(void);
+#ifndef PROTO_SKIP_playerInputHandleCDownLeaveFirstPerson
+void playerInputHandleCDownLeaveFirstPerson(void);
 #endif
-#ifndef PROTO_SKIP_func_806EAA44
-void func_806EAA44(void);
+#ifndef PROTO_SKIP_playerInputHandleCUpLeaveFirstPersonInWater
+void playerInputHandleCUpLeaveFirstPersonInWater(void);
 #endif
-#ifndef PROTO_SKIP_func_806EAAA0
-void func_806EAAA0(void);
+#ifndef PROTO_SKIP_playerInputHandleCDownLeaveFirstPersonInWater
+void playerInputHandleCDownLeaveFirstPersonInWater(void);
 #endif
-#ifndef PROTO_SKIP_func_806EAB44
-void func_806EAB44(Actor *, u8);
+#ifndef PROTO_SKIP_playerLeaveViewMode
+void playerLeaveViewMode(Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_func_806EAC8C
 void func_806EAC8C(void);
@@ -572,14 +572,14 @@ void func_806EAC8C(void);
 #ifndef PROTO_SKIP_func_806EACBC
 void func_806EACBC(void);
 #endif
-#ifndef PROTO_SKIP_func_806EACEC
-void func_806EACEC(void);
+#ifndef PROTO_SKIP_playerInputHandleAButtonGroundJump
+void playerInputHandleAButtonGroundJump(void);
 #endif
 #ifndef PROTO_SKIP_func_806EAE04
 void func_806EAE04(void);
 #endif
-#ifndef PROTO_SKIP_func_806EAE60
-void func_806EAE60(void);
+#ifndef PROTO_SKIP_playerInputWiggleOffStatusEffect
+void playerInputWiggleOffStatusEffect(void);
 #endif
 #ifndef PROTO_SKIP_func_806EAF6C
 void func_806EAF6C(void);

@@ -93,8 +93,8 @@ s32 scriptOpAccelerateAction(Actor *);
 #ifndef PROTO_SKIP_scriptOpApproachActionTarget
 s32 scriptOpApproachActionTarget(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806158E8
-s32 func_806158E8(Actor *);
+#ifndef PROTO_SKIP_scriptOpAnimResetFrameRange
+s32 scriptOpAnimResetFrameRange(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpAnimSetRemapDefault
 s32 scriptOpAnimSetRemapDefault(Actor *);
@@ -126,8 +126,8 @@ s32 scriptOpAnimSetFromTable(Actor *);
 #ifndef PROTO_SKIP_scriptOpReadRampInterpolation
 s32 scriptOpReadRampInterpolation(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80615CE4
-s32 func_80615CE4(Actor *);
+#ifndef PROTO_SKIP_scriptOpApplyMotionWindowStep
+s32 scriptOpApplyMotionWindowStep(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpUpdateMotionDelta
 s32 scriptOpUpdateMotionDelta(Actor *);
@@ -174,8 +174,8 @@ s32 scriptOpCompareStateToU16(Actor *);
 #ifndef PROTO_SKIP_scriptOpCompareSubStateToU16
 s32 scriptOpCompareSubStateToU16(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80616518
-s32 func_80616518(Actor *);
+#ifndef PROTO_SKIP_scriptOpCompareAnimIdToU16
+s32 scriptOpCompareAnimIdToU16(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpCompareGlobalCountdown
 s32 scriptOpCompareGlobalCountdown(Actor *);
@@ -246,23 +246,23 @@ s32 scriptOpDisableFlag84(Actor *);
 #ifndef PROTO_SKIP_scriptOpHalt
 s32 scriptOpHalt(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80616DB4
-s32 func_80616DB4(Actor *);
+#ifndef PROTO_SKIP_scriptOpOrComponentFlags
+s32 scriptOpOrComponentFlags(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpPlaySoundAndShake
 s32 scriptOpPlaySoundAndShake(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80617140
-s32 func_80617140(Actor *);
+#ifndef PROTO_SKIP_scriptOpPlayMapActionSound
+s32 scriptOpPlayMapActionSound(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpPlayPositionalSoundPlayerStateVolume
 s32 scriptOpPlayPositionalSoundPlayerStateVolume(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80617400
-s32 func_80617400(Actor *);
+#ifndef PROTO_SKIP_scriptOpPlayPositionalSound
+s32 scriptOpPlayPositionalSound(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806174B4
-s32 func_806174B4(Actor *);
+#ifndef PROTO_SKIP_scriptOpPlayPositionalSoundAtNode
+s32 scriptOpPlayPositionalSoundAtNode(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpPlayDistanceVolumeSound
 s32 scriptOpPlayDistanceVolumeSound(Actor *);
@@ -270,11 +270,11 @@ s32 scriptOpPlayDistanceVolumeSound(Actor *);
 #ifndef PROTO_SKIP_sfxPlayScriptActorSoundForPlayer
 void sfxPlayScriptActorSoundForPlayer(Actor *, s16, u8);
 #endif
-#ifndef PROTO_SKIP_func_8061796C
-s32 func_8061796C(Actor *);
+#ifndef PROTO_SKIP_scriptOpPlayActorSoundForPlayer
+s32 scriptOpPlayActorSoundForPlayer(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806179C0
-s32 func_806179C0(Actor *);
+#ifndef PROTO_SKIP_scriptOpRestartSlotSound
+s32 scriptOpRestartSlotSound(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpSetSoundVolumeAndPan
 s32 scriptOpSetSoundVolumeAndPan(Actor *);
@@ -297,14 +297,14 @@ s32 scriptOpSetActorTextState(Actor *);
 #ifndef PROTO_SKIP_scriptOpNoopReturn1
 s32 scriptOpNoopReturn1(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80617D20
-void func_80617D20(Actor *);
+#ifndef PROTO_SKIP_scriptOpBranchOnFrame
+void scriptOpBranchOnFrame(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpBranchByTimer8A
 void scriptOpBranchByTimer8A(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80617D94
-void func_80617D94(Actor *);
+#ifndef PROTO_SKIP_scriptSkipBranchCases
+void scriptSkipBranchCases(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpBranchOnCondition
 s32 scriptOpBranchOnCondition(Actor *, s16);
@@ -372,8 +372,8 @@ void scriptCmdActorCamShake(Actor *);
 #ifndef PROTO_SKIP_scriptCmdSetActorAlpha
 void scriptCmdSetActorAlpha(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80618C00
-void func_80618C00(Actor *, u8);
+#ifndef PROTO_SKIP_actorSpawnFloorEffectAtNode
+void actorSpawnFloorEffectAtNode(Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_scriptCmdSpawnActorParticleBurst
 void scriptCmdSpawnActorParticleBurst(Actor *);
@@ -408,8 +408,8 @@ void scriptCmdSpawnEffectChildAndNode(Actor *);
 #ifndef PROTO_SKIP_scriptCmdDespawnActor
 void scriptCmdDespawnActor(Actor *);
 #endif
-#ifndef PROTO_SKIP_func_80619520
-void *func_80619520(Actor *);
+#ifndef PROTO_SKIP_actorGetRacerParticipant
+void *actorGetRacerParticipant(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptCmdSetActorResultByte35
 void scriptCmdSetActorResultByte35(Actor *);

@@ -59,7 +59,7 @@ Gfx *func_806FEF7C(Gfx *dl, Actor *player) {
 
 extern KongInventory *gCurrentKongInventory;
 
-Gfx *func_806FF01C(Gfx *gfx, Actor *actor) {
+Gfx *playerViewDrawCrosshair(Gfx *gfx, Actor *actor) {
     u8 player;
     s32 target;
     s32 targetX;
@@ -78,7 +78,7 @@ Gfx *func_806FF01C(Gfx *gfx, Actor *actor) {
     return renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, 0xA0, 0x78, 0.5f, 0.5f, 0x2D, 0.0f);
 }
 
-Gfx *func_806FF144(Gfx *dl) {
+Gfx *playerViewDrawCornerMasks(Gfx *dl) {
     gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
     gDPSetCombineMode(dl++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
@@ -89,11 +89,11 @@ Gfx *func_806FF144(Gfx *dl) {
     return renderRotatedSprite(dl, 0x3A, 3, 1, 0x40, 0x40, 0x3E, gScreenHeight - 0x3E, 2.0f, 2.0f, 0x10E, 0.0f);
 }
 
-void func_806FF32C(Gfx *dl, Actor *actor) {
-    func_806FF144(playerViewGfxSetup(dl, ((PlayerState *)actor->customState)->playerIndex));
+void playerViewCornerMasksCallback(Gfx *dl, Actor *actor) {
+    playerViewDrawCornerMasks(playerViewGfxSetup(dl, ((PlayerState *)actor->customState)->playerIndex));
 }
 
-Gfx *func_806FF358(Gfx *dl, Actor *actor) {
+Gfx *playerViewDrawCameraViewfinder(Gfx *dl, Actor *actor) {
     PlayerState *state;
 
     state = gPlayerSlots->actor->customState;
@@ -116,7 +116,7 @@ Gfx *func_806FF358(Gfx *dl, Actor *actor) {
     return dl;
 }
 
-Gfx *func_806FF628(Gfx *dl, Actor *actor) {
+Gfx *playerViewDrawPhotoResult(Gfx *dl, Actor *actor) {
     PlayerState *state;
 
     state = gPlayerSlots->actor->customState;
@@ -132,7 +132,7 @@ Gfx *func_806FF628(Gfx *dl, Actor *actor) {
 }
 
 
-Gfx *func_806FF75C(Gfx *dl, Actor *actor) {
+Gfx *playerViewDrawScopeCrosshair(Gfx *dl, Actor *actor) {
     u8 player;
     s32 target;
     s32 targetKind;
@@ -164,7 +164,7 @@ Gfx *func_806FF75C(Gfx *dl, Actor *actor) {
     return renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, 0xA0, 0x78, 0.5f, 0.5f, 0x2D, 0.0f);
 }
 
-void func_806FFB2C(Gfx *gfx, Actor *actor) {
+void playerViewDrawCameraShutter(Gfx *gfx, Actor *actor) {
     f32 depth;
     Gfx *dl;
 
@@ -192,7 +192,7 @@ u16 color5551ToSepia(u16 color) {
     return ((u8)(28.0f * f + 3.0f) << 11) + ((u8)(19.0f * f + 3.0f) << 6) + (a << 1) + lsb;
 }
 
-u16 *func_806FFEAC(u16 *dst, u16 *src) {
+u16 *sepiaCopyFramebufferTile(u16 *dst, u16 *src) {
     s16 i;
     s16 j;
 
@@ -211,7 +211,7 @@ void func_806FFF5C(void) {
 
 extern void *gFramebuffers[];
 
-u16 *func_806FFF88(void) {
+u16 *playerViewCaptureSepiaPhoto(void) {
     u16 *buf;
     s16 col;
     s16 row;
@@ -229,7 +229,7 @@ u16 *func_806FFF88(void) {
     do {
         col = 0;
         do {
-            dst = func_806FFEAC(dst, src + col * 32);
+            dst = sepiaCopyFramebufferTile(dst, src + col * 32);
             col++;
         } while (col < 5);
         src += gScreenWidth * 64;
@@ -330,7 +330,7 @@ void lensFlareAddSource(f32 x, f32 y, f32 z, f32 dirX, f32 dirY, f32 dirZ, f32 m
 
 extern Mtx D_2000100;
 
-Gfx *func_8070068C(Gfx *dl) {
+Gfx *playerViewSetPrimaryViewport(Gfx *dl) {
     gSPMatrix(dl++, &D_2000100, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPViewport(dl++, osVirtualToPhysical(&gPlayerSlots->viewport[gGfxBufferIndex]));
     gDPSetScissor(dl++, G_SC_NON_INTERLACE, gPlayerSlots->rect[0], gPlayerSlots->rect[1], gPlayerSlots->rect[2], gPlayerSlots->rect[3]);
@@ -345,7 +345,7 @@ Gfx *lensFlareBuildDisplayList(Gfx *dl) {
 
     if (D_80754BC0 != 0) {
         gDPPipeSync(dl++);
-        dl = func_8070068C(dl);
+        dl = playerViewSetPrimaryViewport(dl);
         gSPMatrix(dl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
         gDPPipeSync(dl++);
         gSPClearGeometryMode(dl++, 0xFFFFFFFF);

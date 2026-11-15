@@ -286,7 +286,7 @@ void actorLightPulseUpdate(void) {
     if (gCurrentMap != 0x4C) {
         if (isAttached[3] == 0 || gCurrentActor->unk15F != 0) {
             callbackId = 0x2E;
-            if (func_80714608(0) != 0) {
+            if (mpIsMatchType(0) != 0) {
                 callbackId = 0xE;
             }
             rangeSq = gCurrentActor->sub4->scaleX * (f32)lightRadius;
@@ -514,7 +514,7 @@ Gfx *actorBannerTextRender(Gfx *dl, Actor *actor) {
     WRITE_GFX(dl++, 0xE200001C, 0x00504240);
     WRITE_GFX(dl++, 0xE7000000, 0);
     WRITE_GFX(dl++, 0xFA000000, (actor->yaw & 0xFF) | 0xFFFFFF00);
-    dl = func_8070068C(dl);
+    dl = playerViewSetPrimaryViewport(dl);
     mtxBuf = heapAlloc(0x40);
     heapFreeDeferred(mtxBuf);
     font = 1;

@@ -158,7 +158,7 @@ void raceCompetitorMotionUpdate(void) {
             }
         }
         vehicleUpdateMotion(participant, motion, 1, 1);
-        if (func_807142D8() == 0) {
+        if (menuIsTransitionType3Or4() == 0) {
             renderCallbacksRegister(raceRacerRenderCallback, gCurrentActor, 3);
         }
     } else if (status == 5 && participant->unk35 == 0) {

@@ -194,7 +194,7 @@ void slotQueueInit(s32 reset) {
                     base[j].nodes = 0;
                     base[j].displayMode = 0;
                 }
-                if (func_807142D8() != 0) {
+                if (menuIsTransitionType3Or4() != 0) {
                     base[j].displayMode = 1;
                 }
                 switch (j) {
@@ -359,7 +359,7 @@ s32 slotQueueGetValue(u8 index, u8 player) {
 }
 
 void slotQueueUpdate(s32 slot, u8 show, s32 delay) {
-    if ((gPlayerCount < 2) && (func_807142D8() == 0)) {
+    if ((gPlayerCount < 2) && (menuIsTransitionType3Or4() == 0)) {
         if (slot == 8) {
             slotQueueUpdate(9, show, delay + 0xA);
             if (gCurrentMap == 0xF) {
@@ -483,7 +483,7 @@ s32 slotQueueGetMaxValue(s32 slot, s32 player) {
     case 5:
         if (gPlayerCount >= 2) {
             max = 0xBB8;
-        } else if (func_806F6EDC() != 0) {
+        } else if (anyKongUsesAbilityEnergy() != 0) {
             max = ((func_806F8EB4() * 0x96) + 0xBB8) & 0xFFFF;
         } else {
             max = 0;

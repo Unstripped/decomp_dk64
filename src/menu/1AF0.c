@@ -135,7 +135,7 @@ extern u8 D_800334DC[];
 
 void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
     s16 queueItemId = -1;
-    u8 hasItem = func_806F6E58(gPlayerCharacterId);
+    u8 hasItem = kongUsesAbilityEnergy(gPlayerCharacterId);
 
     switch (state->itemSlot) {
     case 2:
@@ -171,7 +171,7 @@ void menuApplyPurchase(MenuShopState *state, u8 *inventory) {
         queueItemId = 7;
         break;
     case 0:
-        if (hasItem == 0 && func_806F6E58(gPlayerCharacterId) != 0) {
+        if (hasItem == 0 && kongUsesAbilityEnergy(gPlayerCharacterId) != 0) {
             queueItemId = 5;
         }
         break;

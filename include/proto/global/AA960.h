@@ -12,8 +12,8 @@ void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, Actor *);
 #ifndef PROTO_SKIP_effectSpawnAttachedSprite
 void effectSpawnAttachedSprite(void *, void *, f32);
 #endif
-#ifndef PROTO_SKIP_func_806A5F44
-void func_806A5F44(void);
+#ifndef PROTO_SKIP_actorHealthDropUpdate
+void actorHealthDropUpdate(void);
 #endif
 #ifndef PROTO_SKIP_func_806A5FA4
 void func_806A5FA4(void);

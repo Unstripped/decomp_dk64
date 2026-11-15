@@ -173,7 +173,7 @@ s32 actorCheckPlayerProximityVertical(Actor *actor, Actor *player, ActorCollisio
     return 1;
 }
 
-u8 func_806769A8(Actor *actor, Actor *player, ActorCollisionList *list) {
+u8 actorTargetIsGiantKong(Actor *actor, Actor *player, ActorCollisionList *list) {
     if (player->actorType == 6) {
         u8 index = ((PlayerState *)player->customState)->playerIndex;
         if (gPlayerSlots[index].unk2C0 != 1) {
@@ -183,7 +183,7 @@ u8 func_806769A8(Actor *actor, Actor *player, ActorCollisionList *list) {
     return 0;
 }
 
-u8 func_80676A0C(Actor *actor, Actor *player, ActorCollisionList *list) {
+u8 actorTargetIsMiniKong(Actor *actor, Actor *player, ActorCollisionList *list) {
     if (player->actorType == 5) {
         u8 index = ((PlayerState *)player->customState)->playerIndex;
         if (gPlayerSlots[index].unk2C0 != 1) {
@@ -193,11 +193,11 @@ u8 func_80676A0C(Actor *actor, Actor *player, ActorCollisionList *list) {
     return 0;
 }
 
-u8 func_80676A70(Actor *actor, Actor *player, ActorCollisionList *list) {
-    return func_806769A8(actor, player, list) && actorCheckPlayerProximityVertical(actor, player, list);
+u8 actorGiantKongInReach(Actor *actor, Actor *player, ActorCollisionList *list) {
+    return actorTargetIsGiantKong(actor, player, list) && actorCheckPlayerProximityVertical(actor, player, list);
 }
 
-u8 func_80676AB8(Actor *actor, Actor *target, ActorCollisionList *list) {
+u8 playerIsGiantAgainstEnemy(Actor *actor, Actor *target, ActorCollisionList *list) {
     u8 index = ((PlayerState *)actor->customState)->playerIndex;
     u8 ret = 0;
 
@@ -210,15 +210,15 @@ u8 func_80676AB8(Actor *actor, Actor *target, ActorCollisionList *list) {
     return ret;
 }
 
-u8 func_80676B38(Actor *actor, Actor *target, ActorCollisionList *list) {
-    return func_80676AB8(actor, target, list) && (actor->contactFlags & 1);
+u8 playerIsGiantGroundedAgainstEnemy(Actor *actor, Actor *target, ActorCollisionList *list) {
+    return playerIsGiantAgainstEnemy(actor, target, list) && (actor->contactFlags & 1);
 }
 
 u8 func_80676B70(Actor *actor, Actor *target, ActorCollisionList *list) {
-    return func_80676AB8(actor, target, list) && (actorIsTargetFallingFromAbove(target, actor, list) || func_80714608(0));
+    return playerIsGiantAgainstEnemy(actor, target, list) && (actorIsTargetFallingFromAbove(target, actor, list) || mpIsMatchType(0));
 }
 
-u8 func_80676BCC(Actor *actor, Actor *target, ActorCollisionList *list) {
+u8 actorTargetIsLargeMode(Actor *actor, Actor *target, ActorCollisionList *list) {
     u8 index = ((PlayerState *)target->customState)->playerIndex;
     return gPlayerSlots[index].unk2C0 == 2;
 }
@@ -232,7 +232,7 @@ u8 actorCheckTargetOnSurfaceOrSmaller(Actor *actor, Actor *target, ActorCollisio
     } else {
         onSurface = 0;
     }
-    return onSurface || func_806769A8(actor, target, list);
+    return onSurface || actorTargetIsGiantKong(actor, target, list);
 }
 
 s32 func_80676C64(Actor *actor, Actor *target, ActorCollisionList *list) {

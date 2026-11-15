@@ -110,7 +110,7 @@ extern u16 D_807446C0[];
 extern u16 gLevelCollectibleCounts[];
 
 
-void func_806BE09C(void) {
+void bananaDeliveryNpcUpdate(void) {
     PlayerState *playerState;
     s16 angle;
     u8 idx;
@@ -257,7 +257,7 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *actor) {
     gDPPipeSync(gdl++);
     gDPSetCombineMode(gdl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetPrimColor(gdl++, 0, 0, 255, 255, 255, 255);
-    gdl = func_8070068C(gdl);
+    gdl = playerViewSetPrimaryViewport(gdl);
     gdl = textDrawStringVtx(gdl, 1, (s16)((0x140 - textGetStringWidth(1, buf)) << 1), 0xAA, buf, 1);
     n = actor->yawSpeed-- == 0;
     if (n) {

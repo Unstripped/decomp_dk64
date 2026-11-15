@@ -1151,7 +1151,7 @@ void critterInitGroup(CritterGroup *grp) {
     if (grp->count > 0) {
         do {
             critterPlaceInZone(grp->zones, ent, 1);
-            if (func_807142D8() == 0) {
+            if (menuIsTransitionType3Or4() == 0) {
                 critterSetRandomOffset(grp->zones, ent, 1, 1);
             }
             ent->zone = ent->homeZone = grp->zones;

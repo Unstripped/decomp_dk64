@@ -78,8 +78,8 @@ void playerLoadSpawnerAsset(s32);
 #ifndef PROTO_SKIP_playerCheckSpawnerFlagFixup
 void playerCheckSpawnerFlagFixup(s32);
 #endif
-#ifndef PROTO_SKIP_func_806C96C4
-struct G01Pos *func_806C96C4(s32);
+#ifndef PROTO_SKIP_raceGridSpawnPoint
+G01Pos *raceGridSpawnPoint(s32);
 #endif
 #ifndef PROTO_SKIP_func_806C9830
 s8 func_806C9830(s8, Actor *);

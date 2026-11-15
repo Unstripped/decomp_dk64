@@ -621,7 +621,7 @@ extern s8 D_80770DC9;
 
 void playerWarpToSpawnPoint(s32 spawnIndex) {
     PlayerState *ps = gActivePlayerActor->customState;
-    G01Pos *spawn = func_806C96C4(spawnIndex);
+    G01Pos *spawn = raceGridSpawnPoint(spawnIndex);
 
     D_8076AEE2 = 0;
     gGlobalPauseFlags &= ~0x400;
@@ -760,7 +760,7 @@ extern f32 D_8076AEEC;
 extern s16 D_8076AEF0;
 extern G01Pos D_807FC918;
 
-G01Pos *func_806C96C4(s32 spawnIndex) {
+G01Pos *raceGridSpawnPoint(s32 spawnIndex) {
     if (D_8076AEE2 & 1) {
         D_807FC918.x = D_8076AEE4;
         D_807FC918.y = D_8076AEE8;

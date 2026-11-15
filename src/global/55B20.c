@@ -1749,7 +1749,7 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
                                         D_807F7EEC = gChunkLightR[i];
                                         D_807F7EF0 = gChunkLightG[i];
                                         D_807F7EF4 = gChunkLightB[i];
-                                        func_8065C990(cellVtx, cellVtx + gMapCells[k].vtxCount[j], 1, gLightCandidates, obj, gMapChunks[i].lightMode == 1);
+                                        lightApplyToVertices(cellVtx, cellVtx + gMapCells[k].vtxCount[j], 1, gLightCandidates, obj, gMapChunks[i].lightMode == 1);
                                     }
                                 }
                             }
@@ -1769,7 +1769,7 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
                 D_807F7EF0 = gChunkLightG[i];
                 D_807F7EF4 = gChunkLightB[i];
                 if (gGlobalPauseFlags & 0x10) {
-                    func_8065C990((Vtx *)(s32)gMapChunks[i].litVtx[gGfxBufferIndex], (Vtx *)((u8 *)gMapChunks[i].litVtx[gGfxBufferIndex] + gMapChunks[i].vtxSize), 1, gLightCandidates, obj, gMapChunks[i].lightMode == 1);  // FAKE: integer round trip on the first argument loads litVtx into v0 and copies it to a0 (move a0,v0 at 0x4c0c); a plain pointer loads a0 directly
+                    lightApplyToVertices((Vtx *)(s32)gMapChunks[i].litVtx[gGfxBufferIndex], (Vtx *)((u8 *)gMapChunks[i].litVtx[gGfxBufferIndex] + gMapChunks[i].vtxSize), 1, gLightCandidates, obj, gMapChunks[i].lightMode == 1);  // FAKE: integer round trip on the first argument loads litVtx into v0 and copies it to a0 (move a0,v0 at 0x4c0c); a plain pointer loads a0 directly
                 }
             }
             gMapChunks[i].curVtx = gMapChunks[i].litVtx[gGfxBufferIndex];

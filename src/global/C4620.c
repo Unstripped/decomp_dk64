@@ -40,7 +40,7 @@ extern Actor *gPrimaryPlayerActor;
 
 
 
-void func_806BF920(void) {
+void actorKongChainUpdate(void) {
     ScriptedActorState *state;
     s32 outCount;
     s32 bufferSize;
@@ -92,7 +92,7 @@ void func_806BF920(void) {
 }
 
 
-void func_806BFA8C(u16 animId) {
+void actorScriptedAnimSideEffects(u16 animId) {
     switch (animId) {
         case 0xEA:
         case 0x23E:
@@ -128,7 +128,7 @@ void func_806BFA8C(u16 animId) {
 }
 
 
-void func_806BFBB4(void) {
+void actorStepMotionAndBounds(void) {
     controllerStepMotionWindows(gCurrentActor);
     actorUpdateModelMatrix(gCurrentActor, 0);
     actorCheckWorldBounds(gCurrentActor);
@@ -245,7 +245,7 @@ void actorScriptedCommandUpdate(void) {
                     }
                     controllerAnimSetState(gCurrentActor, cmd->param2 - (0 - sScriptAnimBase[cmd->param1]), 0.0f, 0.0f); // FAKE: param2 evaluated before the table lookup (ring order)
                     scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
-                    func_806BFA8C(cmd->param2 - (0 - sScriptAnimBase[cmd->param1])); // FAKE: param2 evaluated before the table lookup (ring order)
+                    actorScriptedAnimSideEffects(cmd->param2 - (0 - sScriptAnimBase[cmd->param1])); // FAKE: param2 evaluated before the table lookup (ring order)
                     break;
                 case 13:
                     if (gCurrentActor->sub4->animId != 0) {
@@ -253,7 +253,7 @@ void actorScriptedCommandUpdate(void) {
                     }
                     controllerAnimSetState(gCurrentActor, cmd->param2 - (0 - sScriptAnimBase[cmd->param1]), 0.0f, 8.0f); // FAKE: param2 evaluated before the table lookup (ring order)
                     scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
-                    func_806BFA8C(cmd->param2 - (0 - sScriptAnimBase[cmd->param1])); // FAKE: param2 evaluated before the table lookup (ring order)
+                    actorScriptedAnimSideEffects(cmd->param2 - (0 - sScriptAnimBase[cmd->param1])); // FAKE: param2 evaluated before the table lookup (ring order)
                     break;
                 case 4:
                     scriptSetActorRampTarget(gCurrentActor, cmd->param1 / 100.0, cmd->param2);
@@ -556,7 +556,7 @@ void func_806C1300(void) {
 }
 
 
-void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 animMax) {
+void actorSetAnimForMoveTier(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 animMax) {
     s16 val;
     s32 ret;
 
@@ -588,7 +588,7 @@ void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 an
 }
 
 
-void func_806C151C(u16 actionId, u8 actionParam, s16 flagId) {
+void actorShowTextOnceWhenNear(u16 actionId, u8 actionParam, s16 flagId) {
     f32 dx;
     f32 dy;
     f32 dz;
@@ -626,7 +626,7 @@ void func_806C1640(void) {
             gCurrentActor->sub4->scaleZ *= 0.8;
         }
     }
-    func_806BF920();
+    actorKongChainUpdate();
     if (gCurrentActor->flags & 0x10000000) {
         actorScriptedCommandUpdate();
     }
@@ -647,7 +647,7 @@ void func_806C1734(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         func_806C15E8();
     }
-    func_806BF920();
+    actorKongChainUpdate();
     if (gCurrentActor->flags & 0x10000000) {
         animFrame = gCurrentActor->sub4->model->frame;
         actorScriptedCommandUpdate();
@@ -690,7 +690,7 @@ void func_806C1734(void) {
     } else {
         func_806C10A0(0, 3, 0x3D8);
         if (flagGet(4, 0)) {
-            func_806C151C(3, 3, 0);
+            actorShowTextOnceWhenNear(3, 3, 0);
         }
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -718,7 +718,7 @@ void func_806C19F4(void) {
     } else {
         func_806C10A0(2, 6, 0x3D9);
         actorTrackBoneTowardTarget(0);
-        func_806C151C(6, 1, 6);
+        actorShowTextOnceWhenNear(6, 1, 6);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -734,7 +734,7 @@ void func_806C1B50(void) {
         func_806C15E8();
         playerKongStopAudioChannels(gCurrentActor, gCurrentActor->actorType);
     }
-    func_806BF920();
+    actorKongChainUpdate();
     if (gCurrentActor->flags & 0x10000000) {
         actorScriptedCommandUpdate();
         if ((gCurrentActor->flags & 4) && gCurrentActor->unk155 != 0) {
@@ -761,7 +761,7 @@ void func_806C1B50(void) {
         }
     } else {
         func_806C10A0(2, 4, 0x3DB);
-        func_806C151C(4, 1, 8);
+        actorShowTextOnceWhenNear(4, 1, 8);
     }
 done:
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -791,7 +791,7 @@ void func_806C1CCC(void) {
     } else {
         func_806C10A0(2, 5, 0x3DA);
         actorTrackBoneTowardTarget(0);
-        func_806C151C(5, 1, 0xF);
+        actorShowTextOnceWhenNear(5, 1, 0xF);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -874,8 +874,8 @@ void func_806C1E44(void) {
             break;
         case 5:
             func_80724A20();
-            func_806C151C(0xA, 1, 7);
-            func_806C13AC(4, 0x4F1, 0x4F7, 0x4F7, 0x4F7);
+            actorShowTextOnceWhenNear(0xA, 1, 7);
+            actorSetAnimForMoveTier(4, 0x4F1, 0x4F7, 0x4F7, 0x4F7);
             if (currentActorTestClearFlag() != 0) {
                 gCurrentActor->state = 0x12;
                 gCurrentActor->unk155 = 0;
@@ -1224,7 +1224,7 @@ void actorScriptedUpdate(void) {
                 scale *= 8.0f;
                 actorSetUniformScale(gCurrentActor, scale);
                 gCurrentActor->roll = 0xC8;
-                func_806BFBB4();
+                actorStepMotionAndBounds();
                 actorSpawnParticlesAlongNodeRanges();
                 break;
             case 0x68:
@@ -1250,7 +1250,7 @@ void actorScriptedUpdate(void) {
         }
     }
     actorGetNodePosOrPosition(gCurrentActor, &nodePosX, &nodePosY, &nodePosZ);
-    func_806BF920();
+    actorKongChainUpdate();
     actorScriptedCommandUpdate();
     gCurrentActor->contactFlags = 0;
     gCurrentActor->prevContactFlags = 0;

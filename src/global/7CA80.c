@@ -1134,7 +1134,7 @@ void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
                 }
                 gActivePlayerState->statusEffectTimer = 0xF0;
             } else if (attacker != NULL && ((attacker->collisionFlags & 1) || (attacker->collisionFlags & 4) || (attacker->collisionFlags & 2))) {
-                if (func_80714608(0) != 0) {
+                if (mpIsMatchType(0) != 0) {
                     if (playerIsSmallerThanAttacker(actor, attacker) != 0) {
                         reaction = 0x31;
                     } else {

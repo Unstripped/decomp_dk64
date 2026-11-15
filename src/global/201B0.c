@@ -586,7 +586,7 @@ void camSetTarget(Actor *camActor, Actor *targetActor, u8 mode, s16 angleY, s16 
         p->unk14 = duration;
         p->unk18 = stepRatio;
         if (s->unkF3 == 3) {
-            func_806EAB44(gPrimaryPlayerActor, 0);
+            playerLeaveViewMode(gPrimaryPlayerActor, 0);
         }
         s->unkF3 = mode;
     } else {
@@ -635,7 +635,7 @@ void camSetTargetScaled(Actor *camActor, Actor *targetActor, u8 mode, s16 angleY
         p->unk14 = duration;
         p->unk18 = stepRatio;
         if (s->unkF3 == 3) {
-            func_806EAB44(gPrimaryPlayerActor, 0);
+            playerLeaveViewMode(gPrimaryPlayerActor, 0);
         }
         s->unkF3 = mode;
         gGlobalPauseFlags |= 0x2000;
@@ -1171,7 +1171,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
     case 0:
         if (!(st->unkAC & 0x100)) {
             if (0.0f < gScreenFadeRate) {
-                if (func_807142D8() == 0) {
+                if (menuIsTransitionType3Or4() == 0) {
                     return;
                 }
             }
@@ -2114,7 +2114,7 @@ u8 camShouldAutoRotate(Actor *camActor, CamState *st, Actor *target) {
         || (gGlobalOverlayFlags & 0x8000000)
         || (st->unkAC & 4)
         || ((st->unkAC & 8) && target->speedXZ != 0.0f)
-        || (D_80744530 == 1 && target->speedXZ != 0.0f && func_807142D8() == 0)
+        || (D_80744530 == 1 && target->speedXZ != 0.0f && menuIsTransitionType3Or4() == 0)
         || st->unkF3 == 0xA
         || st->unkF3 == 0xD
         || st->unkF3 == 5

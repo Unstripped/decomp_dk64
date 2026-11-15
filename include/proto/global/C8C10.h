@@ -2,14 +2,14 @@
 #ifndef PROTO_GLOBAL_C8C10_H
 #define PROTO_GLOBAL_C8C10_H
 #include "common.h"
-#ifndef PROTO_SKIP_func_806C3F10
-void func_806C3F10(u8, u8, u8);
+#ifndef PROTO_SKIP_actorCarryMiniPlayerUpdate
+void actorCarryMiniPlayerUpdate(u8, u8, u8);
 #endif
-#ifndef PROTO_SKIP_func_806C43A8
-void func_806C43A8(void);
+#ifndef PROTO_SKIP_actorRestoreMapMusic
+void actorRestoreMapMusic(void);
 #endif
-#ifndef PROTO_SKIP_func_806C4414
-void func_806C4414(s32, s32, s32, s32, s32, s32, s32);
+#ifndef PROTO_SKIP_actorCountGoalRewardUpdate
+void actorCountGoalRewardUpdate(s32, s32, s32, s32, s32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_func_806C4904
 void func_806C4904(void);
@@ -23,8 +23,8 @@ void func_806C498C(void);
 #ifndef PROTO_SKIP_func_806C49D0
 void func_806C49D0(void);
 #endif
-#ifndef PROTO_SKIP_func_806C4AC4
-u8 func_806C4AC4(u16, u16);
+#ifndef PROTO_SKIP_actorSpawnNumberedTargetsUpdate
+u8 actorSpawnNumberedTargetsUpdate(u16, u16);
 #endif
 #ifndef PROTO_SKIP_func_806C4E8C
 void func_806C4E8C(void);

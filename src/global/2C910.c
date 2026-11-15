@@ -354,7 +354,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             }
             break;
         case 0x3F:
-            func_80713EB0(a, b, c);
+            menuTransitionToMapIfUnlocked(a, b, c);
             return;
         case 0x2A:
             p = spawnNodeActivate(a, 0);

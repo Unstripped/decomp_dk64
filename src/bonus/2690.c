@@ -1268,7 +1268,7 @@ void bonusLightFlashTargetUpdate(void) {
                 base->targetsLeft += 1;
             }
         }
-        func_806BF920();
+        actorKongChainUpdate();
     } else {
         gCurrentActor->flags |= 0x1000;
         gCurrentActor->yaw += 0x12C;

@@ -1141,7 +1141,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                     projectileGetTargetCoords(gActivePlayerActor, gActivePlayerState->gunHand + 9);
                     projectileSpawnNodeEntry(spawnId, flags, scale, gActivePlayerActor->yaw, D_80753E2C[gCurrentCharacterIndex], 0.0f, gActivePlayerActor);
                 }
-                if ((func_80714608(0) != 0) && (slotQueueGetValue(sel, gCurrentPlayerIndex) == 0)) {
+                if ((mpIsMatchType(0) != 0) && (slotQueueGetValue(sel, gCurrentPlayerIndex) == 0)) {
                     playerKongStopSoundByState(gCurrentActor);
                     playerResumeLocomotion(gCurrentActor);
                 }
@@ -1232,10 +1232,10 @@ extern s32 gGlobalOverlayFlags;
 u8 playerInputCanFireWeapon(void) {
     s32 ok;
 
-    ok = !func_80714608(0) && !(gGlobalOverlayFlags & 0x200) && slotQueueGetValue(4, gCurrentPlayerIndex) &&
+    ok = !mpIsMatchType(0) && !(gGlobalOverlayFlags & 0x200) && slotQueueGetValue(4, gCurrentPlayerIndex) &&
            gPlayerCharacterId[gCurrentPlayerIndex] < 6 &&
            actorCountOwnedByClass(gCurrentActor, 4, 0) < D_80753E64[gCurrentCharacterIndex] &&
-           (flagGet(0x184, 0) || (gGlobalOverlayFlags & 0x10000000) || gPlayerCount >= 2 || func_807142D8() ||
+           (flagGet(0x184, 0) || (gGlobalOverlayFlags & 0x10000000) || gPlayerCount >= 2 || menuIsTransitionType3Or4() ||
             menuIsTransitionTypeC());
     return ok;
 }
@@ -1711,7 +1711,7 @@ void playerInputHandleBButtonGun(void) {
             gActivePlayerState->slideLaunchSpeed = D_8075380C[gCurrentCharacterIndex];
         }
     } else {
-        if (!func_80714608(0) && (D_807531E0[gCurrentCharacterIndex] <= gActivePlayerState->unk20) && (gCurrentActor->floorSlopeFactor == 0.0f)) {
+        if (!mpIsMatchType(0) && (D_807531E0[gCurrentCharacterIndex] <= gActivePlayerState->unk20) && (gCurrentActor->floorSlopeFactor == 0.0f)) {
             actorScriptStartByIndex(gCurrentActor, 0x44);
             gCurrentActor->state = 0x29;
             gCurrentActor->unk155 = 0;
@@ -1899,8 +1899,8 @@ void playerInputHandleZButtonFire(void) {
                 playerPlayKongSpecificSfx(gCurrentActor);
             }
             gActivePlayerState->gunDrawn = 0;
-            func_806EAB44(gCurrentActor, 0);
-        } else if (!func_80714608(0) && !(gGlobalOverlayFlags & 0x80000200) && (gCurrentKongInventory->weaponFlags & 1) &&
+            playerLeaveViewMode(gCurrentActor, 0);
+        } else if (!mpIsMatchType(0) && !(gGlobalOverlayFlags & 0x80000200) && (gCurrentKongInventory->weaponFlags & 1) &&
                    !(gActivePlayerState->stateFlags & 0x30) &&
                    (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1)) {
             playerToggleGun(gCurrentActor, gActivePlayerState, 1);
@@ -1920,8 +1920,8 @@ void playerInputHandleZButtonShoot(void) {
                 playerPlayKongSpecificSfx(gCurrentActor);
             }
             gActivePlayerState->gunDrawn = 0;
-            func_806EAB44(gCurrentActor, 0);
-        } else if (!func_80714608(0) && !(gGlobalOverlayFlags & 0x200) && (gCurrentKongInventory->weaponFlags & 1) &&
+            playerLeaveViewMode(gCurrentActor, 0);
+        } else if (!mpIsMatchType(0) && !(gGlobalOverlayFlags & 0x200) && (gCurrentKongInventory->weaponFlags & 1) &&
                    (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1)) {
             playerToggleGun(gCurrentActor, gActivePlayerState, 1);
             gPlayerSlots[gCurrentPlayerIndex].fov = 45.0f;
@@ -1931,7 +1931,7 @@ void playerInputHandleZButtonShoot(void) {
 }
 
 void playerInputUpdateStickSwimming(void) {
-    if (func_80714608(0)) {
+    if (mpIsMatchType(0)) {
         if (((gCurrentActor->state == 0x31) || (gCurrentActor->state == 0x32)) && (gActivePlayerState->gunDrawn == 0)) {
             playerInputHandleAButtonFire();
         }
@@ -1961,7 +1961,7 @@ void playerInputCheckInstrumentPlayback(void) {
         (gPlayerSlots[gCurrentPlayerIndex].unk2C0 != 2) &&
         (playerInputCheckTargetMoved(gCurrentActor) == 0) && (actorAnyActiveHasFlag2000000() == 0) &&
         (gActivePlayerState->damageCooldown == 0)) {
-        isTarget = func_806E560C(gCurrentActor);
+        isTarget = playerIsOnOwnInstrumentPad(gCurrentActor);
         if ((gCurrentMap != 0xCD) || (isTarget != 0)) {
             if ((slotQueueGetValue(7, gCurrentPlayerIndex) != 0) || (isTarget != 0)) {
                 playerStateQueueCallback(0x53, 0, gActivePlayerState->playerIndex);
@@ -2012,7 +2012,7 @@ u8 playerInputCheckTargetMoved(Actor *mob) {
     return 0;
 }
 
-int func_806E560C(Actor *mob) {
+int playerIsOnOwnInstrumentPad(Actor *mob) {
     u8 ret;
 
     ret = 0;
@@ -2168,7 +2168,7 @@ void playerInputStartTransitionToMap(s32 mapId, s32 fade, s32 unused) {
 
 extern u8 gSplitScreenMode;
 
-int func_806E5C74(void) {
+int playerInputCanSlam(void) {
     f32 fv;
     f32 t;
 
@@ -2185,7 +2185,7 @@ int func_806E5C74(void) {
 
 
 void playerInputCheckEnterLongJump(void) {
-    if (func_806E5C74() != 0) {
+    if (playerInputCanSlam() != 0) {
         switch (gCurrentKongInventory->slamLevel) {
             case 2:
                 actorScriptStartByIndex(gCurrentActor, 0x17);
@@ -2225,7 +2225,7 @@ void playerInputQueueCrouchCallbackDirect(void) {
 void playerInputHandleBButtonMusicalInstrument(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gCurrentKongInventory->weaponFlags & 1) &&
         (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) && !(gActivePlayerState->stateFlags & 0x30) &&
-        (func_80714608(0) == 0)) {
+        (mpIsMatchType(0) == 0)) {
         playerStateQueueCallback(0x14, 0, gCurrentPlayerIndex);
     }
 }
@@ -2233,7 +2233,7 @@ void playerInputHandleBButtonMusicalInstrument(void) {
 void playerInputHandleBButtonFairyCamera(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gCurrentKongInventory->weaponFlags & 1) && !(gGlobalOverlayFlags & 0x200) &&
         (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) && !(gActivePlayerState->stateFlags & 0x30) &&
-        (func_80714608(0) == 0)) {
+        (mpIsMatchType(0) == 0)) {
         playerStateQueueCallback(0x15, 0, gCurrentPlayerIndex);
     }
 }
@@ -2280,7 +2280,7 @@ extern f32 gScreenFadeProgress;
 
 void playerInputRequestPause(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x1000) && (camIsCutsceneActive() == 0) && (gScreenFadeProgress == 0.0f) &&
-        ((menuIsTransitionType6() != 0) || (menuIsTransitionTypeC() != 0) || (func_807142D8() != 0)) &&
+        ((menuIsTransitionType6() != 0) || (menuIsTransitionTypeC() != 0) || (menuIsTransitionType3Or4() != 0)) &&
         (screenWipeGetState() == 0) && (screenWipeGetCooldown() == 0)) {
         gPausingPlayer = gCurrentPlayerIndex;
         gGlobalPauseFlags |= 1;
@@ -2633,7 +2633,7 @@ void playerInputHandleBButtonDashAttack(void) {
 
 void playerInputHandleCDownFairyCheck(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 4) && !(gGlobalOverlayFlags & 2)) {
-        func_806E9804(8);
+        playerInputTryEnterFairyCamera(8);
         return;
     }
     gActivePlayerState->subTimer = gCurrentActor->roll;
@@ -2659,7 +2659,7 @@ void playerInputHandleCDownCameraSnap(void) {
 
     btn = gPlayerPadState[gCurrentPlayerIndex].pressedButtons;
     if ((btn & 4) && !(gGlobalOverlayFlags & 2)) {
-        func_806E9804(8);
+        playerInputTryEnterFairyCamera(8);
         return;
     }
     if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
@@ -3259,7 +3259,7 @@ void func_806E8F04(void) {
     gCurrentActor->unk155 = 0;
 }
 
-void func_806E8F68(void) {
+void playerInputHandleAButtonJumpOff(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) && !(gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x10)) {
         gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
@@ -3293,7 +3293,7 @@ void func_806E9070(void) {
 }
 
 
-void func_806E918C(void) {
+void playerInputHandleRButtonFixedLook(void) {
     f32 x1;
     f32 y1;
     f32 z1;
@@ -3413,28 +3413,28 @@ s32 playerInputPostUpdate(void) {
     return ret;
 }
 
-void func_806E9804(s16 callbackId) {
+void playerInputTryEnterFairyCamera(s16 callbackId) {
     if (flagGet(0x179, 0)) {
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 4) {
-            func_806E9D1C(callbackId, 0xB, 0);
+            playerTryEnterViewMode(callbackId, 0xB, 0);
         }
     }
 }
 
-void func_806E9874(void) {
+void playerInputTryEnterFairyCameraOnLand(void) {
     if (!(gGlobalOverlayFlags & 2) && (gPlayerCharacterId[gCurrentPlayerIndex] < 5)) {
-        func_806E9804(6);
+        playerInputTryEnterFairyCamera(6);
         gPlayerSlots[gCurrentPlayerIndex].fov = 45.0f;
     }
 }
 
-void func_806E98F8(void) {
+void playerInputHandleCDownFairyCamera(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000) && ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC) == 4)) {
-        func_806E9874();
+        playerInputTryEnterFairyCameraOnLand();
     }
 }
 
-void func_806E9964(PlayerState *ps) {
+void playerLeaveFairyCamera(PlayerState *ps) {
     Actor *a;
     s32 flag;
 
@@ -3442,38 +3442,38 @@ void func_806E9964(PlayerState *ps) {
     flag = (a->state == 5) || (a->state == 0x65);
     if ((gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000) && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 4)) {
         if (flag) {
-            func_806E9D1C(7, 3, 0);
+            playerTryEnterViewMode(7, 3, 0);
         } else {
-            func_806E9D1C(5, 3, 0);
+            playerTryEnterViewMode(5, 3, 0);
         }
     } else {
-        func_806EAB44(a, flag);
+        playerLeaveViewMode(a, flag);
     }
     slotQueueCancel(6, 1);
     slotQueueCancel(0xC, 1);
     ps->stateFlags &= ~0x8000;
 }
 
-void func_806E9A5C(void) {
+void playerInputHandleCUpLeaveFairyCamera(void) {
     if (!(gActivePlayerState->stateFlags & 0x8000) && ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC) == 8)) {
-        func_806E9964(gActivePlayerState);
+        playerLeaveFairyCamera(gActivePlayerState);
     }
 }
 
-void func_806E9ACC(void) {
+void playerInputHandleCDownLeaveFairyCamera(void) {
     if (!(gActivePlayerState->stateFlags & 0x8000) && ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC) == 4)) {
-        func_806E9964(gActivePlayerState);
+        playerLeaveFairyCamera(gActivePlayerState);
     }
 }
 
-void func_806E9B3C(void) {
+void playerInputHandleZButtonLeaveFairyCamera(void) {
     if (!(gActivePlayerState->stateFlags & 0x8000) && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 4)) {
-        func_806E9964(gActivePlayerState);
+        playerLeaveFairyCamera(gActivePlayerState);
     }
 }
 
 
-void func_806E9BA8(s32 newState) {
+void playerInputTakeFairyPhoto(s32 newState) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
         if (!(gActivePlayerState->stateFlags & 0x8000)) {
             if (slotQueueGetValue(6, gCurrentPlayerIndex) > 0) {
@@ -3487,16 +3487,16 @@ void func_806E9BA8(s32 newState) {
     }
 }
 
-void func_806E9CDC(void) {
-    func_806E9BA8(0x64);
+void playerInputHandleBButtonFairyPhoto(void) {
+    playerInputTakeFairyPhoto(0x64);
 }
 
-void func_806E9CFC(void) {
-    func_806E9BA8(0x65);
+void playerInputHandleBButtonFairyPhotoInWater(void) {
+    playerInputTakeFairyPhoto(0x65);
 }
 
 
-s32 func_806E9D1C(s16 callbackId, u8 param1, u8 param2) {
+s32 playerTryEnterViewMode(s16 callbackId, u8 param1, u8 param2) {
     if (((gPlayerCount < 2) || (gSplitScreenMode != 1)) && (gScreenFadeProgress == 0.0f) && (gCurrentActor->floorSlopeFactor == 0.0f)) {
         playerStateSetCallbackParameters(gCurrentPlayerIndex, param1, param2, 0);
         playerStateQueueCallback(callbackId, 0, gCurrentPlayerIndex);
@@ -3513,11 +3513,11 @@ void playerInputHandleCUpCameraZoomIn(void) {
 
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) {
         state = gActivePlayerState->camActor->customState;
-        if ((func_80714608(0) == 0) && !(state->unkAC & 0x80000000)) {
+        if ((mpIsMatchType(0) == 0) && !(state->unkAC & 0x80000000)) {
             act = gCurrentActor->state;
             if (((act == 0x5D || act == 0x5E || act == 0x62) && !(gGlobalOverlayFlags & 0x80000000)) || act == 0x4E || act == 0x4F ||
                 act == 0xD || act == 0xC) {
-                func_806E9D1C(5, 3, 0);
+                playerTryEnterViewMode(5, 3, 0);
             }
         }
     }
@@ -3526,13 +3526,13 @@ void playerInputHandleCUpCameraZoomIn(void) {
 
 
 
-void func_806E9ECC(void) {
+void playerInputHandleCLeftEnterFirstPerson(void) {
     CamState *state;
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) && (gCurrentActor->contactFlags & 1)) {
         state = gActivePlayerState->camActor->customState;
-        if ((func_80714608(0) == 0) && !(state->unkAC & 0x80000000) && !(gGlobalOverlayFlags & 0x80000000)) {
-            func_806E9D1C(5, 3, 1);
+        if ((mpIsMatchType(0) == 0) && !(state->unkAC & 0x80000000) && !(gGlobalOverlayFlags & 0x80000000)) {
+            playerTryEnterViewMode(5, 3, 1);
         }
     }
 }
@@ -3542,15 +3542,15 @@ void playerInputHandleCUpMode7(void) {
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) && (gCurrentActor->contactFlags & 1)) {
         state = gActivePlayerState->camActor->customState;
-        if ((func_80714608(0) == 0) && !(state->unkAC & 0x80000000) && !(gGlobalOverlayFlags & 0x80000000)) {
-            func_806E9D1C(5, 3, 1);
+        if ((mpIsMatchType(0) == 0) && !(state->unkAC & 0x80000000) && !(gGlobalOverlayFlags & 0x80000000)) {
+            playerTryEnterViewMode(5, 3, 1);
         }
     }
 }
 
-void func_806EA04C(void) {
+void playerInputHandleCUpEnterFirstPersonInWater(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) {
-        func_806E9D1C(7, 3, 0);
+        playerTryEnterViewMode(7, 3, 0);
     }
 }
 
@@ -3657,7 +3657,7 @@ void cameraZoomStopSound(void) {
 
 void playerInputPostUpdateFirstPerson(void) {
     if (playerInputPostUpdate()) {
-        func_806EAB44(gCurrentActor, 1);
+        playerLeaveViewMode(gCurrentActor, 1);
     }
 }
 
@@ -3692,63 +3692,63 @@ void aimUpdateFromStick(void) {
 
 void playerInputHandleAButtonAimRight(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC000) == 0x8000) {
-        func_806EAB44(gCurrentActor, 0);
+        playerLeaveViewMode(gCurrentActor, 0);
     }
 }
 
 void playerInputHandleBButtonAimLeft(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC000) == 0x4000) {
-        func_806EAB44(gCurrentActor, 0);
+        playerLeaveViewMode(gCurrentActor, 0);
     }
 }
 
 void playerInputHandleAButtonAimUp(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC000) == 0x8000) {
-        func_806EAB44(gCurrentActor, 1);
+        playerLeaveViewMode(gCurrentActor, 1);
     }
 }
 
 void playerInputHandleBButtonAimDown(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC000) == 0x4000) {
-        func_806EAB44(gCurrentActor, 1);
+        playerLeaveViewMode(gCurrentActor, 1);
     }
 }
 
-void func_806EA958(void) {
+void playerInputHandleCUpLeaveFirstPerson(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC) == 8) {
-        func_806EAB44(gCurrentActor, 0);
+        playerLeaveViewMode(gCurrentActor, 0);
     }
 }
 
 
-void func_806EA9B4(void) {
+void playerInputHandleCDownLeaveFirstPerson(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000) && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 4)) {
-        func_806E9874();
+        playerInputTryEnterFairyCameraOnLand();
         return;
     }
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC) == 4) {
-        func_806EAB44(gCurrentActor, 0);
+        playerLeaveViewMode(gCurrentActor, 0);
     }
 }
 
-void func_806EAA44(void) {
+void playerInputHandleCUpLeaveFirstPersonInWater(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC) == 8) {
-        func_806EAB44(gCurrentActor, 1);
+        playerLeaveViewMode(gCurrentActor, 1);
     }
 }
 
-void func_806EAAA0(void) {
+void playerInputHandleCDownLeaveFirstPersonInWater(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x2000) && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 4) && !(gGlobalOverlayFlags & 2)) {
-        func_806E9804(8);
+        playerInputTryEnterFairyCamera(8);
         return;
     }
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0xC) == 4) {
-        func_806EAB44(gCurrentActor, 1);
+        playerLeaveViewMode(gCurrentActor, 1);
     }
 }
 
 
-void func_806EAB44(Actor *actor, u8 isFirstPerson) {
+void playerLeaveViewMode(Actor *actor, u8 isFirstPerson) {
     PlayerState *state;
 
     state = actor->customState;
@@ -3814,7 +3814,7 @@ void func_806EACBC(void) {
     }
 }
 
-void func_806EACEC(void) {
+void playerInputHandleAButtonGroundJump(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
         gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
@@ -3841,7 +3841,7 @@ void func_806EAE04(void) {
     }
 }
 
-void func_806EAE60(void) {
+void playerInputWiggleOffStatusEffect(void) {
     PadInputState *pad;
     s32 v;
 

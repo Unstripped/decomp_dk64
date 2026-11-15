@@ -9,38 +9,38 @@ Gfx *playerViewGfxSetup(Gfx *, u8);
 #ifndef PROTO_SKIP_func_806FEF7C
 Gfx *func_806FEF7C(Gfx *, Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806FF01C
-Gfx *func_806FF01C(Gfx *, Actor *);
+#ifndef PROTO_SKIP_playerViewDrawCrosshair
+Gfx *playerViewDrawCrosshair(Gfx *, Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806FF144
-Gfx *func_806FF144(Gfx *);
+#ifndef PROTO_SKIP_playerViewDrawCornerMasks
+Gfx *playerViewDrawCornerMasks(Gfx *);
 #endif
-#ifndef PROTO_SKIP_func_806FF32C
-void func_806FF32C(Gfx *, Actor *);
+#ifndef PROTO_SKIP_playerViewCornerMasksCallback
+void playerViewCornerMasksCallback(Gfx *, Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806FF358
-Gfx *func_806FF358(Gfx *, Actor *);
+#ifndef PROTO_SKIP_playerViewDrawCameraViewfinder
+Gfx *playerViewDrawCameraViewfinder(Gfx *, Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806FF628
-Gfx *func_806FF628(Gfx *, Actor *);
+#ifndef PROTO_SKIP_playerViewDrawPhotoResult
+Gfx *playerViewDrawPhotoResult(Gfx *, Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806FF75C
-Gfx *func_806FF75C(Gfx *, Actor *);
+#ifndef PROTO_SKIP_playerViewDrawScopeCrosshair
+Gfx *playerViewDrawScopeCrosshair(Gfx *, Actor *);
 #endif
-#ifndef PROTO_SKIP_func_806FFB2C
-void func_806FFB2C(Gfx *, Actor *);
+#ifndef PROTO_SKIP_playerViewDrawCameraShutter
+void playerViewDrawCameraShutter(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_color5551ToSepia
 u16 color5551ToSepia(u16);
 #endif
-#ifndef PROTO_SKIP_func_806FFEAC
-u16 *func_806FFEAC(u16 *, u16 *);
+#ifndef PROTO_SKIP_sepiaCopyFramebufferTile
+u16 *sepiaCopyFramebufferTile(u16 *, u16 *);
 #endif
 #ifndef PROTO_SKIP_func_806FFF5C
 void func_806FFF5C(void);
 #endif
-#ifndef PROTO_SKIP_func_806FFF88
-u16 *func_806FFF88(void);
+#ifndef PROTO_SKIP_playerViewCaptureSepiaPhoto
+u16 *playerViewCaptureSepiaPhoto(void);
 #endif
 #ifndef PROTO_SKIP_color5551LerpToWhite
 u16 color5551LerpToWhite(f32, u16);
@@ -51,8 +51,8 @@ void color5551CopyLerpToWhite(u16 *, s16 **, f32);
 #ifndef PROTO_SKIP_lensFlareAddSource
 void lensFlareAddSource(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8);
 #endif
-#ifndef PROTO_SKIP_func_8070068C
-Gfx *func_8070068C(Gfx *);
+#ifndef PROTO_SKIP_playerViewSetPrimaryViewport
+Gfx *playerViewSetPrimaryViewport(Gfx *);
 #endif
 #ifndef PROTO_SKIP_lensFlareBuildDisplayList
 Gfx *lensFlareBuildDisplayList(Gfx *);

@@ -307,7 +307,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     hudFlags = managerData->hudFlags;
     if (hudFlags & 4) {
-        lap = (lap < managerData->unk24) ? lap : managerData->unk24;
+        lap = (lap < managerData->lapCount) ? lap : managerData->lapCount;
         lap = (lap >= 2) ? lap : 1;
         lapStr = textTableGetString(0x26, 0xB, 1);
         ofStr = textTableGetString(0x26, 0xC, 1);
@@ -315,7 +315,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceParticipant *tracker) {
         len += strlen(ofStr);
         textBuf = heapAlloc(len + 8);
         heapFreeDeferred(textBuf);
-        _sprintf(textBuf, "%s %d %s %d", lapStr, lap, ofStr, managerData->unk24);
+        _sprintf(textBuf, "%s %d %s %d", lapStr, lap, ofStr, managerData->lapCount);
         dl = textDrawStringVtx(dl, 1, (s16)(s32)(2.0f * (f32)(textX * 4)), (s16)(s32)(2.0f * (f32)(textY * 4)), textBuf, 4);
         g0 = dl++;
         g0->words.w0 = 0xDA380007; g0->words.w1 = (u32)&D_20000C0; // LAYOUT: same-line stores steer the ori/addiu schedule
@@ -350,7 +350,7 @@ Gfx *raceRenderHud(Gfx *dl, Actor *actor, RaceParticipant *tracker) {
     PlayerState *playerState;
 
     managerData = tracker->actor->customState;
-    if (tracker == NULL || func_807142D8() != 0) {
+    if (tracker == NULL || menuIsTransitionType3Or4() != 0) {
         return dl;
     }
     playerActor = gPlayerSlots[tracker->playerIdx].actor;
@@ -454,7 +454,7 @@ void raceInitCarRaceManager(void) {
     managerData->minimapSprites[1] = 0x47;
     managerData->minimapSprites[2] = 0x48;
     managerData->minimapSprites[3] = 0x49;
-    managerData->unk24 = 2;
+    managerData->lapCount = 2;
 }
 
 
@@ -465,7 +465,7 @@ void raceInitGenericRaceManager(void) {
     managerData = gSpawnedActor->customState;
     raceInitParticipants(gSpawnedActor);
     managerData->hudFlags = 0xE;
-    managerData->unk24 = 2;
+    managerData->lapCount = 2;
 }
 
 void raceInitCompetitorRaceManager(void) {
@@ -475,7 +475,7 @@ void raceInitCompetitorRaceManager(void) {
     managerData = gSpawnedActor->customState;
     raceSpawnCompetitors(gSpawnedActor);
     managerData->hudFlags = 0xE;
-    managerData->unk24 = 2;
+    managerData->lapCount = 2;
 }
 
 void raceInitBeetleRaceManager(void) {
@@ -485,7 +485,7 @@ void raceInitBeetleRaceManager(void) {
     managerData = gSpawnedActor->customState;
     raceInitBeetleRaceParticipants(gSpawnedActor);
     managerData->hudFlags = 2;
-    managerData->unk24 = 1;
+    managerData->lapCount = 1;
 }
 
 extern Actor *gCurrentActor;
@@ -672,7 +672,7 @@ void raceUpdateStandings(void) {
     q = base;
     for (i = 0; i < managerData->participantCount; i++, q++) {
         q->data->place = i;
-        if (q->data->unk45 != 0 || (q->data->raceStatus == 2 && managerData->unk24 < q->data->lap)) {
+        if (q->data->unk45 != 0 || (q->data->raceStatus == 2 && managerData->lapCount < q->data->lap)) {
             raceSetParticipantRaceStatus(q, 3);
             cnt++;
         }
@@ -789,7 +789,7 @@ void raceManagerBehaviorUpdate(void) {
         break;
     }
     raceUpdateWaypointActivation(managerData);
-    if (func_807142D8() == 0) {
+    if (menuIsTransitionType3Or4() == 0) {
         if (gCurrentActor->state > 0 && gCurrentActor->state < 5) {
             renderCallbacksRegister(raceRenderMinimapAndCountdown, gCurrentActor, 3);
         }

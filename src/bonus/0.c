@@ -51,7 +51,7 @@ Gfx *bonusRenderCounterHud(Gfx *gdl, Actor *actor) {
 
     if (hudCanRender()) {
         gSPDisplayList(gdl++, &D_1000118);
-        gdl = func_8070068C(gdl);
+        gdl = playerViewSetPrimaryViewport(gdl);
         gDPSetCombineMode(gdl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor(gdl++, 0, 0, 255, 255, 255, 255);
         gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -93,7 +93,7 @@ extern s32 gCurrentMap;
 extern s16 D_8076AEF2;
 extern u16 D_80744508;
 extern s16 D_80750AC4;
-extern s32 D_8002D860[];
+extern s32 sBonusChallengeResources[];
 
 
 void bonusControllerUpdate(void) {
@@ -317,7 +317,7 @@ render:
             if (D_8076AEF2 == 0x11) {
                 resQueueSetValue(2);
             }
-            resQueueAttachActor(gCurrentActor, 0, D_8002D860[challengeType]);
+            resQueueAttachActor(gCurrentActor, 0, sBonusChallengeResources[challengeType]);
             counter->setupStep += 1;
         }
         break;

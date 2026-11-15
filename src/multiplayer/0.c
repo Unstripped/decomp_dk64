@@ -495,7 +495,7 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
     if (leaderIndex == -1) {
         if (controllerState->crownSpawnDelay == 0 && actorFindByType(0x7A) == 0 && mpFindModelSlotByType(0x1D2) == 0) {
             if (delayedSpawnQueueContains(0x1D2, 0, spawnPoint->x, spawnPoint->y, spawnPoint->z) == 0) {
-                func_806F5FE8(0x1D2, spawnPoint->x, spawnPoint->y, spawnPoint->z, 10);
+                delayedSpawnQueueAddModel(0x1D2, spawnPoint->x, spawnPoint->y, spawnPoint->z, 10);
             }
         }
     } else if (D_807552E4.gameMode == 5 && mpGetPlayerScore(leaderIndex) >= D_807552E4.limit) {
@@ -563,7 +563,7 @@ void mpUpdateItemSpawns(void) {
                     for (k = 0; k < itemCount; k++) {
                         f32 x = centerX + mathSinF(angle) * radius;
                         f32 z = centerZ + mathCosF(angle) * radius;
-                        func_806F5F2C(0x7A, spawnDelay, (s16) x, spawnY, (s32) z);
+                        delayedSpawnQueueAddActor(0x7A, spawnDelay, (s16) x, spawnY, (s32) z);
                         angle += angleStep;
                         angle &= 0xFFF;
                     }
@@ -625,7 +625,7 @@ void mpApplyPendingEffect(s32 playerIndex) {
     switch (playerState->unk264) {
     case 0:
         playerSetSizeMode(playerActor, 2);
-        func_806F54E0(playerIndex, 0x8E, 0);
+        gridCollectItem(playerIndex, 0x8E, 0);
         break;
     case 1:
         for (i = 0; i < gPlayerCount; i++) {
@@ -640,7 +640,7 @@ void mpApplyPendingEffect(s32 playerIndex) {
     case 2:
         playerState->stateFlags |= 0x20;
         playerState->stateFlags &= ~0x08000000;
-        func_806F54E0(playerIndex, 0x8E, 0);
+        gridCollectItem(playerIndex, 0x8E, 0);
         break;
     case 3:
         actorSpawnEffectChild(playerActor->x, playerActor->y, playerActor->z, 0.1f, 0.1f, playerActor, 1);
@@ -649,7 +649,7 @@ void mpApplyPendingEffect(s32 playerIndex) {
         switch ((u32) (randomNonNegative() >> 15) % 5U) {
         case 0:
             playerSetSizeMode(playerActor, 0);
-            func_806F54E0(playerIndex, 0x8E, 0);
+            gridCollectItem(playerIndex, 0x8E, 0);
             break;
         case 1:
             playerState->statusEffectTimer = 0x96;
@@ -750,7 +750,7 @@ void mpUpdate(void) {
         case 2:
             if (spawnCrown != 0) {
                 MpSpawnPoint *spawnPoint = mpFindCurrentMapEntry()->items;
-                func_806F5FE8(0x1D2, spawnPoint->x, spawnPoint->y, spawnPoint->z, 10);
+                delayedSpawnQueueAddModel(0x1D2, spawnPoint->x, spawnPoint->y, spawnPoint->z, 10);
             }
             break;
         case 4:
@@ -905,7 +905,7 @@ void mpResetPlayerOnRespawn(Actor *playerActor, PlayerState *kongState, PlayerIn
     playerActor->flags &= ~0x20000000;
     kongState->hitSourcePlayerIndex = -1;
     kongState->hitSourceSpawnNodeId = 0;
-    if (func_80714608(0) != 0) {
+    if (mpIsMatchType(0) != 0) {
         gActivePlayerState->unk21E = 0;
     }
     if (D_807552E4.gameMode == 3 || D_807552E4.gameMode == 5) {
@@ -982,7 +982,7 @@ s32 mpFindFurthestSpawn(s32 playerIndex) {
 
     for (i = 0; i < 4; i++) {
         nearestDist = 9999999.0f;
-        spawn = func_806C96C4(i);
+        spawn = raceGridSpawnPoint(i);
         for (j = 0; j < gPlayerCount; j++) {
             playerActor = gPlayerSlots[j].actor;
             if (gPlayerSlots[j].active != 0 && playerActor->state != 0x84) {

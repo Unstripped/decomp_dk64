@@ -184,7 +184,7 @@ f32 raceGetCompletionFraction(RacePathState *cursor, RaceParticipant *state, Rac
     if (lap > 0) {
         count = gMinecartTrackPoints[cursor->lane + 1] - gMinecartTrackPoints[cursor->lane];
         num = (lap - 1) * count + state->unk3A;
-        den = leaderState->unk24 * count;
+        den = leaderState->lapCount * count;
         result = num / den;
     }
     return result;
@@ -397,7 +397,7 @@ void raceOpponentCarBehaviorUpdate(void) {
         aux->unk10 = 1;
         raceSetPiecewiseCurveMode(aux, 5, D_8002FBD0, D_8002FC00);
         state->raceStatus = 0;
-        if ((flagGet(0x12, 2) == 0) && (flagGet(0x8B, 0) == 0) && (func_807142D8() == 0)) {
+        if ((flagGet(0x12, 2) == 0) && (flagGet(0x8B, 0) == 0) && (menuIsTransitionType3Or4() == 0)) {
             camStartPath(gCurrentActor, 0, 1);
             flagSet(0x12, 1, 2);
         } else {
@@ -411,7 +411,7 @@ void raceOpponentCarBehaviorUpdate(void) {
         raceHandleCollisionRumble(cursor);
     } else if (gActorGlobalState.bossFightPhase == 5) {
         cursor->stunTimer = 0x1E;
-        cursor->unk20 = 0.0f;
+        cursor->shakeRoll = 0.0f;
     }
     if (*flagPtr != 0) {
         (*flagPtr)--;
@@ -420,9 +420,9 @@ void raceOpponentCarBehaviorUpdate(void) {
     if (cursorVal != 0) {
         unclampedVal = (f32)cursorVal;
         if (unclampedVal > 10.0f) {
-            cursor->unk20 = (unclampedVal - 10.0f) * 204.8f;
+            cursor->shakeRoll = (unclampedVal - 10.0f) * 204.8f;
         } else {
-            cursor->unk20 = 0.0f;
+            cursor->shakeRoll = 0.0f;
         }
     } else if ((state->raceStatus >= 2) && (state->raceStatus < 4)) {
         raceAiUpdateSpeedAndLane();
@@ -432,7 +432,7 @@ void raceOpponentCarBehaviorUpdate(void) {
     }
     if (state->raceStatus < 5) {
         racePathFollowStep(cursor, state, 1);
-        gCurrentActor->y += 50.0f * mathSinF((s16)(cursor->unk20 * 0.5f));
+        gCurrentActor->y += 50.0f * mathSinF((s16)(cursor->shakeRoll * 0.5f));
     } else {
         gCurrentActor->speedXZ = 0.0f;
     }
@@ -589,13 +589,13 @@ void raceCameraBehaviorUpdate(void) {
         cursor->laneBlend = 0.0f;
     }
     if ((state->raceStatus >= 2) && (state->raceStatus < 4)) {
-        if (targetCursor->unk10 > 24.0) {
+        if (targetCursor->boostTimer > 24.0) {
             offsetSign = -2.5f;
-        } else if (targetCursor->unk14 > 0.5f) {
+        } else if (targetCursor->boostAmount > 0.5f) {
             offsetSign = 2.5f;
         }
         cursor->stunTimer = targetCursor->stunTimer;
-        cursor->unk10 = targetCursor->unk10;
+        cursor->boostTimer = targetCursor->boostTimer;
         state->throttle = targetState->throttle + ((dist - (90.0f * offsetSign)) * 0.006f);
         if (dist < 30.0f) {
             if (targetActor->speedXZ < gCurrentActor->speedXZ) {

@@ -497,7 +497,7 @@ Gfx *textObjectDrawFlat(Gfx *dl, TextObject *textObj) {
     heapFreeDeferred(mp);
     vtxBase = vp;
     gDPSetTextureFilter(dl++, G_TF_BILERP);
-    dl = func_8070068C(dl);
+    dl = playerViewSetPrimaryViewport(dl);
     for (line = 1; line < gTextFonts[textObj->font].lineCount + 1; line++) {
         started = 0;
         i = 1;

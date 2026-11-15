@@ -42,8 +42,8 @@ void actorSpotLightUpdate(void);
 #ifndef PROTO_SKIP_actorSpotLightUpdateEntry
 void actorSpotLightUpdateEntry(void);
 #endif
-#ifndef PROTO_SKIP_func_8069B010
-void func_8069B010(void);
+#ifndef PROTO_SKIP_actorNumberedTargetUpdate
+void actorNumberedTargetUpdate(void);
 #endif
 #ifndef PROTO_SKIP_func_8069B3FC
 void func_8069B3FC(void);
@@ -60,8 +60,8 @@ void actorUpdateTimerBarAndRange(void);
 #ifndef PROTO_SKIP_actorSpawnEffectAndTick
 void actorSpawnEffectAndTick(void);
 #endif
-#ifndef PROTO_SKIP_func_8069D018
-void func_8069D018(void);
+#ifndef PROTO_SKIP_carryObjectUpdateWithDrawDistance
+void carryObjectUpdateWithDrawDistance(void);
 #endif
 #ifndef PROTO_SKIP_func_8069D058
 void func_8069D058(void);
@@ -108,13 +108,13 @@ void textUpdateThreeDigitCounter(void);
 #ifndef PROTO_SKIP_textUpdateTwoDigitCounter
 void textUpdateTwoDigitCounter(void);
 #endif
-#ifndef PROTO_SKIP_func_8069E018
-void func_8069E018(void);
+#ifndef PROTO_SKIP_actorUpdateModelMatrixOnly
+void actorUpdateModelMatrixOnly(void);
 #endif
 #ifndef PROTO_SKIP_actorPlaySoundAndFinish
 void actorPlaySoundAndFinish(void);
 #endif
-#ifndef PROTO_SKIP_func_8069E088
-void func_8069E088(void);
+#ifndef PROTO_SKIP_actorHintTextUpdate
+void actorHintTextUpdate(void);
 #endif
 #endif

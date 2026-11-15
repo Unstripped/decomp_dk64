@@ -91,7 +91,7 @@ void hudDrawItemWithAlpha(HealthHudInit *hudInit) {
     } else {
         hudInit->unk6 = 1;
     }
-    if (func_807142D8() != 0) {
+    if (menuIsTransitionType3Or4() != 0) {
         hudInit->unk6 = 0x20;
     }
     hudInit->unkA = 0;

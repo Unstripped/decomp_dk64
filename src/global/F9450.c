@@ -480,7 +480,7 @@ void gridFreeAllActiveNodes(void) {
     node = D_807FD730;
     while (node != NULL) {
         next = node->next;
-        func_806F54E0(0, node->modelType, node->collisionOverride);
+        gridCollectItem(0, node->modelType, node->collisionOverride);
         modelSlotFreeByIndex(node->modelSlot, 1);
         heapFree(node);
         node = next;
@@ -488,7 +488,7 @@ void gridFreeAllActiveNodes(void) {
     D_807FD730 = NULL;
 }
 
-GridActiveNode *func_806F53EC(GridNode *src) {
+GridActiveNode *gridActiveNodeCreate(GridNode *src) {
     GridActiveNode *node;
 
     node = heapAlloc(0x20);
@@ -522,7 +522,7 @@ void cutsceneStartFlag16CPath(void) {
 extern s8 D_80029FA0;
 extern u8 gCurrentWorldId;
 
-void func_806F54E0(u8 playerIndex, s32 modelType, u8 collisionOverride) {
+void gridCollectItem(u8 playerIndex, s32 modelType, u8 collisionOverride) {
     s32 i;
     s32 slot;
     u8 shouldComplete;
@@ -618,7 +618,7 @@ void func_806F58A0(u8 playerIndex, s16 modelSlot, Actor *player) {
         if (gPlayerCount == 1) {
             gridAddModelNode(modelSlotAppend(modelType, x, y, z, 0.0f, 0), modelType, delay, 1, 0, 1);
         } else {
-            func_806F54E0(playerIndex, modelType, 0);
+            gridCollectItem(playerIndex, modelType, 0);
         }
         delay += 3;
     }
@@ -654,7 +654,7 @@ void func_806F5A48(u8 playerIndex, s16 modelSlot, Actor *player, u16 parentType)
         if (gPlayerCount == 1) {
             gridAddModelNode(modelSlotAppend(modelType, x, y, z, 0.0f, 0), modelType, delay, 1, (parentType == 0x11) ? 1 : 0, 1);
         } else {
-            func_806F54E0(playerIndex, modelType, (parentType == 0x11) ? 1 : 0);
+            gridCollectItem(playerIndex, modelType, (parentType == 0x11) ? 1 : 0);
         }
         delay += 3;
     }
@@ -675,7 +675,7 @@ s32 actorTypeIsRespawnPickup(s32 actorType) {
 
 extern s32 D_80754264[];
 
-s32 func_806F5CE4(s32 actorType) {
+s32 modelTypeIsRespawnPickup(s32 actorType) {
     s32 i;
 
     for (i = 0; i < 6; i++) {
@@ -687,7 +687,7 @@ s32 func_806F5CE4(s32 actorType) {
 }
 
 
-void func_806F5D80(s32 *actorType, s32 *delay) {
+void respawnPickRandomPickup(s32 *actorType, s32 *delay) {
     *actorType = D_80754248[((u32) (randomNonNegative() >> 0xF) % 7U)];
     *delay = ((s32) (randomNonNegative() >> 0xF) % 32767 % 391) + 0xD2;
 }
@@ -724,20 +724,20 @@ s32 delayedSpawnQueueContains(s32 type, s32 isActor, s16 x, s16 y, s16 z) {
 }
 
 
-void func_806F5F2C(s32 type, s32 delay, s16 x, s16 y, s16 z) {
-    if ((func_80714608(0) != 0) && (actorTypeIsRespawnPickup(type) != 0)) {
-        func_806F5D80(&type, &delay);
+void delayedSpawnQueueAddActor(s32 type, s32 delay, s16 x, s16 y, s16 z) {
+    if ((mpIsMatchType(0) != 0) && (actorTypeIsRespawnPickup(type) != 0)) {
+        respawnPickRandomPickup(&type, &delay);
     }
     delayedSpawnQueueAdd(type, 1, x, y, z, delay);
 }
 
 void func_806F5FA0(s16 x, s16 y, s16 z) {
-    func_806F5F2C(0x76, 0, x, y, z);
+    delayedSpawnQueueAddActor(0x76, 0, x, y, z);
 }
 
 
-void func_806F5FE8(s32 type, s16 x, s16 y, s16 z, s32 delay) {
-    if (func_806F5CE4(type) != 0) {
+void delayedSpawnQueueAddModel(s32 type, s16 x, s16 y, s16 z, s32 delay) {
+    if (modelTypeIsRespawnPickup(type) != 0) {
         delayedSpawnQueueAdd(type, 0, x, y, z, delay);
     }
 }
@@ -769,7 +769,7 @@ void delayedSpawnQueueTick(void) {
 
 extern GridActiveNode *D_807FD734;
 
-void func_806F6204(GridNode *node, u8 playerIndex, GridBounds *bounds) {
+void gridCollectNodesInBounds(GridNode *node, u8 playerIndex, GridBounds *bounds) {
     Actor *player;
     s32 dist;
     GridActiveNode *newNode;
@@ -797,7 +797,7 @@ void func_806F6204(GridNode *node, u8 playerIndex, GridBounds *bounds) {
                         tail = tail->next;
                     }
                 }
-                newNode = func_806F53EC(node);
+                newNode = gridActiveNodeCreate(node);
                 newNode->next = NULL;
                 if (D_807FD730 != NULL) {
                     D_807FD734->next = newNode;
@@ -821,7 +821,7 @@ void func_806F6204(GridNode *node, u8 playerIndex, GridBounds *bounds) {
                 break;
             default:
                 if (gPlayerCount >= 2) {
-                    func_806F54E0(playerIndex, node->modelType, node->collisionOverride);
+                    gridCollectItem(playerIndex, node->modelType, node->collisionOverride);
                 }
                 break;
             }
@@ -831,7 +831,7 @@ void func_806F6204(GridNode *node, u8 playerIndex, GridBounds *bounds) {
             }
             if (gGlobalOverlayFlags & 0x10000) {
                 if (node->modelType != 0x1D2) {
-                    func_806F5FE8(node->modelType, node->x, node->y, node->z, 0x258);
+                    delayedSpawnQueueAddModel(node->modelType, node->x, node->y, node->z, 0x258);
                 }
             }
         }
@@ -854,11 +854,11 @@ void gridDispatchRect(u8 playerIndex, GridBounds *bounds) {
             if (z <= ((f32) D_807FD728 + radius)) {
                 cell = gridCoordsToIndex(x, z);
                 if (cell >= 0) {
-                    func_806F6204(D_80754244[cell], playerIndex, bounds);
+                    gridCollectNodesInBounds(D_80754244[cell], playerIndex, bounds);
                 }
             }
         }
-        func_806F6204(D_807FD72C, playerIndex, bounds);
+        gridCollectNodesInBounds(D_807FD72C, playerIndex, bounds);
     }
 }
 
@@ -1014,7 +1014,7 @@ void gridUpdatePlayerNodes(u8 playerIndex) {
                 type = &D_80753EF0[idx];
                 node->progress += type->speed;
                 if ((type->limit < node->progress) || (type->queueSlot == -2)) {
-                    func_806F54E0(playerIndex, node->modelType, node->collisionOverride);
+                    gridCollectItem(playerIndex, node->modelType, node->collisionOverride);
                     modelSlotFreeByIndex(node->modelSlot, 1);
                     if (prev != NULL) {
                         prev->next = node->next;
@@ -1034,7 +1034,7 @@ void gridUpdatePlayerNodes(u8 playerIndex) {
 
 extern u8 D_80754238[];
 
-s32 func_806F6E58(s16 kong) {
+s32 kongUsesAbilityEnergy(s16 kong) {
     u8 result;
 
     result = 0;
@@ -1045,13 +1045,13 @@ s32 func_806F6E58(s16 kong) {
     return result;
 }
 
-s32 func_806F6EDC(void) {
+s32 anyKongUsesAbilityEnergy(void) {
     s32 i;
     u8 r;
 
     i = 0;
     do {
-        r = func_806F6E58(i);
+        r = kongUsesAbilityEnergy(i);
         i++;
     } while (i < 5 && r == 0);
     return r;
@@ -1071,7 +1071,7 @@ void gridTickPlayers(void) {
     if (flagGet(0x179, 0) != 0) {
         globalFlagSet = 1;
     }
-    if (func_806F6E58(gPlayerCharacterId[0]) != 0) {
+    if (kongUsesAbilityEnergy(gPlayerCharacterId[0]) != 0) {
         kongDone = 1;
     }
 
@@ -1180,7 +1180,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                         }
                         if ((actor->state == 0x64) || (found != 0)) {
                             if ((gGlobalOverlayFlags & 0x10000) && (actorTypeIsRespawnPickup(actor->actorType) != 0)) {
-                                func_806F5F2C(actor->actorType, 0x258, actor->x, actor->y, actor->z);
+                                delayedSpawnQueueAddActor(actor->actorType, 0x258, actor->x, actor->y, actor->z);
                             }
                             sub = actor->customState;
                             if (sub->collectable != 0) {
@@ -1188,7 +1188,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                     switch (actor->actorType) {
                                     case 0x7A:
                                         playerStateHandleSoundEffects(0x1D2, playerIndex);
-                                        func_806F54E0(playerIndex, 0x1D2, 0);
+                                        gridCollectItem(playerIndex, 0x1D2, 0);
                                         break;
                                     case 0x79:
                                         playerStateHandleSoundEffects(0x8E, playerIndex);
@@ -1196,7 +1196,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                         break;
                                     case 0x2F:
                                         playerStateHandleSoundEffects(0x57, playerIndex);
-                                        func_806F54E0(playerIndex, 0x57, 0);
+                                        gridCollectItem(playerIndex, 0x57, 0);
                                         break;
                                     case 0x77:
                                         playerStateHandleSoundEffects(0x1D0, playerIndex);
@@ -1208,7 +1208,7 @@ void gridCollectActorsInRange(u8 playerIndex) {
                                         break;
                                     case 0x33:
                                         playerStateHandleSoundEffects(0x8F, playerIndex);
-                                        if (func_80714608(0) != 0) {
+                                        if (mpIsMatchType(0) != 0) {
                                             ps = player->customState;
                                             if (ps->gunDrawn == 0) {
                                                 playerKongPlaySoundByState(player);

@@ -175,8 +175,8 @@ void raceInitSplineAndOpponent(void) {
 
 
 void racePlayCheckpointSfx(RacePathState *pathState, u8 timer, f32 volume) {
-    pathState->unk10 = timer;
-    pathState->unk14 = volume;
+    pathState->boostTimer = timer;
+    pathState->boostAmount = volume;
     sfxPlayOnFreeSlot(0x1EB, 0x7FFF, 64.0f, 1.0f, 0, 0);
 }
 
@@ -222,8 +222,8 @@ void raceUpdateOrientation(RacePathState *pathState) {
     f32 rollScaled;
     f32 sinYaw;
 
-    yawOffset = pathState->unk18 + pathState->laneOffset;
-    rollOffset = mathAngleSignedDistance(0, (s16)pathState->unk1C);
+    yawOffset = pathState->bankAngle + pathState->laneOffset;
+    rollOffset = mathAngleSignedDistance(0, (s16)pathState->pitchAngle);
     yawOffset &= 0xFFF;
     cosYaw = mathCosF(yawOffset);
     sinYaw = mathSinF(yawOffset);
@@ -231,10 +231,10 @@ void raceUpdateOrientation(RacePathState *pathState) {
     gCurrentActor->yaw &= 0xFFF;
     rollScaled = rollOffset;
     gCurrentActor->roll = rollScaled * cosYaw;
-    gCurrentActor->roll = gCurrentActor->roll + pathState->unk20;
+    gCurrentActor->roll = gCurrentActor->roll + pathState->shakeRoll;
     gCurrentActor->roll &= 0xFFF;
     gCurrentActor->pitch = rollScaled * sinYaw;
-    gCurrentActor->pitch = gCurrentActor->pitch + pathState->unk24;
+    gCurrentActor->pitch = gCurrentActor->pitch + pathState->shakePitch;
     gCurrentActor->pitch &= 0xFFF;
 }
 
@@ -276,21 +276,21 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
         gCurrentActor->speedXZ = 0.0f;
         gCurrentActor->yaw = mathAngleBetweenPointsRad(nxt->x, nxt->z, gCurrentActor->x, gCurrentActor->z) * 2048.0 / 3.1415927f;
         gCurrentActor->moveYaw = gCurrentActor->yaw;
-        pathState->unk18 = 0.0f;
+        pathState->bankAngle = 0.0f;
     }
     if (stunned != 0) {
         thrust = 0.0f;
         pathState->stunTimer--;
         gCurrentActor->speedXZ = 0.0f;
-        pathState->unk14 = 0.0f;
-        pathState->unk10 = 0;
+        pathState->boostAmount = 0.0f;
+        pathState->boostTimer = 0;
     } else {
         thrust = participant->throttle;
     }
-    if (pathState->unk10 != 0) {
-        pathState->unk10--;
+    if (pathState->boostTimer != 0) {
+        pathState->boostTimer--;
     } else {
-        pathState->unk14 = pathState->unk14 * 0.7;
+        pathState->boostAmount = pathState->boostAmount * 0.7;
     }
     spd = gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.0033333334f + 0.2;
     gCurrentActor->speedXZ = gCurrentActor->speedXZ + (thrust - spd);
@@ -302,7 +302,7 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     pos[2] = mathCosF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ + gCurrentActor->z;
     pos[1] = gCurrentActor->y;
     dist = sqrtf((cur->x - nxt->x) * (cur->x - nxt->x) + (cur->z - nxt->z) * (cur->z - nxt->z));
-    pathState->unk1C = mathAngleEaseToward(pathState->unk1C, mathAtan2(cur->y - nxt->y, dist) * 2048.0 / 3.1415927f, 3.0f);
+    pathState->pitchAngle = mathAngleEaseToward(pathState->pitchAngle, mathAtan2(cur->y - nxt->y, dist) * 2048.0 / 3.1415927f, 3.0f);
     if (gCurrentActor->speedXZ > 0.001) {
         gCurrentActor->moveYaw = mathAngleEaseToward(gCurrentActor->moveYaw, ang, 50.0f / gCurrentActor->speedXZ);
     }
@@ -320,10 +320,10 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     }
     raceApplyPositionOffset(tgt, pos);
     yawDelta = mathAngleSignedDistance(gCurrentActor->moveYaw, (s16)oldAng);
-    pathState->unk28 += -0.04f * gCurrentActor->speedXZ * yawDelta * mathCosF(pathState->unk18);
-    pathState->unk28 -= 10.0f * gCurrentActor->speedXZ * mathSinF(pathState->unk18);
-    pathState->unk28 = pathState->unk28 * 0.7f;
-    pathState->unk18 = pathState->unk18 + pathState->unk28;
+    pathState->bankVelocity += -0.04f * gCurrentActor->speedXZ * yawDelta * mathCosF(pathState->bankAngle);
+    pathState->bankVelocity -= 10.0f * gCurrentActor->speedXZ * mathSinF(pathState->bankAngle);
+    pathState->bankVelocity = pathState->bankVelocity * 0.7f;
+    pathState->bankAngle = pathState->bankAngle + pathState->bankVelocity;
     raceUpdateOrientation(pathState);
     if (spawnSparks != 0) {
         if ((randomLcgNext() & 0xFF) < gCurrentActor->speedXZ * 0.3 && pathState->lane == pathState->targetLane) {
@@ -431,7 +431,7 @@ void raceVehicleBehaviorUpdate(void) {
         gCurrentActor->unk144 = 0x3C;
         pathState->waypoint = raceGetPrevWaypointIndex(len, 0);
         racePathFollowStep(pathState, participant, 1);
-        if (func_807142D8() != 0 || flagGet(0x12, 2) != 0) {
+        if (menuIsTransitionType3Or4() != 0 || flagGet(0x12, 2) != 0) {
             playerStateQueueCallback(0x4B, gCurrentActor, participant->playerIdx);
         } else {
             playerWaypointPathStartPacked(gPrimaryPlayerActor, gCurrentActor, 0, 0x4B);
@@ -475,11 +475,11 @@ void raceVehicleBehaviorUpdate(void) {
             if (pathState->stunTimer > 10.0f) {
                 shakeAngle = (pathState->stunTimer - 10.0f) * 204.8f;
                 off = 300.0f; // FAKE: 300.0f amplitude held in off (an existing f32 home) orders colouring so shakeAngle keeps its register; a literal spills it to sp+0x72
-                pathState->unk20 = mathSinF(shakeAngle) * off;
-                pathState->unk24 = mathSinF(shakeAngle * 2) * off;
+                pathState->shakeRoll = mathSinF(shakeAngle) * off;
+                pathState->shakePitch = mathSinF(shakeAngle * 2) * off;
             } else {
-                pathState->unk20 = 0.0f;
-                pathState->unk24 = 0.0f;
+                pathState->shakeRoll = 0.0f;
+                pathState->shakePitch = 0.0f;
             }
         }
         racePathFollowStep(pathState, participant, 1);

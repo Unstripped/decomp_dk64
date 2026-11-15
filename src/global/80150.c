@@ -1811,7 +1811,7 @@ void movingLaunchBarrelUpdate(void) {
                 param
             );
             if (camIsCutsceneActive() == 0) {
-                renderCallbacksRegister(func_806FF01C, gPrimaryPlayerActor, 3);
+                renderCallbacksRegister(playerViewDrawCrosshair, gPrimaryPlayerActor, 3);
             }
         }
         break;
@@ -2476,7 +2476,7 @@ void cannonUpdate(void) {
         y = gCurrentActor->y + D_8074E7FC;
         camSetFixedView(cam, x, y, z, x + sinOff, y + D_8074E804, gCurrentActor->z + cosOff, 0);
         if (camIsCutsceneActive() == 0) {
-            renderCallbacksRegister(func_806FF01C, gPrimaryPlayerActor, 3);
+            renderCallbacksRegister(playerViewDrawCrosshair, gPrimaryPlayerActor, 3);
             renderCallbacksRegister(func_806FEF7C, gPrimaryPlayerActor, 3);
         }
         func_8066E6C8(gCurrentActor, 0, 0);

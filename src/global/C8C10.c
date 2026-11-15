@@ -50,7 +50,7 @@ extern PlayerStruct *gPlayerSlots;
 extern s32 gCurrentMap;
 
 
-void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
+void actorCarryMiniPlayerUpdate(u8 startActionId, u8 exitActionId, u8 camPathId) {
     s16 *durationPtr = COMPONENT_ACTOR->secondComponent;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -130,7 +130,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
 }
 
 
-void func_806C43A8(void) {
+void actorRestoreMapMusic(void) {
     s32 sfx = 0;
 
     switch (gCurrentMap) {
@@ -152,7 +152,7 @@ void func_806C43A8(void) {
 extern s16 D_80750AC8;
 
 
-void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 initialCutsceneId, s32 rewardCutsceneId, s32 targetCount, s32 rewardFlag) {
+void actorCountGoalRewardUpdate(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 initialCutsceneId, s32 rewardCutsceneId, s32 targetCount, s32 rewardFlag) {
     s16 *heightOffsetPtr = COMPONENT_ACTOR->secondComponent;
     PlayerState *playerState = gPlayerSlots->actor->customState;
     Actor *attachedActor = playerState->actor;
@@ -162,9 +162,9 @@ void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 
     lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 80.0f, 0, 0xFF, 0xFF, 0xFF);
     if (!(gCurrentActor->flags & 0x10)) {
         pathId = -1;
-        if (flagGet(rewardFlag, 0) != 0 || func_807142D8() != 0) {
+        if (flagGet(rewardFlag, 0) != 0 || menuIsTransitionType3Or4() != 0) {
             if (initialCutsceneId == gBehaviourExtraState->id) {
-                func_806C43A8();
+                actorRestoreMapMusic();
             }
             gCurrentActor->state = 0x40;
             return;
@@ -230,7 +230,7 @@ void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 
     if (gBehaviourWorkState->timer == 0) {
         if (++*heightOffsetPtr >= 0x3D) {
             gCurrentActor->state = 0x40;
-            func_806C43A8();
+            actorRestoreMapMusic();
             if (rewardCutsceneId == gBehaviourExtraState->id) {
                 if (flagGet(rewardFlag, 0) != 0 || slotQueueGetValue(0xB, 0) >= targetCount) {
                     mapCheckAutoTransition();
@@ -243,15 +243,15 @@ void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 
 }
 
 void func_806C4904(void) {
-    func_806C4414(0, 1, 2, 0xF, 0x10, 0x32, 0x18);
+    actorCountGoalRewardUpdate(0, 1, 2, 0xF, 0x10, 0x32, 0x18);
 }
 
 void func_806C4948(void) {
-    func_806C4414(6, 7, 8, 0x10, 0xE, 0x32, 0xD7);
+    actorCountGoalRewardUpdate(6, 7, 8, 0x10, 0xE, 0x32, 0xD7);
 }
 
 void func_806C498C(void) {
-    func_806C4414(1, 2, 3, 4, 5, 0x19, 0x13E);
+    actorCountGoalRewardUpdate(1, 2, 3, 4, 5, 0x19, 0x13E);
 }
 
 
@@ -259,7 +259,7 @@ void func_806C49D0(void) {
     behaviourFrameBegin();
     switch (gCurrentMap) {
         case 0x26:
-            func_806C3F10(2, 6, 0);
+            actorCarryMiniPlayerUpdate(2, 6, 0);
             break;
         case 6:
             func_806C4904();
@@ -272,9 +272,9 @@ void func_806C49D0(void) {
             break;
         case 0x30:
             if (gBehaviourExtraState->id == 6) {
-                func_806C3F10(2, 7, 0x1A);
+                actorCarryMiniPlayerUpdate(2, 7, 0x1A);
             } else {
-                func_806C3F10(2, 3, 0);
+                actorCarryMiniPlayerUpdate(2, 3, 0);
             }
             break;
     }
@@ -285,7 +285,7 @@ extern u8 gPlayerCharacterId;
 extern Actor *gSpawnedActor;
 
 
-u8 func_806C4AC4(u16 spawnCooldown, u16 maxSpawns) {
+u8 actorSpawnNumberedTargetsUpdate(u16 spawnCooldown, u16 maxSpawns) {
     u8 ret = 0;
     s32 pad;
     s16 *cooldownPtr;
@@ -495,7 +495,7 @@ void func_806C4F5C(void) {
             slotQueueSetDisplayMode(5, 0, 1);
             break;
     }
-    switch (func_806C4AC4(0x78, 0xA)) {
+    switch (actorSpawnNumberedTargetsUpdate(0x78, 0xA)) {
         case 1:
             actorStartRewardCutscene(2, 0);
             break;
@@ -634,7 +634,7 @@ void func_806C55E0(void) {
             break;
     }
     gActivePlayerState->stateFlags2 &= ~0x40;
-    switch (func_806C4AC4(0x78, 0x10)) {
+    switch (actorSpawnNumberedTargetsUpdate(0x78, 0x10)) {
         case 1:
             actorSetPositionFromPoint(gCurrentActor, gBehaviourExtraState);
             resQueueAttachActor(gCurrentActor, 0x15, 2);

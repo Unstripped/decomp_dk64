@@ -95,7 +95,7 @@ void actorPhotoUpdate(void) {
         subState->timer = 0x5A;
         gCurrentActor->flags |= 0x400;
         gCurrentActor->drawDistance = 0x3E8;
-        subState->texture = func_806FFF88();
+        subState->texture = playerViewCaptureSepiaPhoto();
         controllerAnimSetStateIfChanged(gCurrentActor, 0x40B, 0, 0);
         scriptSetActorRampTarget(gCurrentActor, 0.15f, 0);
     }
@@ -123,7 +123,7 @@ void actorPhotoUpdate(void) {
             gCurrentActor->unk155++;
         }
         if (gActivePlayerState->unk1EC != 0xFF && subState->timer != 0) {
-            renderCallbacksRegister(&func_806FF628, gCurrentActor, 3);
+            renderCallbacksRegister(&playerViewDrawPhotoResult, gCurrentActor, 3);
         }
     }
     mathAngleBetweenPoints3D(&pitch, &yaw, gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ, gPlayerSlots->focusX, gPlayerSlots->focusY, gPlayerSlots->focusZ);
@@ -640,7 +640,7 @@ extern s16 D_80750378;
 extern u8 D_8071FE08[];
 extern u8 D_80720E14[];
 
-void func_8069B010(void) {
+void actorNumberedTargetUpdate(void) {
     s32 *spawnFrame = gCurrentActor->customState;
     Actor *parent;
 
@@ -1240,7 +1240,7 @@ void actorSpawnEffectAndTick(void) {
     }
 }
 
-void func_8069D018(void) {
+void carryObjectUpdateWithDrawDistance(void) {
     Actor *actor = gCurrentActor;
 
     if (!(actor->flags & 0x10)) {
@@ -1250,19 +1250,19 @@ void func_8069D018(void) {
 }
 
 void func_8069D058(void) {
-    func_8069D018();
+    carryObjectUpdateWithDrawDistance();
 }
 
 void func_8069D078(void) {
-    func_8069D018();
+    carryObjectUpdateWithDrawDistance();
 }
 
 void func_8069D098(void) {
-    func_8069D018();
+    carryObjectUpdateWithDrawDistance();
 }
 
 void func_8069D0B8(void) {
-    func_8069D018();
+    carryObjectUpdateWithDrawDistance();
 }
 
 void func_8069D0D8(void) {
@@ -1317,7 +1317,7 @@ extern u8 gPlayerCount;
 void textSpawnMarkerChecked(u8 fontStyle, s16 x, s16 y, u8 *textStr, u16 startDelay, u16 holdTime, u8 fadeInStep, u8 fadeOutStep) {
     if (gPlayerCount < 2) {
         if (menuIsTransitionType5() == 0) {
-            if (func_807142D8() == 0) {
+            if (menuIsTransitionType3Or4() == 0) {
                 if (menuIsTransitionType6() != 0 || menuIsTransitionTypeB() != 0) {
                     textSpawnMarker(fontStyle, x, y, textStr, startDelay, holdTime, fadeInStep, fadeOutStep);
                 }
@@ -1576,7 +1576,7 @@ void textUpdateTwoDigitCounter(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_8069E018(void) {
+void actorUpdateModelMatrixOnly(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -1591,7 +1591,7 @@ void actorPlaySoundAndFinish(void) {
 extern s8 D_807F6951;
 extern s8 D_807F6950;
 
-void func_8069E088(void) {
+void actorHintTextUpdate(void) {
     s16 textIndex;
 
     if (!(gCurrentActor->flags & 0x10)) {

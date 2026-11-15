@@ -399,7 +399,7 @@ f32 raceGetPathDistanceBetweenTrackers(RaceRoute *route, RaceParticipant *tracke
 f32 raceGetProgressPercent(RaceRoute *route, RaceParticipant *tracker, RaceParticipant *actorState) {
     u16 waypointCount = route->count;
     f32 num = (tracker->lap - 1) * waypointCount + tracker->unk3A;
-    f32 den = actorState->unk24 * waypointCount;
+    f32 den = actorState->lapCount * waypointCount;
 
     return num / den;
 }

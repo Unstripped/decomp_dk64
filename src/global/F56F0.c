@@ -202,7 +202,7 @@ void playerKongPlaySoundByState(Actor *actor) {
             }
             extra->gunDrawn = 1;
         }
-        if (func_80714608(0) != 0) {
+        if (mpIsMatchType(0) != 0) {
             gPlayerInventoryTable[extra->playerIndex].kong[playerGetResolvedKongId(extra->playerIndex)].weaponFlags = 1;
             func_806F5A48(extra->playerIndex, 0, actor, 0x8F);
         }
@@ -1012,7 +1012,7 @@ void playerWeaponSpawnMuzzleFlash(Actor *actor, u16 weapon) {
         offsets = sub->boneOffsets;
         slotCount = 0;
         entryCount = 0;
-        if ((func_80714608(0) != 0) && ((ps->unk21E != 0x1E) || (actor->state == 0x34))) {
+        if ((mpIsMatchType(0) != 0) && ((ps->unk21E != 0x1E) || (actor->state == 0x34))) {
             playerWeaponCrosshairRender(actor, entries, &entryCount);
         }
         switch (weapon) {

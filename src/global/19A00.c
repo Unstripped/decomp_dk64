@@ -405,7 +405,7 @@ s32 scriptOpApproachActionTarget(Actor *actor) {
     return 1;
 }
 
-s32 func_806158E8(Actor *actor) {
+s32 scriptOpAnimResetFrameRange(Actor *actor) {
     AnimSlot *action;
     ActorSub4 *state;
     AnimClip *resource;
@@ -534,7 +534,7 @@ s32 scriptOpReadRampInterpolation(Actor *actor) {
 
 extern u8 sMotionWindowProgress;
 
-s32 func_80615CE4(Actor *actor) {
+s32 scriptOpApplyMotionWindowStep(Actor *actor) {
     u8 imm;
     AnimSlot *selected;
     ActorSub4 *state;
@@ -823,7 +823,7 @@ s32 scriptOpCompareSubStateToU16(Actor *actor) {
     return 1;
 }
 
-s32 func_80616518(Actor *actor) {
+s32 scriptOpCompareAnimIdToU16(Actor *actor) {
     u16 imm;
     AnimSlot *command;
 
@@ -1082,7 +1082,7 @@ typedef struct ScriptTarget {
     u8 flags;
 } ScriptTarget;
 
-// Script-driven actor: its third component (0x17C) is the ScriptTarget func_80616DB4 flags.
+// Script-driven actor: its third component (0x17C) is the ScriptTarget scriptOpOrComponentFlags flags.
 typedef struct ScriptTargetActor {
     Actor base;
     void *secondComponent;
@@ -1093,7 +1093,7 @@ s32 scriptOpHalt(Actor *actor) {
     return 0;
 }
 
-s32 func_80616DB4(Actor *actor) {
+s32 scriptOpOrComponentFlags(Actor *actor) {
     ScriptTarget *target;
     u8 flag;
 
@@ -1165,7 +1165,7 @@ s32 scriptOpPlaySoundAndShake(Actor *actor) {
 extern struct GfSndState *D_807457C8;
 
 
-s32 func_80617140(Actor *actor) {
+s32 scriptOpPlayMapActionSound(Actor *actor) {
     s16 imm;
     s16 sound;
     u8 imm2;
@@ -1226,7 +1226,7 @@ s32 scriptOpPlayPositionalSoundPlayerStateVolume(Actor *actor) {
 }
 
 
-s32 func_80617400(Actor *actor) {
+s32 scriptOpPlayPositionalSound(Actor *actor) {
     s16 imm;
     u8 imm4;
     u8 imm5;
@@ -1246,7 +1246,7 @@ s32 func_80617400(Actor *actor) {
 }
 
 
-s32 func_806174B4(Actor *actor) {
+s32 scriptOpPlayPositionalSoundAtNode(Actor *actor) {
     f32 x;
     f32 y;
     f32 z;
@@ -1340,7 +1340,7 @@ void sfxPlayScriptActorSoundForPlayer(Actor *actor, s16 sound, u8 slot) {
 
 extern u8 sScriptChannelIndexTable[];
 
-s32 func_8061796C(Actor *actor) {
+s32 scriptOpPlayActorSoundForPlayer(Actor *actor) {
     s16 imm;
     u8 imm2;
 
@@ -1351,7 +1351,7 @@ s32 func_8061796C(Actor *actor) {
     return 1;
 }
 
-s32 func_806179C0(Actor *actor) {
+s32 scriptOpRestartSlotSound(Actor *actor) {
     s16 imm;
     u8 imm2;
     u8 imm4;
@@ -1442,7 +1442,7 @@ s32 scriptOpNoopReturn1(Actor *actor) {
     return 1;
 }
 
-void func_80617D20(Actor *actor) {
+void scriptOpBranchOnFrame(Actor *actor) {
     ActorSub4 *state;
     AnimSlot *value;
 
@@ -1459,7 +1459,7 @@ void scriptOpBranchByTimer8A(Actor *actor) {
     scriptOpBranchOnCondition(actor, actor->sub4->scriptResult);
 }
 
-void func_80617D94(Actor *actor) {
+void scriptSkipBranchCases(Actor *actor) {
     u8 imm;
 
     scriptReadU8(&imm);
@@ -1507,7 +1507,7 @@ s32 scriptOpBranchOnCondition(Actor *actor, s16 value) {
             if (value == imm2) {
                 scriptReadU16(&imm3);
                 actor->sub4->scriptResult = imm3;
-                func_80617D94(actor);
+                scriptSkipBranchCases(actor);
                 return 1;
             }
             break;
@@ -1515,7 +1515,7 @@ s32 scriptOpBranchOnCondition(Actor *actor, s16 value) {
             if (value < imm2) {
                 scriptReadU16(&imm3);
                 actor->sub4->scriptResult = imm3;
-                func_80617D94(actor);
+                scriptSkipBranchCases(actor);
                 return 1;
             }
             break;
@@ -1523,14 +1523,14 @@ s32 scriptOpBranchOnCondition(Actor *actor, s16 value) {
             if (imm2 < value) {
                 scriptReadU16(&imm3);
                 actor->sub4->scriptResult = imm3;
-                func_80617D94(actor);
+                scriptSkipBranchCases(actor);
                 return 1;
             }
             break;
         case 7:
             scriptReadU16(&imm3);
             actor->sub4->scriptResult = imm3;
-            func_80617D94(actor);
+            scriptSkipBranchCases(actor);
             return 1;
         }
         sScriptPc += 2;
@@ -1730,7 +1730,7 @@ void scriptCmdPlayActorSound(Actor *actor) {
     scriptReadU32(&imm);
 }
 
-// Actor type 0x134: func_80619520 returns its second component (0x178).
+// Actor type 0x134: actorGetRacerParticipant returns its second component (0x178).
 typedef struct SecondComponentActor {
     Actor base;
     void *secondComponent;
@@ -1818,7 +1818,7 @@ void scriptCmdSetActorAlpha(Actor *actor) {
     camStartShakeFromPoint(gActivePlayerState->camActor, imm, imm2, x, y, z, imm3, imm4);
 }
 
-void func_80618C00(Actor *actor, u8 node) {
+void actorSpawnFloorEffectAtNode(Actor *actor, u8 node) {
     f32 x;
     f32 y;
     f32 z;
@@ -1840,7 +1840,7 @@ void scriptCmdSpawnActorParticleBurst(Actor *actor) {
     } else {
         node = 8;
     }
-    func_80618C00(actor, node);
+    actorSpawnFloorEffectAtNode(actor, node);
     gActivePlayerState->unkCA = 0x28;
 }
 
@@ -2074,7 +2074,7 @@ void scriptCmdDespawnActor(Actor *actor) {
     actorDespawn(actor);
 }
 
-void *func_80619520(Actor *actor) {
+void *actorGetRacerParticipant(Actor *actor) {
     void *result;
 
     result = NULL;
@@ -2088,7 +2088,7 @@ void scriptCmdSetActorResultByte35(Actor *actor) {
     u8 value;
     u8 *result;
 
-    result = func_80619520(actor);
+    result = actorGetRacerParticipant(actor);
     scriptReadU8(&value);
     if (result != NULL) {
         result[0x35] = value;
@@ -2098,7 +2098,7 @@ void scriptCmdSetActorResultByte35(Actor *actor) {
 void scriptCmdIncrementActorResultByte35(Actor *actor) {
     u8 *result;
 
-    result = func_80619520(actor);
+    result = actorGetRacerParticipant(actor);
     if (result != NULL) {
         result[0x35]++;
     }

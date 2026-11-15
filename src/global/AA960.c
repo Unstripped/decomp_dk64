@@ -124,7 +124,7 @@ void effectSpawnAttachedSprite(void *targetState, void *spriteAsset, f32 scale) 
     state->sprite = effectCreateAtActorBone(spriteAsset, scale * 0.35, gCurrentActor, 1, 2);
 }
 
-void func_806A5F44(void) {
+void actorHealthDropUpdate(void) {
     void *state = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
@@ -436,7 +436,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         state->sprite->alpha -= 5;
         if (state->sprite->alpha < 0xA) {
             if ((gGlobalOverlayFlags & 0x10000) && actorTypeIsRespawnPickup(gCurrentActor->actorType) != 0) {
-                func_806F5F2C(gCurrentActor->actorType, 0x258, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                delayedSpawnQueueAddActor(gCurrentActor->actorType, 0x258, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
             actorDespawn(gCurrentActor);
         }

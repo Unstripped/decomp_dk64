@@ -755,7 +755,7 @@ extern u8 gPlayerCharacterId;
 void eepromHalveRecords(void) {
     s32 i;
 
-    if (func_806F6EDC() != 0) {
+    if (anyKongUsesAbilityEnergy() != 0) {
         u32 v = slotQueueGetMaxValue(5, 0);
         gPlayerInventoryTable[0].abilityEnergy = v * 0.5;
     }
@@ -910,7 +910,7 @@ u8 *eepromGetSectionBuffer(u8 section) {
     result = NULL;
     switch (section) {
     case 0:
-        if ((func_807142D8() != 0) || (gPlayerCount >= 2)) {
+        if ((menuIsTransitionType3Or4() != 0) || (gPlayerCount >= 2)) {
             flagsClearAllBank2();
             bzero(D_807EDEB0, ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
             result = D_807EDEB0;
