@@ -27,6 +27,9 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - Data ownership (HacktransitionSetAudioVolume, 2026-11-14, ledger a001e1ac): carve the .data region of 14C9E0 around D_807550A4
   (today an extern in 10E1D0.c:566; no 14C9E0.c exists) into its owning C file; that enables a Q0498 function-local `static` retry for transitionSetAudioVolume's dead-if 86665d.
 - 8F4B0 CutsceneActorState / WeatherActorState merge (same layout, 8F4B0.c:204/490; needs proof actorCutsceneDispatchEvents runs on actor type 0xC; PolishGlobal8F4B0Names 237b3f89).
+- Data split (Polishglobal7130, 2026-11-14, ledger cd20bf04): `extern u8 D_807460AE[][2]` (per-sfx range/factor pairs indexed
+  by sfx id, 7130.c:943, read in sfxSlotAllocateSource/Actor and sfxUpdateSourceGroups) starts 2 bytes into the
+  `AmbientEmitter D_807460AC[]` label (7130.c:462). Settle the boundary in a data-split pass (splat yaml + `make split`).
 - Warning/proto-steer sites with no owner decision yet (audit 2026-11-14, missing blockers M1-M11):
   - 90D80 hudDrawRollingCounter 8c076a: same `retype kept` as f2ca09 (ledger 53b46930) but the record is stale; re-record.
   - Proto-steers never consolidated or stale: 1025E0 2ed6ea/69fe0c (textGetCharAdvance), 2C910 30698d/41f288/145e04 (textSpawnMarkerChecked + K&R textSpawnSubtitle), 36880 81fdd2/1045f7 (renderReplaceSegment6Commands, playerSlotMatchesSizeMask), B5EC0 72fa9a (actorTrackBoneTowardTarget, consolidate never tried), race/6650 8cc620/3db41f (playerStateQueueCallback, sfxStopSlotSound).
