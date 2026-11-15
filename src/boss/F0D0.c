@@ -37,7 +37,18 @@ typedef struct {
 } BossWaypointPick;
 extern BossWaypointPick D_80035B80;
 
-u8 bossPickWaypointStep(BossScriptState *scriptState, u8 *waypointIndices) {
+// Waypoint component of the boss actor (Actor+0x17C): indices into the 16 D_807FDCA0 pillar entries.
+typedef struct BossWaypointState {
+    /* 0x00 */ u8 current;
+    /* 0x01 */ u8 next; // bossPickWaypointStep result; bossInterpolateWaypoints moves current -> next
+    /* 0x02 */ u8 previous;
+    /* 0x03 */ u8 playerNearest; // entry nearest to the player
+    /* 0x04 */ u8 objectA; // lit object pair (bossSetRandomObjectPair), 0x10 + entry
+    /* 0x05 */ u8 objectB;
+    /* 0x06 */ u8 playerWasAbove;
+} BossWaypointState;
+
+u8 bossPickWaypointStep(BossScriptState *scriptState, BossWaypointState *waypoints) {
     s32 min_dist;
     s32 dists[16];
     u8 i;
@@ -46,14 +57,14 @@ u8 bossPickWaypointStep(BossScriptState *scriptState, u8 *waypointIndices) {
     u8 val;
     u8 start_val;
 
-    val = waypointIndices[0];
+    val = waypoints->current;
     min_dist = 0x98967F;
     start_val = val;
     for (i = 0; i < 16; i++) {
         dists[i] = (D_807FDCA0->entries[i].x - gPrimaryPlayerActor->x) * (D_807FDCA0->entries[i].x - gPrimaryPlayerActor->x) + (D_807FDCA0->entries[i].z - gPrimaryPlayerActor->z) * (D_807FDCA0->entries[i].z - gPrimaryPlayerActor->z);
         if (dists[i] < min_dist) {
             min_dist = dists[i];
-            waypointIndices[3] = i;
+            waypoints->playerNearest = i;
         }
     }
 
@@ -62,8 +73,8 @@ u8 bossPickWaypointStep(BossScriptState *scriptState, u8 *waypointIndices) {
         return center.b[(randomNonNegative() >> 15) % 4];
     }
 
-    diff_row = waypointIndices[0] / 4 - waypointIndices[3] / 4;
-    diff_col = waypointIndices[0] % 4 - waypointIndices[3] % 4;
+    diff_row = waypoints->current / 4 - waypoints->playerNearest / 4;
+    diff_col = waypoints->current % 4 - waypoints->playerNearest % 4;
 
     if (diff_row > 0) {
         val -= 4;
@@ -78,8 +89,7 @@ u8 bossPickWaypointStep(BossScriptState *scriptState, u8 *waypointIndices) {
     if (scriptState->phase >= 3) {
         return val;
     }
-    if (waypointIndices[2] - val == 0) {}  // FAKE: steers temp ring / beq operand order
-    if (waypointIndices[2] - val == 0 || val == start_val) {  // FAKE: a - b == 0 keeps the load as first beq operand
+    if (val == waypoints->previous || val == start_val) {
         if (diff_row != 0 || val == start_val) {
             if (dists[(start_val - 1) & 0xF] < dists[(start_val + 1) & 0xF] && (start_val & 3) != 0) {
                 start_val--;
@@ -214,17 +224,6 @@ void bossAdjustHealth(s8 healthDelta) {
     }
 }
 
-// Waypoint component of the boss actor (Actor+0x17C): indices into the 16 D_807FDCA0 pillar entries.
-typedef struct BossWaypointState {
-    /* 0x00 */ u8 current;
-    /* 0x01 */ u8 next; // bossPickWaypointStep result; bossInterpolateWaypoints moves current -> next
-    /* 0x02 */ u8 previous;
-    /* 0x03 */ u8 playerNearest; // entry nearest to the player
-    /* 0x04 */ u8 objectA; // lit object pair (bossSetRandomObjectPair), 0x10 + entry
-    /* 0x05 */ u8 objectB;
-    /* 0x06 */ u8 playerWasAbove;
-} BossWaypointState;
-
 // Boss actor with its script state (0x178) and waypoint state (0x17C) components.
 typedef struct BossWaypointActor {
     /* 0x000 */ Actor base;
@@ -233,7 +232,7 @@ typedef struct BossWaypointActor {
 } BossWaypointActor;
 
 extern u8 *gBossWaypointPhaseScripts[];
-extern u8 D_80035B98[];
+extern u16 D_80035B98[];
 extern u8 gBossIntroWaypointPath[];
 extern u8 gBossWaypointIsSpecial[];
 extern u8 gBossWaypointLightFade[];
@@ -344,14 +343,14 @@ void bossMainStep(void) {
     switch (gCurrentActor->state) {
     case 0x1E:
         for (i = 0; i < 0x10; i++) {
-            if (((u16 *)D_80035B98)[gBehaviourWorkState->timer & 0x1F] & (1 << i)) {
+            if (D_80035B98[gBehaviourWorkState->timer & 0x1F] & (1 << i)) {
                 gBossWaypointLightFade[i] = 0xFA;
             }
             if (gBossWaypointLightFade[i] != 0) {
                 sx = gBossWaypointIsSpecial[i] != 0 ? 0.27 : 1.0;
                 sy = gBossWaypointIsSpecial[i] != 0 ? 0.62 : 1.0;
                 lightSetRadius(0x1388);
-                lightAdd(D_807FDCA0->entries[i].x, D_807FDCA0->entries[i].y - 0x28A, D_807FDCA0->entries[i].z, 0, 0.0f, 0.0f, 240.0f, 0, (u32)(gBossWaypointLightFade[i] * sx), (u32)(gBossWaypointLightFade[i] * sy), gBossWaypointLightFade[i]);
+                lightAdd(D_807FDCA0->entries[i].x, D_807FDCA0->entries[i].y - 0x28A, D_807FDCA0->entries[i].z, 0, 0.0f, 0.0f, 240.0f, 0, gBossWaypointLightFade[i] * sx, gBossWaypointLightFade[i] * sy, gBossWaypointLightFade[i]);
                 gBossWaypointLightFade[i] -= 0x19;
             }
         }
@@ -364,7 +363,7 @@ void bossMainStep(void) {
         }
         break;
     case 0x1F:
-        bright = (u32)(mathSinF(gFrameCounter * 0x7D) * 100.0f + 155.0f);
+        bright = mathSinF(gFrameCounter * 0x7D) * 100.0f + 155.0f;
         lightSetRadius(0x1388);
         lightAdd(D_807FDCA0->entries[5].x, D_807FDCA0->entries[5].y - 0x28A, D_807FDCA0->entries[5].z, 0.0f, 0.0f, 0.0f, 240.0f, 0, bright, bright, bright);
         if (currentActorTestClearFlag() != 0) {
@@ -417,10 +416,8 @@ void bossMainStep(void) {
         case 5:
             waypoints->current = waypoints->next;
             v = scriptState->unk18[0];
-            if (v != 0) {
-                left = v;
-                left--;
-                if (v) {} // FAKE: keeps v live past the decrement so the raw temp does not share its register
+            left = v - 1;
+            if (v) {
                 scriptState->unk18[0] = left;
                 waypoints->next = gBossIntroWaypointPath[left];
                 gCurrentActor->unk155 = 3;
@@ -495,7 +492,7 @@ void bossMainStep(void) {
             scriptState->unk18[0] = tbl[scriptState->scriptPos++];
             scriptState->unk18[1] = scriptState->unk18[0];
             bossSetAnimationByWaypoint((u8 *)waypoints);
-            waypoints->next = bossPickWaypointStep(scriptState, (u8 *)waypoints);
+            waypoints->next = bossPickWaypointStep(scriptState, waypoints);
             gCurrentActor->unk155 = 1;
             gCurrentActor->contactFlags |= 1;
         case 1:
@@ -526,7 +523,7 @@ void bossMainStep(void) {
                 scriptState->unk18[0] = scriptState->unk18[1];
             }
             if (scriptState->unk18[0] != 0) {
-                waypoints->next = bossPickWaypointStep(scriptState, (u8 *)waypoints);
+                waypoints->next = bossPickWaypointStep(scriptState, waypoints);
                 scriptState->unk18[0]--;
                 bossSetAnimationByWaypoint((u8 *)waypoints);
                 gCurrentActor->unk155 = 1;
@@ -573,9 +570,9 @@ void bossMainStep(void) {
                     flag7F = 1;
                 } else {
                     actorGetNodePos(gCurrentActor, 1, &boneX, &boneY, &boneZ);
-                    boneX += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
-                    boneY += (f32)((randomNonNegative() >> 15) % 100 + 0x32);
-                    boneZ += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
+                    boneX += (randomNonNegative() >> 15) % 100 - 0x32;
+                    boneY += (randomNonNegative() >> 15) % 100 + 0x32;
+                    boneZ += (randomNonNegative() >> 15) % 100 - 0x32;
                     effectSetDepth(1);
                     effectSetCallback(effectEaseToTargetNodeUpdate);
                     effectSetSpeed((s32)gCurrentActor);
@@ -588,15 +585,14 @@ void bossMainStep(void) {
                     projectileGetTargetCoords(gCurrentActor, 3);
                     projectileAimAndSpawn(0x3B, 1, 1.2f, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y + 5.0f, gPrimaryPlayerActor->z, 900.0f, gCurrentActor);
                 } else {
-                    waypoints->next = bossPickWaypointStep(scriptState, (u8 *)waypoints);
+                    waypoints->next = bossPickWaypointStep(scriptState, waypoints);
                     bossSpawnObjectAtWaypoint((u8 *)waypoints);
                 }
                 gCurrentActor->unk155 = 5;
                 break;
             case 6:
-                v = scriptState->unk18[0];
-                if (v != 0) {
-                    scriptState->unk18[0] = v - 1;
+                if (scriptState->unk18[0] != 0) {
+                    scriptState->unk18[0]--;
                     gBehaviourWorkState->timer = scriptState->unk18[1];
                     gCurrentActor->unk155 = 7;
                 } else {
@@ -739,8 +735,8 @@ void bossMainStep(void) {
             break;
         case 4:
             if (currentActorTestClearFlag() != 0) {
-                effectSpawnScatterRandom(D_80720BE8, 0, 6.0f, 6, 0x50, 0x64, (s32)gCurrentActor->x, (s32)(gPrimaryPlayerActor->y + 100.0f), (s32)gCurrentActor->z);
-                effectSpawnScatterRandom(D_80720BE8, 0x14, 6.0f, 8, 0x96, 0x46, (s32)gCurrentActor->x, (s32)(gPrimaryPlayerActor->y + 100.0f), (s32)gCurrentActor->z);
+                effectSpawnScatterRandom(D_80720BE8, 0, 6.0f, 6, 0x50, 0x64, gCurrentActor->x, gPrimaryPlayerActor->y + 100.0f, gCurrentActor->z);
+                effectSpawnScatterRandom(D_80720BE8, 0x14, 6.0f, 8, 0x96, 0x46, gCurrentActor->x, gPrimaryPlayerActor->y + 100.0f, gCurrentActor->z);
                 gCurrentActor->unk155++;
             }
             break;

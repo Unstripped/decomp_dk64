@@ -3,8 +3,9 @@
 #define PROTO_BOSS_F0D0_H
 #include "common.h"
 #include "boss.h"
+struct BossWaypointState;
 #ifndef PROTO_SKIP_bossPickWaypointStep
-u8 bossPickWaypointStep(BossScriptState *, u8 *);
+u8 bossPickWaypointStep(BossScriptState *, struct BossWaypointState *);
 #endif
 #ifndef PROTO_SKIP_bossSetAnimationByWaypoint
 void bossSetAnimationByWaypoint(u8 *);
