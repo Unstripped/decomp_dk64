@@ -1141,14 +1141,13 @@ extern u8 D_800342B8[];
 extern TextureDescriptor D_8004BC20[];
 void arcadeDrawStage4Background(Gfx **glistp) {
     s32 step;
-    s32 one;
+    s32 y;
     Gfx *glist;
     s32 x;
     s32 i;
 
     glist = *glistp;
-    step = 0x20; // FAKE: value-named constant local steers regalloc (literal: text=15)
-    one = 1; // FAKE: value-named constant local steers regalloc
+    step = 1; // FAKE: constant local step (x += step * 0x20, i += step) keeps the `<` loop exits as slti (literal steps: text=11)
     D_8004C719 = 8;
     D_8004C71A = 0xA;
     D_8004C6D4.word = 0x492;
@@ -1156,55 +1155,41 @@ void arcadeDrawStage4Background(Gfx **glistp) {
     dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
-    x = 0x220;
-    do {
+    for (x = 0x220; x < 0x2E0; x += step * 0x20) {
         dlAppendTextureRectangle(&glist, x, 0xE0);
-        x += step;
-    } while (x < 0x2E0);
-    x = 0xC0;
-    do {
+    }
+    for (x = 0xC0; x < 0x440; x += step * 0x20) {
         dlAppendTextureRectangle(&glist, x, 0x380);
-        x += step;
-    } while (x < 0x440);
-    i = 1;
-    do {
+    }
+    for (i = 1; i < 0x1B; i += step) {
         if (i != 6 && i != 7 && i != 0x13 && i != 0x14) {
-            dlAppendTextureRectangle(&glist, ((i << 5) + 0xC0), 0x268);
+            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x268);
         }
-        i += one;
-    } while (i < 0x1B);
+    }
     D_8004C6D0 = D_80032CA8;
     dlInitTextureDescriptor(&D_8004BC20[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BC20[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
-    x = 0xE0;
-    do {
+    for (x = 0xE0; x < 0x420; x += step * 0x20) {
         dlAppendTextureRectangle(&glist, x, 0x150);
-        x += step;
-    } while (x < 0x420);
-    i = 0;
-    do {
+    }
+    for (i = 0; i < 0x1C; i += step) {
         if (i < 0xC || i >= 0x10) {
-            dlAppendTextureRectangle(&glist, ((i << 5) + 0xC0), 0x1DC);
+            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x1DC);
         }
-        i += one;
-    } while (i < 0x1C);
-    x = 0xE0;
-    do {
+    }
+    for (x = 0xE0; x < 0x420; x += step * 0x20) {
         dlAppendTextureRectangle(&glist, x, 0x2F4);
-        x += step;
-    } while (x < 0x420);
+    }
     D_8004C6D0 = D_800342B8;
     dlInitTextureDescriptor(&D_8004BC50[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BC50[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
-    x = 0x240;
-    do {
-        for (i = 0x9F; (i ^ 0) != 0x87; i -= 8) { // FAKE: no-op `^ 0` steers codegen
-            dlAppendTextureRectangle(&glist, x, (s32)((((f64)i * 0.875) + 8.0) * 4.0));
+    for (x = 0x240; x != 0x2C0; x += step * 0x20) {
+        for (y = 0x9F; (y ^ 0) != 0x87; y -= 8) { // FAKE: no-op `^ 0` steers codegen
+            dlAppendTextureRectangle(&glist, x, (s32)((((f64)y * 0.875) + 8.0) * 4.0));
         }
-        x += step;
-    } while (x != 0x2C0);
+    }
     arcadeDrawStage4Ladders(&glist);
     *glistp = glist;
 }
