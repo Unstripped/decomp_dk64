@@ -1063,8 +1063,8 @@ void actorDispatchCallbacks(Actor *actor) {
                     gActorGlobalState.unk14 = node->unk4;
                     break;
                 case 0x2000000:
-                    gActorGlobalState.unk0 = 1;
-                    gActorGlobalState.unk1[0] = node->unk4;
+                    gActorGlobalState.notifyReceived = 1;
+                    gActorGlobalState.notifyValue[0] = node->unk4;
                     break;
                 }
             }
@@ -1431,7 +1431,7 @@ void actorGlobalStateClearEvents(void) {
     gActorGlobalState.unk201 = 0;
     gActorGlobalState.volumeTriggerQueueCount = 0;
     gActorGlobalState.unk2 = 0;
-    gActorGlobalState.unk0 = 0;
+    gActorGlobalState.notifyReceived = 0;
     gActorGlobalState.unkE8 = 0.0f;
     gActorGlobalState.unkF0 = 0.0f;
     gActorGlobalState.unkF4 = 0.0f;

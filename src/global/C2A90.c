@@ -443,9 +443,9 @@ void func_806BE8BC(void) {
                 }
                 actorScriptStart(gCurrentActor, sel);
             }
-            if (gActorGlobalState.unk0 != 0) {
-                if (gActorGlobalState.unk1[0] >= D_807506C0[gCurrentActor->unk15F] && gCurrentActor->unk15F < 0x10U) {
-                    if (gActorGlobalState.unk1[0] != D_807506C0[gCurrentActor->unk15F]) {
+            if (gActorGlobalState.notifyReceived != 0) {
+                if (gActorGlobalState.notifyValue[0] >= D_807506C0[gCurrentActor->unk15F] && gCurrentActor->unk15F < 0x10U) {
+                    if (gActorGlobalState.notifyValue[0] != D_807506C0[gCurrentActor->unk15F]) {
                         actorScriptStart(gCurrentActor, 0x301);
                         gCurrentActor->state = 0x27;
                         gCurrentActor->unk155 = 0;

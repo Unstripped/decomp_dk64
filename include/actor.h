@@ -263,8 +263,8 @@ typedef struct ActorCollisionHit {
 } ActorCollisionHit; // size = 0x40
 
 typedef struct ActorGlobalState {
-    /* 0x000 */ u8 unk0;
-    /* 0x001 */ u8 unk1[1];
+    /* 0x000 */ u8 notifyReceived; // set by actorDispatchCallbacks for a 0x2000000 callback; cleared by actorGlobalStateClearEvents
+    /* 0x001 */ u8 notifyValue[1]; // its subtype (A2F10 sends 1 to attached children, 936B0 0); a plain u8 changes C8C10 registers
     /* 0x002 */ u8 unk2;
     /* 0x003 */ u8 unk3;
     /* 0x004 */ f32 unk4;

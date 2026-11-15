@@ -1041,7 +1041,7 @@ void carryObjectUpdate(void) {
         if (state->respawns == 0) {
             actorDespawn(gCurrentActor);
         }
-        if (gActorGlobalState.unk0 == 0) {
+        if (gActorGlobalState.notifyReceived == 0) {
             spritePair = D_807503A4;
             for (particleIdx = 0; particleIdx < 8; particleIdx++) {
                 offsetX = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);

@@ -2344,7 +2344,7 @@ void rocketbarrelUpdate(void) {
         gCurrentActor->state = 3;
         break;
     case 3:
-        if (gActorGlobalState.unk0 != 0) {
+        if (gActorGlobalState.notifyReceived != 0) {
             gCurrentActor->flags |= 0x8000;
             gCurrentActor->unk144 = 2;
             gCurrentActor->flags &= ~0x200000;

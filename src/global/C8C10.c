@@ -316,8 +316,8 @@ u8 actorSpawnNumberedTargetsUpdate(u16 spawnCooldown, u16 maxSpawns) {
             gCurrentActor->unkEC = (s16)(ang - mathAngleBetweenPointsDeg((s32)gPlayerSlots->focusX, (s32)gPlayerSlots->focusZ, (s32)gPlayerSlots->camX, (s32)gPlayerSlots->camZ));
             actorAirPatrolStep(gCurrentActor->state, gBehaviourAnimState->animId1, gBehaviourAnimState->animId2);
             gCurrentActor->unk15F = maxSpawns - gBehaviourWorkState->timer + 1;
-            if (gActorGlobalState.unk0 != 0) {
-                if (gCurrentActor->unk15F != gActorGlobalState.unk1[0]) {
+            if (gActorGlobalState.notifyReceived != 0) {
+                if (gCurrentActor->unk15F != gActorGlobalState.notifyValue[0]) {
                     ret = 1;
                 } else {
                     gBehaviourWorkState->timer--;

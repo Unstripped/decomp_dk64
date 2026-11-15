@@ -344,8 +344,8 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         state->flagId = ((BounceSpawnConfig *)gCurrentActor->spawnData)->flagId;
         gCurrentActor->unkFA = 0x270F;
     }
-    if (gActorGlobalState.unk0 != 0) {
-        gCurrentActor->state = gActorGlobalState.unk1[0];
+    if (gActorGlobalState.notifyReceived != 0) {
+        gCurrentActor->state = gActorGlobalState.notifyValue[0];
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     if (gCurrentActor->hasArcBounds != 0) {
@@ -496,8 +496,8 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
         state->fadeInFrames++;
     }
     gCurrentActor->alpha = state->fadeInFrames * 0.033333335f * 255.0f;
-    if (gActorGlobalState.unk0 != 0) {
-        gCurrentActor->state = gActorGlobalState.unk1[0];
+    if (gActorGlobalState.notifyReceived != 0) {
+        gCurrentActor->state = gActorGlobalState.notifyValue[0];
     }
     actorUpdatePrevContactFlags(gCurrentActor);
     if (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->moveYaw) == 0) {
