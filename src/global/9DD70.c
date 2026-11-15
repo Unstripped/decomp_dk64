@@ -800,7 +800,7 @@ s32 actorHasCallbackTargetThisFrame(void) {
 }
 
 
-typedef struct ActorSub174View {
+typedef struct CarryObjectState {
     /* 0x00 */ s32 throwFrame;
     /* 0x04 */ f32 homeX;
     /* 0x08 */ f32 homeY;
@@ -814,12 +814,12 @@ typedef struct ActorSub174View {
     /* 0x28 */ u8 respawns;
     /* 0x29 */ u8 pad29[1];
     /* 0x2A */ u16 spinSpeed;
-} ActorSub174View;
+} CarryObjectState;
 
-typedef struct ActorSub124View {
+typedef struct CarryObjectSpawnData {
     /* 0x00 */ s32 respawns;
     /* 0x04 */ s32 interactionMode;
-} ActorSub124View;
+} CarryObjectSpawnData;
 
 typedef struct SpritePair {
     /* 0x0 */ void *sprites[2];
@@ -832,7 +832,7 @@ extern SpritePair D_807503A4;
 
 
 void carryObjectUpdate(void) {
-    ActorSub174View *state;
+    CarryObjectState *state;
     f32 mtxA[4][4];
     f32 mtxB[4][4];
     s32 i;
@@ -857,14 +857,14 @@ void carryObjectUpdate(void) {
             gCurrentActor->unk155 = 1;
             state->settleTimer = 0x1E;
         }
-        state->respawns = ((ActorSub124View *)gCurrentActor->spawnData)->respawns;
+        state->respawns = ((CarryObjectSpawnData *)gCurrentActor->spawnData)->respawns;
         if (state->respawns != 0) {
             state->homeX = gCurrentActor->x;
             state->homeY = gCurrentActor->y;
             state->homeZ = gCurrentActor->z;
             state->homeScale = gCurrentActor->sub4->scaleX / 0.15;
         }
-        if (((ActorSub124View *)gCurrentActor->spawnData)->interactionMode == 1) {
+        if (((CarryObjectSpawnData *)gCurrentActor->spawnData)->interactionMode == 1) {
             gCurrentActor->interactionType = 2;
         } else {
             gCurrentActor->interactionType = 1;
@@ -930,7 +930,7 @@ void carryObjectUpdate(void) {
         gCurrentActor->yaw = gActorGlobalState.unk36;
         gCurrentActor->moveYaw = gActorGlobalState.unk36;
         gCurrentActor->speedY = gActorGlobalState.unk30;
-        gCurrentActor->speedXZ = (f32)gActorGlobalState.unk34;
+        gCurrentActor->speedXZ = gActorGlobalState.unk34;
         actorCollisionEventsCancel(state->holder, 1);
         if (gCurrentActor->actorType == 0x43 && gCurrentMap == 0x1E) {
             gCurrentActor->flags |= 0x200000;
@@ -969,14 +969,14 @@ void carryObjectUpdate(void) {
         }
         break;
     case 1:
-        gCurrentActor->flags2 &= 0xFFFE;
+        gCurrentActor->flags2 &= ~1;
         gCurrentActor->renderFlags &= ~8;
-        gCurrentActor->flags &= 0x7FFFFFFF;
-        state->holdYaw = (f32)(((f64)state->holder->yaw / 4095.0) * 360.0);
+        gCurrentActor->flags &= ~0x80000000;
+        state->holdYaw = (state->holder->yaw / 4095.0) * 360.0;
         break;
     case 2:
         gCurrentActor->renderFlags &= ~8;
-        gCurrentActor->flags &= 0x7FFFFFFF;
+        gCurrentActor->flags &= ~0x80000000;
         if (state->settleTimer != 0) {
             state->settleTimer--;
         }
@@ -1003,11 +1003,11 @@ void carryObjectUpdate(void) {
         break;
     case 3:
         gCurrentActor->speedY += D_807502E4;
-        if (gCurrentActor->speedY < (f32)D_807502D0) {
-            gCurrentActor->speedY = (f32)D_807502D0;
+        if (gCurrentActor->speedY < D_807502D0) {
+            gCurrentActor->speedY = D_807502D0;
         }
         timedOut = 0;
-        state->spinYaw = state->spinYaw - 10.0f;
+        state->spinYaw -= 10.0f;
         if (gCurrentActor->actorType == 0x43 && gCurrentMap == 0x1E &&
             gGameFrameCounter - state->throwFrame >= 0x5B) {
             timedOut = 1;
@@ -1015,9 +1015,9 @@ void carryObjectUpdate(void) {
         if (timedOut != 0 || (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0)) {
             gCurrentActor->state = 4;
         }
-        gCurrentActor->flags2 &= 0xFFFE;
+        gCurrentActor->flags2 &= ~1;
         gCurrentActor->renderFlags &= ~8;
-        gCurrentActor->flags &= 0x7FFFFFFF;
+        gCurrentActor->flags &= ~0x80000000;
         break;
     case 4:
         if (gCurrentActor->actorType == 0x3D && state->respawns == 0) {
@@ -1044,9 +1044,9 @@ void carryObjectUpdate(void) {
         if (gActorGlobalState.notifyReceived == 0) {
             spritePair = D_807503A4;
             for (particleIdx = 0; particleIdx < 8; particleIdx++) {
-                offsetX = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
-                offsetY = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
-                offsetZ = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
+                offsetX = ((randomNonNegative() >> 15) % 8191) / 200.0 - 20.0;
+                offsetY = ((randomNonNegative() >> 15) % 8191) / 200.0 - 20.0;
+                offsetZ = ((randomNonNegative() >> 15) % 8191) / 200.0 - 20.0;
                 effectSetAngle(particleIdx * 2);
                 effectSetDepth(1);
                 if (particleIdx == 0) {
@@ -1072,7 +1072,7 @@ void carryObjectUpdate(void) {
                     effectSetMode(2);
                     effectSetSpeed(2);
                     effectCreateAtPosition(spritePair.sprites[(randomNonNegative() >> 15) % 2],
-                                  (f32)(((f64)randomFloat() * 0.5) + 0.2),
+                                  randomFloat() * 0.5 + 0.2,
                                   gCurrentActor->x + offsetX, gCurrentActor->y + offsetY,
                                   gCurrentActor->z + offsetZ);
                 }
@@ -1088,9 +1088,9 @@ void carryObjectUpdate(void) {
         break;
     case 5:
         gCurrentActor->renderFlags &= ~8;
-        gCurrentActor->flags &= 0x7FFFFFFF;
-        gCurrentActor->flags2 &= 0xFFFE;
-        state->spinSpeed = state->spinSpeed + 2;
+        gCurrentActor->flags &= ~0x80000000;
+        gCurrentActor->flags2 &= ~1;
+        state->spinSpeed += 2;
         if (state->spinSpeed >= 0xFB) {
             state->spinSpeed = 0xFA;
         }
@@ -1098,11 +1098,11 @@ void carryObjectUpdate(void) {
             sfxPlayActorSound(gCurrentActor, 0x11A, 0x64, 1, 0, 0x64, 1.0f, 0);
         } else {
             sfxSetVolumeAndPan(gCurrentActor->soundSlots[0],
-                               (f32)(((f64)state->spinSpeed / 400.0) + 0.5), 2.0f);
+                               state->spinSpeed / 400.0 + 0.5, 2.0f);
         }
         lightAdd(gCurrentActor->x, gCurrentActor->y + 30.0f, gCurrentActor->z,
-                 0, 0.0f, 0.0, (f32)(((f64)state->spinSpeed / 250.0) * 100.0), 0, 0xFF, 0xFF, 0);
-        gCurrentActor->yaw = gCurrentActor->yaw + state->spinSpeed;
+                 0, 0.0f, 0.0, (state->spinSpeed / 250.0) * 100.0, 0, 0xFF, 0xFF, 0);
+        gCurrentActor->yaw += state->spinSpeed;
         gCurrentActor->y = gCurrentActor->floorY;
         break;
     case 10:
@@ -1115,7 +1115,7 @@ void carryObjectUpdate(void) {
             } else {
                 spawnArgs[1] = 0;
             }
-            actorListSpawnNodeEntry((s16)gCurrentActor->actorType, state->homeX, state->homeY,
+            actorListSpawnNodeEntry(gCurrentActor->actorType, state->homeX, state->homeY,
                                     state->homeZ, 0, state->homeScale, NULL, spawnArgs);
             actorDespawn(gCurrentActor);
         }
@@ -1137,7 +1137,7 @@ void carryObjectUpdate(void) {
         gCurrentActor->floorSlopePitch = 0x3FF;
     } else {
         gCurrentActor->attachMode = 0;
-        gCurrentActor->contactFlags &= 0xFBF7;
+        gCurrentActor->contactFlags &= ~0x408;
     }
     switch (gCurrentMap) {
     case 0x26:
@@ -1158,22 +1158,22 @@ void carryObjectUpdate(void) {
     guScaleF(mtxA, gCurrentActor->sub4->scaleX, gCurrentActor->sub4->scaleY, gCurrentActor->sub4->scaleZ);
     guRotateF(mtxB, state->spinYaw, 0.0, 1.0f, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
-    guRotateF(mtxB, (f32)(((f64)gCurrentActor->yaw / 4095.0) * 360.0), 0.0, 1.0f, 0.0);
+    guRotateF(mtxB, (gCurrentActor->yaw / 4095.0) * 360.0, 0.0, 1.0f, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
-    guRotateF(mtxB, (f32)(0.0 - (f64)gActorGlobalState.unkF0), 1.0f, 0.0, 0.0);
+    guRotateF(mtxB, 0.0 - gActorGlobalState.unkF0, 1.0f, 0.0, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
     guRotateF(mtxB, (state->holdYaw + 90.0f) - gActorGlobalState.unkF4, 0.0, 1.0f, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
     if (gCurrentActor->state == 3) {
         if (gCurrentActor->floorSlopePitch < 0x3E8) {
-            guRotateF(mtxB, (f32)(-(((f64)gCurrentActor->floorSlopeYaw / 4095.0) * 360.0)),
+            guRotateF(mtxB, -((gCurrentActor->floorSlopeYaw / 4095.0) * 360.0),
                       0.0, 1.0f, 0.0);
             guMtxCatF(mtxA, mtxB, mtxA);
         }
-        guRotateF(mtxB, (f32)(90.0 - (((f64)gCurrentActor->floorSlopePitch / 4095.0) * 360.0)), 1.0f, 0.0, 0.0);
+        guRotateF(mtxB, 90.0 - (gCurrentActor->floorSlopePitch / 4095.0) * 360.0, 1.0f, 0.0, 0.0);
         guMtxCatF(mtxA, mtxB, mtxA);
         if (gCurrentActor->floorSlopePitch < 0x3E8) {
-            guRotateF(mtxB, (f32)(((f64)gCurrentActor->floorSlopeYaw / 4095.0) * 360.0),
+            guRotateF(mtxB, (gCurrentActor->floorSlopeYaw / 4095.0) * 360.0,
                       0.0, 1.0f, 0.0);
             guMtxCatF(mtxA, mtxB, mtxA);
         }
