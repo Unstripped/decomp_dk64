@@ -501,12 +501,11 @@ Gfx *lensFlareDrawSource(Gfx *dl, LensFlarePoint pt, u8 fade) {
     Vec3f pad1[7];
     f32 screenX;
     s16 i;
-    f32 pad2[2];
     f32 facing;
-    f32 screenY;
-    f32 alpha;
     f32 colorScale;
     f32 alphaScale;
+    f32 screenY;
+    f32 alpha;
 
     alpha = fade / 5.0;
     vec3fSet(&src, pt.x, pt.y, pt.z);
@@ -549,9 +548,8 @@ Gfx *lensFlareDrawSource(Gfx *dl, LensFlarePoint pt, u8 fade) {
     gDPPipeSync(dl++);
     if (facing > 0.97) {
         dl = gfxFillScreenColor(dl, pt.r, pt.g, pt.b, (u32)((facing - 0.97) * 33.0 * 128.0));
-        dl->words.w0 = 0xD7000002; dl->words.w1 = 0x80008000; // FAKE: raw G_TEXTURE + G_SETCOMBINE words; gSPTexture/gDPSetCombine _g homes grow the frame 0x1C0 -> 0x1C8
-        dl[1].words.w0 = 0xFC119623; dl[1].words.w1 = 0xFF2FFFFF;
-        dl += 2;
+        gSPTexture(dl++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
+        gDPSetCombineMode(dl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     }
     return dl;
 }
