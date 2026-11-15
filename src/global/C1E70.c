@@ -20,8 +20,10 @@ extern Actor *gPrimaryPlayerActor;
 
 extern Actor *gSpawnedActor;
 extern s16 D_80744710[];
-extern s8 D_807506A4;
-extern s8 D_80750660;
+s8 D_80750660 = 0;
+s16 D_80750664[] = { 0x22, 8, 0x22, 7, -1, -1, 0x22, 5, 0x22, 4, 0x22, 0x12, 0x22, 0x12, 0x99, 9 };
+s16 D_80750684[] = { 0x2F2, 0x2F1, 0x2F3, 0x2F2, 0x2F1, 0x2F2, 0x2F2, 0x2F1, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4 };
+s8 D_807506A4 = 0;
 extern u8 D_807FC8D0;
 
 s32 actorSpawn();
@@ -96,12 +98,12 @@ void func_806BD170(void) {
 }
 
 extern s16 D_8076A0A6;
-extern s8 sRingSequencePos;
-extern s8 sRingSequence[];
 extern f32 D_807FC8D4;
 
 
 void actorNodeRingUpdate(void) {
+    static s8 sRingSequence[] = { 3, 10, 1, 8, 2, 11, 0, 9, -1, 0, 0, 0 };
+    static s8 sRingSequencePos = 0;
     RingNodeModel *nodePtr = ((RingNodeActor *)gCurrentActor)->unk178;
     f32 dx;
     f32 dz;
@@ -109,7 +111,6 @@ void actorNodeRingUpdate(void) {
     u16 shakeDuration;
     s16 v3 = D_8076A0A6;
     s16 idx;
-    s8 *seqPos = &sRingSequencePos; // FAKE: pointer local for the ring-check accesses of sRingSequencePos; spelled as the global, &sRingSequencePos becomes a coloured address (t1, every t-reg from 0x2b4 shifts) and the global is no longer promoted into v0 (lb v0 at 0x584, li v0,-1 at 0x604)
 
     if (!(gCurrentActor->flags & 0x10)) {
         if (func_806BDD2C() != 0) {
@@ -119,7 +120,8 @@ void actorNodeRingUpdate(void) {
         gCurrentActor->drawDistance = 0x7D0;
         gCurrentActor->flags |= 0x400;
         v3 = 0;
-        sRingSequencePos = 0; actorSpawn(0x73, 0xC4, &gCurrentActor); // LAYOUT: one line keeps as1 order of the sb zero to sRingSequencePos in the jal delay slot
+        sRingSequencePos = 0;
+        actorSpawn(0x73, 0xC4, &gCurrentActor);
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
         gSpawnedActor->renderFlags |= 0x20;
         gSpawnedActor->flags |= 0x400;
@@ -177,16 +179,16 @@ void actorNodeRingUpdate(void) {
         camStartShake(gCamActor, shakeMagnitude, shakeDuration);
     }
     if (idx >= 0) {
-        if (idx == sRingSequence[*seqPos]) {
-            (*seqPos)++;
-            if (sRingSequence[*seqPos] == -1) {
+        if (idx == sRingSequence[sRingSequencePos]) {
+            sRingSequencePos++;
+            if (sRingSequence[sRingSequencePos] == -1) {
                 sfxPlayOnFreeSlot(0x1DA, 0x7FFF, 63.0f, 1.0f, 5, 0);
                 flagSet(0x28, 1, 1);
                 flagSet(0x26, 1, 1);
-                *seqPos = -1;
+                sRingSequencePos = -1;
             }
         } else {
-            *seqPos = 0;
+            sRingSequencePos = 0;
         }
     }
     D_8076A0A6 = 0;
@@ -198,9 +200,7 @@ typedef struct RingModelIds {
     /* 0x00 */ s8 b[8];
 } RingModelIds;
 
-extern s16 D_80750664[];
-extern s16 D_80750684[];
-extern RingModelIds D_807506B8;
+RingModelIds D_807506B8 = { { 0x0E, 0x0F, 0x10, 0x11, 0x0A, 0x0B, 0x0C, 0x0D } };
 extern u8 D_80720A7C;
 
 void func_806BD7B0(void) {

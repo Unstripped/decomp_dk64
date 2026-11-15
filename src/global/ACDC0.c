@@ -86,7 +86,6 @@ extern s8 gPauseMenuMode;
 extern s8 D_80750530[5];
 extern u8 D_80750531[];
 extern s32 gCurrentMap;
-extern u8 D_807505F8[];
 extern s8 D_807FC80E;
 extern s8 gPausingPlayer;
 extern PlayerStruct *gPlayerSlots;
@@ -94,6 +93,32 @@ extern s8 gMpWinnerIndex;
 
 Gfx *renderRotatedSprite(Gfx *, u16, s32, u8, u8, u8, s16, s16, f32, f32, s32, f32); // FAKE: callee prototype steer
 f32 sqrtf(f32);
+
+extern char D_8075AA80[], D_8075AA88[], D_8075AA90[], D_8075AA94[], D_8075AA9C[], D_8075AAA4[], D_8075AAAC[];
+extern char D_8075AAB4[], D_8075AABC[], D_8075AAC4[], D_8075AACC[], D_8075AAD4[], D_8075AADC[], D_8075AAE4[];
+extern s32 D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
+
+char *D_807504E0[14] = {
+    D_8075AA80, D_8075AA88, D_8075AA90, D_8075AA94, D_8075AA9C, D_8075AAA4, D_8075AAAC,
+    D_8075AAB4, D_8075AABC, D_8075AAC4, D_8075AACC, D_8075AAD4, D_8075AADC, D_8075AAE4,
+};
+void *D_80750518[5] = { &D_807214A0, &D_807214B8, &D_807214D0, &D_807214E8, &D_80721500 };
+s8 D_8075052C = 0;
+s8 D_80750530[5] = { 1, 1, 0, 0, 0 };
+s8 D_80750538 = 0;
+u8 D_8075053C[14] = { 0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1 };
+u8 D_8075054C[5][4] = {
+    { 0xFF, 0x00, 0x00, 0xFF }, { 0xFF, 0x00, 0x00, 0xFF }, { 0x16, 0x99, 0xFF, 0xFF },
+    { 0xB0, 0x45, 0xFF, 0xFF }, { 0x41, 0xFF, 0x25, 0xFF },
+};
+s8 D_80750560[9] = { 7, 0, 1, 2, 3, 4, 5, 6, 8 };
+s16 D_8075056C[10] = { 0xC8, 0xA, 8, 0x28, 1, 0x14, 1, 0x28, 1, 0 };
+s8 D_80750580 = 0;
+f32 D_80750584[8] = { 0.0f, -0.02f, 0.04f, -0.04f, 0.06f, 0.06f, -0.06f, -0.06f };
+s16 D_807505A4[10] = { 0, 0x333, 0x666, 0x999, 0xCCC, 0, 6, 0x46, 0x42, 0x75 };
+s16 D_807505B8[10] = { 0x261, 0x262, 0x263, 0x264, 0x265, 0x268, 0x269, 0x266, 0x26A, 0x267 };
+s8 gPauseMenuMode = 0;
+s8 D_807505D0 = 0;
 
 s32 hudFindItemIndex(s8 itemId) {
     s32 i;
@@ -113,7 +138,6 @@ extern s32 D_8076A098;
 extern u8 gCurrentWorldId;
 extern s32 gGlobalOverlayFlags;
 extern f32 D_807FC7FC;
-extern s8 sPauseSaveCooldown;
 extern s8 D_80750580;
 extern s16 D_807505A4[];
 extern f32 D_80750584[];
@@ -128,6 +152,7 @@ extern s8 D_807FC8B8;
 
 
 void hudPauseMenuUpdate(void) {
+    static s8 sPauseSaveCooldown = 0;
     HudEntry *hud;
     s32 i;
     s32 diff;
@@ -137,7 +162,6 @@ void hudPauseMenuUpdate(void) {
     s32 x;
     s32 a2;
     s32 lim;
-    if (sPauseSaveCooldown) {} // FAKE: dead read, splits the sPauseSaveCooldown address web
 
     hud = gCurrentActor->customState;
     i = gCurrentMap;
@@ -427,7 +451,7 @@ void hudPauseMenuUpdate(void) {
                     diff = flag;
                 }
                 diff = flag - diff;
-                hud->carouselProgress = (f32)diff / (f32)((f64)(f32)flag * 0.9);
+                hud->carouselProgress = (f32)diff / (f32)((f32)flag * 0.9);
                 if (hud->carouselProgress > 1.0f && D_807FC80D != D_807FC80C) {
                     D_807FC80C = D_807FC80D;
                 }
@@ -835,7 +859,6 @@ extern s16 D_807FC83A;
 extern s8 D_807FC83C;
 extern void *D_80750518[];
 extern s16 D_807505A4[];
-extern void *D_807505D8[];
 extern s32 D_80720C34;
 extern s32 D_80720D38;
 extern s32 D_80720D5C;
@@ -850,6 +873,7 @@ extern s32 D_80721518;
 
 
 void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
+    static void *D_807505D8[8] = { (void *)9, &D_807210EC, (void *)0x807210B8, (void *)0xA, (void *)0x80721110, &D_80721094, (void *)0x80721134, (void *)0xC };
     s32 saved;
     KongInventory *e2;
     KongInventory *ent;
@@ -1660,6 +1684,7 @@ void hudTextScreenUpdate(void) {
 }
 
 Gfx *hudDrawTwoOptionMenu(Gfx *dl, Actor *actor) {
+    static u8 D_807505F8[2] = { 0x80, 0xFF };
     u8 sel;
     u8 c;
 

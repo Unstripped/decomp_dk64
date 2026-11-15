@@ -231,6 +231,10 @@ segments:
       - [0x14C450, data]
       - [0x14C9D0, .data, 2F550] # D_80747CD0 (cameraStepAspectScale's static f32, 0x80747CD0-0x80747CE0 incl. 12-byte TU pad); 16-aligned, no other 2F550 data
       - [0x14C9E0, data]
+      - [0x1551E0, .data, ACDC0] # D_807504E0..D_807505F8 (0x807504E0-0x807505FA + 6-byte TU pad): pause-menu tables; sPauseSaveCooldown, D_807505D8, D_807505F8 are function-local statics of hudPauseMenuUpdate, hudPauseMenuBuildPage, hudDrawTwoOptionMenu, laid out in source order after the file-scope tables (defined above the functions)
+      - [0x155300, data]
+      - [0x155360, .data, C1E70] # D_80750660..D_807506B8 (0x80750660-0x807506C0, no pad): ring-node data; sRingSequence/sRingSequencePos (0x807506A8/0x807506B4) are actorNodeRingUpdate's function-local statics, laid out in source order between D_807506A4 and D_807506B8
+      - [0x1553C0, data]
       - [0x155CF0, .data, E4090] # gButtonRemapTable, D_80750FF4..D_80751000, gPlayerInputHandlers[107][17] (0x80750FF0-0x80752C70, no pad); 16-aligned after D5E10's D_80750FE0[4]; the table's words make playerInputUpdateCannonAim's entry label address-taken (Q0552)
       - [0x157970, .data, EFDC0] # gPlayerStateCallbacks[93] (0x80752C70-0x80752DE4) + 12-byte TU pad; 16-aligned after E4090's gPlayerInputHandlers; the word pointing at playerStateSetFlagsByActorType makes its entry label address-taken (Q0552)
       - [0x157AF0, data]
