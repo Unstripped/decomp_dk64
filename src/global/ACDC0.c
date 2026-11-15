@@ -558,6 +558,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     Gfx *list;
     s32 hubWorld;
     s16 ang;
+    s16 alpha;
     s16 y0;
     s8 pips;
     u8 centerX;
@@ -587,10 +588,10 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 }
                 off = ((HudTextEntry *)((u8 *)it + j * 0x18))->x; // FAKE: byte-offset entry spelling (all 8 reads in this loop) instead of it[j] steers the ugen scratch ring
                 y = ((HudTextEntry *)((u8 *)it + j * 0x18))->y;
-                off = (u16)(off * 4) + (s16)(s64)(s32)((f32)fa * ((HudTextEntry *)((u8 *)it + j * 0x18))->flyX); // FAKE: narrow through a 64-bit pair to preserve the ugen scratch-register order.
+                off = (u16)(off * 4) + (s16)(s64)(s32)(fa * ((HudTextEntry *)((u8 *)it + j * 0x18))->flyX); // FAKE: narrow through a 64-bit pair to preserve the ugen scratch-register order.
                 y *= 4;
-                y += (u16)(s32)(fa * ((HudTextEntry *)((u8 *)it + j * 0x18))->flyY);
-                off = (s16)((u32)off + ((HudTextEntry *)((u8 *)it + j * 0x18))->offsetX * 4);
+                y += (u16)(s32)(fa * ((HudTextEntry *)((u8 *)it + j * 0x18))->flyY); // FAKE: no-op (u16) (y is s16) keeps mfc1 t4 / addu t9,t7,t4 at 0x1350/0x1358 in the ugen scratch ring
+                off = (s16)((u32)off + ((HudTextEntry *)((u8 *)it + j * 0x18))->offsetX * 4); // FAKE: no-op (u32)off orders addu t8,s0,t7 at 0x1364; the (s16) store gives its move s0,t8 (Q0374)
                 y += ((HudTextEntry *)((u8 *)it + j * 0x18))->offsetY * 4;
                 y += hud->slideY[i] * 4;
                 dl = textDrawStringVtx(dl, 1, off, y, ((HudTextEntry *)((u8 *)it + j * 0x18))->text, 1);
@@ -602,7 +603,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     switch (hud->page) {
         case 0:
             centerX = tab->melons * 0x34 - 0x34;
-            pips = gPlayerInventoryTable[0].health;
+            pips = tab->health;
             y0 = 0xA0;
             y0 -= (s16)(y0 * 2 * hud->fade);
             for (j = 0; j < tab->melons; j++) {
@@ -649,19 +650,19 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
             }
             gDPPipeSync(dl++);
             y = 0x198;
-            ang = (s32)((1.0f - hud->fade) * 255.0f);
-            if (ang < 0) {
-                ang = 0;
+            alpha = (s32)((1.0f - hud->fade) * 255.0f);
+            if (alpha < 0) {
+                alpha = 0;
             }
-            if (ang >= 0x100) {
-                ang = 0xFF;
+            if (alpha >= 0x100) {
+                alpha = 0xFF;
             }
             if (hud->menuRow != 3) {
                 for (j = 0; j < 3; j++) {
                     if (j == hud->menuRow) {
-                        gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, ang);
+                        gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
                     } else {
-                        gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, ang >> 1);
+                        gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha >> 1);
                     }
                     if (j == 2 && (hubWorld == 7 || (hubWorld == 8 && menuGetTimerFlag() != 0 && gPauseMenuMode == 0))) {
                         j++;
@@ -677,7 +678,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     y += 0x44;
                 }
             } else {
-                gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, ang);
+                gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
                 dl = hudDrawScaledText(dl, 0x280, 0x198, 0.7f, D_807FC7E0[7]);
                 _sprintf(buf, "q %s", D_807FC7E0[16]);
                 dl = hudDrawScaledText(dl, 0x280, 0x1E8, 1.0, buf);
@@ -731,7 +732,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     if (slide == 0) {
                         fc += fd * 400.0;
                     }
-                    j = gPlayerInventoryTable[0].kong[hud->kong].goldenBananas[D_80750560[hud->worldIndex[i]]];
+                    j = tab->kong[hud->kong].goldenBananas[D_80750560[hud->worldIndex[i]]];
                     dl = hudDrawCountPair(0x2A8, (s32)(slide + fc), j, 5, dl, 0, 0.8f);
                 }
             }
@@ -748,7 +749,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 }
                 cnt = 0;
                 for (j = 0; j < 5; j++) {
-                    cnt += gPlayerInventoryTable[0].kong[j].goldenBananas[D_80750560[hud->worldIndex[i]]];
+                    cnt += tab->kong[j].goldenBananas[D_80750560[hud->worldIndex[i]]];
                 }
                 if (hud->worldIndex[i] != 8) {
                     fadeInput4 = hud->carouselProgress;
