@@ -547,16 +547,13 @@ void raceCameraBehaviorUpdate(void) {
     RaceParticipant *targetState;
     RacePathState *targetCursor;
     s32 pad44;
-    RaceParticipant *playerState;
+    PlayerState *playerState;
     s32 pad3C;
     s32 pathLength;
-    f32 distToTarget;
-    f32 offsetSign;
     f32 dist;
+    f32 gapScale;
     f32 camYOffset;
     f32 distNorm;
-    u8 targetStatus;
-    u8 targetLane;
     RacePathState *cursor;
     RaceParticipant *state;
     Actor *playerActor;
@@ -569,55 +566,41 @@ void raceCameraBehaviorUpdate(void) {
     playerActor = gPlayerSlots[targetState->playerIdx].actor;
     playerState = playerActor->customState;
     pathLength = gMinecartTrackPoints[cursor->lane + 1] - gMinecartTrackPoints[cursor->lane];
-    offsetSign = 1.0f;
+    gapScale = 1.0f;
     if (!(gCurrentActor->flags & 0x10)) {
         cursor->waypoint = raceGetPrevWaypointIndex(pathLength, targetCursor->waypoint);
         cursor->waypoint = raceGetPrevWaypointIndex(pathLength, cursor->waypoint);
         cursor->lane = cursor->targetLane = 1;
         racePathFollowStep(cursor, state, 0);
     }
-    targetStatus = targetState->raceStatus;
-    if (state->raceStatus != targetStatus) {
-        state->raceStatus = targetStatus;
+    if (state->raceStatus != targetState->raceStatus) {
+        state->raceStatus = targetState->raceStatus;
         state->unk35 = 0;
     }
     dist = raceGetPathDistanceBetweenRacers(gCurrentActor, cursor, targetActor, targetCursor);
-    distToTarget = dist;
-    targetLane = targetCursor->targetLane;
-    if (cursor->targetLane != targetLane) {
-        cursor->targetLane = targetLane;
+    if (cursor->targetLane != targetCursor->targetLane) {
+        cursor->targetLane = targetCursor->targetLane;
         cursor->laneBlend = 0.0f;
     }
     if ((state->raceStatus >= 2) && (state->raceStatus < 4)) {
         if (targetCursor->boostTimer > 24.0) {
-            offsetSign = -2.5f;
+            gapScale = -2.5f;
         } else if (targetCursor->boostAmount > 0.5f) {
-            offsetSign = 2.5f;
+            gapScale = 2.5f;
         }
         cursor->stunTimer = targetCursor->stunTimer;
         cursor->boostTimer = targetCursor->boostTimer;
-        state->throttle = targetState->throttle + ((dist - (90.0f * offsetSign)) * 0.006f);
-        if (dist < 30.0f) {
-            if (targetActor->speedXZ < gCurrentActor->speedXZ) {
-                gCurrentActor->speedXZ = targetActor->speedXZ;
-            }
+        state->throttle = targetState->throttle + ((dist - (90.0f * gapScale)) * 0.006f);
+        if ((dist < 30.0f) && (targetActor->speedXZ < gCurrentActor->speedXZ)) {
+            gCurrentActor->speedXZ = targetActor->speedXZ;
         }
         racePathFollowStep(cursor, state, 0);
     }
     if ((state->raceStatus < 4) && (state->raceStatus > 0)) {
-        distNorm = distToTarget / 90.0f;
-        if (distNorm < 0.0f) {
-            camYOffset = 0.0f;
-        } else {
-            if (distNorm > 1.0f) {
-                dist = 1.0f;
-            } else {
-                dist = distNorm;
-            }
-            camYOffset = dist;
-        }
+        distNorm = dist / 90.0f;
+        camYOffset = (distNorm < 0.0f) ? 0.0f : (distNorm > 1.0f) ? 1.0f : distNorm;
         camYOffset = (20.0f * camYOffset) + 20.0f;
-        camSetFixedView(playerState->unk104, gCurrentActor->x, gCurrentActor->y + camYOffset, gCurrentActor->z, targetActor->x, targetActor->y + 20.0f, targetActor->z, 1);
+        camSetFixedView(playerState->camActor, gCurrentActor->x, gCurrentActor->y + camYOffset, gCurrentActor->z, targetActor->x, targetActor->y + 20.0f, targetActor->z, 1);
     }
 }
 
