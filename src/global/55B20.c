@@ -204,7 +204,9 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
     s32 cellsOff;
     s32 boxesOff;
     s32 vecsOff;
-    u8 buf[0xE38];
+    s32 portalsOff;
+    s32 relocsOff;
+    u8 buf[0xE30];
     s32 count;
     s32 k;
     s32 size;
@@ -228,13 +230,13 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
         off = data->collOff;
         chunkOff = data->chunksOff;
         base = data->dlBase;
-        cellsOff = data->portalsOff; // FAKE: reuses the cells-offset local for the portal table (a separate portalsOff local changes the codegen)
-        gMapPortalSlotCount = *(s32 *)(p + cellsOff);
-        gMapPortalSlots = (MapATpSlot *)(p + cellsOff + 4);
+        portalsOff = data->portalsOff;
+        gMapPortalSlotCount = *(s32 *)(p + portalsOff);
+        gMapPortalSlots = (MapATpSlot *)(p + portalsOff + 4);
         gMapPortalVisible = heapAlloc(gMapPortalSlotCount);
-        boxesOff = data->relocsOff; // FAKE: reuses the boxes-offset local for the portal list (a separate relocsOff local changes the codegen)
-        gMapPortalCount = *(s32 *)(p + boxesOff);
-        gMapPortals = (MapPortal *)(p + boxesOff + 4);
+        relocsOff = data->relocsOff;
+        gMapPortalCount = *(s32 *)(p + relocsOff);
+        gMapPortals = (MapPortal *)(p + relocsOff + 4);
         for (i = 0; i < gMapPortalCount; i++) {
             if (gMapPortals[i].dl0 != -1) {
                 gMapPortals[i].dl0 += (s32)(p + base);
