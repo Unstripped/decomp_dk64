@@ -1579,7 +1579,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
     CamZoneEntryFull *e;
     s16 ret;
     u8 type0;
-    u8 spread;
+    u8 height;
     u16 rad;
     s16 pad;
     s16 weight;
@@ -1642,7 +1642,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                 if (k < gCamZoneGroups[i + 1].first) {
                     do {
                         e = &gCamActivePaths->zones[gCamZoneSorted[k * 2]];
-                        spread = e->height;
+                        height = e->height;
                         pos[0] = e->centerX;
                         pos[1] = e->centerY;
                         pos[2] = e->centerZ;
@@ -1671,7 +1671,7 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                         if (tgt->chunkIndex == gCamActivePaths->zoneChunks[gCamZoneSorted[k * 2]] || type == 8 ||
                             gCamActivePaths->zoneChunks[gCamZoneSorted[k * 2]] == -1) {
                             if ((mode == 2 && distSq < (f32)(rad * rad) && weight < e->weight && (s16)y >= pos[1] &&
-                                 pos[1] + spread * 2 >= (s16)y) ||
+                                 pos[1] + height * 2 >= (s16)y) ||
                                 (mode != 2 && distSq < (f32)(rad * rad) && weight < e->weight)) {
                                 switch (type) {
                                     case 4:
@@ -1695,17 +1695,13 @@ s32 camEvaluateZones(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
                                     case 7:
                                     case 8:
                                     case 9:
-                                        if (e->flags & 0x20) {
-                                            if (!(st->unkAC & 0x40000)) {
-                                                break;
-                                            }
+                                        if ((e->flags & 0x20) && !(st->unkAC & 0x40000)) {
+                                            break;
                                         }
-                                        if (e->flags & 0x10) {
-                                            if (!((tgt->state == 0x54 && tgt->unk155 >= 3) ||
-                                                  (tgt->state == 0x52 && tgt->unk155 >= 8) ||
-                                                  (tgt->state == 0x53 && tgt->unk155 >= 3))) {
-                                                break;
-                                            }
+                                        if ((e->flags & 0x10) && !((tgt->state == 0x54 && tgt->unk155 >= 3) ||
+                                                                   (tgt->state == 0x52 && tgt->unk155 >= 8) ||
+                                                                   (tgt->state == 0x53 && tgt->unk155 >= 3))) {
+                                            break;
                                         }
                                         if ((e->flags & 2) && (e->flags & 4)) {
                                             break;
