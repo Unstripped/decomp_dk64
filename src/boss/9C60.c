@@ -64,7 +64,6 @@ void bossKRoolDiddyStep(void) {
     u8 *scriptOpcodes;
     s32 pad34;
     f32 projectileScale;
-    u8 action;
 
     scriptState = ((BossKRoolDiddyActor *)gCurrentActor)->scriptState;
     scriptOpcodes = D_80035A60[scriptState->phase];

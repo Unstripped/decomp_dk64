@@ -34,25 +34,21 @@ s32 textBlitGlyph(u8 width, s32 dst, s32 sheet, s16 texX, u8 row, u8 *phase, u8 
     *phase += width;
     width >>= 1;
     for (y = 0; y < 0x10; y++) {
-        j = 0;
-        if (width > 0) {
-            srcOdd = texX & 1;
-            do {
-                if (srcOdd && !phaseBit) {
-                    *out |= (*src++ & 0xF) << 4;
-                    *out++ |= (*src & 0xF0) >> 4;
-                } else if (srcOdd && phaseBit) {
-                    *out |= *src++ & 0xF;
-                    out++;
-                    *out |= *src & 0xF0;
-                } else if (!srcOdd && phaseBit) {
-                    *out++ |= (*src & 0xF0) >> 4;
-                    *out |= (*src++ & 0xF) << 4;
-                } else {
-                    *out++ |= *src++;
-                }
-                j++;
-            } while (j < width);
+        srcOdd = texX & 1;
+        for (j = 0; j < width; j++) {
+            if (srcOdd && !phaseBit) {
+                *out |= (*src++ & 0xF) << 4;
+                *out++ |= (*src & 0xF0) >> 4;
+            } else if (srcOdd && phaseBit) {
+                *out |= *src++ & 0xF;
+                out++;
+                *out |= *src & 0xF0;
+            } else if (!srcOdd && phaseBit) {
+                *out++ |= (*src & 0xF0) >> 4;
+                *out |= (*src++ & 0xF) << 4;
+            } else {
+                *out++ |= *src++;
+            }
         }
         srcRow += 0x100;
         if (oddBit) {

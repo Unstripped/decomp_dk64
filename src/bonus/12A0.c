@@ -206,6 +206,7 @@ void bonusReelGameUpdate(void) {
         case 0:
             hudSpawnCountdownTimer(0xDC, 0x2A, obj->timerSeconds);
             gCurrentActor->unk155 = 1;
+            /* fallthrough */
         case 1:
             if (obj->act[3]->state == 0) {
                 gCurrentActor->state = 2;
@@ -259,6 +260,7 @@ void bonusReelGameUpdate(void) {
         if (D_807457E4[gCurrentActor->soundSlots[0]] != 0) {
             n_alSndpStop(D_807457E4[gCurrentActor->soundSlots[0]]);
         }
+        /* fallthrough */
     case 1:
         if (gCurrentActor->parentActor->state != 5) {
             if (bonusGetReelSymbol(obj, 0) == 0 && bonusGetReelSymbol(obj, 0) == bonusGetReelSymbol(obj, 1) && bonusGetReelSymbol(obj, 1) == bonusGetReelSymbol(obj, 2) && bonusGetReelSymbol(obj, 2) == bonusGetReelSymbol(obj, 3)) {
@@ -294,6 +296,7 @@ void bonusReelGameUpdate(void) {
                 bonusSpawnEffectBurst(obj->act[i]->x, obj->act[i]->y, obj->act[i]->z + 20.0f, 0xF);
             }
         }
+        /* fallthrough */
     case 9:
         obj->spinPhase += 1;
         break;

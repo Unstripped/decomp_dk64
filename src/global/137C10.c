@@ -84,14 +84,14 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
 
     do {
         switch (seqp->nextEvent.type) {
-            case 0:
+            case AL_SEQ_REF_EVT:
                 __n_CSPHandleNextSeqEvent(seqp);
                 break;
-            case 9:
-                evt.type = 9;
+            case AL_SEQP_API_EVT:
+                evt.type = AL_SEQP_API_EVT;
                 alEvtqPostEvent(&seqp->evtq, &evt, seqp->frameTime);
                 break;
-            case 5:
+            case AL_NOTE_END_EVT:
                 voice = seqp->nextEvent.msg.note.voice;
                 n_alSynStopVoice(voice);
                 n_alSynFreeVoice(voice);
@@ -101,7 +101,7 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                 }
                 __n_unmapVoice(seqp, voice);
                 break;
-            case 6:
+            case AL_SEQP_ENV_EVT:
                 voice = seqp->nextEvent.msg.note.voice;
                 vs = voice->clientPrivate;
                 if (vs->envPhase == 0) {
@@ -112,18 +112,18 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                 vs->envGain = seqp->nextEvent.msg.vol.vol;
                 n_alSynSetVol(voice, __n_vsVol(vs, seqp), delta);
                 break;
-            case 22:
+            case AL_TREM_OSC_EVT:
                 vs = (N_VoiceState *)seqp->nextEvent.msg.osc.vs;
                 oscState = seqp->nextEvent.msg.osc.oscState;
                 delta = seqp->updateOsc(oscState, &oscValue);
                 vs->tremelo = oscValue;
                 n_alSynSetVol(&vs->voice, __n_vsVol(vs, seqp), __n_vsDelta(vs, seqp->curTime));
-                evt.type = 0x16;
+                evt.type = AL_TREM_OSC_EVT;
                 evt.msg.osc.vs = (ALVoiceState *)vs;
                 evt.msg.osc.oscState = oscState;
                 alEvtqPostEvent(&seqp->evtq, &evt, delta);
                 break;
-            case 23:
+            case AL_VIB_OSC_EVT:
                 vs = (N_VoiceState *)seqp->nextEvent.msg.osc.vs;
                 oscState = seqp->nextEvent.msg.osc.oscState;
                 chan = seqp->nextEvent.msg.osc.chan;
@@ -133,33 +133,33 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                 if (seqp->chanState[chan].unk11 != 0) {
                     n_alSynSetPan(&vs->voice, 440.0f * n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase) * seqp->chanState[chan].pitchBend * vs->vibrato);
                 }
-                evt.type = 0x17;
+                evt.type = AL_VIB_OSC_EVT;
                 evt.msg.osc.vs = (ALVoiceState *)vs;
                 evt.msg.osc.oscState = oscState;
                 evt.msg.osc.chan = chan;
                 alEvtqPostEvent(&seqp->evtq, &evt, delta);
                 break;
-            case 2:
-            case 21:
+            case AL_SEQP_MIDI_EVT:
+            case AL_CSP_NOTEOFF_EVT:
                 __n_CSPHandleMIDIMsg(seqp, (ALEvent *)&seqp->nextEvent);
                 break;
-            case 7:
+            case AL_SEQP_META_EVT:
                 __n_CSPHandleMetaMsg(seqp, (ALEvent *)&seqp->nextEvent);
                 break;
-            case 10:
+            case AL_SEQP_VOL_EVT:
                 seqp->vol = seqp->nextEvent.msg.spvol.vol;
                 for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                     n_alSynSetVol(&vs->voice, __n_vsVol(vs, seqp), __n_vsDelta(vs, seqp->curTime));
                 }
                 break;
-            case 24:
+            case AL_VIB_OSC_EVT + 1:
                 seqp->unk7C = seqp->nextEvent.msg.fpair.f0;
                 seqp->unk80 = seqp->nextEvent.msg.fpair.f1;
                 for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                     n_alSynSetVoiceUnkC(&vs->voice, n_alCSPClampVoiceFXMix(vs, seqp));
                 }
                 break;
-            case 25:
+            case AL_VIB_OSC_EVT + 2:
                 if (seqp->nextEvent.msg.cmd.paramId < 8) {
                     cmdA = n_alSynGetFXDelay(seqp->nextEvent.msg.cmd.busIndex);
                     if (cmdA != NULL) {
@@ -172,14 +172,14 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                     }
                 }
                 break;
-            case 15:
-                if (seqp->state != 1) {
-                    seqp->state = 1;
+            case AL_SEQP_PLAY_EVT:
+                if (seqp->state != AL_PLAYING) {
+                    seqp->state = AL_PLAYING;
                     __n_CSPPostNextSeqEvent(seqp);
                 }
                 break;
-            case 16:
-                if (seqp->state == 2) {
+            case AL_SEQP_STOP_EVT:
+                if (seqp->state == AL_STOPPING) {
                     for (vs = seqp->vAllocHead; vs != NULL; vs = seqp->vAllocHead) {
                         n_alSynStopVoice(&vs->voice);
                         n_alSynFreeVoice(&vs->voice);
@@ -188,14 +188,14 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                         }
                         __n_unmapVoice(seqp, &vs->voice);
                     }
-                    seqp->state = 0;
+                    seqp->state = AL_STOPPED;
                 }
                 break;
-            case 17:
-                if (seqp->state == 1) {
-                    alEvtqFlushType(&seqp->evtq, 0);
-                    alEvtqFlushType(&seqp->evtq, 0x15);
-                    alEvtqFlushType(&seqp->evtq, 2);
+            case AL_SEQP_STOPPING_EVT:
+                if (seqp->state == AL_PLAYING) {
+                    alEvtqFlushType(&seqp->evtq, AL_SEQ_REF_EVT);
+                    alEvtqFlushType(&seqp->evtq, AL_CSP_NOTEOFF_EVT);
+                    alEvtqFlushType(&seqp->evtq, AL_SEQP_MIDI_EVT);
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (__n_voiceNeedsNoteKill(seqp, &vs->voice, 50000)) {
                             __n_seqpReleaseVoice(seqp, &vs->voice, 50000);
@@ -209,29 +209,29 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                             seqp->chanMask |= 1 << chan;
                         }
                     }
-                    seqp->state = 2;
-                    evt.type = 0x10;
+                    seqp->state = AL_STOPPING;
+                    evt.type = AL_SEQP_STOP_EVT;
                     alEvtqPostEvent(&seqp->evtq, &evt, 0x7FFFFFFF);
                 }
                 break;
-            case 12:
+            case AL_SEQP_PRIORITY_EVT:
                 chan = seqp->nextEvent.msg.sppriority.chan;
                 seqp->chanState[chan].priority = seqp->nextEvent.msg.sppriority.priority;
                 break;
-            case 13:
+            case AL_SEQP_SEQ_EVT:
                 seqp->target = seqp->nextEvent.msg.spseq.seq;
                 seqp->chanMask = 0xFFFF;
                 if (seqp->bank != NULL) {
                     __n_initFromBank(seqp, seqp->bank);
                 }
                 break;
-            case 14:
+            case AL_SEQP_BANK_EVT:
                 seqp->bank = seqp->nextEvent.msg.spbank.bank;
                 __n_initFromBank(seqp, seqp->bank);
                 break;
-            case 1:
-            case 3:
-            case 4:
+            case AL_SEQ_MIDI_EVT:
+            case AL_TEMPO_EVT:
+            case AL_SEQ_END_EVT:
                 break;
         }
         seqp->nextDelta = alEvtqNextEvent(&seqp->evtq, (ALEvent *)&seqp->nextEvent);

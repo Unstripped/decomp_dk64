@@ -559,11 +559,19 @@ void eepromValidateSaveSlots(void) {
     }
     for (i = 0; i < 4; i++) {
         hit = 0;
-        for (j = 0; j < 4 && hit == 0; j++) if (sectorOrder[j] == i) hit = 1;
-        if (hit == 0) for (j = 0; j < 4 && hit == 0; j++) if (sectorOrder[j] == 0xFF) {
-            sectorOrder[j] = i;
-            hit = 1;
-            eepromSetField(0xF, 0, 0, j, i);
+        for (j = 0; j < 4 && hit == 0; j++) {
+            if (sectorOrder[j] == i) {
+                hit = 1;
+            }
+        }
+        if (hit == 0) {
+            for (j = 0; j < 4 && hit == 0; j++) {
+                if (sectorOrder[j] == 0xFF) {
+                    sectorOrder[j] = i;
+                    hit = 1;
+                    eepromSetField(0xF, 0, 0, j, i);
+                }
+            }
         }
     }
     for (j = 0; j < 4; j++) {
@@ -585,7 +593,9 @@ void eepromValidateSaveSlots(void) {
         sLanguageIndex = 0;
         eepromSetField(0x1F, 0, 0, 0, sLanguageIndex);
     }
-    if (failed != 0) eepromDispatchCommand(1);
+    if (failed != 0) {
+        eepromDispatchCommand(1);
+    }
 }
 
 

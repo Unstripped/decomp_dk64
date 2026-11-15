@@ -56,7 +56,7 @@ typedef struct BossSpawnerState {
     /* 0x10 */ s16 stepTimer; // frames/bounces in the current subState (reset on change)
     /* 0x12 */ s8 phase; // 0-3, advanced after each 3-hit round
     /* 0x13 */ s8 subState;
-    /* 0x14 */ s8 side; // active side 0-3 (gBossSideOffsetX/B08/B10 tables)
+    /* 0x14 */ s8 side; // active side 0-3 (gBossSideOffsetX/gBossSideOffsetZ/gBossSideYaw tables)
     /* 0x15 */ s8 repeatCount;
     /* 0x16 */ s8 hitCount;
     /* 0x17 */ s8 fireFlag; // set for one frame per bounce in subState 3: side-0 follower fires
@@ -83,9 +83,9 @@ void bossSpawnerUpdate(void) {
     f32 x;
     f32 z;
     s16 j;
-    static s8 D_80035B68 = 0;
+    static s8 sLightPulseTimer = 0;
     static s8 D_80035B6C = 0;
-    static s16 D_80035B70 = 0;
+    static s16 sBounceLimit = 0;
 
     state = gCurrentActor->customState;
     topReached = 0;
@@ -101,7 +101,7 @@ void bossSpawnerUpdate(void) {
         state->side = 0;
         D_80035B6C = 0;
         state->phase = 0;
-        D_80035B70 = 5;
+        sBounceLimit = 5;
         for (i = 0; i != 8; i++) {
             if (actorSpawn(0xA6, D_80035B60[i >> 1]) != 0) {
                 link = gSpawnedActor->customState;
@@ -331,15 +331,15 @@ void bossSpawnerUpdate(void) {
         state->liftSpeed = -0.1f;
         if (bounceDir == -1) {
             topReached = 1;
-            if (D_80035B70 < state->stepTimer) {
+            if (sBounceLimit < state->stepTimer) {
                 sfxPlayOnFreeSlot(0x17D, 0x3E80, 63.0, 1.0, 0, 0);
-                D_80035B70++;
+                sBounceLimit++;
                 state->stepTimer = 0;
-                if (D_80035B70 >= 0x10) {
-                    D_80035B70 += 1;
+                if (sBounceLimit >= 0x10) {
+                    sBounceLimit += 1;
                 }
-                if (D_80035B70 >= 0x1A) {
-                    D_80035B70 = (randomLcgNext() & 3) + 4;
+                if (sBounceLimit >= 0x1A) {
+                    sBounceLimit = (randomLcgNext() & 3) + 4;
                     state->subState = 1;
                     state->repeatCount++;
                     sfxPlayOnFreeSlot(0x37F, 0x7D00, 63.0, 1.0, 0, 0);
@@ -347,7 +347,7 @@ void bossSpawnerUpdate(void) {
                 }
                 spawnParticle = 1;
             }
-            D_80035B68 = 0x1E;
+            sLightPulseTimer = 0x1E;
         }
         break;
 
@@ -397,9 +397,9 @@ void bossSpawnerUpdate(void) {
             state->side = k - 4;
         }
     }
-    D_80035B68++;
+    sLightPulseTimer++;
     if (topReached != 0) {
-        level = (D_80035B68 & 0x1F) - 0x10;
+        level = (sLightPulseTimer & 0x1F) - 0x10;
         i = level;
         k = state->side;
         if (level < 0) {
@@ -437,7 +437,7 @@ void bossFollowerActorUpdate(void) {
     BossFollowerLink *link = gCurrentActor->customState;
     BossSpawnerState *parentState = link->parent->customState;
     AnimSlot *anim = gCurrentActor->sub4->model;
-    static s16 D_80035B74 = 0x78; // function-local static (only user; shadows the file-scope definition, which the .data carve moves here) keeps uopt from pointerizing D_80035B74
+    static s16 sFireCooldown = 0x78; // function-local static (only user; shadows the file-scope definition, which the .data carve moves here) keeps uopt from pointerizing D_80035B74
 
     if (link->mirrored == 0) {
         f32 dx = gPrimaryPlayerActor->x - gCurrentActor->x;
@@ -493,18 +493,18 @@ void bossFollowerActorUpdate(void) {
         if (link->slot == 0) {
             if (parentState->fireFlag == 1) {
                 if (link->parent->state == 0) {
-                    D_80035B74 = 0x28;
+                    sFireCooldown = 0x28;
                 }
-                D_80035B74--;
-                if (D_80035B74 < 0) {
+                sFireCooldown--;
+                if (sFireCooldown < 0) {
                     f32 zo = gBossSideAimOffsetZ[parentState->side];
                     f32 xo = gBossSideAimOffsetX[parentState->side];
-                    D_80035B74 = 0xA;
+                    sFireCooldown = 0xA;
                     projectileSetTargetCoords(gCurrentActor->x + xo, gCurrentActor->y + 270.0f, gCurrentActor->z + zo);
                     projectileAimAndSpawn(0x2C, 1, 0.25f, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z, 2400.0f, gCurrentActor);
                 }
             } else {
-                D_80035B74 = 0;
+                sFireCooldown = 0;
             }
         }
         gCurrentActor->x = gBossSideOffsetX[parentState->side] + link->parent->x;

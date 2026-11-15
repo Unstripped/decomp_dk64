@@ -149,8 +149,7 @@ extern s32 gCurrentMap;
 extern f32 D_807502E8;
 extern u16 D_80747750[];
 extern u16 sScriptAnimBase[];
-extern u8 D_807478F4[];
-// RGB particle colours, indexed by the script colour id
+// RGB colours, indexed by the script colour id (particles and opcode 15 actor tints)
 typedef struct ScriptColor {
     u8 r;
     u8 g;
@@ -158,6 +157,7 @@ typedef struct ScriptColor {
 } ScriptColor;
 
 extern ScriptColor sScriptParticleColors[];
+extern ScriptColor D_807478F4[];
 extern void *sScriptEffectSprites[];
 
 
@@ -350,9 +350,9 @@ void actorScriptedCommandUpdate(void) {
                     state->unk1A = cmd->param2;
                     break;
                 case 15:
-                    gCurrentActor->tintR = D_807478F4[cmd->param1 * 3];
-                    gCurrentActor->tintG = D_807478F4[cmd->param1 * 3 + 1];
-                    gCurrentActor->tintB = D_807478F4[cmd->param1 * 3 + 2];
+                    gCurrentActor->tintR = D_807478F4[cmd->param1].r;
+                    gCurrentActor->tintG = D_807478F4[cmd->param1].g;
+                    gCurrentActor->tintB = D_807478F4[cmd->param1].b;
                     break;
                 case 17:
                     gCurrentActor->flags &= 0xFFFF7FFF;

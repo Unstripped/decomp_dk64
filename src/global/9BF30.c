@@ -47,8 +47,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     s16 stepAngle;
     f64 q0;
     f64 q1;
-    f64 q2;
-    f64 q3;
+    f64 pad[2];
     f32 f;
     s32 idx;
     f32 collisionRadius;
@@ -77,10 +76,10 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     if (actor->unk15F != 0) {
         switch (sub->ringType) {
         case 0:
-            collisionRadius = (f32)(((f64)sub->radius) * 10.0);
+            collisionRadius = sub->radius * 10.0;
             break;
         case 1:
-            collisionRadius = (f32)((((f64)sub->radius) * 0.15) * 2048.0);
+            collisionRadius = sub->radius * 0.15 * 2048.0;
             break;
         }
         actorSetCollisionRadius(actor, collisionRadius);
@@ -97,9 +96,9 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
                 vz = 0.0f;
                 break;
             case 1:
-                q0 = ((f64)(actor->moveYaw - actor->unk15F)) * 0.05;
+                q0 = (actor->moveYaw - actor->unk15F) * 0.05;
                 q1 = (1.0 < q0) ? (1.0) : (q0);
-                f = (f32)((q1 * 0.028999999999999998) + 0.001);
+                f = q1 * 0.028999999999999998 + 0.001;
                 vscale = 130.0f * f;
                 vz = 1500.0f * f;
                 vx = mathSinF(actor->yaw + 0x400) * ((f * sub->radius) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
@@ -107,7 +106,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
                 break;
             }
             if (actor->unk15F != 0) {
-                actorAppendModelNode(actor, vx, vz, vy, (f32)(((f64)vscale) * 80.0), -1);
+                actorAppendModelNode(actor, vx, vz, vy, vscale * 80.0, -1);
             }
             _g = (Gfx *)(glist++); _g->words.w0 = 0xFD180000; _g->words.w1 = (u32)D_807FC7C0[idx];
             gDPSetTile(glist++, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0, 0, G_TX_LOADTILE, 0, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD); gDPLoadSync(glist++); gDPLoadBlock(glist++, G_TX_LOADTILE, 0, 0, 0x3FF, 0x80); gDPPipeSync(glist++); _g = (Gfx *)(glist++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; gDPSetTileSize(glist++, G_TX_RENDERTILE, 0, 0, 0x7C, 0x7C); // LAYOUT: same-line texture block statements steer as1 scheduling

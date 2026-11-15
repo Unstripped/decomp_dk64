@@ -1285,7 +1285,7 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
     f64 val;
     f64 dx01, dy01, dz01, dx02, dy02, dz02;
     f32 y;
-    CsStateFull *sub7C;
+    CsStateFull *csState;
     f32 padB[6];
     f32 hitY;
     u8 hit;
@@ -1325,8 +1325,8 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
         }
     }
 
-    sub7C = gModelSlots[slotIdx].unk7C;
-    if (sub7C != NULL && sub7C->unk71 == 0) {
+    csState = gModelSlots[slotIdx].unk7C;
+    if (csState != NULL && csState->unk71 == 0) {
         return 0;
     }
 
@@ -1388,8 +1388,8 @@ u8 collisionTestDynamicActorFloor(Actor *actor, s32 slotId, f32 x, f32 z, f32 re
     if (hit != 0 && collisionPickCloserFloor(*floorYOut, hitY, refY + 4.0, 0) != 0) {
         *floorYOut = hitY;
         collisionStoreTriangleNormalAnglesF32(actor, hitTri, 1);
-        sub7C = gModelSlots[slotIdx].unk7C;
-        if (sub7C != NULL && sub7C->unk4F != 0) {
+        csState = gModelSlots[slotIdx].unk7C;
+        if (csState != NULL && csState->unk4F != 0) {
             D_807F94AC = 1;
         }
         if (actor != NULL) {
@@ -1717,7 +1717,7 @@ typedef struct CollisionBoxTri {
 
 s32 collisionTestActorBoxFloor(Actor *self, f32 x, f32 z, f32 refY, f32 *outFloorY) {
     f32 pad;
-    CollisionBoxTri *hit_tri;
+    CollisionBoxTri *hitTri;
     f64 nx, ny, nz;
     f64 d;
     f64 val;
@@ -1728,79 +1728,69 @@ s32 collisionTestActorBoxFloor(Actor *self, f32 x, f32 z, f32 refY, f32 *outFloo
     s32 j;
     Actor *actor;
     CollisionBoxTri *tri;
-    u16 actor_count;
+    u16 pad2;
     f32 pad108[1];
-    f32 hit_y;
+    f32 hitY;
     f32 padAC[4];
-    Actor *hit_actor;
+    Actor *hitActor;
     f32 pad98[2];
 
     hit = 0;
-    hit_y = 999999.0f;
-    actor_count = gActiveActorCount;
-    i = 0;
-    if ((s32)actor_count > 0) {
-        do {
-            actor = gActiveActors[i].actor;
-            if (!(actor->flags & 0x2000)) {
-                if (actor->collision != NULL && self != actor && (actor->flags & 0x10)) {
-                    tri = actor->collision->triangles;
-                    j = 0;
-                    if (actor->collision->triangleCount > 0) {
-                        do {
-                            if ((collisionCheckBoxTriangleBoundsXZ(tri, x, z) != 0) &&
-                                (collisionCheckBoxTriangleContainsPointXZ(tri, x, z) != 0) &&
-                                (tri->unk56 != 0)) {
-                                dx01 = (f64)(tri->x0 - tri->x1);
-                                dy01 = (f64)(tri->y0 - tri->y1);
-                                dz01 = tri->z0 - tri->z1;
-                                dx02 = tri->x0 - tri->x2;
-                                dy02 = tri->y0 - tri->y2;
-                                dz02 = tri->z0 - tri->z2;
-                                nx = (dy01 * dz02) - (dz01 * dy02);
-                                ny = (dz01 * dx02) - (dx01 * dz02);
-                                nz = (dx01 * dy02) - (dy01 * dx02);
-                                dy02 = 0.0;  // FAKE: kills nz store forwarding into d
-                                d = -(nz * (f64)tri->z1 + (nx * (f64)tri->x1 + ny * (f64)tri->y1));
-                                if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
-                                    if (self != NULL) {
-                                        val = (0.0 - ((((f64)x * nx) + (ny * -1000.0) + (nz * (f64)z) + d) / (ny * 2000.0)));
-                                        collisionCheckSlopeAngle(refY, (f32)((2000.0 * val) - 1000.0), 0, self, 0);
-                                    }
-                                    if (D_807F94BC != 0) {
-                                        val = (0.0 - ((((f64)x * nx) + (ny * -1000.0) + (nz * (f64)z) + d) / (ny * 2000.0)));
-                                        collisionRecordBoxTriangle(tri, (f32)((2000.0 * val) - 1000.0));
-                                    }
-                                    if (collisionCheckBoxTriangleWinding(tri) != 0) {
-                                        val = (0.0 - ((((f64)x * nx) + (ny * -1000.0) + (nz * (f64)z) + d) / (ny * 2000.0)));
-                                        y = (f32)((2000.0 * val) - 1000.0);
-                                        if (collisionPickCloserFloor(hit_y, y, (f32)((f64)refY + 4.0), 0) != 0) {
-                                            hit_tri = tri;
-                                            hit_actor = actor;
-                                            hit = 1;
-                                            hit_y = y;
-                                        }
-                                    }
+    hitY = 999999.0f;
+    for (i = 0; i < gActiveActorCount; i++) {
+        actor = gActiveActors[i].actor;
+        if (!(actor->flags & 0x2000)) {
+            if (actor->collision != NULL && self != actor && (actor->flags & 0x10)) {
+                tri = actor->collision->triangles;
+                for (j = 0; j < actor->collision->triangleCount; j++, tri++) {
+                    if ((collisionCheckBoxTriangleBoundsXZ(tri, x, z) != 0) &&
+                        (collisionCheckBoxTriangleContainsPointXZ(tri, x, z) != 0) &&
+                        (tri->unk56 != 0)) {
+                        dx01 = tri->x0 - tri->x1;
+                        dy01 = tri->y0 - tri->y1;
+                        dz01 = tri->z0 - tri->z1;
+                        dx02 = tri->x0 - tri->x2;
+                        dy02 = tri->y0 - tri->y2;
+                        dz02 = tri->z0 - tri->z2;
+                        nx = (dy01 * dz02) - (dz01 * dy02);
+                        ny = (dz01 * dx02) - (dx01 * dz02);
+                        nz = (dx01 * dy02) - (dy01 * dx02);
+                        dy02 = 0.0;  // FAKE: kills nz store forwarding into d
+                        d = -(nz * tri->z1 + (nx * tri->x1 + ny * tri->y1));
+                        if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
+                            if (self != NULL) {
+                                val = (0.0 - (((x * nx) + (ny * -1000.0) + (nz * z) + d) / (ny * 2000.0)));
+                                collisionCheckSlopeAngle(refY, (2000.0 * val) - 1000.0, 0, self, 0);
+                            }
+                            if (D_807F94BC != 0) {
+                                val = (0.0 - (((x * nx) + (ny * -1000.0) + (nz * z) + d) / (ny * 2000.0)));
+                                collisionRecordBoxTriangle(tri, (2000.0 * val) - 1000.0);
+                            }
+                            if (collisionCheckBoxTriangleWinding(tri) != 0) {
+                                val = (0.0 - (((x * nx) + (ny * -1000.0) + (nz * z) + d) / (ny * 2000.0)));
+                                y = (2000.0 * val) - 1000.0;
+                                if (collisionPickCloserFloor(hitY, y, refY + 4.0, 0) != 0) {
+                                    hitTri = tri;
+                                    hitActor = actor;
+                                    hit = 1;
+                                    hitY = y;
                                 }
                             }
-                            j++;
-                            tri++;
-                        } while (j < actor->collision->triangleCount);
+                        }
                     }
                 }
             }
-            i++;
-        } while (i < (s32)gActiveActorCount);
+        }
     }
 
-    if (hit != 0 && collisionPickCloserFloor(*outFloorY, hit_y, (f32)((f64)refY + 4.0), 0) != 0) {
-        *outFloorY = hit_y;
-        collisionStoreBoxTriangleNormalAngles(self, hit_tri, 1);
-        if (hit_actor->flags2 & 8) {
+    if (hit != 0 && collisionPickCloserFloor(*outFloorY, hitY, refY + 4.0, 0) != 0) {
+        *outFloorY = hitY;
+        collisionStoreBoxTriangleNormalAngles(self, hitTri, 1);
+        if (hitActor->flags2 & 8) {
             D_807F94AD = 1;
         }
         if (self != NULL) {
-            collisionTransformPointToActorLocal(self, hit_actor, hit_tri, x, hit_y, z);
+            collisionTransformPointToActorLocal(self, hitActor, hitTri, x, hitY, z);
         }
     }
     return hit;

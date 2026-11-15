@@ -170,7 +170,7 @@ s32 meshBlobParse(MeshBlob *blob, MeshBlob **outMesh, AnimTable **outAnim, void 
     s32 count;
     s32 k;
     s32 sum;
-    AnimTable *b;
+    AnimTable *anim;
 
     if (blob == NULL) {
         return 0;
@@ -191,30 +191,30 @@ s32 meshBlobParse(MeshBlob *blob, MeshBlob **outMesh, AnimTable **outAnim, void 
     blob->columnEnds = blob->columnStarts + count;
     *outMesh = blob;
     if (outAnim != NULL) {
-        b = (AnimTable *)(blob->columnEnds + count);
-        b->entries = (AnimEntry *)(b + 1);
+        anim = (AnimTable *)(blob->columnEnds + count);
+        anim->entries = (AnimEntry *)(anim + 1);
         count = 0;
-        while (b->entries[count++].kind != 0) {
+        while (anim->entries[count++].kind != 0) {
         }
-        b->counts = (s32 *)(b->entries + count);
+        anim->counts = (s32 *)(anim->entries + count);
         k = 0;
-        while (b->counts[k++] != -1) {
+        while (anim->counts[k++] != -1) {
         }
         count = 0;
-        b->indices = (u16 **)(b->counts + k);
+        anim->indices = (u16 **)(anim->counts + k);
         sum = 0;
-        while (b->counts[count] != -1) {
-            b->indices[count] = (u16 *)(b->indices + k) + sum;
-            sum += b->counts[count];
+        while (anim->counts[count] != -1) {
+            anim->indices[count] = (u16 *)(anim->indices + k) + sum;
+            sum += anim->counts[count];
             count++;
         }
-        *outAnim = b;
+        *outAnim = anim;
     }
     if (outEnd != NULL) {
         if (outAnim == NULL) {
             *outEnd = blob->columnEnds + count;
         } else {
-            *outEnd = b->indices + count;
+            *outEnd = anim->indices + count;
         }
     }
     return 1;

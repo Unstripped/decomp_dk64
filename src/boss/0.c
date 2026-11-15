@@ -536,7 +536,7 @@ u8 patrolPathStep(u8, u8);
 
 void bossArmydilloStep(void) {
     s32 pad_top[1];
-    BossPieceAnim *state17C;
+    BossPieceAnim *pieceAnim;
     u8 *scriptData;
     s32 pad_mid;
     u8 cannonBone;
@@ -546,7 +546,7 @@ void bossArmydilloStep(void) {
 
 
     state = ((BossArmydilloActor *)gCurrentActor)->scriptState;
-    state17C = ((BossArmydilloActor *)gCurrentActor)->unk17C;
+    pieceAnim = ((BossArmydilloActor *)gCurrentActor)->unk17C;
     scriptData = D_800358B0[(gCurrentMap == 8) ? 0 : 1][state->phase];
     cannonBone = (state->unk12 & 1) ? 1 : 2;
     playSfx = 0;
@@ -690,15 +690,15 @@ void bossArmydilloStep(void) {
         case 0:
             if ((gGameMode != 1) || (currentActorTestClearFlag() != 0)) {
                 animSetLoopLimit(gCurrentActor, 1, 1);
-                state17C->unk0 = 0;
+                pieceAnim->unk0 = 0;
                 gCurrentActor->unk155 = 1;
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x3A, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             }
             break;
         case 1:
-            if ((animIsPlaying(gCurrentActor, 1) == 0) && (state17C->unk0 == 0)) {
+            if ((animIsPlaying(gCurrentActor, 1) == 0) && (pieceAnim->unk0 == 0)) {
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x174, 0xC8, 0x7F, 1, 0x1E, 0.3f, 0);
-                state17C->unk0 = 1;
+                pieceAnim->unk0 = 1;
             }
             if ((gGameMode != 1) || (currentActorTestClearFlag() != 0)) {
                 gCurrentActor->unk155 = 2;
@@ -707,11 +707,11 @@ void bossArmydilloStep(void) {
         case 2:
         case 3:
             if (gCurrentActor->state == 0x29) {
-                bossArmydilloOpenCannons(state, state17C, scriptData, &D_80035984);
+                bossArmydilloOpenCannons(state, pieceAnim, scriptData, &D_80035984);
             } else if (gCurrentActor->state == 0x2E) {
-                bossArmydilloOpenCannons(state, state17C, scriptData, &D_80035988);
+                bossArmydilloOpenCannons(state, pieceAnim, scriptData, &D_80035988);
             } else {
-                bossArmydilloOpenCannons(state, state17C, scriptData, &D_80035980);
+                bossArmydilloOpenCannons(state, pieceAnim, scriptData, &D_80035980);
             }
             break;
         case 4:
@@ -737,16 +737,16 @@ void bossArmydilloStep(void) {
                 tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 6, 1.0f);
                 tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 7, 1.0f);
                 actorScriptStart(gCurrentActor, 0x26C);
-                bossPieceSetState(state17C, 0, 5);
-                bossPieceSetState(state17C, 1, 5);
+                bossPieceSetState(pieceAnim, 0, 5);
+                bossPieceSetState(pieceAnim, 1, 5);
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x22, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x3C, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 gCurrentActor->unk155 = 2;
             }
             break;
         case 2:
-            bossPieceStep(state17C, 0, 50.0f, 70.0f, 90.0f);
-            if (bossPieceStep(state17C, 1, 50.0f, 70.0f, 90.0f) != 0) {
+            bossPieceStep(pieceAnim, 0, 50.0f, 70.0f, 90.0f);
+            if (bossPieceStep(pieceAnim, 1, 50.0f, 70.0f, 90.0f) != 0) {
                 gCurrentActor->state = scriptData[state->scriptPos++];
                 gCurrentActor->unk155 = 0;
             }
@@ -759,8 +759,8 @@ void bossArmydilloStep(void) {
     case 0x2F:
         switch (gCurrentActor->unk155) {
         case 0:
-            if (state17C->cannonAngA >= -0x3FFF) {
-                state17C->cannonAngA -= 0x190;
+            if (pieceAnim->cannonAngA >= -0x3FFF) {
+                pieceAnim->cannonAngA -= 0x190;
                 if (gCurrentActor->soundSlots[1] == -1) {
                     sfxPlayActorSound(gCurrentActor, 0x1F0, 1, 1, 1, 0xFF, 1.0f, 0);
                 }
@@ -773,9 +773,9 @@ void bossArmydilloStep(void) {
                 gBehaviourWorkState->unk2E = 0;
                 gCurrentActor->speedXZ = 0.0f;
             }
-            state17C->cannonAngB = state17C->cannonAngA;
-            bossPieceSetAngle(2, state17C->cannonAngA);
-            bossPieceSetAngle(3, state17C->cannonAngB);
+            pieceAnim->cannonAngB = pieceAnim->cannonAngA;
+            bossPieceSetAngle(2, pieceAnim->cannonAngA);
+            bossPieceSetAngle(3, pieceAnim->cannonAngB);
             break;
         case 1:
             gBehaviourWorkState->unk2E += (gCurrentActor->state == 0x2F) ? 10 : 4;
@@ -838,10 +838,10 @@ void bossArmydilloStep(void) {
     case 0x2C:
         {
             s32 pad;
-            state17C->cannonAngA = -state17C->cannonAngA * 0.1 + state17C->cannonAngA;
-            state17C->cannonAngB = -state17C->cannonAngB * 0.1 + state17C->cannonAngB;
-            bossPieceSetAngle(3, state17C->cannonAngB);
-            bossPieceSetAngle(2, state17C->cannonAngA);
+            pieceAnim->cannonAngA = -pieceAnim->cannonAngA * 0.1 + pieceAnim->cannonAngA;
+            pieceAnim->cannonAngB = -pieceAnim->cannonAngB * 0.1 + pieceAnim->cannonAngB;
+            bossPieceSetAngle(3, pieceAnim->cannonAngB);
+            bossPieceSetAngle(2, pieceAnim->cannonAngA);
         }
         /* fallthrough */
     case 0x2B:
@@ -853,7 +853,7 @@ void bossArmydilloStep(void) {
             break;
         case 2:
         case 3:
-            bossPieceListStep(state, state17C, scriptData, (gCurrentActor->state == 0x2B) ? &D_80035980 : &D_80035984);
+            bossPieceListStep(state, pieceAnim, scriptData, (gCurrentActor->state == 0x2B) ? &D_80035980 : &D_80035984);
             break;
         case 4:
             gCurrentActor->state = scriptData[state->scriptPos++];
