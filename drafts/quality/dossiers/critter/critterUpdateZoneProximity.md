@@ -1,0 +1,9 @@
+# critterUpdateZoneProximity (critter, src/critter/0.c)
+## Sites
+critter:8002601C:other:e8dab1 other: `m = &gPlayerSlots[0] + gCurrentPlayerIndex;` keeps base-first `addu v1,t9,t4` at 0x2144 (t3 = idx, t4 = idx*0x2F0 via sll/subu chain 0x2124-0x2140, t9 = gPlayerSlots) and the t3 colour of the cvt.w.s block 0x21cc-0x2248.
+## Attempts
+2026-11-15 U HackcritterUpdateZoneProximity2 anthropic/claude-opus-5-5:high: cfe-ucode diagnosis + 50 bodies (variants.py try) -> no natural spelling; diagnose nohit, review nohit. Scores (full rows vs expected): plain &p[i] 28, i+p 28, m=p; m+=i 42, m=p; m=m+i 42, named idx local any width/position 47, &slots[idx] 47, m=p; m+=idx 48, m=p; idx=i; m+=idx 45, block-local slots ptr 45, entry slots/m/idx 106/135/108, m before near/frame stores 51-61, s32 byte-offset local + (u8 *) 47, gPlayerSlots[i].camX direct 23 (shape 16), block-scoped m 28; identity cast (PlayerStruct *)gPlayerSlots + i 0 and (s32) int arithmetic 0 (casts: swap a hack for a hack). variants scan of plain body: 24 one-edit variants, best 28.
+## Untried ideas
+none with a natural spelling: the base subtree must be at least as deep as `lod idx; ldc 752; mpy` (cfe evaluates the deeper operand first; uopt keeps the order). Only a retyped gPlayerSlots (e.g. void * needing a real conversion) would do it, which re-opens the retired views (OwnerPlayerSlotsViews2).
+## Evidence
+cfe ucode (as1probe keep + ucode --cfe), line 226: plain = `lod u32 Smt block 8 (gCurrentPlayerIndex); ldc u32 752; mpy; lod Adt Smt block 7 (gPlayerSlots); add`; FAKE = `lod Adt block 7; ldc s32 0; add; lod u32 block 8; ldc 752; mpy; add`. uopt output differs only in where `lod Adt block 7` sits (operand order). Target 0x2144 `addu v1,t9,t4` (base,offset). Same `swp` pattern on `obj->homeZone->frame = gGfxBufferIndex` (RHS lod evaluated before the deeper address).
