@@ -1339,74 +1339,72 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
     TextMarkerState *marker;
     s16 x;
     s16 y;
-    u8 state;
-    u8 mode;
+    u8 flags;
+    u8 font;
     s16 width;
 
-    if (&state == 0) {} // FAKE: keeps state/mode/width/x/y in spill-style home slots
     marker = actor->customState;
-    state = 3;
-    mode = (u8)actor->z;
+    flags = 3;
+    font = actor->z;
     gSPDisplayList(gfx++, &D_1000118);
     gDPSetCombine(gfx++, 0x119623, 0xFF2FFFFF);
 
-    x = actor->unk155; // FAKE: x reused as the unk155 switch selector (direct switch on actor->unk155 scores 15)
-    switch (x) {
+    switch (actor->unk155) {
         case 2:
-            vtxGradientSetPosition((s16)(actor->unk15F * 3 + 0x4000));
+            vtxGradientSetPosition(actor->unk15F * 3 + 0x4000);
             break;
         case 0:
             if (actor->z == 1.0f) {
                 s16 confettiX;
 
-                confettiX = (s16)(s32)((((f64)actor->unk15F * 0.0078125 > 1.0 ? 1.0 : (f64)actor->unk15F * 0.0078125) * 0.9) * (f64)textGetStringWidth((s16)(s32)actor->z, marker->text) + (f64)actor->x * 0.25);
+                confettiX = ((actor->unk15F * 0.0078125 > 1.0 ? 1.0 : actor->unk15F * 0.0078125) * 0.9) * textGetStringWidth(actor->z, marker->text) + actor->x * 0.25;
                 effectSetDepth(1);
                 effectSetCallback(effectConfettiPhysicsUpdate);
                 effectSetSpeed(0xA);
                 effectEnableFade();
-                effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 1.0f, (f32)confettiX, (f32)((f64)actor->y * 0.25 + 12.0), -5.0f);
+                effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 1.0f, confettiX, actor->y * 0.25 + 12.0, -5.0f);
             }
         default:
-            vtxGradientSetPosition((s16)(actor->unk15F * 3));
+            vtxGradientSetPosition(actor->unk15F * 3);
             break;
     }
 
-    x = (s16)(s32)actor->x;
-    y = (s16)(s32)actor->y;
-    switch (mode) {
+    x = actor->x;
+    y = actor->y;
+    switch (font) {
         case 1:
-            width = textGetStringWidth((s16)(s32)actor->z, marker->text);
-            state = 0x13;
+            width = textGetStringWidth(actor->z, marker->text);
+            flags |= 0x10;
             gfx = renderAppendScaledMatrix(gfx, actor, width, 0.8f);
-            state &= 0xFFFE;
+            flags &= ~1;
             x = -(width * 2);
             y = 0;
             break;
         case 6:
-            state = 0x23;
+            flags |= 0x20;
             gDPSetCycleType(gfx++, G_CYC_2CYCLE);
             gDPSetRenderMode(gfx++, G_RM_PASS, G_RM_XLU_SURF2);
             break;
         case 0:
-            mode = 6;
+            font = 6;
             width = textGetStringWidth(6, marker->text);
-            actor->x = (f32)((gScreenWidth - width) * 2);
+            actor->x = (gScreenWidth - width) * 2;
             gfx = renderAppendScaledMatrix(gfx, actor, width, 0.8f);
-            state = 0;
+            flags = 0;
             x = -(width * 2);
             y = 0;
             break;
         case 10:
-            mode = 6;
+            font = 6;
             gfx = renderAppendScaledMatrix(gfx, actor, 0, 0.8f);
-            state = 0;
+            flags = 0;
             x = 0;
             y = 0;
             break;
     }
 
     gDPSetPrimColor(gfx++, 0, 0, actor->tintR, actor->tintG, actor->tintB, actor->unk15F);
-    return textDrawStringVtx(gfx, (s16)mode, x, y, marker->text, state);
+    return textDrawStringVtx(gfx, font, x, y, marker->text, flags);
 }
 
 Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
