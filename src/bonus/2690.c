@@ -1175,9 +1175,9 @@ Gfx *bonusRenderMiniGameHud(Gfx *gdl, Actor *actor) {
 }
 
 void bonusLightFlashSpawnTargets(void *ownerActor) {
-    Actor *a = ownerActor;
+    Actor *owner = ownerActor;
     s32 i;
-    BonusLightFlashState *base = ((BonusActorExt *)a)->gameState;
+    BonusLightFlashState *game = ((BonusActorExt *)owner)->gameState;
 
     for (i = 1; i != 7; i++) {
         if (actorSpawn(0x147, sLightFlashTargetModels[i - 1]) != 0) {
@@ -1187,9 +1187,9 @@ void bonusLightFlashSpawnTargets(void *ownerActor) {
             f32 scale;
 
             *actorProp = sLightFlashTargetModels[i - 1];
-            subExt->game = a;
+            subExt->game = owner;
             subExt->slot = i - 1;
-            pt = *gMinecartTrackPoints + (base->slotOrder[subExt->slot] & 0x7F) + 1;
+            pt = *gMinecartTrackPoints + (game->slotOrder[subExt->slot] & 0x7F) + 1;
             gSpawnedActor->x = pt->x;
             gSpawnedActor->y = pt->y;
             gSpawnedActor->z = pt->z;
@@ -1212,7 +1212,7 @@ void bonusLightFlashTargetUpdate(void) {
     f32 scale;
     LightFlashTargetState *subExt;
     Actor *owner;
-    BonusLightFlashState *base;
+    BonusLightFlashState *game;
     f32 lightR;
     f32 lightG;
     f32 lightB;
@@ -1222,7 +1222,7 @@ void bonusLightFlashTargetUpdate(void) {
 
     subExt = gCurrentActor->customState;
     owner = subExt->game;
-    base = ((BonusActorExt *)owner)->gameState;
+    game = ((BonusActorExt *)owner)->gameState;
     if (!(gCurrentActor->flags & 0x10)) {
         if (subExt->slot != 5) {
             actorClearAllNodeFlags(gCurrentActor);
@@ -1230,7 +1230,7 @@ void bonusLightFlashTargetUpdate(void) {
         }
         gCurrentActor->unk144 = 0x24;
     }
-    p = *gMinecartTrackPoints + (base->slotOrder[subExt->slot] & 0x7F) + 1;
+    p = *gMinecartTrackPoints + (game->slotOrder[subExt->slot] & 0x7F) + 1;
     gCurrentActor->x = p->x;
     gCurrentActor->y = p->y;
     gCurrentActor->z = p->z;
@@ -1241,13 +1241,13 @@ void bonusLightFlashTargetUpdate(void) {
         gCurrentActor->unk144 = 0x24;
     }
     isHit = 0;
-    if (gActorGlobalState.unk15 == 1 && base->flashTimer >= -9) {
+    if (gActorGlobalState.unk15 == 1 && game->flashTimer >= -9) {
         isHit = 1;
     }
     if (subExt->slot != 5) {
-        slotEntry = base->slotOrder[subExt->slot];
+        slotEntry = game->slotOrder[subExt->slot];
         if (slotEntry & 0x80) {
-            base->slotOrder[subExt->slot] = slotEntry & 0x7F;
+            game->slotOrder[subExt->slot] = slotEntry & 0x7F;
             actorScriptStart(gCurrentActor, sLightFlashTargetScripts[subExt->slot]);
         } else if (lightR < 0.05f && gCurrentActor->sub4->scriptStart != NULL) {
             actorScriptStart(gCurrentActor, 0);
@@ -1255,15 +1255,15 @@ void bonusLightFlashTargetUpdate(void) {
         if (isHit != 0) {
             actorScriptStart(gCurrentActor, sLightFlashTargetHitScripts[subExt->slot]);
             sfxPlayOnFreeSlot(0x2A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            if (base->targetsLeft != 0) {
-                base->targetsLeft += 1;
+            if (game->targetsLeft != 0) {
+                game->targetsLeft += 1;
             }
         }
         actorKongChainUpdate();
     } else {
         gCurrentActor->flags |= 0x1000;
         gCurrentActor->yaw += 0x12C;
-        if (base->flashTimer < -28) {
+        if (game->flashTimer < -28) {
             gCurrentActor->state = 0;
         }
         scale = gCurrentActor->sub4->scaleX;
@@ -1280,8 +1280,8 @@ void bonusLightFlashTargetUpdate(void) {
         gCurrentActor->sub4->scaleZ = scale;
         if (isHit != 0) {
             sfxPlayOnFreeSlot(0x2A1, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            base->flashTimer = 0;
-            base->targetsLeft -= 1;
+            game->flashTimer = 0;
+            game->targetsLeft -= 1;
             gCurrentActor->state = 1;
         }
     }
@@ -2019,14 +2019,14 @@ void bonusSearchlightSeekGameUpdate(void) {
             if (subExt->shownCount == 0) {
                 gCurrentActor->state = 5;
             }
-            if ((gCurrentActor->parentActor)->state == 5) {
+            if (gCurrentActor->parentActor->state == 5) {
                 gCurrentActor->state = 6;
             }
             if (subExt->fireCooldown > 0) {
                 subExt->fireCooldown = subExt->fireCooldown - 1;
             }
             if (subExt->fireCooldown <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr & 0xE000)) {
-                sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0, 0x1E, 0);
+                sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 targetOffsetZ = mathSinF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camX; // FAKE: targetOffsetZ/scale/targetOffsetX reused for the aim point; separate aimX/aimY/aimZ locals 77 diff lines
                 scale = gPlayerSlots->camY - 25.0f;
                 targetOffsetX = mathCosF(gPlayerSlots->camYawInt) * 30.0f + gPlayerSlots->camZ;
@@ -2047,7 +2047,7 @@ void bonusSearchlightSeekGameUpdate(void) {
             if (!(gCurrentActor->flags & 0x02000000)) {
                 gCurrentActor->state = 0;
                 hudCountdownTimerStart(gCurrentActor->parentActor);
-                sfxAllocateChannel(8, 1.0);
+                sfxAllocateChannel(8, 1.0f);
             }
             break;
         case 5:
@@ -2086,12 +2086,12 @@ void bonusSearchlightSeekTargetUpdate(void) {
     f32 targetX, targetZ;
     s16 angle;
     s32 i;
-    Actor *targetOwner;
-    SearchlightTargetState *spawnLink = gCurrentActor->customState;
-    SearchlightGameState *targetExt;
+    Actor *gameActor;
+    SearchlightTargetState *target = gCurrentActor->customState;
+    SearchlightGameState *game;
 
-    targetOwner = spawnLink->game;
-    targetExt = targetOwner->customState;
+    gameActor = target->game;
+    game = gameActor->customState;
 
     if (!(gCurrentActor->flags & 0x10)) {
         actorScriptStart(gCurrentActor, 0x232);
@@ -2102,17 +2102,17 @@ void bonusSearchlightSeekTargetUpdate(void) {
     }
     if (gCurrentActor->state == 0) {
         speed = D_8002D90C;
-        angle = spawnLink->heading * 0xC8 - 0x578;
-        targetX = mathSinF(angle) * spawnLink->radius + targetExt->centerX;
-        targetZ = mathCosF(angle) * spawnLink->radius + targetExt->centerZ;
+        angle = target->heading * 0xC8 - 0x578;
+        targetX = mathSinF(angle) * target->radius + game->centerX;
+        targetZ = mathCosF(angle) * target->radius + game->centerZ;
         gCurrentActor->yaw -= mathAngleSignedDistance(mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, targetX, targetZ) + 0x800, gCurrentActor->yaw) >> 5;
         gCurrentActor->x += mathSinF(gCurrentActor->yaw) * speed;
         gCurrentActor->z += mathCosF(gCurrentActor->yaw) * speed;
-        spawnLink->retargetTimer--;
-        if (spawnLink->retargetTimer <= 0) {
-            spawnLink->retargetTimer = (randomLcgNext() & 0x3F) + 0xF;
-            spawnLink->heading += (randomLcgNext() & 0xF) + 3;
-            spawnLink->radius = 40.0 * randomFloat() + 10.0;
+        target->retargetTimer--;
+        if (target->retargetTimer <= 0) {
+            target->retargetTimer = (randomLcgNext() & 0x3F) + 0xF;
+            target->heading += (randomLcgNext() & 0xF) + 3;
+            target->radius = 40.0 * randomFloat() + 10.0;
         }
         if (gActorGlobalState.unk15 == 1) {
             gCurrentActor->alpha = 0xFF;
@@ -2120,12 +2120,12 @@ void bonusSearchlightSeekTargetUpdate(void) {
             actorScriptStart(gCurrentActor, 0x332);
             gCurrentActor->state = 1;
             sfxPlayOnFreeSlot(0x16, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            if (targetExt->targetsLeft != 0) {
-                targetExt->targetsLeft--;
+            if (game->targetsLeft != 0) {
+                game->targetsLeft--;
             }
             for (i = 0; i < 1; i++) {
-                if (targetExt->respawnTimers[i] == 0) {
-                    targetExt->respawnTimers[i] = 0x1E;
+                if (game->respawnTimers[i] == 0) {
+                    game->respawnTimers[i] = 0x1E;
                     i = 1;
                 }
             }
