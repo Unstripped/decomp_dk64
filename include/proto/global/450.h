@@ -19,7 +19,7 @@ void mainSystemInit(void);
 void mainResetEngineState(void);
 #endif
 #ifndef PROTO_SKIP_mainThreadLoop
-void mainThreadLoop(s32);
+void mainThreadLoop(void *);
 #endif
 #ifndef PROTO_SKIP_gfxSubmitFrame
 void gfxSubmitFrame(void);

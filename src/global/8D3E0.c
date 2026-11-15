@@ -83,17 +83,17 @@ extern u8 D_807FC611;
 
 extern s16 gCurrentLevelIndex;
 extern u8 gCurrentWorldId;
-extern s32 D_807F6010;
+extern u8 *D_807F6010;
 extern s32 gMapChunkCount;
 
 extern Struct8076A160 D_8076A160[];
 
 
-void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
+void actorMapModelsSetup(u8 *modelData, u8 loadMode, u8 skipExtra) {
     u8 *subtables;
     u8 *records;
     s32 mapIndex;
-    s32 pad;
+    s32 modelAsset; // FAKE: modelAsset reused as the colour walker; a separate walker local grows the frame
     u16 preMapModelCount;
     s32 flag;
 
@@ -103,19 +103,19 @@ void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
     if (mapIndex == -1) {
         switch (loadMode) {
         case 0:
-            D_807F6010 = modelAsset;
+            D_807F6010 = modelData;
             preMapModelCount = modelTypeCountBeforeMap(gCurrentWorldId);
             flag = 1;
             break;
         case 1:
-            modelAsset = D_807F6010;
+            modelData = D_807F6010;
             break;
         }
     } else {
-        D_807F6010 = modelAsset;
-        modelAsset = (s32)D_8076A160[mapIndex].modelData;
+        D_807F6010 = modelData;
+        modelData = D_8076A160[mapIndex].modelData;
     }
-    modelAssetGetSubtables(modelAsset, &subtables, &records);
+    modelAssetGetSubtables(modelData, &subtables, &records);
     if (skipExtra != 0) {
         modelAsset = 0;
     } else {

@@ -5,7 +5,7 @@
 #include "actor.h"
 struct ActorListNode;
 #ifndef PROTO_SKIP_actorMapModelsSetup
-void actorMapModelsSetup(s32, u8, u8);
+void actorMapModelsSetup(u8 *, u8, u8);
 #endif
 #ifndef PROTO_SKIP_actorListInitOffsets
 void actorListInitOffsets(void);

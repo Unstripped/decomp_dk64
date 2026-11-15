@@ -92,7 +92,7 @@ extern u8 D_8076AEE0;
 extern OSIoMesg D_807ECE00;
 extern s16 *D_807ECDF4;
 extern s8 D_807F6008;
-extern s32 D_807F6010;
+extern u8 *D_807F6010;
 extern u32 gGlobalOverlayFlags;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
@@ -414,7 +414,7 @@ void mainResetEngineState(void) {
 extern s16 D_8074682C;
 extern u8 gGfxTaskPending[];
 
-void mainThreadLoop(s32 unused) {
+void mainThreadLoop(void *arg) {
     u8 first;
     OSMesg receivedMesg;
 
@@ -935,7 +935,7 @@ void gfxEndSubDisplayList(Gfx *inGlist, void *basePtr, s32 *outSize, u8 fullSync
 void mapLoadLevel(void) {
     void *mapChunkAsset;
     void *loadedAsset;
-    s32 modelAsset;
+    u8 *modelAsset;
     f32 audioVolume;
     s32 activeMap;
     s32 songId;
@@ -996,7 +996,7 @@ void mapLoadLevel(void) {
     } else {
         gPlayerCharacterId = 7;
     }
-    D_807F6010 = 0;
+    D_807F6010 = NULL;
     collisionInitTables();
     textFontInitTables();
     gfxResourceListReset();
