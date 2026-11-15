@@ -46,14 +46,14 @@ void actorSpawnNodesUpdate(void) {
     spawnNodesUpdate();
 }
 typedef struct {
-    /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 unk1;
-    /* 0x02 */ s16 unk2;
-    /* 0x04 */ s16 unk4;
-    /* 0x06 */ s16 unk6;
-    /* 0x08 */ s16 unk8;
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
+    /* 0x00 */ u8 innerAngle;
+    /* 0x01 */ u8 outerAngle;
+    /* 0x02 */ s16 posX;
+    /* 0x04 */ s16 posY;
+    /* 0x06 */ s16 posZ;
+    /* 0x08 */ s16 targetX;
+    /* 0x0A */ s16 targetY;
+    /* 0x0C */ s16 targetZ;
 } LightPosEntry;
 
 extern Actor *gCurrentActor;
@@ -66,10 +66,9 @@ extern LightPosEntry D_80750194[];
 
 void lightUpdateFromActorLighting(u8 *outR, u8 *outG, u8 *outB) {
     f32 pad;
-    f32 dirX;
-    f32 dirY;
-    f32 dirZ;
-    s32 lightIndex;
+    f32 targetX;
+    f32 targetY;
+    f32 targetZ;
     u8 idx;
 
     if (gCurrentActor->flags & 4) {
@@ -87,7 +86,7 @@ void lightUpdateFromActorLighting(u8 *outR, u8 *outG, u8 *outB) {
         case 2:
             if (!(gFrameCounter & 3)) {
 set_color:
-                idx = (u32)(mathCosF(gFrameCounter * 200) * 4.0f + 4.0f);
+                idx = mathCosF(gFrameCounter * 200) * 4.0f + 4.0f;
                 *outR = D_807501C0[idx][0];
                 *outG = D_807501C0[idx][1];
                 *outB = D_807501C0[idx][2];
@@ -95,17 +94,17 @@ set_color:
             break;
         }
 
-        if ((D_807FC621 & 0x80) && (lightIndex = D_807FC621 & 0x7F)) {
-            D_807FC621 = lightIndex;
-            dirX = (f32)D_80750194[D_807FC621 - 1].unk8;
-            dirY = (f32)D_80750194[D_807FC621 - 1].unkA;
-            dirZ = (f32)D_80750194[D_807FC621 - 1].unkC;
+        if ((D_807FC621 & 0x80) && (D_807FC621 & 0x7F)) {
+            D_807FC621 &= 0x7F;
+            targetX = D_80750194[D_807FC621 - 1].targetX;
+            targetY = D_80750194[D_807FC621 - 1].targetY;
+            targetZ = D_80750194[D_807FC621 - 1].targetZ;
             if (D_807FC622 != 0) {
-                dirX += 80.0f * mathSinF(gFrameCounter * 400);
-                dirZ += 80.0f * mathCosF(gFrameCounter * 200);
+                targetX += 80.0f * mathSinF(gFrameCounter * 400);
+                targetZ += 80.0f * mathCosF(gFrameCounter * 200);
             }
-            lightSetFovAngles((f32)(u32)D_80750194[D_807FC621 - 1].unk0, (f32)(u32)D_80750194[D_807FC621 - 1].unk1);
-            lightAdd((f32)D_80750194[D_807FC621 - 1].unk2, (f32)D_80750194[D_807FC621 - 1].unk4, (f32)D_80750194[D_807FC621 - 1].unk6, dirX, dirY, dirZ, 0.0f, 1, *outR, *outG, *outB);
+            lightSetFovAngles(D_80750194[D_807FC621 - 1].innerAngle, D_80750194[D_807FC621 - 1].outerAngle);
+            lightAdd(D_80750194[D_807FC621 - 1].posX, D_80750194[D_807FC621 - 1].posY, D_80750194[D_807FC621 - 1].posZ, targetX, targetY, targetZ, 0.0f, 1, *outR, *outG, *outB);
         }
     }
 }
@@ -188,15 +187,15 @@ s32 cutsceneTriggerCheck(s16 cutsceneId) {
 
 typedef struct {
     /* 0x00 */ u8 weatherMode;
-    /* 0x01 */ u8 unk1[3];
+    /* 0x01 */ u8 pad1[3];
     /* 0x04 */ f32 density;
     /* 0x08 */ s16 windAngle;
-    /* 0x0A */ s16 unkA;
+    /* 0x0A */ s16 padA;
     /* 0x0C */ f32 colorR;
     /* 0x10 */ f32 colorG;
     /* 0x14 */ f32 colorB;
     /* 0x18 */ u8 flashTimer;
-    /* 0x19 */ u8 unk19;
+    /* 0x19 */ u8 pad19;
     /* 0x1A */ s16 mapChunk;
     /* 0x1C */ s16 fadeDuration;
     /* 0x1E */ s16 fadeTimer;
@@ -225,7 +224,7 @@ void actorCutsceneDispatchEvents(void) {
     s32 i;
     f32 lerpT;
     s16 *eventData;
-    s32 sfxVolume;
+    u8 sfxVolume;
     s32 pathFlag;
     s16 mode;
 
@@ -245,12 +244,12 @@ void actorCutsceneDispatchEvents(void) {
             csState->weatherMode = 0xFF;
             break;
         case 0xF:
-            lightSetOverrideColor((f64)eventData[0] / 255.0, (f64)eventData[1] / 255.0, (f64)eventData[2] / 255.0);
+            lightSetOverrideColor(eventData[0] / 255.0, eventData[1] / 255.0, eventData[2] / 255.0);
             break;
         case 0xE:
-            csState->colorR = (f64)eventData[0] / 255.0;
-            csState->colorG = (f64)eventData[1] / 255.0;
-            csState->colorB = (f64)eventData[2] / 255.0;
+            csState->colorR = eventData[0] / 255.0;
+            csState->colorG = eventData[1] / 255.0;
+            csState->colorB = eventData[2] / 255.0;
             csState->mapChunk = eventData[3];
             break;
         case 0x10:
@@ -261,7 +260,7 @@ void actorCutsceneDispatchEvents(void) {
             if ((gCurrentMap != 0x30) || !(gActivePlayerState->stateFlags & 0x200000)) {
                 csState->weatherMode = eventData[0];
                 csState->mapChunk = eventData[1];
-                csState->density = (f64)(f32)eventData[2] / 100.0;
+                csState->density = (f32)eventData[2] / 100.0;
                 csState->windAngle = eventData[3];
             }
             break;
@@ -359,7 +358,7 @@ void actorCutsceneDispatchEvents(void) {
             sfxStopChannel(eventData[0], 0);
             break;
         case 0x11:
-            gActivePlayerActor->accelY = (f64)eventData[0] / 10.0;
+            gActivePlayerActor->accelY = eventData[0] / 10.0;
             break;
         case 0x12:
             gActivePlayerActor->contactFlags |= 0x200;
@@ -437,7 +436,7 @@ void actorCutsceneDispatchEvents(void) {
                     if (gCurrentMap == 0x57) {
                         sfxVolume = 0x2D;
                     }
-                    sfxPlayWithRandomPan(0x9C, (u8)sfxVolume, 0x7F, 0x1E, (randomNonNegative() >> 15) % 3);
+                    sfxPlayWithRandomPan(0x9C, sfxVolume, 0x7F, 0x1E, (randomNonNegative() >> 15) % 3);
                     if (gCurrentMap == 0x6F) {
                         csState->sfxCooldown = 0x50;
                     } else {
