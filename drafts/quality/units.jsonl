@@ -632,3 +632,4 @@
 {"type": "unit", "t": "2026-11-15T14:48:03Z", "unit": "2026-11-15: cleanup HackplayerStateSetFlagsByActorType2", "commit": "7d7d5cfe4681aafe085dc0fb44e94cbe4ef8ff2b"}
 {"type": "unit", "t": "2026-11-15T15:06:29Z", "unit": "2026-11-15: cleanup HackmenuRenderOptionDescription2", "commit": "333200cc36061bc9add03712619350c8389cc338"}
 {"type": "unit", "t": "2026-11-15T15:06:43Z", "unit": "2026-11-15: cleanup HackgfxSwapGeometryModeCullBits2", "commit": "fc8faef246990108dc33727d45df78a4a46d2901"}
+{"type": "unit", "t": "2026-11-15T15:07:48Z", "unit": "2026-11-15: cleanup HackarcadeUpdateDonkeyKongStage3", "commit": "847de629782dd12c6f7f896db28fc641c1fff2c5"}
