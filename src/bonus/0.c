@@ -112,7 +112,7 @@ void bonusControllerUpdate(void) {
     s32 pad50;
     s32 pad4C;
     s32 sfxId;
-    u8 *pv;
+    s32 pad44;
 
     counter = ((BonusCounterActor *)gCurrentActor)->counter;
     behaviourFrameBegin();
@@ -381,9 +381,8 @@ render:
             bonusEndLose(1, 0x14);
             return;
         }
-        pv = &challengeType; // FAKE: address-taken challengeType keeps the 0x78 frame with challengeType at sp+0x6F (without it: 0x80, sp+0x77)
         if (gCurrentActor->parentActor->state == 5) {
-            if (*pv == 3) {
+            if (challengeType == 3) {
                 bonusEndWin(1, 0x15);
                 return;
             }
