@@ -685,3 +685,4 @@
 {"type": "unit", "t": "2026-11-15T17:42:43Z", "unit": "2026-11-15: cleanup HackminecartUpdateObstacleType32", "commit": "b6310e7c429372f0cecc673b00c9f00a70dd8b3d"}
 {"type": "unit", "t": "2026-11-15T17:53:47Z", "unit": "2026-11-15: cleanup PolishglobalCarve56", "commit": "325755d27d697779c7459b5b008d42b9f5cf2749"}
 {"type": "unit", "t": "2026-11-15T17:55:41Z", "unit": "2026-11-15: cleanup HackactorConfigLookup2", "commit": "63c0bd1c789c5918bc9a2ea76fff30fb98cdf514"}
+{"type": "unit", "t": "2026-11-15T17:56:46Z", "unit": "2026-11-15: cleanup HackcollisionTestActorBoxFloor2", "commit": "546781fac01927c8eddd88ab81e439a5c0be3b88"}
