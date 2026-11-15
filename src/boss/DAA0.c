@@ -63,7 +63,6 @@ typedef struct BossSpawnerState {
 } BossSpawnerState;
 
 extern Actor *gSpawnedActor;
-extern u8 D_807FBDC4;
 extern s8 D_80036DC0;
 extern f32 gBossFollowerPlayerDistSq;
 
@@ -136,7 +135,7 @@ void bossSpawnerUpdate(void) {
         }
         gPrimaryPlayerActor->flags &= ~4;
         gPrimaryPlayerActor->unk144 = 1;
-        if (D_807FBDC4 != 0) {
+        if (gActorGlobalState.volumeTriggerQueueCount != 0) {
             cutsceneId = D_80035B44[D_80036DC0];
             gCurrentActor->segmentFlags = 0;
             for (i = 4; D_80036DC0 < i; i--) {
@@ -366,7 +365,7 @@ void bossSpawnerUpdate(void) {
         break;
     case 8:
         state->liftSpeed = -0.1f;
-        if (D_807FBDC4 != 0) {
+        if (gActorGlobalState.volumeTriggerQueueCount != 0) {
             sfxAllocateChannel(0x35, 1.0);
             bossSpawnParticleRing(0x13D, gCurrentActor->x, gCurrentActor->y + 200.0f, gCurrentActor->z + 40.0f, 0x800, 1);
             state->subState = 9;
