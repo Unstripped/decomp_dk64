@@ -22,3 +22,5 @@
 - 0x3100-0x312c: `lui at,%hi(D_8002D8FC)` above the branch, `li v0,-100; li v1,1` hoisted; second `lui at` in the zero arm; stores `sh zero`/`sh v0` in the arms and `sh v1` to D_8002D8F8 after the join.
 - Data: asm/bonus/data/0.data.s 0x98F4 `.byte 0x32` + pad, 0x98F8/0x98FC s16 zero + pad: IDO's +0/+4/+8 static layout.
 - Q0761 (function-local static = native S variable, own lui/%lo per access), Q0564, Q0332, Q0520.
+
+2026-11-15 Lead2 (merge 660b3162): bonus .data carve applied; all 5 sites FIXED (function-local statics).
