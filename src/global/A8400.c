@@ -405,7 +405,7 @@ void textBoxUpdateRows(Actor *actor) {
         case 3:
             if (state->holdTimer != 0) {
                 state->holdTimer--;
-                mode = actor->state; // FAKE: re-read of actor->state after the holdTimer store; dropping it costs 11 words, a mode-free switch 6
+                mode = actor->state; // ORIG: the target reloads actor->state in this arm only (lbu v0,340(s3) at +0x350, after the holdTimer sb at +0x348); the else arm uses the stored 1 (andi at +0x33c)
             } else {
                 mode = actor->state = 1;
             }
