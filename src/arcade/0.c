@@ -3386,16 +3386,17 @@ void arcadeUpdateDonkeyKongStage2(s32 entIndex) {
 }
 
 void arcadeUpdateDonkeyKongStage3(s32 entIndex) {
-    s32 tmp;
+    s32 frame;
+    s32 timer;
     s32 flash;
 
     switch (D_8004BCD0[entIndex].state) {
     case 2:
-        tmp = 0; // FAKE: tmp holds 0 then the frame count; the reuse steers regalloc
-        if (D_8004C71D != tmp) {
+        if (D_8004C71D != 0) {
             return;
         }
-        if (D_8004C6DC % 120 == 0) {
+        frame = D_8004C6DC;
+        if (frame % 120 == 0) {
             D_8004C71E -= 1;
         }
         if (D_8004BCD0[entIndex].x > 204.0f) {
@@ -3405,8 +3406,8 @@ void arcadeUpdateDonkeyKongStage3(s32 entIndex) {
             D_8004BCD0[entIndex].vx = 1.0f;
         }
         D_8004BCD0[entIndex].animTimer += 1.0f;
-        tmp = D_8004BCD0[entIndex].animTimer;
-        if ((u8)tmp < 0xA0) {
+        timer = D_8004BCD0[entIndex].animTimer;
+        if ((u8)timer < 0xA0) {
             D_8004BCD0[entIndex].sprite = D_80040540;
         } else {
             D_8004BCD0[entIndex].sprite = D_800424D0;
