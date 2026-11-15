@@ -577,7 +577,7 @@ void sfxUpdateLevelAmbient(void) {
         D_80770DD4 = 1000000.0f;
         volume = 0.0f;
         for (k = 0, n = emitterCount; k < n; k++) {  // FAKE: n caches emitterCount as the loop bound; k < emitterCount moves emitterCount from s1 to s3 (pre-existing copy, now tagged)
-            AmbientEmitter *entry = (AmbientEmitter *)((s32)emitters + k * 14);  // FAKE: byte-address sum keeps emitters in t4 and the k*14 index in t5 (addu operand order)
+            AmbientEmitter *entry = &emitters[0] + k;  // FAKE: `&emitters[0] + k` keeps the base-first addu s1,t4,t5 (emitters reloaded into t4 from 0xc0(sp), k*14 in t5); &emitters[k] builds offset-first (Q0813)
             f32 dx = gPlayerSlots->camX - entry->x;
             f32 dz = gPlayerSlots->camZ - entry->z;
             if (entry->facing == -1) {
@@ -820,7 +820,7 @@ void sfxUpdateLevelAmbient(void) {
                 D_80770EF8[group] = angle;
             }
             if (pitch != D_80770E78[group]) {
-                n_alSndpPostEvent(D_80770DF8[group], 0x10, *(s32 *)&pitch);
+                n_alSndpPostEvent(D_80770DF8[group], 0x10, *(s32 *)&pitch);  // ORIG: the target passes pitch's raw bits from its home slot (swc1 $f2,0xcc(sp) at 0x218c, lw a2,0xcc(sp) at 0x2244); an f32 parameter would pass them by mfc1 with no home store (Q0026)
                 D_80770E78[group] = pitch;
             }
         }
@@ -851,7 +851,7 @@ void sfxUpdateLevelAmbient(void) {
             } else {
                 D_80770DCC = 64.0f;
             }
-            n_alSndpPostEvent(D_807457DC, 0x10, *(s32 *)&pitch);
+            n_alSndpPostEvent(D_807457DC, 0x10, *(s32 *)&pitch);  // ORIG: the target passes pitch's raw bits from its home slot (swc1 $f2,0xcc(sp) at 0x23d0, lw a2,0xcc(sp) at 0x24fc)
             n_alSndpPostEvent(D_807457DC, 0x100, (s32)D_80770DD0);
             n_alSndpPostEvent(D_807457DC, 4, (s32)D_80770DCC);
         }
