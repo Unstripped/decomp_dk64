@@ -683,8 +683,6 @@ s32 mathIdentityS32B(s32 value) {
     return value;
 }
 
-extern s16 D_807FC828[];
-
 void func_80713EB0(s32 map, s32 exit, s32 gate) {
     s32 savedExit;
     s32 total;

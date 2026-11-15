@@ -3561,32 +3561,20 @@ s32 menuCheckSaveFile(s32 fileSlot) {
     return eepromGetField(0xD, 0, 0, fileSlot) == 0;
 }
 
-typedef struct MenuCollectibleCounts { // ACDC0's collectible-count table (hudPauseMenuRefreshTotals)
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
-    s16 unkA;
-    s16 unkC;
-} MenuCollectibleCounts;
-
-extern MenuCollectibleCounts D_807FC828;
-
 s32 menuCalculateGamePercentage(void) {
     f32 pct;
 
     hudPauseMenuRefreshTotals();
     pct = 0.0f;
-    pct += (f32)D_807FC828.unk0 * 0.4;
-    pct += (f32)D_807FC828.unk4 * 0.25;
-    pct += (f32)D_807FC828.unkA * 0.2;
-    pct += (f32)D_807FC828.unk6 * 0.2;
-    pct += (f32)D_807FC828.unk2 * 0.5;
-    pct += (f32)D_807FC828.unk8 * 0.5;
-    pct += (f32)D_807FC828.unkC * 0.5;
+    pct += (f32)D_807FC828[0] * 0.4;
+    pct += (f32)D_807FC828[2] * 0.25;
+    pct += (f32)D_807FC828[5] * 0.2;
+    pct += (f32)D_807FC828[3] * 0.2;
+    pct += (f32)D_807FC828[1] * 0.5;
+    pct += (f32)D_807FC828[4] * 0.5;
+    pct += (f32)D_807FC828[6] * 0.5;
 
-    if (D_807FC828.unk0 == 0xC9) {
+    if (D_807FC828[0] == 0xC9) {
         pct -= 0.4;
     }
 

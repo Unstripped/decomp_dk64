@@ -93,7 +93,7 @@ extern s32 gCurrentMap;
 extern s16 D_8076AEF2;
 extern u16 D_80744508;
 extern s16 D_80750AC4;
-extern u8 D_8002D863[];
+extern s32 D_8002D860[];
 
 
 void bonusControllerUpdate(void) {
@@ -317,7 +317,7 @@ render:
             if (D_8076AEF2 == 0x11) {
                 resQueueSetValue(2);
             }
-            resQueueAttachActor(gCurrentActor, 0, D_8002D863[challengeType << 2]);
+            resQueueAttachActor(gCurrentActor, 0, D_8002D860[challengeType]);
             counter->setupStep += 1;
         }
         break;

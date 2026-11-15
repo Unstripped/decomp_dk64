@@ -70,7 +70,6 @@ extern u8 D_807FC810;
 extern f32 D_807FC808;
 extern s8 D_8075052C;
 extern s8 D_807505D0;
-extern s16 D_807FC828;
 extern s16 D_807FC82A;
 extern s16 D_807FC82C;
 extern s16 D_807FC82E;
@@ -226,7 +225,7 @@ void hudPauseMenuUpdate(void) {
                 }
                 buttons = 0;
             }
-            if (D_807FC828 > 0) {
+            if (D_807FC828[0] > 0) {
                 flag = 0;
                 if (buttons & 0x10) {
                     hud->nextPage = hud->page + 1;
@@ -782,7 +781,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 if (fb < 0.01f) {
                     fb = 0.01f;
                 }
-                dl = hudDrawCountPair(0x280, 0x33C, (&D_807FC828)[D_807FC818[D_807FC80C]], D_8075056C[D_807FC818[D_807FC80C]], dl, 1, fb);
+                dl = hudDrawCountPair(0x280, 0x33C, D_807FC828[D_807FC818[D_807FC80C]], D_8075056C[D_807FC818[D_807FC80C]], dl, 1, fb);
             }
             break;
     }
@@ -921,8 +920,8 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             hudPauseMenuAddCounter(iconObj, 0x122, 0xA0, -0xC, -0xA, gPlayerInventoryTable[0].cameraFilm, 1, 0x81);
             hudPauseMenuSpawnIcon(iconObj, 6, 0x122, 0xA0, 0.65f, 2, 1);
         }
-        if (D_807FC828 > 0) {
-            hudPauseMenuAddCounter(iconObj, 0x91, 0xBE, 0xF, -0xA, D_807FC828, 1, 0);
+        if (D_807FC828[0] > 0) {
+            hudPauseMenuAddCounter(iconObj, 0x91, 0xBE, 0xF, -0xA, D_807FC828[0], 1, 0);
             hudPauseMenuSpawnIcon(iconObj, 9, 0x91, 0xBE, 1.0f, 2, 1);
         }
         gPlayerCharacterId = iconObj->kong;
@@ -1065,7 +1064,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
     case 3:
         D_807FC83C = 0;
         for (i = 0; i < 8; i++) {
-            if ((&D_807FC828)[i] > 0) {
+            if (D_807FC828[i] > 0) {
                 D_807FC83C++;
             }
         }
@@ -1073,7 +1072,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         x = 0;
         cnt = 0;
         for (i = 0; i < 8; i++) {
-            if ((&D_807FC828)[i] > 0) {
+            if (D_807FC828[i] > 0) {
                 if (i != 5) {
                     f = 0.75f;
                     flag = 5;
@@ -1091,7 +1090,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
         break;
     }
-    if (refresh == 0 && D_807FC828 > 0) {
+    if (refresh == 0 && D_807FC828[0] > 0) {
         hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D38, 0x2D, 0xC8, 1.0f, 2, 1);
         hudPauseMenuSpawnIcon(iconObj, (s32)&D_8072104C, 0x113, 0xC8, 1.0f, 2, 1);
     }
@@ -1342,7 +1341,7 @@ void hudPauseMenuRefreshTotals(void) {
             n += gPlayerInventoryTable[0].kong[k].goldenBananas[i];
         }
     }
-    D_807FC828 = n;
+    D_807FC828[0] = n;
     n = 0;
     p = D_80744710; do { // LAYOUT: one-line loop setup steers as1 lui/addiu order (Q0149)
         if (flagGet(*p, 0) != 0) {
