@@ -261,7 +261,6 @@ Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
     return glist;
 }
 
-extern PadInputState gPlayerPadState[];
 extern OSContPad *D_807ECDEC;
 extern u8 gCurrentPlayerIndex;
 extern u8 gPlayerCharacterId;

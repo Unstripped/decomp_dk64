@@ -1769,7 +1769,6 @@ void modelSlotUpdateFacingTrigger(s32 slot) {
 }
 
 extern u8 D_807FB603;
-extern PadInputState gPlayerPadState[];
 s32 func_806738D0(s32, s32, s32, s32, CollisionBox *, CollisionBox *);
 
 s32 actorResolveModelSlotCollision(Actor *actor) {

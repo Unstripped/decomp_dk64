@@ -17,18 +17,11 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-// Second component (Actor+0x178) of the pulsing actor kinds: actorUpdatePulseIntensity ramps the light (A6280 PulseState names),
-// func_806B6DB0 keeps a yaw sway there.
-typedef struct PulseSwayState {
-    /* 0x0 */ u8 intensity;
-    /* 0x1 */ u8 phase;
-    /* 0x2 */ s16 yawSway; // +-0x8C on a sharp turn, added to yaw and decayed by 1% per frame
-} PulseSwayState;
-
-typedef struct PulseSwayActor {
+// The pulsing actor kinds' second component (PulseState, actor.h) sits behind the pointer at 0x178.
+typedef struct PulseActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ PulseSwayState *pulse;
-} PulseSwayActor;
+    /* 0x178 */ PulseState *pulse;
+} PulseActor;
 
 extern Actor *gSpawnedActor;
 extern s16 D_807502E0;
@@ -36,7 +29,7 @@ extern f32 D_807502E8;
 
 
 void actorUpdatePulseIntensity(u8 active) {
-    PulseSwayState *p = ((PulseSwayActor *)gCurrentActor)->pulse;
+    PulseState *p = ((PulseActor *)gCurrentActor)->pulse;
     s32 pad1;
     BoneRotation *q = gCurrentActor->sub4->boneRotations;
     s32 pad2;
@@ -134,13 +127,13 @@ void func_806B6C88(s16 speed, s16 angle) {
 extern s32 gCurrentMap;
 
 void func_806B6DB0(s32 aggroRange) {
-    PulseSwayState *p;
+    PulseState *p;
     s16 diff;
     u8 near;
     Actor *tgt;
     s32 sel;
 
-    p = ((PulseSwayActor *)gCurrentActor)->pulse;
+    p = ((PulseActor *)gCurrentActor)->pulse;
     if (gCurrentActor->moveYaw < gCurrentActor->yaw) {
         diff = gCurrentActor->yaw - gCurrentActor->moveYaw;
     } else {

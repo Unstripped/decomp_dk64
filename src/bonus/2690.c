@@ -53,7 +53,6 @@ typedef struct BonusActorExt {
 extern Actor *gCurrentActor;
 
 
-extern PadInputState gPlayerPadState[];
 struct BonusTargetGameState;
 typedef struct BonusTargetState {
     struct BonusTargetGameState *game;

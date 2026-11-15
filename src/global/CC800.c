@@ -347,7 +347,6 @@ extern s32 gCurrentMap;
 extern Actor *gCamActor;
 extern f32 D_80753578[];
 extern f32 D_807535E8[];
-extern PadInputState gPlayerPadState[];
 
 void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     const KongCharacterEntry *row;

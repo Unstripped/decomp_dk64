@@ -497,6 +497,15 @@ typedef struct Actor {
     /* 0x174 */ void *customState;
 } Actor; // size = 0x178, the block actorAllocate gives a type with no components
 
+// Second component (Actor 0x178) of the pulsing actor types: actorUpdatePulseIntensity (BB300) ramps the light
+// intensity through phase; func_806B6DB0 (BB300) keeps a yaw sway there. Reached through per-type views
+// { Actor base; PulseState *pulse; } (A6280, BB300).
+typedef struct PulseState {
+    /* 0x0 */ u8 intensity;
+    /* 0x1 */ u8 phase;
+    /* 0x2 */ s16 yawSway; // +-0x8C on a sharp turn, added to yaw and decayed by 1% per frame
+} PulseState;
+
 // Third component (Actor 0x17C) of the scripted actors (C4620.c behaviours; cutscene commands 0x33, 0x34
 // and 0x3C address it in camPathCommandDispatch, 2C910.c).
 typedef struct ScriptedActorState {
@@ -1187,8 +1196,7 @@ typedef struct MpSettings {
 
 extern MpSettings D_807552E4;
 
-// Per-player pad record (gPlayerPadState at 0x807FD610). The extern stays in each user file:
-// several files still declare gPlayerPadState with their own view type.
+// Per-player pad record (gPlayerPadState at 0x807FD610).
 typedef struct PadInputState {
     /* 0x00 */ s32 stickHeldFrames;
     /* 0x04 */ f32 stickMag;
@@ -1205,5 +1213,7 @@ typedef struct PadInputState {
     /* 0x31 */ u8 stickAbsY;
     /* 0x32 */ u8 pad32[2];
 } PadInputState; // size = 0x34
+
+extern PadInputState gPlayerPadState[];
 
 #endif

@@ -152,8 +152,6 @@ void mathAngleStepForward(s16 *angle, s16 target, s16 step) {
     }
 }
 
-extern PadInputState gPlayerPadState[];
-
 
 
 

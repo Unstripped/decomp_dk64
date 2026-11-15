@@ -433,8 +433,6 @@ extern s16 D_807FD804;
 extern s16 D_807FD806;
 
 
-extern PadInputState gPlayerPadState[];
-
 
 void func_80700BF4(void) {
     u8 i;

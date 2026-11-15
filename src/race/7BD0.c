@@ -29,8 +29,6 @@
 
 extern PlayerStruct *gPlayerSlots;
 
-extern PadInputState gPlayerPadState[];
-
 
 
 

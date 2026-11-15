@@ -77,8 +77,6 @@ u8 actorCheckCollisionsAgainstActiveActors(Actor *self, s16 *arcMin, s16 *arcMax
 
 typedef f32 CollisionMtxF[4][4];
 
-extern PadInputState gPlayerPadState[];
-
 extern s32 D_807FB5C4;
 extern s32 D_807FB5C8;
 extern s32 D_807FB5CC;

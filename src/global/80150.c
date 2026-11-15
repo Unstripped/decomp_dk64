@@ -1651,7 +1651,6 @@ typedef struct MovingLaunchBarrelState {
 } MovingLaunchBarrelState;
 
 extern Actor *gActivePlayerActor;
-extern PadInputState gPlayerPadState[];
 
 
 void tagBarrelParticleUpdate(void) {

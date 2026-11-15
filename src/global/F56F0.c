@@ -315,8 +315,6 @@ void scriptCmdCompareMoveTier(Actor *actor) {
         playerSelectMoveTier(actor, actor->speedXZ, actor->speedXZ, gActivePlayerState->unk4C, gCurrentCharacterIndex) - temp;
 }
 
-extern PadInputState gPlayerPadState[];
-
 void playerResumeLocomotionDecel(Actor *actor) {
     f32 value;
 

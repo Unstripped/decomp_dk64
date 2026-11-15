@@ -57,8 +57,6 @@ typedef struct ActorExt {
 
 #define ACTOR_EXT ((ActorExt *)gCurrentActor)
 
-extern PadInputState gPlayerPadState[];
-
 void playerStateCarried(void) {
     playerStateQueueCallback(0x3C, NULL, gCurrentPlayerIndex);
     playerInputUpdate(0xB);

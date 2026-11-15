@@ -26,17 +26,11 @@
 extern Actor *gCurrentActor;
 
 
-// Second component (Actor 0x178) of the pulsing actor types: actorUpdatePulseIntensity (BB300) ramps it.
-typedef struct PulseState {
-    u8 intensity;
-    u8 phase;
-} PulseState;
-
-// Actor types with two components: 0x178 is the second component pointer.
-typedef struct ActorView {
+// Actor types with two components: 0x178 is the second component pointer (PulseState, actor.h).
+typedef struct PulseActor {
     Actor base;
     PulseState *pulse;
-} ActorView;
+} PulseActor;
 
 
 extern Actor *gPrimaryPlayerActor;
@@ -106,7 +100,7 @@ void actorFollowParentPulseUpdate(void) {
     PulseState *pulse;
     Actor *parent;
 
-    pulse = ((ActorView *)gCurrentActor)->pulse;
+    pulse = ((PulseActor *)gCurrentActor)->pulse;
     parent = gCurrentActor->parentActor;
     if (!(gCurrentActor->flags & 0x10)) {
         func_80724CA4(2, 2);
