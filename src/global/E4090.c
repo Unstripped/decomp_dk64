@@ -924,16 +924,16 @@ PlayerInputHandlers gPlayerInputHandlers[107] = {
 };
 
 s32 playerInputUpdate(s32 handlerSet) {
-    f32 a;
-    f32 b;
-    f32 hi;
+    f32 minSq;
+    f32 maxSq;
+    f32 tmp;
     f32 mag;
     s32 pad;
     s32 i;
-    s32 old;
-    s16 ang;
+    s32 prevState;
+    s16 angle;
 
-    old = gActivePlayerActor->state;
+    prevState = gActivePlayerActor->state;
     gPlayerPadState[gCurrentPlayerIndex].heldButtons = inputRemapButtons(D_807ECDEC->button, gButtonRemapTable);
     gPlayerPadState[gCurrentPlayerIndex].pressedButtons = inputRemapButtons(D_807ECDF0, gButtonRemapTable);
     if (gActivePlayerState->stateFlags2 & 0x20) {
@@ -980,17 +980,17 @@ s32 playerInputUpdate(s32 handlerSet) {
         gPlayerPadState[gCurrentPlayerIndex].stickY = 0;
         gPlayerPadState[gCurrentPlayerIndex].stickAbsY = 0;
     }
-    a = gPlayerPadState[gCurrentPlayerIndex].stickAbsX * gPlayerPadState[gCurrentPlayerIndex].stickAbsX;
-    b = gPlayerPadState[gCurrentPlayerIndex].stickAbsY * gPlayerPadState[gCurrentPlayerIndex].stickAbsY;
-    mag = sqrtf(a + b);
-    if (b < a) {
-        hi = a;
-        a = b;
-        b = hi;
+    minSq = gPlayerPadState[gCurrentPlayerIndex].stickAbsX * gPlayerPadState[gCurrentPlayerIndex].stickAbsX;
+    maxSq = gPlayerPadState[gCurrentPlayerIndex].stickAbsY * gPlayerPadState[gCurrentPlayerIndex].stickAbsY;
+    mag = sqrtf(minSq + maxSq);
+    if (maxSq < minSq) {
+        tmp = minSq;
+        minSq = maxSq;
+        maxSq = tmp;
     }
-    if (b != 0.0f) {
-        hi = 1.0 - (a / b) * 0.15;
-        mag = mag * hi;
+    if (maxSq != 0.0f) {
+        tmp = 1.0 - (minSq / maxSq) * 0.15;
+        mag *= tmp;
     }
     if (mag > 70.0f) {
         mag = 70.0f;
@@ -1002,19 +1002,19 @@ s32 playerInputUpdate(s32 handlerSet) {
         gPlayerPadState[gCurrentPlayerIndex].stickMagNorm = (mag - 5.0f) / 65.0f;
     } else {
         gPlayerPadState[gCurrentPlayerIndex].stickMagNorm = 0.0f;
-        gPlayerPadState[gCurrentPlayerIndex].stickHeldFrames = gPlayerPadState[gCurrentPlayerIndex].stickHeldFrames + 1;
+        gPlayerPadState[gCurrentPlayerIndex].stickHeldFrames++;
     }
     if (mag != 0.0f) {
-        ang = mathAtan2(gPlayerPadState[gCurrentPlayerIndex].stickX, -gPlayerPadState[gCurrentPlayerIndex].stickY) * 4096.0f / 6.2831855f;
-        gPlayerPadState[gCurrentPlayerIndex].stickAngle = (gPlayerSlots[gCurrentPlayerIndex].camYawInt + ang) & 0xFFF;
+        angle = mathAtan2(gPlayerPadState[gCurrentPlayerIndex].stickX, -gPlayerPadState[gCurrentPlayerIndex].stickY) * 4096.0f / 6.2831855f;
+        gPlayerPadState[gCurrentPlayerIndex].stickAngle = (gPlayerSlots[gCurrentPlayerIndex].camYawInt + angle) & 0xFFF;
     } else {
-        ang = gPlayerPadState[gCurrentPlayerIndex].stickAngleHistory[0];
+        angle = gPlayerPadState[gCurrentPlayerIndex].stickAngleHistory[0];
     }
     for (i = 3; i != 0; i--) {
         gPlayerPadState[gCurrentPlayerIndex].stickAngleHistory[i] = gPlayerPadState[gCurrentPlayerIndex].stickAngleHistory[i - 1];
         gPlayerPadState[gCurrentPlayerIndex].stickMagHistory[i] = gPlayerPadState[gCurrentPlayerIndex].stickMagHistory[i - 1];
     }
-    gPlayerPadState[gCurrentPlayerIndex].stickAngleHistory[0] = ang;
+    gPlayerPadState[gCurrentPlayerIndex].stickAngleHistory[0] = angle;
     gPlayerPadState[gCurrentPlayerIndex].stickMagHistory[0] = mag;
     gPlayerInputHandlers[handlerSet].fn[1]();
     if (gPlayerPadState[gCurrentPlayerIndex].heldButtons & 0x1000) {
@@ -1056,7 +1056,7 @@ s32 playerInputUpdate(s32 handlerSet) {
         gPlayerInputHandlers[handlerSet].fn[14]();
     }
     gPlayerInputHandlers[handlerSet].fn[16]();
-    return gActivePlayerActor->state - old;
+    return gActivePlayerActor->state - prevState;
 }
 
 u16 inputRemapButtons(u16 buttons, u16 *map) {
@@ -3719,29 +3719,25 @@ void playerInputUpdateSteerAnim(LaneActorState *st, s32 idleAnim, s32 moveAnim) 
 
 void playerInputReadLaneSteer(LaneActor *actor, LaneActorState *st) {
     s32 sign;
-    s32 t;
-    f32 f;
-    f32 g;
-    f32 x;
+    s32 pullBack;
+    f32 absX;
+    f32 clamped;
+    f32 steer;
 
     if (st->unk45 == 0 && st->unk34 == 2) {
-        t = gPlayerPadState[gCurrentPlayerIndex].stickY < -0x14;
+        pullBack = gPlayerPadState[gCurrentPlayerIndex].stickY < -0x14;
         sign = gPlayerPadState[gCurrentPlayerIndex].stickX >= 0 ? 1 : -1;
-        f = gPlayerPadState[gCurrentPlayerIndex].stickAbsX;
-        if (f > 80.0f) {
-            g = 80.0f;
-        } else {
-            g = f;
-        }
-        x = g;
-        x *= sign;
-        x *= 0.0125f;
-        st->steer = x;
-        st->steer = x * D_80750FFC;
+        absX = gPlayerPadState[gCurrentPlayerIndex].stickAbsX;
+        clamped = (absX > 80.0f) ? 80.0f : absX;
+        steer = clamped;
+        steer *= sign;
+        steer *= 0.0125f;
+        st->steer = steer;
+        st->steer *= D_80750FFC;
         if (st->braking == 0) {
-            st->braking = (actor->base.speedXZ < D_80750FF8) & t;
+            st->braking = (actor->base.speedXZ < D_80750FF8) & pullBack;
         } else {
-            st->braking = t;
+            st->braking = pullBack;
         }
     } else {
         st->braking = 0;
@@ -3759,12 +3755,12 @@ void playerInputUpdateHeldActorVineClimb(void) {
 }
 
 void playerInputSetHeldActorVineSpeed(void) {
-    Actor *a;
+    Actor *actor;
     LaneActorState *st;
 
-    a = gActivePlayerState->actor;
-    if (a != NULL) {
-        st = a->customState;
+    actor = gActivePlayerState->actor;
+    if (actor != NULL) {
+        st = actor->customState;
         st->unk8 = D_80751000;
     }
 }
