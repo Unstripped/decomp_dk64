@@ -371,22 +371,22 @@ s32 zoneFindBestReachablePoint(u8 mode, Actor *actor, Zone *zone, s16 *outX, s16
     if (mode & 1) {
         best = 0;
     } else {
-        best = 0xF423F;
+        best = 999999;
     }
     for (i = 0; i < zone->entryCount && !stop; i++) {
         e = &zone->entries[i];
         if (!(e->flags & 0x80) && ((e->flags & 0x7F) == 3)) {
-            if (segmentIntersectsCircle2D((s32)actor->x, (s32)actor->z, e->x, e->z, (s32)gBehaviourTargetActor->x, (s32)gBehaviourTargetActor->z, 0x14) == 0) {
+            if (segmentIntersectsCircle2D(actor->x, actor->z, e->x, e->z, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 20) == 0) {
                 if (zoneCanReachPoint(actor, e->x, e->y, e->z, zone) != 0) {
-                    if (((mode & 1) && (d = (s32)(((gBehaviourTargetActor->x - e->x) * (gBehaviourTargetActor->x - e->x)) + ((gBehaviourTargetActor->z - e->z) * (gBehaviourTargetActor->z - e->z))), best < d)) || // FAKE: comma expressions compute d only inside each short-circuit arm; a separate flag/if form is 130 diff lines
-                        ((mode & 2) && (d = (s32)(((actor->x - e->x) * (actor->x - e->x)) + ((actor->z - e->z) * (actor->z - e->z))), d < best))) {
+                    if (((mode & 1) && (d = (gBehaviourTargetActor->x - e->x) * (gBehaviourTargetActor->x - e->x) + (gBehaviourTargetActor->z - e->z) * (gBehaviourTargetActor->z - e->z)) > best) ||
+                        ((mode & 2) && (d = (actor->x - e->x) * (actor->x - e->x) + (actor->z - e->z) * (actor->z - e->z)) < best)) {
                         best = d;
                         *outX = e->x;
                         *outY = e->y;
                         *outZ = e->z;
                         found = 1;
                         if (mode & 0x80) {
-                            if (((randomNonNegative() >> 0xF) % 100) >= 0x33) {
+                            if (((randomNonNegative() >> 15) % 100) >= 51) {
                                 stop = 1;
                             }
                         }
