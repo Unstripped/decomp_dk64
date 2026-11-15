@@ -47,39 +47,39 @@ void func_806BD170(void) {
     Actor *activeRingActor;
     s16 i;
     s16 activeRingIdx;
-    s16 count; // FAKE: unused count keeps the s5 allocation, pre-existing, now tagged
+    s16 activeRingCount; // ORIG: the target keeps this never-read counter: move s5,zero at 0x60 and addiu s5,s5,1 + sll/sra at 0x1a8-0x1b8 in the active-ring arm
     s16 pos;
-    RingState *sub;
+    RingState *ring;
 
     activeRingIdx = -1;
     i = 0;
-    count = 0;
+    activeRingCount = 0;
     for (; i < 8; i++) {
         if (flagGet(i + 0x1BC, 0) == 0) {
             actorSpawn(0x14E, 0xCD);
             gSpawnedActor->drawDistance = 0x7D0;
             gSpawnedActor->flags |= 0x800400;
-            pos = i * 0x200 + 0x104;
-            gSpawnedActor->flags &= 0xFFFF7FFF;
+            gSpawnedActor->flags &= ~0x8000;
             gSpawnedActor->tintR = 0xFF;
             gSpawnedActor->tintG = 0xFF;
             gSpawnedActor->tintB = 0xFF;
             gSpawnedActor->alpha = 0xFF;
+            pos = i * 0x200 + 0x104;
             gSpawnedActor->x = mathSinF(pos) * 270.0f + gCurrentActor->x;
             gSpawnedActor->z = mathCosF(pos) * 270.0f + gCurrentActor->z;
             gSpawnedActor->y = 100.0f;
             gSpawnedActor->yaw = pos;
             gSpawnedActor->segmentFlags = 0;
             gSpawnedActor->state = 0;
-            sub = gSpawnedActor->customState;
-            sub->timer = 0;
-            sub->node = gCurrentActor;
-            sub->ringIdx = i;
+            ring = gSpawnedActor->customState;
+            ring->timer = 0;
+            ring->node = gCurrentActor;
+            ring->ringIdx = i;
             if (flagGet(D_80744710[i], 0) != 0) {
                 activeRingIdx = i;
                 activeRingActor = gSpawnedActor;
                 activeRingActor->state = 5;
-                count++;
+                activeRingCount++;
             }
         }
     }
