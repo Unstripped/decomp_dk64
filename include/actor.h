@@ -980,7 +980,7 @@ typedef struct KongCharacterEntry {
     /* 0xC */ s32 actorFlags;
 } KongCharacterEntry; // size = 0x10
 
-extern KongCharacterEntry gKongCharacterTable[];
+extern const KongCharacterEntry gKongCharacterTable[];
 
 // One loaded animation-asset cache slot (controllerAnimStateLoadAsset/controllerAnimFreeSub, 17B90);
 // D_807FB630[32] spans .bss 0x807FB630..0x807FB7B0 (D_807FB634 is the [0].asset split label).

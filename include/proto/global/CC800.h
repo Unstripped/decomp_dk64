@@ -55,7 +55,7 @@ void playerSetKongByActorType(s16);
 void playerCycleKongDebug(void);
 #endif
 #ifndef PROTO_SKIP_playerApplyCharacterModel
-void playerApplyCharacterModel(void *);
+void playerApplyCharacterModel(const KongCharacterEntry *);
 #endif
 #ifndef PROTO_SKIP_playerWarpToSpawnPoint
 void playerWarpToSpawnPoint(s32);

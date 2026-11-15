@@ -350,7 +350,7 @@ extern f32 D_807535E8[];
 extern PadInputState gPlayerPadState[];
 
 void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
-    KongCharacterEntry *row;
+    const KongCharacterEntry *row;
     u32 slot;
     s32 i;
 
@@ -598,8 +598,7 @@ void playerCycleKongDebug(void) {
 }
 
 
-void playerApplyCharacterModel(void *entry) {
-    KongCharacterEntry *row = entry;
+void playerApplyCharacterModel(const KongCharacterEntry *row) {
 
     gActivePlayerActor->actorType = row->actorType;
     gCurrentCharacterIndex = row->characterIndex;
@@ -925,10 +924,16 @@ s32 playerSpawnAllPlayers(void) {
     return v;
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/gKongCharacterTable.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/D_8075C414.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/D_8075C420.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/D_8075C430.s")
+// Indexed by gPlayerCharacterId: { actorType, characterIndex, model, actorFlags }.
+const KongCharacterEntry gKongCharacterTable[10] = {
+    { 2, { 0 }, { 0x4 }, 0x1000 },
+    { 3, { 1 }, { 0x1 }, 0x1000 },
+    { 4, { 2 }, { 0x6 }, 0x1000 },
+    { 5, { 3 }, { 0x9 }, 0x1000 },
+    { 6, { 4 }, { 0xC }, 0x1000 },
+    { 7, { 5 }, { 0xDB }, 0x1000 },
+    { 8, { 6 }, { 0x14 }, 0x1000 },
+    { 9, { 0 }, { 0x18 }, 0x1000 },
+    { 2, { 0 }, { 0x1D }, 0x0 },
+    { 2, { 0 }, { 0x1D }, 0x0 },
+};
