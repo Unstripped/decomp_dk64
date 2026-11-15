@@ -473,8 +473,7 @@ s32 zoneCheckActorInside(Actor *actor, f32 prevX, f32 prevZ, Zone *zone, s16 *un
             if ((sel == 0) || (sel == 1) ||
                 ((sel == 5) && ((f64)actor->speedXZ < (f64)(u32)gBehaviourExtraState->unkD * 1.4))) {
                 if (((f32)e->y <= y) && (y <= (f32)(e->y + e->height))) {
-                    if (e->flags != 0) {} // FAKE: live range steers flags/count10 colouring (a1/t0)
-                    if (i == 5) {} // FAKE: steer s3 and s8 constant coloring
+                    if ((e->flags == 0) || (e->flags == 5)) {} // FAKE: flags + const-5 uses and 2 blocks steer count/flags (t0/a1) and s3/s4 colouring
                     if (!(((x - (f32)e->x) * (x - (f32)e->x)) + ((z - (f32)e->z) * (z - (f32)e->z)) < (f32)(e->radius * e->radius))) {
                         continue;
                     }
