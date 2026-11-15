@@ -67,7 +67,7 @@ extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
 extern u8 **D_807FC7E0;
-extern void **D_807FC7E8;
+extern u8 **D_807FC7E8;
 extern s8 D_807FC80F;
 extern u8 D_807FC810;
 extern f32 D_807FC808;
@@ -167,11 +167,11 @@ void hudPauseMenuUpdate(void) {
     s32 moved;
     s32 buttons;
     s32 x;
-    s32 a2;
-    s32 lim;
+    s32 hubWorld;
+    s32 stickY;
 
     hud = gCurrentActor->customState;
-    i = gCurrentMap;
+    i = gCurrentMap; // FAKE: switch selector reuses i (regalloc)
     switch (i) {
         case 0x6:
         case 0xE:
@@ -229,9 +229,8 @@ void hudPauseMenuUpdate(void) {
         D_807FC802 = 0;
         sPauseCarouselTimer = 0.0f;
         D_807FC808 = 0.0f;
-        D_807FC80C = 0;
-        D_807FC80D = D_807FC80C;
-        sPauseTextLists[0] = heapAlloc(0x1E0);
+        D_807FC80D = D_807FC80C = 0;
+        sPauseTextLists[0] = heapAlloc(sizeof(HudTextList) * 2);
         sPauseTextLists[1] = sPauseTextLists[0] + 1;
         sPauseTextCounts[0] = 0;
         sPauseTextCounts[1] = 0;
@@ -265,7 +264,7 @@ void hudPauseMenuUpdate(void) {
                     }
                     flag = 1;
                 } else if (buttons & 0x2000) {
-                    hud->nextPage = hud->nextPage - 1;
+                    hud->nextPage--;
                     if (hud->nextPage < 0) {
                         hud->nextPage = 3;
                     }
@@ -279,14 +278,14 @@ void hudPauseMenuUpdate(void) {
                 }
             }
         }
-        i = hud->page;
+        i = hud->page; // FAKE: switch selector reuses i (regalloc)
         switch (i) {
             case 0:
                 if (hud->menuRow != 3) {
-                    lim = D_807ECDEC->stick_y;
-                    if (lim < -0x32) {
+                    stickY = D_807ECDEC->stick_y;
+                    if (stickY < -0x32) {
                         if (D_807FC80E == 0) {
-                            hud->menuRow = hud->menuRow + 1;
+                            hud->menuRow++;
                             buttons = 0;
                             if (hud->menuRow >= 3) {
                                 hud->menuRow = 0;
@@ -294,9 +293,9 @@ void hudPauseMenuUpdate(void) {
                             sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
                         }
                         D_807FC80E = 1;
-                    } else if (lim >= 0x33) {
+                    } else if (stickY >= 0x33) {
                         if (D_807FC80E == 0) {
-                            hud->menuRow = hud->menuRow - 1;
+                            hud->menuRow--;
                             buttons = 0;
                             if (hud->menuRow < 0) {
                                 hud->menuRow = 2;
@@ -326,23 +325,24 @@ void hudPauseMenuUpdate(void) {
                         }
                     }
                 } else if (buttons & 0x8000) {
-                    i = (a2 = mapGetHubWorldIndex(gCurrentWorldId, 1)) == 8;
+                    hubWorld = mapGetHubWorldIndex(gCurrentWorldId, 1);
+                    i = hubWorld == 8; // FAKE: credits flag reuses i (regalloc)
                     if (i) {
                         i = menuGetTimerFlag() != 0;
                     }
                     D_807FC8B8 = 1;
-                    if (gPauseMenuMode == 0 && a2 != 7 && a2 != 0xD && a2 != 9 && i == 0) {
-                        if (a2 == 0xA) {
+                    if (gPauseMenuMode == 0 && hubWorld != 7 && hubWorld != 0xD && hubWorld != 9 && i == 0) {
+                        if (hubWorld == 0xA) {
                             menuReturnToTitle();
                         } else if (func_805FEF74(gCurrentMap) == 0) {
-                            x = gGlobalOverlayFlags & 1;
-                            if (x != 0 && a2 == 8) {
+                            x = gGlobalOverlayFlags & 1; // FAKE: overlay bit reuses the stick local x (regalloc)
+                            if (x != 0 && hubWorld == 8) {
                                 flagSet(0x5C, 1, 2);
                                 mapRequestTransition(0x22, 0xC);
                             } else if (x != 0 && gCurrentMap != 0x3C) {
                                 mapRequestTransition(0x2A, 2);
                             } else {
-                                mapTransitionToWorldHub(a2);
+                                mapTransitionToWorldHub(hubWorld);
                             }
                         }
                     } else if (gPauseMenuMode != 0) {
@@ -351,14 +351,14 @@ void hudPauseMenuUpdate(void) {
                         } else {
                             mapCheckAutoTransition();
                         }
-                    } else if (a2 == 7 || i != 0) {
+                    } else if (hubWorld == 7 || i != 0) {
                         menuResetAndTransitionToCredits();
                     }
                 }
                 break;
             case 1:
                 hud->carouselAngle = D_807505A4[sPauseCarouselKong] + (s16)(sPauseCarouselTimer * 0.5f * D_807FC802);
-                hud->carouselAngle = hud->carouselAngle & 0xFFF;
+                hud->carouselAngle &= 0xFFF;
                 if (sPauseCarouselTimer == 0.0f) {
                     D_807FC802 = 0;
                     if (moved == 0) {
@@ -395,7 +395,7 @@ void hudPauseMenuUpdate(void) {
                         hud->carouselProgress = -hud->carouselProgress;
                     }
                     hud->carouselProgress = 1.0f - hud->carouselProgress;
-                    hud->carouselProgress = hud->carouselProgress * 1.3f;
+                    hud->carouselProgress *= 1.3f;
                     if (hud->carouselProgress > 1.2f && sPauseCarouselKong != hud->kong) {
                         hud->kong = sPauseCarouselKong;
                         sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
@@ -408,23 +408,23 @@ void hudPauseMenuUpdate(void) {
                 hudPauseMenuSlidePage(hud, moved, buttons);
                 break;
             case 2:
-                hud->carouselAngle = hud->carouselAngle + 0x28;
-                hud->carouselAngle = hud->carouselAngle & 0xFFF;
+                hud->carouselAngle += 0x28;
+                hud->carouselAngle &= 0xFFF;
                 hudPauseMenuSlidePage(hud, moved, buttons);
                 break;
             case 3:
-                diff = i = -mathAngleSignedDistance(D_807FC80D * D_807FC83A, hud->carouselAngle);
-                flag = D_807FC83A / 10;
+                diff = i = -mathAngleSignedDistance(D_807FC80D * D_807FC83A, hud->carouselAngle); // FAKE: step reuses i (regalloc)
+                flag = D_807FC83A / 10; // FAKE: step limit reuses flag (regalloc)
                 if (diff > 0) {
                     if (flag < diff) {
                         i = flag;
                     }
-                    hud->carouselAngle = hud->carouselAngle + i;
+                    hud->carouselAngle += i;
                 } else if (diff < 0) {
                     if (diff < -flag) {
                         i = -flag;
                     }
-                    hud->carouselAngle = hud->carouselAngle + i;
+                    hud->carouselAngle += i;
                 } else {
                     flag = 0;
                     x = D_807ECDEC->stick_x;
@@ -445,12 +445,12 @@ void hudPauseMenuUpdate(void) {
                         sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     }
                 }
-                hud->carouselAngle = hud->carouselAngle & 0xFFF;
-                flag = D_807FC83A >> 1;
+                hud->carouselAngle &= 0xFFF;
+                flag = D_807FC83A >> 1; // FAKE: half span reuses flag (regalloc)
                 if (diff < 0) {
                     diff = -diff;
                 }
-                diff = diff - flag;
+                diff -= flag;
                 if (diff < 0) {
                     diff = -diff;
                 }
@@ -466,7 +466,7 @@ void hudPauseMenuUpdate(void) {
         }
     }
     if (hud->fadeDir == 1) {
-        hud->fade = hud->fade + 0.13f;
+        hud->fade += 0.13f;
         if (hud->fade > 1.3f) {
             hud->fade = 1.0f;
             if (hud->nextPage == -1) {
@@ -479,7 +479,7 @@ void hudPauseMenuUpdate(void) {
             }
         }
     } else if (hud->fade > 0.0f && D_8075052C == 0) {
-        hud->fade = hud->fade - 0.2f;
+        hud->fade -= 0.2f;
         if (hud->fade < 0.0f) {
             hud->fade = 0.0f;
             D_8075052C = 3;
@@ -1213,20 +1213,20 @@ void hudPauseMenuSpawnIcon(HudEntry *hud, s32 sprite, s32 x, s32 y, f32 scale, u
 }
 
 void hudPauseMenuAddCounter(HudEntry *hud, s16 x, s16 y, s16 dx, s16 dy, s32 value, s32 style, s32 format) {
-    s32 pad;
+    f32 fx;
     s32 idx;
-    s32 pad2;
+    f32 fy;
     s32 pad3;
     s32 i;
     f32 len;
     s32 pad4;
     HudTextEntry *list;
-    s8 flag;
+    s8 rightAlign;
     u8 buf[11];
 
-    flag = 0;
+    rightAlign = 0;
     if (format & 0x80) {
-        flag = 1;
+        rightAlign = 1;
         format &= ~0x80;
     }
     switch (format) {
@@ -1241,15 +1241,17 @@ void hudPauseMenuAddCounter(HudEntry *hud, s16 x, s16 y, s16 dx, s16 dy, s32 val
         _sprintf(buf, "%d", value);
         break;
     }
-    if (flag != 0) {
+    if (rightAlign != 0) {
         dx -= textGetStringWidth(1, buf);
     }
     D_807FC810 = textGetStringWidth(1, buf);
     idx = sPauseTextCounts[hud->buffer];
     list = sPauseTextLists[hud->buffer]->entries;
-    len = sqrtf((640.0f - (f32)(x * 4)) * (640.0f - (f32)(x * 4)) + (480.0f - (f32)(y * 4)) * (480.0f - (f32)(y * 4)));
-    list[idx].flyX = -((640.0f - (f32)(x * 4)) / len) * (1040.0f - len);
-    list[idx].flyY = -((480.0f - (f32)(y * 4)) / len) * (1040.0f - len);
+    fx = 640.0f - (f32)(x * 4);
+    fy = 480.0f - (f32)(y * 4);
+    len = sqrtf(fx * fx + fy * fy);
+    list[idx].flyX = -(fx / len) * (1040.0f - len);
+    list[idx].flyY = -(fy / len) * (1040.0f - len);
     list[idx].x = x;
     list[idx].y = y;
     list[idx].offsetX = dx;
@@ -1265,13 +1267,13 @@ void hudPauseMenuAddCounter(HudEntry *hud, s16 x, s16 y, s16 dx, s16 dy, s32 val
 Gfx *hudDrawItemLabel(Gfx *dl, HudEntry *entry, s32 itemIndex) {
     u8 padHi[0xC];
     s32 kong;
-    void *tex;
+    u8 *label;
     u8 pad[0x1C];
     s32 y2;
     s32 y;
 
     y = entry->slideY[itemIndex] * 4;
-    tex = D_807FC7E8[sPauseLevelOrder[entry->worldIndex[itemIndex]]];
+    label = D_807FC7E8[sPauseLevelOrder[entry->worldIndex[itemIndex]]];
     if (entry->page == 1) {
         kong = entry->kong;
     } else {
@@ -1279,8 +1281,8 @@ Gfx *hudDrawItemLabel(Gfx *dl, HudEntry *entry, s32 itemIndex) {
     }
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     y2 = y + 0x40;
-    dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, y2, 0.7f, tex), 0x280, y2 + 0x38, 0.5f, D_807FC7E0[kong + 9]);
-    D_807FC808 = (f32)textGetStringWidth(1, tex) * 1.4;
+    dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, y2, 0.7f, label), 0x280, y2 + 0x38, 0.5f, D_807FC7E0[kong + 9]);
+    D_807FC808 = (f32)textGetStringWidth(1, label) * 1.4;
     return dl;
 }
 
