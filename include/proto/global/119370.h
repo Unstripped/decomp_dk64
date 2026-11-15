@@ -83,7 +83,7 @@ EffectNode *effectCreateAtActorBone(void *, f32, Actor *, s32, u8);
 EffectNode *effectCreateAtPosition(void *, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_effectCreate
-struct EffectNode *effectCreate(s32, f32, f32, f32, f32, void *, s32, s32, u8);
+EffectNode *effectCreate(EffectGridAsset *, f32, f32, f32, f32, void *, s32, s32, u8);
 #endif
 #ifndef PROTO_SKIP_effectBuildGridVertices
 void effectBuildGridVertices(struct EffectNode *);

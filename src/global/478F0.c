@@ -2199,12 +2199,6 @@ void csCmdSetModelSlotByte5F(CsState *cs, s16 csId, s16 b, s16 c) {
     csModelStateTrySetByte(0x5F, gModelSlots[hashTableLookup(csId)].csModelId, 1);
 }
 
-typedef struct CsCountdown {
-    /* 0x00 */ u64 last;
-    /* 0x08 */ s64 duration;
-    /* 0x10 */ s64 left;
-    /* 0x18 */ s64 fired;
-} CsCountdown; /* 0x20 */
 extern u64 D_807445B0;
 extern u64 osGetTime(void);
 

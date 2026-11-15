@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "cutscene.h"
 #include "sched.h"
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -332,13 +333,6 @@ Gfx *renderBonusTargetMarker(Gfx *glist, s32 pad) {
     return renderRotatedSprite(glist, (u16)((((gFrameCounter >> 1) & 0xF) + 0x8F)), 0, 2, 0x20, 0x20, 0x118, 0xD2, 1.0f, 1.0f, 0, 0.0f);
 }
 
-
-typedef struct CsCountdown {
-    u64 last;
-    s64 duration;
-    s64 left;
-    s64 fired;
-} CsCountdown;
 
 Gfx *renderHitCounterHUD(Gfx *glist, CsCountdown *countdown) {
     u8 leftStr[12];

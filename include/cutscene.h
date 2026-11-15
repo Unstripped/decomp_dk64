@@ -161,4 +161,13 @@ typedef struct CsStateFull {
     /* 0xA0 */ CsNode *unkA0;
 } CsStateFull; // size = 0xA4
 
+// Countdown state of the cutscene countdown command (csCmdCountdownTimer, 478F0; heapAlloc(0x20) into
+// CsState.data), drawn by 90D80's renderHitCounterHUD/renderCountdownTimerHUD callbacks.
+typedef struct CsCountdown {
+    /* 0x00 */ u64 last;
+    /* 0x08 */ s64 duration;
+    /* 0x10 */ s64 left;
+    /* 0x18 */ s64 fired;
+} CsCountdown; // size = 0x20
+
 #endif

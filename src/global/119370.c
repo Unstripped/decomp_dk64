@@ -238,7 +238,7 @@ void effectCreateAtModelNode(void *asset, f32 scale, s32 modelSlot, s32 nodeInde
     f32 nodeZ;
 
     modelSlotGetNodePos(modelSlot, 1, nodeIndex, &nodeX, &nodeY, &nodeZ);
-    effectCreate((s32)asset, scale, nodeX, nodeY, nodeZ, NULL, modelSlot, nodeIndex, flags);
+    effectCreate(asset, scale, nodeX, nodeY, nodeZ, NULL, modelSlot, nodeIndex, flags);
 }
 
 
@@ -251,26 +251,26 @@ EffectNode *effectCreateAtActorBone(void *asset, f32 scale, Actor *actor, s32 bo
     if (!(actor->flags & 0x200) && actor->sub4 != NULL && (sEffectPendingFlags & 0x80)) {
         effectFlagsOr(0x40);
     }
-    return effectCreate((s32)asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, flags);
+    return effectCreate(asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, flags);
 }
 
 EffectNode *effectCreateAtPosition(void *asset, f32 scale, f32 x, f32 y, f32 z) {
-    return effectCreate((s32)asset, scale, x, y, z, NULL, 0, 0, 0);
+    return effectCreate(asset, scale, x, y, z, NULL, 0, 0, 0);
 }
 
 extern s32 gGlobalOverlayFlags;
 
-EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, void *owner, s32 boneIndex, s32 subIndex, u8 flags) {
+EffectNode *effectCreate(EffectGridAsset *asset, f32 scale, f32 posX, f32 posY, f32 posZ, void *owner, s32 boneIndex, s32 subIndex, u8 flags) {
     EffectNode *effect;
     EffectGridNode *node;
     s32 found;
     s32 i;
 
-    effectGridRegister((EffectGridAsset *)asset);
+    effectGridRegister(asset);
     node = sEffectGridHead;
     found = 0;
     while (!found && node != NULL) {
-        if (node->asset == (EffectGridAsset *)asset) {
+        if (node->asset == asset) {
             found = 1;
         } else {
             node = node->next;
