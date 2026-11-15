@@ -154,7 +154,7 @@ segments:
       - [0x100180, c, 100180]
       - [0x1025E0, c, 1025E0]
       - [0x103AB0, c, 103AB0] # hidden TU: rodata pad after D_8075DE60 (textDrawAnimated) at 0x162B70; playerViewGfxSetup is the only 16-aligned start before D_8075DE70's user func_806FEF7C
-      - [0x109660, c, 109660] # hidden TU (tentative): data pad after D_80754CC8 (screenFadeUpdate) at 0x1599E0; first 16-aligned start after it (func_80704960, no data/rodata users before gfxDrawBackgroundQuad); rodata D_8075DF90 is 16-aligned, layout-neutral
+      - [0x109660, c, 109660] # hidden TU: data 0x1599E0-0x159C80 (D_80754CE0..gBgScrollY, defined in C) after D_80754CC8 (screenFadeUpdate)'s pad; first 16-aligned start after it (func_80704960, no data/rodata users before gfxDrawBackgroundQuad); rodata D_8075DF90 is 16-aligned, layout-neutral
       - [0x10D2D0, c, 10D2D0]
       - [0x10E1D0, c, 10E1D0]
       - [0x110F00, asm] # hand-written round.w.s + mfc1 helper (func_8070C200), not IDO C
@@ -229,6 +229,8 @@ segments:
       - [0x14C450, data]
       - [0x14C9D0, .data, 2F550] # D_80747CD0 (cameraStepAspectScale's static f32, 0x80747CD0-0x80747CE0 incl. 12-byte TU pad); 16-aligned, no other 2F550 data
       - [0x14C9E0, data]
+      - [0x1599E0, .data, 109660] # D_80754CE0..gBgScrollY (0x80754CE0-0x80754F80): gfx background/sky data, defined in src/global/109660.c
+      - [0x159C80, data]
       - [0x15A350, .data, 11BC10] # D_80755650[18], D_80755674, D_80755678, D_8075567C (effectCircleRiseFadeUpdate's static s8 + 3-byte pad): the TU's data tail, 16-aligned at the end of the D_80755390 handler table; 126260's data starts at 0x80755680
       - [0x15A380, data]
       - [0x15B290, .rodata, 450] # playerViewsBuildMatrices's doubles, func_805FD088's +-20000.0f, 255.0, 0.5493331552f, 4-byte TU pad

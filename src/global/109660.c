@@ -18,6 +18,97 @@ extern s16 gScreenWidth;
 extern s16 gScreenHeight;
 extern u8 gGfxBufferIndex;
 
+// Height-keyed tint for map 0xE's rotated background (gfxGetBackgroundTint), highest pos first.
+typedef struct {
+    s16 pos;
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 pad;
+} TintKeyframe;
+
+// This TU's .data (0x80754CE0-0x80754F80), in address order: IDO emits .data in definition order
+// and starts every object on a 4-byte boundary.
+s16 D_80754CE0 = 0; // added to gBgScrollY by gfxBuildScrollingBackground; written by menu/3E10.c
+f32 D_80754CE4 = 1.0f; // gfxDrawRotatedTiledBackground scale divisor
+f32 gBackgroundBlend = 0.0f;
+s16 D_80754CEC[] = { 0x4C3, 0x4C4, 0x4C0, 0x4BF, 0x4C6, 0x4C5, 0x4C1, 0x4C2 }; // scrolling background tile assets
+
+// Background render-state display list; nothing references it.
+Gfx D_80754D00[] = {
+    gsSPClearGeometryMode(0xFFFFFF),
+    gsSPSetGeometryMode(G_SHADE | G_SHADING_SMOOTH),
+    gsDPPipeSync(),
+    gsDPSetCycleType(G_CYC_1CYCLE),
+    gsSPSetOtherMode(G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240),
+    gsDPSetCombineMode(G_CC_MODULATEIDECALA_PRIM, G_CC_MODULATEIDECALA_PRIM),
+    gsDPSetTexturePersp(G_TP_PERSP),
+    gsDPSetTextureFilter(G_TF_BILERP),
+    gsSPTexture(0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON),
+    gsDPPipeSync(),
+    gsSPEndDisplayList(),
+};
+
+// Sky quad vertex sets (8 vertices, 4 colour bands) selected per sky type through gSkyQuadVtx.
+Vtx D_80754D58[] = {
+    {{{ -320, 0, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ 320, 0, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -320, 480, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ 320, 480, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ 320, 500, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -320, 500, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ 320, 800, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -320, 800, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+};
+
+Vtx D_80754DD8[] = {
+    {{{ -320, 0, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ 320, 0, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -320, 400, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ 320, 400, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ 320, 440, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -320, 440, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ 320, 800, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -320, 800, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+};
+
+Vtx D_80754E58[] = {
+    {{{ -320, 0, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ 320, 0, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -320, 492, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ 320, 492, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ 320, 552, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -320, 552, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ 320, 960, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+    {{{ -320, 960, -10 }, 0, { 0, 0 }, { 0, 0, 0, 0 } }},
+};
+
+Vtx *gSkyQuadVtx[] = {
+    D_80754E58, D_80754E58, D_80754E58, D_80754E58, D_80754DD8, D_80754D58, D_80754E58, D_80754D58,
+};
+
+// Per sky type, four RGB bands (gfxDrawBackgroundQuad's BG_BLEND colours).
+u8 D_80754EF8[][12] = {
+    { 0x00, 0x40, 0xFF, 0xFF, 0x8F, 0x11, 0xFF, 0x8F, 0x11, 0x00, 0x2C, 0x00 },
+    { 0x46, 0x82, 0xFA, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x2C, 0x00 },
+    { 0x46, 0x82, 0xFA, 0x96, 0x96, 0xFA, 0x96, 0x96, 0xFA, 0x00, 0x2C, 0x00 },
+    { 0x46, 0x82, 0xFA, 0xFF, 0xFA, 0xFA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+    { 0x00, 0x01, 0x75, 0xFF, 0xFF, 0xFF, 0x1E, 0x7D, 0x19, 0x00, 0x2D, 0x00 },
+    { 0x46, 0x82, 0xFA, 0x9D, 0xC4, 0xFF, 0x00, 0x19, 0xFF, 0x00, 0x19, 0x23 },
+    { 0x00, 0x00, 0xA5, 0x00, 0x00, 0x00, 0x28, 0x0A, 0x14, 0x00, 0x00, 0x00 },
+    { 0xFF, 0x00, 0x00, 0xFF, 0xBE, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF },
+};
+
+TintKeyframe gTintKeyframes[] = {
+    { 0x14B4, 0xFF, 0x00, 0x00 },
+    { 0x0E10, 0x00, 0xFF, 0x00 },
+    { 0x076C, 0x00, 0x00, 0xFF },
+    { 0x0000, 0xFF, 0x00, 0x00 },
+};
+
+s16 gBgScrollX = 0;
+s16 gBgScrollY = 0;
+
 // Split-screen divider rectangle (D_80750840, terminated by players == -1); coordinates in low-res pixels.
 typedef struct {
     s8 players; // player count it applies to; 2 = any multiplayer count
@@ -64,8 +155,6 @@ void lightSetOverrideColor(f32 r, f32 g, f32 b) {
 }
 
 extern Actor *gCamActor;
-extern u8 D_80754EF8[][12];
-extern Vtx *gSkyQuadVtx[];
 extern Mtx D_2000080;
 extern Mtx D_2000180;
 
@@ -185,7 +274,6 @@ void gfxBackgroundReset(void) {
     D_807FD978[0] = NULL;
 }
 
-
 void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
     f32 lightR;
     f32 lightG;
@@ -210,7 +298,6 @@ void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
     }
 }
 
-extern f32 gBackgroundBlend;
 extern Mtx D_2000100;
 
 Gfx *gfxDrawSkySprite(Gfx *dl, s16 azimuthAngle, s16 elevationAngle, u8 mode) {
@@ -293,16 +380,6 @@ void gfxWrapRectSpan(RectSpan *spans, u8 *pCount, u8 axis, f32 maxCoord) {
     *pCount = out;
 }
 
-typedef struct {
-    s16 pos;
-    u8 r;
-    u8 g;
-    u8 b;
-    u8 pad;
-} TintKeyframe;
-
-extern TintKeyframe gTintKeyframes[];
-
 void gfxGetBackgroundTint(s16 yPos, u8 *outR, u8 *outG, u8 *outB) {
     u8 idx;
     TintKeyframe *key;
@@ -345,7 +422,6 @@ void gfxGetBackgroundTint(s16 yPos, u8 *outR, u8 *outG, u8 *outB) {
 }
 
 extern Mtx D_807FD8A8[];
-extern f32 D_80754CE4;
 
 Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, f32 width, f32 height) {
     f32 scrollU;
@@ -415,11 +491,6 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     }
     return glist;
 }
-
-extern s16 D_80754CE0;
-extern s16 D_80754CEC[];
-extern s16 gBgScrollX;
-extern s16 gBgScrollY;
 
 Gfx *gfxBuildScrollingBackground(Gfx *dl) {
     s32 x;
@@ -671,7 +742,6 @@ Gfx *gfxDrawMapBackground(Gfx *dl, f32 rotX, f32 rotY, Mtx *mtx, s16 player) {
     gDPPipeSync(dl++);
     return dl;
 }
-
 
 Gfx *gfxDrawPlayerViewBackground(Gfx *glist, s16 player) {
     s32 clearView;
