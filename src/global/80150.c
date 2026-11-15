@@ -2423,6 +2423,9 @@ void cannonUpdate(void) {
     f32 pitch;
     f32 sinV;
     f32 z;
+    f32 dz;
+    f32 dx;
+    f32 cosV;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->interactionType = 1;
         sub->active = 0;
@@ -2444,8 +2447,8 @@ void cannonUpdate(void) {
             D_8074E804 = -50.0f;
         }
         x = gCurrentActor->x;
-        z = gCurrentActor->z;
         y = gCurrentActor->y + D_8074E7FC;
+        z = gCurrentActor->z;
         camSetFixedView(cam, x, y, z, x + sinOff, y + D_8074E804, gCurrentActor->z + cosOff, 0);
         if (camIsCutsceneActive() == 0) {
             renderCallbacksRegister(playerViewDrawCrosshair, gPrimaryPlayerActor, 3);
@@ -2520,12 +2523,12 @@ void cannonUpdate(void) {
     case 2:
         if ((gPlayerPadState[0].pressedButtons & 0x2000) && actorCountOwnedByClass(gCurrentActor, 4, 0) == 0 && sub->shotsLeft != 0) {
             projectileSetTargetCoords(gCurrentActor->x, gCurrentActor->y + D_8074E7FC, gCurrentActor->z);
-            x = gPlayerSlots->focusZ - gPlayerSlots->camZ; // FAKE: x/y reused for the focus-camera dz/dx (own dz/dx locals: 8 words FPR diff)
-            y = gPlayerSlots->focusX - gPlayerSlots->camX;
-            pitch = mathAtan2(gPlayerSlots->focusY - gPlayerSlots->camY, sqrtf(x * x + y * y));
+            dz = gPlayerSlots->focusZ - gPlayerSlots->camZ;
+            dx = gPlayerSlots->focusX - gPlayerSlots->camX;
+            pitch = mathAtan2(gPlayerSlots->focusY - gPlayerSlots->camY, sqrtf(dz * dz + dx * dx));
             sinV = sinApprox(pitch) * D_8074E808;
-            y = cosApprox(pitch) * D_8074E808; // FAKE: y reused for the cosine term (own cosV local: 8 words FPR diff at 0x70a0)
-            projectileSpawnNodeEntry(0x4A, 0, 0.6f, sub->aimYaw, y, sinV, gCurrentActor);
+            cosV = cosApprox(pitch) * D_8074E808;
+            projectileSpawnNodeEntry(0x4A, 0, 0.6f, sub->aimYaw, cosV, sinV, gCurrentActor);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17, 0xFF, 0x7F, 0x19);
             sub->shotsLeft--;
             if (sub->shotsLeft == 0) {
