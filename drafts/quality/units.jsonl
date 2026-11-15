@@ -671,3 +671,4 @@
 {"type": "unit", "t": "2026-11-15T16:57:43Z", "unit": "2026-11-15: cleanup HacktextDrawStringVtx2", "commit": "dcce278fc59a495b108f13609787789a356da817"}
 {"type": "unit", "t": "2026-11-15T17:08:25Z", "unit": "2026-11-15: cleanup HackprojectileBounceParticleUpdate2", "commit": "108db654ad904df7b2255ba9b13701f12286277d"}
 {"type": "unit", "t": "2026-11-15T17:08:38Z", "unit": "2026-11-15: cleanup HackcritterUpdateZoneProximity2", "commit": "fcb9632dedcb89e57843f2c4c88433bc2b34751c"}
+{"type": "unit", "t": "2026-11-15T17:12:08Z", "unit": "2026-11-15: cleanup HackraceOpponentBehaviourUpdate3", "commit": "516e35fce418b4e58ab6bc0168a1fc70af1cb6cb"}
