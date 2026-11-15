@@ -201,8 +201,8 @@ void bossSpawnerUpdate(void) {
     prevSubState = state->subState;
     switch (state->subState) {
     case 0:
-        i = 5;
         if (state->phase == 2) {
+            i = 5;
             j = 0xC;
             state->liftSpeed = -0.2f;
         } else {
