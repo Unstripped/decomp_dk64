@@ -564,7 +564,7 @@ void actorInitFromSpawnPoint(Actor *actor, RaceParticipant *vehicle) {
     actor->x = spawn->x;
     actor->y = spawn->y;
     actor->z = spawn->z;
-    yaw = (u32)spawn->yaw * 16.062746f;
+    yaw = spawn->yaw * 16.062746f;
     actor->yaw = yaw;
     actor->moveYaw = yaw;
     vehicle->heading = yaw;
@@ -1090,8 +1090,8 @@ void projectileBounceParticleUpdate(void *effectCfg) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->prevPeakY = gCurrentActor->peakY = gCurrentActor->y;
         gCurrentActor->soundSlots[0] = -2;
-        gCurrentActor->contactFlags = gCurrentActor->contactFlags & ~1;
-        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->contactFlags &= ~1;
+        gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->yaw = gCurrentActor->moveYaw;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
@@ -1150,7 +1150,7 @@ void projectileBounceParticleUpdate(void *effectCfg) {
                 camStartShake(gCamActor, 0xA, 0x14);
                 state->cooldown = 2;
             } else {
-                state->cooldown = state->cooldown - 1;
+                state->cooldown--;
             }
         }
     } else {
@@ -1163,7 +1163,7 @@ void projectileBounceParticleUpdate(void *effectCfg) {
             effectSetDuration(1);
             effectSetCallback(effectSpinBillboardingUpdate);
             effectCreateAtPosition(&D_80720340, ((ProjectileSpawnParams *)gCurrentActor->spawnData)->scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
-            state->cooldown = state->cooldown - 1;
+            state->cooldown--;
         }
     }
     if (gCurrentActor->unkEC == 0) {
@@ -1175,7 +1175,7 @@ void projectileBounceParticleUpdate(void *effectCfg) {
         dx = dy * dy + dx;
         if (dx < 20000.0f) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x128, 0xFF, 0x7F, 0);
-            gCurrentActor->unkEC = gCurrentActor->unkEC + 1;
+            gCurrentActor->unkEC++;
         }
     }
     if (gCurrentActor->hasArcBounds != 0 || state->cooldown == 1 || gActorGlobalState.unk15 != 0) {
@@ -2264,8 +2264,8 @@ void projectileHomingParticleUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unkFA = 0x270F;
         gCurrentActor->soundSlots[0] = -2;
-        gCurrentActor->contactFlags &= -2;
-        gCurrentActor->moveYaw = (s16)((((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f);
+        gCurrentActor->contactFlags &= ~1;
+        gCurrentActor->moveYaw = (((ProjectileSpawnParams *)gCurrentActor->spawnData)->angle / 6.2831855f) * 4095.0f;
         gCurrentActor->speedXZ = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedXZ;
         gCurrentActor->speedY = ((ProjectileSpawnParams *)gCurrentActor->spawnData)->speedY;
         gCurrentActor->unk144 = 0x1C;
@@ -2287,9 +2287,8 @@ void projectileHomingParticleUpdate(void) {
         gCurrentActor->speedY = minSpeed;
     }
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 14, 14, 1, 150, 120, 0, 1.0f);
-    i = 0;
     if ((gCurrentActor->contactFlags & 1) || ((gCurrentActor->hasArcBounds != 0) && ((gGameFrameCounter - state->spawnFrame) >= 6)) || gActorGlobalState.unk15 != 0) {
-        do {
+        for (i = 0; i != 16; i += 2) {
             jitterX = ((randomNonNegative() >> 15) % 8191 / 200.0) - 20.0;
             jitterY = ((randomNonNegative() >> 15) % 8191 / 200.0) - 20.0;
             jitterZ = ((randomNonNegative() >> 15) % 8191 / 200.0) - 20.0;
@@ -2303,8 +2302,7 @@ void projectileHomingParticleUpdate(void) {
                 effectSetSpeed(-150 - ((randomNonNegative() >> 15) % 50));
             }
             effectCreateAtPosition(&D_80720340, 1.6f, gCurrentActor->x + jitterX, gCurrentActor->y + jitterY, gCurrentActor->z + jitterZ);
-            i += 2;
-        } while (i != 16);
+        }
         camStartShake(gCamActor, 20, 15);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3C, 0xFF, 0x7F, 0x1E);
         actorDespawn(gCurrentActor);

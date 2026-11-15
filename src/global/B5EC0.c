@@ -80,16 +80,13 @@ void func_806B13B4(u8 spawnSfxNodes) {
                 gCurrentActor->speedY = 200.0f;
             }
             gBehaviourWorkState->acceleration = 2;
-            gCurrentActor->callbackMask &= 0xFFFF7FFF;
-            sel = gCurrentActor->state;
+            gCurrentActor->callbackMask &= ~0x8000;
         } else if (gActorGlobalState.bossFightPhase == 4) {
             behaviourSpawnExplosionAndSound(0x209, 0x31, gActorGlobalState.targetActor);
-            sel = gCurrentActor->state;
         } else if (gActorGlobalState.bossFightPhase == 5) {
             behaviourSpawnExplosionAndSound(0x20A, 0x32, gActorGlobalState.targetActor);
             gCurrentActor->speedY = 220.0f;
             gCurrentActor->interactionType = 8;
-            sel = gCurrentActor->state;
         }
     }
     sel = gCurrentActor->state;
@@ -136,11 +133,11 @@ void func_806B13B4(u8 spawnSfxNodes) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
             actorScriptStart(gCurrentActor, 0x205);
-            gCurrentActor->unk155 += 1;
+            gCurrentActor->unk155++;
         case 1:
             actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
             if (gCurrentActor->speedXZ < 1.0f) {
-                gCurrentActor->unk155 += 1;
+                gCurrentActor->unk155++;
             }
             break;
         case 2:
@@ -172,7 +169,7 @@ void func_806B13B4(u8 spawnSfxNodes) {
             break;
         case 2:
             if (gBehaviourWorkState->flags & 0x100) {
-                gBehaviourWorkState->flags &= 0xFEFF;
+                gBehaviourWorkState->flags &= ~0x100;
                 actorScriptStart(gCurrentActor, 0x207);
                 gCurrentActor->unk155 = 3;
             } else {
@@ -181,7 +178,7 @@ void func_806B13B4(u8 spawnSfxNodes) {
             break;
         case 3:
             if (gBehaviourWorkState->flags & 0x100) {
-                gBehaviourWorkState->flags &= 0xFEFF;
+                gBehaviourWorkState->flags &= ~0x100;
                 actorScriptStart(gCurrentActor, 0x208);
                 gCurrentActor->unk155 = 5;
             }
@@ -225,7 +222,7 @@ void func_806B13B4(u8 spawnSfxNodes) {
             if (spawnSfxNodes != 0) {
                 sfxSpawnTableNodes(gCurrentActor);
             }
-            gCurrentActor->unk155 += 1;
+            gCurrentActor->unk155++;
         case 2:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
             behaviourFadeOutWithinZone(8);

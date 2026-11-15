@@ -187,7 +187,7 @@ void actorTrackBoneTowardTarget(u8 mode) {
     if (rot == NULL) {
         return;
     }
-    curYaw = (f64)rot->rotY / 65535.0 * 6.2831854820251465;
+    curYaw = rot->rotY / 65535.0 * 6.2831854820251465;
     if (gGameMode == 1 && mode != 5 && mode != 7) {
         mode = 6;
     }
@@ -520,7 +520,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     s32 pad3;
     u8 type;
     u8 idx;
-    s16 *entry;
+    s16 *controllerState;
     s32 v;
 
     st = act->customState;
@@ -593,11 +593,11 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
             node->flags |= 0x80;
             break;
         case 6:
-            entry = ((SpawnControllerActor *)act)->controllerState;
+            controllerState = ((SpawnControllerActor *)act)->controllerState;
             if (act->actorType == 0xFE) {
-                *entry = D_8075570C[node->unkA];
+                *controllerState = D_8075570C[node->unkA];
             } else {
-                *entry = controllerLookupStateByHash(act);
+                *controllerState = controllerLookupStateByHash(act);
             }
             break;
     }
@@ -973,7 +973,7 @@ void spawnNodesUpdate(void) {
                 if (node->respawnTimer == 0) {
                     node->spawnCount += 1;
                     node->state = node->initialState;
-                    node->chunkIndex = mapChunkFindByPosition((f32)node->x, (f32)node->y, (f32)node->z, 0);
+                    node->chunkIndex = mapChunkFindByPosition(node->x, node->y, node->z, 0);
                     spawnNodeSelectEntry(node);
                     entry = &gSpawnEntryTable[node->entryIndex];
                     if (actorSpawn(entry->actorType, entry->spawnArg) != 0) {

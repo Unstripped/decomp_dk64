@@ -81,15 +81,15 @@ void func_806B6958(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourWorkState->acceleration = gBehaviourWorkState->acceleration * 2;
         gBehaviourWorkState->timer = 0xD2;
-        gBehaviourWorkState->moveYawRate = (u32)gBehaviourWorkState->moveYawRate * 1.5;
-        gBehaviourWorkState->turnRate = (u32)gBehaviourWorkState->turnRate * 1.5;
+        gBehaviourWorkState->moveYawRate = gBehaviourWorkState->moveYawRate * 1.5;
+        gBehaviourWorkState->turnRate = gBehaviourWorkState->turnRate * 1.5;
     }
     if (gBehaviourWorkState->timer != 0) {
-        gBehaviourWorkState->timer = gBehaviourWorkState->timer - 1;
+        gBehaviourWorkState->timer--;
     }
     if (gBehaviourWorkState->timer % 30 == 0) {
-        gBehaviourWorkState->moveYawRate = gBehaviourWorkState->moveYawRate - 1;
-        gBehaviourWorkState->turnRate = gBehaviourWorkState->turnRate - 1;
+        gBehaviourWorkState->moveYawRate--;
+        gBehaviourWorkState->turnRate--;
     }
     if (gActorGlobalState.bossFightPhase == 4) {
         func_80724C2C(-0x96);

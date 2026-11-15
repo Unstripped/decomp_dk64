@@ -342,7 +342,7 @@ void func_806BE8BC(void) {
                     camResumePath();
                     camSetZoomLevel(gCamActor, 3);
                     actorScriptStart(gCurrentActor, 0x302);
-                    actorSetTargetSpeed(gCurrentActor, (s32)((flagF8Set ? 1.5 : 1.0) * (u32)gBehaviourExtraState->unkD));
+                    actorSetTargetSpeed(gCurrentActor, (s32)((flagF8Set ? 1.5 : 1.0) * gBehaviourExtraState->unkD));
                     gCurrentActor->state = 2;
                     gCurrentActor->unk155 = 0;
                     camSetZoneWeight(1, 0xA);

@@ -39,7 +39,7 @@ void func_806B1F50(void) {
         actorClearNodeFlag(gSpawnedActor, 3);
         actorClearNodeFlag(gSpawnedActor, 1);
         actorUpdateFloorContactAndTilt(gSpawnedActor, 14.0f);
-        gCurrentActor->flags2 &= 0xFFBF;
+        gCurrentActor->flags2 &= ~0x40;
         gSpawnedActor->flags |= 0x1000;
         effectSetDepth(1);
         effectSetDuration(-1);
@@ -72,7 +72,7 @@ void func_806B1F50(void) {
             switch (gCurrentActor->unk155) {
                 case 0x3C:
                     gCurrentActor->flags &= ~4;
-                    gCurrentActor->flags2 &= 0xFFBF;
+                    gCurrentActor->flags2 &= ~0x40;
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xED, 0xFF, 0x7F, 0x14);
                     tagBarrelSpawnSmokeAndPuffs(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, gCurrentActor->sub4->scaleY * 2 / 0.15, 0, 1);
                     actorDespawn(gBehaviourTargetActor);
@@ -106,7 +106,6 @@ void func_806B1F50(void) {
                 effectSetMode(3);
                 effectSetColor(tint, tint, tint, gCurrentActor->alpha);
                 effectSpawnBoneDefault(gBehaviourTargetActor, 1, 1.0f, 0.0f, 0.0f, 0.0f, -0x96);
-                break;
             }
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -130,7 +129,7 @@ void func_806B24B8(void) {
         }
         gBehaviourExtraState->actorState = 0x23;
         controllerAnimSetStateIfChanged(gCurrentActor, 0x599, 0.0f, 0.0f);
-        gCurrentActor->flags2 &= 0xFFBF;
+        gCurrentActor->flags2 &= ~0x40;
         sfxPlayActorSound(gCurrentActor, 0x139, 0x78, 0, 1, 0x3C, 0.56f, 0);
         gCurrentActor->flags |= 0x400;
     }

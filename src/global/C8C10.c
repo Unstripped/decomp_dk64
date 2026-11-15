@@ -108,17 +108,17 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
                     gCurrentActor->state = 0x28;
                     gCurrentActor->unk155 = 0;
                     gBehaviourExtraState->actorState = 0x28;
-                    gActivePlayerState->stateFlags &= 0xFFFEFFFF;
-                    gBehaviourWorkState->flags &= 0x7FFF;
+                    gActivePlayerState->stateFlags &= ~0x10000;
+                    gBehaviourWorkState->flags &= ~0x8000;
                 } else {
                     if (!camPathId) {
-                        camSetTarget(gCamActor, gPrimaryPlayerActor, 4, (s16)(gFrameCounter * 20), 0x1E, 0, 0xA, 0x1E, 0xC, 0, 0.2f);
+                        camSetTarget(gCamActor, gPrimaryPlayerActor, 4, gFrameCounter * 20, 0x1E, 0, 0xA, 0x1E, 0xC, 0, 0.2f);
                     }
                     gPrimaryPlayerActor->yaw = gCurrentActor->yaw;
                     gPrimaryPlayerActor->x = gCurrentActor->x;
                     gPrimaryPlayerActor->y = gCurrentActor->y - 2.0f;
                     gPrimaryPlayerActor->z = gCurrentActor->z;
-                    gPrimaryPlayerActor->contactFlags &= 0xFFFE;
+                    gPrimaryPlayerActor->contactFlags &= ~1;
                     gPrimaryPlayerActor->attachMode = 0;
                 }
             }
@@ -386,7 +386,7 @@ void func_806C4F5C(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->state = 0x1E;
         behaviourSetAnimIds(0x244, 0x244, 0x246);
-        gCurrentActor->eyeHeight = (u32)gCurrentActor->eyeHeight / 2.0;
+        gCurrentActor->eyeHeight = gCurrentActor->eyeHeight / 2.0;
     }
     gActivePlayerState->stateFlags2 &= ~0x40;
     switch (gCurrentActor->state) {
@@ -471,7 +471,7 @@ void func_806C4F5C(void) {
                 gCurrentActor->y += 3.0f;
                 gBehaviourWorkState->unk2E++;
                 if (gBehaviourWorkState->unk2E >= 0x83) {
-                    gBehaviourAnimState->flags &= 0xFFFB;
+                    gBehaviourAnimState->flags &= ~4;
                     func_806C4EB4();
                     gCurrentActor->state = 0x3C;
                 }

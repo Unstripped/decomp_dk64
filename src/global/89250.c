@@ -151,13 +151,13 @@ void effectSpawnBoneDebris(s16 bone, s8 direction) {
     f32 nodeZ;
     f32 scale;
 
-    scale = (f32)(gCurrentActor->sub4->scaleY / 0.15);
+    scale = gCurrentActor->sub4->scaleY / 0.15;
     actorGetNodePos(gCurrentActor, bone, &nodeX, &nodeY, &nodeZ);
     effectSetSpeed((((randomNonNegative() >> 15) % 100) + 0x190) * direction);
     effectSetCallback(effectSinkBySpeedUpdate);
     effectSetDepth(1);
     effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3],
-                   (f32)((f64)scale * 0.8),
+                   scale * 0.8,
                    (f32)((randomNonNegative() >> 15) % 20) + (nodeX - 10.0f),
                    nodeY,
                    (f32)((randomNonNegative() >> 15) % 20) + (nodeZ - 10.0f));
@@ -171,19 +171,19 @@ void effectSpawnBoneDebrisScaled(s16 bone, s16 baseSpeed, s16 lifetime) {
     f32 scale;
     f64 duration;
 
-    scale = (f32)((f64)gCurrentActor->sub4->scaleY / 0.15);
+    scale = gCurrentActor->sub4->scaleY / 0.15;
     actorGetNodePos(gCurrentActor, bone, &nodeX, &nodeY, &nodeZ);
     effectSetSpeed(baseSpeed + (lifetime << 16));
     effectSetCallback(effectRiseWithGravityUpdate);
     effectSetDepth(1);
-    if (((f64)lifetime * 0.02) < 2.0) {
+    if (lifetime * 0.02 < 2.0) {
         duration = 2.0;
     } else {
-        duration = (f64)lifetime * 0.02;
+        duration = lifetime * 0.02;
     }
-    effectSetDuration((s32)duration);
+    effectSetDuration(duration);
     effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3],
-                   (f32)((f64)scale * 0.8),
+                   scale * 0.8,
                    (f32)((randomNonNegative() >> 15) % 60) + (nodeX - 30.0f),
                    nodeY,
                    (f32)((randomNonNegative() >> 15) % 60) + (nodeZ - 30.0f));
@@ -732,7 +732,7 @@ void effectSpawnKongRing(void) {
     s32 i;
 
     angle = (randomNonNegative() >> 15) % 4096;
-    baseScale = (f32)(gCurrentActor->sub4->scaleY * (20.0 / 3.0));
+    baseScale = gCurrentActor->sub4->scaleY * (20.0 / 3.0);
     switch (gCurrentActor->actorType) {
     case 2:
     case 5:
@@ -754,11 +754,11 @@ void effectSpawnKongRing(void) {
         effectSetMode(2);
         effectSetDepth(1);
         effectSetCallback(effectSinkBySpeedUpdate);
-        effectSetSpeed((s32)((f32)((((randomNonNegative() >> 15) % 0x7FFF) % 51) + 100) * baseScale));
-        effectSetAngle((s16)((f32)i * (1.0f / 3.0f)));
+        effectSetSpeed((f32)((((randomNonNegative() >> 15) % 0x7FFF) % 51) + 100) * baseScale);
+        effectSetAngle(i * (1.0f / 3.0f));
         effectSetFlags(0x20);
         spawnX = (mathSinF(angle) * (baseScale * 18.0f)) + nodeX;
-        effectCreateAtPosition((void *)D_8074E880[i % 3], baseScale * 0.3f, spawnX, nodeY, (mathCosF(angle) * (baseScale * 18.0f)) + nodeZ);
+        effectCreateAtPosition(D_8074E880[i % 3], baseScale * 0.3f, spawnX, nodeY, (mathCosF(angle) * (baseScale * 18.0f)) + nodeZ);
     }
 }
 
