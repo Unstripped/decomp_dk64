@@ -170,7 +170,7 @@ void raceOpponentBehaviourUpdate(void) {
     f32 dx;
     f32 dz;
     s16 ang16;
-    s32 stateValue;
+    s32 pathId;
     ZoneEntry *pad;
     u8 rowIdx;
     RaceParticipant *controller;
@@ -282,11 +282,10 @@ void raceOpponentBehaviourUpdate(void) {
         dz = gCurrentActor->z - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].z;
         dist = sqrtf(dz * dz + dx * dx);
         if (dist < D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].radius) {
-            value = gCurrentActor->y; // FAKE: value reused as the actor height; a separate local changes the code
-            if (D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y < value) {
-                dist = value - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y;
+            if (D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y < gCurrentActor->y) {
+                dist = gCurrentActor->y - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y;
             } else {
-                dist = -(value - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y);
+                dist = -(gCurrentActor->y - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y);
             }
             if (dist < 80.0f) {
                 if (gBehaviourWorkState->waypointIndex < D_807FDCA0->entryCount - 1) {
@@ -334,7 +333,7 @@ void raceOpponentBehaviourUpdate(void) {
             gBehaviourWorkState->unk2E = 0x14;
         }
         if (gBehaviourWorkState->waypointIndex == routeRows[gBehaviourWorkState->routeRow].waypoint && routeRows[gBehaviourWorkState->routeRow].action == 1) {
-            value = (f32)(gCurrentActor->moveYaw - gCurrentActor->yaw);
+            value = gCurrentActor->moveYaw - gCurrentActor->yaw;
             if (value > 2048.0f) {
                 value -= 4096.0f;
             }
@@ -347,21 +346,21 @@ void raceOpponentBehaviourUpdate(void) {
             if (value < -50.0f) {
                 value = -50.0f;
             }
-            gBehaviourWorkState->timer = (s32)((f32)gBehaviourWorkState->timer + value);
-            gBehaviourWorkState->timer = (s32)(gBehaviourWorkState->timer - gBehaviourWorkState->timer * 0.3);
+            gBehaviourWorkState->timer = gBehaviourWorkState->timer + value;
+            gBehaviourWorkState->timer = gBehaviourWorkState->timer - gBehaviourWorkState->timer * 0.3;
         } else {
             if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
                 actorScriptStart(gCurrentActor, 0x285);
                 gCurrentActor->accelY = -20.0f;
             }
-            value = (f32)(gCurrentActor->moveYaw - gCurrentActor->floorSlopeYaw);
+            value = gCurrentActor->moveYaw - gCurrentActor->floorSlopeYaw;
             if (value > 2048.0f) {
                 value -= 4096.0f;
             }
             if (value < -2048.0f) {
                 value += 4096.0f;
             }
-            gBehaviourWorkState->timer = (s32)(gBehaviourWorkState->timer + (value * gCurrentActor->speedXZ) / 8000.0);
+            gBehaviourWorkState->timer = gBehaviourWorkState->timer + (value * gCurrentActor->speedXZ) / 8000.0;
             if (gBehaviourWorkState->timer > 500) {
                 gBehaviourWorkState->timer = 500;
             }
@@ -392,7 +391,7 @@ void raceOpponentBehaviourUpdate(void) {
         }
         break;
     case 10:
-        selector = gCurrentActor->unk155;
+        selector = gCurrentActor->unk155; // FAKE: selector shared with the raceStatus-0 switch; the merged live range outranks the unk35 load for $v0 (own local or switch (unk155) directly: 11 lines)
         switch (selector) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
@@ -466,8 +465,8 @@ void raceOpponentBehaviourUpdate(void) {
             slotQueueCancel(0xB, 0);
             controller->unkD0 = 0;
             if (flagGet(config->reward.h.rewardFlag, 0) == 0) {
-                stateValue = D_8002FB94[raceCheckLapCompletionThreshold(controller, config->rival, config->requiredCoins)]; // FAKE: stateValue reused for the cutscene path id; a separate local changes the code
-                camStartPath(gCurrentActor, stateValue, 1);
+                pathId = D_8002FB94[raceCheckLapCompletionThreshold(controller, config->rival, config->requiredCoins)];
+                camStartPath(gCurrentActor, pathId, 1);
                 currentActorClearFlag();
             } else {
                 mapCheckAutoTransition();
@@ -476,8 +475,7 @@ void raceOpponentBehaviourUpdate(void) {
         }
         break;
     case 5:
-        stateValue = controller->unk35;
-        switch (stateValue) {
+        switch (controller->unk35) {
         case 0:
             if (flagGet(config->reward.h.rewardFlag, 0) == 0) {
                 sfxStopSlotSound(gActivePlayerActor, 0);
@@ -495,7 +493,7 @@ void raceOpponentBehaviourUpdate(void) {
             break;
         case 1:
             if (gCurrentActor->flags & 0x02000000) {
-                controller->unk35 = stateValue + 1;
+                controller->unk35 = controller->unk35 + 1;
             }
             break;
         case 2:
