@@ -79,17 +79,17 @@ void behaviourUpdateContactAndState(); // ORIG: target loads a1 = sel before the
 void func_806B6958(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourWorkState->unk35 = gBehaviourWorkState->unk35 * 2;
+        gBehaviourWorkState->acceleration = gBehaviourWorkState->acceleration * 2;
         gBehaviourWorkState->timer = 0xD2;
-        gBehaviourWorkState->unk1F = (u32)gBehaviourWorkState->unk1F * 1.5;
-        gBehaviourWorkState->unk1E = (u32)gBehaviourWorkState->unk1E * 1.5;
+        gBehaviourWorkState->moveYawRate = (u32)gBehaviourWorkState->moveYawRate * 1.5;
+        gBehaviourWorkState->turnRate = (u32)gBehaviourWorkState->turnRate * 1.5;
     }
     if (gBehaviourWorkState->timer != 0) {
         gBehaviourWorkState->timer = gBehaviourWorkState->timer - 1;
     }
     if (gBehaviourWorkState->timer % 30 == 0) {
-        gBehaviourWorkState->unk1F = gBehaviourWorkState->unk1F - 1;
-        gBehaviourWorkState->unk1E = gBehaviourWorkState->unk1E - 1;
+        gBehaviourWorkState->moveYawRate = gBehaviourWorkState->moveYawRate - 1;
+        gBehaviourWorkState->turnRate = gBehaviourWorkState->turnRate - 1;
     }
     if (gActorGlobalState.bossFightPhase == 4) {
         func_80724C2C(-0x96);
@@ -201,7 +201,7 @@ void func_806B6DB0(s32 aggroRange) {
     /* fallthrough */
     case 0x10:
     case 0x23:
-        func_8072881C(0, &gBehaviourWorkState->unk28);
+        func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
         actorTrackBoneTowardTarget(gCurrentActor->state == 1 ? 2 : 0);
         actorUpdatePulseIntensity(near);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x400, 0.0f);
@@ -210,13 +210,13 @@ void func_806B6DB0(s32 aggroRange) {
     case 3:
     case 7:
     case 0x35:
-        func_8072881C(0, &gBehaviourWorkState->unk28);
+        func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
         actorTrackBoneTowardTarget(gCurrentActor->state == 0x35 ? 2 : 3);
         actorUpdatePulseIntensity(0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x400, 0.0f);
         break;
     case 0x11:
-        func_8072881C(0, &gBehaviourWorkState->unk28);
+        func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
         actorUpdatePulseIntensity(0);
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 2, 0.0f);
         switch (gCurrentActor->unk155) {

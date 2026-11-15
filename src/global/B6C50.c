@@ -32,7 +32,7 @@ void func_806B1F50(void) {
         gCurrentActor->state = 0;
         gCurrentActor->unk155 = 0;
         actorSpawn(0x73, 0x7D);
-        gBehaviourWorkState->unk4 = gSpawnedActor;
+        gBehaviourWorkState->targetActor = gSpawnedActor;
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.3f);
         gSpawnedActor->x = mathSinF(gCurrentActor->yaw) * 14.0f + gCurrentActor->x;
         gSpawnedActor->z = mathCosF(gCurrentActor->yaw) * 14.0f + gCurrentActor->z;
@@ -126,7 +126,7 @@ void func_806B24B8(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         found = actorFindByType(0x110);
         if (found != NULL) {
-            gBehaviourWorkState->unk4 = found;
+            gBehaviourWorkState->targetActor = found;
         }
         gBehaviourExtraState->actorState = 0x23;
         controllerAnimSetStateIfChanged(gCurrentActor, 0x599, 0.0f, 0.0f);
@@ -139,8 +139,8 @@ void func_806B24B8(void) {
         effectCreateAtActorBone(&D_80720340, gCurrentActor->sub4->scaleY * 6.66666667 * 0.9, gCurrentActor, 1, 2);
     }
     if (actorTableContains(gBehaviourTargetActor) == 0) {
-        gBehaviourWorkState->unk4 = gPrimaryPlayerActor;
-        gBehaviourTargetActor = gBehaviourWorkState->unk4;
+        gBehaviourWorkState->targetActor = gPrimaryPlayerActor;
+        gBehaviourTargetActor = gBehaviourWorkState->targetActor;
     }
     if (gActorGlobalState.unk15 != 0 || gActorGlobalState.bossFightPhase == 9) {
         gCurrentActor->unk144 = 1;

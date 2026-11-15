@@ -127,7 +127,7 @@ void menuSetupPlayerInventory(s32 map, s32 exit, s32 characterId, s8 inventory0,
     gPlayerInventoryTable[0].melons = shared;
     gPlayerInventoryTable[0].health = shared * 4;
     for (i = 0; i < 5; i++) {
-        gPlayerInventoryTable[0].kong[i].unk0[0] = inventory0;
+        gPlayerInventoryTable[0].kong[i].moveLevel = inventory0;
         gPlayerInventoryTable[0].kong[i].slamLevel = inventory1;
         gPlayerInventoryTable[0].kong[i].instrumentFlags = inventory4;
     }

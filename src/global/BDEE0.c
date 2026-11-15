@@ -304,7 +304,7 @@ void behaviourArmadilloInitRollState(void) {
     gCurrentActor->unk155 = 0;
     gCurrentActor->health = 1;
     gCurrentActor->interactionType = 1;
-    gBehaviourWorkState->unk4 = gPrimaryPlayerActor;
+    gBehaviourWorkState->targetActor = gPrimaryPlayerActor;
     actorScriptStart(gCurrentActor, gBehaviourAnimState->animId2);
     gCurrentActor->yaw = ((randomNonNegative() >> 15) % 1024) + gPrimaryPlayerActor->yaw - 0x200;
     gCurrentActor->speedXZ = ((randomNonNegative() >> 15) % 100) + 0x32;
@@ -369,7 +369,7 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
                     tgt->unk155 = 2;
                 }
             } else if (gActorGlobalState.bossFightPhase == 4) {
-                gBehaviourWorkState->unk16 = gBehaviourTargetActor->sub4->model->animId;
+                gBehaviourWorkState->targetAnimId = gBehaviourTargetActor->sub4->model->animId;
                 gCurrentActor->flags |= 0x20000000;
                 if (gCurrentActor->movePitch == 0) {
                     gCurrentActor->movePitch = 0x28;
@@ -388,7 +388,7 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
         D_807FDCA0->unk20 = D_807FDCA0->unk20 + 1;
         actorGetNodePos(tgt, node, &nodeX, &nodeY, &nodeZ);
         if (gBehaviourWorkState->flags & 0x80) {
-            if (!(gBehaviourWorkState->unk1C & 0x80)) {
+            if (!(gBehaviourWorkState->prevFlags & 0x80)) {
                 gCurrentActor->speedY = 300.0f;
             }
             if (gCurrentActor->speedY > 0.0f) {
@@ -701,7 +701,7 @@ s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, Actor *occupant
         v->unk2E = 0x1E;
         if (occupant != NULL) {
             v->node->flags &= ~8;
-            v->unk4 = occupant;
+            v->targetActor = occupant;
         }
         gSpawnedActor->unk144 = 1;
         gSpawnedActor->drawDistance = 0x3E8;

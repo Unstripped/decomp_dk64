@@ -242,7 +242,7 @@ void bossPufftossStep(void) {
         if (gCurrentActor->health == 1) {
             gBehaviourWorkState->flags |= 0x8000;
         }
-        gBehaviourWorkState->unk16 = gBehaviourTargetActor->sub4->model->animId;
+        gBehaviourWorkState->targetAnimId = gBehaviourTargetActor->sub4->model->animId;
         gCurrentActor->flags |= 0x20000000;
         effectCreateAtPosition(D_8071FB34, 2.0f, ((randomNonNegative() >> 0xF) % 30 + nodeX) - 15.0f, ((randomNonNegative() >> 0xF) % 30 + nodeY) - 15.0f, ((randomNonNegative() >> 0xF) % 30 + nodeZ) - 15.0f);
         sfxPlayOnFreeSlot(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -415,9 +415,9 @@ void bossPufftossStep(void) {
         actorTurnTowardTarget(0x23, 606.0f, 566.0f, 0);
         switch (gCurrentActor->unk155) {
         case 0:
-            gBehaviourWorkState->unk25 += 4;
+            gBehaviourWorkState->waypointIndex += 4;
             patrolPathStep(0x42, 0);
-            gBehaviourWorkState->unk25 -= 4;
+            gBehaviourWorkState->waypointIndex -= 4;
             actorScriptStart(gCurrentActor, 0x2CB);
             gCurrentActor->unk155 = 1;
             gBehaviourWorkState->timer = 0;
@@ -449,7 +449,7 @@ void bossPufftossStep(void) {
         gCurrentActor->interactionType = 2;
         switch (gCurrentActor->unk155) {
         case 0:
-            gBehaviourWorkState->unk25 += 4;
+            gBehaviourWorkState->waypointIndex += 4;
             gCurrentActor->unk155 = 1;
             /* fallthrough */
         case 1:
@@ -458,7 +458,7 @@ void bossPufftossStep(void) {
                 gCurrentActor->speedY = 100.0f;
                 actorScriptStart(gCurrentActor, 0x2C8);
                 gCurrentActor->unk155 = 2;
-                gBehaviourWorkState->unk25 -= 4;
+                gBehaviourWorkState->waypointIndex -= 4;
                 if (gCurrentActor->state == 0x2C) {
                     camStartPath(gCurrentActor, 6, 1);
                 }
@@ -629,7 +629,7 @@ void bossPufftossStep(void) {
             }
         }
     }
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
     if (checkFloor != 0) {
         actorGetNodePos(gCurrentActor, gCurrentActor->floorNodeId, &floorCheckX, &floorCheckY, &floorCheckZ);
         collisionCheckActorFloor(gCurrentActor, floorCheckX, floorCheckY, floorCheckZ, &gCurrentActor->floorY);

@@ -44,7 +44,7 @@ void raceOpponentFollowWaypoints(void) {
     f32 friction;
     s16 yawDiff;
 
-    routeRowIdx = gBehaviourWorkState->unk24;
+    routeRowIdx = gBehaviourWorkState->routeRow;
     if (gCurrentMap == 0x52) {
         routeRows = D_8002FB10;
     } else {
@@ -52,24 +52,24 @@ void raceOpponentFollowWaypoints(void) {
     }
     curSpeed = gCurrentActor->speedXZ;
     oscSpeed = mathSinF((s16)(gCurrentActor->floorSlopeFactor * 11.4)) * 20.0f;
-    zone = &D_807FDCA0->entries[gBehaviourWorkState->unk25];
+    zone = &D_807FDCA0->entries[gBehaviourWorkState->waypointIndex];
     vx = gCurrentActor->x - zone->x;
     vz = gCurrentActor->z - zone->z;
-    if (sqrtf(vz * vz + vx * vx) < (zone = &D_807FDCA0->entries[gBehaviourWorkState->unk25])->radius) {
-        if ((zone->y < gCurrentActor->y ? gCurrentActor->y - zone->y : -(gCurrentActor->y - zone->y)) < 80.0f && gBehaviourWorkState->unk25 < D_807FDCA0->entryCount - 1) {
-            if (routeRows[routeRowIdx].waypoint == gBehaviourWorkState->unk25) {
+    if (sqrtf(vz * vz + vx * vx) < (zone = &D_807FDCA0->entries[gBehaviourWorkState->waypointIndex])->radius) {
+        if ((zone->y < gCurrentActor->y ? gCurrentActor->y - zone->y : -(gCurrentActor->y - zone->y)) < 80.0f && gBehaviourWorkState->waypointIndex < D_807FDCA0->entryCount - 1) {
+            if (routeRows[routeRowIdx].waypoint == gBehaviourWorkState->waypointIndex) {
                 gCurrentActor->accelY = routeRows[routeRowIdx].gravity;
                 if (routeRows[routeRowIdx].action == 1) {
                     actorScriptStart(gCurrentActor, 0x286);
                     gCurrentActor->speedY = 200.0f;
                     gCurrentActor->state += 1;
                 }
-                gBehaviourWorkState->unk24 += 1;
+                gBehaviourWorkState->routeRow += 1;
             }
-            gBehaviourWorkState->unk25++;
+            gBehaviourWorkState->waypointIndex++;
         }
     }
-    zone = &D_807FDCA0->entries[gBehaviourWorkState->unk25];
+    zone = &D_807FDCA0->entries[gBehaviourWorkState->waypointIndex];
     speedDelta = (zone->height - gCurrentActor->speedXZ / 10.0f) * 0.8;
     tmp = (gCurrentActor->y - gActivePlayerActor->y) * 0.25;
     if (tmp > 6.0f) {
@@ -101,7 +101,7 @@ void raceOpponentFollowWaypoints(void) {
     curSpeed = sqrtf(vx * vx + vz * vz);
     tmp = mathAtan2(vx, vz);
     if (gCurrentActor->accelY != -20.0f && gCurrentActor->accelY != -360.0f) {
-        gCurrentActor->speedXZ = D_807FDCA0->entries[gBehaviourWorkState->unk25].height * 10.0;
+        gCurrentActor->speedXZ = D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].height * 10.0;
     } else {
         gCurrentActor->speedXZ = curSpeed;
     }
@@ -209,10 +209,10 @@ void raceOpponentBehaviourUpdate(void) {
         gCurrentActor->accelY = -20.0f;
         gCurrentActor->terminalSpeedY = -900.0f;
         gCurrentActor->drawDistance = 0x7D0;
-        gBehaviourWorkState->unk35 = 0;
+        gBehaviourWorkState->acceleration = 0;
         gBehaviourWorkState->timer = 0x64; // ORIG: the target stores 100 (sh t5,44(t6) at 0x7d0) before the 0 store at 0x7e0
         gBehaviourWorkState->timer = 0;
-        gBehaviourWorkState->unk24 = 0;
+        gBehaviourWorkState->routeRow = 0;
         gCurrentActor->flags2 &= 0xFFBF;
         if (gCurrentMap == 0x52) {
             config->requiredCoins = D_80750AC8 = 0x32;
@@ -231,7 +231,7 @@ void raceOpponentBehaviourUpdate(void) {
             controller->unk35 = 3;
         }
     }
-    rowIdx = gBehaviourWorkState->unk24;
+    rowIdx = gBehaviourWorkState->routeRow;
     if (child != NULL && controller->raceStatus < 3 && gActorGlobalState.bossFightPhase == 4) {
         playerStateQueueCallback(0x33, gCurrentActor, 0);
     }
@@ -270,41 +270,41 @@ void raceOpponentBehaviourUpdate(void) {
             } else {
                 actorSetTargetSpeed(gCurrentActor, 0xAA);
             }
-            gBehaviourWorkState->unk35 = 0xA;
+            gBehaviourWorkState->acceleration = 0xA;
             actorScriptStart(gCurrentActor, 0x282);
             gCurrentActor->state = gCurrentActor->state + 1;
             break;
         }
     case 2:
         actorApproachTargetSpeed(0);
-        dx = gCurrentActor->x - D_807FDCA0->entries[gBehaviourWorkState->unk25].x;
-        dz = gCurrentActor->z - D_807FDCA0->entries[gBehaviourWorkState->unk25].z;
+        dx = gCurrentActor->x - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].x;
+        dz = gCurrentActor->z - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].z;
         dist = sqrtf(dz * dz + dx * dx);
-        if (dist < D_807FDCA0->entries[gBehaviourWorkState->unk25].radius) {
+        if (dist < D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].radius) {
             value = gCurrentActor->y;
-            if (D_807FDCA0->entries[gBehaviourWorkState->unk25].y < value) {
-                dist = value - D_807FDCA0->entries[gBehaviourWorkState->unk25].y;
+            if (D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y < value) {
+                dist = value - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y;
             } else {
-                dist = -(value - D_807FDCA0->entries[gBehaviourWorkState->unk25].y);
+                dist = -(value - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y);
             }
             if (dist < 80.0f) {
-                if (gBehaviourWorkState->unk25 < D_807FDCA0->entryCount - 1) {
-                    if (D_807FDCA0->entries[gBehaviourWorkState->unk25].height == 0) {
+                if (gBehaviourWorkState->waypointIndex < D_807FDCA0->entryCount - 1) {
+                    if (D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].height == 0) {
                         actorScriptStart(gCurrentActor, 0x283);
                         gCurrentActor->state = gCurrentActor->state + 1;
                     }
-                    if (gBehaviourWorkState->unk25 == routeRows[rowIdx].waypoint) {
+                    if (gBehaviourWorkState->waypointIndex == routeRows[rowIdx].waypoint) {
                         gCurrentActor->accelY = routeRows[rowIdx].gravity;
-                        gBehaviourWorkState->unk24 = gBehaviourWorkState->unk24 + 1;
+                        gBehaviourWorkState->routeRow = gBehaviourWorkState->routeRow + 1;
                     }
-                    gBehaviourWorkState->unk25++;
+                    gBehaviourWorkState->waypointIndex++;
                 }
             }
         }
         ang16 = angU = (s32)(mathAtan2(-dx, -dz) * 4096.0 / 6.2831854820251465);
         mathAngleStepToward(&gCurrentActor->yaw, (angU + angU - gCurrentActor->moveYaw) & 0xFFF, 0x32);
         mathAngleStepToward(&gCurrentActor->moveYaw, ang16, 0xF);
-        if (gBehaviourWorkState->unk25 == routeRows[gBehaviourWorkState->unk24].waypoint && routeRows[gBehaviourWorkState->unk24].action == 2 && controller->raceStatus == 3) {
+        if (gBehaviourWorkState->waypointIndex == routeRows[gBehaviourWorkState->routeRow].waypoint && routeRows[gBehaviourWorkState->routeRow].action == 2 && controller->raceStatus == 3) {
             if (controller->place == 1) {
                 gCurrentActor->state = 0xA;
             } else {
@@ -332,7 +332,7 @@ void raceOpponentBehaviourUpdate(void) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, 0x46, 0x7F, 2);
             gBehaviourWorkState->unk2E = 0x14;
         }
-        if (gBehaviourWorkState->unk25 == routeRows[gBehaviourWorkState->unk24].waypoint && routeRows[gBehaviourWorkState->unk24].action == 1) {
+        if (gBehaviourWorkState->waypointIndex == routeRows[gBehaviourWorkState->routeRow].waypoint && routeRows[gBehaviourWorkState->routeRow].action == 1) {
             value = (f32)(gCurrentActor->moveYaw - gCurrentActor->yaw);
             if (value > 2048.0f) {
                 value -= 4096.0f;
@@ -382,7 +382,7 @@ void raceOpponentBehaviourUpdate(void) {
         gCurrentActor->yaw = gCurrentActor->moveYaw;
         break;
     case 9:
-        gBehaviourWorkState->unk35 = 8;
+        gBehaviourWorkState->acceleration = 8;
         actorSetTargetSpeed(gCurrentActor, 0);
         actorApproachTargetSpeed(0x200);
         if (gCurrentActor->unk155 == 0) {
@@ -395,7 +395,7 @@ void raceOpponentBehaviourUpdate(void) {
         switch (selector) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
-            gBehaviourWorkState->unk35 = 8;
+            gBehaviourWorkState->acceleration = 8;
             gCurrentActor->unk155 = 1;
             break;
         case 1:
@@ -404,7 +404,7 @@ void raceOpponentBehaviourUpdate(void) {
             }
             break;
         case 2:
-            gBehaviourWorkState->unk35 = 0;
+            gBehaviourWorkState->acceleration = 0;
             actorScriptStart(gCurrentActor, 0x288);
             gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
             break;

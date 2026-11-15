@@ -373,9 +373,9 @@ void bossArmydilloAimTowardTarget(void) {
     u16 animState;
 
     animState = gCurrentActor->sub4->animId;
-    mathAngleSignedDistance(gBehaviourWorkState->unk8, gCurrentActor->yaw);
+    mathAngleSignedDistance(gBehaviourWorkState->targetYaw, gCurrentActor->yaw);
     actorMoveWithinZone(0x45, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x16, 0.0f);
-    res = mathAngleSignedDistance(gBehaviourWorkState->unk8, gCurrentActor->yaw);
+    res = mathAngleSignedDistance(gBehaviourWorkState->targetYaw, gCurrentActor->yaw);
     if (res > 0) {
         if (animState != 0x260) {
             actorScriptStart(gCurrentActor, 0x260);
@@ -581,7 +581,7 @@ void bossArmydilloStep(void) {
             }
         }
     }
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
     if ((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) {
         tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 0xC, 2.0f);
         gCurrentActor->callbackMask = 0;

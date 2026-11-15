@@ -2923,12 +2923,12 @@ void modelKongVisibilityCheck(s16 type, u8 *visibleOut, s16 *alphaOut) {
         }
         break;
     case 0x11:
-        if ((gPlayerInventoryTable[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].unk0[2] & 3) != 3) {
+        if ((gPlayerInventoryTable[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].weaponFlags & 3) != 3) {
             hit = 1;
         }
         break;
     case 0x8F:
-        if (!(gPlayerInventoryTable[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].unk0[2] & 1)) {
+        if (!(gPlayerInventoryTable[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].weaponFlags & 1)) {
             hit = 1;
         }
         break;

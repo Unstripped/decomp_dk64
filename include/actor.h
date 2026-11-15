@@ -679,35 +679,41 @@ typedef struct SpawnEntry {
 // actor type whose update calls behaviourFrameBegin.
 typedef struct BehaviourWorkState {
     /* 0x00 */ SpawnNode *node;
-    /* 0x04 */ Actor *unk4;
-    /* 0x08 */ s16 unk8;
+    /* 0x04 */ Actor *targetActor; // behaviourFrameBegin copies it to gBehaviourTargetActor
+    /* 0x08 */ s16 targetYaw; // yaw actorTurnTowardTarget eases toward
     /* 0x0A */ s16 targetX;
     /* 0x0C */ s16 targetY;
     /* 0x0E */ s16 targetZ;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ s16 unk14;
-    /* 0x16 */ s16 unk16;
+    /* 0x10 */ s16 lastValidX; // spawn position, then the last position inside the zone (restored on leaving it)
+    /* 0x12 */ s16 lastValidY;
+    /* 0x14 */ s16 lastValidZ;
+    /* 0x16 */ s16 targetAnimId; // target model animId when last synced (behaviourFrameBegin)
     /* 0x18 */ u16 stepCount;
     /* 0x1A */ u16 flags;
-    /* 0x1C */ u16 unk1C;
-    /* 0x1E */ u8 unk1E;
-    /* 0x1F */ u8 unk1F;
+    /* 0x1C */ u16 prevFlags; // flags before the current zone update
+    /* 0x1E */ u8 turnRate; // SpawnEntry.turnRate
+    /* 0x1F */ u8 moveYawRate; // SpawnEntry.moveYawRate
     /* 0x20 */ u8 unk20;
-    /* 0x21 */ u8 unk21;
-    /* 0x22 */ u8 unk22;
-    /* 0x23 */ u8 unk23;
-    /* 0x24 */ u8 unk24;
-    /* 0x25 */ u8 unk25;
+    /* 0x21 */ u8 wanderDegrees; // SpawnEntry.wanderDegrees
+    /* 0x22 */ u8 wanderTimer; // counts down to the next wander turn
+    /* 0x23 */ u8 wanderInterval; // SpawnEntry.wanderInterval
+    union {
+        /* 0x24 */ u8 wanderAngle; // random 0..179, in 2-degree steps
+        /* 0x24 */ u8 routeRow; // race opponents: current route row (race/0.c)
+    };
+    /* 0x25 */ u8 waypointIndex; // current zone entry / path step (bit 7: direction in 12E800)
     /* 0x26 */ s16 targetSpeed;
-    /* 0x28 */ u32 unk28;
+    union {
+        /* 0x28 */ u32 idleAnimFrame; // gFrameCounter when the idle variant last played (func_8072881C)
+        /* 0x28 */ u32 unk28; // boss/8520.c: packed anim frame (& 0xF), direction bit 0x80, flag 0x8000
+    };
     /* 0x2C */ s16 timer;
     /* 0x2E */ s16 unk2E;
     /* 0x30 */ f32 scale;
-    /* 0x34 */ u8 unk34;
-    /* 0x35 */ u8 unk35;
+    /* 0x34 */ u8 lastMoveTier; // playerSelectMoveTier result last applied (0xFF = none)
+    /* 0x35 */ u8 acceleration; // SpawnEntry.acceleration
     /* 0x36 */ u8 unk36;
-    /* 0x37 */ u8 unk37;
+    /* 0x37 */ u8 engageState; // SpawnEntry.engageState
     /* 0x38 */ u8 unk38;
     /* 0x39 */ u8 unk39;
     /* 0x3A */ u8 pad3A[6];
@@ -924,30 +930,30 @@ typedef struct KongInventory {
     union {
         /* 0x00 */ u8 unk0[5]; // eeprom load/save walk all five bytes (104F0)
         struct {
-            /* 0x00 */ u8 pad0;
+            /* 0x00 */ u8 moveLevel;       // special moves bought (0-3); users read it as unk0[0]
             /* 0x01 */ u8 slamLevel;       // slam ring tiers and shake strength (D5E10); E4090 slam handlers switch on 2/3
             /* 0x02 */ u8 weaponFlags;     // bit 0 gun owned, bit 1 homing; 7 = all (CC800); the projectile spawn param (19A00)
-            /* 0x03 */ u8 pad3;
+            /* 0x03 */ u8 ammoBeltLevel;   // ammo cap 50 << level, throw cap 20 + 5 * level (FCCD0); users read it as unk0[3]
             /* 0x04 */ u8 instrumentFlags; // bit 0 instrument owned (playback, pause-menu counter); 0xF = all (CC800)
         };
     };
     /* 0x05 */ u8 unk5;
-    /* 0x06 */ u16 unk6;
-    /* 0x08 */ u16 unk8;
-    /* 0x0A */ u16 unkA[14];
-    /* 0x26 */ u16 unk26[14];
-    /* 0x42 */ u16 unk42[14];
+    /* 0x06 */ u16 coins; // HUD slot 1 (max 999)
+    /* 0x08 */ u16 instrumentEnergy; // HUD slot 7
+    /* 0x0A */ u16 coloredBananas[14]; // per world, held (HUD slot 0)
+    /* 0x26 */ u16 bananasDelivered[14]; // per world, turned in (C2A90); with coloredBananas >= 75 sets the medal
+    /* 0x42 */ u16 goldenBananas[14]; // per world (HUD slot 8; slot 9 shows the total)
 } KongInventory; /* sizeof 0x5E */
 
 // One player's 0x306-byte block of gPlayerInventoryTable: eight kong rows, then the shared counters.
 typedef struct PlayerInventory {
     /* 0x000 */ KongInventory kong[8];
-    /* 0x2F0 */ u16 unk2F0;
-    /* 0x2F2 */ u16 unk2F2;
-    /* 0x2F4 */ u16 unk2F4;
-    /* 0x2F6 */ u16 unk2F6;
-    /* 0x2F8 */ u16 unk2F8;
-    /* 0x2FA */ s8 unk2FA; // multiplayer: best total (health + healthDelta) so far
+    /* 0x2F0 */ u16 ammo; // HUD slot 2: standard shots
+    /* 0x2F2 */ u16 homingAmmo; // HUD slot 3: used instead of ammo while weaponFlags bit 1 is set
+    /* 0x2F4 */ u16 throwAmmo; // HUD slot 4: thrown projectiles (projectileTrySpawnFromSlot)
+    /* 0x2F6 */ u16 abilityEnergy; // HUD slot 5: drained per frame by special moves, shown in units of 150
+    /* 0x2F8 */ u16 cameraFilm; // HUD slot 6: one per camera shot
+    /* 0x2FA */ s8 crownBestHealth; // multiplayer: best total (health + healthDelta) while holding the crown
     /* 0x2FB */ s8 health; // melon pips left
     /* 0x2FC */ u8 melons; // melon count (health capacity = melons * per-melon)
     /* 0x2FD */ s8 healthDelta; // pending change, applied by healthApplyPendingDelta

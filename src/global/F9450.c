@@ -562,7 +562,7 @@ void func_806F54E0(u8 playerIndex, s32 modelType, u8 collisionOverride) {
             break;
         case 0xB7:
             for (i = 0; i < 5; i++) {
-                gPlayerInventoryTable[playerIndex].kong[i].unk6 += 5;
+                gPlayerInventoryTable[playerIndex].kong[i].coins += 5;
             }
             cutsceneStartFlag16CPath();
             break;
@@ -1039,7 +1039,7 @@ s32 func_806F6E58(s16 kong) {
 
     result = 0;
     if (kong < 5) {
-        result = gPlayerInventoryTable[0].kong[kong].unk0[0] >= D_80754238[kong];
+        result = gPlayerInventoryTable[0].kong[kong].moveLevel >= D_80754238[kong];
     }
     result |= flagGet(0x179, 0);
     return result;

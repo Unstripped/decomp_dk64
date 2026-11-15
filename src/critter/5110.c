@@ -52,9 +52,9 @@ void critterBattleArenaUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         D_80029FA8 = 0;
         camStartPath(0, 0, 1);
-        tmp = gPlayerInventoryTable[0].unk2F4;
+        tmp = gPlayerInventoryTable[0].throwAmmo;
         D_80029FA4 = tmp;
-        D_807FCC44 = 0; // FAKE: clears gPlayerInventoryTable[0].unk2F4 through its split label so IDO keeps a second lui pair (the table spelling here CSEs the base: fdiff 1)
+        D_807FCC44 = 0; // FAKE: clears gPlayerInventoryTable[0].throwAmmo through its split label so IDO keeps a second lui pair (the table spelling here CSEs the base: fdiff 1)
         slotQueueSetShownValue(4, 0, 0);
         switch (gCurrentMap) {
         case 0xB1:
@@ -163,7 +163,7 @@ void critterBattleArenaUpdate(void) {
                     flagSet(rewardFlag, 1, 0);
                 }
                 tmp = D_80029FA4;
-                gPlayerInventoryTable[0].unk2F4 = tmp;
+                gPlayerInventoryTable[0].throwAmmo = tmp;
                 slotQueueSetShownValue(4, 0, tmp);
                 mapFindPreviousSavedMap(&returnMap, &returnExit);
                 mapTransitionExitCurrent(returnMap, 0);

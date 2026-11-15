@@ -976,7 +976,7 @@ void playerInputHandleAButtonState41(void) {
 extern s32 gCurrentMap;
 
 void playerInputCheckBButtonChargeCallback(void) {
-    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) && (gPlayerInventoryTable[gCurrentPlayerIndex].kong[3].unk0[0] >= 2) && (gCurrentMap != 0xE)) {
+    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) && (gPlayerInventoryTable[gCurrentPlayerIndex].kong[3].moveLevel >= 2) && (gCurrentMap != 0xE)) {
         playerStateQueueCallback(9, 0, gCurrentPlayerIndex);
         gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
@@ -1775,17 +1775,17 @@ void playerInputHandleBButtonSpecial(void) {
         } else {
             switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
                 case 2:
-                    if (gPlayerInventoryTable[gCurrentPlayerIndex].kong[2].unk0[0] > 0) {
+                    if (gPlayerInventoryTable[gCurrentPlayerIndex].kong[2].moveLevel > 0) {
                         playerStateQueueCallback(0x25, 0, gCurrentPlayerIndex);
                     }
                     break;
                 case 4:
-                    if (gPlayerInventoryTable[gCurrentPlayerIndex].kong[4].unk0[0] >= 2) {
+                    if (gPlayerInventoryTable[gCurrentPlayerIndex].kong[4].moveLevel >= 2) {
                         playerStateQueueCallback(0x26, 0, gCurrentPlayerIndex);
                     }
                     break;
                 case 1:
-                    if (gPlayerInventoryTable[gCurrentPlayerIndex].kong[1].unk0[0] > 0) {
+                    if (gPlayerInventoryTable[gCurrentPlayerIndex].kong[1].moveLevel > 0) {
                         gActivePlayerState->turnRate = 0x64;
                         gCurrentActor->state = 0x2E;
                         gCurrentActor->unk155 = 0;

@@ -213,13 +213,13 @@ f32 raceRacerSteerTowardWaypoint(void) {
     targetSpeed = 0.0f;
     subFlag = gCurrentActor->contactFlags & 1;
     prevSubPhase = participant->unk35;
-    idx = gBehaviourAnimState->path[gBehaviourWorkState->unk25][0];
+    idx = gBehaviourAnimState->path[gBehaviourWorkState->waypointIndex][0];
     dx = (f32)D_807FDCA0->entries[idx].x - gCurrentActor->x;
     dz = (f32)D_807FDCA0->entries[idx].z - gCurrentActor->z;
     distToWaypoint = sqrtf(dx * dx + dz * dz);
     if (distToWaypoint < (f32)D_807FDCA0->entries[idx].radius) {
-        gBehaviourWorkState->unk25++;
-        gBehaviourWorkState->unk25 = gBehaviourWorkState->unk25 % gBehaviourExtraState->pathCount;
+        gBehaviourWorkState->waypointIndex++;
+        gBehaviourWorkState->waypointIndex = gBehaviourWorkState->waypointIndex % gBehaviourExtraState->pathCount;
         target->unk10 = (D_807FDCA0->entries[idx].height == 0) && (target->curveMode != 0);
         switch (D_807FDCA0->entries[idx].height) {
             case 2:
@@ -391,8 +391,8 @@ void raceOpponentRacerBehaviorUpdate(void) {
         managerData->unk1C = pathFrames;
         target->startCountdown = pathFrames;
         participant->throttle = 1.0f;
-        gBehaviourWorkState->unk25 = gBehaviourExtraState->pathCount - 5;
-        idx = gBehaviourAnimState->path[gBehaviourWorkState->unk25][0];
+        gBehaviourWorkState->waypointIndex = gBehaviourExtraState->pathCount - 5;
+        idx = gBehaviourAnimState->path[gBehaviourWorkState->waypointIndex][0];
         gCurrentActor->x = D_807FDCA0->entries[idx].x;
         gCurrentActor->y = D_807FDCA0->entries[idx].y;
         gCurrentActor->z = D_807FDCA0->entries[idx].z;
@@ -484,5 +484,5 @@ void raceOpponentRacerBehaviorUpdate(void) {
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
 }

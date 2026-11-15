@@ -99,7 +99,7 @@ void func_806BDEC8(void) {
             break;
         }
     }
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -160,9 +160,9 @@ void func_806BE09C(void) {
                     row = &gPlayerInventoryTable[0].kong[gPlayerCharacterId];
                     gBehaviourWorkState->timer--;
                     slotQueueAddValue(0, 0, -1);
-                    row->unk26[idx] += 1;
+                    row->bananasDelivered[idx] += 1;
                     sum = 0;
-                    for (i = 0; i < 5; i++) sum += gPlayerInventoryTable[0].kong[i].unk26[idx]; // LAYOUT: body on the for line keeps as1 emitting the unrolled i=1 address add (v0) before the i=0 one (t3)
+                    for (i = 0; i < 5; i++) sum += gPlayerInventoryTable[0].kong[i].bananasDelivered[idx]; // LAYOUT: body on the for line keeps as1 emitting the unrolled i=1 address add (v0) before the i=0 one (t3)
                     if (sum >= D_807446C0[idx]) {
                         gBehaviourWorkState->timer = 0;
                         slotQueueCancel(0, 0);
@@ -207,7 +207,7 @@ void func_806BE09C(void) {
 
         break;
     }
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -463,7 +463,7 @@ void func_806BE8BC(void) {
                     gCurrentActor->unk155 = 0;
                 }
             }
-            func_8072881C(0, &gBehaviourWorkState->unk28);
+            func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
             actorMoveWithinZone(gCurrentActor->state, gBehaviourWorkState->targetX, gBehaviourWorkState->targetZ, 0x10, 0.0f);
             patrolPathStep(gCurrentActor->state, 0);
             break;

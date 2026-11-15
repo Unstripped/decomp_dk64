@@ -4040,7 +4040,7 @@ u8 csCondKongHasHubItems(CsState *cs, s16 csId, s16 b, s16 c) {
     PlayerInventory *p = &gPlayerInventoryTable[gCurrentPlayerIndex];
     s32 idx = mapGetHubWorldIndex(gCurrentWorldId, 0);
 
-    return p->kong[(&gPlayerCharacterId)[gCurrentPlayerIndex]].unkA[idx] > 0;
+    return p->kong[(&gPlayerCharacterId)[gCurrentPlayerIndex]].coloredBananas[idx] > 0;
 }
 
 

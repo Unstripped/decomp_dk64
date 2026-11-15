@@ -471,7 +471,7 @@ void minecartUpdateObstacleType1(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         func_80724CA4(2, 1);
-        gBehaviourWorkState->unk35 = 6;
+        gBehaviourWorkState->acceleration = 6;
     }
     if (gActorGlobalState.unk15 != 0) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x7F, 0x1E);
@@ -605,7 +605,7 @@ void minecartUpdateObstacleType3(void) {
     playerState = gBehaviourTargetActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unk144 = 0x3C;
-        gBehaviourWorkState->unk35 = 2;
+        gBehaviourWorkState->acceleration = 2;
         effectSetDepth(1);
         effectSetDuration(-1);
         effectCreateAtActorBone(&D_8072030C, 0.14f, gCurrentActor, 0xB, 2);

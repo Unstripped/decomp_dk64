@@ -1329,7 +1329,7 @@ void transformBarrelUpdate(void) {
         s32 allowed = 0;
 
         if (gPlayerCharacterId < 5) {
-            itemCount = gPlayerInventoryTable[0].kong[gPlayerCharacterId].unk0[0];
+            itemCount = gPlayerInventoryTable[0].kong[gPlayerCharacterId].moveLevel;
         }
         player = gPrimaryPlayerActor;
         if (player->actorType == 5 && gCurrentActor->actorType == 0x28 && itemCount > 0) {
@@ -2331,7 +2331,7 @@ void rocketbarrelUpdate(void) {
     case 0: {
         s32 itemCount;
         if (gPlayerCharacterId < 5) {
-            itemCount = gPlayerInventoryTable[0].kong[gPlayerCharacterId].unk0[0];
+            itemCount = gPlayerInventoryTable[0].kong[gPlayerCharacterId].moveLevel;
         }
         if (gPrimaryPlayerActor->actorType == 3 && itemCount >= 2) {
             gCurrentActor->flags |= 0x8000;

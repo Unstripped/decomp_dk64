@@ -227,8 +227,8 @@ void bossKRoolLankyStep(void) {
         scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
     }
     behaviourUpdateShadowAlpha();
-    if (func_8072881C(0, &gBehaviourWorkState->unk28) != 0) {
-        func_8072881C(0x81, &gBehaviourWorkState->unk28);
+    if (func_8072881C(0, &gBehaviourWorkState->idleAnimFrame) != 0) {
+        func_8072881C(0x81, &gBehaviourWorkState->idleAnimFrame);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

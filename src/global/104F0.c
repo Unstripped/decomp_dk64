@@ -757,25 +757,25 @@ void eepromHalveRecords(void) {
 
     if (func_806F6EDC() != 0) {
         u32 v = slotQueueGetMaxValue(5, 0);
-        gPlayerInventoryTable[0].unk2F6 = (u32)(v * 0.5);
+        gPlayerInventoryTable[0].abilityEnergy = (u32)(v * 0.5);
     }
     if (flagGet(0x184, 0) != 0) {
         u32 v = slotQueueGetMaxValue(4, 0);
-        gPlayerInventoryTable[0].unk2F4 = (u32)(v * 0.5);
+        gPlayerInventoryTable[0].throwAmmo = (u32)(v * 0.5);
     }
     if (flagGet(0x179, 0) != 0) {
         u32 v = slotQueueGetMaxValue(6, 0);
-        gPlayerInventoryTable[0].unk2F8 = (u32)(v * 0.5);
+        gPlayerInventoryTable[0].cameraFilm = (u32)(v * 0.5);
     }
     if (D_807FC952 != 0) {
         u32 v = slotQueueGetMaxValue(2, 0);
-        gPlayerInventoryTable[0].unk2F0 = (u32)(v * 0.5);
+        gPlayerInventoryTable[0].ammo = (u32)(v * 0.5);
     }
     for (i = 0; i != 5; i++) {
         gPlayerCharacterId = i;
         if (gPlayerInventoryTable[0].kong[i].instrumentFlags != 0) {
             u32 v = slotQueueGetMaxValue(7, 0);
-            gPlayerInventoryTable[0].kong[i].unk8 = (u32)(v * 0.5);
+            gPlayerInventoryTable[0].kong[i].instrumentEnergy = (u32)(v * 0.5);
         }
     }
     gPlayerCharacterId = 0;
@@ -814,15 +814,15 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
     do {
         for (j = 0; j != 5; j++)
             entry->unk0[j] = eepromGetField(j + 4, i, 0, slot);
-        entry->unk6 = eepromGetField(9, i, 0, slot);
+        entry->coins = eepromGetField(9, i, 0, slot);
         entry->unk5 = eepromGetField(0xA, i, 0, slot);
         if (eepromGetField(0xB, i, 0, slot) != 0) {
             entry->unk5 |= 0x80;
         }
         for (k = 0; k != 8; k++) {
-            entry->unkA[k] = eepromGetField(1, i, k, slot);
-            gLevelCollectibleCounts[k] += entry->unk26[k] = eepromGetField(2, i, k, slot);
-            entry->unk42[k] = eepromGetField(3, i, k, slot);
+            entry->coloredBananas[k] = eepromGetField(1, i, k, slot);
+            gLevelCollectibleCounts[k] += entry->bananasDelivered[k] = eepromGetField(2, i, k, slot);
+            entry->goldenBananas[k] = eepromGetField(3, i, k, slot);
         }
         i++;
         entry++;
@@ -863,13 +863,13 @@ void eepromSavePlayerData(void) {
                 for (j = 0; j < 5; j++) {
                     eepromSetField(j + 4, i, 0, gEepromCurrentSlot, entry->unk0[j]);
                 }
-                eepromSetField(9, i, 0, gEepromCurrentSlot, entry->unk6);
+                eepromSetField(9, i, 0, gEepromCurrentSlot, entry->coins);
                 eepromSetField(0xA, i, 0, gEepromCurrentSlot, entry->unk5 & 0x7F);
                 eepromSetField(0xB, i, 0, gEepromCurrentSlot, (entry->unk5 >> 7) & 1);
                 for (k = 0; k < 8; k++) {
-                    eepromSetField(1, i, k, gEepromCurrentSlot, entry->unkA[k]);
-                    eepromSetField(2, i, k, gEepromCurrentSlot, entry->unk26[k]);
-                    eepromSetField(3, i, k, gEepromCurrentSlot, entry->unk42[k]);
+                    eepromSetField(1, i, k, gEepromCurrentSlot, entry->coloredBananas[k]);
+                    eepromSetField(2, i, k, gEepromCurrentSlot, entry->bananasDelivered[k]);
+                    eepromSetField(3, i, k, gEepromCurrentSlot, entry->goldenBananas[k]);
                 }
             }
             eepromDispatchCommand(1);

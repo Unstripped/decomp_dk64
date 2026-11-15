@@ -894,7 +894,7 @@ void playerInitKongActor(s32 playerIndex, s32 unused1, s32 unused2) {
     p->weaponFlags = 7;
     p->instrumentFlags = 0xF;
     p->slamLevel = 3;
-    p->unk0[0] = 3;
+    p->moveLevel = 3;
     flagSet(0x179, 1, 0);
     playerSpawnMapActors(playerIndex);
 }
@@ -917,7 +917,7 @@ s32 playerSpawnAllPlayers(void) {
 
     v = 0;
     for (i = 0; i < 8 && !v; i++) {
-        v = row->unk42[i] > 0;
+        v = row->goldenBananas[i] > 0;
     }
     return v;
 }

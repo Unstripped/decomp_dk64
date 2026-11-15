@@ -79,7 +79,7 @@ void func_806B13B4(u8 spawnSfxNodes) {
                 behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x20B);
                 gCurrentActor->speedY = 200.0f;
             }
-            gBehaviourWorkState->unk35 = 2;
+            gBehaviourWorkState->acceleration = 2;
             gCurrentActor->callbackMask &= 0xFFFF7FFF;
             sel = gCurrentActor->state;
         } else if (gActorGlobalState.bossFightPhase == 4) {

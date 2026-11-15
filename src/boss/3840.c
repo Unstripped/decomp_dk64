@@ -56,12 +56,12 @@ void bossLerpCoords(BossB_Struct_800278F4 *coords, f32 factor, s16 targetY, s16 
 }
 
 void bossPickRandomWaypoint(BossScriptState *state, u8 *waypointRanges) {
-    u8 prev = gBehaviourWorkState->unk25;
+    u8 prev = gBehaviourWorkState->waypointIndex;
     do {
         s32 rand = randomNonNegative() >> 15;
         u8 offset = state->scriptPos;
-        gBehaviourWorkState->unk25 = waypointRanges[offset] + ((rand % 65536) % (waypointRanges[offset + 1] - waypointRanges[offset] + 1));
-    } while (gBehaviourWorkState->unk25 == prev);
+        gBehaviourWorkState->waypointIndex = waypointRanges[offset] + ((rand % 65536) % (waypointRanges[offset + 1] - waypointRanges[offset] + 1));
+    } while (gBehaviourWorkState->waypointIndex == prev);
     state->scriptPos += 2;
 }
 
@@ -82,7 +82,7 @@ void bossPickFarthestWaypoint(BossScriptState *state, u8 *waypointRanges) {
 
         if (dist > maxDist) {
             maxDist = dist;
-            gBehaviourWorkState->unk25 = i;
+            gBehaviourWorkState->waypointIndex = i;
         }
     }
     state->scriptPos += 2;
@@ -196,7 +196,7 @@ patrol:
             BOSS_ACTOR->base.unk155 = 1;
             actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkD);
         } else {
-            actorMoveWithinZone(0x23, gBehaviourWorkState->unk4->x, gBehaviourWorkState->unk4->z, turnSpeed, fwdSpeed);
+            actorMoveWithinZone(0x23, gBehaviourWorkState->targetActor->x, gBehaviourWorkState->targetActor->z, turnSpeed, fwdSpeed);
             scriptState->unk8[0] -= 1;
             if ((scriptState->unk8[0] == 0) || (playerData->stateFlags & 0x80000)) {
                 playerData->stateFlags &= ~0x80000;
@@ -267,9 +267,9 @@ patrol:
         BOSS_ACTOR->base.unk155 = 0;
         goto patrol;
     case 0x4B:
-        gBehaviourWorkState->unk25++;
-        if (script[scriptState->scriptPos + 1] < gBehaviourWorkState->unk25) {
-            gBehaviourWorkState->unk25 = script[scriptState->scriptPos];
+        gBehaviourWorkState->waypointIndex++;
+        if (script[scriptState->scriptPos + 1] < gBehaviourWorkState->waypointIndex) {
+            gBehaviourWorkState->waypointIndex = script[scriptState->scriptPos];
         }
         scriptState->scriptPos += 2;
         advanceScript = 0;
@@ -277,7 +277,7 @@ patrol:
         BOSS_ACTOR->base.unk155 = 0;
         goto patrol;
     case 0x41:
-        gBehaviourWorkState->unk25 = script[scriptState->scriptPos];
+        gBehaviourWorkState->waypointIndex = script[scriptState->scriptPos];
         scriptState->scriptPos++;
         advanceScript = 0;
         BOSS_ACTOR->base.state = 0x42;
@@ -296,7 +296,7 @@ patrol:
             break;
         case 1:
             if (BOSS_ACTOR->base.state == 0x49) {
-                gBehaviourWorkState->unk25 = script[scriptState->scriptPos];
+                gBehaviourWorkState->waypointIndex = script[scriptState->scriptPos];
                 scriptState->scriptPos++;
             } else {
                 bossPickRandomWaypoint(scriptState, script);

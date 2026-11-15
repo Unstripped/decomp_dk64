@@ -146,7 +146,7 @@ void func_806AE588(void) {
             gCurrentActor->interactionType = 1;
         }
     }
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
     state = gCurrentActor->state;
     if ((state != 0x32) || (gActorGlobalState.unk15 != 0)) {
         if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (state != 0x37)) {
@@ -157,7 +157,7 @@ void func_806AE588(void) {
                 behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x201);
                 gCurrentActor->speedY = 200.0f;
             }
-            gBehaviourWorkState->unk35 = 2;
+            gBehaviourWorkState->acceleration = 2;
             gCurrentActor->callbackMask &= 0xFFFF7FFF;
         } else if (gActorGlobalState.bossFightPhase == 4) {
             behaviourSpawnExplosionAndSound(0x1FF, 0x31, gActorGlobalState.targetActor);
@@ -555,12 +555,12 @@ void func_806AFB58(void) {
     }
     if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2DD);
-        gBehaviourWorkState->unk35 = 2;
+        gBehaviourWorkState->acceleration = 2;
         gCurrentActor->callbackMask &= 0xFFFF7FFF;
     } else if ((gActorGlobalState.bossFightPhase == 4) || (gActorGlobalState.bossFightPhase == 5)) {
         if (gCurrentActor->segmentFlags & 1) {
-            gBehaviourWorkState->unk1E = 0xF;
-            gBehaviourWorkState->unk1F = 0xF;
+            gBehaviourWorkState->turnRate = 0xF;
+            gBehaviourWorkState->moveYawRate = 0xF;
             gCurrentActor->unkEC = -1;
             actorSpawnChildAtNode(0xC2, 0x800, 1, 0x190);
             gSpawnedActor->unk15F = 1;
@@ -767,7 +767,7 @@ void func_806B0354(void) {
             behaviourUpdateContactAndState(0x378);
             break;
     }
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -882,7 +882,7 @@ void func_806B0848(void) {
                     gCurrentActor->unk155++;
                     break;
                 case 4:
-                    gBehaviourWorkState->unk4 = gPrimaryPlayerActor;
+                    gBehaviourWorkState->targetActor = gPrimaryPlayerActor;
                     actorSetDefaultState(0x35F);
                     break;
             }

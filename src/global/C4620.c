@@ -268,7 +268,7 @@ void actorScriptedCommandUpdate(void) {
                     gBehaviourAnimState->path = heapAlloc(2);
                     gBehaviourAnimState->path[0][1] = 0;
                     gBehaviourAnimState->path[0][0] = cmd->param1;
-                    gBehaviourWorkState->unk25 = 0;
+                    gBehaviourWorkState->waypointIndex = 0;
                     actorSetTargetSpeed(gCurrentActor, cmd->param2);
                     break;
                 case 6:
@@ -326,7 +326,7 @@ void actorScriptedCommandUpdate(void) {
                     }
                     break;
                 case 9:
-                    gBehaviourWorkState->unk4 = spawnNodeActivate(cmd->param1, 0);
+                    gBehaviourWorkState->targetActor = spawnNodeActivate(cmd->param1, 0);
                     break;
                 case 11:
                     state->lerpSteps = cmd->param1;
@@ -363,7 +363,7 @@ void actorScriptedCommandUpdate(void) {
                     gCurrentActor->flags &= 0xFF7FFFFF;
                     break;
                 case 26:
-                    gBehaviourWorkState->unk4 = spawnNodeActivate(cmd->param1, 0);
+                    gBehaviourWorkState->targetActor = spawnNodeActivate(cmd->param1, 0);
                     gCurrentActor->unk15F = cmd->param2;
                     gCurrentActor->state = 0xD;
                     gCurrentActor->unk155 = 0;
@@ -425,13 +425,13 @@ void actorScriptedCommandUpdate(void) {
         case 0xD:
             if (gCurrentActor->unk15F != 0) {
                 node = gCurrentActor->unk15F;
-                actorGetNodePos(gBehaviourWorkState->unk4, node, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
+                actorGetNodePos(gBehaviourWorkState->targetActor, node, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
             } else {
                 gCurrentActor->x = gBehaviourTargetActor->x;
                 gCurrentActor->y = gBehaviourTargetActor->y;
                 gCurrentActor->z = gBehaviourTargetActor->z;
             }
-            gCurrentActor->yaw = gBehaviourWorkState->unk4->yaw;
+            gCurrentActor->yaw = gBehaviourWorkState->targetActor->yaw;
             break;
         case 0xC:
             pathPlaybackAdvance(state->pathPlayback);
@@ -482,8 +482,8 @@ void actorScriptedCommandUpdate(void) {
             break;
     }
     behaviourUpdateShadowAlpha();
-    if ((gBehaviourAnimState->flags & 0x1000) && func_8072881C(0, &gBehaviourWorkState->unk28) != 0 && (state->animAssetId == 1 || state->animAssetId == 9 || state->animAssetId == 0x68)) {
-        func_8072881C(0x81, &gBehaviourWorkState->unk28);
+    if ((gBehaviourAnimState->flags & 0x1000) && func_8072881C(0, &gBehaviourWorkState->idleAnimFrame) != 0 && (state->animAssetId == 1 || state->animAssetId == 9 || state->animAssetId == 0x68)) {
+        func_8072881C(0x81, &gBehaviourWorkState->idleAnimFrame);
     }
 }
 
@@ -565,8 +565,8 @@ void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 an
         actorUpdatePrevContactFlags(gCurrentActor);
         gCurrentActor->floorNodeId = 1;
     }
-    val = ret = playerSelectMoveTier(gCurrentActor, gCurrentActor->speedXZ, gBehaviourWorkState->targetSpeed, gBehaviourWorkState->unk34, threshold);
-    if (ret != gBehaviourWorkState->unk34) {
+    val = ret = playerSelectMoveTier(gCurrentActor, gCurrentActor->speedXZ, gBehaviourWorkState->targetSpeed, gBehaviourWorkState->lastMoveTier, threshold);
+    if (ret != gBehaviourWorkState->lastMoveTier) {
         switch (ret) {
             case 0:
             case 1:
@@ -583,7 +583,7 @@ void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 an
                 controllerAnimSetStateIfChanged(gCurrentActor, animMax, 0.0f, 6.0f);
                 break;
         }
-        gBehaviourWorkState->unk34 = val;
+        gBehaviourWorkState->lastMoveTier = val;
     }
 }
 
@@ -998,7 +998,7 @@ void func_806C226C(void) {
             actorTurnTowardActorYaw(0xA, gBehaviourTargetActor);
             break;
     }
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

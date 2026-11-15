@@ -251,7 +251,7 @@ void bossKRoolChunkyStep(void) {
         switch (gCurrentActor->unk155) {
         case 0:
             patrolGetNextWaypointPos(&waypointCoords[2], &waypointCoords[1], &waypointCoords[0]);
-            actorSetGroupState(sKRoolChunkyPathGroupState[gBehaviourAnimState->path[gBehaviourWorkState->unk25 & 0x7F][0] - 1], 1);
+            actorSetGroupState(sKRoolChunkyPathGroupState[gBehaviourAnimState->path[gBehaviourWorkState->waypointIndex & 0x7F][0] - 1], 1);
             gCurrentActor->unkEC = mathAngleBetweenPoints2D(waypointCoords[2], waypointCoords[0], gCurrentActor->x, gCurrentActor->z);
             if (mathAngleSignedDistance(gCurrentActor->yaw, gCurrentActor->unkEC) < 0) {
                 actorScriptStart(gCurrentActor, 0x401);
@@ -327,8 +327,8 @@ void bossKRoolChunkyStep(void) {
         billboardSetFlags(1);
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x3C, 0x3C, 1, 0x12C, 0xB4, 0, 1.0f);
     }
-    if (func_8072881C(0, &gBehaviourWorkState->unk28) != 0) {
-        func_8072881C(0x81, &gBehaviourWorkState->unk28);
+    if (func_8072881C(0, &gBehaviourWorkState->idleAnimFrame) != 0) {
+        func_8072881C(0x81, &gBehaviourWorkState->idleAnimFrame);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

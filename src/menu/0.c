@@ -289,7 +289,7 @@ void menuUpdateOptionsState(MenuState *menu) {
                     awardFlag = flagGridIndex(0x1FD, i, gPlayerCharacterId);
                     if (flagGet((s16)awardFlag, 0) == 0) {
                         flagSet((s16)awardFlag, 1, 0);
-                        playerSaveData->unk42[i]++;
+                        playerSaveData->goldenBananas[i]++;
                         changed = 1;
                     }
                 }

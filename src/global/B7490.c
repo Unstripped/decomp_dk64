@@ -243,7 +243,7 @@ void func_806B2D64(void) {
             enemyAggroStateUpdate(0x6400, 0x2E2, 0x2E2);
             break;
     }
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -636,20 +636,20 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
 void behaviourFlyPatrolState(void) {
     behaviourFrameBegin();
     behaviourFlyPatrolWithCallback(behaviourCheckZoneReachAndSpawn, 0x251, 0x250, 0x10E);
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
 }
 
 void behaviourFlyPatrolState2(void) {
     behaviourFrameBegin();
     behaviourFlyPatrolWithCallback(projectileSpawnWithTimer, 0x251, 0x250, 0x10E);
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
 }
 
 void behaviourFlyPatrolState3(void) {
     behaviourFrameBegin();
     behaviourFlyPatrolWithCallback(func_806B3D18, 0x254, 0x252, 0x108);
     actorSpawnPeriodicBoneEffect();
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
 }
 
 void behaviourFlyPatrolState4(void) {
@@ -794,7 +794,7 @@ void behaviourEnemyBatUpdate(void) {
         }
     }
     actorAirPatrolStep(gCurrentActor->state, 0x247, 0x246);
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -870,7 +870,7 @@ void behaviourEnemyFlySwoop(void) {
         behaviourUpdateContactAndState(0x333);
         break;
     }
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

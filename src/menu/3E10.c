@@ -661,7 +661,7 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
     D_8003380C = 0;
     for (k = 0; k != 5; k++) {
         for (j = 0; j != 8; j++) {
-            D_8003380C += row->unk42[j];
+            D_8003380C += row->goldenBananas[j];
         }
         row++;
     }

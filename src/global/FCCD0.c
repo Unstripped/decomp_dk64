@@ -134,10 +134,10 @@ void func_806F8278(u8 player) {
 
     sum = 0;
     inv = &gPlayerInventoryTable[player];
-    count = sizeof(inv->kong[0].unk42) / sizeof(inv->kong[0].unk42[0]);
+    count = sizeof(inv->kong[0].goldenBananas) / sizeof(inv->kong[0].goldenBananas[0]);
     for (i = 0; i < count; i++) {
         for (j = 0; j < 5; j++) {
-            sum += inv->kong[j].unk42[i];
+            sum += inv->kong[j].goldenBananas[i];
         }
     }
     gSlotQueue[player * 15 + 9].shown = sum;
@@ -199,7 +199,7 @@ void slotQueueInit(s32 reset) {
                 }
                 switch (j) {
                 case 0:
-                    base[j].value = &kongInv->unkA[world];
+                    base[j].value = &kongInv->coloredBananas[world];
                     base[j].x = 0x1E; base[j].y = 0x26;
                     func_806F8004(15.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
@@ -209,7 +209,7 @@ void slotQueueInit(s32 reset) {
                     func_806F8004(-5.5f, -26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 8:
-                    base[j].value = &kongInv->unk42[world];
+                    base[j].value = &kongInv->goldenBananas[world];
                     base[j].x = 0x1E; base[j].y = 0x48;
                     func_806F8004(1.5f, 26.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
@@ -229,42 +229,42 @@ void slotQueueInit(s32 reset) {
                     break;
                 case 5:
                     if (shownMask & 0x20) {
-                        inv->unk2F6 = slotQueueGetMaxValue(5, i);
+                        inv->abilityEnergy = slotQueueGetMaxValue(5, i);
                         flag = 1;
                     }
-                    base[j].value = &inv->unk2F6;
+                    base[j].value = &inv->abilityEnergy;
                     base[j].x = 0x122; base[j].y = 0x8C;
                     func_806F8004(-5.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 2:
-                    base[j].value = &inv->unk2F0;
+                    base[j].value = &inv->ammo;
                     base[j].x = 0x122; base[j].y = 0x48;
                     func_806F8004(8.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 3:
                     if (shownMask & 0x4) {
-                        inv->unk2F2 = slotQueueGetMaxValue(3, i);
+                        inv->homingAmmo = slotQueueGetMaxValue(3, i);
                         flag = 1;
                     }
-                    base[j].value = &inv->unk2F2;
+                    base[j].value = &inv->homingAmmo;
                     base[j].x = 0x122; base[j].y = 0x48;
                     func_806F8004(8.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 4:
                     if (shownMask & 0x8) {
-                        inv->unk2F4 = slotQueueGetMaxValue(4, i);
+                        inv->throwAmmo = slotQueueGetMaxValue(4, i);
                         flag = 1;
                     }
-                    base[j].value = &inv->unk2F4;
+                    base[j].value = &inv->throwAmmo;
                     base[j].x = 0x122; base[j].y = 0x6A;
                     func_806F8004(1.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 6:
                     if (shownMask & 0x10) {
-                        inv->unk2F8 = slotQueueGetMaxValue(6, i);
+                        inv->cameraFilm = slotQueueGetMaxValue(6, i);
                         flag = 1;
                     }
-                    base[j].value = &inv->unk2F8;
+                    base[j].value = &inv->cameraFilm;
                     base[j].x = 0x122; base[j].y = 0xD0;
                     func_806F8004(-19.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
@@ -275,19 +275,19 @@ void slotQueueInit(s32 reset) {
                     break;
                 case 1:
                     if (shownMask & 0x2) {
-                        kongInv->unk6 = slotQueueGetMaxValue(1, i);
+                        kongInv->coins = slotQueueGetMaxValue(1, i);
                         flag = 1;
                     }
-                    base[j].value = &kongInv->unk6;
+                    base[j].value = &kongInv->coins;
                     base[j].x = 0x122; base[j].y = 0x26;
                     func_806F8004(16.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
                 case 7:
                     if (shownMask & 0x40) {
-                        kongInv->unk8 = slotQueueGetMaxValue(7, i);
+                        kongInv->instrumentEnergy = slotQueueGetMaxValue(7, i);
                         flag = 1;
                     }
-                    base[j].value = &kongInv->unk8;
+                    base[j].value = &kongInv->instrumentEnergy;
                     base[j].x = 0x122; base[j].y = 0xAE;
                     func_806F8004(-12.5f, -19.0f, &base[j].worldX, &base[j].worldY, &base[j].worldZ);
                     break;
@@ -443,7 +443,7 @@ void func_806F8DC4(u8 *alpha, s32 count, s32 slot) {
         } else if (flagGridSumRows(0x225, world, world, kong) != 0) {
             *alpha = 0xFF;
         }
-    } else if (count < gPlayerInventoryTable[0].kong[kong].unk42[world]) {
+    } else if (count < gPlayerInventoryTable[0].kong[kong].goldenBananas[world]) {
         *alpha = 0xFF;
     }
 }
@@ -468,17 +468,17 @@ s32 slotQueueGetMaxValue(s32 slot, s32 player) {
         max = 0x3E7;
         break;
     case 2:
-        max = ((1 << gPlayerInventoryTable[player].kong[kong].unk0[3]) * 0x32) & 0xFFFF;
+        max = ((1 << gPlayerInventoryTable[player].kong[kong].ammoBeltLevel) * 0x32) & 0xFFFF;
         break;
     case 3:
         if (gPlayerCount >= 2) {
             max = 0xA;
         } else {
-            max = ((1 << gPlayerInventoryTable[player].kong[kong].unk0[3]) * 0x32) & 0xFFFF;
+            max = ((1 << gPlayerInventoryTable[player].kong[kong].ammoBeltLevel) * 0x32) & 0xFFFF;
         }
         break;
     case 4:
-        max = ((gPlayerInventoryTable[player].kong[kong].unk0[3] * 5) + 0x14) & 0xFFFF;
+        max = ((gPlayerInventoryTable[player].kong[kong].ammoBeltLevel * 5) + 0x14) & 0xFFFF;
         break;
     case 5:
         if (gPlayerCount >= 2) {
@@ -561,7 +561,7 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
                 }
                 if ((delta > 0) && (slot == 0)) {
                     value = mapGetHubWorldIndex(gCurrentWorldId, 1); // FAKE: value reused for the world index (a separate world local costs 9 words)
-                    total = kongInv->unkA[value] + kongInv->unk26[value];
+                    total = kongInv->coloredBananas[value] + kongInv->bananasDelivered[value];
                     if ((total >= 0x4B) && ((total - delta) < 0x4B)) {
                         slots = flagGridIndex(0x225, value, (&gPlayerCharacterId)[player]); // FAKE: slots reused for the flag index (direct argument costs 9 words)
                         flagSet(slots, 1, 0);
@@ -982,7 +982,7 @@ Gfx *slotQueueDrawPlayerLabels(s32 slot, SlotQueueNode *node, Gfx *gfx) {
                 gSlotQueue[slot].shown = savedU16;
                 scale = 2.0f;
             } else {
-                gSlotQueue[slot].shown = gPlayerInventoryTable[0].kong[i].unk42[world];
+                gSlotQueue[slot].shown = gPlayerInventoryTable[0].kong[i].goldenBananas[world];
                 scale = 1.5f;
             }
             gfx = slotQueueDrawLabel(slot, node, gfx);
@@ -1246,7 +1246,7 @@ void slotQueueSelectPlayerResource(u8 player) {
     s32 resource;
 
     resource = mapGetHubWorldIndex(gCurrentWorldId, 0);
-    gSlotQueue[13].value = &gPlayerInventoryTable[0].kong[player].unk26[resource];
+    gSlotQueue[13].value = &gPlayerInventoryTable[0].kong[player].bananasDelivered[resource];
     gSlotQueue[13].shown = *gSlotQueue[13].value;
     D_80754288 = player;
 }
@@ -1494,7 +1494,7 @@ s32 func_806FB418(void) {
     sum = 0;
     for (j = 0; j < 5; j++) {
         for (i = 0; i < 8; i++) {
-            sum += gPlayerInventoryTable[0].kong[j].unk42[i];
+            sum += gPlayerInventoryTable[0].kong[j].goldenBananas[i];
         }
     }
     return sum;

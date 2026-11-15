@@ -448,16 +448,16 @@ s32 mpUpdateScoreEffects(void) {
                 effectSetColor(0xFF, 0xFF, 0xFF, 0x7F);
                 effectSetCallback(func_8071F3C0);
                 playerState->scoreEffect = effectCreateAtActorBone(&D_807207BC, 0.5f, gPlayerSlots[i].actor, boneIndex, 2);
-                score->unk2FA = totalScore;
+                score->crownBestHealth = totalScore;
             }
-            if (score->unk2FA < totalScore) {
-                score->unk2FA = totalScore;
+            if (score->crownBestHealth < totalScore) {
+                score->crownBestHealth = totalScore;
             }
             ret = i;
         } else if (playerState->scoreEffect != 0) {
             effectFreeAndUnlink(playerState->scoreEffect);
             playerState->scoreEffect = 0;
-            score->unk2FA = 0;
+            score->crownBestHealth = 0;
         }
     }
     return ret;
@@ -896,10 +896,10 @@ void mpSetFlags(u8 flags) {
 extern PlayerState *gActivePlayerState;
 
 void mpResetPlayerOnRespawn(Actor *playerActor, PlayerState *kongState, PlayerInventory *playerScore) {
-    playerScore->unk2F6 = 0;
-    playerScore->unk2F0 = 0;
-    playerScore->unk2F4 = 0;
-    playerScore->unk2F2 = 0;
+    playerScore->abilityEnergy = 0;
+    playerScore->ammo = 0;
+    playerScore->throwAmmo = 0;
+    playerScore->homingAmmo = 0;
     kongState->surfaceTimer = 90;
     playerKongStopSoundByState(playerActor);
     playerActor->flags &= ~0x20000000;
@@ -930,7 +930,7 @@ void mpDropCrownOnHit(u8 playerIndex, s8 delta) {
     playerActor = gPlayerSlots[playerIndex].actor;
     score = &gPlayerInventoryTable[playerIndex];
     healthAfter = score->health + score->healthDelta + delta;
-    healthLost = score->unk2FA - healthAfter;
+    healthLost = score->crownBestHealth - healthAfter;
     if (slotQueueGetValue(1, playerIndex) != 0 && (healthAfter <= 0 || healthLost >= 2)) {
         ctrl = actorFindByType(0x13E)->customState;
         ctrl->crownSpawnDelay = 1;
@@ -939,7 +939,7 @@ void mpDropCrownOnHit(u8 playerIndex, s8 delta) {
             mpResetMapModelStates();
         }
         actorSpawnNodeEntryScaled(0x7A, playerActor->x, playerActor->y, playerActor->z, playerActor->yaw, 1, -1, 0);
-        score->unk2FA = 0;
+        score->crownBestHealth = 0;
     }
 }
 

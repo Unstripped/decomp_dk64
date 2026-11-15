@@ -75,7 +75,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
     }
     switch (gCurrentActor->state) {
         case 0x27:
-            if ((gBehaviourWorkState->flags & 4) && (gBehaviourWorkState->unk25 & 0x7F) == startActionId) {
+            if ((gBehaviourWorkState->flags & 4) && (gBehaviourWorkState->waypointIndex & 0x7F) == startActionId) {
                 if (gPlayerSlots->unk2C0 == 0) {
                     resQueueAttachActor(gCurrentActor, 0x10, 1);
                     gCurrentActor->state = 0x29;
@@ -100,7 +100,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
         case 0x26:
         case 0x29:
             if (gBehaviourWorkState->flags & 0x8000) {
-                if ((gBehaviourWorkState->flags & 4) && (gBehaviourWorkState->unk25 & 0x7F) == exitActionId) {
+                if ((gBehaviourWorkState->flags & 4) && (gBehaviourWorkState->waypointIndex & 0x7F) == exitActionId) {
                     if (!camPathId) {
                         camSetFollowMode(gCamActor);
                     }
@@ -408,7 +408,7 @@ void func_806C4F5C(void) {
         case 39:
             gActivePlayerState->stateFlags2 |= 0x40;
             actorAirPatrolStep(2, 0x244, 0x246);
-            if ((gBehaviourWorkState->flags & 4) && ((gBehaviourWorkState->unk25 & 0x7F) == 3)) {
+            if ((gBehaviourWorkState->flags & 4) && ((gBehaviourWorkState->waypointIndex & 0x7F) == 3)) {
                 gCurrentActor->state = 0x28;
                 gCurrentActor->unk155 = 0;
                 actorScriptStart(gCurrentActor, 0x244);
@@ -491,7 +491,7 @@ void func_806C4F5C(void) {
             gCurrentActor->state = 0x28;
             gCurrentActor->unk155 = 0;
             actorScriptStart(gCurrentActor, 0x244);
-            gBehaviourWorkState->unk25 = 2;
+            gBehaviourWorkState->waypointIndex = 2;
             slotQueueSetDisplayMode(5, 0, 1);
             break;
     }
@@ -503,7 +503,7 @@ void func_806C4F5C(void) {
             actorStartRewardCutscene(3, 1);
             break;
     }
-    func_8072881C(0, &gBehaviourWorkState->unk28);
+    func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
 }
 
 void func_806C55D8(void) {
@@ -620,7 +620,7 @@ void func_806C55E0(void) {
         case 0x30:
             actorScriptStart(gCurrentActor, 0x355);
             actorSetPositionFromPoint(gCurrentActor, gBehaviourExtraState);
-            gBehaviourWorkState->unk25 = 0;
+            gBehaviourWorkState->waypointIndex = 0;
             gCurrentActor->yawSpeed = 0;
             actorClearMovementFlags(gPrimaryPlayerActor);
             gPrimaryPlayerActor->y = gCurrentActor->y;
@@ -653,7 +653,7 @@ void func_806C55E0(void) {
             break;
     }
     if (gCurrentActor->state != 0x1E) {
-        func_8072881C(0, &gBehaviourWorkState->unk28);
+        func_8072881C(0, &gBehaviourWorkState->idleAnimFrame);
     }
 }
 

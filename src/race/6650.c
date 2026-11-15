@@ -294,7 +294,7 @@ void raceSteerTowardTargetWaypoint(RaceParticipant *racerState, RaceTarget *targ
     managerData = manager->customState;
     route = raceGetRoute(managerData->route);
     targetSpeed = raceGetPathDistanceBetweenTrackers(route, racerState, target->participant);
-    idx = gBehaviourAnimState->path[gBehaviourWorkState->unk25][0];
+    idx = gBehaviourAnimState->path[gBehaviourWorkState->waypointIndex][0];
     waypoint = &D_807FDCA0->entries[idx];
     dx = (f32)waypoint->x - gCurrentActor->x;
     dz = (f32)waypoint->z - gCurrentActor->z;
@@ -302,8 +302,8 @@ void raceSteerTowardTargetWaypoint(RaceParticipant *racerState, RaceTarget *targ
     if (distToWaypoint < (f32)D_807FDCA0->entries[idx].radius) {
         if (gCurrentActor->x) { // FAKE: empty guard steers float regalloc
         }
-        gBehaviourWorkState->unk25++;
-        gBehaviourWorkState->unk25 = gBehaviourWorkState->unk25 % gBehaviourExtraState->pathCount;
+        gBehaviourWorkState->waypointIndex++;
+        gBehaviourWorkState->waypointIndex = gBehaviourWorkState->waypointIndex % gBehaviourExtraState->pathCount;
     }
     work = mathAngleDiscrete((f32)D_807FDCA0->entries[idx].x, (f32)D_807FDCA0->entries[idx].z, gCurrentActor->x, gCurrentActor->z, distToWaypoint);
     angleDelta = mathAngleSignedDistance((s16)work, gCurrentActor->yaw);

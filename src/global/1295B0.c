@@ -210,7 +210,7 @@ void actorTrackBoneTowardTarget(u8 mode) {
             angle = mathAngleBetweenPointsRad(gPlayerSlots->headX, gPlayerSlots->headZ, gCurrentActor->x, gCurrentActor->z) - yaw;
             break;
         case 2:
-            angle = gBehaviourWorkState->unk24 * 2 * 0.017453292f;
+            angle = gBehaviourWorkState->wanderAngle * 2 * 0.017453292f;
             break;
         case 3:
             pitch = mathCalculatePitchAngle(gBehaviourWorkState->targetX, gBehaviourWorkState->targetY, gBehaviourWorkState->targetZ, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, pitchArg);
@@ -556,12 +556,12 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     st->node = node;
     v = act->yaw;
     act->moveYaw = v;
-    st->unk25 = 0;
-    st->unk34 = 0xFF;
-    st->unk8 = v;
-    st->unk10 = act->x;
-    st->unk12 = act->y;
-    st->unk14 = act->z;
+    st->waypointIndex = 0;
+    st->lastMoveTier = 0xFF;
+    st->targetYaw = v;
+    st->lastValidX = act->x;
+    st->lastValidY = act->y;
+    st->lastValidZ = act->z;
     act->unk144 = 0x24;
     act->flags &= ~0x10000;
     act->flags |= 0x20000;
@@ -572,13 +572,13 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     act->unk16E[0] = gSpawnEntryTable[idx].shadowScaleX;
     act->unk16E[1] = gSpawnEntryTable[idx].shadowScaleZ;
     v = gSpawnEntryTable[idx].wanderInterval;
-    st->unk22 = v;
-    st->unk23 = v;
-    st->unk1E = gSpawnEntryTable[idx].turnRate;
-    st->unk1F = gSpawnEntryTable[idx].moveYawRate;
-    st->unk21 = gSpawnEntryTable[idx].wanderDegrees;
-    st->unk35 = gSpawnEntryTable[idx].acceleration;
-    st->unk37 = gSpawnEntryTable[idx].engageState;
+    st->wanderTimer = v;
+    st->wanderInterval = v;
+    st->turnRate = gSpawnEntryTable[idx].turnRate;
+    st->moveYawRate = gSpawnEntryTable[idx].moveYawRate;
+    st->wanderDegrees = gSpawnEntryTable[idx].wanderDegrees;
+    st->acceleration = gSpawnEntryTable[idx].acceleration;
+    st->engageState = gSpawnEntryTable[idx].engageState;
     act->state = node->actorState;
     act->unk155 = 0;
     switch (type) {
@@ -657,7 +657,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
         case 0x89:
         case 0xA5:
             if (node->actorState != 4) {
-                st->unk37 = 7;
+                st->engageState = 7;
             }
             break;
         case 0xD4:
@@ -670,9 +670,9 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
             break;
     }
     if (gPlayerCount >= 2) {
-        st->unk4 = gPlayerSlots[(randomNonNegative() >> 0xF) % gPlayerCount].actor;
+        st->targetActor = gPlayerSlots[(randomNonNegative() >> 0xF) % gPlayerCount].actor;
     } else {
-        st->unk4 = gPrimaryPlayerActor;
+        st->targetActor = gPrimaryPlayerActor;
     }
     node->unk34 = 0.75f;
     act->floorY = node->y;
@@ -1001,7 +1001,7 @@ void spawnNodesUpdate(void) {
             actorDespawn(node->actor);
         } else if (active) {
             bestDistSq = 0xF423F;
-            if ((gBehaviourWorkState->unk4->collisionFlags & 1) && (gBehaviourWorkState->unk4->state == 0x67)) {
+            if ((gBehaviourWorkState->targetActor->collisionFlags & 1) && (gBehaviourWorkState->targetActor->state == 0x67)) {
                 if ((node->actor->collisionFlags & 2) && (node->state == 5)) {
                     if ((node->actor->state != 0x16) && (node->actor->state != 0x37) && !(node->flags & 0x40)) {
                         node->actor->state = 0x16;
@@ -1017,7 +1017,7 @@ void spawnNodesUpdate(void) {
                     distSq = (s32)((dz * dz) + (dx * dx));
                     if ((distSq < bestDistSq) || (primaryState->surfaceTimer != 0)) {
                         bestDistSq = distSq;
-                        gBehaviourWorkState->unk4 = gPlayerSlots[p].actor;
+                        gBehaviourWorkState->targetActor = gPlayerSlots[p].actor;
                     }
                 }
             }

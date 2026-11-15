@@ -732,7 +732,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     if (slide == 0) {
                         fc += fd * 400.0;
                     }
-                    j = gPlayerInventoryTable[0].kong[hud->kong].unk42[D_80750560[hud->worldIndex[i]]];
+                    j = gPlayerInventoryTable[0].kong[hud->kong].goldenBananas[D_80750560[hud->worldIndex[i]]];
                     dl = hudDrawCountPair(0x2A8, (s32)(slide + fc), j, 5, dl, 0, 0.8f);
                 }
             }
@@ -749,7 +749,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 }
                 cnt = 0;
                 for (j = 0; j < 5; j++) {
-                    cnt += gPlayerInventoryTable[0].kong[j].unk42[D_80750560[hud->worldIndex[i]]];
+                    cnt += gPlayerInventoryTable[0].kong[j].goldenBananas[D_80750560[hud->worldIndex[i]]];
                 }
                 if (hud->worldIndex[i] != 8) {
                     fadeInput4 = hud->carouselProgress;
@@ -893,32 +893,32 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             idx = 7;
         }
         if (idx != 7 && flagGet(0x18B, 0)) {
-            hudPauseMenuAddCounter(iconObj, 0x1E, 0x1E, 0xC, -0xA, e2->unkA[idx], 1, 0);
+            hudPauseMenuAddCounter(iconObj, 0x1E, 0x1E, 0xC, -0xA, e2->coloredBananas[idx], 1, 0);
             hudPauseMenuSpawnIcon(iconObj, 0, 0x1E, 0x1E, 0.75f, 2, 1);
         }
         if (flagGet(0x184, 0)) {
-            hudPauseMenuAddCounter(iconObj, 0x1E, 0x5A, 0xC, -0xA, gPlayerInventoryTable[0].unk2F4, 1, 1);
+            hudPauseMenuAddCounter(iconObj, 0x1E, 0x5A, 0xC, -0xA, gPlayerInventoryTable[0].throwAmmo, 1, 1);
             hudPauseMenuSpawnIcon(iconObj, 4, 0x1E, 0x5A, 0.75f, 2, 1);
         }
-        if (e2->unk0[2] != 0) {
-            hudPauseMenuAddCounter(iconObj, 0x1E, 0x7D, 0xC, -0xA, gPlayerInventoryTable[0].unk2F0, 1, 1);
+        if (e2->weaponFlags != 0) {
+            hudPauseMenuAddCounter(iconObj, 0x1E, 0x7D, 0xC, -0xA, gPlayerInventoryTable[0].ammo, 1, 1);
             hudPauseMenuSpawnIcon(iconObj, 2, 0x1E, 0x7D, 0.65f, 2, 1);
         }
         if (func_806F6E58(gPlayerCharacterId)) {
             f = slotQueueGetCountStep(5);
-            hudPauseMenuAddCounter(iconObj, 0x1E, 0xA0, 0xC, -0xA, (s32)floatCeil((f32)(u32)gPlayerInventoryTable[0].unk2F6 / f), 1, 1);
+            hudPauseMenuAddCounter(iconObj, 0x1E, 0xA0, 0xC, -0xA, (s32)floatCeil((f32)(u32)gPlayerInventoryTable[0].abilityEnergy / f), 1, 1);
             hudPauseMenuSpawnIcon(iconObj, 5, 0x1E, 0xA0, 0.65f, 2, 1);
         }
         if (flagGet(0x18C, 0)) {
-            hudPauseMenuAddCounter(iconObj, 0x122, 0x5A, -0xF, -0xA, e2->unk6, 1, 0x80);
+            hudPauseMenuAddCounter(iconObj, 0x122, 0x5A, -0xF, -0xA, e2->coins, 1, 0x80);
             hudPauseMenuSpawnIcon(iconObj, 1, 0x122, 0x5A, 0.75f, 2, 1);
         }
-        if (ent->unk0[4] & 1) {
-            hudPauseMenuAddCounter(iconObj, 0x122, 0x7D, -0xC, -0xA, ent->unk8, 2, 0x81);
+        if (ent->instrumentFlags & 1) {
+            hudPauseMenuAddCounter(iconObj, 0x122, 0x7D, -0xC, -0xA, ent->instrumentEnergy, 2, 0x81);
             hudPauseMenuSpawnIcon(iconObj, 7, 0x122, 0x7D, 0.75f, 2, 7);
         }
         if (flagGet(0x179, 0)) {
-            hudPauseMenuAddCounter(iconObj, 0x122, 0xA0, -0xC, -0xA, gPlayerInventoryTable[0].unk2F8, 1, 0x81);
+            hudPauseMenuAddCounter(iconObj, 0x122, 0xA0, -0xC, -0xA, gPlayerInventoryTable[0].cameraFilm, 1, 0x81);
             hudPauseMenuSpawnIcon(iconObj, 6, 0x122, 0xA0, 0.65f, 2, 1);
         }
         if (D_807FC828 > 0) {
@@ -931,14 +931,14 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         if (idx != 7) {
             i = idx;
             if (idx != 8) {
-                hudPauseMenuAddCounter(iconObj, 0x1E, 0x2A, 0xC, -0xA, ent->unkA[idx] + ent->unk26[idx], 2, 0);
+                hudPauseMenuAddCounter(iconObj, 0x1E, 0x2A, 0xC, -0xA, ent->coloredBananas[idx] + ent->bananasDelivered[idx], 2, 0);
                 hudPauseMenuSpawnIcon(iconObj, 0, 0x1E, 0x2A, 0.75f, 2, 2);
             } else {
                 i = 7;
             }
             if (D_807FC82E > 0) {
                 if (idx != 8) {
-                    D_807FC80F = (gPlayerInventoryTable[0].kong[gPlayerCharacterId].unkA[idx] + gPlayerInventoryTable[0].kong[gPlayerCharacterId].unk26[idx]) >= 0x4B;
+                    D_807FC80F = (gPlayerInventoryTable[0].kong[gPlayerCharacterId].coloredBananas[idx] + gPlayerInventoryTable[0].kong[gPlayerCharacterId].bananasDelivered[idx]) >= 0x4B;
                 } else {
                     D_807FC80F = flagGridSumRows(0x225, i, i, gPlayerCharacterId);
                 }
@@ -989,8 +989,8 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         sum = 0;
         sum3 = 0;
         for (i = 0; i < 5; i++) {
-            sum += (gPlayerInventoryTable[0].kong + i)->unkA[idx] + (gPlayerInventoryTable[0].kong + i)->unk26[idx];
-            sum3 += (gPlayerInventoryTable[0].kong + i)->unk42[idx];
+            sum += (gPlayerInventoryTable[0].kong + i)->coloredBananas[idx] + (gPlayerInventoryTable[0].kong + i)->bananasDelivered[idx];
+            sum3 += (gPlayerInventoryTable[0].kong + i)->goldenBananas[idx];
         }
         cnt8 = 0;
         for (i = 0; i < 4; i++) {
@@ -1016,7 +1016,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             i = 0;
             do {
                 if (idx != 8) {
-                    D_807FC80F = ((gPlayerInventoryTable[0].kong + i)->unkA[idx] + (gPlayerInventoryTable[0].kong + i)->unk26[idx]) >= 0x4B;
+                    D_807FC80F = ((gPlayerInventoryTable[0].kong + i)->coloredBananas[idx] + (gPlayerInventoryTable[0].kong + i)->bananasDelivered[idx]) >= 0x4B;
                 } else {
                     D_807FC80F = flagGridSumRows(0x225, j, j, i);
                 }
@@ -1339,7 +1339,7 @@ void hudPauseMenuRefreshTotals(void) {
     n = 0;
     for (k = 0; k < 5; k++) {
         for (i = 0; i < 14; i++) {
-            n += gPlayerInventoryTable[0].kong[k].unk42[i];
+            n += gPlayerInventoryTable[0].kong[k].goldenBananas[i];
         }
     }
     D_807FC828 = n;
