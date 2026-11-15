@@ -95,22 +95,13 @@ void eepromCopySlot(void) {
     u8 replacement;
     u8 *src;
     u8 *dst;
-    s32 size;
-    s32 stride;
 
     original = eepromGetSectorForSlot(gEepromCurrentSlot);
     replacement = eepromGetSectorForSlot(3);
     if (((menuIsTransitionType6() != 0) || (menuIsTransitionType7Or9() != 0)) && (original != replacement)) {
-        stride = D_807ECEA0[0];
-        stride += 0x6B7;
-        stride = (stride & ~0x3F) + 0x27;
-        stride = stride & ~7;
-        stride = stride / 8;
-        size = stride;
-        src = sEepromSlotBuffer + (size * original);
-        dst = sEepromSlotBuffer + (size * replacement);
-        stride = stride | 0; // FAKE: no-code def extends the live range of stride past dst (keeps the quotient in v0, original in a3)
-        memcpy(dst, src, size);
+        src = &sEepromSlotBuffer[(((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * original];
+        dst = &sEepromSlotBuffer[(((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * replacement];
+        memcpy(dst, src, ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
         D_807EDEA8[replacement] ^= D_807EDEA8[original];
         D_807EDEA8[original] ^= D_807EDEA8[replacement];
         D_807EDEA8[replacement] ^= D_807EDEA8[original];
@@ -489,7 +480,7 @@ extern u8 D_80744530;
 
 
 void eepromValidateSaveSlots(void) {
-    s32 pad;
+    u32 globalOk;
     u8 found;
     u16 off;
     s32 i;
@@ -516,7 +507,7 @@ void eepromValidateSaveSlots(void) {
         ok = 1;
         off = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * i;
         data = off + D_807ED6A8;
-        idx = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * (j = i + 1)) / 4) - 1;
+        idx = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * (j = i + 1)) / 4) - 1;  // FAKE: dead embedded store to j (pre-existing, now tagged) puts i + 1 first in multu s2,t9 at 0x14b4 (Q0519); plain i + 1 in either operand order gives multu t9,s2
         stored = ((u32 *)D_807ED6A8)[idx];
         len = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) - 4;
         hit = eepromCalculateCrc32(data, len);
@@ -528,12 +519,11 @@ void eepromValidateSaveSlots(void) {
         failed |= (ok == 0);
         valid[i] = ok;
     }
-    ok = 0;  // FAKE: dead store (pre-existing, now tagged); ok is redefined in the third loop before any read, but removing this def recolours ok/stored and the loop index
     for (i = 0; i < 4; i++) {
         if (valid[i] != 0) {
             if (eepromGetField(0xD, 0, 0, i) != 0) {
                 found = version = eepromGetField(0xF, 0, 0, i);
-                if (ok = D_80744530) {}  // FAKE: dead def of ok in the third loop keeps ok in s0 and stored in s1 (one steer for the old ok = ok | 0 and if (D_80744530) {})
+                if (version) {}  // FAKE: dead test adds blocks to the live ranges of version, i and j (version adjsave 42 to 35), so i, found and version colour s4, s5, s6 instead of version first
                 for (j = 0; j < 4 && found == version; j++) {
                     if (j != i && valid[j] != 0) {
                         slot2 = j;
@@ -569,16 +559,16 @@ void eepromValidateSaveSlots(void) {
     for (j = 0; j < 4; j++) {
         D_807EDEA8[j] = sectorOrder[j];
     }
-    ok = 1;
+    globalOk = 1;
     off = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
     idx = (((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8) + 0x40) / 4 - 1;
     stored = ((u32 *)D_807ED6A8)[idx];
     hit = eepromCalculateCrc32(D_807ED6A8 + off, 0x3C);
     if (stored != hit) {
-        ok = 0;
+        globalOk = 0;
         eepromResetGlobalData();
     }
-    failed |= (ok == 0);
+    failed |= (globalOk == 0);
     sLanguageIndex = eepromGetField(0x1F, 0, 0, 0);
     D_80744530 = eepromGetField(0x20, 0, 0, 0);
     if (sLanguageIndex > 0) {
