@@ -39,8 +39,8 @@ typedef struct BonusShooterState {
     s16 crosshairY;
     u8 aimSlot;
     u8 ammoCount;
-    u8 unk24;
-    u8 unk25;
+    u8 bannerTextAlpha; // 0xFF on state 0xFE, then fades: text 0x1A entry 8 (target game) / 7 (Turtle Trouble)
+    u8 reloadTextAlpha; // 0xFF when fire is pressed with no ammo, then fades: text 0x1A entry 6
     u8 showCrosshair;
 } BonusShooterState;
 // Actor storage beyond the 0x178-byte Actor view (bonus actors keep a second payload pointer here).
@@ -67,11 +67,7 @@ typedef struct BonusTargetState {
 
 
 typedef struct BonusTargetGameState {
-    Actor *targets[6];
-    char pad18[3];
-    u8 unk1B;
-    u8 unk1C;
-    char pad1D[3];
+    Actor *targets[8]; // one per spawn point (gMinecartTrackPoints[1..8]); bonusTargetGameUpdate rolls idx = r % 8
     s16 shownCount;
     s16 targetsLeft;
     u8 rollTimer;
@@ -97,8 +93,8 @@ extern u8 D_2000180[];
 extern u8 D_20000C0[];
 extern u8 gCurrentPlayerIndex;
 extern s16 D_8002D8C8[]; // bonusLightFlashSpawnTargets spawn ids (6)
-extern s16 D_8002D8D4[];
-extern s16 D_8002D8E0[];
+extern s16 D_8002D8D4[]; // light-flash target script per slot, started at spawn and on re-arm (slot 5: none)
+extern s16 D_8002D8E0[]; // light-flash target script per slot when shot (slot 5: none)
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
 extern f32 D_8002D90C;
@@ -148,26 +144,26 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *actor) {
     if (actor->state != 1) {
         gdl = hudDrawRollingCounter(textDrawAnimated(gdl, targetExt->counterTextId, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &targetExt->shownCount, targetExt->targetsLeft, &targetExt->rollTimer);
     }
-    if (bonusExt->unk25 != 0) {
+    if (bonusExt->reloadTextAlpha != 0) {
         textX = gScreenWidth >> 1;
         textStr = textTableGetString(0x1A, 6, 1);
         gDPPipeSync(gdl++);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->unk25);
+        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->reloadTextAlpha);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
         textX -= textGetStringWidth(1, textStr) >> 1;
         gdl = textDrawStringVtx(gdl, 1, textX << 2, (gScreenHeight - textGetFontHeight(1)) * 2, textStr, 1);
-        bonusExt->unk25 -= (bonusExt->unk25 < 8) ? bonusExt->unk25 : 8;
+        bonusExt->reloadTextAlpha -= (bonusExt->reloadTextAlpha < 8) ? bonusExt->reloadTextAlpha : 8;
     }
-    if (bonusExt->unk24 != 0) {
+    if (bonusExt->bannerTextAlpha != 0) {
         textX2 = gScreenWidth >> 1;
         textStr = textTableGetString(0x1A, 8, 1);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->unk24);
+        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->bannerTextAlpha);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
         textX2 -= textGetStringWidth(1, textStr) >> 1;
         gdl = textDrawStringVtx(gdl, 1, textX2 << 2, (textGetFontHeight(1) + gScreenHeight) * 2, textStr, 1);
-        bonusExt->unk24 -= (bonusExt->unk24 < 8) ? bonusExt->unk24 : 8;
+        bonusExt->bannerTextAlpha -= (bonusExt->bannerTextAlpha < 8) ? bonusExt->bannerTextAlpha : 8;
     }
     return gdl;
 }
@@ -192,8 +188,8 @@ typedef struct TurtleTroubleSnake {
     s8 slowDelay;
     u8 slowDelayStart;
     char pad12[2];
-    f32 unk14;
-    f32 unk18;
+    f32 fallBlend;  // 0 -> 1 in 0.1 steps once the turtle has fallen; bones 4-6 weight
+    f32 tiredBlend; // eases toward the slowdown factor (unk155 == 0) or 0; bones 0xC/0xE weight
     u8 hitTimer;
 } TurtleTroubleSnake;
 // Turtle Trouble game state (the game actor's second component at 0x178).
@@ -224,27 +220,27 @@ Gfx *bonusRenderTurtleTroubleHud(Gfx *gdl, Actor *actor) {
             gdl = bonusRenderCrosshair(gdl, actor);
         }
     }
-    if (bonusExt->unk25 != 0) {
+    if (bonusExt->reloadTextAlpha != 0) {
         textX = gScreenWidth >> 1;
         textStr = textTableGetString(0x1A, 6, 1);
         gDPPipeSync(gdl++);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->unk25);
+        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->reloadTextAlpha);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
         textX -= textGetStringWidth(1, textStr) >> 1;
         gdl = textDrawStringVtx(gdl, 1, textX << 2, (gScreenHeight - textGetFontHeight(1)) * 2, textStr, 1);
-        bonusExt->unk25 -= (bonusExt->unk25 < 8) ? bonusExt->unk25 : 8;
+        bonusExt->reloadTextAlpha -= (bonusExt->reloadTextAlpha < 8) ? bonusExt->reloadTextAlpha : 8;
     }
-    if (bonusExt->unk24 != 0) {
+    if (bonusExt->bannerTextAlpha != 0) {
         textX = gScreenWidth >> 1;
         textStr = textTableGetString(0x1A, 7, 1);
         gDPPipeSync(gdl++);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->unk24);
+        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->bannerTextAlpha);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
         textX -= textGetStringWidth(1, textStr) >> 1;
         gdl = textDrawStringVtx(gdl, 1, textX << 2, (textGetFontHeight(1) + gScreenHeight) * 2, textStr, 1);
-        bonusExt->unk24 -= (bonusExt->unk24 < 8) ? bonusExt->unk24 : 8;
+        bonusExt->bannerTextAlpha -= (bonusExt->bannerTextAlpha < 8) ? bonusExt->bannerTextAlpha : 8;
     }
     for (i = 0; i < 6; i++) {
         snakeActor = game->snakes[i];
@@ -451,12 +447,12 @@ void bonusTargetGameUpdate(void) {
         }
         p = *gMinecartTrackPoints + bonusExt->aimSlot;
         if (bonusAimAndFire(p->x, p->y, p->z) == 2) {
-            bonusExt->unk25 = 0xFF;
+            bonusExt->reloadTextAlpha = 0xFF;
             sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
         switch (gCurrentActor->state) {
         case 0:
-            if ((gCurrentActor->parentActor)->state == 5) {
+            if (gCurrentActor->parentActor->state == 5) {
                 gCurrentActor->state = 0xFF;
             }
             if (game->targetsLeft == 0) {
@@ -466,17 +462,17 @@ void bonusTargetGameUpdate(void) {
             } else if (game->spawnThreshold < (randomNonNegative() >> 0xF) % 100) {
                 r = (randomNonNegative() >> 0xF) % 0xFF;
                 idx = r % 8;
-                if (game->targets[idx] == 0) {
+                if (game->targets[idx] == NULL) {
                     p = *gMinecartTrackPoints + idx + 1;
                     bonusSpawnTarget(p->x, p->y, p->z, idx, game);
                 }
             }
-            if ((gCurrentActor->parentActor)->state == 4 && (gCurrentActor->parentActor)->unk155 != 0xFF) {
+            if (gCurrentActor->parentActor->state == 4 && gCurrentActor->parentActor->unk155 != 0xFF) {
                 gCurrentActor->state = 0xFE;
             }
             break;
         case 0xFE:
-            bonusExt->unk24 = 0xFF;
+            bonusExt->bannerTextAlpha = 0xFF;
             sfxPlayOnFreeSlot(0x142, 0x7FFF, 63.0f, 1.0f, 0, 0);
             gCurrentActor->state = 0;
             break;
@@ -597,16 +593,16 @@ void bonusTurtleTroubleGameUpdate(void) {
             }
             break;
         case 2:
-            bonusExt->unk25 = 0xFF;
+            bonusExt->reloadTextAlpha = 0xFF;
             sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         }
         switch (gCurrentActor->state) {
         case 0:
-            if ((gCurrentActor->parentActor)->state == 5) {
+            if (gCurrentActor->parentActor->state == 5) {
                 gCurrentActor->state = 0xFF;
             }
-            if ((gCurrentActor->parentActor)->state == 4 && (gCurrentActor->parentActor)->unk155 != 0xFF) {
+            if (gCurrentActor->parentActor->state == 4 && gCurrentActor->parentActor->unk155 != 0xFF) {
                 gCurrentActor->state = 0xFE;
             }
             break;
@@ -617,7 +613,7 @@ void bonusTurtleTroubleGameUpdate(void) {
             gCurrentActor->unk155 = 0;
             break;
         case 0xFE:
-            bonusExt->unk24 = 0xFF;
+            bonusExt->bannerTextAlpha = 0xFF;
             gCurrentActor->state = 0;
             break;
         case 0xFF:
@@ -653,34 +649,34 @@ void bonusTurtleTroubleGameUpdate(void) {
 }
 
 void bonusTargetUpdate(void) {
-    BonusTargetState *sub = gCurrentActor->customState;
-    BonusTargetGameState *p = sub->game;
+    BonusTargetState *target = gCurrentActor->customState;
+    BonusTargetGameState *game = target->game;
     s32 step;
 
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unk144 = 0x24;
     }
-    currentActorAnimTryIdleVariant(0, &sub->lastFrame);
+    currentActorAnimTryIdleVariant(0, &target->lastFrame);
     switch (gCurrentActor->state) {
     case 0:
         if (gActorGlobalState.unk15 != 0) {
-            if (p->targetsLeft - ((sub->targetType != 0) ? 2 : 1) < 0) {
-                p->targetsLeft = 0;
+            if (game->targetsLeft - ((target->targetType != 0) ? 2 : 1) < 0) {
+                game->targetsLeft = 0;
             } else {
-                step = (sub->targetType != 0) ? 2 : 1;
-                p->targetsLeft -= step;
+                step = (target->targetType != 0) ? 2 : 1;
+                game->targetsLeft -= step;
             }
-            func_806FDAB8(p->counterTextId, 3.1415927f);
-            actorScriptStart(gCurrentActor, (sub->targetType != 0) ? 0x212 : 0x210);
+            func_806FDAB8(game->counterTextId, 3.1415927f);
+            actorScriptStart(gCurrentActor, (target->targetType != 0) ? 0x212 : 0x210);
             gCurrentActor->state = 1;
             gCurrentActor->unk155 = 0;
         } else if (gCurrentActor->unk155 != 0) {
-            bonusDespawnTarget(sub, p);
+            bonusDespawnTarget(target, game);
         }
         break;
     case 1:
         if (gCurrentActor->unk155 != 0) {
-            bonusDespawnTarget(sub, p);
+            bonusDespawnTarget(target, game);
         }
         break;
     }
@@ -761,10 +757,10 @@ void bonusTurtleTroubleSnakeUpdate(void) {
     }
     snake->spinSpeed = snake->spinSpeed + (snake->spinTarget - snake->spinSpeed) * 0.3;
     if (turtle->fallen != 0) {
-        if (snake->unk14 < 1.0f) {
-            snake->unk14 += 0.1f;
-        } else if (snake->unk14 > 1.0f) {
-            snake->unk14 = 1.0f;
+        if (snake->fallBlend < 1.0f) {
+            snake->fallBlend += 0.1f;
+        } else if (snake->fallBlend > 1.0f) {
+            snake->fallBlend = 1.0f;
         }
     } else if (snake->hitTimer != 0) {
         snake->hitTimer--;
@@ -779,7 +775,7 @@ void bonusTurtleTroubleSnakeUpdate(void) {
         invScale = 1.0f - ((snake->spinSpeed - 40.0f) / 235.0f);
         fx = mathSinF(snake->turtle->yaw) * (5000.0f * invScale + 150.0f);
         fy = mathCosF(snake->turtle->yaw) * (5000.0f * invScale + 150.0f);
-        zOffset = snake->unk14 * 128.0f + -128.0f;
+        zOffset = snake->fallBlend * 128.0f + -128.0f;
         if (fx < 0.0f) {
             fx = 65535.0f + fx;
         }
@@ -805,21 +801,21 @@ void bonusTurtleTroubleSnakeUpdate(void) {
         }
         switch (gCurrentActor->unk155) {
         case 0:
-            snake->unk18 = snake->unk18 + (invScale - snake->unk18) * 0.1;
+            snake->tiredBlend = snake->tiredBlend + (invScale - snake->tiredBlend) * 0.1;
             break;
         case 1:
         case 2:
-            snake->unk18 = snake->unk18 + (0.0 - snake->unk18) * 0.1;
+            snake->tiredBlend = snake->tiredBlend + (0.0 - snake->tiredBlend) * 0.1;
             break;
         }
-        p->weight = snake->unk18 * -128.0f;
+        p->weight = snake->tiredBlend * -128.0f;
         p->bone = 0xE;
         p->rotX = 0x61A8;
         p->rotY = 0;
         p->rotZ = 0;
         p++;
         for (i = 0xC; i < 0xD; i++, p += 2) {
-            p->weight = snake->unk18 * -128.0f;
+            p->weight = snake->tiredBlend * -128.0f;
             p->bone = i;
             p->rotX = 0xD8F0;
             p->rotY = 0;
@@ -835,8 +831,8 @@ extern s16 D_8002D8C0[];
 void bonusTurtleTroubleTurtleUpdate(void) {
     TurtleTroubleTurtle *turtle = gCurrentActor->customState;
     TurtleTroubleSnake *snake = turtle->snake->customState;
-    f32 temp;
-    f64 v;
+    f32 wobble;
+    f64 bounceVolume;
     s16 idx;
     s32 volume;
 
@@ -875,8 +871,8 @@ void bonusTurtleTroubleTurtleUpdate(void) {
     } else {
         if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
             gCurrentActor->speedY = turtle->fallSpeed * -0.8f;
-            v = -turtle->fallSpeed * 1.5;
-            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, (v > 255.0) ? 255.0 : v, 0x7F, 0xA);
+            bounceVolume = -turtle->fallSpeed * 1.5;
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, (bounceVolume > 255.0) ? 255.0 : bounceVolume, 0x7F, 0xA);
         }
         gCurrentActor->speedY = gCurrentActor->speedY + gCurrentActor->accelY;
         turtle->fallSpeed = gCurrentActor->speedY;
@@ -888,12 +884,12 @@ void bonusTurtleTroubleTurtleUpdate(void) {
     if (gCurrentActor->yaw >= 0x1000) {
         gCurrentActor->yaw -= 0x1000;
     }
-    temp = 30000.0f / snake->spinSpeed;
-    gCurrentActor->pitch = mathSinF(gCurrentActor->yaw) * -temp;
-    gCurrentActor->roll = mathCosF(gCurrentActor->yaw) * temp;
-    temp = temp * 0.006666667f;
-    temp = (temp < 1.0f) ? 1.0f : ((temp > 2.5f) ? 2.5f : temp);
-    scriptSetActorRampTarget(gCurrentActor, temp, 0.0f);
+    wobble = 30000.0f / snake->spinSpeed;
+    gCurrentActor->pitch = mathSinF(gCurrentActor->yaw) * -wobble;
+    gCurrentActor->roll = mathCosF(gCurrentActor->yaw) * wobble;
+    wobble = wobble * 0.006666667f;
+    wobble = (wobble < 1.0f) ? 1.0f : ((wobble > 2.5f) ? 2.5f : wobble);
+    scriptSetActorRampTarget(gCurrentActor, wobble, 0.0f);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -1062,7 +1058,7 @@ void bonusLightFlashGameUpdate(void) {
         case 1:
             break;
         case 2:
-            bonusExt->unk25 = 0xFF;
+            bonusExt->reloadTextAlpha = 0xFF;
             sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         }
@@ -1071,7 +1067,7 @@ void bonusLightFlashGameUpdate(void) {
             if (game->shownCount == 0) {
                 gCurrentActor->state = 2;
             }
-            if ((gCurrentActor->parentActor)->state == 5) {
+            if (gCurrentActor->parentActor->state == 5) {
                 gCurrentActor->state = 1;
             }
             break;
@@ -1227,7 +1223,7 @@ void bonusLightFlashTargetUpdate(void) {
     f32 lightB;
     TargetVec3f *p;
     s8 isHit;
-    s8 flags;
+    s8 slotEntry;
 
     subExt = gCurrentActor->customState;
     owner = subExt->game;
@@ -1254,9 +1250,9 @@ void bonusLightFlashTargetUpdate(void) {
         isHit = 1;
     }
     if (subExt->slot != 5) {
-        flags = base->slotOrder[subExt->slot];
-        if (flags & 0x80) {
-            base->slotOrder[subExt->slot] = flags & 0x7F;
+        slotEntry = base->slotOrder[subExt->slot];
+        if (slotEntry & 0x80) {
+            base->slotOrder[subExt->slot] = slotEntry & 0x7F;
             actorScriptStart(gCurrentActor, D_8002D8D4[subExt->slot]);
         } else if (lightR < 0.05f && gCurrentActor->sub4->scriptStart != NULL) {
             actorScriptStart(gCurrentActor, 0);
@@ -1272,7 +1268,7 @@ void bonusLightFlashTargetUpdate(void) {
     } else {
         gCurrentActor->flags |= 0x1000;
         gCurrentActor->yaw += 0x12C;
-        if (base->flashTimer < -0x1C) {
+        if (base->flashTimer < -28) {
             gCurrentActor->state = 0;
         }
         scale = gCurrentActor->sub4->scaleX;
@@ -1300,7 +1296,7 @@ void bonusLightFlashTargetUpdate(void) {
 // customState of the Peril Path Panic klaptraps (0x148) and fairies (0x149).
 typedef struct {
     Actor *game;
-    s8 unk4;
+    s8 caughtTimer; // fairy: 8 when a klaptrap snaps it, counts down (shrinks below 4, despawns at 0); klaptrap: spawn slot 1-6, never read
     char pad5;
     s16 snapTimer;
 } PathPanicActorState;
@@ -1353,7 +1349,7 @@ void bonusPerilPathPanicGameUpdate(void) {
                 PathPanicActorState *u = gSpawnedActor->customState;
 
                 u->game = gCurrentActor;
-                u->unk4 = i;
+                u->caughtTimer = i;
                 p = *gMinecartTrackPoints + i;
                 gSpawnedActor->x = p->x;
                 gSpawnedActor->y = p->y;
@@ -1418,7 +1414,7 @@ void bonusPerilPathPanicGameUpdate(void) {
         case 1:
             break;
         case 2:
-            bonusExt->unk25 = 0xFF;
+            bonusExt->reloadTextAlpha = 0xFF;
             sfxPlayOnFreeSlot(0x3BC, 0x7FFF, 63.0f, 1.0f, 0, 0);
             break;
         }
@@ -1427,7 +1423,7 @@ void bonusPerilPathPanicGameUpdate(void) {
             if (game->shownCount == 0) {
                 gCurrentActor->state = 2;
             }
-            if ((gCurrentActor->parentActor)->state == 5) {
+            if (gCurrentActor->parentActor->state == 5) {
                 gCurrentActor->state = 1;
             }
             break;
@@ -1482,7 +1478,7 @@ void bonusPerilPathPanicKlaptrapUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         actorScriptStart(gCurrentActor, 0x239);
         gCurrentActor->unk144 = 0x24;
-        modelData = gCurrentActor->sub4;
+        modelData = gCurrentActor->sub4; // ORIG: the target reloads sub4 only on this path (lw t2,0(s4) / lw v0,4(t2) at 0x4484-0x4488); without it the lhu animId reuses the first v0 and the block shrinks by 16 bytes
     }
     animScript = modelData->animId;
     if (animScript == 0x239) {
@@ -1493,7 +1489,7 @@ void bonusPerilPathPanicKlaptrapUpdate(void) {
                 dy = targetActor->y - gCurrentActor->y;
                 if (dx < 5.0 && dx > -5.0 && dy < 20.0f && dy > -20.0) {
                     targetExt = targetActor->customState;
-                    targetExt->unk4 = 8;
+                    targetExt->caughtTimer = 8;
                     actorScriptStart(gCurrentActor, 0x23B);
                 }
             }
@@ -1525,7 +1521,7 @@ void bonusPerilPathPanicFairyUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         actorScriptStart(gCurrentActor, 0x2B5);
     }
-    if (subExt->unk4 == 0 || subExt->unk4 >= 5) {
+    if (subExt->caughtTimer == 0 || subExt->caughtTimer >= 5) {
         gCurrentActor->x = gCurrentActor->x - 1.5;
     }
     p = *gMinecartTrackPoints + 3;
@@ -1535,17 +1531,17 @@ void bonusPerilPathPanicFairyUpdate(void) {
         }
         actorDespawn(gCurrentActor);
     }
-    if (subExt->unk4 != 0) {
-        subExt->unk4 -= 1;
-        if (subExt->unk4 < 4) {
-            if (subExt->unk4 == 3) {
+    if (subExt->caughtTimer != 0) {
+        subExt->caughtTimer -= 1;
+        if (subExt->caughtTimer < 4) {
+            if (subExt->caughtTimer == 3) {
                 sfxPlayOnFreeSlot(0x2D2, 0x7FFF, 63.0f, 7.12f, 0, 1);
             }
             gCurrentActor->sub4->scaleX *= 0.8f;
             gCurrentActor->sub4->scaleY *= 0.8f;
             gCurrentActor->sub4->scaleZ *= 0.8f;
         }
-        if (subExt->unk4 == 0) {
+        if (subExt->caughtTimer == 0) {
             actorDespawn(gCurrentActor);
         }
     }
