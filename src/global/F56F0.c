@@ -489,7 +489,7 @@ s32 playerWeaponCalculateTrajectory26(Actor *actor, KongChain *state, s32 mode) 
         if (ret != 0) {
             return mode == state->kind;
         }
-    } // FAKE: no final return keeps ret in $v0 (same idiom as func_80026250)
+    } // ORIG: no final return; the target falls through with ret in $v0 (0x1170 sltu v0 -> beqz v0, 0x1188 move v0,t8 in the beqz delay slot, then 0x1198 jr ra)
 }
 
 f32 mathAngleRadDeltaTurns(f32 *prevAngle, f32 angle) {
