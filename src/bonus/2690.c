@@ -84,20 +84,14 @@ typedef struct {
     u8 slot;
 } LightFlashTargetState;
 
-extern s16 D_8002D900;
-
 void func_806FDAB8(u8, f32);  // FAKE: callee prototype steer
 
 extern u8 D_1000118[];
 extern u8 D_2000180[];
 extern u8 D_20000C0[];
 extern u8 gCurrentPlayerIndex;
-extern s16 sLightFlashTargetModels[]; // bonusLightFlashSpawnTargets spawn ids (6)
-extern s16 sLightFlashTargetScripts[]; // light-flash target script per slot, started at spawn and on re-arm (slot 5: none)
-extern s16 sLightFlashTargetHitScripts[]; // light-flash target script per slot when shot (slot 5: none)
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
-extern f32 D_8002D90C;
 extern u8 D_8071FFD4[];
 
 extern Actor *gSpawnedActor;
@@ -826,7 +820,7 @@ void bonusTurtleTroubleSnakeUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern s16 D_8002D8C0[];
+s16 D_8002D8C0[] = { 0x1B3, 0x1B4, 0x1B5 };
 
 void bonusTurtleTroubleTurtleUpdate(void) {
     TurtleTroubleTurtle *turtle = gCurrentActor->customState;
@@ -907,12 +901,15 @@ typedef struct {
     s16 targetsLeft;
 } BonusLightFlashState;
 
-extern s8 D_8002D8F4;
-extern s16 D_8002D8F8;
-extern s16 D_8002D8FC;
-extern s16 D_8002D8EC[];
+s16 sLightFlashTargetModels[] = { 4, 1, 6, 9, 0xC, 0xD5 }; // bonusLightFlashSpawnTargets spawn ids (6)
+s16 sLightFlashTargetScripts[] = { 0x336, 0x339, 0x342, 0x33F, 0x33C, -1 }; // light-flash target script per slot, started at spawn and on re-arm (slot 5: none)
+s16 sLightFlashTargetHitScripts[] = { 0x338, 0x33B, 0x344, 0x341, 0x33E, -1 }; // light-flash target script per slot when shot (slot 5: none)
+s16 D_8002D8EC[] = { 0x22C, 0x29B, 0xB9, 0xC2 };
 
 void bonusLightFlashGameUpdate(void) {
+    static s8 sFlashResetTime = 0x32;
+    static s16 sDarkBeepTimer = 0;
+    static s16 sDarkTicks = 0;
     BonusShooterState *bonusExt = gCurrentActor->customState;
     BonusLightFlashState *game = ((BonusActorExt *)gCurrentActor)->gameState;
     TargetVec3f *p;
@@ -923,7 +920,6 @@ void bonusLightFlashGameUpdate(void) {
     s32 j;
     s32 r;
     u8 c;
-    s16 d;
 
     if (!(gCurrentActor->flags & 0x10)) {
         bonusExt->ammoCount = 5;
@@ -931,19 +927,19 @@ void bonusLightFlashGameUpdate(void) {
         switch (gCurrentMap) {
         case 0x65:
             game->targetsLeft = 0xA;
-            D_8002D8F4 = 0x30;
+            sFlashResetTime = 0x30;
             break;
         case 0x8D:
             game->targetsLeft = 0xF;
-            D_8002D8F4 = 0x30;
+            sFlashResetTime = 0x30;
             break;
         case 0x8E:
             game->targetsLeft = 5;
-            D_8002D8F4 = 0x1E;
+            sFlashResetTime = 0x1E;
             break;
         case 0x8F:
             game->targetsLeft = 0xA;
-            D_8002D8F4 = 0x1E;
+            sFlashResetTime = 0x1E;
             break;
         }
         game->shownCount = game->targetsLeft;
@@ -987,24 +983,23 @@ void bonusLightFlashGameUpdate(void) {
         }
         lightSetColor(game->lightLevel, game->lightLevel, game->lightLevel, 0);
         if (game->lightLevel == 0.0f) {
-            j = (s16)(D_8002D8F8 - 1);
-            ((s16 *)&D_8002D8F4)[2] = j; // FAKE: storing through D_8002D8F4's base keeps the D_8002D8F8 lh/sh from sharing a hoisted lui/addiu base (Q0332)
-            if (j <= 0) {
+            if (--sDarkBeepTimer <= 0) {
                 sfxPlayOnFreeSlot(0x1A1, 0x7FFF, 63.0f, 1.0f, 0x50, 0);
-                j = randomLcgNext() & 3; if (gCurrentActor->state && gCurrentActor->state) {} if (j == 9) {} D_8002D8F8 = j + 2; // FAKE/LAYOUT: dead tests make j a coloured candidate (andi v1) and burn one ring temp (addiu t4); one line keeps the lw t0 reload below the sh
+                sDarkBeepTimer = (randomLcgNext() & 3) + 2;
             }
-            d = D_8002D8FC + 1;
-            ((s16 *)&D_8002D8F4)[4] = d; // FAKE: storing through D_8002D8F4's base keeps the D_8002D8FC lh/sh from sharing a hoisted lui/addiu base (Q0332)
-            if (d == 0xE) {
+            if (++sDarkTicks == 0xE) {
                 sfxPlayOnFreeSlot(D_8002D8EC[randomLcgNext() & 3], 0x7FFF, 63.0f, 1.0f, 0x14, 0);
             }
         } else {
-            if (randomFloat() < 0.5f) { D_8002D8FC = 0; }
-            else { d = -100; if (d) {} D_8002D8FC = d | 0; } // FAKE/LAYOUT: dead test and |0 keep d colored in v0; preserve this line.
-            j = 1; if (j) {} D_8002D8F8 = j | 0; // FAKE/LAYOUT: dead test and |0 keep j colored in v1; preserve this line.
+            if (randomFloat() < 0.5f) {
+                sDarkTicks = 0;
+            } else {
+                sDarkTicks = -100;
+            }
+            sDarkBeepTimer = 1;
         }
         if (game->flashTimer < -0x1E) {
-            game->flashTimer = D_8002D8F4;
+            game->flashTimer = sFlashResetTime;
             i = 0;
             do {
                 game->slotOrder[i] = -1;
@@ -1301,7 +1296,10 @@ typedef struct {
     s16 snapTimer;
 } PathPanicActorState;
 
-extern s8 D_8002D904;
+s16 D_8002D900 = 0;
+s8 D_8002D904 = 0;
+s32 D_8002D908 = 0;
+f32 D_8002D90C = 0.0f;
 
 void bonusPerilPathPanicGameUpdate(void) {
     BonusShooterState *bonusExt = gCurrentActor->customState;
