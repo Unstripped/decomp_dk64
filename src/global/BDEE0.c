@@ -716,20 +716,21 @@ void behaviourFairyPlaySound(void) {
     sfxAllocateChannel(0x3B, 1.0f);
 }
 
-typedef struct BDEE0Tbl {
-    u8 b[11];
-} BDEE0Tbl;
+// The fairy cutscene's spawn order: entry i (counted down from 10) is the spawn-node id - 0x22 of the i-th child.
+typedef struct FairySpawnOrder {
+    u8 nodeOffset[11];
+} FairySpawnOrder;
 
 extern PlayerState *gActivePlayerState;
 extern s32 gGlobalCutsceneFlags;
 
-extern BDEE0Tbl D_80750638;
+extern FairySpawnOrder D_80750638;
 
 void behaviourFairyWanderUpdate(void) {
     s16 i;
     s16 x;
     s16 y;
-    BDEE0Tbl tbl;
+    FairySpawnOrder order;
     u8 step;
     s32 alpha;
 
@@ -821,15 +822,15 @@ void behaviourFairyWanderUpdate(void) {
         if (gBehaviourWorkState->timer != 0) {
             gBehaviourWorkState->timer--;
         } else {
-            tbl = D_80750638;
+            order = D_80750638;
             step = 0xA - gCurrentActor->unk155;
             if (gCurrentActor->unk155 == 0xA) {
                 behaviourFairyPlaySound();
             }
             if (gCurrentActor->unk155) {
-                actorSpawnJitteredChild(tbl.b[gCurrentActor->unk155--] + 0x22, step * 8 + 0x64, step * 20 + 0xFA, D_807FDCA0->occupant);
+                actorSpawnJitteredChild(order.nodeOffset[gCurrentActor->unk155--] + 0x22, step * 8 + 0x64, step * 20 + 0xFA, D_807FDCA0->occupant);
             } else {
-                gCurrentActor->flags &= 0xFFFF7FFF;
+                gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->unk144 = 1;
                 gCurrentActor->state++;
                 camSetTarget(gCamActor, gCurrentActor, 4, 0x1129, 0x264, 0, 0, 0xAF, 0, 0, 1.0f);

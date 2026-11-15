@@ -185,15 +185,15 @@ void actorScriptedCommandUpdate(void) {
         state->particleScalePct = 0x64;
         playerKongStopAudioChannels(gCurrentActor, gCurrentActor->actorType);
         actorSetTargetSpeed(gCurrentActor, 0);
-        gCurrentActor->flags &= 0xFFFDFFFF;
+        gCurrentActor->flags &= ~0x20000;
         if (gCurrentMap == 0x4C) {
-            gCurrentActor->flags &= 0xFEFFFFFF;
+            gCurrentActor->flags &= ~0x1000000;
             gCurrentActor->flags |= 0x400;
         }
         gCurrentActor->accelY = D_807502E8;
     }
     if (gGameMode != 1 && gCurrentMap != 0x4C && gCurrentActor->actorType != 0xFE) {
-        gCurrentActor->flags &= 0xEFFFFFFF;
+        gCurrentActor->flags &= ~0x10000000;
         return;
     }
     if (gCurrentMap == 0x4C) {
@@ -355,12 +355,12 @@ void actorScriptedCommandUpdate(void) {
                     gCurrentActor->tintB = sScriptTintColors[cmd->param1].b;
                     break;
                 case 17:
-                    gCurrentActor->flags &= 0xFFFF7FFF;
+                    gCurrentActor->flags &= ~0x8000;
                     gCurrentActor->state = 0x37;
                     gCurrentActor->unk155 = 0;
                     break;
                 case 18:
-                    gCurrentActor->flags &= 0xFF7FFFFF;
+                    gCurrentActor->flags &= ~0x800000;
                     break;
                 case 26:
                     gBehaviourWorkState->targetActor = spawnNodeActivate(cmd->param1, 0);
@@ -901,7 +901,7 @@ void func_806C1E44(void) {
 
 extern f32 D_807502F4;
 extern s16 gCsModelIds[];
-extern u8 gPlayerCharacterId;
+extern u8 gPlayerCharacterId[];
 extern u8 D_8071FC40;
 
 void func_806C226C(void) {
@@ -963,16 +963,17 @@ void func_806C226C(void) {
                     actorScriptStart(gCurrentActor, 0x2A6);
                     gCurrentActor->roll = 0;
                     gCurrentActor->unk155++;
+                    /* fallthrough */
                 case 1:
                     if (actorIsTargetWithinDistance(0xC8) != 0) {
                         gCurrentActor->unk155++;
                         if (flagGet(0xC1, 0) != 0) {
-                            if (gPlayerCharacterId == 0 && flagGet(0xA5, 0) == 0) {
+                            if (gPlayerCharacterId[0] == 0 && flagGet(0xA5, 0) == 0) {
                                 resQueueAttachActor(gCurrentActor, 0x1C, 2);
-                            } else if (gPlayerCharacterId != 0) {
+                            } else if (gPlayerCharacterId[0] != 0) {
                                 resQueueAttachActor(gCurrentActor, 0x1C, 0);
                             }
-                        } else if (gPlayerCharacterId == 0) {
+                        } else if (gPlayerCharacterId[0] == 0) {
                             camStartPath(gCurrentActor, 0x1E, 1);
                             resQueueSetValue(1);
                             resQueueAttachActor(gCurrentActor, 0x1C, 1);
