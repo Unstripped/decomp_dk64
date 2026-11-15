@@ -1020,7 +1020,7 @@ void playerUpdateHorizontalVelocity(u8 apply) {
     f32 speed;
     f32 slope;
     s16 ang;
-    s16 m;
+    s16 yawDiff;
     RaceParticipant *tracker;
 
     switch (gCurrentActor->state) {
@@ -1035,7 +1035,7 @@ void playerUpdateHorizontalVelocity(u8 apply) {
             tracker = gActivePlayerState->actor->customState;
             gActivePlayerState->prevHasArcBounds = gCurrentActor->hasArcBounds;
             D_807FD586 = 0;
-            slope = mathSinF((s16)(s32)(gCurrentActor->floorSlopeFactor * 11.4)) * 10.0;
+            slope = mathSinF(gCurrentActor->floorSlopeFactor * 11.4) * 10.0;
             forward = gPlayerPadState[gCurrentPlayerIndex].stickY;
             if (forward < 0.0f) {
                 forward *= gCurrentActor->speedXZ / 1600.0;
@@ -1045,8 +1045,8 @@ void playerUpdateHorizontalVelocity(u8 apply) {
             } else {
                 forward /= 10.0;
             }
-            m = (ang - gCurrentActor->floorSlopeYaw > 0 ? ang - gCurrentActor->floorSlopeYaw : -(ang - gCurrentActor->floorSlopeYaw)) % 4096;
-            if ((m >= 0x401 && m < 0xC00) || !(gCurrentActor->contactFlags & 0x200)) {
+            yawDiff = (ang - gCurrentActor->floorSlopeYaw > 0 ? ang - gCurrentActor->floorSlopeYaw : -(ang - gCurrentActor->floorSlopeYaw)) % 4096;
+            if ((yawDiff >= 0x401 && yawDiff < 0xC00) || !(gCurrentActor->contactFlags & 0x200)) {
                 forward = 0.0f;
             }
             lateral = -gPlayerPadState[gCurrentPlayerIndex].stickX / 5.5;
@@ -1067,7 +1067,7 @@ void playerUpdateHorizontalVelocity(u8 apply) {
                 vz += mathCosF(gCurrentActor->moveYaw) * forward;
                 vx += mathCosF(gCurrentActor->moveYaw) * lateral;
                 vz -= mathSinF(gCurrentActor->moveYaw) * lateral;
-            } else if ((gCurrentActor->distToFloor > 30.0f || slope == 0.0f || m < 0x400 || m >= 0xC01) &&
+            } else if ((gCurrentActor->distToFloor > 30.0f || slope == 0.0f || yawDiff < 0x400 || yawDiff >= 0xC01) &&
                        tracker->maxProgressScore == tracker->progressScore) {
                 vx += (mathSinF(gActivePlayerState->targetYaw) * gActivePlayerState->maxSpeed) / 40.0;
                 vz += (mathCosF(gActivePlayerState->targetYaw) * gActivePlayerState->maxSpeed) / 40.0;
@@ -1076,10 +1076,10 @@ void playerUpdateHorizontalVelocity(u8 apply) {
             if (!(gCurrentActor->contactFlags & 0x1000) && speed > 700.0f) {
                 speed = 700.0f;
             }
-            lateral = mathAtan2(vx, vz); // FAKE: reusing lateral for the heading keeps the 0x50 frame (a heading local spills, 0x58)
+            ang = (mathAtan2(vx, vz) * 4096.0) / 6.2831855f;
             if (apply != 0) {
                 gCurrentActor->speedXZ = speed;
-                gCurrentActor->moveYaw = (s32)((lateral * 4096.0) / 6.2831855f);
+                gCurrentActor->moveYaw = ang;
                 if (gCurrentActor->contactFlags & 1) {
                     if (!(gCurrentActor->contactFlags & 0x200)) {
                         gActivePlayerState->decelRate = 20.0f;
@@ -1087,10 +1087,9 @@ void playerUpdateHorizontalVelocity(u8 apply) {
                         gActivePlayerState->decelRate = (gCurrentActor->speedXZ * gCurrentActor->speedXZ) / 35000.0;
                     }
                     playerApplyDeceleration();
-                    return;
                 }
             }
-            return;
+            break;
         default:
             if (gActivePlayerState->unkC2 >= 0x15) {
                 slope = gCurrentActor->floorSlopeFactor;
@@ -1109,14 +1108,14 @@ void playerUpdateHorizontalVelocity(u8 apply) {
             }
             gActivePlayerState->prevHasArcBounds = gCurrentActor->hasArcBounds;
             D_807FD586 = 0;
-            forward = mathSinF(ang) * speed; // FAKE: forward reused as the sin/cos temp steers FP regalloc (vx = a + b fails)
+            forward = mathSinF(ang) * speed; // ORIG: the target spills this product to the forward home 76(sp) at 0x3530 (the case arm keeps the stick forward there, 0x3108); a new local makes the frame 0x58
             vx = mathSinF(gCurrentActor->floorSlopeYaw) * slope;
             vx = forward + vx;
             forward = mathCosF(ang) * speed;
             vz = mathCosF(gCurrentActor->floorSlopeYaw) * slope;
             vz = forward + vz;
             speed = sqrtf(vx * vx + vz * vz);
-            ang = (s32)((mathAtan2(vx, vz) * 4096.0) / 6.2831855f);
+            ang = (mathAtan2(vx, vz) * 4096.0) / 6.2831855f;
             if (apply != 0) {
                 if (speed != 0.0f) {
                     playerApproachVelocity(ang, speed, gActivePlayerState->targetSpeed);
