@@ -679,3 +679,4 @@
 {"type": "unit", "t": "2026-11-15T17:36:11Z", "unit": "2026-11-15: cleanup HackspawnNodeActorOutOfRangeScaled", "commit": "79fc2dd0613ab2b2533afcc55c429bd9e6909cda"}
 {"type": "unit", "t": "2026-11-15T17:37:41Z", "unit": "2026-11-15: cleanup HackplayerStateWaypointAimUpdate2", "commit": "8239b1cce25eab99649a00c5bd5022c26ad9abe4"}
 {"type": "unit", "t": "2026-11-15T17:38:06Z", "unit": "2026-11-15: cleanup HackbehaviourFairyInitPlayerScale2", "commit": "f01e8f23c4332f5fe2666ec21807fbc6d79f3407"}
+{"type": "unit", "t": "2026-11-15T17:38:12Z", "unit": "2026-11-15: cleanup HackbossMadJackStep2", "commit": "d5442343a37a3e28bc886fb9cdd66c278590ded6"}
