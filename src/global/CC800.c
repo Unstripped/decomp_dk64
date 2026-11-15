@@ -247,24 +247,29 @@ typedef struct ChainOffsets4 {
     /* 0x00 */ f32 offsetX[4];
 } ChainOffsets4;
 
+// One damped spring of a kong chain node (F56F0 steps it: playerWeaponCalculateTrajectory24).
+typedef struct KongSpring {
+    /* 0x0 */ f32 offset; // rest angle: the per-kind table value, mirrored for the second chain
+    /* 0x4 */ f32 angle;
+    /* 0x8 */ f32 velocity;
+} KongSpring;
+
 typedef struct KongChainNode {
-    /* 0x00 */ f32 offsetX;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
+    /* 0x00 */ KongSpring springX;
+    /* 0x0C */ KongSpring springY;
 } KongChainNode;
 
+// Kong actor second component (Actor 0x178), filled by kongChainInit per kind: DK (2) one chain of 4 nodes,
+// Diddy (3) one of 11, Tiny (5) two mirrored chains of 8. F56F0 reads the same block as F56AState.
 typedef struct KongChain {
-    /* 0x000 */ f32 unk0;
-    /* 0x004 */ f32 unk4;
-    /* 0x008 */ f32 unk8;
-    /* 0x00C */ f32 unkC;
-    /* 0x010 */ f32 unk10;
-    /* 0x014 */ u8 unk14;
+    /* 0x000 */ f32 prevAngle;
+    /* 0x004 */ f32 prevY;
+    /* 0x008 */ f32 prevVelY;
+    /* 0x00C */ f32 sway;
+    /* 0x010 */ f32 weight;
+    /* 0x014 */ u8 holdTimer;
     /* 0x015 */ u8 pad15[3];
-    /* 0x018 */ s32 kind;
+    /* 0x018 */ s32 kind; // the kong's actor type
     /* 0x01C */ KongChainNode nodes[12];
 } KongChain; // size = 0x13C
 
@@ -315,19 +320,19 @@ void kongChainInit(s32 mode, void *chainBuffer, u32 kind) {
     }
     for (i = 0; i < count; i++) {
         node = chain->nodes;
-        chain->unk14 = 2;
+        chain->holdTimer = 2;
         chain->kind = kind;
-        chain->unkC = 0.0f;
-        chain->unk8 = 0.0f;
-        chain->unk4 = 0.0f;
-        chain->unk0 = 0.0f;
-        chain->unk10 = -128.0f;
+        chain->sway = 0.0f;
+        chain->prevVelY = 0.0f;
+        chain->prevY = 0.0f;
+        chain->prevAngle = 0.0f;
+        chain->weight = -128.0f;
         for (j = 0; j < n; j++, node++) {
-            node->unk4 = 0.0;
-            node->offsetX = offsets[j] * sign;
-            node->unk8 = 0.0;
+            node->springX.angle = 0.0;
+            node->springX.offset = offsets[j] * sign;
+            node->springX.velocity = 0.0;
             // LAYOUT: one source line; splitting it reorders the three stores
-            node->unk14 = 0.0f; node->unkC = 0.0f; node->unk10 = 0.0f;
+            node->springY.velocity = 0.0f; node->springY.offset = 0.0f; node->springY.angle = 0.0f;
         }
         chain++;
         sign = -sign;
