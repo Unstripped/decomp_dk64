@@ -344,7 +344,6 @@ typedef struct KongActorView {
 #define KONG_ACTOR ((KongActorView *)gActivePlayerActor)
 
 extern s32 gCurrentMap;
-extern Actor *gCamActor;
 extern f32 D_80753578[];
 extern f32 D_807535E8[];
 

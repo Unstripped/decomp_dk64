@@ -510,7 +510,6 @@ extern s16 D_807502D8;
 extern f32 D_807502F4;
 extern s16 D_80770628[];
 extern s16 D_80770710[];
-extern Actor *gCamActor;
 
 u8 camIsCutsceneActive(void);
 u16 camStartPath(void *, s16, u8);
