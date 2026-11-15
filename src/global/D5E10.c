@@ -4567,7 +4567,7 @@ typedef struct G20Light {
     /* 0x16 */ s16 roll;
     /* 0x18 */ s32 chunk;
     /* 0x1C */ u8 pad1C[2];
-    /* 0x1E */ u8 unk1E;
+    /* 0x1E */ u8 allFairies; // all 20 banana fairies found
 } G20Light;
 
 extern s32 D_80750FE0[];
@@ -4592,7 +4592,7 @@ void playerStateDialogueWait(void) {
         gCurrentActor->unk155 = 1;
         break;
     case 1:
-        gGlobalPauseFlags &= 0xFFFEFFCF;
+        gGlobalPauseFlags &= ~0x10030;
         actorSpawn(0x141, 0x3D);
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY * 2);
         gSpawnedActor->flags |= 0x40000000;
@@ -4616,7 +4616,7 @@ void playerStateDialogueWait(void) {
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleX);
         gSpawnedActor->flags |= 0x40000000;
         light->effectActor = gSpawnedActor;
-        light->unk1E = countBananaFairies() == 0x14;
+        light->allFairies = countBananaFairies() == 0x14;
         gCurrentActor->unk155 = 2;
         break;
     case 2:
@@ -4626,6 +4626,7 @@ void playerStateDialogueWait(void) {
             sfxAllocateChannel(0x3B, 1.0f);
             gCurrentActor->unk155 = 3;
         }
+        /* fallthrough */
     case 3:
         if (currentActorTestClearFlag()) {
             owner = gCurrentActor->customState;
