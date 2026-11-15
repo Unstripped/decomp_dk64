@@ -75,7 +75,7 @@ extern Actor *gPrimaryPlayerActor;
 extern u16 *gActorScriptIndexTable;
 extern s32 gCurrentMap;
 extern s32 D_8071FE08;
-extern u8 gPlayerCharacterId;
+extern u8 gPlayerCharacterId[];
 extern ActorMapFlag D_8074E7A0[];
 extern s16 D_8074E7E0[];
 extern KongActionEntry D_8074E814[];
@@ -1230,7 +1230,6 @@ void transformBarrelUpdate(void) {
         entry = 0;
         found = 0;
         ret = actorListFindIdByActor(gCurrentActor);
-        if (gPrimaryPlayerActor) {} // FAKE: raises &gPrimaryPlayerActor candidate priority
         state->refillCount = 0;
         do {
             if (gCurrentMap == D_8074E7BC[entry].map && ret == D_8074E7BC[entry].listId) {
@@ -1328,8 +1327,8 @@ void transformBarrelUpdate(void) {
         s32 itemCount = 0;
         s32 allowed = 0;
 
-        if (gPlayerCharacterId < 5) {
-            itemCount = gPlayerInventoryTable[0].kong[gPlayerCharacterId].moveLevel;
+        if (gPlayerCharacterId[0] < 5) {
+            itemCount = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].moveLevel;
         }
         player = gPrimaryPlayerActor;
         if (player->actorType == 5 && gCurrentActor->actorType == 0x28 && itemCount > 0) {
@@ -1353,8 +1352,11 @@ void transformBarrelUpdate(void) {
         if (gCurrentActor->actorType == 0x12) {
             allowed = 1;
         }
-        if (gCurrentActor->actorType == 0x84 && player->actorType == 9 && (activePlayerState = player->customState)->actor == NULL) { // FAKE: activePlayerState assigned inside the test (pre-existing, now tagged; ((PlayerState *)player->customState)->actor fdiff=1)
-            allowed = 1;
+        if (gCurrentActor->actorType == 0x84 && player->actorType == 9) {
+            activePlayerState = player->customState;
+            if (activePlayerState->actor == NULL) {
+                allowed = 1;
+            }
         }
         if (allowed != 0) {
             gCurrentActor->flags |= 0x8000;
@@ -1437,7 +1439,6 @@ void transformBarrelUpdate(void) {
 
     case 3: {
         s16 sound = 0;
-        if (gPrimaryPlayerActor->actorType == 9) {}  // FAKE: dead compare steers uopt constant-web (0x81/0x84) colouring order
         switch (gCurrentActor->actorType) {
         case 0x28:
             sound = 0x10;
@@ -1463,9 +1464,17 @@ void transformBarrelUpdate(void) {
             gGlobalPauseFlags |= 0x400;
             break;
         }
-        if (sound != 0 && !(gGlobalCutsceneFlags & 2) && gCurrentMap != 3 && gCurrentMap != 0x11 && gCurrentMap != 0x52 && gCurrentMap != 0xD1) {
-            if (gPlayerCharacterId) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            sfxAllocateChannel(sound, 1.0f);
+        if (sound != 0 && !(gGlobalCutsceneFlags & 2)) {
+            switch (gCurrentMap) {
+            case 3:
+            case 0x11:
+            case 0x52:
+            case 0xD1:
+                break;
+            default:
+                sfxAllocateChannel(sound, 1.0f);
+                break;
+            }
         }
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x9C, 0xFF, 0x7F, 0);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x9D, 0xFF, 0x7F, 0);
@@ -1843,11 +1852,11 @@ void movingLaunchBarrelUpdate(void) {
 
 
 void tagBarrelUpdateInteractable(void) {
-    if (gPlayerSlots->unk2C0 != 1 || (gActivePlayerState->stateFlags2 & 0x40) || gPlayerCharacterId >= 5) {
+    if (gPlayerSlots->unk2C0 != 1 || (gActivePlayerState->stateFlags2 & 0x40) || gPlayerCharacterId[0] >= 5) {
         gCurrentActor->interactionType = 4;
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->alpha = 0x7F;
-    } else if (gPlayerSlots->unk2C0 == 1 && !(gActivePlayerState->stateFlags & 0x40) && gPlayerCharacterId < 5) {
+    } else if (gPlayerSlots->unk2C0 == 1 && !(gActivePlayerState->stateFlags & 0x40) && gPlayerCharacterId[0] < 5) {
         gCurrentActor->flags |= 0x8000;
         gCurrentActor->interactionType = 1;
     }
@@ -1857,7 +1866,7 @@ void tagBarrelUpdateInteractable(void) {
 }
 
 void tagBarrelCheckPlayerCollision(void) {
-    if (gPlayerCharacterId >= 5) {
+    if (gPlayerCharacterId[0] >= 5) {
         gCurrentActor->interactionType = 4;
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->alpha = 0x7F;
@@ -2330,8 +2339,8 @@ void rocketbarrelUpdate(void) {
     switch (gCurrentActor->state) {
     case 0: {
         s32 itemCount;
-        if (gPlayerCharacterId < 5) {
-            itemCount = gPlayerInventoryTable[0].kong[gPlayerCharacterId].moveLevel;
+        if (gPlayerCharacterId[0] < 5) {
+            itemCount = gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]].moveLevel;
         }
         if (gPrimaryPlayerActor->actorType == 3 && itemCount >= 2) {
             gCurrentActor->flags |= 0x8000;
