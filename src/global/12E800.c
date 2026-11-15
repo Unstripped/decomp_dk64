@@ -30,7 +30,8 @@ extern s32 gCurrentMap;
 void behaviourFrameBegin(void) {
     gBehaviourWorkState = gCurrentActor->customState;
     gBehaviourTargetActor = gBehaviourWorkState->targetActor;
-    gBehaviourExtraState = (gBehaviourAnimState = gBehaviourWorkState->node);
+    gBehaviourAnimState = gBehaviourWorkState->node;
+    gBehaviourExtraState = gBehaviourAnimState;
     D_807FDCA0 = gBehaviourAnimState->zone;
     gBehaviourWorkState->stepCount++;
     if (gCurrentActor->flags & 0x20000000) {
@@ -256,7 +257,7 @@ typedef struct ZoneByteView {
     /* 0x19 */ u8 unk19;
 } ZoneByteView;
 
-#define E3CA0 ((ZoneByteView *)D_807FDCA0)
+#define CURRENT_ZONE_BYTES ((ZoneByteView *)D_807FDCA0)
 
 
 u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floorYOffset) {
@@ -288,7 +289,7 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floor
     if (!(gBehaviourAnimState->flags & 0x200)) {
         collisionSetQueryMode(2);
     }
-    if (E3CA0->unk19 == 1 && (state != 0x37 || !(gBehaviourAnimState->flags & 0x10))) {
+    if (CURRENT_ZONE_BYTES->unk19 == 1 && (state != 0x37 || !(gBehaviourAnimState->flags & 0x10))) {
         collisionSetQueryMode(1);
     }
     if (flags & 0x4000) {
@@ -322,7 +323,7 @@ u32 actorMoveWithinZone(u8 state, f32 centerX, f32 centerZ, u16 flags, f32 floor
     }
     if (!(flags & 8)) {
         actorUpdateFloorContactAndTilt(gCurrentActor, floorYOffset);
-    } else if (E3CA0->unk19 != 1 && (flags & 0x10)) {
+    } else if (CURRENT_ZONE_BYTES->unk19 != 1 && (flags & 0x10)) {
         collisionCheckActorFloor(gCurrentActor, gCurrentActor->x, gCurrentActor->prevY, gCurrentActor->z, &gCurrentActor->floorY);
     }
     if (!(flags & 0x2000)) {
@@ -521,9 +522,9 @@ void behaviourUpdateContactAndState(s32 scriptId) {
             switch (gCurrentActor->unk155) {
                 case 0:
                     actorMoveWithinZone(0, 0.0f, 0.0f, 0x202, 0.0f);
-                    gCurrentActor->sub4->scaleY = gCurrentActor->sub4->scaleY * 0.7;
-                    gCurrentActor->sub4->scaleX = gCurrentActor->sub4->scaleX * 1.07;
-                    gCurrentActor->sub4->scaleZ = gCurrentActor->sub4->scaleZ * 1.07;
+                    gCurrentActor->sub4->scaleY *= 0.7;
+                    gCurrentActor->sub4->scaleX *= 1.07;
+                    gCurrentActor->sub4->scaleZ *= 1.07;
                     if (gCurrentActor->sub4->scaleY < 0.01) {
                         gCurrentActor->unk155 = 1;
                     }
@@ -560,7 +561,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     break;
                 case 1:
                     if (gBehaviourWorkState->timer != 0) {
-                        gBehaviourWorkState->timer = gBehaviourWorkState->timer - 1;
+                        gBehaviourWorkState->timer--;
                     } else {
                         actorSetDefaultState(gBehaviourAnimState->animId1);
                     }
@@ -576,7 +577,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                 gCurrentActor->unk155 = 0;
                 actorScriptStart(gCurrentActor, gBehaviourAnimState->animId2);
             } else {
-                gCurrentActor->yaw = gCurrentActor->yaw + (gCurrentActor->speedXZ * 2);
+                gCurrentActor->yaw += gCurrentActor->speedXZ * 2;
                 actorMoveWithinZone(0x17, 0.0f, 0.0f, (gBehaviourWorkState->flags & 2) ? 0x1020 : 0x20, 0.0f);
             }
             break;
@@ -586,7 +587,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     scriptSetActorRampTarget(gCurrentActor, 0.0f, 8.0f);
                     actorSetTargetSpeed(gCurrentActor, 0);
                 }
-                gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+                gCurrentActor->unk155++;
             } else if ((gGameMode == 0) && (gBehaviourTargetActor->state != 0x42)) {
                 gCurrentActor->interactionType = 1;
                 gCurrentActor->unk144 = 0x24;
@@ -599,7 +600,7 @@ void behaviourUpdateContactAndState(s32 scriptId) {
             break;
         case 0x16:
             if (gCurrentActor->unk155 == 0) {
-                gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+                gCurrentActor->unk155++;
             } else {
                 gCurrentActor->yaw += 0x64;
                 if (gFrameCounter & 1) {
@@ -630,15 +631,15 @@ void behaviourUpdateContactAndState(s32 scriptId) {
                     if (gBehaviourWorkState->unk39 != 0) {
                         f32 t;
 
-                        gBehaviourWorkState->unk39 = gBehaviourWorkState->unk39 - 1;
+                        gBehaviourWorkState->unk39--;
                         t = gBehaviourWorkState->unk39 / 90.0f;
                         gCurrentActor->y = gBehaviourExtraState->y + (((gBehaviourExtraState->y - gBehaviourWorkState->unk2E) - gBehaviourExtraState->y) * t);
                         if (gCurrentActor->soundSlots[0] == -1) {
                             gCurrentActor->soundSlots[0] = sfxSlotAllocateActor(gCurrentActor, 0x131, 0, 0, 0xFF, 1.0f, 0);
                         }
                         gCurrentActor->unk74 = gBehaviourExtraState->y - gCurrentActor->y;
-                        gCurrentActor->unk72 = gCurrentActor->unk72 + 1;
-                        gCurrentActor->yaw = gCurrentActor->yaw + ((gBehaviourExtraState->y - gCurrentActor->y) * 60.0f);
+                        gCurrentActor->unk72++;
+                        gCurrentActor->yaw += (gBehaviourExtraState->y - gCurrentActor->y) * 60.0f;
                         gCurrentActor->alpha = (-255.0f * t) + 255.0f;
                     } else {
                         sfxStopSlotSound(gCurrentActor, 0);
@@ -687,7 +688,7 @@ u8 behaviourCheckTargetCollisionMode(u8 checkMode, u8 *outTarget) {
             }
         } else {
             if (gBehaviourWorkState->unk20 != 0) {
-                gBehaviourWorkState->unk20 = gBehaviourWorkState->unk20 - 1;
+                gBehaviourWorkState->unk20--;
             }
             if ((gBehaviourTargetActor->collisionFlags & 1) && playerState->surfaceTimer != 0 && !(gGlobalOverlayFlags & 0x100000)) {
                 nextState = 1;
@@ -729,7 +730,7 @@ typedef struct TwoComponentActor {
     /* 0x178 */ s16 *secondComponent; // second component pointer
 } TwoComponentActor;
 
-#define C1B40 ((TwoComponentActor *)gCurrentActor)
+#define CURRENT_TWO_COMPONENT_ACTOR ((TwoComponentActor *)gCurrentActor)
 
 void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId) {
     PlayerState *playerState;
@@ -791,7 +792,7 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
             }
             break;
         case 0x34:
-            range = C1B40->secondComponent;
+            range = CURRENT_TWO_COMPONENT_ACTOR->secondComponent;
             if (dist < *range) {
                 actorSetBehaviourState(0x24, 0, returnScriptId);
                 return;
@@ -862,18 +863,18 @@ void enemyAggroStateUpdate(s32 aggroDist, s32 returnScriptId, s32 chaseScriptId)
 }
 
 void patrolGetNextWaypointPos(s16 *outX, s16 *outY, s16 *outZ) {
-    s32 temp;
+    s32 nextIdx;
     u8 idx;
-    s32 v;
-    u8 new_var;
+    s32 key;
+    u8 curIdx;
 
-    new_var = gBehaviourWorkState->waypointIndex & 0x7F;
-    temp = new_var + 1;
-    idx = (temp < gBehaviourExtraState->pathCount) ? temp : 0;
-    v = gBehaviourAnimState->path[idx][0];
-    *outX = D_807FDCA0->entries[v].x;
-    *outY = D_807FDCA0->entries[v].y;
-    *outZ = D_807FDCA0->entries[v].z;
+    curIdx = gBehaviourWorkState->waypointIndex & 0x7F;
+    nextIdx = curIdx + 1;
+    idx = (nextIdx < gBehaviourExtraState->pathCount) ? nextIdx : 0;
+    key = gBehaviourAnimState->path[idx][0];
+    *outX = D_807FDCA0->entries[key].x;
+    *outY = D_807FDCA0->entries[key].y;
+    *outZ = D_807FDCA0->entries[key].z;
 }
 
 s32 patrolGetTargetAngle(void) {
@@ -904,8 +905,7 @@ u8 patrolPathStep(u8 state, u8 flags) {
     s32 v;
 
     idx = gBehaviourWorkState->waypointIndex;
-    dir = idx;
-    dir &= 0x80;
+    dir = idx & 0x80;
     idx &= 0x7F;
     key = gBehaviourAnimState->path[idx][0];
     type = gBehaviourAnimState->path[idx][1];

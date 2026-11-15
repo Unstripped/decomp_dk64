@@ -568,7 +568,7 @@ void func_806AFB58(void) {
         } else if (gCurrentActor->segmentFlags & 2) {
             effectSpawnActorParticleBurst(2);
         }
-        gCurrentActor->segmentFlags = gCurrentActor->segmentFlags * 2;
+        gCurrentActor->segmentFlags *= 2;
         behaviourSpawnExplosionAndSound(0x2DC, 0x31, gActorGlobalState.targetActor);
         gBehaviourWorkState->targetSpeed = 0;
         gCurrentActor->speedXZ = 0.0f;
@@ -799,12 +799,10 @@ s32 func_806B0770(void) {
 extern Actor *gPrimaryPlayerActor;
 
 void func_806B0848(void) {
-    s32 state;
-
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         f64 d;
-        f64 m = 255.0;
+        f64 m = 255.0; // FAKE: 255.0 held in a local for both cull-margin clamps; the literal costs 238 lines
 
         d = gCurrentActor->sub4->scaleY / 0.15 * 100.0;
         if (d > m) gCurrentActor->cullMarginX = m; else gCurrentActor->cullMarginX = d; // LAYOUT: one line keeps as1's order of the li t2/t0 rounding-mode pair
@@ -820,12 +818,10 @@ void func_806B0848(void) {
     } else if (gActorGlobalState.bossFightPhase == 5) {
         behaviourSpawnExplosionAndSound(0x366, 0x31, gActorGlobalState.targetActor);
     }
-    state = gCurrentActor->state;
-    if (state == 4) {
+    if (gCurrentActor->state == 4) {
         gCurrentActor->state = 1;
-        state = gCurrentActor->state;
     }
-    switch (state) {
+    switch (gCurrentActor->state) {
         case 0x37:
             gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gCurrentActor->moveYaw, 7.0f);
             switch (gCurrentActor->unk155) {

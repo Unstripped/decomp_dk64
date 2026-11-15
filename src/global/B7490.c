@@ -135,8 +135,6 @@ void actorEmptyStub(void) {
 }
 
 void func_806B2D64(void) {
-    s32 st;
-
     behaviourFrameBegin();
     effectSpawnSparks(0x1F, 2);
     if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
@@ -146,8 +144,7 @@ void func_806B2D64(void) {
         behaviourSpawnExplosionAndSound(0x2E5, 0x31, gActorGlobalState.targetActor);
         gCurrentActor->speedXZ = 0.0f;
     }
-    st = gCurrentActor->state;
-    switch (st) {
+    switch (gCurrentActor->state) {
         case 0x31:
             effectSpawnSparks(0x1F, 2);
             if ((gCurrentActor->unk155 != 0) || (gCurrentActor->sub4->model->speed == 0.0f)) {
@@ -229,8 +226,7 @@ void func_806B2D64(void) {
             behaviourUpdateContactAndState(0x2E2);
             break;
     }
-    st = gCurrentActor->state;
-    switch (st) {
+    switch (gCurrentActor->state) {
         case 0x31:
         case 0x37:
         case 0x40:
@@ -740,14 +736,12 @@ void behaviourEnemyBatUpdate(void) {
     f64 pad;
     s16 *heightPtr;
     s32 deltaHeight;
-    s16 timer;
-    u8 action;
 
     heightPtr = B7490A->typeState;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->flags = gCurrentActor->flags | 0x400;
-        gBehaviourAnimState->flags = gBehaviourAnimState->flags | 0x40;
+        gCurrentActor->flags |= 0x400;
+        gBehaviourAnimState->flags |= 0x40;
         gCurrentActor->tintR = 0xFA;
         gCurrentActor->tintG = 0xFA;
         gCurrentActor->tintB = 0xFA;
@@ -764,26 +758,24 @@ void behaviourEnemyBatUpdate(void) {
         sfxAllocateChannel(0x14, 1.0f);
         csModelStateSetFirstByte(0x7F, 0xA);
     }
-    action = gCurrentActor->state;
-    if ((action != 0x37) && (action != 0x40)) {
+    if ((gCurrentActor->state != 0x37) && (gCurrentActor->state != 0x40)) {
         actorPlaceAttachedChildren(-0x1E);
     }
     actorSetUniformScale(gCurrentActor, (gBehaviourWorkState->scale - gCurrentActor->sub4->scaleX) * 0.05 + gCurrentActor->sub4->scaleX);
-    timer = gBehaviourWorkState->timer;
-    if (timer != 0) {
-        gBehaviourWorkState->timer = timer - 1;
+    if (gBehaviourWorkState->timer != 0) {
+        gBehaviourWorkState->timer--;
         if (gFrameCounter & 4) {
-            gCurrentActor->flags = gCurrentActor->flags | 0x800000;
+            gCurrentActor->flags |= 0x800000;
         } else {
-            gCurrentActor->flags = gCurrentActor->flags & 0xFF7FFFFF;
+            gCurrentActor->flags &= 0xFF7FFFFF;
         }
     } else {
         gCurrentActor->interactionType = 1;
-        gCurrentActor->flags = gCurrentActor->flags & 0xFF7FFFFF;
+        gCurrentActor->flags &= 0xFF7FFFFF;
         if (gActorGlobalState.bossFightPhase == 4) {
             gCurrentActor->interactionType = 2;
             gBehaviourWorkState->timer = 0x1E;
-            gBehaviourWorkState->scale = gBehaviourWorkState->scale * 0.7;
+            gBehaviourWorkState->scale *= 0.7;
             behaviourSpawnPuffParticle();
             camStartPath(gCurrentActor, 3, 5);
             if (gCurrentActor->health & 1) {
@@ -840,11 +832,11 @@ void behaviourEnemyFlyIdle(void) {
 void behaviourEnemyFlySwoop(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->flags = gBehaviourAnimState->flags | 0x60;
-        gBehaviourAnimState->flags = gBehaviourAnimState->flags & 0xFFF7;
+        gBehaviourAnimState->flags |= 0x60;
+        gBehaviourAnimState->flags &= 0xFFF7;
         gCurrentActor->speedXZ = ((randomNonNegative() >> 15) % 100) + 0x12C;
         gCurrentActor->y += (randomNonNegative() >> 15) % 30;
-        gCurrentActor->flags = gCurrentActor->flags & 0xFFFF7FFF;
+        gCurrentActor->flags &= 0xFFFF7FFF;
         gCurrentActor->alpha = 0;
         gCurrentActor->unkEC = ((randomNonNegative() >> 15) % 7) + 0xF;
     }
@@ -853,14 +845,14 @@ void behaviourEnemyFlySwoop(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     switch (gCurrentActor->state) {
     case 6:
-        gCurrentActor->alpha = gCurrentActor->alpha + gCurrentActor->unkEC;
+        gCurrentActor->alpha += gCurrentActor->unkEC;
         if (gCurrentActor->alpha >= 0xFF) {
             gCurrentActor->alpha = 0xFF;
             gCurrentActor->state = 0x37;
         }
         break;
     case 0x37:
-        gCurrentActor->alpha = gCurrentActor->alpha - gCurrentActor->unkEC;
+        gCurrentActor->alpha -= gCurrentActor->unkEC;
         if (gCurrentActor->alpha < 0) {
             gCurrentActor->state = 0x3C;
             gCurrentActor->alpha = 0;
