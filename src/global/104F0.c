@@ -759,7 +759,7 @@ void eepromRefillHalfConsumables(void) {
     if (D_807FC952 != 0) {
         gPlayerInventoryTable[0].ammo = slotQueueGetMaxValue(2, 0) * 0.5;
     }
-    for (i = 0; i != 5; i++) {
+    for (i = 0; i < 5; i++) {
         gPlayerCharacterId = i;
         if (gPlayerInventoryTable[0].kong[i].instrumentFlags != 0) {
             gPlayerInventoryTable[0].kong[i].instrumentEnergy = slotQueueGetMaxValue(7, 0) * 0.5;
