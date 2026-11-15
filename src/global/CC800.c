@@ -315,8 +315,8 @@ typedef struct KongActorView {
 #define KONG_ACTOR ((KongActorView *)gActivePlayerActor)
 
 extern s32 gCurrentMap;
-extern f32 D_80753578[];
-extern f32 D_807535E8[];
+extern f32 gKongAccelY[];
+extern f32 gKongTerminalSpeedY[];
 
 void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     const KongCharacterEntry *row;
@@ -364,8 +364,8 @@ void playerSetupCharacterForSlot(s32 spawnIndex, u8 playerIndex) {
     gSpawnedActor->flags |= 0x100000;
     actorSetInteractionTimer(gActivePlayerActor);
     gActivePlayerState->unk26 = 0x64;
-    gActivePlayerActor->accelY = D_80753578[gCurrentCharacterIndex];
-    gActivePlayerActor->terminalSpeedY = D_807535E8[gCurrentCharacterIndex];
+    gActivePlayerActor->accelY = gKongAccelY[gCurrentCharacterIndex];
+    gActivePlayerActor->terminalSpeedY = gKongTerminalSpeedY[gCurrentCharacterIndex];
     gActivePlayerState->effectTimer = 0x78;
     gActivePlayerState->surfaceTimer = 0;
     gActivePlayerState->prevHasArcBounds = 0;
@@ -596,7 +596,7 @@ void playerWarpToSpawnPoint(s32 spawnIndex) {
 
     D_8076AEE2 = 0;
     gGlobalPauseFlags &= ~0x400;
-    switch (spawn->unk8) {
+    switch (spawn->spawnKind) {
     case 2:
         gActivePlayerActor->state = 0x4F;
         gActivePlayerActor->unk155 = 3;
@@ -619,8 +619,8 @@ void playerWarpToSpawnPoint(s32 spawnIndex) {
         break;
     }
     gActivePlayerActor->contactFlags &= ~0x200;
-    ps->camActor->unk15F = (spawn->unk7 <= 0) ? 1 : spawn->unk7;
-    if (spawn->unk9 & 1) {
+    ps->camActor->unk15F = (spawn->camMode <= 0) ? 1 : spawn->camMode;
+    if (spawn->flags & 1) {
         gAmbientIndoors = 1;
     }
 }
@@ -879,7 +879,7 @@ void playerCopyCameraToEye(u8 playerIndex) {
     p->unk23C = p->focusZ;
 }
 
-s32 playerSpawnAllPlayers(void) {
+s32 playerKongHasWorldGoldenBanana(void) {
     KongInventory *row = &gPlayerInventoryTable[0].kong[gPlayerCharacterId[0]];
     s32 i;
     s32 v;

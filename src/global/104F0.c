@@ -602,7 +602,7 @@ void eepromResetAllSlots(void) {
 
 extern OSMesgQueue D_807ECCF0;
 extern u8 *D_807467C0; // save-signature string
-extern s8 D_807467C4;
+extern s8 gEepromWriteInProgress;
 extern s8 D_807467CC;
 
 void eepromReadAllSectors(void) {
@@ -617,16 +617,16 @@ void eepromReadAllSectors(void) {
         D_807467CC = 1;
         return;
     }
-    D_807467C4 = 1;
+    gEepromWriteInProgress = 1;
     for (sector = 0; (sector < 0x100) && (failed == 0); sector++, dst += 8) {
         failed |= osEepromRead(&D_807ECCF0, (u8)sector, dst);
         sleepMilliseconds(15.0f);
         if (gMainThreadHalted != 0) {
-            D_807467C4 = 0;
+            gEepromWriteInProgress = 0;
             return;
         }
     }
-    D_807467C4 = 0;
+    gEepromWriteInProgress = 0;
     D_807467CC = 1;
     if (failed == 0) {
         failed = _strcasecmp(D_807ED6A8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
@@ -638,9 +638,8 @@ void eepromReadAllSectors(void) {
 }
 
 extern u8 *D_807467C0; // save-signature string
-extern s8 D_807467C4;
-extern s8 D_807467E4;
-extern f32 D_807467E8;
+extern s8 gSaveIconTimer;
+extern f32 gEepromWriteProgress;
 extern u8 gContReadPending[];
 extern OSMesgQueue D_807ECCF0;
 
@@ -699,17 +698,17 @@ void eepromSaveRecords(s32 recordsOnly) {
         }
         if ((u32)sector) {}  // FAKE: direct read of sector raises the priority of the variable above its widening (var s1, widening s4)
         if (gMainThreadHalted != 0) {
-            D_807467C4 = 0;
+            gEepromWriteInProgress = 0;
         } else {
-            D_807467C4 = 1;
+            gEepromWriteInProgress = 1;
             for (idx = sector; idx < 0x100; idx += 2) {
-                D_807467E4 = 0x1E;
-                D_807467E8 = (f32)(u32)idx * 0.00390625f;
+                gSaveIconTimer = 0x1E;
+                gEepromWriteProgress = (f32)(u32)idx * 0.00390625f;
                 if (((u64 *)savedData)[idx] != ((u64 *)workingData)[idx] ||
                     ((u64 *)savedData)[idx + 1] != ((u64 *)workingData)[idx + 1]) {
                     for (j = 0; j < 2; j++) {
                         if (gMainThreadHalted != 0) {
-                            D_807467C4 = 0;
+                            gEepromWriteInProgress = 0;
                             return;
                         }
                         osEepromWrite(&D_807ECCF0, idx + j, workingData + idx * 8 + j * 8);
@@ -717,7 +716,7 @@ void eepromSaveRecords(s32 recordsOnly) {
                     }
                 }
             }
-            D_807467C4 = 0;
+            gEepromWriteInProgress = 0;
         }
     }
 }

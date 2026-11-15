@@ -309,7 +309,7 @@ void playerStateTakeDamagePrep(void) {
     camSetZoomLevel(gActivePlayerState->camActor, 0);
     param = gPlayerSlots[gCurrentPlayerIndex].queuedParam0;
     kind = param;
-    camState->unkF3 = kind;
+    camState->mode = kind;
     if ((u8)kind == 3) {
         sfxStopSlotSound(gActivePlayerActor, 0);
         sfxPlayOnFreeSlot(0x26, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -486,7 +486,7 @@ void playerStateEnterFlattened(void) {
     f32 speed;
 
     speed = 1.0f;
-    playerKongStopSoundByState(gCurrentActor);
+    playerKongHolsterGun(gCurrentActor);
     gActivePlayerActor->state = 0x6C;
     gActivePlayerActor->unk155 = 0;
     actorScriptStart(gActivePlayerActor, 0x3B);
@@ -833,7 +833,7 @@ void playerStateEnterState15ThrowHeldActor(void) {
     playerClearCarriedItemState();
     playerThrowHeldActor(gActivePlayerActor);
     gActivePlayerState->gunDrawn = 0;
-    playerKongStopSoundByState(gCurrentActor);
+    playerKongHolsterGun(gCurrentActor);
     sfxStopSlotSound(gCurrentActor, 0);
     sfxStopSlotSound(gCurrentActor, 1);
     actorScriptStartByIndex(gActivePlayerActor, 0x21);
@@ -976,10 +976,10 @@ void playerStateSetLaunchVelocity(void) {
     s32 kongId;
 
     gunSound = 0;
-    gActivePlayerActor->speedXZ = gActivePlayerState->unk6C;
-    gActivePlayerActor->moveYaw = gActivePlayerState->unk70;
-    gActivePlayerActor->yaw = gActivePlayerState->unk70;
-    gActivePlayerActor->speedY = gActivePlayerState->unk74;
+    gActivePlayerActor->speedXZ = gActivePlayerState->launchSpeedXZ;
+    gActivePlayerActor->moveYaw = gActivePlayerState->launchYaw;
+    gActivePlayerActor->yaw = gActivePlayerState->launchYaw;
+    gActivePlayerActor->speedY = gActivePlayerState->launchSpeedY;
     scriptSetActorRampTarget(gActivePlayerActor, 1.0f, 0.0f);
     if (gPlayerSlots[gCurrentPlayerIndex].queuedActor == NULL) {
         gActivePlayerActor->state = 0x44;
@@ -1109,7 +1109,7 @@ void playerStateSetLaunchVelocity(void) {
             playerKongDrawGun(gActivePlayerActor);
         }
     } else {
-        playerKongStopSoundByState(gCurrentActor);
+        playerKongHolsterGun(gCurrentActor);
     }
     if (gPlayerSlots[gCurrentPlayerIndex].queuedActor != NULL) {
         playerStateApplyAttackerDamage(gPlayerSlots[gCurrentPlayerIndex].queuedActor);

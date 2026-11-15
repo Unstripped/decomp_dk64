@@ -2911,9 +2911,9 @@ void playerStateDamageFallTumble(void) {
 void playerApproachAirVelocity(void) {
     playerInputUpdate(5);
     if (gCurrentActor->speedY < 0.0f) {
-        gActivePlayerState->unk6C = 0.0f;
+        gActivePlayerState->launchSpeedXZ = 0.0f;
     }
-    playerApproachVelocity(gActivePlayerState->unk70, gActivePlayerState->unk6C, gActivePlayerState->targetSpeed);
+    playerApproachVelocity(gActivePlayerState->launchYaw, gActivePlayerState->launchSpeedXZ, gActivePlayerState->targetSpeed);
     playerApplyGravityAndMotion();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

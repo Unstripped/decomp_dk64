@@ -617,7 +617,7 @@ void playerCameraUpdateFromTarget(void) {
     maxDiff = 0x1E;
     stepFactor = 0.08f;
     scaleFactor = 8.0f;
-    player = &gPlayerSlots[camState->unkFB];
+    player = &gPlayerSlots[camState->playerIndex];
     player->skyRoll = gCurrentActor->unkEC;
     gCurrentActor->unkEC = gCurrentActor->pitch;
     player->camYInt = player->camY;
@@ -634,11 +634,11 @@ void playerCameraUpdateFromTarget(void) {
     }
     player->bgRotX = 6.2831855f - angleRad;
     player->bgRotY = 6.2831855f - clampedPitch;
-    playerCopyCameraToEye(camState->unkFB);
+    playerCopyCameraToEye(camState->playerIndex);
     angleA = mathAngleBetweenPoints2D(player->camX, player->camZ, player->focusX, player->focusZ);
     camUpdate(gCurrentActor, &player->camX, &player->camY, &player->camZ, &player->focusX, &player->focusY, &player->focusZ, &player->upX, &player->upY, &player->upZ);
     angleB = mathAngleBetweenPoints2D(player->camX, player->camZ, player->focusX, player->focusZ);
-    if (gPrimaryPlayerActor != camState->unk0) {
+    if (gPrimaryPlayerActor != camState->followActor) {
         return;
     }
     if ((gCurrentMap == 0x1F) || (gCurrentMap == 0x33)) {
@@ -657,7 +657,7 @@ void playerCameraUpdateFromTarget(void) {
         return;
     }
     if (gGameMode != 1) {
-        stateVal = camState->unk0->state;
+        stateVal = camState->followActor->state;
         switch (stateVal) {
         case 0x63:
             stepFactor = 0.02f;

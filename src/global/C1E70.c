@@ -20,7 +20,7 @@ extern Actor *gPrimaryPlayerActor;
 
 extern Actor *gSpawnedActor;
 extern s16 D_80744710[];
-s8 D_80750660 = 0;
+s8 sRingActiveStarted = 0;
 // per ring: the (map, exit) pair menuTransitionToMap loads when that ring's cutscene ends; pair 7
 // is the destination once every ring is cleared (rings 2 and 7 never transition, so pair 2 is -1, -1).
 // A flat s16 array, not a { map, exit } struct array: the struct indexing shifts the ugen temps (Q0167).
@@ -33,7 +33,7 @@ extern u8 D_807FC8D0;
 
 s32 actorSpawn();
 
-// customState of the ring actors (type 0xCD) spawned by func_806BD170
+// customState of the ring actors (type 0xCD) spawned by actorNodeRingSpawnRings
 typedef struct RingState {
     /* 0x00 */ s16 timer;
     /* 0x02 */ s8 ringIdx;
@@ -42,7 +42,7 @@ typedef struct RingState {
 
 // second component of the ring node actor: the model actor spawned in actorNodeRingUpdate
 typedef struct RingNodeModel {
-    /* 0x00 */ Actor *unk0;
+    /* 0x00 */ Actor *modelActor;
 } RingNodeModel;
 
 typedef struct RingNodeActor {
@@ -50,7 +50,7 @@ typedef struct RingNodeActor {
     /* 0x178 */ RingNodeModel *unk178;
 } RingNodeActor;
 
-void func_806BD170(void) {
+void actorNodeRingSpawnRings(void) {
     Actor *activeRingActor;
     s16 i;
     s16 activeRingIdx;
@@ -94,10 +94,10 @@ void func_806BD170(void) {
     if (flagGet(0x1BB, 0) == 0) {
         activeRingIdx = -1;
     }
-    if (D_80750660 == 0 && activeRingIdx != -1) {
+    if (sRingActiveStarted == 0 && activeRingIdx != -1) {
         activeRingActor->segmentFlags = 1;
         activeRingActor->state = 1;
-        D_80750660 = 1;
+        sRingActiveStarted = 1;
         D_807FC8D0 = activeRingIdx;
     }
 }
@@ -118,7 +118,7 @@ void actorNodeRingUpdate(void) {
     s16 idx;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        if (func_806BDD2C() != 0) {
+        if (ringAllCleared() != 0) {
             gCurrentActor->state = 0x40;
             return;
         }
@@ -131,12 +131,12 @@ void actorNodeRingUpdate(void) {
         gSpawnedActor->renderFlags |= 0x20;
         gSpawnedActor->flags |= 0x400;
         gSpawnedActor->drawDistance = 0x7D0;
-        nodePtr->unk0 = gSpawnedActor;
+        nodePtr->modelActor = gSpawnedActor;
         D_807FC8D4 = 1000.0f;
-        func_806BD170();
+        actorNodeRingSpawnRings();
         gCurrentActor->state = 0;
-        if (D_80750660 != 0) {
-            D_80750660 = 0;
+        if (sRingActiveStarted != 0) {
+            sRingActiveStarted = 0;
         }
         if (flagGet(0x1BB, 0) == 0) {
             gCurrentActor->state = 1;
@@ -208,7 +208,7 @@ typedef struct RingModelIds {
 RingModelIds sRingCutsceneModelIds = { { 0x0E, 0x0F, 0x10, 0x11, 0x0A, 0x0B, 0x0C, 0x0D } };
 extern u8 D_80720A7C;
 
-void func_806BD7B0(void) {
+void actorRingUpdate(void) {
     RingState *st = gCurrentActor->customState;
     f32 sparkX;
     f32 sparkY;
@@ -283,9 +283,9 @@ void func_806BD7B0(void) {
             }
             break;
         case 4:
-            if (func_806BDD2C() != 0) {
+            if (ringAllCleared() != 0) {
                 nodeModel = ((RingNodeActor *)st->node)->unk178;
-                nodeModel->unk0->y += 5.0;
+                nodeModel->modelActor->y += 5.0;
                 if (st->timer == 0x10E) {
                     flagSet(0x315, 1, 0);
                     menuTransitionToMap(sRingExits[7 * 2], sRingExits[7 * 2 + 1]);
@@ -293,7 +293,7 @@ void func_806BD7B0(void) {
             }
             limit = 0xB4;
             if (st->ringIdx == 2 || st->ringIdx == 7) {
-                if (func_806BDD2C() == 0) {
+                if (ringAllCleared() == 0) {
                     limit = 0x5A;
                 }
             }
@@ -301,7 +301,7 @@ void func_806BD7B0(void) {
             if (st->timer == limit) {
                 if (st->ringIdx == 2 || st->ringIdx == 7) {
                     flagSet(st->ringIdx + 0x1BC, 1, 0);
-                    if (func_806BDD2C() == 0) {
+                    if (ringAllCleared() == 0) {
                         camResumePath();
                         sfxStopChannel(0x7D, 1);
                         sRingNextReady = 1;
@@ -318,7 +318,7 @@ void func_806BD7B0(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-s32 func_806BDD2C(void) {
+s32 ringAllCleared(void) {
     s32 i;
 
     for (i = 0; i < 8; i++) {

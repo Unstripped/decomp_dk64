@@ -8,11 +8,11 @@ struct WaypointNode;
 #ifndef PROTO_SKIP_playerKongStopAudioChannels
 void playerKongStopAudioChannels(Actor *, u16);
 #endif
-#ifndef PROTO_SKIP_playerPlayKongSpecificSfx
-void playerPlayKongSpecificSfx(Actor *);
+#ifndef PROTO_SKIP_playerKongPlayHolsterSfx
+void playerKongPlayHolsterSfx(Actor *);
 #endif
-#ifndef PROTO_SKIP_playerKongStopSoundByState
-void playerKongStopSoundByState(Actor *);
+#ifndef PROTO_SKIP_playerKongHolsterGun
+void playerKongHolsterGun(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerKongDrawGun
 void playerKongDrawGun(Actor *);
@@ -32,8 +32,8 @@ void playerTransformAnimalEndSfx(Actor *);
 #ifndef PROTO_SKIP_playerFireWeaponPrimary
 void playerFireWeaponPrimary(Actor *);
 #endif
-#ifndef PROTO_SKIP_f56f0Noop1378
-void f56f0Noop1378(Actor *);
+#ifndef PROTO_SKIP_playerScriptCmdNop
+void playerScriptCmdNop(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptCmdCompareSpeedXZ
 void scriptCmdCompareSpeedXZ(Actor *);

@@ -187,7 +187,7 @@ ActorScriptCommand sScriptOpcodeTable[] = {
     scriptOpIncrementActorSubState,
     scriptOpSetRegisterRandom,
     scriptOpBranchOnFrame,
-    scriptOpBranchByTimer8A,
+    scriptOpBranchOnResult,
     scriptOpAnimSetStateDefault,
     scriptOpAnimSetRemapDirectDefault,
     scriptOpEnableFlag84,
@@ -205,7 +205,7 @@ ActorScriptCommand sScriptOpcodeTable[] = {
 
 u8 sMotionWindowProgress = 0;
 
-u8 sScriptChannelIndexTable[] = { 0x72, 0x6B, 0x73, 0x3B };
+u8 sScriptSoundChannelTable[] = { 0x72, 0x6B, 0x73, 0x3B };
 
 ScriptCommandFn sScriptCommandTable[] = {
     scriptCmdNop,
@@ -217,8 +217,8 @@ ScriptCommandFn sScriptCommandTable[] = {
     playerKongCalculateHealthScale,
     scriptCmdCompareMoveTier,
     scriptCmdCompareSpeedXZ,
-    f56f0Noop1378,
-    playerKongStopSoundByState,
+    playerScriptCmdNop,
+    playerKongHolsterGun,
     playerKongDrawGun,
     playerD0150Wrapper,
     scriptCmdSetActorSpeedY,
@@ -254,7 +254,7 @@ ScriptCommandFn sScriptCommandTable[] = {
     scriptCmdCheckSlopePitch,
 };
 
-s16 sCharacterBehaviorMap[] = { 0xD4, 0xA7, 0xD4, 0xD3, 0xD4 };
+s16 sKongCompanionSpawnArg[] = { 0xD4, 0xA7, 0xD4, 0xD3, 0xD4 };
 
 void actorScriptExecute(Actor *actor) {
     ActorSub4 *state;
@@ -1598,7 +1598,7 @@ s32 scriptOpAllocateSoundChannel(Actor *actor) {
     sScriptPc++;
     scriptReadU8(&imm);
     scriptReadU8(&imm2);
-    sfxAllocateChannel(sScriptChannelIndexTable[imm], imm2 / 255.0);
+    sfxAllocateChannel(sScriptSoundChannelTable[imm], imm2 / 255.0);
     return 1;
 }
 
@@ -1607,7 +1607,7 @@ s32 scriptOpStopSoundChannel(Actor *actor) {
 
     sScriptPc++;
     scriptReadU8(&imm);
-    sfxStopChannel(sScriptChannelIndexTable[imm], 0);
+    sfxStopChannel(sScriptSoundChannelTable[imm], 0);
     return 1;
 }
 
@@ -1639,7 +1639,7 @@ s32 scriptOpBranchOnFrame(Actor *actor) {
     return scriptOpBranchOnCondition(actor, (s16)slot->frame);
 }
 
-s32 scriptOpBranchByTimer8A(Actor *actor) {
+s32 scriptOpBranchOnResult(Actor *actor) {
     return scriptOpBranchOnCondition(actor, actor->sub4->scriptResult);
 }
 
@@ -2083,7 +2083,7 @@ void scriptCmdToggleActorVisibility(Actor *actor) {
 void scriptCmdSpawnCharacterCompanion(Actor *actor) {
     u8 *companionState;
 
-    actorSpawn(0x135, sCharacterBehaviorMap[actor->actorType - 2]);
+    actorSpawn(0x135, sKongCompanionSpawnArg[actor->actorType - 2]);
     actorCopyPoseAndScale(gSpawnedActor, actor, actor->sub4->scaleX);
     gSpawnedActor->roll = actor->roll;
     gSpawnedActor->pitch = actor->pitch;

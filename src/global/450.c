@@ -77,7 +77,7 @@ extern s32 D_8000DDCC;
 extern s32 D_8000DDE4;
 
 extern s8 D_807467CC;
-extern u8 D_807467E4;
+extern u8 gSaveIconTimer;
 extern s8 D_80746830;
 extern s8 gPlayerCharacterId;
 extern s32 D_80750AB0;
@@ -850,8 +850,8 @@ void gfxBuildFrameDisplayLists(FrameMatrices *frameGfx, Gfx **outGlist, Gfx **ou
     }
 
     glist = renderCallbacksExecute(renderCallbacksExecute(func_8062CA0C(renderCallbacksExecute(gfxInit2DDisplayList(glist), 3), gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ), 5), 7);
-    if (D_807467E4 != 0) {
-        D_807467E4 -= 1;
+    if (gSaveIconTimer != 0) {
+        gSaveIconTimer -= 1;
     }
     glist = screenStateTickAndDraw(slotQueueBuildDisplayList(healthHudDrawAll(glist)));
     textFontAgeSheets();

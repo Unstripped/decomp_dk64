@@ -438,7 +438,7 @@ void effectSpawnImpactPuff(f32 scale, f32 x, f32 y, f32 z) {
     effectCreateAtPosition(&sEffectImpactPuffConfig, scale, x, y, z);
 }
 
-extern s16 D_807502D0;
+extern s16 gCarryMinFallSpeed;
 
 void effectFallUpdate(EffectNode *effect, s8 *isDone) {
     s16 *newVel;
@@ -454,8 +454,8 @@ void effectFallUpdate(EffectNode *effect, s8 *isDone) {
     effect->y += (f32) *velocity;
     *velocity -= 1;
     velocity = effect->allocation; // ORIG: the target reloads effect->allocation here (lw v1,0x384(s0) at 0x12d8) before the clamp
-    if (*velocity < D_807502D0) {
-        *velocity = D_807502D0;
+    if (*velocity < gCarryMinFallSpeed) {
+        *velocity = gCarryMinFallSpeed;
     }
     if (effect->y < (f32) effect->speed) {
         *isDone = 1;

@@ -183,7 +183,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             return;
         case 0x36:
             playerSetKongByActorType(a + 2);
-            playerKongStopSoundByState(gPrimaryPlayerActor);
+            playerKongHolsterGun(gPrimaryPlayerActor);
             return;
         case 0x33:
             comp = ((ScriptedActor *)actorFromSpawnNodeOrDefault(a))->scriptState;
@@ -198,9 +198,9 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             comp->particlePath = 0xFF;
             return;
         case 0x0:
-            playerState->unk70 = gPrimaryPlayerActor->yaw;
-            playerState->unk74 = b;
-            playerState->unk6C = a;
+            playerState->launchYaw = gPrimaryPlayerActor->yaw;
+            playerState->launchSpeedY = b;
+            playerState->launchSpeedXZ = a;
             playerStateQueueCallback(0x17, 0, 0);
             return;
         case 0x1:

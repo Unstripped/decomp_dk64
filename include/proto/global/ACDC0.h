@@ -5,8 +5,8 @@
 #include "actor.h"
 #include "render.h"
 struct HudEntry;
-#ifndef PROTO_SKIP_hudFindItemIndex
-s32 hudFindItemIndex(s8);
+#ifndef PROTO_SKIP_hudFindLevelSlot
+s32 hudFindLevelSlot(s8);
 #endif
 #ifndef PROTO_SKIP_hudPauseMenuUpdate
 void hudPauseMenuUpdate(void);

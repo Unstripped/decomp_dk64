@@ -901,7 +901,7 @@ void mpResetPlayerOnRespawn(Actor *playerActor, PlayerState *kongState, PlayerIn
     playerScore->throwAmmo = 0;
     playerScore->homingAmmo = 0;
     kongState->surfaceTimer = 90;
-    playerKongStopSoundByState(playerActor);
+    playerKongHolsterGun(playerActor);
     playerActor->flags &= ~0x20000000;
     kongState->hitSourcePlayerIndex = -1;
     kongState->hitSourceSpawnNodeId = 0;

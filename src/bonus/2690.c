@@ -820,7 +820,7 @@ void bonusTurtleTroubleSnakeUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-s16 D_8002D8C0[] = { 0x1B3, 0x1B4, 0x1B5 };
+s16 sTurtleWarnSfx[] = { 0x1B3, 0x1B4, 0x1B5 };
 
 void bonusTurtleTroubleTurtleUpdate(void) {
     TurtleTroubleTurtle *turtle = gCurrentActor->customState;
@@ -847,7 +847,7 @@ void bonusTurtleTroubleTurtleUpdate(void) {
                     idx = 2 - idx;
                     volume = 0x64;
                 }
-                idx = D_8002D8C0[idx];
+                idx = sTurtleWarnSfx[idx];
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, idx, 0xFF, volume, 0, 0, 0.0f, 0);
             }
             if (snake->spinSpeed < 40.0f) {
@@ -904,7 +904,7 @@ typedef struct {
 s16 sLightFlashTargetModels[] = { 4, 1, 6, 9, 0xC, 0xD5 }; // bonusLightFlashSpawnTargets spawn ids (6)
 s16 sLightFlashTargetScripts[] = { 0x336, 0x339, 0x342, 0x33F, 0x33C, -1 }; // light-flash target script per slot, started at spawn and on re-arm (slot 5: none)
 s16 sLightFlashTargetHitScripts[] = { 0x338, 0x33B, 0x344, 0x341, 0x33E, -1 }; // light-flash target script per slot when shot (slot 5: none)
-s16 D_8002D8EC[] = { 0x22C, 0x29B, 0xB9, 0xC2 };
+s16 sLightFlashDarkSfx[] = { 0x22C, 0x29B, 0xB9, 0xC2 };
 
 void bonusLightFlashGameUpdate(void) {
     static s8 sFlashResetTime = 0x32;
@@ -988,7 +988,7 @@ void bonusLightFlashGameUpdate(void) {
                 sDarkBeepTimer = (randomLcgNext() & 3) + 2;
             }
             if (++sDarkTicks == 0xE) {
-                sfxPlayOnFreeSlot(D_8002D8EC[randomLcgNext() & 3], 0x7FFF, 63.0f, 1.0f, 0x14, 0);
+                sfxPlayOnFreeSlot(sLightFlashDarkSfx[randomLcgNext() & 3], 0x7FFF, 63.0f, 1.0f, 0x14, 0);
             }
         } else {
             if (randomFloat() < 0.5f) {
@@ -1197,7 +1197,7 @@ void bonusLightFlashSpawnTargets(void *ownerActor) {
             gSpawnedActor->flags |= 0x1000;
             gSpawnedActor->yaw = 0x800;
             if (i != 6) {
-                playerKongStopSoundByState(gSpawnedActor);
+                playerKongHolsterGun(gSpawnedActor);
                 actorScriptStart(gSpawnedActor, sLightFlashTargetScripts[i - 1]);
             }
             scale = (i != 6) ? 0.25f : 0.04f;
@@ -1296,10 +1296,10 @@ typedef struct {
     s16 snapTimer;
 } PathPanicActorState;
 
-s16 D_8002D900 = 0;
-s8 D_8002D904 = 0;
+s16 sPathPanicSnapDelay = 0;
+s8 sPathPanicFairyLane = 0;
 s32 D_8002D908 = 0;
-f32 D_8002D90C = 0.0f;
+f32 sSearchlightTargetSpeed = 0.0f;
 
 void bonusPerilPathPanicGameUpdate(void) {
     BonusShooterState *bonusExt = gCurrentActor->customState;
@@ -1313,23 +1313,23 @@ void bonusPerilPathPanicGameUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         bonusExt->ammoCount = 5;
         bonusExt->phase = -2;
-        D_8002D904 = 0;
+        sPathPanicFairyLane = 0;
         switch (gCurrentMap) {
         case 0x90:
             game->fairiesLeft = 6;
-            D_8002D900 = 0x15;
+            sPathPanicSnapDelay = 0x15;
             break;
         case 0x91:
             game->fairiesLeft = 8;
-            D_8002D900 = 0x12;
+            sPathPanicSnapDelay = 0x12;
             break;
         case 0x92:
             game->fairiesLeft = 0xA;
-            D_8002D900 = 0xF;
+            sPathPanicSnapDelay = 0xF;
             break;
         case 0x93:
             game->fairiesLeft = 0xC;
-            D_8002D900 = 0xC;
+            sPathPanicSnapDelay = 0xC;
             break;
         }
         game->timeLimit = 0x3C;
@@ -1367,7 +1367,7 @@ void bonusPerilPathPanicGameUpdate(void) {
             if (actorSpawn(0x149, 0x3D) != 0) {
                 PathPanicActorState *u = gSpawnedActor->customState;
 
-                n = D_8002D904;
+                n = sPathPanicFairyLane;
                 u->game = gCurrentActor;
                 p = *gMinecartTrackPoints + (n + n + n) + 1; // FAKE: n + n + n keeps two addu; n * 3 becomes sll/subu and shifts the block
                 gSpawnedActor->x = p->x + 50.0;
@@ -1379,9 +1379,9 @@ void bonusPerilPathPanicGameUpdate(void) {
                 gSpawnedActor->sub4->scaleY = 0.08f;
                 gSpawnedActor->sub4->scaleZ = 0.08f;
             }
-            n = D_8002D904;
+            n = sPathPanicFairyLane;
             game->spawnTimer = 0x5A;
-            ((s8 *)&D_8002D900)[4] = (u16)(1 - n); // FAKE: storing through D_8002D900's base keeps the D_8002D904 lb/sb from sharing a hoisted lui/addiu base (Q0332); the (u16) puts the subu in t7
+            ((s8 *)&sPathPanicSnapDelay)[4] = (u16)(1 - n); // FAKE: storing through sPathPanicSnapDelay's base keeps the sPathPanicFairyLane lb/sb from sharing a hoisted lui/addiu base (Q0332); the (u16) puts the subu in t7
         }
         bonusExt->aimSlot = 0;
         if (gCurrentActor->state == 0 && (gPlayerPadState[0].stickAbsX >= 0x1F || gPlayerPadState[0].stickAbsY >= 0x1F)) {
@@ -1495,7 +1495,7 @@ void bonusPerilPathPanicKlaptrapUpdate(void) {
     }
     if ((animScript == 0x239 || animScript == 0x23B || (animScript == 0x238 && animSub != NULL && animSub->frame > 48.0f)) && gActorGlobalState.unk15 == 1) {
         actorScriptStart(gCurrentActor, 0x23C);
-        actorExt->snapTimer = ((randomLcgNext() & 7) + 6) * D_8002D900;
+        actorExt->snapTimer = ((randomLcgNext() & 7) + 6) * sPathPanicSnapDelay;
     }
     if (animScript == 0x23A) {
         actorExt->snapTimer -= 1;
@@ -1548,7 +1548,7 @@ void bonusPerilPathPanicFairyUpdate(void) {
 
 extern Actor *gPrimaryPlayerActor;
 extern PlayerStruct *gPlayerSlots;
-extern OSContPad *D_807ECDEC;
+extern OSContPad *gCurrentContPad;
 typedef struct {
     Actor *game;
     f32 goalX;
@@ -1656,8 +1656,8 @@ void bonusBigBugBashGameUpdate(void) {
 
         fz = mathSinF(gPlayerSlots[gCurrentPlayerIndex].camYawInt);
         cosYaw = mathCosF(gPlayerSlots[gCurrentPlayerIndex].camYawInt);
-        fx = D_807ECDEC->stick_x * 0.04f;
-        stickY = D_807ECDEC->stick_y * 0.04f;
+        fx = gCurrentContPad->stick_x * 0.04f;
+        stickY = gCurrentContPad->stick_y * 0.04f;
 
         diffDelta = (fx * cosYaw - stickY * fz) - game->velX;
         game->velX += diffDelta * 0.125f;
@@ -1936,19 +1936,19 @@ void bonusSearchlightSeekGameUpdate(void) {
         switch (gCurrentMap) {
             case 0x67:
                 subExt->targetsLeft = 4;
-                D_8002D90C = 1.0f;
+                sSearchlightTargetSpeed = 1.0f;
                 break;
             case 0x8A:
                 subExt->targetsLeft = 6;
-                D_8002D90C = 1.3f;
+                sSearchlightTargetSpeed = 1.3f;
                 break;
             case 0x8B:
                 subExt->targetsLeft = 8;
-                D_8002D90C = 1.6f;
+                sSearchlightTargetSpeed = 1.6f;
                 break;
             case 0x8C:
                 subExt->targetsLeft = 0xA;
-                D_8002D90C = 1.9f;
+                sSearchlightTargetSpeed = 1.9f;
                 break;
         }
         subExt->rollTimer = 0;
@@ -2009,8 +2009,8 @@ void bonusSearchlightSeekGameUpdate(void) {
             cosYaw = mathCosF(gPlayerSlots[gCurrentPlayerIndex].camYawInt);
             velX = subExt->velX;
             x = subExt->velZ; // FAKE: x (the aim/clamp x home) also holds the velZ pre-read in a register; a separate local or the pad word moves the colouring (pre-existing, now tagged)
-            z = D_807ECDEC->stick_x * 0.06f; // FAKE: z (the aim/clamp z home) also holds the scaled stick_x; any other variable or the pad word costs 10-13 lines (Q0739; pre-existing, now tagged)
-            stickY = D_807ECDEC->stick_y * 0.06f;
+            z = gCurrentContPad->stick_x * 0.06f; // FAKE: z (the aim/clamp z home) also holds the scaled stick_x; any other variable or the pad word costs 10-13 lines (Q0739; pre-existing, now tagged)
+            stickY = gCurrentContPad->stick_y * 0.06f;
             velX = ((z * cosYaw) - (stickY * sinYaw)) - velX;
             subExt->velX = subExt->velX + velX * 0.155f;
             subExt->velZ = subExt->velZ + ((z * sinYaw + stickY * cosYaw) - x) * 0.25f;
@@ -2101,7 +2101,7 @@ void bonusSearchlightSeekTargetUpdate(void) {
         gCurrentActor->sub4->scaleZ = 0.25f;
     }
     if (gCurrentActor->state == 0) {
-        speed = D_8002D90C;
+        speed = sSearchlightTargetSpeed;
         angle = target->heading * 0xC8 - 0x578;
         targetX = mathSinF(angle) * target->radius + game->centerX;
         targetZ = mathCosF(angle) * target->radius + game->centerZ;

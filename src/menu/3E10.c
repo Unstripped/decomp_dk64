@@ -614,7 +614,7 @@ s32 menuDecodePiAddressConstant(s32 offset) {
 extern u8 D_80720CF0;
 extern u8 D_80720D14;
 extern u8 D_80720C34;
-extern void *D_80750518[];
+extern void *gKongIconSprites[];
 extern s16 D_807505B2;
 extern u32 D_80750AB0;
 extern s8 D_80033804;
@@ -650,7 +650,7 @@ void menuInitFileSummary(Actor *actor, s32 unused) {
         *p++ = flag;
     } while (p < (s8 *)i);
     for (p = &D_80033805 - 1, i = 0; i != 5; i++) {
-        menuSpawnUiElementEffect(state, *p != 0 ? D_80750518[i] : &D_807211D0, i, i, 0.8f, 2, 0xF);
+        menuSpawnUiElementEffect(state, *p != 0 ? gKongIconSprites[i] : &D_807211D0, i, i, 0.8f, 2, 0xF);
         p++;
     }
     osPiReadIo(menuDecodePiAddressConstant(0xAFFE1464), &ioVal);
@@ -1568,7 +1568,7 @@ void menuCharacterSelectUpdateActor(void) {
         gCurrentActor->sub4->scaleZ = 2.0f * gCurrentActor->sub4->scaleZ;
         kong = sub174->animSet;
         actorScriptStart(gCurrentActor, D_800338B4[(s16)(kong * 6) + (gCurrentActor->unk155 & 0xF)]);
-        playerKongStopSoundByState(gCurrentActor);
+        playerKongHolsterGun(gCurrentActor);
         gCurrentActor->flags |= 0x1000;
         sub174->animFrame = D_8076A100[gCurrentActor->state & 0xF];
         actorConfigApplyAnimFrameByType(gCurrentActor, gCurrentActor->unk155 + 2, D_8076A100[gCurrentActor->state & 0xF]);
@@ -2736,7 +2736,7 @@ void menuInitGfxState(Gfx *glistp, Actor *menuActor) {
 }
 
 
-extern OSContPad *D_807ECDEC;
+extern OSContPad *gCurrentContPad;
 
 Gfx *menuUpdateStateDispatch(Actor *actor, s32 opMode, Gfx *dl, s32 subArg) {
     MenuScreenState *state = actor->customState;
@@ -2757,14 +2757,14 @@ Gfx *menuUpdateStateDispatch(Actor *actor, s32 opMode, Gfx *dl, s32 subArg) {
     if (*gPlayerSlots->heldButtonsPtr & 0x2000) {
         buttons |= 0x100;
     }
-    if (D_807ECDEC->stick_x < -0x28) {
+    if (gCurrentContPad->stick_x < -0x28) {
         buttons |= 4;
-    } else if (D_807ECDEC->stick_x >= 0x29) {
+    } else if (gCurrentContPad->stick_x >= 0x29) {
         buttons |= 8;
     }
-    if (D_807ECDEC->stick_y < -0x28) {
+    if (gCurrentContPad->stick_y < -0x28) {
         buttons |= 0x20;
-    } else if (D_807ECDEC->stick_y >= 0x29) {
+    } else if (gCurrentContPad->stick_y >= 0x29) {
         buttons |= 0x10;
     }
     switch (opMode) {
@@ -3105,7 +3105,7 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
             elemActor->y = target->spawnY + (f32)offsetY;
             if (type == 8) {
                 D_80033FAC = 0;
-                t = D_807ECDEC->stick_x;
+                t = gCurrentContPad->stick_x;
                 if (t >= 0xB) {
                     elemActor->x += (f32)t;
                     if (elemActor->x > 960.0f) {

@@ -825,10 +825,10 @@ typedef struct SpritePair {
     /* 0x0 */ void *sprites[2];
 } SpritePair;
 
-extern s16 D_807502D0;
-extern f32 D_807502E4;
+extern s16 gCarryMinFallSpeed;
+extern f32 gCarryGravity;
 extern u8 D_80720340;
-extern SpritePair D_807503A4;
+extern SpritePair gCarryDebrisSprites;
 
 
 void carryObjectUpdate(void) {
@@ -1002,9 +1002,9 @@ void carryObjectUpdate(void) {
         }
         break;
     case 3:
-        gCurrentActor->speedY += D_807502E4;
-        if (gCurrentActor->speedY < D_807502D0) {
-            gCurrentActor->speedY = D_807502D0;
+        gCurrentActor->speedY += gCarryGravity;
+        if (gCurrentActor->speedY < gCarryMinFallSpeed) {
+            gCurrentActor->speedY = gCarryMinFallSpeed;
         }
         timedOut = 0;
         state->spinYaw -= 10.0f;
@@ -1042,7 +1042,7 @@ void carryObjectUpdate(void) {
             actorDespawn(gCurrentActor);
         }
         if (gActorGlobalState.notifyReceived == 0) {
-            spritePair = D_807503A4;
+            spritePair = gCarryDebrisSprites;
             for (particleIdx = 0; particleIdx < 8; particleIdx++) {
                 offsetX = ((randomNonNegative() >> 15) % 8191) / 200.0 - 20.0;
                 offsetY = ((randomNonNegative() >> 15) % 8191) / 200.0 - 20.0;

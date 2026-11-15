@@ -164,13 +164,13 @@ typedef struct PlayerInputHandlers {
 
 
 extern PlayerStruct *gPlayerSlots;
-extern OSContPad *D_807ECDEC;
-extern u16 D_807ECDF0;
+extern OSContPad *gCurrentContPad;
+extern u16 gContPressedButtons;
 u16 gButtonRemapTable[2] = { 0, 0 };
-f32 D_80750FF4 = 30.0f;
-f32 D_80750FF8 = 10.0f;
-f32 D_80750FFC = 1.7f;
-f32 D_80751000 = 0.5f;
+f32 sZInteractRadiusType3D = 30.0f;
+f32 sLaneBrakeMaxSpeed = 10.0f;
+f32 sLaneSteerScale = 1.7f;
+f32 sHeldActorVineSpeed = 0.5f;
 PlayerInputHandlers gPlayerInputHandlers[107] = {
     { {
         playerInputNoop, playerInputNoop, playerInputNoop, playerInputNoop,
@@ -934,16 +934,16 @@ s32 playerInputUpdate(s32 handlerSet) {
     s16 angle;
 
     prevState = gActivePlayerActor->state;
-    gPlayerPadState[gCurrentPlayerIndex].heldButtons = inputRemapButtons(D_807ECDEC->button, gButtonRemapTable);
-    gPlayerPadState[gCurrentPlayerIndex].pressedButtons = inputRemapButtons(D_807ECDF0, gButtonRemapTable);
+    gPlayerPadState[gCurrentPlayerIndex].heldButtons = inputRemapButtons(gCurrentContPad->button, gButtonRemapTable);
+    gPlayerPadState[gCurrentPlayerIndex].pressedButtons = inputRemapButtons(gContPressedButtons, gButtonRemapTable);
     if (gActivePlayerState->stateFlags2 & 0x20) {
         gPlayerPadState[gCurrentPlayerIndex].heldButtons = 0;
         gPlayerPadState[gCurrentPlayerIndex].pressedButtons = 0;
     }
-    D_807ECDEC->stick_x = INPUT_MIN(INPUT_MAX(D_807ECDEC->stick_x, -80), 80);
-    D_807ECDEC->stick_y = INPUT_MIN(INPUT_MAX(D_807ECDEC->stick_y, -80), 80);
-    gPlayerPadState[gCurrentPlayerIndex].stickX = D_807ECDEC->stick_x;
-    gPlayerPadState[gCurrentPlayerIndex].stickY = D_807ECDEC->stick_y;
+    gCurrentContPad->stick_x = INPUT_MIN(INPUT_MAX(gCurrentContPad->stick_x, -80), 80);
+    gCurrentContPad->stick_y = INPUT_MIN(INPUT_MAX(gCurrentContPad->stick_y, -80), 80);
+    gPlayerPadState[gCurrentPlayerIndex].stickX = gCurrentContPad->stick_x;
+    gPlayerPadState[gCurrentPlayerIndex].stickY = gCurrentContPad->stick_y;
     if (gActivePlayerState->stateFlags2 & 0x20) {
         gPlayerPadState[gCurrentPlayerIndex].stickX = 0;
         gPlayerPadState[gCurrentPlayerIndex].stickY = 0;
@@ -1896,7 +1896,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                     projectileSpawnNodeEntry(spawnId, weaponFlags, scale, gActivePlayerActor->yaw, gKongProjectileSpeed[gCurrentCharacterIndex], 0.0f, gActivePlayerActor);
                 }
                 if ((mpIsMatchType(0) != 0) && (slotQueueGetValue(ammoSlot, gCurrentPlayerIndex) == 0)) {
-                    playerKongStopSoundByState(gCurrentActor);
+                    playerKongHolsterGun(gCurrentActor);
                     playerResumeLocomotion(gCurrentActor);
                 }
                 playerInputToggleActiveState(gCurrentActor);
@@ -2568,7 +2568,7 @@ void playerInputHandleZButtonInteract(void) {
     ok = 1;
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x2000) {
         if (gActivePlayerState->heldActor->hasArcBounds == 0) {
-            radius = (gActivePlayerState->heldActor->actorType == 0x3D) ? D_80750FF4 : 30.0f;
+            radius = (gActivePlayerState->heldActor->actorType == 0x3D) ? sZInteractRadiusType3D : 30.0f;
             if (collisionTestSphere(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, radius, &arcCenter, &arcWidth, 1, 0)) {
                 if (!mathAngleInArcWithMargin(arcCenter, arcWidth, gCurrentActor->yaw, 0)) {
                     ok = 0;
@@ -2644,7 +2644,7 @@ void playerInputHandleZButtonFire(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) {
         if (gScheduler.unk280 - gActivePlayerState->unk60 < 0xF) {
             if (gActivePlayerState->gunDrawn) {
-                playerPlayKongSpecificSfx(gCurrentActor);
+                playerKongPlayHolsterSfx(gCurrentActor);
             }
             gActivePlayerState->gunDrawn = 0;
             playerLeaveViewMode(gCurrentActor, 0);
@@ -2665,7 +2665,7 @@ void playerInputHandleZButtonShoot(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) {
         if (gScheduler.unk280 - gActivePlayerState->unk60 < 0xF) {
             if (gActivePlayerState->gunDrawn) {
-                playerPlayKongSpecificSfx(gCurrentActor);
+                playerKongPlayHolsterSfx(gCurrentActor);
             }
             gActivePlayerState->gunDrawn = 0;
             playerLeaveViewMode(gCurrentActor, 0);
@@ -3003,7 +3003,7 @@ void playerInputHandleRButtonCameraLock(void) {
         }
         if (!(obj->unkAC & 0x4000)) {
             obj->unkAC ^= 2;
-            if ((obj->unkF1 < 3) && (obj->unkF5 == 0) && (obj->unkF3 != 2)) {
+            if ((obj->unkF1 < 3) && (obj->unkF5 == 0) && (obj->mode != 2)) {
                 obj->unkF1 = 0x14;
                 obj->unkB2 = gCurrentActor->yaw;
                 gActivePlayerState->camActor->distToFloor = obj->unkB8;
@@ -3581,7 +3581,7 @@ typedef struct LaneActorState {
     u8 pad0[2];
     s16 stickInput;
     f32 unk4;
-    f32 unk8;
+    f32 vineSpeed;
     f32 steer;
     f32 unk10;
     u8 pad14[0xC];
@@ -3592,13 +3592,13 @@ typedef struct LaneActorState {
     u8 unk29;
     u8 pad2A[6];
     Actor *unk30;
-    u8 unk34;
+    u8 mode;
     u8 pad35[9];
     u8 unk3E;
     u8 pad3F[3];
     u8 stickDirection;
     u8 pad43[2];
-    u8 unk45;
+    u8 inputLocked;
 } LaneActorState;
 
 typedef struct LaneActor {
@@ -3724,7 +3724,7 @@ void playerInputReadLaneSteer(LaneActor *actor, LaneActorState *st) {
     f32 clamped;
     f32 steer;
 
-    if (st->unk45 == 0 && st->unk34 == 2) {
+    if (st->inputLocked == 0 && st->mode == 2) {
         pullBack = gPlayerPadState[gCurrentPlayerIndex].stickY < -0x14;
         sign = gPlayerPadState[gCurrentPlayerIndex].stickX >= 0 ? 1 : -1;
         absX = gPlayerPadState[gCurrentPlayerIndex].stickAbsX;
@@ -3733,9 +3733,9 @@ void playerInputReadLaneSteer(LaneActor *actor, LaneActorState *st) {
         steer *= sign;
         steer *= 0.0125f;
         st->steer = steer;
-        st->steer *= D_80750FFC;
+        st->steer *= sLaneSteerScale;
         if (st->braking == 0) {
-            st->braking = (actor->base.speedXZ < D_80750FF8) & pullBack;
+            st->braking = (actor->base.speedXZ < sLaneBrakeMaxSpeed) & pullBack;
         } else {
             st->braking = pullBack;
         }
@@ -3761,7 +3761,7 @@ void playerInputSetHeldActorVineSpeed(void) {
     actor = gActivePlayerState->actor;
     if (actor != NULL) {
         st = actor->customState;
-        st->unk8 = D_80751000;
+        st->vineSpeed = sHeldActorVineSpeed;
     }
 }
 
@@ -3772,7 +3772,7 @@ void playerInputClearHeldActorVineSpeed(void) {
     a = gActivePlayerState->actor;
     if (a != NULL) {
         st = a->customState;
-        st->unk8 = 0.0f;
+        st->vineSpeed = 0.0f;
     }
 }
 
@@ -3825,7 +3825,7 @@ void playerInputScaleHeldActorVineClimb(void) {
     a = gActivePlayerState->actor;
     if (a != NULL) {
         st = a->customState;
-        if (st->unk45 == 0 && st->unk34 == 2) {
+        if (st->inputLocked == 0 && st->mode == 2) {
             if (st->unk25 == 0) {
                 st->unk4 = 1.1f;
             }
@@ -3856,7 +3856,7 @@ void func_806E8B28(void) {
     a = ((LaneActor *)gActivePlayerState->actor);
     if (a != NULL) {
         st = a->base.customState;
-        if (st->unk45 == 0 && st->unk34 == 2) {
+        if (st->inputLocked == 0 && st->mode == 2) {
             o = a->component;
             if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
                 o->action = 1;
@@ -3872,7 +3872,7 @@ void func_806E8BA4(void) {
     a = gActivePlayerState->actor;
     if (a != NULL) {
         st = a->customState;
-        if (st->unk45 == 0 && st->unk34 == 2) {
+        if (st->inputLocked == 0 && st->mode == 2) {
             st->unk10 = 2.0f;
         } else {
             st->unk10 = 1.0f;
@@ -3905,7 +3905,7 @@ void playerInputStepLane(void) {
             controllerAnimSetStateIfChanged(gActivePlayerActor, 0x22A, 0.0f, 0.0f);
         }
         st = a->base.customState;
-        if (st->unk45 == 0 && st->unk30->state == 2) {
+        if (st->inputLocked == 0 && st->unk30->state == 2) {
             o = a->component;
             target = o->targetLane;
             current = o->lane;
@@ -3936,7 +3936,7 @@ void func_806E8D54(void) {
     a = ((LaneActor *)gActivePlayerState->actor);
     if (a != NULL) {
         st = a->base.customState;
-        if (st->unk34 != 0 && st->unk34 < 3 && st->unk45 == 0) {
+        if (st->mode != 0 && st->mode < 3 && st->inputLocked == 0) {
             o = a->component;
             st->unk4 = o->unk14 + 1.1;
         }
@@ -3951,7 +3951,7 @@ void func_806E8DB4(void) {
     a = ((LaneActor *)gActivePlayerState->actor);
     if (a != NULL) {
         st = a->base.customState;
-        if (st->unk34 != 0 && st->unk34 < 3 && st->unk45 == 0) {
+        if (st->mode != 0 && st->mode < 3 && st->inputLocked == 0) {
             o = a->component;
             st->unk4 = o->unk14;
         }
@@ -3965,7 +3965,7 @@ void func_806E8E00(void) {
     a = gActivePlayerState->actor;
     if (a != NULL) {
         st = a->customState;
-        if (st->unk45 == 0 && st->unk34 == 2 && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000)) {
+        if (st->inputLocked == 0 && st->mode == 2 && (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000)) {
             st->unk29 = 1;
         }
     }
@@ -4317,7 +4317,7 @@ void playerInputCycleCameraZoom(void) {
         }
         camSetZoomLevel(gActivePlayerState->camActor, state->unkEF);
         state->unkEE = state->unkEF;
-        if ((state->unkEF != state->unkF0) && ((state->unk8 == 0) || (state->unk8 >= 0x96)) && (state->unkF3 != 2)) {
+        if ((state->unkEF != state->unkF0) && ((state->unk8 == 0) || (state->unk8 >= 0x96)) && (state->mode != 2)) {
             sfxPlayOnFreeSlot(0x27, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
         state->unkF1 = 0xB;
@@ -4520,7 +4520,7 @@ void playerLeaveViewMode(Actor *actor, u8 isFirstPerson) {
     if (state->gunDrawn) {
         playerKongDrawGun(actor);
     } else {
-        playerKongStopSoundByState(actor);
+        playerKongHolsterGun(actor);
     }
     actor->speedXZ = 0.0f;
     actor->yaw = func_8062773C(state->camActor);

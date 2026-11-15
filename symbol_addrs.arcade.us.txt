@@ -97,3 +97,7 @@ arcadeSetStageTextColor = 0x80031948; // type:func
 arcadeDrawHud = 0x800319D4; // type:func
 arcadeDrawStage3Background = 0x800275E8; // type:func
 arcadeInsertHighScore = 0x80024A50; // type:func
+gArcadeLevel = 0x8004A76C;
+gArcadeFrozen = 0x8004C71D;
+gArcadeBonusTimer = 0x8004C71E;
+gArcadePlayerIndex = 0x8004C71F;

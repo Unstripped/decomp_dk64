@@ -117,7 +117,7 @@ void actorScriptedAnimSideEffects(u16 animId) {
             playerMountBarrel(gCurrentActor, 0);
             break;
         case 0x114:
-            playerKongStopSoundByState(gCurrentActor);
+            playerKongHolsterGun(gCurrentActor);
             playerKongSpawnTransformationSmoke(gCurrentActor);
             break;
         case 0x2CF:
@@ -493,7 +493,7 @@ void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
     f32 nodeY;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        playerKongStopSoundByState(gCurrentActor);
+        playerKongHolsterGun(gCurrentActor);
         gBehaviourAnimState->flags |= 0x200;
         actorSetTargetSpeed(gCurrentActor, 0);
     }
@@ -1136,7 +1136,7 @@ void actorScriptedUpdate(void) {
                 gCurrentActor->floorNodeId = 1;
                 gCurrentActor->flags |= 0x1000;
                 func_80724CA4(2, 1);
-                playerKongStopSoundByState(gCurrentActor);
+                playerKongHolsterGun(gCurrentActor);
                 break;
             case 0x17:
                 gCurrentActor->floorNodeId = 1;

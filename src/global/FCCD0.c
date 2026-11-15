@@ -810,7 +810,7 @@ void effectSpriteUpdatePosition(EffectNode *effect, u8 *done) {
     *x = -200.0f;
 }
 
-extern void *D_80750518[];
+extern void *gKongIconSprites[];
 
 void slotQueueInitEffectSprites(s32 slot) {
     s32 pad;
@@ -831,7 +831,7 @@ void slotQueueInitEffectSprites(s32 slot) {
         effectSetCallback(effectSpriteUpdatePosition);
         effectSetSpeed(i);
         gSlotQueueKongIconX[i] = -100.0f;
-        effectCreateAtPosition(D_80750518[i], 1.0f, -200.0f, 0.0f, -10.0f);
+        effectCreateAtPosition(gKongIconSprites[i], 1.0f, -200.0f, 0.0f, -10.0f);
     }
 }
 

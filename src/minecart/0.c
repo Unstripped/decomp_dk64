@@ -246,7 +246,7 @@ void minecartUpdateHeadlightAndSpeed(void) {
     minecartUpdateHeadlight();
 }
 
-extern s16 D_807502D0;
+extern s16 gCarryMinFallSpeed;
 extern f32 D_807502F8;
 extern s16 D_80750338;
 extern u8 D_80028C40[];
@@ -261,7 +261,7 @@ void minecartUpdatePhysics(void) {
     cart = gCurrentActor->customState;
     prevVertPos = cart->jumpHeight;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->terminalSpeedY = D_807502D0;
+        gCurrentActor->terminalSpeedY = gCarryMinFallSpeed;
         cart->tiltAccel = 3.0f;
         cart->tiltRateMax = 12.0f;
     }
@@ -313,7 +313,7 @@ void minecartReverseTrackBehaviour(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         actorSetUniformScale(gPrimaryPlayerActor, 0.12f);
         gCurrentActor->accelY = D_807502F8;
-        gCurrentActor->terminalSpeedY = D_807502D0;
+        gCurrentActor->terminalSpeedY = gCarryMinFallSpeed;
         cart->tiltAccel = 0.1f;
         cart->tiltRateMax = 5.0f;
     }

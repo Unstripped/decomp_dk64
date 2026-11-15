@@ -2146,10 +2146,10 @@ void playerSetTerminalVelocity754(void) {
     }
 }
 
-extern f32 D_80753578[];
+extern f32 gKongAccelY[];
 
 void playerSetBaseGravity(void) {
-    gActivePlayerActor->accelY = D_80753578[gCurrentCharacterIndex];
+    gActivePlayerActor->accelY = gKongAccelY[gCurrentCharacterIndex];
 }
 
 extern f32 D_80753594[];
@@ -2277,7 +2277,7 @@ void playerSetNormalMoveParams(void) {
 }
 
 void playerSetTerminalVelocity578(void) {
-    gActivePlayerActor->accelY = D_80753578[gCurrentCharacterIndex];
+    gActivePlayerActor->accelY = gKongAccelY[gCurrentCharacterIndex];
     gActivePlayerState->unk50 = 0;
     gActivePlayerState->unk28 = 1;
 }

@@ -52,7 +52,7 @@ struct {
     u32 retraceCount;
     s32 taskDone;
     OSContPad pad;
-} D_807F0560;
+} sSchedState;
 
 void schedCreate(SchedStruct *sc, void *stack, s32 priority, u8 unused, u8 retraceCount) {
     SchedConfig config;
@@ -156,12 +156,12 @@ void schedMain(void *arg) {
                 }
                 osWritebackDCacheAll();
             }
-            if (D_807F0560.retraceCount == 0) {}  // FAKE: keeps D_807F0560 un-pointerized (separate lui per access)
+            if (sSchedState.retraceCount == 0) {}  // FAKE: keeps sSchedState un-pointerized (separate lui per access)
         }
         switch ((u32)msg) {
         case 0x29A:
-            cnt = D_807F0560.retraceCount + 1;  // FAKE: split increment through cnt keeps the new count in v0 (cnt = ++x gives t0/t1; ++x % 480 pointerizes D_807F0560)
-            D_807F0560.retraceCount = cnt;
+            cnt = sSchedState.retraceCount + 1;  // FAKE: split increment through cnt keeps the new count in v0 (cnt = ++x gives t0/t1; ++x % 480 pointerizes sSchedState)
+            sSchedState.retraceCount = cnt;
             if (cnt % 480 == 0) {
                 D_807F04C8 = D_807F04D0;
                 D_807F04D8 = D_807F04DC;
@@ -378,7 +378,7 @@ s32 schedTaskDone(SchedStruct *sc, TaskNode *task) {
         ret = 0;
     }
 
-    D_807F0560.taskDone = ret;
+    sSchedState.taskDone = ret;
     return ret;
 }
 
@@ -518,8 +518,8 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
     done = 0;
     ret = 0;
     if (reset == 0) {
-        osContGetReadData(&D_807F0560.pad);
-        held = D_807F0560.pad.button; // FAKE: s32 copy temp keeps the lhu value in v0 for ori t8,v0,0x400 at 0xed0 and fills the 4-byte slot between i and ret (a direct s16 read gives lh v1)
+        osContGetReadData(&sSchedState.pad);
+        held = sSchedState.pad.button; // FAKE: s32 copy temp keeps the lhu value in v0 for ori t8,v0,0x400 at 0xed0 and fills the 4-byte slot between i and ret (a direct s16 read gives lh v1)
         buttons = held;
         if (autoAdvance != 0 && sAutoPageCount != 0) {
             buttons |= D_JPAD;

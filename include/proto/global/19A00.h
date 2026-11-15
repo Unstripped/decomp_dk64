@@ -300,8 +300,8 @@ s32 scriptOpNoopReturn1(Actor *);
 #ifndef PROTO_SKIP_scriptOpBranchOnFrame
 s32 scriptOpBranchOnFrame(Actor *);
 #endif
-#ifndef PROTO_SKIP_scriptOpBranchByTimer8A
-s32 scriptOpBranchByTimer8A(Actor *);
+#ifndef PROTO_SKIP_scriptOpBranchOnResult
+s32 scriptOpBranchOnResult(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptSkipBranchCases
 void scriptSkipBranchCases(Actor *);

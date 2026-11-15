@@ -225,7 +225,7 @@ void func_8068EF54(void) {
             slotQueueCancel(5, 0);
             playerState->unk240 = 0;
             if (!(playerState->stateFlags2 & 4)) {
-                playerKongStopSoundByState(owner);
+                playerKongHolsterGun(owner);
             }
         }
         if (playerState->unk1A2 != 0 || (camIsCutsceneActive() && gFrameCounter % 5 == 0)) {
@@ -620,7 +620,7 @@ void actorUpdatePlayerInteraction(void) {
     resetting = gCurrentActor->contactFlags & 1;
     vehicle->raceStatus = 2;
     vehicleUpdateEngineSound(vehicle, motion);
-    if (gGameMode == 0 && camState->unkF3 != 4) {
+    if (gGameMode == 0 && camState->mode != 4) {
         camSetTargetScaled(playerState->camActor, gCurrentActor, 4, 0x800, 0xA0, 0, 6, 0x12C, 0x8F, 0, 0.2f);
     }
     vehicleUpdateMotion(vehicle, motion, 1, 1);
@@ -796,7 +796,7 @@ u8 straight;
         if (trailEffect != 0) {
             ownerState = proj->parentActor->customState;
             camState = ownerState->camActor->customState;
-            if (camState->unkF3 == 3) {
+            if (camState->mode == 3) {
                 effectSetCallback(effectLifetimeCountdownUpdate);
                 effectSetSpeed(0x32);
                 effectCreateAtPosition(trailEffect, homing->scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
@@ -1267,8 +1267,8 @@ void projectileSpawnParticleEffect(void) {
 
 extern u8 D_80720020;
 extern u8 D_807202D0;
-extern s16 D_807502D0;
-extern f32 D_807502E4;
+extern s16 gCarryMinFallSpeed;
+extern f32 gCarryGravity;
 extern u8 D_807200EC;
 extern u8 gPlayerCount;
 extern u8 D_8072029C;
@@ -1292,8 +1292,8 @@ void projectileSpawnParticleEffectWithScale(void) {
     state = gCurrentActor->customState;
     projectileBounceParticleUpdate(&D_807201D4);
     if (state->param == 1) {
-        gCurrentActor->speedY += D_807502E4;
-        minSpeedY = (f32)D_807502D0;
+        gCurrentActor->speedY += gCarryGravity;
+        minSpeedY = (f32)gCarryMinFallSpeed;
         if (gCurrentActor->speedY < minSpeedY) {
             gCurrentActor->speedY = minSpeedY;
         }
@@ -1602,9 +1602,9 @@ void projectileBounceExplodeScaledUpdate(void) {
     }
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-    gCurrentActor->speedY += D_807502E4 * scale;
-    if (gCurrentActor->speedY < (f32)D_807502D0) {
-        gCurrentActor->speedY = (f32)D_807502D0;
+    gCurrentActor->speedY += gCarryGravity * scale;
+    if (gCurrentActor->speedY < (f32)gCarryMinFallSpeed) {
+        gCurrentActor->speedY = (f32)gCarryMinFallSpeed;
     }
     if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
         switch (state->bounceCount) {
@@ -1756,8 +1756,8 @@ void projectileBounceExplodeGreenUpdate(void) {
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 10, 10, 1, 0x4B, 0x78, 0, 1.0f);
-    gCurrentActor->speedY += D_807502E4;
-    minSpeed = (f32)D_807502D0;
+    gCurrentActor->speedY += gCarryGravity;
+    minSpeed = (f32)gCarryMinFallSpeed;
     if (gCurrentActor->speedY < minSpeed) {
         gCurrentActor->speedY = minSpeed;
     }
@@ -2282,7 +2282,7 @@ void projectileHomingParticleUpdate(void) {
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
     gCurrentActor->speedY += D_80750274;
-    minSpeed = D_807502D0;
+    minSpeed = gCarryMinFallSpeed;
     if (gCurrentActor->speedY < minSpeed) {
         gCurrentActor->speedY = minSpeed;
     }
@@ -2388,7 +2388,7 @@ void projectileFallBounceUpdate(void) {
                 gCurrentActor->roll = (s16)(s32)((f64)gCurrentActor->roll - rollStep);
             }
             gCurrentActor->speedY = gCurrentActor->speedY + gCurrentActor->accelY;
-            value = (f32)D_807502D0;
+            value = (f32)gCarryMinFallSpeed;
             if (gCurrentActor->speedY < value) {
                 gCurrentActor->speedY = value;
             }

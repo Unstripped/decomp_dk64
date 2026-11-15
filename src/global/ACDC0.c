@@ -66,13 +66,13 @@ extern s8 sPauseTextCounts[2];
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
-extern u8 **D_807FC7E0;
-extern u8 **D_807FC7E8;
+extern u8 **sPauseMenuStrings;
+extern u8 **sPauseLevelNames;
 extern s8 D_807FC80F;
 extern u8 D_807FC810;
 extern f32 D_807FC808;
-extern s8 D_8075052C;
-extern s8 D_807505D0;
+extern s8 sPauseBumpStep;
+extern s8 sPauseLastLevelSlot;
 extern s16 D_807FC82A;
 extern s16 D_807FC82C;
 extern s16 D_807FC82E;
@@ -85,7 +85,7 @@ extern s16 D_80744710[];
 extern s16 D_80744720[];
 extern s16 D_807505B2[];
 extern s8 gPauseMenuMode;
-extern s8 D_80750530[5];
+extern s8 sPauseKongUnlocked[5];
 extern u8 D_80750531[];
 extern s32 gCurrentMap;
 extern s8 D_807FC80E;
@@ -100,16 +100,16 @@ extern char D_8075AA80[], D_8075AA88[], D_8075AA90[], D_8075AA94[], D_8075AA9C[]
 extern char D_8075AAB4[], D_8075AABC[], D_8075AAC4[], D_8075AACC[], D_8075AAD4[], D_8075AADC[], D_8075AAE4[];
 extern s32 D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
 
-char *D_807504E0[14] = {
+char *sLevelNames[14] = {
     D_8075AA80, D_8075AA88, D_8075AA90, D_8075AA94, D_8075AA9C, D_8075AAA4, D_8075AAAC,
     D_8075AAB4, D_8075AABC, D_8075AAC4, D_8075AACC, D_8075AAD4, D_8075AADC, D_8075AAE4,
 };
-void *D_80750518[5] = { &D_807214A0, &D_807214B8, &D_807214D0, &D_807214E8, &D_80721500 };
-s8 D_8075052C = 0;
-s8 D_80750530[5] = { 1, 1, 0, 0, 0 };
-// counts 0..13 while the kong carousel page renders (never read in C; its period is the length of D_8075053C)
+void *gKongIconSprites[5] = { &D_807214A0, &D_807214B8, &D_807214D0, &D_807214E8, &D_80721500 };
+s8 sPauseBumpStep = 0;
+s8 sPauseKongUnlocked[5] = { 1, 1, 0, 0, 0 };
+// counts 0..13 while the kong carousel page renders (never read in C; its period is the length of sPausePulseTable)
 s8 sPauseCarouselFrame = 0;
-u8 D_8075053C[14] = { 0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1 };
+u8 sPausePulseTable[14] = { 0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1 };
 // rgb(a) tint of the locked kong icons on the carousel, per kong
 u8 sPauseKongColors[5][4] = {
     { 0xFF, 0x00, 0x00, 0xFF }, { 0xFF, 0x00, 0x00, 0xFF }, { 0x16, 0x99, 0xFF, 0xFF },
@@ -120,14 +120,14 @@ s8 sPauseLevelOrder[9] = { 7, 0, 1, 2, 3, 4, 5, 6, 8 };
 // totals page: the maximum shown beside each gPauseCollectibleCounts[] entry
 s16 sPauseCollectibleTotals[10] = { 0xC8, 0xA, 8, 0x28, 1, 0x14, 1, 0x28, 1, 0 };
 s8 D_80750580 = 0;
-f32 D_80750584[8] = { 0.0f, -0.02f, 0.04f, -0.04f, 0.06f, 0.06f, -0.06f, -0.06f };
+f32 sPauseBumpFade[8] = { 0.0f, -0.02f, 0.04f, -0.04f, 0.06f, 0.06f, -0.06f, -0.06f };
 s16 D_807505A4[10] = { 0, 0x333, 0x666, 0x999, 0xCCC, 0, 6, 0x46, 0x42, 0x75 };
 // battle crown flag per level index (0..8); [9] is the Isles' second crown
 s16 sPauseCrownFlags[10] = { 0x261, 0x262, 0x263, 0x264, 0x265, 0x268, 0x269, 0x266, 0x26A, 0x267 };
 s8 gPauseMenuMode = 0;
-s8 D_807505D0 = 0;
+s8 sPauseLastLevelSlot = 0;
 
-s32 hudFindItemIndex(s8 levelId) {
+s32 hudFindLevelSlot(s8 levelId) {
     s32 i;
 
     for (i = 0; i < 9; i++) {
@@ -139,15 +139,15 @@ s32 hudFindItemIndex(s8 levelId) {
 }
 
 
-extern OSContPad *D_807ECDEC;
-extern u8 D_807467E4;
+extern OSContPad *gCurrentContPad;
+extern u8 gSaveIconTimer;
 extern s32 D_8076A098;
 extern u8 gCurrentWorldId;
 extern s32 gGlobalOverlayFlags;
 extern f32 D_807FC7FC;
 extern s8 D_80750580;
 extern s16 D_807505A4[];
-extern f32 D_80750584[];
+extern f32 sPauseBumpFade[];
 extern s8 sPauseCarouselKong;
 extern s16 D_807FC802;
 extern f32 sPauseCarouselTimer;
@@ -192,32 +192,32 @@ void hudPauseMenuUpdate(void) {
             break;
     }
     if (!(gCurrentActor->flags & 0x10)) {
-        D_807FC7E0 = heapAlloc(0x6C);
+        sPauseMenuStrings = heapAlloc(0x6C);
         for (i = 0; i < 0x1B; i++) {
-            D_807FC7E0[i] = textTableGetString(0x24, i, 0);
+            sPauseMenuStrings[i] = textTableGetString(0x24, i, 0);
         }
-        D_807FC7E8 = heapAlloc(0x24);
+        sPauseLevelNames = heapAlloc(0x24);
         for (i = 0; i < 9; i++) {
-            D_807FC7E8[i] = textTableGetString(0x23, i, 0);
+            sPauseLevelNames[i] = textTableGetString(0x23, i, 0);
         }
         D_8076A098++;
         D_807FC7FC = gPlayerSlots->camY;
         sPauseSaveCooldown = 0;
         D_807FC8B8 = 0;
         D_80750580 = 1;
-        D_807505D0 = 7;
-        while (D_807505D0 >= 0 && flagGet(D_807505D0 + 0x1C5, 0) == 0) {
-            D_807505D0--;
+        sPauseLastLevelSlot = 7;
+        while (sPauseLastLevelSlot >= 0 && flagGet(sPauseLastLevelSlot + 0x1C5, 0) == 0) {
+            sPauseLastLevelSlot--;
         }
-        D_807505D0++;
+        sPauseLastLevelSlot++;
         hud->page = 0;
         hud->menuRow = 0;
         hud->fadeDir = -1;
         hud->fade = 1.0f;
         hud->carouselProgress = 0.0f;
         hud->kong = playerGetResolvedKongId(0);
-        hud->worldIndex[0] = hudFindItemIndex(mapGetHubWorldIndex(gCurrentWorldId, 1));
-        if (D_807505D0 < hud->worldIndex[0]) {
+        hud->worldIndex[0] = hudFindLevelSlot(mapGetHubWorldIndex(gCurrentWorldId, 1));
+        if (sPauseLastLevelSlot < hud->worldIndex[0]) {
             hud->worldIndex[0] = 0;
         }
         hud->worldIndex[1] = hud->worldIndex[0];
@@ -234,7 +234,7 @@ void hudPauseMenuUpdate(void) {
         sPauseTextLists[1] = sPauseTextLists[0] + 1;
         sPauseTextCounts[0] = 0;
         sPauseTextCounts[1] = 0;
-        D_8075052C = 0;
+        sPauseBumpStep = 0;
         D_807FC80E = 1;
         hudPauseMenuRefreshTotals();
         hudPauseMenuBuildPage(hud, 0);
@@ -272,7 +272,7 @@ void hudPauseMenuUpdate(void) {
                 }
                 if (flag != 0) {
                     hud->fadeDir = 1;
-                    D_8075052C = 0;
+                    sPauseBumpStep = 0;
                     buttons = 0;
                     sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
@@ -282,7 +282,7 @@ void hudPauseMenuUpdate(void) {
         switch (i) {
             case 0:
                 if (hud->menuRow != 3) {
-                    stickY = D_807ECDEC->stick_y;
+                    stickY = gCurrentContPad->stick_y;
                     if (stickY < -0x32) {
                         if (D_807FC80E == 0) {
                             hud->menuRow++;
@@ -362,7 +362,7 @@ void hudPauseMenuUpdate(void) {
                 if (sPauseCarouselTimer == 0.0f) {
                     D_807FC802 = 0;
                     if (moved == 0) {
-                        x = D_807ECDEC->stick_x;
+                        x = gCurrentContPad->stick_x;
                         if (x < -0x28) {
                             do {
                                 D_807FC802 -= 0x333;
@@ -370,7 +370,7 @@ void hudPauseMenuUpdate(void) {
                                 if (sPauseCarouselKong >= 5) {
                                     sPauseCarouselKong = 0;
                                 }
-                            } while (D_80750530[sPauseCarouselKong] == 0);
+                            } while (sPauseKongUnlocked[sPauseCarouselKong] == 0);
                         } else if (x >= 0x29) {
                             do {
                                 D_807FC802 += 0x333;
@@ -378,7 +378,7 @@ void hudPauseMenuUpdate(void) {
                                 if (sPauseCarouselKong < 0) {
                                     sPauseCarouselKong = 4;
                                 }
-                            } while (D_80750530[sPauseCarouselKong] == 0);
+                            } while (sPauseKongUnlocked[sPauseCarouselKong] == 0);
                         }
                         if (sPauseCarouselKong != hud->kong) {
                             sPauseCarouselTimer = 2.0f;
@@ -427,7 +427,7 @@ void hudPauseMenuUpdate(void) {
                     hud->carouselAngle += i;
                 } else {
                     flag = 0;
-                    x = D_807ECDEC->stick_x;
+                    x = gCurrentContPad->stick_x;
                     if (x < -0x28) {
                         D_807FC80D += 1;
                         if (D_807FC80D >= D_807FC83C) {
@@ -478,11 +478,11 @@ void hudPauseMenuUpdate(void) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
             }
         }
-    } else if (hud->fade > 0.0f && D_8075052C == 0) {
+    } else if (hud->fade > 0.0f && sPauseBumpStep == 0) {
         hud->fade -= 0.2f;
         if (hud->fade < 0.0f) {
             hud->fade = 0.0f;
-            D_8075052C = 3;
+            sPauseBumpStep = 3;
             sfxPlayOnFreeSlot(0x3C, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
     }
@@ -490,12 +490,12 @@ void hudPauseMenuUpdate(void) {
     if (sPauseSaveCooldown < 0) {
         sPauseSaveCooldown = 0;
     }
-    if (D_807467E4 == 0x1C) {
+    if (gSaveIconTimer == 0x1C) {
         sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
     }
-    if (D_8075052C != 0) {
-        D_8075052C -= 1;
-        hud->fade = D_80750584[D_8075052C];
+    if (sPauseBumpStep != 0) {
+        sPauseBumpStep -= 1;
+        hud->fade = sPauseBumpFade[sPauseBumpStep];
         gPlayerSlots->camY = D_807FC7FC + hud->fade * 100.0;
     }
     renderCallbacksRegister(hudDrawDimOverlay, gCurrentActor, 1);
@@ -518,13 +518,13 @@ void hudFreeBuffers(void) {
     sPauseTextCounts[0] = 0;
     sPauseTextCounts[1] = 0;
     for (i = 0; i < 0x1B; i++) {
-        heapFreeDeferred(D_807FC7E0[i]);
+        heapFreeDeferred(sPauseMenuStrings[i]);
     }
-    heapFreeDeferred(D_807FC7E0);
+    heapFreeDeferred(sPauseMenuStrings);
     for (i = 0; i < 9; i++) {
-        heapFreeDeferred(D_807FC7E8[i]);
+        heapFreeDeferred(sPauseLevelNames[i]);
     }
-    heapFreeDeferred(D_807FC7E8);
+    heapFreeDeferred(sPauseLevelNames);
 }
 
 Gfx *hudSetupTextState(Gfx *dl) {
@@ -703,15 +703,15 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     if (i == 2 && gPauseMenuMode != 0) {
                         i = 5;
                     }
-                    dl = hudDrawScaledText(dl, 0x280, y, 0.7f, D_807FC7E0[i]);
+                    dl = hudDrawScaledText(dl, 0x280, y, 0.7f, sPauseMenuStrings[i]);
                     y += 0x44;
                 }
             } else {
                 gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
-                dl = hudDrawScaledText(dl, 0x280, 0x198, 0.7f, D_807FC7E0[7]);
-                _sprintf(buf, "q %s", D_807FC7E0[16]);
+                dl = hudDrawScaledText(dl, 0x280, 0x198, 0.7f, sPauseMenuStrings[7]);
+                _sprintf(buf, "q %s", sPauseMenuStrings[16]);
                 dl = hudDrawScaledText(dl, 0x280, 0x1E8, 1.0, buf);
-                _sprintf(buf, "b %s", D_807FC7E0[17]);
+                _sprintf(buf, "b %s", sPauseMenuStrings[17]);
                 dl = hudDrawScaledText(dl, 0x280, 0x238, 1.0, buf);
             }
             break;
@@ -746,7 +746,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                             D_807FC840[off] = yy - fd;
                             D_807FC868[off] = (s16)((s16)(fc - y0) + slide) - fe;
                             D_807FC890[off] = ff;
-                            if (D_80750530[j] != 0) {
+                            if (sPauseKongUnlocked[j] != 0) {
                                 D_807FC890[off] *= 0.75;
                             }
                             angv += 0x333;
@@ -797,7 +797,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
             }
             break;
         case 3:
-            dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, 0x74, 0.5f, D_807FC7E0[D_807FC818[D_807FC80C] + 18]), 0x280, 0x3C, 0.65, D_807FC7E0[6]);
+            dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, 0x74, 0.5f, sPauseMenuStrings[D_807FC818[D_807FC80C] + 18]), 0x280, 0x3C, 0.65, sPauseMenuStrings[6]);
             {
                 f32 fb;
                 fadeInput4 = hud->carouselProgress;
@@ -816,7 +816,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
             break;
     }
     gSPEndDisplayList(dl);
-    if (D_80750530 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (sPauseKongUnlocked == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     return ret;
 }
 
@@ -862,7 +862,7 @@ extern s8 D_807FC80D;
 extern s8 D_807FC818[];
 extern s16 D_807FC83A;
 extern s8 D_807FC83C;
-extern void *D_80750518[];
+extern void *gKongIconSprites[];
 extern s16 D_807505A4[];
 extern s32 D_80720C34;
 extern s32 D_80720D38;
@@ -981,8 +981,8 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         }
         if (refresh == 0) {
             for (i = 0; i < 5; i++) {
-                if (D_80750530[i]) {
-                    kongIcon = D_80750518[i];
+                if (sPauseKongUnlocked[i]) {
+                    kongIcon = gKongIconSprites[i];
                 } else {
                     kongIcon = &D_807211D0;
                 }
@@ -1010,7 +1010,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         if (refresh == 0) {
             iconObj->carouselAngle = D_807505A4[iconObj->kong];
             hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
-            if (D_807505D0 > 0) {
+            if (sPauseLastLevelSlot > 0) {
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D80, 0xA0, 0x19, 0.5f, 2, 0xB);
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D5C, 0xA0, 0x19, 0.5f, 2, 0xC);
             }
@@ -1087,7 +1087,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         if (idx != 8) {
             hudPauseMenuSpawnIcon(iconObj, 9, 0x91, 0xCB, 1.0f, 2, 2);
         }
-        if (refresh == 0 && D_807505D0 > 0) {
+        if (refresh == 0 && sPauseLastLevelSlot > 0) {
             hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D80, 0xA0, 0x19, 0.5f, 2, 0xB);
             hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D5C, 0xA0, 0x19, 0.5f, 2, 0xC);
         }
@@ -1273,7 +1273,7 @@ Gfx *hudDrawItemLabel(Gfx *dl, HudEntry *entry, s32 itemIndex) {
     s32 y;
 
     y = entry->slideY[itemIndex] * 4;
-    label = D_807FC7E8[sPauseLevelOrder[entry->worldIndex[itemIndex]]];
+    label = sPauseLevelNames[sPauseLevelOrder[entry->worldIndex[itemIndex]]];
     if (entry->page == 1) {
         kong = entry->kong;
     } else {
@@ -1281,7 +1281,7 @@ Gfx *hudDrawItemLabel(Gfx *dl, HudEntry *entry, s32 itemIndex) {
     }
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     y2 = y + 0x40;
-    dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, y2, 0.7f, label), 0x280, y2 + 0x38, 0.5f, D_807FC7E0[kong + 9]);
+    dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, y2, 0.7f, label), 0x280, y2 + 0x38, 0.5f, sPauseMenuStrings[kong + 9]);
     D_807FC808 = (f32)textGetStringWidth(1, label) * 1.4;
     return dl;
 }
@@ -1321,9 +1321,9 @@ s32 hudPauseMenuSlidePage(HudEntry *hud, s32 sliding, s32 buttons) {
             slot = hud->worldIndex[idx];
             slot += d;
             if (slot < 0) {
-                slot = D_807505D0;
+                slot = sPauseLastLevelSlot;
             }
-            if (D_807505D0 < slot) {
+            if (sPauseLastLevelSlot < slot) {
                 slot = 0;
             }
             if (slot != hud->worldIndex[idx]) {
@@ -1350,7 +1350,7 @@ s32 hudPauseMenuSlidePage(HudEntry *hud, s32 sliding, s32 buttons) {
             sPauseTextCounts[1 - hud->buffer] = 0;
             sliding = 0;
             sfxPlayOnFreeSlot(0x97, 0x4650, 63.0f, 1.0f, 0, 0);
-            D_8075052C = 3;
+            sPauseBumpStep = 3;
         }
     }
     return sliding;
@@ -1396,7 +1396,7 @@ void hudPauseMenuRefreshTotals(void) {
     D_807FC834 = flagGet(0x84, 0);
     D_807FC830 = flagGet(0x17B, 0);
     D_807FC836 = flagCountRange(0x1FD, 0x28, 0);
-    D_80750530[0] = 1;
+    sPauseKongUnlocked[0] = 1;
     for (i = 0; i < 4; i++) {
         D_80750531[i] = flagGet(D_807505B2[i - 1], 0);
     }
@@ -1578,7 +1578,7 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             if (i >= kongCount) {
                 i -= kongCount;
             }
-            if (D_80750530[i] == 0) {
+            if (sPauseKongUnlocked[i] == 0) {
                 effect->red = sPauseKongColors[i][0];
                 effect->green = sPauseKongColors[i][1];
                 effect->blue = sPauseKongColors[i][2];
@@ -1614,10 +1614,10 @@ Gfx *hudDrawTextScreen(Gfx *dl, Actor *actor) {
     dl = hudSetupTextState(gfxFillScreenColor(dl, 0, 0, 0, val));
     gDPSetCombineLERP(dl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, actor->alpha);
-    dl = textDrawStringVtx(dl, 1, 0x168, 0x104, D_807FC7E0[0], 1);
-    _sprintf(buf, "q %s", D_807FC7E0[1]);
+    dl = textDrawStringVtx(dl, 1, 0x168, 0x104, sPauseMenuStrings[0], 1);
+    _sprintf(buf, "q %s", sPauseMenuStrings[1]);
     dl = textDrawStringVtx(dl, 1, 0x208, 0x190, buf, 1);
-    _sprintf(buf, "b %s", D_807FC7E0[2]);
+    _sprintf(buf, "b %s", sPauseMenuStrings[2]);
     return textDrawStringVtx(dl, 1, 0x208, 0x21C, buf, 1);
 }
 
@@ -1633,9 +1633,9 @@ void hudFreeTextAndDespawn(void) {
 
     gGlobalPauseFlags |= 0x40;
     for (i = 0; i < 3; i++) {
-        heapFreeDeferred(D_807FC7E0[i]);
+        heapFreeDeferred(sPauseMenuStrings[i]);
     }
-    heapFreeDeferred(D_807FC7E0);
+    heapFreeDeferred(sPauseMenuStrings);
     actorDespawn(gCurrentActor);
 }
 
@@ -1646,9 +1646,9 @@ void hudTextScreenUpdate(void) {
         gCurrentActor->yawSpeed = 0x1E;
         gCurrentActor->alpha = 0;
         gCurrentActor->flags &= ~0x8000;
-        D_807FC7E0 = heapAlloc(0xC);
+        sPauseMenuStrings = heapAlloc(0xC);
         for (i = 0; i < 3; i++) {
-            D_807FC7E0[i] = textTableGetString(0x24, i + 0xF, 0);
+            sPauseMenuStrings[i] = textTableGetString(0x24, i + 0xF, 0);
         }
     }
     if (gCurrentActor->yawSpeed != 0) {
@@ -1700,10 +1700,10 @@ Gfx *hudDrawTwoOptionMenu(Gfx *dl, Actor *actor) {
     sel = actor->unk155 == 0;
     c = sOptionShades[sel];
     gDPSetPrimColor(dl++, 0, 0, c, c, c, 255);
-    dl = hudDrawScaledText(dl, 0x280, 0x1B8, 0.7f, D_807FC7E0[0]);
+    dl = hudDrawScaledText(dl, 0x280, 0x1B8, 0.7f, sPauseMenuStrings[0]);
     c = sOptionShades[1 - sel];
     gDPSetPrimColor(dl++, 0, 0, c, c, c, 255);
-    return hudDrawScaledText(dl, 0x280, 0x208, 0.7f, D_807FC7E0[3]);
+    return hudDrawScaledText(dl, 0x280, 0x208, 0.7f, sPauseMenuStrings[3]);
 }
 
 void hudTwoOptionMenuUpdate(void) {
@@ -1711,10 +1711,10 @@ void hudTwoOptionMenuUpdate(void) {
     u16 btn;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        D_807FC7E0 = heapAlloc(0x10);
+        sPauseMenuStrings = heapAlloc(0x10);
         i = 0;
         do {
-            D_807FC7E0[i] = textTableGetString(0x24, i, 0);
+            sPauseMenuStrings[i] = textTableGetString(0x24, i, 0);
             i++;
         } while (i != 4);
         gGlobalPauseFlags &= ~0x10030;
@@ -1737,9 +1737,9 @@ void hudTwoOptionMenuUpdate(void) {
         if (gCurrentActor->unk155 == 0) {
             gGlobalPauseFlags |= 0x10070;
             for (i = 0; i < 4; i++) {
-                heapFreeDeferred(D_807FC7E0[i]);
+                heapFreeDeferred(sPauseMenuStrings[i]);
             }
-            heapFreeDeferred(D_807FC7E0);
+            heapFreeDeferred(sPauseMenuStrings);
         } else if (gCurrentActor->unk155 == 1) {
             gMpWinnerIndex = -1;
             menuReturnToTitleWithMode3();

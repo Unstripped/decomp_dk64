@@ -99,7 +99,7 @@ void playerInitKongActor(s32, s32, s32);
 #ifndef PROTO_SKIP_playerCopyCameraToEye
 void playerCopyCameraToEye(u8);
 #endif
-#ifndef PROTO_SKIP_playerSpawnAllPlayers
-s32 playerSpawnAllPlayers(void);
+#ifndef PROTO_SKIP_playerKongHasWorldGoldenBanana
+s32 playerKongHasWorldGoldenBanana(void);
 #endif
 #endif

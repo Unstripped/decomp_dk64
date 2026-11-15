@@ -6,7 +6,7 @@
 #include "proto/global/F56F0.h"
 #include "proto/global/F600.h"
 
-extern volatile u8 D_807467C4;
+extern volatile u8 gEepromWriteInProgress;
 extern s8 D_80746834;
 
 // .bss 0x807ECCD0-0x807ECE00
@@ -26,8 +26,8 @@ OSContPad gContPadPrev;
 u16 gButtonsPressed;
 s16 D_807ECD68[4][16];
 OSContPad *D_807ECDE8;
-OSContPad *D_807ECDEC;
-u16 D_807ECDF0;
+OSContPad *gCurrentContPad;
+u16 gContPressedButtons;
 OSContPad *D_807ECDF4;
 u8 D_807ECDF8;
 u8 D_807ECDF9;
@@ -54,7 +54,7 @@ u8 controllerInit(void) {
 
 void controllerStartRead(void) {
     controllerWaitRead();
-    if (D_807467C4 == 0) {
+    if (gEepromWriteInProgress == 0) {
         gContReadPending = 1;
         osContStartReadData(&D_807ECCF0);
     }
@@ -115,7 +115,7 @@ u8 controllerGetActiveMask(void) {
 }
 
 void controllerGetReadData(OSContPad *pad) {
-    if (D_807467C4 == 0 && gContReadPending != 0) {
+    if (gEepromWriteInProgress == 0 && gContReadPending != 0) {
         osContGetReadData(pad);
     }
     gContReadPending = 0;
@@ -150,8 +150,8 @@ void controllerUpdate(void) {
     gContPadCur.button = 0;
     gContPadCur.stick_x = 0;
     gContPadCur.stick_y = 0;
-    if (gContReadPending != 0 || D_807467C4 != 0) {
-        if (D_807467C4 == 0 && gContReadPending != 0) {
+    if (gContReadPending != 0 || gEepromWriteInProgress != 0) {
+        if (gEepromWriteInProgress == 0 && gContReadPending != 0) {
             D_80746834 = 3;
             osRecvMesg(&D_807ECCF0, NULL, OS_MESG_BLOCK);
             D_80746834 = 0;
@@ -241,8 +241,8 @@ void controllerUpdate(void) {
             }
         }
     }
-    D_807ECDEC = D_807ECD10;
-    D_807ECDF0 = D_807ECD48[0];
+    gCurrentContPad = D_807ECD10;
+    gContPressedButtons = D_807ECD48[0];
 }
 
 void controllerLatchPad(OSContPad *pad) {

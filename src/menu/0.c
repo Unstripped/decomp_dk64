@@ -261,7 +261,7 @@ Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
     return glist;
 }
 
-extern OSContPad *D_807ECDEC;
+extern OSContPad *gCurrentContPad;
 extern u8 gCurrentPlayerIndex;
 extern u8 gPlayerCharacterId;
 extern u8 D_800330C0[];
@@ -348,11 +348,11 @@ void menuUpdateOptionsState(MenuState *menu) {
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
             menu->step = 1;
         } else {
-            s8 stickY = D_807ECDEC->stick_y;
+            s8 stickY = gCurrentContPad->stick_y;
             if (stickY >= 0x29 && menu->prevStickY < 0x29) {
                 menu->step--;
                 sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 64.0f, 1.0f, 0, 0);
-                stickY = D_807ECDEC->stick_y;
+                stickY = gCurrentContPad->stick_y;
             }
             if (stickY < -0x28 && menu->prevStickY >= -0x28) {
                 menu->step++;
@@ -368,7 +368,7 @@ void menuUpdateOptionsState(MenuState *menu) {
         renderCallbacksRegister(menuDrawOptionsOverlay, gCurrentActor, 3);
         break;
     }
-    menu->prevStickY = D_807ECDEC->stick_y;
+    menu->prevStickY = gCurrentContPad->stick_y;
 }
 
 

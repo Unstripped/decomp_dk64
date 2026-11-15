@@ -918,9 +918,9 @@ void actorDispatchCallbacks(Actor *actor) {
                     break;
                 case 0x400:
                     playerPayload = node->unk10;
-                    gActivePlayerState->unk70 = playerPayload->yaw;
-                    gActivePlayerState->unk74 = playerPayload->speedY;
-                    gActivePlayerState->unk6C = playerPayload->speedXZ;
+                    gActivePlayerState->launchYaw = playerPayload->yaw;
+                    gActivePlayerState->launchSpeedY = playerPayload->speedY;
+                    gActivePlayerState->launchSpeedXZ = playerPayload->speedXZ;
                     gActorGlobalState.unk1A = 1;
                     if (actor == gActivePlayerActor) {
                         playerStateQueueCallback(0x17, node->source, gCurrentPlayerIndex);
@@ -1572,8 +1572,8 @@ void actorTableSort(void) {
 
 extern u8 gPlayerCharacterId[];
 extern KongInventory *gCurrentKongInventory;
-extern OSContPad *D_807ECDEC;
-extern u16 D_807ECDF0;
+extern OSContPad *gCurrentContPad;
+extern u16 gContPressedButtons;
 extern s16 gCurrentCharacterIndex;
 
 void playerSetActiveGlobals(Actor *actor) {
@@ -1584,8 +1584,8 @@ void playerSetActiveGlobals(Actor *actor) {
     character = gPlayerCharacterId[gCurrentPlayerIndex];
     gActivePlayerActor = gPlayerSlots[gCurrentPlayerIndex].actor;
     gCurrentKongInventory = &gPlayerInventoryTable[gCurrentPlayerIndex].kong[character];
-    D_807ECDEC = gPlayerSlots[gCurrentPlayerIndex].contPad;
-    D_807ECDF0 = *gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr;
+    gCurrentContPad = gPlayerSlots[gCurrentPlayerIndex].contPad;
+    gContPressedButtons = *gPlayerSlots[gCurrentPlayerIndex].heldButtonsPtr;
     gCurrentCharacterIndex = gKongCharacterTable[character].characterIndex;
     gPlayerSlots[gCurrentPlayerIndex].sizeModeDirty = 0;
 }

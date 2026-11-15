@@ -599,8 +599,8 @@ extern s16 gCurrentCharacterIndex;
 extern s8 D_80029FA0;
 extern u8 D_8071FC40;
 extern u8 D_8072030C;
-extern s16 D_807502D0;
-extern f32 D_807502E4;
+extern s16 gCarryMinFallSpeed;
+extern f32 gCarryGravity;
 extern s16 D_80753444[];
 
 
@@ -723,9 +723,9 @@ void throwableBarrelUpdate(void) {
     case 3:
         func_8066E6C8(gCurrentActor, 0, 1);
         func_8066E6C8(gCurrentActor, 1, 1);
-        gCurrentActor->speedY += D_807502E4;
-        if (gCurrentActor->speedY < D_807502D0) {
-            gCurrentActor->speedY = D_807502D0;
+        gCurrentActor->speedY += gCarryGravity;
+        if (gCurrentActor->speedY < gCarryMinFallSpeed) {
+            gCurrentActor->speedY = gCarryMinFallSpeed;
         }
         state->spin -= 10.0f;
         if (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0) {
@@ -3116,7 +3116,7 @@ void tagBarrelUpdate(void) {
             tagBarrelStartSelection(sub);
         }
         if (gCurrentActor->unk155 == 0xA) {
-            if (gPrimaryPlayerActor->contactFlags & 4 || playerSpawnAllPlayers() != 0) {
+            if (gPrimaryPlayerActor->contactFlags & 4 || playerKongHasWorldGoldenBanana() != 0) {
                 gCurrentActor->unk155 = 0;
             } else if (gPrimaryPlayerActor->attachMode != 1 && (gPrimaryPlayerActor->contactFlags & gPrimaryPlayerActor->prevContactFlags & 1)) {
                 tagBarrelCheckKongFlag(gPrimaryPlayerActor->actorType, 1);

@@ -788,10 +788,10 @@ typedef struct PlayerState {
     /* 0x064 */ s16 unk64;
     /* 0x066 */ u8 pad66[2];
     /* 0x068 */ f32 slideLaunchSpeed;
-    /* 0x06C */ f32 unk6C;
-    /* 0x070 */ s16 unk70;
+    /* 0x06C */ f32 launchSpeedXZ;
+    /* 0x070 */ s16 launchYaw;
     /* 0x072 */ u8 pad72[2];
-    /* 0x074 */ f32 unk74;
+    /* 0x074 */ f32 launchSpeedY;
     /* 0x078 */ f32 unk78;
     /* 0x07C */ f32 unk7C;
     /* 0x080 */ s16 unk80;
@@ -1000,7 +1000,7 @@ typedef struct MenuHighScoreEntry {
 } MenuHighScoreEntry; /* sizeof 0x6 */
 
 // Collectible totals (0x807FC828), recomputed by hudPauseMenuRefreshTotals (ACDC0): [0] golden bananas over all
-// kongs, [1] set flags of D_807505B8, [2] set flags of the D_80744710 list, [3] flags 0x225-0x24C, [4] flag 0x17B,
+// kongs, [1] set flags of sPauseCrownFlags, [2] set flags of the D_80744710 list, [3] flags 0x225-0x24C, [4] flag 0x17B,
 // [5] flags 0x24D-0x260, [6] flag 0x84, [7] flags 0x1FD-0x224, [8] always 1. The first seven weigh into
 // menuCalculateGamePercentage (3E10) and the 117190 gate totals; the pause menu's page 3 shows the first eight.
 extern s16 gPauseCollectibleCounts[9];
@@ -1079,7 +1079,7 @@ typedef struct CamTargetBlock {
 // customState of the camera actor (type 0xBC, component 4: 0x100 bytes, D_8074DA58[4]);
 // reached as gCamActor->customState or PlayerState.camActor->customState.
 typedef struct CamState {
-    /* 0x00 */ struct Actor *unk0;
+    /* 0x00 */ struct Actor *followActor;
     /* 0x04 */ struct Actor *unk4;
     /* 0x08 */ u16 unk8;
     /* 0x0A */ u16 unkA;
@@ -1099,7 +1099,7 @@ typedef struct CamState {
     /* 0x38 */ f32 unk38;
     /* 0x3C */ f32 unk3C;
     /* 0x40 */ f32 unk40;
-    /* 0x44 */ CamTargetBlock unk44;
+    /* 0x44 */ CamTargetBlock target;
     /* 0x60 */ f32 unk60;
     /* 0x64 */ u8 pad64[0x8];
     /* 0x6C */ f32 unk6C;
@@ -1148,7 +1148,7 @@ typedef struct CamState {
     /* 0xF0 */ u8 unkF0;
     /* 0xF1 */ u8 unkF1;
     /* 0xF2 */ u8 unkF2;
-    /* 0xF3 */ u8 unkF3;
+    /* 0xF3 */ u8 mode;
     /* 0xF4 */ u8 unkF4;
     /* 0xF5 */ u8 unkF5;
     /* 0xF6 */ u8 unkF6;
@@ -1156,7 +1156,7 @@ typedef struct CamState {
     /* 0xF8 */ u8 unkF8;
     /* 0xF9 */ u8 unkF9;
     /* 0xFA */ u8 unkFA;
-    /* 0xFB */ u8 unkFB;
+    /* 0xFB */ u8 playerIndex;
     /* 0xFC */ u8 wallCollisionMode;
     /* 0xFD */ u8 unkFD;
     /* 0xFE */ u8 padFE[0x1];
@@ -1192,9 +1192,9 @@ typedef struct G01Pos {
     /* 0x2 */ s16 y;
     /* 0x4 */ s16 z;
     /* 0x6 */ u8 yaw;
-    /* 0x7 */ u8 unk7;
-    /* 0x8 */ u8 unk8;
-    /* 0x9 */ u8 unk9;
+    /* 0x7 */ u8 camMode;
+    /* 0x8 */ u8 spawnKind;
+    /* 0x9 */ u8 flags;
 } G01Pos;
 
 // Spawn request read by actorSpawnFromInfo (7CA80.c); spawnArg onward is passed to the type's init function.

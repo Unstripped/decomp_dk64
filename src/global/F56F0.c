@@ -69,7 +69,7 @@ void playerKongStopAudioChannels(Actor *actor, u16 actorType) {
 }
 
 
-void playerPlayKongSpecificSfx(Actor *actor) {
+void playerKongPlayHolsterSfx(Actor *actor) {
     switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
     case 0:
         sfxPlayFromActorWithAltitudeCheck(actor, 0x17C, 0xFF, 0x7F, 0x19);
@@ -89,7 +89,7 @@ void playerPlayKongSpecificSfx(Actor *actor) {
     }
 }
 
-void playerKongStopSoundByState(Actor *actor) {
+void playerKongHolsterGun(Actor *actor) {
     s32 pad;
     PlayerState *extra;
 
@@ -133,7 +133,7 @@ void playerKongStopSoundByState(Actor *actor) {
     if (actor->collisionFlags & 1) {
         extra = actor->customState;
         if (extra->gunDrawn != 0) {
-            playerPlayKongSpecificSfx(actor);
+            playerKongPlayHolsterSfx(actor);
             extra->gunDrawn = 0;
         }
     }
@@ -234,7 +234,7 @@ void playerKongSpawnTransformationSmoke(Actor *actor) {
     switch (actor->actorType) {
         case 2:
         case 0xC4:
-            playerKongStopSoundByState(actor);
+            playerKongHolsterGun(actor);
             actorSpawn(0xEF, 0xA6);
             actorCopyPoseAndScale(gSpawnedActor, actor, actor->sub4->scaleY * 1.25);
             gSpawnedActor->pitch = actor->pitch;
@@ -243,22 +243,22 @@ void playerKongSpawnTransformationSmoke(Actor *actor) {
             break;
         case 3:
         case 0xC5:
-            playerKongStopSoundByState(actor);
+            playerKongHolsterGun(actor);
             controllerAnimLoadStateAsset(actor, 2);
             break;
         case 4:
         case 0xC6:
-            playerKongStopSoundByState(actor);
+            playerKongHolsterGun(actor);
             controllerAnimLoadStateAsset(actor, 7);
             break;
         case 5:
         case 0xC7:
-            playerKongStopSoundByState(actor);
+            playerKongHolsterGun(actor);
             controllerAnimLoadStateAsset(actor, 0xA);
             break;
         case 6:
         case 0xC8:
-            playerKongStopSoundByState(actor);
+            playerKongHolsterGun(actor);
             controllerAnimLoadStateAsset(actor, 0xD);
             break;
     }
@@ -294,7 +294,7 @@ void playerFireWeaponPrimary(Actor *actor) {
     playerFireWeapon(0, 1);
 }
 
-void f56f0Noop1378(Actor *actor) {}
+void playerScriptCmdNop(Actor *actor) {}
 
 void scriptCmdCompareSpeedXZ(Actor *actor) {
     f32 temp;

@@ -2,16 +2,16 @@
 #ifndef PROTO_GLOBAL_C1E70_H
 #define PROTO_GLOBAL_C1E70_H
 #include "common.h"
-#ifndef PROTO_SKIP_func_806BD170
-void func_806BD170(void);
+#ifndef PROTO_SKIP_actorNodeRingSpawnRings
+void actorNodeRingSpawnRings(void);
 #endif
 #ifndef PROTO_SKIP_actorNodeRingUpdate
 void actorNodeRingUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806BD7B0
-void func_806BD7B0(void);
+#ifndef PROTO_SKIP_actorRingUpdate
+void actorRingUpdate(void);
 #endif
-#ifndef PROTO_SKIP_func_806BDD2C
-s32 func_806BDD2C(void);
+#ifndef PROTO_SKIP_ringAllCleared
+s32 ringAllCleared(void);
 #endif
 #endif
