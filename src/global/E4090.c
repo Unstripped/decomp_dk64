@@ -1012,31 +1012,31 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
     u8 vol;
     f32 dz;
     f32 dx;
-    f32 ang2;
+    f32 pitch;
     f32 speedXZ;
     f32 speedY;
-    s32 flags;
-    s32 sel;
-    s16 ang;
+    s32 weaponFlags;
+    s32 ammoSlot;
+    s16 yaw;
     f32 z;
-    s32 hasFlag;
+    s32 isHoming;
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) || force) {
-        flags = gCurrentKongInventory->weaponFlags;
-        if ((flags & 2) && slotQueueGetValue(3, gCurrentPlayerIndex)) {
-            sel = 3;
+        weaponFlags = gCurrentKongInventory->weaponFlags;
+        if ((weaponFlags & 2) && slotQueueGetValue(3, gCurrentPlayerIndex)) {
+            ammoSlot = 3;
         } else {
-            flags &= ~2;
-            sel = 2;
+            weaponFlags &= ~2;
+            ammoSlot = 2;
         }
         if (!isFirstPerson) {
-            flags &= ~4;
+            weaponFlags &= ~4;
         }
-        slotQueueUpdate(sel, 0, 0);
-        if (slotQueueGetValue(sel, gCurrentPlayerIndex)) {
+        slotQueueUpdate(ammoSlot, 0, 0);
+        if (slotQueueGetValue(ammoSlot, gCurrentPlayerIndex)) {
             if (actorCountOwnedByClass(gCurrentActor, 4, actorIsActiveType2B) < D_80753E64[gCurrentCharacterIndex]) {
-                hasFlag = flags & 2;
-                slotQueueAddValue(sel, gCurrentPlayerIndex, -1);
+                isHoming = weaponFlags & 2;
+                slotQueueAddValue(ammoSlot, gCurrentPlayerIndex, -1);
                 if (!isFirstPerson) {
                     gActivePlayerState->unk8F = (gActivePlayerState->unk8F + 1 >= 0x15) ? 0x14 : gActivePlayerState->unk8F + 1;
                 }
@@ -1095,7 +1095,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                 } else {
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, sfx, 0xFF, 0x7F, vol);
                 }
-                if (hasFlag != 0) {
+                if (isHoming != 0) {
                     if (isFirstPerson) {
                         sfxPlayOnFreeSlot(0x1EE, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                     } else {
@@ -1104,15 +1104,15 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                 }
                 gActivePlayerState->unk91 = gActivePlayerState->gunHand;
                 if (isFirstPerson) {
-                    ang = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ);
+                    yaw = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ);
                 } else {
-                    ang = gCurrentActor->yaw;
+                    yaw = gCurrentActor->yaw;
                 }
                 if (gCurrentActor->actorType == 4) {
-                    if ((!isFirstPerson && actorTestNodeSegmentCollision(gCurrentActor)) || actorAngleInArcWithMargin(gCurrentActor, ang, 0) == 0) {
+                    if ((!isFirstPerson && actorTestNodeSegmentCollision(gCurrentActor)) || actorAngleInArcWithMargin(gCurrentActor, yaw, 0) == 0) {
                         projectileSetSpawnFlag();
                     }
-                } else if (actorAngleInArcWithMargin(gCurrentActor, ang, 0) == 0) {
+                } else if (actorAngleInArcWithMargin(gCurrentActor, yaw, 0) == 0) {
                     projectileSetSpawnFlag();
                 }
                 if (isFirstPerson) {
@@ -1120,13 +1120,13 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                     projectileSetTargetCoords(gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camY, z);
                     dz = gPlayerSlots[gCurrentPlayerIndex].focusZ - gPlayerSlots[gCurrentPlayerIndex].camZ;
                     dx = gPlayerSlots[gCurrentPlayerIndex].focusX - gPlayerSlots[gCurrentPlayerIndex].camX;
-                    ang2 = mathAtan2(gPlayerSlots[gCurrentPlayerIndex].focusY - gPlayerSlots[gCurrentPlayerIndex].camY, sqrtf(dz * dz + dx * dx));
-                    speedY = D_80753E2C[gCurrentCharacterIndex] * sinApprox(ang2);
-                    speedXZ = D_80753E2C[gCurrentCharacterIndex] * cosApprox(ang2);
-                    ang = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ);
-                    projectileSpawnNodeEntry(spawnId, flags, scale, ang, speedXZ, speedY, gActivePlayerActor);
+                    pitch = mathAtan2(gPlayerSlots[gCurrentPlayerIndex].focusY - gPlayerSlots[gCurrentPlayerIndex].camY, sqrtf(dz * dz + dx * dx));
+                    speedY = D_80753E2C[gCurrentCharacterIndex] * sinApprox(pitch);
+                    speedXZ = D_80753E2C[gCurrentCharacterIndex] * cosApprox(pitch);
+                    yaw = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ);
+                    projectileSpawnNodeEntry(spawnId, weaponFlags, scale, yaw, speedXZ, speedY, gActivePlayerActor);
                 } else {
-                    if ((gCurrentActor->actorType == 2 || gCurrentActor->actorType == 3 || gCurrentActor->actorType == 6 || gCurrentActor->actorType == 7)) {
+                    if (gCurrentActor->actorType == 2 || gCurrentActor->actorType == 3 || gCurrentActor->actorType == 6 || gCurrentActor->actorType == 7) {
                         effectSetDepth(1);
                         effectSetSpeed(0x50);
                         effectSetCallback(effectLightPulseOscillate);
@@ -1139,9 +1139,9 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
                         }
                     }
                     projectileGetTargetCoords(gActivePlayerActor, gActivePlayerState->gunHand + 9);
-                    projectileSpawnNodeEntry(spawnId, flags, scale, gActivePlayerActor->yaw, D_80753E2C[gCurrentCharacterIndex], 0.0f, gActivePlayerActor);
+                    projectileSpawnNodeEntry(spawnId, weaponFlags, scale, gActivePlayerActor->yaw, D_80753E2C[gCurrentCharacterIndex], 0.0f, gActivePlayerActor);
                 }
-                if ((mpIsMatchType(0) != 0) && (slotQueueGetValue(sel, gCurrentPlayerIndex) == 0)) {
+                if ((mpIsMatchType(0) != 0) && (slotQueueGetValue(ammoSlot, gCurrentPlayerIndex) == 0)) {
                     playerKongStopSoundByState(gCurrentActor);
                     playerResumeLocomotion(gCurrentActor);
                 }
@@ -1182,7 +1182,7 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
 }
 
 
-u8 actorTestNodeSegmentCollision(void *actor) {
+u8 actorTestNodeSegmentCollision(Actor *actor) {
     f32 z;
     f32 pad2;
     f32 pad1;
@@ -1205,7 +1205,7 @@ u8 actorTestNodeSegmentCollision(void *actor) {
         do { // FAKE: do/while(0) block steers the z1 copy (scheduling of z)
             z = z1;
         } while (0);
-        hit = collisionTestSphere(((x2 - x1) * t) + x1, ((y2 - y1) * t) + y1, z = ((z2 - z1) * t) + z, 10.0f, &hitA, &hitB, 0, 0);
+        hit = collisionTestSphere(((x2 - x1) * t) + x1, ((y2 - y1) * t) + y1, z = ((z2 - z1) * t) + z, 10.0f, &hitA, &hitB, 0, 0); // FAKE: dead store into z in the argument makes z a uopt candidate evaluated in argument order (Q0206)
     }
     return hit;
 }
@@ -1678,8 +1678,8 @@ void playerInputHandleBButtonGun(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
         gActivePlayerState->jumpStartTime = gScheduler.unk280;
     }
-    if (gActorGlobalState.unk1C && (flagGet(0x185, 0) || (gGlobalOverlayFlags & 0x10000000) || (gPlayerCount >= 2) ||
-                       menuIsTransitionTypeC())) {
+    if (gActorGlobalState.unk1C &&
+        (flagGet(0x185, 0) || (gGlobalOverlayFlags & 0x10000000) || (gPlayerCount >= 2) || menuIsTransitionTypeC())) {
         playerStateQueueCallback(3, 0, gCurrentPlayerIndex);
         return;
     }
@@ -1954,25 +1954,25 @@ s32 actorAnyActiveHasFlag2000000(void) {
 extern s32 gGlobalCutsceneFlags;
 
 void playerInputCheckInstrumentPlayback(void) {
-    u8 isTarget;
+    u8 onOwnPad;
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) && (gFrameCounter >= 3) && (gCurrentKongInventory->instrumentFlags & 1) &&
         !(gGlobalOverlayFlags & 0x4000) && !(gGlobalCutsceneFlags & 1) &&
         (gPlayerSlots[gCurrentPlayerIndex].unk2C0 != 2) &&
         (playerInputCheckTargetMoved(gCurrentActor) == 0) && (actorAnyActiveHasFlag2000000() == 0) &&
         (gActivePlayerState->damageCooldown == 0)) {
-        isTarget = playerIsOnOwnInstrumentPad(gCurrentActor);
-        if ((gCurrentMap != 0xCD) || (isTarget != 0)) {
-            if ((slotQueueGetValue(7, gCurrentPlayerIndex) != 0) || (isTarget != 0)) {
+        onOwnPad = playerIsOnOwnInstrumentPad(gCurrentActor);
+        if ((gCurrentMap != 0xCD) || onOwnPad) {
+            if (slotQueueGetValue(7, gCurrentPlayerIndex) || onOwnPad) {
                 playerStateQueueCallback(0x53, 0, gActivePlayerState->playerIndex);
                 if (!(gGlobalCutsceneFlags & 2)) {
                     gCurrentActor->unk144 = 1;
                 }
-                if (!isTarget) {
+                if (!onOwnPad) {
                     slotQueueAddValue(7, gCurrentPlayerIndex, -1);
                 }
             }
-            if (!isTarget) {
+            if (!onOwnPad) {
                 slotQueueUpdate(7, 0, 0);
             }
         }

@@ -126,7 +126,7 @@ void playerInputHandleAButtonState61(void);
 void playerFireWeapon(u8, u8);
 #endif
 #ifndef PROTO_SKIP_actorTestNodeSegmentCollision
-u8 actorTestNodeSegmentCollision(void *);
+u8 actorTestNodeSegmentCollision(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerInputToggleActiveState
 void playerInputToggleActiveState(Actor *);
