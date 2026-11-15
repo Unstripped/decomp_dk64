@@ -3054,7 +3054,8 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
         case 6:
         case 7:
         case 18: {
-            slot = menuEvaluateSelectorSpline(state, (s32)target->spawnX >> 2, &elemActor->x, &elemActor->y, &stepOrScale, &colorComponent, &alphaVal);
+            idx = (s32)target->spawnX >> 2;
+            slot = menuEvaluateSelectorSpline(state, idx, &elemActor->x, &elemActor->y, &stepOrScale, &colorComponent, &alphaVal);
             elemActor->scaleX = target->slideXOrScale * stepOrScale * 4.0f;
             elemActor->scaleY = elemActor->scaleX;
             if (type == 7) {
@@ -3198,14 +3199,12 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
                 radius = 65.0f;
                 break;
             case 3:
-                if (elemActor && elemActor && elemActor) {} // FAKE: lowers idx colouring priority below the case-15 address temps
                 splineStep = 3;
                 stepOrScale = 1365.0f;
                 radius = 55.0f;
                 break;
             case 10:
                 splineStep = 2;
-                if (D_80033804 && D_80033804) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 stepOrScale = 2048.0f;
                 radius = 50.0f;
                 break;
@@ -3214,7 +3213,6 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
             idx -= state->selection * (s32)stepOrScale;
             idx -= (s32)(state->scroll * stepOrScale);
             t = (s16)idx;
-            if (D_80033804 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             elemActor->x = 160.0f - mathSinF(t) * radius;
             elemActor->y = 120.0f - mathCosF(t) * radius;
             if (menuComputeElementPosition(state, elemActor->x, elemActor->y, &elemActor->x, &elemActor->y, splineStep, 0, 1.0f) == (s32)target->spawnX) {
@@ -3234,14 +3232,13 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
             elemActor->x = D_80033F68[idx];
             elemActor->y = D_80033F80[idx];
             elemActor->scaleX = D_80033F98[idx];
-            if (outFlag != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             elemActor->scaleY = D_80033F98[idx];
             D_80033F68[idx] = -200.0f;
             D_80033F80[idx] = -200.0f;
             if (*(&D_80033804 + idx) == 0) {
-                elemActor->red = *((u8 *)D_800337DC + (idx << 2)); // FAKE: byte-offset rgba read keeps the shared idx << 2 (array form recolours)
-                elemActor->green = *((u8 *)D_800337DC + (idx << 2) + 1); // FAKE: byte-offset rgba read keeps the shared idx << 2 (array form recolours)
-                elemActor->blue = *((u8 *)D_800337DC + (idx << 2) + 2); // FAKE: byte-offset rgba read keeps the shared idx << 2 (array form recolours)
+                elemActor->red = (D_800337DC + idx)->r; // FAKE: (p + i)->f spelling builds base-first addu (one shared lda D_800337DC + idx<<2 in v0); D_800337DC[idx].f mismatches (Q0816)
+                elemActor->green = (D_800337DC + idx)->g; // FAKE: (p + i)->f spelling builds base-first addu (one shared lda D_800337DC + idx<<2 in v0); D_800337DC[idx].f mismatches (Q0816)
+                elemActor->blue = (D_800337DC + idx)->b; // FAKE: (p + i)->f spelling builds base-first addu (one shared lda D_800337DC + idx<<2 in v0); D_800337DC[idx].f mismatches (Q0816)
             }
             break;
         }
