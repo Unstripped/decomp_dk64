@@ -622,3 +622,4 @@
 {"type": "unit", "t": "2026-11-15T14:20:23Z", "unit": "2026-11-15: cleanup HackcsCmdStepSequenceProgress2", "commit": "d18edbfa7bb2e3144fd9194e9e5050c8d20e0c62"}
 {"type": "unit", "t": "2026-11-15T14:22:39Z", "unit": "2026-11-15: cleanup RereviewPlayer1115", "commit": "7eb5db768fcc40293929ce9bbdfa3f0f2426980a"}
 {"type": "unit", "t": "2026-11-15T14:25:06Z", "unit": "2026-11-15: cleanup RereviewMixed1115", "commit": "ddf9b304a47fcaf4317440fa4939e0984583732e"}
+{"type": "unit", "t": "2026-11-15T14:26:08Z", "unit": "2026-11-15: cleanup HackplayerStateHoldPickup2", "commit": "c0d510599daf929956027026aee043a1bf88f06a"}
