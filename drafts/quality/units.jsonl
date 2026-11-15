@@ -575,3 +575,4 @@
 {"type": "unit", "t": "2026-11-15T05:02:08Z", "unit": "2026-11-14: cleanup Polishglobal201B0", "commit": "38e26eee180d52b64c53b1c6795c85c97109d2f4"}
 {"type": "unit", "t": "2026-11-15T05:03:19Z", "unit": "2026-11-14: cleanup PolishglobalD5E10", "commit": "515170e5c1b44e9e35adcbd1f58d591ccd78afc5"}
 {"type": "unit", "t": "2026-11-15T05:17:10Z", "unit": "2026-11-14: cleanup HackactorLightPulseUpdate", "commit": "7b405cac1bd496cf24a7edfc8c68b0c50faad12c"}
+{"type": "unit", "t": "2026-11-15T05:18:13Z", "unit": "2026-11-14: cleanup HackcamPathCommandDispatch", "commit": "1b1f9d73db23440852ee2aceca8cae5a8618262a"}
