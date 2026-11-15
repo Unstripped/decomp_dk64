@@ -16,6 +16,7 @@
 - same agent: permuter 900 s on the array-kept natural body: base 476, best 276 (dist reassigned in the arm); as natural C 37-65.
 
 ## Untried ideas
+- d6529e waypointThreshold[1] (store/reload 84(sp) at 0xd64/0xd68): local aggregate initialiser from a .data template (arcadeInsertHighScore d5a8536a) or memory-forced storage check (Q0742). (Lead2, 2026-11-15)
 - What makes the threshold memory-resident with no array (an address-taken use the original may have had, e.g. a debug print compiled out). Not found.
 - A real (code-emitting) use that the original might have had in the first arm or after the threshold, which the two guards stand in for: none visible in the target asm.
 
