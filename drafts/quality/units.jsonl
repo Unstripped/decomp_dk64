@@ -776,3 +776,4 @@
 {"type": "unit", "t": "2026-11-16T16:07:53Z", "unit": "2026-11-16: cleanup HacktextDrawStringVtx4", "commit": "e9078fbc2e97b87669116170779ae91a22f2247a"}
 {"type": "unit", "t": "2026-11-16T16:09:34Z", "unit": "2026-11-16: cleanup HackprojectileSteerTowardTarget3", "commit": "f32bceea3065d28c5ef178dc139b3ad586744039"}
 {"type": "unit", "t": "2026-11-16T16:09:59Z", "unit": "2026-11-16: cleanup HackbonusSearchlightSeekGameUpdate4", "commit": "ca4eb399c273538e3c7238cbd9652c04b0366c62"}
+{"type": "unit", "t": "2026-11-16T16:11:26Z", "unit": "2026-11-16: cleanup HackactorCollisionRunInteractionTable3", "commit": "dc4a994552e01dd20cc0ba136a3b4df765bedc22"}
