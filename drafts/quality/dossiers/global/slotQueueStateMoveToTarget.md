@@ -50,6 +50,9 @@
     - if/else with `reached = ...` in the else arm: 13; in both arms: 30. Block-scope `s32 target` at the top of the arm: 13. `shown` alone before the test: 14. `target` before the test, reloaded at the end of the arm with `reached = target == shown`: 9.
     - `(*v != shown) && (v != NULL)`: 6 (extra compare branch, NULL deref before the test).
     - variants scan of the target-before-test body (4): nothing below 4.
+- 2026-11-16 U HackslotQueueStateFadeIn2 (anthropic/claude-opus-5-5:high), 34e891 (plain removal re-measured: 13):
+  - removal asm: v (lw v1) and shown (lhu a2) are still hoisted above the null test and shared with the NULL path (join 0x2958 does its own lhu t4,0(v1)); only the deref *v is never hoisted, so a source read of *v before the test is required.
+  - shown before target 14; call before the target/shown reads 48; top reached as a ternary 13; swapped final compare 13; single final return 24; `if (value == NULL) {} else` 13; value re-assigned before the final compare 14.
 ## Untried ideas
 - 34e891: none left in natural C: every spelling that puts the *value load before the null test without a dead construct assigns it to a variable, and every assigned variable either moves the s0 copy above the branch or keeps a live range that changes allocation.
 ## Evidence
