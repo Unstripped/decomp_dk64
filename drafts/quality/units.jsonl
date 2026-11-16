@@ -856,3 +856,4 @@
 {"type": "unit", "t": "2026-11-16T21:00:07Z", "unit": "2026-11-16c: cleanup Polishglobal80150b", "commit": "d932a13cfbd9dcf3f86cb7b28409bcf6d884ce33"}
 {"type": "unit", "t": "2026-11-16T21:02:07Z", "unit": "2026-11-16c: cleanup HackschedMain", "commit": "a0fd5e2f430c95cc40ea8980b08c272f7f70a592"}
 {"type": "unit", "t": "2026-11-16T21:04:24Z", "unit": "2026-11-16c: cleanup HackmodelSlotTransformBoundsAndNodes", "commit": "0bc29f139c6fefe70ee367cf797de6eccd11914f"}
+{"type": "unit", "t": "2026-11-16T21:07:09Z", "unit": "2026-11-16c: cleanup HackcollisionTestActorBoxFloor4", "commit": "1bc644a3e930f94c327d86c246d6253aadb47444"}

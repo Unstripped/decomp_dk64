@@ -30,9 +30,18 @@
   - 10-leaf limit test: deltas through `((CollisionBoxTri *)actor->collision->triangles)[j]` 357 (y-deltas only 312); nz with field deltas 152. Same-block uses are substituted at input (Q0559), so uoptcopy's leaf limit is not the lever.
   - ray-span reuse confined to `dy02 * val` (denominator keeps the literal) 0: still a reused-temp steer, not applied
   - permuter on the plain removal (hack-free weights, 900 s, base 60): six zeros, all a y-delta reused for a literal between nz and d (dy01 = 0.01 / 2000.0; dy02 = 2000.0 / -1000.0 / -0.01); reused-temp steers, not applied
+- 2026-11-16 HackcollisionTestActorBoxFloor4 (opus:high), base 1c136899, diagnose nohit (variants.py try):
+  - sibling layouts: the 1336 sibling's `nzPart = dx01 * dy02` with `(nzPart - dy01*dx02)` inline and val/y recomputed per call block 140; the 895 sibling's inline nz (no nz local) per block 119, single val 180
+  - val/y recomputed per call block with the nz local and no kill: 11 (same d $f2 diff; the target's three y recomputations are uopt's, not the source's)
+  - f32 delta locals 261, with (f64) operand casts 272
+  - nz (and d) declared at first use in a block opened at the normal: 20 (same as the block-scoped temporaries)
+  - no d local (d's expression inline in val) 262; positive-dot d with val subtracting it 11
+  - zdbug:6 without the kill: dz01 (cand 69) -> 24 ($f0), dz02 (88) -> 25 ($f2), then the forwarded usub (110) -> 24 once dz01 is dead; d (112) is coloured only in the late pass after the split-outs and takes 25. With the kill d (113) is the one that takes 24.
+  - ray-span reading re-checked: `dy02 = 1000.0 - -1000.0;` (ray top minus ray bottom) feeding `ny * dy02` and `dy02 * val` scores 0, so any def of a y-delta works, but the variable is still the triangle's y-delta reused for the ray; no reading found where the ray span is the variable's only role. Not applied.
 ## Untried ideas
 - (tried 2026-11-15, unit 3: not applicable in-block) an expression exceeding uoptcopy's 10-variable-leaf limit
-- a natural source role for a y-delta (dy01/dy02) after the normal: the only zero-scoring family; needs a reading of the ray maths where a y-delta variable really is the ray span (none found that is not a reused temp)
+- (tried 2026-11-16, unit 4: only reuse readings exist) a natural source role for a y-delta (dy01/dy02) after the normal
+- raise d above the forwarded usub in colouring order (d is coloured in the late pass; the usub takes $f0 as soon as dz01 dies): a natural extra use or longer live range for d, or a shorter one for dz01, without new code
 ## Evidence
 - rodata: 0x128 2000.0 unreferenced (Q0086); 0x130 0.01, 0x138/0x140 2000.0 (the two ny tests), 0x148 -0.01, 0x150 2000.0 loaded once into $f26 at 0x421c and used for every den and `2000.0 * val` in all three blocks, then per-use -1000.0/1000.0 pairs at 0x158..0x180.
 - tri->x1 is loaded once (0x4108) and parked in two uopt temps 0x8C(sp) and 0x78(sp) (reload 0x41ac for d); y1 0x84, z1 0x80.
