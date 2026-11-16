@@ -1,17 +1,16 @@
 # playerTurnByStickX (global, src/global/E4090.c)
 
 ## Sites
-Register names: yaw {573} bit 10 (v1, `lh v1,230(v0)` 0x1a08), delta {477} bit 15 (a0, `subu a0` 0x1a1c), pad {413} bit 4 (a1, `addu a1,t7,t8` 0x1a24), state load {165} bit 0 (a2), gCurrentActor load {645} bit 12 (v0), yaw reload {103} bit 13 (v1, 0x1ad4), &gCurrentActor {916} (a3), &gActivePlayerState {676} (t0).
+Final (HackplayerTurnByStickX4, fdiff 0): one site.
 
 | key | site | class (Q0908) | what it steers |
 |---|---|---|---|
-| aa1df8, #2, #3, #4 | four entry `if (1) {}` | (i) block split | blocks in pad's web before yaw starts; pad adjsave 0.714 < yaw 0.75 (Q0722) |
-| dead-store:c5577b (copy only) | `turn = turn * (gActivePlayerState->turnRate / 400.0);` | value use + blocks | replaces 3617c0 + cbe8d1: keeps the 2048/4096/400 chain (0x1a44-0x1a84) and pad in a1 |
-| aa1df8#5 | `if (1) {}` after the yaw store | (i) block split | {645} 2.0->1.71, delta 1.4->1.17; &gActivePlayerState in t0 (0x19c0) |
-| 72ccc1 | `if (!gCurrentActor && !gCurrentActor && !gCurrentActor) {}` | (ii) same value, 3 reads | {645} 1.5->1.71, {103} 2.0->1.5; yaw v1 / actor v0 |
-| 149c00 | `if (delta) {}` | (ii) same value | extends delta into the >= block (2.0->1.17); delta a0 |
-| 3617c0 (removed) | `if (delta && delta) {}` in the 400 arm | (i) block split, needs 2 blocks | pad 0.833->0.714 |
-| cbe8d1 (removed) | `if (turn > 1.0f) {}` | (ii) value use of the clamped turn | Q0200 keeper of the 400 compare |
+| dead-store:98dc2b (copy only) | dead sibling scale chain `scale = pad->stickMagNorm; scale = scale * scale; if (scale < 0.2) scale = 0.2f;` after `pad =` | block split + pad use | ugen emits `la $7,gCurrentActor` after `addu $5` (lui t8 0x19d0 before lui a3 0x19d8); pad {477} adjsave 2.0 > state load {165} 1.0 (pad a1, state a2) |
+
+Untagged: the sibling clamp pair `if (turn < -400.0f) turn = -400.0f;` after the 400 clamp; uopt deletes that last empty compare (Q0200) and keeps the 400 compare (0x1a7c); without it 11.
+
+Base sites (all removed by HackplayerTurnByStickX4): aa1df8, #2, #3, #4 (entry `if (1) {}`), dead-store:c5577b (turnRate dead store), aa1df8#5, 72ccc1 (`!gCurrentActor` x3), 149c00 (`if (delta) {}`). Older removed: 3617c0, cbe8d1.
+Base register names: yaw {573} v1 (0x1a08), delta a0 (0x1a1c), pad a1 (0x1a24), state load {165} a2, gCurrentActor load {645} v0, yaw reload {103} v1 (0x1ad4), &gCurrentActor {916} a3, &gActivePlayerState {676} t0.
 
 ## Attempts
 - **2026-11-14, HackE4090InputA, high:** clamp spellings without cbe8d1 full=11; all 15 removal subsets of {3617c0, 72ccc1, 149c00, cbe8d1} (149c00 6, 3617c0 9, 3617c0+cbe8d1 11, 72ccc1 16, cbe8d1 32, all four 30).
@@ -29,10 +28,18 @@ Register names: yaw {573} bit 10 (v1, `lh v1,230(v0)` 0x1a08), delta {477} bit 1
   - After the merge, plain re-runs: drop 1/2/3/4 entry ifs 12/16/16/24; aa1df8#5 72; 72ccc1 16; 149c00 6; 72ccc1+149c00 19.
   - Sibling scale chain (`scale = stickMagNorm; scale = scale * scale; if (scale < 0.2) scale = 0.2f;`) in place of the entry four, with the dead store: 16 (shape 0, delta {477} colours first: delta v1, pad a0, state a1, yaw a2); with 149c00 removed also 16; with every dead if removed 29; before `pad =` 71-78; plus `turn = turn * scale;` 79-87.
   - Reconstruct: all nine removed 42; dead store only 31; sibling scale + dead store 29 (scan: nothing lower); ternary/else 400 clamp 9; `pad =` before the maxSpeed test 104-106; `Actor *actor` temp for the yaw read 78-89; ternary abs 0 (respelling only).
+- **2026-11-16, HackplayerTurnByStickX4, anthropic/claude-opus-5-5:high:**
+  - Deleted the s16 `yaw` local from every use (Q0911; aa33e86e lever): `delta = gCurrentActor->yaw - targetYaw;`, `gCurrentActor->yaw -= turn;`. With all 8 base sites still in: 0. 40 removal subsets of the 7 dead ifs (entry count 0-4 x aa1df8#5 x 72ccc1 x 149c00, with the dead store): 1, 3 or 4 entry ifs alone 0; 2 alone 10; 0 entry ifs 16-30. Applied: one `if (1) {}` + dead store, fdiff 0.
+  - Plain no-yaw body (no steer): 18 with the dead store, 29 without. One entry if, no dead store: 11.
+  - Single-if position (no-yaw, dead store): after the delta line / abs / 2048 / 400 clamp 9; after the dead store 20.
+  - Keeper alternatives: sibling `if (turn < -400.0f) turn = -400.0f;` after the 400 clamp replaces the dead store; with no entry steer 9 (only the entry lui order: ugen puts `la $7,gCurrentActor` at the head of the bc1t fall-through block); with `if (1) {}` 10 (pad adjsave 1.0 ties state, a1/a2 swap). Clamp as `else if` 20; -400 before 400 12; extra -2048 wrap 68; dead store after the -400 clamp 17, between the clamps 80.
+  - Guards at every statement gap of the -400 form (`1`, pad, delta, gCurrentActor, gActivePlayerState, turn, `pad && pad`, `delta && delta`): only right after `pad =`: `if (pad) {}` 0, `if (pad && pad) {}` 0, `if (pad->stickMagNorm) {}` 0; `if (1)`/`if (gActivePlayerState)` 10; elsewhere 9-45.
+  - Sibling scale chain after `pad =` (no-yaw form): with the -400 clamp 0 (FINAL); with `turn = turn * scale;` after the 400 clamp and no -400 clamp 0; with the turnRate dead store and no -400 clamp 0; alone 11; with -400 + `turn * scale` 8; with -400 + both sibling lines 91; `scale = stickMagNorm * 0.5 + 0.5` form 9-100.
+  - Other no-yaw respellings (no entry steer): refine delta in place 37 / 85; ternary abs 18; `<= 0` first 23; s16 targetYaw local 70; `pad =` after the delta line 22, before the stick term 117; stickX local 85; operand-swapped multiply 12; pad array inlined 100; second pad local or inlined pad in the tail: no help. `variants.py scan` on the no-steer bodies: nothing under 9.
 
 ## Untried ideas
-- An entry block structure that gives pad (bit 4) the four blocks without lifting delta's priority: the sibling scale chain is the closest real-looking code (16); a variant that also uses `scale` later (playerInputUpdateMoveTargetWithDeadzone2 uses `turn * scale`, 79-87 here) in another position is untested.
-- 72ccc1 needs three conditional reads of gCurrentActor in or after the >= 0x1000 block; real code that reads gCurrentActor there without emitting a branch is not known.
+- A version with no dead code at all: the target still needs a block boundary between `pad =` and the delta line (la placement) plus a pad use there, and a reader of turn after the 400 clamp; no live code is known for either.
+- Whether the sibling scale chain counts as ordinary copy-paste residue (untagged) like the -400 clamp: a lead decision.
 
 ## Evidence
 - The clamped turn is dead in the target: both arms of the 400 compare rejoin at 0x1a88 (`bc1fl 1a88` with `lb t2,46(a1)` copied into the delay slot at 0x1a80).
@@ -40,3 +47,4 @@ Register names: yaw {573} bit 10 (v1, `lh v1,230(v0)` 0x1a08), delta {477} bit 1
 - 0x19f8-0x1a24 (pad address, actor load, yaw load, delta) is one straight-line block: no real control flow can supply the entry blocks.
 - The >= 0x1000 block reloads gCurrentActor through `lui v0/lw v0` (0x1ae8/0x1aec), not through a3.
 - Sibling playerInputUpdateMoveTargetWithDeadzone2 (same file) runs `turn = turn * (gActivePlayerState->turnRate / 400.0);` after the same 400 clamp.
+- Entry order: target `lui t8,%hi(gPlayerPadState)` 0x19d0 before `lui a3,%hi(gCurrentActor)` 0x19d8: the `la $7,gCurrentActor` must follow `addu $5` in the ugen stream (a block boundary after `pad =`), not open the bc1t fall-through block.
