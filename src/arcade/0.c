@@ -1067,9 +1067,9 @@ void arcadeDrawGirderSpan(Gfx **glistp, u8 startX, u8 endX, s16 yVal) {
 }
 
 typedef struct ArcadeGirderSpan {
-    u8 x;
-    u8 y;
-    s16 z;
+    u8 startX;
+    u8 endX;
+    s16 y;
 } ArcadeGirderSpan;
 typedef struct ArcadeLift {
     f32 x;
@@ -1095,10 +1095,10 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     dlAppendTextureLoad(&glist, &D_8004BC50[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (j = 5; j < 0x14; j++) {
-        dlAppendTextureRectangle(&glist, 0x15C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
+        dlAppendTextureRectangle(&glist, 0x15C, (s32)((s32)(j * 8 + 51.625 + 8.0) * 4.0));
     }
     for (j = 5; j < 0x14; j++) {
-        dlAppendTextureRectangle(&glist, 0x25C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
+        dlAppendTextureRectangle(&glist, 0x25C, (s32)((s32)(j * 8 + 51.625 + 8.0) * 4.0));
     }
     D_8004C719 = 8;
     D_8004C71A = 0xA;
@@ -1109,7 +1109,7 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     pt = D_8004A7C8;
     do {
-        arcadeDrawGirderSpan(&glist, pt->x, pt->y, pt->z);
+        arcadeDrawGirderSpan(&glist, pt->startX, pt->endX, pt->y);
         pt++;
     } while (pt < (ArcadeGirderSpan *)((s32)D_8004A7C8 + 0x54)); // FAKE: (s32) address arithmetic end pointer steers codegen (&D_8004A7C8[21]: text=16)
     for (i = 0; i < 6; i++) {
@@ -1123,7 +1123,7 @@ void arcadeDrawStage3Background(Gfx **glistp) {
             }
         }
         for (j = 0; j < 2; j++) {
-            dlAppendTextureRectangle(&glist, (s32)((D_8004BC88[i].x + 40.0f + (f32)(j * 8)) * 4.0f), (s32)(((f64)D_8004BC88[i].y * 0.875 + 8.0) * 4.0));
+            dlAppendTextureRectangle(&glist, (s32)((D_8004BC88[i].x + 40.0f + j * 8) * 4.0f), (s32)((D_8004BC88[i].y * 0.875 + 8.0) * 4.0));
         }
     }
     arcadeDrawStage3Ladders(&glist);
@@ -1355,7 +1355,8 @@ void arcadeSpawnStage3Entities(void) {
     D_8004BCD0[gArcadePlayerIndex] = D_8004A398;
     D_8004BCD0[gArcadePlayerIndex].x = 56.0f;
     D_8004BCD0[gArcadePlayerIndex].y = 231.0f;
-    D_8004BCD0[i] = D_8004A478;
+    p = &D_8004BCD0[i];
+    *p = D_8004A478;
     i--;
     p = &D_8004BCD0[i];
     *p = D_8004A478;
@@ -1732,7 +1733,7 @@ s32 arcadeCheckStage3Collision(s32 posX, s32 posY) {
     if (posX >= 0x4D && posX < 0x64) {
         for (i = 0; i < 3; i++) {
             f32 y = D_8004BC88[i].y;
-            if (y < (f32)(posY + 4) && (f32)(posY - 0x10) < y) {
+            if (y < posY + 4 && posY - 0x10 < y) {
                 ret = (s32)y;
             }
         }
@@ -1740,7 +1741,7 @@ s32 arcadeCheckStage3Collision(s32 posX, s32 posY) {
     if (posX >= 0x8D && posX < 0xA4) {
         for (i = 3; i < 6; i++) {
             f32 y = D_8004BC88[i].y;
-            if (y < (f32)(posY + 4) && (f32)(posY - 0x10) < y) {
+            if (y < posY + 4 && posY - 0x10 < y) {
                 ret = (s32)y;
             }
         }
