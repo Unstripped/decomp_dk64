@@ -2786,7 +2786,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                     posX = p->u.pos.x;
                     posY = p->u.pos.y;
                     posZ = p->u.pos.z;
-                    goto calc_look;
+                    break;
                 case 2:
                     pos = &p->u.pos;
                     dz = target->z - pos->z;
@@ -2797,18 +2797,18 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                     posX = (pos->x - target->x) * scale + target->x;
                     posY = (pos->y - target->floorY) * scale + target->floorY;
                     posZ = (pos->z - target->z) * scale + target->z;
-                    goto calc_look;
+                    break;
                 case 3:
                     camClosestPointOnSegment(target->x, target->y, target->z, p->u.seg.x, p->u.seg.y, p->u.seg.z,
                                   p->u.seg.x + p->u.seg.dx, p->u.seg.y + p->u.seg.dy,
                                   p->u.seg.z + p->u.seg.dz, &posX, &posY,
                                   &posZ);
-                    goto calc_look;
+                    break;
                 case 17:
                     posX = *eyeX;
                     posY = *eyeY;
                     posZ = *eyeZ;
-                    goto calc_look;
+                    break;
                 case 4:
                     e0 = &((CamSplineKeyPosLook *) p->u.spline.keys)[idx[0]];
                     e1 = &((CamSplineKeyPosLook *) p->u.spline.keys)[idx[1]];
@@ -2826,7 +2826,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                         camActor->pitch =
                             splineEvalCubic(target->splineT, e0->pitch, e1->pitch, e2->pitch, e3->pitch) / 127.0 * 2048.0;
                     }
-                    break;
+                    goto look_done;
                 case 5:
                     k0 = &((CamSplineKeyPos *) p->u.spline.keys)[idx[0]];
                     k1 = &((CamSplineKeyPos *) p->u.spline.keys)[idx[1]];
@@ -2841,19 +2841,21 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                         camActor->pitch =
                             splineEvalCubic(target->splineT, k0->pitch, k1->pitch, k2->pitch, k3->pitch) / 127.0 * 2048.0;
                     }
-                calc_look:
-                    if (!gCamPathLookNode) {
-                        lookX = mathSinF(target->yaw) * gCamPathLookAhead + target->x;
-                        lookZ = mathCosF(target->yaw) * gCamPathLookAhead + target->z;
-                        if (target->eyeHeight != 0) {
-                            lookY = target->y + target->eyeHeight;
-                        } else {
-                            lookY = target->y;
-                        }
-                    } else {
-                        actorGetNodePos(gCamPathLookActor, gCamPathLookNode, &lookX, &lookY, &lookZ);
-                    }
-                    goto look_done;
+                    break;
+                default:
+                    goto look_set;
+            }
+        calc_look:
+            if (!gCamPathLookNode) {
+                lookX = mathSinF(target->yaw) * gCamPathLookAhead + target->x;
+                lookZ = mathCosF(target->yaw) * gCamPathLookAhead + target->z;
+                if (target->eyeHeight != 0) {
+                    lookY = target->y + target->eyeHeight;
+                } else {
+                    lookY = target->y;
+                }
+            } else {
+                actorGetNodePos(gCamPathLookActor, gCamPathLookNode, &lookX, &lookY, &lookZ);
             }
         look_set: /* two consecutive labels: the empty block keeps uopt from colouring type across the switch */
         look_done:
