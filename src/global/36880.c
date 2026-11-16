@@ -1625,146 +1625,113 @@ void modelSlotGetTransformVectors(s32 slot, f32 *xOut, f32 *yOut, f32 *zOut, f32
 
 extern u8 gPlayerCount;
 
-#define MODEL_TRANSFORM_SLOT0 ((ModelSlot *)((u8 *)gModelSlots + slot * 0x90))
-#define MODEL_TRANSFORM_SLOT ((ModelSlot *)((u8 *)gModelSlots + off))
-
 void modelSlotTransformBoundsAndNodes(s32 slot, f32 x, f32 y, f32 z, f32 rotX, f32 rotY, f32 rotZ, f32 scale, f32 yOffset, u8 setPos, u8 setRot, u8 setScale, u8 setYOffset, u8 isId) {
-    ModelSlot *xform;
-    ModelKindObj *kindObj;
+    RenderQuadModelObj *quad;
+    ModelType1Obj *model;
     s16 purgeOut;
     u8 flag;
     u8 sel;
     u8 i;
-    s32 off;
+    s32 pad;
 
     flag = 0;
     if (isId == 1) {
-        if (slot) {}  // FAKE: dead test raises slot candidate priority (steers uopt colouring)
         slot = hashTableLookup(slot);
     }
     if (setYOffset) {
-        MODEL_TRANSFORM_SLOT0->yOffset = yOffset;
-        xform = MODEL_TRANSFORM_SLOT0;
-        switch (xform->unk86) {
+        gModelSlots[slot].yOffset = yOffset;
+        switch (gModelSlots[slot].unk86) {
             case 2:
-                kindObj = xform->unk20;
-                kindObj->type2.yOffset = yOffset;
+                quad = gModelSlots[slot].unk20;
+                quad->yOffset = yOffset;
                 break;
             case 1:
-                kindObj = xform->unk20;
-                kindObj->type1.yOffset = yOffset;
+                model = gModelSlots[slot].unk20;
+                model->yOffset = yOffset;
                 break;
         }
     }
-    off = slot * 0x90;
     if (setPos) {
-        MODEL_TRANSFORM_SLOT->x = x;
-        MODEL_TRANSFORM_SLOT->y = y;
-        MODEL_TRANSFORM_SLOT->z = z;
-        if (flag) {}  // FAKE: dead test raises flag candidate priority (steers uopt colouring)
-        xform = MODEL_TRANSFORM_SLOT;
-        switch (xform->unk86) {
+        gModelSlots[slot].x = x;
+        gModelSlots[slot].y = y;
+        gModelSlots[slot].z = z;
+        switch (gModelSlots[slot].unk86) {
             case 2:
-                kindObj = xform->unk20;
-                kindObj->type2.x = x;
-                kindObj->type2.y = y;
-                kindObj->type2.z = z;
+                quad = gModelSlots[slot].unk20;
+                quad->x = x;
+                quad->y = y;
+                quad->z = z;
                 break;
             case 1:
-                kindObj = xform->unk20;
-                kindObj->type1.x = x;
-                kindObj->type1.y = y;
-                kindObj->type1.z = z;
+                model = gModelSlots[slot].unk20;
+                model->x = x;
+                model->y = y;
+                model->z = z;
                 break;
         }
     }
     if (setRot) {
-        MODEL_TRANSFORM_SLOT->rotX = rotX;
-        MODEL_TRANSFORM_SLOT->rotY = rotY;
-        MODEL_TRANSFORM_SLOT->rotZ = rotZ;
-        xform = MODEL_TRANSFORM_SLOT;
-        if (xform->unk86 == 1) {
-            kindObj = xform->unk20;
-            kindObj->type1.rotX = rotX;
-            kindObj->type1.rotY = rotY;
-            kindObj->type1.rotZ = rotZ;
+        gModelSlots[slot].rotX = rotX;
+        gModelSlots[slot].rotY = rotY;
+        gModelSlots[slot].rotZ = rotZ;
+        if (gModelSlots[slot].unk86 == 1) {
+            model = gModelSlots[slot].unk20;
+            model->rotX = rotX;
+            model->rotY = rotY;
+            model->rotZ = rotZ;
         }
     }
     if (setScale) {
-        MODEL_TRANSFORM_SLOT->scale = scale;
-        xform = MODEL_TRANSFORM_SLOT;
-        switch (xform->unk86) {
+        gModelSlots[slot].scale = scale;
+        switch (gModelSlots[slot].unk86) {
             case 2:
-                kindObj = xform->unk20;
-                kindObj->type2.scale = scale;
+                quad = gModelSlots[slot].unk20;
+                quad->scale = scale;
                 break;
             case 1:
-                kindObj = xform->unk20;
-                kindObj->type1.scale = scale;
+                model = gModelSlots[slot].unk20;
+                model->scale = scale;
                 break;
         }
     }
-    if ((setPos || setYOffset) && mapPurgeNodeList(MODEL_TRANSFORM_SLOT->unk20, &purgeOut, 0)) {
-        xform = MODEL_TRANSFORM_SLOT;
-        renderEntryAddOrUpdate(0, xform->unk86, xform->unk20, xform->x, xform->y, xform->z, xform->unk24->unk1E, xform->id, 0, purgeOut, 2);
+    if ((setPos || setYOffset) && mapPurgeNodeList(gModelSlots[slot].unk20, &purgeOut, 0)) {
+        renderEntryAddOrUpdate(0, gModelSlots[slot].unk86, gModelSlots[slot].unk20, gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, gModelSlots[slot].unk24->unk1E, gModelSlots[slot].id, 0, purgeOut, 2);
     }
-    xform = MODEL_TRANSFORM_SLOT;
     if (setPos || setYOffset || setRot) {
-        modelEmitterSetPosition(xform->id, xform->x, xform->y, xform->z, xform->scale, xform->rotY);
-        xform = MODEL_TRANSFORM_SLOT;
+        modelEmitterSetPosition(gModelSlots[slot].id, gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, gModelSlots[slot].scale, gModelSlots[slot].rotY);
     }
-    if (xform->unk7C != NULL) {
-        sel = xform->unk7C->unk67;
+    if (gModelSlots[slot].unk7C != NULL) {
+        sel = gModelSlots[slot].unk7C->unk67;
         switch (sel) {
             case 0:
                 flag = 1;
                 break;
             case 2:
-                if (gPlayerSlots != NULL) {
-                    i = 0;
-                    if (gPlayerCount > 0) {
-                        do {
-                            if (gPlayerSlots[i].active != 0) {
-                                flag |= collisionCheckBoundingBoxY((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), gPlayerSlots[i].actor->y) != 0 && collisionCheckBoundingBoxXZ((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), gPlayerSlots[i].actor->x, gPlayerSlots[i].actor->z) != 0; // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
-                            }
-                            i++;
-                        } while (i < gPlayerCount);
-                        xform = MODEL_TRANSFORM_SLOT;
-                    }
+                if (gPlayerSlots == NULL) {
+                    break;
                 }
+                for (i = 0; i < gPlayerCount; i++) { if (gPlayerSlots[i].active == 0) { continue; } flag |= collisionCheckBoundingBoxY(&gModelSlots[slot].unk48.bbox, gPlayerSlots[i].actor->y) != 0 && collisionCheckBoundingBoxXZ(&gModelSlots[slot].unk48.bbox, gPlayerSlots[i].actor->x, gPlayerSlots[i].actor->z) != 0; } // LAYOUT: keeps loop-latch loads after flag truncation
                 break;
             case 1:
-                if (gPlayerSlots != NULL) {
-                    i = 0;
-                    if (gPlayerCount > 0) {
-                        do {
-                            if (gPlayerSlots[i].active != 0) {
-                                flag |= collisionCheckBoundingBoxXZ((CollisionBoundingBox *)((u8 *)off + (s32)gModelSlots + 0x54), gPlayerSlots[i].actor->x, gPlayerSlots[i].actor->z); // FAKE: integer-base sum (u8 *)off + (s32)gModelSlots keeps the bbox address in t0 (&gModelSlots[slot].unk48.bbox flips the addu, + off takes t4)
-                            }
-                            i++;
-                        } while (i < gPlayerCount);
-                        xform = MODEL_TRANSFORM_SLOT;
-                    }
+                if (gPlayerSlots == NULL) {
+                    break;
                 }
+                for (i = 0; i < gPlayerCount; i++) { if (gPlayerSlots[i].active == 0) { continue; } flag |= collisionCheckBoundingBoxXZ(&gModelSlots[slot].unk48.bbox, gPlayerSlots[i].actor->x, gPlayerSlots[i].actor->z); } // LAYOUT: keeps loop-latch loads after flag truncation
                 break;
             case 3:
             case 4:
                 if (gPlayerSlots != NULL) {
-                    flag = activeActorBoxOverlapTest(xform->x, xform->y, xform->z, xform->unk7C->unk68, xform->unk7C->unk6A, xform->unk7C->unk6C, sel == 3 ? 0xEF : 1);
-                    xform = MODEL_TRANSFORM_SLOT;
+                    flag = activeActorBoxOverlapTest(gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, gModelSlots[slot].unk7C->unk68, gModelSlots[slot].unk7C->unk6A, gModelSlots[slot].unk7C->unk6C, sel == 3 ? 0xEF : 1);
                 }
                 break;
         }
     }
     if (flag != 0) {
-        collisionTransformNode(slot, xform->unk24, xform->x, xform->y, xform->z, xform->rotX, xform->rotY, xform->rotZ, xform->scale);
-        xform = MODEL_TRANSFORM_SLOT;
-        modelSlotBuildTriangleBufferThunk(slot, xform->unk24, xform->x, xform->y, xform->z, xform->rotX, xform->rotY, xform->rotZ, xform->scale);
-        xform = MODEL_TRANSFORM_SLOT;
+        collisionTransformNode(slot, gModelSlots[slot].unk24, gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, gModelSlots[slot].rotX, gModelSlots[slot].rotY, gModelSlots[slot].rotZ, gModelSlots[slot].scale);
+        modelSlotBuildTriangleBufferThunk(slot, gModelSlots[slot].unk24, gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, gModelSlots[slot].rotX, gModelSlots[slot].rotY, gModelSlots[slot].rotZ, gModelSlots[slot].scale);
     }
-    modelSlotBuildVertPosList(slot, xform->unk24, xform->x, xform->y, xform->z, xform->rotX, xform->rotY, xform->rotZ, xform->scale, 1);
-    xform = MODEL_TRANSFORM_SLOT;
-    modelSlotBuildNodePosList(slot, xform->unk24, xform->x, xform->y, xform->z, xform->rotX, xform->rotY, xform->rotZ, xform->scale, 1);
+    modelSlotBuildVertPosList(slot, gModelSlots[slot].unk24, gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, gModelSlots[slot].rotX, gModelSlots[slot].rotY, gModelSlots[slot].rotZ, gModelSlots[slot].scale, 1);
+    modelSlotBuildNodePosList(slot, gModelSlots[slot].unk24, gModelSlots[slot].x, gModelSlots[slot].y, gModelSlots[slot].z, gModelSlots[slot].rotX, gModelSlots[slot].rotY, gModelSlots[slot].rotZ, gModelSlots[slot].scale, 1);
 }
 
 s32 activeActorBoxOverlapTest(f32 x, f32 y, f32 z, s16 radiusX, s16 radiusY, s16 radiusZ, u16 mask) {
