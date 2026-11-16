@@ -861,3 +861,4 @@
 {"type": "unit", "t": "2026-11-16T21:16:39Z", "unit": "2026-11-16c: cleanup HackfrustumOrientPolyNormals", "commit": "d7fa6731aae3cd0e34f694953c3528d7a689807d"}
 {"type": "unit", "t": "2026-11-16T21:17:51Z", "unit": "2026-11-16c: cleanup Hack__n_sndpPostPitch", "commit": "e4cc578a54475def55c1c0cd36d589d7773b646b"}
 {"type": "unit", "t": "2026-11-16T21:19:00Z", "unit": "2026-11-16c: cleanup HackplayerStateDamageFallTumble", "commit": "2b74ad0712ba7ecac13d4717a7b52e9b9ebad63a"}
+{"type": "unit", "t": "2026-11-16T21:22:43Z", "unit": "2026-11-16c: cleanup HackraceOpponentCarBehaviorUpdate", "commit": "b4680a7791736fab84dfd5013a2d51b81b627c26"}
