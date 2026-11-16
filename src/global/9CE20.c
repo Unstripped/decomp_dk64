@@ -82,12 +82,10 @@ u8 nodeCount;
     }
     for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
         p = gActorGlobalState.volumeTriggerQueueId[i];
-        switch (*p) { // FAKE: one-case switch; its empty default adds one uopt block on the store path (the effect the two dead tests had on the 0x50 constant and count webs); without the default 261, if/else forms 149
+        switch (*p) { // FAKE: one-case switch whose case ends in continue (the loop tail, so same as break) shapes the store-path blocks; break 261, plain if 149
         case 0:
             data->sinkTimer = 0x50;
-            break;
-        default:
-            break;
+            continue;
         }
     }
     if (data->sinkTimer != 0) {
