@@ -755,3 +755,4 @@
 {"type": "unit", "t": "2026-11-16T07:13:47Z", "unit": "2026-11-15: cleanup HackenemyAggroStateUpdate3", "commit": "ad51a6db6043fe485397743f7385dc4ec0233229"}
 {"type": "unit", "t": "2026-11-16T07:17:03Z", "unit": "2026-11-15: cleanup HackarcadeUpdateBouncingBarrel", "commit": "904abd856beb10123a7492629235cc1bd28ace4a"}
 {"type": "unit", "t": "2026-11-16T07:20:29Z", "unit": "2026-11-15: cleanup HackvehicleUpdateMotion3", "commit": "5df43cbe87a3df48c0ee3795c9a7513a46a5e5ee"}
+{"type": "unit", "t": "2026-11-16T07:21:51Z", "unit": "2026-11-15: cleanup HackplayerTurnByStickX3", "commit": "91634a7fd59b281af07b2de63d46db66f90264d7"}
