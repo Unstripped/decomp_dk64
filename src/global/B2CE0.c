@@ -802,12 +802,11 @@ void func_806B0848(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         f64 d;
-        f64 m = 255.0; // FAKE: 255.0 held in a local for both cull-margin clamps; the literal costs 238 lines
 
         d = gCurrentActor->sub4->scaleY / 0.15 * 100.0;
-        if (d > m) gCurrentActor->cullMarginX = m; else gCurrentActor->cullMarginX = d; // LAYOUT: one line keeps as1's order of the li t2/t0 rounding-mode pair
+        gCurrentActor->cullMarginX = d > 255.0 ? 255.0 : d;
         d = gCurrentActor->sub4->scaleY / 0.15 * 100.0;
-        if (d > m) gCurrentActor->cullMarginY = m; else gCurrentActor->cullMarginY = d; // LAYOUT: one line keeps as1's order of the li t7/t5 rounding-mode pair
+        gCurrentActor->cullMarginY = d > 255.0 ? 255.0 : d;
         behaviourSetAnimIds(0x35E, 0x35F, 0x360);
     }
     if ((gActorGlobalState.bossFightPhase == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
