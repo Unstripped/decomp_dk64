@@ -14,7 +14,7 @@ void func_806FB480(void) {
 void textBlitNoop100180(void) {
 }
 
-s32 textBlitGlyph(u8 width, s32 dst, s32 sheet, s16 texX, u8 row, u8 *phase, u8 pitch) {
+u8 *textBlitGlyph(u8 width, u8 *dst, s32 sheet, s16 texX, u8 row, u8 *phase, u8 pitch) {
     u8 *srcRow;
     u8 *out;
     s16 j;
@@ -29,7 +29,7 @@ s32 textBlitGlyph(u8 width, s32 dst, s32 sheet, s16 texX, u8 row, u8 *phase, u8 
     srcRow = (u8 *)sheet + (texX >> 1);
     oddBit = width & 1;
     phaseBit = *phase & 1;
-    dstRow = (u8 *)(dst + pitch * 16 + pitch * row);
+    dstRow = dst + pitch * 16 + pitch * row;
     out = dstRow;
     *phase += width;
     width >>= 1;
@@ -67,7 +67,7 @@ s32 textBlitGlyph(u8 width, s32 dst, s32 sheet, s16 texX, u8 row, u8 *phase, u8 
         src = srcRow;
         out = dstRow;
     }
-    return (phaseBit && oddBit) + dst + (u32)width; // FAKE: the u32 widening shares width's masked copy (andi t3,a0,0xff) with the loop bound
+    return (phaseBit && oddBit) + dst + width;
 }
 
 typedef struct TextGlyph {
@@ -81,7 +81,7 @@ extern void **gTextFontSheets;
 extern TextFontInfo gTextFonts[];
 extern u8 *gTextFontLineStarts[];
 
-void textBlitString(s32 dst, u8 pitch, u8 *str) {
+void textBlitString(u8 *dst, u8 pitch, u8 *str) {
     s32 i;
     u8 ch;
     u8 row;
@@ -106,7 +106,7 @@ void textBlitString(s32 dst, u8 pitch, u8 *str) {
     }
 }
 
-void textBlitDash(s32 dst) {
+void textBlitDash(u8 *dst) {
     u8 phase;
 
     phase = 0;
@@ -658,21 +658,20 @@ Gfx *textDrawString(Gfx *dl, u8 font, s16 x, s16 y, const u8 *str) {
 }
 
 s16 textGetCharAdvance(s16 font, u8 ch) {
-    s32 f;
     s16 advance;
     TextFontInfo *info;
 
-    f = font; // FAKE: s32 copy keeps the extended font in a2 (sll a2,a0,0x10) apart from the a0 argument
-    if (f & 0x80) {
-        info = &gTextFonts[(s16)(f ^ 0x80)];
-        advance = info->fixedWidth;
+    if (font & 0x80) {
+        font ^= 0x80;
+        advance = gTextFonts[font].fixedWidth;
+        info = &gTextFonts[font];
     } else if (ch == ' ') {
-        info = &gTextFonts[f];
-        advance = info->spaceWidth;
+        advance = gTextFonts[font].spaceWidth;
+        info = &gTextFonts[font];
     } else {
-        textMapCharToGlyph(f, &ch);
-        advance = gTextGlyphTables[f][ch].width;
-        info = &gTextFonts[f];
+        textMapCharToGlyph(font, &ch);
+        advance = gTextGlyphTables[font][ch].width;
+        info = &gTextFonts[font];
     }
     advance += info->spacing;
     return advance;

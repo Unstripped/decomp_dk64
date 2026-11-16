@@ -10,13 +10,13 @@ void func_806FB480(void);
 void textBlitNoop100180(void);
 #endif
 #ifndef PROTO_SKIP_textBlitGlyph
-s32 textBlitGlyph(u8, s32, s32, s16, u8, u8 *, u8);
+u8 *textBlitGlyph(u8, u8 *, s32, s16, u8, u8 *, u8);
 #endif
 #ifndef PROTO_SKIP_textBlitString
-void textBlitString(s32, u8, u8 *);
+void textBlitString(u8 *, u8, u8 *);
 #endif
 #ifndef PROTO_SKIP_textBlitDash
-void textBlitDash(s32);
+void textBlitDash(u8 *);
 #endif
 #ifndef PROTO_SKIP_textMapCharToGlyph
 s32 textMapCharToGlyph(s16, u8 *);
