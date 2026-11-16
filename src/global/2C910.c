@@ -2,7 +2,7 @@
 #include "actor.h"
 #include "sched.h"
 #define PROTO_SKIP_csModelStateSetFirstByte // ORIG: hides the shared (s16, s16) prototype; the target passes the s32 b unconverted (lw a0,68(sp) at 0x1374), see the declaration below
-#define PROTO_SKIP_textSpawnMarkerChecked // FAKE: callee prototype steer
+#define PROTO_SKIP_textSpawnMarkerChecked // ORIG: hides the shared (u8, s16, s16, u8 *, u16, u16, u8, u8) prototype; the target promotes the u16 holdTime argument once (lhu t2,222(sp) at 0x118, sw t2,56(sp) at 0x128), see the declaration below
 #include "proto/boot/3630.h"
 #include "proto/global/100180.h"
 #include "proto/global/10E1D0.h"
@@ -58,9 +58,9 @@ void actorSetTintFromPalette(u8 paletteIdx) {
     gSpawnedActor->tintB = D_80757F70[paletteIdx].b;
 }
 
-void textSpawnMarkerChecked(s32, s32, s32, u8 *, s32, s32, s32, s32); // FAKE: callee prototype steer
+void textSpawnMarkerChecked(); // ORIG: target passes holdTime as a default-promoted int: duration loaded once (lhu t2,222(sp) at 0x118), spilled to 56(sp) and reloaded with lw at 0x1d8/0x210/0x250 for the three calls; under the owner's u16 prototype each call reloads lhu 222(sp) instead and the frame shrinks 0xd8 -> 0xd0: the original TU had no prototype for textSpawnMarkerChecked in scope
 
-void textSpawnSubtitle(textId, duration, paletteIdx) // FAKE: K&R definition keeps the caller passing promoted ints (callee prototype steer)
+void textSpawnSubtitle(textId, duration, paletteIdx) // ORIG: old-style definition: the call at 0x3e8 passes (s16) duration unconverted (sll a1,v0,0x10 / sra at 0x3e0) into this u16 parameter, so no prototype is in scope there although this definition precedes it; a (u8, u16, u8) definition adds andi a1,v0,0xffff, a (u8, s16, u8) one loses the u16 spill at 0x118
 u8 textId;
 u16 duration;
 u8 paletteIdx;
