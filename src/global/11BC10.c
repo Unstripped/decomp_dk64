@@ -962,7 +962,7 @@ void effectSpiralRiseUpdate(EffectNode *effect, s8 *isDone) {
         state->centerZ = effect->z;
         state->radius = 0.0f;
         state->angle = effect->speed * 455.1111f;
-        state->angleStep = ((effect->speed % 3) * 0x64) - 0x64;
+        state->angleStep = (effect->speed % 3) * 100 - 100;
         state->alphaLevel = 375.0f;
     }
     state = effect->allocation;
