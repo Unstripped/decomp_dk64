@@ -3102,8 +3102,8 @@ void playerInputStepTurnFacingAngle(void) {
         rollStep = 0x19;
     }
     if (gPlayerPadState[gCurrentPlayerIndex].stickAbsX != 0) {
-        ang ^= 0; // FAKE: no-op xor keeps ang a separate web
-        gCurrentActor->yaw = (u16)(ang - (gPlayerPadState[gCurrentPlayerIndex].stickX / 2)) & 0xFFF;
+        ang -= gPlayerPadState[gCurrentPlayerIndex].stickX / 2;
+        gCurrentActor->yaw = (s16)ang & 0xFFF;
         target = D_80753B54[gCurrentCharacterIndex] * ((gPlayerPadState[gCurrentPlayerIndex].stickX >= 0) ? 1 : -1);
         target &= 0xFFF;
     } else {
@@ -3112,7 +3112,7 @@ void playerInputStepTurnFacingAngle(void) {
     mathAngleStepToward(&gCurrentActor->pitch, target, 0x10);
     if (gPlayerPadState[gCurrentPlayerIndex].stickY != 0) {
         target = (D_80753B44[gCurrentCharacterIndex] * gPlayerPadState[gCurrentPlayerIndex].stickY) / 70;
-        target = target & 0xFFF;
+        target &= 0xFFF;
         mathAngleStepToward(&gCurrentActor->roll, target, (s16)(s32)((((f64)gPlayerPadState[gCurrentPlayerIndex].stickY * 0.125) > 0.0 ? ((f64)gPlayerPadState[gCurrentPlayerIndex].stickY * 0.125) : -((f64)gPlayerPadState[gCurrentPlayerIndex].stickY * 0.125)) + (f64)rollStep));
         return;
     }
