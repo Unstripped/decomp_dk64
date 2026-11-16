@@ -1053,6 +1053,8 @@ extern u8 gActivePlayerCount;
 extern u8 D_807ECD09;
 extern OSContPad D_807ECD10[];
 
+#define BUTTONS_PRESSED(cur, prev) (((cur) ^ (prev)) & (cur))
+
 void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
     s32 step;
@@ -1135,7 +1137,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
                 }
             }
-            pressed = (buttons ^ D_80033858) & buttons;
+            pressed = BUTTONS_PRESSED(buttons, D_80033858);
             if (state->scrollY == 0 && D_80033FAE == 0) {
                 for (i = 0; i != 4; i++) {
                     bits = 0;
@@ -1150,7 +1152,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                         } else if (D_807ECD10[i].stick_y >= 0x29) {
                             bits |= 0x10;
                         }
-                        edge = (D_8003385C[i] ^ bits) & bits;
+                        edge = BUTTONS_PRESSED(bits, D_8003385C[i]);
                         D_8003385C[i] = bits;
                         if (D_8076A0E4[i] & 0x80) {
                             if (D_807ECD48[i] & 0x1000) {
@@ -1202,7 +1204,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     }
                 }
             } else if (state->scrollY == -0xF0) {
-                if (((buttons ^ D_80033858) & buttons) & 0x10) { // FAKE: recomputes pressed so the test reads the v0 CSE value, not s0 pressed
+                if (BUTTONS_PRESSED(buttons, D_80033858) & 0x10) {
                     cap = 5;
                     if (D_80033834[D_8074451C] == 5) {
                         cap = 4;
@@ -1211,19 +1213,19 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                         D_80744520++;
                         sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     }
-                } else if ((((buttons ^ D_80033858) & buttons) & 0x20) && D_80744520 >= 2) { // FAKE: recomputes pressed so the test reads the v0 CSE value, not s0 pressed
+                } else if ((BUTTONS_PRESSED(buttons, D_80033858) & 0x20) && D_80744520 >= 2) {
                     D_80744520--;
                     sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
                 menuHandleScrollInput(state, itemCount, pressed);
             } else if (state->scrollY == -0x1E0) {
-                if (((buttons ^ D_80033858) & buttons) & 0x10) { // FAKE: recomputes pressed so the test reads the v0 CSE value, not s0 pressed
+                if (BUTTONS_PRESSED(buttons, D_80033858) & 0x10) {
                     D_80744534++;
                     if (D_80744534 >= 3) {
                         D_80744534 = 0;
                     }
                     sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                } else if (((buttons ^ D_80033858) & buttons) & 0x20) { // FAKE: recomputes pressed so the test reads the v0 CSE value, not s0 pressed
+                } else if (BUTTONS_PRESSED(buttons, D_80033858) & 0x20) {
                     D_80744534--;
                     if (D_80744534 < 0) {
                         D_80744534 = 2;
