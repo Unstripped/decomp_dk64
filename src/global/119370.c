@@ -437,10 +437,10 @@ void effectBuildGridVertices(EffectNode *effect) {
 
 extern PlayerStruct *gPlayerSlots;
 
-void effectUpdateAll(u8 pGlist) {
+void effectUpdateAll(u8 paused) {
     EffectNode *effect;
-    u8 chunkFound;
-    EffectGridNode *node2;
+    u8 isDone;
+    EffectGridNode *grid;
     s32 i;
 
     for (effect = sEffectListHead; effect != NULL; effect = effect->next) {
@@ -449,7 +449,7 @@ void effectUpdateAll(u8 pGlist) {
             effect->freePending = 0;
             effect->displayListIndex = 0;
             effect->grid->lastUsedFrame = gFrameCounter;
-            effect->flags &= 0xFFEF;
+            effect->flags &= ~0x10;
             switch (effect->anchorType) {
             case 1:
                 modelSlotGetNodePos(effect->boneIndex, 1, effect->subIndex,
@@ -465,10 +465,10 @@ void effectUpdateAll(u8 pGlist) {
                 }
                 break;
             }
-            chunkFound = 0;
-            if (!pGlist || (effect->flags & 1)) {
+            isDone = 0;
+            if (!paused || (effect->flags & 1)) {
                 if (effect->callback != NULL) {
-                    effect->callback(effect, &chunkFound);
+                    effect->callback(effect, &isDone);
                 }
             } else if (effect->callback != NULL) {
                 for (i = 0; i < gViewportCount; i++) {
@@ -486,7 +486,7 @@ void effectUpdateAll(u8 pGlist) {
                     effect->freePending = 1;
                 }
             }
-            if (chunkFound != 0) {
+            if (isDone != 0) {
                 effect->freePending = 1;
             }
             if (effect->freePending != 0) {
@@ -515,21 +515,21 @@ void effectUpdateAll(u8 pGlist) {
                     effect->state = 3;
                 }
                 if (effect->mode == 0) {
-                    s32 renderArg;
+                    s32 listIndex;
                     if (effect->flags & 4) {
-                        renderArg = 4;
+                        listIndex = 4;
                         if (!(effect->flags & 8)) {
                             effect->chunk = mapChunkFindByPosition(
                                 effect->x, effect->y,
                                 effect->z, 0);
                         }
                     } else {
-                        renderArg = 1;
+                        listIndex = 1;
                     }
                     renderEntryAddOrUpdate(0, 5, effect, effect->x,
                                            effect->y,
                                            effect->z,
-                                           effect->maxDistance, 0, 1, -1, renderArg);
+                                           effect->maxDistance, 0, 1, -1, listIndex);
                 } else {
                     renderEntryAddOrUpdate(0, 5, effect, effect->x,
                                            effect->y,
@@ -540,7 +540,7 @@ void effectUpdateAll(u8 pGlist) {
                               effect->grid->slots,
                               effect->frameCount, effect->param,
                               effect->frames);
-                if (!pGlist || (effect->flags & 1)) {
+                if (!paused || (effect->flags & 1)) {
                     effect->frameTimer++;
                     if (effect->frameTimer == effect->frameDelay) {
                         effect->param++;
@@ -549,17 +549,17 @@ void effectUpdateAll(u8 pGlist) {
                 }
             }
             effect->flags |= 8;
-        } else if (!pGlist || (effect->flags & 1)) {
+        } else if (!paused || (effect->flags & 1)) {
             effect->startDelay--;
         }
     }
-    for (node2 = sEffectGridHead; node2 != NULL; node2 = node2->next) {
-        if (gFrameCounter - node2->lastUsedFrame < 0xB && node2->lastUsedFrame != -1) {
-            for (i = 0; i < node2->frameCount * node2->width * node2->height; i++) {
-                if (node2->slots[i].frame != -1) {
-                    if (gFrameCounter - node2->lastUsedFrame == 10) {
-                        assetFreeBuffer(node2->slots[i].buffer, 0x319, 0x1F);
-                        node2->slots[i].frame = -1;
+    for (grid = sEffectGridHead; grid != NULL; grid = grid->next) {
+        if (gFrameCounter - grid->lastUsedFrame <= 10 && grid->lastUsedFrame != -1) {
+            for (i = 0; i < grid->frameCount * grid->width * grid->height; i++) {
+                if (grid->slots[i].frame != -1) {
+                    if (gFrameCounter - grid->lastUsedFrame == 10) {
+                        assetFreeBuffer(grid->slots[i].buffer, 0x319, 0x1F);
+                        grid->slots[i].frame = -1;
                     }
                 }
             }
