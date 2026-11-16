@@ -12,7 +12,7 @@ void func_80002790(void *, void *, void *, s32);
 
 void dmaReadAssetDecompress(u32 romAddr, void *dst, s32 *sizePtr, u8 decompressFlag1, u8 decompressFlag2, u8 compressType, void *scratchBuf) {
     s32 count;
-    s32 size;
+    u8 useScratch;
     u8 *dmaBuf;
     u8 *dstStart;
     s32 rem;
@@ -21,7 +21,8 @@ void dmaReadAssetDecompress(u32 romAddr, void *dst, s32 *sizePtr, u8 decompressF
 
     dstStart = dst;
     if (decompressFlag1 || decompressFlag2) {
-        if ((decompressFlag1 & 0xFF) & 0x80) { // FAKE: redundant andi burns one ugen ring temp (as1 deletes it)
+        useScratch = decompressFlag1 & 0x80;
+        if (useScratch) {
             dmaBuf = scratchBuf;
             scratchBuf = (u8 *)scratchBuf + 0x3800;
         } else if (scratchBuf != NULL) {
@@ -34,18 +35,16 @@ void dmaReadAssetDecompress(u32 romAddr, void *dst, s32 *sizePtr, u8 decompressF
         dmaBuf = dst;
     }
     osInvalDCache(dmaBuf, *sizePtr);
-    size = *sizePtr;
-    count = 0; ptr = dmaBuf; while (count < ((u32)size >> 14)) { // LAYOUT: joined onto the loop header line (as1 preheader order)
+    count = 0; ptr = dmaBuf; while (count < ((u32)*sizePtr >> 14)) { // LAYOUT: joined onto the loop header line (as1 preheader order)
         osPiStartDma(&D_807ECE00, 0, 0, romAddr, ptr, 0x4000, &D_807655F0);
         D_80746834 = 4;
         osRecvMesg(&D_807655F0, NULL, 1);
         D_80746834 = 0;
         count++;
-        size = *sizePtr;
         romAddr += 0x4000;
         ptr += 0x4000;
     }
-    rem = size - (((u32)size >> 14) << 14);
+    rem = *sizePtr - (((u32)*sizePtr >> 14) << 14);
     if (rem != 0) {
         osPiStartDma(&D_807ECE00, 0, 0, romAddr, ptr, rem, &D_807655F0);
         D_80746834 = 5;
