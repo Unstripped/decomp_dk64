@@ -1296,7 +1296,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                                     if (gGlobalOverlayFlags & 1) {
                                         camSetZoomLevel(camActor, 2);
                                     } else {
-                                        camSetZoomForDistance(camActor, (s16)st->unkA0);
+                                        camSetZoomForDistance(camActor, st->unkA0);
                                     }
                                     st->unk94 = st->unkA0 / 3.0;
                                     camStartBlendRamp(st, 0x1E);
@@ -3231,7 +3231,7 @@ void camUpdateFollow(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
 
     spd = CAM_FOLLOW_SPEED < 1.0 ? CAM_FOLLOW_SPEED : 1.0;
     camUpdateFollowBlend(camActor);
-    st->unkE4 = st->unkE4 + (spd - st->unkE4) * 0.1;
+    st->unkE4 += (spd - st->unkE4) * 0.1;
     dist = sqrtf((camActor->z - st->unk8C) * (camActor->z - st->unk8C) +
                  (camActor->x - st->unk84) * (camActor->x - st->unk84));
     if (dist < 0.1) {
