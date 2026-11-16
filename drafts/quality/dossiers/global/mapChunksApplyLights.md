@@ -11,8 +11,10 @@ global:80655410:other:7b1ec5 (final copy key 3304af after the obj -> lightCount 
 2026-11-15 HackmapChunksApplyLights: field retype u8 *litVtx[2] with (Vtx *)litVtx / (Vtx *)(litVtx + size) -> same 3 rows; u32 litVtx[2] (diagnostic only) -> this function matches but mapChunkFreeIdleBuffers' heapFree gains lw v0 + move a0,v0 (0x4d58/0x4d68)
 2026-11-15 HackmapChunksApplyLights: variants.py scan of the plain form -> 97 variants, best 3 (= baseline)
 2026-11-15 HackmapChunksApplyLights: names: obj -> lightCount (fdiff 0)
+2026-11-16 HackmapChunksApplyLights2 anthropic/claude-opus-5-5:high: (u32) on both arguments `(Vtx *)(u32)litVtx, (Vtx *)((u32)litVtx + vtxSize)` -> 0. It is the same first-argument round trip, so not kept
+2026-11-16 HackmapChunksApplyLights2: (u32) or (s32) on the end argument only, plain first argument -> 3; u32/s32 addr local, block- or function-scoped -> 39
 ## Untried ideas
-none with evidence. The target needs a ucvt on exactly this one use of the litVtx value, and only pointer<->integer conversions supply it. Field-level integer typing is ruled out by mapChunkFreeIdleBuffers.
+none with evidence. The target needs a ucvt on the first use of the litVtx value (Q1023). Only pointer<->integer conversions supply it, and a conversion on both uses also matches. Field-level integer typing is ruled out by mapChunkFreeIdleBuffers. The callee lightApplyToVertices is still asm (61690.s): if its definition takes integer start/end, re-measure this call with the cell call at line 1754 and the 63EC0 caller.
 ## Evidence
 0x4be4 lw v0,0x60(t9) (litVtx[gGfxBufferIndex]); 0x4be8 lw t1,0x5c(s2) (vtxSize); 0x4c0c move a0,v0; 0x4c14 addu a1,t1,v0 (delay slot of jal lightApplyToVertices).
 Cell path 0x498c lw a0,0x14(t5) / 0x4a0c addu a1,t7,a0: a plain Vtx * argument coalesces into a0 there, as the target expects.
