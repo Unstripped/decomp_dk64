@@ -737,3 +737,4 @@
 {"type": "unit", "t": "2026-11-16T06:34:23Z", "unit": "2026-11-15: cleanup HackactorCutsceneDispatchEvents2", "commit": "dce6f5700c4c4f0e2a63049d5491db0f3398d2af"}
 {"type": "unit", "t": "2026-11-16T06:34:45Z", "unit": "2026-11-15: cleanup HackcollisionBstSortFlatItems2", "commit": "4fdc1ad757d4df408f6acd83844d6ba9f6208785"}
 {"type": "unit", "t": "2026-11-16T06:37:01Z", "unit": "2026-11-15: cleanup HackaudioBuildTask2", "commit": "adc244f3fb10ce11686ffc1e9480953f21da6a19"}
+{"type": "unit", "t": "2026-11-16T06:43:04Z", "unit": "2026-11-15: cleanup HackactorCollisionRunInteractionTable2", "commit": "b35fbc9ed01fb1e1c9b4055d3cb31d3c3c2d41ec"}
