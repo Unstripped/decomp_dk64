@@ -571,10 +571,10 @@ void csStateIntegrateMotion(CsStateFull *cs) {
     }
 }
 
-// Cutscene condition evaluator (csCondEval): one CsCmd per call, nonzero = condition holds.
-// Operand-order notes: two cases still need `field == ((s16 *)cmd)[N]` (instead of `== cmd->a/b`) for `bne field,arg`
-// (a plain cmd->x leaf is canonicalised to the left operand and its ring temp comes first); the actor loops
-// use their own pointer local `b` (not `a`, the player-loop pointer) and index `h` (not `k`).
+// Cutscene condition evaluator (csCondEval): one CsCond per call, nonzero = condition holds.
+// The arguments are read as cond->arg[n] (CsCond), not through CsCmd's named fields: a named field
+// is canonicalised to the left compare/addu operand, the indexed read gives the target's `bne field,arg`;
+// the actor loops use their own pointer local `b` (not `a`, the player-loop pointer) and index `h` (not `k`).
 
 // Stride view of gPlayerSlots (PlayerStruct): indexing the shared type directly swaps the
 // `addu base,off` operands of the player loops; this record type reproduces the target.
@@ -602,7 +602,7 @@ extern s32 (*gCsCondTable[])(CsState *, s16, s16, s16);
 #define CS_COND_STATE ((CsStateFull *)cs)
 #define CS_COND_PLAYER ((CsCondPlayer *)gPlayerSlots)
 
-u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
+u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
     u8 neg;
     u8 ret;
     s16 type;
@@ -610,7 +610,7 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
     CsCondPlayer *p;
     u8 found;
     s32 count;
-    s32 k;
+    s32 pad;
     s32 h;
     s16 sAnim;
     f32 fAnim;
@@ -622,12 +622,12 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
     u32 mask;
     Actor *b;
 
-    if ((s16)cmd->op & 0x8000) {
+    if (cond->op & 0x8000) {
         neg = 1;
     } else {
         neg = 0;
     }
-    type = (s16)cmd->op & 0x7FFF;
+    type = cond->op & 0x7FFF;
     switch (type) {
     case 0x0:
         ret = 1;
@@ -636,17 +636,17 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = D_807F6903;
         break;
     case 0x3C:
-        ret = cmd->a == gPlayerSlots->unk290;
+        ret = cond->arg[0] == gPlayerSlots->unk290;
         break;
     case 0x3A:
-        if ((1 << cmd->a) & D_807F693E) {
+        if ((1 << cond->arg[0]) & D_807F693E) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x39:
-        if (cmd->a & gPrimaryPlayerActor->interactionType) {
+        if (cond->arg[0] & gPrimaryPlayerActor->interactionType) {
             ret = 1;
         } else {
             ret = 0;
@@ -656,48 +656,48 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = gPlayerCharacterId < 5;
         break;
     case 0x37:
-        modelAnimEntryGetState(csId, cmd->a, &sAnim, &fAnim, &uAnim);
-        if (sAnim == cmd->b) {
+        modelAnimEntryGetState(csId, cond->arg[0], &sAnim, &fAnim, &uAnim);
+        if (sAnim == cond->arg[1]) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x32:
-        ret = cmd->a == D_8076AEF2;
+        ret = cond->arg[0] == D_8076AEF2;
         break;
     case 0x30:
-        if (cmd->a == gPrimaryPlayerActor->floorSlopeType) {
+        if (cond->arg[0] == gPrimaryPlayerActor->floorSlopeType) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x35:
-        if (cmd->a == gPrimaryPlayerActor->floorSurfaceType) {
+        if (cond->arg[0] == gPrimaryPlayerActor->floorSurfaceType) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x2E:
-        if (actorListGetOrSetState(cmd->a, 0, 0) == cmd->b) {
+        if (actorListGetOrSetState(cond->arg[0], 0, 0) == cond->arg[1]) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x2D:
-        ret = flagGet(cmd->a, 0);
+        ret = flagGet(cond->arg[0], 0);
         break;
     case 0x36:
-        ret = flagGet(cmd->a, 2);
+        ret = flagGet(cond->arg[0], 2);
         break;
     case 0x3B:
-        ret = flagGet(cmd->a, 1);
+        ret = flagGet(cond->arg[0], 1);
         break;
     case 0x2C:
-        if (actorListIsIdActive(cmd->a) != 0) {
+        if (actorListIsIdActive(cond->arg[0]) != 0) {
             ret = 1;
         } else {
             ret = 0;
@@ -712,7 +712,7 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x26:
         playerState = gPlayerSlots->actor->customState;
-        if ((cmd->b + (cmd->a << 16)) & playerState->stateFlags) {
+        if (((cond->arg[0] << 16) + cond->arg[1]) & playerState->stateFlags) {
             ret = 1;
         } else {
             ret = 0;
@@ -720,31 +720,31 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x27:
         playerState = gPlayerSlots->actor->customState;
-        if ((cmd->b + (cmd->a << 16)) & playerState->prevStateFlags) {
+        if (((cond->arg[0] << 16) + cond->arg[1]) & playerState->prevStateFlags) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x25:
-        if (gCurrentKongInventory->slamLevel >= cmd->a) {
+        if (gCurrentKongInventory->slamLevel >= cond->arg[0]) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x34:
-        h = playerLookupKongByActorType(cmd->a);
+        h = playerLookupKongByActorType(cond->arg[0]);
         q = gPlayerInventoryTable[gCurrentPlayerIndex].kong[h].unk0;
-        if (*q >= cmd->b) {
+        if (*q >= cond->arg[1]) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x24:
-        a = spawnNodeActivate(cmd->a, 0);
-        if (cmd->b == a->state) {
+        a = spawnNodeActivate(cond->arg[0], 0);
+        if (cond->arg[1] == a->state) {
             ret = 1;
         } else {
             ret = 0;
@@ -758,22 +758,22 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x1D:
-        if ((cmd->a == 0 && CS_COND_STATE->unk48[cmd->c] < cmd->b) || (cmd->a == 1 && cmd->b < CS_COND_STATE->unk48[cmd->c])) {
+        if ((cond->arg[0] == 0 && CS_COND_STATE->unk48[cond->arg[2]] < cond->arg[1]) || (cond->arg[0] == 1 && cond->arg[1] < CS_COND_STATE->unk48[cond->arg[2]])) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x1C:
-        h = modelAnimEntryGetUnkC(csId, cmd->a);
-        if ((cmd->b == 0 && h < cmd->c) || (cmd->b == 1 && cmd->c < h)) {
+        h = modelAnimEntryGetUnkC(csId, cond->arg[0]);
+        if ((cond->arg[1] == 0 && h < cond->arg[2]) || (cond->arg[1] == 1 && cond->arg[2] < h)) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x16:
-        mask = cmd->b + (cmd->a << 16);
+        mask = (cond->arg[0] << 16) + cond->arg[1];
         if (gGlobalPauseFlags & mask) {
             ret = 1;
         } else {
@@ -781,7 +781,7 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x15:
-        ret = modelAnimEntryIsActive(csId, cmd->a);
+        ret = modelAnimEntryIsActive(csId, cond->arg[0]);
         break;
     case 0xC:
         if (D_807F61FC != gCsPosX || D_807F6200 != gCsPosY || D_807F6204 != gCsPosZ ||
@@ -803,28 +803,27 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x7:
-        ret = csCompareVar(CS_COND_STATE->unk14, cmd->a, cmd->b);
+        ret = csCompareVar(CS_COND_STATE->unk14, cond->arg[0], cond->arg[1]);
         break;
     case 0x31:
-        if (gModelSlots[hashTableLookup(gCsModelIds[cmd->a])].unk7C->unk48[cmd->c] == ((s16 *)cmd)[2]) { // FAKE: punned cmd->b read keeps bne field,arg operand order
+        if (gModelSlots[hashTableLookup(gCsModelIds[cond->arg[0]])].unk7C->unk48[cond->arg[2]] == cond->arg[1]) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x1:
-        k = CS_COND_STATE->unk48[cmd->b] - cmd->a;
-        if (k == 0) {
+        if (CS_COND_STATE->unk48[cond->arg[1]] == cond->arg[0]) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x5:
-        ret = csEvaluateParamCondition(cmd->a, cmd->b);
+        ret = csEvaluateParamCondition(cond->arg[0], cond->arg[1]);
         break;
     case 0x4:
-        if (CS_COND_STATE->unk44[cmd->b] == ((s16 *)cmd)[1]) { // FAKE: punned cmd->a read keeps bne field,arg operand order
+        if (CS_COND_STATE->unk44[cond->arg[1]] == cond->arg[0]) {
             ret = 1;
         } else {
             ret = 0;
@@ -848,7 +847,7 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
             p = &CS_COND_PLAYER[i];
             if (p->active != 0) {
                 a = p->actor;
-                if (a->attachMode == 1 && csId == a->cutsceneId && cmd->a == a->unk10E) {
+                if (a->attachMode == 1 && csId == a->cutsceneId && cond->arg[0] == a->unk10E) {
                     ret = 1;
                 }
             }
@@ -858,7 +857,7 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         found = 0;
         for (h = 0; h < gActiveActorCount && !found; h++) {
             b = gActiveActors[h].actor;
-            if (!(b->flags & 0x2000) && cmd->a == b->actorType && b->attachMode == 1 && csId == b->cutsceneId) {
+            if (!(b->flags & 0x2000) && cond->arg[0] == b->actorType && b->attachMode == 1 && csId == b->cutsceneId) {
                 found = 1;
             }
         }
@@ -872,8 +871,8 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         found = 0;
         for (h = 0; h < gActiveActorCount && !found; h++) {
             b = gActiveActors[h].actor;
-            if (!(b->flags & 0x2000) && cmd->a == b->actorType && b->attachMode == 1 && csId == b->cutsceneId &&
-                cmd->b == b->unk10E) {
+            if (!(b->flags & 0x2000) && cond->arg[0] == b->actorType && b->attachMode == 1 && csId == b->cutsceneId &&
+                cond->arg[1] == b->unk10E) {
                 found = 1;
             }
         }
@@ -887,11 +886,11 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         count = 0;
         for (h = 0; h < gActiveActorCount; h++) {
             b = gActiveActors[h].actor;
-            if (!(b->flags & 0x2000) && cmd->a == b->actorType && csId == b->cutsceneId && cmd->b == b->unk10E) {
+            if (!(b->flags & 0x2000) && cond->arg[0] == b->actorType && csId == b->cutsceneId && cond->arg[1] == b->unk10E) {
                 count++;
             }
         }
-        if (count == cmd->c) {
+        if (count == cond->arg[2]) {
             ret = 1;
         } else {
             ret = 0;
@@ -903,7 +902,7 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
             p = &CS_COND_PLAYER[i];
             if (p->active != 0) {
                 a = p->actor;
-                if (a->attachMode == 3 && cmd->a == a->unk12F && csId == a->cutsceneId) {
+                if (a->attachMode == 3 && cond->arg[0] == a->unk12F && csId == a->cutsceneId) {
                     ret = 1;
                 }
             }
@@ -924,26 +923,26 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0xE:
-        ret = csPosOnScreenOfNearPlayer(cmd->a);
+        ret = csPosOnScreenOfNearPlayer(cond->arg[0]);
         break;
     case 0x13:
-        ret = csPlayerNearPos(cmd->a);
+        ret = csPlayerNearPos(cond->arg[0]);
         break;
     case 0x20:
-        ret = csPlayerSavedPosNearPos(cmd->a);
+        ret = csPlayerSavedPosNearPos(cond->arg[0]);
         break;
     case 0x29:
-        ret = csSpawnNodeNearPos(cmd->a, cmd->b, cmd->c);
+        ret = csSpawnNodeNearPos(cond->arg[0], cond->arg[1], cond->arg[2]);
         break;
     case 0x6:
-        ret = gCsCondTable[cmd->a](cs, csId, cmd->b, cmd->c);
+        ret = gCsCondTable[cond->arg[0]](cs, csId, cond->arg[1], cond->arg[2]);
         break;
     case 0xF:
         ret = pathPlaybackIsActive(CS_COND_STATE->unk38);
         break;
     case 0x10:
-        if (CS_COND_STATE->unk5C != 0 && (cmd->b == -1 || cmd->b == CS_COND_STATE->unk5C) &&
-            (actorLookupClass(CS_COND_STATE->unk5E) & cmd->a) && csIsPlayerInCutsceneState() != 0) {
+        if (CS_COND_STATE->unk5C != 0 && (cond->arg[1] == -1 || cond->arg[1] == CS_COND_STATE->unk5C) &&
+            (cond->arg[0] & actorLookupClass(CS_COND_STATE->unk5E)) && csIsPlayerInCutsceneState() != 0) {
             csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].modelType);
             ret = 1;
         } else {
@@ -951,7 +950,7 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x18:
-        if (CS_COND_STATE->unk5C != 0 && (cmd->b == -1 || cmd->b == CS_COND_STATE->unk5C) && cmd->a == CS_COND_STATE->unk5E &&
+        if (CS_COND_STATE->unk5C != 0 && (cond->arg[1] == -1 || cond->arg[1] == CS_COND_STATE->unk5C) && cond->arg[0] == CS_COND_STATE->unk5E &&
             csIsPlayerInCutsceneState() != 0) {
             csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].modelType);
             ret = 1;
@@ -965,9 +964,9 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
             p = &CS_COND_PLAYER[i];
             if (p->active != 0) {
                 a = p->actor;
-                if (cmd->a == a->state) {
-                    if (cmd->b != 0) {
-                        if (a->unk155 == cmd->b) {
+                if (cond->arg[0] == a->state) {
+                    if (cond->arg[1] != 0) {
+                        if (a->unk155 == ((CsCmd *)cond)->b) { // FAKE: punned arg[1] read keeps bne arg,field operand order
                             ret = 1;
                         }
                     } else {
@@ -981,35 +980,35 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = 0;
         for (i = 0; i < gPlayerCount; i++) {
             p = &CS_COND_PLAYER[i];
-            if (p->active != 0 && cmd->a == p->actor->unk155) {
+            if (p->active != 0 && cond->arg[0] == p->actor->unk155) {
                 ret = 1;
             }
         }
         break;
     case 0x19:
-        if (cmd->a == gPrimaryPlayerActor->actorType) {
+        if (cond->arg[0] == gPrimaryPlayerActor->actorType) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x1A:
-        ret = cmd->a == gPlayerSlots->unk2C0;
+        ret = cond->arg[0] == gPlayerSlots->unk2C0;
         break;
     case 0x1B:
         ret = gPlayerSlots->sizeModeDirty;
         break;
     case 0x1E:
-        ret = spawnNodeHasActor(CMDB(cmd)->a);
+        ret = spawnNodeHasActor(CMDB(cond)->a);
         break;
     case 0x2F:
-        ret = spawnNodeIsInCooldown(CMDB(cmd)->a);
+        ret = spawnNodeIsInCooldown(CMDB(cond)->a);
         break;
     case 0x1F:
         ret = 0;
         break;
     case 0x22:
-        ret = listContainsS16(cmd->a);
+        ret = listContainsS16(cond->arg[0]);
         break;
     case 0x2A:
         if (D_807F61F0.active != 0) {
@@ -1028,10 +1027,10 @@ u8 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x33:
         animProgress = actorGetAnimProgress(gPrimaryPlayerActor);
         ret = 0;
-        if (cmd->a == 0 && cmd->b < (s16)animProgress) {
+        if (cond->arg[0] == 0 && cond->arg[1] < (s16)animProgress) {
             ret = 1;
         }
-        if (cmd->a == 1 && (s16)animProgress < cmd->b) {
+        if (cond->arg[0] == 1 && (s16)animProgress < cond->arg[1]) {
             ret = 1;
         }
         break;

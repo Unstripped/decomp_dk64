@@ -12,6 +12,14 @@ typedef struct CsCmd {
     /* 0x6 */ s16 c;
 } CsCmd;
 
+// Cutscene script condition (CsNode.unk2, csCondEval): opcode (bit 15 negates the result) and three
+// s16 arguments. Same layout as CsCmd; csCondEval indexes the arguments, which gives its compares
+// the field-first `bne` operand order of the target (CsCmd's named fields do not).
+typedef struct CsCond {
+    /* 0x0 */ s16 op;
+    /* 0x2 */ s16 arg[3];
+} CsCond;
+
 // Byte view of the same command (low bytes of a, b, c).
 typedef struct CsCmdBytes {
     /* 0x0 */ u16 op;
@@ -91,7 +99,7 @@ typedef void (*CsCmdFunc)(CsState *, s16, s16, s16);
 typedef struct CsNode {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 pad1;
-    /* 0x02 */ CsCmd unk2[5];
+    /* 0x02 */ CsCond unk2[5];
     /* 0x2A */ u8 unk2A;
     /* 0x2B */ u8 pad2B;
     /* 0x2C */ CsCmd unk2C[4];
