@@ -847,7 +847,7 @@ void carryObjectUpdate(void) {
 
     state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unkFA = 0x270F;
+        gCurrentActor->unkFA = 9999;
         gCurrentActor->floorY = 99999.0f;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
         if (actorHasActiveMovementFlags(gCurrentActor) != 0) {
@@ -1054,7 +1054,7 @@ void carryObjectUpdate(void) {
                     effectSetCallback(effectLightPulseOscillate);
                 } else {
                     effectSetCallback(effectSinkBySpeedUpdate);
-                    effectSetSpeed(-0x96 - ((randomNonNegative() >> 15) % 50));
+                    effectSetSpeed(-150 - ((randomNonNegative() >> 15) % 50));
                 }
                 effectCreateAtPosition(&D_80720340, 1.6f, gCurrentActor->x + offsetX,
                               gCurrentActor->y + offsetY, gCurrentActor->z + offsetZ);
@@ -1091,8 +1091,8 @@ void carryObjectUpdate(void) {
         gCurrentActor->flags &= ~0x80000000;
         gCurrentActor->flags2 &= ~1;
         state->spinSpeed += 2;
-        if (state->spinSpeed >= 0xFB) {
-            state->spinSpeed = 0xFA;
+        if (state->spinSpeed > 250) {
+            state->spinSpeed = 250;
         }
         if (gCurrentActor->soundSlots[0] == -1) {
             sfxPlayActorSound(gCurrentActor, 0x11A, 0x64, 1, 0, 0x64, 1.0f, 0);
@@ -1106,9 +1106,9 @@ void carryObjectUpdate(void) {
         gCurrentActor->y = gCurrentActor->floorY;
         break;
     case 10:
-        if (((gPrimaryPlayerActor->z - state->homeZ) * (gPrimaryPlayerActor->z - state->homeZ)) +
-            (((gPrimaryPlayerActor->x - state->homeX) * (gPrimaryPlayerActor->x - state->homeX)) +
-             ((gPrimaryPlayerActor->y - state->homeY) * (gPrimaryPlayerActor->y - state->homeY))) > 2500.0f) {
+        if ((gPrimaryPlayerActor->z - state->homeZ) * (gPrimaryPlayerActor->z - state->homeZ) +
+            ((gPrimaryPlayerActor->x - state->homeX) * (gPrimaryPlayerActor->x - state->homeX) +
+             (gPrimaryPlayerActor->y - state->homeY) * (gPrimaryPlayerActor->y - state->homeY)) > 2500.0f) {
             spawnArgs[0] = state->respawns;
             if (gCurrentActor->interactionType == 2) {
                 spawnArgs[1] = 1;
@@ -1165,14 +1165,14 @@ void carryObjectUpdate(void) {
     guRotateF(mtxB, (state->holdYaw + 90.0f) - gActorGlobalState.unkF4, 0.0, 1.0f, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
     if (gCurrentActor->state == 3) {
-        if (gCurrentActor->floorSlopePitch < 0x3E8) {
+        if (gCurrentActor->floorSlopePitch < 1000) {
             guRotateF(mtxB, -((gCurrentActor->floorSlopeYaw / 4095.0) * 360.0),
                       0.0, 1.0f, 0.0);
             guMtxCatF(mtxA, mtxB, mtxA);
         }
         guRotateF(mtxB, 90.0 - (gCurrentActor->floorSlopePitch / 4095.0) * 360.0, 1.0f, 0.0, 0.0);
         guMtxCatF(mtxA, mtxB, mtxA);
-        if (gCurrentActor->floorSlopePitch < 0x3E8) {
+        if (gCurrentActor->floorSlopePitch < 1000) {
             guRotateF(mtxB, (gCurrentActor->floorSlopeYaw / 4095.0) * 360.0,
                       0.0, 1.0f, 0.0);
             guMtxCatF(mtxA, mtxB, mtxA);
