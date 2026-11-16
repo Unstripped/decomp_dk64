@@ -133,44 +133,44 @@ s32 commandApplyToLight(u8 lightIndex, Command *cmd, f32 actorX, f32 actorY, f32
     }
 
     if (cmd->type == 5) {
-        dist_d = sqrtf((actorX - (f32)cmd->x) * (actorX - (f32)cmd->x) + (actorZ - (f32)cmd->z) * (actorZ - (f32)cmd->z));
+        dist_d = sqrtf((actorX - cmd->x) * (actorX - cmd->x) + (actorZ - cmd->z) * (actorZ - cmd->z));
         dist = (dist_d > 0.001) ? dist_d : 0.001;
-        factor = (dist - (f32)(cmd->radius / 2) < 1.0) ? 1.0 : dist - (f32)(cmd->radius / 2);
-        clamped = (f64)(f32)(u32)cmd->radius / (0.5 * factor * factor);
+        factor = (dist - cmd->radius / 2 < 1.0) ? 1.0 : dist - cmd->radius / 2;
+        clamped = (f32)cmd->radius / (0.5 * factor * factor);
         intensity = (clamped > 1.0) ? 1.0 : clamped;
-        if ((f32)(cmd->y + 50) < actorY) {
-            dy_d = ((actorY - (f32)cmd->y) - 50.0f > 20.0) ? 20.0 : (actorY - (f32)cmd->y) - 50.0f;
-            intensity = intensity * (1.0 - (dy_d / 20.0));
+        if (cmd->y + 50 < actorY) {
+            dy_d = (actorY - cmd->y - 50.0f > 20.0) ? 20.0 : actorY - cmd->y - 50.0f;
+            intensity *= 1.0 - dy_d / 20.0;
         }
     } else {
-        dist_d = sqrtf((actorX - (f32)cmd->x) * (actorX - (f32)cmd->x) + (actorY - (f32)cmd->y) * (actorY - (f32)cmd->y) + (actorZ - (f32)cmd->z) * (actorZ - (f32)cmd->z));
+        dist_d = sqrtf((actorX - cmd->x) * (actorX - cmd->x) + (actorY - cmd->y) * (actorY - cmd->y) + (actorZ - cmd->z) * (actorZ - cmd->z));
         dist = (dist_d > 0.001) ? dist_d : 0.001;
         intensity = 1.0f;
     }
 
     if (cmd->type == 5) {
         if (intensity > 0.1) {
-            c = (u32)((f32)(u32)lights->l.col[0] + ((f32)(cmd->red - lights->l.col[0]) * intensity));
+            c = lights->l.col[0] + (cmd->red - lights->l.col[0]) * intensity;
             lights->l.colc[0] = c;
             lights->l.col[0] = c;
 
-            c = (u32)((f32)(u32)lights->l.col[1] + ((f32)(cmd->green - lights->l.col[1]) * intensity));
+            c = lights->l.col[1] + (cmd->green - lights->l.col[1]) * intensity;
             lights->l.colc[1] = c;
             lights->l.col[1] = c;
 
-            c = (u32)((f32)(u32)lights->l.col[2] + ((f32)(cmd->blue - lights->l.col[2]) * intensity));
+            c = lights->l.col[2] + (cmd->blue - lights->l.col[2]) * intensity;
             lights->l.colc[2] = c;
             lights->l.col[2] = c;
 
-            c = (u32)((f64)(u32)ambient->l.col[0] + ((((f64)(u32)ambient->l.col[0] / 2.0) - (f64)(u32)ambient->l.col[0]) * (f64)intensity)); // FAKE: `/ 2.0` here and on the col[1]/col[2] lines chosen over `* 0.5` only to give the 0.5 constant its own register range (`* 0.5` = 10 lines; replaces the 062c74 guard; Q0816)
+            c = ambient->l.col[0] + (ambient->l.col[0] / 2.0 - ambient->l.col[0]) * intensity; // FAKE: `/ 2.0` here and on the col[1]/col[2] lines chosen over `* 0.5` only to give the 0.5 constant its own register range (`* 0.5` = 10 lines; replaces the 062c74 guard; Q0816)
             ambient->l.colc[0] = c;
             ambient->l.col[0] = c;
 
-            c = (u32)((f64)(u32)ambient->l.col[1] + ((((f64)(u32)ambient->l.col[1] / 2.0) - (f64)(u32)ambient->l.col[1]) * (f64)intensity));
+            c = ambient->l.col[1] + (ambient->l.col[1] / 2.0 - ambient->l.col[1]) * intensity;
             ambient->l.colc[1] = c;
             ambient->l.col[1] = c;
 
-            c = (u32)((f64)(u32)ambient->l.col[2] + ((((f64)(u32)ambient->l.col[2] / 2.0) - (f64)(u32)ambient->l.col[2]) * (f64)intensity));
+            c = ambient->l.col[2] + (ambient->l.col[2] / 2.0 - ambient->l.col[2]) * intensity;
             ambient->l.colc[2] = c;
             ambient->l.col[2] = c;
         }
@@ -178,22 +178,22 @@ s32 commandApplyToLight(u8 lightIndex, Command *cmd, f32 actorX, f32 actorY, f32
     }
 
     if (intensity > 0.02) {
-        c = (u32)((f32)(u32)cmd->red * intensity);
+        c = cmd->red * intensity;
         slot_light->l.colc[0] = c;
         slot_light->l.col[0] = c;
 
-        c = (u32)((f32)(u32)cmd->green * intensity);
+        c = cmd->green * intensity;
         slot_light->l.colc[1] = c;
         slot_light->l.col[1] = c;
 
-        c = (u32)((f32)(u32)cmd->blue * intensity);
+        c = cmd->blue * intensity;
         slot_light->l.colc[2] = c;
         slot_light->l.col[2] = c;
 
         factor = 127.0f / dist; // FAKE: reuse of factor for 127/dist raises adjsave 1.5->3.0, colours factor $f2
-        slot_light->l.dir[0] = (s8)(((f32)cmd->x - actorX) * factor);
-        slot_light->l.dir[1] = (s8)(((f32)cmd->y - actorY) * factor);
-        slot_light->l.dir[2] = (s8)(((f32)cmd->z - actorZ) * factor);
+        slot_light->l.dir[0] = (cmd->x - actorX) * factor;
+        slot_light->l.dir[1] = (cmd->y - actorY) * factor;
+        slot_light->l.dir[2] = (cmd->z - actorZ) * factor;
         return 1;
     }
 
