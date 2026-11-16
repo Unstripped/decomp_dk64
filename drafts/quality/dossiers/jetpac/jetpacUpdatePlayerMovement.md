@@ -51,9 +51,22 @@ New: the two-join-read family (Family Y extended with a final `player->flying` r
   - `player->flying != 0`: 11.
 - `variants.py scan` of the plain-read copy (baseline 4) and the two-join copy (baseline 5): no zero.
 
+**2026-11-15 U HackjetpacUpdatePlayerMovement3 HackjetpacUpdatePlayerMovement3 anthropic/claude-opus-5-5:high.**
+
+Re-diagnosed under the Q0820/Q0887 framing. Sweep: 27 checks, 0 hits. New probes (variants.py try, full=):
+- **Local type:** `u32 flying` local with plain reads: 4; with the volatiles: 0. The load's candidate dtype follows the field, not the local it is assigned to.
+- **Inner-join read:** one `flying = player->flying;` after the btnZLR if/else instead of the two arm reads: 5 (s32 or u32 local).
+- **Field-pointer base** (`s32 *pf = &player->flying;`):
+  - `flying = *pf` at the two flying-arm sites only: **0**. A different base variable gives a non-candidate load (Q0820's third route), but this is an alias-pointer steer, so it was not applied.
+  - `*pf` for every flying read, keeping the re-reads: 53. Without the second-chain re-reads (final `*pf`): 100. Natural body through `pf`: 109.
+- **Semantics:** the second chain cannot change `player->flying`, because `jetpacSetFlying(player, player->flying)` stores the same value. Every mix of local and field reads is therefore behaviour-equivalent; only the codegen differs.
+- **Review:** removed four redundant value casts: `(f32)` on the `jetpacGame.ledges[idx].boxY2`/`boxY1` comparisons, and `(s32)` on both float arguments of `jetpacCheckLedgeEdge(s32, s32, s32)`. fdiff OK, uninit 0, cwarn 0.
+- The volatile pair and the four re-reads stay.
+
 ## Untried ideas
-- A JetpacPlayerActor field type that gives the flying-arm loads a different dtype from the test loads, for example a union. This is a header change and is unlikely to be natural (source: this attempt's u32 probe).
-- A natural consumer of the 0x9f0 join read that leaves no trace except the v0 carry into 0xb0c on the vx==0 path. None was found among the function's uses of flying (the call arguments, the final test, the line-317 test).
+- A JetpacPlayerActor field type that gives the flying-arm loads a different dtype from the test loads, for example a union. This is a header change and is unlikely to be natural (source: the u32 probe in HackjetpacUpdatePlayerMovement2; a u32 *local* does not do it).
+- A natural consumer of the 0x9f0 join read that leaves no trace except the v0 carry into 0xb0c on the vx==0 path. None was found among the function's uses of flying (the call arguments, the final test, the line-317 test). Because the second chain never changes flying, a consumer could be any use of flying after 0x9f0.
+- A natural second base for player (a caller-side pointer or a struct view that is a distinct variable rather than a respelling). The `pf`/`new_var` probes show that any distinct base matches; no natural source for one is visible in this function.
 
 ## Evidence
 **Target 0x968-0xaf8:**
