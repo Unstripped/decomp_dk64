@@ -34,8 +34,16 @@
     - `while (i > 0) { i--; }`: 802.
     - `for (i = count / 4; i > 0; i--)` with `(i - 1) * 4`: 792.
     - `for (i = count; i > 0; i -= 4)`: 210.
+- 2026-11-15 U HacktextDrawStringVtx3 anthropic/claude-opus-5-5:high (cdb041 / cdb041#2, both sites rewritten together; variants.py try full scores):
+  - Diagnostic, copy vs redefinition: `i = len = count / 4` (register-only `len`, frame stays 0xc8): 321, the same as plain `i = count / 4`. `count` loses s8 and is homed at 0xa4(sp) (`sw zero,0xa4(sp)` at 0x1108). Site 1 still gets the fused `blez v1`, but site 2 gives `slt a0,zero,v1` + `beqz` (0x1764). So the lever is count's own redefinition (its extra def/use keeps count's priority for s8), not the copy itself.
+  - Role-named `s32 quads` copy (`quads = count / 4; i = quads;`): declared last 366, declared first 366, declared at `i` 366, chained `i = quads = count / 4` 366, `for (i = quads; i-- > 0;)` 371. Block-scoped in `if (count >= 0x20)` / `if (count != 0)` (plain, initialised, chained) 364. All have the count demotion plus frame 0xc8 -> 0xd0.
+  - Frame: an untagged `s32 pad` declared last or first also gives 0xd0. The cfe region 96..199 has no unowned word (Q0937 refinement), so any new home grows the frame.
+  - count as the counter: `i = count / 4; count = i; while (count-- > 0) ...; count = 0;` gives 8. As with `count /= 4; while (count-- > 0)`, you get `slt t1,zero,t7` + `beqz`, and the decremented counter goes to s8 instead of a3 (0x1564/0x172c). `while (count > 0) { count--; ... }` and its for-form: 189. `i = --count * 4` index: 264.
+  - Keeping count live: `count--` inside the `i` loop with no reset: 102. `for (...; i-- > 0; count--)`: 116. `count -= count` as the reset matches (0) but is no-op arithmetic (a worse hack, not kept).
+  - Other: `count /= 4; for (i = count; i-- > 0;)` (the same dead store respelled): 20. `for (i = count / 4, count = 0; i-- > 0;)`: 327.
+  - Sweep on the copy: 0 hits.
 ## Untried ideas
-- cdb041 / cdb041#2: only the copy-propagated compare (`i` a copy of a variable that the decrement does not change) gives the fused `blez`. Untested: a natural reason for such a copy (a separate quad-count variable that does not cost a frame word).
+- cdb041 / cdb041#2: closed by 2026-11-15 HacktextDrawStringVtx3: a separate copy variable does not reproduce the lever (count's own redefinition gives count its s8 priority). Remaining untested direction: a natural *live* reason for `count` itself to hold the quad count (count's value read after the loop by real code the target performs); none found in the asm (count is only reset by `move s8,zero` at 0x15d4/0x179c).
 ## Evidence
 - Vertex block 0x1478-0x1500.
 - Store order: vp0 ob0 0, ob1 2, then vp1 ob1 0x12 (same v0), ob2 4, tc1 0xa, tc0 8. Then vp1 0x10/0x14/0x18/0x1a; vp2 0x20/0x22/0x24/0x28/0x2a; vp3 0x32 before 0x30, then 0x34/0x38/0x3a.
