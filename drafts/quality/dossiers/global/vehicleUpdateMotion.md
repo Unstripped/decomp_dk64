@@ -60,13 +60,34 @@ rounds 2-30 opus:low, Hackfunc_8068F72C opus:high 2026-11-14, PermBatch1114c)
   then-arm also matches (cand 24 spans both regions); unused label / `;` add no uopt block (38); compare swaps,
   merged conditions, else-if late block all 20. 9b1ca1: ternary jump speed / turnScale, != 2 flips, bare flag
   tests: 45-58. 54eada: two u8 scalars 186 on the new body.
+2026-11-16 HackvehicleUpdateMotion opus:high (copy unchanged, fdiff 0):
+  54eada re-diagnosed on the turnScale frame: u8/u8 186, u16 186, anonymous `struct { u8 onGround; u8 inWater; }`
+    186 (fields promoted like scalars), u8 fl[2] 12 (local arrays are word-aligned: bytes land at 0x44/0x45, not
+    0x46/0x47), s8/s8 scalars 9 (both stay memory-resident at 0x46/0x47, only the 9 reloads are lb instead of
+    lbu), s16 12, s32 59 (memory-resident, frame +8). Mixed u8/s8 146/183. u8 trace: onGround (cand 32,
+    -26vreg) adjsave 0.6 -> t0; s8: 0.0, not coloured. onGround def respellings (`!= 0`, `?1:0`, if/else)
+    160-182. variants scan on the s8 body: no edit beats 9 (Q0957/Q0927: only unsigned narrow locals get a
+    coloured widening candidate).
+  17cf50: speed gain and/or the 2.0f in nested `{ f32 x; }` block scopes: 59 each; IDO gives block-scope locals
+    their own slots (no overlay of sibling blocks), frame 0x60 -> 0x68.
+  9b1ca1 + ebb5e5: ONE `if (kongState == 0) {}` at the top of the late floor-snap then-arm (both removed) -> 3:
+    it supplies ebb5e5's waterY-range blocks and the kongState tail use, but the kongState piece then reaches
+    actorStepPhysics's a0 setup, so it is coloured a3 (uopt 6) not a0 (3) at 0x12cc/0x12ec/0x1434. Grid of 4
+    guard forms x every statement position from the jump block to the end: only that position reaches 3 (others
+    20-36). variants scan on that body: nothing below 3. Permuter 900 s on it (base 15, best 15).
+  reconstruct: s8 flag scalars + that single guard + tmpB kept 12 (9 lb + a3/a0); s8 without dead tests 70;
+    plus separate airDrag/speedGain 117.
+  review: tiltRoll -> Actor 0xE8 `roll`, tiltPitch -> 0xE4 `pitch` as named (no local rename); the physical
+    roles hint actor.h's 0xE4/0xE8 names are swapped (bonus/2690.c:342 eases an elevation into ->roll).
 
 ## Untried ideas
 - ebb5e5: needs two zero-code uopt blocks inside either waterY compare/use pair (buoyancy or late floor-snap
   arm); no natural statement found that does that.
 - 17cf50: a third role-free slot for the speed gain or the 2.0f constant (pl cannot be inlined: 144).
-- 54eada: what makes two u8 scalars non-vreg without taking their address; no IDO rule known (Q0494
-  covers variable-indexed arrays only).
+- 54eada: s8 scalars already give the target's memory homes (9 lb/lbu lines); open: an unsigned byte
+  local whose widening candidate is not coloured (Q0957), or an s8 local whose reloads come out lbu.
+- 9b1ca1/ebb5e5: merging both guards needs the kongState piece kept off a0's argument setup at 0x14a4/0x14b0
+  while the use sits in the late floor-snap arm (single-guard body: 3 off, a3 vs a0); no spelling found.
 - lever (b) (aggregate initialiser from a .data template) does not apply: fl bytes are computed stores.
 
 ## Evidence
