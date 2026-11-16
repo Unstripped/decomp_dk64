@@ -1137,7 +1137,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
         st->unkDC = target->y;
         st->unkE0 = target->z;
     }
-    // how far the target moved since the last frame (unkCC/unkD0/unkD4 hold its previous position)
+    // how far the target moved since the last frame
     st->targetMoveSpeed = sqrtf((target->z - st->prevTargetZ) * (target->z - st->prevTargetZ) +
                       ((target->x - st->prevTargetX) * (target->x - st->prevTargetX) +
                        (target->y - st->prevTargetY) * (target->y - st->prevTargetY))) *
@@ -1161,10 +1161,8 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
     switch (gGameMode) {
     case 0:
         if (!(st->unkAC & 0x100)) {
-            if (gScreenFadeRate > 0.0f) {
-                if (menuIsTransitionType3Or4() == 0) {
-                    return;
-                }
+            if (gScreenFadeRate > 0.0f && menuIsTransitionType3Or4() == 0) {
+                return;
             }
             if (st->mode == 9) {
                 return;
@@ -3137,9 +3135,11 @@ void camUpdateFollowBlend(Actor *camActor) {
                 }
                 speedRatio = (speedRatio / 20.0 > 1.0) ? 1.0 : speedRatio / 20.0;
                 if (st->unkF8 != 0) {
-                    speedRatio += (1.0 - speedRatio) * ((u32)(--st->unkF8) / 30.0);
+                    speedRatio += (1.0 - speedRatio) * (--st->unkF8 / 30.0);
                 }
-                if ((targetState->stateFlags & 0x800000) || target->state == 0x1E || target->state == 0x1C || target->state == 0x20 || target->state == 0x1B || target->state == 0x1A || target->state == 0x6E || target->state == 0x3E) {
+                if ((targetState->stateFlags & 0x800000) || target->state == 0x1E || target->state == 0x1C ||
+                    target->state == 0x20 || target->state == 0x1B || target->state == 0x1A || target->state == 0x6E ||
+                    target->state == 0x3E) {
                     if (!(target->contactFlags & 1)) {
                         base = 0.3f;
                     }
