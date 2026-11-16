@@ -518,19 +518,24 @@ void actorSpawnPeriodicBoneEffect(void) {
     }
 }
 
+// Second component (Actor 0x178) of the fly-patrol actor types (behaviourFlyPatrolWithCallback,
+// actorAirPatrolStep and its caller behaviourEnemyBatUpdate).
+typedef struct FlyPatrolComponent {
+    /* 0x00 */ s16 hoverHeight; // above the spawn node's y; seeded from SpawnNode unkA
+} FlyPatrolComponent;
 
 void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2, s16 sfxId) {
-    s16 *heightTarget;
+    FlyPatrolComponent *patrol;
     s16 targetX;
     s16 targetZ;
     s32 st;
 
-    heightTarget = B7490A->typeState;
+    patrol = B7490A->typeState;
     if ((sfxId != 0) && (gCurrentActor->state != 0x37) && (gCurrentActor->soundSlots[0] == -1)) {
         sfxPlayActorSound(gCurrentActor, sfxId, 0, 0, 0, 0xFF, 1.0f, 0);
     }
     if (!(gCurrentActor->flags & 0x10)) {
-        *heightTarget = gBehaviourExtraState->unkA;
+        patrol->hoverHeight = gBehaviourExtraState->unkA;
         if (gBehaviourExtraState->unkB == 0) {
             gBehaviourExtraState->unkB = 0x28;
         }
@@ -539,7 +544,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
     if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (st != 0x37)) {
         behaviourCalculateDamageForce(gActorGlobalState.targetActor, animId1);
         gCurrentActor->speedY = 300.0f;
-        *heightTarget = 0;
+        patrol->hoverHeight = 0;
         gBehaviourWorkState->timer = 0x2BC;
         st = gCurrentActor->state;
     }
@@ -555,7 +560,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
         case 3:
         case 7:
         case 0x35:
-            if (gCurrentActor->y < (f32) (*heightTarget + (0, gBehaviourExtraState->y))) { // FAKE: comma wrapper steers ugen temp order
+            if (gCurrentActor->y < (f32) (gBehaviourExtraState->y + patrol->hoverHeight)) {
                 gCurrentActor->y += gBehaviourExtraState->unkB * 0.03125;
             } else if (camIsCutsceneActive() == 0 && callback != NULL) {
                 callback();
@@ -625,7 +630,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
             break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
-    if (!gCurrentActor->state) { // FAKE: dead test emits the trailing state load and branch
+    if (!gCurrentActor->state) { // FAKE: dead use keeps &gCurrentActor live across the calls, so uopt rematerialises lui/lw s0 instead of caching the address in t0
     }
 }
 
@@ -659,20 +664,20 @@ void behaviourFlyPatrolState4(void) {
 extern f32 D_807502EC;
 
 void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
-    s16 *heightPtr;
+    FlyPatrolComponent *patrol;
     s32 pad1;
     s32 pad2;
     s16 targetHeight;
 
-    heightPtr = B7490A->typeState;
+    patrol = B7490A->typeState;
     if (!(gCurrentActor->flags & 0x10)) {
         func_80724CA4(1, 1);
         gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
         gCurrentActor->speedXZ = gBehaviourExtraState->targetSpeed;
-        *heightPtr = gBehaviourExtraState->unkA;
+        patrol->hoverHeight = gBehaviourExtraState->unkA;
         gCurrentActor->accelY = D_807502EC;
     }
-    targetHeight = gBehaviourExtraState->y - (0 - *heightPtr);  // FAKE: negated subtrahend flips the commutative + operand order
+    targetHeight = gBehaviourExtraState->y + patrol->hoverHeight;
     if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.unk15 != 0)) && (action != 0x37)) {
         gCurrentActor->state = 0x37;
         gCurrentActor->unk155 = 0;
@@ -734,10 +739,10 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
 
 void behaviourEnemyBatUpdate(void) {
     f64 pad;
-    s16 *heightPtr;
+    FlyPatrolComponent *patrol;
     s32 deltaHeight;
 
-    heightPtr = B7490A->typeState;
+    patrol = B7490A->typeState;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x400;
@@ -749,7 +754,7 @@ void behaviourEnemyBatUpdate(void) {
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x2C1, 0xFF, 0x7F, 0, 0x14, 0.0f, 0);
     }
     deltaHeight = gBehaviourWorkState->targetY - gBehaviourExtraState->y;
-    *heightPtr = (deltaHeight < 0) ? 0 : deltaHeight;
+    patrol->hoverHeight = (deltaHeight < 0) ? 0 : deltaHeight;
     if ((gActorGlobalState.bossFightPhase == 9) && (gCurrentActor->state != 0x37)) {
         gCurrentActor->state = 0x37;
         gCurrentActor->unk155 = 0;
