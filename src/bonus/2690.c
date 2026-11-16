@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_func_806FDAB8 // FAKE: callee prototype steer
 #include "proto/bonus/12A0.h"
 #include "proto/bonus/2690.h"
 #include "proto/global/100180.h"
@@ -67,7 +66,7 @@ typedef struct BonusTargetState {
 
 
 typedef struct BonusTargetGameState {
-    Actor *targets[8]; // one per spawn point (gMinecartTrackPoints[1..8]); bonusTargetGameUpdate rolls idx = r % 8
+    Actor *targets[8]; // one per spawn point (gMinecartTrackPoints[1..8]); bonusTargetGameUpdate rolls idx = random % 0xFF % 8
     s16 shownCount;
     s16 targetsLeft;
     u8 rollTimer;
@@ -83,8 +82,6 @@ typedef struct {
     Actor *game;
     u8 slot;
 } LightFlashTargetState;
-
-void func_806FDAB8(u8, f32);  // FAKE: callee prototype steer
 
 extern u8 D_1000118[];
 extern u8 D_2000180[];
@@ -380,14 +377,11 @@ void bonusTargetGameUpdate(void) {
     BonusTargetGameState *game = ((BonusActorExt *)gCurrentActor)->gameState;
     TargetVec3f *p;
     f32 ang;
-    u8 c;
-    s32 r;
     u8 idx;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        c = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
-        game->counterTextId = c;
-        func_806FDAB8(c, 0.0f);
+        game->counterTextId = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
+        func_806FDAB8(game->counterTextId, 0.0f);
         bonusExt->ammoCount = 5;
         bonusExt->phase = -2;
         bonusExt->aimSlot = 0;
@@ -454,8 +448,7 @@ void bonusTargetGameUpdate(void) {
                 camStartPath(0, 1, 0x11);
                 gCurrentActor->state = 1;
             } else if (game->spawnThreshold < (randomNonNegative() >> 0xF) % 100) {
-                r = (randomNonNegative() >> 0xF) % 0xFF;
-                idx = r % 8;
+                idx = ((randomNonNegative() >> 0xF) % 0xFF) % 8;
                 if (game->targets[idx] == NULL) {
                     p = *gMinecartTrackPoints + idx + 1;
                     bonusSpawnTarget(p->x, p->y, p->z, idx, game);
@@ -714,10 +707,11 @@ void bonusTurtleTroubleSnakeUpdate(void) {
     BonusShooterState *shooter = snake->game->customState;
     TurtleTroubleGameState *game = ((BonusActorExt *)snake->game)->gameState;
     TurtleTroubleTurtle *turtle;
-    BoneRotation *chk;
-    s32 vb[2]; // FAKE: stack pair (index 0, base) read back as vb[1] * 8 + vb[0]; p = chk drops the reloads and shifts the loop
+    s32 pad;
+    s32 n;
+    BoneRotation *rot;
     f32 invScale;
-    BoneRotation *p;
+    s32 pad2;
     f32 fx;
     f32 fy;
     f32 zOffset;
@@ -762,10 +756,9 @@ void bonusTurtleTroubleSnakeUpdate(void) {
             actorScriptStart(gCurrentActor, 0x1F6);
         }
     }
-    chk = gCurrentActor->sub4->boneRotations;
-    if (chk != 0) {
-        vb[1] = 0;
-        vb[0] = (s32)chk;
+    if (gCurrentActor->sub4->boneRotations != NULL) {
+        n = 0;
+        rot = gCurrentActor->sub4->boneRotations;
         invScale = 1.0f - ((snake->spinSpeed - 40.0f) / 235.0f);
         fx = mathSinF(snake->turtle->yaw) * (5000.0f * invScale + 150.0f);
         fy = mathCosF(snake->turtle->yaw) * (5000.0f * invScale + 150.0f);
@@ -776,12 +769,12 @@ void bonusTurtleTroubleSnakeUpdate(void) {
         if (fy < 0.0f) {
             fy = 65535.0f + fy;
         }
-        for (i = 4, p = (BoneRotation *)(vb[1] * 8 + vb[0]); i < 7; i++, p++) {
-            p->bone = i;
-            p->weight = zOffset;
-            p->rotX = fx;
-            p->rotY = 0;
-            p->rotZ = fy;
+        for (i = 4; i < 7; i++, n++) {
+            rot[n].bone = i;
+            rot[n].weight = zOffset;
+            rot[n].rotX = fx;
+            rot[n].rotY = 0;
+            rot[n].rotZ = fy;
             if (fx > 32767.0f) {
                 fx = fx + (65535.0f - fx) * 0.5;
             } else {
@@ -802,20 +795,20 @@ void bonusTurtleTroubleSnakeUpdate(void) {
             snake->tiredBlend = snake->tiredBlend + (0.0 - snake->tiredBlend) * 0.1;
             break;
         }
-        p->weight = snake->tiredBlend * -128.0f;
-        p->bone = 0xE;
-        p->rotX = 0x61A8;
-        p->rotY = 0;
-        p->rotZ = 0;
-        p++;
-        for (i = 0xC; i < 0xD; i++, p += 2) {
-            p->weight = snake->tiredBlend * -128.0f;
-            p->bone = i;
-            p->rotX = 0xD8F0;
-            p->rotY = 0;
-            p->rotZ = 0;
+        rot[n].weight = snake->tiredBlend * -128.0f;
+        rot[n].bone = 0xE;
+        rot[n].rotX = 0x61A8;
+        rot[n].rotY = 0;
+        rot[n].rotZ = 0;
+        n++;
+        for (i = 0xC; i < 0xD; i++, n += 2) {
+            rot[n].weight = snake->tiredBlend * -128.0f;
+            rot[n].bone = i;
+            rot[n].rotX = 0xD8F0;
+            rot[n].rotY = 0;
+            rot[n].rotZ = 0;
         }
-        p->weight = 0;
+        rot[n].weight = 0;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -919,7 +912,6 @@ void bonusLightFlashGameUpdate(void) {
     s32 i;
     s32 j;
     s32 r;
-    u8 c;
 
     if (!(gCurrentActor->flags & 0x10)) {
         bonusExt->ammoCount = 5;
@@ -945,9 +937,8 @@ void bonusLightFlashGameUpdate(void) {
         game->shownCount = game->targetsLeft;
         game->timeLimit = 0x3C;
         game->rollTimer = 0;
-        c = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
-        game->counterTextId = c;
-        func_806FDAB8(c, 0.0f);
+        game->counterTextId = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
+        func_806FDAB8(game->counterTextId, 0.0f);
         game->flashTimer = 0x3C;
         game->lightLevel = 1.0f;
         playerStateQueueCallback(0x48, 0, 0);
@@ -1566,8 +1557,7 @@ void bonusBigBugBashGameUpdate(void) {
     AnimSlot *animData = gCurrentActor->sub4->model;
     BugBashGameState *game = gCurrentActor->customState;
     s32 i;
-    u8 c;
-    s32 padz;
+    s32 padz[2];
     BugBashActorState *swatter;
     s16 spawnAngle;
 
@@ -1595,9 +1585,8 @@ void bonusBigBugBashGameUpdate(void) {
         game->timeLimit = 0x3C;
         game->shownCount = game->fliesLeft;
         fx = 0.0;
-        c = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, fx, fx, fx);
-        game->counterTextId = c;
-        func_806FDAB8(c, fx);
+        game->counterTextId = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, fx, fx, fx);
+        func_806FDAB8(game->counterTextId, fx);
         lightSetColor(1.0f, 1.0f, 1.0f, -1);
         gCurrentActor->roll = 0;
         gCurrentActor->yaw = 0x800;
