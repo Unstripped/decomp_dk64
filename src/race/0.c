@@ -181,9 +181,7 @@ void raceOpponentBehaviourUpdate(void) {
     s32 flag;
     s32 callbackId;
     f32 value;
-    s32 phaseCopy;
-    u32 selector;
-    s32 phase;
+    u8 phase;
     f32 dist;
     u16 angU;
 
@@ -259,7 +257,7 @@ void raceOpponentBehaviourUpdate(void) {
         break;
     case 0:
         if (child != NULL && child->unk1C == 0) {
-            gCurrentActor->state = gCurrentActor->state + 1;
+            gCurrentActor->state++;
             gCurrentActor->unk155 = 0;
             gCurrentActor->contactFlags |= 0x200;
         }
@@ -273,7 +271,7 @@ void raceOpponentBehaviourUpdate(void) {
             }
             gBehaviourWorkState->acceleration = 0xA;
             actorScriptStart(gCurrentActor, 0x282);
-            gCurrentActor->state = gCurrentActor->state + 1;
+            gCurrentActor->state++;
             break;
         }
     case 2:
@@ -291,11 +289,11 @@ void raceOpponentBehaviourUpdate(void) {
                 if (gBehaviourWorkState->waypointIndex < D_807FDCA0->entryCount - 1) {
                     if (D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].height == 0) {
                         actorScriptStart(gCurrentActor, 0x283);
-                        gCurrentActor->state = gCurrentActor->state + 1;
+                        gCurrentActor->state++;
                     }
                     if (gBehaviourWorkState->waypointIndex == routeRows[rowIdx].waypoint) {
                         gCurrentActor->accelY = routeRows[rowIdx].gravity;
-                        gBehaviourWorkState->routeRow = gBehaviourWorkState->routeRow + 1;
+                        gBehaviourWorkState->routeRow++;
                     }
                     gBehaviourWorkState->waypointIndex++;
                 }
@@ -320,14 +318,14 @@ void raceOpponentBehaviourUpdate(void) {
     case 4:
         actorApproachTargetSpeed(0x200);
         gCurrentActor->speedY = 200.0f;
-        gCurrentActor->state = gCurrentActor->state + 1;
+        gCurrentActor->state++;
         break;
     case 5:
         actorApproachTargetSpeed(0x200);
         break;
     case 6:
         if (gBehaviourWorkState->unk2E != 0) {
-            gBehaviourWorkState->unk2E = gBehaviourWorkState->unk2E - 1;
+            gBehaviourWorkState->unk2E--;
         } else if (gCurrentActor->hasArcBounds != 0) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, 0x46, 0x7F, 2);
             gBehaviourWorkState->unk2E = 0x14;
@@ -387,12 +385,11 @@ void raceOpponentBehaviourUpdate(void) {
         actorApproachTargetSpeed(0x200);
         if (gCurrentActor->unk155 == 0) {
             actorScriptStart(gCurrentActor, 0x287);
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+            gCurrentActor->unk155++;
         }
         break;
     case 10:
-        selector = gCurrentActor->unk155; // FAKE: selector shared with the raceStatus-0 switch; the merged live range outranks the unk35 load for $v0 (own local or switch (unk155) directly: 11 lines)
-        switch (selector) {
+        switch (gCurrentActor->unk155) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
             gBehaviourWorkState->acceleration = 8;
@@ -400,13 +397,13 @@ void raceOpponentBehaviourUpdate(void) {
             break;
         case 1:
             if (gCurrentActor->speedXZ == 0.0f) {
-                gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+                gCurrentActor->unk155++;
             }
             break;
         case 2:
             gBehaviourWorkState->acceleration = 0;
             actorScriptStart(gCurrentActor, 0x288);
-            gCurrentActor->unk155 = gCurrentActor->unk155 + 1;
+            gCurrentActor->unk155++;
             break;
         }
         actorApproachTargetSpeed(0x200);
@@ -415,26 +412,24 @@ void raceOpponentBehaviourUpdate(void) {
     switch (controller->raceStatus) {
     case 0:
         phase = controller->unk35;
-        phaseCopy = controller->unk35;
-        selector = phaseCopy; // FAKE: copy into the u32 switch selector keeps the phase copies in target registers
-        switch (selector) {
+        switch (controller->unk35) { // FAKE: switches on a re-read of unk35 instead of phase, which holds it (switch (phase) costs 13 diff lines)
         case 0:
             if (gCurrentActor->flags & 0x02000000) {
-                controller->unk35 = controller->unk35 + 1;
+                controller->unk35++;
                 phase = controller->unk35;
             }
             break;
         case 1:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 camResumePath();
-                controller->unk35 = controller->unk35 + 1;
+                controller->unk35++;
                 phase = controller->unk35;
             }
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
-                controller->unk35 = controller->unk35 + 1;
+                controller->unk35++;
             }
             phase = controller->unk35;
             break;
@@ -447,7 +442,7 @@ void raceOpponentBehaviourUpdate(void) {
     case 1:
         if (controller->unk35 == 0) {
             slotQueueUpdate(0xB, 1, 0);
-            controller->unk35 = controller->unk35 + 1;
+            controller->unk35++;
         }
         break;
     case 3:
@@ -457,7 +452,7 @@ void raceOpponentBehaviourUpdate(void) {
                 callbackId = 0x56;
             }
             playerStateQueueCallback(callbackId, NULL, 0);
-            controller->unk35 = controller->unk35 + 1;
+            controller->unk35++;
         }
         break;
     case 4:
@@ -471,7 +466,7 @@ void raceOpponentBehaviourUpdate(void) {
             } else {
                 mapCheckAutoTransition();
             }
-            controller->unk35 = controller->unk35 + 1;
+            controller->unk35++;
         }
         break;
     case 5:
@@ -489,11 +484,11 @@ void raceOpponentBehaviourUpdate(void) {
                     gCurrentActor->unk155 = 0;
                 }
             }
-            controller->unk35 = controller->unk35 + 1;
+            controller->unk35++;
             break;
         case 1:
             if (gCurrentActor->flags & 0x02000000) {
-                controller->unk35 = controller->unk35 + 1;
+                controller->unk35++;
             }
             break;
         case 2:
@@ -502,7 +497,7 @@ void raceOpponentBehaviourUpdate(void) {
                 if (raceCheckCoinRequirement(controller, config) == 0) {
                     controller->unk35 = 4;
                 }
-                controller->unk35 = controller->unk35 + 1;
+                controller->unk35++;
                 gCurrentActor->unk15F = 0;
             }
             break;
@@ -514,12 +509,12 @@ void raceOpponentBehaviourUpdate(void) {
                 } else {
                     csModelStateSetFirstByte(1, 0xA);
                 }
-                controller->unk35 = controller->unk35 + 1;
+                controller->unk35++;
             }
             break;
         case 4:
             if (flagGet(config->reward.h.rewardFlag, 0) != 0) {
-                controller->unk35 = controller->unk35 + 1;
+                controller->unk35++;
             }
             break;
         case 5:
@@ -530,7 +525,7 @@ void raceOpponentBehaviourUpdate(void) {
                 } else {
                     hudSpawnTextScreen(1);
                 }
-                controller->unk35 = controller->unk35 + 1;
+                controller->unk35++;
             }
             break;
         }
