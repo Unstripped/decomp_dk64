@@ -974,56 +974,53 @@ Gfx *slotQueueStateFadeIn(s32 slot, Gfx *gfx) {
     count = 0;
     index = 0;
     if (gSlotQueue[slot].timer != 0) {
-        gSlotQueue[slot].timer = gSlotQueue[slot].timer - 1;
+        gSlotQueue[slot].timer--;
         return gfx;
     }
     if (node == NULL) {
         switch (slot) {
         case 8:
             slotQueueInitEffectSprites(slot);
-            return gfx;
+            break;
         case 10:
         case 12:
             slotQueueSpawnSingleNode(slot);
-            return gfx;
+            break;
         default:
             slotQueueSpawnNodes(slot);
-            return gfx;
-        }
-    } else {
-        if (node != NULL) {
-            do {
-                count += 1;
-                if (node->delay != 0) {
-                    node->delay = node->delay - 1;
-                } else {
-                    if (node->fade < 0x400) {
-                        node->fade = (s32)((f32)node->fade + 102.4f);
-                    } else {
-                        done += 1;
-                    }
-                    if (node->fade >= 0x401) {
-                        node->fade = 0x400;
-                    }
-                    gfx = slotQueueNodeUpdate(slot, node, index, gfx);
-                }
-                if (node->type == 1) {
-                    index += 1;
-                }
-                node = node->next;
-            } while (node != NULL);
-        }
-        if (done == count) {
-            if ((slot == 8) || (slot == 9)) {
-                gSlotQueue[slot].timer = 0x5A;
-            } else {
-                gSlotQueue[slot].timer = 0x1E;
-            }
-            gSlotQueue[slot].state = 2;
-            if (gSlotQueue == 0) {} // FAKE: dead reference
+            break;
         }
         return gfx;
     }
+    while (node != NULL) {
+        count++;
+        if (node->delay != 0) {
+            node->delay--;
+        } else {
+            if (node->fade < 0x400) {
+                node->fade += 102.4f;
+            } else {
+                done++;
+            }
+            if (node->fade > 0x400) {
+                node->fade = 0x400;
+            }
+            gfx = slotQueueNodeUpdate(slot, node, index, gfx);
+        }
+        if (node->type == 1) {
+            index++;
+        }
+        node = node->next;
+    }
+    if (done == count) {
+        if ((slot == 8) || (slot == 9)) {
+            gSlotQueue[slot].timer = 0x5A;
+        } else {
+            gSlotQueue[slot].timer = 0x1E;
+        }
+        gSlotQueue[slot].state = 2;
+    }
+    return gfx;
 }
 
 s32 slotQueueGetCountStep(slot)
