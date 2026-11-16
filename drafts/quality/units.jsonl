@@ -803,3 +803,4 @@
 {"type": "unit", "t": "2026-11-16T17:38:33Z", "unit": "2026-11-16b: cleanup HackeepromSaveRecords4", "commit": "056cbd7df138eda86f5c84901b7380f7a6a996a1"}
 {"type": "unit", "t": "2026-11-16T17:43:23Z", "unit": "2026-11-16b: cleanup HackactorBoneChainSwingUpdate4", "commit": "9b15901ef95b5efd9ed6dc894a1a56dfaff5b815"}
 {"type": "unit", "t": "2026-11-16T17:46:17Z", "unit": "2026-11-16b: cleanup HackjetpacUpdatePlayerMovement5", "commit": "6455349feb4e55bbec135e256d18d39fb2bc13de"}
+{"type": "unit", "t": "2026-11-16T17:50:32Z", "unit": "2026-11-16b: cleanup HackgfxSwapGeometryModeCullBits4", "commit": "9761cb4701794f74b9319fc07889f7ed6cce762d"}
