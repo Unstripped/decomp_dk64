@@ -99,8 +99,8 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - 7130 .bss carve still DEFERRED (above). Frame-capacity ORIG ladder candidate DECLINED (director): ORIG on a reused local still
   needs the home-slot store; the 7 hudPauseMenuUpdate sites stay FAKE with frame/register evidence as `diagnose nohit`.
 - Names held (naming.md shared-field bar / macro refusal; evidence in .scratch/lead_s1115c/close.md and the Polish*/Hack* reports):
-  CamState unkCC/unkD0/unkD4 prevTargetX/Y/Z and unkA0 followDist (201B0; references inside the CAM_FOLLOW_SPEED / CAM_MIN
-  macros: rename every dry-run position by hand), Actor.unkF2 arcPushYaw (69E60/80150 unread), SchedStruct.unk280 tickCount
+  CamState unkA0 followDist (201B0; a reference inside CAM_MIN: rename every dry-run position by hand; unkCC/D0/D4 applied
+  2026-11-16 as prevTargetX/Y/Z), Actor.unkF2 arcPushYaw (69E60/80150 unread), SchedStruct.unk280 tickCount
   (8 files unread; 91 uses), ModelSlot.unk86 modelKind (63810 unread), ActorGlobalState unk2C/30/34/36
   launchPending/launchSpeedY/launchSpeedXZ/launchYaw (80150 unread), arcade/0 D_8004BC80/84 sStepTimer/sStepPhase (land with
   the arcadeUpdatePlayerEntity carve), ActorCallbackNode.callback anonymous union (types stream).
@@ -108,6 +108,22 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   dead-if items for the Q0908 classifier: controllerAnimSetFromTable, slotQueueStateFadeIn, playerStateTakeDamagePrep,
   transitionSetAudioVolume, zoneCheckActorInside, schedHandleRetrace (5), enemyGridStateStep (2); 90D80 renderHitCounterHUD
   still blocked (string convention).
+
+## Session 2026-11-16 close leftovers (CleanupLead4)
+- Names held (evidence in `.scratch/CleanupLead/close.md` and dispatch.md): D_807ECD48 (pad mask tested by arcade/critter/
+  menu; `gButtonsPressed` already names 0x807ECD66, so pressed vs held needs evidence) and D_8076A0A6 (copied from it);
+  D_80760590 / D_805FB000 / D_805FB0D0 / func_80741310 are the rsp/asp ucode symbols that include/PR/ucode.h already
+  declares (aspMainDataStart, rspbootTextStart/End, aspMainTextStart): replace the D_ externs with them as a types item
+  (ucode.h types are `long long[]`); D_80744544 gCheatFlags, D_80750AC4 gMinigameCoinCount, D_80720340 gSmokePuffSprite
+  (extern types disagree: types first); PlayerState.unk1A0 aimPitch (936B0/CC800/D5E10 unread by the E4090 proposer);
+  "PlayerSlot.unk2C0 sizeMode" (the only include/ unk2C0 is in sched.h: struct unclear); Actor 0xE4/0xE8 pitch/roll swap
+  (confirm across users); ActorGlobalState unk24/25/28/F0/F4 grab/hold names (9DD70-only); Actor.unk155 (low);
+  CollisionTriF unk24/unk25 slopeType/surface (with the header request below); D_8004BCD0 arcade entity table (no name yet).
+- Header request never batched: `.scratch/Polishglobal6AD90/header-request.md` (shared CollisionBoxTri in collision.h
+  retiring the 6AD90 CollisionBoxTri / 70FD0 ActorSub140Tri views). Shared-extern retype: 19A00 `extern u8 *gActorScriptAsset`
+  vs 7CA80 `ActorAssetHeader *`. Retype leftovers: FE40 W709 (0b7e03, 365170), 6AD90 retype=1.
+- Re-review: camUpdate, camUpdateFollow, camUpdateFollowBlend (201B0), actorDelayedCallbacksTick (7CA80) after the close
+  field renames (carry does not re-stamp field renames).
 
 ## OPEN functions
 

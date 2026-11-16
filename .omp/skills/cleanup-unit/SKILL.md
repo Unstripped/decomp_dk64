@@ -36,8 +36,8 @@ own selector, in dossiers too): `rank` orders functions by the strongest model t
 1. `git status` + `git log -3` (unexpected changes are the user's: never stage them; a lead whose handle died may still run: new commits or a dirty `drafts/quality/` → message it, wait until quiet).
    Lead context runs out: one merge per turn, read line ranges, pipe output through `tail`/`head`, keep rulings, merges
    and the queue in `.scratch/<lead>/dispatch.md` and the close plan in `close.md`, so a successor resumes from files
-   alone. A successor first checks `git log` for merges the dead lead's last turn finished (a `clean <file>` + `quality:`
-   pair) before re-merging any report; never run `merge_record` twice for one worker.
+   alone. A successor first checks `git log` and `ps` (a dead lead's `merge_record` can still be running and land its
+   `clean <file>` + `quality:` pair later) before re-merging any report; never run `merge_record` twice for one worker.
 2. `find src -name '*.c' -exec touch {} +`; `tools/dk make` must end `build/dk64.us.z64: OK`;
    `tools/dk make expected`.
 3. `uv run tools/protos.py gen --check` exits 0 (else regenerate and commit `include/proto` first);
@@ -100,8 +100,10 @@ As each worker reports:
 5. Data carves: a function needing XBB guards or an as1-hoist blocker may only miss its TU's own `.word`/table
    data (Q0552): carve before steering. Carve window: `rm -f .scratch/<lead>/RESUME` (briefs: no new `tools/dk`
    call while it is absent), wait for jobs 0, gate, split/make/expected/vanished, re-record, carry, commit, `touch` it.
-6. A respelling that replaces a pun but was chosen for codegen keeps its tag (Q0816): the lead retags it in a lead
-   copy dir (`--copy-dir`) with a keymap line and re-records the site `nohit` with its own fdiff evidence.
+6. A respelling that replaces a pun but was chosen for codegen keeps its tag (Q0816), even one an older ledger recorded `fixed`
+   (9BF30 9224e6): the lead retags it in a lead copy dir (`--copy-dir`) with a keymap or copy-only line, `nohit` with its own
+   fdiff evidence. Ordinary C, untagged even as the only match: a load-bearing guard `continue`, an index loop over a global
+   table, one quantity refined in place; a trailing/`else` continue or an operand-order/width/view respelling is a steer.
 7. A worker's function rename (or a dossier filed under a new name) replaces `drafts/quality/dossiers/<seg>/<old>.md`: delete
    the old file before `merge_record` so its ledger commit carries the deletion. Its re-record printing "no site" for a fixed site is normal.
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
@@ -116,9 +118,11 @@ Wrap-up (user asks to stop): no new dispatch; merge reports as they land; while 
 the knowledge queue and fold lessons into the skill (no src/include); then steps 1-6 once every worker is idle. Within a
 session, a consolidation in a quiet window runs steps 1-4 only. Once every worker is idle:
 1. Apply proposed `func_`/`D_`/shared-field names ([naming.md](naming.md)) with `rename.py
-   func|global|field` (dry-run first). It refuses references inside macros and address-shaped targets
-   (`func_807444E0` data → `D_`): apply the `--dry-run` positions incl. the macro-argument lines by hand,
-   one gate. A renamed GLOBAL_ASM data label needs `tools/dk make split` BEFORE that gate; split
+   func|global|field` (dry-run first). It refuses references inside macros, address-shaped targets
+   (`func_807444E0` data → `D_`) and names already in scope (`include/PR/ucode.h` declares the rsp/asp symbols: hold such
+   names for a types item): apply the `--dry-run` positions incl. the macro-argument lines by hand, one gate. A renamed
+   GLOBAL_ASM data label needs `tools/dk make split` BEFORE that gate. `carry` re-stamps global/func renames but not field
+   renames: each function whose body a field rename touches goes back to `next=review`. Split
    labels: `rename.py fold --held` (dry-run first; no files after `--held`: every worker is idle).
 2. `tools/dk make split`, touch all src, `make` OK, `make expected`, `unit_check.py vanished` → OK.
 3. `carry --rev <commit before the renames> --unit "<unit>" <files>` (once: a rerun duplicates events;

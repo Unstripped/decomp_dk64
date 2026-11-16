@@ -65,9 +65,8 @@ the shared-tail pattern (Q0591), and for `retype` with `note="tried <change>; fd
 warning sites take no other method.
 
 Tooling rules (were Q0626/Q0634/Q0638):
-- `fdiff.sh <copy> <src> FUNC` prints no diff lines when a long function's first difference is past
-  asm-differ's window: trust its exit code, or diff with `objdump -drz`. The permuter scores a
-  commutative `beq` operand swap as 0: confirm every `best=0` output with fdiff before applying it.
+- `fdiff.sh <copy> <src> FUNC` prints no diff lines when a long function's first difference is past asm-differ's window: trust its exit code, or diff with `objdump -drz`.
+  The permuter and `variants.py try` score a commutative `beq` swap or a moved local branch target (a statement moved across a `}`, 104F0) as 0: fdiff every zero.
 - A `best=0` or review rewrite that only swaps one steer for another (`if (1) {}`, empty do-while, goto,
   `(0, x)`, `& 0xFFFFFFFFu`, a copy temp, a selector local of another width in place of a dead read) is `nohit`; keep the tagged site.
 - The permuter's pycparser rejects `x * sizeof(T) + sizeof(s32)`, a one-line `p = x; do {` and `va_arg`: rewrite them in the permuter base only, then translate the hint back. `va_arg` stub (boot/3D20, fdiff 0): `__builtin_alignof(T)` -> `sizeof(T)`, drop the `__builtin_classof` ternary for non-double modes, keep `va_arg_d` for double.
