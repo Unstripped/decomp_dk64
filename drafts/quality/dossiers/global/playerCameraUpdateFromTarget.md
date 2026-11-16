@@ -19,6 +19,7 @@ global:8068BBF8:goto:ua6653 goto: case 0x63 (0x17b8) ends with `b 0x17e8` into t
 - Fade with the static: `swayPhase += 0x1E; swayPhase &= 0xFFF;` full 0 (applied, drops the fadeTimer temp); `swayPhase = (swayPhase + 0x1E) & 0xFFF;` 33; `t = (swayPhase + 0x1E) & 0xFFF; swayPhase = t;` 33.
 - Clamp: `MIN(MAX(angleDiff, minLimit), maxDiff)` 5; same without minLimit (`-maxDiff`) 5; the two ternaries in one expression 5. Two-line clamp with the clampedDiff temp kept (ordinary C).
 - Static renamed D_807FC624 -> swayPhase (fdiff 0). quality sweep: 0 hits; variants scan: only declaration swaps zero.
+- 2026-11-16 HackplayerCameraUpdateFromTarget4 anthropic/claude-opus-5-5:high (base 15cf7c99): sweep 0 hits; variants scan 91 variants, zeros are comparison swaps only. goto-hand kept (Q0591) re-verified in expected 8F4B0.o; new: default (`b 0x1834`) and the 0xC-0xE jump-table holes (`beqz at,0x1830`) skip the calc to the switch end 0x1830, where the calc's three exits also land, so a break-ended switch with the calc after it needs a skip on default (goto or flag).
 
 ## Untried ideas
 - None for the goto: every structured form either adds a selector re-test (if (0x63), nested switch), duplicates the tail (5065), adds a flag, or swaps in another steer (if (0) / do-while(0) case labels).
