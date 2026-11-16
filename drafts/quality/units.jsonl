@@ -831,3 +831,4 @@
 {"type": "unit", "t": "2026-11-16T18:59:52Z", "unit": "2026-11-16b: cleanup HackplayerTurnByStickX4", "commit": "6450b691c9aaec4efa8e35d5c09436711247aa24"}
 {"type": "unit", "t": "2026-11-16T19:03:04Z", "unit": "2026-11-16b: cleanup HacksfxUpdateLevelAmbient3", "commit": "63dfca23698e93a0f9aea8bc181d9949c703474a"}
 {"type": "unit", "t": "2026-11-16T19:04:06Z", "unit": "2026-11-16b: cleanup HackcollisionCheckTriangleContainsPointXZ", "commit": "050e6a5e8e12d6283ec0b4fb612b6569296e3fe5"}
+{"type": "unit", "t": "2026-11-16T19:04:27Z", "unit": "2026-11-16b: cleanup Polishglobal8F050", "commit": "97edceff6f17d4e4b69baabf364ae1656e552b2d"}
