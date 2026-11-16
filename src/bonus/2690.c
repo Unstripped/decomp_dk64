@@ -1297,11 +1297,9 @@ typedef struct {
 } PathPanicActorState;
 
 s16 sPathPanicSnapDelay = 0;
-s8 sPathPanicFairyLane = 0;
-s32 D_8002D908 = 0;
-f32 sSearchlightTargetSpeed = 0.0f;
 
 void bonusPerilPathPanicGameUpdate(void) {
+    static s8 sPathPanicFairyLane = 0;
     BonusShooterState *bonusExt = gCurrentActor->customState;
     PathPanicGameState *game = ((BonusActorExt *)gCurrentActor)->gameState;
     TargetVec3f *p;
@@ -1369,19 +1367,18 @@ void bonusPerilPathPanicGameUpdate(void) {
 
                 n = sPathPanicFairyLane;
                 u->game = gCurrentActor;
-                p = *gMinecartTrackPoints + (n + n + n) + 1; // FAKE: n + n + n keeps two addu; n * 3 becomes sll/subu and shifts the block
+                p = *gMinecartTrackPoints + (n + n + n) + 1; // FAKE: n + n + n keeps two addu; n * 3 folds with the *12 into sll/subu and shifts the block
                 gSpawnedActor->x = p->x + 50.0;
                 gSpawnedActor->y = p->y + 12.0;
                 gSpawnedActor->z = p->z - 5.0;
                 gSpawnedActor->yaw = -0x400;
                 gSpawnedActor->sub4->scaleX = 0.08f;
-                if (u) {} // FAKE: empty guard steers regalloc
                 gSpawnedActor->sub4->scaleY = 0.08f;
                 gSpawnedActor->sub4->scaleZ = 0.08f;
             }
             n = sPathPanicFairyLane;
             game->spawnTimer = 0x5A;
-            ((s8 *)&sPathPanicSnapDelay)[4] = (u16)(1 - n); // FAKE: storing through sPathPanicSnapDelay's base keeps the sPathPanicFairyLane lb/sb from sharing a hoisted lui/addiu base (Q0332); the (u16) puts the subu in t7
+            sPathPanicFairyLane = 1 - n;
         }
         bonusExt->aimSlot = 0;
         if (gCurrentActor->state == 0 && (gPlayerPadState[0].stickAbsX >= 0x1F || gPlayerPadState[0].stickAbsY >= 0x1F)) {
@@ -1458,6 +1455,10 @@ void bonusPerilPathPanicGameUpdate(void) {
     renderCallbacksRegister(bonusRenderMiniGameHud, gCurrentActor, 3);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
+
+// Defined after bonusPerilPathPanicGameUpdate: its static sPathPanicFairyLane sits at .data+0x44, between these and sPathPanicSnapDelay.
+s32 D_8002D908 = 0;
+f32 sSearchlightTargetSpeed = 0.0f;
 
 void bonusPerilPathPanicKlaptrapUpdate(void) {
     PathPanicActorState *actorExt;
