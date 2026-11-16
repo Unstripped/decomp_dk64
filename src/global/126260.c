@@ -120,29 +120,27 @@ s32 commandApplyToLight(u8 lightIndex, Command *cmd, f32 actorX, f32 actorY, f32
     f64 clamped;
     f64 dy_d;
     u8 c;
-    f32 base;
+    f32 factor;
+    FrameMatrices *fb;
 
-    lights = gGfxCurrentFrameBuffer->lightSets[gLightSetIndex].l;
-    ambient = &gGfxCurrentFrameBuffer->lightSets[gLightSetIndex].a;
-    slot_light = &gGfxCurrentFrameBuffer->lightSets[gLightSetIndex].l[lightIndex];
+    fb = gGfxCurrentFrameBuffer;
+    lights = fb->lightSets[gLightSetIndex].l;
+    ambient = &fb->lightSets[gLightSetIndex].a;
+    slot_light = &fb->lightSets[gLightSetIndex].l[lightIndex];
 
-    if (gGfxCurrentFrameBuffer == 0) {} // FAKE: makes the base load a uopt candidate (v1)
     if (lightIndex >= 7) {
         return 0;
     }
 
     if (cmd->type == 5) {
         dist_d = sqrtf((actorX - (f32)cmd->x) * (actorX - (f32)cmd->x) + (actorZ - (f32)cmd->z) * (actorZ - (f32)cmd->z));
-        if (dist_d == 0.5) {} // FAKE: dead use of the 0.5 constant starts its web early (splits the ambient piece into f14)
         dist = (dist_d > 0.001) ? dist_d : 0.001;
-        base = (dist - (f32)((s32)cmd->radius / 2) < 1.0) ? 1.0 : dist - (f32)((s32)cmd->radius / 2);
-        clamped = (f64)(f32)(u32)cmd->radius / (0.5 * base * base);
-        if (base == base) {} // FAKE: dead use raises base priority above clamped (f2 / f12)
-        if (base == base) {} // FAKE: dead use raises base priority above clamped (f2 / f12)
+        factor = (dist - (f32)(cmd->radius / 2) < 1.0) ? 1.0 : dist - (f32)(cmd->radius / 2);
+        clamped = (f64)(f32)(u32)cmd->radius / (0.5 * factor * factor);
         intensity = (clamped > 1.0) ? 1.0 : clamped;
         if ((f32)(cmd->y + 50) < actorY) {
             dy_d = ((actorY - (f32)cmd->y) - 50.0f > 20.0) ? 20.0 : (actorY - (f32)cmd->y) - 50.0f;
-            intensity = (f64)intensity * (1.0 - (dy_d / 20.0));
+            intensity = intensity * (1.0 - (dy_d / 20.0));
         }
     } else {
         dist_d = sqrtf((actorX - (f32)cmd->x) * (actorX - (f32)cmd->x) + (actorY - (f32)cmd->y) * (actorY - (f32)cmd->y) + (actorZ - (f32)cmd->z) * (actorZ - (f32)cmd->z));
@@ -164,15 +162,15 @@ s32 commandApplyToLight(u8 lightIndex, Command *cmd, f32 actorX, f32 actorY, f32
             lights->l.colc[2] = c;
             lights->l.col[2] = c;
 
-            c = (u32)((f64)(u32)ambient->l.col[0] + ((((f64)(u32)ambient->l.col[0] * 0.5) - (f64)(u32)ambient->l.col[0]) * (f64)intensity));
+            c = (u32)((f64)(u32)ambient->l.col[0] + ((((f64)(u32)ambient->l.col[0] / 2.0) - (f64)(u32)ambient->l.col[0]) * (f64)intensity)); // FAKE: `/ 2.0` here and on the col[1]/col[2] lines chosen over `* 0.5` only to give the 0.5 constant its own register range (`* 0.5` = 10 lines; replaces the 062c74 guard; Q0816)
             ambient->l.colc[0] = c;
             ambient->l.col[0] = c;
 
-            c = (u32)((f64)(u32)ambient->l.col[1] + ((((f64)(u32)ambient->l.col[1] * 0.5) - (f64)(u32)ambient->l.col[1]) * (f64)intensity));
+            c = (u32)((f64)(u32)ambient->l.col[1] + ((((f64)(u32)ambient->l.col[1] / 2.0) - (f64)(u32)ambient->l.col[1]) * (f64)intensity));
             ambient->l.colc[1] = c;
             ambient->l.col[1] = c;
 
-            c = (u32)((f64)(u32)ambient->l.col[2] + ((((f64)(u32)ambient->l.col[2] * 0.5) - (f64)(u32)ambient->l.col[2]) * (f64)intensity));
+            c = (u32)((f64)(u32)ambient->l.col[2] + ((((f64)(u32)ambient->l.col[2] / 2.0) - (f64)(u32)ambient->l.col[2]) * (f64)intensity));
             ambient->l.colc[2] = c;
             ambient->l.col[2] = c;
         }
@@ -192,9 +190,10 @@ s32 commandApplyToLight(u8 lightIndex, Command *cmd, f32 actorX, f32 actorY, f32
         slot_light->l.colc[2] = c;
         slot_light->l.col[2] = c;
 
-        slot_light->l.dir[0] = (s8)(((f32)cmd->x - actorX) * (127.0f / dist));
-        slot_light->l.dir[1] = (s8)(((f32)cmd->y - actorY) * (127.0f / dist));
-        slot_light->l.dir[2] = (s8)(((f32)cmd->z - actorZ) * (127.0f / dist));
+        factor = 127.0f / dist; // FAKE: reuse of factor for 127/dist raises adjsave 1.5->3.0, colours factor $f2
+        slot_light->l.dir[0] = (s8)(((f32)cmd->x - actorX) * factor);
+        slot_light->l.dir[1] = (s8)(((f32)cmd->y - actorY) * factor);
+        slot_light->l.dir[2] = (s8)(((f32)cmd->z - actorZ) * factor);
         return 1;
     }
 
