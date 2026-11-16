@@ -42,11 +42,23 @@
   - **97a9f3:** uopt trace at base: `uequ{1521|0}{7|0}` with `uxor{1181|0}{0|1}` as candidate 7. Tried a local for unk36 in the compare block: u8 declared before ret 94 (still `beq v0,a0`), after ret 150, s32/u32 150, in the pad0 slot 94, assigned inline 94. Copy local of ret used only in the compare: 58-176. ret `int` 36, `unsigned int`/`unsigned` 1, `unsigned char`/`unsigned short` 22. ret u8 does give `beq t5,a0` (field first) but adds `andi a0,v0,0xff` and shifts the frame slots by 4. Callee `behaviourCheckTargetCollisionMode` retyped `u32` (PROTO_SKIP stand-in) keeps the callee byte-identical but the caller plain compare is still 1; `s32`/`int` returns break the callee.
   - **627052:** ternary `ang = (a < b) ? b - a : a - b;` 0 with the dead if, 214 without; `ang = b - a; if (ang < 0) ang = -ang;` 250; ang s32 209, u16 189; dead store `pad0 = ang;` 236 (s16 pad0 247). Q0589 use-count levers do not apply: without a use after the second call the whole ang computation disappears.
   - Review: `pad0` is needed (removed: 33). The case 0x35 reuse of `near` is needed (inline or a separate local: 185-221; target uses t4 there).
+- 2026-11-16 HackenemyAggroStateUpdate3, opus-5-5:high:
+  - **627052, Q0908 classification:** class (ii), same-value only. With the same guard line at 767: `1`/ret/type/me/playerState 214, near 213, aggroDist 203, hasTarget 221, dist 237. Only an ang test matches.
+    - Position: just before `type = ret` 14; inside case 0x35 0; at the function end 219.
+    - Still-dead forms that match (0): `ang ? 0 : 0;`, `ang && 0;`, `if (ang != 0);`, `if (ang) {} else {}`. Dropped by cfe (214): `(void)(ang != 0);`, `switch (ang) {}`, `switch (ang) { default: break; }`.
+  - **97a9f3:** ugen emits (var, load) for a register var against a field load (Q0343), so `beq t5,v0` needs a codeful isop on ret's side (the `^ 0` uxor, or the u8 ucvt).
+    - ret declared first: 3 (playerState slot 84 -> 68, still `beq v0,t5`). ret declared last: 1.
+    - Field-side casts (u16/s16/u32/s32/u8/int), `gBehaviourWorkState[0].unk36` and `*&gBehaviourWorkState->unk36`: all 1.
+    - ret `unsigned int` with `(u32)`/`(s32)`/`(int)` on either side: 1. The no-op cvts fold (`(s32)ret` trace: `uequ{1181|0}{61|0}`, ret still left).
+    - `BehaviourWorkState *ws` local: 58 (frame 88 -> 96, still `beq v0,t5`).
+    - unk36 value local: `int`/`s32` declared last gives the field-first `beq a0,v0`, but the frame grows 88 -> 96 and the value sits in a0 (150). `u32`/`u8` declared last: `beq v0,a0` (150). `s16`/`u16`/`short` in the 72(sp) gap or `u8`/`s8`/`char` in the 76(sp) gap: 94 (`beq v0,a0`, value in a0).
+    - ret `u8` followed by `u8 pad1[3]` keeps every frame slot: 5. The beq is field-first (`beq t5,a0`), but the call result is re-masked (`andi a0,v0,0xff`, `slti at,a0,7`).
+  - sweep on the copy: 0 hits. Review: no edits.
 
 ## Untried ideas
-- uopt_trace done: in the plain form, uequ{1181|0}{1521|0} numbers ret (1181) before unk36 (1521); the ^ 0 form wraps ret in a uxor isop numbered after the field. A source-level way to number the unk36 load before ret is still missing (Q0474: plain operand order, casts and nesting have no effect; Q0128 int locals and Q0488 copy locals tried 2026-11-15).
-- 97a9f3: ret as u8 gets the field-first beq but adds `andi a0,v0,0xff` and moves me/near from 60/64(sp) to 64/68(sp) (ret u8 in the pad0 slot 22, declared first 27, with pad0 dropped 38). A spelling that keeps the field-first beq without re-masking the call result or moving the slots is untried.
-- 627052: a use of ang after the second call that ugen drops (the target spills ang at 0x2fb0 for it) is still missing.
+- uopt_trace done: in the plain form, uequ{1181|0}{1521|0} numbers ret (1181) before unk36 (1521); the ^ 0 form wraps ret in a uxor isop numbered after the field. isvar hashes follow 1501 + 16*offset (-20vreg -> 1181), so no in-frame declaration position puts ret after the field. A source-level way to put a codeless isop on ret's side is still missing; every 32-bit no-op cvt folds.
+- 97a9f3: ret u8 with `u8 pad1[3]` (slots kept) is 5 lines away: only the `andi a0,v0,0xff` re-mask remains. A way to make uopt trust the u8 call result (no re-mask at the compare and the slti) is untried.
+- 627052: no codeless natural use of ang after `type = ret` found; only dead constructs match.
 
 ## Evidence
 - 0x2ed8 `subu t2,v1,v0` / 0x2ee8 `subu t2,v0,v1`: ang = |moveYaw - unk8| is computed.
