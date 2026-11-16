@@ -210,7 +210,7 @@ void assetFreeBuffer(void *, s32, s32);
 void assetSetTableEntry(s32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_assetResolveRomRange
-s32 assetResolveRomRange(s32, s32, s32 *, s32 *);
+s32 assetResolveRomRange(s32, s32, s32 *, u32 *);
 #endif
 #ifndef PROTO_SKIP_assetGetTableEntry
 s32 assetGetTableEntry(s32, s32);

@@ -3,6 +3,6 @@
 #define PROTO_GLOBAL_FE40_H
 #include "common.h"
 #ifndef PROTO_SKIP_dmaReadAssetDecompress
-void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
+void dmaReadAssetDecompress(u32, void *, u32 *, u8, u8, u8, void *);
 #endif
 #endif

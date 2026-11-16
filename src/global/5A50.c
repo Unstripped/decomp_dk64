@@ -20,7 +20,7 @@ extern ALCSeqMarker D_8076C328[][4];
 
 
 extern N_CSPlayer *gSeqPlayers[];
-void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
+void dmaReadAssetDecompress(u32, void *, u32 *, u8, u8, u8, void *);
 extern s32 D_8000DDCC;
 extern s32 sSeqRomOffsets;
 
@@ -44,7 +44,7 @@ void audioInit(void) {
     GeSndpConfig sndp;
     ALBankFile *bankB;
     u8 *tmp;
-    s32 len;
+    u32 len;
     AudioInitArgs args;
     s32 i;
     ALSeqpConfig seqp;
@@ -111,8 +111,8 @@ void audioInit(void) {
 }
 
 void func_806010A0(void) {
-    s32 size1;
-    s32 size2;
+    u32 size1;
+    u32 size2;
     s32 pad;
     s32 offset;
 

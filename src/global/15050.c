@@ -42,11 +42,11 @@ void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
     s32 sz;
     s32 id;
     s32 fbSize;
-    s32 size;
+    u32 size;
     s32 romStart;
     s32 vram;
     s32 bssStart;
-    s32 bssSize;
+    u32 bssSize;
     u8 *addr[10];
     s32 sizes[8];
     s32 pad[2];
@@ -129,8 +129,8 @@ void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
         bssSize = gSegmentTable[id].bssEnd - gSegmentTable[id].bssStart;
         size = (s32)gSegmentTable[id].bssStart - vram;
     }
-    gFramebuffers[0] = (size + (bssSize + 0x8002403F)) & ~0x3F;
-    fb1 = ((size + (bssSize + 0x8002403F)) & ~0x3F) + fbSize;
+    gFramebuffers[0] = (size + bssSize + 0x8002403F) & ~0x3F;
+    fb1 = ((size + bssSize + 0x8002403F) & ~0x3F) + fbSize;
     D_80744474 = fb1;
     gGfxDepthBuffer = (u16 *)(0x805FAE00 - depthSize);
     top = 0x805FAE00 - depthSize;

@@ -1065,7 +1065,7 @@ void collisionRecordTriangleS(CollisionStaticTri *tri, f32 height) {
 extern u8 D_807F951C;
 
 void dynamicBufferAllocateEntry(s32 index) {
-    s32 size;
+    u32 size;
 
     if (sCollisionCells[index].tris == NULL) {
         size = sCollisionCells[index].size;
@@ -1993,7 +1993,7 @@ extern u8 D_807FB221;
 
 void collisionInitTables(void) {
     s32 i;
-    s32 size;
+    u32 size;
 
     size = 0x80;
     D_807F9520 = heapAlloc(0x80);
@@ -2065,7 +2065,7 @@ void dmaDrainQueueAndFreeBuffer(void) {
 
 s32 assetGetSize(s32 table, s32 index) {
     s32 romAddr;
-    s32 size;
+    u32 size;
 
     assetEnsureTableLoaded();
     assetResolveRomRange(table, index, &romAddr, &size);
@@ -2077,7 +2077,7 @@ s32 assetGetSize(s32 table, s32 index) {
 
 s32 assetGetCachedSizeOrResolve(s32 table, s32 index) {
     s32 romAddr;
-    s32 size;
+    u32 size;
 
     if (D_80748E18[table] != 0) {
         size = D_807FB1A0[table][index];
@@ -2101,7 +2101,7 @@ extern OSIoMesg D_807F9688[];
 void *assetLoad(s32 table, s32 index, u8 sync, u8 noCache) { // index: asset index, or a K0 address (0x80000000-0x9FFFFFFF) returned as is
     s32 pad;
     s32 romAddr;
-    s32 size;
+    u32 size;
     s32 allocSize;
     void *buffer;
 
@@ -2158,7 +2158,7 @@ void *assetLoad(s32 table, s32 index, u8 sync, u8 noCache) { // index: asset ind
             sDmaQueue[sDmaQueueCount].dmaDst = buffer;
         }
         osInvalDCache(sDmaQueue[sDmaQueueCount].dmaDst, size);
-        osPiStartDma(&D_807F9688[sDmaQueueCount], 0, 0, romAddr, sDmaQueue[sDmaQueueCount].dmaDst, (u32)size, &D_807656D0);
+        osPiStartDma(&D_807F9688[sDmaQueueCount], 0, 0, romAddr, sDmaQueue[sDmaQueueCount].dmaDst, size, &D_807656D0);
         sDmaQueueCount += 1;
     }
     assetSetTableEntry(table, index, (s32)buffer);
@@ -2194,14 +2194,14 @@ void assetSetTableEntry(s32 table, s32 index, s32 value) {
     }
 }
 
-s32 assetResolveRomRange(s32 tableId, s32 assetIndex, s32 *outRomAddr, s32 *outSize) {
+s32 assetResolveRomRange(s32 tableId, s32 assetIndex, s32 *outRomAddr, u32 *outSize) {
     s32 pad[2];
     s32 target;
     s32 end;
     u64 header;
     s32 *table;
     s32 start;
-    s32 size;
+    u32 size;
     s32 index;
 
     index = assetIndex;
@@ -2238,7 +2238,7 @@ void assetEnsureTableLoaded(s32 tableIndex) {
     u64 header;
     s32 pad44;
     u32 size;
-    s32 headerSize;
+    u32 headerSize;
 
     headerSize = 8;
     if (D_807F9528[tableIndex] != NULL) {
@@ -2256,7 +2256,7 @@ void assetEnsureTableLoaded(s32 tableIndex) {
         case 25: {
             u32 i;
             D_807F95A8[tableIndex] = heapAlloc(size);
-            for (i = 0; i < (u32)(size / 4); i++) {
+            for (i = 0; i < size / 4; i++) {
                 D_807F95A8[tableIndex][i] = 0;
             }
             break;

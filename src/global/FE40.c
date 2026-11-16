@@ -10,7 +10,7 @@ extern OSIoMesg D_807ECE00;
 extern void *D_807ECE18;
 void func_80002790(void *, void *, void *, s32);
 
-void dmaReadAssetDecompress(u32 romAddr, void *dst, s32 *sizePtr, u8 decompressFlag1, u8 decompressFlag2, u8 compressType, void *scratchBuf) {
+void dmaReadAssetDecompress(u32 romAddr, void *dst, u32 *sizePtr, u8 decompressFlag1, u8 decompressFlag2, u8 compressType, void *scratchBuf) {
     s32 count;
     u8 useScratch;
     u8 *dmaBuf;
@@ -35,7 +35,7 @@ void dmaReadAssetDecompress(u32 romAddr, void *dst, s32 *sizePtr, u8 decompressF
         dmaBuf = dst;
     }
     osInvalDCache(dmaBuf, *sizePtr);
-    count = 0; ptr = dmaBuf; while (count < ((u32)*sizePtr >> 14)) { // LAYOUT: joined onto the loop header line (as1 preheader order)
+    count = 0; ptr = dmaBuf; while (count < (*sizePtr >> 14)) { // LAYOUT: joined onto the loop header line (as1 preheader order)
         osPiStartDma(&D_807ECE00, 0, 0, romAddr, ptr, 0x4000, &D_807655F0);
         D_80746834 = 4;
         osRecvMesg(&D_807655F0, NULL, 1);
@@ -44,7 +44,7 @@ void dmaReadAssetDecompress(u32 romAddr, void *dst, s32 *sizePtr, u8 decompressF
         romAddr += 0x4000;
         ptr += 0x4000;
     }
-    rem = *sizePtr - (((u32)*sizePtr >> 14) << 14);
+    rem = *sizePtr - ((*sizePtr >> 14) << 14);
     if (rem != 0) {
         osPiStartDma(&D_807ECE00, 0, 0, romAddr, ptr, rem, &D_807655F0);
         D_80746834 = 5;

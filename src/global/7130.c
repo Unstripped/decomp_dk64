@@ -2169,7 +2169,7 @@ void seqLoadAndPlay(s32 seqIndex, u8 seqId, f32 volume) {
     buf = heapAlloc(0x8000);
     {
         s32 addr = sSeqRomOffsets[seqId] + D_8000DDCC;
-        s32 len = sSeqRomOffsets[seqId + 1] - sSeqRomOffsets[seqId];
+        u32 len = sSeqRomOffsets[seqId + 1] - sSeqRomOffsets[seqId];
         if (len & 1) {
             len++;
         }

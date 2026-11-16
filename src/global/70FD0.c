@@ -309,7 +309,7 @@ typedef struct CollisionStaticTriOut {
 } CollisionStaticTriOut;
 
 void collisionLoadStaticCell(s32 cell) {
-    s32 size;
+    u32 size;
     s32 pad;
     CollisionStaticTriOut *dst;
     CollisionStaticTriIn *src;
