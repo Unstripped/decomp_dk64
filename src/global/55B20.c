@@ -155,7 +155,7 @@ extern s32 D_807F5DE8;
 extern s32 gMapCellCount;
 extern u8 D_807F70AB;
 extern s16 gMapFogDist;
-extern u8 D_807F713A;
+extern u8 gMapHasCellLitChunks;
 extern u8 D_807F70AA;
 extern Mtx *sMapChunkScaleMtx;
 extern MapPortal *gMapPortals;
@@ -212,7 +212,7 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
     s32 size;
 
     gMapCellCount = 0;
-    D_807F713A = 0;
+    gMapHasCellLitChunks = 0;
     D_807F70AB = 0;
     if (gMapChunkCount != 0) {
         p = (u8 *)data;
@@ -272,7 +272,7 @@ void mapChunksInitFromMapData(MapFileHeader *data) {
             gMapChunks[n].layerSize0 = *(s32 *)(p - 4);
             total = gMapChunks[n].layerSize0;
             if (gMapChunks[n].kind == 2) {
-                D_807F713A = 1;
+                gMapHasCellLitChunks = 1;
                 mapChunkBuildCellTable(gMapChunks[n].layerDl0, gMapChunks[n].layerSize0, buf, &count, 0, n);
             }
             if (*(s32 *)p != -1) {
@@ -1786,7 +1786,7 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
 void mapChunkFreeIdleBuffers(void) {
     s32 i;
 
-    if (D_807F713A != 0) {
+    if (gMapHasCellLitChunks != 0) {
         matrixCacheEvict(0, 0x190);
     }
     for (i = 0; i < gMapChunkCount; i++) {

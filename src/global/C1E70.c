@@ -29,7 +29,7 @@ s16 sRingNodeScripts[] = { 0x2F2, 0x2F1, 0x2F3, 0x2F2, 0x2F1, 0x2F2, 0x2F2, 0x2F
 // set when ring 2 or 7 finishes without leaving the map: the waiting (state 5) active ring may start
 s8 sRingNextReady = 0;
 // index of the ring whose cutscene actorNodeRingSpawnRings started (csCmdSetFlag1C1Or1C2 in 478F0 tests it)
-extern s8 D_807FC8D0;
+extern s8 gActiveRingIdx;
 
 // customState of the ring actors (type 0xCD) spawned by actorNodeRingSpawnRings
 typedef struct RingState {
@@ -96,7 +96,7 @@ void actorNodeRingSpawnRings(void) {
         activeRingActor->segmentFlags = 1;
         activeRingActor->state = 1;
         sRingActiveStarted = 1;
-        D_807FC8D0 = activeRingIdx;
+        gActiveRingIdx = activeRingIdx;
     }
 }
 
@@ -104,7 +104,7 @@ void actorNodeRingSpawnRings(void) {
 // and cleared by actorNodeRingUpdate every frame
 extern u16 D_8076A0A6;
 // squared xz distance from the ring node to the player; actorRingUpdate starts a waiting ring under 400 units
-extern f32 D_807FC8D4;
+extern f32 gRingNodePlayerDistSq;
 
 void actorNodeRingUpdate(void) {
     // bit indices of the N64 button mask: C-up, D-down, C-left, D-right, C-down, D-up, C-right, D-left;
@@ -134,7 +134,7 @@ void actorNodeRingUpdate(void) {
         gSpawnedActor->flags |= 0x400;
         gSpawnedActor->drawDistance = 0x7D0;
         nodeModel->modelActor = gSpawnedActor;
-        D_807FC8D4 = 1000.0f;
+        gRingNodePlayerDistSq = 1000.0f;
         actorNodeRingSpawnRings();
         gCurrentActor->state = 0;
         if (sRingActiveStarted != 0) {
@@ -156,7 +156,7 @@ void actorNodeRingUpdate(void) {
     dx = gCurrentActor->x - gPrimaryPlayerActor->x;
     dz = gCurrentActor->z - gPrimaryPlayerActor->z;
     shakeDuration = 0;
-    D_807FC8D4 = dx * dx + dz * dz;
+    gRingNodePlayerDistSq = dx * dx + dz * dz;
     switch (gCurrentActor->state) {
         case 1:
             actorScriptStart(gCurrentActor, 0x2EF);
@@ -237,7 +237,7 @@ void actorRingUpdate(void) {
             gCurrentActor->state = 2;
             break;
         case 2:
-            if (D_807FC8D4 < 160000.0) {
+            if (gRingNodePlayerDistSq < 160000.0) {
                 gCurrentActor->state = 3;
                 st->timer = 0;
                 sfxAllocateChannel(0x3B, 1.0f);

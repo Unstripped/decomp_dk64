@@ -16,7 +16,7 @@
 #include "proto/global/936B0.h"
 #include "proto/global/9BF30.h"
 
-extern void **D_807FC7C0;
+extern void **gSpriteRingTextures;
 
 typedef struct ProjectileState {
     /* 0x00 */ s16 spriteCount;
@@ -32,7 +32,7 @@ typedef struct ProjectileState {
 extern Gfx D_1000118;
 extern Mtx D_2000000;
 extern Mtx D_2000200;
-extern Vtx D_80750280[4];
+extern Vtx gSpriteRingQuadVtx[4];
 extern u8 gGfxBufferIndex;
 extern PlayerStruct *gPlayerSlots;
 
@@ -103,7 +103,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
         if (actor->unk15F != 0) {
             actorAppendModelNode(actor, offsetX, offsetY, offsetZ, spriteScale * 80.0, -1);
         }
-        _g = (Gfx *)(glist++); _g->words.w0 = 0xFD180000; _g->words.w1 = (u32)D_807FC7C0[texIndex]; // FAKE: gDPSetTextureImage and the render-tile gDPSetTile hand-written through the function-scope _g; their macro forms add two _g homes and shift the frame (Q0940)
+        _g = (Gfx *)(glist++); _g->words.w0 = 0xFD180000; _g->words.w1 = (u32)gSpriteRingTextures[texIndex]; // FAKE: gDPSetTextureImage and the render-tile gDPSetTile hand-written through the function-scope _g; their macro forms add two _g homes and shift the frame (Q0940)
         gDPSetTile(glist++, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0, 0, G_TX_LOADTILE, 0, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD); gDPLoadSync(glist++); gDPLoadBlock(glist++, G_TX_LOADTILE, 0, 0, 0x3FF, 0x80); gDPPipeSync(glist++); _g = (Gfx *)(glist++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; gDPSetTileSize(glist++, G_TX_RENDERTILE, 0, 0, 0x7C, 0x7C); // LAYOUT: same-line texture block statements steer as1 scheduling
 
         guScaleF(modelMtx, spriteScale, spriteScale, spriteScale);
@@ -113,7 +113,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
         guMtxCatF(modelMtx, stepMtx, modelMtx);
         guMtxF2L(modelMtx, &sub->matrices[i * 2 + gGfxBufferIndex]);
         gSPMatrix(glist++, &sub->matrices[i * 2 + gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-        gSPVertex(glist++, osVirtualToPhysical(D_80750280), 4, 0);
+        gSPVertex(glist++, osVirtualToPhysical(gSpriteRingQuadVtx), 4, 0);
         gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
         gDPPipeSync(glist++);
     }
@@ -125,9 +125,9 @@ void loadModelAssetTable(void) {
     s16 j;
 
     i = 0;
-    D_807FC7C0 = heapAlloc(0xC0);
+    gSpriteRingTextures = heapAlloc(0xC0);
     for (j = 0; j < 0x30; j++) {
-        D_807FC7C0[i++] = assetLoad(0x19, i + 0x1654, 1, 1);
+        gSpriteRingTextures[i++] = assetLoad(0x19, i + 0x1654, 1, 1);
     }
 }
 

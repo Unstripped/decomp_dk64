@@ -134,7 +134,7 @@ typedef struct InteractionEntry {
     u8 chain;
 } InteractionEntry;
 
-extern InteractionEntry D_8074ABCC[];
+extern InteractionEntry gActorInteractionTable[];
 
 void actorCollisionRunInteractionTable(Actor *actorA, Actor *actorB) {
     s32 done;
@@ -144,13 +144,13 @@ void actorCollisionRunInteractionTable(Actor *actorA, Actor *actorB) {
 
     done = 0;
     for (i = 0; !done; i++) {
-        if (actorCollisionPatternMatches(actorA->actorType, actorA->collisionFlags, D_8074ABCC[i].patternA) &&
-            actorCollisionPatternMatches(actorB->actorType, actorB->collisionFlags, D_8074ABCC[i].patternB) &&
-            ((D_8074ABCC[i].phase == -1) || D_8074ABCC[i].phase == gActorGlobalState.bossFightPhase)) {
-            if (D_8074ABCC[i].event != -1) {
+        if (actorCollisionPatternMatches(actorA->actorType, actorA->collisionFlags, gActorInteractionTable[i].patternA) &&
+            actorCollisionPatternMatches(actorB->actorType, actorB->collisionFlags, gActorInteractionTable[i].patternB) &&
+            ((gActorInteractionTable[i].phase == -1) || gActorInteractionTable[i].phase == gActorGlobalState.bossFightPhase)) {
+            if (gActorInteractionTable[i].event != -1) {
                 found = 0;
                 for (j = 0; !found && j < gActorGlobalState.unk201;) {
-                    if (actorB == gActorGlobalState.unk204[j] && gActorGlobalState.unk244[j] == D_8074ABCC[i].event) {
+                    if (actorB == gActorGlobalState.unk204[j] && gActorGlobalState.unk244[j] == gActorInteractionTable[i].event) {
                         found = 1;
                     } else {
                         j++;
@@ -160,8 +160,8 @@ void actorCollisionRunInteractionTable(Actor *actorA, Actor *actorB) {
                 found = 1;
             }
             if (found) {
-                D_8074ABCC[i].handler(actorA, actorB, D_8074ABCC[i].phase, D_8074ABCC[i].event);
-                switch (D_8074ABCC[i].chain) {
+                gActorInteractionTable[i].handler(actorA, actorB, gActorInteractionTable[i].phase, gActorInteractionTable[i].event);
+                switch (gActorInteractionTable[i].chain) {
                 case 0:
                 case 2:
                     done = 1;
@@ -169,7 +169,7 @@ void actorCollisionRunInteractionTable(Actor *actorA, Actor *actorB) {
                 }
             }
         }
-        if (D_8074ABCC[i].chain == 0) {
+        if (gActorInteractionTable[i].chain == 0) {
             done = 1;
         }
     }

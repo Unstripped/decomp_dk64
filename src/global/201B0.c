@@ -1138,9 +1138,9 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
         st->unkE0 = target->z;
     }
     // how far the target moved since the last frame (unkCC/unkD0/unkD4 hold its previous position)
-    st->unk10 = sqrtf((target->z - st->unkD4) * (target->z - st->unkD4) +
-                      ((target->x - st->unkCC) * (target->x - st->unkCC) +
-                       (target->y - st->unkD0) * (target->y - st->unkD0))) *
+    st->targetMoveSpeed = sqrtf((target->z - st->prevTargetZ) * (target->z - st->prevTargetZ) +
+                      ((target->x - st->prevTargetX) * (target->x - st->prevTargetX) +
+                       (target->y - st->prevTargetY) * (target->y - st->prevTargetY))) *
                 40.0f * (gFrameDelta * 0.5);
     if (st->unkF1 != 0) {
         st->unkF1--;
@@ -1395,9 +1395,9 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
         *upZ = mathSinF(camActor->pitch) * sinApprox(yaw) * cosPitch;
         camActor->unkEC = camActor->pitch;
     }
-    st->unkCC = target->x;
-    st->unkD0 = target->y;
-    st->unkD4 = target->z;
+    st->prevTargetX = target->x;
+    st->prevTargetY = target->y;
+    st->prevTargetZ = target->z;
 }
 
 void camResetAllPlayers(void) {
@@ -3131,7 +3131,7 @@ void camUpdateFollowBlend(Actor *camActor) {
             } else {
                 base = 0.03f;
                 if (camActor->speedXZ != 0.0f) {
-                    speedRatio = st->unk10 / camActor->speedXZ;
+                    speedRatio = st->targetMoveSpeed / camActor->speedXZ;
                 } else {
                     speedRatio = 0.0f;
                 }
@@ -3224,7 +3224,7 @@ void camUpdateFollow(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
     f32 blend;
 
     // follow speed: 0.08 per unit the target moved vertically since the last frame, clamped to [0.03, 1]
-    followSpeed = CAM_MIN(CAM_MAX(0.03, CAM_ABSDIFF(st->unkD0, target->y) * 0.08), 1.0);
+    followSpeed = CAM_MIN(CAM_MAX(0.03, CAM_ABSDIFF(st->prevTargetY, target->y) * 0.08), 1.0);
     camUpdateFollowBlend(camActor);
     st->followBlendRate += (followSpeed - st->followBlendRate) * 0.1;
     dist = sqrtf((camActor->z - st->eyeGoalZ) * (camActor->z - st->eyeGoalZ) +
@@ -3246,7 +3246,7 @@ void camUpdateFollow(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
         blend = CAM_MIN(1.0, st->followBlendRate);
     }
     camUpdateEyePos(camActor, blend, eyeX, eyeY, eyeZ);
-    if (target->attachMode == 1 && st->unk10 != 0) {
+    if (target->attachMode == 1 && st->targetMoveSpeed != 0) {
         camUpdateFocusPos(camActor, 0.5f, focusX, focusY, focusZ);
     } else if (st->mode == 1) {
         camUpdateFocusPos(camActor, blend, focusX, focusY, focusZ);

@@ -241,7 +241,7 @@ typedef struct ActorCallbackNode {
 typedef struct ActorQueueEntry {
     /* 0x00 */ ActorCallbackNode *node;
     /* 0x04 */ struct Actor *target;
-    /* 0x08 */ s32 arg6;
+    /* 0x08 */ s32 delay;
 } ActorQueueEntry; // size = 0xC
 
 typedef struct ActorEntry {
@@ -1084,7 +1084,7 @@ typedef struct CamState {
     /* 0x08 */ u16 unk8;
     /* 0x0A */ u16 unkA;
     /* 0x0C */ f32 unkC;
-    /* 0x10 */ s16 unk10;
+    /* 0x10 */ s16 targetMoveSpeed;
     /* 0x12 */ s16 unk12;
     /* 0x14 */ s16 unk14;
     /* 0x16 */ u8 pad16[0x2];
@@ -1132,9 +1132,9 @@ typedef struct CamState {
     /* 0xC6 */ s16 unkC6;
     /* 0xC8 */ s16 unkC8;
     /* 0xCA */ s16 unkCA;
-    /* 0xCC */ f32 unkCC;
-    /* 0xD0 */ f32 unkD0;
-    /* 0xD4 */ f32 unkD4;
+    /* 0xCC */ f32 prevTargetX;
+    /* 0xD0 */ f32 prevTargetY;
+    /* 0xD4 */ f32 prevTargetZ;
     /* 0xD8 */ f32 unkD8;
     /* 0xDC */ f32 unkDC;
     /* 0xE0 */ f32 unkE0;

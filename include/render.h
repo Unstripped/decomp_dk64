@@ -137,7 +137,7 @@ typedef struct EffectParamPair {
 
 // One live 2D/3D effect (effectCreate, 119370.c); 0x3A0 bytes.
 struct EffectNode;
-typedef void (*EffectCallback)(struct EffectNode *effect, u8 *chunkFound);
+typedef void (*EffectCallback)(struct EffectNode *effect, u8 *isDone);
 
 typedef struct EffectNode {
     /* 0x000 */ Gfx *displayLists[4][2];

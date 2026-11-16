@@ -4011,12 +4011,12 @@ u8 csCondTrue(CsState *cs, s16 csId, s16 b, s16 c) {
     return 1;
 }
 
-extern s8 D_807FC8D0;
+extern s8 gActiveRingIdx;
 
 void csCmdSetFlag1C1Or1C2(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 flag;
 
-    if (D_807FC8D0 == 5) {
+    if (gActiveRingIdx == 5) {
         flag = 0x1C1;
     } else {
         flag = 0x1C2;

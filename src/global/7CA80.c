@@ -730,7 +730,7 @@ void actorQueueDelayedCallback(Actor *target, Actor *source, s32 type, u8 subtyp
     }
     D_807FBF18[D_807FBFD8].node = actorAllocCallbackNode(source, type, subtype, ownsPayload, payload);
     D_807FBF18[D_807FBFD8].target = target;
-    D_807FBF18[D_807FBFD8].arg6 = delay;
+    D_807FBF18[D_807FBFD8].delay = delay;
     D_807FBFD8++;
 }
 
@@ -744,8 +744,8 @@ void actorDelayedCallbacksTick(void) {
     s32 changed;
 
     for (i = 0; i < D_807FBFD8; i++) {
-        D_807FBF18[i].arg6--;
-        if (D_807FBF18[i].arg6 == 0) {
+        D_807FBF18[i].delay--;
+        if (D_807FBF18[i].delay == 0) {
             actor = D_807FBF18[i].target;
             if (actorTableContains(actor)) {
                 curr = actor->callbacks;
@@ -772,10 +772,10 @@ void actorDelayedCallbacksTick(void) {
     do {
         changed = 0;
         for (i = 0; i < D_807FBFD8; i++) {
-            if (D_807FBF18[i].arg6 == 0) {
+            if (D_807FBF18[i].delay == 0) {
                 D_807FBF18[i].node = D_807FBF18[D_807FBFD8 - 1].node;
                 D_807FBF18[i].target = D_807FBF18[D_807FBFD8 - 1].target;
-                D_807FBF18[i].arg6 = D_807FBF18[D_807FBFD8 - 1].arg6;
+                D_807FBF18[i].delay = D_807FBF18[D_807FBFD8 - 1].delay;
                 D_807FBFD8--;
                 changed = 1;
             }
