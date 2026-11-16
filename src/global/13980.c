@@ -490,7 +490,7 @@ extern u32 D_807F0984;
 
 
 s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
-    static s32 sDumpBase = 0;
+    static u32 *sDumpBase = NULL;
     static u32 *sNextPageAddr = NULL;
     static s16 sPrevButtons = 0;
     static u32 *sPageAddr = NULL;
@@ -499,7 +499,7 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
     static s8 sAutoPageCount = 4;
     u32 p;
     s32 size;
-    s32 pad;
+    u32 *start;
     u16 colorIdx;
     u8 op;
     s16 buttons;
@@ -532,9 +532,9 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
             sPageAddr = sNextPageAddr;
         }
         if ((buttons & U_JPAD) && !(sPrevButtons & U_JPAD)) {
-            if (D_807F05A4 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            start = (u32 *)D_807F05A4;
             sPageMode = 0;
-            sPageAddr = (u32 *)D_807F05A4;
+            sPageAddr = start;
         }
         if ((buttons & R_TRIG) && !(sPrevButtons & R_TRIG)) {
             ret = 1;
@@ -542,8 +542,9 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
         sPrevButtons = buttons;
     } else {
         sPageMode = 0;
-        sDumpBase = D_807F05A4;
-        sPageAddr = (u32 *)D_807F05A4;
+        start = (u32 *)D_807F05A4;
+        sDumpBase = start;
+        sPageAddr = start;
         sPrevButtons = 0;
         sNextPageAddr = NULL;
     }
