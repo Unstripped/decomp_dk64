@@ -57,8 +57,21 @@ global:80664A38:other:5ef858 / 9eff7a / 0341ea (lines 177-179), other: `(gModelE
   | `(gModelEmitters + entryIdx)->` with the field written first | 60 |
 
   So the steer is the `->` operator, not the pointer add. A `.` access always puts the field first in the add. A `->` access keeps the written order, and the target's order is product + field (add.d at 0xa10/0xa84/0xaec). `(&p[i])->` folds back to `.` (57). The only natural `->` base is an entry local, and the frame has no word for one.
+- 2026-11-16 HackmodelEmitterSpawnScaledParticle3 (anthropic/claude-opus-5-5:high), reconstruct around the 5-word frame without an entry pointer, variants.py try (lines off):
+
+  | variant | lines off |
+  |---|---|
+  | `s32 offset = entryIdx * sizeof(ActorProximityEntry)` declared last, `((ActorProximityEntry *)((u8 *)gModelEmitters + offset))->` everywhere | 2 (offset owns 36, spill sw t8,32(sp)) |
+  | same offset local plus an entry pointer built from it | 10 (frame 0x38 -> 0x40: offset M -20, entry M -24, spill 0x24) |
+  | `s32 idx = entryIdx` snapshot plus `entry = &gModelEmitters[idx]` | 13 |
+  | inline byte-offset cast `((T *)((u8 *)gModelEmitters + entryIdx * sizeof(T)))->` on all four accesses | **0** (punned cast, not adopted) |
+  | `(&gModelEmitters[0] + entryIdx)->` | **0** (same `(p + i)->` steer) |
+  | all four accesses `(gModelEmitters + entryIdx)->`, scale included | 1 |
+  | `(gModelEmitters + entryIdx)[0].` / `(&gModelEmitters[entryIdx])[0].` | 57 |
+
+  A declared offset/index local is copy-propagated (uopt trace: `ustr` into its M home, the idx*12 CSE keeps its own temp), so it never takes over the spill word. quality.py sweep: 0 hits.
 ## Untried ideas
-none in natural C. Frame count: the target frame has 5 words at 36..52 (4 homes/hidden temps + the idx*12 spill at 36; 32 is padding below them). Every entry-local body needs 6: scaleFactor, randX, randY, randZ (declared home or cfe hidden temp, Q0456/Q0858), entry, and the idx*12 spill, so the spill always lands at 32. Inline randoms avoid the homes but then the calls run after the entry assignment and entry itself must cross them.
+none in natural C (byte-offset index arithmetic tried 2026-11-16). Frame count: the target frame has 5 words at 36..52 (4 homes/hidden temps + the idx*12 spill at 36; 32 is padding below them). Every entry-local body needs 6: scaleFactor, randX, randY, randZ (declared home or cfe hidden temp, Q0456/Q0858), entry, and the idx*12 spill, so the spill always lands at 32. Inline randoms avoid the homes but then the calls run after the entry assignment and entry itself must cross them.
 ## Evidence
 - Target frame 56:
   - scaleFactor swc1 52(sp) at 0x90c.
