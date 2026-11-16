@@ -766,3 +766,4 @@
 {"type": "unit", "t": "2026-11-16T15:39:09Z", "unit": "2026-11-16: cleanup HackmodelEmitterSpawnScaledParticle", "commit": "06db15f2c0294837cd0a4c30bfee7576b40f92d6"}
 {"type": "unit", "t": "2026-11-16T15:46:56Z", "unit": "2026-11-16: cleanup HackmodelSlotResolveAssetTextures", "commit": "641bf1a03d543905bb84ecf15cb2dfa905818dd9"}
 {"type": "unit", "t": "2026-11-16T15:48:27Z", "unit": "2026-11-16: cleanup HackraceSteerTowardTargetWaypoint", "commit": "405a7dd19ed73fc18d2ff162bce8d2e730aa6ccc"}
+{"type": "unit", "t": "2026-11-16T15:49:35Z", "unit": "2026-11-16: cleanup TypesOwner", "commit": "1740aedb2b7bcf046e39885211491973848547c1"}
