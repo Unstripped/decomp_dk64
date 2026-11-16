@@ -826,3 +826,4 @@
 {"type": "unit", "t": "2026-11-16T18:51:33Z", "unit": "2026-11-16b: cleanup HackcollisionCheckBoxTriangleContainsPointXZ", "commit": "ea67900fbecf8d42eba76bcdc91a09a4244ae39d"}
 {"type": "unit", "t": "2026-11-16T18:53:57Z", "unit": "2026-11-16b: cleanup HackmodelAnimEntryQueueMatrixCopies3", "commit": "73cb8b93871b1fc3d8dbf278c745a9c07d12b8b4"}
 {"type": "unit", "t": "2026-11-16T18:55:24Z", "unit": "2026-11-16b: cleanup Polishglobal100180", "commit": "6cd62dd4bccc53bfcaab0579b8f6d66350660b6e"}
+{"type": "unit", "t": "2026-11-16T18:57:12Z", "unit": "2026-11-16b: cleanup HackloadOverlay2", "commit": "38fe31e66f8ff58be0e5b5a70cdef39e9dd391c7"}
