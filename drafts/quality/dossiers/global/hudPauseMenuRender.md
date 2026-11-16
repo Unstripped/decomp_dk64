@@ -35,6 +35,11 @@
   - Reconstruct (natural loop 1: `(s32)(fa * flyX) + off * 4`, s16 dy, `(s16)(off + offsetX * 4)`, no u16/u32/s64, no dead test, shared s32 prototype): full=17 (15 under the local u8 declaration, 10 with the b371d1 test). Left: list home, hud $a0, both mul.s orders, x ring t4/t5, `addu t8,t7,s0`. With the y (u16) kept instead of dy: 4 (x mul.s order, sll/mfc1 t5/t4, addu order).
   - Permuter 900 s (-j 2) each: dy body base 35 -> 20 only via a new dead `if (!hubWorld) {}` before the dy statement; natural reconstruct base 65 -> 65.
   - Review: case-1 `j = tab->kong[...].goldenBananas[...]` reuse is load-bearing (inline 98, via cnt 340); not tagged (reused-local style, Q1055).
+- **2026-11-16c U HackhudPauseMenuRender7 anthropic/claude-opus-5-5:high** (base 8e65aa3e; no C changed):
+  - a87eed (Q1055 + Q1068): reusing the existing case-0 `s16 ang` as the flyY delta (`ang = fa * e->flyY; y += ang;`, no new frame word) is full=6, the same residue as the new dy local: zdbug:6 colours ang (cand 87) reg 2 ($v1) early and hud's split piece 658 takes reg 3 ($a0); the mul.s $f18 swap is already in the ucode (`umpy{flyY load}{fa}` once the product is the whole stored value). ang positions 4/5/12 6, others 27-51; `(s32)`/`(s16)`/`flyY * fa` right sides 6; alpha 155; y0 127 (hud keeps $v1, but y0's case-0/case-1 webs reshuffle s6/s7/s8); `y += (ang = ...)` 51; u16 ang or u16 dy 355; s32/u32 dy 316-375.
+  - 766e68: x delta through ang/alpha (`ang = fa * flyX` or `ang = off * 4`, with or without the casts) 278-446; x carried in slotBase 66 / cnt 377. On the ang-delta body: natural `(s32)(fa * flyX) + off * 4` + plain `(s16)(off + offsetX * 4)` 10, `off *= 4; off += ...` 17.
+  - c4e347: final x through ang (308) or alpha (164) passed to textDrawStringVtx; offset terms inlined into the call arguments 354-403. On the ang-delta body dropping only the (u32) costs 1 (7).
+  - a97e00: mixed spellings: style read indexed + seven member-access 9; style member-access + seven indexed 281.
 
 ## Untried ideas
 - A narrowing source for y that is not a uopt candidate in loop 1's last block (dy takes $v1 from hud's piece), or that keeps the `A + (s32)(f)` evaluation order (fa-first mul.s, Q0966) (Q0374).
