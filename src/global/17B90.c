@@ -79,13 +79,13 @@ void gfxSwapGeometryModeCullBits(Gfx *cmdStart, void *cmdEnd) {
     u32 w0;
     u32 w1;
 
-    op = 0; // FAKE: makes op the first register candidate ($v0) ahead of w0
     if (cmdStart != cmdEnd) {
         do {
+            op = 0xD9; // FAKE: op holds the opcode constant before it is reused as the clear copy: first register candidate ($v0) and the bne v0,t1 order at 0x260
             w0 = cmdStart->words.w0;
             command = w0 >> 24;
             w1 = cmdStart->words.w1;
-            if (0xD9 == command) { // FAKE: constant-first compare orders the D9 test operands (bne v0,t1 at 0x260; command == 0xD9 gives bne t1,v0)
+            if (command == op) {
                 if (w1 == 0) {
                     w0 = ~w0 & 0xFFFFFF;
                     op = w0;
