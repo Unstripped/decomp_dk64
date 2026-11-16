@@ -865,3 +865,4 @@
 {"type": "unit", "t": "2026-11-16T21:24:12Z", "unit": "2026-11-16c: cleanup Polishglobal2F550", "commit": "0f082d839925e201563cdfc2fbac3b06e6d7f651"}
 {"type": "unit", "t": "2026-11-16T21:29:02Z", "unit": "2026-11-16c: cleanup HackmapChunksRender", "commit": "c83bca1f72ee267faf2d44d810332c3d08b1b672"}
 {"type": "unit", "t": "2026-11-16T21:30:44Z", "unit": "2026-11-16c: cleanup HackbonusPerilPathPanicGameUpdate", "commit": "7079a86b2071c197df59ef4201f3f0893afa13a2"}
+{"type": "unit", "t": "2026-11-16T21:31:31Z", "unit": "2026-11-16c: cleanup HackactorTestNodeSegmentCollision", "commit": "f48ecbd7b3081fbb9439ca6a1ac711c9d8e44c22"}
