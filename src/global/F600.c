@@ -135,6 +135,7 @@ void controllerUpdate(void) {
     u32 compact;
     u32 *p;
     u16 pressed;
+    u16 *pressedOut;
     s32 padIdx;
     s32 k;
     u8 mask;
@@ -204,13 +205,11 @@ void controllerUpdate(void) {
         if (i == 0 && D_807463B8 == 2) {
             mask |= 1;
         }
-        sum = padIdx * 2; // FAKE: byte offset in the checksum local orders the held-address candidate before the pad load
         if (mask != 0) {
             pad = &D_807ECD10[padIdx];
-            curButtons = pad->button; // FAKE: preserve the initial button value's allocation web
-            pressed = ((*(u16 *)((u8 *)CtrlAHeld + sum)) ^ curButtons) & curButtons;
-            (*(u16 *)((u8 *)CtrlAHeld + sum)) = pad->button;
-            buttons = curButtons;
+            pressedOut = &CtrlAPressed[padIdx];
+            curButtons = pad->button;
+            buttons = curButtons; pressed = (CtrlAHeld[padIdx] ^ curButtons) & curButtons; CtrlAHeld[padIdx] = pad->button; // LAYOUT: one line lets as1 put move a3,a2 after sh a2,0(t0) in the bnez delay slot
             if (D_807463B8 == 0 && (gScreenRenderFlags & 0x11)) {
                 pad->button &= 0x1000;
                 pad->stick_x = 0;
@@ -218,7 +217,7 @@ void controllerUpdate(void) {
                 pressed = 0;
                 buttons = pad->button;
             }
-            CtrlAPressed[padIdx] = pressed;
+            *pressedOut = pressed;
             for (k = 0; k < 16; k++) {
                 bit = 1 << k;
                 if (buttons & bit) {
@@ -242,7 +241,7 @@ void controllerUpdate(void) {
         }
     }
     gCurrentContPad = D_807ECD10;
-    gContPressedButtons = D_807ECD48[0];
+    gContPressedButtons = CtrlAPressed[0];
 }
 
 void controllerLatchPad(OSContPad *pad) {
