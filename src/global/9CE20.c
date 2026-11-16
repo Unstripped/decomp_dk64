@@ -61,10 +61,10 @@ u8 nodeCount;
         data->phase = 0.f; // FAKE: literal spelling; cfe keeps f32 literal text, so `0.f` is its own zero constant (Q0473): mtc1 zero,$f16 at 0x5c instead of sharing the 0.0f/0.0 register
         data->baseY = gCurrentActor->y;
         data->bobPhase = 0.000f; // FAKE: literal spelling; a fourth distinct zero constant (Q0473) for mtc1 zero,$f4 at 0x78; `0.0f`/`0.0`/`0`/`0.0F` share a web with swingAmplitude or nodeAngle (257-263)
-        data->bobSpeed = (f32)((f64)(s32)((randomNonNegative() >> 15) % 100) / 1000.0 + 0.1);
+        data->bobSpeed = ((randomNonNegative() >> 15) % 100) / 1000.0 + 0.1;
         data->spinAngle = 0.0f;
         gCurrentActor->sub4->boneRotations = heapAlloc(0x80);
-        proxPathAdd(gCurrentActor, 0, 0, 0, nodeCount, 0.0f, (f32)((f64)nodeCount * 0.333333), 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
+        proxPathAdd(gCurrentActor, 0, 0, 0, nodeCount, 0.0f, nodeCount * 0.333333, 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
         for (i = 1; i <= nodeCount; i++) {
             proxPathSetSegment(gCurrentActor, 0, i - 1, i, i + 1, 0.333333f, 0.0f, 0.0f, 0, 0, 0, 0, 0);
         }
@@ -72,11 +72,11 @@ u8 nodeCount;
         gCurrentActor->cullMarginY = 0xC8;
         data->playerHolding = 0;
         data->unk15 = 0;
-        data->enabled = flagGet(0x183, 0) != 0 || (gGlobalOverlayFlags & 0x10000000) != 0 || menuIsTransitionType3Or4() != 0;
+        data->enabled = flagGet(0x183, 0) || (gGlobalOverlayFlags & 0x10000000) || menuIsTransitionType3Or4();
     }
-    if (gPrimaryPlayerActor->state == 0x63 || data->enabled == 0 ||
+    if (gPrimaryPlayerActor->state == 0x63 || !data->enabled ||
         (*(s32 *)gCurrentActor->spawnData == 1 && !(player->stateFlags & 0x40))) {
-        gCurrentActor->flags &= 0xFBFFFFFB;
+        gCurrentActor->flags &= ~0x04000004;
     } else {
         gCurrentActor->flags |= 0x04000004;
     }
@@ -97,16 +97,16 @@ u8 nodeCount;
     if (data->swingAmplitude > 2.0f) {
         if (data->phase < 3.926991f && data->phase + data->phaseStep >= 3.926991f) {
             if (gCurrentActor->actorType == 0x74) {
-                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x257, (f64)data->swingAmplitude * 100.0 / limit, 0x7F, 5);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x257, data->swingAmplitude * 100.0 / limit, 0x7F, 5);
             } else {
-                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C, (f64)data->swingAmplitude * 100.0 / limit, 0x7F, 5);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C, data->swingAmplitude * 100.0 / limit, 0x7F, 5);
             }
         }
         if (data->phase < 0.7853982f && data->phase + data->phaseStep >= 0.7853982f) {
             if (gCurrentActor->actorType == 0x74) {
-                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x258, (f64)data->swingAmplitude * 25.0 / limit, 0x7F, 0x14);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x258, data->swingAmplitude * 25.0 / limit, 0x7F, 0x14);
             } else {
-                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1D, (f64)data->swingAmplitude * 25.0 / limit, 0x7F, 0x14);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1D, data->swingAmplitude * 25.0 / limit, 0x7F, 0x14);
             }
         }
     }
@@ -128,20 +128,20 @@ u8 nodeCount;
         dir = 2;
         break;
     }
-    data->phase = data->phase + data->phaseStep * gFrameDelta * 0.5;
+    data->phase += data->phaseStep * gFrameDelta * 0.5;
     data->nodeAngle = sinApprox(data->phase) * data->swingAmplitude;
     for (i = 0; i < 0xE; i++) {
         node[i].weight = -0x80;
         node[i].bone = i + dir;
         node[i].rotY = 0;
-        node[i].rotX = (s16)(s32)((f64)data->nodeAngle / 360.0 * 65535.0);
+        node[i].rotX = (s16)(data->nodeAngle / 360.0 * 65535.0);
         node[i].rotZ = 0;
-        data->nodeAngle = data->nodeAngle * data->damping;
+        data->nodeAngle *= data->damping;
     }
     if (gCurrentActor->actorType == 0x45 || gCurrentActor->actorType == 0x21) {
         node[i].weight = -0x80;
         node[i].bone = 1;
-        node[i].rotY = (s16)(s32)((f64)data->spinAngle / 360.0 * 65535.0);
+        node[i].rotY = (s16)(data->spinAngle / 360.0 * 65535.0);
         node[i].rotX = 0;
         node[i].rotZ = 0;
         i++;
@@ -178,16 +178,16 @@ u8 nodeCount;
         }
     } else {
         data->playerHolding = 0;
-        data->swingAmplitude = data->swingAmplitude + (0.0 - data->swingAmplitude) * 0.03;
+        data->swingAmplitude += (0.0 - data->swingAmplitude) * 0.03;
         if (data->swingAmplitude < 2.0) {
             data->swingAmplitude = 0.0f;
         }
     }
     if ((gPrimaryPlayerActor->contactFlags & 0x40) && gCurrentActor == player->pathOwner) {
-        if (player->pathDist < 1.5 && (((f64)data->phase > 4.0 && (f64)data->phase < 4.712389f) ||
-                                     ((f64)data->phase < 1.5707964f && (f64)data->phase > 0.9))) {
-            player->unk14C = (f32)D_8075037C * (data->swingAmplitude / 15.0f);
-            player->unk150 = (f32)D_80750380 * (data->swingAmplitude / 15.0f);
+        if (player->pathDist < 1.5 && ((data->phase > 4.0 && (f64)data->phase < 4.712389f) ||
+                                     ((f64)data->phase < 1.5707964f && data->phase > 0.9))) {
+            player->unk14C = D_8075037C * (data->swingAmplitude / 15.0f);
+            player->unk150 = D_80750380 * (data->swingAmplitude / 15.0f);
         } else {
             player->unk14C = 200.0f;
             player->unk150 = 200.0f;
