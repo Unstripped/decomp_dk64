@@ -841,3 +841,4 @@
 {"type": "unit", "t": "2026-11-16T20:02:37Z", "unit": "2026-11-16c: cleanup Hackvsprintf6", "commit": "7a0e1b9c10c36642838c5dde1f35d14a63deda3a"}
 {"type": "unit", "t": "2026-11-16T20:04:25Z", "unit": "2026-11-16c: cleanup PolishglobalFE40", "commit": "b774689e36e59ca20e04d4aeccac36f57b0a7092"}
 {"type": "unit", "t": "2026-11-16T20:08:11Z", "unit": "2026-11-16c: cleanup HackeepromSaveRecords5", "commit": "75e7f1b21f8c379de8c14ae75fd3a7de8b0fbe7b"}
+{"type": "unit", "t": "2026-11-16T20:20:01Z", "unit": "2026-11-16c: cleanup HackprojectileSpriteRingUpdate2", "commit": "e96fd1144972072f9ef1fb59a8250b08dd843337"}
