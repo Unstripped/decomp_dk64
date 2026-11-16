@@ -167,9 +167,9 @@ void actorScriptedCommandUpdate(void) {
     ScriptCommand *cmd;
     ScriptedActorState *state;
     f32 ratio;
-    f32 ratio2;
+    f32 scaleRatio;
     ScriptColor *col;
-    s32 node;
+    s32 nodeIndex;
     f32 particleScale;
     f32 posX;
     f32 posY;
@@ -388,8 +388,8 @@ void actorScriptedCommandUpdate(void) {
         gCurrentActor->moveYaw = gCurrentActor->yaw;
     }
     if (state->scaleTimer != 0) {
-        ratio2 = (f32)state->scaleTimer-- / state->scaleSteps;
-        actorSetUniformScale(gCurrentActor, gBehaviourWorkState->scale + (state->scaleFrom - gBehaviourWorkState->scale) * ratio2);
+        scaleRatio = (f32)state->scaleTimer-- / state->scaleSteps;
+        actorSetUniformScale(gCurrentActor, gBehaviourWorkState->scale + (state->scaleFrom - gBehaviourWorkState->scale) * scaleRatio);
     }
     if (state->particlePath != 0xFF) {
         for (j = 0; j < state->particleCount && state->particlePath != 0xFF; j++) {
@@ -423,8 +423,8 @@ void actorScriptedCommandUpdate(void) {
     switch (gCurrentActor->state) {
         case 0xD:
             if (gCurrentActor->unk15F != 0) {
-                node = gCurrentActor->unk15F;
-                actorGetNodePos(gBehaviourWorkState->targetActor, node, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
+                nodeIndex = gCurrentActor->unk15F;
+                actorGetNodePos(gBehaviourWorkState->targetActor, nodeIndex, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
             } else {
                 gCurrentActor->x = gBehaviourTargetActor->x;
                 gCurrentActor->y = gBehaviourTargetActor->y;
