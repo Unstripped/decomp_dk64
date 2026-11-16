@@ -92,7 +92,10 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
   file and the exact prototype change; never a silencing cast.
 - Before keeping regalloc hacks: a named pointer local for a repeated `p->a->b` load (Q0601),
   removing coupled steers together (Q0602), an inner `switch` for a reused selector (Q0600), a
-  callee's real return width (Q0486), a compare operand swap after a field rewrite (Q0604).
+  callee's real return width (Q0486), a compare operand swap after a field rewrite (Q0604), bare
+  truth tests on narrow flags (Q1066, Q1116, Q1135), one function-like macro for a recomputed
+  expression (Q0716), a function-local static for a global only this function uses (Q1125, Q1136),
+  a one-path store or real `break`/`continue` instead of dead guards (Q0548, Q1127).
 - Shared types to retire views with: `CamState`/`CamTargetBlock`, `SpawnNode`/`Zone`,
   `BehaviourWorkState` (0x40), `KongInventory`, PlayerStruct/PlayerState/ActorGlobalState carves
   (ok-fine `conventions/actor-struct-field-evidence`).

@@ -27,9 +27,9 @@ Use the model the user named for every worker spawn (`task` `model`; none named:
 `task.perCallModel: off` spawn without it only if the default task agent runs that model
 (`history://<agent>`), else tell the user. Never run `ledger.py plan`/`route`, never write
 `.scratch/routes/`, never use workpools routed by `.omp/extensions/decomp-router.ts`. Pass the
-spawned workers' selector (`provider/model:level`, e.g. `anthropic/claude-opus-5-5:xhigh`) to
-`merge_record.py --model`, read per worker from its `history://<agent>` (a worker on another model records its
-own selector, in dossiers too): `rank` orders functions by the strongest model that already tried them.
+spawned workers' selector (`provider/model:level`, e.g. `anthropic/claude-opus-5-5:xhigh`) to `merge_record.py --model`,
+read from the harness (`history://<agent>`, turn metadata), never from the report (a gpt worker reported opus, 2026-11-16c):
+fix a wrong one in dossiers through a lead `--copy-dir`. `rank` orders functions by the strongest model that tried them.
 
 ## 1. Ingest
 
@@ -38,8 +38,7 @@ own selector, in dossiers too): `rank` orders functions by the strongest model t
    and the queue in `.scratch/<lead>/dispatch.md` and the close plan in `close.md`, so a successor resumes from files
    alone. A successor first checks `git log` and `ps` (a dead lead's `merge_record` can still be running and land its
    `clean <file>` + `quality:` pair later) before re-merging any report; never run `merge_record` twice for one worker.
-2. `find src -name '*.c' -exec touch {} +`; `tools/dk make` must end `build/dk64.us.z64: OK`;
-   `tools/dk make expected`.
+2. `find src -name '*.c' -exec touch {} +`; `tools/dk make` must end `build/dk64.us.z64: OK`; `tools/dk make expected`.
 3. `uv run tools/protos.py gen --check` exits 0 (else regenerate and commit `include/proto` first);
    `uv run tools/clint.py compdb`; `uv run tools/quality.py report --markdown` → starting numbers.
 4. `uv run tools/quality.py rank --limit 40` (hack queue: `str att strong hacks state file function
@@ -85,8 +84,8 @@ As each worker reports:
    LEDGER block, one `review` per function from a full read at the base, evidence present
    ([ladder.md](ladder.md)), a `new=` on every retry (one that repeats an earlier unit's attempt in `history` is stripped
    from a lead ledger copy); a `permute` line's base/best/seconds must match its log; missing lines go back; hand-recorded
-   sweep methods (`plain`/`recipe`/`classify`/`cond`/`remove`) are stripped (the sweep records them).
-   `uv run tools/clint.py uninit .scratch/<A>/<f>.c --base src/<seg>/<f>.c` must exit 0.
+   sweep methods (`plain`/`recipe`/`classify`/`cond`/`remove`) are stripped, hand `consolidate` lines become `diagnose fixed`
+   (or go when one exists). `uv run tools/clint.py uninit .scratch/<A>/<f>.c --base src/<seg>/<f>.c` must exit 0.
 2. `python3 tools/merge_record.py --agent <A> --unit "<YYYY-MM-DD>: cleanup <A>" --base <base>
    --model <selector> --ledger .scratch/<A>/ledger_<f>.txt [--copy-only .scratch/<A>/ledger-copy-only.txt]
    [--keymap .scratch/<A>/keymap.txt] [--stage include/proto/<seg>/<f>.h] src/<seg>/<f>.c`. It gates
@@ -100,22 +99,23 @@ As each worker reports:
    patch, one gen that must equal the worker's diff, `merge_record --copy-dir <clean> --stage` each header: no TypesOwner
    needed), same-basename copies, 3-way merges, shared-extern retypes, data to C, yaml carves and `COMMIT_FAILED`:
    [types-stream.md](types-stream.md) "Special merges".
-5. Data carves: a function needing XBB guards or an as1-hoist blocker may only miss its TU's own `.word`/table
-   data (Q0552): carve before steering. Carve window: `rm -f .scratch/<lead>/RESUME` (briefs: no new `tools/dk`
-   call while it is absent), wait for jobs 0, gate, split/make/expected/vanished, re-record, carry, commit, `touch` it.
-6. A respelling that replaces a pun but was chosen for codegen keeps its tag (Q0816), even one an older ledger recorded `fixed`
-   (9BF30 9224e6): the lead retags it in a lead copy dir (`--copy-dir`) with a keymap or copy-only line, `nohit` with its own
-   fdiff evidence. Ordinary C, untagged even as the only match: a load-bearing guard `continue`, an index loop over a global
-   table, one quantity refined in place, an assignment in a test whose values the target uses; a trailing/`else` continue,
-   an empty `default:`, a logically dead clamp kept as a keeper, a constant-valued local or an operand-order/width/view
-   respelling is a steer.
+5. Data carves: a function with a switch `jr` needing XBB guards or an as1-hoist blocker may only miss its TU's own
+   `.word`/table data (Q0552): carve before steering; without a switch `jr` look for a one-path store or real control flow
+   first (Q0548). Carve window: `rm -f .scratch/<lead>/RESUME`, wait for jobs 0, gate, split/make/expected/vanished,
+   re-record, carry, commit, `touch` it. A merge whose file-scope edit stales other reviews queues their polish item at once.
+6. A respelling that replaces a pun but was chosen for codegen keeps its tag (Q0816); the lead retags it in a `--copy-dir`
+   copy with a keymap or copy-only line. Ordinary C, untagged even as the only match: a load-bearing guard `continue`/`break`,
+   a one-path store, an index loop over a global table, one quantity refined in place, an assignment in a test whose values the
+   target uses, one macro for every recomputation, function-local statics, a selector local at its use, bare truth tests, a
+   flag's natural unsigned type. Steers: a trailing/`else` continue, an empty `default:`, a dead clamp keeper, a constant-valued
+   local, an operand-order/width/view respelling.
 7. A worker's function rename (or a dossier filed under a new name) replaces `drafts/quality/dossiers/<seg>/<old>.md`: delete
    the old file before `merge_record` so its ledger commit carries the deletion. Its re-record printing "no site" for a fixed site is normal.
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
 gate; a merged file's net HACKS (tagged `// FAKE` + untagged AST sites) and cfe warnings never rise.
 Tag pre-existing untagged hacks ("pre-existing, now tagged", one copy-only line each): compare `status --file` site totals base vs
-applied copy; the tags are the only accepted rise (a new steer replacing untracked puns goes back, r19 b7). `// ORIG:`
-replacing `// FAKE` needs the cited target-asm offset (check it). Accept a pre-existing uninit read a K&R → ANSI conversion exposes (note).
+applied copy; the tags are the only accepted rise. `// ORIG:` replacing `// FAKE` needs the cited target-asm offset (check it;
+K&R/unprototyped declarations and -g puns qualify). FAKE → `// LAYOUT:` with line-order evidence is a drop. Accept a K&R → ANSI uninit read (note).
 
 ## 6. Session close (once per session)
 

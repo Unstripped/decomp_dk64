@@ -9,19 +9,19 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   (OwnerFlagGetWidthPlan: no option passes all 49 files); 80150 c1a42b/b5496b stay FAKE, jetpac/0's pair is ORIG (0x11d4).
 - critter/5110 D_807FCC44 split label stays tagged (5110.c:57, Q0687 table-base CSE); D_807FCC40 retired (5adcdc9b).
 - ACDC0 split labels D_807FC82A..D_807FC838 KEPT (OwnerCollectibleCountsView, 0c2a5e64): the table is now one shared `extern s16 D_807FC828[9]` in actor.h (ACDC0, 3E10 and 117190 read it, [0] included), but folding ACDC0's [1]-[8] labels into it makes hudPauseMenuRefreshTotals 16 bytes shorter (.text 20880 vs 20896), so ACDC0 keeps them (ACDC0.c:73-80).
-- 2F550 MapViewEntries proposal (.scratch/Rev24/header-request.md), held. With it, 55B20 could drop MapChunkArg; renderEntryListBuildDisplayList last parameter s32 vs u8 (owner 35000) blocks the 55B20 mapChunksRender proto-steer (a1232a/19cc66).
+- 2F550 MapViewEntries proposal (.scratch/Rev24/header-request.md), held. With it, 55B20 could drop MapChunkArg. (The 35000 owner block on mapChunksRender is RESOLVED: bare `if (flag)` tests + shared u8 prototype, HackmapChunksRender c83bca1f.)
 - Actor.soundSlots[0] (0x6E) is a frame counter in BC3B0 (beep timing, BC3B0.c:173-176): the shared field name may be too narrow (header owner).
 - 55B20 MapZone.tris as MapTriangle * would remove 23 casts (a natural rewrite does not match yet; 55B20.c:352/1468).
 - proxPathAdd/proxPathSetSegment keep `Actor *` (audit A1 CLOSED, kept; OwnerProxPathIdParam, ledgers f3f3f306/956c2dfa/48c9b6b0): with `s32 id`, 133A90 and 9CE20 match (9CE20 needs `(s32)gCurrentActor` x2), but 36880 modelSlotBuildProxPaths fails (frame 0xD8 -> 0xD0, 38 diff rows, also with `(s32)id`). The target sign-extends id once (sll/sra at 0x1584/0x1588), homes it at sp+0x98 (0x15c0) and reloads it for both calls (0x16b0/0x17c0), so 36880's two `(Actor *)id` casts (36880.c:792/796) are original. The `s32` siblings (89ad9a91) match their callers' value types.
 - jetpac/4FC0 `extern JetpacPlayerActor jetpacPlayer` (4FC0.c:44): JetpacState raises its cfe 1 -> 2 (round-34 measurement; 3480 and 1A60 already use JetpacState).
 - jetpac/1A60 jetpacUpdatePlayerMovement volatile 1d4065 / 1d4065#2: blocked. Director REJECTED `volatile s32 flying` in jetpac.h JetpacPlayerActor: it only moves a codegen-only volatile into a shared header and hides it. Both sites stay tagged `blocked` (HackjetpacUpdatePlayerMovement, 2026-11-14; evidence .scratch/HackjetpacUpdatePlayerMovement/).
-- File-scope view MODEL_TRANSFORM_SLOT0/SLOT (36880.c:1629-1630) and the 36880 views on `ModelSlot.unk20` (model.h:109 `void *`) are blocked on the model.h H1/H2 regeneration (clashes with file-local ModelSlot typedefs). actorBoneChainSwingUpdate near-miss hint in the Rev20A report.
+- 36880 views on `ModelSlot.unk20` (model.h:109 `void *`, ModelKindObj users) are blocked on the model.h H1/H2 regeneration (clashes with file-local ModelSlot typedefs); the MODEL_TRANSFORM_SLOT0/SLOT views are gone (0bc29f13). actorBoneChainSwingUpdate near-miss hint in the Rev20A report.
 - Optional (types queue, ACTIONABLE): HeapBlock u64 view (heap.h) so 15050's 14 `*(u64 *)blk = 0` / `((u64 *)q)[i]` puns, now `// ORIG:`
   (HackloadOverlay, merge b4eccb1b: target 64-bit pair stores/copies), become typed 64-bit accesses; fdiff each, keep the ORIG
   comments' offsets.
 - 1332B0 volumeTriggerUpdate PlayerSlot stride view of gPlayerSlots kept (Q0606, views blocked; 1332B0.c:11 `extern void *gPlayerSlots`, 172-185). Every other file declares `PlayerStruct *gPlayerSlots` (13b5f3b8) except A8400 (ScreenBounds view, next entry).
 - PlayerStruct 0x270 s16 bounds carve (ACTIONABLE): actor.h has no scissorUlx..Lry fields; A8400's ScreenBounds (A8400.c:165-174) and MapBounds (447-455, SPRITE_BOUNDS) views read them. Round-16 list still open: playerStateQueueCallback arity (F56F0 14204c, race/6650 8cc620), n_alSndpPostEvent.
-- 1025E0 `func_806FDAB8` first param: owner retype to u8, u16 and s32 all fdiff 1 (round 29, CleanBonus2690 retype/owner_*.fdiff), so bonus/2690's local u8 declaration steer (689f58, e3027b) stays. Not actionable.
+- 1025E0 `func_806FDAB8`: RESOLVED on the caller side (HackbonusTargetGameUpdate 0a7cfd1f: pass the just-stored `game->counterTextId`, Q1139); the owner keeps its s16 parameter.
 - gCamActor: one `extern struct Actor *gCamActor` in actor.h (OwnerCamActorExtern e13ffda6; boss/8520 and B100 retyped from `void *` with cfe unchanged; the last file-local copies dropped in 7748c62b). gFrameCounter/gGlobalPauseFlags single shared type.
 - ACDC0 renderRotatedSprite proto-steer 6bd641/01af71 kept (HackConsolidateBoss0ACDC0, ledger 9ca52aed): the owner's s32 siz only changes CSE of the literal 2 (li a3,2 -> move a3,s8 at 0x1638/0x16B8). That is register-only evidence, not ORIG. boss/0 ea31b7 is ORIG (70242923).
 - Data ownership (HacktransitionSetAudioVolume, 2026-11-14, ledger a001e1ac): carve the .data region of 14C9E0 around D_807550A4
@@ -32,7 +32,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   `AmbientEmitter D_807460AC[]` label (7130.c:462). Settle the boundary in a data-split pass (splat yaml + `make split`).
 - Warning/proto-steer sites with no owner decision yet (audit 2026-11-14, missing blockers M1-M11):
   - 90D80 hudDrawRollingCounter 8c076a: same `retype kept` as f2ca09 (ledger 53b46930) but the record is stale; re-record.
-  - Proto-steers never consolidated or stale: 1025E0 2ed6ea/69fe0c (textGetCharAdvance), 2C910 30698d/41f288/145e04 (textSpawnMarkerChecked + K&R textSpawnSubtitle), 36880 81fdd2/1045f7 (renderReplaceSegment6Commands, playerSlotMatchesSizeMask), B5EC0 72fa9a (actorTrackBoneTowardTarget, consolidate never tried), race/6650 8cc620/3db41f (playerStateQueueCallback, sfxStopSlotSound).
+  - Proto-steers never consolidated or stale: 1025E0, 2C910 (ORIG), 36880 1045f7, race/6650, 55B20, 80150 and bonus/2690 are DONE (2026-11-16c); left: 36880 81fdd2 (renderReplaceSegment6Commands), B5EC0 72fa9a (actorTrackBoneTowardTarget).
   - Proto-type views: 103AB0 e73d86 (lensFlareDrawSource takes a file-local type), F56F0 14204c (playerStateQueueCallback arity).
 
 
@@ -125,7 +125,10 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   (collisionTestActorBoxFloor, collisionCheckBoxTriangleContainsPointXZ). Probes: `.scratch/TypesOwner/batch_5/partA_req/`,
   `partA_alt/`. Reopen only with a shape that fdiffs in both files. Shared-extern retype: 19A00 `extern u8 *gActorScriptAsset`
   vs 7CA80 `ActorAssetHeader *`. Retype leftovers: 6AD90 365170 FIXED (batch_5, 95740f93: sizePtr u32 *); FE40 0b7e03/#2
-  blocked (`u8 *dst` raises W709 at 9 call args: needs boot/30E0 gunzip to take its out cursor as `void **`).
+  BLOCKED, both routes measured (PolishglobalFE40 2026-11-16c, ledger 75e7f1b2; probes `.scratch/PolishglobalFE40/`): `u8 *dst`
+  raises W709 at 9 polymorphic caller args (5A50 4, 6AD90 5); gunzip `void **outBufPtr` needs a cast pun in its body
+  (`*outBufPtr += outcnt` is a cfe Error on void *, `= slide + outcnt` fdiff 1) and its stand-ins add 8 W709 in 5 files.
+  `blocked` keeps the sites in `rank --polish` (retype=1): do not redispatch without a new shape.
 - Re-review (2026-11-16 item): DONE in 2026-11-16b (Polishglobal201B0d, Polishglobal7CA80c).
 
 ## Session 2026-11-16b close leftovers (CleanupLead6)
@@ -135,11 +138,10 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   Actor 0xE4 pitch <-> 0xE8 roll swap (HackvehicleUpdateMotion4 evidence; confirm across users).
 - Types items: one shared lerp macro for 201B0 `CAM_LERP` and 478F0 `LERP`; gTextFontSheets `void **` -> `u8 **`
   (Polishglobal100180); views: 8F4B0's `extern u16 D_807ECD48` is a scalar view of F600's `u16 D_807ECD48[4]`.
-- ORIG check: the f64 midpoint reuse in 6AD90 collisionCheckBoxTriangleContainsPointXZ / collisionCheckTriangleContainsPointXZ
-  (ec388d/a2d087/58f1bd/3aa4ac: a separate local matches the code but grows the frame 0xc8 -> 0xd8) may qualify for
-  ladder.md's own-home ORIG rule: verify the stores hit a's/b's own home slots and cite the offsets.
-- Knowledge commit 563288d1 names 40+ functions: their older units' agent rungs are stale (vsprintf, hudPauseMenuRender,
-  ... `rank` shows next=diagnose/reconstruct); these are re-run candidates only with a genuinely new idea.
+- ORIG check: 6AD90 f64 midpoint reuse a2d087 (box) and 58f1bd/3aa4ac (collisionCheckTriangleContainsPointXZ) still FAKE; ec388d FIXED (d78151a9: dedicated hx once inline sign ternaries freed a slot); try the same for the sibling.
+- 2026-11-16c (Lead-2) types/macros item: PLANE_DIST → include/render.h beside PlanePoly + use at 55B20.c:2489; 2F550 sViewPlane f32[4] → plane type; one shared new-press macro (3E10 BUTTONS_PRESSED, F600.c:212); gRdpOutputBuffer (u32 in 13980/14CF0, u8 * in 15050) type unification.
+- 2026-11-16c stale reviews (re-review first next session): bonus/2690 bonusTargetUpdate, bonusPerilPathPanicGameUpdate, bonusSearchlightSeekGameUpdate (shared func_806FDAB8 prototype since 0a7cfd1f) plus the functions knowledge 3d2ca4a0 names (`rank --polish`). HELD: hudPauseMenuUpdate (EXHAUSTED, no rung); RaceParticipant.unk35 → phase evidence (race/0 copies it into a local `phase`).
+- Knowledge commits 563288d1 and 3d2ca4a0/3c6f1a47 (Q0548/Q0627/Q0707/Q0716/Q1066 corrected) name ~85 functions: older units' agent rungs on them are stale; re-run candidates only with a genuinely new idea.
 
 ## OPEN functions
 
