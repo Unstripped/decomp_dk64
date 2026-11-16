@@ -26,6 +26,10 @@
   - The same macro called with `p, p + 1` / `p + 2, p + 3` / `p + 4, p + 5`: 0. It is the same `(p + k)->` pointer steer in another spelling, so it was not kept.
   - Struct-value macro on `p[k]`, float `LERP(p[k].y, p[k + 1].y, t)`: 18 each.
   - sweep: 0 hits.
+- 2026-11-16 HackcsCmdStepSequenceProgress3 anthropic/claude-opus-5-5:high:
+  - No p local, `gMinecartTrackPoints[1]` read directly at every use: the arrow macro on `gMinecartTrackPoints[1] + k` 18, `t * (G[1][k+1].y - G[1][k].y) + G[1][k].y` 18.
+  - Mechanism (Q0860 extends to `+`): cfe emits a subscripted right operand of `+` before the left product, so every `p[k].y` form loads p0 first; `->` is not counted as a subscript, which is why the arrow form keeps source order.
+
 ## Untried ideas
 - A hack-free spelling that keeps `p[k].y`. The cfe weight function that ranks the subscript form above the `->` form is still unexplained (a cfe source/ucode dump would settle it).
 - A file-local pair struct view (`{TargetVec3f lo, hi;}`). It was avoided because a view is itself a cleanup cost.
