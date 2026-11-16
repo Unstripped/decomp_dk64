@@ -26,7 +26,7 @@ typedef struct {
 typedef struct {
     s32 overlayFlags;
     s32 cutsceneFlags;
-    s32 unk8;
+    s32 overlayBufferSize;
 } Struct8074482C;
 
 typedef struct {
@@ -144,24 +144,22 @@ s32 mapGetConfigValue(s32 unused, s32 index) {
 }
 
 u8 mapGetHubWorldIndex(u8 map, u8 checkBossMap) {
-    u8 val;
+    u8 worldIndex;
     s32 targetMap;
     s32 exitIndex;
     s32 pad;
 
     targetMap = map;
-    val = gMapHubWorldIndex[targetMap];
-    if (val == 0xD || val == 9) {
+    worldIndex = gMapHubWorldIndex[targetMap];
+    if (worldIndex == 0xD || worldIndex == 9) {
         if (mapFindPreviousSavedMap(&targetMap, &exitIndex)) {
-            val = gMapHubWorldIndex[targetMap];
+            worldIndex = gMapHubWorldIndex[targetMap];
         }
     }
-    if (checkBossMap != 0) {
-        if (func_805FEF74(targetMap)) {
-            val = 7;
-        }
+    if (checkBossMap && func_805FEF74(targetMap)) {
+        worldIndex = 7;
     }
-    return val;
+    return worldIndex;
 }
 
 u8 mapHasCollectedSufficientItems(void) {
@@ -593,7 +591,7 @@ void func_806003EC(s16 index) {
 }
 
 s32 func_8060042C(s16 index) {
-    return D_8074482C[index].unk8;
+    return D_8074482C[index].overlayBufferSize;
 }
 
 u8 func_80600454(s16 id, u8 *outVal) {
