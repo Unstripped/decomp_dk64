@@ -92,7 +92,6 @@ AudioSynthesizerConfig D_807452D0 = { {
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
     0x0, 0x0,
 } };
-s32 D_807454E8[2] = { 1, 0 };
 
 // .bss 0x8076D4C0-0x80770560
 SchedClient D_8076D4C0;
@@ -274,9 +273,9 @@ s32 audioBuildTask(AudioTask *task, AudioTask *prevTask) {
 }
 
 void audioCheckAiLength(AudioTask *unused) {
-    s32 zero = 0; // FAKE: variable index keeps a lui/%lo pair per D_807454E8 access instead of &D_807454E8 CSE'd into $v0 (Q0099)
-    if (((osAiGetLength() >> 2) == 0) && (D_807454E8[zero] == 0)) {
-        D_807454E8[zero] = 0;
+    static s32 sAiIdleFlag = 1;
+    if (((osAiGetLength() >> 2) == 0) && (sAiIdleFlag == 0)) {
+        sAiIdleFlag = 0;
     }
 }
 
