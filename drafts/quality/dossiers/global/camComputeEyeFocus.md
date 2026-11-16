@@ -8,7 +8,7 @@
 - global:80622B24:goto:u08a68 (kept, Q0591): now case 4's `goto look_done` (b 0x89bc at 0x864c, skipping the post-switch calc_look). The calc_look tail's old `goto look_done` is gone (the block falls into the join).
 - global:80622B24:goto:u78dc1#2 (new, kept, Q0591): `default: goto look_set;` of the path switch; the bound check (beqz at,0x89bc at 0x7ec4) and table entries 6-9/11-14 (.rodata 0x6c0-0x6dc) go straight to 0x89bc, past calc_look. IDO threads the default's goto into the table.
 - global:80622B24:goto:u71b9c (kept, Q0591): case 0x59 `bnez` at 0x926c into the check_target block 0x92c4 that default reaches after its zoom (0x92a8-0x92c0).
-- global:80622B24:goto:u78dc1 (exhausted, kept by structure): orbit type-16 `goto look_set`, plus the two consecutive labels after calc_look. Without them uopt colours type's ucvt candidate (bit 245 in the -l 5 table, `ucvt{M -11vreg}`) in t0; the target leaves it uncoloured and reloads `lw t8,92(sp)` / `lw t7,92(sp)` at 0x89bc-0x89c4.
+- global:80622B24:goto:u78dc1 (kept, Q0591, re-measured 2026-11-16): orbit type-16 `goto look_set`, plus the two consecutive labels after calc_look. The join 0x89bc is entered by the type-16 look block (b at 0x8060), case 4 (b at 0x864c), the bound check (beqz at 0x7ec4) and the calc_look fall-in (0x89b8); calc_look 0x88f4-0x89b8 lies between, so the arm jumps forward over it. Without the labels uopt colours type's ucvt candidate (bit 245 in the -l 5 table, `ucvt{M -11vreg}`) in t0; the target leaves it uncoloured and reloads `lw t8,92(sp)` / `lw t7,92(sp)` at 0x89bc-0x89c4.
 
 ## Attempts
 - 2026-11-15 U HackcamComputeEyeFocus2 anthropic/claude-opus-5-5:high: `switch (gGameMode) { case 1: ...; break; case 0: ...; break; }` in place of `if (gGameMode != 0) { if (gGameMode == 1) {...} } else {...}`, signed `gGameMode != 1` -> fdiff 0 (a9e334 removed). With 1U kept the switch alone is also 0.
@@ -25,6 +25,7 @@
 - 2026-11-16 U HackcamComputeEyeFocus4 anthropic/claude-opus-5-5:high: calc_look moved after the switch(p->type), position-only arms `break` into it, orbit keeps `else goto calc_look`, `default: goto look_set;` and case 4 `goto look_done;` skip it -> fdiff 0 (gotos 8 -> 5). Label pairings (case 4 / default): look_done/look_set 0; look_done/look_done 516; look_set/look_done 514; look_set/look_set 517.
 - same: orbit arm with `break` in place of the else-goto (`if (16) {..; goto look_set;} break;`, `else { break; }`, `if (p->type != 16) break;`) over the post-switch calc_look -> 514-518 (bne lands on an unthreaded `b 0x88f4`).
 - same: check_target as a post-inner-switch block guarded by an `s32 check` flag set in case 0x59 (cutscene bit) and default -> full 63, shape 44.
+- 2026-11-16 U HackcamComputeEyeFocus5 anthropic/claude-opus-5-5:high: orbit 16 `break`s and calc_look is wrapped in a post-switch `if (p->type != 16) {...}` -> 500 (shape 37, adds lbu + compare); orbit always breaks and calc_look starts with `if (p->type == 16) { look = pos + D_807F5D24.. } else if (!gCamPathLookNode)` -> 1796.
 
 ## Untried ideas
 - None left that is natural C for the remaining 5 gotos: u57554 (only the else-goto form is threaded), u78dc1/u08a68/u78dc1#2 (two reload joins needed by the type spill, Q0998), u71b9c (one check_target block, duplicates and flags add code).
