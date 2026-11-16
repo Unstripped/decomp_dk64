@@ -1072,7 +1072,7 @@ Gfx *slotQueueStateMoveToTarget(s32 slot, Gfx *gfx) {
             shown = gSlotQueue[slot].shown;
             step = slotQueueGetCountStep(slot, *gSlotQueue[slot].value, gSlotQueue[slot].shown);
             if ((((target - shown) > 0) ? (target - shown) : -(target - shown)) < step) {
-                dist = (((target - shown) > 0) ? (target - shown) : -(target - shown)); // FAKE: copy temp; step = |target - shown| directly lands the ternary in a3, target computes it in v0 then move a3,v0 (0x2908)
+                dist = (((target - shown) > 0) ? (target - shown) : -(target - shown));
                 step = dist;
             }
             gSlotQueue[slot].shown += (((target - shown) >= 0) ? 1 : -1) * step;
