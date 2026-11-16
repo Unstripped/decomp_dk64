@@ -228,7 +228,7 @@ f32 func_80636A44(s32);
 u8 func_80636A8C(s32);
 #endif
 #ifndef PROTO_SKIP_modelSlotReplaceSegment6Commands
-void modelSlotReplaceSegment6Commands(void *);
+void modelSlotReplaceSegment6Commands(ModelSlot *);
 #endif
 #ifndef PROTO_SKIP_dlFreeSegmentCommandTextures
 void dlFreeSegmentCommandTextures(struct DisplayListCmd *, struct DisplayListCmd *, u8);

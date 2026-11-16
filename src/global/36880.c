@@ -4,7 +4,6 @@
 #include "model.h"
 #include "sched.h"
 #define PROTO_SKIP_playerSlotMatchesSizeMask // FAKE: callee prototype steer (owner reads no a2; the extra argument steers it)
-#define PROTO_SKIP_renderReplaceSegment6Commands // FAKE: callee prototype steer (owner reads no a2/a3; the extra arguments steer them)
 #include "proto/global/104F0.h"
 #include "proto/global/119370.h"
 #include "proto/global/133A90.h"
@@ -1880,32 +1879,25 @@ void modelSlotFreeTexAnimBuffers(ModelNodeBufferOwner *owner, u8 type) {
 }
 
 void modelSlotFreeAssetTextures(ModelSlotAsset *asset, u8 type) {
-    void **p;
     ModelSlotAsset *base;
     s32 i;
     void *q;
 
-    if (type == 2 && asset->texAnims == 0) {
-        base = asset;
-        i = 0;
-        p = (void **)asset;
-        if (base->quadCount > 0) {
-            do {
-                q = p[9];
-                if (q != NULL) {
-                    assetFreeBuffer(q, 0xA2B, 7);
-                    p[9] = NULL;
-                }
-                if (base) {} // FAKE: dead test steers register colouring
-                q = p[13];
-                if (q != NULL) {
-                    assetFreeBuffer(q, 0xA30, 7);
-                    if (base && base && base) {} // FAKE: dead test steers register colouring
-                    p[13] = NULL;
-                }
-                i++;
-                p++;
-            } while (i < base->quadCount);
+    if (type == 2 && asset->texAnims == NULL) {
+        base = asset; // FAKE: alias of asset; base (s3) carries quadCount while the empty guards keep asset live in s1
+        for (i = 0; i < base->quadCount; i++) {
+            q = asset->textures[i];
+            if (q != NULL) {
+                assetFreeBuffer(q, 0xA2B, 7);
+                asset->textures[i] = NULL;
+            }
+            if (base) {} // FAKE: dead test steers register colouring
+            q = asset->palettes[i];
+            if (q != NULL) {
+                assetFreeBuffer(q, 0xA30, 7);
+                if (base && base && base) {} // FAKE: dead test steers register colouring
+                asset->palettes[i] = NULL;
+            }
         }
     }
 }
@@ -2222,28 +2214,22 @@ u8 func_80636A8C(s32 type) {
     return result;
 }
 
-void renderReplaceSegment6Commands();
-
-void modelSlotReplaceSegment6Commands(void *slot) {
+void modelSlotReplaceSegment6Commands(ModelSlot *slot) {
     u32 head;
     ModelType1ObjAddrs *seg;
     u32 mid;
     u32 count;
-    u32 len;
     u32 start;
-    u32 size;
 
-    seg = ((ModelSlot *)slot)->unk20;
+    seg = slot->unk20;
     mid = seg->displayListB;
     head = seg->displayListA;
-    start = head;
-    len = seg->segmentData - mid;
+    start = head; // FAKE: alias of head; start takes a0 ahead of seg, so seg lands in a2 and count in a3
+    count = seg->segmentData - mid;
     head = (mid - head) >> 3;
-    count = len >> 3;
-    size = head * 8;
-    renderReplaceSegment6Commands(start, start + size, seg, len);
-    len = count;
-    renderReplaceSegment6Commands(seg->displayListB, seg->displayListB + count * 8, seg, len);
+    count >>= 3;
+    renderReplaceSegment6Commands((Gfx *)start, (Gfx *)start + head);
+    renderReplaceSegment6Commands((Gfx *)seg->displayListB, (Gfx *)seg->displayListB + count);
 }
 
 void dlFreeSegmentCommandTextures(DisplayListCmd *start, DisplayListCmd *end, u8 restore) {
