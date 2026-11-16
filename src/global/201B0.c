@@ -1132,7 +1132,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
     s32 *args;
     u16 stepArg;
     Actor *target = st->followActor;
-    f32 len;
+    f32 rollT;
     u64 now;
     f32 yaw;
     f32 pitch;
@@ -1147,9 +1147,11 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
         st->unkDC = target->y;
         st->unkE0 = target->z;
     }
-    len = sqrtf((target->z - st->unkD4) * (target->z - st->unkD4) +
-                ((target->x - st->unkCC) * (target->x - st->unkCC) + (target->y - st->unkD0) * (target->y - st->unkD0)));
-    st->unk10 = (len * 40.0f) * (gFrameDelta * 0.5);
+    // how far the target moved since the last frame (unkCC/unkD0/unkD4 hold its previous position)
+    st->unk10 = sqrtf((target->z - st->unkD4) * (target->z - st->unkD4) +
+                      ((target->x - st->unkCC) * (target->x - st->unkCC) +
+                       (target->y - st->unkD0) * (target->y - st->unkD0))) *
+                40.0f * (gFrameDelta * 0.5);
     if (st->unkF1 != 0) {
         st->unkF1--;
     }
@@ -1236,8 +1238,8 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
         } else {
             if (gCamRollFramesLeft != 0) {
                 gCamRollFramesLeft--;
-                len = (f32)gCamRollFramesLeft / (f32)gCamRollFrames;
-                camActor->pitch = gCamRollEnd + (gCamRollStart - gCamRollEnd) * len;
+                rollT = (f32)gCamRollFramesLeft / (f32)gCamRollFrames;
+                camActor->pitch = gCamRollEnd + (gCamRollStart - gCamRollEnd) * rollT;
             }
             gCamPathFrameCount++;
             do {
@@ -1245,7 +1247,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                 if (gCamPathFramesLeft == 0) {
                     camLoadPathPoint();
                     gCamPathStep++;
-                    if (CAM_PATH_STEP_LIST.stepCount < gCamPathStep) {
+                    if (gCamPathStep > CAM_PATH_STEP_LIST.stepCount) {
                         if (gCamPathFlags & 0x10) {
                             if (!(gPrimaryPlayerActor->contactFlags & 0x100)) {
                                 gPrimaryPlayerActor->contactFlags |= 0x100;
@@ -1264,7 +1266,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                                 gGlobalPauseFlags |= 0x2000;
                                 break;
                             case 12:
-                                sfxAllocateChannel(*(u16 *)args, 1.0f);
+                                sfxAllocateChannel(*(u16 *)args, 1.0f); // sfx id: the payload's first halfword
                                 if (gCamPathFramesLeft == 0) {
                                     camLoadPathPoint();
                                     gCamPathFramesLeft = 0;
@@ -1279,17 +1281,18 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                                 st->unkAC &= ~0x40000;
                                 if (st->mode != 0xB && st->mode != 3) {
                                     st->unk6C = st->unk70 = gPrimaryPlayerActor->y;
-                                    len = sqrtf((*eyeX - gPrimaryPlayerActor->x) * (*eyeX - gPrimaryPlayerActor->x) +
-                                                (*eyeZ - gPrimaryPlayerActor->z) * (*eyeZ - gPrimaryPlayerActor->z));
-                                    st->unkA4 = st->unkA0 = len;
-                                    st->unkB2 = mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, *eyeX, *eyeZ);
+                                    st->unkA4 = st->unkA0 =
+                                        sqrtf((*eyeX - gPrimaryPlayerActor->x) * (*eyeX - gPrimaryPlayerActor->x) +
+                                              (*eyeZ - gPrimaryPlayerActor->z) * (*eyeZ - gPrimaryPlayerActor->z));
+                                    st->unkB2 = mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z,
+                                                                         *eyeX, *eyeZ);
                                     camActor->distToFloor = st->unkB8 = *eyeY - gPrimaryPlayerActor->y;
                                     st->eyeGoalX = *eyeX;
                                     st->eyeGoalY = *eyeY;
                                     st->eyeGoalZ = *eyeZ;
-                                    *focusX = *eyeX + (*focusX - *eyeX) * 0.1;
-                                    *focusY = *eyeY + (*focusY - *eyeY) * 0.1;
-                                    *focusZ = *eyeZ + (*focusZ - *eyeZ) * 0.1;
+                                    *focusX = CAM_LERP(*eyeX, *focusX, 0.1);
+                                    *focusY = CAM_LERP(*eyeY, *focusY, 0.1);
+                                    *focusZ = CAM_LERP(*eyeZ, *focusZ, 0.1);
                                     st->focusX = *focusX;
                                     st->focusY = *focusY;
                                     st->focusZ = *focusZ;
@@ -1334,7 +1337,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
             if (gGameMode != 0) {
                 gCamPathStepFrames = CAM_PATH_STEP_LIST.frames[gCamPathStep - 1];
                 if (gCamPathStepFrames != 1.0f) {
-                    gCamPathStepProgress = (f32)(gCamPathFramesLeft - 1) / (gCamPathStepFrames - 1.0f);
+                    gCamPathStepProgress = (gCamPathFramesLeft - 1) / (gCamPathStepFrames - 1.0f);
                 } else {
                     gCamPathStepProgress = 0.0f;
                 }
@@ -1347,7 +1350,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                         gCamPathActor->x = gCamPathLookActor->x;
                         gCamPathActor->y = gCamPathLookActor->y;
                         gCamPathActor->z = gCamPathLookActor->z;
-                        if (gCamPathLookActor->eyeHeight >= 0x15) {
+                        if (gCamPathLookActor->eyeHeight > 0x14) {
                             gCamPathActor->eyeHeight = 0x14;
                         } else {
                             gCamPathActor->eyeHeight = gCamPathLookActor->eyeHeight;
@@ -1367,7 +1370,8 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
                         camComputeEyeFocus(camActor, eyeX, eyeY, eyeZ, &st->focusX, &st->focusY, &st->focusZ,
                                            gCamPathLookActor);
                         if (CAM_PATH_NODE.type != 7 && CAM_PATH_NODE.type != 0xF && CAM_PATH_NODE.type != 0x11) {
-                            camUpdateFocusPos(camActor, (gCamPathLookActor->distToFloor != 0.0f) ? 0.3 : 0.1, focusX, focusY, focusZ);
+                            camUpdateFocusPos(camActor, (gCamPathLookActor->distToFloor != 0.0f) ? 0.3 : 0.1, focusX,
+                                              focusY, focusZ);
                         }
                         if ((gGlobalPauseFlags & 0x2000) || CAM_PATH_NODE.type == 7 || CAM_PATH_NODE.type == 0xF ||
                             CAM_PATH_NODE.type == 0x11) {
@@ -1391,7 +1395,7 @@ void camUpdate(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f3
         st->unkAC &= ~4;
     }
     if (st->unkF2 != 0) {
-        camApplyShake(st, focusX, focusY, focusZ, (s32)(st->unkC0 * 0.333), 1);
+        camApplyShake(st, focusX, focusY, focusZ, st->unkC0 * 0.333, 1);
     }
     if (!(st->unkAC & 0x100)) {
         camPolarFromPoints(&yaw, &pitch, *focusX, *focusY, *focusZ, *eyeX, *eyeY, *eyeZ);
@@ -3218,20 +3222,19 @@ f32 camApproachFloat(f32 value, f32 target, f32 step) {
 }
 
 #define CAM_ABSDIFF(a, b) (((a) < (b)) ? (b) - (a) : (a) - (b))
-#define CAM_FOLLOW_SPEED_RAW (CAM_ABSDIFF(st->unkD0, target->y) * 0.08)
-#define CAM_FOLLOW_SPEED (CAM_FOLLOW_SPEED_RAW > 0.03 ? CAM_FOLLOW_SPEED_RAW : 0.03)
 
 void camUpdateFollow(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f32 *focusY, f32 *focusZ) {
     s32 pad;
     CamState *st = camActor->customState;
     Actor *target = st->followActor;
     f32 dist;
-    f32 spd;
-    f32 t;
+    f32 followSpeed;
+    f32 blend;
 
-    spd = CAM_FOLLOW_SPEED < 1.0 ? CAM_FOLLOW_SPEED : 1.0;
+    // follow speed: 0.08 per unit the target moved vertically since the last frame, clamped to [0.03, 1]
+    followSpeed = CAM_MIN(CAM_MAX(0.03, CAM_ABSDIFF(st->unkD0, target->y) * 0.08), 1.0);
     camUpdateFollowBlend(camActor);
-    st->followBlendRate += (spd - st->followBlendRate) * 0.1;
+    st->followBlendRate += (followSpeed - st->followBlendRate) * 0.1;
     dist = sqrtf((camActor->z - st->eyeGoalZ) * (camActor->z - st->eyeGoalZ) +
                  (camActor->x - st->eyeGoalX) * (camActor->x - st->eyeGoalX));
     if (dist < 0.1) {
@@ -3246,15 +3249,15 @@ void camUpdateFollow(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
     camActor->yaw = camActor->moveYaw;
     if (st->unkB0 != 0 || st->unkF1 != 0 || gCurrentMap == 0x27 || st->unkF6 != 0 || st->unkE8 != 0 ||
         (st->unkAC & 0x100) || st->mode != 1) {
-        st->followBlendRate = t = gCamEyeBlendRate;
+        st->followBlendRate = blend = gCamEyeBlendRate;
     } else {
-        t = (st->followBlendRate > 1.0) ? 1.0 : st->followBlendRate;
+        blend = CAM_MIN(1.0, st->followBlendRate);
     }
-    camUpdateEyePos(camActor, t, eyeX, eyeY, eyeZ);
+    camUpdateEyePos(camActor, blend, eyeX, eyeY, eyeZ);
     if (target->attachMode == 1 && st->unk10 != 0) {
         camUpdateFocusPos(camActor, 0.5f, focusX, focusY, focusZ);
     } else if (st->mode == 1) {
-        camUpdateFocusPos(camActor, t, focusX, focusY, focusZ);
+        camUpdateFocusPos(camActor, blend, focusX, focusY, focusZ);
     } else {
         camUpdateFocusPos(camActor, gCamFocusBlendRate, focusX, focusY, focusZ);
     }
@@ -3262,45 +3265,46 @@ void camUpdateFollow(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focu
 
 void camUpdateEyePos(Actor *camActor, f32 blendY, f32 *eyeX, f32 *eyeY, f32 *eyeZ) {
     CamState *st = camActor->customState;
-    s16 ang;
-    f32 savedX;
-    f32 savedZ;
+    s16 moveYaw;
+    f32 prevGoalX;
+    f32 prevGoalZ;
     f32 pad;
     f32 clampY;
 
     if (camActor->hasArcBounds) {
-        ang = camActor->unkF2;
+        moveYaw = camActor->unkF2;
     } else {
-        ang = camActor->moveYaw;
+        moveYaw = camActor->moveYaw;
     }
-    savedX = st->eyeGoalX;
-    savedZ = st->eyeGoalZ;
+    prevGoalX = st->eyeGoalX;
+    prevGoalZ = st->eyeGoalZ;
     switch (st->mode) {
         case 1:
         case 5:
         case 10:
         case 12:
         case 13:
-            st->eyeGoalX += gCamEyeBlendRate * camActor->speedXZ * mathSinF(ang);
-            st->eyeGoalZ += gCamEyeBlendRate * camActor->speedXZ * mathCosF(ang);
+            st->eyeGoalX += gCamEyeBlendRate * camActor->speedXZ * mathSinF(moveYaw);
+            st->eyeGoalZ += gCamEyeBlendRate * camActor->speedXZ * mathCosF(moveYaw);
             st->eyeGoalY = (camActor->y - st->eyeGoalY) * blendY + st->eyeGoalY;
             if (st->mode != 12 && !(gGlobalCutsceneFlags & 2)) {
-                camResolveWallCollision(camActor, savedX, savedZ, &st->eyeGoalX, st->eyeGoalY, &st->eyeGoalZ, gCamEyeBlendRate * camActor->speedXZ);
+                camResolveWallCollision(camActor, prevGoalX, prevGoalZ, &st->eyeGoalX, st->eyeGoalY, &st->eyeGoalZ,
+                                        gCamEyeBlendRate * camActor->speedXZ);
             }
-            *eyeX = *eyeX + (st->eyeGoalX - *eyeX) * 0.3;
-            *eyeY = *eyeY + (st->eyeGoalY - *eyeY) * 0.3;
-            *eyeZ = *eyeZ + (st->eyeGoalZ - *eyeZ) * 0.3;
+            *eyeX = CAM_LERP(*eyeX, st->eyeGoalX, 0.3);
+            *eyeY = CAM_LERP(*eyeY, st->eyeGoalY, 0.3);
+            *eyeZ = CAM_LERP(*eyeZ, st->eyeGoalZ, 0.3);
             if (st->mode != 12) {
-                clampY = (*eyeY < st->followActor->y) ? st->followActor->y : *eyeY;
+                clampY = CAM_MAX(*eyeY, st->followActor->y);
                 if (camFloorSnap(camActor, st, *eyeX, &clampY, *eyeZ, 1) != 0 || clampY < *eyeY) {
                     *eyeY = clampY;
                 }
             }
             break;
         default:
-            st->eyeGoalX = *eyeX = *eyeX + (camActor->x - *eyeX) * gCamEyeBlendRate;
-            st->eyeGoalY = *eyeY = *eyeY + (camActor->y - *eyeY) * gCamEyeBlendRate;
-            st->eyeGoalZ = *eyeZ = *eyeZ + (camActor->z - *eyeZ) * gCamEyeBlendRate;
+            st->eyeGoalX = *eyeX = CAM_LERP(*eyeX, camActor->x, gCamEyeBlendRate);
+            st->eyeGoalY = *eyeY = CAM_LERP(*eyeY, camActor->y, gCamEyeBlendRate);
+            st->eyeGoalZ = *eyeZ = CAM_LERP(*eyeZ, camActor->z, gCamEyeBlendRate);
             break;
     }
 }
