@@ -376,7 +376,7 @@ void __n_sndpPostPitch(GfSndState *state) {
     pitch = alCents2Ratio(state->sound->keyMap->detune) * state->pitch;
     ev.type = 0x10;
     ev.state = state;
-    ev.arg8.i = *(s32 *)&pitch; // FAKE: float bits copied through an int register (swc1 otherwise)
+    ev.arg8.i = *(s32 *)&pitch; // ORIG: addiu t2,sp,0x1c (&pitch) at 0x15c8, lw t3,0(t2) at 0x15cc, sw t3,0x28(sp) at 0x15d0
     alEvtqPostEvent(&gSndp->evtq, (ALEvent *)&ev, 33333);
 }
 
