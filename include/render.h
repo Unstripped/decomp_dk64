@@ -99,7 +99,7 @@ typedef struct EffectGridAsset {
     /* 0x0E */ s16 cellW;
     /* 0x10 */ s16 cellH;
     /* 0x12 */ s16 frameCount;
-    /* 0x14 */ u8 data[1];
+    /* 0x14 */ s16 data[1]; // frameCount * width * height asset ids (effectLoadFrameAssets)
 } EffectGridAsset;
 
 typedef struct EffectGridSlot {
@@ -125,7 +125,7 @@ typedef struct EffectGridNode {
     /* 0x16 */ s16 frameCount;
     /* 0x18 */ s32 lastUsedFrame;
     /* 0x1C */ EffectGridSlot *slots;
-    /* 0x20 */ u8 *data;
+    /* 0x20 */ s16 *data;
     /* 0x24 */ struct EffectGridNode *next;
 } EffectGridNode;
 

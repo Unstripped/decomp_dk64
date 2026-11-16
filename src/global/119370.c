@@ -535,7 +535,7 @@ void effectUpdateAll(u8 paused) {
                                            effect->y,
                                            effect->z, 0, 0, 1, -1, 3);
                 }
-                effectLoadFrameAssets((s16 *)effect->grid->data,
+                effectLoadFrameAssets(effect->grid->data,
                               effect->grid->altCategory,
                               effect->grid->slots,
                               effect->frameCount, effect->param,
