@@ -433,7 +433,7 @@ Gfx *renderActorEntryBuildDisplayList(FrameMatrices *frame, Actor *actor, Gfx *g
     u8 primB;
     s32 distSq;
     s32 pad;
-    f32 dxb;
+    f32 scale;
     f32 alphaMult;
     f64 d;
 
@@ -515,18 +515,13 @@ Gfx *renderActorEntryBuildDisplayList(FrameMatrices *frame, Actor *actor, Gfx *g
     }
     if (actor->collisionFlags != 0x80 && actor->collisionFlags != 0x40 && actor->collisionFlags != 8) {
         if ((actor->y - 5.0f < gPlayerSlots[gCurrentPlayerIndex].eyeY && gPlayerSlots[gCurrentPlayerIndex].eyeY < actor->y + 2.0 * actor->eyeHeight) || (actor->contactFlags & 0x2000)) {
-            dy = actor->z - gPlayerSlots[gCurrentPlayerIndex].eyeZ;
-            if (dy) {} // FAKE: extra use lifts dy's adjsave to dz's 4.5; dy, coloured first, takes $f2 and dz $f14
-            dxb = actor->x - gPlayerSlots[gCurrentPlayerIndex].eyeX;
-            distSq = (s32)(dy * dy + dxb * dxb);
-            dz = actor->sub4->scaleY;
-            if (dz < 0.01) {
-                dz = 0.01f;
+            distSq = (actor->x - gPlayerSlots[gCurrentPlayerIndex].eyeX) * (actor->x - gPlayerSlots[gCurrentPlayerIndex].eyeX)
+                   + (actor->z - gPlayerSlots[gCurrentPlayerIndex].eyeZ) * (actor->z - gPlayerSlots[gCurrentPlayerIndex].eyeZ);
+            scale = actor->sub4->scaleY;
+            if (scale < 0.01) {
+                scale = 0.01f;
             }
-            if (dxb > 0.5f) { // FAKE: dead block (with dead dy store) lowers dxb's adjsave so it takes $f12 and holds dy's at 4.5
-                dy = dy * dy;
-            }
-            d = (f64)distSq / (dz / 0.15) / 400.0;
+            d = distSq / (scale / 0.15) / 400.0;
             alphaMult = MIN((d > 0.3) ? d - 0.3 : 0.0, 1.0);
         }
     }
