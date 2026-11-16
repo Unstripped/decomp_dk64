@@ -35,11 +35,18 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
   changing codegen is not a blocker: `review nohit` with `uninit=<n> pre-existing (original control
   flow)`. `review blocked` only when another workstream must deliver something (header, owner type).
 - Never swap a hack for another hack. A new `// FAKE` only when the file's net tag count
-  strictly drops. After removing or respelling one steer, re-run the plain form of every other kept
-  steer in the function: an old measurement can belong to the steer you just changed (race/1770 c924a2).
-- Drop a tag only from a construct that is ordinary C (a named temp, normal statement order).
-  Dead ifs, no-op arithmetic, `volatile`, comma expressions, `do {} while (0)`, punned casts
-  and value-named constant locals keep their tag while they stay.
+  strictly drops. Several steers may become ONE tagged construct that way when it is plausible
+  original code (E4090: two dead ifs -> the sibling's live statement as a dead store); record the
+  replaced sites `diagnose fixed` with notes naming the new key. After removing or respelling one
+  steer, re-run the plain form of every other kept steer in the function: an old measurement can
+  belong to the steer you just changed (race/1770 c924a2).
+- Drop a tag only from a construct that is ordinary C. A named local temp or pointer local that
+  first holds a value or field for use is ordinary C (Q0601), never `// FAKE`, even when inlining it
+  fails fdiff; a dedicated local per role (splitting a reused local) is often the fix (936B0, 127B00).
+  Dead ifs, no-op arithmetic, `volatile`, comma expressions, `do {} while (0)`, punned casts,
+  value-named constant locals, redundant aliases (`start = head;`) and an unrelated local reused
+  for another value keep their tag while they stay. `// LAYOUT:` (not FAKE) only with line-order
+  evidence: the statements on ONE line match in both orders (as1 `.loc`); else it stays FAKE.
 - An untagged hack you cannot remove gets `// FAKE: <what it steers>` on its line (`kept`);
   report it as "pre-existing, now tagged" (the hack count, tagged + untagged, never rises).
   Hidden steers count as hacks: an odd spelling chosen only for codegen (`(*p).f` for `p->f`,
@@ -111,6 +118,10 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
 3. Diagnose: `tools/uopt_trace.sh -s <src> .scratch/<You>/<file>.c FUNC` for regalloc,
    `tools/dk python3 tools/as1probe.py keep|scan` for schedule; name the IDs (`quirks=`). libaudio
    (Makefile `GLOBAL_G_FILES`: 13E160…145D70, IDO 7.1 `-g`) has no uopt: compare the `-g` asm by hand.
+   Dead guards: classify first (Q0908): the guard on `1` or on a local ALREADY live there still
+   matches (block split; may need a two-term guard; position matters) vs only the same value
+   (availability: needs a real expression use) vs neither (kill lever); then look for the real
+   control flow, or a same-role/reused local, the guard stands in for (E550 xo, 936B0 turnScale).
 4. Variants and natural rewrites: `variants.py scan`/`try`; `consolidate` for proto steers (delete
    the local declaration/skip define so `include/proto/` applies; fdiff); gotos with structured
    control flow (`goto-hand`; a shared tail stays `kept` citing Q0591 only with that evidence).

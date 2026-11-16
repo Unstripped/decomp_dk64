@@ -37,7 +37,9 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
 - An untagged hack found in review gets `// FAKE: <what it steers>` on its line, reported as
   "pre-existing, now tagged" with its FINAL key (`sweep <copy> --copy-of <src>` prints it);
   it then enters the hack queue. Hidden steers count as hacks: an odd spelling chosen only for
-  codegen (`(*p).f` for `p->f`, a re-read through another pointer, a value-named constant local).
+  codegen (`(*p).f` for `p->f`, a re-read through another pointer, a value-named constant local,
+  a redundant alias `start = head;`, an unrelated local reused for another value). A named local
+  temp or pointer local that first holds a value or field for use is ordinary C (Q0601): never tag it.
 - Unused locals that only reproduce a frame size are `pad`/`pad[N]`, untagged.
 - Never grow or shift a shared struct. Header changes: write the exact hunk to
   `.scratch/<You>/header-request.md` and message the orchestrator (it forwards it to `TypesOwner`);

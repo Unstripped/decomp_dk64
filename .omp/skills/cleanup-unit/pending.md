@@ -3,10 +3,10 @@
 State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPEN functions in 117 files. Since then the campaign runs as a rolling queue (SKILL.md §2): a future session starts with `uv run tools/quality.py rank --limit 40` (function hack queue) and `rank --polish` (file polish queue); coverage first. The "Blocked owner/header changes" below are the `TypesOwner` queue (types-stream.md). Audited 2026-11-14 at 7a453f41 (PlanPendingAudit: DONE entries removed; evidence and verdicts in .scratch/PlanPendingAudit/audit.md), re-checked at 74533125: DY ca506697 fixed global/0 f71305 and 450 2e505d (M2, M3), DZ 2e019041 closed every 42630 proto site as ORIG (89a542, M10).
 
 ## Blocked owner/header changes
-- Owner return-width redesigns (closed, kept as the reason the steer pairs stay): (a) keep `u8 mapGetHubWorldIndex(u8, u8)`
-  (OwnerHubWorldIndexWidthPlan: C2A90 func_806BE09C uses v0 unmasked, so the original return is u8); 8F4B0 da5663/2c5186 and
-  FCCD0 da5663/06d21a stay FAKE. (b) keep `u8 flagGet(s16, u8)` (OwnerFlagGetWidthPlan: no option passes all 49 files); 80150
-  c1a42b/b5496b stay FAKE, jetpac/0's pair is ORIG (0x11d4).
+- Owner return-width redesigns (closed): (a) keep `u8 mapGetHubWorldIndex(u8, u8)` (OwnerHubWorldIndexWidthPlan: C2A90
+  func_806BE09C uses v0 unmasked, so the original return is u8); the 8F4B0 da5663/2c5186 and FCCD0 da5663/06d21a steer pairs
+  are FIXED since 2026-11-15c (dce6f570, cf977754: u8 local/prototype + caller mask removal). (b) keep `u8 flagGet(s16, u8)`
+  (OwnerFlagGetWidthPlan: no option passes all 49 files); 80150 c1a42b/b5496b stay FAKE, jetpac/0's pair is ORIG (0x11d4).
 - critter/5110 D_807FCC44 split label stays tagged (5110.c:57, Q0687 table-base CSE); D_807FCC40 retired (5adcdc9b).
 - ACDC0 split labels D_807FC82A..D_807FC838 KEPT (OwnerCollectibleCountsView, 0c2a5e64): the table is now one shared `extern s16 D_807FC828[9]` in actor.h (ACDC0, 3E10 and 117190 read it, [0] included), but folding ACDC0's [1]-[8] labels into it makes hudPauseMenuRefreshTotals 16 bytes shorter (.text 20880 vs 20896), so ACDC0 keeps them (ACDC0.c:73-80).
 - 2F550 MapViewEntries proposal (.scratch/Rev24/header-request.md), held. With it, 55B20 could drop MapChunkArg; renderEntryListBuildDisplayList last parameter s32 vs u8 (owner 35000) blocks the 55B20 mapChunksRender proto-steer (a1232a/19cc66).
@@ -49,7 +49,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   (returns whether any goldenBananas[0..7] of player 0's kong is > 0: needs a name); effectSetSpeed's s32 parameter receives
   actor pointers (race/1770, boss/0): owner type review.
 - Permuter rows never run (`.scratch/permbatch/`): b1114 9 rows stopped at the wrap-up (25d017, 208f26, d53555, b16157, 716d92,
-  1606fa, f3276d, ff3fab, 93489e) + 9bc6c1 (vsprintf: permute.py cannot parse va_arg / `__builtin_classof`); b1114b 8 rows not
+  1606fa, f3276d, ff3fab, 93489e) + 9bc6c1 (vsprintf: now permutable with the ladder.md `va_arg` stub); b1114b 8 rows not
   attempted + 2 failed setup (row copies predate the D_807FC828 move to actor.h: re-snapshot them at HEAD); list.tsv rows 45-97
   never batched.
 - Open tooling fixes (from the session tooling notes):
@@ -59,7 +59,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
     searches the includer's directory first; EG race.h, EI boss.h).
   - `permute.py batch` setup compiles row copies against the current include/: build each row at its base (or re-snapshot copies
     whose file or reached headers changed) so a header merge does not fail older rows (b1114b, D_807FC828).
-  - permute.py cannot parse `va_arg` (`__builtin_classof`): add a preprocessor stub so vsprintf 9bc6c1 can be permuted.
+  - permute.py `va_arg`: DONE as a per-copy stub (ladder.md); a built-in preprocessor stub would save the hand step.
 
 ## Session 2026-11-14b close leftovers (CleanupLead2)
 - Community-source rule: HackplayerCameraUpdateFromTarget was REJECTED (curl-fetched the community decomp; scratch kept as
@@ -94,6 +94,20 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   name), PlayerState.unkC2, ActorGlobalState 9DD70-only fields (one file read), arcade/0 D_8004BC80/84 (file-local),
   D_8004A794 (fold-away option), 124780 effect sprite symbol_addrs (needs split), D_807505A4 split into two s16[5]
   (touches undefined_syms, 478F0/FCCD0). `.scratch/lead_s1115/names.md` keeps the evidence.
+
+## Session 2026-11-15c close leftovers (CleanupLead3)
+- 7130 .bss carve still DEFERRED (above). Frame-capacity ORIG ladder candidate DECLINED (director): ORIG on a reused local still
+  needs the home-slot store; the 7 hudPauseMenuUpdate sites stay FAKE with frame/register evidence as `diagnose nohit`.
+- Names held (naming.md shared-field bar / macro refusal; evidence in .scratch/lead_s1115c/close.md and the Polish*/Hack* reports):
+  CamState unkCC/unkD0/unkD4 prevTargetX/Y/Z and unkA0 followDist (201B0; references inside the CAM_FOLLOW_SPEED / CAM_MIN
+  macros: rename every dry-run position by hand), Actor.unkF2 arcPushYaw (69E60/80150 unread), SchedStruct.unk280 tickCount
+  (8 files unread; 91 uses), ModelSlot.unk86 modelKind (63810 unread), ActorGlobalState unk2C/30/34/36
+  launchPending/launchSpeedY/launchSpeedXZ/launchYaw (80150 unread), arcade/0 D_8004BC80/84 sStepTimer/sStepPhase (land with
+  the arcadeUpdatePlayerEntity carve), ActorCallbackNode.callback anonymous union (types stream).
+- Open hack leftovers: vehicleUpdateMotion 54eada (`u8 fl[4]`, diagnose stale after the 936B0 frame change); never-classified
+  dead-if items for the Q0908 classifier: controllerAnimSetFromTable, slotQueueStateFadeIn, playerStateTakeDamagePrep,
+  transitionSetAudioVolume, zoneCheckActorInside, schedHandleRetrace (5), enemyGridStateStep (2); 90D80 renderHitCounterHUD
+  still blocked (string convention).
 
 ## OPEN functions
 

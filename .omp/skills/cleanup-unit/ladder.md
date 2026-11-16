@@ -70,7 +70,8 @@ Tooling rules (were Q0626/Q0634/Q0638):
   commutative `beq` operand swap as 0: confirm every `best=0` output with fdiff before applying it.
 - A `best=0` or review rewrite that only swaps one steer for another (`if (1) {}`, empty do-while, goto,
   `(0, x)`, `& 0xFFFFFFFFu`, a copy temp, a selector local of another width in place of a dead read) is `nohit`; keep the tagged site.
-- The permuter's pycparser rejects `x * sizeof(T) + sizeof(s32)`, a one-line `p = x; do {` and `va_arg`: rewrite them in the permuter base only, then translate the hint back.
+- The permuter's pycparser rejects `x * sizeof(T) + sizeof(s32)`, a one-line `p = x; do {` and `va_arg`: rewrite them in the permuter base only, then translate the hint back. `va_arg` stub (boot/3D20, fdiff 0): `__builtin_alignof(T)` -> `sizeof(T)`, drop the `__builtin_classof` ternary for non-double modes, keep `va_arg_d` for double.
+- A `// FAKE` comment containing dead/kill/no-code/web/ghost on a single-assignment line classifies the site as `dead-store`; word the tag so the kind is right.
 - Never write `'` in a `//` comment (FAKE notes): cfe reads it as a char literal; two in one comment hide the code between them.
 - Before keeping a file-wide callee prototype steer (PROTO_SKIP), compare every caller's asm under the shared prototype: a steer can rest on one caller's redundant mask (lightAdd: 11 of 12 matched).
 - sweep's `cond` flips only dead-if/dead-store sites: on `other` sites try `if (x)`↔`if (x != 0)` by hand. as1probe's unconditional `bnext` does not reproduce a dead address test: read the ugen listing.

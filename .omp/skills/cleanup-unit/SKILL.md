@@ -34,8 +34,10 @@ own selector, in dossiers too): `rank` orders functions by the strongest model t
 ## 1. Ingest
 
 1. `git status` + `git log -3` (unexpected changes are the user's: never stage them; a lead whose handle died may still run: new commits or a dirty `drafts/quality/` → message it, wait until quiet).
-   Lead context runs out: read line ranges, pipe output through `tail`/`head`, keep rulings, merges and the queue in
-   `.scratch/<lead>/dispatch.md` and the close plan in `close.md`, so a successor resumes from files alone.
+   Lead context runs out: one merge per turn, read line ranges, pipe output through `tail`/`head`, keep rulings, merges
+   and the queue in `.scratch/<lead>/dispatch.md` and the close plan in `close.md`, so a successor resumes from files
+   alone. A successor first checks `git log` for merges the dead lead's last turn finished (a `clean <file>` + `quality:`
+   pair) before re-merging any report; never run `merge_record` twice for one worker.
 2. `find src -name '*.c' -exec touch {} +`; `tools/dk make` must end `build/dk64.us.z64: OK`;
    `tools/dk make expected`.
 3. `uv run tools/protos.py gen --check` exits 0 (else regenerate and commit `include/proto` first);
@@ -100,6 +102,8 @@ As each worker reports:
    call while it is absent), wait for jobs 0, gate, split/make/expected/vanished, re-record, carry, commit, `touch` it.
 6. A respelling that replaces a pun but was chosen for codegen keeps its tag (Q0816): the lead retags it in a lead
    copy dir (`--copy-dir`) with a keymap line and re-records the site `nohit` with its own fdiff evidence.
+7. A worker's function rename (or a dossier filed under a new name) replaces `drafts/quality/dossiers/<seg>/<old>.md`: delete
+   the old file before `merge_record` so its ledger commit carries the deletion. Its re-record printing "no site" for a fixed site is normal.
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
 gate; a merged file's net HACKS (tagged `// FAKE` + untagged AST sites) and cfe warnings never rise.
 Tag pre-existing untagged hacks ("pre-existing, now tagged", one copy-only line each): compare `status --file` site totals base vs
