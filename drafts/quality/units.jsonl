@@ -749,3 +749,4 @@
 {"type": "unit", "t": "2026-11-16T06:56:37Z", "unit": "2026-11-15: cleanup Hackfunc_806B0848", "commit": "7aa4305c2296da92d85e81c6e55fce06672cd72f"}
 {"type": "unit", "t": "2026-11-16T06:59:09Z", "unit": "2026-11-15: cleanup HackactorNodeRingSpawnRings", "commit": "5fadbc2a1c95be6318632e7bf74161d2e7d0f195"}
 {"type": "unit", "t": "2026-11-16T07:01:12Z", "unit": "2026-11-15: cleanup HackmapChunksApplyLights", "commit": "82c5adf69beeaf4e2e1259615c8c2e90a1b10170"}
+{"type": "unit", "t": "2026-11-16T07:01:33Z", "unit": "2026-11-15: cleanup HackcollisionTestActorBoxFloor3", "commit": "62c17d868332415df863538a6e3803e335e3c8ab"}
