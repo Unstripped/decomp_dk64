@@ -3,7 +3,6 @@
 #include "sched.h"
 #include "map.h"
 #include "render.h"
-#define PROTO_SKIP_renderEntryListBuildDisplayList // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
 #include "proto/global/15050.h"
 #include "proto/global/201B0.h"
@@ -1847,7 +1846,6 @@ extern struct RenderEntry *D_807F5FFC;
 extern Gfx D_2000180;
 
 u32 osVirtualToPhysical(void *);
-Gfx *renderEntryListBuildDisplayList(Gfx *, struct RenderEntry *, f32, f32, f32, s32, s16, s32); // FAKE: callee prototype steer
 Gfx *func_80027034(Gfx *);
 
 Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags) {
@@ -1916,7 +1914,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
             }
             gfx = spriteListRender(gfx, gMapChunks[idx].sprites);
             D_807F6009 = 0xFF;
-            if (flag != 0) {
+            if (flag) {
                 list = gMapChunks[idx].opaqueTail;
             } else {
                 list = gMapChunks[idx].opaqueList;
@@ -1968,7 +1966,7 @@ Gfx *mapChunksRender(Gfx *gfx, MapBspNode *view, f32 x, f32 y, f32 z, s32 flags)
             gDPSetScissor(gfx++, G_SC_NON_INTERLACE, gMapChunks[idx].clipLeft, gMapChunks[idx].clipTop, gMapChunks[idx].clipRight, gMapChunks[idx].clipBottom);
             mapSetClipBounds((s16)gMapChunks[idx].clipLeft, (s16)gMapChunks[idx].clipTop, (s16)gMapChunks[idx].clipRight, (s16)gMapChunks[idx].clipBottom);
             D_807F6009 = 0xFF;
-            if (flag != 0) {
+            if (flag) {
                 list = gMapChunks[idx].translucentTail;
             } else {
                 list = gMapChunks[idx].translucentList;
