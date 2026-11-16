@@ -395,7 +395,7 @@ s32 mapFindSlotByMap(s16 target) {
     return found;
 }
 
-extern s8 D_80750ACC;
+extern s8 gPlayerStateSaved;
 extern s32 gMapChunkCount;
 extern s32 D_807FD56C;
 extern s16 D_807FD570;
@@ -463,7 +463,7 @@ void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 f
         D_8076A160[i].rgb[k][2] = (u32)(b * 255.0);
     }
     saved = TRUE; // FAKE: constant-valued s32 local shares one li a2,1 between the two byte stores (u8 or an initializer copy-propagates the 1)
-    D_80750ACC = saved;
+    gPlayerStateSaved = saved;
     playerState = gPrimaryPlayerActor->customState;
     D_807FD56C = playerState->stateFlags;
     if (playerState->heldActor != NULL) {

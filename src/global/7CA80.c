@@ -76,8 +76,8 @@ extern u8 D_807FBE08;
 extern u8 D_807FBE09;
 extern Actor *D_807FBE10[];
 extern s16 D_807FBF10;
-extern ActorQueueEntry D_807FBF18[16];
-extern s16 D_807FBFD8;
+extern ActorQueueEntry gActorDelayedCallbackQueue[16];
+extern s16 gActorDelayedCallbackCount;
 extern ActorCallbackNode *D_807FBFE0[];
 extern s32 D_807FBFF0[];
 extern s16 D_807FC3F0;
@@ -136,7 +136,7 @@ void actorInit(void) {
 
     D_807FBB38 = 0;
     D_807FBE09 = 0;
-    D_807FBFD8 = 0;
+    gActorDelayedCallbackCount = 0;
     gActivePlayerActor = NULL;
 }
 
@@ -725,13 +725,13 @@ void actorAppendCallback(Actor *actor, Actor *source, s32 type, u8 subtype, s32 
 }
 
 void actorQueueDelayedCallback(Actor *target, Actor *source, s32 type, u8 subtype, s32 ownsPayload, void *payload, s32 delay) {
-    if (D_807FBFD8 == 16) {
+    if (gActorDelayedCallbackCount == 16) {
         faultSetMessage(0xF, 0, 0, 0);
     }
-    D_807FBF18[D_807FBFD8].node = actorAllocCallbackNode(source, type, subtype, ownsPayload, payload);
-    D_807FBF18[D_807FBFD8].target = target;
-    D_807FBF18[D_807FBFD8].delay = delay;
-    D_807FBFD8++;
+    gActorDelayedCallbackQueue[gActorDelayedCallbackCount].node = actorAllocCallbackNode(source, type, subtype, ownsPayload, payload);
+    gActorDelayedCallbackQueue[gActorDelayedCallbackCount].target = target;
+    gActorDelayedCallbackQueue[gActorDelayedCallbackCount].delay = delay;
+    gActorDelayedCallbackCount++;
 }
 
 void actorDelayedCallbacksTick(void) {
@@ -743,10 +743,10 @@ void actorDelayedCallbacksTick(void) {
     ActorCallbackNode *prev;
     s32 changed;
 
-    for (i = 0; i < D_807FBFD8; i++) {
-        D_807FBF18[i].delay--;
-        if (D_807FBF18[i].delay == 0) {
-            actor = D_807FBF18[i].target;
+    for (i = 0; i < gActorDelayedCallbackCount; i++) {
+        gActorDelayedCallbackQueue[i].delay--;
+        if (gActorDelayedCallbackQueue[i].delay == 0) {
+            actor = gActorDelayedCallbackQueue[i].target;
             if (actorTableContains(actor)) {
                 curr = actor->callbacks;
                 link = &actor->callbacks;
@@ -758,10 +758,10 @@ void actorDelayedCallbacksTick(void) {
                         curr = curr->next;
                     } while (curr != NULL);
                 }
-                *link = D_807FBF18[i].node;
+                *link = gActorDelayedCallbackQueue[i].node;
                 (*link)->prev = prev;
             } else {
-                node = D_807FBF18[i].node;
+                node = gActorDelayedCallbackQueue[i].node;
                 if (node->unk10 != NULL) {
                     heapFree(node->unk10);
                 }
@@ -771,12 +771,12 @@ void actorDelayedCallbacksTick(void) {
     }
     do {
         changed = 0;
-        for (i = 0; i < D_807FBFD8; i++) {
-            if (D_807FBF18[i].delay == 0) {
-                D_807FBF18[i].node = D_807FBF18[D_807FBFD8 - 1].node;
-                D_807FBF18[i].target = D_807FBF18[D_807FBFD8 - 1].target;
-                D_807FBF18[i].delay = D_807FBF18[D_807FBFD8 - 1].delay;
-                D_807FBFD8--;
+        for (i = 0; i < gActorDelayedCallbackCount; i++) {
+            if (gActorDelayedCallbackQueue[i].delay == 0) {
+                gActorDelayedCallbackQueue[i].node = gActorDelayedCallbackQueue[gActorDelayedCallbackCount - 1].node;
+                gActorDelayedCallbackQueue[i].target = gActorDelayedCallbackQueue[gActorDelayedCallbackCount - 1].target;
+                gActorDelayedCallbackQueue[i].delay = gActorDelayedCallbackQueue[gActorDelayedCallbackCount - 1].delay;
+                gActorDelayedCallbackCount--;
                 changed = 1;
             }
         }
