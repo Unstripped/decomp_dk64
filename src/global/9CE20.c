@@ -57,10 +57,10 @@ u8 nodeCount;
         data->swingAmplitude = 0.0f;
         data->phaseStep = 0.10471976f;
         data->damping = 0.75f;
-        data->nodeAngle = 0.00f;
-        data->phase = 0.f;
+        data->nodeAngle = 0.0;
+        data->phase = 0.f; // FAKE: literal spelling; cfe keeps f32 literal text, so `0.f` is its own zero constant (Q0473): mtc1 zero,$f16 at 0x5c instead of sharing the 0.0f/0.0 register
         data->baseY = gCurrentActor->y;
-        data->bobPhase = 0.000f;
+        data->bobPhase = 0.000f; // FAKE: literal spelling; a fourth distinct zero constant (Q0473) for mtc1 zero,$f4 at 0x78; `0.0f`/`0.0`/`0`/`0.0F` share a web with swingAmplitude or nodeAngle (257-263)
         data->bobSpeed = (f32)((f64)(s32)((randomNonNegative() >> 15) % 100) / 1000.0 + 0.1);
         data->spinAngle = 0.0f;
         gCurrentActor->sub4->boneRotations = heapAlloc(0x80);
