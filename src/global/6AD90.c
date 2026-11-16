@@ -2607,16 +2607,14 @@ void collisionBstSortFlatItems(CollisionBstFlatItem *arr, s32 low, s32 high) {
     s32 i;
     s32 j;
     u32 pivot;
-    CollisionBstFlatItem *pivot_ptr;
-    u32 temp0;
+    s32 temp0;
     s32 temp1;
     s32 temp2;
     s32 temp3;
     u8 temp4;
 
     if (low < high) {
-        pivot_ptr = (CollisionBstFlatItem *)((u8 *)arr + high * sizeof(CollisionBstFlatItem)); // FAKE: byte-offset pivot address keeps arr first in addu t5,s3,t6; &arr[high] swaps the operands
-        pivot = pivot_ptr->key;
+        pivot = arr[high].key;
         i = low - 1;
         j = high;
 
@@ -2650,17 +2648,16 @@ void collisionBstSortFlatItems(CollisionBstFlatItem *arr, s32 low, s32 high) {
         temp2 = arr[i].index;
         temp3 = arr[i].refCount;
         temp4 = arr[i].persistent;
-        arr[i].key = pivot_ptr->key;
-        arr[i].table = pivot_ptr->table;
-        arr[i].index = pivot_ptr->index;
-        arr[i].refCount = pivot_ptr->refCount;
-        arr[i].persistent = pivot_ptr->persistent;
-        if (!arr) {} // FAKE: dead check steers uopt coloring of the a0-a3 temps
-        pivot_ptr->key = temp0;
-        pivot_ptr->table = temp1;
-        pivot_ptr->index = temp2;
-        pivot_ptr->refCount = temp3;
-        pivot_ptr->persistent = temp4;
+        arr[i].key = arr[high].key;
+        arr[i].table = arr[high].table;
+        arr[i].index = arr[high].index;
+        arr[i].refCount = arr[high].refCount;
+        arr[i].persistent = arr[high].persistent;
+        arr[high].key = temp0;
+        arr[high].table = temp1;
+        arr[high].index = temp2;
+        arr[high].refCount = temp3;
+        arr[high].persistent = temp4;
 
         collisionBstSortFlatItems(arr, low, i - 1);
         collisionBstSortFlatItems(arr, i + 1, high);
