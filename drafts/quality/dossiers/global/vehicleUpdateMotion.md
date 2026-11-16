@@ -2,9 +2,10 @@
 
 K&R definition at line 311 (was func_8068F72C; u8 params applyBuoyancy/tilt). Frame 0x60; s0 = cached
 gCurrentActor, s1 = &gCurrentActor, s2 = vehicle. Locals (frame-top offsets): turnScale (s32, was tmpA) -4 (0x5c),
-kongState -8 (0x58), drag -12, turnRate -16, tmpB -20, tiltPitch -22 (0x4a), tiltRoll -24 (0x48), fl[3] -25
-(0x47), fl[2] -26 (0x46), velX -32, velZ -36, thrust -40, slopeAngle -42, slopeRange -44, pl -48; cfe temp -52
-(0x2c, store of an f0 call result). 2026-11-16 (HackvehicleUpdateMotion3): the reused temps are respelled
+kongState -8 (0x58), drag -12, turnRate -16, tmpB -20, tiltRoll -22 (0x4a, sh at 0x1120), tiltPitch -24 (0x48,
+sh at 0x1138), fl[3] -25 (0x47), fl[2] -26 (0x46), velX -32, velZ -36, thrust -40, slopeAngle -42 (never stored),
+slopeRange -44, pl -48 (never stored); cfe temp -56 (0x28: (f32)slopeRange spilled across mathSinF, swc1 $f2 at
+0x1110). 2026-11-16 (HackvehicleUpdateMotion3): the reused temps are respelled
 (5000/10000 divisor inline ternary, buoyancy y/waterY/|speedY| and terminalSpeedY as field reads, speedXZ clamp
 without velX, slope factor straight from slopeRange); the 0x5c slot freed from tmpA holds the s32 turn factor.
 
@@ -79,13 +80,31 @@ rounds 2-30 opus:low, Hackfunc_8068F72C opus:high 2026-11-14, PermBatch1114c)
     plus separate airDrag/speedGain 117.
   review: tiltRoll -> Actor 0xE8 `roll`, tiltPitch -> 0xE4 `pitch` as named (no local rename); the physical
     roles hint actor.h's 0xE4/0xE8 names are swapped (bonus/2690.c:342 eases an elevation into ->roll).
+2026-11-16 HackvehicleUpdateMotion4 opus:high (copy unchanged, fdiff 0; sweep 0 hits):
+  54eada: per-flag signedness: u8 inWater + s8 onGround 146, s8 inWater + u8 onGround 183. Trace of the 146 body:
+    cand 21 (-25vreg) and 32 (-26vreg) are both "not colored (-ve save)", yet the widened lbu of inWater (v0 at
+    0xef0) is PRE-saved to a fresh temp (sw v0,0x2c(sp)), growing the frame 0x60 -> 0x70. So an uncoloured u8
+    vreg still costs a widening temp (Q0957 holds for locals too); only non-vreg bytes (array/address-taken)
+    avoid it. `struct { u8 v[2]; }` wrapper: word-aligned like the bare array (0x44/0x45, 12); (u8) casts on
+    s8 scalars 177.
+  17cf50: no free word in the frame (homes 0x5c..0x30 from the top, 0x28 = cfe temp of (f32)slopeRange at
+    0x1110). A separate f32 speedGain declared last / after pl / in tmpB's place: 59 each (frame 0x68, every
+    home +8). Trading turnScale for an inline ternary to make room (speedGain, or airDrag with tmpB as gain):
+    79/84. drag as the 2.0f base with literal 2.0f thrust: `drag += ...` 105, `... + drag` 131; only
+    `thrust = throttle * drag` (pun) is 0.
+  ebb5e5: permuter 900 s from the current body with only ebb5e5 removed (base 115, fdiff 20), 19957 iterations:
+    both zeros insert an empty if (`if (!gCurrentActor) {}` in the late floor-snap arm,
+    `if (!gCurrentActor->terminalSpeedY) {}` in the buoyancy arm): the known block split, nohit.
+  9b1ca1: kongState tail uses re-read through pl->actorType (Q0589 lever): jump only 62, turn + jump 61.
+    Merged single guard re-measured 3 (kongState == 0 and == 2).
 
 ## Untried ideas
 - ebb5e5: needs two zero-code uopt blocks inside either waterY compare/use pair (buoyancy or late floor-snap
-  arm); no natural statement found that does that.
-- 17cf50: a third role-free slot for the speed gain or the 2.0f constant (pl cannot be inlined: 144).
-- 54eada: s8 scalars already give the target's memory homes (9 lb/lbu lines); open: an unsigned byte
-  local whose widening candidate is not coloured (Q0957), or an s8 local whose reloads come out lbu.
+  arm); no natural statement found that does that (the permuter finds only empty ifs there).
+- 17cf50: only a frame-neutral trade is left: drop another declared local (pl 144, turnScale 79) for the
+  speed gain; none found.
+- 54eada: a non-vreg unsigned byte home without an array: needs `&flag` (Q0957 lever) or an aggregate that is
+  not word-aligned; no natural address use exists in the function.
 - 9b1ca1/ebb5e5: merging both guards needs the kongState piece kept off a0's argument setup at 0x14a4/0x14b0
   while the use sits in the late floor-snap arm (single-guard body: 3 off, a3 vs a0); no spelling found.
 - lever (b) (aggregate initialiser from a .data template) does not apply: fl bytes are computed stores.

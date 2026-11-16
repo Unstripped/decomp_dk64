@@ -807,3 +807,4 @@
 {"type": "unit", "t": "2026-11-16T17:52:05Z", "unit": "2026-11-16b: cleanup Hackvsprintf5", "commit": "07695208cda8a49e10be53e92039533df69184e4"}
 {"type": "unit", "t": "2026-11-16T17:57:20Z", "unit": "2026-11-16b: cleanup HackcamComputeEyeFocus5", "commit": "f63903fb01eff29c5b29f8e4815f34241d822e25"}
 {"type": "unit", "t": "2026-11-16T17:59:27Z", "unit": "2026-11-16b: cleanup HackjetpacUpdateRocketFlight", "commit": "d0c901d3e24ac22112b4fde08fca2aeec1ad1f2c"}
+{"type": "unit", "t": "2026-11-16T18:01:26Z", "unit": "2026-11-16b: cleanup HackvehicleUpdateMotion4", "commit": "1f033b0ecf3e4ad970050ffea86ece64ce0a24c9"}
