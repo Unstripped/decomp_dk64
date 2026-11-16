@@ -17,6 +17,7 @@
 #include "proto/global/FCCD0.h"
 
 
+
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
@@ -338,8 +339,6 @@ s32 slotQueueGetValue(u8 index, u8 player) {
     value = 0;
     slot = slotQueueGetAddress(player) + index;
     switch (slot->displayMode) {
-    case 2:
-        break;
     case 0:
         if (slot->value != NULL) {
             counter = slot->value;
@@ -358,6 +357,8 @@ s32 slotQueueGetValue(u8 index, u8 player) {
         break;
     case 1:
         value = 0x14;
+        break;
+    case 2:
         break;
     }
     return value;
@@ -591,8 +592,8 @@ void bitfieldClearMappedFlag(u16 *bits, s32 map) {
 }
 
 
-s32 bitfieldHasMappedFlag(u16 bits, s32 map) {
-    return (1 << mapGetHubWorldIndex(map, 1)) & bits & 0xFF;
+u8 bitfieldHasMappedFlag(u16 bits, s32 map) {
+    return bits & (1 << mapGetHubWorldIndex(map, 1));
 }
 
 
@@ -1170,10 +1171,10 @@ Gfx *slotQueueBuildDisplayList(Gfx *gfx) {
 extern s32 D_80754288;
 
 void slotQueueSelectPlayerResource(u8 player) {
-    s32 resource;
+    s32 world;
 
-    resource = mapGetHubWorldIndex(gCurrentWorldId, 0);
-    gSlotQueue[13].value = &gPlayerInventoryTable[0].kong[player].bananasDelivered[resource];
+    world = mapGetHubWorldIndex(gCurrentWorldId, 0);
+    gSlotQueue[13].value = &gPlayerInventoryTable[0].kong[player].bananasDelivered[world];
     gSlotQueue[13].shown = *gSlotQueue[13].value;
     D_80754288 = player;
 }

@@ -57,7 +57,7 @@ void bitfieldSetMappedFlag(u16 *, s32);
 void bitfieldClearMappedFlag(u16 *, s32);
 #endif
 #ifndef PROTO_SKIP_bitfieldHasMappedFlag
-s32 bitfieldHasMappedFlag(u16, s32);
+u8 bitfieldHasMappedFlag(u16, s32);
 #endif
 #ifndef PROTO_SKIP_slotQueueNormalizeSpriteScale
 void slotQueueNormalizeSpriteScale(EffectNode *, s32);
