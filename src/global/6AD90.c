@@ -1612,11 +1612,11 @@ u8 collisionCheckTriangleContainsPointXZ(CollisionTriF *tri, f32 x, f32 z) {
     s32 pad; // frame size (D = 96)
 
     outside = 0;
-    a = (f64)(tri->x[1] + tri->x[2]) * 0.5;
-    b = (f64)(tri->z[1] + tri->z[2]) * 0.5;
+    a = (tri->x[1] + tri->x[2]) * 0.5; // FAKE: a reused for the x edge midpoint before its side-product role; a separate midpoint local gives the same code but adds an f64 slot (frame 0xd8 vs 0xc8)
+    b = (tri->z[1] + tri->z[2]) * 0.5; // FAKE: b reused for the z edge midpoint before its side-product role; a separate midpoint local gives the same code but adds an f64 slot (frame 0xd8 vs 0xc8)
     cx = (tri->x[0] + a) * 0.5;
     cz = (tri->z[0] + b) * 0.5;
-    i = 0; sideC = 0; do { // LAYOUT: i = 0 joined to the loop head (move v0,zero lands after the hoisted ldc1s); FAKE: dead init sideC = 0 gives sideC an earlier first appearance than sideP (uopt colours ties in first-appearance order: sideC a0, sideP a1)
+    for (i = 0, sideC = 0; i < 3; i++) { // FAKE: dead init sideC = 0 gives sideC an earlier first appearance than sideP (uopt colours ties in first-appearance order: sideC a0, sideP a1)
         switch (i) {
         case 0:
             dx = tri->x[1] - tri->x[0];
@@ -1640,7 +1640,6 @@ u8 collisionCheckTriangleContainsPointXZ(CollisionTriF *tri, f32 x, f32 z) {
         a = (x - ox) * dz;
         b = (z - oz) * dx;
         c = (cx - ox) * dz - (cz - oz) * dx;
-        i++;
         if (b <= a) {
             sideP = 1;
         } else {
@@ -1654,7 +1653,7 @@ u8 collisionCheckTriangleContainsPointXZ(CollisionTriF *tri, f32 x, f32 z) {
         if (sideC != sideP) {
             outside = 1;
         }
-    } while (i != 3);
+    }
     return outside == 0;
 }
 
