@@ -1896,18 +1896,16 @@ u8 collisionCheckBoxTriangleContainsPointXZ(CollisionBoxTri *tri, f32 x, f32 z) 
     f64 ox;
     f64 oz;
     f64 c;
-    s32 sideP;
+    f64 hx;
     u32 outside;
-    s32 sideC;
     s32 i;
-    s32 pad; // frame size (D = 96)
 
     outside = 0;
-    a = (tri->x2 + tri->x1) * 0.5; // FAKE: a reused for the x edge midpoint before its side-product role; a separate midpoint local gives the same code but adds an f64 slot (frame 0xd8 vs 0xc8)
-    b = (tri->z2 + tri->z1) * 0.5; // FAKE: b reused for the z edge midpoint before its side-product role; a separate midpoint local gives the same code but adds an f64 slot (frame 0xd8 vs 0xc8)
-    cx = (tri->x0 + a) * 0.5;
+    hx = (tri->x2 + tri->x1) * 0.5;
+    b = (tri->z2 + tri->z1) * 0.5; // FAKE: b reused for the z edge midpoint before its side-product role; a separate hz gives the same code but the frame holds only ten f64 locals (dx/dz/ox/oz homes fixed at sp+0xa0..0x88), so it grows 0xc8 -> 0xd0
+    cx = (tri->x0 + hx) * 0.5;
     cz = (tri->z0 + b) * 0.5;
-    for (i = 0, sideC = 0; i < 3; i++) { // FAKE: dead init sideC = 0 gives sideC an earlier first appearance than sideP (uopt colours ties in first-appearance order: sideC a0, sideP a1)
+    for (i = 0; i < 3; i++) {
         switch (i) {
         case 0:
             dx = tri->x1 - tri->x0;
@@ -1931,17 +1929,7 @@ u8 collisionCheckBoxTriangleContainsPointXZ(CollisionBoxTri *tri, f32 x, f32 z) 
         a = (x - ox) * dz;
         b = (z - oz) * dx;
         c = (cx - ox) * dz - (cz - oz) * dx;
-        if (b <= a) {
-            sideP = 1;
-        } else {
-            sideP = -1;
-        }
-        if (c >= 0.0) {
-            sideC = 1;
-        } else {
-            sideC = -1;
-        }
-        if (sideC != sideP) {
+        if (((b <= a) ? 1 : -1) != ((c >= 0.0) ? 1 : -1)) {
             outside = 1;
         }
     }
