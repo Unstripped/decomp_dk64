@@ -128,8 +128,7 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
 typedef struct InteractionEntry {
     s16 patternA;
     s16 patternB;
-    s8 phase;
-    s8 event;
+    s8 filter[2]; // [0]: boss fight phase, [1]: registered hit event; -1 matches any; both passed to handler
     void (*handler)(Actor *, Actor *, u8, u8);
     u8 chain;
 } InteractionEntry;
@@ -139,7 +138,6 @@ extern InteractionEntry D_8074ABCC[];
 void actorCollisionRunInteractionTable(Actor *actorA, Actor *actorB) {
     InteractionEntry *entry;
     s32 done;
-    s32 kind;
     s32 found;
     s32 j;
 
@@ -147,13 +145,11 @@ void actorCollisionRunInteractionTable(Actor *actorA, Actor *actorB) {
     for (entry = D_8074ABCC; !done; entry++) {
         if (actorCollisionPatternMatches(actorA->actorType, actorA->collisionFlags, entry->patternA) &&
             actorCollisionPatternMatches(actorB->actorType, actorB->collisionFlags, entry->patternB) &&
-            ((entry->phase == -1) || entry->phase == gActorGlobalState.bossFightPhase)) {
-            if (entry->event != -1) {
-                if (1) {  // FAKE: extra block lowers gActorGlobalState const priority vs actorB (s0/s1 swap)
-                    found = 0;
-                }
+            ((entry->filter[0] == -1) || entry->filter[0] == gActorGlobalState.bossFightPhase)) {
+            if (entry->filter[1] != -1) {
+                found = 0;
                 for (j = 0; !found && j < gActorGlobalState.unk201;) {
-                    if (actorB == gActorGlobalState.unk204[j] && gActorGlobalState.unk244[j] == ((s8 *)entry)[5]) {  // FAKE: byte-indexed event read makes IDO emit the load operand first (bnel t2,t0)
+                    if (actorB == gActorGlobalState.unk204[j] && gActorGlobalState.unk244[j] == entry->filter[1]) { // FAKE: phase/event declared as array field filter[2] only so filter[1] orders bnel t2,t0 at 0x3bc (named s8 fields give bnel t0,t2; Q0816)
                         found = 1;
                     } else {
                         j++;
@@ -163,10 +159,12 @@ void actorCollisionRunInteractionTable(Actor *actorA, Actor *actorB) {
                 found = 1;
             }
             if (found) {
-                entry->handler(actorA, actorB, entry->phase, entry->event);
-                kind = entry->chain;
-                if (kind == 0 || kind == 2) {
+                entry->handler(actorA, actorB, entry->filter[0], entry->filter[1]);
+                switch (entry->chain) {
+                case 0:
+                case 2:
                     done = 1;
+                    break;
                 }
             }
         }
