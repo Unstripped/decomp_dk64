@@ -77,18 +77,18 @@ void actorProximityUpdate(void) {
     s32 pad[3];
     s32 i;
     Actor *actor;
-    f32 dist_sq;
-    f32 r;
+    f32 distSq;
+    f32 scaledRange;
     s32 frame;
 
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
         if (!(actor->flags & 0x2000) && (actor->flags & 0x100)) {
-            dist_sq = ((actor->z - gPlayerSlots->camZ) * (actor->z - gPlayerSlots->camZ)) +
-                      (((actor->x - gPlayerSlots->camX) * (actor->x - gPlayerSlots->camX)) +
-                       ((actor->y - gPlayerSlots->camY) * (actor->y - gPlayerSlots->camY)));
+            distSq = ((actor->z - gPlayerSlots->camZ) * (actor->z - gPlayerSlots->camZ)) +
+                     (((actor->x - gPlayerSlots->camX) * (actor->x - gPlayerSlots->camX)) +
+                      ((actor->y - gPlayerSlots->camY) * (actor->y - gPlayerSlots->camY)));
             if (actorConfigLookup(actor->actorType, &cfgIndex) != 0) {
-                r = renderScaleDistanceByFov(gActorOverrideModelConfigs[cfgIndex].range);
+                scaledRange = renderScaleDistanceByFov(gActorOverrideModelConfigs[cfgIndex].range);
                 switch (gActorOverrideModelConfigs[cfgIndex].mode) {
                 case 0:
                     if (gPlayerCount >= 2) {
@@ -100,7 +100,7 @@ void actorProximityUpdate(void) {
                     }
                     break;
                 case 1:
-                    if (r * r < dist_sq) {
+                    if (scaledRange * scaledRange < distSq) {
                         if (actor->overrideModel == NULL) {
                             actor->overrideModel = controllerAnimStateLoadAsset(actor, gActorOverrideModelConfigs[cfgIndex].modelAssetId, 0);
                         }
@@ -109,7 +109,7 @@ void actorProximityUpdate(void) {
                     }
                     break;
                 case 2:
-                    if (dist_sq < r * r) {
+                    if (distSq < scaledRange * scaledRange) {
                         if (actor->overrideModel == NULL) {
                             actor->overrideModel = controllerAnimStateLoadAsset(actor, gActorOverrideModelConfigs[cfgIndex].modelAssetId, 0);
                         }
