@@ -91,7 +91,7 @@ static void actorStub7CA80_05(void);
 static void actorStub7CA80_06(void);
 
 typedef struct ActorAssetHeader {
-    s32 unk0;
+    s32 pad0;
     s32 soundTableOffset;
     s32 animTableOffset;
     s32 indexTableOffset;
