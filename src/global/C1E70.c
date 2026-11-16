@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorSpawn // PROTO: this call passes a third argument (a2 = &gCurrentActor), the shared prototype takes two
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -31,8 +30,6 @@ s16 sRingNodeScripts[] = { 0x2F2, 0x2F1, 0x2F3, 0x2F2, 0x2F1, 0x2F2, 0x2F2, 0x2F
 s8 sRingNextReady = 0;
 extern s8 D_807FC8D0;
 
-s32 actorSpawn();
-
 // customState of the ring actors (type 0xCD) spawned by actorNodeRingSpawnRings
 typedef struct RingState {
     /* 0x00 */ s16 timer;
@@ -61,7 +58,7 @@ void actorNodeRingSpawnRings(void) {
     activeRingIdx = -1;
     i = 0;
     activeRingCount = 0;
-    for (; i < 8; i++) { // FAKE: i = 0 written before activeRingCount = 0 (empty for-init) keeps move s1,zero ahead of move s5,zero at 0x5c
+    for (; i < 8; i++) { // LAYOUT: i = 0 on its own line before the counter (a for-init i = 0 shares the for line .loc with the preheader hoists, so as1 puts move s1,zero after move s5,zero; target 0x5c, 0x60)
         if (flagGet(i + 0x1BC, 0) == 0) {
             actorSpawn(0x14E, 0xCD);
             gSpawnedActor->drawDistance = 0x7D0;
@@ -126,7 +123,7 @@ void actorNodeRingUpdate(void) {
         gCurrentActor->flags |= 0x400;
         ringHits = 0;
         sRingSequencePos = 0;
-        actorSpawn(0x73, 0xC4, &gCurrentActor);
+        actorSpawn(0x73, 0xC4);
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
         gSpawnedActor->renderFlags |= 0x20;
         gSpawnedActor->flags |= 0x400;
