@@ -14,10 +14,12 @@
 #include "proto/global/42630.h"
 #include "proto/global/69E60.h"
 #include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
 #include "proto/global/7CA80.h"
 #include "proto/global/90D80.h"
 #include "proto/global/ACDC0.h"
 #include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
 #include "proto/global/F9450.h"
 #include "proto/global/FCCD0.h"
 #include "proto/race/1770.h"
@@ -36,8 +38,6 @@ extern s16 gTextNumberArg;
 
 extern s32 gGlobalOverlayFlags;
 
-void playerStateQueueCallback(); // FAKE: callee prototype steer
-s32 sfxStopSlotSound(Actor *, u8); // FAKE: callee prototype steer
 void actorSpawnNodeEffectFacingCamera(s32, u8);
 void actorInitFromSpawnPoint(void *, void *);
 
@@ -212,8 +212,8 @@ void raceParticleRenderCallback(Gfx *glist, Actor *actor) {
 
 void raceParticipantMotionUpdate(void) {
     RaceParticipant *racerState;
+    u8 playerIdx;
     s32 i;
-    s32 playerIdx;
     u8 colorMode;
     u32 flags;
 
