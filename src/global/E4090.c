@@ -1410,19 +1410,19 @@ void playerInputUpdateMoveTargetWithDeadzone(void) {
 
 void playerTurnByStickX(void) {
     f32 turn;
-    s16 yaw;
+    f32 scale;
     s32 delta;
     PadInputState *pad;
 
     playerUpdateMoveTargetFromStick();
     if (gActivePlayerState->maxSpeed != 0.0f) {
         pad = &gPlayerPadState[gCurrentPlayerIndex];
-        if (1) {} // FAKE: steers uopt candidate priority (yaw before delta)
-        if (1) {} // FAKE: steers uopt candidate priority (yaw before delta)
-        if (1) {} // FAKE: steers uopt candidate priority (yaw before delta)
-        if (1) {} // FAKE: steers uopt candidate priority (yaw before delta)
-        yaw = gCurrentActor->yaw;
-        delta = yaw - gActivePlayerState->targetYaw;
+        scale = pad->stickMagNorm; // FAKE: dead sibling scale chain (playerInputUpdateMoveTargetWithDeadzone2); its deleted pad->stickMagNorm read and 0.2 compare split the block after the pad address, so &gCurrentActor (a3) loads after it and pad takes a1
+        scale = scale * scale;
+        if (scale < 0.2) {
+            scale = 0.2f;
+        }
+        delta = gCurrentActor->yaw - gActivePlayerState->targetYaw;
         if (delta > 0) {
             turn = delta;
         } else {
@@ -1434,13 +1434,12 @@ void playerTurnByStickX(void) {
         if (turn > 400.0f) {
             turn = 400.0f;
         }
-        turn = turn * (gActivePlayerState->turnRate / 400.0); // FAKE: dead store (the playerInputUpdateMoveTargetWithDeadzone2 line); keeps the 2048/4096/400 chain and pad's a1 colouring
+        if (turn < -400.0f) { // FAKE: logically dead lower clamp (turn >= 0 here), a Q0200 keeper replacing the c5577b dead store
+            turn = -400.0f;
+        }
         turn = (pad->stickX * gActivePlayerState->turnRate) / 400;
-        gCurrentActor->yaw = yaw - turn;
-        if (1) {} // FAKE: steers uopt candidate priority
+        gCurrentActor->yaw -= turn;
         if (gCurrentActor->yaw >= 0x1000) {
-            if (!gCurrentActor && !gCurrentActor && !gCurrentActor) {} // FAKE: steers uopt candidate priority
-            if (delta) {} // FAKE: steers uopt candidate priority
             gCurrentActor->yaw -= 0x1000;
         }
         if (gCurrentActor->yaw < 0) {
