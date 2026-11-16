@@ -32,31 +32,31 @@ typedef struct ProjectileState {
 extern Gfx D_1000118;
 extern Mtx D_2000000;
 extern Mtx D_2000200;
-extern Gfx D_80750280;
+extern Vtx D_80750280[4];
 extern u8 gGfxBufferIndex;
 extern PlayerStruct *gPlayerSlots;
 
 Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     ProjectileState *sub;
-    f32 mtx2[4][4];
-    f32 mtx1[4][4];
+    f32 modelMtx[4][4];
+    f32 stepMtx[4][4];
     s16 i;
     s16 stepAngle;
-    f64 q0;
-    f64 q1;
+    f64 progress;
+    f64 clampedProgress;
     Gfx *_g;
     f64 pad;
-    f32 f;
-    s32 idx;
+    f32 growth;
+    s32 texIndex;
     f32 collisionRadius;
-    f32 vx;
-    f32 vz;
-    f32 vy;
-    f32 vscale;
+    f32 offsetX;
+    f32 offsetY;
+    f32 offsetZ;
+    f32 spriteScale;
 
     sub = actor->customState;
     stepAngle = 0x1000 / sub->spriteCount;
-    idx = (((sub->frame++) % 16) + actor->yawSpeed) & 0xFF;
+    texIndex = (sub->frame++ % 16 + actor->yawSpeed) & 0xFF;
 
     gSPDisplayList(glist++, &D_1000118);
     gSPMatrix(glist++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -82,51 +82,43 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
         actorSetCollisionRadius(actor, collisionRadius);
     }
 
-    i = 0;
-    if (sub->spriteCount > 0) {
-        do {
-            switch (sub->ringType) {
-            case 0:
-                vx = mathSinF(i * stepAngle) * sub->radius;
-                vy = mathCosF(i * stepAngle) * sub->radius;
-                vscale = 1.0f;
-                vz = 0.0f;
-                break;
-            case 1:
-                q0 = (actor->moveYaw - actor->unk15F) * 0.05;
-                q1 = (q0 > 1.0) ? 1.0 : q0;
-                f = q1 * (0.03 - 0.001) + 0.001;
-                vscale = 130.0f * f;
-                vz = 1500.0f * f;
-                vx = mathSinF(actor->yaw + 0x400) * ((f * sub->radius) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
-                vy = mathCosF(actor->yaw + 0x400) * ((f * sub->radius) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
-                break;
-            }
-            if (actor->unk15F != 0) {
-                actorAppendModelNode(actor, vx, vz, vy, vscale * 80.0, -1);
-            }
-            // gDPSetTextureImage and the render-tile gDPSetTile written through the function-scope _g:
-            // their macro forms add two _g homes and shift the frame (Q0940).
-            _g = (Gfx *)(glist++); _g->words.w0 = 0xFD180000; _g->words.w1 = (u32)D_807FC7C0[idx];
-            gDPSetTile(glist++, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0, 0, G_TX_LOADTILE, 0, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD); gDPLoadSync(glist++); gDPLoadBlock(glist++, G_TX_LOADTILE, 0, 0, 0x3FF, 0x80); gDPPipeSync(glist++); _g = (Gfx *)(glist++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; gDPSetTileSize(glist++, G_TX_RENDERTILE, 0, 0, 0x7C, 0x7C); // LAYOUT: same-line texture block statements steer as1 scheduling
+    for (i = 0; i < sub->spriteCount; i++) {
+        switch (sub->ringType) {
+        case 0:
+            offsetX = mathSinF(i * stepAngle) * sub->radius;
+            offsetZ = mathCosF(i * stepAngle) * sub->radius;
+            spriteScale = 1.0f;
+            offsetY = 0.0f;
+            break;
+        case 1:
+            progress = (actor->moveYaw - actor->unk15F) * 0.05;
+            clampedProgress = (progress > 1.0) ? 1.0 : progress;
+            growth = clampedProgress * (0.03 - 0.001) + 0.001;
+            spriteScale = 130.0f * growth;
+            offsetY = 1500.0f * growth;
+            offsetX = mathSinF(actor->yaw + 0x400) * (growth * sub->radius * (0x800 - (s16)(i * stepAngle)));
+            offsetZ = mathCosF(actor->yaw + 0x400) * (growth * sub->radius * (0x800 - (s16)(i * stepAngle)));
+            break;
+        }
+        if (actor->unk15F != 0) {
+            actorAppendModelNode(actor, offsetX, offsetY, offsetZ, spriteScale * 80.0, -1);
+        }
+        _g = (Gfx *)(glist++); _g->words.w0 = 0xFD180000; _g->words.w1 = (u32)D_807FC7C0[texIndex]; // FAKE: gDPSetTextureImage and the render-tile gDPSetTile hand-written through the function-scope _g; their macro forms add two _g homes and shift the frame (Q0940)
+        gDPSetTile(glist++, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0, 0, G_TX_LOADTILE, 0, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD); gDPLoadSync(glist++); gDPLoadBlock(glist++, G_TX_LOADTILE, 0, 0, 0x3FF, 0x80); gDPPipeSync(glist++); _g = (Gfx *)(glist++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; gDPSetTileSize(glist++, G_TX_RENDERTILE, 0, 0, 0x7C, 0x7C); // LAYOUT: same-line texture block statements steer as1 scheduling
 
-            guScaleF(mtx2, vscale, vscale, vscale);
-            matrixMakeRotationY(mtx1, (f32)((gPlayerSlots->camYawInt * 360) / 4096));
-            guMtxCatF(mtx2, mtx1, mtx2);
-            guTranslateF(mtx1, actor->x + vx, actor->y, actor->z + vy);
-            guMtxCatF(mtx2, mtx1, mtx2);
-            guMtxF2L(mtx2, &sub->matrices[i * 2 + gGfxBufferIndex]);
-            gSPMatrix(glist++, &sub->matrices[i * 2 + gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-            gSPVertex(glist++, osVirtualToPhysical(&D_80750280), 4, 0);
-            gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
-            gDPPipeSync(glist++);
-            i++;
-        } while (i < sub->spriteCount);
+        guScaleF(modelMtx, spriteScale, spriteScale, spriteScale);
+        matrixMakeRotationY(stepMtx, (f32)((gPlayerSlots->camYawInt * 360) / 4096));
+        guMtxCatF(modelMtx, stepMtx, modelMtx);
+        guTranslateF(stepMtx, actor->x + offsetX, actor->y, actor->z + offsetZ);
+        guMtxCatF(modelMtx, stepMtx, modelMtx);
+        guMtxF2L(modelMtx, &sub->matrices[i * 2 + gGfxBufferIndex]);
+        gSPMatrix(glist++, &sub->matrices[i * 2 + gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+        gSPVertex(glist++, osVirtualToPhysical(D_80750280), 4, 0);
+        gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
+        gDPPipeSync(glist++);
     }
     return glist;
 }
-
-
 
 void loadModelAssetTable(void) {
     s16 i;
