@@ -17,10 +17,16 @@
   - e1b0a2/5ed6ef/fa96af statement-shape census on the HudTextList base (179 + 72 bodies): best natural `off = (s32)(fa * flyX) + off * 4` full=3 (trunc scratch t3, mfc1 t4, sll t5; mul.s operands flipped); `(flyX * fa)`, `4 * off` the same 3; all 20 interleavings of the six x/y statements x {x5, (s16)(s32) first, (s16)(off*4)} x {(u32), plain} 3-17. Without the y (u16): best 116. Without (u32): 1. as1probe scan of the full=3 body: 0 improving single edits (operand order comes from uopt, not ugen).
   - b371d1: list reused in a later web (case-3 nested hudDrawScaledText via list; `list = dl` before gSPEndDisplayList) 5 each; list as loop-1 cursor then `dl = list` 517.
   - reconstruct (HudTextList reads, trunc-first x, plain y, no u32, no dead test): 316 (311 with the dead test).
+- **2026-11-15 U HackhudPauseMenuRender4 anthropic/claude-opus-5-5:high** (base 1a9860aa):
+  - 6bd641/01af71 consolidate re-measured (no PROTO_SKIP, no local declaration, shared 90D80 s32 siz) after the HudTextList retype, Carve56 statics and 114aeeb1: full=400, only `li a3,2` vs target `move a3,s8` at 0x1638/0x16b8 (s8 = `li s8,2` at 0x12a0). Unchanged; pair stays FAKE per the pending.md ruling.
+  - Call-site `(u8)2` under the s32 prototype (first, second or both calls): cfe folds it to the literal, full=400 each.
+  - Entry pointer local `HudTextEntry *e = it->entries + j` (and `&it->entries[j]`) for all eight loop-1 reads: e takes a frame word (0x1A0 -> 0x1A8) and the `style == 2` compare loads `li at,2` (0x12e4) instead of using s8: full=385. On that body: no (s64) 320, no y (u16) 379, no (u32) 385, all three casts dropped 389, trunc-first x 395.
+  - Removal measurements on the base: d4f3b3 (function-end dead test) full=6012 (.rodata/reloc mismatches too), b371d1 full=615.
 
 ## Untried ideas
 - A natural source for the t3 -> t4 ring advance before the x trunc (a deleted narrowing on off*4 that is ordinary C, e.g. an s16 intermediate already in the frame) (Q0374).
 - Making list live through loop 1 with a use that emits no code (Q0585); none found in the target.
+- Entry pointer local `e` with its frame word paid elsewhere (only the e slot and the lost s8 CSE of `style == 2` separate it from the matching register flow; untested whether the s8 reuse returns once the frame matches).
 
 ## Evidence
 - Frame 0x1A0. Homes: hubWorld 0x138, list 0x13C, ret 0x140, tab 0x144, i 0x158, hud 0x15C, buf 0xA8.
