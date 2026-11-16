@@ -1926,6 +1926,8 @@ void bonusSearchlightSeekGameUpdate(void) {
     s32 i;
     f32 dist;
     s16 spawnAngle;
+    f32 velZ;
+    f32 scale;
     if (!(gCurrentActor->flags & 0x10)) {
         gPrimaryPlayerActor->state = 0x77;
         gPrimaryPlayerActor->unk155 = 0;
@@ -2008,12 +2010,12 @@ void bonusSearchlightSeekGameUpdate(void) {
             sinYaw = mathSinF(gPlayerSlots[gCurrentPlayerIndex].camYawInt);
             cosYaw = mathCosF(gPlayerSlots[gCurrentPlayerIndex].camYawInt);
             velX = subExt->velX;
-            x = subExt->velZ; // FAKE: x (the aim/clamp x home) also holds the velZ pre-read in a register; a separate local or the pad word moves the colouring (pre-existing, now tagged)
-            z = gCurrentContPad->stick_x * 0.06f; // FAKE: z (the aim/clamp z home) also holds the scaled stick_x; any other variable or the pad word costs 10-13 lines (Q0739; pre-existing, now tagged)
+            velZ = subExt->velZ;
+            z = gCurrentContPad->stick_x * 0.06f; // FAKE: z (the aim/clamp z home) also holds the scaled stick_x in a register; a role-named stickX local (any declaration slot, incl. the spare trailing words) or an inline temp is 10-187 lines off: stickX takes $f16 instead of $f2 (Q0739; pre-existing, tagged)
             stickY = gCurrentContPad->stick_y * 0.06f;
-            velX = ((z * cosYaw) - (stickY * sinYaw)) - velX;
+            velX = ((z * cosYaw) - (stickY * sinYaw)) - velX; // FAKE: velX (the velX pre-read, $f14) also holds the x velocity error ($f12, sub.s at 0x5e48); an inline error term like the velZ line is 101 lines, an accelX local 88-99 (pre-existing, now tagged)
             subExt->velX = subExt->velX + velX * 0.155f;
-            subExt->velZ = subExt->velZ + ((z * sinYaw + stickY * cosYaw) - x) * 0.25f;
+            subExt->velZ = subExt->velZ + ((z * sinYaw + stickY * cosYaw) - velZ) * 0.25f;
             subExt->offsetX = subExt->offsetX + subExt->velX;
             subExt->offsetZ = subExt->offsetZ - subExt->velZ;
             if (subExt->shownCount == 0) {
@@ -2065,9 +2067,9 @@ void bonusSearchlightSeekGameUpdate(void) {
     z = subExt->offsetZ;
     dist = sqrtf(x * x + z * z);
     if (dist > 110.0f) {
-        y = 110.0f / dist; // FAKE: y (the aim y home) reused as the clamp scale; inline 110.0f / dist swaps the mul.s operands at 0x60e0/0x60e8 (pre-existing, now tagged)
-        subExt->offsetX = x * y;
-        subExt->offsetZ = z * y;
+        scale = 110.0f / dist;
+        subExt->offsetX = x * scale;
+        subExt->offsetZ = z * scale;
     }
     gCurrentActor->x = mathSinF(subExt->bobAngle) * 5.0 + (subExt->centerX + subExt->offsetX);
     gCurrentActor->z = mathCosF(subExt->bobAngle * 2) * 2.0 + (subExt->centerZ + subExt->offsetZ);
