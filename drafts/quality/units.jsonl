@@ -824,3 +824,4 @@
 {"type": "unit", "t": "2026-11-16T18:48:45Z", "unit": "2026-11-16b: cleanup HackspawnNodeActorOutOfRangeScaled2", "commit": "0905eeed38e1ec6469fc701216067fe4139aa0e7"}
 {"type": "unit", "t": "2026-11-16T18:50:00Z", "unit": "2026-11-16b: cleanup HackplayerStateTakeDamagePrep2", "commit": "cf90838080af887e99665117442913ed2b8dcb98"}
 {"type": "unit", "t": "2026-11-16T18:51:33Z", "unit": "2026-11-16b: cleanup HackcollisionCheckBoxTriangleContainsPointXZ", "commit": "ea67900fbecf8d42eba76bcdc91a09a4244ae39d"}
+{"type": "unit", "t": "2026-11-16T18:53:57Z", "unit": "2026-11-16b: cleanup HackmodelAnimEntryQueueMatrixCopies3", "commit": "73cb8b93871b1fc3d8dbf278c745a9c07d12b8b4"}

@@ -28,3 +28,21 @@
 
 ## Untried ideas
 - A natural statement that adds one prologue basic block without a dead test. None found: guards, early returns and do-while guards all compile to the same blocks as the plain loop.
+
+## Attempts (HackmodelAnimEntryQueueMatrixCopies3, anthropic/claude-opus-5-5:high, base 43305fcf)
+- uopt -l 6 (FAKE vs plain): the v0 holder is candidate 8, the CSE expression `node + 60` (uadd{node}{60}).
+  The dead `!p` test gives it a second use, so it is coloured reg 1 (v0) ahead of candidate 19 (the gGfxBufferIndex lbu, reg 2 = v1).
+  Its own code vanishes: p is still emitted as `addiu s0,s2,0x3c` at 0x6bc.
+  Without the test, candidate 8 has no savings: 19 takes v0 and the address temps take v1/a2.
+- Indexed walk `(u8 *)(node + 1) + i * stride` (for/while, p local or inline): full=39; `p = node + 1 + i * stride` at the loop bottom: 57.
+- Byte offset local `off += stride` read through `(u8 *)(node + 1) + off`: 25.
+- Real guards `if (p != NULL)`, `if (node != NULL)`, `p != NULL &&` in the loop condition: 35-43 (they emit a branch).
+- p re-initialised in the for header after a prologue init: 17 (a redundant store, a steer anyway).
+- `node->times + 0x3B` start pointer, a `u8 **frames` local, `n = node = entry->unk0` alias, increment order swaps: all 10.
+- One `dst = *(u32 *)p` shared by both sums: 19. Operands swapped to `srcBase + *(u32 *)p`: 12.
+- `other = gGfxBufferIndex ^ 1` local (u8/s32/u32): objdiff 320-865, against 65 for the plain body.
+- A u8 snapshot used only for the `^ 1` index, the global read again for the other: objdiff 10. Only `lui v0` vs `lui v1` at 0x630 is left, since ugen still takes the free v0 for the lui. It is a mixed spelling (a steer).
+- Permuter, 900 s, hack-free weights, plain body, base 65 (.scratch/HackmodelAnimEntryQueueMatrixCopies3/perm): both zeros re-insert `if (p) {}` / `if (!p) {}`, the site itself. The hack-free best is 10 (the mixed snapshot above).
+
+## Untried ideas (after U3)
+- A natural second use of `node + 60` that vanishes after colouring, other than an empty test (none found). A late-folded comparison is unlikely: `node + 60 == 0` is never folded.
