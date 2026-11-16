@@ -3,7 +3,6 @@
 #include "actor.h"
 #include "model.h"
 #include "sched.h"
-#define PROTO_SKIP_playerSlotMatchesSizeMask // FAKE: callee prototype steer (owner reads no a2; the extra argument steers it)
 #include "proto/global/104F0.h"
 #include "proto/global/119370.h"
 #include "proto/global/133A90.h"
@@ -2422,8 +2421,6 @@ typedef struct ModelType1RenderView {
     /* 0xC5 */ u8 mapFlags;
 } ModelType1RenderView;
 
-s32 playerSlotMatchesSizeMask(s32, u8, s32);
-
 Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 camY, f32 camZ, u8 useLight, s16 lightArg, s32 unused) {
     f32 mtx[4][4];
     f32 tmpMtx[4][4];
@@ -2482,25 +2479,20 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
         guRotateF(tmpMtx, obj->rotZ, 0.0f, 0.0f, 1.0f);
         guMtxCatF(mtx, tmpMtx, mtx);
     }
-    if (obj && obj && obj) {} // FAKE: dead block pads as1's XBB window (limit 10) so the rotation compares don't hoist `addiu a0,sp,184` (6 guards needed)
-    if (obj && obj && obj) {} // FAKE: same
-    if (obj && obj && obj) {} // FAKE: same
-    if (obj && obj && obj) {} // FAKE: same
-    if (obj && obj && obj) {} // FAKE: same
-    if (obj && obj && obj) {} // FAKE: same
     guTranslateF(tmpMtx, obj->x, obj->y, obj->z);
     guMtxCatF(mtx, tmpMtx, mtx);
     guMtxF2L(mtx, &obj->frameMtx[gGfxBufferIndex]);
     gDPPipeSync(gfx++);
     gSPSegment(gfx++, 8, osVirtualToPhysical(obj->segmentData));
-    animBuffers = NULL;
     if (obj->id != -1) {
         slotIdx = hashTableLookup(obj->id);
         modelSlotResolveAssetTextures(&gModelSlots[slotIdx], 0, 1);
         animBuffers = gModelSlots[slotIdx].unk78;
-        if (playerSlotMatchesSizeMask(gModelSlots[slotIdx].unk24->unk0, gCurrentPlayerIndex, (s32)animBuffers) != 0) {
+        if (playerSlotMatchesSizeMask(gModelSlots[slotIdx].unk24->unk0, gCurrentPlayerIndex) != 0) {
             return gfx;
         }
+    } else {
+        animBuffers = NULL;
     }
     if (animBuffers != NULL) {
         gSPSegment(gfx++, 9, osVirtualToPhysical(animBuffers->frames[gGfxBufferIndex]));
