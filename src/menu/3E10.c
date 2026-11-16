@@ -1556,43 +1556,41 @@ void menuCharacterSelectUpdateActor(void) {
     s8 kong;
     s16 idx;
     s16 *actorTypePtr;
-    MenuCharacterKongState *sub174;
+    MenuCharacterKongState *kongState;
+    s16 *model;
+    MenuCharacterKongState *spawnedState;
 
-    sub174 = gCurrentActor->customState;
-    parentState = sub174->parent->customState;
+    kongState = gCurrentActor->customState;
+    parentState = kongState->parent->customState;
     shouldDespawn = 0;
     actorKongChainUpdate();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->sub4->scaleX = 2.0f * gCurrentActor->sub4->scaleX;
         gCurrentActor->sub4->scaleY = 2.0f * gCurrentActor->sub4->scaleY;
         gCurrentActor->sub4->scaleZ = 2.0f * gCurrentActor->sub4->scaleZ;
-        kong = sub174->animSet;
+        kong = kongState->animSet;
         actorScriptStart(gCurrentActor, D_800338B4[(s16)(kong * 6) + (gCurrentActor->unk155 & 0xF)]);
         playerKongHolsterGun(gCurrentActor);
         gCurrentActor->flags |= 0x1000;
-        sub174->animFrame = D_8076A100[gCurrentActor->state & 0xF];
+        kongState->animFrame = D_8076A100[gCurrentActor->state & 0xF];
         actorConfigApplyAnimFrameByType(gCurrentActor, gCurrentActor->unk155 + 2, D_8076A100[gCurrentActor->state & 0xF]);
     }
     sel = gCurrentActor->state;
-    if (!(gCurrentActor->state & 0x80)) {
-        if (sub174->animFrame != D_8076A100[gCurrentActor->state]) {
+    if (!(sel & 0x80)) {
+        if (kongState->animFrame != D_8076A100[gCurrentActor->state]) {
             actorConfigApplyAnimFrameByType(gCurrentActor, gCurrentActor->unk155 + 2, D_8076A100[gCurrentActor->state]);
-            sub174->animFrame = D_8076A100[gCurrentActor->state];
+            kongState->animFrame = D_8076A100[gCurrentActor->state];
         }
         idx = D_8076A0E4[gCurrentActor->state] & 0x7F;
         if (idx != gCurrentActor->unk155) {
             actorTypePtr = &D_8003386C[idx];
             actorSpawn(0x151, *actorTypePtr);
-            {
-                s16 *q = ((MenuModelActor *)gSpawnedActor)->model;
-                *q = *actorTypePtr;
-            }
+            model = ((MenuModelActor *)gSpawnedActor)->model;
+            *model = *actorTypePtr;
             gSpawnedActor->state = gCurrentActor->state;
             gSpawnedActor->unk155 = idx;
-            {
-                MenuCharacterKongState *sub = gSpawnedActor->customState;
-                sub->parent = sub174->parent;
-            }
+            spawnedState = gSpawnedActor->customState;
+            spawnedState->parent = kongState->parent;
             shouldDespawn = 1;
         }
         row = &gMenuKongSlotPositions[gCurrentActor->state * 2];
@@ -1610,7 +1608,7 @@ void menuCharacterSelectUpdateActor(void) {
         step = 0x140 / D_80033878;
         menuComputeElementPosition(parentState, 160.0f, 150.0f, &posX, &posY, 2, 0, 1.8f);
         posX = (idx * step + (step >> 1)) - 0xA0;
-        posX = posX * 0.78;
+        posX *= 0.78;
         gCurrentActor->x = gPrimaryPlayerActor->x + posX;
         gCurrentActor->y = (gPrimaryPlayerActor->y - (posY - 120.0f)) + 16.0f;
         gCurrentActor->z = gPrimaryPlayerActor->z - 300.0f;
