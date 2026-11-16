@@ -784,7 +784,7 @@ u8 straight;
                 effectCreateAtPosition(trailEffect, homing->scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
-        if (projectileFindHomingTarget(collisionMask, (void **)&target, proj, 0, *(u8 *)&straight, straight == 0, &targetX, &targetY, &targetZ) != 0) { // FAKE: address-taken byte read keeps the arg3 lbu in a ring temp (candidate left uncoloured)
+        if (projectileFindHomingTarget(collisionMask, (void **)&target, proj, 0, (u32)straight, straight == 0, &targetX, &targetY, &targetZ) != 0) { // FAKE: (u32) cast on the u8 formal (with !straight below) keeps the arg byte uncoloured, reloaded lbu from its home at 0x2434
             targetYaw = mathAngleBetweenPoints2D(targetX, targetZ, proj->x, proj->z);
             yawStep = mathAngleDistance(targetYaw, proj->moveYaw) / 10;
             yawPlus = (proj->moveYaw + yawStep) & 0xFFF;
@@ -795,7 +795,7 @@ u8 straight;
             } else {
                 proj->moveYaw = yawMinus;
             }
-            if (straight == 0) {
+            if (!straight) {
                 dx = targetX - proj->x;
                 dz = targetZ - proj->z;
                 dist = sqrtf((dx * dx) + (dz * dz));
