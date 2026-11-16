@@ -46,6 +46,17 @@ global:80664A38:other:5ef858 / 9eff7a / 0341ea (lines 177-179), other: `(gModelE
   | `(entryIdx + gModelEmitters)->` | 3 |
 
   variants.py scan of the declared-last entry body: best 4 (`0.4f` -> `0.4`).
+- 2026-11-16 HackmodelEmitterSpawnScaledParticle (anthropic/claude-opus-5-5:high), variants.py try, applied to all three lines (lines off):
+
+  | variant | lines off |
+  |---|---|
+  | `(*(gModelEmitters + entryIdx)).` | 57 (same as `[entryIdx].`) |
+  | `entryIdx[gModelEmitters].` | 57 |
+  | `(f64)gModelEmitters[entryIdx].` | 57 |
+  | `[entryIdx].` fields, `(gModelEmitters + entryIdx)->scale` | 58 |
+  | `(gModelEmitters + entryIdx)->` with the field written first | 60 |
+
+  So the steer is the `->` operator, not the pointer add. A `.` access always puts the field first in the add. A `->` access keeps the written order, and the target's order is product + field (add.d at 0xa10/0xa84/0xaec). `(&p[i])->` folds back to `.` (57). The only natural `->` base is an entry local, and the frame has no word for one.
 ## Untried ideas
 none in natural C. Frame count: the target frame has 5 words at 36..52 (4 homes/hidden temps + the idx*12 spill at 36; 32 is padding below them). Every entry-local body needs 6: scaleFactor, randX, randY, randZ (declared home or cfe hidden temp, Q0456/Q0858), entry, and the idx*12 spill, so the spill always lands at 32. Inline randoms avoid the homes but then the calls run after the entry assignment and entry itself must cross them.
 ## Evidence
