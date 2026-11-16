@@ -1,14 +1,16 @@
 # arcadeSpawnStage1Entities (arcade, src/arcade/0.c)
 ## Sites
-arcade:80027F0C:other:b3e1d6 other: oilDrumY = 110.0f constant local; steers as1 order of the D_8004A718 struct-copy lw/sw pairs around swc1 $f0 (0x4384) / $f2 (0x43d4).
-arcade:80027F0C:other:6ec87d other: i = 0 early + i = i + 0x24 keeps i in v1 (li v1,36 at 0x41b4) instead of constant-folded addresses.
+arcade:80027F0C:other:b3e1d6 other: oilDrumY = 110.0f constant local; steered uopt's alias-reset (unal) placement relative to the last D_8004A718 entity's param = 3 store, and so as1's order of the struct-copy lw/sw pairs around swc1 $f0 (0x4384) / $f2 (0x43d4). REMOVED 2026-11-16 (HackarcadeSpawnStage1Entities).
+arcade:80027F0C:other:6ec87d other: i = 0 early + i = i + 0x24 kept i in v1 (li v1,36 at 0x41b4) instead of constant-folded addresses. REMOVED 2026-11-16 (HackarcadeSpawnStage1Entities): i = 0x25 at entry + D_8004BCD0[i--] = D_8004A458.
 ## Attempts
 2026-11-14 U HackarcadeUpdateDonkeyKongStage2 anthropic/claude-opus-5-5:high: i = 0x24 at entry -> 122; s8/u8/s16/u16 i -> 348-406; u32 i -> 159; i = 0x25 with D[i--] / D[i]; i-- / i -= 1 -> 159 (folded); i as one earlier spawn index (7 placements) -> 159-185
 2026-11-14 U HackarcadeUpdateDonkeyKongStage2 anthropic/claude-opus-5-5:high: oilDrumY at entry -> 0 (same steer moved); before D_8004A638 copy -> 39; at use -> 39; inline y store before x -> 45
 2026-11-15 U HackarcadeUpdateDonkeyKongStage3 anthropic/claude-opus-5-5:high: i = 0x24 after spawn 1/2/3/4 (every pre-if position) -> 122 each; for (j = 0; j < 4; j++) loop over the four D_8004A718 entities -> 383 (not unrolled); oil-drum pointer local drum = &D_8004BCD0[i] -> 79 inline / 41 with oilDrumY; 110.0 double literal -> 39
 2026-11-16 U HackarcadeUpdateBouncingBarrel2 anthropic/claude-opus-5-5:high: uopt_trace -l 3/4 base vs direct i = 0x24 (see Evidence): diagnostic only, no new body.
+2026-11-16 U HackarcadeSpawnStage1Entities anthropic/claude-opus-5-5:high: FIXED both. i = 0x25 at entry (before the join) + D_8004BCD0[i--] = D_8004A458 + inline 110.0f -> 0. Also measured: i = 0x25 with oilDrumY kept -> 41; i = 0x25 inside the if -> 170/210, after the join -> 204; direct i = 0x24 just after the join (before the A438 / player calls) -> 122 (not folded there, but the first index folds to 0x8004C150 and li a0,35); i = arcadeFindFreeEntity() for any spawn + that i = 0x24 -> 122; with the old i = 0 / i + 0x24: dead f32/s32 store, used k = 3, idx-split spawns -> 39; shared x = 48.0f or y = 65.0f local used twice -> 0 before the join (steer). LAYOUT line split as y = 65.0f; D_8004BCD0[i--].param = 2 -> 0 (param before y -> 2).
 ## Untried ideas
-i's 0 def from real code before the gArcadeLevel == 2 / D_8004A740 block (a value the source really computes there; nothing in the target's 0x4100-0x41b4 window shows one)
+(none: function clean)
 ## Evidence
 0x4198 addiu t1,t1,1184 (D_8004BCD0[0x25] folded); 0x41b4 li v1,36 then addiu v1,v1,-1 per entity; 0x42d8/0x42e0 68.0f/110.0f loaded just before swc1 0x42f0/0x42f4.
 uopt -l4 (2026-11-16 HackarcadeUpdateBouncingBarrel2): base keeps i (M -8) as candidate 0 with ustr{i}{0} at entry and uadd{i}{36} as a live isop after the D_8004A740 join (the entry 0 def is not propagated across the join); a direct i = 0x24 is constant-propagated (ustr{i}{const}) and the object is 4 instructions shorter (57872 vs 57888 bytes .text).
+as1probe keep / ucode (2026-11-16 HackarcadeSpawnStage1Entities): oilDrumY vs inline 110.0f differ only in where uopt puts the unal ... 0 block. It sits after the last D_8004A718 mov in the target and after that entity's `ldc 3; istr u8 28` with inline 110.0f. The ugen listing moves `li $25,3; sb $25,28($4)` before the .alias records, and as1 then reorders the following lw/sw pairs.
