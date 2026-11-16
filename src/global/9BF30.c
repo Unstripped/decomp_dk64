@@ -135,7 +135,6 @@ extern Actor *gCurrentActor;
 
 void projectileSpriteRingUpdate(void) {
     ProjectileState *sub;
-    u8 kind;
     f64 wantedCount;
 
     sub = gCurrentActor->customState;
@@ -150,8 +149,9 @@ void projectileSpriteRingUpdate(void) {
             sfxPlayActorSound(gCurrentActor, 0x139, 0x3C, 1, 1, 0xFF, 1.0f, 0);
         }
     }
-    kind = sub->ringType;  // FAKE: copy of the dispatch byte; steers uopt register choice (a0 instead of v0)
     if (sub->ringType != 0) {
+        s32 kind = sub->ringType;
+
         switch (kind) {
         case 1:
             gCurrentActor->x += sub->speed * mathSinF(gCurrentActor->yaw);
