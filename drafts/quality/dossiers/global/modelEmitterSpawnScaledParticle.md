@@ -27,13 +27,33 @@ global:80664A38:other:5ef858 / 9eff7a / 0341ea (lines 177-179), other: `(gModelE
   | f32/f64 locals, function or block scope | 158-166 |
 
   variants.py scan of the entry body: best 4.
+- 2026-11-15 HackmodelEmitterSpawnScaledParticle2 (anthropic/claude-opus-5-5:high), variants.py try (lines off):
+
+  | variant | lines off |
+  |---|---|
+  | `ActorProximityEntry *entry` declared LAST, set after the randoms (`gModelEmitters + entryIdx` and `&gModelEmitters[entryIdx]`) | 4 (same spill 36 -> 32, t4/t5 swap) |
+  | entry declared at the top of the if-block | 4 |
+  | entry declared in a `{ }` block after the randoms | 4 |
+  | entry declared last, randZ declared after it | 8 |
+  | entry declared last, XYZ declaration order | 6 |
+  | entry declared last, randZ called inline | 27 |
+  | entry declared last, set before the randZ call | 24 |
+  | entry in randZ's declared position, randZ inline | 24 (entry stored to 48(sp) across the call) |
+  | all three randoms inline, entry local (after scaleFactor / first / set before the calls) | 57 / 59 / 57 |
+  | all three randoms inline, only scaleFactor declared, (p + i)-> | **0** (frame 40/44/48 are cfe hidden temps) |
+  | same with `[entryIdx].` | 57 |
+  | `(&gModelEmitters[entryIdx])->` | 57 |
+  | `(entryIdx + gModelEmitters)->` | 3 |
+
+  variants.py scan of the declared-last entry body: best 4 (`0.4f` -> `0.4`).
 ## Untried ideas
-none left in natural C. An entry local needs a fifth named home, and the target frame has only four.
+none in natural C. Frame count: the target frame has 5 words at 36..52 (4 homes/hidden temps + the idx*12 spill at 36; 32 is padding below them). Every entry-local body needs 6: scaleFactor, randX, randY, randZ (declared home or cfe hidden temp, Q0456/Q0858), entry, and the idx*12 spill, so the spill always lands at 32. Inline randoms avoid the homes but then the calls run after the entry assignment and entry itself must cross them.
 ## Evidence
 - Target frame 56:
   - scaleFactor swc1 52(sp) at 0x90c.
   - randX/randY sw v0,40/44(sp) at 0x92c/0x934.
-  - randZ stays in v0 (home 48 unused).
+  - randZ stays in v0 (48 unused).
   - idx*12 sw t8,36(sp) at 0x8f4, reloaded at 0x978.
 - 0x970-0x984: lui/lw t4 = gModelEmitters (reloaded after the calls), lw t5,36(sp), addu v1,t4,t5; lh 2/4/6(v1) at 0x994/0x998/0x9a0.
 - Field cvt.d.w at 0xa08 / 0xa60 / 0xae4, each after the mul.d of its random term.
+- Declared-last entry: entry's home takes 36, so sw t8,32(sp) at 0x8f4 and lw t4,32(sp) at 0x978 (t4/t5 swap); nothing else differs.
