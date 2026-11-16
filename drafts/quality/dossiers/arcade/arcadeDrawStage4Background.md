@@ -7,6 +7,7 @@ arcade:80027A38:other:35daef (`one = 1`) REMOVED.
 2026-11-14 HackarcadeDrawStage4Background HackarcadeDrawStage4Background anthropic/claude-opus-5-5:high: frame-slot budget -> fixed `one`: frame 0x78 = two 4-byte locals declared before glist (0x6c(sp)); the second is a real inner-loop `y`; single `step = 1` drives both x (`* 0x20`) and i increments; all loops as `for`; `i * 0x20 + 0xC0`. fdiff OK, uninit 0, fake 3 -> 2.
 2026-11-14 same: ^0 with separate y: plain/for/while/do-while, const-first, >, >=, step-scaled decrement, decl orders, y widths u32/s16/u16/s8/u8, copy local, (u32) cast, 0x87U, subtract-compare, negate, break forms, LFTR index forms (unrolled, 58+): all `bnel s0,s2` or worse.
 2026-11-14 same: literal steps with y: x literal text=6, i literal text=5, both text=11.
+2026-11-16 U HackarcadeUpdateBouncingBarrel2 anthropic/claude-opus-5-5:high: inner exit with the decrement inside the test (`do ... while ((y -= 8) != 0x87)`, for/while from 0xA7) 1-3, still `bnel s0,s2`; counter loop with derived y (`0x87 + i * 8` for i 3..1, `0x9F - i * 8` for i 0..2; `!=`/`<`/`>`) unrolled 58-73; literal steps with inclusive bounds (`x <= 0x43F`, `i <= 0x1A`, `i <= 0x1B`; all loops or only the callee-saved ones) 11, same as `<`.
 ## Untried ideas
 - An isop left operand that ugen folds away other than `^ 0` arising naturally (e.g. a field/array read uopt CSEs to the register) for the inner exit. (source: Q0474/Q0488 operand-order levers)
 - A data-derived step (sizeof idiom, Q0780) if a table length or texture stride ever proves 1 or 0x20.

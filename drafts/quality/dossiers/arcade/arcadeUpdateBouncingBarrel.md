@@ -19,9 +19,13 @@
   - block-scoped u8 / s32 `dir` temp 151 / 149; computed `turn` temp s32 151, u8 306; `u8 *` field pointer and block-scoped `ArcadeEntity *` 304; case-2-scoped entity pointer 548
   - collision test inverted / `<=` with arms swapped 137; floor test inverted with arms swapped 304 / 305
   - early `break` after the floor / state-5 / state-6 / flip arms (each and all) 66; empty statement `;` before/after either flip or at the end of the first else arm: 130 / 66 (Q0698)
+- 2026-11-16 U HackarcadeUpdateBouncingBarrel2 opus:high (full=):
+  - re-measured at the d4b7b65d base (after Polisharcade0's compound-assignment respellings): both removed 301, first only removed 130 (unchanged)
+  - permuter from the both-removed body (900 s, -j 2, hack-free weights, base 6269): best 450, only via a dead `if (!gArcadePlayerIndex) {}` after the animTimer wrap, bias reuse at the first flip and `(*(&D_8004BCD0[entIndex])).x`
 ## Untried ideas
-- a real statement that both adds a block inside the entity pointer's range and re-reads unk1A before each flip; nothing in the target's surrounding control flow (0x9a98-0x9ac4, 0x9df4-0x9e1c) shows one.
+- a real statement that both adds a block inside the entity pointer's range and re-reads unk1A before each flip; nothing in the target's surrounding control flow (0x9a98-0x9ac4, 0x9df4-0x9e1c) shows one. Site 1's only call-free window for that read is the then-arm itself (arcadeCheckPlayerCollision sits in the condition), so it must be a construct inside the arm that uopt later deletes.
 ## Evidence
 - 0x9e04 is as1's bc1fl delay-slot copy of 0x9e10; one load is executed per path.
 - bias also colours a0 (move a0,zero 0x99c4; addu a0,a0,t7 0x9a00), the register the facing candidate takes at 0x9aa8.
 - uopt -l5: entity pointer candidate 7 `{1282|0}` adjsave 4.600 -> reg 2 (v1) with both guards, with `if (1) {}` / `if (floorY) {}` / `if (facing) {}` at both; 4.842 -> reg 14 (s0) without guards (s0 saved at 24(sp)); the block-scoped s32 `dir` temp also gives s0 and frame 0x38.
+- the target uses no s-register (frame 0x30): the entity pointer is v1 with home 28(sp) and is stored/reloaded around every jal (0x9930, 0x99e0, 0x9a4c, 0x9ae8, 0x9be0, 0x9c58, 0x9ce8, 0x9d5c).
