@@ -592,7 +592,7 @@ void func_8068BA2C(void) {
 extern u8 gGameMode;
 
 void playerCameraUpdateFromTarget(void) {
-    static s16 D_807FC624;
+    static s16 swayPhase;
     CamState *camState;
     s16 angleA;
     s16 angleB;
@@ -611,7 +611,6 @@ void playerCameraUpdateFromTarget(void) {
     s16 angleDiffRaw;
     s32 minLimit;
     s32 clampedDiff;
-    s16 fadeTimer;
     camState = gCurrentActor->customState;
     angleDiff = 0;
     maxDiff = 0x1E;
@@ -642,18 +641,17 @@ void playerCameraUpdateFromTarget(void) {
         return;
     }
     if ((gCurrentMap == 0x1F) || (gCurrentMap == 0x33)) {
-        gCurrentActor->pitch = mathSinF(D_807FC624) * 100.0f;
+        gCurrentActor->pitch = mathSinF(swayPhase) * 100.0f;
         if (gCurrentMap == 0x1F) {
-            if (D_807FC624 < 0x1E) {
+            if (swayPhase < 0x1E) {
                 sfxPlayOnFreeSlot(0x15, 0x7FFF, 64.0f, 1.0f, 10, 128);
             }
-            if ((D_807FC624 >= 0x800) && (D_807FC624 < 0x81E)) {
+            if ((swayPhase >= 0x800) && (swayPhase < 0x81E)) {
                 sfxPlayOnFreeSlot(0x14, 0x7FFF, 64.0f, 1.0f, 10, 128);
             }
         }
-        fadeTimer = D_807FC624 + 0x1E;
-        fadeTimer &= 0xFFF;
-        D_807FC624 = fadeTimer;
+        swayPhase += 0x1E;
+        swayPhase &= 0xFFF;
         return;
     }
     if (gGameMode != 1) {
