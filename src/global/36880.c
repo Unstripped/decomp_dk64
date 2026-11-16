@@ -1509,7 +1509,7 @@ void modelQuadBuildOutput(ModelSlot *owner, f32 x, f32 y, f32 z, f32 rotX, f32 r
 
 
 // RenderQuadModelObj (kind 2) as the texture loaders see it; same offsets and names. Kept as a view because
-// modelSlotResolveAssetTextures declares its volatile textures local with this type on a FAKE line.
+// modelSlotLoadAssetTextures/modelSlotClearAssetTextures/modelSlotFreeAssetTextures/modelSlotFreeAssetEntry take it.
 typedef struct ModelSlotAsset {
     /* 0x00 */ u8 pad0[0x14];
     /* 0x14 */ Mtx *frameMtx0;
@@ -2303,19 +2303,19 @@ void modelSlotsStepSegmentCommands(void) {
 void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
     ModelType1ObjAddrs *seg;
     ModelAssetHeader *obj;
-    ModelSlotAsset *volatile textures; // FAKE: memory copy of seg that the else branch reads back (target reloads 0x3C(sp))
+    ModelSlotAsset *textures;
     u32 temp;
     u32 cmds;
     u32 count;
     TexAnimNode *node;
     u8 res;
-    u8 flags;
+    s16 flags; // FAKE: s16 width for the u8 unk8C copy steers it into a3 (target lbu a3,140(t9) at 0x44; u8 gives t0)
     u32 size0;
     u32 size1;
 
     temp = (u32)slot->unk24;
     seg = slot->unk20;
-    textures = (ModelSlotAsset *)seg;
+    textures = slot->unk20;
     obj = (ModelAssetHeader *)temp;
     obj->unk8 = gFrameCounter;
     flags = slot->unk8C;
@@ -2327,9 +2327,9 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
             if (obj->modelKind == 1) {
                 count = seg->segmentData - seg->displayListB;
                 cmds = seg->displayListA;
-                temp = (seg->displayListB - cmds) >> 3;
+                temp = (seg->displayListB - cmds) >> 3; // FAKE: reuses obj's early pointer local for the command count so the B-A diff shares its colour v0 (pre-existing, now tagged; a dedicated count0 local swaps v0/v1: obj early web v1, displayListB v0)
                 count = count >> 3;
-                node = (TexAnimNode *)((ModelType1ObjAddrs *)slot->unk20)->texAnims; // FAKE: re-reads slot->unk20 instead of seg (pre-existing, now tagged; seg->unkB8 drops the sw a0,72(sp) slot home)
+                node = ((ModelType1ObjAddrs *)slot->unk20)->texAnims; // ORIG: the target reloads slot (lw t6,72(sp) at 0x90) and slot->unk20 (lw t7,32(t6) at 0xA0) for texAnims instead of reading seg (s0)
                 size0 = temp * 8;
                 temp = 0; // FAKE: dead store keeps size0 a variable instead of a propagated expression
                 res = dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size0), node, force);
