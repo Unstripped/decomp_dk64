@@ -3,7 +3,7 @@
 global:8060CBBC:other:b73cc4 other -> ORIG: (u8)i & 0xFF at the first K&R eepromClearSlotData call: andi s3,s4 at 0x14ec + andi a0,s3 at 0x14f4
 global:8060CBBC:other:b73cc4#2 other -> ORIG: second call, andi a0,s3 at 0x1630 (s3 = andi s3,s4 at 0x156c)
 global:8060CBBC:dead-store:37b7c4 dead-store: ok = 0 between loops kept ok s0 / stored s1 -> FIXED 2026-11-15 (the global-CRC block uses its own u32 globalOk in the old pad word)
-global:8060CBBC:dead-if:6c4c65 (base key 8fa679) dead-if: if (version) {} after found = version = ... in the third loop: two empty blocks in the version/i/j live ranges (version adjsave 42 -> 35, i 41 -> 38.27, j 131.25 -> 116.67, found 36.67) so i s4, found s5, version s6 (KEPT, class 1: any int local works; the old ok = D_80744530 reuse is no longer needed once globalOk exists)
+global:8060CBBC:dead-if:6c4c65 (base key 8fa679) dead-if: if (version) {} after found = version = ... in the third loop -> FIXED 2026-11-16: the last inner test is an early continue (`if ((u32)f16(i) > (u32)f16(j)) continue;` inside `if (fD(j) != 0 && fF(j) == version)`), which gives version/i/j the same extra blocks (version 35.0, j 116.67, i 41.0) so i s4, found s5, version s6 (Q0773)
 global:8060CBBC:dead-store:2e4194 dead-store (copy-only, pre-existing, now tagged): (j = i + 1) embedded in the loop-1 idx product; j is dead but the assignment puts i + 1 left in multu s2,t9 at 0x14b4 (Q0519) (KEPT)
 ## Attempts
 2026-11-10..12 Clean104F0 / Rev16B / Rev16D / Rev16H / CleanGlobal104F0 / Rev25B: traces, reconstructs, permutes (noted in history)
@@ -19,8 +19,13 @@ global:8060CBBC:dead-store:2e4194 dead-store (copy-only, pre-existing, now tagge
 - permuter on the f1 base (globalOk, no dead defs, found = X; version = found), 900 s hack-free weights: base 170, best 10 = an added if (!version) {} in the sector-fill loop (another dead test)
 - dead test respelled: if (found) / if (i) / if (version) / if (D_80744530) {} all 0, if (globalOk) 37, if (off) 25; applied if (version) {}
 - j = i + 1 embedded store: SIZE * (i + 1) and (i + 1) * SIZE 1 (multu t9,s2), j = i + 1 statement before idx / at loop top 1, j * SIZE 1, for (...; i = j) 106; variants scan on the plain form best 1
+2026-11-16 HackeepromValidateSaveSlots2 anthropic/claude-opus-5-5:high:
+- permuter on the found = version = X base without the dead test (900 s, -j 2, base 175): 71 zeros, all dead tests except failed |= 1 moved out of the inner then-block (semantics change, fdiff 1: bnez at 0x162c to 0x165c); hint: a join block after the inner then-block is all the dead test supplied
+- trailing `continue;` at the end of the then-block, or `else { continue; }`: fdiff 0 but a steer (Q0110/Q0683), not applied
+- early continue on the last inner test (Q0773): fdiff 0, APPLIED (dead-if gone); also 0 with the outer `if (j == i || valid[j] == 0) continue;` plus continue on the last two tests; all 16 && / nested-if groupings without a continue 32; continue on the last two/three tests nested 3-8 (found/version swap)
+- 2e4194 (j = i + 1 store): cfe evaluates SIZE first because it holds the D_807ECEA0[0] array load (Q0737), so plain SIZE*(i+1), (i+1)*SIZE, j statement stay 1 after the fix; `j = i + 1; j *= SIZE;` gives multu s5,t9 (right order) but the product lands in j's callee-saved register (mflo s1, 97); any new local (size s32/u32/s16/u16, next, slot) grows the frame 152 -> 160 (106-142); (s32) cast 1, (u32)/(i + 1U) 9 (srl division), (u16) 86, 1 + i 1, two IVs i/j = 1 36, ++i with a slot copy 140
 ## Untried ideas
-raise found above version (found adjsave 31.4 over 22 blocks vs version 35.0 over 20 in the continue form; the dead-if base has found 36.67 over 18): a natural construct that starts found's live range after a block that version spans (uopt counts found from its def in bb16)
+2e4194: an operand-order lever that needs no local: make SIZE free of an array/`*p` load (a global struct field or scalar for D_807ECEA0[0] would keep written order per Q0737, but that retypes a file-wide array other functions use)
 ## Evidence
 0x14ec andi s3,s4,0xff; 0x14f4 andi a0,s3,0xff; 0x1518 andi a3,s3,0xff (eepromSetField u8 arg reuses s3); 0x156c andi s3,s4; 0x1630 andi a0,s3. ok: li s0,1 at 0x1480, move s0,zero at 0x14f0; global CRC block li s0,1 at 0x17a4, move s0,zero at 0x1800 (globalOk), stored lw s1 at 0x17e4. Third loop: andi v1/s6/s5 of v0 at 0x15a4-0x15b0 (entry test temp, version, found), bne v1,v1 entry test, move s2,s6 at 0x15f4 (cvt of version for the field-F compare), li s5,255 at 0x1634, beq s6,s5 at 0x1674, sb s5 at 0x1680.
 uopt (level 5, base): ok adjsave 15.75 with the dead def vs 10.75 without (stored 11.0); version 35.0 vs 42.0, i 38.27 vs 41.0, j 116.67 vs 131.25 (one extra block unit each), found 36.67 both.
