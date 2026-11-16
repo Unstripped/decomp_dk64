@@ -474,7 +474,6 @@ extern ALBank *D_8076D1FC;
 extern struct GfSndState *D_807457DC;
 extern u8 D_80745838;
 extern u8 D_8077058C[];
-extern u8 D_8077058D;
 extern u8 D_8077058E;
 extern u8 D_80770DC8;
 extern u8 D_80770DCA;
@@ -505,6 +504,7 @@ void sfxUpdateLevelAmbient(void) {
     f32 pitch;
     u32 count;
     s16 sfxId;
+    s16 seq;
     AmbientEmitter *emitters;
     LevelSoundEmitter *soundEmitters;
 
@@ -513,7 +513,6 @@ void sfxUpdateLevelAmbient(void) {
 
     switch (gCurrentMap) {
     case 7:
-        if (D_8077058C[0] == 0) {}  // FAKE: dead statement steers uopt colouring
         emitterCount = 7;
         emitters = D_80745F74;
         break;
@@ -675,37 +674,36 @@ void sfxUpdateLevelAmbient(void) {
             volume = 0.0f;
         }
         volume = gMapAudioTable[gCurrentMap].volume + (((255.0 - gMapAudioTable[gCurrentMap].volume) * (D_80770DC8 / 127.0) * volume) / 255.0);
-        D_8077058E = volume;
+        D_8077058C[2] = volume;
     } else {
-        D_8077058E = gMapAudioTable[gCurrentMap].volume;
+        D_8077058C[2] = gMapAudioTable[gCurrentMap].volume;
     }
-    if (D_80770DE8 && D_80770DE8) {}  // FAKE: dead statement steers uopt colouring
+    if (D_80770DE8 && D_80770DE8) {}  // FAKE: dead read keeps the spilled &D_80770EB8[group] (v0 at 0x1e44) home at 0x9c(sp) (sw at 0x1e5c, lw t0 at 0x1ffc/0x2014/0x2024); without it 0xa0(sp)
 
     if (D_80745838 != 0) {
-        D_8077058E = 0xFF;
+        D_8077058C[2] = 0xFF;
     }
 
-    if (D_8077058E != D_8077058D) {
-        angle = (D_8077058E * 0.3) / 255.0;
-        volume = ((D_8077058E * 0.35) / 255.0) + 1.0;
-        count = D_8077058E;  // FAKE: reusing the emitter-count local for the reverb level keeps one web (a separate temp recolours 50 rows)
+    if (D_8077058C[1] != D_8077058C[2]) {
+        angle = (D_8077058C[2] * 0.3) / 255.0;
+        volume = ((D_8077058C[2] * 0.35) / 255.0) + 1.0;
+        count = D_8077058C[2];  // FAKE: reusing the emitter-count local for the reverb level; a separate u32 level local grows the frame 0xe8 -> 0xf0
         if (gCurrentMap == 0xE) {
             if (count != 0) {
-                k = 4;  // FAKE: dead store stops uopt hoisting the loop-init k = 0 above the seqSetVolumeInstant calls
                 seqSetVolumeInstant(0, 1.0f);
             } else {
                 seqSetVolumeInstant(0, 0.6f);
             }
             alCSPSetChlPanVolume(&gSeqPlayers[0]->al, angle, volume);
         }
-        for (k = 0; k < 4; k++) {
-            if (sSfxFlagTable[D_80770560[k]] & 1) {
-                alCSPSetChlPanVolume(&gSeqPlayers[k]->al, angle, volume);
+        for (seq = 0; seq < 4; seq++) {
+            if (sSfxFlagTable[D_80770560[seq]] & 1) {
+                alCSPSetChlPanVolume(&gSeqPlayers[seq]->al, angle, volume);
             } else {
-                alCSPSetChlPanVolume(&gSeqPlayers[k]->al, 0.0f, 1.0f);
+                alCSPSetChlPanVolume(&gSeqPlayers[seq]->al, 0.0f, 1.0f);
             }
         }
-        D_8077058D = D_8077058E;
+        D_8077058C[1] = D_8077058C[2];
     }
 
     count = mapGetSoundEmitters(&soundEmitters);
@@ -806,7 +804,6 @@ void sfxUpdateLevelAmbient(void) {
             if (angle != D_80770EF8[group]) {
                 if (D_80770EF8[group] != 255.0f) {
                     if (D_80770EF8[group] < angle) {
-                        if (D_8077058D && D_8077058D) {}  // FAKE: dead statement steers uopt colouring
                         if (D_80770EF8[group] + 8.0f < angle) {
                             angle = D_80770EF8[group] + 8.0f;
                         }
@@ -827,7 +824,7 @@ void sfxUpdateLevelAmbient(void) {
     }
 
     if ((gGlobalPauseFlags & 2) || !(gGlobalPauseFlags & 0x10)) {
-        if (D_80770DC8) {}  // FAKE: dead statement steers uopt colouring
+        if (D_80770DC8) {}  // FAKE: dead read stops &D_80770DC8 being coloured into $s2 (lui s2/addiu s2 at 0x15ac); a function-local static D_80770DC8 retires it once 7130 owns 0x80770560-0x80770DF0 (Q0981)
         D_8077058C[0] = 0;
     }
     if (D_8077058C[0] != 0) {
@@ -836,7 +833,7 @@ void sfxUpdateLevelAmbient(void) {
         }
         if (D_807457DC != 0) {
             n_alSndpPostEvent(D_807457DC, 8, (s32)((D_8077058C[0] * 10767.0) / 255.0));
-            pitch = 1.0 - ((D_8077058E * 0.5) / 255);
+            pitch = 1.0 - ((D_8077058C[2] * 0.5) / 255);
             if (gAmbientIndoors & (D_80770DD4 < 1000.0f)) {
                 angle = mathAngleBetweenPointsRad(gPlayerSlots->camX, gPlayerSlots->camZ, emitters[nearest].x, emitters[nearest].z) - gPlayerSlots->camYaw;
                 if (angle < 0.0f) {
