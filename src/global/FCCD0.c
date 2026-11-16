@@ -167,7 +167,7 @@ extern u16 gTextNumberArg;
 /* Initialises the per-player slot queue (15 slots of 0x30 bytes per player): sets each slot's text pointer, size and
  * screen position (func_806F8004). */
 void slotQueueInit(s32 reset) {
-    u32 j;
+    s32 j;
     s32 i;
     s16 shownMask;
     PlayerInventory *inv;
@@ -199,7 +199,7 @@ void slotQueueInit(s32 reset) {
                     base[j].timer = 0;
                     base[j].showArg = 0;
                     base[j].visible = 0;
-                    base[j].nodes = 0;
+                    base[j].nodes = NULL;
                     base[j].displayMode = 0;
                 }
                 if (menuIsTransitionType3Or4() != 0) {
@@ -538,7 +538,7 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
     s32 flag;
     s32 total;
     s32 world;
-    u16 *counter;
+    s32 pad;
 
     kong = playerGetResolvedKongId(player);
     kongInv = &gPlayerInventoryTable[player].kong[kong];
@@ -549,9 +549,8 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
         case 0xC:
             break;
         default:
-            counter = slots[slot].value;
-            if ((*counter + delta) < 0) {
-                *counter = 0;
+            if ((*slots[slot].value + delta) < 0) {
+                *slots[slot].value = 0;
             } else {
                 *slots[slot].value += delta;
                 max = slotQueueGetMaxValue(slot, player);
