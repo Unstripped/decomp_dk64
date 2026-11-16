@@ -33,12 +33,19 @@ bonus:8002BF98:other:d3c36c other (copy-only, new tag): velX also holds the x ve
 - uopt_trace -l 6 (stickX vs z): the z web (bit 156, -20 vreg) is coloured before velX (148) and gets the first free FP reg ($f2); an honest stickX web ranks after velX/velZ/stickY and lands in $f16.
 - permuter 905 s (-j 2, hack-free weights) on the honest-stickX body: baseline 55, best 0, but every zero puts stick_x back into z (a `stickX = z;` alias copy or stickX deleted): no new idea.
 - Final: velZ and scale own trailing locals (2 FAKE removed), z-holds-stick_x kept, velX-holds-error tagged (pre-existing) -> fdiff 0, clint uninit 0
+2026-11-16 HackbonusSearchlightSeekGameUpdate4 anthropic/claude-opus-5-5:high (uopt_trace -l 5 adjsave/bit per variant, variants.py try full= lines):
+- Model: in bb43 FP candidates colour by adjsave desc, then candidate bit asc (first appearance, LHS before RHS), first-fit 25=$f2 26=$f12 27=$f14 28=$f16 29=$f18. Target order: stickX > velX error > subExt->velX load (CSE) > subExt->velZ load > stickY.
+- Honest stickX 3.0 (1 def 2 uses) vs hack error 4.0 (2 defs 2 uses, both phantom refs of `velX = subExt->velX`): 10. stickX line first (bit 148 < error 155): 5, stickX/error swapped $f12/$f2.
+- `stickX = stick_x; stickX = stickX * 0.06f;` 5.0: all five FP values coloured right, but the cvt lands in $f2 (`mul.s $f2,$f2,$f10`): 108. Block-scoped stickX in case 0 10; `stickX = 0.06f; stickX *= stick_x` 66 (constant def not counted); `sens = 0.06f` local 10.
+- Error: the bit order needs velX load < velZ load < stickY, and the error is defined from stickY, so it must outrank the 3.0 velX load on adjsave alone (2 defs + 2 uses with no emitted code). `dx = t; dx -= subExt->velX` 13 (first def propagated, 2.0); dead `velX = subExt->velX;` before `velX = t - subExt->velX` 10 (removed, 2.0); `velX *= 0.155f; subExt->velX += velX` 96/103 (4.0, but a real `mul.s $f2,$f2,$f6`); accX `*=` two-step 88.
+- Final: no change, fdiff 0, clint uninit 0 (only the pre-existing bonusBigBugBashGameUpdate diffDelta line).
 
 ## Untried ideas
-stickX (83418a) / velX error (d3c36c): raise the honest web's colouring priority above velX without a merged z web (no spelling found yet); nothing else untried.
+stickX (83418a) / velX error (d3c36c): each needs one more counted ref that emits no code (stickX >= 4.0 with a lower bit than the error, error > 3.0). Only the reuse of a load-copied local (`v = p->f; v = e - v;`) produces such refs. No natural spelling found; Q0771-style constant-propagated refs land on the constant local, not on stickX.
 
 ## Evidence
 - Frame 0x88: saves s0-s6 at 56..80(sp), ra 84(sp), 12 declared local words 88..135(sp) highest-first: sinYaw 132 (spilled at 0x5dc4), cosYaw 128, x 124, y 120, z 116, velX 112, stickY 108, subExt 104, spawnExt 100, i 96, dist 92, spawnAngle 88.
 - Aim: swc1 $f6,124(sp) 0x5f5c (x), swc1 $f10,120(sp) 0x5f68 (y), reloaded into $f12/$f14 at 0x5f80/0x5f8c, z in $f2 -> mfc1 a2 at 0x5f94.
 - Clamp: swc1 $f0,124(sp) 0x60a8 (x), swc1 $f2,116(sp) 0x60ac (z), reloads at 0x60c4/0x60dc after sqrtf; scale div.s $f12,$f14,$f0 at 0x60d8; mul.s $f4,$f6,$f12 / $f8,$f2,$f12 at 0x60e0/0x60e8 (x * scale order).
 - Case 0 keeps x (velZ pre-read), z (stick_x*0.06f), velX, stickY in registers ($f16, $f2, $f14, $f18).
+- bb43 adjsave (uopt -l 5, hacked base): error var 538|1 bit 148 4.0 -> 26 ($f12); velX load 1252|6 bit 150 3.0 -> 27 ($f14); velZ load 1252|7 bit 154 3.0 -> 28 ($f16); z web 602|1 bit 156 4.5 (4 blocks) -> 25 ($f2); stickY 474|0 bit 163 3.0 -> 29 ($f18).
