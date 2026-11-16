@@ -405,6 +405,7 @@ void jetpacUpdateRocketFlight(void) {
     f32 spd;
     f32 y;
     f32 t;
+    f32 pos;
 
     item = jetpacGame.players[jetpacGame.activePlayer].items;
 
@@ -444,12 +445,10 @@ void jetpacUpdateRocketFlight(void) {
         spd = -0.4f;
     }
 
-    t = y + spd;
+    pos = y + spd;
     for (i = 0; i < 3; i++) {
-        item->unkC = t;
-        t += 16.0f;
-        if (!t) { // FAKE: empty guard steers regalloc
-        }
+        item->unkC = pos;
+        pos += 16.0f;
         item++;
     }
 }
