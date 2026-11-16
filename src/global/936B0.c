@@ -318,10 +318,11 @@ u8 tilt;
     s32 kongState;
     f32 drag;
     f32 turnRate;
-    f32 tmpB;
+    f32 speedGain;
     s16 tiltRoll;
     s16 tiltPitch;
-    u8 fl[4]; // FAKE: flag array keeps fl[2]/fl[3] memory-resident (sb/lbu at sp) instead of two register locals
+    u8 inWater;
+    u8 onGround;
     f32 velX;
     f32 velZ;
     f32 thrust;
@@ -333,8 +334,8 @@ u8 tilt;
     kongState = pl->actorType;
     tiltRoll = 0;
     tiltPitch = 0;
-    fl[3] = gCurrentActor->y <= gCurrentActor->waterY + 1.0f;
-    fl[2] = gCurrentActor->contactFlags & 1;
+    inWater = gCurrentActor->y <= gCurrentActor->waterY + 1.0f;
+    onGround = gCurrentActor->contactFlags & 1;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x10400;
         gCurrentActor->state = 0;
@@ -354,7 +355,7 @@ u8 tilt;
     }
     velX = mathSinF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ;
     velZ = mathCosF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ;
-    if (fl[3] != 0) {
+    if (inWater) {
         thrust = vehicle->throttle * 50.0f;
         drag = 1.0f / (kongState == 2 ? 5000.0f : 10000.0f) * (gCurrentActor->speedXZ * gCurrentActor->speedXZ) + vehicle->brake;
         if (vehicle->throttle != 0.0f) {
@@ -363,20 +364,19 @@ u8 tilt;
             drag = drag + 3.0f;
         }
     } else {
-        tmpB = 2.0f;
-        if (fl[2] != 0) {
+        if (onGround) {
             thrust = vehicle->throttle * 4.0f;
-            drag = vehicle->brake + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + tmpB;
+            drag = vehicle->brake + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + 2;
         } else {
-            thrust = vehicle->throttle * tmpB;
-            drag = vehicle->brake + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + tmpB;
+            thrust = vehicle->throttle * 2;
+            drag = vehicle->brake + gCurrentActor->speedXZ * gCurrentActor->speedXZ * 0.00002f + 2;
         }
     }
     velX += mathSinF(vehicle->heading) * thrust;
     velZ += mathCosF(vehicle->heading) * thrust;
     gCurrentActor->speedXZ = sqrtf(velX * velX + velZ * velZ);
     gCurrentActor->moveYaw = (mathAtan2(velX, velZ) * 4096.0 / 6.2831854820251465);
-    if (fl[2] != 0) {
+    if (onGround) {
         slopeRange = 0x400 - gCurrentActor->floorSlopePitch;
         slopeAngle = mathAngleSignedDistance(gCurrentActor->floorSlopeYaw, vehicle->heading);
         tiltRoll = (mathCosF(slopeAngle) * slopeRange);
@@ -389,7 +389,7 @@ u8 tilt;
     if (tilt) {
         tiltPitch = tiltPitch + turnRate * 200.0f;
         tiltPitch &= 0xFFF;
-        if (fl[3] != 0 || fl[2] != 0) {
+        if (inWater || onGround) {
             tiltRoll = tiltRoll + (vehicle->throttle * -50.0f + gCurrentActor->speedXZ * -0.5);
             tiltRoll &= 0xFFF;
         } else {
@@ -402,20 +402,20 @@ u8 tilt;
     if (gCurrentActor->speedXZ < 0.0f) {
         gCurrentActor->speedXZ = 0.0f;
     }
-    tmpB = gCurrentActor->speedXZ - gCurrentActor->prevSpeedXZ; // FAKE: tmpB (the 2.0f air constant above) reused for the speed gain; the frame has no slot for a separate local (+4 bytes shifts every home, score 59)
-    if (tmpB < 0.0f) {
-        tmpB = 0.0f;
+    speedGain = gCurrentActor->speedXZ - gCurrentActor->prevSpeedXZ;
+    if (speedGain < 0.0f) {
+        speedGain = 0.0f;
     }
     if (kongState == 2) {
         turnScale = -0x1E;
     } else {
         turnScale = -0x28;
     }
-    vehicle->heading = vehicle->heading + turnRate * turnScale * (1.0 + tmpB * 0.05);
+    vehicle->heading = vehicle->heading + turnRate * turnScale * (1.0 + speedGain * 0.05);
     vehicle->heading = vehicle->heading & 0xFFF;
     if (applyBuoyancy) {
         if (gCurrentActor->y < gCurrentActor->waterY) {
-            if (fl[3] != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if (inWater) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             gCurrentActor->speedY = gCurrentActor->speedY + ((gCurrentActor->waterY - gCurrentActor->y) * 3.0f + 15.0f);
             if ((gCurrentActor->speedY > 0.0f ? gCurrentActor->speedY : -gCurrentActor->speedY) > 20.0f) {
                 gCurrentActor->speedY = gCurrentActor->speedY - gCurrentActor->speedY / 12.0f;
@@ -425,13 +425,13 @@ u8 tilt;
     gCurrentActor->speedY = gCurrentActor->speedY + gCurrentActor->accelY;
     if (motion->jumpQueued != 0) {
         motion->jumpQueued = 0;
-        if (fl[3] != 0) {
+        if (inWater) {
             if (kongState == 2) {
                 gCurrentActor->speedY = 200.0f;
             } else {
                 gCurrentActor->speedY = D_8075033C;
             }
-        } else if (fl[2] != 0) {
+        } else if (onGround) {
             gCurrentActor->speedY = gCurrentActor->speedY + 200.0f;
         }
     }
@@ -451,7 +451,7 @@ u8 tilt;
     if (gGlobalOverlayFlags & 0x2000) {
         func_8002F490(vehicle);
     }
-    if (fl[2] != 0 && !(gCurrentActor->prevContactFlags & 1)) {
+    if (onGround && !(gCurrentActor->prevContactFlags & 1)) {
         gCurrentActor->speedY = -10.0f;
     }
     gCurrentActor->yaw = (vehicle->heading + vehicle->yawOffset) & 0xFFF;
