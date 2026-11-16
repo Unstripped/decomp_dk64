@@ -409,7 +409,7 @@ void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 f
     f32 r;
     f32 g;
     f32 b;
-    s32 pad;
+    s32 saved;
     PlayerState *playerState;
 
     found = 0;
@@ -462,16 +462,16 @@ void mapSaveSlotAndTransition(s32 map, s32 exitIndex, s32 returnExitIndex, s16 f
         D_8076A160[i].rgb[k][1] = (u32)(g * 255.0);
         D_8076A160[i].rgb[k][2] = (u32)(b * 255.0);
     }
-    k = 1; // FAKE: reuses loop counter k as the constant 1 stored to D_80750ACC and inUse (regalloc)
-    D_80750ACC = k;
-    playerState = (PlayerState *)gPrimaryPlayerActor->customState;
+    saved = TRUE; // FAKE: constant-valued s32 local shares one li a2,1 between the two byte stores (u8 or an initializer copy-propagates the 1)
+    D_80750ACC = saved;
+    playerState = gPrimaryPlayerActor->customState;
     D_807FD56C = playerState->stateFlags;
     if (playerState->heldActor != NULL) {
         D_807FD570 = playerState->heldActor->actorType;
     } else {
         D_807FD570 = 0;
     }
-    D_8076A160[i].inUse = k;
+    D_8076A160[i].inUse = saved;
     mapRequestTransition(map, exitIndex);
 }
 
