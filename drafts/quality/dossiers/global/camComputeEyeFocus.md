@@ -3,9 +3,12 @@
 ## Sites
 - global:80622B24:other:a9e334 (removed): `if (gGameMode != 1U)` kept the constant 1 out of the `gGameMode == 1` expression web; signed 1 became `li t3,1` + `bne t3,t0` where the target has `li at,1` + `beq t0,at` at 0x7818. Fixed by the switch (gGameMode) mode dispatch.
 - global:80622B24:other:975402 (retagged ORIG): empty `if (gPlayerCount >= 2 && gSplitScreenMode != 0) {}` in case 0x36; the target runs its loads and compares at 0x7904-0x792c (Q0646, Q0561).
-- global:80622B24:goto:u57554, #2..#5 (kept, Q0591): five entries into the single calc_look block 0x88f4-0x89b8 (orbit bne at 0x8028; b at 0x80a0, 0x81bc, 0x825c, 0x8284; case 5 falls in).
+- global:80622B24:goto:u57554#2..#5 (removed): cases 1/2/3/17 now `break` into the calc_look block, which follows the switch(p->type) closing brace (b 0x88f4 at 0x80a0, 0x81bc, 0x825c, 0x8284; case 5 breaks/falls in at 0x88f4).
+- global:80622B24:goto:u57554 (kept, Q0591): orbit arm `else goto calc_look` = `bne t7,at,0x88f4` at 0x8028; a `break` there is not threaded by ugen (extra `b 0x88f4; nop` after the arm).
+- global:80622B24:goto:u08a68 (kept, Q0591): now case 4's `goto look_done` (b 0x89bc at 0x864c, skipping the post-switch calc_look). The calc_look tail's old `goto look_done` is gone (the block falls into the join).
+- global:80622B24:goto:u78dc1#2 (new, kept, Q0591): `default: goto look_set;` of the path switch; the bound check (beqz at,0x89bc at 0x7ec4) and table entries 6-9/11-14 (.rodata 0x6c0-0x6dc) go straight to 0x89bc, past calc_look. IDO threads the default's goto into the table.
 - global:80622B24:goto:u71b9c (kept, Q0591): case 0x59 `bnez` at 0x926c into the check_target block 0x92c4 that default reaches after its zoom (0x92a8-0x92c0).
-- global:80622B24:goto:u78dc1 / u08a68 (open, nohit): `goto look_set` / `goto look_done` and the two consecutive labels after the type switch. Without them uopt colours type's ucvt candidate (bit 245 in the -l 5 table, `ucvt{M -11vreg}`) in t0; the target leaves it uncoloured and reloads `lw t8,92(sp)` / `lw t7,92(sp)` at 0x89bc-0x89c4.
+- global:80622B24:goto:u78dc1 (exhausted, kept by structure): orbit type-16 `goto look_set`, plus the two consecutive labels after calc_look. Without them uopt colours type's ucvt candidate (bit 245 in the -l 5 table, `ucvt{M -11vreg}`) in t0; the target leaves it uncoloured and reloads `lw t8,92(sp)` / `lw t7,92(sp)` at 0x89bc-0x89c4.
 
 ## Attempts
 - 2026-11-15 U HackcamComputeEyeFocus2 anthropic/claude-opus-5-5:high: `switch (gGameMode) { case 1: ...; break; case 0: ...; break; }` in place of `if (gGameMode != 0) { if (gGameMode == 1) {...} } else {...}`, signed `gGameMode != 1` -> fdiff 0 (a9e334 removed). With 1U kept the switch alone is also 0.
@@ -19,15 +22,18 @@
 - same: orbit arm as `switch (p->type) { case 16: <look>; break; default: goto calc_look; } break;` (inner switch exit as the extra join) -> 517.
 - same: angle lever: `u16 angle` with `(s16)angle` at the two sin/cos uses -> 443; `u16 angle` with `(s16)` on the mathAngleLerp store -> 248 (lhu kept). The label-free u16 trace still assigns the type piece (t0), so width only moves unrelated temps.
 - same: post-switch `if (type == 7) {...; return;}` as `switch (type) { case 7: ...; return; }` (case/exit labels as extra blocks) on the label-free body -> 927 (text 846).
+- 2026-11-16 U HackcamComputeEyeFocus4 anthropic/claude-opus-5-5:high: calc_look moved after the switch(p->type), position-only arms `break` into it, orbit keeps `else goto calc_look`, `default: goto look_set;` and case 4 `goto look_done;` skip it -> fdiff 0 (gotos 8 -> 5). Label pairings (case 4 / default): look_done/look_set 0; look_done/look_done 516; look_set/look_done 514; look_set/look_set 517.
+- same: orbit arm with `break` in place of the else-goto (`if (16) {..; goto look_set;} break;`, `else { break; }`, `if (p->type != 16) break;`) over the post-switch calc_look -> 514-518 (bne lands on an unthreaded `b 0x88f4`).
+- same: check_target as a post-inner-switch block guarded by an `s32 check` flag set in case 0x59 (cutscene bit) and default -> full 63, shape 44.
 
 ## Untried ideas
-- None left that is natural C: the empty joins could only come from nested statements whose ends coincide with the switch exit; every such wrapper (if, loop, switch) emits its own test, and code-free wrappers (`do {} while (0)`, `for (;;) { ...; break; }`) are hacks.
+- None left that is natural C for the remaining 5 gotos: u57554 (only the else-goto form is threaded), u78dc1/u08a68/u78dc1#2 (two reload joins needed by the type spill, Q0998), u71b9c (one check_target block, duplicates and flags add code).
 
 ## Evidence
 - 0x7c78-0x7c88: gGameMode reloaded into t0, `beqz t0 -> 0x8e10` (mode 0 code after the mode 1 code), `li at,1; bnel t0,at -> epilogue`.
 - 0x7818: `li at,1; beq t0,at,0x7c80` (the `!= 1` test, t0 = gGameMode loaded at 0x76bc / 0x777c).
 - 0x7904-0x792c: case 0x36 `lbu gPlayerCount; slti at,t4,2; bnezl; lbu gSplitScreenMode; beqzl; b` all to 0x7ab4.
-- 0x7ebc-0x7ec4: type switch bounds check `sltiu at,t3,17; beqz at,0x89bc` (no default, out-of-range goes to the post-switch join).
+- 0x7ebc-0x7ec4: type switch bounds check `sltiu at,t3,17; beqz at,0x89bc`; out-of-range and table entries 6-9/11-14 go to the join 0x89bc, not to the calc_look block 0x88f4 (an explicit `default: goto look_set;` in source, threaded by IDO).
 - 0x8028: orbit `bne t7,at(16),0x88f4`; type 16 look block ends `b 0x89bc` at 0x8060.
 - 0x89bc-0x89c8: `lw t8,92(sp); li at,7; lw t7,92(sp); bne t8,at,0x8dac` (type spilled as a word temp, reloaded at the join).
 - 0x8dac-0x8dc0: `li at,8; beq t7; li at,12; beq t7; li at,6; beq t7` (source order of `type != 8 && type != 0xC && type != 6`, t7 loaded once at 0x89c4).
