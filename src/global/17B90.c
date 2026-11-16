@@ -79,24 +79,22 @@ void gfxSwapGeometryModeCullBits(Gfx *cmdStart, void *cmdEnd) {
     u32 w0;
     u32 w1;
 
-    op = 0; // FAKE: orders the mask candidate before the command-word candidate
+    op = 0; // FAKE: makes op the first register candidate ($v0) ahead of w0
     if (cmdStart != cmdEnd) {
         do {
             w0 = cmdStart->words.w0;
             command = w0 >> 24;
-            if ((w0 & 0x600) && (w0 & 0x600)) {} // FAKE: preserves the cull-mask expression's live range
             w1 = cmdStart->words.w1;
-            if (command == 0xD9) {
+            if (0xD9 == command) { // FAKE: constant-first compare orders the D9 test operands (bne v0,t1 at 0x260; command == 0xD9 gives bne t1,v0)
                 if (w1 == 0) {
                     w0 = ~w0 & 0xFFFFFF;
+                    op = w0;
                     if ((w0 & 0x600) == 0x200) {
-                        op = w0 | 0x400;
-                        w0 = 0; // FAKE: prevents forwarding the mask expression out of op
+                        op |= 0x400;
                         op &= ~0x200;
                         cmdStart->words.w0 = ~op | 0xD9000000;
                     } else if ((w0 & 0x600) == 0x400) {
-                        op = w0 | 0x200;
-                        w0 = 0; // FAKE: prevents forwarding the mask expression out of op
+                        op |= 0x200;
                         op &= ~0x400;
                         cmdStart->words.w0 = ~op | 0xD9000000;
                     }
@@ -108,7 +106,7 @@ void gfxSwapGeometryModeCullBits(Gfx *cmdStart, void *cmdEnd) {
                     cmdStart->words.w1 &= ~0x400;
                 }
             }
-            if (command && command) {} // FAKE: retains the opcode variable rather than a forwarded shift
+            if (command && command) {} // FAKE: keeps command live across the loop ($a2); without it uopt also unrolls the loop
         } while (++cmdStart != cmdEnd);
     }
 }
