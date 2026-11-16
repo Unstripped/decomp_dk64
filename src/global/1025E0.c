@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "text.h"
-#define PROTO_SKIP_textGetCharAdvance // FAKE: callee prototype steer
 #include "proto/boot/3630.h"
 #include "proto/global/100180.h"
 #include "proto/global/1025E0.h"
@@ -164,7 +163,6 @@ void func_806FDF54(f32 *pAngle, f32 *pTarget) {
 }
 
 extern TextFontInfo gTextFonts[];
-extern s16 textGetCharAdvance(s16, s32); // FAKE: callee prototype steer
 
 Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 baseY, f32 baseZ, f32 scale) {
     TextObject *node;
@@ -177,7 +175,7 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
     s32 interpolatePos;
     f32 phaseStep;
     s32 interpolateScale;
-    s32 ch;
+    u8 ch;
 
     strPos = 0;
     curX = baseX;
@@ -189,10 +187,8 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
     phaseStep = 6.2831855f / node->count;
     interpolatePos = 1;
     interpolateScale = 1;
-    strPos = 1;
-    ch = node->text[0];
-    while (ch != 0) {
-        if (ch != 0x20) {
+    while ((ch = node->text[strPos++])) {
+        if (ch != ' ') {
             u8 glyphAdv;
             u8 halfAdv;
 
@@ -320,7 +316,9 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
             }
             phase -= gTextFonts[node->font].spaceWidth * 0.019;
         }
-        if (phase < 0.0f) { phase += 6.2831855f; } ch = *(strPos + node->text); strPos += 1; // FAKE: index-first spelling keeps the addu operand order
+        if (phase < 0.0f) {
+            phase += 6.2831855f;
+        }
     }
     gDPPipeSync(glist++);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x00504240);
