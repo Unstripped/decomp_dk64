@@ -773,3 +773,4 @@
 {"type": "unit", "t": "2026-11-16T15:53:18Z", "unit": "2026-11-16: cleanup HackactorBoneChainSwingUpdate", "commit": "e95744255e463b99930bb231b3c5961537b3ce2e"}
 {"type": "unit", "t": "2026-11-16T16:05:08Z", "unit": "2026-11-16: cleanup HackplayerCameraUpdateFromTarget4", "commit": "15cf7c99f761e34950c90c1a1962e37e084c0a07"}
 {"type": "unit", "t": "2026-11-16T16:07:10Z", "unit": "2026-11-16: cleanup HackcamPathCommandDispatch", "commit": "725a0cd4eb10f3880066ab182a460afe69bc34a2"}
+{"type": "unit", "t": "2026-11-16T16:07:53Z", "unit": "2026-11-16: cleanup HacktextDrawStringVtx4", "commit": "e9078fbc2e97b87669116170779ae91a22f2247a"}

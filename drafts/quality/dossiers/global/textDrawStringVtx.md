@@ -42,10 +42,24 @@
   - Keeping count live: `count--` inside the `i` loop with no reset: 102. `for (...; i-- > 0; count--)`: 116. `count -= count` as the reset matches (0) but is no-op arithmetic (a worse hack, not kept).
   - Other: `count /= 4; for (i = count; i-- > 0;)` (the same dead store respelled): 20. `for (i = count / 4, count = 0; i-- > 0;)`: 327.
   - Sweep on the copy: 0 hits.
+- 2026-11-16 U HacktextDrawStringVtx4 anthropic/claude-opus-5-5:high (cdb041 / cdb041#2, both sites rewritten together; variants.py try full scores; uopt -zdbug:5 on hack vs plain):
+  - Priority diagnosis: plain `i = count / 4` lowers count's adjsave from 51.8 to 32.4. That drops it below yoff ({752|0}, -69, 50.0), so yoff takes reg 22 (s8) and count gets reg 10. With the hack, copy-prop makes the quad loop read count (`ugeq count,1`, `uadd count,-1`), and that loop-weighted read is the lever.
+  - Count as the counter (`count /= 4; while (count-- > 0)`, 8 lines) differs only at 0x1560/0x1728 and 0x1564/0x172c:
+    - the entry test is `slt t1,zero,t7` + `beqz` instead of `blez t7`;
+    - the decrement goes to `addiu s8,t7,-1` instead of a3.
+    - count is redefined before the cfe temp test, so the temp cannot fold into the branch. Count stays s8 through the loop, so the counter cannot land in a3.
+  - Tried: `i = count; i /= 4` 321; `count -= 4` per quad without the reset 317, with the reset 324; `count /= 4; while (--count >= 0)` 21; `for (count /= 4; count-- > 0;)` 28; `count = count / 4 - 1` count-down 21; `i = count; while ((i -= 4) >= 0)` with index i 320; `for (i = count, i /= 4; i-- > 0;)` 326; `count /= 4; for (i = count - 1; i >= 0; i--)` 94.
+  - Flush `if` changed to `while (count >= 0x20)` / `while (count != 0)`, so the folded back-test would loop-weight count: with the plain form 324 (site 1), 324 (site 2), 336 (both). With the hack and both whiles: 34.
 ## Untried ideas
-- cdb041 / cdb041#2: closed by 2026-11-15 HacktextDrawStringVtx3: a separate copy variable does not reproduce the lever (count's own redefinition gives count its s8 priority). Remaining untested direction: a natural *live* reason for `count` itself to hold the quad count (count's value read after the loop by real code the target performs); none found in the asm (count is only reset by `move s8,zero` at 0x15d4/0x179c).
+- cdb041 / cdb041#2: the plain forms are closed by a priority inversion (see Evidence), not by the compare shape. Two directions are still untried:
+  - lower yoff's priority below 32.4 without new code: yoff is defined at 0x1348 and used once at 0x1488, and its home must stay at -69.
+  - add a reference to count in the quad loop that emits no code and is not a dead store. In the target, count is only reset by `move s8,zero` at 0x15d4/0x179c, and nothing reads it after the loop.
 ## Evidence
 - Vertex block 0x1478-0x1500.
 - Store order: vp0 ob0 0, ob1 2, then vp1 ob1 0x12 (same v0), ob2 4, tc1 0xa, tc0 8. Then vp1 0x10/0x14/0x18/0x1a; vp2 0x20/0x22/0x24/0x28/0x2a; vp3 0x32 before 0x30, then 0x34/0x38/0x3a.
 - Frame layout (2026-11-15): a declaration in the `ch != 0x20` block is placed after every `_g` home parsed before that block. cfe temps go below all locals, and one shared temp serves every `?:` and post-decrement compare.
 - `addiu s1,s1,64` sits in the delay slot of `beqz s7` at 0x1500.
+- Priorities (uopt -zdbug:5, 2026-11-16):
+  - With the hack: count 51.8 gets reg 22 (s8), and yoff 50.0 is caller-saved (a3, spilled to sb 131(sp) around textLoadFontSheetGfx at 0x1448/0x1460).
+  - Plain: count 32.4 and yoff 50.0, so the two swap.
+  - Callee-saved registers 14-21 have the same owners in both runs.
