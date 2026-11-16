@@ -12,8 +12,11 @@
 - 2026-11-15 HackbonusControllerUpdate2 opus:high: uef380 case 15 prework hoisted before the switch as `if (challengeType == 15) {...}` with case 15 joining the 0/4/13 labels -> fdiff 1 (kept)
 - 2026-11-15 HackbonusControllerUpdate2 opus:high: u4da95 render block duplicated into the case 0 arm only -> fdiff 1, text +32; u4da95#2 duplicated into the 7/8 arm only -> fdiff 1, text +32 (kept)
 
+- 2026-11-16 HackbonusControllerUpdate3 opus:high: uef380 case 15 added to the 0/4/13 labels with its prework under if (challengeType == 15) inside the tail -> full=114 text=129 (kept)
+- 2026-11-16 HackbonusControllerUpdate3 opus:high: u4da95#2 cases 7/8 fall through into case 5 with challengeType guards on the 5/6/2 arms -> full=469 text=436 (kept)
+
 ## Untried ideas
-- none: the three gotos are Q0591 shared tails (single jal per tail in the target)
+- none: the three gotos are Q0591 shared tails (single jal per tail in the target). Block order is fixed by the single jump tables (.rodata+0x10, +0x98): uef380 is a backward jump (b 0x2f8 from 0x35c), and the render block can follow only one of its three entries; the remaining spellings (case labels inside if (0) blocks, do-while(0) + break, flags) only trade one steer for another
 
 ## Evidence
 - the first case-0 test is a real || chain in source order: lbu v0,111(sp) at 0xb20, beq v0,1 at 0xb2c, beqz v0 at 0xb34, beq v0,2 at 0xb3c, bne v0,0x10 at 0xb44; a switch changes that compare structure
