@@ -28,6 +28,7 @@ s16 sRingExits[] = { 0x22, 8, 0x22, 7, -1, -1, 0x22, 5, 0x22, 4, 0x22, 0x12, 0x2
 s16 sRingNodeScripts[] = { 0x2F2, 0x2F1, 0x2F3, 0x2F2, 0x2F1, 0x2F2, 0x2F2, 0x2F1, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4 };
 // set when ring 2 or 7 finishes without leaving the map: the waiting (state 5) active ring may start
 s8 sRingNextReady = 0;
+// index of the ring whose cutscene actorNodeRingSpawnRings started (csCmdSetFlag1C1Or1C2 in 478F0 tests it)
 extern s8 D_807FC8D0;
 
 // customState of the ring actors (type 0xCD) spawned by actorNodeRingSpawnRings
@@ -99,20 +100,24 @@ void actorNodeRingSpawnRings(void) {
     }
 }
 
+// buttons newly pressed this frame, latched by behaviour-script command 0x1C (8F4B0.c copies D_807ECD48)
+// and cleared by actorNodeRingUpdate every frame
 extern u16 D_8076A0A6;
+// squared xz distance from the ring node to the player; actorRingUpdate starts a waiting ring under 400 units
 extern f32 D_807FC8D4;
 
-
 void actorNodeRingUpdate(void) {
-    static s8 sRingSequence[] = { 3, 10, 1, 8, 2, 11, 0, 9, -1, 0, 0, 0 };
-    static s8 sRingSequencePos = 0;
-    RingNodeModel *nodePtr = ((RingNodeActor *)gCurrentActor)->model;
+    // bit indices of the N64 button mask: C-up, D-down, C-left, D-right, C-down, D-up, C-right, D-left;
+    // entering the whole sequence sets flags 0x28 and 0x26
+    static s8 sButtonSequence[] = { 3, 10, 1, 8, 2, 11, 0, 9, -1, 0, 0, 0 };
+    static s8 sButtonSequencePos = 0;
+    RingNodeModel *nodeModel = ((RingNodeActor *)gCurrentActor)->model;
     f32 dx;
     f32 dz;
     u8 shakeMagnitude;
     u16 shakeDuration;
-    s16 ringHits = D_8076A0A6;
-    s16 idx;
+    s16 buttons = D_8076A0A6;
+    s16 button;
 
     if (!(gCurrentActor->flags & 0x10)) {
         if (ringAllCleared() != 0) {
@@ -121,14 +126,14 @@ void actorNodeRingUpdate(void) {
         }
         gCurrentActor->drawDistance = 0x7D0;
         gCurrentActor->flags |= 0x400;
-        ringHits = 0;
-        sRingSequencePos = 0;
+        buttons = 0;
+        sButtonSequencePos = 0;
         actorSpawn(0x73, 0xC4);
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
         gSpawnedActor->renderFlags |= 0x20;
         gSpawnedActor->flags |= 0x400;
         gSpawnedActor->drawDistance = 0x7D0;
-        nodePtr->modelActor = gSpawnedActor;
+        nodeModel->modelActor = gSpawnedActor;
         D_807FC8D4 = 1000.0f;
         actorNodeRingSpawnRings();
         gCurrentActor->state = 0;
@@ -139,12 +144,13 @@ void actorNodeRingUpdate(void) {
             gCurrentActor->state = 1;
         }
     }
-    idx = -1;
-    if (ringHits != 0) {
-        idx = 0;
-        while (!(ringHits & 1)) {
-            ringHits >>= 1;
-            idx++;
+    // index of the lowest pressed button, -1 when none
+    button = -1;
+    if (buttons != 0) {
+        button = 0;
+        while (!(buttons & 1)) {
+            buttons >>= 1;
+            button++;
         }
     }
     dx = gCurrentActor->x - gPrimaryPlayerActor->x;
@@ -180,17 +186,17 @@ void actorNodeRingUpdate(void) {
     if (shakeDuration) {
         camStartShake(gCamActor, shakeMagnitude, shakeDuration);
     }
-    if (idx >= 0) {
-        if (idx == sRingSequence[sRingSequencePos]) {
-            sRingSequencePos++;
-            if (sRingSequence[sRingSequencePos] == -1) {
+    if (button >= 0) {
+        if (button == sButtonSequence[sButtonSequencePos]) {
+            sButtonSequencePos++;
+            if (sButtonSequence[sButtonSequencePos] == -1) {
                 sfxPlayOnFreeSlot(0x1DA, 0x7FFF, 63.0f, 1.0f, 5, 0);
                 flagSet(0x28, 1, 1);
                 flagSet(0x26, 1, 1);
-                sRingSequencePos = -1;
+                sButtonSequencePos = -1;
             }
         } else {
-            sRingSequencePos = 0;
+            sButtonSequencePos = 0;
         }
     }
     D_8076A0A6 = 0;
