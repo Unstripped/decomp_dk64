@@ -1936,8 +1936,8 @@ void playerFireWeapon(u8 isFirstPerson, u8 force) {
 
 u8 actorTestNodeSegmentCollision(Actor *actor) {
     f32 z;
-    f32 pad2;
-    f32 pad1;
+    f32 y;
+    f32 x;
     f32 t;
     f32 x2;
     f32 x1;
@@ -1954,10 +1954,15 @@ u8 actorTestNodeSegmentCollision(Actor *actor) {
     actorGetNodePos(actor, 4, &x1, &y1, &z1);
     actorGetNodePos(actor, 0xA, &x2, &y2, &z2);
     for (; t <= 1.0 && hit == 0; t += 0.2) {
-        do { // FAKE: do/while(0) block steers the z1 copy (scheduling of z)
+        do { // FAKE: do/while(0) block ends the copy block so x1/y1/z1 reach the lerp as x/y/z variables, not copy-propagated (x1 f2, y1 f16, z1 f18 at 0x3834-0x3848)
+            x = x1;
+            y = y1;
             z = z1;
         } while (0);
-        hit = collisionTestSphere(((x2 - x1) * t) + x1, ((y2 - y1) * t) + y1, z = ((z2 - z1) * t) + z, 10.0f, &hitA, &hitB, 0, 0); // FAKE: dead store into z in the argument makes z a uopt candidate evaluated in argument order (Q0206)
+        x = ((x2 - x1) * t) + x;
+        y = ((y2 - y1) * t) + y;
+        z = ((z2 - z1) * t) + z;
+        hit = collisionTestSphere(x, y, z, 10.0f, &hitA, &hitB, 0, 0);
     }
     return hit;
 }
