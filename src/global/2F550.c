@@ -1004,19 +1004,19 @@ s32 mapBspBoxInFrustum(s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 max
     s32 behind;
     s32 i;
     f64 d;
-    s32 pad0;
+    s32 pad;
 
-    if ((((f32)minX * sViewPlane[0] + (f32)minY * sViewPlane[1]) + (f32)minZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
-        (((f32)minX * sViewPlane[0] + (f32)minY * sViewPlane[1]) + maxZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
-        (((f32)minX * sViewPlane[0] + maxY * sViewPlane[1]) + (f32)minZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
-        (((f32)minX * sViewPlane[0] + maxY * sViewPlane[1]) + maxZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
-        ((maxX * sViewPlane[0] + (f32)minY * sViewPlane[1]) + (f32)minZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
-        ((maxX * sViewPlane[0] + (f32)minY * sViewPlane[1]) + maxZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
-        ((maxX * sViewPlane[0] + maxY * sViewPlane[1]) + (f32)minZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+    if (((minX * sViewPlane[0] + minY * sViewPlane[1]) + minZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+        ((minX * sViewPlane[0] + minY * sViewPlane[1]) + maxZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+        ((minX * sViewPlane[0] + maxY * sViewPlane[1]) + minZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+        ((minX * sViewPlane[0] + maxY * sViewPlane[1]) + maxZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+        ((maxX * sViewPlane[0] + minY * sViewPlane[1]) + minZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+        ((maxX * sViewPlane[0] + minY * sViewPlane[1]) + maxZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
+        ((maxX * sViewPlane[0] + maxY * sViewPlane[1]) + minZ * sViewPlane[2]) + sViewPlane[3] < 0.0 &&
         ((maxX * sViewPlane[0] + maxY * sViewPlane[1]) + maxZ * sViewPlane[2]) + sViewPlane[3] < 0.0) {
         return 0;
     }
-    if ((f32)minX <= x && x <= (f32)maxX && (f32)minY <= y && y <= (f32)maxY && (f32)minZ <= z && z <= (f32)maxZ) {
+    if (minX <= x && x <= maxX && minY <= y && y <= maxY && minZ <= z && z <= maxZ) {
         return 1;
     }
     in1 = 0;
@@ -1024,11 +1024,11 @@ s32 mapBspBoxInFrustum(s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 max
     behind = 0;
     for (i = 0; i < 5 && behind == 0; i++) {
         d = PLANE_DIST(planes[i], minX, minY, minZ);
-        if (d < 0.00) {
+        if (d < 0) {
             in1 = 1;
         }
         d = PLANE_DIST(planes[i], minX, maxY, minZ);
-        if (d < 0.00) {
+        if (d < 0) {
             in2 = 1;
         }
         if (in1 != 0 && in2 != 0) {
