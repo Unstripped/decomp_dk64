@@ -166,23 +166,24 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Session 2026-11-15 (rolling hack/polish queue, Lead → Lead6 hand-offs via dispatch.md)** — hack queue over the top remaining FAKE functions plus re-review items; same-TU data carves retire XBB/as1 steers (EFDC0 `gPlayerStateCallbacks`, 19A00 `.data` to C, C1E70/ACDC0 carves #5/#6, 13980 `.bss` struct), owner retypes (`CamZoneWeightLinks`, `HudTextList`, pause `u8 **` tables), offset-cited ORIGs (f32 raw-bits `*(s32 *)&` in 7130, ORIG 66 → 77); FAKE 533 → 446; names at close: 45 functions/globals + 14 fields. Knowledge Q0883–Q0986 (Q0499/Q0519/Q0548/Q0552/Q0737/Q0761/Q0820/Q0835 corrected).
 - [x] **Session 2026-11-15c (rolling hack queue, director mode, CleanupLead-2 → CleanupLead3 hand-off via dispatch.md)** — hack items over the top of `rank` plus a dead-guard classifier (block split / availability / kill lever, Q0908) that reopened exhausted dead-if items; fixes by role-named locals replacing reused ones (936B0, 127B00, E550), file-local component types (B7490 `FlyPatrolComponent`), a function-local static for a single-user global (6710), ternary clamps for a value-named constant (B2CE0), a consolidated `actorSpawn` prototype (C1E70); FAKE 446 → 415; names at close: 13 fields + 17 globals/functions (held names in pending.md). Knowledge Q0987–Q1033 (26 entries corrected or refined, Q0908 classifier).
 - [x] **Session 2026-11-16 (rolling hack/polish queue, director mode, CleanupLead → CleanupLead-3 → CleanupLead4 hand-offs via dispatch.md)** — review coverage wave to the target (every function reviewed except the blocked renderHitCounterHUD, before the close renames) plus after-coverage hack items; fixes by structured control flow (201B0 camComputeEyeFocus `calc_look` after the switch), a load-bearing guard `continue` (104F0), indexed-global loops (7A510), in-place refinement (11BC10), and a render.h `EffectGrid` data retype (TypesOwner batch_4); codegen-only respellings retagged by the lead (36880, 17B90, 9CE20, D5E10, race/0, 9BF30); FAKE 415 → 411, goto 35 → 32, ORIG 78 → 80, open sites 201 → 93; names at close: 5 fields, 1 typedef parameter and 6 globals (held names in pending.md). Knowledge Q1034–Q1058 (Q0376 and Q0463 corrected).
-- [ ] Paused after session 2026-11-16. Leftovers: 4 functions without a fresh review (201B0 camUpdate/camUpdateFollow/camUpdateFollowBlend and 7CA80 actorDelayedCallbacksTick, staled by the close field renames) plus the blocked renderHitCounterHUD, and 46 not exhausted (`uv run tools/quality.py rank --polish` / `rank`); held names, the unbatched collision.h header request, retype leftovers and never-classified dead-if items are in `.omp/skills/cleanup-unit/pending.md`.
+- [x] **Session 2026-11-16b (rolling hack queue, director mode, CleanupLead5 → CleanupLead6 hand-off via dispatch.md)** — after-coverage hack items over `rank` (34 worker reports merged) plus one TypesOwner batch (dmaReadAssetDecompress/assetResolveRomRange `u32 *` size out-params) and two worker header bundles (cutscene.h `CsCond` condition record, 100180 `u8 *dst`/`void *sheet` retypes); fixes by role splits and real types (jetpac/3480 `pos`, 1295B0 inline squared distance, E4090 deleted `yaw` copy: 8 sites → 2, 8F050 out-param index, 55B20 `s16 *p` stream reader, 7130 split labels as `D_8077058C[n]`), codegen-only respellings retagged by the lead (3C10, 15050, E4090); FAKE 411 → 392, LAYOUT 85 → 82, exhausted 4,224 → 4,234; names at close: 4 globals (CamState/ActorCallbackNode field names held). Knowledge Q1059–Q1096 (Q0695/Q0956 corrected).
+- [ ] Paused after session 2026-11-16b. Leftovers: 5 functions without a fresh review plus 36 not exhausted, many reopened only because the session's knowledge entries name them (`uv run tools/quality.py rank --polish` / `rank`); held names, the dropped CollisionBoxTri request, retype leftovers and types items are in `.omp/skills/cleanup-unit/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, session 2026-11-16 close):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, session 2026-11-16b close):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 411 | 583 |
-| FAKE dead-if | 147 | 263 |
+| FAKE | 392 | 583 |
+| FAKE dead-if | 134 | 263 |
 | FAKE proto-steer | 17 | 134 |
-| FAKE other kinds | 247 | 186 |
+| FAKE other kinds | 241 | 186 |
 | ORIG (cited target offset) | 80 | 0 |
-| LAYOUT | 85 | 47 |
+| LAYOUT | 82 | 47 |
 | goto | 32 | 39 |
 | proto-type (`// PROTO:`) | 2 | 0 |
 | protos mismatch | 15 | 1,202 |
-| reviewed / exhausted functions | 4,265 / 4,224 of 4,270 | 0 |
-| cfe warnings (start column = round 9 start, when tracking began) | 6 | 1,890 |
+| reviewed / exhausted functions | 4,265 / 4,234 of 4,270 | 0 |
+| cfe warnings (start column = round 9 start, when tracking began) | 5 | 1,890 |
 | uninit warnings (clint checks every function) | 252 | 122 |
 | `func_` definitions | 292 | 457 |
 | m2c names | 3 | 5,040 |
