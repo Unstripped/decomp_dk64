@@ -5,12 +5,15 @@
   - The callee has 1 parameter, with no home stores.
   - The fix is a K&R definition of slotQueueGetCountStep, delivered as a stand-in bundle.
 - global:806FA7BC:dead-if:34e891: *value is loaded before the null test (beqz delay slot 0x28c4); the NULL path reuses it at 0x295c.
+  - The lever is the *value read itself, not the block split: `if (slot == 0) {}` or `;` in its place gives 13, the same as removing it.
+  - Stays FAKE: the read is the target's, but the empty if only keeps a computation alive (ladder: not ORIG).
 - global:806FA7BC:other:8d84c1: REMOVED.
   - The sign is written as a ternary: `((target - shown) >= 0 ? 1 : -1) * step`.
   - The first |d| is now the min-if condition itself, so there is no absd local.
-- global:806FA7BC:other:419496 (was e971d0): `dist` copy temp in the min-if: `dist = |d|; step = dist;`.
+- global:806FA7BC:other:419496 (was e971d0): REMOVED (untagged).
+  - `dist = |d|; step = dist;` is a named local holding a computed value for use, not an alias of an existing local: ordinary C under the 2026-11-15 session ruling (brief + Q0601).
   - The |d| recomputation is the target's own code (a second blez/negu at 0x28f8), so it is written as a repeated ternary.
-  - The temp is still needed: the target computes the second |d| into v0, then does move a3,v0 at 0x2908.
+  - The target computes the second |d| into v0, then does move a3,v0 at 0x2908; `step = |d|` directly coalesces it into a3 (fdiff 3).
 ## Attempts
 - round 3 (opus:low): consolidate (1-arg proto / 3-arg definition), diagnose, permute.
 - 2026-11-14 U HackslotQueueStateFadeIn:
@@ -35,9 +38,20 @@
     - value-local null test: 11. Bare `if (value)`: 4.
     - as1probe scan of target-before-test: the best edit is to delete record 220 (move s0,a1 above the beq), which gives full=1.
   - permuter, 900 s, base 201 (diff local, target/shown before the test, no dead if): best 80. The best output only adds a copy temp for the second |d|, the same as dist, so the copy temp is confirmed as needed.
+- 2026-11-15 U HackslotQueueStateMoveToTarget (anthropic/claude-opus-5-5:high):
+  - 419496: tag dropped under the session ruling (named temp holding a value), fdiff OK, clint uninit 0.
+    - re-measured on the current body: `step = |d|` directly 3; `dist = |d|` before the if (`if (dist < step) step = dist`) 16; `(dist = |d|) < step` 16; `step = dist < step ? dist : step` 16; `dist = step; if (|d| < step) dist = |d|; ... * dist` 3; if/else dist 56.
+  - 34e891 (current body, no dead if: 13):
+    - block-split test: `if (slot == 0) {}` 13, `;` 13, `if (reached) {}` 13. The lever is the read, not the block count.
+    - other spellings of the read: `(void)*v;` / `*v;` 13 (cfe drops them), `if (*v) {}` 12, `if (*v != shown) {}` 0 (still a dead if), `reached = *v == shown` before the test 13, `dist = *v` / `step = *v` before the test 13.
+    - a dead store `cur = *v` before the test into an s32 local that replaces the `value` pointer local (top part reading the field directly; that alone is 0): 0, but cur is never used, so it is the same dead read. u16/s16 cur: 5. A new local on top of `value`: 22-28 (frame grows).
+    - cur used: `target = cur` 4 (s32/u32), 9 (u16); call arg cur 10-56; cur reloaded at the end of the non-null arm and `reached = cur == shown`: 9-14.
+    - `value` pointer local re-read inside the block, every combination of uses (null test, target, call arg, final compare): 12-18.
+    - if/else with `reached = ...` in the else arm: 13; in both arms: 30. Block-scope `s32 target` at the top of the arm: 13. `shown` alone before the test: 14. `target` before the test, reloaded at the end of the arm with `reached = target == shown`: 9.
+    - `(*v != shown) && (v != NULL)`: 6 (extra compare branch, NULL deref before the test).
+    - variants scan of the target-before-test body (4): nothing below 4.
 ## Untried ideas
-- 34e891: C that reads *value as an expression before the test (not assigned to target; s0 copy stays after the branch) without a dead if.
-- 419496: a spelling where the second |d| is a separate value from step without a pure copy local.
+- 34e891: none left in natural C: every spelling that puts the *value load before the null test without a dead construct assigns it to a variable, and every assigned variable either moves the s0 copy above the branch or keeps a live range that changes allocation.
 ## Evidence
 - frame 0x58
 - slot*0x30 spilled at 0x30(sp)
