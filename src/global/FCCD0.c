@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/117190.h"
@@ -163,9 +162,6 @@ void func_806F8278(u8 player) {
 extern s16 D_80744544;
 extern u16 D_80750AC4;
 extern u16 gTextNumberArg;
-#ifndef NON_MATCHING
-#endif
-extern s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
 
 /* Initialises the per-player slot queue (15 slots of 0x30 bytes per player): sets each slot's text pointer, size and
  * screen position (func_806F8004). */
@@ -178,7 +174,6 @@ void slotQueueInit(s32 reset) {
     SlotQueueSlot *base;
     KongInventory *kongInv;
     s32 flag;
-    u8 player;
 
     shownMask = D_80744544;
     world = mapGetHubWorldIndex(gCurrentWorldId, 1);
@@ -194,10 +189,8 @@ void slotQueueInit(s32 reset) {
         inv = gPlayerInventoryTable;
         i = 0;
         do {
-            kongInv = (KongInventory *)(playerGetResolvedKongId(i) * sizeof(KongInventory)); // FAKE: byte offset parked in kongInv makes the addu take inv first (addu t9,s8,t8)
-            kongInv = (KongInventory *)((u8 *)inv + (s32)kongInv);
-            player = i;
-            base = slotQueueGetAddress(player);
+            kongInv = &inv->kong[playerGetResolvedKongId(i)];
+            base = slotQueueGetAddress(i);
             for (j = 0; j < 15; j++) {
                 flag = 0;
                 if (reset != 0) {
@@ -319,7 +312,7 @@ void slotQueueInit(s32 reset) {
                     base[j].shown = *base[j].value;
                 }
             }
-            func_806F8278(player);
+            func_806F8278(i);
             i++;
             inv++;
         } while (i < gPlayerCount);
@@ -590,16 +583,16 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
 
 
 void bitfieldSetMappedFlag(u16 *bits, s32 map) {
-    *bits |= 1 << mapGetHubWorldIndex(map & 0xFF, 1);
+    *bits |= 1 << mapGetHubWorldIndex(map, 1);
 }
 
 void bitfieldClearMappedFlag(u16 *bits, s32 map) {
-    *bits &= ~(1 << mapGetHubWorldIndex(map & 0xFF, 1));
+    *bits &= ~(1 << mapGetHubWorldIndex(map, 1));
 }
 
 
 s32 bitfieldHasMappedFlag(u16 bits, s32 map) {
-    return (1 << mapGetHubWorldIndex(map & 0xFF, 1)) & bits & 0xFF;
+    return (1 << mapGetHubWorldIndex(map, 1)) & bits & 0xFF;
 }
 
 
