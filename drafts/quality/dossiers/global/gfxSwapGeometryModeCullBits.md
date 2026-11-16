@@ -24,11 +24,17 @@ global:806130A4:dead-if:0d68f0 `if (command && command) {}` at loop end: keeps t
 - kill-free clear arms: w0 = op & ~0x200 (33), op = ~op | 0xD9000000; store op (26), w0 = ~op | 0xD9000000 write-back (47), w0 rmw (41), op as clear-mask local (41), u32 op (36). Set arm through w1 rmw + two stores (59 without kill, 140 with).
 - Reconstruct: per-arm direct word reads (61), early-continue for/do (59, not unrolled), gfx pointer-walk for (55), per-arm mask local (143).
 - variants.py scan on the copy: zeros only for neutral respellings (operand swaps, command s32, decl swaps).
+2026-11-15 HackgfxSwapGeometryModeCullBits3 opus:high (brief untried ideas; 45 bodies scored with variants.py try):
+- op0: `register s32 op` (first or second declaration) without op = 0: 15 (IDO ignores register; w0 takes $v0).
+- dif600: declared-last mask local (`u32 mode`/reused `w1 = w0 & 0x600`, var-first or constant-first compares, other four steers kept): 5; `s32 mode` 19. One-op RHS forwarded (Q0550), the uand web starts in the clear arm after the ushr web dies, takes $v0 (andi v0,v1,0x600; nop at 0x280; bne t1,v0 at 0x260). Complemented-bits role local `clear = ~w0 & 0xFFFFFF`: 44-55, 19-39 only with its own dead test.
+- kills: multi-op one-expression `op = (w0 | 0x400) & ~0x200` with the other steers kept 36 (37 no mask test, 64 no command test); op-free store arms 36; u32 op 36.
+- cmd: `s32 pad`/`pad[2]` declared last 52 (frame 0x18 is four s-register saves, not a home); u8 command 24 (52 without the test); embedded `(command = w0 >> 24) == 0xD9` 15; command declared last neutral (0).
+- reconstruct: role locals clear/mode with op-free one-expression stores 150 (s32 153, while 150); embedded w0/command assignment in the D9 test 59; combined mode local + one-expression arms 142.
 ## Untried ideas
-A natural reason for op to be live/defined before the loop (an original that used op before the loop, e.g. a flag) - no evidence in the target (no store at 0x214-0x254).
-A clear-arm mask candidate that starts before the D9 test without a dead test (the target needs `w0 & 0x600` live across the shift web).
-A third variable that holds $a2 the way the dead command test does (target leaves $a2 unused while $a3/$t0 are taken).
+A natural statement before the `cmdStart != cmdEnd` guard that makes op (not a0/a1) the first candidate without a dead store (none found; `register` and declaration order do not change candidate order).
+A mask expression whose first occurrence precedes the D9 test while emitting no code (only dead tests found so far).
 ## Evidence
+Frame: the 0x18 vs 0x10 difference is the saved s-register count (s0-s3 at 8-0x14 vs s0-s1); sp+0..7 is unused in both. A pad local does not restore it: the command variable in $a2 is what pushes the constants into s registers.
 Colouring is bit-order (all "assigned (unconstrained)"): the register a candidate gets depends only on which earlier-bit candidates it interferes with. op = 0 is the only construct that can precede the cmdStart != cmdEnd test; command must stay a stored variable to the loop end for the ushr web to overlap the mask web (mask forbidden $v0 -> $a3).
 Target (expected/build/src/global/17B90.o, 0x214-0x300): constants t2=0xFFFFFF, s3=-1025, s2=-513, s1=-1025, s0=1024, t5=0xD9000000, t4=-513, t3=512, t1=217; loop vars v1=w0/clear, t0=field w1, a3=w1 copy + clear mask, v0=shift/op/set mask, $a2 unused.
 `bne v0,t1` at 0x260 (shift first), every mask compare constant-first: bne t3,a3 (0x27c), bne s0,a3 (0x298), bne t3,v0 (0x2b4), bne s0,v0 (0x2cc).
