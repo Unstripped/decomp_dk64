@@ -899,26 +899,22 @@ void effectWobbleScaleUpdate(EffectNode *effect, s8 *isDone) {
 void effectDecelerateDriftUpdate(EffectNode *effect, s8 *isDone) {
     f32 stepX;
     f32 stepZ;
-    DriftHeadingState *newState;
     DriftHeadingState *state;
 
-    state = effect->allocation;
-    if (state == NULL) {
-        newState = heapAlloc(8);
-        effect->allocation = newState;
-        newState->speed = ((f64) effect->scaleX / 0.36) * 2.5;
-        newState->heading = (f32) (u32) ((gFrameCounter * 40) + (effect->speed << 9));
-        state = effect->allocation;
+    if (effect->allocation == NULL) {
+        state = heapAlloc(8);
+        effect->allocation = state;
+        state->speed = effect->scaleX / 0.36 * 2.5;
+        state->heading = (gFrameCounter * 40) + (effect->speed << 9);
     }
-    state->speed = (f32) ((f64) state->speed - 0.2);
-    newState = state; // FAKE: round-trip copy through newState (with the line below) keeps the second pointer in v0 (move v0,v1 at 0x2bb8, spilled 0x1c(sp))
-    if ((f64) state->speed < 0.8) {
+    state = effect->allocation;
+    state->speed -= 0.2;
+    if (state->speed < 0.8) {
         state->speed = 0.8f;
     }
-    state = newState; // FAKE: second half of the newState round-trip copy
-    stepX = mathSinF((s16) (s32) state->heading);
+    stepX = mathSinF(state->heading);
     stepX = state->speed * stepX;
-    stepZ = mathCosF((s16) (s32) state->heading);
+    stepZ = mathCosF(state->heading);
     stepZ = state->speed * stepZ;
     effect->x += stepX;
     effect->z += stepZ;
@@ -957,37 +953,26 @@ typedef struct {
 } SpiralRiseState;
 
 void effectSpiralRiseUpdate(EffectNode *effect, s8 *isDone) {
-    SpiralRiseState *newState;
-    f32 alpha;
     SpiralRiseState *state;
-    f32 clampedAlpha;
 
+    if (effect->allocation == NULL) {
+        state = heapAlloc(0x18);
+        effect->allocation = state;
+        state->centerX = effect->x;
+        state->centerZ = effect->z;
+        state->radius = 0.0f;
+        state->angle = effect->speed * 455.1111f;
+        state->angleStep = ((effect->speed % 3) * 0x64) - 0x64;
+        state->alphaLevel = 375.0f;
+    }
     state = effect->allocation;
-    if (state == NULL) {
-        newState = heapAlloc(0x18);
-        effect->allocation = newState;
-        newState->centerX = effect->x;
-        newState->centerZ = effect->z;
-        newState->radius = 0.0f;
-        newState->angle = (f32)effect->speed * 455.1111f;
-        newState->angleStep = ((effect->speed % 3) * 0x64) - 0x64;
-        newState->alphaLevel = 375.0f;
-        state = effect->allocation;
-    }
-    newState = effect->allocation;
-    effect->y = (f32)((f64)effect->y + 0.3);
-    alpha = newState->alphaLevel;
-    if (alpha < 15.0f) {
-        clampedAlpha = alpha;
-    } else {
-        clampedAlpha = 15.0f;
-    }
-    newState->alphaLevel = alpha - clampedAlpha; clampedAlpha = 255.0f; alpha = newState->alphaLevel; if (alpha > clampedAlpha) { effect->alpha = (u8) ((u32) clampedAlpha); } else { effect->alpha = (u8) ((u32) alpha); } // FAKE: clampedAlpha reused to hold the 255.0f cap (a literal changes the function); one source line keeps the as1 schedule
-    state = newState; // FAKE: second pointer to the state (reads mix state/newState; one pointer changes the function)
-    newState->radius = (f32)((f64)newState->radius + 1.5);
+    effect->y += 0.3;
+    state->alphaLevel -= MIN(state->alphaLevel, 15.0f);
+    effect->alpha = (state->alphaLevel > 255.0f) ? 255.0f : state->alphaLevel;
+    state->radius += 1.5;
     state->angle += state->angleStep;
-    effect->x = (mathSinF((s16)(s32)state->angle) * newState->radius) + newState->centerX;
-    effect->z = (mathCosF((s16)(s32)state->angle) * state->radius) + newState->centerZ;
+    effect->x = (mathSinF(state->angle) * state->radius) + state->centerX;
+    effect->z = (mathCosF(state->angle) * state->radius) + state->centerZ;
     if (effect->alpha == 0) {
         *isDone = 1;
     }
