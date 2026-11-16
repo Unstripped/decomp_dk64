@@ -318,12 +318,12 @@ void jetpacUpdatePlayerMovement(JetpacPlayerActor *player) {
         idx = jetpacCheckLedgeCollision(player->boxX1 + player->x + vx, player->boxY1 + player->y + player->vy,
                                         player->boxX2 + player->x + vx, player->boxY2 + player->y + player->vy, 1);
         if (idx >= 0) {
-            if ((f32)jetpacGame.ledges[idx].boxY2 <= player->boxY1 + player->y) {
+            if (jetpacGame.ledges[idx].boxY2 <= player->boxY1 + player->y) {
                 player->vy *= -0.4f;
                 if ((player->vy > 0.0f ? player->vy : -player->vy) <= 0.15f) {
                     player->vy = 0.0f;
                 }
-            } else if (player->boxY2 + player->y <= (f32)jetpacGame.ledges[idx].boxY1) {
+            } else if (player->boxY2 + player->y <= jetpacGame.ledges[idx].boxY1) {
                 player->ledge = idx;
                 player->vy = 0.0f;
                 jetpacSetFlying(player, 0);
@@ -333,7 +333,7 @@ void jetpacUpdatePlayerMovement(JetpacPlayerActor *player) {
             }
         }
     } else {
-        idx = jetpacCheckLedgeEdge(player->ledge, (s32)(player->boxX1 + player->x + vx), (s32)(player->boxX2 + player->x + vx));
+        idx = jetpacCheckLedgeEdge(player->ledge, player->boxX1 + player->x + vx, player->boxX2 + player->x + vx);
         switch (idx) {
         case -2:
         case 2:
