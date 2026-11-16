@@ -128,7 +128,8 @@ void actorCollisionProcessHit(Actor *targetActor, ActorCallbackNode *node) {
 typedef struct InteractionEntry {
     s16 patternA;
     s16 patternB;
-    s8 filter[2]; // [0]: boss fight phase, [1]: registered hit event; -1 matches any; both passed to handler
+    s8 phase; // boss fight phase; -1 matches any; passed to handler
+    s8 event; // registered hit event; -1 matches any; passed to handler
     void (*handler)(Actor *, Actor *, u8, u8);
     u8 chain;
 } InteractionEntry;
@@ -136,20 +137,20 @@ typedef struct InteractionEntry {
 extern InteractionEntry D_8074ABCC[];
 
 void actorCollisionRunInteractionTable(Actor *actorA, Actor *actorB) {
-    InteractionEntry *entry;
     s32 done;
     s32 found;
+    s32 i;
     s32 j;
 
     done = 0;
-    for (entry = D_8074ABCC; !done; entry++) {
-        if (actorCollisionPatternMatches(actorA->actorType, actorA->collisionFlags, entry->patternA) &&
-            actorCollisionPatternMatches(actorB->actorType, actorB->collisionFlags, entry->patternB) &&
-            ((entry->filter[0] == -1) || entry->filter[0] == gActorGlobalState.bossFightPhase)) {
-            if (entry->filter[1] != -1) {
+    for (i = 0; !done; i++) {
+        if (actorCollisionPatternMatches(actorA->actorType, actorA->collisionFlags, D_8074ABCC[i].patternA) &&
+            actorCollisionPatternMatches(actorB->actorType, actorB->collisionFlags, D_8074ABCC[i].patternB) &&
+            ((D_8074ABCC[i].phase == -1) || D_8074ABCC[i].phase == gActorGlobalState.bossFightPhase)) {
+            if (D_8074ABCC[i].event != -1) {
                 found = 0;
                 for (j = 0; !found && j < gActorGlobalState.unk201;) {
-                    if (actorB == gActorGlobalState.unk204[j] && gActorGlobalState.unk244[j] == entry->filter[1]) { // FAKE: phase/event declared as array field filter[2] only so filter[1] orders bnel t2,t0 at 0x3bc (named s8 fields give bnel t0,t2; Q0816)
+                    if (actorB == gActorGlobalState.unk204[j] && gActorGlobalState.unk244[j] == D_8074ABCC[i].event) {
                         found = 1;
                     } else {
                         j++;
@@ -159,8 +160,8 @@ void actorCollisionRunInteractionTable(Actor *actorA, Actor *actorB) {
                 found = 1;
             }
             if (found) {
-                entry->handler(actorA, actorB, entry->filter[0], entry->filter[1]);
-                switch (entry->chain) {
+                D_8074ABCC[i].handler(actorA, actorB, D_8074ABCC[i].phase, D_8074ABCC[i].event);
+                switch (D_8074ABCC[i].chain) {
                 case 0:
                 case 2:
                     done = 1;
@@ -168,7 +169,7 @@ void actorCollisionRunInteractionTable(Actor *actorA, Actor *actorB) {
                 }
             }
         }
-        if (entry->chain == 0) {
+        if (D_8074ABCC[i].chain == 0) {
             done = 1;
         }
     }
