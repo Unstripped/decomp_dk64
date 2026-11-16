@@ -165,6 +165,7 @@ s32 actorSpawnFromInfo(ActorSpawnInfo *info) {
     }
     return 0;
 }
+
 s32 actorSpawn(s32 type, s32 spawnArg) {
     u8 initIndex;
     if (actorAllocate((u16)type)) {
@@ -827,11 +828,9 @@ void actorDispatchCallbacks(Actor *actor) {
     ActorRiderPayload *riderPayload;
     ActorHitPayload *hit;
     ActorSurfacePayload *surfacePayload;
-    ActorCallbackNode *sorted;
     f32 *pointPair;
     ActorEventPayload *eventPayload;
     PlayerState *playerState;
-    ActorStatePayload *playerPayload;
     ActorMovePayload2D *move2D;
     ActorMovePayload3D *move3D;
     f32 *vecPayload;
@@ -843,241 +842,238 @@ void actorDispatchCallbacks(Actor *actor) {
 
     bestPriority = -1;
     actorGlobalStateClearEvents();
-    sorted = actorCallbackListSort(actor->callbacks);
-    actor->callbacks = sorted;
-    node = sorted;
+    node = actorCallbackListSort(actor->callbacks);
+    actor->callbacks = node;
     mask = actor->callbackMask;
-    if (sorted != NULL) {
-        do {
-            if ((s32)node->callback & mask) {
-                switch ((s32)node->callback) {
-                case 0x8000:
-                    actorCollisionProcessHit(actor, node);
-                    if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.bossFightPhase == 0xA)) && (actor->collisionFlags & 1)) {
-                        playerHandleDamageReaction(actor, gActorGlobalState.targetActor, (gActorGlobalState.bossFightPhase == 0xA));
-                    }
-                    break;
-                case 0x2:
-                    switch (node->unk4) {
-                    case 0:
-                        gActorGlobalState.unk16 = 1;
-                        if (actor == gActivePlayerActor) {
-                            playerStateQueueCallback(0x10, NULL, gCurrentPlayerIndex);
-                        }
-                        break;
-                    case 1:
-                        gActorGlobalState.unk17 = 1;
-                        if (actor == gActivePlayerActor) {
-                            playerStateQueueCallback(0xE, node->source, gCurrentPlayerIndex);
-                        }
-                        break;
-                    case 2:
-                        gActorGlobalState.unk18 = 1;
-                        if (actor == gActivePlayerActor) {
-                            playerStateQueueCallback(0x12, NULL, gCurrentPlayerIndex);
-                        }
-                        break;
-                    case 3:
-                        gActorGlobalState.unk19 = 1;
-                        if (actor == gActivePlayerActor) {
-                            playerStateQueueCallback(0x13, NULL, gCurrentPlayerIndex);
-                        }
-                        break;
-                    case 6:
-                        gActorGlobalState.unk1B = 1;
-                        if (actor == gActivePlayerActor) {
-                            playerStateQueueCallback(0x36, node->source, gCurrentPlayerIndex);
-                        }
-                        break;
-                    case 4:
-                    case 5:
-                        if (actor == gActivePlayerActor) {
-                            if (node->unk4 == 4) {
-                                playerStateQueueCallback(0x2B, node->source, gCurrentPlayerIndex);
-                            } else {
-                                playerStateQueueCallback(0x32, node->source, gCurrentPlayerIndex);
-                            }
-                            player = node->source;
-                            if ((player != NULL) && (player->collisionFlags & 2)) {
-                                playerState = player->customState;
-                                playerState->unk1A |= 0x100;
-                            }
-                        }
-                        break;
-                    }
-                    break;
-                case 0x8:
-                    playerHandleDamageReaction(actor, node->source, 0);
-                    break;
-                case 0x4:
-                    playerHandleDamageReaction(actor, node->source, 1);
-                    break;
-                case 0x800:
-                    actor->unk144 = node->unk4;
-                    gActorGlobalState.unk90 = 1;
-                    break;
-                case 0x400:
-                    playerPayload = node->unk10;
-                    gActivePlayerState->launchYaw = playerPayload->yaw;
-                    gActivePlayerState->launchSpeedY = playerPayload->speedY;
-                    gActivePlayerState->launchSpeedXZ = playerPayload->speedXZ;
-                    gActorGlobalState.unk1A = 1;
+    while (node != NULL) {
+        if ((s32)node->callback & mask) {
+            switch ((s32)node->callback) {
+            case 0x8000:
+                actorCollisionProcessHit(actor, node);
+                if (((gActorGlobalState.bossFightPhase == 9) || (gActorGlobalState.bossFightPhase == 0xA)) && (actor->collisionFlags & 1)) {
+                    playerHandleDamageReaction(actor, gActorGlobalState.targetActor, (gActorGlobalState.bossFightPhase == 0xA));
+                }
+                break;
+            case 0x2:
+                switch (node->unk4) {
+                case 0:
+                    gActorGlobalState.unk16 = 1;
                     if (actor == gActivePlayerActor) {
-                        playerStateQueueCallback(0x17, node->source, gCurrentPlayerIndex);
+                        playerStateQueueCallback(0x10, NULL, gCurrentPlayerIndex);
                     }
                     break;
-                case 0x10:
-                    move2D = node->unk10;
-                    priority2D = move2D->priority;
-                    if (bestPriority < priority2D) {
-                        targetX = move2D->x;
-                        bestPriority = priority2D;
-                        targetZ = move2D->z;
-                        bestType = (s32)node->callback;
-                        skipArcCheck = move2D->skipArcCheck;
-                    }
-                    break;
-                case 0x20:
-                    move3D = node->unk10;
-                    priority3D = move3D->priority;
-                    if (bestPriority < priority3D) {
-                        targetX = move3D->x;
-                        bestPriority = priority3D;
-                        targetY = move3D->y;
-                        targetZ = move3D->z;
-                        bestType = (s32)node->callback;
-                        skipArcCheck = move3D->skipArcCheck;
-                    }
-                    break;
-                case 0x100000:
-                    vecPayload = node->unk10;
-                    gActorGlobalState.unkD8 = vecPayload[0];
-                    gActorGlobalState.unkDC = vecPayload[1];
-                    gActorGlobalState.unkE0 = vecPayload[2];
-                    gActorGlobalState.unkE4 = 1;
-                    gActorGlobalState.unkEC = node->source;
-                    break;
-                case 0x1000:
-                    gActorGlobalState.unk1C = 1;
-                    gActorGlobalState.unk20 = node->source;
-                    break;
-                case 0x4000:
-                    launchPayload = node->unk10;
-                    gActorGlobalState.unk2C = 1;
-                    gActorGlobalState.unk30 = launchPayload->speedY;
-                    gActorGlobalState.unk34 = launchPayload->speedXZ;
-                    gActorGlobalState.unk36 = launchPayload->yaw;
-                    break;
-                case 0x2000:
-                    if (node->unk4 != 0) {
-                        gActorGlobalState.unk24 = 1;
-                    } else {
-                        gActorGlobalState.unk25 = 1;
-                    }
-                    gActorGlobalState.unk28 = node->source;
-                    break;
-                case 0x80:
-                    actor->flags |= 8;
+                case 1:
+                    gActorGlobalState.unk17 = 1;
                     if (actor == gActivePlayerActor) {
-                        playerStateQueueCallback(0x16, node->source, gCurrentPlayerIndex);
+                        playerStateQueueCallback(0xE, node->source, gCurrentPlayerIndex);
                     }
                     break;
-                case 0x40:
-                    if (node->unk4 != 0) {
-                        actor->flags |= 4;
-                    } else {
-                        actor->flags &= ~4;
+                case 2:
+                    gActorGlobalState.unk18 = 1;
+                    if (actor == gActivePlayerActor) {
+                        playerStateQueueCallback(0x12, NULL, gCurrentPlayerIndex);
                     }
                     break;
-                case 0x1:
-                    riderPayload = node->unk10;
-                    if (actorTableContains(node->source) != 0 && gActorGlobalState.unk39 != 4) {
-                        gActorGlobalState.unk3C[gActorGlobalState.unk39][0] = riderPayload->x;
-                        gActorGlobalState.unk3C[gActorGlobalState.unk39][1] = riderPayload->y;
-                        gActorGlobalState.unk3C[gActorGlobalState.unk39][2] = riderPayload->z;
-                        gActorGlobalState.unk6C[gActorGlobalState.unk39] = riderPayload->pointIndex;
-                        gActorGlobalState.unk7C[gActorGlobalState.unk39] = node->source;
-                        gActorGlobalState.unk8C[gActorGlobalState.unk39] = riderPayload->spansNodes;
-                        gActorGlobalState.unk39++;
-                        actorRiderListAdd(actor, node->source);
+                case 3:
+                    gActorGlobalState.unk19 = 1;
+                    if (actor == gActivePlayerActor) {
+                        playerStateQueueCallback(0x13, NULL, gCurrentPlayerIndex);
                     }
                     break;
-                case 0x20000:
-                    hit = node->unk10;
-                    if (gActorGlobalState.unk1F8 != 4) {
-                        memcpy(gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk0, hit->pos, 0xC);
-                        memcpy(gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unkC, hit->verts, 0x24);
-                        gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk30 = hit->mtxIndex;
-                        gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk34 = hit->hitRadius;
-                        gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk38 = hit->maxClamp;
-                        gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk3C = node->source;
-                        gActorGlobalState.unk1F8++;
+                case 6:
+                    gActorGlobalState.unk1B = 1;
+                    if (actor == gActivePlayerActor) {
+                        playerStateQueueCallback(0x36, node->source, gCurrentPlayerIndex);
                     }
                     break;
-                case 0x10000:
-                    surfacePayload = node->unk10;
-                    gActorGlobalState.unk91 = 1;
-                    gActorGlobalState.unk92 = surfacePayload->yaw;
-                    gActorGlobalState.unk94 = surfacePayload->speed;
-                    memcpy(gActorGlobalState.unk98, surfacePayload->pos, 0xC);
-                    memcpy(gActorGlobalState.unkA4, surfacePayload->verts, 0x24);
-                    gActorGlobalState.unkC8 = surfacePayload->mtxIndex;
-                    gActorGlobalState.unkCC = node->source;
-                    gActorGlobalState.unkD0 = surfacePayload->hitRadius;
-                    gActorGlobalState.unkD4 = surfacePayload->maxClamp;
-                    break;
-                case 0x40000:
-                    collisionValue = node->unk10;
-                    collision = actor->collision;
-                    if (collision != NULL) {
-                        collision->unk68 = *collisionValue;
+                case 4:
+                case 5:
+                    if (actor == gActivePlayerActor) {
+                        if (node->unk4 == 4) {
+                            playerStateQueueCallback(0x2B, node->source, gCurrentPlayerIndex);
+                        } else {
+                            playerStateQueueCallback(0x32, node->source, gCurrentPlayerIndex);
+                        }
+                        player = node->source;
+                        if ((player != NULL) && (player->collisionFlags & 2)) {
+                            playerState = player->customState;
+                            playerState->unk1A |= 0x100;
+                        }
                     }
-                    break;
-                case 0x80000:
-                    gActorGlobalState.unk38 = 1;
-                    break;
-                case 0x200000:
-                    pointPair = node->unk10;
-                    gActorGlobalState.unkF0 = pointPair[0];
-                    gActorGlobalState.unkF4 = pointPair[1];
-                    break;
-                case 0x400000:
-                    gActorGlobalState.unkE8 = node->unk4;
-                    gActorGlobalState.unkE5 = 1;
-                    break;
-                case 0x1000000:
-                    if (gActorGlobalState.volumeTriggerQueueCount < 8) {
-                        gActorGlobalState.volumeTriggerQueueOp[gActorGlobalState.volumeTriggerQueueCount] = node->unk4;
-                        gActorGlobalState.volumeTriggerQueueId[gActorGlobalState.volumeTriggerQueueCount] = node->unk10;
-                        gActorGlobalState.volumeTriggerQueueCount++;
-                    }
-                    break;
-                case 0x800000:
-                    eventPayload = node->unk10;
-                    gActorGlobalState.unk4 = eventPayload->x;
-                    gActorGlobalState.unk8 = eventPayload->y;
-                    gActorGlobalState.unkC = eventPayload->z;
-                    gActorGlobalState.unk10 = eventPayload->value0;
-                    gActorGlobalState.unk12 = eventPayload->value1;
-                    gActorGlobalState.unk2 = 1;
-                    gActorGlobalState.unk14 = node->unk4;
-                    break;
-                case 0x2000000:
-                    gActorGlobalState.notifyReceived = 1;
-                    gActorGlobalState.notifyValue[0] = node->unk4;
                     break;
                 }
+                break;
+            case 0x8:
+                playerHandleDamageReaction(actor, node->source, 0);
+                break;
+            case 0x4:
+                playerHandleDamageReaction(actor, node->source, 1);
+                break;
+            case 0x800:
+                actor->unk144 = node->unk4;
+                gActorGlobalState.unk90 = 1;
+                break;
+            case 0x400:
+                launchPayload = node->unk10;
+                gActivePlayerState->launchYaw = launchPayload->yaw;
+                gActivePlayerState->launchSpeedY = launchPayload->speedY;
+                gActivePlayerState->launchSpeedXZ = launchPayload->speedXZ;
+                gActorGlobalState.unk1A = 1;
+                if (actor == gActivePlayerActor) {
+                    playerStateQueueCallback(0x17, node->source, gCurrentPlayerIndex);
+                }
+                break;
+            case 0x10:
+                move2D = node->unk10;
+                priority2D = move2D->priority;
+                if (bestPriority < priority2D) {
+                    bestPriority = priority2D;
+                    targetX = move2D->x;
+                    targetZ = move2D->z;
+                    bestType = (s32)node->callback;
+                    skipArcCheck = move2D->skipArcCheck;
+                }
+                break;
+            case 0x20:
+                move3D = node->unk10;
+                priority3D = move3D->priority;
+                if (bestPriority < priority3D) {
+                    bestPriority = priority3D;
+                    targetX = move3D->x;
+                    targetY = move3D->y;
+                    targetZ = move3D->z;
+                    bestType = (s32)node->callback;
+                    skipArcCheck = move3D->skipArcCheck;
+                }
+                break;
+            case 0x100000:
+                vecPayload = node->unk10;
+                gActorGlobalState.unkD8 = vecPayload[0];
+                gActorGlobalState.unkDC = vecPayload[1];
+                gActorGlobalState.unkE0 = vecPayload[2];
+                gActorGlobalState.unkE4 = 1;
+                gActorGlobalState.unkEC = node->source;
+                break;
+            case 0x1000:
+                gActorGlobalState.unk1C = 1;
+                gActorGlobalState.unk20 = node->source;
+                break;
+            case 0x4000:
+                launchPayload = node->unk10;
+                gActorGlobalState.unk2C = 1;
+                gActorGlobalState.unk30 = launchPayload->speedY;
+                gActorGlobalState.unk34 = launchPayload->speedXZ;
+                gActorGlobalState.unk36 = launchPayload->yaw;
+                break;
+            case 0x2000:
+                if (node->unk4 != 0) {
+                    gActorGlobalState.unk24 = 1;
+                } else {
+                    gActorGlobalState.unk25 = 1;
+                }
+                gActorGlobalState.unk28 = node->source;
+                break;
+            case 0x80:
+                actor->flags |= 8;
+                if (actor == gActivePlayerActor) {
+                    playerStateQueueCallback(0x16, node->source, gCurrentPlayerIndex);
+                }
+                break;
+            case 0x40:
+                if (node->unk4 != 0) {
+                    actor->flags |= 4;
+                } else {
+                    actor->flags &= ~4;
+                }
+                break;
+            case 0x1:
+                riderPayload = node->unk10;
+                if (actorTableContains(node->source) != 0 && gActorGlobalState.unk39 != 4) {
+                    gActorGlobalState.unk3C[gActorGlobalState.unk39][0] = riderPayload->x;
+                    gActorGlobalState.unk3C[gActorGlobalState.unk39][1] = riderPayload->y;
+                    gActorGlobalState.unk3C[gActorGlobalState.unk39][2] = riderPayload->z;
+                    gActorGlobalState.unk6C[gActorGlobalState.unk39] = riderPayload->pointIndex;
+                    gActorGlobalState.unk7C[gActorGlobalState.unk39] = node->source;
+                    gActorGlobalState.unk8C[gActorGlobalState.unk39] = riderPayload->spansNodes;
+                    gActorGlobalState.unk39++;
+                    actorRiderListAdd(actor, node->source);
+                }
+                break;
+            case 0x20000:
+                hit = node->unk10;
+                if (gActorGlobalState.unk1F8 != 4) {
+                    memcpy(gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk0, hit->pos, 0xC);
+                    memcpy(gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unkC, hit->verts, 0x24);
+                    gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk30 = hit->mtxIndex;
+                    gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk34 = hit->hitRadius;
+                    gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk38 = hit->maxClamp;
+                    gActorGlobalState.unkF8[gActorGlobalState.unk1F8].unk3C = node->source;
+                    gActorGlobalState.unk1F8++;
+                }
+                break;
+            case 0x10000:
+                surfacePayload = node->unk10;
+                gActorGlobalState.unk91 = 1;
+                gActorGlobalState.unk92 = surfacePayload->yaw;
+                gActorGlobalState.unk94 = surfacePayload->speed;
+                memcpy(gActorGlobalState.unk98, surfacePayload->pos, 0xC);
+                memcpy(gActorGlobalState.unkA4, surfacePayload->verts, 0x24);
+                gActorGlobalState.unkC8 = surfacePayload->mtxIndex;
+                gActorGlobalState.unkCC = node->source;
+                gActorGlobalState.unkD0 = surfacePayload->hitRadius;
+                gActorGlobalState.unkD4 = surfacePayload->maxClamp;
+                break;
+            case 0x40000:
+                collisionValue = node->unk10;
+                collision = actor->collision;
+                if (collision != NULL) {
+                    collision->unk68 = *collisionValue;
+                }
+                break;
+            case 0x80000:
+                gActorGlobalState.unk38 = 1;
+                break;
+            case 0x200000:
+                pointPair = node->unk10;
+                gActorGlobalState.unkF0 = pointPair[0];
+                gActorGlobalState.unkF4 = pointPair[1];
+                break;
+            case 0x400000:
+                gActorGlobalState.unkE8 = node->unk4;
+                gActorGlobalState.unkE5 = 1;
+                break;
+            case 0x1000000:
+                if (gActorGlobalState.volumeTriggerQueueCount < 8) {
+                    gActorGlobalState.volumeTriggerQueueOp[gActorGlobalState.volumeTriggerQueueCount] = node->unk4;
+                    gActorGlobalState.volumeTriggerQueueId[gActorGlobalState.volumeTriggerQueueCount] = node->unk10;
+                    gActorGlobalState.volumeTriggerQueueCount++;
+                }
+                break;
+            case 0x800000:
+                eventPayload = node->unk10;
+                gActorGlobalState.unk4 = eventPayload->x;
+                gActorGlobalState.unk8 = eventPayload->y;
+                gActorGlobalState.unkC = eventPayload->z;
+                gActorGlobalState.unk10 = eventPayload->value0;
+                gActorGlobalState.unk12 = eventPayload->value1;
+                gActorGlobalState.unk2 = 1;
+                gActorGlobalState.unk14 = node->unk4;
+                break;
+            case 0x2000000:
+                gActorGlobalState.notifyReceived = 1;
+                gActorGlobalState.notifyValue[0] = node->unk4;
+                break;
             }
-            node = node->next;
-        } while (node != NULL);
+        }
+        node = node->next;
     }
     if ((bestPriority != -1) && ((skipArcCheck == 1) || (actorCheckPointInAngleArc(actor, targetX, targetZ) != 0))) {
         switch (bestType) {
-        case 16:
+        case 0x10:
             actor->x = targetX;
             actor->z = targetZ;
-            return;
-        case 32:
+            break;
+        case 0x20:
             actor->x = targetX;
             actor->y = targetY;
             actor->z = targetZ;
