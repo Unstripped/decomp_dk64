@@ -157,7 +157,6 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     y = 0; do {  // LAYOUT: one source line removes a scheduling barrier before the loop.
         xo = (gScreenWidth - 204.0f) * 0.5f;
         for (x = 0; x != 0xCC; x += 0x66) { // LAYOUT: keep the induction update on the loop-header line.
-            if (x) {} // FAKE: shorten the full-width induction range and raise its colouring priority.
             gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 0, x, y, x + 0x66, y + 0x29, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             gSPTextureRectangle(dl++, xo << 2, yo << 2, (xo + 0x66) << 2, (yo + 0x29) << 2, 0, x << 5, y << 5, 0x400, 0x400);
             xo += 0x66;
@@ -165,8 +164,6 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
         y += 0x29;
         yo += 0x29;
     } while (y != 0x52);
-    if ((s8)menuOptionDescFade && xo) {}  // FAKE: keep xo below the row-mask priority while merging the post-loop packet block.
-    if ((s8)menuOptionDescFade && xo) {}  // FAKE: preserve xo's range length and the Combine packet's v0/v1 interference.
     gDPSetTextureFilter(dl++, G_TF_BILERP);
     gDPSetTexturePersp(dl++, G_TP_PERSP);
     xo = (gScreenWidth - textGetStringWidth(1, headerStr)) * 0.5f;
@@ -175,9 +172,9 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
     gDPSetCombine(dl++, 0xFF97FF, 0xFF2CFE7F);
     dl = textDrawStringVtx(dl, 1, xo * 4, yo * 4, headerStr, 0);
-    x = gScreenWidth * 0.5f;
+    xo = gScreenWidth * 0.5f;
     yo = gHiResScale * 0xC8;
-    dl = hudDrawScaledText(dl, x * 4, yo * 4, 0.5, descStr1);
+    dl = hudDrawScaledText(dl, xo * 4, yo * 4, 0.5, descStr1);
     yo += fontHeight * 0.5;
-    return hudDrawScaledText(dl, x * 4, yo * 4, 0.5, descStr2);
+    return hudDrawScaledText(dl, xo * 4, yo * 4, 0.5, descStr2);
 }
