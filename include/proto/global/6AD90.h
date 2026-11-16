@@ -114,7 +114,7 @@ void collisionStoreTriangleNormalAnglesS16(Actor *, struct CollisionStaticTri *,
 s32 collisionCheckTriangleXZBoundsS16(struct CollisionStaticTri *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_collisionPointInTriangleXZS16
-s32 collisionPointInTriangleXZS16(struct CollisionStaticTri *, f32, f32);
+u8 collisionPointInTriangleXZS16(struct CollisionStaticTri *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_collisionTestDynamicActorFloor
 u8 collisionTestDynamicActorFloor(Actor *, s32, f32, f32, f32, f32 *);
@@ -264,7 +264,7 @@ void collisionBstRebalanceBucket(s32);
 void collisionBstFreeTree(struct CollisionBstNodeBase *);
 #endif
 #ifndef PROTO_SKIP_collisionBstBuildBalanced
-struct CollisionBstNodeBase *collisionBstBuildBalanced(struct CollisionBstFlatItem *, s32, s32);
+struct CollisionBstNode *collisionBstBuildBalanced(struct CollisionBstFlatItem *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_collisionBstFlatten
 void collisionBstFlatten(struct CollisionBstNode *, struct CollisionBstFlatItem *, s32 *);
