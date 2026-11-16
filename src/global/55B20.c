@@ -2584,13 +2584,13 @@ void mapNodeAssetParse(u8 *data) {
         gMapZones[idx]->height = *p++;
         gMapZones[idx]->exitCount = *p++;
         memcpy(gMapZones[idx]->exitCells, p, sizeof(gMapZones[idx]->exitCells));
-        p += 16;
+        p += sizeof(gMapZones[idx]->exitCells) / sizeof(s16);
         gMapZones[idx]->enterCount = *p++;
         memcpy(gMapZones[idx]->enterCells, p, sizeof(gMapZones[idx]->enterCells));
-        p += 16;
+        p += sizeof(gMapZones[idx]->enterCells) / sizeof(s16);
         gMapZones[idx]->linkCount = *p++;
         memcpy(gMapZones[idx]->links, p, sizeof(gMapZones[idx]->links));
-        p += 8;
+        p += sizeof(gMapZones[idx]->links) / sizeof(s16);
         mapFaceBuildTriangleFan(idx);
     }
 }
