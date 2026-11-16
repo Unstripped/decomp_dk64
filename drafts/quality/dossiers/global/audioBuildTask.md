@@ -30,3 +30,29 @@ Earlier rungs are in the history file (`count += 2`, join store, widths, direct 
 - 0x53c `lw v0`; 0x550 `li v0,2`; 0x560 `sw v0` (delay of `b` 0x5ac).
 - 0x570 `lw v0` (reload in arm 2); 0x580 `li v0,2`; 0x590 `sw v0`.
 - The else arm stores nothing when count == 0 (0x598 `beqz v0,0x5ac`).
+
+## Resolution (2026-11-15 HackaudioBuildTask2, anthropic/claude-opus-5-5:high)
+Both noop-arith sites removed: the file-scope `s32 sAudioFrameHoldCount[2];` became a function-local
+`static s32 sAudioFrameHoldCount;` and the arms are a plain if / else-if / else storing `= 2` and `--`
+directly (no `count`/`holdFrames` locals). Frame kept at 0x40 with `s32 pad2[2];` after `cmdEnd`.
+`fdiff --reloc-ok` exit 0 (RELOC-EQUIV OK); raw words differ only at LO16 0x53c/0x560/0x570/0x590/0x5a8
+(`.bss`+0x3098 vs `sAudioFrameHoldCount`+0, which the base object defines at .bss+0x3098).
+
+### Attempts (this session)
+2026-11-15 HackaudioBuildTask2 HackaudioBuildTask2 anthropic/claude-opus-5-5:high:
+| form | result |
+|---|---|
+| `static s32 sAudioFrameHoldCount[2];` + `[0]` accesses, pad[1] | text 94 (array static -> lda web: `lui v1,%hi(.bss); addiu v1,v1,%lo(.bss+0x3098)`, +16 bytes) |
+| `static s32 sAudioFrameHoldCount;` scalar, pad[1] | code identical, frame 0x38 vs 0x40 (text 12) |
+| scalar + `static s32` 2nd unused scalar | same as scalar (text 12) |
+| scalar + pad[3] in pad[1]'s slot | frame ok, cmdCount sp+0x2c vs 0x34 |
+| scalar + pad[3] after cmdEnd (no pad[1]) | text 6 |
+| scalar + count/holdFrames locals, `*holdFrames = 2` / `count = 2` | text 68 |
+| scalar + pad[1] + `s32 pad2[2]` after cmdEnd | fdiff --reloc-ok exit 0 (KEPT) |
+
+## Evidence (added)
+- Base .o: `sAudioFrameHoldCount` g O .bss +0x3098 size 8, .bss size 0x30a0 (2**4). Copy .o: scalar static
+  at .bss+0x3098 via section-relative relocs, .bss size 0x30a0 (section rounds to 16), .data 0x230 both.
+  Only `.gptab.bss` differs (0x68 vs 0x70, not linked).
+- Every target access has its own lui/%lo pair (0x538/0x53c, 0x554/0x560, 0x564/0x570, 0x584/0x590,
+  0x5a4/0x5a8): the Q0761/Q0922 static-local signature.
