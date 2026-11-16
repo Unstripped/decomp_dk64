@@ -2829,8 +2829,6 @@ void playerStateDamageFallTumble(void) {
     f32 launchSpeed;
     f32 flightFrames;
     s32 decel;
-    u16 b;
-    s32 z;
 
     switch (gCurrentActor->unk155) {
         case 0:
@@ -2843,11 +2841,8 @@ void playerStateDamageFallTumble(void) {
                 effectSetDuration(1);
                 effectCreateAtActorBone(&D_8072014C, 0.8f, gCurrentActor, 1, 0);
             }
-            b = gCurrentActor->prevContactFlags;
-            z = (b == 0);
-            decel = (gCurrentActor->contactFlags & b & 1) ? 2 : 1;
-            if (z) {} // FAKE: dead guard is a real uopt use (Q0561)
-            if ((b == 0) & gCurrentActor->contactFlags & 1) {
+            decel = (gCurrentActor->contactFlags & gCurrentActor->prevContactFlags & 1) ? 2 : 1;
+            if (!gCurrentActor->prevContactFlags & gCurrentActor->contactFlags & 1) {
                 gCurrentActor->speedXZ = gCurrentActor->speedXZ * 0.25;
             }
             if (gCurrentActor->speedXZ < decel) {
