@@ -22,14 +22,20 @@
   - Call-site `(u8)2` under the s32 prototype (first, second or both calls): cfe folds it to the literal, full=400 each.
   - Entry pointer local `HudTextEntry *e = it->entries + j` (and `&it->entries[j]`) for all eight loop-1 reads: e takes a frame word (0x1A0 -> 0x1A8) and the `style == 2` compare loads `li at,2` (0x12e4) instead of using s8: full=385. On that body: no (s64) 320, no y (u16) 379, no (u32) 385, all three casts dropped 389, trunc-first x 395.
   - Removal measurements on the base: d4f3b3 (function-end dead test) full=6012 (.rodata/reloc mismatches too), b371d1 full=615.
+- **2026-11-16 U HackhudPauseMenuRender5 anthropic/claude-opus-5-5:high** (base 22f598c3):
+  - Removal on this base: b371d1 full=5 (only the list home: `move s0,v0`, `sw s0,4(v0)`, `move a0,s0`). uopt -l6: with the test list (cand 19, M -100) splits 19 -> 666, 666 gets reg 3 ($a0), 19 not coloured; without it 19 takes $s0 whole. `list = dl` at the switch head (dead store, dropped) 5; list declared before ret 6.
+  - Untried idea 3 tested: `HudTextEntry *e = it->entries + j` with the frame word paid by deleting the case-3 block `f32 fb` shadow (frame back to 0x1A0; the deletion alone is 7, only the 0xA8 spill moves to 0xAC): full=371. i leaves 0x158(sp) for $s8 (`move s8,zero` at 0x129c) and the constant-2 web loses $s8 (`li at,2` before the style bnel). e at function scope 371, e except the style read 371, + case-0 `s16 y` shadow deleted 366, + case-0 `f32 fd` shadow deleted 399, + all three loop-1 casts dropped 377.
+  - Dedicated loop-1 x local (Q0601 role split) instead of reusing off, frame paid by the case-3 shadow deletion, 90 bodies (s16/s32/u16, block/function scope, 5 x forms x 3 offsetX forms): best 71 (s32 x, base cast expressions). x leaves $s0 (`lh v1,8(v0)`), list colours $s8, the 2-web moves to $s5: off's case-1/case-2 webs (one candidate per variable) are what keep x in $s0.
+  - variants.py scan (197): zeros only for cosmetic swaps/float/width/declswap; `off` as u32 25 but makes the case-2 slide compares unsigned. quality sweep: 0 hits.
 
 ## Untried ideas
 - A natural source for the t3 -> t4 ring advance before the x trunc (a deleted narrowing on off*4 that is ordinary C, e.g. an s16 intermediate already in the frame) (Q0374).
 - Making list live through loop 1 with a use that emits no code (Q0585); none found in the target.
-- Entry pointer local `e` with its frame word paid elsewhere (only the e slot and the lost s8 CSE of `style == 2` separate it from the matching register flow; untested whether the s8 reuse returns once the frame matches).
+- A use of list that keeps it live through loop 1 or the switch head as part of the SAME variable candidate (uopt colours a variable as one candidate across its webs, as off shows): a Gfx * role for list after loop 1 that is not a dead store (Q0585).
 
 ## Evidence
-- Frame 0x1A0. Homes: hubWorld 0x138, list 0x13C, ret 0x140, tab 0x144, i 0x158, hud 0x15C, buf 0xA8.
+- Frame 0x1A0. Homes: hubWorld 0x138, list 0x13C, ret 0x140, tab 0x144, i 0x158, hud 0x15C, buf 0x160 (`addiu s0,sp,352` at 0x1920); 0xA8 is a case-0 f32 spill (`swc1 $f6,0xA8(sp)` at 0x14b0, `lwc1 $f18` at 0x15d4).
+- The constant-2 web in $s8 (`li s8,2` at 0x12a0) feeds the loop-1 `style == 2` bnel (0x1300), the switch `case 2` beq (0x1404) and, under the u8 local prototype, both case-0 renderRotatedSprite 4th args.
 - Loop 1: `li s5,24` (0x12a4) + `multu s3,s5` (0x12e8), entry address `addu v0,s2,t7` (0x12f8) shared by all eight reads; s4 = &sPauseTextCounts[i] (0x12c4), s6 = hud + i*2 (0x12e4).
 - ugen (as1probe dis) for the x statement in the matching body: off*4 mul, (u16) and, l.s, `mul.s $f8,$f0,$f6`, `trunc.w.s $f10,$f8,$13`, mfc1, s64 moves/sra, `addu $16,$12,$13`; trunc-first form: `trunc.w.s $f10,$f8,$11`, mfc1, mul, `addu $16,$12,$13` with the operands reversed.
 - sPauseTextLists[0] = heapAlloc(0x1E0); sPauseTextLists[1] = sPauseTextLists[0] + 10 entries (hudPauseMenuUpdate).
