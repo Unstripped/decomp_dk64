@@ -535,7 +535,7 @@ s32 playerGetResolvedKongId(s32 playerIndex) {
     kong = gPlayerCharacterId[playerIndex];
     if (kong == 6 || kong == 7) {
         actor = gPlayerSlots[playerIndex].actor;
-        ps = (&actor->customState)[playerIndex]; // component pointer arg0 (0x174 + arg0 * 4), as the original indexes it
+        ps = (&actor->customState)[playerIndex]; // ORIG: the target reads component pointer playerIndex of the slot actor (lw v1,372(t0) at 0x1334, t0 = actor + playerIndex * 4), not always the first
         kong = playerLookupKongByActorType(ps->savedActorType);
     }
     return kong;
@@ -588,7 +588,7 @@ void playerApplyCharacterModel(const KongCharacterEntry *row) {
 }
 
 extern s16 D_8076AEE2;
-extern s8 gAmbientIndoors;
+extern u8 gAmbientIndoors;
 
 void playerWarpToSpawnPoint(s32 spawnIndex) {
     PlayerState *ps = gActivePlayerActor->customState;
