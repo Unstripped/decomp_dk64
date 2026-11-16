@@ -1374,7 +1374,7 @@ typedef struct MenuCharacterKongState { // customState of the character-select k
     s32 animFrame;
     s8 animSet;
 } MenuCharacterKongState;
-extern s16 D_8003386C[];
+extern s16 gMenuKongModelIds[];
 extern s8 D_80033FAE;
 extern s8 D_80033FAF;
 extern s8 D_8074451C;
@@ -1408,10 +1408,10 @@ void menuInitCharacterSelect(Actor *actor, s32 unused) {
     }
     state->selection = D_8074451C;
     for (i = 0; i != 4; i++) {
-        actorSpawn(0x151, D_8003386C[D_8076A0E4[i] & 0x7F]);
+        actorSpawn(0x151, gMenuKongModelIds[D_8076A0E4[i] & 0x7F]);
         {
             s16 *q = ((MenuModelActor *)gSpawnedActor)->model;
-            *q = D_8003386C[D_8076A0E4[i] & 0x7F];
+            *q = gMenuKongModelIds[D_8076A0E4[i] & 0x7F];
         }
         gSpawnedActor->state = i;
         gSpawnedActor->unk155 = D_8076A0E4[i] & 0x7F;
@@ -1526,10 +1526,10 @@ void menuInitMultiplayerResults(Actor *actor, s32 unused) {
     menuUpdateCameraPositions();
     state->selection = 0;
     for (i = 0; i < D_80033878; i++) {
-        actorSpawn(0x151, D_8003386C[D_8003387C[i]]);
+        actorSpawn(0x151, gMenuKongModelIds[D_8003387C[i]]);
         {
             s16 *q = ((MenuModelActor *)gSpawnedActor)->model;
-            *q = D_8003386C[D_8003387C[i]];
+            *q = gMenuKongModelIds[D_8003387C[i]];
         }
         gSpawnedActor->state = D_80033F20[i] | 0x80;
         gSpawnedActor->unk155 = D_8003387C[i];
@@ -1541,7 +1541,7 @@ void menuInitMultiplayerResults(Actor *actor, s32 unused) {
 }
 
 
-extern s32 D_800338B4[];
+extern s32 gMenuKongScriptIds[];
 extern f32 gMenuKongSlotPositions[]; // (x, y) screen position of each character-select kong slot
 
 
@@ -1569,7 +1569,7 @@ void menuCharacterSelectUpdateActor(void) {
         gCurrentActor->sub4->scaleY = 2.0f * gCurrentActor->sub4->scaleY;
         gCurrentActor->sub4->scaleZ = 2.0f * gCurrentActor->sub4->scaleZ;
         kong = kongState->animSet;
-        actorScriptStart(gCurrentActor, D_800338B4[(s16)(kong * 6) + (gCurrentActor->unk155 & 0xF)]);
+        actorScriptStart(gCurrentActor, gMenuKongScriptIds[(s16)(kong * 6) + (gCurrentActor->unk155 & 0xF)]);
         playerKongHolsterGun(gCurrentActor);
         gCurrentActor->flags |= 0x1000;
         kongState->animFrame = D_8076A100[gCurrentActor->state & 0xF];
@@ -1583,7 +1583,7 @@ void menuCharacterSelectUpdateActor(void) {
         }
         idx = D_8076A0E4[gCurrentActor->state] & 0x7F;
         if (idx != gCurrentActor->unk155) {
-            actorTypePtr = &D_8003386C[idx];
+            actorTypePtr = &gMenuKongModelIds[idx];
             actorSpawn(0x151, *actorTypePtr);
             model = ((MenuModelActor *)gSpawnedActor)->model;
             *model = *actorTypePtr;
@@ -3252,8 +3252,8 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
 }
 
 
-extern f32 D_8003373C[];
-extern f32 D_8003378C[];
+extern f32 gSelectorSplineX[];
+extern f32 gSelectorSplineY[];
 
 s32 menuEvaluateSelectorSpline(MenuScreenState *state, s32 index, f32 *outPosX, f32 *outPosY, f32 *outScale, s16 *outColor, s16 *outAlpha) {
     f32 depth;
@@ -3264,12 +3264,12 @@ s32 menuEvaluateSelectorSpline(MenuScreenState *state, s32 index, f32 *outPosX, 
     }
     slot = index;
     index <<= 2;
-    D_8003378C[index + 2] = D_8003373C[index];
-    D_8003373C[index + 2] = -D_8003378C[index];
-    D_8003378C[index + 3] = D_8003373C[index + 1];
-    D_8003373C[index + 3] = -D_8003378C[index + 1];
-    *outPosX = menuEvaluateSpline(D_8003373C + index, state->scroll, NULL);
-    *outPosY = menuEvaluateSpline(D_8003378C + index, state->scroll, NULL);
+    gSelectorSplineY[index + 2] = gSelectorSplineX[index];
+    gSelectorSplineX[index + 2] = -gSelectorSplineY[index];
+    gSelectorSplineY[index + 3] = gSelectorSplineX[index + 1];
+    gSelectorSplineX[index + 3] = -gSelectorSplineY[index + 1];
+    *outPosX = menuEvaluateSpline(gSelectorSplineX + index, state->scroll, NULL);
+    *outPosY = menuEvaluateSpline(gSelectorSplineY + index, state->scroll, NULL);
     if (*outPosY < -40.0f) {
         depth = -*outPosY - 40.0f;
         if (depth > 20.0f) {
@@ -3480,7 +3480,7 @@ void menuUpdateKioskActor(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 D_8003378C[];
+extern f32 gSelectorSplineY[];
 
 void menuUpdateKioskPodActor(void) {
     MenuKioskState *podState;
@@ -3523,8 +3523,8 @@ void menuUpdateKioskPodActor(void) {
             screenY = screenY - 120.0f;
             if (screenY < -35.0f) {
                 if (screenY > -75.0f) {
-                    D_8003378C[0] = screenY;
-                    D_8003378C[0x11] = screenY;
+                    gSelectorSplineY[0] = screenY;
+                    gSelectorSplineY[0x11] = screenY;
                 }
             }
         }

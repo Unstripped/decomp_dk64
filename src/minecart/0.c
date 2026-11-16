@@ -468,7 +468,7 @@ void minecartRampTiltRate(MinecartCart *cart) {
 }
 
 
-extern struct GfSndState *D_807457E4[];
+extern struct GfSndState *gSfxFreeSlotHandles[];
 extern s16 gSfxSourceVoice[];
 extern f32 D_80770B68[];
 void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimit) {
@@ -570,7 +570,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     if (prev > 25.0f) {
         cnt = 0;
         for (i = 0; i < 0x14; i++) {
-            if (D_807457E4[i] != 0) {
+            if (gSfxFreeSlotHandles[i] != 0) {
                 cnt++;
             }
         }
@@ -688,7 +688,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
             cnt2 = 0;
             i2 = 0;
             do {
-                if (D_807457E4[i2] != 0) {
+                if (gSfxFreeSlotHandles[i2] != 0) {
                     cnt2++;
                 }
                 i2++;

@@ -2736,7 +2736,7 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
                 D_8004BCD0[entIndex].facing = (arcadeRand() + bias * 0xFB8) - 0x1F70 >= 0x4001;
             }
             if (arcadeCheckPlayerCollision((s32)(D_8004BCD0[entIndex].x + D_8004BCD0[entIndex].vx * 8.0f), (s32)D_8004BCD0[entIndex].y) - D_8004BCD0[entIndex].y > 5.0f) {
-                if (D_8004BCD0[entIndex].facing == 0) {}  // FAKE: dead test makes the unk1A load a candidate (a0)
+                if (D_8004BCD0[entIndex].facing == 0) {}  // FAKE: dead test makes the facing load a candidate (a0)
                 D_8004BCD0[entIndex].facing = D_8004BCD0[entIndex].facing == 0;
             } else {
                 D_8004BCD0[entIndex].x += D_8004BCD0[entIndex].vx;
@@ -2758,7 +2758,7 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
             } else if (floorY - D_8004BCD0[entIndex].y < 3.0f) {
                 D_8004BCD0[entIndex].y = floorY;
             } else {
-                if (D_8004BCD0[entIndex].facing == 0) {}  // FAKE: dead test makes the unk1A load a candidate
+                if (D_8004BCD0[entIndex].facing == 0) {}  // FAKE: dead test makes the facing load a candidate
                 D_8004BCD0[entIndex].facing = D_8004BCD0[entIndex].facing == 0;
             }
             break;

@@ -145,8 +145,8 @@ typedef struct ScriptCommand {
 
 extern u8 gGameMode;
 extern s32 gCurrentMap;
-extern f32 D_807502E8;
-extern u16 D_80747750[];
+extern f32 gDefaultActorGravity;
+extern u16 gScriptAnimScriptIds[];
 extern u16 sScriptAnimBase[];
 // RGB colours, indexed by the script colour id (particles and opcode 15 actor tints)
 typedef struct ScriptColor {
@@ -189,7 +189,7 @@ void actorScriptedCommandUpdate(void) {
             gCurrentActor->flags &= ~0x1000000;
             gCurrentActor->flags |= 0x400;
         }
-        gCurrentActor->accelY = D_807502E8;
+        gCurrentActor->accelY = gDefaultActorGravity;
     }
     if (gGameMode != 1 && gCurrentMap != 0x4C && gCurrentActor->actorType != 0xFE) {
         gCurrentActor->flags &= ~0x10000000;
@@ -233,7 +233,7 @@ void actorScriptedCommandUpdate(void) {
                     break;
                 case 2:
                     gCurrentActor->sub4->model->animId = -1;
-                    actorScriptStart(gCurrentActor, D_80747750[cmd->args[0]]);
+                    actorScriptStart(gCurrentActor, gScriptAnimScriptIds[cmd->args[0]]);
                     if (cmd->args[1] != 0) {
                         scriptSetActorRampTarget(gCurrentActor, cmd->args[1] / 100.0, 0.0f);
                     }

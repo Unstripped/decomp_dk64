@@ -319,8 +319,8 @@ u8 tilt;
     f32 drag;
     f32 turnRate;
     f32 tmpB;
-    s16 tiltPitch;
     s16 tiltRoll;
+    s16 tiltPitch;
     u8 fl[4]; // FAKE: flag array keeps fl[2]/fl[3] memory-resident (sb/lbu at sp) instead of two register locals
     f32 velX;
     f32 velZ;
@@ -331,8 +331,8 @@ u8 tilt;
 
     pl = gPlayerSlots[vehicle->playerIdx].actor;
     kongState = pl->actorType;
-    tiltPitch = 0;
     tiltRoll = 0;
+    tiltPitch = 0;
     fl[3] = gCurrentActor->y <= gCurrentActor->waterY + 1.0f;
     fl[2] = gCurrentActor->contactFlags & 1;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -379,24 +379,24 @@ u8 tilt;
     if (fl[2] != 0) {
         slopeRange = 0x400 - gCurrentActor->floorSlopePitch;
         slopeAngle = mathAngleSignedDistance(gCurrentActor->floorSlopeYaw, vehicle->heading);
-        tiltPitch = (mathCosF(slopeAngle) * slopeRange);
-        tiltRoll = (mathSinF(slopeAngle) * slopeRange);
+        tiltRoll = (mathCosF(slopeAngle) * slopeRange);
+        tiltPitch = (mathSinF(slopeAngle) * slopeRange);
     } else if (!tilt) {
         gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, 0, 4.0f);
         gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, 0, 5.0f);
     }
     turnRate = vehicle->steerGain * vehicle->steer;
     if (tilt) {
-        tiltRoll = tiltRoll + turnRate * 200.0f;
-        tiltRoll &= 0xFFF;
+        tiltPitch = tiltPitch + turnRate * 200.0f;
+        tiltPitch &= 0xFFF;
         if (fl[3] != 0 || fl[2] != 0) {
-            tiltPitch = tiltPitch + (vehicle->throttle * -50.0f + gCurrentActor->speedXZ * -0.5);
-            tiltPitch &= 0xFFF;
+            tiltRoll = tiltRoll + (vehicle->throttle * -50.0f + gCurrentActor->speedXZ * -0.5);
+            tiltRoll &= 0xFFF;
         } else {
-            tiltPitch = gCurrentActor->roll;
+            tiltRoll = gCurrentActor->roll;
         }
-        gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, tiltPitch, 4.0f);
-        gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, tiltRoll, 5.0f);
+        gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, tiltRoll, 4.0f);
+        gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, tiltPitch, 5.0f);
     }
     gCurrentActor->speedXZ = gCurrentActor->speedXZ - drag;
     if (gCurrentActor->speedXZ < 0.0f) {

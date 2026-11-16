@@ -141,7 +141,7 @@ void slotQueueGetPosition(s32 slot, f32 *x, f32 *y, f32 *z) {
 
 
 
-void func_806F8278(u8 player) {
+void slotQueueUpdateGoldenBananaTotal(u8 player) {
     s32 sum;
     PlayerInventory *inv;
     s32 i;
@@ -313,7 +313,7 @@ void slotQueueInit(s32 reset) {
                     base[j].shown = *base[j].value;
                 }
             }
-            func_806F8278(i);
+            slotQueueUpdateGoldenBananaTotal(i);
             i++;
             inv++;
         } while (i < gPlayerCount);
@@ -576,7 +576,7 @@ void slotQueueAddValue(s32 slot, u8 player, s16 delta) {
             break;
         }
         if (slot == 8) {
-            func_806F8278(player);
+            slotQueueUpdateGoldenBananaTotal(player);
         }
     }
 }

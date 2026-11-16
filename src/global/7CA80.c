@@ -143,14 +143,14 @@ void actorInit(void) {
 void func_80677EC8(s32 unused) {
 }
 
-extern u8 D_8074D8D4[];
-extern s32 (*D_8074DA30[])(s32 *);
+extern u8 gActorTypeInitIndex[];
+extern s32 (*gActorInitFuncs[])(s32 *);
 
 s32 actorSpawnFromInfo(ActorSpawnInfo *info) {
     u8 initIndex;
     if (actorAllocate((u16)info->type)) {
-        initIndex = D_8074D8D4[info->type];
-        if (D_8074DA30[initIndex](&info->spawnArg)) {
+        initIndex = gActorTypeInitIndex[info->type];
+        if (gActorInitFuncs[initIndex](&info->spawnArg)) {
             gSpawnedActor->x = info->x;
             gSpawnedActor->y = info->y;
             gSpawnedActor->z = info->z;
@@ -169,8 +169,8 @@ s32 actorSpawnFromInfo(ActorSpawnInfo *info) {
 s32 actorSpawn(s32 type, s32 spawnArg) {
     u8 initIndex;
     if (actorAllocate((u16)type)) {
-        initIndex = D_8074D8D4[type];
-        if (D_8074DA30[initIndex](&spawnArg)) {
+        initIndex = gActorTypeInitIndex[type];
+        if (gActorInitFuncs[initIndex](&spawnArg)) {
             return 1;
         }
     }
@@ -533,7 +533,7 @@ void actorPreTick(Actor *actor) {
 }
 
 void actorPostTick(Actor *actor) {
-    if ((void *)actorInitCollisionFromModel == (void *)D_8074DA30[D_8074D8D4[actor->actorType]]) {
+    if ((void *)actorInitCollisionFromModel == (void *)gActorInitFuncs[gActorTypeInitIndex[actor->actorType]]) {
         guTranslateF(actor->modelMtx, actor->x, actor->y, actor->z);
     }
     actorUpdatePositionAndSub140(actor);

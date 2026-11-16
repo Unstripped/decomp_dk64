@@ -503,7 +503,7 @@ typedef struct SpawnControllerActor {
     /* 0x17C */ s16 *controllerState; // the controller state id (D_8075570C entry or controllerLookupStateByHash)
 } SpawnControllerActor;
 
-extern f32 D_807502E8;
+extern f32 gDefaultActorGravity;
 extern s16 D_807502E0;
 extern s16 D_8075570C[];
 extern s32 gGlobalCutsceneFlags;
@@ -545,7 +545,7 @@ void spawnNodeInitActorFromEntry(Actor *act, SpawnNode *node) {
     }
     actorSetPositionFromPoint(act, node);
     act->floorSlopePitch = 0x400;
-    act->accelY = D_807502E8;
+    act->accelY = gDefaultActorGravity;
     act->terminalSpeedY = D_807502E0;
     act->chunkIndex = node->chunkIndex;
     if (gSpawnEntryTable[idx].spawnRange == 0) {

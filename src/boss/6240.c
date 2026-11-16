@@ -152,7 +152,7 @@ extern u8 *sPufftossStateScripts[][5];
 extern u8 *sPufftossPhaseScripts[];
 extern u8 sPufftossScriptData[];
 extern u8 D_8071FB34[];
-extern f32 D_807502E8;
+extern f32 gDefaultActorGravity;
 extern f32 D_807502FC;
 extern s32 gCurrentMap;
 extern ALBank *D_8076D1F8;
@@ -572,7 +572,7 @@ void bossPufftossStep(void) {
                     gCurrentActor->state = 0x37;
                     gCurrentActor->unk155 = 1;
                 } else {
-                    gCurrentActor->accelY = D_807502E8;
+                    gCurrentActor->accelY = gDefaultActorGravity;
                     actorScriptStart(gCurrentActor, 0x2CC);
                     gCurrentActor->unk155 = 4;
                     gBehaviourWorkState->targetY = 0xC8;

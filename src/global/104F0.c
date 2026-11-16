@@ -15,8 +15,8 @@
 
 s16 D_807ECEA0[4];
 u8 sEepromSlotBuffer[0x800];
-u8 D_807ED6A8[0x800];
-u8 D_807EDEA8[4];
+u8 sEepromImage[0x800];
+u8 gEepromSectorSlot[4];
 s32 D_807EDEAC;
 extern u8 gEepromCurrentSlot;
 
@@ -81,7 +81,7 @@ u8 eepromGetSectorForSlot(s32 slot) {
     u8 i;
 
     for (i = 0; i < 4; i++) {
-        if (slot == D_807EDEA8[i]) {
+        if (slot == gEepromSectorSlot[i]) {
             return i;
         }
     }
@@ -102,9 +102,9 @@ void eepromCopySlot(void) {
         src = &sEepromSlotBuffer[(((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * original];
         dst = &sEepromSlotBuffer[(((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * replacement];
         memcpy(dst, src, ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
-        D_807EDEA8[replacement] ^= D_807EDEA8[original];
-        D_807EDEA8[original] ^= D_807EDEA8[replacement];
-        D_807EDEA8[replacement] ^= D_807EDEA8[original];
+        gEepromSectorSlot[replacement] ^= gEepromSectorSlot[original];
+        gEepromSectorSlot[original] ^= gEepromSectorSlot[replacement];
+        gEepromSectorSlot[replacement] ^= gEepromSectorSlot[original];
     }
 }
 
@@ -497,17 +497,17 @@ void eepromValidateSaveSlots(void) {
     u8 failed;
     u8 version;
     failed = 0;
-    memcpy(sEepromSlotBuffer, D_807ED6A8, 0x800);
+    memcpy(sEepromSlotBuffer, sEepromImage, 0x800);
     for (i = 0; i < 4; i++) {
-        D_807EDEA8[i] = i;
+        gEepromSectorSlot[i] = i;
         sectorOrder[i] = 0xFF;
     }
     for (i = 0; i < 4; i++) {
         ok = 1;
         off = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * i;
-        data = off + D_807ED6A8;
+        data = off + sEepromImage;
         idx = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * (j = i + 1)) / 4) - 1;  // FAKE: dead embedded store to j (pre-existing, now tagged) puts i + 1 first in multu s2,t9 at 0x14b4 (Q0519); plain i + 1 in either operand order gives multu t9,s2
-        stored = ((u32 *)D_807ED6A8)[idx];
+        stored = ((u32 *)sEepromImage)[idx];
         len = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) - 4;
         crc = eepromCalculateCrc32(data, len);
         if (stored != crc) {
@@ -555,13 +555,13 @@ void eepromValidateSaveSlots(void) {
         }
     }
     for (i = 0; i < 4; i++) {
-        D_807EDEA8[i] = sectorOrder[i];
+        gEepromSectorSlot[i] = sectorOrder[i];
     }
     globalOk = 1;
     off = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
     idx = (((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8) + 0x40) / 4 - 1;
-    stored = ((u32 *)D_807ED6A8)[idx];
-    crc = eepromCalculateCrc32(D_807ED6A8 + off, 0x3C);
+    stored = ((u32 *)sEepromImage)[idx];
+    crc = eepromCalculateCrc32(sEepromImage + off, 0x3C);
     if (stored != crc) {
         globalOk = 0;
         eepromResetGlobalData();
@@ -585,7 +585,7 @@ void eepromResetAllSlots(void) {
     u8 *p;
     s32 i;
 
-    p = D_807EDEA8;
+    p = gEepromSectorSlot;
     slot = gEepromCurrentSlot;
     for (i = 0; i < 4; i++) {
         *p++ = i;
@@ -609,7 +609,7 @@ void eepromReadAllSectors(void) {
     s32 sector;
 
     failed = 0;
-    dst = D_807ED6A8;
+    dst = sEepromImage;
     if (D_807EDEAC != 2) {
         eepromResetAllSlots();
         D_807467CC = 1;
@@ -627,7 +627,7 @@ void eepromReadAllSectors(void) {
     gEepromWriteInProgress = 0;
     D_807467CC = 1;
     if (failed == 0) {
-        failed = _strcasecmp(D_807ED6A8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
+        failed = _strcasecmp(sEepromImage + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
     }
     if (failed != 0) {
         eepromResetAllSlots();
@@ -658,7 +658,7 @@ void eepromSaveRecords(s32 recordsOnly) {
     if (D_807EDEAC == 2) {
         _sprintf(sEepromSlotBuffer + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
         memcpy(workingData, sEepromSlotBuffer, 0x800);
-        memcpy(savedData, D_807ED6A8, 0x800);
+        memcpy(savedData, sEepromImage, 0x800);
         if (recordsOnly == 0) {
             eepromCopySlot();
             for (i = 0; i < 4; i++) {
@@ -690,7 +690,7 @@ void eepromSaveRecords(s32 recordsOnly) {
         if (D_807ECEA0) {}  // FAKE: deadsweep dead statement (steers uopt)
         osWritebackDCacheAll();
         if ((u32)D_807EDEAC & ~0x3FU) {}  // FAKE: an unsigned -64 use after the calls keeps the unsigned mask constants of the arm above uncoloured (li at,-64)
-        memcpy(&((u64 *)D_807ED6A8)[sector], &((u64 *)workingData)[sector], 0x800 - (sector << 3));
+        memcpy(&((u64 *)sEepromImage)[sector], &((u64 *)workingData)[sector], 0x800 - (sector << 3));
         while (*contReadPending != 0) {
             sleepMilliseconds(1.0f);
         }
@@ -770,7 +770,7 @@ void eepromLoadPlayerData(u8 slot, s32 fromCopy) {
     entry = gPlayerInventoryTable[0].kong;
     gActivePlayerCount = 1;
     playerResetSpawnGlobals();
-    memcpy(sEepromSlotBuffer, D_807ED6A8, 0x800);
+    memcpy(sEepromSlotBuffer, sEepromImage, 0x800);
     gEepromCurrentSlot = slot;
     gPlayerCharacterId = 0;
     if (eepromGetField(0xD, 0, 0, slot) == 0) {

@@ -784,7 +784,7 @@ typedef struct PlayerState {
     /* 0x054 */ f32 jumpVelocityY;
     /* 0x058 */ s32 jumpTimer;
     /* 0x05C */ u32 jumpStartTime;
-    /* 0x060 */ u32 unk60;
+    /* 0x060 */ u32 lastZPressTick;
     /* 0x064 */ s16 unk64;
     /* 0x066 */ u8 pad66[2];
     /* 0x068 */ f32 slideLaunchSpeed;
@@ -1105,12 +1105,12 @@ typedef struct CamState {
     /* 0x6C */ f32 unk6C;
     /* 0x70 */ f32 unk70;
     /* 0x74 */ u8 pad74[0x4];
-    /* 0x78 */ f32 unk78;
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ f32 unk80;
-    /* 0x84 */ f32 unk84;
-    /* 0x88 */ f32 unk88;
-    /* 0x8C */ f32 unk8C;
+    /* 0x78 */ f32 focusX;
+    /* 0x7C */ f32 focusY;
+    /* 0x80 */ f32 focusZ;
+    /* 0x84 */ f32 eyeGoalX;
+    /* 0x88 */ f32 eyeGoalY;
+    /* 0x8C */ f32 eyeGoalZ;
     /* 0x90 */ f32 unk90;
     /* 0x94 */ f32 unk94;
     /* 0x98 */ f32 unk98;
@@ -1138,7 +1138,7 @@ typedef struct CamState {
     /* 0xD8 */ f32 unkD8;
     /* 0xDC */ f32 unkDC;
     /* 0xE0 */ f32 unkE0;
-    /* 0xE4 */ f32 unkE4;
+    /* 0xE4 */ f32 followBlendRate;
     /* 0xE8 */ s16 unkE8;
     /* 0xEA */ s16 unkEA;
     /* 0xEC */ u8 unkEC;

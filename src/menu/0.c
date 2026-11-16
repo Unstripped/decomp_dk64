@@ -294,7 +294,7 @@ void menuUpdateOptionsState(MenuState *menu) {
                     }
                 }
             }
-            func_806F8278(0);
+            slotQueueUpdateGoldenBananaTotal(0);
         }
         if (changed != 0) {
             eepromSavePlayerData();

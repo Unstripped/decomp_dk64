@@ -2641,7 +2641,7 @@ void playerInputHandleZButtonFire(void) {
         sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x21, 0x19);
     }
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) {
-        if (gScheduler.unk280 - gActivePlayerState->unk60 < 0xF) {
+        if (gScheduler.unk280 - gActivePlayerState->lastZPressTick < 0xF) {
             if (gActivePlayerState->gunDrawn) {
                 playerKongPlayHolsterSfx(gCurrentActor);
             }
@@ -2652,7 +2652,7 @@ void playerInputHandleZButtonFire(void) {
                    (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1)) {
             playerToggleGun(gCurrentActor, gActivePlayerState, 1);
         }
-        gActivePlayerState->unk60 = gScheduler.unk280;
+        gActivePlayerState->lastZPressTick = gScheduler.unk280;
     }
 }
 
@@ -2662,7 +2662,7 @@ void playerInputHandleZButtonShoot(void) {
         sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x21, 0x19);
     }
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 2) {
-        if (gScheduler.unk280 - gActivePlayerState->unk60 < 0xF) {
+        if (gScheduler.unk280 - gActivePlayerState->lastZPressTick < 0xF) {
             if (gActivePlayerState->gunDrawn) {
                 playerKongPlayHolsterSfx(gCurrentActor);
             }
@@ -2673,7 +2673,7 @@ void playerInputHandleZButtonShoot(void) {
             playerToggleGun(gCurrentActor, gActivePlayerState, 1);
             gPlayerSlots[gCurrentPlayerIndex].fov = 45.0f;
         }
-        gActivePlayerState->unk60 = gScheduler.unk280;
+        gActivePlayerState->lastZPressTick = gScheduler.unk280;
     }
 }
 

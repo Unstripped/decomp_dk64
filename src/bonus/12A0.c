@@ -127,7 +127,7 @@ void bonusInitActors(LB3Obj *obj, u8 timerVal) {
 extern s32 gCurrentMap;
 extern Actor *gActivePlayerActor;
 extern u8 gGameMode;
-extern struct GfSndState *D_807457E4[];
+extern struct GfSndState *gSfxFreeSlotHandles[];
 extern u8 D_80720CF0;
 
 void bonusReelGameUpdate(void) {
@@ -257,8 +257,8 @@ void bonusReelGameUpdate(void) {
         }
         break;
     case 7:
-        if (D_807457E4[gCurrentActor->soundSlots[0]] != 0) {
-            n_alSndpStop(D_807457E4[gCurrentActor->soundSlots[0]]);
+        if (gSfxFreeSlotHandles[gCurrentActor->soundSlots[0]] != 0) {
+            n_alSndpStop(gSfxFreeSlotHandles[gCurrentActor->soundSlots[0]]);
         }
         /* fallthrough */
     case 1:

@@ -1907,8 +1907,8 @@ s16 sfxPlayAtPositionPooled(f32 x, f32 y, f32 z, s16 sfxId, u8 volume, s16 pitch
 
 extern struct GfSndState *D_807457D0[];
 extern u8 D_807457D8;
-extern struct GfSndState *D_807457E4[];
-extern u8 D_80745834;
+extern struct GfSndState *gSfxFreeSlotHandles[];
+extern u8 sSfxFreeSlotCursor;
 
 void sfxPlayWithRandomPan(s16 sfxId, u8 volume, u8 pitchByte, u8 spread, u8 behind) {
     s32 vol;
@@ -1954,11 +1954,11 @@ s16 sfxPlayOnFreeSlot(s16 sfxId, s32 volume, f32 pan, f32 pitch, u8 spread, u8 f
     }
 
     for (i = 20; i > 0; i--) {
-        if (D_807457E4[D_80745834] == NULL) {
+        if (gSfxFreeSlotHandles[sSfxFreeSlotCursor] == NULL) {
             break;
         }
-        if (++D_80745834 == 20) {
-            D_80745834 = 0;
+        if (++sSfxFreeSlotCursor == 20) {
+            sSfxFreeSlotCursor = 0;
         }
     }
 
@@ -1969,17 +1969,17 @@ s16 sfxPlayOnFreeSlot(s16 sfxId, s32 volume, f32 pan, f32 pitch, u8 spread, u8 f
         }
 
         if (sfxId < 0x800) {
-            n_alSndpPlay(D_8076D1F8, sfxId, (u16)volume, (u8)pan, pitch, fx, &D_807457E4[D_80745834]);
+            n_alSndpPlay(D_8076D1F8, sfxId, (u16)volume, (u8)pan, pitch, fx, &gSfxFreeSlotHandles[sSfxFreeSlotCursor]);
         } else {
-            n_alSndpPlay(D_8076D1FC, sfxId - 0x7FF, (u16)volume, (u8)pan, pitch, fx, &D_807457E4[D_80745834]);
+            n_alSndpPlay(D_8076D1FC, sfxId - 0x7FF, (u16)volume, (u8)pan, pitch, fx, &gSfxFreeSlotHandles[sSfxFreeSlotCursor]);
         }
 
         if (sfxId == 0x137) {
-            n_alSndpSetPriority(D_807457E4[D_80745834], 100);
+            n_alSndpSetPriority(gSfxFreeSlotHandles[sSfxFreeSlotCursor], 100);
         }
 
-        if (D_807457E4[D_80745834] != NULL) {
-            slot = D_80745834;
+        if (gSfxFreeSlotHandles[sSfxFreeSlotCursor] != NULL) {
+            slot = sSfxFreeSlotCursor;
         } else {
             slot = -1;
         }

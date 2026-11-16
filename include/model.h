@@ -11,8 +11,8 @@ typedef struct ModelAssetHeader {
     /* 0x04 */ u8 pad4[4];
     /* 0x08 */ s32 unk8;
     /* 0x0C */ u8 padC[0x10];
-    /* 0x1C */ u8 unk1C;
-    /* 0x1D */ u8 unk1D;
+    /* 0x1C */ u8 modelKind;
+    /* 0x1D */ u8 fullBright;
     /* 0x1E */ s16 unk1E;
     /* 0x20 */ s32 unk20; // collision sphere radius (collisionBuildSlotBoxes)
     /* 0x24 */ u8 pad24[4];

@@ -237,7 +237,7 @@ s16 modelSlotsAllocate(s32 map, u8 allocate) {
 
 extern s32 gModelSlotCount;
 extern s16 gCsModelIds[];
-extern s32 D_807F6004;
+extern s32 gModelSlotNextId;
 
 void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 saveFile) {
     struct RenderEntry *renderList;
@@ -267,7 +267,7 @@ void modelSlotsLoadMap(u8 *mapData, s32 map, u8 checkSaved, u16 saveIndex, u8 sa
         entry = (ModelAssetEntry *)(mapData + 4);
         entryCount = *(s32 *)mapData;
     }
-    D_807F6004 = 0;
+    gModelSlotNextId = 0;
     hashTableInit();
     csModelIdTableReset();
     mtxCopyQueueReset();
@@ -407,7 +407,7 @@ typedef struct ModelType1Obj {
     /* 0xB8 */ TexAnimNode *texAnims;
     /* 0xBC */ ModelSlotSubNode *subNode;
     /* 0xC0 */ s16 maxDist;
-    /* 0xC2 */ u8 unkC2;
+    /* 0xC2 */ u8 fullBright;
     /* 0xC3 */ u8 light;
     /* 0xC4 */ u8 surfaceType;
     /* 0xC5 */ u8 mapFlags;
@@ -539,10 +539,10 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
 
     renderList = *renderListInOut;
     modelSlotInitFromAsset(&gModelSlots[slot], modelType);
-    gModelSlots[slot].id = D_807F6004;
+    gModelSlots[slot].id = gModelSlotNextId;
     hashTableInsert(gModelSlots[slot].id, slot);
     info = gModelSlots[slot].unk24;
-    type = info->unk1C;
+    type = info->modelKind;
     if (gGlobalCutsceneFlags & 0x100) {
         info->unk0 &= ~0x10;
     }
@@ -573,11 +573,11 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
             modelSlotInitTexAnimNodes(info, &gModelSlots[slot], type);
             obj2 = gModelSlots[slot].unk20;
             link = &obj2->subNode;
-            obj2->id = D_807F6004;
+            obj2->id = gModelSlotNextId;
             obj2->flags = flags;
             obj2->light = light;
             obj2->maxDist = info->unk1E;
-            obj2->unk5A = info->unk1D;
+            obj2->fullBright = info->fullBright;
             obj2->surfaceType = groundSurfaceTypeAt(x, y, z);
         }
     } else {
@@ -590,9 +590,9 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
         obj1->rotY = rotY;
         obj1->rotZ = rotZ;
         obj1->yOffset = yOffset;
-        obj1->id = D_807F6004;
+        obj1->id = gModelSlotNextId;
         obj1->maxDist = info->unk1E;
-        obj1->unkC2 = info->unk1D;
+        obj1->fullBright = info->fullBright;
         obj1->light = light;
         obj1->surfaceType = groundSurfaceTypeAt(x, y, z);
         obj1->mapFlags = 0;
@@ -627,9 +627,9 @@ s16 modelSlotInit(s32 slot, s32 modelType, f32 x, f32 y, f32 z, f32 rotX, f32 ro
         node->asset = assetLoad(0x19, info->unk28, 1, 0);
         modelSlotUpdateGroundCoords(slot, 0);
     }
-    *renderListInOut = renderEntryAddOrUpdate(renderList, type, gModelSlots[slot].unk20, x, y, z, info->unk1E, D_807F6004, 0, 0, 0);
-    D_807F6004 += 1;
-    return D_807F6004 - 1;
+    *renderListInOut = renderEntryAddOrUpdate(renderList, type, gModelSlots[slot].unk20, x, y, z, info->unk1E, gModelSlotNextId, 0, 0, 0);
+    gModelSlotNextId += 1;
+    return gModelSlotNextId - 1;
 }
 
 
@@ -723,7 +723,7 @@ void modelSlotUpdateGroundCoords(s16 slot, u8 isId) {
     if (collisionCheckGroundAtPoint(gModelSlots[slot].x, gModelSlots[slot].z, &groundY) != 0) {
         collisionGetCoords(&groundX, &groundZ);
         info = gModelSlots[slot].unk24;
-        switch (info->unk1C) {
+        switch (info->modelKind) {
             case 1:
                 obj = gModelSlots[slot].unk20;
                 dst = obj->type1.subNode;
@@ -2158,10 +2158,10 @@ void modelSlotInitFromAsset(ModelSlot *slot, s32 type) {
     }
     hdr = slot->unk24;
     slot->unk8C = 0;
-    slot->unk86 = hdr->unk1C;
+    slot->unk86 = hdr->modelKind;
     slot->modelType = type;
-    if (hdr->unk1C != 1) {
-        if (hdr->unk1C == 2) {
+    if (hdr->modelKind != 1) {
+        if (hdr->modelKind == 2) {
             obj = heapAlloc(0x60);
             objData = obj;
             obj->modelType = type;
@@ -2324,7 +2324,7 @@ void modelSlotResolveAssetTextures(ModelSlot *slot, u8 forceLoad, u8 force) {
             temp = (u32)seg; // FAKE: dead redefinition keeps obj's early web (v0) separate from obj (Q0546)
             slot->unk8C = flags | 0x20;
             obj->unk3C++;
-            if (obj->unk1C == 1) {
+            if (obj->modelKind == 1) {
                 count = seg->segmentData - seg->displayListB;
                 cmds = seg->displayListA;
                 temp = (seg->displayListB - cmds) >> 3;
@@ -2416,7 +2416,7 @@ typedef struct ModelType1RenderView {
     /* 0xB8 */ void *texAnims;
     /* 0xBC */ u8 padBC[4];
     /* 0xC0 */ s16 maxDist;
-    /* 0xC2 */ u8 unkC2;
+    /* 0xC2 */ u8 fullBright;
     /* 0xC3 */ u8 light;
     /* 0xC4 */ u8 surfaceType;
     /* 0xC5 */ u8 mapFlags;
@@ -2514,7 +2514,7 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
     }
     gSPSegment(gfx++, 10, osVirtualToPhysical(obj->displayListsA[sel]));
     gSPClearGeometryMode(gfx++, G_FOG | G_CULL_BOTH);
-    if (useLight && obj->unkC2 == 0) {
+    if (useLight && obj->fullBright == 0) {
         f32 yOffset;
 
         model = gModelSlots[slotIdx].unk7C;
@@ -2713,7 +2713,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
         alpha = 0xFF - alpha;
     }
     modelKongVisibilityCheck(obj->modelType, &opaque, &alpha);
-    if (useLight && obj->unk5A == 0) {
+    if (useLight && obj->fullBright == 0) {
         lightSampleColorAtPosition(obj->x, obj->y, obj->z, 0, &red, &green, &blue, lightArg);
         scale = obj->surfaceType / 15.0f;
         red = red * scale;

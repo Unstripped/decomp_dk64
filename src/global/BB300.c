@@ -25,7 +25,7 @@ typedef struct PulseActor {
 
 extern Actor *gSpawnedActor;
 extern s16 D_807502E0;
-extern f32 D_807502E8;
+extern f32 gDefaultActorGravity;
 
 
 void actorUpdatePulseIntensity(u8 active) {
@@ -116,7 +116,7 @@ void func_806B6C88(s16 speed, s16 angle) {
         gSpawnedActor->moveYaw = gSpawnedActor->yaw;
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
         gSpawnedActor->floorY = gCurrentActor->floorY;
-        gSpawnedActor->accelY = D_807502E8;
+        gSpawnedActor->accelY = gDefaultActorGravity;
         gSpawnedActor->terminalSpeedY = D_807502E0;
         gSpawnedActor->speedXZ = 0.0f;
         actorSetTargetSpeed(gCurrentActor, speed * 1.25);

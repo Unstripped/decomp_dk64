@@ -78,7 +78,7 @@ typedef struct RenderQuadModelObj {
     /* 0x50 */ struct TexAnimNode *texAnims;
     /* 0x54 */ struct ModelSlotSubNode *subNode;
     /* 0x58 */ s16 maxDist;
-    /* 0x5A */ u8 unk5A;
+    /* 0x5A */ u8 fullBright;
     /* 0x5B */ u8 light;
     /* 0x5C */ u8 surfaceType; // groundSurfaceTypeAt
 } RenderQuadModelObj; // size = 0x60

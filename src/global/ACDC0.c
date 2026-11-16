@@ -68,7 +68,7 @@ extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
 extern u8 **sPauseMenuStrings;
 extern u8 **sPauseLevelNames;
-extern s8 D_807FC80F;
+extern s8 sPauseIconList;
 extern u8 D_807FC810;
 extern f32 D_807FC808;
 extern s8 sPauseBumpStep;
@@ -88,7 +88,7 @@ extern s8 gPauseMenuMode;
 extern s8 sPauseKongUnlocked[5];
 extern u8 D_80750531[];
 extern s32 gCurrentMap;
-extern s8 D_807FC80E;
+extern s8 sPauseStickHeld;
 extern s8 gPausingPlayer;
 extern PlayerStruct *gPlayerSlots;
 extern s8 gMpWinnerIndex;
@@ -155,7 +155,7 @@ extern s8 D_807FC80C;
 extern s8 D_807FC80D;
 extern s16 D_807FC83A;
 extern s8 D_807FC83C;
-extern s8 D_807FC8B8;
+extern s8 sPauseExitRequested;
 
 
 void hudPauseMenuUpdate(void) {
@@ -203,7 +203,7 @@ void hudPauseMenuUpdate(void) {
         D_8076A098++;
         D_807FC7FC = gPlayerSlots->camY;
         sPauseSaveCooldown = 0;
-        D_807FC8B8 = 0;
+        sPauseExitRequested = 0;
         D_80750580 = 1;
         sPauseLastLevelSlot = 7;
         while (sPauseLastLevelSlot >= 0 && flagGet(sPauseLastLevelSlot + 0x1C5, 0) == 0) {
@@ -235,13 +235,13 @@ void hudPauseMenuUpdate(void) {
         sPauseTextCounts[0] = 0;
         sPauseTextCounts[1] = 0;
         sPauseBumpStep = 0;
-        D_807FC80E = 1;
+        sPauseStickHeld = 1;
         hudPauseMenuRefreshTotals();
         hudPauseMenuBuildPage(hud, 0);
         gGlobalPauseFlags &= 0xFFFEFFCF;
         screenWipeStart(7);
     }
-    if (hud->fade == 0.0f && D_807FC8B8 == 0) {
+    if (hud->fade == 0.0f && sPauseExitRequested == 0) {
         moved = hud->worldIndex[hud->buffer] != hud->worldIndex[1 - hud->buffer];
         buttons = *gPlayerSlots->heldButtonsPtr;
         if (moved == 0 && hud->carouselProgress == 0.0f && D_807FC80C == D_807FC80D) {
@@ -284,7 +284,7 @@ void hudPauseMenuUpdate(void) {
                 if (hud->menuRow != 3) {
                     stickY = gCurrentContPad->stick_y;
                     if (stickY < -0x32) {
-                        if (D_807FC80E == 0) {
+                        if (sPauseStickHeld == 0) {
                             hud->menuRow++;
                             buttons = 0;
                             if (hud->menuRow >= 3) {
@@ -292,9 +292,9 @@ void hudPauseMenuUpdate(void) {
                             }
                             sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
                         }
-                        D_807FC80E = 1;
+                        sPauseStickHeld = 1;
                     } else if (stickY >= 0x33) {
-                        if (D_807FC80E == 0) {
+                        if (sPauseStickHeld == 0) {
                             hud->menuRow--;
                             buttons = 0;
                             if (hud->menuRow < 0) {
@@ -302,9 +302,9 @@ void hudPauseMenuUpdate(void) {
                             }
                             sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
                         }
-                        D_807FC80E = 1;
+                        sPauseStickHeld = 1;
                     } else {
-                        D_807FC80E = 0;
+                        sPauseStickHeld = 0;
                     }
                     if (buttons & 0x8000) {
                         if (hud->menuRow == 2) {
@@ -330,7 +330,7 @@ void hudPauseMenuUpdate(void) {
                     if (i) {
                         i = menuGetTimerFlag() != 0;
                     }
-                    D_807FC8B8 = 1;
+                    sPauseExitRequested = 1;
                     if (gPauseMenuMode == 0 && hubWorld != 7 && hubWorld != 0xD && hubWorld != 9 && i == 0) {
                         if (hubWorld == 0xA) {
                             menuReturnToTitle();
@@ -914,7 +914,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
         iconObj->carouselProgress = 0.0f;
         sPauseCarouselTimer = 0.0f;
     }
-    D_807FC80F = 1;
+    sPauseIconList = 1;
     switch (iconObj->page) {
     case 0:
         gPlayerCharacterId = saved;
@@ -968,9 +968,9 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             }
             if (D_807FC82E > 0) {
                 if (idx != 8) {
-                    D_807FC80F = (gPlayerInventoryTable[0].kong[gPlayerCharacterId].coloredBananas[idx] + gPlayerInventoryTable[0].kong[gPlayerCharacterId].bananasDelivered[idx]) >= 0x4B;
+                    sPauseIconList = (gPlayerInventoryTable[0].kong[gPlayerCharacterId].coloredBananas[idx] + gPlayerInventoryTable[0].kong[gPlayerCharacterId].bananasDelivered[idx]) >= 0x4B;
                 } else {
-                    D_807FC80F = flagGridSumRows(0x225, i, i, gPlayerCharacterId);
+                    sPauseIconList = flagGridSumRows(0x225, i, i, gPlayerCharacterId);
                 }
                 hudPauseMenuSpawnIcon(iconObj, 0xA, 0x113, 0x7D, 0.75f, 2, 2);
                 if (flagGridSumRows(0x225, i, i, gPlayerCharacterId)) {
@@ -999,7 +999,7 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             }
             if (sum) {
                 i = idx;
-                D_807FC80F = flagGet(flagGridIndex(0x1D5, i, gPlayerCharacterId), 0);
+                sPauseIconList = flagGet(flagGridIndex(0x1D5, i, gPlayerCharacterId), 0);
                 hudPauseMenuSpawnIcon(iconObj, 0xC, 0x26, 0x7D, 0.75f, 2, 2);
                 if (flagGet(flagGridIndex(0x1FD, i, gPlayerCharacterId), 0)) {
                     hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721518, 0x26, 0x7D, 0.35f, 2, 0xD);
@@ -1046,9 +1046,9 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
             for (i = 0; i < 5; i++) {
                 if (idx != 8) {
                     inv = &gPlayerInventoryTable[0].kong[i];
-                    D_807FC80F = (inv->coloredBananas[idx] + inv->bananasDelivered[idx]) >= 0x4B;
+                    sPauseIconList = (inv->coloredBananas[idx] + inv->bananasDelivered[idx]) >= 0x4B;
                 } else {
-                    D_807FC80F = flagGridSumRows(0x225, j, j, i);
+                    sPauseIconList = flagGridSumRows(0x225, j, j, i);
                 }
                 hudPauseMenuSpawnIcon(iconObj, 0xA, D_807505A4[i], 0, 0.75f, 2, 3);
                 if (flagGridSumRows(0x225, j, j, i)) {
@@ -1056,30 +1056,30 @@ void hudPauseMenuBuildPage(HudEntry *iconObj, s32 refresh) {
                 }
             }
             if (D_807FC82A > 0) {
-                D_807FC80F = flagGet(sPauseCrownFlags[idx], 0);
+                sPauseIconList = flagGet(sPauseCrownFlags[idx], 0);
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_807210EC, 0xA0, 0x78, 1.0f, 2, 4);
             }
             if (flagGet(0x179, 0)) {
-                D_807FC80F = found[0];
+                sPauseIconList = found[0];
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721094, 0x3C, 0x78, 1.0f, 2, 6);
-                D_807FC80F = found[1];
+                sPauseIconList = found[1];
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721094, 0x104, 0x78, 1.0f, 2, 6);
             }
         } else {
             if (D_807FC82A > 0) {
-                D_807FC80F = flagGet(sPauseCrownFlags[idx], 0);
+                sPauseIconList = flagGet(sPauseCrownFlags[idx], 0);
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_807210EC, 0xA0, 0x55, 1.0f, 2, 4);
-                D_807FC80F = flagGet(sPauseCrownFlags[9], 0);
+                sPauseIconList = flagGet(sPauseCrownFlags[9], 0);
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_807210EC, 0xA0, 0x91, 1.0f, 2, 4);
             }
             if (flagGet(0x179, 0)) {
-                D_807FC80F = found[0];
+                sPauseIconList = found[0];
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721094, 0x3C, 0x5A, 1.0f, 2, 6);
-                D_807FC80F = found[1];
+                sPauseIconList = found[1];
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721094, 0x46, 0x96, 1.0f, 2, 6);
-                D_807FC80F = found[2];
+                sPauseIconList = found[2];
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721094, 0x104, 0x5A, 1.0f, 2, 6);
-                D_807FC80F = found[3];
+                sPauseIconList = found[3];
                 hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721094, 0xFA, 0x96, 1.0f, 2, 6);
             }
         }
@@ -1203,12 +1203,12 @@ void hudPauseMenuSpawnIcon(HudEntry *hud, s32 sprite, s32 x, s32 y, f32 scale, u
         buf[5] = 0.0f;
         break;
     }
-    if (D_807FC80F == 0) {
+    if (sPauseIconList == 0) {
         obj->red = 0x64;
         obj->green = 0x64;
         obj->blue = 0x64;
     }
-    D_807FC80F = 1;
+    sPauseIconList = 1;
 }
 
 void hudPauseMenuAddCounter(HudEntry *hud, s16 x, s16 y, s16 dx, s16 dy, s32 value, s32 style, s32 format) {
@@ -1718,18 +1718,18 @@ void hudTwoOptionMenuUpdate(void) {
         } while (i != 4);
         gGlobalPauseFlags &= ~0x10030;
         screenWipeStart(7);
-        D_807FC80E = 0;
+        sPauseStickHeld = 0;
         gCurrentActor->unk155 = 0;
     }
     i = gPausingPlayer;
     if (gPlayerSlots[i].contPad->stick_y >= 0x33 || gPlayerSlots[i].contPad->stick_y < -0x32) {
-        if (!(D_807FC80E & 1)) {
+        if (!(sPauseStickHeld & 1)) {
             gCurrentActor->unk155 = 1 - gCurrentActor->unk155;
-            D_807FC80E |= 1;
+            sPauseStickHeld |= 1;
             sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
     } else {
-        D_807FC80E &= ~1;
+        sPauseStickHeld &= ~1;
     }
     btn = *gPlayerSlots[i].heldButtonsPtr;
     if (btn & 0x8000) {

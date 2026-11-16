@@ -757,3 +757,4 @@
 {"type": "unit", "t": "2026-11-16T07:20:29Z", "unit": "2026-11-15: cleanup HackvehicleUpdateMotion3", "commit": "5df43cbe87a3df48c0ee3795c9a7513a46a5e5ee"}
 {"type": "unit", "t": "2026-11-16T07:21:51Z", "unit": "2026-11-15: cleanup HackplayerTurnByStickX3", "commit": "91634a7fd59b281af07b2de63d46db66f90264d7"}
 {"type": "unit", "t": "2026-11-16T07:30:01Z", "unit": "2026-11-15: cleanup HackpathPlaybackAdvance2", "commit": "426965af54bfecc5cda4981f268833608cbf83a6"}
+{"type": "unit", "t": "2026-11-16T07:42:04Z", "unit": "2026-11-15: cleanup CleanupLead3 close", "commit": "e4869aca90f2addd22111583f8c58d3c8f8e568a"}

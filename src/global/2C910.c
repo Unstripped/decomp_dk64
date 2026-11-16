@@ -112,8 +112,8 @@ Actor *actorFromSpawnNodeOrDefault(s16 nodeId) {
 }
 
 
-extern struct GfSndState *D_807457E4[];
-extern u16 D_80747750[];
+extern struct GfSndState *gSfxFreeSlotHandles[];
+extern u16 gScriptAnimScriptIds[];
 extern s8 D_8075536C;
 extern s8 D_8076AEE0;
 extern s16 D_8076AEF2;
@@ -223,7 +223,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
                 func_80724994(3, a, b, c, d);
             } else if (b == 2) {
                 gActivePlayerActor->sub4->model->animId = -1;
-                actorScriptStart(gActivePlayerActor, D_80747750[c]);
+                actorScriptStart(gActivePlayerActor, gScriptAnimScriptIds[c]);
                 if (d != 0) {
                     scriptSetActorRampTarget(gActivePlayerActor, d / 100.0, 0);
                 }
@@ -408,7 +408,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             n_alSndpStop(D_807F5D70[node]);
             return;
         case 0x1A:
-            n_alSndpStop(D_807457E4[D_807F5D7C]);
+            n_alSndpStop(gSfxFreeSlotHandles[D_807F5D7C]);
             return;
         case 0x38:
             if (a != 0) {

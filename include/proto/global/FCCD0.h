@@ -14,8 +14,8 @@ void func_806F8004(f32, f32, f32 *, f32 *, f32 *);
 #ifndef PROTO_SKIP_slotQueueGetPosition
 void slotQueueGetPosition(s32, f32 *, f32 *, f32 *);
 #endif
-#ifndef PROTO_SKIP_func_806F8278
-void func_806F8278(u8);
+#ifndef PROTO_SKIP_slotQueueUpdateGoldenBananaTotal
+void slotQueueUpdateGoldenBananaTotal(u8);
 #endif
 #ifndef PROTO_SKIP_slotQueueInit
 void slotQueueInit(s32);
