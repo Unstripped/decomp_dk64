@@ -2216,219 +2216,217 @@ extern ArcadeEntity D_8004A5F8;
 extern u8 D_800383B8[];
 extern u8 D_800385C0[];
 extern u8 D_8003B180[];
-#define E D_8004BCD0[entIndex]
-#define P D_8004BCD0[gArcadePlayerIndex]
 void arcadeUpdatePlayerEntity(s32 entIndex) {
     union {
         f32 f;
         s32 bits;
     } soundPitch;
-    s32 coll;
+    s32 floorY;
     s32 i;
-    s32 n;
+    s32 jumpedCount;
     s32 phase;
     static s32 sStepTimer;
     static s32 sStepPhase;
 
-    if (E.state == 8 || gArcadeFrozen == 0) {
-        if (E.state == 2) {
-            arcadeCheckPlayerCollision((s32)E.x, (s32)E.y);
-            if (E.vx < 0.0f) {
-                E.facing = E.facing & 1;
-            } else if (E.vx > 0.0f) {
-                E.facing = E.facing | 2;
+    if (D_8004BCD0[entIndex].state == 8 || gArcadeFrozen == 0) {
+        if (D_8004BCD0[entIndex].state == 2) {
+            arcadeCheckPlayerCollision((s32)D_8004BCD0[entIndex].x, (s32)D_8004BCD0[entIndex].y);
+            if (D_8004BCD0[entIndex].vx < 0.0f) {
+                D_8004BCD0[entIndex].facing &= 1;
+            } else if (D_8004BCD0[entIndex].vx > 0.0f) {
+                D_8004BCD0[entIndex].facing |= 2;
             }
-            if (((D_807ECDE8->button & 0x200) || D_807ECDE8->stick_x < -0x14) && D_8004C6F0 < E.x) {
+            if (((D_807ECDE8->button & 0x200) || D_807ECDE8->stick_x < -0x14) && D_8004C6F0 < D_8004BCD0[entIndex].x) {
                 sStepTimer += 3;
-                E.vx = -0.7f;
-                E.animTimer += 0.3;
-            } else if (((D_807ECDE8->button & 0x100) || D_807ECDE8->stick_x >= 0x15) && E.x < D_8004C6F4) {
+                D_8004BCD0[entIndex].vx = -0.7f;
+                D_8004BCD0[entIndex].animTimer += 0.3;
+            } else if (((D_807ECDE8->button & 0x100) || D_807ECDE8->stick_x >= 0x15) && D_8004BCD0[entIndex].x < D_8004C6F4) {
                 sStepTimer += 3;
-                E.vx = 0.7f;
-                E.animTimer += 0.3;
+                D_8004BCD0[entIndex].vx = 0.7f;
+                D_8004BCD0[entIndex].animTimer += 0.3;
             } else {
-                E.vx = 0.0f;
+                D_8004BCD0[entIndex].vx = 0.0f;
             }
             if ((D_807ECD48 & 0xE000) && D_8004C710 == 0) {
                 n_alSndpPlay(D_8076D1F8, 0x41, 0x7FFF, 0x3F, 1.0f, 0, 0);
-                E.animTimer = 0.0f;
-                E.vy = -1.2f;
-                E.vx *= 0.65;
-                E.param2 = E.y;
-                E.state = 3;
+                D_8004BCD0[entIndex].animTimer = 0.0f;
+                D_8004BCD0[entIndex].vy = -1.2f;
+                D_8004BCD0[entIndex].vx *= 0.65;
+                D_8004BCD0[entIndex].param2 = D_8004BCD0[entIndex].y;
+                D_8004BCD0[entIndex].state = 3;
             }
         }
-        if (E.y < arcadeCheckPlayerCollision((s32)(E.x + E.vx), (s32)E.y) + 3) {
-            E.x = E.vx + E.x;
+        if (D_8004BCD0[entIndex].y < arcadeCheckPlayerCollision((s32)(D_8004BCD0[entIndex].x + D_8004BCD0[entIndex].vx), (s32)D_8004BCD0[entIndex].y) + 3) {
+            D_8004BCD0[entIndex].x += D_8004BCD0[entIndex].vx;
         } else {
-            E.vx = 0.0f;
+            D_8004BCD0[entIndex].vx = 0.0f;
         }
-        if (E.state != 8 && D_8004C722 == 3 &&
-            ((76.0f < E.x && E.x < 100.0f) || (140.0f < E.x && E.x < 164.0f)) &&
-            ((E.y < 116.0f && 90.0f < E.y) || 239.0f < E.y)) {
+        if (D_8004BCD0[entIndex].state != 8 && D_8004C722 == 3 &&
+            ((76.0f < D_8004BCD0[entIndex].x && D_8004BCD0[entIndex].x < 100.0f) || (140.0f < D_8004BCD0[entIndex].x && D_8004BCD0[entIndex].x < 164.0f)) &&
+            ((D_8004BCD0[entIndex].y < 116.0f && 90.0f < D_8004BCD0[entIndex].y) || 239.0f < D_8004BCD0[entIndex].y)) {
             arcadeKillPlayer();
             return;
         }
-        D_8004C700 = arcadeCheckStageLadders((s32)E.x, (s32)E.y);
-        coll = arcadeCheckPlayerCollision((s32)E.x, (s32)E.y);
+        D_8004C700 = arcadeCheckStageLadders((s32)D_8004BCD0[entIndex].x, (s32)D_8004BCD0[entIndex].y);
+        floorY = arcadeCheckPlayerCollision((s32)D_8004BCD0[entIndex].x, (s32)D_8004BCD0[entIndex].y);
         D_8004C6FC = D_8004C6F8;
-        switch (E.state) {
+        switch (D_8004BCD0[entIndex].state) {
         case 2:
             for (i = 0; i < 4; i++) {
                 if (D_8004C6F8 == i) {
-                    P.x += D_8004A308[i];
+                    D_8004BCD0[gArcadePlayerIndex].x += D_8004A308[i];
                 }
             }
-            if (E.x <= D_8004C6F0 - 1) {
-                E.x = D_8004C6F0;
+            if (D_8004BCD0[entIndex].x <= D_8004C6F0 - 1) {
+                D_8004BCD0[entIndex].x = D_8004C6F0;
             }
-            if (D_8004C6F4 + 1 <= E.x) {
-                E.x = D_8004C6F4;
+            if (D_8004C6F4 + 1 <= D_8004BCD0[entIndex].x) {
+                D_8004BCD0[entIndex].x = D_8004C6F4;
             }
-            if (D_8004C6EC < E.y &&
+            if (D_8004C6EC < D_8004BCD0[entIndex].y &&
                 ((D_807ECDE8->button & 0x800) | (D_807ECDE8->stick_y >= 0x15)) &&
                 D_807ECDE8->stick_x < 0x29 && D_807ECDE8->stick_x >= -0x28 &&
                 !(D_807ECDE8->button & 0x300) && D_8004C710 == 0) {
-                E.state = 5;
-                E.vx = 0.0f;
-                E.y = E.y - 1.0f;
-                E.x = D_8004C6E0;
+                D_8004BCD0[entIndex].state = 5;
+                D_8004BCD0[entIndex].vx = 0.0f;
+                D_8004BCD0[entIndex].y -= 1.0f;
+                D_8004BCD0[entIndex].x = D_8004C6E0;
                 break;
-            } else if (E.y < D_8004C6E8 && D_8004C6EC <= E.y &&
+            } else if (D_8004BCD0[entIndex].y < D_8004C6E8 && D_8004C6EC <= D_8004BCD0[entIndex].y &&
                        !(D_807ECDE8->button & 0x300) &&
                        D_807ECDE8->stick_x < 0x29 && D_807ECDE8->stick_x >= -0x28 &&
                        ((D_807ECDE8->button & 0x400) | (D_807ECDE8->stick_y < -0x14)) &&
                        D_8004C710 == 0) {
-                E.state = 5;
-                E.vx = 0.0f;
-                E.y = E.y + 1.0f;
-                E.x = D_8004C6E0;
+                D_8004BCD0[entIndex].state = 5;
+                D_8004BCD0[entIndex].vx = 0.0f;
+                D_8004BCD0[entIndex].y += 1.0f;
+                D_8004BCD0[entIndex].x = D_8004C6E0;
                 break;
             } else {
-                if (coll - E.y < 2.0f) {
-                    E.y = coll;
+                if (floorY - D_8004BCD0[entIndex].y < 2.0f) {
+                    D_8004BCD0[entIndex].y = floorY;
                 } else {
-                    E.state = 3;
-                    E.vx = 0.0f;
-                    E.vy = 0.0f;
-                    E.param2 = E.y;
+                    D_8004BCD0[entIndex].state = 3;
+                    D_8004BCD0[entIndex].vx = 0.0f;
+                    D_8004BCD0[entIndex].vy = 0.0f;
+                    D_8004BCD0[entIndex].param2 = D_8004BCD0[entIndex].y;
                 }
             }
             break;
         case 5:
-            if (coll == E.y &&
+            if (floorY == D_8004BCD0[entIndex].y &&
                 ((D_807ECDE8->button & 0x300) | (D_807ECDE8->stick_x >= 0x15) | (D_807ECDE8->stick_x < -0x14) ||
                  (D_8004C6F8 == 2 && D_8004A308[2] != 0) ||
                  (D_8004C6F8 == 1 && D_8004A308[1] != 0) ||
                  (D_8004C6F8 == 3 && D_8004A308[3] != 0))) {
-                E.state = 2;
-            } else if (coll == E.y && (D_807ECD48 & 0xE000)) {
+                D_8004BCD0[entIndex].state = 2;
+            } else if (floorY == D_8004BCD0[entIndex].y && (D_807ECD48 & 0xE000)) {
                 n_alSndpPlay(D_8076D1F8, 0x41, 0x7FFF, 0x3F, 1.0f, 0, 0);
-                E.animTimer = 0.0f;
-                E.vy = -1.2f;
-                E.vx *= 0.65;
-                E.state = 3;
-                E.param2 = E.y;
+                D_8004BCD0[entIndex].animTimer = 0.0f;
+                D_8004BCD0[entIndex].vy = -1.2f;
+                D_8004BCD0[entIndex].vx *= 0.65;
+                D_8004BCD0[entIndex].state = 3;
+                D_8004BCD0[entIndex].param2 = D_8004BCD0[entIndex].y;
             } else {
-                if (E.y < D_8004C6EC) {
-                    E.y += 0.2;
-                    if (D_8004C6EC - E.y > 10.0f) {
-                        E.y = D_8004C6EC - 10;
+                if (D_8004BCD0[entIndex].y < D_8004C6EC) {
+                    D_8004BCD0[entIndex].y += 0.2;
+                    if (D_8004C6EC - D_8004BCD0[entIndex].y > 10.0f) {
+                        D_8004BCD0[entIndex].y = D_8004C6EC - 10;
                     }
-                    if (D_8004C6EC < E.y) {
-                        E.y = D_8004C6EC;
+                    if (D_8004C6EC < D_8004BCD0[entIndex].y) {
+                        D_8004BCD0[entIndex].y = D_8004C6EC;
                     }
                 } else {
-                    if (D_8004C6EC < E.y &&
+                    if (D_8004C6EC < D_8004BCD0[entIndex].y &&
                         ((D_807ECDE8->button & 0x800) | (D_807ECDE8->stick_y >= 0x15))) {
-                        E.vy = -0.5f;
+                        D_8004BCD0[entIndex].vy = -0.5f;
                         sStepTimer += 2;
-                    } else if (E.y < D_8004C6E8 &&
+                    } else if (D_8004BCD0[entIndex].y < D_8004C6E8 &&
                                ((D_807ECDE8->button & 0x400) | (D_807ECDE8->stick_y < -0x14))) {
-                        E.vy = 0.5f;
+                        D_8004BCD0[entIndex].vy = 0.5f;
                         sStepTimer += 2;
                     } else {
-                        E.vy = 0.0f;
+                        D_8004BCD0[entIndex].vy = 0.0f;
                     }
-                    E.y = E.vy + E.y;
-                    E.animTimer = E.vy + E.animTimer;
+                    D_8004BCD0[entIndex].y += D_8004BCD0[entIndex].vy;
+                    D_8004BCD0[entIndex].animTimer += D_8004BCD0[entIndex].vy;
                 }
             }
             break;
         case 3:
-            if (D_8004C6F4 < E.x) {
-                E.x = D_8004C6F4;
-                if (E.vy < 1.8) {
-                    E.facing = E.facing & 1;
-                    E.vx = -E.vx;
-                    E.vy = -E.vy;
+            if (D_8004C6F4 < D_8004BCD0[entIndex].x) {
+                D_8004BCD0[entIndex].x = D_8004C6F4;
+                if (D_8004BCD0[entIndex].vy < 1.8) {
+                    D_8004BCD0[entIndex].facing &= 1;
+                    D_8004BCD0[entIndex].vx = -D_8004BCD0[entIndex].vx;
+                    D_8004BCD0[entIndex].vy = -D_8004BCD0[entIndex].vy;
                 }
-            } else if (E.x < D_8004C6F0) {
-                E.x = D_8004C6F0;
-                if (E.vy < 1.8) {
-                    E.facing = E.facing | 2;
-                    E.vx = -E.vx;
-                    E.vy = -E.vy;
+            } else if (D_8004BCD0[entIndex].x < D_8004C6F0) {
+                D_8004BCD0[entIndex].x = D_8004C6F0;
+                if (D_8004BCD0[entIndex].vy < 1.8) {
+                    D_8004BCD0[entIndex].facing |= 2;
+                    D_8004BCD0[entIndex].vx = -D_8004BCD0[entIndex].vx;
+                    D_8004BCD0[entIndex].vy = -D_8004BCD0[entIndex].vy;
                 }
             }
-            E.y = E.vy + E.y;
-            E.vy += 0.06;
-            if (0.0f <= E.vy && E.vy < 0.06) {
-                n = 0;
+            D_8004BCD0[entIndex].y += D_8004BCD0[entIndex].vy;
+            D_8004BCD0[entIndex].vy += 0.06;
+            if (0.0f <= D_8004BCD0[entIndex].vy && D_8004BCD0[entIndex].vy < 0.06) {
+                jumpedCount = 0;
                 for (i = 0; i < 0x50; i++) {
                     if (D_8004BCD0[i].type == 1 || D_8004BCD0[i].type == 2) {
-                        if (arcadeAbs((s32)(D_8004BCD0[i].x - E.x)) < 0xD) {
-                            if (D_8004BCD0[i].y - E.y < 24.0f && E.y < D_8004BCD0[i].y) {
-                                n++;
+                        if (arcadeAbs((s32)(D_8004BCD0[i].x - D_8004BCD0[entIndex].x)) < 0xD) {
+                            if (D_8004BCD0[i].y - D_8004BCD0[entIndex].y < 24.0f && D_8004BCD0[entIndex].y < D_8004BCD0[i].y) {
+                                jumpedCount++;
                             }
                         }
                     }
                 }
-                if (n != 0) {
+                if (jumpedCount != 0) {
                     i = arcadeFindFreeEntitySlot39();
                     D_8004BCD0[i] = D_8004A5F8;
-                    D_8004BCD0[i].x = E.x;
-                    D_8004BCD0[i].y = E.y + 9.0f;
-                    if (n == 1) {
-                        arcadeAddScore(0x64);
-                    } else if (n == 2) {
+                    D_8004BCD0[i].x = D_8004BCD0[entIndex].x;
+                    D_8004BCD0[i].y = D_8004BCD0[entIndex].y + 9.0f;
+                    if (jumpedCount == 1) {
+                        arcadeAddScore(100);
+                    } else if (jumpedCount == 2) {
                         D_8004BCD0[i].sprite = D_800383B8;
-                        arcadeAddScore(0x12C);
+                        arcadeAddScore(300);
                     } else {
                         D_8004BCD0[i].sprite = D_800385C0;
-                        arcadeAddScore(0x1F4);
+                        arcadeAddScore(500);
                     }
                 }
             }
-            if (E.y - E.param2 > 15.0f) {
+            if (D_8004BCD0[entIndex].y - D_8004BCD0[entIndex].param2 > 15.0f) {
                 n_alSndpPlay(D_8076D1F8, 0x44, 0x7FFF, 0x3F, 1.0f, 0, 0);
-                E.param2 = 0xFF;
+                D_8004BCD0[entIndex].param2 = 0xFF;
             }
-            if (E.vy > 2.5) {
-                E.vy = 2.5f;
+            if (D_8004BCD0[entIndex].vy > 2.5) {
+                D_8004BCD0[entIndex].vy = 2.5f;
             }
-            if (coll < E.y && E.y - coll < 3.0f) {
-                E.y = coll;
-                if (E.param2 == 0xFF) {
+            if (floorY < D_8004BCD0[entIndex].y && D_8004BCD0[entIndex].y - floorY < 3.0f) {
+                D_8004BCD0[entIndex].y = floorY;
+                if (D_8004BCD0[entIndex].param2 == 0xFF) {
                     arcadeKillPlayer();
                 } else {
-                    E.state = 4;
-                    E.vy = 0.0f;
-                    E.vx = 0.0f;
-                    E.animTimer = 4.0f;
+                    D_8004BCD0[entIndex].state = 4;
+                    D_8004BCD0[entIndex].vy = 0.0f;
+                    D_8004BCD0[entIndex].vx = 0.0f;
+                    D_8004BCD0[entIndex].animTimer = 4.0f;
                 }
             }
             break;
         case 4:
-            E.y = coll;
-            E.animTimer = E.animTimer - 1.0f;
-            if (E.animTimer == 0.0f) {
-                E.state = 2;
+            D_8004BCD0[entIndex].y = floorY;
+            D_8004BCD0[entIndex].animTimer -= 1.0f;
+            if (D_8004BCD0[entIndex].animTimer == 0.0f) {
+                D_8004BCD0[entIndex].state = 2;
             }
             break;
         case 8:
-            E.animTimer += 0.125;
-            if (E.animTimer == 8.0f) {
+            D_8004BCD0[entIndex].animTimer += 0.125;
+            if (D_8004BCD0[entIndex].animTimer == 8.0f) {
                 n_alSndpPlay(D_8076D1F8, 0x54, 0x7FFF, 0x3F, 1.0f, 0, 0);
             }
             break;
@@ -2448,13 +2446,13 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             n_alSndpPlay(D_8076D1F8, 0x40, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DFC);
             n_alSndpPostEvent(D_80770DFC, 0x10, soundPitch.bits);
         }
-        coll = arcadeCheckPlayerCollision((s32)E.x, (s32)E.y);
-        E.param = D_8004C6F8;
-        D_8004C704 = (s32)(E.y - D_8004C6E4);
-        if (gArcadeBonusTimer < 0 && E.state != 8) {
+        floorY = arcadeCheckPlayerCollision((s32)D_8004BCD0[entIndex].x, (s32)D_8004BCD0[entIndex].y);
+        D_8004BCD0[entIndex].param = D_8004C6F8;
+        D_8004C704 = (s32)(D_8004BCD0[entIndex].y - D_8004C6E4);
+        if (gArcadeBonusTimer < 0 && D_8004BCD0[entIndex].state != 8) {
             arcadeKillPlayer();
         }
-        if (D_8004C6F8 == 0 && coll == E.y) {
+        if (D_8004C6F8 == 0 && floorY == D_8004BCD0[entIndex].y) {
             n_alSndpPlay(D_8076D1F8, 0x4C, 0x7FFF, 0x3F, 1.0f, 0, 0);
             arcadeStopSound(0);
             if (D_8004C722 == 1) {
@@ -2470,17 +2468,15 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             }
             D_8004BCD0[i].animTimer = 0.0f;
             gArcadeFrozen = 3;
-            E.sprite = D_8003B180;
-            E.facing = 0;
+            D_8004BCD0[entIndex].sprite = D_8003B180;
+            D_8004BCD0[entIndex].facing = 0;
             return;
         }
-        if (E.state != 0) {
+        if (D_8004BCD0[entIndex].state != 0) {
             arcadeUpdatePlayerAnimation(entIndex);
         }
     }
 }
-#undef E
-#undef P
 
 void arcadeUpdateEntitySprite(s32 entIndex) {
     ArcadeEntity *ptr = &D_8004BCD0[entIndex];
@@ -2701,7 +2697,7 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
     if (gArcadeFrozen == 0) {
         D_8004BCD0[entIndex].animTimer += 0.15;
         if (D_8004BCD0[entIndex].animTimer >= 5.0f) {
-            D_8004BCD0[entIndex].animTimer = D_8004BCD0[entIndex].animTimer - 5.0f;
+            D_8004BCD0[entIndex].animTimer -= 5.0f;
         }
         if (D_8004C722 == 2) {
             if (D_8004C710 != 0) {
@@ -2746,13 +2742,13 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
             if (D_8004BCD0[entIndex].y < D_8004C6E8 && arcadeRand() < 0x400 - bias) {
                 D_8004BCD0[entIndex].state = 5;
                 D_8004BCD0[entIndex].vx = 0.0f;
-                D_8004BCD0[entIndex].y = D_8004BCD0[entIndex].y + 1.0f;
+                D_8004BCD0[entIndex].y += 1.0f;
                 D_8004BCD0[entIndex].vy = 2.0 * (arcadeMinFloat(gArcadeLevel, 5.0f) / 30.0 + 0.2);
                 D_8004BCD0[entIndex].x = D_8004C6E0;
             } else if (D_8004C6E4 < D_8004BCD0[entIndex].y && arcadeRand() < bias + 0x400) {
                 D_8004BCD0[entIndex].state = 6;
                 D_8004BCD0[entIndex].vx = 0.0f;
-                D_8004BCD0[entIndex].y = D_8004BCD0[entIndex].y - 1.0f;
+                D_8004BCD0[entIndex].y -= 1.0f;
                 D_8004BCD0[entIndex].vy = -(arcadeMinFloat(gArcadeLevel, 5.0f) / 30.0 + 0.2);
                 D_8004BCD0[entIndex].x = D_8004C6E0;
             } else if (floorY - D_8004BCD0[entIndex].y < 3.0f) {
@@ -2763,8 +2759,8 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
             }
             break;
         case 3:
-            D_8004BCD0[entIndex].x = D_8004BCD0[entIndex].vx + D_8004BCD0[entIndex].x;
-            D_8004BCD0[entIndex].y = D_8004BCD0[entIndex].vy + D_8004BCD0[entIndex].y;
+            D_8004BCD0[entIndex].x += D_8004BCD0[entIndex].vx;
+            D_8004BCD0[entIndex].y += D_8004BCD0[entIndex].vy;
             D_8004BCD0[entIndex].vy += 0.06;
             if (floorY < D_8004BCD0[entIndex].y && D_8004BCD0[entIndex].y - floorY < 3.0f) {
                 D_8004BCD0[entIndex].y = floorY;
@@ -2775,7 +2771,7 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
             }
             break;
         case 5:
-            D_8004BCD0[entIndex].y = D_8004BCD0[entIndex].vy + D_8004BCD0[entIndex].y;
+            D_8004BCD0[entIndex].y += D_8004BCD0[entIndex].vy;
             if (D_8004C6E8 - 1 < D_8004BCD0[entIndex].y) {
                 D_8004BCD0[entIndex].y = floorY;
                 D_8004BCD0[entIndex].facing = 1 - D_8004BCD0[entIndex].facing;
@@ -2784,7 +2780,7 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
             }
             break;
         case 6:
-            D_8004BCD0[entIndex].y = D_8004BCD0[entIndex].vy + D_8004BCD0[entIndex].y;
+            D_8004BCD0[entIndex].y += D_8004BCD0[entIndex].vy;
             if (D_8004BCD0[entIndex].y < D_8004C6E4 + 1) {
                 D_8004BCD0[entIndex].y = floorY;
                 D_8004BCD0[entIndex].facing = 1 - D_8004BCD0[entIndex].facing;
