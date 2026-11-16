@@ -1206,14 +1206,12 @@ extern ArcadeEntity D_8004A558;
 extern ArcadeEntity D_8004A638;
 extern ArcadeEntity D_8004A718;
 void arcadeSpawnStage1Entities(void) {
-    f32 oilDrumY;
     s32 i;
 
-    i = 0;
+    i = 0x25;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4D8;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4B8;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A518;
-    oilDrumY = 110.0f; // FAKE: value-named constant local steers the float constant load (inline 110.0f: score 2900)
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A558;
     if (gArcadeLevel == 2 && D_8004A740 != 0) {
         D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4F8;
@@ -1221,12 +1219,11 @@ void arcadeSpawnStage1Entities(void) {
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A438;
     gArcadePlayerIndex = arcadeFindFreeEntity();
     D_8004BCD0[gArcadePlayerIndex] = D_8004A398;
-    D_8004BCD0[0x25] = D_8004A458;
-    i = i + 0x24; // FAKE: adding onto the early i = 0 steers regalloc (Q0252 placement; i = 0x24 swaps a0/a2)
+    D_8004BCD0[i--] = D_8004A458;
     D_8004BCD0[i--] = D_8004A638;
     D_8004BCD0[i] = D_8004A638;
     D_8004BCD0[i].x = 68.0f;
-    D_8004BCD0[i].y = oilDrumY;
+    D_8004BCD0[i].y = 110.0f;
     i--;
     D_8004BCD0[i] = D_8004A718;
     i--;
@@ -1235,7 +1232,8 @@ void arcadeSpawnStage1Entities(void) {
     D_8004BCD0[i].x = 48.0f;
     i--;
     D_8004BCD0[i] = D_8004A718;
-    D_8004BCD0[i].param = 2; D_8004BCD0[i].y = 65.0f; i--; // LAYOUT: one line keeps as1 order (split lines move li t7,2 one slot earlier)
+    D_8004BCD0[i].y = 65.0f;
+    D_8004BCD0[i--].param = 2;
     D_8004BCD0[i] = D_8004A718;
     D_8004BCD0[i].param = 3;
     D_8004BCD0[i].x = 48.0f;
