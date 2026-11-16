@@ -858,3 +858,4 @@
 {"type": "unit", "t": "2026-11-16T21:04:24Z", "unit": "2026-11-16c: cleanup HackmodelSlotTransformBoundsAndNodes", "commit": "0bc29f139c6fefe70ee367cf797de6eccd11914f"}
 {"type": "unit", "t": "2026-11-16T21:07:09Z", "unit": "2026-11-16c: cleanup HackcollisionTestActorBoxFloor4", "commit": "1bc644a3e930f94c327d86c246d6253aadb47444"}
 {"type": "unit", "t": "2026-11-16T21:14:46Z", "unit": "2026-11-16c: cleanup HackschedDlDebugDump4", "commit": "7ba37066e6510ac975c24a709ef051a7c12ef0bb"}
+{"type": "unit", "t": "2026-11-16T21:16:39Z", "unit": "2026-11-16c: cleanup HackfrustumOrientPolyNormals", "commit": "d7fa6731aae3cd0e34f694953c3528d7a689807d"}
