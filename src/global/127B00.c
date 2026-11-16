@@ -247,11 +247,11 @@ void pathPlaybackAdvance(s32 slot) {
     s32 quot;
     u32 tq;
     s32 whole;
+    s32 overshoot;
+    s32 span;
 
-    if (slot != -1 && gPathPlaybacks[slot] != NULL && gPathPlaybacks[slot]->active != 0) {
-        pb = gPathPlaybacks[slot];
+    if (slot != -1 && gPathPlaybacks[slot] != NULL && (pb = gPathPlaybacks[slot])->active != 0) {
         path = &pb->path;
-        if (path == 0) {}  // FAKE: ring/web steer
         if (pb->isLooping == 0) {
             next = pb->pointIndex + 1;
         } else {
@@ -275,8 +275,8 @@ void pathPlaybackAdvance(s32 slot) {
                 limit = pb->path.count;
             }
             if (pb->pointIndex >= limit) {
-                limit = pb->path.count - 1;
-                quot = pb->pointIndex / limit;
+                span = pb->path.count - 1;
+                quot = pb->pointIndex / span;
                 pb->loopCount += quot;
                 if (pb->loopCount >= pb->loopLimit && pb->loopLimit != -1) {
                     pb->pointIndex = pb->path.count - 2;
@@ -289,7 +289,7 @@ void pathPlaybackAdvance(s32 slot) {
                     switch (pb->loopMode) {
                     case 0:
                         if (pb->isLooping == 0) {
-                            pb->pointIndex = pb->pointIndex % limit;
+                            pb->pointIndex = pb->pointIndex % span;
                         } else {
                             pb->pointIndex = pb->pointIndex % pb->path.count;
                         }
@@ -313,8 +313,8 @@ void pathPlaybackAdvance(s32 slot) {
                 pb->t -= whole;
             }
             if (pb->pointIndex < 0) {
-                limit = -pb->pointIndex;
-                quot = limit / pb->path.count;
+                overshoot = -pb->pointIndex;
+                quot = overshoot / pb->path.count;
                 pb->loopCount += quot + 1;
                 if (pb->loopCount >= pb->loopLimit && pb->loopLimit != -1) {
                     pb->pointIndex = 0;
@@ -326,15 +326,15 @@ void pathPlaybackAdvance(s32 slot) {
                 } else {
                     switch (pb->loopMode) {
                     case 0:
-                        pb->pointIndex = limit % (pb->path.count - 1);
-                        if (pb && pb) {}  // FAKE: ring/web steer
+                        pb->pointIndex = overshoot % (pb->path.count - 1);
+                        if (pb && pb) {}  // FAKE: block split, pointIndex reread joins its a3 web (move a3,t8)
                         if (pb->pointIndex != 0) {
                             pb->pointIndex = pb->path.count - pb->pointIndex - 1;
                         }
                         break;
                     case 1:
                         tq = quot + 1;
-                        if (tq && tq) {}  // FAKE: ring/web steer
+                        if (tq && tq) {}  // FAKE: extra tq use keeps quot + 1 a v1 candidate
                         if (tq) {
                             pb->direction = 0;
                             pb->pointIndex = 0;
