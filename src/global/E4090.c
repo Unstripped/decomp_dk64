@@ -1433,9 +1433,8 @@ void playerTurnByStickX(void) {
         }
         if (turn > 400.0f) {
             turn = 400.0f;
-            if (delta && delta) {} // FAKE: steers uopt candidate priority
         }
-        if (turn > 1.0f) {} // FAKE: keeps the 2048/4096/400 compare chain
+        turn = turn * (gActivePlayerState->turnRate / 400.0); // FAKE: dead store (the playerInputUpdateMoveTargetWithDeadzone2 line); keeps the 2048/4096/400 chain and pad's a1 colouring
         turn = (pad->stickX * gActivePlayerState->turnRate) / 400;
         gCurrentActor->yaw = yaw - turn;
         if (1) {} // FAKE: steers uopt candidate priority
