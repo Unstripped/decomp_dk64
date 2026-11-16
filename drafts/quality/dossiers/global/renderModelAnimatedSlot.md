@@ -1,0 +1,20 @@
+# renderModelAnimatedSlot (global, src/global/36880.c)
+
+## Sites
+- proto-steer:1045f7 (line 6 at base) `#define PROTO_SKIP_playerSlotMatchesSizeMask` + file-local `s32 playerSlotMatchesSizeMask(s32, u8, s32)` + `(s32)animBuffers` third argument: gave animBuffers (uopt cand 129, var -148vreg) a use in the mask-call block (bb 59, adjsave 2.0 -> 2.5) and an a2 preference, so it was coloured before the seg-8/seg-9 gfx temps (cands 142/123/152) and took a2 while they took v1. FIXED 2026-11-16 (see Attempts).
+- dead-if:ae396a..#6 (lines 2485-2490 at base) six `if (obj && obj && obj) {}` after the third guRotateF arm: padded as1's XBB candidate window (limit 10) so the three rotation compares did not hoist `addiu a0,sp,184` (tmpMtx) from their arms. FIXED 2026-11-16 together with 1045f7.
+- other:1a2082 (line 2592 at base) `{ s32 pad6; }` block-scoped pad at the end: keeps the frame at 0x138 (without it 0x130 and every local home 8 lower: tmpMtx 0xb8 -> 0xb0, mtx 0xf8 -> 0xf0, red/green/blue 0x95..0x97 -> 0x8d..0x8f, lbu useLight 335 -> 327). OPEN.
+
+## Attempts
+2026-11-16 HackrenderModelAnimatedSlot anthropic/claude-opus-5-5:high
+- diagnose dead-if guards, new = TU data carve (SKILL 5.5 / Q0552): 36880's unowned .data is 0x80747CE0-0x80747D80 in asm/global/data/14C9E0.data.s (D_80747CE0[20] words, D_80747D30 triples, D_80747D50 pairs, gModelSlotCount, D_80747D74, D_80747D78): every word is a constant, no `.word` symbol; no data anywhere references a 36880 function; the function has no switch `jr` (only `jr ra` at 0x5fe4). Scratch copy with all 160 bytes defined in the TU (v_dataA.c) and with an address-taken `void *D_scratchFp[] = { renderModelAnimatedSlot, ... }` (v_dataAB.c, v_dataB.c): guard-free score stays 880 (text unchanged). Not this TU's mechanism; no carve proposal for these guards.
+- diagnose dead-if guards, new = Q0908 operand classification at the same position (6 guards before guTranslateF, guard-free base): `gfx && gfx && gfx` 455, `useLight && useLight && useLight` 0 (stack u8 arg), `1 && 1 && 1` 880 (= removal); 1..5 useLight triples 540/540/540/420/300; `if (useLight) {}`, `useLight && useLight`, `useLight || useLight` 880. Guards at `animBuffers = NULL;` 120, before guScaleF 1140. Block-count class (as1 XBB window), needs a test that survives uopt (triple, non-constant).
+- diagnose proto-steer 1045f7, new = uopt -l5 base vs 2-arg consolidated: only difference is cand 129 (animBuffers) adjsave 2.5 -> 2.0, the bb 59 `1 1 5` a2 preference gone; it is then coloured after 280/11/62 and takes v1 (2) while 142/123 take a2 and 152 a1 (target: 129 a2, 142/123/152 v1). Remedy: lower animBuffers' priority/range or give it a2.
+- consolidate+reconstruct 1045f7 + ae396a..#6, new = `animBuffers = NULL` moved from before `if (obj->id != -1)` into an `else` arm (2-arg shared CEAE0.h prototype, no PROTO_SKIP, no local declaration, no third argument): fdiff 0 WITH the six guards; removing all six guards also fdiff 0 (Q1_else_noguards.c). The else arm changes both uopt's range for animBuffers and as1's CFG after the third compare so the arms are no longer reached in the XBB window. Other placements of the NULL store (before gDPPipeSync, at declaration, function top) 3770-3935 (code size grows).
+- diagnose 1a2082, new = after the else-arm fix: removing `{ s32 pad6; }` scores 600 (pure frame-size shift, 0x130 vs 0x138). Function-scope `s32 pad6;`/`s32 pad6[2];` at every declaration position (19 positions x 2): see Evidence.
+
+## Untried ideas
+- 1a2082: a real 8-byte local that the original might have had in the last block (e.g. a second gfx pointer/temp in the alpha/display-list block) instead of an unused pad.
+
+## Evidence
+- target: 0x547c `addiu sp,sp,-312`; rotation compares 0x562c/0x5678/0x56c4 `c.eq.d; nop; bc1t(l)`, arms start `mtc1 zero,$f2; mfc1 a1,$f0; addiu a0,sp,184`; id test 0x5788 `beq a1,at,5810` with `move a2,zero` at 0x577c; mask call 0x57f8 with `lw a2,120(v1)` before and `sw a2,164(sp)` in the delay slot, `lw a2,164(sp)` after; early return 0x5808.

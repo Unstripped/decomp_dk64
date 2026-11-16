@@ -845,3 +845,4 @@
 {"type": "unit", "t": "2026-11-16T20:21:57Z", "unit": "2026-11-16c: cleanup HackarcadeSpawnStage1Entities", "commit": "4055bb122d0f21455a334b7dbe0b8d144fe3050b"}
 {"type": "unit", "t": "2026-11-16T20:24:51Z", "unit": "2026-11-16c: cleanup HackschedDlDebugDump3", "commit": "46cfb5af45bba51498c027eb3311e22473fcac7b"}
 {"type": "unit", "t": "2026-11-16T20:26:40Z", "unit": "2026-11-16c: cleanup HackvehicleUpdateMotion5", "commit": "a5af4282300d45ead1497d52893e925216aca3f8"}
+{"type": "unit", "t": "2026-11-16T20:29:52Z", "unit": "2026-11-16c: cleanup HackrenderModelAnimatedSlot", "commit": "70e6a33271237df0678048d71f13b38e49726b34"}
