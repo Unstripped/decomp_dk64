@@ -2299,7 +2299,7 @@ void modelSlotsStepSegmentCommands(void) {
                 seg = gModelSlots[D_80747D74].unk20;
                 mid = seg->displayListB;
                 head = seg->displayListA;
-                start = head;
+                start = head; // FAKE: redundant copy; head holds the address, then the count (one local, two webs), reproducing the target t-register numbering (separate start/head locals shift every temp by one)
                 count = seg->segmentData - mid;
                 head = (mid - head) >> 3;
                 count >>= 3;
@@ -2432,7 +2432,7 @@ typedef struct ModelType1RenderView {
     /* 0xC0 */ s16 maxDist;
     /* 0xC2 */ u8 unkC2;
     /* 0xC3 */ u8 light;
-    /* 0xC4 */ u8 unkC4;
+    /* 0xC4 */ u8 surfaceType;
     /* 0xC5 */ u8 mapFlags;
 } ModelType1RenderView;
 
@@ -2538,7 +2538,7 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
             yOffset = 0.0f;
         }
         lightSampleColorAtPosition(obj->x, obj->y + yOffset, obj->z, 0, &red, &green, &blue, lightArg);
-        scale = obj->unkC4 / 15.0f;
+        scale = obj->surfaceType / 15.0f;
         red = red * scale;
         green = green * scale;
         blue = blue * scale;
@@ -2551,7 +2551,7 @@ Gfx *renderModelAnimatedSlot(ModelType1RenderView *obj, Gfx *gfx, f32 camX, f32 
     if (useLight) {
         if (obj->id != -1 && (model = gModelSlots[slotIdx].unk7C) != NULL && model->unk60 == 1) {
             csUpdateStepAndInterpolation(model);
-            alpha = (gModelSlots[slotIdx].unk7C)->unk64;
+            alpha = gModelSlots[slotIdx].unk7C->unk64;
         } else {
             renderCalcPlayerDistanceAlpha(obj->x, obj->y, obj->z, obj->maxDist, obj->modelType, &alpha);
             if (obj->id != -1) {
@@ -2658,12 +2658,12 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
         dz *= dz;
         dist = sqrtf(dx + dy + dz);
         limit = renderScaleDistanceByFov(obj->maxDist);
-        if ((f32)limit < dist) {
+        if (limit < dist) {
             return gfx;
         }
     }
     if (obj->light != 0) {
-        lightQueueKeyframed(obj->light, obj->id, obj->x, obj->y, obj->z, obj->maxDist, dist / (f32)limit, lightArg);
+        lightQueueKeyframed(obj->light, obj->id, obj->x, obj->y, obj->z, obj->maxDist, dist / limit, lightArg);
     }
     if (useLight) {
         if (mapPointOutsideClipBounds(obj->x, obj->y, obj->z, 0, 0) != 0) {
@@ -2715,12 +2715,12 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
     gDPPipeSync(gfx++);
     gSPClearGeometryMode(gfx++, ~0);
     WRITE_GFX_PAIR(0xDA380000, osVirtualToPhysical(mtx));
-    if (dist < (f32)((limit * 3) / 4)) {
+    if (dist < (limit * 3) / 4) {
         opaque = 1;
         alpha = 0xFF;
     } else {
         opaque = 0;
-        alpha = ((dist - (f32)((limit * 3) / 4)) / ((f32)limit - (f32)((limit * 3) / 4))) * 255.0f;
+        alpha = ((dist - (limit * 3) / 4) / ((f32)limit - (limit * 3) / 4)) * 255.0f;
         if (alpha >= 0x100) {
             alpha = 0xFF;
         }
@@ -2729,10 +2729,10 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
     modelKongVisibilityCheck(obj->modelType, &opaque, &alpha);
     if (useLight && obj->unk5A == 0) {
         lightSampleColorAtPosition(obj->x, obj->y, obj->z, 0, &red, &green, &blue, lightArg);
-        scale = (f32)(u32)obj->surfaceType / 15.0f;
-        red = (f32)(u32)red * scale;
-        green = (f32)(u32)green * scale;
-        blue = (f32)(u32)blue * scale;
+        scale = obj->surfaceType / 15.0f;
+        red = red * scale;
+        green = green * scale;
+        blue = blue * scale;
     } else {
         red = green = blue = 0xFF;
     }
