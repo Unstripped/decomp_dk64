@@ -29,7 +29,7 @@ s16 sRingExits[] = { 0x22, 8, 0x22, 7, -1, -1, 0x22, 5, 0x22, 4, 0x22, 0x12, 0x2
 s16 sRingNodeScripts[] = { 0x2F2, 0x2F1, 0x2F3, 0x2F2, 0x2F1, 0x2F2, 0x2F2, 0x2F1, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4, 0xB4 };
 // set when ring 2 or 7 finishes without leaving the map: the waiting (state 5) active ring may start
 s8 sRingNextReady = 0;
-extern u8 D_807FC8D0;
+extern s8 D_807FC8D0;
 
 s32 actorSpawn();
 
@@ -47,7 +47,7 @@ typedef struct RingNodeModel {
 
 typedef struct RingNodeActor {
     /* 0x000 */ Actor base;
-    /* 0x178 */ RingNodeModel *unk178;
+    /* 0x178 */ RingNodeModel *model;
 } RingNodeActor;
 
 void actorNodeRingSpawnRings(void) {
@@ -55,7 +55,7 @@ void actorNodeRingSpawnRings(void) {
     s16 i;
     s16 activeRingIdx;
     s16 activeRingCount; // ORIG: the target keeps this never-read counter: move s5,zero at 0x60 and addiu s5,s5,1 + sll/sra at 0x1a8-0x1b8 in the active-ring arm
-    s16 pos;
+    s16 angle;
     RingState *ring;
 
     activeRingIdx = -1;
@@ -71,11 +71,11 @@ void actorNodeRingSpawnRings(void) {
             gSpawnedActor->tintG = 0xFF;
             gSpawnedActor->tintB = 0xFF;
             gSpawnedActor->alpha = 0xFF;
-            pos = i * 0x200 + 0x104;
-            gSpawnedActor->x = mathSinF(pos) * 270.0f + gCurrentActor->x;
-            gSpawnedActor->z = mathCosF(pos) * 270.0f + gCurrentActor->z;
+            angle = i * 0x200 + 0x104;
+            gSpawnedActor->x = mathSinF(angle) * 270.0f + gCurrentActor->x;
+            gSpawnedActor->z = mathCosF(angle) * 270.0f + gCurrentActor->z;
             gSpawnedActor->y = 100.0f;
-            gSpawnedActor->yaw = pos;
+            gSpawnedActor->yaw = angle;
             gSpawnedActor->segmentFlags = 0;
             gSpawnedActor->state = 0;
             ring = gSpawnedActor->customState;
@@ -102,19 +102,19 @@ void actorNodeRingSpawnRings(void) {
     }
 }
 
-extern s16 D_8076A0A6;
+extern u16 D_8076A0A6;
 extern f32 D_807FC8D4;
 
 
 void actorNodeRingUpdate(void) {
     static s8 sRingSequence[] = { 3, 10, 1, 8, 2, 11, 0, 9, -1, 0, 0, 0 };
     static s8 sRingSequencePos = 0;
-    RingNodeModel *nodePtr = ((RingNodeActor *)gCurrentActor)->unk178;
+    RingNodeModel *nodePtr = ((RingNodeActor *)gCurrentActor)->model;
     f32 dx;
     f32 dz;
     u8 shakeMagnitude;
     u16 shakeDuration;
-    s16 v3 = D_8076A0A6;
+    s16 ringHits = D_8076A0A6;
     s16 idx;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -124,7 +124,7 @@ void actorNodeRingUpdate(void) {
         }
         gCurrentActor->drawDistance = 0x7D0;
         gCurrentActor->flags |= 0x400;
-        v3 = 0;
+        ringHits = 0;
         sRingSequencePos = 0;
         actorSpawn(0x73, 0xC4, &gCurrentActor);
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
@@ -143,10 +143,10 @@ void actorNodeRingUpdate(void) {
         }
     }
     idx = -1;
-    if (v3 != 0) {
+    if (ringHits != 0) {
         idx = 0;
-        while (!(v3 & 1)) {
-            v3 >>= 1;
+        while (!(ringHits & 1)) {
+            ringHits >>= 1;
             idx++;
         }
     }
@@ -284,7 +284,7 @@ void actorRingUpdate(void) {
             break;
         case 4:
             if (ringAllCleared() != 0) {
-                nodeModel = ((RingNodeActor *)st->node)->unk178;
+                nodeModel = ((RingNodeActor *)st->node)->model;
                 nodeModel->modelActor->y += 5.0;
                 if (st->timer == 0x10E) {
                     flagSet(0x315, 1, 0);
