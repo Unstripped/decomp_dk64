@@ -1,7 +1,6 @@
 #include "common.h"
 #include "sched.h"
 #include "actor.h"
-#define PROTO_SKIP_flagGet // FAKE: callee prototype steer
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
 #include "proto/global/104F0.h"
@@ -81,8 +80,6 @@ extern s32 sKongNameTextIds[];
 extern u8 D_80720120;
 extern u8 D_80720340;
 extern u8 D_8072038C;
-
-s32 flagGet(s16, s32);  // FAKE: callee prototype steer
 
 s32 tagBarrelIsSpecial(Actor *actor) {
     s32 count = 4; // FAKE: value-named constant local steers regalloc (literal 4: mismatch)
@@ -2749,7 +2746,7 @@ void tagBarrelInteractiveUpdate(void) {
 s32 tagBarrelCheckKongFlag(s32 kongType, s32 setFlag) {
     struct KongFlagInfo {
         s32 value;
-        s32 isSet;
+        u32 isSet;
         s32 found;
         s32 pad;
     } info;
