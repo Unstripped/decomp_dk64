@@ -83,8 +83,9 @@ See [types-stream.md](types-stream.md). Workers never edit `include/`: they writ
 As each worker reports:
 1. Check the report: every site of the assigned functions (polish: every reviewed function) in the
    LEDGER block, one `review` per function from a full read at the base, evidence present
-   ([ladder.md](ladder.md)), a `new=` on every retry; missing lines go back; hand-recorded sweep methods
-   (`plain`/`recipe`/`classify`/`cond`/`remove`) are stripped (the sweep records them).
+   ([ladder.md](ladder.md)), a `new=` on every retry (one that repeats an earlier unit's attempt in `history` is stripped
+   from a lead ledger copy); a `permute` line's base/best/seconds must match its log; missing lines go back; hand-recorded
+   sweep methods (`plain`/`recipe`/`classify`/`cond`/`remove`) are stripped (the sweep records them).
    `uv run tools/clint.py uninit .scratch/<A>/<f>.c --base src/<seg>/<f>.c` must exit 0.
 2. `python3 tools/merge_record.py --agent <A> --unit "<YYYY-MM-DD>: cleanup <A>" --base <base>
    --model <selector> --ledger .scratch/<A>/ledger_<f>.txt [--copy-only .scratch/<A>/ledger-copy-only.txt]
@@ -95,15 +96,19 @@ As each worker reports:
    run the remaining steps (its docstring lists them); never pipe it.
 3. Append the report's IDO findings (file, function, merge commit, rule, see-also IDs) to
    `.scratch/s<YYYY-MM-DD>-knowledge-queue.md`; §6 files them once.
-4. Signature bundles (stand-in `PROTO_SKIP_`), same-basename copies, 3-way merges, shared-extern retypes, data to
-   C, yaml carves and `COMMIT_FAILED`: [types-stream.md](types-stream.md) "Special merges".
+4. Signature bundles (stand-in `PROTO_SKIP_`), worker header-request bundles (strip into a lead clean dir, `git apply` the
+   patch, one gen that must equal the worker's diff, `merge_record --copy-dir <clean> --stage` each header: no TypesOwner
+   needed), same-basename copies, 3-way merges, shared-extern retypes, data to C, yaml carves and `COMMIT_FAILED`:
+   [types-stream.md](types-stream.md) "Special merges".
 5. Data carves: a function needing XBB guards or an as1-hoist blocker may only miss its TU's own `.word`/table
    data (Q0552): carve before steering. Carve window: `rm -f .scratch/<lead>/RESUME` (briefs: no new `tools/dk`
    call while it is absent), wait for jobs 0, gate, split/make/expected/vanished, re-record, carry, commit, `touch` it.
 6. A respelling that replaces a pun but was chosen for codegen keeps its tag (Q0816), even one an older ledger recorded `fixed`
    (9BF30 9224e6): the lead retags it in a lead copy dir (`--copy-dir`) with a keymap or copy-only line, `nohit` with its own
    fdiff evidence. Ordinary C, untagged even as the only match: a load-bearing guard `continue`, an index loop over a global
-   table, one quantity refined in place; a trailing/`else` continue or an operand-order/width/view respelling is a steer.
+   table, one quantity refined in place, an assignment in a test whose values the target uses; a trailing/`else` continue,
+   an empty `default:`, a logically dead clamp kept as a keeper, a constant-valued local or an operand-order/width/view
+   respelling is a steer.
 7. A worker's function rename (or a dossier filed under a new name) replaces `drafts/quality/dossiers/<seg>/<old>.md`: delete
    the old file before `merge_record` so its ledger commit carries the deletion. Its re-record printing "no site" for a fixed site is normal.
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
@@ -122,23 +127,20 @@ session, a consolidation in a quiet window runs steps 1-4 only. Once every worke
    (`func_807444E0` data → `D_`) and names already in scope (`include/PR/ucode.h` declares the rsp/asp symbols: hold such
    names for a types item): apply the `--dry-run` positions incl. the macro-argument lines by hand, one gate. A renamed
    GLOBAL_ASM data label needs `tools/dk make split` BEFORE that gate. `carry` re-stamps global/func renames but not field
-   renames: each function whose body a field rename touches goes back to `next=review`. Split
-   labels: `rename.py fold --held` (dry-run first; no files after `--held`: every worker is idle).
+   renames (each function a field rename touches goes back to `next=review`: hold them for a types item). Split labels:
+   `rename.py fold --held` (dry-run first; no files after `--held`: every worker is idle).
 2. `tools/dk make split`, touch all src, `make` OK, `make expected`, `unit_check.py vanished` → OK.
 3. `carry --rev <commit before the renames> --unit "<unit>" <files>` (once: a rerun duplicates events;
    leave out files whose GLOBAL_ASM paths were renamed); sweep what it skipped AND every file with
    stale automatic rungs. Commit.
-4. File the knowledge queue in ONE commit: one entry per finding with `--see-also` and `--unit` = the
-   reporting worker's unit (its own rungs on the entry's `functions` stay fresh); extend an entry only to correct it (an
-   edit stales every rung of the functions it names); drop pure confirmations; tooling rules →
-   ladder.md; `quirks.py check`. Knowledge stales agent rungs only through the function names
-   in an entry, never through note similarity.
+4. File the knowledge queue in ONE commit (a scripted `quirks.py add` per entry): `--see-also`, `--unit` = the reporting
+   worker's unit (its own rungs on the entry's `functions` stay fresh; other units' agent rungs on them stale, never through
+   note similarity); extend an entry only to correct it; drop pure confirmations; tooling rules → ladder.md; `quirks.py check`.
 5. `uv run tools/quality.py report --baseline 2b2532bc --markdown` (campaign start) replaces the
    table in ROADMAP.md `### 11. Code quality (ongoing)` under "To do".
 6. One [run-log.md](run-log.md) row; procedure lessons → this skill (caps: SKILL.md and references
    ≤150 lines, briefs ≤180; a lesson replaces or merges text); commit `cleanup-unit skill: …`.
-No separate re-review groups: stale reviews show as `next=review` in `rank --polish` and go out as
-polish work.
+No separate re-review groups: stale reviews show as `next=review` in `rank --polish` and go out as polish work.
 
 ## 7. Stop rule
 

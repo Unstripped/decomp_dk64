@@ -66,11 +66,11 @@ warning sites take no other method.
 
 Tooling rules (were Q0626/Q0634/Q0638):
 - `fdiff.sh <copy> <src> FUNC` prints no diff lines when a long function's first difference is past asm-differ's window: trust its exit code, or diff with `objdump -drz`.
-  The permuter and `variants.py try` score a commutative `beq` swap or a moved local branch target (a statement moved across a `}`, 104F0) as 0: fdiff every zero.
+  The permuter and `variants.py try` score a commutative `beq` swap or a moved local branch target (a statement moved across a `}`, 104F0) as 0: fdiff every zero. permute.py's HACK_PASSES omit perm_refer_to_var: zeros can be `if (x && x && x) {}` or the site re-inserted (55B20, 54150).
 - A `best=0` or review rewrite that only swaps one steer for another (`if (1) {}`, empty do-while, goto,
   `(0, x)`, `& 0xFFFFFFFFu`, a copy temp, a selector local of another width in place of a dead read) is `nohit`; keep the tagged site.
 - The permuter's pycparser rejects `x * sizeof(T) + sizeof(s32)`, a one-line `p = x; do {` and `va_arg`: rewrite them in the permuter base only, then translate the hint back. `va_arg` stub (boot/3D20, fdiff 0): `__builtin_alignof(T)` -> `sizeof(T)`, drop the `__builtin_classof` ternary for non-double modes, keep `va_arg_d` for double.
-- A `// FAKE` comment containing dead/kill/no-code/web/ghost on a single-assignment line classifies the site as `dead-store`; word the tag so the kind is right.
+- A `// FAKE` comment containing dead/kill/no-code/web/ghost on a single-assignment line classifies the site as `dead-store`; word the tag so the kind is right. A `// LAYOUT: ...; FAKE:` comment counts only the LAYOUT (a dead store it names is no site, 6AD90 sideC): give the FAKE its own line.
 - Never write `'` in a `//` comment (FAKE notes): cfe reads it as a char literal; two in one comment hide the code between them.
 - Before keeping a file-wide callee prototype steer (PROTO_SKIP), compare every caller's asm under the shared prototype: a steer can rest on one caller's redundant mask (lightAdd: 11 of 12 matched).
 - sweep's `cond` flips only dead-if/dead-store sites: on `other` sites try `if (x)`↔`if (x != 0)` by hand. as1probe's unconditional `bnext` does not reproduce a dead address test: read the ugen listing.

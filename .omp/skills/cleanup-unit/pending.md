@@ -119,11 +119,27 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   "PlayerSlot.unk2C0 sizeMode" (the only include/ unk2C0 is in sched.h: struct unclear); Actor 0xE4/0xE8 pitch/roll swap
   (confirm across users); ActorGlobalState unk24/25/28/F0/F4 grab/hold names (9DD70-only); Actor.unk155 (low);
   CollisionTriF unk24/unk25 slopeType/surface (with the header request below); D_8004BCD0 arcade entity table (no name yet).
-- Header request never batched: `.scratch/Polishglobal6AD90/header-request.md` (shared CollisionBoxTri in collision.h
-  retiring the 6AD90 CollisionBoxTri / 70FD0 ActorSub140Tri views). Shared-extern retype: 19A00 `extern u8 *gActorScriptAsset`
-  vs 7CA80 `ActorAssetHeader *`. Retype leftovers: FE40 W709 (0b7e03, 365170), 6AD90 retype=1.
-- Re-review: camUpdate, camUpdateFollow, camUpdateFollowBlend (201B0), actorDelayedCallbacksTick (7CA80) after the close
-  field renames (carry does not re-stamp field renames).
+- CollisionBoxTri header request (`.scratch/Polishglobal6AD90/header-request.md`, shared struct in collision.h retiring the
+  6AD90 CollisionBoxTri / 70FD0 ActorSub140Tri views): DROPPED in 2026-11-16b batch_5 (TypesOwner5, Part A): scalar
+  x0..z2 needs a pun for 70FD0's `&curr->out[j + 3]`; x[3]/y[3]/z[3] matches 70FD0 but fails fdiff in 6AD90
+  (collisionTestActorBoxFloor, collisionCheckBoxTriangleContainsPointXZ). Probes: `.scratch/TypesOwner/batch_5/partA_req/`,
+  `partA_alt/`. Reopen only with a shape that fdiffs in both files. Shared-extern retype: 19A00 `extern u8 *gActorScriptAsset`
+  vs 7CA80 `ActorAssetHeader *`. Retype leftovers: 6AD90 365170 FIXED (batch_5, 95740f93: sizePtr u32 *); FE40 0b7e03/#2
+  blocked (`u8 *dst` raises W709 at 9 call args: needs boot/30E0 gunzip to take its out cursor as `void **`).
+- Re-review (2026-11-16 item): DONE in 2026-11-16b (Polishglobal201B0d, Polishglobal7CA80c).
+
+## Session 2026-11-16b close leftovers (CleanupLead6)
+- Field names HELD (applying them at close would reopen the reviews of every function they touch; batch them with the next
+  types item): CamState.unkA0 followDist (CAM_MIN macro reference: apply the dry-run positions by hand), CamState.unkA4
+  followDistGoal (201B0); ActorCallbackNode.unk4 subtype, .unkC ownsPayload, .unk10 payload (actor.h, confirm users);
+  Actor 0xE4 pitch <-> 0xE8 roll swap (HackvehicleUpdateMotion4 evidence; confirm across users).
+- Types items: one shared lerp macro for 201B0 `CAM_LERP` and 478F0 `LERP`; gTextFontSheets `void **` -> `u8 **`
+  (Polishglobal100180); views: 8F4B0's `extern u16 D_807ECD48` is a scalar view of F600's `u16 D_807ECD48[4]`.
+- ORIG check: the f64 midpoint reuse in 6AD90 collisionCheckBoxTriangleContainsPointXZ / collisionCheckTriangleContainsPointXZ
+  (ec388d/a2d087/58f1bd/3aa4ac: a separate local matches the code but grows the frame 0xc8 -> 0xd8) may qualify for
+  ladder.md's own-home ORIG rule: verify the stores hit a's/b's own home slots and cite the offsets.
+- Knowledge commit 563288d1 names 40+ functions: their older units' agent rungs are stale (vsprintf, hudPauseMenuRender,
+  ... `rank` shows next=diagnose/reconstruct); these are re-run candidates only with a genuinely new idea.
 
 ## OPEN functions
 
