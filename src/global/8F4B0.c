@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
 #include "proto/global/109660.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/114270.h"
@@ -203,8 +202,6 @@ typedef struct {
     /* 0x21 */ u8 sfxCooldown;
 } CutsceneActorState;
 
-s32 mapGetHubWorldIndex(u8, s32); // FAKE: callee prototype steer
-
 extern Actor *gCurrentActor;
 extern s16 gVolumeTriggerFiredZ;
 extern s16 gVolumeTriggerFiredX;
@@ -227,6 +224,7 @@ void actorCutsceneDispatchEvents(void) {
     u8 sfxVolume;
     s32 pathFlag;
     s16 mode;
+    u8 hubWorld;
 
     csState = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -335,7 +333,8 @@ void actorCutsceneDispatchEvents(void) {
             ((PlayerState *)gPlayerSlots->actor->customState)->stateFlags |= 0x40000800;
             break;
         case 0xB:
-            mapRequestTransition(D_80744700[mapGetHubWorldIndex(gCurrentWorldId, 0)], D_8076A0AC);
+            hubWorld = mapGetHubWorldIndex(gCurrentWorldId, 0);
+            mapRequestTransition(D_80744700[hubWorld], D_8076A0AC);
             playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, gVolumeTriggerFiredX, gVolumeTriggerFiredZ, 0x46);
             break;
         case 0xC:
@@ -375,7 +374,8 @@ void actorCutsceneDispatchEvents(void) {
             }
             break;
         case 0x18:
-            mapTransitionToWorldHub(mapGetHubWorldIndex(gCurrentWorldId, 0));
+            hubWorld = mapGetHubWorldIndex(gCurrentWorldId, 0);
+            mapTransitionToWorldHub(hubWorld);
             break;
         case 0x1C:
             if (D_80744700 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
