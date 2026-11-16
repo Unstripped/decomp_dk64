@@ -145,14 +145,14 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
     s32 d;
     s16 idx;
     s16 node;
-    Actor *p;
+    u32 hi;
     ScriptedActorState *comp;
 
     playerState = gPrimaryPlayerActor->customState;
     actorFindActiveByType(0xC, &camTarget);
-    p = (Actor *)((u32)params01 >> 16); // FAKE: dead store; makes the ushr item precede the (s16)arg1 item (spilltemps slot order)
+    hi = (u32)params01 >> 16;
     b = (s16)(params01 & 0xFFFF);
-    a = (s16)((u32)params01 >> 16);
+    a = (s16)hi;
     params[0] = a;
     params[1] = b;
     c = (s16)((u32)params23 >> 16);
@@ -271,20 +271,20 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             return;
         case 0xA:
             if (a != 0) {
-                p = spawnNodeActivate(a, 0);
+                actor = spawnNodeActivate(a, 0);
                 if (b != 0) {
-                    p->flags |= 4;
+                    actor->flags |= 4;
                 } else {
-                    p->flags &= ~4;
+                    actor->flags &= ~4;
                 }
                 return;
             }
             idx = 1;
-            while ((p = spawnNodeActivate(idx++, 0)) != NULL) {
+            while ((actor = spawnNodeActivate(idx++, 0)) != NULL) {
                 if (b != 0) {
-                    p->flags |= 4;
+                    actor->flags |= 4;
                 } else {
-                    p->flags &= ~4;
+                    actor->flags &= ~4;
                 }
             }
             return;
@@ -292,7 +292,7 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             zoneEntrySpawnEffect(a, b, c, d);
             return;
         case 0x11:
-            screenWipeStart(((u32)params01 >> 16) & 0xFF);
+            screenWipeStart(hi & 0xFF);
             return;
         case 0xC:
             actorAppendCallbackMemcpy8(gCamActor, camTarget, 0x01000000, 1, params, 0);
@@ -335,9 +335,9 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             }
             break;
         case 0x20:
-            p = spawnNodeActivate(a, 0);
-            if (p != NULL) {
-                actorCopyPoseAndScale(p, gPrimaryPlayerActor, gPrimaryPlayerActor->sub4->scaleY);
+            actor = spawnNodeActivate(a, 0);
+            if (actor != NULL) {
+                actorCopyPoseAndScale(actor, gPrimaryPlayerActor, gPrimaryPlayerActor->sub4->scaleY);
                 gPrimaryPlayerActor->state = 0x77;
                 gPrimaryPlayerActor->unk155 = 0;
             }
@@ -357,9 +357,9 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             menuTransitionToMapIfUnlocked(a, b, c);
             return;
         case 0x2A:
-            p = spawnNodeActivate(a, 0);
-            if (p != NULL) {
-                p->state = 0x3C;
+            actor = spawnNodeActivate(a, 0);
+            if (actor != NULL) {
+                actor->state = 0x3C;
             }
             break;
         case 0x28:
@@ -443,14 +443,14 @@ void camPathCommandDispatch(s32 cmd, s32 params01, s32 params23) {
             actorFromSpawnNodeOrDefault(a)->yaw = gPlayerSlots->camYawInt & 0xFFF;
             return;
         case 0x30:
-            p = actorFromSpawnNodeOrDefault(a);
+            actor = actorFromSpawnNodeOrDefault(a);
             if (b >= 0) {
-                p->tintR = b;
-                p->flags |= 0x800000;
-                p->tintG = c;
-                p->tintB = d;
+                actor->tintR = b;
+                actor->flags |= 0x800000;
+                actor->tintG = c;
+                actor->tintB = d;
             } else {
-                p->flags &= ~0x800000;
+                actor->flags &= ~0x800000;
             }
             return;
         case 0x2C:
