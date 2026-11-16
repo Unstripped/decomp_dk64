@@ -122,13 +122,15 @@ void frustumCornersTransformByInverse(Mtx *mtx) {
     }
 }
 
-
+// Signed distance of point (x, y, z) from a PlanePoly's plane equation.
+#define PLANE_DIST(plane, x, y, z) ((((plane).a * (x) + (plane).b * (y)) + (plane).c * (z)) + (plane).d)
 
 void frustumOrientPolyNormals(f32 eyeX, f32 eyeY, f32 eyeZ, PlanePoly *planes, f32 *corners) {
     s32 i;
     f32 xs[5];
     f32 ys[5];
     f32 zs[5];
+    f64 d;
     PlanePoly *poly;
     poly = planes;
     for (i = 0; i < 4; i++) {
@@ -193,8 +195,8 @@ void frustumOrientPolyNormals(f32 eyeX, f32 eyeY, f32 eyeZ, PlanePoly *planes, f
     poly = planes;
     for (i = 0; i < 5; poly++, i++) {
         planePolyCalcEquation(poly);
-        if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < (0, 0.0)) {}  // FAKE: second use of the sum makes it a coloured candidate (f0) and keeps its tree order for LFTR
-        if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < 0.0) {
+        d = PLANE_DIST(*poly, xs[i], ys[i], zs[i]);
+        if (d < 0.0) {
             polyFlipWinding(poly);
             planePolyCalcEquation(poly);
         }
@@ -1021,11 +1023,11 @@ s32 mapBspBoxInFrustum(s16 minX, s16 minY, s16 minZ, s16 maxX, s16 maxY, s16 max
     in2 = 0;
     behind = 0;
     for (i = 0; i < 5 && behind == 0; i++) {
-        d = ((planes[i].a * minX + planes[i].b * minY) + planes[i].c * minZ) + planes[i].d;
+        d = PLANE_DIST(planes[i], minX, minY, minZ);
         if (d < 0.00) {
             in1 = 1;
         }
-        d = ((planes[i].a * minX + planes[i].b * maxY) + planes[i].c * minZ) + planes[i].d;
+        d = PLANE_DIST(planes[i], minX, maxY, minZ);
         if (d < 0.00) {
             in2 = 1;
         }
