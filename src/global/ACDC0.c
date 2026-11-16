@@ -171,7 +171,7 @@ void hudPauseMenuUpdate(void) {
     s32 stickY;
 
     hud = gCurrentActor->customState;
-    i = gCurrentMap; // FAKE: switch selector reuses i (regalloc)
+    i = gCurrentMap; // FAKE: switch selector reuses i (a1, move a1,v0 at 0xb8); a separate local grows frame 0x58->0x60
     switch (i) {
         case 0x6:
         case 0xE:
@@ -278,7 +278,7 @@ void hudPauseMenuUpdate(void) {
                 }
             }
         }
-        i = hud->page; // FAKE: switch selector reuses i (regalloc)
+        i = hud->page; // FAKE: switch selector reuses i (a1, lb a1,18(s0) at 0x61c); a separate local grows frame 0x58->0x60
         switch (i) {
             case 0:
                 if (hud->menuRow != 3) {
@@ -326,7 +326,7 @@ void hudPauseMenuUpdate(void) {
                     }
                 } else if (buttons & 0x8000) {
                     hubWorld = mapGetHubWorldIndex(gCurrentWorldId, 1);
-                    i = hubWorld == 8; // FAKE: credits flag reuses i (regalloc)
+                    i = hubWorld == 8; // FAKE: credits flag reuses i (a1 at 0x814/0x82c); a separate local grows frame 0x58->0x60
                     if (i) {
                         i = menuGetTimerFlag() != 0;
                     }
@@ -335,11 +335,10 @@ void hudPauseMenuUpdate(void) {
                         if (hubWorld == 0xA) {
                             menuReturnToTitle();
                         } else if (func_805FEF74(gCurrentMap) == 0) {
-                            x = gGlobalOverlayFlags & 1; // FAKE: overlay bit reuses the stick local x (regalloc)
-                            if (x != 0 && hubWorld == 8) {
+                            if ((gGlobalOverlayFlags & 1) && hubWorld == 8) {
                                 flagSet(0x5C, 1, 2);
                                 mapRequestTransition(0x22, 0xC);
-                            } else if (x != 0 && gCurrentMap != 0x3C) {
+                            } else if ((gGlobalOverlayFlags & 1) && gCurrentMap != 0x3C) {
                                 mapRequestTransition(0x2A, 2);
                             } else {
                                 mapTransitionToWorldHub(hubWorld);
@@ -413,8 +412,8 @@ void hudPauseMenuUpdate(void) {
                 hudPauseMenuSlidePage(hud, moved, buttons);
                 break;
             case 3:
-                diff = i = -mathAngleSignedDistance(D_807FC80D * D_807FC83A, hud->carouselAngle); // FAKE: step reuses i (regalloc)
-                flag = D_807FC83A / 10; // FAKE: step limit reuses flag (regalloc)
+                diff = i = -mathAngleSignedDistance(D_807FC80D * D_807FC83A, hud->carouselAngle); // FAKE: step reuses i (a1, move a1,v1 at 0xc88); a separate local grows frame 0x58->0x60
+                flag = D_807FC83A / 10; // FAKE: step limit reuses flag (a0, move a0,t5 at 0xc94); a separate local grows frame 0x58->0x60
                 if (diff > 0) {
                     if (flag < diff) {
                         i = flag;
@@ -446,7 +445,7 @@ void hudPauseMenuUpdate(void) {
                     }
                 }
                 hud->carouselAngle &= 0xFFF;
-                flag = D_807FC83A >> 1; // FAKE: half span reuses flag (regalloc)
+                flag = D_807FC83A >> 1; // FAKE: half span reuses flag (a0, move a0,t9 at 0xdc0); a separate local grows frame 0x58->0x60
                 if (diff < 0) {
                     diff = -diff;
                 }
