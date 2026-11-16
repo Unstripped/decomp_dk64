@@ -371,15 +371,10 @@ void raceOpponentCarBehaviorUpdate(void) {
     RaceParticipant *state;
     RacePathState *cursor;
     u32 cursorVal;
-    f32 unclampedVal;
     s32 phase;
     s32 idx;
     s32 statePhase;
-    s32 endPhase;
-    s32 pad38[1];
     s32 cam;
-    s32 audioSlot;
-    s32 pad30;
 
     state = ((RaceCarActor *)gCurrentActor)->participant;
     cursor = ((RaceCarActor *)gCurrentActor)->path;
@@ -418,9 +413,8 @@ void raceOpponentCarBehaviorUpdate(void) {
     }
     cursorVal = cursor->stunTimer;
     if (cursorVal != 0) {
-        unclampedVal = (f32)cursorVal;
-        if (unclampedVal > 10.0f) {
-            cursor->shakeRoll = (unclampedVal - 10.0f) * 204.8f;
+        if (cursorVal > 10.0f) {
+            cursor->shakeRoll = (cursorVal - 10.0f) * 204.8f;
         } else {
             cursor->shakeRoll = 0.0f;
         }
@@ -440,7 +434,7 @@ void raceOpponentCarBehaviorUpdate(void) {
     if (state->raceStatus == 0) {
         phase = state->unk35;
         statePhase = state->unk35;
-        cursorVal = statePhase; // FAKE: phase/statePhase/cursorVal copies of unk35; switching on phase reallocates the switch selector
+        cursorVal = statePhase; // FAKE: stunTimer local reused as the selector; switch (statePhase) puts the unk35 load in v0 and the selector in v1
         switch (cursorVal) {
         case 0:
             if (gCurrentActor->flags & 0x02000000) {
@@ -483,21 +477,19 @@ void raceOpponentCarBehaviorUpdate(void) {
             state->unk35++;
         }
     } else if (state->raceStatus == 5) {
-        endPhase = state->unk35;
-        switch (endPhase) {
+        statePhase = state->unk35;
+        switch (statePhase) {
         case 0:
             if (flagGet(0x8B, 0) == 0) {
                 playerStateQueueCallback(0x55, 0, 0);
                 idx = 0;
                 gCurrentActor->pitch = 0;
-                audioSlot = 0;
                 gCurrentActor->roll = 0;
                 do {
-                    if (*(s16 *)((u8 *)gCurrentActor->soundSlots + audioSlot) != -1) { // FAKE: byte-offset iterator audioSlot; soundSlots[idx] changes the loop induction
+                    if (gCurrentActor->soundSlots[idx] != -1) {
                         sfxStopSlotSound(gCurrentActor, idx);
                     }
                     idx += 1;
-                    audioSlot += 2;
                 } while (idx != 2);
             }
             state->unk35++;
