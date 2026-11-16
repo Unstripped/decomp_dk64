@@ -18,7 +18,7 @@ typedef struct ActorOverrideModelConfig {
     s32 animSlots[2];
 } ActorOverrideModelConfig;
 
-extern ActorOverrideModelConfig gActorOverrideModelConfigs[];
+extern ActorOverrideModelConfig gActorOverrideModelConfigs[7];
 
 
 void animStopAtFrame(Actor *actor, s32 animSlot, s32 frame) {
@@ -28,25 +28,17 @@ void animStopAtFrame(Actor *actor, s32 animSlot, s32 frame) {
 }
 
 s32 actorConfigLookup(s32 actorType, s32 *outIndex) {
-    ActorOverrideModelConfig *cfg;
     s32 found;
-    u32 i;
-    u32 next;
 
-    if (actorType && actorType && actorType) {} // FAKE: extra uses keep actorType in $a0 (no uopt move $a2,$a0)
-    cfg = gActorOverrideModelConfigs;
     found = 0;
     *outIndex = 0;
-    i = 0; do { // LAYOUT: i = 0 joined to the do line puts move v0,zero after the %lo addiu (as1 line-ordered schedule)
-        next = i + 1;
-        if (actorType == cfg[i].actorType) {
+    do {
+        if (actorType == gActorOverrideModelConfigs[*outIndex].actorType) {
             found = 1;
-            next = i;
         } else {
-            *outIndex = next;
-            i = next;
+            (*outIndex)++;
         }
-    } while (next < 7 && !found);
+    } while (*outIndex < sizeof(gActorOverrideModelConfigs) / sizeof(gActorOverrideModelConfigs[0]) && !found);
     return found;
 }
 
