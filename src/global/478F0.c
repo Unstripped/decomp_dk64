@@ -2861,6 +2861,8 @@ u8 csCondTransitionState5(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern s32 D_807552F0;
 
+#define LERP(a, b, t) ((a) + ((b) - (a)) * (t))
+
 s32 csCondDepositItem(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 q;
     s32 idx = csFindPlayerSlotByModel(csId, b);
@@ -2870,7 +2872,7 @@ s32 csCondDepositItem(CsState *cs, s16 csId, s16 b, s16 c) {
     if (slotQueueGetValue(1, idx)) {
         slotQueueAddValue(7, idx, 1);
         q = (f32)slotQueueGetValue(7, idx) / (f32)D_807552F0;
-        q = (f32)0.5 * q + 0.5f; // FAKE: (f32)0.5 is an FP constant candidate separate from 0.5f (target loads 0.5 twice)
+        q = LERP(0.5f, 1.0f, q); // sfx pitch rises from 0.5 to 1.0 with the deposit count
         sfxPlayOnFreeSlot(0x2A1, 0x7FFF, 63.0f, q, 5, 0);
         return 1;
     }
