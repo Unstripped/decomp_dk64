@@ -848,3 +848,4 @@
 {"type": "unit", "t": "2026-11-16T20:29:52Z", "unit": "2026-11-16c: cleanup HackrenderModelAnimatedSlot", "commit": "70e6a33271237df0678048d71f13b38e49726b34"}
 {"type": "unit", "t": "2026-11-16T20:32:46Z", "unit": "2026-11-16c: cleanup HacktextDrawAnimated", "commit": "5214ab530a9817dc5ed5d29f7576d79ca6b41d09"}
 {"type": "unit", "t": "2026-11-16T20:39:20Z", "unit": "2026-11-16c: cleanup HacktextSpawnSubtitle", "commit": "899355c373fe3ec544bf10bd1c0128f9580986a7"}
+{"type": "unit", "t": "2026-11-16T20:40:49Z", "unit": "2026-11-16c: cleanup HackraceParticipantMotionUpdate", "commit": "23caa475750968a86998fc1ef20defbc89b38e13"}
