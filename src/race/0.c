@@ -185,7 +185,7 @@ void raceOpponentBehaviourUpdate(void) {
     u32 selector;
     s32 phase;
     f32 dist;
-    u16 angU; // FAKE: u16 raw copy of the angle (ring temp, no sll/sra); steers t-register allocation
+    u16 angU;
 
     controller = ((RaceCoinRacerActor *)gCurrentActor)->participant;
     config = ((RaceCoinRacerActor *)gCurrentActor)->config;
