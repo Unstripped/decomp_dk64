@@ -22,7 +22,7 @@ typedef struct ProjectileState {
     /* 0x00 */ s16 spriteCount;
     /* 0x02 */ u8 pad2;
     /* 0x03 */ u8 pad3;
-    /* 0x04 */ Mtx *unk4; // two matrices per sprite (double-buffered by gGfxBufferIndex)
+    /* 0x04 */ Mtx *matrices; // two per sprite (double-buffered by gGfxBufferIndex)
     /* 0x08 */ f32 radius;
     /* 0x0C */ f32 speed;
     /* 0x10 */ u8 frame;
@@ -94,8 +94,8 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
                 break;
             case 1:
                 q0 = (actor->moveYaw - actor->unk15F) * 0.05;
-                q1 = (1.0 < q0) ? (1.0) : (q0);
-                f = q1 * 0.028999999999999998 + 0.001;
+                q1 = (q0 > 1.0) ? 1.0 : q0;
+                f = q1 * (0.03 - 0.001) + 0.001;
                 vscale = 130.0f * f;
                 vz = 1500.0f * f;
                 vx = mathSinF(actor->yaw + 0x400) * ((f * sub->radius) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
@@ -105,16 +105,18 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
             if (actor->unk15F != 0) {
                 actorAppendModelNode(actor, vx, vz, vy, vscale * 80.0, -1);
             }
+            // gDPSetTextureImage and the render-tile gDPSetTile written through the function-scope _g:
+            // their macro forms add two _g homes and shift the frame (Q0940).
             _g = (Gfx *)(glist++); _g->words.w0 = 0xFD180000; _g->words.w1 = (u32)D_807FC7C0[idx];
             gDPSetTile(glist++, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0, 0, G_TX_LOADTILE, 0, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD); gDPLoadSync(glist++); gDPLoadBlock(glist++, G_TX_LOADTILE, 0, 0, 0x3FF, 0x80); gDPPipeSync(glist++); _g = (Gfx *)(glist++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; gDPSetTileSize(glist++, G_TX_RENDERTILE, 0, 0, 0x7C, 0x7C); // LAYOUT: same-line texture block statements steer as1 scheduling
 
             guScaleF(mtx2, vscale, vscale, vscale);
-            matrixMakeRotationY(mtx1, (f32)((gPlayerSlots->camYawInt * 0x168) / 4096));
+            matrixMakeRotationY(mtx1, (f32)((gPlayerSlots->camYawInt * 360) / 4096));
             guMtxCatF(mtx2, mtx1, mtx2);
             guTranslateF(mtx1, actor->x + vx, actor->y, actor->z + vy);
             guMtxCatF(mtx2, mtx1, mtx2);
-            guMtxF2L(mtx2, &sub->unk4[i * 2 + gGfxBufferIndex]);
-            gSPMatrix(glist++, &sub->unk4[i * 2 + gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+            guMtxF2L(mtx2, &sub->matrices[i * 2 + gGfxBufferIndex]);
+            gSPMatrix(glist++, &sub->matrices[i * 2 + gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
             gSPVertex(glist++, osVirtualToPhysical(&D_80750280), 4, 0);
             gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(glist++);
@@ -142,12 +144,12 @@ extern Actor *gCurrentActor;
 void projectileSpriteRingUpdate(void) {
     ProjectileState *sub;
     u8 kind;
-    f64 temp;
+    f64 wantedCount;
 
     sub = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->moveYaw = gCurrentActor->unk15F;
-        sub->unk4 = heapAlloc(0x1000);
+        sub->matrices = heapAlloc(0x1000);
         if (gCurrentActor->unk15F != 0) {
             gCurrentActor->unk144 = 0x24;
         }
@@ -168,7 +170,7 @@ void projectileSpriteRingUpdate(void) {
                 gCurrentActor->yawSpeed = 0x10;
                 sub->frame = 0;
             } else if (sub->frame >= 0x10) {
-                heapFree(sub->unk4);
+                heapFree(sub->matrices);
                 actorDespawn(gCurrentActor);
             }
             break;
@@ -176,11 +178,10 @@ void projectileSpriteRingUpdate(void) {
     } else {
         if (gCurrentActor->unk15F != 0) {
             sub->radius += sub->speed;
-            temp = (f64)sub->radius * 0.3;
-            sub->spriteCount = (temp > 32.0) ? 32.0 : temp;
+            wantedCount = (f64)sub->radius * 0.3;
+            sub->spriteCount = (wantedCount > 32.0) ? 32.0 : wantedCount;
         } else {
-            sub->radius = sub->radius + (f32)((gCurrentActor->yawSpeed - sub->frame) + 0x10)
-                * (sub->speed * 0.0625);
+            sub->radius += (f32)((gCurrentActor->yawSpeed - sub->frame) + 0x10) * (sub->speed * 0.0625);
         }
         if ((sub->frame - gCurrentActor->yawSpeed) >= 0x10) {
             u8 count;
@@ -195,7 +196,7 @@ void projectileSpriteRingUpdate(void) {
                     sub->frame = 0;
                 }
             } else {
-                heapFree(sub->unk4);
+                heapFree(sub->matrices);
                 actorDespawn(gCurrentActor);
             }
         }
