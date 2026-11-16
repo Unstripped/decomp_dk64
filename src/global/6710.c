@@ -275,7 +275,7 @@ s32 audioBuildTask(AudioTask *task, AudioTask *prevTask) {
 void audioCheckAiLength(AudioTask *unused) {
     static s32 sAiIdleFlag = 1;
     if (((osAiGetLength() >> 2) == 0) && (sAiIdleFlag == 0)) {
-        sAiIdleFlag = 0;
+        sAiIdleFlag = 0; // ORIG: the target stores 0 back after reading 0 (sw zero,552(at) at 0x720); without the store the whole test folds away and the function shrinks by 0x20
     }
 }
 
