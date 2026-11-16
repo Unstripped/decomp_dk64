@@ -1095,16 +1095,11 @@ u8 spawnNodeActorInRangeAndVisible(SpawnNode *node, s32 rangeSq) {
 }
 
 u8 spawnNodeActorOutOfRangeOrHidden(SpawnNode *node, s32 rangeSq) {
-    f32 dx;
-    f32 dy;
-    f32 dz;
     s32 ret;
 
-    dz = gPlayerSlots[0].camZ - node->actor->z;
-    dx = gPlayerSlots[0].camX - node->actor->x;
-    dy = gPlayerSlots[0].camY - node->actor->y;
-    ret = rangeSq < (dz * dz) + ((dx * dx) + (dy * dy));
-    dx = 0.0f; // FAKE: dead store kills the store-forwarding of the compare into the ret test (ret stays v1, bnezl)
+    ret = rangeSq < ((gPlayerSlots[0].camX - node->actor->x) * (gPlayerSlots[0].camX - node->actor->x)) +
+                        ((gPlayerSlots[0].camY - node->actor->y) * (gPlayerSlots[0].camY - node->actor->y)) +
+                        ((gPlayerSlots[0].camZ - node->actor->z) * (gPlayerSlots[0].camZ - node->actor->z));
     if (ret == 0) {
         ret = (node->actor->collisionFlags & 0x40) == 0;
         if (ret != 0) {
@@ -1118,8 +1113,6 @@ u8 spawnNodeActorOutOfRangeOrHidden(SpawnNode *node, s32 rangeSq) {
 }
 
 u8 spawnNodeActorOutOfRangeScaled(SpawnNode *node, s32 rangeSq) {
-    f32 dz;
-    f32 dx;
     f32 r;
     s32 scaledRange;
     s32 ret;
@@ -1132,10 +1125,10 @@ u8 spawnNodeActorOutOfRangeScaled(SpawnNode *node, s32 rangeSq) {
             ret = node->initialState == 2;
             if (ret) {
                 scaledRange = r * 1.5;
-                dz = gPlayerSlots[0].camZ - node->actor->z;
-                dx = gPlayerSlots[0].camX - node->actor->x;
-                r = gPlayerSlots[0].camY - node->actor->y; // FAKE: r reused for dy pins r * 1.5 before the loads (a separate dy lets uopt sink it past them and drops the early 1.5 constant load)
-                ret = (scaledRange * scaledRange) < ((dz * dz) + ((dx * dx) + (r * r)));
+                ret = (scaledRange * scaledRange) <
+                      ((gPlayerSlots[0].camX - node->actor->x) * (gPlayerSlots[0].camX - node->actor->x)) +
+                          ((gPlayerSlots[0].camY - node->actor->y) * (gPlayerSlots[0].camY - node->actor->y)) +
+                          ((gPlayerSlots[0].camZ - node->actor->z) * (gPlayerSlots[0].camZ - node->actor->z));
             }
         }
     }
