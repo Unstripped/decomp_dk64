@@ -1906,16 +1906,18 @@ extern s16 D_80750390;
 void tagBarrelActorUpdate(void) {
     s16 kong;
     s16 flag;
-    f32 coord[3];
+    f32 effectX;
+    f32 effectY;
+    f32 effectZ;
     s32 i;
     Vec3f offset;
-    s16 *ptr;
+    s16 *triggerId;
     s16 spawnFlag;
     f32 dist;
     u8 hidden;
     TagBarrelActorState *sub;
     f32 scaleFactor;
-    u32 val;
+    u32 cullMargin;
     f32 sizeScale;
     s16 angle;
     f32 yOffset;
@@ -1964,13 +1966,13 @@ void tagBarrelActorUpdate(void) {
         if (scaleFactor < 0.0) {
             scaleFactor = 0.0f;
         }
-        val = 80.0f * scaleFactor + 20.0f;
-        gCurrentActor->cullMarginX = val;
-        gCurrentActor->cullMarginY = val;
+        cullMargin = 80.0f * scaleFactor + 20.0f;
+        gCurrentActor->cullMarginX = cullMargin;
+        gCurrentActor->cullMarginY = cullMargin;
     }
     for (i = 0; i < gActorGlobalState.volumeTriggerQueueCount; i++) {
-        ptr = gActorGlobalState.volumeTriggerQueueId[i];
-        switch (*ptr) {
+        triggerId = gActorGlobalState.volumeTriggerQueueId[i];
+        switch (*triggerId) {
             case 2:
                 sub->riseTimer = 0x8C;
                 break;
@@ -2005,18 +2007,18 @@ void tagBarrelActorUpdate(void) {
                 (gPlayerSlots->camY - gCurrentActor->y) * (gPlayerSlots->camY - gCurrentActor->y));
         if (dist < 40000.0f) {
             sizeScale = gCurrentActor->sub4->scaleX / 0.15;
-            coord[2] = (randomNonNegative() >> 15) % (s32)(30.0f * sizeScale) - 15.0 * sizeScale + gCurrentActor->x;
-            coord[1] = (randomNonNegative() >> 15) % (s32)(30.0f * sizeScale) - 15.0 * sizeScale + gCurrentActor->y;
-            coord[0] = (randomNonNegative() >> 15) % (s32)(30.0f * sizeScale) - 15.0 * sizeScale + gCurrentActor->z;
+            effectX = (randomNonNegative() >> 15) % (s32)(30.0f * sizeScale) - 15.0 * sizeScale + gCurrentActor->x;
+            effectY = (randomNonNegative() >> 15) % (s32)(30.0f * sizeScale) - 15.0 * sizeScale + gCurrentActor->y;
+            effectZ = (randomNonNegative() >> 15) % (s32)(30.0f * sizeScale) - 15.0 * sizeScale + gCurrentActor->z;
             effectSetDepth(1);
             effectSetFlags(4);
             if (gCurrentActor->state == 0) {
                 effectSetCallback(effectZSpinMatrixUpdate);
-                effectCreateAtPosition(D_8071FC58, 0.5f, coord[2], coord[1], coord[0]);
+                effectCreateAtPosition(D_8071FC58, 0.5f, effectX, effectY, effectZ);
             } else {
                 effectSetSpeed((s32)(gCurrentActor->sub4->scaleX * 100.0f) + (sub->spinSpeed << 16));
                 effectSetCallback(effectOrbitXZUpdate);
-                effectCreateAtPosition(D_8071FC58, 0.5f, gCurrentActor->x, coord[1], gCurrentActor->z);
+                effectCreateAtPosition(D_8071FC58, 0.5f, gCurrentActor->x, effectY, gCurrentActor->z);
             }
         }
     }
@@ -2637,10 +2639,11 @@ void tagBarrelSpawnKongs(TagBarrelData *orbit) {
     s16 model;
     u16 *kongIndex;
     s32 script;
+
     actorSpawn(0x136, 0xA8);
     orbit->marker = gSpawnedActor;
     gSpawnedActor->x = gCurrentActor->x + mathSinF(gCurrentActor->yaw) * 35.0f;
-    gSpawnedActor->y = (gCurrentActor->y - 10.0f) - 2.0f;
+    gSpawnedActor->y = gCurrentActor->y - 10.0f - 2.0f;
     gSpawnedActor->z = gCurrentActor->z + mathCosF(gCurrentActor->yaw) * 35.0f;
 
     for (i = 0; i < 5; i++) {
