@@ -2,9 +2,9 @@
 
 ## Sites
 global:8060FAE4:other:782b9f (removed): arg spelled `(OSContPad *)((u8 *)&D_807F0564 + 4)` so uopt does not CSE `lda D_807F0568` (arg) with the `.button` read into one saved register; target 0xea0 `lui a0` + `addiu a0,a0,4` and 0xeac `lui v0` / `lhu v0` are separate.
-global:8060FAE4:other:484717 (removed): `s32` copy of `.button` keeps the zero-extended `lhu` value in v0 so `buttons |= D_JPAD` is `ori t8,v0,0x400` at 0xed0 (ori/sll fill the load delay of `lb a1` before `beqz a1`).
+global:8060FAE4:other:484717 -> 452b17 -> a7e052 (kept, lead ruling): `s32 held` single-use copy of `.button` keeps the zero-extended `lhu` value in v0 so `buttons |= D_JPAD` is `ori t8,v0,0x400` at 0xed0 (ori/sll fill the load delay of `lb a1` before `beqz a1`); its frame slot sits between i and ret.
 global:8060FAE4:dead-if:9a3ebd (removed): dead read at the opcode-branch head fixed the as1 order of the three zero moves at 0x11a4 (`move s0,zero` i, `move v1,zero` colorIdx, `bne a0,at`, `move s2,zero` found).
-global:8060FAE4:dead-if:44401f (kept): second consumer of the `D_807F05A4` load at 0xf68 makes it a shared ugen node in v0; without it the load takes ring temp t0 and every later ring temp shifts by one.
+global:8060FAE4:dead-if:44401f (removed, HackschedDlDebugDump3): second consumer of the `D_807F05A4` load at 0xf68. Replaced by a dedicated local `u32 *start` (declared where the unused `pad` was, frame slot 0xac): `start = (u32 *)D_807F05A4; sPageMode = 0; sPageAddr = start;`. The static store between the load and the use stops copy propagation; start (cand 52, M -12vreg) is coloured v0, so 0xf68 `lui v0`/`lw v0` and 0xf7c `sw v0`.
 global:8060FAE4:punned-cast:839be1 + global:8060FAE4:dead-if:fd7de6 (kept, coupled): two `ilod`s of `&sPageAddr` make the 0x1018 load a shared node (`lui v0` / `lw s5,%lo(sPageAddr)(v0)`); a plain read keeps the s5 hint (`lui s5`), score 2.
 
 ## Attempts
@@ -16,18 +16,26 @@ global:8060FAE4:punned-cast:839be1 + global:8060FAE4:dead-if:fd7de6 (kept, coupl
 2026-11-15 U HackschedDlDebugDump2 anthropic/claude-opus-5-5:high: static u32 sPageAddr (casts moved to the read) -> 0 with the ilod pair, 2 with plain reads; seven statics at file scope in .data order -> 145-167.
 2026-11-15 U HackschedDlDebugDump2 anthropic/claude-opus-5-5:high: D_807F05A4 as u8 * (15050.c type) -> 0 with 44401f, 79 without; U_JPAD stores swapped 81.
 2026-11-15 U HackschedDlDebugDump2 anthropic/claude-opus-5-5:high: reconstruct (struct carve, held, init placement, no dead reads) -> 81; for-init loop forms 81; cur before faultFontInit 177.
+2026-11-16 U HackschedDlDebugDump3 anthropic/claude-opus-5-5:high: 44401f: `u32 *start` in pad's slot, `start = D; sPageMode = 0; sPageAddr = start;` -> 0 (fixed); `sPageMode = 0; start = D; sPageAddr = start;` 4; `sPageAddr = start = D` 4; `cur = D; ...; sPageAddr = cur` 3; `sPageAddr = cur = D` 4-9; `sPageAddr = (u32 *)(sDumpBase = D)` 30.
+2026-11-16 U HackschedDlDebugDump3 anthropic/claude-opus-5-5:high: reset branch through start: `start = D; sPageMode = 0; ...` TEXT OK but the 0xfa0/0xfa4 relocations come before 0xfa8's (reloc-table order); `sPageMode = 0; start = D; sDumpBase = start; sPageAddr = start;` with `static u32 *sDumpBase` -> fdiff 0 (kept).
+2026-11-16 U HackschedDlDebugDump3 anthropic/claude-opus-5-5:high: all seven statics as one function-local static struct -> 89 plain, 12 with 44401f, 10 with every hack: one CSE'd `lui at` per block instead of a pair per store (0xf4c, 0xf78, 0xfc8), 0x1018 still `lui s5`. Rejected.
+2026-11-16 U HackschedDlDebugDump3 anthropic/claude-opus-5-5:high: 839be1/fd7de6 on the start copy: `page = sPageAddr; cur = page;` (any declaration position) 31 (frame +8, still lui s5); start reused (`start = sPageAddr; mode = sPageMode; cur = start;`, either order) 2; for-init `cur = sPageAddr` / `cur = start` with `cur += size` increment 2; `if ((cur = sPageAddr)) {}`, `!= NULL`, `cur = sPageAddr; if (cur) {}`, `*&sPageAddr` pair 29; `if (sPageAddr) {} cur = sPageAddr;` 2; `*(u32 **)&sPageAddr` pair 0 and `(&sPageAddr)[0]` pair 0 (both still an odd ilod spelling plus the dead if: no tag drop).
+2026-11-16 U HackschedDlDebugDump3 anthropic/claude-opus-5-5:high: a7e052 on the start copy: held refined in place (`held |= D_JPAD; buttons = held;`) 119 (s32/u16/u32), 141 (s16); `buttons = held | D_JPAD` in the if 93; `buttons = held = ...button` 0 (same copy temp respelled); held u16/u8 43; plain read 141.
+2026-11-16 U HackschedDlDebugDump3 anthropic/claude-opus-5-5:high: reconstruct on the start copy: natural body (no held, `cur = sPageAddr`) 150 (frame loses held's slot); with held kept as a plain local 2 (0x1018 lui s5).
 
 ## Untried ideas
-A natural second consumer of the `D_807F05A4` load inside the U_JPAD block that emits no code (target has only `sw zero,sPageMode` and `sw v0,sPageAddr` there). (this run)
-A natural second `ilod` of `&sPageAddr` in the block before the inner loop (`mode = sPageMode; cur = sPageAddr;` then the `done` test). (this run)
-Whether the D_807F0560 struct carve lets schedMain drop its own `if (D_807F0560.retraceCount == 0) {}` steer in combination with other edits there (sweep's plain removal: nohit). (this run)
+A natural second `ilod` of `&sPageAddr` in the outer-loop head (none found: every plain/for-init/local form leaves the s5 hint at 0x1018). (HackschedDlDebugDump2, still open)
+Whether the D_807F0560 struct carve lets schedMain drop its own `if (D_807F0560.retraceCount == 0) {}` steer in combination with other edits there (sweep's plain removal: nohit). (HackschedDlDebugDump2; schedMain, not this function)
+A static store between a `page` local's load and `cur = page` the target could hide (the target has none between 0x101c and the loop body; the start mechanism needs one). (HackschedDlDebugDump3)
 
 ## Evidence
 0xea0 `lui a0,%hi(D_807F0564)` / 0xea8 `addiu a0,a0,%lo(D_807F0564)+4`; 0xeac `lui v0` / 0xeb0 `lhu v0,%lo(D_807F0568)(v0)`.
 0xebc `sll v1,v0,16` / 0xec0 `sra t6,v1,16` / 0xed0 `ori t8,v0,0x400` / 0xed4 `sll t9,t8,16` before `beqz a1` at 0xed8, `sra v1,t9,16` at 0xee0.
-0xf68 `lui v0,%hi(D_807F05A4)` / 0xf6c `lw v0` / 0xf74 `sw zero,sPageMode` / 0xf7c `sw v0,sPageAddr`.
+0xf68 `lui v0,%hi(D_807F05A4)` / 0xf6c `lw v0` / 0xf74 `sw zero,sPageMode` / 0xf7c `sw v0,sPageAddr`; without a v0 local the load takes ring temp t0 and every later ring temp shifts by one (0xf5c andi t0 -> t1 onwards).
+Reset branch 0xfa0 `lui v0` / 0xfa4 `lw v0,D_807F05A4` / 0xfac `sw zero,sPageMode` / 0xfb4 `sw v0,sDumpBase` / 0xfbc `sw v0,sPageAddr`; the relocation table lists 0xfa8/0xfac (sPageMode) before 0xfa0/0xfa4 (ugen emission order = source order `sPageMode = 0;` first).
 0x1018 `lui v0,%hi(sPageAddr)` / 0x101c `lw s5,%lo(sPageAddr)(v0)` just before `bnez t5` (done test) at 0x1020.
-Frame 0xb8: ret 0x58, buf 0x64, done 0x88, mode 0x8c; slots 0x5c/0x60 (i, held) and 0xac (pad) are unused filler slots.
+Frame 0xb8: ret 0x58, buf 0x64, done 0x88, mode 0x8c; slots 0x5c/0x60 (i, held); 0xac is start's slot (was the unused pad).
+D_807F05A4 is the gfx task's RDP output buffer (14CF0.c:59 `output_buff = D_807F05A4`, :60 `output_buff_size = D_807F05A4 + D_807F0984`; 15050.c:219 `heapAlloc(D_807F0984 + 0x80)`), which this function walks as RDP commands.
 
 ## Lead ruling (Lead5, 2026-11-15)
 484717 -> 452b17: `held` is a single-use copy temp (held = ...button; buttons = held;) kept for codegen (lhu v0 for ori at 0xed0, slot between i and ret): a steer per the copy-temp ruling, kept tagged.

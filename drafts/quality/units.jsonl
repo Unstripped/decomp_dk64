@@ -843,3 +843,4 @@
 {"type": "unit", "t": "2026-11-16T20:08:11Z", "unit": "2026-11-16c: cleanup HackeepromSaveRecords5", "commit": "75e7f1b21f8c379de8c14ae75fd3a7de8b0fbe7b"}
 {"type": "unit", "t": "2026-11-16T20:20:01Z", "unit": "2026-11-16c: cleanup HackprojectileSpriteRingUpdate2", "commit": "e96fd1144972072f9ef1fb59a8250b08dd843337"}
 {"type": "unit", "t": "2026-11-16T20:21:57Z", "unit": "2026-11-16c: cleanup HackarcadeSpawnStage1Entities", "commit": "4055bb122d0f21455a334b7dbe0b8d144fe3050b"}
+{"type": "unit", "t": "2026-11-16T20:24:51Z", "unit": "2026-11-16c: cleanup HackschedDlDebugDump3", "commit": "46cfb5af45bba51498c027eb3311e22473fcac7b"}
