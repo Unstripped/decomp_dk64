@@ -4147,7 +4147,6 @@ gContPressedButtons = 0x807ECDF0;
 sEepromSlotBuffer = 0x807ECEA8;
 sEepromImage = 0x807ED6A8;
 gEepromSectorSlot = 0x807EDEA8;
-sSchedState = 0x807F0560;
 gGfxTaskPending = 0x807F059C;
 gGfxTaskNodes = 0x807F05A8;
 gCamTargetWaterDepth = 0x807F5CD0;

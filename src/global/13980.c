@@ -14,7 +14,8 @@ typedef u32 OSHWIntr;
 
 extern s32 osGetIntMask(s32 arg0);
 
-// 13980's .data (0x80746820-0x80746A30), declaration order = address order
+// 13980's .data (0x80746820-0x80746A30), definition order = address order: function-local
+// statics take their function's place (schedMain's sFirstAdvanceSkipped is 0x80746848)
 s32 D_80746820 = 2;
 s32 D_80746824 = 1;
 u8 D_80746828 = 1;
@@ -23,14 +24,12 @@ s8 D_80746830 = 1;
 s8 D_80746834 = 0;
 SchedConfig D_80746838 = { 0xF, 0, 0x1C };
 s8 D_80746844 = 1;
-s8 D_80746848 = 0;
-u32 D_8074684C[3] = { OS_VI_PAL_LPF1, OS_VI_NTSC_LAN1, OS_VI_MPAL_LAN1 };
-s16 D_80746858 = 0;
 
 extern u8 gGameMode;
 extern u8 gScreenRenderFlags;
 
-// .bss 0x807F04C0-0x807F0570
+// .bss 0x807F04C0-0x807F0570; 0x807F0560-0x807F0570 holds the function-local statics of
+// schedMain, schedTaskDone and schedDlDebugDump, in that order
 u64 D_807F04C0;
 u64 D_807F04C8;
 u64 D_807F04D0;
@@ -48,11 +47,6 @@ u64 D_807F0508;
 u64 D_807F0510;
 u16 D_807F0518[20];
 OSTimer D_807F0540;
-struct {
-    u32 retraceCount;
-    s32 taskDone;
-    OSContPad pad;
-} sSchedState;
 
 void schedCreate(SchedStruct *sc, void *stack, s32 priority, u8 unused, u8 retraceCount) {
     SchedConfig config;
@@ -111,13 +105,15 @@ extern u32 gFramebuffers[];
 
 
 void schedMain(void *arg) {
+    static s8 sFirstAdvanceSkipped = 0;
+    static u32 sRetraceCount;
     OSMesg msg;
     s32 i;
     s32 flag;
     SchedStruct *sc = arg;
     s32 fbIdx;
     u32 cnt;
-    s32 pad2;
+    s32 pad;
 
     for (;;) {
         osRecvMesg(&sc->interruptQ, &msg, OS_MESG_BLOCK);
@@ -146,9 +142,9 @@ void schedMain(void *arg) {
                     if ((D_807F0518[0] & 0x1F) == 0) {
                         flag = 1;
                     }
-                    if (flag && D_80746848 == 0) {
+                    if (flag && sFirstAdvanceSkipped == 0) {
                         flag = 0;
-                        D_80746848 = 1;
+                        sFirstAdvanceSkipped = 1;
                     }
                     schedDlDebugDump(D_80746844, flag);
                     D_80746844 = 0;
@@ -156,12 +152,11 @@ void schedMain(void *arg) {
                 }
                 osWritebackDCacheAll();
             }
-            if (sSchedState.retraceCount == 0) {}  // FAKE: keeps sSchedState un-pointerized (separate lui per access)
         }
         switch ((u32)msg) {
         case 0x29A:
-            cnt = sSchedState.retraceCount + 1;  // FAKE: split increment through cnt keeps the new count in v0 (cnt = ++x gives t0/t1; ++x % 480 pointerizes sSchedState)
-            sSchedState.retraceCount = cnt;
+            cnt = sRetraceCount + 1;
+            sRetraceCount = cnt;
             if (cnt % 480 == 0) {
                 D_807F04C8 = D_807F04D0;
                 D_807F04D8 = D_807F04DC;
@@ -178,7 +173,7 @@ void schedMain(void *arg) {
             schedHandleRDP(sc);
             break;
         case 0x29F:
-            if (osSendMesg(D_807F0540.mq, D_807F0540.msg, OS_MESG_BLOCK) == -1) {  // FAKE: empty body; target compares v0 against -1 (li at,-1; bnel v0,at)
+            if (osSendMesg(D_807F0540.mq, D_807F0540.msg, OS_MESG_BLOCK) == -1) {  // ORIG: target compares the result at 0x4f0/0x4f4 (li at,-1; bnel v0,at), both arms rejoin the loop head
             }
             break;
         case 0x2A0:
@@ -190,6 +185,9 @@ void schedMain(void *arg) {
         }
     }
 }
+
+u32 D_8074684C[3] = { OS_VI_PAL_LPF1, OS_VI_NTSC_LAN1, OS_VI_MPAL_LAN1 };
+s16 D_80746858 = 0;
 
 void schedHandleNewTask(SchedStruct *sc, TaskNode *task) {
     schedAppendTask(sc, task);
@@ -347,6 +345,7 @@ void schedHandleRDP(SchedStruct *sc) {
 }
 
 s32 schedTaskDone(SchedStruct *sc, TaskNode *task) {
+    static s32 sTaskDone;
     s32 state = task->flags & 3;
     s32 done = (task->flags >> 2) & 3;
     s32 type = task->task.t.type;
@@ -378,7 +377,7 @@ s32 schedTaskDone(SchedStruct *sc, TaskNode *task) {
         ret = 0;
     }
 
-    sSchedState.taskDone = ret;
+    sTaskDone = ret;
     return ret;
 }
 
@@ -490,6 +489,7 @@ extern u32 D_807F0984;
 
 
 s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
+    static OSContPad sContPad;
     static u32 *sDumpBase = NULL;
     static u32 *sNextPageAddr = NULL;
     static s16 sPrevButtons = 0;
@@ -518,8 +518,8 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
     done = 0;
     ret = 0;
     if (reset == 0) {
-        osContGetReadData(&sSchedState.pad);
-        held = sSchedState.pad.button; // FAKE: s32 copy temp keeps the lhu value in v0 for ori t8,v0,0x400 at 0xed0 and fills the 4-byte slot between i and ret (a direct s16 read gives lh v1)
+        osContGetReadData(&sContPad);
+        held = sContPad.button; // FAKE: s32 copy temp keeps the lhu value in v0 for ori t8,v0,0x400 at 0xed0 and fills the 4-byte slot between i and ret (a direct s16 read gives lh v1)
         buttons = held;
         if (autoAdvance != 0 && sAutoPageCount != 0) {
             buttons |= D_JPAD;
