@@ -817,3 +817,4 @@
 {"type": "unit", "t": "2026-11-16T18:27:43Z", "unit": "2026-11-16b: cleanup HacktextDrawStringVtx5", "commit": "e56c5078e585081fc6d409d0206ddd963d5d14f5"}
 {"type": "unit", "t": "2026-11-16T18:29:25Z", "unit": "2026-11-16b: cleanup HackmapChunksApplyLights2", "commit": "94bb42df1dbe4486846deeae83f3edc899bb41c5"}
 {"type": "unit", "t": "2026-11-16T18:33:24Z", "unit": "2026-11-16b: cleanup HackplayerInputStepTurnFacingAngle2", "commit": "aa33e86ecdd0410f60b6934a2b11fd681f5cfbd5"}
+{"type": "unit", "t": "2026-11-16T18:42:51Z", "unit": "2026-11-16b: cleanup HackcsCondEval2", "commit": "5d61f35be06bb7309863d4fec1412035e8923b5f"}

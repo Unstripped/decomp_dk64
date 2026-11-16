@@ -1,14 +1,25 @@
 # csCondEval (global, src/global/42630.c)
-## Sites (kept)
-- global:8063EA14:other:1d104b (case 0x31): `((s16 *)cmd)[2]` keeps unk48[cmd->c] as the left bne operand (0x1808).
-- global:8063EA14:other:10621e (case 0x4): `((s16 *)cmd)[1]` keeps unk44[cmd->b] as the left bne operand (0x188c).
+## Sites
+- global:8063EA14:other:3f5f75 (case 0x17, kept): `((CsCmd *)cond)->b` keeps the CSE'd arg in a1 as the LEFT bne operand at 0x1ec0 (`bne a1,t7`).
+- fixed 2026-11-16 (HackcsCondEval2): 1d104b (case 0x31) and 10621e (case 0x4), by the CsCond view (below).
 ## Attempts
 - rounds 4-34 (opus:low): plain, swapped order, permute (best=0 only via `(*cmd).b` / `((0, cmd))->a` twins); see history.
 - 2026-11-14 U HackcsCondEval opus:high (full=):
   - snapshot locals for either operand: 189-205
   - != with swapped arms: 145/188
   - ret = (field == arg): 167/217
+- 2026-11-16 HackcsCondEval2 opus:high (deadsweep full=):
+  - s16 * local view of a CsCmd param: 211; `s16 *cmd` param (whole function): 192, then
+    `(cmd[1] << 16) + cmd[2]` in 0x26/0x27/0x16 (csCmdExec order): 2, `cmd[1] & actorLookupClass()` in 0x10: 1.
+  - CsCond {s16 op; s16 arg[3]} param (CsNode.unk2 retyped, cutscene.h hunk): same 1 line, 0x17 `bne t7,a1`.
+  - 0x17 with the indexed read: both source orders, `if (x)`, `(s16)`/`(s32)` casts, `p->actor->` without `a`,
+    `!= 0` vs bare, `||`/else-if forms (shape 2/5), snapshot locals k/h/sAnim/count (14..1073): never 0.
+  - permuter 900 s on the CsCond body (base 10): best 10.
+  - case 0x1: `k = unk48[arg1] - arg0; if (k == 0)` -> plain `==` matches with the unused s32 kept (frame size): `pad`.
 ## Untried ideas
-- Reading cmd through an `s16 *` alias for the whole function (cutscene commands as s16 arrays): too wide for this item.
+- A natural 0x17 spelling under the indexed view that makes uopt put the CSE'd arg on the left.
 ## Evidence
 - CsCmd {u16 op; s16 a, b, c} at 0/2/4/6: the field types match, so the pun is not a type fix.
+- Named field reads (CsCmd.a/b) are canonicalised to the left compare/addu operand; indexed reads
+  (cond->arg[n], or an s16 *) keep the right operand except a CSE'd value in a loop (0x17, a1 at 0x1eb0).
+- Target: 0x188c `bne` field,arg (0x4), 0x1808 field,arg (0x31), 0x1ec0 arg(a1),field (0x17).
