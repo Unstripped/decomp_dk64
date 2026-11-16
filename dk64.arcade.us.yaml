@@ -47,5 +47,7 @@ segments:
       - [0xE220, data, 0]
       - [0x26840, .rodata, 0]
       - { start: 0x26C00, type: bss, vram: 0x8004AC00 }
+      - { start: 0x26C00, type: .bss, vram: 0x8004BC80, name: 0 } # arcadeUpdatePlayerEntity statics sStepTimer/sStepPhase (0x8004BC80/84), D_8004BC88[6] lifts (0x8004BC80-0x8004BCD0)
+      - { start: 0x26C00, type: bss, vram: 0x8004BCD0, name: 26C00_8004BCD0 }
 
   - [0x26C00]

@@ -1076,7 +1076,7 @@ typedef struct ArcadeLift {
     f32 y;
     f32 vy;
 } ArcadeLift;
-extern ArcadeLift D_8004BC88[];
+ArcadeLift D_8004BC88[6];
 extern u8 D_80032F40[];
 extern ArcadeGirderSpan D_8004A7C8[];
 void arcadeDrawStage3Background(Gfx **glistp) {
@@ -2207,8 +2207,6 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
     }
 }
 
-extern s32 D_8004BC80;
-extern s32 D_8004BC84;
 extern s32 D_8004C6FC;
 extern s32 D_8004C700;
 extern s32 D_8004C704;
@@ -2228,9 +2226,10 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
     s32 i;
     s32 n;
     s32 phase;
+    static s32 sStepTimer;
+    static s32 sStepPhase;
 
     if (E.state == 8 || gArcadeFrozen == 0) {
-        if (D_8004BC84 == 0) {} // FAKE: empty guard steers regalloc
         if (E.state == 2) {
             arcadeCheckPlayerCollision((s32)E.x, (s32)E.y);
             if (E.vx < 0.0f) {
@@ -2239,11 +2238,11 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                 E.facing = E.facing | 2;
             }
             if (((D_807ECDE8->button & 0x200) || D_807ECDE8->stick_x < -0x14) && (f32)D_8004C6F0 < E.x) {
-                D_8004BC80 += 3;
+                sStepTimer += 3;
                 E.vx = -0.7f;
                 E.animTimer = (f32)((f64)E.animTimer + 0.3);
             } else if (((D_807ECDE8->button & 0x100) || D_807ECDE8->stick_x >= 0x15) && E.x < (f32)D_8004C6F4) {
-                D_8004BC80 += 3;
+                sStepTimer += 3;
                 E.vx = 0.7f;
                 E.animTimer = (f32)((f64)E.animTimer + 0.3);
             } else {
@@ -2342,11 +2341,11 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                     if ((f32)D_8004C6EC < E.y &&
                         ((D_807ECDE8->button & 0x800) | (D_807ECDE8->stick_y >= 0x15))) {
                         E.vy = -0.5f;
-                        D_8004BC80 += 2;
+                        sStepTimer += 2;
                     } else if (E.y < (f32)D_8004C6E8 &&
                                ((D_807ECDE8->button & 0x400) | (D_807ECDE8->stick_y < -0x14))) {
                         E.vy = 0.5f;
-                        D_8004BC80 += 2;
+                        sStepTimer += 2;
                     } else {
                         E.vy = 0.0f;
                     }
@@ -2433,13 +2432,13 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             }
             break;
         }
-        if (D_8004BC80 >= 0x24) {
-            D_8004BC80 = 0;
-            phase = D_8004BC84 + 1;
-            if (phase == 7) {
-                phase = 0;
+        if (sStepTimer >= 0x24) {
+            sStepTimer = 0;
+            sStepPhase++;
+            if (sStepPhase == 7) {
+                sStepPhase = 0;
             }
-            D_8004BC84 = phase;
+            phase = sStepPhase;
             if (phase & 1) {
                 soundPitch.f = 1.0f;
             } else {
@@ -2449,7 +2448,6 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             n_alSndpPostEvent(D_80770DFC, 0x10, soundPitch.bits);
         }
         coll = arcadeCheckPlayerCollision((s32)E.x, (s32)E.y);
-        if (D_8004BC80 && D_8004BC80) {} // FAKE: empty guard steers regalloc
         E.param = D_8004C6F8;
         D_8004C704 = (s32)(E.y - (f32)D_8004C6E4);
         if (gArcadeBonusTimer < 0 && E.state != 8) {
