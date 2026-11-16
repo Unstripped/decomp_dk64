@@ -484,8 +484,7 @@ void eepromValidateSaveSlots(void) {
     u8 found;
     u16 off;
     s32 i;
-    u32 pad2;
-    u8 slot2;
+    u32 crc;
     u16 len;
     u32 hit;
     u8 valid[4];
@@ -510,8 +509,8 @@ void eepromValidateSaveSlots(void) {
         idx = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * (j = i + 1)) / 4) - 1;  // FAKE: dead embedded store to j (pre-existing, now tagged) puts i + 1 first in multu s2,t9 at 0x14b4 (Q0519); plain i + 1 in either operand order gives multu t9,s2
         stored = ((u32 *)D_807ED6A8)[idx];
         len = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) - 4;
-        hit = eepromCalculateCrc32(data, len);
-        if (stored != hit) {
+        crc = eepromCalculateCrc32(data, len);
+        if (stored != crc) {
             ok = 0;
             eepromClearSlotData((u8)i & 0xFF, 0);  // ORIG: andi s3,s4,0xff at 0x14ec ((u8)i) then andi a0,s3,0xff at 0x14f4 (& 0xFF) for this unprototyped K&R call
             eepromSetField(0xF, 0, 0, i, 0xFF);
@@ -526,8 +525,7 @@ void eepromValidateSaveSlots(void) {
                 if (version) {}  // FAKE: dead test adds blocks to the live ranges of version, i and j (version adjsave 42 to 35), so i, found and version colour s4, s5, s6 instead of version first
                 for (j = 0; j < 4 && found == version; j++) {
                     if (j != i && valid[j] != 0) {
-                        slot2 = j;
-                        if (eepromGetField(0xD, 0, 0, slot2) != 0 && eepromGetField(0xF, 0, 0, slot2) == version && (u32)eepromGetField(0x10, 0, 0, i) <= (u32)eepromGetField(0x10, 0, 0, slot2)) {
+                        if (eepromGetField(0xD, 0, 0, j) != 0 && eepromGetField(0xF, 0, 0, j) == version && (u32)eepromGetField(0x10, 0, 0, i) <= (u32)eepromGetField(0x10, 0, 0, j)) {
                             found = 0xFF;
                             eepromClearSlotData((u8)i & 0xFF, 0);  // ORIG: andi a0,s3,0xff at 0x1630 re-masks the (u8)i value (andi s3,s4,0xff at 0x156c) for this unprototyped K&R call
                             eepromSetField(0xF, 0, 0, i, 0xFF);
@@ -556,15 +554,15 @@ void eepromValidateSaveSlots(void) {
             }
         }
     }
-    for (j = 0; j < 4; j++) {
-        D_807EDEA8[j] = sectorOrder[j];
+    for (i = 0; i < 4; i++) {
+        D_807EDEA8[i] = sectorOrder[i];
     }
     globalOk = 1;
     off = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
     idx = (((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8) + 0x40) / 4 - 1;
     stored = ((u32 *)D_807ED6A8)[idx];
-    hit = eepromCalculateCrc32(D_807ED6A8 + off, 0x3C);
-    if (stored != hit) {
+    crc = eepromCalculateCrc32(D_807ED6A8 + off, 0x3C);
+    if (stored != crc) {
         globalOk = 0;
         eepromResetGlobalData();
     }
