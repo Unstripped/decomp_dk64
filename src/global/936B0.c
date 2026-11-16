@@ -314,7 +314,7 @@ VehicleMotion *motion;
 u8 applyBuoyancy;
 u8 tilt;
 {
-    f32 tmpA;
+    s32 turnScale;
     s32 kongState;
     f32 drag;
     f32 turnRate;
@@ -356,12 +356,7 @@ u8 tilt;
     velZ = mathCosF(gCurrentActor->moveYaw) * gCurrentActor->speedXZ;
     if (fl[3] != 0) {
         thrust = vehicle->throttle * 50.0f;
-        if (kongState == 2) {
-            tmpA = 5000.0f;
-        } else {
-            tmpA = 10000.0f;
-        }
-        drag = 1.0f / tmpA * (gCurrentActor->speedXZ * gCurrentActor->speedXZ) + vehicle->brake;
+        drag = 1.0f / (kongState == 2 ? 5000.0f : 10000.0f) * (gCurrentActor->speedXZ * gCurrentActor->speedXZ) + vehicle->brake;
         if (vehicle->throttle != 0.0f) {
             drag = drag + 30.0f;
         } else {
@@ -384,9 +379,8 @@ u8 tilt;
     if (fl[2] != 0) {
         slopeRange = 0x400 - gCurrentActor->floorSlopePitch;
         slopeAngle = mathAngleSignedDistance(gCurrentActor->floorSlopeYaw, vehicle->heading);
-        tmpB = slopeRange;
-        tiltPitch = (mathCosF(slopeAngle) * tmpB);
-        tiltRoll = (mathSinF(slopeAngle) * tmpB);
+        tiltPitch = (mathCosF(slopeAngle) * slopeRange);
+        tiltRoll = (mathSinF(slopeAngle) * slopeRange);
     } else if (!tilt) {
         gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, 0, 4.0f);
         gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, 0, 5.0f);
@@ -405,37 +399,26 @@ u8 tilt;
         gCurrentActor->pitch = mathAngleEaseToward(gCurrentActor->pitch, tiltRoll, 5.0f);
     }
     gCurrentActor->speedXZ = gCurrentActor->speedXZ - drag;
-    velX = gCurrentActor->speedXZ;
-    if (velX < 0.0f) {
+    if (gCurrentActor->speedXZ < 0.0f) {
         gCurrentActor->speedXZ = 0.0f;
-        velX = gCurrentActor->speedXZ;
     }
-    tmpB = velX - gCurrentActor->prevSpeedXZ;
+    tmpB = gCurrentActor->speedXZ - gCurrentActor->prevSpeedXZ; // FAKE: tmpB (the 2.0f air constant above) reused for the speed gain; the frame has no slot for a separate local (+4 bytes shifts every home, score 59)
     if (tmpB < 0.0f) {
         tmpB = 0.0f;
     }
     if (kongState == 2) {
-        tiltRoll = -0x1E;
+        turnScale = -0x1E;
     } else {
-        if (tiltRoll && tiltRoll) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        tiltRoll = -0x28;
+        turnScale = -0x28;
     }
-    vehicle->heading = vehicle->heading + turnRate * tiltRoll * (1.0 + tmpB * 0.05);
+    vehicle->heading = vehicle->heading + turnRate * turnScale * (1.0 + tmpB * 0.05);
     vehicle->heading = vehicle->heading & 0xFFF;
     if (applyBuoyancy) {
-        tmpA = gCurrentActor->y;
-        drag = gCurrentActor->waterY;
-        if (tmpA < drag) {
+        if (gCurrentActor->y < gCurrentActor->waterY) {
             if (fl[3] != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            gCurrentActor->speedY = gCurrentActor->speedY + ((gCurrentActor->waterY - tmpA) * 3.0f + 15.0f);
-            tmpB = gCurrentActor->speedY;
-            if (tmpB > 0.0f) {
-                tmpA = tmpB;
-            } else {
-                tmpA = -tmpB;
-            }
-            if (tmpA > 20.0f) {
-                gCurrentActor->speedY = tmpB - tmpB / 12.0f;
+            gCurrentActor->speedY = gCurrentActor->speedY + ((gCurrentActor->waterY - gCurrentActor->y) * 3.0f + 15.0f);
+            if ((gCurrentActor->speedY > 0.0f ? gCurrentActor->speedY : -gCurrentActor->speedY) > 20.0f) {
+                gCurrentActor->speedY = gCurrentActor->speedY - gCurrentActor->speedY / 12.0f;
             }
         }
     }
@@ -452,9 +435,8 @@ u8 tilt;
             gCurrentActor->speedY = gCurrentActor->speedY + 200.0f;
         }
     }
-    tmpB = gCurrentActor->terminalSpeedY;
-    if (gCurrentActor->speedY < tmpB) {
-        gCurrentActor->speedY = tmpB;
+    if (gCurrentActor->speedY < gCurrentActor->terminalSpeedY) {
+        gCurrentActor->speedY = gCurrentActor->terminalSpeedY;
     }
     if (kongState == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     actorStepPhysics(gCurrentActor, gCurrentActor->yaw, vehicle->heading);
