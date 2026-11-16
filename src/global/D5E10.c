@@ -3173,8 +3173,6 @@ void playerStateThrowCarried(void) {
 }
 
 void playerStateHoldPickup(void) {
-    f64 baseScale;
-
     if (actorTableContains(gActivePlayerState->queuedHeldActor) == 0 || gActivePlayerState->queuedHeldActor->instanceId != gActivePlayerState->queuedHeldActorId) {
         gActivePlayerState->heldActor = NULL;
         gActivePlayerState->queuedHeldActor = NULL;
@@ -3213,7 +3211,7 @@ void playerStateHoldPickup(void) {
         break;
     case 4:
         playerInputUpdate(5);
-        actorAppendLaunch(gCurrentActor, gActivePlayerState->heldActor, gActivePlayerActor->yaw, gCurrentActor->sub4->scaleX * (gKongHoldPutDownAngles[gCurrentCharacterIndex] * 3.0) / (baseScale = 0.15), 0); // FAKE: mul.d operand order
+        actorAppendLaunch(gCurrentActor, gActivePlayerState->heldActor, gActivePlayerActor->yaw, gKongHoldPutDownAngles[gCurrentCharacterIndex] * 3.0 * gCurrentActor->sub4->scale[0] / 0.15, 0); // FAKE: scale[0] union-array spelling of scaleX orders the mul.d operands (scaleX gives full=1)
         gCurrentActor->unk155++;
         break;
     case 5:
