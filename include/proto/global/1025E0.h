@@ -33,8 +33,8 @@ s16 gfxResourceCreate(s16, void *, u8, f32, f32, f32);
 #ifndef PROTO_SKIP_gfxResourceSetString
 void gfxResourceSetString(s16, void *);
 #endif
-#ifndef PROTO_SKIP_func_806FDF54
-void func_806FDF54(f32 *, f32 *);
+#ifndef PROTO_SKIP_mathRadianEaseToward
+void mathRadianEaseToward(f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_textDrawAnimated
 Gfx *textDrawAnimated(Gfx *, s16, s32, f32, f32, f32, f32);

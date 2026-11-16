@@ -23,8 +23,8 @@ void func_8060FFF0(void) {
 
 extern s8 gMainThreadHalted;
 extern u8 gGfxBufferIndex;
-extern u32 D_807F05A4;
-extern u32 D_807F0984;
+extern u32 gRdpOutputBuffer;
+extern u32 gRdpOutputBufferSize;
 extern TaskNode gGfxTaskNodes[][2];
 extern void *gFramebuffers[];
 extern u8 D_805FB000[];
@@ -56,8 +56,8 @@ void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers
     task->task.t.ucode_data_size = SP_UCODE_DATA_SIZE;
     task->task.t.dram_stack = D_8076AF20;
     task->task.t.dram_stack_size = SP_DRAM_STACK_SIZE8;
-    task->task.t.output_buff = (u64 *)D_807F05A4;
-    task->task.t.output_buff_size = (u64 *)(D_807F05A4 + D_807F0984);
+    task->task.t.output_buff = (u64 *)gRdpOutputBuffer;
+    task->task.t.output_buff_size = (u64 *)(gRdpOutputBuffer + gRdpOutputBufferSize);
     task->task.t.data_ptr = glist;
     task->task.t.data_size = numCommands * 8;
     task->task.t.yield_data_ptr = D_8076B320;

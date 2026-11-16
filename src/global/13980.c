@@ -484,8 +484,8 @@ DlOpInfo D_8074685C[27] = {
 extern char D_80757184[];
 extern char D_80757188[];
 char *D_80746A0C[2] = { D_80757184, D_80757188 };
-extern u32 D_807F05A4;
-extern u32 D_807F0984;
+extern u32 gRdpOutputBuffer;
+extern u32 gRdpOutputBufferSize;
 
 
 s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
@@ -531,7 +531,7 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
             sPageAddr = sNextPageAddr;
         }
         if ((buttons & U_JPAD) && !(sPrevButtons & U_JPAD)) {
-            start = (u32 *)D_807F05A4;
+            start = (u32 *)gRdpOutputBuffer;
             sPageMode = 0;
             sPageAddr = start;
         }
@@ -541,7 +541,7 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
         sPrevButtons = buttons;
     } else {
         sPageMode = 0;
-        start = (u32 *)D_807F05A4;
+        start = (u32 *)gRdpOutputBuffer;
         sDumpBase = start;
         sPageAddr = start;
         sPrevButtons = 0;
@@ -554,13 +554,13 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
         cur = (u32 *)*(u32 *)&sPageAddr;  // FAKE: u32 ilod through &sPageAddr, first of the two loads the dead read below pairs with (Q0545)
         if (*(u32 *)&sPageAddr) {}  // FAKE: second ilod of sPageAddr makes uopt keep the load in a CSE temp ($v0), so as1 expands it via lui $v0 and moves it to s5
         while (done == 0 && line < 15) {
-            off = (u32)cur - D_807F05A4;
+            off = (u32)cur - gRdpOutputBuffer;
             if (line < 14) {
                 sNextPageMode = mode;
                 sNextPageAddr = cur;
             }
             op = (*cur >> 24) & 0xFF;
-            if (D_807F05A4 + D_807F0984 < (u32)cur) {
+            if (gRdpOutputBuffer + gRdpOutputBufferSize < (u32)cur) {
                 done = 1;
             }
             if ((op & 0xF0) == 0xC0) {

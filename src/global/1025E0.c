@@ -152,7 +152,7 @@ void gfxResourceSetString(s16 resourceId, void *str) { // str: u8 buffer or char
 }
 
 
-void func_806FDF54(f32 *pAngle, f32 *pTarget) {
+void mathRadianEaseToward(f32 *pAngle, f32 *pTarget) {
     while (*pTarget < 0.0f) {
         *pTarget += 6.2831855f;
     }
@@ -284,9 +284,9 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
                 node->elems[charIndex].x = node->elems[charIndex].x + (node->elems[charIndex].targetX - node->elems[charIndex].x) * node->easeRate;
                 node->elems[charIndex].y = node->elems[charIndex].y + (node->elems[charIndex].targetY - node->elems[charIndex].y) * node->easeRate;
                 node->elems[charIndex].z = node->elems[charIndex].z + (node->elems[charIndex].targetZ - node->elems[charIndex].z) * node->easeRate;
-                func_806FDF54(&node->elems[charIndex].rotX, &node->elems[charIndex].targetRotX);
-                func_806FDF54(&node->elems[charIndex].rotY, &node->elems[charIndex].targetRotY);
-                func_806FDF54(&node->elems[charIndex].rotZ, &node->elems[charIndex].targetRotZ);
+                mathRadianEaseToward(&node->elems[charIndex].rotX, &node->elems[charIndex].targetRotX);
+                mathRadianEaseToward(&node->elems[charIndex].rotY, &node->elems[charIndex].targetRotY);
+                mathRadianEaseToward(&node->elems[charIndex].rotZ, &node->elems[charIndex].targetRotZ);
             }
             if (interpolateScale != 0) {
                 node->elems[charIndex].scale = node->elems[charIndex].scale + (node->elems[charIndex].targetScale - node->elems[charIndex].scale) * node->easeRate;
