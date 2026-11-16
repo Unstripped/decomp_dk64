@@ -971,11 +971,11 @@ void playerStateApplyAttackerDamage(Actor *attacker) {
 extern KongInventory *gCurrentKongInventory;
 
 void playerStateSetLaunchVelocity(void) {
-    u8 gunSound;
+    u8 drawGun;
     s32 sizeMode;
     s32 kongId;
 
-    gunSound = 0;
+    drawGun = 0;
     gActivePlayerActor->speedXZ = gActivePlayerState->launchSpeedXZ;
     gActivePlayerActor->moveYaw = gActivePlayerState->launchYaw;
     gActivePlayerActor->yaw = gActivePlayerState->launchYaw;
@@ -1013,10 +1013,11 @@ void playerStateSetLaunchVelocity(void) {
                 actorScriptStart(gActivePlayerActor, 0x7D);
                 gActivePlayerActor->speedXZ = 0.0f;
                 gActivePlayerState->targetSpeed = 300.0f;
-                gunSound = 1;
+                drawGun = 1;
                 slotQueueUpdate(5, 1, 0);
                 break;
             }
+            /* No actor of type 0x25: fall through to the plain fall. */
         case 0x62:
         case 0x88:
         case 0x89:
@@ -1098,7 +1099,7 @@ void playerStateSetLaunchVelocity(void) {
             break;
         }
     }
-    if (((gPlayerSlots[gCurrentPlayerIndex].queuedActor != NULL) && (gPlayerSlots[gCurrentPlayerIndex].queuedActor->actorType == 0x31)) || (gunSound != 0)) {
+    if (((gPlayerSlots[gCurrentPlayerIndex].queuedActor != NULL) && (gPlayerSlots[gCurrentPlayerIndex].queuedActor->actorType == 0x31)) || (drawGun != 0)) {
         if (gCurrentKongInventory->weaponFlags & 1) {
             if (gActivePlayerState->gunDrawn != 0) {
                 gActivePlayerState->stateFlags2 |= 4;
@@ -1884,7 +1885,7 @@ void playerStateSetFlagsByActorType(void) {
         actorScriptStart(gActivePlayerActor, 0x165);
     } else {
         if (gActivePlayerActor->state != 0x56) {
-            camStartPath(gActivePlayerActor, (s16)ev, 5);
+            camStartPath(gActivePlayerActor, ev, 5);
         }
         actorScriptStartByIndex(gActivePlayerActor, 0x5A);
     }
