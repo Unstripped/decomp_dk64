@@ -512,15 +512,14 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
     u32 done;
     char buf[36];
     s32 i;
-    s32 held;
+    s32 pad;
     s32 ret;
 
     done = 0;
     ret = 0;
     if (reset == 0) {
         osContGetReadData(&sContPad);
-        held = sContPad.button; // FAKE: s32 copy temp keeps the lhu value in v0 for ori t8,v0,0x400 at 0xed0 and fills the 4-byte slot between i and ret (a direct s16 read gives lh v1)
-        buttons = held;
+        buttons = sContPad.button;
         if (autoAdvance != 0 && sAutoPageCount != 0) {
             buttons |= D_JPAD;
         }
