@@ -50,10 +50,15 @@
     - count is redefined before the cfe temp test, so the temp cannot fold into the branch. Count stays s8 through the loop, so the counter cannot land in a3.
   - Tried: `i = count; i /= 4` 321; `count -= 4` per quad without the reset 317, with the reset 324; `count /= 4; while (--count >= 0)` 21; `for (count /= 4; count-- > 0;)` 28; `count = count / 4 - 1` count-down 21; `i = count; while ((i -= 4) >= 0)` with index i 320; `for (i = count, i /= 4; i-- > 0;)` 326; `count /= 4; for (i = count - 1; i >= 0; i--)` 94.
   - Flush `if` changed to `while (count >= 0x20)` / `while (count != 0)`, so the folded back-test would loop-weight count: with the plain form 324 (site 1), 324 (site 2), 336 (both). With the hack and both whiles: 34.
+- 2026-11-16 U HacktextDrawStringVtx5 anthropic/claude-opus-5-5:high (cdb041 / cdb041#2; variants.py try full scores, tdsv/t1_*, t2_*, t3_*):
+  - Plain both sites re-measured: 321. variants scan of the plain body: 99 variants, no zero (count u8 115, yoff s16 321, yoff u8 380).
+  - Direction (b), references to count in the quad loop: `while (i-- > 0 && count != 0)` 224, `&& count` 224, `count -= 4` per quad with count-indexed gSP1Quadrangle 212 (reset kept) / 332 (no reset), `count = 0` inside the loop 270, `i = count / 4; count = i;` 320.
+  - Loop tests: `while (i--)` 220, `while (i-- != 0)` 304, `for (i = count / 4; i-- != 0;)` 311, `count /= 4; while (count--)` with count indices 196, `count /= 4; i = count; while (i--)` 40, `for (i = count / 4; i != 0;) { i--; ... }` 802.
+  - Site 2 alone plain (site 1 hack kept): 31. uopt moves `count = 0` up to the loop entry (Q0462): `slt a0,zero,v1` + `beqz` with `move s8,zero` in its delay slot, count live over the loop. Reset order variants (`count = 0; batch = vp;` after the loop; `batch = vp; i = count / 4; count = 0;` before it): all 31, 321 with site 1 plain too.
 ## Untried ideas
-- cdb041 / cdb041#2: the plain forms are closed by a priority inversion (see Evidence), not by the compare shape. Two directions are still untried:
-  - lower yoff's priority below 32.4 without new code: yoff is defined at 0x1348 and used once at 0x1488, and its home must stay at -69.
-  - add a reference to count in the quad loop that emits no code and is not a dead store. In the target, count is only reset by `move s8,zero` at 0x15d4/0x179c, and nothing reads it after the loop.
+- cdb041 / cdb041#2: the plain forms are closed by a priority inversion at site 1 (count 32.4 below yoff 50.0) and by the Q0462 hoist of the reset at site 2 (the dead `count /= 4` is the only store between `count / 4` and `count = 0`). Still untried:
+  - lower yoff's priority below 32.4 without new code (yoff def 0x1348, single use 0x1488, home -69).
+  - a real (behavioural) definition of count between the divide and the reset that emits no instruction; no natural candidate found among the loop references above.
 ## Evidence
 - Vertex block 0x1478-0x1500.
 - Store order: vp0 ob0 0, ob1 2, then vp1 ob1 0x12 (same v0), ob2 4, tc1 0xa, tc0 8. Then vp1 0x10/0x14/0x18/0x1a; vp2 0x20/0x22/0x24/0x28/0x2a; vp3 0x32 before 0x30, then 0x34/0x38/0x3a.
@@ -63,3 +68,4 @@
   - With the hack: count 51.8 gets reg 22 (s8), and yoff 50.0 is caller-saved (a3, spilled to sb 131(sp) around textLoadFontSheetGfx at 0x1448/0x1460).
   - Plain: count 32.4 and yoff 50.0, so the two swap.
   - Callee-saved registers 14-21 have the same owners in both runs.
+- Plain site 2 (2026-11-16): count's live range covers bbs 63..67 (the quad loop) because the reset is hoisted into the entry; the hack trace has count def bb62 (3 uses), def bb66 (reset after the loop), nothing in 63..65.
