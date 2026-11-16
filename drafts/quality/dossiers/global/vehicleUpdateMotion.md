@@ -2,24 +2,28 @@
 
 K&R definition at line 311 (was func_8068F72C; u8 params applyBuoyancy/tilt). Frame 0x60; s0 = cached
 gCurrentActor, s1 = &gCurrentActor, s2 = vehicle. Locals (frame-top offsets): turnScale (s32, was tmpA) -4 (0x5c),
-kongState -8 (0x58), drag -12, turnRate -16, tmpB -20, tiltRoll -22 (0x4a, sh at 0x1120), tiltPitch -24 (0x48,
-sh at 0x1138), fl[3] -25 (0x47), fl[2] -26 (0x46), velX -32, velZ -36, thrust -40, slopeAngle -42 (never stored),
-slopeRange -44, pl -48 (never stored); cfe temp -56 (0x28: (f32)slopeRange spilled across mathSinF, swc1 $f2 at
+kongState -8 (0x58), drag -12, turnRate -16, speedGain -20 (was tmpB; never stored), tiltRoll -22 (0x4a, sh at
+0x1120), tiltPitch -24 (0x48, sh at 0x1138), u8 inWater -25 (0x47), u8 onGround -26 (0x46), velX -32, velZ -36,
+thrust -40, slopeAngle -42 (never stored), slopeRange -44, pl -48 (never stored); cfe temps -52 (5000/10000
+select, $f12) and -56 (0x28: (f32)slopeRange spilled across mathSinF, swc1 $f2 at
 0x1110). 2026-11-16 (HackvehicleUpdateMotion3): the reused temps are respelled
 (5000/10000 divisor inline ternary, buoyancy y/waterY/|speedY| and terminalSpeedY as field reads, speedXZ clamp
 without velX, slope factor straight from slopeRange); the 0x5c slot freed from tmpA holds the s32 turn factor.
 
 ## Sites
-global:8068F72C:other:54eada other: `u8 fl[4]` keeps fl[2]/fl[3] as non-vreg isvars (uopt table `isvar M 58 -25/-26`
-  without `vreg`): sb at 0xe08/0xe10 (0x47) and 0xe1c (0x46), lbu reloads at 0xef0, 0xf90, 0x10ac, 0x11a4, 0x11ac,
-  0x1424, 0x1428, 0x151c/0x1528. Two u8 scalars become vreg candidates, get coloured (t0 etc.) and add spill
-  temps: frame 0x60 -> 0x70, full=186.
+global:8068F72C:other:54eada FIXED 2026-11-16 (HackvehicleUpdateMotion5): two plain `u8 inWater; u8 onGround;`
+  scalars (homes -25 = 0x47, -26 = 0x46, sb at 0xe08/0xe10 and 0xe1c, lbu reloads at 0xef0, 0xf90, 0x10ac,
+  0x11a4, 0x11ac, 0x1424, 0x1428, 0x1528) match once every test of them is a bare truth test (`if (inWater)`,
+  `if (onGround)`, `inWater || onGround`). The earlier 186 runs kept `!= 0`: both `!= 0` 186, inWater `!= 0`
+  only 183, onGround `!= 0` only 146 (the `!= 0` compare is what grows the frame 0x60 -> 0x70). Template:
+  raceUpdateRacerMotion (race/6650.c) `u8 onGround` at sb 83(sp) with three lbu reloads.
 global:8068F72C:dead-if:cc13db FIXED 2026-11-16: the turn factor (li v0,-40/-30 at 0x12f0/0x12f8, mtc1 v0 at
   0x130c) is its own `s32 turnScale` in the 0x5c slot; with it the dead tiltRoll guard is unneeded (fdiff 0).
-global:8068F72C:other:17cf50 other (copy-only, pre-existing now tagged): tmpB holds the 2.0f air constant
-  (lui 0x4000/mtc1 $f0 at 0xf94-0xfa4) and the clamped speed gain ($f0 at 0x12d0). A separate f32 local shifts
-  every home (59); speed gain inline 96 or in drag 174; literal 2.0f 131; drag = 2.0f base (0) is a pun.
-global:8068F72C:dead-if:ebb5e5 dead-if: `if (fl[3] != 0) {}` inside the buoyancy `y < waterY` arm. BLOCK SPLIT
+global:8068F72C:other:17cf50 FIXED 2026-11-16 (HackvehicleUpdateMotion5): the air arm spells the 2.0 factor as
+  an int literal like raceUpdateRacerMotion (`thrust = throttle * 2; drag = ... + 2`, Q0041/Q0270/Q0421): one
+  lui 0x4000/mtc1 $f0 per arm (0xf94-0xfa4, 0xfe0) shared by mul.s and add.s, so the 0x4c home is a dedicated
+  `f32 speedGain` (sub.s $f0 at 0x12d0). 2.0f literal 131 (strength-reduced add.s x,x), 2.0 150.
+global:8068F72C:dead-if:6c8d63 (was ebb5e5) dead-if: `if (inWater) {}` inside the buoyancy `y < waterY` arm. BLOCK SPLIT
   (guard on 1/vehicle/fl[2]/tilt/motion all 0). On the new body only cand 24 (waterY uilod 172) moves: its live
   blocks are the buoyancy compare/use (bb 48,51) and the late !applyBuoyancy floor-snap compare/use (bb 72,73,
   0x14e8/0x1500); n 4->6 = divisor 2->3, adjsave 3.0->2.0. Without it waterY takes $f0 at 0x1370 and the
@@ -97,21 +101,32 @@ rounds 2-30 opus:low, Hackfunc_8068F72C opus:high 2026-11-14, PermBatch1114c)
     `if (!gCurrentActor->terminalSpeedY) {}` in the buoyancy arm): the known block split, nohit.
   9b1ca1: kongState tail uses re-read through pl->actorType (Q0589 lever): jump only 62, turn + jump 61.
     Merged single guard re-measured 3 (kongState == 0 and == 2).
+2026-11-16 HackvehicleUpdateMotion5 opus:high (copy fdiff 0, FAKE 4 -> 2):
+  17cf50 FIXED: air arm with int literal 2 (`throttle * 2`, `... + 2`), as raceUpdateRacerMotion spells it;
+    the 0x4c local is a dedicated speedGain. 2.0f 131, 2.0 150.
+  54eada FIXED: `u8 inWater; u8 onGround;` scalars with bare truth tests only (`!= 0` on either: 146-186).
+  6c8d63 (was ebb5e5): on the new body removal 20; grids all >= 20 with it removed: compound assignments,
+    `&&` forms of the buoyancy/floor-snap ifs, applyBuoyancy/tilt `!= 0`/`== 0` (both applyBuoyancy forms
+    grow the frame), inWater init ternary/if-else 29, if-set 168, negated 115, each 0.0f as 0/0.0 (20-175),
+    each float literal as an int literal (20), turnScale ternary/default and jump switch (20).
+  9b1ca1: removal 45; one `if (kongState) {}` at the top of the buoyancy `y < waterY` arm replacing both
+    guards = 7 (only the v1/a0 colours of kongState and the constant 2 swap at 0x12cc/0x12ec/0x1434);
+    guard expression grid all 7, one line lower 14, other lines up to actorStepPhysics 20-47; variants scan
+    on that body: no zero.
+  permuter 900 s from the new body with both dead ifs removed (base 487, 6280 iterations): best 450 only
+    inserts `if (!gCurrentActor) {}` in the tilt else-arm, nohit.
 
 ## Untried ideas
-- ebb5e5: needs two zero-code uopt blocks inside either waterY compare/use pair (buoyancy or late floor-snap
+- 6c8d63: needs two zero-code uopt blocks inside either waterY compare/use pair (buoyancy or late floor-snap
   arm); no natural statement found that does that (the permuter finds only empty ifs there).
-- 17cf50: only a frame-neutral trade is left: drop another declared local (pl 144, turnScale 79) for the
-  speed gain; none found.
-- 54eada: a non-vreg unsigned byte home without an array: needs `&flag` (Q0957 lever) or an aggregate that is
-  not word-aligned; no natural address use exists in the function.
-- 9b1ca1/ebb5e5: merging both guards needs the kongState piece kept off a0's argument setup at 0x14a4/0x14b0
-  while the use sits in the late floor-snap arm (single-guard body: 3 off, a3 vs a0); no spelling found.
-- lever (b) (aggregate initialiser from a .data template) does not apply: fl bytes are computed stores.
+- 9b1ca1: needs a codeless kongState use after the jump block (0x1434) and before the actorStepPhysics argument
+  setup; or, for the single buoyancy-arm guard (7), anything that colours the constant 2 before kongState's
+  late piece (v1 to 2, a0 to kongState).
 
 ## Evidence
 0xdf8-0xe1c: `move t1,zero; c.le.s; bc1fl; sb t1,71(sp); li t1,1; sb t1,71(sp)` then `andi t3,t2,1; sb t3,70(sp)`.
-uopt table: fl[3]/fl[2] are `isvar M 58 -25/-26` without `vreg` (memory-only candidates).
+uopt table at base 6fe2a3af: fl[3]/fl[2] were `isvar M 58 -25/-26` without `vreg`; the u8 scalars inWater/onGround
+(same homes) are vreg candidates left uncoloured (-ve save) and, tested bare, add no widening temp.
 0x12e0/0x12e8: `li v1,2` (constant web kept in v1 to 0x1434 `bne a0,v1`).
 0x12cc: kongState reload `lw a0,0x58(sp)` live to 0x1434 (piece 339, adjsave +0.25 with the dead use).
 0x12f0/0x12f8: turn factor `li v0,-40` / `li v0,-30` (tiltRoll piece 332, adjsave 1.0, v0), never stored to 0x48.
