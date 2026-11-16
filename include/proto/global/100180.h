@@ -10,7 +10,7 @@ void func_806FB480(void);
 void textBlitNoop100180(void);
 #endif
 #ifndef PROTO_SKIP_textBlitGlyph
-u8 *textBlitGlyph(u8, u8 *, s32, s16, u8, u8 *, u8);
+u8 *textBlitGlyph(u8, u8 *, void *, s16, u8, u8 *, u8);
 #endif
 #ifndef PROTO_SKIP_textBlitString
 void textBlitString(u8 *, u8, u8 *);

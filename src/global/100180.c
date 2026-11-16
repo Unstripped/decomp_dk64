@@ -14,7 +14,7 @@ void func_806FB480(void) {
 void textBlitNoop100180(void) {
 }
 
-u8 *textBlitGlyph(u8 width, u8 *dst, s32 sheet, s16 texX, u8 row, u8 *phase, u8 pitch) {
+u8 *textBlitGlyph(u8 width, u8 *dst, void *sheet, s16 texX, u8 row, u8 *phase, u8 pitch) {
     u8 *srcRow;
     u8 *out;
     s16 j;
@@ -25,7 +25,7 @@ u8 *textBlitGlyph(u8 width, u8 *dst, s32 sheet, s16 texX, u8 row, u8 *phase, u8 
     u8 oddBit;
     u8 *dstRow;
     s32 pad;
-    src = (u8 *)sheet;
+    src = sheet;
     srcRow = (u8 *)sheet + (texX >> 1);
     oddBit = width & 1;
     phaseBit = *phase & 1;
@@ -33,8 +33,8 @@ u8 *textBlitGlyph(u8 width, u8 *dst, s32 sheet, s16 texX, u8 row, u8 *phase, u8 
     out = dstRow;
     *phase += width;
     width >>= 1;
+    srcOdd = texX & 1;
     for (y = 0; y < 0x10; y++) {
-        srcOdd = texX & 1;
         for (j = 0; j < width; j++) {
             if (srcOdd && !phaseBit) {
                 *out |= (*src++ & 0xF) << 4;
@@ -52,7 +52,6 @@ u8 *textBlitGlyph(u8 width, u8 *dst, s32 sheet, s16 texX, u8 row, u8 *phase, u8 
         }
         srcRow += 0x100;
         if (oddBit) {
-            srcOdd = texX & 1;
             if (srcOdd && !phaseBit) {
                 *out |= (*src & 0xF) << 4;
             } else if (srcOdd && phaseBit) {
@@ -67,7 +66,7 @@ u8 *textBlitGlyph(u8 width, u8 *dst, s32 sheet, s16 texX, u8 row, u8 *phase, u8 
         src = srcRow;
         out = dstRow;
     }
-    return (phaseBit && oddBit) + dst + width;
+    return dst + width + (phaseBit && oddBit);
 }
 
 typedef struct TextGlyph {
@@ -95,7 +94,7 @@ void textBlitString(u8 *dst, u8 pitch, u8 *str) {
             for (i = 1; i < gTextFonts[0].lineCount + 1; i++) {
                 if (ch >= gTextFontLineStarts[0][i - 1] && ch < gTextFontLineStarts[0][i]) {
                     textFontLoadSheet(i - 1);
-                    dst = textBlitGlyph(gTextGlyphTables[0][ch].width, dst, (s32)gTextFontSheets[i - 1], gTextGlyphTables[0][ch].texX, row, &phase, pitch);
+                    dst = textBlitGlyph(gTextGlyphTables[0][ch].width, dst, gTextFontSheets[i - 1], gTextGlyphTables[0][ch].texX, row, &phase, pitch);
                 }
             }
         } else {
@@ -111,7 +110,8 @@ void textBlitDash(u8 *dst) {
 
     phase = 0;
     textFontLoadSheet(2);
-    textBlitGlyph(gTextGlyphTables[0][0x5F].width, dst, (s32)gTextFontSheets[2], gTextGlyphTables[0][0x5F].texX, 2,
+    // Font 0 glyph 0x5F is char 0x80 (textMapCharToGlyph subtracts 0x21); 2 is that char's yoff.
+    textBlitGlyph(gTextGlyphTables[0][0x5F].width, dst, gTextFontSheets[2], gTextGlyphTables[0][0x5F].texX, 2,
                   &phase, 0x30);
 }
 
