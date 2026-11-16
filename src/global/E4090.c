@@ -4098,48 +4098,43 @@ extern s16 D_8075388C[];
 extern s16 D_807538C8[];
 
 s32 playerInputPostUpdate(void) {
-    f32 diff;
-    f32 lim;
-    f32 t;
+    f32 depth;
+    f32 depthLimit;
+    f32 pad;
     u8 ret;
-    s32 n;
+    s32 snapDepth;
 
     ret = 0;
     gActivePlayerState->unk24 = 0;
-    n = 0x1E;
+    snapDepth = 0x1E;
     if (gCurrentActor->contactFlags & 4) {
-        t = gCurrentActor->speedY;
-        if (t <= 0.0f) {
-            if (-150.0f < t) {
-                gCurrentActor->speedY = t;
-            } else {
-                gCurrentActor->speedY = -150.0f;
-            }
-            diff = gCurrentActor->waterY - gCurrentActor->y;
+        if (gCurrentActor->speedY <= 0.0f) {
+            gCurrentActor->speedY = MAX(gCurrentActor->speedY, -150.0f);
+            depth = gCurrentActor->waterY - gCurrentActor->y;
             if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 2) {
-                n = 0x3C;
+                snapDepth = 0x3C;
             }
-            if ((n < diff) && playerInputCanPerformFairySnap()) {
+            if ((snapDepth < depth) && playerInputCanPerformFairySnap()) {
                 playerStateQueueCallback(0x3E, 0, gCurrentPlayerIndex);
                 playerClearCarriedItemState();
             } else if (gCurrentActor->contactFlags & 1) {
                 if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
-                    lim = D_8075386C[gCurrentCharacterIndex];
+                    depthLimit = D_8075386C[gCurrentCharacterIndex];
                 } else {
-                    lim = D_8075389C[gCurrentCharacterIndex];
+                    depthLimit = D_8075389C[gCurrentCharacterIndex];
                 }
-                if (lim < diff) {
+                if (depthLimit < depth) {
                     playerStateQueueCallback(0x3D, 0, gCurrentPlayerIndex);
                     ret = 1;
                     playerClearCarriedItemState();
                 }
             } else {
                 if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
-                    lim = D_8075388C[gCurrentCharacterIndex];
+                    depthLimit = D_8075388C[gCurrentCharacterIndex];
                 } else {
-                    lim = D_807538C8[gCurrentCharacterIndex];
+                    depthLimit = D_807538C8[gCurrentCharacterIndex];
                 }
-                if (lim < gCurrentActor->distToFloor + diff) {
+                if (depthLimit < gCurrentActor->distToFloor + depth) {
                     playerStateQueueCallback(0x3D, 0, gCurrentPlayerIndex);
                     actorScriptStart(gCurrentActor, 0);
                     if (gActivePlayerState->sfxHandle) {
