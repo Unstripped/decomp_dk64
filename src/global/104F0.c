@@ -674,8 +674,8 @@ void eepromSaveRecords(s32 recordsOnly) {
             offset = D_807ECEA0[0];
             offset += 0x6B7;
             offset = (offset & ~0x3FU) + 0x27;
-            offset = ((s32)(offset & ~7U) * 4) + 0x3F;
-            offset = (s32)(offset & ~0x3FU);
+            offset = ((offset & ~7U) * 4) + 0x3F;
+            offset &= ~0x3FU;
             offset /= 8;
         } else {
             offset = (((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F);
