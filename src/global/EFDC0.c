@@ -289,16 +289,11 @@ void playerStateInitTumble(void) {
 }
 
 void playerStateTakeDamagePrep(void) {
-    Actor *camActor;
-    s16 speed;
-    s32 param;
-    s16 kind;
     CamState *camState;
+    s16 speed;
     u8 type;
 
-    camActor = gActivePlayerState->camActor;
-    camState = camActor->customState;
-    if (gPlayerSlots && gPlayerSlots) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    camState = gActivePlayerState->camActor->customState;
     type = camState->unkEF;
     speed = camState->unkB8;
     if (type != 0) {
@@ -307,10 +302,8 @@ void playerStateTakeDamagePrep(void) {
     }
     camSaveYaw(gActivePlayerState->camActor);
     camSetZoomLevel(gActivePlayerState->camActor, 0);
-    param = gPlayerSlots[gCurrentPlayerIndex].queuedParam0;
-    kind = param;
-    camState->mode = kind;
-    if ((u8)kind == 3) {
+    camState->mode = gPlayerSlots[gCurrentPlayerIndex].queuedParam0;
+    if (camState->mode == 3) {
         sfxStopSlotSound(gActivePlayerActor, 0);
         sfxPlayOnFreeSlot(0x26, 0x7FFF, 63.0f, 1.0f, 0, 0);
         if (gPlayerSlots[gCurrentPlayerIndex].queuedParam1 != 0) {
