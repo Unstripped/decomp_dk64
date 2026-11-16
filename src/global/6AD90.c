@@ -199,7 +199,6 @@ extern u8 D_807F94AD;
 extern u8 D_807F94B2;
 extern u8 D_807F94B6;
 extern PlayerState *D_807F94B8;
-extern u8 sCamFloorHitCount;
 
 s32 collisionFindFloorAtPoint(Actor *actor, f32 x, f32 y, f32 z, u8 *outHasFloor, f32 *outFloorY, u8 *outHasWater, f32 *outWaterY, u8 mode) {
     u8 meshHit;
@@ -621,7 +620,6 @@ s32 collisionPickCloserFloor(f32 firstY, f32 secondY, f32 threshold, u8 wide) {
 extern u8 D_807F9484;
 extern f32 D_807F9488;
 extern u8 D_807F94B5;
-extern u8 sCamFloorHitCount;
 
 u8 collisionCheckGroundAtPoint(f32 x, f32 z, f32 *yInOut) {
     u8 ret;
@@ -1048,15 +1046,6 @@ u8 collisionTestHardcodedFloorPlane(f32 *bestY, f32 threshold, f32 refY, f32 *yI
     }
     return 0;
 }
-
-typedef struct CamFloorHit {
-    /* 0x0 */ f32 height;
-    /* 0x4 */ s16 angle;
-    /* 0x6 */ u8 flags;
-    /* 0x7 */ u8 unk7;
-} CamFloorHit; // size = 0x8
-
-extern CamFloorHit sCamFloorHits[];
 
 void collisionRecordTriangleS(CollisionStaticTri *tri, f32 height) {
     if (sCamFloorHitCount != 10) {

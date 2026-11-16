@@ -1163,6 +1163,18 @@ typedef struct CamState {
     /* 0xFF */ u8 unkFF;
 } CamState; // size = 0x100
 
+// One floor probe result: collisionRecordTriangleS (6AD90) appends to sCamFloorHits, camSortFloorHits (201B0)
+// sorts them by height and camFloorSnap reads the first.
+typedef struct CamFloorHit {
+    /* 0x0 */ f32 height;
+    /* 0x4 */ s16 angle;
+    /* 0x6 */ u8 flags;
+    /* 0x7 */ u8 unk7;
+} CamFloorHit; // size = 0x8
+
+extern CamFloorHit sCamFloorHits[];
+extern u8 sCamFloorHitCount;
+
 // customState of the mirror actor 0x7B: triggerZoneSpawnTrigger (684C0) fills the plane fields from its
 // TriggerZoneData; actorMirrorParentModelY/actorMirrorParentModelAxis (A2F10) reflect the parent's model.
 typedef struct MirrorActorState {

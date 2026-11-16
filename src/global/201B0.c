@@ -351,16 +351,6 @@ void camSetSettleMode(CamState *st, u8 mode) {
     st->unkF7 = mode;
 }
 
-typedef struct CamFloorHit {
-    /* 0x0 */ f32 height;
-    /* 0x4 */ s16 angle;
-    /* 0x6 */ u8 flags;
-    /* 0x7 */ u8 unk7;
-} CamFloorHit; // size = 0x8
-
-extern u8 sCamFloorHitCount;
-extern CamFloorHit sCamFloorHits[];
-
 void camSortFloorHits(void) {
     s16 i;
     s16 j;
