@@ -2556,15 +2556,12 @@ void mapLoadNodeAsset(s32 id) {
 }
 
 
-#define MAP_ZONE_SLOT (*(MapZone **)slot)
 void mapNodeAssetParse(u8 *data) {
     s32 pad[2];
     s16 n;
     s32 i;
     s16 idx;
-    u8 *p;
-    s32 slot; // FAKE: integer-typed slot address (a MapZone ** local recolours the parse loop)
-    void *zone;
+    s16 *p;
 
     for (i = 0; i < 32; i++) {
         gMapZones[i] = NULL;
@@ -2572,37 +2569,31 @@ void mapNodeAssetParse(u8 *data) {
     if (data == NULL) {
         return;
     }
-    n = *(s16 *)data;
-    p = data + 2;
+    p = (s16 *)data;
+    n = *p++;
     for (i = 0; i < n; i++) {
-        idx = *(s16 *)p;
-        p += 2;
-        zone = heapAlloc(0x6C);
-        slot = (s32)&gMapZones[idx];
-        MAP_ZONE_SLOT = zone;
-        MAP_ZONE_SLOT->minY = 0x7FFF;
-        MAP_ZONE_SLOT->maxY = -0x8000;
-        MAP_ZONE_SLOT->tris = NULL;
-        MAP_ZONE_SLOT->vertCount = *(s16 *)p;
-        p += 2;
-        MAP_ZONE_SLOT->verts = heapAlloc((u32)MAP_ZONE_SLOT->vertCount * 6);
-        memcpy(MAP_ZONE_SLOT->verts, p, (u32)MAP_ZONE_SLOT->vertCount * 6);
-        p += ((u32)MAP_ZONE_SLOT->vertCount * 6 / 2) * 2;
-        MAP_ZONE_SLOT->height = *(s16 *)p;
-        MAP_ZONE_SLOT->exitCount = *(s16 *)(p + 2);
-        p += 4;
-        memcpy(MAP_ZONE_SLOT->exitCells, p, 0x20);
-        MAP_ZONE_SLOT->enterCount = *(s16 *)(p + 0x20);
-        p += 0x22;
-        memcpy(MAP_ZONE_SLOT->enterCells, p, 0x20);
-        MAP_ZONE_SLOT->linkCount = *(s16 *)(p + 0x20);
-        p += 0x22;
-        memcpy(MAP_ZONE_SLOT->links, p, 0x10);
-        p += 0x10;
+        idx = *p++;
+        gMapZones[idx] = heapAlloc(sizeof(MapZone));
+        gMapZones[idx]->minY = 0x7FFF;
+        gMapZones[idx]->maxY = -0x8000;
+        gMapZones[idx]->tris = NULL;
+        gMapZones[idx]->vertCount = *p++;
+        gMapZones[idx]->verts = heapAlloc((u32)gMapZones[idx]->vertCount * 6);
+        memcpy(gMapZones[idx]->verts, p, (u32)gMapZones[idx]->vertCount * 6);
+        p += (u32)gMapZones[idx]->vertCount * 6 / sizeof(s16);
+        gMapZones[idx]->height = *p++;
+        gMapZones[idx]->exitCount = *p++;
+        memcpy(gMapZones[idx]->exitCells, p, sizeof(gMapZones[idx]->exitCells));
+        p += 16;
+        gMapZones[idx]->enterCount = *p++;
+        memcpy(gMapZones[idx]->enterCells, p, sizeof(gMapZones[idx]->enterCells));
+        p += 16;
+        gMapZones[idx]->linkCount = *p++;
+        memcpy(gMapZones[idx]->links, p, sizeof(gMapZones[idx]->links));
+        p += 8;
         mapFaceBuildTriangleFan(idx);
     }
 }
-#undef MAP_ZONE_SLOT
 
 extern s16 D_807F7358;
 extern s16 D_807F735A;
