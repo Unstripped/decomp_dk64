@@ -1945,16 +1945,16 @@ void sfxPlayWithRandomPan(s16 sfxId, u8 volume, u8 pitchByte, u8 spread, u8 behi
 }
 
 s16 sfxPlayOnFreeSlot(s16 sfxId, s32 volume, f32 pan, f32 pitch, u8 spread, u8 fx) {
-    s16 res;
+    s16 slot;
     s16 i;
 
     if (spread != 0) {
-        volume = (1.0 - (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 155.0))) * volume;
-        pitch = (((u32)randomLcgNext() / 4294967295.0) * ((u32)spread / 100.0)) + (pitch - ((u32)spread / 255.0));
+        volume = (1.0 - ((randomLcgNext() / 4294967295.0) * ((u32)spread / 155.0))) * volume;
+        pitch = ((randomLcgNext() / 4294967295.0) * ((u32)spread / 100.0)) + (pitch - ((u32)spread / 255.0));
     }
 
     for (i = 20; i > 0; i--) {
-        if (D_807457E4[D_80745834] == 0) {
+        if (D_807457E4[D_80745834] == NULL) {
             break;
         }
         if (++D_80745834 == 20) {
@@ -1978,13 +1978,13 @@ s16 sfxPlayOnFreeSlot(s16 sfxId, s32 volume, f32 pan, f32 pitch, u8 spread, u8 f
             n_alSndpSetPriority(D_807457E4[D_80745834], 100);
         }
 
-        if (D_807457E4[D_80745834] != 0) {
-            res = (s16)D_80745834;
+        if (D_807457E4[D_80745834] != NULL) {
+            slot = D_80745834;
         } else {
-            res = -1;
+            slot = -1;
         }
         osSetThreadPri(NULL, 10);
-        return res;
+        return slot;
     }
 
     return -1;
