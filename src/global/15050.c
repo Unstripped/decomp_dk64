@@ -151,6 +151,8 @@ void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
             case 4:
                 sz = 0x61620;
                 break;
+            default: // FAKE: empty default only adds a block (Q0908 block split; replaces the dead gHeapPools[0].start guard)
+                break;
         }
         top -= sz;
         addr[i] = (u8 *)top;
@@ -195,7 +197,6 @@ void loadOverlay(u8 keepSurvivors, u8 overlayId, s32 bufferSize) {
         q = NULL;
         for (i = 0; i < gHeapSurvivorCount; i++) {
             blk = (HeapBlock *)*gHeapSurvivorList[i] - 1;
-            if (gHeapPools[0].start == 0) {}  // FAKE: extra block in the rebuild loop keeps the vram home store (t3, sp+0xE8) ahead of the sz spill
             blk->physPrev = (HeapBlock *)q;
             q = (u8 *)blk;
         }
