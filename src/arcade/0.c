@@ -1271,8 +1271,8 @@ void arcadeSpawnStage2Entities(void) {
     for (i = 0; i < 8; i++) {
         idx = arcadeFindFreeEntity();
         D_8004BCD0[idx] = D_8004A658;
-        D_8004BCD0[idx].x = (u32)tbl.b[i * 2];
-        D_8004BCD0[idx].y = (u32)tbl.b[i * 2 + 1];
+        D_8004BCD0[idx].x = tbl.b[i * 2];
+        D_8004BCD0[idx].y = tbl.b[i * 2 + 1];
         D_8004BCD0[idx].param = bit;
         bit = bit * 2;
     }
@@ -1410,7 +1410,7 @@ void arcadeSpawnStage3Entities(void) {
     D_8004BC88[4].y = 143.0f;
     D_8004BC88[2].y = 191.0f;
     D_8004BC88[5].y = 191.0f;
-    t = (arcadeMinFloat((f32)(u32)gArcadeLevel, 4.0f) - 2.0) / 16 + 0.5;
+    t = (arcadeMinFloat(gArcadeLevel, 4.0f) - 2.0) / 16 + 0.5;
     D_8004BC88[3].vy = t;
     D_8004BC88[0].vy = -t;
     D_8004BC88[1].vy = -t;
@@ -2029,7 +2029,7 @@ void arcadeRenderEntity(Gfx **glistp, s32 entIndex) {
     dlAppendTextureLoad(&glist, &D_8004AC00[gGfxBufferIndex][entIndex]);
     dlSetTextureScaleAndFlip(0x400, (s32)scale, (u8)(D_8004BCD0[entIndex].facing & 1), D_8004BCD0[entIndex].flipY);
     if (D_8004A338[D_8004BCD0[entIndex].type] & 2) {
-        dlAppendTextureRectangle(&glist, (s32)(D_8004BCD0[entIndex].x - (f32)(u32)D_8004A358[D_8004BCD0[entIndex].type]) * 4, (s32)((f64)(D_8004BCD0[entIndex].y - (f32)(u32)D_8004A378[D_8004BCD0[entIndex].type]) * 0.875 + 8.0) * 4);
+        dlAppendTextureRectangle(&glist, (s32)(D_8004BCD0[entIndex].x - D_8004A358[D_8004BCD0[entIndex].type]) * 4, (s32)((D_8004BCD0[entIndex].y - D_8004A378[D_8004BCD0[entIndex].type]) * 0.875 + 8.0) * 4);
     } else {
         if (D_8004BCD0[entIndex].type == 2) {
             yOffset = (s32)D_8004BCD0[entIndex].animTimer;
@@ -2039,7 +2039,7 @@ void arcadeRenderEntity(Gfx **glistp, s32 entIndex) {
         } else {
             yOffset = 0;
         }
-        dlAppendTextureRectangle(&glist, (s32)(D_8004BCD0[entIndex].x - (f32)(u32)D_8004A358[D_8004BCD0[entIndex].type]) * 4, (s32)(((f64)(D_8004BCD0[entIndex].y - (f32)yOffset - (f32)(u32)D_8004A378[D_8004BCD0[entIndex].type]) * 0.875 + 8.0) * 4.0));
+        dlAppendTextureRectangle(&glist, (s32)(D_8004BCD0[entIndex].x - D_8004A358[D_8004BCD0[entIndex].type]) * 4, (s32)(((D_8004BCD0[entIndex].y - yOffset - D_8004A378[D_8004BCD0[entIndex].type]) * 0.875 + 8.0) * 4.0));
     }
     *glistp = glist;
 }
@@ -2238,14 +2238,14 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             } else if (E.vx > 0.0f) {
                 E.facing = E.facing | 2;
             }
-            if (((D_807ECDE8->button & 0x200) || D_807ECDE8->stick_x < -0x14) && (f32)D_8004C6F0 < E.x) {
+            if (((D_807ECDE8->button & 0x200) || D_807ECDE8->stick_x < -0x14) && D_8004C6F0 < E.x) {
                 sStepTimer += 3;
                 E.vx = -0.7f;
-                E.animTimer = (f32)((f64)E.animTimer + 0.3);
-            } else if (((D_807ECDE8->button & 0x100) || D_807ECDE8->stick_x >= 0x15) && E.x < (f32)D_8004C6F4) {
+                E.animTimer += 0.3;
+            } else if (((D_807ECDE8->button & 0x100) || D_807ECDE8->stick_x >= 0x15) && E.x < D_8004C6F4) {
                 sStepTimer += 3;
                 E.vx = 0.7f;
-                E.animTimer = (f32)((f64)E.animTimer + 0.3);
+                E.animTimer += 0.3;
             } else {
                 E.vx = 0.0f;
             }
@@ -2253,12 +2253,12 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                 n_alSndpPlay(D_8076D1F8, 0x41, 0x7FFF, 0x3F, 1.0f, 0, 0);
                 E.animTimer = 0.0f;
                 E.vy = -1.2f;
-                E.vx = (f32)((f64)E.vx * 0.65);
-                E.param2 = (u32)E.y;
+                E.vx *= 0.65;
+                E.param2 = E.y;
                 E.state = 3;
             }
         }
-        if (E.y < (f32)(arcadeCheckPlayerCollision((s32)(E.x + E.vx), (s32)E.y) + 3)) {
+        if (E.y < arcadeCheckPlayerCollision((s32)(E.x + E.vx), (s32)E.y) + 3) {
             E.x = E.vx + E.x;
         } else {
             E.vx = 0.0f;
@@ -2276,25 +2276,25 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
         case 2:
             for (i = 0; i < 4; i++) {
                 if (D_8004C6F8 == i) {
-                    P.x += (f32)D_8004A308[i];
+                    P.x += D_8004A308[i];
                 }
             }
-            if (E.x <= (f32)(D_8004C6F0 - 1)) {
-                E.x = (f32)D_8004C6F0;
+            if (E.x <= D_8004C6F0 - 1) {
+                E.x = D_8004C6F0;
             }
-            if ((f32)(D_8004C6F4 + 1) <= E.x) {
-                E.x = (f32)D_8004C6F4;
+            if (D_8004C6F4 + 1 <= E.x) {
+                E.x = D_8004C6F4;
             }
-            if ((f32)D_8004C6EC < E.y &&
+            if (D_8004C6EC < E.y &&
                 ((D_807ECDE8->button & 0x800) | (D_807ECDE8->stick_y >= 0x15)) &&
                 D_807ECDE8->stick_x < 0x29 && D_807ECDE8->stick_x >= -0x28 &&
                 !(D_807ECDE8->button & 0x300) && D_8004C710 == 0) {
                 E.state = 5;
                 E.vx = 0.0f;
                 E.y = E.y - 1.0f;
-                E.x = (f32)D_8004C6E0;
+                E.x = D_8004C6E0;
                 break;
-            } else if (E.y < (f32)D_8004C6E8 && (f32)D_8004C6EC <= E.y &&
+            } else if (E.y < D_8004C6E8 && D_8004C6EC <= E.y &&
                        !(D_807ECDE8->button & 0x300) &&
                        D_807ECDE8->stick_x < 0x29 && D_807ECDE8->stick_x >= -0x28 &&
                        ((D_807ECDE8->button & 0x400) | (D_807ECDE8->stick_y < -0x14)) &&
@@ -2302,48 +2302,48 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                 E.state = 5;
                 E.vx = 0.0f;
                 E.y = E.y + 1.0f;
-                E.x = (f32)D_8004C6E0;
+                E.x = D_8004C6E0;
                 break;
             } else {
-                if ((f32)coll - E.y < 2.0f) {
-                    E.y = (f32)coll;
+                if (coll - E.y < 2.0f) {
+                    E.y = coll;
                 } else {
                     E.state = 3;
                     E.vx = 0.0f;
                     E.vy = 0.0f;
-                    E.param2 = (u32)E.y;
+                    E.param2 = E.y;
                 }
             }
             break;
         case 5:
-            if ((f32)coll == E.y &&
+            if (coll == E.y &&
                 ((D_807ECDE8->button & 0x300) | (D_807ECDE8->stick_x >= 0x15) | (D_807ECDE8->stick_x < -0x14) ||
                  (D_8004C6F8 == 2 && D_8004A308[2] != 0) ||
                  (D_8004C6F8 == 1 && D_8004A308[1] != 0) ||
                  (D_8004C6F8 == 3 && D_8004A308[3] != 0))) {
                 E.state = 2;
-            } else if ((f32)coll == E.y && (D_807ECD48 & 0xE000)) {
+            } else if (coll == E.y && (D_807ECD48 & 0xE000)) {
                 n_alSndpPlay(D_8076D1F8, 0x41, 0x7FFF, 0x3F, 1.0f, 0, 0);
                 E.animTimer = 0.0f;
                 E.vy = -1.2f;
-                E.vx = (f32)((f64)E.vx * 0.65);
+                E.vx *= 0.65;
                 E.state = 3;
-                E.param2 = (u32)E.y;
+                E.param2 = E.y;
             } else {
-                if (E.y < (f32)D_8004C6EC) {
-                    E.y = (f32)((f64)E.y + 0.2);
-                    if ((f32)D_8004C6EC - E.y > 10.0f) {
-                        E.y = (f32)(D_8004C6EC - 10);
+                if (E.y < D_8004C6EC) {
+                    E.y += 0.2;
+                    if (D_8004C6EC - E.y > 10.0f) {
+                        E.y = D_8004C6EC - 10;
                     }
-                    if ((f32)D_8004C6EC < E.y) {
-                        E.y = (f32)D_8004C6EC;
+                    if (D_8004C6EC < E.y) {
+                        E.y = D_8004C6EC;
                     }
                 } else {
-                    if ((f32)D_8004C6EC < E.y &&
+                    if (D_8004C6EC < E.y &&
                         ((D_807ECDE8->button & 0x800) | (D_807ECDE8->stick_y >= 0x15))) {
                         E.vy = -0.5f;
                         sStepTimer += 2;
-                    } else if (E.y < (f32)D_8004C6E8 &&
+                    } else if (E.y < D_8004C6E8 &&
                                ((D_807ECDE8->button & 0x400) | (D_807ECDE8->stick_y < -0x14))) {
                         E.vy = 0.5f;
                         sStepTimer += 2;
@@ -2356,24 +2356,24 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             }
             break;
         case 3:
-            if ((f32)D_8004C6F4 < E.x) {
-                E.x = (f32)D_8004C6F4;
-                if ((f64)E.vy < 1.8) {
+            if (D_8004C6F4 < E.x) {
+                E.x = D_8004C6F4;
+                if (E.vy < 1.8) {
                     E.facing = E.facing & 1;
                     E.vx = -E.vx;
                     E.vy = -E.vy;
                 }
-            } else if (E.x < (f32)D_8004C6F0) {
-                E.x = (f32)D_8004C6F0;
-                if ((f64)E.vy < 1.8) {
+            } else if (E.x < D_8004C6F0) {
+                E.x = D_8004C6F0;
+                if (E.vy < 1.8) {
                     E.facing = E.facing | 2;
                     E.vx = -E.vx;
                     E.vy = -E.vy;
                 }
             }
             E.y = E.vy + E.y;
-            E.vy = (f32)((f64)E.vy + 0.06);
-            if (0.0f <= E.vy && (f64)E.vy < 0.06) {
+            E.vy += 0.06;
+            if (0.0f <= E.vy && E.vy < 0.06) {
                 n = 0;
                 for (i = 0; i < 0x50; i++) {
                     if (D_8004BCD0[i].type == 1 || D_8004BCD0[i].type == 2) {
@@ -2400,15 +2400,15 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                     }
                 }
             }
-            if (E.y - (f32)(u32)E.param2 > 15.0f) {
+            if (E.y - E.param2 > 15.0f) {
                 n_alSndpPlay(D_8076D1F8, 0x44, 0x7FFF, 0x3F, 1.0f, 0, 0);
                 E.param2 = 0xFF;
             }
-            if ((f64)E.vy > 2.5) {
+            if (E.vy > 2.5) {
                 E.vy = 2.5f;
             }
-            if ((f32)coll < E.y && E.y - (f32)coll < 3.0f) {
-                E.y = (f32)coll;
+            if (coll < E.y && E.y - coll < 3.0f) {
+                E.y = coll;
                 if (E.param2 == 0xFF) {
                     arcadeKillPlayer();
                 } else {
@@ -2420,14 +2420,14 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             }
             break;
         case 4:
-            E.y = (f32)coll;
+            E.y = coll;
             E.animTimer = E.animTimer - 1.0f;
             if (E.animTimer == 0.0f) {
                 E.state = 2;
             }
             break;
         case 8:
-            E.animTimer = (f32)((f64)E.animTimer + 0.125);
+            E.animTimer += 0.125;
             if (E.animTimer == 8.0f) {
                 n_alSndpPlay(D_8076D1F8, 0x54, 0x7FFF, 0x3F, 1.0f, 0, 0);
             }
@@ -2450,11 +2450,11 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
         }
         coll = arcadeCheckPlayerCollision((s32)E.x, (s32)E.y);
         E.param = D_8004C6F8;
-        D_8004C704 = (s32)(E.y - (f32)D_8004C6E4);
+        D_8004C704 = (s32)(E.y - D_8004C6E4);
         if (gArcadeBonusTimer < 0 && E.state != 8) {
             arcadeKillPlayer();
         }
-        if (D_8004C6F8 == 0 && (f32)coll == E.y) {
+        if (D_8004C6F8 == 0 && coll == E.y) {
             n_alSndpPlay(D_8076D1F8, 0x4C, 0x7FFF, 0x3F, 1.0f, 0, 0);
             arcadeStopSound(0);
             if (D_8004C722 == 1) {
@@ -2576,7 +2576,7 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
                 }
                 D_8004BCD0[entIndex].param |= 0x80;
             } else if (!(D_8004BCD0[entIndex].param & 0x47)) {
-                D_8004BCD0[entIndex].param = (4096.0f + arcadeMinFloat((u32)gArcadeLevel, 5.0f) * 1512.0f > arcadeRand()) | 0x40;
+                D_8004BCD0[entIndex].param = (4096.0f + arcadeMinFloat(gArcadeLevel, 5.0f) * 1512.0f > arcadeRand()) | 0x40;
             }
             if (floorY - D_8004BCD0[entIndex].y < 3.0f) {
                 D_8004BCD0[entIndex].y = floorY;
@@ -2618,7 +2618,7 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
                 D_8004BCD0[entIndex].y = floorY;
                 D_8004BCD0[entIndex].vy = 0.0f;
                 if (D_8004BCD0[entIndex].param2 != 2) {
-                    D_8004BCD0[entIndex].vx = -D_8004BCD0[entIndex].vx * 0.2 + ((arcadeRand() - 16384.0) * arcadeMinFloat(3.0f, (u32)gArcadeLevel)) / 40000.0;
+                    D_8004BCD0[entIndex].vx = -D_8004BCD0[entIndex].vx * 0.2 + ((arcadeRand() - 16384.0) * arcadeMinFloat(3.0f, gArcadeLevel)) / 40000.0;
                 }
                 if (D_8004BCD0[entIndex].y > 230.0f) {
                     D_8004BCD0[entIndex].state = 3;
@@ -2699,7 +2699,7 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
     s32 bias;
 
     if (gArcadeFrozen == 0) {
-        D_8004BCD0[entIndex].animTimer = (f32)((f64)D_8004BCD0[entIndex].animTimer + 0.15);
+        D_8004BCD0[entIndex].animTimer += 0.15;
         if (D_8004BCD0[entIndex].animTimer >= 5.0f) {
             D_8004BCD0[entIndex].animTimer = D_8004BCD0[entIndex].animTimer - 5.0f;
         }
@@ -2730,33 +2730,33 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
         arcadeCheckStageLadders((s32)D_8004BCD0[entIndex].x, (s32)D_8004BCD0[entIndex].y);
         switch (D_8004BCD0[entIndex].state) {
         case 2:
-            if ((f32)arcadeRand() < arcadeMinFloat((f32)(u32)gArcadeLevel, 5.0f) * 60.0f + 256.0f) {
+            if (arcadeRand() < arcadeMinFloat(gArcadeLevel, 5.0f) * 60.0f + 256.0f) {
                 bias = D_8004BCD0[entIndex].x < D_8004BCD0[gArcadePlayerIndex].x;
                 bias += ((D_8004BCD0[gArcadePlayerIndex].facing & 2) * 3) / 2;
                 D_8004BCD0[entIndex].facing = (arcadeRand() + bias * 0xFB8) - 0x1F70 >= 0x4001;
             }
-            if ((f32)arcadeCheckPlayerCollision((s32)(D_8004BCD0[entIndex].x + D_8004BCD0[entIndex].vx * 8.0f), (s32)D_8004BCD0[entIndex].y) - D_8004BCD0[entIndex].y > 5.0f) {
+            if (arcadeCheckPlayerCollision((s32)(D_8004BCD0[entIndex].x + D_8004BCD0[entIndex].vx * 8.0f), (s32)D_8004BCD0[entIndex].y) - D_8004BCD0[entIndex].y > 5.0f) {
                 if (D_8004BCD0[entIndex].facing == 0) {}  // FAKE: dead test makes the unk1A load a candidate (a0)
                 D_8004BCD0[entIndex].facing = D_8004BCD0[entIndex].facing == 0;
             } else {
                 D_8004BCD0[entIndex].x += D_8004BCD0[entIndex].vx;
             }
-            D_8004BCD0[entIndex].vx = (f32)(((f64)(u32)D_8004BCD0[entIndex].facing - 0.5) * (((f64)arcadeMinFloat((f32)(u32)gArcadeLevel, 5.0f) / 15.0) + 1.0));
-            bias = (s32)((D_8004BCD0[entIndex].y - D_8004BCD0[gArcadePlayerIndex].y) * arcadeMinFloat((f32)(u32)gArcadeLevel, 5.0f) * 3.0f);
-            if (D_8004BCD0[entIndex].y < (f32)D_8004C6E8 && arcadeRand() < 0x400 - bias) {
+            D_8004BCD0[entIndex].vx = (D_8004BCD0[entIndex].facing - 0.5) * (arcadeMinFloat(gArcadeLevel, 5.0f) / 15.0 + 1.0);
+            bias = (s32)((D_8004BCD0[entIndex].y - D_8004BCD0[gArcadePlayerIndex].y) * arcadeMinFloat(gArcadeLevel, 5.0f) * 3.0f);
+            if (D_8004BCD0[entIndex].y < D_8004C6E8 && arcadeRand() < 0x400 - bias) {
                 D_8004BCD0[entIndex].state = 5;
                 D_8004BCD0[entIndex].vx = 0.0f;
                 D_8004BCD0[entIndex].y = D_8004BCD0[entIndex].y + 1.0f;
-                D_8004BCD0[entIndex].vy = (f32)(2.0 * (((f64)arcadeMinFloat((f32)(u32)gArcadeLevel, 5.0f) / 30.0) + 0.2));
-                D_8004BCD0[entIndex].x = (f32)D_8004C6E0;
-            } else if ((f32)D_8004C6E4 < D_8004BCD0[entIndex].y && arcadeRand() < bias + 0x400) {
+                D_8004BCD0[entIndex].vy = 2.0 * (arcadeMinFloat(gArcadeLevel, 5.0f) / 30.0 + 0.2);
+                D_8004BCD0[entIndex].x = D_8004C6E0;
+            } else if (D_8004C6E4 < D_8004BCD0[entIndex].y && arcadeRand() < bias + 0x400) {
                 D_8004BCD0[entIndex].state = 6;
                 D_8004BCD0[entIndex].vx = 0.0f;
                 D_8004BCD0[entIndex].y = D_8004BCD0[entIndex].y - 1.0f;
-                D_8004BCD0[entIndex].vy = (f32)-(((f64)arcadeMinFloat((f32)(u32)gArcadeLevel, 5.0f) / 30.0) + 0.2);
-                D_8004BCD0[entIndex].x = (f32)D_8004C6E0;
-            } else if ((f32)floorY - D_8004BCD0[entIndex].y < 3.0f) {
-                D_8004BCD0[entIndex].y = (f32)floorY;
+                D_8004BCD0[entIndex].vy = -(arcadeMinFloat(gArcadeLevel, 5.0f) / 30.0 + 0.2);
+                D_8004BCD0[entIndex].x = D_8004C6E0;
+            } else if (floorY - D_8004BCD0[entIndex].y < 3.0f) {
+                D_8004BCD0[entIndex].y = floorY;
             } else {
                 if (D_8004BCD0[entIndex].facing == 0) {}  // FAKE: dead test makes the unk1A load a candidate
                 D_8004BCD0[entIndex].facing = D_8004BCD0[entIndex].facing == 0;
@@ -2765,40 +2765,40 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
         case 3:
             D_8004BCD0[entIndex].x = D_8004BCD0[entIndex].vx + D_8004BCD0[entIndex].x;
             D_8004BCD0[entIndex].y = D_8004BCD0[entIndex].vy + D_8004BCD0[entIndex].y;
-            D_8004BCD0[entIndex].vy = (f32)((f64)D_8004BCD0[entIndex].vy + 0.06);
-            if ((f32)floorY < D_8004BCD0[entIndex].y && D_8004BCD0[entIndex].y - (f32)floorY < 3.0f) {
-                D_8004BCD0[entIndex].y = (f32)floorY;
+            D_8004BCD0[entIndex].vy += 0.06;
+            if (floorY < D_8004BCD0[entIndex].y && D_8004BCD0[entIndex].y - floorY < 3.0f) {
+                D_8004BCD0[entIndex].y = floorY;
                 D_8004BCD0[entIndex].vy = -D_8004BCD0[entIndex].vy / 3.0f;
-                if ((f64)D_8004BCD0[entIndex].vy > -0.2) {
+                if (D_8004BCD0[entIndex].vy > -0.2) {
                     D_8004BCD0[entIndex].state = 2;
                 }
             }
             break;
         case 5:
             D_8004BCD0[entIndex].y = D_8004BCD0[entIndex].vy + D_8004BCD0[entIndex].y;
-            if ((f32)(D_8004C6E8 - 1) < D_8004BCD0[entIndex].y) {
-                D_8004BCD0[entIndex].y = (f32)floorY;
+            if (D_8004C6E8 - 1 < D_8004BCD0[entIndex].y) {
+                D_8004BCD0[entIndex].y = floorY;
                 D_8004BCD0[entIndex].facing = 1 - D_8004BCD0[entIndex].facing;
-                D_8004BCD0[entIndex].vx = (f32)(1 - D_8004BCD0[entIndex].facing * 2);
+                D_8004BCD0[entIndex].vx = 1 - D_8004BCD0[entIndex].facing * 2;
                 D_8004BCD0[entIndex].state = 2;
             }
             break;
         case 6:
             D_8004BCD0[entIndex].y = D_8004BCD0[entIndex].vy + D_8004BCD0[entIndex].y;
-            if (D_8004BCD0[entIndex].y < (f32)(D_8004C6E4 + 1)) {
-                D_8004BCD0[entIndex].y = (f32)floorY;
+            if (D_8004BCD0[entIndex].y < D_8004C6E4 + 1) {
+                D_8004BCD0[entIndex].y = floorY;
                 D_8004BCD0[entIndex].facing = 1 - D_8004BCD0[entIndex].facing;
-                D_8004BCD0[entIndex].vx = (f32)(1 - D_8004BCD0[entIndex].facing * 2);
+                D_8004BCD0[entIndex].vx = 1 - D_8004BCD0[entIndex].facing * 2;
                 D_8004BCD0[entIndex].state = 2;
             }
             break;
         }
         if (270.0f < D_8004BCD0[entIndex].x) {
             D_8004BCD0[entIndex].facing = 0;
-            D_8004BCD0[entIndex].vx = (f32)((f64)(u32)D_8004BCD0[entIndex].facing - 0.5);
+            D_8004BCD0[entIndex].vx = D_8004BCD0[entIndex].facing - 0.5;
         } else if (D_8004BCD0[entIndex].x < 50.0f) {
             D_8004BCD0[entIndex].facing = 1;
-            D_8004BCD0[entIndex].vx = (f32)((f64)(u32)D_8004BCD0[entIndex].facing - 0.5);
+            D_8004BCD0[entIndex].vx = D_8004BCD0[entIndex].facing - 0.5;
         }
         if (D_8004BCD0[entIndex].x - D_8004BCD0[gArcadePlayerIndex].x < 8.0f && D_8004BCD0[gArcadePlayerIndex].x - D_8004BCD0[entIndex].x < 8.0f) {
             if (D_8004BCD0[entIndex].y - D_8004BCD0[gArcadePlayerIndex].y < 3.0f && D_8004BCD0[gArcadePlayerIndex].y - D_8004BCD0[entIndex].y < 8.0f) {
@@ -2876,9 +2876,9 @@ void arcadeUpdateOilDrumEntity(s32 entIndex) {
                 D_8004BCD0[entIndex].sprite = D_80032470;
                 break;
             }
-            n = arcadeMinFloat((u32)gArcadeLevel, 5.0f);
+            n = arcadeMinFloat(gArcadeLevel, 5.0f);
             if (D_8004C722 == 4) {
-                if ((f32)(0x64 - n * 0x14) == D_8004BCD0[entIndex].animTimer++) {
+                if (0x64 - n * 0x14 == D_8004BCD0[entIndex].animTimer++) {
                     if (arcadeCountEntitiesByType(2) < n) {
                         D_8004BCD0[entIndex].state = 3;
                         D_8004BCD0[entIndex].animTimer = 0.0f;
@@ -3132,7 +3132,7 @@ void arcadeUpdateDonkeyKongStage1(s32 entIndex) {
                     return;
                 }
                 if (n != 0) {
-                    if (!((f32)arcadeRand() < arcadeMinFloat((f32)(u32)gArcadeLevel, 3.0f) * 2000.0f + 2048.0f)) {
+                    if (!(arcadeRand() < arcadeMinFloat(gArcadeLevel, 3.0f) * 2000.0f + 2048.0f)) {
                         return;
                     }
                 }
@@ -3150,8 +3150,8 @@ void arcadeUpdateDonkeyKongStage1(s32 entIndex) {
                     D_8004BCD0[idx].vx = 0.77f;
                     return;
                 }
-                D_8004BCD0[idx].vx = (((f64)D_8004BCD0[gArcadePlayerIndex].x - 92.0) / 200.0 + ((f64)arcadeRand() - 16384.0) / 30000.0) * arcadeMinFloat(3.0f, (f32)gArcadeLevel);
-                if ((f32)arcadeRand() < arcadeMinFloat((f32)(u32)gArcadeLevel, 3.0f) * 2000.0f + 4096.0f) {
+                D_8004BCD0[idx].vx = ((D_8004BCD0[gArcadePlayerIndex].x - 92.0) / 200.0 + (arcadeRand() - 16384.0) / 30000.0) * arcadeMinFloat(3.0f, gArcadeLevel);
+                if (arcadeRand() < arcadeMinFloat(gArcadeLevel, 3.0f) * 2000.0f + 4096.0f) {
                     D_8004BCD0[idx].param = 6;
                 }
             } else if (D_8004BCD0[entIndex].param == 0x14) {
@@ -3183,7 +3183,7 @@ void arcadeUpdateDonkeyKongStage1(s32 entIndex) {
         case 11:
             D_8004BCD0[entIndex].param -= 1;
             if (D_8004BCD0[entIndex].param == 0) {
-                D_8004BCD0[entIndex].param = (u8)(u32)((51.0f - arcadeMinFloat((f32)(u32)gArcadeLevel, 3.0f) * 5.0f) + (f32)(arcadeRand() & 0xF));
+                D_8004BCD0[entIndex].param = 51.0f - arcadeMinFloat(gArcadeLevel, 3.0f) * 5.0f + (arcadeRand() & 0xF);
                 D_8004BCD0[entIndex].state = 0xC;
                 D_8004BCD0[entIndex].sprite = D_800424D0;
                 D_8004BCD0[entIndex].facing = 0;
@@ -3192,8 +3192,8 @@ void arcadeUpdateDonkeyKongStage1(s32 entIndex) {
         case 10:
             idx = D_8004BCD0[entIndex].param2;
             D_8004BCD0[entIndex].param -= 1;
-            if ((f32)(u32)D_8004BCD0[entIndex].param == arcadeMinFloat((f32)(u32)gArcadeLevel, 3.0f) * 3.0f) {
-                D_8004BCD0[entIndex].param = (u8)(u32)((51.0f - arcadeMinFloat((f32)(u32)gArcadeLevel, 3.0f) * 5.0f) + (f32)(arcadeRand() & 0xF));
+            if (D_8004BCD0[entIndex].param == arcadeMinFloat(gArcadeLevel, 3.0f) * 3.0f) {
+                D_8004BCD0[entIndex].param = 51.0f - arcadeMinFloat(gArcadeLevel, 3.0f) * 5.0f + (arcadeRand() & 0xF);
                 D_8004BCD0[entIndex].state = 0xC;
                 D_8004BCD0[entIndex].sprite = D_80040540;
                 D_8004BCD0[entIndex].facing = 0;
@@ -3369,7 +3369,7 @@ void arcadeUpdateDonkeyKongStage2(s32 entIndex) {
             flash = (((s32)D_8004BCD0[entIndex].animTimer & 0x20) / 32) == 0;
             D_8004BCD0[entIndex].facing = flash;
         }
-        if ((s32)D_8004BCD0[entIndex].animTimer % (0x72 - (s32)arcadeMinFloat((u32)gArcadeLevel, 4.0f) * 0xC) == 0) {
+        if ((s32)D_8004BCD0[entIndex].animTimer % (0x72 - (s32)arcadeMinFloat(gArcadeLevel, 4.0f) * 0xC) == 0) {
             gArcadeBonusTimer -= 1;
             entIndex = arcadeFindFreeEntity(); // ORIG: the parameter is reused; the new index is spilled to the a0 home slot 0x30(sp) at 0xc000 (sw v0) and reloaded at 0xc010 (lw a1), not a frame local
             D_8004BCD0[entIndex] = D_8004A418;
