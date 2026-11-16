@@ -63,6 +63,13 @@ Re-diagnosed under the Q0820/Q0887 framing. Sweep: 27 checks, 0 hits. New probes
 - **Review:** removed four redundant value casts: `(f32)` on the `jetpacGame.ledges[idx].boxY2`/`boxY1` comparisons, and `(s32)` on both float arguments of `jetpacCheckLedgeEdge(s32, s32, s32)`. fdiff OK, uninit 0, cwarn 0.
 - The volatile pair and the four re-reads stay.
 
+**2026-11-16 U HackjetpacUpdatePlayerMovement4 HackjetpacUpdatePlayerMovement4 anthropic/claude-opus-5-5:high (review only).**
+
+Full top-to-bottom review at base 22f598c3. The copy is unchanged: fdiff OK, uninit 0, no warning sites. The director block on the volatile pair holds, and b4a3d4 got no new idea. Probes:
+- **Drop `s32 pad`:** .text stays 5632 bytes but the stack offsets shift, so fdiff=1. `pad` is the frame filler and stays untagged.
+- **`player->vy = 0;` (line 363) -> `0.0f`:** adds `mtc1 zero,$f12` webs at 0xd40/0xda8/0xe70/0xe8c/0xe9c and grows .text by 16 bytes (fdiff=1; Q0426/Q0473). The integer-zero store is ordinary C and is what the target does, so it stays untagged.
+- **Review checklist:** fake 3 kept / 0 removed, goto 0, casts 0 (the only casts are the two volatile FAKE sites), views ok, protos ok (all five callees come from include/proto/jetpac), temps ok (`vx` is reused only as a copy of player->vx), names ok.
+
 ## Untried ideas
 - A JetpacPlayerActor field type that gives the flying-arm loads a different dtype from the test loads, for example a union. This is a header change and is unlikely to be natural (source: the u32 probe in HackjetpacUpdatePlayerMovement2; a u32 *local* does not do it).
 - A natural consumer of the 0x9f0 join read that leaves no trace except the v0 carry into 0xb0c on the vx==0 path. None was found among the function's uses of flying (the call arguments, the final test, the line-317 test). Because the second chain never changes flying, a consumer could be any use of flying after 0x9f0.
