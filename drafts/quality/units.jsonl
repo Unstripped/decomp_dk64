@@ -726,3 +726,4 @@
 {"type": "unit", "t": "2026-11-16T06:05:18Z", "unit": "2026-11-15: cleanup Polisharcade0c", "commit": "499687f03b70e0005715f59bf9ec427b91a3c864"}
 {"type": "unit", "t": "2026-11-16T06:07:23Z", "unit": "2026-11-15: cleanup HackhudPauseMenuRender4", "commit": "e48304442f28a970a91a93f3e61f5dc69404c547"}
 {"type": "unit", "t": "2026-11-16T06:11:02Z", "unit": "2026-11-15: cleanup HackgfxSwapGeometryModeCullBits3", "commit": "03a1f90ac1ebef6dabb429923fd5de08d719e30c"}
+{"type": "unit", "t": "2026-11-16T06:12:52Z", "unit": "2026-11-15: cleanup HackraceSteerTowardTargetWaypoint3", "commit": "f95b8ed6a4b3b7ad4fe1ed5df06ac463d7f623ee"}
