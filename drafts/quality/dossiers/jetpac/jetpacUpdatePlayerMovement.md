@@ -70,9 +70,27 @@ Full top-to-bottom review at base 22f598c3. The copy is unchanged: fdiff OK, uni
 - **`player->vy = 0;` (line 363) -> `0.0f`:** adds `mtc1 zero,$f12` webs at 0xd40/0xda8/0xe70/0xe8c/0xe9c and grows .text by 16 bytes (fdiff=1; Q0426/Q0473). The integer-zero store is ordinary C and is what the target does, so it stays untagged.
 - **Review checklist:** fake 3 kept / 0 removed, goto 0, casts 0 (the only casts are the two volatile FAKE sites), views ok, protos ok (all five callees come from include/proto/jetpac), temps ok (`vx` is reused only as a copy of player->vx), names ok.
 
+**2026-11-16 U HackjetpacUpdatePlayerMovement5 HackjetpacUpdatePlayerMovement5 anthropic/claude-opus-5-5:high.**
+
+Sweep at base a543051e: 27 checks, 0 hits. variants.py try on new bodies (full=):
+- **Family Z** (new): the else-if test assigns `flying`, the flying arms have no reads, `flying = player->flying;` sits at the 0x9f0 join, the four second-chain arms re-read (btnLeft/btnRight ends, vx>0, vx<0), and the final test is `if (flying != 0)`: **2**.
+  - 0x968-0xa9c all match, including the PRE'd `lw v0,48(s0)` at 0x99c/0x9c4/0x9e0. The join read now has a natural consumer: the final local on the vx paths.
+  - Only 0xac8/0xaf8 are missing. The explicit vx-arm reads are VN-merged with the 0x9f0 join `lw`, because they are in its extended block (0x9f0 -> 0xa4c -> 0xaa8 -> 0xac0) with only the f32 `swc1 8(s0)` store in between.
+  - The `lw a1,48(s0)` call arguments at 0xa3c/0xa98 stay fresh, because the s32 `sw 24(s0)` flip store kills VN. The btnLeft/btnRight re-reads at 0xa40/0xa9c are fresh because they sit at the inner join.
+  - The same 2 results with a btnA-arm read added, and with a `u32 flying` local. With an expression else-if test instead of test-assign: 8.
+- Family Z is the mirror of Family X (which is missing 0x9c4/0x9e0). The two pairs conflict:
+  - PRE into the flying arms needs a `lw 48(s0)` anticipated at 0x9f0.
+  - Fresh vx-arm loads need no `lw 48(s0)` earlier in 0x9f0's extended block.
+  - So one non-candidate pair remains in every body tried.
+- **vx if/else inner-join read** (after the vx arms) in place of the vx-arm reads:
+  - Without the btnLeft/btnRight re-reads: 14.
+  - With them: 12. The 0x9f0 join read is dead, because the local is reassigned on every path. 0x99c/0x9c4/0x9e0 vanish, and the inner-join `lw` stays at the join (0xb00, with a delay copy).
+- Final `if (flying != 0 && player->flying != 0)`: 65. A final `if (player->flying != 0)` with only the btnLeft/btnRight re-reads: 72.
+- Copy unchanged: fdiff OK, uninit 0. The volatile pair and the four re-reads stay.
+
 ## Untried ideas
 - A JetpacPlayerActor field type that gives the flying-arm loads a different dtype from the test loads, for example a union. This is a header change and is unlikely to be natural (source: the u32 probe in HackjetpacUpdatePlayerMovement2; a u32 *local* does not do it).
-- A natural consumer of the 0x9f0 join read that leaves no trace except the v0 carry into 0xb0c on the vx==0 path. None was found among the function's uses of flying (the call arguments, the final test, the line-317 test). Because the second chain never changes flying, a consumer could be any use of flying after 0x9f0.
+- A natural consumer of the 0x9f0 join read: found in Family Z (the final local through re-reads in all four second-chain arms), but it moves the missing pair to 0xac8/0xaf8. What is still untried is a source shape in which the vx>0/vx<0 arms leave the 0x9f0 extended block (a join in front of them) without adding code. No natural C form is known: the btnLeft/btnRight/else chain and the vx if/else are all single-predecessor blocks.
 - A natural second base for player (a caller-side pointer or a struct view that is a distinct variable rather than a respelling). The `pf`/`new_var` probes show that any distinct base matches; no natural source for one is visible in this function.
 
 ## Evidence
