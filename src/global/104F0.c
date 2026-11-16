@@ -522,10 +522,12 @@ void eepromValidateSaveSlots(void) {
         if (valid[i] != 0) {
             if (eepromGetField(0xD, 0, 0, i) != 0) {
                 found = version = eepromGetField(0xF, 0, 0, i);
-                if (version) {}  // FAKE: dead test adds blocks to the live ranges of version, i and j (version adjsave 42 to 35), so i, found and version colour s4, s5, s6 instead of version first
                 for (j = 0; j < 4 && found == version; j++) {
                     if (j != i && valid[j] != 0) {
-                        if (eepromGetField(0xD, 0, 0, j) != 0 && eepromGetField(0xF, 0, 0, j) == version && (u32)eepromGetField(0x10, 0, 0, i) <= (u32)eepromGetField(0x10, 0, 0, j)) {
+                        if (eepromGetField(0xD, 0, 0, j) != 0 && eepromGetField(0xF, 0, 0, j) == version) {
+                            if ((u32)eepromGetField(0x10, 0, 0, i) > (u32)eepromGetField(0x10, 0, 0, j)) {
+                                continue;
+                            }
                             found = 0xFF;
                             eepromClearSlotData((u8)i & 0xFF, 0);  // ORIG: andi a0,s3,0xff at 0x1630 re-masks the (u8)i value (andi s3,s4,0xff at 0x156c) for this unprototyped K&R call
                             eepromSetField(0xF, 0, 0, i, 0xFF);
