@@ -42,17 +42,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     f32 stepMtx[4][4];
     s16 i;
     s16 stepAngle;
-    f64 progress;
-    f64 clampedProgress;
-    Gfx *_g;
-    f64 pad;
-    f32 growth;
     s32 texIndex;
-    f32 collisionRadius;
-    f32 offsetX;
-    f32 offsetY;
-    f32 offsetZ;
-    f32 spriteScale;
 
     sub = actor->customState;
     stepAngle = 0x1000 / sub->spriteCount;
@@ -71,6 +61,8 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     actorFreeModelNodeList(actor);
 
     if (actor->unk15F != 0) {
+        f32 collisionRadius;
+
         switch (sub->ringType) {
         case 0:
             collisionRadius = sub->radius * 10.0;
@@ -83,6 +75,14 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     }
 
     for (i = 0; i < sub->spriteCount; i++) {
+        f32 offsetX;
+        f32 offsetY;
+        f32 offsetZ;
+        f32 spriteScale;
+        f64 progress;
+        f32 growth;
+        f64 clampedProgress;
+
         switch (sub->ringType) {
         case 0:
             offsetX = mathSinF(i * stepAngle) * sub->radius;
@@ -103,11 +103,10 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
         if (actor->unk15F != 0) {
             actorAppendModelNode(actor, offsetX, offsetY, offsetZ, spriteScale * 80.0, -1);
         }
-        _g = (Gfx *)(glist++); _g->words.w0 = 0xFD180000; _g->words.w1 = (u32)gSpriteRingTextures[texIndex]; // FAKE: gDPSetTextureImage and the render-tile gDPSetTile hand-written through the function-scope _g; their macro forms add two _g homes and shift the frame (Q0940)
-        gDPSetTile(glist++, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0, 0, G_TX_LOADTILE, 0, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD); gDPLoadSync(glist++); gDPLoadBlock(glist++, G_TX_LOADTILE, 0, 0, 0x3FF, 0x80); gDPPipeSync(glist++); _g = (Gfx *)(glist++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; gDPSetTileSize(glist++, G_TX_RENDERTILE, 0, 0, 0x7C, 0x7C); // LAYOUT: same-line texture block statements steer as1 scheduling
+        gDPLoadTextureBlock(glist++, gSpriteRingTextures[texIndex], G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
         guScaleF(modelMtx, spriteScale, spriteScale, spriteScale);
-        matrixMakeRotationY(stepMtx, (f32)((gPlayerSlots->camYawInt * 360) / 4096));
+        matrixMakeRotationY(stepMtx, (gPlayerSlots->camYawInt * 360) / 4096);
         guMtxCatF(modelMtx, stepMtx, modelMtx);
         guTranslateF(stepMtx, actor->x + offsetX, actor->y, actor->z + offsetZ);
         guMtxCatF(modelMtx, stepMtx, modelMtx);
