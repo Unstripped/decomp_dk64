@@ -1094,10 +1094,10 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     dlAppendTextureLoad(&glist, &D_8004BC50[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (j = 5; j < 0x14; j++) {
-        dlAppendTextureRectangle(&glist, 0x15C, (s32)((s32)(j * 8 + 51.625 + 8.0) * 4.0));
+        dlAppendTextureRectangle(&glist, 0x15C, (s32)(j * 8 + 51.625 + 8.0) * 4.0);
     }
     for (j = 5; j < 0x14; j++) {
-        dlAppendTextureRectangle(&glist, 0x25C, (s32)((s32)(j * 8 + 51.625 + 8.0) * 4.0));
+        dlAppendTextureRectangle(&glist, 0x25C, (s32)(j * 8 + 51.625 + 8.0) * 4.0);
     }
     D_8004C719 = 8;
     D_8004C71A = 0xA;
@@ -1122,7 +1122,7 @@ void arcadeDrawStage3Background(Gfx **glistp) {
             }
         }
         for (j = 0; j < 2; j++) {
-            dlAppendTextureRectangle(&glist, (s32)((D_8004BC88[i].x + 40.0f + j * 8) * 4.0f), (s32)((D_8004BC88[i].y * 0.875 + 8.0) * 4.0));
+            dlAppendTextureRectangle(&glist, (D_8004BC88[i].x + 40.0f + j * 8) * 4.0f, (D_8004BC88[i].y * 0.875 + 8.0) * 4.0);
         }
     }
     arcadeDrawStage3Ladders(&glist);
@@ -1134,14 +1134,11 @@ extern u8 D_80032D50[];
 extern u8 D_800342B8[];
 extern TextureDescriptor D_8004BC20[];
 void arcadeDrawStage4Background(Gfx **glistp) {
-    s32 step;
-    s32 y;
-    Gfx *glist;
-    s32 x;
     s32 i;
+    s32 j;
+    Gfx *glist;
 
     glist = *glistp;
-    step = 1; // FAKE: constant local step (x += step * 0x20, i += step) keeps the `<` loop exits as slti (literal steps: text=11)
     D_8004C719 = 8;
     D_8004C71A = 0xA;
     D_8004C6D4.word = 0x492;
@@ -1149,13 +1146,13 @@ void arcadeDrawStage4Background(Gfx **glistp) {
     dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
-    for (x = 0x220; x < 0x2E0; x += step * 0x20) {
-        dlAppendTextureRectangle(&glist, x, 0xE0);
+    for (i = 0xB; i < 0x11; i++) {
+        dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0xE0);
     }
-    for (x = 0xC0; x < 0x440; x += step * 0x20) {
-        dlAppendTextureRectangle(&glist, x, 0x380);
+    for (i = 0; i < 0x1C; i++) {
+        dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x380);
     }
-    for (i = 1; i < 0x1B; i += step) {
+    for (i = 1; i < 0x1B; i++) {
         if (i != 6 && i != 7 && i != 0x13 && i != 0x14) {
             dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x268);
         }
@@ -1164,24 +1161,24 @@ void arcadeDrawStage4Background(Gfx **glistp) {
     dlInitTextureDescriptor(&D_8004BC20[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BC20[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
-    for (x = 0xE0; x < 0x420; x += step * 0x20) {
-        dlAppendTextureRectangle(&glist, x, 0x150);
+    for (i = 1; i < 0x1B; i++) {
+        dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x150);
     }
-    for (i = 0; i < 0x1C; i += step) {
+    for (i = 0; i < 0x1C; i++) {
         if (i < 0xC || i >= 0x10) {
             dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x1DC);
         }
     }
-    for (x = 0xE0; x < 0x420; x += step * 0x20) {
-        dlAppendTextureRectangle(&glist, x, 0x2F4);
+    for (i = 1; i < 0x1B; i++) {
+        dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x2F4);
     }
     D_8004C6D0 = D_800342B8;
     dlInitTextureDescriptor(&D_8004BC50[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     dlAppendTextureLoad(&glist, &D_8004BC50[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
-    for (x = 0x240; x != 0x2C0; x += step * 0x20) {
-        for (y = 0x9F; (y ^ 0) != 0x87; y -= 8) { // FAKE: no-op `^ 0` steers codegen
-            dlAppendTextureRectangle(&glist, x, (s32)((((f64)y * 0.875) + 8.0) * 4.0));
+    for (i = 0xC; i < 0x10; i++) {
+        for (j = 0; j < 3; j++) {
+            dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, ((0x9F - j * 8) * 0.875 + 8.0) * 4.0);
         }
     }
     arcadeDrawStage4Ladders(&glist);
@@ -2092,7 +2089,7 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
     b = D_8004BCD0[entIndex].facing & 2;
     D_8004BCD0[entIndex].facing = b / 2 | b;
     D_8004BCD0[entIndex].flipY = 0;
-    val = (s32)D_8004BCD0[entIndex].animTimer;
+    val = D_8004BCD0[entIndex].animTimer;
     if (D_8004BCD0[entIndex].state == 2) {
         if (D_8004A764 && D_8004A764) {} // FAKE: empty guard steers regalloc
         if (D_8004C710 != 0) {
@@ -2141,18 +2138,18 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
         D_8004BCD0[entIndex].sprite = D_8003CF28;
     } else if (D_8004BCD0[entIndex].state == 5) {
         y = D_8004BCD0[entIndex].y;
-        if ((f32)D_8004C6E8 - y < 1.0f || (y - (f32)D_8004C6E4 < 1.0f)) {
+        if (D_8004C6E8 - y < 1.0f || (y - D_8004C6E4 < 1.0f)) {
             D_8004BCD0[entIndex].sprite = D_8003BF30;
-        } else if (y - (f32)D_8004C6E4 < 6.0f) {
+        } else if (y - D_8004C6E4 < 6.0f) {
             D_8004BCD0[entIndex].sprite = D_8003B858;
-        } else if (y - (f32)D_8004C6E4 < 10.0f) {
+        } else if (y - D_8004C6E4 < 10.0f) {
             D_8004BCD0[entIndex].sprite = D_8003BCE8;
-        } else if (y - (f32)D_8004C6E4 < 14.0f) {
+        } else if (y - D_8004C6E4 < 14.0f) {
             D_8004BCD0[entIndex].sprite = D_8003BAA0;
         } else {
             D_8004BCD0[entIndex].sprite = D_8003B858;
         }
-        D_8004BCD0[entIndex].facing = (s32)((f64)D_8004BCD0[entIndex].animTimer / 4.5) & 1;
+        D_8004BCD0[entIndex].facing = (s32)(D_8004BCD0[entIndex].animTimer / 4.5) & 1;
     } else if (D_8004BCD0[entIndex].state == 8) {
         if (D_8004BCD0[entIndex].animTimer > 38.0f) {
             if (D_8004C71B == 0) {
@@ -4003,7 +4000,7 @@ void arcadeDrawHud(Gfx **glistp) {
         }
         arcadeSetTextPosition(0xE0, 0x30);
         if (gArcadeBonusTimer > 0) {
-            i = gArcadeBonusTimer;
+            i = gArcadeBonusTimer; // FAKE: lives-loop counter i reused for the clamped bonus timer keeps it in a3 (dedicated local or inline ternary: 29-98)
         } else {
             i = 0;
         }
