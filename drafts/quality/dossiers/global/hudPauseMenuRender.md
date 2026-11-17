@@ -10,6 +10,8 @@
 - **498f25 dead-if** (EXHAUSTED, class 1): the dead `D_80750530` test keeps $t2 coloured by uopt (case-2 table address at 0x1408/0x1cec/0x1d30/0x1e44) (Q0583).
 - **cd26dc dead initializer** (copy-only key, kept; pre-existing, now tagged per lead ruling 2026-11-17): `f32 fadeInput0 = 0.0f;` is never read, but its first appearance orders fadeInput0 ahead of fadeInput4 so uopt colours unk0 $f2 / unk4 $f12 in cases 2/3 (Q0584); removing it gives 14.
 - **ORIG (not a site)**: case-0 `i = j;` (line 697): the target stores the string index to i's own home 0x158(sp) (`sh` at 0x1858/0x186c/0x1894); a dedicated local gives 228.
+- **cfa137 stays FAKE (lead ruling 2026-11-17e, CleanupLead)**: HackhudPauseMenuRender12 proposed `// ORIG` for case-1 `j = tab->kong[...].goldenBananas[...]`: the target writes the count into s3, the case-1 loop index register (`move s3,zero` 0x1a68, `addiu s3,s3,1` 0x1b1c, `lh s3,66(s3)` 0x1c64), then narrows it (`sll a2,s3,0x10` 0x1c74, `sra t7,a2,0x10` 0x1c78); offsets checked in expected/ objdump. A dedicated count is its own short web (`lh a2,66(a2)`, no narrowing): 96-135 as s16, 51 as s32. Ruling: register sharing only, with no store to j's home slot and no frame growth from a separate local, so per ladder.md this is not ORIG (83069d precedent); the tag stays FAKE and the site stays `diagnose nohit`.
+- **d4f3b3 dead-if** = old 498f25 (renamed sPauseKongUnlocked): pure block split (`if (1) {}` 0 at the same spot).
 - FIXED earlier: fc512f, 4cca45, 744852, 1c9898.
 
 ## Attempts
@@ -65,13 +67,26 @@
   - 6bd641/01af71 consolidated copy on the cast-cleaned body: full=2 (li a3,2 at 0x1638/0x16b8).
   - reconstruct: single-statement x/y with it->entries[j] 481 (429 dead ifs kept), with (it->entries + j) 470 (406), statement sequence hacks dropped 355 (310).
   - Review probes: case-0 `i = j` string index -> dedicated `s16 k` 228 / `s32 k` 220 (the target stores to i's home 0x158(sp)): tagged `// ORIG`. `f32 fadeInput0 = 0.0f` initializer removed 14 (Q0584): tagged `// FAKE` (lead ruling), copy-only key cd26dc.
+- **2026-11-17 2026-11-17: cleanup HackhudPauseMenuRender12 HackhudPauseMenuRender12 anthropic/claude-opus-5-5** (base 3ffe1656; sweep 0 hits; variants.py scan: cosmetic zeros only):
+  - Kept: case-0 pips clamp no longer reuses the block-scoped `off` (`off = pips - 1; if (off < 3) m = off;` -> `if (pips - 1 < 3) m = pips - 1;`, ternary also 0; dedicated `n` 47, `m >= 3` clamp 12): fdiff 0. cfa137 proposed as `// ORIG`, but the lead ruled it stays FAKE (see Sites). FAKE stays 10 in this function.
+  - cfa137: dedicated `s16 count` at all 25 declaration positions: 96 at positions 4-5 (the 2-byte alignment hole at 0x154 between y and off, frame stays 0x1A0), 112 at 2-3, 135 elsewhere; `s32 count` 51, 9 with the case-3 `f32 fb` shadow deleted (count in v0 via lhu; case-3 fb moves $f2 -> $f20).
+  - cd26dc: loop-1 `fa` in the fadeInput0 role (cases 2+3 or 2 only, fadeInput0 slot as pad) 14/14; fb 16/12; case-1 ternary through fadeInput0/fadeInput4 (fadeInput0 assigned first) 19, fadeInput4 first 15, assignments inside the ternary 61; cases 2/3 `if ((fadeInput0 = hud->fade) > (fadeInput4 = ...))` 51, `if (fadeInput4 < (fadeInput0 = hud->fade))` 14.
+  - c4e347: `u32 off` keeps `addu t8,t7,s0` at 0x1364 (a u32 variable is a leaf; only a conversion node on the left operand reverses) and makes the case-2 compares sltiu: 26; with case 2 on a function-scope `s32 slide` shared with case 1: 186 (181 keeping the u32 cast); `s16 off` 343, `u16 off` 181.
+  - 766e68: dedicated `s16 x` in the 0x154 hole (frame-neutral) is its own short web and computes into a2 (the target stores x into off: `move s0,t8` 0x1370): 306-390 over 7 forms. Shift spellings are the same ucode: `(u16)(off << 2)` 0, `(off << 2) + (s16)(s64)(s32)` 227, plain 99, trunc-first 3, `off <<= 2; off +=` 10.
+  - a87eed: `y <<= 2` / `y = y << 2` 0 with the (u16), 311 without (same as `y *= 4`).
+  - a97e00: `HudTextEntry *e` in slotBase slot, frame paid by inlining slotBase (`off = j + i * 5` alone scores 0 with a pad): 366.
+  - d4f3b3: `if (1) {}` 0, `if (dl != NULL) {}` 0, `if (tab == NULL) {}` 0; homed hud 7, ret 8; removal 347.
+  - b371d1: list as `u32` (casts at the two calls) or `void *`, no test: 5 each (unchanged).
+  - reconstruct: every steer dropped on the pips-cleaned copy 355 (it->entries[j]) / 357 ((it->entries + j)) / 358 (case-2/3 fade through fa); same loop with both dead tests kept 321.
+  - Review casts: `(s16)((s16)(fc - y0) + slide)` outer 115 / inner 258, `y0 -= (s16)(...)` 486, `y0 + (s16)fe` 408: all semantic.
 
 ## Untried ideas
 - A narrowing source for y that is not a uopt candidate in loop 1's last block (dy takes $v1 from hud's piece), or that keeps the `A + (s32)(f)` evaluation order (fa-first mul.s, Q0966) (Q0374).
 - A natural source for the t3 -> t4 ring advance before the x trunc that also keeps `A + (s32)(f)` order: every named-temp form tried flips mul.s or loses the ring (Q0374, Q0966).
 - Making list live through loop 1 with a use that emits no code (Q0585); none found in the target. Only an empty conditional fits: 0x13C(sp) is read only at 0x1278 and no s-register but $s7 is live over 0x126c-0x1294, so a real later read (lw 0x13c(sp)) or competitor-based fix is excluded (2026-11-17 census).
-- A natural ugen dead def on $24 between the `y *= 4` chain and the flyY trunc.w.s (a87eed), surviving cfe (expression statements are dropped) (Q0583).
-- A plain-C source of an unsigned `off + offsetX * 4` sum (c4e347): `4U` and `(u32)off` both give 0; a u32 `off` breaks the case-2 signed slide compares (HackhudPauseMenuRender5).
+- A natural ugen dead def on $24 between the `y *= 4` chain and the flyY trunc.w.s (a87eed), surviving cfe (expression statements are dropped) (Q0583); shift spellings are the same ucode (2026-11-17).
+- A plain-C conversion node on off's side of `off + offsetX * 4` (c4e347): `4U` and `(u32)off` both give 0; a u32-typed `off` does not reverse the addu (a leaf) and breaks the case-2 signed slide compares; s16/u16 off break other webs (2026-11-17).
+- A code-free block boundary after gSPEndDisplayList (d4f3b3 is a pure block split: `if (1) {}` matches); the target has nothing between 0x1f8c and the epilogue.
 
 ## Evidence
 - Frame 0x1A0. Homes: hubWorld 0x138, list 0x13C, ret 0x140, tab 0x144, i 0x158, hud 0x15C, buf 0x160 (`addiu s0,sp,352` at 0x1920); 0xA8 is a case-0 f32 spill (`swc1 $f6,0xA8(sp)` at 0x14b0, `lwc1 $f18` at 0x15d4).
@@ -83,6 +98,9 @@
 - 0x13C(sp) (list) appears only at 0x126c (`sw v0,316(sp)`) and 0x1278 (`lw a0,316(sp)`); every later read of a homed local is a real `lw` (tab 0x144 at 0x16e4, hubWorld 0x138 at 0x1810, ret 0x140 at 0x1fd0).
 - Case-0 menu loop stores the string index to i's home: `sh s3,344(sp)` 0x1858, `sh t6,344(sp)` (4) 0x186c, `sh t5,344(sp)` (5) 0x1894, `lh t7,344(sp)` 0x1898 for sPauseMenuStrings[i] - the same slot loop 1 reads at 0x12a8.
 - Case-1 count: `lui s3` 0x1be0, `addu s3,s3,t8` 0x1c5c, `lh s3,66(s3)` 0x1c64 - the address is built in j's register s3.
+- Case-1 loop index j is s3 (`move s3,zero` 0x1a68, `addiu s3,s3,1` 0x1b1c, `slti at,s3,5` 0x1b60); the count after the loop goes to s3 (0x1c64) and is passed through `sll a2,s3,0x10; sra t7,a2,0x10; move a2,t7` (0x1c74-0x1c84), the narrowing a coloured s16 variable gets.
+- Local slots: an s16 declared between i/y and off (positions 4-5) takes the 2-byte alignment hole at 0x154 without growing the frame.
+- ugen loop 1 (as1probe keep, base copy): y lives in $17 with `move $17,...` after every narrowing; as1 renames the later y values into temps. Statement 3 of x: `addu $16,$16,$15; sll $24,$16,16; move $16,$24; sra $11,$16,16; move $16,$11` -> `addu t8,s0,t7; move s0,t8`.
 
 ## Lead ruling (Lead5, 2026-11-15)
 f38e4a -> a97e00: the (u8 *) byte-offset pun is retired by the HudTextList retype, but `(it->entries + j)->f` is chosen for codegen (it->entries[j] 272), so it stays tagged per the Q0816 precedent (pun retired, tag kept).
