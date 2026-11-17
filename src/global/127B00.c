@@ -245,7 +245,7 @@ void pathPlaybackAdvance(s32 slot) {
     s32 tmp;
     s32 limit;
     s32 quot;
-    u32 tq;
+    s32 loops;
     s32 whole;
     s32 overshoot;
     s32 span;
@@ -333,9 +333,9 @@ void pathPlaybackAdvance(s32 slot) {
                         }
                         break;
                     case 1:
-                        tq = quot + 1;
-                        if (tq && tq) {}  // FAKE: extra tq use keeps quot + 1 a v1 candidate
-                        if (tq) {
+                        loops = quot + 1;
+                        if (loops && loops) {}  // FAKE: second loops use on the case-1 path keeps quot + 1 a v1 candidate
+                        if (loops) {
                             pb->direction = 0;
                             pb->pointIndex = 0;
                             pb->t = 0.0f;
