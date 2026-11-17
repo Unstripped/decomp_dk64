@@ -405,21 +405,20 @@ extern u8 D_8002BA70;
 extern OSContPad *D_807ECDE8;
 
 void jetpacUpdateStateAndInput(Gfx **glist) {
+    u8 *initPending = &D_8002BA70;
     u8 flag;
-    s32 zero; // FAKE: value-named zero local steers regalloc (pre-existing, now tagged)
 
-    zero = 0;
-    if (D_8002BA70 != 0) {
+    if (*initPending != 0) {
         jetpacGame.gameState = 0;
         jetpacGame.stateTimer = 0;
         jetpacGame.unk794 = 3;
         jetpacGame.numPlayers = 1;
         jetpacGame.controlType = 0;
-        D_8002BA70 = zero;
-        jetpacGame.highScore = eepromGetField(0x11, zero, zero, zero);
+        *initPending = 0;
+        jetpacGame.highScore = eepromGetField(0x11, 0, 0, 0);
         flag = flagGet(0x61, 2);
         jetpacGame.unk798 = flag;
-        if (flag != zero) {
+        if (flag != 0) {
             jetpacGame.unk799 = 0;
         }
     }
