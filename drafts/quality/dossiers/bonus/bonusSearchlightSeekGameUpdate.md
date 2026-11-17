@@ -51,6 +51,13 @@ bonus:8002BF98:other:d3c36c other (copy-only, new tag): velX also holds the x ve
 - Respawn loop: `for (i = 0; i < 1; i++)` / `i != 1` 2 lines (adds the entry guard); `do ... while (i < 1)` 0. The do-while is real control flow; no change.
 - uopt -l 5 at 8b129890: bb43 adjsave and order unchanged, bits +2 (see Evidence). quality.py sweep: 0 hits.
 - Final: no change to this function, fdiff 0, clint uninit 0 (only the pre-existing bonusBigBugBashGameUpdate diffDelta line).
+2026-11-17 cleanup HackbonusSearchlightSeekGameUpdate7 anthropic/claude-opus-5-5:high (base 49aa0365, measured at c67b81d2; variants.py try full= lines; whole-function bodies):
+- uopt -l 5 re-scored: bb43 unchanged from 8b129890 (error var 538|0 bit 150 4.0 -> $f12, velX load 1252|6 bit 152 3.0 -> $f14, z web 602|1 bit 158 4.5 -> $f2, stickY 474|0 bit 165 -> $f18). The z web's 4.5 comes from one live range over bb43 (stick), bb55 (aim z), bb74/bb76 (clamp z); an honest stickX only lives in bb43.
+- Fully honest body (trailing `f32 stickX; f32 errX;`) 101: errX 538|1 bit 150 2.0 -> $f18, velX load 3.0 -> $f2, velZ load -> $f12, stickX 1581|0 bit 158 3.0 -> $f14, stickY -> $f16.
+- New: three-step `errX = z * cosYaw; errX -= stickY * sinYaw; errX -= velX;` 99 (z FAKE kept) / 101 (stickX honest); negated first def `errX = -velX; errX += t;` 99; `OSContPad *pad = gCurrentContPad;` for both stick reads with honest stickX 10 (velX FAKE kept) / 101 (errX honest).
+- New: one same-role error local `d` shared by both axes (`d = tx - velX; subExt->velX = subExt->velX + d * 0.155f; d = tz - velZ; ...`, also `+=`) 112/114 (108/110 text): the velZ pre-read spills to 0x5c(sp) and the frame grows 0x88 -> 0x90.
+- Permuter 900 s (-j 2, hack-free weights) on the fully honest body: baseline 780, best 55, and both 55s put a hack back (errX merged into velX = d3c36c, or the error stored into stickX, which changes the velZ term). quality.py sweep: 0 hits.
+- Final: no change to this function, fdiff 0, clint uninit 0 (only the pre-existing bonusBigBugBashGameUpdate diffDelta line).
 
 ## Untried ideas
 stickX (83418a) / velX error (d3c36c): each needs one more counted ref that emits no code (stickX >= 4.0 with a lower bit than the error, error > 3.0). Only the reuse of a load-copied local (`v = p->f; v = e - v;`) produces such refs. No natural spelling found; Q0771-style constant-propagated refs land on the constant local, not on stickX.
