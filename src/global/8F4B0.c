@@ -362,7 +362,7 @@ void actorCutsceneDispatchEvents(void) {
             gActivePlayerActor->contactFlags |= 0x200;
             break;
         case 0x13:
-            gActivePlayerActor->contactFlags &= ~0x200;
+            gActivePlayerActor->contactFlags &= 0xFDFF;
             break;
         case 0x14:
             gCutsceneLightIndex = eventData[0];
@@ -377,7 +377,6 @@ void actorCutsceneDispatchEvents(void) {
             mapTransitionToWorldHub(hubWorld);
             break;
         case 0x1C:
-            if (D_80744700 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             D_8076A0A6 = D_807ECD48[0];
             break;
         case 0x1A:
