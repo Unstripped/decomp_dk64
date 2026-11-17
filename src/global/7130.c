@@ -1767,7 +1767,7 @@ void sfxUpdateSourceGroups(void) {
                     }
                     if (D_80770F38 != D_80770D70[i]) {
                         D_80770D70[i] = D_80770F38;
-                        n_alSndpPostEvent(sSoundSlotHandles[i], 0x10, *(s32 *)&D_80770F38);
+                        n_alSndpPostEvent(sSoundSlotHandles[i], 0x10, *(s32 *)&D_80770F38);  // ORIG: the target passes the static's raw bits by an integer reload (lw a2,0x148(a2) at 0x5f98) although the value is already in $f4 (lwc1 at 0x5f74, swc1 $f4 at 0x5f90); an s32 value argument would emit cvt.w.s, an f32 one mfc1 (Q0026)
                     }
                 }
             }
