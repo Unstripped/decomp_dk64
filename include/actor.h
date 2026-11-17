@@ -1247,6 +1247,9 @@ extern Zone *D_807FDCA0; // gBehaviourAnimState->zone, latched by behaviourFrame
 extern ZoneTable *gZoneTable;
 extern SpawnNodeList *gSpawnNodeList;
 extern ActorGlobalState gActorGlobalState;
+// Cutscene condition flag (0x807F6903, defined in 42630.c): cutscene command 0x96 sets it, condition 0x3D
+// reads it; playerInputCheckMultiplayerPlayerTarget (E4090.c) handles gActorGlobalState.unk14 3/5 only while it is 0.
+extern u8 gCsCondFlag;
 
 
 // Collision/hit list passed to the 7AF60 interaction predicates (count @0xC, entries @0x10).

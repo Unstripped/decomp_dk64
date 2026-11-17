@@ -86,7 +86,7 @@ s32 D_807F623C;
 s16 gCsModelIds[600];
 u8 gCsVarsDirty[0x212];
 s8 D_807F6902;
-s8 gCsCondFlag;
+u8 gCsCondFlag;
 s16 D_807F6904;
 s16 D_807F6906;
 s16 D_807F6908;
@@ -191,7 +191,6 @@ void csTimerQueueFire(s16 timerId) {
     }
 }
 
-extern s8 gCsCondFlag;
 extern s16 D_807F693C;
 extern u8 gCsFlagBits;
 extern u8 D_807F693F;

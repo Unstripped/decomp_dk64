@@ -2794,7 +2794,6 @@ int playerIsOnOwnInstrumentPad(Actor *mob) {
 }
 
 
-extern u8 gCsCondFlag;
 extern s32 D_8076A094;
 extern u8 D_8076A0B2;
 extern f32 D_807536AC[];
