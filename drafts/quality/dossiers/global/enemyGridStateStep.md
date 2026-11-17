@@ -17,13 +17,20 @@
 - Clamp shapes (else-if, `> 1`, `<= -2`, reversed order, ternaries) without dead tests 94-152.
 - reconstruct: natural body (p walk, `col = cell & 3; dx = (s16)(col - st->gridX); dy = (s16)((cell >> 2) - st->gridY);`, no dead tests) 24 rows; same with the j-index loop hack kept 11 rows (vs round 38's 95): gridX/gridY v1/a3 for t0/t1 and ugen ring t9/t3/t5 for t8/t4/t3. variants.py scan of that body (162 variants) no improvement.
 - permute (perm_F1j): 11-row natural body with all five removed, -j 2, 900 s, 29458 iterations, base 65 best 65, no output below baseline.
+- 2026-11-17 HackenemyGridStateStep3 anthropic/claude-opus-5-5:high:
+- 3f4254: `j < 16` with j s8/s16/u8/u16 276-281 rows (s16 counter keeps sll/sra), s32/u32 2 rows (bnel); the i loop's s16 counter reused for the first loop (`i < 16`, `<= 15`, `!= 16`) 276-277.
+- 716d92/85e7fb/92ac80/cc75db/047f57 together, value-named s8 `gx = st->gridX; gy = st->gridY; dx = (s16)(col - gx); ... st->gridX = gx + dx;`: 11 rows. gx/gy (cand 235/238) take t0/t1 at 0x718/0x724 with no dead test, but var-only operands let uopt copy-propagate `(s16)(col - gx)` into `dx < -1`: ucvtl dx (cand 245, adjsave 3.0) -> v1, ucvtl dy (249, 1.5) -> a3, `subu v1`/`subu a3` for `subu a1`/`subu a0` plus `move a3,a0` (+1 instruction). Same 11 with deferred narrowing, chained `(gx = st->gridX)` operand, load after col; clamp `> 1`/`<= -2` 11, else-if 16, high-first 26, ternary 288; recipe scan of that body (174) no improvement.
+- s32 gx/gy (any new 4-byte local, s16 pair or block-scoped pair grows the frame 0x88 -> 0x90; slack is the 3 bytes below cell at -73): memory-operand subtraction + write-back `st->gridX = gx + dx` + deferred narrowing 4 rows only after merging `old` into `roll` and reusing `j` as gy (frame restored); there uilod 169/176 (adjsave 3.0) colour v0/v1 ahead of cell (226, 3.0): `lb a3` for `lb v0` at 0x740, andi t9 for t8. With `(s16)(...)` casts instead 7 rows. s8 gx/gy with memory operands re-narrow the shared load (sll/sra 24 + move, +6 instructions).
+- permute (perm_gxy8): s8 gx/gy write-back body (all five removed, j-index loop hack kept), -j 2, 900 s, 31636 iterations, base 995 best 75: best reuses `cell` as a constant carrier (`cell = 2; if (dx >= cell)`) and still differs (gridX/gridY a3/t0, subu v1); 80 merges cell into dy (`dy = cand[...]; dy = (s16)((dy >> 2) - gy)`), 12 rows with gx/gy v0/v1. No ordinary-C output.
 
 ## Untried ideas
 - A natural second use of `cell & 3` live through the dy clamp (the v1 blocker) together with an a3 blocker that leaves no instruction: no candidate found; a debug-print macro compiled out inside the clamp blocks would explain both dead tests but reads `ones` uninitialised.
 - A file-owned definition of D_807FC8C0 (4x4 `s8 [4][4]` grid) for the pointer walk: needs a .bss carve (address 0x807FC8C0 not owned by this TU); no evidence it changes the shared %hi web.
+- s8 gx/gy write-back locals with a narrowing spelling that is not copy-propagated into the clamp compare (the target narrows into dx's own register a1/a0); `a = (b = expr)` (Q0370) does not apply to a single-def dx.
 
 ## Evidence
 - Target 0x4bc-0x508: lui v1/lui a0 (D_807FC8C0, +16), loop sltu at,v1,a0 / bnezl at; ones a3 spilled at 66(sp), zeros t0 at 64(sp) around flagSet (0x51c-0x53c).
 - Target 0x5e8-0x6fc: i loop base t0 = D_807FC8C0, -1 in t1, i v1, best a3, n a2, &cand t2.
 - Target 0x708-0x7a8: n spilled 84(sp) around randomFloat; gridX lb t0 0x718, gridY lb t1 0x724; andi t8 0x744, sll t4 0x74c, sra t3 0x750, sll t6 0x75c; clamps slti/li; addu t8/t9 + sb 0x7a4/0x7a8.
 - uopt trace (base): cand 235 (uand cell,3) v1 adjsave 1.0, cand 169/176 (gridX/gridY uilod) adjsave 0.75 forbidden [1 2 3 4 5 6 9 14] -> 7/8; without dead tests adjsave 1.0, forbidden [1 3 4 5 9 14] -> 2/6. Cand 105 (ones, -70vreg) a3 interferes with 169/176.
+- uopt trace (s8 gx/gy, no dead tests): 245 (ucvtl(col - gx)) v1, 249 (ucvtl dy) a3 coloured before gx 235 -> t0, gy 238 -> t1; dx 166 a1, dy 173 a0.
