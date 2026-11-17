@@ -1358,7 +1358,7 @@ void bonusPerilPathPanicGameUpdate(void) {
 
                 n = sPathPanicFairyLane;
                 u->game = gCurrentActor;
-                p = *gMinecartTrackPoints + (n + n + n) + 1; // FAKE: n + n + n keeps two addu; n * 3 folds with the *12 into sll/subu and shifts the block
+                p = *gMinecartTrackPoints + (n + n + n) + 1; // ORIG: the target computes n + n + n (addu t6,v1,v1 / addu t7,t6,v1 at 0x401c-0x4020) before the *12 sll/subu/sll chain (Q0337, like osTvType + osTvType in Q0656/Q0708)
                 gSpawnedActor->x = p->x + 50.0;
                 gSpawnedActor->y = p->y + 12.0;
                 gSpawnedActor->z = p->z - 5.0;
