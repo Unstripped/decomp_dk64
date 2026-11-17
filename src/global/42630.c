@@ -1060,7 +1060,7 @@ void modelAnimEntrySetUnkC(); // ORIG: case 0x4C passes h in a2 as computed (sll
 
 void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     void *dm = &csId; // FAKE: address-taken csId keeps sel at sp+0xB3 (Q0174)
-    u8 found;
+    u8 bit; // one u8 flag: the case 0x1C found flag and the case 0xE/0x7D exclusive bit
     s32 i;
     s32 slot;
     s32 h;
@@ -1077,7 +1077,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     s16 idx;
     PlayerState *playerState;
     Actor *actor;
-    u8 b;
+    u8 pitch7;
     s32 map;
     u8 c;
     s32 exit;
@@ -1093,11 +1093,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 cx;
     f32 cy;
     f32 cz;
-    u8 pitch7;
     u8 vol7;
 
-    found = 0;
-    if (found) {} // FAKE: block boundary keeps found off a2
+    bit = 0;
     switch (cmd->op) {
     case 0x95:
         D_807F693C = 0x80;
@@ -1235,7 +1233,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x68:
         if (D_807F61F0.active != 0) {
             actorDespawn(D_807F61F0.timerActor);
-            b = (s32)D_807F61F0.hostActor; if (b) {} // FAKE: live range of b (a3) splits the &D_807F61F0 piece (v0)
+            bit = (s32)D_807F61F0.hostActor; if (bit) {} // FAKE: live range of bit (a3) splits the &D_807F61F0 piece (v0)
             actorDespawn(D_807F61F0.hostActor);
             D_807F61F0.active = 0;
         }
@@ -1479,8 +1477,8 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         i = cmd->b & 1;
         if (cs->unk10[i] < 0) {
-            b = cmd->b & 2;
-            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pitch / 127.0, 0);
+            bit = cmd->b & 2;
+            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, bit, vol, (u32)pitch / 127.0, 0);
         }
         break;
     case 0x7D:
@@ -1495,8 +1493,8 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         i = cmd->b & 1;
         if (cs->unk10[i] < 0) {
-            b = cmd->b & 2;
-            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pitch / 127.0, D_80748094);
+            bit = cmd->b & 2;
+            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, bit, vol, (u32)pitch / 127.0, D_80748094);
         }
         break;
     case 0xF:
@@ -1636,12 +1634,12 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             idx = hashTableLookup(gCsModelIds[cmd->a]);
             if (idx != -1) {
                 if (gModelSlots[idx].unk7C != NULL) {
-                    found = 1;
+                    bit = 1;
                     gModelSlots[idx].unk7C->unk48[cmd->b] += cmd->c;
                 }
             }
         }
-        if (found == 0) {
+        if (bit == 0) {
             return;
         }
         break;
