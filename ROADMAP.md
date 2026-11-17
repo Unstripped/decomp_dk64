@@ -168,22 +168,23 @@ Every function matches; this campaign makes the matched C read like ordinary C w
 - [x] **Session 2026-11-16 (rolling hack/polish queue, director mode, CleanupLead → CleanupLead-3 → CleanupLead4 hand-offs via dispatch.md)** — review coverage wave to the target (every function reviewed except the blocked renderHitCounterHUD, before the close renames) plus after-coverage hack items; fixes by structured control flow (201B0 camComputeEyeFocus `calc_look` after the switch), a load-bearing guard `continue` (104F0), indexed-global loops (7A510), in-place refinement (11BC10), and a render.h `EffectGrid` data retype (TypesOwner batch_4); codegen-only respellings retagged by the lead (36880, 17B90, 9CE20, D5E10, race/0, 9BF30); FAKE 415 → 411, goto 35 → 32, ORIG 78 → 80, open sites 201 → 93; names at close: 5 fields, 1 typedef parameter and 6 globals (held names in pending.md). Knowledge Q1034–Q1058 (Q0376 and Q0463 corrected).
 - [x] **Session 2026-11-16b (rolling hack queue, director mode, CleanupLead5 → CleanupLead6 hand-off via dispatch.md)** — after-coverage hack items over `rank` (34 worker reports merged) plus one TypesOwner batch (dmaReadAssetDecompress/assetResolveRomRange `u32 *` size out-params) and two worker header bundles (cutscene.h `CsCond` condition record, 100180 `u8 *dst`/`void *sheet` retypes); fixes by role splits and real types (jetpac/3480 `pos`, 1295B0 inline squared distance, E4090 deleted `yaw` copy: 8 sites → 2, 8F050 out-param index, 55B20 `s16 *p` stream reader, 7130 split labels as `D_8077058C[n]`), codegen-only respellings retagged by the lead (3C10, 15050, E4090); FAKE 411 → 392, LAYOUT 85 → 82, exhausted 4,224 → 4,234; names at close: 4 globals (CamState/ActorCallbackNode field names held). Knowledge Q1059–Q1096 (Q0695/Q0956 corrected).
 - [x] **Session 2026-11-16c (rolling hack/polish queue, director mode, Lead-2)** — coverage items (100180, 55B20, 8F050, 6AD90) then after-coverage hack items over `rank` (34 worker reports merged, incl. 6 coverage polish items for reviews staled by merges); fixes by ordinary C the target performs: inline sign ternaries (6AD90), a block-scope selector at its use (9BF30), bare u8 truth tests and real field types retiring proto-steers (1025E0, 80150, race/6650, 55B20, bonus/2690), a one-path `else` store retiring an extra argument and six XBB guards (36880), function-local statics replacing a global struct and a dead read (13980, bonus/2690), one function-like macro for every recomputation (3E10 `BUTTONS_PRESSED`, 2F550 `PLANE_DIST`), real break/continue (36880), inline repeated deltas (35000); ORIG with cited offsets for K&R/unprototyped declarations (2C910) and a -g float-bits pun (13A7A0); FAKE 392 → 341, proto-steer 17 → 3, ORIG 80 → 85, open sites 73 → 37, exhausted 4,234 → 4,247; names at close: mathRadianEaseToward, gRdpOutputBuffer/gRdpOutputBufferSize; knowledge Q1097–Q1140 (Q0548, Q0627, Q0707, Q0716, Q1066 corrected).
-- [ ] Paused after session 2026-11-16c. Leftovers: 15 functions without a fresh review (3 in bonus/2690 staled by the shared func_806FDAB8 prototype, the rest by the session's knowledge entries naming them; `uv run tools/quality.py rank --polish`), 23 not exhausted; held names, the types/macros item (PLANE_DIST, new-press macro, gRdpOutputBuffer type) and blocked owner changes are in `.omp/skills/cleanup-unit/pending.md`.
+- [x] **Session 2026-11-16d (rolling queue, director mode; Lead-d died after dispatch → CleanupLead)** — four orphaned Lead-d results merged by hand without a model selector (2690 `n + n + n` → `// ORIG:`, 13980, 6650, 936B0); coverage items (2C910, 36880, 19A00, 2F550, EFDC0, 3E10) brought reviews to 4,269/4,270; then hack items over `rank` (6AD90 box-sibling shape, 450 pointer local for both accesses, 104F0 real `offset = sector << 3`, 11BC10 per-role locals + int divisor, 13980 plain scalar static, 42630 named field local, 8F4B0 u16 mask literal retiring its last FAKE) and three TypesOwner batches: text.h `gTextNumberArg` (race/52B0 keeps its s16 extern as `// ORIG:`), common.h `gRdpOutputBuffer`/`BUTTONS_PRESSED`/`gContReadPending`/`gPadPressedButtons[]`/`gGlobalOverlayFlags` u32, render.h `PLANE_DIST`, actor.h `gPlayerCharacterId[]`/`ActorAssetHeader`. Rejected as hack swaps: 36B0 u32 selector needing an alias. FAKE 341 → 329, ORIG 85 → 87; names at close: 9 globals + 1 field; knowledge Q1141-Q1147 (Q0677/Q0240/Q0944/Q1082/Q0337/Q1051 corrected).
+- [ ] Paused after session 2026-11-16d. Leftovers: 6 functions without a fresh review (90D80 renderHitCounterHUD blocked; 5 staled by the close's knowledge entries: 11BC10, 42630, 68EA0, 9BF30, race/0; `uv run tools/quality.py rank --polish` / `rank | grep next=review`), 25 not exhausted (incl. 8 functions reopened by the u32 `gGlobalOverlayFlags` declaration with no lever); held names and blocked owner changes are in `.omp/skills/cleanup-unit/pending.md`.
 
-Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, session 2026-11-16c close):
+Start (`2b2532bc`) vs now (`uv run tools/quality.py report --baseline 2b2532bc --markdown`, session 2026-11-16d close):
 
 | metric | total | start |
 |---|--:|--:|
-| FAKE | 341 | 583 |
-| FAKE dead-if | 120 | 263 |
+| FAKE | 329 | 583 |
+| FAKE dead-if | 117 | 263 |
 | FAKE proto-steer | 3 | 134 |
-| FAKE other kinds | 218 | 186 |
-| ORIG (cited target offset) | 85 | 0 |
+| FAKE other kinds | 209 | 186 |
+| ORIG (cited target offset) | 87 | 0 |
 | LAYOUT | 83 | 47 |
 | goto | 32 | 39 |
 | proto-type (`// PROTO:`) | 2 | 0 |
 | protos mismatch | 7 | 1,202 |
-| reviewed / exhausted functions | 4,255 / 4,247 of 4,270 | 0 |
+| reviewed / exhausted functions | 4,264 / 4,245 of 4,270 | 0 |
 | cfe warnings (start column = round 9 start, when tracking began) | 5 | 1,890 |
 | uninit warnings (clint checks every function) | 252 | 122 |
 | `func_` definitions | 291 | 457 |
