@@ -585,7 +585,6 @@ typedef struct CsCondPlayer {
 } CsCondPlayer; /* 0x2F0 */
 
 extern PlayerStruct *gPlayerSlots;
-extern KongInventory *gCurrentKongInventory;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern u8 gGameMode;

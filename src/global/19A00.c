@@ -1753,7 +1753,6 @@ extern f32 D_80753E48[];
 extern s16 gKongMaxActiveProjectiles[];
 extern Actor *gActivePlayerActor;
 extern u8 gCurrentPlayerIndex;
-extern KongInventory *gCurrentKongInventory;
 extern s16 gCurrentCharacterIndex;
 
 void projectileTrySpawnFromSlot(Actor *actor) {

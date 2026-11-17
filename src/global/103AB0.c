@@ -57,8 +57,6 @@ Gfx *func_806FEF7C(Gfx *dl, Actor *player) {
     return renderRotatedSprite(dl, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, 0.001f);
 }
 
-extern KongInventory *gCurrentKongInventory;
-
 Gfx *playerViewDrawCrosshair(Gfx *gfx, Actor *actor) {
     u8 player;
     s32 target;

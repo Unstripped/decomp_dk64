@@ -1557,7 +1557,6 @@ void actorTableSort(void) {
     } while (!done);
 }
 
-extern KongInventory *gCurrentKongInventory;
 extern OSContPad *gCurrentContPad;
 extern u16 gContPressedButtons;
 extern s16 gCurrentCharacterIndex;

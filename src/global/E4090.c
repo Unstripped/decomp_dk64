@@ -1750,7 +1750,6 @@ void playerInputHandleAButtonState61(void) {
 extern u8 D_8071FBC8;
 extern u8 D_807200D4;
 extern f32 gKongProjectileSpeed[];
-extern KongInventory *gCurrentKongInventory;
 extern s16 gKongMaxActiveProjectiles[];
 
 

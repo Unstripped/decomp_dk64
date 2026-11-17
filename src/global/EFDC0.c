@@ -960,8 +960,6 @@ void playerStateApplyAttackerDamage(Actor *attacker) {
     }
 }
 
-extern KongInventory *gCurrentKongInventory;
-
 void playerStateSetLaunchVelocity(void) {
     u8 drawGun;
     s32 sizeMode;

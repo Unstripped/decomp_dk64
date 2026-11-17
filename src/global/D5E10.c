@@ -610,8 +610,6 @@ void playerInputUpdateWaitC9(void) {
     }
 }
 
-extern KongInventory *gCurrentKongInventory;
-
 void playerRegisterWeaponHudRenderCallback(s16 inputId) {
     if ((gActivePlayerState->gunDrawn != 0) && (hudCanRender() != 0)) {
         if (gCurrentKongInventory->weaponFlags == 7) {

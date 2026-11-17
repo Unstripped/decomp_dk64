@@ -999,6 +999,7 @@ typedef struct PlayerInventory {
 
 // Per-player inventory (4 players at 0x807FC950); gCurrentKongInventory points at the current kong's row.
 extern PlayerInventory gPlayerInventoryTable[];
+extern KongInventory *gCurrentKongInventory;
 
 // Character (kong) id of each of the 4 players (0x8074E77C-F): indexes gKongCharacterTable (CC800) and
 // PlayerInventory.kong; single player uses [0].
