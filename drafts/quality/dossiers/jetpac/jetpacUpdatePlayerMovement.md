@@ -1,10 +1,17 @@
 # jetpacUpdatePlayerMovement (jetpac, src/jetpac/1A60.c)
 
 ## Sites
-- **jetpac:80026318:volatile:1d4065** (line 269) and **jetpac:80026318:volatile:1d4065#2** (line 272).
-  - Each is a volatile reload of player->flying after the vy store in the flying arm. Target loads: `lw v0,48(s0)` at 0x9c4 and 0x9e0.
-  - Without them, the vx>0/vx<0 reloads at 0xac8/0xaf8 also disappear.
-- **jetpac:80026318:other:b4a3d4** (line 281, plus 288/293/296): `flying = player->flying` re-reads at the end of the btnLeft/btnRight/vx arms. These produce 0xa30/0xa40, 0xa8c/0xa9c and 0xac8/0xaf8.
+- **jetpac:80026318:volatile:1d4065** (base line 269) and **jetpac:80026318:volatile:1d4065#2** (base line 272): **fixed 2026-11-17** (HackjetpacUpdatePlayerMovement6).
+  - They were volatile reloads of player->flying after the vy store in the flying arms. Target loads: `lw v0,48(s0)` at 0x9c4 and 0x9e0.
+  - Worker fix: the parameter became `JetpacActor *actor`, with `JetpacPlayerActor *player = (JetpacPlayerActor *)actor;` in the old `pad` slot. JetpacActor fields go through `actor`, player-only fields (flying, ledge, fireCooldown) through `player`. The vy store through `actor` may alias `player`, so the plain reloads become real loads.
+  - **Lead ruling (CleanupLead, 2026-11-17e), merged form:** the signature stays `JetpacPlayerActor *player` and the caller is unchanged. The distinct base is a local in the pad slot, `JetpacActor *actor = (JetpacActor *)player;`, tagged `// FAKE` as new site **jetpac:80026318:other:ba285d**; fdiff 0 for the lead copy.
+  - This is a second pointer to one object, chosen for codegen. There is no independent evidence for a JetpacActor * view:
+    - only the generic routines take the jetman as `JetpacActor *` (jetpacGetEntityCenterX/Y, 4FC0.c:492);
+    - every player routine, including jetpacInitPlayer, uses `JetpacPlayerActor *` throughout;
+    - JetpacPlayerActor only shares JetpacActor's first 0x30 bytes, so the field split is a prefix overlap, not a split of field ownership.
+  - Net function FAKE goes from 3 to 2.
+- **jetpac:80026318:other:ba285d** (copy line 243): `JetpacActor *actor = (JetpacActor *)player; // FAKE: distinct base pointer defeats flying reload CSE`. Q0820: uopt keys load candidates by base variable, so stores through `actor` end the availability of `player->flying`.
+- **jetpac:80026318:other:b4a3d4** (line 283 in the copy, also 271/274 and 290/295/298): the `flying = player->flying` refreshes after each actor update. In the target they are 0x9c4/0x9e0, 0xa30/0xa40, 0xa8c/0xa9c and 0xac8/0xaf8. Still kept: every matching body needs the second-chain refreshes.
 
 ## Attempts
 **2026-11-14 U HackjetpacUpdatePlayerMovement (strong retry).**
@@ -88,10 +95,46 @@ Sweep at base a543051e: 27 checks, 0 hits. variants.py try on new bodies (full=)
 - Final `if (flying != 0 && player->flying != 0)`: 65. A final `if (player->flying != 0)` with only the btnLeft/btnRight re-reads: 72.
 - Copy unchanged: fdiff OK, uninit 0. The volatile pair and the four re-reads stay.
 
+**2026-11-17 U HackjetpacUpdatePlayerMovement6 HackjetpacUpdatePlayerMovement6 anthropic/claude-opus-5-5.**
+
+Mechanism probes on the old body, where every access goes through `player`. The plain reads score full=4.
+- `goto L; L: ;` before each of the four reloads: **0**. A referenced label starts a new uopt block. The read is redundant only if flying is available at block entry, and that availability is global: an f32 store through the base kills it. The check inside the block is type-based and ignores f32 stores. So once the reload is in its own block after the store, it is a fresh `lw`.
+  - The same label without the goto (unreferenced): 4.
+  - Labels only in the two flying arms: 2 (the vx arms lose their loads). Labels only in the two vx arms: 2.
+- A plain read in one flying arm only (e2b): 2, and the vx-arm loads stay. Reads in both flying arms (p0): 4, and the vx-arm loads vanish. `flying = player->flying` in the vx arms is removed when that assignment reaches 0x9f0 on every path.
+- Expression else-if test plus `else flying = player->flying` (V2): 13. The flying-arm loads become `move v1,v0`, so the load itself is reused, not only the store.
+
+**The fix: a JetpacActor parameter with a downcast, giving two base variables.**
+- `void jetpacUpdatePlayerMovement(JetpacActor *actor)` with `JetpacPlayerActor *player = (JetpacPlayerActor *)actor;`.
+- Each field goes through the pointer of the struct that owns it: x/y/vx/vy/flip/box* through `actor`, flying/ledge/fireCooldown through `player`.
+- uopt cannot prove that a store through `actor` misses `player->flying`, so every refresh after an actor store is a fresh `lw v0,48(s0)`. Both variables still coalesce into s0.
+- Results:
+  - Whole object fdiff OK with all reads plain (A1), with `player` declared in the `pad` slot (sp+0x38).
+  - Declared first, every local slot shifts by 4 (0x54 -> 0x50).
+  - Stores-only split (A1s): 0. Only the four flying-arm/vx-arm stores through actor (A1m): 0.
+  - All accesses through `player` (rb1): plain-like.
+- The caller jetpacPlayerStateUpdate passes `(JetpacActor *)&jetpacPlayer.player`, like the existing `(JetpacActor *)&jetpacPlayer` in 4FC0.c.
+- The copy carries a stand-in PROTO_SKIP and declaration. The clean copy compiled against a shadow `proto/jetpac/1A60.h` (header.patch) also gives objdiff OK.
+
+Other bodies with the split (variants.py try, full=):
+- A3 (Family Z) and A3b: 0, but the btnA-arm read and/or the else-if test-assign become dead stores.
+- A3c (expression test): 8, because flying lands in v1.
+- A1b (expression test plus else refresh): 6.
+- A2 (Family X): 2.
+- A5 (first-chain refreshes plus final `if (player->flying)`): 72.
+- A4 (natural, no local): 87.
+
+Refresh costs in A1: the four second-chain refreshes 12, all six non-btnA refreshes 14, the two vx-arm refreshes 2, the two flying-arm refreshes 2.
+
+Permuter seeded from Family Z (base 245, 900 s): best 44 (output-44-1), which routes reads and stores through a `new_var` copy of player. That is the same may-alias kill.
+
+Review: `idx` is split into `idx` (the ledge index) and `edge` (the jetpacCheckLedgeEdge result); fdiff OK.
+
+Result: fake 3 -> 1. b4a3d4 stays tagged, and its tag now also names the two flying-arm refreshes.
+
 ## Untried ideas
-- A JetpacPlayerActor field type that gives the flying-arm loads a different dtype from the test loads, for example a union. This is a header change and is unlikely to be natural (source: the u32 probe in HackjetpacUpdatePlayerMovement2; a u32 *local* does not do it).
-- A natural consumer of the 0x9f0 join read: found in Family Z (the final local through re-reads in all four second-chain arms), but it moves the missing pair to 0xac8/0xaf8. What is still untried is a source shape in which the vx>0/vx<0 arms leave the 0x9f0 extended block (a join in front of them) without adding code. No natural C form is known: the btnLeft/btnRight/else chain and the vx if/else are all single-predecessor blocks.
-- A natural second base for player (a caller-side pointer or a struct view that is a distinct variable rather than a respelling). The `pf`/`new_var` probes show that any distinct base matches; no natural source for one is visible in this function.
+- Whether the six refreshes are original code rather than a steer. The target executes one `lw v0,48(s0)` per refresh, and with the actor/player split no shorter natural source produces them (A4 87, A5 72). That may justify `// ORIG:` for b4a3d4; it needs a lead ruling (HackjetpacUpdatePlayerMovement6).
+- A natural consumer for a join read at 0x9f0 with a final `if (player->flying)` (the two-join-read family). It would give the per-arm loads through PRE without the second-chain refreshes. With the actor/player split, PRE still needs the join read to be live.
 
 ## Evidence
 **Target 0x968-0xaf8:**
@@ -100,3 +143,4 @@ Sweep at base a543051e: 27 checks, 0 hits. variants.py try on new bodies (full=)
 - vx>0/<0: 0xac8/0xaf8. On the vx==0 path, v0 is carried into `beqz v0` at 0xb0c.
 - The vx join read follows the same pattern: `lwc1 $f16,8(s0)` at 0xa48/0xaa4/0xad8/0xb04, with the vx==0 path carrying the 0xaa8 load.
 - Line 317's test is a fresh `lw t1,48(s0)` at the 0xc18 join (delay copies 0xbfc/0xc10), after the 0xb84/0xba4 vy stores.
+- uopt redundancy test (HackjetpacUpdatePlayerMovement6): availability at block entry comes from global data flow, and any store through the same base (f32 included) kills it. The check inside the block is type-based: an f32 store does not kill an s32 field load, an s32 store (the `sw 24(s0)` flip) does. A store through a different base variable kills the load in both (may-alias).
