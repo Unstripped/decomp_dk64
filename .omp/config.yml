@@ -1,6 +1,6 @@
 modelRoles:
   fast_boi: anthropic/claude-sonnet-5-5:high
-  good_boi: anthropic/claude-opus-5-5:high
+  good_boi: anthropic/claude-opus-5-5:xhigh
 
 task:
   agentModelOverrides:
