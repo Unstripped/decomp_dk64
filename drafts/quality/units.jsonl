@@ -953,3 +953,4 @@
 {"type": "unit", "t": "2026-11-17T16:57:13Z", "unit": "2026-11-17: cleanup HackenemyGridStateStep4", "commit": "4f13dd0a15dc169f888f683757f08c73cdcfe32f"}
 {"type": "unit", "t": "2026-11-17T16:59:17Z", "unit": "2026-11-17: cleanup Hackvsprintf10", "commit": "af14405ee41ecfa0a51e1ced4839c8576af7b436"}
 {"type": "unit", "t": "2026-11-17T17:02:07Z", "unit": "2026-11-17: cleanup CleanupLead7", "commit": "5d9d70ddc3bb347ca060d1aeef90d230fd9d3dac"}
+{"type": "unit", "t": "2026-11-17T19:38:18Z", "unit": "2026-11-17: cleanup HackcamComputeEyeFocus8", "commit": "9c8bb0fd820b05409ec0ccfd1fb27be1826abc96"}
