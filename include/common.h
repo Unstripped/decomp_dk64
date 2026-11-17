@@ -32,6 +32,8 @@ extern u32 gGameFrameCounter; // advances like gFrameCounter except while gGloba
 // Controller pads, defined in F600.c: current and previous frame (F600 copies 58 -> 60 each frame and derives gButtonsPressed).
 extern OSContPad gContPadCur;
 extern OSContPad gContPadPrev;
+// Set while a controller read started by controllerStartRead (F600.c) is pending; the EEPROM thread polls it.
+extern u8 gContReadPending;
 
 // Buttons newly pressed this frame: set in cur and clear in prev.
 #define BUTTONS_PRESSED(cur, prev) (((cur) ^ (prev)) & (cur))

@@ -640,7 +640,6 @@ void eepromReadAllSectors(void) {
 extern u8 *D_807467C0; // save-signature string
 extern s8 gSaveIconTimer;
 extern f32 gEepromWriteProgress;
-extern u8 gContReadPending[];
 extern OSMesgQueue D_807ECCF0;
 
 
@@ -656,7 +655,7 @@ void eepromSaveRecords(s32 recordsOnly) {
     u8 workingData[0x800];
     u8 savedData[0x800];
     volatile u8 *contReadPending; // controller-read-pending flag; this runs on eepromThreadMain while the main thread (controllerUpdate) clears it
-    contReadPending = gContReadPending;
+    contReadPending = &gContReadPending;
     if (D_807EDEAC == 2) {
         _sprintf(sEepromSlotBuffer + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
         memcpy(workingData, sEepromSlotBuffer, 0x800);
