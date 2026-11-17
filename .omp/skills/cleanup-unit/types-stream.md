@@ -63,10 +63,17 @@ header; sweep + carry. A batch stales the review of every caller whose BODY it e
   exits 0. Shadow headers must also shadow, unchanged, every `include/*.h` that quote-includes a shadowed one.
 - Bundles: strip stand-ins, apply the `.patch` (not shadow headers), merge, gen, objdiff callers
   (`--reloc-ok`), one gate. Copies keyed by the same basename (`boss/52B0` vs `race/52B0`,
-  `critter/0` vs `minecart/0`) need separate dirs and gates. dkd refreshes host-rewritten inputs before every
-  job (58d28dba), so no `--stop` after a header swap. Generated `include/proto` output is the source of truth over
-  a worker's header.patch. Copies rebuilt as HEAD + per-file patches merge with `--base HEAD` after a ledger
-  dry-run at HEAD.
+  `critter/0` vs `minecart/0`) need separate dirs and gates, unless they all see the changed header (a partial gate breaks the
+  others: redeclaration): then cp every copy over src, snapshot, ONE `merge_gate.sh --commit --stage <h> - - <srcs>` (2026-11-16d
+  gPlayerCharacterId: critter/0, menu/0, multiplayer/0). dkd refreshes host-rewritten inputs before every job (58d28dba), so
+  no `--stop` after a header swap. Generated `include/proto` output is the source of truth over a worker's header.patch. Copies
+  rebuilt as HEAD + per-file patches merge with `--base HEAD` after a ledger dry-run at HEAD. Multi-part batches: one gate per
+  part, lead copies = HEAD + `part<X>_src.patch`; a part whose header hunk no longer applies (an earlier part changed its context)
+  takes the batch's combined header after checking its diff vs the checkout is exactly that part's hunks. Record a batch ledger
+  at the MERGE commit (the base no longer compiles against the new header). A shared array extern keeps `T x[];` when users
+  declared `[]` (`carry` treats `[]` -> `[N]` as a changed declaration). A user that only matches with its own declared type,
+  proven by the target (52B0 s16 vs race/0 u16 gTextNumberArg), keeps it as `// ORIG:` and the extern goes into a header that
+  file does not include.
 - A `COMMIT_FAILED` after `GATE_OK` (concurrent `.git/index.lock`): commit the gated src by hand, then
   merge_record's steps 3-10. Commit explicit paths only; headers go in `--stage`, never as a gate file argument.
 - A copy whose file changed since its base merges 3-way (`<copy-dir> <base>`); a copy retyping a shared global's

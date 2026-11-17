@@ -65,11 +65,11 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - Community-source rule: HackplayerCameraUpdateFromTarget was REJECTED (curl-fetched the community decomp; scratch kept as
   `.scratch/HackplayerCameraUpdateFromTarget.rejected-community-source`, nothing recorded). The rule is now the first Rules bullet
   of brief-hack.md and brief-polish.md; every brief must carry it and the director audits provenance before each merge.
-- Types batches not run (TypesOwner idle): one shared `D_80750AC8` -> now `gTextNumberArg` (u16 in 112080/FCCD0/menu-1AF0/race-0,
-  s16 in C4620/C8C10/menu-0/race-36B0/52B0/6650: pick one type, one header extern, objdiff all 10); one shared `extern u8
-  gPlayerCharacterId[]` (~31 files with u8[]/u8/s8 locals); `gContReadPending` (was D_807ECD08) is `extern u8[]` in 104F0 but
-  `u8` in F600; RaceParticipant 0x25/0x26 racer-side aliases (boostTimer/boostPending); one shared VehicleActor (936B0) /
-  RaceCompetitorActor (52B0) type in race.h; 36880 TexImageCmdSpan as a Gfx[] view (G_SETTIMG/G_SETTILESIZE, file-scope).
+- Types batches DONE 2026-11-16d (batches 6-8: gTextNumberArg, gRdpOutputBuffer, PLANE_DIST, BUTTONS_PRESSED, gPlayerCharacterId[],
+  gContReadPending, D_807ECD48 → gPadPressedButtons[], gGlobalOverlayFlags u32, gActorScriptAsset). Not run: RaceParticipant 0x25/0x26
+  racer-side aliases (boostTimer/boostPending); one shared VehicleActor (936B0) / RaceCompetitorActor (52B0) type in race.h; 36880
+  TexImageCmdSpan as a Gfx[] view (G_SETTIMG/G_SETTILESIZE, file-scope); jetpac/0.c:443 open-coded BUTTONS_PRESSED; CC800 field
+  `heldButtonsPtr` holds &gPadPressedButtons[i] (pressed, not held: field rename).
 - Names held: PlayerState.unk11C (swimStrokeTimer vs stateTimer; EFDC0 unread), PlayerState.unkC2 -> slopeFrames (D5E10/EFDC0
   unread by the CEAE0 proposer), ActorGlobalState.unk15 -> hitType (boss files unread), RaceParticipant unk35 (statusStep /
   finishStep / subPhase), unk1C -> frameTimer, D_80757044/D_80757064 (default high-score tables), D_807FC952 (= gPlayerInventoryTable
@@ -110,8 +110,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   still blocked (string convention).
 
 ## Session 2026-11-16 close leftovers (CleanupLead4)
-- Names held (evidence in `.scratch/CleanupLead/close.md` and dispatch.md): D_807ECD48 (pad mask tested by arcade/critter/
-  menu; `gButtonsPressed` already names 0x807ECD66, so pressed vs held needs evidence) and D_8076A0A6 (copied from it);
+- Names held (evidence in `.scratch/CleanupLead/close.md` and dispatch.md): D_8076A0A6 (copied from gPadPressedButtons[0]);
   D_80760590 / D_805FB000 / D_805FB0D0 / func_80741310 are the rsp/asp ucode symbols that include/PR/ucode.h already
   declares (aspMainDataStart, rspbootTextStart/End, aspMainTextStart): replace the D_ externs with them as a types item
   (ucode.h types are `long long[]`); D_80744544 gCheatFlags, D_80750AC4 gMinigameCoinCount, D_80720340 gSmokePuffSprite
@@ -123,8 +122,7 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   6AD90 CollisionBoxTri / 70FD0 ActorSub140Tri views): DROPPED in 2026-11-16b batch_5 (TypesOwner5, Part A): scalar
   x0..z2 needs a pun for 70FD0's `&curr->out[j + 3]`; x[3]/y[3]/z[3] matches 70FD0 but fails fdiff in 6AD90
   (collisionTestActorBoxFloor, collisionCheckBoxTriangleContainsPointXZ). Probes: `.scratch/TypesOwner/batch_5/partA_req/`,
-  `partA_alt/`. Reopen only with a shape that fdiffs in both files. Shared-extern retype: 19A00 `extern u8 *gActorScriptAsset`
-  vs 7CA80 `ActorAssetHeader *`. Retype leftovers: 6AD90 365170 FIXED (batch_5, 95740f93: sizePtr u32 *); FE40 0b7e03/#2
+  `partA_alt/`. Reopen only with a shape that fdiffs in both files. Retype leftovers: 6AD90 365170 FIXED (batch_5, 95740f93: sizePtr u32 *); FE40 0b7e03/#2
   BLOCKED, both routes measured (PolishglobalFE40 2026-11-16c, ledger 75e7f1b2; probes `.scratch/PolishglobalFE40/`): `u8 *dst`
   raises W709 at 9 polymorphic caller args (5A50 4, 6AD90 5); gunzip `void **outBufPtr` needs a cast pun in its body
   (`*outBufPtr += outcnt` is a cfe Error on void *, `= slide + outcnt` fdiff 1) and its stand-ins add 8 W709 in 5 files.
@@ -137,11 +135,13 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   followDistGoal (201B0); ActorCallbackNode.unk4 subtype, .unkC ownsPayload, .unk10 payload (actor.h, confirm users);
   Actor 0xE4 pitch <-> 0xE8 roll swap (HackvehicleUpdateMotion4 evidence; confirm across users).
 - Types items: one shared lerp macro for 201B0 `CAM_LERP` and 478F0 `LERP`; gTextFontSheets `void **` -> `u8 **`
-  (Polishglobal100180); views: 8F4B0's `extern u16 D_807ECD48` is a scalar view of F600's `u16 D_807ECD48[4]`.
-- ORIG check: 6AD90 f64 midpoint reuse a2d087 (box) and 58f1bd/3aa4ac (collisionCheckTriangleContainsPointXZ) still FAKE; ec388d FIXED (d78151a9: dedicated hx once inline sign ternaries freed a slot); try the same for the sibling.
-- 2026-11-16c (Lead-2) types/macros item: PLANE_DIST → include/render.h beside PlanePoly + use at 55B20.c:2489; 2F550 sViewPlane f32[4] → plane type; one shared new-press macro (3E10 BUTTONS_PRESSED, F600.c:212); gRdpOutputBuffer (u32 in 13980/14CF0, u8 * in 15050) type unification.
-- 2026-11-16c stale reviews (re-review first next session): bonus/2690 bonusTargetUpdate, bonusPerilPathPanicGameUpdate, bonusSearchlightSeekGameUpdate (shared func_806FDAB8 prototype since 0a7cfd1f) plus the functions knowledge 3d2ca4a0 names (`rank --polish`). HELD: hudPauseMenuUpdate (EXHAUSTED, no rung); RaceParticipant.unk35 → phase evidence (race/0 copies it into a local `phase`).
-- Knowledge commits 563288d1 and 3d2ca4a0/3c6f1a47 (Q0548/Q0627/Q0707/Q0716/Q1066 corrected) name ~85 functions: older units' agent rungs on them are stale; re-run candidates only with a genuinely new idea.
+  (Polishglobal100180).
+- ORIG check: 6AD90 f64 midpoint reuse a2d087 (box) and 3aa4ac (collisionCheckTriangleContainsPointXZ) still FAKE (frame holds only ten f64); ec388d and 58f1bd FIXED (d78151a9, b52ccd53: dedicated hx once sign ternaries freed a slot).
+- 2026-11-16d close leftovers (CleanupLead): stale reviews (re-review first): 11BC10 effectPuffExpandFadeUpdate, 42630 csCondEval,
+  68EA0 modelEmittersUpdate, 9BF30 projectileRenderSpriteRing, race/0 raceOpponentBehaviourUpdate (knowledge e9e8698a corrections
+  name them). Reopened with no lever by batch_8 F (u32 gGlobalOverlayFlags; codegen identical): CEAE0 playerUpdateCommon, ACDC0
+  hudPauseMenuUpdate (HELD), 80150 throwableBarrelUpdate / transformBarrelUpdate, 9CE20 actorBoneChainSwingUpdate, 201B0
+  camFloorSnap / camComputeEyeFocus, race/6650 raceUpdateRacerMotion. HELD: RaceParticipant.unk35 → phase evidence.
 
 ## OPEN functions
 
