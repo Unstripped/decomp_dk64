@@ -234,14 +234,13 @@ void enemyGridStateStep(void) {
                     dy = (s16)dy;  // FAKE: see dx above
                     if (dx < -1) {
                         dx = -1;
-                        if (ones == 0) {}  // FAKE: dead test (with the cell test below) keeps lb gridX/gridY in t0/t1, removal gives v1/a3
+                        if (ones == 0 && col) {}  // FAKE: dead test (ones uninitialised here, col = cell & 3) keeps lb gridX/gridY in t0/t1; removal gives v1/a3
                     }
                     if (dx >= 2) {
                         dx = 1;
                     }
                     if (dy < -1) {
                         dy = -1;
-                        if (cell & 3) {}  // FAKE: dead test, see the ones test above
                     }
                     if (dy >= 2) {
                         dy = 1;
