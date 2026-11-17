@@ -1301,50 +1301,50 @@ extern PlayerStruct *gPlayerSlots;
 
 
 s32 scriptOpPlaySoundAndShake(Actor *actor) {
-    s16 imm;
-    u8 imm2;
-    s16 imm3;
-    u8 imm4;
-    u8 priority;
+    s16 sfxId;
+    u8 volume;
+    s16 pitch;
+    u8 spread;
+    u8 range;
     u8 pad;
 
     sScriptPc++;
-    scriptReadU16(&imm);
-    scriptReadU8(&imm2);
-    scriptReadU16(&imm3);
-    scriptReadU8(&imm4);
+    scriptReadU16(&sfxId);
+    scriptReadU8(&volume);
+    scriptReadU16(&pitch);
+    scriptReadU8(&spread);
     if (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 2) {
-        priority = 0xA;
-        if (imm == 1) {
-            imm2 *= 0.5;
+        range = 0xA;
+        if (sfxId == 1) {
+            volume *= 0.5;
         }
         camStartShakeFromPoint(gActivePlayerState->camActor, 0xA, 8, actor->x, actor->y, actor->z, 100.0f, 800.0f);
     } else if (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 0) {
-        priority = 0xFF;
-        imm2 *= 0.5;
+        range = 0xFF;
+        volume *= 0.5;
     } else {
         switch (actor->actorType) {
         case 6:
         case 7:
-            priority = 0x46;
+            range = 0x46;
             break;
         case 8:
-            priority = 0x5A;
+            range = 0x5A;
             break;
         case 2:
         case 4:
-            priority = 0x32;
+            range = 0x32;
             break;
         default:
-            priority = 0x50;
+            range = 0x50;
             break;
         }
     }
-    imm = mapActionLookupEntry(imm, actor, actor->unk78[0]);
-    if ((imm == 2) || (imm == 8)) {
-        imm4 = 0xA;
+    sfxId = mapActionLookupEntry(sfxId, actor, actor->unk78[0]);
+    if ((sfxId == 2) || (sfxId == 8)) {
+        spread = 0xA;
     }
-    sfxPlayAtPositionPooled(actor->x, actor->y, actor->z, imm, imm2, imm3, imm4, priority, 0.3f, 0);
+    sfxPlayAtPositionPooled(actor->x, actor->y, actor->z, sfxId, volume, pitch, spread, range, 0.3f, 0);
     return 1;
 }
 
