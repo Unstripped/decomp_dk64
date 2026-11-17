@@ -28,7 +28,10 @@
   - 1c9d00: no line 10 (1848 insns: &D_807F61F0 a3 instead of v0 at 0x2670-0x2688, re-materialised lui/addiu a3 + `lw a0,4(a3)` instead of folded `lui a0; lw a0,%lo(D_807F61F0+4)(a0)` at 0x268c/0x2694). uopt -l6: with the line the 0x68 lda range splits (583 -> 620/623: a3 piece, v0 rest) and b takes a3. Hand classify: guards on cmd/cs/1/hostActor between the despawns, `b = 0`, a dead `b = hostActor;`, i or actor instead of b: all 10 (= removal); `b = cmd->b` 22; `b = active` 6; the line after the 2nd despawn 3 (store base v1 vs a3), before the 1st 6. Natural rewrites: `CsSpawnReq *req` pointer local 120; u8/s32 `active` local in pad's slot 473; `Actor *host` in pad's slot before the 1st despawn 9, between 10; `b = D_807F61F0.active` as the test 470.
   - reconstruct: all non-kept steers removed 603 (1852 insns), with pad0 558. All nohit.
 
-## Untried ideas
+- 2026-11-17 HackcsCmdExec6 anthropic/claude-opus-5-5:high (variants.py try full=, base 4d0df275):
+  - sweep: 21 checks, 0 hits.
+  - 1c9d00 (case 0x68, no b line): (&D_807F61F0)->hostActor / ->timerActor / all three, (&D_807F61F0)[0].hostActor, *&D_807F61F0.hostActor, bare if (active), active = FALSE: all 10 (cfe makes every spelling the same field LOD); existing Actor *actor = hostActor before the 1st despawn 9, between 10, actor = timerActor 10; active = 0 between the despawns 15; extra hostActor = NULL 19, timerActor = NULL 18. Q0176 (original fix was a split `extern Actor *D_807F61F4` label: not allowed).
+  - reconstruct: dm -> s32 pad0, 0x68 existing actor local, 0xF spread as `s32 spread` replacing the unused pad (found guard kept): 561; plain 0x68 562; without pad0 606.
 - e8c5ea: a natural real use of found or another value occupying a2 across block 0 (no candidate found; not coupled to dm).
 - 4f1968: a codeless natural escape of csId (none in the target asm; K&R definition ruled out).
 - 1c9d00: a natural u8 value live in a3 between the two despawns of case 0x68 (only the u8 b web assigned from hostActor reproduces it; dedicated locals, pointer locals and guards do not).
