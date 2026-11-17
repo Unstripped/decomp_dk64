@@ -291,11 +291,11 @@ void viModeApplyHighRes(void) {
 void viModeSetup(u8 overlaySlot) {
     u8 overlayId;
     s32 overlayParam;
+    s8 *firstSetupFlag = &sViModeFirstSetup;
 
     overlayId = 1;
     overlayParam = 0;
     func_806003EC(gCurrentLevelIndex);
-    if (sViModeFirstSetup && sViModeFirstSetup) {}  // FAKE: deadsweep dead statement (steers uopt; keeps the sViModeFirstSetup address out of a register)
     if (gCurrentMap == 0x28) {
         gHiResScale = 2;
     } else {
@@ -337,7 +337,7 @@ void viModeSetup(u8 overlaySlot) {
         break;
     }
     loadOverlay(overlaySlot, overlayId, overlayParam);
-    if (sViModeFirstSetup == 0) {
+    if (*firstSetupFlag == 0) {
         osViSetMode(&osViModeTable[gViModeIndexByTvType[osTvType + osTvType + gHiResScale - 1]]);
         if (D_807445A0 == 0) {
             osViBlack(1);
@@ -347,7 +347,7 @@ void viModeSetup(u8 overlaySlot) {
     } else {
         D_80744510[0] = 1;
         D_807445A0 = 1;
-        sViModeFirstSetup = 0;
+        *firstSetupFlag = 0;
         viModeApplyHighRes();
     }
     osViSetSpecialFeatures(0x42);
