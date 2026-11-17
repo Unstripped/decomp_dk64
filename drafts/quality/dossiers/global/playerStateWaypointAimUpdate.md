@@ -23,11 +23,37 @@ Fixed 2026-11-17 (were 1ea72b f7b1c1 bc0c83 e7e05f 23f09e 2797cb 69b9dd 718e35, 
   a triple same-value gWaypointIndex read at the top of the then-arm; the two-term form is enough (fdiff 0).
 - shared prototype (PROTO_SKIP + K&R decl deleted): fdiff 0.
 Result: fdiff 0, 10 FAKE + 1 PROTO -> 1 FAKE + 1 ORIG.
+2026-11-17 2026-11-17: cleanup HackplayerStateWaypointAimUpdate4 HackplayerStateWaypointAimUpdate4 anthropic/claude-opus-5-5:high:
+- 8092af reduction: single `if (gWaypointIndex) {}` (and `!= 0`, `== gWaypointIndex`) at every line from
+  `starting =` to `control->button = 0` -> best 3 (never 0); `if (1) {}` 3; removal 3; triple 0; `||` two-term 0.
+  uopt -l5 (single guard in the then-arm): eq {1597} LR 60 and index load {536} LR 64 both adjsave 2.0; the tie
+  goes to eq (lower LR; eq's store numbers the var before both compare operands: 60 eq, 62/63 count loads,
+  64 index load), so eq takes v0. Each then-arm block holding a same-value read adds 0.5 (1.5 -> 2.0 -> 2.5):
+  two blocks are needed to beat eq, one only ties.
+- classify (hand): unrelated two-term guards `cur && cur`, `close && close`, `eq && eq` 3, `tgt && tgt` 14,
+  `gWaypointIndex && tgt` 14 -> availability/same-value class (Q0908 class 2, Q1030 term count).
+- tie-breakers with the single guard: `register s32 eq` 3, block-scope `s32 eq =` 3, if-assign eq 3, swapped
+  compare 24, `eq = idx + 2; eq = eq == count` 66, `eq = ... != ...; if (!eq)` 3.
+- natural bodies without a guard: eq u8 69, s8/s16 70, u16 69, u32 3; no eq 9 (index load v0 OK, but
+  &gWaypointIndex then takes the free v1 instead of a0, so `lui a0,%hi(gWaypointCallbackId)` fills the delay
+  slot and bnel becomes bne); `count == idx + 2` no eq 29; local idx2 = idx + 2 66 (s16 84); count local 67;
+  else-arm `++x`/`x = x + 1`/`x += 1` 3, cursor before index 7; decl order of eq 3/43/61.
+- variants scan (swap/float/width/declswap) on the guard-free body (base 3) and the no-eq body (base 9): no zero.
+- permuter (900 s, -j 2, base 15) on the single-guard body: best=0 three times, each only adding a second dead
+  guard in the gGameMode == 0 arm (`!idx && !idx && !idx` or `if (!eq) {}`): no natural hint.
+Result: no change (fdiff 0, 1 FAKE + 1 ORIG).
 
 ## Untried ideas
 - a real (code-free) then-arm use of gWaypointIndex to replace the 8092af guard; none found.
+- a natural way to number the gWaypointIndex load before eq (then one same-value read would win the 2.0 tie);
+  eq's own store always numbers it first in `eq = idx + 2 == count` (HackplayerStateWaypointAimUpdate4).
+- a v1 occupant other than eq for the no-eq body (needs an invisible candidate live in bb3/else with
+  adjsave between 0.5 and 1.5) (HackplayerStateWaypointAimUpdate4).
 
 ## Evidence
 target 0x3500 `sltiu a1,a2,1`, 0x3504 `andi t4,a1,0x1`, 0x3508 `beqz t4`: the flag is a coloured variable (a1)
 masked again. 0x3534 `lh v0,0(a0)` (gWaypointIndex), 0x3540 `addiu t9,v0,2`, 0x3544 `bnel t8,t9`, 0x35f4
 `addiu t6,v0,1`. 0x35a0 `jal playerStateQueueCallback` sets a0/a1/a2 only.
+v1 is not used in the target between 0x341c and 0x3ac8 (first use: `lb v1,3(a1)` at 0x3ac8, stick_y blend):
+in the close arm it is held by an invisible candidate (the fused eq compare), coloured after the index load
+(v0) and before &gWaypointIndex (a0, adjsave 0.5).
