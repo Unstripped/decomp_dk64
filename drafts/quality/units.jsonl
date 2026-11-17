@@ -969,3 +969,4 @@
 {"type": "unit", "t": "2026-11-17T21:50:00Z", "unit": "2026-11-17: cleanup HackbossScriptStep3", "commit": "3ffe1656282429ec782a432da3d2548206829ef2"}
 {"type": "unit", "t": "2026-11-17T22:02:14Z", "unit": "2026-11-17: cleanup HackeffectBuildGridVertices2", "commit": "ee6abe4b815104d26c2e7f058b36bbb3524d9eb6"}
 {"type": "unit", "t": "2026-11-17T22:13:22Z", "unit": "2026-11-17: cleanup Hackvsprintf14", "commit": "f95a12cd0f733cc86e41562fb6ee9e9982f3b412"}
+{"type": "unit", "t": "2026-11-17T22:14:30Z", "unit": "2026-11-17: cleanup HackcamComputeEyeFocus9", "commit": "efa6ee663d11861241536fdbb9f33cd5ef6cd1c4"}
