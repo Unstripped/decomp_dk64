@@ -907,3 +907,4 @@
 {"type": "unit", "t": "2026-11-17T14:47:38Z", "unit": "2026-11-17: cleanup HackraceUpdateRacerMotion", "commit": "4cfa2c12620d0001708eeb342f8dde963f83ce0f"}
 {"type": "unit", "t": "2026-11-17T14:48:47Z", "unit": "2026-11-17: cleanup HackaudioInit", "commit": "93c8ea5f2913fe4428ebc8a3f1fbc375ba472dee"}
 {"type": "unit", "t": "2026-11-17T14:49:46Z", "unit": "2026-11-17: cleanup CleanupLead-2 sweep", "commit": "f2fddb5592714ee9a5f4189d0a4a61e98325f6bd"}
+{"type": "unit", "t": "2026-11-17T14:50:55Z", "unit": "2026-11-17: cleanup Hackvsprintf8", "commit": "7bce5b8f94d77a413800c6204eac25856efb221e"}
