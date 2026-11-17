@@ -275,8 +275,10 @@ extern s32 D_80720020;
 void func_80026D40(void *, u8);
 f32 sqrtf(f32);
 
+#define SQ(x) ((x) * (x))
+
 void playerUpdateCommon(s32 mode) {
-    f32 dy;
+    f32 dist;
     f32 screenX;
     f32 screenY;
     u8 heavyImpact;
@@ -284,15 +286,13 @@ void playerUpdateCommon(s32 mode) {
     u8 floorType;
     u8 materialType;
     Actor *attacker;
-    f32 dz;
+    EffectNode *fx;
     f32 nodeX;
     f32 nodeY;
     f32 nodeZ;
-    f32 dx;
+    s16 flags;
     f32 projX;
     f32 projY;
-    EffectNode *fx;
-    s16 flags;
     if (gCurrentActor && gCurrentActor) {}  // FAKE: steers uopt candidate colouring (gActivePlayerActor pointer v1)
 
     attacker = gCurrentActor;
@@ -431,11 +431,8 @@ void playerUpdateCommon(s32 mode) {
                 fx->x = projX * 4.0f;
                 fx->y = projY * 4.0f;
                 fx->z = 5.0f;
-                dz = gPlayerSlots[0].camZ - nodeZ;
-                dx = gPlayerSlots[0].camX - nodeX;
-                dy = gPlayerSlots[0].camY - nodeY;
-                dz = sqrtf(dz * dz + (dx * dx + dy * dy));
-                fx->scaleX = gCurrentActor->sub4->scaleX * (1000.0f / dz) * 6.666666666666667 * 0.7 * 0.008333334f * (f32)gActivePlayerState->effectTimer;
+                dist = sqrtf(SQ(gPlayerSlots[0].camX - nodeX) + SQ(gPlayerSlots[0].camY - nodeY) + SQ(gPlayerSlots[0].camZ - nodeZ));
+                fx->scaleX = gCurrentActor->sub4->scaleX * (1000.0f / dist) * 6.666666666666667 * 0.7 * 0.008333334f * (f32)gActivePlayerState->effectTimer;
                 fx->scaleY = fx->scaleX;
             }
         }
@@ -446,42 +443,39 @@ void playerUpdateCommon(s32 mode) {
     if (groundImpact != 0) {
         playerStateQueueCallback(0x3F, attacker, gCurrentPlayerIndex);
     }
-    if (heavyImpact == 1) {
-        goto case1;
-    }
-    if (heavyImpact == 2) {
-        goto case2;
-    }
-    gActivePlayerState->breathTimer = 0;
-    goto done;
-case1:
-    if (gActivePlayerState->stateFlags & 0x10) {
-        gActivePlayerState->breathTimer = 0;
-    } else {
-        gActivePlayerState->breathTimer++;
-        playerStateQueueCallback(0x2E, attacker, gCurrentPlayerIndex);
-        if (gCurrentActor->state != 0x36 && gCurrentActor->state != 0x3B && gActivePlayerState->surfaceTimer == 0) {
-            s16 snd = 0x2C0;
-            if (gCurrentMap == 0x30) {
-                snd = 0x3B0;
+    switch (heavyImpact) {
+        default:
+            gActivePlayerState->breathTimer = 0;
+            break;
+        case 1:
+            if (gActivePlayerState->stateFlags & 0x10) {
+                gActivePlayerState->breathTimer = 0;
+            } else {
+                gActivePlayerState->breathTimer++;
+                playerStateQueueCallback(0x2E, attacker, gCurrentPlayerIndex);
+                if (gCurrentActor->state != 0x36 && gCurrentActor->state != 0x3B && gActivePlayerState->surfaceTimer == 0) {
+                    s16 snd = 0x2C0;
+                    if (gCurrentMap == 0x30) {
+                        snd = 0x3B0;
+                    }
+                    sfxPlayFromActorWithAltitudeCheck(gCurrentActor, snd, 0xFF, 0x7F, 0);
+                }
             }
-            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, snd, 0xFF, 0x7F, 0);
-        }
+            break;
+        case 2:
+            gActivePlayerState->stateFlags |= 0x1000;
+            if (!(gActivePlayerState->stateFlags & 0x10)) {
+                if (gCurrentActor->state != 0x36 && gCurrentActor->state != 0x3B && gActivePlayerState->surfaceTimer == 0) {
+                    sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x2C0, 0xFF, 0x7F, 0);
+                }
+                if (gCurrentMap == 0x53 || gCurrentMap == 0xC5) {
+                    playerStateQueueCallback(0x40, attacker, gCurrentPlayerIndex);
+                } else {
+                    playerStateQueueCallback(0x30, attacker, gCurrentPlayerIndex);
+                }
+            }
+            break;
     }
-    goto done;
-case2:
-    gActivePlayerState->stateFlags |= 0x1000;
-    if (!(gActivePlayerState->stateFlags & 0x10)) {
-        if (gCurrentActor->state != 0x36 && gCurrentActor->state != 0x3B && gActivePlayerState->surfaceTimer == 0) {
-            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x2C0, 0xFF, 0x7F, 0);
-        }
-        if (gCurrentMap == 0x53 || gCurrentMap == 0xC5) {
-            playerStateQueueCallback(0x40, attacker, gCurrentPlayerIndex);
-        } else {
-            playerStateQueueCallback(0x30, attacker, gCurrentPlayerIndex);
-        }
-    }
-done:
     if (floorType != 0) {
         playerStateQueueCallback(0, attacker, gCurrentPlayerIndex);
         if (gActivePlayerState->surfaceTimer == 0) {
