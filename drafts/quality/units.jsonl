@@ -944,3 +944,4 @@
 {"type": "unit", "t": "2026-11-17T16:42:01Z", "unit": "2026-11-17: cleanup Polishglobal9BF30", "commit": "79cbbb58dc486091f9446407189e096e2bbd5a26"}
 {"type": "unit", "t": "2026-11-17T16:42:46Z", "unit": "2026-11-17: cleanup HackbonusSearchlightSeekGameUpdate7", "commit": "db66eba0fe67e3e642eacdf47382ce95d5b4440b"}
 {"type": "unit", "t": "2026-11-17T16:48:13Z", "unit": "2026-11-17: cleanup HackslotQueueStateMoveToTarget2", "commit": "702d6776e0860d26ec69065ef6112066efab3f89"}
+{"type": "unit", "t": "2026-11-17T16:48:48Z", "unit": "2026-11-17: cleanup PolishglobalEFDC0", "commit": "485ef00ce499bd41169a9dabe1159e66a830584a"}
