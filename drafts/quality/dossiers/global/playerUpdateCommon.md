@@ -1,9 +1,9 @@
 # playerUpdateCommon (global, src/global/CEAE0.c)
 
 ## Sites
-- global:806CA5F8:dead-if:8ce181 dead-if: `if (gCurrentActor && gCurrentActor) {}` before the first statement. Its ilod makes the gCurrentActor load {817|0} candidate bit 0, ahead of the attacker var {800|0}. That keeps the gActivePlayerActor pointer web coloured into v1 at 0xf14-0xf2c; removing it gives s0 (adjsave tie order, Q0199).
-- global:806CA5F8:other:81cda0 other: `(u32)attackerIndex != gActivePlayerState->playerIndex`. The cast makes the local a ucvt isop numbered after the field's, so the compare at 0xe54 is `beq t2,v0`; without it the compare is `beq v0,t2` (Q0715).
-- global:806CA5F8:other:8b0fd9 other: `&((PlayerStruct *)gPlayerSlots)[gCurrentPlayerIndex].headX/Y/Z`. The identity cast builds uadd(load, idx*size). Cast-free spellings build uadd(idx*size, load) and rotate the t7/t8/t0 scratch ring from 0x12d0 (Q0717).
+- global:806CA5F8:dead-if:c17942 dead-if (was 8ce181, `if (gCurrentActor && gCurrentActor) {}` until 2026-11-17): `if (gCurrentActor) {}` before the first statement. Its ilod makes the gCurrentActor load {817|0} candidate bit 0, ahead of the attacker var {800|0}. That keeps the gActivePlayerActor pointer web coloured into v1 at 0xf14-0xf2c; removing it gives s0 (adjsave tie order, Q0199). One read is enough.
+- global:806CA5F8:other:81cda0 other: `(u32)attackerIndex != gActivePlayerState->playerIndex`. The cast makes the local a ucvt isop numbered after the field's, so the compare at 0xe54 is `beq t2,v0`; without it the compare is `beq v0,t2` (Q0715). A (u32) on the field side instead gives the same code: any unsigned compare does.
+- global:806CA5F8:other:318197 other (was 8b0fd9, a cast on all three addresses until 2026-11-17): `&((PlayerStruct *)gPlayerSlots)[gCurrentPlayerIndex].headX` on the first argument only; headY/headZ are plain. The identity cast builds uadd(load, idx*size). Cast-free spellings build uadd(idx*size, load) and rotate the t7/t8/t0 scratch ring from 0x12d0 (Q0717). Only the first address needs it.
 - (removed 2026-11-17) global:806CA5F8:goto:u933fb / u36185 / u72d9b / u72d9b#2: the heavyImpact dispatch is now `switch (heavyImpact) { default: ...; case 1: ...; case 2: ... }`.
 
 ## Attempts
@@ -55,11 +55,24 @@
     - `PlayerStruct *slots = gPlayerSlots` block local: 162.
   - All three FAKE removed on the switch/SQ body: 62.
   - `(f32)effectTimer` removal: 34. It is a real cvt.s.w + cvt.d.s, so it stays.
+- 2026-11-17 cleanup HackplayerUpdateCommon3 (anthropic/claude-opus-5-5), fdiff OK:
+  - 8ce181 -> c17942: `if (gCurrentActor) {}` (one read) matches, so the second read was dropped.
+    - attacker = gCurrentActor moved below the D_807463B8 flag stores (no dead test): 428. The entry `sw s0,100(sp)` at 0x838 pins it to the top.
+    - gActivePlayerState assignment first, re-measured on the switch/SQ body: 26.
+  - 8b0fd9 -> 318197: per-argument cast test. Cast on headX alone: 0. On headY or headZ alone, or both: 37. Two casts dropped.
+    - headX as `&(gPlayerSlots + i)->headX`, `&(*(gPlayerSlots + i)).headX`, `&(i + gPlayerSlots)->headX`: 37 each.
+  - 81cda0:
+    - `attackerIndex != (u32)gActivePlayerState->playerIndex`: 0 (an unsigned compare, still a cast).
+    - `(s8)` field cast: 2 (lb instead of lbu). `!(==)`: 1. xor compare: 237.
+    - attackerIndex assigned in the test (`(attackerIndex = ...) >= 0`): 1 plain, 0 with the cast.
+    - A u32 bitfield playerIndex is ruled out: CC800/201B0 store it with a byte store.
+  - Reconstruct: natural body (all three removed) 62; with the assignment-in-test local 62.
 
 ## Untried ideas
-- A field-type change for PlayerState.attackerPlayerIndex/playerIndex was ruled out: playerIndex is already u8, and the s8 side needs the `>= 0` test.
-- A natural form that numbers the playerIndex ucvt before the local's (Q0715) would fix 81cda0. A u8 snapshot did not; it reorders far more (269).
-- 8ce181: any natural statement that reads gCurrentActor (an ilod) in a block before `attacker = gCurrentActor` and emits no code would restore the candidate bit order (uopt_trace evidence above). No such statement is known yet.
+- A field-type change for PlayerState.attackerPlayerIndex/playerIndex was ruled out: playerIndex is already u8 (stored as a byte in CC800/201B0), and the s8 side needs the `>= 0` test.
+- 81cda0: a natural unsigned operand would fix it (a field-side (u32) matches too). Nothing on either side is unsigned int in the known types.
+- c17942: one natural statement that reads gCurrentActor once in a test before `attacker = gCurrentActor` and emits no code would fix it. No such statement is known yet.
+- 318197: only the first address (headX) needs a non-leaf base. A natural spelling of just that argument would fix it.
 
 ## Evidence
 - 0xe54: target `beq t2,v0` (field operand first).
