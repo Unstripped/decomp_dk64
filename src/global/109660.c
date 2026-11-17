@@ -443,7 +443,7 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     guScaleF(mtxA, scale, scale, scale);
     guTranslateF(mtxB, -2560.0f, -1920.0f, 0.0f);
     guMtxCatF(mtxA, mtxB, mtxA);
-    inv = (f32)((0x1000 - playerState->camActor->pitch) & 0xFFF); // FAKE: inv doubles as the roll angle; a separate f32 angle adds a home and grows the frame 0x1B0 -> 0x1B8
+    inv = (0x1000 - playerState->camActor->pitch) & 0xFFF; // FAKE: inv doubles as the roll angle; a separate f32 roll local takes a declaration slot and grows the frame 0x1B0 -> 0x1B8
     inv *= 0.087890625f;
     guRotateF(mtxB, inv, 0, 0, 1);
     guMtxCatF(mtxA, mtxB, mtxA);
