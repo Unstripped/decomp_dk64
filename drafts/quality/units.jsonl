@@ -986,3 +986,4 @@
 {"type": "unit", "t": "2026-11-17T23:41:18Z", "unit": "2026-11-17: cleanup HackactorCollisionProcessHit2", "commit": "bd54c3aa097e08fcafe43e1e6c24e88a7495a1e3"}
 {"type": "unit", "t": "2026-11-17T23:42:02Z", "unit": "2026-11-17: cleanup HackpathPlaybackAdvance3", "commit": "b451a08e199ad1aea4b77db92ee4987bc1fce6c2"}
 {"type": "unit", "t": "2026-11-17T23:55:45Z", "unit": "2026-11-17: cleanup HackarcadeDrawStage4Background2", "commit": "fec278f601cd8537dc16a64f72d6810573272048"}
+{"type": "unit", "t": "2026-11-17T23:58:52Z", "unit": "2026-11-17: cleanup HackactorCollisionResolveSurfaceHit4", "commit": "0df5556f1f1c4632eb5daf8aad6dfc31409f55c3"}

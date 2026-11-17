@@ -47,12 +47,27 @@
     - `for (i)` over normal[]: 35.
     - `8.0f` or `* 0.125f`: 18.
     - `clamp / 8.0f` with no cast: 2.
+- 2026-11-17 U HackactorCollisionResolveSurfaceHit4 (:high, strength 3): both sites nohit; copy unchanged.
+  - 94c1f4:
+    - By-reference idea refuted by the target: no call argument or address computation materialises sp+0x154..0x157 (the only stack addresses are selfMtx 0xec, worldX/Y/Z 0xe8/0xe4/0xe0, the tri walkers 0xd4/0xc8/0xbc); the two `lbu 343(sp)` at 0x84c/0x92c are the only accesses. A `&flag` use would have to be dead code.
+    - `const u8 flag` through a PROTO_SKIP stand-in: 119 fdiff lines, identical to plain (119 by the same count): `lbu s1,0x157(sp)` at 0x84c and `beqz s1` at 0x92c instead of the two `lbu t8/t5,343(sp)`, pos moves s1 -> s2 at 0x810, every later ugen temp shifts down one (t1 -> t0 at 0x854, t9 -> t8 at 0x860).
+    - `register u8 flag` (ANSI): text 118, same as plain.
+    - First test as `switch (flag) { case 0: ... break; default: ... }` (and `case 1:`/`default:` swapped): 152/153 (branch shape changes, ucvt still coloured).
+    - Plain forms on this body: plain `flag != 0` 118 text, both sites removed 134.
+  - e9a088:
+    - Copy-then-modify in the else arm (`pushX = worldX; pushZ = worldZ; pushX -= normal[0]; pushZ -= normal[2];`): 16, identical to removal (Q1138: the copy in the same block is folded; pushX/pushZ in $f2/$f12, normal[0]/[2] in $f14/$f16).
+    - `pushX -= normal[0]` keeping the pre-branch `pushX = worldX` (pushX live across the else arm's calls): 96.
+    - Both copies before the branch and `-=` in a negated `if`: 109.
+    - `i = 0; do { normal[i] *= ...; i++; } while (i < 3);`: 35, same as the `for` (2x-unrolled loop at 0xc5c, pushX/pushZ do get $f0/$f2 behind the loop's block boundary).
+    - Q0556 varreflimit cut: from the clamp join label (0xc48) to the end of `normal[2] *= ...` the block counts 6 variable loads (normal[0..2], clamp x3), far below the 20 needed for a label-less statement-boundary cut, so no natural statement count can split there.
+    - variants scan on the removal copy: 52 variants, all 16; on the plain-flag copy all 118-120.
+    - Permuter, both sites removed, on the current body (index-loop walk, stickMag spelling), hack-free weights, 900 s at -j 2: baseline 991, best 660 (`other->collisionFlags & (long long)1`, a 64-bit width steer), no zero.
 
 ## Untried ideas
-- 94c1f4: none in this file. One `&flag` read in either test is enough, so the original probably took the address of `flag` (or passed it by reference) in code that was later inlined or removed. This TU has no evidence of that. Retyping the parameter and changing the conversion width do not work.
-- e9a088: the target needs pushX/pushZ to be defined in a basic block after the last use of the clamp/8 value. No ordinary C construct that splits the block without emitting code was found. The 70FD0 sibling has no matching construct.
+- 94c1f4: none left in this TU. The target performs no by-reference use of `flag`; only dead code (`(void)&flag`, an unused `u8 *p = &flag`, Q0191) or `volatile` can make it address-taken, and all are hacks. Retyping, qualifiers (const/register), conversion widths, switch/nested-if/snapshot spellings are measured.
+- e9a088: the target needs pushX/pushZ in a uopt block after the last use of the clamp/8 CSE temp ($f0, 0xc6c-0xc88). Real loops, copies and statement order are measured; a do-while(0) statement macro is still a tagged do-while(0) (3D20 PUTC precedent, Q1191). No ordinary C construct that splits the block without code is known.
 
 ## Evidence
-- Target 0x84c `lbu t8,343(sp)` and 0x92c `lbu t5,343(sp)`.
-- Target FP: `lwc1 $f0,232(sp)` (worldX) and `lwc1 $f2,224(sp)` (worldZ); pushX/pushZ are computed in $f0/$f2 before `jal actorAppendCallbackS32`.
+- Target 0x84c `lbu t8,343(sp)` and 0x92c `lbu t5,343(sp)`; no `addiu rN,sp,0x154..0x157` anywhere in the function.
+- Target FP: `lwc1 $f0,232(sp)` (worldX, pushX) at 0x9c8 before the renderFlags branch at 0x9e0 and `lwc1 $f2,224(sp)` (worldZ, pushZ) in the `b 0xcb4` delay slot; in the else arm div.s $f0 at 0xc6c, normal[0]/[2] scaled in $f12/$f14 (0xc78/0xc88), pushX/pushZ computed into $f0/$f2 at 0xc90/0xc9c, spilled to 104/100(sp) around `jal actorAppendCallbackS32`.
 - Target loop at 0x9f0-0xa24: s0/s2/s3/s1 walkers, and the bound `addiu t4,sp,200` is rebuilt inside the loop (LFTR of the counted loop).
