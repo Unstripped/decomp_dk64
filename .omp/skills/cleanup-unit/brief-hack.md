@@ -23,7 +23,7 @@ Start state (`uv run tools/quality.py status --func <FUNC>` at the base):
   at external C is discarded. Read no other agent's `.scratch/` directory beyond the files this brief names.
 - PRIVATE COPY: `git show <base>:<src> > .scratch/<You>/<file>.c` ONCE; never re-copy, never
   `cp` over `src`. Check: `tools/fdiff.sh .scratch/<You>/<file>.c <src>` (exit 0 = whole-object
-  match; required for every kept change). Scratch only under `.scratch/<You>/`. A copy that differs
+  match; required for every kept change; pass repo-relative paths: absolute ones fail in the container). Scratch only under `.scratch/<You>/`. A copy that differs
   only in relocation symbol names (exit 3 `TEXT OK` with a `relocation-equivalent` note, e.g.
   `D_807506D0[i].unk5` for a split splat label `D_807506D5[i * 6]`) passes with
   `tools/fdiff.sh --reloc-ok ...` (`RELOC-EQUIV OK`, exit 0): retire such split labels, don't keep them.
@@ -155,7 +155,7 @@ Update the dossier `.scratch/<You>/dossier_<seg>_<FUNC>.md` (seeded from drafts/
    `.scratch/<You>/ledger-copy-only.txt`, changed keys to `keymap.txt`. `reconstruct` and `review`
    are function-level (`func:<seg>:<name>`). Never write sweep methods (`plain`/`recipe`/`classify`/`cond`/
    `remove`): the lead's sweep records them; put hand removals in `diagnose` notes. Rules: `diagnose` needs `quirks=`; `permute` needs
-   `base= best=` and `seconds>=600` (shorter only at `best=0`); `kept` only for `classify` (`note="class
+   `base= best=` and `seconds>=600` (shorter only at `best=0`), and only `permute` carries `base=`/`best=`/`seconds=`; `kept` only for `classify` (`note="class
    1"`), `goto-hand` (note cites Q0591) or `retype`; a diagnosis that keeps the site is `diagnose
    nohit` (never `hit`); a site you fixed: `fixed` on the method that fixed it. Every function:
    `func:<seg>:<name> review <fixed|nohit|blocked> note="fake=<kept>/<removed> goto=<n> casts=<n kept>

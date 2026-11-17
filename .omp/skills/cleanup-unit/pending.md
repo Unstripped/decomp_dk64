@@ -45,7 +45,6 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - Names not applied: MpSettings.unk0 (mode vs gameMode unclear; its reader func_80714608 is now mpIsMatchType); func_806C9974 -> playerAddHealthDelta (Rev34C proposal, round-35 names step). Proposals not applied at the 2026-11-14 consolidation (director: keep the existing names for now): collisionGetFloorHeight -> collisionGetWaterHeight, collisionGetFloorTriangleNormal -> collisionCheckLedgeGrab (PolishGlobal6AD90Names; evidence .scratch/close/renames.md rows 104/105). Rejected: Actor.unk155 -> subState (one boss file's evidence for 66 files), D_807FF0F2 -> gAudioHeadphonesEnabled (inferred), Actor.unk15F -> hudMode (C8C10 uses unk15F as a 0x80 flag plus a 0x7F phase counter).
 
 ## Session 2026-11-14 close leftovers (Lead12)
-- Re-review wave: done in session 2026-11-14b (reviewed 4259/4270 before its last merges; see run-log).
 - Names held (readers agree on the role, names differ, or the proposer did not read every user): RaceParticipant unk3A (route
   position that wraps and bumps the lap: waypointIndex / routePos / checkpoint), unk40 (holds both a normal and a squared distance:
   nextPointDist / waypointDistance, not "Sq"), unk45 (outOfRace / eliminated / disqualified), unk35 (subPhase / phase), unk44
@@ -64,12 +63,8 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
     searches the includer's directory first; EG race.h, EI boss.h).
   - `permute.py batch` setup compiles row copies against the current include/: build each row at its base (or re-snapshot copies
     whose file or reached headers changed) so a header merge does not fail older rows (b1114b, D_807FC828).
-  - permute.py `va_arg`: DONE as a per-copy stub (ladder.md); a built-in preprocessor stub would save the hand step.
 
 ## Session 2026-11-14b close leftovers (CleanupLead2)
-- Community-source rule: HackplayerCameraUpdateFromTarget was REJECTED (curl-fetched the community decomp; scratch kept as
-  `.scratch/HackplayerCameraUpdateFromTarget.rejected-community-source`, nothing recorded). The rule is now the first Rules bullet
-  of brief-hack.md and brief-polish.md; every brief must carry it and the director audits provenance before each merge.
 - Types batches DONE 2026-11-16d (batches 6-8: gTextNumberArg, gRdpOutputBuffer, PLANE_DIST, BUTTONS_PRESSED, gPlayerCharacterId[],
   gContReadPending, D_807ECD48 → gPadPressedButtons[], gGlobalOverlayFlags u32, gActorScriptAsset). Not run: RaceParticipant 0x25/0x26
   racer-side aliases (boostTimer/boostPending); one shared VehicleActor (936B0) / RaceCompetitorActor (52B0) type in race.h; 36880
@@ -132,7 +127,6 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   raises W709 at 9 polymorphic caller args (5A50 4, 6AD90 5); gunzip `void **outBufPtr` needs a cast pun in its body
   (`*outBufPtr += outcnt` is a cfe Error on void *, `= slide + outcnt` fdiff 1) and its stand-ins add 8 W709 in 5 files.
   `blocked` keeps the sites in `rank --polish` (retype=1): do not redispatch without a new shape.
-- Re-review (2026-11-16 item): DONE in 2026-11-16b (Polishglobal201B0d, Polishglobal7CA80c).
 
 ## Session 2026-11-16b close leftovers (CleanupLead6)
 - Field names HELD (applying them at close would reopen the reviews of every function they touch; batch them with the next
@@ -142,11 +136,14 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - Types items: one shared lerp macro for 201B0 `CAM_LERP` and 478F0 `LERP`; gTextFontSheets `void **` -> `u8 **`
   (Polishglobal100180).
 - ORIG check: 6AD90 f64 midpoint reuse a2d087 (box) and 3aa4ac (collisionCheckTriangleContainsPointXZ) still FAKE (frame holds only ten f64); ec388d and 58f1bd FIXED (d78151a9, b52ccd53: dedicated hx once sign ternaries freed a slot).
-- 2026-11-16d close leftovers (CleanupLead): stale reviews (re-review first): 11BC10 effectPuffExpandFadeUpdate, 42630 csCondEval,
-  68EA0 modelEmittersUpdate, 9BF30 projectileRenderSpriteRing, race/0 raceOpponentBehaviourUpdate (knowledge e9e8698a corrections
-  name them). Reopened with no lever by batch_8 F (u32 gGlobalOverlayFlags; codegen identical): CEAE0 playerUpdateCommon, ACDC0
-  hudPauseMenuUpdate (HELD), 80150 throwableBarrelUpdate / transformBarrelUpdate, 9CE20 actorBoneChainSwingUpdate, 201B0
-  camFloorSnap / camComputeEyeFocus, race/6650 raceUpdateRacerMotion. HELD: RaceParticipant.unk35 → phase evidence.
+
+## Session 2026-11-17 close leftovers (CleanupLead3)
+- Re-review first: 33 functions unreviewed after knowledge b8cbd3fa: 22 in the hack queue (`rank | grep next=review`) and 11
+  polish files (`rank --polish`; 90D80 still blocked). §7 needs 3+ strength-3 (`:xhigh`/`:max`) attempts per `rank` function:
+  12 of 192 have them; `:high` workers cannot move that column. hudPauseMenuUpdate (ACDC0) still HELD.
+- Types items: cutscene.h CsState/CsStateFull merge (above; measure the stale cost of 138 478F0 handlers first); `gCsCondFlag`
+  `s8` (42630) vs `extern u8` (E4090); jetpac 0x8002BA80 Gfx split (the `jetpacInitPending` splat label spans a gSPEndDisplayList).
+- HELD: RaceParticipant.unk35 → phase (evidence); PlayerStruct.rect[4] → scissor fields (textBoxRender order flip, Q1082).
 
 ## OPEN functions
 

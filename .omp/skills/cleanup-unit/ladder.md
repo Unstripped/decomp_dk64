@@ -30,9 +30,9 @@ its cfe warning code plus the line's normalized code. Kinds:
 an `// ORIG` line without a cited offset stays a hack site. The offset must show the tagged line's OWN operations
 (a wider call-site declaration's caller-side `andi`, an extra argument register), not a computation a dead test keeps
 alive (stays FAKE, `diagnose nohit`; 627052); ORIG on a pre-switch constant store: compile without the store first.
-A reused local/parameter is ORIG when the value is stored to that variable's own home slot (not the temp area below
-the named homes) and a separate local grows the frame (CEAE0 f73438, arcade ff5952). An assignment inside a
-short-circuit test whose value the target then uses (`(d = X) > best`) is ordinary C; a comma expression is not. A
+A reused local/parameter is ORIG when the value is stored to that variable's own home slot (not the temp area below the
+named homes) and a separate local grows the frame (CEAE0 f73438, arcade ff5952), or two values spill to one home (42630
+83069d#2); sharing a register only is not (83069d: FAKE). An assignment inside a short-circuit test whose value the target then uses (`(d = X) > best`) is ordinary C; a comma expression is not. A
 `volatile` pointee of a genuinely cross-thread busy-wait poll (another thread clears the flag; a plain poll is hoisted:
 104F0 77df56) is ordinary C; volatile locals or reads elsewhere stay FAKE.
 A sentinel `switch` (empty case group, call in `default:`) is natural C only when every case value is compared in the
@@ -122,10 +122,10 @@ A function with 3+ non-kept sites (warning sites not counted) also needs a fresh
   Write notes in concrete register/offset terms (`$s1 holds sp+0x34 across the jal`): `history` and dossiers.
 - A method counts through its newest event by time (carried events keep their original time) if that is fresh and
   not `blocked`. A fresh `hit` makes the site OPEN `next=apply` (the sweep found a match nobody merged yet).
-- `carry` re-stamps a body that differs only by local/param/global renames even beside unrelated file-scope edits
-  (abee1d87), renamed fields of an `include/` record that keep its layout (8220de44), and a site line whose key a
-  rename changed (consolidation 2: 797f1c -> 3a2970); `--func NAME` limits it so a second pass never duplicates
-  events. A fold (`D_x` → `base.field`) and a reached type change are never carried: those go to re-review.
+- `carry` re-stamps a body that differs only by renames (local/param/global, beside unrelated file-scope edits: abee1d87;
+  layout-keeping `include/` fields: 8220de44; a re-keyed site: 797f1c -> 3a2970); `--func NAME` avoids duplicate events.
+  Never carried: a fold (`D_x` → `base.field`), a reached type change, and ANY comment edit in the body (lead tag, FAKE->ORIG:
+  "sites changed", 35dec44a, c7ee74ab): every agent rung goes stale, so a tag belongs in the worker's own merge.
 
 ## Function state
 
@@ -142,9 +142,9 @@ a file-scope FAKE line (a declaration) belongs to the first later function namin
 ```
 `review` note: `fake=<kept>/<removed> goto=<n> casts=<n kept> views=<ok|n left> protos=<ok|n steer> temps=<ok|n> names=<n m2c left> uninit=<0|n> warn=<n left>`.
 A site fixed in the copy no longer exists at HEAD: `record --base <copy base>` accepts its key.
-Retry rule: a `diagnose`/`permute`/`reconstruct`/`goto-hand` line on a site (reconstruct: the
-function) that another unit or agent already tried with that method needs `new="<what this attempt
-tried that earlier ones did not>"`; `record` refuses it otherwise (a re-record of the same unit and
-agent is exempt). `record --model provider/model[:level]` stores the worker's model on every event
-(`rank` weighs attempts by it; older events use `drafts/quality/models.jsonl`, `backfill-models`);
-`--skip-missing` drops lines whose site is gone. `tools/merge_record.py` runs both.
+Retry rule: a `diagnose`/`permute`/`reconstruct`/`goto-hand` line on a site (reconstruct: the function) that another unit or
+agent already tried with that method needs `new="<what this attempt tried that earlier ones did not>"`; `record` refuses it
+otherwise (a re-record of the same unit and agent is exempt). `base=`/`best=`/`seconds=` belong on `permute` only (strip them
+from diagnose lines in a lead copy). After a respelling lands, earlier natural-form numbers of that site are stale: re-measure.
+`record --model provider/model[:level]` stores the worker's model (`rank` weighs attempts by it; older events:
+`drafts/quality/models.jsonl`, `backfill-models`); `--skip-missing` drops gone sites. `tools/merge_record.py` runs both.

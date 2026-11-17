@@ -87,3 +87,6 @@ header; sweep + carry. A batch stales the review of every caller whose BODY it e
   non-static s-name + symbol_addrs line, staged in the gate).
 - merge_drafts' "restore deleted local declaration" misses a local in a declarator list with an initialiser
   (`s32 count = 1, n = 4;` → re-inserted `s32 n;`, redeclaration): split such declarations in the copy.
+- Lead records (copy-only, carry, consolidate): quality.py agent names take no `-` (`CleanupLead2`, not `CleanupLead-2`). After a
+  ledger-only merge, stale automatic `consolidate` rungs get `protos.py consolidate <src> --out DIR` and one
+  `<key> consolidate nohit note="protos.py consolidate at <rev>: STEER|PROTO ..."` line as the lead (a42e7e8a, 39d260d0).

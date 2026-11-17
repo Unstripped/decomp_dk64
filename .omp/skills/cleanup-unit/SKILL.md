@@ -36,8 +36,8 @@ fix a wrong one in dossiers through a lead `--copy-dir`. `rank` orders functions
 1. `git status` + `git log -3` (unexpected changes are the user's: never stage them; a lead whose handle died may still run: new commits or a dirty `drafts/quality/` → message it, wait until quiet).
    Lead context runs out: one merge per turn, read line ranges, pipe output through `tail`/`head`, keep rulings, merges
    and the queue in `.scratch/<lead>/dispatch.md` and the close plan in `close.md`, so a successor resumes from files
-   alone. A successor first checks `git log` and `ps` (a dead lead's `merge_record` can still be running and land its
-   `clean <file>` + `quality:` pair later) before re-merging any report; never run `merge_record` twice for one worker. A dead
+   alone. A successor first checks `git log`, `ps` and `history://<old lead>` (a lead the harness calls dead can still run
+   and land commits: 2026-11-17 close renames 2cda5579; message it to stop after its current step) before re-merging any report; never run `merge_record` twice for one worker. A dead
    lead's FINISHED workers (status.md + dry-run ledger, no transcript): merge_record needs `--model`, so run its steps by hand,
    `record` without `--model`, unit "<date>: cleanup <A> (orphaned <lead> result, model unknown)", after re-verifying the copy.
 2. `find src -name '*.c' -exec touch {} +`; `tools/dk make` must end `build/dk64.us.z64: OK` (no image: `docker compose build`); `tools/dk make expected`.
@@ -53,7 +53,7 @@ Keep up to 6 workers plus one `TypesOwner` running. Never two agents on one src 
 in an open types batch (`.scratch/TypesOwner/batch_*/files.txt`) is not dispatched.
 - **Coverage first.** Until `report` shows `reviewed` equal to functions minus the blocked ones
   (today `renderHitCounterHUD`, blocked on the string convention), dispatch only polish workers on
-  `rank --polish` files with `unrev > 0` and hack workers on `rank` functions in state `next=review`.
+  `rank --polish` files with `unrev > 0` and hack workers on `rank` functions in state `next=review` (met once all are in flight).
 - **After coverage.** Five slots take the top of `rank`, one the top of `rank --polish` (a hack
   item too when polish is empty).
 - **Hack item:** one function with 3+ hack sites, or up to 4 functions with 1–2 sites from the same
@@ -118,8 +118,8 @@ As each worker reports:
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full ROM
 gate; a merged file's net HACKS (tagged `// FAKE` + untagged AST sites) and cfe warnings never rise.
 Tag pre-existing untagged hacks ("pre-existing, now tagged", one copy-only line each): compare `status --file` site totals base vs
-applied copy; the tags are the only accepted rise. `// ORIG:` replacing `// FAKE` needs the cited target-asm offset (check it;
-K&R/unprototyped declarations, -g puns and a per-file extern type the target proves, e.g. two files needing opposite types, qualify).
+applied copy (`git worktree add --detach` at the base, cp the copy + `asm/<seg>/nonmatchings/<file>`, `status --file` there); the
+tags are the only accepted rise. `// ORIG:` replacing `// FAKE` needs the cited target-asm offset (check it; K&R declarations, -g puns, a per-file extern type the target proves qualify).
 FAKE → `// LAYOUT:` with line-order evidence is a drop. Accept a K&R → ANSI uninit read (note).
 
 ## 6. Session close (once per session)
