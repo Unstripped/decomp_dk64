@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments does not agree with the number in the
 #include "proto/global/117190.h"
 #include "proto/global/15050.h"
 #include "proto/global/166A0.h"
@@ -1285,7 +1284,6 @@ void timerDecrementOrSetFlag(u16 *flags, s16 *timer, u8 *count, u16 bit) {
 #define WAYPOINT_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define WAYPOINT_CLAMP_S8(x) WAYPOINT_MIN(WAYPOINT_MAX(x, -128.0f), 127.0f)
 
-s32 playerStateQueueCallback();
 extern u8 gGameMode;
 extern u8 sHudDisabled;
 
@@ -1300,10 +1298,8 @@ void playerStateWaypointAimUpdate(OSContPad *control, OSContPad *unused) {
     f32 speed;
     s16 yawT;
     s32 eq;
-    f32 dx;
-    f32 dz;
     u8 close;
-    u8 flags;
+    s32 starting;
     s16 pitchT;
 
     cur = gWaypointCursor;
@@ -1311,32 +1307,24 @@ void playerStateWaypointAimUpdate(OSContPad *control, OSContPad *unused) {
     blend = 0.2f;
     next = gWaypointCursor + 1;
     speed = (u32)cur->speed * 0.7;
-    dx = gWaypointActor->x - next->x;
-    dz = gWaypointActor->z - next->z;
-    close = dx * dx + dz * dz < 100.0f;
-    if (close) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    flags = gWaypointFlags;
-    if (gWaypointCallbackParam && gWaypointCallbackParam) {}  // FAKE: dead test
-    if ((flags == 0) & 1) {  // FAKE: & 1 steers the flags test
-        if (gWaypointCursor != 0) {}  // FAKE: dead test at block start
+    close = (gWaypointActor->x - next->x) * (gWaypointActor->x - next->x) + (gWaypointActor->z - next->z) * (gWaypointActor->z - next->z) < 100.0f;
+    starting = !gWaypointFlags;
+    if (starting & 1) {  // ORIG: target masks the 0/1 flag again (andi t4,a1,0x1 at 0x3504)
         gWaypointFlags |= 1;
         control->stick_x = 0;
         control->stick_y = 0;
     }
-    if (gWaypointFlags || gWaypointCallbackParam) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (close) {
         eq = gWaypointIndex + 2 == gWaypointPathEntry->count;
-        if (flags == 0) {}  // FAKE: dead test
         if (eq) {
+            if (gWaypointIndex && gWaypointIndex) {}  // FAKE: same-value read keeps the gWaypointIndex load live into this arm, so it outranks eq for $v0
             D_807463B8 = 0;
             if (gGameMode == 0) {
                 gScreenRenderFlags &= 0xFFEF;
                 sHudDisabled = 0xFF;
             }
             if (gWaypointCallbackId != 0) {
-                if (gWaypointFlags != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                playerStateQueueCallback(gWaypointCallbackId, gWaypointCallbackParam, 0, &gWaypointCursor); // FAKE: 4th arg keeps &gWaypointCursor hoisted in $a3
-                if (gWaypointCursor == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                playerStateQueueCallback(gWaypointCallbackId, gWaypointCallbackParam, 0);
             }
             tgt->stateFlags |= 1;
             gGlobalPauseFlags &= ~0x400;
@@ -1346,7 +1334,6 @@ void playerStateWaypointAimUpdate(OSContPad *control, OSContPad *unused) {
             gWaypointCursor++;
             cur = gWaypointCursor;
             next = cur + 1;
-            if (gWaypointIndex || gWaypointFlags) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
     }
     control->button = 0;
