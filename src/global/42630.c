@@ -423,7 +423,7 @@ void csStateUpdate(CsStateFull *cs, s16 csId) {
             i = 0;
             ok = 1;
             while (i < node->unk0 && ok) {
-                ok = csCondEval(&node->unk2[i], (CsState *)cs, csId);
+                ok = csCondEval(&node->unk2[i], cs, csId);
                 i++;
             }
             if (ok) {
@@ -585,11 +585,6 @@ typedef struct CsCondPlayer {
     /* 0x008 */ u8 pad8[0x2F0 - 0x8];
 } CsCondPlayer; /* 0x2F0 */
 
-typedef struct CsCondRow {
-    /* 0x000 */ u8 e[8][0x5E];
-    /* 0x2F0 */ u8 pad2F0[0x16];
-} CsCondRow; /* 0x306 */
-
 extern PlayerStruct *gPlayerSlots;
 extern KongInventory *gCurrentKongInventory;
 extern u8 gPlayerCount;
@@ -598,10 +593,9 @@ extern u8 gGameMode;
 extern s16 D_8076AEF2;
 extern s32 (*gCsCondTable[])(CsState *, s16, s16, s16);
 
-#define CS_COND_STATE ((CsStateFull *)cs)
 #define CS_COND_PLAYER ((CsCondPlayer *)gPlayerSlots)
 
-u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
+u8 csCondEval(CsCond *cond, CsStateFull *cs, s16 csId) {
     u8 neg;
     u8 ret;
     s16 type;
@@ -609,7 +603,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
     CsCondPlayer *p;
     u8 found;
     s32 count;
-    s32 pad;
+    s32 kong;
     s32 h;
     s16 sAnim;
     f32 fAnim;
@@ -703,7 +697,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x28:
-        if (CS_COND_STATE->unk9A & 1) {
+        if (cs->unk9A & 1) {
             ret = 0;
         } else {
             ret = 1;
@@ -733,8 +727,8 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x34:
-        h = playerLookupKongByActorType(cond->arg[0]);
-        q = gPlayerInventoryTable[gCurrentPlayerIndex].kong[h].unk0;
+        kong = playerLookupKongByActorType(cond->arg[0]);
+        q = gPlayerInventoryTable[gCurrentPlayerIndex].kong[kong].unk0;
         if (*q >= cond->arg[1]) {
             ret = 1;
         } else {
@@ -757,14 +751,14 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x1D:
-        if ((cond->arg[0] == 0 && CS_COND_STATE->unk48[cond->arg[2]] < cond->arg[1]) || (cond->arg[0] == 1 && cond->arg[1] < CS_COND_STATE->unk48[cond->arg[2]])) {
+        if ((cond->arg[0] == 0 && cs->unk48[cond->arg[2]] < cond->arg[1]) || (cond->arg[0] == 1 && cond->arg[1] < cs->unk48[cond->arg[2]])) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x1C:
-        h = modelAnimEntryGetUnkC(csId, cond->arg[0]);
+        h = modelAnimEntryGetUnkC(csId, cond->arg[0]); // FAKE: reuses the actor-loop index h for the entry value; a dedicated local takes a stack slot (frame 0x78 -> 0x80)
         if ((cond->arg[1] == 0 && h < cond->arg[2]) || (cond->arg[1] == 1 && cond->arg[2] < h)) {
             ret = 1;
         } else {
@@ -792,17 +786,17 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x8:
-        ret = CS_COND_STATE->unk51;
+        ret = cs->unk51;
         break;
     case 0x9:
-        if (CS_COND_STATE->unk52 != 0) {
+        if (cs->unk52 != 0) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x7:
-        ret = csCompareVar(CS_COND_STATE->unk14, cond->arg[0], cond->arg[1]);
+        ret = csCompareVar(cs->unk14, cond->arg[0], cond->arg[1]);
         break;
     case 0x31:
         if (gModelSlots[hashTableLookup(gCsModelIds[cond->arg[0]])].unk7C->unk48[cond->arg[2]] == cond->arg[1]) {
@@ -812,7 +806,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x1:
-        if (CS_COND_STATE->unk48[cond->arg[1]] == cond->arg[0]) {
+        if (cs->unk48[cond->arg[1]] == cond->arg[0]) {
             ret = 1;
         } else {
             ret = 0;
@@ -822,7 +816,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         ret = csEvaluateParamCondition(cond->arg[0], cond->arg[1]);
         break;
     case 0x4:
-        if (CS_COND_STATE->unk44[cond->arg[1]] == cond->arg[0]) {
+        if (cs->unk44[cond->arg[1]] == cond->arg[0]) {
             ret = 1;
         } else {
             ret = 0;
@@ -934,14 +928,14 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         ret = csSpawnNodeNearPos(cond->arg[0], cond->arg[1], cond->arg[2]);
         break;
     case 0x6:
-        ret = gCsCondTable[cond->arg[0]](cs, csId, cond->arg[1], cond->arg[2]);
+        ret = gCsCondTable[cond->arg[0]]((CsState *)cs, csId, cond->arg[1], cond->arg[2]);
         break;
     case 0xF:
-        ret = pathPlaybackIsActive(CS_COND_STATE->unk38);
+        ret = pathPlaybackIsActive(cs->unk38);
         break;
     case 0x10:
-        if (CS_COND_STATE->unk5C != 0 && (cond->arg[1] == -1 || cond->arg[1] == CS_COND_STATE->unk5C) &&
-            (cond->arg[0] & actorLookupClass(CS_COND_STATE->unk5E)) && csIsPlayerInCutsceneState() != 0) {
+        if (cs->unk5C != 0 && (cond->arg[1] == -1 || cond->arg[1] == cs->unk5C) &&
+            (cond->arg[0] & actorLookupClass(cs->unk5E)) && csIsPlayerInCutsceneState() != 0) {
             csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].modelType);
             ret = 1;
         } else {
@@ -949,7 +943,7 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         }
         break;
     case 0x18:
-        if (CS_COND_STATE->unk5C != 0 && (cond->arg[1] == -1 || cond->arg[1] == CS_COND_STATE->unk5C) && cond->arg[0] == CS_COND_STATE->unk5E &&
+        if (cs->unk5C != 0 && (cond->arg[1] == -1 || cond->arg[1] == cs->unk5C) && cond->arg[0] == cs->unk5E &&
             csIsPlayerInCutsceneState() != 0) {
             csSetCameraFollowModel(gModelSlots[hashTableLookup(csId)].modelType);
             ret = 1;
@@ -1000,10 +994,10 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
         ret = gPlayerSlots->sizeModeDirty;
         break;
     case 0x1E:
-        ret = spawnNodeHasActor(CMDB(cond)->a);
+        ret = spawnNodeHasActor(cond->arg[0]);
         break;
     case 0x2F:
-        ret = spawnNodeIsInCooldown(CMDB(cond)->a);
+        ret = spawnNodeIsInCooldown(cond->arg[0]);
         break;
     case 0x1F:
         ret = 0;
@@ -1095,13 +1089,13 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     f32 sx;
     f32 sy;
     f32 sz;
-    u8 pan;
-    u8 vol;
     u8 pitch;
+    u8 vol;
+    u8 range;
     f32 cx;
     f32 cy;
     f32 cz;
-    u8 pan7;
+    u8 pitch7;
     u8 vol7;
 
     found = 0;
@@ -1118,7 +1112,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         gPrimaryPlayerActor->speedXZ = cmd->a;
         break;
     case 0x93:
-        camSetZoneWeight(CMDB(cmd)->a, CMDB(cmd)->b);
+        camSetZoneWeight(cmd->a, cmd->b);
         break;
     case 0x94:
         func_80724994(2, cmd->a, 0, 0, 0);
@@ -1139,7 +1133,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         func_8062D1A8();
         break;
     case 0x83:
-        slotQueueSetDisplayMode(CMDB(cmd)->a, CMDB(cmd)->b, CMDB(cmd)->c);
+        slotQueueSetDisplayMode(cmd->a, cmd->b, cmd->c);
         break;
     case 0x80:
         eepromSavePlayerData();
@@ -1165,7 +1159,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             sel = 3;
             break;
         }
-        proxPathSetEndBehavior(csId, CMDB(cmd)->a, sel);
+        proxPathSetEndBehavior(csId, cmd->a, sel);
         break;
     case 0x7C:
         D_80748094 = cmd->a;
@@ -1175,10 +1169,10 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         volumeTriggerSetPosition(cmd->a, x, y, z);
         break;
     case 0x7A:
-        effectNodeSetSubVal(cmd->a, CMDB(cmd)->b);
+        effectNodeSetSubVal(cmd->a, cmd->b);
         break;
     case 0x76:
-        i = 0;
+        i = 0; // LAYOUT: the init on its own line schedules move t0,zero ahead of the gActiveActors address at 0x23f4 (on the for line, or one line with it: after it; Q0186)
         for (; i < gActiveActorCount; i++) {
             actor = gActiveActors[i].actor;
             if (!(actor->flags & 0x2000) && actor->attachMode == 1 && csId == actor->cutsceneId) {
@@ -1187,7 +1181,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x75:
-        volumeTriggerSetEnabled(cmd->a, CMDB(cmd)->b);
+        volumeTriggerSetEnabled(cmd->a, cmd->b);
         break;
     case 0x78:
         modelSlotGetNodePos(csId, 1, cmd->a, &px, &py, &pz);
@@ -1203,7 +1197,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         playerStateSetCallbackParameters(0, cmd->a, cmd->b, cmd->c);
         break;
     case 0x72:
-        actorListGetOrSetState(cmd->a, CMDB(cmd)->b, 1);
+        actorListGetOrSetState(cmd->a, cmd->b, 1);
         break;
     case 0x6E:
         D_807F693F = cmd->a;
@@ -1215,13 +1209,13 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         modelSkipListAdd(cmd->a);
         break;
     case 0x6B:
-        flagSet(cmd->a, CMDB(cmd)->b, 0);
+        flagSet(cmd->a, cmd->b, 0);
         break;
     case 0x79:
-        flagSet(cmd->a, CMDB(cmd)->b, 2);
+        flagSet(cmd->a, cmd->b, 2);
         break;
     case 0x84:
-        flagSet(cmd->a, CMDB(cmd)->b, 1);
+        flagSet(cmd->a, cmd->b, 1);
         break;
     case 0x66:
         if (D_807F61F0.active == 0) {
@@ -1229,7 +1223,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             actor = gCurrentActor;
             D_807F61F0.hostActor = gSpawnedActor;
             gCurrentActor = gSpawnedActor;
-            hudSpawnCountdownTimer(0xDC, 0x2A, CMDB(cmd)->a, &D_807F61F0);
+            hudSpawnCountdownTimer(0xDC, 0x2A, cmd->a, &D_807F61F0);
             D_807F61F0.timerActor = gSpawnedActor;
             D_807F61F0.active = 1;
             gCurrentActor = actor;
@@ -1252,7 +1246,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         D_807F693A = cmd->a;
         break;
     case 0x60:
-        actorSetTargetSlotByte(csId, CMDB(cmd)->a);
+        actorSetTargetSlotByte(csId, cmd->a);
         break;
     case 0x5F:
         playerState = gPlayerSlots->actor->customState;
@@ -1271,10 +1265,10 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         playerState->stateFlags2 &= ~((cmd->a << 16) + cmd->b);
         break;
     case 0x5D:
-        screenSetTransitionFadeType(CMDB(cmd)->a);
+        screenSetTransitionFadeType(cmd->a);
         break;
     case 0x5C:
-        zoneEntrySetDisabled(CMDB(cmd)->a, CMDB(cmd)->b, CMDB(cmd)->c);
+        zoneEntrySetDisabled(cmd->a, cmd->b, cmd->c);
         break;
     case 0x5B:
         playerRespawnResetPhysics(cmd->a);
@@ -1317,7 +1311,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         modelAnimEntrySetUnkC(csId, cmd->a, h);
         break;
     case 0x4B:
-        proxPathSetEnabled(csId, CMDB(cmd)->a, CMDB(cmd)->b);
+        proxPathSetEnabled(csId, cmd->a, cmd->b);
         break;
     case 0x46:
         cs->unk70 = cmd->a;
@@ -1326,7 +1320,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->unk71 = cmd->a;
         break;
     case 0x4A:
-        modelSlotUpdateTailKey(csId, 1, CMDB(cmd)->a, CMDB(cmd)->b);
+        modelSlotUpdateTailKey(csId, 1, cmd->a, cmd->b);
         break;
     case 0x45:
         cs->unk60 = cmd->a;
@@ -1364,7 +1358,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         mapOffsetSlotSetTarget(cmd->a, cmd->b, cmd->c / 100.0f);
         break;
     case 0x55:
-        mapOffsetSlotSetEnabled(cmd->a, CMDB(cmd)->b);
+        mapOffsetSlotSetEnabled(cmd->a, cmd->b);
         break;
     case 0x34:
         mapOffsetSlotAddTarget(cmd->a, cmd->b, cmd->c / 100.0f);
@@ -1476,13 +1470,13 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         modelAnimEntrySetTime(csId, cmd->a, cmd->b, cmd->c / 100.0);
         break;
     case 0xE:
-        pan = (cmd->b / 128) & 0xFF;
+        pitch = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
         c &= 0xFF; // FAKE: redundant mask keeps the in-place andi copy (Q0186)
         c &= 0x7F;
-        if (pan == 0) {
-            pan = 0x7F;
+        if (pitch == 0) {
+            pitch = 0x7F;
         }
         if (vol == 0) {
             vol = 0xFF;
@@ -1492,17 +1486,17 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         if (cs->unk10[i] < 0) {
             if (b && b && b) {} // FAKE: deadsweep: keeps b a real variable (move a3,v1)
             b &= 2;
-            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, 0);
+            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pitch / 127.0, 0);
         }
         break;
     case 0x7D:
-        pan = (cmd->b / 128) & 0xFF;
+        pitch = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
         c &= 0xFF; // FAKE: redundant mask keeps the in-place andi copy (Q0186)
         c &= 0x7F;
-        if (pan == 0) {
-            pan = 0x7F;
+        if (pitch == 0) {
+            pitch = 0x7F;
         }
         if (vol == 0) {
             vol = 0xFF;
@@ -1512,41 +1506,41 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         if (cs->unk10[i] < 0) {
             if (b && b && b) {} // FAKE: deadsweep: keeps b a real variable (move a3,v1)
             b &= 2;
-            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pan / 127.0, D_80748094);
+            cs->unk10[i] = sfxSlotAllocateSource(csId, cmd->a, c, b, vol, (u32)pitch / 127.0, D_80748094);
         }
         break;
     case 0xF:
-        pan = (cmd->b / 128) & 0xFF;
+        pitch = (cmd->b / 128) & 0xFF;
         vol = (cmd->c / 128) & 0xFF;
         c = cmd->c;
         c &= 0xFF; // FAKE: redundant mask keeps the in-place andi copy (Q0186)
         c &= 0x7F;
-        if (pan == 0) {
-            pan = 0x7F;
+        if (pitch == 0) {
+            pitch = 0x7F;
         }
         if (vol == 0) {
             vol = 0xFF;
         }
-        i = cmd->b & 0x7F;
-        sfxPlayFromTargetSlot(csId, cmd->a, vol, pan, i, c, 0.3f);
+        i = cmd->b & 0x7F; // FAKE: reuses the loop index i for the spread argument; a dedicated local (in pad's slot) recolours csCmdExec
+        sfxPlayFromTargetSlot(csId, cmd->a, vol, pitch, i, c, 0.3f);
         break;
     case 0x7E:
-        pan7 = (cmd->b / 128) & 0xFF;
+        pitch7 = (cmd->b / 128) & 0xFF;
         vol7 = (cmd->c / 128) & 0xFF;
         c = cmd->c;
-        pitch = c & 0x7F;
-        if (pan7 == 0) {
-            pan7 = 0x7F;
+        range = c & 0x7F;
+        if (pitch7 == 0) {
+            pitch7 = 0x7F;
         }
-        if (!vol7) {
+        if (vol7 == 0) {
             vol7 = 0xFF;
         }
-        i = cmd->b & 0x7F;
+        i = cmd->b & 0x7F; // FAKE: reuses the loop index i for the spread argument; a dedicated local (in pad's slot) recolours csCmdExec
         if (D_80748094 > 0) {
             modelSlotGetNodePos(csId, 1, D_80748094, &sx, &sy, &sz);
-            sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol7, pan7, i, pitch, 0.3f, 0);
+            sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol7, pitch7, i, range, 0.3f, 0);
         } else {
-            sfxPlayOnFreeSlot(cmd->a, 0x7FFF, 63.0f, (u32)pan7 / 127.0, 0, 0);
+            sfxPlayOnFreeSlot(cmd->a, 0x7FFF, 63.0f, (u32)pitch7 / 127.0, 0, 0);
         }
         break;
     case 0x10:
@@ -1617,7 +1611,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x2D:
-        i = 0;
+        i = 0; // LAYOUT: the init on its own line schedules move t0,zero ahead of the gActiveActors address at 0x3664 (on the for line, or one line with it: after it; Q0186)
         for (; i < gActiveActorCount; i++) {
             actor = gActiveActors[i].actor;
             if (!(actor->flags & 0x2000) && actor->attachMode == 1 && csId == actor->cutsceneId) {
@@ -1633,7 +1627,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         gCsCmdTable[cmd->a](cs, csId, cmd->b, cmd->c);
         break;
     case 0x37:
-        actorAppendCallback(gPlayerSlots->actor, 0, 0x400000, CMDB(cmd)->a, 0, 0);
+        actorAppendCallback(gPlayerSlots->actor, 0, 0x400000, cmd->a, 0, 0);
         break;
     case 0x19:
         playerStateQueueCallback(cmd->a, 0, 0);
@@ -1643,7 +1637,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         actorAppendCallbackVec3f(0, gPlayerSlots->actor, cx, cy, cz);
         break;
     case 0x2B:
-        func_80636014(csId, 1, CMDB(cmd)->a);
+        func_80636014(csId, 1, cmd->a);
         break;
     case 0x1B:
         if (gCsModelIds[cmd->a] != -1) {
@@ -1665,22 +1659,22 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x2:
-        pathPlaybackSetSpeed(cs->unk38, CMDB(cmd)->a);
+        pathPlaybackSetSpeed(cs->unk38, cmd->a);
         break;
     case 0x1F:
-        pathPlaybackSetLoopMode(cs->unk38, CMDB(cmd)->a);
+        pathPlaybackSetLoopMode(cs->unk38, cmd->a);
         break;
     case 0x20:
-        pathPlaybackSetDirection(cs->unk38, CMDB(cmd)->a);
+        pathPlaybackSetDirection(cs->unk38, cmd->a);
         break;
     case 0x21:
         pathPlaybackSetLoopLimit(cs->unk38, cmd->a);
         break;
     case 0x24:
-        pathPlaybackSetActive(cs->unk38, CMDB(cmd)->a);
+        pathPlaybackSetActive(cs->unk38, cmd->a);
         break;
     case 0x22:
-        cs->unk38 = pathPlaybackStart(0, cmd->a, CMDB(cmd)->b, gCsPosX, gCsPosY, gCsPosZ, cmd->c);
+        cs->unk38 = pathPlaybackStart(0, cmd->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, cmd->c);
         break;
     case 0x23:
         pathPlaybackFree(cs->unk38);
@@ -1691,7 +1685,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         pathPlaybackGetPosition(cs->unk38, &gCsPosX, &gCsPosY, &gCsPosZ);
         break;
     case 0x27:
-        modelSlotSetNodeAnimMode(csId, cmd->a, CMDB(cmd)->b);
+        modelSlotSetNodeAnimMode(csId, cmd->a, cmd->b);
         break;
     case 0x28:
         modelSlotSetNodeFrame(csId, cmd->a, cmd->b, cmd->c);
@@ -1701,7 +1695,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x29:
         playerState = gPlayerSlots->actor->customState;
-        camStartShakeFromPoint(playerState->camActor, CMDB(cmd)->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, D_807F6906, D_807F6908);
+        camStartShakeFromPoint(playerState->camActor, cmd->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, D_807F6906, D_807F6908);
         break;
     case 0x44:
         D_807F6906 = cmd->a;
@@ -1711,10 +1705,10 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         gModelSlots[hashTableLookup(csId)].unk28.unk14 = cmd->a;
         break;
     case 0x2E:
-        mapByteArraySet(cmd->a, CMDB(cmd)->b);
+        mapByteArraySet(cmd->a, cmd->b);
         break;
     case 0x38:
-        mapObjectSetByte(cmd->a, CMDB(cmd)->b, CMDB(cmd)->c);
+        mapObjectSetByte(cmd->a, cmd->b, cmd->c);
         break;
     case 0x61:
         if (cmd->c != 0) {
@@ -1724,7 +1718,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x6F:
-        sfxStopChannel(cmd->a, CMDB(cmd)->b);
+        sfxStopChannel(cmd->a, (u8)cmd->b);
         break;
     case 0x70:
         seqRouteChannelVolume(cmd->a, cmd->b / 255.0);
@@ -1742,7 +1736,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x49:
-        actorAppendEvent(0, gPlayerSlots->actor, CMDB(cmd)->a, cmd->b, cmd->c, gCsPosX, gCsPosY, gCsPosZ);
+        actorAppendEvent(0, gPlayerSlots->actor, cmd->a, cmd->b, cmd->c, gCsPosX, gCsPosY, gCsPosZ);
         break;
     case 0x4D:
         idx = modelSlotAppend(cmd->a, D_807F690C, D_807F6910, D_807F6914, D_807F6910 - D_807F6218, 0);
@@ -1777,7 +1771,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x77:
-        modelAnimEntrySetUnk13(csId, cmd->a, CMDB(cmd)->b, cmd->c / 1000.0);
+        modelAnimEntrySetUnk13(csId, cmd->a, cmd->b, cmd->c / 1000.0);
         break;
     }
 }

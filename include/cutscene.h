@@ -20,19 +20,6 @@ typedef struct CsCond {
     /* 0x2 */ s16 arg[3];
 } CsCond;
 
-// Byte view of the same command (low bytes of a, b, c).
-typedef struct CsCmdBytes {
-    /* 0x0 */ u16 op;
-    /* 0x2 */ u8 aHi;
-    /* 0x3 */ u8 a;
-    /* 0x4 */ u8 bHi;
-    /* 0x5 */ u8 b;
-    /* 0x6 */ u8 cHi;
-    /* 0x7 */ u8 c;
-} CsCmdBytes;
-
-#define CMDB(cmd) ((CsCmdBytes *)(cmd))
-
 // Per-cutscene playback state.
 typedef struct CsState {
     /* 0x00 */ void *data;

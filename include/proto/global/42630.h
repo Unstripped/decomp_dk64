@@ -55,7 +55,7 @@ void csUpdateStepAndInterpolation(struct CsStateFull *);
 void csStateIntegrateMotion(struct CsStateFull *);
 #endif
 #ifndef PROTO_SKIP_csCondEval
-u8 csCondEval(CsCond *, CsState *, s16);
+u8 csCondEval(CsCond *, CsStateFull *, s16);
 #endif
 #ifndef PROTO_SKIP_csCmdExec
 void csCmdExec(CsCmd *, CsState *, s16);
