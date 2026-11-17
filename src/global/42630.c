@@ -965,7 +965,9 @@ u8 csCondEval(CsCond *cond, CsState *cs, s16 csId) {
                 a = p->actor;
                 if (cond->arg[0] == a->state) {
                     if (cond->arg[1] != 0) {
-                        if (a->unk155 == ((CsCmd *)cond)->b) { // FAKE: punned arg[1] read keeps bne arg,field operand order
+                        s32 arg = cond->arg[1];
+
+                        if (a->unk155 == arg) {
                             ret = 1;
                         }
                     } else {
