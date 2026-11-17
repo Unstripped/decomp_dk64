@@ -871,3 +871,4 @@
 {"type": "unit", "t": "2026-11-16T21:51:26Z", "unit": "2026-11-16c: close sweep", "commit": "e6cc6937feffb4bfd4748e270792fb1197c5502e"}
 {"type": "unit", "t": "2026-11-17T04:33:44Z", "unit": "2026-11-16: cleanup HackschedDlDebugDump5 (orphaned Lead-d result, model unknown)", "commit": "5b261e2418c101a53064eeb93f48423b40a909f5"}
 {"type": "unit", "t": "2026-11-17T04:35:48Z", "unit": "2026-11-16d: cleanup Polishglobal19A00b", "commit": "a0fac3bbe39b39b5a6c851d442e863c8fcb18715"}
+{"type": "unit", "t": "2026-11-17T04:40:07Z", "unit": "2026-11-16d: cleanup Polishglobal2F550b", "commit": "8a0d10384795d886e9f76859eb79ce59487c4c92"}
