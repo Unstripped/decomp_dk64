@@ -892,3 +892,4 @@
 {"type": "unit", "t": "2026-11-17T06:10:08Z", "unit": "2026-11-16d: cleanup HackcsCondEval3", "commit": "e3122cc26f883ccf5e1f9789f24a9449dcfe3b43"}
 {"type": "unit", "t": "2026-11-17T06:35:01Z", "unit": "2026-11-16d: cleanup HackplayerRefillHealth2", "commit": "22a44be67cb7c7bbcc0f84dcb4c7eefbc812673a"}
 {"type": "unit", "t": "2026-11-17T06:47:39Z", "unit": "2026-11-16d: cleanup HackactorCutsceneDispatchEvents4", "commit": "7725d515cdbc7f75b31cf7fb101ced735dc2aa0e"}
+{"type": "unit", "t": "2026-11-17T06:50:32Z", "unit": "2026-11-16d: cleanup CleanupLead close", "commit": "9cccff700a7abebeafe0bb556f446695f52a5727"}
