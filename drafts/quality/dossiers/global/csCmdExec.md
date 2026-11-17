@@ -21,11 +21,17 @@
   - sweep: 21 checks, 0 hits (base a7789b50).
   - Swap: s32 spread at i's declaration, i in pad's slot: full=98 (the 0x76 loop spill moves to sp+0x64 while the target spills loop index and spread to sp+0xBC; i colours v1 in 0xE); u8/s16 there 367-369. One home for both values = one variable: both tags -> ORIG.
   - Case 0xF alone with a dedicated local (0x7E keeping i): s32 at pad's slot full=6 (spread v0, c t0 vs target t0/t1); 37 declaration positions 6-114; s32/int/u32/s16/u16 x 6 statement positions best text=3 (read first: t0, but the andi leaves the 0x31b0 delay slot); inlined into the call 238; block-scoped s32 114; u8 238.
+- 2026-11-17 2026-11-17: cleanup HackcsCmdExec5 HackcsCmdExec5 anthropic/claude-opus-5-5 (re-score at 1f27b4f2 after the c7ee74ab comment-only retag of 83069d#2; no code change):
+  - sweep: 21 checks, 0 hits. Scores with variants.py try (full) and objdump of csCmdExec with branch targets normalised.
+  - 4f1968: no dm 593 (1851 vs 1847 insns; csId hoisted `lh t4,210(sp)` at 0x3674 before the 0x2D loop, temps renumber from 0x2184, frame -1 word); s32 pad0 548 (slots equal, same hoist); scan on the pad0 copy best 503. K&R definition of csCmdExec (PROTO_SKIP stand-in, `void csCmdExec();`): csCmdExec identical with dm, 593 without: an old-style s16 formal does not make csId memory-resident.
+  - e8c5ea: no guard 5 (found a2 vs a3 at 0x2140/0x3848/0x385c/0x388c/0x38a0 only); scan all 5; no dm + no guard = no dm (593), pad0 + no guard = pad0 (548): not coupled to the dm steer.
+  - 1c9d00: no line 10 (1848 insns: &D_807F61F0 a3 instead of v0 at 0x2670-0x2688, re-materialised lui/addiu a3 + `lw a0,4(a3)` instead of folded `lui a0; lw a0,%lo(D_807F61F0+4)(a0)` at 0x268c/0x2694). uopt -l6: with the line the 0x68 lda range splits (583 -> 620/623: a3 piece, v0 rest) and b takes a3. Hand classify: guards on cmd/cs/1/hostActor between the despawns, `b = 0`, a dead `b = hostActor;`, i or actor instead of b: all 10 (= removal); `b = cmd->b` 22; `b = active` 6; the line after the 2nd despawn 3 (store base v1 vs a3), before the 1st 6. Natural rewrites: `CsSpawnReq *req` pointer local 120; u8/s32 `active` local in pad's slot 473; `Actor *host` in pad's slot before the 1st despawn 9, between 10; `b = D_807F61F0.active` as the test 470.
+  - reconstruct: all non-kept steers removed 603 (1852 insns), with pad0 558. All nohit.
 
 ## Untried ideas
-- e8c5ea: a natural real use of found or another value occupying a2 across block 0 (no candidate found).
-- 4f1968: a codeless natural escape of csId (none in the target asm).
-- 1c9d00: a natural second read of hostActor in case 0x68 that splits the &D_807F61F0 web after the first jal without a branch.
+- e8c5ea: a natural real use of found or another value occupying a2 across block 0 (no candidate found; not coupled to dm).
+- 4f1968: a codeless natural escape of csId (none in the target asm; K&R definition ruled out).
+- 1c9d00: a natural u8 value live in a3 between the two despawns of case 0x68 (only the u8 b web assigned from hostActor reproduces it; dedicated locals, pointer locals and guards do not).
 
 ## Evidence
 - Target prologue: `sw a2,208(sp)` (csId home), every csId use `lh aN,210(sp)`; no `addiu aN,sp,208` anywhere.
@@ -33,3 +39,4 @@
 - Case 0xE 0x2fb0-0x307c, 0x7D 0x3080-0x3154, 0xF 0x3158-0x31d8, 0x7E 0x31dc-.
 - sp+0xBC (i's home) accesses: only 0x2450/0x2460 (case 0x76 loop index spill/reload around actorAppendCallback) and 0x3268/0x327c (0x7E spread around modelSlotGetNodePos). i is t0 in every piece: 0x23f4/0x3664 loops, 0x3008/0x30d8 slot index, 0x31b0/0x3240 spread.
 - Case 0x1C 0x3824-0x38ac: found spilled `sb a3,195(sp)` across hashTableLookup; `bnezl a3` and `b` both reach 0x3de4.
+- Case 0x68 0x2670-0x26a4: `lui/addiu v0` &D_807F61F0, `lbu t7,8(v0)`, `jal actorDespawn` with `lw a0,0(v0)` in the slot; folded `lui a0` 0x268c / `lw a0,%lo(D_807F61F0+4)(a0)` 0x2694 in the 2nd jal slot; fresh `lui/addiu a3` 0x2698/0x269c for `sb zero,8(a3)` 0x26a4.

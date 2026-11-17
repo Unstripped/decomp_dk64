@@ -920,3 +920,4 @@
 {"type": "unit", "t": "2026-11-17T15:18:21Z", "unit": "2026-11-17: cleanup HackcsCmdExec4", "commit": "c7ee74abc98d918fbd5ff65fa03c56fb649dfbad"}
 {"type": "unit", "t": "2026-11-17T15:19:32Z", "unit": "2026-11-17: cleanup HackplayerStateWaypointAimUpdate3", "commit": "5d8f958002a20c7b0c80ed535d887600e704b809"}
 {"type": "unit", "t": "2026-11-17T15:21:52Z", "unit": "2026-11-17: cleanup CleanupLead2 close", "commit": "2cda5579ccbe1721016721c0858f03ed758db651"}
+{"type": "unit", "t": "2026-11-17T15:36:33Z", "unit": "2026-11-17: cleanup HackcsCmdExec5", "commit": "1f27b4f26531120bd6d0f125b0601873f07e743d"}
