@@ -686,13 +686,13 @@ void eepromSaveRecords(s32 recordsOnly) {
         }
         a = offset;
         b = ((offset + 0x40) / 4) - 1;
-        offset = 0;  // FAKE: dead store; the operand is redefined, so the value of b is not copy-propagated into the index and b stays the variable (same colour as the loop b)
+        offset = sector << 3;
         ((u32 *)workingData)[b] = eepromCalculateCrc32(a + workingData, 0x3C);
         bzero(strlen(D_807467C0) - (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) + workingData + 0x840, (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) - strlen(D_807467C0) - 0x40);
         if (D_807ECEA0) {}  // FAKE: deadsweep dead statement (steers uopt)
         osWritebackDCacheAll();
         if ((u32)D_807EDEAC & ~0x3FU) {}  // FAKE: an unsigned -64 use after the calls keeps the unsigned mask constants of the arm above uncoloured (li at,-64)
-        memcpy(&((u64 *)sEepromImage)[sector], &((u64 *)workingData)[sector], 0x800 - (sector << 3));
+        memcpy(&((u64 *)sEepromImage)[sector], &((u64 *)workingData)[sector], 0x800 - offset);
         while (*contReadPending != 0) {
             sleepMilliseconds(1.0f);
         }
