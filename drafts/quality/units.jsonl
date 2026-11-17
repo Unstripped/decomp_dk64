@@ -922,3 +922,4 @@
 {"type": "unit", "t": "2026-11-17T15:21:52Z", "unit": "2026-11-17: cleanup CleanupLead2 close", "commit": "2cda5579ccbe1721016721c0858f03ed758db651"}
 {"type": "unit", "t": "2026-11-17T15:36:33Z", "unit": "2026-11-17: cleanup HackcsCmdExec5", "commit": "1f27b4f26531120bd6d0f125b0601873f07e743d"}
 {"type": "unit", "t": "2026-11-17T15:57:06Z", "unit": "2026-11-17: cleanup HackcamComputeEyeFocus7", "commit": "4d0df2755b5688a8196e4ef21294b3cfd102b32e"}
+{"type": "unit", "t": "2026-11-17T15:57:32Z", "unit": "2026-11-17: cleanup HackplayerTurnByStickX5", "commit": "64416e4ec53d99f845af0298a4deba15ddb58ab8"}

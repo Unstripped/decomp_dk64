@@ -40,6 +40,18 @@
 - In the plain copy (extern table), the same single-test body differs by 50 lines. The a3 placement is the as1 problem again.
 - The landing needs the yaml carve: `.scratch/HackplayerTurnByStickX2/header-request.md`.
 
+**2026-11-17, HackplayerTurnByStickX5, anthropic/claude-opus-5-5:high.** Base 4d0df275 (carve merged), `variants.py try`, full lines, site c17942 only:
+
+| Variant | Diff lines |
+|---|---|
+| c17942 removed (no guard) | 42 (shape 0) |
+| `sel = heldActor->actorType` hoisted above the state store (Q0199 first-appearance order) | 57 |
+| `&& gCurrentActor` folded into the jumpTimer test (a real use, extra beqz) | 33 |
+| switch directly on `gActivePlayerState->heldActor->actorType`, no sel (Q1148) | 42 |
+| one-use `Actor *actor` for the state store only (= bdc230) | 6 |
+| `variants.py scan`: guard-free copy | best 29 (sel u8/u16) |
+| `variants.py scan`: actor-local copy | best 6 (declswap, widths) |
+
 ## Untried ideas
 - Permuter on the carve fake-free body: done 2026-11-15 (see the ledger permute line).
 - The SchedStruct field `unk280` is already u32 (`sched.h:41`), and Actor.actorType is u32 (0x58), so those widths are not levers.
