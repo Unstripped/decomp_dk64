@@ -138,9 +138,9 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
 - ORIG check: 6AD90 f64 midpoint reuse a2d087 (box) and 3aa4ac (collisionCheckTriangleContainsPointXZ) still FAKE (frame holds only ten f64); ec388d and 58f1bd FIXED (d78151a9, b52ccd53: dedicated hx once sign ternaries freed a slot).
 
 ## Session 2026-11-17c close leftovers (CleanupLead8; supersedes the 2026-11-17b list)
-- `rank`: only hudPauseMenuUpdate (HELD, above). Unreviewed: only 90D80 renderHitCounterHUD (blocked); FE40 retype blocked. 189 functions
-  with hacks (331 sites), 12 with 3+ strength-3 (`:xhigh`/`:max`) attempts (§7). Knowledge not filed (would stale other units' rungs):
-  vsprintf (PUTC steers only 3 of 25 uses; uopt keeps two loop IVs; down-counter trio lead = 5, permute 430->430) and csCmdExec 0x68 notes: in dossiers.
+- OPEN `rank` rows (3): knowledge 0a2798ac (Q1191-Q1195, filed per director ruling) reopened vsprintf (next=review: review, reconstruct,
+  5 diagnose, 4 goto-hand stale) and csCmdExec (next=review: review, reconstruct, 3 diagnose stale); hudPauseMenuUpdate HELD (above).
+  Unreviewed also 90D80 renderHitCounterHUD (blocked); FE40 retype blocked. §7: 12 of 189 hack functions have 3+ strength-3 attempts.
 - Types items: shared `extern KongInventory *gCurrentKongInventory;` in actor.h for 7 per-file externs (103AB0 19A00 42630 7CA80 D5E10 E4090 EFDC0; measure the stale cost first); CsState/CsStateFull merge (above; 138 478F0 handlers); `gCsCondFlag` s8 (42630) vs `extern u8` (E4090); jetpac 0x8002BA80 Gfx split.
 - HELD names: RaceParticipant.unk35 phase; PlayerStruct.rect[4] scissor fields; ModelSlot.unk8C stateFlags; PlayerState.unk50 gravityDelayFrames (D5E10 use first);
   BehaviourWorkState.unk2E sfxCooldown (dry-run touches 11 unread files); race/0 D_8002FB10/D_8002FB70 route tables (map 0x52 unnamed); gMinigameCoinCount (above).

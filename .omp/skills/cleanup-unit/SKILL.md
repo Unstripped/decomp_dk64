@@ -133,9 +133,8 @@ session, a consolidation in a quiet window runs steps 1-3 only. Once every worke
    named functions); sweep what it skipped AND every file with stale automatic rungs. Commit.
 3. Knowledge queue in ONE commit (scripted `quirks.py add`, `--see-also`, `--unit` = the reporting worker's unit); a dated paragraph only
    corrects (it stales every function in the entry's list, the reporter's rungs too: 17b's 14 paragraphs staled 67 rungs); extensions are new
-   entries (a superseded claim goes in the new entry, not a paragraph); an entry stales every other unit's rungs on its functions, so a
-   function whose fresh rungs come from several units keeps the finding in its dossier (17c vsprintf, csCmdExec); drop confirmations;
-   tooling rules → ladder.md; `quirks.py check`; rungs the entries stale are the next session's leftovers.
+   entries (a superseded claim goes in the new entry, not a paragraph); drop confirmations; tooling rules → ladder.md; `quirks.py check`.
+   Every new finding is filed (AGENTS.md), never withheld to keep rungs fresh: the rungs it stales are the next session's leftovers.
 4. `uv run tools/quality.py report --baseline 2b2532bc --markdown` replaces the ROADMAP.md `### 11. Code quality` table.
 5. One [run-log.md](run-log.md) row; lessons → this skill (caps: SKILL.md and references ≤150 lines, briefs ≤180; a lesson replaces or
    merges text); commit `cleanup-unit skill: …`. No re-review groups: stale reviews show as `next=review` and go out as polish work.
