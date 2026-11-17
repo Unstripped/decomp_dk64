@@ -10,8 +10,8 @@
     - every player routine, including jetpacInitPlayer, uses `JetpacPlayerActor *` throughout;
     - JetpacPlayerActor only shares JetpacActor's first 0x30 bytes, so the field split is a prefix overlap, not a split of field ownership.
   - Net function FAKE goes from 3 to 2.
-- **jetpac:80026318:other:ba285d** (copy line 243): `JetpacActor *actor = (JetpacActor *)player; // FAKE: distinct base pointer defeats flying reload CSE`. Q0820: uopt keys load candidates by base variable, so stores through `actor` end the availability of `player->flying`.
-- **jetpac:80026318:other:b4a3d4** (line 283 in the copy, also 271/274 and 290/295/298): the `flying = player->flying` refreshes after each actor update. In the target they are 0x9c4/0x9e0, 0xa30/0xa40, 0xa8c/0xa9c and 0xac8/0xaf8. Still kept: every matching body needs the second-chain refreshes.
+- **jetpac:80026318:other:ba285d** (line 243 at ebe7357c): `JetpacActor *actor = (JetpacActor *)player; // FAKE: distinct base pointer defeats flying reload CSE`. Q0820: uopt keys load candidates by base variable, so stores through `actor` end the availability of `player->flying`. Stays FAKE (HackjetpacUpdatePlayerMovement7, 2026-11-17): the second variable can only hold a0, so every form of it respells `player`.
+- **jetpac:80026318:other:b4a3d4** (line 283 in the copy, also 271/274 and 290/295/298): the `flying = player->flying` refreshes after each actor update. In the target they are 0x9c4/0x9e0, 0xa30/0xa40, 0xa8c/0xa9c and 0xac8/0xaf8. Retagged `// ORIG:` by the lead (7d27004b, 2026-11-17e) with one `lw v0,48(s0)` per refresh.
 
 ## Attempts
 **2026-11-14 U HackjetpacUpdatePlayerMovement (strong retry).**
@@ -132,8 +132,27 @@ Review: `idx` is split into `idx` (the ledge index) and `edge` (the jetpacCheckL
 
 Result: fake 3 -> 1. b4a3d4 stays tagged, and its tag now also names the two flying-arm refreshes.
 
+**2026-11-17 U HackjetpacUpdatePlayerMovement7 HackjetpacUpdatePlayerMovement7 anthropic/claude-opus-5-5 (re-review plus ba285d).**
+
+Base ebe7357c (after 8894f224 and 7d27004b). Copy unchanged: fdiff OK, clint uninit 0, cwarn 0. The sweep found 0 hits (plain: no rewrite, recipe: no removal).
+
+New direction: a distinct pointer to the jetman from a source other than `player`.
+- The target has one jetman base. `move s0,a0` at 0x908; `lw t3,56(a0)` at 0x928 still uses a0. Every jetman access is `N(s0)`.
+- The function's only non-.rodata relocs are jetpacGame: buttons/activePlayer/players at 0x8b8-0x8ec, ledges at 0xcb8/0xda0. There is no jetpacGame+0x420 and no jetpacPlayer.
+- The caller (jetpacPlayerStateUpdate) sets only a0: `lui/addiu a0,%hi/%lo(jetpacPlayer)` at 0x132c/0x1334. The callee writes a1 at 0x924 (`andi a1,v0,0x2030`) before it ever reads a1.
+
+Measured (variants.py try / deadsweep score, full=):
+- A caller-provided second parameter (`JetpacActor *actor`, with the caller passing the jetman twice) scores 141. The callee does `move s0,a1`, spills a0 to 80(sp) and its frame becomes 80. The caller scores 4 (`move a1,a0`).
+- Global path `actor = &jetpacGame.player`: 642 (reloc 130). Every jetman access through `jetpacGame.player`: 407.
+- A `(JetpacActor *)player` cast view with no second variable: 21, identical to plain (frame 88->80 plus the 4 loads). The view type does nothing; only a second variable does.
+- Plain with `s32 pad;` in the actor slot: 4. It misses `lw v0,48(s0)` at 0x9c4/0x9e0, after `swc1 12(s0)` (0x9cc/0x9ec), VN-merged with the 0x9ac test load. It also misses 0xac8/0xaf8, after `swc1 8(s0)` (0xad0/0xb00), VN-merged with the 0x9f0 join value.
+
+Review: variants.py scan (119 variants). Only the comparison mirrors are zero; `mx < vx` and `vx > mx` compile alike, so that is not a steer. Every float literal and local width is load-bearing. The `0.2` double at 0x9d8 (`ldc1` + `add.d`) is what the target does. Declaration order carries the frame: swapping btnZLR/actor costs 2, actor/btnLeft 4.
+
+Result: no change, so fake stays 1 (ba285d). The only remaining non-candidate routes are volatile, a pun, a field pointer and a second variable. The target offers nothing but a0 for a second variable to hold.
+
 ## Untried ideas
-- Whether the six refreshes are original code rather than a steer. The target executes one `lw v0,48(s0)` per refresh, and with the actor/player split no shorter natural source produces them (A4 87, A5 72). That may justify `// ORIG:` for b4a3d4; it needs a lead ruling (HackjetpacUpdatePlayerMovement6).
+- Whether a shared-type redesign of jetpac.h is justified: a common 0x30-byte head embedded in both JetpacActor and JetpacPlayerActor, used through `&player->head`. That would be a second pointer with type evidence, not a cast. It is a TypesOwner/director decision. Without it, a `&player->head` local is still a respelling of `player`.
 - A natural consumer for a join read at 0x9f0 with a final `if (player->flying)` (the two-join-read family). It would give the per-arm loads through PRE without the second-chain refreshes. With the actor/player split, PRE still needs the join read to be live.
 
 ## Evidence
