@@ -925,3 +925,4 @@
 {"type": "unit", "t": "2026-11-17T15:57:32Z", "unit": "2026-11-17: cleanup HackplayerTurnByStickX5", "commit": "64416e4ec53d99f845af0298a4deba15ddb58ab8"}
 {"type": "unit", "t": "2026-11-17T15:58:18Z", "unit": "2026-11-17: cleanup HackplayerUpdateCommon3", "commit": "1e1808ee53786ce567f8099aaae8adfe11f19647"}
 {"type": "unit", "t": "2026-11-17T15:59:25Z", "unit": "2026-11-17: cleanup HackcsCmdExec6", "commit": "c6b12ca67b9ed31e1cc4d89454c8dae6eee313f6"}
+{"type": "unit", "t": "2026-11-17T16:00:20Z", "unit": "2026-11-17: cleanup HackcollisionTestActorBoxFloor5", "commit": "98f3cdaba811fcf6f11f14f74b898841b6e01bdc"}

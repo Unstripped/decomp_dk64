@@ -1,6 +1,6 @@
 # collisionTestActorBoxFloor (global, src/global/6AD90.c)
 ## Sites
-- global:8066A08C:dead-store:ff3fab `dy02 = 0.0;`: the dead-store kill described in ido-levers-revisit-7 (Coll entry) and Q0499 (floats have no no-code kill). It stops uopt forwarding nz's expression into d. Target: d in $f0 at 0x41dc-0x41e4, spilled to its home 0x108(sp) around every call. Not ORIG: the target never stores 0.0 for dy02.
+None left. global:8066A08C:dead-store:ff3fab `dy02 = 0.0;` was removed on 2026-11-17 (HackcollisionTestActorBoxFloor5). uoptinput forwards a variable load only from the immediately preceding assignment (Q0558), so with nz last before d, nz's usub became a 2-use candidate that took $f0 ahead of d. The fix drops the nz local for the collisionTestDynamicActorFloor layout (Q0534): `nzPart = dx01 * dy02;`, with `(nzPart - (dy01 * dx02))` repeated in d and val, and d written `-((tri->z1 * (nzPart - (dy01 * dx02))) + (nx * tri->x1 + ny * tri->y1))`. The z1-first operand order comes from the target: mul.d $f6,$f4,$f22 at 0x41cc. IDO keeps source order when an operand is an expression, as val's `nz * z` does (mul.d $f10,$f22,$f4 at 0x425c).
 ## Attempts
 - CleanD5E10, Rev16G, Rev17L (opus:low): remove/cond/diagnose/permute.
 - 2026-11-14 U, scored with variants.py try (full=):
@@ -38,10 +38,13 @@
   - no d local (d's expression inline in val) 262; positive-dot d with val subtracting it 11
   - zdbug:6 without the kill: dz01 (cand 69) -> 24 ($f0), dz02 (88) -> 25 ($f2), then the forwarded usub (110) -> 24 once dz01 is dead; d (112) is coloured only in the late pass after the split-outs and takes 25. With the kill d (113) is the one that takes 24.
   - ray-span reading re-checked: `dy02 = 1000.0 - -1000.0;` (ray top minus ray bottom) feeding `ny * dy02` and `dy02 * val` scores 0, so any def of a y-delta works, but the variable is still the triangle's y-delta reused for the ray; no reading found where the ray span is the variable's only role. Not applied.
+- 2026-11-17 HackcollisionTestActorBoxFloor5 (opus:high), base 4d0df275, diagnose fixed (variants.py try):
+  - forwarding rule measured on the plain removal: nz forwarded only when its statement is last before d; with nx last nx's usub (1003) is forwarded (40/46), with ny last ny's (1254) (295/297)
+  - normal and/or deltas as local `struct { f64 x, y, z; }`: 11 (registerised the same as scalars)
+  - `dot` partial-sum local before d: 80; `val = ...; val = 0.0 - val;`: 11
+  - nzPart layout: sibling d order 115; nz term first `(nzPart - ...) * tri->z1`: 1 (0x41cc operands only); `tri->z1 * (nzPart - ...)`: 0, applied
 ## Untried ideas
-- (tried 2026-11-15, unit 3: not applicable in-block) an expression exceeding uoptcopy's 10-variable-leaf limit
-- (tried 2026-11-16, unit 4: only reuse readings exist) a natural source role for a y-delta (dy01/dy02) after the normal
-- raise d above the forwarded usub in colouring order (d is coloured in the late pass; the usub takes $f0 as soon as dz01 dies): a natural extra use or longer live range for d, or a shorter one for dz01, without new code
+None open.
 ## Evidence
 - rodata: 0x128 2000.0 unreferenced (Q0086); 0x130 0.01, 0x138/0x140 2000.0 (the two ny tests), 0x148 -0.01, 0x150 2000.0 loaded once into $f26 at 0x421c and used for every den and `2000.0 * val` in all three blocks, then per-use -1000.0/1000.0 pairs at 0x158..0x180.
 - tri->x1 is loaded once (0x4108) and parked in two uopt temps 0x8C(sp) and 0x78(sp) (reload 0x41ac for d); y1 0x84, z1 0x80.
