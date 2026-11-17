@@ -211,7 +211,6 @@ tail:
                         }
                         break;
                     case 2:
-                        endOnTrigger = 1;
                         if (slotQueueGetValue(0xB, 0) < targetCount) {
                             if (counter->countLeft >= 2) {
                                 messageText = textTableGetString(0x1A, 0x11, 1);
