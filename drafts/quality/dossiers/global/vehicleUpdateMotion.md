@@ -137,6 +137,18 @@ rounds 2-30 opus:low, Hackfunc_8068F72C opus:high 2026-11-14, PermBatch1114c)
   6c8d63 diagnose nohit: abs clamp as if/else into a block-scope absSpeedY 73 (frame +8), `|| -speedY > 20` 27,
     ternary-of-compares condition 121; u8 alias with both tests removed 23 = 20 + 3 (sites independent).
   review nohit: body unchanged, FAKE 2 kept.
+- 2026-11-17 HackvehicleUpdateMotion8 opus:high (copy unchanged, fdiff 0; sweep 47 checks 0 hits):
+  9b1ca1 diagnose nohit: piece arithmetic at base 08f85115 (Q0998 formula (uses - reload blocks) / blocks):
+    without the test kongState {205} splits 10 {bb 0..5} -> 317 {bb 8..14, 18; 1 use, adjsave -0.33} -> 321
+    {bb 6, 7, 15..17, 19..58; uses bb 44 (lw 0x58(sp) at 0x12cc) + bb 58 (0x1434); reload blocks bb 6 and bb 19}
+    = 2 - 2 = adjsave 0.0, dropped without a further split. With the bb 66 test the same range is 3 - 2 > 0, so it is
+    split again into 323 {bb 44..66, one reload at 44, adjsave 0.286} -> a0 and 331 {6, 7, 15..17, 19..43} (-0.22).
+    A natural fix must drop one reload block (bb 6 or bb 19) from that range or add a real use; the target has
+    neither (0x58(sp) is read only at 0xf10, 0x12cc). Entry-shape respellings measured on the removal copy:
+    motion-arm `else { if (onGround) }` -> `else if (onGround)` 45 (identical IR), inWater-arm drag increment
+    as `drag += throttle != 0.0f ? 30.0f : 3.0f` 219, kongState assignment moved after onGround 61 / after
+    tiltPitch 51, tiltRoll = 0 before pl 47.
+  review nohit: fresh top-to-bottom read at 08f85115, body unchanged, FAKE 2 kept.
 
 ## Untried ideas
 - 6c8d63: needs two zero-code uopt blocks inside either waterY compare/use pair (buoyancy or late floor-snap
@@ -145,6 +157,10 @@ rounds 2-30 opus:low, Hackfunc_8068F72C opus:high 2026-11-14, PermBatch1114c)
   0x1434) that is coloured AFTER the constant 2 (v1): a narrow alias gives everything but that order (3). Untried:
   natural code that lowers that candidate's priority below the constant-2 piece without the dead use, or an s32
   form that uopt does not copy-propagate (Q0510 lists has_ilod, is_incr, countvars >= 10, availability).
+  Any alias is a redundant-alias steer under the merge rulings, so the alias route cannot retire the tag. Untried
+  (2026-11-17): a natural shape that leaves kongState's bb 44..58 range with ONE reload block (bb 6, the
+  velX/velZ block after the init join bb 5, or bb 19, after the motion-arm join bb 18) without changing the
+  0xd7c-0x12cc code.
 
 ## Evidence
 0xdf8-0xe1c: `move t1,zero; c.le.s; bc1fl; sb t1,71(sp); li t1,1; sb t1,71(sp)` then `andi t3,t2,1; sb t3,70(sp)`.
@@ -155,3 +171,5 @@ uopt table at base 6fe2a3af: fl[3]/fl[2] were `isvar M 58 -25/-26` without `vreg
 0x12f0/0x12f8: turn factor `li v0,-40` / `li v0,-30` (tiltRoll piece 332, adjsave 1.0, v0), never stored to 0x48.
 0x136c/0x1370: buoyancy y in $f12 (tmpA colour), waterY in $f2; 0x14e8: late block waterY in $f2 (cand 24) before y ($f4).
 0x12cc (u8 alias body): `lbu v1,0x5b(sp)`, 0x12e0/0x12e8 `li a0,2`, all else equal (full 3); cand 195 = ucvt{194 ucvtl{kongState}}.
+uopt -l5 at 08f85115 (removal copy): kongState piece 321 `live bb 19/6 needreglod`, `44 1`, `58 1 deadout`, adjsave
+0.00000000e+00, no split; base piece 323 `44 1 needreglod`, `58 1`, `66 1 deadout`, adjsave 2.857e-01, a0 (uopt 3).

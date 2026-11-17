@@ -932,3 +932,4 @@
 {"type": "unit", "t": "2026-11-17T16:22:42Z", "unit": "2026-11-17: cleanup HackactorBoneChainSwingUpdate6", "commit": "49aa036504716e1fe1a3f305858a286db39da4f4"}
 {"type": "unit", "t": "2026-11-17T16:23:44Z", "unit": "2026-11-17: cleanup HackhudPauseMenuRender11", "commit": "24c2d7a2806d03512c9b9165a8421bea1fd1aa3b"}
 {"type": "unit", "t": "2026-11-17T16:24:36Z", "unit": "2026-11-17: cleanup CleanupLead4 consolidate", "commit": "91528c3644d1543af26d11cdb8d7c6b72d4d2ef3"}
+{"type": "unit", "t": "2026-11-17T16:24:47Z", "unit": "2026-11-17: cleanup HackvehicleUpdateMotion8", "commit": "ba247878619da144ba4213e35a7ba1429cd1bdf4"}
