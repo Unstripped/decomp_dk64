@@ -137,13 +137,13 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   (Polishglobal100180).
 - ORIG check: 6AD90 f64 midpoint reuse a2d087 (box) and 3aa4ac (collisionCheckTriangleContainsPointXZ) still FAKE (frame holds only ten f64); ec388d and 58f1bd FIXED (d78151a9, b52ccd53: dedicated hx once sign ternaries freed a slot).
 
-## Session 2026-11-17 close leftovers (CleanupLead3)
-- Re-review first: 33 functions unreviewed after knowledge b8cbd3fa: 22 in the hack queue (`rank | grep next=review`) and 11
-  polish files (`rank --polish`; 90D80 still blocked). §7 needs 3+ strength-3 (`:xhigh`/`:max`) attempts per `rank` function:
-  12 of 192 have them; `:high` workers cannot move that column. hudPauseMenuUpdate (ACDC0) still HELD.
-- Types items: cutscene.h CsState/CsStateFull merge (above; measure the stale cost of 138 478F0 handlers first); `gCsCondFlag`
-  `s8` (42630) vs `extern u8` (E4090); jetpac 0x8002BA80 Gfx split (the `jetpacInitPending` splat label spans a gSPEndDisplayList).
-- HELD: RaceParticipant.unk35 → phase (evidence); PlayerStruct.rect[4] → scissor fields (textBoxRender order flip, Q1082).
+## Session 2026-11-17b close leftovers (CleanupLead7; supersedes the 2026-11-17 list)
+- OPEN `rank` rows (7): vsprintf re-diagnose (PUTC merge af14405e staled 4 goto-hand + 5 diagnose rungs); raceOpponentFollowWaypoints
+  a1f722 diagnose; knowledge 9b1f664c staled camComputeEyeFocus, enemyGridStateStep, csCmdExec, playerUpdateCommon; hudPauseMenuUpdate HELD.
+  Unreviewed: only 90D80 renderHitCounterHUD (blocked). §7 asks 3+ strength-3 (`:xhigh`/`:max`) attempts per `rank` row: 12 of 192.
+- Types items: shared `extern KongInventory *gCurrentKongInventory;` in actor.h for 7 per-file externs (103AB0 19A00 42630 7CA80 D5E10 E4090 EFDC0; measure the stale cost first); CsState/CsStateFull merge (above; 138 478F0 handlers); `gCsCondFlag` s8 (42630) vs `extern u8` (E4090); jetpac 0x8002BA80 Gfx split.
+- HELD names: RaceParticipant.unk35 phase; PlayerStruct.rect[4] scissor fields; ModelSlot.unk8C stateFlags; PlayerState.unk50 gravityDelayFrames (D5E10 use first);
+  BehaviourWorkState.unk2E sfxCooldown (dry-run touches 11 unread files); race/0 D_8002FB10/D_8002FB70 route tables (map 0x52 unnamed); gMinigameCoinCount (above).
 
 ## OPEN functions
 

@@ -34,8 +34,8 @@ fix a wrong one in dossiers through a lead `--copy-dir`. `rank` orders functions
 ## 1. Ingest
 
 1. `git status` + `git log -3` (unexpected changes are the user's: never stage them; a lead whose handle died may still run: new commits or a dirty `drafts/quality/` → message it, wait until quiet).
-   Lead context runs out: one merge per turn, read line ranges, pipe output through `tail`/`head`, keep rulings, merges
-   and the queue in `.scratch/<lead>/dispatch.md` and the close plan in `close.md`, so a successor resumes from files
+   Lead context runs out (director mode: often, 4 leads in 2026-11-17b): one merge per turn, read line ranges, pipe output
+   through `tail`/`head`; after EVERY merge update `.scratch/<lead>/dispatch.md` (rulings, merges, queue), `close.md` and the handoff, so a successor resumes from files
    alone. A successor first checks `git log`, `ps` and `history://<old lead>` (a lead the harness calls dead can still run
    and land commits: 2026-11-17 close renames 2cda5579; message it to stop after its current step) before re-merging any report; never run `merge_record` twice for one worker. A dead
    lead's FINISHED workers (status.md + dry-run ledger, no transcript): merge_record needs `--model`, so run its steps by hand,
@@ -104,13 +104,14 @@ As each worker reports:
 5. Data carves: a function with a switch `jr` needing XBB guards or an as1-hoist blocker may only miss its TU's own
    `.word`/table data (Q0552): carve before steering; without a switch `jr` look for a one-path store or real control flow
    first (Q0548). Carve window: `rm -f .scratch/<lead>/RESUME`, wait for jobs 0, gate, split/make/expected/vanished,
-   re-record, carry, commit, `touch` it. A merge whose file-scope edit stales other reviews queues their polish item at once.
+   re-record, carry, commit, `touch` it. A merge whose file-scope edit stales other reviews, or whose body respelling stales the function's other sites (3D20 PUTC: 9), queues that item at once.
 6. A respelling that replaces a pun but was chosen for codegen keeps its tag (Q0816); the lead retags it in a `--copy-dir`
    copy with a keymap or copy-only line. Ordinary C, untagged even as the only match: a load-bearing guard `continue`/`break`,
    a one-path store, an index loop over a global table, one quantity refined in place (104F0 `offset = sector << 3`), an assignment
    in a test whose values the target uses, one macro for every recomputation, function-local statics, a selector local at its use,
    a local holding one field read for use (Q0601), a pointer local to a global used for EVERY access, a per-role local in a dropped
-   local's or pads' slot, bare truth tests, a flag's natural unsigned type, a mask written at its field's width. Steers: a trailing/
+   local's or pads' slot, declaration order chosen for the frame (9BF30), a subject-first symmetric `==` of two fields in fresh
+   view-retype code (F0D0), bare truth tests, a flag's natural unsigned type, a mask written at its field's width. Steers: a trailing/
    `else` continue, an empty `default:`, a dead clamp keeper, a constant-valued local (any name), a redundant alias (a second copy of
    a value already in a local: a swap needing one is rejected), a value cast chosen for codegen, an operand-order/width/view respelling.
 7. A worker's function rename (or a dossier filed under a new name) replaces `drafts/quality/dossiers/<seg>/<old>.md`: delete
@@ -134,13 +135,12 @@ session, a consolidation in a quiet window runs steps 1-3 only. Once every worke
    --held`. Then `make split`, touch src, `make`, `make expected`, `unit_check.py vanished`, ONE gate staging headers/symbol files.
 2. `carry --rev <commit before the renames> --unit "<unit>" <files>` once (a rerun duplicates events; `--func` re-runs only
    named functions); sweep what it skipped AND every file with stale automatic rungs. Commit.
-3. Knowledge queue in ONE commit (scripted `quirks.py add` per entry, `--see-also`, `--unit` = the reporting worker's unit);
-   extend an entry only to correct it (dated appended paragraph); drop confirmations; tooling rules → ladder.md; `quirks.py check`.
-   Entries stale other units' agent rungs (reviews too) on the functions they name: list them as the next session's leftovers.
+3. Knowledge queue in ONE commit (scripted `quirks.py add`, `--see-also`, `--unit` = the reporting worker's unit); a dated paragraph only
+   corrects (it stales every function in the entry's list, the reporter's rungs too: 17b's 14 paragraphs staled 67 rungs); extensions are new
+   entries; drop confirmations; tooling rules → ladder.md; `quirks.py check`; rungs the entries stale are the next session's leftovers.
 4. `uv run tools/quality.py report --baseline 2b2532bc --markdown` replaces the ROADMAP.md `### 11. Code quality` table.
-5. One [run-log.md](run-log.md) row; lessons → this skill (caps: SKILL.md and references ≤150 lines, briefs ≤180; a lesson
-   replaces or merges text); commit `cleanup-unit skill: …`.
-No separate re-review groups: stale reviews show as `next=review` in `rank --polish` and go out as polish work.
+5. One [run-log.md](run-log.md) row; lessons → this skill (caps: SKILL.md and references ≤150 lines, briefs ≤180; a lesson replaces or
+   merges text); commit `cleanup-unit skill: …`. No re-review groups: stale reviews show as `next=review` and go out as polish work.
 
 ## 7. Stop rule
 
