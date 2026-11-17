@@ -293,7 +293,7 @@ void playerUpdateCommon(s32 mode) {
     s16 flags;
     f32 projX;
     f32 projY;
-    if (gCurrentActor && gCurrentActor) {}  // FAKE: steers uopt candidate colouring (gActivePlayerActor pointer v1)
+    if (gCurrentActor) {}  // FAKE: steers uopt candidate colouring (gActivePlayerActor pointer v1)
 
     attacker = gCurrentActor;
     gActivePlayerState = gCurrentActor->customState;
@@ -482,7 +482,7 @@ void playerUpdateCommon(s32 mode) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x2C0, 0xFF, 0x7F, 0);
         }
     }
-    actorGetNodePos(gActivePlayerActor, 6, &((PlayerStruct *)gPlayerSlots)[gCurrentPlayerIndex].headX, &((PlayerStruct *)gPlayerSlots)[gCurrentPlayerIndex].headY, &((PlayerStruct *)gPlayerSlots)[gCurrentPlayerIndex].headZ); // FAKE: redundant (PlayerStruct *) cast on gPlayerSlots steers regalloc
+    actorGetNodePos(gActivePlayerActor, 6, &((PlayerStruct *)gPlayerSlots)[gCurrentPlayerIndex].headX, &gPlayerSlots[gCurrentPlayerIndex].headY, &gPlayerSlots[gCurrentPlayerIndex].headZ); // FAKE: redundant (PlayerStruct *) cast on the first gPlayerSlots address steers regalloc
     camProjectToScreen(gActivePlayerActor->x, gPlayerSlots[gCurrentPlayerIndex].headY, gActivePlayerActor->z, &screenX, &screenY, NULL, 1.0f, gCurrentPlayerIndex);
     gActivePlayerState->targetPitch = screenX;
     gActivePlayerState->targetRoll = screenY;
