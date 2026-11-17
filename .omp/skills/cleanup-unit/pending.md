@@ -88,8 +88,8 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   with 114270.c, 478F0.c).
 - 13980 `extern u32 gFramebuffers[]` → `u16 *gFramebuffers[]` (Polishglobal13980Rereview record 3c2f89d7): blocked on the 136820
   faultFontInit prototype.
-- hudPauseMenuUpdate (ACDC0): 7 pre-existing register-reuse steers tagged at aab279f2 (65898b 38b069 df709b ceaa13 af58f9 205ad7
-  98a7ae); a dedicated local fails each alone: hack item needing a reconstruct.
+- hudPauseMenuUpdate (ACDC0): ceaa13 and af58f9 FIXED (af58f9 by `s8 x/stickY` packing + `s32 step`, c6bb1ff1, Q1198); the other 5
+  register-reuse steers (65898b 38b069 df709b 6151e7 32c920) EXHAUSTED with frame/colouring evidence (Q1199, Q1200).
 - Names held: D_80753354 (s16 per-kong turn rate used by CC800/E4090; `gKongTurnRate` is CEAE0's other table: pick a use-based
   name), PlayerState.unkC2, ActorGlobalState 9DD70-only fields (one file read), arcade/0 D_8004BC80/84 (file-local),
   D_8004A794 (fold-away option), 124780 effect sprite symbol_addrs (needs split), D_807505A4 split into two s16[5]
@@ -106,8 +106,8 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   the arcadeUpdatePlayerEntity carve), ActorCallbackNode.callback anonymous union (types stream).
 - Open hack leftovers: vehicleUpdateMotion 54eada (`u8 fl[4]`, diagnose stale after the 936B0 frame change); never-classified
   dead-if items for the Q0908 classifier: controllerAnimSetFromTable, slotQueueStateFadeIn, playerStateTakeDamagePrep,
-  transitionSetAudioVolume, zoneCheckActorInside, schedHandleRetrace (5), enemyGridStateStep (2); 90D80 renderHitCounterHUD
-  still blocked (string convention).
+  transitionSetAudioVolume, zoneCheckActorInside, schedHandleRetrace (5), enemyGridStateStep (2). 90D80 renderHitCounterHUD
+  RESOLVED 2026-11-17d: `(const u8 *)"HIT"` untagged by director ruling (literal typed to the const u8 * text API), bb3590b2.
 
 ## Session 2026-11-16 close leftovers (CleanupLead4)
 - Names held (evidence in `.scratch/CleanupLead/close.md` and dispatch.md): D_8076A0A6 (copied from gPadPressedButtons[0]);
@@ -123,10 +123,10 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   x0..z2 needs a pun for 70FD0's `&curr->out[j + 3]`; x[3]/y[3]/z[3] matches 70FD0 but fails fdiff in 6AD90
   (collisionTestActorBoxFloor, collisionCheckBoxTriangleContainsPointXZ). Probes: `.scratch/TypesOwner/batch_5/partA_req/`,
   `partA_alt/`. Reopen only with a shape that fdiffs in both files. Retype leftovers: 6AD90 365170 FIXED (batch_5, 95740f93: sizePtr u32 *); FE40 0b7e03/#2
-  BLOCKED, both routes measured (PolishglobalFE40 2026-11-16c, ledger 75e7f1b2; probes `.scratch/PolishglobalFE40/`): `u8 *dst`
-  raises W709 at 9 polymorphic caller args (5A50 4, 6AD90 5); gunzip `void **outBufPtr` needs a cast pun in its body
-  (`*outBufPtr += outcnt` is a cfe Error on void *, `= slide + outcnt` fdiff 1) and its stand-ins add 8 W709 in 5 files.
-  `blocked` keeps the sites in `rank --polish` (retype=1): do not redispatch without a new shape.
+  PERMANENT DEBT by director ruling 2026-11-17d (`retype kept`, ledger 70e3f1e4; sites EXHAUSTED): `void *dst` is genuinely
+  polymorphic and `(u8 **)&dst` would be a pointer pun. Measured: `u8 *dst` raises W709 at 9 caller args (5A50 4, 6AD90 5);
+  gunzip `void **outBufPtr` needs a cast pun in its body (`+=` on void * is a cfe Error, `= slide + outcnt` fdiff 1, stand-ins
+  +8 W709 in 5 files); `u8 *out` local fdiff 1 (target passes dst's home sp+0x6c). Probes `.scratch/PolishglobalFE40/`.
 
 ## Session 2026-11-16b close leftovers (CleanupLead6)
 - Field names HELD (applying them at close would reopen the reviews of every function they touch; batch them with the next
@@ -137,10 +137,10 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   (Polishglobal100180).
 - ORIG check: 6AD90 f64 midpoint reuse a2d087 (box) and 3aa4ac (collisionCheckTriangleContainsPointXZ) still FAKE (frame holds only ten f64); ec388d and 58f1bd FIXED (d78151a9, b52ccd53: dedicated hx once sign ternaries freed a slot).
 
-## Session 2026-11-17c close leftovers (CleanupLead8; supersedes the 2026-11-17b list)
-- OPEN `rank` rows (3): knowledge 0a2798ac (Q1191-Q1195, filed per director ruling) reopened vsprintf (next=review: review, reconstruct,
-  5 diagnose, 4 goto-hand stale) and csCmdExec (next=review: review, reconstruct, 3 diagnose stale); hudPauseMenuUpdate HELD (above).
-  Unreviewed also 90D80 renderHitCounterHUD (blocked); FE40 retype blocked. §7: 12 of 189 hack functions have 3+ strength-3 attempts.
+## Session 2026-11-17d close leftovers (CleanupLead9; supersedes the 2026-11-17c list)
+- `rank`: every row EXHAUSTED at strength 2 (189 hack functions, 330 sites); `rank --polish` empty; reviewed 4,270/4,270. The
+  7 new entries Q1196-Q1202 name csCmdExec, hudPauseMenuUpdate, vsprintf under their own units (2 re-keyed rungs re-recorded, d5dbec93). Per §7 the
+  next step is 3+ strength-3 (:xhigh/:max) attempts per `rank` row, or the user's call; 12 of 189 have 3+ strong attempts.
 - Types items: shared `extern KongInventory *gCurrentKongInventory;` in actor.h for 7 per-file externs (103AB0 19A00 42630 7CA80 D5E10 E4090 EFDC0; measure the stale cost first); CsState/CsStateFull merge (above; 138 478F0 handlers); `gCsCondFlag` s8 (42630) vs `extern u8` (E4090); jetpac 0x8002BA80 Gfx split.
 - HELD names: RaceParticipant.unk35 phase; PlayerStruct.rect[4] scissor fields; ModelSlot.unk8C stateFlags; PlayerState.unk50 gravityDelayFrames (D5E10 use first);
   BehaviourWorkState.unk2E sfxCooldown (dry-run touches 11 unread files); race/0 D_8002FB10/D_8002FB70 route tables (map 0x52 unnamed); gMinigameCoinCount (above).

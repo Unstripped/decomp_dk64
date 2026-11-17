@@ -50,9 +50,9 @@ fix a wrong one in dossiers through a lead `--copy-dir`. `rank` orders functions
 
 Keep up to 6 workers plus one `TypesOwner` running. Never two agents on one src file; a file listed
 in an open types batch (`.scratch/TypesOwner/batch_*/files.txt`) is not dispatched.
-- **Coverage first.** Until `report` shows `reviewed` equal to functions minus the blocked ones
-  (today `renderHitCounterHUD`, blocked on the string convention), dispatch only polish workers on
-  `rank --polish` files with `unrev > 0` and hack workers on `rank` functions in state `next=review` (met once all are in flight).
+- **Coverage first.** Until `report` shows `reviewed` equal to functions minus blocked ones (none since 2026-11-17d), dispatch
+  only polish workers on `rank --polish` files with `unrev > 0` and hack workers on `rank` functions in state `next=review`
+  (met once all are in flight). A blocked item waits for a director ruling: write the exact decision options (dispatch.md).
 - **After coverage.** Five slots take the top of `rank`, one the top of `rank --polish` (a hack item too when polish is empty).
 - **Hack item:** one function with 3+ hack sites, or up to 4 functions with 1–2 sites from the same file, in queue order.
 - When a worker reports, merge it (§5), then fill its slot at once. No rounds: nothing waits for the slowest worker.

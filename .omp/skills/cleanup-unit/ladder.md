@@ -116,9 +116,9 @@ A function with 3+ non-kept sites (warning sites not counted) also needs a fresh
   and no `knowledge/ido` file committed after the event names the function (its current or
   `func_ADDR` name). Note similarity never stales: top-8 note hits re-ran the same attempts for
   rounds (r35-36 permute: 96 ks for one fix); a retry must instead name what is new (`new=`).
-  An entry naming the function whose `unit` (`quirks.py add --unit`) produced the event (a carried event: the event
-  it copies) does not stale it (round 34: Q0704-Q0719 staled 52 own-run rungs so); a later edit of an entry (a
-  correction) stales every rung of its functions: they go to the next re-review wave (8ceee687, 145e8a82).
+  An entry naming the function whose `unit` (`quirks.py add --unit`) produced the event (a carried event: the event it
+  copies; a re-keyed site's carried event has no producer: re-record the worker's lines with the new keys, d5dbec93) does
+  not stale it (r34: Q0704-Q0719 staled 52 own-run rungs); a later entry edit (correction) stales all its functions' rungs.
   Write notes in concrete register/offset terms (`$s1 holds sp+0x34 across the jal`): `history` and dossiers.
 - A method counts through its newest event by time (carried events keep their original time) if that is fresh and
   not `blocked`. A fresh `hit` makes the site OPEN `next=apply` (the sweep found a match nobody merged yet).
