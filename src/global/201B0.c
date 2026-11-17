@@ -2777,7 +2777,8 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                     } else {
                         goto calc_look;
                     }
-                    goto look_set;
+                default:
+                    goto apply_view;
                 case 1:
                     posX = p->u.pos.x;
                     posY = p->u.pos.y;
@@ -2822,7 +2823,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                         camActor->pitch =
                             splineEvalCubic(target->splineT, e0->pitch, e1->pitch, e2->pitch, e3->pitch) / 127.0 * 2048.0;
                     }
-                    goto look_done;
+                    goto apply_view;
                 case 5:
                     k0 = &((CamSplineKeyPos *) p->u.spline.keys)[idx[0]];
                     k1 = &((CamSplineKeyPos *) p->u.spline.keys)[idx[1]];
@@ -2838,8 +2839,6 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
                             splineEvalCubic(target->splineT, k0->pitch, k1->pitch, k2->pitch, k3->pitch) / 127.0 * 2048.0;
                     }
                     break;
-                default:
-                    goto look_set;
             }
         calc_look:
             if (!gCamPathLookNode) {
@@ -2853,8 +2852,7 @@ void camComputeEyeFocus(Actor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
             } else {
                 actorGetNodePos(gCamPathLookActor, gCamPathLookNode, &lookX, &lookY, &lookZ);
             }
-        look_set: /* two consecutive labels: the empty block keeps uopt from colouring type across the switch */
-        look_done:
+        apply_view:
             if (type == 7) {
                 blend = mathSinF(gCamPathStepProgress * 1024.0f + 3072.0f) + 1.0;
                 angleD = mathAngleBetweenPoints2D(D_807F5D24, D_807F5D2C, D_807F5D18, D_807F5D20);
