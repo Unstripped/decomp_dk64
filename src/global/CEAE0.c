@@ -394,13 +394,10 @@ void playerUpdateCommon(s32 mode) {
             }
         }
         playerClearStaleHitSource();
-        {
-            s8 attackerIndex = gActivePlayerState->attackerPlayerIndex;
-            if (attackerIndex >= 0 && (u32)attackerIndex != gActivePlayerState->playerIndex) { // FAKE: (u32) cast on a != compare steers codegen
-                attacker = gPlayerSlots[attackerIndex].actor;
-            } else if (gActivePlayerState->attackerSpawnNodeId > 0) {
-                attacker = spawnNodeActivate(gActivePlayerState->attackerSpawnNodeId, 0);
-            }
+        if (gActivePlayerState->attackerPlayerIndex >= 0 && gActivePlayerState->attackerPlayerIndex != gActivePlayerState->playerIndex) {
+            attacker = gPlayerSlots[gActivePlayerState->attackerPlayerIndex].actor;
+        } else if (gActivePlayerState->attackerSpawnNodeId > 0) {
+            attacker = spawnNodeActivate(gActivePlayerState->attackerSpawnNodeId, 0);
         }
         if (D_807552E4.unk0 == 0) {
             if (gActivePlayerActor->state == 0x3C) {
@@ -492,7 +489,7 @@ void playerUpdateCommon(s32 mode) {
     if (gActivePlayerState->transitionTimer != 0) {
         gActivePlayerState->transitionTimer--;
     }
-    if ((gCurrentActor->x < D_807F5FE4 || gCurrentActor->z < D_807F5FE6 || D_807F5FE8 < gCurrentActor->x || D_807F5FEA < gCurrentActor->z || materialType != 0) && gActivePlayerState->idleTimeoutFlag == 0 && gFrameCounter >= 0x65 && !(gGlobalOverlayFlags & 0x4000) && gCurrentMap != 0xE) {
+    if ((gCurrentActor->x < D_807F5FE4 || gCurrentActor->z < D_807F5FE6 || gCurrentActor->x > D_807F5FE8 || gCurrentActor->z > D_807F5FEA || materialType != 0) && gActivePlayerState->idleTimeoutFlag == 0 && gFrameCounter >= 0x65 && !(gGlobalOverlayFlags & 0x4000) && gCurrentMap != 0xE) {
         if (gPlayerCount == 1) {
             if (flagGet(0x186, 0) == 0) {
                 mapSetPendingTransition(0xB0, 1);
