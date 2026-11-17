@@ -11,7 +11,7 @@ extern s32 __osMotorAccess(OSPfs *, s32);
 extern s32 gRumblePaused;
 extern u8 gRumbleResetPending;
 extern u8 gScreenRenderFlags;
-extern u8 D_807ECD09;
+extern u8 gControllerConnectedMask;
 extern OSMesgQueue D_807ECCF0;
 extern PlayerStruct *gPlayerSlots;
 
@@ -69,7 +69,7 @@ void rumbleResetAll(s32 unused) {
     for (i = 0; i < 4; i++) {
         rumbleInfoClear(&gRumbleInfo[i]);
         gRumbleInfo[i].pakState = 0;
-        if (D_807ECD09 & (1 << i)) {
+        if (gControllerConnectedMask & (1 << i)) {
             for (j = 0; j < 2; j++) {
                 rumbleMotorStop(i);
             }
@@ -158,7 +158,7 @@ void rumbleUpdate(void) {
         activeMask = controllerGetActiveMask();
         for (i = 0; i < 4; i++, info++) {
             if (info->pakState != 1) {
-                if ((D_807ECD09 & (1 << i)) && (activeMask & (1 << i)) && (gFrameCounter % 15 == 0)) {
+                if ((gControllerConnectedMask & (1 << i)) && (activeMask & (1 << i)) && (gFrameCounter % 15 == 0)) {
                     rumbleMotorStop(i);
                 }
             } else {

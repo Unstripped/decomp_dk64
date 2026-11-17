@@ -1266,7 +1266,7 @@ typedef struct MpSettings {
     s32 gameMode;
     s32 matchPhase;
     s32 limit;
-    s32 unk10[4];
+    s32 playerControllerSlots[4];
     s32 mapIndex;
 } MpSettings; /* size 0x24 */
 

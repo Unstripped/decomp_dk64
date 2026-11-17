@@ -500,7 +500,7 @@ extern s8 D_807563B4;
 void menuCheckCheatCodeSequence(void) {
     u16 *pressed;
 
-    pressed = D_807ECD48;
+    pressed = gPadPressedButtons;
     if (D_8003381C[D_80033818] == *pressed) {
         D_80033818++;
         if (D_80033818 >= 7U) {
@@ -508,7 +508,7 @@ void menuCheckCheatCodeSequence(void) {
             sfxPlayOnFreeSlot(0x23C, 0x7FFF, 63.0f, 1.0f, 0, 0);
             D_80033818 = 0;
         }
-    } else if (D_807ECD48[0] != 0) {
+    } else if (gPadPressedButtons[0] != 0) {
         D_80033818 = 0;
     }
 }
@@ -921,11 +921,11 @@ Gfx *menuDrawSubmenuRing(Actor *actor, Gfx *dl) {
 }
 
 extern s8 D_8076A100[];
-extern s8 D_8076A0E4[];
+extern s8 gMenuPlayerCharacterSel[];
 extern s8 D_8076A0E8[][4];
 
 void menuAssignPlayerControllerSlot(s32 playerIdx, s32 slotIdx) {
-    s8 prevSlot = D_8076A0E4[playerIdx];
+    s8 prevSlot = gMenuPlayerCharacterSel[playerIdx];
     s32 found = 0;
     s8 *assignedSlotPtr = &D_8076A100[playerIdx];
     s8 prevSubSlot = *assignedSlotPtr;
@@ -941,11 +941,11 @@ void menuAssignPlayerControllerSlot(s32 playerIdx, s32 slotIdx) {
             D_8076A0E8[slotIdx][subSlot] = playerIdx;
         }
     }
-    D_8076A0E4[playerIdx] = slotIdx;
+    gMenuPlayerCharacterSel[playerIdx] = slotIdx;
 }
 
 void menuReleasePlayerControllerSlot(s32 playerIdx) {
-    s8 slot = D_8076A0E4[playerIdx];
+    s8 slot = gMenuPlayerCharacterSel[playerIdx];
     s8 *assignedSlotPtr = &D_8076A100[playerIdx];
     s8 subSlot = *assignedSlotPtr;
 
@@ -953,7 +953,7 @@ void menuReleasePlayerControllerSlot(s32 playerIdx) {
         D_8076A0E8[slot][subSlot] = -1;
     }
     *assignedSlotPtr = -1;
-    D_8076A0E4[playerIdx] = -0x80;
+    gMenuPlayerCharacterSel[playerIdx] = -0x80;
 }
 
 
@@ -979,14 +979,14 @@ void menuInitControllerSlots(Actor *actor, s32 unused) {
         if (i == 0) {
             menuAssignPlayerControllerSlot(i, i);
         } else {
-            D_8076A0E4[i] = -0x80;
+            gMenuPlayerCharacterSel[i] = -0x80;
             menuReleasePlayerControllerSlot(i);
         }
     }
 }
 
 s32 menuNextFreeControllerSlot(s32 playerIdx) {
-    s8 slot = D_8076A0E4[playerIdx];
+    s8 slot = gMenuPlayerCharacterSel[playerIdx];
     s8 *row;
     s32 idx;
     s32 flag;
@@ -1010,7 +1010,7 @@ s32 menuNextFreeControllerSlot(s32 playerIdx) {
 }
 
 s32 menuPrevFreeControllerSlot(s32 playerIdx) {
-    s8 slot = D_8076A0E4[playerIdx];
+    s8 slot = gMenuPlayerCharacterSel[playerIdx];
     s8 *row;
     s32 idx;
     s32 flag;
@@ -1033,23 +1033,23 @@ s32 menuPrevFreeControllerSlot(s32 playerIdx) {
     return idx;
 }
 
-extern s8 D_80033FAD;
+extern s8 sMenuJoinedPlayerCount;
 extern s8 D_80744520;
 extern s8 D_80744534;
-extern s8 D_80033FAE;
+extern s8 sMenuMatchStarting;
 extern s8 D_80033F50;
 extern u8 D_80744514;
-extern s8 D_80033FAF;
+extern s8 sMenuCharacterAvailMask;
 extern s8 D_8074451C;
 extern s32 D_8003382C[];
 extern s32 D_80033834[];
 extern u8 D_8003384C[];
-extern s32 D_80033858;
-extern s32 D_8003385C[];
+extern s32 sMenuPrevButtons;
+extern s32 sMenuPrevStickBits[];
 extern u8 D_80750ABC;
 extern u8 gActivePlayerCount;
-extern u8 D_807ECD09;
-extern OSContPad D_807ECD10[];
+extern u8 gControllerConnectedMask;
+extern OSContPad gControllerPads[];
 
 void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
     MenuScreenState *state = actor->customState;
@@ -1079,7 +1079,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
         sfxPlayOnFreeSlot(0x3C, 0x4E20, 63.0f, 1.0f, 0, 0);
         D_80033F50 = 3;
     }
-    if (D_80033FAE != 0) {
+    if (sMenuMatchStarting != 0) {
         buttons = 0;
     }
     if (state->fade == 0.0f && rest == 0) {
@@ -1088,15 +1088,15 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
             itemCount = 6;
         }
         if (state->scroll == 0.0f) {
-            if ((buttons & 1) && D_80033FAD >= 2) {
+            if ((buttons & 1) && sMenuJoinedPlayerCount >= 2) {
                 mask = 0;
                 gActivePlayerCount = 0;
                 for (j = 0; j != 4; j++) {
                     bits = 1 << j;
-                    if (!(D_8076A0E4[j] & 0x80)) {
-                        gPlayerCharacterId[j] = D_8076A0E4[j];
+                    if (!(gMenuPlayerCharacterSel[j] & 0x80)) {
+                        gPlayerCharacterId[j] = gMenuPlayerCharacterSel[j];
                         mask |= bits;
-                        D_807552E4.unk10[gActivePlayerCount] = D_8076A100[j];
+                        D_807552E4.playerControllerSlots[gActivePlayerCount] = D_8076A100[j];
                         gActivePlayerCount++;
                     }
                 }
@@ -1106,7 +1106,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                 D_807552E4.limit = D_80744520;
                 D_807552E4.mapIndex = D_80744538;
                 D_80750ABC = D_8003384C[D_80744534];
-                D_80033FAE = 1;
+                sMenuMatchStarting = 1;
                 D_80744514 = 2;
                 mpStartMatch();
             } else if (buttons & 2) {
@@ -1115,7 +1115,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                 state->nextScreen = 6;
             } else if (buttons & 0x40) {
                 state->scrollTargetY -= 0xF0;
-                if ((D_80033FAD == 2 || D_80033FAD == 3) && D_8076A104 != 1) {
+                if ((sMenuJoinedPlayerCount == 2 || sMenuJoinedPlayerCount == 3) && D_8076A104 != 1) {
                     lim = -0x1E0;
                 } else {
                     lim = -0xF0;
@@ -1133,36 +1133,36 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
                 }
             }
-            pressed = BUTTONS_PRESSED(buttons, D_80033858);
-            if (state->scrollY == 0 && D_80033FAE == 0) {
+            pressed = BUTTONS_PRESSED(buttons, sMenuPrevButtons);
+            if (state->scrollY == 0 && sMenuMatchStarting == 0) {
                 for (i = 0; i != 4; i++) {
                     bits = 0;
-                    if (D_807ECD09 & (1 << i)) {
-                        if (D_807ECD10[i].stick_x < -0x28) {
+                    if (gControllerConnectedMask & (1 << i)) {
+                        if (gControllerPads[i].stick_x < -0x28) {
                             bits = 4;
-                        } else if (D_807ECD10[i].stick_x > 0x28) {
+                        } else if (gControllerPads[i].stick_x > 0x28) {
                             bits = 8;
                         }
-                        if (D_807ECD10[i].stick_y < -0x28) {
+                        if (gControllerPads[i].stick_y < -0x28) {
                             bits |= 0x20;
-                        } else if (D_807ECD10[i].stick_y > 0x28) {
+                        } else if (gControllerPads[i].stick_y > 0x28) {
                             bits |= 0x10;
                         }
-                        edge = BUTTONS_PRESSED(bits, D_8003385C[i]);
-                        D_8003385C[i] = bits;
-                        if (D_8076A0E4[i] & 0x80) {
-                            if (D_807ECD48[i] & 0x1000) {
+                        edge = BUTTONS_PRESSED(bits, sMenuPrevStickBits[i]);
+                        sMenuPrevStickBits[i] = bits;
+                        if (gMenuPlayerCharacterSel[i] & 0x80) {
+                            if (gPadPressedButtons[i] & 0x1000) {
                                 sfxPlayOnFreeSlot(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 menuAssignPlayerControllerSlot(i, 0);
                             }
                         } else {
                             if (edge & 8) {
                                 sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                                idx = D_8076A0E4[i] + 1;
+                                idx = gMenuPlayerCharacterSel[i] + 1;
                                 if (idx >= 6) {
                                     idx = 0;
                                 }
-                                while (!(D_80033FAF & (1 << idx))) {
+                                while (!(sMenuCharacterAvailMask & (1 << idx))) {
                                     idx++;
                                     if (idx >= 6) {
                                         idx = 0;
@@ -1172,11 +1172,11 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                             }
                             if (edge & 4) {
                                 sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                                idx = D_8076A0E4[i] - 1;
+                                idx = gMenuPlayerCharacterSel[i] - 1;
                                 if (idx < 0) {
                                     idx = 5;
                                 }
-                                while (!(D_80033FAF & (1 << idx))) {
+                                while (!(sMenuCharacterAvailMask & (1 << idx))) {
                                     idx--;
                                     if (idx < 0) {
                                         idx = 5;
@@ -1192,7 +1192,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                                 sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 menuPrevFreeControllerSlot(i);
                             }
-                            if (i != 0 && (D_807ECD48[i] & 0x1000)) {
+                            if (i != 0 && (gPadPressedButtons[i] & 0x1000)) {
                                 sfxPlayOnFreeSlot(0x75, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 menuReleasePlayerControllerSlot(i);
                             }
@@ -1200,7 +1200,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                     }
                 }
             } else if (state->scrollY == -0xF0) {
-                if (BUTTONS_PRESSED(buttons, D_80033858) & 0x10) {
+                if (BUTTONS_PRESSED(buttons, sMenuPrevButtons) & 0x10) {
                     cap = 5;
                     if (D_80033834[D_8074451C] == 5) {
                         cap = 4;
@@ -1209,19 +1209,19 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
                         D_80744520++;
                         sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     }
-                } else if ((BUTTONS_PRESSED(buttons, D_80033858) & 0x20) && D_80744520 >= 2) {
+                } else if ((BUTTONS_PRESSED(buttons, sMenuPrevButtons) & 0x20) && D_80744520 >= 2) {
                     D_80744520--;
                     sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
                 menuHandleScrollInput(state, itemCount, pressed);
             } else if (state->scrollY == -0x1E0) {
-                if (BUTTONS_PRESSED(buttons, D_80033858) & 0x10) {
+                if (BUTTONS_PRESSED(buttons, sMenuPrevButtons) & 0x10) {
                     D_80744534++;
                     if (D_80744534 >= 3) {
                         D_80744534 = 0;
                     }
                     sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                } else if (BUTTONS_PRESSED(buttons, D_80033858) & 0x20) {
+                } else if (BUTTONS_PRESSED(buttons, sMenuPrevButtons) & 0x20) {
                     D_80744534--;
                     if (D_80744534 < 0) {
                         D_80744534 = 2;
@@ -1232,7 +1232,7 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
         }
         menuUpdateScrollAnimation(state, itemCount);
     }
-    D_80033858 = buttons;
+    sMenuPrevButtons = buttons;
     D_8074451C = state->selection;
     if (D_80033834[D_8074451C] == 5 && D_80744520 >= 5) {
         D_80744520 = 4;
@@ -1240,17 +1240,17 @@ void menuHandleControllerSlotInput(Actor *actor, s32 buttons) {
     menuUpdateItemTransition(actor, state, 1);
     gGlobalPauseFlags |= 0x10000;
     menuUpdateCameraPositions();
-    D_80033FAD = 0;
+    sMenuJoinedPlayerCount = 0;
     for (i = 0; i < 4; i++) {
-        if (!(D_8076A0E4[i] & 0x80)) {
-            D_80033FAD++;
+        if (!(gMenuPlayerCharacterSel[i] & 0x80)) {
+            sMenuJoinedPlayerCount++;
         }
     }
 }
 
 
 extern f32 D_80033F44;
-extern s8 D_80033FAD;
+extern s8 sMenuJoinedPlayerCount;
 extern s8 D_80033850[];
 extern s8 D_80744520;
 extern s8 D_80744534;
@@ -1357,7 +1357,7 @@ Gfx *menuDrawCharacterSelect(Actor *actor, Gfx *dl) {
         menuComputeElementPosition(state, 160.0f, 180.0f, &posX, &posY, 2, 0, 1.5f);
         posY = (posY + 480.0f) * 4.0f;
         posX = (posX + 16.0f) * 4.0f;
-        id = D_80033FAD * 6 + D_80744534 * 2 + 0x98;
+        id = sMenuJoinedPlayerCount * 6 + D_80744534 * 2 + 0x98;
         gDPPipeSync(dl++);
         gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
         dl = renderRotatedSprite(dl, id, 0, 2, 0x20, 0x40, posX - 128.0, posY, 4.0f, -4.0f, 0, 0.0f);
@@ -1373,8 +1373,8 @@ typedef struct MenuCharacterKongState { // customState of the character-select k
     s8 animSet;
 } MenuCharacterKongState;
 extern s16 gMenuKongModelIds[];
-extern s8 D_80033FAE;
-extern s8 D_80033FAF;
+extern s8 sMenuMatchStarting;
+extern s8 sMenuCharacterAvailMask;
 extern s8 D_8074451C;
 extern s16 D_80744544;
 extern u8 D_80720D5C;
@@ -1388,31 +1388,31 @@ void menuInitCharacterSelect(Actor *actor, s32 unused) {
     MenuCharacterKongState *sub;
 
     menuUpdateCameraPositions();
-    D_80033FAF = 1;
+    sMenuCharacterAvailMask = 1;
     flag = 0x1D;
     for (i = 1; i < 5; i++) {
         if (flagGet(flag, 1) != 0) {
-            D_80033FAF |= 1 << i;
+            sMenuCharacterAvailMask |= 1 << i;
         }
         flag += 1;
     }
     if (D_80744544 & 1) {
-        D_80033FAF |= 0x20;
+        sMenuCharacterAvailMask |= 0x20;
     }
-    D_80033FAE = 0;
-    D_80033FAD = 0;
+    sMenuMatchStarting = 0;
+    sMenuJoinedPlayerCount = 0;
     if (D_8076A104 != 0 && D_8074451C >= 5) {
         D_8074451C = 0;
     }
     state->selection = D_8074451C;
     for (i = 0; i != 4; i++) {
-        actorSpawn(0x151, gMenuKongModelIds[D_8076A0E4[i] & 0x7F]);
+        actorSpawn(0x151, gMenuKongModelIds[gMenuPlayerCharacterSel[i] & 0x7F]);
         {
             s16 *q = ((MenuModelActor *)gSpawnedActor)->model;
-            *q = gMenuKongModelIds[D_8076A0E4[i] & 0x7F];
+            *q = gMenuKongModelIds[gMenuPlayerCharacterSel[i] & 0x7F];
         }
         gSpawnedActor->state = i;
-        gSpawnedActor->unk155 = D_8076A0E4[i] & 0x7F;
+        gSpawnedActor->unk155 = gMenuPlayerCharacterSel[i] & 0x7F;
         sub = gSpawnedActor->customState;
         sub->parent = actor;
         sub->animSet = 0;
@@ -1510,7 +1510,7 @@ void menuInitMultiplayerResults(Actor *actor, s32 unused) {
     MenuCharacterKongState *sub;
 
     for (i = 0; i < 4; i++) {
-        t = D_8076A0E4[i];
+        t = gMenuPlayerCharacterSel[i];
         if (!(t & 0x80)) {
             D_8003387C[D_80033878] = t & 0x7F;
             D_80033F20[D_80033878] = i;
@@ -1579,7 +1579,7 @@ void menuCharacterSelectUpdateActor(void) {
             actorConfigApplyAnimFrameByType(gCurrentActor, gCurrentActor->unk155 + 2, D_8076A100[gCurrentActor->state]);
             kongState->animFrame = D_8076A100[gCurrentActor->state];
         }
-        idx = D_8076A0E4[gCurrentActor->state] & 0x7F;
+        idx = gMenuPlayerCharacterSel[gCurrentActor->state] & 0x7F;
         if (idx != gCurrentActor->unk155) {
             actorTypePtr = &gMenuKongModelIds[idx];
             actorSpawn(0x151, *actorTypePtr);
@@ -1596,7 +1596,7 @@ void menuCharacterSelectUpdateActor(void) {
         gCurrentActor->x = gPrimaryPlayerActor->x + (posX - 160.0f);
         gCurrentActor->y = (gPrimaryPlayerActor->y - (posY - 120.0f)) - 20.0f;
         gCurrentActor->z = gPrimaryPlayerActor->z - 300.0f;
-        if (D_8076A0E4[gCurrentActor->state] & 0x80) {
+        if (gMenuPlayerCharacterSel[gCurrentActor->state] & 0x80) {
             gCurrentActor->flags &= ~4;
         } else {
             gCurrentActor->flags |= 4;
@@ -3178,7 +3178,7 @@ void menuUpdateElementTargetAndColor(EffectNode *elemActor, u8 *outFlag) {
                 t = (gFrameCounter * 0x78) & 0xFFF;
                 elemActor->y += mathSinF(t) * 10.0f;
             }
-            if (type == 0x13 && (D_80033FAD == 4 || D_80033FAD == 1 || D_8076A104 == 1)) {
+            if (type == 0x13 && (sMenuJoinedPlayerCount == 4 || sMenuJoinedPlayerCount == 1 || D_8076A104 == 1)) {
                 elemActor->x = -400.0f;
             }
             if (type == 0x10 && state->selection >= 3) {

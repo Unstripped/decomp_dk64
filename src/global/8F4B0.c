@@ -377,7 +377,7 @@ void actorCutsceneDispatchEvents(void) {
             mapTransitionToWorldHub(hubWorld);
             break;
         case 0x1C:
-            D_8076A0A6 = D_807ECD48[0];
+            D_8076A0A6 = gPadPressedButtons[0];
             break;
         case 0x1A:
             ((PlayerState *)gPlayerSlots->actor->customState)->stateFlags |= 0x80000000;

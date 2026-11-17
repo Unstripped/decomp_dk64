@@ -14,11 +14,11 @@ OSContStatus D_807ECCD0[4];
 OSMesg D_807ECCE0[4];
 OSMesgQueue D_807ECCF0;
 u8 gContReadPending;
-u8 D_807ECD09;
-OSContPad D_807ECD10[4];
+u8 gControllerConnectedMask;
+OSContPad gControllerPads[4];
 OSContPad D_807ECD28[4];
 u16 D_807ECD40[4];
-u16 D_807ECD48[4];
+u16 gPadPressedButtons[4];
 u16 D_807ECD50[4];
 OSContPad gContPadCur;
 u8 D_807ECD5E[2];
@@ -39,17 +39,17 @@ u8 D_807ECDFC[4];
 u8 controllerInit(void) {
     osCreateMesgQueue(&D_807ECCF0, D_807ECCE0, 4);
     osSetEventMesg(OS_EVENT_SI, &D_807ECCF0, NULL);
-    osContInit(&D_807ECCF0, &D_807ECD09, D_807ECCD0);
+    osContInit(&D_807ECCF0, &gControllerConnectedMask, D_807ECCD0);
     osContSetCh(4);
-    if (!(D_807ECD09 & 1)) {
-        D_807ECD09 = 0;
+    if (!(gControllerConnectedMask & 1)) {
+        gControllerConnectedMask = 0;
     }
     gContReadPending = 0;
-    D_807ECDE8 = D_807ECD10;
+    D_807ECDE8 = gControllerPads;
     D_807ECDF4 = D_807ECD28;
     controllerSetActiveMask(0xFF);
     rumbleInit();
-    return D_807ECD09;
+    return gControllerConnectedMask;
 }
 
 void controllerStartRead(void) {
@@ -75,9 +75,9 @@ void controllerSetActiveMask(u8 mask) {
     s32 j;
 
     count = 0;
-    D_807ECDF8 = D_807ECD09 & mask;
+    D_807ECDF8 = gControllerConnectedMask & mask;
     for (i = 0; i < 4; i++) {
-        D_807ECD48[i] = 0;
+        gPadPressedButtons[i] = 0;
         D_807ECD40[i] = 0;
         D_807ECD50[i] = 0;
         D_807ECDFC[i] = 0;
@@ -125,7 +125,7 @@ extern u8 D_807463B8;
 extern u8 gScreenRenderFlags;
 
 #define CtrlAHeld D_807ECD40
-#define CtrlAPressed D_807ECD48
+#define CtrlAPressed gPadPressedButtons
 #define CtrlARepeat D_807ECD50
 
 void controllerUpdate(void) {
@@ -168,7 +168,7 @@ void controllerUpdate(void) {
             controllerLatchPad(D_807ECDF4);
             func_8060B4D4(D_807ECDE8);
             for (i = 0; i < 4; i++) {
-                if (D_807ECD09 & (1 << i)) {
+                if (gControllerConnectedMask & (1 << i)) {
                     D_807ECDE8[i].button |= D_807ECDF4[i].button & 0x1000;
                 }
             }
@@ -199,14 +199,14 @@ void controllerUpdate(void) {
         if (compact != 0) {
             mask = D_807ECDF8 & (1 << i);
         } else {
-            mask = D_807ECD09 & (1 << i);
+            mask = gControllerConnectedMask & (1 << i);
             padIdx = i;
         }
         if (i == 0 && D_807463B8 == 2) {
             mask |= 1;
         }
         if (mask != 0) {
-            pad = &D_807ECD10[padIdx];
+            pad = &gControllerPads[padIdx];
             pressedOut = &CtrlAPressed[padIdx];
             curButtons = pad->button;
             buttons = curButtons; pressed = BUTTONS_PRESSED(curButtons, CtrlAHeld[padIdx]); CtrlAHeld[padIdx] = pad->button; // LAYOUT: one line lets as1 put move a3,a2 after sh a2,0(t0) in the bnez delay slot
@@ -240,7 +240,7 @@ void controllerUpdate(void) {
             }
         }
     }
-    gCurrentContPad = D_807ECD10;
+    gCurrentContPad = gControllerPads;
     gContPressedButtons = CtrlAPressed[0];
 }
 

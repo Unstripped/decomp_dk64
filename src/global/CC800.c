@@ -119,7 +119,7 @@ G00Entry *cameraFindViewportEntry(u8 playerIndex) {
     return &D_80750948[i];
 }
 
-extern OSContPad D_807ECD10[];
+extern OSContPad gControllerPads[];
 extern u32 D_8074458C[];
 extern f32 gGfxFarClip;
 extern u8 D_80750AD0;
@@ -178,8 +178,8 @@ void playerAllocSlots(s32 spawnIndex) {
         blk->unk280 = (f32)blk->unk278 / (f32)blk->unk27A;
         blk->farClip = gGfxFarClip;
         blk->unk290 = 0;
-        blk->contPad = &D_807ECD10[i];
-        blk->heldButtonsPtr = &D_807ECD48[i];
+        blk->contPad = &gControllerPads[i];
+        blk->heldButtonsPtr = &gPadPressedButtons[i];
         blk->queuedState = -1;
         blk->unk2C0 = 1;
         blk->sizeModeDirty = 1;

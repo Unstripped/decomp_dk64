@@ -223,8 +223,8 @@ void critterBananaFairyUpdate(void) {
             break;
         }
         D_8002A1B0 = dist;
-        if (D_807ECD48[0] != 0) {
-            if (D_807ECD48[0] & D_80029F90[D_80029F80]) {
+        if (gPadPressedButtons[0] != 0) {
+            if (gPadPressedButtons[0] & D_80029F90[D_80029F80]) {
                 D_80029F80 += 1;
                 if (D_80029F80 == 4) {
                     D_80029F80 = 0;
@@ -389,7 +389,7 @@ void critterFlutterFlyUpdate(void) {
         break;
     case 0x64:
         near = (dx * dx) + (dz * dz) < 2500.0f;
-        if (near != 0 && (D_807ECD48[0] & 0x8000)) {
+        if (near != 0 && (gPadPressedButtons[0] & 0x8000)) {
             camStartPath(gCurrentActor, 4, 1);
             currentActorClearFlag();
             gCurrentActor->state = 0x65;

@@ -381,7 +381,7 @@ void menuUpdateTitleOrTransition(void) {
     s32 map;
     s32 exit;
 
-    if ((D_80755334 >= 0x5A) && (D_807ECD48[0] & 0x1000)) {
+    if ((D_80755334 >= 0x5A) && (gPadPressedButtons[0] & 0x1000)) {
         menuReturnToTitle();
     } else if (gMenuStateTimer == 0) {
         if (gMenuTransitionCounter >= 3) {
@@ -435,7 +435,7 @@ void menuStartSelectedBonusStage(void) {
 }
 
 void menuHandleBonusStageTransition(void) {
-    if ((gMenuStateTimer == 0) || ((D_80755334 >= 0xA) && (D_807ECD48[0] & 0x1000))) {
+    if ((gMenuStateTimer == 0) || ((D_80755334 >= 0xA) && (gPadPressedButtons[0] & 0x1000))) {
         menuStartSelectedBonusStage();
     }
 }
@@ -448,7 +448,7 @@ void menuHandleDemoModeTransition(void) {
         if (D_80755334 < 0x5A) {
             return;
         }
-        if ((D_807ECD48[0] & 0x1000) == 0) {
+        if ((gPadPressedButtons[0] & 0x1000) == 0) {
             return;
         }
     }
@@ -521,7 +521,7 @@ typedef struct {
 
 extern u8 gHiResScale;
 extern TextIdPair D_80755370;
-extern u8 D_807ECD09;
+extern u8 gControllerConnectedMask;
 
 Gfx *menuDrawBlinkingPromptText(Gfx *dl) {
     s32 elapsed;
@@ -536,7 +536,7 @@ Gfx *menuDrawBlinkingPromptText(Gfx *dl) {
         textIndex = 0;
         x = (f32) gScreenWidth;
         y = (f32) (0xBD - textGetFontHeight(6));
-        if ((D_807ECD09 != 0) && ((menuIsTransitionType3Or4() == 0) || (textIndex = 1, (gCurrentMap == 0x4C)))) {
+        if ((gControllerConnectedMask != 0) && ((menuIsTransitionType3Or4() == 0) || (textIndex = 1, (gCurrentMap == 0x4C)))) {
             return dl;
         }
         if (&D_80755370 && &D_80755370 && &D_80755370) {}  // FAKE: dead address test, steers as1 delay-slot fill (bne+nop instead of bnel)

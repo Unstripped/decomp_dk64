@@ -100,7 +100,7 @@ void actorNodeRingSpawnRings(void) {
     }
 }
 
-// buttons newly pressed this frame, latched by behaviour-script command 0x1C (8F4B0.c copies D_807ECD48)
+// buttons newly pressed this frame, latched by behaviour-script command 0x1C (8F4B0.c copies gPadPressedButtons)
 // and cleared by actorNodeRingUpdate every frame
 extern u16 D_8076A0A6;
 // squared xz distance from the ring node to the player; actorRingUpdate starts a waiting ring under 400 units

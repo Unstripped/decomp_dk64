@@ -423,7 +423,7 @@ void arcadeTitleLoop(Gfx **glistp) {
     if (D_8004C6DC & 0x200) {
         arcadeRenderEntities(&glist);
     }
-    if ((D_8004A740 != 0 && D_8004C6DC == 0x5FE) || (D_807ECD48[0] & 0x9000)) {
+    if ((D_8004A740 != 0 && D_8004C6DC == 0x5FE) || (gPadPressedButtons[0] & 0x9000)) {
         D_8004A748 = 0;
         D_8004C723 = 0;
         D_8004C71B = 2;
@@ -524,7 +524,7 @@ void arcadeGameplayLoop(Gfx **glistp) {
         if (D_8004C722 == 4) {
             arcadeSpawnStage4Enemies();
         }
-        if (D_807ECD48[0] & 0x1000) {
+        if (gPadPressedButtons[0] & 0x1000) {
             arcadeOpenPauseMenu();
             D_8004C724 = 4;
         }
@@ -572,10 +572,10 @@ void arcadePauseMenuLoop(Gfx **glistp) {
     glist = *glistp;
     arcadeDrawBackground(&glist);
     arcadeRenderEntities(&glist);
-    if ((D_807ECD48[0] & 0x800) || (D_807ECDE8->stick_y >= 0x1F && D_8004C70C < 0x1F)) {
+    if ((gPadPressedButtons[0] & 0x800) || (D_807ECDE8->stick_y >= 0x1F && D_8004C70C < 0x1F)) {
         D_8004A768--;
     }
-    if ((D_807ECD48[0] & 0x400) || (D_807ECDE8->stick_y < -0x1E && D_8004C70C >= -0x1E)) {
+    if ((gPadPressedButtons[0] & 0x400) || (D_807ECDE8->stick_y < -0x1E && D_8004C70C >= -0x1E)) {
         D_8004A768++;
     }
     if (D_8004A768 >= 3) {
@@ -585,11 +585,11 @@ void arcadePauseMenuLoop(Gfx **glistp) {
         D_8004A768 = 2;
     }
     D_8004C70C = D_807ECDE8->stick_y;
-    if (D_807ECD48[0] & 0x1000) {
+    if (gPadPressedButtons[0] & 0x1000) {
         arcadeClearEntitiesByType1C();
         D_8004C724 = 5;
     }
-    if (D_807ECD48[0] & 0xC000) {
+    if (gPadPressedButtons[0] & 0xC000) {
         switch (D_8004A768) {
         case 0:
             arcadeClearEntitiesByType1C();
@@ -2244,7 +2244,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             } else {
                 D_8004BCD0[entIndex].vx = 0.0f;
             }
-            if ((D_807ECD48[0] & 0xE000) && D_8004C710 == 0) {
+            if ((gPadPressedButtons[0] & 0xE000) && D_8004C710 == 0) {
                 n_alSndpPlay(D_8076D1F8, 0x41, 0x7FFF, 0x3F, 1.0f, 0, 0);
                 D_8004BCD0[entIndex].animTimer = 0.0f;
                 D_8004BCD0[entIndex].vy = -1.2f;
@@ -2317,7 +2317,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                  (D_8004C6F8 == 1 && D_8004A308[1] != 0) ||
                  (D_8004C6F8 == 3 && D_8004A308[3] != 0))) {
                 D_8004BCD0[entIndex].state = 2;
-            } else if (floorY == D_8004BCD0[entIndex].y && (D_807ECD48[0] & 0xE000)) {
+            } else if (floorY == D_8004BCD0[entIndex].y && (gPadPressedButtons[0] & 0xE000)) {
                 n_alSndpPlay(D_8076D1F8, 0x41, 0x7FFF, 0x3F, 1.0f, 0, 0);
                 D_8004BCD0[entIndex].animTimer = 0.0f;
                 D_8004BCD0[entIndex].vy = -1.2f;
@@ -3646,7 +3646,7 @@ void arcadeUpdateNameEntryCursor(u8 entIndex) {
         }
         D_8004BCD0[entIndex].x = (D_8004BCD0[entIndex].param2 % 10) * 0x10 + 0x54;
         D_8004BCD0[entIndex].y = ((D_8004BCD0[entIndex].param2 / 10) << 7) / 7 + 0x4A;
-        if (D_807ECD48[0] & 0x8000) {
+        if (gPadPressedButtons[0] & 0x8000) {
             if (D_8004BCD0[entIndex].param2 == 0x1D || D_8004C6DC == 0x708) {
                 D_8004C6DC = 0x744;
                 D_8004A778[D_8004BCD0[entIndex].param][0] = D_8004A774[0];
