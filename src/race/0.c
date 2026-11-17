@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "text.h"
 #include "proto/global/135D30.h"
 #include "proto/global/166A0.h"
 #include "proto/global/35000.h"
@@ -144,7 +145,6 @@ typedef struct RaceCoinRacerActor {
 
 
 extern Actor *gPrimaryPlayerActor;
-extern u16 gTextNumberArg;
 extern s32 D_8002FB94[];
 
 

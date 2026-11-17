@@ -171,7 +171,7 @@ void raceCompetitorMotionUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern s16 gTextNumberArg;
+extern s16 gTextNumberArg; // ORIG: this file declares it s16: the target keeps li t5,10 (0xf80, stored by sh at 0xfb8) apart from the idx * 10 sll/addu/sll at 0xf30-0xf3c, which the shared u16 extern in text.h merges into a multu
 extern RaceCurvePoint D_8002FC20[];
 extern RaceVec3f D_8002FC50;
 

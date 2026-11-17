@@ -2,6 +2,7 @@
 #include "actor.h"
 #include "race.h"
 #include "sched.h"
+#include "text.h"
 #include "proto/global/112080.h"
 #include "proto/global/1295B0.h"
 #include "proto/global/12E800.h"
@@ -34,7 +35,6 @@ extern Actor *gCurrentActor;
 extern PlayerStruct *gPlayerSlots;
 extern RaceCurvePoint D_8002FC70[];
 extern RaceVec3f D_8002FCA0;
-extern s16 gTextNumberArg;
 
 extern s32 gGlobalOverlayFlags;
 

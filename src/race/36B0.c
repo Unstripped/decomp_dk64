@@ -2,6 +2,7 @@
 #include "race.h"
 #include "actor.h"
 #include "sched.h"
+#include "text.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
 #include "proto/global/131B0.h"
@@ -359,7 +360,6 @@ void raceUpdateOpponentEnginePitch(f32 moveSpeed) {
     D_80770BC0[idx] = 1.0f;
 }
 
-extern s16 gTextNumberArg;
 extern s32 D_8002FC0C[];
 
 void raceOpponentCarBehaviorUpdate(void) {
