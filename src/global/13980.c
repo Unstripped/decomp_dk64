@@ -491,13 +491,13 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
     static u32 *sDumpBase = NULL;
     static u32 *sNextPageAddr = NULL;
     static s16 sPrevButtons = 0;
-    static u32 *sPageAddr[1] = { NULL };  // FAKE: one-element array makes each read an ilod of &sPageAddr, so the page copy below keeps the 0x1018 load in $v0 (lui v0) before s5 (Q0545)
+    static u32 *sPageAddr = NULL;
     static s32 sPageMode = 0;
     static s32 sNextPageMode = 0;
     static s8 sAutoPageCount = 4;
     u32 p;
     s32 size;
-    u32 *start;
+    s32 pad;
     u16 colorIdx;
     u8 op;
     s16 buttons;
@@ -510,7 +510,7 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
     u32 done;
     char buf[36];
     s32 i;
-    u32 *page;
+    s32 pad2;
     s32 ret;
 
     done = 0;
@@ -526,12 +526,11 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
         }
         if ((buttons & D_JPAD) && !(sPrevButtons & D_JPAD) && sNextPageAddr != NULL) {
             sPageMode = sNextPageMode;
-            sPageAddr[0] = sNextPageAddr;
+            sPageAddr = sNextPageAddr;
         }
         if ((buttons & U_JPAD) && !(sPrevButtons & U_JPAD)) {
-            start = (u32 *)gRdpOutputBuffer;
+            sPageAddr = (u32 *)gRdpOutputBuffer;
             sPageMode = 0;
-            sPageAddr[0] = start;
         }
         if ((buttons & R_TRIG) && !(sPrevButtons & R_TRIG)) {
             ret = 1;
@@ -539,9 +538,8 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
         sPrevButtons = buttons;
     } else {
         sPageMode = 0;
-        start = (u32 *)gRdpOutputBuffer;
-        sDumpBase = start;
-        sPageAddr[0] = start;
+        sPageAddr = (u32 *)gRdpOutputBuffer;
+        sDumpBase = sPageAddr;
         sPrevButtons = 0;
         sNextPageAddr = NULL;
     }
@@ -549,8 +547,7 @@ s32 schedDlDebugDump(s32 reset, s32 autoAdvance) {
         faultFontInit(gFramebuffers[p], 0, 1);
         line = 0;
         mode = sPageMode;
-        page = sPageAddr[0];
-        cur = page;
+        cur = sPageAddr;
         while (done == 0 && line < 15) {
             off = (u8 *)cur - gRdpOutputBuffer;
             if (line < 14) {
