@@ -1426,7 +1426,7 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
     s32 bounceStep;
     s32 ang;
     s32 i;
-    s16 kongCount;
+    s32 kongCount = sizeof(sPauseKongColors) / sizeof(sPauseKongColors[0]);
 
     src = effect->data;
     if (effect->allocation != NULL) {
@@ -1566,7 +1566,6 @@ void hudPauseMenuIconUpdate(EffectNode *effect, s8 *done) {
             effect->scaleY = sPauseCarouselSlotScale[i];
             sPauseCarouselSlotX[i] = -200.0f;
             sPauseCarouselSlotY[i] = -200.0f;
-            kongCount = 5; // FAKE: value-named constant local; literal 5 adds addiu v1,v1,-0x14 (i - 5 scaled for sPauseKongColors) and renumbers the temps (t0 -> t7 at 0x4174)
             if (i >= kongCount) {
                 i -= kongCount;
             }
