@@ -23,9 +23,9 @@ recorded the moment it reports; close once per session. AGENTS.md rules always a
 
 ## 0. Model
 
-Use the model the user named for every worker spawn (`task` `model`; none named: ask once). With
-`task.perCallModel: off` spawn without it only if the default task agent runs that model
-(`history://<agent>`), else tell the user. Never run `ledger.py plan`/`route`, never write
+Use the model the user named for every worker spawn (`task` `model`; none named: ask once). A `task` without a model
+parameter inherits the lead's model and thinking level: check each worker's session jsonl (`model_change`, `thinking_level_change`;
+17c: all `:high`) and tell the user if it differs. Never run `ledger.py plan`/`route`, never write
 `.scratch/routes/`, never use workpools routed by `.omp/extensions/decomp-router.ts`. Pass the
 spawned workers' selector (`provider/model:level`, e.g. `anthropic/claude-opus-5-5:xhigh`) to `merge_record.py --model`,
 read from the harness (`history://<agent>`, turn metadata), never from the report (a gpt worker reported opus, 2026-11-16c):
@@ -43,9 +43,8 @@ fix a wrong one in dossiers through a lead `--copy-dir`. `rank` orders functions
 2. `find src -name '*.c' -exec touch {} +`; `tools/dk make` must end `build/dk64.us.z64: OK` (no image: `docker compose build`); `tools/dk make expected`.
 3. `uv run tools/protos.py gen --check` exits 0 (else regenerate and commit `include/proto` first);
    `uv run tools/clint.py compdb`; `uv run tools/quality.py report --markdown` → starting numbers.
-4. `uv run tools/quality.py rank --limit 40` (hack queue: `str att strong hacks state file function
-   kinds`, weakest earlier attempts first) and `rank --polish` (per file: functions without hack
-   sites still open, `unrev` = never or stale reviewed).
+4. `uv run tools/quality.py rank --limit 40` (hack queue: `str att strong hacks state file function kinds`, weakest earlier
+   attempts first) and `rank --polish` (per file: functions without hack sites still open, `unrev` = never or stale reviewed).
 
 ## 2. Queue (rolling)
 
@@ -54,20 +53,16 @@ in an open types batch (`.scratch/TypesOwner/batch_*/files.txt`) is not dispatch
 - **Coverage first.** Until `report` shows `reviewed` equal to functions minus the blocked ones
   (today `renderHitCounterHUD`, blocked on the string convention), dispatch only polish workers on
   `rank --polish` files with `unrev > 0` and hack workers on `rank` functions in state `next=review` (met once all are in flight).
-- **After coverage.** Five slots take the top of `rank`, one the top of `rank --polish` (a hack
-  item too when polish is empty).
-- **Hack item:** one function with 3+ hack sites, or up to 4 functions with 1–2 sites from the same
-  file, in queue order.
-- When a worker reports, merge it (§5), then fill its slot at once. No rounds: nothing waits for
-  the slowest worker.
+- **After coverage.** Five slots take the top of `rank`, one the top of `rank --polish` (a hack item too when polish is empty).
+- **Hack item:** one function with 3+ hack sites, or up to 4 functions with 1–2 sites from the same file, in queue order.
+- When a worker reports, merge it (§5), then fill its slot at once. No rounds: nothing waits for the slowest worker.
 
 ## 3. Dispatch
 
 1. Base = `git rev-parse HEAD` at dispatch; `python3 tools/merge_drafts.py snapshot src/<seg>/<f>.c`.
-2. Fill the WHOLE [brief-hack.md](brief-hack.md) or [brief-polish.md](brief-polish.md) into
-   `.scratch/briefs/<Agent>.md`. Names: `Hack<FUNC>` (first function of the item),
-   `Polish<seg><file>`, `TypesOwner`. Task context: "Read `.scratch/briefs/<Agent>.md` FIRST and
-   follow it exactly".
+2. Fill the WHOLE [brief-hack.md](brief-hack.md) or [brief-polish.md](brief-polish.md) into `.scratch/briefs/<Agent>.md`.
+   Names: `Hack<FUNC>` (first function of the item), `Polish<seg><file>`, `TypesOwner`. Task context: "Read
+   `.scratch/briefs/<Agent>.md` FIRST and follow it exactly". A long history goes in `.scratch/briefs/<Agent>-history-<FUNC>.txt`.
 3. Hack items carry each function's `uv run tools/quality.py history <FUNC>` and its dossier path
    `drafts/quality/dossiers/<seg>/<FUNC>.md` (if any) in the brief.
 4. Files of 100+ functions take 2–4 polish turns (per-turn request budgets): merge and record
@@ -104,7 +99,8 @@ As each worker reports:
 5. Data carves: a function with a switch `jr` needing XBB guards or an as1-hoist blocker may only miss its TU's own
    `.word`/table data (Q0552): carve before steering; without a switch `jr` look for a one-path store or real control flow
    first (Q0548). Carve window: `rm -f .scratch/<lead>/RESUME`, wait for jobs 0, gate, split/make/expected/vanished,
-   re-record, carry, commit, `touch` it. A merge whose file-scope edit stales other reviews, or whose body respelling stales the function's other sites (3D20 PUTC: 9), queues that item at once.
+   re-record, carry, commit, `touch` it. A merge whose file-scope edit stales other reviews, or whose body respelling stales the function's other sites (3D20 PUTC: 9), queues that item at once;
+   if the idle worker already measured those sites on the new body, ask it for the lines and `quality.py record --base <merge>` them (42630 45a97280).
 6. A respelling that replaces a pun but was chosen for codegen keeps its tag (Q0816); the lead retags it in a `--copy-dir`
    copy with a keymap or copy-only line. Ordinary C, untagged even as the only match: a load-bearing guard `continue`/`break`,
    a one-path store, an index loop over a global table, one quantity refined in place (104F0 `offset = sector << 3`), an assignment
@@ -137,7 +133,9 @@ session, a consolidation in a quiet window runs steps 1-3 only. Once every worke
    named functions); sweep what it skipped AND every file with stale automatic rungs. Commit.
 3. Knowledge queue in ONE commit (scripted `quirks.py add`, `--see-also`, `--unit` = the reporting worker's unit); a dated paragraph only
    corrects (it stales every function in the entry's list, the reporter's rungs too: 17b's 14 paragraphs staled 67 rungs); extensions are new
-   entries; drop confirmations; tooling rules → ladder.md; `quirks.py check`; rungs the entries stale are the next session's leftovers.
+   entries (a superseded claim goes in the new entry, not a paragraph); an entry stales every other unit's rungs on its functions, so a
+   function whose fresh rungs come from several units keeps the finding in its dossier (17c vsprintf, csCmdExec); drop confirmations;
+   tooling rules → ladder.md; `quirks.py check`; rungs the entries stale are the next session's leftovers.
 4. `uv run tools/quality.py report --baseline 2b2532bc --markdown` replaces the ROADMAP.md `### 11. Code quality` table.
 5. One [run-log.md](run-log.md) row; lessons → this skill (caps: SKILL.md and references ≤150 lines, briefs ≤180; a lesson replaces or
    merges text); commit `cleanup-unit skill: …`. No re-review groups: stale reviews show as `next=review` and go out as polish work.

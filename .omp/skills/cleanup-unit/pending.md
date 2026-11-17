@@ -137,10 +137,10 @@ State after the round-38 close (knowledge commit 7a7ec5c6, Q0754-Q0759): 192 OPE
   (Polishglobal100180).
 - ORIG check: 6AD90 f64 midpoint reuse a2d087 (box) and 3aa4ac (collisionCheckTriangleContainsPointXZ) still FAKE (frame holds only ten f64); ec388d and 58f1bd FIXED (d78151a9, b52ccd53: dedicated hx once sign ternaries freed a slot).
 
-## Session 2026-11-17b close leftovers (CleanupLead7; supersedes the 2026-11-17 list)
-- OPEN `rank` rows (7): vsprintf re-diagnose (PUTC merge af14405e staled 4 goto-hand + 5 diagnose rungs); raceOpponentFollowWaypoints
-  a1f722 diagnose; knowledge 9b1f664c staled camComputeEyeFocus, enemyGridStateStep, csCmdExec, playerUpdateCommon; hudPauseMenuUpdate HELD.
-  Unreviewed: only 90D80 renderHitCounterHUD (blocked). §7 asks 3+ strength-3 (`:xhigh`/`:max`) attempts per `rank` row: 12 of 192.
+## Session 2026-11-17c close leftovers (CleanupLead8; supersedes the 2026-11-17b list)
+- `rank`: only hudPauseMenuUpdate (HELD, above). Unreviewed: only 90D80 renderHitCounterHUD (blocked); FE40 retype blocked. 189 functions
+  with hacks (331 sites), 12 with 3+ strength-3 (`:xhigh`/`:max`) attempts (§7). Knowledge not filed (would stale other units' rungs):
+  vsprintf (PUTC steers only 3 of 25 uses; uopt keeps two loop IVs; down-counter trio lead = 5, permute 430->430) and csCmdExec 0x68 notes: in dossiers.
 - Types items: shared `extern KongInventory *gCurrentKongInventory;` in actor.h for 7 per-file externs (103AB0 19A00 42630 7CA80 D5E10 E4090 EFDC0; measure the stale cost first); CsState/CsStateFull merge (above; 138 478F0 handlers); `gCsCondFlag` s8 (42630) vs `extern u8` (E4090); jetpac 0x8002BA80 Gfx split.
 - HELD names: RaceParticipant.unk35 phase; PlayerStruct.rect[4] scissor fields; ModelSlot.unk8C stateFlags; PlayerState.unk50 gravityDelayFrames (D5E10 use first);
   BehaviourWorkState.unk2E sfxCooldown (dry-run touches 11 unread files); race/0 D_8002FB10/D_8002FB70 route tables (map 0x52 unnamed); gMinigameCoinCount (above).
