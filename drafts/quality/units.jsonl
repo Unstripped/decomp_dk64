@@ -869,3 +869,4 @@
 {"type": "unit", "t": "2026-11-16T21:47:48Z", "unit": "2026-11-16c: cleanup HackbonusTargetGameUpdate", "commit": "0a7cfd1f1feee633ba5963cb662f4a0e4d0dd113"}
 {"type": "unit", "t": "2026-11-16T21:50:08Z", "unit": "2026-11-16c: close names", "commit": "e6cc6937feffb4bfd4748e270792fb1197c5502e"}
 {"type": "unit", "t": "2026-11-16T21:51:26Z", "unit": "2026-11-16c: close sweep", "commit": "e6cc6937feffb4bfd4748e270792fb1197c5502e"}
+{"type": "unit", "t": "2026-11-17T04:33:44Z", "unit": "2026-11-16: cleanup HackschedDlDebugDump5 (orphaned Lead-d result, model unknown)", "commit": "5b261e2418c101a53064eeb93f48423b40a909f5"}
