@@ -279,7 +279,7 @@ void jetpacUpdatePlayerMovement(JetpacPlayerActor *player) {
             actor->flip = 1;
             jetpacSetFlying(player, player->flying);
         }
-        flying = player->flying; // FAKE: re-reads of player->flying after each actor update (also both flying arms above and the 3 arms below); dropping all six costs 14 words, the four of this chain 12
+        flying = player->flying; // ORIG: the target reloads flying after each actor update, one lw v0,48(s0) per refresh: here 0xa40 (0xa30 on the no-call path), btnRight 0xa9c (0xa8c), vx>0 0xac8, vx<0 0xaf8, flying arms 0x9c4/0x9e0
     } else if (btnRight != 0) {
         actor->vx += 0.33333334f;
         if (actor->flip != 0 && actor->vx >= 0.0f) {
