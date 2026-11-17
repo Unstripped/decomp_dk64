@@ -1522,7 +1522,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         if (vol7 == 0) {
             vol7 = 0xFF;
         }
-        i = cmd->b & 0x7F; // FAKE: reuses the loop index i for the spread argument; a dedicated local (in pad's slot) recolours csCmdExec
+        i = cmd->b & 0x7F; // ORIG: the spread is spilled to i's home sp+0xBC at 0x3268 (reloaded 0x327c), the slot the case 0x76 actor loop spills its index to (0x2450/0x2460)
         if (D_80748094 > 0) {
             modelSlotGetNodePos(csId, 1, D_80748094, &sx, &sy, &sz);
             sfxPlayAtPositionPooled(sx, sy, sz, cmd->a, vol7, pitch7, i, range, 0.3f, 0);
