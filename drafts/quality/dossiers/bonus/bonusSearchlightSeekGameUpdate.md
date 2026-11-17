@@ -44,6 +44,13 @@ bonus:8002BF98:other:d3c36c other (copy-only, new tag): velX also holds the x ve
 - stick_x into a trailing `s8 sx`/`s32 sx` with `sx * 0.06f` written in both products (a CSE expression temp instead of a variable) 80, `(sx * 0.06f)` 80; unscaled `f32 sx` with `sx * 0.06f` twice 134.
 - d3c36c not retried (no new idea).
 - Final: no change to this function, fdiff 0, clint uninit 0.
+2026-11-17 cleanup HackbonusSearchlightSeekGameUpdate6 anthropic/claude-opus-5-5 (base 8b129890; variants.py try full= lines; whole-function bodies):
+- Re-measured at 8b129890: inline error term `subExt->velX + (t - velX) * 0.155f` 101 (also `+=`); `velX + (t - velX) * 0.155f` 88; honest `errX` local in each of the 14 declaration slots and first 99-112 (99 trailing); with `subExt->velX = velX + errX * 0.155f` 88-100.
+- New: honest `errX = t - velX; errX *= 0.155f; subExt->velX = subExt->velX + errX;` 99-112 (same as one-step: the mul def is propagated); `errX = t; errX -= velX;` same; block-scoped errX (top of the case-0 block, or an inner `{ f32 errX = ...; }`) 88-99; `register f32 errX` 99 (keyword ignored).
+- New: velX refined in place with a real store (`velX += (t - velX) * 0.155f; subExt->velX = velX;`) 95: velX outranks z and takes $f2 (lwc1 $f2,0x14(s5) at 0x5e08), the stored local is forwarded into the offsetX add (no lwc1 $f6,0x14(s5) reload at 0x5e78), the error is a $f10 temp, the cosYaw reload hoists to 0x5e00. Both axes so 91; ilod store `velX = subExt->velX + (t - velX) * 0.155f; subExt->velX = velX;` 88; chain `velX = t - velX; velX = subExt->velX + velX * 0.155f; subExt->velX = velX;` 102 (both axes 116).
+- Respawn loop: `for (i = 0; i < 1; i++)` / `i != 1` 2 lines (adds the entry guard); `do ... while (i < 1)` 0. The do-while is real control flow; no change.
+- uopt -l 5 at 8b129890: bb43 adjsave and order unchanged, bits +2 (see Evidence). quality.py sweep: 0 hits.
+- Final: no change to this function, fdiff 0, clint uninit 0 (only the pre-existing bonusBigBugBashGameUpdate diffDelta line).
 
 ## Untried ideas
 stickX (83418a) / velX error (d3c36c): each needs one more counted ref that emits no code (stickX >= 4.0 with a lower bit than the error, error > 3.0). Only the reuse of a load-copied local (`v = p->f; v = e - v;`) produces such refs. No natural spelling found; Q0771-style constant-propagated refs land on the constant local, not on stickX.
@@ -52,5 +59,5 @@ stickX (83418a) / velX error (d3c36c): each needs one more counted ref that emit
 - Frame 0x88: saves s0-s6 at 56..80(sp), ra 84(sp), 12 declared local words 88..135(sp) highest-first: sinYaw 132 (spilled at 0x5dc4), cosYaw 128, x 124, y 120, z 116, velX 112, stickY 108, subExt 104, spawnExt 100, i 96, dist 92, spawnAngle 88.
 - Aim: swc1 $f6,124(sp) 0x5f5c (x), swc1 $f10,120(sp) 0x5f68 (y), reloaded into $f12/$f14 at 0x5f80/0x5f8c, z in $f2 -> mfc1 a2 at 0x5f94.
 - Clamp: swc1 $f0,124(sp) 0x60a8 (x), swc1 $f2,116(sp) 0x60ac (z), reloads at 0x60c4/0x60dc after sqrtf; scale div.s $f12,$f14,$f0 at 0x60d8; mul.s $f4,$f6,$f12 / $f8,$f2,$f12 at 0x60e0/0x60e8 (x * scale order).
-- Case 0 keeps x (velZ pre-read), z (stick_x*0.06f), velX, stickY in registers ($f16, $f2, $f14, $f18).
-- bb43 adjsave (uopt -l 5, hacked base): error var 538|1 bit 148 4.0 -> 26 ($f12); velX load 1252|6 bit 150 3.0 -> 27 ($f14); velZ load 1252|7 bit 154 3.0 -> 28 ($f16); z web 602|1 bit 156 4.5 (4 blocks) -> 25 ($f2); stickY 474|0 bit 163 3.0 -> 29 ($f18).
+- Case 0 keeps z (stick_x*0.06f), velX pre-read, velZ pre-read, stickY in registers ($f2, $f14, $f16, $f18); the velX error is $f12 (sub.s $f12,$f10,$f14 at 0x5e48), the new velX is stored at 0x5e54 and reloaded at 0x5e78 for the offsetX add.
+- bb43 adjsave (uopt -l 5, hacked base, 8b129890): error var 538|0 bit 150 4.0 -> 26 ($f12); velX load 1252|6 bit 152 3.0 -> 27 ($f14); velZ load 1252|7 bit 156 3.0 -> 28 ($f16); z web 602|1 bit 158 4.5 -> 25 ($f2); stickY 474|0 bit 165 3.0 -> 29 ($f18). (At the 2026-11-16 base the same records sat at bits 148/150/154/156/163.)
