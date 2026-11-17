@@ -884,3 +884,4 @@
 {"type": "unit", "t": "2026-11-17T05:00:22Z", "unit": "2026-11-16d: cleanup HackviModeSetup", "commit": "4002235d2e1a7086e26ceae40b3f1f544a113af9"}
 {"type": "unit", "t": "2026-11-17T05:01:25Z", "unit": "2026-11-16d: cleanup HackmodelEmittersUpdate2", "commit": "bb4767c7d0f95b852b3939bbd17f784abe9d0bee"}
 {"type": "unit", "t": "2026-11-17T05:01:41Z", "unit": "2026-11-16d: cleanup HackeepromSaveRecords6", "commit": "72ea5f552891ec3df844d098a6c4c9dac4191464"}
+{"type": "unit", "t": "2026-11-17T05:05:00Z", "unit": "2026-11-16d: cleanup HackeffectInterpolationUpdate2", "commit": "d3665c0c5d81f7caba6393d2a5593585ea5e84b5"}
