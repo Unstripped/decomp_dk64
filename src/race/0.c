@@ -171,7 +171,7 @@ void raceOpponentBehaviourUpdate(void) {
     f32 dz;
     s16 ang16;
     s32 pathId;
-    ZoneEntry *pad;
+    s32 pad;
     u8 rowIdx;
     RaceParticipant *controller;
     RaceCoinConfig *config;
@@ -181,8 +181,8 @@ void raceOpponentBehaviourUpdate(void) {
     s32 flag;
     s32 callbackId;
     f32 value;
-    u8 phase;
     f32 dist;
+    f32 dy;
     u16 angU;
 
     controller = ((RaceCoinRacerActor *)gCurrentActor)->participant;
@@ -281,11 +281,11 @@ void raceOpponentBehaviourUpdate(void) {
         dist = sqrtf(dz * dz + dx * dx);
         if (dist < D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].radius) {
             if (D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y < gCurrentActor->y) {
-                dist = gCurrentActor->y - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y;
+                dy = gCurrentActor->y - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y;
             } else {
-                dist = -(gCurrentActor->y - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y);
+                dy = -(gCurrentActor->y - D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].y);
             }
-            if (dist < 80.0f) {
+            if (dy < 80.0f) {
                 if (gBehaviourWorkState->waypointIndex < D_807FDCA0->entryCount - 1) {
                     if (D_807FDCA0->entries[gBehaviourWorkState->waypointIndex].height == 0) {
                         actorScriptStart(gCurrentActor, 0x283);
@@ -411,19 +411,16 @@ void raceOpponentBehaviourUpdate(void) {
     }
     switch (controller->raceStatus) {
     case 0:
-        phase = controller->unk35;
-        switch (controller->unk35) { // FAKE: switches on a re-read of unk35 instead of phase, which holds it (switch (phase) costs 13 diff lines)
+        switch (controller->unk35) {
         case 0:
             if (gCurrentActor->flags & 0x02000000) {
                 controller->unk35++;
-                phase = controller->unk35;
             }
             break;
         case 1:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 camResumePath();
                 controller->unk35++;
-                phase = controller->unk35;
             }
             break;
         case 2:
@@ -431,10 +428,9 @@ void raceOpponentBehaviourUpdate(void) {
                 currentActorClearFlag();
                 controller->unk35++;
             }
-            phase = controller->unk35;
             break;
         }
-        if (phase < 3) {
+        if (controller->unk35 < 3) {
             raceSetIntroCutscenePhase(kid);
         }
         break;
