@@ -981,3 +981,4 @@
 {"type": "unit", "t": "2026-11-17T23:21:34Z", "unit": "2026-11-17: cleanup HackactorBoneChainSwingUpdate7", "commit": "63618aa301476e2832c27dee4bb59adc71c33cae"}
 {"type": "unit", "t": "2026-11-17T23:22:24Z", "unit": "2026-11-17: cleanup HackmodelEmitterSpawnScaledParticle4", "commit": "8b852546aad1c9a4370c8a9b0951894d7655eeb6"}
 {"type": "unit", "t": "2026-11-17T23:23:20Z", "unit": "2026-11-17: cleanup HackdlAppendTextureLoad4", "commit": "17ef9e59f02bcc02d4e5c5a01350413acbcce056"}
+{"type": "unit", "t": "2026-11-17T23:23:52Z", "unit": "2026-11-17: cleanup HackgfxDrawMapBackground", "commit": "c724ff92ab269a5300806cfdfc6523c8d4880749"}
