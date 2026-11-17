@@ -904,3 +904,4 @@
 {"type": "unit", "t": "2026-11-17T14:42:41Z", "unit": "2026-11-17: cleanup HackcamComputeEyeFocus6", "commit": "753a2f0effda4267ae9f7579a3648a8379d0fc4e"}
 {"type": "unit", "t": "2026-11-17T14:43:25Z", "unit": "2026-11-17: cleanup HackeepromSaveRecords7", "commit": "ce8560a24cb66b20bd83f8196ac690999abac99d"}
 {"type": "unit", "t": "2026-11-17T14:43:45Z", "unit": "2026-11-17: cleanup HackbonusSearchlightSeekGameUpdate6", "commit": "e2d4c40496b98d41d9c99e6b3527d540ea0642eb"}
+{"type": "unit", "t": "2026-11-17T14:47:38Z", "unit": "2026-11-17: cleanup HackraceUpdateRacerMotion", "commit": "4cfa2c12620d0001708eeb342f8dde963f83ce0f"}
