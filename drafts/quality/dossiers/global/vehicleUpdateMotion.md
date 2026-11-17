@@ -124,13 +124,27 @@ rounds 2-30 opus:low, Hackfunc_8068F72C opus:high 2026-11-14, PermBatch1114c)
     considered (inWater && kongState == 2 chain, jump-clear after the arms, != 2 drag ternary) are either
     behaviour/shape changes or already covered by variants scans.
   gGlobalOverlayFlags: per-file extern (s32 in 22 files, u32 in 5, twice in 936B0.c at 307/747).
+2026-11-17 HackvehicleUpdateMotion7 anthropic/claude-opus-5-5 (copy unchanged, fdiff 0; sweep 47 checks 0 hits; base bbc1ab11, after
+  TypesOwner batch_8 F made gGlobalOverlayFlags the one common.h extern):
+  9b1ca1 diagnose nohit: uopt -l5 piece map (with the test: kongState piece 323 = bbs 44/58/66, one load at 0x12cc,
+    adjsave 0.286, a0 after the constant-2 piece 329 takes v1; without: piece 321 grows back over bb 19 and bb 6,
+    the call blocks, reloads at both, adjsave 0.0, uncoloured -> 45). Dedicated alias `u8/u16/s16 kong = kongState;`
+    (frame hole after onGround) for the turn select + jump compare: 3/3/5 at every assignment position; its ucvt
+    candidate 195 is coloured whole to v1 before the constant-2 piece (a0), so only the a0/v1 pair swaps
+    (lbu v1,0x5b(sp) at 0x12cc). s32 alias: copy-propagated (Q0510) = removal + frame 0x68 (81-97 over all 16
+    declaration slots); alias in pl's slot / pl inlined (Q0510 ilod init) 146-149; flattened
+    `inWater && kongState == 2` jump chain 31 (with) / 50 (removed); one-case switches on the new body = 45.
+  6c8d63 diagnose nohit: abs clamp as if/else into a block-scope absSpeedY 73 (frame +8), `|| -speedY > 20` 27,
+    ternary-of-compares condition 121; u8 alias with both tests removed 23 = 20 + 3 (sites independent).
+  review nohit: body unchanged, FAKE 2 kept.
 
 ## Untried ideas
 - 6c8d63: needs two zero-code uopt blocks inside either waterY compare/use pair (buoyancy or late floor-snap
   arm); no natural statement found that does that (the permuter finds only empty ifs there).
-- 9b1ca1: needs a codeless kongState use after the jump block (0x1434) and before the actorStepPhysics argument
-  setup; or, for the single buoyancy-arm guard (7), anything that colours the constant 2 before kongState's
-  late piece (v1 to 2, a0 to kongState).
+- 9b1ca1: needs kongState's value as a register candidate defined at 0x12cc (a load of 0x58(sp) feeding 0x12ec and
+  0x1434) that is coloured AFTER the constant 2 (v1): a narrow alias gives everything but that order (3). Untried:
+  natural code that lowers that candidate's priority below the constant-2 piece without the dead use, or an s32
+  form that uopt does not copy-propagate (Q0510 lists has_ilod, is_incr, countvars >= 10, availability).
 
 ## Evidence
 0xdf8-0xe1c: `move t1,zero; c.le.s; bc1fl; sb t1,71(sp); li t1,1; sb t1,71(sp)` then `andi t3,t2,1; sb t3,70(sp)`.
@@ -140,3 +154,4 @@ uopt table at base 6fe2a3af: fl[3]/fl[2] were `isvar M 58 -25/-26` without `vreg
 0x12cc: kongState reload `lw a0,0x58(sp)` live to 0x1434 (piece 339, adjsave +0.25 with the dead use).
 0x12f0/0x12f8: turn factor `li v0,-40` / `li v0,-30` (tiltRoll piece 332, adjsave 1.0, v0), never stored to 0x48.
 0x136c/0x1370: buoyancy y in $f12 (tmpA colour), waterY in $f2; 0x14e8: late block waterY in $f2 (cand 24) before y ($f4).
+0x12cc (u8 alias body): `lbu v1,0x5b(sp)`, 0x12e0/0x12e8 `li a0,2`, all else equal (full 3); cand 195 = ucvt{194 ucvtl{kongState}}.
